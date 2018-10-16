@@ -1,16 +1,16 @@
-From: Stephen Hemminger <stephen@networkplumber.org>
-Subject: Re: [RFC] virtio_net: add local_bh_disable() around
-	u64_stats_update_begin
-Date: Tue, 16 Oct 2018 11:44:14 -0700
-Message-ID: <20181016114414.23ea73c3__8316.78338950059$1539715335$gmane$org@xeon-e3>
-References: <20181016165545.guksrl23ulcudxrk@linutronix.de>
-	<20181016110114.73e2b248@xeon-e3>
-	<20181016184206.coukhtgmlr32hyl7@linutronix.de>
+From: Jean-Philippe Brucker <jean-philippe.brucker@arm.com>
+Subject: Re: [PATCH v3 0/7] Add virtio-iommu driver
+Date: Tue, 16 Oct 2018 19:44:09 +0100
+Message-ID: <b2f929c3-b0df-acdc-c5e8-0d7ddf7ed964__48469.5299798206$1539715410$gmane$org@arm.com>
+References: <20181012145917.6840-1-jean-philippe.brucker@arm.com>
+	<7874471b-3711-ca44-d220-5e756ac7db8c@redhat.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset="utf-8"
+Content-Transfer-Encoding: base64
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <20181016184206.coukhtgmlr32hyl7@linutronix.de>
+Content-Disposition: inline
+In-Reply-To: <7874471b-3711-ca44-d220-5e756ac7db8c@redhat.com>
+Content-Language: en-US
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -20,30 +20,55 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Sebastian Andrzej Siewior <bigeasy@linutronix.de>
-Cc: "Michael S. Tsirkin" <mst@redhat.com>, netdev@vger.kernel.org, virtualization@lists.linux-foundation.org, tglx@linutronix.de, "David S. Miller" <davem@davemloft.net>
+To: Auger Eric <eric.auger@redhat.com>, "iommu@lists.linux-foundation.org" <iommu@lists.linux-foundation.org>, "virtualization@lists.linux-foundation.org" <virtualization@lists.linux-foundation.org>, "devicetree@vger.kernel.org" <devicetree@vger.kernel.org>
+Cc: Mark Rutland <Mark.Rutland@arm.com>, "peter.maydell@linaro.org" <peter.maydell@linaro.org>, Lorenzo Pieralisi <Lorenzo.Pieralisi@arm.com>, "tnowicki@caviumnetworks.com" <tnowicki@caviumnetworks.com>, "mst@redhat.com" <mst@redhat.com>, Marc Zyngier <Marc.Zyngier@arm.com>, "linux-pci@vger.kernel.org" <linux-pci@vger.kernel.org>, Will Deacon <Will.Deacon@arm.com>, "kvmarm@lists.cs.columbia.edu" <kvmarm@lists.cs.columbia.edu>, "robh+dt@kernel.org" <robh+dt@kernel.org>, Robin Murphy <Robin.Murphy@arm.com>, "joro@8bytes.org" <joro@8bytes.org>
 List-Id: virtualization@lists.linuxfoundation.org
 
-On Tue, 16 Oct 2018 20:42:07 +0200
-Sebastian Andrzej Siewior <bigeasy@linutronix.de> wrote:
-
-> On 2018-10-16 11:01:14 [-0700], Stephen Hemminger wrote:
-> > On Tue, 16 Oct 2018 18:55:45 +0200
-> > Sebastian Andrzej Siewior <bigeasy@linutronix.de> wrote:
-> >   
-> > > Also, ptr->var++ is not an atomic operation even on 64bit CPUs. Which
-> > > means if try_fill_recv() runs on CPU0 (via virtnet_receive()) then the
-> > > worker might run on CPU1.  
-> > 
-> > On modern CPU's increment of native types is atomic but not locked.
-> > u64_stats_update_begin is a no-op on UP and also if BIT_PER_LONG != 32  
-> 
-> On ARM64 you have load, inc, store. So if two CPUs increment the counter
-> simultaneously we might lose one increment. That is why I asked if we
-> care or not.
-> 
-> Sebastian
-
-The point is that kicks is just a counter, not important as part of the
-device operation. The point of the u64_stats is to avoid problems with
-high/low 32 bit wrap on increment. So this is ok on ARM64.
+T24gMTYvMTAvMjAxOCAxMDoyNSwgQXVnZXIgRXJpYyB3cm90ZToKPiBIaSBKZWFuLAo+IAo+IE9u
+IDEwLzEyLzE4IDQ6NTkgUE0sIEplYW4tUGhpbGlwcGUgQnJ1Y2tlciB3cm90ZToKPj4gSW1wbGVt
+ZW50IHRoZSB2aXJ0aW8taW9tbXUgZHJpdmVyLCBmb2xsb3dpbmcgc3BlY2lmaWNhdGlvbiB2MC44
+IFsxXS4KPj4gQ2hhbmdlcyBzaW5jZSB2MiBbMl06Cj4+IAo+PiAqIFBhdGNoZXMgMi00IGFsbG93
+IHZpcnRpby1pb21tdSB0byB1c2UgdGhlIFBDSSB0cmFuc3BvcnQsIHNpbmNlIFFFTVUKPj7CoMKg
+IHdvdWxkIGxpa2UgdG8gcGhhc2Ugb3V0IHRoZSBNTUlPIHRyYW5zcG9ydC4gVGhpcyBwcm9kdWNl
+cyBhIGNvbXBsZXgKPj7CoMKgIHRvcG9sb2d5IHdoZXJlIHRoZSBwcm9ncmFtbWluZyBpbnRlcmZh
+Y2Ugb2YgdGhlIElPTU1VIGNvdWxkIGFwcGVhcgo+PsKgwqAgbG93ZXIgdGhhbiB0aGUgZW5kcG9p
+bnRzIHRoYXQgaXQgdHJhbnNsYXRlcy4gSXQncyBub3QgdW5oZWFyZCBvZiAoZS5nLgo+PsKgwqAg
+QU1EIElPTU1VKSwgYW5kIHRoZSBndWVzdCBlYXNpbHkgY29wZXMgd2l0aCB0aGlzLgo+PsKgwqAg
+Cj4+wqDCoCBUaGUgIkZpcm13YXJlIGRlc2NyaXB0aW9uIiBzZWN0aW9uIG9mIHRoZSBzcGVjaWZp
+Y2F0aW9uIGhhcyBiZWVuCj4+wqDCoCB1cGRhdGVkIHdpdGggYWxsIGNvbWJpbmF0aW9ucyBvZiBQ
+Q0ksIE1NSU8gYW5kIERULCBBQ1BJLgo+IAo+IEkgaGF2ZSBhIHF1ZXN0aW9uIHdydCB0aGUgRlcg
+c3BlY2lmaWNhdGlvbi4gVGhlIElPTU1VIGNvbnN1bWVzIDEgc2xvdCBpbgo+IHRoZSBQQ0kgZG9t
+YWluIGFuZCBvbmUgbmVlZHMgdG8gbGVhdmUgYSBSSUQgaG9sZSBpbiB0aGUgaW9tbXUtbWFwLsKg
+IEl0Cj4gaXMgbm90IG9idmlvdXMgdG8gbWUgdGhhdCB0aGlzIFJJRCBhbHdheXMgaXMgcHJlZGlj
+dGFibGUgZ2l2ZW4gdGhlIHBjaWUKPiBlbnVtZXJhdGlvbiBtZWNoYW5pc20uIEdlbmVyYWxseSB3
+ZSBoYXZlIGEgY29hcnNlIGdyYWluIG1hcHBpbmcgb2YgUklECj4gb250byBpb21tdSBwaGFuZGxl
+cy9TVFJFQU1JRHMuIEhlcmUsIGlmIEkgdW5kZXJzdGFuZCBjb3JyZWN0bHkgd2UgbmVlZAo+IHRv
+IHByZWNpc2VseSBpZGVudGlmeSB0aGUgUklEIGdyYW50ZWQgdG8gdGhlIGlvbW11LiBPbiBRRU1V
+IHRoaXMgbWF5Cj4gZGVwZW5kIG9uIHRoZSBpbnN0YW50aWF0aW9uIG9yZGVyIG9mIHRoZSB2aXJ0
+aW8tcGNpIGRldmljZSByaWdodD8KClllcywgYWx0aG91Z2ggaXQgc2hvdWxkIGFsbCBoYXBwZW4g
+YmVmb3JlIHlvdSBib290IHRoZSBndWVzdCwgc2luY2UKdGhlcmUgaXMgbm8gaG90cGx1Z2dpbmcg
+YW4gSU9NTVUuIENvdWxkIHlvdSByZXNlcnZlIGEgUENJIHNsb3QgdXBmcm9udAphbmQgdXNlIGl0
+IGZvciB2aXJ0aW8taW9tbXUgbGF0ZXI/IE9yIGdlbmVyYXRlIHRoZSBpb21tdS1tYXAgYXQgdGhl
+IHNhbWUKdGltZSBhcyBnZW5lcmF0aW5nIHRoZSBjaGlsZCBub2RlIG9mIHRoZSBQQ0kgUkM/Cgo+
+IFNvCj4gdGhpcyBkb2VzIG5vdCBsb29rIHRyaXZpYWwgdG8gYnVpbGQgdGhpcyBpbmZvLiBJc24n
+dCBpdCBwb3NzaWJsZSB0byBkbwo+IHRoaXMgZXhjbHVzaW9uIGF0IGtlcm5lbCBsZXZlbCBpbnN0
+ZWFkPwoKU28gaW4gdGhlb3J5IFZJUlRJT19GX0lPTU1VX1BMQVRGT1JNIGFscmVhZHkgZG9lcyB0
+aGF0OgoKVklSVElPX0ZfSU9NTVVfUExBVEZPUk0oMzMpCiAgICBUaGlzIGZlYXR1cmUgaW5kaWNh
+dGVzIHRoYXQgdGhlIGRldmljZSBpcyBiZWhpbmQgYW4gSU9NTVUgdGhhdAogICAgdHJhbnNsYXRl
+cyBidXMgYWRkcmVzc2VzIGZyb20gdGhlIGRldmljZSBpbnRvIHBoeXNpY2FsIGFkZHJlc3NlcyBp
+bgogICAgbWVtb3J5LiBJZiB0aGlzIGZlYXR1cmUgYml0IGlzIHNldCB0byAwLCB0aGVuIHRoZSBk
+ZXZpY2UgZW1pdHMKICAgIHBoeXNpY2FsIGFkZHJlc3NlcyB3aGljaCBhcmUgbm90IHRyYW5zbGF0
+ZWQgZnVydGhlciwgZXZlbiB0aG91Z2ggYW4KICAgIElPTU1VIG1heSBiZSBwcmVzZW50LgoKRm9y
+IGJldHRlciBvciBmb3Igd29yc2UsIHRoZSBndWVzdCBoYXMgdG8gaW1wbGVtZW50IGl0LiBJZiB0
+aGlzIGZlYXR1cmUKYml0IGlzIHVuc2V0IGZvciB2aXJ0aW8taW9tbXUsIGl0IGRvZXMgRE1BIG9u
+IHRoZSBwaHlzaWNhbCBhZGRyZXNzCnNwYWNlLCByZWdhcmRsZXNzIG9mIHdoYXQgdGhlIHN0YXRp
+YyB0b3BvbG9neSBkZXNjcmlwdGlvbiBzYXlzLgoKSW4gcHJhY3RpY2UgaXQgZG9lc24ndCBxdWl0
+ZSB3b3JrLiBJZiB5b3VyIGlvbW11LW1hcCBkZXNjcmliZXMgdGhlIElPTU1VCmFzIHRyYW5zbGF0
+aW5nIGl0c2VsZiwgTGludXgnIE9GIGNvZGUgd2lsbCB3YWl0IGZvciB0aGUgSU9NTVUgdG8gYmUK
+cHJvYmVkIGJlZm9yZSBwcm9iaW5nIHRoZSBJT01NVS4gV29ya2luZyBhcm91bmQgdGhpcyB3aXRo
+IGhhY2tzIGlzCnBvc3NpYmxlLCBidXQgSSBkb24ndCB3YW50IHRvIGludHJvZHVjZSBtb3JlIHF1
+ZXN0aW9uYWJsZSBjb2RlIHRvIE9GIGFuZApkZXZpY2UgdHJlZSBiaW5kaW5ncyBpZiB0aGVyZSBp
+cyBhbnkgb3RoZXIgd2F5LgoKVGhhbmtzLApKZWFuCl9fX19fX19fX19fX19fX19fX19fX19fX19f
+X19fX19fX19fX19fX19fX19fX19fClZpcnR1YWxpemF0aW9uIG1haWxpbmcgbGlzdApWaXJ0dWFs
+aXphdGlvbkBsaXN0cy5saW51eC1mb3VuZGF0aW9uLm9yZwpodHRwczovL2xpc3RzLmxpbnV4Zm91
+bmRhdGlvbi5vcmcvbWFpbG1hbi9saXN0aW5mby92aXJ0dWFsaXphdGlvbg==
