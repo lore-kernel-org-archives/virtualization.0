@@ -1,20 +1,13 @@
-From: Jason Wang <jasowang@redhat.com>
-Subject: Re: [PATCH] virtio_net: enable tx after resuming from suspend
-Date: Tue, 16 Oct 2018 16:53:12 +0800
-Message-ID: <024619cc-9b1b-dac2-18cc-5d757a76b1e3__21219.549739226$1539679888$gmane$org@redhat.com>
-References: <20181011075127.2608-1-ake@igel.co.jp>
-	<dd530053-efab-b661-3423-1faaab8fb12f@redhat.com>
-	<7e87b140-79ae-c79e-40ed-dc76b38eeae4@igel.co.jp>
-	<a156fd7e-e36e-e4e9-c240-3117ecc5b1b4@redhat.com>
-	<b294cbba-24a0-939d-98e8-d1483e3688a1@igel.co.jp>
-	<4918ed7c-4c63-6f19-530b-8e16b0c496d4@redhat.com>
-	<1aff0ad2-9d63-6d38-6b25-5c681eafdfb2@igel.co.jp>
-	<e2baaccc-4ead-e61d-fc1e-d79435012e1c@igel.co.jp>
+From: Auger Eric <eric.auger@redhat.com>
+Subject: Re: [PATCH v3 0/7] Add virtio-iommu driver
+Date: Tue, 16 Oct 2018 11:25:42 +0200
+Message-ID: <7874471b-3711-ca44-d220-5e756ac7db8c__17221.1693403826$1539681837$gmane$org@redhat.com>
+References: <20181012145917.6840-1-jean-philippe.brucker@arm.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="utf-8"; Format="flowed"
-Content-Transfer-Encoding: base64
+Content-Type: text/plain; charset="us-ascii"
+Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <e2baaccc-4ead-e61d-fc1e-d79435012e1c@igel.co.jp>
+In-Reply-To: <20181012145917.6840-1-jean-philippe.brucker@arm.com>
 Content-Language: en-US
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
@@ -25,92 +18,97 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: ake <ake@igel.co.jp>
-Cc: netdev@vger.kernel.org, virtualization@lists.linux-foundation.org, "David S. Miller" <davem@davemloft.net>, linux-kernel@vger.kernel.org, "Michael S. Tsirkin" <mst@redhat.com>
+To: Jean-Philippe Brucker <jean-philippe.brucker@arm.com>, iommu@lists.linux-foundation.org, virtualization@lists.linux-foundation.org, devicetree@vger.kernel.org
+Cc: mark.rutland@arm.com, peter.maydell@linaro.org, lorenzo.pieralisi@arm.com, tnowicki@caviumnetworks.com, mst@redhat.com, marc.zyngier@arm.com, linux-pci@vger.kernel.org, will.deacon@arm.com, kvmarm@lists.cs.columbia.edu, robh+dt@kernel.org, robin.murphy@arm.com, joro@8bytes.org
 List-Id: virtualization@lists.linuxfoundation.org
 
-Ck9uIDIwMTgvMTAvMTUg5LiL5Y2INjowOCwgYWtlIHdyb3RlOgo+Cj4gT24gMjAxOOW5tDEw5pyI
-MTLml6UgMTg6MTgsIGFrZSB3cm90ZToKPj4KPj4gT24gMjAxOOW5tDEw5pyIMTLml6UgMTc6MjMs
-IEphc29uIFdhbmcgd3JvdGU6Cj4+Pgo+Pj4gT24gMjAxOOW5tDEw5pyIMTLml6UgMTI6MzAsIGFr
-ZSB3cm90ZToKPj4+PiBPbiAyMDE45bm0MTDmnIgxMeaXpSAyMjowNiwgSmFzb24gV2FuZyB3cm90
-ZToKPj4+Pj4gT24gMjAxOOW5tDEw5pyIMTHml6UgMTg6MjIsIGFrZSB3cm90ZToKPj4+Pj4+IE9u
-IDIwMTjlubQxMOaciDEx5pelIDE4OjQ0LCBKYXNvbiBXYW5nIHdyb3RlOgo+Pj4+Pj4+IE9uIDIw
-MTjlubQxMOaciDEx5pelIDE1OjUxLCBBa2UgS29vbXNpbiB3cm90ZToKPj4+Pj4+Pj4gY29tbWl0
-IDcxM2E5OGQ5MGM1ZSAoInZpcnRpby1uZXQ6IHNlcmlhbGl6ZSB0eCByb3V0aW5lIGR1cmluZyBy
-ZXNldCIpCj4+Pj4+Pj4+IGRpc2FibGVkIHRoZSB2aXJ0aW8gdHggYmVmb3JlIGdvaW5nIHRvIHN1
-c3BlbmQgdG8gYXZvaWQgYSB1c2UgYWZ0ZXIKPj4+Pj4+Pj4gZnJlZS4KPj4+Pj4+Pj4gSG93ZXZl
-ciwgYWZ0ZXIgcmVzdW1pbmcsIGl0IGNhdXNlcyB0aGUgdmlydGlvX25ldCBkZXZpY2UgdG8gbG9z
-ZSBpdHMKPj4+Pj4+Pj4gbmV0d29yayBjb25uZWN0aXZpdHkuCj4+Pj4+Pj4+Cj4+Pj4+Pj4+IFRv
-IHNvbHZlIHRoZSBpc3N1ZSwgd2UgbmVlZCB0byBlbmFibGUgdHggYWZ0ZXIgcmVzdW1pbmcuCj4+
-Pj4+Pj4+Cj4+Pj4+Pj4+IEZpeGVzIGNvbW1pdCA3MTNhOThkOTBjNWUgKCJ2aXJ0aW8tbmV0OiBz
-ZXJpYWxpemUgdHggcm91dGluZSBkdXJpbmcKPj4+Pj4+Pj4gcmVzZXQiKQo+Pj4+Pj4+PiBTaWdu
-ZWQtb2ZmLWJ5OiBBa2UgS29vbXNpbiA8YWtlQGlnZWwuY28uanA+Cj4+Pj4+Pj4+IC0tLQo+Pj4+
-Pj4+PiAgwqDCoMKgIGRyaXZlcnMvbmV0L3ZpcnRpb19uZXQuYyB8IDEgKwo+Pj4+Pj4+PiAgwqDC
-oMKgIDEgZmlsZSBjaGFuZ2VkLCAxIGluc2VydGlvbigrKQo+Pj4+Pj4+Pgo+Pj4+Pj4+PiBkaWZm
-IC0tZ2l0IGEvZHJpdmVycy9uZXQvdmlydGlvX25ldC5jIGIvZHJpdmVycy9uZXQvdmlydGlvX25l
-dC5jCj4+Pj4+Pj4+IGluZGV4IGRhYjUwNGVjNWU1MC4uMzQ1M2Q4MGY1ZjgxIDEwMDY0NAo+Pj4+
-Pj4+PiAtLS0gYS9kcml2ZXJzL25ldC92aXJ0aW9fbmV0LmMKPj4+Pj4+Pj4gKysrIGIvZHJpdmVy
-cy9uZXQvdmlydGlvX25ldC5jCj4+Pj4+Pj4+IEBAIC0yMjU2LDYgKzIyNTYsNyBAQCBzdGF0aWMg
-aW50IHZpcnRuZXRfcmVzdG9yZV91cChzdHJ1Y3QKPj4+Pj4+Pj4gdmlydGlvX2RldmljZSAqdmRl
-dikKPj4+Pj4+Pj4gIMKgwqDCoMKgwqDCoMKgIH0KPj4+Pj4+Pj4gIMKgwqDCoCDCoMKgwqDCoMKg
-IG5ldGlmX2RldmljZV9hdHRhY2godmktPmRldik7Cj4+Pj4+Pj4+ICvCoMKgwqAgbmV0aWZfc3Rh
-cnRfcXVldWUodmktPmRldik7Cj4+Pj4+Pj4gSSBiZWxpZXZlIHRoaXMgaXMgZHVwbGljYXRlZCB3
-aXRoIG5ldGlmX3R4X3dha2VfYWxsX3F1ZXVlcygpIGluCj4+Pj4+Pj4gbmV0aWZfZGV2aWNlX2F0
-dGFjaCgpIGFib3ZlPwo+Pj4+Pj4gVGhhbmsgeW91IGZvciB5b3VyIHJldmlldy4KPj4+Pj4+Cj4+
-Pj4+PiBJZiBib3RoIG5ldGlmX3R4X3dha2VfYWxsX3F1ZXVlcygpIGFuZCBuZXRpZl9zdGFydF9x
-dWV1ZSgpIHJlc3VsdCBpbgo+Pj4+Pj4gY2xlYXJpbmcgX19RVUVVRV9TVEFURV9EUlZfWE9GRiwg
-dGhlbiBpcyBpdCBwb3NzaWJsZSB0aGF0IHNvbWUKPj4+Pj4+IGNvbmRpdGlvbnMgaW4gbmV0aWZf
-ZGV2aWNlX2F0dGFjaCgpIGlzIG5vdCBzYXRpc2ZpZWQ/Cj4+Pj4+IFllcywgbWF5YmUuIE9uZSBj
-YXNlIEkgY2FuIHNlZSBub3cgaXMgd2hlbiB0aGUgZGV2aWNlIGlzIGRvd24sIGluIHRoaXMKPj4+
-Pj4gY2FzZSBuZXRpZl9kZXZpY2VfYXR0YWNoKCkgd29uJ3QgdHJ5IHRvIHdha2V1cCB0aGUgcXVl
-dWUuCj4+Pj4+Cj4+Pj4+PiAgwqDCoCBXaXRob3V0Cj4+Pj4+PiBuZXRpZl9zdGFydF9xdWV1ZSgp
-LCB0aGUgdmlydGlvX25ldCBkZXZpY2UgZG9lcyBub3QgcmVzdW1lIHByb3Blcmx5Cj4+Pj4+PiBh
-ZnRlciB3YWtpbmcgdXAuCj4+Pj4+IEhvdyBkbyB5b3UgdHJpZ2dlciB0aGUgaXNzdWU/IEp1c3Qg
-ZG8gc3VzcGVuZC9yZXN1bWU/Cj4+Pj4gWWVzLCBzaW1wbHkgc3VzcGVuZCBhbmQgcmVzdW1lLgo+
-Pj4+Cj4+Pj4gSGVyZSBpcyBob3cgSSB0cmlnZ2VyIHRoZSBpc3N1ZToKPj4+Pgo+Pj4+IDEpIFN0
-YXJ0IHRoZSBWaXJ0dWFsIE1hY2hpbmUgTWFuYWdlciBHVUkgcHJvZ3JhbS4KPj4+PiAyKSBDcmVh
-dGUgYSBndWVzdCBMaW51eCBPUy4gTWFrZSBzdXJlIHRoYXQgdGhlIGd1ZXN0IE9TIGtlcm5lbCBp
-cwo+Pj4+ICDCoMKgwqAgPj0gNC4xMi4gTWFrZSBzdXJlIHRoYXQgaXQgdXNlcyB2aXJ0aW9fbmV0
-IGFzIGl0cyBuZXR3b3JrIGRldmljZS4KPj4+PiAgwqDCoMKgIEluIGFkZGl0aW9uLCBtYWtlIHN1
-cmUgdGhhdCB0aGUgdmlkZW8gYWRhcHRlciBpcyBWR0EuIE90aGVyd2lzZSwKPj4+PiAgwqDCoMKg
-IHdha2luZyB1cCB3aXRoIHRoZSB2aXJ0dWFsIHBvd2VyIGJ1dHRvbiBkb2VzIG5vdCB3b3JrLgo+
-Pj4+IDMpIEFmdGVyIGluc3RhbGxpbmcgdGhlIGd1ZXN0IE9TLCBsb2cgaW4sIGFuZCB0ZXN0IHRo
-ZSBuZXR3b3JrCj4+Pj4gIMKgwqDCoCBjb25uZWN0aXZpdHkgYnkgcGluZyB0aGUgaG9zdCBtYWNo
-aW5lLgo+Pj4+IDQpIFN1c3BlbmQuIEFmdGVyIHRoaXMsIHRoZSBzY3JlZW4gaXMgYmxhbmsuCj4+
-Pj4gNSkgUmVzdW1lIGJ5IGhpdHRpbmcgdGhlIHZpcnR1YWwgcG93ZXIgYnV0dG9uLiBUaGUgbG9n
-aW4gc2NyZWVuCj4+Pj4gIMKgwqDCoCBhcHBlYXJzIGFnYWluLgo+Pj4+IDYpIExvZyBpbiBhZ2Fp
-bi4gVGhlIGd1ZXN0IGxvc2VzIGl0cyBuZXR3b3JrIGNvbm5lY3Rpb24uCj4+Pj4KPj4+PiBJbiBt
-eSB0ZXN0Ogo+Pj4+IEd1ZXN0OiBVYnVudHUgMTYuMDQvMTguMDQgd2l0aCBrZXJuZWwgNC4xNS4w
-LTM2LWdlbmVyaWMKPj4+PiBIb3N0OiBVYnVudHUgMTYuMDQgd2l0aCBrZXJuZWwgNC4xNS4wLTM2
-LWdlbmVyaWMvNC40LjAtMTM3LWdlbmVyaWMKPj4+IEkgY2FuIG5vdCByZXByb2R1Y2UgdGhpcyBp
-c3N1ZSBpZiB2aXJ0aW8tbmV0IGludGVyZmFjZSBpcyB1cCBpbiBndWVzdAo+Pj4gYmVmb3JlIHRo
-ZSBzdXNwZW5kLiBJJ20gdXNpbmcgbmV0LW5leHQuZ2l0IGFuZCBxZW11IG1hc3Rlci4gQnV0IEkg
-ZG8KPj4+IHJlcHJvZHVjZSB3aGVuIHZpcnRpby1uZXQgaW50ZXJmYWNlIGlzIGRvd24gaW4gZ3Vl
-c3QgYmVmb3JlIHN1c3BlbmQsCj4+PiBhZnRlciByZXN1bWUsIGV2ZW4gaWYgSSBtYWtlIGl0IHVw
-LCB0aGUgbmV0d29yayBpcyBzdGlsbCBsb3N0Lgo+Pj4KPj4+IEkgdGhpbmsgdGhlIGludGVyZmFj
-ZSBpcyB1cCBpbiB5b3VyIGNhc2UsIGJ1dCBwbGVhc2UgY29uZmlybSB0aGlzLgo+PiBJZiB5b3Ug
-bWVhbiB0aGUgaW50ZXJmYWNlIHN0YXRlIGJlZm9yZSBJIGhpdCB0aGUgc3VzcGVuZCBidXR0b24s
-Cj4+IHRoZSBhbnN3ZXIgaXMgeWVzLiBUaGUgaW50ZXJmYWNlIGlzIHVwIGJlZm9yZSBJIHN1c3Bl
-bmQgdGhlIGd1ZXN0Cj4+IG1hY2hpbmUuCj4+Cj4+IE5vdGUgdGhhdCBteSBjdXJyZW50IFFFTVUg
-dmVyc2lvbiBpcyBRRU1VIGVtdWxhdG9yIHZlcnNpb24gMi41LjAKPj4gKERlYmlhbiAxOjIuNStk
-ZnNnLTV1YnVudHUxMC4zMikuCj4+Cj4+IEkgd2lsbCB0cnkgd2l0aCBuZXQtbmV4dC5naXQgYW5k
-IHFlbXUgbWFzdGVyIGxhdGVyIGFuZCBzZWUgaWYgSSBjYW4KPj4gcmVwcm9kdWNlIHRoZSBpc3N1
-ZS4KPiBVcGRhdGUuIEkgdHJpZWQgd2l0aCBuZXQtbmV4dCBhbmQgcWVtdSBtYXN0ZXIuIEludGVy
-ZXN0aW5nbHksIHRoZSByZXN1bHQKPiBpcyBkaWZmZXJlbnQgZnJvbSB5b3Vycy4gVGhlIG5ldHdv
-cmsgaXMgbG9zdCBldmVuIGlmIHRoZSB2aXJ0aW9fbmV0Cj4gaW50ZXJmYWNlIGlzIHVwIGJlZm9y
-ZSBzdXNwZW5kaW5nLgo+Cj4gSG9zdDogVWJ1bnR1IDE2LjA0IHdpdGggbmV0LW5leHQga2VybmVs
-IChkZWZhdWx0IGNvbmZpZ3VyYXRpb24pCj4gR3Vlc3Q6IFVidW50dSAxOC4wNCB3aXRoIG5ldC1u
-ZXh0IGtlcm5lbCAoZGVmYXVsdCBjb25maWd1cmF0aW9uKQo+IFFlbXU6IG1hc3Rlcgo+IFFlbXUg
-Y29tbWFuZDoKPiBxZW11LXN5c3RlbS14ODZfNjQgLWNwdSBob3N0IC1tIDIwNDggLWVuYWJsZS1r
-dm0gXAo+IC1iaW9zIC91c3Ivc2hhcmUvT1ZNRi9PVk1GX0NPREUuZmQgXAo+IC1kcml2ZSBmaWxl
-PS92YXIvbGliL2xpYnZpcnQvaW1hZ2VzL3ZpcnRpb190ZXN0LnFjb3cyLGlmPXZpcnRpbyBcCj4g
-LW5ldGRldiB1c2VyLGlkPWhvc3RuZXQwIFwKPiAtZGV2aWNlIHZpcnRpby1uZXQtcGNpLG5ldGRl
-dj1ob3N0bmV0MCBcCj4gLWRldmljZSBWR0EsaWQ9dmlkZW8wLHZnYW1lbV9tYj0xNiBcCj4gLWds
-b2JhbCBQSUlYNF9QTS5kaXNhYmxlX3MzPTEgXAo+IC1nbG9iYWwgUElJWDRfUE0uZGlzYWJsZV9z
-ND0xIC1tb25pdG9yIHN0ZGlvCgoKSW50ZXJlc3RpbmcsIGp1c3Qgbm90aWNlIHlvdSdyZSB1c2lu
-ZyB1c2Vyc3BhY2UgbmV0d29yay4gVG8gaXNvbGF0ZSB0aGUgCmlzc3VlLCBjYW4geW91IHJldHJ5
-IHdpdGggZS5nIHRhcCBvciBlMTAwMCB0byBtYWtlIHN1cmUgaXQncyBub3QgYSBmYXVsdCAKb2Yg
-c2xpcnAgb3IgdmlyaXRvLW5ldD8KClRoYW5rcwoKX19fX19fX19fX19fX19fX19fX19fX19fX19f
-X19fX19fX19fX19fX19fX19fX18KVmlydHVhbGl6YXRpb24gbWFpbGluZyBsaXN0ClZpcnR1YWxp
-emF0aW9uQGxpc3RzLmxpbnV4LWZvdW5kYXRpb24ub3JnCmh0dHBzOi8vbGlzdHMubGludXhmb3Vu
-ZGF0aW9uLm9yZy9tYWlsbWFuL2xpc3RpbmZvL3ZpcnR1YWxpemF0aW9u
+Hi Jean,
+
+On 10/12/18 4:59 PM, Jean-Philippe Brucker wrote:
+> Implement the virtio-iommu driver, following specification v0.8 [1].
+> Changes since v2 [2]:
+> 
+> * Patches 2-4 allow virtio-iommu to use the PCI transport, since QEMU
+>   would like to phase out the MMIO transport. This produces a complex
+>   topology where the programming interface of the IOMMU could appear
+>   lower than the endpoints that it translates. It's not unheard of (e.g.
+>   AMD IOMMU), and the guest easily copes with this.
+>   
+>   The "Firmware description" section of the specification has been
+>   updated with all combinations of PCI, MMIO and DT, ACPI.
+
+I have a question wrt the FW specification. The IOMMU consumes 1 slot in
+the PCI domain and one needs to leave a RID hole in the iommu-map.  It
+is not obvious to me that this RID always is predictable given the pcie
+enumeration mechanism. Generally we have a coarse grain mapping of RID
+onto iommu phandles/STREAMIDs. Here, if I understand correctly we need
+to precisely identify the RID granted to the iommu. On QEMU this may
+depend on the instantiation order of the virtio-pci device right? So
+this does not look trivial to build this info. Isn't it possible to do
+this exclusion at kernel level instead?
+
+Thanks
+
+Eric
+> 
+> * Fix structures layout, they don't need the "packed" attribute anymore.
+> 
+> * While we're at it, add domain parameter to DETACH request, and leave
+>   some padding. This way the next version, that adds PASID support,
+>   won't have to introduce a "DETACH2" request to stay backward
+>   compatible.
+> 
+> * Require virtio device 1.0+. Remove legacy transport notes from the
+>   specification.
+> 
+> * Request timeout is now only enabled with DEBUG.
+> 
+> * The patch for VFIO Kconfig (previously patch 5/5) is in next.
+> 
+> You can find Linux driver and kvmtool device on branches
+> virtio-iommu/v0.8 [3] (currently based on 4.19-rc7 but rebasing onto
+> next only produced a trivial conflict). Branch virtio-iommu/devel
+> contains a few patches that I'd like to send once the base is upstream:
+> 
+> * virtio-iommu as a module. It got *much* nicer after Rob's probe
+>   deferral rework, but I still have a bug to fix when re-loading the
+>   virtio-iommu module.
+> 
+> * ACPI support requires a minor IORT spec update (reservation of node
+>   ID). I think it should be easier to obtain once the device and drivers
+>   are upstream.
+> 
+> [1] Virtio-iommu specification v0.8, diff from v0.7, and sources
+>     git://linux-arm.org/virtio-iommu.git virtio-iommu/v0.8
+>     http://jpbrucker.net/virtio-iommu/spec/v0.8/virtio-iommu-v0.8.pdf
+>     http://jpbrucker.net/virtio-iommu/spec/diffs/virtio-iommu-pdf-diff-v0.7-v0.8.pdf
+> 
+> [2] [PATCH v2 0/5] Add virtio-iommu driver
+>     https://www.spinics.net/lists/kvm/msg170655.html
+> 
+> [3] git://linux-arm.org/linux-jpb.git virtio-iommu/v0.8
+>     git://linux-arm.org/kvmtool-jpb.git virtio-iommu/v0.8
+> 
+> Jean-Philippe Brucker (7):
+>   dt-bindings: virtio-mmio: Add IOMMU description
+>   dt-bindings: virtio: Add virtio-pci-iommu node
+>   PCI: OF: allow endpoints to bypass the iommu
+>   PCI: OF: Initialize dev->fwnode appropriately
+>   iommu: Add virtio-iommu driver
+>   iommu/virtio: Add probe request
+>   iommu/virtio: Add event queue
+> 
+>  .../devicetree/bindings/virtio/iommu.txt      |   66 +
+>  .../devicetree/bindings/virtio/mmio.txt       |   30 +
+>  MAINTAINERS                                   |    7 +
+>  drivers/iommu/Kconfig                         |   11 +
+>  drivers/iommu/Makefile                        |    1 +
+>  drivers/iommu/virtio-iommu.c                  | 1171 +++++++++++++++++
+>  drivers/pci/of.c                              |   14 +-
+>  include/uapi/linux/virtio_ids.h               |    1 +
+>  include/uapi/linux/virtio_iommu.h             |  159 +++
+>  9 files changed, 1457 insertions(+), 3 deletions(-)
+>  create mode 100644 Documentation/devicetree/bindings/virtio/iommu.txt
+>  create mode 100644 drivers/iommu/virtio-iommu.c
+>  create mode 100644 include/uapi/linux/virtio_iommu.h
+> 
