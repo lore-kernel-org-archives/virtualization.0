@@ -1,8 +1,8 @@
 From: Stephen Hemminger <stephen@networkplumber.org>
 Subject: Re: [RFC] virtio_net: add local_bh_disable() around
 	u64_stats_update_begin
-Date: Tue, 16 Oct 2018 10:59:30 -0700
-Message-ID: <20181016105930.55e8fe5d__44016.6341294118$1539712652$gmane$org@xeon-e3>
+Date: Tue, 16 Oct 2018 11:01:14 -0700
+Message-ID: <20181016110114.73e2b248__8686.69576379961$1539712811$gmane$org@xeon-e3>
 References: <20181016165545.guksrl23ulcudxrk@linutronix.de>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
@@ -25,88 +25,9 @@ List-Id: virtualization@lists.linuxfoundation.org
 On Tue, 16 Oct 2018 18:55:45 +0200
 Sebastian Andrzej Siewior <bigeasy@linutronix.de> wrote:
 
-> on 32bit, lockdep notices:
-> | ================================
-> | WARNING: inconsistent lock state
-> | 4.19.0-rc8+ #9 Tainted: G        W
-> | --------------------------------
-> | inconsistent {SOFTIRQ-ON-W} -> {IN-SOFTIRQ-W} usage.
-> | ip/1106 [HC0[0]:SC1[1]:HE1:SE0] takes:
-> | (ptrval) (&syncp->seq#2){+.?.}, at: net_rx_action+0xc8/0x380
-> | {SOFTIRQ-ON-W} state was registered at:
-> |   lock_acquire+0x7e/0x170
-> |   try_fill_recv+0x5fa/0x700
-> |   virtnet_open+0xe0/0x180
-> |   __dev_open+0xae/0x130
-> |   __dev_change_flags+0x17f/0x200
-> |   dev_change_flags+0x23/0x60
-> |   do_setlink+0x2bb/0xa20
-> |   rtnl_newlink+0x523/0x830
-> |   rtnetlink_rcv_msg+0x14b/0x470
-> |   netlink_rcv_skb+0x6e/0xf0
-> |   rtnetlink_rcv+0xd/0x10
-> |   netlink_unicast+0x16e/0x1f0
-> |   netlink_sendmsg+0x1af/0x3a0
-> |   ___sys_sendmsg+0x20f/0x240
-> |   __sys_sendmsg+0x39/0x80
-> |   sys_socketcall+0x13a/0x2a0
-> |   do_int80_syscall_32+0x50/0x180
-> |   restore_all+0x0/0xb2
-> | irq event stamp: 3326
-> | hardirqs last  enabled at (3326): [<c159e6d0>] net_rx_action+0x80/0x380
-> | hardirqs last disabled at (3325): [<c159e6aa>] net_rx_action+0x5a/0x380
-> | softirqs last  enabled at (3322): [<c14b440d>] virtnet_napi_enable+0xd/0x60
-> | softirqs last disabled at (3323): [<c101d63d>] call_on_stack+0xd/0x50
-> |
-> | other info that might help us debug this:
-> |  Possible unsafe locking scenario:
-> |
-> |        CPU0
-> |        ----
-> |   lock(&syncp->seq#2);
-> |   <Interrupt>
-> |     lock(&syncp->seq#2);
-> |
-> |  *** DEADLOCK ***
-> 
-> This is the "up" path which is not a hotpath. There is also
-> refill_work().
-> It might be unwise to add the local_bh_disable() to try_fill_recv()
-> because if it is used mostly in BH so that local_bh_en+dis might be a
-> waste of cycles.
-> 
-> Adding local_bh_disable() around try_fill_recv() for the non-BH call
-> sites would render GFP_KERNEL pointless.
-> 
 > Also, ptr->var++ is not an atomic operation even on 64bit CPUs. Which
 > means if try_fill_recv() runs on CPU0 (via virtnet_receive()) then the
 > worker might run on CPU1.
-> 
-> Do we care or is this just stupid stats?  Any suggestions?
-> 
-> This warning appears since commit 461f03dc99cf6 ("virtio_net: Add kick stats").
-> 
-> Signed-off-by: Sebastian Andrzej Siewior <bigeasy@linutronix.de>
-> ---
->  drivers/net/virtio_net.c | 2 ++
->  1 file changed, 2 insertions(+)
-> 
-> diff --git a/drivers/net/virtio_net.c b/drivers/net/virtio_net.c
-> index dab504ec5e502..d782160cfa882 100644
-> --- a/drivers/net/virtio_net.c
-> +++ b/drivers/net/virtio_net.c
-> @@ -1206,9 +1206,11 @@ static bool try_fill_recv(struct virtnet_info *vi, struct receive_queue *rq,
->  			break;
->  	} while (rq->vq->num_free);
->  	if (virtqueue_kick_prepare(rq->vq) && virtqueue_notify(rq->vq)) {
-> +		local_bh_disable();
->  		u64_stats_update_begin(&rq->stats.syncp);
->  		rq->stats.kicks++;
->  		u64_stats_update_end(&rq->stats.syncp);
-> +		local_bh_enable();
->  	}
->  
->  	return !oom;
 
-Since there already is u64_stats_update_begin_irqsave inline, why not introduce
-u64_stats_update_begin_bh which encapsulates the local_bh_disable
+On modern CPU's increment of native types is atomic but not locked.
+u64_stats_update_begin is a no-op on UP and also if BIT_PER_LONG != 32
