@@ -1,19 +1,16 @@
-From: Jason Wang <jasowang@redhat.com>
-Subject: Re: [RFC] VSOCK: The performance problem of vhost_vsock.
-Date: Wed, 17 Oct 2018 20:31:03 +0800
-Message-ID: <70e7a894-ad12-9909-a0a8-c8772c7c232f__46188.2873242304$1539779732$gmane$org@redhat.com>
-References: <5BC3F0D4.60409@huawei.com>
-	<30d7c370-b206-cdac-dc85-53e9be1e1c63@redhat.com>
-	<5BC42FD8.2070104@huawei.com> <5BC70069.4000600@huawei.com>
-	<d16d2052-bfb1-7861-e210-b53b4ea3260c@redhat.com>
-	<8edff784-b311-bfb6-1bf4-1970d564279d@redhat.com>
-	<5BC72006.9010000@huawei.com>
+From: "Michael S. Tsirkin" <mst@redhat.com>
+Subject: Re: [PATCH v3] virtio_net: avoid using netif_tx_disable() for
+	serializing tx routine
+Date: Wed, 17 Oct 2018 11:09:20 -0400
+Message-ID: <20181017110741-mutt-send-email-mst__6070.35126672617$1539788840$gmane$org@kernel.org>
+References: <276ac5bb-90f7-5fb6-a826-0bb05ecfa069@redhat.com>
+	<20181017104419.13003-1-ake@igel.co.jp>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="utf-8"; Format="flowed"
-Content-Transfer-Encoding: base64
+Content-Type: text/plain; charset="us-ascii"
+Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <5BC72006.9010000@huawei.com>
-Content-Language: en-US
+Content-Disposition: inline
+In-Reply-To: <20181017104419.13003-1-ake@igel.co.jp>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -23,42 +20,61 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: jiangyiwen <jiangyiwen@huawei.com>, stefanha@redhat.com
-Cc: netdev@vger.kernel.org, kvm@vger.kernel.org, virtualization@lists.linux-foundation.org
+To: Ake Koomsin <ake@igel.co.jp>
+Cc: netdev@vger.kernel.org, "David S. Miller" <davem@davemloft.net>, linux-kernel@vger.kernel.org, virtualization@lists.linux-foundation.org
 List-Id: virtualization@lists.linuxfoundation.org
 
-Ck9uIDIwMTgvMTAvMTcg5LiL5Y2INzo0MSwgamlhbmd5aXdlbiB3cm90ZToKPiBPbiAyMDE4LzEw
-LzE3IDE3OjUxLCBKYXNvbiBXYW5nIHdyb3RlOgo+PiBPbiAyMDE4LzEwLzE3IOS4i+WNiDU6Mzks
-IEphc29uIFdhbmcgd3JvdGU6Cj4+Pj4gSGkgSmFzb24gYW5kIFN0ZWZhbiwKPj4+Pgo+Pj4+IE1h
-eWJlIEkgZmluZCB0aGUgcmVhc29uIG9mIGJhZCBwZXJmb3JtYW5jZS4KPj4+Pgo+Pj4+IEkgZm91
-bmQgcGt0X2xlbiBpcyBsaW1pdGVkIHRvIFZJUlRJT19WU09DS19ERUZBVUxUX1JYX0JVRl9TSVpF
-KDRLKSwKPj4+PiBpdCB3aWxsIGNhdXNlIHRoZSBiYW5kd2lkdGggaXMgbGltaXRlZCB0byA1MDB+
-NjAwTUIvcy4gQW5kIG9uY2UgSQo+Pj4+IGluY3JlYXNlIHRvIDY0aywgaXQgY2FuIGltcHJvdmUg
-YWJvdXQgMyB0aW1lcyh+MTUwME1CL3MpLgo+Pj4KPj4+IExvb2tzIGxpa2UgdGhlIHZhbHVlIHdh
-cyBjaG9zZW4gZm9yIGEgYmFsYW5jZSBiZXR3ZWVuIHJ4IGJ1ZmZlciBzaXplIGFuZCBwZXJmb3Jt
-YW5jZS4gQWxsb2NhdGluZyA2NEsgYWx3YXlzIGV2ZW4gZm9yIHNtYWxsIHBhY2tldCBpcyBraW5k
-IG9mIHdhc3RlIGFuZCBzdHJlc3MgZm9yIGd1ZXN0IG1lbW9yeS4gVmlyaXRvLW5ldCB0cnkgdG8g
-YXZvaWQgdGhpcyBieSBpbnZlbnRpbmcgdGhlIG1lcmdlIGFibGUgcnggYnVmZmVyIHdoaWNoIGFs
-bG93cyBiaWcgcGFja2V0IHRvIGJlIHNjYXR0ZXJlZCBpbiBpbnRvIGRpZmZlcmVudCBidWZmZXJz
-LiBXZSBjYW4gcmV1c2UgdGhpcyBpZGVhIG9yIHJldmlzaXQgdGhlIGlkZWEgb2YgdXNpbmcgdmly
-dGlvLW5ldC92aG9zdC1uZXQgYXMgYSB0cmFuc3BvcnQgb2YgdnNvY2suCj4+Pgo+Pj4gV2hhdCBp
-bnRlcmVzdGluZyBpcyB0aGUgcGVyZm9ybWFuY2UgaXMgc3RpbGwgYmVoaW5kIHZob3N0LW5ldC4K
-Pj4+Cj4+PiBUaGFua3MKPj4+Cj4+Pj4gQnkgdGhlIHdheSwgSSBzZW5kIHRvIDY0SyBpbiBhcHBs
-aWNhdGlvbiBvbmNlLCBhbmQgSSBkb24ndCB1c2UKPj4+PiBzZ19pbml0X29uZSBhbmQgcmV3cml0
-ZSBmdW5jdGlvbiB0byBwYWNrZXQgc2cgbGlzdCBiZWNhdXNlIHBrdF9sZW4KPj4+PiBpbmNsdWRl
-IG11bHRpcGxlIHBhZ2VzLgo+Pj4+Cj4+Pj4gVGhhbmtzLAo+Pj4+IFlpd2VuLgo+Pgo+PiBCdHcs
-IGlmIHlvdSdyZSB1c2luZyB2c29jayBmb3IgdHJhbnNmZXJyaW5nIGxhcmdlIGZpbGVzLCBtYXli
-ZSBpdCdzIG1vcmUgZWZmaWNpZW50IHRvIGltcGxlbWVudCBzZW5kcGFnZSgpIGZvciB2c29jayB0
-byBhbGxvdyBzZW5kZmlsZSgpL3NwbGljZSgpIHdvcmsuCj4+Cj4+IFRoYW5rcwo+Pgo+IEkgY2Fu
-J3QgYWdyZWUgbW9yZS4KPgo+IHdoeSB2aG9zdF92c29jayBpcyBzdGlsbCBiZWhpbmQgdmhvc3Rf
-bmV0Pwo+IEJlY2F1c2UgSSB1c2Ugc2VuZGZpbGUoKSB0byB0ZXN0IHBlcmZvcm1hbmNlIGF0IGZp
-cnN0LCBhbmQgdGhlbgo+IEkgZm91bmQgdnNvY2sgZG9uJ3QgaW1wbGVtZW50IHNlbmRwYWdlKCkg
-YW5kIGNhdXNlIHRoZSBiYW5kd2lkdGgKPiBjYW4ndCBiZSBpbmNyZWFzZWQuIFNvIEkgdXNlIHJl
-YWQoKSBhbmQgc2VuZCgpIHRvIHJlcGxhY2Ugc2VuZGZpbGUoKSwKPiBpdCB3aWxsIGluY3JlYXNl
-IHNvbWUgc3dpdGNoIGJldHdlZW4ga2VybmVsIGFuZCB1c2VyIG1vZGUsIGFuZCBzZW5kZmlsZSgp
-Cj4gY2FuIHN1cHBvcnQgemVybyBjb3B5LiBJIHRoaW5rIHRoaXMgaXMgbWFpbiByZWFzb24uCj4K
-PiBUaGFua3MuCgoKV2FudCB0byBwb3N0IHBhdGNoZXMgZm9yIHRoaXMgdGhlbiA6KSA/CgpUaGFu
-a3MKCgo+Cj4+IC4KPj4KPgpfX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19f
-X19fX19fXwpWaXJ0dWFsaXphdGlvbiBtYWlsaW5nIGxpc3QKVmlydHVhbGl6YXRpb25AbGlzdHMu
-bGludXgtZm91bmRhdGlvbi5vcmcKaHR0cHM6Ly9saXN0cy5saW51eGZvdW5kYXRpb24ub3JnL21h
-aWxtYW4vbGlzdGluZm8vdmlydHVhbGl6YXRpb24=
+On Wed, Oct 17, 2018 at 07:44:12PM +0900, Ake Koomsin wrote:
+> Commit 713a98d90c5e ("virtio-net: serialize tx routine during reset")
+> introduces netif_tx_disable() after netif_device_detach() in order to
+> avoid use-after-free of tx queues. However, there are two issues.
+> 
+> 1) Its operation is redundant with netif_device_detach() in case the
+>    interface is running.
+> 2) In case of the interface is not running before suspending and
+>    resuming, the tx does not get resumed by netif_device_attach().
+>    This results in losing network connectivity.
+> 
+> It is better to use netif_tx_lock_bh()/netif_tx_unlock_bh() instead for
+> serializing tx routine during reset. This also preserves the symmetry
+> of netif_device_detach() and netif_device_attach().
+> 
+> Fixes commit 713a98d90c5e ("virtio-net: serialize tx routine during reset")
+> Signed-off-by: Ake Koomsin <ake@igel.co.jp>
+
+Acked-by: Michael S. Tsirkin <mst@redhat.com>
+
+Thanks a lot for debugging!
+Seems like stable material to me, right?
+
+> ---
+>  drivers/net/virtio_net.c | 5 ++++-
+>  1 file changed, 4 insertions(+), 1 deletion(-)
+> 
+> diff --git a/drivers/net/virtio_net.c b/drivers/net/virtio_net.c
+> index 3f5aa59c37b7..3e2c041d76ac 100644
+> --- a/drivers/net/virtio_net.c
+> +++ b/drivers/net/virtio_net.c
+> @@ -2267,8 +2267,9 @@ static void virtnet_freeze_down(struct virtio_device *vdev)
+>  	/* Make sure no work handler is accessing the device */
+>  	flush_work(&vi->config_work);
+>  
+> +	netif_tx_lock_bh(vi->dev);
+>  	netif_device_detach(vi->dev);
+> -	netif_tx_disable(vi->dev);
+> +	netif_tx_unlock_bh(vi->dev);
+>  	cancel_delayed_work_sync(&vi->refill);
+>  
+>  	if (netif_running(vi->dev)) {
+> @@ -2304,7 +2305,9 @@ static int virtnet_restore_up(struct virtio_device *vdev)
+>  		}
+>  	}
+>  
+> +	netif_tx_lock_bh(vi->dev);
+>  	netif_device_attach(vi->dev);
+> +	netif_tx_unlock_bh(vi->dev);
+>  	return err;
+>  }
+>  
+> -- 
+> 2.19.1
