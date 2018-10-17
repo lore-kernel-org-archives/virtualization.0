@@ -1,14 +1,22 @@
-From: Toshiaki Makita <makita.toshiaki@lab.ntt.co.jp>
-Subject: Re: [RFC] virtio_net: add local_bh_disable() around
-	u64_stats_update_begin
-Date: Wed, 17 Oct 2018 10:13:38 +0900
-Message-ID: <68582c17-27bf-43f4-cbe5-96ec712a704c__1929.73126327178$1539740739$gmane$org@lab.ntt.co.jp>
-References: <20181016165545.guksrl23ulcudxrk@linutronix.de>
+From: Jason Wang <jasowang@redhat.com>
+Subject: Re: [PATCH] virtio_net: enable tx after resuming from suspend
+Date: Wed, 17 Oct 2018 14:18:23 +0800
+Message-ID: <f04bee7a-3892-102d-2be0-f4fda4048e74__17312.3932596811$1539756990$gmane$org@redhat.com>
+References: <20181011075127.2608-1-ake@igel.co.jp>
+	<dd530053-efab-b661-3423-1faaab8fb12f@redhat.com>
+	<7e87b140-79ae-c79e-40ed-dc76b38eeae4@igel.co.jp>
+	<a156fd7e-e36e-e4e9-c240-3117ecc5b1b4@redhat.com>
+	<b294cbba-24a0-939d-98e8-d1483e3688a1@igel.co.jp>
+	<4918ed7c-4c63-6f19-530b-8e16b0c496d4@redhat.com>
+	<1aff0ad2-9d63-6d38-6b25-5c681eafdfb2@igel.co.jp>
+	<e2baaccc-4ead-e61d-fc1e-d79435012e1c@igel.co.jp>
+	<024619cc-9b1b-dac2-18cc-5d757a76b1e3@redhat.com>
+	<0e8b0747-cc9f-8863-2ee1-2b032d6c0fae@igel.co.jp>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset="utf-8"; Format="flowed"
+Content-Transfer-Encoding: base64
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <20181016165545.guksrl23ulcudxrk@linutronix.de>
+In-Reply-To: <0e8b0747-cc9f-8863-2ee1-2b032d6c0fae@igel.co.jp>
 Content-Language: en-US
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
@@ -19,102 +27,112 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Sebastian Andrzej Siewior <bigeasy@linutronix.de>, netdev@vger.kernel.org, virtualization@lists.linux-foundation.org
-Cc: tglx@linutronix.de, "David S. Miller" <davem@davemloft.net>, "Michael S. Tsirkin" <mst@redhat.com>
+To: ake <ake@igel.co.jp>
+Cc: netdev@vger.kernel.org, virtualization@lists.linux-foundation.org, "David S. Miller" <davem@davemloft.net>, linux-kernel@vger.kernel.org, "Michael S. Tsirkin" <mst@redhat.com>
 List-Id: virtualization@lists.linuxfoundation.org
 
-On 2018/10/17 1:55, Sebastian Andrzej Siewior wrote:
-> on 32bit, lockdep notices:
-> | ================================
-> | WARNING: inconsistent lock state
-> | 4.19.0-rc8+ #9 Tainted: G        W
-> | --------------------------------
-> | inconsistent {SOFTIRQ-ON-W} -> {IN-SOFTIRQ-W} usage.
-> | ip/1106 [HC0[0]:SC1[1]:HE1:SE0] takes:
-> | (ptrval) (&syncp->seq#2){+.?.}, at: net_rx_action+0xc8/0x380
-> | {SOFTIRQ-ON-W} state was registered at:
-> |   lock_acquire+0x7e/0x170
-> |   try_fill_recv+0x5fa/0x700
-> |   virtnet_open+0xe0/0x180
-> |   __dev_open+0xae/0x130
-> |   __dev_change_flags+0x17f/0x200
-> |   dev_change_flags+0x23/0x60
-> |   do_setlink+0x2bb/0xa20
-> |   rtnl_newlink+0x523/0x830
-> |   rtnetlink_rcv_msg+0x14b/0x470
-> |   netlink_rcv_skb+0x6e/0xf0
-> |   rtnetlink_rcv+0xd/0x10
-> |   netlink_unicast+0x16e/0x1f0
-> |   netlink_sendmsg+0x1af/0x3a0
-> |   ___sys_sendmsg+0x20f/0x240
-> |   __sys_sendmsg+0x39/0x80
-> |   sys_socketcall+0x13a/0x2a0
-> |   do_int80_syscall_32+0x50/0x180
-> |   restore_all+0x0/0xb2
-> | irq event stamp: 3326
-> | hardirqs last  enabled at (3326): [<c159e6d0>] net_rx_action+0x80/0x380
-> | hardirqs last disabled at (3325): [<c159e6aa>] net_rx_action+0x5a/0x380
-> | softirqs last  enabled at (3322): [<c14b440d>] virtnet_napi_enable+0xd/0x60
-> | softirqs last disabled at (3323): [<c101d63d>] call_on_stack+0xd/0x50
-> |
-> | other info that might help us debug this:
-> |  Possible unsafe locking scenario:
-> |
-> |        CPU0
-> |        ----
-> |   lock(&syncp->seq#2);
-> |   <Interrupt>
-> |     lock(&syncp->seq#2);
-> |
-> |  *** DEADLOCK ***
-
-IIUC try_fill_recv is called only when NAPI is disabled from process
-context, so there should be no point to race with virtnet_receive which
-is called from NAPI handler.
-
-I'm not sure what condition triggered this warning.
-
-
-Toshiaki Makita
-
-
-> 
-> This is the "up" path which is not a hotpath. There is also
-> refill_work().
-> It might be unwise to add the local_bh_disable() to try_fill_recv()
-> because if it is used mostly in BH so that local_bh_en+dis might be a
-> waste of cycles.
-> 
-> Adding local_bh_disable() around try_fill_recv() for the non-BH call
-> sites would render GFP_KERNEL pointless.
-> 
-> Also, ptr->var++ is not an atomic operation even on 64bit CPUs. Which
-> means if try_fill_recv() runs on CPU0 (via virtnet_receive()) then the
-> worker might run on CPU1.
-> 
-> Do we care or is this just stupid stats?  Any suggestions?
-> 
-> This warning appears since commit 461f03dc99cf6 ("virtio_net: Add kick stats").
-> 
-> Signed-off-by: Sebastian Andrzej Siewior <bigeasy@linutronix.de>
-> ---
->  drivers/net/virtio_net.c | 2 ++
->  1 file changed, 2 insertions(+)
-> 
-> diff --git a/drivers/net/virtio_net.c b/drivers/net/virtio_net.c
-> index dab504ec5e502..d782160cfa882 100644
-> --- a/drivers/net/virtio_net.c
-> +++ b/drivers/net/virtio_net.c
-> @@ -1206,9 +1206,11 @@ static bool try_fill_recv(struct virtnet_info *vi, struct receive_queue *rq,
->  			break;
->  	} while (rq->vq->num_free);
->  	if (virtqueue_kick_prepare(rq->vq) && virtqueue_notify(rq->vq)) {
-> +		local_bh_disable();
->  		u64_stats_update_begin(&rq->stats.syncp);
->  		rq->stats.kicks++;
->  		u64_stats_update_end(&rq->stats.syncp);
-> +		local_bh_enable();
->  	}
->  
->  	return !oom;
-> 
+Ck9uIDIwMTgvMTAvMTYg5LiL5Y2INjoxNSwgYWtlIHdyb3RlOgo+Cj4gT24gMjAxOOW5tDEw5pyI
+MTbml6UgMTc6NTMsIEphc29uIFdhbmcgd3JvdGU6Cj4+IE9uIDIwMTgvMTAvMTUg5LiL5Y2INjow
+OCwgYWtlIHdyb3RlOgo+Pj4gT24gMjAxOOW5tDEw5pyIMTLml6UgMTg6MTgsIGFrZSB3cm90ZToK
+Pj4+PiBPbiAyMDE45bm0MTDmnIgxMuaXpSAxNzoyMywgSmFzb24gV2FuZyB3cm90ZToKPj4+Pj4g
+T24gMjAxOOW5tDEw5pyIMTLml6UgMTI6MzAsIGFrZSB3cm90ZToKPj4+Pj4+IE9uIDIwMTjlubQx
+MOaciDEx5pelIDIyOjA2LCBKYXNvbiBXYW5nIHdyb3RlOgo+Pj4+Pj4+IE9uIDIwMTjlubQxMOac
+iDEx5pelIDE4OjIyLCBha2Ugd3JvdGU6Cj4+Pj4+Pj4+IE9uIDIwMTjlubQxMOaciDEx5pelIDE4
+OjQ0LCBKYXNvbiBXYW5nIHdyb3RlOgo+Pj4+Pj4+Pj4gT24gMjAxOOW5tDEw5pyIMTHml6UgMTU6
+NTEsIEFrZSBLb29tc2luIHdyb3RlOgo+Pj4+Pj4+Pj4+IGNvbW1pdCA3MTNhOThkOTBjNWUgKCJ2
+aXJ0aW8tbmV0OiBzZXJpYWxpemUgdHggcm91dGluZSBkdXJpbmcKPj4+Pj4+Pj4+PiByZXNldCIp
+Cj4+Pj4+Pj4+Pj4gZGlzYWJsZWQgdGhlIHZpcnRpbyB0eCBiZWZvcmUgZ29pbmcgdG8gc3VzcGVu
+ZCB0byBhdm9pZCBhIHVzZQo+Pj4+Pj4+Pj4+IGFmdGVyCj4+Pj4+Pj4+Pj4gZnJlZS4KPj4+Pj4+
+Pj4+PiBIb3dldmVyLCBhZnRlciByZXN1bWluZywgaXQgY2F1c2VzIHRoZSB2aXJ0aW9fbmV0IGRl
+dmljZSB0bwo+Pj4+Pj4+Pj4+IGxvc2UgaXRzCj4+Pj4+Pj4+Pj4gbmV0d29yayBjb25uZWN0aXZp
+dHkuCj4+Pj4+Pj4+Pj4KPj4+Pj4+Pj4+PiBUbyBzb2x2ZSB0aGUgaXNzdWUsIHdlIG5lZWQgdG8g
+ZW5hYmxlIHR4IGFmdGVyIHJlc3VtaW5nLgo+Pj4+Pj4+Pj4+Cj4+Pj4+Pj4+Pj4gRml4ZXMgY29t
+bWl0IDcxM2E5OGQ5MGM1ZSAoInZpcnRpby1uZXQ6IHNlcmlhbGl6ZSB0eCByb3V0aW5lCj4+Pj4+
+Pj4+Pj4gZHVyaW5nCj4+Pj4+Pj4+Pj4gcmVzZXQiKQo+Pj4+Pj4+Pj4+IFNpZ25lZC1vZmYtYnk6
+IEFrZSBLb29tc2luIDxha2VAaWdlbC5jby5qcD4KPj4+Pj4+Pj4+PiAtLS0KPj4+Pj4+Pj4+PiAg
+wqDCoMKgwqAgZHJpdmVycy9uZXQvdmlydGlvX25ldC5jIHwgMSArCj4+Pj4+Pj4+Pj4gIMKgwqDC
+oMKgIDEgZmlsZSBjaGFuZ2VkLCAxIGluc2VydGlvbigrKQo+Pj4+Pj4+Pj4+Cj4+Pj4+Pj4+Pj4g
+ZGlmZiAtLWdpdCBhL2RyaXZlcnMvbmV0L3ZpcnRpb19uZXQuYyBiL2RyaXZlcnMvbmV0L3ZpcnRp
+b19uZXQuYwo+Pj4+Pj4+Pj4+IGluZGV4IGRhYjUwNGVjNWU1MC4uMzQ1M2Q4MGY1ZjgxIDEwMDY0
+NAo+Pj4+Pj4+Pj4+IC0tLSBhL2RyaXZlcnMvbmV0L3ZpcnRpb19uZXQuYwo+Pj4+Pj4+Pj4+ICsr
+KyBiL2RyaXZlcnMvbmV0L3ZpcnRpb19uZXQuYwo+Pj4+Pj4+Pj4+IEBAIC0yMjU2LDYgKzIyNTYs
+NyBAQCBzdGF0aWMgaW50IHZpcnRuZXRfcmVzdG9yZV91cChzdHJ1Y3QKPj4+Pj4+Pj4+PiB2aXJ0
+aW9fZGV2aWNlICp2ZGV2KQo+Pj4+Pj4+Pj4+ICDCoMKgwqDCoMKgwqDCoMKgIH0KPj4+Pj4+Pj4+
+PiAgwqDCoMKgwqAgwqDCoMKgwqDCoCBuZXRpZl9kZXZpY2VfYXR0YWNoKHZpLT5kZXYpOwo+Pj4+
+Pj4+Pj4+ICvCoMKgwqAgbmV0aWZfc3RhcnRfcXVldWUodmktPmRldik7Cj4+Pj4+Pj4+PiBJIGJl
+bGlldmUgdGhpcyBpcyBkdXBsaWNhdGVkIHdpdGggbmV0aWZfdHhfd2FrZV9hbGxfcXVldWVzKCkg
+aW4KPj4+Pj4+Pj4+IG5ldGlmX2RldmljZV9hdHRhY2goKSBhYm92ZT8KPj4+Pj4+Pj4gVGhhbmsg
+eW91IGZvciB5b3VyIHJldmlldy4KPj4+Pj4+Pj4KPj4+Pj4+Pj4gSWYgYm90aCBuZXRpZl90eF93
+YWtlX2FsbF9xdWV1ZXMoKSBhbmQgbmV0aWZfc3RhcnRfcXVldWUoKSByZXN1bHQgaW4KPj4+Pj4+
+Pj4gY2xlYXJpbmcgX19RVUVVRV9TVEFURV9EUlZfWE9GRiwgdGhlbiBpcyBpdCBwb3NzaWJsZSB0
+aGF0IHNvbWUKPj4+Pj4+Pj4gY29uZGl0aW9ucyBpbiBuZXRpZl9kZXZpY2VfYXR0YWNoKCkgaXMg
+bm90IHNhdGlzZmllZD8KPj4+Pj4+PiBZZXMsIG1heWJlLiBPbmUgY2FzZSBJIGNhbiBzZWUgbm93
+IGlzIHdoZW4gdGhlIGRldmljZSBpcyBkb3duLCBpbgo+Pj4+Pj4+IHRoaXMKPj4+Pj4+PiBjYXNl
+IG5ldGlmX2RldmljZV9hdHRhY2goKSB3b24ndCB0cnkgdG8gd2FrZXVwIHRoZSBxdWV1ZS4KPj4+
+Pj4+Pgo+Pj4+Pj4+PiAgwqDCoMKgIFdpdGhvdXQKPj4+Pj4+Pj4gbmV0aWZfc3RhcnRfcXVldWUo
+KSwgdGhlIHZpcnRpb19uZXQgZGV2aWNlIGRvZXMgbm90IHJlc3VtZSBwcm9wZXJseQo+Pj4+Pj4+
+PiBhZnRlciB3YWtpbmcgdXAuCj4+Pj4+Pj4gSG93IGRvIHlvdSB0cmlnZ2VyIHRoZSBpc3N1ZT8g
+SnVzdCBkbyBzdXNwZW5kL3Jlc3VtZT8KPj4+Pj4+IFllcywgc2ltcGx5IHN1c3BlbmQgYW5kIHJl
+c3VtZS4KPj4+Pj4+Cj4+Pj4+PiBIZXJlIGlzIGhvdyBJIHRyaWdnZXIgdGhlIGlzc3VlOgo+Pj4+
+Pj4KPj4+Pj4+IDEpIFN0YXJ0IHRoZSBWaXJ0dWFsIE1hY2hpbmUgTWFuYWdlciBHVUkgcHJvZ3Jh
+bS4KPj4+Pj4+IDIpIENyZWF0ZSBhIGd1ZXN0IExpbnV4IE9TLiBNYWtlIHN1cmUgdGhhdCB0aGUg
+Z3Vlc3QgT1Mga2VybmVsIGlzCj4+Pj4+PiAgwqDCoMKgwqAgPj0gNC4xMi4gTWFrZSBzdXJlIHRo
+YXQgaXQgdXNlcyB2aXJ0aW9fbmV0IGFzIGl0cyBuZXR3b3JrIGRldmljZS4KPj4+Pj4+ICDCoMKg
+wqDCoCBJbiBhZGRpdGlvbiwgbWFrZSBzdXJlIHRoYXQgdGhlIHZpZGVvIGFkYXB0ZXIgaXMgVkdB
+LiBPdGhlcndpc2UsCj4+Pj4+PiAgwqDCoMKgwqAgd2FraW5nIHVwIHdpdGggdGhlIHZpcnR1YWwg
+cG93ZXIgYnV0dG9uIGRvZXMgbm90IHdvcmsuCj4+Pj4+PiAzKSBBZnRlciBpbnN0YWxsaW5nIHRo
+ZSBndWVzdCBPUywgbG9nIGluLCBhbmQgdGVzdCB0aGUgbmV0d29yawo+Pj4+Pj4gIMKgwqDCoMKg
+IGNvbm5lY3Rpdml0eSBieSBwaW5nIHRoZSBob3N0IG1hY2hpbmUuCj4+Pj4+PiA0KSBTdXNwZW5k
+LiBBZnRlciB0aGlzLCB0aGUgc2NyZWVuIGlzIGJsYW5rLgo+Pj4+Pj4gNSkgUmVzdW1lIGJ5IGhp
+dHRpbmcgdGhlIHZpcnR1YWwgcG93ZXIgYnV0dG9uLiBUaGUgbG9naW4gc2NyZWVuCj4+Pj4+PiAg
+wqDCoMKgwqAgYXBwZWFycyBhZ2Fpbi4KPj4+Pj4+IDYpIExvZyBpbiBhZ2Fpbi4gVGhlIGd1ZXN0
+IGxvc2VzIGl0cyBuZXR3b3JrIGNvbm5lY3Rpb24uCj4+Pj4+Pgo+Pj4+Pj4gSW4gbXkgdGVzdDoK
+Pj4+Pj4+IEd1ZXN0OiBVYnVudHUgMTYuMDQvMTguMDQgd2l0aCBrZXJuZWwgNC4xNS4wLTM2LWdl
+bmVyaWMKPj4+Pj4+IEhvc3Q6IFVidW50dSAxNi4wNCB3aXRoIGtlcm5lbCA0LjE1LjAtMzYtZ2Vu
+ZXJpYy80LjQuMC0xMzctZ2VuZXJpYwo+Pj4+PiBJIGNhbiBub3QgcmVwcm9kdWNlIHRoaXMgaXNz
+dWUgaWYgdmlydGlvLW5ldCBpbnRlcmZhY2UgaXMgdXAgaW4gZ3Vlc3QKPj4+Pj4gYmVmb3JlIHRo
+ZSBzdXNwZW5kLiBJJ20gdXNpbmcgbmV0LW5leHQuZ2l0IGFuZCBxZW11IG1hc3Rlci4gQnV0IEkg
+ZG8KPj4+Pj4gcmVwcm9kdWNlIHdoZW4gdmlydGlvLW5ldCBpbnRlcmZhY2UgaXMgZG93biBpbiBn
+dWVzdCBiZWZvcmUgc3VzcGVuZCwKPj4+Pj4gYWZ0ZXIgcmVzdW1lLCBldmVuIGlmIEkgbWFrZSBp
+dCB1cCwgdGhlIG5ldHdvcmsgaXMgc3RpbGwgbG9zdC4KPj4+Pj4KPj4+Pj4gSSB0aGluayB0aGUg
+aW50ZXJmYWNlIGlzIHVwIGluIHlvdXIgY2FzZSwgYnV0IHBsZWFzZSBjb25maXJtIHRoaXMuCj4+
+Pj4gSWYgeW91IG1lYW4gdGhlIGludGVyZmFjZSBzdGF0ZSBiZWZvcmUgSSBoaXQgdGhlIHN1c3Bl
+bmQgYnV0dG9uLAo+Pj4+IHRoZSBhbnN3ZXIgaXMgeWVzLiBUaGUgaW50ZXJmYWNlIGlzIHVwIGJl
+Zm9yZSBJIHN1c3BlbmQgdGhlIGd1ZXN0Cj4+Pj4gbWFjaGluZS4KPj4+Pgo+Pj4+IE5vdGUgdGhh
+dCBteSBjdXJyZW50IFFFTVUgdmVyc2lvbiBpcyBRRU1VIGVtdWxhdG9yIHZlcnNpb24gMi41LjAK
+Pj4+PiAoRGViaWFuIDE6Mi41K2Rmc2ctNXVidW50dTEwLjMyKS4KPj4+Pgo+Pj4+IEkgd2lsbCB0
+cnkgd2l0aCBuZXQtbmV4dC5naXQgYW5kIHFlbXUgbWFzdGVyIGxhdGVyIGFuZCBzZWUgaWYgSSBj
+YW4KPj4+PiByZXByb2R1Y2UgdGhlIGlzc3VlLgo+Pj4gVXBkYXRlLiBJIHRyaWVkIHdpdGggbmV0
+LW5leHQgYW5kIHFlbXUgbWFzdGVyLiBJbnRlcmVzdGluZ2x5LCB0aGUgcmVzdWx0Cj4+PiBpcyBk
+aWZmZXJlbnQgZnJvbSB5b3Vycy4gVGhlIG5ldHdvcmsgaXMgbG9zdCBldmVuIGlmIHRoZSB2aXJ0
+aW9fbmV0Cj4+PiBpbnRlcmZhY2UgaXMgdXAgYmVmb3JlIHN1c3BlbmRpbmcuCj4+Pgo+Pj4gSG9z
+dDogVWJ1bnR1IDE2LjA0IHdpdGggbmV0LW5leHQga2VybmVsIChkZWZhdWx0IGNvbmZpZ3VyYXRp
+b24pCj4+PiBHdWVzdDogVWJ1bnR1IDE4LjA0IHdpdGggbmV0LW5leHQga2VybmVsIChkZWZhdWx0
+IGNvbmZpZ3VyYXRpb24pCj4+PiBRZW11OiBtYXN0ZXIKPj4+IFFlbXUgY29tbWFuZDoKPj4+IHFl
+bXUtc3lzdGVtLXg4Nl82NCAtY3B1IGhvc3QgLW0gMjA0OCAtZW5hYmxlLWt2bSBcCj4+PiAtYmlv
+cyAvdXNyL3NoYXJlL09WTUYvT1ZNRl9DT0RFLmZkIFwKPj4+IC1kcml2ZSBmaWxlPS92YXIvbGli
+L2xpYnZpcnQvaW1hZ2VzL3ZpcnRpb190ZXN0LnFjb3cyLGlmPXZpcnRpbyBcCj4+PiAtbmV0ZGV2
+IHVzZXIsaWQ9aG9zdG5ldDAgXAo+Pj4gLWRldmljZSB2aXJ0aW8tbmV0LXBjaSxuZXRkZXY9aG9z
+dG5ldDAgXAo+Pj4gLWRldmljZSBWR0EsaWQ9dmlkZW8wLHZnYW1lbV9tYj0xNiBcCj4+PiAtZ2xv
+YmFsIFBJSVg0X1BNLmRpc2FibGVfczM9MSBcCj4+PiAtZ2xvYmFsIFBJSVg0X1BNLmRpc2FibGVf
+czQ9MSAtbW9uaXRvciBzdGRpbwo+Pgo+PiBJbnRlcmVzdGluZywganVzdCBub3RpY2UgeW91J3Jl
+IHVzaW5nIHVzZXJzcGFjZSBuZXR3b3JrLiBUbyBpc29sYXRlIHRoZQo+PiBpc3N1ZSwgY2FuIHlv
+dSByZXRyeSB3aXRoIGUuZyB0YXAgb3IgZTEwMDAgdG8gbWFrZSBzdXJlIGl0J3Mgbm90IGEgZmF1
+bHQKPj4gb2Ygc2xpcnAgb3IgdmlyaXRvLW5ldD8KPiBJIHdpbGwgdHJ5Lgo+Cj4+IFRoYW5rcwo+
+Pgo+IFRoZXJlIGlzIGFub3RoZXIgdGhpbmcgdGhhdCBJIHdhbnQgdG8gZGlzY3Vzcy4gSSBub3Rp
+Y2UgdGhhdAo+IG5ldGlmX2RldmljZV9kZXRhY2goKSBzaG91bGQgcmVzdWx0IGluIHNldHRpbmcg
+X19RVUVVRV9TVEFURV9EUlZfWE9GRiBpZgo+IHRoZSBuZXR3b3JrIGludGVyZmFjZSBpcyBydW5u
+aW5nLiBCeSBjYWxsaW5nIG5ldGlmX3R4X2Rpc2FibGUoKSBhZnRlcgo+IG5ldGlmX2RldmljZV9k
+ZXRhY2goKSwgaXNuJ3QgaXQgcmVkdW5kYW50IGluIGNhc2Ugb2YgdGhlIG5ldHdvcmsKPiBpbnRl
+cmZhY2UgaXMgcnVubmluZz8gSWYgdGhlIGdvYWwgaXMgdG8gc2VyaWFsaXplIHR4IHJvdXRpbmUs
+IHdvdWxkCj4gbmV0aWZfdHhfbG9jaygpIGFuZCBuZXRfdHhfdW5sb2NrKCkgYXJlIG1vcmUgYXBw
+cm9wcmlhdGU/IExpa2UgdGhpczoKPgo+IG5ldGlmX3R4X2xvY2sodmktPmRldik7Cj4gbmV0aWZf
+ZGV2aWNlX2RldGFjaCh2aS0+ZGV2KTsKPiBuZXRpZl90eF91bmxvY2sodmktPmRldik7Cj4KPiBD
+dXJyZW50bHksIG5ldGlmX3R4X2Rpc2FibGUoKSBzZWVtcyB0byBkaXN0dXJiIHRoZSBzeW1tZXRy
+eSBvZgo+IG5ldGlmX2RldmljZV9kZXRhY2goKSBhbmQgbmV0aWZfZGV2aWNlX2F0dGFjaCgpLiBU
+aGF0IGlzIHRoZSByZWFzb24KPiB3aHkgeW91IGNhbiByZXByb2R1Y2UgdGhlIHByb2JsZW0gd2hl
+biB0aGUgaW50ZXJmYWNlIGlzIGRvd24gYmVmb3JlCj4gc3VzcGVuZGluZy4KCgpZZXMgSSBhZ3Jl
+ZS4KClRoYW5rcwoKX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19f
+X18KVmlydHVhbGl6YXRpb24gbWFpbGluZyBsaXN0ClZpcnR1YWxpemF0aW9uQGxpc3RzLmxpbnV4
+LWZvdW5kYXRpb24ub3JnCmh0dHBzOi8vbGlzdHMubGludXhmb3VuZGF0aW9uLm9yZy9tYWlsbWFu
+L2xpc3RpbmZvL3ZpcnR1YWxpemF0aW9u
