@@ -1,13 +1,19 @@
 From: Gerd Hoffmann <kraxel@redhat.com>
-Subject: [PATCH v3] virtio-gpu: add VIRTIO_GPU_F_EDID feature
-Date: Thu, 18 Oct 2018 08:39:46 +0200
-Message-ID: <20181018063946.22919-2-kraxel__7477.75920103795$1539844727$gmane$org@redhat.com>
-References: <20181018063946.22919-1-kraxel@redhat.com>
+Subject: Re: [PATCH 7/8] drm/virtio: move virtio_gpu_object_{attach, detach}
+	calls.
+Date: Thu, 18 Oct 2018 09:00:04 +0200
+Message-ID: <20181018070004.mplea3ozamph6uzu__1288.14187269217$1539845889$gmane$org@sirius.home.kraxel.org>
+References: <20181001103222.11924-1-kraxel@redhat.com>
+	<20181001103222.11924-8-kraxel@redhat.com>
+	<CAPM=9tx3vX_HLyGqvSitCTb=v5QN4tk4TjbwhreLhnT8BytHEg@mail.gmail.com>
+	<20181018061059.d32xhg6ijlvpqyvi@sirius.home.kraxel.org>
+	<CAPM=9tzwcPtOfNuoKdbSY0=EBsbsKgM04HZpzAazPEmDbQOXSw@mail.gmail.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <20181018063946.22919-1-kraxel@redhat.com>
+Content-Disposition: inline
+In-Reply-To: <CAPM=9tzwcPtOfNuoKdbSY0=EBsbsKgM04HZpzAazPEmDbQOXSw@mail.gmail.com>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -17,70 +23,40 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: "Michael S. Tsirkin" <mst@redhat.com>
-Cc: virtio-dev@lists.oasis-open.org, David Airlie <airlied@linux.ie>, open list <linux-kernel@vger.kernel.org>, dri-devel@lists.freedesktop.org, "open list:VIRTIO GPU DRIVER" <virtualization@lists.linux-foundation.org>
+To: Dave Airlie <airlied@gmail.com>
+Cc: Dave Airlie <airlied@linux.ie>, LKML <linux-kernel@vger.kernel.org>, dri-devel <dri-devel@lists.freedesktop.org>, "open list:VIRTIO CORE,
+	NET..." <virtualization@lists.linux-foundation.org>
 List-Id: virtualization@lists.linuxfoundation.org
 
-The feature allows the guest request an EDID blob (describing monitor
-capabilities) for a given scanout (aka virtual monitor connector).
+> > > This to me feels more like a bind/unbind operation rather than a
+> > > populate/unpopulate operation,
+> > >
+> > > bind is " Bind the backend pages into the aperture in the location"
+> > >
+> > > whereas populate is
+> > >
+> > > allocate pages for a ttm.
+> >
+> > I ran into that trap too ;)
+> >
+> > My first attempt was to map this to bind/unbind.  But this is not
+> > correct and therefore didn't work very well.
+> >
+> > virtio_gpu_object_attach() will send a scatter list of the pages
+> > allocated for the object to the host (so the host knows where to
+> > copy from/to when processing the transfer_from/to calls).  So IMO
+> > it should be done on population not when binding.
+> 
+> Well bind on AGP is the same thing, we'd fill the AGP GART table on
+> bind, so that the AGP GPU could access the pages.
 
-It brings a new command message, which has just a scanout field (beside
-the standard virtio-gpu header) and a response message which carries the
-EDID data.
+> So I'm interested in why using bind/unbind failed if you have some more info?
 
-Signed-off-by: Gerd Hoffmann <kraxel@redhat.com>
-Reviewed-by: Dave Airlie <airlied@redhat.com>
----
- include/uapi/linux/virtio_gpu.h | 16 ++++++++++++++++
- 1 file changed, 16 insertions(+)
+Need to try again to be sure, but IIRC I saw multiple bind/unbind calls
+for the same object.  ttm probably does it to not waste AGB GART address
+space for objects not in use.  But for virtio it is pointless overhead.
+But maybe it is just a matter of taking a reference and keeping it for
+the whole lifetime of the object to make the binding permanent ...
 
-diff --git a/include/uapi/linux/virtio_gpu.h b/include/uapi/linux/virtio_gpu.h
-index f43c3c6171..68198691a6 100644
---- a/include/uapi/linux/virtio_gpu.h
-+++ b/include/uapi/linux/virtio_gpu.h
-@@ -41,6 +41,7 @@
- #include <linux/types.h>
- 
- #define VIRTIO_GPU_F_VIRGL 0
-+#define VIRTIO_GPU_F_EDID  1
- 
- enum virtio_gpu_ctrl_type {
- 	VIRTIO_GPU_UNDEFINED = 0,
-@@ -56,6 +57,7 @@ enum virtio_gpu_ctrl_type {
- 	VIRTIO_GPU_CMD_RESOURCE_DETACH_BACKING,
- 	VIRTIO_GPU_CMD_GET_CAPSET_INFO,
- 	VIRTIO_GPU_CMD_GET_CAPSET,
-+	VIRTIO_GPU_CMD_GET_EDID,
- 
- 	/* 3d commands */
- 	VIRTIO_GPU_CMD_CTX_CREATE = 0x0200,
-@@ -76,6 +78,7 @@ enum virtio_gpu_ctrl_type {
- 	VIRTIO_GPU_RESP_OK_DISPLAY_INFO,
- 	VIRTIO_GPU_RESP_OK_CAPSET_INFO,
- 	VIRTIO_GPU_RESP_OK_CAPSET,
-+	VIRTIO_GPU_RESP_OK_EDID,
- 
- 	/* error responses */
- 	VIRTIO_GPU_RESP_ERR_UNSPEC = 0x1200,
-@@ -291,6 +294,19 @@ struct virtio_gpu_resp_capset {
- 	__u8 capset_data[];
- };
- 
-+/* VIRTIO_GPU_CMD_GET_EDID */
-+struct virtio_gpu_cmd_get_edid {
-+	struct virtio_gpu_ctrl_hdr hdr;
-+	__le32 scanout;
-+};
-+
-+/* VIRTIO_GPU_RESP_OK_EDID */
-+struct virtio_gpu_resp_edid {
-+	struct virtio_gpu_ctrl_hdr hdr;
-+	__le32 size;
-+	__u8 edid[1024];
-+};
-+
- #define VIRTIO_GPU_EVENT_DISPLAY (1 << 0)
- 
- struct virtio_gpu_config {
--- 
-2.9.3
+cheers,
+  Gerd
