@@ -1,13 +1,13 @@
 From: Dave Airlie <airlied@gmail.com>
-Subject: Re: [PATCH v2] drm/bochs: add edid support.
-Date: Thu, 18 Oct 2018 11:15:25 +1000
-Message-ID: <CAPM=9twEjDr5dj+9B==QSYtAB7uqy0Szn2d7cw9swSk+THMA2g__32639.1493938447$1539825219$gmane$org@mail.gmail.com>
-References: <20181005120934.21959-1-kraxel@redhat.com>
+Subject: Re: [PATCH v2] virtio-gpu: add VIRTIO_GPU_F_EDID feature
+Date: Thu, 18 Oct 2018 11:17:14 +1000
+Message-ID: <CAPM=9twky-=a44GABrqi7prQjorzQRpLHQw8TOTc3Th83bjB1g__27274.1867615425$1539825328$gmane$org@mail.gmail.com>
+References: <20181005125154.19824-1-kraxel@redhat.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <20181005120934.21959-1-kraxel@redhat.com>
+In-Reply-To: <20181005125154.19824-1-kraxel@redhat.com>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -18,68 +18,78 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
 To: Gerd Hoffmann <kraxel@redhat.com>
-Cc: Dave Airlie <airlied@linux.ie>, LKML <linux-kernel@vger.kernel.org>, dri-devel <dri-devel@lists.freedesktop.org>, "open list:VIRTIO CORE,
+Cc: KVM list <kvm@vger.kernel.org>, "Michael S. Tsirkin" <mst@redhat.com>, Dave Airlie <airlied@linux.ie>, LKML <linux-kernel@vger.kernel.org>, dri-devel <dri-devel@lists.freedesktop.org>, virtio-dev@redhat.com, "open list:VIRTIO CORE,
 	NET..." <virtualization@lists.linux-foundation.org>
 List-Id: virtualization@lists.linuxfoundation.org
 
-On Fri, 5 Oct 2018 at 22:10, Gerd Hoffmann <kraxel@redhat.com> wrote:
+Reviewed-by: Dave Airlie <airlied@redhat.com>
+On Fri, 5 Oct 2018 at 22:52, Gerd Hoffmann <kraxel@redhat.com> wrote:
 >
-> Recent qemu (latest master branch, upcoming 3.1 release) got support
-> for EDID data.  This patch adds guest driver support.
+> The feature allows the guest request an EDID blob (describing monitor
+> capabilities) for a given scanout (aka virtual monitor connector).
 >
-> EDID support in qemu is not (yet) enabled by default, so please use
-> 'qemu -device VGA,edid=on' for testing.
-
-The EDID never changes after boot? Is there plans to let it?
+> It brings a new command message, which has just a scanout field (beside
+> the standard virtio-gpu header) and a response message which carries the
+> EDID data.
 >
 > Signed-off-by: Gerd Hoffmann <kraxel@redhat.com>
 > ---
->  drivers/gpu/drm/bochs/bochs.h     |  1 +
->  drivers/gpu/drm/bochs/bochs_hw.c  | 38 ++++++++++++++++++++++++++++++++++++++
->  drivers/gpu/drm/bochs/bochs_kms.c | 18 +++++++++++++++---
->  3 files changed, 54 insertions(+), 3 deletions(-)
+>  include/uapi/linux/virtio_gpu.h | 17 +++++++++++++++++
+>  1 file changed, 17 insertions(+)
 >
-> diff --git a/drivers/gpu/drm/bochs/bochs.h b/drivers/gpu/drm/bochs/bochs.h
-> index e7a69077e4..06b8166efa 100644
-> --- a/drivers/gpu/drm/bochs/bochs.h
-> +++ b/drivers/gpu/drm/bochs/bochs.h
-> @@ -66,6 +66,7 @@ struct bochs_device {
->         u16 yres_virtual;
->         u32 stride;
->         u32 bpp;
-> +       struct edid *edid;
+> diff --git a/include/uapi/linux/virtio_gpu.h b/include/uapi/linux/virtio_gpu.h
+> index f43c3c6171..1cef1ff339 100644
+> --- a/include/uapi/linux/virtio_gpu.h
+> +++ b/include/uapi/linux/virtio_gpu.h
+> @@ -41,6 +41,7 @@
+>  #include <linux/types.h>
 >
->         /* drm */
->         struct drm_device  *dev;
-> diff --git a/drivers/gpu/drm/bochs/bochs_hw.c b/drivers/gpu/drm/bochs/bochs_hw.c
-> index cacff73a64..6ce4cdac38 100644
-> --- a/drivers/gpu/drm/bochs/bochs_hw.c
-> +++ b/drivers/gpu/drm/bochs/bochs_hw.c
-> @@ -69,6 +69,41 @@ static void bochs_hw_set_little_endian(struct bochs_device *bochs)
->  #define bochs_hw_set_native_endian(_b) bochs_hw_set_little_endian(_b)
->  #endif
+>  #define VIRTIO_GPU_F_VIRGL 0
+> +#define VIRTIO_GPU_F_EDID  1
 >
-> +static int bochs_load_edid(struct bochs_device *bochs)
-> +{
-> +       uint8_t *blob;
-> +       size_t i, len;
-> +       uint8_t num_exts;
+>  enum virtio_gpu_ctrl_type {
+>         VIRTIO_GPU_UNDEFINED = 0,
+> @@ -56,6 +57,7 @@ enum virtio_gpu_ctrl_type {
+>         VIRTIO_GPU_CMD_RESOURCE_DETACH_BACKING,
+>         VIRTIO_GPU_CMD_GET_CAPSET_INFO,
+>         VIRTIO_GPU_CMD_GET_CAPSET,
+> +       VIRTIO_GPU_CMD_GET_EDID,
+>
+>         /* 3d commands */
+>         VIRTIO_GPU_CMD_CTX_CREATE = 0x0200,
+> @@ -76,6 +78,7 @@ enum virtio_gpu_ctrl_type {
+>         VIRTIO_GPU_RESP_OK_DISPLAY_INFO,
+>         VIRTIO_GPU_RESP_OK_CAPSET_INFO,
+>         VIRTIO_GPU_RESP_OK_CAPSET,
+> +       VIRTIO_GPU_RESP_OK_EDID,
+>
+>         /* error responses */
+>         VIRTIO_GPU_RESP_ERR_UNSPEC = 0x1200,
+> @@ -291,6 +294,20 @@ struct virtio_gpu_resp_capset {
+>         __u8 capset_data[];
+>  };
+>
+> +/* VIRTIO_GPU_CMD_GET_EDID */
+> +struct virtio_gpu_get_edid {
+> +       struct virtio_gpu_ctrl_hdr hdr;
+> +       __le32 scanout;
+> +};
 > +
-> +       if (!bochs->mmio)
-> +               return -1;
+> +/* VIRTIO_GPU_RESP_OK_EDID */
+> +struct virtio_gpu_resp_edid {
+> +       struct virtio_gpu_ctrl_hdr hdr;
+> +       __le32 scanout;
+> +       __le32 size;
+> +       __u8 edid[1024];
+> +};
 > +
-> +       if ((readb(bochs->mmio+0) != 0x00 ||
-> +            readb(bochs->mmio+1) != 0xff))
-> +               return -1;
-> +
-> +       num_exts = readb(bochs->mmio + 126);
-> +       len = EDID_LENGTH * (1 + num_exts);
-> +       if (len > 0x400 /* vga register offset */)
-> +               return -1;
-> +
-> +       kfree(bochs->edid);
-> +       bochs->edid = kmalloc(len, GFP_KERNEL);
-
-Don't you need to free it somewhere?
-
-Dave.
+>  #define VIRTIO_GPU_EVENT_DISPLAY (1 << 0)
+>
+>  struct virtio_gpu_config {
+> --
+> 2.9.3
+>
+> _______________________________________________
+> dri-devel mailing list
+> dri-devel@lists.freedesktop.org
+> https://lists.freedesktop.org/mailman/listinfo/dri-devel
