@@ -1,19 +1,18 @@
-From: Gerd Hoffmann <kraxel@redhat.com>
-Subject: Re: [PATCH 7/8] drm/virtio: move virtio_gpu_object_{attach, detach}
-	calls.
-Date: Thu, 18 Oct 2018 09:00:04 +0200
-Message-ID: <20181018070004.mplea3ozamph6uzu__1288.14187269217$1539845889$gmane$org@sirius.home.kraxel.org>
-References: <20181001103222.11924-1-kraxel@redhat.com>
-	<20181001103222.11924-8-kraxel@redhat.com>
-	<CAPM=9tx3vX_HLyGqvSitCTb=v5QN4tk4TjbwhreLhnT8BytHEg@mail.gmail.com>
-	<20181018061059.d32xhg6ijlvpqyvi@sirius.home.kraxel.org>
-	<CAPM=9tzwcPtOfNuoKdbSY0=EBsbsKgM04HZpzAazPEmDbQOXSw@mail.gmail.com>
+From: Sebastian Andrzej Siewior <bigeasy@linutronix.de>
+Subject: [PATCH] virtio_net: add local_bh_disable() around
+	u64_stats_update_begin
+Date: Thu, 18 Oct 2018 10:43:13 +0200
+Message-ID: <20181018084313.oopu34iwfwgkcwwc__37629.9595846378$1539852095$gmane$org@linutronix.de>
+References: <20181016165545.guksrl23ulcudxrk@linutronix.de>
+	<20181016110114.73e2b248@xeon-e3>
+	<20181016184206.coukhtgmlr32hyl7@linutronix.de>
+	<20181016114414.23ea73c3@xeon-e3>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
 Content-Disposition: inline
-In-Reply-To: <CAPM=9tzwcPtOfNuoKdbSY0=EBsbsKgM04HZpzAazPEmDbQOXSw@mail.gmail.com>
+In-Reply-To: <20181016114414.23ea73c3@xeon-e3>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -23,40 +22,75 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Dave Airlie <airlied@gmail.com>
-Cc: Dave Airlie <airlied@linux.ie>, LKML <linux-kernel@vger.kernel.org>, dri-devel <dri-devel@lists.freedesktop.org>, "open list:VIRTIO CORE,
-	NET..." <virtualization@lists.linux-foundation.org>
+To: Stephen Hemminger <stephen@networkplumber.org>
+Cc: "Michael S. Tsirkin" <mst@redhat.com>, netdev@vger.kernel.org, virtualization@lists.linux-foundation.org, tglx@linutronix.de, "David S. Miller" <davem@davemloft.net>
 List-Id: virtualization@lists.linuxfoundation.org
 
-> > > This to me feels more like a bind/unbind operation rather than a
-> > > populate/unpopulate operation,
-> > >
-> > > bind is " Bind the backend pages into the aperture in the location"
-> > >
-> > > whereas populate is
-> > >
-> > > allocate pages for a ttm.
-> >
-> > I ran into that trap too ;)
-> >
-> > My first attempt was to map this to bind/unbind.  But this is not
-> > correct and therefore didn't work very well.
-> >
-> > virtio_gpu_object_attach() will send a scatter list of the pages
-> > allocated for the object to the host (so the host knows where to
-> > copy from/to when processing the transfer_from/to calls).  So IMO
-> > it should be done on population not when binding.
-> 
-> Well bind on AGP is the same thing, we'd fill the AGP GART table on
-> bind, so that the AGP GPU could access the pages.
+on 32bit, lockdep notices that virtnet_open() and refill_work() invoke
+try_fill_recv() from process context while virtnet_receive() invokes the
+same function from BH context. The problem that the seqcounter within
+u64_stats_update_begin() may deadlock if it is interrupted by BH and
+then acquired again.
 
-> So I'm interested in why using bind/unbind failed if you have some more info?
+Introduce u64_stats_update_begin_bh() which disables BH on 32bit
+architectures. Since the BH might interrupt the worker, this new
+function should not limited to SMP like the others which are expected
+to be used in softirq.
 
-Need to try again to be sure, but IIRC I saw multiple bind/unbind calls
-for the same object.  ttm probably does it to not waste AGB GART address
-space for objects not in use.  But for virtio it is pointless overhead.
-But maybe it is just a matter of taking a reference and keeping it for
-the whole lifetime of the object to make the binding permanent ...
+With this change we might lose increments but this is okay. The
+important part that the two 32bit parts of the 64bit counter are not
+corrupted.
 
-cheers,
-  Gerd
+Fixes: 461f03dc99cf6 ("virtio_net: Add kick stats").
+Suggested-by: Stephen Hemminger <stephen@networkplumber.org>
+Signed-off-by: Sebastian Andrzej Siewior <bigeasy@linutronix.de>
+---
+ drivers/net/virtio_net.c       |  4 ++--
+ include/linux/u64_stats_sync.h | 16 ++++++++++++++++
+ 2 files changed, 18 insertions(+), 2 deletions(-)
+
+diff --git a/drivers/net/virtio_net.c b/drivers/net/virtio_net.c
+index dab504ec5e502..fbcfb4d272336 100644
+--- a/drivers/net/virtio_net.c
++++ b/drivers/net/virtio_net.c
+@@ -1206,9 +1206,9 @@ static bool try_fill_recv(struct virtnet_info *vi, struct receive_queue *rq,
+ 			break;
+ 	} while (rq->vq->num_free);
+ 	if (virtqueue_kick_prepare(rq->vq) && virtqueue_notify(rq->vq)) {
+-		u64_stats_update_begin(&rq->stats.syncp);
++		u64_stats_update_begin_bh(&rq->stats.syncp);
+ 		rq->stats.kicks++;
+-		u64_stats_update_end(&rq->stats.syncp);
++		u64_stats_update_end_bh(&rq->stats.syncp);
+ 	}
+ 
+ 	return !oom;
+diff --git a/include/linux/u64_stats_sync.h b/include/linux/u64_stats_sync.h
+index a27604f99ed04..46b6ad6175628 100644
+--- a/include/linux/u64_stats_sync.h
++++ b/include/linux/u64_stats_sync.h
+@@ -90,6 +90,22 @@ static inline void u64_stats_update_end(struct u64_stats_sync *syncp)
+ #endif
+ }
+ 
++static inline void u64_stats_update_begin_bh(struct u64_stats_sync *syncp)
++{
++#if BITS_PER_LONG==32
++	local_bh_disable();
++	write_seqcount_begin(&syncp->seq);
++#endif
++}
++
++static inline void u64_stats_update_end_bh(struct u64_stats_sync *syncp)
++{
++#if BITS_PER_LONG==32
++	write_seqcount_end(&syncp->seq);
++	local_bh_enable();
++#endif
++}
++
+ static inline unsigned long
+ u64_stats_update_begin_irqsave(struct u64_stats_sync *syncp)
+ {
+-- 
+2.19.1
