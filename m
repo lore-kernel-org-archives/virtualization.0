@@ -1,15 +1,21 @@
-From: Dave Airlie <airlied@gmail.com>
-Subject: Re: [PATCH 7/8] drm/virtio: move virtio_gpu_object_{attach,
-	detach} calls.
-Date: Thu, 18 Oct 2018 11:41:52 +1000
-Message-ID: <CAPM=9tx3vX_HLyGqvSitCTb=v5QN4tk4TjbwhreLhnT8BytHEg@mail.gmail.com>
-References: <20181001103222.11924-1-kraxel@redhat.com>
-	<20181001103222.11924-8-kraxel@redhat.com>
+From: Jason Wang <jasowang@redhat.com>
+Subject: Re: [PATCH net-next V2 6/8] vhost: packed ring support
+Date: Thu, 18 Oct 2018 10:44:36 +0800
+Message-ID: <f37dbff8-321e-7b6c-6f40-49c71d167ab6@redhat.com>
+References: <1531711691-6769-1-git-send-email-jasowang@redhat.com>
+	<1531711691-6769-7-git-send-email-jasowang@redhat.com>
+	<20181012143244.GA28400@debian>
+	<20181012131812-mutt-send-email-mst@kernel.org>
+	<447f47fa-32dd-a408-dd81-13a9839e0748@redhat.com>
+	<20181014224208-mutt-send-email-mst@kernel.org>
+	<ee3785be-b309-c4ae-e959-737018c21464@redhat.com>
+	<20181015062241-mutt-send-email-mst@kernel.org>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset="utf-8"; Format="flowed"
+Content-Transfer-Encoding: base64
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <20181001103222.11924-8-kraxel@redhat.com>
+In-Reply-To: <20181015062241-mutt-send-email-mst@kernel.org>
+Content-Language: en-US
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -19,180 +25,59 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Gerd Hoffmann <kraxel@redhat.com>
-Cc: Dave Airlie <airlied@linux.ie>, LKML <linux-kernel@vger.kernel.org>, dri-devel <dri-devel@lists.freedesktop.org>, "open list:VIRTIO CORE,
-	NET..." <virtualization@lists.linux-foundation.org>
+To: "Michael S. Tsirkin" <mst@redhat.com>
+Cc: kvm@vger.kernel.org, netdev@vger.kernel.org, linux-kernel@vger.kernel.org, virtualization@lists.linux-foundation.org, maxime.coquelin@redhat.com, wexu@redhat.com
 List-Id: virtualization@lists.linuxfoundation.org
 
-On Mon, 1 Oct 2018 at 20:33, Gerd Hoffmann <kraxel@redhat.com> wrote:
->
-> Remove the virtio_gpu_object_{attach,detach} calls from move_notify()
-> callback.  Add them to the ttm_tt_{populate,unpopulate} callbacks, which
-> is the correct place to handle this.
->
-> The new ttm_tt_{populate,unpopulate} callbacks call the
-> ttm_pool_populate()/unpopulate() functions (which are the default
-> implementation in case the callbacks not present) for the actual ttm
-> work.  Additionally virtio_gpu_object_{attach,detach} is called to
-> update the state on the host.
-
-This to me feels more like a bind/unbind operation rather than a
-populate/unpopulate operation,
-
-bind is " Bind the backend pages into the aperture in the location"
-
-whereas populate is
-
-allocate pages for a ttm.
-
-Dave.
-
->
-> With that in place the move and move_notify callbacks are not needed
-> any more, so drop them.
->
-> Signed-off-by: Gerd Hoffmann <kraxel@redhat.com>
-> ---
->  drivers/gpu/drm/virtio/virtgpu_ttm.c | 70 +++++++++++-------------------------
->  1 file changed, 21 insertions(+), 49 deletions(-)
->
-> diff --git a/drivers/gpu/drm/virtio/virtgpu_ttm.c b/drivers/gpu/drm/virtio/virtgpu_ttm.c
-> index cd63dffa6d..96fb17e0fc 100644
-> --- a/drivers/gpu/drm/virtio/virtgpu_ttm.c
-> +++ b/drivers/gpu/drm/virtio/virtgpu_ttm.c
-> @@ -250,33 +250,24 @@ static void virtio_gpu_ttm_io_mem_free(struct ttm_bo_device *bdev,
->   */
->  struct virtio_gpu_ttm_tt {
->         struct ttm_dma_tt               ttm;
-> -       struct virtio_gpu_device        *vgdev;
-> -       u64                             offset;
-> +       struct virtio_gpu_object        *obj;
->  };
->
->  static int virtio_gpu_ttm_backend_bind(struct ttm_tt *ttm,
->                                        struct ttm_mem_reg *bo_mem)
->  {
-> -       struct virtio_gpu_ttm_tt *gtt = (void *)ttm;
-> -
-> -       gtt->offset = (unsigned long)(bo_mem->start << PAGE_SHIFT);
-> -       if (!ttm->num_pages)
-> -               WARN(1, "nothing to bind %lu pages for mreg %p back %p!\n",
-> -                    ttm->num_pages, bo_mem, ttm);
-> -
-> -       /* Not implemented */
->         return 0;
->  }
->
->  static int virtio_gpu_ttm_backend_unbind(struct ttm_tt *ttm)
->  {
-> -       /* Not implemented */
->         return 0;
->  }
->
->  static void virtio_gpu_ttm_backend_destroy(struct ttm_tt *ttm)
->  {
-> -       struct virtio_gpu_ttm_tt *gtt = (void *)ttm;
-> +       struct virtio_gpu_ttm_tt *gtt =
-> +               container_of(ttm, struct virtio_gpu_ttm_tt, ttm.ttm);
->
->         ttm_dma_tt_fini(&gtt->ttm);
->         kfree(gtt);
-> @@ -299,7 +290,7 @@ static struct ttm_tt *virtio_gpu_ttm_tt_create(struct ttm_buffer_object *bo,
->         if (gtt == NULL)
->                 return NULL;
->         gtt->ttm.ttm.func = &virtio_gpu_backend_func;
-> -       gtt->vgdev = vgdev;
-> +       gtt->obj = container_of(bo, struct virtio_gpu_object, tbo);
->         if (ttm_dma_tt_init(&gtt->ttm, bo, page_flags)) {
->                 kfree(gtt);
->                 return NULL;
-> @@ -307,49 +298,30 @@ static struct ttm_tt *virtio_gpu_ttm_tt_create(struct ttm_buffer_object *bo,
->         return &gtt->ttm.ttm;
->  }
->
-> -static void virtio_gpu_move_null(struct ttm_buffer_object *bo,
-> -                                struct ttm_mem_reg *new_mem)
-> -{
-> -       struct ttm_mem_reg *old_mem = &bo->mem;
-> -
-> -       BUG_ON(old_mem->mm_node != NULL);
-> -       *old_mem = *new_mem;
-> -       new_mem->mm_node = NULL;
-> -}
-> -
-> -static int virtio_gpu_bo_move(struct ttm_buffer_object *bo, bool evict,
-> -                             struct ttm_operation_ctx *ctx,
-> -                             struct ttm_mem_reg *new_mem)
-> +static int virtio_gpu_ttm_tt_populate(struct ttm_tt *ttm, struct ttm_operation_ctx *ctx)
->  {
-> +       struct virtio_gpu_ttm_tt *gtt =
-> +               container_of(ttm, struct virtio_gpu_ttm_tt, ttm.ttm);
-> +       struct virtio_gpu_device *vgdev =
-> +               (struct virtio_gpu_device *)gtt->obj->gem_base.dev->dev_private;
->         int ret;
->
-> -       ret = ttm_bo_wait(bo, ctx->interruptible, ctx->no_wait_gpu);
-> +       ret = ttm_pool_populate(ttm, ctx);
->         if (ret)
->                 return ret;
-> -
-> -       virtio_gpu_move_null(bo, new_mem);
-> -       return 0;
-> +       virtio_gpu_object_attach(vgdev, gtt->obj, NULL);
-> +       return ret;
->  }
->
-> -static void virtio_gpu_bo_move_notify(struct ttm_buffer_object *tbo,
-> -                                     bool evict,
-> -                                     struct ttm_mem_reg *new_mem)
-> +static void virtio_gpu_ttm_tt_unpopulate(struct ttm_tt *ttm)
->  {
-> -       struct virtio_gpu_object *bo;
-> -       struct virtio_gpu_device *vgdev;
-> +       struct virtio_gpu_ttm_tt *gtt =
-> +               container_of(ttm, struct virtio_gpu_ttm_tt, ttm.ttm);
-> +       struct virtio_gpu_device *vgdev =
-> +               (struct virtio_gpu_device *)gtt->obj->gem_base.dev->dev_private;
->
-> -       bo = container_of(tbo, struct virtio_gpu_object, tbo);
-> -       vgdev = (struct virtio_gpu_device *)bo->gem_base.dev->dev_private;
-> -
-> -       if (!new_mem || (new_mem->placement & TTM_PL_FLAG_SYSTEM)) {
-> -               if (bo->hw_res_handle)
-> -                       virtio_gpu_object_detach(vgdev, bo);
-> -
-> -       } else if (new_mem->placement & TTM_PL_FLAG_TT) {
-> -               if (bo->hw_res_handle) {
-> -                       virtio_gpu_object_attach(vgdev, bo, NULL);
-> -               }
-> -       }
-> +       virtio_gpu_object_detach(vgdev, gtt->obj);
-> +       ttm_pool_unpopulate(ttm);
->  }
->
->  static void virtio_gpu_bo_swap_notify(struct ttm_buffer_object *tbo)
-> @@ -366,15 +338,15 @@ static void virtio_gpu_bo_swap_notify(struct ttm_buffer_object *tbo)
->
->  static struct ttm_bo_driver virtio_gpu_bo_driver = {
->         .ttm_tt_create = &virtio_gpu_ttm_tt_create,
-> +       .ttm_tt_populate = &virtio_gpu_ttm_tt_populate,
-> +       .ttm_tt_unpopulate = &virtio_gpu_ttm_tt_unpopulate,
->         .invalidate_caches = &virtio_gpu_invalidate_caches,
->         .init_mem_type = &virtio_gpu_init_mem_type,
->         .eviction_valuable = ttm_bo_eviction_valuable,
->         .evict_flags = &virtio_gpu_evict_flags,
-> -       .move = &virtio_gpu_bo_move,
->         .verify_access = &virtio_gpu_verify_access,
->         .io_mem_reserve = &virtio_gpu_ttm_io_mem_reserve,
->         .io_mem_free = &virtio_gpu_ttm_io_mem_free,
-> -       .move_notify = &virtio_gpu_bo_move_notify,
->         .swap_notify = &virtio_gpu_bo_swap_notify,
->  };
->
-> --
-> 2.9.3
->
-> _______________________________________________
-> dri-devel mailing list
-> dri-devel@lists.freedesktop.org
-> https://lists.freedesktop.org/mailman/listinfo/dri-devel
+Ck9uIDIwMTgvMTAvMTUg5LiL5Y2INjoyNSwgTWljaGFlbCBTLiBUc2lya2luIHdyb3RlOgo+IE9u
+IE1vbiwgT2N0IDE1LCAyMDE4IGF0IDEwOjUxOjA2QU0gKzA4MDAsIEphc29uIFdhbmcgd3JvdGU6
+Cj4+IE9uIDIwMTjlubQxMOaciDE15pelIDEwOjQzLCBNaWNoYWVsIFMuIFRzaXJraW4gd3JvdGU6
+Cj4+PiBPbiBNb24sIE9jdCAxNSwgMjAxOCBhdCAxMDoyMjozM0FNICswODAwLCBKYXNvbiBXYW5n
+IHdyb3RlOgo+Pj4+IE9uIDIwMTjlubQxMOaciDEz5pelIDAxOjIzLCBNaWNoYWVsIFMuIFRzaXJr
+aW4gd3JvdGU6Cj4+Pj4+IE9uIEZyaSwgT2N0IDEyLCAyMDE4IGF0IDEwOjMyOjQ0UE0gKzA4MDAs
+IFRpd2VpIEJpZSB3cm90ZToKPj4+Pj4+IE9uIE1vbiwgSnVsIDE2LCAyMDE4IGF0IDExOjI4OjA5
+QU0gKzA4MDAsIEphc29uIFdhbmcgd3JvdGU6Cj4+Pj4+PiBbLi4uXQo+Pj4+Pj4+IEBAIC0xMzY3
+LDEwICsxMzk3LDQ4IEBAIGxvbmcgdmhvc3RfdnJpbmdfaW9jdGwoc3RydWN0IHZob3N0X2RldiAq
+ZCwgdW5zaWduZWQgaW50IGlvY3RsLCB2b2lkIF9fdXNlciAqYXJnCj4+Pj4+Pj4gICAgIAkJdnEt
+Pmxhc3RfYXZhaWxfaWR4ID0gcy5udW07Cj4+Pj4+Pj4gICAgIAkJLyogRm9yZ2V0IHRoZSBjYWNo
+ZWQgaW5kZXggdmFsdWUuICovCj4+Pj4+Pj4gICAgIAkJdnEtPmF2YWlsX2lkeCA9IHZxLT5sYXN0
+X2F2YWlsX2lkeDsKPj4+Pj4+PiArCQlpZiAodmhvc3RfaGFzX2ZlYXR1cmUodnEsIFZJUlRJT19G
+X1JJTkdfUEFDS0VEKSkgewo+Pj4+Pj4+ICsJCQl2cS0+bGFzdF9hdmFpbF93cmFwX2NvdW50ZXIg
+PSB3cmFwX2NvdW50ZXI7Cj4+Pj4+Pj4gKwkJCXZxLT5hdmFpbF93cmFwX2NvdW50ZXIgPSB2cS0+
+bGFzdF9hdmFpbF93cmFwX2NvdW50ZXI7Cj4+Pj4+Pj4gKwkJfQo+Pj4+Pj4+ICAgICAJCWJyZWFr
+Owo+Pj4+Pj4+ICAgICAJY2FzZSBWSE9TVF9HRVRfVlJJTkdfQkFTRToKPj4+Pj4+PiAgICAgCQlz
+LmluZGV4ID0gaWR4Owo+Pj4+Pj4+ICAgICAJCXMubnVtID0gdnEtPmxhc3RfYXZhaWxfaWR4Owo+
+Pj4+Pj4+ICsJCWlmICh2aG9zdF9oYXNfZmVhdHVyZSh2cSwgVklSVElPX0ZfUklOR19QQUNLRUQp
+KQo+Pj4+Pj4+ICsJCQlzLm51bSB8PSB2cS0+bGFzdF9hdmFpbF93cmFwX2NvdW50ZXIgPDwgMzE7
+Cj4+Pj4+Pj4gKwkJaWYgKGNvcHlfdG9fdXNlcihhcmdwLCAmcywgc2l6ZW9mKHMpKSkKPj4+Pj4+
+PiArCQkJciA9IC1FRkFVTFQ7Cj4+Pj4+Pj4gKwkJYnJlYWs7Cj4+Pj4+Pj4gKwljYXNlIFZIT1NU
+X1NFVF9WUklOR19VU0VEX0JBU0U6Cj4+Pj4+Pj4gKwkJLyogTW92aW5nIGJhc2Ugd2l0aCBhbiBh
+Y3RpdmUgYmFja2VuZD8KPj4+Pj4+PiArCQkgKiBZb3UgZG9uJ3Qgd2FudCB0byBkbyB0aGF0Lgo+
+Pj4+Pj4+ICsJCSAqLwo+Pj4+Pj4+ICsJCWlmICh2cS0+cHJpdmF0ZV9kYXRhKSB7Cj4+Pj4+Pj4g
+KwkJCXIgPSAtRUJVU1k7Cj4+Pj4+Pj4gKwkJCWJyZWFrOwo+Pj4+Pj4+ICsJCX0KPj4+Pj4+PiAr
+CQlpZiAoY29weV9mcm9tX3VzZXIoJnMsIGFyZ3AsIHNpemVvZihzKSkpIHsKPj4+Pj4+PiArCQkJ
+ciA9IC1FRkFVTFQ7Cj4+Pj4+Pj4gKwkJCWJyZWFrOwo+Pj4+Pj4+ICsJCX0KPj4+Pj4+PiArCQlp
+ZiAodmhvc3RfaGFzX2ZlYXR1cmUodnEsIFZJUlRJT19GX1JJTkdfUEFDS0VEKSkgewo+Pj4+Pj4+
+ICsJCQl3cmFwX2NvdW50ZXIgPSBzLm51bSA+PiAzMTsKPj4+Pj4+PiArCQkJcy5udW0gJj0gfigx
+IDw8IDMxKTsKPj4+Pj4+PiArCQl9Cj4+Pj4+Pj4gKwkJaWYgKHMubnVtID4gMHhmZmZmKSB7Cj4+
+Pj4+Pj4gKwkJCXIgPSAtRUlOVkFMOwo+Pj4+Pj4+ICsJCQlicmVhazsKPj4+Pj4+PiArCQl9Cj4+
+Pj4+PiBEbyB3ZSB3YW50IHRvIHB1dCB3cmFwX2NvdW50ZXIgYXQgYml0IDE1Pwo+Pj4+PiBJIHRo
+aW5rIEkgc2Vjb25kIHRoYXQgLSBzZWVtcyB0byBiZSBjb25zaXN0ZW50IHdpdGgKPj4+Pj4gZS5n
+LiBldmVudCBzdXBwcmVzc2lvbiBzdHJ1Y3R1cmUgYW5kIHRoZSBwcm9wb3NlZAo+Pj4+PiBleHRl
+bnNpb24gdG8gZHJpdmVyIG5vdGlmaWNhdGlvbnMuCj4+Pj4gT2ssIEkgYXNzdW1lcyBwYWNrZWQg
+dmlydHF1ZXVlIHN1cHBvcnQgNjRLIGJ1dCBsb29rcyBub3QuIEkgY2FuIGNoYW5nZSBpdCB0bwo+
+Pj4+IGJpdCAxNSBhbmQgR0VUX1ZSSU5HX0JBU0UgbmVlZCB0byBiZSBjaGFuZ2VkIGFzIHdlbGwu
+Cj4+Pj4KPj4+Pj4+IElmIHB1dCB3cmFwX2NvdW50ZXIgYXQgYml0IDMxLCB0aGUgY2hlY2sgKHMu
+bnVtID4gMHhmZmZmKQo+Pj4+Pj4gd29uJ3QgYmUgYWJsZSB0byBjYXRjaCB0aGUgaWxsZWdhbCBp
+bmRleCAweDgwMDB+MHhmZmZmIGZvcgo+Pj4+Pj4gcGFja2VkIHJpbmcuCj4+Pj4+Pgo+Pj4+IERv
+IHdlIG5lZWQgdG8gY2xhcmlmeSB0aGlzIGluIHRoZSBzcGVjPwo+Pj4gSXNuJ3QgdGhpcyBhbGwg
+aW50ZXJuYWwgdmhvc3Qgc3R1ZmY/Cj4+IEkgbWVhbnQgdGhlIGlsbGVnYWwgaW5kZXggMHg4MDAw
+LTB4ZmZmZi4KPiBJdCBkb2VzIHNheSBwYWNrZWQgdmlydHF1ZXVlcyBzdXBwb3J0IHVwIHRvIDIg
+MTUgZW50cmllcyBlYWNoLgo+Cj4gQnV0IHllcyB3ZSBjYW4gYWRkIGEgcmVxdWlyZW1lbnQgdGhh
+dCBkZXZpY2VzIGRvIG5vdCBleHBvc2UKPiBsYXJnZXIgcmluZ3MuIFNwbGl0IGRvZXMgbm90IHN1
+cHBvcnQgMioqMTYgZWl0aGVyLCByaWdodD8KPiBXaXRoIDIqKjE2IGVudGllcyBhdmFpbCBpbmRl
+eCBiZWNvbWVzIDAgYW5kIHJpbmcgbG9va3MgZW1wdHkuCj4KClllcywgc28gaXQncyBiZXR0ZXIg
+dG8gY2xhcmlmeSB0aGlzIGluIHRoZSBzcGVjLgoKVGhhbmtzCgoKX19fX19fX19fX19fX19fX19f
+X19fX19fX19fX19fX19fX19fX19fX19fX19fX18KVmlydHVhbGl6YXRpb24gbWFpbGluZyBsaXN0
+ClZpcnR1YWxpemF0aW9uQGxpc3RzLmxpbnV4LWZvdW5kYXRpb24ub3JnCmh0dHBzOi8vbGlzdHMu
+bGludXhmb3VuZGF0aW9uLm9yZy9tYWlsbWFuL2xpc3RpbmZvL3ZpcnR1YWxpemF0aW9u
