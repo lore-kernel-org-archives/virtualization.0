@@ -1,15 +1,15 @@
-From: Gerd Hoffmann <kraxel@redhat.com>
-Subject: Re: [PATCH v2] drm/bochs: add edid support.
-Date: Thu, 18 Oct 2018 07:11:02 +0200
-Message-ID: <20181018051102.7hkrtj5siw6fss2y__46209.871923975$1539839341$gmane$org@sirius.home.kraxel.org>
-References: <20181005120934.21959-1-kraxel@redhat.com>
-	<CAPM=9twEjDr5dj+9B==QSYtAB7uqy0Szn2d7cw9swSk+THMA2g@mail.gmail.com>
+From: David Miller <davem@davemloft.net>
+Subject: Re: [PATCH v3] virtio_net: avoid using netif_tx_disable() for
+	serializing tx routine
+Date: Wed, 17 Oct 2018 22:30:01 -0700 (PDT)
+Message-ID: <20181017.223001.1576138840071012489.davem@davemloft.net>
+References: <276ac5bb-90f7-5fb6-a826-0bb05ecfa069@redhat.com>
+	<20181017104419.13003-1-ake@igel.co.jp>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-Content-Disposition: inline
-In-Reply-To: <CAPM=9twEjDr5dj+9B==QSYtAB7uqy0Szn2d7cw9swSk+THMA2g@mail.gmail.com>
+In-Reply-To: <20181017104419.13003-1-ake@igel.co.jp>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -19,38 +19,28 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Dave Airlie <airlied@gmail.com>
-Cc: Dave Airlie <airlied@linux.ie>, LKML <linux-kernel@vger.kernel.org>, dri-devel <dri-devel@lists.freedesktop.org>, "open list:VIRTIO CORE,
-	NET..." <virtualization@lists.linux-foundation.org>
+To: ake@igel.co.jp
+Cc: netdev@vger.kernel.org, virtualization@lists.linux-foundation.org, linux-kernel@vger.kernel.org, mst@redhat.com
 List-Id: virtualization@lists.linuxfoundation.org
 
-  Hi,
+From: Ake Koomsin <ake@igel.co.jp>
+Date: Wed, 17 Oct 2018 19:44:12 +0900
 
-> > Recent qemu (latest master branch, upcoming 3.1 release) got support
-> > for EDID data.  This patch adds guest driver support.
-> >
-> > EDID support in qemu is not (yet) enabled by default, so please use
-> > 'qemu -device VGA,edid=on' for testing.
+> Commit 713a98d90c5e ("virtio-net: serialize tx routine during reset")
+> introduces netif_tx_disable() after netif_device_detach() in order to
+> avoid use-after-free of tx queues. However, there are two issues.
 > 
-> The EDID never changes after boot?
-
-Right now it doesn't.
-
-> Is there plans to let it?
-
-Needs more virtual hardware changes, the stdvga has no support for
-interrupts, so qemu can't signal an edid update to the guest.
-
-So not not sure yet what to do about it.  Maybe add it later (but it's
-not high priority).  Maybe simply recommend to use virtio-gpu instead.
-
-> > +       kfree(bochs->edid);
-> > +       bochs->edid = kmalloc(len, GFP_KERNEL);
+> 1) Its operation is redundant with netif_device_detach() in case the
+>    interface is running.
+> 2) In case of the interface is not running before suspending and
+>    resuming, the tx does not get resumed by netif_device_attach().
+>    This results in losing network connectivity.
 > 
-> Don't you need to free it somewhere?
+> It is better to use netif_tx_lock_bh()/netif_tx_unlock_bh() instead for
+> serializing tx routine during reset. This also preserves the symmetry
+> of netif_device_detach() and netif_device_attach().
+> 
+> Fixes commit 713a98d90c5e ("virtio-net: serialize tx routine during reset")
+> Signed-off-by: Ake Koomsin <ake@igel.co.jp>
 
-Oh, yes, we leak that on driver unload.
-I'll fix it.
-
-cheers,
-  Gerd
+Applied and queued up for -stable.
