@@ -1,15 +1,16 @@
-From: David Miller <davem@davemloft.net>
-Subject: Re: [PATCH v3] virtio_net: avoid using netif_tx_disable() for
-	serializing tx routine
-Date: Wed, 17 Oct 2018 22:30:01 -0700 (PDT)
-Message-ID: <20181017.223001.1576138840071012489.davem@davemloft.net>
-References: <276ac5bb-90f7-5fb6-a826-0bb05ecfa069@redhat.com>
-	<20181017104419.13003-1-ake@igel.co.jp>
+From: Gerd Hoffmann <kraxel@redhat.com>
+Subject: Re: [PATCH 5/8] drm/virtio: track created object state
+Date: Thu, 18 Oct 2018 07:57:38 +0200
+Message-ID: <20181018055738.g3noucn6k4qizckq__38964.9936267689$1539842138$gmane$org@sirius.home.kraxel.org>
+References: <20181001103222.11924-1-kraxel@redhat.com>
+	<20181001103222.11924-6-kraxel@redhat.com>
+	<CAPM=9tzpzxv9TorRDWX3=sj_=EEqu3gyU2+AyWAFVHLPzZVcew@mail.gmail.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <20181017104419.13003-1-ake@igel.co.jp>
+Content-Disposition: inline
+In-Reply-To: <CAPM=9tzpzxv9TorRDWX3=sj_=EEqu3gyU2+AyWAFVHLPzZVcew@mail.gmail.com>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -19,28 +20,29 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: ake@igel.co.jp
-Cc: netdev@vger.kernel.org, virtualization@lists.linux-foundation.org, linux-kernel@vger.kernel.org, mst@redhat.com
+To: Dave Airlie <airlied@gmail.com>
+Cc: Dave Airlie <airlied@linux.ie>, LKML <linux-kernel@vger.kernel.org>, dri-devel <dri-devel@lists.freedesktop.org>, "open list:VIRTIO CORE,
+	NET..." <virtualization@lists.linux-foundation.org>
 List-Id: virtualization@lists.linuxfoundation.org
 
-From: Ake Koomsin <ake@igel.co.jp>
-Date: Wed, 17 Oct 2018 19:44:12 +0900
+On Thu, Oct 18, 2018 at 11:25:22AM +1000, Dave Airlie wrote:
+> On Mon, 1 Oct 2018 at 20:33, Gerd Hoffmann <kraxel@redhat.com> wrote:
+> >
+> > Track whenever the virtio_gpu_object is already created (i.e. host knows
+> > about it) in a new variable.  Add checks to virtio_gpu_object_attach()
+> > to do nothing on objects not created yet.
+> >
+> > Make virtio_gpu_ttm_bo_destroy() use the new variable too, instead of
+> > expecting hw_res_handle indicating the object state.
+> 
+> Is there a potential patch ordering issue here? If this patch changes
+> the code to avoid using hw_res_handle,
+> is after patches that start filling in hw_res_handle in places we
+> haven't filled it in before.
+> Maybe this patch should happen earlier.
 
-> Commit 713a98d90c5e ("virtio-net: serialize tx routine during reset")
-> introduces netif_tx_disable() after netif_device_detach() in order to
-> avoid use-after-free of tx queues. However, there are two issues.
-> 
-> 1) Its operation is redundant with netif_device_detach() in case the
->    interface is running.
-> 2) In case of the interface is not running before suspending and
->    resuming, the tx does not get resumed by netif_device_attach().
->    This results in losing network connectivity.
-> 
-> It is better to use netif_tx_lock_bh()/netif_tx_unlock_bh() instead for
-> serializing tx routine during reset. This also preserves the symmetry
-> of netif_device_detach() and netif_device_attach().
-> 
-> Fixes commit 713a98d90c5e ("virtio-net: serialize tx routine during reset")
-> Signed-off-by: Ake Koomsin <ake@igel.co.jp>
+Didn't run into trouble in testing, but yes, it might be an issue in
+error paths.  I'll reorder the patches.
 
-Applied and queued up for -stable.
+cheers,
+  Gerd
