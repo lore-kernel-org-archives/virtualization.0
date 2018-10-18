@@ -1,22 +1,19 @@
-From: Toshiaki Makita <makita.toshiaki@lab.ntt.co.jp>
-Subject: Re: [RFC] virtio_net: add local_bh_disable() around
-	u64_stats_update_begin
-Date: Thu, 18 Oct 2018 18:53:54 +0900
-Message-ID: <c78a8972-4454-9ade-1e6d-4322e6190ebe@lab.ntt.co.jp>
-References: <20181016165545.guksrl23ulcudxrk@linutronix.de>
-	<68582c17-27bf-43f4-cbe5-96ec712a704c@lab.ntt.co.jp>
-	<a281371f-dd20-2036-d0a8-1081c2f6a452@redhat.com>
-	<20181018084753.wefvsypdevbzoadg@linutronix.de>
-	<4849237d-38f5-9840-4ab9-4419de31db85@lab.ntt.co.jp>
-	<20181018090812.rry5qgnqxxrjxaii@linutronix.de>
-	<55f14915-744b-e11c-bc50-87a872218479@lab.ntt.co.jp>
-	<20181018093035.i56byogaslsnzcnl@linutronix.de>
+From: Robin Murphy <robin.murphy@arm.com>
+Subject: Re: [PATCH v3 3/7] PCI: OF: Allow endpoints to bypass the iommu
+Date: Thu, 18 Oct 2018 11:47:18 +0100
+Message-ID: <e609de5e-1be2-594e-a4a9-ec1a40d997ab__49770.2400586151$1539859529$gmane$org@arm.com>
+References: <20181012145917.6840-1-jean-philippe.brucker@arm.com>
+	<20181012145917.6840-4-jean-philippe.brucker@arm.com>
+	<20181012194158.GX5906@bhelgaas-glaptop.roam.corp.google.com>
+	<20181015065024-mutt-send-email-mst@kernel.org>
+	<482d0eb9-8c4c-9d64-7b32-25d5d11a8b8f@gmail.com>
+	<20181017111100-mutt-send-email-mst@kernel.org>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="utf-8"
-Content-Transfer-Encoding: base64
+Content-Type: text/plain; charset="us-ascii"; Format="flowed"
+Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <20181018093035.i56byogaslsnzcnl@linutronix.de>
-Content-Language: en-US
+In-Reply-To: <20181017111100-mutt-send-email-mst@kernel.org>
+Content-Language: en-GB
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -26,45 +23,76 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Sebastian Andrzej Siewior <bigeasy@linutronix.de>
-Cc: "Michael S. Tsirkin" <mst@redhat.com>, netdev@vger.kernel.org, virtualization@lists.linux-foundation.org, tglx@linutronix.de, "David S. Miller" <davem@davemloft.net>
+To: "Michael S. Tsirkin" <mst@redhat.com>, Jean-philippe Brucker <jphilippe.brucker@gmail.com>
+Cc: mark.rutland@arm.com, devicetree@vger.kernel.org, tnowicki@caviumnetworks.com, peter.maydell@linaro.org, marc.zyngier@arm.com, linux-pci@vger.kernel.org, will.deacon@arm.com, virtualization@lists.linux-foundation.org, jean-philippe.brucker@arm.com, iommu@lists.linux-foundation.org, robh+dt@kernel.org, Bjorn Helgaas <helgaas@kernel.org>, kvmarm@lists.cs.columbia.edu
 List-Id: virtualization@lists.linuxfoundation.org
 
-T24gMjAxOC8xMC8xOCAxODozMCwgU2ViYXN0aWFuIEFuZHJ6ZWogU2lld2lvciB3cm90ZToKPiBP
-biAyMDE4LTEwLTE4IDE4OjE5OjIxIFsrMDkwMF0sIFRvc2hpYWtpIE1ha2l0YSB3cm90ZToKPj4g
-T24gMjAxOC8xMC8xOCAxODowOCwgU2ViYXN0aWFuIEFuZHJ6ZWogU2lld2lvciB3cm90ZToKPj4+
-IEFnYWluOiBsb2NrZGVwIHNhdyB0aGUgbG9jayBpbiBzb2Z0aXJxIGNvbnRleHQgb25jZSBhbmQg
-aW4gcHJvY2Vzcwo+Pj4gY29udGV4dCBvbmNlIGFuZCB0aGlzIGlzIHdoYXQgdHJpZ2dlcnMgdGhl
-IHdhcm5pbmcuIEl0IGRvZXMgbm90IG1hdHRlcgo+Pj4gaWYgTkFQSSBpcyBlbmFibGVkIG9yIG5v
-dCBkdXJpbmcgdGhlIGFjY2VzcyBpbiBwcm9jZXNzIGNvbnRleHQuIElmIHlvdQo+Pj4gd2FudCB0
-byBhbGxvdyB0aGlzIHlvdSBuZWVkIGZ1cnRoZXIgbG9ja2RlcCBhbm5vdGF0aW9u4oCmCj4+Pgo+
-Pj4g4oCmIGJ1dDogcmVmaWxsX3dvcmsoKSBkaXNhYmxlcyBOQVBJIGZvciAmdmktPnJxWzFdIGFu
-ZCByZWZpbGxzICsgdXBkYXRlcwo+Pj4gc3RhdHMgd2hpbGUgTkFQSSBpcyBlbmFibGVkIGZvciAm
-dmktPnJxWzBdLgo+Pgo+PiBEbyB5b3UgbWVhbiB0aGlzIGlzIGZhbHNlIHBvc2l0aXZlPyBycVsw
-XSBhbmQgcnFbMV0gbmV2ZXIgcmFjZSB3aXRoIGVhY2gKPj4gb3RoZXIuLi4KPiAKPiBXaHk/IFNv
-IHlvdSBjYW4ndCByZWZpbGwgcnFbMV0gYW5kIHRoZW4gYmUgaW50ZXJydXB0ZWQgYW5kIHByb2Nl
-c3MgTkFQSQo+IGZvciBycVswXT8KClByb2JhYmx5IEkgZG9uJ3QgdW5kZXJzdGFuZCB3aGF0IHlv
-dSBhcmUgdHJ5aW5nIHRvIHNheSwgYnV0IHJxWzBdIGFuZApycVsxXSBhcmUgZGlmZmVyZW50IG9i
-amVjdHMgc28gdGhleSBjYW4gYmUgcHJvY2Vzc2VkIGNvbmN1cnJlbnRseSBidXQKc2hvdWxkIG5v
-dCBhZmZlY3QgZWFjaCBvdGhlci4KCj4gCj4gQnV0IGFzIEkgc2FpZC4gSWYgbG9ja2RlcCBzYXcg
-dGhlIGxvY2sgaW4gYWNxdWlyZWQgaW4gc29mdGlycSAod2hhdCBpdAo+IGRpZCkgX2FuZF8gaW4g
-cHJvY2VzcyBjb250ZXh0ICh3aGF0IGl0IGRpZCBhcyB3ZWxsKSBfb25jZV8gdGhlbiB0aGlzIGlz
-Cj4gZW5vdWdoIGV2aWRlbmNlIGZvciB0aGUgd2FybmluZy4KPiBJZiB5b3UgY2xhaW0gdGhhdCB0
-aGlzIGNhbiBub3QgaGFwcGVuIGR1ZSB0byBOQVBJIGd1YXJkIFswXSB0aGVuIHRoaXMgaXMKPiBz
-b21ldGhpbmcgbG9ja2RlcCBkb2VzIG5vdCBrbm93IGFib3V0LgoKVGhlIHBvaW50IGlzIHRoYXQg
-aXQgaXMgbm90IHRoZSBwcm9ibGVtIG9mIHN0YXRzLiB0cnlfZmlsbF9yZWN2KCkgc2hvdWxkCm5v
-dCBiZSBjYWxsZWQgZm9yIHRoZSBzYW1lIHJxIGNvbmN1cnJlbnRseSBpbiB0aGUgZmlyc3QgcGxh
-Y2UuIFRoaXMKcmVxdWlyZW1lbnQgc2hvdWxkIGJlIHNhdGlzZmllZCBieSBOQVBJIGd1YXJkLCBz
-byBpZiB0aGUgTkFQSSBndWFyZApsb2dpYyBpcyBidWdneSB0aGVuIHdlIG5lZWQgdG8gZml4IGl0
-LgoKPiBbMF0gd2hpY2ggSSBjdXJyZW50bHkgZG9uJ3QgdW5kZXJzdGFuZCBhbmQgdGhlcmVmb3Jl
-IHNlbnQgdGhlIHBhdGNoIFsxXQo+ICAgICBhcyBKYXNvbiBwb2ludGVkIG91dCB0aGF0IGluIHRo
-ZSAtPm5kb19vcGVuIGNhc2UgdGhlIHdvcmsgaXMKPiAgICAgc2NoZWR1bGVkIGFuZCB0aGVuIE5B
-UEkgaXMgZW5hYmxlZCAod2hpY2ggbWVhbnMgdGhlIHdvcmtlciBjb3VsZAo+ICAgICBkaXNhYmxl
-IE5BUEkgYW5kIHJlZmlsbCBidXQgYmVmb3JlIGl0IGZpbmlzaGVzLCAtPm5kb19vcGVuIHdvdWxk
-Cj4gICAgIGNvbnRpbnVlIGFuZCBlbmFibGUgTkFQSSkpLgoKSXQgbWF5IGJlIHJlbGF0ZWQgYnV0
-IEkgaGF2ZSBub3QgaW52ZXN0aWdhdGVkIGl0IGRlZXBseS4gSSdsbCBjaGVjayBpZgppdCBjYW4g
-Y2F1c2UgdGhpcyBwcm9ibGVtIGxhdGVyLgoKPiBbMV0gMjAxODEwMTgwODQ3NTMud2VmdnN5cGRl
-dmJ6b2FkZ0BsaW51dHJvbml4LmRlCgotLSAKVG9zaGlha2kgTWFraXRhCgpfX19fX19fX19fX19f
-X19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fXwpWaXJ0dWFsaXphdGlvbiBtYWlsaW5n
-IGxpc3QKVmlydHVhbGl6YXRpb25AbGlzdHMubGludXgtZm91bmRhdGlvbi5vcmcKaHR0cHM6Ly9s
-aXN0cy5saW51eGZvdW5kYXRpb24ub3JnL21haWxtYW4vbGlzdGluZm8vdmlydHVhbGl6YXRpb24=
+On 17/10/18 16:14, Michael S. Tsirkin wrote:
+> On Mon, Oct 15, 2018 at 08:46:41PM +0100, Jean-philippe Brucker wrote:
+>> [Replying with my personal address because we're having SMTP issues]
+>>
+>> On 15/10/2018 11:52, Michael S. Tsirkin wrote:
+>>> On Fri, Oct 12, 2018 at 02:41:59PM -0500, Bjorn Helgaas wrote:
+>>>> s/iommu/IOMMU/ in subject
+>>>>
+>>>> On Fri, Oct 12, 2018 at 03:59:13PM +0100, Jean-Philippe Brucker wrote:
+>>>>> Using the iommu-map binding, endpoints in a given PCI domain can be
+>>>>> managed by different IOMMUs. Some virtual machines may allow a subset of
+>>>>> endpoints to bypass the IOMMU. In some case the IOMMU itself is presented
+>>>>
+>>>> s/case/cases/
+>>>>
+>>>>> as a PCI endpoint (e.g. AMD IOMMU and virtio-iommu). Currently, when a
+>>>>> PCI root complex has an iommu-map property, the driver requires all
+>>>>> endpoints to be described by the property. Allow the iommu-map property to
+>>>>> have gaps.
+>>>>
+>>>> I'm not an IOMMU or virtio expert, so it's not obvious to me why it is
+>>>> safe to allow devices to bypass the IOMMU.  Does this mean a typo in
+>>>> iommu-map could inadvertently allow devices to bypass it?
+>>>
+>>>
+>>> Thinking about this comment, I would like to ask: can't the
+>>> virtio device indicate the ranges in a portable way?
+>>> This would minimize the dependency on dt bindings and ACPI,
+>>> enabling support for systems that have neither but do
+>>> have virtio e.g. through pci.
+>>
+>> I thought about adding a PROBE request for this in virtio-iommu, but it
+>> wouldn't be usable by a Linux guest because of a bootstrapping problem.
+> 
+> Hmm. At some level it seems wrong to design hardware interfaces
+> around how Linux happens to probe things. That can change at any time
+> ...
+
+This isn't Linux-specific though. In general it's somewhere between 
+difficult and impossible to pull in an IOMMU underneath a device after 
+at device is active, so if any OS wants to use an IOMMU, it's going to 
+want to know up-front that it's there and which devices it translates so 
+that it can program said IOMMU appropriately *before* potentially 
+starting DMA and/or interrupts from the relevant devices. Linux happens 
+to do things in that order (either by firmware-driven probe-deferral or 
+just perilous initcall ordering) because it is the only reasonable order 
+in which to do them. AFAIK the platforms which don't rely on any 
+firmware description of their IOMMU tend to have a fairly static system 
+architecture (such that the OS simply makes hard-coded assumptions), so 
+it's not necessarily entirely clear how they would cope with 
+virtio-iommu either way.
+
+Robin.
+
+>> Early on, Linux needs a description of device dependencies, to determine
+>> in which order to probe them. If the device dependency was described by
+>> virtio-iommu itself, the guest could for example initialize a NIC,
+>> allocate buffers and start DMA on the physical address space (which aborts
+>> if the IOMMU implementation disallows DMA by default), only to find out
+>> once the virtio-iommu module is loaded that it needs to cancel all DMA and
+>> reconfigure the NIC. With a static description such as iommu-map in DT or
+>> ACPI remapping tables, the guest can defer probing of the NIC until the
+>> IOMMU is initialized.
+>>
+>> Thanks,
+>> Jean
+> 
+> Could you point me at the code you refer to here?
+> 
