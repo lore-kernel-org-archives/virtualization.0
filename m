@@ -1,21 +1,15 @@
-From: Jason Wang <jasowang@redhat.com>
-Subject: Re: [RFC] VSOCK: The performance problem of vhost_vsock.
-Date: Thu, 18 Oct 2018 10:45:27 +0800
-Message-ID: <615b395c-4ef2-dde2-0032-ff5f0035c7ad__16072.3899877214$1539830614$gmane$org@redhat.com>
-References: <5BC3F0D4.60409@huawei.com>
-	<30d7c370-b206-cdac-dc85-53e9be1e1c63@redhat.com>
-	<5BC42FD8.2070104@huawei.com> <5BC70069.4000600@huawei.com>
-	<d16d2052-bfb1-7861-e210-b53b4ea3260c@redhat.com>
-	<8edff784-b311-bfb6-1bf4-1970d564279d@redhat.com>
-	<5BC72006.9010000@huawei.com>
-	<70e7a894-ad12-9909-a0a8-c8772c7c232f@redhat.com>
-	<5BC7E04E.9000002@huawei.com>
+From: Gerd Hoffmann <kraxel@redhat.com>
+Subject: Re: [PATCH v2] drm/bochs: add edid support.
+Date: Thu, 18 Oct 2018 07:11:02 +0200
+Message-ID: <20181018051102.7hkrtj5siw6fss2y__46209.871923975$1539839341$gmane$org@sirius.home.kraxel.org>
+References: <20181005120934.21959-1-kraxel@redhat.com>
+	<CAPM=9twEjDr5dj+9B==QSYtAB7uqy0Szn2d7cw9swSk+THMA2g@mail.gmail.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="utf-8"; Format="flowed"
-Content-Transfer-Encoding: base64
+Content-Type: text/plain; charset="us-ascii"
+Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <5BC7E04E.9000002@huawei.com>
-Content-Language: en-US
+Content-Disposition: inline
+In-Reply-To: <CAPM=9twEjDr5dj+9B==QSYtAB7uqy0Szn2d7cw9swSk+THMA2g@mail.gmail.com>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -25,48 +19,38 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: jiangyiwen <jiangyiwen@huawei.com>, stefanha@redhat.com
-Cc: netdev@vger.kernel.org, kvm@vger.kernel.org, virtualization@lists.linux-foundation.org
+To: Dave Airlie <airlied@gmail.com>
+Cc: Dave Airlie <airlied@linux.ie>, LKML <linux-kernel@vger.kernel.org>, dri-devel <dri-devel@lists.freedesktop.org>, "open list:VIRTIO CORE,
+	NET..." <virtualization@lists.linux-foundation.org>
 List-Id: virtualization@lists.linuxfoundation.org
 
-Ck9uIDIwMTgvMTAvMTgg5LiK5Y2IOToyMiwgamlhbmd5aXdlbiB3cm90ZToKPiBPbiAyMDE4LzEw
-LzE3IDIwOjMxLCBKYXNvbiBXYW5nIHdyb3RlOgo+PiBPbiAyMDE4LzEwLzE3IOS4i+WNiDc6NDEs
-IGppYW5neWl3ZW4gd3JvdGU6Cj4+PiBPbiAyMDE4LzEwLzE3IDE3OjUxLCBKYXNvbiBXYW5nIHdy
-b3RlOgo+Pj4+IE9uIDIwMTgvMTAvMTcg5LiL5Y2INTozOSwgSmFzb24gV2FuZyB3cm90ZToKPj4+
-Pj4+IEhpIEphc29uIGFuZCBTdGVmYW4sCj4+Pj4+Pgo+Pj4+Pj4gTWF5YmUgSSBmaW5kIHRoZSBy
-ZWFzb24gb2YgYmFkIHBlcmZvcm1hbmNlLgo+Pj4+Pj4KPj4+Pj4+IEkgZm91bmQgcGt0X2xlbiBp
-cyBsaW1pdGVkIHRvIFZJUlRJT19WU09DS19ERUZBVUxUX1JYX0JVRl9TSVpFKDRLKSwKPj4+Pj4+
-IGl0IHdpbGwgY2F1c2UgdGhlIGJhbmR3aWR0aCBpcyBsaW1pdGVkIHRvIDUwMH42MDBNQi9zLiBB
-bmQgb25jZSBJCj4+Pj4+PiBpbmNyZWFzZSB0byA2NGssIGl0IGNhbiBpbXByb3ZlIGFib3V0IDMg
-dGltZXMofjE1MDBNQi9zKS4KPj4+Pj4gTG9va3MgbGlrZSB0aGUgdmFsdWUgd2FzIGNob3NlbiBm
-b3IgYSBiYWxhbmNlIGJldHdlZW4gcnggYnVmZmVyIHNpemUgYW5kIHBlcmZvcm1hbmNlLiBBbGxv
-Y2F0aW5nIDY0SyBhbHdheXMgZXZlbiBmb3Igc21hbGwgcGFja2V0IGlzIGtpbmQgb2Ygd2FzdGUg
-YW5kIHN0cmVzcyBmb3IgZ3Vlc3QgbWVtb3J5LiBWaXJpdG8tbmV0IHRyeSB0byBhdm9pZCB0aGlz
-IGJ5IGludmVudGluZyB0aGUgbWVyZ2UgYWJsZSByeCBidWZmZXIgd2hpY2ggYWxsb3dzIGJpZyBw
-YWNrZXQgdG8gYmUgc2NhdHRlcmVkIGluIGludG8gZGlmZmVyZW50IGJ1ZmZlcnMuIFdlIGNhbiBy
-ZXVzZSB0aGlzIGlkZWEgb3IgcmV2aXNpdCB0aGUgaWRlYSBvZiB1c2luZyB2aXJ0aW8tbmV0L3Zo
-b3N0LW5ldCBhcyBhIHRyYW5zcG9ydCBvZiB2c29jay4KPj4+Pj4KPj4+Pj4gV2hhdCBpbnRlcmVz
-dGluZyBpcyB0aGUgcGVyZm9ybWFuY2UgaXMgc3RpbGwgYmVoaW5kIHZob3N0LW5ldC4KPj4+Pj4K
-Pj4+Pj4gVGhhbmtzCj4+Pj4+Cj4+Pj4+PiBCeSB0aGUgd2F5LCBJIHNlbmQgdG8gNjRLIGluIGFw
-cGxpY2F0aW9uIG9uY2UsIGFuZCBJIGRvbid0IHVzZQo+Pj4+Pj4gc2dfaW5pdF9vbmUgYW5kIHJl
-d3JpdGUgZnVuY3Rpb24gdG8gcGFja2V0IHNnIGxpc3QgYmVjYXVzZSBwa3RfbGVuCj4+Pj4+PiBp
-bmNsdWRlIG11bHRpcGxlIHBhZ2VzLgo+Pj4+Pj4KPj4+Pj4+IFRoYW5rcywKPj4+Pj4+IFlpd2Vu
-Lgo+Pj4+IEJ0dywgaWYgeW91J3JlIHVzaW5nIHZzb2NrIGZvciB0cmFuc2ZlcnJpbmcgbGFyZ2Ug
-ZmlsZXMsIG1heWJlIGl0J3MgbW9yZSBlZmZpY2llbnQgdG8gaW1wbGVtZW50IHNlbmRwYWdlKCkg
-Zm9yIHZzb2NrIHRvIGFsbG93IHNlbmRmaWxlKCkvc3BsaWNlKCkgd29yay4KPj4+Pgo+Pj4+IFRo
-YW5rcwo+Pj4+Cj4+PiBJIGNhbid0IGFncmVlIG1vcmUuCj4+Pgo+Pj4gd2h5IHZob3N0X3Zzb2Nr
-IGlzIHN0aWxsIGJlaGluZCB2aG9zdF9uZXQ/Cj4+PiBCZWNhdXNlIEkgdXNlIHNlbmRmaWxlKCkg
-dG8gdGVzdCBwZXJmb3JtYW5jZSBhdCBmaXJzdCwgYW5kIHRoZW4KPj4+IEkgZm91bmQgdnNvY2sg
-ZG9uJ3QgaW1wbGVtZW50IHNlbmRwYWdlKCkgYW5kIGNhdXNlIHRoZSBiYW5kd2lkdGgKPj4+IGNh
-bid0IGJlIGluY3JlYXNlZC4gU28gSSB1c2UgcmVhZCgpIGFuZCBzZW5kKCkgdG8gcmVwbGFjZSBz
-ZW5kZmlsZSgpLAo+Pj4gaXQgd2lsbCBpbmNyZWFzZSBzb21lIHN3aXRjaCBiZXR3ZWVuIGtlcm5l
-bCBhbmQgdXNlciBtb2RlLCBhbmQgc2VuZGZpbGUoKQo+Pj4gY2FuIHN1cHBvcnQgemVybyBjb3B5
-LiBJIHRoaW5rIHRoaXMgaXMgbWFpbiByZWFzb24uCj4+Pgo+Pj4gVGhhbmtzLgo+Pgo+PiBXYW50
-IHRvIHBvc3QgcGF0Y2hlcyBmb3IgdGhpcyB0aGVuIDopID8KPj4KPj4gVGhhbmtzCj4+Cj4gSSBt
-YXkgbm90IHBvc3QgcGF0Y2hlcyBhdCB0aGUgbW9tZW50IGJlY2F1c2UgdGhlcmUgYXJlIG90aGVy
-IHRhc2tzLgo+Cj4gQWZ0ZXIgYSBwZXJpb2Qgb2YgdGltZSwgSSB3aWxsIGNvbnNpZGVyIGltcGxl
-bWVudCB0aGUgZmVhdHVyZS4KPgo+IFRoYW5rcy4KCgpUaGF0J3MgZmluZS4KClRoYW5rcwoKX19f
-X19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX18KVmlydHVhbGl6YXRp
-b24gbWFpbGluZyBsaXN0ClZpcnR1YWxpemF0aW9uQGxpc3RzLmxpbnV4LWZvdW5kYXRpb24ub3Jn
-Cmh0dHBzOi8vbGlzdHMubGludXhmb3VuZGF0aW9uLm9yZy9tYWlsbWFuL2xpc3RpbmZvL3ZpcnR1
-YWxpemF0aW9u
+  Hi,
+
+> > Recent qemu (latest master branch, upcoming 3.1 release) got support
+> > for EDID data.  This patch adds guest driver support.
+> >
+> > EDID support in qemu is not (yet) enabled by default, so please use
+> > 'qemu -device VGA,edid=on' for testing.
+> 
+> The EDID never changes after boot?
+
+Right now it doesn't.
+
+> Is there plans to let it?
+
+Needs more virtual hardware changes, the stdvga has no support for
+interrupts, so qemu can't signal an edid update to the guest.
+
+So not not sure yet what to do about it.  Maybe add it later (but it's
+not high priority).  Maybe simply recommend to use virtio-gpu instead.
+
+> > +       kfree(bochs->edid);
+> > +       bochs->edid = kmalloc(len, GFP_KERNEL);
+> 
+> Don't you need to free it somewhere?
+
+Oh, yes, we leak that on driver unload.
+I'll fix it.
+
+cheers,
+  Gerd
