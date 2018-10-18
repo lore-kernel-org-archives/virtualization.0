@@ -1,21 +1,21 @@
-From: Toshiaki Makita <makita.toshiaki@lab.ntt.co.jp>
-Subject: Re: [PATCH] virtio_net: add local_bh_disable() around
+From: Sebastian Andrzej Siewior <bigeasy@linutronix.de>
+Subject: Re: [RFC] virtio_net: add local_bh_disable() around
 	u64_stats_update_begin
-Date: Thu, 18 Oct 2018 18:26:05 +0900
-Message-ID: <e5dea07c-5067-a324-5f46-b8ed4157c104@lab.ntt.co.jp>
+Date: Thu, 18 Oct 2018 11:30:35 +0200
+Message-ID: <20181018093035.i56byogaslsnzcnl__47430.8616285727$1539854916$gmane$org@linutronix.de>
 References: <20181016165545.guksrl23ulcudxrk@linutronix.de>
-	<20181016110114.73e2b248@xeon-e3>
-	<20181016184206.coukhtgmlr32hyl7@linutronix.de>
-	<20181016114414.23ea73c3@xeon-e3>
-	<20181018084313.oopu34iwfwgkcwwc@linutronix.de>
-	<0dce3017-9973-af2d-f324-6fe8b5eb5469@lab.ntt.co.jp>
-	<20181018091114.jqiedzds2bqezxtb@linutronix.de>
+	<68582c17-27bf-43f4-cbe5-96ec712a704c@lab.ntt.co.jp>
+	<a281371f-dd20-2036-d0a8-1081c2f6a452@redhat.com>
+	<20181018084753.wefvsypdevbzoadg@linutronix.de>
+	<4849237d-38f5-9840-4ab9-4419de31db85@lab.ntt.co.jp>
+	<20181018090812.rry5qgnqxxrjxaii@linutronix.de>
+	<55f14915-744b-e11c-bc50-87a872218479@lab.ntt.co.jp>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset="utf-8"
+Content-Transfer-Encoding: base64
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <20181018091114.jqiedzds2bqezxtb@linutronix.de>
-Content-Language: en-US
+Content-Disposition: inline
+In-Reply-To: <55f14915-744b-e11c-bc50-87a872218479@lab.ntt.co.jp>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -25,20 +25,34 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Sebastian Andrzej Siewior <bigeasy@linutronix.de>
+To: Toshiaki Makita <makita.toshiaki@lab.ntt.co.jp>
 Cc: "Michael S. Tsirkin" <mst@redhat.com>, netdev@vger.kernel.org, virtualization@lists.linux-foundation.org, tglx@linutronix.de, "David S. Miller" <davem@davemloft.net>
 List-Id: virtualization@lists.linuxfoundation.org
 
-On 2018/10/18 18:11, Sebastian Andrzej Siewior wrote:
-> On 2018-10-18 18:06:57 [+0900], Toshiaki Makita wrote:
->> NACK. Again, this race should not happen because of NAPI guard.
->> We need to investigate why this warning happened.
-> 
-> I tried to explain this. Please see
-> 	20181018090812.rry5qgnqxxrjxaii@linutronix.de
-Anyway, if this really happens, then it means try_fill_recv() can be
-called concurrently for the same rq, which looks like a far more severe
-problem to me. If so, we need to fix it instead.
-
--- 
-Toshiaki Makita
+T24gMjAxOC0xMC0xOCAxODoxOToyMSBbKzA5MDBdLCBUb3NoaWFraSBNYWtpdGEgd3JvdGU6Cj4g
+T24gMjAxOC8xMC8xOCAxODowOCwgU2ViYXN0aWFuIEFuZHJ6ZWogU2lld2lvciB3cm90ZToKPiA+
+IEFnYWluOiBsb2NrZGVwIHNhdyB0aGUgbG9jayBpbiBzb2Z0aXJxIGNvbnRleHQgb25jZSBhbmQg
+aW4gcHJvY2Vzcwo+ID4gY29udGV4dCBvbmNlIGFuZCB0aGlzIGlzIHdoYXQgdHJpZ2dlcnMgdGhl
+IHdhcm5pbmcuIEl0IGRvZXMgbm90IG1hdHRlcgo+ID4gaWYgTkFQSSBpcyBlbmFibGVkIG9yIG5v
+dCBkdXJpbmcgdGhlIGFjY2VzcyBpbiBwcm9jZXNzIGNvbnRleHQuIElmIHlvdQo+ID4gd2FudCB0
+byBhbGxvdyB0aGlzIHlvdSBuZWVkIGZ1cnRoZXIgbG9ja2RlcCBhbm5vdGF0aW9u4oCmCj4gPiAK
+PiA+IOKApiBidXQ6IHJlZmlsbF93b3JrKCkgZGlzYWJsZXMgTkFQSSBmb3IgJnZpLT5ycVsxXSBh
+bmQgcmVmaWxscyArIHVwZGF0ZXMKPiA+IHN0YXRzIHdoaWxlIE5BUEkgaXMgZW5hYmxlZCBmb3Ig
+JnZpLT5ycVswXS4KPiAKPiBEbyB5b3UgbWVhbiB0aGlzIGlzIGZhbHNlIHBvc2l0aXZlPyBycVsw
+XSBhbmQgcnFbMV0gbmV2ZXIgcmFjZSB3aXRoIGVhY2gKPiBvdGhlci4uLgoKV2h5PyBTbyB5b3Ug
+Y2FuJ3QgcmVmaWxsIHJxWzFdIGFuZCB0aGVuIGJlIGludGVycnVwdGVkIGFuZCBwcm9jZXNzIE5B
+UEkKZm9yIHJxWzBdPwoKQnV0IGFzIEkgc2FpZC4gSWYgbG9ja2RlcCBzYXcgdGhlIGxvY2sgaW4g
+YWNxdWlyZWQgaW4gc29mdGlycSAod2hhdCBpdApkaWQpIF9hbmRfIGluIHByb2Nlc3MgY29udGV4
+dCAod2hhdCBpdCBkaWQgYXMgd2VsbCkgX29uY2VfIHRoZW4gdGhpcyBpcwplbm91Z2ggZXZpZGVu
+Y2UgZm9yIHRoZSB3YXJuaW5nLgpJZiB5b3UgY2xhaW0gdGhhdCB0aGlzIGNhbiBub3QgaGFwcGVu
+IGR1ZSB0byBOQVBJIGd1YXJkIFswXSB0aGVuIHRoaXMgaXMKc29tZXRoaW5nIGxvY2tkZXAgZG9l
+cyBub3Qga25vdyBhYm91dC4KClswXSB3aGljaCBJIGN1cnJlbnRseSBkb24ndCB1bmRlcnN0YW5k
+IGFuZCB0aGVyZWZvcmUgc2VudCB0aGUgcGF0Y2ggWzFdCiAgICBhcyBKYXNvbiBwb2ludGVkIG91
+dCB0aGF0IGluIHRoZSAtPm5kb19vcGVuIGNhc2UgdGhlIHdvcmsgaXMKICAgIHNjaGVkdWxlZCBh
+bmQgdGhlbiBOQVBJIGlzIGVuYWJsZWQgKHdoaWNoIG1lYW5zIHRoZSB3b3JrZXIgY291bGQKICAg
+IGRpc2FibGUgTkFQSSBhbmQgcmVmaWxsIGJ1dCBiZWZvcmUgaXQgZmluaXNoZXMsIC0+bmRvX29w
+ZW4gd291bGQKICAgIGNvbnRpbnVlIGFuZCBlbmFibGUgTkFQSSkpLgpbMV0gMjAxODEwMTgwODQ3
+NTMud2VmdnN5cGRldmJ6b2FkZ0BsaW51dHJvbml4LmRlCgpTZWJhc3RpYW4KX19fX19fX19fX19f
+X19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX18KVmlydHVhbGl6YXRpb24gbWFpbGlu
+ZyBsaXN0ClZpcnR1YWxpemF0aW9uQGxpc3RzLmxpbnV4LWZvdW5kYXRpb24ub3JnCmh0dHBzOi8v
+bGlzdHMubGludXhmb3VuZGF0aW9uLm9yZy9tYWlsbWFuL2xpc3RpbmZvL3ZpcnR1YWxpemF0aW9u
