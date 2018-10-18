@@ -1,19 +1,16 @@
-From: Robin Murphy <robin.murphy@arm.com>
-Subject: Re: [PATCH v3 3/7] PCI: OF: Allow endpoints to bypass the iommu
-Date: Thu, 18 Oct 2018 11:47:18 +0100
-Message-ID: <e609de5e-1be2-594e-a4a9-ec1a40d997ab__49770.2400586151$1539859529$gmane$org@arm.com>
-References: <20181012145917.6840-1-jean-philippe.brucker@arm.com>
-	<20181012145917.6840-4-jean-philippe.brucker@arm.com>
-	<20181012194158.GX5906@bhelgaas-glaptop.roam.corp.google.com>
-	<20181015065024-mutt-send-email-mst@kernel.org>
-	<482d0eb9-8c4c-9d64-7b32-25d5d11a8b8f@gmail.com>
-	<20181017111100-mutt-send-email-mst@kernel.org>
+From: David Miller <davem@davemloft.net>
+Subject: Re: [PATCH] virtio_net: add local_bh_disable() around
+	u64_stats_update_begin
+Date: Thu, 18 Oct 2018 16:23:08 -0700 (PDT)
+Message-ID: <20181018.162308.2295937118791060714.davem@davemloft.net>
+References: <20181016184206.coukhtgmlr32hyl7@linutronix.de>
+	<20181016114414.23ea73c3@xeon-e3>
+	<20181018084313.oopu34iwfwgkcwwc@linutronix.de>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"; Format="flowed"
+Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <20181017111100-mutt-send-email-mst@kernel.org>
-Content-Language: en-GB
+In-Reply-To: <20181018084313.oopu34iwfwgkcwwc@linutronix.de>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -23,76 +20,50 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: "Michael S. Tsirkin" <mst@redhat.com>, Jean-philippe Brucker <jphilippe.brucker@gmail.com>
-Cc: mark.rutland@arm.com, devicetree@vger.kernel.org, tnowicki@caviumnetworks.com, peter.maydell@linaro.org, marc.zyngier@arm.com, linux-pci@vger.kernel.org, will.deacon@arm.com, virtualization@lists.linux-foundation.org, jean-philippe.brucker@arm.com, iommu@lists.linux-foundation.org, robh+dt@kernel.org, Bjorn Helgaas <helgaas@kernel.org>, kvmarm@lists.cs.columbia.edu
+To: bigeasy@linutronix.de
+Cc: mst@redhat.com, netdev@vger.kernel.org, virtualization@lists.linux-foundation.org, tglx@linutronix.de
 List-Id: virtualization@lists.linuxfoundation.org
 
-On 17/10/18 16:14, Michael S. Tsirkin wrote:
-> On Mon, Oct 15, 2018 at 08:46:41PM +0100, Jean-philippe Brucker wrote:
->> [Replying with my personal address because we're having SMTP issues]
->>
->> On 15/10/2018 11:52, Michael S. Tsirkin wrote:
->>> On Fri, Oct 12, 2018 at 02:41:59PM -0500, Bjorn Helgaas wrote:
->>>> s/iommu/IOMMU/ in subject
->>>>
->>>> On Fri, Oct 12, 2018 at 03:59:13PM +0100, Jean-Philippe Brucker wrote:
->>>>> Using the iommu-map binding, endpoints in a given PCI domain can be
->>>>> managed by different IOMMUs. Some virtual machines may allow a subset of
->>>>> endpoints to bypass the IOMMU. In some case the IOMMU itself is presented
->>>>
->>>> s/case/cases/
->>>>
->>>>> as a PCI endpoint (e.g. AMD IOMMU and virtio-iommu). Currently, when a
->>>>> PCI root complex has an iommu-map property, the driver requires all
->>>>> endpoints to be described by the property. Allow the iommu-map property to
->>>>> have gaps.
->>>>
->>>> I'm not an IOMMU or virtio expert, so it's not obvious to me why it is
->>>> safe to allow devices to bypass the IOMMU.  Does this mean a typo in
->>>> iommu-map could inadvertently allow devices to bypass it?
->>>
->>>
->>> Thinking about this comment, I would like to ask: can't the
->>> virtio device indicate the ranges in a portable way?
->>> This would minimize the dependency on dt bindings and ACPI,
->>> enabling support for systems that have neither but do
->>> have virtio e.g. through pci.
->>
->> I thought about adding a PROBE request for this in virtio-iommu, but it
->> wouldn't be usable by a Linux guest because of a bootstrapping problem.
-> 
-> Hmm. At some level it seems wrong to design hardware interfaces
-> around how Linux happens to probe things. That can change at any time
-> ...
+From: Sebastian Andrzej Siewior <bigeasy@linutronix.de>
+Date: Thu, 18 Oct 2018 10:43:13 +0200
 
-This isn't Linux-specific though. In general it's somewhere between 
-difficult and impossible to pull in an IOMMU underneath a device after 
-at device is active, so if any OS wants to use an IOMMU, it's going to 
-want to know up-front that it's there and which devices it translates so 
-that it can program said IOMMU appropriately *before* potentially 
-starting DMA and/or interrupts from the relevant devices. Linux happens 
-to do things in that order (either by firmware-driven probe-deferral or 
-just perilous initcall ordering) because it is the only reasonable order 
-in which to do them. AFAIK the platforms which don't rely on any 
-firmware description of their IOMMU tend to have a fairly static system 
-architecture (such that the OS simply makes hard-coded assumptions), so 
-it's not necessarily entirely clear how they would cope with 
-virtio-iommu either way.
-
-Robin.
-
->> Early on, Linux needs a description of device dependencies, to determine
->> in which order to probe them. If the device dependency was described by
->> virtio-iommu itself, the guest could for example initialize a NIC,
->> allocate buffers and start DMA on the physical address space (which aborts
->> if the IOMMU implementation disallows DMA by default), only to find out
->> once the virtio-iommu module is loaded that it needs to cancel all DMA and
->> reconfigure the NIC. With a static description such as iommu-map in DT or
->> ACPI remapping tables, the guest can defer probing of the NIC until the
->> IOMMU is initialized.
->>
->> Thanks,
->> Jean
+> on 32bit, lockdep notices that virtnet_open() and refill_work() invoke
+> try_fill_recv() from process context while virtnet_receive() invokes the
+> same function from BH context. The problem that the seqcounter within
+> u64_stats_update_begin() may deadlock if it is interrupted by BH and
+> then acquired again.
 > 
-> Could you point me at the code you refer to here?
+> Introduce u64_stats_update_begin_bh() which disables BH on 32bit
+> architectures. Since the BH might interrupt the worker, this new
+> function should not limited to SMP like the others which are expected
+> to be used in softirq.
 > 
+> With this change we might lose increments but this is okay. The
+> important part that the two 32bit parts of the 64bit counter are not
+> corrupted.
+> 
+> Fixes: 461f03dc99cf6 ("virtio_net: Add kick stats").
+> Suggested-by: Stephen Hemminger <stephen@networkplumber.org>
+> Signed-off-by: Sebastian Andrzej Siewior <bigeasy@linutronix.de>
+
+Trying to get down to the bottom of this:
+
+1) virtnet_receive() runs from softirq but only if NAPI is active and
+   enabled.  It is in this context that it invokes try_fill_recv().
+
+2) refill_work() runs from process context, but disables NAPI (and
+   thus invocation of virtnet_receive()) before calling
+   try_fill_recv().
+
+3) virtnet_open() invokes from process context as well, but before the
+   NAPI instances are enabled, it is same as case #2.
+
+4) virtnet_restore_up() is the same situations as #3.
+
+Therefore I agree that this is a false positive, and simply lockdep
+cannot see the NAPI synchronization done by case #2.
+
+I think we shouldn't add unnecessary BH disabling here, and instead
+find some way to annotate this for lockdep's sake.
+
+Thank you.
