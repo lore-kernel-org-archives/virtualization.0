@@ -1,18 +1,14 @@
-From: Jason Wang <jasowang@redhat.com>
-Subject: Re: [PATCH] virtio_net: add local_bh_disable() around
-	u64_stats_update_begin
-Date: Fri, 19 Oct 2018 10:19:56 +0800
-Message-ID: <0c7c4cb9-5814-e8b1-33e5-b57aa26f0cce__46790.0316617035$1539915485$gmane$org@redhat.com>
-References: <20181016184206.coukhtgmlr32hyl7@linutronix.de>
-	<20181016114414.23ea73c3@xeon-e3>
-	<20181018084313.oopu34iwfwgkcwwc@linutronix.de>
-	<20181018.162308.2295937118791060714.davem@davemloft.net>
+From: Gerd Hoffmann <kraxel@redhat.com>
+Subject: [PATCH v2 2/6] drm/virtio: use virtio_gpu_object->hw_res_handle in
+	virtio_gpufb_create()
+Date: Fri, 19 Oct 2018 08:18:43 +0200
+Message-ID: <20181019061847.18958-3-kraxel__32325.7301621654$1539929808$gmane$org@redhat.com>
+References: <20181019061847.18958-1-kraxel@redhat.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="utf-8"; Format="flowed"
-Content-Transfer-Encoding: base64
+Content-Type: text/plain; charset="us-ascii"
+Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <20181018.162308.2295937118791060714.davem@davemloft.net>
-Content-Language: en-US
+In-Reply-To: <20181019061847.18958-1-kraxel@redhat.com>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -22,43 +18,50 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: David Miller <davem@davemloft.net>, bigeasy@linutronix.de
-Cc: mst@redhat.com, netdev@vger.kernel.org, virtualization@lists.linux-foundation.org, tglx@linutronix.de
+To: dri-devel@lists.freedesktop.org
+Cc: David Airlie <airlied@linux.ie>, open list <linux-kernel@vger.kernel.org>, "open list:VIRTIO GPU DRIVER" <virtualization@lists.linux-foundation.org>
 List-Id: virtualization@lists.linuxfoundation.org
 
-Ck9uIDIwMTgvMTAvMTkg5LiK5Y2INzoyMywgRGF2aWQgTWlsbGVyIHdyb3RlOgo+IEZyb206IFNl
-YmFzdGlhbiBBbmRyemVqIFNpZXdpb3IgPGJpZ2Vhc3lAbGludXRyb25peC5kZT4KPiBEYXRlOiBU
-aHUsIDE4IE9jdCAyMDE4IDEwOjQzOjEzICswMjAwCj4KPj4gb24gMzJiaXQsIGxvY2tkZXAgbm90
-aWNlcyB0aGF0IHZpcnRuZXRfb3BlbigpIGFuZCByZWZpbGxfd29yaygpIGludm9rZQo+PiB0cnlf
-ZmlsbF9yZWN2KCkgZnJvbSBwcm9jZXNzIGNvbnRleHQgd2hpbGUgdmlydG5ldF9yZWNlaXZlKCkg
-aW52b2tlcyB0aGUKPj4gc2FtZSBmdW5jdGlvbiBmcm9tIEJIIGNvbnRleHQuIFRoZSBwcm9ibGVt
-IHRoYXQgdGhlIHNlcWNvdW50ZXIgd2l0aGluCj4+IHU2NF9zdGF0c191cGRhdGVfYmVnaW4oKSBt
-YXkgZGVhZGxvY2sgaWYgaXQgaXMgaW50ZXJydXB0ZWQgYnkgQkggYW5kCj4+IHRoZW4gYWNxdWly
-ZWQgYWdhaW4uCj4+Cj4+IEludHJvZHVjZSB1NjRfc3RhdHNfdXBkYXRlX2JlZ2luX2JoKCkgd2hp
-Y2ggZGlzYWJsZXMgQkggb24gMzJiaXQKPj4gYXJjaGl0ZWN0dXJlcy4gU2luY2UgdGhlIEJIIG1p
-Z2h0IGludGVycnVwdCB0aGUgd29ya2VyLCB0aGlzIG5ldwo+PiBmdW5jdGlvbiBzaG91bGQgbm90
-IGxpbWl0ZWQgdG8gU01QIGxpa2UgdGhlIG90aGVycyB3aGljaCBhcmUgZXhwZWN0ZWQKPj4gdG8g
-YmUgdXNlZCBpbiBzb2Z0aXJxLgo+Pgo+PiBXaXRoIHRoaXMgY2hhbmdlIHdlIG1pZ2h0IGxvc2Ug
-aW5jcmVtZW50cyBidXQgdGhpcyBpcyBva2F5LiBUaGUKPj4gaW1wb3J0YW50IHBhcnQgdGhhdCB0
-aGUgdHdvIDMyYml0IHBhcnRzIG9mIHRoZSA2NGJpdCBjb3VudGVyIGFyZSBub3QKPj4gY29ycnVw
-dGVkLgo+Pgo+PiBGaXhlczogNDYxZjAzZGM5OWNmNiAoInZpcnRpb19uZXQ6IEFkZCBraWNrIHN0
-YXRzIikuCj4+IFN1Z2dlc3RlZC1ieTogU3RlcGhlbiBIZW1taW5nZXIgPHN0ZXBoZW5AbmV0d29y
-a3BsdW1iZXIub3JnPgo+PiBTaWduZWQtb2ZmLWJ5OiBTZWJhc3RpYW4gQW5kcnplaiBTaWV3aW9y
-IDxiaWdlYXN5QGxpbnV0cm9uaXguZGU+Cj4gVHJ5aW5nIHRvIGdldCBkb3duIHRvIHRoZSBib3R0
-b20gb2YgdGhpczoKPgo+IDEpIHZpcnRuZXRfcmVjZWl2ZSgpIHJ1bnMgZnJvbSBzb2Z0aXJxIGJ1
-dCBvbmx5IGlmIE5BUEkgaXMgYWN0aXZlIGFuZAo+ICAgICBlbmFibGVkLiAgSXQgaXMgaW4gdGhp
-cyBjb250ZXh0IHRoYXQgaXQgaW52b2tlcyB0cnlfZmlsbF9yZWN2KCkuCj4KPiAyKSByZWZpbGxf
-d29yaygpIHJ1bnMgZnJvbSBwcm9jZXNzIGNvbnRleHQsIGJ1dCBkaXNhYmxlcyBOQVBJIChhbmQK
-PiAgICAgdGh1cyBpbnZvY2F0aW9uIG9mIHZpcnRuZXRfcmVjZWl2ZSgpKSBiZWZvcmUgY2FsbGlu
-Zwo+ICAgICB0cnlfZmlsbF9yZWN2KCkuCj4KPiAzKSB2aXJ0bmV0X29wZW4oKSBpbnZva2VzIGZy
-b20gcHJvY2VzcyBjb250ZXh0IGFzIHdlbGwsIGJ1dCBiZWZvcmUgdGhlCj4gICAgIE5BUEkgaW5z
-dGFuY2VzIGFyZSBlbmFibGVkLCBpdCBpcyBzYW1lIGFzIGNhc2UgIzIuCj4KPiA0KSB2aXJ0bmV0
-X3Jlc3RvcmVfdXAoKSBpcyB0aGUgc2FtZSBzaXR1YXRpb25zIGFzICMzLgo+Cj4gVGhlcmVmb3Jl
-IEkgYWdyZWUgdGhhdCB0aGlzIGlzIGEgZmFsc2UgcG9zaXRpdmUsIGFuZCBzaW1wbHkgbG9ja2Rl
-cAo+IGNhbm5vdCBzZWUgdGhlIE5BUEkgc3luY2hyb25pemF0aW9uIGRvbmUgYnkgY2FzZSAjMi4K
-Pgo+IEkgdGhpbmsgd2Ugc2hvdWxkbid0IGFkZCB1bm5lY2Vzc2FyeSBCSCBkaXNhYmxpbmcgaGVy
-ZSwgYW5kIGluc3RlYWQKPiBmaW5kIHNvbWUgd2F5IHRvIGFubm90YXRlIHRoaXMgZm9yIGxvY2tk
-ZXAncyBzYWtlLgo+Cj4gVGhhbmsgeW91Lgo+CgorMQoKVGhhbmtzCgpfX19fX19fX19fX19fX19f
-X19fX19fX19fX19fX19fX19fX19fX19fX19fX19fXwpWaXJ0dWFsaXphdGlvbiBtYWlsaW5nIGxp
-c3QKVmlydHVhbGl6YXRpb25AbGlzdHMubGludXgtZm91bmRhdGlvbi5vcmcKaHR0cHM6Ly9saXN0
-cy5saW51eGZvdW5kYXRpb24ub3JnL21haWxtYW4vbGlzdGluZm8vdmlydHVhbGl6YXRpb24=
+Drop pointless resid variable in virtio_gpufb_create(), just use
+the hw_res_handle field in virtio_gpu_object directly.
+
+Signed-off-by: Gerd Hoffmann <kraxel@redhat.com>
+---
+ drivers/gpu/drm/virtio/virtgpu_fb.c | 8 ++++----
+ 1 file changed, 4 insertions(+), 4 deletions(-)
+
+diff --git a/drivers/gpu/drm/virtio/virtgpu_fb.c b/drivers/gpu/drm/virtio/virtgpu_fb.c
+index d39f4f3350..800960bdd9 100644
+--- a/drivers/gpu/drm/virtio/virtgpu_fb.c
++++ b/drivers/gpu/drm/virtio/virtgpu_fb.c
+@@ -214,7 +214,7 @@ static int virtio_gpufb_create(struct drm_fb_helper *helper,
+ 	struct drm_framebuffer *fb;
+ 	struct drm_mode_fb_cmd2 mode_cmd = {};
+ 	struct virtio_gpu_object *obj;
+-	uint32_t resid, format, size;
++	uint32_t format, size;
+ 	int ret;
+ 
+ 	mode_cmd.width = sizes->surface_width;
+@@ -231,8 +231,8 @@ static int virtio_gpufb_create(struct drm_fb_helper *helper,
+ 	if (IS_ERR(obj))
+ 		return PTR_ERR(obj);
+ 
+-	virtio_gpu_resource_id_get(vgdev, &resid);
+-	virtio_gpu_cmd_create_resource(vgdev, obj, resid, format,
++	virtio_gpu_resource_id_get(vgdev, &obj->hw_res_handle);
++	virtio_gpu_cmd_create_resource(vgdev, obj, obj->hw_res_handle, format,
+ 				       mode_cmd.width, mode_cmd.height);
+ 
+ 	ret = virtio_gpu_object_kmap(obj);
+@@ -242,7 +242,7 @@ static int virtio_gpufb_create(struct drm_fb_helper *helper,
+ 	}
+ 
+ 	/* attach the object to the resource */
+-	ret = virtio_gpu_object_attach(vgdev, obj, resid, NULL);
++	ret = virtio_gpu_object_attach(vgdev, obj, obj->hw_res_handle, NULL);
+ 	if (ret)
+ 		goto err_obj_attach;
+ 
+-- 
+2.9.3
