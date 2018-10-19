@@ -1,19 +1,18 @@
-From: Dave Airlie <airlied@gmail.com>
-Subject: Re: [PATCH 7/8] drm/virtio: move virtio_gpu_object_{attach,
-	detach} calls.
-Date: Fri, 19 Oct 2018 10:33:15 +1000
-Message-ID: <CAPM=9tw1piSdEWAyOzcymoaFWp_kDP0JEaqX_Bxuvx2gK+RsZQ__7746.99140242792$1539909089$gmane$org@mail.gmail.com>
-References: <20181001103222.11924-1-kraxel@redhat.com>
-	<20181001103222.11924-8-kraxel@redhat.com>
-	<CAPM=9tx3vX_HLyGqvSitCTb=v5QN4tk4TjbwhreLhnT8BytHEg@mail.gmail.com>
-	<20181018061059.d32xhg6ijlvpqyvi@sirius.home.kraxel.org>
-	<CAPM=9tzwcPtOfNuoKdbSY0=EBsbsKgM04HZpzAazPEmDbQOXSw@mail.gmail.com>
-	<20181018070004.mplea3ozamph6uzu@sirius.home.kraxel.org>
+From: Jason Wang <jasowang@redhat.com>
+Subject: Re: [RFC] virtio_net: add local_bh_disable() around
+	u64_stats_update_begin
+Date: Fri, 19 Oct 2018 10:17:07 +0800
+Message-ID: <642ed362-6b0b-8df0-160c-fab243202e03__3895.15128122202$1539915317$gmane$org@redhat.com>
+References: <20181016165545.guksrl23ulcudxrk@linutronix.de>
+	<68582c17-27bf-43f4-cbe5-96ec712a704c@lab.ntt.co.jp>
+	<a281371f-dd20-2036-d0a8-1081c2f6a452@redhat.com>
+	<20181018084753.wefvsypdevbzoadg@linutronix.de>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset="utf-8"; Format="flowed"
+Content-Transfer-Encoding: base64
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <20181018070004.mplea3ozamph6uzu@sirius.home.kraxel.org>
+In-Reply-To: <20181018084753.wefvsypdevbzoadg@linutronix.de>
+Content-Language: en-US
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -23,46 +22,75 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Gerd Hoffmann <kraxel@redhat.com>
-Cc: Dave Airlie <airlied@linux.ie>, LKML <linux-kernel@vger.kernel.org>, dri-devel <dri-devel@lists.freedesktop.org>, "open list:VIRTIO CORE,
-	NET..." <virtualization@lists.linux-foundation.org>
+To: Sebastian Andrzej Siewior <bigeasy@linutronix.de>
+Cc: "Michael S. Tsirkin" <mst@redhat.com>, netdev@vger.kernel.org, virtualization@lists.linux-foundation.org, tglx@linutronix.de, "David S. Miller" <davem@davemloft.net>
 List-Id: virtualization@lists.linuxfoundation.org
 
-On Thu, 18 Oct 2018 at 17:00, Gerd Hoffmann <kraxel@redhat.com> wrote:
->
-> > > > This to me feels more like a bind/unbind operation rather than a
-> > > > populate/unpopulate operation,
-> > > >
-> > > > bind is " Bind the backend pages into the aperture in the location"
-> > > >
-> > > > whereas populate is
-> > > >
-> > > > allocate pages for a ttm.
-> > >
-> > > I ran into that trap too ;)
-> > >
-> > > My first attempt was to map this to bind/unbind.  But this is not
-> > > correct and therefore didn't work very well.
-> > >
-> > > virtio_gpu_object_attach() will send a scatter list of the pages
-> > > allocated for the object to the host (so the host knows where to
-> > > copy from/to when processing the transfer_from/to calls).  So IMO
-> > > it should be done on population not when binding.
-> >
-> > Well bind on AGP is the same thing, we'd fill the AGP GART table on
-> > bind, so that the AGP GPU could access the pages.
->
-> > So I'm interested in why using bind/unbind failed if you have some more info?
->
-> Need to try again to be sure, but IIRC I saw multiple bind/unbind calls
-> for the same object.  ttm probably does it to not waste AGB GART address
-> space for objects not in use.  But for virtio it is pointless overhead.
-> But maybe it is just a matter of taking a reference and keeping it for
-> the whole lifetime of the object to make the binding permanent ...
-
-Hmm maybe for the bind/unbind, not sure what would cause unbind except
-for the object being moved back out of the TT space and into system,
-it might be worth confirming what happens here, as I really do feel
-bind/unbind is the correct interface to use here.
-
-Dave.
+Ck9uIDIwMTgvMTAvMTgg5LiL5Y2INDo0NywgU2ViYXN0aWFuIEFuZHJ6ZWogU2lld2lvciB3cm90
+ZToKPiBPbiAyMDE4LTEwLTE3IDE0OjQ4OjAyIFsrMDgwMF0sIEphc29uIFdhbmcgd3JvdGU6Cj4+
+IE9uIDIwMTgvMTAvMTcg5LiK5Y2IOToxMywgVG9zaGlha2kgTWFraXRhIHdyb3RlOgo+Pj4gSSdt
+IG5vdCBzdXJlIHdoYXQgY29uZGl0aW9uIHRyaWdnZXJlZCB0aGlzIHdhcm5pbmcuCj4gSWYgdGhl
+IHNlcWxvY2sgaXMgYWNxdWlyZWQgb25jZSBpbiBzb2Z0aXJxIGFuZCB0aGVuIGluIHByb2Nlc3Mg
+Y29udGV4dAo+IGFnYWluIGl0IGlzIGVub3VnaCBldmlkZW5jZSBmb3IgbG9ja2RlcCB0byB0cmln
+Z2VyIHRoaXMgd2FybmluZy4KPgo+Pj4gVG9zaGlha2kgTWFraXRhCj4+Cj4+IE9yIG1heWJlIE5B
+UEkgaXMgZW5hYmxlZCB1bmV4cGVjdGVkbHkgc29tZXdoZXJlPwo+Pgo+PiBCdHcsIHRoZSBzY2hl
+ZHVsZV9kZWxheWVkX3dvcmsoKSBpbiB2aXJ0bmV0X29wZW4oKSBpcyBhbHNvIHN1c3BpY2lvdXMs
+IGlmCj4+IHRoZSB3b3JrIGlzIGV4ZWN1dGVkIGJlZm9yZSB2aXJ0bmV0X25hcGlfZW5hYmxlKCks
+IHRoZXJlIHdpbGwgYmUgYSBkZWFkbG9vcAo+PiBmb3IgbmFwaV9kaXNhYmxlKCkuCj4gc29tZXRo
+aW5nIGxpa2UgdGhpcz8gSXQgaXMgYWxzbyBsaWtlbHkgaWYgaXQgcnVucyBPT00gb24gcXVldWUg
+MiwgaXQKPiB3aWxsIHJ1biBPT00gYWdhaW4gb24gcXVldWUgMy4KPgo+IGRpZmYgLS1naXQgYS9k
+cml2ZXJzL25ldC92aXJ0aW9fbmV0LmMgYi9kcml2ZXJzL25ldC92aXJ0aW9fbmV0LmMKPiBpbmRl
+eCBmYmNmYjRkMjcyMzM2Li44N2Q2ZWM0NzY1MjcwIDEwMDY0NAo+IC0tLSBhL2RyaXZlcnMvbmV0
+L3ZpcnRpb19uZXQuYwo+ICsrKyBiL2RyaXZlcnMvbmV0L3ZpcnRpb19uZXQuYwo+IEBAIC0xMjYz
+LDIyICsxMjYzLDIyIEBAIHN0YXRpYyB2b2lkIHJlZmlsbF93b3JrKHN0cnVjdCB3b3JrX3N0cnVj
+dCAqd29yaykKPiAgIHsKPiAgIAlzdHJ1Y3QgdmlydG5ldF9pbmZvICp2aSA9Cj4gICAJCWNvbnRh
+aW5lcl9vZih3b3JrLCBzdHJ1Y3QgdmlydG5ldF9pbmZvLCByZWZpbGwud29yayk7Cj4gLQlib29s
+IHN0aWxsX2VtcHR5Owo+ICsJaW50IHN0aWxsX2VtcHR5ID0gMDsKPiAgIAlpbnQgaTsKPiAgIAo+
+ICAgCWZvciAoaSA9IDA7IGkgPCB2aS0+Y3Vycl9xdWV1ZV9wYWlyczsgaSsrKSB7Cj4gICAJCXN0
+cnVjdCByZWNlaXZlX3F1ZXVlICpycSA9ICZ2aS0+cnFbaV07Cj4gICAKPiAgIAkJbmFwaV9kaXNh
+YmxlKCZycS0+bmFwaSk7Cj4gLQkJc3RpbGxfZW1wdHkgPSAhdHJ5X2ZpbGxfcmVjdih2aSwgcnEs
+IEdGUF9LRVJORUwpOwo+ICsJCWlmICghdHJ5X2ZpbGxfcmVjdih2aSwgcnEsIEdGUF9LRVJORUwp
+KQo+ICsJCSAgICBzdGlsbF9lbXB0eSsrOwo+ICAgCQl2aXJ0bmV0X25hcGlfZW5hYmxlKHJxLT52
+cSwgJnJxLT5uYXBpKTsKPiAtCj4gLQkJLyogSW4gdGhlb3J5LCB0aGlzIGNhbiBoYXBwZW46IGlm
+IHdlIGRvbid0IGdldCBhbnkgYnVmZmVycyBpbgo+IC0JCSAqIHdlIHdpbGwgKm5ldmVyKiB0cnkg
+dG8gZmlsbCBhZ2Fpbi4KPiAtCQkgKi8KPiAtCQlpZiAoc3RpbGxfZW1wdHkpCj4gLQkJCXNjaGVk
+dWxlX2RlbGF5ZWRfd29yaygmdmktPnJlZmlsbCwgSFovMik7Cj4gICAJfQo+ICsJLyogSW4gdGhl
+b3J5LCB0aGlzIGNhbiBoYXBwZW46IGlmIHdlIGRvbid0IGdldCBhbnkgYnVmZmVycyBpbgo+ICsJ
+ICogd2Ugd2lsbCAqbmV2ZXIqIHRyeSB0byBmaWxsIGFnYWluLgo+ICsJICovCj4gKwlpZiAoc3Rp
+bGxfZW1wdHkpCj4gKwkJc2NoZWR1bGVfZGVsYXllZF93b3JrKCZ2aS0+cmVmaWxsLCBIWi8yKTsK
+PiAgIH0KCgpJIHRoaW5rIHRoaXMgcGFydCBpcyBub3QgYSBtdXN0IG9yIGFuIGluZGVwZW5kZW50
+IG9wdGltaXphdGlvbj8KCgpUaGFua3MKCgo+ICAgCj4gICBzdGF0aWMgaW50IHZpcnRuZXRfcmVj
+ZWl2ZShzdHJ1Y3QgcmVjZWl2ZV9xdWV1ZSAqcnEsIGludCBidWRnZXQsCj4gQEAgLTE0MDcsMTIg
+KzE0MDcsMTMgQEAgc3RhdGljIGludCB2aXJ0bmV0X29wZW4oc3RydWN0IG5ldF9kZXZpY2UgKmRl
+dikKPiAgIHsKPiAgIAlzdHJ1Y3QgdmlydG5ldF9pbmZvICp2aSA9IG5ldGRldl9wcml2KGRldik7
+Cj4gICAJaW50IGksIGVycjsKPiArCWludCBuZWVkX3JlZmlsbCA9IDA7Cj4gICAKPiAgIAlmb3Ig
+KGkgPSAwOyBpIDwgdmktPm1heF9xdWV1ZV9wYWlyczsgaSsrKSB7Cj4gICAJCWlmIChpIDwgdmkt
+PmN1cnJfcXVldWVfcGFpcnMpCj4gICAJCQkvKiBNYWtlIHN1cmUgd2UgaGF2ZSBzb21lIGJ1ZmZl
+cnM6IGlmIG9vbSB1c2Ugd3EuICovCj4gICAJCQlpZiAoIXRyeV9maWxsX3JlY3YodmksICZ2aS0+
+cnFbaV0sIEdGUF9LRVJORUwpKQo+IC0JCQkJc2NoZWR1bGVfZGVsYXllZF93b3JrKCZ2aS0+cmVm
+aWxsLCAwKTsKPiArCQkJCW5lZWRfcmVmaWxsKys7Cj4gICAKPiAgIAkJZXJyID0geGRwX3J4cV9p
+bmZvX3JlZygmdmktPnJxW2ldLnhkcF9yeHEsIGRldiwgaSk7Cj4gICAJCWlmIChlcnIgPCAwKQo+
+IEBAIC0xNDI4LDYgKzE0MjksOCBAQCBzdGF0aWMgaW50IHZpcnRuZXRfb3BlbihzdHJ1Y3QgbmV0
+X2RldmljZSAqZGV2KQo+ICAgCQl2aXJ0bmV0X25hcGlfZW5hYmxlKHZpLT5ycVtpXS52cSwgJnZp
+LT5ycVtpXS5uYXBpKTsKPiAgIAkJdmlydG5ldF9uYXBpX3R4X2VuYWJsZSh2aSwgdmktPnNxW2ld
+LnZxLCAmdmktPnNxW2ldLm5hcGkpOwo+ICAgCX0KPiArCWlmIChuZWVkX3JlZmlsbCkKPiArCQlz
+Y2hlZHVsZV9kZWxheWVkX3dvcmsoJnZpLT5yZWZpbGwsIDApOwo+ICAgCj4gICAJcmV0dXJuIDA7
+Cj4gICB9Cj4gQEAgLTIyMzYsNiArMjIzOSw3IEBAIHN0YXRpYyBpbnQgdmlydG5ldF9yZXN0b3Jl
+X3VwKHN0cnVjdCB2aXJ0aW9fZGV2aWNlICp2ZGV2KQo+ICAgewo+ICAgCXN0cnVjdCB2aXJ0bmV0
+X2luZm8gKnZpID0gdmRldi0+cHJpdjsKPiAgIAlpbnQgZXJyLCBpOwo+ICsJaW50IG5lZWRfcmVm
+aWxsID0gMDsKPiAgIAo+ICAgCWVyciA9IGluaXRfdnFzKHZpKTsKPiAgIAlpZiAoZXJyKQo+IEBA
+IC0yMjQ2LDEzICsyMjUwLDE1IEBAIHN0YXRpYyBpbnQgdmlydG5ldF9yZXN0b3JlX3VwKHN0cnVj
+dCB2aXJ0aW9fZGV2aWNlICp2ZGV2KQo+ICAgCWlmIChuZXRpZl9ydW5uaW5nKHZpLT5kZXYpKSB7
+Cj4gICAJCWZvciAoaSA9IDA7IGkgPCB2aS0+Y3Vycl9xdWV1ZV9wYWlyczsgaSsrKQo+ICAgCQkJ
+aWYgKCF0cnlfZmlsbF9yZWN2KHZpLCAmdmktPnJxW2ldLCBHRlBfS0VSTkVMKSkKPiAtCQkJCXNj
+aGVkdWxlX2RlbGF5ZWRfd29yaygmdmktPnJlZmlsbCwgMCk7Cj4gKwkJCQluZWVkX3JlZmlsbCsr
+Owo+ICAgCj4gICAJCWZvciAoaSA9IDA7IGkgPCB2aS0+bWF4X3F1ZXVlX3BhaXJzOyBpKyspIHsK
+PiAgIAkJCXZpcnRuZXRfbmFwaV9lbmFibGUodmktPnJxW2ldLnZxLCAmdmktPnJxW2ldLm5hcGkp
+Owo+ICAgCQkJdmlydG5ldF9uYXBpX3R4X2VuYWJsZSh2aSwgdmktPnNxW2ldLnZxLAo+ICAgCQkJ
+CQkgICAgICAgJnZpLT5zcVtpXS5uYXBpKTsKPiAgIAkJfQo+ICsJCWlmIChuZWVkX3JlZmlsbCkK
+PiArCQkJc2NoZWR1bGVfZGVsYXllZF93b3JrKCZ2aS0+cmVmaWxsLCAwKTsKPiAgIAl9Cj4gICAK
+PiAgIAluZXRpZl9kZXZpY2VfYXR0YWNoKHZpLT5kZXYpOwo+Cj4+IFRoYW5rcwo+IFNlYmFzdGlh
+bgpfX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fXwpWaXJ0dWFs
+aXphdGlvbiBtYWlsaW5nIGxpc3QKVmlydHVhbGl6YXRpb25AbGlzdHMubGludXgtZm91bmRhdGlv
+bi5vcmcKaHR0cHM6Ly9saXN0cy5saW51eGZvdW5kYXRpb24ub3JnL21haWxtYW4vbGlzdGluZm8v
+dmlydHVhbGl6YXRpb24=
