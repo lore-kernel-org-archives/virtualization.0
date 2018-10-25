@@ -1,14 +1,22 @@
-From: Wei Wang <wei.w.wang@intel.com>
-Subject: Re: [PATCH v37 0/3] Virtio-balloon: support free page reporting
-Date: Thu, 25 Oct 2018 18:18:53 +0800
-Message-ID: <5BD1988D.7010606__41966.4681693122$1540462339$gmane$org@intel.com>
-References: <1535333539-32420-1-git-send-email-wei.w.wang@intel.com>
-	<20181024205759-mutt-send-email-mst@kernel.org>
+From: Borislav Petkov <bp@alien8.de>
+Subject: Re: PROPOSAL: Extend inline asm syntax with size spec
+Date: Thu, 25 Oct 2018 12:24:05 +0200
+Message-ID: <20181025102405.GE14020__13985.9362542213$1540462916$gmane$org@nazgul.tnic>
+References: <20181008073128.GL29268@gate.crashing.org>
+	<alpine.LSU.2.20.1810081105350.16707@zhemvz.fhfr.qr>
+	<20181009145330.GT29268@gate.crashing.org>
+	<alpine.LSU.2.20.1810100909140.16707@zhemvz.fhfr.qr>
+	<20181010072240.GB103159@gmail.com>
+	<20181010080324.GV29268@gate.crashing.org>
+	<20181010081906.GA5533@zn.tnic>
+	<20181010185432.GB29268@gate.crashing.org>
+	<20181010191427.GF5533@zn.tnic> <20181013193335.GD31650@zn.tnic>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"; Format="flowed"
+Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <20181024205759-mutt-send-email-mst@kernel.org>
+Content-Disposition: inline
+In-Reply-To: <20181013193335.GD31650@zn.tnic>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -18,33 +26,210 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: "Michael S. Tsirkin" <mst@redhat.com>
-Cc: yang.zhang.wz@gmail.com, virtio-dev@lists.oasis-open.org, riel@redhat.com, quan.xu0@gmail.com, kvm@vger.kernel.org, nilal@redhat.com, liliang.opensource@gmail.com, linux-kernel@vger.kernel.org, mhocko@kernel.org, linux-mm@kvack.org, pbonzini@redhat.com, akpm@linux-foundation.org, virtualization@lists.linux-foundation.org, torvalds@linux-foundation.org, dgilbert@redhat.com
+To: Segher Boessenkool <segher@kernel.crashing.org>, Ingo Molnar <mingo@kernel.org>, Richard Biener <rguenther@suse.de>, Michael Matz <matz@suse.de>, gcc@gcc.gnu.org, Nadav Amit <namit@vmware.com>, Ingo Molnar <mingo@redhat.com>, linux-kernel@vger.kernel.org, x86@kernel.org, Masahiro Yamada <yamada.masahiro@socionext.com>, Sam Ravnborg <sam@ravnborg.org>, Alok Kataria <akataria@vmware.com>, Christopher Li <sparse@chrisli.org>, Greg Kroah-Hartman <gregkh@linuxfoundation.org>, "H. Peter Anvin" <hpa@zytor.com>, Jan Beulich <JBeulich@suse.com>, Josh Poimboeuf <jpoimboe@redhat.com>, Juergen Gross <jgross@suse.com>, Kate Stewart <kstewart@linuxfoundation.org>, Kees Cook <keescook@chromium.org>, linux-sparse@vger.kernel.org, Peter Zijlstra <peterz@infradead.org>, Philippe Ombredanne <pombredanne@nexb.com>, Thomas Gleixner <tglx@linutronix.de>, virtualization@lists.linux-foundati
 List-Id: virtualization@lists.linuxfoundation.org
 
-On 10/25/2018 08:58 AM, Michael S. Tsirkin wrote:
-> On Mon, Aug 27, 2018 at 09:32:16AM +0800, Wei Wang wrote:
->> The new feature, VIRTIO_BALLOON_F_FREE_PAGE_HINT, implemented by this
->> series enables the virtio-balloon driver to report hints of guest free
->> pages to host. It can be used to accelerate virtual machine (VM) live
->> migration. Here is an introduction of this usage:
->>
->> Live migration needs to transfer the VM's memory from the source machine
->> to the destination round by round. For the 1st round, all the VM's memory
->> is transferred. From the 2nd round, only the pieces of memory that were
->> written by the guest (after the 1st round) are transferred. One method
->> that is popularly used by the hypervisor to track which part of memory is
->> written is to have the hypervisor write-protect all the guest memory.
->>
->> This feature enables the optimization by skipping the transfer of guest
->> free pages during VM live migration. It is not concerned that the memory
->> pages are used after they are given to the hypervisor as a hint of the
->> free pages, because they will be tracked by the hypervisor and transferred
->> in the subsequent round if they are used and written.
-> OK so it will be in linux-next.  Now can I trouble you for a virtio spec
-> patch with the description please?
+Ping.
 
-No problem, I'll start to patch the spec. Thanks!
+This is a good point in time, methinks, where kernel folk on CC here
+should have a look at this and speak up whether it is useful for us in
+this form.
 
-Best,
-Wei
+Frankly, I'm a bit unsure on the aspect of us using this and supporting
+old compilers which don't have it and new compilers which do. Because
+the old compilers should get to see the now upstreamed assembler macros
+and the new compilers will simply inline the "asm volatile inline"
+constructs. And how ugly that would become...
+
+I guess we can try this with smaller macros first and keep them all
+nicely hidden in header files.
+
+On Sat, Oct 13, 2018 at 09:33:35PM +0200, Borislav Petkov wrote:
+> Ok,
+> 
+> with Segher's help I've been playing with his patch ontop of bleeding
+> edge gcc 9 and here are my observations. Please double-check me for
+> booboos so that they can be addressed while there's time.
+> 
+> So here's what I see ontop of 4.19-rc7:
+> 
+> First marked the alternative asm() as inline and undeffed the "inline"
+> keyword. I need to do that because of the funky games we do with
+> "inline" redefinitions in include/linux/compiler_types.h.
+> 
+> And Segher hinted at either doing:
+> 
+> asm volatile inline(...
+> 
+> or
+> 
+> asm volatile __inline__(...
+> 
+> but both "inline" variants are defined as macros in that file.
+> 
+> Which means we either need to #undef inline before using it in asm() or
+> come up with something cleverer.
+> 
+> Anyway, did this:
+> 
+> ---
+> diff --git a/arch/x86/include/asm/alternative.h b/arch/x86/include/asm/alternative.h
+> index 4cd6a3b71824..7c0639087da7 100644
+> --- a/arch/x86/include/asm/alternative.h
+> +++ b/arch/x86/include/asm/alternative.h
+> @@ -165,11 +165,13 @@ static inline int alternatives_text_reserved(void *start, void *end)
+>   * For non barrier like inlines please define new variants
+>   * without volatile and memory clobber.
+>   */
+> +
+> +#undef inline
+>  #define alternative(oldinstr, newinstr, feature)                       \
+> -       asm volatile (ALTERNATIVE(oldinstr, newinstr, feature) : : : "memory")
+> +       asm volatile inline(ALTERNATIVE(oldinstr, newinstr, feature) : : : "memory")
+>  
+>  #define alternative_2(oldinstr, newinstr1, feature1, newinstr2, feature2) \
+> -       asm volatile(ALTERNATIVE_2(oldinstr, newinstr1, feature1, newinstr2, feature2) ::: "memory")
+> +       asm volatile inline(ALTERNATIVE_2(oldinstr, newinstr1, feature1, newinstr2, feature2) ::: "memory")
+>  
+>  /*
+>   * Alternative inline assembly with input.
+> ---
+> 
+> Build failed at link time with:
+> 
+> arch/x86/boot/compressed/cmdline.o: In function `native_save_fl':
+> cmdline.c:(.text+0x0): multiple definition of `native_save_fl'
+> arch/x86/boot/compressed/misc.o:misc.c:(.text+0x1e0): first defined here
+> arch/x86/boot/compressed/cmdline.o: In function `native_restore_fl':
+> cmdline.c:(.text+0x10): multiple definition of `native_restore_fl'
+> arch/x86/boot/compressed/misc.o:misc.c:(.text+0x1f0): first defined here
+> arch/x86/boot/compressed/error.o: In function `native_save_fl':
+> error.c:(.text+0x0): multiple definition of `native_save_fl'
+> 
+> which I had to fix with this:
+> 
+> ---
+> diff --git a/arch/x86/include/asm/irqflags.h b/arch/x86/include/asm/irqflags.h
+> index 15450a675031..0d772598c37c 100644
+> --- a/arch/x86/include/asm/irqflags.h
+> +++ b/arch/x86/include/asm/irqflags.h
+> @@ -14,8 +14,7 @@
+>   */
+>  
+>  /* Declaration required for gcc < 4.9 to prevent -Werror=missing-prototypes */
+> -extern inline unsigned long native_save_fl(void);
+> -extern inline unsigned long native_save_fl(void)
+> +static inline unsigned long native_save_fl(void)
+>  {
+>         unsigned long flags;
+>  
+> @@ -33,8 +32,7 @@ ex
+> ---
+> 
+> That "extern inline" declaration looks fishy to me anyway, maybe not really
+> needed ? Apparently, gcc < 4.9 complains with -Werror=missing-prototypes...
+> 
+> Then the build worked and the results look like this:
+> 
+>    text    data     bss     dec     hex filename
+> 17287384        5040656 2019532 24347572        17383b4 vmlinux-before
+> 17288020        5040656 2015436 24344112        1737630 vmlinux-2nd-version
+> 
+> so some inlining must be happening.
+> 
+> Then I did this:
+> 
+> ---
+> diff --git a/arch/x86/lib/usercopy_64.c b/arch/x86/lib/usercopy_64.c
+> index 9c5606d88f61..a0170344cf08 100644
+> --- a/arch/x86/lib/usercopy_64.c
+> +++ b/arch/x86/lib/usercopy_64.c
+> @@ -20,7 +20,7 @@ unsigned long __clear_user(void __user *addr, unsigned long size)
+>         /* no memory constraint because it doesn't change any memory gcc knows
+>            about */
+>         stac();
+> -       asm volatile(
+> +       asm volatile inline(
+>                 "       testq  %[size8],%[size8]\n"
+>                 "       jz     4f\n"
+>                 "0:     movq $0,(%[dst])\n"
+> ---
+> 
+> to force inlining of a somewhat bigger asm() statement. And yap, more
+> got inlined:
+> 
+>    text    data     bss     dec     hex filename
+> 17287384        5040656 2019532 24347572        17383b4 vmlinux-before
+> 17288020        5040656 2015436 24344112        1737630 vmlinux-2nd-version
+> 17288076        5040656 2015436 24344168        1737668 vmlinux-2nd-version__clear_user
+> 
+> so more stuff gets inlined.
+> 
+> Looking at the asm output, it had before:
+> 
+> ---
+> clear_user:
+> # ./arch/x86/include/asm/current.h:15:  return this_cpu_read_stable(current_task);
+> #APP
+> # 15 "./arch/x86/include/asm/current.h" 1
+>         movq %gs:current_task,%rax      #, pfo_ret__
+> # 0 "" 2
+> # arch/x86/lib/usercopy_64.c:51:        if (access_ok(VERIFY_WRITE, to, n))
+> #NO_APP
+>         movq    2520(%rax), %rdx        # pfo_ret___12->thread.addr_limit.seg, _1
+>         movq    %rdi, %rax      # to, tmp93
+>         addq    %rsi, %rax      # n, tmp93
+>         jc      .L3     #,
+> # arch/x86/lib/usercopy_64.c:51:        if (access_ok(VERIFY_WRITE, to, n))
+>         cmpq    %rax, %rdx      # tmp93, _1
+>         jb      .L3     #,
+> # arch/x86/lib/usercopy_64.c:52:                return __clear_user(to, n);
+>         jmp     __clear_user    #
+> ---
+> 
+> note the JMP to __clear_user. After marking the asm() in __clear_user() as
+> inline, clear_user() inlines __clear_user() directly:
+> 
+> ---
+> clear_user:
+> # ./arch/x86/include/asm/current.h:15:  return this_cpu_read_stable(current_task);
+> #APP
+> # 15 "./arch/x86/include/asm/current.h" 1
+>         movq %gs:current_task,%rax      #, pfo_ret__
+> # 0 "" 2
+> # arch/x86/lib/usercopy_64.c:51:        if (access_ok(VERIFY_WRITE, to, n))
+> #NO_APP
+>         movq    2520(%rax), %rdx        # pfo_ret___12->thread.addr_limit.seg, _1
+>         movq    %rdi, %rax      # to, tmp95
+>         addq    %rsi, %rax      # n, tmp95
+>         jc      .L8     #,
+> # arch/x86/lib/usercopy_64.c:51:        if (access_ok(VERIFY_WRITE, to, n))
+>         cmpq    %rax, %rdx      # tmp95, _1
+>         jb      .L8     #,
+> # ./arch/x86/include/asm/smap.h:58:     alternative("", __stringify(__ASM_STAC), X86_FEATURE_SMAP);
+> ...
+> 
+> this last line is the stac() macro which gets inlined due to the
+> alternative() inlined macro above.
+> 
+> So I guess this all looks like what we wanted.
+> 
+> And if this lands in gcc9, we would need to do a asm_volatile() macro
+> which is defined differently based on the compiler used.
+> 
+> Thoughts, suggestions, etc are most welcome.
+> 
+> Thx.
+> 
+> -- 
+> Regards/Gruss,
+>     Boris.
+> 
+> Good mailing practices for 400: avoid top-posting and trim the reply.
+
+-- 
+Regards/Gruss,
+    Boris.
+
+ECO tip #101: Trim your mails when you reply.
+--
