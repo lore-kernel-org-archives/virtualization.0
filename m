@@ -1,14 +1,14 @@
-From: Jani Nikula <jani.nikula@linux.intel.com>
-Subject: Re: [PATCH] gpu/drm/virtio/virtgpu_vq.c: Use kmem_cache_zalloc
-Date: Tue, 23 Oct 2018 12:50:36 +0300
-Message-ID: <87sh0xc7pv.fsf__6463.30092936314$1540288142$gmane$org@intel.com>
-References: <5bc9ff7e.1c69fb81.105c2.1fef@mx.google.com>
-	<CAFqt6zbdxjUF4tEh8WXRZT-eo58sfw0tKa3DyxTXCesjEJkqfA@mail.gmail.com>
+From: "Michael S. Tsirkin" <mst@redhat.com>
+Subject: Re: [PATCH v37 0/3] Virtio-balloon: support free page reporting
+Date: Wed, 24 Oct 2018 20:58:52 -0400
+Message-ID: <20181024205759-mutt-send-email-mst__31363.8594154783$1540429020$gmane$org@kernel.org>
+References: <1535333539-32420-1-git-send-email-wei.w.wang@intel.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <CAFqt6zbdxjUF4tEh8WXRZT-eo58sfw0tKa3DyxTXCesjEJkqfA@mail.gmail.com>
+Content-Disposition: inline
+In-Reply-To: <1535333539-32420-1-git-send-email-wei.w.wang@intel.com>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -18,53 +18,85 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Souptick Joarder <jrdr.linux@gmail.com>, Sabyasachi Gupta <sabyasachi.linux@gmail.com>
-Cc: airlied@linux.ie, linux-kernel@vger.kernel.org, dri-devel@lists.freedesktop.org, virtualization@lists.linux-foundation.org, Brajeswar Ghosh <brajeswar.linux@gmail.com>
+To: Wei Wang <wei.w.wang@intel.com>
+Cc: yang.zhang.wz@gmail.com, virtio-dev@lists.oasis-open.org, riel@redhat.com, quan.xu0@gmail.com, kvm@vger.kernel.org, nilal@redhat.com, liliang.opensource@gmail.com, linux-kernel@vger.kernel.org, mhocko@kernel.org, linux-mm@kvack.org, pbonzini@redhat.com, akpm@linux-foundation.org, virtualization@lists.linux-foundation.org, torvalds@linux-foundation.org, dgilbert@redhat.com
 List-Id: virtualization@lists.linuxfoundation.org
 
-On Tue, 23 Oct 2018, Souptick Joarder <jrdr.linux@gmail.com> wrote:
-> On Fri, Oct 19, 2018 at 9:30 PM Sabyasachi Gupta
-> <sabyasachi.linux@gmail.com> wrote:
->>
->> Replaced kmem_cache_alloc + memset with kmem_cache_zalloc
->
-> Put a new line gap in between these two lines and send v2.
+On Mon, Aug 27, 2018 at 09:32:16AM +0800, Wei Wang wrote:
+> The new feature, VIRTIO_BALLOON_F_FREE_PAGE_HINT, implemented by this
+> series enables the virtio-balloon driver to report hints of guest free
+> pages to host. It can be used to accelerate virtual machine (VM) live
+> migration. Here is an introduction of this usage:
+> 
+> Live migration needs to transfer the VM's memory from the source machine
+> to the destination round by round. For the 1st round, all the VM's memory
+> is transferred. From the 2nd round, only the pieces of memory that were
+> written by the guest (after the 1st round) are transferred. One method
+> that is popularly used by the hypervisor to track which part of memory is
+> written is to have the hypervisor write-protect all the guest memory.
+> 
+> This feature enables the optimization by skipping the transfer of guest
+> free pages during VM live migration. It is not concerned that the memory
+> pages are used after they are given to the hypervisor as a hint of the
+> free pages, because they will be tracked by the hypervisor and transferred
+> in the subsequent round if they are used and written.
 
-Nah, the maintainers can trivially add the newline while
-applying. Review is much more valuable than nitpicking on the commit
-message.
+OK so it will be in linux-next.  Now can I trouble you for a virtio spec
+patch with the description please?
 
-Reviewed-by: Jani Nikula <jani.nikula@intel.com>
 
->
->> Signed-off-by: Sabyasachi Gupta <sabyasachi.linux@gmail.com>
->> ---
->>  drivers/gpu/drm/virtio/virtgpu_vq.c | 3 +--
->>  1 file changed, 1 insertion(+), 2 deletions(-)
->>
->> diff --git a/drivers/gpu/drm/virtio/virtgpu_vq.c b/drivers/gpu/drm/virtio/virtgpu_vq.c
->> index 020070d..e001b79 100644
->> --- a/drivers/gpu/drm/virtio/virtgpu_vq.c
->> +++ b/drivers/gpu/drm/virtio/virtgpu_vq.c
->> @@ -98,10 +98,9 @@ virtio_gpu_get_vbuf(struct virtio_gpu_device *vgdev,
->>  {
->>         struct virtio_gpu_vbuffer *vbuf;
->>
->> -       vbuf = kmem_cache_alloc(vgdev->vbufs, GFP_KERNEL);
->> +       vbuf = kmem_cache_zalloc(vgdev->vbufs, GFP_KERNEL);
->>         if (!vbuf)
->>                 return ERR_PTR(-ENOMEM);
->> -       memset(vbuf, 0, VBUFFER_SIZE);
->>
->>         BUG_ON(size > MAX_INLINE_CMD_SIZE);
->>         vbuf->buf = (void *)vbuf + sizeof(*vbuf);
->> --
->> 2.7.4
->>
-> _______________________________________________
-> dri-devel mailing list
-> dri-devel@lists.freedesktop.org
-> https://lists.freedesktop.org/mailman/listinfo/dri-devel
-
--- 
-Jani Nikula, Intel Open Source Graphics Center
+> * Tests
+> 1 Test Environment
+>     Host: Intel(R) Xeon(R) CPU E5-2699 v4 @ 2.20GHz
+>     Migration setup: migrate_set_speed 100G, migrate_set_downtime 400ms
+> 
+> 2 Test Results (results are averaged over several repeated runs)
+>     2.1 Guest setup: 8G RAM, 4 vCPU
+>         2.1.1 Idle guest live migration time
+>             Optimization v.s. Legacy = 620ms vs 2970ms
+>             --> ~79% reduction
+>         2.1.2 Guest live migration with Linux compilation workload
+>           (i.e. make bzImage -j4) running
+>           1) Live Migration Time:
+>              Optimization v.s. Legacy = 2273ms v.s. 4502ms
+>              --> ~50% reduction
+>           2) Linux Compilation Time:
+>              Optimization v.s. Legacy = 8min42s v.s. 8min43s
+>              --> no obvious difference
+> 
+>     2.2 Guest setup: 128G RAM, 4 vCPU
+>         2.2.1 Idle guest live migration time
+>             Optimization v.s. Legacy = 5294ms vs 41651ms
+>             --> ~87% reduction
+>         2.2.2 Guest live migration with Linux compilation workload
+>           1) Live Migration Time:
+>             Optimization v.s. Legacy = 8816ms v.s. 54201ms
+>             --> 84% reduction
+>           2) Linux Compilation Time:
+>              Optimization v.s. Legacy = 8min30s v.s. 8min36s
+>              --> no obvious difference
+> 
+> ChangeLog:
+> v36->v37:
+>     - free the reported pages to mm when receives a DONE cmd from host.
+>       Please see patch 1's commit log for reasons. Please see patch 1's
+>       commit for detailed explanations.
+> 
+> For ChangeLogs from v22 to v36, please reference
+> https://lkml.org/lkml/2018/7/20/199
+> 
+> For ChangeLogs before v21, please reference
+> https://lwn.net/Articles/743660/
+> 
+> Wei Wang (3):
+>   virtio-balloon: VIRTIO_BALLOON_F_FREE_PAGE_HINT
+>   mm/page_poison: expose page_poisoning_enabled to kernel modules
+>   virtio-balloon: VIRTIO_BALLOON_F_PAGE_POISON
+> 
+>  drivers/virtio/virtio_balloon.c     | 374 ++++++++++++++++++++++++++++++++----
+>  include/uapi/linux/virtio_balloon.h |   8 +
+>  mm/page_poison.c                    |   6 +
+>  3 files changed, 355 insertions(+), 33 deletions(-)
+> 
+> -- 
+> 2.7.4
