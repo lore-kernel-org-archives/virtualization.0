@@ -1,11 +1,14 @@
-From: Gerd Hoffmann <kraxel@redhat.com>
-Subject: [PATCH v3] drm/bochs: add edid support.
-Date: Mon, 29 Oct 2018 14:45:07 +0100
-Message-ID: <20181029134507.7775-1-kraxel__47261.248008772$1540820602$gmane$org@redhat.com>
+From: Daniel Vetter <daniel@ffwll.ch>
+Subject: Re: [Outreachy kernel] [PATCH 0/6] drm/qxl: Remove checkpatch issues
+Date: Mon, 29 Oct 2018 14:54:34 +0100
+Message-ID: <20181029135434.GY21967__39728.7139938728$1540821158$gmane$org@phenom.ffwll.local>
+References: <cover.1540579956.git.shayenneluzmoura@gmail.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
+Content-Disposition: inline
+In-Reply-To: <cover.1540579956.git.shayenneluzmoura@gmail.com>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -15,135 +18,71 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: dri-devel@lists.freedesktop.org
-Cc: David Airlie <airlied@linux.ie>, David Airlie <airlied@redhat.com>, open list <linux-kernel@vger.kernel.org>, "open list:DRM DRIVER FOR BOCHS VIRTUAL GPU" <virtualization@lists.linux-foundation.org>
+To: Shayenne da Luz Moura <shayenneluzmoura@gmail.com>
+Cc: David Airlie <airlied@linux.ie>, linux-kernel@vger.kernel.org, dri-devel@lists.freedesktop.org, virtualization@lists.linux-foundation.org, outreachy-kernel@googlegroups.com, Dave Airlie <airlied@redhat.com>
 List-Id: virtualization@lists.linuxfoundation.org
 
-Recent qemu (latest master branch, upcoming 3.1 release) got support
-for EDID data.  This patch adds guest driver support.
+On Fri, Oct 26, 2018 at 04:20:30PM -0300, Shayenne da Luz Moura wrote:
+> This series cleans the following checkpatch.pl issues:
+> 
+> ERROR: trailing whitespace
+> WARNING: Missing a blank line after declarations
+> CHECK: Please don't use multiple blank lines
+> WARNING: Prefer 'unsigned int' to bare use of 'unsigned'
+> ERROR: space required before the open parenthesis '('
+> CHECK: Avoid using bool structure members because of possible alignment issues
 
-EDID support in qemu is not (yet) enabled by default, so please use
-'qemu -device VGA,edid=on' for testing.
+I looked through the patches, all fine, great work. I've pinged
+maintainers and will merge it all as soon as they've acked it.
 
-Signed-off-by: Gerd Hoffmann <kraxel@redhat.com>
----
- drivers/gpu/drm/bochs/bochs.h     |  1 +
- drivers/gpu/drm/bochs/bochs_hw.c  | 39 +++++++++++++++++++++++++++++++++++++++
- drivers/gpu/drm/bochs/bochs_kms.c | 18 +++++++++++++++---
- 3 files changed, 55 insertions(+), 3 deletions(-)
+Assuming you want to continue hacking on gpu drivers, we have a todo list
+with more advanced tasks:
 
-diff --git a/drivers/gpu/drm/bochs/bochs.h b/drivers/gpu/drm/bochs/bochs.h
-index e7a69077e4..06b8166efa 100644
---- a/drivers/gpu/drm/bochs/bochs.h
-+++ b/drivers/gpu/drm/bochs/bochs.h
-@@ -66,6 +66,7 @@ struct bochs_device {
- 	u16 yres_virtual;
- 	u32 stride;
- 	u32 bpp;
-+	struct edid *edid;
- 
- 	/* drm */
- 	struct drm_device  *dev;
-diff --git a/drivers/gpu/drm/bochs/bochs_hw.c b/drivers/gpu/drm/bochs/bochs_hw.c
-index cacff73a64..db4afe94c5 100644
---- a/drivers/gpu/drm/bochs/bochs_hw.c
-+++ b/drivers/gpu/drm/bochs/bochs_hw.c
-@@ -69,6 +69,41 @@ static void bochs_hw_set_little_endian(struct bochs_device *bochs)
- #define bochs_hw_set_native_endian(_b) bochs_hw_set_little_endian(_b)
- #endif
- 
-+static int bochs_load_edid(struct bochs_device *bochs)
-+{
-+	uint8_t *blob;
-+	size_t i, len;
-+	uint8_t num_exts;
-+
-+	if (!bochs->mmio)
-+		return -1;
-+
-+	if ((readb(bochs->mmio+0) != 0x00 ||
-+	     readb(bochs->mmio+1) != 0xff))
-+		return -1;
-+
-+	num_exts = readb(bochs->mmio + 126);
-+	len = EDID_LENGTH * (1 + num_exts);
-+	if (len > 0x400 /* vga register offset */)
-+		return -1;
-+
-+	kfree(bochs->edid);
-+	bochs->edid = kmalloc(len, GFP_KERNEL);
-+	blob = (void *)bochs->edid;
-+	for (i = 0; i < len; i++) {
-+		blob[i] = readb(bochs->mmio+i);
-+	}
-+
-+	if (!drm_edid_is_valid(bochs->edid)) {
-+		DRM_ERROR("EDID is not valid, ignoring.\n");
-+		kfree(bochs->edid);
-+		bochs->edid = NULL;
-+		return -1;
-+	}
-+
-+	return 0;
-+}
-+
- int bochs_hw_init(struct drm_device *dev)
- {
- 	struct bochs_device *bochs = dev->dev_private;
-@@ -150,6 +185,9 @@ int bochs_hw_init(struct drm_device *dev)
- 	}
- 
- noext:
-+	if (bochs_load_edid(bochs) == 0)
-+		DRM_INFO("Found EDID data blob.\n");
-+
- 	return 0;
- }
- 
-@@ -164,6 +202,7 @@ void bochs_hw_fini(struct drm_device *dev)
- 	if (bochs->fb_map)
- 		iounmap(bochs->fb_map);
- 	pci_release_regions(dev->pdev);
-+	kfree(bochs->edid);
- }
- 
- void bochs_hw_setmode(struct bochs_device *bochs,
-diff --git a/drivers/gpu/drm/bochs/bochs_kms.c b/drivers/gpu/drm/bochs/bochs_kms.c
-index 9bc5b438ae..b9931443a7 100644
---- a/drivers/gpu/drm/bochs/bochs_kms.c
-+++ b/drivers/gpu/drm/bochs/bochs_kms.c
-@@ -213,10 +213,17 @@ static void bochs_encoder_init(struct drm_device *dev)
- 
- static int bochs_connector_get_modes(struct drm_connector *connector)
- {
--	int count;
-+	struct bochs_device *bochs =
-+		container_of(connector, struct bochs_device, connector);
-+	int count = 0;
- 
--	count = drm_add_modes_noedid(connector, 8192, 8192);
--	drm_set_preferred_mode(connector, defx, defy);
-+	if (bochs->edid)
-+		count = drm_add_edid_modes(connector, bochs->edid);
-+
-+	if (!count) {
-+		count = drm_add_modes_noedid(connector, 8192, 8192);
-+		drm_set_preferred_mode(connector, defx, defy);
-+	}
- 	return count;
- }
- 
-@@ -271,6 +278,11 @@ static void bochs_connector_init(struct drm_device *dev)
- 	drm_connector_helper_add(connector,
- 				 &bochs_connector_connector_helper_funcs);
- 	drm_connector_register(connector);
-+
-+	if (bochs->edid) {
-+		drm_connector_attach_edid_property(connector);
-+		drm_connector_update_edid_property(connector, bochs->edid);
-+	}
- }
- 
- 
+https://dri.freedesktop.org/docs/drm/gpu/todo.html
+
+Best to discuss those on #dri-devel irc before getting started, to make
+sure scope and all is clear.
+
+Cheers, Daniel
+
+> 
+> Shayenne da Luz Moura (6):
+>   drm/qxl: Remove trailing whitespace
+>   drm/qxl: Add line after variable declarations
+>   drm/qxl: Remove exceding whiteline
+>   drm/qxl: Use 'unsigned int' instead of 'usigned'
+>   drm/qxl: Add space before open parentheses
+>   drm/qxl: Use 'unsigned int' instead of bool
+> 
+>  drivers/gpu/drm/qxl/qxl_cmd.c     |  7 +++++--
+>  drivers/gpu/drm/qxl/qxl_debugfs.c |  5 ++---
+>  drivers/gpu/drm/qxl/qxl_dev.h     |  1 -
+>  drivers/gpu/drm/qxl/qxl_display.c | 19 ++++++++++---------
+>  drivers/gpu/drm/qxl/qxl_draw.c    | 11 ++++++-----
+>  drivers/gpu/drm/qxl/qxl_drv.h     | 31 ++++++++++++++-----------------
+>  drivers/gpu/drm/qxl/qxl_dumb.c    |  3 ++-
+>  drivers/gpu/drm/qxl/qxl_fb.c      |  4 ++--
+>  drivers/gpu/drm/qxl/qxl_image.c   |  4 +++-
+>  drivers/gpu/drm/qxl/qxl_ioctl.c   |  2 ++
+>  drivers/gpu/drm/qxl/qxl_kms.c     |  2 +-
+>  drivers/gpu/drm/qxl/qxl_object.c  |  5 ++---
+>  drivers/gpu/drm/qxl/qxl_object.h  |  2 ++
+>  drivers/gpu/drm/qxl/qxl_prime.c   |  1 -
+>  drivers/gpu/drm/qxl/qxl_release.c |  1 -
+>  drivers/gpu/drm/qxl/qxl_ttm.c     | 12 +++++-------
+>  16 files changed, 56 insertions(+), 54 deletions(-)
+> 
+> -- 
+> 2.19.1
+> 
+> -- 
+> You received this message because you are subscribed to the Google Groups "outreachy-kernel" group.
+> To unsubscribe from this group and stop receiving emails from it, send an email to outreachy-kernel+unsubscribe@googlegroups.com.
+> To post to this group, send email to outreachy-kernel@googlegroups.com.
+> To view this discussion on the web visit https://groups.google.com/d/msgid/outreachy-kernel/cover.1540579956.git.shayenneluzmoura%40gmail.com.
+> For more options, visit https://groups.google.com/d/optout.
+
 -- 
-2.9.3
+Daniel Vetter
+Software Engineer, Intel Corporation
+http://blog.ffwll.ch
