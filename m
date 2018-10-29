@@ -1,11 +1,13 @@
-From: Juergen Gross <jgross@suse.com>
-Subject: [PATCH] x86/paravirt: pv_ops isn't GPL only
-Date: Mon, 29 Oct 2018 16:01:16 +0100
-Message-ID: <20181029150116.25372-1-jgross__5170.6888051287$1540825159$gmane$org@suse.com>
+From: Jani Nikula <jani.nikula@linux.intel.com>
+Subject: Re: [PATCH v3] drm/bochs: add edid support.
+Date: Mon, 29 Oct 2018 19:44:28 +0200
+Message-ID: <87in1kejgj.fsf__11849.5567855009$1540834949$gmane$org@intel.com>
+References: <20181029134507.7775-1-kraxel@redhat.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
+In-Reply-To: <20181029134507.7775-1-kraxel@redhat.com>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -15,34 +17,142 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: linux-kernel@vger.kernel.org, xen-devel@lists.xenproject.org, x86@kernel.org, virtualization@lists.linux-foundation.org
-Cc: Juergen Gross <jgross@suse.com>, boris.ostrovsky@oracle.com, rusty@rustcorp.com.au, mingo@redhat.com, hpa@zytor.com, akataria@vmware.com, tglx@linutronix.de
+To: Gerd Hoffmann <kraxel@redhat.com>, dri-devel@lists.freedesktop.org
+Cc: David Airlie <airlied@linux.ie>, David Airlie <airlied@redhat.com>, "open list:DRM DRIVER FOR BOCHS VIRTUAL GPU" <virtualization@lists.linux-foundation.org>, open list <linux-kernel@vger.kernel.org>
 List-Id: virtualization@lists.linuxfoundation.org
 
-Commit 5c83511bdb9832 ("x86/paravirt: Use a single ops structure")
-introduced a regression for out-of-tree modules using spinlocks, as
-pv_lock_ops was exported via EXPORT_SYMBOL(), while the new pv_ops
-structure now containing the pv lock operations is exported via
-EXPORT_SYMBOL_GPL().
+On Mon, 29 Oct 2018, Gerd Hoffmann <kraxel@redhat.com> wrote:
+> Recent qemu (latest master branch, upcoming 3.1 release) got support
+> for EDID data.  This patch adds guest driver support.
+>
+> EDID support in qemu is not (yet) enabled by default, so please use
+> 'qemu -device VGA,edid=on' for testing.
 
-Change that by using EXPORT_SYMBOL(pv_ops).
+Any chance of making this use drm_get_edid() (requires an i2c_adapter)
+or at least drm_do_get_edid()?
 
-Fixes: 5c83511bdb9832 ("x86/paravirt: Use a single ops structure")
-Signed-off-by: Juergen Gross <jgross@suse.com>
----
- arch/x86/kernel/paravirt.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+BR,
+Jani.
 
-diff --git a/arch/x86/kernel/paravirt.c b/arch/x86/kernel/paravirt.c
-index e4d4df37922a..45123b116c05 100644
---- a/arch/x86/kernel/paravirt.c
-+++ b/arch/x86/kernel/paravirt.c
-@@ -483,5 +483,5 @@ NOKPROBE_SYMBOL(native_set_debugreg);
- NOKPROBE_SYMBOL(native_load_idt);
- #endif
- 
--EXPORT_SYMBOL_GPL(pv_ops);
-+EXPORT_SYMBOL(pv_ops);
- EXPORT_SYMBOL_GPL(pv_info);
+>
+> Signed-off-by: Gerd Hoffmann <kraxel@redhat.com>
+> ---
+>  drivers/gpu/drm/bochs/bochs.h     |  1 +
+>  drivers/gpu/drm/bochs/bochs_hw.c  | 39 +++++++++++++++++++++++++++++++++++++++
+>  drivers/gpu/drm/bochs/bochs_kms.c | 18 +++++++++++++++---
+>  3 files changed, 55 insertions(+), 3 deletions(-)
+>
+> diff --git a/drivers/gpu/drm/bochs/bochs.h b/drivers/gpu/drm/bochs/bochs.h
+> index e7a69077e4..06b8166efa 100644
+> --- a/drivers/gpu/drm/bochs/bochs.h
+> +++ b/drivers/gpu/drm/bochs/bochs.h
+> @@ -66,6 +66,7 @@ struct bochs_device {
+>  	u16 yres_virtual;
+>  	u32 stride;
+>  	u32 bpp;
+> +	struct edid *edid;
+>  
+>  	/* drm */
+>  	struct drm_device  *dev;
+> diff --git a/drivers/gpu/drm/bochs/bochs_hw.c b/drivers/gpu/drm/bochs/bochs_hw.c
+> index cacff73a64..db4afe94c5 100644
+> --- a/drivers/gpu/drm/bochs/bochs_hw.c
+> +++ b/drivers/gpu/drm/bochs/bochs_hw.c
+> @@ -69,6 +69,41 @@ static void bochs_hw_set_little_endian(struct bochs_device *bochs)
+>  #define bochs_hw_set_native_endian(_b) bochs_hw_set_little_endian(_b)
+>  #endif
+>  
+> +static int bochs_load_edid(struct bochs_device *bochs)
+> +{
+> +	uint8_t *blob;
+> +	size_t i, len;
+> +	uint8_t num_exts;
+> +
+> +	if (!bochs->mmio)
+> +		return -1;
+> +
+> +	if ((readb(bochs->mmio+0) != 0x00 ||
+> +	     readb(bochs->mmio+1) != 0xff))
+> +		return -1;
+> +
+> +	num_exts = readb(bochs->mmio + 126);
+> +	len = EDID_LENGTH * (1 + num_exts);
+> +	if (len > 0x400 /* vga register offset */)
+> +		return -1;
+> +
+> +	kfree(bochs->edid);
+> +	bochs->edid = kmalloc(len, GFP_KERNEL);
+> +	blob = (void *)bochs->edid;
+> +	for (i = 0; i < len; i++) {
+> +		blob[i] = readb(bochs->mmio+i);
+> +	}
+> +
+> +	if (!drm_edid_is_valid(bochs->edid)) {
+> +		DRM_ERROR("EDID is not valid, ignoring.\n");
+> +		kfree(bochs->edid);
+> +		bochs->edid = NULL;
+> +		return -1;
+> +	}
+> +
+> +	return 0;
+> +}
+> +
+>  int bochs_hw_init(struct drm_device *dev)
+>  {
+>  	struct bochs_device *bochs = dev->dev_private;
+> @@ -150,6 +185,9 @@ int bochs_hw_init(struct drm_device *dev)
+>  	}
+>  
+>  noext:
+> +	if (bochs_load_edid(bochs) == 0)
+> +		DRM_INFO("Found EDID data blob.\n");
+> +
+>  	return 0;
+>  }
+>  
+> @@ -164,6 +202,7 @@ void bochs_hw_fini(struct drm_device *dev)
+>  	if (bochs->fb_map)
+>  		iounmap(bochs->fb_map);
+>  	pci_release_regions(dev->pdev);
+> +	kfree(bochs->edid);
+>  }
+>  
+>  void bochs_hw_setmode(struct bochs_device *bochs,
+> diff --git a/drivers/gpu/drm/bochs/bochs_kms.c b/drivers/gpu/drm/bochs/bochs_kms.c
+> index 9bc5b438ae..b9931443a7 100644
+> --- a/drivers/gpu/drm/bochs/bochs_kms.c
+> +++ b/drivers/gpu/drm/bochs/bochs_kms.c
+> @@ -213,10 +213,17 @@ static void bochs_encoder_init(struct drm_device *dev)
+>  
+>  static int bochs_connector_get_modes(struct drm_connector *connector)
+>  {
+> -	int count;
+> +	struct bochs_device *bochs =
+> +		container_of(connector, struct bochs_device, connector);
+> +	int count = 0;
+>  
+> -	count = drm_add_modes_noedid(connector, 8192, 8192);
+> -	drm_set_preferred_mode(connector, defx, defy);
+> +	if (bochs->edid)
+> +		count = drm_add_edid_modes(connector, bochs->edid);
+> +
+> +	if (!count) {
+> +		count = drm_add_modes_noedid(connector, 8192, 8192);
+> +		drm_set_preferred_mode(connector, defx, defy);
+> +	}
+>  	return count;
+>  }
+>  
+> @@ -271,6 +278,11 @@ static void bochs_connector_init(struct drm_device *dev)
+>  	drm_connector_helper_add(connector,
+>  				 &bochs_connector_connector_helper_funcs);
+>  	drm_connector_register(connector);
+> +
+> +	if (bochs->edid) {
+> +		drm_connector_attach_edid_property(connector);
+> +		drm_connector_update_edid_property(connector, bochs->edid);
+> +	}
+>  }
+
 -- 
-2.16.4
+Jani Nikula, Intel Open Source Graphics Center
