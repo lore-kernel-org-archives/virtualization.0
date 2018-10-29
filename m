@@ -1,13 +1,18 @@
-From: Jani Nikula <jani.nikula@linux.intel.com>
-Subject: Re: [PATCH v3] drm/bochs: add edid support.
-Date: Mon, 29 Oct 2018 19:44:28 +0200
-Message-ID: <87in1kejgj.fsf__11849.5567855009$1540834949$gmane$org@intel.com>
-References: <20181029134507.7775-1-kraxel@redhat.com>
+From: Paolo Bonzini <pbonzini@redhat.com>
+Subject: Re: [PATCH v8] virtio_blk: add discard and write zeroes support
+Date: Mon, 29 Oct 2018 19:03:44 +0100
+Message-ID: <bf8fbe85-37a0-be6b-bfd0-da45dfaf7920@redhat.com>
+References: <1528258740-6581-1-git-send-email-changpeng.liu@intel.com>
+	<20181012210628.226361-1-dverkamp@chromium.org>
+	<20181015092740.GA3964@infradead.org>
+	<486afcff-a8bd-a05b-e331-e395d4d14853@redhat.com>
+	<20181026082640.GA1147@infradead.org>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <20181029134507.7775-1-kraxel@redhat.com>
+In-Reply-To: <20181026082640.GA1147@infradead.org>
+Content-Language: en-US
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -17,142 +22,31 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Gerd Hoffmann <kraxel@redhat.com>, dri-devel@lists.freedesktop.org
-Cc: David Airlie <airlied@linux.ie>, David Airlie <airlied@redhat.com>, "open list:DRM DRIVER FOR BOCHS VIRTUAL GPU" <virtualization@lists.linux-foundation.org>, open list <linux-kernel@vger.kernel.org>
+To: Christoph Hellwig <hch@infradead.org>
+Cc: Jens Axboe <axboe@kernel.dk>, "Michael S. Tsirkin" <mst@redhat.com>, virtualization@lists.linux-foundation.org, linux-block@vger.kernel.org, Stefan Hajnoczi <stefanha@redhat.com>, Changpeng Liu <changpeng.liu@intel.com>
 List-Id: virtualization@lists.linuxfoundation.org
 
-On Mon, 29 Oct 2018, Gerd Hoffmann <kraxel@redhat.com> wrote:
-> Recent qemu (latest master branch, upcoming 3.1 release) got support
-> for EDID data.  This patch adds guest driver support.
->
-> EDID support in qemu is not (yet) enabled by default, so please use
-> 'qemu -device VGA,edid=on' for testing.
+On 26/10/2018 10:26, Christoph Hellwig wrote:
+> On Fri, Oct 26, 2018 at 01:28:54AM +0200, Paolo Bonzini wrote:
+>> On 15/10/2018 11:27, Christoph Hellwig wrote:
+>>> There is some issues in this spec.  For one using the multiple ranges
+>>> also for write zeroes is rather inefficient.  Write zeroes really should
+>>> use the same format as read and write.
+>>
+>> What makes it inefficient?
+> 
+> We require a memory allocation for each write zeroes instead of encoding
+> the lba/len in the command.
 
-Any chance of making this use drm_get_edid() (requires an i2c_adapter)
-or at least drm_do_get_edid()?
+Oh, I see.  That's not a spec issue, the lba/length descriptor can be
+included in the same buffer as the rest of the command; using
+kmalloc_array even for a single-bio REQ_OP_WRITE_ZEROES is a choice made
+by this patch, I suppose for simplicity.
 
-BR,
-Jani.
+It is possible to special case single-bio unmap and write zeroes so that
+they don't call virtblk_setup_discard_write_zeroes and avoid
+RQF_SPECIAL_PAYLOAD.
 
->
-> Signed-off-by: Gerd Hoffmann <kraxel@redhat.com>
-> ---
->  drivers/gpu/drm/bochs/bochs.h     |  1 +
->  drivers/gpu/drm/bochs/bochs_hw.c  | 39 +++++++++++++++++++++++++++++++++++++++
->  drivers/gpu/drm/bochs/bochs_kms.c | 18 +++++++++++++++---
->  3 files changed, 55 insertions(+), 3 deletions(-)
->
-> diff --git a/drivers/gpu/drm/bochs/bochs.h b/drivers/gpu/drm/bochs/bochs.h
-> index e7a69077e4..06b8166efa 100644
-> --- a/drivers/gpu/drm/bochs/bochs.h
-> +++ b/drivers/gpu/drm/bochs/bochs.h
-> @@ -66,6 +66,7 @@ struct bochs_device {
->  	u16 yres_virtual;
->  	u32 stride;
->  	u32 bpp;
-> +	struct edid *edid;
->  
->  	/* drm */
->  	struct drm_device  *dev;
-> diff --git a/drivers/gpu/drm/bochs/bochs_hw.c b/drivers/gpu/drm/bochs/bochs_hw.c
-> index cacff73a64..db4afe94c5 100644
-> --- a/drivers/gpu/drm/bochs/bochs_hw.c
-> +++ b/drivers/gpu/drm/bochs/bochs_hw.c
-> @@ -69,6 +69,41 @@ static void bochs_hw_set_little_endian(struct bochs_device *bochs)
->  #define bochs_hw_set_native_endian(_b) bochs_hw_set_little_endian(_b)
->  #endif
->  
-> +static int bochs_load_edid(struct bochs_device *bochs)
-> +{
-> +	uint8_t *blob;
-> +	size_t i, len;
-> +	uint8_t num_exts;
-> +
-> +	if (!bochs->mmio)
-> +		return -1;
-> +
-> +	if ((readb(bochs->mmio+0) != 0x00 ||
-> +	     readb(bochs->mmio+1) != 0xff))
-> +		return -1;
-> +
-> +	num_exts = readb(bochs->mmio + 126);
-> +	len = EDID_LENGTH * (1 + num_exts);
-> +	if (len > 0x400 /* vga register offset */)
-> +		return -1;
-> +
-> +	kfree(bochs->edid);
-> +	bochs->edid = kmalloc(len, GFP_KERNEL);
-> +	blob = (void *)bochs->edid;
-> +	for (i = 0; i < len; i++) {
-> +		blob[i] = readb(bochs->mmio+i);
-> +	}
-> +
-> +	if (!drm_edid_is_valid(bochs->edid)) {
-> +		DRM_ERROR("EDID is not valid, ignoring.\n");
-> +		kfree(bochs->edid);
-> +		bochs->edid = NULL;
-> +		return -1;
-> +	}
-> +
-> +	return 0;
-> +}
-> +
->  int bochs_hw_init(struct drm_device *dev)
->  {
->  	struct bochs_device *bochs = dev->dev_private;
-> @@ -150,6 +185,9 @@ int bochs_hw_init(struct drm_device *dev)
->  	}
->  
->  noext:
-> +	if (bochs_load_edid(bochs) == 0)
-> +		DRM_INFO("Found EDID data blob.\n");
-> +
->  	return 0;
->  }
->  
-> @@ -164,6 +202,7 @@ void bochs_hw_fini(struct drm_device *dev)
->  	if (bochs->fb_map)
->  		iounmap(bochs->fb_map);
->  	pci_release_regions(dev->pdev);
-> +	kfree(bochs->edid);
->  }
->  
->  void bochs_hw_setmode(struct bochs_device *bochs,
-> diff --git a/drivers/gpu/drm/bochs/bochs_kms.c b/drivers/gpu/drm/bochs/bochs_kms.c
-> index 9bc5b438ae..b9931443a7 100644
-> --- a/drivers/gpu/drm/bochs/bochs_kms.c
-> +++ b/drivers/gpu/drm/bochs/bochs_kms.c
-> @@ -213,10 +213,17 @@ static void bochs_encoder_init(struct drm_device *dev)
->  
->  static int bochs_connector_get_modes(struct drm_connector *connector)
->  {
-> -	int count;
-> +	struct bochs_device *bochs =
-> +		container_of(connector, struct bochs_device, connector);
-> +	int count = 0;
->  
-> -	count = drm_add_modes_noedid(connector, 8192, 8192);
-> -	drm_set_preferred_mode(connector, defx, defy);
-> +	if (bochs->edid)
-> +		count = drm_add_edid_modes(connector, bochs->edid);
-> +
-> +	if (!count) {
-> +		count = drm_add_modes_noedid(connector, 8192, 8192);
-> +		drm_set_preferred_mode(connector, defx, defy);
-> +	}
->  	return count;
->  }
->  
-> @@ -271,6 +278,11 @@ static void bochs_connector_init(struct drm_device *dev)
->  	drm_connector_helper_add(connector,
->  				 &bochs_connector_connector_helper_funcs);
->  	drm_connector_register(connector);
-> +
-> +	if (bochs->edid) {
-> +		drm_connector_attach_edid_property(connector);
-> +		drm_connector_update_edid_property(connector, bochs->edid);
-> +	}
->  }
+Thanks,
 
--- 
-Jani Nikula, Intel Open Source Graphics Center
+Paolo
