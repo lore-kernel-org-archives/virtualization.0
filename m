@@ -1,15 +1,11 @@
-From: Stefan Hajnoczi <stefanha@redhat.com>
-Subject: Re: [PATCH v8] virtio_blk: add discard and write zeroes support
-Date: Mon, 29 Oct 2018 05:05:21 +0000
-Message-ID: <20181029050521.GB31012@stefanha-x1.localdomain>
-References: <1528258740-6581-1-git-send-email-changpeng.liu@intel.com>
-	<20181012210628.226361-1-dverkamp@chromium.org>
-	<20181026080838.GB4234@stefanha-x1.localdomain>
-	<20181026104636-mutt-send-email-mst@kernel.org>
+From: Gerd Hoffmann <kraxel@redhat.com>
+Subject: [PATCH v3] drm/bochs: add edid support.
+Date: Mon, 29 Oct 2018 14:45:07 +0100
+Message-ID: <20181029134507.7775-1-kraxel__47261.248008772$1540820602$gmane$org@redhat.com>
 Mime-Version: 1.0
-Content-Type: multipart/mixed; boundary="===============5348887893213237523=="
+Content-Type: text/plain; charset="us-ascii"
+Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <20181026104636-mutt-send-email-mst@kernel.org>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -19,99 +15,135 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: "Michael S. Tsirkin" <mst@redhat.com>
-Cc: Jens Axboe <axboe@kernel.dk>, virtualization@lists.linux-foundation.org, linux-block@vger.kernel.org, Changpeng Liu <changpeng.liu@intel.com>
+To: dri-devel@lists.freedesktop.org
+Cc: David Airlie <airlied@linux.ie>, David Airlie <airlied@redhat.com>, open list <linux-kernel@vger.kernel.org>, "open list:DRM DRIVER FOR BOCHS VIRTUAL GPU" <virtualization@lists.linux-foundation.org>
 List-Id: virtualization@lists.linuxfoundation.org
 
+Recent qemu (latest master branch, upcoming 3.1 release) got support
+for EDID data.  This patch adds guest driver support.
 
---===============5348887893213237523==
-Content-Type: multipart/signed; micalg=pgp-sha1;
-	protocol="application/pgp-signature"; boundary="OwLcNYc0lM97+oe1"
-Content-Disposition: inline
+EDID support in qemu is not (yet) enabled by default, so please use
+'qemu -device VGA,edid=on' for testing.
 
+Signed-off-by: Gerd Hoffmann <kraxel@redhat.com>
+---
+ drivers/gpu/drm/bochs/bochs.h     |  1 +
+ drivers/gpu/drm/bochs/bochs_hw.c  | 39 +++++++++++++++++++++++++++++++++++++++
+ drivers/gpu/drm/bochs/bochs_kms.c | 18 +++++++++++++++---
+ 3 files changed, 55 insertions(+), 3 deletions(-)
 
---OwLcNYc0lM97+oe1
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
-
-On Fri, Oct 26, 2018 at 10:47:16AM -0400, Michael S. Tsirkin wrote:
-> On Fri, Oct 26, 2018 at 09:08:38AM +0100, Stefan Hajnoczi wrote:
-> > On Fri, Oct 12, 2018 at 02:06:28PM -0700, Daniel Verkamp wrote:
-> > > +		range[n].flags =3D cpu_to_le32(flags);
-> > > +		range[n].num_sectors =3D cpu_to_le32(num_sectors);
-> > > +		range[n].sector =3D cpu_to_le64(sector);
-> > ...
-> > > +/* Discard/write zeroes range for each request. */
-> > > +struct virtio_blk_discard_write_zeroes {
-> > > +	/* discard/write zeroes start sector */
-> > > +	__virtio64 sector;
-> > > +	/* number of discard/write zeroes sectors */
-> > > +	__virtio32 num_sectors;
-> > > +	/* flags for this range */
-> > > +	__virtio32 flags;
-> >=20
-> > cpu_to_le32() is being used on __virtio32 fields instead of cpu_to_virt=
-io32().
-> >=20
-> > From include/uapi/linux/virtio_types.h:
-> >=20
-> >   /*
-> >    * __virtio{16,32,64} have the following meaning:
-> >    * - __u{16,32,64} for virtio devices in legacy mode, accessed in nat=
-ive endian
-> >    * - __le{16,32,64} for standard-compliant virtio devices
-> >    */
-> >=20
-> > From the VIRTIO specification:
-> >=20
-> >   struct virtio_blk_discard_write_zeroes {
-> >          le64 sector;
-> >          le32 num_sectors;
-> >          struct {
-> >                  le32 unmap:1;
-> >                  le32 reserved:31;
-> >          } flags;
-> >   };
-> >=20
-> >=20
-> > Since the VIRTIO spec says these fields are little-endian, I think these
-> > fields should be declared just __u32 and __u64 instead of __virtio32 and
-> > __virtio64.
-> >=20
-> > Stefan
->=20
->=20
-> __le32/__le64 rather?
-
-Yes.
-
-Stefan
-
---OwLcNYc0lM97+oe1
-Content-Type: application/pgp-signature; name="signature.asc"
-
------BEGIN PGP SIGNATURE-----
-
-iQEcBAEBAgAGBQJb1pURAAoJEJykq7OBq3PIdXIIAKq1wH8qAxcTI8ph86qEeAuQ
-RMJy4p2kKPPR6BTSUUW8rebbnzhMeUdzv0bcupvI3PfbTjrS5yS1wRileRrprDpL
-bKCsey9eCYNvDq9yna8GCC3pTR/gYxG90kMHQ0RjGaU5WM8/vKeDp/3xk9o9+Fbx
-eAsAfrxGk+5Go9eQD+9SEoDEEthxLgSxCd+wRvcgyDc6H5i5ed2Z+8GLNMkZwe5F
-xb1kwakCVp/Mi4igrvSkRpLcrXZYhvp6SHQ9pSoO2M/upO+TnmrCUDZmCIAm2Snp
-O6VOraZZvZrQcxdWelaS8IUCDmrefQjOvNwLRJ/RtOSY54sZRBwCMpgVpqlVGKs=
-=0GD3
------END PGP SIGNATURE-----
-
---OwLcNYc0lM97+oe1--
-
---===============5348887893213237523==
-Content-Type: text/plain; charset="us-ascii"
-MIME-Version: 1.0
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-
-_______________________________________________
-Virtualization mailing list
-Virtualization@lists.linux-foundation.org
-https://lists.linuxfoundation.org/mailman/listinfo/virtualization
---===============5348887893213237523==--
+diff --git a/drivers/gpu/drm/bochs/bochs.h b/drivers/gpu/drm/bochs/bochs.h
+index e7a69077e4..06b8166efa 100644
+--- a/drivers/gpu/drm/bochs/bochs.h
++++ b/drivers/gpu/drm/bochs/bochs.h
+@@ -66,6 +66,7 @@ struct bochs_device {
+ 	u16 yres_virtual;
+ 	u32 stride;
+ 	u32 bpp;
++	struct edid *edid;
+ 
+ 	/* drm */
+ 	struct drm_device  *dev;
+diff --git a/drivers/gpu/drm/bochs/bochs_hw.c b/drivers/gpu/drm/bochs/bochs_hw.c
+index cacff73a64..db4afe94c5 100644
+--- a/drivers/gpu/drm/bochs/bochs_hw.c
++++ b/drivers/gpu/drm/bochs/bochs_hw.c
+@@ -69,6 +69,41 @@ static void bochs_hw_set_little_endian(struct bochs_device *bochs)
+ #define bochs_hw_set_native_endian(_b) bochs_hw_set_little_endian(_b)
+ #endif
+ 
++static int bochs_load_edid(struct bochs_device *bochs)
++{
++	uint8_t *blob;
++	size_t i, len;
++	uint8_t num_exts;
++
++	if (!bochs->mmio)
++		return -1;
++
++	if ((readb(bochs->mmio+0) != 0x00 ||
++	     readb(bochs->mmio+1) != 0xff))
++		return -1;
++
++	num_exts = readb(bochs->mmio + 126);
++	len = EDID_LENGTH * (1 + num_exts);
++	if (len > 0x400 /* vga register offset */)
++		return -1;
++
++	kfree(bochs->edid);
++	bochs->edid = kmalloc(len, GFP_KERNEL);
++	blob = (void *)bochs->edid;
++	for (i = 0; i < len; i++) {
++		blob[i] = readb(bochs->mmio+i);
++	}
++
++	if (!drm_edid_is_valid(bochs->edid)) {
++		DRM_ERROR("EDID is not valid, ignoring.\n");
++		kfree(bochs->edid);
++		bochs->edid = NULL;
++		return -1;
++	}
++
++	return 0;
++}
++
+ int bochs_hw_init(struct drm_device *dev)
+ {
+ 	struct bochs_device *bochs = dev->dev_private;
+@@ -150,6 +185,9 @@ int bochs_hw_init(struct drm_device *dev)
+ 	}
+ 
+ noext:
++	if (bochs_load_edid(bochs) == 0)
++		DRM_INFO("Found EDID data blob.\n");
++
+ 	return 0;
+ }
+ 
+@@ -164,6 +202,7 @@ void bochs_hw_fini(struct drm_device *dev)
+ 	if (bochs->fb_map)
+ 		iounmap(bochs->fb_map);
+ 	pci_release_regions(dev->pdev);
++	kfree(bochs->edid);
+ }
+ 
+ void bochs_hw_setmode(struct bochs_device *bochs,
+diff --git a/drivers/gpu/drm/bochs/bochs_kms.c b/drivers/gpu/drm/bochs/bochs_kms.c
+index 9bc5b438ae..b9931443a7 100644
+--- a/drivers/gpu/drm/bochs/bochs_kms.c
++++ b/drivers/gpu/drm/bochs/bochs_kms.c
+@@ -213,10 +213,17 @@ static void bochs_encoder_init(struct drm_device *dev)
+ 
+ static int bochs_connector_get_modes(struct drm_connector *connector)
+ {
+-	int count;
++	struct bochs_device *bochs =
++		container_of(connector, struct bochs_device, connector);
++	int count = 0;
+ 
+-	count = drm_add_modes_noedid(connector, 8192, 8192);
+-	drm_set_preferred_mode(connector, defx, defy);
++	if (bochs->edid)
++		count = drm_add_edid_modes(connector, bochs->edid);
++
++	if (!count) {
++		count = drm_add_modes_noedid(connector, 8192, 8192);
++		drm_set_preferred_mode(connector, defx, defy);
++	}
+ 	return count;
+ }
+ 
+@@ -271,6 +278,11 @@ static void bochs_connector_init(struct drm_device *dev)
+ 	drm_connector_helper_add(connector,
+ 				 &bochs_connector_connector_helper_funcs);
+ 	drm_connector_register(connector);
++
++	if (bochs->edid) {
++		drm_connector_attach_edid_property(connector);
++		drm_connector_update_edid_property(connector, bochs->edid);
++	}
+ }
+ 
+ 
+-- 
+2.9.3
