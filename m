@@ -1,17 +1,15 @@
-From: Emil Velikov <emil.l.velikov@gmail.com>
-Subject: Re: [PATCH 2/5] drm/virtio: add uapi for in and out explicit fences
-Date: Tue, 30 Oct 2018 15:48:54 +0000
-Message-ID: <CACvgo52+D_zYnNbMgCnAWZFO2dXZYbGz628pD34VY99VU8ERGA__8167.33086617223$1540914533$gmane$org@mail.gmail.com>
-References: <20181025183739.9375-1-robert.foss@collabora.com>
-	<20181025183739.9375-3-robert.foss@collabora.com>
-	<20181030061127.hp4n2scw5f3j2rqq@sirius.home.kraxel.org>
-	<CACvgo50MK1jU0jKMCfZJQSaSmpQ8mmYj1=4GP2NQvM_DHOaW-Q@mail.gmail.com>
-	<20181030135242.doccralyqaqzshyx@sirius.home.kraxel.org>
+From: "gregkh@linuxfoundation.org" <gregkh@linuxfoundation.org>
+Subject: Re: [PATCH v3 00/20] vmw_balloon: compaction, shrinker, 64-bit, etc.
+Date: Tue, 30 Oct 2018 17:51:19 +0100
+Message-ID: <20181030165119.GA23017__22713.7386137203$1540918175$gmane$org@kroah.com>
+References: <20180926191336.101885-1-namit@vmware.com>
+	<E1B69BF2-458D-435C-8065-6944111A9EC6@vmware.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset="utf-8"
+Content-Transfer-Encoding: base64
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <20181030135242.doccralyqaqzshyx@sirius.home.kraxel.org>
+Content-Disposition: inline
+In-Reply-To: <E1B69BF2-458D-435C-8065-6944111A9EC6@vmware.com>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -21,45 +19,48 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Gerd Hoffmann <kraxel@redhat.com>
-Cc: Gustavo Padovan <gustavo.padovan@collabora.com>, Robert Foss <robert.foss@collabora.com>, "Linux-Kernel@Vger. Kernel. Org" <linux-kernel@vger.kernel.org>, ML dri-devel <dri-devel@lists.freedesktop.org>, "open list:VIRTIO GPU DRIVER" <virtualization@lists.linux-foundation.org>, David Airlie <airlied@linux.ie>, Emil Velikov <emil.velikov@collabora.com>
+To: Nadav Amit <namit@vmware.com>
+Cc: Arnd Bergmann <arnd@arndb.de>, "Michael S. Tsirkin" <mst@redhat.com>, Xavier Deguillard <xdeguillard@vmware.com>, LKML <linux-kernel@vger.kernel.org>, "virtualization@lists.linux-foundation.org" <virtualization@lists.linux-foundation.org>, "linux-mm@kvack.org" <linux-mm@kvack.org>
 List-Id: virtualization@lists.linuxfoundation.org
 
-On Tue, 30 Oct 2018 at 13:52, Gerd Hoffmann <kraxel@redhat.com> wrote:
->
-> On Tue, Oct 30, 2018 at 11:31:04AM +0000, Emil Velikov wrote:
-> > HI Gerd,
-> >
-> > On Tue, 30 Oct 2018 at 06:11, Gerd Hoffmann <kraxel@redhat.com> wrote:
-> > >
-> > >   Hi,
-> > >
-> > > > The execbuffer IOCTL is now read-write to allow the userspace to read the
-> > > > out-fence.
-> > >
-> > > >  #define DRM_IOCTL_VIRTGPU_EXECBUFFER \
-> > > > -     DRM_IOW(DRM_COMMAND_BASE + DRM_VIRTGPU_EXECBUFFER,\
-> > > > +     DRM_IOWR(DRM_COMMAND_BASE + DRM_VIRTGPU_EXECBUFFER,\
-> > > >               struct drm_virtgpu_execbuffer)
-> > >
-> > > That changes the ioctl number and breaks the userspace api.
-> > >
-> > Have you looked at the drm_ioctl() implementation? AFAICT it
-> > explicitly caters for this kind of changes.
->
-> Looking ...
->
-> The direction bits are not used to lookup the ioctl functions,
-> so it should work indeed.
->
-Nice, thanks for confirming.
-
-> Series doesn't apply to drm-misc-next and needs a rebase.
->
-Might be nicer to address that alongside any feedback. Otherwise it'll
-be spamming people just for the sake of rebasing.
-
-If i find some time I'll post some comments later on today.
-
-HTH
-Emil
+T24gVHVlLCBPY3QgMzAsIDIwMTggYXQgMDQ6MzI6MjJQTSArMDAwMCwgTmFkYXYgQW1pdCB3cm90
+ZToKPiBGcm9tOiBOYWRhdiBBbWl0Cj4gU2VudDogU2VwdGVtYmVyIDI2LCAyMDE4IGF0IDc6MTM6
+MTYgUE0gR01UCj4gPiBUbzogQXJuZCBCZXJnbWFubiA8YXJuZEBhcm5kYi5kZT4sIGdyZWdraEBs
+aW51eGZvdW5kYXRpb24ub3JnCj4gPiBDYzogWGF2aWVyIERlZ3VpbGxhcmQgPHhkZWd1aWxsYXJk
+QHZtd2FyZS5jb20+LCBsaW51eC1rZXJuZWxAdmdlci5rZXJuZWwub3JnPiwgTmFkYXYgQW1pdCA8
+bmFtaXRAdm13YXJlLmNvbT4sIE1pY2hhZWwgUy4gVHNpcmtpbiA8bXN0QHJlZGhhdC5jb20+LCBK
+YXNvbiBXYW5nIDxqYXNvd2FuZ0ByZWRoYXQuY29tPiwgbGludXgtbW1Aa3ZhY2sub3JnPiwgdmly
+dHVhbGl6YXRpb25AbGlzdHMubGludXgtZm91bmRhdGlvbi5vcmcKPiA+IFN1YmplY3Q6IFtQQVRD
+SCB2MyAwMC8yMF0gdm13X2JhbGxvb246IGNvbXBhY3Rpb24sIHNocmlua2VyLCA2NC1iaXQsIGV0
+Yy4KPiA+IAo+ID4gCj4gPiBUaGlzIHBhdGNoLXNldCBhZGRzIHRoZSBmb2xsb3dpbmcgZW5oYW5j
+ZW1lbnRzIHRvIHRoZSBWTXdhcmUgYmFsbG9vbgo+ID4gZHJpdmVyOgo+ID4gCj4gPiAxLiBCYWxs
+b29uIGNvbXBhY3Rpb24gc3VwcG9ydC4KPiA+IDIuIFJlcG9ydCB0aGUgbnVtYmVyIG9mIGluZmxh
+dGVkL2RlZmxhdGVkIGJhbGxvb25lZCBwYWdlcyB0aHJvdWdoIHZtc3RhdC4KPiA+IDMuIE1lbW9y
+eSBzaHJpbmtlciB0byBhdm9pZCBiYWxsb29uIG92ZXItaW5mbGF0aW9uIChhbmQgT09NKS4KPiA+
+IDQuIFN1cHBvcnQgVk1zIHdpdGggbWVtb3J5IGxpbWl0IHRoYXQgaXMgZ3JlYXRlciB0aGFuIDE2
+VEIuCj4gPiA1LiBGYXN0ZXIgYW5kIG1vcmUgYWdncmVzc2l2ZSBpbmZsYXRpb24uCj4gPiAKPiA+
+IFRvIHN1cHBvcnQgY29tcGFjdGlvbiB3ZSB3aXNoIHRvIHVzZSB0aGUgZXhpc3RpbmcgaW5mcmFz
+dHJ1Y3R1cmUuCj4gPiBIb3dldmVyLCB3ZSBuZWVkIHRvIG1ha2Ugc2xpZ2h0IGFkYXB0aW9ucyBm
+b3IgaXQuIFdlIGFkZCBhIG5ldyBsaXN0Cj4gPiBpbnRlcmZhY2UgdG8gYmFsbG9vbi1jb21wYWN0
+aW9uLCB3aGljaCBpcyBtb3JlIGdlbmVyaWMgYW5kIGVmZmljaWVudCwKPiA+IHNpbmNlIGl0IGRv
+ZXMgbm90IHJlcXVpcmUgYXMgbWFueSBJUlEgc2F2ZS9yZXN0b3JlIG9wZXJhdGlvbnMuIFdlIGxl
+YXZlCj4gPiB0aGUgb2xkIGludGVyZmFjZSB0aGF0IGlzIHVzZWQgYnkgdGhlIHZpcnRpbyBiYWxs
+b29uLgo+ID4gCj4gPiBCaWcgcGFydHMgb2YgdGhpcyBwYXRjaC1zZXQgYXJlIGNsZWFudXAgYW5k
+IGRvY3VtZW50YXRpb24uIFBhdGNoZXMgMS0xMwo+ID4gc2ltcGxpZnkgdGhlIGJhbGxvb24gY29k
+ZSwgZG9jdW1lbnQgaXRzIGJlaGF2aW9yIGFuZCBhbGxvdyB0aGUgYmFsbG9vbgo+ID4gY29kZSB0
+byBydW4gY29uY3VycmVudGx5LiBUaGUgc3VwcG9ydCBmb3IgY29uY3VycmVuY3kgaXMgcmVxdWly
+ZWQgZm9yCj4gPiBjb21wYWN0aW9uIGFuZCB0aGUgc2hyaW5rZXIgaW50ZXJmYWNlLgo+ID4gCj4g
+PiBGb3IgZG9jdW1lbnRhdGlvbiB3ZSB1c2UgdGhlIGtlcm5lbC1kb2MgZm9ybWF0LiBXZSBhcmUg
+YXdhcmUgdGhhdCB0aGUKPiA+IGJhbGxvb24gaW50ZXJmYWNlIGlzIG5vdCBwdWJsaWMsIGJ1dCBm
+b2xsb3dpbmcgdGhlIGtlcm5lbC1kb2MgZm9ybWF0IG1heQo+ID4gYmUgdXNlZnVsIG9uZSBkYXku
+Cj4gPiAKPiA+IHYyLT52MzogKiBNb3ZpbmcgdGhlIGJhbGxvb24gbWFnaWMtbnVtYmVyIG91dCBv
+ZiB1YXBpIChHcmVnKQo+ID4gCj4gPiB2MS0+djI6CSogRml4IGJ1aWxkIGVycm9yIHdoZW4gVEhQ
+IGlzIG9mZiAoa2J1aWxkKQo+ID4gCSogRml4IGJ1aWxkIGVycm9yIG9uIGkzODYgKGtidWlsZCkK
+PiA+IAo+IAo+IEdyZWcsCj4gCj4gSSByZWFsaXplIHlvdSBkaWRu4oCZdCBhcHBseSBwYXRjaGVz
+IDE3LTIwLiBBbnkgcmVhc29uIGZvciB0aGF0PwoKSSBoYXZlIG5vIGlkZWEsIHRoYXQgd2FzIGEg
+ZmV3IHRob3VzYW5kIHBhdGNoZXMgcmV2aWV3ZWQgYWdvLi4uCgpEaWQgSSBub3Qgc2F5IGFueXRo
+aW5nIGFib3V0IHRoaXMgd2hlbiBJIGFwcGxpZWQgdGhlbT8KCmdyZWcgay1oCl9fX19fX19fX19f
+X19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fClZpcnR1YWxpemF0aW9uIG1haWxp
+bmcgbGlzdApWaXJ0dWFsaXphdGlvbkBsaXN0cy5saW51eC1mb3VuZGF0aW9uLm9yZwpodHRwczov
+L2xpc3RzLmxpbnV4Zm91bmRhdGlvbi5vcmcvbWFpbG1hbi9saXN0aW5mby92aXJ0dWFsaXphdGlv
+bg==
