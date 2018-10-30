@@ -1,16 +1,11 @@
-From: Gerd Hoffmann <kraxel@redhat.com>
-Subject: Re: [PATCH] gpu/drm/virtio/virtgpu_vq.c: Use kmem_cache_zalloc
-Date: Tue, 30 Oct 2018 06:36:35 +0100
-Message-ID: <20181030053635.xwys3njelwa4j4vc__34165.9052217894$1540877696$gmane$org@sirius.home.kraxel.org>
-References: <5bc9ff7e.1c69fb81.105c2.1fef@mx.google.com>
-	<CAFqt6zbdxjUF4tEh8WXRZT-eo58sfw0tKa3DyxTXCesjEJkqfA@mail.gmail.com>
-	<87sh0xc7pv.fsf@intel.com>
+From: Jason Wang <jasowang@redhat.com>
+Subject: [PATCH net] vhost: Fix Spectre V1 vulnerability
+Date: Tue, 30 Oct 2018 14:10:49 +0800
+Message-ID: <20181030061049.7424-1-jasowang__47435.8971151107$1540879755$gmane$org@redhat.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-Content-Disposition: inline
-In-Reply-To: <87sh0xc7pv.fsf@intel.com>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -20,24 +15,42 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Jani Nikula <jani.nikula@linux.intel.com>
-Cc: Sabyasachi Gupta <sabyasachi.linux@gmail.com>, airlied@linux.ie, linux-kernel@vger.kernel.org, dri-devel@lists.freedesktop.org, virtualization@lists.linux-foundation.org, Souptick Joarder <jrdr.linux@gmail.com>, Brajeswar Ghosh <brajeswar.linux@gmail.com>
+To: mst@redhat.com, jasowang@redhat.com
+Cc: Andrea Arcangeli <aarcange@redhat.com>, kvm@vger.kernel.org, netdev@vger.kernel.org, linux-kernel@vger.kernel.org, virtualization@lists.linux-foundation.org, Josh Poimboeuf <jpoimboe@redhat.com>
 List-Id: virtualization@lists.linuxfoundation.org
 
-On Tue, Oct 23, 2018 at 12:50:36PM +0300, Jani Nikula wrote:
-> On Tue, 23 Oct 2018, Souptick Joarder <jrdr.linux@gmail.com> wrote:
-> > On Fri, Oct 19, 2018 at 9:30 PM Sabyasachi Gupta
-> > <sabyasachi.linux@gmail.com> wrote:
-> >>
-> >> Replaced kmem_cache_alloc + memset with kmem_cache_zalloc
-> >
-> > Put a new line gap in between these two lines and send v2.
-> 
-> Nah, the maintainers can trivially add the newline while
-> applying. Review is much more valuable than nitpicking on the commit
-> message.
+The idx in vhost_vring_ioctl() was controlled by userspace, hence a
+potential exploitation of the Spectre variant 1 vulnerability.
 
-Queued (and added newline).
+Fixing this by sanitizing idx before using it to index d->vqs.
 
-thanks,
-  Gerd
+Cc: Michael S. Tsirkin <mst@redhat.com>
+Cc: Josh Poimboeuf <jpoimboe@redhat.com>
+Cc: Andrea Arcangeli <aarcange@redhat.com>
+Signed-off-by: Jason Wang <jasowang@redhat.com>
+---
+ drivers/vhost/vhost.c | 2 ++
+ 1 file changed, 2 insertions(+)
+
+diff --git a/drivers/vhost/vhost.c b/drivers/vhost/vhost.c
+index f52008bb8df7..3a5f81a66d34 100644
+--- a/drivers/vhost/vhost.c
++++ b/drivers/vhost/vhost.c
+@@ -30,6 +30,7 @@
+ #include <linux/sched/mm.h>
+ #include <linux/sched/signal.h>
+ #include <linux/interval_tree_generic.h>
++#include <linux/nospec.h>
+ 
+ #include "vhost.h"
+ 
+@@ -1387,6 +1388,7 @@ long vhost_vring_ioctl(struct vhost_dev *d, unsigned int ioctl, void __user *arg
+ 	if (idx >= d->nvqs)
+ 		return -ENOBUFS;
+ 
++	idx = array_index_nospec(idx, d->nvqs);
+ 	vq = d->vqs[idx];
+ 
+ 	mutex_lock(&vq->mutex);
+-- 
+2.17.1
