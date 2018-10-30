@@ -1,15 +1,15 @@
-From: "gregkh@linuxfoundation.org" <gregkh@linuxfoundation.org>
-Subject: Re: [PATCH v3 00/20] vmw_balloon: compaction, shrinker, 64-bit, etc.
-Date: Tue, 30 Oct 2018 17:51:19 +0100
-Message-ID: <20181030165119.GA23017__22713.7386137203$1540918175$gmane$org@kroah.com>
-References: <20180926191336.101885-1-namit@vmware.com>
-	<E1B69BF2-458D-435C-8065-6944111A9EC6@vmware.com>
+From: Matthew Wilcox <willy@infradead.org>
+Subject: Re: [PATCH 0/4] Improve virtio ID allocation
+Date: Tue, 30 Oct 2018 09:52:22 -0700
+Message-ID: <20181030165222.GA10491__14294.7702472613$1540918277$gmane$org@bombadil.infradead.org>
+References: <20180926160031.15721-1-willy@infradead.org>
+	<20181029215339.aywdmehccrwwls2n@sirius.home.kraxel.org>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="utf-8"
-Content-Transfer-Encoding: base64
+Content-Type: text/plain; charset="us-ascii"
+Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
 Content-Disposition: inline
-In-Reply-To: <E1B69BF2-458D-435C-8065-6944111A9EC6@vmware.com>
+In-Reply-To: <20181029215339.aywdmehccrwwls2n@sirius.home.kraxel.org>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -19,48 +19,23 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Nadav Amit <namit@vmware.com>
-Cc: Arnd Bergmann <arnd@arndb.de>, "Michael S. Tsirkin" <mst@redhat.com>, Xavier Deguillard <xdeguillard@vmware.com>, LKML <linux-kernel@vger.kernel.org>, "virtualization@lists.linux-foundation.org" <virtualization@lists.linux-foundation.org>, "linux-mm@kvack.org" <linux-mm@kvack.org>
+To: Gerd Hoffmann <kraxel@redhat.com>
+Cc: David Airlie <airlied@linux.ie>, linux-kernel@vger.kernel.org, dri-devel@lists.freedesktop.org, virtualization@lists.linux-foundation.org
 List-Id: virtualization@lists.linuxfoundation.org
 
-T24gVHVlLCBPY3QgMzAsIDIwMTggYXQgMDQ6MzI6MjJQTSArMDAwMCwgTmFkYXYgQW1pdCB3cm90
-ZToKPiBGcm9tOiBOYWRhdiBBbWl0Cj4gU2VudDogU2VwdGVtYmVyIDI2LCAyMDE4IGF0IDc6MTM6
-MTYgUE0gR01UCj4gPiBUbzogQXJuZCBCZXJnbWFubiA8YXJuZEBhcm5kYi5kZT4sIGdyZWdraEBs
-aW51eGZvdW5kYXRpb24ub3JnCj4gPiBDYzogWGF2aWVyIERlZ3VpbGxhcmQgPHhkZWd1aWxsYXJk
-QHZtd2FyZS5jb20+LCBsaW51eC1rZXJuZWxAdmdlci5rZXJuZWwub3JnPiwgTmFkYXYgQW1pdCA8
-bmFtaXRAdm13YXJlLmNvbT4sIE1pY2hhZWwgUy4gVHNpcmtpbiA8bXN0QHJlZGhhdC5jb20+LCBK
-YXNvbiBXYW5nIDxqYXNvd2FuZ0ByZWRoYXQuY29tPiwgbGludXgtbW1Aa3ZhY2sub3JnPiwgdmly
-dHVhbGl6YXRpb25AbGlzdHMubGludXgtZm91bmRhdGlvbi5vcmcKPiA+IFN1YmplY3Q6IFtQQVRD
-SCB2MyAwMC8yMF0gdm13X2JhbGxvb246IGNvbXBhY3Rpb24sIHNocmlua2VyLCA2NC1iaXQsIGV0
-Yy4KPiA+IAo+ID4gCj4gPiBUaGlzIHBhdGNoLXNldCBhZGRzIHRoZSBmb2xsb3dpbmcgZW5oYW5j
-ZW1lbnRzIHRvIHRoZSBWTXdhcmUgYmFsbG9vbgo+ID4gZHJpdmVyOgo+ID4gCj4gPiAxLiBCYWxs
-b29uIGNvbXBhY3Rpb24gc3VwcG9ydC4KPiA+IDIuIFJlcG9ydCB0aGUgbnVtYmVyIG9mIGluZmxh
-dGVkL2RlZmxhdGVkIGJhbGxvb25lZCBwYWdlcyB0aHJvdWdoIHZtc3RhdC4KPiA+IDMuIE1lbW9y
-eSBzaHJpbmtlciB0byBhdm9pZCBiYWxsb29uIG92ZXItaW5mbGF0aW9uIChhbmQgT09NKS4KPiA+
-IDQuIFN1cHBvcnQgVk1zIHdpdGggbWVtb3J5IGxpbWl0IHRoYXQgaXMgZ3JlYXRlciB0aGFuIDE2
-VEIuCj4gPiA1LiBGYXN0ZXIgYW5kIG1vcmUgYWdncmVzc2l2ZSBpbmZsYXRpb24uCj4gPiAKPiA+
-IFRvIHN1cHBvcnQgY29tcGFjdGlvbiB3ZSB3aXNoIHRvIHVzZSB0aGUgZXhpc3RpbmcgaW5mcmFz
-dHJ1Y3R1cmUuCj4gPiBIb3dldmVyLCB3ZSBuZWVkIHRvIG1ha2Ugc2xpZ2h0IGFkYXB0aW9ucyBm
-b3IgaXQuIFdlIGFkZCBhIG5ldyBsaXN0Cj4gPiBpbnRlcmZhY2UgdG8gYmFsbG9vbi1jb21wYWN0
-aW9uLCB3aGljaCBpcyBtb3JlIGdlbmVyaWMgYW5kIGVmZmljaWVudCwKPiA+IHNpbmNlIGl0IGRv
-ZXMgbm90IHJlcXVpcmUgYXMgbWFueSBJUlEgc2F2ZS9yZXN0b3JlIG9wZXJhdGlvbnMuIFdlIGxl
-YXZlCj4gPiB0aGUgb2xkIGludGVyZmFjZSB0aGF0IGlzIHVzZWQgYnkgdGhlIHZpcnRpbyBiYWxs
-b29uLgo+ID4gCj4gPiBCaWcgcGFydHMgb2YgdGhpcyBwYXRjaC1zZXQgYXJlIGNsZWFudXAgYW5k
-IGRvY3VtZW50YXRpb24uIFBhdGNoZXMgMS0xMwo+ID4gc2ltcGxpZnkgdGhlIGJhbGxvb24gY29k
-ZSwgZG9jdW1lbnQgaXRzIGJlaGF2aW9yIGFuZCBhbGxvdyB0aGUgYmFsbG9vbgo+ID4gY29kZSB0
-byBydW4gY29uY3VycmVudGx5LiBUaGUgc3VwcG9ydCBmb3IgY29uY3VycmVuY3kgaXMgcmVxdWly
-ZWQgZm9yCj4gPiBjb21wYWN0aW9uIGFuZCB0aGUgc2hyaW5rZXIgaW50ZXJmYWNlLgo+ID4gCj4g
-PiBGb3IgZG9jdW1lbnRhdGlvbiB3ZSB1c2UgdGhlIGtlcm5lbC1kb2MgZm9ybWF0LiBXZSBhcmUg
-YXdhcmUgdGhhdCB0aGUKPiA+IGJhbGxvb24gaW50ZXJmYWNlIGlzIG5vdCBwdWJsaWMsIGJ1dCBm
-b2xsb3dpbmcgdGhlIGtlcm5lbC1kb2MgZm9ybWF0IG1heQo+ID4gYmUgdXNlZnVsIG9uZSBkYXku
-Cj4gPiAKPiA+IHYyLT52MzogKiBNb3ZpbmcgdGhlIGJhbGxvb24gbWFnaWMtbnVtYmVyIG91dCBv
-ZiB1YXBpIChHcmVnKQo+ID4gCj4gPiB2MS0+djI6CSogRml4IGJ1aWxkIGVycm9yIHdoZW4gVEhQ
-IGlzIG9mZiAoa2J1aWxkKQo+ID4gCSogRml4IGJ1aWxkIGVycm9yIG9uIGkzODYgKGtidWlsZCkK
-PiA+IAo+IAo+IEdyZWcsCj4gCj4gSSByZWFsaXplIHlvdSBkaWRu4oCZdCBhcHBseSBwYXRjaGVz
-IDE3LTIwLiBBbnkgcmVhc29uIGZvciB0aGF0PwoKSSBoYXZlIG5vIGlkZWEsIHRoYXQgd2FzIGEg
-ZmV3IHRob3VzYW5kIHBhdGNoZXMgcmV2aWV3ZWQgYWdvLi4uCgpEaWQgSSBub3Qgc2F5IGFueXRo
-aW5nIGFib3V0IHRoaXMgd2hlbiBJIGFwcGxpZWQgdGhlbT8KCmdyZWcgay1oCl9fX19fX19fX19f
-X19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fClZpcnR1YWxpemF0aW9uIG1haWxp
-bmcgbGlzdApWaXJ0dWFsaXphdGlvbkBsaXN0cy5saW51eC1mb3VuZGF0aW9uLm9yZwpodHRwczov
-L2xpc3RzLmxpbnV4Zm91bmRhdGlvbi5vcmcvbWFpbG1hbi9saXN0aW5mby92aXJ0dWFsaXphdGlv
-bg==
+On Mon, Oct 29, 2018 at 10:53:39PM +0100, Gerd Hoffmann wrote:
+> On Wed, Sep 26, 2018 at 09:00:27AM -0700, Matthew Wilcox wrote:
+> > I noticed you were using IDRs where you could be using the more efficient
+> > IDAs, then while fixing that I noticed the lack of error handling,
+> > and I decided to follow that up with an efficiency improvement.
+> > 
+> > There's probably a v2 of this to follow because I couldn't figure
+> > out how to properly handle one of the error cases ... see the comment
+> > embedded in one of the patches.
+> 
+> #1 + #2 pushed to drm-misc-next now.
+> #3 should not be needed any more.
+> waiting for v2 of #4 ...
+
+Thanks!  I think we do still need a small part of #3.  Patches in
+replies to this email.
