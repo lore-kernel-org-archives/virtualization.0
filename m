@@ -1,16 +1,14 @@
-From: "Koenig, Christian" <Christian.Koenig@amd.com>
-Subject: Re: virtio-gpu without ARCH_HAS_SG_CHAIN
-Date: Tue, 30 Oct 2018 09:27:46 +0000
-Message-ID: <751487d7-6cfc-17dc-b53e-08d72d4b88aa__19780.9465848424$1540891566$gmane$org@amd.com>
-References: <CAGw6cBsWHB4aRf=kPoT+v-FbtL0ymeBtZNEwKYobFizc0cLeaQ@mail.gmail.com>
-	<20181030072344.sstmq6jxcmyzbqmr@sirius.home.kraxel.org>
+From: Daniel Vetter <daniel@ffwll.ch>
+Subject: Re: [PATCH v4] drm/bochs: add edid support.
+Date: Tue, 30 Oct 2018 10:35:54 +0100
+Message-ID: <20181030093554.GP21967__13122.1721102067$1540892062$gmane$org@phenom.ffwll.local>
+References: <20181029205048.13200-1-kraxel@redhat.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <20181030072344.sstmq6jxcmyzbqmr@sirius.home.kraxel.org>
-Content-Language: en-US
-Content-ID: <B69AC00C8133434CBE833B7F90ECB386@namprd12.prod.outlook.com>
+Content-Disposition: inline
+In-Reply-To: <20181029205048.13200-1-kraxel@redhat.com>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -20,56 +18,145 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Gerd Hoffmann <kraxel@redhat.com>, Michael Forney <mforney@mforney.org>
-Cc: "linux-riscv@lists.infradead.org" <linux-riscv@lists.infradead.org>, "dri-devel@lists.freedesktop.org" <dri-devel@lists.freedesktop.org>, "virtualization@lists.linux-foundation.org" <virtualization@lists.linux-foundation.org>
+To: Gerd Hoffmann <kraxel@redhat.com>
+Cc: David Airlie <airlied@linux.ie>, David Airlie <airlied@redhat.com>, open list <linux-kernel@vger.kernel.org>, dri-devel@lists.freedesktop.org, "open list:DRM DRIVER FOR BOCHS VIRTUAL GPU" <virtualization@lists.linux-foundation.org>
 List-Id: virtualization@lists.linuxfoundation.org
 
-Am 30.10.18 um 08:23 schrieb Gerd Hoffmann:
-> On Mon, Oct 29, 2018 at 12:46:34PM -0700, Michael Forney wrote:
->> Hi,
->>
->> I was looking at adding virtio-gpu support to tinyemu
->> (https://bellard.org/tinyemu/). I got it to work on x86, but just for
->> fun I tried it under riscv and ran into an issue with buffer
->> allocations (though, this should affect any arch without
->> ARCH_HAS_SG_CHAIN).
->>
->> virtio-gpu uses ttm to allocate buffers, which swaps pages to ensure
->> that they aren't consecutive[0][1].
-> Interesting.
->
-> While hacking the virtio-gpu ttm code I've already noticed that I get
-> non-contignous memory even for small allocations (cursor, which is only
-> 4 pages), but havn't found the time yet to look at this.
->
-> Christian, care to explain the background?  The commit message sounds a
-> bit like it papers over a bug somewhere else.
+On Mon, Oct 29, 2018 at 09:50:48PM +0100, Gerd Hoffmann wrote:
+> Recent qemu (latest master branch, upcoming 3.1 release) got support
+> for EDID data.  This patch adds guest driver support.
+> 
+> EDID support in qemu is not (yet) enabled by default, so please use
+> 'qemu -device VGA,edid=on' for testing.
+> 
+> Signed-off-by: Gerd Hoffmann <kraxel@redhat.com>
 
-The problem is that the TTM pool handler thinks that we need to free 
-pages to the huge page pool when it sees that they are consecutive.
+I liked v3 more, but Acked-by: Daniel Vetter <daniel.vetter@ffwll.ch> on
+either wone.
+-Daniel
 
-The root problem of that in turn is that we can't use compound pages for 
-device allocated memory, but a real fix for that would require quite 
-some work in the MM.
+> ---
+>  drivers/gpu/drm/bochs/bochs.h     |  2 ++
+>  drivers/gpu/drm/bochs/bochs_hw.c  | 30 ++++++++++++++++++++++++++++++
+>  drivers/gpu/drm/bochs/bochs_kms.c | 20 +++++++++++++++++---
+>  3 files changed, 49 insertions(+), 3 deletions(-)
+> 
+> diff --git a/drivers/gpu/drm/bochs/bochs.h b/drivers/gpu/drm/bochs/bochs.h
+> index e7a69077e4..577a8b917c 100644
+> --- a/drivers/gpu/drm/bochs/bochs.h
+> +++ b/drivers/gpu/drm/bochs/bochs.h
+> @@ -66,6 +66,7 @@ struct bochs_device {
+>  	u16 yres_virtual;
+>  	u32 stride;
+>  	u32 bpp;
+> +	struct edid *edid;
+>  
+>  	/* drm */
+>  	struct drm_device  *dev;
+> @@ -126,6 +127,7 @@ void bochs_hw_setmode(struct bochs_device *bochs,
+>  		      const struct drm_format_info *format);
+>  void bochs_hw_setbase(struct bochs_device *bochs,
+>  		      int x, int y, u64 addr);
+> +int bochs_hw_load_edid(struct bochs_device *bochs);
+>  
+>  /* bochs_mm.c */
+>  int bochs_mm_init(struct bochs_device *bochs);
+> diff --git a/drivers/gpu/drm/bochs/bochs_hw.c b/drivers/gpu/drm/bochs/bochs_hw.c
+> index cacff73a64..c90a0d492f 100644
+> --- a/drivers/gpu/drm/bochs/bochs_hw.c
+> +++ b/drivers/gpu/drm/bochs/bochs_hw.c
+> @@ -69,6 +69,35 @@ static void bochs_hw_set_little_endian(struct bochs_device *bochs)
+>  #define bochs_hw_set_native_endian(_b) bochs_hw_set_little_endian(_b)
+>  #endif
+>  
+> +static int bochs_get_edid_block(void *data, u8 *buf,
+> +				unsigned int block, size_t len)
+> +{
+> +	struct bochs_device *bochs = data;
+> +	size_t i, start = block * EDID_LENGTH;
+> +
+> +	if (start + len > 0x400 /* vga register offset */)
+> +		return -1;
+> +
+> +	for (i = 0; i < len; i++) {
+> +		buf[i] = readb(bochs->mmio + start + i);
+> +	}
+> +	return 0;
+> +}
+> +
+> +int bochs_hw_load_edid(struct bochs_device *bochs)
+> +{
+> +	if (!bochs->mmio)
+> +		return -1;
+> +
+> +	kfree(bochs->edid);
+> +	bochs->edid = drm_do_get_edid(&bochs->connector,
+> +				      bochs_get_edid_block, bochs);
+> +	if (bochs->edid == NULL)
+> +		return -1;
+> +
+> +	return 0;
+> +}
+> +
+>  int bochs_hw_init(struct drm_device *dev)
+>  {
+>  	struct bochs_device *bochs = dev->dev_private;
+> @@ -164,6 +193,7 @@ void bochs_hw_fini(struct drm_device *dev)
+>  	if (bochs->fb_map)
+>  		iounmap(bochs->fb_map);
+>  	pci_release_regions(dev->pdev);
+> +	kfree(bochs->edid);
+>  }
+>  
+>  void bochs_hw_setmode(struct bochs_device *bochs,
+> diff --git a/drivers/gpu/drm/bochs/bochs_kms.c b/drivers/gpu/drm/bochs/bochs_kms.c
+> index 9bc5b438ae..f87c284dd9 100644
+> --- a/drivers/gpu/drm/bochs/bochs_kms.c
+> +++ b/drivers/gpu/drm/bochs/bochs_kms.c
+> @@ -213,10 +213,17 @@ static void bochs_encoder_init(struct drm_device *dev)
+>  
+>  static int bochs_connector_get_modes(struct drm_connector *connector)
+>  {
+> -	int count;
+> +	struct bochs_device *bochs =
+> +		container_of(connector, struct bochs_device, connector);
+> +	int count = 0;
+>  
+> -	count = drm_add_modes_noedid(connector, 8192, 8192);
+> -	drm_set_preferred_mode(connector, defx, defy);
+> +	if (bochs->edid)
+> +		count = drm_add_edid_modes(connector, bochs->edid);
+> +
+> +	if (!count) {
+> +		count = drm_add_modes_noedid(connector, 8192, 8192);
+> +		drm_set_preferred_mode(connector, defx, defy);
+> +	}
+>  	return count;
+>  }
+>  
+> @@ -271,6 +278,13 @@ static void bochs_connector_init(struct drm_device *dev)
+>  	drm_connector_helper_add(connector,
+>  				 &bochs_connector_connector_helper_funcs);
+>  	drm_connector_register(connector);
+> +
+> +	bochs_hw_load_edid(bochs);
+> +	if (bochs->edid) {
+> +		DRM_INFO("Found EDID data blob.\n");
+> +		drm_connector_attach_edid_property(connector);
+> +		drm_connector_update_edid_property(connector, bochs->edid);
+> +	}
+>  }
+>  
+>  
+> -- 
+> 2.9.3
+> 
+> _______________________________________________
+> dri-devel mailing list
+> dri-devel@lists.freedesktop.org
+> https://lists.freedesktop.org/mailman/listinfo/dri-devel
 
-What we can do rather easily is to paper over the problem by only 
-swapping page 511 and 510 to avoid that the pool things that this is a 
-huge page.
-
-Regards,
-Christian.
-
->
->> However, this causes sg_alloc_table_from_pages to use a sg entry for
->> every single page, limiting buffers to only 170 pages (the number of
->> sg entries that can fit into a page). This is only 417x417 with 32bpp.
->> I believe the page swapping also makes TRANSFER_TO_HOST_2D inefficient
->> by forcing the host to do many memcpys instead of just a few.
-> Probably not *that* bad, the amount of data copyed doesn't change after
-> all.  But, yes, I'd prefer to have shorter sh lists too.
->
-> cheers,
->    Gerd
->
->> [0] https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux.git/commit/drivers/gpu/drm/ttm/ttm_page_alloc.c?id=fdb1a2236b07948e83e0a777e1795d4f07e52c33
->> [1] https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux.git/commit/drivers/gpu/drm/ttm/ttm_page_alloc.c?id=ae937fe19636067ec5e20d7f1fa10c6cc6000b52
+-- 
+Daniel Vetter
+Software Engineer, Intel Corporation
+http://blog.ffwll.ch
