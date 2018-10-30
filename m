@@ -1,11 +1,15 @@
-From: Jason Wang <jasowang@redhat.com>
-Subject: [PATCH net] vhost: Fix Spectre V1 vulnerability
-Date: Tue, 30 Oct 2018 14:10:49 +0800
-Message-ID: <20181030061049.7424-1-jasowang__47435.8971151107$1540879755$gmane$org@redhat.com>
+From: Gerd Hoffmann <kraxel@redhat.com>
+Subject: Re: [PATCH 2/5] drm/virtio: add uapi for in and out explicit fences
+Date: Tue, 30 Oct 2018 07:11:27 +0100
+Message-ID: <20181030061127.hp4n2scw5f3j2rqq__41967.5061050386$1540879787$gmane$org@sirius.home.kraxel.org>
+References: <20181025183739.9375-1-robert.foss@collabora.com>
+	<20181025183739.9375-3-robert.foss@collabora.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
+Content-Disposition: inline
+In-Reply-To: <20181025183739.9375-3-robert.foss@collabora.com>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -15,42 +19,21 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: mst@redhat.com, jasowang@redhat.com
-Cc: Andrea Arcangeli <aarcange@redhat.com>, kvm@vger.kernel.org, netdev@vger.kernel.org, linux-kernel@vger.kernel.org, virtualization@lists.linux-foundation.org, Josh Poimboeuf <jpoimboe@redhat.com>
+To: Robert Foss <robert.foss@collabora.com>
+Cc: Rob Herring <robh@kernel.org>, airlied@linux.ie, linux-kernel@vger.kernel.org, dri-devel@lists.freedesktop.org, virtualization@lists.linux-foundation.org, Gustavo Padovan <gustavo.padovan@collabora.com>, Emil Velikov <emil.velikov@collabora.com>
 List-Id: virtualization@lists.linuxfoundation.org
 
-The idx in vhost_vring_ioctl() was controlled by userspace, hence a
-potential exploitation of the Spectre variant 1 vulnerability.
+  Hi,
 
-Fixing this by sanitizing idx before using it to index d->vqs.
+> The execbuffer IOCTL is now read-write to allow the userspace to read the
+> out-fence.
 
-Cc: Michael S. Tsirkin <mst@redhat.com>
-Cc: Josh Poimboeuf <jpoimboe@redhat.com>
-Cc: Andrea Arcangeli <aarcange@redhat.com>
-Signed-off-by: Jason Wang <jasowang@redhat.com>
----
- drivers/vhost/vhost.c | 2 ++
- 1 file changed, 2 insertions(+)
+>  #define DRM_IOCTL_VIRTGPU_EXECBUFFER \
+> -	DRM_IOW(DRM_COMMAND_BASE + DRM_VIRTGPU_EXECBUFFER,\
+> +	DRM_IOWR(DRM_COMMAND_BASE + DRM_VIRTGPU_EXECBUFFER,\
+>  		struct drm_virtgpu_execbuffer)
 
-diff --git a/drivers/vhost/vhost.c b/drivers/vhost/vhost.c
-index f52008bb8df7..3a5f81a66d34 100644
---- a/drivers/vhost/vhost.c
-+++ b/drivers/vhost/vhost.c
-@@ -30,6 +30,7 @@
- #include <linux/sched/mm.h>
- #include <linux/sched/signal.h>
- #include <linux/interval_tree_generic.h>
-+#include <linux/nospec.h>
- 
- #include "vhost.h"
- 
-@@ -1387,6 +1388,7 @@ long vhost_vring_ioctl(struct vhost_dev *d, unsigned int ioctl, void __user *arg
- 	if (idx >= d->nvqs)
- 		return -ENOBUFS;
- 
-+	idx = array_index_nospec(idx, d->nvqs);
- 	vq = d->vqs[idx];
- 
- 	mutex_lock(&vq->mutex);
--- 
-2.17.1
+That changes the ioctl number and breaks the userspace api.
+
+cheers,
+  Gerd
