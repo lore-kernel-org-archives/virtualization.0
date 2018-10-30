@@ -1,15 +1,14 @@
 From: Gerd Hoffmann <kraxel@redhat.com>
-Subject: Re: [PATCH 2/5] drm/virtio: add uapi for in and out explicit fences
-Date: Tue, 30 Oct 2018 07:11:27 +0100
-Message-ID: <20181030061127.hp4n2scw5f3j2rqq__41967.5061050386$1540879787$gmane$org@sirius.home.kraxel.org>
-References: <20181025183739.9375-1-robert.foss@collabora.com>
-	<20181025183739.9375-3-robert.foss@collabora.com>
+Subject: Re: [PATCH 0/6] drm/qxl: Remove checkpatch issues
+Date: Tue, 30 Oct 2018 07:15:30 +0100
+Message-ID: <20181030061530.3npr2e3m6uwwxbza__11525.952225975$1540880024$gmane$org@sirius.home.kraxel.org>
+References: <cover.1540579956.git.shayenneluzmoura@gmail.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
 Content-Disposition: inline
-In-Reply-To: <20181025183739.9375-3-robert.foss@collabora.com>
+In-Reply-To: <cover.1540579956.git.shayenneluzmoura@gmail.com>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -19,21 +18,21 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Robert Foss <robert.foss@collabora.com>
-Cc: Rob Herring <robh@kernel.org>, airlied@linux.ie, linux-kernel@vger.kernel.org, dri-devel@lists.freedesktop.org, virtualization@lists.linux-foundation.org, Gustavo Padovan <gustavo.padovan@collabora.com>, Emil Velikov <emil.velikov@collabora.com>
+To: Shayenne da Luz Moura <shayenneluzmoura@gmail.com>
+Cc: David Airlie <airlied@linux.ie>, linux-kernel@vger.kernel.org, dri-devel@lists.freedesktop.org, virtualization@lists.linux-foundation.org, outreachy-kernel@googlegroups.com, Dave Airlie <airlied@redhat.com>
 List-Id: virtualization@lists.linuxfoundation.org
 
-  Hi,
+On Fri, Oct 26, 2018 at 04:20:30PM -0300, Shayenne da Luz Moura wrote:
+> This series cleans the following checkpatch.pl issues:
+> 
+> ERROR: trailing whitespace
+> WARNING: Missing a blank line after declarations
+> CHECK: Please don't use multiple blank lines
+> WARNING: Prefer 'unsigned int' to bare use of 'unsigned'
+> ERROR: space required before the open parenthesis '('
+> CHECK: Avoid using bool structure members because of possible alignment issues
 
-> The execbuffer IOCTL is now read-write to allow the userspace to read the
-> out-fence.
+Patches queued up.
 
->  #define DRM_IOCTL_VIRTGPU_EXECBUFFER \
-> -	DRM_IOW(DRM_COMMAND_BASE + DRM_VIRTGPU_EXECBUFFER,\
-> +	DRM_IOWR(DRM_COMMAND_BASE + DRM_VIRTGPU_EXECBUFFER,\
->  		struct drm_virtgpu_execbuffer)
-
-That changes the ioctl number and breaks the userspace api.
-
-cheers,
+thanks,
   Gerd
