@@ -1,14 +1,15 @@
 From: Daniel Vetter <daniel@ffwll.ch>
-Subject: Re: [PATCH v4] drm/bochs: add edid support.
-Date: Tue, 30 Oct 2018 10:35:54 +0100
-Message-ID: <20181030093554.GP21967__13122.1721102067$1540892062$gmane$org@phenom.ffwll.local>
-References: <20181029205048.13200-1-kraxel@redhat.com>
+Subject: Re: [PATCH v4 2/2] drm/virtio: add edid support
+Date: Tue, 30 Oct 2018 10:38:04 +0100
+Message-ID: <20181030093804.GQ21967__33774.4741621011$1540892185$gmane$org@phenom.ffwll.local>
+References: <20181030063206.19528-1-kraxel@redhat.com>
+	<20181030063206.19528-3-kraxel@redhat.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
 Content-Disposition: inline
-In-Reply-To: <20181029205048.13200-1-kraxel@redhat.com>
+In-Reply-To: <20181030063206.19528-3-kraxel@redhat.com>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -19,135 +20,221 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
 To: Gerd Hoffmann <kraxel@redhat.com>
-Cc: David Airlie <airlied@linux.ie>, David Airlie <airlied@redhat.com>, open list <linux-kernel@vger.kernel.org>, dri-devel@lists.freedesktop.org, "open list:DRM DRIVER FOR BOCHS VIRTUAL GPU" <virtualization@lists.linux-foundation.org>
+Cc: David Airlie <airlied@linux.ie>, virtio-dev@lists.oasis-open.org, open list <linux-kernel@vger.kernel.org>, dri-devel@lists.freedesktop.org, "open list:VIRTIO GPU DRIVER" <virtualization@lists.linux-foundation.org>
 List-Id: virtualization@lists.linuxfoundation.org
 
-On Mon, Oct 29, 2018 at 09:50:48PM +0100, Gerd Hoffmann wrote:
-> Recent qemu (latest master branch, upcoming 3.1 release) got support
-> for EDID data.  This patch adds guest driver support.
-> 
-> EDID support in qemu is not (yet) enabled by default, so please use
-> 'qemu -device VGA,edid=on' for testing.
+On Tue, Oct 30, 2018 at 07:32:06AM +0100, Gerd Hoffmann wrote:
+> linux guest driver implementation of the VIRTIO_GPU_F_EDID feature.
 > 
 > Signed-off-by: Gerd Hoffmann <kraxel@redhat.com>
 
-I liked v3 more, but Acked-by: Daniel Vetter <daniel.vetter@ffwll.ch> on
-either wone.
+Like with bochs, I think drm_do_get_edid() here is overkill and fairly
+pointless.
 -Daniel
 
 > ---
->  drivers/gpu/drm/bochs/bochs.h     |  2 ++
->  drivers/gpu/drm/bochs/bochs_hw.c  | 30 ++++++++++++++++++++++++++++++
->  drivers/gpu/drm/bochs/bochs_kms.c | 20 +++++++++++++++++---
->  3 files changed, 49 insertions(+), 3 deletions(-)
+>  drivers/gpu/drm/virtio/virtgpu_drv.h     |  3 ++
+>  drivers/gpu/drm/virtio/virtgpu_display.c | 12 ++++++
+>  drivers/gpu/drm/virtio/virtgpu_drv.c     |  1 +
+>  drivers/gpu/drm/virtio/virtgpu_kms.c     |  8 ++++
+>  drivers/gpu/drm/virtio/virtgpu_vq.c      | 67 ++++++++++++++++++++++++++++++++
+>  5 files changed, 91 insertions(+)
 > 
-> diff --git a/drivers/gpu/drm/bochs/bochs.h b/drivers/gpu/drm/bochs/bochs.h
-> index e7a69077e4..577a8b917c 100644
-> --- a/drivers/gpu/drm/bochs/bochs.h
-> +++ b/drivers/gpu/drm/bochs/bochs.h
-> @@ -66,6 +66,7 @@ struct bochs_device {
->  	u16 yres_virtual;
->  	u32 stride;
->  	u32 bpp;
+> diff --git a/drivers/gpu/drm/virtio/virtgpu_drv.h b/drivers/gpu/drm/virtio/virtgpu_drv.h
+> index d29f0c7c76..852078419d 100644
+> --- a/drivers/gpu/drm/virtio/virtgpu_drv.h
+> +++ b/drivers/gpu/drm/virtio/virtgpu_drv.h
+> @@ -114,6 +114,7 @@ struct virtio_gpu_output {
+>  	struct drm_encoder enc;
+>  	struct virtio_gpu_display_one info;
+>  	struct virtio_gpu_update_cursor cursor;
 > +	struct edid *edid;
+>  	int cur_x;
+>  	int cur_y;
+>  	bool enabled;
+> @@ -204,6 +205,7 @@ struct virtio_gpu_device {
+>  	spinlock_t ctx_id_idr_lock;
 >  
->  	/* drm */
->  	struct drm_device  *dev;
-> @@ -126,6 +127,7 @@ void bochs_hw_setmode(struct bochs_device *bochs,
->  		      const struct drm_format_info *format);
->  void bochs_hw_setbase(struct bochs_device *bochs,
->  		      int x, int y, u64 addr);
-> +int bochs_hw_load_edid(struct bochs_device *bochs);
+>  	bool has_virgl_3d;
+> +	bool has_edid;
 >  
->  /* bochs_mm.c */
->  int bochs_mm_init(struct bochs_device *bochs);
-> diff --git a/drivers/gpu/drm/bochs/bochs_hw.c b/drivers/gpu/drm/bochs/bochs_hw.c
-> index cacff73a64..c90a0d492f 100644
-> --- a/drivers/gpu/drm/bochs/bochs_hw.c
-> +++ b/drivers/gpu/drm/bochs/bochs_hw.c
-> @@ -69,6 +69,35 @@ static void bochs_hw_set_little_endian(struct bochs_device *bochs)
->  #define bochs_hw_set_native_endian(_b) bochs_hw_set_little_endian(_b)
->  #endif
+>  	struct work_struct config_changed_work;
 >  
-> +static int bochs_get_edid_block(void *data, u8 *buf,
-> +				unsigned int block, size_t len)
-> +{
-> +	struct bochs_device *bochs = data;
-> +	size_t i, start = block * EDID_LENGTH;
-> +
-> +	if (start + len > 0x400 /* vga register offset */)
-> +		return -1;
-> +
-> +	for (i = 0; i < len; i++) {
-> +		buf[i] = readb(bochs->mmio + start + i);
+> @@ -298,6 +300,7 @@ int virtio_gpu_cmd_get_capset_info(struct virtio_gpu_device *vgdev, int idx);
+>  int virtio_gpu_cmd_get_capset(struct virtio_gpu_device *vgdev,
+>  			      int idx, int version,
+>  			      struct virtio_gpu_drv_cap_cache **cache_p);
+> +int virtio_gpu_cmd_get_edids(struct virtio_gpu_device *vgdev);
+>  void virtio_gpu_cmd_context_create(struct virtio_gpu_device *vgdev, uint32_t id,
+>  				   uint32_t nlen, const char *name);
+>  void virtio_gpu_cmd_context_destroy(struct virtio_gpu_device *vgdev,
+> diff --git a/drivers/gpu/drm/virtio/virtgpu_display.c b/drivers/gpu/drm/virtio/virtgpu_display.c
+> index 8f8fed471e..b5580b11a0 100644
+> --- a/drivers/gpu/drm/virtio/virtgpu_display.c
+> +++ b/drivers/gpu/drm/virtio/virtgpu_display.c
+> @@ -169,6 +169,12 @@ static int virtio_gpu_conn_get_modes(struct drm_connector *connector)
+>  	struct drm_display_mode *mode = NULL;
+>  	int count, width, height;
+>  
+> +	if (output->edid) {
+> +		count = drm_add_edid_modes(connector, output->edid);
+> +		if (count)
+> +			return count;
 > +	}
-> +	return 0;
-> +}
 > +
-> +int bochs_hw_load_edid(struct bochs_device *bochs)
-> +{
-> +	if (!bochs->mmio)
-> +		return -1;
-> +
-> +	kfree(bochs->edid);
-> +	bochs->edid = drm_do_get_edid(&bochs->connector,
-> +				      bochs_get_edid_block, bochs);
-> +	if (bochs->edid == NULL)
-> +		return -1;
-> +
-> +	return 0;
-> +}
-> +
->  int bochs_hw_init(struct drm_device *dev)
->  {
->  	struct bochs_device *bochs = dev->dev_private;
-> @@ -164,6 +193,7 @@ void bochs_hw_fini(struct drm_device *dev)
->  	if (bochs->fb_map)
->  		iounmap(bochs->fb_map);
->  	pci_release_regions(dev->pdev);
-> +	kfree(bochs->edid);
->  }
->  
->  void bochs_hw_setmode(struct bochs_device *bochs,
-> diff --git a/drivers/gpu/drm/bochs/bochs_kms.c b/drivers/gpu/drm/bochs/bochs_kms.c
-> index 9bc5b438ae..f87c284dd9 100644
-> --- a/drivers/gpu/drm/bochs/bochs_kms.c
-> +++ b/drivers/gpu/drm/bochs/bochs_kms.c
-> @@ -213,10 +213,17 @@ static void bochs_encoder_init(struct drm_device *dev)
->  
->  static int bochs_connector_get_modes(struct drm_connector *connector)
->  {
-> -	int count;
-> +	struct bochs_device *bochs =
-> +		container_of(connector, struct bochs_device, connector);
-> +	int count = 0;
->  
-> -	count = drm_add_modes_noedid(connector, 8192, 8192);
-> -	drm_set_preferred_mode(connector, defx, defy);
-> +	if (bochs->edid)
-> +		count = drm_add_edid_modes(connector, bochs->edid);
-> +
-> +	if (!count) {
-> +		count = drm_add_modes_noedid(connector, 8192, 8192);
-> +		drm_set_preferred_mode(connector, defx, defy);
-> +	}
->  	return count;
->  }
->  
-> @@ -271,6 +278,13 @@ static void bochs_connector_init(struct drm_device *dev)
->  	drm_connector_helper_add(connector,
->  				 &bochs_connector_connector_helper_funcs);
->  	drm_connector_register(connector);
-> +
-> +	bochs_hw_load_edid(bochs);
-> +	if (bochs->edid) {
-> +		DRM_INFO("Found EDID data blob.\n");
+>  	width  = le32_to_cpu(output->info.r.width);
+>  	height = le32_to_cpu(output->info.r.height);
+>  	count = drm_add_modes_noedid(connector, XRES_MAX, YRES_MAX);
+> @@ -287,6 +293,8 @@ static int vgdev_output_init(struct virtio_gpu_device *vgdev, int index)
+>  	drm_connector_init(dev, connector, &virtio_gpu_connector_funcs,
+>  			   DRM_MODE_CONNECTOR_VIRTUAL);
+>  	drm_connector_helper_add(connector, &virtio_gpu_conn_helper_funcs);
+> +	if (vgdev->has_edid)
 > +		drm_connector_attach_edid_property(connector);
-> +		drm_connector_update_edid_property(connector, bochs->edid);
+>  
+>  	drm_encoder_init(dev, encoder, &virtio_gpu_enc_funcs,
+>  			 DRM_MODE_ENCODER_VIRTUAL, NULL);
+> @@ -378,6 +386,10 @@ int virtio_gpu_modeset_init(struct virtio_gpu_device *vgdev)
+>  
+>  void virtio_gpu_modeset_fini(struct virtio_gpu_device *vgdev)
+>  {
+> +	int i;
+> +
+> +	for (i = 0 ; i < vgdev->num_scanouts; ++i)
+> +		kfree(vgdev->outputs[i].edid);
+>  	virtio_gpu_fbdev_fini(vgdev);
+>  	drm_mode_config_cleanup(vgdev->ddev);
+>  }
+> diff --git a/drivers/gpu/drm/virtio/virtgpu_drv.c b/drivers/gpu/drm/virtio/virtgpu_drv.c
+> index d9287c144f..f7f32a885a 100644
+> --- a/drivers/gpu/drm/virtio/virtgpu_drv.c
+> +++ b/drivers/gpu/drm/virtio/virtgpu_drv.c
+> @@ -80,6 +80,7 @@ static unsigned int features[] = {
+>  	 */
+>  	VIRTIO_GPU_F_VIRGL,
+>  #endif
+> +	VIRTIO_GPU_F_EDID,
+>  };
+>  static struct virtio_driver virtio_gpu_driver = {
+>  	.feature_table = features,
+> diff --git a/drivers/gpu/drm/virtio/virtgpu_kms.c b/drivers/gpu/drm/virtio/virtgpu_kms.c
+> index 65060c0852..f6cbbb27e4 100644
+> --- a/drivers/gpu/drm/virtio/virtgpu_kms.c
+> +++ b/drivers/gpu/drm/virtio/virtgpu_kms.c
+> @@ -44,6 +44,8 @@ static void virtio_gpu_config_changed_work_func(struct work_struct *work)
+>  	virtio_cread(vgdev->vdev, struct virtio_gpu_config,
+>  		     events_read, &events_read);
+>  	if (events_read & VIRTIO_GPU_EVENT_DISPLAY) {
+> +		if (vgdev->has_edid)
+> +			virtio_gpu_cmd_get_edids(vgdev);
+>  		virtio_gpu_cmd_get_display_info(vgdev);
+>  		drm_helper_hpd_irq_event(vgdev->ddev);
+>  		events_clear |= VIRTIO_GPU_EVENT_DISPLAY;
+> @@ -174,6 +176,10 @@ int virtio_gpu_driver_load(struct drm_device *dev, unsigned long flags)
+>  #else
+>  	DRM_INFO("virgl 3d acceleration not supported by guest\n");
+>  #endif
+> +	if (virtio_has_feature(vgdev->vdev, VIRTIO_GPU_F_EDID)) {
+> +		vgdev->has_edid = true;
+> +		DRM_INFO("EDID support available.\n");
 > +	}
+>  
+>  	ret = virtio_find_vqs(vgdev->vdev, 2, vqs, callbacks, names, NULL);
+>  	if (ret) {
+> @@ -219,6 +225,8 @@ int virtio_gpu_driver_load(struct drm_device *dev, unsigned long flags)
+>  
+>  	if (num_capsets)
+>  		virtio_gpu_get_capsets(vgdev, num_capsets);
+> +	if (vgdev->has_edid)
+> +		virtio_gpu_cmd_get_edids(vgdev);
+>  	virtio_gpu_cmd_get_display_info(vgdev);
+>  	wait_event_timeout(vgdev->resp_wq, !vgdev->display_info_pending,
+>  			   5 * HZ);
+> diff --git a/drivers/gpu/drm/virtio/virtgpu_vq.c b/drivers/gpu/drm/virtio/virtgpu_vq.c
+> index 4e2e037aed..dd149a59c7 100644
+> --- a/drivers/gpu/drm/virtio/virtgpu_vq.c
+> +++ b/drivers/gpu/drm/virtio/virtgpu_vq.c
+> @@ -604,6 +604,45 @@ static void virtio_gpu_cmd_capset_cb(struct virtio_gpu_device *vgdev,
+>  	wake_up(&vgdev->resp_wq);
 >  }
 >  
+> +static int virtio_get_edid_block(void *data, u8 *buf,
+> +				 unsigned int block, size_t len)
+> +{
+> +	struct virtio_gpu_resp_edid *resp = data;
+> +	size_t start = block * EDID_LENGTH;
+> +
+> +	if (start + len > le32_to_cpu(resp->size))
+> +		return -1;
+> +	memcpy(buf, resp->edid + start, len);
+> +	return 0;
+> +}
+> +
+> +static void virtio_gpu_cmd_get_edid_cb(struct virtio_gpu_device *vgdev,
+> +				       struct virtio_gpu_vbuffer *vbuf)
+> +{
+> +	struct virtio_gpu_cmd_get_edid *cmd =
+> +		(struct virtio_gpu_cmd_get_edid *)vbuf->buf;
+> +	struct virtio_gpu_resp_edid *resp =
+> +		(struct virtio_gpu_resp_edid *)vbuf->resp_buf;
+> +	uint32_t scanout = le32_to_cpu(cmd->scanout);
+> +	struct virtio_gpu_output *output;
+> +	struct edid *new_edid, *old_edid;
+> +
+> +	if (scanout >= vgdev->num_scanouts)
+> +		return;
+> +	output = vgdev->outputs + scanout;
+> +
+> +	new_edid = drm_do_get_edid(&output->conn, virtio_get_edid_block, resp);
+> +
+> +	spin_lock(&vgdev->display_info_lock);
+> +	old_edid = output->edid;
+> +	output->edid = new_edid;
+> +	drm_connector_update_edid_property(&output->conn, output->edid);
+> +	spin_unlock(&vgdev->display_info_lock);
+> +
+> +	kfree(old_edid);
+> +	wake_up(&vgdev->resp_wq);
+> +}
+> +
+>  int virtio_gpu_cmd_get_display_info(struct virtio_gpu_device *vgdev)
+>  {
+>  	struct virtio_gpu_ctrl_hdr *cmd_p;
+> @@ -706,6 +745,34 @@ int virtio_gpu_cmd_get_capset(struct virtio_gpu_device *vgdev,
+>  	return 0;
+>  }
 >  
+> +int virtio_gpu_cmd_get_edids(struct virtio_gpu_device *vgdev)
+> +{
+> +	struct virtio_gpu_cmd_get_edid *cmd_p;
+> +	struct virtio_gpu_vbuffer *vbuf;
+> +	void *resp_buf;
+> +	int scanout;
+> +
+> +	if (WARN_ON(!vgdev->has_edid))
+> +		return -EINVAL;
+> +
+> +	for (scanout = 0; scanout < vgdev->num_scanouts; scanout++) {
+> +		resp_buf = kzalloc(sizeof(struct virtio_gpu_resp_edid),
+> +				   GFP_KERNEL);
+> +		if (!resp_buf)
+> +			return -ENOMEM;
+> +
+> +		cmd_p = virtio_gpu_alloc_cmd_resp
+> +			(vgdev, &virtio_gpu_cmd_get_edid_cb, &vbuf,
+> +			 sizeof(*cmd_p), sizeof(struct virtio_gpu_resp_edid),
+> +			 resp_buf);
+> +		cmd_p->hdr.type = cpu_to_le32(VIRTIO_GPU_CMD_GET_EDID);
+> +		cmd_p->scanout = cpu_to_le32(scanout);
+> +		virtio_gpu_queue_ctrl_buffer(vgdev, vbuf);
+> +	}
+> +
+> +	return 0;
+> +}
+> +
+>  void virtio_gpu_cmd_context_create(struct virtio_gpu_device *vgdev, uint32_t id,
+>  				   uint32_t nlen, const char *name)
+>  {
 > -- 
 > 2.9.3
 > 
