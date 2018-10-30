@@ -1,13 +1,11 @@
-From: Gerd Hoffmann <kraxel@redhat.com>
-Subject: [PATCH v4 1/2] virtio-gpu: add VIRTIO_GPU_F_EDID feature
-Date: Tue, 30 Oct 2018 07:32:05 +0100
-Message-ID: <20181030063206.19528-2-kraxel__30451.6715965748$1540881038$gmane$org@redhat.com>
-References: <20181030063206.19528-1-kraxel@redhat.com>
+From: Juergen Gross <jgross@suse.com>
+Subject: [PATCH] x86/paravirt: remove unused _paravirt_ident_32
+Date: Tue, 30 Oct 2018 07:33:01 +0100
+Message-ID: <20181030063301.15054-1-jgross__7634.76090874082$1540881076$gmane$org@suse.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <20181030063206.19528-1-kraxel@redhat.com>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -17,73 +15,179 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: virtio-dev@lists.oasis-open.org, dri-devel@lists.freedesktop.org
-Cc: "Michael S. Tsirkin" <mst@redhat.com>, David Airlie <airlied@linux.ie>, open list <linux-kernel@vger.kernel.org>, "open list:VIRTIO CORE,
-	NET AND BLOCK DRIVERS" <virtualization@lists.linux-foundation.org>
+To: linux-kernel@vger.kernel.org, xen-devel@lists.xenproject.org, x86@kernel.org, virtualization@lists.linux-foundation.org
+Cc: Juergen Gross <jgross@suse.com>, boris.ostrovsky@oracle.com, rusty@rustcorp.com.au, mingo@redhat.com, hpa@zytor.com, akataria@vmware.com, tglx@linutronix.de
 List-Id: virtualization@lists.linuxfoundation.org
 
-The feature allows the guest request an EDID blob (describing monitor
-capabilities) for a given scanout (aka virtual monitor connector).
+There is no user of _paravirt_ident_32 left in the tree. Remove it
+together with the related paravirt_patch_ident_32().
 
-It brings a new command message, which has just a scanout field (beside
-the standard virtio-gpu header) and a response message which carries the
-EDID data.
+paravirt_patch_ident_64() can be moved inside CONFIG_PARAVIRT_XXL.
 
-Signed-off-by: Gerd Hoffmann <kraxel@redhat.com>
-Reviewed-by: Dave Airlie <airlied@redhat.com>
+Signed-off-by: Juergen Gross <jgross@suse.com>
 ---
- include/uapi/linux/virtio_gpu.h | 18 ++++++++++++++++++
- 1 file changed, 18 insertions(+)
+ arch/x86/include/asm/paravirt_types.h |  2 --
+ arch/x86/kernel/paravirt.c            | 26 +++++++-------------------
+ arch/x86/kernel/paravirt_patch_32.c   | 18 ++++++------------
+ arch/x86/kernel/paravirt_patch_64.c   | 20 ++++++--------------
+ 4 files changed, 19 insertions(+), 47 deletions(-)
 
-diff --git a/include/uapi/linux/virtio_gpu.h b/include/uapi/linux/virtio_gpu.h
-index f43c3c6171..8e88eba1fa 100644
---- a/include/uapi/linux/virtio_gpu.h
-+++ b/include/uapi/linux/virtio_gpu.h
-@@ -41,6 +41,7 @@
- #include <linux/types.h>
+diff --git a/arch/x86/include/asm/paravirt_types.h b/arch/x86/include/asm/paravirt_types.h
+index fba54ca23b2a..26942ad63830 100644
+--- a/arch/x86/include/asm/paravirt_types.h
++++ b/arch/x86/include/asm/paravirt_types.h
+@@ -361,7 +361,6 @@ extern struct paravirt_patch_template pv_ops;
+ 	__visible extern const char start_##ops##_##name[], end_##ops##_##name[];	\
+ 	asm(NATIVE_LABEL("start_", ops, name) code NATIVE_LABEL("end_", ops, name))
  
- #define VIRTIO_GPU_F_VIRGL 0
-+#define VIRTIO_GPU_F_EDID  1
+-unsigned paravirt_patch_ident_32(void *insnbuf, unsigned len);
+ unsigned paravirt_patch_ident_64(void *insnbuf, unsigned len);
+ unsigned paravirt_patch_default(u8 type, void *insnbuf,
+ 				unsigned long addr, unsigned len);
+@@ -651,7 +650,6 @@ void paravirt_leave_lazy_mmu(void);
+ void paravirt_flush_lazy_mmu(void);
  
- enum virtio_gpu_ctrl_type {
- 	VIRTIO_GPU_UNDEFINED = 0,
-@@ -56,6 +57,7 @@ enum virtio_gpu_ctrl_type {
- 	VIRTIO_GPU_CMD_RESOURCE_DETACH_BACKING,
- 	VIRTIO_GPU_CMD_GET_CAPSET_INFO,
- 	VIRTIO_GPU_CMD_GET_CAPSET,
-+	VIRTIO_GPU_CMD_GET_EDID,
+ void _paravirt_nop(void);
+-u32 _paravirt_ident_32(u32);
+ u64 _paravirt_ident_64(u64);
  
- 	/* 3d commands */
- 	VIRTIO_GPU_CMD_CTX_CREATE = 0x0200,
-@@ -76,6 +78,7 @@ enum virtio_gpu_ctrl_type {
- 	VIRTIO_GPU_RESP_OK_DISPLAY_INFO,
- 	VIRTIO_GPU_RESP_OK_CAPSET_INFO,
- 	VIRTIO_GPU_RESP_OK_CAPSET,
-+	VIRTIO_GPU_RESP_OK_EDID,
+ #define paravirt_nop	((void *)_paravirt_nop)
+diff --git a/arch/x86/kernel/paravirt.c b/arch/x86/kernel/paravirt.c
+index 45123b116c05..c0e0101133f3 100644
+--- a/arch/x86/kernel/paravirt.c
++++ b/arch/x86/kernel/paravirt.c
+@@ -56,17 +56,6 @@ asm (".pushsection .entry.text, \"ax\"\n"
+      ".type _paravirt_nop, @function\n\t"
+      ".popsection");
  
- 	/* error responses */
- 	VIRTIO_GPU_RESP_ERR_UNSPEC = 0x1200,
-@@ -291,6 +294,21 @@ struct virtio_gpu_resp_capset {
- 	__u8 capset_data[];
+-/* identity function, which can be inlined */
+-u32 notrace _paravirt_ident_32(u32 x)
+-{
+-	return x;
+-}
+-
+-u64 notrace _paravirt_ident_64(u64 x)
+-{
+-	return x;
+-}
+-
+ void __init default_banner(void)
+ {
+ 	printk(KERN_INFO "Booting paravirtualized kernel on %s\n",
+@@ -102,6 +91,12 @@ static unsigned paravirt_patch_call(void *insnbuf, const void *target,
+ }
+ 
+ #ifdef CONFIG_PARAVIRT_XXL
++/* identity function, which can be inlined */
++u64 notrace _paravirt_ident_64(u64 x)
++{
++	return x;
++}
++
+ static unsigned paravirt_patch_jmp(void *insnbuf, const void *target,
+ 				   unsigned long addr, unsigned len)
+ {
+@@ -146,13 +141,11 @@ unsigned paravirt_patch_default(u8 type, void *insnbuf,
+ 	else if (opfunc == _paravirt_nop)
+ 		ret = 0;
+ 
++#ifdef CONFIG_PARAVIRT_XXL
+ 	/* identity functions just return their single argument */
+-	else if (opfunc == _paravirt_ident_32)
+-		ret = paravirt_patch_ident_32(insnbuf, len);
+ 	else if (opfunc == _paravirt_ident_64)
+ 		ret = paravirt_patch_ident_64(insnbuf, len);
+ 
+-#ifdef CONFIG_PARAVIRT_XXL
+ 	else if (type == PARAVIRT_PATCH(cpu.iret) ||
+ 		 type == PARAVIRT_PATCH(cpu.usergs_sysret64))
+ 		/* If operation requires a jmp, then jmp */
+@@ -309,13 +302,8 @@ struct pv_info pv_info = {
+ #endif
  };
  
-+/* VIRTIO_GPU_CMD_GET_EDID */
-+struct virtio_gpu_cmd_get_edid {
-+	struct virtio_gpu_ctrl_hdr hdr;
-+	__le32 scanout;
-+	__le32 padding;
-+};
-+
-+/* VIRTIO_GPU_RESP_OK_EDID */
-+struct virtio_gpu_resp_edid {
-+	struct virtio_gpu_ctrl_hdr hdr;
-+	__le32 size;
-+	__le32 padding;
-+	__u8 edid[1024];
-+};
-+
- #define VIRTIO_GPU_EVENT_DISPLAY (1 << 0)
+-#if defined(CONFIG_X86_32) && !defined(CONFIG_X86_PAE)
+-/* 32-bit pagetable entries */
+-#define PTE_IDENT	__PV_IS_CALLEE_SAVE(_paravirt_ident_32)
+-#else
+ /* 64-bit pagetable entries */
+ #define PTE_IDENT	__PV_IS_CALLEE_SAVE(_paravirt_ident_64)
+-#endif
  
- struct virtio_gpu_config {
+ struct paravirt_patch_template pv_ops = {
+ 	/* Init ops. */
+diff --git a/arch/x86/kernel/paravirt_patch_32.c b/arch/x86/kernel/paravirt_patch_32.c
+index 6368c22fa1fa..de138d3912e4 100644
+--- a/arch/x86/kernel/paravirt_patch_32.c
++++ b/arch/x86/kernel/paravirt_patch_32.c
+@@ -10,24 +10,18 @@ DEF_NATIVE(cpu, iret, "iret");
+ DEF_NATIVE(mmu, read_cr2, "mov %cr2, %eax");
+ DEF_NATIVE(mmu, write_cr3, "mov %eax, %cr3");
+ DEF_NATIVE(mmu, read_cr3, "mov %cr3, %eax");
+-#endif
+-
+-#if defined(CONFIG_PARAVIRT_SPINLOCKS)
+-DEF_NATIVE(lock, queued_spin_unlock, "movb $0, (%eax)");
+-DEF_NATIVE(lock, vcpu_is_preempted, "xor %eax, %eax");
+-#endif
+-
+-unsigned paravirt_patch_ident_32(void *insnbuf, unsigned len)
+-{
+-	/* arg in %eax, return in %eax */
+-	return 0;
+-}
+ 
+ unsigned paravirt_patch_ident_64(void *insnbuf, unsigned len)
+ {
+ 	/* arg in %edx:%eax, return in %edx:%eax */
+ 	return 0;
+ }
++#endif
++
++#if defined(CONFIG_PARAVIRT_SPINLOCKS)
++DEF_NATIVE(lock, queued_spin_unlock, "movb $0, (%eax)");
++DEF_NATIVE(lock, vcpu_is_preempted, "xor %eax, %eax");
++#endif
+ 
+ extern bool pv_is_native_spin_unlock(void);
+ extern bool pv_is_native_vcpu_is_preempted(void);
+diff --git a/arch/x86/kernel/paravirt_patch_64.c b/arch/x86/kernel/paravirt_patch_64.c
+index 7ca9cb726f4d..9d9e04b31077 100644
+--- a/arch/x86/kernel/paravirt_patch_64.c
++++ b/arch/x86/kernel/paravirt_patch_64.c
+@@ -15,27 +15,19 @@ DEF_NATIVE(cpu, wbinvd, "wbinvd");
+ 
+ DEF_NATIVE(cpu, usergs_sysret64, "swapgs; sysretq");
+ DEF_NATIVE(cpu, swapgs, "swapgs");
+-#endif
+-
+-DEF_NATIVE(, mov32, "mov %edi, %eax");
+ DEF_NATIVE(, mov64, "mov %rdi, %rax");
+ 
+-#if defined(CONFIG_PARAVIRT_SPINLOCKS)
+-DEF_NATIVE(lock, queued_spin_unlock, "movb $0, (%rdi)");
+-DEF_NATIVE(lock, vcpu_is_preempted, "xor %eax, %eax");
+-#endif
+-
+-unsigned paravirt_patch_ident_32(void *insnbuf, unsigned len)
+-{
+-	return paravirt_patch_insns(insnbuf, len,
+-				    start__mov32, end__mov32);
+-}
+-
+ unsigned paravirt_patch_ident_64(void *insnbuf, unsigned len)
+ {
+ 	return paravirt_patch_insns(insnbuf, len,
+ 				    start__mov64, end__mov64);
+ }
++#endif
++
++#if defined(CONFIG_PARAVIRT_SPINLOCKS)
++DEF_NATIVE(lock, queued_spin_unlock, "movb $0, (%rdi)");
++DEF_NATIVE(lock, vcpu_is_preempted, "xor %eax, %eax");
++#endif
+ 
+ extern bool pv_is_native_spin_unlock(void);
+ extern bool pv_is_native_vcpu_is_preempted(void);
 -- 
-2.9.3
+2.16.4
