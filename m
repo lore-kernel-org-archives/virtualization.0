@@ -1,14 +1,16 @@
-From: Gerd Hoffmann <kraxel@redhat.com>
-Subject: Re: virtio-gpu without ARCH_HAS_SG_CHAIN
-Date: Tue, 30 Oct 2018 08:23:44 +0100
-Message-ID: <20181030072344.sstmq6jxcmyzbqmr__32457.1396843114$1540884123$gmane$org@sirius.home.kraxel.org>
-References: <CAGw6cBsWHB4aRf=kPoT+v-FbtL0ymeBtZNEwKYobFizc0cLeaQ@mail.gmail.com>
+From: Daniel Vetter <daniel@ffwll.ch>
+Subject: Re: [PATCH v3] drm/bochs: add edid support.
+Date: Tue, 30 Oct 2018 10:06:32 +0100
+Message-ID: <20181030090632.GJ21967__36068.7329237864$1540890288$gmane$org@phenom.ffwll.local>
+References: <20181029134507.7775-1-kraxel@redhat.com>
+	<87in1kejgj.fsf@intel.com>
+	<20181029200520.jfnmvbkng2er5qbc@sirius.home.kraxel.org>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
 Content-Disposition: inline
-In-Reply-To: <CAGw6cBsWHB4aRf=kPoT+v-FbtL0ymeBtZNEwKYobFizc0cLeaQ@mail.gmail.com>
+In-Reply-To: <20181029200520.jfnmvbkng2er5qbc@sirius.home.kraxel.org>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -18,42 +20,34 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Michael Forney <mforney@mforney.org>, christian.koenig@amd.com
-Cc: linux-riscv@lists.infradead.org, dri-devel@lists.freedesktop.org, virtualization@lists.linux-foundation.org
+To: Gerd Hoffmann <kraxel@redhat.com>
+Cc: David Airlie <airlied@linux.ie>, open list <linux-kernel@vger.kernel.org>, dri-devel@lists.freedesktop.org, "open list:DRM DRIVER FOR BOCHS VIRTUAL GPU" <virtualization@lists.linux-foundation.org>, Jani Nikula <jani.nikula@linux.intel.com>, David Airlie <airlied@redhat.com>
 List-Id: virtualization@lists.linuxfoundation.org
 
-On Mon, Oct 29, 2018 at 12:46:34PM -0700, Michael Forney wrote:
-> Hi,
+On Mon, Oct 29, 2018 at 09:05:20PM +0100, Gerd Hoffmann wrote:
+> On Mon, Oct 29, 2018 at 07:44:28PM +0200, Jani Nikula wrote:
+> > On Mon, 29 Oct 2018, Gerd Hoffmann <kraxel@redhat.com> wrote:
+> > > Recent qemu (latest master branch, upcoming 3.1 release) got support
+> > > for EDID data.  This patch adds guest driver support.
+> > >
+> > > EDID support in qemu is not (yet) enabled by default, so please use
+> > > 'qemu -device VGA,edid=on' for testing.
+> > 
+> > Any chance of making this use drm_get_edid() (requires an i2c_adapter)
+> > or at least drm_do_get_edid()?
 > 
-> I was looking at adding virtio-gpu support to tinyemu
-> (https://bellard.org/tinyemu/). I got it to work on x86, but just for
-> fun I tried it under riscv and ran into an issue with buffer
-> allocations (though, this should affect any arch without
-> ARCH_HAS_SG_CHAIN).
-> 
-> virtio-gpu uses ttm to allocate buffers, which swaps pages to ensure
-> that they aren't consecutive[0][1].
+> I'll have a look at using drm_do_get_edid().  drm_get_edid() will not
+> fly as there is no i2c adapter in the first place.
 
-Interesting.
+Hm, not sure that makes sense. drm_do_get_edid is to handle the real-world
+flakiness of sinks (it's where all the retry logic resides), if you don't
+have a i2c_adapater (because the hw has some magic "give me an edid"
+block). For virtual hw we hopefully don't randomly drop bits on the floor
+between the guest and host. Imo totally fine as-is.
 
-While hacking the virtio-gpu ttm code I've already noticed that I get
-non-contignous memory even for small allocations (cursor, which is only
-4 pages), but havn't found the time yet to look at this.
-
-Christian, care to explain the background?  The commit message sounds a
-bit like it papers over a bug somewhere else.
-
-> However, this causes sg_alloc_table_from_pages to use a sg entry for
-> every single page, limiting buffers to only 170 pages (the number of
-> sg entries that can fit into a page). This is only 417x417 with 32bpp.
-> I believe the page swapping also makes TRANSFER_TO_HOST_2D inefficient
-> by forcing the host to do many memcpys instead of just a few.
-
-Probably not *that* bad, the amount of data copyed doesn't change after
-all.  But, yes, I'd prefer to have shorter sh lists too.
-
-cheers,
-  Gerd
-
-> [0] https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux.git/commit/drivers/gpu/drm/ttm/ttm_page_alloc.c?id=fdb1a2236b07948e83e0a777e1795d4f07e52c33
-> [1] https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux.git/commit/drivers/gpu/drm/ttm/ttm_page_alloc.c?id=ae937fe19636067ec5e20d7f1fa10c6cc6000b52
+E.g. we also don't feed the VBT edid through drm_do_get_edid either.
+-Daniel
+-- 
+Daniel Vetter
+Software Engineer, Intel Corporation
+http://blog.ffwll.ch
