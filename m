@@ -1,17 +1,14 @@
-From: "gregkh@linuxfoundation.org" <gregkh@linuxfoundation.org>
-Subject: Re: [PATCH v3 00/20] vmw_balloon: compaction, shrinker, 64-bit, etc.
-Date: Tue, 30 Oct 2018 18:05:43 +0100
-Message-ID: <20181030170543.GA24012__10490.1145598435$1540919042$gmane$org@kroah.com>
-References: <20180926191336.101885-1-namit@vmware.com>
-	<E1B69BF2-458D-435C-8065-6944111A9EC6@vmware.com>
-	<20181030165119.GA23017@kroah.com>
-	<0AC59738-06A0-43DC-8622-D4177FDDC1F3@vmware.com>
+From: Christoph Hellwig <hch@infradead.org>
+Subject: Re: virtio-gpu without ARCH_HAS_SG_CHAIN
+Date: Tue, 30 Oct 2018 23:12:06 -0700
+Message-ID: <20181031061206.GA2828__42966.4175412201$1540966207$gmane$org@infradead.org>
+References: <CAGw6cBsWHB4aRf=kPoT+v-FbtL0ymeBtZNEwKYobFizc0cLeaQ@mail.gmail.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="utf-8"
-Content-Transfer-Encoding: base64
+Content-Type: text/plain; charset="us-ascii"
+Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
 Content-Disposition: inline
-In-Reply-To: <0AC59738-06A0-43DC-8622-D4177FDDC1F3@vmware.com>
+In-Reply-To: <CAGw6cBsWHB4aRf=kPoT+v-FbtL0ymeBtZNEwKYobFizc0cLeaQ@mail.gmail.com>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -21,63 +18,14 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Nadav Amit <namit@vmware.com>
-Cc: Arnd Bergmann <arnd@arndb.de>, "Michael S. Tsirkin" <mst@redhat.com>, Xavier Deguillard <xdeguillard@vmware.com>, LKML <linux-kernel@vger.kernel.org>, "virtualization@lists.linux-foundation.org" <virtualization@lists.linux-foundation.org>, "linux-mm@kvack.org" <linux-mm@kvack.org>
+To: Michael Forney <mforney@mforney.org>
+Cc: linux-riscv@lists.infradead.org, dri-devel@lists.freedesktop.org, virtualization@lists.linux-foundation.org
 List-Id: virtualization@lists.linuxfoundation.org
 
-T24gVHVlLCBPY3QgMzAsIDIwMTggYXQgMDQ6NTI6NTVQTSArMDAwMCwgTmFkYXYgQW1pdCB3cm90
-ZToKPiBGcm9tOiBncmVna2hAbGludXhmb3VuZGF0aW9uLm9yZwo+IFNlbnQ6IE9jdG9iZXIgMzAs
-IDIwMTggYXQgNDo1MToxOSBQTSBHTVQKPiA+IFRvOiBOYWRhdiBBbWl0IDxuYW1pdEB2bXdhcmUu
-Y29tPgo+ID4gQ2M6IEFybmQgQmVyZ21hbm4gPGFybmRAYXJuZGIuZGU+LCBYYXZpZXIgRGVndWls
-bGFyZCA8eGRlZ3VpbGxhcmRAdm13YXJlLmNvbT4sIExLTUwgPGxpbnV4LWtlcm5lbEB2Z2VyLmtl
-cm5lbC5vcmc+LCBNaWNoYWVsIFMuIFRzaXJraW4gPG1zdEByZWRoYXQuY29tPiwgSmFzb24gV2Fu
-ZyA8amFzb3dhbmdAcmVkaGF0LmNvbT4sIGxpbnV4LW1tQGt2YWNrLm9yZyA8bGludXgtbW1Aa3Zh
-Y2sub3JnPiwgdmlydHVhbGl6YXRpb25AbGlzdHMubGludXgtZm91bmRhdGlvbi5vcmcgPHZpcnR1
-YWxpemF0aW9uQGxpc3RzLmxpbnV4LWZvdW5kYXRpb24ub3JnPgo+ID4gU3ViamVjdDogUmU6IFtQ
-QVRDSCB2MyAwMC8yMF0gdm13X2JhbGxvb246IGNvbXBhY3Rpb24sIHNocmlua2VyLCA2NC1iaXQs
-IGV0Yy4KPiA+IAo+ID4gCj4gPiBPbiBUdWUsIE9jdCAzMCwgMjAxOCBhdCAwNDozMjoyMlBNICsw
-MDAwLCBOYWRhdiBBbWl0IHdyb3RlOgo+ID4+IEZyb206IE5hZGF2IEFtaXQKPiA+PiBTZW50OiBT
-ZXB0ZW1iZXIgMjYsIDIwMTggYXQgNzoxMzoxNiBQTSBHTVQKPiA+Pj4gVG86IEFybmQgQmVyZ21h
-bm4gPGFybmRAYXJuZGIuZGU+LCBncmVna2hAbGludXhmb3VuZGF0aW9uLm9yZwo+ID4+PiBDYzog
-WGF2aWVyIERlZ3VpbGxhcmQgPHhkZWd1aWxsYXJkQHZtd2FyZS5jb20+LCBsaW51eC1rZXJuZWxA
-dmdlci5rZXJuZWwub3JnPiwgTmFkYXYgQW1pdCA8bmFtaXRAdm13YXJlLmNvbT4sIE1pY2hhZWwg
-Uy4gVHNpcmtpbiA8bXN0QHJlZGhhdC5jb20+LCBKYXNvbiBXYW5nIDxqYXNvd2FuZ0ByZWRoYXQu
-Y29tPiwgbGludXgtbW1Aa3ZhY2sub3JnPiwgdmlydHVhbGl6YXRpb25AbGlzdHMubGludXgtZm91
-bmRhdGlvbi5vcmcKPiA+Pj4gU3ViamVjdDogW1BBVENIIHYzIDAwLzIwXSB2bXdfYmFsbG9vbjog
-Y29tcGFjdGlvbiwgc2hyaW5rZXIsIDY0LWJpdCwgZXRjLgo+ID4+PiAKPiA+Pj4gCj4gPj4+IFRo
-aXMgcGF0Y2gtc2V0IGFkZHMgdGhlIGZvbGxvd2luZyBlbmhhbmNlbWVudHMgdG8gdGhlIFZNd2Fy
-ZSBiYWxsb29uCj4gPj4+IGRyaXZlcjoKPiA+Pj4gCj4gPj4+IDEuIEJhbGxvb24gY29tcGFjdGlv
-biBzdXBwb3J0Lgo+ID4+PiAyLiBSZXBvcnQgdGhlIG51bWJlciBvZiBpbmZsYXRlZC9kZWZsYXRl
-ZCBiYWxsb29uZWQgcGFnZXMgdGhyb3VnaCB2bXN0YXQuCj4gPj4+IDMuIE1lbW9yeSBzaHJpbmtl
-ciB0byBhdm9pZCBiYWxsb29uIG92ZXItaW5mbGF0aW9uIChhbmQgT09NKS4KPiA+Pj4gNC4gU3Vw
-cG9ydCBWTXMgd2l0aCBtZW1vcnkgbGltaXQgdGhhdCBpcyBncmVhdGVyIHRoYW4gMTZUQi4KPiA+
-Pj4gNS4gRmFzdGVyIGFuZCBtb3JlIGFnZ3Jlc3NpdmUgaW5mbGF0aW9uLgo+ID4+PiAKPiA+Pj4g
-VG8gc3VwcG9ydCBjb21wYWN0aW9uIHdlIHdpc2ggdG8gdXNlIHRoZSBleGlzdGluZyBpbmZyYXN0
-cnVjdHVyZS4KPiA+Pj4gSG93ZXZlciwgd2UgbmVlZCB0byBtYWtlIHNsaWdodCBhZGFwdGlvbnMg
-Zm9yIGl0LiBXZSBhZGQgYSBuZXcgbGlzdAo+ID4+PiBpbnRlcmZhY2UgdG8gYmFsbG9vbi1jb21w
-YWN0aW9uLCB3aGljaCBpcyBtb3JlIGdlbmVyaWMgYW5kIGVmZmljaWVudCwKPiA+Pj4gc2luY2Ug
-aXQgZG9lcyBub3QgcmVxdWlyZSBhcyBtYW55IElSUSBzYXZlL3Jlc3RvcmUgb3BlcmF0aW9ucy4g
-V2UgbGVhdmUKPiA+Pj4gdGhlIG9sZCBpbnRlcmZhY2UgdGhhdCBpcyB1c2VkIGJ5IHRoZSB2aXJ0
-aW8gYmFsbG9vbi4KPiA+Pj4gCj4gPj4+IEJpZyBwYXJ0cyBvZiB0aGlzIHBhdGNoLXNldCBhcmUg
-Y2xlYW51cCBhbmQgZG9jdW1lbnRhdGlvbi4gUGF0Y2hlcyAxLTEzCj4gPj4+IHNpbXBsaWZ5IHRo
-ZSBiYWxsb29uIGNvZGUsIGRvY3VtZW50IGl0cyBiZWhhdmlvciBhbmQgYWxsb3cgdGhlIGJhbGxv
-b24KPiA+Pj4gY29kZSB0byBydW4gY29uY3VycmVudGx5LiBUaGUgc3VwcG9ydCBmb3IgY29uY3Vy
-cmVuY3kgaXMgcmVxdWlyZWQgZm9yCj4gPj4+IGNvbXBhY3Rpb24gYW5kIHRoZSBzaHJpbmtlciBp
-bnRlcmZhY2UuCj4gPj4+IAo+ID4+PiBGb3IgZG9jdW1lbnRhdGlvbiB3ZSB1c2UgdGhlIGtlcm5l
-bC1kb2MgZm9ybWF0LiBXZSBhcmUgYXdhcmUgdGhhdCB0aGUKPiA+Pj4gYmFsbG9vbiBpbnRlcmZh
-Y2UgaXMgbm90IHB1YmxpYywgYnV0IGZvbGxvd2luZyB0aGUga2VybmVsLWRvYyBmb3JtYXQgbWF5
-Cj4gPj4+IGJlIHVzZWZ1bCBvbmUgZGF5Lgo+ID4+PiAKPiA+Pj4gdjItPnYzOiAqIE1vdmluZyB0
-aGUgYmFsbG9vbiBtYWdpYy1udW1iZXIgb3V0IG9mIHVhcGkgKEdyZWcpCj4gPj4+IAo+ID4+PiB2
-MS0+djI6CSogRml4IGJ1aWxkIGVycm9yIHdoZW4gVEhQIGlzIG9mZiAoa2J1aWxkKQo+ID4+PiAJ
-KiBGaXggYnVpbGQgZXJyb3Igb24gaTM4NiAoa2J1aWxkKQo+ID4+IAo+ID4+IEdyZWcsCj4gPj4g
-Cj4gPj4gSSByZWFsaXplIHlvdSBkaWRu4oCZdCBhcHBseSBwYXRjaGVzIDE3LTIwLiBBbnkgcmVh
-c29uIGZvciB0aGF0Pwo+ID4gCj4gPiBJIGhhdmUgbm8gaWRlYSwgdGhhdCB3YXMgYSBmZXcgdGhv
-dXNhbmQgcGF0Y2hlcyByZXZpZXdlZCBhZ28uLi4KPiA+IAo+ID4gRGlkIEkgbm90IHNheSBhbnl0
-aGluZyBhYm91dCB0aGlzIHdoZW4gSSBhcHBsaWVkIHRoZW0/Cj4gPiAKPiA+IGdyZWcgay1oCj4g
-Cj4gWW91IHJlZ2FyZGVkIHRoZSBtYWdpYy1udW1iZXIgaW4gdjIsIHdoaWNoIEkgZml4ZWQgZm9y
-IHYzLgo+IAo+IFNob3VsZCBJIHJlc2VuZD8KClBsZWFzZSBkbywgYnV0IG5vdGUgdGhhdCBJIHdp
-bGwgbm90IGJlIHJldmlld2luZyBhbnl0aGluZyB1bnRpbCBhZnRlcgo0LjIwLXJjMSBpcyBvdXQu
-Cgp0aGFua3MsCgpncmVnIGstaApfX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19f
-X19fX19fX19fXwpWaXJ0dWFsaXphdGlvbiBtYWlsaW5nIGxpc3QKVmlydHVhbGl6YXRpb25AbGlz
-dHMubGludXgtZm91bmRhdGlvbi5vcmcKaHR0cHM6Ly9saXN0cy5saW51eGZvdW5kYXRpb24ub3Jn
-L21haWxtYW4vbGlzdGluZm8vdmlydHVhbGl6YXRpb24=
+There is no good reason to not define ARCH_HAS_SG_CHAIN.  To fix
+your immediate problem just select it from riscv, as riscv uses
+the generic dma-direct code which is chained S/G safe by definition.
+
+And if you want to get extra points do a quick audit of the remaning
+iommu drivers on architectures that don't define it so that we can
+kill the symbol.
