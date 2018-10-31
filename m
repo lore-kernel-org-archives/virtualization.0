@@ -1,15 +1,13 @@
 From: Emil Velikov <emil.l.velikov@gmail.com>
-Subject: Re: [PATCH 5/5] drm/virtio: bump driver version after explicit
-	synchronization addition
-Date: Wed, 31 Oct 2018 09:39:41 +0000
-Message-ID: <CACvgo50szhS2+TMWWYwU2ctKeE6qddx2+AAuKWiL1SYp=XEjKg__33277.2404690788$1540978753$gmane$org@mail.gmail.com>
+Subject: Re: [PATCH 0/5] virgl: fence fd support
+Date: Wed, 31 Oct 2018 09:45:05 +0000
+Message-ID: <CACvgo50dph07XsrbeNJ_WcL0cTuiPG-viX9oczaVbsP9wKb9xw__8002.86506205357$1540979096$gmane$org@mail.gmail.com>
 References: <20181025183739.9375-1-robert.foss@collabora.com>
-	<20181025183739.9375-6-robert.foss@collabora.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <20181025183739.9375-6-robert.foss@collabora.com>
+In-Reply-To: <20181025183739.9375-1-robert.foss@collabora.com>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -20,20 +18,35 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
 To: Robert Foss <robert.foss@collabora.com>
-Cc: Rob Herring <robh@kernel.org>, David Airlie <airlied@linux.ie>, "Linux-Kernel@Vger. Kernel. Org" <linux-kernel@vger.kernel.org>, ML dri-devel <dri-devel@lists.freedesktop.org>, "open list:VIRTIO GPU DRIVER" <virtualization@lists.linux-foundation.org>, Gustavo Padovan <gustavo.padovan@collabora.com>Gustavo Padovan <gustavo.padovan@collabora.co>, Emil Velikov <emil.velikov@collabora.com>
+Cc: Rob Herring <robh@kernel.org>, David Airlie <airlied@linux.ie>, "Linux-Kernel@Vger. Kernel. Org" <linux-kernel@vger.kernel.org>, ML dri-devel <dri-devel@lists.freedesktop.org>, "open list:VIRTIO GPU DRIVER" <virtualization@lists.linux-foundation.org>, Gustavo Padovan <gustavo.padovan@collabora.com>, Emil Velikov <emil.velikov@collabora.com>
 List-Id: virtualization@lists.linuxfoundation.org
 
-On Thu, 25 Oct 2018 at 19:38, Robert Foss <robert.foss@collabora.com> wrote:
->
-> From: Gustavo Padovan <gustavo.padovan@collabora.com>
->
-> To reflect the (backward compatible) changes in the uabi we are bumping
-> the driver's version.
->
-> Signed-off-by: Gustavo Padovan <gustavo.padovan@collabora.co>
-> Signed-off-by: Robert Foss <robert.foss@collabora.com>
+Hi Rob,
 
-Not strictly required, but doesn't hurt either.
-Reviewed-by: Emil Velikov <emil.velikov@collabora.com>
+On Thu, 25 Oct 2018 at 19:37, Robert Foss <robert.foss@collabora.com> wrote:
+>
+> This series implements fence support for drm/virtio and
+> has been tested using qemu, kmscube and the below branches.
+>
+> Rob Herring solved a reference counting issue and
+> suggested a context check for the execbuf ioctl, his
+> changes have been included in the below commits to
+> keep the tree working at all commits.
+>
+I've put forward some mostly minor suggestions.
+The patches look pretty good but there's one piece missing:
 
--Emil
+>
+> The linux series can be found here:
+> https://gitlab.collabora.com/robertfoss/linux/commits/virtio_fences_v3
+>
+> As for mesa, the branch can be found here:
+> https://gitlab.collabora.com/robertfoss/mesa/commits/virtio_fences_v3
+>
+Namely: This should be out for review. The kernel and userspace side
+of IOCTLs should happen roughly at the same time.
+Otherwise, there's a huge chance of merging one side of the component,
+while the other needs architectural changes.
+
+HTH
+Emil
