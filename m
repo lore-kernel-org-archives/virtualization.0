@@ -1,15 +1,14 @@
 From: Emil Velikov <emil.l.velikov@gmail.com>
-Subject: Re: [PATCH 3/5] drm/virtio: add in-fences support for explicit
-	synchronization
-Date: Wed, 31 Oct 2018 09:38:56 +0000
-Message-ID: <CACvgo51EXugYmNamgUKzyaYbk_kEyODNbG10AJtkvhbQgYwxWw__30615.3015153997$1540978692$gmane$org@mail.gmail.com>
+Subject: Re: [PATCH 2/5] drm/virtio: add uapi for in and out explicit fences
+Date: Wed, 31 Oct 2018 09:38:43 +0000
+Message-ID: <CACvgo51LU3dAfO-jNcV02ZyYBOv8fKLhG_2QyRrB9XYfGJrzHQ__27366.1280320541$1540978702$gmane$org@mail.gmail.com>
 References: <20181025183739.9375-1-robert.foss@collabora.com>
-	<20181025183739.9375-4-robert.foss@collabora.com>
+	<20181025183739.9375-3-robert.foss@collabora.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <20181025183739.9375-4-robert.foss@collabora.com>
+In-Reply-To: <20181025183739.9375-3-robert.foss@collabora.com>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -26,27 +25,56 @@ List-Id: virtualization@lists.linuxfoundation.org
 Hi Rob,
 
 On Thu, 25 Oct 2018 at 19:38, Robert Foss <robert.foss@collabora.com> wrote:
-
-> @@ -124,6 +127,22 @@ static int virtio_gpu_execbuffer_ioctl(struct drm_device *dev, void *data,
->         if ((exbuf->flags & ~VIRTGPU_EXECBUF_FLAGS))
->                 return -EINVAL;
 >
-> +       if (exbuf->flags & VIRTGPU_EXECBUF_FENCE_FD_IN) {
-> +               in_fence = sync_file_get_fence(in_fence_fd);
-> +               if (!in_fence)
-> +                       return -EINVAL;
+> Add a new field called fence_fd that will be used by userspace to send
+> in-fences to the kernel and receive out-fences created by the kernel.
+>
+> This uapi enables virtio to take advantage of explicit synchronization of
+> dma-bufs.
+>
+> There are two new flags:
+>
+> * VIRTGPU_EXECBUF_FENCE_FD_IN to be used when passing an in-fence fd.
+> * VIRTGPU_EXECBUF_FENCE_FD_OUT to be used when requesting an out-fence fd
+>
+> The execbuffer IOCTL is now read-write to allow the userspace to read the
+> out-fence.
+>
+> On error -1 should be returned in the fence_fd field.
+>
+> Signed-off-by: Gustavo Padovan <gustavo.padovan@collabora.com>
+> Signed-off-by: Robert Foss <robert.foss@collabora.com>
+> ---
+> Changes since v2:
+>  - Since exbuf-flags is a new flag, check that unsupported
+>    flags aren't set.
+>
+>  drivers/gpu/drm/virtio/virtgpu_ioctl.c |  5 +++++
+>  include/uapi/drm/virtgpu_drm.h         | 13 ++++++++++---
+>  2 files changed, 15 insertions(+), 3 deletions(-)
+>
+> diff --git a/drivers/gpu/drm/virtio/virtgpu_ioctl.c b/drivers/gpu/drm/virtio/virtgpu_ioctl.c
+> index d01a9ed100d1..1af289b28fc4 100644
+> --- a/drivers/gpu/drm/virtio/virtgpu_ioctl.c
+> +++ b/drivers/gpu/drm/virtio/virtgpu_ioctl.c
+> @@ -116,9 +116,14 @@ static int virtio_gpu_execbuffer_ioctl(struct drm_device *dev, void *data,
+>         struct ww_acquire_ctx ticket;
+>         void *buf;
+>
+> +       exbuf->fence_fd = -1;
 > +
-> +               /*
-> +                * Wait if the fence is from a foreign context, or if the fence
-> +                * array contains any fence from a foreign context.
-> +                */
-> +               if (!dma_fence_match_context(in_fence, vgdev->fence_drv.context)) {
-> +                       ret = dma_fence_wait(in_fence, true);
-> +                       if (ret)
-> +                               return ret;
-Aren't we missing dma_fence_put() before the return here?
+Move this after the sanity checking.
 
-With that
+>         if (vgdev->has_virgl_3d == false)
+>                 return -ENOSYS;
+>
+> +       if ((exbuf->flags & ~VIRTGPU_EXECBUF_FLAGS))
+> +               return -EINVAL;
+> +
+I assume this did this trigger when using old userspace?
+
+With those the patch is
 Reviewed-by: Emil Velikov <emil.velikov@collabora.com>
 
--Emil
+Thanks
+Emil
