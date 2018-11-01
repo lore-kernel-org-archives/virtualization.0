@@ -1,13 +1,14 @@
-From: Kees Cook <keescook@chromium.org>
+From: Linus Torvalds <torvalds@linux-foundation.org>
 Subject: Re: [PULL] vhost: cleanups and fixes
-Date: Thu, 1 Nov 2018 16:00:23 -0700
-Message-ID: <CAGXu5jJ0HgV2qN=wohEgro6ixqXHOHBTsvS5a9Dcpz8gxVo3bA__21764.2967509621$1541113108$gmane$org@mail.gmail.com>
+Date: Thu, 1 Nov 2018 16:06:19 -0700
+Message-ID: <CAHk-=wicvws38JqzVF6oNEZ0jGzP6RecR6yAGtyzX3AkoJ321g__33162.7945685343$1541113845$gmane$org@mail.gmail.com>
 References: <20181101171938-mutt-send-email-mst@kernel.org>
+	<CAGXu5jJ0HgV2qN=wohEgro6ixqXHOHBTsvS5a9Dcpz8gxVo3bA@mail.gmail.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="utf-8"
-Content-Transfer-Encoding: base64
+Content-Type: text/plain; charset="us-ascii"
+Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <20181101171938-mutt-send-email-mst@kernel.org>
+In-Reply-To: <CAGXu5jJ0HgV2qN=wohEgro6ixqXHOHBTsvS5a9Dcpz8gxVo3bA@mail.gmail.com>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -17,55 +18,25 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: "Michael S. Tsirkin" <mst@redhat.com>
-Cc: lenaic@lhuard.fr, Michal Hocko <mhocko@suse.com>, bijan.mottahedeh@oracle.com, KVM <kvm@vger.kernel.org>, Network Development <netdev@vger.kernel.org>, liang.z.li@intel.com, LKML <linux-kernel@vger.kernel.org>, virtualization@lists.linux-foundation.org, Stefan Hajnoczi <stefanha@redhat.com>, Joe Perches <joe@perches.com>, Andrew Morton <akpm@linux-foundation.org>, Michal Hocko <mhocko@kernel.org>, Linus Torvalds <torvalds@linux-foundation.org>
+To: Kees Cook <keescook@chromium.org>
+Cc: lenaic@lhuard.fr, mhocko@suse.com, bijan.mottahedeh@oracle.com, kvm@vger.kernel.org, mst@redhat.com, netdev@vger.kernel.org, liang.z.li@intel.com, Linux Kernel Mailing List <linux-kernel@vger.kernel.org>, virtualization@lists.linux-foundation.org, stefanha@redhat.com, joe@perches.com, Andrew Morton <akpm@linux-foundation.org>, mhocko@kernel.org
 List-Id: virtualization@lists.linuxfoundation.org
 
-T24gVGh1LCBOb3YgMSwgMjAxOCBhdCAyOjE5IFBNLCBNaWNoYWVsIFMuIFRzaXJraW4gPG1zdEBy
-ZWRoYXQuY29tPiB3cm90ZToKPiBUaGUgZm9sbG93aW5nIGNoYW5nZXMgc2luY2UgY29tbWl0IDg0
-ZGY5NTI1YjBjMjdmM2ViYzJlYmIxODY0ZmE2MmE5N2ZkZWRiN2Q6Cj4KPiAgIExpbnV4IDQuMTkg
-KDIwMTgtMTAtMjIgMDc6Mzc6MzcgKzAxMDApCj4KPiBhcmUgYXZhaWxhYmxlIGluIHRoZSBHaXQg
-cmVwb3NpdG9yeSBhdDoKPgo+ICAgZ2l0Oi8vZ2l0Lmtlcm5lbC5vcmcvcHViL3NjbS9saW51eC9r
-ZXJuZWwvZ2l0L21zdC92aG9zdC5naXQgdGFncy9mb3JfbGludXMKPgo+IGZvciB5b3UgdG8gZmV0
-Y2ggY2hhbmdlcyB1cCB0byA3OWY4MDBiMmU3NjkyM2NkOGNlMGFhNjU5Y2I1YzAxOWQ5NjQzYmM5
-Ogo+Cj4gICBNQUlOVEFJTkVSUzogcmVtb3ZlIHJlZmVyZW5jZSB0byBib2d1cyB2c29jayBmaWxl
-ICgyMDE4LTEwLTI0IDIxOjE2OjE0IC0wNDAwKQo+Cj4gLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0t
-LS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLQo+IHZpcnRpbywgdmhvc3Q6
-IGZpeGVzLCB0d2Vha3MKPgo+IHZpcnRpbyBiYWxsb29uIHBhZ2UgaGludGluZyBzdXBwb3J0Cj4g
-dmhvc3Qgc2NzaSBjb250cm9sIHF1ZXVlCj4KPiBtaXNjIGZpeGVzLgo+Cj4gU2lnbmVkLW9mZi1i
-eTogTWljaGFlbCBTLiBUc2lya2luIDxtc3RAcmVkaGF0LmNvbT4KPgo+IC0tLS0tLS0tLS0tLS0t
-LS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0KPiBCaWph
-biBNb3R0YWhlZGVoICgzKToKPiAgICAgICB2aG9zdC9zY3NpOiBSZXNwb25kIHRvIGNvbnRyb2wg
-cXVldWUgb3BlcmF0aW9ucwoKK3N0YXRpYyB2b2lkCit2aG9zdF9zY3NpX3NlbmRfdG1mX3Jlc3Ao
-c3RydWN0IHZob3N0X3Njc2kgKnZzLAorICAgICAgICAgICAgICAgICAgICAgICAgICBzdHJ1Y3Qg
-dmhvc3RfdmlydHF1ZXVlICp2cSwKKyAgICAgICAgICAgICAgICAgICAgICAgICAgaW50IGhlYWQs
-IHVuc2lnbmVkIGludCBvdXQpCit7CisgICAgICAgc3RydWN0IHZpcnRpb19zY3NpX2N0cmxfdG1m
-X3Jlc3AgX191c2VyICpyZXNwOworICAgICAgIHN0cnVjdCB2aXJ0aW9fc2NzaV9jdHJsX3RtZl9y
-ZXNwIHJzcDsKKyAgICAgICBpbnQgcmV0OworCisgICAgICAgcHJfZGVidWcoIiVzXG4iLCBfX2Z1
-bmNfXyk7CisgICAgICAgbWVtc2V0KCZyc3AsIDAsIHNpemVvZihyc3ApKTsKKyAgICAgICByc3Au
-cmVzcG9uc2UgPSBWSVJUSU9fU0NTSV9TX0ZVTkNUSU9OX1JFSkVDVEVEOworICAgICAgIHJlc3Ag
-PSB2cS0+aW92W291dF0uaW92X2Jhc2U7CisgICAgICAgcmV0ID0gX19jb3B5X3RvX3VzZXIocmVz
-cCwgJnJzcCwgc2l6ZW9mKHJzcCkpOwoKSXMgaXQgYWN0dWFsbHkgc2FmZSB0byB0cnVzdCB0aGF0
-IGlvdl9iYXNlIGhhcyBwYXNzZWQgYW4gZWFybGllcgphY2Nlc3Nfb2soKSBjaGVjayBoZXJlPyBX
-aHkgbm90IGp1c3QgdXNlIGNvcHlfdG9fdXNlcigpIGluc3RlYWQ/CgotS2VlcwoKPiAgICAgICB2
-aG9zdC9zY3NpOiBFeHRyYWN0IGNvbW1vbiBoYW5kbGluZyBjb2RlIGZyb20gY29udHJvbCBxdWV1
-ZSBoYW5kbGVyCj4gICAgICAgdmhvc3Qvc2NzaTogVXNlIGNvbW1vbiBoYW5kbGluZyBjb2RlIGlu
-IHJlcXVlc3QgcXVldWUgaGFuZGxlcgo+Cj4gR3JlZyBFZHdhcmRzICgxKToKPiAgICAgICB2aG9z
-dC9zY3NpOiB0cnVuY2F0ZSBUMTAgUEkgaW92X2l0ZXIgdG8gcHJvdF9ieXRlcwo+Cj4gTMOpbmHD
-r2MgSHVhcmQgKDEpOgo+ICAgICAgIGt2bV9jb25maWc6IGFkZCBDT05GSUdfVklSVElPX01FTlUK
-Pgo+IFN0ZWZhbiBIYWpub2N6aSAoMSk6Cj4gICAgICAgTUFJTlRBSU5FUlM6IHJlbW92ZSByZWZl
-cmVuY2UgdG8gYm9ndXMgdnNvY2sgZmlsZQo+Cj4gV2VpIFdhbmcgKDMpOgo+ICAgICAgIHZpcnRp
-by1iYWxsb29uOiBWSVJUSU9fQkFMTE9PTl9GX0ZSRUVfUEFHRV9ISU5UCj4gICAgICAgbW0vcGFn
-ZV9wb2lzb246IGV4cG9zZSBwYWdlX3BvaXNvbmluZ19lbmFibGVkIHRvIGtlcm5lbCBtb2R1bGVz
-Cj4gICAgICAgdmlydGlvLWJhbGxvb246IFZJUlRJT19CQUxMT09OX0ZfUEFHRV9QT0lTT04KPgo+
-ICBNQUlOVEFJTkVSUyAgICAgICAgICAgICAgICAgICAgICAgICB8ICAgMSAtCj4gIGRyaXZlcnMv
-dmhvc3Qvc2NzaS5jICAgICAgICAgICAgICAgIHwgNDI2ICsrKysrKysrKysrKysrKysrKysrKysr
-KysrKystLS0tLS0tLQo+ICBkcml2ZXJzL3ZpcnRpby92aXJ0aW9fYmFsbG9vbi5jICAgICB8IDM4
-MCArKysrKysrKysrKysrKysrKysrKysrKysrKysrKy0tLQo+ICBpbmNsdWRlL3VhcGkvbGludXgv
-dmlydGlvX2JhbGxvb24uaCB8ICAgOCArCj4gIGtlcm5lbC9jb25maWdzL2t2bV9ndWVzdC5jb25m
-aWcgICAgIHwgICAxICsKPiAgbW0vcGFnZV9wb2lzb24uYyAgICAgICAgICAgICAgICAgICAgfCAg
-IDYgKwo+ICA2IGZpbGVzIGNoYW5nZWQsIDY4OCBpbnNlcnRpb25zKCspLCAxMzQgZGVsZXRpb25z
-KC0pCgoKCi0tIApLZWVzIENvb2sKX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19f
-X19fX19fX19fX18KVmlydHVhbGl6YXRpb24gbWFpbGluZyBsaXN0ClZpcnR1YWxpemF0aW9uQGxp
-c3RzLmxpbnV4LWZvdW5kYXRpb24ub3JnCmh0dHBzOi8vbGlzdHMubGludXhmb3VuZGF0aW9uLm9y
-Zy9tYWlsbWFuL2xpc3RpbmZvL3ZpcnR1YWxpemF0aW9u
+On Thu, Nov 1, 2018 at 4:00 PM Kees Cook <keescook@chromium.org> wrote:
+>
+> +       memset(&rsp, 0, sizeof(rsp));
+> +       rsp.response = VIRTIO_SCSI_S_FUNCTION_REJECTED;
+> +       resp = vq->iov[out].iov_base;
+> +       ret = __copy_to_user(resp, &rsp, sizeof(rsp));
+>
+> Is it actually safe to trust that iov_base has passed an earlier
+> access_ok() check here? Why not just use copy_to_user() instead?
+
+Good point.
+
+We really should have removed those double-underscore things ages ago.
+
+Also, apart from the address, what about the size? Wouldn't it be
+better to use copy_to_iter() rather than implement it badly by hand?
+
+               Linus
