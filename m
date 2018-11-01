@@ -1,12 +1,18 @@
 From: "Michael S. Tsirkin" <mst@redhat.com>
-Subject: [PULL] vhost: cleanups and fixes
-Date: Thu, 1 Nov 2018 17:19:38 -0400
-Message-ID: <20181101171938-mutt-send-email-mst@kernel.org>
+Subject: Re: [PATCH v8] virtio_blk: add discard and write zeroes support
+Date: Thu, 1 Nov 2018 17:25:17 -0400
+Message-ID: <20181101172153-mutt-send-email-mst@kernel.org>
+References: <1528258740-6581-1-git-send-email-changpeng.liu@intel.com>
+	<20181012210628.226361-1-dverkamp@chromium.org>
+	<20181026080838.GB4234@stefanha-x1.localdomain>
+	<20181026104636-mutt-send-email-mst@kernel.org>
+	<20181029050521.GB31012@stefanha-x1.localdomain>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="utf-8"
-Content-Transfer-Encoding: base64
+Content-Type: text/plain; charset="us-ascii"
+Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
 Content-Disposition: inline
+In-Reply-To: <20181029050521.GB31012@stefanha-x1.localdomain>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -16,39 +22,65 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-Cc: lenaic@lhuard.fr, mhocko@suse.com, bijan.mottahedeh@oracle.com, kvm@vger.kernel.org, mst@redhat.com, netdev@vger.kernel.org, liang.z.li@intel.com, linux-kernel@vger.kernel.org, virtualization@lists.linux-foundation.org, stefanha@redhat.com, joe@perches.com, akpm@linux-foundation.org, mhocko@kernel.org, torvalds@linux-foundation.org
+To: Stefan Hajnoczi <stefanha@redhat.com>
+Cc: Jens Axboe <axboe@kernel.dk>, virtualization@lists.linux-foundation.org, linux-block@vger.kernel.org, Changpeng Liu <changpeng.liu@intel.com>
 List-Id: virtualization@lists.linuxfoundation.org
 
-VGhlIGZvbGxvd2luZyBjaGFuZ2VzIHNpbmNlIGNvbW1pdCA4NGRmOTUyNWIwYzI3ZjNlYmMyZWJi
-MTg2NGZhNjJhOTdmZGVkYjdkOgoKICBMaW51eCA0LjE5ICgyMDE4LTEwLTIyIDA3OjM3OjM3ICsw
-MTAwKQoKYXJlIGF2YWlsYWJsZSBpbiB0aGUgR2l0IHJlcG9zaXRvcnkgYXQ6CgogIGdpdDovL2dp
-dC5rZXJuZWwub3JnL3B1Yi9zY20vbGludXgva2VybmVsL2dpdC9tc3Qvdmhvc3QuZ2l0IHRhZ3Mv
-Zm9yX2xpbnVzCgpmb3IgeW91IHRvIGZldGNoIGNoYW5nZXMgdXAgdG8gNzlmODAwYjJlNzY5MjNj
-ZDhjZTBhYTY1OWNiNWMwMTlkOTY0M2JjOToKCiAgTUFJTlRBSU5FUlM6IHJlbW92ZSByZWZlcmVu
-Y2UgdG8gYm9ndXMgdnNvY2sgZmlsZSAoMjAxOC0xMC0yNCAyMToxNjoxNCAtMDQwMCkKCi0tLS0t
-LS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0t
-LS0KdmlydGlvLCB2aG9zdDogZml4ZXMsIHR3ZWFrcwoKdmlydGlvIGJhbGxvb24gcGFnZSBoaW50
-aW5nIHN1cHBvcnQKdmhvc3Qgc2NzaSBjb250cm9sIHF1ZXVlCgptaXNjIGZpeGVzLgoKU2lnbmVk
-LW9mZi1ieTogTWljaGFlbCBTLiBUc2lya2luIDxtc3RAcmVkaGF0LmNvbT4KCi0tLS0tLS0tLS0t
-LS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0KQmlq
-YW4gTW90dGFoZWRlaCAoMyk6CiAgICAgIHZob3N0L3Njc2k6IFJlc3BvbmQgdG8gY29udHJvbCBx
-dWV1ZSBvcGVyYXRpb25zCiAgICAgIHZob3N0L3Njc2k6IEV4dHJhY3QgY29tbW9uIGhhbmRsaW5n
-IGNvZGUgZnJvbSBjb250cm9sIHF1ZXVlIGhhbmRsZXIKICAgICAgdmhvc3Qvc2NzaTogVXNlIGNv
-bW1vbiBoYW5kbGluZyBjb2RlIGluIHJlcXVlc3QgcXVldWUgaGFuZGxlcgoKR3JlZyBFZHdhcmRz
-ICgxKToKICAgICAgdmhvc3Qvc2NzaTogdHJ1bmNhdGUgVDEwIFBJIGlvdl9pdGVyIHRvIHByb3Rf
-Ynl0ZXMKCkzDqW5hw69jIEh1YXJkICgxKToKICAgICAga3ZtX2NvbmZpZzogYWRkIENPTkZJR19W
-SVJUSU9fTUVOVQoKU3RlZmFuIEhham5vY3ppICgxKToKICAgICAgTUFJTlRBSU5FUlM6IHJlbW92
-ZSByZWZlcmVuY2UgdG8gYm9ndXMgdnNvY2sgZmlsZQoKV2VpIFdhbmcgKDMpOgogICAgICB2aXJ0
-aW8tYmFsbG9vbjogVklSVElPX0JBTExPT05fRl9GUkVFX1BBR0VfSElOVAogICAgICBtbS9wYWdl
-X3BvaXNvbjogZXhwb3NlIHBhZ2VfcG9pc29uaW5nX2VuYWJsZWQgdG8ga2VybmVsIG1vZHVsZXMK
-ICAgICAgdmlydGlvLWJhbGxvb246IFZJUlRJT19CQUxMT09OX0ZfUEFHRV9QT0lTT04KCiBNQUlO
-VEFJTkVSUyAgICAgICAgICAgICAgICAgICAgICAgICB8ICAgMSAtCiBkcml2ZXJzL3Zob3N0L3Nj
-c2kuYyAgICAgICAgICAgICAgICB8IDQyNiArKysrKysrKysrKysrKysrKysrKysrKysrKysrLS0t
-LS0tLS0KIGRyaXZlcnMvdmlydGlvL3ZpcnRpb19iYWxsb29uLmMgICAgIHwgMzgwICsrKysrKysr
-KysrKysrKysrKysrKysrKysrKysrLS0tCiBpbmNsdWRlL3VhcGkvbGludXgvdmlydGlvX2JhbGxv
-b24uaCB8ICAgOCArCiBrZXJuZWwvY29uZmlncy9rdm1fZ3Vlc3QuY29uZmlnICAgICB8ICAgMSAr
-CiBtbS9wYWdlX3BvaXNvbi5jICAgICAgICAgICAgICAgICAgICB8ICAgNiArCiA2IGZpbGVzIGNo
-YW5nZWQsIDY4OCBpbnNlcnRpb25zKCspLCAxMzQgZGVsZXRpb25zKC0pCl9fX19fX19fX19fX19f
-X19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fClZpcnR1YWxpemF0aW9uIG1haWxpbmcg
-bGlzdApWaXJ0dWFsaXphdGlvbkBsaXN0cy5saW51eC1mb3VuZGF0aW9uLm9yZwpodHRwczovL2xp
-c3RzLmxpbnV4Zm91bmRhdGlvbi5vcmcvbWFpbG1hbi9saXN0aW5mby92aXJ0dWFsaXphdGlvbg==
+On Mon, Oct 29, 2018 at 05:05:21AM +0000, Stefan Hajnoczi wrote:
+> On Fri, Oct 26, 2018 at 10:47:16AM -0400, Michael S. Tsirkin wrote:
+> > On Fri, Oct 26, 2018 at 09:08:38AM +0100, Stefan Hajnoczi wrote:
+> > > On Fri, Oct 12, 2018 at 02:06:28PM -0700, Daniel Verkamp wrote:
+> > > > +		range[n].flags = cpu_to_le32(flags);
+> > > > +		range[n].num_sectors = cpu_to_le32(num_sectors);
+> > > > +		range[n].sector = cpu_to_le64(sector);
+> > > ...
+> > > > +/* Discard/write zeroes range for each request. */
+> > > > +struct virtio_blk_discard_write_zeroes {
+> > > > +	/* discard/write zeroes start sector */
+> > > > +	__virtio64 sector;
+> > > > +	/* number of discard/write zeroes sectors */
+> > > > +	__virtio32 num_sectors;
+> > > > +	/* flags for this range */
+> > > > +	__virtio32 flags;
+> > > 
+> > > cpu_to_le32() is being used on __virtio32 fields instead of cpu_to_virtio32().
+> > > 
+> > > From include/uapi/linux/virtio_types.h:
+> > > 
+> > >   /*
+> > >    * __virtio{16,32,64} have the following meaning:
+> > >    * - __u{16,32,64} for virtio devices in legacy mode, accessed in native endian
+> > >    * - __le{16,32,64} for standard-compliant virtio devices
+> > >    */
+> > > 
+> > > From the VIRTIO specification:
+> > > 
+> > >   struct virtio_blk_discard_write_zeroes {
+> > >          le64 sector;
+> > >          le32 num_sectors;
+> > >          struct {
+> > >                  le32 unmap:1;
+> > >                  le32 reserved:31;
+> > >          } flags;
+> > >   };
+> > > 
+> > > 
+> > > Since the VIRTIO spec says these fields are little-endian, I think these
+> > > fields should be declared just __u32 and __u64 instead of __virtio32 and
+> > > __virtio64.
+> > > 
+> > > Stefan
+> > 
+> > 
+> > __le32/__le64 rather?
+> 
+> Yes.
+> 
+> Stefan
+
+I agree. And further using bitfields for this is questionable -
+it is preferable to set bits in a full 32 bit field using "|".
+
+
+-- 
+MST
