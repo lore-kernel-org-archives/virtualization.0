@@ -1,22 +1,12 @@
-From: Peter Zijlstra <peterz@infradead.org>
-Subject: Re: PROPOSAL: Extend inline asm syntax with size spec
-Date: Thu, 1 Nov 2018 12:15:54 +0100
-Message-ID: <20181101111554.GC3178@hirez.programming.kicks-ass.net>
-References: <20181010072240.GB103159@gmail.com>
-	<20181010080324.GV29268@gate.crashing.org>
-	<20181010081906.GA5533@zn.tnic>
-	<20181010185432.GB29268@gate.crashing.org>
-	<20181010191427.GF5533@zn.tnic> <20181013193335.GD31650@zn.tnic>
-	<20181031125526.GA13219@hirez.programming.kicks-ass.net>
-	<5f987ecbb4962b4796615928d9d71f2cf9b21a3b.camel@perches.com>
-	<20181101090114.GE3159@hirez.programming.kicks-ass.net>
-	<02085d90af8a81b69cb38e0fdd6a018f151a58d8.camel@perches.com>
+From: "Michael S. Tsirkin" <mst@redhat.com>
+Subject: [PULL] vhost: cleanups and fixes
+Date: Thu, 1 Nov 2018 17:19:38 -0400
+Message-ID: <20181101171938-mutt-send-email-mst@kernel.org>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset="utf-8"
+Content-Transfer-Encoding: base64
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
 Content-Disposition: inline
-In-Reply-To: <02085d90af8a81b69cb38e0fdd6a018f151a58d8.camel@perches.com>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -26,36 +16,39 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Joe Perches <joe@perches.com>
-Cc: Kate Stewart <kstewart@linuxfoundation.org>, Christopher Li <sparse@chrisli.org>, virtualization@lists.linux-foundation.org, Masahiro Yamada <yamada.masahiro@socionext.com>, Nadav Amit <namit@vmware.com>, Jan Beulich <JBeulich@suse.com>, "H. Peter Anvin" <hpa@zytor.com>, Sam Ravnborg <sam@ravnborg.org>, Ingo Molnar <mingo@kernel.org>, x86@kernel.org, linux-sparse@vger.kernel.org, Ingo Molnar <mingo@redhat.com>, linux-xtensa@linux-xtensa.org, Kees Cook <keescook@chromium.org>, Segher Boessenkool <segher@kernel.crashing.org>, Chris Zankel <chris@zankel.net>, Michael Matz <matz@suse.de>, Borislav Petkov <bp@alien8.de>, Josh Poimboeuf <jpoimboe@redhat.com>, Alok Kataria <akataria@vmware.com>, Juergen Gross <jgross@suse.com>, gcc@gcc.gnu.org, Richard Biener <rguenther@suse.de>, Max Filippov <jcmvbkbc@gmail.com>, Greg Kroah-Hartman <gregkh@linuxfoundation.org>, linux-kerne
+Cc: lenaic@lhuard.fr, mhocko@suse.com, bijan.mottahedeh@oracle.com, kvm@vger.kernel.org, mst@redhat.com, netdev@vger.kernel.org, liang.z.li@intel.com, linux-kernel@vger.kernel.org, virtualization@lists.linux-foundation.org, stefanha@redhat.com, joe@perches.com, akpm@linux-foundation.org, mhocko@kernel.org, torvalds@linux-foundation.org
 List-Id: virtualization@lists.linuxfoundation.org
 
-On Thu, Nov 01, 2018 at 02:20:40AM -0700, Joe Perches wrote:
-> On Thu, 2018-11-01 at 10:01 +0100, Peter Zijlstra wrote:
-> > On Wed, Oct 31, 2018 at 10:20:00PM -0700, Joe Perches wrote:
-> > > On Wed, 2018-10-31 at 13:55 +0100, Peter Zijlstra wrote:
-> > > > Anyway, with the below patch, I get:
-> > > > 
-> > > >    text    data     bss     dec     hex filename
-> > > > 17385183        5064780 1953892 24403855        1745f8f defconfig-build/vmlinux
-> > > > 17385678        5064780 1953892 24404350        174617e defconfig-build/vmlinux
-> > > > 
-> > > > Which shows we inline more (look for asm_volatile for the actual
-> > > > changes).
-> > > []
-> > > >  scripts/checkpatch.pl                              |  8 ++---
-> > > >  scripts/genksyms/keywords.c                        |  4 +--
-> > > >  scripts/kernel-doc                                 |  4 +--
-> > > 
-> > > I believe these should be excluded from the conversions.
-> > 
-> > Probably, yes. It compiled, which was all I cared about :-)
-> > 
-> > BTW, if we do that conversion, we should upgrade the checkpatch warn to
-> > an error I suppose.
-> 
-> More like remove altogether as __inline and __inline__
-> will no longer be #defined
-
-That's the point, therefore checkpatch should error when it sees them.
-Otherwise we'll grow new instances, because it will compile just file.
+VGhlIGZvbGxvd2luZyBjaGFuZ2VzIHNpbmNlIGNvbW1pdCA4NGRmOTUyNWIwYzI3ZjNlYmMyZWJi
+MTg2NGZhNjJhOTdmZGVkYjdkOgoKICBMaW51eCA0LjE5ICgyMDE4LTEwLTIyIDA3OjM3OjM3ICsw
+MTAwKQoKYXJlIGF2YWlsYWJsZSBpbiB0aGUgR2l0IHJlcG9zaXRvcnkgYXQ6CgogIGdpdDovL2dp
+dC5rZXJuZWwub3JnL3B1Yi9zY20vbGludXgva2VybmVsL2dpdC9tc3Qvdmhvc3QuZ2l0IHRhZ3Mv
+Zm9yX2xpbnVzCgpmb3IgeW91IHRvIGZldGNoIGNoYW5nZXMgdXAgdG8gNzlmODAwYjJlNzY5MjNj
+ZDhjZTBhYTY1OWNiNWMwMTlkOTY0M2JjOToKCiAgTUFJTlRBSU5FUlM6IHJlbW92ZSByZWZlcmVu
+Y2UgdG8gYm9ndXMgdnNvY2sgZmlsZSAoMjAxOC0xMC0yNCAyMToxNjoxNCAtMDQwMCkKCi0tLS0t
+LS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0t
+LS0KdmlydGlvLCB2aG9zdDogZml4ZXMsIHR3ZWFrcwoKdmlydGlvIGJhbGxvb24gcGFnZSBoaW50
+aW5nIHN1cHBvcnQKdmhvc3Qgc2NzaSBjb250cm9sIHF1ZXVlCgptaXNjIGZpeGVzLgoKU2lnbmVk
+LW9mZi1ieTogTWljaGFlbCBTLiBUc2lya2luIDxtc3RAcmVkaGF0LmNvbT4KCi0tLS0tLS0tLS0t
+LS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0KQmlq
+YW4gTW90dGFoZWRlaCAoMyk6CiAgICAgIHZob3N0L3Njc2k6IFJlc3BvbmQgdG8gY29udHJvbCBx
+dWV1ZSBvcGVyYXRpb25zCiAgICAgIHZob3N0L3Njc2k6IEV4dHJhY3QgY29tbW9uIGhhbmRsaW5n
+IGNvZGUgZnJvbSBjb250cm9sIHF1ZXVlIGhhbmRsZXIKICAgICAgdmhvc3Qvc2NzaTogVXNlIGNv
+bW1vbiBoYW5kbGluZyBjb2RlIGluIHJlcXVlc3QgcXVldWUgaGFuZGxlcgoKR3JlZyBFZHdhcmRz
+ICgxKToKICAgICAgdmhvc3Qvc2NzaTogdHJ1bmNhdGUgVDEwIFBJIGlvdl9pdGVyIHRvIHByb3Rf
+Ynl0ZXMKCkzDqW5hw69jIEh1YXJkICgxKToKICAgICAga3ZtX2NvbmZpZzogYWRkIENPTkZJR19W
+SVJUSU9fTUVOVQoKU3RlZmFuIEhham5vY3ppICgxKToKICAgICAgTUFJTlRBSU5FUlM6IHJlbW92
+ZSByZWZlcmVuY2UgdG8gYm9ndXMgdnNvY2sgZmlsZQoKV2VpIFdhbmcgKDMpOgogICAgICB2aXJ0
+aW8tYmFsbG9vbjogVklSVElPX0JBTExPT05fRl9GUkVFX1BBR0VfSElOVAogICAgICBtbS9wYWdl
+X3BvaXNvbjogZXhwb3NlIHBhZ2VfcG9pc29uaW5nX2VuYWJsZWQgdG8ga2VybmVsIG1vZHVsZXMK
+ICAgICAgdmlydGlvLWJhbGxvb246IFZJUlRJT19CQUxMT09OX0ZfUEFHRV9QT0lTT04KCiBNQUlO
+VEFJTkVSUyAgICAgICAgICAgICAgICAgICAgICAgICB8ICAgMSAtCiBkcml2ZXJzL3Zob3N0L3Nj
+c2kuYyAgICAgICAgICAgICAgICB8IDQyNiArKysrKysrKysrKysrKysrKysrKysrKysrKysrLS0t
+LS0tLS0KIGRyaXZlcnMvdmlydGlvL3ZpcnRpb19iYWxsb29uLmMgICAgIHwgMzgwICsrKysrKysr
+KysrKysrKysrKysrKysrKysrKysrLS0tCiBpbmNsdWRlL3VhcGkvbGludXgvdmlydGlvX2JhbGxv
+b24uaCB8ICAgOCArCiBrZXJuZWwvY29uZmlncy9rdm1fZ3Vlc3QuY29uZmlnICAgICB8ICAgMSAr
+CiBtbS9wYWdlX3BvaXNvbi5jICAgICAgICAgICAgICAgICAgICB8ICAgNiArCiA2IGZpbGVzIGNo
+YW5nZWQsIDY4OCBpbnNlcnRpb25zKCspLCAxMzQgZGVsZXRpb25zKC0pCl9fX19fX19fX19fX19f
+X19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fClZpcnR1YWxpemF0aW9uIG1haWxpbmcg
+bGlzdApWaXJ0dWFsaXphdGlvbkBsaXN0cy5saW51eC1mb3VuZGF0aW9uLm9yZwpodHRwczovL2xp
+c3RzLmxpbnV4Zm91bmRhdGlvbi5vcmcvbWFpbG1hbi9saXN0aW5mby92aXJ0dWFsaXphdGlvbg==
