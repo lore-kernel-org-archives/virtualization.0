@@ -1,16 +1,13 @@
-From: "Michael S. Tsirkin" <mst@redhat.com>
-Subject: Re: [PULL] vhost: cleanups and fixes
-Date: Thu, 1 Nov 2018 19:55:53 -0400
-Message-ID: <20181101193818-mutt-send-email-mst__9518.65219180963$1541116438$gmane$org@kernel.org>
-References: <20181101171938-mutt-send-email-mst@kernel.org>
-	<CAGXu5jJ0HgV2qN=wohEgro6ixqXHOHBTsvS5a9Dcpz8gxVo3bA@mail.gmail.com>
-	<CAHk-=wicvws38JqzVF6oNEZ0jGzP6RecR6yAGtyzX3AkoJ321g@mail.gmail.com>
+From: Stefan Hajnoczi <stefanha@redhat.com>
+Subject: Re: [PATCH v9] virtio_blk: add discard and write zeroes support
+Date: Fri, 2 Nov 2018 04:17:51 +0000
+Message-ID: <20181102041751.GA13688@stefanha-x1.localdomain>
+References: <1528258740-6581-1-git-send-email-changpeng.liu@intel.com>
+	<20181101224035.215548-1-dverkamp@chromium.org>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
-Content-Transfer-Encoding: 7bit
+Content-Type: multipart/mixed; boundary="===============5431459923347233102=="
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-Content-Disposition: inline
-In-Reply-To: <CAHk-=wicvws38JqzVF6oNEZ0jGzP6RecR6yAGtyzX3AkoJ321g@mail.gmail.com>
+In-Reply-To: <20181101224035.215548-1-dverkamp@chromium.org>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -20,46 +17,98 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Linus Torvalds <torvalds@linux-foundation.org>
-Cc: lenaic@lhuard.fr, mhocko@suse.com, Kees Cook <keescook@chromium.org>, kvm@vger.kernel.org, netdev@vger.kernel.org, liang.z.li@intel.com, Linux Kernel Mailing List <linux-kernel@vger.kernel.org>, virtualization@lists.linux-foundation.org, stefanha@redhat.com, joe@perches.com, Andrew Morton <akpm@linux-foundation.org>, mhocko@kernel.org, bijan.mottahedeh@oracle.com
+To: Daniel Verkamp <dverkamp@chromium.org>
+Cc: Jens Axboe <axboe@kernel.dk>, Christoph Hellwig <hch@infradead.org>, "Michael S. Tsirkin" <mst@redhat.com>, virtualization@lists.linux-foundation.org, linux-block@vger.kernel.org, Paolo Bonzini <pbonzini@redhat.com>, Changpeng Liu <changpeng.liu@intel.com>
 List-Id: virtualization@lists.linuxfoundation.org
 
-On Thu, Nov 01, 2018 at 04:06:19PM -0700, Linus Torvalds wrote:
-> On Thu, Nov 1, 2018 at 4:00 PM Kees Cook <keescook@chromium.org> wrote:
-> >
-> > +       memset(&rsp, 0, sizeof(rsp));
-> > +       rsp.response = VIRTIO_SCSI_S_FUNCTION_REJECTED;
-> > +       resp = vq->iov[out].iov_base;
-> > +       ret = __copy_to_user(resp, &rsp, sizeof(rsp));
-> >
-> > Is it actually safe to trust that iov_base has passed an earlier
-> > access_ok() check here? Why not just use copy_to_user() instead?
-> 
-> Good point.
-> 
-> We really should have removed those double-underscore things ages ago.
 
-Well in case of vhost there are a bunch of reasons to keep them.
-
-One is that all access_ok checks take place
-way earlier in context of the owner task. Result is saved
-and then used for access repeatedly. Skipping reding access_ok twice
-did seem to give a small speedup in the past.
-In fact I am looking
-into switching some of the uses to unsafe_put_user/unsafe_get_user
-after doing something like barrier_nospec after the
-access_ok checks. Seems to give a measureable speedup.
+--===============5431459923347233102==
+Content-Type: multipart/signed; micalg=pgp-sha1;
+	protocol="application/pgp-signature"; boundary="EeQfGwPcQSOJBaQU"
+Content-Disposition: inline
 
 
-Another is that the double underscore things actually can be done
-in softirq context if you do preempt_disable/preempt_enable.
-IIUC Jason's looking into using that to cut down the latency
-for when the access is very small.
+--EeQfGwPcQSOJBaQU
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+Content-Transfer-Encoding: quoted-printable
 
-> Also, apart from the address, what about the size? Wouldn't it be
-> better to use copy_to_iter() rather than implement it badly by hand?
-> 
->                Linus
+On Thu, Nov 01, 2018 at 03:40:35PM -0700, Daniel Verkamp wrote:
+> From: Changpeng Liu <changpeng.liu@intel.com>
+>=20
+> In commit 88c85538, "virtio-blk: add discard and write zeroes features
+> to specification" (https://github.com/oasis-tcs/virtio-spec), the virtio
+> block specification has been extended to add VIRTIO_BLK_T_DISCARD and
+> VIRTIO_BLK_T_WRITE_ZEROES commands.  This patch enables support for
+> discard and write zeroes in the virtio-blk driver when the device
+> advertises the corresponding features, VIRTIO_BLK_F_DISCARD and
+> VIRTIO_BLK_F_WRITE_ZEROES.
+>=20
+> Signed-off-by: Changpeng Liu <changpeng.liu@intel.com>
+> Signed-off-by: Daniel Verkamp <dverkamp@chromium.org>
+> ---
+> dverkamp: I've picked up this patch and made a few minor changes (as
+> listed below); most notably, I changed the kmalloc back to GFP_ATOMIC,
+> since it can be called from a context where sleeping is not allowed.
+> To prevent large allocations, I've also clamped the maximum number of
+> discard segments to 256; this results in a 4K allocation and should be
+> plenty of descriptors for most use cases.
+>=20
+> I also removed most of the description from the commit message, since it
+> was duplicating the comments from virtio_blk.h and quoting parts of the
+> spec without adding any extra information.  I have tested this iteration
+> of the patch using crosvm with modifications to enable the new features:
+> https://chromium.googlesource.com/chromiumos/platform/crosvm/
+>=20
+> v9 fixes a number of review issues; I didn't attempt to optimize the
+> single-element write zeroes case, so it still does an allocation per
+> request (I did not see any easy place to put the payload that would
+> avoid the allocation).
+>=20
+> CHANGELOG:
+> v9: [dverkamp] fix LE types in discard struct; cleanups from Ming Lei
+> v8: [dverkamp] replace shifts by 9 with SECTOR_SHIFT constant
+> v7: [dverkamp] use GFP_ATOMIC for allocation that may not sleep; clarify
+> descriptor flags field; comment wording cleanups.
+> v6: don't set T_OUT bit to discard and write zeroes commands.
+> v5: use new block layer API: blk_queue_flag_set.
+> v4: several optimizations based on MST's comments, remove bit field
+> usage for command descriptor.
+> v3: define the virtio-blk protocol to add discard and write zeroes
+> support, first version implementation based on proposed specification.
+> v2: add write zeroes command support.
+> v1: initial proposal implementation for discard command.
+> ---
+>  drivers/block/virtio_blk.c      | 83 ++++++++++++++++++++++++++++++++-
+>  include/uapi/linux/virtio_blk.h | 54 +++++++++++++++++++++
+>  2 files changed, 135 insertions(+), 2 deletions(-)
 
-Generally size is checked when we retrieve the iov but I will recheck
-this case and reply here.
+Reviewed-by: Stefan Hajnoczi <stefanha@redhat.com>
+
+--EeQfGwPcQSOJBaQU
+Content-Type: application/pgp-signature; name="signature.asc"
+
+-----BEGIN PGP SIGNATURE-----
+
+iQEcBAEBAgAGBQJb28/vAAoJEJykq7OBq3PIjpkH/1udSYy/C0VZsxPliibcRED4
+58SmnAqFXX0PsDp2+qv3AG7bvkts2P362QPcOjKpDyhHRCQCTIM4FbaaTVc1eK/l
+d46xnPg4HpGiqXKGCYqniRCFnUl5XHyDQr2j57VYkq5zD8EgBDKJzjeXTaCs4vkb
+nXaM1ThF9Ej22matx4LstvjEXapPHa6E8DekZHaLwNai0G4d3BMvEq+m+tBw88bz
+xnlETCSHkeH18Tpii5auoeC1jeDm75asnyO0jyubSaWzWqF/QrF1m7I2kr2rqYfX
+l3HcisDhPMl6WbIO2n3PCOip/Ju0ouoMfXENncxyDqOtMYz1BkgU3d+j6fqL8uA=
+=foTX
+-----END PGP SIGNATURE-----
+
+--EeQfGwPcQSOJBaQU--
+
+--===============5431459923347233102==
+Content-Type: text/plain; charset="us-ascii"
+MIME-Version: 1.0
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+
+_______________________________________________
+Virtualization mailing list
+Virtualization@lists.linux-foundation.org
+https://lists.linuxfoundation.org/mailman/listinfo/virtualization
+--===============5431459923347233102==--
