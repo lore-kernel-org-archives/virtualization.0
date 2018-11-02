@@ -1,13 +1,13 @@
 From: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-Subject: [PATCH 4.18 073/150] x86/paravirt: Fix some warning messages
-Date: Fri,  2 Nov 2018 19:33:55 +0100
-Message-ID: <20181102182908.682563548__10285.6706631885$1541183984$gmane$org@linuxfoundation.org>
-References: <20181102182902.250560510@linuxfoundation.org>
+Subject: [PATCH 4.14 091/143] x86/paravirt: Fix some warning messages
+Date: Fri,  2 Nov 2018 19:34:36 +0100
+Message-ID: <20181102182905.146726078__23437.4622851194$1541184664$gmane$org@linuxfoundation.org>
+References: <20181102182857.064326086@linuxfoundation.org>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <20181102182902.250560510@linuxfoundation.org>
+In-Reply-To: <20181102182857.064326086@linuxfoundation.org>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -21,7 +21,7 @@ To: linux-kernel@vger.kernel.org
 Cc: Juergen Gross <jgross@suse.com>, Sasha Levin <sashal@kernel.org>, Peter Zijlstra <peterz@infradead.org>, Greg Kroah-Hartman <gregkh@linuxfoundation.org>, kernel-janitors@vger.kernel.org, stable@vger.kernel.org, virtualization@lists.linux-foundation.org, "H. Peter Anvin" <hpa@zytor.com>, Thomas Gleixner <tglx@linutronix.de>, Alok Kataria <akataria@vmware.com>, Dan Carpenter <dan.carpenter@oracle.com>
 List-Id: virtualization@lists.linuxfoundation.org
 
-4.18-stable review patch.  If anyone has any objections, please let me know.
+4.14-stable review patch.  If anyone has any objections, please let me know.
 
 ------------------
 
@@ -45,7 +45,7 @@ Signed-off-by: Sasha Levin <sashal@kernel.org>
  1 file changed, 2 insertions(+), 2 deletions(-)
 
 diff --git a/arch/x86/kernel/paravirt.c b/arch/x86/kernel/paravirt.c
-index 930c88341e4e..1fbf38dde84c 100644
+index f3559b84cd75..04da826381c9 100644
 --- a/arch/x86/kernel/paravirt.c
 +++ b/arch/x86/kernel/paravirt.c
 @@ -90,7 +90,7 @@ unsigned paravirt_patch_call(void *insnbuf,
