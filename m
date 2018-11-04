@@ -1,14 +1,21 @@
-From: Thomas Gleixner <tglx@linutronix.de>
-Subject: Re: [PATCH 0/2] i8253: Fix PIT shutdown quirk on Hyper-V
-Date: Sat, 3 Nov 2018 18:22:05 +0100 (CET)
-Message-ID: <alpine.DEB.2.21.1811031817570.3160@nanos.tec.linutronix.de>
-References: <1541093374-10496-1-git-send-email-mikelley@microsoft.com>
-	<11f82d95-539c-b680-183b-b6c5c60468a8@suse.com>
+From: tip-bot for Michael Kelley <tipbot@zytor.com>
+Subject: [tip:x86/urgent] x86/hyper-v: Enable PIT shutdown quirk
+Date: Sun, 4 Nov 2018 02:10:38 -0800
+Message-ID: <tip-1de72c706488b7be664a601cf3843bd01e327e58__25298.4890401878$1541327762$gmane$org@git.kernel.org>
+References: <1541303219-11142-3-git-send-email-mikelley@microsoft.com>
+Reply-To: mingo@kernel.org, mikelley@microsoft.com, jgross@suse.com,
+	daniel.lezcano@linaro.org, olaf@aepfle.de, apw@canonical.com,
+	virtualization@lists.linux-foundation.org, jasowang@redhat.com,
+	akataria@vmware.com, gregkh@linuxfoundation.org,
+	devel@linuxdriverproject.org, linux-kernel@vger.kernel.org,
+	marcelo.cerri@canonical.com, kys@microsoft.com,
+	tglx@linutronix.de, hpa@zytor.com, vkuznets@redhat.com
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <11f82d95-539c-b680-183b-b6c5c60468a8@suse.com>
+In-Reply-To: <1541303219-11142-3-git-send-email-mikelley@microsoft.com>
+Content-Disposition: inline
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -18,40 +25,72 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Juergen Gross <jgross@suse.com>
-Cc: "olaf@aepfle.de" <olaf@aepfle.de>, "daniel.lezcano@linaro.org" <daniel.lezcano@linaro.org>, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>, "virtualization@lists.linux-foundation.org" <virtualization@lists.linux-foundation.org>, "marcelo.cerri@canonical.com" <marcelo.cerri@canonical.com>, "apw@canonical.com" <apw@canonical.com>, "akataria@vmware.com" <akataria@vmware.com>, Michael Kelley <mikelley@microsoft.com>
+To: linux-tip-commits@vger.kernel.org
+Cc: jgross@suse.com, olaf@aepfle.de, gregkh@linuxfoundation.org, daniel.lezcano@linaro.org, akataria@vmware.com, linux-kernel@vger.kernel.org, virtualization@lists.linux-foundation.org, marcelo.cerri@canonical.com, tglx@linutronix.de, hpa@zytor.com, apw@canonical.com, devel@linuxdriverproject.org, mikelley@microsoft.com, mingo@kernel.org
 List-Id: virtualization@lists.linuxfoundation.org
 
-On Fri, 2 Nov 2018, Juergen Gross wrote:
-> On 01/11/2018 18:30, Michael Kelley wrote:
-> > pit_shutdown() doesn't work on Hyper-V because of a quirk in the
-> > PIT emulation. This problem exists in all versions of Hyper-V and
-> > had not been noticed previously. When the counter register is set
-> > to zero, the emulated PIT continues to interrupt @18.2 HZ.
-> > 
-> > So add a test for running on Hyper-V, and use that test to skip
-> > setting the counter register when running on Hyper-V.
-> > 
-> > This patch replaces a previously proposed patch with a different
-> > approach. This new approach follows comments from Thomas Gleixner.
-> 
-> Did you consider using a static_key instead? You could set it in
-> ms_hyperv_init_platform(). This would enable you to support future
-> Hyper-V versions which don't require avoiding to set the count to zero.
+Commit-ID:  1de72c706488b7be664a601cf3843bd01e327e58
+Gitweb:     https://git.kernel.org/tip/1de72c706488b7be664a601cf3843bd01e327e58
+Author:     Michael Kelley <mikelley@microsoft.com>
+AuthorDate: Sun, 4 Nov 2018 03:48:57 +0000
+Committer:  Thomas Gleixner <tglx@linutronix.de>
+CommitDate: Sun, 4 Nov 2018 11:04:46 +0100
 
-Duh. Now that you say it it's more than obvious. Instead of checking for
-running on hyperv have a quirk check in that function and set it from
-hyperv. Not necessarily a static key required as this is not a fast path,
-so a simple ro_after_init marked variable is good enough
+x86/hyper-v: Enable PIT shutdown quirk
 
-Michael, sorry for guiding you down the wrong road. Juergens idea is much
-better.
+Hyper-V emulation of the PIT has a quirk such that the normal PIT shutdown
+path doesn't work, because clearing the counter register restarts the
+timer.
 
-If you redo that, could you please make sure, that your mail series is
-properly threaded? i.e. the 1..n/n mails contain a
+Disable the counter clearing on PIT shutdown.
 
-	 Reference: <message_id_of_0/n>
+Signed-off-by: Michael Kelley <mikelley@microsoft.com>
+Signed-off-by: Thomas Gleixner <tglx@linutronix.de>
+Cc: "gregkh@linuxfoundation.org" <gregkh@linuxfoundation.org>
+Cc: "devel@linuxdriverproject.org" <devel@linuxdriverproject.org>
+Cc: "daniel.lezcano@linaro.org" <daniel.lezcano@linaro.org>
+Cc: "virtualization@lists.linux-foundation.org" <virtualization@lists.linux-foundation.org>
+Cc: "jgross@suse.com" <jgross@suse.com>
+Cc: "akataria@vmware.com" <akataria@vmware.com>
+Cc: "olaf@aepfle.de" <olaf@aepfle.de>
+Cc: "apw@canonical.com" <apw@canonical.com>
+Cc: vkuznets <vkuznets@redhat.com>
+Cc: "jasowang@redhat.com" <jasowang@redhat.com>
+Cc: "marcelo.cerri@canonical.com" <marcelo.cerri@canonical.com>
+Cc: KY Srinivasan <kys@microsoft.com>
+Cc: stable@vger.kernel.org
+Link: https://lkml.kernel.org/r/1541303219-11142-3-git-send-email-mikelley@microsoft.com
 
-Thanks,
+---
+ arch/x86/kernel/cpu/mshyperv.c | 11 +++++++++++
+ 1 file changed, 11 insertions(+)
 
-	tglx
+diff --git a/arch/x86/kernel/cpu/mshyperv.c b/arch/x86/kernel/cpu/mshyperv.c
+index 1c72f3819eb1..e81a2db42df7 100644
+--- a/arch/x86/kernel/cpu/mshyperv.c
++++ b/arch/x86/kernel/cpu/mshyperv.c
+@@ -20,6 +20,7 @@
+ #include <linux/interrupt.h>
+ #include <linux/irq.h>
+ #include <linux/kexec.h>
++#include <linux/i8253.h>
+ #include <asm/processor.h>
+ #include <asm/hypervisor.h>
+ #include <asm/hyperv-tlfs.h>
+@@ -295,6 +296,16 @@ static void __init ms_hyperv_init_platform(void)
+ 	if (efi_enabled(EFI_BOOT))
+ 		x86_platform.get_nmi_reason = hv_get_nmi_reason;
+ 
++	/*
++	 * Hyper-V VMs have a PIT emulation quirk such that zeroing the
++	 * counter register during PIT shutdown restarts the PIT. So it
++	 * continues to interrupt @18.2 HZ. Setting i8253_clear_counter
++	 * to false tells pit_shutdown() not to zero the counter so that
++	 * the PIT really is shutdown. Generation 2 VMs don't have a PIT,
++	 * and setting this value has no effect.
++	 */
++	i8253_clear_counter_on_shutdown = false;
++
+ #if IS_ENABLED(CONFIG_HYPERV)
+ 	/*
+ 	 * Setup the hook to get control post apic initialization.
