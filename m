@@ -1,11 +1,14 @@
-From: jiangyiwen <jiangyiwen@huawei.com>
-Subject: [PATCH 5/5] VSOCK: batch sending rx buffer to increase bandwidth
-Date: Mon, 5 Nov 2018 15:48:38 +0800
-Message-ID: <5BDFF5D6.2030802__21725.4449883059$1541404001$gmane$org@huawei.com>
+From: Jason Wang <jasowang@redhat.com>
+Subject: Re: [PATCH 0/5] VSOCK: support mergeable rx buffer in vhost-vsock
+Date: Mon, 5 Nov 2018 17:21:55 +0800
+Message-ID: <b9d535f8-ddc3-a4bc-21c9-ca21e808f0d1__11135.4376226247$1541409601$gmane$org@redhat.com>
+References: <5BDFF49C.3040603@huawei.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset="utf-8"; Format="flowed"
+Content-Transfer-Encoding: base64
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
+In-Reply-To: <5BDFF49C.3040603@huawei.com>
+Content-Language: en-US
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -15,75 +18,47 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: stefanha@redhat.com, Jason Wang <jasowang@redhat.com>
+To: jiangyiwen <jiangyiwen@huawei.com>, stefanha@redhat.com
 Cc: netdev@vger.kernel.org, kvm@vger.kernel.org, virtualization@lists.linux-foundation.org
 List-Id: virtualization@lists.linuxfoundation.org
 
-Batch sending rx buffer can improve total bandwidth.
-
-Signed-off-by: Yiwen Jiang <jiangyiwen@huawei.com>
----
- drivers/vhost/vsock.c | 24 +++++++++++++++++-------
- 1 file changed, 17 insertions(+), 7 deletions(-)
-
-diff --git a/drivers/vhost/vsock.c b/drivers/vhost/vsock.c
-index 648be39..a587ddc 100644
---- a/drivers/vhost/vsock.c
-+++ b/drivers/vhost/vsock.c
-@@ -148,10 +148,12 @@ static int get_rx_bufs(struct vhost_virtqueue *vq,
- 			    struct vhost_virtqueue *vq)
- {
- 	struct vhost_virtqueue *tx_vq = &vsock->vqs[VSOCK_VQ_TX];
--	bool added = false;
- 	bool restart_tx = false;
- 	int mergeable;
- 	size_t vsock_hlen;
-+	int batch_count = 0;
-+
-+#define VHOST_VSOCK_BATCH 16
-
- 	mutex_lock(&vq->mutex);
-
-@@ -191,8 +193,9 @@ static int get_rx_bufs(struct vhost_virtqueue *vq,
- 		list_del_init(&pkt->list);
- 		spin_unlock_bh(&vsock->send_pkt_list_lock);
-
--		headcount = get_rx_bufs(vq, vq->heads, vsock_hlen + pkt->len,
--				&in, likely(mergeable) ? UIO_MAXIOV : 1);
-+		headcount = get_rx_bufs(vq, vq->heads + batch_count,
-+				vsock_hlen + pkt->len, &in,
-+				likely(mergeable) ? UIO_MAXIOV : 1);
- 		if (headcount <= 0) {
- 			spin_lock_bh(&vsock->send_pkt_list_lock);
- 			list_add(&pkt->list, &vsock->send_pkt_list);
-@@ -238,8 +241,12 @@ static int get_rx_bufs(struct vhost_virtqueue *vq,
- 			break;
- 		}
-
--		vhost_add_used_n(vq, vq->heads, headcount);
--		added = true;
-+		batch_count += headcount;
-+		if (batch_count > VHOST_VSOCK_BATCH) {
-+			vhost_add_used_and_signal_n(&vsock->dev, vq,
-+					vq->heads, batch_count);
-+			batch_count = 0;
-+		}
-
- 		if (pkt->reply) {
- 			int val;
-@@ -258,8 +265,11 @@ static int get_rx_bufs(struct vhost_virtqueue *vq,
-
- 		virtio_transport_free_pkt(pkt);
- 	}
--	if (added)
--		vhost_signal(&vsock->dev, vq);
-+
-+	if (batch_count) {
-+		vhost_add_used_and_signal_n(&vsock->dev, vq,
-+				vq->heads, batch_count);
-+	}
-
- out:
- 	mutex_unlock(&vq->mutex);
--- 
-1.8.3.1
+Ck9uIDIwMTgvMTEvNSDkuIvljYgzOjQzLCBqaWFuZ3lpd2VuIHdyb3RlOgo+IE5vdyB2c29jayBv
+bmx5IHN1cHBvcnQgc2VuZC9yZWNlaXZlIHNtYWxsIHBhY2tldCwgaXQgY2FuJ3QgYWNoaWV2ZQo+
+IGhpZ2ggcGVyZm9ybWFuY2UuIEFzIHByZXZpb3VzIGRpc2N1c3NlZCB3aXRoIEphc29uIFdhbmcs
+IEkgcmV2aXNpdCB0aGUKPiBpZGVhIG9mIHZob3N0LW5ldCBhYm91dCBtZXJnZWFibGUgcnggYnVm
+ZmVyIGFuZCBpbXBsZW1lbnQgdGhlIG1lcmdlYWJsZQo+IHJ4IGJ1ZmZlciBpbiB2aG9zdC12c29j
+aywgaXQgY2FuIGFsbG93IGJpZyBwYWNrZXQgdG8gYmUgc2NhdHRlcmVkIGluCj4gaW50byBkaWZm
+ZXJlbnQgYnVmZmVycyBhbmQgaW1wcm92ZSBwZXJmb3JtYW5jZSBvYnZpb3VzbHkuCj4KPiBJIHdy
+aXRlIGEgdG9vbCB0byB0ZXN0IHRoZSB2aG9zdC12c29jayBwZXJmb3JtYW5jZSwgbWFpbmx5IHNl
+bmQgYmlnCj4gcGFja2V0KDY0SykgaW5jbHVkZWQgZ3Vlc3QtPkhvc3QgYW5kIEhvc3QtPkd1ZXN0
+LiBUaGUgcmVzdWx0IGFzCj4gZm9sbG93czoKPgo+IEJlZm9yZSBwZXJmb3JtYW5jZToKPiAgICAg
+ICAgICAgICAgICBTaW5nbGUgc29ja2V0ICAgICAgICAgICAgTXVsdGlwbGUgc29ja2V0cyhNYXgg
+QmFuZHdpZHRoKQo+IEd1ZXN0LT5Ib3N0ICAgfjQwME1CL3MgICAgICAgICAgICAgICAgIH40ODBN
+Qi9zCj4gSG9zdC0+R3Vlc3QgICB+MTQ1ME1CL3MgICAgICAgICAgICAgICAgfjE2MDBNQi9zCj4K
+PiBBZnRlciBwZXJmb3JtYW5jZToKPiAgICAgICAgICAgICAgICBTaW5nbGUgc29ja2V0ICAgICAg
+ICAgICAgTXVsdGlwbGUgc29ja2V0cyhNYXggQmFuZHdpZHRoKQo+IEd1ZXN0LT5Ib3N0ICAgfjE3
+MDBNQi9zICAgICAgICAgICAgICAgIH4yOTAwTUIvcwo+IEhvc3QtPkd1ZXN0ICAgfjE3MDBNQi9z
+ICAgICAgICAgICAgICAgIH4yOTAwTUIvcwo+Cj4gIEZyb20gdGhlIHRlc3QgcmVzdWx0cywgdGhl
+IHBlcmZvcm1hbmNlIGlzIGltcHJvdmVkIG9idmlvdXNseSwgYW5kIGd1ZXN0Cj4gbWVtb3J5IHdp
+bGwgbm90IGJlIHdhc3RlZC4KCgpIaToKClRoYW5rcyBmb3IgdGhlIHBhdGNoZXMgYW5kIHRoZSBu
+dW1iZXJzIGFyZSByZWFsbHkgaW1wcmVzc2l2ZS4KCkJ1dCBpbnN0ZWFkIG9mIGR1cGxpY2F0aW5n
+IGNvZGVzIGJldHdlZW4gc29jayBhbmQgbmV0LiBJIHdhcyBjb25zaWRlcmluZyAKdG8gdXNlIHZp
+cnRpby1uZXQgYXMgYSB0cmFuc3BvcnQgb2YgdnNvY2suIFRoZW4gd2UgbWF5IGhhdmUgYWxsIGV4
+aXN0ZWQgCmZlYXR1cmVzIGxpa2VzIGJhdGNoaW5nLCBtZXJnZWFibGUgcnggYnVmZmVycyBhbmQg
+bXVsdGlxdWV1ZS4gV2FudCB0byAKY29uc2lkZXIgdGhpcyBpZGVhPyBUaG91Z2h0cz8KCgo+Cj4g
+LS0tCj4KPiBZaXdlbiBKaWFuZyAoNSk6Cj4gICAgVlNPQ0s6IHN1cHBvcnQgZmlsbCBtZXJnZWFi
+bGUgcnggYnVmZmVyIGluIGd1ZXN0Cj4gICAgVlNPQ0s6IHN1cHBvcnQgZmlsbCBkYXRhIHRvIG1l
+cmdlYWJsZSByeCBidWZmZXIgaW4gaG9zdAo+ICAgIFZTT0NLOiBzdXBwb3J0IHJlY2VpdmUgbWVy
+Z2VhYmxlIHJ4IGJ1ZmZlciBpbiBndWVzdAo+ICAgIFZTT0NLOiBtb2RpZnkgZGVmYXVsdCByeCBi
+dWYgc2l6ZSB0byBpbXByb3ZlIHBlcmZvcm1hbmNlCj4gICAgVlNPQ0s6IGJhdGNoIHNlbmRpbmcg
+cnggYnVmZmVyIHRvIGluY3JlYXNlIGJhbmR3aWR0aAo+Cj4gICBkcml2ZXJzL3Zob3N0L3Zzb2Nr
+LmMgICAgICAgICAgICAgICAgICAgfCAxMzUgKysrKysrKysrKysrKysrKysrKysrKystLS0tLS0K
+PiAgIGluY2x1ZGUvbGludXgvdmlydGlvX3Zzb2NrLmggICAgICAgICAgICB8ICAxNSArKystCj4g
+ICBpbmNsdWRlL3VhcGkvbGludXgvdmlydGlvX3Zzb2NrLmggICAgICAgfCAgIDUgKysKPiAgIG5l
+dC92bXdfdnNvY2svdmlydGlvX3RyYW5zcG9ydC5jICAgICAgICB8IDE0NyArKysrKysrKysrKysr
+KysrKysrKysrKysrKy0tLS0tLQo+ICAgbmV0L3Ztd192c29jay92aXJ0aW9fdHJhbnNwb3J0X2Nv
+bW1vbi5jIHwgIDU5ICsrKysrKysrKysrLS0KPiAgIDUgZmlsZXMgY2hhbmdlZCwgMzAwIGluc2Vy
+dGlvbnMoKyksIDYxIGRlbGV0aW9ucygtKQo+Cl9fX19fX19fX19fX19fX19fX19fX19fX19fX19f
+X19fX19fX19fX19fX19fX19fClZpcnR1YWxpemF0aW9uIG1haWxpbmcgbGlzdApWaXJ0dWFsaXph
+dGlvbkBsaXN0cy5saW51eC1mb3VuZGF0aW9uLm9yZwpodHRwczovL2xpc3RzLmxpbnV4Zm91bmRh
+dGlvbi5vcmcvbWFpbG1hbi9saXN0aW5mby92aXJ0dWFsaXphdGlvbg==
