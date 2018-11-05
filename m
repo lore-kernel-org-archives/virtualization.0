@@ -1,14 +1,17 @@
-From: Jason Wang <jasowang@redhat.com>
-Subject: Re: [PATCH 0/1] vhost: add vhost_blk driver
-Date: Mon, 5 Nov 2018 11:00:23 +0800
-Message-ID: <6a7f1668-bf2d-0caa-2efd-c8fab5f1db24__29336.4810444929$1541386719$gmane$org@redhat.com>
-References: <20181102182123.29420-1-v.mayatskih@gmail.com>
+From: Gerd Hoffmann <kraxel@redhat.com>
+Subject: Re: [PATCH 1/5] drm/virtio: add virtio_gpu_alloc_fence()
+Date: Mon, 5 Nov 2018 07:38:18 +0100
+Message-ID: <20181105063818.b2yvncgzlnat5qn2__22206.8106443205$1541399780$gmane$org@sirius.home.kraxel.org>
+References: <20181025183739.9375-1-robert.foss@collabora.com>
+	<20181025183739.9375-2-robert.foss@collabora.com>
+	<CACvgo516JGdfBZ8zM73bQ-TCeNEbOp9ioBy9jh0AAtpUsu5tOg@mail.gmail.com>
+	<1c92b6dc-4152-c81b-5180-2f48799b959f@collabora.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="utf-8"; Format="flowed"
-Content-Transfer-Encoding: base64
+Content-Type: text/plain; charset="us-ascii"
+Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <20181102182123.29420-1-v.mayatskih@gmail.com>
-Content-Language: en-US
+Content-Disposition: inline
+In-Reply-To: <1c92b6dc-4152-c81b-5180-2f48799b959f@collabora.com>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -18,49 +21,35 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Vitaly Mayatskikh <v.mayatskih@gmail.com>, "Michael S . Tsirkin" <mst@redhat.com>
-Cc: Paolo Bonzini <pbonzini@redhat.com>, Stefan Hajnoczi <stefanha@redhat.com>, linux-kernel@vger.kernel.org, kvm@vger.kernel.org, virtualization@lists.linux-foundation.org
+To: Robert Foss <robert.foss@collabora.com>
+Cc: David Airlie <airlied@linux.ie>, Emil Velikov <emil.l.velikov@gmail.com>, "Linux-Kernel@Vger. Kernel. Org" <linux-kernel@vger.kernel.org>, ML dri-devel <dri-devel@lists.freedesktop.org>, "open list:VIRTIO GPU DRIVER" <virtualization@lists.linux-foundation.org>, Gustavo Padovan <gustavo.padovan@collabora.com>, Emil Velikov <emil.velikov@collabora.com>
 List-Id: virtualization@lists.linuxfoundation.org
 
-Ck9uIDIwMTgvMTEvMyDkuIrljYgyOjIxLCBWaXRhbHkgTWF5YXRza2lraCB3cm90ZToKPiB2aG9z
-dF9ibGsgaXMgYSBob3N0LXNpZGUga2VybmVsIG1vZGUgYWNjZWxlcmF0b3IgZm9yIHZpcnRpby1i
-bGsuIFRoZQo+IGRyaXZlciBhbGxvd3MgVk0gdG8gcmVhY2ggYSBuZWFyIGJhcmUtbWV0YWwgZGlz
-ayBwZXJmb3JtYW5jZS4gU2VlIElPUFMKPiBudW1iZXJzIGJlbG93IChmaW8gLS1ydz1yYW5kcmVh
-ZCAtLWJzPTRrKS4KPgo+IFRoaXMgaW1wbGVtZW50YXRpb24gdXNlcyBraW9jYiBpbnRlcmZhY2Uu
-IEl0IGlzIHNsaWdodGx5IHNsb3dlciB0aGFuCj4gZ29pbmcgZGlyZWN0bHkgdGhyb3VnaCBiaW8s
-IGJ1dCBpcyBzaW1wbGVyIGFuZCBhbHNvIHdvcmtzIHdpdGggZGlzawo+IGltYWdlcyBwbGFjZWQg
-b24gYSBmaWxlIHN5c3RlbS4KPgo+ICMgZmlvIG51bS1qb2JzCj4gIyBBOiBiYXJlIG1ldGFsIG92
-ZXIgYmxvY2sKPiAjIEI6IGJhcmUgbWV0YWwgb3ZlciBmaWxlCj4gIyBDOiB2aXJ0aW8tYmxrIG92
-ZXIgYmxvY2sKPiAjIEQ6IHZpcnRpby1ibGsgb3ZlciBmaWxlCj4gIyBFOiB2aG9zdC1ibGsgYmlv
-IG92ZXIgYmxvY2sKPiAjIEY6IHZob3N0LWJsayBraW9jYiBvdmVyIGJsb2NrCj4gIyBHOiB2aG9z
-dC1ibGsga2lvY2Igb3ZlciBmaWxlCj4gIwo+ICMgIEEgICAgIEIgICAgIEMgICAgRCAgICBFICAg
-ICBGICAgICBHCj4KPiAxICAxNzFrICAxNTFrICAxNDhrIDE1MWsgMTk1ayAgMTg3ayAgMTc1awo+
-IDIgIDMyOGsgIDMwMmsgIDI0OWsgMjQxayAzNDlrICAzMzRrICAyOTZrCj4gMyAgNDc5ayAgNDM3
-ayAgMTc5ayAxNzRrIDUwMWsgIDQ2NGsgIDQwNGsKPiA0ICA2MjJrICA1NjhrICAxNDNrIDE4M2sg
-NjIwayAgNTgwayAgNDkyawo+IDUgIDc1NWsgIDY5N2sgIDEzNmsgMTI4ayA3MzdrICA2OTNrICA1
-NzlrCj4gNiAgODg3ayAgODA4ayAgMTMxayAxMjBrIDgzMGsgIDc4MmsgIDY0MGsKPiA3ICAxMDA0
-ayA5MjZrICAxMjZrIDEzMWsgOTI2ayAgODYzayAgNjkzawo+IDggIDEwOTlrIDEwMTVrIDExN2sg
-MTE1ayAxMDAxayA5MzFrICA3MTJrCj4gOSAgMTE5NGsgMTExOWsgMTE1ayAxMTFrIDEwNTVrIDk5
-MWsgIDcxMWsKPiAxMCAxMjc4ayAxMjA3ayAxMDlrIDExNGsgMTEzMGsgMTA0NmsgNjk1awo+IDEx
-IDEzNDVrIDEyODBrIDExMGsgMTA4ayAxMTE5ayAxMDkxayA2NjNrCj4gMTIgMTQxMWsgMTM1Nmsg
-MTA0ayAxMDZrIDEyMDFrIDExNDJrIDYyOWsKPiAxMyAxNDY2ayAxNDIzayAxMDZrIDEwNmsgMTI2
-MGsgMTE3MGsgNjA3awo+IDE0IDE1MTdrIDE0ODZrIDEwM2sgMTA2ayAxMjk2ayAxMTc5ayA1ODlr
-Cj4gMTUgMTU1MmsgMTU0M2sgMTAyayAxMDJrIDEzMjJrIDExOTFrIDU3MWsKPiAxNiAxNDgwayAx
-NTA2ayAxMDFrIDEwMmsgMTM0NmsgMTIwMmsgNTY2awo+Cj4gVml0YWx5IE1heWF0c2tpa2ggKDEp
-Ogo+ICAgIEFkZCB2aG9zdF9ibGsgZHJpdmVyCj4KPiAgIGRyaXZlcnMvdmhvc3QvS2NvbmZpZyAg
-fCAgMTMgKysKPiAgIGRyaXZlcnMvdmhvc3QvTWFrZWZpbGUgfCAgIDMgKwo+ICAgZHJpdmVycy92
-aG9zdC9ibGsuYyAgICB8IDUxMCArKysrKysrKysrKysrKysrKysrKysrKysrKysrKysrKysrKysr
-KysrKwo+ICAgMyBmaWxlcyBjaGFuZ2VkLCA1MjYgaW5zZXJ0aW9ucygrKQo+ICAgY3JlYXRlIG1v
-ZGUgMTAwNjQ0IGRyaXZlcnMvdmhvc3QvYmxrLmMKPgoKSGk6CgpUaGFua3MgZm9yIHRoZSBwYXRj
-aGVzLgoKVGhpcyBpcyBub3QgdGhlIGZpcnN0IGF0dGVtcHQgZm9yIGhhdmluZyB2aG9zdC1ibGs6
-CgotIEJhZGFyaSdzIHZlcnNpb246IGh0dHBzOi8vbHduLm5ldC9BcnRpY2xlcy8zNzk4NjQvCgot
-IEFzaWFzJyB2ZXJzaW9uOiBodHRwczovL2x3bi5uZXQvQXJ0aWNsZXMvNTE5ODgwLwoKSXQncyBi
-ZXR0ZXIgdG8gZGVzY3JpYmUgdGhlIGRpZmZlcmVuY2VzIChraW9jYiB2cyBiaW8/IHBlcmZvcm1h
-bmNlPykuIApFLmcgaWYgbXkgbWVtb3J5IGlzIGNvcnJlY3QsIEFzaWFzIHNhaWQgaXQgZG9lc24n
-dCBnaXZlIG11Y2ggaW1wcm92ZW1lbnQgCmNvbXBhcmVkIHdpdGggdXNlcnNwYWNlIHFlbXUuCgpB
-bmQgd2hhdCdzIG1vcmUgaW1wb3J0YW50LCBJIGJlbGlldmUgd2UgdGVuZCB0byB1c2UgdmlydGlv
-LXNjc2kgbm93ZGF5cy4gClNvIHdoYXQncyB0aGUgYWR2YW50YWdlcyBvZiB2aG9zdC1ibGsgb3Zl
-ciB2aG9zdC1zY3NpPwoKVGhhbmtzCgpfX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19f
-X19fX19fX19fX19fXwpWaXJ0dWFsaXphdGlvbiBtYWlsaW5nIGxpc3QKVmlydHVhbGl6YXRpb25A
-bGlzdHMubGludXgtZm91bmRhdGlvbi5vcmcKaHR0cHM6Ly9saXN0cy5saW51eGZvdW5kYXRpb24u
-b3JnL21haWxtYW4vbGlzdGluZm8vdmlydHVhbGl6YXRpb24=
+> > On Thu, 25 Oct 2018 at 19:38, Robert Foss <robert.foss@collabora.com> wrote:
+> > > 
+> > > From: Gustavo Padovan <gustavo.padovan@collabora.com>
+> > > 
+> > > Refactor fence creation to remove the potential allocation failure from
+> > > the cmd_submit and atomic_commit paths. Now the fence should be allocated
+> > > first and just after we should proceed with the rest of the execution.
+> > > 
+> > 
+> > Commit does a bit more that what the above says:
+> >   - dummy, factor out fence creation/destruction
+> >   - use per virtio_gpu_framebuffer fence
+> > 
+> > Personally I'd keep the two separate patches and elaborate on the latter.
+> > Obviously in that case, one will need to add 3 lines worth of
+> > virtio_gpu_fence_alloc() in virtio_gpu_cursor_plane_update which will be nuked
+> > with the next patch.
+> > 
+> > Not a big deal, but it's up-to the maintainer to make the final call if it's
+> > worth splitting or not.
+> 
+> Agreed, I'll hold off with this change until then.
+
+No need to split this, but a bit more verbose commit message would be
+good.
+
+cheers,
+  Gerd
