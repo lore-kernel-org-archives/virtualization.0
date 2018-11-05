@@ -1,17 +1,11 @@
-From: Gerd Hoffmann <kraxel@redhat.com>
-Subject: Re: [PATCH 1/5] drm/virtio: add virtio_gpu_alloc_fence()
-Date: Mon, 5 Nov 2018 07:38:18 +0100
-Message-ID: <20181105063818.b2yvncgzlnat5qn2__22206.8106443205$1541399780$gmane$org@sirius.home.kraxel.org>
-References: <20181025183739.9375-1-robert.foss@collabora.com>
-	<20181025183739.9375-2-robert.foss@collabora.com>
-	<CACvgo516JGdfBZ8zM73bQ-TCeNEbOp9ioBy9jh0AAtpUsu5tOg@mail.gmail.com>
-	<1c92b6dc-4152-c81b-5180-2f48799b959f@collabora.com>
+From: jiangyiwen <jiangyiwen@huawei.com>
+Subject: [PATCH 0/5] VSOCK: support mergeable rx buffer in vhost-vsock
+Date: Mon, 5 Nov 2018 15:43:24 +0800
+Message-ID: <5BDFF49C.3040603__49836.2032617026$1541403690$gmane$org@huawei.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-Content-Disposition: inline
-In-Reply-To: <1c92b6dc-4152-c81b-5180-2f48799b959f@collabora.com>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -21,35 +15,48 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Robert Foss <robert.foss@collabora.com>
-Cc: David Airlie <airlied@linux.ie>, Emil Velikov <emil.l.velikov@gmail.com>, "Linux-Kernel@Vger. Kernel. Org" <linux-kernel@vger.kernel.org>, ML dri-devel <dri-devel@lists.freedesktop.org>, "open list:VIRTIO GPU DRIVER" <virtualization@lists.linux-foundation.org>, Gustavo Padovan <gustavo.padovan@collabora.com>, Emil Velikov <emil.velikov@collabora.com>
+To: stefanha@redhat.com, Jason Wang <jasowang@redhat.com>
+Cc: netdev@vger.kernel.org, kvm@vger.kernel.org, virtualization@lists.linux-foundation.org
 List-Id: virtualization@lists.linuxfoundation.org
 
-> > On Thu, 25 Oct 2018 at 19:38, Robert Foss <robert.foss@collabora.com> wrote:
-> > > 
-> > > From: Gustavo Padovan <gustavo.padovan@collabora.com>
-> > > 
-> > > Refactor fence creation to remove the potential allocation failure from
-> > > the cmd_submit and atomic_commit paths. Now the fence should be allocated
-> > > first and just after we should proceed with the rest of the execution.
-> > > 
-> > 
-> > Commit does a bit more that what the above says:
-> >   - dummy, factor out fence creation/destruction
-> >   - use per virtio_gpu_framebuffer fence
-> > 
-> > Personally I'd keep the two separate patches and elaborate on the latter.
-> > Obviously in that case, one will need to add 3 lines worth of
-> > virtio_gpu_fence_alloc() in virtio_gpu_cursor_plane_update which will be nuked
-> > with the next patch.
-> > 
-> > Not a big deal, but it's up-to the maintainer to make the final call if it's
-> > worth splitting or not.
-> 
-> Agreed, I'll hold off with this change until then.
+Now vsock only support send/receive small packet, it can't achieve
+high performance. As previous discussed with Jason Wang, I revisit the
+idea of vhost-net about mergeable rx buffer and implement the mergeable
+rx buffer in vhost-vsock, it can allow big packet to be scattered in
+into different buffers and improve performance obviously.
 
-No need to split this, but a bit more verbose commit message would be
-good.
+I write a tool to test the vhost-vsock performance, mainly send big
+packet(64K) included guest->Host and Host->Guest. The result as
+follows:
 
-cheers,
-  Gerd
+Before performance:
+              Single socket            Multiple sockets(Max Bandwidth)
+Guest->Host   ~400MB/s                 ~480MB/s
+Host->Guest   ~1450MB/s                ~1600MB/s
+
+After performance:
+              Single socket            Multiple sockets(Max Bandwidth)
+Guest->Host   ~1700MB/s                ~2900MB/s
+Host->Guest   ~1700MB/s                ~2900MB/s
+
+From the test results, the performance is improved obviously, and guest
+memory will not be wasted.
+
+---
+
+Yiwen Jiang (5):
+  VSOCK: support fill mergeable rx buffer in guest
+  VSOCK: support fill data to mergeable rx buffer in host
+  VSOCK: support receive mergeable rx buffer in guest
+  VSOCK: modify default rx buf size to improve performance
+  VSOCK: batch sending rx buffer to increase bandwidth
+
+ drivers/vhost/vsock.c                   | 135 +++++++++++++++++++++++------
+ include/linux/virtio_vsock.h            |  15 +++-
+ include/uapi/linux/virtio_vsock.h       |   5 ++
+ net/vmw_vsock/virtio_transport.c        | 147 ++++++++++++++++++++++++++------
+ net/vmw_vsock/virtio_transport_common.c |  59 +++++++++++--
+ 5 files changed, 300 insertions(+), 61 deletions(-)
+
+-- 
+1.8.3.1
