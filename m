@@ -1,15 +1,15 @@
-From: Christian Borntraeger <borntraeger@de.ibm.com>
-Subject: Re: [PATCH 0/1] vhost: add vhost_blk driver
-Date: Mon, 5 Nov 2018 16:48:13 +0100
-Message-ID: <c042686f-db95-514d-8bd8-92b72e4e087a__10917.358697816$1541432782$gmane$org@de.ibm.com>
-References: <20181102182123.29420-1-v.mayatskih@gmail.com>
-	<6a7f1668-bf2d-0caa-2efd-c8fab5f1db24@redhat.com>
+From: Emil Velikov <emil.l.velikov@gmail.com>
+Subject: Re: [PATCH v4 3/4] drm/virtio: add in/out fence support for explicit
+	synchronization
+Date: Mon, 5 Nov 2018 17:25:05 +0000
+Message-ID: <CACvgo53vCBbgmu4OV4e0WeOYQSXNk=3qwyRBtPx+XAcCSZO8aQ__40126.9838483588$1541438670$gmane$org@mail.gmail.com>
+References: <20181105114152.2088-1-robert.foss@collabora.com>
+	<20181105114152.2088-4-robert.foss@collabora.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="utf-8"
-Content-Transfer-Encoding: base64
+Content-Type: text/plain; charset="us-ascii"
+Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <6a7f1668-bf2d-0caa-2efd-c8fab5f1db24@redhat.com>
-Content-Language: en-US
+In-Reply-To: <20181105114152.2088-4-robert.foss@collabora.com>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -19,55 +19,30 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Jason Wang <jasowang@redhat.com>, Vitaly Mayatskikh <v.mayatskih@gmail.com>, "Michael S . Tsirkin" <mst@redhat.com>
-Cc: Paolo Bonzini <pbonzini@redhat.com>, virtualization@lists.linux-foundation.org, linux-kernel@vger.kernel.org, Stefan Hajnoczi <stefanha@redhat.com>, kvm@vger.kernel.org
+To: Robert Foss <robert.foss@collabora.com>
+Cc: Rob Herring <robh@kernel.org>, David Airlie <airlied@linux.ie>, "Linux-Kernel@Vger. Kernel. Org" <linux-kernel@vger.kernel.org>, ML dri-devel <dri-devel@lists.freedesktop.org>, "open list:VIRTIO GPU DRIVER" <virtualization@lists.linux-foundation.org>, Gustavo Padovan <gustavo.padovan@collabora.com>, Emil Velikov <emil.velikov@collabora.com>
 List-Id: virtualization@lists.linuxfoundation.org
 
-CgpPbiAxMS8wNS8yMDE4IDA0OjAwIEFNLCBKYXNvbiBXYW5nIHdyb3RlOgo+IAo+IE9uIDIwMTgv
-MTEvMyDkuIrljYgyOjIxLCBWaXRhbHkgTWF5YXRza2lraCB3cm90ZToKPj4gdmhvc3RfYmxrIGlz
-IGEgaG9zdC1zaWRlIGtlcm5lbCBtb2RlIGFjY2VsZXJhdG9yIGZvciB2aXJ0aW8tYmxrLiBUaGUK
-Pj4gZHJpdmVyIGFsbG93cyBWTSB0byByZWFjaCBhIG5lYXIgYmFyZS1tZXRhbCBkaXNrIHBlcmZv
-cm1hbmNlLiBTZWUgSU9QUwo+PiBudW1iZXJzIGJlbG93IChmaW8gLS1ydz1yYW5kcmVhZCAtLWJz
-PTRrKS4KPj4KPj4gVGhpcyBpbXBsZW1lbnRhdGlvbiB1c2VzIGtpb2NiIGludGVyZmFjZS4gSXQg
-aXMgc2xpZ2h0bHkgc2xvd2VyIHRoYW4KPj4gZ29pbmcgZGlyZWN0bHkgdGhyb3VnaCBiaW8sIGJ1
-dCBpcyBzaW1wbGVyIGFuZCBhbHNvIHdvcmtzIHdpdGggZGlzawo+PiBpbWFnZXMgcGxhY2VkIG9u
-IGEgZmlsZSBzeXN0ZW0uCj4+Cj4+ICMgZmlvIG51bS1qb2JzCj4+ICMgQTogYmFyZSBtZXRhbCBv
-dmVyIGJsb2NrCj4+ICMgQjogYmFyZSBtZXRhbCBvdmVyIGZpbGUKPj4gIyBDOiB2aXJ0aW8tYmxr
-IG92ZXIgYmxvY2sKPj4gIyBEOiB2aXJ0aW8tYmxrIG92ZXIgZmlsZQo+PiAjIEU6IHZob3N0LWJs
-ayBiaW8gb3ZlciBibG9jawo+PiAjIEY6IHZob3N0LWJsayBraW9jYiBvdmVyIGJsb2NrCj4+ICMg
-Rzogdmhvc3QtYmxrIGtpb2NiIG92ZXIgZmlsZQo+PiAjCj4+ICPCoCBBwqDCoMKgwqAgQsKgwqDC
-oMKgIEPCoMKgwqAgRMKgwqDCoCBFwqDCoMKgwqAgRsKgwqDCoMKgIEcKPj4KPj4gMcKgIDE3MWvC
-oCAxNTFrwqAgMTQ4ayAxNTFrIDE5NWvCoCAxODdrwqAgMTc1awo+PiAywqAgMzI4a8KgIDMwMmvC
-oCAyNDlrIDI0MWsgMzQ5a8KgIDMzNGvCoCAyOTZrCj4+IDPCoCA0NzlrwqAgNDM3a8KgIDE3OWsg
-MTc0ayA1MDFrwqAgNDY0a8KgIDQwNGsKPj4gNMKgIDYyMmvCoCA1NjhrwqAgMTQzayAxODNrIDYy
-MGvCoCA1ODBrwqAgNDkyawo+PiA1wqAgNzU1a8KgIDY5N2vCoCAxMzZrIDEyOGsgNzM3a8KgIDY5
-M2vCoCA1NzlrCj4+IDbCoCA4ODdrwqAgODA4a8KgIDEzMWsgMTIwayA4MzBrwqAgNzgya8KgIDY0
-MGsKPj4gN8KgIDEwMDRrIDkyNmvCoCAxMjZrIDEzMWsgOTI2a8KgIDg2M2vCoCA2OTNrCj4+IDjC
-oCAxMDk5ayAxMDE1ayAxMTdrIDExNWsgMTAwMWsgOTMxa8KgIDcxMmsKPj4gOcKgIDExOTRrIDEx
-MTlrIDExNWsgMTExayAxMDU1ayA5OTFrwqAgNzExawo+PiAxMCAxMjc4ayAxMjA3ayAxMDlrIDEx
-NGsgMTEzMGsgMTA0NmsgNjk1awo+PiAxMSAxMzQ1ayAxMjgwayAxMTBrIDEwOGsgMTExOWsgMTA5
-MWsgNjYzawo+PiAxMiAxNDExayAxMzU2ayAxMDRrIDEwNmsgMTIwMWsgMTE0MmsgNjI5awo+PiAx
-MyAxNDY2ayAxNDIzayAxMDZrIDEwNmsgMTI2MGsgMTE3MGsgNjA3awo+PiAxNCAxNTE3ayAxNDg2
-ayAxMDNrIDEwNmsgMTI5NmsgMTE3OWsgNTg5awo+PiAxNSAxNTUyayAxNTQzayAxMDJrIDEwMmsg
-MTMyMmsgMTE5MWsgNTcxawo+PiAxNiAxNDgwayAxNTA2ayAxMDFrIDEwMmsgMTM0NmsgMTIwMmsg
-NTY2awo+Pgo+PiBWaXRhbHkgTWF5YXRza2lraCAoMSk6Cj4+IMKgwqAgQWRkIHZob3N0X2JsayBk
-cml2ZXIKPj4KPj4gwqAgZHJpdmVycy92aG9zdC9LY29uZmlnwqAgfMKgIDEzICsrCj4+IMKgIGRy
-aXZlcnMvdmhvc3QvTWFrZWZpbGUgfMKgwqAgMyArCj4+IMKgIGRyaXZlcnMvdmhvc3QvYmxrLmPC
-oMKgwqAgfCA1MTAgKysrKysrKysrKysrKysrKysrKysrKysrKysrKysrKysrKysrKysrKysKPj4g
-wqAgMyBmaWxlcyBjaGFuZ2VkLCA1MjYgaW5zZXJ0aW9ucygrKQo+PiDCoCBjcmVhdGUgbW9kZSAx
-MDA2NDQgZHJpdmVycy92aG9zdC9ibGsuYwo+Pgo+IAo+IEhpOgo+IAo+IFRoYW5rcyBmb3IgdGhl
-IHBhdGNoZXMuCj4gCj4gVGhpcyBpcyBub3QgdGhlIGZpcnN0IGF0dGVtcHQgZm9yIGhhdmluZyB2
-aG9zdC1ibGs6Cj4gCj4gLSBCYWRhcmkncyB2ZXJzaW9uOiBodHRwczovL2x3bi5uZXQvQXJ0aWNs
-ZXMvMzc5ODY0Lwo+IAo+IC0gQXNpYXMnIHZlcnNpb246IGh0dHBzOi8vbHduLm5ldC9BcnRpY2xl
-cy81MTk4ODAvCj4gCj4gSXQncyBiZXR0ZXIgdG8gZGVzY3JpYmUgdGhlIGRpZmZlcmVuY2VzIChr
-aW9jYiB2cyBiaW8/IHBlcmZvcm1hbmNlPykuIEUuZyBpZiBteSBtZW1vcnkgaXMgY29ycmVjdCwg
-QXNpYXMgc2FpZCBpdCBkb2Vzbid0IGdpdmUgbXVjaCBpbXByb3ZlbWVudCBjb21wYXJlZCB3aXRo
-IHVzZXJzcGFjZSBxZW11Lgo+IAo+IEFuZCB3aGF0J3MgbW9yZSBpbXBvcnRhbnQsIEkgYmVsaWV2
-ZSB3ZSB0ZW5kIHRvIHVzZSB2aXJ0aW8tc2NzaSBub3dkYXlzLiBTbyB3aGF0J3MgdGhlIGFkdmFu
-dGFnZXMgb2Ygdmhvc3QtYmxrIG92ZXIgdmhvc3Qtc2NzaT8KCgpGb3IgdGhlIHJlY29yZCwgd2Ug
-c3RpbGwgZG8gdXNlIHZpcnRpby1ibGsgYSBsb3QuIEFzIHdlIHNlZSBuZXcgdGhpbmdzIGxpa2Ug
-ZGlzY2FyZC93cml0ZSB6ZXJvIApzdXBwb3J0IGl0IHNlZW1zIHRoYXQgb3RoZXJzIGRvIGFzIHdl
-bGwuCgpfX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fXwpWaXJ0
-dWFsaXphdGlvbiBtYWlsaW5nIGxpc3QKVmlydHVhbGl6YXRpb25AbGlzdHMubGludXgtZm91bmRh
-dGlvbi5vcmcKaHR0cHM6Ly9saXN0cy5saW51eGZvdW5kYXRpb24ub3JnL21haWxtYW4vbGlzdGlu
-Zm8vdmlydHVhbGl6YXRpb24=
+On Mon, 5 Nov 2018 at 11:42, Robert Foss <robert.foss@collabora.com> wrote:
+>
+> When the execbuf call receives an in-fence it will get the dma_fence
+> related to that fence fd and wait on it before submitting the draw call.
+>
+> On the out-fence side we get fence returned by the submitted draw call
+> and attach it to a sync_file and send the sync_file fd to userspace. On
+> error -1 is returned to userspace.
+>
+> Signed-off-by: Gustavo Padovan <gustavo.padovan@collabora.com>
+> Signed-off-by: Robert Foss <robert.foss@collabora.com>
+> Suggested-by: Rob Herring <robh@kernel.org>
+> Reviewed-by: Emil Velikov <emil.velikov@collabora.com>
+> ---
+>
+> Changes since v3:
+>  - Move all in_fence handling to the same VIRTGPU_EXECBUF_FENCE_FD_IN block
+Fwiw my suggestion was to explicitly document whether the IOCTL can
+support, simultaneously, IN and OUT fence.
+Merging the two patches makes things a bit meh. But as before - it's
+for Gerd to make the final call.
+
+-Emil
