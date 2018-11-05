@@ -1,14 +1,14 @@
 From: Christian Borntraeger <borntraeger@de.ibm.com>
 Subject: Re: [PATCH 0/1] vhost: add vhost_blk driver
-Date: Mon, 5 Nov 2018 15:02:30 +0100
-Message-ID: <f7a5924f-b401-7b49-4734-9a21afc8cb3b__2904.99612824551$1541428994$gmane$org@de.ibm.com>
+Date: Mon, 5 Nov 2018 16:48:13 +0100
+Message-ID: <c042686f-db95-514d-8bd8-92b72e4e087a__10917.358697816$1541432782$gmane$org@de.ibm.com>
 References: <20181102182123.29420-1-v.mayatskih@gmail.com>
-	<20181102142446-mutt-send-email-mst@kernel.org>
+	<6a7f1668-bf2d-0caa-2efd-c8fab5f1db24@redhat.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset="utf-8"
+Content-Transfer-Encoding: base64
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <20181102142446-mutt-send-email-mst@kernel.org>
+In-Reply-To: <6a7f1668-bf2d-0caa-2efd-c8fab5f1db24@redhat.com>
 Content-Language: en-US
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
@@ -19,71 +19,55 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: "Michael S. Tsirkin" <mst@redhat.com>, Vitaly Mayatskikh <v.mayatskih@gmail.com>
-Cc: Paolo Bonzini <pbonzini@redhat.com>, linux-kernel@vger.kernel.org, kvm@vger.kernel.org, virtualization@lists.linux-foundation.org
+To: Jason Wang <jasowang@redhat.com>, Vitaly Mayatskikh <v.mayatskih@gmail.com>, "Michael S . Tsirkin" <mst@redhat.com>
+Cc: Paolo Bonzini <pbonzini@redhat.com>, virtualization@lists.linux-foundation.org, linux-kernel@vger.kernel.org, Stefan Hajnoczi <stefanha@redhat.com>, kvm@vger.kernel.org
 List-Id: virtualization@lists.linuxfoundation.org
 
-On 11/02/2018 07:26 PM, Michael S. Tsirkin wrote:
-> On Fri, Nov 02, 2018 at 06:21:22PM +0000, Vitaly Mayatskikh wrote:
->> vhost_blk is a host-side kernel mode accelerator for virtio-blk. The
->> driver allows VM to reach a near bare-metal disk performance. See IOPS
->> numbers below (fio --rw=randread --bs=4k).
->>
->> This implementation uses kiocb interface. It is slightly slower than
->> going directly through bio, but is simpler and also works with disk
->> images placed on a file system.
-
-
-This should also work with other transports like virtio-ccw (instead of virtio-pci).
-Correct?
-
->>
->> # fio num-jobs
->> # A: bare metal over block
->> # B: bare metal over file
->> # C: virtio-blk over block
->> # D: virtio-blk over file
->> # E: vhost-blk bio over block
->> # F: vhost-blk kiocb over block
->> # G: vhost-blk kiocb over file
->> #
->> #  A     B     C    D    E     F     G
->>
->> 1  171k  151k  148k 151k 195k  187k  175k
->> 2  328k  302k  249k 241k 349k  334k  296k
->> 3  479k  437k  179k 174k 501k  464k  404k
->> 4  622k  568k  143k 183k 620k  580k  492k
->> 5  755k  697k  136k 128k 737k  693k  579k
->> 6  887k  808k  131k 120k 830k  782k  640k
->> 7  1004k 926k  126k 131k 926k  863k  693k
->> 8  1099k 1015k 117k 115k 1001k 931k  712k
->> 9  1194k 1119k 115k 111k 1055k 991k  711k
->> 10 1278k 1207k 109k 114k 1130k 1046k 695k
->> 11 1345k 1280k 110k 108k 1119k 1091k 663k
->> 12 1411k 1356k 104k 106k 1201k 1142k 629k
->> 13 1466k 1423k 106k 106k 1260k 1170k 607k
->> 14 1517k 1486k 103k 106k 1296k 1179k 589k
->> 15 1552k 1543k 102k 102k 1322k 1191k 571k
->> 16 1480k 1506k 101k 102k 1346k 1202k 566k
->>
->> Vitaly Mayatskikh (1):
->>   Add vhost_blk driver
-> 
-> 
-> Thanks!
-> Before merging this, I'd like to get some acks from userspace that it's
-> actually going to be used - e.g. QEMU block maintainers.
-> 
->>  drivers/vhost/Kconfig  |  13 ++
->>  drivers/vhost/Makefile |   3 +
->>  drivers/vhost/blk.c    | 510 +++++++++++++++++++++++++++++++++++++++++
->>  3 files changed, 526 insertions(+)
->>  create mode 100644 drivers/vhost/blk.c
->>
->> -- 
->> 2.17.1
-> _______________________________________________
-> Virtualization mailing list
-> Virtualization@lists.linux-foundation.org
-> https://lists.linuxfoundation.org/mailman/listinfo/virtualization
-> 
+CgpPbiAxMS8wNS8yMDE4IDA0OjAwIEFNLCBKYXNvbiBXYW5nIHdyb3RlOgo+IAo+IE9uIDIwMTgv
+MTEvMyDkuIrljYgyOjIxLCBWaXRhbHkgTWF5YXRza2lraCB3cm90ZToKPj4gdmhvc3RfYmxrIGlz
+IGEgaG9zdC1zaWRlIGtlcm5lbCBtb2RlIGFjY2VsZXJhdG9yIGZvciB2aXJ0aW8tYmxrLiBUaGUK
+Pj4gZHJpdmVyIGFsbG93cyBWTSB0byByZWFjaCBhIG5lYXIgYmFyZS1tZXRhbCBkaXNrIHBlcmZv
+cm1hbmNlLiBTZWUgSU9QUwo+PiBudW1iZXJzIGJlbG93IChmaW8gLS1ydz1yYW5kcmVhZCAtLWJz
+PTRrKS4KPj4KPj4gVGhpcyBpbXBsZW1lbnRhdGlvbiB1c2VzIGtpb2NiIGludGVyZmFjZS4gSXQg
+aXMgc2xpZ2h0bHkgc2xvd2VyIHRoYW4KPj4gZ29pbmcgZGlyZWN0bHkgdGhyb3VnaCBiaW8sIGJ1
+dCBpcyBzaW1wbGVyIGFuZCBhbHNvIHdvcmtzIHdpdGggZGlzawo+PiBpbWFnZXMgcGxhY2VkIG9u
+IGEgZmlsZSBzeXN0ZW0uCj4+Cj4+ICMgZmlvIG51bS1qb2JzCj4+ICMgQTogYmFyZSBtZXRhbCBv
+dmVyIGJsb2NrCj4+ICMgQjogYmFyZSBtZXRhbCBvdmVyIGZpbGUKPj4gIyBDOiB2aXJ0aW8tYmxr
+IG92ZXIgYmxvY2sKPj4gIyBEOiB2aXJ0aW8tYmxrIG92ZXIgZmlsZQo+PiAjIEU6IHZob3N0LWJs
+ayBiaW8gb3ZlciBibG9jawo+PiAjIEY6IHZob3N0LWJsayBraW9jYiBvdmVyIGJsb2NrCj4+ICMg
+Rzogdmhvc3QtYmxrIGtpb2NiIG92ZXIgZmlsZQo+PiAjCj4+ICPCoCBBwqDCoMKgwqAgQsKgwqDC
+oMKgIEPCoMKgwqAgRMKgwqDCoCBFwqDCoMKgwqAgRsKgwqDCoMKgIEcKPj4KPj4gMcKgIDE3MWvC
+oCAxNTFrwqAgMTQ4ayAxNTFrIDE5NWvCoCAxODdrwqAgMTc1awo+PiAywqAgMzI4a8KgIDMwMmvC
+oCAyNDlrIDI0MWsgMzQ5a8KgIDMzNGvCoCAyOTZrCj4+IDPCoCA0NzlrwqAgNDM3a8KgIDE3OWsg
+MTc0ayA1MDFrwqAgNDY0a8KgIDQwNGsKPj4gNMKgIDYyMmvCoCA1NjhrwqAgMTQzayAxODNrIDYy
+MGvCoCA1ODBrwqAgNDkyawo+PiA1wqAgNzU1a8KgIDY5N2vCoCAxMzZrIDEyOGsgNzM3a8KgIDY5
+M2vCoCA1NzlrCj4+IDbCoCA4ODdrwqAgODA4a8KgIDEzMWsgMTIwayA4MzBrwqAgNzgya8KgIDY0
+MGsKPj4gN8KgIDEwMDRrIDkyNmvCoCAxMjZrIDEzMWsgOTI2a8KgIDg2M2vCoCA2OTNrCj4+IDjC
+oCAxMDk5ayAxMDE1ayAxMTdrIDExNWsgMTAwMWsgOTMxa8KgIDcxMmsKPj4gOcKgIDExOTRrIDEx
+MTlrIDExNWsgMTExayAxMDU1ayA5OTFrwqAgNzExawo+PiAxMCAxMjc4ayAxMjA3ayAxMDlrIDEx
+NGsgMTEzMGsgMTA0NmsgNjk1awo+PiAxMSAxMzQ1ayAxMjgwayAxMTBrIDEwOGsgMTExOWsgMTA5
+MWsgNjYzawo+PiAxMiAxNDExayAxMzU2ayAxMDRrIDEwNmsgMTIwMWsgMTE0MmsgNjI5awo+PiAx
+MyAxNDY2ayAxNDIzayAxMDZrIDEwNmsgMTI2MGsgMTE3MGsgNjA3awo+PiAxNCAxNTE3ayAxNDg2
+ayAxMDNrIDEwNmsgMTI5NmsgMTE3OWsgNTg5awo+PiAxNSAxNTUyayAxNTQzayAxMDJrIDEwMmsg
+MTMyMmsgMTE5MWsgNTcxawo+PiAxNiAxNDgwayAxNTA2ayAxMDFrIDEwMmsgMTM0NmsgMTIwMmsg
+NTY2awo+Pgo+PiBWaXRhbHkgTWF5YXRza2lraCAoMSk6Cj4+IMKgwqAgQWRkIHZob3N0X2JsayBk
+cml2ZXIKPj4KPj4gwqAgZHJpdmVycy92aG9zdC9LY29uZmlnwqAgfMKgIDEzICsrCj4+IMKgIGRy
+aXZlcnMvdmhvc3QvTWFrZWZpbGUgfMKgwqAgMyArCj4+IMKgIGRyaXZlcnMvdmhvc3QvYmxrLmPC
+oMKgwqAgfCA1MTAgKysrKysrKysrKysrKysrKysrKysrKysrKysrKysrKysrKysrKysrKysKPj4g
+wqAgMyBmaWxlcyBjaGFuZ2VkLCA1MjYgaW5zZXJ0aW9ucygrKQo+PiDCoCBjcmVhdGUgbW9kZSAx
+MDA2NDQgZHJpdmVycy92aG9zdC9ibGsuYwo+Pgo+IAo+IEhpOgo+IAo+IFRoYW5rcyBmb3IgdGhl
+IHBhdGNoZXMuCj4gCj4gVGhpcyBpcyBub3QgdGhlIGZpcnN0IGF0dGVtcHQgZm9yIGhhdmluZyB2
+aG9zdC1ibGs6Cj4gCj4gLSBCYWRhcmkncyB2ZXJzaW9uOiBodHRwczovL2x3bi5uZXQvQXJ0aWNs
+ZXMvMzc5ODY0Lwo+IAo+IC0gQXNpYXMnIHZlcnNpb246IGh0dHBzOi8vbHduLm5ldC9BcnRpY2xl
+cy81MTk4ODAvCj4gCj4gSXQncyBiZXR0ZXIgdG8gZGVzY3JpYmUgdGhlIGRpZmZlcmVuY2VzIChr
+aW9jYiB2cyBiaW8/IHBlcmZvcm1hbmNlPykuIEUuZyBpZiBteSBtZW1vcnkgaXMgY29ycmVjdCwg
+QXNpYXMgc2FpZCBpdCBkb2Vzbid0IGdpdmUgbXVjaCBpbXByb3ZlbWVudCBjb21wYXJlZCB3aXRo
+IHVzZXJzcGFjZSBxZW11Lgo+IAo+IEFuZCB3aGF0J3MgbW9yZSBpbXBvcnRhbnQsIEkgYmVsaWV2
+ZSB3ZSB0ZW5kIHRvIHVzZSB2aXJ0aW8tc2NzaSBub3dkYXlzLiBTbyB3aGF0J3MgdGhlIGFkdmFu
+dGFnZXMgb2Ygdmhvc3QtYmxrIG92ZXIgdmhvc3Qtc2NzaT8KCgpGb3IgdGhlIHJlY29yZCwgd2Ug
+c3RpbGwgZG8gdXNlIHZpcnRpby1ibGsgYSBsb3QuIEFzIHdlIHNlZSBuZXcgdGhpbmdzIGxpa2Ug
+ZGlzY2FyZC93cml0ZSB6ZXJvIApzdXBwb3J0IGl0IHNlZW1zIHRoYXQgb3RoZXJzIGRvIGFzIHdl
+bGwuCgpfX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fXwpWaXJ0
+dWFsaXphdGlvbiBtYWlsaW5nIGxpc3QKVmlydHVhbGl6YXRpb25AbGlzdHMubGludXgtZm91bmRh
+dGlvbi5vcmcKaHR0cHM6Ly9saXN0cy5saW51eGZvdW5kYXRpb24ub3JnL21haWxtYW4vbGlzdGlu
+Zm8vdmlydHVhbGl6YXRpb24=
