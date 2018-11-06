@@ -1,15 +1,14 @@
-From: Emil Velikov <emil.l.velikov@gmail.com>
-Subject: Re: [PATCH v4 3/4] drm/virtio: add in/out fence support for explicit
-	synchronization
-Date: Mon, 5 Nov 2018 17:25:05 +0000
-Message-ID: <CACvgo53vCBbgmu4OV4e0WeOYQSXNk=3qwyRBtPx+XAcCSZO8aQ__40126.9838483588$1541438670$gmane$org@mail.gmail.com>
-References: <20181105114152.2088-1-robert.foss@collabora.com>
-	<20181105114152.2088-4-robert.foss@collabora.com>
+From: jiangyiwen <jiangyiwen@huawei.com>
+Subject: Re: [PATCH 0/5] VSOCK: support mergeable rx buffer in vhost-vsock
+Date: Tue, 6 Nov 2018 10:17:45 +0800
+Message-ID: <5BE0F9C9.2080003__21734.001444611$1541470550$gmane$org@huawei.com>
+References: <5BDFF49C.3040603@huawei.com>
+	<b9d535f8-ddc3-a4bc-21c9-ca21e808f0d1@redhat.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset="utf-8"
+Content-Transfer-Encoding: base64
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <20181105114152.2088-4-robert.foss@collabora.com>
+In-Reply-To: <b9d535f8-ddc3-a4bc-21c9-ca21e808f0d1@redhat.com>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -19,30 +18,58 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Robert Foss <robert.foss@collabora.com>
-Cc: Rob Herring <robh@kernel.org>, David Airlie <airlied@linux.ie>, "Linux-Kernel@Vger. Kernel. Org" <linux-kernel@vger.kernel.org>, ML dri-devel <dri-devel@lists.freedesktop.org>, "open list:VIRTIO GPU DRIVER" <virtualization@lists.linux-foundation.org>, Gustavo Padovan <gustavo.padovan@collabora.com>, Emil Velikov <emil.velikov@collabora.com>
+To: Jason Wang <jasowang@redhat.com>, stefanha@redhat.com
+Cc: netdev@vger.kernel.org, kvm@vger.kernel.org, virtualization@lists.linux-foundation.org
 List-Id: virtualization@lists.linuxfoundation.org
 
-On Mon, 5 Nov 2018 at 11:42, Robert Foss <robert.foss@collabora.com> wrote:
->
-> When the execbuf call receives an in-fence it will get the dma_fence
-> related to that fence fd and wait on it before submitting the draw call.
->
-> On the out-fence side we get fence returned by the submitted draw call
-> and attach it to a sync_file and send the sync_file fd to userspace. On
-> error -1 is returned to userspace.
->
-> Signed-off-by: Gustavo Padovan <gustavo.padovan@collabora.com>
-> Signed-off-by: Robert Foss <robert.foss@collabora.com>
-> Suggested-by: Rob Herring <robh@kernel.org>
-> Reviewed-by: Emil Velikov <emil.velikov@collabora.com>
-> ---
->
-> Changes since v3:
->  - Move all in_fence handling to the same VIRTGPU_EXECBUF_FENCE_FD_IN block
-Fwiw my suggestion was to explicitly document whether the IOCTL can
-support, simultaneously, IN and OUT fence.
-Merging the two patches makes things a bit meh. But as before - it's
-for Gerd to make the final call.
-
--Emil
+T24gMjAxOC8xMS81IDE3OjIxLCBKYXNvbiBXYW5nIHdyb3RlOgo+IAo+IE9uIDIwMTgvMTEvNSDk
+uIvljYgzOjQzLCBqaWFuZ3lpd2VuIHdyb3RlOgo+PiBOb3cgdnNvY2sgb25seSBzdXBwb3J0IHNl
+bmQvcmVjZWl2ZSBzbWFsbCBwYWNrZXQsIGl0IGNhbid0IGFjaGlldmUKPj4gaGlnaCBwZXJmb3Jt
+YW5jZS4gQXMgcHJldmlvdXMgZGlzY3Vzc2VkIHdpdGggSmFzb24gV2FuZywgSSByZXZpc2l0IHRo
+ZQo+PiBpZGVhIG9mIHZob3N0LW5ldCBhYm91dCBtZXJnZWFibGUgcnggYnVmZmVyIGFuZCBpbXBs
+ZW1lbnQgdGhlIG1lcmdlYWJsZQo+PiByeCBidWZmZXIgaW4gdmhvc3QtdnNvY2ssIGl0IGNhbiBh
+bGxvdyBiaWcgcGFja2V0IHRvIGJlIHNjYXR0ZXJlZCBpbgo+PiBpbnRvIGRpZmZlcmVudCBidWZm
+ZXJzIGFuZCBpbXByb3ZlIHBlcmZvcm1hbmNlIG9idmlvdXNseS4KPj4KPj4gSSB3cml0ZSBhIHRv
+b2wgdG8gdGVzdCB0aGUgdmhvc3QtdnNvY2sgcGVyZm9ybWFuY2UsIG1haW5seSBzZW5kIGJpZwo+
+PiBwYWNrZXQoNjRLKSBpbmNsdWRlZCBndWVzdC0+SG9zdCBhbmQgSG9zdC0+R3Vlc3QuIFRoZSBy
+ZXN1bHQgYXMKPj4gZm9sbG93czoKPj4KPj4gQmVmb3JlIHBlcmZvcm1hbmNlOgo+PiAgICAgICAg
+ICAgICAgICBTaW5nbGUgc29ja2V0ICAgICAgICAgICAgTXVsdGlwbGUgc29ja2V0cyhNYXggQmFu
+ZHdpZHRoKQo+PiBHdWVzdC0+SG9zdCAgIH40MDBNQi9zICAgICAgICAgICAgICAgICB+NDgwTUIv
+cwo+PiBIb3N0LT5HdWVzdCAgIH4xNDUwTUIvcyAgICAgICAgICAgICAgICB+MTYwME1CL3MKPj4K
+Pj4gQWZ0ZXIgcGVyZm9ybWFuY2U6Cj4+ICAgICAgICAgICAgICAgIFNpbmdsZSBzb2NrZXQgICAg
+ICAgICAgICBNdWx0aXBsZSBzb2NrZXRzKE1heCBCYW5kd2lkdGgpCj4+IEd1ZXN0LT5Ib3N0ICAg
+fjE3MDBNQi9zICAgICAgICAgICAgICAgIH4yOTAwTUIvcwo+PiBIb3N0LT5HdWVzdCAgIH4xNzAw
+TUIvcyAgICAgICAgICAgICAgICB+MjkwME1CL3MKPj4KPj4gIEZyb20gdGhlIHRlc3QgcmVzdWx0
+cywgdGhlIHBlcmZvcm1hbmNlIGlzIGltcHJvdmVkIG9idmlvdXNseSwgYW5kIGd1ZXN0Cj4+IG1l
+bW9yeSB3aWxsIG5vdCBiZSB3YXN0ZWQuCj4gCj4gCj4gSGk6Cj4gCj4gVGhhbmtzIGZvciB0aGUg
+cGF0Y2hlcyBhbmQgdGhlIG51bWJlcnMgYXJlIHJlYWxseSBpbXByZXNzaXZlLgo+IAo+IEJ1dCBp
+bnN0ZWFkIG9mIGR1cGxpY2F0aW5nIGNvZGVzIGJldHdlZW4gc29jayBhbmQgbmV0LiBJIHdhcyBj
+b25zaWRlcmluZyB0byB1c2UgdmlydGlvLW5ldCBhcyBhIHRyYW5zcG9ydCBvZiB2c29jay4gVGhl
+biB3ZSBtYXkgaGF2ZSBhbGwgZXhpc3RlZCBmZWF0dXJlcyBsaWtlcyBiYXRjaGluZywgbWVyZ2Vh
+YmxlIHJ4IGJ1ZmZlcnMgYW5kIG11bHRpcXVldWUuIFdhbnQgdG8gY29uc2lkZXIgdGhpcyBpZGVh
+PyBUaG91Z2h0cz8KPiAKPiAKCkhpIEphc29uLAoKSSBhbSBub3QgdmVyeSBmYW1pbGlhciB3aXRo
+IHZpcnRpby1uZXQsIHNvIEkgYW0gYWZyYWlkIEkgY2FuJ3QgZ2l2ZSB0b28KbXVjaCBlZmZlY3Rp
+dmUgYWR2aWNlLiBUaGVuIEkgaGF2ZSBzZXZlcmFsIHByb2JsZW1zOgoKMS4gSWYgdXNlIHZpcnRp
+by1uZXQgYXMgYSB0cmFuc3BvcnQsIGd1ZXN0IHNob3VsZCBzZWUgYSB2aXJ0aW8tbmV0CmRldmlj
+ZSBpbnN0ZWFkIG9mIHZpcnRpby12c29jayBkZXZpY2UsIHJpZ2h0PyBJcyB2c29jayBvbmx5IGFz
+IGEKdHJhbnNwb3J0IGJldHdlZW4gc29ja2V0IGFuZCBuZXRfZGV2aWNlPyBVc2VyIHNob3VsZCBz
+dGlsbCB1c2UKQUZfVlNPQ0sgdHlwZSB0byBjcmVhdGUgc29ja2V0LCByaWdodD8KCjIuIEkgd2Fu
+dCB0byBrbm93IGlmIHRoaXMgaWRlYSBoYXMgYWxyZWFkeSBzdGFydGVkLCBhbmQgaG93IGlzCnRo
+ZSBjdXJyZW50IHByb2dyZXNzPwoKMy4gQW5kIHdoYXQgaXMgc3RlZmFuJ3MgaWRlYT8KClRoYW5r
+cywKWWl3ZW4uCgo+Pgo+PiAtLS0KPj4KPj4gWWl3ZW4gSmlhbmcgKDUpOgo+PiAgICBWU09DSzog
+c3VwcG9ydCBmaWxsIG1lcmdlYWJsZSByeCBidWZmZXIgaW4gZ3Vlc3QKPj4gICAgVlNPQ0s6IHN1
+cHBvcnQgZmlsbCBkYXRhIHRvIG1lcmdlYWJsZSByeCBidWZmZXIgaW4gaG9zdAo+PiAgICBWU09D
+Szogc3VwcG9ydCByZWNlaXZlIG1lcmdlYWJsZSByeCBidWZmZXIgaW4gZ3Vlc3QKPj4gICAgVlNP
+Q0s6IG1vZGlmeSBkZWZhdWx0IHJ4IGJ1ZiBzaXplIHRvIGltcHJvdmUgcGVyZm9ybWFuY2UKPj4g
+ICAgVlNPQ0s6IGJhdGNoIHNlbmRpbmcgcnggYnVmZmVyIHRvIGluY3JlYXNlIGJhbmR3aWR0aAo+
+Pgo+PiAgIGRyaXZlcnMvdmhvc3QvdnNvY2suYyAgICAgICAgICAgICAgICAgICB8IDEzNSArKysr
+KysrKysrKysrKysrKysrKysrKy0tLS0tLQo+PiAgIGluY2x1ZGUvbGludXgvdmlydGlvX3Zzb2Nr
+LmggICAgICAgICAgICB8ICAxNSArKystCj4+ICAgaW5jbHVkZS91YXBpL2xpbnV4L3ZpcnRpb192
+c29jay5oICAgICAgIHwgICA1ICsrCj4+ICAgbmV0L3Ztd192c29jay92aXJ0aW9fdHJhbnNwb3J0
+LmMgICAgICAgIHwgMTQ3ICsrKysrKysrKysrKysrKysrKysrKysrKysrLS0tLS0tCj4+ICAgbmV0
+L3Ztd192c29jay92aXJ0aW9fdHJhbnNwb3J0X2NvbW1vbi5jIHwgIDU5ICsrKysrKysrKysrLS0K
+Pj4gICA1IGZpbGVzIGNoYW5nZWQsIDMwMCBpbnNlcnRpb25zKCspLCA2MSBkZWxldGlvbnMoLSkK
+Pj4KPiAKPiAuCj4gCgoKX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19f
+X19fX18KVmlydHVhbGl6YXRpb24gbWFpbGluZyBsaXN0ClZpcnR1YWxpemF0aW9uQGxpc3RzLmxp
+bnV4LWZvdW5kYXRpb24ub3JnCmh0dHBzOi8vbGlzdHMubGludXhmb3VuZGF0aW9uLm9yZy9tYWls
+bWFuL2xpc3RpbmZvL3ZpcnR1YWxpemF0aW9u
