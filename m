@@ -1,15 +1,18 @@
-From: Dominique Martinet <asmadeus@codewreck.org>
-Subject: Re: [PATCH v15 23/26] sched: early boot clock
-Date: Tue, 6 Nov 2018 06:42:12 +0100
-Message-ID: <20181106054212.GA31768__28798.8283359029$1541483184$gmane$org@nautica>
-References: <20180719205545.16512-1-pasha.tatashin@oracle.com>
-	<20180719205545.16512-24-pasha.tatashin@oracle.com>
+From: jiangyiwen <jiangyiwen@huawei.com>
+Subject: Re: [PATCH 0/5] VSOCK: support mergeable rx buffer in vhost-vsock
+Date: Tue, 6 Nov 2018 13:53:54 +0800
+Message-ID: <5BE12C72.6000204@huawei.com>
+References: <5BDFF49C.3040603@huawei.com>
+	<b9d535f8-ddc3-a4bc-21c9-ca21e808f0d1@redhat.com>
+	<5BE0F9C9.2080003@huawei.com>
+	<b4ce06c8-1c4b-724f-52e8-cb8d7b23fd27@redhat.com>
+	<5BE107B5.2050900@huawei.com>
+	<229559d5-1787-09b1-6c26-57b535f20006@redhat.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset="utf-8"
+Content-Transfer-Encoding: base64
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-Content-Disposition: inline
-In-Reply-To: <20180719205545.16512-24-pasha.tatashin@oracle.com>
+In-Reply-To: <229559d5-1787-09b1-6c26-57b535f20006@redhat.com>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -19,131 +22,81 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Pavel Tatashin <pasha.tatashin@oracle.com>
-Cc: gnomes@lxorguk.ukuu.org.uk, feng.tang@intel.com, kvm@vger.kernel.org, peterz@infradead.org, heiko.carstens@de.ibm.com, qemu-devel@nongnu.org, virtualization@lists.linux-foundation.org, steven.sistare@oracle.com, hpa@zytor.com, boris.ostrovsky@oracle.com, prarit@redhat.com, linux-s390@vger.kernel.org, x86@kernel.org, linux@armlinux.org.uk, daniel.m.jordan@oracle.com, mingo@redhat.com, pmladek@suse.com, john.stultz@linaro.org, tglx@linutronix.de, jgross@suse.com, douly.fnst@cn.fujitsu.com, sboyd@codeaurora.org, linux-kernel@vger.kernel.org, schwidefsky@de.ibm.com, pbonzini@redhat.com
+To: Jason Wang <jasowang@redhat.com>, stefanha@redhat.com
+Cc: netdev@vger.kernel.org, kvm@vger.kernel.org, virtualization@lists.linux-foundation.org
 List-Id: virtualization@lists.linuxfoundation.org
 
-(added various kvm/virtualization lists in Cc as well as qemu as I don't
-know who's "wrong" here)
-
-Pavel Tatashin wrote on Thu, Jul 19, 2018:
-> Allow sched_clock() to be used before schec_clock_init() is called.
-> This provides with a way to get early boot timestamps on machines with
-> unstable clocks.
-
-This isn't something I understand, but bisect tells me this patch
-(landed as 857baa87b64 ("sched/clock: Enable sched clock early")) makes
-a VM running with kvmclock take a step in uptime/printk timer early in
-boot sequence as illustrated below. The step seems to be related to the
-amount of time the host was suspended while qemu was running before the
-reboot.
-
-$ dmesg
-...
-[    0.000000] SMBIOS 2.8 present.
-[    0.000000] DMI: QEMU Standard PC (i440FX + PIIX, 1996), BIOS ?-20180724_192412-buildhw-07.phx2.fedoraproject.org-1.fc29 04/01/2014
-[    0.000000] Hypervisor detected: KVM
-[    0.000000] kvm-clock: Using msrs 4b564d01 and 4b564d00
-[283120.529821] kvm-clock: cpu 0, msr 321a8001, primary cpu clock
-[283120.529822] clocksource: kvm-clock: mask: 0xffffffffffffffff max_cycles: 0x1cd42e4dffb, max_idle_ns: 881590591483 ns
-[283120.529824] tsc: Detected 2592.000 MHz processor
-...
-
-(The VM is x86_64 on x86_64, I can provide my .config on request but
-don't think it's related)
-
-
-It's rather annoying for me as I often reboot VMs and rely on the
-'uptime' command to check if I did just reboot or not as I have the
-attention span of a goldfish; I'd rather not have to find something else
-to check if I did just reboot or not.
-
-Note that if the qemu process is restarted, there is no offset anymore.
-
-I unfortunately just did that so cannot say with confidence (putting my
-laptop to sleep for 30s only led to a 2s offset and I do not want to
-wait longer right now), but it looks like the clock is still mostly
-correct after reboot after disabling my VM's ntp client. Will infirm
-that tomorrow if I was wrong.
-
-
-Happy to try to help fixing this in any way, as written above the quote
-I'm not even actually sure who is wrong here.
-
-Thanks!
-
-
-
-(As a side, mostly unrelated note, insert swearing here about cf7a63ef4
-not compiling earlier in this serie; some variable declaration got
-removed before their use. Was fixed in the next patch but I didn't
-notice the kernel didn't fully rebuild and wasted time in my bisect
-heading the wrong way...)
-
-> Signed-off-by: Pavel Tatashin <pasha.tatashin@oracle.com>
-> ---
->  init/main.c          |  2 +-
->  kernel/sched/clock.c | 20 +++++++++++++++++++-
->  2 files changed, 20 insertions(+), 2 deletions(-)
-> 
-> diff --git a/init/main.c b/init/main.c
-> index 162d931c9511..ff0a24170b95 100644
-> --- a/init/main.c
-> +++ b/init/main.c
-> @@ -642,7 +642,6 @@ asmlinkage __visible void __init start_kernel(void)
->  	softirq_init();
->  	timekeeping_init();
->  	time_init();
-> -	sched_clock_init();
->  	printk_safe_init();
->  	perf_event_init();
->  	profile_init();
-> @@ -697,6 +696,7 @@ asmlinkage __visible void __init start_kernel(void)
->  	acpi_early_init();
->  	if (late_time_init)
->  		late_time_init();
-> +	sched_clock_init();
->  	calibrate_delay();
->  	pid_idr_init();
->  	anon_vma_init();
-> diff --git a/kernel/sched/clock.c b/kernel/sched/clock.c
-> index 0e9dbb2d9aea..422cd63f8f17 100644
-> --- a/kernel/sched/clock.c
-> +++ b/kernel/sched/clock.c
-> @@ -202,7 +202,25 @@ static void __sched_clock_gtod_offset(void)
->  
->  void __init sched_clock_init(void)
->  {
-> +	unsigned long flags;
-> +
-> +	/*
-> +	 * Set __gtod_offset such that once we mark sched_clock_running,
-> +	 * sched_clock_tick() continues where sched_clock() left off.
-> +	 *
-> +	 * Even if TSC is buggered, we're still UP at this point so it
-> +	 * can't really be out of sync.
-> +	 */
-> +	local_irq_save(flags);
-> +	__sched_clock_gtod_offset();
-> +	local_irq_restore(flags);
-> +
->  	sched_clock_running = 1;
-> +
-> +	/* Now that sched_clock_running is set adjust scd */
-> +	local_irq_save(flags);
-> +	sched_clock_tick();
-> +	local_irq_restore(flags);
->  }
->  /*
->   * We run this as late_initcall() such that it runs after all built-in drivers,
-> @@ -356,7 +374,7 @@ u64 sched_clock_cpu(int cpu)
->  		return sched_clock() + __sched_clock_offset;
->  
->  	if (unlikely(!sched_clock_running))
-> -		return 0ull;
-> +		return sched_clock();
->  
->  	preempt_disable_notrace();
->  	scd = cpu_sdc(cpu);
--- 
-Dominique Martinet | Asmadeus
+T24gMjAxOC8xMS82IDExOjMyLCBKYXNvbiBXYW5nIHdyb3RlOgo+IAo+IE9uIDIwMTgvMTEvNiDk
+uIrljYgxMToxNywgamlhbmd5aXdlbiB3cm90ZToKPj4gT24gMjAxOC8xMS82IDEwOjQxLCBKYXNv
+biBXYW5nIHdyb3RlOgo+Pj4gT24gMjAxOC8xMS82IOS4iuWNiDEwOjE3LCBqaWFuZ3lpd2VuIHdy
+b3RlOgo+Pj4+IE9uIDIwMTgvMTEvNSAxNzoyMSwgSmFzb24gV2FuZyB3cm90ZToKPj4+Pj4gT24g
+MjAxOC8xMS81IOS4i+WNiDM6NDMsIGppYW5neWl3ZW4gd3JvdGU6Cj4+Pj4+PiBOb3cgdnNvY2sg
+b25seSBzdXBwb3J0IHNlbmQvcmVjZWl2ZSBzbWFsbCBwYWNrZXQsIGl0IGNhbid0IGFjaGlldmUK
+Pj4+Pj4+IGhpZ2ggcGVyZm9ybWFuY2UuIEFzIHByZXZpb3VzIGRpc2N1c3NlZCB3aXRoIEphc29u
+IFdhbmcsIEkgcmV2aXNpdCB0aGUKPj4+Pj4+IGlkZWEgb2Ygdmhvc3QtbmV0IGFib3V0IG1lcmdl
+YWJsZSByeCBidWZmZXIgYW5kIGltcGxlbWVudCB0aGUgbWVyZ2VhYmxlCj4+Pj4+PiByeCBidWZm
+ZXIgaW4gdmhvc3QtdnNvY2ssIGl0IGNhbiBhbGxvdyBiaWcgcGFja2V0IHRvIGJlIHNjYXR0ZXJl
+ZCBpbgo+Pj4+Pj4gaW50byBkaWZmZXJlbnQgYnVmZmVycyBhbmQgaW1wcm92ZSBwZXJmb3JtYW5j
+ZSBvYnZpb3VzbHkuCj4+Pj4+Pgo+Pj4+Pj4gSSB3cml0ZSBhIHRvb2wgdG8gdGVzdCB0aGUgdmhv
+c3QtdnNvY2sgcGVyZm9ybWFuY2UsIG1haW5seSBzZW5kIGJpZwo+Pj4+Pj4gcGFja2V0KDY0Sykg
+aW5jbHVkZWQgZ3Vlc3QtPkhvc3QgYW5kIEhvc3QtPkd1ZXN0LiBUaGUgcmVzdWx0IGFzCj4+Pj4+
+PiBmb2xsb3dzOgo+Pj4+Pj4KPj4+Pj4+IEJlZm9yZSBwZXJmb3JtYW5jZToKPj4+Pj4+ICAgICAg
+ICAgICAgICAgICAgU2luZ2xlIHNvY2tldCAgICAgICAgICAgIE11bHRpcGxlIHNvY2tldHMoTWF4
+IEJhbmR3aWR0aCkKPj4+Pj4+IEd1ZXN0LT5Ib3N0ICAgfjQwME1CL3MgICAgICAgICAgICAgICAg
+IH40ODBNQi9zCj4+Pj4+PiBIb3N0LT5HdWVzdCAgIH4xNDUwTUIvcyAgICAgICAgICAgICAgICB+
+MTYwME1CL3MKPj4+Pj4+Cj4+Pj4+PiBBZnRlciBwZXJmb3JtYW5jZToKPj4+Pj4+ICAgICAgICAg
+ICAgICAgICAgU2luZ2xlIHNvY2tldCAgICAgICAgICAgIE11bHRpcGxlIHNvY2tldHMoTWF4IEJh
+bmR3aWR0aCkKPj4+Pj4+IEd1ZXN0LT5Ib3N0ICAgfjE3MDBNQi9zICAgICAgICAgICAgICAgIH4y
+OTAwTUIvcwo+Pj4+Pj4gSG9zdC0+R3Vlc3QgICB+MTcwME1CL3MgICAgICAgICAgICAgICAgfjI5
+MDBNQi9zCj4+Pj4+Pgo+Pj4+Pj4gICAgRnJvbSB0aGUgdGVzdCByZXN1bHRzLCB0aGUgcGVyZm9y
+bWFuY2UgaXMgaW1wcm92ZWQgb2J2aW91c2x5LCBhbmQgZ3Vlc3QKPj4+Pj4+IG1lbW9yeSB3aWxs
+IG5vdCBiZSB3YXN0ZWQuCj4+Pj4+IEhpOgo+Pj4+Pgo+Pj4+PiBUaGFua3MgZm9yIHRoZSBwYXRj
+aGVzIGFuZCB0aGUgbnVtYmVycyBhcmUgcmVhbGx5IGltcHJlc3NpdmUuCj4+Pj4+Cj4+Pj4+IEJ1
+dCBpbnN0ZWFkIG9mIGR1cGxpY2F0aW5nIGNvZGVzIGJldHdlZW4gc29jayBhbmQgbmV0LiBJIHdh
+cyBjb25zaWRlcmluZyB0byB1c2UgdmlydGlvLW5ldCBhcyBhIHRyYW5zcG9ydCBvZiB2c29jay4g
+VGhlbiB3ZSBtYXkgaGF2ZSBhbGwgZXhpc3RlZCBmZWF0dXJlcyBsaWtlcyBiYXRjaGluZywgbWVy
+Z2VhYmxlIHJ4IGJ1ZmZlcnMgYW5kIG11bHRpcXVldWUuIFdhbnQgdG8gY29uc2lkZXIgdGhpcyBp
+ZGVhPyBUaG91Z2h0cz8KPj4+Pj4KPj4+Pj4KPj4+PiBIaSBKYXNvbiwKPj4+Pgo+Pj4+IEkgYW0g
+bm90IHZlcnkgZmFtaWxpYXIgd2l0aCB2aXJ0aW8tbmV0LCBzbyBJIGFtIGFmcmFpZCBJIGNhbid0
+IGdpdmUgdG9vCj4+Pj4gbXVjaCBlZmZlY3RpdmUgYWR2aWNlLiBUaGVuIEkgaGF2ZSBzZXZlcmFs
+IHByb2JsZW1zOgo+Pj4+Cj4+Pj4gMS4gSWYgdXNlIHZpcnRpby1uZXQgYXMgYSB0cmFuc3BvcnQs
+IGd1ZXN0IHNob3VsZCBzZWUgYSB2aXJ0aW8tbmV0Cj4+Pj4gZGV2aWNlIGluc3RlYWQgb2Ygdmly
+dGlvLXZzb2NrIGRldmljZSwgcmlnaHQ/IElzIHZzb2NrIG9ubHkgYXMgYQo+Pj4+IHRyYW5zcG9y
+dCBiZXR3ZWVuIHNvY2tldCBhbmQgbmV0X2RldmljZT8gVXNlciBzaG91bGQgc3RpbGwgdXNlCj4+
+Pj4gQUZfVlNPQ0sgdHlwZSB0byBjcmVhdGUgc29ja2V0LCByaWdodD8KPj4+Cj4+PiBXZWxsLCB0
+aGVyZSdyZSBtYW55IGNob2ljZXMuIFdoYXQgeW91IG5lZWQgaXMganVzdCB0byBrZWVwIHRoZSBz
+b2NrZXQgQVBJIGFuZCBoaWRlIHRoZSBpbXBsZW1lbnRhdGlvbi4gRm9yIGV4YW1wbGUsIHlvdSBj
+YW4ga2VlcCB0aGUgdm9zY2sgZGV2aWNlIGluIGd1ZXN0IGFuZCBzd2l0Y2ggdG8gdXNlIHZob3N0
+LW5ldCBpbiBob3N0LiBXZSBwcm9iYWJseSBuZWVkIGEgbmV3IGZlYXR1cmUgYml0IG9yIGhlYWRl
+ciB0byBsZXQgdmhvc3Qga25vdyB3ZSBhcmUgcGFzc2luZyB2c29jayBwYWNrZXQuIEFuZCB2aG9z
+dC1uZXQgY291bGQgZm9yd2FyZCB0aGUgcGFja2V0IHRvIHZzb2NrIGNvcmUgb24gaG9zdC4KPj4+
+Cj4+Pgo+Pj4+IDIuIEkgd2FudCB0byBrbm93IGlmIHRoaXMgaWRlYSBoYXMgYWxyZWFkeSBzdGFy
+dGVkLCBhbmQgaG93IGlzCj4+Pj4gdGhlIGN1cnJlbnQgcHJvZ3Jlc3M/Cj4+Pgo+Pj4gTm90IHll
+dCBzdGFydGVkLiAgSnVzdCB3YW50IHRvIGxpc3RlbiBmcm9tIHRoZSBjb21tdW5pdHkuIElmIHRo
+aXMgc291bmRzIGdvb2QsIGRvIHlvdSBoYXZlIGludGVyZXN0IGluIGltcGxlbWVudGluZyB0aGlz
+Pwo+Pj4KPj4+Cj4+Pj4gMy4gQW5kIHdoYXQgaXMgc3RlZmFuJ3MgaWRlYT8KPj4+Cj4+PiBUYWxr
+IHdpdGggU3RlZmFuIGEgbGl0dGxlIG9uIHRoaXMgZHVyaW5nIEtWTSBGb3J1bS4gSSB0aGluayBo
+ZSB0ZW5kcyB0byBhZ3JlZSBvbiB0aGlzIGlkZWEuIEFueXdheSwgbGV0J3Mgd2FpdCBmb3IgaGlz
+IHJlcGx5Lgo+Pj4KPj4+Cj4+PiBUaGFua3MKPj4+Cj4+Pgo+PiBIaSBKYXNvbiwKPj4KPj4gVGhh
+bmtzIHlvdXIgcmVwbHksIHdoYXQgeW91IHdhbnQgaXMgdHJ5IHRvIGF2b2lkIGR1cGxpY2F0ZSBj
+b2RlLCBhbmQgc3RpbGwKPj4gdXNlIHRoZSBleGlzdGVkIGZlYXR1cmVzIHdpdGggdmlydGlvLW5l
+dC4KPiAKPiAKPiBZZXMsIHRlY2huaWNhbGx5IHdlIGNhbiB1c2UgdmlydGlvLW5ldCBkcml2ZXIg
+aXMgZ3Vlc3QgYXMgd2VsbCBidXQgd2UgY291bGQgZG8gaXQgc3RlcCBieSBzdGVwLgo+IAo+IAo+
+PiBZZXMsIGlmIHRoaXMgc291bmRzIGdvb2QgYW5kIG1vc3QgcGVvcGxlIGNhbiByZWNvZ25pemUg
+dGhpcyBpZGVhLCBJIGFtIHZlcnkKPj4gaGFwcHkgdG8gaW1wbGVtZW50IHRoaXMuCj4gCj4gCj4g
+Q29vbCwgdGhhbmtzLgo+IAo+IAo+Pgo+PiBJbiBhZGRpdGlvbiwgSSBob3BlIHlvdSBjYW4gcmV2
+aWV3IHRoZXNlIHBhdGNoZXMgYmVmb3JlIHRoZSBuZXcgaWRlYSBpcwo+PiBpbXBsZW1lbnRlZCwg
+YWZ0ZXIgYWxsIHRoZSBwZXJmb3JtYW5jZSBjYW4gYmUgaW1wcm92ZWQuIDotKQo+IAo+IAo+IE9r
+Lgo+IAo+IAo+IFNvIHRoZSBwYXRjaCBhY3R1YWxseSBkaWQgdGhyZWUgdGhpbmdzOgo+IAo+IC0g
+bWVyZ2VhYmxlIGJ1ZmZlciBpbXBsZW1lbnRhdGlvbgo+IAo+IC0gaW5jcmVhc2UgdGhlIGRlZmF1
+bHQgcnggYnVmZmVyIHNpemUKPiAKPiAtIGFkZCB1c2VkIGFuZCBzaWduYWwgZ3Vlc3QgaW4gYSBi
+YXRjaAo+IAo+IEl0IHdvdWxkIGJlIGhlbHBmdWwgaWYgeW91IGNhbiBtZWFzdXJlIHRoZSBwZXJm
+b3JtYW5jZSBpbXByb3ZlbWVudCBpbmRlcGVuZGVudGx5LiBUaGlzIGNhbiBnaXZlIHJldmlld2Vy
+IGEgYmV0dGVyIHVuZGVyc3RhbmRpbmcgb24gaG93IG11Y2ggZGlkIGVhY2ggcGFydCBoZWxwLgo+
+IAo+IFRoYW5rcwo+IAo+IAoKR3JlYXQsIEkgd2lsbCB0ZXN0IHRoZSBwZXJmb3JtYW5jZSBpbmRl
+cGVuZGVudGx5IGluIHRoZSBsYXRlciB2ZXJzaW9uLgoKVGhhbmtzLApZaXdlbi4KCj4+Cj4+IFRo
+YW5rcywKPj4gWWl3ZW4uCj4+Cj4+Pj4gVGhhbmtzLAo+Pj4+IFlpd2VuLgo+Pj4+Cj4+PiAuCj4+
+Pgo+Pgo+IAo+IC4KPiAKCgpfX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19f
+X19fX19fXwpWaXJ0dWFsaXphdGlvbiBtYWlsaW5nIGxpc3QKVmlydHVhbGl6YXRpb25AbGlzdHMu
+bGludXgtZm91bmRhdGlvbi5vcmcKaHR0cHM6Ly9saXN0cy5saW51eGZvdW5kYXRpb24ub3JnL21h
+aWxtYW4vbGlzdGluZm8vdmlydHVhbGl6YXRpb24=
