@@ -1,16 +1,11 @@
-From: Jason Wang <jasowang@redhat.com>
-Subject: Re: [PATCH 3/5] VSOCK: support receive mergeable rx buffer in guest
-Date: Wed, 7 Nov 2018 14:20:52 +0800
-Message-ID: <1b67b8ef-5dcc-0383-1b32-d80f294533d3__39984.3131927357$1541571540$gmane$org@redhat.com>
-References: <5BDFF57C.5020106@huawei.com>
-	<791d67e7-ad95-38e4-0d38-2b7c54d68040@redhat.com>
-	<5BE137B2.5040305@huawei.com>
+From: Gerd Hoffmann <kraxel@redhat.com>
+Subject: [PATCH] drm/qxl: use ttm_tt
+Date: Wed,  7 Nov 2018 08:05:39 +0100
+Message-ID: <20181107070539.20168-1-kraxel__42123.7144306817$1541574221$gmane$org@redhat.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="utf-8"; Format="flowed"
-Content-Transfer-Encoding: base64
+Content-Type: text/plain; charset="us-ascii"
+Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <5BE137B2.5040305@huawei.com>
-Content-Language: en-US
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -20,51 +15,57 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: jiangyiwen <jiangyiwen@huawei.com>, stefanha@redhat.com
-Cc: netdev@vger.kernel.org, kvm@vger.kernel.org, virtualization@lists.linux-foundation.org
+To: dri-devel@lists.freedesktop.org
+Cc: David Airlie <airlied@linux.ie>, Dave Airlie <airlied@redhat.com>, open list <linux-kernel@vger.kernel.org>, "open list:DRM DRIVER FOR QXL VIRTUAL GPU" <virtualization@lists.linux-foundation.org>
 List-Id: virtualization@lists.linuxfoundation.org
 
-Ck9uIDIwMTgvMTEvNiDkuIvljYgyOjQxLCBqaWFuZ3lpd2VuIHdyb3RlOgo+IE9uIDIwMTgvMTEv
-NiAxMjowMCwgSmFzb24gV2FuZyB3cm90ZToKPj4gT24gMjAxOC8xMS81IOS4i+WNiDM6NDcsIGpp
-YW5neWl3ZW4gd3JvdGU6Cj4+PiBHdWVzdCByZWNlaXZlIG1lcmdlYWJsZSByeCBidWZmZXIsIGl0
-IGNhbiBtZXJnZQo+Pj4gc2NhdHRlciByeCBidWZmZXIgaW50byBhIGJpZyBidWZmZXIgYW5kIHRo
-ZW4gY29weQo+Pj4gdG8gdXNlciBzcGFjZS4KPj4+Cj4+PiBTaWduZWQtb2ZmLWJ5OiBZaXdlbiBK
-aWFuZzxqaWFuZ3lpd2VuQGh1YXdlaS5jb20+Cj4+PiAtLS0KPj4+ICAgIGluY2x1ZGUvbGludXgv
-dmlydGlvX3Zzb2NrLmggICAgICAgICAgICB8ICA5ICsrKysKPj4+ICAgIG5ldC92bXdfdnNvY2sv
-dmlydGlvX3RyYW5zcG9ydC5jICAgICAgICB8IDc1ICsrKysrKysrKysrKysrKysrKysrKysrKysr
-KysrLS0tLQo+Pj4gICAgbmV0L3Ztd192c29jay92aXJ0aW9fdHJhbnNwb3J0X2NvbW1vbi5jIHwg
-NTkgKysrKysrKysrKysrKysrKysrKysrKy0tLS0KPj4+ICAgIDMgZmlsZXMgY2hhbmdlZCwgMTI3
-IGluc2VydGlvbnMoKyksIDE2IGRlbGV0aW9ucygtKQo+Pj4KPj4+IGRpZmYgLS1naXQgYS9pbmNs
-dWRlL2xpbnV4L3ZpcnRpb192c29jay5oIGIvaW5jbHVkZS9saW51eC92aXJ0aW9fdnNvY2suaAo+
-Pj4gaW5kZXggZGE5ZTFmZS4uNmJlM2NkNyAxMDA2NDQKPj4+IC0tLSBhL2luY2x1ZGUvbGludXgv
-dmlydGlvX3Zzb2NrLmgKPj4+ICsrKyBiL2luY2x1ZGUvbGludXgvdmlydGlvX3Zzb2NrLmgKPj4+
-IEBAIC0xMyw2ICsxMyw4IEBACj4+PiAgICAjZGVmaW5lIFZJUlRJT19WU09DS19ERUZBVUxUX1JY
-X0JVRl9TSVpFICAgICgxMDI0ICogNCkKPj4+ICAgICNkZWZpbmUgVklSVElPX1ZTT0NLX01BWF9C
-VUZfU0laRSAgICAgICAgMHhGRkZGRkZGRlVMCj4+PiAgICAjZGVmaW5lIFZJUlRJT19WU09DS19N
-QVhfUEtUX0JVRl9TSVpFICAgICAgICAoMTAyNCAqIDY0KQo+Pj4gKy8qIHZpcnRpb192c29ja19w
-a3QgKyBtYXhfcGt0X2xlbihkZWZhdWx0IE1BWF9QS1RfQlVGX1NJWkUpICovCj4+PiArI2RlZmlu
-ZSBWSVJUSU9fVlNPQ0tfTUFYX01SR19CVUZfTlVNICgoVklSVElPX1ZTT0NLX01BWF9QS1RfQlVG
-X1NJWkUgLyBQQUdFX1NJWkUpICsgMSkKPj4+Cj4+PiAgICAvKiBWaXJ0aW8tdnNvY2sgZmVhdHVy
-ZSAqLwo+Pj4gICAgI2RlZmluZSBWSVJUSU9fVlNPQ0tfRl9NUkdfUlhCVUYgMCAvKiBIb3N0IGNh
-biBtZXJnZSByZWNlaXZlIGJ1ZmZlcnMuICovCj4+PiBAQCAtNDgsNiArNTAsMTEgQEAgc3RydWN0
-IHZpcnRpb192c29ja19zb2NrIHsKPj4+ICAgICAgICBzdHJ1Y3QgbGlzdF9oZWFkIHJ4X3F1ZXVl
-Owo+Pj4gICAgfTsKPj4+Cj4+PiArc3RydWN0IHZpcnRpb192c29ja19tcmdfcnhidWYgewo+Pj4g
-KyAgICB2b2lkICpidWY7Cj4+PiArICAgIHUzMiBsZW47Cj4+PiArfTsKPj4+ICsKPj4+ICAgIHN0
-cnVjdCB2aXJ0aW9fdnNvY2tfcGt0IHsKPj4+ICAgICAgICBzdHJ1Y3QgdmlydGlvX3Zzb2NrX2hk
-ciAgICBoZHI7Cj4+PiAgICAgICAgc3RydWN0IHZpcnRpb192c29ja19tcmdfcnhidWZfaGRyIG1y
-Z19yeGJ1Zl9oZHI7Cj4+PiBAQCAtNTksNiArNjYsOCBAQCBzdHJ1Y3QgdmlydGlvX3Zzb2NrX3Br
-dCB7Cj4+PiAgICAgICAgdTMyIGxlbjsKPj4+ICAgICAgICB1MzIgb2ZmOwo+Pj4gICAgICAgIGJv
-b2wgcmVwbHk7Cj4+PiArICAgIGJvb2wgbWVyZ2VhYmxlOwo+Pj4gKyAgICBzdHJ1Y3QgdmlydGlv
-X3Zzb2NrX21yZ19yeGJ1ZiBtcmdfcnhidWZbVklSVElPX1ZTT0NLX01BWF9NUkdfQlVGX05VTV07
-Cj4+PiAgICB9Owo+PiBJdCdzIGJldHRlciB0byB1c2UgaW92IGhlcmUgSSB0aGluaywgYW5kIGRy
-b3AgYnVmIGNvbXBsZXRlbHkuCj4+Cj4+IEFuZCB0aGlzIGlzIGJldHRlciB0byBiZSBkb25lIGlu
-IGFuIGluZGVwZW5kZW50IHBhdGNoLgo+Pgo+IFlvdSdyZSByaWdodCwgSSBjYW4gdXNlIGt2ZWMg
-aW5zdGVhZCBvZiBjdXN0b21pemVkIHN0cnVjdHVyZSwKPiBpbiBhZGRpdGlvbiwgSSBkb24ndCB1
-bmRlcnN0YW5kIGFib3V0IGRyb3AgYnVmIGNvbXBsZXRlbHkgYW5kCj4gYW4gaW5kZXBlbmRlbnQg
-cGF0Y2guCgoKSSBtZWFuIHRoZXJlIGEgdm9pZCAqYnVmIGluIHN0cnVjdCB2aXJ0aW9fdnNvY2tf
-cGt0LiBZb3UgY2FuIGRyb3AgaXQgYW5kIApzd2l0Y2ggdG8gdXNlIGlvdihpdGVyKSBvciBvdGhl
-ciBkYXRhIHN0cnVjdHVyZSB0aGF0IHN1cHBvcnRzIHNnLgoKVGhhbmtzCgoKPgo+IFRoYW5rcy4K
-PgpfX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fXwpWaXJ0dWFs
-aXphdGlvbiBtYWlsaW5nIGxpc3QKVmlydHVhbGl6YXRpb25AbGlzdHMubGludXgtZm91bmRhdGlv
-bi5vcmcKaHR0cHM6Ly9saXN0cy5saW51eGZvdW5kYXRpb24ub3JnL21haWxtYW4vbGlzdGluZm8v
-dmlydHVhbGl6YXRpb24=
+qxl device will not dma, so we don't need ttm_dma_tt.  Go use ttm_tt
+instead, to avoid wasting resources (swiotlb bounce buffers for
+example).
+
+Signed-off-by: Gerd Hoffmann <kraxel@redhat.com>
+---
+ drivers/gpu/drm/qxl/qxl_ttm.c | 10 +++++-----
+ 1 file changed, 5 insertions(+), 5 deletions(-)
+
+diff --git a/drivers/gpu/drm/qxl/qxl_ttm.c b/drivers/gpu/drm/qxl/qxl_ttm.c
+index 559a101138..7a778a46a2 100644
+--- a/drivers/gpu/drm/qxl/qxl_ttm.c
++++ b/drivers/gpu/drm/qxl/qxl_ttm.c
+@@ -252,7 +252,7 @@ static void qxl_ttm_io_mem_free(struct ttm_bo_device *bdev,
+  * TTM backend functions.
+  */
+ struct qxl_ttm_tt {
+-	struct ttm_dma_tt		ttm;
++	struct ttm_tt		        ttm;
+ 	struct qxl_device		*qdev;
+ 	u64				offset;
+ };
+@@ -281,7 +281,7 @@ static void qxl_ttm_backend_destroy(struct ttm_tt *ttm)
+ {
+ 	struct qxl_ttm_tt *gtt = (void *)ttm;
+ 
+-	ttm_dma_tt_fini(&gtt->ttm);
++	ttm_tt_fini(&gtt->ttm);
+ 	kfree(gtt);
+ }
+ 
+@@ -301,13 +301,13 @@ static struct ttm_tt *qxl_ttm_tt_create(struct ttm_buffer_object *bo,
+ 	gtt = kzalloc(sizeof(struct qxl_ttm_tt), GFP_KERNEL);
+ 	if (gtt == NULL)
+ 		return NULL;
+-	gtt->ttm.ttm.func = &qxl_backend_func;
++	gtt->ttm.func = &qxl_backend_func;
+ 	gtt->qdev = qdev;
+-	if (ttm_dma_tt_init(&gtt->ttm, bo, page_flags)) {
++	if (ttm_tt_init(&gtt->ttm, bo, page_flags)) {
+ 		kfree(gtt);
+ 		return NULL;
+ 	}
+-	return &gtt->ttm.ttm;
++	return &gtt->ttm;
+ }
+ 
+ static void qxl_move_null(struct ttm_buffer_object *bo,
+-- 
+2.9.3
