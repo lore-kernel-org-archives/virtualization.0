@@ -1,17 +1,15 @@
-From: Paolo Bonzini <pbonzini@redhat.com>
-Subject: Re: [PATCH 0/1] vhost: add vhost_blk driver
-Date: Tue, 6 Nov 2018 22:41:07 +0100
-Message-ID: <b547d195-4b4a-1b1d-8219-22a6a1b3b21a__49485.6890327812$1541540361$gmane$org@redhat.com>
-References: <20181102182123.29420-1-v.mayatskih@gmail.com>
-	<6a7f1668-bf2d-0caa-2efd-c8fab5f1db24@redhat.com>
-	<CAGF4SLg6+nt+zV4haXys4Wz2dWPDyx7xHXuA+h01NcQ94j0E1A@mail.gmail.com>
-	<57eefa62-7e66-786d-441c-5dd6b0d451a5@redhat.com>
-	<20181106071349.GA5526@infradead.org>
+From: Jason Wang <jasowang@redhat.com>
+Subject: Re: [PATCH 1/5] VSOCK: support fill mergeable rx buffer in guest
+Date: Wed, 7 Nov 2018 14:17:53 +0800
+Message-ID: <a06cc13c-c525-18da-9156-e6a792e6700d__15851.1077672758$1541571361$gmane$org@redhat.com>
+References: <5BDFF4FE.1080500@huawei.com>
+	<1801c013-6cfb-1d07-3401-49f536e01983@redhat.com>
+	<5BE13331.7050901@huawei.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset="utf-8"; Format="flowed"
+Content-Transfer-Encoding: base64
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <20181106071349.GA5526@infradead.org>
+In-Reply-To: <5BE13331.7050901@huawei.com>
 Content-Language: en-US
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
@@ -22,25 +20,74 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Christoph Hellwig <hch@infradead.org>, Jason Wang <jasowang@redhat.com>
-Cc: Vitaly Mayatskih <v.mayatskih@gmail.com>, kvm@vger.kernel.org, "Michael S . Tsirkin" <mst@redhat.com>, linux-kernel@vger.kernel.org, virtualization@lists.linux-foundation.org, stefanha@redhat.com
+To: jiangyiwen <jiangyiwen@huawei.com>, stefanha@redhat.com
+Cc: netdev@vger.kernel.org, kvm@vger.kernel.org, virtualization@lists.linux-foundation.org
 List-Id: virtualization@lists.linuxfoundation.org
 
-On 06/11/2018 08:13, Christoph Hellwig wrote:
-> On Tue, Nov 06, 2018 at 10:45:08AM +0800, Jason Wang wrote:
->>> Storage industry is shifting away from SCSI, which has a scaling
->>> problem.
->>
->> Know little about storage. For scaling, do you mean SCSI protocol itself? If
->> not, it's probably not a real issue for virtio-scsi itself.
-> 
-> The above is utter bullshit.  There is a big NVMe hype, but it is not
-> because "SCSI has a scaling problem", but because the industry can sell
-> a new thing, and the standardization body seems easier to work with.
-
-In the case of Linux, there is indeed some performance to be gained by
-skipping the SCSI layer in the guest and to a lesser extent in QEMU,
-which is why virtio-blk is still in use.  But there's no scaling
-problem, it's just extra constant overhead.
-
-Paolo
+Ck9uIDIwMTgvMTEvNiDkuIvljYgyOjIyLCBqaWFuZ3lpd2VuIHdyb3RlOgo+IE9uIDIwMTgvMTEv
+NiAxMTozOCwgSmFzb24gV2FuZyB3cm90ZToKPj4gT24gMjAxOC8xMS81IOS4i+WNiDM6NDUsIGpp
+YW5neWl3ZW4gd3JvdGU6Cj4+PiBJbiBkcml2ZXIgcHJvYmluZywgaWYgdmlydGlvIGhhcyBWSVJU
+SU9fVlNPQ0tfRl9NUkdfUlhCVUYgZmVhdHVyZSwKPj4+IGl0IHdpbGwgZmlsbCBtZXJnZWFibGUg
+cnggYnVmZmVyLCBzdXBwb3J0IGZvciBob3N0IHNlbmQgbWVyZ2VhYmxlCj4+PiByeCBidWZmZXIu
+IEl0IHdpbGwgZmlsbCBhIHBhZ2UgZXZlcnl0aW1lIHRvIGNvbXBhY3Qgd2l0aCBzbWFsbAo+Pj4g
+cGFja2V0IGFuZCBiaWcgcGFja2V0Lgo+Pj4KPj4+IFNpZ25lZC1vZmYtYnk6IFlpd2VuIEppYW5n
+PGppYW5neWl3ZW5AaHVhd2VpLmNvbT4KPj4+IC0tLQo+Pj4gICAgaW5jbHVkZS9saW51eC92aXJ0
+aW9fdnNvY2suaCAgICAgfCAgMyArKwo+Pj4gICAgbmV0L3Ztd192c29jay92aXJ0aW9fdHJhbnNw
+b3J0LmMgfCA3MiArKysrKysrKysrKysrKysrKysrKysrKysrKysrKy0tLS0tLS0tLS0tCj4+PiAg
+ICAyIGZpbGVzIGNoYW5nZWQsIDU2IGluc2VydGlvbnMoKyksIDE5IGRlbGV0aW9ucygtKQo+Pj4K
+Pj4+IGRpZmYgLS1naXQgYS9pbmNsdWRlL2xpbnV4L3ZpcnRpb192c29jay5oIGIvaW5jbHVkZS9s
+aW51eC92aXJ0aW9fdnNvY2suaAo+Pj4gaW5kZXggZTIyM2UyNi4uYmY4NDQxOCAxMDA2NDQKPj4+
+IC0tLSBhL2luY2x1ZGUvbGludXgvdmlydGlvX3Zzb2NrLmgKPj4+ICsrKyBiL2luY2x1ZGUvbGlu
+dXgvdmlydGlvX3Zzb2NrLmgKPj4+IEBAIC0xNCw2ICsxNCw5IEBACj4+PiAgICAjZGVmaW5lIFZJ
+UlRJT19WU09DS19NQVhfQlVGX1NJWkUgICAgICAgIDB4RkZGRkZGRkZVTAo+Pj4gICAgI2RlZmlu
+ZSBWSVJUSU9fVlNPQ0tfTUFYX1BLVF9CVUZfU0laRSAgICAgICAgKDEwMjQgKiA2NCkKPj4+Cj4+
+PiArLyogVmlydGlvLXZzb2NrIGZlYXR1cmUgKi8KPj4+ICsjZGVmaW5lIFZJUlRJT19WU09DS19G
+X01SR19SWEJVRiAwIC8qIEhvc3QgY2FuIG1lcmdlIHJlY2VpdmUgYnVmZmVycy4gKi8KPj4+ICsK
+Pj4+ICAgIGVudW0gewo+Pj4gICAgICAgIFZTT0NLX1ZRX1JYICAgICA9IDAsIC8qIGZvciBob3N0
+IHRvIGd1ZXN0IGRhdGEgKi8KPj4+ICAgICAgICBWU09DS19WUV9UWCAgICAgPSAxLCAvKiBmb3Ig
+Z3Vlc3QgdG8gaG9zdCBkYXRhICovCj4+PiBkaWZmIC0tZ2l0IGEvbmV0L3Ztd192c29jay92aXJ0
+aW9fdHJhbnNwb3J0LmMgYi9uZXQvdm13X3Zzb2NrL3ZpcnRpb190cmFuc3BvcnQuYwo+Pj4gaW5k
+ZXggNWQzY2NlOS4uMjA0MGE5ZSAxMDA2NDQKPj4+IC0tLSBhL25ldC92bXdfdnNvY2svdmlydGlv
+X3RyYW5zcG9ydC5jCj4+PiArKysgYi9uZXQvdm13X3Zzb2NrL3ZpcnRpb190cmFuc3BvcnQuYwo+
+Pj4gQEAgLTY0LDYgKzY0LDcgQEAgc3RydWN0IHZpcnRpb192c29jayB7Cj4+PiAgICAgICAgc3Ry
+dWN0IHZpcnRpb192c29ja19ldmVudCBldmVudF9saXN0WzhdOwo+Pj4KPj4+ICAgICAgICB1MzIg
+Z3Vlc3RfY2lkOwo+Pj4gKyAgICBib29sIG1lcmdlYWJsZTsKPj4+ICAgIH07Cj4+Pgo+Pj4gICAg
+c3RhdGljIHN0cnVjdCB2aXJ0aW9fdnNvY2sgKnZpcnRpb192c29ja19nZXQodm9pZCkKPj4+IEBA
+IC0yNTYsNiArMjU3LDI1IEBAIHN0YXRpYyBpbnQgdmlydGlvX3RyYW5zcG9ydF9zZW5kX3BrdF9s
+b29wYmFjayhzdHJ1Y3QgdmlydGlvX3Zzb2NrICp2c29jaywKPj4+ICAgICAgICByZXR1cm4gMDsK
+Pj4+ICAgIH0KPj4+Cj4+PiArc3RhdGljIGludCBmaWxsX21lcmdlYWJsZV9yeF9idWZmKHN0cnVj
+dCB2aXJ0cXVldWUgKnZxKQo+Pj4gK3sKPj4+ICsgICAgdm9pZCAqcGFnZSA9IE5VTEw7Cj4+PiAr
+ICAgIHN0cnVjdCBzY2F0dGVybGlzdCBzZzsKPj4+ICsgICAgaW50IGVycjsKPj4+ICsKPj4+ICsg
+ICAgcGFnZSA9ICh2b2lkICopZ2V0X3plcm9lZF9wYWdlKEdGUF9LRVJORUwpOwo+PiBBbnkgcmVh
+c29uIHRvIHVzZSB6ZXJvZWQgcGFnZT8KPiBJbiBwcmV2aW91cyB2ZXJzaW9uLCB0aGUgZW50aXJl
+IHN0cnVjdHVyZSBvZiB2aXJ0aW9fdnNvY2tfcGt0IGlzIHByZWFsbG9jYXRlZAo+IGluIGd1ZXN0
+IHVzZSBremFsbG9jLCBpdCBpcyBhIGNvbnRpZ3VvdXMgemVyb2VkIHBoeXNpY2FsIG1lbW9yeSwg
+YnV0IGhvc3Qgb25seQo+IG5lZWQgdG8gZmlsbCB2aXJ0aW9fdnNvY2tfaGRyIHNpemUuCj4KPiBI
+b3dldmVyLCBpbiBtZXJnZWFibGUgcnggYnVmZmVyIHZlcnNpb24sIHdlIG9ubHkgZmlsbCBhIHBh
+Z2UgaW4gdnJpbmcgZGVzY3JpcHRvcgo+IGluIGd1ZXN0LCBhbmQgSSB3aWxsIHJlc2VydmUgc2l6
+ZSBvZiB2aXJ0aW9fdnNvY2tfcGt0IGluIGhvc3QgaW5zdGVhZCBvZiB3cml0ZQo+IHRoZSB0b3Rh
+bCBzaXplIG9mIHZpcnRpb192c29ja19wa3QsIGZvciB0aGUgY29ycmVjdG5lc3Mgb2Ygc3RydWN0
+dXJlIHZhbHVlLAo+IHdlIHNob3VsZCBzZXQgemVyb2VkIHBhZ2UgaW4gYWR2YW5jZS4KCgpJIG1h
+eSBtaXNzIHNvbWV0aGluZywgYnV0IGl0IGxvb2tzIHRvIG1lIG9ubHkgdGhlIGhlYWRlciBuZWVk
+cyB0byBiZSB6ZXJvZWQuCgoKPgo+Pj4gKyAgICBpZiAoIXBhZ2UpCj4+PiArICAgICAgICByZXR1
+cm4gLUVOT01FTTsKPj4+ICsKPj4+ICsgICAgc2dfaW5pdF9vbmUoJnNnLCBwYWdlLCBQQUdFX1NJ
+WkUpOwo+PiBGWUksIGZvciB2aXJ0aW8tbmV0IHdlIGhhdmUgc2V2ZXJhbCBvcHRpbWl6YXRpb25z
+IGZvciBtZXJnZWFibGUgcnggYnVmZmVyOgo+Pgo+PiAtIHNrYl9wYWdlX2ZyYWdfcmVmaWxsKCkg
+d2hpY2ggY2FuIHVzZSBoaWdoIG9yZGVyIHBhZ2UgYW5kIHJlZHVjZSB0aGUgc3RyZXNzIG9mIHBh
+Z2UgYWxsb2NhdG9yCj4+Cj4gWW91J3JlIHJpZ2h0LCBpbml0aWFsbHkgSSB3YW50IHRvIHVzZSBh
+IG1lbW9yeSBwb2xsIHRvIG1hbmFnZSB0aGUgcnggYnVmZmVyLAo+IGFuZCB0aGVuIHVzZSB0aGlz
+IGluIHRoZSBsYXRlciBvcHRpbWl6ZWQgcGF0Y2guIFlvdXIgYWR2aWNlIGlzIHZlcnkgZ3JlYXQu
+Cj4KPj4gLSB3ZSBkb24ndCB1c2UgZml4ZWQgYnVmZmVyIHNpemUsIGluc3RlYWQgd2UgdXNlIEVX
+TUEgdG8gZXN0aW1hdGUgdGhlIHBvc3NpYmxlIHJ4IGJ1ZmZlciBzaXplIHRvIGF2b2lkIGludGVy
+bmFsIGZyYWdtZW50YXRpb24KPj4KPiBPaywgSSBhbmFseXNpcyB0aGUgZmVhdHVyZSBhbmQgY29u
+c2lkZXIgYWRkIGl0IGludG8gbXkgcGF0Y2hlcy4KPgo+PiBJZiB3ZSBjYW4gdHJ5IHRvIHJldXNl
+IHZpcnRpby1uZXQgZHJpdmVyLCB3ZSB3aWxsIGdldCB0aG9zZSBuaWNlIGZlYXR1cmVzLgo+Pgo+
+IFllcywgYWZ0ZXIgYWxsIHZpcnRpby1uZXQgaGFzIGEgdmVyeSBnb29kIGVjb2xvZ2ljYWwgZW52
+aXJvbm1lbnQsIGFuZCBpdCBhbHNvCj4gZG8gbWFueSBwZXJmb3JtYW5jZSBvcHRpbWl6YXRpb24s
+IGl0IGlzIGFjdHVhbGx5IGEgZ29vZCBpZGVhLgo+CgpZZXMsIHNvIG15IHN1Z2dlc3Rpb24gaXMg
+dG8gY29uc2lkZXIgdG8gcmV1c2UgdGhlbSAodW5sZXNzIHdlIGZvdW5kIApzb21ldGhpbmcgdGhh
+dCBpcyBhIHJlYWwgYmxvY2tlcikgaW5zdGVhZCBvZiBkdXBsaWNhdGluZyBjb2RlcywgZmVhdHVy
+ZXMgCmEgYnVncy4KClRoYW5rcwoKX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19f
+X19fX19fX19fX18KVmlydHVhbGl6YXRpb24gbWFpbGluZyBsaXN0ClZpcnR1YWxpemF0aW9uQGxp
+c3RzLmxpbnV4LWZvdW5kYXRpb24ub3JnCmh0dHBzOi8vbGlzdHMubGludXhmb3VuZGF0aW9uLm9y
+Zy9tYWlsbWFuL2xpc3RpbmZvL3ZpcnR1YWxpemF0aW9u
