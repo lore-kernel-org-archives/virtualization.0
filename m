@@ -1,11 +1,16 @@
-From: Gerd Hoffmann <kraxel@redhat.com>
-Subject: [PATCH] drm/qxl: use ttm_tt
-Date: Wed,  7 Nov 2018 08:05:39 +0100
-Message-ID: <20181107070539.20168-1-kraxel__42123.7144306817$1541574221$gmane$org@redhat.com>
+From: jiangyiwen <jiangyiwen@huawei.com>
+Subject: Re: [PATCH 3/5] VSOCK: support receive mergeable rx buffer in guest
+Date: Wed, 7 Nov 2018 15:07:35 +0800
+Message-ID: <5BE28F37.1030208__14179.9183133573$1541574339$gmane$org@huawei.com>
+References: <5BDFF57C.5020106@huawei.com>
+	<791d67e7-ad95-38e4-0d38-2b7c54d68040@redhat.com>
+	<5BE137B2.5040305@huawei.com>
+	<1b67b8ef-5dcc-0383-1b32-d80f294533d3@redhat.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset="utf-8"
+Content-Transfer-Encoding: base64
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
+In-Reply-To: <1b67b8ef-5dcc-0383-1b32-d80f294533d3@redhat.com>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -15,57 +20,54 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: dri-devel@lists.freedesktop.org
-Cc: David Airlie <airlied@linux.ie>, Dave Airlie <airlied@redhat.com>, open list <linux-kernel@vger.kernel.org>, "open list:DRM DRIVER FOR QXL VIRTUAL GPU" <virtualization@lists.linux-foundation.org>
+To: Jason Wang <jasowang@redhat.com>, stefanha@redhat.com
+Cc: netdev@vger.kernel.org, kvm@vger.kernel.org, virtualization@lists.linux-foundation.org
 List-Id: virtualization@lists.linuxfoundation.org
 
-qxl device will not dma, so we don't need ttm_dma_tt.  Go use ttm_tt
-instead, to avoid wasting resources (swiotlb bounce buffers for
-example).
-
-Signed-off-by: Gerd Hoffmann <kraxel@redhat.com>
----
- drivers/gpu/drm/qxl/qxl_ttm.c | 10 +++++-----
- 1 file changed, 5 insertions(+), 5 deletions(-)
-
-diff --git a/drivers/gpu/drm/qxl/qxl_ttm.c b/drivers/gpu/drm/qxl/qxl_ttm.c
-index 559a101138..7a778a46a2 100644
---- a/drivers/gpu/drm/qxl/qxl_ttm.c
-+++ b/drivers/gpu/drm/qxl/qxl_ttm.c
-@@ -252,7 +252,7 @@ static void qxl_ttm_io_mem_free(struct ttm_bo_device *bdev,
-  * TTM backend functions.
-  */
- struct qxl_ttm_tt {
--	struct ttm_dma_tt		ttm;
-+	struct ttm_tt		        ttm;
- 	struct qxl_device		*qdev;
- 	u64				offset;
- };
-@@ -281,7 +281,7 @@ static void qxl_ttm_backend_destroy(struct ttm_tt *ttm)
- {
- 	struct qxl_ttm_tt *gtt = (void *)ttm;
- 
--	ttm_dma_tt_fini(&gtt->ttm);
-+	ttm_tt_fini(&gtt->ttm);
- 	kfree(gtt);
- }
- 
-@@ -301,13 +301,13 @@ static struct ttm_tt *qxl_ttm_tt_create(struct ttm_buffer_object *bo,
- 	gtt = kzalloc(sizeof(struct qxl_ttm_tt), GFP_KERNEL);
- 	if (gtt == NULL)
- 		return NULL;
--	gtt->ttm.ttm.func = &qxl_backend_func;
-+	gtt->ttm.func = &qxl_backend_func;
- 	gtt->qdev = qdev;
--	if (ttm_dma_tt_init(&gtt->ttm, bo, page_flags)) {
-+	if (ttm_tt_init(&gtt->ttm, bo, page_flags)) {
- 		kfree(gtt);
- 		return NULL;
- 	}
--	return &gtt->ttm.ttm;
-+	return &gtt->ttm;
- }
- 
- static void qxl_move_null(struct ttm_buffer_object *bo,
--- 
-2.9.3
+T24gMjAxOC8xMS83IDE0OjIwLCBKYXNvbiBXYW5nIHdyb3RlOgo+IAo+IE9uIDIwMTgvMTEvNiDk
+uIvljYgyOjQxLCBqaWFuZ3lpd2VuIHdyb3RlOgo+PiBPbiAyMDE4LzExLzYgMTI6MDAsIEphc29u
+IFdhbmcgd3JvdGU6Cj4+PiBPbiAyMDE4LzExLzUg5LiL5Y2IMzo0Nywgamlhbmd5aXdlbiB3cm90
+ZToKPj4+PiBHdWVzdCByZWNlaXZlIG1lcmdlYWJsZSByeCBidWZmZXIsIGl0IGNhbiBtZXJnZQo+
+Pj4+IHNjYXR0ZXIgcnggYnVmZmVyIGludG8gYSBiaWcgYnVmZmVyIGFuZCB0aGVuIGNvcHkKPj4+
+PiB0byB1c2VyIHNwYWNlLgo+Pj4+Cj4+Pj4gU2lnbmVkLW9mZi1ieTogWWl3ZW4gSmlhbmc8amlh
+bmd5aXdlbkBodWF3ZWkuY29tPgo+Pj4+IC0tLQo+Pj4+ICAgIGluY2x1ZGUvbGludXgvdmlydGlv
+X3Zzb2NrLmggICAgICAgICAgICB8ICA5ICsrKysKPj4+PiAgICBuZXQvdm13X3Zzb2NrL3ZpcnRp
+b190cmFuc3BvcnQuYyAgICAgICAgfCA3NSArKysrKysrKysrKysrKysrKysrKysrKysrKysrKy0t
+LS0KPj4+PiAgICBuZXQvdm13X3Zzb2NrL3ZpcnRpb190cmFuc3BvcnRfY29tbW9uLmMgfCA1OSAr
+KysrKysrKysrKysrKysrKysrKysrLS0tLQo+Pj4+ICAgIDMgZmlsZXMgY2hhbmdlZCwgMTI3IGlu
+c2VydGlvbnMoKyksIDE2IGRlbGV0aW9ucygtKQo+Pj4+Cj4+Pj4gZGlmZiAtLWdpdCBhL2luY2x1
+ZGUvbGludXgvdmlydGlvX3Zzb2NrLmggYi9pbmNsdWRlL2xpbnV4L3ZpcnRpb192c29jay5oCj4+
+Pj4gaW5kZXggZGE5ZTFmZS4uNmJlM2NkNyAxMDA2NDQKPj4+PiAtLS0gYS9pbmNsdWRlL2xpbnV4
+L3ZpcnRpb192c29jay5oCj4+Pj4gKysrIGIvaW5jbHVkZS9saW51eC92aXJ0aW9fdnNvY2suaAo+
+Pj4+IEBAIC0xMyw2ICsxMyw4IEBACj4+Pj4gICAgI2RlZmluZSBWSVJUSU9fVlNPQ0tfREVGQVVM
+VF9SWF9CVUZfU0laRSAgICAoMTAyNCAqIDQpCj4+Pj4gICAgI2RlZmluZSBWSVJUSU9fVlNPQ0tf
+TUFYX0JVRl9TSVpFICAgICAgICAweEZGRkZGRkZGVUwKPj4+PiAgICAjZGVmaW5lIFZJUlRJT19W
+U09DS19NQVhfUEtUX0JVRl9TSVpFICAgICAgICAoMTAyNCAqIDY0KQo+Pj4+ICsvKiB2aXJ0aW9f
+dnNvY2tfcGt0ICsgbWF4X3BrdF9sZW4oZGVmYXVsdCBNQVhfUEtUX0JVRl9TSVpFKSAqLwo+Pj4+
+ICsjZGVmaW5lIFZJUlRJT19WU09DS19NQVhfTVJHX0JVRl9OVU0gKChWSVJUSU9fVlNPQ0tfTUFY
+X1BLVF9CVUZfU0laRSAvIFBBR0VfU0laRSkgKyAxKQo+Pj4+Cj4+Pj4gICAgLyogVmlydGlvLXZz
+b2NrIGZlYXR1cmUgKi8KPj4+PiAgICAjZGVmaW5lIFZJUlRJT19WU09DS19GX01SR19SWEJVRiAw
+IC8qIEhvc3QgY2FuIG1lcmdlIHJlY2VpdmUgYnVmZmVycy4gKi8KPj4+PiBAQCAtNDgsNiArNTAs
+MTEgQEAgc3RydWN0IHZpcnRpb192c29ja19zb2NrIHsKPj4+PiAgICAgICAgc3RydWN0IGxpc3Rf
+aGVhZCByeF9xdWV1ZTsKPj4+PiAgICB9Owo+Pj4+Cj4+Pj4gK3N0cnVjdCB2aXJ0aW9fdnNvY2tf
+bXJnX3J4YnVmIHsKPj4+PiArICAgIHZvaWQgKmJ1ZjsKPj4+PiArICAgIHUzMiBsZW47Cj4+Pj4g
+K307Cj4+Pj4gKwo+Pj4+ICAgIHN0cnVjdCB2aXJ0aW9fdnNvY2tfcGt0IHsKPj4+PiAgICAgICAg
+c3RydWN0IHZpcnRpb192c29ja19oZHIgICAgaGRyOwo+Pj4+ICAgICAgICBzdHJ1Y3QgdmlydGlv
+X3Zzb2NrX21yZ19yeGJ1Zl9oZHIgbXJnX3J4YnVmX2hkcjsKPj4+PiBAQCAtNTksNiArNjYsOCBA
+QCBzdHJ1Y3QgdmlydGlvX3Zzb2NrX3BrdCB7Cj4+Pj4gICAgICAgIHUzMiBsZW47Cj4+Pj4gICAg
+ICAgIHUzMiBvZmY7Cj4+Pj4gICAgICAgIGJvb2wgcmVwbHk7Cj4+Pj4gKyAgICBib29sIG1lcmdl
+YWJsZTsKPj4+PiArICAgIHN0cnVjdCB2aXJ0aW9fdnNvY2tfbXJnX3J4YnVmIG1yZ19yeGJ1ZltW
+SVJUSU9fVlNPQ0tfTUFYX01SR19CVUZfTlVNXTsKPj4+PiAgICB9Owo+Pj4gSXQncyBiZXR0ZXIg
+dG8gdXNlIGlvdiBoZXJlIEkgdGhpbmssIGFuZCBkcm9wIGJ1ZiBjb21wbGV0ZWx5Lgo+Pj4KPj4+
+IEFuZCB0aGlzIGlzIGJldHRlciB0byBiZSBkb25lIGluIGFuIGluZGVwZW5kZW50IHBhdGNoLgo+
+Pj4KPj4gWW91J3JlIHJpZ2h0LCBJIGNhbiB1c2Uga3ZlYyBpbnN0ZWFkIG9mIGN1c3RvbWl6ZWQg
+c3RydWN0dXJlLAo+PiBpbiBhZGRpdGlvbiwgSSBkb24ndCB1bmRlcnN0YW5kIGFib3V0IGRyb3Ag
+YnVmIGNvbXBsZXRlbHkgYW5kCj4+IGFuIGluZGVwZW5kZW50IHBhdGNoLgo+IAo+IAo+IEkgbWVh
+biB0aGVyZSBhIHZvaWQgKmJ1ZiBpbiBzdHJ1Y3QgdmlydGlvX3Zzb2NrX3BrdC4gWW91IGNhbiBk
+cm9wIGl0IGFuZCBzd2l0Y2ggdG8gdXNlIGlvdihpdGVyKSBvciBvdGhlciBkYXRhIHN0cnVjdHVy
+ZSB0aGF0IHN1cHBvcnRzIHNnLgo+IAo+IFRoYW5rcwo+IAoKWWVzLCBJIHVuZGVyc3RhbmQgeW91
+ciBpZGVhLCBJIGRvbid0IHdhbnQgdG8gbW9kaWZ5IHR4IHByb2Nlc3MgbWV0aG9kLCBzbyBJCmtl
+ZXAgdGhlIGJ1Zi4KCj4gCj4+Cj4+IFRoYW5rcy4KPj4KPiAKPiAuCj4gCgoKX19fX19fX19fX19f
+X19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX18KVmlydHVhbGl6YXRpb24gbWFpbGlu
+ZyBsaXN0ClZpcnR1YWxpemF0aW9uQGxpc3RzLmxpbnV4LWZvdW5kYXRpb24ub3JnCmh0dHBzOi8v
+bGlzdHMubGludXhmb3VuZGF0aW9uLm9yZy9tYWlsbWFuL2xpc3RpbmZvL3ZpcnR1YWxpemF0aW9u
