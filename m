@@ -1,18 +1,15 @@
-From: "Michael S. Tsirkin" <mst@redhat.com>
-Subject: Re: [PATCH net-next v2 3/5] virtio_ring: add packed ring support
-Date: Thu, 8 Nov 2018 09:14:57 -0500
-Message-ID: <20181108091337-mutt-send-email-mst__1636.79554029859$1541686382$gmane$org@kernel.org>
-References: <20180711022711.7090-1-tiwei.bie@intel.com>
-	<20180711022711.7090-4-tiwei.bie@intel.com>
-	<20181107123933-mutt-send-email-mst@kernel.org>
-	<20181108013759.GA20591@debian>
-	<2d46a41e-bc00-276a-e19a-105c9dffc75a@redhat.com>
+From: Auger Eric <eric.auger@redhat.com>
+Subject: Re: [PATCH v3 6/7] iommu/virtio: Add probe request
+Date: Thu, 8 Nov 2018 15:48:45 +0100
+Message-ID: <295d30bb-5aef-2727-01c0-ec10c7a8fa8c__1855.61877810887$1541688424$gmane$org@redhat.com>
+References: <20181012145917.6840-1-jean-philippe.brucker@arm.com>
+	<20181012145917.6840-7-jean-philippe.brucker@arm.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="utf-8"
-Content-Transfer-Encoding: base64
+Content-Type: text/plain; charset="us-ascii"
+Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-Content-Disposition: inline
-In-Reply-To: <2d46a41e-bc00-276a-e19a-105c9dffc75a@redhat.com>
+In-Reply-To: <20181012145917.6840-7-jean-philippe.brucker@arm.com>
+Content-Language: en-US
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -22,68 +19,326 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Jason Wang <jasowang@redhat.com>
-Cc: virtio-dev@lists.oasis-open.org, netdev@vger.kernel.org, linux-kernel@vger.kernel.org, virtualization@lists.linux-foundation.org, wexu@redhat.com
+To: Jean-Philippe Brucker <jean-philippe.brucker@arm.com>, iommu@lists.linux-foundation.org, virtualization@lists.linux-foundation.org, devicetree@vger.kernel.org
+Cc: mark.rutland@arm.com, peter.maydell@linaro.org, lorenzo.pieralisi@arm.com, tnowicki@caviumnetworks.com, mst@redhat.com, marc.zyngier@arm.com, linux-pci@vger.kernel.org, will.deacon@arm.com, kvmarm@lists.cs.columbia.edu, robh+dt@kernel.org, robin.murphy@arm.com, joro@8bytes.org
 List-Id: virtualization@lists.linuxfoundation.org
 
-T24gVGh1LCBOb3YgMDgsIDIwMTggYXQgMDQ6MTg6MjVQTSArMDgwMCwgSmFzb24gV2FuZyB3cm90
-ZToKPiAKPiBPbiAyMDE4LzExLzgg5LiK5Y2IOTozOCwgVGl3ZWkgQmllIHdyb3RlOgo+ID4gPiA+
-ICsKPiA+ID4gPiArCWlmICh2cS0+dnEubnVtX2ZyZWUgPCBkZXNjc191c2VkKSB7Cj4gPiA+ID4g
-KwkJcHJfZGVidWcoIkNhbid0IGFkZCBidWYgbGVuICVpIC0gYXZhaWwgPSAlaVxuIiwKPiA+ID4g
-PiArCQkJIGRlc2NzX3VzZWQsIHZxLT52cS5udW1fZnJlZSk7Cj4gPiA+ID4gKwkJLyogRklYTUU6
-IGZvciBoaXN0b3JpY2FsIHJlYXNvbnMsIHdlIGZvcmNlIGEgbm90aWZ5IGhlcmUgaWYKPiA+ID4g
-PiArCQkgKiB0aGVyZSBhcmUgb3V0Z29pbmcgcGFydHMgdG8gdGhlIGJ1ZmZlci4gIFByZXN1bWFi
-bHkgdGhlCj4gPiA+ID4gKwkJICogaG9zdCBzaG91bGQgc2VydmljZSB0aGUgcmluZyBBU0FQLiAq
-Lwo+ID4gPiBJIGRvbid0IHRoaW5rIHdlIGhhdmUgYSByZWFzb24gdG8gZG8gdGhpcyBmb3IgcGFj
-a2VkIHJpbmcuCj4gPiA+IE5vIGhpc3RvcmljYWwgYmFnZ2FnZSB0aGVyZSwgcmlnaHQ/Cj4gPiBC
-YXNlZCBvbiB0aGUgb3JpZ2luYWwgY29tbWl0IGxvZywgaXQgc2VlbXMgdGhhdCB0aGUgbm90aWZ5
-IGhlcmUKPiA+IGlzIGp1c3QgYW4gIm9wdGltaXphdGlvbiIuIEJ1dCBJIGRvbid0IHF1aXRlIHVu
-ZGVyc3RhbmQgd2hhdCBkb2VzCj4gPiB0aGUgInRoZSBoZXVyaXN0aWNzIHdoaWNoIEtWTSB1c2Vz
-IiByZWZlciB0by4gSWYgaXQncyBzYWZlIHRvIGRyb3AKPiA+IHRoaXMgaW4gcGFja2VkIHJpbmcs
-IEknZCBsaWtlIHRvIGRvIGl0Lgo+IAo+IAo+IEFjY29yZGluZyB0byB0aGUgY29tbWl0IGxvZywg
-aXQgc2VlbXMgbGlrZSBhIHdvcmthcm91bmQgb2YgbGd1ZXN0IG5ldHdvcmtpbmcKPiBiYWNrZW5k
-LiBJIGFncmVlIHRvIGRyb3AgaXQsIHdlIHNob3VsZCBub3QgaGF2ZSBzdWNoIGJ1cmRlbi4KPiAK
-PiBCdXQgd2Ugc2hvdWxkIG5vdGljZSB0aGF0LCB3aXRoIHRoaXMgcmVtb3ZlZCwgdGhlIGNvbXBh
-cmUgYmV0d2VlbiBwYWNrZWQgdnMKPiBzcGxpdCBpcyBraW5kIG9mIHVuZmFpci4KCkkgZG9uJ3Qg
-dGhpbmsgdGhpcyBldmVyIHRyaWdnZXJzIHRvIGJlIGZyYW5rLiBXaGVuIHdvdWxkIGl0PwoKPiBD
-b25zaWRlciB0aGUgcmVtb3ZhbCBvZiBsZ3Vlc3Qgc3VwcG9ydCByZWNlbnRseSwKPiBtYXliZSB3
-ZSBjYW4gZHJvcCB0aGlzIGZvciBzcGxpdCByaW5nIGFzIHdlbGw/Cj4gCj4gVGhhbmtzCgpJZiBp
-dCdzIGhlbHBmdWwsIHRoZW4gZm9yIHN1cmUgd2UgY2FuIGRyb3AgaXQgZm9yIHZpcnRpbyAxLgpD
-YW4geW91IHNlZSBhbnkgcGVyZiBkaWZmZXJlbmNlcyBhdCBhbGw/IFdpdGggd2hpY2ggZGV2aWNl
-PwoKPiAKPiA+IAo+ID4gY29tbWl0IDQ0NjUzZWFlMTQwN2Y3OWRmZjZmNTJmY2Y1OTRhZTg0Y2Ix
-NjVlYzQKPiA+IEF1dGhvcjogUnVzdHkgUnVzc2VsbDxydXN0eUBydXN0Y29ycC5jb20uYXU+Cj4g
-PiBEYXRlOiAgIEZyaSBKdWwgMjUgMTI6MDY6MDQgMjAwOCAtMDUwMAo+ID4gCj4gPiAgICAgIHZp
-cnRpbzogZG9uJ3QgYWx3YXlzIGZvcmNlIGEgbm90aWZpY2F0aW9uIHdoZW4gcmluZyBpcyBmdWxs
-Cj4gPiAgICAgIFdlIGZvcmNlIG5vdGlmaWNhdGlvbiB3aGVuIHRoZSByaW5nIGlzIGZ1bGwsIGV2
-ZW4gaWYgdGhlIGhvc3QgaGFzCj4gPiAgICAgIGluZGljYXRlZCBpdCBkb2Vzbid0IHdhbnQgdG8g
-a25vdy4gIFRoaXMgc2VlbWVkIGxpa2UgYSBnb29kIGlkZWEgYXQKPiA+ICAgICAgdGhlIHRpbWU6
-IGlmIHdlIGZpbGwgdGhlIHRyYW5zbWl0IHJpbmcsIHdlIHNob3VsZCB0ZWxsIHRoZSBob3N0Cj4g
-PiAgICAgIGltbWVkaWF0ZWx5Lgo+ID4gICAgICBVbmZvcnR1bmF0ZWx5IHRoaXMgbG9naWMgYWxz
-byBhcHBsaWVzIHRvIHRoZSByZWNlaXZpbmcgcmluZywgd2hpY2ggaXMKPiA+ICAgICAgcmVmaWxs
-ZWQgY29uc3RhbnRseS4gIFdlIHNob3VsZCBpbnRyb2R1Y2UgcmVhbCBub3RpZmljYXRpb24gdGhl
-c2hvbGRzCj4gPiAgICAgIHRvIHJlcGxhY2UgdGhpcyBsb2dpYy4gIE1lYW53aGlsZSwgcmVtb3Zp
-bmcgdGhlIGxvZ2ljIGFsdG9nZXRoZXIgYnJlYWtzCj4gPiAgICAgIHRoZSBoZXVyaXN0aWNzIHdo
-aWNoIEtWTSB1c2VzLCBzbyB3ZSB1c2UgYSBoYWNrOiBvbmx5IG5vdGlmeSBpZiB0aGVyZSBhcmUK
-PiA+ICAgICAgb3V0Z29pbmcgcGFydHMgb2YgdGhlIG5ldyBidWZmZXIuCj4gPiAgICAgIEhlcmUg
-YXJlIHRoZSBudW1iZXIgb2YgZXhpdHMgd2l0aCBsZ3Vlc3QncyBjcmFwcHkgbmV0d29yayBpbXBs
-ZW1lbnRhdGlvbjoKPiA+ICAgICAgQmVmb3JlOgo+ID4gICAgICAgICAgICAgIG5ldHdvcmsgeG1p
-dCA3ODU5MDUxIHJlY3YgMjM2NDIwCj4gPiAgICAgIEFmdGVyOgo+ID4gICAgICAgICAgICAgIG5l
-dHdvcmsgeG1pdCA3ODU4NjEwIHJlY3YgMTE4MTM2Cj4gPiAgICAgIFNpZ25lZC1vZmYtYnk6IFJ1
-c3R5IFJ1c3NlbGw8cnVzdHlAcnVzdGNvcnAuY29tLmF1Pgo+ID4gCj4gPiBkaWZmIC0tZ2l0IGEv
-ZHJpdmVycy92aXJ0aW8vdmlydGlvX3JpbmcuYyBiL2RyaXZlcnMvdmlydGlvL3ZpcnRpb19yaW5n
-LmMKPiA+IGluZGV4IDcyYmY4YmMwOTAxNC4uMjFkOWE2Mjc2N2FmIDEwMDY0NAo+ID4gLS0tIGEv
-ZHJpdmVycy92aXJ0aW8vdmlydGlvX3JpbmcuYwo+ID4gKysrIGIvZHJpdmVycy92aXJ0aW8vdmly
-dGlvX3JpbmcuYwo+ID4gQEAgLTg3LDggKzg3LDExIEBAIHN0YXRpYyBpbnQgdnJpbmdfYWRkX2J1
-ZihzdHJ1Y3QgdmlydHF1ZXVlICpfdnEsCj4gPiAgIAlpZiAodnEtPm51bV9mcmVlIDwgb3V0ICsg
-aW4pIHsKPiA+ICAgCQlwcl9kZWJ1ZygiQ2FuJ3QgYWRkIGJ1ZiBsZW4gJWkgLSBhdmFpbCA9ICVp
-XG4iLAo+ID4gICAJCQkgb3V0ICsgaW4sIHZxLT5udW1fZnJlZSk7Cj4gPiAtCQkvKiBXZSBub3Rp
-ZnkqZXZlbiBpZiogIFZSSU5HX1VTRURfRl9OT19OT1RJRlkgaXMgc2V0IGhlcmUuICovCj4gPiAt
-CQl2cS0+bm90aWZ5KCZ2cS0+dnEpOwo+ID4gKwkJLyogRklYTUU6IGZvciBoaXN0b3JpY2FsIHJl
-YXNvbnMsIHdlIGZvcmNlIGEgbm90aWZ5IGhlcmUgaWYKPiA+ICsJCSAqIHRoZXJlIGFyZSBvdXRn
-b2luZyBwYXJ0cyB0byB0aGUgYnVmZmVyLiAgUHJlc3VtYWJseSB0aGUKPiA+ICsJCSAqIGhvc3Qg
-c2hvdWxkIHNlcnZpY2UgdGhlIHJpbmcgQVNBUC4gKi8KPiA+ICsJCWlmIChvdXQpCj4gPiArCQkJ
-dnEtPm5vdGlmeSgmdnEtPnZxKTsKPiA+ICAgCQlFTkRfVVNFKHZxKTsKPiA+ICAgCQlyZXR1cm4g
-LUVOT1NQQzsKPiA+ICAgCX0KPiA+IAo+ID4gCl9fX19fX19fX19fX19fX19fX19fX19fX19fX19f
-X19fX19fX19fX19fX19fX19fClZpcnR1YWxpemF0aW9uIG1haWxpbmcgbGlzdApWaXJ0dWFsaXph
-dGlvbkBsaXN0cy5saW51eC1mb3VuZGF0aW9uLm9yZwpodHRwczovL2xpc3RzLmxpbnV4Zm91bmRh
-dGlvbi5vcmcvbWFpbG1hbi9saXN0aW5mby92aXJ0dWFsaXphdGlvbg==
+Hi Jean-Philippe,
+
+On 10/12/18 4:59 PM, Jean-Philippe Brucker wrote:
+> When the device offers the probe feature, send a probe request for each
+> device managed by the IOMMU. Extract RESV_MEM information. When we
+> encounter a MSI doorbell region, set it up as a IOMMU_RESV_MSI region.
+> This will tell other subsystems that there is no need to map the MSI
+> doorbell in the virtio-iommu, because MSIs bypass it.
+> 
+> Signed-off-by: Jean-Philippe Brucker <jean-philippe.brucker@arm.com>
+> ---
+>  drivers/iommu/virtio-iommu.c      | 147 ++++++++++++++++++++++++++++--
+>  include/uapi/linux/virtio_iommu.h |  39 ++++++++
+>  2 files changed, 180 insertions(+), 6 deletions(-)
+> 
+> diff --git a/drivers/iommu/virtio-iommu.c b/drivers/iommu/virtio-iommu.c
+> index 9fb38cd3b727..8eaf66770469 100644
+> --- a/drivers/iommu/virtio-iommu.c
+> +++ b/drivers/iommu/virtio-iommu.c
+> @@ -56,6 +56,7 @@ struct viommu_dev {
+>  	struct iommu_domain_geometry	geometry;
+>  	u64				pgsize_bitmap;
+>  	u8				domain_bits;
+> +	u32				probe_size;
+>  };
+>  
+>  struct viommu_mapping {
+> @@ -77,8 +78,10 @@ struct viommu_domain {
+>  };
+>  
+>  struct viommu_endpoint {
+> +	struct device			*dev;
+>  	struct viommu_dev		*viommu;
+>  	struct viommu_domain		*vdomain;
+> +	struct list_head		resv_regions;
+>  };
+>  
+>  struct viommu_request {
+> @@ -129,6 +132,9 @@ static off_t viommu_get_req_offset(struct viommu_dev *viommu,
+>  {
+>  	size_t tail_size = sizeof(struct virtio_iommu_req_tail);
+>  
+> +	if (req->type == VIRTIO_IOMMU_T_PROBE)
+> +		return len - viommu->probe_size - tail_size;
+> +
+>  	return len - tail_size;
+>  }
+>  
+> @@ -414,6 +420,101 @@ static int viommu_replay_mappings(struct viommu_domain *vdomain)
+>  	return ret;
+>  }
+>  
+> +static int viommu_add_resv_mem(struct viommu_endpoint *vdev,
+> +			       struct virtio_iommu_probe_resv_mem *mem,
+> +			       size_t len)
+> +{
+> +	struct iommu_resv_region *region = NULL;
+> +	unsigned long prot = IOMMU_WRITE | IOMMU_NOEXEC | IOMMU_MMIO;
+> +
+> +	u64 start = le64_to_cpu(mem->start);
+> +	u64 end = le64_to_cpu(mem->end);
+> +	size_t size = end - start + 1;
+> +
+> +	if (len < sizeof(*mem))
+> +		return -EINVAL;
+> +
+> +	switch (mem->subtype) {
+> +	default:
+> +		dev_warn(vdev->dev, "unknown resv mem subtype 0x%x\n",
+> +			 mem->subtype);
+> +		/* Fall-through */
+> +	case VIRTIO_IOMMU_RESV_MEM_T_RESERVED:
+> +		region = iommu_alloc_resv_region(start, size, 0,
+> +						 IOMMU_RESV_RESERVED);
+> +		break;
+> +	case VIRTIO_IOMMU_RESV_MEM_T_MSI:
+> +		region = iommu_alloc_resv_region(start, size, prot,
+> +						 IOMMU_RESV_MSI);
+> +		break;
+> +	}
+> +
+> +	list_add(&vdev->resv_regions, &region->list);
+> +	return 0;
+> +}
+> +
+> +static int viommu_probe_endpoint(struct viommu_dev *viommu, struct device *dev)
+> +{
+> +	int ret;
+> +	u16 type, len;
+> +	size_t cur = 0;
+> +	size_t probe_len;
+> +	struct virtio_iommu_req_probe *probe;
+> +	struct virtio_iommu_probe_property *prop;
+> +	struct iommu_fwspec *fwspec = dev->iommu_fwspec;
+> +	struct viommu_endpoint *vdev = fwspec->iommu_priv;
+> +
+> +	if (!fwspec->num_ids)
+> +		return -EINVAL;
+> +
+> +	probe_len = sizeof(*probe) + viommu->probe_size +
+> +		    sizeof(struct virtio_iommu_req_tail);
+> +	probe = kzalloc(probe_len, GFP_KERNEL);
+> +	if (!probe)
+> +		return -ENOMEM;
+> +
+> +	probe->head.type = VIRTIO_IOMMU_T_PROBE;
+> +	/*
+> +	 * For now, assume that properties of an endpoint that outputs multiple
+> +	 * IDs are consistent. Only probe the first one.
+> +	 */
+> +	probe->endpoint = cpu_to_le32(fwspec->ids[0]);
+> +
+> +	ret = viommu_send_req_sync(viommu, probe, probe_len);
+> +	if (ret)
+> +		goto out_free;
+> +
+> +	prop = (void *)probe->properties;
+> +	type = le16_to_cpu(prop->type) & VIRTIO_IOMMU_PROBE_T_MASK;
+> +
+> +	while (type != VIRTIO_IOMMU_PROBE_T_NONE &&
+> +	       cur < viommu->probe_size) {
+> +		len = le16_to_cpu(prop->length) + sizeof(*prop);
+> +
+> +		switch (type) {
+> +		case VIRTIO_IOMMU_PROBE_T_RESV_MEM:
+> +			ret = viommu_add_resv_mem(vdev, (void *)prop, len);
+> +			break;
+> +		default:
+> +			dev_err(dev, "unknown viommu prop 0x%x\n", type);
+> +		}
+> +
+> +		if (ret)
+> +			dev_err(dev, "failed to parse viommu prop 0x%x\n", type);
+> +
+> +		cur += len;
+> +		if (cur >= viommu->probe_size)
+> +			break;
+> +
+> +		prop = (void *)probe->properties + cur;
+> +		type = le16_to_cpu(prop->type) & VIRTIO_IOMMU_PROBE_T_MASK;
+> +	}
+> +
+> +out_free:
+> +	kfree(probe);
+> +	return ret;
+> +}
+> +
+>  /* IOMMU API */
+>  
+>  static struct iommu_domain *viommu_domain_alloc(unsigned type)
+> @@ -636,15 +737,33 @@ static void viommu_iotlb_sync(struct iommu_domain *domain)
+>  
+>  static void viommu_get_resv_regions(struct device *dev, struct list_head *head)
+>  {
+> -	struct iommu_resv_region *region;
+> +	struct iommu_resv_region *entry, *new_entry, *msi = NULL;
+> +	struct viommu_endpoint *vdev = dev->iommu_fwspec->iommu_priv;
+>  	int prot = IOMMU_WRITE | IOMMU_NOEXEC | IOMMU_MMIO;
+>  
+> -	region = iommu_alloc_resv_region(MSI_IOVA_BASE, MSI_IOVA_LENGTH, prot,
+> -					 IOMMU_RESV_SW_MSI);
+> -	if (!region)
+> -		return;
+> +	list_for_each_entry(entry, &vdev->resv_regions, list) {
+> +		/*
+> +		 * If the device registered a bypass MSI windows, use it.
+> +		 * Otherwise add a software-mapped region
+> +		 */
+> +		if (entry->type == IOMMU_RESV_MSI)
+> +			msi = entry;
+> +
+> +		new_entry = kmemdup(entry, sizeof(*entry), GFP_KERNEL);
+> +		if (!new_entry)
+> +			return;
+> +		list_add_tail(&new_entry->list, head);
+> +	}
+> +
+> +	if (!msi) {
+> +		msi = iommu_alloc_resv_region(MSI_IOVA_BASE, MSI_IOVA_LENGTH,
+> +					      prot, IOMMU_RESV_SW_MSI);
+> +		if (!msi)
+> +			return;
+> +
+> +		list_add_tail(&msi->list, head);
+> +	}
+>  
+> -	list_add_tail(&region->list, head);
+>  	iommu_dma_get_resv_regions(dev, head);
+>  }
+>  
+> @@ -692,9 +811,18 @@ static int viommu_add_device(struct device *dev)
+>  	if (!vdev)
+>  		return -ENOMEM;
+>  
+> +	vdev->dev = dev;
+>  	vdev->viommu = viommu;
+> +	INIT_LIST_HEAD(&vdev->resv_regions);
+>  	fwspec->iommu_priv = vdev;
+>  
+> +	if (viommu->probe_size) {
+> +		/* Get additional information for this endpoint */
+> +		ret = viommu_probe_endpoint(viommu, dev);
+> +		if (ret)
+> +			return ret;
+> +	}
+> +
+>  	ret = iommu_device_link(&viommu->iommu, dev);
+>  	if (ret)
+>  		goto err_free_dev;
+> @@ -717,6 +845,7 @@ static int viommu_add_device(struct device *dev)
+>  	iommu_device_unlink(&viommu->iommu, dev);
+>  
+>  err_free_dev:
+> +	viommu_put_resv_regions(dev, &vdev->resv_regions);
+>  	kfree(vdev);
+>  
+>  	return ret;
+> @@ -734,6 +863,7 @@ static void viommu_remove_device(struct device *dev)
+>  
+>  	iommu_group_remove_device(dev);
+>  	iommu_device_unlink(&vdev->viommu->iommu, dev);
+> +	viommu_put_resv_regions(dev, &vdev->resv_regions);
+>  	kfree(vdev);
+>  }
+>  
+> @@ -832,6 +962,10 @@ static int viommu_probe(struct virtio_device *vdev)
+>  			     struct virtio_iommu_config, domain_bits,
+>  			     &viommu->domain_bits);
+>  
+> +	virtio_cread_feature(vdev, VIRTIO_IOMMU_F_PROBE,
+> +			     struct virtio_iommu_config, probe_size,
+> +			     &viommu->probe_size);
+> +
+>  	viommu->geometry = (struct iommu_domain_geometry) {
+>  		.aperture_start	= input_start,
+>  		.aperture_end	= input_end,
+> @@ -913,6 +1047,7 @@ static unsigned int features[] = {
+>  	VIRTIO_IOMMU_F_MAP_UNMAP,
+>  	VIRTIO_IOMMU_F_DOMAIN_BITS,
+>  	VIRTIO_IOMMU_F_INPUT_RANGE,
+> +	VIRTIO_IOMMU_F_PROBE,
+>  };
+>  
+>  static struct virtio_device_id id_table[] = {
+> diff --git a/include/uapi/linux/virtio_iommu.h b/include/uapi/linux/virtio_iommu.h
+> index e808fc7fbe82..feed74586bb0 100644
+> --- a/include/uapi/linux/virtio_iommu.h
+> +++ b/include/uapi/linux/virtio_iommu.h
+> @@ -14,6 +14,7 @@
+>  #define VIRTIO_IOMMU_F_DOMAIN_BITS		1
+>  #define VIRTIO_IOMMU_F_MAP_UNMAP		2
+>  #define VIRTIO_IOMMU_F_BYPASS			3
+> +#define VIRTIO_IOMMU_F_PROBE			4
+>  
+>  struct virtio_iommu_config {
+>  	/* Supported page sizes */
+> @@ -25,6 +26,9 @@ struct virtio_iommu_config {
+>  	} input_range;
+>  	/* Max domain ID size */
+>  	__u8					domain_bits;
+> +	__u8					padding[3];
+> +	/* Probe buffer size */
+> +	__u32					probe_size;
+>  };
+>  
+>  /* Request types */
+> @@ -32,6 +36,7 @@ struct virtio_iommu_config {
+>  #define VIRTIO_IOMMU_T_DETACH			0x02
+>  #define VIRTIO_IOMMU_T_MAP			0x03
+>  #define VIRTIO_IOMMU_T_UNMAP			0x04
+> +#define VIRTIO_IOMMU_T_PROBE			0x05
+>  
+>  /* Status types */
+>  #define VIRTIO_IOMMU_S_OK			0x00
+> @@ -98,4 +103,38 @@ struct virtio_iommu_req_unmap {
+>  	struct virtio_iommu_req_tail		tail;
+>  };
+>  
+> +#define VIRTIO_IOMMU_PROBE_T_NONE		0
+> +#define VIRTIO_IOMMU_PROBE_T_RESV_MEM		1
+> +
+> +#define VIRTIO_IOMMU_PROBE_T_MASK		0xfff
+> +
+> +struct virtio_iommu_probe_property {
+> +	__le16					type;
+> +	__le16					length;
+the value[] field has disappeared but still is documented in the v0.8 spec.
+
+Thanks
+
+Eric
+> +};
+> +
+> +#define VIRTIO_IOMMU_RESV_MEM_T_RESERVED	0
+> +#define VIRTIO_IOMMU_RESV_MEM_T_MSI		1
+> +
+> +struct virtio_iommu_probe_resv_mem {
+> +	struct virtio_iommu_probe_property	head;
+> +	__u8					subtype;
+> +	__u8					reserved[3];
+> +	__le64					start;
+> +	__le64					end;
+> +};
+> +
+> +struct virtio_iommu_req_probe {
+> +	struct virtio_iommu_req_head		head;
+> +	__le32					endpoint;
+> +	__u8					reserved[64];
+> +
+> +	__u8					properties[];
+> +
+> +	/*
+> +	 * Tail follows the variable-length properties array. No padding,
+> +	 * property lengths are all aligned on 8 bytes.
+> +	 */
+> +};
+> +
+>  #endif
+> 
