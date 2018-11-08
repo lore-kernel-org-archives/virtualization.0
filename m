@@ -1,19 +1,16 @@
-From: "Michael S. Tsirkin" <mst@redhat.com>
-Subject: Re: [PATCH net-next v2 3/5] virtio_ring: add packed ring support
-Date: Thu, 8 Nov 2018 10:56:02 -0500
-Message-ID: <20181108103155-mutt-send-email-mst__25095.0357564308$1541692449$gmane$org@kernel.org>
-References: <20180711022711.7090-1-tiwei.bie@intel.com>
-	<20180711022711.7090-4-tiwei.bie@intel.com>
-	<20181107123933-mutt-send-email-mst@kernel.org>
-	<20181108013759.GA20591@debian>
-	<2d46a41e-bc00-276a-e19a-105c9dffc75a@redhat.com>
-	<20181108115148.GA15701@debian>
+From: Jean-Philippe Brucker <jean-philippe.brucker@arm.com>
+Subject: Re: [PATCH v3 6/7] iommu/virtio: Add probe request
+Date: Thu, 8 Nov 2018 16:46:15 +0000
+Message-ID: <52102adc-ed06-da8a-9c1b-ce8ea0d31ad9__25026.5570161448$1541695482$gmane$org@arm.com>
+References: <20181012145917.6840-1-jean-philippe.brucker@arm.com>
+	<20181012145917.6840-7-jean-philippe.brucker@arm.com>
+	<295d30bb-5aef-2727-01c0-ec10c7a8fa8c@redhat.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="utf-8"
-Content-Transfer-Encoding: base64
+Content-Type: text/plain; charset="us-ascii"
+Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-Content-Disposition: inline
-In-Reply-To: <20181108115148.GA15701@debian>
+In-Reply-To: <295d30bb-5aef-2727-01c0-ec10c7a8fa8c@redhat.com>
+Content-Language: en-US
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -23,80 +20,25 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Tiwei Bie <tiwei.bie@intel.com>
-Cc: virtio-dev@lists.oasis-open.org, netdev@vger.kernel.org, linux-kernel@vger.kernel.org, virtualization@lists.linux-foundation.org, wexu@redhat.com
+To: Auger Eric <eric.auger@redhat.com>, iommu@lists.linux-foundation.org, virtualization@lists.linux-foundation.org, devicetree@vger.kernel.org
+Cc: mark.rutland@arm.com, peter.maydell@linaro.org, tnowicki@caviumnetworks.com, mst@redhat.com, marc.zyngier@arm.com, linux-pci@vger.kernel.org, will.deacon@arm.com, robh+dt@kernel.org, robin.murphy@arm.com, kvmarm@lists.cs.columbia.edu
 List-Id: virtualization@lists.linuxfoundation.org
 
-T24gVGh1LCBOb3YgMDgsIDIwMTggYXQgMDc6NTE6NDhQTSArMDgwMCwgVGl3ZWkgQmllIHdyb3Rl
-Ogo+IE9uIFRodSwgTm92IDA4LCAyMDE4IGF0IDA0OjE4OjI1UE0gKzA4MDAsIEphc29uIFdhbmcg
-d3JvdGU6Cj4gPiAKPiA+IE9uIDIwMTgvMTEvOCDkuIrljYg5OjM4LCBUaXdlaSBCaWUgd3JvdGU6
-Cj4gPiA+ID4gPiArCj4gPiA+ID4gPiArCWlmICh2cS0+dnEubnVtX2ZyZWUgPCBkZXNjc191c2Vk
-KSB7Cj4gPiA+ID4gPiArCQlwcl9kZWJ1ZygiQ2FuJ3QgYWRkIGJ1ZiBsZW4gJWkgLSBhdmFpbCA9
-ICVpXG4iLAo+ID4gPiA+ID4gKwkJCSBkZXNjc191c2VkLCB2cS0+dnEubnVtX2ZyZWUpOwo+ID4g
-PiA+ID4gKwkJLyogRklYTUU6IGZvciBoaXN0b3JpY2FsIHJlYXNvbnMsIHdlIGZvcmNlIGEgbm90
-aWZ5IGhlcmUgaWYKPiA+ID4gPiA+ICsJCSAqIHRoZXJlIGFyZSBvdXRnb2luZyBwYXJ0cyB0byB0
-aGUgYnVmZmVyLiAgUHJlc3VtYWJseSB0aGUKPiA+ID4gPiA+ICsJCSAqIGhvc3Qgc2hvdWxkIHNl
-cnZpY2UgdGhlIHJpbmcgQVNBUC4gKi8KPiA+ID4gPiBJIGRvbid0IHRoaW5rIHdlIGhhdmUgYSBy
-ZWFzb24gdG8gZG8gdGhpcyBmb3IgcGFja2VkIHJpbmcuCj4gPiA+ID4gTm8gaGlzdG9yaWNhbCBi
-YWdnYWdlIHRoZXJlLCByaWdodD8KPiA+ID4gQmFzZWQgb24gdGhlIG9yaWdpbmFsIGNvbW1pdCBs
-b2csIGl0IHNlZW1zIHRoYXQgdGhlIG5vdGlmeSBoZXJlCj4gPiA+IGlzIGp1c3QgYW4gIm9wdGlt
-aXphdGlvbiIuIEJ1dCBJIGRvbid0IHF1aXRlIHVuZGVyc3RhbmQgd2hhdCBkb2VzCj4gPiA+IHRo
-ZSAidGhlIGhldXJpc3RpY3Mgd2hpY2ggS1ZNIHVzZXMiIHJlZmVyIHRvLiBJZiBpdCdzIHNhZmUg
-dG8gZHJvcAo+ID4gPiB0aGlzIGluIHBhY2tlZCByaW5nLCBJJ2QgbGlrZSB0byBkbyBpdC4KPiA+
-IAo+ID4gCj4gPiBBY2NvcmRpbmcgdG8gdGhlIGNvbW1pdCBsb2csIGl0IHNlZW1zIGxpa2UgYSB3
-b3JrYXJvdW5kIG9mIGxndWVzdCBuZXR3b3JraW5nCj4gPiBiYWNrZW5kLgo+IAo+IERvIHlvdSBr
-bm93IHdoeSByZW1vdmluZyB0aGlzIG5vdGlmeSBpbiBUeCB3aWxsIGJyZWFrICJ0aGUKPiBoZXVy
-aXN0aWNzIHdoaWNoIEtWTSB1c2VzIj8gT3Igd2hhdCBkb2VzICJ0aGUgaGV1cmlzdGljcwo+IHdo
-aWNoIEtWTSB1c2VzIiByZWZlciB0bz8KClllcy4gUUVNVSBoYXMgYSBtb2RlIHdoZXJlIGl0IGRp
-c2FibGVzIG5vdGlmaWNhdGlvbnMgYW5kIHByb2Nlc3NlcyBUWApyaW5nIHBlcmlvZGljYWxseSBm
-cm9tIGEgdGltZXIuICBJdCdzIG9mZiBieSBkZWZhdWx0IGJ1dCB1c2VkIHRvIGJlIG9uCmJ5IGRl
-ZmF1bHQgYSBsb25nIHRpbWUgYWdvLiBJZiByaW5nIGJlY29tZXMgZnVsbCB0aGlzIGNhdXNlcyB0
-cmFmZmljCnN0YWxscy4gIEFzIGEgd29yay1hcm91bmQgUnVzdHkgcHV0IGluIHRoaXMgaGFjayB0
-byBraWNrIG9uIHJpbmcgZnVsbApldmVuIHdpdGggbm90aWZpY2F0aW9ucyBkaXNhYmxlZC4gIEl0
-J3MgZWFzeSBlbm91Z2ggdG8gbWFrZSBzdXJlIFFFTVUKZG9lcyBub3QgY29tYmluZSBkZXZpY2Vz
-IHdpdGggcGFja2VkIHJpbmcgc3VwcG9ydCB3aXRoIHRoZSB0aW1lciBoYWNrLgpBbmQgSSBhbSBn
-dWVzc2luZyBpdCdzIHNhZmUgZW5vdWdoIHRvIGFsc28gYmxvY2sgdGhhdCBvcHRpb24gY29tcGxl
-dGVseQplLmcuIHdoZW4gdmlydGlvIDEuMCBpcyBlbmFibGVkLgoKPiAKPiA+IEkgYWdyZWUgdG8g
-ZHJvcCBpdCwgd2Ugc2hvdWxkIG5vdCBoYXZlIHN1Y2ggYnVyZGVuLgo+ID4gCj4gPiBCdXQgd2Ug
-c2hvdWxkIG5vdGljZSB0aGF0LCB3aXRoIHRoaXMgcmVtb3ZlZCwgdGhlIGNvbXBhcmUgYmV0d2Vl
-biBwYWNrZWQgdnMKPiA+IHNwbGl0IGlzIGtpbmQgb2YgdW5mYWlyLiBDb25zaWRlciB0aGUgcmVt
-b3ZhbCBvZiBsZ3Vlc3Qgc3VwcG9ydCByZWNlbnRseSwKPiA+IG1heWJlIHdlIGNhbiBkcm9wIHRo
-aXMgZm9yIHNwbGl0IHJpbmcgYXMgd2VsbD8KPiA+IAo+ID4gVGhhbmtzCj4gPiAKPiA+IAo+ID4g
-PiAKPiA+ID4gY29tbWl0IDQ0NjUzZWFlMTQwN2Y3OWRmZjZmNTJmY2Y1OTRhZTg0Y2IxNjVlYzQK
-PiA+ID4gQXV0aG9yOiBSdXN0eSBSdXNzZWxsPHJ1c3R5QHJ1c3Rjb3JwLmNvbS5hdT4KPiA+ID4g
-RGF0ZTogICBGcmkgSnVsIDI1IDEyOjA2OjA0IDIwMDggLTA1MDAKPiA+ID4gCj4gPiA+ICAgICAg
-dmlydGlvOiBkb24ndCBhbHdheXMgZm9yY2UgYSBub3RpZmljYXRpb24gd2hlbiByaW5nIGlzIGZ1
-bGwKPiA+ID4gICAgICBXZSBmb3JjZSBub3RpZmljYXRpb24gd2hlbiB0aGUgcmluZyBpcyBmdWxs
-LCBldmVuIGlmIHRoZSBob3N0IGhhcwo+ID4gPiAgICAgIGluZGljYXRlZCBpdCBkb2Vzbid0IHdh
-bnQgdG8ga25vdy4gIFRoaXMgc2VlbWVkIGxpa2UgYSBnb29kIGlkZWEgYXQKPiA+ID4gICAgICB0
-aGUgdGltZTogaWYgd2UgZmlsbCB0aGUgdHJhbnNtaXQgcmluZywgd2Ugc2hvdWxkIHRlbGwgdGhl
-IGhvc3QKPiA+ID4gICAgICBpbW1lZGlhdGVseS4KPiA+ID4gICAgICBVbmZvcnR1bmF0ZWx5IHRo
-aXMgbG9naWMgYWxzbyBhcHBsaWVzIHRvIHRoZSByZWNlaXZpbmcgcmluZywgd2hpY2ggaXMKPiA+
-ID4gICAgICByZWZpbGxlZCBjb25zdGFudGx5LiAgV2Ugc2hvdWxkIGludHJvZHVjZSByZWFsIG5v
-dGlmaWNhdGlvbiB0aGVzaG9sZHMKPiA+ID4gICAgICB0byByZXBsYWNlIHRoaXMgbG9naWMuICBN
-ZWFud2hpbGUsIHJlbW92aW5nIHRoZSBsb2dpYyBhbHRvZ2V0aGVyIGJyZWFrcwo+ID4gPiAgICAg
-IHRoZSBoZXVyaXN0aWNzIHdoaWNoIEtWTSB1c2VzLCBzbyB3ZSB1c2UgYSBoYWNrOiBvbmx5IG5v
-dGlmeSBpZiB0aGVyZSBhcmUKPiA+ID4gICAgICBvdXRnb2luZyBwYXJ0cyBvZiB0aGUgbmV3IGJ1
-ZmZlci4KPiA+ID4gICAgICBIZXJlIGFyZSB0aGUgbnVtYmVyIG9mIGV4aXRzIHdpdGggbGd1ZXN0
-J3MgY3JhcHB5IG5ldHdvcmsgaW1wbGVtZW50YXRpb246Cj4gPiA+ICAgICAgQmVmb3JlOgo+ID4g
-PiAgICAgICAgICAgICAgbmV0d29yayB4bWl0IDc4NTkwNTEgcmVjdiAyMzY0MjAKPiA+ID4gICAg
-ICBBZnRlcjoKPiA+ID4gICAgICAgICAgICAgIG5ldHdvcmsgeG1pdCA3ODU4NjEwIHJlY3YgMTE4
-MTM2Cj4gPiA+ICAgICAgU2lnbmVkLW9mZi1ieTogUnVzdHkgUnVzc2VsbDxydXN0eUBydXN0Y29y
-cC5jb20uYXU+Cj4gPiA+IAo+ID4gPiBkaWZmIC0tZ2l0IGEvZHJpdmVycy92aXJ0aW8vdmlydGlv
-X3JpbmcuYyBiL2RyaXZlcnMvdmlydGlvL3ZpcnRpb19yaW5nLmMKPiA+ID4gaW5kZXggNzJiZjhi
-YzA5MDE0Li4yMWQ5YTYyNzY3YWYgMTAwNjQ0Cj4gPiA+IC0tLSBhL2RyaXZlcnMvdmlydGlvL3Zp
-cnRpb19yaW5nLmMKPiA+ID4gKysrIGIvZHJpdmVycy92aXJ0aW8vdmlydGlvX3JpbmcuYwo+ID4g
-PiBAQCAtODcsOCArODcsMTEgQEAgc3RhdGljIGludCB2cmluZ19hZGRfYnVmKHN0cnVjdCB2aXJ0
-cXVldWUgKl92cSwKPiA+ID4gICAJaWYgKHZxLT5udW1fZnJlZSA8IG91dCArIGluKSB7Cj4gPiA+
-ICAgCQlwcl9kZWJ1ZygiQ2FuJ3QgYWRkIGJ1ZiBsZW4gJWkgLSBhdmFpbCA9ICVpXG4iLAo+ID4g
-PiAgIAkJCSBvdXQgKyBpbiwgdnEtPm51bV9mcmVlKTsKPiA+ID4gLQkJLyogV2Ugbm90aWZ5KmV2
-ZW4gaWYqICBWUklOR19VU0VEX0ZfTk9fTk9USUZZIGlzIHNldCBoZXJlLiAqLwo+ID4gPiAtCQl2
-cS0+bm90aWZ5KCZ2cS0+dnEpOwo+ID4gPiArCQkvKiBGSVhNRTogZm9yIGhpc3RvcmljYWwgcmVh
-c29ucywgd2UgZm9yY2UgYSBub3RpZnkgaGVyZSBpZgo+ID4gPiArCQkgKiB0aGVyZSBhcmUgb3V0
-Z29pbmcgcGFydHMgdG8gdGhlIGJ1ZmZlci4gIFByZXN1bWFibHkgdGhlCj4gPiA+ICsJCSAqIGhv
-c3Qgc2hvdWxkIHNlcnZpY2UgdGhlIHJpbmcgQVNBUC4gKi8KPiA+ID4gKwkJaWYgKG91dCkKPiA+
-ID4gKwkJCXZxLT5ub3RpZnkoJnZxLT52cSk7Cj4gPiA+ICAgCQlFTkRfVVNFKHZxKTsKPiA+ID4g
-ICAJCXJldHVybiAtRU5PU1BDOwo+ID4gPiAgIAl9Cj4gPiA+IAo+ID4gPiAKX19fX19fX19fX19f
-X19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX18KVmlydHVhbGl6YXRpb24gbWFpbGlu
-ZyBsaXN0ClZpcnR1YWxpemF0aW9uQGxpc3RzLmxpbnV4LWZvdW5kYXRpb24ub3JnCmh0dHBzOi8v
-bGlzdHMubGludXhmb3VuZGF0aW9uLm9yZy9tYWlsbWFuL2xpc3RpbmZvL3ZpcnR1YWxpemF0aW9u
+On 08/11/2018 14:48, Auger Eric wrote:
+>> +struct virtio_iommu_probe_property {
+>> +	__le16					type;
+>> +	__le16					length;
+> the value[] field has disappeared but still is documented in the v0.8 spec.
+
+Good catch. I removed value[] when reworking the
+virtio_iommu_probe_resv_mem definition, because embedding a struct with
+a flexible array into another violates the C99 standard, even though GCC
+accepts it.
+
+I'll remove it from the spec as well, but I probably won't publish a new
+version for this change alone. The virtio spec itself has similar uses
+of flexible arrays, that are given for explanation but aren't valid C
+(and those wouldn't even compile).
+
+Thanks,
+Jean
