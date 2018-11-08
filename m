@@ -1,16 +1,19 @@
-From: Tiwei Bie <tiwei.bie@intel.com>
-Subject: Re: [PATCH net-next v2 3/5] virtio_ring: add packed ring support
-Date: Thu, 8 Nov 2018 09:38:00 +0800
-Message-ID: <20181108013759.GA20591__34348.7843325876$1541641056$gmane$org@debian>
-References: <20180711022711.7090-1-tiwei.bie@intel.com>
-	<20180711022711.7090-4-tiwei.bie@intel.com>
-	<20181107123933-mutt-send-email-mst@kernel.org>
+From: jiangyiwen <jiangyiwen@huawei.com>
+Subject: Re: [PATCH 2/5] VSOCK: support fill data to mergeable rx buffer in
+	host
+Date: Thu, 8 Nov 2018 09:56:26 +0800
+Message-ID: <5BE397CA.5060000__19821.8506681316$1541642079$gmane$org@huawei.com>
+References: <5BDFF537.3050806@huawei.com>
+	<485c2c5d-d73e-e679-9549-aad3de02f0ab@redhat.com>
+	<5BE134EF.1070009@huawei.com>
+	<8963dba5-c2fb-69d0-4adb-72d751a9dedf@redhat.com>
+	<5BE2903C.50608@huawei.com>
+	<76732898-8e4f-910a-aac5-ea4b635a1c15@redhat.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset="utf-8"
+Content-Transfer-Encoding: base64
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-Content-Disposition: inline
-In-Reply-To: <20181107123933-mutt-send-email-mst@kernel.org>
+In-Reply-To: <76732898-8e4f-910a-aac5-ea4b635a1c15@redhat.com>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -20,204 +23,32 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: "Michael S. Tsirkin" <mst@redhat.com>
-Cc: virtio-dev@lists.oasis-open.org, netdev@vger.kernel.org, linux-kernel@vger.kernel.org, virtualization@lists.linux-foundation.org, wexu@redhat.com
+To: Jason Wang <jasowang@redhat.com>, stefanha@redhat.com, stefanha@gmail.com
+Cc: netdev@vger.kernel.org, kvm@vger.kernel.org, virtualization@lists.linux-foundation.org
 List-Id: virtualization@lists.linuxfoundation.org
 
-On Wed, Nov 07, 2018 at 12:48:46PM -0500, Michael S. Tsirkin wrote:
-> On Wed, Jul 11, 2018 at 10:27:09AM +0800, Tiwei Bie wrote:
-> > This commit introduces the support (without EVENT_IDX) for
-> > packed ring.
-> > 
-> > Signed-off-by: Tiwei Bie <tiwei.bie@intel.com>
-> > ---
-> >  drivers/virtio/virtio_ring.c | 495 ++++++++++++++++++++++++++++++++++-
-> >  1 file changed, 487 insertions(+), 8 deletions(-)
-[...]
-> >  
-> > +static void vring_unmap_state_packed(const struct vring_virtqueue *vq,
-> > +				     struct vring_desc_state_packed *state)
-> > +{
-> > +	u16 flags;
-> > +
-> > +	if (!vring_use_dma_api(vq->vq.vdev))
-> > +		return;
-> > +
-> > +	flags = state->flags;
-> > +
-> > +	if (flags & VRING_DESC_F_INDIRECT) {
-> > +		dma_unmap_single(vring_dma_dev(vq),
-> > +				 state->addr, state->len,
-> > +				 (flags & VRING_DESC_F_WRITE) ?
-> > +				 DMA_FROM_DEVICE : DMA_TO_DEVICE);
-> > +	} else {
-> > +		dma_unmap_page(vring_dma_dev(vq),
-> > +			       state->addr, state->len,
-> > +			       (flags & VRING_DESC_F_WRITE) ?
-> > +			       DMA_FROM_DEVICE : DMA_TO_DEVICE);
-> > +	}
-> > +}
-> > +
-> > +static void vring_unmap_desc_packed(const struct vring_virtqueue *vq,
-> > +				   struct vring_packed_desc *desc)
-> > +{
-> > +	u16 flags;
-> > +
-> > +	if (!vring_use_dma_api(vq->vq.vdev))
-> > +		return;
-> > +
-> > +	flags = virtio16_to_cpu(vq->vq.vdev, desc->flags);
-> 
-> BTW this stuff is only used on error etc. Is there a way to
-> reuse vring_unmap_state_packed?
-
-It's also used by the INDIRECT path. We don't allocate desc
-state for INDIRECT descriptors to save DMA addr/len etc.
-
-> 
-> > +
-> > +	if (flags & VRING_DESC_F_INDIRECT) {
-> > +		dma_unmap_single(vring_dma_dev(vq),
-> > +				 virtio64_to_cpu(vq->vq.vdev, desc->addr),
-> > +				 virtio32_to_cpu(vq->vq.vdev, desc->len),
-> > +				 (flags & VRING_DESC_F_WRITE) ?
-> > +				 DMA_FROM_DEVICE : DMA_TO_DEVICE);
-> > +	} else {
-> > +		dma_unmap_page(vring_dma_dev(vq),
-> > +			       virtio64_to_cpu(vq->vq.vdev, desc->addr),
-> > +			       virtio32_to_cpu(vq->vq.vdev, desc->len),
-> > +			       (flags & VRING_DESC_F_WRITE) ?
-> > +			       DMA_FROM_DEVICE : DMA_TO_DEVICE);
-> > +	}
-> > +}
-[...]
-> > @@ -766,47 +840,449 @@ static inline int virtqueue_add_packed(struct virtqueue *_vq,
-> >  				       void *ctx,
-> >  				       gfp_t gfp)
-> >  {
-> > +	struct vring_virtqueue *vq = to_vvq(_vq);
-> > +	struct vring_packed_desc *desc;
-> > +	struct scatterlist *sg;
-> > +	unsigned int i, n, descs_used, uninitialized_var(prev), err_idx;
-> > +	__virtio16 uninitialized_var(head_flags), flags;
-> > +	u16 head, avail_wrap_counter, id, curr;
-> > +	bool indirect;
-> > +
-> > +	START_USE(vq);
-> > +
-> > +	BUG_ON(data == NULL);
-> > +	BUG_ON(ctx && vq->indirect);
-> > +
-> > +	if (unlikely(vq->broken)) {
-> > +		END_USE(vq);
-> > +		return -EIO;
-> > +	}
-> > +
-> > +#ifdef DEBUG
-> > +	{
-> > +		ktime_t now = ktime_get();
-> > +
-> > +		/* No kick or get, with .1 second between?  Warn. */
-> > +		if (vq->last_add_time_valid)
-> > +			WARN_ON(ktime_to_ms(ktime_sub(now, vq->last_add_time))
-> > +					    > 100);
-> > +		vq->last_add_time = now;
-> > +		vq->last_add_time_valid = true;
-> > +	}
-> > +#endif
-> > +
-> > +	BUG_ON(total_sg == 0);
-> > +
-> > +	head = vq->next_avail_idx;
-> > +	avail_wrap_counter = vq->avail_wrap_counter;
-> > +
-> > +	if (virtqueue_use_indirect(_vq, total_sg))
-> > +		desc = alloc_indirect_packed(_vq, total_sg, gfp);
-> > +	else {
-> > +		desc = NULL;
-> > +		WARN_ON_ONCE(total_sg > vq->vring_packed.num && !vq->indirect);
-> > +	}
-> > +
-> > +	if (desc) {
-> > +		/* Use a single buffer which doesn't continue */
-> > +		indirect = true;
-> > +		/* Set up rest to use this indirect table. */
-> > +		i = 0;
-> > +		descs_used = 1;
-> > +	} else {
-> > +		indirect = false;
-> > +		desc = vq->vring_packed.desc;
-> > +		i = head;
-> > +		descs_used = total_sg;
-> > +	}
-> > +
-> > +	if (vq->vq.num_free < descs_used) {
-> > +		pr_debug("Can't add buf len %i - avail = %i\n",
-> > +			 descs_used, vq->vq.num_free);
-> > +		/* FIXME: for historical reasons, we force a notify here if
-> > +		 * there are outgoing parts to the buffer.  Presumably the
-> > +		 * host should service the ring ASAP. */
-> 
-> I don't think we have a reason to do this for packed ring.
-> No historical baggage there, right?
-
-Based on the original commit log, it seems that the notify here
-is just an "optimization". But I don't quite understand what does
-the "the heuristics which KVM uses" refer to. If it's safe to drop
-this in packed ring, I'd like to do it.
-
-commit 44653eae1407f79dff6f52fcf594ae84cb165ec4
-Author: Rusty Russell <rusty@rustcorp.com.au>
-Date:   Fri Jul 25 12:06:04 2008 -0500
-
-    virtio: don't always force a notification when ring is full
-    
-    We force notification when the ring is full, even if the host has
-    indicated it doesn't want to know.  This seemed like a good idea at
-    the time: if we fill the transmit ring, we should tell the host
-    immediately.
-    
-    Unfortunately this logic also applies to the receiving ring, which is
-    refilled constantly.  We should introduce real notification thesholds
-    to replace this logic.  Meanwhile, removing the logic altogether breaks
-    the heuristics which KVM uses, so we use a hack: only notify if there are
-    outgoing parts of the new buffer.
-    
-    Here are the number of exits with lguest's crappy network implementation:
-    Before:
-            network xmit 7859051 recv 236420
-    After:
-            network xmit 7858610 recv 118136
-    
-    Signed-off-by: Rusty Russell <rusty@rustcorp.com.au>
-
-diff --git a/drivers/virtio/virtio_ring.c b/drivers/virtio/virtio_ring.c
-index 72bf8bc09014..21d9a62767af 100644
---- a/drivers/virtio/virtio_ring.c
-+++ b/drivers/virtio/virtio_ring.c
-@@ -87,8 +87,11 @@ static int vring_add_buf(struct virtqueue *_vq,
- 	if (vq->num_free < out + in) {
- 		pr_debug("Can't add buf len %i - avail = %i\n",
- 			 out + in, vq->num_free);
--		/* We notify *even if* VRING_USED_F_NO_NOTIFY is set here. */
--		vq->notify(&vq->vq);
-+		/* FIXME: for historical reasons, we force a notify here if
-+		 * there are outgoing parts to the buffer.  Presumably the
-+		 * host should service the ring ASAP. */
-+		if (out)
-+			vq->notify(&vq->vq);
- 		END_USE(vq);
- 		return -ENOSPC;
- 	}
-
-
-> 
-> > +		if (out_sgs)
-> > +			vq->notify(&vq->vq);
-> > +		if (indirect)
-> > +			kfree(desc);
-> > +		END_USE(vq);
-> > +		return -ENOSPC;
-> > +	}
-> > +
-[...]
+T24gMjAxOC8xMS83IDIxOjMyLCBKYXNvbiBXYW5nIHdyb3RlOgo+IAo+IE9uIDIwMTgvMTEvNyDk
+uIvljYgzOjExLCBqaWFuZ3lpd2VuIHdyb3RlOgo+PiBPbiAyMDE4LzExLzcgMTQ6MTgsIEphc29u
+IFdhbmcgd3JvdGU6Cj4+PiBPbiAyMDE4LzExLzYg5LiL5Y2IMjozMCwgamlhbmd5aXdlbiB3cm90
+ZToKPj4+Pj4gU2VlbXMgZHVwbGljYXRlZCB3aXRoIHRoZSBvbmUgdXNlZCBieSB2aG9zdC1uZXQu
+Cj4+Pj4+Cj4+Pj4+IEluIHBhY2tlZCB2aXJ0cXVldWUgaW1wbGVtZW50YXRpb24sIEkgcGxhbiB0
+byBtb3ZlIHRoaXMgdG8gdmhvc3QuYy4KPj4+Pj4KPj4+PiBZZXMsIHRoaXMgY29kZSBpcyBmdWxs
+IGNvcGllZCBmcm9tIHZob3N0LW5ldCwgaWYgaXQgY2FuIGJlIHBhY2tlZCBpbnRvCj4+Pj4gdmhv
+c3QuYywgaXQgd291bGQgYmUgZ3JlYXQuCj4+Pj4KPj4+IElmIHlvdSB0cnkgdG8gcmV1c2Ugdmhv
+c3QtbmV0LCB5b3UgZG9uJ3QgZXZlbiBuZWVkIHRvIGNhcmUgYWJvdXQgdGhpczopCj4+Pgo+Pj4g
+VGhhbmtzCj4+Pgo+Pj4KPj4+IC4KPj4+Cj4+IEhpIEphc29uLAo+Pgo+PiBUaGFuayB5b3VyIGFk
+dmljZSwgSSB3aWxsIGNvbnNpZGVyIHlvdXIgaWRlYS4gQnV0IEkgZG9uJ3Qga25vdwo+PiB3aGF0
+J3Mgc3RlZmFuJ3Mgc3VnZ2VzdGlvbj8gSXQgc2VlbXMgdGhhdCBoZSBkb2Vzbid0IGNhcmUgbXVj
+aAo+PiBhYm91dCB0aGlzIGNvbW11bml0eS46KAo+IAo+IAo+IEkgdGhpbmsgbm90LiBIZSBpcyBw
+cm9iYWJseSBidXN5IHRoZXNlIGRheXMuCj4gCj4gCj4+Cj4+IEkgc3RpbGwgaG9wZSB0aGlzIGNv
+bW11bml0eSBjYW4gaGF2ZSBzb21lIHZpdGFsaXR5Lgo+Pgo+IAo+IExldCdzIHdhaXQgZm9yIGZl
+dyBtb3JlIGRheXMgZm9yIHRoZSBwb3NzaWJsZSBjb21tZW50cyBmcm9tIFN0ZWZhbiBvciBNaWNo
+YWVsLiBCdXQgSSBkbyBwcmVmZXIgdG8gdW5pZnkgdGhlIHZpcnRpbyBuZXR3b3JraW5nIGRhdGFw
+YXRoIHdoaWNoIHdpbGwgYmUgZWFzaWVyIHRvIGJlIGV4dGVuZGVkIGFuZCBtYWludGFpbmVkLgo+
+IAo+IFRoYW5rcwo+IAo+IAo+IC4KPiAKCkhpIEphc29uLAoKQWN0dWFsbHkgdnNvY2sgdXNlIHZp
+cnRpby1uZXQgYXMgdHJhbnNwb3J0IHBhdGggc2hvdWxkIGJlIGEgYmV0dGVyIGlkZWEsCkkgd2ls
+bCB0cnkgdG8gY29uc2lkZXIgdGhlIG5ldyBpZGVhLgoKVGhhbmtzLApZaXdlbi4KCgpfX19fX19f
+X19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fXwpWaXJ0dWFsaXphdGlvbiBt
+YWlsaW5nIGxpc3QKVmlydHVhbGl6YXRpb25AbGlzdHMubGludXgtZm91bmRhdGlvbi5vcmcKaHR0
+cHM6Ly9saXN0cy5saW51eGZvdW5kYXRpb24ub3JnL21haWxtYW4vbGlzdGluZm8vdmlydHVhbGl6
+YXRpb24=
