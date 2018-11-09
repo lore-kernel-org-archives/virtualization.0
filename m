@@ -1,13 +1,20 @@
-From: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-Subject: [PATCH 4.9 121/171] x86/paravirt: Fix some warning messages
-Date: Thu,  8 Nov 2018 13:51:31 -0800
-Message-ID: <20181108215136.025897422@linuxfoundation.org>
-References: <20181108215127.257643509@linuxfoundation.org>
+From: Tiwei Bie <tiwei.bie@intel.com>
+Subject: Re: [PATCH net-next v2 3/5] virtio_ring: add packed ring support
+Date: Fri, 9 Nov 2018 09:50:11 +0800
+Message-ID: <20181109015011.GA24544__28643.4601563544$1541728200$gmane$org@debian>
+References: <20180711022711.7090-1-tiwei.bie@intel.com>
+	<20180711022711.7090-4-tiwei.bie@intel.com>
+	<20181107123933-mutt-send-email-mst@kernel.org>
+	<20181108013759.GA20591@debian>
+	<2d46a41e-bc00-276a-e19a-105c9dffc75a@redhat.com>
+	<20181108115148.GA15701@debian>
+	<20181108103155-mutt-send-email-mst@kernel.org>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset="utf-8"
+Content-Transfer-Encoding: base64
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <20181108215127.257643509@linuxfoundation.org>
+Content-Disposition: inline
+In-Reply-To: <20181108103155-mutt-send-email-mst@kernel.org>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -17,54 +24,85 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: linux-kernel@vger.kernel.org
-Cc: Juergen Gross <jgross@suse.com>, Sasha Levin <sashal@kernel.org>, Peter Zijlstra <peterz@infradead.org>, Greg Kroah-Hartman <gregkh@linuxfoundation.org>, kernel-janitors@vger.kernel.org, stable@vger.kernel.org, virtualization@lists.linux-foundation.org, "H. Peter Anvin" <hpa@zytor.com>, Thomas Gleixner <tglx@linutronix.de>, Alok Kataria <akataria@vmware.com>, Dan Carpenter <dan.carpenter@oracle.com>
+To: "Michael S. Tsirkin" <mst@redhat.com>
+Cc: virtio-dev@lists.oasis-open.org, netdev@vger.kernel.org, linux-kernel@vger.kernel.org, virtualization@lists.linux-foundation.org, wexu@redhat.com
 List-Id: virtualization@lists.linuxfoundation.org
 
-4.9-stable review patch.  If anyone has any objections, please let me know.
-
-------------------
-
-[ Upstream commit 571d0563c8881595f4ab027aef9ed1c55e3e7b7c ]
-
-The first argument to WARN_ONCE() is a condition.
-
-Fixes: 5800dc5c19f3 ("x86/paravirt: Fix spectre-v2 mitigations for paravirt guests")
-Signed-off-by: Dan Carpenter <dan.carpenter@oracle.com>
-Signed-off-by: Thomas Gleixner <tglx@linutronix.de>
-Reviewed-by: Juergen Gross <jgross@suse.com>
-Cc: Peter Zijlstra <peterz@infradead.org>
-Cc: Alok Kataria <akataria@vmware.com>
-Cc: "H. Peter Anvin" <hpa@zytor.com>
-Cc: virtualization@lists.linux-foundation.org
-Cc: kernel-janitors@vger.kernel.org
-Link: https://lkml.kernel.org/r/20180919103553.GD9238@mwanda
-Signed-off-by: Sasha Levin <sashal@kernel.org>
----
- arch/x86/kernel/paravirt.c | 4 ++--
- 1 file changed, 2 insertions(+), 2 deletions(-)
-
-diff --git a/arch/x86/kernel/paravirt.c b/arch/x86/kernel/paravirt.c
-index 29d465627919..bf9552bebb3c 100644
---- a/arch/x86/kernel/paravirt.c
-+++ b/arch/x86/kernel/paravirt.c
-@@ -90,7 +90,7 @@ unsigned paravirt_patch_call(void *insnbuf,
- 
- 	if (len < 5) {
- #ifdef CONFIG_RETPOLINE
--		WARN_ONCE("Failing to patch indirect CALL in %ps\n", (void *)addr);
-+		WARN_ONCE(1, "Failing to patch indirect CALL in %ps\n", (void *)addr);
- #endif
- 		return len;	/* call too long for patch site */
- 	}
-@@ -110,7 +110,7 @@ unsigned paravirt_patch_jmp(void *insnbuf, const void *target,
- 
- 	if (len < 5) {
- #ifdef CONFIG_RETPOLINE
--		WARN_ONCE("Failing to patch indirect JMP in %ps\n", (void *)addr);
-+		WARN_ONCE(1, "Failing to patch indirect JMP in %ps\n", (void *)addr);
- #endif
- 		return len;	/* call too long for patch site */
- 	}
--- 
-2.17.1
+T24gVGh1LCBOb3YgMDgsIDIwMTggYXQgMTA6NTY6MDJBTSAtMDUwMCwgTWljaGFlbCBTLiBUc2ly
+a2luIHdyb3RlOgo+IE9uIFRodSwgTm92IDA4LCAyMDE4IGF0IDA3OjUxOjQ4UE0gKzA4MDAsIFRp
+d2VpIEJpZSB3cm90ZToKPiA+IE9uIFRodSwgTm92IDA4LCAyMDE4IGF0IDA0OjE4OjI1UE0gKzA4
+MDAsIEphc29uIFdhbmcgd3JvdGU6Cj4gPiA+IAo+ID4gPiBPbiAyMDE4LzExLzgg5LiK5Y2IOToz
+OCwgVGl3ZWkgQmllIHdyb3RlOgo+ID4gPiA+ID4gPiArCj4gPiA+ID4gPiA+ICsJaWYgKHZxLT52
+cS5udW1fZnJlZSA8IGRlc2NzX3VzZWQpIHsKPiA+ID4gPiA+ID4gKwkJcHJfZGVidWcoIkNhbid0
+IGFkZCBidWYgbGVuICVpIC0gYXZhaWwgPSAlaVxuIiwKPiA+ID4gPiA+ID4gKwkJCSBkZXNjc191
+c2VkLCB2cS0+dnEubnVtX2ZyZWUpOwo+ID4gPiA+ID4gPiArCQkvKiBGSVhNRTogZm9yIGhpc3Rv
+cmljYWwgcmVhc29ucywgd2UgZm9yY2UgYSBub3RpZnkgaGVyZSBpZgo+ID4gPiA+ID4gPiArCQkg
+KiB0aGVyZSBhcmUgb3V0Z29pbmcgcGFydHMgdG8gdGhlIGJ1ZmZlci4gIFByZXN1bWFibHkgdGhl
+Cj4gPiA+ID4gPiA+ICsJCSAqIGhvc3Qgc2hvdWxkIHNlcnZpY2UgdGhlIHJpbmcgQVNBUC4gKi8K
+PiA+ID4gPiA+IEkgZG9uJ3QgdGhpbmsgd2UgaGF2ZSBhIHJlYXNvbiB0byBkbyB0aGlzIGZvciBw
+YWNrZWQgcmluZy4KPiA+ID4gPiA+IE5vIGhpc3RvcmljYWwgYmFnZ2FnZSB0aGVyZSwgcmlnaHQ/
+Cj4gPiA+ID4gQmFzZWQgb24gdGhlIG9yaWdpbmFsIGNvbW1pdCBsb2csIGl0IHNlZW1zIHRoYXQg
+dGhlIG5vdGlmeSBoZXJlCj4gPiA+ID4gaXMganVzdCBhbiAib3B0aW1pemF0aW9uIi4gQnV0IEkg
+ZG9uJ3QgcXVpdGUgdW5kZXJzdGFuZCB3aGF0IGRvZXMKPiA+ID4gPiB0aGUgInRoZSBoZXVyaXN0
+aWNzIHdoaWNoIEtWTSB1c2VzIiByZWZlciB0by4gSWYgaXQncyBzYWZlIHRvIGRyb3AKPiA+ID4g
+PiB0aGlzIGluIHBhY2tlZCByaW5nLCBJJ2QgbGlrZSB0byBkbyBpdC4KPiA+ID4gCj4gPiA+IAo+
+ID4gPiBBY2NvcmRpbmcgdG8gdGhlIGNvbW1pdCBsb2csIGl0IHNlZW1zIGxpa2UgYSB3b3JrYXJv
+dW5kIG9mIGxndWVzdCBuZXR3b3JraW5nCj4gPiA+IGJhY2tlbmQuCj4gPiAKPiA+IERvIHlvdSBr
+bm93IHdoeSByZW1vdmluZyB0aGlzIG5vdGlmeSBpbiBUeCB3aWxsIGJyZWFrICJ0aGUKPiA+IGhl
+dXJpc3RpY3Mgd2hpY2ggS1ZNIHVzZXMiPyBPciB3aGF0IGRvZXMgInRoZSBoZXVyaXN0aWNzCj4g
+PiB3aGljaCBLVk0gdXNlcyIgcmVmZXIgdG8/Cj4gCj4gWWVzLiBRRU1VIGhhcyBhIG1vZGUgd2hl
+cmUgaXQgZGlzYWJsZXMgbm90aWZpY2F0aW9ucyBhbmQgcHJvY2Vzc2VzIFRYCj4gcmluZyBwZXJp
+b2RpY2FsbHkgZnJvbSBhIHRpbWVyLiAgSXQncyBvZmYgYnkgZGVmYXVsdCBidXQgdXNlZCB0byBi
+ZSBvbgo+IGJ5IGRlZmF1bHQgYSBsb25nIHRpbWUgYWdvLiBJZiByaW5nIGJlY29tZXMgZnVsbCB0
+aGlzIGNhdXNlcyB0cmFmZmljCj4gc3RhbGxzLiAgQXMgYSB3b3JrLWFyb3VuZCBSdXN0eSBwdXQg
+aW4gdGhpcyBoYWNrIHRvIGtpY2sgb24gcmluZyBmdWxsCj4gZXZlbiB3aXRoIG5vdGlmaWNhdGlv
+bnMgZGlzYWJsZWQuICBJdCdzIGVhc3kgZW5vdWdoIHRvIG1ha2Ugc3VyZSBRRU1VCj4gZG9lcyBu
+b3QgY29tYmluZSBkZXZpY2VzIHdpdGggcGFja2VkIHJpbmcgc3VwcG9ydCB3aXRoIHRoZSB0aW1l
+ciBoYWNrLgo+IEFuZCBJIGFtIGd1ZXNzaW5nIGl0J3Mgc2FmZSBlbm91Z2ggdG8gYWxzbyBibG9j
+ayB0aGF0IG9wdGlvbiBjb21wbGV0ZWx5Cj4gZS5nLiB3aGVuIHZpcnRpbyAxLjAgaXMgZW5hYmxl
+ZC4KCkkgc2VlLiBUaGFua3MhCgo+IAo+ID4gCj4gPiA+IEkgYWdyZWUgdG8gZHJvcCBpdCwgd2Ug
+c2hvdWxkIG5vdCBoYXZlIHN1Y2ggYnVyZGVuLgo+ID4gPiAKPiA+ID4gQnV0IHdlIHNob3VsZCBu
+b3RpY2UgdGhhdCwgd2l0aCB0aGlzIHJlbW92ZWQsIHRoZSBjb21wYXJlIGJldHdlZW4gcGFja2Vk
+IHZzCj4gPiA+IHNwbGl0IGlzIGtpbmQgb2YgdW5mYWlyLiBDb25zaWRlciB0aGUgcmVtb3ZhbCBv
+ZiBsZ3Vlc3Qgc3VwcG9ydCByZWNlbnRseSwKPiA+ID4gbWF5YmUgd2UgY2FuIGRyb3AgdGhpcyBm
+b3Igc3BsaXQgcmluZyBhcyB3ZWxsPwo+ID4gPiAKPiA+ID4gVGhhbmtzCj4gPiA+IAo+ID4gPiAK
+PiA+ID4gPiAKPiA+ID4gPiBjb21taXQgNDQ2NTNlYWUxNDA3Zjc5ZGZmNmY1MmZjZjU5NGFlODRj
+YjE2NWVjNAo+ID4gPiA+IEF1dGhvcjogUnVzdHkgUnVzc2VsbDxydXN0eUBydXN0Y29ycC5jb20u
+YXU+Cj4gPiA+ID4gRGF0ZTogICBGcmkgSnVsIDI1IDEyOjA2OjA0IDIwMDggLTA1MDAKPiA+ID4g
+PiAKPiA+ID4gPiAgICAgIHZpcnRpbzogZG9uJ3QgYWx3YXlzIGZvcmNlIGEgbm90aWZpY2F0aW9u
+IHdoZW4gcmluZyBpcyBmdWxsCj4gPiA+ID4gICAgICBXZSBmb3JjZSBub3RpZmljYXRpb24gd2hl
+biB0aGUgcmluZyBpcyBmdWxsLCBldmVuIGlmIHRoZSBob3N0IGhhcwo+ID4gPiA+ICAgICAgaW5k
+aWNhdGVkIGl0IGRvZXNuJ3Qgd2FudCB0byBrbm93LiAgVGhpcyBzZWVtZWQgbGlrZSBhIGdvb2Qg
+aWRlYSBhdAo+ID4gPiA+ICAgICAgdGhlIHRpbWU6IGlmIHdlIGZpbGwgdGhlIHRyYW5zbWl0IHJp
+bmcsIHdlIHNob3VsZCB0ZWxsIHRoZSBob3N0Cj4gPiA+ID4gICAgICBpbW1lZGlhdGVseS4KPiA+
+ID4gPiAgICAgIFVuZm9ydHVuYXRlbHkgdGhpcyBsb2dpYyBhbHNvIGFwcGxpZXMgdG8gdGhlIHJl
+Y2VpdmluZyByaW5nLCB3aGljaCBpcwo+ID4gPiA+ICAgICAgcmVmaWxsZWQgY29uc3RhbnRseS4g
+IFdlIHNob3VsZCBpbnRyb2R1Y2UgcmVhbCBub3RpZmljYXRpb24gdGhlc2hvbGRzCj4gPiA+ID4g
+ICAgICB0byByZXBsYWNlIHRoaXMgbG9naWMuICBNZWFud2hpbGUsIHJlbW92aW5nIHRoZSBsb2dp
+YyBhbHRvZ2V0aGVyIGJyZWFrcwo+ID4gPiA+ICAgICAgdGhlIGhldXJpc3RpY3Mgd2hpY2ggS1ZN
+IHVzZXMsIHNvIHdlIHVzZSBhIGhhY2s6IG9ubHkgbm90aWZ5IGlmIHRoZXJlIGFyZQo+ID4gPiA+
+ICAgICAgb3V0Z29pbmcgcGFydHMgb2YgdGhlIG5ldyBidWZmZXIuCj4gPiA+ID4gICAgICBIZXJl
+IGFyZSB0aGUgbnVtYmVyIG9mIGV4aXRzIHdpdGggbGd1ZXN0J3MgY3JhcHB5IG5ldHdvcmsgaW1w
+bGVtZW50YXRpb246Cj4gPiA+ID4gICAgICBCZWZvcmU6Cj4gPiA+ID4gICAgICAgICAgICAgIG5l
+dHdvcmsgeG1pdCA3ODU5MDUxIHJlY3YgMjM2NDIwCj4gPiA+ID4gICAgICBBZnRlcjoKPiA+ID4g
+PiAgICAgICAgICAgICAgbmV0d29yayB4bWl0IDc4NTg2MTAgcmVjdiAxMTgxMzYKPiA+ID4gPiAg
+ICAgIFNpZ25lZC1vZmYtYnk6IFJ1c3R5IFJ1c3NlbGw8cnVzdHlAcnVzdGNvcnAuY29tLmF1Pgo+
+ID4gPiA+IAo+ID4gPiA+IGRpZmYgLS1naXQgYS9kcml2ZXJzL3ZpcnRpby92aXJ0aW9fcmluZy5j
+IGIvZHJpdmVycy92aXJ0aW8vdmlydGlvX3JpbmcuYwo+ID4gPiA+IGluZGV4IDcyYmY4YmMwOTAx
+NC4uMjFkOWE2Mjc2N2FmIDEwMDY0NAo+ID4gPiA+IC0tLSBhL2RyaXZlcnMvdmlydGlvL3ZpcnRp
+b19yaW5nLmMKPiA+ID4gPiArKysgYi9kcml2ZXJzL3ZpcnRpby92aXJ0aW9fcmluZy5jCj4gPiA+
+ID4gQEAgLTg3LDggKzg3LDExIEBAIHN0YXRpYyBpbnQgdnJpbmdfYWRkX2J1ZihzdHJ1Y3Qgdmly
+dHF1ZXVlICpfdnEsCj4gPiA+ID4gICAJaWYgKHZxLT5udW1fZnJlZSA8IG91dCArIGluKSB7Cj4g
+PiA+ID4gICAJCXByX2RlYnVnKCJDYW4ndCBhZGQgYnVmIGxlbiAlaSAtIGF2YWlsID0gJWlcbiIs
+Cj4gPiA+ID4gICAJCQkgb3V0ICsgaW4sIHZxLT5udW1fZnJlZSk7Cj4gPiA+ID4gLQkJLyogV2Ug
+bm90aWZ5KmV2ZW4gaWYqICBWUklOR19VU0VEX0ZfTk9fTk9USUZZIGlzIHNldCBoZXJlLiAqLwo+
+ID4gPiA+IC0JCXZxLT5ub3RpZnkoJnZxLT52cSk7Cj4gPiA+ID4gKwkJLyogRklYTUU6IGZvciBo
+aXN0b3JpY2FsIHJlYXNvbnMsIHdlIGZvcmNlIGEgbm90aWZ5IGhlcmUgaWYKPiA+ID4gPiArCQkg
+KiB0aGVyZSBhcmUgb3V0Z29pbmcgcGFydHMgdG8gdGhlIGJ1ZmZlci4gIFByZXN1bWFibHkgdGhl
+Cj4gPiA+ID4gKwkJICogaG9zdCBzaG91bGQgc2VydmljZSB0aGUgcmluZyBBU0FQLiAqLwo+ID4g
+PiA+ICsJCWlmIChvdXQpCj4gPiA+ID4gKwkJCXZxLT5ub3RpZnkoJnZxLT52cSk7Cj4gPiA+ID4g
+ICAJCUVORF9VU0UodnEpOwo+ID4gPiA+ICAgCQlyZXR1cm4gLUVOT1NQQzsKPiA+ID4gPiAgIAl9
+Cj4gPiA+ID4gCj4gPiA+ID4gCl9fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19f
+X19fX19fX19fClZpcnR1YWxpemF0aW9uIG1haWxpbmcgbGlzdApWaXJ0dWFsaXphdGlvbkBsaXN0
+cy5saW51eC1mb3VuZGF0aW9uLm9yZwpodHRwczovL2xpc3RzLmxpbnV4Zm91bmRhdGlvbi5vcmcv
+bWFpbG1hbi9saXN0aW5mby92aXJ0dWFsaXphdGlvbg==
