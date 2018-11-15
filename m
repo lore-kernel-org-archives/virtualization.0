@@ -1,17 +1,16 @@
-From: Jason Wang <jasowang@redhat.com>
+From: jiangyiwen <jiangyiwen@huawei.com>
 Subject: Re: [RFC] Discuss about an new idea "Vsock over Virtio-net"
-Date: Thu, 15 Nov 2018 16:27:50 +0800
-Message-ID: <a1a88696-773d-6e1e-e0c3-f363e235aa84__42533.1193874173$1542270357$gmane$org@redhat.com>
+Date: Thu, 15 Nov 2018 16:38:47 +0800
+Message-ID: <5BED3097.8000708@huawei.com>
 References: <5BECEE53.7090408@huawei.com>
 	<20181115015547-mutt-send-email-mst@kernel.org>
 	<5BED2267.8030306@huawei.com>
 	<20181115025622-mutt-send-email-mst@kernel.org>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="utf-8"; Format="flowed"
-Content-Transfer-Encoding: base64
+Content-Type: text/plain; charset="us-ascii"
+Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
 In-Reply-To: <20181115025622-mutt-send-email-mst@kernel.org>
-Content-Language: en-US
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -21,50 +20,88 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: "Michael S. Tsirkin" <mst@redhat.com>, jiangyiwen <jiangyiwen@huawei.com>
-Cc: virtualization@lists.linux-foundation.org, kvm@vger.kernel.org, stefanha@redhat.com, netdev@vger.kernel.org
+To: "Michael S. Tsirkin" <mst@redhat.com>
+Cc: kvm@vger.kernel.org, virtualization@lists.linux-foundation.org, stefanha@redhat.com, netdev@vger.kernel.org
 List-Id: virtualization@lists.linuxfoundation.org
 
-Ck9uIDIwMTgvMTEvMTUg5LiL5Y2INDoxMCwgTWljaGFlbCBTLiBUc2lya2luIHdyb3RlOgo+IE9u
-IFRodSwgTm92IDE1LCAyMDE4IGF0IDAzOjM4OjE1UE0gKzA4MDAsIGppYW5neWl3ZW4gd3JvdGU6
-Cj4+IE9uIDIwMTgvMTEvMTUgMTU6MDQsIE1pY2hhZWwgUy4gVHNpcmtpbiB3cm90ZToKPj4+IE9u
-IFRodSwgTm92IDE1LCAyMDE4IGF0IDExOjU2OjAzQU0gKzA4MDAsIGppYW5neWl3ZW4gd3JvdGU6
-Cj4+Pj4gSGkgU3RlZmFuLCBNaWNoYWVsLCBKYXNvbiBhbmQgZXZlcnlvbmUsCj4+Pj4KPj4+PiBT
-ZXZlcmFsIGRheXMgYWdvLCBJIGRpc2N1c3NlZCB3aXRoIGphc29uIGFib3V0ICJWc29jayBvdmVy
-IFZpcnRpby1uZXQiLgo+Pj4+IFRoaXMgaWRlYSBoYXMgdHdvIGFkdmFudGFnZXM6Cj4+Pj4gRmly
-c3QsIGl0IGNhbiB1c2UgbWFueSBncmVhdCBmZWF0dXJlcyBvZiB2aXJ0aW8tbmV0LCBsaWtlIGJh
-dGNoaW5nLAo+Pj4+IG1lcmdlYWJsZSByeCBidWZmZXIgYW5kIG11bHRpcXVldWUsIGV0Yy4KPj4+
-PiBTZWNvbmQsIGl0IGNhbiByZWR1Y2UgbWFueSBkdXBsaWNhdGUgY29kZXMgYW5kIG1ha2UgaXQg
-ZWFzeSB0byBiZQo+Pj4+IG1haW50YWluZWQuCj4+PiBJJ20gbm90IHN1cmUgSSBnZXQgdGhlIG1v
-dGl2YXRpb24uIFdoaWNoIGZlYXR1cmVzIG9mCj4+PiB2aXJ0aW8gbmV0IGFyZSByZWxldmFudCB0
-byB2c29jaz8gVGhlIG9uZXMgdGhhdCB5b3UgbWVudGlvbgo+Pj4gYWxsIHNlZW0gdG8gYmUgbW9z
-dGx5IG9mIHVzZSB0byB0aGUgbmV0d29ya2luZyBzdGFjay4KPj4+Cj4+Pgo+Pj4+IEJlZm9yZSB0
-aGUgaW1wbGVtZW50LCBJIHdhbnQgdG8gZGlzY3VzcyB3aXRoIGV2ZXJ5b25lIGFnYWluLCBhbmQK
-Pj4+PiB3YW50IHRvIGtub3cgZXZlcnlvbmUncyBzdWdnZXN0aW9ucy4KPj4+Pgo+Pj4+IEFmdGVy
-IHRoZSBkaXNjdXNzaW9uLCBiYXNlZCBvbiB0aGlzIHBvaW50IEkgd2lsbCB0cnkgdG8gaW1wbGVt
-ZW50Cj4+Pj4gdGhpcyBpZGVhLCBidXQgSSBhbSBub3QgZmFtaWxpYXIgd2l0aCB0aGUgdmlydGlv
-LW5ldCwgdGhhdCBpcyBhCj4+Pj4gcGl0eS46KAo+Pj4+Cj4+Pj4gLS0tLS0tLS0tLS0tLS0tLS0t
-LS0tLS0tLVNpbXBsZSBpZGVhLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tCj4+Pj4KPj4+
-PiAxLiBUaGUgcGFja2V0IGxheW91dCB3aWxsIGJlY29tZSBhcyBmb2xsb3dzOgo+Pj4+Cj4+Pj4g
-Ky0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLSsKPj4+PiB8ICAgICAgICBWaXJ0aW8t
-bmV0IGhlYWRlciAgICAgICAgfAo+Pj4+IHwoc3RydWN0IHZpcnRpb19uZXRfaGRyX21yZ19yeGJ1
-Zil8Cj4+PiBXaGljaCBmaWVsZHMgaW4gdmlydGlvX25ldF9oZHJfbXJnX3J4YnVmIGFyZSBvZiBp
-bnRlcmVzdCB0byB2c29jaz8KPj4+Cj4+IEhpIE1pY2hhZWwsCj4+Cj4+IFllcywgY3VycmVudGx5
-IHZzb2NrIGhhcyBwb29yIHBlcmZvcm1hbmNlLCBmaXJzdCwgaXQgb25seSBzdXBwb3J0IHRyYW5z
-cG9ydAo+PiBzbWFsbCBwYWNrZXQsIGluIG9yZGVyIHRvIG1ha2UgdGhlIGJhbGFuY2UgYmV0d2Vl
-biBwZXJmb3JtYW5jZSBhbmQgZ3Vlc3QgbWVtb3J5Lgo+Pgo+PiBJbiBvcmRlciB0byBzb2x2ZSB0
-aGlzIHByb2JsZW0sIHRoZXJlIGFyZSB0d28gZmVhdHVyZXMgdnNvY2sgY2FuIHVzZWQsCj4+IG1l
-cmdlYWJsZSByeCBidWZmZXIgYW5kIG11bHRpcXVldWUuIEJhc2VkIG9uIHRoaXMsIHRoZXJlIGFy
-ZSBzb21lIHNoYXJlZAo+PiBjb2RlcyB2c29jayBjYW4gdXNlLgo+Pgo+PiBUaGFua3MsCj4+IFlp
-d2VuLgo+IFN1cHBvcnRpbmcgbW9yZSBxdWV1ZXMgd2l0aCB2c29jayBpcyBwcm9iYWJseSBzaWdu
-aWZpY2FudGx5Cj4gbGVzcyB3b3JrIHRoYW4gYSBjb21wbGV0ZWx5IG5ldyBpbnRlcmZhY2UuCj4g
-Rm9yIG1lcmdlYWJsZSwgYXMgYnVmZmVycyBhcmUgc3BsaXQgYXJiaXRyYXJpbHksIHdoeSBjYW4n
-dCB5b3UgY29tYmluZQo+IHRoZW0gd2l0aGluIGd1ZXN0IGRyaXZlciBiZWZvcmUgc2VuZGluZyB0
-aGVtIHVwIHRoZSBzdGFjaz8KCgpJIGRvbid0IGdldCB0aGlzIHF1ZXN0aW9uLiBCdXQgSSB0aGlu
-ayB0aGUgZmFjdCB0aGF0IHdlIHVzZSBtZXJnZWFibGUgCmJ1ZmZlciBieSBkZWZhdWx0IGZvciB2
-aXJ0aW8tbmV0IGFuc3dlciB0aGUgcXVlc3Rpb24uIE9yIGFueXRoaW5nIApzcGVjaWFsIGluIHZz
-b2NrPwoKVGhhbmtzCgoKPiBQcm9iYWJseSBiZXR0ZXIgdGhhbiByZWx5aW5nIG9uIGhvc3QgdG8g
-ZG8gaXQuCj4KX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX18K
-VmlydHVhbGl6YXRpb24gbWFpbGluZyBsaXN0ClZpcnR1YWxpemF0aW9uQGxpc3RzLmxpbnV4LWZv
-dW5kYXRpb24ub3JnCmh0dHBzOi8vbGlzdHMubGludXhmb3VuZGF0aW9uLm9yZy9tYWlsbWFuL2xp
-c3RpbmZvL3ZpcnR1YWxpemF0aW9u
+On 2018/11/15 16:10, Michael S. Tsirkin wrote:
+> On Thu, Nov 15, 2018 at 03:38:15PM +0800, jiangyiwen wrote:
+>> On 2018/11/15 15:04, Michael S. Tsirkin wrote:
+>>> On Thu, Nov 15, 2018 at 11:56:03AM +0800, jiangyiwen wrote:
+>>>> Hi Stefan, Michael, Jason and everyone,
+>>>>
+>>>> Several days ago, I discussed with jason about "Vsock over Virtio-net".
+>>>> This idea has two advantages:
+>>>> First, it can use many great features of virtio-net, like batching,
+>>>> mergeable rx buffer and multiqueue, etc.
+>>>> Second, it can reduce many duplicate codes and make it easy to be
+>>>> maintained.
+>>>
+>>> I'm not sure I get the motivation. Which features of
+>>> virtio net are relevant to vsock? The ones that you mention
+>>> all seem to be mostly of use to the networking stack.
+>>>
+>>>
+>>>> Before the implement, I want to discuss with everyone again, and
+>>>> want to know everyone's suggestions.
+>>>>
+>>>> After the discussion, based on this point I will try to implement
+>>>> this idea, but I am not familiar with the virtio-net, that is a
+>>>> pity. :(
+>>>>
+>>>> -------------------------Simple idea------------------------------
+>>>>
+>>>> 1. The packet layout will become as follows:
+>>>>
+>>>> +---------------------------------+
+>>>> |        Virtio-net header        |
+>>>> |(struct virtio_net_hdr_mrg_rxbuf)|
+>>>
+>>> Which fields in virtio_net_hdr_mrg_rxbuf are of interest to vsock?
+>>>
+>>
+>> Hi Michael,
+>>
+>> Yes, currently vsock has poor performance, first, it only support transport
+>> small packet, in order to make the balance between performance and guest memory.
+>>
+>> In order to solve this problem, there are two features vsock can used,
+>> mergeable rx buffer and multiqueue. Based on this, there are some shared
+>> codes vsock can use.
+>>
+>> Thanks,
+>> Yiwen.
+> 
+> Supporting more queues with vsock is probably significantly
+> less work than a completely new interface.
+> For mergeable, as buffers are split arbitrarily, why can't you combine
+> them within guest driver before sending them up the stack?
+> Probably better than relying on host to do it.
+> 
+
+Actually, I want to said the mergeable *rx* buffer, it cause the
+default packet size of vsock is set to 4k. For tx buffer, it is
+actually can be scattered in tx vq only need to modify very few codes.
+
+In addition, I has already first version about vsock support mergeable
+rx buffer and send patch to the VSOCK community, these codes are
+revisited from virtio-net, and some codes are duplicated. Based on
+this, we want to use virtio-net as transport of vsock. It can make
+the vsock code easy to maintained.
+
+Thanks.
+
+>>>> +---------------------------------+
+>>>> |          Vsock header           |
+>>>> |    (struct virtio_vsock_hdr)    |
+>>>> +---------------------------------+
+>>>> |             payload             |
+>>>> |      (until end of packet)      |
+>>>> +---------------------------------+
+>>>
+>>> Thanks,
+>>>
+>>
+> 
+> .
+> 
