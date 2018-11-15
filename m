@@ -1,16 +1,15 @@
-From: jiangyiwen <jiangyiwen@huawei.com>
-Subject: Re: [RFC] Discuss about an new idea "Vsock over Virtio-net"
-Date: Thu, 15 Nov 2018 16:38:47 +0800
-Message-ID: <5BED3097.8000708@huawei.com>
-References: <5BECEE53.7090408@huawei.com>
-	<20181115015547-mutt-send-email-mst@kernel.org>
-	<5BED2267.8030306@huawei.com>
-	<20181115025622-mutt-send-email-mst@kernel.org>
+From: Auger Eric <eric.auger@redhat.com>
+Subject: Re: [PATCH v3 1/7] dt-bindings: virtio-mmio: Add IOMMU description
+Date: Thu, 15 Nov 2018 09:45:32 +0100
+Message-ID: <02c507c1-6f64-5116-756a-e0a23b32fe2a@redhat.com>
+References: <20181012145917.6840-1-jean-philippe.brucker@arm.com>
+	<20181012145917.6840-2-jean-philippe.brucker@arm.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <20181115025622-mutt-send-email-mst@kernel.org>
+In-Reply-To: <20181012145917.6840-2-jean-philippe.brucker@arm.com>
+Content-Language: en-US
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -20,88 +19,75 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: "Michael S. Tsirkin" <mst@redhat.com>
-Cc: kvm@vger.kernel.org, virtualization@lists.linux-foundation.org, stefanha@redhat.com, netdev@vger.kernel.org
+To: Jean-Philippe Brucker <jean-philippe.brucker@arm.com>, iommu@lists.linux-foundation.org, virtualization@lists.linux-foundation.org, devicetree@vger.kernel.org
+Cc: mark.rutland@arm.com, peter.maydell@linaro.org, lorenzo.pieralisi@arm.com, tnowicki@caviumnetworks.com, mst@redhat.com, marc.zyngier@arm.com, linux-pci@vger.kernel.org, will.deacon@arm.com, kvmarm@lists.cs.columbia.edu, robh+dt@kernel.org, robin.murphy@arm.com, joro@8bytes.org
 List-Id: virtualization@lists.linuxfoundation.org
 
-On 2018/11/15 16:10, Michael S. Tsirkin wrote:
-> On Thu, Nov 15, 2018 at 03:38:15PM +0800, jiangyiwen wrote:
->> On 2018/11/15 15:04, Michael S. Tsirkin wrote:
->>> On Thu, Nov 15, 2018 at 11:56:03AM +0800, jiangyiwen wrote:
->>>> Hi Stefan, Michael, Jason and everyone,
->>>>
->>>> Several days ago, I discussed with jason about "Vsock over Virtio-net".
->>>> This idea has two advantages:
->>>> First, it can use many great features of virtio-net, like batching,
->>>> mergeable rx buffer and multiqueue, etc.
->>>> Second, it can reduce many duplicate codes and make it easy to be
->>>> maintained.
->>>
->>> I'm not sure I get the motivation. Which features of
->>> virtio net are relevant to vsock? The ones that you mention
->>> all seem to be mostly of use to the networking stack.
->>>
->>>
->>>> Before the implement, I want to discuss with everyone again, and
->>>> want to know everyone's suggestions.
->>>>
->>>> After the discussion, based on this point I will try to implement
->>>> this idea, but I am not familiar with the virtio-net, that is a
->>>> pity. :(
->>>>
->>>> -------------------------Simple idea------------------------------
->>>>
->>>> 1. The packet layout will become as follows:
->>>>
->>>> +---------------------------------+
->>>> |        Virtio-net header        |
->>>> |(struct virtio_net_hdr_mrg_rxbuf)|
->>>
->>> Which fields in virtio_net_hdr_mrg_rxbuf are of interest to vsock?
->>>
->>
->> Hi Michael,
->>
->> Yes, currently vsock has poor performance, first, it only support transport
->> small packet, in order to make the balance between performance and guest memory.
->>
->> In order to solve this problem, there are two features vsock can used,
->> mergeable rx buffer and multiqueue. Based on this, there are some shared
->> codes vsock can use.
->>
->> Thanks,
->> Yiwen.
-> 
-> Supporting more queues with vsock is probably significantly
-> less work than a completely new interface.
-> For mergeable, as buffers are split arbitrarily, why can't you combine
-> them within guest driver before sending them up the stack?
-> Probably better than relying on host to do it.
-> 
+Hi Jean,
 
-Actually, I want to said the mergeable *rx* buffer, it cause the
-default packet size of vsock is set to 4k. For tx buffer, it is
-actually can be scattered in tx vq only need to modify very few codes.
-
-In addition, I has already first version about vsock support mergeable
-rx buffer and send patch to the VSOCK community, these codes are
-revisited from virtio-net, and some codes are duplicated. Based on
-this, we want to use virtio-net as transport of vsock. It can make
-the vsock code easy to maintained.
-
-Thanks.
-
->>>> +---------------------------------+
->>>> |          Vsock header           |
->>>> |    (struct virtio_vsock_hdr)    |
->>>> +---------------------------------+
->>>> |             payload             |
->>>> |      (until end of packet)      |
->>>> +---------------------------------+
->>>
->>> Thanks,
->>>
->>
+On 10/12/18 4:59 PM, Jean-Philippe Brucker wrote:
+> The nature of a virtio-mmio node is discovered by the virtio driver at
+> probe time. However the DMA relation between devices must be described
+> statically. When a virtio-mmio node is a virtio-iommu device, it needs an
+> "#iommu-cells" property as specified by bindings/iommu/iommu.txt.
 > 
-> .
+> Otherwise, the virtio-mmio device may perform DMA through an IOMMU, which
+> requires an "iommus" property. Describe these requirements in the
+> device-tree bindings documentation.
 > 
+> Signed-off-by: Jean-Philippe Brucker <jean-philippe.brucker@arm.com>
+> ---
+>  .../devicetree/bindings/virtio/mmio.txt       | 30 +++++++++++++++++++
+>  1 file changed, 30 insertions(+)
+> 
+> diff --git a/Documentation/devicetree/bindings/virtio/mmio.txt b/Documentation/devicetree/bindings/virtio/mmio.txt
+> index 5069c1b8e193..748595473b36 100644
+> --- a/Documentation/devicetree/bindings/virtio/mmio.txt
+> +++ b/Documentation/devicetree/bindings/virtio/mmio.txt
+> @@ -8,10 +8,40 @@ Required properties:
+>  - reg:		control registers base address and size including configuration space
+>  - interrupts:	interrupt generated by the device
+>  
+> +Required properties for virtio-iommu:
+> +
+> +- #iommu-cells:	When the node corresponds to a virtio-iommu device, it is
+> +		linked to DMA masters using the "iommus" or "iommu-map"
+> +		properties [1][2]. #iommu-cells specifies the size of the
+> +		"iommus" property. For virtio-iommu #iommu-cells must be
+> +		1, each cell describing a single endpoint ID.
+> +
+> +Optional properties:
+> +
+> +- iommus:	If the device accesses memory through an IOMMU, it should
+> +		have an "iommus" property [1]. Since virtio-iommu itself
+> +		does not access memory through an IOMMU, the "virtio,mmio"
+> +		node cannot have both an "#iommu-cells" and an "iommus"
+> +		property.
+> +
+>  Example:
+>  
+>  	virtio_block@3000 {
+>  		compatible = "virtio,mmio";
+>  		reg = <0x3000 0x100>;
+>  		interrupts = <41>;
+> +
+> +		/* Device has endpoint ID 23 */
+> +		iommus = <&viommu 23>
+>  	}
+> +
+> +	viommu: virtio_iommu@3100 {
+> +		compatible = "virtio,mmio";
+> +		reg = <0x3100 0x100>;
+> +		interrupts = <42>;
+> +
+> +		#iommu-cells = <1>
+> +	}
+> +
+> +[1] Documentation/devicetree/bindings/iommu/iommu.txt
+> +[2] Documentation/devicetree/bindings/pci/pci-iommu.txt
+> 
+Reviewed-by: Eric Auger <eric.auger@redhat.com>
+
+Thanks
+
+Eric
