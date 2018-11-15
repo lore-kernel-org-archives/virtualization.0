@@ -1,13 +1,12 @@
-From: Yan Vugenfirer <yvugenfi@redhat.com>
-Subject: Re: [RFC] Discuss about an new idea "Vsock over Virtio-net"
-Date: Thu, 15 Nov 2018 11:36:45 +0200
-Message-ID: <E1266A14-CC1F-44A6-9683-1DC8C69CC6AD__8547.49651994116$1542274493$gmane$org@redhat.com>
-References: <5BECEE53.7090408@huawei.com>
-Mime-Version: 1.0 (Mac OS X Mail 12.0 \(3445.100.39\))
-Content-Type: text/plain; charset="utf-8"
-Content-Transfer-Encoding: base64
+From: Jason Wang <jasowang@redhat.com>
+Subject: [PATCH net-next 1/2] vhost_net: mitigate page reference counting
+	during page frag refill
+Date: Thu, 15 Nov 2018 17:43:09 +0800
+Message-ID: <20181115094310.17307-1-jasowang__9633.18776707656$1542274877$gmane$org@redhat.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset="us-ascii"
+Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <5BECEE53.7090408@huawei.com>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -17,90 +16,133 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: jiangyiwen <jiangyiwen@huawei.com>
-Cc: kvm@vger.kernel.org, mst@redhat.com, virtualization@lists.linux-foundation.org, stefanha@redhat.com, netdev@vger.kernel.org
+To: mst@redhat.com, jasowang@redhat.com, kvm@vger.kernel.org, virtualization@lists.linux-foundation.org, netdev@vger.kernel.org, linux-kernel@vger.kernel.org
 List-Id: virtualization@lists.linuxfoundation.org
 
-Cgo+IE9uIDE1IE5vdiAyMDE4LCBhdCAwNTo1Niwgamlhbmd5aXdlbiA8amlhbmd5aXdlbkBodWF3
-ZWkuY29tPiB3cm90ZToKPiAKPiBIaSBTdGVmYW4sIE1pY2hhZWwsIEphc29uIGFuZCBldmVyeW9u
-ZSwKPiAKPiBTZXZlcmFsIGRheXMgYWdvLCBJIGRpc2N1c3NlZCB3aXRoIGphc29uIGFib3V0ICJW
-c29jayBvdmVyIFZpcnRpby1uZXQiLgo+IFRoaXMgaWRlYSBoYXMgdHdvIGFkdmFudGFnZXM6Cj4g
-Rmlyc3QsIGl0IGNhbiB1c2UgbWFueSBncmVhdCBmZWF0dXJlcyBvZiB2aXJ0aW8tbmV0LCBsaWtl
-IGJhdGNoaW5nLAo+IG1lcmdlYWJsZSByeCBidWZmZXIgYW5kIG11bHRpcXVldWUsIGV0Yy4KPiBT
-ZWNvbmQsIGl0IGNhbiByZWR1Y2UgbWFueSBkdXBsaWNhdGUgY29kZXMgYW5kIG1ha2UgaXQgZWFz
-eSB0byBiZQo+IG1haW50YWluZWQuCgpJIHdvdWxkIGxpa2UgdG8gYWRkIHRoYXQgZnJvbSBXaW5k
-b3dzIGd1ZXN0IHN1cHBvcnQgcGVyc3BlY3RpdmUgaXQgbWFrZXMgbW9yZSBzZW5zZS4KVG8gc3Vw
-cG9ydCB2c29jayB3ZSBtb3N0IHByb2JhYmx5IG5lZWQgTkRJUyBwcm90b2NvbCBkcml2ZXIgYW5k
-IGlmIGl0IHdpbGwgYmUgYmluZGVkIHRvIE5ESVMgbWluaXBvcnQgZHJpdmVyICh0aGUgZHJpdmVy
-IHRoYXQgY3VycmVudGx5IGhhbmRsZXMgdmlydGlvLW5ldCBpbiBXaW5kb3dzKSBpdCB3aWxsIG1h
-a2Ugb3VyIGxpZmUgbXVjaCBlYXNpZXIuIE90aGVyd2lzZSB3ZSBuZWVkIHRvIOKAnHBsdWfigJ0g
-aW50byBOSURTIG9uIG9uZSBoYW5kLCBhbmQgaGFuZGxlIHRyYW5zcG9ydCBvdXRzaWRlIG9mIE5E
-SVMgb24gb3RoZXIgaGFuZCBvciBpbiBzb21lIHN0cmFuZ2Ugd2F5IGJ5IGNyZWF0aW5nIG1pbmkg
-cG9ydCBkcml2ZXIgdGhhdCBpcyBub3QgcmVhbGx5IE5JQyBtaW5pcG9ydCBkcml2ZXIuCgpCZXN0
-IHJlZ2FyZHMsCllhbi4KPiAKPiBCZWZvcmUgdGhlIGltcGxlbWVudCwgSSB3YW50IHRvIGRpc2N1
-c3Mgd2l0aCBldmVyeW9uZSBhZ2FpbiwgYW5kCj4gd2FudCB0byBrbm93IGV2ZXJ5b25lJ3Mgc3Vn
-Z2VzdGlvbnMuCj4gCj4gQWZ0ZXIgdGhlIGRpc2N1c3Npb24sIGJhc2VkIG9uIHRoaXMgcG9pbnQg
-SSB3aWxsIHRyeSB0byBpbXBsZW1lbnQKPiB0aGlzIGlkZWEsIGJ1dCBJIGFtIG5vdCBmYW1pbGlh
-ciB3aXRoIHRoZSB2aXJ0aW8tbmV0LCB0aGF0IGlzIGEKPiBwaXR5LiA6KAo+IAo+IC0tLS0tLS0t
-LS0tLS0tLS0tLS0tLS0tLS1TaW1wbGUgaWRlYS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0t
-LQo+IAo+IDEuIFRoZSBwYWNrZXQgbGF5b3V0IHdpbGwgYmVjb21lIGFzIGZvbGxvd3M6Cj4gCj4g
-Ky0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLSsKPiB8ICAgICAgICBWaXJ0aW8tbmV0
-IGhlYWRlciAgICAgICAgfAo+IHwoc3RydWN0IHZpcnRpb19uZXRfaGRyX21yZ19yeGJ1Zil8Cj4g
-Ky0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLSsKPiB8ICAgICAgICAgIFZzb2NrIGhl
-YWRlciAgICAgICAgICAgfAo+IHwgICAgKHN0cnVjdCB2aXJ0aW9fdnNvY2tfaGRyKSAgICB8Cj4g
-Ky0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLSsKPiB8ICAgICAgICAgICAgIHBheWxv
-YWQgICAgICAgICAgICAgfAo+IHwgICAgICAodW50aWwgZW5kIG9mIHBhY2tldCkgICAgICB8Cj4g
-Ky0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLSsKPiAKPiAyLiBUaGUgR3Vlc3QtPkhv
-c3QgYmFzaWMgY29kZSBmbG93IGFzIGZvbGxvdzoKPiAgICAgICAgICAgICAgICAgICAgICAgICAg
-ICArLS0tLS0tLS0tLS0tKwo+ICAgICAgICAgICAgICAgICAgICAgICAgICAgIHwgICBDbGllbnQg
-ICB8Cj4gICAgICAgICAgICAgICAgICAgICAgICAgICAgKy0tLS0tLS0tLS0tLSsKPiAgICAgICAg
-ICAgICAgICAgICAgICAgICAgICAgICAgICB8Cj4gICAgICAgICAgICAgICAgICAgICAgICAgICAg
-ICAgICAgfAo+ICstLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0t
-LS0tLS0tLS0tLS0tLS0tLS0tLS0rCj4gfFZTT0NLIENvcmUgTW9kdWxlICAgICAgICAgICAgICAg
-ICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgIHwKPiB8b3BzLT5zZW5kbXNnOyAodnNv
-Y2tfc3RyZWFtX3NlbmRtc2cpICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgfAo+IHwgIC0+
-IGFsbG9jX3NrYjsgLyogaXQgd2lsbCBwYWNrZXQgYSBza2IgYnVmZmVyLCBhbmQgaW5jbHVkZSB2
-c29jayB8Cj4gfCAgICAgICAgICAgICAgICAgKiBoZHIgYW5kIHBheWxvYWQgKi8gICAgICAgICAg
-ICAgICAgICAgICAgICAgICAgIHwKPiB8ICAtPiBkZXZfcXVldWVfeG1pdCgpOyAvKiBpdCB3aWxs
-IGNhbGwgc3RhcnRfeG1pdCh2aXJ0aW8tbmV0LmMpICovfAo+IHx2c29jayBoZHIgYW5kIHBheWxv
-YWQsIGFuZCB0aGVuIGNhbGwgICAgICAgICAgICAgICAgICAgICAgICAgICAgICB8Cj4gKy0tLS0t
-LS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0t
-LS0tLSsKPiAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICB8Cj4gICAgICAgICAgICAg
-ICAgICAgICAgICAgICAgICAgICAgfAo+ICstLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0t
-LS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0rCj4gfFZpcnRpby1uZXQgTW9kdWxl
-ICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgIHwKPiB8c3Rh
-cnRfeG1pdCAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAg
-ICAgICAgfAo+IHwgIC0+IGFkZCB2aXJ0aW9fbmV0X2hkciBhbmQgcGFjayBzZyBpbiByaW5nIGRl
-c2MsIG5vdGlmeSBIb3N0ICAgICB8Cj4gKy0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0t
-LS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLSsKPiAgICAgICAgICAgICAgICAgICAg
-ICAgICAgICAgICAgICB8Cj4gICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgfAo+ICst
-LS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0t
-LS0tLS0tLS0rCj4gfFZob3N0LW5ldCBNb2R1bGUgICAgICAgICAgICAgICAgICAgICAgICAgICAg
-ICAgICAgICAgICAgICAgICAgICAgIHwKPiB8aGFuZGxlX3R4ICAgICAgICAgICAgICAgICAgICAg
-ICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgfAo+IHwgIC0+IGdldCB0eCBidWZm
-ZXIsIHNraXAgdmlydGlvX25ldF9oZHIgYW5kIGNhbGwgVnNvY2sgZnVuY3Rpb24uICB8Cj4gfCAv
-KiBUaGlzIHBvaW50IGhhcyBzb21lIGRpZmZlcmVuY2VzLCB2aG9zdC1uZXQgdXNlIC0+c2VuZG1z
-ZyB0byAgIHwKPiB8ICAqIGZvcndhcmQgaW5mb3JtYXRpb24sIGhvd2V2ZXIgdnNvY2sgb25seSBu
-ZWVkIHRvIG5vdGlmeSBzZXJ2ZXIgfAo+IHwgICogdGhhdCBkYXRhIHJlYWR5LiAqLyAgICAgICAg
-ICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICB8Cj4gKy0tLS0tLS0tLS0tLS0tLS0t
-LS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLSsKPiAgICAg
-ICAgICAgICAgICAgICAgICAgICAgICAgICAgICB8Cj4gICAgICAgICAgICAgICAgICAgICAgICAg
-ICAgICAgICAgfAo+ICstLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0t
-LS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0rCj4gfFZTT0NLIENvcmUgTW9kdWxlICAgICAgICAgICAg
-ICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgIHwKPiB8YWxsb2NfcGt0LCBjb3B5
-IHNrYiBkYXRhIHRvIHBrdC4gICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgfAo+IHxh
-ZGQgcGt0IHRvIHJ4X3F1ZXVlIGFuZCBub3RpZnkgc2VydmVyIHRvIGdldCBkYXRhLiAgICAgICAg
-ICAgICAgICB8Cj4gKy0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0t
-LS0tLS0tLS0tLS0tLS0tLS0tLS0tLSsKPiAKPiAzLiBUbyBIb3N0LT5HdWVzdAo+IEkgaGF2ZSBh
-IHByb2JsZW0gYW5kIGRpZmZpY3VsdCwgbWFpbmx5IEkga25vdyBhYm91dCB2aXJ0aW8tbmV0IGEg
-bGl0dGxlKSwKPiBiZWNhdXNlIEkgaGF2ZSBiZWVuIGRvaW5nIHdvcmsgcmVsYXRlZCB3aXRoIHN0
-b3JhZ2UgYW5kIGZpbGUgc3lzdGVtLgo+IAo+IFRoZSBwcm9ibGVtIGFzIGZvbGxvd3M6Cj4gd2Ug
-c2hvdWxkIG1vbml0b3IgYWxsIG9mIHNvY2tldCBvZiB2c29jayBpbiBoYW5kbGVfcngsIHdoZW4g
-dGhlcmUgYXJlCj4gZGF0YSBjb21pbmcsIGFuZCBjb3B5IGRhdGEgdG8gdnEgZGVzYy4gVmhvc3Qt
-bmV0IHVzZSAtPnJlY3Ztc2cgdG8KPiBnZXQgZGF0YSwgaXQgaXMgZGlmZmVyZW50IHdpdGggc29j
-a2V0LiBUbyB2c29jaywgSSB0aGluayBob3N0IHdpbGwKPiBub3QgY2FsbCAtPnJlY3Ztc2cgd2hl
-biBpdCBuZWVkIHRvIHNlbmQgbWVzc2FnZSB0byBndWVzdC4gVG8gbmV0LAo+IHZob3N0LW5ldCBv
-bmx5IGFzIGZvcndhcmRpbmcgbGF5ZXIuCj4gCgpfX19fX19fX19fX19fX19fX19fX19fX19fX19f
-X19fX19fX19fX19fX19fX19fXwpWaXJ0dWFsaXphdGlvbiBtYWlsaW5nIGxpc3QKVmlydHVhbGl6
-YXRpb25AbGlzdHMubGludXgtZm91bmRhdGlvbi5vcmcKaHR0cHM6Ly9saXN0cy5saW51eGZvdW5k
-YXRpb24ub3JnL21haWxtYW4vbGlzdGluZm8vdmlydHVhbGl6YXRpb24=
+We do a get_page() which involves a atomic operation. This patch tries
+to mitigate a per packet atomic operation by maintaining a reference
+bias which is initially USHRT_MAX. Each time a page is got, instead of
+calling get_page() we decrease the bias and when we find it's time to
+use a new page we will decrease the bias at one time through
+__page_cache_drain_cache().
+
+Testpmd(virtio_user + vhost_net) + XDP_DROP on TAP shows about 1.6%
+improvement.
+
+Before: 4.63Mpps
+After:  4.71Mpps
+
+Signed-off-by: Jason Wang <jasowang@redhat.com>
+---
+ drivers/vhost/net.c | 54 ++++++++++++++++++++++++++++++++++++++++++---
+ 1 file changed, 51 insertions(+), 3 deletions(-)
+
+diff --git a/drivers/vhost/net.c b/drivers/vhost/net.c
+index ab11b2bee273..d919284f103b 100644
+--- a/drivers/vhost/net.c
++++ b/drivers/vhost/net.c
+@@ -141,6 +141,10 @@ struct vhost_net {
+ 	unsigned tx_zcopy_err;
+ 	/* Flush in progress. Protected by tx vq lock. */
+ 	bool tx_flush;
++	/* Private page frag */
++	struct page_frag page_frag;
++	/* Refcount bias of page frag */
++	int refcnt_bias;
+ };
+ 
+ static unsigned vhost_net_zcopy_mask __read_mostly;
+@@ -637,14 +641,53 @@ static bool tx_can_batch(struct vhost_virtqueue *vq, size_t total_len)
+ 	       !vhost_vq_avail_empty(vq->dev, vq);
+ }
+ 
++#define SKB_FRAG_PAGE_ORDER     get_order(32768)
++
++static bool vhost_net_page_frag_refill(struct vhost_net *net, unsigned int sz,
++				       struct page_frag *pfrag, gfp_t gfp)
++{
++	if (pfrag->page) {
++		if (pfrag->offset + sz <= pfrag->size)
++			return true;
++		__page_frag_cache_drain(pfrag->page, net->refcnt_bias);
++	}
++
++	pfrag->offset = 0;
++	net->refcnt_bias = 0;
++	if (SKB_FRAG_PAGE_ORDER) {
++		/* Avoid direct reclaim but allow kswapd to wake */
++		pfrag->page = alloc_pages((gfp & ~__GFP_DIRECT_RECLAIM) |
++					  __GFP_COMP | __GFP_NOWARN |
++					  __GFP_NORETRY,
++					  SKB_FRAG_PAGE_ORDER);
++		if (likely(pfrag->page)) {
++			pfrag->size = PAGE_SIZE << SKB_FRAG_PAGE_ORDER;
++			goto done;
++		}
++	}
++	pfrag->page = alloc_page(gfp);
++	if (likely(pfrag->page)) {
++		pfrag->size = PAGE_SIZE;
++		goto done;
++	}
++	return false;
++
++done:
++	net->refcnt_bias = USHRT_MAX;
++	page_ref_add(pfrag->page, USHRT_MAX - 1);
++	return true;
++}
++
+ #define VHOST_NET_RX_PAD (NET_IP_ALIGN + NET_SKB_PAD)
+ 
+ static int vhost_net_build_xdp(struct vhost_net_virtqueue *nvq,
+ 			       struct iov_iter *from)
+ {
+ 	struct vhost_virtqueue *vq = &nvq->vq;
++	struct vhost_net *net = container_of(vq->dev, struct vhost_net,
++					     dev);
+ 	struct socket *sock = vq->private_data;
+-	struct page_frag *alloc_frag = &current->task_frag;
++	struct page_frag *alloc_frag = &net->page_frag;
+ 	struct virtio_net_hdr *gso;
+ 	struct xdp_buff *xdp = &nvq->xdp[nvq->batched_xdp];
+ 	struct tun_xdp_hdr *hdr;
+@@ -665,7 +708,8 @@ static int vhost_net_build_xdp(struct vhost_net_virtqueue *nvq,
+ 
+ 	buflen += SKB_DATA_ALIGN(len + pad);
+ 	alloc_frag->offset = ALIGN((u64)alloc_frag->offset, SMP_CACHE_BYTES);
+-	if (unlikely(!skb_page_frag_refill(buflen, alloc_frag, GFP_KERNEL)))
++	if (unlikely(!vhost_net_page_frag_refill(net, buflen,
++						 alloc_frag, GFP_KERNEL)))
+ 		return -ENOMEM;
+ 
+ 	buf = (char *)page_address(alloc_frag->page) + alloc_frag->offset;
+@@ -703,7 +747,7 @@ static int vhost_net_build_xdp(struct vhost_net_virtqueue *nvq,
+ 	xdp->data_end = xdp->data + len;
+ 	hdr->buflen = buflen;
+ 
+-	get_page(alloc_frag->page);
++	--net->refcnt_bias;
+ 	alloc_frag->offset += buflen;
+ 
+ 	++nvq->batched_xdp;
+@@ -1292,6 +1336,8 @@ static int vhost_net_open(struct inode *inode, struct file *f)
+ 	vhost_poll_init(n->poll + VHOST_NET_VQ_RX, handle_rx_net, EPOLLIN, dev);
+ 
+ 	f->private_data = n;
++	n->page_frag.page = NULL;
++	n->refcnt_bias = 0;
+ 
+ 	return 0;
+ }
+@@ -1366,6 +1412,8 @@ static int vhost_net_release(struct inode *inode, struct file *f)
+ 	kfree(n->vqs[VHOST_NET_VQ_RX].rxq.queue);
+ 	kfree(n->vqs[VHOST_NET_VQ_TX].xdp);
+ 	kfree(n->dev.vqs);
++	if (n->page_frag.page)
++		__page_frag_cache_drain(n->page_frag.page, n->refcnt_bias);
+ 	kvfree(n);
+ 	return 0;
+ }
+-- 
+2.17.1
