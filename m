@@ -1,13 +1,18 @@
-From: Jean-Philippe Brucker <jean-philippe.brucker@arm.com>
-Subject: [PATCH v4 7/7] iommu/virtio: Add event queue
-Date: Thu, 15 Nov 2018 16:52:34 +0000
-Message-ID: <20181115165234.43990-8-jean-philippe.brucker__23420.6980014735$1542301208$gmane$org@arm.com>
-References: <20181115165234.43990-1-jean-philippe.brucker@arm.com>
+From: jiangyiwen <jiangyiwen@huawei.com>
+Subject: Re: [RFC] Discuss about an new idea "Vsock over Virtio-net"
+Date: Fri, 16 Nov 2018 10:32:16 +0800
+Message-ID: <5BEE2C30.1030007@huawei.com>
+References: <5BECEE53.7090408@huawei.com>
+	<88eaf53b-b148-7b27-491a-30706398ae06@redhat.com>
+	<5BED162C.5070902@huawei.com>
+	<015e1638-525f-7236-dbd9-38cced6b75db@redhat.com>
+	<5BED361E.3090805@huawei.com>
+	<8c1543ca-6dd6-847a-606c-b4b0bb2cf55a@redhat.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset="utf-8"
+Content-Transfer-Encoding: base64
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <20181115165234.43990-1-jean-philippe.brucker@arm.com>
+In-Reply-To: <8c1543ca-6dd6-847a-606c-b4b0bb2cf55a@redhat.com>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -17,212 +22,183 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: iommu@lists.linux-foundation.org, linux-pci@vger.kernel.org, devicetree@vger.kernel.org, virtualization@lists.linux-foundation.org, virtio-dev@lists.oasis-open.org, joro@8bytes.org, mst@redhat.com
-Cc: mark.rutland@arm.com, lorenzo.pieralisi@arm.com, tnowicki@caviumnetworks.com, marc.zyngier@arm.com, robin.murphy@arm.com, will.deacon@arm.com, eric.auger@redhat.com, robh+dt@kernel.org, bhelgaas@google.com, kvmarm@lists.cs.columbia.edu
+To: Jason Wang <jasowang@redhat.com>, stefanha@redhat.com, stefanha@gmail.com, mst@redhat.com
+Cc: netdev@vger.kernel.org, kvm@vger.kernel.org, virtualization@lists.linux-foundation.org
 List-Id: virtualization@lists.linuxfoundation.org
 
-The event queue offers a way for the device to report access faults from
-endpoints. It is implemented on virtqueue #1. Whenever the host needs to
-signal a fault, it fills one of the buffers offered by the guest and
-interrupts it.
-
-Signed-off-by: Jean-Philippe Brucker <jean-philippe.brucker@arm.com>
----
- drivers/iommu/virtio-iommu.c      | 116 +++++++++++++++++++++++++++---
- include/uapi/linux/virtio_iommu.h |  19 +++++
- 2 files changed, 126 insertions(+), 9 deletions(-)
-
-diff --git a/drivers/iommu/virtio-iommu.c b/drivers/iommu/virtio-iommu.c
-index c547ebd79c43..81c6b72e9c43 100644
---- a/drivers/iommu/virtio-iommu.c
-+++ b/drivers/iommu/virtio-iommu.c
-@@ -29,7 +29,8 @@
- #define MSI_IOVA_LENGTH			0x100000
- 
- #define VIOMMU_REQUEST_VQ		0
--#define VIOMMU_NR_VQS			1
-+#define VIOMMU_EVENT_VQ			1
-+#define VIOMMU_NR_VQS			2
- 
- struct viommu_dev {
- 	struct iommu_device		iommu;
-@@ -41,6 +42,7 @@ struct viommu_dev {
- 	struct virtqueue		*vqs[VIOMMU_NR_VQS];
- 	spinlock_t			request_lock;
- 	struct list_head		requests;
-+	void				*evts;
- 
- 	/* Device configuration */
- 	struct iommu_domain_geometry	geometry;
-@@ -82,6 +84,15 @@ struct viommu_request {
- 	char				buf[];
- };
- 
-+#define VIOMMU_FAULT_RESV_MASK		0xffffff00
-+
-+struct viommu_event {
-+	union {
-+		u32			head;
-+		struct virtio_iommu_fault fault;
-+	};
-+};
-+
- #define to_viommu_domain(domain)	\
- 	container_of(domain, struct viommu_domain, domain)
- 
-@@ -504,6 +515,69 @@ static int viommu_probe_endpoint(struct viommu_dev *viommu, struct device *dev)
- 	return ret;
- }
- 
-+static int viommu_fault_handler(struct viommu_dev *viommu,
-+				struct virtio_iommu_fault *fault)
-+{
-+	char *reason_str;
-+
-+	u8 reason	= fault->reason;
-+	u32 flags	= le32_to_cpu(fault->flags);
-+	u32 endpoint	= le32_to_cpu(fault->endpoint);
-+	u64 address	= le64_to_cpu(fault->address);
-+
-+	switch (reason) {
-+	case VIRTIO_IOMMU_FAULT_R_DOMAIN:
-+		reason_str = "domain";
-+		break;
-+	case VIRTIO_IOMMU_FAULT_R_MAPPING:
-+		reason_str = "page";
-+		break;
-+	case VIRTIO_IOMMU_FAULT_R_UNKNOWN:
-+	default:
-+		reason_str = "unknown";
-+		break;
-+	}
-+
-+	/* TODO: find EP by ID and report_iommu_fault */
-+	if (flags & VIRTIO_IOMMU_FAULT_F_ADDRESS)
-+		dev_err_ratelimited(viommu->dev, "%s fault from EP %u at %#llx [%s%s%s]\n",
-+				    reason_str, endpoint, address,
-+				    flags & VIRTIO_IOMMU_FAULT_F_READ ? "R" : "",
-+				    flags & VIRTIO_IOMMU_FAULT_F_WRITE ? "W" : "",
-+				    flags & VIRTIO_IOMMU_FAULT_F_EXEC ? "X" : "");
-+	else
-+		dev_err_ratelimited(viommu->dev, "%s fault from EP %u\n",
-+				    reason_str, endpoint);
-+	return 0;
-+}
-+
-+static void viommu_event_handler(struct virtqueue *vq)
-+{
-+	int ret;
-+	unsigned int len;
-+	struct scatterlist sg[1];
-+	struct viommu_event *evt;
-+	struct viommu_dev *viommu = vq->vdev->priv;
-+
-+	while ((evt = virtqueue_get_buf(vq, &len)) != NULL) {
-+		if (len > sizeof(*evt)) {
-+			dev_err(viommu->dev,
-+				"invalid event buffer (len %u != %zu)\n",
-+				len, sizeof(*evt));
-+		} else if (!(evt->head & VIOMMU_FAULT_RESV_MASK)) {
-+			viommu_fault_handler(viommu, &evt->fault);
-+		}
-+
-+		sg_init_one(sg, evt, sizeof(*evt));
-+		ret = virtqueue_add_inbuf(vq, sg, 1, evt, GFP_ATOMIC);
-+		if (ret)
-+			dev_err(viommu->dev, "could not add event buffer\n");
-+	}
-+
-+	if (!virtqueue_kick(vq))
-+		dev_err(viommu->dev, "kick failed\n");
-+}
-+
- /* IOMMU API */
- 
- static struct iommu_domain *viommu_domain_alloc(unsigned type)
-@@ -887,16 +961,35 @@ static struct iommu_ops viommu_ops = {
- static int viommu_init_vqs(struct viommu_dev *viommu)
- {
- 	struct virtio_device *vdev = dev_to_virtio(viommu->dev);
--	const char *name = "request";
--	void *ret;
-+	const char *names[] = { "request", "event" };
-+	vq_callback_t *callbacks[] = {
-+		NULL, /* No async requests */
-+		viommu_event_handler,
-+	};
- 
--	ret = virtio_find_single_vq(vdev, NULL, name);
--	if (IS_ERR(ret)) {
--		dev_err(viommu->dev, "cannot find VQ\n");
--		return PTR_ERR(ret);
--	}
-+	return virtio_find_vqs(vdev, VIOMMU_NR_VQS, viommu->vqs, callbacks,
-+			       names, NULL);
-+}
- 
--	viommu->vqs[VIOMMU_REQUEST_VQ] = ret;
-+static int viommu_fill_evtq(struct viommu_dev *viommu)
-+{
-+	int i, ret;
-+	struct scatterlist sg[1];
-+	struct viommu_event *evts;
-+	struct virtqueue *vq = viommu->vqs[VIOMMU_EVENT_VQ];
-+	size_t nr_evts = vq->num_free;
-+
-+	viommu->evts = evts = devm_kmalloc_array(viommu->dev, nr_evts,
-+						 sizeof(*evts), GFP_KERNEL);
-+	if (!evts)
-+		return -ENOMEM;
-+
-+	for (i = 0; i < nr_evts; i++) {
-+		sg_init_one(sg, &evts[i], sizeof(*evts));
-+		ret = virtqueue_add_inbuf(vq, sg, 1, &evts[i], GFP_KERNEL);
-+		if (ret)
-+			return ret;
-+	}
- 
- 	return 0;
- }
-@@ -965,6 +1058,11 @@ static int viommu_probe(struct virtio_device *vdev)
- 
- 	virtio_device_ready(vdev);
- 
-+	/* Populate the event queue with buffers */
-+	ret = viommu_fill_evtq(viommu);
-+	if (ret)
-+		goto err_free_vqs;
-+
- 	ret = iommu_device_sysfs_add(&viommu->iommu, dev, NULL, "%s",
- 				     virtio_bus_name(vdev));
- 	if (ret)
-diff --git a/include/uapi/linux/virtio_iommu.h b/include/uapi/linux/virtio_iommu.h
-index cde2a3409caa..fed2ba5b47ab 100644
---- a/include/uapi/linux/virtio_iommu.h
-+++ b/include/uapi/linux/virtio_iommu.h
-@@ -139,4 +139,23 @@ struct virtio_iommu_req_probe {
- 	 */
- };
- 
-+/* Fault types */
-+#define VIRTIO_IOMMU_FAULT_R_UNKNOWN		0
-+#define VIRTIO_IOMMU_FAULT_R_DOMAIN		1
-+#define VIRTIO_IOMMU_FAULT_R_MAPPING		2
-+
-+#define VIRTIO_IOMMU_FAULT_F_READ		(1 << 0)
-+#define VIRTIO_IOMMU_FAULT_F_WRITE		(1 << 1)
-+#define VIRTIO_IOMMU_FAULT_F_EXEC		(1 << 2)
-+#define VIRTIO_IOMMU_FAULT_F_ADDRESS		(1 << 8)
-+
-+struct virtio_iommu_fault {
-+	__u8					reason;
-+	__u8					reserved[3];
-+	__le32					flags;
-+	__le32					endpoint;
-+	__u8					reserved2[4];
-+	__le64					address;
-+};
-+
- #endif
--- 
-2.19.1
+T24gMjAxOC8xMS8xNSAxNzoyMSwgSmFzb24gV2FuZyB3cm90ZToKPiAKPiBPbiAyMDE4LzExLzE1
+IOS4i+WNiDU6MDIsIGppYW5neWl3ZW4gd3JvdGU6Cj4+IE9uIDIwMTgvMTEvMTUgMTY6MTksIEph
+c29uIFdhbmcgd3JvdGU6Cj4+PiBPbiAyMDE4LzExLzE1IOS4i+WNiDI6NDYsIGppYW5neWl3ZW4g
+d3JvdGU6Cj4+Pj4gT24gMjAxOC8xMS8xNSAxMjoxOSwgSmFzb24gV2FuZyB3cm90ZToKPj4+Pj4g
+T24gMjAxOC8xMS8xNSDkuIrljYgxMTo1Niwgamlhbmd5aXdlbiB3cm90ZToKPj4+Pj4+IEhpIFN0
+ZWZhbiwgTWljaGFlbCwgSmFzb24gYW5kIGV2ZXJ5b25lLAo+Pj4+Pj4KPj4+Pj4+IFNldmVyYWwg
+ZGF5cyBhZ28sIEkgZGlzY3Vzc2VkIHdpdGggamFzb24gYWJvdXQgIlZzb2NrIG92ZXIgVmlydGlv
+LW5ldCIuCj4+Pj4+PiBUaGlzIGlkZWEgaGFzIHR3byBhZHZhbnRhZ2VzOgo+Pj4+Pj4gRmlyc3Qs
+IGl0IGNhbiB1c2UgbWFueSBncmVhdCBmZWF0dXJlcyBvZiB2aXJ0aW8tbmV0LCBsaWtlIGJhdGNo
+aW5nLAo+Pj4+Pj4gbWVyZ2VhYmxlIHJ4IGJ1ZmZlciBhbmQgbXVsdGlxdWV1ZSwgZXRjLgo+Pj4+
+Pj4gU2Vjb25kLCBpdCBjYW4gcmVkdWNlIG1hbnkgZHVwbGljYXRlIGNvZGVzIGFuZCBtYWtlIGl0
+IGVhc3kgdG8gYmUKPj4+Pj4+IG1haW50YWluZWQuCj4+Pj4+Pgo+Pj4+Pj4gQmVmb3JlIHRoZSBp
+bXBsZW1lbnQsIEkgd2FudCB0byBkaXNjdXNzIHdpdGggZXZlcnlvbmUgYWdhaW4sIGFuZAo+Pj4+
+Pj4gd2FudCB0byBrbm93IGV2ZXJ5b25lJ3Mgc3VnZ2VzdGlvbnMuCj4+Pj4+Pgo+Pj4+Pj4gQWZ0
+ZXIgdGhlIGRpc2N1c3Npb24sIGJhc2VkIG9uIHRoaXMgcG9pbnQgSSB3aWxsIHRyeSB0byBpbXBs
+ZW1lbnQKPj4+Pj4+IHRoaXMgaWRlYSwgYnV0IEkgYW0gbm90IGZhbWlsaWFyIHdpdGggdGhlIHZp
+cnRpby1uZXQsIHRoYXQgaXMgYQo+Pj4+Pj4gcGl0eS4gOigKPj4+Pj4gSSB0aGluayB3ZSBzaG91
+bGQgaGF2ZSBhIG5ldyBmZWF0dXJlIGZsYWcgZm9yIHRoaXMuIEUuZyBWSVJUSU9fTkVUX0ZfVlNP
+Q0suIEFuZCBob3N0IHNob3VsZCBmYWlsIHRoZSBuZWdvdGlhdGlvbiBpZiBndWVzdCBkb2Vzbid0
+IHN1cHBvcnQgdGhpcyB0byBhdm9pZCBjb25mdXNpb24uIFdoZW4gdGhpcyBmZWF0dXJlIGlzIG5l
+Z290aWF0ZWQsIHdlIHdpbGwgdXNlIGl0IG9ubHkgZm9yIFZPU0NLIHRyYW5zcG9ydC4gVGhpcyBj
+YW4gc2ltcGxpZnkgdGhpbmdzIHNvbWVob3cuCj4+Pj4+Cj4+Pj4+Cj4+Pj4+PiAtLS0tLS0tLS0t
+LS0tLS0tLS0tLS0tLS0tU2ltcGxlIGlkZWEtLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0K
+Pj4+Pj4+Cj4+Pj4+PiAxLiBUaGUgcGFja2V0IGxheW91dCB3aWxsIGJlY29tZSBhcyBmb2xsb3dz
+Ogo+Pj4+Pj4KPj4+Pj4+ICstLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0rCj4+Pj4+
+PiB8ICAgICAgICBWaXJ0aW8tbmV0IGhlYWRlciAgICAgICAgfAo+Pj4+Pj4gfChzdHJ1Y3Qgdmly
+dGlvX25ldF9oZHJfbXJnX3J4YnVmKXwKPj4+Pj4+ICstLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0t
+LS0tLS0tLS0rCj4+Pj4+PiB8ICAgICAgICAgIFZzb2NrIGhlYWRlciAgICAgICAgICAgfAo+Pj4+
+Pj4gfCAgICAoc3RydWN0IHZpcnRpb192c29ja19oZHIpICAgIHwKPj4+Pj4+ICstLS0tLS0tLS0t
+LS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0rCj4+Pj4+PiB8ICAgICAgICAgICAgIHBheWxvYWQgICAg
+ICAgICAgICAgfAo+Pj4+Pj4gfCAgICAgICh1bnRpbCBlbmQgb2YgcGFja2V0KSAgICAgIHwKPj4+
+Pj4+ICstLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0rCj4+Pj4+Pgo+Pj4+Pj4gMi4g
+VGhlIEd1ZXN0LT5Ib3N0IGJhc2ljIGNvZGUgZmxvdyBhcyBmb2xsb3c6Cj4+Pj4+PiAgICAgICAg
+ICAgICAgICAgICAgICAgICAgICAgICAgKy0tLS0tLS0tLS0tLSsKPj4+Pj4+ICAgICAgICAgICAg
+ICAgICAgICAgICAgICAgICAgICB8ICAgQ2xpZW50ICAgfAo+Pj4+Pj4gICAgICAgICAgICAgICAg
+ICAgICAgICAgICAgICAgICstLS0tLS0tLS0tLS0rCj4+Pj4+PiAgICAgICAgICAgICAgICAgICAg
+ICAgICAgICAgICAgICAgICAgfAo+Pj4+Pj4gICAgICAgICAgICAgICAgICAgICAgICAgICAgICAg
+ICAgICAgIHwKPj4+Pj4+ICstLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0t
+LS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0rCj4+Pj4+PiB8VlNPQ0sgQ29yZSBNb2R1bGUgICAg
+ICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgfAo+Pj4+Pj4gfG9w
+cy0+c2VuZG1zZzsgKHZzb2NrX3N0cmVhbV9zZW5kbXNnKSAgICAgICAgICAgICAgICAgICAgICAg
+ICAgICAgIHwKPj4+Pj4+IHwgIC0+IGFsbG9jX3NrYjsgLyogaXQgd2lsbCBwYWNrZXQgYSBza2Ig
+YnVmZmVyLCBhbmQgaW5jbHVkZSB2c29jayB8Cj4+Pj4+PiB8ICAgICAgICAgICAgICAgICAqIGhk
+ciBhbmQgcGF5bG9hZCAqLyAgICAgICAgICAgICAgICAgICAgICAgICAgICAgfAo+Pj4+Pj4gfCAg
+LT4gZGV2X3F1ZXVlX3htaXQoKTsgLyogaXQgd2lsbCBjYWxsIHN0YXJ0X3htaXQodmlydGlvLW5l
+dC5jKSAqL3wKPj4+Pj4+IHx2c29jayBoZHIgYW5kIHBheWxvYWQsIGFuZCB0aGVuIGNhbGwgICAg
+ICAgICAgICAgICAgICAgICAgICAgICAgICB8Cj4+Pj4+PiArLS0tLS0tLS0tLS0tLS0tLS0tLS0t
+LS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tKwo+Pj4+PiBOb3Rl
+LCBpZiB3ZSd2ZSBuZWdvdGlhdGVkIHRoZSBmZWF0dXJlLCB2aXJ0aW8tbmV0IGRyaXZlciBtdXN0
+IG5vdCB1c2UgcmVnaXN0ZXJfbmV0ZGV2IHRvIHJlZ2lzdGVyIGl0IHRvIG5ldHdvcmsgY29yZS4g
+VGhpcyBjYW4gYXZvaWQgbG90cyBvZiBjb25mdXNpb24uCj4+Pj4gSGkgSmFzb24sCj4+Pj4KPj4+
+PiBZb3UgbWVhbiB3ZSBzaG91bGQgbm90IHJlZ2lzdGVyIG5ldGRldiBpZiB1c2UgdnNvY2ssIGFu
+ZCBpbiBvcmRlciB0bwo+Pj4+IGF2b2lkIGNvbmZ1c2lvbiwgdGhlbiBJIHRoaW5rIHdoZXRoZXIg
+d2Ugc2hvdWxkIGtlZXAgdnNvY2sgYW5kIGV4cG9ydAo+Pj4+IHNvbWUgdmlydGlvLW5ldCdzIGZ1
+bmN0aW9ucyB0aGF0IGNhbiBiZSBzaGFyZWQuIEluIHRoaXMgd2F5LCBmaXJzdCwgdnNvY2sKPj4+
+PiBtYXkga2VlcCBleGlzdGluZyBhcmNoaXRlY3R1cmUgYW5kIHdpbGwgbm90IGFmZmVjdCB2aXJ0
+aW8tbmV0Lgo+Pj4KPj4+IEF0IGxlYXN0IGl0IG5lZWRzIG5ldyBmZWF0dXJlIGJpdHMgd2hpY2gg
+d2lsbCBiZSBhIGZ1bmN0aW9uYWwgZHVwbGljYXRpb24gb2YgdmlydGlvLW5ldCAoZS5nIG1yZ19y
+eGJ1ZikuCj4+IEhpIEphc29uLAo+Pgo+PiBBY3R1YWxseSBJIG1lYW4gb25seSB1c2Ugc29tZSBz
+aGFyZWQgZnVuY3Rpb24gdG8gbWFrZSB2c29jayBzdXBwb3J0IHRoZXNlCj4+IGZlYXR1cmVzLCBp
+biB0aGF0IHdheSwgZ3Vlc3Qgc2VlIHRoZSBkZXZpY2UgaXMgc3RpbGwgdnNvY2sgZGV2aWNlIGlu
+c3RlYWQgb2YKPj4gdmlydGlvLW5ldCBkZXZpY2UsIGluIGFkZGl0aW9uLCBpdCBjYW4gaGF2ZSBs
+ZXNzIGNvZGVzIGFuZCBlYXNpZXIgdG8gYmUKPj4gY29tcGF0aWJsZSB3aXRoIG9sZCB2c29jayB2
+ZXJzaW9uLgo+IAo+IAo+IFllcywgSSB0aGluayB3ZSdyZSB0YWxraW5nIGFib3V0IHNhbWUgdGhp
+bmcuIEJvdGggb2YgdXMgd2FudCB0byBzaGFyZSBjb2Rlcy4gV2hhdCB5b3Ugd2FudCBpcyB0byBl
+eHBvcnQgYW5kIHNoYXJlIHNvbWUgY29tbW9uIGhlbHBlcnMgYmV0d2VlbiB2aXJ0aW8tbmV0IGFu
+ZCB2c29jay4gV2hhdCBJIG1lYW50IGlzIHRvIGUuZyBwcm9iZSB2c29jayBkZXZpY2UgYW5kIG1l
+cmdlIHZzb2NrIHNwZWNpZmljIGNvZGVzIGludG8gdmlydGlvLW5ldCBkcml2ZXIuIEkgYWdyZWUg
+aXQncyBub3QgYSBzbWFsbCBwcm9qZWN0LiBXZSBjYW4gc3RhcnQgZnJvbSBlLmcgcGF0Y2hlcyB0
+aGF0IHRyeSB0byBzaGFyZSB0aGUgY29kZXMuIFRoaXMgY291bGQgYWxzbyBnaXZlIHVzIGluc3Bp
+cmF0aW9uIGZvciBob3cgdG8gdW5pZnkgdGhlbS4KPiAKPiAKClRoZW4gd2UgaGF2ZSB0d28gd2F5
+cyB0byBpbXBsZW1lbnQgaXQuCjEuIEZvciBHdWVzdCwgaXQgaXMgYSB2aXJ0aW8tbmV0IGRldmlj
+ZShWSVJUSU9fSURfTkVUKSwKdXNlIGEgZmVhdHVyZSBiaXQoZS5nIFZJUlRJT19ORVRfRl9WU09D
+SykgdG8gZGlzdGluZ3Vpc2gKdnNvY2sgc3BlY2lhbCBkZXZpY2UgYW5kIG90aGVyIHZpcnRpby1u
+ZXQgZGV2aWNlLiBGb3Igb2xkCnZzb2NrIGRldmljZSwgaXQgc3RpbGwgdXNlIG9sZCBkcml2ZXIg
+dG8gZHJpdmUgaXQuCgoyLiBGb3IgR3Vlc3QsIGl0IGlzIGEgdmlydGlvLXZzb2NrIGRldmljZShW
+SVJUSU9fSURfVlNPQ0spLAp1c2UgdmlydGlvIGRldmljZSBpZCB0byBkaXN0aW5ndWlzaCB0aGVt
+LCBpdCB3aWxsIGludGVncmF0ZQpvbGQgZHJpdmVyLCBidXQgaXQgbWF5IGJlIG1vcmUgY29tcGxp
+Y2F0ZWQsIGJlY2F1c2UgaXQgbmVlZHMKdG8gY29uc2lkZXIgdGhlIGNvbXBhdGliaWxpdHkgd2l0
+aCBvbGQgdnNvY2sgZGV2aWNlLgoKPj4KPj4gVGhhbmtzLAo+PiBZaXdlbi4KPj4KPj4+Cj4+Pj4g
+SW4gYWRkaXRpb24sCj4+Pj4gdnNvY2sgZG9lc24ndCBuZWVkIHRvIHVzZSB2aXJ0aW9fbmV0IGhl
+YWRlciB0b28sIHRoZW4gaXQgZG9uJ3QgbmVlZCB0byBwYWNrCj4+Pj4gc2tiIHN0cnVjdHVyZS4K
+Pj4+Cj4+PiBGb3IgbWVyZ2VhYmxlIHJ4IGJ1ZmZlciBpdCBuZWVkIEkgdGhpbms/Cj4+IEFzIHNh
+aWQgYWJvdmUsIEkgd2lsbCBkZWZpbmUgdGhlIHJlbGF0ZWQgc3RydWN0dXJlIGluIHRoZSB2aXJ0
+aW8tdnNvY2sgbW9kdWxlLgo+Pgo+Pj4KPj4+PiBUaGFua3MsCj4+Pj4gWWl3ZW4uCj4+Pj4KPj4+
+Pj4+ICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICB8Cj4+Pj4+PiAgICAgICAg
+ICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgfAo+Pj4+Pj4gKy0tLS0tLS0tLS0tLS0tLS0t
+LS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLSsKPj4+Pj4+
+IHxWaXJ0aW8tbmV0IE1vZHVsZSAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAg
+ICAgICAgICAgICB8Cj4+Pj4+PiB8c3RhcnRfeG1pdCAgICAgICAgICAgICAgICAgICAgICAgICAg
+ICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgfAo+Pj4+Pj4gfCAgLT4gYWRkIHZpcnRpb19u
+ZXRfaGRyIGFuZCBwYWNrIHNnIGluIHJpbmcgZGVzYywgbm90aWZ5IEhvc3QgICAgIHwKPj4+Pj4+
+ICstLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0t
+LS0tLS0tLS0tLS0rCj4+Pj4+PiAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAg
+fAo+Pj4+Pj4gICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgIHwKPj4+Pj4+ICst
+LS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0t
+LS0tLS0tLS0rCj4+Pj4+PiB8Vmhvc3QtbmV0IE1vZHVsZSAgICAgICAgICAgICAgICAgICAgICAg
+ICAgICAgICAgICAgICAgICAgICAgICAgICAgfAo+Pj4+Pj4gfGhhbmRsZV90eCAgICAgICAgICAg
+ICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgIHwKPj4+Pj4+IHwg
+IC0+IGdldCB0eCBidWZmZXIsIHNraXAgdmlydGlvX25ldF9oZHIgYW5kIGNhbGwgVnNvY2sgZnVu
+Y3Rpb24uICB8Cj4+Pj4+PiB8IC8qIFRoaXMgcG9pbnQgaGFzIHNvbWUgZGlmZmVyZW5jZXMsIHZo
+b3N0LW5ldCB1c2UgLT5zZW5kbXNnIHRvICAgfAo+Pj4+Pj4gfCAgKiBmb3J3YXJkIGluZm9ybWF0
+aW9uLCBob3dldmVyIHZzb2NrIG9ubHkgbmVlZCB0byBub3RpZnkgc2VydmVyIHwKPj4+Pj4+IHwg
+ICogdGhhdCBkYXRhIHJlYWR5LiAqLyAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAg
+ICAgICAgICB8Cj4+Pj4+PiArLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0t
+LS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tKwo+Pj4+PiBXaGVuIFZJUlRJT19ORVRfRl9WT1ND
+SyBpcyBuZWdvdGlhdGVkLCB3ZSBrbm93IHRoYXQgaXQncyBhIHZzb2NrIHRyYW5zcG9ydCwgd2Ug
+Y2FuIHRoZW4gZm9yd2FyZCBpdCB0byB2c29jayBjb3JlLgo+Pj4+Pgo+Pj4+Pgo+Pj4+Pj4gICAg
+ICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgIHwKPj4+Pj4+ICAgICAgICAgICAgICAg
+ICAgICAgICAgICAgICAgICAgICAgICB8Cj4+Pj4+PiArLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0t
+LS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tKwo+Pj4+Pj4gfFZTT0NL
+IENvcmUgTW9kdWxlICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAg
+ICAgIHwKPj4+Pj4+IHxhbGxvY19wa3QsIGNvcHkgc2tiIGRhdGEgdG8gcGt0LiAgICAgICAgICAg
+ICAgICAgICAgICAgICAgICAgICAgICB8Cj4+Pj4+PiB8YWRkIHBrdCB0byByeF9xdWV1ZSBhbmQg
+bm90aWZ5IHNlcnZlciB0byBnZXQgZGF0YS4gICAgICAgICAgICAgICAgfAo+Pj4+Pj4gKy0tLS0t
+LS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0t
+LS0tLSsKPj4+Pj4+Cj4+Pj4+PiAzLiBUbyBIb3N0LT5HdWVzdAo+Pj4+Pj4gSSBoYXZlIGEgcHJv
+YmxlbSBhbmQgZGlmZmljdWx0LCBtYWlubHkgSSBrbm93IGFib3V0IHZpcnRpby1uZXQgYSBsaXR0
+bGUpLAo+Pj4+Pj4gYmVjYXVzZSBJIGhhdmUgYmVlbiBkb2luZyB3b3JrIHJlbGF0ZWQgd2l0aCBz
+dG9yYWdlIGFuZCBmaWxlIHN5c3RlbS4KPj4+Pj4+Cj4+Pj4+PiBUaGUgcHJvYmxlbSBhcyBmb2xs
+b3dzOgo+Pj4+Pj4gd2Ugc2hvdWxkIG1vbml0b3IgYWxsIG9mIHNvY2tldCBvZiB2c29jayBpbiBo
+YW5kbGVfcngsIHdoZW4gdGhlcmUgYXJlCj4+Pj4+PiBkYXRhIGNvbWluZywgYW5kIGNvcHkgZGF0
+YSB0byB2cSBkZXNjLiBWaG9zdC1uZXQgdXNlIC0+cmVjdm1zZyB0bwo+Pj4+Pj4gZ2V0IGRhdGEs
+IGl0IGlzIGRpZmZlcmVudCB3aXRoIHNvY2tldC4gVG8gdnNvY2ssIEkgdGhpbmsgaG9zdCB3aWxs
+Cj4+Pj4+PiBub3QgY2FsbCAtPnJlY3Ztc2cgd2hlbiBpdCBuZWVkIHRvIHNlbmQgbWVzc2FnZSB0
+byBndWVzdC4gVG8gbmV0LAo+Pj4+Pj4gdmhvc3QtbmV0IG9ubHkgYXMgZm9yd2FyZGluZyBsYXll
+ci4KPj4+Pj4gS25vdyBub3QgbXVjaCBoZXJlLCBidXQgaXMgaXQgcG9zc2libGUgdG8gaGF2ZSBh
+IHZzb2NrKHRhcCkgdG8gYmUgcGFzc2VkIHRvIHZob3N0X25ldCBhbmQgbGV0IHZob3N0IGNhbGwg
+aXRzIHJlY3ZtZ3MoKT8gQmFzY2lhbGx5IGl0IHdhcyBhIHNvY2tldCBvbiBob3N0IGFzIHdlbGwg
+SSBiZWxpZXZlPwo+Pj4+IEZvciB2c29jaywgSG9zdC0+R3Vlc3QsIGl0J3MgY29kZSBmbG93IGFz
+IGZvbGxvd3M6Cj4+Pj4gU2VydmVyIGNhbGwgc2VuZCgpCj4+Pj4gICAgIC0+IHNlbmRtc2coKTsg
+KHZzb2NrX3N0cmVhbV9zZW5kbXNnKQo+Pj4+ICAgICAgIC0+IHZpcnRpb190cmFzbnBvcnRfc2Vu
+ZF9wa3RfaW5mbwo+Pj4+ICAgICAgICAgLT4gYWxsb2MgcGt0LCBhZGQgcGt0IHRvIHNlbmRfcGt0
+X2xpc3QsIHdha2UgdXAgdmhvc3Rfd29ya2VyCj4+Pj4KPj4+PiBWaG9zdF93b3JrZXIKPj4+PiAg
+ICAgLT4gdmhvc3RfdHJhbnNwb3J0X3NlbmRfcGt0X3dvcmsKPj4+PiAgICAgICAtPiBnZXQgcGt0
+IGZyb20gc2VuZF9wa3RfbGlzdAo+Pj4+ICAgICAgIC0+IGdldCB2cSBpbnB1dCBkZXNjIGFuZCB0
+aGVuIGZpbGwgZGF0YSB0byBkZXNjIGFkZHIKPj4+PiAgICAgICAtPiB1cGRhdGUgdXNlZCByaW5n
+IGFuZCB0aGVuIHNpZ25hbCBndWVzdAo+Pj4+Cj4+Pj4gSW4gdGhlIHdob2xlIHByb2Nlc3MsIGhv
+c3QgZG9uJ3QgY2FsbCByZWN2bXNnKCkgYmVjYXVzZSBpdCBpcyBhIG5ldCBkZXZpY2UsIGFuZAo+
+Pj4+IGl0IGFsc28gcmVjZWl2ZXMgYW55IG1lc3NhZ2VzLgo+Pj4KPj4+IElmIEkgdW5kZXJzdGFu
+ZCB0aGlzIGNvcnJlY3RseSwgdGhlcmUncyBubyBhIHNvY2tldCBvYmplY3Qgb24gaG9zdCB0aGF0
+IHJlcHJlc2VudCB2b3NjayBpbiBndWVzdD8gSWYgeWVzLCBtYXliZSB3ZSBjYW4gaW52ZW50IG9u
+ZS4KPj4+Cj4+PiBUaGFua3MKPj4+Cj4+IFNvcnJ5LCBJIGFtIG5vdCB1bmRlcnN0YW5kaW5nIHlv
+dSB2ZXJ5IG11Y2gsIHZzb2NrIG9ubHkgYSBzb2NrZXQKPj4gY2hhbm5lbCwgaXQgZG9lcyBub3Qg
+aGF2ZSBhIG5ldHdvcmsgZGV2aWNlIGVudGl0eSwgc28gaXQgb25seQo+PiB0cmFuc21pdCB0aGUg
+ZGF0YSBiZXR3ZWVuIHNlcnZlciBhbmQgY2xpZW50LCB0aGUgZGF0YSBpcyBvbmx5Cj4+IHNhdmVk
+IGluIHNlcnZlciBhbmQgY2xpZW50LiBJbnN0ZWFkIG9mIHZob3N0LW5ldCwgSSBmZWVsIGl0Cj4+
+IGhhcyBhIG5ldHdvcmsgZGV2aWNlIHRoYXQgY2FuIHNhdmVkIHRoZSBkYXRhLCBzbyB3aGVuIGhv
+c3QKPj4gc2VuZCBtZXNzYWdlIHRvIGd1ZXN0LCBpdCBjYW4gdXNlIHJlY3Ztc2coKSBmcm9tIHRo
+ZQo+PiBuZXR3b3JrIGRldmljZSh0YXApLiBGb3IgVnNvY2ssIHJlY3Ztc2coKSBpbnRlcmZhY2Ug
+d2lsbAo+PiByZWFkIG1lc3NhZ2UgZnJvbSB0eCB2cS4KPiAKPiAKPiBTbyBJIHVuZGVyc3RhbmQg
+dGhlIG1vZGVsIGlzIG5vdCBhIHJlYWwgc29ja2V0IHBhaXIgb24gaG9zdCB3aGljaCBBRl9VTklY
+IGRpZC4gTWF5YmUgaXQncyBiZXR0ZXIgdG8gaGF2ZSBvbmUuIFdoYXQgSSBtZWFudCBpcywgaGF2
+ZSBhIHNvY2tldCB0aGF0IHJlcHJlc2VudCAgZm9yIGVhY2ggZ3Vlc3QgdnNvY2sgZGV2aWNlIG9u
+IGhvc3QgKGd1ZXN0IHNvY2tldCkuIFRoZW4gd2hlbiB5b3UgdHJhbnNmZXIgcGFja2V0cyBmcm9t
+IGhvc3QgdG8gZ3Vlc3QsIHlvdSBjYW4gcXVldWUgdGhlIHBhY2tldHMgaW50byB0aGUgcmVjZWl2
+ZSBxdWV1ZSBvZiB0aGUgZ3Vlc3Qgc29ja2V0IGFuZCB3YWtlIHVwIHZob3N0LW5ldCBhbmQgaXQg
+d2lsbCBjYWxsIHJlY3Ztc2coKSBmb3IgdGhlIGd1ZXN0IHNvY2tldC4gQW5kIHdoZW4geW91IHdh
+bnQgdG8gdHJhbnNmZXIgcGFja2V0cyBmb3JtIGd1ZXN0IHRvIGhvc3QsIHZob3N0X25ldCB3aWxs
+IGNhbGwgc2VuZG1zZygpIHRvIHRoZSBndWVzdCBzb2NrZXQgb24gaG9zdCB0aGVuIGl0IGNhbiBz
+ZWFyY2ggdGhlIGNvcnJlY3QgZGVzdGluYXRpb24gYW5kIHF1ZXVlIHBhY2tldCBvbiB0aGUgcmVj
+ZWl2ZSBvZiBob3N0IHNvY2tldC4gVGhpcyBjYW4gbWFrZSB2c29jayBtdWNoIG1vcmUgZWFzaWVy
+IHRvIGJlIGludGVncmF0ZWQgd2l0aCB2aG9zdF9uZXQuCj4gCj4gVGhhbmtzCj4gCj4+Cj4+Pj4g
+Rm9yIHZob3N0LW5ldCwgSSB1bmRlcnN0YW5kIGl0IGlzIGEgdGFwIGRldmljZSwgc28gaXQgY2Fu
+IHJlY2VpdmUgbWVzc2FnZXMKPj4+PiBmcm9tIG90aGVyIG5ldCBkZXZpY2UuCj4+Pj4KPj4+PiBU
+aGlzIGlzIG15IHVuZGVyc3RhbmRpbmcsIGl0IG1heSBoYXZlIHNvbWUgZXJyb3JzLgo+Pj4+Cj4+
+Pj4gVGhhbmtzLgo+Pj4+Cj4+Pj4+IElmIHRoaXMgZG9lc24ndCB3b3JrLCB3ZSBjYW4gaGF2ZSB2
+c29jayBzcGVjaWZpYyByZWNlaXZpbmcgcm91dGluZSBpbiB2aG9zdF9uZXQgaWYgVklSVElPX05F
+VF9GX1ZPU0NLIGlzIG5lZ290aWF0ZWQuCj4+Pj4+Cj4+Pj4+IEdlbmVyYWxseSwgSSB0aGluayB3
+ZSBzaG91bGQgdHJ5IG91dCBiZXN0IHRvIGtlZXAgdGhlIGV4aXN0IHNlbmRtc2coKS9yZWN2bXNn
+KCkgaW50ZXJmYWNlcyBhbmQgb25seSBjb25zaWRlciB0aGUgYWx0ZXJuYXRpdmVzIGlmIHdlIG1l
+ZXQgc29tZSByZWFsIGJsb2NrZXIuCj4+Pj4+Cj4+Pj4+IFRoYW5rcwo+Pj4+Pgo+Pj4+Pgo+Pj4+
+PiAuCj4+Pj4+Cj4+PiAuCj4+Pgo+Pgo+IAo+IC4KPiAKCgpfX19fX19fX19fX19fX19fX19fX19f
+X19fX19fX19fX19fX19fX19fX19fX19fXwpWaXJ0dWFsaXphdGlvbiBtYWlsaW5nIGxpc3QKVmly
+dHVhbGl6YXRpb25AbGlzdHMubGludXgtZm91bmRhdGlvbi5vcmcKaHR0cHM6Ly9saXN0cy5saW51
+eGZvdW5kYXRpb24ub3JnL21haWxtYW4vbGlzdGluZm8vdmlydHVhbGl6YXRpb24=
