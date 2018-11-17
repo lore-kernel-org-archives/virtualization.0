@@ -1,16 +1,14 @@
-From: Rob Herring <robh@kernel.org>
-Subject: Re: [PATCH v4 3/7] of: Allow the iommu-map property to omit
-	untranslated devices
-Date: Fri, 16 Nov 2018 17:26:48 -0600
-Message-ID: <20181116232648.GA12293__41160.7295311571$1542410700$gmane$org@bogus>
-References: <20181115165234.43990-1-jean-philippe.brucker@arm.com>
-	<20181115165234.43990-4-jean-philippe.brucker@arm.com>
+From: David Miller <davem@davemloft.net>
+Subject: Re: [PATCH net-next 1/2] vhost_net: mitigate page reference
+	counting during page frag refill
+Date: Sat, 17 Nov 2018 12:01:05 -0800 (PST)
+Message-ID: <20181117.120105.1022512033566284108.davem@davemloft.net>
+References: <20181115094310.17307-1-jasowang@redhat.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-Content-Disposition: inline
-In-Reply-To: <20181115165234.43990-4-jean-philippe.brucker@arm.com>
+In-Reply-To: <20181115094310.17307-1-jasowang@redhat.com>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -20,26 +18,26 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Jean-Philippe Brucker <jean-philippe.brucker@arm.com>
-Cc: mark.rutland@arm.com, virtio-dev@lists.oasis-open.org, lorenzo.pieralisi@arm.com, tnowicki@caviumnetworks.com, devicetree@vger.kernel.org, marc.zyngier@arm.com, linux-pci@vger.kernel.org, joro@8bytes.org, mst@redhat.com, will.deacon@arm.com, robin.murphy@arm.com, virtualization@lists.linux-foundation.org, eric.auger@redhat.com, iommu@lists.linux-foundation.org, robh+dt@kernel.org, kvmarm@lists.cs.columbia.edu, bhelgaas@google.com
+To: jasowang@redhat.com
+Cc: netdev@vger.kernel.org, virtualization@lists.linux-foundation.org, linux-kernel@vger.kernel.org, kvm@vger.kernel.org, mst@redhat.com
 List-Id: virtualization@lists.linuxfoundation.org
 
-On Thu, 15 Nov 2018 16:52:30 +0000, Jean-Philippe Brucker wrote:
-> In PCI root complex nodes, the iommu-map property describes the IOMMU that
-> translates each endpoint. On some platforms, the IOMMU itself is presented
-> as a PCI endpoint (e.g. AMD IOMMU and virtio-iommu). This isn't supported
-> by the current OF driver, which expects all endpoints to have an IOMMU.
-> Allow the iommu-map property to have gaps.
-> 
-> Relaxing of_map_rid() also allows the msi-map property to have gaps, which
-> is invalid since MSIs always reach an MSI controller. In that case
-> pci_msi_setup_msi_irqs() will return an error when attempting to find the
-> device's MSI domain.
-> 
-> Signed-off-by: Jean-Philippe Brucker <jean-philippe.brucker@arm.com>
-> ---
->  drivers/of/base.c | 10 +++++++---
->  1 file changed, 7 insertions(+), 3 deletions(-)
-> 
+From: Jason Wang <jasowang@redhat.com>
+Date: Thu, 15 Nov 2018 17:43:09 +0800
 
-Reviewed-by: Rob Herring <robh@kernel.org>
+> We do a get_page() which involves a atomic operation. This patch tries
+> to mitigate a per packet atomic operation by maintaining a reference
+> bias which is initially USHRT_MAX. Each time a page is got, instead of
+> calling get_page() we decrease the bias and when we find it's time to
+> use a new page we will decrease the bias at one time through
+> __page_cache_drain_cache().
+> 
+> Testpmd(virtio_user + vhost_net) + XDP_DROP on TAP shows about 1.6%
+> improvement.
+> 
+> Before: 4.63Mpps
+> After:  4.71Mpps
+> 
+> Signed-off-by: Jason Wang <jasowang@redhat.com>
+
+Applied.
