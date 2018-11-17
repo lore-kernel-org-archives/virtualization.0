@@ -1,14 +1,14 @@
 From: David Miller <davem@davemloft.net>
-Subject: Re: [PATCH net-next 1/2] vhost_net: mitigate page reference
-	counting during page frag refill
-Date: Sat, 17 Nov 2018 12:01:05 -0800 (PST)
-Message-ID: <20181117.120105.1022512033566284108.davem@davemloft.net>
+Subject: Re: [PATCH net-next 2/2] tuntap: free XDP dropped packets in a batch
+Date: Sat, 17 Nov 2018 12:01:10 -0800 (PST)
+Message-ID: <20181117.120110.1928716941460171365.davem__34982.2586322718$1542484760$gmane$org@davemloft.net>
 References: <20181115094310.17307-1-jasowang@redhat.com>
+	<20181115094310.17307-2-jasowang@redhat.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <20181115094310.17307-1-jasowang@redhat.com>
+In-Reply-To: <20181115094310.17307-2-jasowang@redhat.com>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -23,20 +23,17 @@ Cc: netdev@vger.kernel.org, virtualization@lists.linux-foundation.org, linux-ker
 List-Id: virtualization@lists.linuxfoundation.org
 
 From: Jason Wang <jasowang@redhat.com>
-Date: Thu, 15 Nov 2018 17:43:09 +0800
+Date: Thu, 15 Nov 2018 17:43:10 +0800
 
-> We do a get_page() which involves a atomic operation. This patch tries
-> to mitigate a per packet atomic operation by maintaining a reference
-> bias which is initially USHRT_MAX. Each time a page is got, instead of
-> calling get_page() we decrease the bias and when we find it's time to
-> use a new page we will decrease the bias at one time through
-> __page_cache_drain_cache().
+> Thanks to the batched XDP buffs through msg_control. Instead of
+> calling put_page() for each page which involves a atomic operation,
+> let's batch them by record the last page that needs to be freed and
+> its refcnt count and free them in a batch.
 > 
-> Testpmd(virtio_user + vhost_net) + XDP_DROP on TAP shows about 1.6%
-> improvement.
+> Testpmd(virtio-user + vhost_net) + XDP_DROP shows 3.8% improvement.
 > 
-> Before: 4.63Mpps
-> After:  4.71Mpps
+> Before: 4.71Mpps
+> After : 4.89Mpps
 > 
 > Signed-off-by: Jason Wang <jasowang@redhat.com>
 
