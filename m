@@ -1,7 +1,8 @@
 From: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-Subject: [PATCH 4.14 064/124] x86/hyper-v: Enable PIT shutdown quirk
-Date: Mon, 19 Nov 2018 17:28:38 +0100
-Message-ID: <20181119162625.804467418__16332.5919690125$1542646057$gmane$org@linuxfoundation.org>
+Subject: [PATCH 4.14 072/124] clockevents/drivers/i8253: Add support for PIT
+	shutdown quirk
+Date: Mon, 19 Nov 2018 17:28:46 +0100
+Message-ID: <20181119162627.060735893@linuxfoundation.org>
 References: <20181119162612.951907286@linuxfoundation.org>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
@@ -27,13 +28,14 @@ List-Id: virtualization@lists.linuxfoundation.org
 
 From: Michael Kelley <mikelley@microsoft.com>
 
-commit 1de72c706488b7be664a601cf3843bd01e327e58 upstream.
+commit 35b69a420bfb56b7b74cb635ea903db05e357bec upstream.
 
-Hyper-V emulation of the PIT has a quirk such that the normal PIT shutdown
-path doesn't work, because clearing the counter register restarts the
-timer.
+Add support for platforms where pit_shutdown() doesn't work because of a
+quirk in the PIT emulation. On these platforms setting the counter register
+to zero causes the PIT to start running again, negating the shutdown.
 
-Disable the counter clearing on PIT shutdown.
+Provide a global variable that controls whether the counter register is
+zero'ed, which platform specific code can override.
 
 Signed-off-by: Michael Kelley <mikelley@microsoft.com>
 Signed-off-by: Thomas Gleixner <tglx@linutronix.de>
@@ -50,37 +52,50 @@ Cc: "jasowang@redhat.com" <jasowang@redhat.com>
 Cc: "marcelo.cerri@canonical.com" <marcelo.cerri@canonical.com>
 Cc: KY Srinivasan <kys@microsoft.com>
 Cc: stable@vger.kernel.org
-Link: https://lkml.kernel.org/r/1541303219-11142-3-git-send-email-mikelley@microsoft.com
+Link: https://lkml.kernel.org/r/1541303219-11142-2-git-send-email-mikelley@microsoft.com
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- arch/x86/kernel/cpu/mshyperv.c |   11 +++++++++++
- 1 file changed, 11 insertions(+)
+ drivers/clocksource/i8253.c |   14 ++++++++++++--
+ include/linux/i8253.h       |    1 +
+ 2 files changed, 13 insertions(+), 2 deletions(-)
 
---- a/arch/x86/kernel/cpu/mshyperv.c
-+++ b/arch/x86/kernel/cpu/mshyperv.c
-@@ -20,6 +20,7 @@
- #include <linux/interrupt.h>
- #include <linux/irq.h>
- #include <linux/kexec.h>
-+#include <linux/i8253.h>
- #include <asm/processor.h>
- #include <asm/hypervisor.h>
- #include <asm/hyperv.h>
-@@ -243,6 +244,16 @@ static void __init ms_hyperv_init_platfo
- 	if (efi_enabled(EFI_BOOT))
- 		x86_platform.get_nmi_reason = hv_get_nmi_reason;
+--- a/drivers/clocksource/i8253.c
++++ b/drivers/clocksource/i8253.c
+@@ -20,6 +20,13 @@
+ DEFINE_RAW_SPINLOCK(i8253_lock);
+ EXPORT_SYMBOL(i8253_lock);
  
-+	/*
-+	 * Hyper-V VMs have a PIT emulation quirk such that zeroing the
-+	 * counter register during PIT shutdown restarts the PIT. So it
-+	 * continues to interrupt @18.2 HZ. Setting i8253_clear_counter
-+	 * to false tells pit_shutdown() not to zero the counter so that
-+	 * the PIT really is shutdown. Generation 2 VMs don't have a PIT,
-+	 * and setting this value has no effect.
-+	 */
-+	i8253_clear_counter_on_shutdown = false;
++/*
++ * Handle PIT quirk in pit_shutdown() where zeroing the counter register
++ * restarts the PIT, negating the shutdown. On platforms with the quirk,
++ * platform specific code can set this to false.
++ */
++bool i8253_clear_counter_on_shutdown __ro_after_init = true;
 +
- #if IS_ENABLED(CONFIG_HYPERV)
- 	/*
- 	 * Setup the hook to get control post apic initialization.
+ #ifdef CONFIG_CLKSRC_I8253
+ /*
+  * Since the PIT overflows every tick, its not very useful
+@@ -109,8 +116,11 @@ static int pit_shutdown(struct clock_eve
+ 	raw_spin_lock(&i8253_lock);
+ 
+ 	outb_p(0x30, PIT_MODE);
+-	outb_p(0, PIT_CH0);
+-	outb_p(0, PIT_CH0);
++
++	if (i8253_clear_counter_on_shutdown) {
++		outb_p(0, PIT_CH0);
++		outb_p(0, PIT_CH0);
++	}
+ 
+ 	raw_spin_unlock(&i8253_lock);
+ 	return 0;
+--- a/include/linux/i8253.h
++++ b/include/linux/i8253.h
+@@ -21,6 +21,7 @@
+ #define PIT_LATCH	((PIT_TICK_RATE + HZ/2) / HZ)
+ 
+ extern raw_spinlock_t i8253_lock;
++extern bool i8253_clear_counter_on_shutdown;
+ extern struct clock_event_device i8253_clockevent;
+ extern void clockevent_i8253_init(bool oneshot);
