@@ -1,14 +1,14 @@
 From: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-Subject: [PATCH 4.9 52/83] clockevents/drivers/i8253: Add support for PIT
+Subject: [PATCH 4.4 136/160] clockevents/drivers/i8253: Add support for PIT
 	shutdown quirk
-Date: Mon, 19 Nov 2018 17:29:18 +0100
-Message-ID: <20181119162622.810383751@linuxfoundation.org>
-References: <20181119162612.046511542@linuxfoundation.org>
+Date: Mon, 19 Nov 2018 17:29:35 +0100
+Message-ID: <20181119162643.328815914@linuxfoundation.org>
+References: <20181119162630.031306128@linuxfoundation.org>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <20181119162612.046511542@linuxfoundation.org>
+In-Reply-To: <20181119162630.031306128@linuxfoundation.org>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -22,7 +22,7 @@ To: linux-kernel@vger.kernel.org
 Cc: "jgross@suse.com" <jgross@suse.com>, "olaf@aepfle.de" <olaf@aepfle.de>, Greg Kroah-Hartman <gregkh@linuxfoundation.org>, "daniel.lezcano@linaro.org" <daniel.lezcano@linaro.org>, stable@vger.kernel.org, Michael Kelley <mikelley@microsoft.com>, "marcelo.cerri@canonical.com" <marcelo.cerri@canonical.com>, "apw@canonical.com" <apw@canonical.com>, "devel@linuxdriverproject.org" <devel@linuxdriverproject.org>, Thomas Gleixner <tglx@linutronix.de>, "virtualization@lists.linux-foundation.org" <virtualization@lists.linux-foundation.org>, "akataria@vmware.com" <akataria@vmware.com>
 List-Id: virtualization@lists.linuxfoundation.org
 
-4.9-stable review patch.  If anyone has any objections, please let me know.
+4.4-stable review patch.  If anyone has any objections, please let me know.
 
 ------------------
 
@@ -71,7 +71,7 @@ Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 + * restarts the PIT, negating the shutdown. On platforms with the quirk,
 + * platform specific code can set this to false.
 + */
-+bool i8253_clear_counter_on_shutdown __ro_after_init = true;
++bool i8253_clear_counter_on_shutdown = true;
 +
  #ifdef CONFIG_CLKSRC_I8253
  /*
