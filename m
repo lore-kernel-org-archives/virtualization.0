@@ -1,16 +1,12 @@
-From: Shawn Guo <shawnguo@kernel.org>
-Subject: Re: [PATCH 3/9] drm: replace "drm_dev_unref" function with
-	"drm_dev_put"
-Date: Mon, 19 Nov 2018 20:13:28 +0800
-Message-ID: <20181119121327.GS5829__16856.3339779668$1542629524$gmane$org@dragon>
-References: <20181115221634.22715-1-greenfoo@gluegarage.com>
-	<20181115221634.22715-4-greenfoo@gluegarage.com>
+From: <gregkh@linuxfoundation.org>
+Subject: Patch "clockevents/drivers/i8253: Add support for PIT shutdown quirk"
+	has been added to the 4.14-stable tree
+Date: Mon, 19 Nov 2018 13:59:24 +0100
+Message-ID: <154263236418550@kroah.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-Content-Disposition: inline
-In-Reply-To: <20181115221634.22715-4-greenfoo@gluegarage.com>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -20,28 +16,108 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Fernando Ramos <greenfoo@gluegarage.com>
-Cc: Haneen Mohammed <hamohammed.sa@gmail.com>, Alexandre Belloni <alexandre.belloni@bootlin.com>, Gilles Muller <Gilles.Muller@lip6.fr>, David Airlie <airlied@linux.ie>, Linus Walleij <linus.walleij@linaro.org>, dri-devel@lists.freedesktop.org, linux-kernel@vger.kernel.org, Andrzej Hajda <a.hajda@samsung.com>, cocci@systeme.lip6.fr, Marek Vasut <marex@denx.de>, Archit Taneja <architt@codeaurora.org>, Jonathan Corbet <corbet@lwn.net>, linux-doc@vger.kernel.org, Alexey Brodkin <abrodkin@synopsys.com>, Maxime Ripard <maxime.ripard@bootlin.com>, Ludovic Desroches <ludovic.desroches@microchip.com>, Russell King <linux+etnaviv@armlinux.org.uk>, Nicolas Palix <nicolas.palix@imag.fr>, Maarten Lankhorst <maarten.lankhorst@linux.intel.com>, etnaviv@lists.freedesktop.org, Boris Brezillon <boris.brezillon@bootlin.com>, Christian Gmeiner <christian.gmeiner@gmail.com>Stefan Agner <s>
+To: 1541303219-11142-2-git-send-email-mikelley@microsoft.com, akataria@vmware.com, apw@canonical.com, daniel.lezcano@linaro.org, devel@linuxdriverproject.org, gregkh@linuxfoundation.org, jasowang@redhat.com, jgross@suse.com, kys@microsoft.com, marcelo.cerri@canonical.commikelley@microsoft.com, olaf@aepfle.de, tglx@linutronix.de, virtualization@lists.linux-foundation.org, vkuznets@redhat.com
+Cc: stable-commits@vger.kernel.org
 List-Id: virtualization@lists.linuxfoundation.org
 
-On Thu, Nov 15, 2018 at 11:16:23PM +0100, Fernando Ramos wrote:
-> This patch unifies the naming of DRM functions for reference counting as
-> requested on Documentation/gpu/todo.rst
-> 
-> Signed-off-by: Fernando Ramos <greenfoo@gluegarage.com>
-> ---
->  drivers/gpu/drm/arc/arcpgu_drv.c             | 4 ++--
->  drivers/gpu/drm/atmel-hlcdc/atmel_hlcdc_dc.c | 4 ++--
->  drivers/gpu/drm/etnaviv/etnaviv_drv.c        | 4 ++--
->  drivers/gpu/drm/mxsfb/mxsfb_drv.c            | 4 ++--
->  drivers/gpu/drm/rcar-du/rcar_du_drv.c        | 2 +-
->  drivers/gpu/drm/shmobile/shmob_drm_drv.c     | 4 ++--
->  drivers/gpu/drm/tve200/tve200_drv.c          | 4 ++--
->  drivers/gpu/drm/zte/zx_drm_drv.c             | 4 ++--
 
-We have already queued a patch [1] from Thomas Zimmermann for
-zx_drm_drv.
+This is a note to let you know that I've just added the patch titled
 
-Shawn
+    clockevents/drivers/i8253: Add support for PIT shutdown quirk
 
-[1] https://patchwork.kernel.org/patch/10615837/
+to the 4.14-stable tree which can be found at:
+    http://www.kernel.org/git/?p=linux/kernel/git/stable/stable-queue.git;a=summary
+
+The filename of the patch is:
+     clockevents-drivers-i8253-add-support-for-pit-shutdown-quirk.patch
+and it can be found in the queue-4.14 subdirectory.
+
+If you, or anyone else, feels it should not be added to the stable tree,
+please let <stable@vger.kernel.org> know about it.
+
+
+From 35b69a420bfb56b7b74cb635ea903db05e357bec Mon Sep 17 00:00:00 2001
+From: Michael Kelley <mikelley@microsoft.com>
+Date: Sun, 4 Nov 2018 03:48:54 +0000
+Subject: clockevents/drivers/i8253: Add support for PIT shutdown quirk
+
+From: Michael Kelley <mikelley@microsoft.com>
+
+commit 35b69a420bfb56b7b74cb635ea903db05e357bec upstream.
+
+Add support for platforms where pit_shutdown() doesn't work because of a
+quirk in the PIT emulation. On these platforms setting the counter register
+to zero causes the PIT to start running again, negating the shutdown.
+
+Provide a global variable that controls whether the counter register is
+zero'ed, which platform specific code can override.
+
+Signed-off-by: Michael Kelley <mikelley@microsoft.com>
+Signed-off-by: Thomas Gleixner <tglx@linutronix.de>
+Cc: "gregkh@linuxfoundation.org" <gregkh@linuxfoundation.org>
+Cc: "devel@linuxdriverproject.org" <devel@linuxdriverproject.org>
+Cc: "daniel.lezcano@linaro.org" <daniel.lezcano@linaro.org>
+Cc: "virtualization@lists.linux-foundation.org" <virtualization@lists.linux-foundation.org>
+Cc: "jgross@suse.com" <jgross@suse.com>
+Cc: "akataria@vmware.com" <akataria@vmware.com>
+Cc: "olaf@aepfle.de" <olaf@aepfle.de>
+Cc: "apw@canonical.com" <apw@canonical.com>
+Cc: vkuznets <vkuznets@redhat.com>
+Cc: "jasowang@redhat.com" <jasowang@redhat.com>
+Cc: "marcelo.cerri@canonical.com" <marcelo.cerri@canonical.com>
+Cc: KY Srinivasan <kys@microsoft.com>
+Cc: stable@vger.kernel.org
+Link: https://lkml.kernel.org/r/1541303219-11142-2-git-send-email-mikelley@microsoft.com
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+
+---
+ drivers/clocksource/i8253.c |   14 ++++++++++++--
+ include/linux/i8253.h       |    1 +
+ 2 files changed, 13 insertions(+), 2 deletions(-)
+
+--- a/drivers/clocksource/i8253.c
++++ b/drivers/clocksource/i8253.c
+@@ -20,6 +20,13 @@
+ DEFINE_RAW_SPINLOCK(i8253_lock);
+ EXPORT_SYMBOL(i8253_lock);
+ 
++/*
++ * Handle PIT quirk in pit_shutdown() where zeroing the counter register
++ * restarts the PIT, negating the shutdown. On platforms with the quirk,
++ * platform specific code can set this to false.
++ */
++bool i8253_clear_counter_on_shutdown __ro_after_init = true;
++
+ #ifdef CONFIG_CLKSRC_I8253
+ /*
+  * Since the PIT overflows every tick, its not very useful
+@@ -109,8 +116,11 @@ static int pit_shutdown(struct clock_eve
+ 	raw_spin_lock(&i8253_lock);
+ 
+ 	outb_p(0x30, PIT_MODE);
+-	outb_p(0, PIT_CH0);
+-	outb_p(0, PIT_CH0);
++
++	if (i8253_clear_counter_on_shutdown) {
++		outb_p(0, PIT_CH0);
++		outb_p(0, PIT_CH0);
++	}
+ 
+ 	raw_spin_unlock(&i8253_lock);
+ 	return 0;
+--- a/include/linux/i8253.h
++++ b/include/linux/i8253.h
+@@ -21,6 +21,7 @@
+ #define PIT_LATCH	((PIT_TICK_RATE + HZ/2) / HZ)
+ 
+ extern raw_spinlock_t i8253_lock;
++extern bool i8253_clear_counter_on_shutdown;
+ extern struct clock_event_device i8253_clockevent;
+ extern void clockevent_i8253_init(bool oneshot);
+ 
+
+
+Patches currently in stable-queue which might be from mikelley@microsoft.com are
+
+queue-4.14/x86-hyper-v-enable-pit-shutdown-quirk.patch
+queue-4.14/clockevents-drivers-i8253-add-support-for-pit-shutdown-quirk.patch
