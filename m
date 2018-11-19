@@ -1,8 +1,8 @@
 From: <gregkh@linuxfoundation.org>
-Subject: Patch "x86/hyper-v: Enable PIT shutdown quirk" has been added to the
-	4.14-stable tree
-Date: Mon, 19 Nov 2018 13:59:27 +0100
-Message-ID: <15426323677109__13888.7053275996$1542632358$gmane$org@kroah.com>
+Subject: Patch "clockevents/drivers/i8253: Add support for PIT shutdown quirk"
+	has been added to the 4.18-stable tree
+Date: Mon, 19 Nov 2018 13:59:43 +0100
+Message-ID: <154263238325494__46573.4984296889$1542632379$gmane$org@kroah.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
@@ -16,40 +16,41 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: 1541303219-11142-3-git-send-email-mikelley@microsoft.com, akataria@vmware.com, apw@canonical.com, daniel.lezcano@linaro.org, devel@linuxdriverproject.org, gregkh@linuxfoundation.org, jasowang@redhat.com, jgross@suse.com, kys@microsoft.com, marcelo.cerri@canonical.commikelley@microsoft.com, olaf@aepfle.de, tglx@linutronix.de, virtualization@lists.linux-foundation.org, vkuznets@redhat.com
+To: 1541303219-11142-2-git-send-email-mikelley@microsoft.com, akataria@vmware.com, apw@canonical.com, daniel.lezcano@linaro.org, devel@linuxdriverproject.org, gregkh@linuxfoundation.org, jasowang@redhat.com, jgross@suse.com, kys@microsoft.com, marcelo.cerri@canonical.commikelley@microsoft.com, olaf@aepfle.de, tglx@linutronix.de, virtualization@lists.linux-foundation.org, vkuznets@redhat.com
 Cc: stable-commits@vger.kernel.org
 List-Id: virtualization@lists.linuxfoundation.org
 
 
 This is a note to let you know that I've just added the patch titled
 
-    x86/hyper-v: Enable PIT shutdown quirk
+    clockevents/drivers/i8253: Add support for PIT shutdown quirk
 
-to the 4.14-stable tree which can be found at:
+to the 4.18-stable tree which can be found at:
     http://www.kernel.org/git/?p=linux/kernel/git/stable/stable-queue.git;a=summary
 
 The filename of the patch is:
-     x86-hyper-v-enable-pit-shutdown-quirk.patch
-and it can be found in the queue-4.14 subdirectory.
+     clockevents-drivers-i8253-add-support-for-pit-shutdown-quirk.patch
+and it can be found in the queue-4.18 subdirectory.
 
 If you, or anyone else, feels it should not be added to the stable tree,
 please let <stable@vger.kernel.org> know about it.
 
 
-From 1de72c706488b7be664a601cf3843bd01e327e58 Mon Sep 17 00:00:00 2001
+From 35b69a420bfb56b7b74cb635ea903db05e357bec Mon Sep 17 00:00:00 2001
 From: Michael Kelley <mikelley@microsoft.com>
-Date: Sun, 4 Nov 2018 03:48:57 +0000
-Subject: x86/hyper-v: Enable PIT shutdown quirk
+Date: Sun, 4 Nov 2018 03:48:54 +0000
+Subject: clockevents/drivers/i8253: Add support for PIT shutdown quirk
 
 From: Michael Kelley <mikelley@microsoft.com>
 
-commit 1de72c706488b7be664a601cf3843bd01e327e58 upstream.
+commit 35b69a420bfb56b7b74cb635ea903db05e357bec upstream.
 
-Hyper-V emulation of the PIT has a quirk such that the normal PIT shutdown
-path doesn't work, because clearing the counter register restarts the
-timer.
+Add support for platforms where pit_shutdown() doesn't work because of a
+quirk in the PIT emulation. On these platforms setting the counter register
+to zero causes the PIT to start running again, negating the shutdown.
 
-Disable the counter clearing on PIT shutdown.
+Provide a global variable that controls whether the counter register is
+zero'ed, which platform specific code can override.
 
 Signed-off-by: Michael Kelley <mikelley@microsoft.com>
 Signed-off-by: Thomas Gleixner <tglx@linutronix.de>
@@ -66,43 +67,57 @@ Cc: "jasowang@redhat.com" <jasowang@redhat.com>
 Cc: "marcelo.cerri@canonical.com" <marcelo.cerri@canonical.com>
 Cc: KY Srinivasan <kys@microsoft.com>
 Cc: stable@vger.kernel.org
-Link: https://lkml.kernel.org/r/1541303219-11142-3-git-send-email-mikelley@microsoft.com
+Link: https://lkml.kernel.org/r/1541303219-11142-2-git-send-email-mikelley@microsoft.com
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- arch/x86/kernel/cpu/mshyperv.c |   11 +++++++++++
- 1 file changed, 11 insertions(+)
+ drivers/clocksource/i8253.c |   14 ++++++++++++--
+ include/linux/i8253.h       |    1 +
+ 2 files changed, 13 insertions(+), 2 deletions(-)
 
---- a/arch/x86/kernel/cpu/mshyperv.c
-+++ b/arch/x86/kernel/cpu/mshyperv.c
-@@ -20,6 +20,7 @@
- #include <linux/interrupt.h>
- #include <linux/irq.h>
- #include <linux/kexec.h>
-+#include <linux/i8253.h>
- #include <asm/processor.h>
- #include <asm/hypervisor.h>
- #include <asm/hyperv.h>
-@@ -243,6 +244,16 @@ static void __init ms_hyperv_init_platfo
- 	if (efi_enabled(EFI_BOOT))
- 		x86_platform.get_nmi_reason = hv_get_nmi_reason;
+--- a/drivers/clocksource/i8253.c
++++ b/drivers/clocksource/i8253.c
+@@ -20,6 +20,13 @@
+ DEFINE_RAW_SPINLOCK(i8253_lock);
+ EXPORT_SYMBOL(i8253_lock);
  
-+	/*
-+	 * Hyper-V VMs have a PIT emulation quirk such that zeroing the
-+	 * counter register during PIT shutdown restarts the PIT. So it
-+	 * continues to interrupt @18.2 HZ. Setting i8253_clear_counter
-+	 * to false tells pit_shutdown() not to zero the counter so that
-+	 * the PIT really is shutdown. Generation 2 VMs don't have a PIT,
-+	 * and setting this value has no effect.
-+	 */
-+	i8253_clear_counter_on_shutdown = false;
++/*
++ * Handle PIT quirk in pit_shutdown() where zeroing the counter register
++ * restarts the PIT, negating the shutdown. On platforms with the quirk,
++ * platform specific code can set this to false.
++ */
++bool i8253_clear_counter_on_shutdown __ro_after_init = true;
 +
- #if IS_ENABLED(CONFIG_HYPERV)
- 	/*
- 	 * Setup the hook to get control post apic initialization.
+ #ifdef CONFIG_CLKSRC_I8253
+ /*
+  * Since the PIT overflows every tick, its not very useful
+@@ -109,8 +116,11 @@ static int pit_shutdown(struct clock_eve
+ 	raw_spin_lock(&i8253_lock);
+ 
+ 	outb_p(0x30, PIT_MODE);
+-	outb_p(0, PIT_CH0);
+-	outb_p(0, PIT_CH0);
++
++	if (i8253_clear_counter_on_shutdown) {
++		outb_p(0, PIT_CH0);
++		outb_p(0, PIT_CH0);
++	}
+ 
+ 	raw_spin_unlock(&i8253_lock);
+ 	return 0;
+--- a/include/linux/i8253.h
++++ b/include/linux/i8253.h
+@@ -21,6 +21,7 @@
+ #define PIT_LATCH	((PIT_TICK_RATE + HZ/2) / HZ)
+ 
+ extern raw_spinlock_t i8253_lock;
++extern bool i8253_clear_counter_on_shutdown;
+ extern struct clock_event_device i8253_clockevent;
+ extern void clockevent_i8253_init(bool oneshot);
+ 
 
 
 Patches currently in stable-queue which might be from mikelley@microsoft.com are
 
-queue-4.14/x86-hyper-v-enable-pit-shutdown-quirk.patch
-queue-4.14/clockevents-drivers-i8253-add-support-for-pit-shutdown-quirk.patch
+queue-4.18/x86-hyper-v-enable-pit-shutdown-quirk.patch
+queue-4.18/clockevents-drivers-i8253-add-support-for-pit-shutdown-quirk.patch
