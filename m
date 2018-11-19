@@ -1,8 +1,8 @@
 From: <gregkh@linuxfoundation.org>
 Subject: Patch "clockevents/drivers/i8253: Add support for PIT shutdown quirk"
-	has been added to the 4.4-stable tree
-Date: Mon, 19 Nov 2018 14:00:22 +0100
-Message-ID: <1542632422120180__23114.6419108429$1542632647$gmane$org@kroah.com>
+	has been added to the 4.9-stable tree
+Date: Mon, 19 Nov 2018 14:00:40 +0100
+Message-ID: <154263244011435@kroah.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
@@ -25,12 +25,12 @@ This is a note to let you know that I've just added the patch titled
 
     clockevents/drivers/i8253: Add support for PIT shutdown quirk
 
-to the 4.4-stable tree which can be found at:
+to the 4.9-stable tree which can be found at:
     http://www.kernel.org/git/?p=linux/kernel/git/stable/stable-queue.git;a=summary
 
 The filename of the patch is:
      clockevents-drivers-i8253-add-support-for-pit-shutdown-quirk.patch
-and it can be found in the queue-4.4 subdirectory.
+and it can be found in the queue-4.9 subdirectory.
 
 If you, or anyone else, feels it should not be added to the stable tree,
 please let <stable@vger.kernel.org> know about it.
@@ -119,4 +119,4 @@ Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 Patches currently in stable-queue which might be from mikelley@microsoft.com are
 
-queue-4.4/clockevents-drivers-i8253-add-support-for-pit-shutdown-quirk.patch
+queue-4.9/clockevents-drivers-i8253-add-support-for-pit-shutdown-quirk.patch
