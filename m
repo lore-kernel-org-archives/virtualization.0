@@ -1,15 +1,11 @@
-From: Daniel Vetter <daniel@ffwll.ch>
-Subject: Re: [PATCH 0/9] drm: remove deprecated functions
-Date: Wed, 21 Nov 2018 10:42:33 +0100
-Message-ID: <20181121094233.GN4266__3923.26482474363$1542793239$gmane$org@phenom.ffwll.local>
-References: <20181115221634.22715-1-greenfoo@gluegarage.com>
-	<CACRpkdZmTSo02yQeU=qe9WyJMXEq76CNmc2kkFEHuwdo=HKPJw@mail.gmail.com>
+From: Tiwei Bie <tiwei.bie@intel.com>
+Subject: [PATCH net-next v3 00/13] virtio: support packed ring
+Date: Wed, 21 Nov 2018 18:03:17 +0800
+Message-ID: <20181121100330.24846-1-tiwei.bie__1979.86216885528$1542794602$gmane$org@intel.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-Content-Disposition: inline
-In-Reply-To: <CACRpkdZmTSo02yQeU=qe9WyJMXEq76CNmc2kkFEHuwdo=HKPJw@mail.gmail.com>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -19,25 +15,117 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Linus Walleij <linus.walleij@linaro.org>
-Cc: hamohammed.sa@gmail.com, Alexandre Belloni <alexandre.belloni@bootlin.com>, Gilles Muller <Gilles.Muller@lip6.fr>, Maxime Ripard <maxime.ripard@bootlin.com>, "open list:DRM PANEL DRIVERS" <dri-devel@lists.freedesktop.org>, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>, Andrzej Hajda <a.hajda@samsung.com>, cocci@systeme.lip6.fr, Marek Vasut <marex@denx.de>, Archit Taneja <architt@codeaurora.org>, Jonathan Corbet <corbet@lwn.net>, linux-doc@vger.kernel.org, abrodkin@synopsys.com, Dave Airlie <airlied@linux.ie>, Ludovic Desroches <ludovic.desroches@microchip.com>, greenfoo@gluegarage.com, linux+etnaviv@armlinux.org.uk, Nicolas Palix <nicolas.palix@imag.fr>, Maarten Lankhorst <maarten.lankhorst@linux.intel.com>, etnaviv@lists.freedesktop.org, Boris Brezillon <boris.brezillon@bootlin.com>, Christian Gmeiner <christian.gmeiner@gmail.com>, Stefan Agner <stefa>
+To: mst@redhat.com, jasowang@redhat.com, virtualization@lists.linux-foundation.org, linux-kernel@vger.kernel.org, netdev@vger.kernel.org, virtio-dev@lists.oasis-open.org
+Cc: maxime.coquelin@redhat.com, wexu@redhat.com
 List-Id: virtualization@lists.linuxfoundation.org
 
-On Thu, Nov 15, 2018 at 11:38:35PM +0100, Linus Walleij wrote:
-> On Thu, Nov 15, 2018 at 11:17 PM Fernando Ramos <greenfoo@gluegarage.com> wrote:
-> 
-> > One of the things in the DRM TODO list ("Documentation/gpu/todo.rst") was to
-> > "switch from reference/unreference to get/put". That's what this patch series is
-> > about.
-> 
-> The series:
-> Reviewed-by: Linus Walleij <linus.walleij@linaro.org>
+Hi,
 
-Since your reviewed it all, and there's a pile of acks for the driver
-parts too: Want to go ahead and apply it too?
+This patch set implements packed ring support in virtio driver.
 
-Thanks, Daniel
+A performance test between pktgen (pktgen_sample03_burst_single_flow.sh)
+and DPDK vhost (testpmd/rxonly/vhost-PMD) has been done, I saw
+~30% performance gain in packed ring in this case.
+
+To make this patch set work with below patch set for vhost,
+some hacks are needed to set the _F_NEXT flag in indirect
+descriptors (this should be fixed in vhost):
+
+https://lkml.org/lkml/2018/7/3/33
+
+v2 -> v3:
+- Use leXX instead of virtioXX (MST);
+- Refactor split ring first (MST);
+- Add debug helpers (MST);
+- Put split/packed ring specific fields in sub structures (MST);
+- Handle normal descriptors and indirect descriptors differently (MST);
+- Track the DMA addr/len related info in a separate structure (MST);
+- Calculate AVAIL/USED flags only when wrap counter wraps (MST);
+- Define a struct/union to read event structure (MST);
+- Define a macro for wrap counter bit in uapi (MST);
+- Define the AVAIL/USED bits as shifts instead of values (MST);
+- s/_F_/_FLAG_/ in VRING_PACKED_EVENT_* as they are values (MST);
+- Drop the notify workaround for QEMU's tx-timer in packed ring (MST);
+
+v1 -> v2:
+- Use READ_ONCE() to read event off_wrap and flags together (Jason);
+- Add comments related to ccw (Jason);
+
+RFC v6 -> v1:
+- Avoid extra virtio_wmb() in virtqueue_enable_cb_delayed_packed()
+  when event idx is off (Jason);
+- Fix bufs calculation in virtqueue_enable_cb_delayed_packed() (Jason);
+- Test the state of the desc at used_idx instead of last_used_idx
+  in virtqueue_enable_cb_delayed_packed() (Jason);
+- Save wrap counter (as part of queue state) in the return value
+  of virtqueue_enable_cb_prepare_packed();
+- Refine the packed ring definitions in uapi;
+- Rebase on the net-next tree;
+
+RFC v5 -> RFC v6:
+- Avoid tracking addr/len/flags when DMA API isn't used (MST/Jason);
+- Define wrap counter as bool (Jason);
+- Use ALIGN() in vring_init_packed() (Jason);
+- Avoid using pointer to track `next` in detach_buf_packed() (Jason);
+- Add comments for barriers (Jason);
+- Don't enable RING_PACKED on ccw for now (noticed by Jason);
+- Refine the memory barrier in virtqueue_poll();
+- Add a missing memory barrier in virtqueue_enable_cb_delayed_packed();
+- Remove the hacks in virtqueue_enable_cb_prepare_packed();
+
+RFC v4 -> RFC v5:
+- Save DMA addr, etc in desc state (Jason);
+- Track used wrap counter;
+
+RFC v3 -> RFC v4:
+- Make ID allocation support out-of-order (Jason);
+- Various fixes for EVENT_IDX support;
+
+RFC v2 -> RFC v3:
+- Split into small patches (Jason);
+- Add helper virtqueue_use_indirect() (Jason);
+- Just set id for the last descriptor of a list (Jason);
+- Calculate the prev in virtqueue_add_packed() (Jason);
+- Fix/improve desc suppression code (Jason/MST);
+- Refine the code layout for XXX_split/packed and wrappers (MST);
+- Fix the comments and API in uapi (MST);
+- Remove the BUG_ON() for indirect (Jason);
+- Some other refinements and bug fixes;
+
+RFC v1 -> RFC v2:
+- Add indirect descriptor support - compile test only;
+- Add event suppression supprt - compile test only;
+- Move vring_packed_init() out of uapi (Jason, MST);
+- Merge two loops into one in virtqueue_add_packed() (Jason);
+- Split vring_unmap_one() for packed ring and split ring (Jason);
+- Avoid using '%' operator (Jason);
+- Rename free_head -> next_avail_idx (Jason);
+- Add comments for virtio_wmb() in virtqueue_add_packed() (Jason);
+- Some other refinements and bug fixes;
+
+
+Tiwei Bie (13):
+  virtio: add packed ring types and macros
+  virtio_ring: add _split suffix for split ring functions
+  virtio_ring: put split ring functions together
+  virtio_ring: put split ring fields in a sub struct
+  virtio_ring: introduce debug helpers
+  virtio_ring: introduce helper for indirect feature
+  virtio_ring: allocate desc state for split ring separately
+  virtio_ring: extract split ring handling from ring creation
+  virtio_ring: cache whether we will use DMA API
+  virtio_ring: introduce packed ring support
+  virtio_ring: leverage event idx in packed ring
+  virtio_ring: disable packed ring on unsupported transports
+  virtio_ring: advertize packed ring layout
+
+ drivers/misc/mic/vop/vop_main.c        |   13 +
+ drivers/remoteproc/remoteproc_virtio.c |   13 +
+ drivers/s390/virtio/virtio_ccw.c       |   14 +
+ drivers/virtio/virtio_ring.c           | 1811 +++++++++++++++++++++++++-------
+ include/uapi/linux/virtio_config.h     |    3 +
+ include/uapi/linux/virtio_ring.h       |   52 +
+ 6 files changed, 1530 insertions(+), 376 deletions(-)
+
 -- 
-Daniel Vetter
-Software Engineer, Intel Corporation
-http://blog.ffwll.ch
+2.14.5
