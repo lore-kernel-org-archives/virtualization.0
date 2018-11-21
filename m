@@ -1,8 +1,8 @@
 From: Tiwei Bie <tiwei.bie@intel.com>
-Subject: [PATCH net-next v3 08/13] virtio_ring: extract split ring handling
-	from ring creation
-Date: Wed, 21 Nov 2018 18:03:25 +0800
-Message-ID: <20181121100330.24846-9-tiwei.bie__31349.405545234$1542794650$gmane$org@intel.com>
+Subject: [PATCH net-next v3 12/13] virtio_ring: disable packed ring on
+	unsupported transports
+Date: Wed, 21 Nov 2018 18:03:29 +0800
+Message-ID: <20181121100330.24846-13-tiwei.bie__42204.1645077572$1542794672$gmane$org@intel.com>
 References: <20181121100330.24846-1-tiwei.bie@intel.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
@@ -22,322 +22,111 @@ To: mst@redhat.com, jasowang@redhat.com, virtualization@lists.linux-foundation.o
 Cc: maxime.coquelin@redhat.com, wexu@redhat.com
 List-Id: virtualization@lists.linuxfoundation.org
 
-Introduce a specific function to create the split ring.
-And also move the DMA allocation and size information to
-the .split sub-structure.
+Currently, ccw, vop and remoteproc need some legacy virtio
+APIs to create or access virtio rings, which are not supported
+by packed ring. So disable packed ring on these transports
+for now.
 
 Signed-off-by: Tiwei Bie <tiwei.bie@intel.com>
 ---
- drivers/virtio/virtio_ring.c | 220 ++++++++++++++++++++++++-------------------
- 1 file changed, 121 insertions(+), 99 deletions(-)
+ drivers/misc/mic/vop/vop_main.c        | 13 +++++++++++++
+ drivers/remoteproc/remoteproc_virtio.c | 13 +++++++++++++
+ drivers/s390/virtio/virtio_ccw.c       | 14 ++++++++++++++
+ 3 files changed, 40 insertions(+)
 
-diff --git a/drivers/virtio/virtio_ring.c b/drivers/virtio/virtio_ring.c
-index acd851f3105c..d00a87909a7e 100644
---- a/drivers/virtio/virtio_ring.c
-+++ b/drivers/virtio/virtio_ring.c
-@@ -118,6 +118,10 @@ struct vring_virtqueue {
- 
- 		/* Per-descriptor state. */
- 		struct vring_desc_state_split *desc_state;
-+
-+		/* DMA, allocation, and size information */
-+		size_t queue_size_in_bytes;
-+		dma_addr_t queue_dma_addr;
- 	} split;
- 
- 	/* How to notify other side. FIXME: commonalize hcalls! */
-@@ -125,8 +129,6 @@ struct vring_virtqueue {
- 
- 	/* DMA, allocation, and size information */
- 	bool we_own_ring;
--	size_t queue_size_in_bytes;
--	dma_addr_t queue_dma_addr;
- 
- #ifdef DEBUG
- 	/* They're supposed to lock for us. */
-@@ -203,6 +205,48 @@ static bool vring_use_dma_api(struct virtio_device *vdev)
- 	return false;
+diff --git a/drivers/misc/mic/vop/vop_main.c b/drivers/misc/mic/vop/vop_main.c
+index 3633202e18f4..6b212c8b78e7 100644
+--- a/drivers/misc/mic/vop/vop_main.c
++++ b/drivers/misc/mic/vop/vop_main.c
+@@ -129,6 +129,16 @@ static u64 vop_get_features(struct virtio_device *vdev)
+ 	return features;
  }
  
-+static void *vring_alloc_queue(struct virtio_device *vdev, size_t size,
-+			      dma_addr_t *dma_handle, gfp_t flag)
++static void vop_transport_features(struct virtio_device *vdev)
 +{
-+	if (vring_use_dma_api(vdev)) {
-+		return dma_alloc_coherent(vdev->dev.parent, size,
-+					  dma_handle, flag);
-+	} else {
-+		void *queue = alloc_pages_exact(PAGE_ALIGN(size), flag);
-+
-+		if (queue) {
-+			phys_addr_t phys_addr = virt_to_phys(queue);
-+			*dma_handle = (dma_addr_t)phys_addr;
-+
-+			/*
-+			 * Sanity check: make sure we dind't truncate
-+			 * the address.  The only arches I can find that
-+			 * have 64-bit phys_addr_t but 32-bit dma_addr_t
-+			 * are certain non-highmem MIPS and x86
-+			 * configurations, but these configurations
-+			 * should never allocate physical pages above 32
-+			 * bits, so this is fine.  Just in case, throw a
-+			 * warning and abort if we end up with an
-+			 * unrepresentable address.
-+			 */
-+			if (WARN_ON_ONCE(*dma_handle != phys_addr)) {
-+				free_pages_exact(queue, PAGE_ALIGN(size));
-+				return NULL;
-+			}
-+		}
-+		return queue;
-+	}
++	/*
++	 * Packed ring isn't enabled on virtio_vop for now,
++	 * because virtio_vop uses vring_new_virtqueue() which
++	 * creates virtio rings on preallocated memory.
++	 */
++	__virtio_clear_bit(vdev, VIRTIO_F_RING_PACKED);
 +}
 +
-+static void vring_free_queue(struct virtio_device *vdev, size_t size,
-+			     void *queue, dma_addr_t dma_handle)
-+{
-+	if (vring_use_dma_api(vdev))
-+		dma_free_coherent(vdev->dev.parent, size, queue, dma_handle);
-+	else
-+		free_pages_exact(queue, PAGE_ALIGN(size));
-+}
-+
- /*
-  * The DMA ops on various arches are rather gnarly right now, and
-  * making all of the arch DMA ops work on the vring device itself
-@@ -730,6 +774,68 @@ static void *virtqueue_detach_unused_buf_split(struct virtqueue *_vq)
- 	return NULL;
- }
- 
-+static struct virtqueue *vring_create_virtqueue_split(
-+	unsigned int index,
-+	unsigned int num,
-+	unsigned int vring_align,
-+	struct virtio_device *vdev,
-+	bool weak_barriers,
-+	bool may_reduce_num,
-+	bool context,
-+	bool (*notify)(struct virtqueue *),
-+	void (*callback)(struct virtqueue *),
-+	const char *name)
-+{
-+	struct virtqueue *vq;
-+	void *queue = NULL;
-+	dma_addr_t dma_addr;
-+	size_t queue_size_in_bytes;
-+	struct vring vring;
-+
-+	/* We assume num is a power of 2. */
-+	if (num & (num - 1)) {
-+		dev_warn(&vdev->dev, "Bad virtqueue length %u\n", num);
-+		return NULL;
-+	}
-+
-+	/* TODO: allocate each queue chunk individually */
-+	for (; num && vring_size(num, vring_align) > PAGE_SIZE; num /= 2) {
-+		queue = vring_alloc_queue(vdev, vring_size(num, vring_align),
-+					  &dma_addr,
-+					  GFP_KERNEL|__GFP_NOWARN|__GFP_ZERO);
-+		if (queue)
-+			break;
-+	}
-+
-+	if (!num)
-+		return NULL;
-+
-+	if (!queue) {
-+		/* Try to get a single page. You are my only hope! */
-+		queue = vring_alloc_queue(vdev, vring_size(num, vring_align),
-+					  &dma_addr, GFP_KERNEL|__GFP_ZERO);
-+	}
-+	if (!queue)
-+		return NULL;
-+
-+	queue_size_in_bytes = vring_size(num, vring_align);
-+	vring_init(&vring, num, queue, vring_align);
-+
-+	vq = __vring_new_virtqueue(index, vring, vdev, weak_barriers, context,
-+				   notify, callback, name);
-+	if (!vq) {
-+		vring_free_queue(vdev, queue_size_in_bytes, queue,
-+				 dma_addr);
-+		return NULL;
-+	}
-+
-+	to_vvq(vq)->split.queue_dma_addr = dma_addr;
-+	to_vvq(vq)->split.queue_size_in_bytes = queue_size_in_bytes;
-+	to_vvq(vq)->we_own_ring = true;
-+
-+	return vq;
-+}
-+
- 
- /*
-  * Generic functions and exported symbols.
-@@ -1091,8 +1197,6 @@ struct virtqueue *__vring_new_virtqueue(unsigned int index,
- 	vq->vq.num_free = vring.num;
- 	vq->vq.index = index;
- 	vq->we_own_ring = false;
--	vq->queue_dma_addr = 0;
--	vq->queue_size_in_bytes = 0;
- 	vq->notify = notify;
- 	vq->weak_barriers = weak_barriers;
- 	vq->broken = false;
-@@ -1108,6 +1212,9 @@ struct virtqueue *__vring_new_virtqueue(unsigned int index,
- 		!context;
- 	vq->event = virtio_has_feature(vdev, VIRTIO_RING_F_EVENT_IDX);
- 
-+	vq->split.queue_dma_addr = 0;
-+	vq->split.queue_size_in_bytes = 0;
-+
- 	vq->split.vring = vring;
- 	vq->split.avail_flags_shadow = 0;
- 	vq->split.avail_idx_shadow = 0;
-@@ -1138,48 +1245,6 @@ struct virtqueue *__vring_new_virtqueue(unsigned int index,
- }
- EXPORT_SYMBOL_GPL(__vring_new_virtqueue);
- 
--static void *vring_alloc_queue(struct virtio_device *vdev, size_t size,
--			      dma_addr_t *dma_handle, gfp_t flag)
--{
--	if (vring_use_dma_api(vdev)) {
--		return dma_alloc_coherent(vdev->dev.parent, size,
--					  dma_handle, flag);
--	} else {
--		void *queue = alloc_pages_exact(PAGE_ALIGN(size), flag);
--		if (queue) {
--			phys_addr_t phys_addr = virt_to_phys(queue);
--			*dma_handle = (dma_addr_t)phys_addr;
--
--			/*
--			 * Sanity check: make sure we dind't truncate
--			 * the address.  The only arches I can find that
--			 * have 64-bit phys_addr_t but 32-bit dma_addr_t
--			 * are certain non-highmem MIPS and x86
--			 * configurations, but these configurations
--			 * should never allocate physical pages above 32
--			 * bits, so this is fine.  Just in case, throw a
--			 * warning and abort if we end up with an
--			 * unrepresentable address.
--			 */
--			if (WARN_ON_ONCE(*dma_handle != phys_addr)) {
--				free_pages_exact(queue, PAGE_ALIGN(size));
--				return NULL;
--			}
--		}
--		return queue;
--	}
--}
--
--static void vring_free_queue(struct virtio_device *vdev, size_t size,
--			     void *queue, dma_addr_t dma_handle)
--{
--	if (vring_use_dma_api(vdev)) {
--		dma_free_coherent(vdev->dev.parent, size, queue, dma_handle);
--	} else {
--		free_pages_exact(queue, PAGE_ALIGN(size));
--	}
--}
--
- struct virtqueue *vring_create_virtqueue(
- 	unsigned int index,
- 	unsigned int num,
-@@ -1192,54 +1257,9 @@ struct virtqueue *vring_create_virtqueue(
- 	void (*callback)(struct virtqueue *),
- 	const char *name)
+ static int vop_finalize_features(struct virtio_device *vdev)
  {
--	struct virtqueue *vq;
--	void *queue = NULL;
--	dma_addr_t dma_addr;
--	size_t queue_size_in_bytes;
--	struct vring vring;
--
--	/* We assume num is a power of 2. */
--	if (num & (num - 1)) {
--		dev_warn(&vdev->dev, "Bad virtqueue length %u\n", num);
--		return NULL;
--	}
--
--	/* TODO: allocate each queue chunk individually */
--	for (; num && vring_size(num, vring_align) > PAGE_SIZE; num /= 2) {
--		queue = vring_alloc_queue(vdev, vring_size(num, vring_align),
--					  &dma_addr,
--					  GFP_KERNEL|__GFP_NOWARN|__GFP_ZERO);
--		if (queue)
--			break;
--	}
--
--	if (!num)
--		return NULL;
--
--	if (!queue) {
--		/* Try to get a single page. You are my only hope! */
--		queue = vring_alloc_queue(vdev, vring_size(num, vring_align),
--					  &dma_addr, GFP_KERNEL|__GFP_ZERO);
--	}
--	if (!queue)
--		return NULL;
--
--	queue_size_in_bytes = vring_size(num, vring_align);
--	vring_init(&vring, num, queue, vring_align);
--
--	vq = __vring_new_virtqueue(index, vring, vdev, weak_barriers, context,
--				   notify, callback, name);
--	if (!vq) {
--		vring_free_queue(vdev, queue_size_in_bytes, queue,
--				 dma_addr);
--		return NULL;
--	}
--
--	to_vvq(vq)->queue_dma_addr = dma_addr;
--	to_vvq(vq)->queue_size_in_bytes = queue_size_in_bytes;
--	to_vvq(vq)->we_own_ring = true;
--
--	return vq;
-+	return vring_create_virtqueue_split(index, num, vring_align,
-+			vdev, weak_barriers, may_reduce_num,
-+			context, notify, callback, name);
+ 	unsigned int i, bits;
+@@ -141,6 +151,9 @@ static int vop_finalize_features(struct virtio_device *vdev)
+ 	/* Give virtio_ring a chance to accept features. */
+ 	vring_transport_features(vdev);
+ 
++	/* Give virtio_vop a chance to accept features. */
++	vop_transport_features(vdev);
++
+ 	memset_io(out_features, 0, feature_len);
+ 	bits = min_t(unsigned, feature_len,
+ 		     sizeof(vdev->features)) * 8;
+diff --git a/drivers/remoteproc/remoteproc_virtio.c b/drivers/remoteproc/remoteproc_virtio.c
+index de21f620b882..183fc42a510a 100644
+--- a/drivers/remoteproc/remoteproc_virtio.c
++++ b/drivers/remoteproc/remoteproc_virtio.c
+@@ -214,6 +214,16 @@ static u64 rproc_virtio_get_features(struct virtio_device *vdev)
+ 	return rsc->dfeatures;
  }
- EXPORT_SYMBOL_GPL(vring_create_virtqueue);
  
-@@ -1266,8 +1286,10 @@ void vring_del_virtqueue(struct virtqueue *_vq)
- 	struct vring_virtqueue *vq = to_vvq(_vq);
++static void rproc_transport_features(struct virtio_device *vdev)
++{
++	/*
++	 * Packed ring isn't enabled on remoteproc for now,
++	 * because remoteproc uses vring_new_virtqueue() which
++	 * creates virtio rings on preallocated memory.
++	 */
++	__virtio_clear_bit(vdev, VIRTIO_F_RING_PACKED);
++}
++
+ static int rproc_virtio_finalize_features(struct virtio_device *vdev)
+ {
+ 	struct rproc_vdev *rvdev = vdev_to_rvdev(vdev);
+@@ -224,6 +234,9 @@ static int rproc_virtio_finalize_features(struct virtio_device *vdev)
+ 	/* Give virtio_ring a chance to accept features */
+ 	vring_transport_features(vdev);
  
- 	if (vq->we_own_ring) {
--		vring_free_queue(vq->vq.vdev, vq->queue_size_in_bytes,
--				 vq->split.vring.desc, vq->queue_dma_addr);
-+		vring_free_queue(vq->vq.vdev,
-+				 vq->split.queue_size_in_bytes,
-+				 vq->split.vring.desc,
-+				 vq->split.queue_dma_addr);
- 		kfree(vq->split.desc_state);
- 	}
- 	list_del(&_vq->list);
-@@ -1343,7 +1365,7 @@ dma_addr_t virtqueue_get_desc_addr(struct virtqueue *_vq)
++	/* Give virtio_rproc a chance to accept features. */
++	rproc_transport_features(vdev);
++
+ 	/* Make sure we don't have any features > 32 bits! */
+ 	BUG_ON((u32)vdev->features != vdev->features);
  
- 	BUG_ON(!vq->we_own_ring);
- 
--	return vq->queue_dma_addr;
-+	return vq->split.queue_dma_addr;
+diff --git a/drivers/s390/virtio/virtio_ccw.c b/drivers/s390/virtio/virtio_ccw.c
+index 97b6f197f007..406d1f64ad65 100644
+--- a/drivers/s390/virtio/virtio_ccw.c
++++ b/drivers/s390/virtio/virtio_ccw.c
+@@ -765,6 +765,17 @@ static u64 virtio_ccw_get_features(struct virtio_device *vdev)
+ 	return rc;
  }
- EXPORT_SYMBOL_GPL(virtqueue_get_desc_addr);
  
-@@ -1353,7 +1375,7 @@ dma_addr_t virtqueue_get_avail_addr(struct virtqueue *_vq)
++static void ccw_transport_features(struct virtio_device *vdev)
++{
++	/*
++	 * Packed ring isn't enabled on virtio_ccw for now,
++	 * because virtio_ccw uses some legacy accessors,
++	 * e.g. virtqueue_get_avail() and virtqueue_get_used()
++	 * which aren't available in packed ring currently.
++	 */
++	__virtio_clear_bit(vdev, VIRTIO_F_RING_PACKED);
++}
++
+ static int virtio_ccw_finalize_features(struct virtio_device *vdev)
+ {
+ 	struct virtio_ccw_device *vcdev = to_vc_device(vdev);
+@@ -791,6 +802,9 @@ static int virtio_ccw_finalize_features(struct virtio_device *vdev)
+ 	/* Give virtio_ring a chance to accept features. */
+ 	vring_transport_features(vdev);
  
- 	BUG_ON(!vq->we_own_ring);
- 
--	return vq->queue_dma_addr +
-+	return vq->split.queue_dma_addr +
- 		((char *)vq->split.vring.avail - (char *)vq->split.vring.desc);
- }
- EXPORT_SYMBOL_GPL(virtqueue_get_avail_addr);
-@@ -1364,7 +1386,7 @@ dma_addr_t virtqueue_get_used_addr(struct virtqueue *_vq)
- 
- 	BUG_ON(!vq->we_own_ring);
- 
--	return vq->queue_dma_addr +
-+	return vq->split.queue_dma_addr +
- 		((char *)vq->split.vring.used - (char *)vq->split.vring.desc);
- }
- EXPORT_SYMBOL_GPL(virtqueue_get_used_addr);
++	/* Give virtio_ccw a chance to accept features. */
++	ccw_transport_features(vdev);
++
+ 	features->index = 0;
+ 	features->features = cpu_to_le32((u32)vdev->features);
+ 	/* Write the first half of the feature bits to the host. */
 -- 
 2.14.5
