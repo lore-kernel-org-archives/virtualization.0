@@ -1,8 +1,8 @@
 From: Tiwei Bie <tiwei.bie@intel.com>
-Subject: [PATCH net-next v3 12/13] virtio_ring: disable packed ring on
-	unsupported transports
-Date: Wed, 21 Nov 2018 18:03:29 +0800
-Message-ID: <20181121100330.24846-13-tiwei.bie__42204.1645077572$1542794672$gmane$org@intel.com>
+Subject: [PATCH net-next v3 09/13] virtio_ring: cache whether we will use DMA
+	API
+Date: Wed, 21 Nov 2018 18:03:26 +0800
+Message-ID: <20181121100330.24846-10-tiwei.bie__39020.3505907722$1542794675$gmane$org@intel.com>
 References: <20181121100330.24846-1-tiwei.bie@intel.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
@@ -22,111 +22,72 @@ To: mst@redhat.com, jasowang@redhat.com, virtualization@lists.linux-foundation.o
 Cc: maxime.coquelin@redhat.com, wexu@redhat.com
 List-Id: virtualization@lists.linuxfoundation.org
 
-Currently, ccw, vop and remoteproc need some legacy virtio
-APIs to create or access virtio rings, which are not supported
-by packed ring. So disable packed ring on these transports
-for now.
+Cache whether we will use DMA API, instead of doing the
+check every time. We are going to check whether DMA API
+is used more often in packed ring.
 
 Signed-off-by: Tiwei Bie <tiwei.bie@intel.com>
 ---
- drivers/misc/mic/vop/vop_main.c        | 13 +++++++++++++
- drivers/remoteproc/remoteproc_virtio.c | 13 +++++++++++++
- drivers/s390/virtio/virtio_ccw.c       | 14 ++++++++++++++
- 3 files changed, 40 insertions(+)
+ drivers/virtio/virtio_ring.c | 12 ++++++++----
+ 1 file changed, 8 insertions(+), 4 deletions(-)
 
-diff --git a/drivers/misc/mic/vop/vop_main.c b/drivers/misc/mic/vop/vop_main.c
-index 3633202e18f4..6b212c8b78e7 100644
---- a/drivers/misc/mic/vop/vop_main.c
-+++ b/drivers/misc/mic/vop/vop_main.c
-@@ -129,6 +129,16 @@ static u64 vop_get_features(struct virtio_device *vdev)
- 	return features;
- }
+diff --git a/drivers/virtio/virtio_ring.c b/drivers/virtio/virtio_ring.c
+index d00a87909a7e..aafe1969b45e 100644
+--- a/drivers/virtio/virtio_ring.c
++++ b/drivers/virtio/virtio_ring.c
+@@ -86,6 +86,9 @@ struct vring_desc_state_split {
+ struct vring_virtqueue {
+ 	struct virtqueue vq;
  
-+static void vop_transport_features(struct virtio_device *vdev)
-+{
-+	/*
-+	 * Packed ring isn't enabled on virtio_vop for now,
-+	 * because virtio_vop uses vring_new_virtqueue() which
-+	 * creates virtio rings on preallocated memory.
-+	 */
-+	__virtio_clear_bit(vdev, VIRTIO_F_RING_PACKED);
-+}
++	/* Is DMA API used? */
++	bool use_dma_api;
 +
- static int vop_finalize_features(struct virtio_device *vdev)
+ 	/* Can we use weak barriers? */
+ 	bool weak_barriers;
+ 
+@@ -262,7 +265,7 @@ static dma_addr_t vring_map_one_sg(const struct vring_virtqueue *vq,
+ 				   struct scatterlist *sg,
+ 				   enum dma_data_direction direction)
  {
- 	unsigned int i, bits;
-@@ -141,6 +151,9 @@ static int vop_finalize_features(struct virtio_device *vdev)
- 	/* Give virtio_ring a chance to accept features. */
- 	vring_transport_features(vdev);
+-	if (!vring_use_dma_api(vq->vq.vdev))
++	if (!vq->use_dma_api)
+ 		return (dma_addr_t)sg_phys(sg);
  
-+	/* Give virtio_vop a chance to accept features. */
-+	vop_transport_features(vdev);
-+
- 	memset_io(out_features, 0, feature_len);
- 	bits = min_t(unsigned, feature_len,
- 		     sizeof(vdev->features)) * 8;
-diff --git a/drivers/remoteproc/remoteproc_virtio.c b/drivers/remoteproc/remoteproc_virtio.c
-index de21f620b882..183fc42a510a 100644
---- a/drivers/remoteproc/remoteproc_virtio.c
-+++ b/drivers/remoteproc/remoteproc_virtio.c
-@@ -214,6 +214,16 @@ static u64 rproc_virtio_get_features(struct virtio_device *vdev)
- 	return rsc->dfeatures;
- }
- 
-+static void rproc_transport_features(struct virtio_device *vdev)
-+{
-+	/*
-+	 * Packed ring isn't enabled on remoteproc for now,
-+	 * because remoteproc uses vring_new_virtqueue() which
-+	 * creates virtio rings on preallocated memory.
-+	 */
-+	__virtio_clear_bit(vdev, VIRTIO_F_RING_PACKED);
-+}
-+
- static int rproc_virtio_finalize_features(struct virtio_device *vdev)
+ 	/*
+@@ -279,7 +282,7 @@ static dma_addr_t vring_map_single(const struct vring_virtqueue *vq,
+ 				   void *cpu_addr, size_t size,
+ 				   enum dma_data_direction direction)
  {
- 	struct rproc_vdev *rvdev = vdev_to_rvdev(vdev);
-@@ -224,6 +234,9 @@ static int rproc_virtio_finalize_features(struct virtio_device *vdev)
- 	/* Give virtio_ring a chance to accept features */
- 	vring_transport_features(vdev);
+-	if (!vring_use_dma_api(vq->vq.vdev))
++	if (!vq->use_dma_api)
+ 		return (dma_addr_t)virt_to_phys(cpu_addr);
  
-+	/* Give virtio_rproc a chance to accept features. */
-+	rproc_transport_features(vdev);
-+
- 	/* Make sure we don't have any features > 32 bits! */
- 	BUG_ON((u32)vdev->features != vdev->features);
- 
-diff --git a/drivers/s390/virtio/virtio_ccw.c b/drivers/s390/virtio/virtio_ccw.c
-index 97b6f197f007..406d1f64ad65 100644
---- a/drivers/s390/virtio/virtio_ccw.c
-+++ b/drivers/s390/virtio/virtio_ccw.c
-@@ -765,6 +765,17 @@ static u64 virtio_ccw_get_features(struct virtio_device *vdev)
- 	return rc;
- }
- 
-+static void ccw_transport_features(struct virtio_device *vdev)
-+{
-+	/*
-+	 * Packed ring isn't enabled on virtio_ccw for now,
-+	 * because virtio_ccw uses some legacy accessors,
-+	 * e.g. virtqueue_get_avail() and virtqueue_get_used()
-+	 * which aren't available in packed ring currently.
-+	 */
-+	__virtio_clear_bit(vdev, VIRTIO_F_RING_PACKED);
-+}
-+
- static int virtio_ccw_finalize_features(struct virtio_device *vdev)
+ 	return dma_map_single(vring_dma_dev(vq),
+@@ -289,7 +292,7 @@ static dma_addr_t vring_map_single(const struct vring_virtqueue *vq,
+ static int vring_mapping_error(const struct vring_virtqueue *vq,
+ 			       dma_addr_t addr)
  {
- 	struct virtio_ccw_device *vcdev = to_vc_device(vdev);
-@@ -791,6 +802,9 @@ static int virtio_ccw_finalize_features(struct virtio_device *vdev)
- 	/* Give virtio_ring a chance to accept features. */
- 	vring_transport_features(vdev);
+-	if (!vring_use_dma_api(vq->vq.vdev))
++	if (!vq->use_dma_api)
+ 		return 0;
  
-+	/* Give virtio_ccw a chance to accept features. */
-+	ccw_transport_features(vdev);
-+
- 	features->index = 0;
- 	features->features = cpu_to_le32((u32)vdev->features);
- 	/* Write the first half of the feature bits to the host. */
+ 	return dma_mapping_error(vring_dma_dev(vq), addr);
+@@ -305,7 +308,7 @@ static void vring_unmap_one_split(const struct vring_virtqueue *vq,
+ {
+ 	u16 flags;
+ 
+-	if (!vring_use_dma_api(vq->vq.vdev))
++	if (!vq->use_dma_api)
+ 		return;
+ 
+ 	flags = virtio16_to_cpu(vq->vq.vdev, desc->flags);
+@@ -1202,6 +1205,7 @@ struct virtqueue *__vring_new_virtqueue(unsigned int index,
+ 	vq->broken = false;
+ 	vq->last_used_idx = 0;
+ 	vq->num_added = 0;
++	vq->use_dma_api = vring_use_dma_api(vdev);
+ 	list_add_tail(&vq->vq.list, &vdev->vqs);
+ #ifdef DEBUG
+ 	vq->in_use = false;
 -- 
 2.14.5
