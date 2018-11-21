@@ -1,14 +1,18 @@
-From: "Michael S. Tsirkin" <mst@redhat.com>
-Subject: Re: [PATCH net-next v3 00/13] virtio: support packed ring
-Date: Wed, 21 Nov 2018 07:20:27 -0500
-Message-ID: <20181121071308-mutt-send-email-mst__48321.6815548532$1542802716$gmane$org@kernel.org>
-References: <20181121100330.24846-1-tiwei.bie@intel.com>
+From: Auger Eric <eric.auger@redhat.com>
+Subject: Re: [virtio-dev] Re: [PATCH v4 5/7] iommu: Add virtio-iommu driver
+Date: Wed, 21 Nov 2018 13:21:57 +0100
+Message-ID: <09b4aef3-16e8-e846-9f73-be9c5a4bd805__33455.3982051604$1542802830$gmane$org@redhat.com>
+References: <20181115165234.43990-1-jean-philippe.brucker@arm.com>
+	<20181115165234.43990-6-jean-philippe.brucker@arm.com>
+	<64abfb83-c555-c518-1030-cb73846517fc@redhat.com>
+	<41460260-417b-762f-f007-ccfd5ac1e8a5@arm.com>
+	<6d003fde-9574-0ff9-0bf8-7901d1a4aa5c@arm.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-Content-Disposition: inline
-In-Reply-To: <20181121100330.24846-1-tiwei.bie@intel.com>
+In-Reply-To: <6d003fde-9574-0ff9-0bf8-7901d1a4aa5c@arm.com>
+Content-Language: en-US
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -18,129 +22,104 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Tiwei Bie <tiwei.bie@intel.com>
-Cc: virtio-dev@lists.oasis-open.org, netdev@vger.kernel.org, linux-kernel@vger.kernel.org, virtualization@lists.linux-foundation.org, maxime.coquelin@redhat.com, wexu@redhat.com
+To: Jean-Philippe Brucker <jean-philippe.brucker@arm.com>, "iommu@lists.linux-foundation.org" <iommu@lists.linux-foundation.org>, "linux-pci@vger.kernel.org" <linux-pci@vger.kernel.org>, "devicetree@vger.kernel.org" <devicetree@vger.kernel.org>, "virtualization@lists.linux-foundation.org" <virtualization@lists.linux-foundation.org>, "virtio-dev@lists.oasis-open.org" <virtio-dev@lists.oasis-open.org>, "joro@8bytes.org" <joro@8bytes.org>, "mst@redhat.com" <mst@redhat.com>
+Cc: Mark Rutland <Mark.Rutland@arm.com>, Lorenzo Pieralisi <Lorenzo.Pieralisi@arm.com>, "tnowicki@caviumnetworks.com" <tnowicki@caviumnetworks.com>, Marc Zyngier <Marc.Zyngier@arm.com>, Will Deacon <Will.Deacon@arm.com>, "robh+dt@kernel.org" <robh+dt@kernel.org>, "bhelgaas@google.com" <bhelgaas@google.com>, Robin Murphy <Robin.Murphy@arm.com>, "kvmarm@lists.cs.columbia.edu" <kvmarm@lists.cs.columbia.edu>
 List-Id: virtualization@lists.linuxfoundation.org
 
-On Wed, Nov 21, 2018 at 06:03:17PM +0800, Tiwei Bie wrote:
-> Hi,
-> 
-> This patch set implements packed ring support in virtio driver.
-> 
-> A performance test between pktgen (pktgen_sample03_burst_single_flow.sh)
-> and DPDK vhost (testpmd/rxonly/vhost-PMD) has been done, I saw
-> ~30% performance gain in packed ring in this case.
+Hi jean,
 
-Thanks a lot, this is very exciting!
-Dave, given the holiday, attempts to wrap up the 1.1 spec and the
-patchset size I would very much appreciate a bit more time for
-review. Say until Nov 28?
+On 11/20/18 6:30 PM, Jean-Philippe Brucker wrote:
+> On 16/11/2018 18:46, Jean-Philippe Brucker wrote:
+>>>> +/*
+>>>> + * __viommu_sync_req - Complete all in-flight requests
+>>>> + *
+>>>> + * Wait for all added requests to complete. When this function returns, all
+>>>> + * requests that were in-flight at the time of the call have completed.
+>>>> + */
+>>>> +static int __viommu_sync_req(struct viommu_dev *viommu)
+>>>> +{
+>>>> +	int ret = 0;
+>>>> +	unsigned int len;
+>>>> +	size_t write_len;
+>>>> +	struct viommu_request *req;
+>>>> +	struct virtqueue *vq = viommu->vqs[VIOMMU_REQUEST_VQ];
+>>>> +
+>>>> +	assert_spin_locked(&viommu->request_lock);
+>>>> +
+>>>> +	virtqueue_kick(vq);
+>>>> +
+>>>> +	while (!list_empty(&viommu->requests)) {
+>>>> +		len = 0;
+>>>> +		req = virtqueue_get_buf(vq, &len);
+>>>> +		if (!req)
+>>>> +			continue;
+>>>> +
+>>>> +		if (!len)
+>>>> +			viommu_set_req_status(req->buf, req->len,
+>>>> +					      VIRTIO_IOMMU_S_IOERR);
+>>>> +
+>>>> +		write_len = req->len - req->write_offset;
+>>>> +		if (req->writeback && len >= write_len)
+>>> I don't get "len >= write_len". Is it valid for the device to write more
+>>> than write_len? If it writes less than write_len, the status is not set,
+>>> is it?
+> 
+> Actually, len could well be three bytes smaller than write_len. The spec
+> doesn't require the device to write the three padding bytes in
+> virtio_iommu_req_tail, after the status byte.
+> 
+> Here the driver just assumes that the device wrote the reserved field.
+> The QEMU device seems to write uninitialized data in there...
 
-> To make this patch set work with below patch set for vhost,
-> some hacks are needed to set the _F_NEXT flag in indirect
-> descriptors (this should be fixed in vhost):
+Indeed that's incorrect and I should fix it. tail struct should be
+properly initialized to 0. Only probe request implementation is correct.
 > 
-> https://lkml.org/lkml/2018/7/3/33
+> Any objection to changing the spec to require the device to initialize
+> those bytes to zero? I think it makes things nicer overall and shouldn't
+> have any performance impact.
+No objection from me.
+> 
+> [...]
+>>>> +static struct iommu_domain *viommu_domain_alloc(unsigned type)
+>>>> +{
+>>>> +	struct viommu_domain *vdomain;
+>>>> +
+>>>> +	if (type != IOMMU_DOMAIN_UNMANAGED && type != IOMMU_DOMAIN_DMA)
+>>> smmu drivers also support the IDENTITY type. Don't we want to support it
+>>> as well?
+>>
+>> Eventually yes. The IDENTITY domain is useful when an IOMMU has been
+>> forced upon you and gets in the way of performance, in which case you
+>> get rid of it with CONFIG_IOMMU_DEFAULT_PASSTHROUGH=y or
+>> iommu.passthrough=y. For virtio-iommu though, you could simply not
+>> instantiate the device.
+>>
+>> I don't think it's difficult to add: if the device supports
+>> VIRTIO_IOMMU_F_BYPASS, then we simply don't send an ATTACH request.
+>> Otherwise after ATTACH we send a MAP for the whole input range. If the
+>> change isn't bigger than this, I'll add it to v5.
+> 
+> Not as straightforward as I hoped, when the device doesn't support
+> VIRTIO_IOMMU_F_BYPASS:
+> 
+> * We can't simply create an ID map for the whole input range, we need to
+> carve out the resv_mem regions.
+> 
+> * For a VFIO device, the host has no way of forwarding the identity
+> mapping. For example the guest will attempt to map [0; 0xffffffffffff]
+> -> [0; 0xffffffffffff], but VFIO only allows to map RAM and cannot take
+> such request. One solution is to only create ID mapping for RAM, and
+> register a notifier for memory hotplug, like intel-iommu does for IOMMUs
+> that don't support HW pass-through.
+> 
+> Since it's not completely trivial and - I think - not urgent, I'll leave
+> this for later.
+OK makes sense to me too. It was just a head up.
 
-Could you pls clarify - do you mean it doesn't yet work with vhost
-because of a vhost bug, and to test it with the linked patches
-you had to hack in _F_NEXT? Because I do not see _F_NEXT
-in indirect descriptors in this patch (which is fine).
-Or did I miss it?
+Thanks
 
-> v2 -> v3:
-> - Use leXX instead of virtioXX (MST);
-> - Refactor split ring first (MST);
-> - Add debug helpers (MST);
-> - Put split/packed ring specific fields in sub structures (MST);
-> - Handle normal descriptors and indirect descriptors differently (MST);
-> - Track the DMA addr/len related info in a separate structure (MST);
-> - Calculate AVAIL/USED flags only when wrap counter wraps (MST);
-> - Define a struct/union to read event structure (MST);
-> - Define a macro for wrap counter bit in uapi (MST);
-> - Define the AVAIL/USED bits as shifts instead of values (MST);
-> - s/_F_/_FLAG_/ in VRING_PACKED_EVENT_* as they are values (MST);
-> - Drop the notify workaround for QEMU's tx-timer in packed ring (MST);
+Eric
 > 
-> v1 -> v2:
-> - Use READ_ONCE() to read event off_wrap and flags together (Jason);
-> - Add comments related to ccw (Jason);
+> Thanks,
+> Jean
 > 
-> RFC v6 -> v1:
-> - Avoid extra virtio_wmb() in virtqueue_enable_cb_delayed_packed()
->   when event idx is off (Jason);
-> - Fix bufs calculation in virtqueue_enable_cb_delayed_packed() (Jason);
-> - Test the state of the desc at used_idx instead of last_used_idx
->   in virtqueue_enable_cb_delayed_packed() (Jason);
-> - Save wrap counter (as part of queue state) in the return value
->   of virtqueue_enable_cb_prepare_packed();
-> - Refine the packed ring definitions in uapi;
-> - Rebase on the net-next tree;
-> 
-> RFC v5 -> RFC v6:
-> - Avoid tracking addr/len/flags when DMA API isn't used (MST/Jason);
-> - Define wrap counter as bool (Jason);
-> - Use ALIGN() in vring_init_packed() (Jason);
-> - Avoid using pointer to track `next` in detach_buf_packed() (Jason);
-> - Add comments for barriers (Jason);
-> - Don't enable RING_PACKED on ccw for now (noticed by Jason);
-> - Refine the memory barrier in virtqueue_poll();
-> - Add a missing memory barrier in virtqueue_enable_cb_delayed_packed();
-> - Remove the hacks in virtqueue_enable_cb_prepare_packed();
-> 
-> RFC v4 -> RFC v5:
-> - Save DMA addr, etc in desc state (Jason);
-> - Track used wrap counter;
-> 
-> RFC v3 -> RFC v4:
-> - Make ID allocation support out-of-order (Jason);
-> - Various fixes for EVENT_IDX support;
-> 
-> RFC v2 -> RFC v3:
-> - Split into small patches (Jason);
-> - Add helper virtqueue_use_indirect() (Jason);
-> - Just set id for the last descriptor of a list (Jason);
-> - Calculate the prev in virtqueue_add_packed() (Jason);
-> - Fix/improve desc suppression code (Jason/MST);
-> - Refine the code layout for XXX_split/packed and wrappers (MST);
-> - Fix the comments and API in uapi (MST);
-> - Remove the BUG_ON() for indirect (Jason);
-> - Some other refinements and bug fixes;
-> 
-> RFC v1 -> RFC v2:
-> - Add indirect descriptor support - compile test only;
-> - Add event suppression supprt - compile test only;
-> - Move vring_packed_init() out of uapi (Jason, MST);
-> - Merge two loops into one in virtqueue_add_packed() (Jason);
-> - Split vring_unmap_one() for packed ring and split ring (Jason);
-> - Avoid using '%' operator (Jason);
-> - Rename free_head -> next_avail_idx (Jason);
-> - Add comments for virtio_wmb() in virtqueue_add_packed() (Jason);
-> - Some other refinements and bug fixes;
-> 
-> 
-> Tiwei Bie (13):
->   virtio: add packed ring types and macros
->   virtio_ring: add _split suffix for split ring functions
->   virtio_ring: put split ring functions together
->   virtio_ring: put split ring fields in a sub struct
->   virtio_ring: introduce debug helpers
->   virtio_ring: introduce helper for indirect feature
->   virtio_ring: allocate desc state for split ring separately
->   virtio_ring: extract split ring handling from ring creation
->   virtio_ring: cache whether we will use DMA API
->   virtio_ring: introduce packed ring support
->   virtio_ring: leverage event idx in packed ring
->   virtio_ring: disable packed ring on unsupported transports
->   virtio_ring: advertize packed ring layout
-> 
->  drivers/misc/mic/vop/vop_main.c        |   13 +
->  drivers/remoteproc/remoteproc_virtio.c |   13 +
->  drivers/s390/virtio/virtio_ccw.c       |   14 +
->  drivers/virtio/virtio_ring.c           | 1811 +++++++++++++++++++++++++-------
->  include/uapi/linux/virtio_config.h     |    3 +
->  include/uapi/linux/virtio_ring.h       |   52 +
->  6 files changed, 1530 insertions(+), 376 deletions(-)
-> 
-> -- 
-> 2.14.5
