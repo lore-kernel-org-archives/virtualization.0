@@ -1,16 +1,14 @@
-From: Jason Wang <jasowang@redhat.com>
+From: David Miller <davem@davemloft.net>
 Subject: Re: [PATCH net-next v3 00/13] virtio: support packed ring
-Date: Wed, 21 Nov 2018 21:46:06 +0800
-Message-ID: <84e80a22-75cc-5b9d-7f6e-980e41850e00__44746.5144949549$1542807852$gmane$org@redhat.com>
+Date: Wed, 21 Nov 2018 09:37:00 -0800 (PST)
+Message-ID: <20181121.093700.824404593955121076.davem__27639.7902438932$1542821736$gmane$org@davemloft.net>
 References: <20181121100330.24846-1-tiwei.bie@intel.com>
 	<20181121071308-mutt-send-email-mst@kernel.org>
-	<20181121124233.GA32189@debian>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="utf-8"; Format="flowed"
-Content-Transfer-Encoding: base64
+Content-Type: text/plain; charset="us-ascii"
+Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <20181121124233.GA32189@debian>
-Content-Language: en-US
+In-Reply-To: <20181121071308-mutt-send-email-mst@kernel.org>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -20,53 +18,15 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Tiwei Bie <tiwei.bie@intel.com>, "Michael S. Tsirkin" <mst@redhat.com>
+To: mst@redhat.com
 Cc: virtio-dev@lists.oasis-open.org, netdev@vger.kernel.org, linux-kernel@vger.kernel.org, virtualization@lists.linux-foundation.org, maxime.coquelin@redhat.com, wexu@redhat.com
 List-Id: virtualization@lists.linuxfoundation.org
 
-Ck9uIDIwMTgvMTEvMjEg5LiL5Y2IODo0MiwgVGl3ZWkgQmllIHdyb3RlOgo+IE9uIFdlZCwgTm92
-IDIxLCAyMDE4IGF0IDA3OjIwOjI3QU0gLTA1MDAsIE1pY2hhZWwgUy4gVHNpcmtpbiB3cm90ZToK
-Pj4gT24gV2VkLCBOb3YgMjEsIDIwMTggYXQgMDY6MDM6MTdQTSArMDgwMCwgVGl3ZWkgQmllIHdy
-b3RlOgo+Pj4gSGksCj4+Pgo+Pj4gVGhpcyBwYXRjaCBzZXQgaW1wbGVtZW50cyBwYWNrZWQgcmlu
-ZyBzdXBwb3J0IGluIHZpcnRpbyBkcml2ZXIuCj4+Pgo+Pj4gQSBwZXJmb3JtYW5jZSB0ZXN0IGJl
-dHdlZW4gcGt0Z2VuIChwa3RnZW5fc2FtcGxlMDNfYnVyc3Rfc2luZ2xlX2Zsb3cuc2gpCj4+PiBh
-bmQgRFBESyB2aG9zdCAodGVzdHBtZC9yeG9ubHkvdmhvc3QtUE1EKSBoYXMgYmVlbiBkb25lLCBJ
-IHNhdwo+Pj4gfjMwJSBwZXJmb3JtYW5jZSBnYWluIGluIHBhY2tlZCByaW5nIGluIHRoaXMgY2Fz
-ZS4KPj4gVGhhbmtzIGEgbG90LCB0aGlzIGlzIHZlcnkgZXhjaXRpbmchCj4+IERhdmUsIGdpdmVu
-IHRoZSBob2xpZGF5LCBhdHRlbXB0cyB0byB3cmFwIHVwIHRoZSAxLjEgc3BlYyBhbmQgdGhlCj4+
-IHBhdGNoc2V0IHNpemUgSSB3b3VsZCB2ZXJ5IG11Y2ggYXBwcmVjaWF0ZSBhIGJpdCBtb3JlIHRp
-bWUgZm9yCj4+IHJldmlldy4gU2F5IHVudGlsIE5vdiAyOD8KPj4KPj4+IFRvIG1ha2UgdGhpcyBw
-YXRjaCBzZXQgd29yayB3aXRoIGJlbG93IHBhdGNoIHNldCBmb3Igdmhvc3QsCj4+PiBzb21lIGhh
-Y2tzIGFyZSBuZWVkZWQgdG8gc2V0IHRoZSBfRl9ORVhUIGZsYWcgaW4gaW5kaXJlY3QKPj4+IGRl
-c2NyaXB0b3JzICh0aGlzIHNob3VsZCBiZSBmaXhlZCBpbiB2aG9zdCk6Cj4+Pgo+Pj4gaHR0cHM6
-Ly9sa21sLm9yZy9sa21sLzIwMTgvNy8zLzMzCj4+IENvdWxkIHlvdSBwbHMgY2xhcmlmeSAtIGRv
-IHlvdSBtZWFuIGl0IGRvZXNuJ3QgeWV0IHdvcmsgd2l0aCB2aG9zdAo+PiBiZWNhdXNlIG9mIGEg
-dmhvc3QgYnVnLCBhbmQgdG8gdGVzdCBpdCB3aXRoIHRoZSBsaW5rZWQgcGF0Y2hlcwo+PiB5b3Ug
-aGFkIHRvIGhhY2sgaW4gX0ZfTkVYVD8gQmVjYXVzZSBJIGRvIG5vdCBzZWUgX0ZfTkVYVAo+PiBp
-biBpbmRpcmVjdCBkZXNjcmlwdG9ycyBpbiB0aGlzIHBhdGNoICh3aGljaCBpcyBmaW5lKS4KPj4g
-T3IgZGlkIEkgbWlzcyBpdD8KPiBZb3UgZGlkbid0IG1pc3MgYW55dGhpbmcuIDopCj4KPiBJIHRo
-aW5rIGl0J3MgYSBzbWFsbCBidWcgaW4gdmhvc3QsIHdoaWNoIEphc29uIG1heSBmaXggdmVyeQo+
-IHF1aWNrbHksIHNvIEkgZGlkbid0IHBvc3QgaXQuIEJlbG93IGlzIHRoZSBoYWNrIEkgdXNlZDoK
-CgpHb29kIGNhdGNoLiBJIGRpZG4ndCBub3RpY2UgdGhlIHN1YnRsZSBkaWZmZXJlbmNlIHNpbmNl
-IHNwbGl0IHJpbmcgCnJlcXVpcmVzIGZvciBpdC4KCkxldCBtZSBmaXggaXQgaW4gbmV4dCB2ZXJz
-aW9uLgoKVGhhbmtzLgoKCj4KPiBkaWZmIC0tZ2l0IGEvZHJpdmVycy92aXJ0aW8vdmlydGlvX3Jp
-bmcuYyBiL2RyaXZlcnMvdmlydGlvL3ZpcnRpb19yaW5nLmMKPiBpbmRleCBjZDdlNzU1NDg0ZTMu
-LjQyZmFlYTdkOGNmOCAxMDA2NDQKPiAtLS0gYS9kcml2ZXJzL3ZpcnRpby92aXJ0aW9fcmluZy5j
-Cj4gKysrIGIvZHJpdmVycy92aXJ0aW8vdmlydGlvX3JpbmcuYwo+IEBAIC05ODAsNiArOTgwLDcg
-QEAgc3RhdGljIGludCB2aXJ0cXVldWVfYWRkX2luZGlyZWN0X3BhY2tlZChzdHJ1Y3QgdnJpbmdf
-dmlydHF1ZXVlICp2cSwKPiAgIAl1bnNpZ25lZCBpbnQgaSwgbiwgZXJyX2lkeDsKPiAgIAl1MTYg
-aGVhZCwgaWQ7Cj4gICAJZG1hX2FkZHJfdCBhZGRyOwo+ICsJaW50IGMgPSAwOwo+ICAgCj4gICAJ
-aGVhZCA9IHZxLT5wYWNrZWQubmV4dF9hdmFpbF9pZHg7Cj4gICAJZGVzYyA9IGFsbG9jX2luZGly
-ZWN0X3BhY2tlZCh0b3RhbF9zZywgZ2ZwKTsKPiBAQCAtMTAwMSw4ICsxMDAyLDkgQEAgc3RhdGlj
-IGludCB2aXJ0cXVldWVfYWRkX2luZGlyZWN0X3BhY2tlZChzdHJ1Y3QgdnJpbmdfdmlydHF1ZXVl
-ICp2cSwKPiAgIAkJCWlmICh2cmluZ19tYXBwaW5nX2Vycm9yKHZxLCBhZGRyKSkKPiAgIAkJCQln
-b3RvIHVubWFwX3JlbGVhc2U7Cj4gICAKPiAtCQkJZGVzY1tpXS5mbGFncyA9IGNwdV90b19sZTE2
-KG4gPCBvdXRfc2dzID8KPiAtCQkJCQkJMCA6IFZSSU5HX0RFU0NfRl9XUklURSk7Cj4gKwkJCWRl
-c2NbaV0uZmxhZ3MgPSBjcHVfdG9fbGUxNigobiA8IG91dF9zZ3MgPwo+ICsJCQkJCQkwIDogVlJJ
-TkdfREVTQ19GX1dSSVRFKSB8Cj4gKwkJCQkgICAgKCsrYyA9PSB0b3RhbF9zZyA/IDAgOiBWUklO
-R19ERVNDX0ZfTkVYVCkpOwo+ICAgCQkJZGVzY1tpXS5hZGRyID0gY3B1X3RvX2xlNjQoYWRkcik7
-Cj4gICAJCQlkZXNjW2ldLmxlbiA9IGNwdV90b19sZTMyKHNnLT5sZW5ndGgpOwo+ICAgCQkJaSsr
-OwpfX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fXwpWaXJ0dWFs
-aXphdGlvbiBtYWlsaW5nIGxpc3QKVmlydHVhbGl6YXRpb25AbGlzdHMubGludXgtZm91bmRhdGlv
-bi5vcmcKaHR0cHM6Ly9saXN0cy5saW51eGZvdW5kYXRpb24ub3JnL21haWxtYW4vbGlzdGluZm8v
-dmlydHVhbGl6YXRpb24=
+From: "Michael S. Tsirkin" <mst@redhat.com>
+Date: Wed, 21 Nov 2018 07:20:27 -0500
+
+> Dave, given the holiday, attempts to wrap up the 1.1 spec and the
+> patchset size I would very much appreciate a bit more time for
+> review. Say until Nov 28?
+
+Ok.
