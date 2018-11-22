@@ -1,7 +1,8 @@
 From: Jean-Philippe Brucker <jean-philippe.brucker@arm.com>
-Subject: [PATCH v5 4/7] PCI: OF: Initialize dev->fwnode appropriately
-Date: Thu, 22 Nov 2018 19:37:58 +0000
-Message-ID: <20181122193801.50510-5-jean-philippe.brucker__44757.8630912632$1542915503$gmane$org@arm.com>
+Subject: [PATCH v5 3/7] of: Allow the iommu-map property to omit untranslated
+	devices
+Date: Thu, 22 Nov 2018 19:37:57 +0000
+Message-ID: <20181122193801.50510-4-jean-philippe.brucker__34542.6312451766$1542915513$gmane$org@arm.com>
 References: <20181122193801.50510-1-jean-philippe.brucker@arm.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
@@ -21,52 +22,42 @@ To: iommu@lists.linux-foundation.org, linux-pci@vger.kernel.org, devicetree@vger
 Cc: mark.rutland@arm.com, lorenzo.pieralisi@arm.com, tnowicki@caviumnetworks.com, marc.zyngier@arm.com, robin.murphy@arm.com, will.deacon@arm.com, eric.auger@redhat.com, robh+dt@kernel.org, bhelgaas@google.com, kvmarm@lists.cs.columbia.edu
 List-Id: virtualization@lists.linuxfoundation.org
 
-For PCI devices that have an OF node, set the fwnode as well. This way
-drivers that rely on fwnode don't need the special case described by
-commit f94277af03ea ("of/platform: Initialise dev->fwnode appropriately").
+In PCI root complex nodes, the iommu-map property describes the IOMMU that
+translates each endpoint. On some platforms, the IOMMU itself is presented
+as a PCI endpoint (e.g. AMD IOMMU and virtio-iommu). This isn't supported
+by the current OF driver, which expects all endpoints to have an IOMMU.
+Allow the iommu-map property to have gaps.
 
-Acked-by: Bjorn Helgaas <bhelgaas@google.com>
+Relaxing of_map_rid() also allows the msi-map property to have gaps, which
+is invalid since MSIs always reach an MSI controller. In that case
+pci_msi_setup_msi_irqs() will return an error when attempting to find the
+device's MSI domain.
+
+Reviewed-by: Rob Herring <robh@kernel.org>
 Signed-off-by: Jean-Philippe Brucker <jean-philippe.brucker@arm.com>
 ---
- drivers/pci/of.c | 7 +++++++
- 1 file changed, 7 insertions(+)
+ drivers/of/base.c | 10 +++++++---
+ 1 file changed, 7 insertions(+), 3 deletions(-)
 
-diff --git a/drivers/pci/of.c b/drivers/pci/of.c
-index 4c4217d0c3f1..c272ecfcd038 100644
---- a/drivers/pci/of.c
-+++ b/drivers/pci/of.c
-@@ -21,12 +21,15 @@ void pci_set_of_node(struct pci_dev *dev)
- 		return;
- 	dev->dev.of_node = of_pci_find_child_device(dev->bus->dev.of_node,
- 						    dev->devfn);
-+	if (dev->dev.of_node)
-+		dev->dev.fwnode = &dev->dev.of_node->fwnode;
- }
+diff --git a/drivers/of/base.c b/drivers/of/base.c
+index 09692c9b32a7..99f6bfa9b898 100644
+--- a/drivers/of/base.c
++++ b/drivers/of/base.c
+@@ -2237,8 +2237,12 @@ int of_map_rid(struct device_node *np, u32 rid,
+ 		return 0;
+ 	}
  
- void pci_release_of_node(struct pci_dev *dev)
- {
- 	of_node_put(dev->dev.of_node);
- 	dev->dev.of_node = NULL;
-+	dev->dev.fwnode = NULL;
- }
- 
- void pci_set_bus_of_node(struct pci_bus *bus)
-@@ -35,12 +38,16 @@ void pci_set_bus_of_node(struct pci_bus *bus)
- 		bus->dev.of_node = pcibios_get_phb_of_node(bus);
- 	else
- 		bus->dev.of_node = of_node_get(bus->self->dev.of_node);
+-	pr_err("%pOF: Invalid %s translation - no match for rid 0x%x on %pOF\n",
+-		np, map_name, rid, target && *target ? *target : NULL);
+-	return -EFAULT;
++	pr_info("%pOF: no %s translation for rid 0x%x on %pOF\n", np, map_name,
++		rid, target && *target ? *target : NULL);
 +
-+	if (bus->dev.of_node)
-+		bus->dev.fwnode = &bus->dev.of_node->fwnode;
++	/* Bypasses translation */
++	if (id_out)
++		*id_out = rid;
++	return 0;
  }
- 
- void pci_release_bus_of_node(struct pci_bus *bus)
- {
- 	of_node_put(bus->dev.of_node);
- 	bus->dev.of_node = NULL;
-+	bus->dev.fwnode = NULL;
- }
- 
- struct device_node * __weak pcibios_get_phb_of_node(struct pci_bus *bus)
+ EXPORT_SYMBOL_GPL(of_map_rid);
 -- 
 2.19.1
