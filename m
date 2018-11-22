@@ -1,15 +1,11 @@
-From: Ingo Molnar <mingo@kernel.org>
-Subject: Re: [PATCH] x86: fix -Wmissing-prototypes warning
-Date: Thu, 22 Nov 2018 12:14:58 +0100
-Message-ID: <20181122111458.GA107823__8232.196144718$1542885189$gmane$org@gmail.com>
-References: <20181122084815.GA84118@gmail.com>
-	<201811221904598072830@zte.com.cn>
+From: Jean-Philippe Brucker <jean-philippe.brucker@arm.com>
+Subject: [PATCH v5 0/7] Add virtio-iommu driver
+Date: Thu, 22 Nov 2018 19:37:54 +0000
+Message-ID: <20181122193801.50510-1-jean-philippe.brucker__124.569462104951$1542915458$gmane$org@arm.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="utf-8"
-Content-Transfer-Encoding: base64
+Content-Type: text/plain; charset="us-ascii"
+Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-Content-Disposition: inline
-In-Reply-To: <201811221904598072830@zte.com.cn>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -19,40 +15,63 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: wang.yi59@zte.com.cn
-Cc: linux-efi@vger.kernel.org, anton@enomsg.org, kvm@vger.kernel.org, rkrcmar@redhat.com, peterz@infradead.org, jan.kiszka@siemens.com, virtualization@lists.linux-foundation.org, pravin.shedge4linux@gmail.com, namit@vmware.com, hpa@zytor.com, akataria@vmware.com, prarit@redhat.com, robh@kernel.org, zhong.weidong@zte.com.cn, bhe@redhat.com, devicetree@vger.kernel.org, x86@kernel.org, pasha.tatashin@oracle.com, takahiro.akashi@linaro.org, andy.shevchenko@gmail.com, mingo@redhat.com, linux-pci@vger.kernel.org, dyoung@redhat.com, m.mizuma@jp.fujitsu.com, jailhouse-dev@googlegroups.com, jroedel@suse.de, keescook@chromium.org, konrad.wilk@oracle.com, rostedt@goodmis.org, rajvi.jingar@intel.com, tony.luck@intel.com, bp@alien8.de, luto@kernel.org, oleg@redhat.com, bhelgaas@google.com, tglx@linutronix.de, frank.rowand@sony.com, jgross@suse.com, douly.fnst@cn.fujitsu.com, thomas.le
+To: iommu@lists.linux-foundation.org, linux-pci@vger.kernel.org, devicetree@vger.kernel.org, virtualization@lists.linux-foundation.org, virtio-dev@lists.oasis-open.org, joro@8bytes.org, mst@redhat.com
+Cc: mark.rutland@arm.com, lorenzo.pieralisi@arm.com, tnowicki@caviumnetworks.com, marc.zyngier@arm.com, robin.murphy@arm.com, will.deacon@arm.com, eric.auger@redhat.com, robh+dt@kernel.org, bhelgaas@google.com, kvmarm@lists.cs.columbia.edu
 List-Id: virtualization@lists.linuxfoundation.org
 
-Ciogd2FuZy55aTU5QHp0ZS5jb20uY24gPHdhbmcueWk1OUB6dGUuY29tLmNuPiB3cm90ZToKCj4g
-SGkgSW5nbywKPiAKPiA+ICogWWkgV2FuZyA8d2FuZy55aTU5QHp0ZS5jb20uY24+IHdyb3RlOgo+
-ID4KPiA+ID4gV2UgbWF5IGdldCAtV21pc3NpbmctcHJvdG90eXBlcyB3YXJuaW5ncyB3aGVuIGJ1
-aWxkaW5nCj4gPiA+IGtlcm5lbCB3aXRoIFc9MSwgaXQncyBiZXR0ZXIgdG8gZml4IHRoZW0gYXMg
-Z2xvYmFsIGZ1bmN0aW9uCj4gPiA+IHNpZ25hdHVyZSBjYW4gYmUgY2hhbmdlZCBhbmQgY2FsbGVy
-IHdobyB1c2UgdGhlIG9sZCB1bmNoYW5nZWQKPiA+ID4gcHJvdG90eXBlcyB3aWxsIGJlIGhvc2Vk
-Lgo+ID4gPgo+ID4gPiBUaGlzIHBhdGNoIGZpeGVzIG1vc3Qgb2YgLVdtaXNzaW5nLXByb3RvdHlw
-ZXMgd2FybmluZ3Mgd2hpY2gKPiA+ID4gYXJlIGluIHRoZSByb290IGRpcmVjdG9yeSBvZiBhcmNo
-L3g4Ni9rZXJuZWwsIG5vdCBpbmNsdWRpbmcKPiA+ID4gdGhlIHN1YmRpcmVjdG9yaWVzLgo+ID4g
-Pgo+ID4gPiBUaGVzZSBhcmUgdGhlIHdhcm5pbmdzIGZpeGVkIGluIHRoaXMgcGF0Y2g6Cj4gPiA+
-IGFyY2gveDg2L2tlcm5lbC9zaWduYWwuYzo4NjU6MTc6IHdhcm5pbmc6IG5vIHByZXZpb3VzIHBy
-b3RvdHlwZSBmb3Ig4oCYc3lzMzJfeDMyX3J0X3NpZ3JldHVybuKAmSBbLVdtaXNzaW5nLXByb3Rv
-dHlwZXNdCj4gCj4gLi4uLi4uCj4gCj4gPiA+ICBpbmNsdWRlL2xpbnV4L2Z0cmFjZS5oICAgICAg
-ICAgICAgIHwgMyArKysKPiA+ID4gIGluY2x1ZGUvbGludXgva2V4ZWMuaCAgICAgICAgICAgICAg
-fCAxICsKPiA+ID4gIGluY2x1ZGUvbGludXgvb2ZfZmR0LmggICAgICAgICAgICAgfCAxICsKPiA+
-ID4gIGluY2x1ZGUvbGludXgvcHRyYWNlLmggICAgICAgICAgICAgfCAxICsKPiA+ID4gIDI0IGZp
-bGVzIGNoYW5nZWQsIDU1IGluc2VydGlvbnMoKyksIDMgZGVsZXRpb25zKC0pCj4gPgo+ID4gQnJl
-YWtzIDMyLWJpdCBjb21waWxhdGlvbjoKPiA+Cj4gPiAuLi9hcmNoL3g4Ni9pbmNsdWRlL2FzbS9z
-ZXR1cC5oOiBBc3NlbWJsZXIgbWVzc2FnZXM6Cj4gPiAuLi9hcmNoL3g4Ni9pbmNsdWRlL2FzbS9z
-ZXR1cC5oOjMwOiBFcnJvcjogbm8gc3VjaCBpbnN0cnVjdGlvbjogYHVuc2lnbmVkIGxvbmcgX19z
-dGFydHVwXzY0KHVuc2lnbmVkIGxvbmcgcGh5c2FkZHIsc3RydWN0IGJvb3RfcGFyYW1zICpicCkn
-Cj4gPgo+ID4gSSdsbCBza2lwIHRoZSBzZXR1cC5oIGJpdHMgLSBsZXQncyBob3BlIHRoYXQncyB0
-aGUgb25seSBidWcuCj4gCj4gU29ycnkgZm9yIHRoZSBpbmNvbnZlbmllbmNlLCB0aG91Z2ggSSBo
-YXZlIGNoZWNrZWQgY2FyZWZ1bGx5IDotKQo+IAo+IEhvdyBkbyB5b3UgcHJvZHVjZSB0aGlzIGVy
-cm9yPyBJIHRlc3RlZCB0aGlzIHdheSBidXQgZGlkIG5vdCByZXByb2R1Y2UKPiB0aGF0IGVycm9y
-Ogo+ICMgbWFrZSBhbGxtb2Rjb25maWcKPiAjIG1ha2UgLWo4Cj4gCj4gVGhhbmtzIGZvciB5b3Vy
-IHRpbWUgYWdhaW4hCgpJIGRvbid0IHJlbWVtYmVyIHRoZSBleGFjdCBjb25maWcsIGJ1dCB5b3Ug
-Y291bGQgdHJ5IHRoZSAzMi1iaXQgCmFsbG5vY29uZmlnIGFuZCBkZWZjb25maWcuCgpOb3RlIHRo
-YXQgdGhlIGNvbW1hbmRzIHlvdSB1c2VkIGFib3ZlIHdpbGwgdXNlIHRoZSA2NC1iaXQga2VybmVs
-LCBub3QgdGhlIAozMi1iaXQga2VybmVsLgoKVGhhbmtzLAoKCUluZ28KX19fX19fX19fX19fX19f
-X19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX18KVmlydHVhbGl6YXRpb24gbWFpbGluZyBs
-aXN0ClZpcnR1YWxpemF0aW9uQGxpc3RzLmxpbnV4LWZvdW5kYXRpb24ub3JnCmh0dHBzOi8vbGlz
-dHMubGludXhmb3VuZGF0aW9uLm9yZy9tYWlsbWFuL2xpc3RpbmZvL3ZpcnR1YWxpemF0aW9u
+Implement the virtio-iommu driver, following specification v0.9 [1].
+
+Since v4 [2] I fixed the issues reported by Eric, and added Reviewed-by
+from Eric and Rob. Thanks!
+
+I changed the specification to fix one inconsistency discussed in v4.
+That the device fills the probe buffer with zeroes is now a "SHOULD"
+instead of a "MAY", since it's the only way for the driver to know if
+the device wrote the status. Existing devices already do this. In
+addition the device now needs to fill the three padding bytes at the
+tail with zeroes.
+
+You can find Linux driver and kvmtool device on branches
+virtio-iommu/v0.9 [3]. I also lightly tested with Eric's latest QEMU
+device [4].
+
+[1] Virtio-iommu specification v0.9, sources, pdf and diff from v0.8
+    git://linux-arm.org/virtio-iommu.git virtio-iommu/v0.9
+    http://jpbrucker.net/virtio-iommu/spec/v0.9/virtio-iommu-v0.9.pdf
+    http://jpbrucker.net/virtio-iommu/spec/diffs/virtio-iommu-pdf-diff-v0.8-v0.9.pdf
+
+[2] [PATCH v4 0/7] Add virtio-iommu driver
+    https://lists.linuxfoundation.org/pipermail/iommu/2018-November/031074.html
+
+[3] git://linux-arm.org/linux-jpb.git virtio-iommu/v0.9
+    git://linux-arm.org/kvmtool-jpb.git virtio-iommu/v0.9
+
+[4] [RFC v9 00/17] VIRTIO-IOMMU device
+    https://www.mail-archive.com/qemu-devel@nongnu.org/msg575578.html
+
+Jean-Philippe Brucker (7):
+  dt-bindings: virtio-mmio: Add IOMMU description
+  dt-bindings: virtio: Add virtio-pci-iommu node
+  of: Allow the iommu-map property to omit untranslated devices
+  PCI: OF: Initialize dev->fwnode appropriately
+  iommu: Add virtio-iommu driver
+  iommu/virtio: Add probe request
+  iommu/virtio: Add event queue
+
+ .../devicetree/bindings/virtio/iommu.txt      |   66 +
+ .../devicetree/bindings/virtio/mmio.txt       |   30 +
+ MAINTAINERS                                   |    7 +
+ drivers/iommu/Kconfig                         |   11 +
+ drivers/iommu/Makefile                        |    1 +
+ drivers/iommu/virtio-iommu.c                  | 1157 +++++++++++++++++
+ drivers/of/base.c                             |   10 +-
+ drivers/pci/of.c                              |    7 +
+ include/uapi/linux/virtio_ids.h               |    1 +
+ include/uapi/linux/virtio_iommu.h             |  161 +++
+ 10 files changed, 1448 insertions(+), 3 deletions(-)
+ create mode 100644 Documentation/devicetree/bindings/virtio/iommu.txt
+ create mode 100644 drivers/iommu/virtio-iommu.c
+ create mode 100644 include/uapi/linux/virtio_iommu.h
+
+-- 
+2.19.1
