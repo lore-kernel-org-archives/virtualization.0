@@ -1,7 +1,7 @@
 From: "Michael S. Tsirkin" <mst@redhat.com>
 Subject: Re: [PATCH v5 5/7] iommu: Add virtio-iommu driver
-Date: Fri, 23 Nov 2018 16:48:55 -0500
-Message-ID: <20181123164716-mutt-send-email-mst__48729.7295047485$1543009629$gmane$org@kernel.org>
+Date: Fri, 23 Nov 2018 16:56:25 -0500
+Message-ID: <20181123165206-mutt-send-email-mst__14016.9413098649$1543010084$gmane$org@kernel.org>
 References: <20181122193801.50510-1-jean-philippe.brucker@arm.com>
 	<20181122193801.50510-6-jean-philippe.brucker@arm.com>
 Mime-Version: 1.0
@@ -82,6 +82,10 @@ On Thu, Nov 22, 2018 at 07:37:59PM +0000, Jean-Philippe Brucker wrote:
 > +
 > +	  Say Y here if you intend to run this kernel as a guest.
 > +
+
+Given it is arm specific right now, shouldn't this depend on ARM?
+E.g. there's a hack for x86 right now.
+
 >  endif # IOMMU_SUPPORT
 > diff --git a/drivers/iommu/Makefile b/drivers/iommu/Makefile
 > index 5481e5fe1f95..bd7e55751d09 100644
@@ -871,6 +875,9 @@ On Thu, Nov 22, 2018 at 07:37:59PM +0000, Jean-Philippe Brucker wrote:
 > +
 > +	if (!virtio_has_feature(vdev, VIRTIO_F_VERSION_1) ||
 > +	    !virtio_has_feature(vdev, VIRTIO_IOMMU_F_MAP_UNMAP))
+
+Why bother with a feature bit for this then btw?
+
 > +		return -ENODEV;
 > +
 > +	viommu = devm_kzalloc(dev, sizeof(*viommu), GFP_KERNEL);
@@ -1061,10 +1068,6 @@ On Thu, Nov 22, 2018 at 07:37:59PM +0000, Jean-Philippe Brucker wrote:
 > +	/* Max domain ID size */
 > +	__u8					domain_bits;
 > +	__u8					padding[3];
-
-Not enough padding here it seems. Structure is 8 byte
-aligned on 64 bit systems.
-
 > +};
 > +
 > +/* Request types */
