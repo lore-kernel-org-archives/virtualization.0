@@ -1,14 +1,16 @@
-From: Auger Eric <eric.auger@redhat.com>
-Subject: Re: [PATCH v5 0/7] Add virtio-iommu driver
-Date: Fri, 23 Nov 2018 09:28:51 +0100
-Message-ID: <250a38a9-e6b1-35ae-9261-eb8aab123f43__13211.9841328405$1542961935$gmane$org@redhat.com>
-References: <20181122193801.50510-1-jean-philippe.brucker@arm.com>
+From: "Michael S. Tsirkin" <mst@redhat.com>
+Subject: Re: [PATCH net-next 3/3] vhost: don't touch avail ring if in_order
+	is negotiated
+Date: Fri, 23 Nov 2018 10:41:25 -0500
+Message-ID: <20181123103750-mutt-send-email-mst__31787.3696600602$1542987565$gmane$org@kernel.org>
+References: <20181123030016.4924-1-jasowang@redhat.com>
+	<20181123030016.4924-4-jasowang@redhat.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <20181122193801.50510-1-jean-philippe.brucker@arm.com>
-Content-Language: en-US
+Content-Disposition: inline
+In-Reply-To: <20181123030016.4924-4-jasowang@redhat.com>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -18,70 +20,74 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Jean-Philippe Brucker <jean-philippe.brucker@arm.com>, iommu@lists.linux-foundation.org, linux-pci@vger.kernel.org, devicetree@vger.kernel.org, virtualization@lists.linux-foundation.org, virtio-dev@lists.oasis-open.org, joro@8bytes.org, mst@redhat.com
-Cc: mark.rutland@arm.com, lorenzo.pieralisi@arm.com, tnowicki@caviumnetworks.com, marc.zyngier@arm.com, robin.murphy@arm.com, will.deacon@arm.com, robh+dt@kernel.org, bhelgaas@google.com, kvmarm@lists.cs.columbia.edu
+To: Jason Wang <jasowang@redhat.com>
+Cc: netdev@vger.kernel.org, linux-kernel@vger.kernel.org, kvm@vger.kernel.org, virtualization@lists.linux-foundation.org
 List-Id: virtualization@lists.linuxfoundation.org
 
-Hi Jean,
+On Fri, Nov 23, 2018 at 11:00:16AM +0800, Jason Wang wrote:
+> Device use descriptors table in order, so there's no need to read
+> index from available ring. This eliminate the cache contention on
+> avail ring completely.
 
-On 11/22/18 8:37 PM, Jean-Philippe Brucker wrote:
-> Implement the virtio-iommu driver, following specification v0.9 [1].
-> 
-> Since v4 [2] I fixed the issues reported by Eric, and added Reviewed-by
-> from Eric and Rob. Thanks!
-> 
-> I changed the specification to fix one inconsistency discussed in v4.
-> That the device fills the probe buffer with zeroes is now a "SHOULD"
-> instead of a "MAY", since it's the only way for the driver to know if
-> the device wrote the status. Existing devices already do this. In
-> addition the device now needs to fill the three padding bytes at the
-> tail with zeroes.
-> 
-> You can find Linux driver and kvmtool device on branches
-> virtio-iommu/v0.9 [3]. I also lightly tested with Eric's latest QEMU
-> device [4].
-> 
-> [1] Virtio-iommu specification v0.9, sources, pdf and diff from v0.8
->     git://linux-arm.org/virtio-iommu.git virtio-iommu/v0.9
->     http://jpbrucker.net/virtio-iommu/spec/v0.9/virtio-iommu-v0.9.pdf
->     http://jpbrucker.net/virtio-iommu/spec/diffs/virtio-iommu-pdf-diff-v0.8-v0.9.pdf
-> 
-> [2] [PATCH v4 0/7] Add virtio-iommu driver
->     https://lists.linuxfoundation.org/pipermail/iommu/2018-November/031074.html
-> 
-> [3] git://linux-arm.org/linux-jpb.git virtio-iommu/v0.9
->     git://linux-arm.org/kvmtool-jpb.git virtio-iommu/v0.9
-> 
-> [4] [RFC v9 00/17] VIRTIO-IOMMU device
->     https://www.mail-archive.com/qemu-devel@nongnu.org/msg575578.html
-> 
-> Jean-Philippe Brucker (7):
->   dt-bindings: virtio-mmio: Add IOMMU description
->   dt-bindings: virtio: Add virtio-pci-iommu node
->   of: Allow the iommu-map property to omit untranslated devices
->   PCI: OF: Initialize dev->fwnode appropriately
->   iommu: Add virtio-iommu driver
->   iommu/virtio: Add probe request
->   iommu/virtio: Add event queue
-> 
->  .../devicetree/bindings/virtio/iommu.txt      |   66 +
->  .../devicetree/bindings/virtio/mmio.txt       |   30 +
->  MAINTAINERS                                   |    7 +
->  drivers/iommu/Kconfig                         |   11 +
->  drivers/iommu/Makefile                        |    1 +
->  drivers/iommu/virtio-iommu.c                  | 1157 +++++++++++++++++
->  drivers/of/base.c                             |   10 +-
->  drivers/pci/of.c                              |    7 +
->  include/uapi/linux/virtio_ids.h               |    1 +
->  include/uapi/linux/virtio_iommu.h             |  161 +++
->  10 files changed, 1448 insertions(+), 3 deletions(-)
->  create mode 100644 Documentation/devicetree/bindings/virtio/iommu.txt
->  create mode 100644 drivers/iommu/virtio-iommu.c
->  create mode 100644 include/uapi/linux/virtio_iommu.h
-> 
-for the whole series
-Tested-by: Eric Auger <eric.auger@redhat.com>
+Well this isn't what the in order feature says in the spec.
 
-Thanks
+It forces the used ring to be in the same order as
+the available ring. So I don't think you can skip
+checking the available ring. And in fact depending on
+ring size and workload, using all of descriptor buffer might
+cause a slowdown.
+Rather you should be able to get
+about the same speedup, but from skipping checking
+the used ring in virtio.
 
-Eric
+
+> Virito-user + vhost_kernel + XDP_DROP gives about ~10% improvement on
+> TX from 4.8Mpps to 5.3Mpps on Intel(R) Core(TM) i7-5600U CPU @
+> 2.60GHz.
+> 
+> Signed-off-by: Jason Wang <jasowang@redhat.com>
+> ---
+>  drivers/vhost/vhost.c | 19 ++++++++++++-------
+>  1 file changed, 12 insertions(+), 7 deletions(-)
+> 
+> diff --git a/drivers/vhost/vhost.c b/drivers/vhost/vhost.c
+> index 3a5f81a66d34..c8be151bc897 100644
+> --- a/drivers/vhost/vhost.c
+> +++ b/drivers/vhost/vhost.c
+> @@ -2002,6 +2002,7 @@ int vhost_get_vq_desc(struct vhost_virtqueue *vq,
+>  	__virtio16 avail_idx;
+>  	__virtio16 ring_head;
+>  	int ret, access;
+> +	bool in_order = vhost_has_feature(vq, VIRTIO_F_IN_ORDER);
+>  
+>  	/* Check it isn't doing very strange things with descriptor numbers. */
+>  	last_avail_idx = vq->last_avail_idx;
+> @@ -2034,15 +2035,19 @@ int vhost_get_vq_desc(struct vhost_virtqueue *vq,
+>  
+>  	/* Grab the next descriptor number they're advertising, and increment
+>  	 * the index we've seen. */
+> -	if (unlikely(vhost_get_avail(vq, ring_head,
+> -		     &vq->avail->ring[last_avail_idx & (vq->num - 1)]))) {
+> -		vq_err(vq, "Failed to read head: idx %d address %p\n",
+> -		       last_avail_idx,
+> -		       &vq->avail->ring[last_avail_idx % vq->num]);
+> -		return -EFAULT;
+> +	if (!in_order) {
+> +		if (unlikely(vhost_get_avail(vq, ring_head,
+> +		    &vq->avail->ring[last_avail_idx & (vq->num - 1)]))) {
+> +			vq_err(vq, "Failed to read head: idx %d address %p\n",
+> +				last_avail_idx,
+> +				&vq->avail->ring[last_avail_idx % vq->num]);
+> +			return -EFAULT;
+> +		}
+> +		head = vhost16_to_cpu(vq, ring_head);
+> +	} else {
+> +		head = last_avail_idx & (vq->num - 1);
+>  	}
+>  
+> -	head = vhost16_to_cpu(vq, ring_head);
+>  
+>  	/* If their number is silly, that's an error. */
+>  	if (unlikely(head >= vq->num)) {
+> -- 
+> 2.17.1
