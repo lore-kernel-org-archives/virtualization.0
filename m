@@ -1,7 +1,8 @@
 From: Jason Wang <jasowang@redhat.com>
-Subject: [PATCH net-next 2/3] vhost_net: support in order feature
-Date: Fri, 23 Nov 2018 11:00:15 +0800
-Message-ID: <20181123030016.4924-3-jasowang__14459.4352612787$1542941943$gmane$org@redhat.com>
+Subject: [PATCH net-next 3/3] vhost: don't touch avail ring if in_order is
+	negotiated
+Date: Fri, 23 Nov 2018 11:00:16 +0800
+Message-ID: <20181123030016.4924-4-jasowang__30566.3898041987$1542941949$gmane$org@redhat.com>
 References: <20181123030016.4924-1-jasowang@redhat.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
@@ -20,39 +21,57 @@ Errors-To: virtualization-bounces@lists.linux-foundation.org
 To: mst@redhat.com, jasowang@redhat.com, kvm@vger.kernel.org, virtualization@lists.linux-foundation.org, netdev@vger.kernel.org, linux-kernel@vger.kernel.org
 List-Id: virtualization@lists.linuxfoundation.org
 
-This makes vhost_net to support in order feature. This is as simple as
-use datacopy path when it was negotiated. An alternative is not to
-advertise in order when zerocopy is enabled which tends to be
-suboptimal consider zerocopy may suffer from e.g HOL issues.
+Device use descriptors table in order, so there's no need to read
+index from available ring. This eliminate the cache contention on
+avail ring completely.
+
+Virito-user + vhost_kernel + XDP_DROP gives about ~10% improvement on
+TX from 4.8Mpps to 5.3Mpps on Intel(R) Core(TM) i7-5600U CPU @
+2.60GHz.
 
 Signed-off-by: Jason Wang <jasowang@redhat.com>
 ---
- drivers/vhost/net.c | 6 ++++--
- 1 file changed, 4 insertions(+), 2 deletions(-)
+ drivers/vhost/vhost.c | 19 ++++++++++++-------
+ 1 file changed, 12 insertions(+), 7 deletions(-)
 
-diff --git a/drivers/vhost/net.c b/drivers/vhost/net.c
-index d919284f103b..bdf5de5a7eb2 100644
---- a/drivers/vhost/net.c
-+++ b/drivers/vhost/net.c
-@@ -74,7 +74,8 @@ enum {
- 	VHOST_NET_FEATURES = VHOST_FEATURES |
- 			 (1ULL << VHOST_NET_F_VIRTIO_NET_HDR) |
- 			 (1ULL << VIRTIO_NET_F_MRG_RXBUF) |
--			 (1ULL << VIRTIO_F_IOMMU_PLATFORM)
-+			 (1ULL << VIRTIO_F_IOMMU_PLATFORM) |
-+	                 (1ULL << VIRTIO_F_IN_ORDER)
- };
+diff --git a/drivers/vhost/vhost.c b/drivers/vhost/vhost.c
+index 3a5f81a66d34..c8be151bc897 100644
+--- a/drivers/vhost/vhost.c
++++ b/drivers/vhost/vhost.c
+@@ -2002,6 +2002,7 @@ int vhost_get_vq_desc(struct vhost_virtqueue *vq,
+ 	__virtio16 avail_idx;
+ 	__virtio16 ring_head;
+ 	int ret, access;
++	bool in_order = vhost_has_feature(vq, VIRTIO_F_IN_ORDER);
  
- enum {
-@@ -971,7 +972,8 @@ static void handle_tx(struct vhost_net *net)
- 	vhost_disable_notify(&net->dev, vq);
- 	vhost_net_disable_vq(net, vq);
+ 	/* Check it isn't doing very strange things with descriptor numbers. */
+ 	last_avail_idx = vq->last_avail_idx;
+@@ -2034,15 +2035,19 @@ int vhost_get_vq_desc(struct vhost_virtqueue *vq,
  
--	if (vhost_sock_zcopy(sock))
-+	if (vhost_sock_zcopy(sock) &&
-+	    !vhost_has_feature(vq, VIRTIO_F_IN_ORDER))
- 		handle_tx_zerocopy(net, sock);
- 	else
- 		handle_tx_copy(net, sock);
+ 	/* Grab the next descriptor number they're advertising, and increment
+ 	 * the index we've seen. */
+-	if (unlikely(vhost_get_avail(vq, ring_head,
+-		     &vq->avail->ring[last_avail_idx & (vq->num - 1)]))) {
+-		vq_err(vq, "Failed to read head: idx %d address %p\n",
+-		       last_avail_idx,
+-		       &vq->avail->ring[last_avail_idx % vq->num]);
+-		return -EFAULT;
++	if (!in_order) {
++		if (unlikely(vhost_get_avail(vq, ring_head,
++		    &vq->avail->ring[last_avail_idx & (vq->num - 1)]))) {
++			vq_err(vq, "Failed to read head: idx %d address %p\n",
++				last_avail_idx,
++				&vq->avail->ring[last_avail_idx % vq->num]);
++			return -EFAULT;
++		}
++		head = vhost16_to_cpu(vq, ring_head);
++	} else {
++		head = last_avail_idx & (vq->num - 1);
+ 	}
+ 
+-	head = vhost16_to_cpu(vq, ring_head);
+ 
+ 	/* If their number is silly, that's an error. */
+ 	if (unlikely(head >= vq->num)) {
 -- 
 2.17.1
