@@ -1,15 +1,13 @@
-From: "Michael S. Tsirkin" <mst@redhat.com>
-Subject: Re: [PATCH net-next 2/3] vhost_net: support in order feature
-Date: Fri, 23 Nov 2018 10:49:13 -0500
-Message-ID: <20181123104333-mutt-send-email-mst__40356.4308457591$1542988032$gmane$org@kernel.org>
-References: <20181123030016.4924-1-jasowang@redhat.com>
-	<20181123030016.4924-3-jasowang@redhat.com>
+From: David Miller <davem@davemloft.net>
+Subject: Re: [PATCH net 1/2] virtio-net: disable guest csum during XDP set
+Date: Fri, 23 Nov 2018 12:01:19 -0800 (PST)
+Message-ID: <20181123.120119.2279234989819941118.davem__11582.8491900631$1543003165$gmane$org@davemloft.net>
+References: <20181122063631.14452-1-jasowang@redhat.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-Content-Disposition: inline
-In-Reply-To: <20181123030016.4924-3-jasowang@redhat.com>
+In-Reply-To: <20181122063631.14452-1-jasowang@redhat.com>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -19,50 +17,34 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Jason Wang <jasowang@redhat.com>
-Cc: netdev@vger.kernel.org, linux-kernel@vger.kernel.org, kvm@vger.kernel.org, virtualization@lists.linux-foundation.org
+To: jasowang@redhat.com
+Cc: mst@redhat.com, netdev@vger.kernel.org, dsahern@gmail.com, linux-kernel@vger.kernel.org, virtualization@lists.linux-foundation.org, pashinho1990@gmail.com, brouer@redhat.com
 List-Id: virtualization@lists.linuxfoundation.org
 
-On Fri, Nov 23, 2018 at 11:00:15AM +0800, Jason Wang wrote:
-> This makes vhost_net to support in order feature. This is as simple as
-> use datacopy path when it was negotiated. An alternative is not to
-> advertise in order when zerocopy is enabled which tends to be
-> suboptimal consider zerocopy may suffer from e.g HOL issues.
+From: Jason Wang <jasowang@redhat.com>
+Date: Thu, 22 Nov 2018 14:36:30 +0800
 
-Well IIRC vhost_zerocopy_signal_used is used to
-actually reorder used ring to match available ring.
-So with a big comment explaining why it is so,
-we could just enable IN_ORDER there too.
-
+> We don't disable VIRTIO_NET_F_GUEST_CSUM if XDP was set. This means we
+> can receive partial csumed packets with metadata kept in the
+> vnet_hdr. This may have several side effects:
 > 
+> - It could be overridden by header adjustment, thus is might be not
+>   correct after XDP processing.
+> - There's no way to pass such metadata information through
+>   XDP_REDIRECT to another driver.
+> - XDP does not support checksum offload right now.
+> 
+> So simply disable guest csum if possible in this the case of XDP.
+> 
+> Fixes: 3f93522ffab2d ("virtio-net: switch off offloads on demand if possible on XDP set")
+> Reported-by: Jesper Dangaard Brouer <brouer@redhat.com>
+> Cc: Jesper Dangaard Brouer <brouer@redhat.com>
+> Cc: Pavel Popa <pashinho1990@gmail.com>
+> Cc: David Ahern <dsahern@gmail.com>
 > Signed-off-by: Jason Wang <jasowang@redhat.com>
-> ---
->  drivers/vhost/net.c | 6 ++++--
->  1 file changed, 4 insertions(+), 2 deletions(-)
-> 
-> diff --git a/drivers/vhost/net.c b/drivers/vhost/net.c
-> index d919284f103b..bdf5de5a7eb2 100644
-> --- a/drivers/vhost/net.c
-> +++ b/drivers/vhost/net.c
-> @@ -74,7 +74,8 @@ enum {
->  	VHOST_NET_FEATURES = VHOST_FEATURES |
->  			 (1ULL << VHOST_NET_F_VIRTIO_NET_HDR) |
->  			 (1ULL << VIRTIO_NET_F_MRG_RXBUF) |
-> -			 (1ULL << VIRTIO_F_IOMMU_PLATFORM)
-> +			 (1ULL << VIRTIO_F_IOMMU_PLATFORM) |
-> +	                 (1ULL << VIRTIO_F_IN_ORDER)
->  };
->  
->  enum {
-> @@ -971,7 +972,8 @@ static void handle_tx(struct vhost_net *net)
->  	vhost_disable_notify(&net->dev, vq);
->  	vhost_net_disable_vq(net, vq);
->  
-> -	if (vhost_sock_zcopy(sock))
-> +	if (vhost_sock_zcopy(sock) &&
-> +	    !vhost_has_feature(vq, VIRTIO_F_IN_ORDER))
->  		handle_tx_zerocopy(net, sock);
->  	else
->  		handle_tx_copy(net, sock);
-> -- 
-> 2.17.1
+
+Applied and queued up for -stable.
+
+We really should have a way to use the checksum provided if the XDP
+program returns XDP_PASS and does not modify the packet contents
+or size.
