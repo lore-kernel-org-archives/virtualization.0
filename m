@@ -1,15 +1,17 @@
-From: Jason Wang <jasowang@redhat.com>
-Subject: Re: [PATCH net 1/2] virtio-net: disable guest csum during XDP set
-Date: Mon, 26 Nov 2018 12:03:39 +0800
-Message-ID: <a0af5216-c0cb-0843-34ec-cf94a765338b__39311.021884396$1543204907$gmane$org@redhat.com>
-References: <20181122063631.14452-1-jasowang@redhat.com>
-	<20181123.120119.2279234989819941118.davem@davemloft.net>
+From: Daniel Vetter <daniel@ffwll.ch>
+Subject: Re: [PATCH 0/9] drm: remove deprecated functions
+Date: Mon, 26 Nov 2018 15:12:41 +0100
+Message-ID: <20181126141241.GM4266__14357.4636815631$1543241448$gmane$org@phenom.ffwll.local>
+References: <20181115221634.22715-1-greenfoo@gluegarage.com>
+	<CACRpkdZmTSo02yQeU=qe9WyJMXEq76CNmc2kkFEHuwdo=HKPJw@mail.gmail.com>
+	<20181121094233.GN4266@phenom.ffwll.local>
+	<CACRpkdaXUFwSiQnMqv2WBXr2ytn7kx3CeAuamkj9ZYU1C6bpnw@mail.gmail.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="utf-8"; Format="flowed"
-Content-Transfer-Encoding: base64
+Content-Type: text/plain; charset="us-ascii"
+Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <20181123.120119.2279234989819941118.davem@davemloft.net>
-Content-Language: en-US
+Content-Disposition: inline
+In-Reply-To: <CACRpkdaXUFwSiQnMqv2WBXr2ytn7kx3CeAuamkj9ZYU1C6bpnw@mail.gmail.com>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -19,34 +21,41 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: David Miller <davem@davemloft.net>
-Cc: mst@redhat.com, netdev@vger.kernel.org, dsahern@gmail.com, linux-kernel@vger.kernel.org, virtualization@lists.linux-foundation.org, pashinho1990@gmail.com, brouer@redhat.com
+To: Linus Walleij <linus.walleij@linaro.org>
+Cc: Haneen Mohammed <hamohammed.sa@gmail.com>, Alexandre Belloni <alexandre.belloni@bootlin.com>, Gilles Muller <Gilles.Muller@lip6.fr>, Maxime Ripard <maxime.ripard@bootlin.com>, "open list:DRM PANEL DRIVERS" <dri-devel@lists.freedesktop.org>, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>, Andrzej Hajda <a.hajda@samsung.com>, cocci@systeme.lip6.fr, Marek Vasut <marex@denx.de>, Archit Taneja <architt@codeaurora.org>, Jonathan Corbet <corbet@lwn.net>, linux-doc@vger.kernel.org, abrodkin@synopsys.com, Dave Airlie <airlied@linux.ie>, Ludovic Desroches <ludovic.desroches@microchip.com>, greenfoo@gluegarage.com, linux+etnaviv@armlinux.org.uk, Nicolas Palix <nicolas.palix@imag.fr>, Maarten Lankhorst <maarten.lankhorst@linux.intel.com>, etnaviv@lists.freedesktop.org, Boris Brezillon <boris.brezillon@bootlin.com>, Christian Gmeiner <christian.gmeiner@gmail.com>
 List-Id: virtualization@lists.linuxfoundation.org
 
-Ck9uIDIwMTgvMTEvMjQg5LiK5Y2INDowMSwgRGF2aWQgTWlsbGVyIHdyb3RlOgo+IEZyb206IEph
-c29uIFdhbmcgPGphc293YW5nQHJlZGhhdC5jb20+Cj4gRGF0ZTogVGh1LCAyMiBOb3YgMjAxOCAx
-NDozNjozMCArMDgwMAo+Cj4+IFdlIGRvbid0IGRpc2FibGUgVklSVElPX05FVF9GX0dVRVNUX0NT
-VU0gaWYgWERQIHdhcyBzZXQuIFRoaXMgbWVhbnMgd2UKPj4gY2FuIHJlY2VpdmUgcGFydGlhbCBj
-c3VtZWQgcGFja2V0cyB3aXRoIG1ldGFkYXRhIGtlcHQgaW4gdGhlCj4+IHZuZXRfaGRyLiBUaGlz
-IG1heSBoYXZlIHNldmVyYWwgc2lkZSBlZmZlY3RzOgo+Pgo+PiAtIEl0IGNvdWxkIGJlIG92ZXJy
-aWRkZW4gYnkgaGVhZGVyIGFkanVzdG1lbnQsIHRodXMgaXMgbWlnaHQgYmUgbm90Cj4+ICAgIGNv
-cnJlY3QgYWZ0ZXIgWERQIHByb2Nlc3NpbmcuCj4+IC0gVGhlcmUncyBubyB3YXkgdG8gcGFzcyBz
-dWNoIG1ldGFkYXRhIGluZm9ybWF0aW9uIHRocm91Z2gKPj4gICAgWERQX1JFRElSRUNUIHRvIGFu
-b3RoZXIgZHJpdmVyLgo+PiAtIFhEUCBkb2VzIG5vdCBzdXBwb3J0IGNoZWNrc3VtIG9mZmxvYWQg
-cmlnaHQgbm93Lgo+Pgo+PiBTbyBzaW1wbHkgZGlzYWJsZSBndWVzdCBjc3VtIGlmIHBvc3NpYmxl
-IGluIHRoaXMgdGhlIGNhc2Ugb2YgWERQLgo+Pgo+PiBGaXhlczogM2Y5MzUyMmZmYWIyZCAoInZp
-cnRpby1uZXQ6IHN3aXRjaCBvZmYgb2ZmbG9hZHMgb24gZGVtYW5kIGlmIHBvc3NpYmxlIG9uIFhE
-UCBzZXQiKQo+PiBSZXBvcnRlZC1ieTogSmVzcGVyIERhbmdhYXJkIEJyb3VlciA8YnJvdWVyQHJl
-ZGhhdC5jb20+Cj4+IENjOiBKZXNwZXIgRGFuZ2FhcmQgQnJvdWVyIDxicm91ZXJAcmVkaGF0LmNv
-bT4KPj4gQ2M6IFBhdmVsIFBvcGEgPHBhc2hpbmhvMTk5MEBnbWFpbC5jb20+Cj4+IENjOiBEYXZp
-ZCBBaGVybiA8ZHNhaGVybkBnbWFpbC5jb20+Cj4+IFNpZ25lZC1vZmYtYnk6IEphc29uIFdhbmcg
-PGphc293YW5nQHJlZGhhdC5jb20+Cj4gQXBwbGllZCBhbmQgcXVldWVkIHVwIGZvciAtc3RhYmxl
-Lgo+Cj4gV2UgcmVhbGx5IHNob3VsZCBoYXZlIGEgd2F5IHRvIHVzZSB0aGUgY2hlY2tzdW0gcHJv
-dmlkZWQgaWYgdGhlIFhEUAo+IHByb2dyYW0gcmV0dXJucyBYRFBfUEFTUyBhbmQgZG9lcyBub3Qg
-bW9kaWZ5IHRoZSBwYWNrZXQgY29udGVudHMKPiBvciBzaXplLgoKClllcywgSSB0aGluayB0aGlz
-IG1heSByZXF1aXJlIHRoZSBhc3Npc3RhbmNlIG9mIEJQRiB2ZXJpZmllciB0byBzZXQgYSAKZmxh
-ZyBvciBvdGhlci4gVGhlbiB3ZSBjYW4gYXNzdW1lIHRoZSBtZXRhZGF0YSBpcyBzYWZlIHRvIHVz
-ZS4KClRoYW5rcwoKX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19f
-X18KVmlydHVhbGl6YXRpb24gbWFpbGluZyBsaXN0ClZpcnR1YWxpemF0aW9uQGxpc3RzLmxpbnV4
-LWZvdW5kYXRpb24ub3JnCmh0dHBzOi8vbGlzdHMubGludXhmb3VuZGF0aW9uLm9yZy9tYWlsbWFu
-L2xpc3RpbmZvL3ZpcnR1YWxpemF0aW9u
+On Sat, Nov 24, 2018 at 10:17:13PM +0100, Linus Walleij wrote:
+> On Wed, Nov 21, 2018 at 10:42 AM Daniel Vetter <daniel@ffwll.ch> wrote:
+> > On Thu, Nov 15, 2018 at 11:38:35PM +0100, Linus Walleij wrote:
+> > > On Thu, Nov 15, 2018 at 11:17 PM Fernando Ramos <greenfoo@gluegarage.com> wrote:
+> > >
+> > > > One of the things in the DRM TODO list ("Documentation/gpu/todo.rst") was to
+> > > > "switch from reference/unreference to get/put". That's what this patch series is
+> > > > about.
+> > >
+> > > The series:
+> > > Reviewed-by: Linus Walleij <linus.walleij@linaro.org>
+> >
+> > Since your reviewed it all, and there's a pile of acks for the driver
+> > parts too: Want to go ahead and apply it too?
+> 
+> OK I did... the git was quirky, patches changes around
+> under my feet and dim started to complain about problems
+> with commits that weren't even mine.
+> 
+> It was especially scary.
+> 
+> But I think I managed to apply the patches and push the
+> branch now.
+
+Except when you're racing with someone else you should only see conflicts
+with stuff you've just pushed. Or if someone forgot to fix up their mess.
+What was the conflict? Looking at the git-rerere log I'm not exactly sure
+what happened ... Looks like only one of the patches didn't apply cleanly
+anymore because it was somewhat outdated. Otherwise nothing from you.
+-Daniel
+-- 
+Daniel Vetter
+Software Engineer, Intel Corporation
+http://blog.ffwll.ch
