@@ -1,14 +1,15 @@
-From: "Michael S. Tsirkin" <mst@redhat.com>
+From: Auger Eric <eric.auger@redhat.com>
 Subject: Re: [PATCH v5 0/7] Add virtio-iommu driver
-Date: Tue, 27 Nov 2018 11:53:14 -0500
-Message-ID: <20181127114402-mutt-send-email-mst__47398.1122057468$1543337491$gmane$org@kernel.org>
+Date: Tue, 27 Nov 2018 18:09:25 +0100
+Message-ID: <6c061729-c404-ac25-f86f-7fe222bf5bc7__36617.3886614435$1543338456$gmane$org@redhat.com>
 References: <20181122193801.50510-1-jean-philippe.brucker@arm.com>
+	<20181127114402-mutt-send-email-mst@kernel.org>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-Content-Disposition: inline
-In-Reply-To: <20181122193801.50510-1-jean-philippe.brucker@arm.com>
+In-Reply-To: <20181127114402-mutt-send-email-mst@kernel.org>
+Content-Language: en-US
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -18,72 +19,84 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Jean-Philippe Brucker <jean-philippe.brucker@arm.com>
-Cc: mark.rutland@arm.com, virtio-dev@lists.oasis-open.org, lorenzo.pieralisi@arm.com, tnowicki@caviumnetworks.com, devicetree@vger.kernel.org, marc.zyngier@arm.com, linux-pci@vger.kernel.org, joro@8bytes.org, will.deacon@arm.com, robin.murphy@arm.com, virtualization@lists.linux-foundation.org, eric.auger@redhat.com, iommu@lists.linux-foundation.org, robh+dt@kernel.org, kvmarm@lists.cs.columbia.edu, bhelgaas@google.com
+To: "Michael S. Tsirkin" <mst@redhat.com>, Jean-Philippe Brucker <jean-philippe.brucker@arm.com>
+Cc: mark.rutland@arm.com, virtio-dev@lists.oasis-open.org, lorenzo.pieralisi@arm.com, tnowicki@caviumnetworks.com, devicetree@vger.kernel.org, marc.zyngier@arm.com, linux-pci@vger.kernel.org, joro@8bytes.org, will.deacon@arm.com, robin.murphy@arm.com, virtualization@lists.linux-foundation.org, iommu@lists.linux-foundation.org, robh+dt@kernel.org, kvmarm@lists.cs.columbia.edu, bhelgaas@google.com
 List-Id: virtualization@lists.linuxfoundation.org
 
-On Thu, Nov 22, 2018 at 07:37:54PM +0000, Jean-Philippe Brucker wrote:
-> Implement the virtio-iommu driver, following specification v0.9 [1].
-> 
-> Since v4 [2] I fixed the issues reported by Eric, and added Reviewed-by
-> from Eric and Rob. Thanks!
-> 
-> I changed the specification to fix one inconsistency discussed in v4.
-> That the device fills the probe buffer with zeroes is now a "SHOULD"
-> instead of a "MAY", since it's the only way for the driver to know if
-> the device wrote the status. Existing devices already do this. In
-> addition the device now needs to fill the three padding bytes at the
-> tail with zeroes.
-> 
-> You can find Linux driver and kvmtool device on branches
-> virtio-iommu/v0.9 [3]. I also lightly tested with Eric's latest QEMU
-> device [4].
+Hi Michael,
 
-I tried to get this to work on my x86 box but without
-success. Any hints? Does this have to do with the IORT table?
-I think we really should just reserve our own table ID
-and avoid the pain of trying to add things to the IORT spec.
-I'm reluctant to merge lots of code that I can't easily test.
-Again, if we found a way to push more configuration into
-virtio config space the problem space would be smaller.
+On 11/27/18 5:53 PM, Michael S. Tsirkin wrote:
+> On Thu, Nov 22, 2018 at 07:37:54PM +0000, Jean-Philippe Brucker wrote:
+>> Implement the virtio-iommu driver, following specification v0.9 [1].
+>>
+>> Since v4 [2] I fixed the issues reported by Eric, and added Reviewed-by
+>> from Eric and Rob. Thanks!
+>>
+>> I changed the specification to fix one inconsistency discussed in v4.
+>> That the device fills the probe buffer with zeroes is now a "SHOULD"
+>> instead of a "MAY", since it's the only way for the driver to know if
+>> the device wrote the status. Existing devices already do this. In
+>> addition the device now needs to fill the three padding bytes at the
+>> tail with zeroes.
+>>
+>> You can find Linux driver and kvmtool device on branches
+>> virtio-iommu/v0.9 [3]. I also lightly tested with Eric's latest QEMU
+>> device [4].
+> 
+> I tried to get this to work on my x86 box but without
+> success. Any hints? Does this have to do with the IORT table?
+> I think we really should just reserve our own table ID
+> and avoid the pain of trying to add things to the IORT spec.
+> I'm reluctant to merge lots of code that I can't easily test.
+> Again, if we found a way to push more configuration into
+> virtio config space the problem space would be smaller.
 
-> [1] Virtio-iommu specification v0.9, sources, pdf and diff from v0.8
->     git://linux-arm.org/virtio-iommu.git virtio-iommu/v0.9
->     http://jpbrucker.net/virtio-iommu/spec/v0.9/virtio-iommu-v0.9.pdf
->     http://jpbrucker.net/virtio-iommu/spec/diffs/virtio-iommu-pdf-diff-v0.8-v0.9.pdf
+You can at least test it with QEMU ARM virt in TCG mode. Then I have
+worked on the IORT integration in PC/Q35 but this is not yet functional.
+I need to debug what's wrong on guest ACPI probing. I plan to work on
+this this week.
+
+Thanks
+
+Eric
 > 
-> [2] [PATCH v4 0/7] Add virtio-iommu driver
->     https://lists.linuxfoundation.org/pipermail/iommu/2018-November/031074.html
-> 
-> [3] git://linux-arm.org/linux-jpb.git virtio-iommu/v0.9
->     git://linux-arm.org/kvmtool-jpb.git virtio-iommu/v0.9
-> 
-> [4] [RFC v9 00/17] VIRTIO-IOMMU device
->     https://www.mail-archive.com/qemu-devel@nongnu.org/msg575578.html
-> 
-> Jean-Philippe Brucker (7):
->   dt-bindings: virtio-mmio: Add IOMMU description
->   dt-bindings: virtio: Add virtio-pci-iommu node
->   of: Allow the iommu-map property to omit untranslated devices
->   PCI: OF: Initialize dev->fwnode appropriately
->   iommu: Add virtio-iommu driver
->   iommu/virtio: Add probe request
->   iommu/virtio: Add event queue
-> 
->  .../devicetree/bindings/virtio/iommu.txt      |   66 +
->  .../devicetree/bindings/virtio/mmio.txt       |   30 +
->  MAINTAINERS                                   |    7 +
->  drivers/iommu/Kconfig                         |   11 +
->  drivers/iommu/Makefile                        |    1 +
->  drivers/iommu/virtio-iommu.c                  | 1157 +++++++++++++++++
->  drivers/of/base.c                             |   10 +-
->  drivers/pci/of.c                              |    7 +
->  include/uapi/linux/virtio_ids.h               |    1 +
->  include/uapi/linux/virtio_iommu.h             |  161 +++
->  10 files changed, 1448 insertions(+), 3 deletions(-)
->  create mode 100644 Documentation/devicetree/bindings/virtio/iommu.txt
->  create mode 100644 drivers/iommu/virtio-iommu.c
->  create mode 100644 include/uapi/linux/virtio_iommu.h
-> 
-> -- 
-> 2.19.1
+>> [1] Virtio-iommu specification v0.9, sources, pdf and diff from v0.8
+>>     git://linux-arm.org/virtio-iommu.git virtio-iommu/v0.9
+>>     http://jpbrucker.net/virtio-iommu/spec/v0.9/virtio-iommu-v0.9.pdf
+>>     http://jpbrucker.net/virtio-iommu/spec/diffs/virtio-iommu-pdf-diff-v0.8-v0.9.pdf
+>>
+>> [2] [PATCH v4 0/7] Add virtio-iommu driver
+>>     https://lists.linuxfoundation.org/pipermail/iommu/2018-November/031074.html
+>>
+>> [3] git://linux-arm.org/linux-jpb.git virtio-iommu/v0.9
+>>     git://linux-arm.org/kvmtool-jpb.git virtio-iommu/v0.9
+>>
+>> [4] [RFC v9 00/17] VIRTIO-IOMMU device
+>>     https://www.mail-archive.com/qemu-devel@nongnu.org/msg575578.html
+>>
+>> Jean-Philippe Brucker (7):
+>>   dt-bindings: virtio-mmio: Add IOMMU description
+>>   dt-bindings: virtio: Add virtio-pci-iommu node
+>>   of: Allow the iommu-map property to omit untranslated devices
+>>   PCI: OF: Initialize dev->fwnode appropriately
+>>   iommu: Add virtio-iommu driver
+>>   iommu/virtio: Add probe request
+>>   iommu/virtio: Add event queue
+>>
+>>  .../devicetree/bindings/virtio/iommu.txt      |   66 +
+>>  .../devicetree/bindings/virtio/mmio.txt       |   30 +
+>>  MAINTAINERS                                   |    7 +
+>>  drivers/iommu/Kconfig                         |   11 +
+>>  drivers/iommu/Makefile                        |    1 +
+>>  drivers/iommu/virtio-iommu.c                  | 1157 +++++++++++++++++
+>>  drivers/of/base.c                             |   10 +-
+>>  drivers/pci/of.c                              |    7 +
+>>  include/uapi/linux/virtio_ids.h               |    1 +
+>>  include/uapi/linux/virtio_iommu.h             |  161 +++
+>>  10 files changed, 1448 insertions(+), 3 deletions(-)
+>>  create mode 100644 Documentation/devicetree/bindings/virtio/iommu.txt
+>>  create mode 100644 drivers/iommu/virtio-iommu.c
+>>  create mode 100644 include/uapi/linux/virtio_iommu.h
+>>
+>> -- 
+>> 2.19.1
