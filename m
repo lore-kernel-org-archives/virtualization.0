@@ -1,7 +1,8 @@
 From: Gerd Hoffmann <kraxel@redhat.com>
-Subject: [PATCH 3/6] drm/qxl: track primary bo
-Date: Wed, 28 Nov 2018 11:34:15 +0100
-Message-ID: <20181128103418.28023-4-kraxel__28493.2548799135$1543401141$gmane$org@redhat.com>
+Subject: [PATCH 2/6] drm/qxl: drop unused offset parameter from
+	qxl_io_create_primary()
+Date: Wed, 28 Nov 2018 11:34:14 +0100
+Message-ID: <20181128103418.28023-3-kraxel__22746.0496280857$1543401154$gmane$org@redhat.com>
 References: <20181128103418.28023-1-kraxel@redhat.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
@@ -21,76 +22,63 @@ To: David Airlie <airlied@redhat.com>, dri-devel@lists.freedesktop.org
 Cc: David Airlie <airlied@linux.ie>, open list <linux-kernel@vger.kernel.org>, "open list:DRM DRIVER FOR QXL VIRTUAL GPU" <virtualization@lists.linux-foundation.org>
 List-Id: virtualization@lists.linuxfoundation.org
 
-Track which bo is used as primary surface.  With that in place we don't
-need the primary_created flag any more, we can just check the primary bo
-pointer instead.
-
-Also verify we don't already have a primary surface in
-qxl_io_create_primary().
-
 Signed-off-by: Gerd Hoffmann <kraxel@redhat.com>
 ---
- drivers/gpu/drm/qxl/qxl_drv.h     | 2 +-
- drivers/gpu/drm/qxl/qxl_cmd.c     | 7 +++++--
+ drivers/gpu/drm/qxl/qxl_drv.h     | 1 -
+ drivers/gpu/drm/qxl/qxl_cmd.c     | 7 +++----
  drivers/gpu/drm/qxl/qxl_display.c | 2 +-
- 3 files changed, 7 insertions(+), 4 deletions(-)
+ 3 files changed, 4 insertions(+), 6 deletions(-)
 
 diff --git a/drivers/gpu/drm/qxl/qxl_drv.h b/drivers/gpu/drm/qxl/qxl_drv.h
-index 6b8d28a23f..92140e0d71 100644
+index 14d3fa8557..6b8d28a23f 100644
 --- a/drivers/gpu/drm/qxl/qxl_drv.h
 +++ b/drivers/gpu/drm/qxl/qxl_drv.h
-@@ -229,7 +229,7 @@ struct qxl_device {
+@@ -395,7 +395,6 @@ void qxl_update_screen(struct qxl_device *qxl);
+ /* qxl io operations (qxl_cmd.c) */
  
- 	struct qxl_ram_header *ram_header;
- 
--	unsigned int primary_created:1;
-+	struct qxl_bo *primary_bo;
- 
- 	struct qxl_memslot	*mem_slots;
- 	uint8_t		n_mem_slots;
+ void qxl_io_create_primary(struct qxl_device *qdev,
+-			   unsigned int offset,
+ 			   struct qxl_bo *bo);
+ void qxl_io_destroy_primary(struct qxl_device *qdev);
+ void qxl_io_memslot_add(struct qxl_device *qdev, uint8_t id);
 diff --git a/drivers/gpu/drm/qxl/qxl_cmd.c b/drivers/gpu/drm/qxl/qxl_cmd.c
-index f263d83775..3c606f0f7a 100644
+index dffc5093ff..f263d83775 100644
 --- a/drivers/gpu/drm/qxl/qxl_cmd.c
 +++ b/drivers/gpu/drm/qxl/qxl_cmd.c
-@@ -372,13 +372,16 @@ void qxl_io_flush_surfaces(struct qxl_device *qdev)
- void qxl_io_destroy_primary(struct qxl_device *qdev)
- {
- 	wait_for_io_cmd(qdev, 0, QXL_IO_DESTROY_PRIMARY_ASYNC);
--	qdev->primary_created = false;
-+	qdev->primary_bo = NULL;
+@@ -375,8 +375,7 @@ void qxl_io_destroy_primary(struct qxl_device *qdev)
+ 	qdev->primary_created = false;
  }
  
- void qxl_io_create_primary(struct qxl_device *qdev, struct qxl_bo *bo)
+-void qxl_io_create_primary(struct qxl_device *qdev,
+-			   unsigned int offset, struct qxl_bo *bo)
++void qxl_io_create_primary(struct qxl_device *qdev, struct qxl_bo *bo)
  {
  	struct qxl_surface_create *create;
  
-+	if (WARN_ON(qdev->primary_bo))
-+		return;
-+
- 	DRM_DEBUG_DRIVER("qdev %p, ram_header %p\n", qdev, qdev->ram_header);
- 	create = &qdev->ram_header->create_surface;
- 	create->format = bo->surf.format;
-@@ -397,7 +400,7 @@ void qxl_io_create_primary(struct qxl_device *qdev, struct qxl_bo *bo)
- 	create->type = QXL_SURF_TYPE_PRIMARY;
+@@ -387,9 +386,9 @@ void qxl_io_create_primary(struct qxl_device *qdev,
+ 	create->height = bo->surf.height;
+ 	create->stride = bo->surf.stride;
+ 	if (bo->shadow) {
+-		create->mem = qxl_bo_physical_address(qdev, bo->shadow, offset);
++		create->mem = qxl_bo_physical_address(qdev, bo->shadow, 0);
+ 	} else {
+-		create->mem = qxl_bo_physical_address(qdev, bo, offset);
++		create->mem = qxl_bo_physical_address(qdev, bo, 0);
+ 	}
  
- 	wait_for_io_cmd(qdev, 0, QXL_IO_CREATE_PRIMARY_ASYNC);
--	qdev->primary_created = true;
-+	qdev->primary_bo = bo;
- }
- 
- void qxl_io_memslot_add(struct qxl_device *qdev, uint8_t id)
+ 	DRM_DEBUG_DRIVER("mem = %llx, from %p\n", create->mem, bo->kptr);
 diff --git a/drivers/gpu/drm/qxl/qxl_display.c b/drivers/gpu/drm/qxl/qxl_display.c
-index d875cae02f..69b180735d 100644
+index 58fb2c4308..d875cae02f 100644
 --- a/drivers/gpu/drm/qxl/qxl_display.c
 +++ b/drivers/gpu/drm/qxl/qxl_display.c
-@@ -302,7 +302,7 @@ static void qxl_crtc_update_monitors_config(struct drm_crtc *crtc,
- 	struct qxl_head head;
- 	int oldcount, i = qcrtc->index;
+@@ -557,7 +557,7 @@ static void qxl_primary_atomic_update(struct drm_plane *plane,
  
--	if (!qdev->primary_created) {
-+	if (!qdev->primary_bo) {
- 		DRM_DEBUG_KMS("no primary surface, skip (%s)\n", reason);
- 		return;
- 	}
+ 	if (!bo->is_primary) {
+ 		if (!same_shadow) {
+-			qxl_io_create_primary(qdev, 0, bo);
++			qxl_io_create_primary(qdev, bo);
+ 			qxl_primary_apply_cursor(plane);
+ 		}
+ 		bo->is_primary = true;
 -- 
 2.9.3
