@@ -1,7 +1,7 @@
 From: Gerd Hoffmann <kraxel@redhat.com>
-Subject: [PATCH 1/6] drm/qxl: move qxl_primary_apply_cursor to correct place
-Date: Wed, 28 Nov 2018 11:34:13 +0100
-Message-ID: <20181128103418.28023-2-kraxel__39896.3888329037$1543401170$gmane$org@redhat.com>
+Subject: [PATCH 4/6] drm/qxl: use shadow bo directly
+Date: Wed, 28 Nov 2018 11:34:16 +0100
+Message-ID: <20181128103418.28023-5-kraxel__22284.4447278932$1543401184$gmane$org@redhat.com>
 References: <20181128103418.28023-1-kraxel@redhat.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
@@ -21,45 +21,121 @@ To: David Airlie <airlied@redhat.com>, dri-devel@lists.freedesktop.org
 Cc: David Airlie <airlied@linux.ie>, open list <linux-kernel@vger.kernel.org>, "open list:DRM DRIVER FOR QXL VIRTUAL GPU" <virtualization@lists.linux-foundation.org>
 List-Id: virtualization@lists.linuxfoundation.org
 
-The cursor must be set again after creating the primary surface.
-Also drop the error message.
+Pass the shadow bo to qxl_io_create_primary() instead of expecting
+qxl_io_create_primary to check bo->shadow.  Set is_primary flag on the
+shadow bo.  Move the is_primary tracking into qxl_io_create_primary()
+and qxl_io_destroy_primary() functions.
+
+That simplifies primary surface tracking and the workflow in
+qxl_primary_atomic_update().
 
 Signed-off-by: Gerd Hoffmann <kraxel@redhat.com>
 ---
- drivers/gpu/drm/qxl/qxl_display.c | 10 +++-------
- 1 file changed, 3 insertions(+), 7 deletions(-)
+ drivers/gpu/drm/qxl/qxl_cmd.c     |  8 +++-----
+ drivers/gpu/drm/qxl/qxl_display.c | 29 ++++++++---------------------
+ 2 files changed, 11 insertions(+), 26 deletions(-)
 
+diff --git a/drivers/gpu/drm/qxl/qxl_cmd.c b/drivers/gpu/drm/qxl/qxl_cmd.c
+index 3c606f0f7a..3957e70ca0 100644
+--- a/drivers/gpu/drm/qxl/qxl_cmd.c
++++ b/drivers/gpu/drm/qxl/qxl_cmd.c
+@@ -372,6 +372,7 @@ void qxl_io_flush_surfaces(struct qxl_device *qdev)
+ void qxl_io_destroy_primary(struct qxl_device *qdev)
+ {
+ 	wait_for_io_cmd(qdev, 0, QXL_IO_DESTROY_PRIMARY_ASYNC);
++	qdev->primary_bo->is_primary = false;
+ 	qdev->primary_bo = NULL;
+ }
+ 
+@@ -388,11 +389,7 @@ void qxl_io_create_primary(struct qxl_device *qdev, struct qxl_bo *bo)
+ 	create->width = bo->surf.width;
+ 	create->height = bo->surf.height;
+ 	create->stride = bo->surf.stride;
+-	if (bo->shadow) {
+-		create->mem = qxl_bo_physical_address(qdev, bo->shadow, 0);
+-	} else {
+-		create->mem = qxl_bo_physical_address(qdev, bo, 0);
+-	}
++	create->mem = qxl_bo_physical_address(qdev, bo, 0);
+ 
+ 	DRM_DEBUG_DRIVER("mem = %llx, from %p\n", create->mem, bo->kptr);
+ 
+@@ -401,6 +398,7 @@ void qxl_io_create_primary(struct qxl_device *qdev, struct qxl_bo *bo)
+ 
+ 	wait_for_io_cmd(qdev, 0, QXL_IO_CREATE_PRIMARY_ASYNC);
+ 	qdev->primary_bo = bo;
++	qdev->primary_bo->is_primary = true;
+ }
+ 
+ void qxl_io_memslot_add(struct qxl_device *qdev, uint8_t id)
 diff --git a/drivers/gpu/drm/qxl/qxl_display.c b/drivers/gpu/drm/qxl/qxl_display.c
-index ce0b9c40fc..58fb2c4308 100644
+index 69b180735d..472df00c02 100644
 --- a/drivers/gpu/drm/qxl/qxl_display.c
 +++ b/drivers/gpu/drm/qxl/qxl_display.c
-@@ -533,7 +533,6 @@ static void qxl_primary_atomic_update(struct drm_plane *plane,
+@@ -526,14 +526,13 @@ static void qxl_primary_atomic_update(struct drm_plane *plane,
+ {
+ 	struct qxl_device *qdev = plane->dev->dev_private;
+ 	struct qxl_bo *bo = gem_to_qxl_bo(plane->state->fb->obj[0]);
+-	struct qxl_bo *bo_old;
++	struct qxl_bo *bo_old, *primary;
+ 	struct drm_clip_rect norect = {
+ 	    .x1 = 0,
+ 	    .y1 = 0,
  	    .x2 = plane->state->fb->width,
  	    .y2 = plane->state->fb->height
  	};
--	int ret;
- 	bool same_shadow = false;
+-	bool same_shadow = false;
  
  	if (old_state->fb) {
-@@ -554,16 +553,13 @@ static void qxl_primary_atomic_update(struct drm_plane *plane,
- 		if (!same_shadow)
- 			qxl_io_destroy_primary(qdev);
- 		bo_old->is_primary = false;
+ 		bo_old = gem_to_qxl_bo(old_state->fb->obj[0]);
+@@ -541,26 +540,13 @@ static void qxl_primary_atomic_update(struct drm_plane *plane,
+ 		bo_old = NULL;
+ 	}
+ 
+-	if (bo == bo_old)
+-		return;
++	primary = bo->shadow ? bo->shadow : bo;
+ 
+-	if (bo_old && bo_old->shadow && bo->shadow &&
+-	    bo_old->shadow == bo->shadow) {
+-		same_shadow = true;
+-	}
 -
--		ret = qxl_primary_apply_cursor(plane);
--		if (ret)
--			DRM_ERROR(
--			"could not set cursor after creating primary");
- 	}
- 
- 	if (!bo->is_primary) {
+-	if (bo_old && bo_old->is_primary) {
 -		if (!same_shadow)
-+		if (!same_shadow) {
- 			qxl_io_create_primary(qdev, 0, bo);
-+			qxl_primary_apply_cursor(plane);
-+		}
- 		bo->is_primary = true;
++	if (!primary->is_primary) {
++		if (qdev->primary_bo)
+ 			qxl_io_destroy_primary(qdev);
+-		bo_old->is_primary = false;
+-	}
+-
+-	if (!bo->is_primary) {
+-		if (!same_shadow) {
+-			qxl_io_create_primary(qdev, bo);
+-			qxl_primary_apply_cursor(plane);
+-		}
+-		bo->is_primary = true;
++		qxl_io_create_primary(qdev, primary);
++		qxl_primary_apply_cursor(plane);
  	}
  
+ 	qxl_draw_dirty_fb(qdev, plane->state->fb, bo, 0, 0, &norect, 1, 1);
+@@ -756,6 +742,7 @@ static int qxl_plane_prepare_fb(struct drm_plane *plane,
+ 			qxl_bo_create(qdev, user_bo->gem_base.size,
+ 				      true, true, QXL_GEM_DOMAIN_VRAM, NULL,
+ 				      &user_bo->shadow);
++			user_bo->shadow->surf = user_bo->surf;
+ 		}
+ 	}
+ 
+@@ -784,7 +771,7 @@ static void qxl_plane_cleanup_fb(struct drm_plane *plane,
+ 	user_bo = gem_to_qxl_bo(obj);
+ 	qxl_bo_unpin(user_bo);
+ 
+-	if (user_bo->shadow && !user_bo->is_primary) {
++	if (user_bo->shadow && !user_bo->shadow->is_primary) {
+ 		drm_gem_object_put_unlocked(&user_bo->shadow->gem_base);
+ 		user_bo->shadow = NULL;
+ 	}
 -- 
 2.9.3
