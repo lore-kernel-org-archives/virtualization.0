@@ -1,19 +1,13 @@
-From: "Michael S. Tsirkin" <mst@redhat.com>
-Subject: Re: [PATCH v5 5/7] iommu: Add virtio-iommu driver
-Date: Tue, 27 Nov 2018 13:53:17 -0500
-Message-ID: <20181127131455-mutt-send-email-mst__26012.4501809061$1543344695$gmane$org@kernel.org>
-References: <20181122193801.50510-1-jean-philippe.brucker@arm.com>
-	<20181122193801.50510-6-jean-philippe.brucker@arm.com>
-	<20181123165742-mutt-send-email-mst@kernel.org>
-	<fd221210-7e12-1d15-0c80-52a761f6893d@arm.com>
-	<20181127125424-mutt-send-email-mst@kernel.org>
-	<ef97313f-4795-9537-e0b8-8bf6751db6a6@arm.com>
+From: Gerd Hoffmann <kraxel@redhat.com>
+Subject: [PATCH 3/6] drm/qxl: track primary bo
+Date: Wed, 28 Nov 2018 11:34:15 +0100
+Message-ID: <20181128103418.28023-4-kraxel__28493.2548799135$1543401141$gmane$org@redhat.com>
+References: <20181128103418.28023-1-kraxel@redhat.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-Content-Disposition: inline
-In-Reply-To: <ef97313f-4795-9537-e0b8-8bf6751db6a6@arm.com>
+In-Reply-To: <20181128103418.28023-1-kraxel@redhat.com>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -23,94 +17,80 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Jean-Philippe Brucker <jean-philippe.brucker@arm.com>
-Cc: mark.rutland@arm.com, virtio-dev@lists.oasis-open.org, lorenzo.pieralisi@arm.com, tnowicki@caviumnetworks.com, devicetree@vger.kernel.org, marc.zyngier@arm.com, linux-pci@vger.kernel.org, joro@8bytes.org, will.deacon@arm.com, virtualization@lists.linux-foundation.org, eric.auger@redhat.com, iommu@lists.linux-foundation.org, robh+dt@kernel.org, bhelgaas@google.com, robin.murphy@arm.com, kvmarm@lists.cs.columbia.edu
+To: David Airlie <airlied@redhat.com>, dri-devel@lists.freedesktop.org
+Cc: David Airlie <airlied@linux.ie>, open list <linux-kernel@vger.kernel.org>, "open list:DRM DRIVER FOR QXL VIRTUAL GPU" <virtualization@lists.linux-foundation.org>
 List-Id: virtualization@lists.linuxfoundation.org
 
-On Tue, Nov 27, 2018 at 06:10:46PM +0000, Jean-Philippe Brucker wrote:
-> On 27/11/2018 18:04, Michael S. Tsirkin wrote:
-> > On Tue, Nov 27, 2018 at 05:50:50PM +0000, Jean-Philippe Brucker wrote:
-> >> On 23/11/2018 22:02, Michael S. Tsirkin wrote:
-> >>>> +/*
-> >>>> + * __viommu_sync_req - Complete all in-flight requests
-> >>>> + *
-> >>>> + * Wait for all added requests to complete. When this function returns, all
-> >>>> + * requests that were in-flight at the time of the call have completed.
-> >>>> + */
-> >>>> +static int __viommu_sync_req(struct viommu_dev *viommu)
-> >>>> +{
-> >>>> +	int ret = 0;
-> >>>> +	unsigned int len;
-> >>>> +	size_t write_len;
-> >>>> +	struct viommu_request *req;
-> >>>> +	struct virtqueue *vq = viommu->vqs[VIOMMU_REQUEST_VQ];
-> >>>> +
-> >>>> +	assert_spin_locked(&viommu->request_lock);
-> >>>> +
-> >>>> +	virtqueue_kick(vq);
-> >>>> +
-> >>>> +	while (!list_empty(&viommu->requests)) {
-> >>>> +		len = 0;
-> >>>> +		req = virtqueue_get_buf(vq, &len);
-> >>>> +		if (!req)
-> >>>> +			continue;
-> >>>> +
-> >>>> +		if (!len)
-> >>>> +			viommu_set_req_status(req->buf, req->len,
-> >>>> +					      VIRTIO_IOMMU_S_IOERR);
-> >>>> +
-> >>>> +		write_len = req->len - req->write_offset;
-> >>>> +		if (req->writeback && len == write_len)
-> >>>> +			memcpy(req->writeback, req->buf + req->write_offset,
-> >>>> +			       write_len);
-> >>>> +
-> >>>> +		list_del(&req->list);
-> >>>> +		kfree(req);
-> >>>> +	}
-> >>>
-> >>> I didn't notice this in the past but it seems this will spin
-> >>> with interrupts disabled until host handles the request.
-> >>> Please do not do this - host execution can be another
-> >>> task that needs the same host CPU. This will then disable
-> >>> interrupts for a very very long time.
-> >>
-> >> In the guest yes, but that doesn't prevent the host from running another
-> >> task right?
-> > 
-> > Doesn't prevent it but it will delay it significantly
-> > until scheduler decides to kick the VCPU task out.
-> > 
-> >> My tests run fine when QEMU is bound to a single CPU, even
-> >> though vcpu and viommu run in different threads
-> >>
-> >>> What to do then? Queue in software and wake up task.
-> >>
-> >> Unfortunately I can't do anything here, because IOMMU drivers can't
-> >> sleep in the iommu_map() or iommu_unmap() path.
-> >>
-> >> The problem is the same
-> >> for all IOMMU drivers. That's because the DMA API allows drivers to call
-> >> some functions with interrupts disabled. For example
-> >> Documentation/DMA-API-HOWTO.txt allows dma_alloc_coherent() and
-> >> dma_unmap_single() to be called in interrupt context.
-> > 
-> > In fact I don't really understand how it's supposed to
-> > work at all: you only sync when ring is full.
-> > So host may not have seen your map request if ring
-> > is not full.
-> > Why is it safe to use the address with a device then?
-> 
-> viommu_map() calls viommu_send_req_sync(), which does the sync
-> immediately after adding the MAP request.
-> 
-> Thanks,
-> Jean
+Track which bo is used as primary surface.  With that in place we don't
+need the primary_created flag any more, we can just check the primary bo
+pointer instead.
 
-I see. So it happens on every request. Maybe you should clear
-event index then. This way if exits are disabled you know that
-host is processing the ring. Event index is good for when
-you don't care when it will be processed, you just want
-to reduce number of exits as much as possible.
+Also verify we don't already have a primary surface in
+qxl_io_create_primary().
 
+Signed-off-by: Gerd Hoffmann <kraxel@redhat.com>
+---
+ drivers/gpu/drm/qxl/qxl_drv.h     | 2 +-
+ drivers/gpu/drm/qxl/qxl_cmd.c     | 7 +++++--
+ drivers/gpu/drm/qxl/qxl_display.c | 2 +-
+ 3 files changed, 7 insertions(+), 4 deletions(-)
+
+diff --git a/drivers/gpu/drm/qxl/qxl_drv.h b/drivers/gpu/drm/qxl/qxl_drv.h
+index 6b8d28a23f..92140e0d71 100644
+--- a/drivers/gpu/drm/qxl/qxl_drv.h
++++ b/drivers/gpu/drm/qxl/qxl_drv.h
+@@ -229,7 +229,7 @@ struct qxl_device {
+ 
+ 	struct qxl_ram_header *ram_header;
+ 
+-	unsigned int primary_created:1;
++	struct qxl_bo *primary_bo;
+ 
+ 	struct qxl_memslot	*mem_slots;
+ 	uint8_t		n_mem_slots;
+diff --git a/drivers/gpu/drm/qxl/qxl_cmd.c b/drivers/gpu/drm/qxl/qxl_cmd.c
+index f263d83775..3c606f0f7a 100644
+--- a/drivers/gpu/drm/qxl/qxl_cmd.c
++++ b/drivers/gpu/drm/qxl/qxl_cmd.c
+@@ -372,13 +372,16 @@ void qxl_io_flush_surfaces(struct qxl_device *qdev)
+ void qxl_io_destroy_primary(struct qxl_device *qdev)
+ {
+ 	wait_for_io_cmd(qdev, 0, QXL_IO_DESTROY_PRIMARY_ASYNC);
+-	qdev->primary_created = false;
++	qdev->primary_bo = NULL;
+ }
+ 
+ void qxl_io_create_primary(struct qxl_device *qdev, struct qxl_bo *bo)
+ {
+ 	struct qxl_surface_create *create;
+ 
++	if (WARN_ON(qdev->primary_bo))
++		return;
++
+ 	DRM_DEBUG_DRIVER("qdev %p, ram_header %p\n", qdev, qdev->ram_header);
+ 	create = &qdev->ram_header->create_surface;
+ 	create->format = bo->surf.format;
+@@ -397,7 +400,7 @@ void qxl_io_create_primary(struct qxl_device *qdev, struct qxl_bo *bo)
+ 	create->type = QXL_SURF_TYPE_PRIMARY;
+ 
+ 	wait_for_io_cmd(qdev, 0, QXL_IO_CREATE_PRIMARY_ASYNC);
+-	qdev->primary_created = true;
++	qdev->primary_bo = bo;
+ }
+ 
+ void qxl_io_memslot_add(struct qxl_device *qdev, uint8_t id)
+diff --git a/drivers/gpu/drm/qxl/qxl_display.c b/drivers/gpu/drm/qxl/qxl_display.c
+index d875cae02f..69b180735d 100644
+--- a/drivers/gpu/drm/qxl/qxl_display.c
++++ b/drivers/gpu/drm/qxl/qxl_display.c
+@@ -302,7 +302,7 @@ static void qxl_crtc_update_monitors_config(struct drm_crtc *crtc,
+ 	struct qxl_head head;
+ 	int oldcount, i = qcrtc->index;
+ 
+-	if (!qdev->primary_created) {
++	if (!qdev->primary_bo) {
+ 		DRM_DEBUG_KMS("no primary surface, skip (%s)\n", reason);
+ 		return;
+ 	}
 -- 
-MST
+2.9.3
