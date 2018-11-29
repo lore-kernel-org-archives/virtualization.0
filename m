@@ -1,25 +1,16 @@
-From: Borislav Petkov via Virtualization
-	<virtualization@lists.linux-foundation.org>
-Subject: Re: PROPOSAL: Extend inline asm syntax with size spec
-Date: Thu, 29 Nov 2018 14:16:11 +0100
-Message-ID: <20181129131611.GC3070__27428.7689281211$1543497256$gmane$org@nazgul.tnic>
-References: <20181003213100.189959-1-namit@vmware.com>
-	<20181007091805.GA30687@zn.tnic>
-	<20181007132228.GJ29268@gate.crashing.org>
-	<alpine.LSU.2.21.1810071534220.7867@wotan.suse.de>
-	<20181008073128.GL29268@gate.crashing.org>
-	<alpine.LSU.2.20.1810081105350.16707@zhemvz.fhfr.qr>
-	<20181009145330.GT29268@gate.crashing.org>
-	<CAK7LNARmrdtyE7JRAdJH_zbfvD_cej+TGLh+5KfT20o538KUcA@mail.gmail.com>
-	<20181129130718.GA3070@nazgul.tnic>
-	<alpine.LSU.2.20.1811291408400.1827@zhemvz.fhfr.qr>
-Reply-To: Borislav Petkov <bp@alien8.de>
+From: "Michael S. Tsirkin" <mst@redhat.com>
+Subject: Re: [RFC] Discuss about an new idea "Vsock over Virtio-net"
+Date: Thu, 29 Nov 2018 09:00:51 -0500
+Message-ID: <20181129085049-mutt-send-email-mst__32294.6657929153$1543499941$gmane$org@kernel.org>
+References: <5BECEE53.7090408@huawei.com>
+	<20181115015547-mutt-send-email-mst@kernel.org>
+	<61d57505-7ff6-23c6-d26c-6a0062e08445@redhat.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset="utf-8"
+Content-Transfer-Encoding: base64
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
 Content-Disposition: inline
-In-Reply-To: <alpine.LSU.2.20.1811291408400.1827@zhemvz.fhfr.qr>
+In-Reply-To: <61d57505-7ff6-23c6-d26c-6a0062e08445@redhat.com>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -29,28 +20,43 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Richard Biener <rguenther@suse.de>
-Cc: Kate Stewart <kstewart@linuxfoundation.org>, "Peter Zijlstra (Intel)" <peterz@infradead.org>, Christopher Li <sparse@chrisli.org>, virtualization@lists.linux-foundation.org, Masahiro Yamada <yamada.masahiro@socionext.com>, Nadav Amit <namit@vmware.com>, Jan Beulich <JBeulich@suse.com>, "H. Peter Anvin" <hpa@zytor.com>, Sam Ravnborg <sam@ravnborg.org>, Thomas Gleixner <tglx@linutronix.de>, X86 ML <x86@kernel.org>, linux-sparse@vger.kernel.org, Ingo Molnar <mingo@redhat.com>, linux-xtensa@linux-xtensa.org, Kees Cook <keescook@chromium.org>, Segher Boessenkool <segher@kernel.crashing.org>, Chris Zankel <chris@zankel.net>, matz@suse.de, Josh Poimboeuf <jpoimboe@redhat.com>, Alok Kataria <akataria@vmware.com>, Juergen Gross <jgross@suse.com>, gcc@gcc.gnu.org, Max Filippov <jcmvbkbc@gmail.com>, Greg Kroah-Hartman <gregkh@linuxfoundation.org>Linux Kernel Mailing List <li>
+To: Jason Wang <jasowang@redhat.com>
+Cc: kvm@vger.kernel.org, virtualization@lists.linux-foundation.org, stefanha@redhat.com, netdev@vger.kernel.org
 List-Id: virtualization@lists.linuxfoundation.org
 
-On Thu, Nov 29, 2018 at 02:09:25PM +0100, Richard Biener wrote:
-> I'd be not opposed to backporting the asm inline support.
-
-Even better! :-)
-
-> Of course we still have to be happy with it and install the patch ;)
-> 
-> Are you (kernel folks) happy with asm inline ()?
-
-Yes, I think we are:
-
-https://lkml.kernel.org/r/20181031125526.GA13219@hirez.programming.kicks-ass.net
-
-Thx.
-
--- 
-Regards/Gruss,
-    Boris.
-
-ECO tip #101: Trim your mails when you reply.
---
+T24gVGh1LCBOb3YgMTUsIDIwMTggYXQgMDQ6MjQ6MzhQTSArMDgwMCwgSmFzb24gV2FuZyB3cm90
+ZToKPiAKPiBPbiAyMDE4LzExLzE1IOS4i+WNiDM6MDQsIE1pY2hhZWwgUy4gVHNpcmtpbiB3cm90
+ZToKPiA+IE9uIFRodSwgTm92IDE1LCAyMDE4IGF0IDExOjU2OjAzQU0gKzA4MDAsIGppYW5neWl3
+ZW4gd3JvdGU6Cj4gPiA+IEhpIFN0ZWZhbiwgTWljaGFlbCwgSmFzb24gYW5kIGV2ZXJ5b25lLAo+
+ID4gPiAKPiA+ID4gU2V2ZXJhbCBkYXlzIGFnbywgSSBkaXNjdXNzZWQgd2l0aCBqYXNvbiBhYm91
+dCAiVnNvY2sgb3ZlciBWaXJ0aW8tbmV0Ii4KPiA+ID4gVGhpcyBpZGVhIGhhcyB0d28gYWR2YW50
+YWdlczoKPiA+ID4gRmlyc3QsIGl0IGNhbiB1c2UgbWFueSBncmVhdCBmZWF0dXJlcyBvZiB2aXJ0
+aW8tbmV0LCBsaWtlIGJhdGNoaW5nLAo+ID4gPiBtZXJnZWFibGUgcnggYnVmZmVyIGFuZCBtdWx0
+aXF1ZXVlLCBldGMuCj4gPiA+IFNlY29uZCwgaXQgY2FuIHJlZHVjZSBtYW55IGR1cGxpY2F0ZSBj
+b2RlcyBhbmQgbWFrZSBpdCBlYXN5IHRvIGJlCj4gPiA+IG1haW50YWluZWQuCj4gPiBJJ20gbm90
+IHN1cmUgSSBnZXQgdGhlIG1vdGl2YXRpb24uIFdoaWNoIGZlYXR1cmVzIG9mCj4gPiB2aXJ0aW8g
+bmV0IGFyZSByZWxldmFudCB0byB2c29jaz8KPiAKPiAKPiBWc29jayBpcyBqdXN0IGEgTDIgKGFu
+ZCBhYm92ZSkgcHJvdG9jb2wgZnJvbSB0aGUgdmlldyBvZiB0aGUgZGV2aWNlLgoKSSBkb24ndCBi
+ZWxpZXZlIHNvLiBJIHRoaW5rIHZpcnRpby12c29jayBvcGVyYXRlcyBhdCBhIHRyYW5zcG9ydCBs
+ZXZlbC4KVGhlcmUgaXMgaW4gdGhlb3J5IGEgYml0IG9mIG5ldHdvcmsgbGV2ZWwgYnV0IHdlIGRv
+bid0IHJlYWxseSBpbXBsZW1lbnQKaXQgYXMgaXQncyBvbmx5IGhvc3QgdG8gZ3Vlc3QuICBJIGFt
+IG5vdCBhd2FyZSBvZiBhbnkgZGF0YSBsaW5rCmZ1bmN0aW9uYWxpdHkgbiB2aXJ0aW8tdnNvY2su
+IHZpcnRpby12c29jayBwcm92aWRlcyBzZXJ2aWNlcyBzdWNoIGFzCmNvbm5lY3Rpb24tb3JpZW50
+ZWQgY29tbXVuaWNhdGlvbiwgcmVsaWFiaWxpdHksIGZsb3cgY29udHJvbCBhbmQKbXVsdGlwbGV4
+aW5nLgoKPiBTbyBJCj4gdGhpbmsgd2Ugc2hvdWxkIGFuc3dlciB0aGUgcXVlc3Rpb24gd2h5IHdl
+IG5lZWQgdHdvIGRpZmZlcmVudCBwYXRocyBmb3IKPiBuZXR3b3JraW5nIHRyYWZmaWM/IE9yIHdo
+YXQgaXMgdGhlIGZ1bmRhbWVudGFsIHJlYXNvbiB0aGF0IG1ha2VzIHZzb2NrIGRvZXMKPiBub3Qg
+Z28gZm9yIHZpcnRpby1uZXQ/CgpTbyB2aXJ0aW8tdnNvY2sgZW5zdXJlcyByZWxpYWJpbGl0eS4g
+SWYgeW91IHdhbnQgdG8gY29tcGFyZSBpdCB3aXRoCnNvbWV0aGluZyB0aGF0IHdvdWxkIGJlIFRD
+UCBvciBRVUlDLiAgVGhlIGZ1bmRhbWVudGFsIGRpZmZlcmVuY2UgYmV0d2Vlbgp2aXJ0aW8tdnNv
+Y2sgYW5kIGUuZy4gVENQIGlzIHRoYXQgVENQIG9wZXJhdGVzIGluIGEgcGFja2V0IGxvc3MgZW52
+aXJvbm1lbnQuClNvIHRoZXkgYXJlIHVzaW5nIHRpbWVycyBmb3IgcmVsaWFiaWxpdHksIGFuZCBy
+ZWNlaXZlciBpcyBhbHdheXMgZnJlZSB0bwpkaXNjYXJkIGFueSB1bmFja2VkIGRhdGEuCgoKPiBJ
+IGFncmVlIHRoZXkgY291bGQgYmUgZGlmZmVyZW50IHR5cGUgb2YgZGV2aWNlcyBidXQgY29kZXMg
+Y291bGQgYmUgc2hhcmVkIGluCj4gYm90aCBndWVzdCBhbmQgaG9zdCAob3IgZXZlbiBxZW11KSBm
+b3Igbm90IGR1cGxpY2F0aW5nIGZlYXR1cmVzKGJ1Z3MpLgo+IAo+IFRoYW5rcwo+IAo+IAo+ID4g
+VGhlIG9uZXMgdGhhdCB5b3UgbWVudGlvbgo+ID4gYWxsIHNlZW0gdG8gYmUgbW9zdGx5IG9mIHVz
+ZSB0byB0aGUgbmV0d29ya2luZyBzdGFjay4KPiA+IAo+ID4gCl9fX19fX19fX19fX19fX19fX19f
+X19fX19fX19fX19fX19fX19fX19fX19fX19fClZpcnR1YWxpemF0aW9uIG1haWxpbmcgbGlzdApW
+aXJ0dWFsaXphdGlvbkBsaXN0cy5saW51eC1mb3VuZGF0aW9uLm9yZwpodHRwczovL2xpc3RzLmxp
+bnV4Zm91bmRhdGlvbi5vcmcvbWFpbG1hbi9saXN0aW5mby92aXJ0dWFsaXphdGlvbg==
