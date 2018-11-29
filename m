@@ -1,13 +1,15 @@
-From: Cornelia Huck <cohuck@redhat.com>
-Subject: Re: [PULL 0/2] virtio-ccw fixes
-Date: Thu, 29 Nov 2018 15:56:48 +0100
-Message-ID: <20181129155648.440743bb.cohuck@redhat.com>
-References: <20180926164830.8435-1-cohuck@redhat.com>
+From: Jean-Philippe Brucker <jean-philippe.brucker@arm.com>
+Subject: Re: [REBASE PATCH net-next v9 1/4] net: vhost: lock the vqs one by one
+Date: Thu, 29 Nov 2018 19:28:27 +0000
+Message-ID: <f0ebc0b1-e559-5966-dbcb-800067c3260e__11627.408307004$1543519608$gmane$org@arm.com>
+References: <1537879012-20859-1-git-send-email-xiangxia.m.yue@gmail.com>
+	<1537879012-20859-2-git-send-email-xiangxia.m.yue@gmail.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <20180926164830.8435-1-cohuck@redhat.com>
+In-Reply-To: <1537879012-20859-2-git-send-email-xiangxia.m.yue@gmail.com>
+Content-Language: en-US
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -17,36 +19,104 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: "Michael S . Tsirkin" <mst@redhat.com>
-Cc: Halil Pasic <pasic@linux.ibm.com>, linux-s390@vger.kernel.org, kvm@vger.kernel.org, virtualization@lists.linux-foundation.org
+To: xiangxia.m.yue@gmail.com, jasowang@redhat.com, mst@redhat.com, makita.toshiaki@lab.ntt.co.jp, davem@davemloft.net
+Cc: netdev@vger.kernel.org, virtualization@lists.linux-foundation.org
 List-Id: virtualization@lists.linuxfoundation.org
 
-On Wed, 26 Sep 2018 18:48:28 +0200
-Cornelia Huck <cohuck@redhat.com> wrote:
+Hi,
 
-> The following changes since commit 8c0f9f5b309d627182d5da72a69246f58bde1026:
+On 25/09/2018 13:36, xiangxia.m.yue@gmail.com wrote:
+> From: Tonghao Zhang <xiangxia.m.yue@gmail.com>
 > 
->   Revert "uapi/linux/keyctl.h: don't use C++ reserved keyword as a struct member name" (2018-09-25 13:28:58 +0200)
+> This patch changes the way that lock all vqs
+> at the same, to lock them one by one. It will
+> be used for next patch to avoid the deadlock.
 > 
-> are available in the Git repository at:
+> Signed-off-by: Tonghao Zhang <xiangxia.m.yue@gmail.com>
+> Acked-by: Jason Wang <jasowang@redhat.com>
+> Signed-off-by: Jason Wang <jasowang@redhat.com>
+> ---
+>  drivers/vhost/vhost.c | 24 +++++++-----------------
+>  1 file changed, 7 insertions(+), 17 deletions(-)
 > 
->   git://git.kernel.org/pub/scm/linux/kernel/git/kvms390/linux.git tags/virtio-ccw-20180926
-> 
-> for you to fetch changes up to 1fd7ccf82385b3b14e4b3f009a82ada17ddc1e6f:
-> 
->   virtio/s390: fix race in ccw_io_helper() (2018-09-25 15:29:10 +0200)
-> 
-> ----------------------------------------------------------------
-> Two patches fixing races in the virtio-ccw driver.
-> 
-> ----------------------------------------------------------------
-> 
-> Halil Pasic (2):
->   virtio/s390: avoid race on vcdev->config
->   virtio/s390: fix race in ccw_io_helper()
-> 
->  drivers/s390/virtio/virtio_ccw.c | 17 ++++++++++++++---
->  1 file changed, 14 insertions(+), 3 deletions(-)
-> 
+> diff --git a/drivers/vhost/vhost.c b/drivers/vhost/vhost.c
+> index b13c6b4..f52008b 100644
+> --- a/drivers/vhost/vhost.c
+> +++ b/drivers/vhost/vhost.c
+> @@ -294,8 +294,11 @@ static void vhost_vq_meta_reset(struct vhost_dev *d)
+>  {
+>  	int i;
+>  
+> -	for (i = 0; i < d->nvqs; ++i)
+> +	for (i = 0; i < d->nvqs; ++i) {
+> +		mutex_lock(&d->vqs[i]->mutex);
+>  		__vhost_vq_meta_reset(d->vqs[i]);
+> +		mutex_unlock(&d->vqs[i]->mutex);
+> +	}
+>  }
+>  
+>  static void vhost_vq_reset(struct vhost_dev *dev,
+> @@ -891,20 +894,6 @@ static inline void __user *__vhost_get_user(struct vhost_virtqueue *vq,
+>  #define vhost_get_used(vq, x, ptr) \
+>  	vhost_get_user(vq, x, ptr, VHOST_ADDR_USED)
+>  
+> -static void vhost_dev_lock_vqs(struct vhost_dev *d)
+> -{
+> -	int i = 0;
+> -	for (i = 0; i < d->nvqs; ++i)
+> -		mutex_lock_nested(&d->vqs[i]->mutex, i);
+> -}
+> -
+> -static void vhost_dev_unlock_vqs(struct vhost_dev *d)
+> -{
+> -	int i = 0;
+> -	for (i = 0; i < d->nvqs; ++i)
+> -		mutex_unlock(&d->vqs[i]->mutex);
+> -}
+> -
+>  static int vhost_new_umem_range(struct vhost_umem *umem,
+>  				u64 start, u64 size, u64 end,
+>  				u64 userspace_addr, int perm)
+> @@ -954,7 +943,10 @@ static void vhost_iotlb_notify_vq(struct vhost_dev *d,
+>  		if (msg->iova <= vq_msg->iova &&
+>  		    msg->iova + msg->size - 1 >= vq_msg->iova &&
+>  		    vq_msg->type == VHOST_IOTLB_MISS) {
+> +			mutex_lock(&node->vq->mutex);
 
-Ping. I don't see these patches in master :(
+This seems to introduce a deadlock (and sleep-in-atomic): the vq->mutex
+is taken while the IOTLB spinlock is held (taken earlier in
+vhost_iotlb_notify_vq()). On the vhost_iotlb_miss() path, the IOTLB
+spinlock is taken while the vq->mutex is held.
+
+I'm not sure how to fix it. Given that we're holding dev->mutex, that
+vq->poll only seems to be modified under dev->mutex, and assuming that
+vhost_poll_queue(vq->poll) can be called concurrently, is it safe to
+simply not take vq->mutex here?
+
+Thanks,
+Jean
+
+
+>  			vhost_poll_queue(&node->vq->poll);
+> +			mutex_unlock(&node->vq->mutex);
+> +
+>  			list_del(&node->node);
+>  			kfree(node);
+>  		}
+> @@ -986,7 +978,6 @@ static int vhost_process_iotlb_msg(struct vhost_dev *dev,
+>  	int ret = 0;
+>  
+>  	mutex_lock(&dev->mutex);
+> -	vhost_dev_lock_vqs(dev);
+>  	switch (msg->type) {
+>  	case VHOST_IOTLB_UPDATE:
+>  		if (!dev->iotlb) {
+> @@ -1020,7 +1011,6 @@ static int vhost_process_iotlb_msg(struct vhost_dev *dev,
+>  		break;
+>  	}
+>  
+> -	vhost_dev_unlock_vqs(dev);
+>  	mutex_unlock(&dev->mutex);
+>  
+>  	return ret;
+> 
