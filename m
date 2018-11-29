@@ -1,19 +1,18 @@
-From: Sebastian Andrzej Siewior <sebastian@breakpoint.cc>
-Subject: Re: Bug#912087: reassign to systemd #912087 | openssh-server: Slow
-	startup after the upgrade to 7.9p1
-Date: Thu, 29 Nov 2018 14:54:48 +0100
-Message-ID: <20181129135446.jsrckfmy2urcsb5g__26827.2982015789$1543502267$gmane$org@breakpoint.cc>
-References: <20181126230521.twugjqastskgmolx@breakpoint.cc>
-	<154070458824.7875.5742628083142648872.reportbug@mitsos>
-	<68d6a356-bb0c-d879-4de3-db7a632bc162@debian.org>
-	<20181127130935.4vh3pipxupzr2n6m@breakpoint.cc>
-	<CAA7U3HN8aV-BrYGS4XNgXsfAL8eFcxdjReM-5VZOSnJntVanJw@mail.gmail.com>
+From: Daniel Vetter <daniel@ffwll.ch>
+Subject: Re: [PATCH 0/9] drm: remove deprecated functions
+Date: Thu, 29 Nov 2018 15:55:28 +0100
+Message-ID: <CAKMK7uF9Q-LySAXg=kT9B-ueFR9qhr_B0N3y1g1D_OTc-+Vbdg__45012.5804324218$1543503226$gmane$org@mail.gmail.com>
+References: <20181115221634.22715-1-greenfoo@gluegarage.com>
+	<CACRpkdZmTSo02yQeU=qe9WyJMXEq76CNmc2kkFEHuwdo=HKPJw@mail.gmail.com>
+	<20181121094233.GN4266@phenom.ffwll.local>
+	<CACRpkdaXUFwSiQnMqv2WBXr2ytn7kx3CeAuamkj9ZYU1C6bpnw@mail.gmail.com>
+	<20181126141241.GM4266@phenom.ffwll.local>
+	<CACRpkdYmBSVKBvu=YOV87zWK8WCC+pcn9ux_W4VEYwzRzexQ_A@mail.gmail.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-Content-Disposition: inline
-In-Reply-To: <CAA7U3HN8aV-BrYGS4XNgXsfAL8eFcxdjReM-5VZOSnJntVanJw@mail.gmail.com>
+In-Reply-To: <CACRpkdYmBSVKBvu=YOV87zWK8WCC+pcn9ux_W4VEYwzRzexQ_A@mail.gmail.com>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -23,38 +22,49 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Olaf van der Spek <olafvdspek@gmail.com>, Alok Kataria <akataria@vmware.com>, Hans de Goede <hdegoede@redhat.com>, Arnd Bergmann <arnd@arndb.de>, Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-Cc: Michael Biebl <biebl@debian.org>, 912087@bugs.debian.org, linux-kernel@vger.kernel.org, virtualization@lists.linux-foundation.org
+To: Linus Walleij <linus.walleij@linaro.org>
+Cc: Haneen Mohammed <hamohammed.sa@gmail.com>, Alexandre Belloni <alexandre.belloni@bootlin.com>, Gilles Muller <Gilles.Muller@lip6.fr>, Maxime Ripard <maxime.ripard@bootlin.com>, dri-devel <dri-devel@lists.freedesktop.org>, Linux Kernel Mailing List <linux-kernel@vger.kernel.org>, Andrzej Hajda <a.hajda@samsung.com>, cocci@systeme.lip6.fr, Marek Vasut <marex@denx.de>, Archit Taneja <architt@codeaurora.org>, Jonathan Corbet <corbet@lwn.net>, Linux Doc Mailing List <linux-doc@vger.kernel.org>, Alexey Brodkin <abrodkin@synopsys.com>, Dave Airlie <airlied@linux.ie>, Ludovic Desroches <ludovic.desroches@microchip.com>, greenfoo@gluegarage.com, Russell King <linux+etnaviv@armlinux.org.uk>, Nicolas Palix <nicolas.palix@imag.fr>, Maarten Lankhorst <maarten.lankhorst@linux.intel.com>, etnaviv@lists.freedesktop.org, Boris Brezillon <boris.brezillon@bootlin.com>, Christian
 List-Id: virtualization@lists.linuxfoundation.org
 
-On 2018-11-28 13:43:07 [+0100], Olaf van der Spek wrote:
-> > > They might just as well install haveged or configure virtio-rng in such
-> > > a case.
+On Thu, Nov 29, 2018 at 3:45 PM Linus Walleij <linus.walleij@linaro.org> wrote:
+>
+> On Mon, Nov 26, 2018 at 3:12 PM Daniel Vetter <daniel@ffwll.ch> wrote:
+> > On Sat, Nov 24, 2018 at 10:17:13PM +0100, Linus Walleij wrote:
+>
+> > > It was especially scary.
+> > >
+> > > But I think I managed to apply the patches and push the
+> > > branch now.
 > >
-> > Right. Do you think, that it would necessary to add something to the
-> > release notes?
-> 
-> I do. ;)
-> What's the workaround for VMware?
-> 
-> Does it just take longer to start or do some services not start at all?
+> > Except when you're racing with someone else you should only see conflicts
+> > with stuff you've just pushed. Or if someone forgot to fix up their mess.
+> > What was the conflict?
+>
+> dim push-branches was complaining that one of the commits was
+> missing the proper committer sign-off, it was the bottom commit under
+> mine (IIRC "drm/atomic-helper: WARN if fake_commit->hw_done is not
+> completed as expected")
+> and dim update-branches seemed to rebase and fix up my patches
+> and then everything was fine.
 
-It will take longer to start, it will start. Let me pass that workaround
-question to someone from vmware/virtualbox and #912087:
+This sounds like you (or dim?) accidentaly amended that commit (which
+changes the committer and results in the warning), and a rebase would
+indeed have fixed that. If the first patch conflicts this can happen
+because dim apply-branch doesn't bail out correctly. Or at least did
+in the past, I recently fixed that in
 
-On a recent kernel you see something like that:
-[   68.823013] random: crng init done
+commit ee299e510ae468aab27610bcbc4fdd4de932f74b
+Author: Daniel Vetter <daniel.vetter@ffwll.ch>
+Date:   Wed Oct 17 08:53:00 2018 +0200
 
-which means it took almost 69 seconds for the system to initialize its
-rng. OpenSSH 7.9 can be compilied against OpenSSL 1.1.1 which in turn
-switched to getrandom() (for its randomness).
-This syscall will block until kernel's rng is ready which took in this
-example almost 69 seconds.
-Those "high" numbers are not a problem on decent/recent HW but occur
-oftern on in virtualized environments.
-For KVM we have CONFIG_HW_RANDOM_VIRTIO. Are there any plans to get
-something similar for VMware/Vbox?
+    dim: make apply-patch fail again
 
-[0] http://bugs.debian.org/912087
+> I just felt slightly out of control :D
 
-Sebastian
+If your dim didn't have the above commit and you had a conflict it's
+all explained. Otherwise I'm not sure what's been going on ...
+-Daniel
+-- 
+Daniel Vetter
+Software Engineer, Intel Corporation
++41 (0) 79 365 57 48 - http://blog.ffwll.ch
