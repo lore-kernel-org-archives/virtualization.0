@@ -1,15 +1,23 @@
-From: Jason Wang <jasowang@redhat.com>
-Subject: Re: [PATCH net-next v3 01/13] virtio: add packed ring types and macros
-Date: Fri, 30 Nov 2018 16:10:55 +0800
-Message-ID: <1928ac96-3684-45c4-1e8c-09dff03bf308__17411.6185786717$1543565352$gmane$org@redhat.com>
-References: <20181121100330.24846-1-tiwei.bie@intel.com>
-	<20181121100330.24846-2-tiwei.bie@intel.com>
+From: Boris Petkov via Virtualization
+	<virtualization@lists.linux-foundation.org>
+Subject: Re: PROPOSAL: Extend inline asm syntax with size spec
+Date: Fri, 30 Nov 2018 10:06:02 +0100
+Message-ID: <CF26ACBE-500C-47E8-B79D-E1ABE938031D__25445.4437447295$1543568647$gmane$org@alien8.de>
+References: <20181003213100.189959-1-namit@vmware.com>
+	<20181007091805.GA30687@zn.tnic>
+	<20181007132228.GJ29268@gate.crashing.org>
+	<alpine.LSU.2.21.1810071534220.7867@wotan.suse.de>
+	<20181008073128.GL29268@gate.crashing.org>
+	<alpine.LSU.2.20.1810081105350.16707@zhemvz.fhfr.qr>
+	<20181009145330.GT29268@gate.crashing.org>
+	<CAK7LNARmrdtyE7JRAdJH_zbfvD_cej+TGLh+5KfT20o538KUcA@mail.gmail.com>
+	<20181129122500.GX23873@gate.crashing.org>
+Reply-To: Boris Petkov <bp@alien8.de>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="utf-8"; Format="flowed"
-Content-Transfer-Encoding: base64
+Content-Type: text/plain; charset="us-ascii"
+Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <20181121100330.24846-2-tiwei.bie@intel.com>
-Content-Language: en-US
+In-Reply-To: <20181129122500.GX23873@gate.crashing.org>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -19,69 +27,18 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Tiwei Bie <tiwei.bie@intel.com>, mst@redhat.com, virtualization@lists.linux-foundation.org, linux-kernel@vger.kernel.org, netdev@vger.kernel.org, virtio-dev@lists.oasis-open.org
-Cc: maxime.coquelin@redhat.com, wexu@redhat.com
+To: Segher Boessenkool <segher@kernel.crashing.org>, Masahiro Yamada <yamada.masahiro@socionext.com>
+Cc: Kate Stewart <kstewart@linuxfoundation.org>, "Peter Zijlstra (Intel)" <peterz@infradead.org>, Christopher Li <sparse@chrisli.org>, virtualization@lists.linux-foundation.org, Max Filippov <jcmvbkbc@gmail.com>, Nadav Amit <namit@vmware.com>, Jan Beulich <JBeulich@suse.com>, "H. Peter Anvin" <hpa@zytor.com>, Sam Ravnborg <sam@ravnborg.org>, Thomas Gleixner <tglx@linutronix.de>, X86 ML <x86@kernel.org>, linux-sparse@vger.kernel.org, Ingo Molnar <mingo@redhat.com>, linux-xtensa@linux-xtensa.org, Kees Cook <keescook@chromium.org>, Chris Zankel <chris@zankel.net>, matz@suse.de, Josh Poimboeuf <jpoimboe@redhat.com>, Alok Kataria <akataria@vmware.com>, Juergen Gross <jgross@suse.com>, gcc@gcc.gnu.org, rguenther@suse.de, Greg Kroah-Hartman <gregkh@linuxfoundation.org>, Linux Kernel Mailing List <linux-kernel@vger.kernel.org>, Philippe Ombredanne <pombredanne@nexb.com>, Linus
 List-Id: virtualization@lists.linuxfoundation.org
 
-Ck9uIDIwMTgvMTEvMjEg5LiL5Y2INjowMywgVGl3ZWkgQmllIHdyb3RlOgo+IEFkZCB0eXBlcyBh
-bmQgbWFjcm9zIGZvciBwYWNrZWQgcmluZy4KPgo+IFNpZ25lZC1vZmYtYnk6IFRpd2VpIEJpZSA8
-dGl3ZWkuYmllQGludGVsLmNvbT4KPiAtLS0KPiAgIGluY2x1ZGUvdWFwaS9saW51eC92aXJ0aW9f
-Y29uZmlnLmggfCAgMyArKysKPiAgIGluY2x1ZGUvdWFwaS9saW51eC92aXJ0aW9fcmluZy5oICAg
-fCA1MiArKysrKysrKysrKysrKysrKysrKysrKysrKysrKysrKysrKysrKwo+ICAgMiBmaWxlcyBj
-aGFuZ2VkLCA1NSBpbnNlcnRpb25zKCspCj4KPiBkaWZmIC0tZ2l0IGEvaW5jbHVkZS91YXBpL2xp
-bnV4L3ZpcnRpb19jb25maWcuaCBiL2luY2x1ZGUvdWFwaS9saW51eC92aXJ0aW9fY29uZmlnLmgK
-PiBpbmRleCA0NDkxMzJjNzZiMWMuLjExOTZlMWMxZDRmNiAxMDA2NDQKPiAtLS0gYS9pbmNsdWRl
-L3VhcGkvbGludXgvdmlydGlvX2NvbmZpZy5oCj4gKysrIGIvaW5jbHVkZS91YXBpL2xpbnV4L3Zp
-cnRpb19jb25maWcuaAo+IEBAIC03NSw2ICs3NSw5IEBACj4gICAgKi8KPiAgICNkZWZpbmUgVklS
-VElPX0ZfSU9NTVVfUExBVEZPUk0JCTMzCj4gICAKPiArLyogVGhpcyBmZWF0dXJlIGluZGljYXRl
-cyBzdXBwb3J0IGZvciB0aGUgcGFja2VkIHZpcnRxdWV1ZSBsYXlvdXQuICovCj4gKyNkZWZpbmUg
-VklSVElPX0ZfUklOR19QQUNLRUQJCTM0Cj4gKwo+ICAgLyoKPiAgICAqIERvZXMgdGhlIGRldmlj
-ZSBzdXBwb3J0IFNpbmdsZSBSb290IEkvTyBWaXJ0dWFsaXphdGlvbj8KPiAgICAqLwo+IGRpZmYg
-LS1naXQgYS9pbmNsdWRlL3VhcGkvbGludXgvdmlydGlvX3JpbmcuaCBiL2luY2x1ZGUvdWFwaS9s
-aW51eC92aXJ0aW9fcmluZy5oCj4gaW5kZXggNmQ1ZDVmYWE5ODliLi4yNDE0ZjhhZjI2YjMgMTAw
-NjQ0Cj4gLS0tIGEvaW5jbHVkZS91YXBpL2xpbnV4L3ZpcnRpb19yaW5nLmgKPiArKysgYi9pbmNs
-dWRlL3VhcGkvbGludXgvdmlydGlvX3JpbmcuaAo+IEBAIC00NCw2ICs0NCwxMyBAQAo+ICAgLyog
-VGhpcyBtZWFucyB0aGUgYnVmZmVyIGNvbnRhaW5zIGEgbGlzdCBvZiBidWZmZXIgZGVzY3JpcHRv
-cnMuICovCj4gICAjZGVmaW5lIFZSSU5HX0RFU0NfRl9JTkRJUkVDVAk0Cj4gICAKPiArLyoKPiAr
-ICogTWFyayBhIGRlc2NyaXB0b3IgYXMgYXZhaWxhYmxlIG9yIHVzZWQgaW4gcGFja2VkIHJpbmcu
-Cj4gKyAqIE5vdGljZTogdGhleSBhcmUgZGVmaW5lZCBhcyBzaGlmdHMgaW5zdGVhZCBvZiBzaGlm
-dGVkIHZhbHVlcy4KCgpUaGlzIGxvb2tzIGluY29uc2lzdGVudCB0byBwcmV2aW91cyBmbGFncywg
-YW55IHJlYXNvbiBmb3IgdXNpbmcgc2hpZnRzPwoKCj4gKyAqLwo+ICsjZGVmaW5lIFZSSU5HX1BB
-Q0tFRF9ERVNDX0ZfQVZBSUwJNwo+ICsjZGVmaW5lIFZSSU5HX1BBQ0tFRF9ERVNDX0ZfVVNFRAkx
-NQo+ICsKPiAgIC8qIFRoZSBIb3N0IHVzZXMgdGhpcyBpbiB1c2VkLT5mbGFncyB0byBhZHZpc2Ug
-dGhlIEd1ZXN0OiBkb24ndCBraWNrIG1lIHdoZW4KPiAgICAqIHlvdSBhZGQgYSBidWZmZXIuICBJ
-dCdzIHVucmVsaWFibGUsIHNvIGl0J3Mgc2ltcGx5IGFuIG9wdGltaXphdGlvbi4gIEd1ZXN0Cj4g
-ICAgKiB3aWxsIHN0aWxsIGtpY2sgaWYgaXQncyBvdXQgb2YgYnVmZmVycy4gKi8KPiBAQCAtNTMs
-NiArNjAsMjMgQEAKPiAgICAqIG9wdGltaXphdGlvbi4gICovCj4gICAjZGVmaW5lIFZSSU5HX0FW
-QUlMX0ZfTk9fSU5URVJSVVBUCTEKPiAgIAo+ICsvKiBFbmFibGUgZXZlbnRzIGluIHBhY2tlZCBy
-aW5nLiAqLwo+ICsjZGVmaW5lIFZSSU5HX1BBQ0tFRF9FVkVOVF9GTEFHX0VOQUJMRQkweDAKPiAr
-LyogRGlzYWJsZSBldmVudHMgaW4gcGFja2VkIHJpbmcuICovCj4gKyNkZWZpbmUgVlJJTkdfUEFD
-S0VEX0VWRU5UX0ZMQUdfRElTQUJMRQkweDEKPiArLyoKPiArICogRW5hYmxlIGV2ZW50cyBmb3Ig
-YSBzcGVjaWZpYyBkZXNjcmlwdG9yIGluIHBhY2tlZCByaW5nLgo+ICsgKiAoYXMgc3BlY2lmaWVk
-IGJ5IERlc2NyaXB0b3IgUmluZyBDaGFuZ2UgRXZlbnQgT2Zmc2V0L1dyYXAgQ291bnRlcikuCj4g
-KyAqIE9ubHkgdmFsaWQgaWYgVklSVElPX1JJTkdfRl9FVkVOVF9JRFggaGFzIGJlZW4gbmVnb3Rp
-YXRlZC4KPiArICovCj4gKyNkZWZpbmUgVlJJTkdfUEFDS0VEX0VWRU5UX0ZMQUdfREVTQwkweDIK
-CgpBbnkgcmVhc29uIGZvciB1c2luZyBfRkxBR18gaW5zdGVhZCBvZiBfRl8/CgpUaGFua3MKCgo+
-ICsKPiArLyoKPiArICogV3JhcCBjb3VudGVyIGJpdCBzaGlmdCBpbiBldmVudCBzdXBwcmVzc2lv
-biBzdHJ1Y3R1cmUKPiArICogb2YgcGFja2VkIHJpbmcuCj4gKyAqLwo+ICsjZGVmaW5lIFZSSU5H
-X1BBQ0tFRF9FVkVOVF9GX1dSQVBfQ1RSCTE1Cj4gKwo+ICAgLyogV2Ugc3VwcG9ydCBpbmRpcmVj
-dCBidWZmZXIgZGVzY3JpcHRvcnMgKi8KPiAgICNkZWZpbmUgVklSVElPX1JJTkdfRl9JTkRJUkVD
-VF9ERVNDCTI4Cj4gICAKPiBAQCAtMTcxLDQgKzE5NSwzMiBAQCBzdGF0aWMgaW5saW5lIGludCB2
-cmluZ19uZWVkX2V2ZW50KF9fdTE2IGV2ZW50X2lkeCwgX191MTYgbmV3X2lkeCwgX191MTYgb2xk
-KQo+ICAgCXJldHVybiAoX191MTYpKG5ld19pZHggLSBldmVudF9pZHggLSAxKSA8IChfX3UxNiko
-bmV3X2lkeCAtIG9sZCk7Cj4gICB9Cj4gICAKPiArc3RydWN0IHZyaW5nX3BhY2tlZF9kZXNjX2V2
-ZW50IHsKPiArCS8qIERlc2NyaXB0b3IgUmluZyBDaGFuZ2UgRXZlbnQgT2Zmc2V0L1dyYXAgQ291
-bnRlci4gKi8KPiArCV9fbGUxNiBvZmZfd3JhcDsKPiArCS8qIERlc2NyaXB0b3IgUmluZyBDaGFu
-Z2UgRXZlbnQgRmxhZ3MuICovCj4gKwlfX2xlMTYgZmxhZ3M7Cj4gK307Cj4gKwo+ICtzdHJ1Y3Qg
-dnJpbmdfcGFja2VkX2Rlc2Mgewo+ICsJLyogQnVmZmVyIEFkZHJlc3MuICovCj4gKwlfX2xlNjQg
-YWRkcjsKPiArCS8qIEJ1ZmZlciBMZW5ndGguICovCj4gKwlfX2xlMzIgbGVuOwo+ICsJLyogQnVm
-ZmVyIElELiAqLwo+ICsJX19sZTE2IGlkOwo+ICsJLyogVGhlIGZsYWdzIGRlcGVuZGluZyBvbiBk
-ZXNjcmlwdG9yIHR5cGUuICovCj4gKwlfX2xlMTYgZmxhZ3M7Cj4gK307Cj4gKwo+ICtzdHJ1Y3Qg
-dnJpbmdfcGFja2VkIHsKPiArCXVuc2lnbmVkIGludCBudW07Cj4gKwo+ICsJc3RydWN0IHZyaW5n
-X3BhY2tlZF9kZXNjICpkZXNjOwo+ICsKPiArCXN0cnVjdCB2cmluZ19wYWNrZWRfZGVzY19ldmVu
-dCAqZHJpdmVyOwo+ICsKPiArCXN0cnVjdCB2cmluZ19wYWNrZWRfZGVzY19ldmVudCAqZGV2aWNl
-Owo+ICt9Owo+ICsKPiAgICNlbmRpZiAvKiBfVUFQSV9MSU5VWF9WSVJUSU9fUklOR19IICovCl9f
-X19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fClZpcnR1YWxpemF0
-aW9uIG1haWxpbmcgbGlzdApWaXJ0dWFsaXphdGlvbkBsaXN0cy5saW51eC1mb3VuZGF0aW9uLm9y
-ZwpodHRwczovL2xpc3RzLmxpbnV4Zm91bmRhdGlvbi5vcmcvbWFpbG1hbi9saXN0aW5mby92aXJ0
-dWFsaXphdGlvbg==
+On November 29, 2018 1:25:02 PM GMT+01:00, Segher Boessenkool <segher@kernel.crashing.org> wrote:
+>This will only be fixed from GCC 9 on, if the compiler adopts it.  The
+>kernel wants to support ancient GCC, so it will need to have a
+>workaround
+>for older GCC versions anyway.
+
+What about backporting it, like Richard says?
+
+
+-- 
+Sent from a small device: formatting sux and brevity is inevitable. 
