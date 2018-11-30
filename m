@@ -1,23 +1,16 @@
-From: Boris Petkov via Virtualization
-	<virtualization@lists.linux-foundation.org>
-Subject: Re: PROPOSAL: Extend inline asm syntax with size spec
-Date: Fri, 30 Nov 2018 10:06:02 +0100
-Message-ID: <CF26ACBE-500C-47E8-B79D-E1ABE938031D__25445.4437447295$1543568647$gmane$org@alien8.de>
-References: <20181003213100.189959-1-namit@vmware.com>
-	<20181007091805.GA30687@zn.tnic>
-	<20181007132228.GJ29268@gate.crashing.org>
-	<alpine.LSU.2.21.1810071534220.7867@wotan.suse.de>
-	<20181008073128.GL29268@gate.crashing.org>
-	<alpine.LSU.2.20.1810081105350.16707@zhemvz.fhfr.qr>
-	<20181009145330.GT29268@gate.crashing.org>
-	<CAK7LNARmrdtyE7JRAdJH_zbfvD_cej+TGLh+5KfT20o538KUcA@mail.gmail.com>
-	<20181129122500.GX23873@gate.crashing.org>
-Reply-To: Boris Petkov <bp@alien8.de>
+From: Tiwei Bie <tiwei.bie@intel.com>
+Subject: Re: [PATCH net-next v3 01/13] virtio: add packed ring types and macros
+Date: Fri, 30 Nov 2018 17:53:40 +0800
+Message-ID: <20181130095339.GA11984__421.439953106706$1543571609$gmane$org@debian>
+References: <20181121100330.24846-1-tiwei.bie@intel.com>
+	<20181121100330.24846-2-tiwei.bie@intel.com>
+	<1928ac96-3684-45c4-1e8c-09dff03bf308@redhat.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset="utf-8"
+Content-Transfer-Encoding: base64
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <20181129122500.GX23873@gate.crashing.org>
+Content-Disposition: inline
+In-Reply-To: <1928ac96-3684-45c4-1e8c-09dff03bf308@redhat.com>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -27,18 +20,78 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Segher Boessenkool <segher@kernel.crashing.org>, Masahiro Yamada <yamada.masahiro@socionext.com>
-Cc: Kate Stewart <kstewart@linuxfoundation.org>, "Peter Zijlstra (Intel)" <peterz@infradead.org>, Christopher Li <sparse@chrisli.org>, virtualization@lists.linux-foundation.org, Max Filippov <jcmvbkbc@gmail.com>, Nadav Amit <namit@vmware.com>, Jan Beulich <JBeulich@suse.com>, "H. Peter Anvin" <hpa@zytor.com>, Sam Ravnborg <sam@ravnborg.org>, Thomas Gleixner <tglx@linutronix.de>, X86 ML <x86@kernel.org>, linux-sparse@vger.kernel.org, Ingo Molnar <mingo@redhat.com>, linux-xtensa@linux-xtensa.org, Kees Cook <keescook@chromium.org>, Chris Zankel <chris@zankel.net>, matz@suse.de, Josh Poimboeuf <jpoimboe@redhat.com>, Alok Kataria <akataria@vmware.com>, Juergen Gross <jgross@suse.com>, gcc@gcc.gnu.org, rguenther@suse.de, Greg Kroah-Hartman <gregkh@linuxfoundation.org>, Linux Kernel Mailing List <linux-kernel@vger.kernel.org>, Philippe Ombredanne <pombredanne@nexb.com>, Linus
+To: Jason Wang <jasowang@redhat.com>
+Cc: virtio-dev@lists.oasis-open.org, mst@redhat.com, netdev@vger.kernel.org, linux-kernel@vger.kernel.org, virtualization@lists.linux-foundation.org, maxime.coquelin@redhat.com, wexu@redhat.com
 List-Id: virtualization@lists.linuxfoundation.org
 
-On November 29, 2018 1:25:02 PM GMT+01:00, Segher Boessenkool <segher@kernel.crashing.org> wrote:
->This will only be fixed from GCC 9 on, if the compiler adopts it.  The
->kernel wants to support ancient GCC, so it will need to have a
->workaround
->for older GCC versions anyway.
-
-What about backporting it, like Richard says?
-
-
--- 
-Sent from a small device: formatting sux and brevity is inevitable. 
+T24gRnJpLCBOb3YgMzAsIDIwMTggYXQgMDQ6MTA6NTVQTSArMDgwMCwgSmFzb24gV2FuZyB3cm90
+ZToKPiAKPiBPbiAyMDE4LzExLzIxIOS4i+WNiDY6MDMsIFRpd2VpIEJpZSB3cm90ZToKPiA+IEFk
+ZCB0eXBlcyBhbmQgbWFjcm9zIGZvciBwYWNrZWQgcmluZy4KPiA+IAo+ID4gU2lnbmVkLW9mZi1i
+eTogVGl3ZWkgQmllIDx0aXdlaS5iaWVAaW50ZWwuY29tPgo+ID4gLS0tCj4gPiAgIGluY2x1ZGUv
+dWFwaS9saW51eC92aXJ0aW9fY29uZmlnLmggfCAgMyArKysKPiA+ICAgaW5jbHVkZS91YXBpL2xp
+bnV4L3ZpcnRpb19yaW5nLmggICB8IDUyICsrKysrKysrKysrKysrKysrKysrKysrKysrKysrKysr
+KysrKysrCj4gPiAgIDIgZmlsZXMgY2hhbmdlZCwgNTUgaW5zZXJ0aW9ucygrKQo+ID4gCj4gPiBk
+aWZmIC0tZ2l0IGEvaW5jbHVkZS91YXBpL2xpbnV4L3ZpcnRpb19jb25maWcuaCBiL2luY2x1ZGUv
+dWFwaS9saW51eC92aXJ0aW9fY29uZmlnLmgKPiA+IGluZGV4IDQ0OTEzMmM3NmIxYy4uMTE5NmUx
+YzFkNGY2IDEwMDY0NAo+ID4gLS0tIGEvaW5jbHVkZS91YXBpL2xpbnV4L3ZpcnRpb19jb25maWcu
+aAo+ID4gKysrIGIvaW5jbHVkZS91YXBpL2xpbnV4L3ZpcnRpb19jb25maWcuaAo+ID4gQEAgLTc1
+LDYgKzc1LDkgQEAKPiA+ICAgICovCj4gPiAgICNkZWZpbmUgVklSVElPX0ZfSU9NTVVfUExBVEZP
+Uk0JCTMzCj4gPiArLyogVGhpcyBmZWF0dXJlIGluZGljYXRlcyBzdXBwb3J0IGZvciB0aGUgcGFj
+a2VkIHZpcnRxdWV1ZSBsYXlvdXQuICovCj4gPiArI2RlZmluZSBWSVJUSU9fRl9SSU5HX1BBQ0tF
+RAkJMzQKPiA+ICsKPiA+ICAgLyoKPiA+ICAgICogRG9lcyB0aGUgZGV2aWNlIHN1cHBvcnQgU2lu
+Z2xlIFJvb3QgSS9PIFZpcnR1YWxpemF0aW9uPwo+ID4gICAgKi8KPiA+IGRpZmYgLS1naXQgYS9p
+bmNsdWRlL3VhcGkvbGludXgvdmlydGlvX3JpbmcuaCBiL2luY2x1ZGUvdWFwaS9saW51eC92aXJ0
+aW9fcmluZy5oCj4gPiBpbmRleCA2ZDVkNWZhYTk4OWIuLjI0MTRmOGFmMjZiMyAxMDA2NDQKPiA+
+IC0tLSBhL2luY2x1ZGUvdWFwaS9saW51eC92aXJ0aW9fcmluZy5oCj4gPiArKysgYi9pbmNsdWRl
+L3VhcGkvbGludXgvdmlydGlvX3JpbmcuaAo+ID4gQEAgLTQ0LDYgKzQ0LDEzIEBACj4gPiAgIC8q
+IFRoaXMgbWVhbnMgdGhlIGJ1ZmZlciBjb250YWlucyBhIGxpc3Qgb2YgYnVmZmVyIGRlc2NyaXB0
+b3JzLiAqLwo+ID4gICAjZGVmaW5lIFZSSU5HX0RFU0NfRl9JTkRJUkVDVAk0Cj4gPiArLyoKPiA+
+ICsgKiBNYXJrIGEgZGVzY3JpcHRvciBhcyBhdmFpbGFibGUgb3IgdXNlZCBpbiBwYWNrZWQgcmlu
+Zy4KPiA+ICsgKiBOb3RpY2U6IHRoZXkgYXJlIGRlZmluZWQgYXMgc2hpZnRzIGluc3RlYWQgb2Yg
+c2hpZnRlZCB2YWx1ZXMuCj4gCj4gCj4gVGhpcyBsb29rcyBpbmNvbnNpc3RlbnQgdG8gcHJldmlv
+dXMgZmxhZ3MsIGFueSByZWFzb24gZm9yIHVzaW5nIHNoaWZ0cz8KClllYWgsIGl0IHdhcyBzdWdn
+ZXN0ZWQgdG8gdXNlIHNoaWZ0cywgYXMgX0ZfIHNob3VsZCBiZSBhIGJpdApudW1iZXIsIG5vdCBh
+IHNoaWZ0ZWQgdmFsdWU6CgpodHRwczovL3BhdGNod29yay5vemxhYnMub3JnL3BhdGNoLzk0MjI5
+Ni8jMTk4OTM5MAoKPiAKPiAKPiA+ICsgKi8KPiA+ICsjZGVmaW5lIFZSSU5HX1BBQ0tFRF9ERVND
+X0ZfQVZBSUwJNwo+ID4gKyNkZWZpbmUgVlJJTkdfUEFDS0VEX0RFU0NfRl9VU0VECTE1Cj4gPiAr
+Cj4gPiAgIC8qIFRoZSBIb3N0IHVzZXMgdGhpcyBpbiB1c2VkLT5mbGFncyB0byBhZHZpc2UgdGhl
+IEd1ZXN0OiBkb24ndCBraWNrIG1lIHdoZW4KPiA+ICAgICogeW91IGFkZCBhIGJ1ZmZlci4gIEl0
+J3MgdW5yZWxpYWJsZSwgc28gaXQncyBzaW1wbHkgYW4gb3B0aW1pemF0aW9uLiAgR3Vlc3QKPiA+
+ICAgICogd2lsbCBzdGlsbCBraWNrIGlmIGl0J3Mgb3V0IG9mIGJ1ZmZlcnMuICovCj4gPiBAQCAt
+NTMsNiArNjAsMjMgQEAKPiA+ICAgICogb3B0aW1pemF0aW9uLiAgKi8KPiA+ICAgI2RlZmluZSBW
+UklOR19BVkFJTF9GX05PX0lOVEVSUlVQVAkxCj4gPiArLyogRW5hYmxlIGV2ZW50cyBpbiBwYWNr
+ZWQgcmluZy4gKi8KPiA+ICsjZGVmaW5lIFZSSU5HX1BBQ0tFRF9FVkVOVF9GTEFHX0VOQUJMRQkw
+eDAKPiA+ICsvKiBEaXNhYmxlIGV2ZW50cyBpbiBwYWNrZWQgcmluZy4gKi8KPiA+ICsjZGVmaW5l
+IFZSSU5HX1BBQ0tFRF9FVkVOVF9GTEFHX0RJU0FCTEUJMHgxCj4gPiArLyoKPiA+ICsgKiBFbmFi
+bGUgZXZlbnRzIGZvciBhIHNwZWNpZmljIGRlc2NyaXB0b3IgaW4gcGFja2VkIHJpbmcuCj4gPiAr
+ICogKGFzIHNwZWNpZmllZCBieSBEZXNjcmlwdG9yIFJpbmcgQ2hhbmdlIEV2ZW50IE9mZnNldC9X
+cmFwIENvdW50ZXIpLgo+ID4gKyAqIE9ubHkgdmFsaWQgaWYgVklSVElPX1JJTkdfRl9FVkVOVF9J
+RFggaGFzIGJlZW4gbmVnb3RpYXRlZC4KPiA+ICsgKi8KPiA+ICsjZGVmaW5lIFZSSU5HX1BBQ0tF
+RF9FVkVOVF9GTEFHX0RFU0MJMHgyCj4gCj4gCj4gQW55IHJlYXNvbiBmb3IgdXNpbmcgX0ZMQUdf
+IGluc3RlYWQgb2YgX0ZfPwoKWWVhaCwgaXQgd2FzIHN1Z2dlc3RlZCB0byBub3QgdXNlIF9GXywg
+YXMgdGhlc2UgYXJlIHZhbHVlcywKc2hvdWxkIG5vdCBoYXZlIF9GXzoKCmh0dHBzOi8vcGF0Y2h3
+b3JrLm96bGFicy5vcmcvcGF0Y2gvOTQyMjk2LyMxOTg5MzkwCgpSZWdhcmRzLApUaXdlaQoKPiAK
+PiBUaGFua3MKPiAKPiAKPiA+ICsKPiA+ICsvKgo+ID4gKyAqIFdyYXAgY291bnRlciBiaXQgc2hp
+ZnQgaW4gZXZlbnQgc3VwcHJlc3Npb24gc3RydWN0dXJlCj4gPiArICogb2YgcGFja2VkIHJpbmcu
+Cj4gPiArICovCj4gPiArI2RlZmluZSBWUklOR19QQUNLRURfRVZFTlRfRl9XUkFQX0NUUgkxNQo+
+ID4gKwo+ID4gICAvKiBXZSBzdXBwb3J0IGluZGlyZWN0IGJ1ZmZlciBkZXNjcmlwdG9ycyAqLwo+
+ID4gICAjZGVmaW5lIFZJUlRJT19SSU5HX0ZfSU5ESVJFQ1RfREVTQwkyOAo+ID4gQEAgLTE3MSw0
+ICsxOTUsMzIgQEAgc3RhdGljIGlubGluZSBpbnQgdnJpbmdfbmVlZF9ldmVudChfX3UxNiBldmVu
+dF9pZHgsIF9fdTE2IG5ld19pZHgsIF9fdTE2IG9sZCkKPiA+ICAgCXJldHVybiAoX191MTYpKG5l
+d19pZHggLSBldmVudF9pZHggLSAxKSA8IChfX3UxNikobmV3X2lkeCAtIG9sZCk7Cj4gPiAgIH0K
+PiA+ICtzdHJ1Y3QgdnJpbmdfcGFja2VkX2Rlc2NfZXZlbnQgewo+ID4gKwkvKiBEZXNjcmlwdG9y
+IFJpbmcgQ2hhbmdlIEV2ZW50IE9mZnNldC9XcmFwIENvdW50ZXIuICovCj4gPiArCV9fbGUxNiBv
+ZmZfd3JhcDsKPiA+ICsJLyogRGVzY3JpcHRvciBSaW5nIENoYW5nZSBFdmVudCBGbGFncy4gKi8K
+PiA+ICsJX19sZTE2IGZsYWdzOwo+ID4gK307Cj4gPiArCj4gPiArc3RydWN0IHZyaW5nX3BhY2tl
+ZF9kZXNjIHsKPiA+ICsJLyogQnVmZmVyIEFkZHJlc3MuICovCj4gPiArCV9fbGU2NCBhZGRyOwo+
+ID4gKwkvKiBCdWZmZXIgTGVuZ3RoLiAqLwo+ID4gKwlfX2xlMzIgbGVuOwo+ID4gKwkvKiBCdWZm
+ZXIgSUQuICovCj4gPiArCV9fbGUxNiBpZDsKPiA+ICsJLyogVGhlIGZsYWdzIGRlcGVuZGluZyBv
+biBkZXNjcmlwdG9yIHR5cGUuICovCj4gPiArCV9fbGUxNiBmbGFnczsKPiA+ICt9Owo+ID4gKwo+
+ID4gK3N0cnVjdCB2cmluZ19wYWNrZWQgewo+ID4gKwl1bnNpZ25lZCBpbnQgbnVtOwo+ID4gKwo+
+ID4gKwlzdHJ1Y3QgdnJpbmdfcGFja2VkX2Rlc2MgKmRlc2M7Cj4gPiArCj4gPiArCXN0cnVjdCB2
+cmluZ19wYWNrZWRfZGVzY19ldmVudCAqZHJpdmVyOwo+ID4gKwo+ID4gKwlzdHJ1Y3QgdnJpbmdf
+cGFja2VkX2Rlc2NfZXZlbnQgKmRldmljZTsKPiA+ICt9Owo+ID4gKwo+ID4gICAjZW5kaWYgLyog
+X1VBUElfTElOVVhfVklSVElPX1JJTkdfSCAqLwpfX19fX19fX19fX19fX19fX19fX19fX19fX19f
+X19fX19fX19fX19fX19fX19fXwpWaXJ0dWFsaXphdGlvbiBtYWlsaW5nIGxpc3QKVmlydHVhbGl6
+YXRpb25AbGlzdHMubGludXgtZm91bmRhdGlvbi5vcmcKaHR0cHM6Ly9saXN0cy5saW51eGZvdW5k
+YXRpb24ub3JnL21haWxtYW4vbGlzdGluZm8vdmlydHVhbGl6YXRpb24=
