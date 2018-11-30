@@ -1,20 +1,14 @@
-From: Jason Wang <jasowang@redhat.com>
-Subject: Re: [RFC] Discuss about an new idea "Vsock over Virtio-net"
-Date: Fri, 30 Nov 2018 21:10:03 +0800
-Message-ID: <27cd8ac6-e892-cfaa-cd39-74f39b452681__15052.9812476181$1543583303$gmane$org@redhat.com>
-References: <5BECEE53.7090408@huawei.com>
-	<20181115015547-mutt-send-email-mst@kernel.org>
-	<61d57505-7ff6-23c6-d26c-6a0062e08445@redhat.com>
-	<20181129085049-mutt-send-email-mst@kernel.org>
-	<7e78fc3d-0d5a-090f-476d-03ad490ff8a2@redhat.com>
-	<20181130075134-mutt-send-email-mst@kernel.org>
-	<55352308-9ceb-413e-44f6-e3dfd8f642cc@redhat.com>
+From: "Michael S. Tsirkin" <mst@redhat.com>
+Subject: Re: [PATCH] vhost: fix IOTLB locking
+Date: Fri, 30 Nov 2018 08:32:53 -0500
+Message-ID: <20181130075347-mutt-send-email-mst@kernel.org>
+References: <20181130113702.1565-1-jean-philippe.brucker@arm.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="utf-8"; Format="flowed"
-Content-Transfer-Encoding: base64
+Content-Type: text/plain; charset="us-ascii"
+Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <55352308-9ceb-413e-44f6-e3dfd8f642cc@redhat.com>
-Content-Language: en-US
+Content-Disposition: inline
+In-Reply-To: <20181130113702.1565-1-jean-philippe.brucker@arm.com>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -24,32 +18,64 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: "Michael S. Tsirkin" <mst@redhat.com>
-Cc: kvm@vger.kernel.org, virtualization@lists.linux-foundation.org, stefanha@redhat.com, netdev@vger.kernel.org
+To: Jean-Philippe Brucker <jean-philippe.brucker@arm.com>
+Cc: kvm@vger.kernel.org, netdev@vger.kernel.org, virtualization@lists.linux-foundation.org, davem@davemloft.net
 List-Id: virtualization@lists.linuxfoundation.org
 
-Ck9uIDIwMTgvMTEvMzAg5LiL5Y2IODo1NSwgSmFzb24gV2FuZyB3cm90ZToKPgo+IE9uIDIwMTgv
-MTEvMzAg5LiL5Y2IODo1MiwgTWljaGFlbCBTLiBUc2lya2luIHdyb3RlOgo+Pj4+IMKgwqAgSWYg
-eW91IHdhbnQgdG8gY29tcGFyZSBpdCB3aXRoCj4+Pj4gc29tZXRoaW5nIHRoYXQgd291bGQgYmUg
-VENQIG9yIFFVSUMuwqAgVGhlIGZ1bmRhbWVudGFsIGRpZmZlcmVuY2UgCj4+Pj4gYmV0d2Vlbgo+
-Pj4+IHZpcnRpby12c29jayBhbmQgZS5nLiBUQ1AgaXMgdGhhdCBUQ1Agb3BlcmF0ZXMgaW4gYSBw
-YWNrZXQgbG9zcyAKPj4+PiBlbnZpcm9ubWVudC4KPj4+PiBTbyB0aGV5IGFyZSB1c2luZyB0aW1l
-cnMgZm9yIHJlbGlhYmlsaXR5LCBhbmQgcmVjZWl2ZXIgaXMgYWx3YXlzIAo+Pj4+IGZyZWUgdG8K
-Pj4+PiBkaXNjYXJkIGFueSB1bmFja2VkIGRhdGEuCj4+PiBWaXJ0aW8tbmV0IGtub3dzIG5vdGhp
-bmcgYWJvdmUgTDIsIHNvIHRoZXkgYXJlIHRvdGFsbHkgdHJhbnNwYXJlbnQgCj4+PiB0byBkZXZp
-Y2UKPj4+IGl0c2VsZi4gSSBzdGlsbCBkb24ndCBnZXQgd2h5IG5vdCB1c2luZyB2aXJ0aW8tbmV0
-IGluc3RlYWQuCj4+Pgo+Pj4KPj4+IFRoYW5rcwo+PiBJcyB5b3VyIHF1ZXN0aW9uIHdoeSBpcyB2
-aXJ0aW8tdnNvY2sgdXNlZCBpbnN0ZWFkIG9mIFRDUCBvbiB0b3Agb2YgSVAKPj4gb24gdG9wIG9m
-IHZpcnRpby1uZXQ/Cj4+Cj4+Cj4KPiBObywgbXkgcXVlc3Rpb24gaXMgd2h5IG5vdCBkbyB2c29j
-ayB0aHJvdWdoIHZpcnRpby1uZXQuCj4KPiBUaGFua3MKPgoKSnVzdCB0byBjbGFyaWZ5LCBpdCdz
-IG5vdCBhYm91dCB2b3NjayBvdmVyIGV0aGVybmV0LCBhbmQgaXQncyBub3QgYWJvdXQgCmludmVu
-dGluZyBuZXcgZmVhdHVyZXMgb3IgQVBJcy4gSXQncyBwcm9iYWJseSBzb21ldGhpbmcgbGlrZToK
-Ci0gTGV0IHZpcnRpby1uZXQgZHJpdmVyIHByb2JlIHZzb2NrIGRldmljZSBhbmQgZG8gdm9zY2sg
-c3BlY2lmaWMgdGhpbmdzIAppZiBuZWVkZWQgdG8gc2hhcmUgYXMgbXVjaCBjb2Rlcy4KCi0gQSBu
-ZXcga2luZCBvZiBzb2NrZmQgKHdoaWNoIGlzIHZzb2NrIGJhc2VkKSBmb3Igdmhvc3QtbmV0IGZv
-ciBpdCB0byBkbyAKdnNvY2sgc3BlY2lmaWMgdGhpbmdzIChob3BlZnVsbHkgaXQgY2FuIGJlIHRy
-YW5zcGFyZW50KS4KClRoZSBjaGFuZ2Ugc2hvdWxkIGJlIHRvdGFsbHkgdHJhbnNwYXJlbnQgdG8g
-dXNlcnNwYWNlIGFwcGxpY2F0aW9ucy4KClRoYW5rcwoKCl9fX19fX19fX19fX19fX19fX19fX19f
-X19fX19fX19fX19fX19fX19fX19fX19fClZpcnR1YWxpemF0aW9uIG1haWxpbmcgbGlzdApWaXJ0
-dWFsaXphdGlvbkBsaXN0cy5saW51eC1mb3VuZGF0aW9uLm9yZwpodHRwczovL2xpc3RzLmxpbnV4
-Zm91bmRhdGlvbi5vcmcvbWFpbG1hbi9saXN0aW5mby92aXJ0dWFsaXphdGlvbg==
+On Fri, Nov 30, 2018 at 11:37:02AM +0000, Jean-Philippe Brucker wrote:
+> Commit 78139c94dc8c ("net: vhost: lock the vqs one by one") moved the vq
+> lock to improve scalability, but introduced a possible deadlock in
+> vhost-iotlb. vhost_iotlb_notify_vq() now takes vq->mutex while holding
+> the device's IOTLB spinlock.
+
+Indeed spin_lock is just outside this snippet. Yack.
+
+> And on the vhost_iotlb_miss() path, the
+> spinlock is taken while holding vq->mutex.
+> 
+> As long as we hold dev->mutex to prevent an ioctl from modifying
+> vq->poll concurrently, we can safely call vhost_poll_queue() without
+> holding vq->mutex. Since vhost_process_iotlb_msg() holds dev->mutex when
+> calling vhost_iotlb_notify_vq(), avoid the deadlock by not taking
+> vq->mutex.
+> 
+> Fixes: 78139c94dc8c ("net: vhost: lock the vqs one by one")
+> Signed-off-by: Jean-Philippe Brucker <jean-philippe.brucker@arm.com>
+
+
+Acked-by: Michael S. Tsirkin <mst@redhat.com>
+
+but see below for a minor comment.
+
+I guess we now need this on stable?
+
+> ---
+>  drivers/vhost/vhost.c | 6 +++---
+>  1 file changed, 3 insertions(+), 3 deletions(-)
+> 
+> diff --git a/drivers/vhost/vhost.c b/drivers/vhost/vhost.c
+> index 3a5f81a66d34..1cbb17f898f7 100644
+> --- a/drivers/vhost/vhost.c
+> +++ b/drivers/vhost/vhost.c
+> @@ -944,10 +944,10 @@ static void vhost_iotlb_notify_vq(struct vhost_dev *d,
+>  		if (msg->iova <= vq_msg->iova &&
+>  		    msg->iova + msg->size - 1 >= vq_msg->iova &&
+>  		    vq_msg->type == VHOST_IOTLB_MISS) {
+> -			mutex_lock(&node->vq->mutex);
+> +			/* Safe to call outside vq->mutex as long as dev->mutex
+> +			 * is held.
+> +			 */
+>  			vhost_poll_queue(&node->vq->poll);
+> -			mutex_unlock(&node->vq->mutex);
+> -
+
+In fact vhost_poll_queue is generally lockless so it's
+safe to call without any locks.
+
+
+>  			list_del(&node->node);
+>  			kfree(node);
+
+>  		}
+> -- 
+> 2.19.1
