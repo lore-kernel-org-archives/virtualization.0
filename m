@@ -1,15 +1,20 @@
-From: Jean-Philippe Brucker <jean-philippe.brucker@arm.com>
-Subject: Re: [PATCH] vhost: fix IOTLB locking
-Date: Fri, 30 Nov 2018 15:33:31 +0000
-Message-ID: <81d9b5da-ae63-1ce5-7812-7062c03d4313__25732.4679093019$1543591926$gmane$org@arm.com>
-References: <20181130113702.1565-1-jean-philippe.brucker@arm.com>
-	<20181130075347-mutt-send-email-mst@kernel.org>
+From: Tiwei Bie <tiwei.bie@intel.com>
+Subject: Re: [PATCH net-next v3 01/13] virtio: add packed ring types and macros
+Date: Fri, 30 Nov 2018 23:37:37 +0800
+Message-ID: <20181130153737.GA15105__7490.27684000811$1543592266$gmane$org@debian>
+References: <20181121100330.24846-1-tiwei.bie@intel.com>
+	<20181121100330.24846-2-tiwei.bie@intel.com>
+	<1928ac96-3684-45c4-1e8c-09dff03bf308@redhat.com>
+	<20181130095339.GA11984@debian>
+	<20181130074720-mutt-send-email-mst@kernel.org>
+	<13593b5c-c1dc-3ab3-a843-d62908e0c7e0@redhat.com>
+	<20181130084722-mutt-send-email-mst@kernel.org>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset="utf-8"
+Content-Transfer-Encoding: base64
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <20181130075347-mutt-send-email-mst@kernel.org>
-Content-Language: en-US
+Content-Disposition: inline
+In-Reply-To: <20181130084722-mutt-send-email-mst@kernel.org>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -20,78 +25,129 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
 To: "Michael S. Tsirkin" <mst@redhat.com>
-Cc: netdev@vger.kernel.org, davem@davemloft.net, kvm@vger.kernel.org, virtualization@lists.linux-foundation.org
+Cc: virtio-dev@lists.oasis-open.org, netdev@vger.kernel.org, linux-kernel@vger.kernel.org, virtualization@lists.linux-foundation.org, Maxime Coquelin <maxime.coquelin@redhat.com>, wexu@redhat.com
 List-Id: virtualization@lists.linuxfoundation.org
 
-On 30/11/2018 13:32, Michael S. Tsirkin wrote:
-> On Fri, Nov 30, 2018 at 11:37:02AM +0000, Jean-Philippe Brucker wrote:
->> Commit 78139c94dc8c ("net: vhost: lock the vqs one by one") moved the vq
->> lock to improve scalability, but introduced a possible deadlock in
->> vhost-iotlb. vhost_iotlb_notify_vq() now takes vq->mutex while holding
->> the device's IOTLB spinlock.
-> 
-> Indeed spin_lock is just outside this snippet. Yack.
-> 
->> And on the vhost_iotlb_miss() path, the
->> spinlock is taken while holding vq->mutex.
->>
->> As long as we hold dev->mutex to prevent an ioctl from modifying
->> vq->poll concurrently, we can safely call vhost_poll_queue() without
->> holding vq->mutex. Since vhost_process_iotlb_msg() holds dev->mutex when
->> calling vhost_iotlb_notify_vq(), avoid the deadlock by not taking
->> vq->mutex.
->>
->> Fixes: 78139c94dc8c ("net: vhost: lock the vqs one by one")
->> Signed-off-by: Jean-Philippe Brucker <jean-philippe.brucker@arm.com>
-> 
-> 
-> Acked-by: Michael S. Tsirkin <mst@redhat.com>
-> 
-> but see below for a minor comment.
-> 
-> I guess we now need this on stable?
-
-I don't think so, the bug is introduced in 4.20
-
-> 
->> ---
->>  drivers/vhost/vhost.c | 6 +++---
->>  1 file changed, 3 insertions(+), 3 deletions(-)
->>
->> diff --git a/drivers/vhost/vhost.c b/drivers/vhost/vhost.c
->> index 3a5f81a66d34..1cbb17f898f7 100644
->> --- a/drivers/vhost/vhost.c
->> +++ b/drivers/vhost/vhost.c
->> @@ -944,10 +944,10 @@ static void vhost_iotlb_notify_vq(struct vhost_dev *d,
->>  		if (msg->iova <= vq_msg->iova &&
->>  		    msg->iova + msg->size - 1 >= vq_msg->iova &&
->>  		    vq_msg->type == VHOST_IOTLB_MISS) {
->> -			mutex_lock(&node->vq->mutex);
->> +			/* Safe to call outside vq->mutex as long as dev->mutex
->> +			 * is held.
->> +			 */
->>  			vhost_poll_queue(&node->vq->poll);
->> -			mutex_unlock(&node->vq->mutex);
->> -
-> 
-> In fact vhost_poll_queue is generally lockless so it's
-> safe to call without any locks.
-
-Right, I'll remove the comment
-
-Thanks,
-Jean
-
-> 
-> 
->>  			list_del(&node->node);
->>  			kfree(node);
-> 
->>  		}
->> -- 
->> 2.19.1
-> _______________________________________________
-> Virtualization mailing list
-> Virtualization@lists.linux-foundation.org
-> https://lists.linuxfoundation.org/mailman/listinfo/virtualization
-> 
+T24gRnJpLCBOb3YgMzAsIDIwMTggYXQgMDg6NTI6NDJBTSAtMDUwMCwgTWljaGFlbCBTLiBUc2ly
+a2luIHdyb3RlOgo+IE9uIEZyaSwgTm92IDMwLCAyMDE4IGF0IDAyOjAxOjA2UE0gKzAxMDAsIE1h
+eGltZSBDb3F1ZWxpbiB3cm90ZToKPiA+IE9uIDExLzMwLzE4IDE6NDcgUE0sIE1pY2hhZWwgUy4g
+VHNpcmtpbiB3cm90ZToKPiA+ID4gT24gRnJpLCBOb3YgMzAsIDIwMTggYXQgMDU6NTM6NDBQTSAr
+MDgwMCwgVGl3ZWkgQmllIHdyb3RlOgo+ID4gPiA+IE9uIEZyaSwgTm92IDMwLCAyMDE4IGF0IDA0
+OjEwOjU1UE0gKzA4MDAsIEphc29uIFdhbmcgd3JvdGU6Cj4gPiA+ID4gPiAKPiA+ID4gPiA+IE9u
+IDIwMTgvMTEvMjEg5LiL5Y2INjowMywgVGl3ZWkgQmllIHdyb3RlOgo+ID4gPiA+ID4gPiBBZGQg
+dHlwZXMgYW5kIG1hY3JvcyBmb3IgcGFja2VkIHJpbmcuCj4gPiA+ID4gPiA+IAo+ID4gPiA+ID4g
+PiBTaWduZWQtb2ZmLWJ5OiBUaXdlaSBCaWUgPHRpd2VpLmJpZUBpbnRlbC5jb20+Cj4gPiA+ID4g
+PiA+IC0tLQo+ID4gPiA+ID4gPiAgICBpbmNsdWRlL3VhcGkvbGludXgvdmlydGlvX2NvbmZpZy5o
+IHwgIDMgKysrCj4gPiA+ID4gPiA+ICAgIGluY2x1ZGUvdWFwaS9saW51eC92aXJ0aW9fcmluZy5o
+ICAgfCA1MiArKysrKysrKysrKysrKysrKysrKysrKysrKysrKysrKysrKysrKwo+ID4gPiA+ID4g
+PiAgICAyIGZpbGVzIGNoYW5nZWQsIDU1IGluc2VydGlvbnMoKykKPiA+ID4gPiA+ID4gCj4gPiA+
+ID4gPiA+IGRpZmYgLS1naXQgYS9pbmNsdWRlL3VhcGkvbGludXgvdmlydGlvX2NvbmZpZy5oIGIv
+aW5jbHVkZS91YXBpL2xpbnV4L3ZpcnRpb19jb25maWcuaAo+ID4gPiA+ID4gPiBpbmRleCA0NDkx
+MzJjNzZiMWMuLjExOTZlMWMxZDRmNiAxMDA2NDQKPiA+ID4gPiA+ID4gLS0tIGEvaW5jbHVkZS91
+YXBpL2xpbnV4L3ZpcnRpb19jb25maWcuaAo+ID4gPiA+ID4gPiArKysgYi9pbmNsdWRlL3VhcGkv
+bGludXgvdmlydGlvX2NvbmZpZy5oCj4gPiA+ID4gPiA+IEBAIC03NSw2ICs3NSw5IEBACj4gPiA+
+ID4gPiA+ICAgICAqLwo+ID4gPiA+ID4gPiAgICAjZGVmaW5lIFZJUlRJT19GX0lPTU1VX1BMQVRG
+T1JNCQkzMwo+ID4gPiA+ID4gPiArLyogVGhpcyBmZWF0dXJlIGluZGljYXRlcyBzdXBwb3J0IGZv
+ciB0aGUgcGFja2VkIHZpcnRxdWV1ZSBsYXlvdXQuICovCj4gPiA+ID4gPiA+ICsjZGVmaW5lIFZJ
+UlRJT19GX1JJTkdfUEFDS0VECQkzNAo+ID4gPiA+ID4gPiArCj4gPiA+ID4gPiA+ICAgIC8qCj4g
+PiA+ID4gPiA+ICAgICAqIERvZXMgdGhlIGRldmljZSBzdXBwb3J0IFNpbmdsZSBSb290IEkvTyBW
+aXJ0dWFsaXphdGlvbj8KPiA+ID4gPiA+ID4gICAgICovCj4gPiA+ID4gPiA+IGRpZmYgLS1naXQg
+YS9pbmNsdWRlL3VhcGkvbGludXgvdmlydGlvX3JpbmcuaCBiL2luY2x1ZGUvdWFwaS9saW51eC92
+aXJ0aW9fcmluZy5oCj4gPiA+ID4gPiA+IGluZGV4IDZkNWQ1ZmFhOTg5Yi4uMjQxNGY4YWYyNmIz
+IDEwMDY0NAo+ID4gPiA+ID4gPiAtLS0gYS9pbmNsdWRlL3VhcGkvbGludXgvdmlydGlvX3Jpbmcu
+aAo+ID4gPiA+ID4gPiArKysgYi9pbmNsdWRlL3VhcGkvbGludXgvdmlydGlvX3JpbmcuaAo+ID4g
+PiA+ID4gPiBAQCAtNDQsNiArNDQsMTMgQEAKPiA+ID4gPiA+ID4gICAgLyogVGhpcyBtZWFucyB0
+aGUgYnVmZmVyIGNvbnRhaW5zIGEgbGlzdCBvZiBidWZmZXIgZGVzY3JpcHRvcnMuICovCj4gPiA+
+ID4gPiA+ICAgICNkZWZpbmUgVlJJTkdfREVTQ19GX0lORElSRUNUCTQKPiA+ID4gPiA+ID4gKy8q
+Cj4gPiA+ID4gPiA+ICsgKiBNYXJrIGEgZGVzY3JpcHRvciBhcyBhdmFpbGFibGUgb3IgdXNlZCBp
+biBwYWNrZWQgcmluZy4KPiA+ID4gPiA+ID4gKyAqIE5vdGljZTogdGhleSBhcmUgZGVmaW5lZCBh
+cyBzaGlmdHMgaW5zdGVhZCBvZiBzaGlmdGVkIHZhbHVlcy4KPiA+ID4gPiA+IAo+ID4gPiA+ID4g
+Cj4gPiA+ID4gPiBUaGlzIGxvb2tzIGluY29uc2lzdGVudCB0byBwcmV2aW91cyBmbGFncywgYW55
+IHJlYXNvbiBmb3IgdXNpbmcgc2hpZnRzPwo+ID4gPiA+IAo+ID4gPiA+IFllYWgsIGl0IHdhcyBz
+dWdnZXN0ZWQgdG8gdXNlIHNoaWZ0cywgYXMgX0ZfIHNob3VsZCBiZSBhIGJpdAo+ID4gPiA+IG51
+bWJlciwgbm90IGEgc2hpZnRlZCB2YWx1ZToKPiA+ID4gPiAKPiA+ID4gPiBodHRwczovL3BhdGNo
+d29yay5vemxhYnMub3JnL3BhdGNoLzk0MjI5Ni8jMTk4OTM5MAo+ID4gPiAKPiA+ID4gQnV0IGxl
+dCdzIGFkZCBhIF9TUExJVF8gdmFyaWFudCB0aGF0IHVzZXMgc2hpZnRzIGNvbnNpc3RlbnRseS4K
+PiA+IAo+ID4gTWF5YmUgd2UgY291bGQgYXZvaWQgYWRkaW5nIFNQTElUIGFuZCBQQUNLRUQsIGJ1
+dCBkZWZpbmUgYXMgZm9sbG93Ogo+ID4gCj4gPiAjZGVmaW5lIFZSSU5HX0RFU0NfRl9JTkRJUkVD
+VF9TSElGVCAyCj4gPiAjZGVmaW5lIFZSSU5HX0RFU0NfRl9JTkRJUkVDVCAoMXVsbCA8PCAgVlJJ
+TkdfREVTQ19GX0lORElSRUNUX1NISUZUKQo+ID4gCj4gPiAjZGVmaW5lIFZSSU5HX0RFU0NfRl9B
+VkFJTF9TSElGVCA3Cj4gPiAjZGVmaW5lIFZSSU5HX0RFU0NfRl9BVkFJTCAoMXVsbCA8PCBWUklO
+R19ERVNDX0ZfQVZBSUxfU0hJRlQpCj4gPiAKPiA+IEkgdGhpbmsgaXQgd291bGQgYmUgYmV0dGVy
+IGZvciBjb25zaXN0ZW5jeS4KPiAKPiBJIGRvbid0IHRoaW5rIHRoYXQgd2lsbCBoZWxwLiB0aGUg
+cHJvYmxlbSBpcyB0aGF0Cj4gbW9zdCBvZiB0aGUgZXhpc3RpbmcgdmlydGlvIGNvZGUgY29uc2lz
+dGVudGx5IHVzZXMgX0ZfIGFzIHNoaWZ0cy4KPiBTbyB3ZSBqdXN0IG5lZWQgdG8gZG8gc29tZXRo
+aW5nIGFib3V0IHRoZXNlIDUgYmVpbmcgaW5jb25zaXN0ZW50Ogo+IAo+IGluY2x1ZGUvdWFwaS9s
+aW51eC92aXJ0aW9fcmluZy5oOiNkZWZpbmUgVlJJTkdfREVTQ19GX05FWFQgICAgICAxCj4gaW5j
+bHVkZS91YXBpL2xpbnV4L3ZpcnRpb19yaW5nLmg6I2RlZmluZSBWUklOR19ERVNDX0ZfV1JJVEUg
+ICAgIDIKPiBpbmNsdWRlL3VhcGkvbGludXgvdmlydGlvX3JpbmcuaDojZGVmaW5lIFZSSU5HX0RF
+U0NfRl9JTkRJUkVDVCAgNAo+IGluY2x1ZGUvdWFwaS9saW51eC92aXJ0aW9fcmluZy5oOiNkZWZp
+bmUgVlJJTkdfVVNFRF9GX05PX05PVElGWSAxCj4gaW5jbHVkZS91YXBpL2xpbnV4L3ZpcnRpb19y
+aW5nLmg6I2RlZmluZSBWUklOR19BVkFJTF9GX05PX0lOVEVSUlVQVCAgICAgMQo+IAo+IEkgZG8g
+bm90IHdhbnQgYWxsIG9mIHZpcnRpbyB0byBiZWNvbWUgdmVyYm9zZSB3aXRoIF9TSElGVCwgZXJn
+bwo+IHdlIG5lZWQgdG8gY2hhbmdlIHRoZSBhYm92ZSA1IHRvIGhhdmUgbmFtZXMgd2hpY2ggYXJl
+IHdpdGggX0ZfIGFuZAo+IGhhdmUgdGhlIGJpdCBudW1iZXIuCgpIb3cgYWJvdXQgc29tZXRoaW5n
+IGxpa2UgdGhpczoKCiNkZWZpbmUgVlJJTkdfQ09NTV9ERVNDX0ZfTkVYVAkJCTAKI2RlZmluZSBW
+UklOR19DT01NX0RFU0NfRl9XUklURQkJCTEKI2RlZmluZSBWUklOR19DT01NX0RFU0NfRl9JTkRJ
+UkVDVAkJMgoKI2RlZmluZSBWUklOR19TUExJVF9VU0VEX0ZfTk9fTk9USUZZCQkwCiNkZWZpbmUg
+VlJJTkdfU1BMSVRfQVZBSUxfRl9OT19JTlRFUlJVUFQJMAoKb3IKCiNkZWZpbmUgVlJJTkdfU1BM
+SVRfREVTQ19GX05FWFQJCQkwCiNkZWZpbmUgVlJJTkdfU1BMSVRfREVTQ19GX1dSSVRFCQkxCiNk
+ZWZpbmUgVlJJTkdfU1BMSVRfREVTQ19GX0lORElSRUNUCQkyCgojZGVmaW5lIFZSSU5HX1NQTElU
+X1VTRURfRl9OT19OT1RJRlkJCTAKI2RlZmluZSBWUklOR19TUExJVF9BVkFJTF9GX05PX0lOVEVS
+UlVQVAkwCgojZGVmaW5lIFZSSU5HX1BBQ0tFRF9ERVNDX0ZfTkVYVAkJMAojZGVmaW5lIFZSSU5H
+X1BBQ0tFRF9ERVNDX0ZfV1JJVEUJCTEKI2RlZmluZSBWUklOR19QQUNLRURfREVTQ19GX0lORElS
+RUNUCQkyCgo+IAo+IAo+IAo+ID4gPiAKPiA+ID4gCj4gPiA+ID4gPiAKPiA+ID4gPiA+IAo+ID4g
+PiA+ID4gPiArICovCj4gPiA+ID4gPiA+ICsjZGVmaW5lIFZSSU5HX1BBQ0tFRF9ERVNDX0ZfQVZB
+SUwJNwo+ID4gPiA+ID4gPiArI2RlZmluZSBWUklOR19QQUNLRURfREVTQ19GX1VTRUQJMTUKPiA+
+ID4gPiA+ID4gKwo+ID4gPiA+ID4gPiAgICAvKiBUaGUgSG9zdCB1c2VzIHRoaXMgaW4gdXNlZC0+
+ZmxhZ3MgdG8gYWR2aXNlIHRoZSBHdWVzdDogZG9uJ3Qga2ljayBtZSB3aGVuCj4gPiA+ID4gPiA+
+ICAgICAqIHlvdSBhZGQgYSBidWZmZXIuICBJdCdzIHVucmVsaWFibGUsIHNvIGl0J3Mgc2ltcGx5
+IGFuIG9wdGltaXphdGlvbi4gIEd1ZXN0Cj4gPiA+ID4gPiA+ICAgICAqIHdpbGwgc3RpbGwga2lj
+ayBpZiBpdCdzIG91dCBvZiBidWZmZXJzLiAqLwo+ID4gPiA+ID4gPiBAQCAtNTMsNiArNjAsMjMg
+QEAKPiA+ID4gPiA+ID4gICAgICogb3B0aW1pemF0aW9uLiAgKi8KPiA+ID4gPiA+ID4gICAgI2Rl
+ZmluZSBWUklOR19BVkFJTF9GX05PX0lOVEVSUlVQVAkxCj4gPiA+ID4gPiA+ICsvKiBFbmFibGUg
+ZXZlbnRzIGluIHBhY2tlZCByaW5nLiAqLwo+ID4gPiA+ID4gPiArI2RlZmluZSBWUklOR19QQUNL
+RURfRVZFTlRfRkxBR19FTkFCTEUJMHgwCj4gPiA+ID4gPiA+ICsvKiBEaXNhYmxlIGV2ZW50cyBp
+biBwYWNrZWQgcmluZy4gKi8KPiA+ID4gPiA+ID4gKyNkZWZpbmUgVlJJTkdfUEFDS0VEX0VWRU5U
+X0ZMQUdfRElTQUJMRQkweDEKPiA+ID4gPiA+ID4gKy8qCj4gPiA+ID4gPiA+ICsgKiBFbmFibGUg
+ZXZlbnRzIGZvciBhIHNwZWNpZmljIGRlc2NyaXB0b3IgaW4gcGFja2VkIHJpbmcuCj4gPiA+ID4g
+PiA+ICsgKiAoYXMgc3BlY2lmaWVkIGJ5IERlc2NyaXB0b3IgUmluZyBDaGFuZ2UgRXZlbnQgT2Zm
+c2V0L1dyYXAgQ291bnRlcikuCj4gPiA+ID4gPiA+ICsgKiBPbmx5IHZhbGlkIGlmIFZJUlRJT19S
+SU5HX0ZfRVZFTlRfSURYIGhhcyBiZWVuIG5lZ290aWF0ZWQuCj4gPiA+ID4gPiA+ICsgKi8KPiA+
+ID4gPiA+ID4gKyNkZWZpbmUgVlJJTkdfUEFDS0VEX0VWRU5UX0ZMQUdfREVTQwkweDIKPiA+ID4g
+PiA+IAo+ID4gPiA+ID4gCj4gPiA+ID4gPiBBbnkgcmVhc29uIGZvciB1c2luZyBfRkxBR18gaW5z
+dGVhZCBvZiBfRl8/Cj4gPiA+ID4gCj4gPiA+ID4gWWVhaCwgaXQgd2FzIHN1Z2dlc3RlZCB0byBu
+b3QgdXNlIF9GXywgYXMgdGhlc2UgYXJlIHZhbHVlcywKPiA+ID4gPiBzaG91bGQgbm90IGhhdmUg
+X0ZfOgo+ID4gPiA+IAo+ID4gPiA+IGh0dHBzOi8vcGF0Y2h3b3JrLm96bGFicy5vcmcvcGF0Y2gv
+OTQyMjk2LyMxOTg5MzkwCj4gPiA+ID4gCj4gPiA+ID4gUmVnYXJkcywKPiA+ID4gPiBUaXdlaQo+
+ID4gPiA+IAo+ID4gPiA+ID4gCj4gPiA+ID4gPiBUaGFua3MKPiA+ID4gPiA+IAo+ID4gPiA+ID4g
+Cj4gPiA+ID4gPiA+ICsKPiA+ID4gPiA+ID4gKy8qCj4gPiA+ID4gPiA+ICsgKiBXcmFwIGNvdW50
+ZXIgYml0IHNoaWZ0IGluIGV2ZW50IHN1cHByZXNzaW9uIHN0cnVjdHVyZQo+ID4gPiA+ID4gPiAr
+ICogb2YgcGFja2VkIHJpbmcuCj4gPiA+ID4gPiA+ICsgKi8KPiA+ID4gPiA+ID4gKyNkZWZpbmUg
+VlJJTkdfUEFDS0VEX0VWRU5UX0ZfV1JBUF9DVFIJMTUKPiA+ID4gPiA+ID4gKwo+ID4gPiA+ID4g
+PiAgICAvKiBXZSBzdXBwb3J0IGluZGlyZWN0IGJ1ZmZlciBkZXNjcmlwdG9ycyAqLwo+ID4gPiA+
+ID4gPiAgICAjZGVmaW5lIFZJUlRJT19SSU5HX0ZfSU5ESVJFQ1RfREVTQwkyOAo+ID4gPiA+ID4g
+PiBAQCAtMTcxLDQgKzE5NSwzMiBAQCBzdGF0aWMgaW5saW5lIGludCB2cmluZ19uZWVkX2V2ZW50
+KF9fdTE2IGV2ZW50X2lkeCwgX191MTYgbmV3X2lkeCwgX191MTYgb2xkKQo+ID4gPiA+ID4gPiAg
+ICAJcmV0dXJuIChfX3UxNikobmV3X2lkeCAtIGV2ZW50X2lkeCAtIDEpIDwgKF9fdTE2KShuZXdf
+aWR4IC0gb2xkKTsKPiA+ID4gPiA+ID4gICAgfQo+ID4gPiA+ID4gPiArc3RydWN0IHZyaW5nX3Bh
+Y2tlZF9kZXNjX2V2ZW50IHsKPiA+ID4gPiA+ID4gKwkvKiBEZXNjcmlwdG9yIFJpbmcgQ2hhbmdl
+IEV2ZW50IE9mZnNldC9XcmFwIENvdW50ZXIuICovCj4gPiA+ID4gPiA+ICsJX19sZTE2IG9mZl93
+cmFwOwo+ID4gPiA+ID4gPiArCS8qIERlc2NyaXB0b3IgUmluZyBDaGFuZ2UgRXZlbnQgRmxhZ3Mu
+ICovCj4gPiA+ID4gPiA+ICsJX19sZTE2IGZsYWdzOwo+ID4gPiA+ID4gPiArfTsKPiA+ID4gPiA+
+ID4gKwo+ID4gPiA+ID4gPiArc3RydWN0IHZyaW5nX3BhY2tlZF9kZXNjIHsKPiA+ID4gPiA+ID4g
+KwkvKiBCdWZmZXIgQWRkcmVzcy4gKi8KPiA+ID4gPiA+ID4gKwlfX2xlNjQgYWRkcjsKPiA+ID4g
+PiA+ID4gKwkvKiBCdWZmZXIgTGVuZ3RoLiAqLwo+ID4gPiA+ID4gPiArCV9fbGUzMiBsZW47Cj4g
+PiA+ID4gPiA+ICsJLyogQnVmZmVyIElELiAqLwo+ID4gPiA+ID4gPiArCV9fbGUxNiBpZDsKPiA+
+ID4gPiA+ID4gKwkvKiBUaGUgZmxhZ3MgZGVwZW5kaW5nIG9uIGRlc2NyaXB0b3IgdHlwZS4gKi8K
+PiA+ID4gPiA+ID4gKwlfX2xlMTYgZmxhZ3M7Cj4gPiA+ID4gPiA+ICt9Owo+ID4gPiA+ID4gPiAr
+Cj4gPiA+ID4gPiA+ICtzdHJ1Y3QgdnJpbmdfcGFja2VkIHsKPiA+ID4gPiA+ID4gKwl1bnNpZ25l
+ZCBpbnQgbnVtOwo+ID4gPiA+ID4gPiArCj4gPiA+ID4gPiA+ICsJc3RydWN0IHZyaW5nX3BhY2tl
+ZF9kZXNjICpkZXNjOwo+ID4gPiA+ID4gPiArCj4gPiA+ID4gPiA+ICsJc3RydWN0IHZyaW5nX3Bh
+Y2tlZF9kZXNjX2V2ZW50ICpkcml2ZXI7Cj4gPiA+ID4gPiA+ICsKPiA+ID4gPiA+ID4gKwlzdHJ1
+Y3QgdnJpbmdfcGFja2VkX2Rlc2NfZXZlbnQgKmRldmljZTsKPiA+ID4gPiA+ID4gK307Cj4gPiA+
+ID4gPiA+ICsKPiA+ID4gPiA+ID4gICAgI2VuZGlmIC8qIF9VQVBJX0xJTlVYX1ZJUlRJT19SSU5H
+X0ggKi8KX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX18KVmly
+dHVhbGl6YXRpb24gbWFpbGluZyBsaXN0ClZpcnR1YWxpemF0aW9uQGxpc3RzLmxpbnV4LWZvdW5k
+YXRpb24ub3JnCmh0dHBzOi8vbGlzdHMubGludXhmb3VuZGF0aW9uLm9yZy9tYWlsbWFuL2xpc3Rp
+bmZvL3ZpcnR1YWxpemF0aW9u
