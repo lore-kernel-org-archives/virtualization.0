@@ -1,17 +1,11 @@
 From: Jean-Philippe Brucker <jean-philippe.brucker@arm.com>
-Subject: Re: [REBASE PATCH net-next v9 1/4] net: vhost: lock the vqs one by one
-Date: Fri, 30 Nov 2018 10:28:51 +0000
-Message-ID: <7fa16101-4528-26ee-f8ee-5eff13946e5e@arm.com>
-References: <1537879012-20859-1-git-send-email-xiangxia.m.yue@gmail.com>
-	<1537879012-20859-2-git-send-email-xiangxia.m.yue@gmail.com>
-	<f0ebc0b1-e559-5966-dbcb-800067c3260e@arm.com>
-	<ebbf9c7b-519a-f2c1-547c-fd47b1e07550@redhat.com>
+Subject: [PATCH] vhost: fix IOTLB locking
+Date: Fri, 30 Nov 2018 11:37:02 +0000
+Message-ID: <20181130113702.1565-1-jean-philippe.brucker@arm.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="utf-8"
-Content-Transfer-Encoding: base64
+Content-Type: text/plain; charset="us-ascii"
+Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <ebbf9c7b-519a-f2c1-547c-fd47b1e07550@redhat.com>
-Content-Language: en-US
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -21,60 +15,45 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Jason Wang <jasowang@redhat.com>, "xiangxia.m.yue@gmail.com" <xiangxia.m.yue@gmail.com>, "mst@redhat.com" <mst@redhat.com>, "makita.toshiaki@lab.ntt.co.jp" <makita.toshiaki@lab.ntt.co.jp>, "davem@davemloft.net" <davem@davemloft.net>
-Cc: "netdev@vger.kernel.org" <netdev@vger.kernel.org>, "virtualization@lists.linux-foundation.org" <virtualization@lists.linux-foundation.org>
+To: mst@redhat.com, jasowang@redhat.com
+Cc: netdev@vger.kernel.org, davem@davemloft.net, kvm@vger.kernel.org, virtualization@lists.linux-foundation.org
 List-Id: virtualization@lists.linuxfoundation.org
 
-T24gMzAvMTEvMjAxOCAwMjozNCwgSmFzb24gV2FuZyB3cm90ZToKPiAKPiBPbiAyMDE4LzExLzMw
-IOS4iuWNiDM6MjgsIEplYW4tUGhpbGlwcGUgQnJ1Y2tlciB3cm90ZToKPj4gSGksCj4+Cj4+IE9u
-IDI1LzA5LzIwMTggMTM6MzYseGlhbmd4aWEubS55dWVAZ21haWwuY29tICB3cm90ZToKPj4+IEZy
-b206IFRvbmdoYW8gWmhhbmc8eGlhbmd4aWEubS55dWVAZ21haWwuY29tPgo+Pj4KPj4+IFRoaXMg
-cGF0Y2ggY2hhbmdlcyB0aGUgd2F5IHRoYXQgbG9jayBhbGwgdnFzCj4+PiBhdCB0aGUgc2FtZSwg
-dG8gbG9jayB0aGVtIG9uZSBieSBvbmUuIEl0IHdpbGwKPj4+IGJlIHVzZWQgZm9yIG5leHQgcGF0
-Y2ggdG8gYXZvaWQgdGhlIGRlYWRsb2NrLgo+Pj4KPj4+IFNpZ25lZC1vZmYtYnk6IFRvbmdoYW8g
-Wmhhbmc8eGlhbmd4aWEubS55dWVAZ21haWwuY29tPgo+Pj4gQWNrZWQtYnk6IEphc29uIFdhbmc8
-amFzb3dhbmdAcmVkaGF0LmNvbT4KPj4+IFNpZ25lZC1vZmYtYnk6IEphc29uIFdhbmc8amFzb3dh
-bmdAcmVkaGF0LmNvbT4KPj4+IC0tLQo+Pj4gICBkcml2ZXJzL3Zob3N0L3Zob3N0LmMgfCAyNCAr
-KysrKysrLS0tLS0tLS0tLS0tLS0tLS0KPj4+ICAgMSBmaWxlIGNoYW5nZWQsIDcgaW5zZXJ0aW9u
-cygrKSwgMTcgZGVsZXRpb25zKC0pCj4+Pgo+Pj4gZGlmZiAtLWdpdCBhL2RyaXZlcnMvdmhvc3Qv
-dmhvc3QuYyBiL2RyaXZlcnMvdmhvc3Qvdmhvc3QuYwo+Pj4gaW5kZXggYjEzYzZiNC4uZjUyMDA4
-YiAxMDA2NDQKPj4+IC0tLSBhL2RyaXZlcnMvdmhvc3Qvdmhvc3QuYwo+Pj4gKysrIGIvZHJpdmVy
-cy92aG9zdC92aG9zdC5jCj4+PiBAQCAtMjk0LDggKzI5NCwxMSBAQCBzdGF0aWMgdm9pZCB2aG9z
-dF92cV9tZXRhX3Jlc2V0KHN0cnVjdCB2aG9zdF9kZXYgKmQpCj4+PiAgIHsKPj4+ICAgCWludCBp
-Owo+Pj4gICAKPj4+IC0JZm9yIChpID0gMDsgaSA8IGQtPm52cXM7ICsraSkKPj4+ICsJZm9yIChp
-ID0gMDsgaSA8IGQtPm52cXM7ICsraSkgewo+Pj4gKwkJbXV0ZXhfbG9jaygmZC0+dnFzW2ldLT5t
-dXRleCk7Cj4+PiAgIAkJX192aG9zdF92cV9tZXRhX3Jlc2V0KGQtPnZxc1tpXSk7Cj4+PiArCQlt
-dXRleF91bmxvY2soJmQtPnZxc1tpXS0+bXV0ZXgpOwo+Pj4gKwl9Cj4+PiAgIH0KPj4+ICAgCj4+
-PiAgIHN0YXRpYyB2b2lkIHZob3N0X3ZxX3Jlc2V0KHN0cnVjdCB2aG9zdF9kZXYgKmRldiwKPj4+
-IEBAIC04OTEsMjAgKzg5NCw2IEBAIHN0YXRpYyBpbmxpbmUgdm9pZCBfX3VzZXIgKl9fdmhvc3Rf
-Z2V0X3VzZXIoc3RydWN0IHZob3N0X3ZpcnRxdWV1ZSAqdnEsCj4+PiAgICNkZWZpbmUgdmhvc3Rf
-Z2V0X3VzZWQodnEsIHgsIHB0cikgXAo+Pj4gICAJdmhvc3RfZ2V0X3VzZXIodnEsIHgsIHB0ciwg
-VkhPU1RfQUREUl9VU0VEKQo+Pj4gICAKPj4+IC1zdGF0aWMgdm9pZCB2aG9zdF9kZXZfbG9ja192
-cXMoc3RydWN0IHZob3N0X2RldiAqZCkKPj4+IC17Cj4+PiAtCWludCBpID0gMDsKPj4+IC0JZm9y
-IChpID0gMDsgaSA8IGQtPm52cXM7ICsraSkKPj4+IC0JCW11dGV4X2xvY2tfbmVzdGVkKCZkLT52
-cXNbaV0tPm11dGV4LCBpKTsKPj4+IC19Cj4+PiAtCj4+PiAtc3RhdGljIHZvaWQgdmhvc3RfZGV2
-X3VubG9ja192cXMoc3RydWN0IHZob3N0X2RldiAqZCkKPj4+IC17Cj4+PiAtCWludCBpID0gMDsK
-Pj4+IC0JZm9yIChpID0gMDsgaSA8IGQtPm52cXM7ICsraSkKPj4+IC0JCW11dGV4X3VubG9jaygm
-ZC0+dnFzW2ldLT5tdXRleCk7Cj4+PiAtfQo+Pj4gLQo+Pj4gICBzdGF0aWMgaW50IHZob3N0X25l
-d191bWVtX3JhbmdlKHN0cnVjdCB2aG9zdF91bWVtICp1bWVtLAo+Pj4gICAJCQkJdTY0IHN0YXJ0
-LCB1NjQgc2l6ZSwgdTY0IGVuZCwKPj4+ICAgCQkJCXU2NCB1c2Vyc3BhY2VfYWRkciwgaW50IHBl
-cm0pCj4+PiBAQCAtOTU0LDcgKzk0MywxMCBAQCBzdGF0aWMgdm9pZCB2aG9zdF9pb3RsYl9ub3Rp
-ZnlfdnEoc3RydWN0IHZob3N0X2RldiAqZCwKPj4+ICAgCQlpZiAobXNnLT5pb3ZhIDw9IHZxX21z
-Zy0+aW92YSAmJgo+Pj4gICAJCSAgICBtc2ctPmlvdmEgKyBtc2ctPnNpemUgLSAxID49IHZxX21z
-Zy0+aW92YSAmJgo+Pj4gICAJCSAgICB2cV9tc2ctPnR5cGUgPT0gVkhPU1RfSU9UTEJfTUlTUykg
-ewo+Pj4gKwkJCW11dGV4X2xvY2soJm5vZGUtPnZxLT5tdXRleCk7Cj4+IFRoaXMgc2VlbXMgdG8g
-aW50cm9kdWNlIGEgZGVhZGxvY2sgKGFuZCBzbGVlcC1pbi1hdG9taWMpOiB0aGUgdnEtPm11dGV4
-Cj4+IGlzIHRha2VuIHdoaWxlIHRoZSBJT1RMQiBzcGlubG9jayBpcyBoZWxkICh0YWtlbiBlYXJs
-aWVyIGluCj4+IHZob3N0X2lvdGxiX25vdGlmeV92cSgpKS4gT24gdGhlIHZob3N0X2lvdGxiX21p
-c3MoKSBwYXRoLCB0aGUgSU9UTEIKPj4gc3BpbmxvY2sgaXMgdGFrZW4gd2hpbGUgdGhlIHZxLT5t
-dXRleCBpcyBoZWxkLgo+IAo+IAo+IEdvb2QgY2F0Y2guCj4gCj4gCj4+IEknbSBub3Qgc3VyZSBo
-b3cgdG8gZml4IGl0LiBHaXZlbiB0aGF0IHdlJ3JlIGhvbGRpbmcgZGV2LT5tdXRleCwgdGhhdAo+
-PiB2cS0+cG9sbCBvbmx5IHNlZW1zIHRvIGJlIG1vZGlmaWVkIHVuZGVyIGRldi0+bXV0ZXgsIGFu
-ZCBhc3N1bWluZyB0aGF0Cj4+IHZob3N0X3BvbGxfcXVldWUodnEtPnBvbGwpIGNhbiBiZSBjYWxs
-ZWQgY29uY3VycmVudGx5LCBpcyBpdCBzYWZlIHRvCj4+IHNpbXBseSBub3QgdGFrZSB2cS0+bXV0
-ZXggaGVyZT8KPiAKPiAKPiBZZXMsIEkgdGhpbmsgaXQgY2FuIGJlIHJlbW92ZWQgaGVyZS4KPiAK
-PiBXYW50IHRvIHBvc3QgYSBwYXRjaCBmb3IgdGhpcz8KClllcywgSSdsbCBwb3N0IGl0IHNob3J0
-bHkKClRoYW5rcywKSmVhbgpfX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19f
-X19fX19fXwpWaXJ0dWFsaXphdGlvbiBtYWlsaW5nIGxpc3QKVmlydHVhbGl6YXRpb25AbGlzdHMu
-bGludXgtZm91bmRhdGlvbi5vcmcKaHR0cHM6Ly9saXN0cy5saW51eGZvdW5kYXRpb24ub3JnL21h
-aWxtYW4vbGlzdGluZm8vdmlydHVhbGl6YXRpb24=
+Commit 78139c94dc8c ("net: vhost: lock the vqs one by one") moved the vq
+lock to improve scalability, but introduced a possible deadlock in
+vhost-iotlb. vhost_iotlb_notify_vq() now takes vq->mutex while holding
+the device's IOTLB spinlock. And on the vhost_iotlb_miss() path, the
+spinlock is taken while holding vq->mutex.
+
+As long as we hold dev->mutex to prevent an ioctl from modifying
+vq->poll concurrently, we can safely call vhost_poll_queue() without
+holding vq->mutex. Since vhost_process_iotlb_msg() holds dev->mutex when
+calling vhost_iotlb_notify_vq(), avoid the deadlock by not taking
+vq->mutex.
+
+Fixes: 78139c94dc8c ("net: vhost: lock the vqs one by one")
+Signed-off-by: Jean-Philippe Brucker <jean-philippe.brucker@arm.com>
+---
+ drivers/vhost/vhost.c | 6 +++---
+ 1 file changed, 3 insertions(+), 3 deletions(-)
+
+diff --git a/drivers/vhost/vhost.c b/drivers/vhost/vhost.c
+index 3a5f81a66d34..1cbb17f898f7 100644
+--- a/drivers/vhost/vhost.c
++++ b/drivers/vhost/vhost.c
+@@ -944,10 +944,10 @@ static void vhost_iotlb_notify_vq(struct vhost_dev *d,
+ 		if (msg->iova <= vq_msg->iova &&
+ 		    msg->iova + msg->size - 1 >= vq_msg->iova &&
+ 		    vq_msg->type == VHOST_IOTLB_MISS) {
+-			mutex_lock(&node->vq->mutex);
++			/* Safe to call outside vq->mutex as long as dev->mutex
++			 * is held.
++			 */
+ 			vhost_poll_queue(&node->vq->poll);
+-			mutex_unlock(&node->vq->mutex);
+-
+ 			list_del(&node->node);
+ 			kfree(node);
+ 		}
+-- 
+2.19.1
