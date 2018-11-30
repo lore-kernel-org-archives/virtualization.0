@@ -1,21 +1,16 @@
 From: "Michael S. Tsirkin" <mst@redhat.com>
-Subject: Re: [RFC] Discuss about an new idea "Vsock over Virtio-net"
-Date: Fri, 30 Nov 2018 08:40:06 -0500
-Message-ID: <20181130083540-mutt-send-email-mst__46204.2538369589$1543585104$gmane$org@kernel.org>
-References: <5BECEE53.7090408@huawei.com>
-	<20181115015547-mutt-send-email-mst@kernel.org>
-	<61d57505-7ff6-23c6-d26c-6a0062e08445@redhat.com>
-	<20181129085049-mutt-send-email-mst@kernel.org>
-	<7e78fc3d-0d5a-090f-476d-03ad490ff8a2@redhat.com>
-	<20181130075134-mutt-send-email-mst@kernel.org>
-	<55352308-9ceb-413e-44f6-e3dfd8f642cc@redhat.com>
-	<27cd8ac6-e892-cfaa-cd39-74f39b452681@redhat.com>
+Subject: Re: [PULL] vhost: cleanups and fixes
+Date: Fri, 30 Nov 2018 08:44:16 -0500
+Message-ID: <20181130084227-mutt-send-email-mst@kernel.org>
+References: <20181101171938-mutt-send-email-mst@kernel.org>
+	<CAGXu5jJ0HgV2qN=wohEgro6ixqXHOHBTsvS5a9Dcpz8gxVo3bA@mail.gmail.com>
+	<CAHk-=wicvws38JqzVF6oNEZ0jGzP6RecR6yAGtyzX3AkoJ321g@mail.gmail.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="utf-8"
-Content-Transfer-Encoding: base64
+Content-Type: text/plain; charset="us-ascii"
+Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
 Content-Disposition: inline
-In-Reply-To: <27cd8ac6-e892-cfaa-cd39-74f39b452681@redhat.com>
+In-Reply-To: <CAHk-=wicvws38JqzVF6oNEZ0jGzP6RecR6yAGtyzX3AkoJ321g@mail.gmail.com>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -25,37 +20,37 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Jason Wang <jasowang@redhat.com>
-Cc: kvm@vger.kernel.org, virtualization@lists.linux-foundation.org, stefanha@redhat.com, netdev@vger.kernel.org
+To: Linus Torvalds <torvalds@linux-foundation.org>
+Cc: lenaic@lhuard.fr, mhocko@suse.com, Kees Cook <keescook@chromium.org>, kvm@vger.kernel.org, netdev@vger.kernel.org, liang.z.li@intel.com, Linux Kernel Mailing List <linux-kernel@vger.kernel.org>, virtualization@lists.linux-foundation.org, stefanha@redhat.com, joe@perches.com, Andrew Morton <akpm@linux-foundation.org>, mhocko@kernel.org, bijan.mottahedeh@oracle.com
 List-Id: virtualization@lists.linuxfoundation.org
 
-T24gRnJpLCBOb3YgMzAsIDIwMTggYXQgMDk6MTA6MDNQTSArMDgwMCwgSmFzb24gV2FuZyB3cm90
-ZToKPiAKPiBPbiAyMDE4LzExLzMwIOS4i+WNiDg6NTUsIEphc29uIFdhbmcgd3JvdGU6Cj4gPiAK
-PiA+IE9uIDIwMTgvMTEvMzAg5LiL5Y2IODo1MiwgTWljaGFlbCBTLiBUc2lya2luIHdyb3RlOgo+
-ID4gPiA+ID4gwqDCoCBJZiB5b3Ugd2FudCB0byBjb21wYXJlIGl0IHdpdGgKPiA+ID4gPiA+IHNv
-bWV0aGluZyB0aGF0IHdvdWxkIGJlIFRDUCBvciBRVUlDLsKgIFRoZSBmdW5kYW1lbnRhbAo+ID4g
-PiA+ID4gZGlmZmVyZW5jZSBiZXR3ZWVuCj4gPiA+ID4gPiB2aXJ0aW8tdnNvY2sgYW5kIGUuZy4g
-VENQIGlzIHRoYXQgVENQIG9wZXJhdGVzIGluIGEgcGFja2V0Cj4gPiA+ID4gPiBsb3NzIGVudmly
-b25tZW50Lgo+ID4gPiA+ID4gU28gdGhleSBhcmUgdXNpbmcgdGltZXJzIGZvciByZWxpYWJpbGl0
-eSwgYW5kIHJlY2VpdmVyIGlzCj4gPiA+ID4gPiBhbHdheXMgZnJlZSB0bwo+ID4gPiA+ID4gZGlz
-Y2FyZCBhbnkgdW5hY2tlZCBkYXRhLgo+ID4gPiA+IFZpcnRpby1uZXQga25vd3Mgbm90aGluZyBh
-Ym92ZSBMMiwgc28gdGhleSBhcmUgdG90YWxseQo+ID4gPiA+IHRyYW5zcGFyZW50IHRvIGRldmlj
-ZQo+ID4gPiA+IGl0c2VsZi4gSSBzdGlsbCBkb24ndCBnZXQgd2h5IG5vdCB1c2luZyB2aXJ0aW8t
-bmV0IGluc3RlYWQuCj4gPiA+ID4gCj4gPiA+ID4gCj4gPiA+ID4gVGhhbmtzCj4gPiA+IElzIHlv
-dXIgcXVlc3Rpb24gd2h5IGlzIHZpcnRpby12c29jayB1c2VkIGluc3RlYWQgb2YgVENQIG9uIHRv
-cCBvZiBJUAo+ID4gPiBvbiB0b3Agb2YgdmlydGlvLW5ldD8KPiA+ID4gCj4gPiA+IAo+ID4gCj4g
-PiBObywgbXkgcXVlc3Rpb24gaXMgd2h5IG5vdCBkbyB2c29jayB0aHJvdWdoIHZpcnRpby1uZXQu
-Cj4gPiAKPiA+IFRoYW5rcwo+ID4gCj4gCj4gSnVzdCB0byBjbGFyaWZ5LCBpdCdzIG5vdCBhYm91
-dCB2b3NjayBvdmVyIGV0aGVybmV0LCBhbmQgaXQncyBub3QgYWJvdXQKPiBpbnZlbnRpbmcgbmV3
-IGZlYXR1cmVzIG9yIEFQSXMuIEl0J3MgcHJvYmFibHkgc29tZXRoaW5nIGxpa2U6Cj4gCj4gLSBM
-ZXQgdmlydGlvLW5ldCBkcml2ZXIgcHJvYmUgdnNvY2sgZGV2aWNlIGFuZCBkbyB2b3NjayBzcGVj
-aWZpYyB0aGluZ3MgaWYKPiBuZWVkZWQgdG8gc2hhcmUgYXMgbXVjaCBjb2Rlcy4KPiAKPiAtIEEg
-bmV3IGtpbmQgb2Ygc29ja2ZkICh3aGljaCBpcyB2c29jayBiYXNlZCkgZm9yIHZob3N0LW5ldCBm
-b3IgaXQgdG8gZG8KPiB2c29jayBzcGVjaWZpYyB0aGluZ3MgKGhvcGVmdWxseSBpdCBjYW4gYmUg
-dHJhbnNwYXJlbnQpLgo+IAo+IFRoZSBjaGFuZ2Ugc2hvdWxkIGJlIHRvdGFsbHkgdHJhbnNwYXJl
-bnQgdG8gdXNlcnNwYWNlIGFwcGxpY2F0aW9ucy4KPiAKPiBUaGFua3MKCldoaWNoIGNvZGUgaXMg
-ZHVwbGljYXRlZCBiZXR3ZWVuIHZpcnRpbyB2c29jayBhbmQgdmlydGlvIG5ldCByaWdodCBub3c/
-CgotLSAKTVNUCl9fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19f
-ClZpcnR1YWxpemF0aW9uIG1haWxpbmcgbGlzdApWaXJ0dWFsaXphdGlvbkBsaXN0cy5saW51eC1m
-b3VuZGF0aW9uLm9yZwpodHRwczovL2xpc3RzLmxpbnV4Zm91bmRhdGlvbi5vcmcvbWFpbG1hbi9s
-aXN0aW5mby92aXJ0dWFsaXphdGlvbg==
+On Thu, Nov 01, 2018 at 04:06:19PM -0700, Linus Torvalds wrote:
+> On Thu, Nov 1, 2018 at 4:00 PM Kees Cook <keescook@chromium.org> wrote:
+> >
+> > +       memset(&rsp, 0, sizeof(rsp));
+> > +       rsp.response = VIRTIO_SCSI_S_FUNCTION_REJECTED;
+> > +       resp = vq->iov[out].iov_base;
+> > +       ret = __copy_to_user(resp, &rsp, sizeof(rsp));
+> >
+> > Is it actually safe to trust that iov_base has passed an earlier
+> > access_ok() check here? Why not just use copy_to_user() instead?
+> 
+> Good point.
+> 
+> We really should have removed those double-underscore things ages ago.
+> 
+> Also, apart from the address, what about the size? Wouldn't it be
+> better to use copy_to_iter() rather than implement it badly by hand?
+> 
+>                Linus
+
+Bijan can you respond please?
+Are you going to look into this and convert code to copy_to_iter?
+I don't think we should release Linux like this, so if you don't
+have the time I'd rather revert for now and you can look
+into reposting for the next release.
+
+Thanks,
+
+-- 
+MST
