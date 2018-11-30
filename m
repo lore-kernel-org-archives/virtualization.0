@@ -1,14 +1,15 @@
-From: Jean-Philippe Brucker <jean-philippe.brucker@arm.com>
+From: Jason Wang <jasowang@redhat.com>
 Subject: Re: [REBASE PATCH net-next v9 1/4] net: vhost: lock the vqs one by one
-Date: Thu, 29 Nov 2018 19:28:27 +0000
-Message-ID: <f0ebc0b1-e559-5966-dbcb-800067c3260e__11627.408307004$1543519608$gmane$org@arm.com>
+Date: Fri, 30 Nov 2018 10:34:38 +0800
+Message-ID: <ebbf9c7b-519a-f2c1-547c-fd47b1e07550__31142.6873937764$1543545165$gmane$org@redhat.com>
 References: <1537879012-20859-1-git-send-email-xiangxia.m.yue@gmail.com>
 	<1537879012-20859-2-git-send-email-xiangxia.m.yue@gmail.com>
+	<f0ebc0b1-e559-5966-dbcb-800067c3260e@arm.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset="utf-8"; Format="flowed"
+Content-Transfer-Encoding: base64
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <1537879012-20859-2-git-send-email-xiangxia.m.yue@gmail.com>
+In-Reply-To: <f0ebc0b1-e559-5966-dbcb-800067c3260e@arm.com>
 Content-Language: en-US
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
@@ -19,104 +20,58 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: xiangxia.m.yue@gmail.com, jasowang@redhat.com, mst@redhat.com, makita.toshiaki@lab.ntt.co.jp, davem@davemloft.net
+To: Jean-Philippe Brucker <jean-philippe.brucker@arm.com>, xiangxia.m.yue@gmail.com, mst@redhat.com, makita.toshiaki@lab.ntt.co.jp, davem@davemloft.net
 Cc: netdev@vger.kernel.org, virtualization@lists.linux-foundation.org
 List-Id: virtualization@lists.linuxfoundation.org
 
-Hi,
-
-On 25/09/2018 13:36, xiangxia.m.yue@gmail.com wrote:
-> From: Tonghao Zhang <xiangxia.m.yue@gmail.com>
-> 
-> This patch changes the way that lock all vqs
-> at the same, to lock them one by one. It will
-> be used for next patch to avoid the deadlock.
-> 
-> Signed-off-by: Tonghao Zhang <xiangxia.m.yue@gmail.com>
-> Acked-by: Jason Wang <jasowang@redhat.com>
-> Signed-off-by: Jason Wang <jasowang@redhat.com>
-> ---
->  drivers/vhost/vhost.c | 24 +++++++-----------------
->  1 file changed, 7 insertions(+), 17 deletions(-)
-> 
-> diff --git a/drivers/vhost/vhost.c b/drivers/vhost/vhost.c
-> index b13c6b4..f52008b 100644
-> --- a/drivers/vhost/vhost.c
-> +++ b/drivers/vhost/vhost.c
-> @@ -294,8 +294,11 @@ static void vhost_vq_meta_reset(struct vhost_dev *d)
->  {
->  	int i;
->  
-> -	for (i = 0; i < d->nvqs; ++i)
-> +	for (i = 0; i < d->nvqs; ++i) {
-> +		mutex_lock(&d->vqs[i]->mutex);
->  		__vhost_vq_meta_reset(d->vqs[i]);
-> +		mutex_unlock(&d->vqs[i]->mutex);
-> +	}
->  }
->  
->  static void vhost_vq_reset(struct vhost_dev *dev,
-> @@ -891,20 +894,6 @@ static inline void __user *__vhost_get_user(struct vhost_virtqueue *vq,
->  #define vhost_get_used(vq, x, ptr) \
->  	vhost_get_user(vq, x, ptr, VHOST_ADDR_USED)
->  
-> -static void vhost_dev_lock_vqs(struct vhost_dev *d)
-> -{
-> -	int i = 0;
-> -	for (i = 0; i < d->nvqs; ++i)
-> -		mutex_lock_nested(&d->vqs[i]->mutex, i);
-> -}
-> -
-> -static void vhost_dev_unlock_vqs(struct vhost_dev *d)
-> -{
-> -	int i = 0;
-> -	for (i = 0; i < d->nvqs; ++i)
-> -		mutex_unlock(&d->vqs[i]->mutex);
-> -}
-> -
->  static int vhost_new_umem_range(struct vhost_umem *umem,
->  				u64 start, u64 size, u64 end,
->  				u64 userspace_addr, int perm)
-> @@ -954,7 +943,10 @@ static void vhost_iotlb_notify_vq(struct vhost_dev *d,
->  		if (msg->iova <= vq_msg->iova &&
->  		    msg->iova + msg->size - 1 >= vq_msg->iova &&
->  		    vq_msg->type == VHOST_IOTLB_MISS) {
-> +			mutex_lock(&node->vq->mutex);
-
-This seems to introduce a deadlock (and sleep-in-atomic): the vq->mutex
-is taken while the IOTLB spinlock is held (taken earlier in
-vhost_iotlb_notify_vq()). On the vhost_iotlb_miss() path, the IOTLB
-spinlock is taken while the vq->mutex is held.
-
-I'm not sure how to fix it. Given that we're holding dev->mutex, that
-vq->poll only seems to be modified under dev->mutex, and assuming that
-vhost_poll_queue(vq->poll) can be called concurrently, is it safe to
-simply not take vq->mutex here?
-
-Thanks,
-Jean
-
-
->  			vhost_poll_queue(&node->vq->poll);
-> +			mutex_unlock(&node->vq->mutex);
-> +
->  			list_del(&node->node);
->  			kfree(node);
->  		}
-> @@ -986,7 +978,6 @@ static int vhost_process_iotlb_msg(struct vhost_dev *dev,
->  	int ret = 0;
->  
->  	mutex_lock(&dev->mutex);
-> -	vhost_dev_lock_vqs(dev);
->  	switch (msg->type) {
->  	case VHOST_IOTLB_UPDATE:
->  		if (!dev->iotlb) {
-> @@ -1020,7 +1011,6 @@ static int vhost_process_iotlb_msg(struct vhost_dev *dev,
->  		break;
->  	}
->  
-> -	vhost_dev_unlock_vqs(dev);
->  	mutex_unlock(&dev->mutex);
->  
->  	return ret;
-> 
+Ck9uIDIwMTgvMTEvMzAg5LiK5Y2IMzoyOCwgSmVhbi1QaGlsaXBwZSBCcnVja2VyIHdyb3RlOgo+
+IEhpLAo+Cj4gT24gMjUvMDkvMjAxOCAxMzozNix4aWFuZ3hpYS5tLnl1ZUBnbWFpbC5jb20gIHdy
+b3RlOgo+PiBGcm9tOiBUb25naGFvIFpoYW5nPHhpYW5neGlhLm0ueXVlQGdtYWlsLmNvbT4KPj4K
+Pj4gVGhpcyBwYXRjaCBjaGFuZ2VzIHRoZSB3YXkgdGhhdCBsb2NrIGFsbCB2cXMKPj4gYXQgdGhl
+IHNhbWUsIHRvIGxvY2sgdGhlbSBvbmUgYnkgb25lLiBJdCB3aWxsCj4+IGJlIHVzZWQgZm9yIG5l
+eHQgcGF0Y2ggdG8gYXZvaWQgdGhlIGRlYWRsb2NrLgo+Pgo+PiBTaWduZWQtb2ZmLWJ5OiBUb25n
+aGFvIFpoYW5nPHhpYW5neGlhLm0ueXVlQGdtYWlsLmNvbT4KPj4gQWNrZWQtYnk6IEphc29uIFdh
+bmc8amFzb3dhbmdAcmVkaGF0LmNvbT4KPj4gU2lnbmVkLW9mZi1ieTogSmFzb24gV2FuZzxqYXNv
+d2FuZ0ByZWRoYXQuY29tPgo+PiAtLS0KPj4gICBkcml2ZXJzL3Zob3N0L3Zob3N0LmMgfCAyNCAr
+KysrKysrLS0tLS0tLS0tLS0tLS0tLS0KPj4gICAxIGZpbGUgY2hhbmdlZCwgNyBpbnNlcnRpb25z
+KCspLCAxNyBkZWxldGlvbnMoLSkKPj4KPj4gZGlmZiAtLWdpdCBhL2RyaXZlcnMvdmhvc3Qvdmhv
+c3QuYyBiL2RyaXZlcnMvdmhvc3Qvdmhvc3QuYwo+PiBpbmRleCBiMTNjNmI0Li5mNTIwMDhiIDEw
+MDY0NAo+PiAtLS0gYS9kcml2ZXJzL3Zob3N0L3Zob3N0LmMKPj4gKysrIGIvZHJpdmVycy92aG9z
+dC92aG9zdC5jCj4+IEBAIC0yOTQsOCArMjk0LDExIEBAIHN0YXRpYyB2b2lkIHZob3N0X3ZxX21l
+dGFfcmVzZXQoc3RydWN0IHZob3N0X2RldiAqZCkKPj4gICB7Cj4+ICAgCWludCBpOwo+PiAgIAo+
+PiAtCWZvciAoaSA9IDA7IGkgPCBkLT5udnFzOyArK2kpCj4+ICsJZm9yIChpID0gMDsgaSA8IGQt
+Pm52cXM7ICsraSkgewo+PiArCQltdXRleF9sb2NrKCZkLT52cXNbaV0tPm11dGV4KTsKPj4gICAJ
+CV9fdmhvc3RfdnFfbWV0YV9yZXNldChkLT52cXNbaV0pOwo+PiArCQltdXRleF91bmxvY2soJmQt
+PnZxc1tpXS0+bXV0ZXgpOwo+PiArCX0KPj4gICB9Cj4+ICAgCj4+ICAgc3RhdGljIHZvaWQgdmhv
+c3RfdnFfcmVzZXQoc3RydWN0IHZob3N0X2RldiAqZGV2LAo+PiBAQCAtODkxLDIwICs4OTQsNiBA
+QCBzdGF0aWMgaW5saW5lIHZvaWQgX191c2VyICpfX3Zob3N0X2dldF91c2VyKHN0cnVjdCB2aG9z
+dF92aXJ0cXVldWUgKnZxLAo+PiAgICNkZWZpbmUgdmhvc3RfZ2V0X3VzZWQodnEsIHgsIHB0cikg
+XAo+PiAgIAl2aG9zdF9nZXRfdXNlcih2cSwgeCwgcHRyLCBWSE9TVF9BRERSX1VTRUQpCj4+ICAg
+Cj4+IC1zdGF0aWMgdm9pZCB2aG9zdF9kZXZfbG9ja192cXMoc3RydWN0IHZob3N0X2RldiAqZCkK
+Pj4gLXsKPj4gLQlpbnQgaSA9IDA7Cj4+IC0JZm9yIChpID0gMDsgaSA8IGQtPm52cXM7ICsraSkK
+Pj4gLQkJbXV0ZXhfbG9ja19uZXN0ZWQoJmQtPnZxc1tpXS0+bXV0ZXgsIGkpOwo+PiAtfQo+PiAt
+Cj4+IC1zdGF0aWMgdm9pZCB2aG9zdF9kZXZfdW5sb2NrX3ZxcyhzdHJ1Y3Qgdmhvc3RfZGV2ICpk
+KQo+PiAtewo+PiAtCWludCBpID0gMDsKPj4gLQlmb3IgKGkgPSAwOyBpIDwgZC0+bnZxczsgKytp
+KQo+PiAtCQltdXRleF91bmxvY2soJmQtPnZxc1tpXS0+bXV0ZXgpOwo+PiAtfQo+PiAtCj4+ICAg
+c3RhdGljIGludCB2aG9zdF9uZXdfdW1lbV9yYW5nZShzdHJ1Y3Qgdmhvc3RfdW1lbSAqdW1lbSwK
+Pj4gICAJCQkJdTY0IHN0YXJ0LCB1NjQgc2l6ZSwgdTY0IGVuZCwKPj4gICAJCQkJdTY0IHVzZXJz
+cGFjZV9hZGRyLCBpbnQgcGVybSkKPj4gQEAgLTk1NCw3ICs5NDMsMTAgQEAgc3RhdGljIHZvaWQg
+dmhvc3RfaW90bGJfbm90aWZ5X3ZxKHN0cnVjdCB2aG9zdF9kZXYgKmQsCj4+ICAgCQlpZiAobXNn
+LT5pb3ZhIDw9IHZxX21zZy0+aW92YSAmJgo+PiAgIAkJICAgIG1zZy0+aW92YSArIG1zZy0+c2l6
+ZSAtIDEgPj0gdnFfbXNnLT5pb3ZhICYmCj4+ICAgCQkgICAgdnFfbXNnLT50eXBlID09IFZIT1NU
+X0lPVExCX01JU1MpIHsKPj4gKwkJCW11dGV4X2xvY2soJm5vZGUtPnZxLT5tdXRleCk7Cj4gVGhp
+cyBzZWVtcyB0byBpbnRyb2R1Y2UgYSBkZWFkbG9jayAoYW5kIHNsZWVwLWluLWF0b21pYyk6IHRo
+ZSB2cS0+bXV0ZXgKPiBpcyB0YWtlbiB3aGlsZSB0aGUgSU9UTEIgc3BpbmxvY2sgaXMgaGVsZCAo
+dGFrZW4gZWFybGllciBpbgo+IHZob3N0X2lvdGxiX25vdGlmeV92cSgpKS4gT24gdGhlIHZob3N0
+X2lvdGxiX21pc3MoKSBwYXRoLCB0aGUgSU9UTEIKPiBzcGlubG9jayBpcyB0YWtlbiB3aGlsZSB0
+aGUgdnEtPm11dGV4IGlzIGhlbGQuCgoKR29vZCBjYXRjaC4KCgo+IEknbSBub3Qgc3VyZSBob3cg
+dG8gZml4IGl0LiBHaXZlbiB0aGF0IHdlJ3JlIGhvbGRpbmcgZGV2LT5tdXRleCwgdGhhdAo+IHZx
+LT5wb2xsIG9ubHkgc2VlbXMgdG8gYmUgbW9kaWZpZWQgdW5kZXIgZGV2LT5tdXRleCwgYW5kIGFz
+c3VtaW5nIHRoYXQKPiB2aG9zdF9wb2xsX3F1ZXVlKHZxLT5wb2xsKSBjYW4gYmUgY2FsbGVkIGNv
+bmN1cnJlbnRseSwgaXMgaXQgc2FmZSB0bwo+IHNpbXBseSBub3QgdGFrZSB2cS0+bXV0ZXggaGVy
+ZT8KCgpZZXMsIEkgdGhpbmsgaXQgY2FuIGJlIHJlbW92ZWQgaGVyZS4KCldhbnQgdG8gcG9zdCBh
+IHBhdGNoIGZvciB0aGlzPwoKVGhhbmtzCgoKPiBUaGFua3MsCj4gSmVhbgo+Cj4KX19fX19fX19f
+X19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX18KVmlydHVhbGl6YXRpb24gbWFp
+bGluZyBsaXN0ClZpcnR1YWxpemF0aW9uQGxpc3RzLmxpbnV4LWZvdW5kYXRpb24ub3JnCmh0dHBz
+Oi8vbGlzdHMubGludXhmb3VuZGF0aW9uLm9yZy9tYWlsbWFuL2xpc3RpbmZvL3ZpcnR1YWxpemF0
+aW9u
