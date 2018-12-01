@@ -1,18 +1,14 @@
-From: "Michael S. Tsirkin" <mst@redhat.com>
-Subject: Re: [PULL] vhost: cleanups and fixes
-Date: Fri, 30 Nov 2018 14:55:38 -0500
-Message-ID: <20181130145527-mutt-send-email-mst__33689.0029757798$1543607625$gmane$org@kernel.org>
-References: <20181101171938-mutt-send-email-mst@kernel.org>
-	<CAGXu5jJ0HgV2qN=wohEgro6ixqXHOHBTsvS5a9Dcpz8gxVo3bA@mail.gmail.com>
-	<CAHk-=wicvws38JqzVF6oNEZ0jGzP6RecR6yAGtyzX3AkoJ321g@mail.gmail.com>
-	<20181130084227-mutt-send-email-mst@kernel.org>
-	<e5eb0188-61fa-7556-4c36-68a618ba39bf@oracle.com>
+From: David Miller <davem@davemloft.net>
+Subject: Re: [PATCH net] virtio-net: keep vnet header zeroed after
+	processing XDP
+Date: Fri, 30 Nov 2018 17:25:46 -0800 (PST)
+Message-ID: <20181130.172546.127269245503154590.davem__16804.6079147191$1543627426$gmane$org@davemloft.net>
+References: <20181129055316.24090-1-jasowang@redhat.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="iso-8859-1"
-Content-Transfer-Encoding: quoted-printable
+Content-Type: text/plain; charset="us-ascii"
+Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-Content-Disposition: inline
-In-Reply-To: <e5eb0188-61fa-7556-4c36-68a618ba39bf@oracle.com>
+In-Reply-To: <20181129055316.24090-1-jasowang@redhat.com>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -22,57 +18,23 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Bijan Mottahedeh <bijan.mottahedeh@oracle.com>
-Cc: lenaic@lhuard.fr, mhocko@suse.com, Kees Cook <keescook@chromium.org>, kvm@vger.kernel.org, netdev@vger.kernel.org, liang.z.li@intel.com, Linux Kernel Mailing List <linux-kernel@vger.kernel.org>, virtualization@lists.linux-foundation.org, stefanha@redhat.com, joe@perches.com, Andrew Morton <akpm@linux-foundation.org>, mhocko@kernel.org, Linus Torvalds <torvalds@linux-foundation.org>
+To: jasowang@redhat.com
+Cc: netdev@vger.kernel.org, virtualization@lists.linux-foundation.org, linux-kernel@vger.kernel.org, mst@redhat.com
 List-Id: virtualization@lists.linuxfoundation.org
 
-On Fri, Nov 30, 2018 at 11:01:03AM -0800, Bijan Mottahedeh wrote:
-> On 11/30/2018 5:44 AM, Michael S. Tsirkin wrote:
-> > On Thu, Nov 01, 2018 at 04:06:19PM -0700, Linus Torvalds wrote:
-> > > On Thu, Nov 1, 2018 at 4:00 PM Kees Cook <keescook@chromium.org> wrot=
-e:
-> > > > +       memset(&rsp, 0, sizeof(rsp));
-> > > > +       rsp.response =3D VIRTIO_SCSI_S_FUNCTION_REJECTED;
-> > > > +       resp =3D vq->iov[out].iov_base;
-> > > > +       ret =3D __copy_to_user(resp, &rsp, sizeof(rsp));
-> > > > =
+From: Jason Wang <jasowang@redhat.com>
+Date: Thu, 29 Nov 2018 13:53:16 +0800
 
-> > > > Is it actually safe to trust that iov_base has passed an earlier
-> > > > access_ok() check here? Why not just use copy_to_user() instead?
-> > > Good point.
-> > > =
+> We copy vnet header unconditionally in page_to_skb() this is wrong
+> since XDP may modify the packet data. So let's keep a zeroed vnet
+> header for not confusing the conversion between vnet header and skb
+> metadata.
+> 
+> In the future, we should able to detect whether or not the packet was
+> modified and keep using the vnet header when packet was not touched.
+> 
+> Fixes: f600b6905015 ("virtio_net: Add XDP support")
+> Reported-by: Pavel Popa <pashinho1990@gmail.com>
+> Signed-off-by: Jason Wang <jasowang@redhat.com>
 
-> > > We really should have removed those double-underscore things ages ago.
-> > > =
-
-> > > Also, apart from the address, what about the size? Wouldn't it be
-> > > better to use copy_to_iter() rather than implement it badly by hand?
-> > > =
-
-> > >                 Linus
-> > Bijan can you respond please?
-> > Are you going to look into this and convert code to copy_to_iter?
-> > I don't think we should release Linux like this, so if you don't
-> > have the time I'd rather revert for now and you can look
-> > into reposting for the next release.
-> > =
-
-> > Thanks,
-> > =
-
-> =
-
-> Sure, will do.=A0 Can I send an individual patch for the fix to
-> vhost_scsi_send_tmf_reject()?
-> =
-
-> Thanks.
-> =
-
-> --bijan
-
-Please go ahead.
-
--- =
-
-MST
+Applied and queued up for -stable, thanks.
