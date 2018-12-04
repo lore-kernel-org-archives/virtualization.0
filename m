@@ -1,23 +1,17 @@
-From: jiangyiwen <jiangyiwen@huawei.com>
-Subject: Re: [RFC] Discuss about an new idea "Vsock over Virtio-net"
-Date: Tue, 4 Dec 2018 14:01:50 +0800
-Message-ID: <5C06184E.2010207@huawei.com>
-References: <61d57505-7ff6-23c6-d26c-6a0062e08445@redhat.com>
-	<20181129085049-mutt-send-email-mst@kernel.org>
-	<7e78fc3d-0d5a-090f-476d-03ad490ff8a2@redhat.com>
-	<20181130075134-mutt-send-email-mst@kernel.org>
-	<55352308-9ceb-413e-44f6-e3dfd8f642cc@redhat.com>
-	<27cd8ac6-e892-cfaa-cd39-74f39b452681@redhat.com>
-	<20181130083540-mutt-send-email-mst@kernel.org>
-	<5C049EC2.3080002@huawei.com>
-	<20181203202441-mutt-send-email-mst@kernel.org>
-	<5C05E4B4.3040804@huawei.com>
-	<20181203230459-mutt-send-email-mst@kernel.org>
+From: "tip-bot for Paul E. McKenney" <tipbot@zytor.com>
+Subject: [tip:core/rcu] drivers/vhost: Replace synchronize_rcu_bh() with
+	synchronize_rcu()
+Date: Tue, 4 Dec 2018 14:39:33 -0800
+Message-ID: <tip-d05faa5f1ac50beef77b4ceba0e8e157d41146e2@git.kernel.org>
+Reply-To: tglx@linutronix.de, linux-kernel@vger.kernel.org, mst@redhat.com,
+	virtualization@lists.linux-foundation.org, jasowang@redhat.com,
+	netdev@vger.kernel.org, mingo@kernel.org, paulmck@linux.ibm.com,
+	hpa@zytor.com, kvm@vger.kernel.org
 Mime-Version: 1.0
-Content-Type: text/plain; charset="utf-8"
-Content-Transfer-Encoding: base64
+Content-Type: text/plain; charset="us-ascii"
+Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <20181203230459-mutt-send-email-mst@kernel.org>
+Content-Disposition: inline
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -27,83 +21,43 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: "Michael S. Tsirkin" <mst@redhat.com>
-Cc: kvm@vger.kernel.org, virtualization@lists.linux-foundation.org, stefanha@redhat.com, netdev@vger.kernel.org
+To: linux-tip-commits@vger.kernel.org
+Cc: kvm@vger.kernel.org, mst@redhat.com, netdev@vger.kernel.org, virtualization@lists.linux-foundation.org, hpa@zytor.com, tglx@linutronix.de, paulmck@linux.ibm.com, mingo@kernel.org
 List-Id: virtualization@lists.linuxfoundation.org
 
-T24gMjAxOC8xMi80IDEyOjA4LCBNaWNoYWVsIFMuIFRzaXJraW4gd3JvdGU6Cj4gT24gVHVlLCBE
-ZWMgMDQsIDIwMTggYXQgMTA6MjE6NDBBTSArMDgwMCwgamlhbmd5aXdlbiB3cm90ZToKPj4gT24g
-MjAxOC8xMi80IDk6MzEsIE1pY2hhZWwgUy4gVHNpcmtpbiB3cm90ZToKPj4+IE9uIE1vbiwgRGVj
-IDAzLCAyMDE4IGF0IDExOjEwOjU4QU0gKzA4MDAsIGppYW5neWl3ZW4gd3JvdGU6Cj4+Pj4gT24g
-MjAxOC8xMS8zMCAyMTo0MCwgTWljaGFlbCBTLiBUc2lya2luIHdyb3RlOgo+Pj4+PiBPbiBGcmks
-IE5vdiAzMCwgMjAxOCBhdCAwOToxMDowM1BNICswODAwLCBKYXNvbiBXYW5nIHdyb3RlOgo+Pj4+
-Pj4KPj4+Pj4+IE9uIDIwMTgvMTEvMzAg5LiL5Y2IODo1NSwgSmFzb24gV2FuZyB3cm90ZToKPj4+
-Pj4+Pgo+Pj4+Pj4+IE9uIDIwMTgvMTEvMzAg5LiL5Y2IODo1MiwgTWljaGFlbCBTLiBUc2lya2lu
-IHdyb3RlOgo+Pj4+Pj4+Pj4+ICAgIElmIHlvdSB3YW50IHRvIGNvbXBhcmUgaXQgd2l0aAo+Pj4+
-Pj4+Pj4+IHNvbWV0aGluZyB0aGF0IHdvdWxkIGJlIFRDUCBvciBRVUlDLiAgVGhlIGZ1bmRhbWVu
-dGFsCj4+Pj4+Pj4+Pj4gZGlmZmVyZW5jZSBiZXR3ZWVuCj4+Pj4+Pj4+Pj4gdmlydGlvLXZzb2Nr
-IGFuZCBlLmcuIFRDUCBpcyB0aGF0IFRDUCBvcGVyYXRlcyBpbiBhIHBhY2tldAo+Pj4+Pj4+Pj4+
-IGxvc3MgZW52aXJvbm1lbnQuCj4+Pj4+Pj4+Pj4gU28gdGhleSBhcmUgdXNpbmcgdGltZXJzIGZv
-ciByZWxpYWJpbGl0eSwgYW5kIHJlY2VpdmVyIGlzCj4+Pj4+Pj4+Pj4gYWx3YXlzIGZyZWUgdG8K
-Pj4+Pj4+Pj4+PiBkaXNjYXJkIGFueSB1bmFja2VkIGRhdGEuCj4+Pj4+Pj4+PiBWaXJ0aW8tbmV0
-IGtub3dzIG5vdGhpbmcgYWJvdmUgTDIsIHNvIHRoZXkgYXJlIHRvdGFsbHkKPj4+Pj4+Pj4+IHRy
-YW5zcGFyZW50IHRvIGRldmljZQo+Pj4+Pj4+Pj4gaXRzZWxmLiBJIHN0aWxsIGRvbid0IGdldCB3
-aHkgbm90IHVzaW5nIHZpcnRpby1uZXQgaW5zdGVhZC4KPj4+Pj4+Pj4+Cj4+Pj4+Pj4+Pgo+Pj4+
-Pj4+Pj4gVGhhbmtzCj4+Pj4+Pj4+IElzIHlvdXIgcXVlc3Rpb24gd2h5IGlzIHZpcnRpby12c29j
-ayB1c2VkIGluc3RlYWQgb2YgVENQIG9uIHRvcCBvZiBJUAo+Pj4+Pj4+PiBvbiB0b3Agb2Ygdmly
-dGlvLW5ldD8KPj4+Pj4+Pj4KPj4+Pj4+Pj4KPj4+Pj4+Pgo+Pj4+Pj4+IE5vLCBteSBxdWVzdGlv
-biBpcyB3aHkgbm90IGRvIHZzb2NrIHRocm91Z2ggdmlydGlvLW5ldC4KPj4+Pj4+Pgo+Pj4+Pj4+
-IFRoYW5rcwo+Pj4+Pj4+Cj4+Pj4+Pgo+Pj4+Pj4gSnVzdCB0byBjbGFyaWZ5LCBpdCdzIG5vdCBh
-Ym91dCB2b3NjayBvdmVyIGV0aGVybmV0LCBhbmQgaXQncyBub3QgYWJvdXQKPj4+Pj4+IGludmVu
-dGluZyBuZXcgZmVhdHVyZXMgb3IgQVBJcy4gSXQncyBwcm9iYWJseSBzb21ldGhpbmcgbGlrZToK
-Pj4+Pj4+Cj4+Pj4+PiAtIExldCB2aXJ0aW8tbmV0IGRyaXZlciBwcm9iZSB2c29jayBkZXZpY2Ug
-YW5kIGRvIHZvc2NrIHNwZWNpZmljIHRoaW5ncyBpZgo+Pj4+Pj4gbmVlZGVkIHRvIHNoYXJlIGFz
-IG11Y2ggY29kZXMuCj4+Pj4+Pgo+Pj4+Pj4gLSBBIG5ldyBraW5kIG9mIHNvY2tmZCAod2hpY2gg
-aXMgdnNvY2sgYmFzZWQpIGZvciB2aG9zdC1uZXQgZm9yIGl0IHRvIGRvCj4+Pj4+PiB2c29jayBz
-cGVjaWZpYyB0aGluZ3MgKGhvcGVmdWxseSBpdCBjYW4gYmUgdHJhbnNwYXJlbnQpLgo+Pj4+Pj4K
-Pj4+Pj4+IFRoZSBjaGFuZ2Ugc2hvdWxkIGJlIHRvdGFsbHkgdHJhbnNwYXJlbnQgdG8gdXNlcnNw
-YWNlIGFwcGxpY2F0aW9ucy4KPj4+Pj4+Cj4+Pj4+PiBUaGFua3MKPj4+Pj4KPj4+Pj4gV2hpY2gg
-Y29kZSBpcyBkdXBsaWNhdGVkIGJldHdlZW4gdmlydGlvIHZzb2NrIGFuZCB2aXJ0aW8gbmV0IHJp
-Z2h0IG5vdz8KPj4+Pj4KPj4+Pgo+Pj4+IEhpIE1pY2hhZWwsCj4+Pj4KPj4+PiBBRkFJSywgdGhl
-cmUgaXMgYWxtb3N0IG5vIGR1cGxpY2F0ZSBjb2RlIGJldHdlZW4gdmlydGlvIHZzb2NrIGFuZCB2
-aXJ0aW8gbmV0IG5vdy4KPj4+Pgo+Pj4+IEJ1dCwgaWYgdmlydGlvIHZzb2NrIHdhbnRzIHRvIHN1
-cHBvcnQgbWVyZ2VhYmxlIHJ4IGJ1ZmZlciBhbmQgbXVsdGlxdWV1ZSBmZWF0dXJlLAo+Pj4+IGl0
-IGhhcyBzb21lIGR1cGxpY2F0ZSBjb2RlcyBmcm9tIHZpcnRpbyBuZXQuIEJhc2VkIG9uIGl0LCB3
-ZSBib3RoIHRoaW5rIHZzb2NrCj4+Pj4gbWF5IHVzZSB2aXJ0aW8gbmV0IGFzIGEgdHJhbnNwb3J0
-IGNoYW5uZWwsIGluIHRoaXMgd2F5LCB2c29jayBjYW4gdXNlIHNvbWUgb2YKPj4+PiB2aXJ0aW8g
-bmV0IGdyZWF0IGZlYXR1cmVzLgo+Pj4+Cj4+Pj4gVGhhbmtzLAo+Pj4+IFlpd2VuLgo+Pj4KPj4+
-IFdoYXQgSSB3b3VsZCBkbyBpcyBqdXN0IGNvcHkgc29tZSBjb2RlIGFuZCBzaG93IGEgcGVyZm9y
-bWFuY2UKPj4+IGJlbmVmaXQuIElmIHRoYXQgd29ya3Mgb3V0IGl0IHdpbGwgYmUgY2xlYXJlciB3
-aGljaCBjb2RlCj4+PiBzaG91bGQgYmUgc2hhcmVkLgo+Pj4KPj4KPj4gSGkgTWljaGFlbCwKPj4K
-Pj4gSSBoYXZlIGFscmVhZHkgc2VudCBhIHNlcmllcyBvZiBwYXRjaGVzIChWU09DSzogc3VwcG9y
-dCBtZXJnZWFibGUgcnggYnVmZmVyIGluIHZob3N0LXZzb2NrKQo+PiBhIG1vbnRoIGFnbywgYW5k
-IHRoZSBwZXJmb3JtYW5jZSBhcyBmb2xsb3dzOgo+Pgo+PiBJIHdyaXRlIGEgdG9vbCB0byB0ZXN0
-IHRoZSB2aG9zdC12c29jayBwZXJmb3JtYW5jZSwgbWFpbmx5IHNlbmQgYmlnCj4+IHBhY2tldCg2
-NEspIGluY2x1ZGVkIGd1ZXN0LT5Ib3N0IGFuZCBIb3N0LT5HdWVzdC4gVGhlIHJlc3VsdCBhcwo+
-PiBmb2xsb3dzOgo+Pgo+PiBCZWZvcmUgcGVyZm9ybWFuY2U6Cj4+ICAgICAgICAgICAgICAgU2lu
-Z2xlIHNvY2tldCAgICAgICAgICAgIE11bHRpcGxlIHNvY2tldHMoTWF4IEJhbmR3aWR0aCkKPj4g
-R3Vlc3QtPkhvc3QgICB+NDAwTUIvcyAgICAgICAgICAgICAgICAgfjQ4ME1CL3MKPj4gSG9zdC0+
-R3Vlc3QgICB+MTQ1ME1CL3MgICAgICAgICAgICAgICAgfjE2MDBNQi9zCj4+Cj4+IEFmdGVyIHBl
-cmZvcm1hbmNlOgo+PiAgICAgICAgICAgICAgIFNpbmdsZSBzb2NrZXQgICAgICAgICAgICBNdWx0
-aXBsZSBzb2NrZXRzKE1heCBCYW5kd2lkdGgpCj4+IEd1ZXN0LT5Ib3N0ICAgfjE3MDBNQi9zICAg
-ICAgICAgICAgICAgIH4yOTAwTUIvcwo+PiBIb3N0LT5HdWVzdCAgIH4xNzAwTUIvcyAgICAgICAg
-ICAgICAgICB+MjkwME1CL3MKPj4KPj4gPkZyb20gdGhlIHRlc3QgcmVzdWx0cywgdGhlIHBlcmZv
-cm1hbmNlIGlzIGltcHJvdmVkIG9idmlvdXNseSwgYW5kIGd1ZXN0Cj4+IG1lbW9yeSB3aWxsIG5v
-dCBiZSB3YXN0ZWQuCj4gCj4gT2ggSSBkaWRuJ3Qgc2VlIHRoYXQgb25lLiBQbHMgQ0MgbWUgaW4g
-dGhlIGZ1dHVyZS4KPiAKPiBMb29raW5nIGF0IGl0IEkgYWdyZWUgemVybyBwYWdlIGFsbG9jYXRp
-b24gbG9va3MgbGlrZSBhbiBpc3N1ZQo+IGJ1dCBiZXNpZGVzIHRoYXQsIEkgdGhpbmsgd2UgY2Fu
-IG1lcmdlIHNvbWV0aGluZyBzaW1pbGFyCj4gYW5kIGxvb2sgYXQgcmVmYWN0b3JpbmcgYW5kIGZ1
-dHVyZSBleHRlbnNpb25zIGxhdGVyLgo+IAo+IEhvd2V2ZXIsIGFueSBpbnRlcmZhY2UgY2hhbmdl
-IChlLmcuIGEgbmV3IGZlYXR1cmUpIG11c3QgYmUgQ0MnZCB0byBvbmUgb2YKPiB2aXJ0aW8gbGlz
-dHMgKHN1YnNjcmliZXItb25seSkuCj4gCj4gCgpPa2F5LCBwcmV2aW91c2x5IEkgc2VuZCBWaXJ0
-aW8tdnNvY2sgcGF0Y2ggb25seSBDQyBzdGVmYW4gYW5kIG1haWxpbmcgbGlzdHMKYmFzZWQgb24g
-TUFJTlRBSU5FUlMsIGJlY2F1c2UgaXQgb25seSBiZSByZWxhdGVkIHRvIFZpcnRpby12c29jay4K
-ClRoZW4sIGZpcnN0IEkgc2VuZCB2MiBwYXRjaCBiYXNlZCBvbiBKYXNvbidzIHN1Z2dlc3Rpb25z
-LCBhbmQgdGhlbiBsZXQncwpzZWUgaG93IHRvIGNvbWJpbmUgd2l0aCB2aXJ0aW8tdnNvY2sgYW5k
-IHZpcnRpby1uZXQuIFdoYXQgZG8geW91IHRoaW5rPwoKVGhhbmtzLApZaXdlbi4KCj4gCj4+IElu
-IGFkZGl0aW9uLCBtdWx0aXF1ZXVlIGZlYXR1cmUgSSBoYXZlIG5vdCBpbXBsZW1lbnRlZCBpdCB5
-ZXQuCj4+Cj4+IFRoYW5rcywKPj4gWWl3ZW4uCj4+Cj4gCj4gCj4gCj4gCj4gLgo+IAoKCl9fX19f
-X19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fClZpcnR1YWxpemF0aW9u
-IG1haWxpbmcgbGlzdApWaXJ0dWFsaXphdGlvbkBsaXN0cy5saW51eC1mb3VuZGF0aW9uLm9yZwpo
-dHRwczovL2xpc3RzLmxpbnV4Zm91bmRhdGlvbi5vcmcvbWFpbG1hbi9saXN0aW5mby92aXJ0dWFs
-aXphdGlvbg==
+Commit-ID:  d05faa5f1ac50beef77b4ceba0e8e157d41146e2
+Gitweb:     https://git.kernel.org/tip/d05faa5f1ac50beef77b4ceba0e8e157d41146e2
+Author:     Paul E. McKenney <paulmck@linux.ibm.com>
+AuthorDate: Mon, 5 Nov 2018 17:14:53 -0800
+Committer:  Paul E. McKenney <paulmck@linux.ibm.com>
+CommitDate: Tue, 27 Nov 2018 09:21:37 -0800
+
+drivers/vhost: Replace synchronize_rcu_bh() with synchronize_rcu()
+
+Now that synchronize_rcu() waits for bh-disable regions of code as well
+as RCU read-side critical sections, synchronize_rcu_bh() can be replaced
+by synchronize_rcu().  This commit therefore makes this change.
+
+Signed-off-by: Paul E. McKenney <paulmck@linux.ibm.com>
+Cc: "Michael S. Tsirkin" <mst@redhat.com>
+Cc: Jason Wang <jasowang@redhat.com>
+Cc: <kvm@vger.kernel.org>
+Cc: <virtualization@lists.linux-foundation.org>
+Cc: <netdev@vger.kernel.org>
+---
+ drivers/vhost/net.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
+
+diff --git a/drivers/vhost/net.c b/drivers/vhost/net.c
+index ab11b2bee273..564ead864028 100644
+--- a/drivers/vhost/net.c
++++ b/drivers/vhost/net.c
+@@ -1359,7 +1359,7 @@ static int vhost_net_release(struct inode *inode, struct file *f)
+ 	if (rx_sock)
+ 		sockfd_put(rx_sock);
+ 	/* Make sure no callbacks are outstanding */
+-	synchronize_rcu_bh();
++	synchronize_rcu();
+ 	/* We do an extra flush before freeing memory,
+ 	 * since jobs can re-queue themselves. */
+ 	vhost_net_flush(n);
