@@ -1,13 +1,23 @@
-From: David Miller <davem@davemloft.net>
-Subject: Re: [PATCH v2] vhost: fix IOTLB locking
-Date: Mon, 03 Dec 2018 15:53:17 -0800 (PST)
-Message-ID: <20181203.155317.2179703794307611009.davem__20273.6452142291$1543881075$gmane$org@davemloft.net>
-References: <20181130160553.9739-1-jean-philippe.brucker@arm.com>
+From: "Michael S. Tsirkin" <mst@redhat.com>
+Subject: Re: [RFC] Discuss about an new idea "Vsock over Virtio-net"
+Date: Mon, 3 Dec 2018 20:31:45 -0500
+Message-ID: <20181203202441-mutt-send-email-mst__6193.45535892553$1543886991$gmane$org@kernel.org>
+References: <5BECEE53.7090408@huawei.com>
+	<20181115015547-mutt-send-email-mst@kernel.org>
+	<61d57505-7ff6-23c6-d26c-6a0062e08445@redhat.com>
+	<20181129085049-mutt-send-email-mst@kernel.org>
+	<7e78fc3d-0d5a-090f-476d-03ad490ff8a2@redhat.com>
+	<20181130075134-mutt-send-email-mst@kernel.org>
+	<55352308-9ceb-413e-44f6-e3dfd8f642cc@redhat.com>
+	<27cd8ac6-e892-cfaa-cd39-74f39b452681@redhat.com>
+	<20181130083540-mutt-send-email-mst@kernel.org>
+	<5C049EC2.3080002@huawei.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset="utf-8"
+Content-Transfer-Encoding: base64
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <20181130160553.9739-1-jean-philippe.brucker@arm.com>
+Content-Disposition: inline
+In-Reply-To: <5C049EC2.3080002@huawei.com>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -17,25 +27,49 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: jean-philippe.brucker@arm.com
-Cc: kvm@vger.kernel.org, mst@redhat.com, netdev@vger.kernel.org, virtualization@lists.linux-foundation.org
+To: jiangyiwen <jiangyiwen@huawei.com>
+Cc: kvm@vger.kernel.org, virtualization@lists.linux-foundation.org, stefanha@redhat.com, netdev@vger.kernel.org
 List-Id: virtualization@lists.linuxfoundation.org
 
-From: Jean-Philippe Brucker <jean-philippe.brucker@arm.com>
-Date: Fri, 30 Nov 2018 16:05:53 +0000
-
-> Commit 78139c94dc8c ("net: vhost: lock the vqs one by one") moved the vq
-> lock to improve scalability, but introduced a possible deadlock in
-> vhost-iotlb. vhost_iotlb_notify_vq() now takes vq->mutex while holding
-> the device's IOTLB spinlock. And on the vhost_iotlb_miss() path, the
-> spinlock is taken while holding vq->mutex.
-> 
-> Since calling vhost_poll_queue() doesn't require any lock, avoid the
-> deadlock by not taking vq->mutex.
-> 
-> Fixes: 78139c94dc8c ("net: vhost: lock the vqs one by one")
-> Acked-by: Jason Wang <jasowang@redhat.com>
-> Acked-by: Michael S. Tsirkin <mst@redhat.com>
-> Signed-off-by: Jean-Philippe Brucker <jean-philippe.brucker@arm.com>
-
-Applied, thank you.
+T24gTW9uLCBEZWMgMDMsIDIwMTggYXQgMTE6MTA6NThBTSArMDgwMCwgamlhbmd5aXdlbiB3cm90
+ZToKPiBPbiAyMDE4LzExLzMwIDIxOjQwLCBNaWNoYWVsIFMuIFRzaXJraW4gd3JvdGU6Cj4gPiBP
+biBGcmksIE5vdiAzMCwgMjAxOCBhdCAwOToxMDowM1BNICswODAwLCBKYXNvbiBXYW5nIHdyb3Rl
+Ogo+ID4+Cj4gPj4gT24gMjAxOC8xMS8zMCDkuIvljYg4OjU1LCBKYXNvbiBXYW5nIHdyb3RlOgo+
+ID4+Pgo+ID4+PiBPbiAyMDE4LzExLzMwIOS4i+WNiDg6NTIsIE1pY2hhZWwgUy4gVHNpcmtpbiB3
+cm90ZToKPiA+Pj4+Pj4gICAgSWYgeW91IHdhbnQgdG8gY29tcGFyZSBpdCB3aXRoCj4gPj4+Pj4+
+IHNvbWV0aGluZyB0aGF0IHdvdWxkIGJlIFRDUCBvciBRVUlDLiAgVGhlIGZ1bmRhbWVudGFsCj4g
+Pj4+Pj4+IGRpZmZlcmVuY2UgYmV0d2Vlbgo+ID4+Pj4+PiB2aXJ0aW8tdnNvY2sgYW5kIGUuZy4g
+VENQIGlzIHRoYXQgVENQIG9wZXJhdGVzIGluIGEgcGFja2V0Cj4gPj4+Pj4+IGxvc3MgZW52aXJv
+bm1lbnQuCj4gPj4+Pj4+IFNvIHRoZXkgYXJlIHVzaW5nIHRpbWVycyBmb3IgcmVsaWFiaWxpdHks
+IGFuZCByZWNlaXZlciBpcwo+ID4+Pj4+PiBhbHdheXMgZnJlZSB0bwo+ID4+Pj4+PiBkaXNjYXJk
+IGFueSB1bmFja2VkIGRhdGEuCj4gPj4+Pj4gVmlydGlvLW5ldCBrbm93cyBub3RoaW5nIGFib3Zl
+IEwyLCBzbyB0aGV5IGFyZSB0b3RhbGx5Cj4gPj4+Pj4gdHJhbnNwYXJlbnQgdG8gZGV2aWNlCj4g
+Pj4+Pj4gaXRzZWxmLiBJIHN0aWxsIGRvbid0IGdldCB3aHkgbm90IHVzaW5nIHZpcnRpby1uZXQg
+aW5zdGVhZC4KPiA+Pj4+Pgo+ID4+Pj4+Cj4gPj4+Pj4gVGhhbmtzCj4gPj4+PiBJcyB5b3VyIHF1
+ZXN0aW9uIHdoeSBpcyB2aXJ0aW8tdnNvY2sgdXNlZCBpbnN0ZWFkIG9mIFRDUCBvbiB0b3Agb2Yg
+SVAKPiA+Pj4+IG9uIHRvcCBvZiB2aXJ0aW8tbmV0Pwo+ID4+Pj4KPiA+Pj4+Cj4gPj4+Cj4gPj4+
+IE5vLCBteSBxdWVzdGlvbiBpcyB3aHkgbm90IGRvIHZzb2NrIHRocm91Z2ggdmlydGlvLW5ldC4K
+PiA+Pj4KPiA+Pj4gVGhhbmtzCj4gPj4+Cj4gPj4KPiA+PiBKdXN0IHRvIGNsYXJpZnksIGl0J3Mg
+bm90IGFib3V0IHZvc2NrIG92ZXIgZXRoZXJuZXQsIGFuZCBpdCdzIG5vdCBhYm91dAo+ID4+IGlu
+dmVudGluZyBuZXcgZmVhdHVyZXMgb3IgQVBJcy4gSXQncyBwcm9iYWJseSBzb21ldGhpbmcgbGlr
+ZToKPiA+Pgo+ID4+IC0gTGV0IHZpcnRpby1uZXQgZHJpdmVyIHByb2JlIHZzb2NrIGRldmljZSBh
+bmQgZG8gdm9zY2sgc3BlY2lmaWMgdGhpbmdzIGlmCj4gPj4gbmVlZGVkIHRvIHNoYXJlIGFzIG11
+Y2ggY29kZXMuCj4gPj4KPiA+PiAtIEEgbmV3IGtpbmQgb2Ygc29ja2ZkICh3aGljaCBpcyB2c29j
+ayBiYXNlZCkgZm9yIHZob3N0LW5ldCBmb3IgaXQgdG8gZG8KPiA+PiB2c29jayBzcGVjaWZpYyB0
+aGluZ3MgKGhvcGVmdWxseSBpdCBjYW4gYmUgdHJhbnNwYXJlbnQpLgo+ID4+Cj4gPj4gVGhlIGNo
+YW5nZSBzaG91bGQgYmUgdG90YWxseSB0cmFuc3BhcmVudCB0byB1c2Vyc3BhY2UgYXBwbGljYXRp
+b25zLgo+ID4+Cj4gPj4gVGhhbmtzCj4gPiAKPiA+IFdoaWNoIGNvZGUgaXMgZHVwbGljYXRlZCBi
+ZXR3ZWVuIHZpcnRpbyB2c29jayBhbmQgdmlydGlvIG5ldCByaWdodCBub3c/Cj4gPiAKPiAKPiBI
+aSBNaWNoYWVsLAo+IAo+IEFGQUlLLCB0aGVyZSBpcyBhbG1vc3Qgbm8gZHVwbGljYXRlIGNvZGUg
+YmV0d2VlbiB2aXJ0aW8gdnNvY2sgYW5kIHZpcnRpbyBuZXQgbm93Lgo+IAo+IEJ1dCwgaWYgdmly
+dGlvIHZzb2NrIHdhbnRzIHRvIHN1cHBvcnQgbWVyZ2VhYmxlIHJ4IGJ1ZmZlciBhbmQgbXVsdGlx
+dWV1ZSBmZWF0dXJlLAo+IGl0IGhhcyBzb21lIGR1cGxpY2F0ZSBjb2RlcyBmcm9tIHZpcnRpbyBu
+ZXQuIEJhc2VkIG9uIGl0LCB3ZSBib3RoIHRoaW5rIHZzb2NrCj4gbWF5IHVzZSB2aXJ0aW8gbmV0
+IGFzIGEgdHJhbnNwb3J0IGNoYW5uZWwsIGluIHRoaXMgd2F5LCB2c29jayBjYW4gdXNlIHNvbWUg
+b2YKPiB2aXJ0aW8gbmV0IGdyZWF0IGZlYXR1cmVzLgo+IAo+IFRoYW5rcywKPiBZaXdlbi4KCldo
+YXQgSSB3b3VsZCBkbyBpcyBqdXN0IGNvcHkgc29tZSBjb2RlIGFuZCBzaG93IGEgcGVyZm9ybWFu
+Y2UKYmVuZWZpdC4gSWYgdGhhdCB3b3JrcyBvdXQgaXQgd2lsbCBiZSBjbGVhcmVyIHdoaWNoIGNv
+ZGUKc2hvdWxkIGJlIHNoYXJlZC4KCi0tIApNU1QKX19fX19fX19fX19fX19fX19fX19fX19fX19f
+X19fX19fX19fX19fX19fX19fX18KVmlydHVhbGl6YXRpb24gbWFpbGluZyBsaXN0ClZpcnR1YWxp
+emF0aW9uQGxpc3RzLmxpbnV4LWZvdW5kYXRpb24ub3JnCmh0dHBzOi8vbGlzdHMubGludXhmb3Vu
+ZGF0aW9uLm9yZy9tYWlsbWFuL2xpc3RpbmZvL3ZpcnR1YWxpemF0aW9u
