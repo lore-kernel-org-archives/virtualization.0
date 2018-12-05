@@ -1,13 +1,17 @@
-From: Gerd Hoffmann <kraxel@redhat.com>
-Subject: [PATCH 3/3] drm/virtio: drop virtio_gpu_fence_cleanup()
-Date: Wed,  5 Dec 2018 11:53:17 +0100
-Message-ID: <20181205105317.15138-4-kraxel__47659.6228116707$1544007288$gmane$org@redhat.com>
-References: <20181205105317.15138-1-kraxel@redhat.com>
+From: "Michael S. Tsirkin" <mst@redhat.com>
+Subject: Re: [PATCH v9] virtio_blk: add discard and write zeroes support
+Date: Wed, 5 Dec 2018 08:41:43 -0500
+Message-ID: <20181205084049-mutt-send-email-mst@kernel.org>
+References: <1528258740-6581-1-git-send-email-changpeng.liu@intel.com>
+	<20181101224035.215548-1-dverkamp@chromium.org>
+	<20181102041751.GA13688@stefanha-x1.localdomain>
+	<FF7FC980937D6342B9D289F5F3C7C2625B7817C5@SHSMSX103.ccr.corp.intel.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <20181205105317.15138-1-kraxel@redhat.com>
+Content-Disposition: inline
+In-Reply-To: <FF7FC980937D6342B9D289F5F3C7C2625B7817C5@SHSMSX103.ccr.corp.intel.com>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -17,81 +21,76 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: dri-devel@lists.freedesktop.org, David Airlie <airlied@redhat.com>
-Cc: David Airlie <airlied@linux.ie>, open list <linux-kernel@vger.kernel.org>, "open list:VIRTIO GPU DRIVER" <virtualization@lists.linux-foundation.org>
+To: "Liu, Changpeng" <changpeng.liu@intel.com>
+Cc: Jens Axboe <axboe@kernel.dk>, Christoph Hellwig <hch@infradead.org>, "virtualization@lists.linux-foundation.org" <virtualization@lists.linux-foundation.org>, "linux-block@vger.kernel.org" <linux-block@vger.kernel.org>, Stefan Hajnoczi <stefanha@redhat.com>, Paolo Bonzini <pbonzini@redhat.com>
 List-Id: virtualization@lists.linuxfoundation.org
 
-Just call drm_fence_put directly instead.
-Also set vgfb->fence to NULL after dropping the reference.
 
-Signed-off-by: Gerd Hoffmann <kraxel@redhat.com>
----
- drivers/gpu/drm/virtio/virtgpu_drv.h   | 1 -
- drivers/gpu/drm/virtio/virtgpu_fence.c | 8 --------
- drivers/gpu/drm/virtio/virtgpu_ioctl.c | 2 +-
- drivers/gpu/drm/virtio/virtgpu_plane.c | 6 ++++--
- 4 files changed, 5 insertions(+), 12 deletions(-)
+On Wed, Dec 05, 2018 at 09:46:16AM +0000, Liu, Changpeng wrote:
+> What's the status of this patch ? anybody pulled it for the branch ?
 
-diff --git a/drivers/gpu/drm/virtio/virtgpu_drv.h b/drivers/gpu/drm/virtio/virtgpu_drv.h
-index 1deb41d42e..551860497f 100644
---- a/drivers/gpu/drm/virtio/virtgpu_drv.h
-+++ b/drivers/gpu/drm/virtio/virtgpu_drv.h
-@@ -351,7 +351,6 @@ int virtio_gpu_mmap(struct file *filp, struct vm_area_struct *vma);
- /* virtio_gpu_fence.c */
- struct virtio_gpu_fence *virtio_gpu_fence_alloc(
- 	struct virtio_gpu_device *vgdev);
--void virtio_gpu_fence_cleanup(struct virtio_gpu_fence *fence);
- int virtio_gpu_fence_emit(struct virtio_gpu_device *vgdev,
- 			  struct virtio_gpu_ctrl_hdr *cmd_hdr,
- 			  struct virtio_gpu_fence *fence);
-diff --git a/drivers/gpu/drm/virtio/virtgpu_fence.c b/drivers/gpu/drm/virtio/virtgpu_fence.c
-index 4d6826b278..21bd4c4a32 100644
---- a/drivers/gpu/drm/virtio/virtgpu_fence.c
-+++ b/drivers/gpu/drm/virtio/virtgpu_fence.c
-@@ -81,14 +81,6 @@ struct virtio_gpu_fence *virtio_gpu_fence_alloc(struct virtio_gpu_device *vgdev)
- 	return fence;
- }
- 
--void virtio_gpu_fence_cleanup(struct virtio_gpu_fence *fence)
--{
--	if (!fence)
--		return;
--
--	dma_fence_put(&fence->f);
--}
--
- int virtio_gpu_fence_emit(struct virtio_gpu_device *vgdev,
- 			  struct virtio_gpu_ctrl_hdr *cmd_hdr,
- 			  struct virtio_gpu_fence *fence)
-diff --git a/drivers/gpu/drm/virtio/virtgpu_ioctl.c b/drivers/gpu/drm/virtio/virtgpu_ioctl.c
-index 161b80fee4..14ce8188c0 100644
---- a/drivers/gpu/drm/virtio/virtgpu_ioctl.c
-+++ b/drivers/gpu/drm/virtio/virtgpu_ioctl.c
-@@ -351,7 +351,7 @@ static int virtio_gpu_resource_create_ioctl(struct drm_device *dev, void *data,
- 		virtio_gpu_cmd_resource_create_3d(vgdev, qobj, &rc_3d);
- 		ret = virtio_gpu_object_attach(vgdev, qobj, fence);
- 		if (ret) {
--			virtio_gpu_fence_cleanup(fence);
-+			dma_fence_put(&fence->f);
- 			goto fail_backoff;
- 		}
- 		ttm_eu_fence_buffer_objects(&ticket, &validate_list, &fence->f);
-diff --git a/drivers/gpu/drm/virtio/virtgpu_plane.c b/drivers/gpu/drm/virtio/virtgpu_plane.c
-index 548265b8e8..024c2aa0c9 100644
---- a/drivers/gpu/drm/virtio/virtgpu_plane.c
-+++ b/drivers/gpu/drm/virtio/virtgpu_plane.c
-@@ -169,8 +169,10 @@ static void virtio_gpu_cursor_cleanup_fb(struct drm_plane *plane,
- 		return;
- 
- 	vgfb = to_virtio_gpu_framebuffer(plane->state->fb);
--	if (vgfb->fence)
--		virtio_gpu_fence_cleanup(vgfb->fence);
-+	if (vgfb->fence) {
-+		dma_fence_put(&vgfb->fence->f);
-+		vgfb->fence = NULL;
-+	}
- }
- 
- static void virtio_gpu_cursor_plane_update(struct drm_plane *plane,
--- 
-2.9.3
+I will merge it for next.
+
+> 
+> > -----Original Message-----
+> > From: Stefan Hajnoczi [mailto:stefanha@redhat.com]
+> > Sent: Friday, November 2, 2018 12:18 PM
+> > To: Daniel Verkamp <dverkamp@chromium.org>
+> > Cc: virtualization@lists.linux-foundation.org; linux-block@vger.kernel.org;
+> > Michael S. Tsirkin <mst@redhat.com>; Jason Wang <jasowang@redhat.com>;
+> > Jens Axboe <axboe@kernel.dk>; Paolo Bonzini <pbonzini@redhat.com>;
+> > Christoph Hellwig <hch@infradead.org>; Liu, Changpeng
+> > <changpeng.liu@intel.com>
+> > Subject: Re: [PATCH v9] virtio_blk: add discard and write zeroes support
+> > 
+> > On Thu, Nov 01, 2018 at 03:40:35PM -0700, Daniel Verkamp wrote:
+> > > From: Changpeng Liu <changpeng.liu@intel.com>
+> > >
+> > > In commit 88c85538, "virtio-blk: add discard and write zeroes features
+> > > to specification" (https://github.com/oasis-tcs/virtio-spec), the virtio
+> > > block specification has been extended to add VIRTIO_BLK_T_DISCARD and
+> > > VIRTIO_BLK_T_WRITE_ZEROES commands.  This patch enables support for
+> > > discard and write zeroes in the virtio-blk driver when the device
+> > > advertises the corresponding features, VIRTIO_BLK_F_DISCARD and
+> > > VIRTIO_BLK_F_WRITE_ZEROES.
+> > >
+> > > Signed-off-by: Changpeng Liu <changpeng.liu@intel.com>
+> > > Signed-off-by: Daniel Verkamp <dverkamp@chromium.org>
+> > > ---
+> > > dverkamp: I've picked up this patch and made a few minor changes (as
+> > > listed below); most notably, I changed the kmalloc back to GFP_ATOMIC,
+> > > since it can be called from a context where sleeping is not allowed.
+> > > To prevent large allocations, I've also clamped the maximum number of
+> > > discard segments to 256; this results in a 4K allocation and should be
+> > > plenty of descriptors for most use cases.
+> > >
+> > > I also removed most of the description from the commit message, since it
+> > > was duplicating the comments from virtio_blk.h and quoting parts of the
+> > > spec without adding any extra information.  I have tested this iteration
+> > > of the patch using crosvm with modifications to enable the new features:
+> > > https://chromium.googlesource.com/chromiumos/platform/crosvm/
+> > >
+> > > v9 fixes a number of review issues; I didn't attempt to optimize the
+> > > single-element write zeroes case, so it still does an allocation per
+> > > request (I did not see any easy place to put the payload that would
+> > > avoid the allocation).
+> > >
+> > > CHANGELOG:
+> > > v9: [dverkamp] fix LE types in discard struct; cleanups from Ming Lei
+> > > v8: [dverkamp] replace shifts by 9 with SECTOR_SHIFT constant
+> > > v7: [dverkamp] use GFP_ATOMIC for allocation that may not sleep; clarify
+> > > descriptor flags field; comment wording cleanups.
+> > > v6: don't set T_OUT bit to discard and write zeroes commands.
+> > > v5: use new block layer API: blk_queue_flag_set.
+> > > v4: several optimizations based on MST's comments, remove bit field
+> > > usage for command descriptor.
+> > > v3: define the virtio-blk protocol to add discard and write zeroes
+> > > support, first version implementation based on proposed specification.
+> > > v2: add write zeroes command support.
+> > > v1: initial proposal implementation for discard command.
+> > > ---
+> > >  drivers/block/virtio_blk.c      | 83 ++++++++++++++++++++++++++++++++-
+> > >  include/uapi/linux/virtio_blk.h | 54 +++++++++++++++++++++
+> > >  2 files changed, 135 insertions(+), 2 deletions(-)
+> > 
+> > Reviewed-by: Stefan Hajnoczi <stefanha@redhat.com>
