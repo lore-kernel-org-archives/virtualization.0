@@ -1,16 +1,13 @@
-From: "Liu, Changpeng" <changpeng.liu@intel.com>
-Subject: RE: [PATCH v9] virtio_blk: add discard and write zeroes support
-Date: Wed, 5 Dec 2018 09:46:16 +0000
-Message-ID: <FF7FC980937D6342B9D289F5F3C7C2625B7817C5@SHSMSX103.ccr.corp.intel.com>
-References: <1528258740-6581-1-git-send-email-changpeng.liu@intel.com>
-	<20181101224035.215548-1-dverkamp@chromium.org>
-	<20181102041751.GA13688@stefanha-x1.localdomain>
+From: Gerd Hoffmann <kraxel@redhat.com>
+Subject: [PATCH 2/3] drm/virtio: fix pageflip flush
+Date: Wed,  5 Dec 2018 11:53:16 +0100
+Message-ID: <20181205105317.15138-3-kraxel__31535.1456673399$1544007258$gmane$org@redhat.com>
+References: <20181205105317.15138-1-kraxel@redhat.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <20181102041751.GA13688@stefanha-x1.localdomain>
-Content-Language: en-US
+In-Reply-To: <20181205105317.15138-1-kraxel@redhat.com>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -20,71 +17,39 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Stefan Hajnoczi <stefanha@redhat.com>, Daniel Verkamp <dverkamp@chromium.org>
-Cc: Jens Axboe <axboe@kernel.dk>, Christoph Hellwig <hch@infradead.org>, "Michael S. Tsirkin" <mst@redhat.com>, "virtualization@lists.linux-foundation.org" <virtualization@lists.linux-foundation.org>, "linux-block@vger.kernel.org" <linux-block@vger.kernel.org>, Paolo Bonzini <pbonzini@redhat.com>
+To: dri-devel@lists.freedesktop.org, David Airlie <airlied@redhat.com>
+Cc: David Airlie <airlied@linux.ie>, open list <linux-kernel@vger.kernel.org>, "open list:VIRTIO GPU DRIVER" <virtualization@lists.linux-foundation.org>
 List-Id: virtualization@lists.linuxfoundation.org
 
-What's the status of this patch ? anybody pulled it for the branch ?
+Sending the flush command only makes sense if we actually have
+a framebuffer attached to the scanout (handle != 0).
 
-> -----Original Message-----
-> From: Stefan Hajnoczi [mailto:stefanha@redhat.com]
-> Sent: Friday, November 2, 2018 12:18 PM
-> To: Daniel Verkamp <dverkamp@chromium.org>
-> Cc: virtualization@lists.linux-foundation.org; linux-block@vger.kernel.org;
-> Michael S. Tsirkin <mst@redhat.com>; Jason Wang <jasowang@redhat.com>;
-> Jens Axboe <axboe@kernel.dk>; Paolo Bonzini <pbonzini@redhat.com>;
-> Christoph Hellwig <hch@infradead.org>; Liu, Changpeng
-> <changpeng.liu@intel.com>
-> Subject: Re: [PATCH v9] virtio_blk: add discard and write zeroes support
-> 
-> On Thu, Nov 01, 2018 at 03:40:35PM -0700, Daniel Verkamp wrote:
-> > From: Changpeng Liu <changpeng.liu@intel.com>
-> >
-> > In commit 88c85538, "virtio-blk: add discard and write zeroes features
-> > to specification" (https://github.com/oasis-tcs/virtio-spec), the virtio
-> > block specification has been extended to add VIRTIO_BLK_T_DISCARD and
-> > VIRTIO_BLK_T_WRITE_ZEROES commands.  This patch enables support for
-> > discard and write zeroes in the virtio-blk driver when the device
-> > advertises the corresponding features, VIRTIO_BLK_F_DISCARD and
-> > VIRTIO_BLK_F_WRITE_ZEROES.
-> >
-> > Signed-off-by: Changpeng Liu <changpeng.liu@intel.com>
-> > Signed-off-by: Daniel Verkamp <dverkamp@chromium.org>
-> > ---
-> > dverkamp: I've picked up this patch and made a few minor changes (as
-> > listed below); most notably, I changed the kmalloc back to GFP_ATOMIC,
-> > since it can be called from a context where sleeping is not allowed.
-> > To prevent large allocations, I've also clamped the maximum number of
-> > discard segments to 256; this results in a 4K allocation and should be
-> > plenty of descriptors for most use cases.
-> >
-> > I also removed most of the description from the commit message, since it
-> > was duplicating the comments from virtio_blk.h and quoting parts of the
-> > spec without adding any extra information.  I have tested this iteration
-> > of the patch using crosvm with modifications to enable the new features:
-> > https://chromium.googlesource.com/chromiumos/platform/crosvm/
-> >
-> > v9 fixes a number of review issues; I didn't attempt to optimize the
-> > single-element write zeroes case, so it still does an allocation per
-> > request (I did not see any easy place to put the payload that would
-> > avoid the allocation).
-> >
-> > CHANGELOG:
-> > v9: [dverkamp] fix LE types in discard struct; cleanups from Ming Lei
-> > v8: [dverkamp] replace shifts by 9 with SECTOR_SHIFT constant
-> > v7: [dverkamp] use GFP_ATOMIC for allocation that may not sleep; clarify
-> > descriptor flags field; comment wording cleanups.
-> > v6: don't set T_OUT bit to discard and write zeroes commands.
-> > v5: use new block layer API: blk_queue_flag_set.
-> > v4: several optimizations based on MST's comments, remove bit field
-> > usage for command descriptor.
-> > v3: define the virtio-blk protocol to add discard and write zeroes
-> > support, first version implementation based on proposed specification.
-> > v2: add write zeroes command support.
-> > v1: initial proposal implementation for discard command.
-> > ---
-> >  drivers/block/virtio_blk.c      | 83 ++++++++++++++++++++++++++++++++-
-> >  include/uapi/linux/virtio_blk.h | 54 +++++++++++++++++++++
-> >  2 files changed, 135 insertions(+), 2 deletions(-)
-> 
-> Reviewed-by: Stefan Hajnoczi <stefanha@redhat.com>
+Signed-off-by: Gerd Hoffmann <kraxel@redhat.com>
+---
+ drivers/gpu/drm/virtio/virtgpu_plane.c | 11 ++++++-----
+ 1 file changed, 6 insertions(+), 5 deletions(-)
+
+diff --git a/drivers/gpu/drm/virtio/virtgpu_plane.c b/drivers/gpu/drm/virtio/virtgpu_plane.c
+index ead5c53d4e..548265b8e8 100644
+--- a/drivers/gpu/drm/virtio/virtgpu_plane.c
++++ b/drivers/gpu/drm/virtio/virtgpu_plane.c
+@@ -130,11 +130,12 @@ static void virtio_gpu_primary_plane_update(struct drm_plane *plane,
+ 				   plane->state->src_h >> 16,
+ 				   plane->state->src_x >> 16,
+ 				   plane->state->src_y >> 16);
+-	virtio_gpu_cmd_resource_flush(vgdev, handle,
+-				      plane->state->src_x >> 16,
+-				      plane->state->src_y >> 16,
+-				      plane->state->src_w >> 16,
+-				      plane->state->src_h >> 16);
++	if (handle)
++		virtio_gpu_cmd_resource_flush(vgdev, handle,
++					      plane->state->src_x >> 16,
++					      plane->state->src_y >> 16,
++					      plane->state->src_w >> 16,
++					      plane->state->src_h >> 16);
+ }
+ 
+ static int virtio_gpu_cursor_prepare_fb(struct drm_plane *plane,
+-- 
+2.9.3
