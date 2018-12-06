@@ -1,14 +1,14 @@
 From: Jason Wang <jasowang@redhat.com>
 Subject: Re: [PATCH RFC 1/2] virtio-net: bql support
-Date: Thu, 6 Dec 2018 16:17:36 +0800
-Message-ID: <21384cb5-99a6-7431-1039-b356521e1bc3__21334.3221963898$1544084149$gmane$org@redhat.com>
+Date: Thu, 6 Dec 2018 16:31:24 +0800
+Message-ID: <a7c57a15-825d-b7fa-8f6d-790cb285bdcc__10865.5672207989$1544084990$gmane$org@redhat.com>
 References: <20181205225323.12555-1-mst@redhat.com>
 	<20181205225323.12555-2-mst@redhat.com>
+	<21384cb5-99a6-7431-1039-b356521e1bc3@redhat.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="utf-8"; Format="flowed"
-Content-Transfer-Encoding: base64
+Content-Type: multipart/mixed; boundary="------------43F548859632C22C685A62DF"
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <20181205225323.12555-2-mst@redhat.com>
+In-Reply-To: <21384cb5-99a6-7431-1039-b356521e1bc3@redhat.com>
 Content-Language: en-US
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
@@ -20,86 +20,312 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
 To: "Michael S. Tsirkin" <mst@redhat.com>, linux-kernel@vger.kernel.org
-Cc: netdev@vger.kernel.org, virtualization@lists.linux-foundation.org, maxime.coquelin@redhat.com, wexu@redhat.com, "David S. Miller" <davem@davemloft.net>
+Cc: netdev@vger.kernel.org, maxime.coquelin@redhat.com, "David S. Miller" <davem@davemloft.net>, wexu@redhat.com, virtualization@lists.linux-foundation.org
 List-Id: virtualization@lists.linuxfoundation.org
 
-Ck9uIDIwMTgvMTIvNiDkuIrljYg2OjU0LCBNaWNoYWVsIFMuIFRzaXJraW4gd3JvdGU6Cj4gV2hl
-biB1c2VfbmFwaSBpcyBzZXQsIGxldCdzIGVuYWJsZSBCUUxzLiAgTm90ZTogc29tZSBvZiB0aGUg
-aXNzdWVzIGFyZQo+IHNpbWlsYXIgdG8gd2lmaS4gIEl0J3Mgd29ydGggY29uc2lkZXJpbmcgd2hl
-dGhlciBzb21ldGhpbmcgc2ltaWxhciB0bwo+IGNvbW1pdCAzNjE0OGMyYmJmYmUgKCJtYWM4MDIx
-MTogQWRqdXN0IFRTUSBwYWNpbmcgc2hpZnQiKSBtaWdodCBiZQo+IGJlbmVmaXRpYWwuCgoKSSd2
-ZSBwbGF5ZWQgYSBzaW1pbGFyIHBhdGNoIHNldmVyYWwgZGF5cyBiZWZvcmUuIFRoZSB0cmlja3kg
-cGFydCBpcyB0aGUgCm1vZGUgc3dpdGNoaW5nIGJldHdlZW4gbmFwaSBhbmQgbm8gbmFwaS4gV2Ug
-c2hvdWxkIG1ha2Ugc3VyZSB3aGVuIHRoZSAKcGFja2V0IGlzIHNlbnQgYW5kIHRyYWtjZWQgYnkg
-QlFMLMKgIGl0IHNob3VsZCBiZSBjb25zdW1lZCBieSBCUUwgYXMgCndlbGwuIEkgZGlkIGl0IGJ5
-IHRyYWNraW5nIGl0IHRocm91Z2ggc2tiLT5jYi7CoCBBbmQgZGVhbCB3aXRoIHRoZSBmcmVlemUg
-CmJ5IHJlc2V0IHRoZSBCUUwgc3RhdHVzLiBQYXRjaCBhdHRhY2hlZC4KCkJ1dCB3aGVuIHRlc3Rp
-bmcgd2l0aCB2aG9zdC1uZXQsIEkgZG9uJ3QgdmVyeSBhIHN0YWJsZSBwZXJmb3JtYW5jZSwgaXQg
-CndhcyBwcm9iYWJseSBiZWNhdXNlIHdlIGJhdGNoIHRoZSB1c2VkIHJpbmcgdXBkYXRpbmcgc28g
-dHggaW50ZXJydXB0IG1heSAKY29tZSByYW5kb21seS4gV2UgcHJvYmFibHkgbmVlZCB0byBpbXBs
-ZW1lbnQgdGltZSBib3VuZGVkIGNvYWxlc2NpbmcgCm1lY2hhbmlzbSB3aGljaCBjb3VsZCBiZSBj
-b25maWd1cmVkIGZyb20gdXNlcnNwYWNlLgoKQnR3LCBtYXliZSBpdCdzIHRpbWUganVzdCBlbmFi
-bGUgbmFwaSBUWCBieSBkZWZhdWx0LiBJIGdldCB+MTAlIFRDUF9SUiAKcmVncmVzc2lvbiBvbiBt
-YWNoaW5lIHdpdGhvdXQgQVBJQ3YsIChoYXZlbid0IGZvdW5kIHRpbWUgdG8gdGVzdCBBUElDdiAK
-bWFjaGluZSkuIEJ1dCBjb25zaWRlciBpdCB3YXMgZm9yIGNvcnJlY3RuZXNzLCBJIHRoaW5rIGl0
-J3MgYWNjZXB0YWJsZT8gClRoZW4gd2UgY2FuIGRvIG9wdGltaXphdGlvbiBvbiB0b3A/CgoKVGhh
-bmtzCgoKPiBTaWduZWQtb2ZmLWJ5OiBNaWNoYWVsIFMuIFRzaXJraW4gPG1zdEByZWRoYXQuY29t
-Pgo+IC0tLQo+ICAgZHJpdmVycy9uZXQvdmlydGlvX25ldC5jIHwgMjcgKysrKysrKysrKysrKysr
-KysrKy0tLS0tLS0tCj4gICAxIGZpbGUgY2hhbmdlZCwgMTkgaW5zZXJ0aW9ucygrKSwgOCBkZWxl
-dGlvbnMoLSkKPgo+IGRpZmYgLS1naXQgYS9kcml2ZXJzL25ldC92aXJ0aW9fbmV0LmMgYi9kcml2
-ZXJzL25ldC92aXJ0aW9fbmV0LmMKPiBpbmRleCBjZWNmZDc3YzlmM2MuLmI2NTdiZGU2Yjk0YiAx
-MDA2NDQKPiAtLS0gYS9kcml2ZXJzL25ldC92aXJ0aW9fbmV0LmMKPiArKysgYi9kcml2ZXJzL25l
-dC92aXJ0aW9fbmV0LmMKPiBAQCAtMTMyNSw3ICsxMzI1LDggQEAgc3RhdGljIGludCB2aXJ0bmV0
-X3JlY2VpdmUoc3RydWN0IHJlY2VpdmVfcXVldWUgKnJxLCBpbnQgYnVkZ2V0LAo+ICAgCXJldHVy
-biBzdGF0cy5wYWNrZXRzOwo+ICAgfQo+ICAgCj4gLXN0YXRpYyB2b2lkIGZyZWVfb2xkX3htaXRf
-c2ticyhzdHJ1Y3Qgc2VuZF9xdWV1ZSAqc3EpCj4gK3N0YXRpYyB2b2lkIGZyZWVfb2xkX3htaXRf
-c2ticyhzdHJ1Y3Qgc2VuZF9xdWV1ZSAqc3EsIHN0cnVjdCBuZXRkZXZfcXVldWUgKnR4cSwKPiAr
-CQkJICAgICAgIGJvb2wgdXNlX25hcGkpCj4gICB7Cj4gICAJc3RydWN0IHNrX2J1ZmYgKnNrYjsK
-PiAgIAl1bnNpZ25lZCBpbnQgbGVuOwo+IEBAIC0xMzQ3LDYgKzEzNDgsOSBAQCBzdGF0aWMgdm9p
-ZCBmcmVlX29sZF94bWl0X3NrYnMoc3RydWN0IHNlbmRfcXVldWUgKnNxKQo+ICAgCWlmICghcGFj
-a2V0cykKPiAgIAkJcmV0dXJuOwo+ICAgCj4gKwlpZiAodXNlX25hcGkpCj4gKwkJbmV0ZGV2X3R4
-X2NvbXBsZXRlZF9xdWV1ZSh0eHEsIHBhY2tldHMsIGJ5dGVzKTsKPiArCj4gICAJdTY0X3N0YXRz
-X3VwZGF0ZV9iZWdpbigmc3EtPnN0YXRzLnN5bmNwKTsKPiAgIAlzcS0+c3RhdHMuYnl0ZXMgKz0g
-Ynl0ZXM7Cj4gICAJc3EtPnN0YXRzLnBhY2tldHMgKz0gcGFja2V0czsKPiBAQCAtMTM2NCw3ICsx
-MzY4LDcgQEAgc3RhdGljIHZvaWQgdmlydG5ldF9wb2xsX2NsZWFudHgoc3RydWN0IHJlY2VpdmVf
-cXVldWUgKnJxKQo+ICAgCQlyZXR1cm47Cj4gICAKPiAgIAlpZiAoX19uZXRpZl90eF90cnlsb2Nr
-KHR4cSkpIHsKPiAtCQlmcmVlX29sZF94bWl0X3NrYnMoc3EpOwo+ICsJCWZyZWVfb2xkX3htaXRf
-c2ticyhzcSwgdHhxLCB0cnVlKTsKPiAgIAkJX19uZXRpZl90eF91bmxvY2sodHhxKTsKPiAgIAl9
-Cj4gICAKPiBAQCAtMTQ0MCw3ICsxNDQ0LDcgQEAgc3RhdGljIGludCB2aXJ0bmV0X3BvbGxfdHgo
-c3RydWN0IG5hcGlfc3RydWN0ICpuYXBpLCBpbnQgYnVkZ2V0KQo+ICAgCXN0cnVjdCBuZXRkZXZf
-cXVldWUgKnR4cSA9IG5ldGRldl9nZXRfdHhfcXVldWUodmktPmRldiwgdnEydHhxKHNxLT52cSkp
-Owo+ICAgCj4gICAJX19uZXRpZl90eF9sb2NrKHR4cSwgcmF3X3NtcF9wcm9jZXNzb3JfaWQoKSk7
-Cj4gLQlmcmVlX29sZF94bWl0X3NrYnMoc3EpOwo+ICsJZnJlZV9vbGRfeG1pdF9za2JzKHNxLCB0
-eHEsIHRydWUpOwo+ICAgCV9fbmV0aWZfdHhfdW5sb2NrKHR4cSk7Cj4gICAKPiAgIAl2aXJ0cXVl
-dWVfbmFwaV9jb21wbGV0ZShuYXBpLCBzcS0+dnEsIDApOwo+IEBAIC0xNTA1LDEzICsxNTA5LDE1
-IEBAIHN0YXRpYyBuZXRkZXZfdHhfdCBzdGFydF94bWl0KHN0cnVjdCBza19idWZmICpza2IsIHN0
-cnVjdCBuZXRfZGV2aWNlICpkZXYpCj4gICAJc3RydWN0IHNlbmRfcXVldWUgKnNxID0gJnZpLT5z
-cVtxbnVtXTsKPiAgIAlpbnQgZXJyOwo+ICAgCXN0cnVjdCBuZXRkZXZfcXVldWUgKnR4cSA9IG5l
-dGRldl9nZXRfdHhfcXVldWUoZGV2LCBxbnVtKTsKPiAtCWJvb2wga2ljayA9ICFza2ItPnhtaXRf
-bW9yZTsKPiArCWJvb2wgbW9yZSA9IHNrYi0+eG1pdF9tb3JlOwo+ICAgCWJvb2wgdXNlX25hcGkg
-PSBzcS0+bmFwaS53ZWlnaHQ7Cj4gKwl1bnNpZ25lZCBpbnQgYnl0ZXMgPSBza2ItPmxlbjsKPiAr
-CWJvb2wga2ljazsKPiAgIAo+ICAgCS8qIEZyZWUgdXAgYW55IHBlbmRpbmcgb2xkIGJ1ZmZlcnMg
-YmVmb3JlIHF1ZXVlaW5nIG5ldyBvbmVzLiAqLwo+IC0JZnJlZV9vbGRfeG1pdF9za2JzKHNxKTsK
-PiArCWZyZWVfb2xkX3htaXRfc2ticyhzcSwgdHhxLCB1c2VfbmFwaSk7Cj4gICAKPiAtCWlmICh1
-c2VfbmFwaSAmJiBraWNrKQo+ICsJaWYgKHVzZV9uYXBpICYmICFtb3JlKQo+ICAgCQl2aXJ0cXVl
-dWVfZW5hYmxlX2NiX2RlbGF5ZWQoc3EtPnZxKTsKPiAgIAo+ICAgCS8qIHRpbWVzdGFtcCBwYWNr
-ZXQgaW4gc29mdHdhcmUgKi8KPiBAQCAtMTU1Miw3ICsxNTU4LDcgQEAgc3RhdGljIG5ldGRldl90
-eF90IHN0YXJ0X3htaXQoc3RydWN0IHNrX2J1ZmYgKnNrYiwgc3RydWN0IG5ldF9kZXZpY2UgKmRl
-dikKPiAgIAkJaWYgKCF1c2VfbmFwaSAmJgo+ICAgCQkgICAgdW5saWtlbHkoIXZpcnRxdWV1ZV9l
-bmFibGVfY2JfZGVsYXllZChzcS0+dnEpKSkgewo+ICAgCQkJLyogTW9yZSBqdXN0IGdvdCB1c2Vk
-LCBmcmVlIHRoZW0gdGhlbiByZWNoZWNrLiAqLwo+IC0JCQlmcmVlX29sZF94bWl0X3NrYnMoc3Ep
-Owo+ICsJCQlmcmVlX29sZF94bWl0X3NrYnMoc3EsIHR4cSwgZmFsc2UpOwo+ICAgCQkJaWYgKHNx
-LT52cS0+bnVtX2ZyZWUgPj0gMitNQVhfU0tCX0ZSQUdTKSB7Cj4gICAJCQkJbmV0aWZfc3RhcnRf
-c3VicXVldWUoZGV2LCBxbnVtKTsKPiAgIAkJCQl2aXJ0cXVldWVfZGlzYWJsZV9jYihzcS0+dnEp
-Owo+IEBAIC0xNTYwLDcgKzE1NjYsMTIgQEAgc3RhdGljIG5ldGRldl90eF90IHN0YXJ0X3htaXQo
-c3RydWN0IHNrX2J1ZmYgKnNrYiwgc3RydWN0IG5ldF9kZXZpY2UgKmRldikKPiAgIAkJfQo+ICAg
-CX0KPiAgIAo+IC0JaWYgKGtpY2sgfHwgbmV0aWZfeG1pdF9zdG9wcGVkKHR4cSkpIHsKPiArCWlm
-ICh1c2VfbmFwaSkKPiArCQlraWNrID0gX19uZXRkZXZfdHhfc2VudF9xdWV1ZSh0eHEsIGJ5dGVz
-LCBtb3JlKTsKPiArCWVsc2UKPiArCQlraWNrID0gIW1vcmUgfHwgbmV0aWZfeG1pdF9zdG9wcGVk
-KHR4cSk7Cj4gKwo+ICsJaWYgKGtpY2spIHsKPiAgIAkJaWYgKHZpcnRxdWV1ZV9raWNrX3ByZXBh
-cmUoc3EtPnZxKSAmJiB2aXJ0cXVldWVfbm90aWZ5KHNxLT52cSkpIHsKPiAgIAkJCXU2NF9zdGF0
-c191cGRhdGVfYmVnaW4oJnNxLT5zdGF0cy5zeW5jcCk7Cj4gICAJCQlzcS0+c3RhdHMua2lja3Mr
-KzsKX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX18KVmlydHVh
-bGl6YXRpb24gbWFpbGluZyBsaXN0ClZpcnR1YWxpemF0aW9uQGxpc3RzLmxpbnV4LWZvdW5kYXRp
-b24ub3JnCmh0dHBzOi8vbGlzdHMubGludXhmb3VuZGF0aW9uLm9yZy9tYWlsbWFuL2xpc3RpbmZv
-L3ZpcnR1YWxpemF0aW9u
+This is a multi-part message in MIME format.
+--------------43F548859632C22C685A62DF
+Content-Type: text/plain; charset=utf-8; format=flowed
+Content-Transfer-Encoding: 8bit
+
+
+On 2018/12/6 下午4:17, Jason Wang wrote:
+>
+> On 2018/12/6 上午6:54, Michael S. Tsirkin wrote:
+>> When use_napi is set, let's enable BQLs. Note: some of the issues are
+>> similar to wifi.  It's worth considering whether something similar to
+>> commit 36148c2bbfbe ("mac80211: Adjust TSQ pacing shift") might be
+>> benefitial.
+>
+>
+> I've played a similar patch several days before. The tricky part is 
+> the mode switching between napi and no napi. We should make sure when 
+> the packet is sent and trakced by BQL,  it should be consumed by BQL 
+> as well. I did it by tracking it through skb->cb.  And deal with the 
+> freeze by reset the BQL status. Patch attached.
+
+
+Add the patch.
+
+Thanks
+
+
+>
+> But when testing with vhost-net, I don't very a stable performance, it 
+> was probably because we batch the used ring updating so tx interrupt 
+> may come randomly. We probably need to implement time bounded 
+> coalescing mechanism which could be configured from userspace.
+>
+> Btw, maybe it's time just enable napi TX by default. I get ~10% TCP_RR 
+> regression on machine without APICv, (haven't found time to test APICv 
+> machine). But consider it was for correctness, I think it's 
+> acceptable? Then we can do optimization on top?
+>
+>
+> Thanks
+>
+>
+>> Signed-off-by: Michael S. Tsirkin <mst@redhat.com>
+>> ---
+>>   drivers/net/virtio_net.c | 27 +++++++++++++++++++--------
+>>   1 file changed, 19 insertions(+), 8 deletions(-)
+>>
+>> diff --git a/drivers/net/virtio_net.c b/drivers/net/virtio_net.c
+>> index cecfd77c9f3c..b657bde6b94b 100644
+>> --- a/drivers/net/virtio_net.c
+>> +++ b/drivers/net/virtio_net.c
+>> @@ -1325,7 +1325,8 @@ static int virtnet_receive(struct receive_queue 
+>> *rq, int budget,
+>>       return stats.packets;
+>>   }
+>>   -static void free_old_xmit_skbs(struct send_queue *sq)
+>> +static void free_old_xmit_skbs(struct send_queue *sq, struct 
+>> netdev_queue *txq,
+>> +                   bool use_napi)
+>>   {
+>>       struct sk_buff *skb;
+>>       unsigned int len;
+>> @@ -1347,6 +1348,9 @@ static void free_old_xmit_skbs(struct 
+>> send_queue *sq)
+>>       if (!packets)
+>>           return;
+>>   +    if (use_napi)
+>> +        netdev_tx_completed_queue(txq, packets, bytes);
+>> +
+>>       u64_stats_update_begin(&sq->stats.syncp);
+>>       sq->stats.bytes += bytes;
+>>       sq->stats.packets += packets;
+>> @@ -1364,7 +1368,7 @@ static void virtnet_poll_cleantx(struct 
+>> receive_queue *rq)
+>>           return;
+>>         if (__netif_tx_trylock(txq)) {
+>> -        free_old_xmit_skbs(sq);
+>> +        free_old_xmit_skbs(sq, txq, true);
+>>           __netif_tx_unlock(txq);
+>>       }
+>>   @@ -1440,7 +1444,7 @@ static int virtnet_poll_tx(struct napi_struct 
+>> *napi, int budget)
+>>       struct netdev_queue *txq = netdev_get_tx_queue(vi->dev, 
+>> vq2txq(sq->vq));
+>>         __netif_tx_lock(txq, raw_smp_processor_id());
+>> -    free_old_xmit_skbs(sq);
+>> +    free_old_xmit_skbs(sq, txq, true);
+>>       __netif_tx_unlock(txq);
+>>         virtqueue_napi_complete(napi, sq->vq, 0);
+>> @@ -1505,13 +1509,15 @@ static netdev_tx_t start_xmit(struct sk_buff 
+>> *skb, struct net_device *dev)
+>>       struct send_queue *sq = &vi->sq[qnum];
+>>       int err;
+>>       struct netdev_queue *txq = netdev_get_tx_queue(dev, qnum);
+>> -    bool kick = !skb->xmit_more;
+>> +    bool more = skb->xmit_more;
+>>       bool use_napi = sq->napi.weight;
+>> +    unsigned int bytes = skb->len;
+>> +    bool kick;
+>>         /* Free up any pending old buffers before queueing new ones. */
+>> -    free_old_xmit_skbs(sq);
+>> +    free_old_xmit_skbs(sq, txq, use_napi);
+>>   -    if (use_napi && kick)
+>> +    if (use_napi && !more)
+>>           virtqueue_enable_cb_delayed(sq->vq);
+>>         /* timestamp packet in software */
+>> @@ -1552,7 +1558,7 @@ static netdev_tx_t start_xmit(struct sk_buff 
+>> *skb, struct net_device *dev)
+>>           if (!use_napi &&
+>>               unlikely(!virtqueue_enable_cb_delayed(sq->vq))) {
+>>               /* More just got used, free them then recheck. */
+>> -            free_old_xmit_skbs(sq);
+>> +            free_old_xmit_skbs(sq, txq, false);
+>>               if (sq->vq->num_free >= 2+MAX_SKB_FRAGS) {
+>>                   netif_start_subqueue(dev, qnum);
+>>                   virtqueue_disable_cb(sq->vq);
+>> @@ -1560,7 +1566,12 @@ static netdev_tx_t start_xmit(struct sk_buff 
+>> *skb, struct net_device *dev)
+>>           }
+>>       }
+>>   -    if (kick || netif_xmit_stopped(txq)) {
+>> +    if (use_napi)
+>> +        kick = __netdev_tx_sent_queue(txq, bytes, more);
+>> +    else
+>> +        kick = !more || netif_xmit_stopped(txq);
+>> +
+>> +    if (kick) {
+>>           if (virtqueue_kick_prepare(sq->vq) && 
+>> virtqueue_notify(sq->vq)) {
+>>               u64_stats_update_begin(&sq->stats.syncp);
+>>               sq->stats.kicks++;
+> _______________________________________________
+> Virtualization mailing list
+> Virtualization@lists.linux-foundation.org
+> https://lists.linuxfoundation.org/mailman/listinfo/virtualization
+
+--------------43F548859632C22C685A62DF
+Content-Type: text/x-patch;
+ name="0001-virtio-net-byte-queue-limit-support.patch"
+Content-Transfer-Encoding: 7bit
+Content-Disposition: attachment;
+ filename="0001-virtio-net-byte-queue-limit-support.patch"
+
+From f1c27543dc412778e682b63addbb0a471afc5153 Mon Sep 17 00:00:00 2001
+From: Jason Wang <jasowang@redhat.com>
+Date: Tue, 20 Nov 2018 14:25:30 +0800
+Subject: [PATCH] virtio-net: byte queue limit support
+
+Signed-off-by: Jason Wang <jasowang@redhat.com>
+---
+ drivers/net/virtio_net.c | 46 ++++++++++++++++++++++++++++++++++++++--------
+ 1 file changed, 38 insertions(+), 8 deletions(-)
+
+diff --git a/drivers/net/virtio_net.c b/drivers/net/virtio_net.c
+index 47979fc..8712c11 100644
+--- a/drivers/net/virtio_net.c
++++ b/drivers/net/virtio_net.c
+@@ -279,6 +279,14 @@ static inline struct virtio_net_hdr_mrg_rxbuf *skb_vnet_hdr(struct sk_buff *skb)
+ 	return (struct virtio_net_hdr_mrg_rxbuf *)skb->cb;
+ }
+ 
++
++static inline int *skb_cb_bql(struct sk_buff *skb)
++{
++	BUILD_BUG_ON(sizeof(struct virtio_net_hdr_mrg_rxbuf) +
++		     sizeof(int) > sizeof(skb->cb));
++	return (int *)(skb->cb + sizeof(struct virtio_net_hdr_mrg_rxbuf));
++}
++
+ /*
+  * private is used to chain pages for big packets, put the whole
+  * most recent used list in the beginning for reuse
+@@ -1325,12 +1333,14 @@ static int virtnet_receive(struct receive_queue *rq, int budget,
+ 	return stats.packets;
+ }
+ 
+-static void free_old_xmit_skbs(struct send_queue *sq)
++static void free_old_xmit_skbs(struct send_queue *sq,
++			       struct netdev_queue *txq)
+ {
+ 	struct sk_buff *skb;
+ 	unsigned int len;
+-	unsigned int packets = 0;
+-	unsigned int bytes = 0;
++	unsigned int packets = 0, bql_packets = 0;
++	unsigned int bytes = 0, bql_bytes = 0;
++	int *bql;
+ 
+ 	while ((skb = virtqueue_get_buf(sq->vq, &len)) != NULL) {
+ 		pr_debug("Sent skb %p\n", skb);
+@@ -1338,6 +1348,12 @@ static void free_old_xmit_skbs(struct send_queue *sq)
+ 		bytes += skb->len;
+ 		packets++;
+ 
++		bql = skb_cb_bql(skb);
++		if (*bql) {
++			bql_packets ++;
++			bql_bytes += skb->len;
++		}
++
+ 		dev_consume_skb_any(skb);
+ 	}
+ 
+@@ -1351,6 +1367,8 @@ static void free_old_xmit_skbs(struct send_queue *sq)
+ 	sq->stats.bytes += bytes;
+ 	sq->stats.packets += packets;
+ 	u64_stats_update_end(&sq->stats.syncp);
++
++	netdev_tx_completed_queue(txq, bql_packets, bql_bytes);
+ }
+ 
+ static void virtnet_poll_cleantx(struct receive_queue *rq)
+@@ -1364,7 +1382,7 @@ static void virtnet_poll_cleantx(struct receive_queue *rq)
+ 		return;
+ 
+ 	if (__netif_tx_trylock(txq)) {
+-		free_old_xmit_skbs(sq);
++		free_old_xmit_skbs(sq, txq);
+ 		__netif_tx_unlock(txq);
+ 	}
+ 
+@@ -1440,7 +1458,7 @@ static int virtnet_poll_tx(struct napi_struct *napi, int budget)
+ 	struct netdev_queue *txq = netdev_get_tx_queue(vi->dev, vq2txq(sq->vq));
+ 
+ 	__netif_tx_lock(txq, raw_smp_processor_id());
+-	free_old_xmit_skbs(sq);
++	free_old_xmit_skbs(sq, txq);
+ 	__netif_tx_unlock(txq);
+ 
+ 	virtqueue_napi_complete(napi, sq->vq, 0);
+@@ -1459,6 +1477,7 @@ static int xmit_skb(struct send_queue *sq, struct sk_buff *skb)
+ 	int num_sg;
+ 	unsigned hdr_len = vi->hdr_len;
+ 	bool can_push;
++	int *bql = skb_cb_bql(skb);
+ 
+ 	pr_debug("%s: xmit %p %pM\n", vi->dev->name, skb, dest);
+ 
+@@ -1495,6 +1514,8 @@ static int xmit_skb(struct send_queue *sq, struct sk_buff *skb)
+ 			return num_sg;
+ 		num_sg++;
+ 	}
++
++	*bql = sq->napi.weight ? 1 : 0;
+ 	return virtqueue_add_outbuf(sq->vq, sq->sg, num_sg, skb, GFP_ATOMIC);
+ }
+ 
+@@ -1509,7 +1530,7 @@ static netdev_tx_t start_xmit(struct sk_buff *skb, struct net_device *dev)
+ 	bool use_napi = sq->napi.weight;
+ 
+ 	/* Free up any pending old buffers before queueing new ones. */
+-	free_old_xmit_skbs(sq);
++	free_old_xmit_skbs(sq, txq);
+ 
+ 	if (use_napi && kick)
+ 		virtqueue_enable_cb_delayed(sq->vq);
+@@ -1537,6 +1558,9 @@ static netdev_tx_t start_xmit(struct sk_buff *skb, struct net_device *dev)
+ 		nf_reset(skb);
+ 	}
+ 
++	if (use_napi)
++		netdev_tx_sent_queue(txq, skb->len);
++
+ 	/* If running out of space, stop queue to avoid getting packets that we
+ 	 * are then unable to transmit.
+ 	 * An alternative would be to force queuing layer to requeue the skb by
+@@ -1552,7 +1576,7 @@ static netdev_tx_t start_xmit(struct sk_buff *skb, struct net_device *dev)
+ 		if (!use_napi &&
+ 		    unlikely(!virtqueue_enable_cb_delayed(sq->vq))) {
+ 			/* More just got used, free them then recheck. */
+-			free_old_xmit_skbs(sq);
++			free_old_xmit_skbs(sq, txq);
+ 			if (sq->vq->num_free >= 2+MAX_SKB_FRAGS) {
+ 				netif_start_subqueue(dev, qnum);
+ 				virtqueue_disable_cb(sq->vq);
+@@ -2275,8 +2299,14 @@ static void virtnet_freeze_down(struct virtio_device *vdev)
+ 
+ 	if (netif_running(vi->dev)) {
+ 		for (i = 0; i < vi->max_queue_pairs; i++) {
++			struct send_queue *sq = &vi->sq[i];
++			struct netdev_queue *txq =
++			       netdev_get_tx_queue(vi->dev, i);
++
+ 			napi_disable(&vi->rq[i].napi);
+-			virtnet_napi_tx_disable(&vi->sq[i].napi);
++			virtnet_napi_tx_disable(&sq->napi);
++			if (sq->napi.weight)
++				netdev_tx_reset_queue(txq);
+ 		}
+ 	}
+ }
+-- 
+1.8.3.1
+
+
+--------------43F548859632C22C685A62DF
+Content-Type: text/plain; charset="us-ascii"
+MIME-Version: 1.0
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+
+_______________________________________________
+Virtualization mailing list
+Virtualization@lists.linux-foundation.org
+https://lists.linuxfoundation.org/mailman/listinfo/virtualization
+--------------43F548859632C22C685A62DF--
