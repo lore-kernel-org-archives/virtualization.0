@@ -1,14 +1,15 @@
 From: "Michael S. Tsirkin" <mst@redhat.com>
-Subject: Re: [PATCH 1/1] virtio: remove deprecated VIRTIO_PCI_CONFIG()
-Date: Fri, 7 Dec 2018 13:01:39 -0500
-Message-ID: <20181207125951-mutt-send-email-mst__21808.6726883941$1544205583$gmane$org@kernel.org>
-References: <1544168081-13205-1-git-send-email-dongli.zhang@oracle.com>
+Subject: Re: [RFC 2/3] virtio_ring: add VIRTIO_RING_NO_LEGACY
+Date: Fri, 7 Dec 2018 13:05:35 -0500
+Message-ID: <20181207130336-mutt-send-email-mst__23739.7360885099$1544205823$gmane$org@kernel.org>
+References: <20181207084842.13133-1-tiwei.bie@intel.com>
+	<20181207084842.13133-3-tiwei.bie@intel.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
 Content-Disposition: inline
-In-Reply-To: <1544168081-13205-1-git-send-email-dongli.zhang@oracle.com>
+In-Reply-To: <20181207084842.13133-3-tiwei.bie@intel.com>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -18,64 +19,67 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Dongli Zhang <dongli.zhang@oracle.com>
-Cc: linux-kernel@vger.kernel.org, virtualization@lists.linux-foundation.org
+To: Tiwei Bie <tiwei.bie@intel.com>
+Cc: virtio-dev@lists.oasis-open.org, netdev@vger.kernel.org, linux-kernel@vger.kernel.org, virtualization@lists.linux-foundation.org, maxime.coquelin@redhat.com, wexu@redhat.com
 List-Id: virtualization@lists.linuxfoundation.org
 
-On Fri, Dec 07, 2018 at 03:34:41PM +0800, Dongli Zhang wrote:
-> VIRTIO_PCI_CONFIG() is deprecated. Use VIRTIO_PCI_CONFIG_OFF() instead.
+On Fri, Dec 07, 2018 at 04:48:41PM +0800, Tiwei Bie wrote:
+> Introduce VIRTIO_RING_NO_LEGACY to support disabling legacy
+> macros and layout definitions.
 > 
-> Signed-off-by: Dongli Zhang <dongli.zhang@oracle.com>
+> Suggested-by: Michael S. Tsirkin <mst@redhat.com>
+> Signed-off-by: Tiwei Bie <tiwei.bie@intel.com>
 > ---
->  drivers/virtio/virtio_pci_legacy.c | 6 ++++--
->  include/uapi/linux/virtio_pci.h    | 2 --
->  2 files changed, 4 insertions(+), 4 deletions(-)
+> VRING_AVAIL_ALIGN_SIZE, VRING_USED_ALIGN_SIZE and VRING_DESC_ALIGN_SIZE
+> are not pre-virtio 1.0, but can also be disabled by VIRTIO_RING_NO_LEGACY
+> in this patch, because their names are not consistent with other names.
+> Not sure whether this is a good idea. If we want this, we may also want
+> to define _SPLIT_ version for them.
+
+I don't think it's a good idea to have alignment in there - the point of
+NO_LEGACY is to help catch bugs not to sanitize coding style IMHO.
+
+And spec calls "legacy" the 0.X interfaces, let's not muddy the waters.
+
 > 
-> diff --git a/drivers/virtio/virtio_pci_legacy.c b/drivers/virtio/virtio_pci_legacy.c
-> index de062fb..eff9ddc 100644
-> --- a/drivers/virtio/virtio_pci_legacy.c
-> +++ b/drivers/virtio/virtio_pci_legacy.c
-> @@ -52,7 +52,8 @@ static void vp_get(struct virtio_device *vdev, unsigned offset,
->  {
->  	struct virtio_pci_device *vp_dev = to_vp_device(vdev);
->  	void __iomem *ioaddr = vp_dev->ioaddr +
-> -				VIRTIO_PCI_CONFIG(vp_dev) + offset;
-> +			VIRTIO_PCI_CONFIG_OFF(vp_dev->msix_enabled) +
-> +			offset;
->  	u8 *ptr = buf;
->  	int i;
+>  include/uapi/linux/virtio_ring.h | 4 ++++
+>  1 file changed, 4 insertions(+)
+> 
+> diff --git a/include/uapi/linux/virtio_ring.h b/include/uapi/linux/virtio_ring.h
+> index 9b0c0d92ab62..192573827850 100644
+> --- a/include/uapi/linux/virtio_ring.h
+> +++ b/include/uapi/linux/virtio_ring.h
+> @@ -37,6 +37,7 @@
+>  #include <linux/types.h>
+>  #include <linux/virtio_types.h>
 >  
-> @@ -67,7 +68,8 @@ static void vp_set(struct virtio_device *vdev, unsigned offset,
->  {
->  	struct virtio_pci_device *vp_dev = to_vp_device(vdev);
->  	void __iomem *ioaddr = vp_dev->ioaddr +
-> -				VIRTIO_PCI_CONFIG(vp_dev) + offset;
-> +			VIRTIO_PCI_CONFIG_OFF(vp_dev->msix_enabled) +
-> +			offset;
->  	const u8 *ptr = buf;
->  	int i;
->
-
-I agree that VIRTIO_PCI_CONFIG_OFF is a better interface. So above looks
-fine.
-  
-> diff --git a/include/uapi/linux/virtio_pci.h b/include/uapi/linux/virtio_pci.h
-> index 90007a1..2070232 100644
-> --- a/include/uapi/linux/virtio_pci.h
-> +++ b/include/uapi/linux/virtio_pci.h
-> @@ -78,8 +78,6 @@
->  /* The remaining space is defined by each driver as the per-driver
->   * configuration space */
->  #define VIRTIO_PCI_CONFIG_OFF(msix_enabled)	((msix_enabled) ? 24 : 20)
-> -/* Deprecated: please use VIRTIO_PCI_CONFIG_OFF instead */
-> -#define VIRTIO_PCI_CONFIG(dev)	VIRTIO_PCI_CONFIG_OFF((dev)->msix_enabled)
+> +#ifndef VIRTIO_RING_NO_LEGACY
+>  /*
+>   * Notice: unlike other _F_ flags, below flags are defined as shifted
+>   * values instead of shifts for compatibility.
+> @@ -51,6 +52,7 @@
+>  #define VRING_USED_F_NO_NOTIFY	1
+>  /* Same as VRING_SPLIT_AVAIL_F_NO_INTERRUPT. */
+>  #define VRING_AVAIL_F_NO_INTERRUPT	1
+> +#endif /* VIRTIO_RING_NO_LEGACY */
 >  
->  /* Virtio ABI version, this must match exactly */
->  #define VIRTIO_PCI_ABI_VERSION		0
-
-This might break some userspace builds, I don't see why we should bother
-removing it. Any reason?
-
-
+>  /* Mark a buffer as continuing via the next field in split ring. */
+>  #define VRING_SPLIT_DESC_F_NEXT		0
+> @@ -151,6 +153,7 @@ struct vring {
+>  	struct vring_used *used;
+>  };
+>  
+> +#ifndef VIRTIO_RING_NO_LEGACY
+>  /* Alignment requirements for vring elements.
+>   * When using pre-virtio 1.0 layout, these fall out naturally.
+>   */
+> @@ -203,6 +206,7 @@ static inline unsigned vring_size(unsigned int num, unsigned long align)
+>  		 + align - 1) & ~(align - 1))
+>  		+ sizeof(__virtio16) * 3 + sizeof(struct vring_used_elem) * num;
+>  }
+> +#endif /* VIRTIO_RING_NO_LEGACY */
+>  
+>  /* The following is used with USED_EVENT_IDX and AVAIL_EVENT_IDX */
+>  /* Assuming a given event_idx value from the other side, if
 > -- 
-> 2.7.4
+> 2.17.1
