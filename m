@@ -1,15 +1,16 @@
 From: Tiwei Bie <tiwei.bie@intel.com>
-Subject: Re: [RFC 0/3] virtio_ring: define flags as shifts consistently
-Date: Sat, 8 Dec 2018 21:26:57 +0800
-Message-ID: <20181208132656.GA29772__44152.987903408$1544275611$gmane$org@dpdk-tbie>
+Subject: Re: [RFC 2/3] virtio_ring: add VIRTIO_RING_NO_LEGACY
+Date: Sat, 8 Dec 2018 21:33:37 +0800
+Message-ID: <20181208133337.GB29772__23878.2439301305$1544276014$gmane$org@dpdk-tbie>
 References: <20181207084842.13133-1-tiwei.bie@intel.com>
-	<20181207131058-mutt-send-email-mst@kernel.org>
+	<20181207084842.13133-3-tiwei.bie@intel.com>
+	<20181207130336-mutt-send-email-mst@kernel.org>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
 Content-Disposition: inline
-In-Reply-To: <20181207131058-mutt-send-email-mst@kernel.org>
+In-Reply-To: <20181207130336-mutt-send-email-mst@kernel.org>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -23,27 +24,67 @@ To: "Michael S. Tsirkin" <mst@redhat.com>
 Cc: virtio-dev@lists.oasis-open.org, netdev@vger.kernel.org, linux-kernel@vger.kernel.org, virtualization@lists.linux-foundation.org, maxime.coquelin@redhat.com, wexu@redhat.com
 List-Id: virtualization@lists.linuxfoundation.org
 
-On Fri, Dec 07, 2018 at 01:11:42PM -0500, Michael S. Tsirkin wrote:
-> On Fri, Dec 07, 2018 at 04:48:39PM +0800, Tiwei Bie wrote:
-> > This is a follow up of the discussion in this thread:
-> > https://patchwork.ozlabs.org/patch/1001015/#2042353
-> 
-> How was this tested? I'd suggest building virtio
-> before and after the changes, stripped binary
-> should be exactly the same.
-
-Sure, I will do the test with scripts/objdiff.
-
-> 
-> 
-> > Tiwei Bie (3):
-> >   virtio_ring: define flags as shifts consistently
-> >   virtio_ring: add VIRTIO_RING_NO_LEGACY
-> >   virtio_ring: use new vring flags
+On Fri, Dec 07, 2018 at 01:05:35PM -0500, Michael S. Tsirkin wrote:
+> On Fri, Dec 07, 2018 at 04:48:41PM +0800, Tiwei Bie wrote:
+> > Introduce VIRTIO_RING_NO_LEGACY to support disabling legacy
+> > macros and layout definitions.
 > > 
-> >  drivers/virtio/virtio_ring.c     | 100 ++++++++++++++++++-------------
-> >  include/uapi/linux/virtio_ring.h |  61 +++++++++++++------
-> >  2 files changed, 103 insertions(+), 58 deletions(-)
+> > Suggested-by: Michael S. Tsirkin <mst@redhat.com>
+> > Signed-off-by: Tiwei Bie <tiwei.bie@intel.com>
+> > ---
+> > VRING_AVAIL_ALIGN_SIZE, VRING_USED_ALIGN_SIZE and VRING_DESC_ALIGN_SIZE
+> > are not pre-virtio 1.0, but can also be disabled by VIRTIO_RING_NO_LEGACY
+> > in this patch, because their names are not consistent with other names.
+> > Not sure whether this is a good idea. If we want this, we may also want
+> > to define _SPLIT_ version for them.
+> 
+> I don't think it's a good idea to have alignment in there - the point of
+> NO_LEGACY is to help catch bugs not to sanitize coding style IMHO.
+> 
+> And spec calls "legacy" the 0.X interfaces, let's not muddy the waters.
+
+Make sense. Thanks!
+
+> 
 > > 
+> >  include/uapi/linux/virtio_ring.h | 4 ++++
+> >  1 file changed, 4 insertions(+)
+> > 
+> > diff --git a/include/uapi/linux/virtio_ring.h b/include/uapi/linux/virtio_ring.h
+> > index 9b0c0d92ab62..192573827850 100644
+> > --- a/include/uapi/linux/virtio_ring.h
+> > +++ b/include/uapi/linux/virtio_ring.h
+> > @@ -37,6 +37,7 @@
+> >  #include <linux/types.h>
+> >  #include <linux/virtio_types.h>
+> >  
+> > +#ifndef VIRTIO_RING_NO_LEGACY
+> >  /*
+> >   * Notice: unlike other _F_ flags, below flags are defined as shifted
+> >   * values instead of shifts for compatibility.
+> > @@ -51,6 +52,7 @@
+> >  #define VRING_USED_F_NO_NOTIFY	1
+> >  /* Same as VRING_SPLIT_AVAIL_F_NO_INTERRUPT. */
+> >  #define VRING_AVAIL_F_NO_INTERRUPT	1
+> > +#endif /* VIRTIO_RING_NO_LEGACY */
+> >  
+> >  /* Mark a buffer as continuing via the next field in split ring. */
+> >  #define VRING_SPLIT_DESC_F_NEXT		0
+> > @@ -151,6 +153,7 @@ struct vring {
+> >  	struct vring_used *used;
+> >  };
+> >  
+> > +#ifndef VIRTIO_RING_NO_LEGACY
+> >  /* Alignment requirements for vring elements.
+> >   * When using pre-virtio 1.0 layout, these fall out naturally.
+> >   */
+> > @@ -203,6 +206,7 @@ static inline unsigned vring_size(unsigned int num, unsigned long align)
+> >  		 + align - 1) & ~(align - 1))
+> >  		+ sizeof(__virtio16) * 3 + sizeof(struct vring_used_elem) * num;
+> >  }
+> > +#endif /* VIRTIO_RING_NO_LEGACY */
+> >  
+> >  /* The following is used with USED_EVENT_IDX and AVAIL_EVENT_IDX */
+> >  /* Assuming a given event_idx value from the other side, if
 > > -- 
 > > 2.17.1
