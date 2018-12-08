@@ -1,12 +1,14 @@
-From: "Michael S. Tsirkin" <mst@redhat.com>
-Subject: [PULL] virtio/vhost: last minute fixes
-Date: Fri, 7 Dec 2018 16:53:51 -0500
-Message-ID: <20181207165351-mutt-send-email-mst@kernel.org>
+From: Dongli Zhang <dongli.zhang@oracle.com>
+Subject: Re: [PATCH 1/1] virtio: remove deprecated VIRTIO_PCI_CONFIG()
+Date: Sat, 8 Dec 2018 08:56:08 +0800
+Message-ID: <e91c687f-0683-1d88-bf0a-cfb5e43ee316__29505.5408882492$1544230458$gmane$org@oracle.com>
+References: <1544168081-13205-1-git-send-email-dongli.zhang@oracle.com>
+	<20181207125951-mutt-send-email-mst@kernel.org>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-Content-Disposition: inline
+In-Reply-To: <20181207125951-mutt-send-email-mst@kernel.org>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -16,38 +18,79 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Linus Torvalds <torvalds@linux-foundation.org>
-Cc: graham.whaley@gmail.com, kvm@vger.kernel.org, mst@redhat.com, riemensberger@cadami.net, netdev@vger.kernel.org, cohuck@redhat.com, linux-kernel@vger.kernel.org, stable@vger.kernel.org, virtualization@lists.linux-foundation.org, pasic@linux.ibm.com, syzbot+d5a0a170c5069658b141@syzkaller.appspotmail.com, stefanha@redhat.com, syzbot+bd391451452fb0b93039@syzkaller.appspotmail.com, colin.king@canonical.com, syzbot+e3e074963495f92a89ed@syzkaller.appspotmail.com
+To: "Michael S. Tsirkin" <mst@redhat.com>
+Cc: linux-kernel@vger.kernel.org, virtualization@lists.linux-foundation.org
 List-Id: virtualization@lists.linuxfoundation.org
 
-The following changes since commit 2595646791c319cadfdbf271563aac97d0843dc7:
 
-  Linux 4.20-rc5 (2018-12-02 15:07:55 -0800)
 
-are available in the Git repository at:
+On 12/08/2018 02:01 AM, Michael S. Tsirkin wrote:
+> On Fri, Dec 07, 2018 at 03:34:41PM +0800, Dongli Zhang wrote:
+>> VIRTIO_PCI_CONFIG() is deprecated. Use VIRTIO_PCI_CONFIG_OFF() instead.
+>>
+>> Signed-off-by: Dongli Zhang <dongli.zhang@oracle.com>
+>> ---
+>>  drivers/virtio/virtio_pci_legacy.c | 6 ++++--
+>>  include/uapi/linux/virtio_pci.h    | 2 --
+>>  2 files changed, 4 insertions(+), 4 deletions(-)
+>>
+>> diff --git a/drivers/virtio/virtio_pci_legacy.c b/drivers/virtio/virtio_pci_legacy.c
+>> index de062fb..eff9ddc 100644
+>> --- a/drivers/virtio/virtio_pci_legacy.c
+>> +++ b/drivers/virtio/virtio_pci_legacy.c
+>> @@ -52,7 +52,8 @@ static void vp_get(struct virtio_device *vdev, unsigned offset,
+>>  {
+>>  	struct virtio_pci_device *vp_dev = to_vp_device(vdev);
+>>  	void __iomem *ioaddr = vp_dev->ioaddr +
+>> -				VIRTIO_PCI_CONFIG(vp_dev) + offset;
+>> +			VIRTIO_PCI_CONFIG_OFF(vp_dev->msix_enabled) +
+>> +			offset;
+>>  	u8 *ptr = buf;
+>>  	int i;
+>>  
+>> @@ -67,7 +68,8 @@ static void vp_set(struct virtio_device *vdev, unsigned offset,
+>>  {
+>>  	struct virtio_pci_device *vp_dev = to_vp_device(vdev);
+>>  	void __iomem *ioaddr = vp_dev->ioaddr +
+>> -				VIRTIO_PCI_CONFIG(vp_dev) + offset;
+>> +			VIRTIO_PCI_CONFIG_OFF(vp_dev->msix_enabled) +
+>> +			offset;
+>>  	const u8 *ptr = buf;
+>>  	int i;
+>>
+> 
+> I agree that VIRTIO_PCI_CONFIG_OFF is a better interface. So above looks
+> fine.
+>   
+>> diff --git a/include/uapi/linux/virtio_pci.h b/include/uapi/linux/virtio_pci.h
+>> index 90007a1..2070232 100644
+>> --- a/include/uapi/linux/virtio_pci.h
+>> +++ b/include/uapi/linux/virtio_pci.h
+>> @@ -78,8 +78,6 @@
+>>  /* The remaining space is defined by each driver as the per-driver
+>>   * configuration space */
+>>  #define VIRTIO_PCI_CONFIG_OFF(msix_enabled)	((msix_enabled) ? 24 : 20)
+>> -/* Deprecated: please use VIRTIO_PCI_CONFIG_OFF instead */
+>> -#define VIRTIO_PCI_CONFIG(dev)	VIRTIO_PCI_CONFIG_OFF((dev)->msix_enabled)
+>>  
+>>  /* Virtio ABI version, this must match exactly */
+>>  #define VIRTIO_PCI_ABI_VERSION		0
+> 
+> This might break some userspace builds, I don't see why we should bother
+> removing it. Any reason?
 
-  git://git.kernel.org/pub/scm/linux/kernel/git/mst/vhost.git tags/for_linus
+Apologies.
 
-for you to fetch changes up to 834e772c8db0c6a275d75315d90aba4ebbb1e249:
+I thought about some compatibility issue for building third-party kernel module
+at userspace, but did not realize it will break other userspace software builds.
 
-  vhost/vsock: fix use-after-free in network stack callers (2018-12-06 14:28:38 -0500)
+I will keep the definition of VIRTIO_PCI_CONFIG() and resend again.
 
-----------------------------------------------------------------
-virtio fixes
+Thank you very much!
 
-A couple of last-minute fixes.
+Dongli Zhang
 
-Signed-off-by: Michael S. Tsirkin <mst@redhat.com>
-
-----------------------------------------------------------------
-Halil Pasic (2):
-      virtio/s390: avoid race on vcdev->config
-      virtio/s390: fix race in ccw_io_helper()
-
-Stefan Hajnoczi (2):
-      vhost/vsock: fix reset orphans race with close timeout
-      vhost/vsock: fix use-after-free in network stack callers
-
- drivers/s390/virtio/virtio_ccw.c | 17 +++++++--
- drivers/vhost/vsock.c            | 79 ++++++++++++++++++++++++----------------
- 2 files changed, 62 insertions(+), 34 deletions(-)
+> 
+> 
+>> -- 
+>> 2.7.4
