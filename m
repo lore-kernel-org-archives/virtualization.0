@@ -1,17 +1,14 @@
-From: "Michael S. Tsirkin" <mst@redhat.com>
-Subject: Re: [RFC 3/3] virtio_ring: use new vring flags
-Date: Sun, 9 Dec 2018 09:33:42 -0500
-Message-ID: <20181209093222-mutt-send-email-mst__23999.9525984333$1544365909$gmane$org@kernel.org>
-References: <20181207084842.13133-1-tiwei.bie@intel.com>
-	<20181207084842.13133-4-tiwei.bie@intel.com>
-	<20181207130822-mutt-send-email-mst@kernel.org>
-	<20181208134728.GC29772@dpdk-tbie>
+From: Ben Hutchings <ben@decadent.org.uk>
+Subject: [PATCH 3.16 249/328] x86/paravirt: Fix some warning messages
+Date: Sun, 09 Dec 2018 21:50:33 +0000
+Message-ID: <lsq.1544392233.371934358@decadent.org.uk>
+References: <lsq.1544392232.713909046@decadent.org.uk>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
 Content-Disposition: inline
-In-Reply-To: <20181208134728.GC29772@dpdk-tbie>
+In-Reply-To: <lsq.1544392232.713909046@decadent.org.uk>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -21,49 +18,52 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Tiwei Bie <tiwei.bie@intel.com>
-Cc: virtio-dev@lists.oasis-open.org, netdev@vger.kernel.org, linux-kernel@vger.kernel.org, virtualization@lists.linux-foundation.org, maxime.coquelin@redhat.com, wexu@redhat.com
+To: linux-kernel@vger.kernel.org, stable@vger.kernel.org
+Cc: Juergen Gross <jgross@suse.com>, Peter Zijlstra <peterz@infradead.org>, kernel-janitors@vger.kernel.org, virtualization@lists.linux-foundation.org, Thomas Gleixner <tglx@linutronix.de>, "H. Peter Anvin" <hpa@zytor.com>, akpm@linux-foundation.org, Alok Kataria <akataria@vmware.com>, Dan Carpenter <dan.carpenter@oracle.com>
 List-Id: virtualization@lists.linuxfoundation.org
 
-On Sat, Dec 08, 2018 at 09:47:29PM +0800, Tiwei Bie wrote:
-> On Fri, Dec 07, 2018 at 01:10:48PM -0500, Michael S. Tsirkin wrote:
-> > On Fri, Dec 07, 2018 at 04:48:42PM +0800, Tiwei Bie wrote:
-> > > Switch to using the _SPLIT_ and _PACKED_ variants of vring flags
-> > > in split ring and packed ring respectively.
-> > > 
-> > > Signed-off-by: Tiwei Bie <tiwei.bie@intel.com>
-> > > ---
-> > > @@ -502,7 +505,8 @@ static inline int virtqueue_add_split(struct virtqueue *_vq,
-> > >  		}
-> > >  	}
-> > >  	/* Last one doesn't continue. */
-> > > -	desc[prev].flags &= cpu_to_virtio16(_vq->vdev, ~VRING_DESC_F_NEXT);
-> > > +	desc[prev].flags &= cpu_to_virtio16(_vq->vdev,
-> > > +				(u16)~BIT(VRING_SPLIT_DESC_F_NEXT));
-> > >  
-> > >  	if (indirect) {
-> > >  		/* Now that the indirect table is filled in, map it. */
-> > 
-> > I kind of dislike it that this forces use of a cast here.
-> > Kind of makes it more fragile. Let's use a temporary instead?
-> 
-> I tried something like this:
-> 
-> u16 mask = ~BIT(VRING_SPLIT_DESC_F_NEXT);
-> 
-> And it will still cause the warning:
-> 
-> warning: large integer implicitly truncated to unsigned type [-Woverflow]
->   u16 mask = ~BIT(VRING_SPLIT_DESC_F_NEXT);
-> 
-> If the cast isn't wanted, maybe use ~(1 << VRING_SPLIT_DESC_F_NEXT)
-> directly?
+3.16.62-rc1 review patch.  If anyone has any objections, please let me know.
 
-What I'd like to see is a macro that warns/errors out if the shift is
-too large. I'll think it over on the weekend.
+------------------
 
+From: Dan Carpenter <dan.carpenter@oracle.com>
 
-> 
-> > 
-> > > -- 
-> > > 2.17.1
+commit 571d0563c8881595f4ab027aef9ed1c55e3e7b7c upstream.
+
+The first argument to WARN_ONCE() is a condition.
+
+Fixes: 5800dc5c19f3 ("x86/paravirt: Fix spectre-v2 mitigations for paravirt guests")
+Signed-off-by: Dan Carpenter <dan.carpenter@oracle.com>
+Signed-off-by: Thomas Gleixner <tglx@linutronix.de>
+Reviewed-by: Juergen Gross <jgross@suse.com>
+Cc: Peter Zijlstra <peterz@infradead.org>
+Cc: Alok Kataria <akataria@vmware.com>
+Cc: "H. Peter Anvin" <hpa@zytor.com>
+Cc: virtualization@lists.linux-foundation.org
+Cc: kernel-janitors@vger.kernel.org
+Link: https://lkml.kernel.org/r/20180919103553.GD9238@mwanda
+Signed-off-by: Ben Hutchings <ben@decadent.org.uk>
+---
+ arch/x86/kernel/paravirt.c | 4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
+
+--- a/arch/x86/kernel/paravirt.c
++++ b/arch/x86/kernel/paravirt.c
+@@ -99,7 +99,7 @@ unsigned paravirt_patch_call(void *insnb
+ 
+ 	if (len < 5) {
+ #ifdef CONFIG_RETPOLINE
+-		WARN_ONCE("Failing to patch indirect CALL in %ps\n", (void *)addr);
++		WARN_ONCE(1, "Failing to patch indirect CALL in %ps\n", (void *)addr);
+ #endif
+ 		return len;	/* call too long for patch site */
+ 	}
+@@ -119,7 +119,7 @@ unsigned paravirt_patch_jmp(void *insnbu
+ 
+ 	if (len < 5) {
+ #ifdef CONFIG_RETPOLINE
+-		WARN_ONCE("Failing to patch indirect JMP in %ps\n", (void *)addr);
++		WARN_ONCE(1, "Failing to patch indirect JMP in %ps\n", (void *)addr);
+ #endif
+ 		return len;	/* call too long for patch site */
+ 	}
