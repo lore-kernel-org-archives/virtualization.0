@@ -1,15 +1,20 @@
-From: Gerd Hoffmann <kraxel@redhat.com>
-Subject: Re: [PATCH 5/7] drm/qxl: Don't set the dpms hook
-Date: Mon, 10 Dec 2018 14:08:53 +0100
-Message-ID: <20181210130853.zpmstn4uqvdapxyp__7209.57550588555$1544447218$gmane$org@sirius.home.kraxel.org>
-References: <20181210100359.22507-1-daniel.vetter@ffwll.ch>
-	<20181210100359.22507-6-daniel.vetter@ffwll.ch>
+From: Jean-Philippe Brucker <jean-philippe.brucker@arm.com>
+Subject: Re: [PATCH v5 5/7] iommu: Add virtio-iommu driver
+Date: Mon, 10 Dec 2018 15:06:47 +0000
+Message-ID: <29bdf062-06cb-4b7d-1753-33fac609ddc3__2896.69634444198$1544454317$gmane$org@arm.com>
+References: <20181122193801.50510-1-jean-philippe.brucker@arm.com>
+	<20181122193801.50510-6-jean-philippe.brucker@arm.com>
+	<20181123165742-mutt-send-email-mst@kernel.org>
+	<fd221210-7e12-1d15-0c80-52a761f6893d@arm.com>
+	<20181127125424-mutt-send-email-mst@kernel.org>
+	<ef97313f-4795-9537-e0b8-8bf6751db6a6@arm.com>
+	<20181127131455-mutt-send-email-mst@kernel.org>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-Content-Disposition: inline
-In-Reply-To: <20181210100359.22507-6-daniel.vetter@ffwll.ch>
+In-Reply-To: <20181127131455-mutt-send-email-mst@kernel.org>
+Content-Language: en-US
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -19,33 +24,100 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Daniel Vetter <daniel.vetter@ffwll.ch>
-Cc: Dave Airlie <airlied@redhat.com>, Intel Graphics Development <intel-gfx@lists.freedesktop.org>, spice-devel@lists.freedesktop.org, DRI Development <dri-devel@lists.freedesktop.org>, virtualization@lists.linux-foundation.org
+To: "Michael S. Tsirkin" <mst@redhat.com>
+Cc: Mark Rutland <Mark.Rutland@arm.com>, "virtio-dev@lists.oasis-open.org" <virtio-dev@lists.oasis-open.org>, Lorenzo Pieralisi <Lorenzo.Pieralisi@arm.com>, "tnowicki@caviumnetworks.com" <tnowicki@caviumnetworks.com>, "devicetree@vger.kernel.org" <devicetree@vger.kernel.org>, Marc Zyngier <Marc.Zyngier@arm.com>, "linux-pci@vger.kernel.org" <linux-pci@vger.kernel.org>, "joro@8bytes.org" <joro@8bytes.org>, Will Deacon <Will.Deacon@arm.com>, "virtualization@lists.linux-foundation.org" <virtualization@lists.linux-foundation.org>, "eric.auger@redhat.com" <eric.auger@redhat.com>, "iommu@lists.linux-foundation.org" <iommu@lists.linux-foundation.org>, "robh+dt@kernel.org" <robh+dt@kernel.org>, "bhelgaas@google.com" <bhelgaas@google.com>, Robin Murphy <Robin.Murphy@arm.com>, "kvmarm@lists.cs.columbia.edu" <kvmarm@lists.cs.columbia.edu>
 List-Id: virtualization@lists.linuxfoundation.org
 
-On Mon, Dec 10, 2018 at 11:03:57AM +0100, Daniel Vetter wrote:
-> Doesn't do anything with atomic.
+On 27/11/2018 18:53, Michael S. Tsirkin wrote:
+> On Tue, Nov 27, 2018 at 06:10:46PM +0000, Jean-Philippe Brucker wrote:
+>> On 27/11/2018 18:04, Michael S. Tsirkin wrote:
+>>> On Tue, Nov 27, 2018 at 05:50:50PM +0000, Jean-Philippe Brucker wrote:
+>>>> On 23/11/2018 22:02, Michael S. Tsirkin wrote:
+>>>>>> +/*
+>>>>>> + * __viommu_sync_req - Complete all in-flight requests
+>>>>>> + *
+>>>>>> + * Wait for all added requests to complete. When this function returns, all
+>>>>>> + * requests that were in-flight at the time of the call have completed.
+>>>>>> + */
+>>>>>> +static int __viommu_sync_req(struct viommu_dev *viommu)
+>>>>>> +{
+>>>>>> +	int ret = 0;
+>>>>>> +	unsigned int len;
+>>>>>> +	size_t write_len;
+>>>>>> +	struct viommu_request *req;
+>>>>>> +	struct virtqueue *vq = viommu->vqs[VIOMMU_REQUEST_VQ];
+>>>>>> +
+>>>>>> +	assert_spin_locked(&viommu->request_lock);
+>>>>>> +
+>>>>>> +	virtqueue_kick(vq);
+>>>>>> +
+>>>>>> +	while (!list_empty(&viommu->requests)) {
+>>>>>> +		len = 0;
+>>>>>> +		req = virtqueue_get_buf(vq, &len);
+>>>>>> +		if (!req)
+>>>>>> +			continue;
+>>>>>> +
+>>>>>> +		if (!len)
+>>>>>> +			viommu_set_req_status(req->buf, req->len,
+>>>>>> +					      VIRTIO_IOMMU_S_IOERR);
+>>>>>> +
+>>>>>> +		write_len = req->len - req->write_offset;
+>>>>>> +		if (req->writeback && len == write_len)
+>>>>>> +			memcpy(req->writeback, req->buf + req->write_offset,
+>>>>>> +			       write_len);
+>>>>>> +
+>>>>>> +		list_del(&req->list);
+>>>>>> +		kfree(req);
+>>>>>> +	}
+>>>>>
+>>>>> I didn't notice this in the past but it seems this will spin
+>>>>> with interrupts disabled until host handles the request.
+>>>>> Please do not do this - host execution can be another
+>>>>> task that needs the same host CPU. This will then disable
+>>>>> interrupts for a very very long time.
+>>>>
+>>>> In the guest yes, but that doesn't prevent the host from running another
+>>>> task right?
+>>>
+>>> Doesn't prevent it but it will delay it significantly
+>>> until scheduler decides to kick the VCPU task out.
+>>>
+>>>> My tests run fine when QEMU is bound to a single CPU, even
+>>>> though vcpu and viommu run in different threads
+>>>>
+>>>>> What to do then? Queue in software and wake up task.
+>>>>
+>>>> Unfortunately I can't do anything here, because IOMMU drivers can't
+>>>> sleep in the iommu_map() or iommu_unmap() path.
+>>>>
+>>>> The problem is the same
+>>>> for all IOMMU drivers. That's because the DMA API allows drivers to call
+>>>> some functions with interrupts disabled. For example
+>>>> Documentation/DMA-API-HOWTO.txt allows dma_alloc_coherent() and
+>>>> dma_unmap_single() to be called in interrupt context.
+>>>
+>>> In fact I don't really understand how it's supposed to
+>>> work at all: you only sync when ring is full.
+>>> So host may not have seen your map request if ring
+>>> is not full.
+>>> Why is it safe to use the address with a device then?
+>>
+>> viommu_map() calls viommu_send_req_sync(), which does the sync
+>> immediately after adding the MAP request.
+>>
+>> Thanks,
+>> Jean
 > 
-> Signed-off-by: Daniel Vetter <daniel.vetter@ffwll.ch>
-> Cc: Dave Airlie <airlied@redhat.com>
-> Cc: Gerd Hoffmann <kraxel@redhat.com>
-> Cc: virtualization@lists.linux-foundation.org
-> Cc: spice-devel@lists.freedesktop.org
-> ---
->  drivers/gpu/drm/qxl/qxl_display.c | 1 -
->  1 file changed, 1 deletion(-)
+> I see. So it happens on every request. Maybe you should clear
+> event index then. This way if exits are disabled you know that
+> host is processing the ring. Event index is good for when
+> you don't care when it will be processed, you just want
+> to reduce number of exits as much as possible.
 > 
-> diff --git a/drivers/gpu/drm/qxl/qxl_display.c b/drivers/gpu/drm/qxl/qxl_display.c
-> index ce0b9c40fc21..72a1784dae54 100644
-> --- a/drivers/gpu/drm/qxl/qxl_display.c
-> +++ b/drivers/gpu/drm/qxl/qxl_display.c
-> @@ -1010,7 +1010,6 @@ static void qxl_conn_destroy(struct drm_connector *connector)
->  }
->  
->  static const struct drm_connector_funcs qxl_connector_funcs = {
-> -	.dpms = drm_helper_connector_dpms,
->  	.detect = qxl_conn_detect,
->  	.fill_modes = drm_helper_probe_single_connector_modes,
->  	.destroy = qxl_conn_destroy,
 
-Reviewed-by: Gerd Hoffmann <kraxel@redhat.com>
+I think that's already the case: since we don't attach a callback to the
+request queue, VRING_AVAIL_F_NO_INTERRUPT is set in avail_flags_shadow,
+which causes the used event index to stay clear.
+
+Thanks,
+Jean
