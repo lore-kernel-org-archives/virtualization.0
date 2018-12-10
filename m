@@ -1,8 +1,7 @@
 From: Jason Wang <jasowang@redhat.com>
-Subject: [PATCH net 2/4] vhost_net: rework on the lock ordering for busy
-	polling
-Date: Mon, 10 Dec 2018 17:44:52 +0800
-Message-ID: <20181210094454.21144-3-jasowang__24786.2332770184$1544435009$gmane$org@redhat.com>
+Subject: [PATCH net 3/4] Revert "net: vhost: lock the vqs one by one"
+Date: Mon, 10 Dec 2018 17:44:53 +0800
+Message-ID: <20181210094454.21144-4-jasowang__16759.504369884$1544435028$gmane$org@redhat.com>
 References: <20181210094454.21144-1-jasowang@redhat.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
@@ -21,113 +20,72 @@ Errors-To: virtualization-bounces@lists.linux-foundation.org
 To: mst@redhat.com, jasowang@redhat.com, kvm@vger.kernel.org, virtualization@lists.linux-foundation.org, netdev@vger.kernel.org, linux-kernel@vger.kernel.org
 List-Id: virtualization@lists.linuxfoundation.org
 
-When we try to do rx busy polling in tx path in commit 441abde4cd84
-("net: vhost: add rx busy polling in tx path"), we lock rx vq mutex
-after tx vq mutex is held. This may lead deadlock so we try to lock vq
-one by one in commit 78139c94dc8c ("net: vhost: lock the vqs one by
-one"). With this commit, we avoid the deadlock with the assumption
-that handle_rx() and handle_tx() run in a same process. But this
-commit remove the protection for IOTLB updating which requires the
-mutex of each vq to be held.
-
-To solve this issue, the first step is to have a exact same lock
-ordering for vhost_net. This is done through:
-
-- For handle_rx(), if busy polling is enabled, lock tx vq immediately.
-- For handle_tx(), always lock rx vq before tx vq, and unlock it if
-  busy polling is not enabled.
-- Remove the tricky locking codes in busy polling.
-
-With this, we can have a exact same lock ordering for vhost_net, this
-allows us to safely revert commit 78139c94dc8c ("net: vhost: lock the
-vqs one by one") in next patch.
-
-The patch will add two more atomic operations on the tx path during
-each round of handle_tx(). 1 byte TCP_RR does not notice such
-overhead.
+This reverts commit 78139c94dc8c96a478e67dab3bee84dc6eccb5fd. We don't
+protect device IOTLB with vq mutex, which will lead e.g use after free
+for device IOTLB entries. And since we've exact the same lock order
+with the help of previous patch, it's safe to revert it without having
+deadlock.
 
 Fixes: commit 78139c94dc8c ("net: vhost: lock the vqs one by one")
 Cc: Tonghao Zhang <xiangxia.m.yue@gmail.com>
 Signed-off-by: Jason Wang <jasowang@redhat.com>
 ---
- drivers/vhost/net.c | 18 +++++++++++++++---
- 1 file changed, 15 insertions(+), 3 deletions(-)
+ drivers/vhost/vhost.c | 21 +++++++++++++++++----
+ 1 file changed, 17 insertions(+), 4 deletions(-)
 
-diff --git a/drivers/vhost/net.c b/drivers/vhost/net.c
-index ab11b2bee273..5f272ab4d5b4 100644
---- a/drivers/vhost/net.c
-+++ b/drivers/vhost/net.c
-@@ -513,7 +513,6 @@ static void vhost_net_busy_poll(struct vhost_net *net,
- 	struct socket *sock;
- 	struct vhost_virtqueue *vq = poll_rx ? tvq : rvq;
- 
--	mutex_lock_nested(&vq->mutex, poll_rx ? VHOST_NET_VQ_TX: VHOST_NET_VQ_RX);
- 	vhost_disable_notify(&net->dev, vq);
- 	sock = rvq->private_data;
- 
-@@ -543,8 +542,6 @@ static void vhost_net_busy_poll(struct vhost_net *net,
- 		vhost_net_busy_poll_try_queue(net, vq);
- 	else if (!poll_rx) /* On tx here, sock has no rx data. */
- 		vhost_enable_notify(&net->dev, rvq);
--
--	mutex_unlock(&vq->mutex);
- }
- 
- static int vhost_net_tx_get_vq_desc(struct vhost_net *net,
-@@ -913,10 +910,16 @@ static void handle_tx_zerocopy(struct vhost_net *net, struct socket *sock)
- static void handle_tx(struct vhost_net *net)
+diff --git a/drivers/vhost/vhost.c b/drivers/vhost/vhost.c
+index 5915f240275a..55e5aa662ad5 100644
+--- a/drivers/vhost/vhost.c
++++ b/drivers/vhost/vhost.c
+@@ -295,11 +295,8 @@ static void vhost_vq_meta_reset(struct vhost_dev *d)
  {
- 	struct vhost_net_virtqueue *nvq = &net->vqs[VHOST_NET_VQ_TX];
-+	struct vhost_net_virtqueue *nvq_rx = &net->vqs[VHOST_NET_VQ_RX];
- 	struct vhost_virtqueue *vq = &nvq->vq;
-+	struct vhost_virtqueue *vq_rx = &nvq_rx->vq;
- 	struct socket *sock;
+ 	int i;
  
-+	mutex_lock_nested(&vq_rx->mutex, VHOST_NET_VQ_RX);
- 	mutex_lock_nested(&vq->mutex, VHOST_NET_VQ_TX);
-+	if (!vq->busyloop_timeout)
-+		mutex_unlock(&vq_rx->mutex);
-+
- 	sock = vq->private_data;
- 	if (!sock)
- 		goto out;
-@@ -933,6 +936,8 @@ static void handle_tx(struct vhost_net *net)
- 		handle_tx_copy(net, sock);
- 
- out:
-+	if (vq->busyloop_timeout)
-+		mutex_unlock(&vq_rx->mutex);
- 	mutex_unlock(&vq->mutex);
+-	for (i = 0; i < d->nvqs; ++i) {
+-		mutex_lock(&d->vqs[i]->mutex);
++	for (i = 0; i < d->nvqs; ++i)
+ 		__vhost_vq_meta_reset(d->vqs[i]);
+-		mutex_unlock(&d->vqs[i]->mutex);
+-	}
  }
  
-@@ -1060,7 +1065,9 @@ static int get_rx_bufs(struct vhost_virtqueue *vq,
- static void handle_rx(struct vhost_net *net)
- {
- 	struct vhost_net_virtqueue *nvq = &net->vqs[VHOST_NET_VQ_RX];
-+	struct vhost_net_virtqueue *nvq_tx = &net->vqs[VHOST_NET_VQ_TX];
- 	struct vhost_virtqueue *vq = &nvq->vq;
-+	struct vhost_virtqueue *vq_tx = &nvq_tx->vq;
- 	unsigned uninitialized_var(in), log;
- 	struct vhost_log *vq_log;
- 	struct msghdr msg = {
-@@ -1086,6 +1093,9 @@ static void handle_rx(struct vhost_net *net)
- 	int recv_pkts = 0;
+ static void vhost_vq_reset(struct vhost_dev *dev,
+@@ -895,6 +892,20 @@ static inline void __user *__vhost_get_user(struct vhost_virtqueue *vq,
+ #define vhost_get_used(vq, x, ptr) \
+ 	vhost_get_user(vq, x, ptr, VHOST_ADDR_USED)
  
- 	mutex_lock_nested(&vq->mutex, VHOST_NET_VQ_RX);
-+	if (vq->busyloop_timeout)
-+		mutex_lock_nested(&vq_tx->mutex, VHOST_NET_VQ_TX);
++static void vhost_dev_lock_vqs(struct vhost_dev *d)
++{
++	int i = 0;
++	for (i = 0; i < d->nvqs; ++i)
++		mutex_lock_nested(&d->vqs[i]->mutex, i);
++}
 +
- 	sock = vq->private_data;
- 	if (!sock)
- 		goto out;
-@@ -1200,6 +1210,8 @@ static void handle_rx(struct vhost_net *net)
- out:
- 	vhost_net_signal_used(nvq);
- 	mutex_unlock(&vq->mutex);
-+	if (vq->busyloop_timeout)
-+		mutex_unlock(&vq_tx->mutex);
- }
++static void vhost_dev_unlock_vqs(struct vhost_dev *d)
++{
++	int i = 0;
++	for (i = 0; i < d->nvqs; ++i)
++		mutex_unlock(&d->vqs[i]->mutex);
++}
++
+ static int vhost_new_umem_range(struct vhost_umem *umem,
+ 				u64 start, u64 size, u64 end,
+ 				u64 userspace_addr, int perm)
+@@ -976,6 +987,7 @@ static int vhost_process_iotlb_msg(struct vhost_dev *dev,
+ 	int ret = 0;
  
- static void handle_tx_kick(struct vhost_work *work)
+ 	mutex_lock(&dev->mutex);
++	vhost_dev_lock_vqs(dev);
+ 	switch (msg->type) {
+ 	case VHOST_IOTLB_UPDATE:
+ 		if (!dev->iotlb) {
+@@ -1009,6 +1021,7 @@ static int vhost_process_iotlb_msg(struct vhost_dev *dev,
+ 		break;
+ 	}
+ 
++	vhost_dev_unlock_vqs(dev);
+ 	mutex_unlock(&dev->mutex);
+ 
+ 	return ret;
 -- 
 2.17.1
