@@ -1,14 +1,11 @@
-From: Ben Hutchings <ben@decadent.org.uk>
-Subject: [PATCH 3.16 249/328] x86/paravirt: Fix some warning messages
-Date: Sun, 09 Dec 2018 21:50:33 +0000
-Message-ID: <lsq.1544392233.371934358@decadent.org.uk>
-References: <lsq.1544392232.713909046@decadent.org.uk>
+From: Dongli Zhang <dongli.zhang@oracle.com>
+Subject: [PATCH v2 1/1] virtio: remove deprecated VIRTIO_PCI_CONFIG()
+Date: Mon, 10 Dec 2018 08:54:34 +0800
+Message-ID: <1544403274-9238-1-git-send-email-dongli.zhang@oracle.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-Content-Disposition: inline
-In-Reply-To: <lsq.1544392232.713909046@decadent.org.uk>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -18,52 +15,43 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc: Juergen Gross <jgross@suse.com>, Peter Zijlstra <peterz@infradead.org>, kernel-janitors@vger.kernel.org, virtualization@lists.linux-foundation.org, Thomas Gleixner <tglx@linutronix.de>, "H. Peter Anvin" <hpa@zytor.com>, akpm@linux-foundation.org, Alok Kataria <akataria@vmware.com>, Dan Carpenter <dan.carpenter@oracle.com>
+To: virtualization@lists.linux-foundation.org, linux-kernel@vger.kernel.org
+Cc: mst@redhat.com
 List-Id: virtualization@lists.linuxfoundation.org
 
-3.16.62-rc1 review patch.  If anyone has any objections, please let me know.
+VIRTIO_PCI_CONFIG() is deprecated. Use VIRTIO_PCI_CONFIG_OFF() instead.
 
-------------------
-
-From: Dan Carpenter <dan.carpenter@oracle.com>
-
-commit 571d0563c8881595f4ab027aef9ed1c55e3e7b7c upstream.
-
-The first argument to WARN_ONCE() is a condition.
-
-Fixes: 5800dc5c19f3 ("x86/paravirt: Fix spectre-v2 mitigations for paravirt guests")
-Signed-off-by: Dan Carpenter <dan.carpenter@oracle.com>
-Signed-off-by: Thomas Gleixner <tglx@linutronix.de>
-Reviewed-by: Juergen Gross <jgross@suse.com>
-Cc: Peter Zijlstra <peterz@infradead.org>
-Cc: Alok Kataria <akataria@vmware.com>
-Cc: "H. Peter Anvin" <hpa@zytor.com>
-Cc: virtualization@lists.linux-foundation.org
-Cc: kernel-janitors@vger.kernel.org
-Link: https://lkml.kernel.org/r/20180919103553.GD9238@mwanda
-Signed-off-by: Ben Hutchings <ben@decadent.org.uk>
+Signed-off-by: Dongli Zhang <dongli.zhang@oracle.com>
 ---
- arch/x86/kernel/paravirt.c | 4 ++--
- 1 file changed, 2 insertions(+), 2 deletions(-)
+Changed since v1:
+  * leave the definition of VIRTIO_PCI_CONFIG() in header file to make userspace build happy
 
---- a/arch/x86/kernel/paravirt.c
-+++ b/arch/x86/kernel/paravirt.c
-@@ -99,7 +99,7 @@ unsigned paravirt_patch_call(void *insnb
+ drivers/virtio/virtio_pci_legacy.c | 6 ++++--
+ 1 file changed, 4 insertions(+), 2 deletions(-)
+
+diff --git a/drivers/virtio/virtio_pci_legacy.c b/drivers/virtio/virtio_pci_legacy.c
+index de062fb..eff9ddc 100644
+--- a/drivers/virtio/virtio_pci_legacy.c
++++ b/drivers/virtio/virtio_pci_legacy.c
+@@ -52,7 +52,8 @@ static void vp_get(struct virtio_device *vdev, unsigned offset,
+ {
+ 	struct virtio_pci_device *vp_dev = to_vp_device(vdev);
+ 	void __iomem *ioaddr = vp_dev->ioaddr +
+-				VIRTIO_PCI_CONFIG(vp_dev) + offset;
++			VIRTIO_PCI_CONFIG_OFF(vp_dev->msix_enabled) +
++			offset;
+ 	u8 *ptr = buf;
+ 	int i;
  
- 	if (len < 5) {
- #ifdef CONFIG_RETPOLINE
--		WARN_ONCE("Failing to patch indirect CALL in %ps\n", (void *)addr);
-+		WARN_ONCE(1, "Failing to patch indirect CALL in %ps\n", (void *)addr);
- #endif
- 		return len;	/* call too long for patch site */
- 	}
-@@ -119,7 +119,7 @@ unsigned paravirt_patch_jmp(void *insnbu
+@@ -67,7 +68,8 @@ static void vp_set(struct virtio_device *vdev, unsigned offset,
+ {
+ 	struct virtio_pci_device *vp_dev = to_vp_device(vdev);
+ 	void __iomem *ioaddr = vp_dev->ioaddr +
+-				VIRTIO_PCI_CONFIG(vp_dev) + offset;
++			VIRTIO_PCI_CONFIG_OFF(vp_dev->msix_enabled) +
++			offset;
+ 	const u8 *ptr = buf;
+ 	int i;
  
- 	if (len < 5) {
- #ifdef CONFIG_RETPOLINE
--		WARN_ONCE("Failing to patch indirect JMP in %ps\n", (void *)addr);
-+		WARN_ONCE(1, "Failing to patch indirect JMP in %ps\n", (void *)addr);
- #endif
- 		return len;	/* call too long for patch site */
- 	}
+-- 
+2.7.4
