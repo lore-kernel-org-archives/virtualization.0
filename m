@@ -1,21 +1,15 @@
 From: "Michael S. Tsirkin" <mst@redhat.com>
-Subject: Re: [PATCH v5 5/7] iommu: Add virtio-iommu driver
-Date: Mon, 10 Dec 2018 17:53:30 -0500
-Message-ID: <20181210175132-mutt-send-email-mst__44725.9013461464$1544482299$gmane$org@kernel.org>
-References: <20181122193801.50510-1-jean-philippe.brucker@arm.com>
-	<20181122193801.50510-6-jean-philippe.brucker@arm.com>
-	<20181123165742-mutt-send-email-mst@kernel.org>
-	<fd221210-7e12-1d15-0c80-52a761f6893d@arm.com>
-	<20181127125424-mutt-send-email-mst@kernel.org>
-	<ef97313f-4795-9537-e0b8-8bf6751db6a6@arm.com>
-	<20181127131455-mutt-send-email-mst@kernel.org>
-	<29bdf062-06cb-4b7d-1753-33fac609ddc3@arm.com>
+Subject: Re: [PATCH net 4/4] vhost: log dirty page correctly
+Date: Mon, 10 Dec 2018 20:30:03 -0500
+Message-ID: <20181210202547-mutt-send-email-mst__27877.6336032481$1544491708$gmane$org@kernel.org>
+References: <20181210094454.21144-5-jasowang@redhat.com>
+	<201812102354.K7cjF8jc%fengguang.wu@intel.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
 Content-Disposition: inline
-In-Reply-To: <29bdf062-06cb-4b7d-1753-33fac609ddc3@arm.com>
+In-Reply-To: <201812102354.K7cjF8jc%fengguang.wu@intel.com>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -25,110 +19,158 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Jean-Philippe Brucker <jean-philippe.brucker@arm.com>
-Cc: Mark Rutland <Mark.Rutland@arm.com>, "virtio-dev@lists.oasis-open.org" <virtio-dev@lists.oasis-open.org>, Lorenzo Pieralisi <Lorenzo.Pieralisi@arm.com>, "tnowicki@caviumnetworks.com" <tnowicki@caviumnetworks.com>, "devicetree@vger.kernel.org" <devicetree@vger.kernel.org>, Marc Zyngier <Marc.Zyngier@arm.com>, "linux-pci@vger.kernel.org" <linux-pci@vger.kernel.org>, "joro@8bytes.org" <joro@8bytes.org>, Will Deacon <Will.Deacon@arm.com>, "virtualization@lists.linux-foundation.org" <virtualization@lists.linux-foundation.org>, "eric.auger@redhat.com" <eric.auger@redhat.com>, "iommu@lists.linux-foundation.org" <iommu@lists.linux-foundation.org>, "robh+dt@kernel.org" <robh+dt@kernel.org>, "bhelgaas@google.com" <bhelgaas@google.com>, Robin Murphy <Robin.Murphy@arm.com>, "kvmarm@lists.cs.columbia.edu" <kvmarm@lists.cs.columbia.edu>
+To: kbuild test robot <lkp@intel.com>
+Cc: kvm@vger.kernel.org, netdev@vger.kernel.org, linux-kernel@vger.kernel.org, virtualization@lists.linux-foundation.org, kbuild-all@01.org, Jintack Lim <jintack@cs.columbia.edu>
 List-Id: virtualization@lists.linuxfoundation.org
 
-On Mon, Dec 10, 2018 at 03:06:47PM +0000, Jean-Philippe Brucker wrote:
-> On 27/11/2018 18:53, Michael S. Tsirkin wrote:
-> > On Tue, Nov 27, 2018 at 06:10:46PM +0000, Jean-Philippe Brucker wrote:
-> >> On 27/11/2018 18:04, Michael S. Tsirkin wrote:
-> >>> On Tue, Nov 27, 2018 at 05:50:50PM +0000, Jean-Philippe Brucker wrote:
-> >>>> On 23/11/2018 22:02, Michael S. Tsirkin wrote:
-> >>>>>> +/*
-> >>>>>> + * __viommu_sync_req - Complete all in-flight requests
-> >>>>>> + *
-> >>>>>> + * Wait for all added requests to complete. When this function returns, all
-> >>>>>> + * requests that were in-flight at the time of the call have completed.
-> >>>>>> + */
-> >>>>>> +static int __viommu_sync_req(struct viommu_dev *viommu)
-> >>>>>> +{
-> >>>>>> +	int ret = 0;
-> >>>>>> +	unsigned int len;
-> >>>>>> +	size_t write_len;
-> >>>>>> +	struct viommu_request *req;
-> >>>>>> +	struct virtqueue *vq = viommu->vqs[VIOMMU_REQUEST_VQ];
-> >>>>>> +
-> >>>>>> +	assert_spin_locked(&viommu->request_lock);
-> >>>>>> +
-> >>>>>> +	virtqueue_kick(vq);
-> >>>>>> +
-> >>>>>> +	while (!list_empty(&viommu->requests)) {
-> >>>>>> +		len = 0;
-> >>>>>> +		req = virtqueue_get_buf(vq, &len);
-> >>>>>> +		if (!req)
-> >>>>>> +			continue;
-> >>>>>> +
-> >>>>>> +		if (!len)
-> >>>>>> +			viommu_set_req_status(req->buf, req->len,
-> >>>>>> +					      VIRTIO_IOMMU_S_IOERR);
-> >>>>>> +
-> >>>>>> +		write_len = req->len - req->write_offset;
-> >>>>>> +		if (req->writeback && len == write_len)
-> >>>>>> +			memcpy(req->writeback, req->buf + req->write_offset,
-> >>>>>> +			       write_len);
-> >>>>>> +
-> >>>>>> +		list_del(&req->list);
-> >>>>>> +		kfree(req);
-> >>>>>> +	}
-> >>>>>
-> >>>>> I didn't notice this in the past but it seems this will spin
-> >>>>> with interrupts disabled until host handles the request.
-> >>>>> Please do not do this - host execution can be another
-> >>>>> task that needs the same host CPU. This will then disable
-> >>>>> interrupts for a very very long time.
-> >>>>
-> >>>> In the guest yes, but that doesn't prevent the host from running another
-> >>>> task right?
-> >>>
-> >>> Doesn't prevent it but it will delay it significantly
-> >>> until scheduler decides to kick the VCPU task out.
-> >>>
-> >>>> My tests run fine when QEMU is bound to a single CPU, even
-> >>>> though vcpu and viommu run in different threads
-> >>>>
-> >>>>> What to do then? Queue in software and wake up task.
-> >>>>
-> >>>> Unfortunately I can't do anything here, because IOMMU drivers can't
-> >>>> sleep in the iommu_map() or iommu_unmap() path.
-> >>>>
-> >>>> The problem is the same
-> >>>> for all IOMMU drivers. That's because the DMA API allows drivers to call
-> >>>> some functions with interrupts disabled. For example
-> >>>> Documentation/DMA-API-HOWTO.txt allows dma_alloc_coherent() and
-> >>>> dma_unmap_single() to be called in interrupt context.
-> >>>
-> >>> In fact I don't really understand how it's supposed to
-> >>> work at all: you only sync when ring is full.
-> >>> So host may not have seen your map request if ring
-> >>> is not full.
-> >>> Why is it safe to use the address with a device then?
-> >>
-> >> viommu_map() calls viommu_send_req_sync(), which does the sync
-> >> immediately after adding the MAP request.
-> >>
-> >> Thanks,
-> >> Jean
-> > 
-> > I see. So it happens on every request. Maybe you should clear
-> > event index then. This way if exits are disabled you know that
-> > host is processing the ring. Event index is good for when
-> > you don't care when it will be processed, you just want
-> > to reduce number of exits as much as possible.
-> > 
+On Mon, Dec 10, 2018 at 11:14:41PM +0800, kbuild test robot wrote:
+> Hi Jason,
 > 
-> I think that's already the case: since we don't attach a callback to the
-> request queue, VRING_AVAIL_F_NO_INTERRUPT is set in avail_flags_shadow,
-> which causes the used event index to stay clear.
+> I love your patch! Perhaps something to improve:
 > 
-> Thanks,
-> Jean
+> [auto build test WARNING on net/master]
+> 
+> url:    https://github.com/0day-ci/linux/commits/Jason-Wang/Fix-various-issue-of-vhost/20181210-223236
+> config: i386-randconfig-x072-201849 (attached as .config)
+> compiler: gcc-7 (Debian 7.3.0-1) 7.3.0
+> reproduce:
+>         # save the attached .config to linux build tree
+>         make ARCH=i386 
+> 
+> All warnings (new ones prefixed by >>):
+> 
+>    drivers//vhost/vhost.c: In function 'log_used':
+> >> drivers//vhost/vhost.c:1771:27: warning: cast from pointer to integer of different size [-Wpointer-to-int-cast]
+>      ret = translate_desc(vq, (u64)vq->used + used_offset, len, iov, 64,
+>                               ^
+>    drivers//vhost/vhost.c:1776:27: warning: cast from pointer to integer of different size [-Wpointer-to-int-cast]
+>       ret = log_write_hva(vq, (u64)iov[i].iov_base, iov[i].iov_len);
+>                               ^
+>    drivers//vhost/vhost.c: In function 'vhost_log_write':
+>    drivers//vhost/vhost.c:1788:26: warning: cast from pointer to integer of different size [-Wpointer-to-int-cast]
+>        r = log_write_hva(vq, (u64)iov[i].iov_base,
+>                              ^
 
-VRING_AVAIL_F_NO_INTERRUPT has no effect when the event index
-feature has been negotiated. In any case, it also does not
-affect kick notifications from guest - it affects
-device interrupts.
+It's a technicality, cast to unsigned long and the warning will go away.
+Donnu why does gcc bother with these warnings. Nothing is wrong
+unless size of pointer is > size of int.
 
-
--- 
-MST
+>    Cyclomatic Complexity 5 include/linux/compiler.h:__read_once_size
+>    Cyclomatic Complexity 5 include/linux/compiler.h:__write_once_size
+>    Cyclomatic Complexity 1 arch/x86/include/asm/barrier.h:array_index_mask_nospec
+>    Cyclomatic Complexity 1 include/linux/kasan-checks.h:kasan_check_read
+>    Cyclomatic Complexity 1 include/linux/kasan-checks.h:kasan_check_write
+>    Cyclomatic Complexity 2 arch/x86/include/asm/bitops.h:set_bit
+>    Cyclomatic Complexity 2 arch/x86/include/asm/bitops.h:clear_bit
+>    Cyclomatic Complexity 1 arch/x86/include/asm/bitops.h:test_and_set_bit
+>    Cyclomatic Complexity 1 arch/x86/include/asm/bitops.h:constant_test_bit
+>    Cyclomatic Complexity 1 arch/x86/include/asm/bitops.h:variable_test_bit
+>    Cyclomatic Complexity 1 arch/x86/include/asm/bitops.h:fls
+>    Cyclomatic Complexity 1 include/linux/log2.h:__ilog2_u32
+>    Cyclomatic Complexity 1 include/linux/list.h:INIT_LIST_HEAD
+>    Cyclomatic Complexity 1 include/linux/list.h:__list_del
+>    Cyclomatic Complexity 1 include/linux/list.h:list_empty
+>    Cyclomatic Complexity 1 arch/x86/include/asm/current.h:get_current
+>    Cyclomatic Complexity 3 include/linux/string.h:memset
+>    Cyclomatic Complexity 5 include/linux/string.h:memcpy
+>    Cyclomatic Complexity 1 include/asm-generic/getorder.h:__get_order
+>    Cyclomatic Complexity 1 arch/x86/include/asm/atomic.h:arch_atomic_dec_and_test
+>    Cyclomatic Complexity 1 include/asm-generic/atomic-instrumented.h:atomic_dec_and_test
+>    Cyclomatic Complexity 1 include/linux/err.h:PTR_ERR
+>    Cyclomatic Complexity 1 include/linux/thread_info.h:set_ti_thread_flag
+>    Cyclomatic Complexity 1 include/linux/thread_info.h:check_object_size
+>    Cyclomatic Complexity 5 include/linux/thread_info.h:check_copy_size
+>    Cyclomatic Complexity 1 arch/x86/include/asm/preempt.h:preempt_count
+>    Cyclomatic Complexity 1 include/linux/spinlock.h:spinlock_check
+>    Cyclomatic Complexity 1 include/linux/spinlock.h:spin_lock
+>    Cyclomatic Complexity 1 include/linux/spinlock.h:spin_unlock
+>    Cyclomatic Complexity 1 include/linux/wait.h:init_waitqueue_func_entry
+>    Cyclomatic Complexity 1 include/linux/llist.h:init_llist_head
+>    Cyclomatic Complexity 1 include/linux/llist.h:llist_empty
+>    Cyclomatic Complexity 1 include/linux/llist.h:llist_del_all
+>    Cyclomatic Complexity 1 include/linux/rbtree.h:rb_link_node
+>    Cyclomatic Complexity 3 include/linux/overflow.h:__ab_c_size
+>    Cyclomatic Complexity 1 include/linux/page_ref.h:page_ref_dec_and_test
+>    Cyclomatic Complexity 1 include/linux/sched.h:task_thread_info
+>    Cyclomatic Complexity 1 include/linux/sched.h:need_resched
+>    Cyclomatic Complexity 1 include/linux/mm.h:put_page_testzero
+>    Cyclomatic Complexity 1 include/linux/mm.h:put_devmap_managed_page
+>    Cyclomatic Complexity 1 include/uapi/linux/virtio_ring.h:vring_need_event
+>    Cyclomatic Complexity 1 include/linux/virtio_byteorder.h:virtio_legacy_is_little_endian
+>    Cyclomatic Complexity 2 include/linux/uio.h:copy_to_iter
+>    Cyclomatic Complexity 2 include/linux/uio.h:copy_from_iter
+>    Cyclomatic Complexity 2 include/linux/uio.h:copy_from_iter_full
+>    Cyclomatic Complexity 1 include/linux/uio.h:iov_iter_count
+>    Cyclomatic Complexity 1 include/linux/slab.h:kmalloc_type
+>    Cyclomatic Complexity 28 include/linux/slab.h:kmalloc_index
+>    Cyclomatic Complexity 67 include/linux/slab.h:kmalloc_large
+>    Cyclomatic Complexity 4 include/linux/slab.h:kmalloc
+>    Cyclomatic Complexity 1 arch/x86/include/asm/smap.h:clac
+>    Cyclomatic Complexity 1 arch/x86/include/asm/smap.h:stac
+>    Cyclomatic Complexity 1 arch/x86/include/asm/uaccess.h:set_fs
+>    Cyclomatic Complexity 1 arch/x86/include/asm/uaccess_32.h:raw_copy_to_user
+>    Cyclomatic Complexity 5 arch/x86/include/asm/uaccess_32.h:raw_copy_from_user
+>    Cyclomatic Complexity 1 include/linux/uaccess.h:__copy_from_user
+>    Cyclomatic Complexity 1 include/linux/uaccess.h:__copy_to_user
+>    Cyclomatic Complexity 2 include/linux/uaccess.h:copy_from_user
+>    Cyclomatic Complexity 2 include/linux/uaccess.h:copy_to_user
+>    Cyclomatic Complexity 4 include/linux/poll.h:poll_wait
+>    Cyclomatic Complexity 1 include/linux/poll.h:init_poll_funcptr
+>    Cyclomatic Complexity 1 include/linux/rbtree_augmented.h:rb_set_parent
+>    Cyclomatic Complexity 1 include/linux/rbtree_augmented.h:rb_set_parent_color
+>    Cyclomatic Complexity 3 include/linux/rbtree_augmented.h:__rb_change_child
+>    Cyclomatic Complexity 11 include/linux/rbtree_augmented.h:__rb_erase_augmented
+>    Cyclomatic Complexity 2 include/linux/rbtree_augmented.h:rb_erase_augmented_cached
+>    Cyclomatic Complexity 1 drivers//vhost/vhost.h:vhost_has_feature
+>    Cyclomatic Complexity 1 drivers//vhost/vhost.h:vhost_backend_has_feature
+>    Cyclomatic Complexity 1 drivers//vhost/vhost.h:vhost_is_little_endian
+>    Cyclomatic Complexity 5 drivers//vhost/vhost.c:vhost_umem_interval_tree_compute_subtree_last
+>    Cyclomatic Complexity 3 drivers//vhost/vhost.c:vhost_umem_interval_tree_augment_propagate
+>    Cyclomatic Complexity 1 drivers//vhost/vhost.c:vhost_umem_interval_tree_augment_copy
+>    Cyclomatic Complexity 1 drivers//vhost/vhost.c:vhost_umem_interval_tree_augment_rotate
+>    Cyclomatic Complexity 1 drivers//vhost/vhost.c:vhost_umem_interval_tree_remove
+>    Cyclomatic Complexity 7 drivers//vhost/vhost.c:vhost_umem_interval_tree_subtree_search
+>    Cyclomatic Complexity 4 drivers//vhost/vhost.c:vhost_umem_interval_tree_iter_first
+>    Cyclomatic Complexity 1 drivers//vhost/vhost.c:vhost_disable_cross_endian
+>    Cyclomatic Complexity 1 drivers//vhost/vhost.c:vhost_enable_cross_endian_big
+>    Cyclomatic Complexity 1 drivers//vhost/vhost.c:vhost_enable_cross_endian_little
+>    Cyclomatic Complexity 5 drivers//vhost/vhost.c:vhost_set_vring_endian
+>    Cyclomatic Complexity 2 drivers//vhost/vhost.c:vhost_get_vring_endian
+>    Cyclomatic Complexity 3 drivers//vhost/vhost.c:vhost_init_is_le
+>    Cyclomatic Complexity 1 drivers//vhost/vhost.c:vhost_reset_is_le
+>    Cyclomatic Complexity 1 drivers//vhost/vhost.c:vhost_work_init
+>    Cyclomatic Complexity 1 drivers//vhost/vhost.c:vhost_poll_init
+>    Cyclomatic Complexity 1 drivers//vhost/vhost.c:vhost_has_work
+>    Cyclomatic Complexity 2 drivers//vhost/vhost.c:__vhost_vq_meta_reset
+>    Cyclomatic Complexity 2 drivers//vhost/vhost.c:vhost_vq_meta_reset
+>    Cyclomatic Complexity 1 drivers//vhost/vhost.c:vhost_vq_reset
+>    Cyclomatic Complexity 2 drivers//vhost/vhost.c:vhost_dev_check_owner
+>    Cyclomatic Complexity 1 drivers//vhost/vhost.c:vhost_dev_has_owner
+> 
+> vim +1771 drivers//vhost/vhost.c
+> 
+>   1760	
+>   1761	static void log_used(struct vhost_virtqueue *vq, u64 used_offset, u64 len)
+>   1762	{
+>   1763		struct iovec iov[64];
+>   1764		int i, ret;
+>   1765	
+>   1766		if (!vq->iotlb) {
+>   1767			log_write(vq->log_base, vq->log_addr + used_offset, len);
+>   1768			return;
+>   1769		}
+>   1770	
+> > 1771		ret = translate_desc(vq, (u64)vq->used + used_offset, len, iov, 64,
+>   1772				     VHOST_ACCESS_WO);
+>   1773		WARN_ON(ret < 0);
+>   1774	
+>   1775		for (i = 0; i < ret; i++) {
+>   1776			ret = log_write_hva(vq, (u64)iov[i].iov_base, iov[i].iov_len);
+>   1777			WARN_ON(ret);
+>   1778		}
+>   1779	}
+>   1780	
+> 
+> ---
+> 0-DAY kernel test infrastructure                Open Source Technology Center
+> https://lists.01.org/pipermail/kbuild-all                   Intel Corporation
