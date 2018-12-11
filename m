@@ -1,16 +1,15 @@
-From: "Michael S. Tsirkin" <mst@redhat.com>
-Subject: Re: [PATCH net 2/4] vhost_net: rework on the lock ordering for busy
-	polling
-Date: Mon, 10 Dec 2018 20:34:51 -0500
-Message-ID: <20181210203119-mutt-send-email-mst__10622.4106661559$1544491994$gmane$org@kernel.org>
+From: Jason Wang <jasowang@redhat.com>
+Subject: Re: [PATCH net 0/4] Fix various issue of vhost
+Date: Tue, 11 Dec 2018 11:01:27 +0800
+Message-ID: <cb539329-170c-c297-eb6e-3921852f1d1f@redhat.com>
 References: <20181210094454.21144-1-jasowang@redhat.com>
-	<20181210094454.21144-3-jasowang@redhat.com>
+	<20181210.114702.127499839186553253.davem@davemloft.net>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset="utf-8"; Format="flowed"
+Content-Transfer-Encoding: base64
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-Content-Disposition: inline
-In-Reply-To: <20181210094454.21144-3-jasowang@redhat.com>
+In-Reply-To: <20181210.114702.127499839186553253.davem@davemloft.net>
+Content-Language: en-US
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -20,129 +19,31 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Jason Wang <jasowang@redhat.com>
-Cc: netdev@vger.kernel.org, linux-kernel@vger.kernel.org, kvm@vger.kernel.org, virtualization@lists.linux-foundation.org
+To: David Miller <davem@davemloft.net>
+Cc: netdev@vger.kernel.org, virtualization@lists.linux-foundation.org, linux-kernel@vger.kernel.org, kvm@vger.kernel.org, mst@redhat.com
 List-Id: virtualization@lists.linuxfoundation.org
 
-On Mon, Dec 10, 2018 at 05:44:52PM +0800, Jason Wang wrote:
-> When we try to do rx busy polling in tx path in commit 441abde4cd84
-> ("net: vhost: add rx busy polling in tx path"), we lock rx vq mutex
-> after tx vq mutex is held. This may lead deadlock so we try to lock vq
-> one by one in commit 78139c94dc8c ("net: vhost: lock the vqs one by
-> one"). With this commit, we avoid the deadlock with the assumption
-> that handle_rx() and handle_tx() run in a same process. But this
-> commit remove the protection for IOTLB updating which requires the
-> mutex of each vq to be held.
-> 
-> To solve this issue, the first step is to have a exact same lock
-> ordering for vhost_net. This is done through:
-> 
-> - For handle_rx(), if busy polling is enabled, lock tx vq immediately.
-> - For handle_tx(), always lock rx vq before tx vq, and unlock it if
->   busy polling is not enabled.
-> - Remove the tricky locking codes in busy polling.
-> 
-> With this, we can have a exact same lock ordering for vhost_net, this
-> allows us to safely revert commit 78139c94dc8c ("net: vhost: lock the
-> vqs one by one") in next patch.
-> 
-> The patch will add two more atomic operations on the tx path during
-> each round of handle_tx(). 1 byte TCP_RR does not notice such
-> overhead.
-> 
-> Fixes: commit 78139c94dc8c ("net: vhost: lock the vqs one by one")
-> Cc: Tonghao Zhang <xiangxia.m.yue@gmail.com>
-> Signed-off-by: Jason Wang <jasowang@redhat.com>
-> ---
->  drivers/vhost/net.c | 18 +++++++++++++++---
->  1 file changed, 15 insertions(+), 3 deletions(-)
-> 
-> diff --git a/drivers/vhost/net.c b/drivers/vhost/net.c
-> index ab11b2bee273..5f272ab4d5b4 100644
-> --- a/drivers/vhost/net.c
-> +++ b/drivers/vhost/net.c
-> @@ -513,7 +513,6 @@ static void vhost_net_busy_poll(struct vhost_net *net,
->  	struct socket *sock;
->  	struct vhost_virtqueue *vq = poll_rx ? tvq : rvq;
->  
-> -	mutex_lock_nested(&vq->mutex, poll_rx ? VHOST_NET_VQ_TX: VHOST_NET_VQ_RX);
->  	vhost_disable_notify(&net->dev, vq);
->  	sock = rvq->private_data;
->  
-> @@ -543,8 +542,6 @@ static void vhost_net_busy_poll(struct vhost_net *net,
->  		vhost_net_busy_poll_try_queue(net, vq);
->  	else if (!poll_rx) /* On tx here, sock has no rx data. */
->  		vhost_enable_notify(&net->dev, rvq);
-> -
-> -	mutex_unlock(&vq->mutex);
->  }
->  
->  static int vhost_net_tx_get_vq_desc(struct vhost_net *net,
-> @@ -913,10 +910,16 @@ static void handle_tx_zerocopy(struct vhost_net *net, struct socket *sock)
->  static void handle_tx(struct vhost_net *net)
->  {
->  	struct vhost_net_virtqueue *nvq = &net->vqs[VHOST_NET_VQ_TX];
-> +	struct vhost_net_virtqueue *nvq_rx = &net->vqs[VHOST_NET_VQ_RX];
->  	struct vhost_virtqueue *vq = &nvq->vq;
-> +	struct vhost_virtqueue *vq_rx = &nvq_rx->vq;
->  	struct socket *sock;
->  
-> +	mutex_lock_nested(&vq_rx->mutex, VHOST_NET_VQ_RX);
->  	mutex_lock_nested(&vq->mutex, VHOST_NET_VQ_TX);
-> +	if (!vq->busyloop_timeout)
-> +		mutex_unlock(&vq_rx->mutex);
-> +
->  	sock = vq->private_data;
->  	if (!sock)
->  		goto out;
-> @@ -933,6 +936,8 @@ static void handle_tx(struct vhost_net *net)
->  		handle_tx_copy(net, sock);
->  
->  out:
-> +	if (vq->busyloop_timeout)
-> +		mutex_unlock(&vq_rx->mutex);
->  	mutex_unlock(&vq->mutex);
->  }
->  
-
-
-So rx mutex taken on tx path now.  And tx mutex is on rc path ...  This
-is just messed up. Why can't tx polling drop rx lock before
-getting the tx lock and vice versa?
-
-Or if we really wanted to force everything to be locked at
-all times, let's just use a single mutex.
-
-
-
-> @@ -1060,7 +1065,9 @@ static int get_rx_bufs(struct vhost_virtqueue *vq,
->  static void handle_rx(struct vhost_net *net)
->  {
->  	struct vhost_net_virtqueue *nvq = &net->vqs[VHOST_NET_VQ_RX];
-> +	struct vhost_net_virtqueue *nvq_tx = &net->vqs[VHOST_NET_VQ_TX];
->  	struct vhost_virtqueue *vq = &nvq->vq;
-> +	struct vhost_virtqueue *vq_tx = &nvq_tx->vq;
->  	unsigned uninitialized_var(in), log;
->  	struct vhost_log *vq_log;
->  	struct msghdr msg = {
-> @@ -1086,6 +1093,9 @@ static void handle_rx(struct vhost_net *net)
->  	int recv_pkts = 0;
->  
->  	mutex_lock_nested(&vq->mutex, VHOST_NET_VQ_RX);
-> +	if (vq->busyloop_timeout)
-> +		mutex_lock_nested(&vq_tx->mutex, VHOST_NET_VQ_TX);
-> +
->  	sock = vq->private_data;
->  	if (!sock)
->  		goto out;
-> @@ -1200,6 +1210,8 @@ static void handle_rx(struct vhost_net *net)
->  out:
->  	vhost_net_signal_used(nvq);
->  	mutex_unlock(&vq->mutex);
-> +	if (vq->busyloop_timeout)
-> +		mutex_unlock(&vq_tx->mutex);
->  }
->  
->  static void handle_tx_kick(struct vhost_work *work)
-> -- 
-> 2.17.1
+Ck9uIDIwMTgvMTIvMTEg5LiK5Y2IMzo0NywgRGF2aWQgTWlsbGVyIHdyb3RlOgo+IEZyb206IEph
+c29uIFdhbmcgPGphc293YW5nQHJlZGhhdC5jb20+Cj4gRGF0ZTogTW9uLCAxMCBEZWMgMjAxOCAx
+Nzo0NDo1MCArMDgwMAo+Cj4+IFRoaXMgc2VyaWVzIHRyaWVzIHRvIGZpeCB2YXJpb3VzIGlzc3Vl
+cyBvZiB2aG9zdDoKPj4KPj4gLSBQYXRjaCAxIGFkZHMgYSBtaXNzaW5nIHdyaXRlIGJhcnJpZXIg
+YmV0d2VlbiB1c2VkIGlkeCB1cGRhdGluZyBhbmQKPj4gICAgbG9nZ2luZy4KPj4gLSBQYXRjaCAy
+LTMgYnJpbmdzIGJhY2sgdGhlIHByb3RlY3Rpb24gb2YgZGV2aWNlIElPVExCIHRocm91Z2ggdnEK
+Pj4gICAgbXV0ZXgsIHRoaXMgZml4ZXMgcG9zc2libGUgdXNlIGFmdGVyIGZyZWUgaW4gZGV2aWNl
+IElPVExCIGVudHJpZXMuCj4+IC0gUGF0Y2ggNCBmaXhlcyB0aGUgZGlyeSBwYWdlIGxvZ2dpbmcg
+d2hlbiBkZXZpY2UgSU9UTEIgaXMKPj4gICAgZW5hYmxlZC4gV2Ugc2hvdWxkIGRvbmUgdGhyb3Vn
+aCBHUEEgaW5zdGVhZCBvZiBHSU9WQSwgdGhpcyB3YXMgZG9uZQo+PiAgICB0aHJvdWdoIGxvZ2dp
+bmcgdGhyb3VnaCBpb3ZlYyBhbmQgdHJhdmVyc2luZyBHUEEtPkhQQSBsaXN0IGZvciB0aGUKPj4g
+ICAgR1BBLgo+Pgo+PiBQbGVhc2UgY29uc2lkZXIgdGhlbSBmb3IgLXN0YWJsZS4KPiBMb29rcyBs
+aWtlIHRoZSBrYnVpbGQgcm9ib3QgZm91bmQgc29tZSBwcm9ibGVtcy4KPgo+IC0+dXNlZCBpcyBh
+IHBvaW50ZXIgKHdoaWNoIG1pZ2h0IGJlIDMyLWJpdCkgYW5kIHlvdSdyZSBjYXN0aW5nIGl0IHRv
+Cj4gYSB1NjQgaW4gdGhlIHRyYW5zbGF0ZV9kZXNjKCkgY2FsbHMgb2YgcGF0Y2ggIzQuCj4KPiBQ
+bGVhc2UgbWFrZSBzdXJlIHRoYXQgeW91IGRvbid0IGFjdHVhbGx5IHJlcXVpcmUgdGhlIGZ1bGwg
+ZG9tYWluIG9mCj4gYSB1NjQgaW4gdGhlc2UgdmFsdWVzLCBhcyBvYnZpb3VzbHkgaWYgdnEtPnVz
+ZWQgaXMgYSBwb2ludGVyIHlvdSB3aWxsCj4gb25seSBnZXQgYSAzMi1iaXQgZG9tYWluIG9uIDMy
+LWJpdCBhcmNoaXRlY3R1cmVzLgoKCkl0IHNlZW1zIHRoZSByZWFzb24gaXMgdGhhdCBJIGNhc3Qg
+ZnJvbSBwbGFpbiB2b2lkIHBvaW50ZXIgZGlyZWN0bHkuIExldCAKbWUgY2FzdCBpdCB0byB1aW50
+cHRyX3QgZmlyc3QuCgpUaGFua3MKCgo+Cl9fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19f
+X19fX19fX19fX19fX19fClZpcnR1YWxpemF0aW9uIG1haWxpbmcgbGlzdApWaXJ0dWFsaXphdGlv
+bkBsaXN0cy5saW51eC1mb3VuZGF0aW9uLm9yZwpodHRwczovL2xpc3RzLmxpbnV4Zm91bmRhdGlv
+bi5vcmcvbWFpbG1hbi9saXN0aW5mby92aXJ0dWFsaXphdGlvbg==
