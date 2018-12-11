@@ -1,18 +1,22 @@
-From: "Michael S. Tsirkin" <mst@redhat.com>
-Subject: Re: [PATCH net 2/4] vhost_net: rework on the lock ordering for busy
-	polling
-Date: Mon, 10 Dec 2018 23:04:08 -0500
-Message-ID: <20181210230106-mutt-send-email-mst@kernel.org>
-References: <20181210094454.21144-1-jasowang@redhat.com>
-	<20181210094454.21144-3-jasowang@redhat.com>
-	<20181210203119-mutt-send-email-mst@kernel.org>
-	<f2a98f3a-a5c5-b762-8ec3-119a7708795d@redhat.com>
+From: Jean-Philippe Brucker <jean-philippe.brucker@arm.com>
+Subject: Re: [PATCH v5 5/7] iommu: Add virtio-iommu driver
+Date: Tue, 11 Dec 2018 16:29:37 +0000
+Message-ID: <2a34ceb8-da24-fd24-f181-7d1ab15be8f8__25947.4314436831$1544545700$gmane$org@arm.com>
+References: <20181122193801.50510-1-jean-philippe.brucker@arm.com>
+	<20181122193801.50510-6-jean-philippe.brucker@arm.com>
+	<20181123165742-mutt-send-email-mst@kernel.org>
+	<fd221210-7e12-1d15-0c80-52a761f6893d@arm.com>
+	<20181127125424-mutt-send-email-mst@kernel.org>
+	<ef97313f-4795-9537-e0b8-8bf6751db6a6@arm.com>
+	<20181127131455-mutt-send-email-mst@kernel.org>
+	<29bdf062-06cb-4b7d-1753-33fac609ddc3@arm.com>
+	<20181210175132-mutt-send-email-mst@kernel.org>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="utf-8"
-Content-Transfer-Encoding: base64
+Content-Type: text/plain; charset="us-ascii"
+Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-Content-Disposition: inline
-In-Reply-To: <f2a98f3a-a5c5-b762-8ec3-119a7708795d@redhat.com>
+In-Reply-To: <20181210175132-mutt-send-email-mst@kernel.org>
+Content-Language: en-US
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -22,99 +26,123 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Jason Wang <jasowang@redhat.com>
-Cc: netdev@vger.kernel.org, linux-kernel@vger.kernel.org, kvm@vger.kernel.org, virtualization@lists.linux-foundation.org
+To: "Michael S. Tsirkin" <mst@redhat.com>
+Cc: Mark Rutland <Mark.Rutland@arm.com>, "virtio-dev@lists.oasis-open.org" <virtio-dev@lists.oasis-open.org>, Lorenzo Pieralisi <Lorenzo.Pieralisi@arm.com>, "tnowicki@caviumnetworks.com" <tnowicki@caviumnetworks.com>, "devicetree@vger.kernel.org" <devicetree@vger.kernel.org>, Marc Zyngier <Marc.Zyngier@arm.com>, "linux-pci@vger.kernel.org" <linux-pci@vger.kernel.org>, "joro@8bytes.org" <joro@8bytes.org>, Will Deacon <Will.Deacon@arm.com>, "virtualization@lists.linux-foundation.org" <virtualization@lists.linux-foundation.org>, "eric.auger@redhat.com" <eric.auger@redhat.com>, "iommu@lists.linux-foundation.org" <iommu@lists.linux-foundation.org>, "robh+dt@kernel.org" <robh+dt@kernel.org>, "bhelgaas@google.com" <bhelgaas@google.com>, Robin Murphy <Robin.Murphy@arm.com>, "kvmarm@lists.cs.columbia.edu" <kvmarm@lists.cs.columbia.edu>
 List-Id: virtualization@lists.linuxfoundation.org
 
-T24gVHVlLCBEZWMgMTEsIDIwMTggYXQgMTE6MDY6NDNBTSArMDgwMCwgSmFzb24gV2FuZyB3cm90
-ZToKPiAKPiBPbiAyMDE4LzEyLzExIOS4iuWNiDk6MzQsIE1pY2hhZWwgUy4gVHNpcmtpbiB3cm90
-ZToKPiA+IE9uIE1vbiwgRGVjIDEwLCAyMDE4IGF0IDA1OjQ0OjUyUE0gKzA4MDAsIEphc29uIFdh
-bmcgd3JvdGU6Cj4gPiA+IFdoZW4gd2UgdHJ5IHRvIGRvIHJ4IGJ1c3kgcG9sbGluZyBpbiB0eCBw
-YXRoIGluIGNvbW1pdCA0NDFhYmRlNGNkODQKPiA+ID4gKCJuZXQ6IHZob3N0OiBhZGQgcnggYnVz
-eSBwb2xsaW5nIGluIHR4IHBhdGgiKSwgd2UgbG9jayByeCB2cSBtdXRleAo+ID4gPiBhZnRlciB0
-eCB2cSBtdXRleCBpcyBoZWxkLiBUaGlzIG1heSBsZWFkIGRlYWRsb2NrIHNvIHdlIHRyeSB0byBs
-b2NrIHZxCj4gPiA+IG9uZSBieSBvbmUgaW4gY29tbWl0IDc4MTM5Yzk0ZGM4YyAoIm5ldDogdmhv
-c3Q6IGxvY2sgdGhlIHZxcyBvbmUgYnkKPiA+ID4gb25lIikuIFdpdGggdGhpcyBjb21taXQsIHdl
-IGF2b2lkIHRoZSBkZWFkbG9jayB3aXRoIHRoZSBhc3N1bXB0aW9uCj4gPiA+IHRoYXQgaGFuZGxl
-X3J4KCkgYW5kIGhhbmRsZV90eCgpIHJ1biBpbiBhIHNhbWUgcHJvY2Vzcy4gQnV0IHRoaXMKPiA+
-ID4gY29tbWl0IHJlbW92ZSB0aGUgcHJvdGVjdGlvbiBmb3IgSU9UTEIgdXBkYXRpbmcgd2hpY2gg
-cmVxdWlyZXMgdGhlCj4gPiA+IG11dGV4IG9mIGVhY2ggdnEgdG8gYmUgaGVsZC4KPiA+ID4gCj4g
-PiA+IFRvIHNvbHZlIHRoaXMgaXNzdWUsIHRoZSBmaXJzdCBzdGVwIGlzIHRvIGhhdmUgYSBleGFj
-dCBzYW1lIGxvY2sKPiA+ID4gb3JkZXJpbmcgZm9yIHZob3N0X25ldC4gVGhpcyBpcyBkb25lIHRo
-cm91Z2g6Cj4gPiA+IAo+ID4gPiAtIEZvciBoYW5kbGVfcngoKSwgaWYgYnVzeSBwb2xsaW5nIGlz
-IGVuYWJsZWQsIGxvY2sgdHggdnEgaW1tZWRpYXRlbHkuCj4gPiA+IC0gRm9yIGhhbmRsZV90eCgp
-LCBhbHdheXMgbG9jayByeCB2cSBiZWZvcmUgdHggdnEsIGFuZCB1bmxvY2sgaXQgaWYKPiA+ID4g
-ICAgYnVzeSBwb2xsaW5nIGlzIG5vdCBlbmFibGVkLgo+ID4gPiAtIFJlbW92ZSB0aGUgdHJpY2t5
-IGxvY2tpbmcgY29kZXMgaW4gYnVzeSBwb2xsaW5nLgo+ID4gPiAKPiA+ID4gV2l0aCB0aGlzLCB3
-ZSBjYW4gaGF2ZSBhIGV4YWN0IHNhbWUgbG9jayBvcmRlcmluZyBmb3Igdmhvc3RfbmV0LCB0aGlz
-Cj4gPiA+IGFsbG93cyB1cyB0byBzYWZlbHkgcmV2ZXJ0IGNvbW1pdCA3ODEzOWM5NGRjOGMgKCJu
-ZXQ6IHZob3N0OiBsb2NrIHRoZQo+ID4gPiB2cXMgb25lIGJ5IG9uZSIpIGluIG5leHQgcGF0Y2gu
-Cj4gPiA+IAo+ID4gPiBUaGUgcGF0Y2ggd2lsbCBhZGQgdHdvIG1vcmUgYXRvbWljIG9wZXJhdGlv
-bnMgb24gdGhlIHR4IHBhdGggZHVyaW5nCj4gPiA+IGVhY2ggcm91bmQgb2YgaGFuZGxlX3R4KCku
-IDEgYnl0ZSBUQ1BfUlIgZG9lcyBub3Qgbm90aWNlIHN1Y2gKPiA+ID4gb3ZlcmhlYWQuCj4gPiA+
-IAo+ID4gPiBGaXhlczogY29tbWl0IDc4MTM5Yzk0ZGM4YyAoIm5ldDogdmhvc3Q6IGxvY2sgdGhl
-IHZxcyBvbmUgYnkgb25lIikKPiA+ID4gQ2M6IFRvbmdoYW8gWmhhbmc8eGlhbmd4aWEubS55dWVA
-Z21haWwuY29tPgo+ID4gPiBTaWduZWQtb2ZmLWJ5OiBKYXNvbiBXYW5nPGphc293YW5nQHJlZGhh
-dC5jb20+Cj4gPiA+IC0tLQo+ID4gPiAgIGRyaXZlcnMvdmhvc3QvbmV0LmMgfCAxOCArKysrKysr
-KysrKysrKystLS0KPiA+ID4gICAxIGZpbGUgY2hhbmdlZCwgMTUgaW5zZXJ0aW9ucygrKSwgMyBk
-ZWxldGlvbnMoLSkKPiA+ID4gCj4gPiA+IGRpZmYgLS1naXQgYS9kcml2ZXJzL3Zob3N0L25ldC5j
-IGIvZHJpdmVycy92aG9zdC9uZXQuYwo+ID4gPiBpbmRleCBhYjExYjJiZWUyNzMuLjVmMjcyYWI0
-ZDViNCAxMDA2NDQKPiA+ID4gLS0tIGEvZHJpdmVycy92aG9zdC9uZXQuYwo+ID4gPiArKysgYi9k
-cml2ZXJzL3Zob3N0L25ldC5jCj4gPiA+IEBAIC01MTMsNyArNTEzLDYgQEAgc3RhdGljIHZvaWQg
-dmhvc3RfbmV0X2J1c3lfcG9sbChzdHJ1Y3Qgdmhvc3RfbmV0ICpuZXQsCj4gPiA+ICAgCXN0cnVj
-dCBzb2NrZXQgKnNvY2s7Cj4gPiA+ICAgCXN0cnVjdCB2aG9zdF92aXJ0cXVldWUgKnZxID0gcG9s
-bF9yeCA/IHR2cSA6IHJ2cTsKPiA+ID4gLQltdXRleF9sb2NrX25lc3RlZCgmdnEtPm11dGV4LCBw
-b2xsX3J4ID8gVkhPU1RfTkVUX1ZRX1RYOiBWSE9TVF9ORVRfVlFfUlgpOwo+ID4gPiAgIAl2aG9z
-dF9kaXNhYmxlX25vdGlmeSgmbmV0LT5kZXYsIHZxKTsKPiA+ID4gICAJc29jayA9IHJ2cS0+cHJp
-dmF0ZV9kYXRhOwo+ID4gPiBAQCAtNTQzLDggKzU0Miw2IEBAIHN0YXRpYyB2b2lkIHZob3N0X25l
-dF9idXN5X3BvbGwoc3RydWN0IHZob3N0X25ldCAqbmV0LAo+ID4gPiAgIAkJdmhvc3RfbmV0X2J1
-c3lfcG9sbF90cnlfcXVldWUobmV0LCB2cSk7Cj4gPiA+ICAgCWVsc2UgaWYgKCFwb2xsX3J4KSAv
-KiBPbiB0eCBoZXJlLCBzb2NrIGhhcyBubyByeCBkYXRhLiAqLwo+ID4gPiAgIAkJdmhvc3RfZW5h
-YmxlX25vdGlmeSgmbmV0LT5kZXYsIHJ2cSk7Cj4gPiA+IC0KPiA+ID4gLQltdXRleF91bmxvY2so
-JnZxLT5tdXRleCk7Cj4gPiA+ICAgfQo+ID4gPiAgIHN0YXRpYyBpbnQgdmhvc3RfbmV0X3R4X2dl
-dF92cV9kZXNjKHN0cnVjdCB2aG9zdF9uZXQgKm5ldCwKPiA+ID4gQEAgLTkxMywxMCArOTEwLDE2
-IEBAIHN0YXRpYyB2b2lkIGhhbmRsZV90eF96ZXJvY29weShzdHJ1Y3Qgdmhvc3RfbmV0ICpuZXQs
-IHN0cnVjdCBzb2NrZXQgKnNvY2spCj4gPiA+ICAgc3RhdGljIHZvaWQgaGFuZGxlX3R4KHN0cnVj
-dCB2aG9zdF9uZXQgKm5ldCkKPiA+ID4gICB7Cj4gPiA+ICAgCXN0cnVjdCB2aG9zdF9uZXRfdmly
-dHF1ZXVlICpudnEgPSAmbmV0LT52cXNbVkhPU1RfTkVUX1ZRX1RYXTsKPiA+ID4gKwlzdHJ1Y3Qg
-dmhvc3RfbmV0X3ZpcnRxdWV1ZSAqbnZxX3J4ID0gJm5ldC0+dnFzW1ZIT1NUX05FVF9WUV9SWF07
-Cj4gPiA+ICAgCXN0cnVjdCB2aG9zdF92aXJ0cXVldWUgKnZxID0gJm52cS0+dnE7Cj4gPiA+ICsJ
-c3RydWN0IHZob3N0X3ZpcnRxdWV1ZSAqdnFfcnggPSAmbnZxX3J4LT52cTsKPiA+ID4gICAJc3Ry
-dWN0IHNvY2tldCAqc29jazsKPiA+ID4gKwltdXRleF9sb2NrX25lc3RlZCgmdnFfcngtPm11dGV4
-LCBWSE9TVF9ORVRfVlFfUlgpOwo+ID4gPiAgIAltdXRleF9sb2NrX25lc3RlZCgmdnEtPm11dGV4
-LCBWSE9TVF9ORVRfVlFfVFgpOwo+ID4gPiArCWlmICghdnEtPmJ1c3lsb29wX3RpbWVvdXQpCj4g
-PiA+ICsJCW11dGV4X3VubG9jaygmdnFfcngtPm11dGV4KTsKPiA+ID4gKwo+ID4gPiAgIAlzb2Nr
-ID0gdnEtPnByaXZhdGVfZGF0YTsKPiA+ID4gICAJaWYgKCFzb2NrKQo+ID4gPiAgIAkJZ290byBv
-dXQ7Cj4gPiA+IEBAIC05MzMsNiArOTM2LDggQEAgc3RhdGljIHZvaWQgaGFuZGxlX3R4KHN0cnVj
-dCB2aG9zdF9uZXQgKm5ldCkKPiA+ID4gICAJCWhhbmRsZV90eF9jb3B5KG5ldCwgc29jayk7Cj4g
-PiA+ICAgb3V0Ogo+ID4gPiArCWlmICh2cS0+YnVzeWxvb3BfdGltZW91dCkKPiA+ID4gKwkJbXV0
-ZXhfdW5sb2NrKCZ2cV9yeC0+bXV0ZXgpOwo+ID4gPiAgIAltdXRleF91bmxvY2soJnZxLT5tdXRl
-eCk7Cj4gPiA+ICAgfQo+ID4gU28gcnggbXV0ZXggdGFrZW4gb24gdHggcGF0aCBub3cuICBBbmQg
-dHggbXV0ZXggaXMgb24gcmMgcGF0aCAuLi4gIFRoaXMKPiA+IGlzIGp1c3QgbWVzc2VkIHVwLiBX
-aHkgY2FuJ3QgdHggcG9sbGluZyBkcm9wIHJ4IGxvY2sgYmVmb3JlCj4gPiBnZXR0aW5nIHRoZSB0
-eCBsb2NrIGFuZCB2aWNlIHZlcnNhPwo+IAo+IAo+IEJlY2F1c2Ugd2Ugd2FudCB0byBwb2xsIGJv
-dGggdHggYW5kIHJ4IHZpcnRxdWV1ZSBhdCB0aGUgc2FtZSB0aW1lCj4gKHZob3N0X25ldF9idXN5
-X3BvbGwoKSkuCj4gCj4gwqDCoMKgIHdoaWxlICh2aG9zdF9jYW5fYnVzeV9wb2xsKGVuZHRpbWUp
-KSB7Cj4gwqDCoCDCoMKgwqAgwqBpZiAodmhvc3RfaGFzX3dvcmsoJm5ldC0+ZGV2KSkgewo+IMKg
-wqAgwqDCoMKgIMKgwqDCoCDCoCpidXN5bG9vcF9pbnRyID0gdHJ1ZTsKPiDCoMKgIMKgwqDCoCDC
-oMKgwqAgwqBicmVhazsKPiDCoMKgIMKgwqDCoCDCoH0KPiAKPiDCoMKgIMKgwqDCoCDCoGlmICgo
-c29ja19oYXNfcnhfZGF0YShzb2NrKSAmJgo+IMKgwqAgwqDCoMKgIMKgwqDCoMKgwqAgIXZob3N0
-X3ZxX2F2YWlsX2VtcHR5KCZuZXQtPmRldiwgcnZxKSkgfHwKPiDCoMKgIMKgwqDCoCDCoMKgwqDC
-oCAhdmhvc3RfdnFfYXZhaWxfZW1wdHkoJm5ldC0+ZGV2LCB0dnEpKQo+IMKgwqAgwqDCoMKgIMKg
-wqDCoCDCoGJyZWFrOwo+IAo+IMKgwqAgwqDCoMKgIMKgY3B1X3JlbGF4KCk7Cj4gCj4gwqDCoCDC
-oH0KPiAKPiAKPiBBbmQgd2UgZGlzYWJsZSBraWNrcyBhbmQgbm90aWZpY2F0aW9uIGZvciBiZXR0
-ZXIgcGVyZm9ybWFuY2UuCgpSaWdodCBidXQgaXQncyBhbGwgc2xvdyBwYXRoIC0gaXQgaGFwcGVu
-cyB3aGVuIHF1ZXVlIGlzCm90aGVyd2lzZSBlbXB0eS4gU28gdGhpcyBpcyB3aGF0IEkgYW0gc2F5
-aW5nOiBsZXQncyBkcm9wIHRoZSBsb2Nrcwp3ZSBob2xkIGFyb3VuZCB0aGlzLgoKCj4gCj4gPiAK
-PiA+IE9yIGlmIHdlIHJlYWxseSB3YW50ZWQgdG8gZm9yY2UgZXZlcnl0aGluZyB0byBiZSBsb2Nr
-ZWQgYXQKPiA+IGFsbCB0aW1lcywgbGV0J3MganVzdCB1c2UgYSBzaW5nbGUgbXV0ZXguCj4gPiAK
-PiA+IAo+ID4gCj4gCj4gV2UgY291bGQsIGJ1dCBpdCBtaWdodCByZXF1aXJlcyBtb3JlIGNoYW5n
-ZXMgd2hpY2ggY291bGQgYmUgZG9uZSBmb3IgLW5leHQgSQo+IGJlbGlldmUuCj4gCj4gCj4gVGhh
-bmtzCgpJJ2QgcmF0aGVyIHdlIGtlcHQgdGhlIGZpbmUgZ3JhaW5lZCBsb2NraW5nLiBFLmcuIHBl
-b3BsZSBhcmUKbG9va2luZyBhdCBzcGxpdHRpbmcgdGhlIHR4IGFuZCByeCB0aHJlYWRzLiBCdXQg
-aWYgbm90IHBvc3NpYmxlCmxldCdzIGZpeCBpdCBjbGVhbmx5IHdpdGggYSBjb2Fyc2UtZ3JhaW5l
-ZCBvbmUuIEEgbWVzcyBoZXJlIHdpbGwKanVzdCBjcmVhdGUgbW9yZSB0cm91YmxlIGxhdGVyLgoK
-LS0gCk1TVApfX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fXwpW
-aXJ0dWFsaXphdGlvbiBtYWlsaW5nIGxpc3QKVmlydHVhbGl6YXRpb25AbGlzdHMubGludXgtZm91
-bmRhdGlvbi5vcmcKaHR0cHM6Ly9saXN0cy5saW51eGZvdW5kYXRpb24ub3JnL21haWxtYW4vbGlz
-dGluZm8vdmlydHVhbGl6YXRpb24=
+On 10/12/2018 22:53, Michael S. Tsirkin wrote:
+> On Mon, Dec 10, 2018 at 03:06:47PM +0000, Jean-Philippe Brucker wrote:
+>> On 27/11/2018 18:53, Michael S. Tsirkin wrote:
+>>> On Tue, Nov 27, 2018 at 06:10:46PM +0000, Jean-Philippe Brucker wrote:
+>>>> On 27/11/2018 18:04, Michael S. Tsirkin wrote:
+>>>>> On Tue, Nov 27, 2018 at 05:50:50PM +0000, Jean-Philippe Brucker wrote:
+>>>>>> On 23/11/2018 22:02, Michael S. Tsirkin wrote:
+>>>>>>>> +/*
+>>>>>>>> + * __viommu_sync_req - Complete all in-flight requests
+>>>>>>>> + *
+>>>>>>>> + * Wait for all added requests to complete. When this function returns, all
+>>>>>>>> + * requests that were in-flight at the time of the call have completed.
+>>>>>>>> + */
+>>>>>>>> +static int __viommu_sync_req(struct viommu_dev *viommu)
+>>>>>>>> +{
+>>>>>>>> +	int ret = 0;
+>>>>>>>> +	unsigned int len;
+>>>>>>>> +	size_t write_len;
+>>>>>>>> +	struct viommu_request *req;
+>>>>>>>> +	struct virtqueue *vq = viommu->vqs[VIOMMU_REQUEST_VQ];
+>>>>>>>> +
+>>>>>>>> +	assert_spin_locked(&viommu->request_lock);
+>>>>>>>> +
+>>>>>>>> +	virtqueue_kick(vq);
+>>>>>>>> +
+>>>>>>>> +	while (!list_empty(&viommu->requests)) {
+>>>>>>>> +		len = 0;
+>>>>>>>> +		req = virtqueue_get_buf(vq, &len);
+>>>>>>>> +		if (!req)
+>>>>>>>> +			continue;
+>>>>>>>> +
+>>>>>>>> +		if (!len)
+>>>>>>>> +			viommu_set_req_status(req->buf, req->len,
+>>>>>>>> +					      VIRTIO_IOMMU_S_IOERR);
+>>>>>>>> +
+>>>>>>>> +		write_len = req->len - req->write_offset;
+>>>>>>>> +		if (req->writeback && len == write_len)
+>>>>>>>> +			memcpy(req->writeback, req->buf + req->write_offset,
+>>>>>>>> +			       write_len);
+>>>>>>>> +
+>>>>>>>> +		list_del(&req->list);
+>>>>>>>> +		kfree(req);
+>>>>>>>> +	}
+>>>>>>>
+>>>>>>> I didn't notice this in the past but it seems this will spin
+>>>>>>> with interrupts disabled until host handles the request.
+>>>>>>> Please do not do this - host execution can be another
+>>>>>>> task that needs the same host CPU. This will then disable
+>>>>>>> interrupts for a very very long time.
+>>>>>>
+>>>>>> In the guest yes, but that doesn't prevent the host from running another
+>>>>>> task right?
+>>>>>
+>>>>> Doesn't prevent it but it will delay it significantly
+>>>>> until scheduler decides to kick the VCPU task out.
+>>>>>
+>>>>>> My tests run fine when QEMU is bound to a single CPU, even
+>>>>>> though vcpu and viommu run in different threads
+>>>>>>
+>>>>>>> What to do then? Queue in software and wake up task.
+>>>>>>
+>>>>>> Unfortunately I can't do anything here, because IOMMU drivers can't
+>>>>>> sleep in the iommu_map() or iommu_unmap() path.
+>>>>>>
+>>>>>> The problem is the same
+>>>>>> for all IOMMU drivers. That's because the DMA API allows drivers to call
+>>>>>> some functions with interrupts disabled. For example
+>>>>>> Documentation/DMA-API-HOWTO.txt allows dma_alloc_coherent() and
+>>>>>> dma_unmap_single() to be called in interrupt context.
+>>>>>
+>>>>> In fact I don't really understand how it's supposed to
+>>>>> work at all: you only sync when ring is full.
+>>>>> So host may not have seen your map request if ring
+>>>>> is not full.
+>>>>> Why is it safe to use the address with a device then?
+>>>>
+>>>> viommu_map() calls viommu_send_req_sync(), which does the sync
+>>>> immediately after adding the MAP request.
+>>>>
+>>>> Thanks,
+>>>> Jean
+>>>
+>>> I see. So it happens on every request. Maybe you should clear
+>>> event index then. This way if exits are disabled you know that
+>>> host is processing the ring. Event index is good for when
+>>> you don't care when it will be processed, you just want
+>>> to reduce number of exits as much as possible.
+>>>
+>>
+>> I think that's already the case: since we don't attach a callback to the
+>> request queue, VRING_AVAIL_F_NO_INTERRUPT is set in avail_flags_shadow,
+>> which causes the used event index to stay clear.
+>>
+>> Thanks,
+>> Jean
+> 
+> VRING_AVAIL_F_NO_INTERRUPT has no effect when the event index
+> feature has been negotiated. In any case, it also does not
+> affect kick notifications from guest - it affects
+> device interrupts.
+
+Ok, I thought we were talking about the used event. Then this is a
+device-side optimization right?
+
+In QEMU, disabling notifications while processing the queue didn't show
+any difference in netperf. Kvmtool already masks events when processing
+the ring - if the host is still handling requests while the guest adds
+more, then the avail event is at least one behind the new avail index,
+and the guest doesn't kick the host.
+
+Anyway I think we can look at optimizations later, since I don't think
+there is any trivial one that we can squash into the initial driver.
+I'll resend this series with the Kconfig and header change.
+
+Thanks,
+Jean
