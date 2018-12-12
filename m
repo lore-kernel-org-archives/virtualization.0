@@ -1,13 +1,16 @@
-From: Gerd Hoffmann <kraxel@redhat.com>
-Subject: [PATCH v2 17/18] drm/qxl: use generic fbdev emulation
-Date: Wed, 12 Dec 2018 14:21:08 +0100
-Message-ID: <20181212132109.8126-18-kraxel__12523.1383521625$1544621186$gmane$org@redhat.com>
-References: <20181212132109.8126-1-kraxel@redhat.com>
+From: "Michael S. Tsirkin" <mst@redhat.com>
+Subject: Re: [PATCH net V2 2/4] vhost_net: switch to use mutex_trylock() in
+	vhost_net_busy_poll()
+Date: Wed, 12 Dec 2018 09:20:57 -0500
+Message-ID: <20181212091957-mutt-send-email-mst__23086.9016646922$1544624374$gmane$org@kernel.org>
+References: <20181212100819.21295-1-jasowang@redhat.com>
+	<20181212100819.21295-3-jasowang@redhat.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <20181212132109.8126-1-kraxel@redhat.com>
+Content-Disposition: inline
+In-Reply-To: <20181212100819.21295-3-jasowang@redhat.com>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -17,53 +20,52 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: dri-devel@lists.freedesktop.org
-Cc: David Airlie <airlied@linux.ie>, open list <linux-kernel@vger.kernel.org>, "open list:DRM DRIVER FOR QXL VIRTUAL GPU" <virtualization@lists.linux-foundation.org>, spice-devel@redhat.com, "open list:DRM DRIVER FOR QXL VIRTUAL GPU" <spice-devel@lists.freedesktop.org>, Dave Airlie <airlied@redhat.com>
+To: Jason Wang <jasowang@redhat.com>
+Cc: kvm@vger.kernel.org, netdev@vger.kernel.org, linux-kernel@vger.kernel.org, virtualization@lists.linux-foundation.org, David Miller <davem@davemloft.net>
 List-Id: virtualization@lists.linuxfoundation.org
 
-Switch qxl over to the new generic fbdev emulation.
+On Wed, Dec 12, 2018 at 06:08:17PM +0800, Jason Wang wrote:
+> We used to hold the mutex of paired virtqueue in
+> vhost_net_busy_poll(). But this will results an inconsistent lock
+> order which may cause deadlock if we try to bring back the protection
+> of device IOTLB with vq mutex that requires to hold mutex of all
+> virtqueues at the same time.
+> 
+> Fix this simply by switching to use mutex_trylock(), when fail just
+> skip the busy polling. This can happen when device IOTLB is under
+> updating which should be rare.
+> 
+> Fixes: commit 78139c94dc8c ("net: vhost: lock the vqs one by one")
+> Cc: Tonghao Zhang <xiangxia.m.yue@gmail.com>
+> Signed-off-by: Jason Wang <jasowang@redhat.com>
 
-Signed-off-by: Gerd Hoffmann <kraxel@redhat.com>
----
- drivers/gpu/drm/qxl/qxl_display.c | 7 -------
- drivers/gpu/drm/qxl/qxl_drv.c     | 2 ++
- 2 files changed, 2 insertions(+), 7 deletions(-)
+Acked-by: Michael S. Tsirkin <mst@redhat.com>
 
-diff --git a/drivers/gpu/drm/qxl/qxl_display.c b/drivers/gpu/drm/qxl/qxl_display.c
-index 6ea5d031d0..36614005bd 100644
---- a/drivers/gpu/drm/qxl/qxl_display.c
-+++ b/drivers/gpu/drm/qxl/qxl_display.c
-@@ -1223,18 +1223,11 @@ int qxl_modeset_init(struct qxl_device *qdev)
- 	qxl_display_read_client_monitors_config(qdev);
- 
- 	drm_mode_config_reset(&qdev->ddev);
--
--	/* primary surface must be created by this point, to allow
--	 * issuing command queue commands and having them read by
--	 * spice server. */
--	qxl_fbdev_init(qdev);
- 	return 0;
- }
- 
- void qxl_modeset_fini(struct qxl_device *qdev)
- {
--	qxl_fbdev_fini(qdev);
--
- 	qxl_destroy_monitors_object(qdev);
- 	drm_mode_config_cleanup(&qdev->ddev);
- }
-diff --git a/drivers/gpu/drm/qxl/qxl_drv.c b/drivers/gpu/drm/qxl/qxl_drv.c
-index 13c8a662f9..3fce7d16df 100644
---- a/drivers/gpu/drm/qxl/qxl_drv.c
-+++ b/drivers/gpu/drm/qxl/qxl_drv.c
-@@ -93,6 +93,8 @@ qxl_pci_probe(struct pci_dev *pdev, const struct pci_device_id *ent)
- 	if (ret)
- 		goto modeset_cleanup;
- 
-+	drm_fb_helper_remove_conflicting_pci_framebuffers(pdev, 0, "qxl");
-+	drm_fbdev_generic_setup(&qdev->ddev, 32);
- 	return 0;
- 
- modeset_cleanup:
--- 
-2.9.3
+and I think we should try to put this fix in 4.20 too.
+
+
+> ---
+>  drivers/vhost/net.c | 8 +++++++-
+>  1 file changed, 7 insertions(+), 1 deletion(-)
+> 
+> diff --git a/drivers/vhost/net.c b/drivers/vhost/net.c
+> index ab11b2bee273..ad7a6f475a44 100644
+> --- a/drivers/vhost/net.c
+> +++ b/drivers/vhost/net.c
+> @@ -513,7 +513,13 @@ static void vhost_net_busy_poll(struct vhost_net *net,
+>  	struct socket *sock;
+>  	struct vhost_virtqueue *vq = poll_rx ? tvq : rvq;
+>  
+> -	mutex_lock_nested(&vq->mutex, poll_rx ? VHOST_NET_VQ_TX: VHOST_NET_VQ_RX);
+> +	/* Try to hold the vq mutex of the paired virtqueue. We can't
+> +	 * use mutex_lock() here since we could not guarantee a
+> +	 * consistenet lock ordering.
+> +	 */
+> +	if (!mutex_trylock(&vq->mutex))
+> +		return;
+> +
+>  	vhost_disable_notify(&net->dev, vq);
+>  	sock = rvq->private_data;
+>  
+> -- 
+> 2.17.1
