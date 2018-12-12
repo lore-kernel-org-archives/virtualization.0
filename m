@@ -1,8 +1,7 @@
 From: Gerd Hoffmann <kraxel@redhat.com>
-Subject: [PATCH v2 01/18] drm/qxl: drop ttm_mem_reg arg from
-	qxl_hw_surface_alloc()
-Date: Wed, 12 Dec 2018 14:20:52 +0100
-Message-ID: <20181212132109.8126-2-kraxel__40163.2052301013$1544620851$gmane$org@redhat.com>
+Subject: [PATCH v2 15/18] drm/qxl: use qxl_num_crtc directly
+Date: Wed, 12 Dec 2018 14:21:06 +0100
+Message-ID: <20181212132109.8126-16-kraxel__9154.69770920954$1544620858$gmane$org@redhat.com>
 References: <20181212132109.8126-1-kraxel@redhat.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
@@ -22,73 +21,99 @@ To: dri-devel@lists.freedesktop.org
 Cc: David Airlie <airlied@linux.ie>, open list <linux-kernel@vger.kernel.org>, "open list:DRM DRIVER FOR QXL VIRTUAL GPU" <virtualization@lists.linux-foundation.org>, spice-devel@redhat.com, "open list:DRM DRIVER FOR QXL VIRTUAL GPU" <spice-devel@lists.freedesktop.org>, Dave Airlie <airlied@redhat.com>
 List-Id: virtualization@lists.linuxfoundation.org
 
-Not used, is always NULL.
+qdev->monitors_config->max_allowed is effectively set by the
+qxl.num_heads module parameter, stored in the qxl_num_crtc variable.
+Lets get rid of the indirection and use the variable qxl_num_crtc
+directly.  The kernel doesn't need to dereference pointers each time it
+needs the value, and when reading the code you don't have to trace where
+and why qdev->monitors_config->max_allowed is set.
 
 Signed-off-by: Gerd Hoffmann <kraxel@redhat.com>
 ---
- drivers/gpu/drm/qxl/qxl_drv.h    |  3 +--
- drivers/gpu/drm/qxl/qxl_cmd.c    | 14 ++------------
- drivers/gpu/drm/qxl/qxl_object.c |  2 +-
- 3 files changed, 4 insertions(+), 15 deletions(-)
+ drivers/gpu/drm/qxl/qxl_display.c | 25 +++++++++++--------------
+ 1 file changed, 11 insertions(+), 14 deletions(-)
 
-diff --git a/drivers/gpu/drm/qxl/qxl_drv.h b/drivers/gpu/drm/qxl/qxl_drv.h
-index 13a0254b59..38c5a8b1df 100644
---- a/drivers/gpu/drm/qxl/qxl_drv.h
-+++ b/drivers/gpu/drm/qxl/qxl_drv.h
-@@ -497,8 +497,7 @@ int qxl_surface_id_alloc(struct qxl_device *qdev,
- void qxl_surface_id_dealloc(struct qxl_device *qdev,
- 			    uint32_t surface_id);
- int qxl_hw_surface_alloc(struct qxl_device *qdev,
--			 struct qxl_bo *surf,
--			 struct ttm_mem_reg *mem);
-+			 struct qxl_bo *surf);
- int qxl_hw_surface_dealloc(struct qxl_device *qdev,
- 			   struct qxl_bo *surf);
+diff --git a/drivers/gpu/drm/qxl/qxl_display.c b/drivers/gpu/drm/qxl/qxl_display.c
+index fc88826b69..6ea5d031d0 100644
+--- a/drivers/gpu/drm/qxl/qxl_display.c
++++ b/drivers/gpu/drm/qxl/qxl_display.c
+@@ -80,10 +80,10 @@ static int qxl_display_copy_rom_client_monitors_config(struct qxl_device *qdev)
+ 		DRM_DEBUG_KMS("no client monitors configured\n");
+ 		return status;
+ 	}
+-	if (num_monitors > qdev->monitors_config->max_allowed) {
++	if (num_monitors > qxl_num_crtc) {
+ 		DRM_DEBUG_KMS("client monitors list will be truncated: %d < %d\n",
+-			      qdev->monitors_config->max_allowed, num_monitors);
+-		num_monitors = qdev->monitors_config->max_allowed;
++			      qxl_num_crtc, num_monitors);
++		num_monitors = qxl_num_crtc;
+ 	} else {
+ 		num_monitors = qdev->rom->client_monitors_config.count;
+ 	}
+@@ -96,8 +96,7 @@ static int qxl_display_copy_rom_client_monitors_config(struct qxl_device *qdev)
+ 		return status;
+ 	}
+ 	/* we copy max from the client but it isn't used */
+-	qdev->client_monitors_config->max_allowed =
+-				qdev->monitors_config->max_allowed;
++	qdev->client_monitors_config->max_allowed = qxl_num_crtc;
+ 	for (i = 0 ; i < qdev->client_monitors_config->count ; ++i) {
+ 		struct qxl_urect *c_rect =
+ 			&qdev->rom->client_monitors_config.heads[i];
+@@ -204,7 +203,7 @@ static int qxl_add_monitors_config_modes(struct drm_connector *connector,
  
-diff --git a/drivers/gpu/drm/qxl/qxl_cmd.c b/drivers/gpu/drm/qxl/qxl_cmd.c
-index dffc5093ff..73ef41ac5f 100644
---- a/drivers/gpu/drm/qxl/qxl_cmd.c
-+++ b/drivers/gpu/drm/qxl/qxl_cmd.c
-@@ -458,8 +458,7 @@ void qxl_surface_id_dealloc(struct qxl_device *qdev,
+ 	if (!qdev->monitors_config)
+ 		return 0;
+-	if (h >= qdev->monitors_config->max_allowed)
++	if (h >= qxl_num_crtc)
+ 		return 0;
+ 	if (!qdev->client_monitors_config)
+ 		return 0;
+@@ -307,8 +306,7 @@ static void qxl_crtc_update_monitors_config(struct drm_crtc *crtc,
+ 		return;
+ 	}
+ 
+-	if (!qdev->monitors_config ||
+-	    qdev->monitors_config->max_allowed <= i)
++	if (!qdev->monitors_config || qxl_num_crtc <= i)
+ 		return;
+ 
+ 	head.id = i;
+@@ -350,9 +348,10 @@ static void qxl_crtc_update_monitors_config(struct drm_crtc *crtc,
+ 	if (oldcount != qdev->monitors_config->count)
+ 		DRM_DEBUG_KMS("active heads %d -> %d (%d total)\n",
+ 			      oldcount, qdev->monitors_config->count,
+-			      qdev->monitors_config->max_allowed);
++			      qxl_num_crtc);
+ 
+ 	qdev->monitors_config->heads[i] = head;
++	qdev->monitors_config->max_allowed = qxl_num_crtc;
+ 	qxl_send_monitors_config(qdev);
  }
  
- int qxl_hw_surface_alloc(struct qxl_device *qdev,
--			 struct qxl_bo *surf,
--			 struct ttm_mem_reg *new_mem)
-+			 struct qxl_bo *surf)
+@@ -1148,9 +1147,8 @@ int qxl_create_monitors_object(struct qxl_device *qdev)
  {
- 	struct qxl_surface_cmd *cmd;
- 	struct qxl_release *release;
-@@ -485,16 +484,7 @@ int qxl_hw_surface_alloc(struct qxl_device *qdev,
- 	cmd->u.surface_create.width = surf->surf.width;
- 	cmd->u.surface_create.height = surf->surf.height;
- 	cmd->u.surface_create.stride = surf->surf.stride;
--	if (new_mem) {
--		int slot_id = surf->type == QXL_GEM_DOMAIN_VRAM ? qdev->main_mem_slot : qdev->surfaces_mem_slot;
--		struct qxl_memslot *slot = &(qdev->mem_slots[slot_id]);
--
--		/* TODO - need to hold one of the locks to read tbo.offset */
--		cmd->u.surface_create.data = slot->high_bits;
--
--		cmd->u.surface_create.data |= (new_mem->start << PAGE_SHIFT) + surf->tbo.bdev->man[new_mem->mem_type].gpu_offset;
--	} else
--		cmd->u.surface_create.data = qxl_bo_physical_address(qdev, surf, 0);
-+	cmd->u.surface_create.data = qxl_bo_physical_address(qdev, surf, 0);
- 	cmd->surface_id = surf->surface_id;
- 	qxl_release_unmap(qdev, release, &cmd->release_info);
+ 	int ret;
+ 	struct drm_gem_object *gobj;
+-	int max_allowed = qxl_num_crtc;
+ 	int monitors_config_size = sizeof(struct qxl_monitors_config) +
+-		max_allowed * sizeof(struct qxl_head);
++		qxl_num_crtc * sizeof(struct qxl_head);
  
-diff --git a/drivers/gpu/drm/qxl/qxl_object.c b/drivers/gpu/drm/qxl/qxl_object.c
-index 91f3bbc73e..34eff8b21e 100644
---- a/drivers/gpu/drm/qxl/qxl_object.c
-+++ b/drivers/gpu/drm/qxl/qxl_object.c
-@@ -332,7 +332,7 @@ int qxl_bo_check_id(struct qxl_device *qdev, struct qxl_bo *bo)
- 		if (ret)
- 			return ret;
+ 	ret = qxl_gem_object_create(qdev, monitors_config_size, 0,
+ 				    QXL_GEM_DOMAIN_VRAM,
+@@ -1172,9 +1170,8 @@ int qxl_create_monitors_object(struct qxl_device *qdev)
+ 		qxl_bo_physical_address(qdev, qdev->monitors_config_bo, 0);
  
--		ret = qxl_hw_surface_alloc(qdev, bo, NULL);
-+		ret = qxl_hw_surface_alloc(qdev, bo);
- 		if (ret)
- 			return ret;
- 	}
+ 	memset(qdev->monitors_config, 0, monitors_config_size);
+-	qdev->monitors_config->max_allowed = max_allowed;
+-
+-	qdev->dumb_heads = kcalloc(max_allowed, sizeof(qdev->dumb_heads[0]), GFP_KERNEL);
++	qdev->dumb_heads = kcalloc(qxl_num_crtc, sizeof(qdev->dumb_heads[0]),
++				   GFP_KERNEL);
+ 	return 0;
+ }
+ 
 -- 
 2.9.3
