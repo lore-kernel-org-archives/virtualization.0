@@ -1,20 +1,14 @@
-From: Auger Eric <eric.auger@redhat.com>
-Subject: Re: [virtio-dev] Re: [PATCH v5 5/7] iommu: Add virtio-iommu driver
-Date: Wed, 12 Dec 2018 16:27:01 +0100
-Message-ID: <eb267a7c-a881-afd9-9ce2-bcdc317d16d7__10881.379483226$1544628329$gmane$org@redhat.com>
-References: <20181122193801.50510-1-jean-philippe.brucker@arm.com>
-	<20181122193801.50510-6-jean-philippe.brucker@arm.com>
-	<20181123165206-mutt-send-email-mst@kernel.org>
-	<e76a51ba-7a0f-3fca-a1ae-640131f9dfe1@arm.com>
-	<20181127130527-mutt-send-email-mst@kernel.org>
-	<e1dde79c-0bc4-ea99-1bb0-9e70b56955fb@arm.com>
-	<20181212093709-mutt-send-email-mst@kernel.org>
+From: "Michael S. Tsirkin" <mst@redhat.com>
+Subject: Re: [PATCH v2 3/5] VSOCK: support receive mergeable rx buffer in guest
+Date: Wed, 12 Dec 2018 10:31:16 -0500
+Message-ID: <20181212101936-mutt-send-email-mst__7148.52875466949$1544628593$gmane$org@kernel.org>
+References: <5C10D57B.3070701@huawei.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <20181212093709-mutt-send-email-mst@kernel.org>
-Content-Language: en-US
+Content-Disposition: inline
+In-Reply-To: <5C10D57B.3070701@huawei.com>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -24,211 +18,432 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: "Michael S. Tsirkin" <mst@redhat.com>, Jean-Philippe Brucker <jean-philippe.brucker@arm.com>
-Cc: mark.rutland@arm.com, virtio-dev@lists.oasis-open.org, lorenzo.pieralisi@arm.com, tnowicki@caviumnetworks.com, devicetree@vger.kernel.org, marc.zyngier@arm.com, linux-pci@vger.kernel.org, joro@8bytes.org, will.deacon@arm.com, virtualization@lists.linux-foundation.org, iommu@lists.linux-foundation.org, robh+dt@kernel.org, bhelgaas@google.com, robin.murphy@arm.com, kvmarm@lists.cs.columbia.edu
+To: jiangyiwen <jiangyiwen@huawei.com>
+Cc: netdev@vger.kernel.org, kvm@vger.kernel.org, Stefan Hajnoczi <stefanha@redhat.com>, virtualization@lists.linux-foundation.org
 List-Id: virtualization@lists.linuxfoundation.org
 
-Hi,
-
-On 12/12/18 3:56 PM, Michael S. Tsirkin wrote:
-> On Fri, Dec 07, 2018 at 06:52:31PM +0000, Jean-Philippe Brucker wrote:
->> Sorry for the delay, I wanted to do a little more performance analysis
->> before continuing.
->>
->> On 27/11/2018 18:10, Michael S. Tsirkin wrote:
->>> On Tue, Nov 27, 2018 at 05:55:20PM +0000, Jean-Philippe Brucker wrote:
->>>>>> +	if (!virtio_has_feature(vdev, VIRTIO_F_VERSION_1) ||
->>>>>> +	    !virtio_has_feature(vdev, VIRTIO_IOMMU_F_MAP_UNMAP))
->>>>>
->>>>> Why bother with a feature bit for this then btw?
->>>>
->>>> We'll need a new feature bit for sharing page tables with the hardware,
->>>> because they require different requests (attach_table/invalidate instead
->>>> of map/unmap.) A future device supporting page table sharing won't
->>>> necessarily need to support map/unmap.
->>>>
->>> I don't see virtio iommu being extended to support ARM specific
->>> requests. This just won't scale, too many different
->>> descriptor formats out there.
->>
->> They aren't really ARM specific requests. The two new requests are
->> ATTACH_TABLE and INVALIDATE, which would be used by x86 IOMMUs as well.
->>
->> Sharing CPU address space with the HW IOMMU (SVM) has been in the scope
->> of virtio-iommu since the first RFC, and I've been working with that
->> extension in mind since the beginning. As an example you can have a look
->> at my current draft for this [1], which is inspired from the VFIO work
->> we've been doing with Intel.
->>
->> The negotiation phase inevitably requires vendor-specific fields in the
->> descriptors - host tells which formats are supported, guest chooses a
->> format and attaches page tables. But invalidation and fault reporting
->> descriptors are fairly generic.
+On Wed, Dec 12, 2018 at 05:31:39PM +0800, jiangyiwen wrote:
+> Guest receive mergeable rx buffer, it can merge
+> scatter rx buffer into a big buffer and then copy
+> to user space.
 > 
-> We need to tread carefully here.  People expect it that if user does
-> lspci and sees a virtio device then it's reasonably portable.
+> In addition, it also use iovec to replace buf in struct
+> virtio_vsock_pkt, keep tx and rx consistency. The only
+> difference is now tx still uses a segment of continuous
+> physical memory to implement.
 > 
->>> If you want to go that way down the road, you should avoid
->>> virtio iommu, instead emulate and share code with the ARM SMMU (probably
->>> with a different vendor id so you can implement the
->>> report on map for devices without PRI).
->>
->> vSMMU has to stay in userspace though. The main reason we're proposing
->> virtio-iommu is that emulating every possible vIOMMU model in the kernel
->> would be unmaintainable. With virtio-iommu we can process the fast path
->> in the host kernel, through vhost-iommu, and do the heavy lifting in
->> userspace.
-> 
-> Interesting.
-> 
->> As said above, I'm trying to keep the fast path for
->> virtio-iommu generic.
->>
->> More notes on what I consider to be the fast path, and comparison with
->> vSMMU:
->>
->> (1) The primary use-case we have in mind for vIOMMU is something like
->> DPDK in the guest, assigning a hardware device to guest userspace. DPDK
->> maps a large amount of memory statically, to be used by a pass-through
->> device. For this case I don't think we care about vIOMMU performance.
->> Setup and teardown need to be reasonably fast, sure, but the MAP/UNMAP
->> requests don't have to be optimal.
->>
->>
->> (2) If the assigned device is owned by the guest kernel, then mappings
->> are dynamic and require dma_map/unmap() to be fast, but there generally
->> is no need for a vIOMMU, since device and drivers are trusted by the
->> guest kernel. Even when the user does enable a vIOMMU for this case
->> (allowing to over-commit guest memory, which needs to be pinned
->> otherwise),
-> 
-> BTW that's in theory in practice it doesn't really work.
-> 
->> we generally play tricks like lazy TLBI (non-strict mode) to
->> make it faster.
-> 
-> Simple lazy TLB for guest/userspace drivers would be a big no no.
-> You need something smarter.
-> 
->> Here device and drivers are trusted, therefore the
->> vulnerability window of lazy mode isn't a concern.
->>
->> If the reason to enable the vIOMMU is over-comitting guest memory
->> however, you can't use nested translation because it requires pinning
->> the second-level tables. For this case performance matters a bit,
->> because your invalidate-on-map needs to be fast, even if you enable lazy
->> mode and only receive inval-on-unmap every 10ms. It won't ever be as
->> fast as nested translation, though. For this case I think vSMMU+Caching
->> Mode and userspace virtio-iommu with MAP/UNMAP would perform similarly
->> (given page-sized payloads), because the pagetable walk doesn't add a
->> lot of overhead compared to the context switch. But given the results
->> below, vhost-iommu would be faster than vSMMU+CM.
->>
->>
->> (3) Then there is SVM. For SVM, any destructive change to the process
->> address space requires a synchronous invalidation command to the
->> hardware (at least when using PCI ATS). Given that SVM is based on page
->> faults, fault reporting from host to guest also needs to be fast, as
->> well as fault response from guest to host.
->>
->> I think this is where performance matters the most. To get a feel of the
->> advantage we get with virtio-iommu, I compared the vSMMU page-table
->> sharing implementation [2] and vhost-iommu + VFIO with page table
->> sharing (based on Tomasz Nowicki's vhost-iommu prototype). That's on a
->> ThunderX2 with a 10Gb NIC assigned to the guest kernel, which
->> corresponds to case (2) above, with nesting page tables and without the
->> lazy mode. The host's only job is forwarding invalidation to the HW SMMU.
->>
->> vhost-iommu performed on average 1.8x and 5.5x better than vSMMU on
->> netperf TCP_STREAM and TCP_MAERTS respectively (~200 samples). I think
->> this can be further optimized (that was still polling under the vq
->> lock), and unlike vSMMU, virtio-iommu offers the possibility of
->> multi-queue for improved scalability. In addition, the guest will need
->> to send both TLB and ATC invalidations with vSMMU, but virtio-iommu
->> allows to multiplex those, and to invalidate ranges. Similarly for fault
->> injection, having the ability to report page faults to the guest from
->> the host kernel should be significantly faster than having to go to
->> userspace and back to the kernel.
-> 
-> Fascinating. Any data about host CPU utilization?
-> 
-> Eric what do you think?
-> 
-> Is it true that SMMUv3 is fundmentally slow at the architecture level
-> and so a PV interface will always scale better until
-> a new hardware interface is designed?
-
-As far as I understand the figures above correspond to vhost-iommu
-against vsmmuv3. In the 2 cases the guest owns stage1 tables so the
-difference comes from the IOTLB invalidation handling. With vhost we
-avoid a kernel <-> userspace round trip which may mostly explain the
-difference.
-
-About SMMUv3 issues I already reported one big limitation with respect
-to hugepage invalidation. See [RFC v2 4/4] iommu/arm-smmu-v3: add
-CMD_TLBI_NH_VA_AM command for iova range invalidation
-(https://lkml.org/lkml/2017/8/11/428).
-
-At smmuv3 guest driver level, arm_smmu_tlb_inv_range_nosync(), when
-called with a hugepage size, invalidates each 4K/64K page of the region
-and not the whole region at once. Each of them are trapped by the SMMUv3
-device which forwards them to the host. This stalls the guest. This
-issue can be observed in DPDK case - not the use case benchmarked above - .
-
-I raised this point again in recent discussions and it is unclear
-whether this is an SMMUv3 driver limitation or an architecture
-limitation. Seems a single invalidation within the block mapping should
-invalidate the whole mapping at HW level. In the past I hacked a
-workaround by defining an implementation defined invalidation command.
-
-Robin/Will, could you please explain the rationale behind the
-arm_smmu_tlb_inv_range_nosync() implementation.
-
-Thanks
-
-Eric
+> Signed-off-by: Yiwen Jiang <jiangyiwen@huawei.com>
+> ---
+>  drivers/vhost/vsock.c                   |  31 +++++++---
+>  include/linux/virtio_vsock.h            |   6 +-
+>  net/vmw_vsock/virtio_transport.c        | 105 ++++++++++++++++++++++++++++----
+>  net/vmw_vsock/virtio_transport_common.c |  59 ++++++++++++++----
+>  4 files changed, 166 insertions(+), 35 deletions(-)
 
 
+This was supposed to be a guest patch, why is vhost changed here?
 
+> diff --git a/drivers/vhost/vsock.c b/drivers/vhost/vsock.c
+> index dc52b0f..c7ab0dd 100644
+> --- a/drivers/vhost/vsock.c
+> +++ b/drivers/vhost/vsock.c
+> @@ -179,6 +179,8 @@ static int get_rx_bufs(struct vhost_virtqueue *vq,
+>  		size_t nbytes;
+>  		size_t len;
+>  		s16 headcount;
+> +		size_t remain_len;
+> +		int i;
 > 
+>  		spin_lock_bh(&vsock->send_pkt_list_lock);
+>  		if (list_empty(&vsock->send_pkt_list)) {
+> @@ -221,11 +223,19 @@ static int get_rx_bufs(struct vhost_virtqueue *vq,
+>  			break;
+>  		}
 > 
->>
->> (4) Virtio and vhost endpoints weren't really a priority for the base
->> virtio-iommu device, we were looking mainly at device pass-through. I
->> have optimizations in mind for this, although a lot of them are based on
->> page tables, not MAP/UNMAP requests. But just getting the vIOMMU closer
->> to vhost devices, avoiding the trip to userspace through vhost-tlb,
->> should already improve things.
->>
->> The important difference when DMA is done by software is that you don't
->> need to mirror all mappings into the HW IOMMU - you don't need
->> inval-on-map. The endpoint can ask the vIOMMU for mappings when it needs
->> them, like vhost-iotlb does for example. So the MAP/UNMAP interface of
->> virtio-iommu performs poorly for emulated/PV endpoints compared to an
->> emulated IOMMU, since it requires three context switches for DMA
->> (MAP/DMA/UNMAP) between host and guest, rather than two (DMA/INVAL).
->> There is a feature I call "posted MAP", that avoids the kick on MAP and
->> instead lets the device fetch the MAP request on TLB miss, but I haven't
->> spent enough time experimenting with this.
->>
->>> Others on the TC might feel differently.
->>>
->>> If someone's looking into adding virtio iommu support in hardware,
->>> that's a different matter. Which is it?
->>
->> I'm not aware of anything like that, and suspect that no one would
->> consider it until virtio-iommu is more widely adopted.
->>
->> Thanks,
->> Jean
->>
->>
->> [1] Diff between current spec and page table sharing draft
->>     (Very rough, missing page fault support and I'd like to rework the
->>      PASID model a bit, but table descriptors p.24-26 for both Arm
->>      SMMUv2 and SMMUv3.)
->>
->> http://jpbrucker.net/virtio-iommu/spec-table/diffs/virtio-iommu-pdf-diff-v0.9-v0.10.dev03.pdf
->>
->> [2] [RFC v2 00/28] vSMMUv3/pSMMUv3 2 stage VFIO integration
->>     https://www.mail-archive.com/qemu-devel@nongnu.org/msg562369.html
+> -		nbytes = copy_to_iter(pkt->buf, pkt->len, &iov_iter);
+> -		if (nbytes != pkt->len) {
+> -			virtio_transport_free_pkt(pkt);
+> -			vq_err(vq, "Faulted on copying pkt buf\n");
+> -			break;
+> +		remain_len = pkt->len;
+> +		for (i = 0; i < pkt->nr_vecs; i++) {
+> +			int tmp_len;
+> +
+> +			tmp_len = min(remain_len, pkt->vec[i].iov_len);
+> +			nbytes = copy_to_iter(pkt->vec[i].iov_base, tmp_len, &iov_iter);
+> +			if (nbytes != tmp_len) {
+> +				virtio_transport_free_pkt(pkt);
+> +				vq_err(vq, "Faulted on copying pkt buf\n");
+> +				break;
+> +			}
+> +
+> +			remain_len -= tmp_len;
+>  		}
+> 
+>  		vhost_add_used_n(vq, vq->heads, headcount);
+> @@ -341,6 +351,7 @@ static void vhost_transport_send_pkt_work(struct vhost_work *work)
+>  	struct iov_iter iov_iter;
+>  	size_t nbytes;
+>  	size_t len;
+> +	void *buf;
+> 
+>  	if (in != 0) {
+>  		vq_err(vq, "Expected 0 input buffers, got %u\n", in);
+> @@ -375,13 +386,17 @@ static void vhost_transport_send_pkt_work(struct vhost_work *work)
+>  		return NULL;
+>  	}
+> 
+> -	pkt->buf = kmalloc(pkt->len, GFP_KERNEL);
+> -	if (!pkt->buf) {
+> +	buf = kmalloc(pkt->len, GFP_KERNEL);
+> +	if (!buf) {
+>  		kfree(pkt);
+>  		return NULL;
+>  	}
+> 
+> -	nbytes = copy_from_iter(pkt->buf, pkt->len, &iov_iter);
+> +	pkt->vec[0].iov_base = buf;
+> +	pkt->vec[0].iov_len = pkt->len;
+> +	pkt->nr_vecs = 1;
+> +
+> +	nbytes = copy_from_iter(buf, pkt->len, &iov_iter);
+>  	if (nbytes != pkt->len) {
+>  		vq_err(vq, "Expected %u byte payload, got %zu bytes\n",
+>  		       pkt->len, nbytes);
+> diff --git a/include/linux/virtio_vsock.h b/include/linux/virtio_vsock.h
+> index da9e1fe..734eeed 100644
+> --- a/include/linux/virtio_vsock.h
+> +++ b/include/linux/virtio_vsock.h
+> @@ -13,6 +13,8 @@
+>  #define VIRTIO_VSOCK_DEFAULT_RX_BUF_SIZE	(1024 * 4)
+>  #define VIRTIO_VSOCK_MAX_BUF_SIZE		0xFFFFFFFFUL
+>  #define VIRTIO_VSOCK_MAX_PKT_BUF_SIZE		(1024 * 64)
+> +/* virtio_vsock_pkt + max_pkt_len(default MAX_PKT_BUF_SIZE) */
+> +#define VIRTIO_VSOCK_MAX_VEC_NUM ((VIRTIO_VSOCK_MAX_PKT_BUF_SIZE / PAGE_SIZE) + 1)
+> 
+>  /* Virtio-vsock feature */
+>  #define VIRTIO_VSOCK_F_MRG_RXBUF 0 /* Host can merge receive buffers. */
+> @@ -55,10 +57,12 @@ struct virtio_vsock_pkt {
+>  	struct list_head list;
+>  	/* socket refcnt not held, only use for cancellation */
+>  	struct vsock_sock *vsk;
+> -	void *buf;
+> +	struct kvec vec[VIRTIO_VSOCK_MAX_VEC_NUM];
+> +	int nr_vecs;
+>  	u32 len;
+>  	u32 off;
+>  	bool reply;
+> +	bool mergeable;
+>  };
+> 
+>  struct virtio_vsock_pkt_info {
+> diff --git a/net/vmw_vsock/virtio_transport.c b/net/vmw_vsock/virtio_transport.c
+> index c4a465c..148b58a 100644
+> --- a/net/vmw_vsock/virtio_transport.c
+> +++ b/net/vmw_vsock/virtio_transport.c
+> @@ -155,8 +155,10 @@ static int virtio_transport_send_pkt_loopback(struct virtio_vsock *vsock,
+> 
+>  		sg_init_one(&hdr, &pkt->hdr, sizeof(pkt->hdr));
+>  		sgs[out_sg++] = &hdr;
+> -		if (pkt->buf) {
+> -			sg_init_one(&buf, pkt->buf, pkt->len);
+> +		if (pkt->len) {
+> +			/* Currently only support a segment of memory in tx */
+> +			BUG_ON(pkt->vec[0].iov_len != pkt->len);
+> +			sg_init_one(&buf, pkt->vec[0].iov_base, pkt->vec[0].iov_len);
+>  			sgs[out_sg++] = &buf;
+>  		}
+> 
+> @@ -304,23 +306,28 @@ static int fill_old_rx_buff(struct virtqueue *vq)
+>  	struct virtio_vsock_pkt *pkt;
+>  	struct scatterlist hdr, buf, *sgs[2];
+>  	int ret;
+> +	void *pkt_buf;
+> 
+>  	pkt = kzalloc(sizeof(*pkt), GFP_KERNEL);
+>  	if (!pkt)
+>  		return -ENOMEM;
+> 
+> -	pkt->buf = kmalloc(buf_len, GFP_KERNEL);
+> -	if (!pkt->buf) {
+> +	pkt_buf = kmalloc(buf_len, GFP_KERNEL);
+> +	if (!pkt_buf) {
+>  		virtio_transport_free_pkt(pkt);
+>  		return -ENOMEM;
+>  	}
+> 
+> +	pkt->vec[0].iov_base = pkt_buf;
+> +	pkt->vec[0].iov_len = buf_len;
+> +	pkt->nr_vecs = 1;
+> +
+>  	pkt->len = buf_len;
+> 
+>  	sg_init_one(&hdr, &pkt->hdr, sizeof(pkt->hdr));
+>  	sgs[0] = &hdr;
+> 
+> -	sg_init_one(&buf, pkt->buf, buf_len);
+> +	sg_init_one(&buf, pkt->vec[0].iov_base, buf_len);
+>  	sgs[1] = &buf;
+>  	ret = virtqueue_add_sgs(vq, sgs, 0, 2, pkt, GFP_KERNEL);
+>  	if (ret)
+> @@ -388,11 +395,78 @@ static bool virtio_transport_more_replies(struct virtio_vsock *vsock)
+>  	return val < virtqueue_get_vring_size(vq);
+>  }
+> 
+> +static struct virtio_vsock_pkt *receive_mergeable(struct virtqueue *vq,
+> +		struct virtio_vsock *vsock, unsigned int *total_len)
+> +{
+> +	struct virtio_vsock_pkt *pkt;
+> +	u16 num_buf;
+> +	void *buf;
+> +	unsigned int len;
+> +	size_t vsock_hlen = sizeof(struct virtio_vsock_pkt);
+> +
+> +	buf = virtqueue_get_buf(vq, &len);
+> +	if (!buf)
+> +		return NULL;
+> +
+> +	*total_len = len;
+> +	vsock->rx_buf_nr--;
+> +
+> +	if (unlikely(len < vsock_hlen)) {
+> +		put_page(virt_to_head_page(buf));
+> +		return NULL;
+> +	}
+> +
+> +	pkt = buf;
+> +	num_buf = le16_to_cpu(pkt->mrg_rxbuf_hdr.num_buffers);
+> +	if (!num_buf || num_buf > VIRTIO_VSOCK_MAX_VEC_NUM) {
+> +		put_page(virt_to_head_page(buf));
+> +		return NULL;
+> +	}
+
+So everything just stops going, and host and user don't even
+know what the reason is. And not only that - the next
+packet will be corrupted because we skipped the first one.
+
+
+
+> +
+> +	/* Initialize pkt residual structure */
+> +	memset(&pkt->work, 0, vsock_hlen - sizeof(struct virtio_vsock_hdr) -
+> +			sizeof(struct virtio_vsock_mrg_rxbuf_hdr));
+> +
+> +	pkt->mergeable = true;
+> +	pkt->len = le32_to_cpu(pkt->hdr.len);
+> +	if (!pkt->len)
+> +		return pkt;
+> +
+> +	len -= vsock_hlen;
+> +	if (len) {
+> +		pkt->vec[pkt->nr_vecs].iov_base = buf + vsock_hlen;
+> +		pkt->vec[pkt->nr_vecs].iov_len = len;
+> +		/* Shared page with pkt, so get page in advance */
+> +		get_page(virt_to_head_page(buf));
+> +		pkt->nr_vecs++;
+> +	}
+> +
+> +	while (--num_buf) {
+> +		buf = virtqueue_get_buf(vq, &len);
+> +		if (!buf)
+> +			goto err;
+> +
+> +		*total_len += len;
+> +		vsock->rx_buf_nr--;
+> +
+> +		pkt->vec[pkt->nr_vecs].iov_base = buf;
+> +		pkt->vec[pkt->nr_vecs].iov_len = len;
+> +		pkt->nr_vecs++;
+> +	}
+> +
+> +	return pkt;
+> +err:
+> +	virtio_transport_free_pkt(pkt);
+> +	return NULL;
+> +}
+> +
+>  static void virtio_transport_rx_work(struct work_struct *work)
+>  {
+>  	struct virtio_vsock *vsock =
+>  		container_of(work, struct virtio_vsock, rx_work);
+>  	struct virtqueue *vq;
+> +	size_t vsock_hlen = vsock->mergeable ? sizeof(struct virtio_vsock_pkt) :
+> +			sizeof(struct virtio_vsock_hdr);
+> 
+>  	vq = vsock->vqs[VSOCK_VQ_RX];
+> 
+> @@ -412,21 +486,26 @@ static void virtio_transport_rx_work(struct work_struct *work)
+>  				goto out;
+>  			}
+> 
+> -			pkt = virtqueue_get_buf(vq, &len);
+> -			if (!pkt) {
+> -				break;
+> -			}
+> +			if (likely(vsock->mergeable)) {
+> +				pkt = receive_mergeable(vq, vsock, &len);
+> +				if (!pkt)
+> +					break;
+> +			} else {
+> +				pkt = virtqueue_get_buf(vq, &len);
+> +				if (!pkt)
+> +					break;
+> 
+
+So looking at it, this seems to be the main source of the gain.
+But why does this require host/guest changes?
+
+
+The way I see it:
+	- get a buffer and create an skb
+	- get the next one, check header matches, if yes
+	  tack it on the skb as a fragment. If not then
+	  don't, deliver previous one and queue the new one.
+
+
+
+> -			vsock->rx_buf_nr--;
+> +				vsock->rx_buf_nr--;
+> +			}
+> 
+>  			/* Drop short/long packets */
+> -			if (unlikely(len < sizeof(pkt->hdr) ||
+> -				     len > sizeof(pkt->hdr) + pkt->len)) {
+> +			if (unlikely(len < vsock_hlen ||
+> +				     len > vsock_hlen + pkt->len)) {
+>  				virtio_transport_free_pkt(pkt);
+>  				continue;
+>  			}
+> 
+> -			pkt->len = len - sizeof(pkt->hdr);
+> +			pkt->len = len - vsock_hlen;
+>  			virtio_transport_deliver_tap_pkt(pkt);
+>  			virtio_transport_recv_pkt(pkt);
+>  		}
+> diff --git a/net/vmw_vsock/virtio_transport_common.c b/net/vmw_vsock/virtio_transport_common.c
+> index 3ae3a33..123a8b6 100644
+> --- a/net/vmw_vsock/virtio_transport_common.c
+> +++ b/net/vmw_vsock/virtio_transport_common.c
+> @@ -44,6 +44,7 @@ static const struct virtio_transport *virtio_transport_get_ops(void)
+>  {
+>  	struct virtio_vsock_pkt *pkt;
+>  	int err;
+> +	void *buf = NULL;
+> 
+>  	pkt = kzalloc(sizeof(*pkt), GFP_KERNEL);
+>  	if (!pkt)
+> @@ -62,12 +63,16 @@ static const struct virtio_transport *virtio_transport_get_ops(void)
+>  	pkt->vsk		= info->vsk;
+> 
+>  	if (info->msg && len > 0) {
+> -		pkt->buf = kmalloc(len, GFP_KERNEL);
+> -		if (!pkt->buf)
+> +		buf = kmalloc(len, GFP_KERNEL);
+> +		if (!buf)
+>  			goto out_pkt;
+> -		err = memcpy_from_msg(pkt->buf, info->msg, len);
+> +		err = memcpy_from_msg(buf, info->msg, len);
+>  		if (err)
+>  			goto out;
+> +
+> +		pkt->vec[0].iov_base = buf;
+> +		pkt->vec[0].iov_len = len;
+> +		pkt->nr_vecs = 1;
+>  	}
+> 
+>  	trace_virtio_transport_alloc_pkt(src_cid, src_port,
+> @@ -80,7 +85,7 @@ static const struct virtio_transport *virtio_transport_get_ops(void)
+>  	return pkt;
+> 
+>  out:
+> -	kfree(pkt->buf);
+> +	kfree(buf);
+>  out_pkt:
+>  	kfree(pkt);
+>  	return NULL;
+> @@ -92,6 +97,7 @@ static struct sk_buff *virtio_transport_build_skb(void *opaque)
+>  	struct virtio_vsock_pkt *pkt = opaque;
+>  	struct af_vsockmon_hdr *hdr;
+>  	struct sk_buff *skb;
+> +	int i;
+> 
+>  	skb = alloc_skb(sizeof(*hdr) + sizeof(pkt->hdr) + pkt->len,
+>  			GFP_ATOMIC);
+> @@ -134,7 +140,8 @@ static struct sk_buff *virtio_transport_build_skb(void *opaque)
+>  	skb_put_data(skb, &pkt->hdr, sizeof(pkt->hdr));
+> 
+>  	if (pkt->len) {
+> -		skb_put_data(skb, pkt->buf, pkt->len);
+> +		for (i = 0; i < pkt->nr_vecs; i++)
+> +			skb_put_data(skb, pkt->vec[i].iov_base, pkt->vec[i].iov_len);
+>  	}
+> 
+>  	return skb;
+> @@ -260,6 +267,9 @@ static int virtio_transport_send_credit_update(struct vsock_sock *vsk,
+> 
+>  	spin_lock_bh(&vvs->rx_lock);
+>  	while (total < len && !list_empty(&vvs->rx_queue)) {
+> +		size_t copy_bytes, last_vec_total = 0, vec_off;
+> +		int i;
+> +
+>  		pkt = list_first_entry(&vvs->rx_queue,
+>  				       struct virtio_vsock_pkt, list);
+> 
+> @@ -272,14 +282,28 @@ static int virtio_transport_send_credit_update(struct vsock_sock *vsk,
+>  		 */
+>  		spin_unlock_bh(&vvs->rx_lock);
+> 
+> -		err = memcpy_to_msg(msg, pkt->buf + pkt->off, bytes);
+> -		if (err)
+> -			goto out;
+> +		for (i = 0; i < pkt->nr_vecs; i++) {
+> +			if (pkt->off > last_vec_total + pkt->vec[i].iov_len) {
+> +				last_vec_total += pkt->vec[i].iov_len;
+> +				continue;
+> +			}
+> +
+> +			vec_off = pkt->off - last_vec_total;
+> +			copy_bytes = min(pkt->vec[i].iov_len - vec_off, bytes);
+> +			err = memcpy_to_msg(msg, pkt->vec[i].iov_base + vec_off,
+> +					copy_bytes);
+> +			if (err)
+> +				goto out;
+> +
+> +			bytes -= copy_bytes;
+> +			pkt->off += copy_bytes;
+> +			total += copy_bytes;
+> +			last_vec_total += pkt->vec[i].iov_len;
+> +			if (!bytes)
+> +				break;
+> +		}
+> 
+>  		spin_lock_bh(&vvs->rx_lock);
+> -
+> -		total += bytes;
+> -		pkt->off += bytes;
+>  		if (pkt->off == pkt->len) {
+>  			virtio_transport_dec_rx_pkt(vvs, pkt);
+>  			list_del(&pkt->list);
+> @@ -1050,8 +1074,17 @@ void virtio_transport_recv_pkt(struct virtio_vsock_pkt *pkt)
+> 
+>  void virtio_transport_free_pkt(struct virtio_vsock_pkt *pkt)
+>  {
+> -	kfree(pkt->buf);
+> -	kfree(pkt);
+> +	int i;
+> +
+> +	if (pkt->mergeable) {
+> +		for (i = 0; i < pkt->nr_vecs; i++)
+> +			put_page(virt_to_head_page(pkt->vec[i].iov_base));
+> +		put_page(virt_to_head_page((void *)pkt));
+> +	} else {
+> +		for (i = 0; i < pkt->nr_vecs; i++)
+> +			kfree(pkt->vec[i].iov_base);
+> +		kfree(pkt);
+> +	}
+>  }
+>  EXPORT_SYMBOL_GPL(virtio_transport_free_pkt);
+> 
+> -- 
+> 1.8.3.1
+> 
