@@ -1,8 +1,7 @@
-From: Jorgen Hansen <jhansen@vmware.com>
-Subject: [PATCH] VSOCK: Send reset control packet when socket is partially
-	bound
-Date: Wed, 12 Dec 2018 01:38:59 -0800
-Message-ID: <1544607539-52634-1-git-send-email-jhansen__48377.6884772398$1544607738$gmane$org@vmware.com>
+From: Jason Wang <jasowang@redhat.com>
+Subject: [PATCH net V2 0/4] Fix various issue of vhost
+Date: Wed, 12 Dec 2018 18:08:15 +0800
+Message-ID: <20181212100819.21295-1-jasowang__23875.6566694521$1544609488$gmane$org@redhat.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
@@ -16,128 +15,41 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: netdev@vger.kernel.org, linux-kernel@vger.kernel.org, virtualization@lists.linux-foundation.org
-Cc: pv-drivers@vmware.com, gregkh@linuxfoundation.org, davem@davemloft.net, Jorgen Hansen <jhansen@vmware.com>
+To: mst@redhat.com, jasowang@redhat.com, kvm@vger.kernel.org, virtualization@lists.linux-foundation.org, netdev@vger.kernel.org, linux-kernel@vger.kernel.org
 List-Id: virtualization@lists.linuxfoundation.org
 
-If a server side socket is bound to an address, but not in the listening
-state yet, incoming connection requests should receive a reset control
-packet in response. However, the function used to send the reset
-silently drops the reset packet if the sending socket isn't bound
-to a remote address (as is the case for a bound socket not yet in
-the listening state). This change fixes this by using the src
-of the incoming packet as destination for the reset packet in
-this case.
+Hi:
 
-Fixes: d021c344051a ("VSOCK: Introduce VM Sockets")
-Reviewed-by: Adit Ranadive <aditr@vmware.com>
-Reviewed-by: Vishnu Dasa <vdasa@vmware.com>
-Signed-off-by: Jorgen Hansen <jhansen@vmware.com>
----
- net/vmw_vsock/vmci_transport.c | 67 +++++++++++++++++++++++++++++++-----------
- 1 file changed, 50 insertions(+), 17 deletions(-)
+This series tries to fix various issues of vhost:
 
-diff --git a/net/vmw_vsock/vmci_transport.c b/net/vmw_vsock/vmci_transport.c
-index 0ae3614..402d84e 100644
---- a/net/vmw_vsock/vmci_transport.c
-+++ b/net/vmw_vsock/vmci_transport.c
-@@ -264,6 +264,31 @@ vmci_transport_send_control_pkt_bh(struct sockaddr_vm *src,
- }
- 
- static int
-+vmci_transport_alloc_send_control_pkt(struct sockaddr_vm *src,
-+				      struct sockaddr_vm *dst,
-+				      enum vmci_transport_packet_type type,
-+				      u64 size,
-+				      u64 mode,
-+				      struct vmci_transport_waiting_info *wait,
-+				      u16 proto,
-+				      struct vmci_handle handle)
-+{
-+	struct vmci_transport_packet *pkt;
-+	int err;
-+
-+	pkt = kmalloc(sizeof(*pkt), GFP_KERNEL);
-+	if (!pkt)
-+		return -ENOMEM;
-+
-+	err = __vmci_transport_send_control_pkt(pkt, src, dst, type, size,
-+						mode, wait, proto, handle,
-+						true);
-+	kfree(pkt);
-+
-+	return err;
-+}
-+
-+static int
- vmci_transport_send_control_pkt(struct sock *sk,
- 				enum vmci_transport_packet_type type,
- 				u64 size,
-@@ -272,9 +297,7 @@ vmci_transport_send_control_pkt(struct sock *sk,
- 				u16 proto,
- 				struct vmci_handle handle)
- {
--	struct vmci_transport_packet *pkt;
- 	struct vsock_sock *vsk;
--	int err;
- 
- 	vsk = vsock_sk(sk);
- 
-@@ -284,17 +307,10 @@ vmci_transport_send_control_pkt(struct sock *sk,
- 	if (!vsock_addr_bound(&vsk->remote_addr))
- 		return -EINVAL;
- 
--	pkt = kmalloc(sizeof(*pkt), GFP_KERNEL);
--	if (!pkt)
--		return -ENOMEM;
--
--	err = __vmci_transport_send_control_pkt(pkt, &vsk->local_addr,
--						&vsk->remote_addr, type, size,
--						mode, wait, proto, handle,
--						true);
--	kfree(pkt);
--
--	return err;
-+	return vmci_transport_alloc_send_control_pkt(&vsk->local_addr,
-+						     &vsk->remote_addr,
-+						     type, size, mode,
-+						     wait, proto, handle);
- }
- 
- static int vmci_transport_send_reset_bh(struct sockaddr_vm *dst,
-@@ -312,12 +328,29 @@ static int vmci_transport_send_reset_bh(struct sockaddr_vm *dst,
- static int vmci_transport_send_reset(struct sock *sk,
- 				     struct vmci_transport_packet *pkt)
- {
-+	struct sockaddr_vm dst;
-+	struct sockaddr_vm *dst_ptr;
-+	struct vsock_sock *vsk;
-+
- 	if (pkt->type == VMCI_TRANSPORT_PACKET_TYPE_RST)
- 		return 0;
--	return vmci_transport_send_control_pkt(sk,
--					VMCI_TRANSPORT_PACKET_TYPE_RST,
--					0, 0, NULL, VSOCK_PROTO_INVALID,
--					VMCI_INVALID_HANDLE);
-+
-+	vsk = vsock_sk(sk);
-+
-+	if (!vsock_addr_bound(&vsk->local_addr))
-+		return -EINVAL;
-+
-+	if (vsock_addr_bound(&vsk->remote_addr)) {
-+		dst_ptr = &vsk->remote_addr;
-+	} else {
-+		vsock_addr_init(&dst, pkt->dg.src.context,
-+				pkt->src_port);
-+		dst_ptr = &dst;
-+	}
-+	return vmci_transport_alloc_send_control_pkt(&vsk->local_addr, dst_ptr,
-+					     VMCI_TRANSPORT_PACKET_TYPE_RST,
-+					     0, 0, NULL, VSOCK_PROTO_INVALID,
-+					     VMCI_INVALID_HANDLE);
- }
- 
- static int vmci_transport_send_negotiate(struct sock *sk, size_t size)
+- Patch 1 adds a missing write barrier between used idx updating and
+  logging.
+- Patch 2-3 brings back the protection of device IOTLB through vq
+  mutex, this fixes possible use after free in device IOTLB entries.
+- Patch 4-7 fixes the diry page logging when device IOTLB is
+  enabled. We should done through GPA instead of GIOVA, this was done
+  through intorudce HVA->GPA reverse mapping and convert HVA to GPA
+  during logging dirty pages.
+
+Please consider them for -stable.
+
+Thanks
+
+Changes from V1:
+- silent compiler warning for 32bit.
+- use mutex_trylock() on slowpath instead of mutex_lock() even on fast
+  path.
+
+Jason Wang (4):
+  vhost: make sure used idx is seen before log in vhost_add_used_n()
+  vhost_net: switch to use mutex_trylock() in vhost_net_busy_poll()
+  Revert "net: vhost: lock the vqs one by one"
+  vhost: log dirty page correctly
+
+ drivers/vhost/net.c   |  11 ++++-
+ drivers/vhost/vhost.c | 102 ++++++++++++++++++++++++++++++++++--------
+ drivers/vhost/vhost.h |   3 +-
+ 3 files changed, 95 insertions(+), 21 deletions(-)
+
 -- 
-2.6.2
+2.17.1
