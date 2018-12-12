@@ -1,11 +1,13 @@
-From: "Maria Lemos" <marialemos72@gmail.com>
-Subject: CISTI'2019 - Doctoral Symposium
-Date: Wed, 12 Dec 2018 11:28:09 +0000
-Message-ID: <1247676411828@gmail-com>
-Reply-To: cistimail@gmail.com
+From: Gerd Hoffmann <kraxel@redhat.com>
+Subject: [PATCH v2 03/18] drm/qxl: simplify slot management
+Date: Wed, 12 Dec 2018 14:20:54 +0100
+Message-ID: <20181212132109.8126-4-kraxel__8031.35569808564$1544620788$gmane$org@redhat.com>
+References: <20181212132109.8126-1-kraxel@redhat.com>
 Mime-Version: 1.0
-Content-Type: multipart/mixed; boundary="===============8293709518178712520=="
+Content-Type: text/plain; charset="us-ascii"
+Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
+In-Reply-To: <20181212132109.8126-1-kraxel@redhat.com>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -15,383 +17,192 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: virtualization@lists.linux-foundation.org
+To: dri-devel@lists.freedesktop.org
+Cc: David Airlie <airlied@linux.ie>, open list <linux-kernel@vger.kernel.org>, "open list:DRM DRIVER FOR QXL VIRTUAL GPU" <virtualization@lists.linux-foundation.org>, spice-devel@redhat.com, "open list:DRM DRIVER FOR QXL VIRTUAL GPU" <spice-devel@lists.freedesktop.org>, Dave Airlie <airlied@redhat.com>
 List-Id: virtualization@lists.linuxfoundation.org
 
-This is a multi-part message in MIME format
-
---===============8293709518178712520==
-Content-Type: multipart/alternative; charset=utf-8; boundary="QaIAGHU7K9vvb9PZY2SYGbFqEhj4S=_nFS"
-
-This is a multi-part message in MIME format
-
---QaIAGHU7K9vvb9PZY2SYGbFqEhj4S=_nFS
-Content-Type: text/plain; charset="utf-8"
-Content-Transfer-Encoding: quoted-printable
-Content-Disposition: inline
-
-* Proceedings published in IEEE Xplore and indexed by ISI, Scopus, etc.
-
-
----------------------------------------------------------------------------=
-------------------------------------------------
-Doctoral Symposium of CISTI'2019 - 14th Iberian Conference on Information S=
-ystems and Technologies
-                                                   Coimbra, Portugal, 19 - =
-22 June 2019
-                                                               http://www.c=
-isti.eu/ <http://www.cisti.eu/>
----------------------------------------------------------------------------=
----------------------------------------------------------
-
- 
-
-The purpose of CISTI'2019=E2=80=99s Doctoral Symposium is to provide gradua=
-te students a setting where they can, informally, expose and discuss their =
-work, collecting valuable expert opinions and sharing new ideas, methods an=
-d applications. The Doctoral Symposium is an excellent opportunity for PhD =
-students to present and discuss their work in a Workshop format. Each prese=
-ntation will be evaluated by a panel composed by at least three Information=
- Systems and Technologies experts.
-
- 
-
-Contributions Submission
-
-The Doctoral Symposium is opened to PhD students whose research area includ=
-es the themes proposed for this Conference. Submissions must include an ext=
-ended abstract (maximum 4 pages), following the Conference style guide <htt=
-p://cisti.eu/2017/images/templates.zip>. All selected contributions will be=
- handed out along with the Conference Proceedings, in CD with an ISBN. Thes=
-e contributions will be available in the IEEE Xplore <https://ieeexplore.ie=
-ee.org/xpl/mostRecentIssue.jsp?punumber=3D8390719> Digital Library and will=
- be sent for indexing in ISI, Scopus, EI-Compendex, INSPEC and Google Schol=
-ar.
-
-Submissions must include the field, the PhD institution and the number of m=
-onths devoted to the development of the work. Additionally, they should inc=
-lude in a clear and succinct manner:
-
-    =E2=80=A2    The problem approached and its significance or relevance
-    =E2=80=A2    The research objectives and related investigation topics
-    =E2=80=A2    A brief display of what is already known
-    =E2=80=A2    A proposed solution methodology for the problem
-    =E2=80=A2    Expected results
-
- 
-
-Important Dates
-
-Paper submission: February 10, 2019
-
-Notification of acceptance: March 17, 2019
-
-Submission of accepted papers: March 31, 2019
-
-Payment of registration, to ensure the inclusion of an accepted paper in th=
-e conference proceedings: April 1, 2019
-
- 
-
-Organizing Committee
-
-=C3=81lvaro Rocha, Universidade de Coimbra
-
-Manuel P=C3=A9rez Cota, Universidad de Vigo
-
- 
-
-Scientific Committee
-
-Manuel P=C3=A9rez Cota, Universidad de Vigo (Chair)
-
-A. Augusto Sousa, FEUP, Universidade do Porto
-
-Adolfo Lozano Tello, Universidad de Extremadura
-
-Alma Mar=C3=ADa G=C3=B3mez Rodr=C3=ADguez, Universidade de Vigo
-
-=C3=81lvaro Rocha, Universidade de Coimbra
-
-Ana Am=C3=A9lia Carvalho, Universidade de Coimbra
-
-Ana Maria Ramalho Correia, NOVA Information Management School
-
-Ant=C3=B3nio Coelho, FEUP, Universidade do Porto
-
-Antonio Garcia-Loureiro, Universidad de Santiago de Compostela
-
-Arnaldo Martins, Universidade de Aveiro
-
-Arturo M=C3=A9ndez Pen=C3=ADn, Universidade de Vigo
-
-Br=C3=A1ulio Alturas, ISCTE - Insituto Universit=C3=A1rio de Lisboa
-
-Carlos Costa, ISEG, Universidade de Lisboa
-
-Carlos Ferr=C3=A1s Sexto, Universidad de Santiago de Compostela
-
-David Fonseca, La Salle, Universitat Ramon Llull
-
-Ernest Redondo, Universidad Polit=C3=A9cnica de Catalunya
-
-Fernando Moreira, Universidade Portucalense
-
-Fernando Ramos, Universidade de Aveiro
-
-Francisco Restivo, Universidade Cat=C3=B3lica Portuguesa
-
-Gon=C3=A7alo Paiva Dias, Universidade de Aveiro
-
-Gonzalo Cuevas Agustin, Universidad Polit=C3=A9cnica de Madrid
-
-Guilhermina Maria Lobato de Miranda, IE, Universidade de Lisboa
-
-Jo=C3=A3o Costa, Universidade de Coimbra
-
-Jo=C3=A3o Manuel R.S. Tavares, FEUP, Universidade do Porto
-
-Jos=C3=A9 Antonio Calvo-Manzano Villal=C3=B3n, Universidad Polit=C3=A9cnica=
- de Madrid
-
-Jos=C3=A9 Borbinha, IST, Universidade de Lisboa
-
-Jos=C3=A9 Machado, Universidade do Minho
-
-Jos=C3=A9 Martins, Universidade de Tr=C3=A1s-os-Montes e Alto Douro
-
-Juan de Dios Murillo, Universidad Nacional de Costa Rica
-
-Leandro Rodr=C3=ADguez Linares, Universidade de Vigo
-
-Luciano Boquete, Universidad de Alcal=C3=A1
-
-Luis Camarinha Matos, Universidade Nova de Lisboa
-
-Luis Macedo, Universidade de Coimbra
-
-Lu=C3=ADs Paulo Reis, FEUP, Universidade do Porto
-
-Marco Painho, NOVA Information Management School
-
-Mareca L=C3=B3pez Mar=C3=ADa Pilar, Universidad Polit=C3=A9cnica de Madrid
-
-Mar=C3=ADa Jos=C3=A9 Lado Touri=C3=B1o, Universidade de Vigo
-
-M=C3=A1rio Piattini, Universidad de Castilla-La Mancha
-
-M=C3=A1rio Rela, Universidade de Coimbra
-
-Martin Llamas-Nistal, Universidad de Vigo
-
-Miguel Ram=C3=B3n Gonz=C3=A1lez Castro, Ence, Energ=C3=ADa y Celulosa
-
-Nelson Rocha, Universidade de Aveiro
-
-Paulo Pinto, Univesidade Nova de Lisboa
-
-=C3=93scar Mealha, Universidade de Aveiro
-
-Ramiro Gon=C3=A7alves, Universidade de Tr=C3=A1s-os-Montes e Alto Douro
-
-Vitor Santos, NOVA Information Management School
-
-Yolanda Garc=C3=ADa V=C3=A1zquez, Universidad de Santiago de Compostela
-
-
-
-
-Doctoral Symposium webpage: https://goo.gl/JTrcLB
-
-
-Kind regards,
-
-CISTI'2019 Team
-http://www.cisti.eu/
-
-
+Drop pointless indirection, remove the mem_slots array and index
+variables, drop dynamic allocation.  Store memslots in qxl_device
+instead.
+
+Signed-off-by: Gerd Hoffmann <kraxel@redhat.com>
 ---
-This email has been checked for viruses by AVG.
-https://www.avg.com
+ drivers/gpu/drm/qxl/qxl_drv.h | 15 +++++----
+ drivers/gpu/drm/qxl/qxl_kms.c | 72 +++++++++++++++++--------------------------
+ 2 files changed, 36 insertions(+), 51 deletions(-)
 
---QaIAGHU7K9vvb9PZY2SYGbFqEhj4S=_nFS
-Content-Type: text/html; charset="utf-8"
-Content-Transfer-Encoding: quoted-printable
-Content-Disposition: inline
-
-<html>
-  <head>
-    <title></title>
-    <meta content=3D"text/html; charset=3Dutf-8" http-equiv=3D"Content-Type=
-" />
-  </head>
-  <body>
-    <p>* Proceedings published in IEEE Xplore and indexed by ISI, Scopus, e=
-tc.</p>
-    <p><br />--------------------------------------------------------------=
--------------------------------------------------------------<br />Doctoral=
- Symposium of CISTI'2019&nbsp;- 14th Iberian Conference on Information Syst=
-ems and Technologies<br />&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&=
-nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbs=
-p;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&=
-nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbs=
-p;&nbsp;&nbsp;&nbsp;&nbsp; Coimbra, Portugal,&nbsp;19 -&nbsp;22&nbsp;June 2=
-019<br />&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;=
-&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nb=
-sp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;=
-&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nb=
-sp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;=
-&nbsp;&nbsp;<a href=3D"http://www.cisti.eu/">http://www.cisti.eu/</a><br />=
----------------------------------------------------------------------------=
----------------------------------------------------------</p>
-    <p>&nbsp;</p>
-    <p>The purpose of CISTI'2019&rsquo;s Doctoral Symposium is to provide g=
-raduate students a setting where they can, informally, expose and discuss t=
-heir work, collecting valuable expert opinions and sharing new ideas, metho=
-ds and applications. The Doctoral Symposium is an excellent opportunity for=
- PhD students to present and discuss their work in a Workshop format. Each =
-presentation will be evaluated by a panel composed by at least three Inform=
-ation Systems and Technologies experts.</p>
-    <p>&nbsp;</p>
-    <p><strong>Contributions Submission</strong></p>
-    <p>The Doctoral Symposium is opened to PhD students whose research area=
- includes the themes proposed for this Conference. Submissions must include=
- an extended abstract (maximum 4 pages), following the Conference&nbsp;<str=
-ong><a href=3D"http://cisti.eu/2017/images/templates.zip" rel=3D"noopener n=
-oreferrer" target=3D"_blank">style guide</a></strong>. All selected contrib=
-utions will be handed out along with the Conference Proceedings, in CD with=
- an ISBN. These contributions&nbsp;<span class=3D"hps">will be available</s=
-pan>&nbsp;<span class=3D"hps">in</span>&nbsp;<span class=3D"hps">the&nbsp;<=
-strong><a href=3D"https://ieeexplore.ieee.org/xpl/mostRecentIssue.jsp?punum=
-ber=3D8390719" rel=3D"noopener noreferrer" target=3D"_blank">IEEE Xplore</a=
-></strong></span>&nbsp;D<span class=3D"hps">igital Library and&nbsp;</span>=
-<span class=3D"hps">will be sent</span>&nbsp;<span class=3D"hps">for indexi=
-ng in</span>&nbsp;ISI, Scopus, EI-Compendex,&nbsp;<span class=3D"hps">INSPE=
-C</span>&nbsp;and Google Scholar.</p>
-    <p>Submissions must include the field, the PhD institution and the numb=
-er of months devoted to the development of the work. Additionally, they sho=
-uld include in a clear and succinct manner:</p>
-    <p>&nbsp;&nbsp;&nbsp; &bull;&nbsp;&nbsp;&nbsp; The problem approached a=
-nd its significance or relevance<br />&nbsp;&nbsp;&nbsp; &bull;&nbsp;&nbsp;=
-&nbsp; The research objectives and related investigation topics<br />&nbsp;=
-&nbsp;&nbsp; &bull;&nbsp;&nbsp;&nbsp; A brief display of what is already kn=
-own<br />&nbsp;&nbsp;&nbsp; &bull;&nbsp;&nbsp;&nbsp; A proposed solution me=
-thodology for the problem<br />&nbsp;&nbsp;&nbsp; &bull;&nbsp;&nbsp;&nbsp; =
-Expected results</p>
-    <p>&nbsp;</p>
-    <p><strong>Important Dates</strong></p>
-    <p><span class=3D"hps">Paper</span>&nbsp;<span class=3D"hps">submission=
-:</span>&nbsp;<span class=3D"hps">February</span> 10,&nbsp;<span class=3D"h=
-ps">2019</span><br /><br /><span class=3D"hps">Notification of</span>&nbsp;=
-<span class=3D"hps">acceptance</span>: March 17,&nbsp;<span class=3D"hps">2=
-019</span><br /><br /><span class=3D"hps">Submission of</span>&nbsp;<span c=
-lass=3D"hps">accepted</span>&nbsp;<span class=3D"hps">papers</span>: March =
-31,&nbsp;<span class=3D"hps">2019</span><br /><br /><span class=3D"hps">Pay=
-ment of</span>&nbsp;<span class=3D"hps">registration</span>,&nbsp;<span cla=
-ss=3D"hps">to</span>&nbsp;<span class=3D"hps">ensure</span>&nbsp;<span clas=
-s=3D"hps">the</span>&nbsp;<span class=3D"hps">inclusion</span>&nbsp;<span c=
-lass=3D"hps">of an</span>&nbsp;<span class=3D"hps">accepted paper</span>&nb=
-sp;<span class=3D"hps">in the&nbsp;</span><span class=3D"hps">conference</s=
-pan>&nbsp;<span class=3D"hps">proceedings</span>: April <span class=3D"hps"=
->1</span>,&nbsp;<span class=3D"hps">2019</span></p>
-    <p><b>&nbsp;</b></p>
-    <p><b>Organizing Committee</b></p>
-    <p>&Aacute;lvaro Rocha, Universidade de Coimbra</p>
-    <p>Manuel P&eacute;rez Cota, Universidad de Vigo</p>
-    <p>&nbsp;</p>
-    <p><strong>Scientific Committee</strong></p>
-    <p>Manuel P&eacute;rez Cota, Universidad de Vigo (Chair)</p>
-    <p>A. Augusto Sousa, FEUP, Universidade do Porto</p>
-    <p>Adolfo Lozano Tello, Universidad de Extremadura</p>
-    <p>Alma Mar&iacute;a G&oacute;mez Rodr&iacute;guez, Universidade de Vig=
-o</p>
-    <p>&Aacute;lvaro Rocha, Universidade de Coimbra</p>
-    <p>Ana Am&eacute;lia Carvalho, Universidade de Coimbra</p>
-    <p>Ana Maria Ramalho Correia, NOVA Information Management School</p>
-    <p>Ant&oacute;nio Coelho, FEUP, Universidade do Porto</p>
-    <p>Antonio Garcia-Loureiro, Universidad de Santiago de Compostela</p>
-    <p>Arnaldo Martins, Universidade de Aveiro</p>
-    <p>Arturo M&eacute;ndez Pen&iacute;n, Universidade de Vigo</p>
-    <p>Br&aacute;ulio Alturas, ISCTE - Insituto Universit&aacute;rio de Lis=
-boa</p>
-    <p>Carlos Costa, ISEG, Universidade de Lisboa</p>
-    <p>Carlos Ferr&aacute;s Sexto, Universidad de Santiago de Compostela</p=
->
-    <p>David Fonseca, La Salle, Universitat Ramon Llull</p>
-    <p>Ernest Redondo, Universidad Polit&eacute;cnica de Catalunya</p>
-    <p>Fernando Moreira, Universidade Portucalense</p>
-    <p>Fernando Ramos, Universidade de Aveiro</p>
-    <p>Francisco Restivo, Universidade Cat&oacute;lica Portuguesa</p>
-    <p>Gon&ccedil;alo Paiva Dias, Universidade de Aveiro</p>
-    <p>Gonzalo Cuevas Agustin, Universidad Polit&eacute;cnica de Madrid</p>=
-
-    <p>Guilhermina Maria Lobato de Miranda, IE, Universidade de Lisboa</p>
-    <p>Jo&atilde;o Costa, Universidade de Coimbra</p>
-    <p>Jo&atilde;o Manuel R.S. Tavares, FEUP, Universidade do Porto</p>
-    <p>Jos&eacute; Antonio Calvo-Manzano Villal&oacute;n, Universidad Polit=
-&eacute;cnica de Madrid</p>
-    <p>Jos&eacute; Borbinha, IST, Universidade de Lisboa</p>
-    <p>Jos&eacute; Machado, Universidade do Minho</p>
-    <p>Jos&eacute; Martins, Universidade de Tr&aacute;s-os-Montes e Alto Do=
-uro</p>
-    <p>Juan de Dios Murillo, Universidad Nacional de Costa Rica</p>
-    <p>Leandro Rodr&iacute;guez Linares, Universidade de Vigo</p>
-    <p>Luciano Boquete, Universidad de Alcal&aacute;</p>
-    <p>Luis Camarinha Matos, Universidade Nova de Lisboa</p>
-    <p>Luis Macedo, Universidade de Coimbra</p>
-    <p>Lu&iacute;s Paulo Reis, FEUP, Universidade do Porto</p>
-    <p>Marco Painho, NOVA Information Management School</p>
-    <p>Mareca L&oacute;pez Mar&iacute;a Pilar, Universidad Polit&eacute;cni=
-ca de Madrid</p>
-    <p>Mar&iacute;a Jos&eacute; Lado Touri&ntilde;o, Universidade de Vigo</=
-p>
-    <p>M&aacute;rio Piattini, Universidad de Castilla-La Mancha</p>
-    <p>M&aacute;rio Rela, Universidade de Coimbra</p>
-    <p>Martin Llamas-Nistal, Universidad de Vigo</p>
-    <p>Miguel Ram&oacute;n Gonz&aacute;lez Castro, Ence, Energ&iacute;a y C=
-elulosa</p>
-    <p>Nelson Rocha, Universidade de Aveiro</p>
-    <p>Paulo Pinto, Univesidade Nova de Lisboa</p>
-    <p>&Oacute;scar Mealha, Universidade de Aveiro</p>
-    <p>Ramiro Gon&ccedil;alves, Universidade de Tr&aacute;s-os-Montes e Alt=
-o Douro</p>
-    <p>Vitor Santos, NOVA Information Management School</p>
-    <p>Yolanda Garc&iacute;a V&aacute;zquez, Universidad de Santiago de Com=
-postela</p>
-    <p><br /></p><span style=3D"font-weight: bold">Doctoral Symposium webpa=
-ge</span>: https://goo.gl/JTrcLB<br /><br /><br />Kind regards,<br /><br />=
-CISTI'2019 Team<br />http://www.cisti.eu/<br /><br /><br />
-  <div id=3D"DAB4FAD8-2DD7-40BB-A1B8-4E2AA1F9FDF2"><br />
-<table style=3D"border-top: 1px solid #D3D4DE;">
-	<tr>
-        <td style=3D"width: 55px; padding-top: 13px;"><a href=3D"http://www=
-=2Eavg.com/email-signature?utm_medium=3Demail&utm_source=3Dlink&utm_campaig=
-n=3Dsig-email&utm_content=3Demailclient" target=3D"_blank"><img src=3D"http=
-s://ipmcdn.avast.com/images/icons/icon-envelope-tick-green-avg-v1.png" alt=
-=3D""  width=3D"46" height=3D"29" style=3D"width: 46px; height: 29px;" /></=
-a></td>
-		<td style=3D"width: 470px; padding-top: 12px; color: #41424e; font-size: =
-13px; font-family: Arial, Helvetica, sans-serif; line-height: 18px;">Virus-=
-free. <a href=3D"http://www.avg.com/email-signature?utm_medium=3Demail&utm_=
-source=3Dlink&utm_campaign=3Dsig-email&utm_content=3Demailclient" target=3D=
-"_blank" style=3D"color: #4453ea;">www.avg.com</a>
-		</td>
-	</tr>
-</table><a href=3D"#DAB4FAD8-2DD7-40BB-A1B8-4E2AA1F9FDF2" width=3D"1" heigh=
-t=3D"1"> </a></div></body>
-</html>
-
---QaIAGHU7K9vvb9PZY2SYGbFqEhj4S=_nFS--
-
-
---===============8293709518178712520==
-Content-Type: text/plain; charset="us-ascii"
-MIME-Version: 1.0
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-
-_______________________________________________
-Virtualization mailing list
-Virtualization@lists.linux-foundation.org
-https://lists.linuxfoundation.org/mailman/listinfo/virtualization
---===============8293709518178712520==--
+diff --git a/drivers/gpu/drm/qxl/qxl_drv.h b/drivers/gpu/drm/qxl/qxl_drv.h
+index 7eabf4a9ed..f9dddfe7d9 100644
+--- a/drivers/gpu/drm/qxl/qxl_drv.h
++++ b/drivers/gpu/drm/qxl/qxl_drv.h
+@@ -130,9 +130,11 @@ struct qxl_mman {
+ };
+ 
+ struct qxl_memslot {
++	int             index;
++	const char      *name;
+ 	uint8_t		generation;
+ 	uint64_t	start_phys_addr;
+-	uint64_t	end_phys_addr;
++	uint64_t	size;
+ 	uint64_t	high_bits;
+ };
+ 
+@@ -228,11 +230,8 @@ struct qxl_device {
+ 
+ 	unsigned int primary_created:1;
+ 
+-	struct qxl_memslot	*mem_slots;
+-	uint8_t		n_mem_slots;
+-
+-	uint8_t		main_mem_slot;
+-	uint8_t		surfaces_mem_slot;
++	struct qxl_memslot main_slot;
++	struct qxl_memslot surfaces_slot;
+ 	uint8_t		slot_id_bits;
+ 	uint8_t		slot_gen_bits;
+ 	uint64_t	va_slot_mask;
+@@ -312,8 +311,8 @@ static inline uint64_t
+ qxl_bo_physical_address(struct qxl_device *qdev, struct qxl_bo *bo,
+ 			unsigned long offset)
+ {
+-	int slot_id = bo->type == QXL_GEM_DOMAIN_VRAM ? qdev->main_mem_slot : qdev->surfaces_mem_slot;
+-	struct qxl_memslot *slot = &(qdev->mem_slots[slot_id]);
++	struct qxl_memslot *slot = bo->type == QXL_GEM_DOMAIN_VRAM
++		? &qdev->main_slot : &qdev->surfaces_slot;
+ 
+ 	/* TODO - need to hold one of the locks to read tbo.offset */
+ 	return slot->high_bits | (bo->tbo.offset + offset);
+diff --git a/drivers/gpu/drm/qxl/qxl_kms.c b/drivers/gpu/drm/qxl/qxl_kms.c
+index 15238a413f..a9288100ae 100644
+--- a/drivers/gpu/drm/qxl/qxl_kms.c
++++ b/drivers/gpu/drm/qxl/qxl_kms.c
+@@ -53,40 +53,46 @@ static bool qxl_check_device(struct qxl_device *qdev)
+ 	return true;
+ }
+ 
+-static void setup_hw_slot(struct qxl_device *qdev, int slot_index,
+-			  struct qxl_memslot *slot)
++static void setup_hw_slot(struct qxl_device *qdev, struct qxl_memslot *slot)
+ {
+ 	qdev->ram_header->mem_slot.mem_start = slot->start_phys_addr;
+-	qdev->ram_header->mem_slot.mem_end = slot->end_phys_addr;
+-	qxl_io_memslot_add(qdev, slot_index);
++	qdev->ram_header->mem_slot.mem_end = slot->start_phys_addr + slot->size;
++	qxl_io_memslot_add(qdev, qdev->rom->slots_start + slot->index);
+ }
+ 
+-static uint8_t setup_slot(struct qxl_device *qdev, uint8_t slot_index_offset,
+-	unsigned long start_phys_addr, unsigned long end_phys_addr)
++static void setup_slot(struct qxl_device *qdev,
++		       struct qxl_memslot *slot,
++		       unsigned int slot_index,
++		       const char *slot_name,
++		       unsigned long start_phys_addr,
++		       unsigned long size)
+ {
+ 	uint64_t high_bits;
+-	struct qxl_memslot *slot;
+-	uint8_t slot_index;
+ 
+-	slot_index = qdev->rom->slots_start + slot_index_offset;
+-	slot = &qdev->mem_slots[slot_index];
++	slot->index = slot_index;
++	slot->name = slot_name;
+ 	slot->start_phys_addr = start_phys_addr;
+-	slot->end_phys_addr = end_phys_addr;
++	slot->size = size;
+ 
+-	setup_hw_slot(qdev, slot_index, slot);
++	setup_hw_slot(qdev, slot);
+ 
+ 	slot->generation = qdev->rom->slot_generation;
+-	high_bits = slot_index << qdev->slot_gen_bits;
++	high_bits = (qdev->rom->slots_start + slot->index)
++		<< qdev->slot_gen_bits;
+ 	high_bits |= slot->generation;
+ 	high_bits <<= (64 - (qdev->slot_gen_bits + qdev->slot_id_bits));
+ 	slot->high_bits = high_bits;
+-	return slot_index;
++
++	DRM_INFO("slot %d (%s): base 0x%08lx, size 0x%08lx\n",
++		 slot->index, slot->name,
++		 (unsigned long)slot->start_phys_addr,
++		 (unsigned long)slot->size);
+ }
+ 
+ void qxl_reinit_memslots(struct qxl_device *qdev)
+ {
+-	setup_hw_slot(qdev, qdev->main_mem_slot, &qdev->mem_slots[qdev->main_mem_slot]);
+-	setup_hw_slot(qdev, qdev->surfaces_mem_slot, &qdev->mem_slots[qdev->surfaces_mem_slot]);
++	setup_hw_slot(qdev, &qdev->main_slot);
++	setup_hw_slot(qdev, &qdev->surfaces_slot);
+ }
+ 
+ static void qxl_gc_work(struct work_struct *work)
+@@ -231,22 +237,11 @@ int qxl_device_init(struct qxl_device *qdev,
+ 	}
+ 	/* TODO - slot initialization should happen on reset. where is our
+ 	 * reset handler? */
+-	qdev->n_mem_slots = qdev->rom->slots_end;
+ 	qdev->slot_gen_bits = qdev->rom->slot_gen_bits;
+ 	qdev->slot_id_bits = qdev->rom->slot_id_bits;
+ 	qdev->va_slot_mask =
+ 		(~(uint64_t)0) >> (qdev->slot_id_bits + qdev->slot_gen_bits);
+ 
+-	qdev->mem_slots =
+-		kmalloc_array(qdev->n_mem_slots, sizeof(struct qxl_memslot),
+-			      GFP_KERNEL);
+-
+-	if (!qdev->mem_slots) {
+-		DRM_ERROR("Unable to alloc mem slots\n");
+-		r = -ENOMEM;
+-		goto release_ring_free;
+-	}
+-
+ 	idr_init(&qdev->release_idr);
+ 	spin_lock_init(&qdev->release_idr_lock);
+ 	spin_lock_init(&qdev->release_lock);
+@@ -264,33 +259,24 @@ int qxl_device_init(struct qxl_device *qdev,
+ 	r = qxl_irq_init(qdev);
+ 	if (r) {
+ 		DRM_ERROR("Unable to init qxl irq\n");
+-		goto mem_slots_free;
++		goto release_ring_free;
+ 	}
+ 
+ 	/*
+ 	 * Note that virtual is surface0. We rely on the single ioremap done
+ 	 * before.
+ 	 */
+-	qdev->main_mem_slot = setup_slot(qdev, 0,
+-		(unsigned long)qdev->vram_base,
+-		(unsigned long)qdev->vram_base + qdev->rom->ram_header_offset);
+-	qdev->surfaces_mem_slot = setup_slot(qdev, 1,
+-		(unsigned long)qdev->surfaceram_base,
+-		(unsigned long)qdev->surfaceram_base + qdev->surfaceram_size);
+-	DRM_INFO("main mem slot %d [%lx,%x]\n",
+-		 qdev->main_mem_slot,
+-		 (unsigned long)qdev->vram_base, qdev->rom->ram_header_offset);
+-	DRM_INFO("surface mem slot %d [%lx,%lx]\n",
+-		 qdev->surfaces_mem_slot,
+-		 (unsigned long)qdev->surfaceram_base,
+-		 (unsigned long)qdev->surfaceram_size);
++	setup_slot(qdev, &qdev->main_slot, 0, "main",
++		   (unsigned long)qdev->vram_base,
++		   (unsigned long)qdev->rom->ram_header_offset);
++	setup_slot(qdev, &qdev->surfaces_slot, 1, "surfaces",
++		   (unsigned long)qdev->surfaceram_base,
++		   (unsigned long)qdev->surfaceram_size);
+ 
+ 	INIT_WORK(&qdev->gc_work, qxl_gc_work);
+ 
+ 	return 0;
+ 
+-mem_slots_free:
+-	kfree(qdev->mem_slots);
+ release_ring_free:
+ 	qxl_ring_free(qdev->release_ring);
+ cursor_ring_free:
+-- 
+2.9.3
