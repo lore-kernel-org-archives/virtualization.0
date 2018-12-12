@@ -1,7 +1,8 @@
-From: jiangyiwen <jiangyiwen@huawei.com>
-Subject: [PATCH v2 5/5] VSOCK: batch sending rx buffer to increase bandwidth
-Date: Wed, 12 Dec 2018 17:35:27 +0800
-Message-ID: <5C10D65F.7030407@huawei.com>
+From: Jorgen Hansen <jhansen@vmware.com>
+Subject: [PATCH] VSOCK: Send reset control packet when socket is partially
+	bound
+Date: Wed, 12 Dec 2018 01:38:59 -0800
+Message-ID: <1544607539-52634-1-git-send-email-jhansen__48377.6884772398$1544607738$gmane$org@vmware.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
@@ -15,74 +16,128 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Stefan Hajnoczi <stefanha@redhat.com>, "Michael S. Tsirkin" <mst@redhat.com>, Jason Wang <jasowang@redhat.com>
-Cc: netdev@vger.kernel.org, kvm@vger.kernel.org, virtualization@lists.linux-foundation.org
+To: netdev@vger.kernel.org, linux-kernel@vger.kernel.org, virtualization@lists.linux-foundation.org
+Cc: pv-drivers@vmware.com, gregkh@linuxfoundation.org, davem@davemloft.net, Jorgen Hansen <jhansen@vmware.com>
 List-Id: virtualization@lists.linuxfoundation.org
 
-Batch sending rx buffer can improve total bandwidth.
+If a server side socket is bound to an address, but not in the listening
+state yet, incoming connection requests should receive a reset control
+packet in response. However, the function used to send the reset
+silently drops the reset packet if the sending socket isn't bound
+to a remote address (as is the case for a bound socket not yet in
+the listening state). This change fixes this by using the src
+of the incoming packet as destination for the reset packet in
+this case.
 
-Signed-off-by: Yiwen Jiang <jiangyiwen@huawei.com>
+Fixes: d021c344051a ("VSOCK: Introduce VM Sockets")
+Reviewed-by: Adit Ranadive <aditr@vmware.com>
+Reviewed-by: Vishnu Dasa <vdasa@vmware.com>
+Signed-off-by: Jorgen Hansen <jhansen@vmware.com>
 ---
- drivers/vhost/vsock.c | 24 +++++++++++++++++-------
- 1 file changed, 17 insertions(+), 7 deletions(-)
+ net/vmw_vsock/vmci_transport.c | 67 +++++++++++++++++++++++++++++++-----------
+ 1 file changed, 50 insertions(+), 17 deletions(-)
 
-diff --git a/drivers/vhost/vsock.c b/drivers/vhost/vsock.c
-index 9600133..a4bf0a1 100644
---- a/drivers/vhost/vsock.c
-+++ b/drivers/vhost/vsock.c
-@@ -151,9 +151,11 @@ static int get_rx_bufs(struct vhost_virtqueue *vq,
- 			    struct vhost_virtqueue *vq)
+diff --git a/net/vmw_vsock/vmci_transport.c b/net/vmw_vsock/vmci_transport.c
+index 0ae3614..402d84e 100644
+--- a/net/vmw_vsock/vmci_transport.c
++++ b/net/vmw_vsock/vmci_transport.c
+@@ -264,6 +264,31 @@ vmci_transport_send_control_pkt_bh(struct sockaddr_vm *src,
+ }
+ 
+ static int
++vmci_transport_alloc_send_control_pkt(struct sockaddr_vm *src,
++				      struct sockaddr_vm *dst,
++				      enum vmci_transport_packet_type type,
++				      u64 size,
++				      u64 mode,
++				      struct vmci_transport_waiting_info *wait,
++				      u16 proto,
++				      struct vmci_handle handle)
++{
++	struct vmci_transport_packet *pkt;
++	int err;
++
++	pkt = kmalloc(sizeof(*pkt), GFP_KERNEL);
++	if (!pkt)
++		return -ENOMEM;
++
++	err = __vmci_transport_send_control_pkt(pkt, src, dst, type, size,
++						mode, wait, proto, handle,
++						true);
++	kfree(pkt);
++
++	return err;
++}
++
++static int
+ vmci_transport_send_control_pkt(struct sock *sk,
+ 				enum vmci_transport_packet_type type,
+ 				u64 size,
+@@ -272,9 +297,7 @@ vmci_transport_send_control_pkt(struct sock *sk,
+ 				u16 proto,
+ 				struct vmci_handle handle)
  {
- 	struct vhost_virtqueue *tx_vq = &vsock->vqs[VSOCK_VQ_TX];
--	bool added = false;
- 	bool restart_tx = false;
- 	size_t vsock_hlen;
-+	int batch_count = 0;
+-	struct vmci_transport_packet *pkt;
+ 	struct vsock_sock *vsk;
+-	int err;
+ 
+ 	vsk = vsock_sk(sk);
+ 
+@@ -284,17 +307,10 @@ vmci_transport_send_control_pkt(struct sock *sk,
+ 	if (!vsock_addr_bound(&vsk->remote_addr))
+ 		return -EINVAL;
+ 
+-	pkt = kmalloc(sizeof(*pkt), GFP_KERNEL);
+-	if (!pkt)
+-		return -ENOMEM;
+-
+-	err = __vmci_transport_send_control_pkt(pkt, &vsk->local_addr,
+-						&vsk->remote_addr, type, size,
+-						mode, wait, proto, handle,
+-						true);
+-	kfree(pkt);
+-
+-	return err;
++	return vmci_transport_alloc_send_control_pkt(&vsk->local_addr,
++						     &vsk->remote_addr,
++						     type, size, mode,
++						     wait, proto, handle);
+ }
+ 
+ static int vmci_transport_send_reset_bh(struct sockaddr_vm *dst,
+@@ -312,12 +328,29 @@ static int vmci_transport_send_reset_bh(struct sockaddr_vm *dst,
+ static int vmci_transport_send_reset(struct sock *sk,
+ 				     struct vmci_transport_packet *pkt)
+ {
++	struct sockaddr_vm dst;
++	struct sockaddr_vm *dst_ptr;
++	struct vsock_sock *vsk;
 +
-+#define VHOST_VSOCK_BATCH 16
-
- 	mutex_lock(&vq->mutex);
-
-@@ -194,8 +196,9 @@ static int get_rx_bufs(struct vhost_virtqueue *vq,
- 		list_del_init(&pkt->list);
- 		spin_unlock_bh(&vsock->send_pkt_list_lock);
-
--		headcount = get_rx_bufs(vq, vq->heads, vsock_hlen + pkt->len,
--				&in, likely(vsock->mergeable) ? UIO_MAXIOV : 1);
-+		headcount = get_rx_bufs(vq, vq->heads + batch_count,
-+				vsock_hlen + pkt->len, &in,
-+				likely(vsock->mergeable) ? UIO_MAXIOV : 1);
- 		if (headcount <= 0) {
- 			spin_lock_bh(&vsock->send_pkt_list_lock);
- 			list_add(&pkt->list, &vsock->send_pkt_list);
-@@ -238,8 +241,12 @@ static int get_rx_bufs(struct vhost_virtqueue *vq,
- 			remain_len -= tmp_len;
- 		}
-
--		vhost_add_used_n(vq, vq->heads, headcount);
--		added = true;
-+		batch_count += headcount;
-+		if (batch_count > VHOST_VSOCK_BATCH) {
-+			vhost_add_used_and_signal_n(&vsock->dev, vq,
-+					vq->heads, batch_count);
-+			batch_count = 0;
-+		}
-
- 		if (pkt->reply) {
- 			int val;
-@@ -258,8 +265,11 @@ static int get_rx_bufs(struct vhost_virtqueue *vq,
-
- 		virtio_transport_free_pkt(pkt);
- 	}
--	if (added)
--		vhost_signal(&vsock->dev, vq);
+ 	if (pkt->type == VMCI_TRANSPORT_PACKET_TYPE_RST)
+ 		return 0;
+-	return vmci_transport_send_control_pkt(sk,
+-					VMCI_TRANSPORT_PACKET_TYPE_RST,
+-					0, 0, NULL, VSOCK_PROTO_INVALID,
+-					VMCI_INVALID_HANDLE);
 +
-+	if (batch_count) {
-+		vhost_add_used_and_signal_n(&vsock->dev, vq,
-+				vq->heads, batch_count);
++	vsk = vsock_sk(sk);
++
++	if (!vsock_addr_bound(&vsk->local_addr))
++		return -EINVAL;
++
++	if (vsock_addr_bound(&vsk->remote_addr)) {
++		dst_ptr = &vsk->remote_addr;
++	} else {
++		vsock_addr_init(&dst, pkt->dg.src.context,
++				pkt->src_port);
++		dst_ptr = &dst;
 +	}
-
- out:
- 	mutex_unlock(&vq->mutex);
++	return vmci_transport_alloc_send_control_pkt(&vsk->local_addr, dst_ptr,
++					     VMCI_TRANSPORT_PACKET_TYPE_RST,
++					     0, 0, NULL, VSOCK_PROTO_INVALID,
++					     VMCI_INVALID_HANDLE);
+ }
+ 
+ static int vmci_transport_send_negotiate(struct sock *sk, size_t size)
 -- 
-1.8.3.1
+2.6.2
