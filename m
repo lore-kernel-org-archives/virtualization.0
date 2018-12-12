@@ -1,14 +1,14 @@
-From: Jason Wang <jasowang@redhat.com>
-Subject: [PATCH net V2 2/4] vhost_net: switch to use mutex_trylock() in
-	vhost_net_busy_poll()
-Date: Wed, 12 Dec 2018 18:08:17 +0800
-Message-ID: <20181212100819.21295-3-jasowang__21304.5047167272$1544609508$gmane$org@redhat.com>
-References: <20181212100819.21295-1-jasowang@redhat.com>
+From: Joerg Roedel <joro@8bytes.org>
+Subject: Re: [PATCH v6 0/7] Add virtio-iommu driver
+Date: Wed, 12 Dec 2018 11:35:45 +0100
+Message-ID: <20181212103545.GV16835__12577.0735009157$1544611291$gmane$org@8bytes.org>
+References: <20181211182104.18241-1-jean-philippe.brucker@arm.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <20181212100819.21295-1-jasowang@redhat.com>
+Content-Disposition: inline
+In-Reply-To: <20181211182104.18241-1-jean-philippe.brucker@arm.com>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -18,44 +18,38 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: mst@redhat.com, jasowang@redhat.com, kvm@vger.kernel.org, virtualization@lists.linux-foundation.org, netdev@vger.kernel.org, linux-kernel@vger.kernel.org
+To: Jean-Philippe Brucker <jean-philippe.brucker@arm.com>
+Cc: mark.rutland@arm.com, virtio-dev@lists.oasis-open.org, lorenzo.pieralisi@arm.com, tnowicki@caviumnetworks.com, mst@redhat.com, marc.zyngier@arm.com, linux-pci@vger.kernel.org, will.deacon@arm.com, robin.murphy@arm.com, virtualization@lists.linux-foundation.org, eric.auger@redhat.com, iommu@lists.linux-foundation.org, robh+dt@kernel.org, bhelgaas@google.com, kvmarm@lists.cs.columbia.edu, devicetree@vger.kernel.org
 List-Id: virtualization@lists.linuxfoundation.org
 
-We used to hold the mutex of paired virtqueue in
-vhost_net_busy_poll(). But this will results an inconsistent lock
-order which may cause deadlock if we try to bring back the protection
-of device IOTLB with vq mutex that requires to hold mutex of all
-virtqueues at the same time.
+Hi,
 
-Fix this simply by switching to use mutex_trylock(), when fail just
-skip the busy polling. This can happen when device IOTLB is under
-updating which should be rare.
+to make progress on this, we should first agree on the protocol used
+between guest and host. I have a few points to discuss on the protocol
+first.
 
-Fixes: commit 78139c94dc8c ("net: vhost: lock the vqs one by one")
-Cc: Tonghao Zhang <xiangxia.m.yue@gmail.com>
-Signed-off-by: Jason Wang <jasowang@redhat.com>
----
- drivers/vhost/net.c | 8 +++++++-
- 1 file changed, 7 insertions(+), 1 deletion(-)
+On Tue, Dec 11, 2018 at 06:20:57PM +0000, Jean-Philippe Brucker wrote:
+> [1] Virtio-iommu specification v0.9, sources and pdf
+>     git://linux-arm.org/virtio-iommu.git virtio-iommu/v0.9
+>     http://jpbrucker.net/virtio-iommu/spec/v0.9/virtio-iommu-v0.9.pdf
 
-diff --git a/drivers/vhost/net.c b/drivers/vhost/net.c
-index ab11b2bee273..ad7a6f475a44 100644
---- a/drivers/vhost/net.c
-+++ b/drivers/vhost/net.c
-@@ -513,7 +513,13 @@ static void vhost_net_busy_poll(struct vhost_net *net,
- 	struct socket *sock;
- 	struct vhost_virtqueue *vq = poll_rx ? tvq : rvq;
- 
--	mutex_lock_nested(&vq->mutex, poll_rx ? VHOST_NET_VQ_TX: VHOST_NET_VQ_RX);
-+	/* Try to hold the vq mutex of the paired virtqueue. We can't
-+	 * use mutex_lock() here since we could not guarantee a
-+	 * consistenet lock ordering.
-+	 */
-+	if (!mutex_trylock(&vq->mutex))
-+		return;
-+
- 	vhost_disable_notify(&net->dev, vq);
- 	sock = rvq->private_data;
- 
--- 
-2.17.1
+Looking at this I wonder why it doesn't make the IOTLB visible to the
+guest. the UNMAP requests seem to require that the TLB is already
+flushed to make the unmap visible.
+
+I think that will cost significant performance for both, vfio and
+dma-iommu use-cases which both do (vfio at least to some degree),
+deferred flushing.
+
+I also wonder whether the protocol should implement a
+protocol version handshake and iommu-feature set queries.
+
+> [3] git://linux-arm.org/linux-jpb.git virtio-iommu/v0.9.1
+>     git://linux-arm.org/kvmtool-jpb.git virtio-iommu/v0.9
+
+Unfortunatly gitweb seems to be broken on linux-arm.org. What is missing
+in this patch-set to make this work on x86?
+
+Regards,
+
+	Joerg
