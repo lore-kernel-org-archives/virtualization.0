@@ -1,8 +1,7 @@
 From: jiangyiwen <jiangyiwen@huawei.com>
-Subject: [PATCH v2 4/5] VSOCK: increase send pkt len in mergeable mode to
-	improve performance
-Date: Wed, 12 Dec 2018 17:34:05 +0800
-Message-ID: <5C10D60D.2010202__42092.2093479477$1544607132$gmane$org@huawei.com>
+Subject: [PATCH v2 1/5] VSOCK: support fill mergeable rx buffer in guest
+Date: Wed, 12 Dec 2018 17:28:16 +0800
+Message-ID: <5C10D4B0.8080504__23182.8355034397$1544607185$gmane$org@huawei.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
@@ -20,198 +19,197 @@ To: Stefan Hajnoczi <stefanha@redhat.com>, "Michael S. Tsirkin" <mst@redhat.com>
 Cc: netdev@vger.kernel.org, kvm@vger.kernel.org, virtualization@lists.linux-foundation.org
 List-Id: virtualization@lists.linuxfoundation.org
 
-Since VSOCK already support mergeable rx buffer, so it can
-implement the balance with performance and guest memory,
-we can increase the sent pkt len to improve performance.
-And in order to be compatible with old version, so we still
-send max default rx buf size once.
+In driver probing, if virtio has VIRTIO_VSOCK_F_MRG_RXBUF feature,
+it will fill mergeable rx buffer, support for host send mergeable
+rx buffer. It will fill a fixed size(PAGE_SIZE) everytime to
+compact with small packet and big packet.
+
+In addition, it also add one optimizations copied from virtio-net.c.
+- Skb_page_frag_refill() which can use high order page and
+  reduce the stress of page allocator.
 
 Signed-off-by: Yiwen Jiang <jiangyiwen@huawei.com>
 ---
- drivers/vhost/vsock.c                   | 33 ++++++++++++++++++++++++++++-----
- include/linux/virtio_vsock.h            |  3 +++
- net/vmw_vsock/virtio_transport.c        | 18 ++++++++++++++++++
- net/vmw_vsock/virtio_transport_common.c |  7 ++++---
- 4 files changed, 53 insertions(+), 8 deletions(-)
+ include/linux/virtio_vsock.h     |   3 ++
+ net/vmw_vsock/virtio_transport.c | 112 +++++++++++++++++++++++++++++++--------
+ 2 files changed, 92 insertions(+), 23 deletions(-)
 
-diff --git a/drivers/vhost/vsock.c b/drivers/vhost/vsock.c
-index c7ab0dd..9600133 100644
---- a/drivers/vhost/vsock.c
-+++ b/drivers/vhost/vsock.c
-@@ -44,6 +44,8 @@ struct vhost_vsock {
- 	atomic_t queued_replies;
+diff --git a/include/linux/virtio_vsock.h b/include/linux/virtio_vsock.h
+index e223e26..bf84418 100644
+--- a/include/linux/virtio_vsock.h
++++ b/include/linux/virtio_vsock.h
+@@ -14,6 +14,9 @@
+ #define VIRTIO_VSOCK_MAX_BUF_SIZE		0xFFFFFFFFUL
+ #define VIRTIO_VSOCK_MAX_PKT_BUF_SIZE		(1024 * 64)
+
++/* Virtio-vsock feature */
++#define VIRTIO_VSOCK_F_MRG_RXBUF 0 /* Host can merge receive buffers. */
++
+ enum {
+ 	VSOCK_VQ_RX     = 0, /* for host to guest data */
+ 	VSOCK_VQ_TX     = 1, /* for guest to host data */
+diff --git a/net/vmw_vsock/virtio_transport.c b/net/vmw_vsock/virtio_transport.c
+index 5d3cce9..c4a465c 100644
+--- a/net/vmw_vsock/virtio_transport.c
++++ b/net/vmw_vsock/virtio_transport.c
+@@ -64,6 +64,11 @@ struct virtio_vsock {
+ 	struct virtio_vsock_event event_list[8];
 
  	u32 guest_cid;
 +
++	/* As mergeable rx buffer flag */
 +	bool mergeable;
++	/* Page frag for packet buffer allocation. */
++	struct page_frag alloc_frag;
  };
 
- static u32 vhost_transport_get_local_cid(void)
-@@ -151,7 +153,6 @@ static int get_rx_bufs(struct vhost_virtqueue *vq,
- 	struct vhost_virtqueue *tx_vq = &vsock->vqs[VSOCK_VQ_TX];
- 	bool added = false;
- 	bool restart_tx = false;
--	int mergeable;
- 	size_t vsock_hlen;
-
- 	mutex_lock(&vq->mutex);
-@@ -159,12 +160,11 @@ static int get_rx_bufs(struct vhost_virtqueue *vq,
- 	if (!vq->private_data)
- 		goto out;
-
--	mergeable = vhost_has_feature(vq, VIRTIO_VSOCK_F_MRG_RXBUF);
- 	/*
- 	 * Guest fill page for rx vq in mergeable case, so it will not
- 	 * allocate pkt structure, we should reserve size of pkt in advance.
- 	 */
--	if (likely(mergeable))
-+	if (likely(vsock->mergeable))
- 		vsock_hlen = sizeof(struct virtio_vsock_pkt);
- 	else
- 		vsock_hlen = sizeof(struct virtio_vsock_hdr);
-@@ -195,7 +195,7 @@ static int get_rx_bufs(struct vhost_virtqueue *vq,
- 		spin_unlock_bh(&vsock->send_pkt_list_lock);
-
- 		headcount = get_rx_bufs(vq, vq->heads, vsock_hlen + pkt->len,
--				&in, likely(mergeable) ? UIO_MAXIOV : 1);
-+				&in, likely(vsock->mergeable) ? UIO_MAXIOV : 1);
- 		if (headcount <= 0) {
- 			spin_lock_bh(&vsock->send_pkt_list_lock);
- 			list_add(&pkt->list, &vsock->send_pkt_list);
-@@ -214,7 +214,7 @@ static int get_rx_bufs(struct vhost_virtqueue *vq,
- 		len = iov_length(&vq->iov[out], in);
- 		iov_iter_init(&iov_iter, READ, &vq->iov[out], in, len);
-
--		if (likely(mergeable))
-+		if (likely(vsock->mergeable))
- 			pkt->mrg_rxbuf_hdr.num_buffers = cpu_to_le16(headcount);
- 		nbytes = copy_to_iter(&pkt->hdr, vsock_hlen, &iov_iter);
- 		if (nbytes != vsock_hlen) {
-@@ -303,6 +303,22 @@ static void vhost_transport_send_pkt_work(struct vhost_work *work)
- 	return len;
+ static struct virtio_vsock *virtio_vsock_get(void)
+@@ -256,39 +261,89 @@ static int virtio_transport_send_pkt_loopback(struct virtio_vsock *vsock,
+ 	return 0;
  }
 
-+static u32
-+vhost_transport_get_max_pkt_len(u32 guest_cid)
+-static void virtio_vsock_rx_fill(struct virtio_vsock *vsock)
++/* This segment of codes are copied from virtio-net.c */
++static int fill_mergeable_rx_buff(struct virtio_vsock *vsock,
++		struct virtqueue *vq)
 +{
-+	int len = VIRTIO_VSOCK_DEFAULT_RX_BUF_SIZE;
-+	struct vhost_vsock *vsock;
++	struct page_frag *alloc_frag = &vsock->alloc_frag;
++	struct scatterlist sg;
++	/* Currently we don't use ewma len, use PAGE_SIZE instead, because too
++	 * small size can't fill one full packet, sadly we only 128 vq num now.
++	 */
++	unsigned int len = PAGE_SIZE, hole;
++	void *buf;
++	int err;
 +
-+	vsock = vhost_vsock_get(guest_cid);
-+	if (!vsock)
-+		return len;
++	if (unlikely(!skb_page_frag_refill(len, alloc_frag, GFP_KERNEL)))
++		return -ENOMEM;
 +
-+	if (vsock->mergeable)
-+		len = VIRTIO_VSOCK_MAX_PKT_BUF_SIZE;
++	buf = (void *)page_address(alloc_frag->page) + alloc_frag->offset;
++	get_page(alloc_frag->page);
++	alloc_frag->offset += len;
++	hole = alloc_frag->size - alloc_frag->offset;
++	if (hole < len) {
++		/* To avoid internal fragmentation, if there is very likely not
++		 * enough space for another buffer, add the remaining space to
++		 * the current buffer.
++		 */
++		len += hole;
++		alloc_frag->offset += hole;
++	}
 +
-+	return len;
++	sg_init_one(&sg, buf, len);
++	err = virtqueue_add_inbuf(vq, &sg, 1, buf, GFP_KERNEL);
++	if (err < 0)
++		put_page(virt_to_head_page(buf));
++
++	return err;
 +}
 +
- static int
- vhost_transport_cancel_pkt(struct vsock_sock *vsk)
++static int fill_old_rx_buff(struct virtqueue *vq)
  {
-@@ -602,6 +618,8 @@ static int vhost_vsock_dev_open(struct inode *inode, struct file *file)
+ 	int buf_len = VIRTIO_VSOCK_DEFAULT_RX_BUF_SIZE;
+ 	struct virtio_vsock_pkt *pkt;
+ 	struct scatterlist hdr, buf, *sgs[2];
+-	struct virtqueue *vq;
+ 	int ret;
 
- 	atomic_set(&vsock->queued_replies, 0);
+-	vq = vsock->vqs[VSOCK_VQ_RX];
++	pkt = kzalloc(sizeof(*pkt), GFP_KERNEL);
++	if (!pkt)
++		return -ENOMEM;
 
-+	vsock->mergeable = false;
+-	do {
+-		pkt = kzalloc(sizeof(*pkt), GFP_KERNEL);
+-		if (!pkt)
+-			break;
++	pkt->buf = kmalloc(buf_len, GFP_KERNEL);
++	if (!pkt->buf) {
++		virtio_transport_free_pkt(pkt);
++		return -ENOMEM;
++	}
+
+-		pkt->buf = kmalloc(buf_len, GFP_KERNEL);
+-		if (!pkt->buf) {
+-			virtio_transport_free_pkt(pkt);
+-			break;
+-		}
++	pkt->len = buf_len;
+
+-		pkt->len = buf_len;
++	sg_init_one(&hdr, &pkt->hdr, sizeof(pkt->hdr));
++	sgs[0] = &hdr;
+
+-		sg_init_one(&hdr, &pkt->hdr, sizeof(pkt->hdr));
+-		sgs[0] = &hdr;
++	sg_init_one(&buf, pkt->buf, buf_len);
++	sgs[1] = &buf;
++	ret = virtqueue_add_sgs(vq, sgs, 0, 2, pkt, GFP_KERNEL);
++	if (ret)
++		virtio_transport_free_pkt(pkt);
+
+-		sg_init_one(&buf, pkt->buf, buf_len);
+-		sgs[1] = &buf;
+-		ret = virtqueue_add_sgs(vq, sgs, 0, 2, pkt, GFP_KERNEL);
+-		if (ret) {
+-			virtio_transport_free_pkt(pkt);
++	return ret;
++}
 +
- 	vqs[VSOCK_VQ_TX] = &vsock->vqs[VSOCK_VQ_TX];
- 	vqs[VSOCK_VQ_RX] = &vsock->vqs[VSOCK_VQ_RX];
- 	vsock->vqs[VSOCK_VQ_TX].handle_kick = vhost_vsock_handle_tx_kick;
-@@ -726,6 +744,9 @@ static int vhost_vsock_set_features(struct vhost_vsock *vsock, u64 features)
- 		return -EFAULT;
- 	}
++static void virtio_vsock_rx_fill(struct virtio_vsock *vsock)
++{
++	struct virtqueue *vq;
++	int ret;
++
++	vq = vsock->vqs[VSOCK_VQ_RX];
++
++	do {
++		if (vsock->mergeable)
++			ret = fill_mergeable_rx_buff(vsock, vq);
++		else
++			ret = fill_old_rx_buff(vq);
++		if (ret)
+ 			break;
+-		}
++
+ 		vsock->rx_buf_nr++;
+ 	} while (vq->num_free);
+ 	if (vsock->rx_buf_nr > vsock->rx_buf_max_nr)
+@@ -588,6 +643,9 @@ static int virtio_vsock_probe(struct virtio_device *vdev)
+ 	if (ret < 0)
+ 		goto out_vqs;
 
-+	if (features & (1 << VIRTIO_VSOCK_F_MRG_RXBUF))
++	if (virtio_has_feature(vdev, VIRTIO_VSOCK_F_MRG_RXBUF))
 +		vsock->mergeable = true;
 +
- 	for (i = 0; i < ARRAY_SIZE(vsock->vqs); i++) {
- 		vq = &vsock->vqs[i];
- 		mutex_lock(&vq->mutex);
-@@ -848,6 +869,8 @@ static long vhost_vsock_dev_compat_ioctl(struct file *f, unsigned int ioctl,
- 	},
+ 	vsock->rx_buf_nr = 0;
+ 	vsock->rx_buf_max_nr = 0;
+ 	atomic_set(&vsock->queued_replies, 0);
+@@ -640,8 +698,15 @@ static void virtio_vsock_remove(struct virtio_device *vdev)
+ 	vdev->config->reset(vdev);
 
- 	.send_pkt = vhost_transport_send_pkt,
+ 	mutex_lock(&vsock->rx_lock);
+-	while ((pkt = virtqueue_detach_unused_buf(vsock->vqs[VSOCK_VQ_RX])))
+-		virtio_transport_free_pkt(pkt);
++	while ((pkt = virtqueue_detach_unused_buf(vsock->vqs[VSOCK_VQ_RX]))) {
++		if (vsock->mergeable)
++			put_page(virt_to_head_page((void *)pkt));
++		else
++			virtio_transport_free_pkt(pkt);
++	}
 +
-+	.max_pkt_len = vhost_transport_get_max_pkt_len,
++	if (vsock->alloc_frag.page)
++		put_page(vsock->alloc_frag.page);
+ 	mutex_unlock(&vsock->rx_lock);
+
+ 	mutex_lock(&vsock->tx_lock);
+@@ -683,6 +748,7 @@ static void virtio_vsock_remove(struct virtio_device *vdev)
  };
 
- static int __init vhost_vsock_init(void)
-diff --git a/include/linux/virtio_vsock.h b/include/linux/virtio_vsock.h
-index 734eeed..ad95319 100644
---- a/include/linux/virtio_vsock.h
-+++ b/include/linux/virtio_vsock.h
-@@ -82,6 +82,9 @@ struct virtio_transport {
-
- 	/* Takes ownership of the packet */
- 	int (*send_pkt)(struct virtio_vsock_pkt *pkt);
-+
-+	/* Get max pkt len, cid only be used for Host */
-+	u32 (*max_pkt_len)(u32 cid);
+ static unsigned int features[] = {
++	VIRTIO_VSOCK_F_MRG_RXBUF,
  };
 
- ssize_t
-diff --git a/net/vmw_vsock/virtio_transport.c b/net/vmw_vsock/virtio_transport.c
-index 148b58a..809085a 100644
---- a/net/vmw_vsock/virtio_transport.c
-+++ b/net/vmw_vsock/virtio_transport.c
-@@ -222,6 +222,22 @@ static int virtio_transport_send_pkt_loopback(struct virtio_vsock *vsock,
- 	return len;
- }
-
-+static u32
-+virtio_transport_get_max_pkt_len(u32 cid)
-+{
-+	int len = VIRTIO_VSOCK_DEFAULT_RX_BUF_SIZE;
-+	struct virtio_vsock *vsock;
-+
-+	vsock = virtio_vsock_get();
-+	if (!vsock)
-+		return len;
-+
-+	if (vsock->mergeable)
-+		len = VIRTIO_VSOCK_MAX_PKT_BUF_SIZE;
-+
-+	return len;
-+}
-+
- static int
- virtio_transport_cancel_pkt(struct vsock_sock *vsk)
- {
-@@ -675,6 +691,8 @@ static void virtio_vsock_rx_done(struct virtqueue *vq)
- 	},
-
- 	.send_pkt = virtio_transport_send_pkt,
-+
-+	.max_pkt_len = virtio_transport_get_max_pkt_len,
- };
-
- static int virtio_vsock_probe(struct virtio_device *vdev)
-diff --git a/net/vmw_vsock/virtio_transport_common.c b/net/vmw_vsock/virtio_transport_common.c
-index 123a8b6..cc14ace 100644
---- a/net/vmw_vsock/virtio_transport_common.c
-+++ b/net/vmw_vsock/virtio_transport_common.c
-@@ -159,7 +159,8 @@ static int virtio_transport_send_pkt_info(struct vsock_sock *vsk,
- 	u32 src_cid, src_port, dst_cid, dst_port;
- 	struct virtio_vsock_sock *vvs;
- 	struct virtio_vsock_pkt *pkt;
--	u32 pkt_len = info->pkt_len;
-+	u32 pkt_len;
-+	u32 max_pkt_len;
-
- 	src_cid = vm_sockets_get_local_cid();
- 	src_port = vsk->local_addr.svm_port;
-@@ -174,8 +175,8 @@ static int virtio_transport_send_pkt_info(struct vsock_sock *vsk,
- 	vvs = vsk->trans;
-
- 	/* we can send less than pkt_len bytes */
--	if (pkt_len > VIRTIO_VSOCK_DEFAULT_RX_BUF_SIZE)
--		pkt_len = VIRTIO_VSOCK_DEFAULT_RX_BUF_SIZE;
-+	max_pkt_len = virtio_transport_get_ops()->max_pkt_len(dst_cid);
-+	pkt_len = min(max_pkt_len, info->pkt_len);
-
- 	/* virtio_transport_get_credit might return less than pkt_len credit */
- 	pkt_len = virtio_transport_get_credit(vvs, pkt_len);
+ static struct virtio_driver virtio_vsock_driver = {
 -- 
 1.8.3.1
