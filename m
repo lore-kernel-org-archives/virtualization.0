@@ -1,13 +1,14 @@
 From: David Miller <davem@davemloft.net>
-Subject: Re: [PATCH v2 1/5] VSOCK: support fill mergeable rx buffer in guest
-Date: Wed, 12 Dec 2018 11:08:29 -0800 (PST)
-Message-ID: <20181212.110829.1327856253463467975.davem__41905.6398830891$1544641588$gmane$org@davemloft.net>
-References: <5C10D4B0.8080504@huawei.com>
+Subject: Re: [PATCH v2 2/5] VSOCK: support fill data to mergeable rx buffer
+	in host
+Date: Wed, 12 Dec 2018 11:09:44 -0800 (PST)
+Message-ID: <20181212.110944.1077302806391053539.davem__5792.48075741834$1544641685$gmane$org@davemloft.net>
+References: <5C10D4FB.6070009@huawei.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <5C10D4B0.8080504@huawei.com>
+In-Reply-To: <5C10D4FB.6070009@huawei.com>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -22,21 +23,22 @@ Cc: kvm@vger.kernel.org, mst@redhat.com, netdev@vger.kernel.org, virtualization@
 List-Id: virtualization@lists.linuxfoundation.org
 
 From: jiangyiwen <jiangyiwen@huawei.com>
-Date: Wed, 12 Dec 2018 17:28:16 +0800
+Date: Wed, 12 Dec 2018 17:29:31 +0800
 
-> +static int fill_mergeable_rx_buff(struct virtio_vsock *vsock,
-> +		struct virtqueue *vq)
-> +{
-> +	struct page_frag *alloc_frag = &vsock->alloc_frag;
-> +	struct scatterlist sg;
-> +	/* Currently we don't use ewma len, use PAGE_SIZE instead, because too
-> +	 * small size can't fill one full packet, sadly we only 128 vq num now.
-> +	 */
-> +	unsigned int len = PAGE_SIZE, hole;
-> +	void *buf;
-> +	int err;
+> diff --git a/include/uapi/linux/virtio_vsock.h b/include/uapi/linux/virtio_vsock.h
+> index 1d57ed3..2292f30 100644
+> --- a/include/uapi/linux/virtio_vsock.h
+> +++ b/include/uapi/linux/virtio_vsock.h
+> @@ -63,6 +63,11 @@ struct virtio_vsock_hdr {
+>  	__le32	fwd_cnt;
+>  } __attribute__((packed));
+> 
+> +/* It add mergeable rx buffers feature */
+> +struct virtio_vsock_mrg_rxbuf_hdr {
+> +	__le16  num_buffers;    /* number of mergeable rx buffers */
+> +} __attribute__((packed));
+> +
 
-Please don't break up a set of local variable declarations with a
-comment like this.  The comment seems to be about the initialization
-of 'len', so move that initialization into the code below the variable
-declarations and bring the comment along for the ride as well.
+I know the rest of this file uses 'packed' but this attribute should
+only be used if absolutely necessary as it incurs a
+non-trivial performance penalty for some architectures.
