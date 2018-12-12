@@ -1,7 +1,8 @@
 From: jiangyiwen <jiangyiwen@huawei.com>
-Subject: [PATCH v2 3/5] VSOCK: support receive mergeable rx buffer in guest
-Date: Wed, 12 Dec 2018 17:31:39 +0800
-Message-ID: <5C10D57B.3070701__23234.6738143407$1544606985$gmane$org@huawei.com>
+Subject: [PATCH v2 4/5] VSOCK: increase send pkt len in mergeable mode to
+	improve performance
+Date: Wed, 12 Dec 2018 17:34:05 +0800
+Message-ID: <5C10D60D.2010202__42092.2093479477$1544607132$gmane$org@huawei.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
@@ -19,403 +20,198 @@ To: Stefan Hajnoczi <stefanha@redhat.com>, "Michael S. Tsirkin" <mst@redhat.com>
 Cc: netdev@vger.kernel.org, kvm@vger.kernel.org, virtualization@lists.linux-foundation.org
 List-Id: virtualization@lists.linuxfoundation.org
 
-Guest receive mergeable rx buffer, it can merge
-scatter rx buffer into a big buffer and then copy
-to user space.
-
-In addition, it also use iovec to replace buf in struct
-virtio_vsock_pkt, keep tx and rx consistency. The only
-difference is now tx still uses a segment of continuous
-physical memory to implement.
+Since VSOCK already support mergeable rx buffer, so it can
+implement the balance with performance and guest memory,
+we can increase the sent pkt len to improve performance.
+And in order to be compatible with old version, so we still
+send max default rx buf size once.
 
 Signed-off-by: Yiwen Jiang <jiangyiwen@huawei.com>
 ---
- drivers/vhost/vsock.c                   |  31 +++++++---
- include/linux/virtio_vsock.h            |   6 +-
- net/vmw_vsock/virtio_transport.c        | 105 ++++++++++++++++++++++++++++----
- net/vmw_vsock/virtio_transport_common.c |  59 ++++++++++++++----
- 4 files changed, 166 insertions(+), 35 deletions(-)
+ drivers/vhost/vsock.c                   | 33 ++++++++++++++++++++++++++++-----
+ include/linux/virtio_vsock.h            |  3 +++
+ net/vmw_vsock/virtio_transport.c        | 18 ++++++++++++++++++
+ net/vmw_vsock/virtio_transport_common.c |  7 ++++---
+ 4 files changed, 53 insertions(+), 8 deletions(-)
 
 diff --git a/drivers/vhost/vsock.c b/drivers/vhost/vsock.c
-index dc52b0f..c7ab0dd 100644
+index c7ab0dd..9600133 100644
 --- a/drivers/vhost/vsock.c
 +++ b/drivers/vhost/vsock.c
-@@ -179,6 +179,8 @@ static int get_rx_bufs(struct vhost_virtqueue *vq,
- 		size_t nbytes;
- 		size_t len;
- 		s16 headcount;
-+		size_t remain_len;
-+		int i;
+@@ -44,6 +44,8 @@ struct vhost_vsock {
+ 	atomic_t queued_replies;
 
- 		spin_lock_bh(&vsock->send_pkt_list_lock);
- 		if (list_empty(&vsock->send_pkt_list)) {
-@@ -221,11 +223,19 @@ static int get_rx_bufs(struct vhost_virtqueue *vq,
- 			break;
- 		}
-
--		nbytes = copy_to_iter(pkt->buf, pkt->len, &iov_iter);
--		if (nbytes != pkt->len) {
--			virtio_transport_free_pkt(pkt);
--			vq_err(vq, "Faulted on copying pkt buf\n");
--			break;
-+		remain_len = pkt->len;
-+		for (i = 0; i < pkt->nr_vecs; i++) {
-+			int tmp_len;
+ 	u32 guest_cid;
 +
-+			tmp_len = min(remain_len, pkt->vec[i].iov_len);
-+			nbytes = copy_to_iter(pkt->vec[i].iov_base, tmp_len, &iov_iter);
-+			if (nbytes != tmp_len) {
-+				virtio_transport_free_pkt(pkt);
-+				vq_err(vq, "Faulted on copying pkt buf\n");
-+				break;
-+			}
-+
-+			remain_len -= tmp_len;
- 		}
-
- 		vhost_add_used_n(vq, vq->heads, headcount);
-@@ -341,6 +351,7 @@ static void vhost_transport_send_pkt_work(struct vhost_work *work)
- 	struct iov_iter iov_iter;
- 	size_t nbytes;
- 	size_t len;
-+	void *buf;
-
- 	if (in != 0) {
- 		vq_err(vq, "Expected 0 input buffers, got %u\n", in);
-@@ -375,13 +386,17 @@ static void vhost_transport_send_pkt_work(struct vhost_work *work)
- 		return NULL;
- 	}
-
--	pkt->buf = kmalloc(pkt->len, GFP_KERNEL);
--	if (!pkt->buf) {
-+	buf = kmalloc(pkt->len, GFP_KERNEL);
-+	if (!buf) {
- 		kfree(pkt);
- 		return NULL;
- 	}
-
--	nbytes = copy_from_iter(pkt->buf, pkt->len, &iov_iter);
-+	pkt->vec[0].iov_base = buf;
-+	pkt->vec[0].iov_len = pkt->len;
-+	pkt->nr_vecs = 1;
-+
-+	nbytes = copy_from_iter(buf, pkt->len, &iov_iter);
- 	if (nbytes != pkt->len) {
- 		vq_err(vq, "Expected %u byte payload, got %zu bytes\n",
- 		       pkt->len, nbytes);
-diff --git a/include/linux/virtio_vsock.h b/include/linux/virtio_vsock.h
-index da9e1fe..734eeed 100644
---- a/include/linux/virtio_vsock.h
-+++ b/include/linux/virtio_vsock.h
-@@ -13,6 +13,8 @@
- #define VIRTIO_VSOCK_DEFAULT_RX_BUF_SIZE	(1024 * 4)
- #define VIRTIO_VSOCK_MAX_BUF_SIZE		0xFFFFFFFFUL
- #define VIRTIO_VSOCK_MAX_PKT_BUF_SIZE		(1024 * 64)
-+/* virtio_vsock_pkt + max_pkt_len(default MAX_PKT_BUF_SIZE) */
-+#define VIRTIO_VSOCK_MAX_VEC_NUM ((VIRTIO_VSOCK_MAX_PKT_BUF_SIZE / PAGE_SIZE) + 1)
-
- /* Virtio-vsock feature */
- #define VIRTIO_VSOCK_F_MRG_RXBUF 0 /* Host can merge receive buffers. */
-@@ -55,10 +57,12 @@ struct virtio_vsock_pkt {
- 	struct list_head list;
- 	/* socket refcnt not held, only use for cancellation */
- 	struct vsock_sock *vsk;
--	void *buf;
-+	struct kvec vec[VIRTIO_VSOCK_MAX_VEC_NUM];
-+	int nr_vecs;
- 	u32 len;
- 	u32 off;
- 	bool reply;
 +	bool mergeable;
  };
 
- struct virtio_vsock_pkt_info {
-diff --git a/net/vmw_vsock/virtio_transport.c b/net/vmw_vsock/virtio_transport.c
-index c4a465c..148b58a 100644
---- a/net/vmw_vsock/virtio_transport.c
-+++ b/net/vmw_vsock/virtio_transport.c
-@@ -155,8 +155,10 @@ static int virtio_transport_send_pkt_loopback(struct virtio_vsock *vsock,
+ static u32 vhost_transport_get_local_cid(void)
+@@ -151,7 +153,6 @@ static int get_rx_bufs(struct vhost_virtqueue *vq,
+ 	struct vhost_virtqueue *tx_vq = &vsock->vqs[VSOCK_VQ_TX];
+ 	bool added = false;
+ 	bool restart_tx = false;
+-	int mergeable;
+ 	size_t vsock_hlen;
 
- 		sg_init_one(&hdr, &pkt->hdr, sizeof(pkt->hdr));
- 		sgs[out_sg++] = &hdr;
--		if (pkt->buf) {
--			sg_init_one(&buf, pkt->buf, pkt->len);
-+		if (pkt->len) {
-+			/* Currently only support a segment of memory in tx */
-+			BUG_ON(pkt->vec[0].iov_len != pkt->len);
-+			sg_init_one(&buf, pkt->vec[0].iov_base, pkt->vec[0].iov_len);
- 			sgs[out_sg++] = &buf;
- 		}
+ 	mutex_lock(&vq->mutex);
+@@ -159,12 +160,11 @@ static int get_rx_bufs(struct vhost_virtqueue *vq,
+ 	if (!vq->private_data)
+ 		goto out;
 
-@@ -304,23 +306,28 @@ static int fill_old_rx_buff(struct virtqueue *vq)
- 	struct virtio_vsock_pkt *pkt;
- 	struct scatterlist hdr, buf, *sgs[2];
- 	int ret;
-+	void *pkt_buf;
+-	mergeable = vhost_has_feature(vq, VIRTIO_VSOCK_F_MRG_RXBUF);
+ 	/*
+ 	 * Guest fill page for rx vq in mergeable case, so it will not
+ 	 * allocate pkt structure, we should reserve size of pkt in advance.
+ 	 */
+-	if (likely(mergeable))
++	if (likely(vsock->mergeable))
+ 		vsock_hlen = sizeof(struct virtio_vsock_pkt);
+ 	else
+ 		vsock_hlen = sizeof(struct virtio_vsock_hdr);
+@@ -195,7 +195,7 @@ static int get_rx_bufs(struct vhost_virtqueue *vq,
+ 		spin_unlock_bh(&vsock->send_pkt_list_lock);
 
- 	pkt = kzalloc(sizeof(*pkt), GFP_KERNEL);
- 	if (!pkt)
- 		return -ENOMEM;
+ 		headcount = get_rx_bufs(vq, vq->heads, vsock_hlen + pkt->len,
+-				&in, likely(mergeable) ? UIO_MAXIOV : 1);
++				&in, likely(vsock->mergeable) ? UIO_MAXIOV : 1);
+ 		if (headcount <= 0) {
+ 			spin_lock_bh(&vsock->send_pkt_list_lock);
+ 			list_add(&pkt->list, &vsock->send_pkt_list);
+@@ -214,7 +214,7 @@ static int get_rx_bufs(struct vhost_virtqueue *vq,
+ 		len = iov_length(&vq->iov[out], in);
+ 		iov_iter_init(&iov_iter, READ, &vq->iov[out], in, len);
 
--	pkt->buf = kmalloc(buf_len, GFP_KERNEL);
--	if (!pkt->buf) {
-+	pkt_buf = kmalloc(buf_len, GFP_KERNEL);
-+	if (!pkt_buf) {
- 		virtio_transport_free_pkt(pkt);
- 		return -ENOMEM;
- 	}
-
-+	pkt->vec[0].iov_base = pkt_buf;
-+	pkt->vec[0].iov_len = buf_len;
-+	pkt->nr_vecs = 1;
-+
- 	pkt->len = buf_len;
-
- 	sg_init_one(&hdr, &pkt->hdr, sizeof(pkt->hdr));
- 	sgs[0] = &hdr;
-
--	sg_init_one(&buf, pkt->buf, buf_len);
-+	sg_init_one(&buf, pkt->vec[0].iov_base, buf_len);
- 	sgs[1] = &buf;
- 	ret = virtqueue_add_sgs(vq, sgs, 0, 2, pkt, GFP_KERNEL);
- 	if (ret)
-@@ -388,11 +395,78 @@ static bool virtio_transport_more_replies(struct virtio_vsock *vsock)
- 	return val < virtqueue_get_vring_size(vq);
+-		if (likely(mergeable))
++		if (likely(vsock->mergeable))
+ 			pkt->mrg_rxbuf_hdr.num_buffers = cpu_to_le16(headcount);
+ 		nbytes = copy_to_iter(&pkt->hdr, vsock_hlen, &iov_iter);
+ 		if (nbytes != vsock_hlen) {
+@@ -303,6 +303,22 @@ static void vhost_transport_send_pkt_work(struct vhost_work *work)
+ 	return len;
  }
 
-+static struct virtio_vsock_pkt *receive_mergeable(struct virtqueue *vq,
-+		struct virtio_vsock *vsock, unsigned int *total_len)
++static u32
++vhost_transport_get_max_pkt_len(u32 guest_cid)
 +{
-+	struct virtio_vsock_pkt *pkt;
-+	u16 num_buf;
-+	void *buf;
-+	unsigned int len;
-+	size_t vsock_hlen = sizeof(struct virtio_vsock_pkt);
++	int len = VIRTIO_VSOCK_DEFAULT_RX_BUF_SIZE;
++	struct vhost_vsock *vsock;
 +
-+	buf = virtqueue_get_buf(vq, &len);
-+	if (!buf)
-+		return NULL;
++	vsock = vhost_vsock_get(guest_cid);
++	if (!vsock)
++		return len;
 +
-+	*total_len = len;
-+	vsock->rx_buf_nr--;
++	if (vsock->mergeable)
++		len = VIRTIO_VSOCK_MAX_PKT_BUF_SIZE;
 +
-+	if (unlikely(len < vsock_hlen)) {
-+		put_page(virt_to_head_page(buf));
-+		return NULL;
-+	}
-+
-+	pkt = buf;
-+	num_buf = le16_to_cpu(pkt->mrg_rxbuf_hdr.num_buffers);
-+	if (!num_buf || num_buf > VIRTIO_VSOCK_MAX_VEC_NUM) {
-+		put_page(virt_to_head_page(buf));
-+		return NULL;
-+	}
-+
-+	/* Initialize pkt residual structure */
-+	memset(&pkt->work, 0, vsock_hlen - sizeof(struct virtio_vsock_hdr) -
-+			sizeof(struct virtio_vsock_mrg_rxbuf_hdr));
-+
-+	pkt->mergeable = true;
-+	pkt->len = le32_to_cpu(pkt->hdr.len);
-+	if (!pkt->len)
-+		return pkt;
-+
-+	len -= vsock_hlen;
-+	if (len) {
-+		pkt->vec[pkt->nr_vecs].iov_base = buf + vsock_hlen;
-+		pkt->vec[pkt->nr_vecs].iov_len = len;
-+		/* Shared page with pkt, so get page in advance */
-+		get_page(virt_to_head_page(buf));
-+		pkt->nr_vecs++;
-+	}
-+
-+	while (--num_buf) {
-+		buf = virtqueue_get_buf(vq, &len);
-+		if (!buf)
-+			goto err;
-+
-+		*total_len += len;
-+		vsock->rx_buf_nr--;
-+
-+		pkt->vec[pkt->nr_vecs].iov_base = buf;
-+		pkt->vec[pkt->nr_vecs].iov_len = len;
-+		pkt->nr_vecs++;
-+	}
-+
-+	return pkt;
-+err:
-+	virtio_transport_free_pkt(pkt);
-+	return NULL;
++	return len;
 +}
 +
- static void virtio_transport_rx_work(struct work_struct *work)
+ static int
+ vhost_transport_cancel_pkt(struct vsock_sock *vsk)
  {
- 	struct virtio_vsock *vsock =
- 		container_of(work, struct virtio_vsock, rx_work);
- 	struct virtqueue *vq;
-+	size_t vsock_hlen = vsock->mergeable ? sizeof(struct virtio_vsock_pkt) :
-+			sizeof(struct virtio_vsock_hdr);
+@@ -602,6 +618,8 @@ static int vhost_vsock_dev_open(struct inode *inode, struct file *file)
 
- 	vq = vsock->vqs[VSOCK_VQ_RX];
+ 	atomic_set(&vsock->queued_replies, 0);
 
-@@ -412,21 +486,26 @@ static void virtio_transport_rx_work(struct work_struct *work)
- 				goto out;
- 			}
++	vsock->mergeable = false;
++
+ 	vqs[VSOCK_VQ_TX] = &vsock->vqs[VSOCK_VQ_TX];
+ 	vqs[VSOCK_VQ_RX] = &vsock->vqs[VSOCK_VQ_RX];
+ 	vsock->vqs[VSOCK_VQ_TX].handle_kick = vhost_vsock_handle_tx_kick;
+@@ -726,6 +744,9 @@ static int vhost_vsock_set_features(struct vhost_vsock *vsock, u64 features)
+ 		return -EFAULT;
+ 	}
 
--			pkt = virtqueue_get_buf(vq, &len);
--			if (!pkt) {
--				break;
--			}
-+			if (likely(vsock->mergeable)) {
-+				pkt = receive_mergeable(vq, vsock, &len);
-+				if (!pkt)
-+					break;
-+			} else {
-+				pkt = virtqueue_get_buf(vq, &len);
-+				if (!pkt)
-+					break;
++	if (features & (1 << VIRTIO_VSOCK_F_MRG_RXBUF))
++		vsock->mergeable = true;
++
+ 	for (i = 0; i < ARRAY_SIZE(vsock->vqs); i++) {
+ 		vq = &vsock->vqs[i];
+ 		mutex_lock(&vq->mutex);
+@@ -848,6 +869,8 @@ static long vhost_vsock_dev_compat_ioctl(struct file *f, unsigned int ioctl,
+ 	},
 
--			vsock->rx_buf_nr--;
-+				vsock->rx_buf_nr--;
-+			}
+ 	.send_pkt = vhost_transport_send_pkt,
++
++	.max_pkt_len = vhost_transport_get_max_pkt_len,
+ };
 
- 			/* Drop short/long packets */
--			if (unlikely(len < sizeof(pkt->hdr) ||
--				     len > sizeof(pkt->hdr) + pkt->len)) {
-+			if (unlikely(len < vsock_hlen ||
-+				     len > vsock_hlen + pkt->len)) {
- 				virtio_transport_free_pkt(pkt);
- 				continue;
- 			}
+ static int __init vhost_vsock_init(void)
+diff --git a/include/linux/virtio_vsock.h b/include/linux/virtio_vsock.h
+index 734eeed..ad95319 100644
+--- a/include/linux/virtio_vsock.h
++++ b/include/linux/virtio_vsock.h
+@@ -82,6 +82,9 @@ struct virtio_transport {
 
--			pkt->len = len - sizeof(pkt->hdr);
-+			pkt->len = len - vsock_hlen;
- 			virtio_transport_deliver_tap_pkt(pkt);
- 			virtio_transport_recv_pkt(pkt);
- 		}
+ 	/* Takes ownership of the packet */
+ 	int (*send_pkt)(struct virtio_vsock_pkt *pkt);
++
++	/* Get max pkt len, cid only be used for Host */
++	u32 (*max_pkt_len)(u32 cid);
+ };
+
+ ssize_t
+diff --git a/net/vmw_vsock/virtio_transport.c b/net/vmw_vsock/virtio_transport.c
+index 148b58a..809085a 100644
+--- a/net/vmw_vsock/virtio_transport.c
++++ b/net/vmw_vsock/virtio_transport.c
+@@ -222,6 +222,22 @@ static int virtio_transport_send_pkt_loopback(struct virtio_vsock *vsock,
+ 	return len;
+ }
+
++static u32
++virtio_transport_get_max_pkt_len(u32 cid)
++{
++	int len = VIRTIO_VSOCK_DEFAULT_RX_BUF_SIZE;
++	struct virtio_vsock *vsock;
++
++	vsock = virtio_vsock_get();
++	if (!vsock)
++		return len;
++
++	if (vsock->mergeable)
++		len = VIRTIO_VSOCK_MAX_PKT_BUF_SIZE;
++
++	return len;
++}
++
+ static int
+ virtio_transport_cancel_pkt(struct vsock_sock *vsk)
+ {
+@@ -675,6 +691,8 @@ static void virtio_vsock_rx_done(struct virtqueue *vq)
+ 	},
+
+ 	.send_pkt = virtio_transport_send_pkt,
++
++	.max_pkt_len = virtio_transport_get_max_pkt_len,
+ };
+
+ static int virtio_vsock_probe(struct virtio_device *vdev)
 diff --git a/net/vmw_vsock/virtio_transport_common.c b/net/vmw_vsock/virtio_transport_common.c
-index 3ae3a33..123a8b6 100644
+index 123a8b6..cc14ace 100644
 --- a/net/vmw_vsock/virtio_transport_common.c
 +++ b/net/vmw_vsock/virtio_transport_common.c
-@@ -44,6 +44,7 @@ static const struct virtio_transport *virtio_transport_get_ops(void)
- {
+@@ -159,7 +159,8 @@ static int virtio_transport_send_pkt_info(struct vsock_sock *vsk,
+ 	u32 src_cid, src_port, dst_cid, dst_port;
+ 	struct virtio_vsock_sock *vvs;
  	struct virtio_vsock_pkt *pkt;
- 	int err;
-+	void *buf = NULL;
+-	u32 pkt_len = info->pkt_len;
++	u32 pkt_len;
++	u32 max_pkt_len;
 
- 	pkt = kzalloc(sizeof(*pkt), GFP_KERNEL);
- 	if (!pkt)
-@@ -62,12 +63,16 @@ static const struct virtio_transport *virtio_transport_get_ops(void)
- 	pkt->vsk		= info->vsk;
+ 	src_cid = vm_sockets_get_local_cid();
+ 	src_port = vsk->local_addr.svm_port;
+@@ -174,8 +175,8 @@ static int virtio_transport_send_pkt_info(struct vsock_sock *vsk,
+ 	vvs = vsk->trans;
 
- 	if (info->msg && len > 0) {
--		pkt->buf = kmalloc(len, GFP_KERNEL);
--		if (!pkt->buf)
-+		buf = kmalloc(len, GFP_KERNEL);
-+		if (!buf)
- 			goto out_pkt;
--		err = memcpy_from_msg(pkt->buf, info->msg, len);
-+		err = memcpy_from_msg(buf, info->msg, len);
- 		if (err)
- 			goto out;
-+
-+		pkt->vec[0].iov_base = buf;
-+		pkt->vec[0].iov_len = len;
-+		pkt->nr_vecs = 1;
- 	}
+ 	/* we can send less than pkt_len bytes */
+-	if (pkt_len > VIRTIO_VSOCK_DEFAULT_RX_BUF_SIZE)
+-		pkt_len = VIRTIO_VSOCK_DEFAULT_RX_BUF_SIZE;
++	max_pkt_len = virtio_transport_get_ops()->max_pkt_len(dst_cid);
++	pkt_len = min(max_pkt_len, info->pkt_len);
 
- 	trace_virtio_transport_alloc_pkt(src_cid, src_port,
-@@ -80,7 +85,7 @@ static const struct virtio_transport *virtio_transport_get_ops(void)
- 	return pkt;
-
- out:
--	kfree(pkt->buf);
-+	kfree(buf);
- out_pkt:
- 	kfree(pkt);
- 	return NULL;
-@@ -92,6 +97,7 @@ static struct sk_buff *virtio_transport_build_skb(void *opaque)
- 	struct virtio_vsock_pkt *pkt = opaque;
- 	struct af_vsockmon_hdr *hdr;
- 	struct sk_buff *skb;
-+	int i;
-
- 	skb = alloc_skb(sizeof(*hdr) + sizeof(pkt->hdr) + pkt->len,
- 			GFP_ATOMIC);
-@@ -134,7 +140,8 @@ static struct sk_buff *virtio_transport_build_skb(void *opaque)
- 	skb_put_data(skb, &pkt->hdr, sizeof(pkt->hdr));
-
- 	if (pkt->len) {
--		skb_put_data(skb, pkt->buf, pkt->len);
-+		for (i = 0; i < pkt->nr_vecs; i++)
-+			skb_put_data(skb, pkt->vec[i].iov_base, pkt->vec[i].iov_len);
- 	}
-
- 	return skb;
-@@ -260,6 +267,9 @@ static int virtio_transport_send_credit_update(struct vsock_sock *vsk,
-
- 	spin_lock_bh(&vvs->rx_lock);
- 	while (total < len && !list_empty(&vvs->rx_queue)) {
-+		size_t copy_bytes, last_vec_total = 0, vec_off;
-+		int i;
-+
- 		pkt = list_first_entry(&vvs->rx_queue,
- 				       struct virtio_vsock_pkt, list);
-
-@@ -272,14 +282,28 @@ static int virtio_transport_send_credit_update(struct vsock_sock *vsk,
- 		 */
- 		spin_unlock_bh(&vvs->rx_lock);
-
--		err = memcpy_to_msg(msg, pkt->buf + pkt->off, bytes);
--		if (err)
--			goto out;
-+		for (i = 0; i < pkt->nr_vecs; i++) {
-+			if (pkt->off > last_vec_total + pkt->vec[i].iov_len) {
-+				last_vec_total += pkt->vec[i].iov_len;
-+				continue;
-+			}
-+
-+			vec_off = pkt->off - last_vec_total;
-+			copy_bytes = min(pkt->vec[i].iov_len - vec_off, bytes);
-+			err = memcpy_to_msg(msg, pkt->vec[i].iov_base + vec_off,
-+					copy_bytes);
-+			if (err)
-+				goto out;
-+
-+			bytes -= copy_bytes;
-+			pkt->off += copy_bytes;
-+			total += copy_bytes;
-+			last_vec_total += pkt->vec[i].iov_len;
-+			if (!bytes)
-+				break;
-+		}
-
- 		spin_lock_bh(&vvs->rx_lock);
--
--		total += bytes;
--		pkt->off += bytes;
- 		if (pkt->off == pkt->len) {
- 			virtio_transport_dec_rx_pkt(vvs, pkt);
- 			list_del(&pkt->list);
-@@ -1050,8 +1074,17 @@ void virtio_transport_recv_pkt(struct virtio_vsock_pkt *pkt)
-
- void virtio_transport_free_pkt(struct virtio_vsock_pkt *pkt)
- {
--	kfree(pkt->buf);
--	kfree(pkt);
-+	int i;
-+
-+	if (pkt->mergeable) {
-+		for (i = 0; i < pkt->nr_vecs; i++)
-+			put_page(virt_to_head_page(pkt->vec[i].iov_base));
-+		put_page(virt_to_head_page((void *)pkt));
-+	} else {
-+		for (i = 0; i < pkt->nr_vecs; i++)
-+			kfree(pkt->vec[i].iov_base);
-+		kfree(pkt);
-+	}
- }
- EXPORT_SYMBOL_GPL(virtio_transport_free_pkt);
-
+ 	/* virtio_transport_get_credit might return less than pkt_len credit */
+ 	pkt_len = virtio_transport_get_credit(vvs, pkt_len);
 -- 
 1.8.3.1
