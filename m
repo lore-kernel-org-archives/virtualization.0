@@ -1,10 +1,10 @@
 From: jiangyiwen <jiangyiwen@huawei.com>
-Subject: [PATCH v2 0/5] VSOCK: support mergeable rx buffer in vhost-vsock
-Date: Wed, 12 Dec 2018 17:25:50 +0800
-Message-ID: <5C10D41E.9050002__28535.9517708004$1544606633$gmane$org@huawei.com>
+Subject: [PATCH v2 2/5] VSOCK: support fill data to mergeable rx buffer in host
+Date: Wed, 12 Dec 2018 17:29:31 +0800
+Message-ID: <5C10D4FB.6070009__18160.5545258664$1544606937$gmane$org@huawei.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="utf-8"
-Content-Transfer-Encoding: base64
+Content-Type: text/plain; charset="us-ascii"
+Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
@@ -19,61 +19,223 @@ To: Stefan Hajnoczi <stefanha@redhat.com>, "Michael S. Tsirkin" <mst@redhat.com>
 Cc: netdev@vger.kernel.org, kvm@vger.kernel.org, virtualization@lists.linux-foundation.org
 List-Id: virtualization@lists.linuxfoundation.org
 
-Tm93IHZzb2NrIG9ubHkgc3VwcG9ydCBzZW5kL3JlY2VpdmUgc21hbGwgcGFja2V0LCBpdCBjYW4n
-dCBhY2hpZXZlCmhpZ2ggcGVyZm9ybWFuY2UuIEFzIHByZXZpb3VzIGRpc2N1c3NlZCB3aXRoIEph
-c29uIFdhbmcsIEkgcmV2aXNpdCB0aGUKaWRlYSBvZiB2aG9zdC1uZXQgYWJvdXQgbWVyZ2VhYmxl
-IHJ4IGJ1ZmZlciBhbmQgaW1wbGVtZW50IHRoZSBtZXJnZWFibGUKcnggYnVmZmVyIGluIHZob3N0
-LXZzb2NrLCBpdCBjYW4gYWxsb3cgYmlnIHBhY2tldCB0byBiZSBzY2F0dGVyZWQgaW4KaW50byBk
-aWZmZXJlbnQgYnVmZmVycyBhbmQgaW1wcm92ZSBwZXJmb3JtYW5jZSBvYnZpb3VzbHkuCgpUaGlz
-IHNlcmllcyBvZiBwYXRjaGVzIG1haW5seSBkaWQgdGhyZWUgdGhpbmdz77yaCi0gbWVyZ2VhYmxl
-IGJ1ZmZlciBpbXBsZW1lbnRhdGlvbgotIGluY3JlYXNlIHRoZSBtYXggc2VuZCBwa3Qgc2l6ZQot
-IGFkZCB1c2VkIGFuZCBzaWduYWwgZ3Vlc3QgaW4gYSBiYXRjaAoKQW5kIEkgd3JpdGUgYSB0b29s
-IHRvIHRlc3QgdGhlIHZob3N0LXZzb2NrIHBlcmZvcm1hbmNlLCBtYWlubHkgc2VuZCBiaWcKcGFj
-a2V0KDY0SykgaW5jbHVkZWQgZ3Vlc3QtPkhvc3QgYW5kIEhvc3QtPkd1ZXN0LiBJIHRlc3QgcGVy
-Zm9ybWFuY2UKaW5kZXBlbmRlbnRseSBhbmQgdGhlIHJlc3VsdCBhcyBmb2xsb3dzOgoKQmVmb3Jl
-IHBlcmZvcm1hbmNlOgogICAgICAgICAgICAgIFNpbmdsZSBzb2NrZXQgICAgICAgICAgICBNdWx0
-aXBsZSBzb2NrZXRzKE1heCBCYW5kd2lkdGgpCkd1ZXN0LT5Ib3N0ICAgfjQwME1CL3MgICAgICAg
-ICAgICAgICAgIH40ODBNQi9zCkhvc3QtPkd1ZXN0ICAgfjE0NTBNQi9zICAgICAgICAgICAgICAg
-IH4xNjAwTUIvcwoKQWZ0ZXIgcGVyZm9ybWFuY2Ugb25seSB1c2UgaW1wbGVtZW50IG1lcmdlYWJs
-ZSByeCBidWZmZXI6CiAgICAgICAgICAgICAgU2luZ2xlIHNvY2tldCAgICAgICAgICAgIE11bHRp
-cGxlIHNvY2tldHMoTWF4IEJhbmR3aWR0aCkKR3Vlc3QtPkhvc3QgICB+NDAwTUIvcyAgICAgICAg
-ICAgICAgICAgfjQ4ME1CL3MKSG9zdC0+R3Vlc3QgICB+MTI4ME1CL3MgICAgICAgICAgICAgICAg
-fjEzNTBNQi9zCgpJbiB0aGlzIGNhc2UsIG1heCBzZW5kIHBrdCBzaXplIGlzIHN0aWxsIGxpbWl0
-ZWQgdG8gNEssIHNvIEhvc3QtPkd1ZXN0CnBlcmZvcm1hbmNlIHdpbGwgd29yc2UgdGhhbiBiZWZv
-cmUuCgpBZnRlciBwZXJmb3JtYW5jZSBpbmNyZWFzZSB0aGUgbWF4IHNlbmQgcGt0IHNpemUgdG8g
-NjRLOgogICAgICAgICAgICAgIFNpbmdsZSBzb2NrZXQgICAgICAgICAgICBNdWx0aXBsZSBzb2Nr
-ZXRzKE1heCBCYW5kd2lkdGgpCkd1ZXN0LT5Ib3N0ICAgfjE3MDBNQi9zICAgICAgICAgICAgICAg
-IH4yOTAwTUIvcwpIb3N0LT5HdWVzdCAgIH4xNTAwTUIvcyAgICAgICAgICAgICAgICB+MjQ0ME1C
-L3MKCkFmdGVyIHBlcmZvcm1hbmNlIGFsbCBwYXRjaGVzIGFyZSB1c2VkOgogICAgICAgICAgICAg
-IFNpbmdsZSBzb2NrZXQgICAgICAgICAgICBNdWx0aXBsZSBzb2NrZXRzKE1heCBCYW5kd2lkdGgp
-Ckd1ZXN0LT5Ib3N0ICAgfjE3MDBNQi9zICAgICAgICAgICAgICAgIH4yOTAwTUIvcwpIb3N0LT5H
-dWVzdCAgIH4xNzAwTUIvcyAgICAgICAgICAgICAgICB+MjkwME1CL3MKCkZyb20gdGhlIHRlc3Qg
-cmVzdWx0cywgdGhlIHBlcmZvcm1hbmNlIGlzIGltcHJvdmVkIG9idmlvdXNseSwgYW5kIGd1ZXN0
-Cm1lbW9yeSB3aWxsIG5vdCBiZSB3YXN0ZWQuCgpJbiBhZGRpdGlvbiwgaW4gb3JkZXIgdG8gc3Vw
-cG9ydCBtZXJnZWFibGUgcnggYnVmZmVyIGluIHZpcnRpby12c29jaywKd2UgbmVlZCB0byBhZGQg
-YSBxZW11IHBhdGNoIHRvIHN1cHBvcnQgcGFyc2UgZmVhdHVyZS4KCi0tLQp2MSAtPiB2MjoKICog
-QWRkcmVzc2VkIGNvbW1lbnRzIGZyb20gSmFzb24gV2FuZy4KICogQWRkIHBlcmZvcm1hbmNlIHRl
-c3QgcmVzdWx0IGluZGVwZW5kZW50bHkuCiAqIFVzZSBTa2JfcGFnZV9mcmFnX3JlZmlsbCgpIHdo
-aWNoIGNhbiB1c2UgaGlnaCBvcmRlciBwYWdlIGFuZCByZWR1Y2UKICAgdGhlIHN0cmVzcyBvZiBw
-YWdlIGFsbG9jYXRvci4KICogU3RpbGwgdXNlIGZpeGVkIHNpemUoUEFHRV9TSVpFKSB0byBmaWxs
-IHJ4IGJ1ZmZlciwgYmVjYXVzZSB0b28gc21hbGwKICAgc2l6ZSBjYW4ndCBmaWxsIG9uZSBmdWxs
-IHBhY2tldCwgd2Ugb25seSAxMjggdnEgbnVtIG5vdy4KICogVXNlIGlvdmVjIHRvIHJlcGxhY2Ug
-YnVmIGluIHN0cnVjdCB2aXJ0aW9fdnNvY2tfcGt0LCBrZWVwIHR4IGFuZCByeAogICBjb25zaXN0
-ZW5jeS4KICogQWRkIHZpcnRpb190cmFuc3BvcnQgb3BzIHRvIGdldCBtYXggcGt0IGxlbiwgaW4g
-b3JkZXIgdG8gYmUgY29tcGF0aWJsZQogICB3aXRoIG9sZCB2ZXJzaW9uLgotLS0KCllpd2VuIEpp
-YW5nICg1KToKICBWU09DSzogc3VwcG9ydCBmaWxsIG1lcmdlYWJsZSByeCBidWZmZXIgaW4gZ3Vl
-c3QKICBWU09DSzogc3VwcG9ydCBmaWxsIGRhdGEgdG8gbWVyZ2VhYmxlIHJ4IGJ1ZmZlciBpbiBo
-b3N0CiAgVlNPQ0s6IHN1cHBvcnQgcmVjZWl2ZSBtZXJnZWFibGUgcnggYnVmZmVyIGluIGd1ZXN0
-CiAgVlNPQ0s6IGluY3JlYXNlIHNlbmQgcGt0IGxlbiBpbiBtZXJnZWFibGUgbW9kZSB0byBpbXBy
-b3ZlIHBlcmZvcm1hbmNlCiAgVlNPQ0s6IGJhdGNoIHNlbmRpbmcgcnggYnVmZmVyIHRvIGluY3Jl
-YXNlIGJhbmR3aWR0aAoKIGRyaXZlcnMvdmhvc3QvdnNvY2suYyAgICAgICAgICAgICAgICAgICB8
-IDE4MyArKysrKysrKysrKysrKysrKysrKy0tLS0tCiBpbmNsdWRlL2xpbnV4L3ZpcnRpb192c29j
-ay5oICAgICAgICAgICAgfCAgMTMgKy0KIGluY2x1ZGUvdWFwaS9saW51eC92aXJ0aW9fdnNvY2su
-aCAgICAgICB8ICAgNSArCiBuZXQvdm13X3Zzb2NrL3ZpcnRpb190cmFuc3BvcnQuYyAgICAgICAg
-fCAyMjkgKysrKysrKysrKysrKysrKysrKysrKysrKysrLS0tLS0KIG5ldC92bXdfdnNvY2svdmly
-dGlvX3RyYW5zcG9ydF9jb21tb24uYyB8ICA2NiArKysrKystLS0KIDUgZmlsZXMgY2hhbmdlZCwg
-NDExIGluc2VydGlvbnMoKyksIDg1IGRlbGV0aW9ucygtKQoKLS0gCjEuOC4zLjEKCl9fX19fX19f
-X19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fClZpcnR1YWxpemF0aW9uIG1h
-aWxpbmcgbGlzdApWaXJ0dWFsaXphdGlvbkBsaXN0cy5saW51eC1mb3VuZGF0aW9uLm9yZwpodHRw
-czovL2xpc3RzLmxpbnV4Zm91bmRhdGlvbi5vcmcvbWFpbG1hbi9saXN0aW5mby92aXJ0dWFsaXph
-dGlvbg==
+When vhost support VIRTIO_VSOCK_F_MRG_RXBUF feature,
+it will merge big packet into rx vq.
+
+Signed-off-by: Yiwen Jiang <jiangyiwen@huawei.com>
+---
+ drivers/vhost/vsock.c             | 111 ++++++++++++++++++++++++++++++--------
+ include/linux/virtio_vsock.h      |   1 +
+ include/uapi/linux/virtio_vsock.h |   5 ++
+ 3 files changed, 94 insertions(+), 23 deletions(-)
+
+diff --git a/drivers/vhost/vsock.c b/drivers/vhost/vsock.c
+index 34bc3ab..dc52b0f 100644
+--- a/drivers/vhost/vsock.c
++++ b/drivers/vhost/vsock.c
+@@ -22,7 +22,8 @@
+ #define VHOST_VSOCK_DEFAULT_HOST_CID	2
+
+ enum {
+-	VHOST_VSOCK_FEATURES = VHOST_FEATURES,
++	VHOST_VSOCK_FEATURES = VHOST_FEATURES |
++			(1ULL << VIRTIO_VSOCK_F_MRG_RXBUF),
+ };
+
+ /* Used to track all the vhost_vsock instances on the system. */
+@@ -80,6 +81,69 @@ static struct vhost_vsock *vhost_vsock_get(u32 guest_cid)
+ 	return vsock;
+ }
+
++/* This segment of codes are copied from drivers/vhost/net.c */
++static int get_rx_bufs(struct vhost_virtqueue *vq,
++		struct vring_used_elem *heads, int datalen,
++		unsigned *iovcount, unsigned int quota)
++{
++	unsigned int out, in;
++	int seg = 0;
++	int headcount = 0;
++	unsigned d;
++	int ret;
++	/*
++	 * len is always initialized before use since we are always called with
++	 * datalen > 0.
++	 */
++	u32 uninitialized_var(len);
++
++	while (datalen > 0 && headcount < quota) {
++		if (unlikely(seg >= UIO_MAXIOV)) {
++			ret = -ENOBUFS;
++			goto err;
++		}
++
++		ret = vhost_get_vq_desc(vq, vq->iov + seg,
++				ARRAY_SIZE(vq->iov) - seg, &out,
++				&in, NULL, NULL);
++		if (unlikely(ret < 0))
++			goto err;
++
++		d = ret;
++		if (d == vq->num) {
++			ret = 0;
++			goto err;
++		}
++
++		if (unlikely(out || in <= 0)) {
++			vq_err(vq, "unexpected descriptor format for RX: "
++					"out %d, in %d\n", out, in);
++			ret = -EINVAL;
++			goto err;
++		}
++
++		heads[headcount].id = cpu_to_vhost32(vq, d);
++		len = iov_length(vq->iov + seg, in);
++		heads[headcount].len = cpu_to_vhost32(vq, len);
++		datalen -= len;
++		++headcount;
++		seg += in;
++	}
++
++	heads[headcount - 1].len = cpu_to_vhost32(vq, len + datalen);
++	*iovcount = seg;
++
++	/* Detect overrun */
++	if (unlikely(datalen > 0)) {
++		ret = UIO_MAXIOV + 1;
++		goto err;
++	}
++	return headcount;
++err:
++	vhost_discard_vq_desc(vq, headcount);
++	return ret;
++}
++
+ static void
+ vhost_transport_do_send_pkt(struct vhost_vsock *vsock,
+ 			    struct vhost_virtqueue *vq)
+@@ -87,22 +151,34 @@ static struct vhost_vsock *vhost_vsock_get(u32 guest_cid)
+ 	struct vhost_virtqueue *tx_vq = &vsock->vqs[VSOCK_VQ_TX];
+ 	bool added = false;
+ 	bool restart_tx = false;
++	int mergeable;
++	size_t vsock_hlen;
+
+ 	mutex_lock(&vq->mutex);
+
+ 	if (!vq->private_data)
+ 		goto out;
+
++	mergeable = vhost_has_feature(vq, VIRTIO_VSOCK_F_MRG_RXBUF);
++	/*
++	 * Guest fill page for rx vq in mergeable case, so it will not
++	 * allocate pkt structure, we should reserve size of pkt in advance.
++	 */
++	if (likely(mergeable))
++		vsock_hlen = sizeof(struct virtio_vsock_pkt);
++	else
++		vsock_hlen = sizeof(struct virtio_vsock_hdr);
++
+ 	/* Avoid further vmexits, we're already processing the virtqueue */
+ 	vhost_disable_notify(&vsock->dev, vq);
+
+ 	for (;;) {
+ 		struct virtio_vsock_pkt *pkt;
+ 		struct iov_iter iov_iter;
+-		unsigned out, in;
++		unsigned out = 0, in = 0;
+ 		size_t nbytes;
+ 		size_t len;
+-		int head;
++		s16 headcount;
+
+ 		spin_lock_bh(&vsock->send_pkt_list_lock);
+ 		if (list_empty(&vsock->send_pkt_list)) {
+@@ -116,16 +192,9 @@ static struct vhost_vsock *vhost_vsock_get(u32 guest_cid)
+ 		list_del_init(&pkt->list);
+ 		spin_unlock_bh(&vsock->send_pkt_list_lock);
+
+-		head = vhost_get_vq_desc(vq, vq->iov, ARRAY_SIZE(vq->iov),
+-					 &out, &in, NULL, NULL);
+-		if (head < 0) {
+-			spin_lock_bh(&vsock->send_pkt_list_lock);
+-			list_add(&pkt->list, &vsock->send_pkt_list);
+-			spin_unlock_bh(&vsock->send_pkt_list_lock);
+-			break;
+-		}
+-
+-		if (head == vq->num) {
++		headcount = get_rx_bufs(vq, vq->heads, vsock_hlen + pkt->len,
++				&in, likely(mergeable) ? UIO_MAXIOV : 1);
++		if (headcount <= 0) {
+ 			spin_lock_bh(&vsock->send_pkt_list_lock);
+ 			list_add(&pkt->list, &vsock->send_pkt_list);
+ 			spin_unlock_bh(&vsock->send_pkt_list_lock);
+@@ -133,24 +202,20 @@ static struct vhost_vsock *vhost_vsock_get(u32 guest_cid)
+ 			/* We cannot finish yet if more buffers snuck in while
+ 			 * re-enabling notify.
+ 			 */
+-			if (unlikely(vhost_enable_notify(&vsock->dev, vq))) {
++			if (!headcount && unlikely(vhost_enable_notify(&vsock->dev, vq))) {
+ 				vhost_disable_notify(&vsock->dev, vq);
+ 				continue;
+ 			}
+ 			break;
+ 		}
+
+-		if (out) {
+-			virtio_transport_free_pkt(pkt);
+-			vq_err(vq, "Expected 0 output buffers, got %u\n", out);
+-			break;
+-		}
+-
+ 		len = iov_length(&vq->iov[out], in);
+ 		iov_iter_init(&iov_iter, READ, &vq->iov[out], in, len);
+
+-		nbytes = copy_to_iter(&pkt->hdr, sizeof(pkt->hdr), &iov_iter);
+-		if (nbytes != sizeof(pkt->hdr)) {
++		if (likely(mergeable))
++			pkt->mrg_rxbuf_hdr.num_buffers = cpu_to_le16(headcount);
++		nbytes = copy_to_iter(&pkt->hdr, vsock_hlen, &iov_iter);
++		if (nbytes != vsock_hlen) {
+ 			virtio_transport_free_pkt(pkt);
+ 			vq_err(vq, "Faulted on copying pkt hdr\n");
+ 			break;
+@@ -163,7 +228,7 @@ static struct vhost_vsock *vhost_vsock_get(u32 guest_cid)
+ 			break;
+ 		}
+
+-		vhost_add_used(vq, head, sizeof(pkt->hdr) + pkt->len);
++		vhost_add_used_n(vq, vq->heads, headcount);
+ 		added = true;
+
+ 		if (pkt->reply) {
+diff --git a/include/linux/virtio_vsock.h b/include/linux/virtio_vsock.h
+index bf84418..da9e1fe 100644
+--- a/include/linux/virtio_vsock.h
++++ b/include/linux/virtio_vsock.h
+@@ -50,6 +50,7 @@ struct virtio_vsock_sock {
+
+ struct virtio_vsock_pkt {
+ 	struct virtio_vsock_hdr	hdr;
++	struct virtio_vsock_mrg_rxbuf_hdr mrg_rxbuf_hdr;
+ 	struct work_struct work;
+ 	struct list_head list;
+ 	/* socket refcnt not held, only use for cancellation */
+diff --git a/include/uapi/linux/virtio_vsock.h b/include/uapi/linux/virtio_vsock.h
+index 1d57ed3..2292f30 100644
+--- a/include/uapi/linux/virtio_vsock.h
++++ b/include/uapi/linux/virtio_vsock.h
+@@ -63,6 +63,11 @@ struct virtio_vsock_hdr {
+ 	__le32	fwd_cnt;
+ } __attribute__((packed));
+
++/* It add mergeable rx buffers feature */
++struct virtio_vsock_mrg_rxbuf_hdr {
++	__le16  num_buffers;    /* number of mergeable rx buffers */
++} __attribute__((packed));
++
+ enum virtio_vsock_type {
+ 	VIRTIO_VSOCK_TYPE_STREAM = 1,
+ };
+-- 
+1.8.3.1
