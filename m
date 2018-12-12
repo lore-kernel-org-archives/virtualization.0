@@ -1,15 +1,15 @@
 From: "Michael S. Tsirkin" <mst@redhat.com>
-Subject: Re: [PATCH net V2 3/4] Revert "net: vhost: lock the vqs one by one"
-Date: Wed, 12 Dec 2018 09:24:31 -0500
-Message-ID: <20181212092102-mutt-send-email-mst__37452.0700694577$1544624552$gmane$org@kernel.org>
+Subject: Re: [PATCH net V2 4/4] vhost: log dirty page correctly
+Date: Wed, 12 Dec 2018 09:32:45 -0500
+Message-ID: <20181212092435-mutt-send-email-mst__46964.7169964903$1544625046$gmane$org@kernel.org>
 References: <20181212100819.21295-1-jasowang@redhat.com>
-	<20181212100819.21295-4-jasowang@redhat.com>
+	<20181212100819.21295-5-jasowang@redhat.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
 Content-Disposition: inline
-In-Reply-To: <20181212100819.21295-4-jasowang@redhat.com>
+In-Reply-To: <20181212100819.21295-5-jasowang@redhat.com>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -20,86 +20,211 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
 To: Jason Wang <jasowang@redhat.com>
-Cc: netdev@vger.kernel.org, linux-kernel@vger.kernel.org, kvm@vger.kernel.org, virtualization@lists.linux-foundation.org
+Cc: Jintack Lim <jintack@cs.columbia.edu>, netdev@vger.kernel.org, linux-kernel@vger.kernel.org, kvm@vger.kernel.org, virtualization@lists.linux-foundation.org
 List-Id: virtualization@lists.linuxfoundation.org
 
-On Wed, Dec 12, 2018 at 06:08:18PM +0800, Jason Wang wrote:
-> This reverts commit 78139c94dc8c96a478e67dab3bee84dc6eccb5fd. We don't
-> protect device IOTLB with vq mutex, which will lead e.g use after free
-> for device IOTLB entries. And since we've switched to use
-> mutex_trylock() in previous patch, it's safe to revert it without
-> having deadlock.
+On Wed, Dec 12, 2018 at 06:08:19PM +0800, Jason Wang wrote:
+> Vhost dirty page logging API is designed to sync through GPA. But we
+> try to log GIOVA when device IOTLB is enabled. This is wrong and may
+> lead to missing data after migration.
 > 
-> Fixes: commit 78139c94dc8c ("net: vhost: lock the vqs one by one")
-> Cc: Tonghao Zhang <xiangxia.m.yue@gmail.com>
+> To solve this issue, when logging with device IOTLB enabled, we will:
+> 
+> 1) reuse the device IOTLB translation result of GIOVA->HVA mapping to
+>    get HVA, for writable descriptor, get HVA through iovec. For used
+>    ring update, translate its GIOVA to HVA
+> 2) traverse the GPA->HVA mapping to get the possible GPA and log
+>    through GPA. Pay attention this reverse mapping is not guaranteed
+>    to be unique, so we should log each possible GPA in this case.
+> 
+> This fix the failure of scp to guest during migration. In -next, we
+> will probably support passing GIOVA->GPA instead of GIOVA->HVA.
+> 
+> Fixes: 6b1e6cc7855b ("vhost: new device IOTLB API")
+> Reported-by: Jintack Lim <jintack@cs.columbia.edu>
+> Cc: Jintack Lim <jintack@cs.columbia.edu>
 > Signed-off-by: Jason Wang <jasowang@redhat.com>
 
+It's a nasty bug for sure but it's been like this for a long
+time so I'm inclined to say let's put it in 4.21,
+and queue for stable.
 
-Acked-by: Michael S. Tsirkin <mst@redhat.com>
+So please split this out from this series.
 
-I'd try to put this in 4.20 if we can
-and it's needed for -stable I think.
-
-Also looks like we should allow iotlb entries per vq
-to improve locking. What do you think?
+Also, I'd like to see a feature bit that allows GPA in IOTLBs.
 
 > ---
->  drivers/vhost/vhost.c | 21 +++++++++++++++++----
->  1 file changed, 17 insertions(+), 4 deletions(-)
+>  drivers/vhost/net.c   |  3 +-
+>  drivers/vhost/vhost.c | 79 +++++++++++++++++++++++++++++++++++--------
+>  drivers/vhost/vhost.h |  3 +-
+>  3 files changed, 69 insertions(+), 16 deletions(-)
 > 
+> diff --git a/drivers/vhost/net.c b/drivers/vhost/net.c
+> index ad7a6f475a44..784df2b49628 100644
+> --- a/drivers/vhost/net.c
+> +++ b/drivers/vhost/net.c
+> @@ -1192,7 +1192,8 @@ static void handle_rx(struct vhost_net *net)
+>  		if (nvq->done_idx > VHOST_NET_BATCH)
+>  			vhost_net_signal_used(nvq);
+>  		if (unlikely(vq_log))
+> -			vhost_log_write(vq, vq_log, log, vhost_len);
+> +			vhost_log_write(vq, vq_log, log, vhost_len,
+> +					vq->iov, in);
+>  		total_len += vhost_len;
+>  		if (unlikely(vhost_exceeds_weight(++recv_pkts, total_len))) {
+>  			vhost_poll_queue(&vq->poll);
 > diff --git a/drivers/vhost/vhost.c b/drivers/vhost/vhost.c
-> index 5915f240275a..55e5aa662ad5 100644
+> index 55e5aa662ad5..3660310604fd 100644
 > --- a/drivers/vhost/vhost.c
 > +++ b/drivers/vhost/vhost.c
-> @@ -295,11 +295,8 @@ static void vhost_vq_meta_reset(struct vhost_dev *d)
->  {
->  	int i;
->  
-> -	for (i = 0; i < d->nvqs; ++i) {
-> -		mutex_lock(&d->vqs[i]->mutex);
-> +	for (i = 0; i < d->nvqs; ++i)
->  		__vhost_vq_meta_reset(d->vqs[i]);
-> -		mutex_unlock(&d->vqs[i]->mutex);
-> -	}
+> @@ -1733,11 +1733,67 @@ static int log_write(void __user *log_base,
+>  	return r;
 >  }
 >  
->  static void vhost_vq_reset(struct vhost_dev *dev,
-> @@ -895,6 +892,20 @@ static inline void __user *__vhost_get_user(struct vhost_virtqueue *vq,
->  #define vhost_get_used(vq, x, ptr) \
->  	vhost_get_user(vq, x, ptr, VHOST_ADDR_USED)
->  
-> +static void vhost_dev_lock_vqs(struct vhost_dev *d)
+> +static int log_write_hva(struct vhost_virtqueue *vq, u64 hva, u64 len)
 > +{
-> +	int i = 0;
-> +	for (i = 0; i < d->nvqs; ++i)
-> +		mutex_lock_nested(&d->vqs[i]->mutex, i);
+> +	struct vhost_umem *umem = vq->umem;
+> +	struct vhost_umem_node *u;
+> +	u64 gpa;
+> +	int r;
+> +	bool hit = false;
+> +
+> +	list_for_each_entry(u, &umem->umem_list, link) {
+> +		if (u->userspace_addr < hva &&
+> +		    u->userspace_addr + u->size >=
+> +		    hva + len) {
+> +			gpa = u->start + hva - u->userspace_addr;
+> +			r = log_write(vq->log_base, gpa, len);
+> +			if (r < 0)
+> +				return r;
+> +			hit = true;
+> +		}
+> +	}
+> +
+> +	/* No reverse mapping, should be a bug */
+> +	WARN_ON(!hit);
+
+Maybe it should but userspace can trigger this easily I think.
+We need to stop the device not warn in kernel log.
+
+Also there's an error fd: VHOST_SET_VRING_ERR, need to wake it up.
+
+
+> +	return 0;
 > +}
 > +
-> +static void vhost_dev_unlock_vqs(struct vhost_dev *d)
+> +static void log_used(struct vhost_virtqueue *vq, u64 used_offset, u64 len)
 > +{
-> +	int i = 0;
-> +	for (i = 0; i < d->nvqs; ++i)
-> +		mutex_unlock(&d->vqs[i]->mutex);
+> +	struct iovec iov[64];
+> +	int i, ret;
+> +
+> +	if (!vq->iotlb) {
+> +		log_write(vq->log_base, vq->log_addr + used_offset, len);
+> +		return;
+> +	}
+
+This change seems questionable. used ring writes 
+use their own machinery it does not go through iotlb.
+Same should apply to log I think.
+
+> +
+> +	ret = translate_desc(vq, (u64)(uintptr_t)vq->used + used_offset,
+> +			     len, iov, 64, VHOST_ACCESS_WO);
+> +	WARN_ON(ret < 0);
+
+
+Same thing here. translation failures can be triggered from guest.
+warn on is not a good error handling strategy ...
+
+> +
+> +	for (i = 0; i < ret; i++) {
+> +		ret = log_write_hva(vq,	(u64)(uintptr_t)iov[i].iov_base,
+> +				    iov[i].iov_len);
+> +		WARN_ON(ret);
+> +	}
 > +}
 > +
->  static int vhost_new_umem_range(struct vhost_umem *umem,
->  				u64 start, u64 size, u64 end,
->  				u64 userspace_addr, int perm)
-> @@ -976,6 +987,7 @@ static int vhost_process_iotlb_msg(struct vhost_dev *dev,
->  	int ret = 0;
+>  int vhost_log_write(struct vhost_virtqueue *vq, struct vhost_log *log,
+> -		    unsigned int log_num, u64 len)
+> +		    unsigned int log_num, u64 len, struct iovec *iov, int count)
+>  {
+>  	int i, r;
 >  
->  	mutex_lock(&dev->mutex);
-> +	vhost_dev_lock_vqs(dev);
->  	switch (msg->type) {
->  	case VHOST_IOTLB_UPDATE:
->  		if (!dev->iotlb) {
-> @@ -1009,6 +1021,7 @@ static int vhost_process_iotlb_msg(struct vhost_dev *dev,
->  		break;
+> +	if (vq->iotlb) {
+> +		for (i = 0; i < count; i++) {
+> +			r = log_write_hva(vq, (u64)(uintptr_t)iov[i].iov_base,
+> +					  iov[i].iov_len);
+> +			if (r < 0)
+> +				return r;
+> +		}
+> +		return 0;
+> +	}
+> +
+>  	/* Make sure data written is seen before log. */
+>  	smp_wmb();
+>  	for (i = 0; i < log_num; ++i) {
+> @@ -1769,9 +1825,8 @@ static int vhost_update_used_flags(struct vhost_virtqueue *vq)
+>  		smp_wmb();
+>  		/* Log used flag write. */
+>  		used = &vq->used->flags;
+> -		log_write(vq->log_base, vq->log_addr +
+> -			  (used - (void __user *)vq->used),
+> -			  sizeof vq->used->flags);
+> +		log_used(vq, (used - (void __user *)vq->used),
+> +			 sizeof vq->used->flags);
+>  		if (vq->log_ctx)
+>  			eventfd_signal(vq->log_ctx, 1);
 >  	}
+> @@ -1789,9 +1844,8 @@ static int vhost_update_avail_event(struct vhost_virtqueue *vq, u16 avail_event)
+>  		smp_wmb();
+>  		/* Log avail event write */
+>  		used = vhost_avail_event(vq);
+> -		log_write(vq->log_base, vq->log_addr +
+> -			  (used - (void __user *)vq->used),
+> -			  sizeof *vhost_avail_event(vq));
+> +		log_used(vq, (used - (void __user *)vq->used),
+> +			 sizeof *vhost_avail_event(vq));
+>  		if (vq->log_ctx)
+>  			eventfd_signal(vq->log_ctx, 1);
+>  	}
+> @@ -2191,10 +2245,8 @@ static int __vhost_add_used_n(struct vhost_virtqueue *vq,
+>  		/* Make sure data is seen before log. */
+>  		smp_wmb();
+>  		/* Log used ring entry write. */
+> -		log_write(vq->log_base,
+> -			  vq->log_addr +
+> -			   ((void __user *)used - (void __user *)vq->used),
+> -			  count * sizeof *used);
+> +		log_used(vq, ((void __user *)used - (void __user *)vq->used),
+> +			 count * sizeof *used);
+>  	}
+>  	old = vq->last_used_idx;
+>  	new = (vq->last_used_idx += count);
+> @@ -2236,9 +2288,8 @@ int vhost_add_used_n(struct vhost_virtqueue *vq, struct vring_used_elem *heads,
+>  		/* Make sure used idx is seen before log. */
+>  		smp_wmb();
+>  		/* Log used index update. */
+> -		log_write(vq->log_base,
+> -			  vq->log_addr + offsetof(struct vring_used, idx),
+> -			  sizeof vq->used->idx);
+> +		log_used(vq, offsetof(struct vring_used, idx),
+> +			 sizeof vq->used->idx);
+>  		if (vq->log_ctx)
+>  			eventfd_signal(vq->log_ctx, 1);
+>  	}
+> diff --git a/drivers/vhost/vhost.h b/drivers/vhost/vhost.h
+> index 466ef7542291..1b675dad5e05 100644
+> --- a/drivers/vhost/vhost.h
+> +++ b/drivers/vhost/vhost.h
+> @@ -205,7 +205,8 @@ bool vhost_vq_avail_empty(struct vhost_dev *, struct vhost_virtqueue *);
+>  bool vhost_enable_notify(struct vhost_dev *, struct vhost_virtqueue *);
 >  
-> +	vhost_dev_unlock_vqs(dev);
->  	mutex_unlock(&dev->mutex);
+>  int vhost_log_write(struct vhost_virtqueue *vq, struct vhost_log *log,
+> -		    unsigned int log_num, u64 len);
+> +		    unsigned int log_num, u64 len,
+> +		    struct iovec *iov, int count);
+>  int vq_iotlb_prefetch(struct vhost_virtqueue *vq);
 >  
->  	return ret;
+>  struct vhost_msg_node *vhost_new_msg(struct vhost_virtqueue *vq, int type);
 > -- 
 > 2.17.1
