@@ -1,7 +1,8 @@
 From: Jason Wang <jasowang@redhat.com>
-Subject: [PATCH net V2 3/4] Revert "net: vhost: lock the vqs one by one"
-Date: Wed, 12 Dec 2018 18:08:18 +0800
-Message-ID: <20181212100819.21295-4-jasowang__15989.9865313948$1544609502$gmane$org@redhat.com>
+Subject: [PATCH net V2 2/4] vhost_net: switch to use mutex_trylock() in
+	vhost_net_busy_poll()
+Date: Wed, 12 Dec 2018 18:08:17 +0800
+Message-ID: <20181212100819.21295-3-jasowang__21304.5047167272$1544609508$gmane$org@redhat.com>
 References: <20181212100819.21295-1-jasowang@redhat.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
@@ -20,72 +21,41 @@ Errors-To: virtualization-bounces@lists.linux-foundation.org
 To: mst@redhat.com, jasowang@redhat.com, kvm@vger.kernel.org, virtualization@lists.linux-foundation.org, netdev@vger.kernel.org, linux-kernel@vger.kernel.org
 List-Id: virtualization@lists.linuxfoundation.org
 
-This reverts commit 78139c94dc8c96a478e67dab3bee84dc6eccb5fd. We don't
-protect device IOTLB with vq mutex, which will lead e.g use after free
-for device IOTLB entries. And since we've switched to use
-mutex_trylock() in previous patch, it's safe to revert it without
-having deadlock.
+We used to hold the mutex of paired virtqueue in
+vhost_net_busy_poll(). But this will results an inconsistent lock
+order which may cause deadlock if we try to bring back the protection
+of device IOTLB with vq mutex that requires to hold mutex of all
+virtqueues at the same time.
+
+Fix this simply by switching to use mutex_trylock(), when fail just
+skip the busy polling. This can happen when device IOTLB is under
+updating which should be rare.
 
 Fixes: commit 78139c94dc8c ("net: vhost: lock the vqs one by one")
 Cc: Tonghao Zhang <xiangxia.m.yue@gmail.com>
 Signed-off-by: Jason Wang <jasowang@redhat.com>
 ---
- drivers/vhost/vhost.c | 21 +++++++++++++++++----
- 1 file changed, 17 insertions(+), 4 deletions(-)
+ drivers/vhost/net.c | 8 +++++++-
+ 1 file changed, 7 insertions(+), 1 deletion(-)
 
-diff --git a/drivers/vhost/vhost.c b/drivers/vhost/vhost.c
-index 5915f240275a..55e5aa662ad5 100644
---- a/drivers/vhost/vhost.c
-+++ b/drivers/vhost/vhost.c
-@@ -295,11 +295,8 @@ static void vhost_vq_meta_reset(struct vhost_dev *d)
- {
- 	int i;
+diff --git a/drivers/vhost/net.c b/drivers/vhost/net.c
+index ab11b2bee273..ad7a6f475a44 100644
+--- a/drivers/vhost/net.c
++++ b/drivers/vhost/net.c
+@@ -513,7 +513,13 @@ static void vhost_net_busy_poll(struct vhost_net *net,
+ 	struct socket *sock;
+ 	struct vhost_virtqueue *vq = poll_rx ? tvq : rvq;
  
--	for (i = 0; i < d->nvqs; ++i) {
--		mutex_lock(&d->vqs[i]->mutex);
-+	for (i = 0; i < d->nvqs; ++i)
- 		__vhost_vq_meta_reset(d->vqs[i]);
--		mutex_unlock(&d->vqs[i]->mutex);
--	}
- }
- 
- static void vhost_vq_reset(struct vhost_dev *dev,
-@@ -895,6 +892,20 @@ static inline void __user *__vhost_get_user(struct vhost_virtqueue *vq,
- #define vhost_get_used(vq, x, ptr) \
- 	vhost_get_user(vq, x, ptr, VHOST_ADDR_USED)
- 
-+static void vhost_dev_lock_vqs(struct vhost_dev *d)
-+{
-+	int i = 0;
-+	for (i = 0; i < d->nvqs; ++i)
-+		mutex_lock_nested(&d->vqs[i]->mutex, i);
-+}
+-	mutex_lock_nested(&vq->mutex, poll_rx ? VHOST_NET_VQ_TX: VHOST_NET_VQ_RX);
++	/* Try to hold the vq mutex of the paired virtqueue. We can't
++	 * use mutex_lock() here since we could not guarantee a
++	 * consistenet lock ordering.
++	 */
++	if (!mutex_trylock(&vq->mutex))
++		return;
 +
-+static void vhost_dev_unlock_vqs(struct vhost_dev *d)
-+{
-+	int i = 0;
-+	for (i = 0; i < d->nvqs; ++i)
-+		mutex_unlock(&d->vqs[i]->mutex);
-+}
-+
- static int vhost_new_umem_range(struct vhost_umem *umem,
- 				u64 start, u64 size, u64 end,
- 				u64 userspace_addr, int perm)
-@@ -976,6 +987,7 @@ static int vhost_process_iotlb_msg(struct vhost_dev *dev,
- 	int ret = 0;
+ 	vhost_disable_notify(&net->dev, vq);
+ 	sock = rvq->private_data;
  
- 	mutex_lock(&dev->mutex);
-+	vhost_dev_lock_vqs(dev);
- 	switch (msg->type) {
- 	case VHOST_IOTLB_UPDATE:
- 		if (!dev->iotlb) {
-@@ -1009,6 +1021,7 @@ static int vhost_process_iotlb_msg(struct vhost_dev *dev,
- 		break;
- 	}
- 
-+	vhost_dev_unlock_vqs(dev);
- 	mutex_unlock(&dev->mutex);
- 
- 	return ret;
 -- 
 2.17.1
