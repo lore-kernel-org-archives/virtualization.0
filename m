@@ -1,14 +1,13 @@
 From: David Miller <davem@davemloft.net>
-Subject: Re: [PATCH v2 2/5] VSOCK: support fill data to mergeable rx buffer
-	in host
-Date: Wed, 12 Dec 2018 11:09:44 -0800 (PST)
-Message-ID: <20181212.110944.1077302806391053539.davem__5792.48075741834$1544641685$gmane$org@davemloft.net>
-References: <5C10D4FB.6070009@huawei.com>
+Subject: Re: [PATCH net V2 0/4] Fix various issue of vhost
+Date: Wed, 12 Dec 2018 15:31:34 -0800 (PST)
+Message-ID: <20181212.153134.1249380470735153418.davem__32428.6967902028$1544657374$gmane$org@davemloft.net>
+References: <20181212100819.21295-1-jasowang@redhat.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <5C10D4FB.6070009@huawei.com>
+In-Reply-To: <20181212100819.21295-1-jasowang@redhat.com>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -18,27 +17,39 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: jiangyiwen@huawei.com
-Cc: kvm@vger.kernel.org, mst@redhat.com, netdev@vger.kernel.org, virtualization@lists.linux-foundation.org, stefanha@redhat.com
+To: jasowang@redhat.com
+Cc: netdev@vger.kernel.org, virtualization@lists.linux-foundation.org, linux-kernel@vger.kernel.org, kvm@vger.kernel.org, mst@redhat.com
 List-Id: virtualization@lists.linuxfoundation.org
 
-From: jiangyiwen <jiangyiwen@huawei.com>
-Date: Wed, 12 Dec 2018 17:29:31 +0800
+From: Jason Wang <jasowang@redhat.com>
+Date: Wed, 12 Dec 2018 18:08:15 +0800
 
-> diff --git a/include/uapi/linux/virtio_vsock.h b/include/uapi/linux/virtio_vsock.h
-> index 1d57ed3..2292f30 100644
-> --- a/include/uapi/linux/virtio_vsock.h
-> +++ b/include/uapi/linux/virtio_vsock.h
-> @@ -63,6 +63,11 @@ struct virtio_vsock_hdr {
->  	__le32	fwd_cnt;
->  } __attribute__((packed));
+> This series tries to fix various issues of vhost:
 > 
-> +/* It add mergeable rx buffers feature */
-> +struct virtio_vsock_mrg_rxbuf_hdr {
-> +	__le16  num_buffers;    /* number of mergeable rx buffers */
-> +} __attribute__((packed));
-> +
+> - Patch 1 adds a missing write barrier between used idx updating and
+>   logging.
+> - Patch 2-3 brings back the protection of device IOTLB through vq
+>   mutex, this fixes possible use after free in device IOTLB entries.
+> - Patch 4-7 fixes the diry page logging when device IOTLB is
+>   enabled. We should done through GPA instead of GIOVA, this was done
+>   through intorudce HVA->GPA reverse mapping and convert HVA to GPA
+>   during logging dirty pages.
+> 
+> Please consider them for -stable.
+> 
+> Thanks
+> 
+> Changes from V1:
+> - silent compiler warning for 32bit.
+> - use mutex_trylock() on slowpath instead of mutex_lock() even on fast
+>   path.
 
-I know the rest of this file uses 'packed' but this attribute should
-only be used if absolutely necessary as it incurs a
-non-trivial performance penalty for some architectures.
+Hello Jason.
+
+Look like Michael wants you to split out patch #4 and target
+net-next with it.
+
+So please do that and respin the first 3 patches here with Michael's
+ACKs.
+
+Thanks.
