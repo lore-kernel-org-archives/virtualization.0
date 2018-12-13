@@ -1,16 +1,17 @@
-From: "Michael S. Tsirkin" <mst@redhat.com>
-Subject: Re: [PATCH net-next 3/3] vhost: access vq metadata through kernel
-	virtual address
-Date: Thu, 13 Dec 2018 10:44:54 -0500
-Message-ID: <20181213102713-mutt-send-email-mst__10342.2270193279$1544715804$gmane$org@kernel.org>
-References: <20181213101022.12475-1-jasowang@redhat.com>
-	<20181213101022.12475-4-jasowang@redhat.com>
+From: Stefan Hajnoczi <stefanha@redhat.com>
+Subject: Re: [PATCH v2 2/5] VSOCK: support fill data to mergeable rx buffer
+	in host
+Date: Thu, 13 Dec 2018 15:46:16 +0000
+Message-ID: <20181213154616.GM23318__30347.2854699523$1544715881$gmane$org@stefanha-x1.localdomain>
+References: <5C10D4FB.6070009@huawei.com>
+	<20181212.110944.1077302806391053539.davem@davemloft.net>
+	<5C11CDF4.4040405@huawei.com>
+	<20181212.215905.1657023590815103551.davem@davemloft.net>
+	<5C120D69.10201@huawei.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
-Content-Transfer-Encoding: 7bit
+Content-Type: multipart/mixed; boundary="===============9068602472177792121=="
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-Content-Disposition: inline
-In-Reply-To: <20181213101022.12475-4-jasowang@redhat.com>
+In-Reply-To: <5C120D69.10201@huawei.com>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -20,352 +21,95 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Jason Wang <jasowang@redhat.com>
-Cc: netdev@vger.kernel.org, linux-kernel@vger.kernel.org, kvm@vger.kernel.org, virtualization@lists.linux-foundation.org
+To: jiangyiwen <jiangyiwen@huawei.com>
+Cc: kvm@vger.kernel.org, mst@redhat.com, netdev@vger.kernel.org, virtualization@lists.linux-foundation.org, David Miller <davem@davemloft.net>
 List-Id: virtualization@lists.linuxfoundation.org
 
-On Thu, Dec 13, 2018 at 06:10:22PM +0800, Jason Wang wrote:
-> It was noticed that the copy_user() friends that was used to access
-> virtqueue metdata tends to be very expensive for dataplane
-> implementation like vhost since it involves lots of software check,
-> speculation barrier, hardware feature toggling (e.g SMAP). The
-> extra cost will be more obvious when transferring small packets.
-> 
-> This patch tries to eliminate those overhead by pin vq metadata pages
-> and access them through vmap(). During SET_VRING_ADDR, we will setup
-> those mappings and memory accessors are modified to use pointers to
-> access the metadata directly.
-> 
-> Note, this was only done when device IOTLB is not enabled. We could
-> use similar method to optimize it in the future.
-> 
-> Tests shows about ~24% improvement on TX PPS when using virtio-user +
-> vhost_net + xdp1 on TAP (CONFIG_HARDENED_USERCOPY is not enabled):
-> 
-> Before: ~5.0Mpps
-> After:  ~6.1Mpps
-> 
-> Signed-off-by: Jason Wang <jasowang@redhat.com>
-> ---
->  drivers/vhost/vhost.c | 178 ++++++++++++++++++++++++++++++++++++++++++
->  drivers/vhost/vhost.h |  11 +++
->  2 files changed, 189 insertions(+)
-> 
-> diff --git a/drivers/vhost/vhost.c b/drivers/vhost/vhost.c
-> index bafe39d2e637..1bd24203afb6 100644
-> --- a/drivers/vhost/vhost.c
-> +++ b/drivers/vhost/vhost.c
-> @@ -443,6 +443,9 @@ void vhost_dev_init(struct vhost_dev *dev,
->  		vq->indirect = NULL;
->  		vq->heads = NULL;
->  		vq->dev = dev;
-> +		memset(&vq->avail_ring, 0, sizeof(vq->avail_ring));
-> +		memset(&vq->used_ring, 0, sizeof(vq->used_ring));
-> +		memset(&vq->desc_ring, 0, sizeof(vq->desc_ring));
->  		mutex_init(&vq->mutex);
->  		vhost_vq_reset(dev, vq);
->  		if (vq->handle_kick)
-> @@ -614,6 +617,102 @@ static void vhost_clear_msg(struct vhost_dev *dev)
->  	spin_unlock(&dev->iotlb_lock);
->  }
->  
-> +static int vhost_init_vmap(struct vhost_vmap *map, unsigned long uaddr,
-> +			   size_t size, int write)
-> +{
-> +	struct page **pages;
-> +	int npages = DIV_ROUND_UP(size, PAGE_SIZE);
-> +	int npinned;
-> +	void *vaddr;
-> +
-> +	pages = kmalloc_array(npages, sizeof(struct page *), GFP_KERNEL);
-> +	if (!pages)
-> +		return -ENOMEM;
-> +
-> +	npinned = get_user_pages_fast(uaddr, npages, write, pages);
-> +	if (npinned != npages)
-> +		goto err;
-> +
 
-As I said I have doubts about the whole approach, but this
-implementation in particular isn't a good idea
-as it keeps the page around forever.
-So no THP, no NUMA rebalancing, userspace-controlled
-amount of memory locked up and not accounted for.
-
-Don't get me wrong it's a great patch in an ideal world.
-But then in an ideal world no barriers smap etc are necessary at all.
+--===============9068602472177792121==
+Content-Type: multipart/signed; micalg=pgp-sha1;
+	protocol="application/pgp-signature"; boundary="EE8jvUPYYQjJtG7J"
+Content-Disposition: inline
 
 
-> +	vaddr = vmap(pages, npages, VM_MAP, PAGE_KERNEL);
-> +	if (!vaddr)
-> +		goto err;
-> +
-> +	map->pages = pages;
-> +	map->addr = vaddr + (uaddr & (PAGE_SIZE - 1));
-> +	map->npages = npages;
-> +
-> +	return 0;
-> +
-> +err:
-> +	if (npinned > 0)
-> +		release_pages(pages, npinned);
-> +	kfree(pages);
-> +	return -EFAULT;
-> +}
-> +
-> +static void vhost_uninit_vmap(struct vhost_vmap *map)
-> +{
-> +	if (!map->addr)
-> +		return;
-> +
-> +	vunmap(map->addr);
-> +	release_pages(map->pages, map->npages);
-> +	kfree(map->pages);
-> +
-> +	map->addr = NULL;
-> +	map->pages = NULL;
-> +	map->npages = 0;
-> +}
-> +
-> +static void vhost_clean_vmaps(struct vhost_virtqueue *vq)
-> +{
-> +	vhost_uninit_vmap(&vq->avail_ring);
-> +	vhost_uninit_vmap(&vq->desc_ring);
-> +	vhost_uninit_vmap(&vq->used_ring);
-> +}
-> +
-> +static int vhost_setup_vmaps(struct vhost_virtqueue *vq, unsigned long avail,
-> +			     unsigned long desc, unsigned long used)
-> +{
-> +	size_t event = vhost_has_feature(vq, VIRTIO_RING_F_EVENT_IDX) ? 2 : 0;
-> +	size_t avail_size, desc_size, used_size;
-> +	int ret;
-> +
-> +	vhost_clean_vmaps(vq);
-> +
-> +	avail_size = sizeof(*vq->avail) +
-> +		     sizeof(*vq->avail->ring) * vq->num + event;
-> +	ret = vhost_init_vmap(&vq->avail_ring, avail, avail_size, false);
-> +	if (ret) {
-> +		vq_err(vq, "Fail to setup vmap for avail ring!\n");
-> +		goto err_avail;
-> +	}
-> +
-> +	desc_size = sizeof(*vq->desc) * vq->num;
-> +	ret = vhost_init_vmap(&vq->desc_ring, desc, desc_size, false);
-> +	if (ret) {
-> +		vq_err(vq, "Fail to setup vmap for desc ring!\n");
-> +		goto err_desc;
-> +	}
-> +
-> +	used_size = sizeof(*vq->used) +
-> +		    sizeof(*vq->used->ring) * vq->num + event;
-> +	ret = vhost_init_vmap(&vq->used_ring, used, used_size, true);
-> +	if (ret) {
-> +		vq_err(vq, "Fail to setup vmap for used ring!\n");
-> +		goto err_used;
-> +	}
-> +
-> +	return 0;
-> +
-> +err_used:
-> +	vhost_uninit_vmap(&vq->used_ring);
-> +err_desc:
-> +	vhost_uninit_vmap(&vq->avail_ring);
-> +err_avail:
-> +	return -EFAULT;
-> +}
-> +
->  void vhost_dev_cleanup(struct vhost_dev *dev)
->  {
->  	int i;
-> @@ -626,6 +725,7 @@ void vhost_dev_cleanup(struct vhost_dev *dev)
->  		if (dev->vqs[i]->call_ctx)
->  			eventfd_ctx_put(dev->vqs[i]->call_ctx);
->  		vhost_vq_reset(dev, dev->vqs[i]);
-> +		vhost_clean_vmaps(dev->vqs[i]);
->  	}
->  	vhost_dev_free_iovecs(dev);
->  	if (dev->log_ctx)
-> @@ -873,6 +973,14 @@ static inline void __user *__vhost_get_user(struct vhost_virtqueue *vq,
->  
->  static inline int vhost_put_avail_event(struct vhost_virtqueue *vq)
->  {
-> +	if (!vq->iotlb) {
-> +		struct vring_used *used = vq->used_ring.addr;
-> +
-> +		*((__virtio16 *)&used->ring[vq->num]) =
-> +			cpu_to_vhost16(vq, vq->avail_idx);
-> +		return 0;
-> +	}
-> +
->  	return vhost_put_user(vq, cpu_to_vhost16(vq, vq->avail_idx),
->  			      vhost_avail_event(vq));
->  }
-> @@ -881,6 +989,13 @@ static inline int vhost_put_used(struct vhost_virtqueue *vq,
->  				 struct vring_used_elem *head, int idx,
->  				 int count)
->  {
-> +	if (!vq->iotlb) {
-> +		struct vring_used *used = vq->used_ring.addr;
-> +
-> +		memcpy(used->ring + idx, head, count * sizeof(*head));
-> +		return 0;
-> +	}
-> +
->  	return vhost_copy_to_user(vq, vq->used->ring + idx, head,
->  				  count * sizeof(*head));
->  }
-> @@ -888,6 +1003,13 @@ static inline int vhost_put_used(struct vhost_virtqueue *vq,
->  static inline int vhost_put_used_flags(struct vhost_virtqueue *vq)
->  
->  {
-> +	if (!vq->iotlb) {
-> +		struct vring_used *used = vq->used_ring.addr;
-> +
-> +		used->flags = cpu_to_vhost16(vq, vq->used_flags);
-> +		return 0;
-> +	}
-> +
->  	return vhost_put_user(vq, cpu_to_vhost16(vq, vq->used_flags),
->  			      &vq->used->flags);
->  }
-> @@ -895,6 +1017,13 @@ static inline int vhost_put_used_flags(struct vhost_virtqueue *vq)
->  static inline int vhost_put_used_idx(struct vhost_virtqueue *vq)
->  
->  {
-> +	if (!vq->iotlb) {
-> +		struct vring_used *used = vq->used_ring.addr;
-> +
-> +		used->idx = cpu_to_vhost16(vq, vq->last_used_idx);
-> +		return 0;
-> +	}
-> +
->  	return vhost_put_user(vq, cpu_to_vhost16(vq, vq->last_used_idx),
->  			      &vq->used->idx);
->  }
-> @@ -926,12 +1055,26 @@ static inline int vhost_put_used_idx(struct vhost_virtqueue *vq)
->  static inline int vhost_get_avail_idx(struct vhost_virtqueue *vq,
->  				      __virtio16 *idx)
->  {
-> +	if (!vq->iotlb) {
-> +		struct vring_avail *avail = vq->avail_ring.addr;
-> +
-> +		*idx = avail->idx;
-> +		return 0;
-> +	}
-> +
->  	return vhost_get_avail(vq, *idx, &vq->avail->idx);
->  }
->  
->  static inline int vhost_get_avail_head(struct vhost_virtqueue *vq,
->  				       __virtio16 *head, int idx)
->  {
-> +	if (!vq->iotlb) {
-> +		struct vring_avail *avail = vq->avail_ring.addr;
-> +
-> +		*head = avail->ring[idx & (vq->num - 1)];
-> +		return 0;
-> +	}
-> +
->  	return vhost_get_avail(vq, *head,
->  			       &vq->avail->ring[idx & (vq->num - 1)]);
->  }
-> @@ -939,24 +1082,52 @@ static inline int vhost_get_avail_head(struct vhost_virtqueue *vq,
->  static inline int vhost_get_avail_flags(struct vhost_virtqueue *vq,
->  					__virtio16 *flags)
->  {
-> +	if (!vq->iotlb) {
-> +		struct vring_avail *avail = vq->avail_ring.addr;
-> +
-> +		*flags = avail->flags;
-> +		return 0;
-> +	}
-> +
->  	return vhost_get_avail(vq, *flags, &vq->avail->flags);
->  }
->  
->  static inline int vhost_get_used_event(struct vhost_virtqueue *vq,
->  				       __virtio16 *event)
->  {
-> +	if (!vq->iotlb) {
-> +		struct vring_avail *avail = vq->avail_ring.addr;
-> +
-> +		*event = (__virtio16)avail->ring[vq->num];
-> +		return 0;
-> +	}
-> +
->  	return vhost_get_avail(vq, *event, vhost_used_event(vq));
->  }
->  
->  static inline int vhost_get_used_idx(struct vhost_virtqueue *vq,
->  				     __virtio16 *idx)
->  {
-> +	if (!vq->iotlb) {
-> +		struct vring_used *used = vq->used_ring.addr;
-> +
-> +		*idx = used->idx;
-> +		return 0;
-> +	}
-> +
->  	return vhost_get_used(vq, *idx, &vq->used->idx);
->  }
->  
->  static inline int vhost_get_desc(struct vhost_virtqueue *vq,
->  				 struct vring_desc *desc, int idx)
->  {
-> +	if (!vq->iotlb) {
-> +		struct vring_desc *d = vq->desc_ring.addr;
-> +
-> +		*desc = *(d + idx);
-> +		return 0;
-> +	}
-> +
->  	return vhost_copy_from_user(vq, desc, vq->desc + idx, sizeof(*desc));
->  }
->  
-> @@ -1551,6 +1722,13 @@ long vhost_vring_ioctl(struct vhost_dev *d, unsigned int ioctl, void __user *arg
->  			}
->  		}
->  
-> +		if (!vq->iotlb && vhost_setup_vmaps(vq, a.avail_user_addr,
-> +							a.desc_user_addr,
-> +							a.used_user_addr)) {
-> +			r = -EINVAL;
-> +			break;
-> +		}
-> +
->  		vq->log_used = !!(a.flags & (0x1 << VHOST_VRING_F_LOG));
->  		vq->desc = (void __user *)(unsigned long)a.desc_user_addr;
->  		vq->avail = (void __user *)(unsigned long)a.avail_user_addr;
-> diff --git a/drivers/vhost/vhost.h b/drivers/vhost/vhost.h
-> index 466ef7542291..89dc0ad3d055 100644
-> --- a/drivers/vhost/vhost.h
-> +++ b/drivers/vhost/vhost.h
-> @@ -80,6 +80,12 @@ enum vhost_uaddr_type {
->  	VHOST_NUM_ADDRS = 3,
->  };
->  
-> +struct vhost_vmap {
-> +	struct page **pages;
-> +	void *addr;
-> +	int npages;
-> +};
-> +
->  /* The virtqueue structure describes a queue attached to a device. */
->  struct vhost_virtqueue {
->  	struct vhost_dev *dev;
-> @@ -90,6 +96,11 @@ struct vhost_virtqueue {
->  	struct vring_desc __user *desc;
->  	struct vring_avail __user *avail;
->  	struct vring_used __user *used;
-> +
-> +	struct vhost_vmap avail_ring;
-> +	struct vhost_vmap desc_ring;
-> +	struct vhost_vmap used_ring;
-> +
->  	const struct vhost_umem_node *meta_iotlb[VHOST_NUM_ADDRS];
->  	struct file *kick;
->  	struct eventfd_ctx *call_ctx;
-> -- 
-> 2.17.1
+--EE8jvUPYYQjJtG7J
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+Content-Transfer-Encoding: quoted-printable
+
+On Thu, Dec 13, 2018 at 03:42:33PM +0800, jiangyiwen wrote:
+> On 2018/12/13 13:59, David Miller wrote:
+> > From: jiangyiwen <jiangyiwen@huawei.com>
+> > Date: Thu, 13 Dec 2018 11:11:48 +0800
+> >=20
+> >> I hope Host can fill fewer bytes into rx virtqueue, so
+> >> I keep structure virtio_vsock_mrg_rxbuf_hdr one byte
+> >> alignment.
+> >=20
+> > The question is if this actully matters.
+> >=20
+> > Do you know?
+> >=20
+> > If the obejct this is embeeded inside of is at least 2 byte aligned,
+> > you are marking it packed for nothing.
+> >=20
+> > There are only %100 downsides to using the packed attribute.
+> >=20
+> > Simply define your datastructures properly, with fixed sized types,
+> > and all padding defined explicitly.
+> >=20
+> > .
+> >=20
+>=20
+> Hi David,
+>=20
+> Thanks a lot, I need to send number buffers from Host to Guest, so I think
+> we need to keep the structure size the same between host and guest.
+> But after your reminder, I feel my code may exist a serious problem,
+> that in mergeable mode, I send the total structure virtio_vsock_pkt
+> from Host to Guest, however, this structure size may be different
+> under different compilers (Guest and Host are different). Then, Guest
+> may parse the wrong packet length.
+>=20
+> David, I want to ask if there is such a problem?
+>=20
+> In addition, why I send total virtio_vsock_pkt structure from Host to Gue=
+st?
+> - In order to avoid to allocate virtio_vsock_pkt memory when receiving
+>   packets, in case of insufficient memory, it may have some advantages, a=
+nd
+>   we may keep consistent with old version.
+
+Yes, virtio_vsock_pkt is internal driver state and should not be part of
+the host<->guest interface (also for security reasons it's not good to
+expose internal state structs across the interface).
+
+Stefan
+
+--EE8jvUPYYQjJtG7J
+Content-Type: application/pgp-signature; name="signature.asc"
+
+-----BEGIN PGP SIGNATURE-----
+
+iQEcBAEBAgAGBQJcEn7IAAoJEJykq7OBq3PIDswH/iNEtTreNge1H6Z5Q7lpBG1n
+T/FWMkzYUCPNRi8ZRhAkkLUttsRUs2gDdeyNIBce9pKwxcFzxQAnRbhcxF384v5V
+q2BbuMT+Lr/7rZmgtwrNV2L9vwKGu5ohuddmPF/c8La2tIYkQ+Gdl/7V+gPZ55LR
+ArUOcgK3czSs0YUftno9XN0sL9aqZ0rz5es2x5WMRGpI0LXFl/vyP5Ig5GDkA1Ou
+Gj4uaMJUiYN3mU7P9j0H45kCGQBCJH6aelcrAIS6d6xuj2uHF5b2vRFOZhCFwXYg
+mMWG6Uw3sGZuRAFwiFnzs1uOfzwahMimzG7pJGl9w+NUUbzN+Dxmd/t1ZEUQCY8=
+=K2zb
+-----END PGP SIGNATURE-----
+
+--EE8jvUPYYQjJtG7J--
+
+--===============9068602472177792121==
+Content-Type: text/plain; charset="us-ascii"
+MIME-Version: 1.0
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+
+_______________________________________________
+Virtualization mailing list
+Virtualization@lists.linux-foundation.org
+https://lists.linuxfoundation.org/mailman/listinfo/virtualization
+--===============9068602472177792121==--
