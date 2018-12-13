@@ -1,14 +1,11 @@
-From: jiangyiwen <jiangyiwen@huawei.com>
-Subject: Re: [PATCH v2 1/5] VSOCK: support fill mergeable rx buffer in guest
-Date: Thu, 13 Dec 2018 10:47:21 +0800
-Message-ID: <5C11C839.1040004__46860.1588545882$1544669139$gmane$org@huawei.com>
-References: <5C10D4B0.8080504@huawei.com>
-	<20181212.110829.1327856253463467975.davem@davemloft.net>
+From: Jason Wang <jasowang@redhat.com>
+Subject: [PATCH net V3 0/3] Fix various issue of vhost
+Date: Thu, 13 Dec 2018 10:53:36 +0800
+Message-ID: <20181213025339.14023-1-jasowang__26050.2223427922$1544669506$gmane$org@redhat.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <20181212.110829.1327856253463467975.davem@davemloft.net>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -18,41 +15,37 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: David Miller <davem@davemloft.net>
-Cc: kvm@vger.kernel.org, mst@redhat.com, netdev@vger.kernel.org, virtualization@lists.linux-foundation.org, stefanha@redhat.com
+To: mst@redhat.com, jasowang@redhat.com, kvm@vger.kernel.org, virtualization@lists.linux-foundation.org, netdev@vger.kernel.org, linux-kernel@vger.kernel.org
 List-Id: virtualization@lists.linuxfoundation.org
 
-On 2018/12/13 3:08, David Miller wrote:
-> From: jiangyiwen <jiangyiwen@huawei.com>
-> Date: Wed, 12 Dec 2018 17:28:16 +0800
-> 
->> +static int fill_mergeable_rx_buff(struct virtio_vsock *vsock,
->> +		struct virtqueue *vq)
->> +{
->> +	struct page_frag *alloc_frag = &vsock->alloc_frag;
->> +	struct scatterlist sg;
->> +	/* Currently we don't use ewma len, use PAGE_SIZE instead, because too
->> +	 * small size can't fill one full packet, sadly we only 128 vq num now.
->> +	 */
->> +	unsigned int len = PAGE_SIZE, hole;
->> +	void *buf;
->> +	int err;
-> 
-> Please don't break up a set of local variable declarations with a
-> comment like this.  The comment seems to be about the initialization
-> of 'len', so move that initialization into the code below the variable
-> declarations and bring the comment along for the ride as well.
-> 
-> .
-> 
+Hi:
 
-Hi David,
+This series tries to fix various issues of vhost:
 
-Thanks your suggestions, if maintainers approve use this series of
-patches other than "vsock over virtio-net" idea, I will send to next
-version and fix it. Otherwise, I hope it can give maintainers the
-motivation that aggregate the vsock(virtio_transport related) and
-virtio-net.
+- Patch 1 adds a missing write barrier between used idx updating and
+  logging.
+- Patch 2-3 brings back the protection of device IOTLB through vq
+  mutex, this fixes possible use after free in device IOTLB entries.
 
-Thanks,
-Yiwen.
+Please consider them for -stable.
+
+Thanks
+
+Changes from V2:
+- drop dirty page fix and make it for net-next
+Changes from V1:
+- silent compiler warning for 32bit.
+- use mutex_trylock() on slowpath instead of mutex_lock() even on fast
+  path.
+
+Jason Wang (3):
+  vhost: make sure used idx is seen before log in vhost_add_used_n()
+  vhost_net: switch to use mutex_trylock() in vhost_net_busy_poll()
+  Revert "net: vhost: lock the vqs one by one"
+
+ drivers/vhost/net.c   |  8 +++++++-
+ drivers/vhost/vhost.c | 23 +++++++++++++++++++----
+ 2 files changed, 26 insertions(+), 5 deletions(-)
+
+-- 
+2.17.1
