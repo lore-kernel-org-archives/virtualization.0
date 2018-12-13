@@ -1,15 +1,16 @@
-From: "Michael S. Tsirkin" <mst@redhat.com>
-Subject: Re: [PATCH] vhost: return EINVAL if iovecs size does not match the
-	message size
-Date: Thu, 13 Dec 2018 14:55:17 -0500
-Message-ID: <20181213143426-mutt-send-email-mst__12586.1729532064$1544730811$gmane$org@kernel.org>
-References: <20181213145350.5454-1-ptikhomirov@virtuozzo.com>
+From: Sergei Shtylyov <sergei.shtylyov@cogentembedded.com>
+Subject: Re: [PATCH] vhost: correct the related warning message
+Date: Thu, 13 Dec 2018 23:06:22 +0300
+Message-ID: <0ec9a927-ab49-c754-f78f-7f31561726f1__14403.7129045048$1544731487$gmane$org@cogentembedded.com>
+References: <5C11B176.4040704@huawei.com>
+	<7c1a2b4c-670f-2be8-88e1-7485237029f6@cogentembedded.com>
+	<20181213102024-mutt-send-email-mst@kernel.org>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-Content-Disposition: inline
-In-Reply-To: <20181213145350.5454-1-ptikhomirov@virtuozzo.com>
+In-Reply-To: <20181213102024-mutt-send-email-mst@kernel.org>
+Content-Language: en-MW
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -19,79 +20,30 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Pavel Tikhomirov <ptikhomirov@virtuozzo.com>
-Cc: kvm@vger.kernel.org, netdev@vger.kernel.org, linux-kernel@vger.kernel.org, virtualization@lists.linux-foundation.org, Konstantin Khorenko <khorenko@virtuozzo.com>
+To: "Michael S. Tsirkin" <mst@redhat.com>
+Cc: kvm@vger.kernel.org, netdev@vger.kernel.org, virtualization@lists.linux-foundation.org, piaojun <piaojun@huawei.com>, viro@zeniv.linux.org.uk, hch@lst.de, wangyan <wangyan122@huawei.com>
 List-Id: virtualization@lists.linuxfoundation.org
 
-On Thu, Dec 13, 2018 at 05:53:50PM +0300, Pavel Tikhomirov wrote:
-> We've failed to copy and process vhost_iotlb_msg so let userspace at
-> least know about it. For instance before these patch the code below runs
-> without any error:
-> 
-> int main()
-> {
->   struct vhost_msg msg;
->   struct iovec iov;
->   int fd;
-> 
->   fd = open("/dev/vhost-net", O_RDWR);
->   if (fd == -1) {
->     perror("open");
->     return 1;
->   }
-> 
->   iov.iov_base = &msg;
->   iov.iov_len = sizeof(msg)-4;
-> 
->   if (writev(fd, &iov,1) == -1) {
->     perror("writev");
->     return 1;
->   }
-> 
->   return 0;
-> }
-> 
-> Signed-off-by: Pavel Tikhomirov <ptikhomirov@virtuozzo.com>
+On 12/13/2018 06:21 PM, Michael S. Tsirkin wrote:
 
-Thanks for the patch!
-
-> ---
->  drivers/vhost/vhost.c | 8 ++++++--
->  1 file changed, 6 insertions(+), 2 deletions(-)
+>>> Fixes: 'commit d588cf8f618d ("target: Fix se_tpg_tfo->tf_subsys regression + remove tf_subsystem")'
+>>>         'commit cbbd26b8b1a6 ("[iov_iter] new primitives - copy_from_iter_full() and friends")'
+>>
+>> Fixes: d588cf8f618d ("target: Fix se_tpg_tfo->tf_subsys regression + remove
+>> tf_subsystem")
+>> Fixes: cbbd26b8b1a6 ("[iov_iter] new primitives - copy_from_iter_full() and
+>> friends")
+>>
+>>    But no line wrapping allowed (can't find how to turn it off in my mailer).
 > 
-> diff --git a/drivers/vhost/vhost.c b/drivers/vhost/vhost.c
-> index 3a5f81a66d34..03014224ef13 100644
-> --- a/drivers/vhost/vhost.c
-> +++ b/drivers/vhost/vhost.c
-> @@ -1024,8 +1024,10 @@ ssize_t vhost_chr_write_iter(struct vhost_dev *dev,
->  	int type, ret;
->  
->  	ret = copy_from_iter(&type, sizeof(type), from);
-> -	if (ret != sizeof(type))
-> +	if (ret != sizeof(type)) {
-> +		ret = -EINVAL;
->  		goto done;
-> +	}
->  
->  	switch (type) {
->  	case VHOST_IOTLB_MSG:
+> Well is the standard really sane if people can't find a way to
+> follow it without being forced to use a specific mailer?
 
-should this be EFAULT rather?
+   Hum, my mail looked correct, although I wasn't able to get the editor to NOT
+wrap my lines. Go figure... :-)
 
-> @@ -1044,8 +1046,10 @@ ssize_t vhost_chr_write_iter(struct vhost_dev *dev,
->  
->  	iov_iter_advance(from, offset);
->  	ret = copy_from_iter(&msg, sizeof(msg), from);
-> -	if (ret != sizeof(msg))
-> +	if (ret != sizeof(msg)) {
-> +		ret = -EINVAL;
->  		goto done;
-> +	}
->  	if (vhost_process_iotlb_msg(dev, &msg)) {
->  		ret = -EFAULT;
->  		goto done;
+>>> Signed-off-by: Yan Wang <wangyan122@huawei.com>
+>>> Reviewed-by: Jun Piao <piaojun@huawei.com>
+>> [...]
 
-This too?
-
-> -- 
-> 2.17.1
+MBR, Sergei
