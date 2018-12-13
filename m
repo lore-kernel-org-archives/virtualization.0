@@ -1,15 +1,15 @@
 From: "Michael S. Tsirkin" <mst@redhat.com>
-Subject: Re: [PATCH] vhost: correct the related warning message
-Date: Thu, 13 Dec 2018 10:21:25 -0500
-Message-ID: <20181213102024-mutt-send-email-mst__34159.2840654359$1544714389$gmane$org@kernel.org>
-References: <5C11B176.4040704@huawei.com>
-	<7c1a2b4c-670f-2be8-88e1-7485237029f6@cogentembedded.com>
+Subject: Re: [PATCH net-next 0/3] vhost: accelerate metadata access through
+	vmap()
+Date: Thu, 13 Dec 2018 10:27:09 -0500
+Message-ID: <20181213102315-mutt-send-email-mst__37423.4924711802$1544714737$gmane$org@kernel.org>
+References: <20181213101022.12475-1-jasowang@redhat.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
 Content-Disposition: inline
-In-Reply-To: <7c1a2b4c-670f-2be8-88e1-7485237029f6@cogentembedded.com>
+In-Reply-To: <20181213101022.12475-1-jasowang@redhat.com>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -19,29 +19,38 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Sergei Shtylyov <sergei.shtylyov@cogentembedded.com>
-Cc: kvm@vger.kernel.org, netdev@vger.kernel.org, virtualization@lists.linux-foundation.org, piaojun <piaojun@huawei.com>, viro@zeniv.linux.org.uk, hch@lst.de, wangyan <wangyan122@huawei.com>
+To: Jason Wang <jasowang@redhat.com>
+Cc: netdev@vger.kernel.org, linux-kernel@vger.kernel.org, kvm@vger.kernel.org, virtualization@lists.linux-foundation.org
 List-Id: virtualization@lists.linuxfoundation.org
 
-On Thu, Dec 13, 2018 at 12:05:31PM +0300, Sergei Shtylyov wrote:
-> On 13.12.2018 4:10, wangyan wrote:
+On Thu, Dec 13, 2018 at 06:10:19PM +0800, Jason Wang wrote:
+> Hi:
 > 
-> > Fixes: 'commit d588cf8f618d ("target: Fix se_tpg_tfo->tf_subsys regression + remove tf_subsystem")'
-> >         'commit cbbd26b8b1a6 ("[iov_iter] new primitives - copy_from_iter_full() and friends")'
-> 
-> Fixes: d588cf8f618d ("target: Fix se_tpg_tfo->tf_subsys regression + remove
-> tf_subsystem")
-> Fixes: cbbd26b8b1a6 ("[iov_iter] new primitives - copy_from_iter_full() and
-> friends")
-> 
->    But no line wrapping allowed (can't find how to turn it off in my mailer).
+> This series tries to access virtqueue metadata through kernel virtual
+> address instead of copy_user() friends since they had too much
+> overheads like checks, spec barriers or even hardware feature
+> toggling.
 
-Well is the standard really sane if people can't find a way to
-follow it without being forced to use a specific mailer?
+Userspace accesses through remapping tricks and next time there's a need
+for a new barrier we are left to figure it out by ourselves.  I don't
+like the idea I have to say.  As a first step, why don't we switch to
+unsafe_put_user/unsafe_get_user etc?
+That would be more of an apples to apples comparison, would it not?
 
 
-> > Signed-off-by: Yan Wang <wangyan122@huawei.com>
-> > Reviewed-by: Jun Piao <piaojun@huawei.com>
-> [...]
+> Test shows about 24% improvement on TX PPS. It should benefit other
+> cases as well.
 > 
-> MBR, Sergei
+> Please review
+> 
+> Jason Wang (3):
+>   vhost: generalize adding used elem
+>   vhost: fine grain userspace memory accessors
+>   vhost: access vq metadata through kernel virtual address
+> 
+>  drivers/vhost/vhost.c | 281 ++++++++++++++++++++++++++++++++++++++----
+>  drivers/vhost/vhost.h |  11 ++
+>  2 files changed, 266 insertions(+), 26 deletions(-)
+> 
+> -- 
+> 2.17.1
