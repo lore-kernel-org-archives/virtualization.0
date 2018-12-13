@@ -1,12 +1,12 @@
 From: Stefan Hajnoczi <stefanha@redhat.com>
-Subject: Re: [PATCH v2 3/5] VSOCK: support receive mergeable rx buffer in guest
-Date: Thu, 13 Dec 2018 16:20:39 +0000
-Message-ID: <20181213162039.GO23318__42633.4394760945$1544717955$gmane$org@stefanha-x1.localdomain>
-References: <5C10D57B.3070701@huawei.com>
+Subject: Re: [PATCH v2 0/5] VSOCK: support mergeable rx buffer in vhost-vsock
+Date: Thu, 13 Dec 2018 16:34:09 +0000
+Message-ID: <20181213163409.GP23318__11148.9121373326$1544718749$gmane$org@stefanha-x1.localdomain>
+References: <5C10D41E.9050002@huawei.com>
 Mime-Version: 1.0
-Content-Type: multipart/mixed; boundary="===============0067787603986029446=="
+Content-Type: multipart/mixed; boundary="===============0717978203434390315=="
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <5C10D57B.3070701@huawei.com>
+In-Reply-To: <5C10D41E.9050002@huawei.com>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -21,82 +21,61 @@ Cc: netdev@vger.kernel.org, virtualization@lists.linux-foundation.org, kvm@vger.
 List-Id: virtualization@lists.linuxfoundation.org
 
 
---===============0067787603986029446==
+--===============0717978203434390315==
 Content-Type: multipart/signed; micalg=pgp-sha1;
-	protocol="application/pgp-signature"; boundary="kVcb4xucqmsYUpQy"
+	protocol="application/pgp-signature"; boundary="jh06fhy6YTawvwPV"
 Content-Disposition: inline
 
 
---kVcb4xucqmsYUpQy
+--jh06fhy6YTawvwPV
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
 
-On Wed, Dec 12, 2018 at 05:31:39PM +0800, jiangyiwen wrote:
-> +static struct virtio_vsock_pkt *receive_mergeable(struct virtqueue *vq,
-> +		struct virtio_vsock *vsock, unsigned int *total_len)
-> +{
-> +	struct virtio_vsock_pkt *pkt;
-> +	u16 num_buf;
-> +	void *buf;
-> +	unsigned int len;
-> +	size_t vsock_hlen = sizeof(struct virtio_vsock_pkt);
-> +
-> +	buf = virtqueue_get_buf(vq, &len);
-> +	if (!buf)
-> +		return NULL;
-> +
-> +	*total_len = len;
-> +	vsock->rx_buf_nr--;
-> +
-> +	if (unlikely(len < vsock_hlen)) {
-> +		put_page(virt_to_head_page(buf));
-> +		return NULL;
-> +	}
-> +
-> +	pkt = buf;
-> +	num_buf = le16_to_cpu(pkt->mrg_rxbuf_hdr.num_buffers);
-> +	if (!num_buf || num_buf > VIRTIO_VSOCK_MAX_VEC_NUM) {
-> +		put_page(virt_to_head_page(buf));
-> +		return NULL;
-> +	}
-> +
-> +	/* Initialize pkt residual structure */
-> +	memset(&pkt->work, 0, vsock_hlen - sizeof(struct virtio_vsock_hdr) -
-> +			sizeof(struct virtio_vsock_mrg_rxbuf_hdr));
+On Wed, Dec 12, 2018 at 05:25:50PM +0800, jiangyiwen wrote:
+> Now vsock only support send/receive small packet, it can't achieve
+> high performance. As previous discussed with Jason Wang, I revisit the
+> idea of vhost-net about mergeable rx buffer and implement the mergeable
+> rx buffer in vhost-vsock, it can allow big packet to be scattered in
+> into different buffers and improve performance obviously.
 
-struct virtio_vsock_pkt is an internal driver state structure.  It must
-be able to change without breaking the host<->guest device interface.
-Exposing struct virtio_vsock_pkt across the device interface makes this
-impossible.
+Sorry, I've been a bad maintainer.  I was focussed on other projects and
+my email backlog is huge.
 
-One way to solve this is by placing a header length field at the
-beginning of the mergeable buffer.  That way the device knows at which
-offset the payload should be placed and the driver can continue to use
-the allocation scheme you've chosen (where a single page contains the
-virtio_vsock_pkt and payload).
+I like the idea of trying out optimizations on virtio-vsock, seeing if
+code can be shared with virtio-net, and maybe later switching to a
+virtio-net transport for vsock (if it turns out enough code can be
+shared).
 
-Another issue is that virtio requires exclusive read OR write
-descriptors.  You cannot have a descriptor that is both read and write.
-So there's not a huge advantage to combining the driver state struct and
-payload, except maybe the driver can save a memory allocation.
+Another optimization that could be interesting:
 
---kVcb4xucqmsYUpQy
+Userspace processes reading from a socket sleep in
+vsock_stream_recvmsg().  I wonder if we can bypass struct
+virtio_vsock_pkt and copying the payload into pkt->buf in this case.
+(This doesn't improve poll(2)/select(2) though!)
+
+Imagine a userspace process waiting for data on a socket.  When the
+virtqueue becomes ready, we can read in struct virtio_vsock_hdr and find
+the socket for that connection.  Then we could copy the payload directly
+to userspace instead of creating a virtio_vsock_pkt and copying to
+pkt->buf first.
+
+--jh06fhy6YTawvwPV
 Content-Type: application/pgp-signature; name="signature.asc"
 
 -----BEGIN PGP SIGNATURE-----
 
-iQEcBAEBAgAGBQJcEobXAAoJEJykq7OBq3PI660H/RJ9tmBPtcwl+HbLBQyjsPbD
-s317Z9KyloXntFplY+l8JZDvLq0gI37OPQqY/pCB1azWx3Xq6pYPVAamzHBlA6By
-mB5fve63gdI+Ap6x3uPGoHOBBOmLMg7tlXAwl9exAr7rY4LPqBpAPkKlwc16ISdM
-oylxoFnyEPCoTu5QyExydzHbsS88SGBZghbXj5o3R1yPplAj9FINrtfTo/KvH28f
-4R67qe0apklPW14bUq/U4B4xOQFM2MoD8wEMnpEXtLGzFYXNmBgnnyw4zKHaZwT2
-6EY5NwIZdgXNFLZiu4221BEz0QtMDPsQdXo76wYMzcUBL+0zwaiaPEr/h39wNBk=
-=xJVy
+iQEcBAEBAgAGBQJcEooBAAoJEJykq7OBq3PIaXUIAI48B+t2OflKjd3yyXnpqLGe
+eqF4+CqWlABqp8CYGnfv7iWX10CvufUf1CXcrRYG3VTdv0dcIcoxkEGR4OTf6StB
+tYdm3Gp26EpSVBxZTtWnyRyMtg2au0aLIIv7zbFLJPHLOhwNAQWxcnF9WZ8tjByd
+AVDi9tLvn/Ad9Q1MDdESuZ4kegmXz9nqOE5VsGpqd96sKhvmcpPr3vGQKDX/vGOl
+4D+n11aNkM/z2xhYzrrl8thHVW/MvVwSFqiWisnGxKnDvh6P+cZ5G/wzdKHRiHKQ
+JDZsOnCTtQND4QngyEvDgWWpTHkVEp6Q7fIcLVzufzpqIZ7YqQ0zwy7P/2TlDAI=
+=Cwvm
 -----END PGP SIGNATURE-----
 
---kVcb4xucqmsYUpQy--
+--jh06fhy6YTawvwPV--
 
---===============0067787603986029446==
+--===============0717978203434390315==
 Content-Type: text/plain; charset="us-ascii"
 MIME-Version: 1.0
 Content-Transfer-Encoding: 7bit
@@ -106,4 +85,4 @@ _______________________________________________
 Virtualization mailing list
 Virtualization@lists.linux-foundation.org
 https://lists.linuxfoundation.org/mailman/listinfo/virtualization
---===============0067787603986029446==--
+--===============0717978203434390315==--
