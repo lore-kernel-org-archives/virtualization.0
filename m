@@ -1,8 +1,8 @@
 From: Jason Wang <jasowang@redhat.com>
-Subject: [PATCH net V3 1/3] vhost: make sure used idx is seen before log in
-	vhost_add_used_n()
-Date: Thu, 13 Dec 2018 10:53:37 +0800
-Message-ID: <20181213025339.14023-2-jasowang__4636.57084987989$1544669518$gmane$org@redhat.com>
+Subject: [PATCH net V3 2/3] vhost_net: switch to use mutex_trylock() in
+	vhost_net_busy_poll()
+Date: Thu, 13 Dec 2018 10:53:38 +0800
+Message-ID: <20181213025339.14023-3-jasowang__4269.85171293399$1544669519$gmane$org@redhat.com>
 References: <20181213025339.14023-1-jasowang@redhat.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
@@ -21,29 +21,42 @@ Errors-To: virtualization-bounces@lists.linux-foundation.org
 To: mst@redhat.com, jasowang@redhat.com, kvm@vger.kernel.org, virtualization@lists.linux-foundation.org, netdev@vger.kernel.org, linux-kernel@vger.kernel.org
 List-Id: virtualization@lists.linuxfoundation.org
 
-We miss a write barrier that guarantees used idx is updated and seen
-before log. This will let userspace sync and copy used ring before
-used idx is update. Fix this by adding a barrier before log_write().
+We used to hold the mutex of paired virtqueue in
+vhost_net_busy_poll(). But this will results an inconsistent lock
+order which may cause deadlock if we try to bring back the protection
+of device IOTLB with vq mutex that requires to hold mutex of all
+virtqueues at the same time.
 
-Fixes: 8dd014adfea6f ("vhost-net: mergeable buffers support")
+Fix this simply by switching to use mutex_trylock(), when fail just
+skip the busy polling. This can happen when device IOTLB is under
+updating which should be rare.
+
+Fixes: commit 78139c94dc8c ("net: vhost: lock the vqs one by one")
+Cc: Tonghao Zhang <xiangxia.m.yue@gmail.com>
 Acked-by: Michael S. Tsirkin <mst@redhat.com>
 Signed-off-by: Jason Wang <jasowang@redhat.com>
 ---
- drivers/vhost/vhost.c | 2 ++
- 1 file changed, 2 insertions(+)
+ drivers/vhost/net.c | 8 +++++++-
+ 1 file changed, 7 insertions(+), 1 deletion(-)
 
-diff --git a/drivers/vhost/vhost.c b/drivers/vhost/vhost.c
-index 6b98d8e3a5bf..5915f240275a 100644
---- a/drivers/vhost/vhost.c
-+++ b/drivers/vhost/vhost.c
-@@ -2220,6 +2220,8 @@ int vhost_add_used_n(struct vhost_virtqueue *vq, struct vring_used_elem *heads,
- 		return -EFAULT;
- 	}
- 	if (unlikely(vq->log_used)) {
-+		/* Make sure used idx is seen before log. */
-+		smp_wmb();
- 		/* Log used index update. */
- 		log_write(vq->log_base,
- 			  vq->log_addr + offsetof(struct vring_used, idx),
+diff --git a/drivers/vhost/net.c b/drivers/vhost/net.c
+index ab11b2bee273..ad7a6f475a44 100644
+--- a/drivers/vhost/net.c
++++ b/drivers/vhost/net.c
+@@ -513,7 +513,13 @@ static void vhost_net_busy_poll(struct vhost_net *net,
+ 	struct socket *sock;
+ 	struct vhost_virtqueue *vq = poll_rx ? tvq : rvq;
+ 
+-	mutex_lock_nested(&vq->mutex, poll_rx ? VHOST_NET_VQ_TX: VHOST_NET_VQ_RX);
++	/* Try to hold the vq mutex of the paired virtqueue. We can't
++	 * use mutex_lock() here since we could not guarantee a
++	 * consistenet lock ordering.
++	 */
++	if (!mutex_trylock(&vq->mutex))
++		return;
++
+ 	vhost_disable_notify(&net->dev, vq);
+ 	sock = rvq->private_data;
+ 
 -- 
 2.17.1
