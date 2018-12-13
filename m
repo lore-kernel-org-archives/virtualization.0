@@ -1,11 +1,22 @@
-From: Gerd Hoffmann <kraxel@redhat.com>
-Subject: [PATCH] drm/virtio: switch to generic fbdev emulation
-Date: Thu, 13 Dec 2018 14:49:15 +0100
-Message-ID: <20181213134915.24722-1-kraxel__6686.36539853669$1544708836$gmane$org@redhat.com>
+From: Auger Eric <eric.auger@redhat.com>
+Subject: Re: [virtio-dev] Re: [PATCH v5 5/7] iommu: Add virtio-iommu driver
+Date: Thu, 13 Dec 2018 15:13:25 +0100
+Message-ID: <0898cdc9-b3d7-6f04-f026-94dbd0869420__35810.0514197305$1544710306$gmane$org@redhat.com>
+References: <20181122193801.50510-1-jean-philippe.brucker@arm.com>
+	<20181122193801.50510-6-jean-philippe.brucker@arm.com>
+	<20181123165206-mutt-send-email-mst@kernel.org>
+	<e76a51ba-7a0f-3fca-a1ae-640131f9dfe1@arm.com>
+	<20181127130527-mutt-send-email-mst@kernel.org>
+	<e1dde79c-0bc4-ea99-1bb0-9e70b56955fb@arm.com>
+	<20181212093709-mutt-send-email-mst@kernel.org>
+	<eb267a7c-a881-afd9-9ce2-bcdc317d16d7@redhat.com>
+	<1494c026-a763-6c77-2476-a3373c21ae6f@arm.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset="utf-8"
+Content-Transfer-Encoding: base64
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
+In-Reply-To: <1494c026-a763-6c77-2476-a3373c21ae6f@arm.com>
+Content-Language: en-US
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -15,330 +26,228 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: dri-devel@lists.freedesktop.org
-Cc: David Airlie <airlied@linux.ie>, open list <linux-kernel@vger.kernel.org>, "open list:VIRTIO GPU DRIVER" <virtualization@lists.linux-foundation.org>
+To: Robin Murphy <robin.murphy@arm.com>, "Michael S. Tsirkin" <mst@redhat.com>, Jean-Philippe Brucker <jean-philippe.brucker@arm.com>
+Cc: mark.rutland@arm.com, virtio-dev@lists.oasis-open.org, lorenzo.pieralisi@arm.com, tnowicki@caviumnetworks.com, devicetree@vger.kernel.org, marc.zyngier@arm.com, linux-pci@vger.kernel.org, joro@8bytes.org, will.deacon@arm.com, virtualization@lists.linux-foundation.org, iommu@lists.linux-foundation.org, robh+dt@kernel.org, bhelgaas@google.com, kvmarm@lists.cs.columbia.edu
 List-Id: virtualization@lists.linuxfoundation.org
 
-Signed-off-by: Gerd Hoffmann <kraxel@redhat.com>
----
- drivers/gpu/drm/virtio/virtgpu_drv.h     |  14 ---
- drivers/gpu/drm/virtio/virtgpu_display.c |   1 -
- drivers/gpu/drm/virtio/virtgpu_drv.c     |   9 +-
- drivers/gpu/drm/virtio/virtgpu_fb.c      | 191 -------------------------------
- drivers/gpu/drm/virtio/virtgpu_kms.c     |   8 --
- 5 files changed, 8 insertions(+), 215 deletions(-)
-
-diff --git a/drivers/gpu/drm/virtio/virtgpu_drv.h b/drivers/gpu/drm/virtio/virtgpu_drv.h
-index 1deb41d42e..63704915f8 100644
---- a/drivers/gpu/drm/virtio/virtgpu_drv.h
-+++ b/drivers/gpu/drm/virtio/virtgpu_drv.h
-@@ -137,19 +137,10 @@ struct virtio_gpu_framebuffer {
- #define to_virtio_gpu_framebuffer(x) \
- 	container_of(x, struct virtio_gpu_framebuffer, base)
- 
--struct virtio_gpu_fbdev {
--	struct drm_fb_helper           helper;
--	struct virtio_gpu_framebuffer  vgfb;
--	struct virtio_gpu_device       *vgdev;
--	struct delayed_work            work;
--};
--
- struct virtio_gpu_mman {
- 	struct ttm_bo_device		bdev;
- };
- 
--struct virtio_gpu_fbdev;
--
- struct virtio_gpu_queue {
- 	struct virtqueue *vq;
- 	spinlock_t qlock;
-@@ -180,8 +171,6 @@ struct virtio_gpu_device {
- 
- 	struct virtio_gpu_mman mman;
- 
--	/* pointer to fbdev info structure */
--	struct virtio_gpu_fbdev *vgfbdev;
- 	struct virtio_gpu_output outputs[VIRTIO_GPU_MAX_SCANOUTS];
- 	uint32_t num_scanouts;
- 
-@@ -249,9 +238,6 @@ int virtio_gpu_mode_dumb_mmap(struct drm_file *file_priv,
- 			      uint32_t handle, uint64_t *offset_p);
- 
- /* virtio_fb */
--#define VIRTIO_GPUFB_CONN_LIMIT 1
--int virtio_gpu_fbdev_init(struct virtio_gpu_device *vgdev);
--void virtio_gpu_fbdev_fini(struct virtio_gpu_device *vgdev);
- int virtio_gpu_surface_dirty(struct virtio_gpu_framebuffer *qfb,
- 			     struct drm_clip_rect *clips,
- 			     unsigned int num_clips);
-diff --git a/drivers/gpu/drm/virtio/virtgpu_display.c b/drivers/gpu/drm/virtio/virtgpu_display.c
-index b5580b11a0..e1c223e18d 100644
---- a/drivers/gpu/drm/virtio/virtgpu_display.c
-+++ b/drivers/gpu/drm/virtio/virtgpu_display.c
-@@ -390,6 +390,5 @@ void virtio_gpu_modeset_fini(struct virtio_gpu_device *vgdev)
- 
- 	for (i = 0 ; i < vgdev->num_scanouts; ++i)
- 		kfree(vgdev->outputs[i].edid);
--	virtio_gpu_fbdev_fini(vgdev);
- 	drm_mode_config_cleanup(vgdev->ddev);
- }
-diff --git a/drivers/gpu/drm/virtio/virtgpu_drv.c b/drivers/gpu/drm/virtio/virtgpu_drv.c
-index f7f32a885a..7df50920c1 100644
---- a/drivers/gpu/drm/virtio/virtgpu_drv.c
-+++ b/drivers/gpu/drm/virtio/virtgpu_drv.c
-@@ -42,13 +42,20 @@ module_param_named(modeset, virtio_gpu_modeset, int, 0400);
- 
- static int virtio_gpu_probe(struct virtio_device *vdev)
- {
-+	int ret;
-+
- 	if (vgacon_text_force() && virtio_gpu_modeset == -1)
- 		return -EINVAL;
- 
- 	if (virtio_gpu_modeset == 0)
- 		return -EINVAL;
- 
--	return drm_virtio_init(&driver, vdev);
-+	ret = drm_virtio_init(&driver, vdev);
-+	if (ret)
-+		return ret;
-+
-+	drm_fbdev_generic_setup(vdev->priv, 32);
-+	return 0;
- }
- 
- static void virtio_gpu_remove(struct virtio_device *vdev)
-diff --git a/drivers/gpu/drm/virtio/virtgpu_fb.c b/drivers/gpu/drm/virtio/virtgpu_fb.c
-index fb1cc8b2f1..b07584b1c2 100644
---- a/drivers/gpu/drm/virtio/virtgpu_fb.c
-+++ b/drivers/gpu/drm/virtio/virtgpu_fb.c
-@@ -27,8 +27,6 @@
- #include <drm/drm_fb_helper.h>
- #include "virtgpu_drv.h"
- 
--#define VIRTIO_GPU_FBCON_POLL_PERIOD (HZ / 60)
--
- static int virtio_gpu_dirty_update(struct virtio_gpu_framebuffer *fb,
- 				   bool store, int x, int y,
- 				   int width, int height)
-@@ -150,192 +148,3 @@ int virtio_gpu_surface_dirty(struct virtio_gpu_framebuffer *vgfb,
- 				      left, top, right - left, bottom - top);
- 	return 0;
- }
--
--static void virtio_gpu_fb_dirty_work(struct work_struct *work)
--{
--	struct delayed_work *delayed_work = to_delayed_work(work);
--	struct virtio_gpu_fbdev *vfbdev =
--		container_of(delayed_work, struct virtio_gpu_fbdev, work);
--	struct virtio_gpu_framebuffer *vgfb = &vfbdev->vgfb;
--
--	virtio_gpu_dirty_update(&vfbdev->vgfb, false, vgfb->x1, vgfb->y1,
--				vgfb->x2 - vgfb->x1, vgfb->y2 - vgfb->y1);
--}
--
--static void virtio_gpu_3d_fillrect(struct fb_info *info,
--				   const struct fb_fillrect *rect)
--{
--	struct virtio_gpu_fbdev *vfbdev = info->par;
--
--	drm_fb_helper_sys_fillrect(info, rect);
--	virtio_gpu_dirty_update(&vfbdev->vgfb, true, rect->dx, rect->dy,
--			     rect->width, rect->height);
--	schedule_delayed_work(&vfbdev->work, VIRTIO_GPU_FBCON_POLL_PERIOD);
--}
--
--static void virtio_gpu_3d_copyarea(struct fb_info *info,
--				   const struct fb_copyarea *area)
--{
--	struct virtio_gpu_fbdev *vfbdev = info->par;
--
--	drm_fb_helper_sys_copyarea(info, area);
--	virtio_gpu_dirty_update(&vfbdev->vgfb, true, area->dx, area->dy,
--			   area->width, area->height);
--	schedule_delayed_work(&vfbdev->work, VIRTIO_GPU_FBCON_POLL_PERIOD);
--}
--
--static void virtio_gpu_3d_imageblit(struct fb_info *info,
--				    const struct fb_image *image)
--{
--	struct virtio_gpu_fbdev *vfbdev = info->par;
--
--	drm_fb_helper_sys_imageblit(info, image);
--	virtio_gpu_dirty_update(&vfbdev->vgfb, true, image->dx, image->dy,
--			     image->width, image->height);
--	schedule_delayed_work(&vfbdev->work, VIRTIO_GPU_FBCON_POLL_PERIOD);
--}
--
--static struct fb_ops virtio_gpufb_ops = {
--	.owner = THIS_MODULE,
--	DRM_FB_HELPER_DEFAULT_OPS,
--	.fb_fillrect = virtio_gpu_3d_fillrect,
--	.fb_copyarea = virtio_gpu_3d_copyarea,
--	.fb_imageblit = virtio_gpu_3d_imageblit,
--};
--
--static int virtio_gpufb_create(struct drm_fb_helper *helper,
--			       struct drm_fb_helper_surface_size *sizes)
--{
--	struct virtio_gpu_fbdev *vfbdev =
--		container_of(helper, struct virtio_gpu_fbdev, helper);
--	struct drm_device *dev = helper->dev;
--	struct virtio_gpu_device *vgdev = dev->dev_private;
--	struct fb_info *info;
--	struct drm_framebuffer *fb;
--	struct drm_mode_fb_cmd2 mode_cmd = {};
--	struct virtio_gpu_object *obj;
--	uint32_t format, size;
--	int ret;
--
--	mode_cmd.width = sizes->surface_width;
--	mode_cmd.height = sizes->surface_height;
--	mode_cmd.pitches[0] = mode_cmd.width * 4;
--	mode_cmd.pixel_format = DRM_FORMAT_HOST_XRGB8888;
--
--	format = virtio_gpu_translate_format(mode_cmd.pixel_format);
--	if (format == 0)
--		return -EINVAL;
--
--	size = mode_cmd.pitches[0] * mode_cmd.height;
--	obj = virtio_gpu_alloc_object(dev, size, false, true);
--	if (IS_ERR(obj))
--		return PTR_ERR(obj);
--
--	virtio_gpu_cmd_create_resource(vgdev, obj, format,
--				       mode_cmd.width, mode_cmd.height);
--
--	ret = virtio_gpu_object_kmap(obj);
--	if (ret) {
--		DRM_ERROR("failed to kmap fb %d\n", ret);
--		goto err_obj_vmap;
--	}
--
--	/* attach the object to the resource */
--	ret = virtio_gpu_object_attach(vgdev, obj, NULL);
--	if (ret)
--		goto err_obj_attach;
--
--	info = drm_fb_helper_alloc_fbi(helper);
--	if (IS_ERR(info)) {
--		ret = PTR_ERR(info);
--		goto err_fb_alloc;
--	}
--
--	info->par = helper;
--
--	ret = virtio_gpu_framebuffer_init(dev, &vfbdev->vgfb,
--					  &mode_cmd, &obj->gem_base);
--	if (ret)
--		goto err_fb_alloc;
--
--	fb = &vfbdev->vgfb.base;
--
--	vfbdev->helper.fb = fb;
--
--	strcpy(info->fix.id, "virtiodrmfb");
--	info->fbops = &virtio_gpufb_ops;
--	info->pixmap.flags = FB_PIXMAP_SYSTEM;
--
--	info->screen_buffer = obj->vmap;
--	info->screen_size = obj->gem_base.size;
--	drm_fb_helper_fill_fix(info, fb->pitches[0], fb->format->depth);
--	drm_fb_helper_fill_var(info, &vfbdev->helper,
--			       sizes->fb_width, sizes->fb_height);
--
--	info->fix.mmio_start = 0;
--	info->fix.mmio_len = 0;
--	return 0;
--
--err_fb_alloc:
--	virtio_gpu_object_detach(vgdev, obj);
--err_obj_attach:
--err_obj_vmap:
--	virtio_gpu_gem_free_object(&obj->gem_base);
--	return ret;
--}
--
--static int virtio_gpu_fbdev_destroy(struct drm_device *dev,
--				    struct virtio_gpu_fbdev *vgfbdev)
--{
--	struct virtio_gpu_framebuffer *vgfb = &vgfbdev->vgfb;
--
--	drm_fb_helper_unregister_fbi(&vgfbdev->helper);
--
--	if (vgfb->base.obj[0])
--		vgfb->base.obj[0] = NULL;
--	drm_fb_helper_fini(&vgfbdev->helper);
--	drm_framebuffer_cleanup(&vgfb->base);
--
--	return 0;
--}
--static const struct drm_fb_helper_funcs virtio_gpu_fb_helper_funcs = {
--	.fb_probe = virtio_gpufb_create,
--};
--
--int virtio_gpu_fbdev_init(struct virtio_gpu_device *vgdev)
--{
--	struct virtio_gpu_fbdev *vgfbdev;
--	int bpp_sel = 32; /* TODO: parameter from somewhere? */
--	int ret;
--
--	vgfbdev = kzalloc(sizeof(struct virtio_gpu_fbdev), GFP_KERNEL);
--	if (!vgfbdev)
--		return -ENOMEM;
--
--	vgfbdev->vgdev = vgdev;
--	vgdev->vgfbdev = vgfbdev;
--	INIT_DELAYED_WORK(&vgfbdev->work, virtio_gpu_fb_dirty_work);
--
--	drm_fb_helper_prepare(vgdev->ddev, &vgfbdev->helper,
--			      &virtio_gpu_fb_helper_funcs);
--	ret = drm_fb_helper_init(vgdev->ddev, &vgfbdev->helper,
--				 VIRTIO_GPUFB_CONN_LIMIT);
--	if (ret) {
--		kfree(vgfbdev);
--		return ret;
--	}
--
--	drm_fb_helper_single_add_all_connectors(&vgfbdev->helper);
--	drm_fb_helper_initial_config(&vgfbdev->helper, bpp_sel);
--	return 0;
--}
--
--void virtio_gpu_fbdev_fini(struct virtio_gpu_device *vgdev)
--{
--	if (!vgdev->vgfbdev)
--		return;
--
--	virtio_gpu_fbdev_destroy(vgdev->ddev, vgdev->vgfbdev);
--	kfree(vgdev->vgfbdev);
--	vgdev->vgfbdev = NULL;
--}
-diff --git a/drivers/gpu/drm/virtio/virtgpu_kms.c b/drivers/gpu/drm/virtio/virtgpu_kms.c
-index 3af6181c05..1072064a0d 100644
---- a/drivers/gpu/drm/virtio/virtgpu_kms.c
-+++ b/drivers/gpu/drm/virtio/virtgpu_kms.c
-@@ -28,11 +28,6 @@
- #include <drm/drmP.h>
- #include "virtgpu_drv.h"
- 
--static int virtio_gpu_fbdev = 1;
--
--MODULE_PARM_DESC(fbdev, "Disable/Enable framebuffer device & console");
--module_param_named(fbdev, virtio_gpu_fbdev, int, 0400);
--
- static void virtio_gpu_config_changed_work_func(struct work_struct *work)
- {
- 	struct virtio_gpu_device *vgdev =
-@@ -212,9 +207,6 @@ int virtio_gpu_driver_load(struct drm_device *dev, unsigned long flags)
- 	virtio_gpu_cmd_get_display_info(vgdev);
- 	wait_event_timeout(vgdev->resp_wq, !vgdev->display_info_pending,
- 			   5 * HZ);
--	if (virtio_gpu_fbdev)
--		virtio_gpu_fbdev_init(vgdev);
--
- 	return 0;
- 
- err_modeset:
--- 
-2.9.3
+SGkgUm9iaW4KCk9uIDEyLzEzLzE4IDE6MzcgUE0sIFJvYmluIE11cnBoeSB3cm90ZToKPiBPbiAy
+MDE4LTEyLTEyIDM6MjcgcG0sIEF1Z2VyIEVyaWMgd3JvdGU6Cj4+IEhpLAo+Pgo+PiBPbiAxMi8x
+Mi8xOCAzOjU2IFBNLCBNaWNoYWVsIFMuIFRzaXJraW4gd3JvdGU6Cj4+PiBPbiBGcmksIERlYyAw
+NywgMjAxOCBhdCAwNjo1MjozMVBNICswMDAwLCBKZWFuLVBoaWxpcHBlIEJydWNrZXIgd3JvdGU6
+Cj4+Pj4gU29ycnkgZm9yIHRoZSBkZWxheSwgSSB3YW50ZWQgdG8gZG8gYSBsaXR0bGUgbW9yZSBw
+ZXJmb3JtYW5jZSBhbmFseXNpcwo+Pj4+IGJlZm9yZSBjb250aW51aW5nLgo+Pj4+Cj4+Pj4gT24g
+MjcvMTEvMjAxOCAxODoxMCwgTWljaGFlbCBTLiBUc2lya2luIHdyb3RlOgo+Pj4+PiBPbiBUdWUs
+IE5vdiAyNywgMjAxOCBhdCAwNTo1NToyMFBNICswMDAwLCBKZWFuLVBoaWxpcHBlIEJydWNrZXIg
+d3JvdGU6Cj4+Pj4+Pj4+ICvCoMKgwqAgaWYgKCF2aXJ0aW9faGFzX2ZlYXR1cmUodmRldiwgVklS
+VElPX0ZfVkVSU0lPTl8xKSB8fAo+Pj4+Pj4+PiArwqDCoMKgwqDCoMKgwqAgIXZpcnRpb19oYXNf
+ZmVhdHVyZSh2ZGV2LCBWSVJUSU9fSU9NTVVfRl9NQVBfVU5NQVApKQo+Pj4+Pj4+Cj4+Pj4+Pj4g
+V2h5IGJvdGhlciB3aXRoIGEgZmVhdHVyZSBiaXQgZm9yIHRoaXMgdGhlbiBidHc/Cj4+Pj4+Pgo+
+Pj4+Pj4gV2UnbGwgbmVlZCBhIG5ldyBmZWF0dXJlIGJpdCBmb3Igc2hhcmluZyBwYWdlIHRhYmxl
+cyB3aXRoIHRoZQo+Pj4+Pj4gaGFyZHdhcmUsCj4+Pj4+PiBiZWNhdXNlIHRoZXkgcmVxdWlyZSBk
+aWZmZXJlbnQgcmVxdWVzdHMgKGF0dGFjaF90YWJsZS9pbnZhbGlkYXRlCj4+Pj4+PiBpbnN0ZWFk
+Cj4+Pj4+PiBvZiBtYXAvdW5tYXAuKSBBIGZ1dHVyZSBkZXZpY2Ugc3VwcG9ydGluZyBwYWdlIHRh
+YmxlIHNoYXJpbmcgd29uJ3QKPj4+Pj4+IG5lY2Vzc2FyaWx5IG5lZWQgdG8gc3VwcG9ydCBtYXAv
+dW5tYXAuCj4+Pj4+Pgo+Pj4+PiBJIGRvbid0IHNlZSB2aXJ0aW8gaW9tbXUgYmVpbmcgZXh0ZW5k
+ZWQgdG8gc3VwcG9ydCBBUk0gc3BlY2lmaWMKPj4+Pj4gcmVxdWVzdHMuIFRoaXMganVzdCB3b24n
+dCBzY2FsZSwgdG9vIG1hbnkgZGlmZmVyZW50Cj4+Pj4+IGRlc2NyaXB0b3IgZm9ybWF0cyBvdXQg
+dGhlcmUuCj4+Pj4KPj4+PiBUaGV5IGFyZW4ndCByZWFsbHkgQVJNIHNwZWNpZmljIHJlcXVlc3Rz
+LiBUaGUgdHdvIG5ldyByZXF1ZXN0cyBhcmUKPj4+PiBBVFRBQ0hfVEFCTEUgYW5kIElOVkFMSURB
+VEUsIHdoaWNoIHdvdWxkIGJlIHVzZWQgYnkgeDg2IElPTU1VcyBhcyB3ZWxsLgo+Pj4+Cj4+Pj4g
+U2hhcmluZyBDUFUgYWRkcmVzcyBzcGFjZSB3aXRoIHRoZSBIVyBJT01NVSAoU1ZNKSBoYXMgYmVl
+biBpbiB0aGUgc2NvcGUKPj4+PiBvZiB2aXJ0aW8taW9tbXUgc2luY2UgdGhlIGZpcnN0IFJGQywg
+YW5kIEkndmUgYmVlbiB3b3JraW5nIHdpdGggdGhhdAo+Pj4+IGV4dGVuc2lvbiBpbiBtaW5kIHNp
+bmNlIHRoZSBiZWdpbm5pbmcuIEFzIGFuIGV4YW1wbGUgeW91IGNhbiBoYXZlIGEKPj4+PiBsb29r
+Cj4+Pj4gYXQgbXkgY3VycmVudCBkcmFmdCBmb3IgdGhpcyBbMV0sIHdoaWNoIGlzIGluc3BpcmVk
+IGZyb20gdGhlIFZGSU8gd29yawo+Pj4+IHdlJ3ZlIGJlZW4gZG9pbmcgd2l0aCBJbnRlbC4KPj4+
+Pgo+Pj4+IFRoZSBuZWdvdGlhdGlvbiBwaGFzZSBpbmV2aXRhYmx5IHJlcXVpcmVzIHZlbmRvci1z
+cGVjaWZpYyBmaWVsZHMgaW4gdGhlCj4+Pj4gZGVzY3JpcHRvcnMgLSBob3N0IHRlbGxzIHdoaWNo
+IGZvcm1hdHMgYXJlIHN1cHBvcnRlZCwgZ3Vlc3QgY2hvb3NlcyBhCj4+Pj4gZm9ybWF0IGFuZCBh
+dHRhY2hlcyBwYWdlIHRhYmxlcy4gQnV0IGludmFsaWRhdGlvbiBhbmQgZmF1bHQgcmVwb3J0aW5n
+Cj4+Pj4gZGVzY3JpcHRvcnMgYXJlIGZhaXJseSBnZW5lcmljLgo+Pj4KPj4+IFdlIG5lZWQgdG8g
+dHJlYWQgY2FyZWZ1bGx5IGhlcmUuwqAgUGVvcGxlIGV4cGVjdCBpdCB0aGF0IGlmIHVzZXIgZG9l
+cwo+Pj4gbHNwY2kgYW5kIHNlZXMgYSB2aXJ0aW8gZGV2aWNlIHRoZW4gaXQncyByZWFzb25hYmx5
+IHBvcnRhYmxlLgo+Pj4KPj4+Pj4gSWYgeW91IHdhbnQgdG8gZ28gdGhhdCB3YXkgZG93biB0aGUg
+cm9hZCwgeW91IHNob3VsZCBhdm9pZAo+Pj4+PiB2aXJ0aW8gaW9tbXUsIGluc3RlYWQgZW11bGF0
+ZSBhbmQgc2hhcmUgY29kZSB3aXRoIHRoZSBBUk0gU01NVQo+Pj4+PiAocHJvYmFibHkKPj4+Pj4g
+d2l0aCBhIGRpZmZlcmVudCB2ZW5kb3IgaWQgc28geW91IGNhbiBpbXBsZW1lbnQgdGhlCj4+Pj4+
+IHJlcG9ydCBvbiBtYXAgZm9yIGRldmljZXMgd2l0aG91dCBQUkkpLgo+Pj4+Cj4+Pj4gdlNNTVUg
+aGFzIHRvIHN0YXkgaW4gdXNlcnNwYWNlIHRob3VnaC4gVGhlIG1haW4gcmVhc29uIHdlJ3JlIHBy
+b3Bvc2luZwo+Pj4+IHZpcnRpby1pb21tdSBpcyB0aGF0IGVtdWxhdGluZyBldmVyeSBwb3NzaWJs
+ZSB2SU9NTVUgbW9kZWwgaW4gdGhlCj4+Pj4ga2VybmVsCj4+Pj4gd291bGQgYmUgdW5tYWludGFp
+bmFibGUuIFdpdGggdmlydGlvLWlvbW11IHdlIGNhbiBwcm9jZXNzIHRoZSBmYXN0IHBhdGgKPj4+
+PiBpbiB0aGUgaG9zdCBrZXJuZWwsIHRocm91Z2ggdmhvc3QtaW9tbXUsIGFuZCBkbyB0aGUgaGVh
+dnkgbGlmdGluZyBpbgo+Pj4+IHVzZXJzcGFjZS4KPj4+Cj4+PiBJbnRlcmVzdGluZy4KPj4+Cj4+
+Pj4gQXMgc2FpZCBhYm92ZSwgSSdtIHRyeWluZyB0byBrZWVwIHRoZSBmYXN0IHBhdGggZm9yCj4+
+Pj4gdmlydGlvLWlvbW11IGdlbmVyaWMuCj4+Pj4KPj4+PiBNb3JlIG5vdGVzIG9uIHdoYXQgSSBj
+b25zaWRlciB0byBiZSB0aGUgZmFzdCBwYXRoLCBhbmQgY29tcGFyaXNvbiB3aXRoCj4+Pj4gdlNN
+TVU6Cj4+Pj4KPj4+PiAoMSkgVGhlIHByaW1hcnkgdXNlLWNhc2Ugd2UgaGF2ZSBpbiBtaW5kIGZv
+ciB2SU9NTVUgaXMgc29tZXRoaW5nIGxpa2UKPj4+PiBEUERLIGluIHRoZSBndWVzdCwgYXNzaWdu
+aW5nIGEgaGFyZHdhcmUgZGV2aWNlIHRvIGd1ZXN0IHVzZXJzcGFjZS4gRFBESwo+Pj4+IG1hcHMg
+YSBsYXJnZSBhbW91bnQgb2YgbWVtb3J5IHN0YXRpY2FsbHksIHRvIGJlIHVzZWQgYnkgYSBwYXNz
+LXRocm91Z2gKPj4+PiBkZXZpY2UuIEZvciB0aGlzIGNhc2UgSSBkb24ndCB0aGluayB3ZSBjYXJl
+IGFib3V0IHZJT01NVSBwZXJmb3JtYW5jZS4KPj4+PiBTZXR1cCBhbmQgdGVhcmRvd24gbmVlZCB0
+byBiZSByZWFzb25hYmx5IGZhc3QsIHN1cmUsIGJ1dCB0aGUgTUFQL1VOTUFQCj4+Pj4gcmVxdWVz
+dHMgZG9uJ3QgaGF2ZSB0byBiZSBvcHRpbWFsLgo+Pj4+Cj4+Pj4KPj4+PiAoMikgSWYgdGhlIGFz
+c2lnbmVkIGRldmljZSBpcyBvd25lZCBieSB0aGUgZ3Vlc3Qga2VybmVsLCB0aGVuIG1hcHBpbmdz
+Cj4+Pj4gYXJlIGR5bmFtaWMgYW5kIHJlcXVpcmUgZG1hX21hcC91bm1hcCgpIHRvIGJlIGZhc3Qs
+IGJ1dCB0aGVyZSBnZW5lcmFsbHkKPj4+PiBpcyBubyBuZWVkIGZvciBhIHZJT01NVSwgc2luY2Ug
+ZGV2aWNlIGFuZCBkcml2ZXJzIGFyZSB0cnVzdGVkIGJ5IHRoZQo+Pj4+IGd1ZXN0IGtlcm5lbC4g
+RXZlbiB3aGVuIHRoZSB1c2VyIGRvZXMgZW5hYmxlIGEgdklPTU1VIGZvciB0aGlzIGNhc2UKPj4+
+PiAoYWxsb3dpbmcgdG8gb3Zlci1jb21taXQgZ3Vlc3QgbWVtb3J5LCB3aGljaCBuZWVkcyB0byBi
+ZSBwaW5uZWQKPj4+PiBvdGhlcndpc2UpLAo+Pj4KPj4+IEJUVyB0aGF0J3MgaW4gdGhlb3J5IGlu
+IHByYWN0aWNlIGl0IGRvZXNuJ3QgcmVhbGx5IHdvcmsuCj4+Pgo+Pj4+IHdlIGdlbmVyYWxseSBw
+bGF5IHRyaWNrcyBsaWtlIGxhenkgVExCSSAobm9uLXN0cmljdCBtb2RlKSB0bwo+Pj4+IG1ha2Ug
+aXQgZmFzdGVyLgo+Pj4KPj4+IFNpbXBsZSBsYXp5IFRMQiBmb3IgZ3Vlc3QvdXNlcnNwYWNlIGRy
+aXZlcnMgd291bGQgYmUgYSBiaWcgbm8gbm8uCj4+PiBZb3UgbmVlZCBzb21ldGhpbmcgc21hcnRl
+ci4KPj4+Cj4+Pj4gSGVyZSBkZXZpY2UgYW5kIGRyaXZlcnMgYXJlIHRydXN0ZWQsIHRoZXJlZm9y
+ZSB0aGUKPj4+PiB2dWxuZXJhYmlsaXR5IHdpbmRvdyBvZiBsYXp5IG1vZGUgaXNuJ3QgYSBjb25j
+ZXJuLgo+Pj4+Cj4+Pj4gSWYgdGhlIHJlYXNvbiB0byBlbmFibGUgdGhlIHZJT01NVSBpcyBvdmVy
+LWNvbWl0dGluZyBndWVzdCBtZW1vcnkKPj4+PiBob3dldmVyLCB5b3UgY2FuJ3QgdXNlIG5lc3Rl
+ZCB0cmFuc2xhdGlvbiBiZWNhdXNlIGl0IHJlcXVpcmVzIHBpbm5pbmcKPj4+PiB0aGUgc2Vjb25k
+LWxldmVsIHRhYmxlcy4gRm9yIHRoaXMgY2FzZSBwZXJmb3JtYW5jZSBtYXR0ZXJzIGEgYml0LAo+
+Pj4+IGJlY2F1c2UgeW91ciBpbnZhbGlkYXRlLW9uLW1hcCBuZWVkcyB0byBiZSBmYXN0LCBldmVu
+IGlmIHlvdSBlbmFibGUKPj4+PiBsYXp5Cj4+Pj4gbW9kZSBhbmQgb25seSByZWNlaXZlIGludmFs
+LW9uLXVubWFwIGV2ZXJ5IDEwbXMuIEl0IHdvbid0IGV2ZXIgYmUgYXMKPj4+PiBmYXN0IGFzIG5l
+c3RlZCB0cmFuc2xhdGlvbiwgdGhvdWdoLiBGb3IgdGhpcyBjYXNlIEkgdGhpbmsgdlNNTVUrQ2Fj
+aGluZwo+Pj4+IE1vZGUgYW5kIHVzZXJzcGFjZSB2aXJ0aW8taW9tbXUgd2l0aCBNQVAvVU5NQVAg
+d291bGQgcGVyZm9ybSBzaW1pbGFybHkKPj4+PiAoZ2l2ZW4gcGFnZS1zaXplZCBwYXlsb2Fkcyks
+IGJlY2F1c2UgdGhlIHBhZ2V0YWJsZSB3YWxrIGRvZXNuJ3QgYWRkIGEKPj4+PiBsb3Qgb2Ygb3Zl
+cmhlYWQgY29tcGFyZWQgdG8gdGhlIGNvbnRleHQgc3dpdGNoLiBCdXQgZ2l2ZW4gdGhlIHJlc3Vs
+dHMKPj4+PiBiZWxvdywgdmhvc3QtaW9tbXUgd291bGQgYmUgZmFzdGVyIHRoYW4gdlNNTVUrQ00u
+Cj4+Pj4KPj4+Pgo+Pj4+ICgzKSBUaGVuIHRoZXJlIGlzIFNWTS4gRm9yIFNWTSwgYW55IGRlc3Ry
+dWN0aXZlIGNoYW5nZSB0byB0aGUgcHJvY2Vzcwo+Pj4+IGFkZHJlc3Mgc3BhY2UgcmVxdWlyZXMg
+YSBzeW5jaHJvbm91cyBpbnZhbGlkYXRpb24gY29tbWFuZCB0byB0aGUKPj4+PiBoYXJkd2FyZSAo
+YXQgbGVhc3Qgd2hlbiB1c2luZyBQQ0kgQVRTKS4gR2l2ZW4gdGhhdCBTVk0gaXMgYmFzZWQgb24g
+cGFnZQo+Pj4+IGZhdWx0cywgZmF1bHQgcmVwb3J0aW5nIGZyb20gaG9zdCB0byBndWVzdCBhbHNv
+IG5lZWRzIHRvIGJlIGZhc3QsIGFzCj4+Pj4gd2VsbCBhcyBmYXVsdCByZXNwb25zZSBmcm9tIGd1
+ZXN0IHRvIGhvc3QuCj4+Pj4KPj4+PiBJIHRoaW5rIHRoaXMgaXMgd2hlcmUgcGVyZm9ybWFuY2Ug
+bWF0dGVycyB0aGUgbW9zdC4gVG8gZ2V0IGEgZmVlbCBvZgo+Pj4+IHRoZQo+Pj4+IGFkdmFudGFn
+ZSB3ZSBnZXQgd2l0aCB2aXJ0aW8taW9tbXUsIEkgY29tcGFyZWQgdGhlIHZTTU1VIHBhZ2UtdGFi
+bGUKPj4+PiBzaGFyaW5nIGltcGxlbWVudGF0aW9uIFsyXSBhbmQgdmhvc3QtaW9tbXUgKyBWRklP
+IHdpdGggcGFnZSB0YWJsZQo+Pj4+IHNoYXJpbmcgKGJhc2VkIG9uIFRvbWFzeiBOb3dpY2tpJ3Mg
+dmhvc3QtaW9tbXUgcHJvdG90eXBlKS4gVGhhdCdzIG9uIGEKPj4+PiBUaHVuZGVyWDIgd2l0aCBh
+IDEwR2IgTklDIGFzc2lnbmVkIHRvIHRoZSBndWVzdCBrZXJuZWwsIHdoaWNoCj4+Pj4gY29ycmVz
+cG9uZHMgdG8gY2FzZSAoMikgYWJvdmUsIHdpdGggbmVzdGluZyBwYWdlIHRhYmxlcyBhbmQgd2l0
+aG91dCB0aGUKPj4+PiBsYXp5IG1vZGUuIFRoZSBob3N0J3Mgb25seSBqb2IgaXMgZm9yd2FyZGlu
+ZyBpbnZhbGlkYXRpb24gdG8gdGhlIEhXCj4+Pj4gU01NVS4KPj4+Pgo+Pj4+IHZob3N0LWlvbW11
+IHBlcmZvcm1lZCBvbiBhdmVyYWdlIDEuOHggYW5kIDUuNXggYmV0dGVyIHRoYW4gdlNNTVUgb24K
+Pj4+PiBuZXRwZXJmIFRDUF9TVFJFQU0gYW5kIFRDUF9NQUVSVFMgcmVzcGVjdGl2ZWx5ICh+MjAw
+IHNhbXBsZXMpLiBJIHRoaW5rCj4+Pj4gdGhpcyBjYW4gYmUgZnVydGhlciBvcHRpbWl6ZWQgKHRo
+YXQgd2FzIHN0aWxsIHBvbGxpbmcgdW5kZXIgdGhlIHZxCj4+Pj4gbG9jayksIGFuZCB1bmxpa2Ug
+dlNNTVUsIHZpcnRpby1pb21tdSBvZmZlcnMgdGhlIHBvc3NpYmlsaXR5IG9mCj4+Pj4gbXVsdGkt
+cXVldWUgZm9yIGltcHJvdmVkIHNjYWxhYmlsaXR5LiBJbiBhZGRpdGlvbiwgdGhlIGd1ZXN0IHdp
+bGwgbmVlZAo+Pj4+IHRvIHNlbmQgYm90aCBUTEIgYW5kIEFUQyBpbnZhbGlkYXRpb25zIHdpdGgg
+dlNNTVUsIGJ1dCB2aXJ0aW8taW9tbXUKPj4+PiBhbGxvd3MgdG8gbXVsdGlwbGV4IHRob3NlLCBh
+bmQgdG8gaW52YWxpZGF0ZSByYW5nZXMuIFNpbWlsYXJseSBmb3IKPj4+PiBmYXVsdAo+Pj4+IGlu
+amVjdGlvbiwgaGF2aW5nIHRoZSBhYmlsaXR5IHRvIHJlcG9ydCBwYWdlIGZhdWx0cyB0byB0aGUg
+Z3Vlc3QgZnJvbQo+Pj4+IHRoZSBob3N0IGtlcm5lbCBzaG91bGQgYmUgc2lnbmlmaWNhbnRseSBm
+YXN0ZXIgdGhhbiBoYXZpbmcgdG8gZ28gdG8KPj4+PiB1c2Vyc3BhY2UgYW5kIGJhY2sgdG8gdGhl
+IGtlcm5lbC4KPj4+Cj4+PiBGYXNjaW5hdGluZy4gQW55IGRhdGEgYWJvdXQgaG9zdCBDUFUgdXRp
+bGl6YXRpb24/Cj4+Pgo+Pj4gRXJpYyB3aGF0IGRvIHlvdSB0aGluaz8KPj4+Cj4+PiBJcyBpdCB0
+cnVlIHRoYXQgU01NVXYzIGlzIGZ1bmRtZW50YWxseSBzbG93IGF0IHRoZSBhcmNoaXRlY3R1cmUg
+bGV2ZWwKPj4+IGFuZCBzbyBhIFBWIGludGVyZmFjZSB3aWxsIGFsd2F5cyBzY2FsZSBiZXR0ZXIg
+dW50aWwKPj4+IGEgbmV3IGhhcmR3YXJlIGludGVyZmFjZSBpcyBkZXNpZ25lZD8KPj4KPj4gQXMg
+ZmFyIGFzIEkgdW5kZXJzdGFuZCB0aGUgZmlndXJlcyBhYm92ZSBjb3JyZXNwb25kIHRvIHZob3N0
+LWlvbW11Cj4+IGFnYWluc3QgdnNtbXV2My4gSW4gdGhlIDIgY2FzZXMgdGhlIGd1ZXN0IG93bnMg
+c3RhZ2UxIHRhYmxlcyBzbyB0aGUKPj4gZGlmZmVyZW5jZSBjb21lcyBmcm9tIHRoZSBJT1RMQiBp
+bnZhbGlkYXRpb24gaGFuZGxpbmcuIFdpdGggdmhvc3Qgd2UKPj4gYXZvaWQgYSBrZXJuZWwgPC0+
+IHVzZXJzcGFjZSByb3VuZCB0cmlwIHdoaWNoIG1heSBtb3N0bHkgZXhwbGFpbiB0aGUKPj4gZGlm
+ZmVyZW5jZS4KPj4KPj4gQWJvdXQgU01NVXYzIGlzc3VlcyBJIGFscmVhZHkgcmVwb3J0ZWQgb25l
+IGJpZyBsaW1pdGF0aW9uIHdpdGggcmVzcGVjdAo+PiB0byBodWdlcGFnZSBpbnZhbGlkYXRpb24u
+IFNlZSBbUkZDIHYyIDQvNF0gaW9tbXUvYXJtLXNtbXUtdjM6IGFkZAo+PiBDTURfVExCSV9OSF9W
+QV9BTSBjb21tYW5kIGZvciBpb3ZhIHJhbmdlIGludmFsaWRhdGlvbgo+PiAoaHR0cHM6Ly9sa21s
+Lm9yZy9sa21sLzIwMTcvOC8xMS80MjgpLgo+Pgo+PiBBdCBzbW11djMgZ3Vlc3QgZHJpdmVyIGxl
+dmVsLCBhcm1fc21tdV90bGJfaW52X3JhbmdlX25vc3luYygpLCB3aGVuCj4+IGNhbGxlZCB3aXRo
+IGEgaHVnZXBhZ2Ugc2l6ZSwgaW52YWxpZGF0ZXMgZWFjaCA0Sy82NEsgcGFnZSBvZiB0aGUgcmVn
+aW9uCj4+IGFuZCBub3QgdGhlIHdob2xlIHJlZ2lvbiBhdCBvbmNlLiBFYWNoIG9mIHRoZW0gYXJl
+IHRyYXBwZWQgYnkgdGhlIFNNTVV2Mwo+PiBkZXZpY2Ugd2hpY2ggZm9yd2FyZHMgdGhlbSB0byB0
+aGUgaG9zdC4gVGhpcyBzdGFsbHMgdGhlIGd1ZXN0LiBUaGlzCj4+IGlzc3VlIGNhbiBiZSBvYnNl
+cnZlZCBpbiBEUERLIGNhc2UgLSBub3QgdGhlIHVzZSBjYXNlIGJlbmNobWFya2VkCj4+IGFib3Zl
+IC0gLgo+Pgo+PiBJIHJhaXNlZCB0aGlzIHBvaW50IGFnYWluIGluIHJlY2VudCBkaXNjdXNzaW9u
+cyBhbmQgaXQgaXMgdW5jbGVhcgo+PiB3aGV0aGVyIHRoaXMgaXMgYW4gU01NVXYzIGRyaXZlciBs
+aW1pdGF0aW9uIG9yIGFuIGFyY2hpdGVjdHVyZQo+PiBsaW1pdGF0aW9uLiBTZWVtcyBhIHNpbmds
+ZSBpbnZhbGlkYXRpb24gd2l0aGluIHRoZSBibG9jayBtYXBwaW5nIHNob3VsZAo+PiBpbnZhbGlk
+YXRlIHRoZSB3aG9sZSBtYXBwaW5nIGF0IEhXIGxldmVsLiBJbiB0aGUgcGFzdCBJIGhhY2tlZCBh
+Cj4+IHdvcmthcm91bmQgYnkgZGVmaW5pbmcgYW4gaW1wbGVtZW50YXRpb24gZGVmaW5lZCBpbnZh
+bGlkYXRpb24gY29tbWFuZC4KPj4KPj4gUm9iaW4vV2lsbCwgY291bGQgeW91IHBsZWFzZSBleHBs
+YWluIHRoZSByYXRpb25hbGUgYmVoaW5kIHRoZQo+PiBhcm1fc21tdV90bGJfaW52X3JhbmdlX25v
+c3luYygpIGltcGxlbWVudGF0aW9uLgo+IAo+IEZ1bmRhbWVudGFsbHksIFRMQkkgY29tbWFuZHMg
+b25seSB0YWtlIGFuIGFkZHJlc3MsIHNvIGludmFsaWRhdGlvbnMgaGF2ZQo+IHRvIG1hdGNoIHRo
+ZSBhY3R1YWwgbGVhZiBQVEVzIGJlaW5nIHJlbW92ZWQuIElmIGlvbW11X3VubWFwKCkgc2VlcyB0
+aGF0Cj4gMk1CIGlzIGEgdmFsaWQgYmxvY2sgc2l6ZSwgaXQgbWF5IHNlbmQgYSBzaW5nbGUgInVu
+bWFwIHRoaXMgMk1CIiByZXF1ZXN0Cj4gdG8gdGhlIGRyaXZlciwgYnV0IG5vYm9keSBrbm93cyBo
+b3cgdGhhdCByZWdpb24gaXMgYWN0dWFsbHkgbWFwcGVkIHVudGlsCj4gdGhlIHBhZ2V0YWJsZSBj
+b2RlIHdhbGtzIHRoZSB0YWJsZXMuIElmIGl0IGRvZXMgZmluZCBhIDJNQiBibG9jayBQVEUsCj4g
+dGhlbiBpdCBjYW4gc2ltcGx5IGNsZWFyIGl0IGFuZCBnZW5lcmF0ZSBhIHNpbmdsZSBpbnZhbGlk
+YXRpb24gY29tbWFuZCAtCj4gaWYgYSBUTEIgZW50cnkgZXhpc3RzIGZvciB0aGF0IGJsb2NrIG1h
+cHBpbmcgdGhlbiBhbnkgYWRkcmVzcyB3aXRoaW4gdGhlCj4gYmxvY2sgd2lsbCBtYXRjaCBpdC4g
+SWYgaG93ZXZlciB0aGF0IDJNQiByZWdpb24gd2FzIGFjdHVhbGx5IGNvdmVyZWQgYnkKPiBhIHN1
+YnRhYmxlIG9mIDRLQiBwYWdlcywgdGhlbiBzZXBhcmF0ZSBUTEIgZW50cmllcyBtYXkgZXhpc3Qg
+Zm9yIGFueSBvcgo+IGFsbCBvZiB0aG9zZSBwYWdlcywgYW5kIGEgc2luZ2xlIGFkZHJlc3MgY2Fu
+IGF0IGJlc3Qgb25seSBtYXRjaCBvbmUgb2YKPiB0aGVtLiBUaHVzIGFmdGVyIHRoZSB0YWJsZSBQ
+VEUgaXMgY2xlYXJlZCwgYSBzZXBhcmF0ZSBjb21tYW5kIGhhcyB0byBiZQo+IGdlbmVyYXRlZCBm
+b3IgZWFjaCBwYWdlIHRvIGVuc3VyZSB0aGF0IGFsbCBwb3NzaWJsZSBUTEIgZW50cmllcwo+IGFz
+c29jaWF0ZWQgd2l0aCB0aGF0IHRhYmxlIGFyZSBpbnZhbGlkYXRlZC4KPiAKPiBTbyBpZiB5b3Un
+cmUgc2VlaW5nIHBhZ2UtZ3JhbnVsYXJpdHkgaW52YWxpZGF0aW9uLCBpdCBtZWFucyB0aGF0IHRo
+ZQo+IHRoaW5nIHlvdSdyZSB1bm1hcHBpbmcgd2Fzbid0IGFjdHVhbGx5IG1hcHBlZCBhcyB0aGF0
+IHNpemUgb2YgaHVnZXBhZ2UKPiBpbiB0aGUgZmlyc3QgcGxhY2UgKG9yIHNvbWV0aGluZyBwYXRo
+b2xvZ2ljYWwgaGFzIGNhdXNlZCBpdCB0byBiZSBzcGxpdAo+IGluIHRoZSBtZWFudGltZSAtIEkg
+cmVjYWxsIHdlIG9uY2UgaGFkIGFuIGFtdXNpbmcgYnVnIHdoaWNoIGNhdXNlZCBWRklPCj4gdG8g
+ZG8gdGhhdCBvbiB0ZWFyZG93bikuIFRoZXJlIGlzIG9uZSBzdWJvcHRpbWFsIGNhc2UgaWYgd2Un
+cmUgdGFraW5nCj4gb3V0IHBvdGVudGlhbGx5IG11bHRpcGxlIGxldmVscyBvZiB0YWJsZSBhdCBv
+bmNlIChlLmcuIGEgMUdCIHJlZ2lvbiksCj4gd2hlcmUgd2UgZG9uJ3QgYm90aGVyIHJlY3Vyc2lu
+ZyBkb3duIHRoZSByZW1vdmVkIHRhYmxlIHRvIHNlZSB3aGV0aGVyCj4gYW55dGhpbmcgd2FzIG1h
+cHBlZCB3aXRoIGJsb2NrcyBhdCB0aGUgaW50ZXJtZWRpYXRlIGxldmVsLCBhbmQganVzdAo+IGlu
+dmFsaWRhdGUgdGhlIHdob2xlIGxvdCBhdCBwYWdlIGdyYW51bGFyaXR5IHRvIGNvdmVyIHRoZSB3
+b3JzdC1jYXNlCj4gc2NlbmFyaW8uIEkgdGhpbmsgd2UgYXNzdW1lZCB0aGF0IHNvcnQgb2YgdW5t
+YXAgd291bGQgYmUgdW5saWtlbHkgZW5vdWdoCj4gdGhhdCBpdCB3YXNuJ3Qgd29ydGggb3B0aW1p
+c2luZyBmb3IgYXQgdGhlIHRpbWUsIGJ1dCB0aGVyZSdzIGNlcnRhaW5seQo+IHNjb3BlIHRvIGlt
+cHJvdmUgaXQgaWYgdW5tYXBwaW5nIDFHQiB3b3J0aCBvZiAyTUIgYmxvY2tzIHR1cm5zIG91dCB0
+byBiZQo+IGEgY29tbW9uIHRoaW5nLgoKdGhhbmsgeW91IGZvciB5b3VyIHJlcGx5LiBUaGlzIGxh
+c3Qgc2l0dWF0aW9uIGxvb2tzIGxpa2UgdGhlIG9uZSBJCmVuY291bnRlcmVkLiBJIHdpbGwgdGVz
+dCB3aXRoIERQREsgYWdhaW4gYW5kIGxldCB5b3Uga25vdy4KClRoYW5rcwoKRXJpYwo+IAo+IEZX
+SVcgU01NVXYzLjIgaGFzIGludHJvZHVjZWQgYWN0dWFsIHJhbmdlLWludmFsaWRhdGlvbiBjb21t
+YW5kcyAtCj4gcmV3b3JraW5nIGFsbCB0aGUgVExCSSBsb2dpYyBpbiB0aGUgZHJpdmVyIHRvIG1h
+a2Ugd29ydGh3aGlsZSB1c2Ugb2YKPiB0aG9zZSBpcyBvbiB0aGUgdG8tZG8gbGlzdCwgYnV0IHVu
+dGlsIHJlYWwgMy4yIGhhcmR3YXJlIHN0YXJ0cyBjb21pbmcgdG8KPiBsaWdodCBJJ3ZlIG5vdCBi
+ZWVuIHByaW9yaXRpc2luZyBpdC4KPiAKPiBSb2Jpbi4KPiAKPj4KPj4gVGhhbmtzCj4+Cj4+IEVy
+aWMKPj4KPj4KPj4KPj4+Cj4+Pgo+Pj4+Cj4+Pj4gKDQpIFZpcnRpbyBhbmQgdmhvc3QgZW5kcG9p
+bnRzIHdlcmVuJ3QgcmVhbGx5IGEgcHJpb3JpdHkgZm9yIHRoZSBiYXNlCj4+Pj4gdmlydGlvLWlv
+bW11IGRldmljZSwgd2Ugd2VyZSBsb29raW5nIG1haW5seSBhdCBkZXZpY2UgcGFzcy10aHJvdWdo
+LiBJCj4+Pj4gaGF2ZSBvcHRpbWl6YXRpb25zIGluIG1pbmQgZm9yIHRoaXMsIGFsdGhvdWdoIGEg
+bG90IG9mIHRoZW0gYXJlCj4+Pj4gYmFzZWQgb24KPj4+PiBwYWdlIHRhYmxlcywgbm90IE1BUC9V
+Tk1BUCByZXF1ZXN0cy4gQnV0IGp1c3QgZ2V0dGluZyB0aGUgdklPTU1VIGNsb3Nlcgo+Pj4+IHRv
+IHZob3N0IGRldmljZXMsIGF2b2lkaW5nIHRoZSB0cmlwIHRvIHVzZXJzcGFjZSB0aHJvdWdoIHZo
+b3N0LXRsYiwKPj4+PiBzaG91bGQgYWxyZWFkeSBpbXByb3ZlIHRoaW5ncy4KPj4+Pgo+Pj4+IFRo
+ZSBpbXBvcnRhbnQgZGlmZmVyZW5jZSB3aGVuIERNQSBpcyBkb25lIGJ5IHNvZnR3YXJlIGlzIHRo
+YXQgeW91IGRvbid0Cj4+Pj4gbmVlZCB0byBtaXJyb3IgYWxsIG1hcHBpbmdzIGludG8gdGhlIEhX
+IElPTU1VIC0geW91IGRvbid0IG5lZWQKPj4+PiBpbnZhbC1vbi1tYXAuIFRoZSBlbmRwb2ludCBj
+YW4gYXNrIHRoZSB2SU9NTVUgZm9yIG1hcHBpbmdzIHdoZW4gaXQKPj4+PiBuZWVkcwo+Pj4+IHRo
+ZW0sIGxpa2Ugdmhvc3QtaW90bGIgZG9lcyBmb3IgZXhhbXBsZS4gU28gdGhlIE1BUC9VTk1BUCBp
+bnRlcmZhY2Ugb2YKPj4+PiB2aXJ0aW8taW9tbXUgcGVyZm9ybXMgcG9vcmx5IGZvciBlbXVsYXRl
+ZC9QViBlbmRwb2ludHMgY29tcGFyZWQgdG8gYW4KPj4+PiBlbXVsYXRlZCBJT01NVSwgc2luY2Ug
+aXQgcmVxdWlyZXMgdGhyZWUgY29udGV4dCBzd2l0Y2hlcyBmb3IgRE1BCj4+Pj4gKE1BUC9ETUEv
+VU5NQVApIGJldHdlZW4gaG9zdCBhbmQgZ3Vlc3QsIHJhdGhlciB0aGFuIHR3byAoRE1BL0lOVkFM
+KS4KPj4+PiBUaGVyZSBpcyBhIGZlYXR1cmUgSSBjYWxsICJwb3N0ZWQgTUFQIiwgdGhhdCBhdm9p
+ZHMgdGhlIGtpY2sgb24gTUFQIGFuZAo+Pj4+IGluc3RlYWQgbGV0cyB0aGUgZGV2aWNlIGZldGNo
+IHRoZSBNQVAgcmVxdWVzdCBvbiBUTEIgbWlzcywgYnV0IEkKPj4+PiBoYXZlbid0Cj4+Pj4gc3Bl
+bnQgZW5vdWdoIHRpbWUgZXhwZXJpbWVudGluZyB3aXRoIHRoaXMuCj4+Pj4KPj4+Pj4gT3RoZXJz
+IG9uIHRoZSBUQyBtaWdodCBmZWVsIGRpZmZlcmVudGx5Lgo+Pj4+Pgo+Pj4+PiBJZiBzb21lb25l
+J3MgbG9va2luZyBpbnRvIGFkZGluZyB2aXJ0aW8gaW9tbXUgc3VwcG9ydCBpbiBoYXJkd2FyZSwK
+Pj4+Pj4gdGhhdCdzIGEgZGlmZmVyZW50IG1hdHRlci4gV2hpY2ggaXMgaXQ/Cj4+Pj4KPj4+PiBJ
+J20gbm90IGF3YXJlIG9mIGFueXRoaW5nIGxpa2UgdGhhdCwgYW5kIHN1c3BlY3QgdGhhdCBubyBv
+bmUgd291bGQKPj4+PiBjb25zaWRlciBpdCB1bnRpbCB2aXJ0aW8taW9tbXUgaXMgbW9yZSB3aWRl
+bHkgYWRvcHRlZC4KPj4+Pgo+Pj4+IFRoYW5rcywKPj4+PiBKZWFuCj4+Pj4KPj4+Pgo+Pj4+IFsx
+XSBEaWZmIGJldHdlZW4gY3VycmVudCBzcGVjIGFuZCBwYWdlIHRhYmxlIHNoYXJpbmcgZHJhZnQK
+Pj4+PiDCoMKgwqDCoCAoVmVyeSByb3VnaCwgbWlzc2luZyBwYWdlIGZhdWx0IHN1cHBvcnQgYW5k
+IEknZCBsaWtlIHRvIHJld29yayB0aGUKPj4+PiDCoMKgwqDCoMKgIFBBU0lEIG1vZGVsIGEgYml0
+LCBidXQgdGFibGUgZGVzY3JpcHRvcnMgcC4yNC0yNiBmb3IgYm90aCBBcm0KPj4+PiDCoMKgwqDC
+oMKgIFNNTVV2MiBhbmQgU01NVXYzLikKPj4+Pgo+Pj4+IGh0dHA6Ly9qcGJydWNrZXIubmV0L3Zp
+cnRpby1pb21tdS9zcGVjLXRhYmxlL2RpZmZzL3ZpcnRpby1pb21tdS1wZGYtZGlmZi12MC45LXYw
+LjEwLmRldjAzLnBkZgo+Pj4+Cj4+Pj4KPj4+PiBbMl0gW1JGQyB2MiAwMC8yOF0gdlNNTVV2My9w
+U01NVXYzIDIgc3RhZ2UgVkZJTyBpbnRlZ3JhdGlvbgo+Pj4+IMKgwqDCoMKgIGh0dHBzOi8vd3d3
+Lm1haWwtYXJjaGl2ZS5jb20vcWVtdS1kZXZlbEBub25nbnUub3JnL21zZzU2MjM2OS5odG1sCl9f
+X19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fClZpcnR1YWxpemF0
+aW9uIG1haWxpbmcgbGlzdApWaXJ0dWFsaXphdGlvbkBsaXN0cy5saW51eC1mb3VuZGF0aW9uLm9y
+ZwpodHRwczovL2xpc3RzLmxpbnV4Zm91bmRhdGlvbi5vcmcvbWFpbG1hbi9saXN0aW5mby92aXJ0
+dWFsaXphdGlvbg==
