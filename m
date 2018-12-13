@@ -1,16 +1,14 @@
-From: David Miller <davem@davemloft.net>
-Subject: Re: [PATCH v2 2/5] VSOCK: support fill data to mergeable rx buffer
-	in host
-Date: Wed, 12 Dec 2018 21:59:05 -0800 (PST)
-Message-ID: <20181212.215905.1657023590815103551.davem__47456.6854689785$1544680624$gmane$org@davemloft.net>
-References: <5C10D4FB.6070009@huawei.com>
-	<20181212.110944.1077302806391053539.davem@davemloft.net>
-	<5C11CDF4.4040405@huawei.com>
+From: Jason Wang <jasowang@redhat.com>
+Subject: Re: [PATCH] Export mm_update_next_owner function for vhost-net
+Date: Thu, 13 Dec 2018 14:30:48 +0800
+Message-ID: <94b66555-64cb-36c5-a5c0-c7256b659a0d__18256.8769473166$1544682544$gmane$org@redhat.com>
+References: <1544676445-14897-1-git-send-email-gchen.guomin@gmail.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset="utf-8"; Format="flowed"
+Content-Transfer-Encoding: base64
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <5C11CDF4.4040405@huawei.com>
+In-Reply-To: <1544676445-14897-1-git-send-email-gchen.guomin@gmail.com>
+Content-Language: en-US
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -20,25 +18,58 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: jiangyiwen@huawei.com
-Cc: kvm@vger.kernel.org, mst@redhat.com, netdev@vger.kernel.org, virtualization@lists.linux-foundation.org, stefanha@redhat.com
+To: gchen.guomin@gmail.com, "Michael S. Tsirkin" <mst@redhat.com>, guominchen@tencent.com
+Cc: kvm@vger.kernel.org, netdev@vger.kernel.org, linux-kernel@vger.kernel.org, Dominik Brodowski <linux@dominikbrodowski.net>, virtualization@lists.linux-foundation.org, "Luis R. Rodriguez" <mcgrof@kernel.org>, "Eric W. Biederman" <ebiederm@xmission.com>, Andrew Morton <akpm@linux-foundation.org>, Sudip Mukherjee <sudipm.mukherjee@gmail.com>
 List-Id: virtualization@lists.linuxfoundation.org
 
-From: jiangyiwen <jiangyiwen@huawei.com>
-Date: Thu, 13 Dec 2018 11:11:48 +0800
-
-> I hope Host can fill fewer bytes into rx virtqueue, so
-> I keep structure virtio_vsock_mrg_rxbuf_hdr one byte
-> alignment.
-
-The question is if this actully matters.
-
-Do you know?
-
-If the obejct this is embeeded inside of is at least 2 byte aligned,
-you are marking it packed for nothing.
-
-There are only %100 downsides to using the packed attribute.
-
-Simply define your datastructures properly, with fixed sized types,
-and all padding defined explicitly.
+Ck9uIDIwMTgvMTIvMTMg5LiL5Y2IMTI6NDcsIGdjaGVuLmd1b21pbkBnbWFpbC5jb20gd3JvdGU6
+Cj4gRnJvbTogZ3VvbWluIGNoZW4gPGdjaGVuLmd1b21pbkBnbWFpbC5jb20+Cj4KPiAgIFVuZGVy
+IG5vcm1hbCBjaXJjdW1zdGFuY2VzLFdoZW4gZG9fZXhpdCBleGl0cywgbW0tPm93bmVyIHdpbGwK
+PiAgIGJlIHVwZGF0ZWQgb24gZXhpdF9tbSgpLiBidXQgd2hlbiB0aGUga2VybmVsIHByb2Nlc3Mg
+Y2FsbHMKPiAgIHVudXNlX21tKCkgYW5kIHRoZW4gZXhpdHMsbW0tPm93bmVyIGNhbm5vdCBiZSB1
+cGRhdGVkLiBBbmQgaXQKPiAgIHdpbGwgcG9pbnQgdG8gYSB0YXNrIHRoYXQgaGFzIGJlZW4gcmVs
+ZWFzZWQuCj4KPiAgIEJlbG93IGlzIG15IGlzc3VlIG9uIHZob3N0X25ldDoKPiAgICAgIEEsIEIg
+YXJlIHR3byBrZXJuZWwgcHJvY2Vzc2VzKHN1Y2ggYXMgdmhvc3Rfd29ya2VyKSwKPiAgICAgIEMg
+aXMgYSB1c2VyIHNwYWNlIHByb2Nlc3Moc3VjaCBhcyBxZW11KSwgYW5kIGFsbAo+ICAgICAgdGhy
+ZWUgdXNlIHRoZSBtbSBvZiB0aGUgdXNlciBwcm9jZXNzIEMuCj4gICAgICBOb3csIGJlY2F1c2Ug
+dXNlciBwcm9jZXNzIEMgZXhpdHMgYWJub3JtYWxseSwgdGhlIG93bmVyIG9mIHRoaXMKPiAgICAg
+IG1tIGJlY29tZXMgQS4gV2hlbiBBIGNhbGxzIHVudXNlX21tIGFuZCBleGl0cywgdGhpcyBtbS0+
+b3dlcgo+ICAgICAgc3RpbGwgcG9pbnRzIHRvIHRoZSBBIHRoYXQgaGFzIGJlZW4gcmVsZWFzZWQu
+Cj4gICAgICBXaGVuIEIgYWNjZXNzZXMgdGhpcyBtbS0+b3duZXIgYWdhaW4sIEEgaGFzIGJlZW4g
+cmVsZWFzZWQuCgoKQ291bGQgeW91IGRlc2NyaWJlIGhvdyB5b3UgcmVwcm9kdWNlIHRoaXMgaXNz
+dWU/IEkgYmVsaWV2ZSB2aG9zdCBwcm9jZXNzIApzaG91bGQgZXhpdCBiZWZvcmUgcHJvY2VzcyBD
+PwoKCj4KPiAgIFByb2Nlc3MgQSAgICAgICAgICAgICBQcm9jZXNzIEIKPiAgIHZob3N0X3dvcmtl
+cigpICAgICAgICB2aG9zdF93b3JrZXIoKQo+ICAgIC0tLS0tLS0tLSAgICAgICAgICAgICAtLS0t
+LS0tLS0KPiAgICB1c2VfbW0oKSAgICAgICAgICAgICAgdXNlX21tKCkKPiAgICAgLi4uCj4gICAg
+dW51c2VfbW0oKQo+ICAgICAgIHRzay0+bW09TlVMTAo+ICAgICBkb19leGl0KCkgICAgICAgICAg
+ICBwYWdlIGZhdWx0Cj4gICAgICBleGl0X21tKCkgICAgICAgICAgIGFjY2VzcyBtbS0+b3duZXIK
+PiAgICAgY2FuJ3QgdXBkYXRlIG93bmVyICAga2VybmVsIE9vcHMKPgo+ICAgICAgICAgICAgICAg
+ICAgICAgICAgICB1bnVzZV9tbSgpCj4KPiBDYzogIk1pY2hhZWwgUy4gVHNpcmtpbiIgPG1zdEBy
+ZWRoYXQuY29tPgo+IENjOiBKYXNvbiBXYW5nIDxqYXNvd2FuZ0ByZWRoYXQuY29tPgo+IENjOiBr
+dm1Admdlci5rZXJuZWwub3JnCj4gQ2M6IHZpcnR1YWxpemF0aW9uQGxpc3RzLmxpbnV4LWZvdW5k
+YXRpb24ub3JnCj4gQ2M6IG5ldGRldkB2Z2VyLmtlcm5lbC5vcmcKPiBDYzogbGludXgta2VybmVs
+QHZnZXIua2VybmVsLm9yZwo+IENjOiAiRXJpYyBXLiBCaWVkZXJtYW4iIDxlYmllZGVybUB4bWlz
+c2lvbi5jb20+Cj4gQ2M6IEFuZHJldyBNb3J0b24gPGFrcG1AbGludXgtZm91bmRhdGlvbi5vcmc+
+Cj4gQ2M6IFN1ZGlwIE11a2hlcmplZSA8c3VkaXBtLm11a2hlcmplZUBnbWFpbC5jb20+Cj4gQ2M6
+ICJMdWlzIFIuIFJvZHJpZ3VleiIgPG1jZ3JvZkBrZXJuZWwub3JnPgo+IENjOiBEb21pbmlrIEJy
+b2Rvd3NraSA8bGludXhAZG9taW5pa2Jyb2Rvd3NraS5uZXQ+Cj4gU2lnbmVkLW9mZi1ieTogZ3Vv
+bWluIGNoZW4gPGdjaGVuLmd1b21pbkBnbWFpbC5jb20+Cj4gLS0tCj4gICBkcml2ZXJzL3Zob3N0
+L3Zob3N0LmMgfCAxICsKPiAgIGtlcm5lbC9leGl0LmMgICAgICAgICB8IDEgKwo+ICAgMiBmaWxl
+cyBjaGFuZ2VkLCAyIGluc2VydGlvbnMoKykKPgo+IGRpZmYgLS1naXQgYS9kcml2ZXJzL3Zob3N0
+L3Zob3N0LmMgYi9kcml2ZXJzL3Zob3N0L3Zob3N0LmMKPiBpbmRleCA2Yjk4ZDhlLi43YzA5MDg3
+IDEwMDY0NAo+IC0tLSBhL2RyaXZlcnMvdmhvc3Qvdmhvc3QuYwo+ICsrKyBiL2RyaXZlcnMvdmhv
+c3Qvdmhvc3QuYwo+IEBAIC0zNjgsNiArMzY4LDcgQEAgc3RhdGljIGludCB2aG9zdF93b3JrZXIo
+dm9pZCAqZGF0YSkKPiAgIAkJfQo+ICAgCX0KPiAgIAl1bnVzZV9tbShkZXYtPm1tKTsKPiArCW1t
+X3VwZGF0ZV9uZXh0X293bmVyKGRldi0+bW0pOwoKCklmIHlvdSBhbmFseXNpcyBpcyBjb3JyZWN0
+LCB0aGlzIGlzIHN0aWxsIHJhY3kgaXNuJ3QgaXQ/IChFLmcgcGFnZSBmYXVsdCAKaGFwcGVuIGJl
+dHdlZW4gdW51c2VfbW0oKSBhbmQgbW1fdXBkYXRlX25leHRfb3duZXIoKSkuCgpUaGFua3MKCgo+
+ICAgCXNldF9mcyhvbGRmcyk7Cj4gICAJcmV0dXJuIDA7Cj4gICB9Cj4gZGlmZiAtLWdpdCBhL2tl
+cm5lbC9leGl0LmMgYi9rZXJuZWwvZXhpdC5jCj4gaW5kZXggMGUyMWU2ZC4uOWUwNDZkZCAxMDA2
+NDQKPiAtLS0gYS9rZXJuZWwvZXhpdC5jCj4gKysrIGIva2VybmVsL2V4aXQuYwo+IEBAIC00ODYs
+NiArNDg2LDcgQEAgdm9pZCBtbV91cGRhdGVfbmV4dF9vd25lcihzdHJ1Y3QgbW1fc3RydWN0ICpt
+bSkKPiAgIAl0YXNrX3VubG9jayhjKTsKPiAgIAlwdXRfdGFza19zdHJ1Y3QoYyk7Cj4gICB9Cj4g
+K0VYUE9SVF9TWU1CT0wobW1fdXBkYXRlX25leHRfb3duZXIpOwo+ICAgI2VuZGlmIC8qIENPTkZJ
+R19NRU1DRyAqLwo+ICAgCj4gICAvKgpfX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19f
+X19fX19fX19fX19fXwpWaXJ0dWFsaXphdGlvbiBtYWlsaW5nIGxpc3QKVmlydHVhbGl6YXRpb25A
+bGlzdHMubGludXgtZm91bmRhdGlvbi5vcmcKaHR0cHM6Ly9saXN0cy5saW51eGZvdW5kYXRpb24u
+b3JnL21haWxtYW4vbGlzdGluZm8vdmlydHVhbGl6YXRpb24=
