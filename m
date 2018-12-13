@@ -1,15 +1,14 @@
-From: Jason Wang <jasowang@redhat.com>
-Subject: Re: [PATCH net V2 0/4] Fix various issue of vhost
-Date: Thu, 13 Dec 2018 10:42:02 +0800
-Message-ID: <cc5e477f-b452-ce6f-d412-46ff8a4cfa5d__8704.12779408998$1544668822$gmane$org@redhat.com>
-References: <20181212100819.21295-1-jasowang@redhat.com>
-	<20181212.153134.1249380470735153418.davem@davemloft.net>
+From: jiangyiwen <jiangyiwen@huawei.com>
+Subject: Re: [PATCH v2 1/5] VSOCK: support fill mergeable rx buffer in guest
+Date: Thu, 13 Dec 2018 10:47:21 +0800
+Message-ID: <5C11C839.1040004__46860.1588545882$1544669139$gmane$org@huawei.com>
+References: <5C10D4B0.8080504@huawei.com>
+	<20181212.110829.1327856253463467975.davem@davemloft.net>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="utf-8"; Format="flowed"
-Content-Transfer-Encoding: base64
+Content-Type: text/plain; charset="us-ascii"
+Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <20181212.153134.1249380470735153418.davem@davemloft.net>
-Content-Language: en-US
+In-Reply-To: <20181212.110829.1327856253463467975.davem@davemloft.net>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -20,29 +19,40 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
 To: David Miller <davem@davemloft.net>
-Cc: netdev@vger.kernel.org, virtualization@lists.linux-foundation.org, linux-kernel@vger.kernel.org, kvm@vger.kernel.org, mst@redhat.com
+Cc: kvm@vger.kernel.org, mst@redhat.com, netdev@vger.kernel.org, virtualization@lists.linux-foundation.org, stefanha@redhat.com
 List-Id: virtualization@lists.linuxfoundation.org
 
-Ck9uIDIwMTgvMTIvMTMg5LiK5Y2INzozMSwgRGF2aWQgTWlsbGVyIHdyb3RlOgo+IEZyb206IEph
-c29uIFdhbmcgPGphc293YW5nQHJlZGhhdC5jb20+Cj4gRGF0ZTogV2VkLCAxMiBEZWMgMjAxOCAx
-ODowODoxNSArMDgwMAo+Cj4+IFRoaXMgc2VyaWVzIHRyaWVzIHRvIGZpeCB2YXJpb3VzIGlzc3Vl
-cyBvZiB2aG9zdDoKPj4KPj4gLSBQYXRjaCAxIGFkZHMgYSBtaXNzaW5nIHdyaXRlIGJhcnJpZXIg
-YmV0d2VlbiB1c2VkIGlkeCB1cGRhdGluZyBhbmQKPj4gICAgbG9nZ2luZy4KPj4gLSBQYXRjaCAy
-LTMgYnJpbmdzIGJhY2sgdGhlIHByb3RlY3Rpb24gb2YgZGV2aWNlIElPVExCIHRocm91Z2ggdnEK
-Pj4gICAgbXV0ZXgsIHRoaXMgZml4ZXMgcG9zc2libGUgdXNlIGFmdGVyIGZyZWUgaW4gZGV2aWNl
-IElPVExCIGVudHJpZXMuCj4+IC0gUGF0Y2ggNC03IGZpeGVzIHRoZSBkaXJ5IHBhZ2UgbG9nZ2lu
-ZyB3aGVuIGRldmljZSBJT1RMQiBpcwo+PiAgICBlbmFibGVkLiBXZSBzaG91bGQgZG9uZSB0aHJv
-dWdoIEdQQSBpbnN0ZWFkIG9mIEdJT1ZBLCB0aGlzIHdhcyBkb25lCj4+ICAgIHRocm91Z2ggaW50
-b3J1ZGNlIEhWQS0+R1BBIHJldmVyc2UgbWFwcGluZyBhbmQgY29udmVydCBIVkEgdG8gR1BBCj4+
-ICAgIGR1cmluZyBsb2dnaW5nIGRpcnR5IHBhZ2VzLgo+Pgo+PiBQbGVhc2UgY29uc2lkZXIgdGhl
-bSBmb3IgLXN0YWJsZS4KPj4KPj4gVGhhbmtzCj4+Cj4+IENoYW5nZXMgZnJvbSBWMToKPj4gLSBz
-aWxlbnQgY29tcGlsZXIgd2FybmluZyBmb3IgMzJiaXQuCj4+IC0gdXNlIG11dGV4X3RyeWxvY2so
-KSBvbiBzbG93cGF0aCBpbnN0ZWFkIG9mIG11dGV4X2xvY2soKSBldmVuIG9uIGZhc3QKPj4gICAg
-cGF0aC4KPiBIZWxsbyBKYXNvbi4KPgo+IExvb2sgbGlrZSBNaWNoYWVsIHdhbnRzIHlvdSB0byBz
-cGxpdCBvdXQgcGF0Y2ggIzQgYW5kIHRhcmdldAo+IG5ldC1uZXh0IHdpdGggaXQuCj4KPiBTbyBw
-bGVhc2UgZG8gdGhhdCBhbmQgcmVzcGluIHRoZSBmaXJzdCAzIHBhdGNoZXMgaGVyZSB3aXRoIE1p
-Y2hhZWwncwo+IEFDS3MuCj4KPiBUaGFua3MuCgoKWWVzLCB3aWxsIHNlbmQgVjMuCgpUaGFua3MK
-Cl9fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fClZpcnR1YWxp
-emF0aW9uIG1haWxpbmcgbGlzdApWaXJ0dWFsaXphdGlvbkBsaXN0cy5saW51eC1mb3VuZGF0aW9u
-Lm9yZwpodHRwczovL2xpc3RzLmxpbnV4Zm91bmRhdGlvbi5vcmcvbWFpbG1hbi9saXN0aW5mby92
-aXJ0dWFsaXphdGlvbg==
+On 2018/12/13 3:08, David Miller wrote:
+> From: jiangyiwen <jiangyiwen@huawei.com>
+> Date: Wed, 12 Dec 2018 17:28:16 +0800
+> 
+>> +static int fill_mergeable_rx_buff(struct virtio_vsock *vsock,
+>> +		struct virtqueue *vq)
+>> +{
+>> +	struct page_frag *alloc_frag = &vsock->alloc_frag;
+>> +	struct scatterlist sg;
+>> +	/* Currently we don't use ewma len, use PAGE_SIZE instead, because too
+>> +	 * small size can't fill one full packet, sadly we only 128 vq num now.
+>> +	 */
+>> +	unsigned int len = PAGE_SIZE, hole;
+>> +	void *buf;
+>> +	int err;
+> 
+> Please don't break up a set of local variable declarations with a
+> comment like this.  The comment seems to be about the initialization
+> of 'len', so move that initialization into the code below the variable
+> declarations and bring the comment along for the ride as well.
+> 
+> .
+> 
+
+Hi David,
+
+Thanks your suggestions, if maintainers approve use this series of
+patches other than "vsock over virtio-net" idea, I will send to next
+version and fix it. Otherwise, I hope it can give maintainers the
+motivation that aggregate the vsock(virtio_transport related) and
+virtio-net.
+
+Thanks,
+Yiwen.
