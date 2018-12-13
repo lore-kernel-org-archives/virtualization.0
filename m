@@ -1,14 +1,14 @@
-From: "Michael S. Tsirkin" <mst@redhat.com>
-Subject: Re: [PATCH] vhost: correct the related warning message
-Date: Wed, 12 Dec 2018 21:03:01 -0500
-Message-ID: <20181212210254-mutt-send-email-mst__43463.5114077993$1544666462$gmane$org@kernel.org>
-References: <5C11B176.4040704@huawei.com>
+From: jiangyiwen <jiangyiwen@huawei.com>
+Subject: Re: [PATCH v2 0/5] VSOCK: support mergeable rx buffer in vhost-vsock
+Date: Thu, 13 Dec 2018 10:14:34 +0800
+Message-ID: <5C11C08A.9030006__42602.6130015545$1544667158$gmane$org@huawei.com>
+References: <5C10D41E.9050002@huawei.com>
+	<20181212100835-mutt-send-email-mst@kernel.org>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset="utf-8"
+Content-Transfer-Encoding: base64
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-Content-Disposition: inline
-In-Reply-To: <5C11B176.4040704@huawei.com>
+In-Reply-To: <20181212100835-mutt-send-email-mst@kernel.org>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -18,45 +18,77 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: wangyan <wangyan122@huawei.com>
-Cc: kvm@vger.kernel.org, netdev@vger.kernel.org, virtualization@lists.linux-foundation.org, piaojun <piaojun@huawei.com>, viro@zeniv.linux.org.uk, hch@lst.de
+To: "Michael S. Tsirkin" <mst@redhat.com>
+Cc: netdev@vger.kernel.org, kvm@vger.kernel.org, Stefan Hajnoczi <stefanha@redhat.com>, virtualization@lists.linux-foundation.org
 List-Id: virtualization@lists.linuxfoundation.org
 
-On Thu, Dec 13, 2018 at 09:10:14AM +0800, wangyan wrote:
-> Fixes: 'commit d588cf8f618d ("target: Fix se_tpg_tfo->tf_subsys regression + remove tf_subsystem")'
->        'commit cbbd26b8b1a6 ("[iov_iter] new primitives - copy_from_iter_full() and friends")'
-> 
-> Signed-off-by: Yan Wang <wangyan122@huawei.com>
-> Reviewed-by: Jun Piao <piaojun@huawei.com>
-
-Applied, thanks!
-
-> ---
->  drivers/vhost/scsi.c | 4 ++--
->  1 file changed, 2 insertions(+), 2 deletions(-)
-> 
-> diff --git a/drivers/vhost/scsi.c b/drivers/vhost/scsi.c
-> index 50dffe8..b459b69 100644
-> --- a/drivers/vhost/scsi.c
-> +++ b/drivers/vhost/scsi.c
-> @@ -889,7 +889,7 @@ static void vhost_scsi_submission_work(struct work_struct *work)
->  
->  	if (unlikely(!copy_from_iter_full(vc->req, vc->req_size,
->  					  &vc->out_iter))) {
-> -		vq_err(vq, "Faulted on copy_from_iter\n");
-> +		vq_err(vq, "Faulted on copy_from_iter_full\n");
->  	} else if (unlikely(*vc->lunp != 1)) {
->  		/* virtio-scsi spec requires byte 0 of the lun to be 1 */
->  		vq_err(vq, "Illegal virtio-scsi lun: %u\n", *vc->lunp);
-> @@ -1441,7 +1441,7 @@ static void vhost_scsi_flush(struct vhost_scsi *vs)
->  			se_tpg = &tpg->se_tpg;
->  			ret = target_depend_item(&se_tpg->tpg_group.cg_item);
->  			if (ret) {
-> -				pr_warn("configfs_depend_item() failed: %d\n", ret);
-> +				pr_warn("target_depend_item() failed: %d\n", ret);
->  				kfree(vs_tpg);
->  				mutex_unlock(&tpg->tv_tpg_mutex);
->  				goto out;
-> -- 
-> 1.8.3.1
-> 
+T24gMjAxOC8xMi8xMiAyMzowOSwgTWljaGFlbCBTLiBUc2lya2luIHdyb3RlOgo+IE9uIFdlZCwg
+RGVjIDEyLCAyMDE4IGF0IDA1OjI1OjUwUE0gKzA4MDAsIGppYW5neWl3ZW4gd3JvdGU6Cj4+IE5v
+dyB2c29jayBvbmx5IHN1cHBvcnQgc2VuZC9yZWNlaXZlIHNtYWxsIHBhY2tldCwgaXQgY2FuJ3Qg
+YWNoaWV2ZQo+PiBoaWdoIHBlcmZvcm1hbmNlLiBBcyBwcmV2aW91cyBkaXNjdXNzZWQgd2l0aCBK
+YXNvbiBXYW5nLCBJIHJldmlzaXQgdGhlCj4+IGlkZWEgb2Ygdmhvc3QtbmV0IGFib3V0IG1lcmdl
+YWJsZSByeCBidWZmZXIgYW5kIGltcGxlbWVudCB0aGUgbWVyZ2VhYmxlCj4+IHJ4IGJ1ZmZlciBp
+biB2aG9zdC12c29jaywgaXQgY2FuIGFsbG93IGJpZyBwYWNrZXQgdG8gYmUgc2NhdHRlcmVkIGlu
+Cj4+IGludG8gZGlmZmVyZW50IGJ1ZmZlcnMgYW5kIGltcHJvdmUgcGVyZm9ybWFuY2Ugb2J2aW91
+c2x5Lgo+Pgo+PiBUaGlzIHNlcmllcyBvZiBwYXRjaGVzIG1haW5seSBkaWQgdGhyZWUgdGhpbmdz
+77yaCj4+IC0gbWVyZ2VhYmxlIGJ1ZmZlciBpbXBsZW1lbnRhdGlvbgo+PiAtIGluY3JlYXNlIHRo
+ZSBtYXggc2VuZCBwa3Qgc2l6ZQo+PiAtIGFkZCB1c2VkIGFuZCBzaWduYWwgZ3Vlc3QgaW4gYSBi
+YXRjaAo+Pgo+PiBBbmQgSSB3cml0ZSBhIHRvb2wgdG8gdGVzdCB0aGUgdmhvc3QtdnNvY2sgcGVy
+Zm9ybWFuY2UsIG1haW5seSBzZW5kIGJpZwo+PiBwYWNrZXQoNjRLKSBpbmNsdWRlZCBndWVzdC0+
+SG9zdCBhbmQgSG9zdC0+R3Vlc3QuIEkgdGVzdCBwZXJmb3JtYW5jZQo+PiBpbmRlcGVuZGVudGx5
+IGFuZCB0aGUgcmVzdWx0IGFzIGZvbGxvd3M6Cj4+Cj4+IEJlZm9yZSBwZXJmb3JtYW5jZToKPj4g
+ICAgICAgICAgICAgICBTaW5nbGUgc29ja2V0ICAgICAgICAgICAgTXVsdGlwbGUgc29ja2V0cyhN
+YXggQmFuZHdpZHRoKQo+PiBHdWVzdC0+SG9zdCAgIH40MDBNQi9zICAgICAgICAgICAgICAgICB+
+NDgwTUIvcwo+PiBIb3N0LT5HdWVzdCAgIH4xNDUwTUIvcyAgICAgICAgICAgICAgICB+MTYwME1C
+L3MKPj4KPj4gQWZ0ZXIgcGVyZm9ybWFuY2Ugb25seSB1c2UgaW1wbGVtZW50IG1lcmdlYWJsZSBy
+eCBidWZmZXI6Cj4+ICAgICAgICAgICAgICAgU2luZ2xlIHNvY2tldCAgICAgICAgICAgIE11bHRp
+cGxlIHNvY2tldHMoTWF4IEJhbmR3aWR0aCkKPj4gR3Vlc3QtPkhvc3QgICB+NDAwTUIvcyAgICAg
+ICAgICAgICAgICAgfjQ4ME1CL3MKPj4gSG9zdC0+R3Vlc3QgICB+MTI4ME1CL3MgICAgICAgICAg
+ICAgICAgfjEzNTBNQi9zCj4+Cj4+IEluIHRoaXMgY2FzZSwgbWF4IHNlbmQgcGt0IHNpemUgaXMg
+c3RpbGwgbGltaXRlZCB0byA0Sywgc28gSG9zdC0+R3Vlc3QKPj4gcGVyZm9ybWFuY2Ugd2lsbCB3
+b3JzZSB0aGFuIGJlZm9yZS4KPiAKPiBJdCdzIGNvbmNlcm5pbmcgdGhvdWdoLCB3aGF0IGlmIGFw
+cGxpY2F0aW9uIHNlbmRzIHNtYWxsIHBhY2tldHM/Cj4gV2hhdCBpcyB0aGUgc291cmNlIG9mIHRo
+ZSBzbG93ZG93bj8gRG8geW91IGtub3c/Cj4gCgpIaSBNaWNoYWVsLAoKQmVmb3JlIHBlcmZvcm1h
+bmNlIGlzIHRlc3RlZCBieSBtZSBvbmUgbW9udGggYWdvLCBJIGRvbid0IHJldGVzdCB0aGlzIHRp
+bWUsCnRoaXMgcmVzdWx0IGNhbiBoYXZlIHNvbWUgZmx1Y3R1YXRpb25zLCB0b2RheSBJIHdpbGwg
+cmV0ZXN0IGFsbCBvZiBjYXNlcwppbmNsdWRlZCBzbWFsbCBhbmQgYmlnIHBhY2tldHMsIGFuZCB0
+cnkgdG8gZmluZCBvdXQgdGhlIHNsb3dkb3duIHJlYXNvbi4KClRoYW5rcywKWWl3ZW4uCgo+PiBB
+ZnRlciBwZXJmb3JtYW5jZSBpbmNyZWFzZSB0aGUgbWF4IHNlbmQgcGt0IHNpemUgdG8gNjRLOgo+
+PiAgICAgICAgICAgICAgIFNpbmdsZSBzb2NrZXQgICAgICAgICAgICBNdWx0aXBsZSBzb2NrZXRz
+KE1heCBCYW5kd2lkdGgpCj4+IEd1ZXN0LT5Ib3N0ICAgfjE3MDBNQi9zICAgICAgICAgICAgICAg
+IH4yOTAwTUIvcwo+PiBIb3N0LT5HdWVzdCAgIH4xNTAwTUIvcyAgICAgICAgICAgICAgICB+MjQ0
+ME1CL3MKPj4KPj4gQWZ0ZXIgcGVyZm9ybWFuY2UgYWxsIHBhdGNoZXMgYXJlIHVzZWQ6Cj4+ICAg
+ICAgICAgICAgICAgU2luZ2xlIHNvY2tldCAgICAgICAgICAgIE11bHRpcGxlIHNvY2tldHMoTWF4
+IEJhbmR3aWR0aCkKPj4gR3Vlc3QtPkhvc3QgICB+MTcwME1CL3MgICAgICAgICAgICAgICAgfjI5
+MDBNQi9zCj4+IEhvc3QtPkd1ZXN0ICAgfjE3MDBNQi9zICAgICAgICAgICAgICAgIH4yOTAwTUIv
+cwo+Pgo+PiA+RnJvbSB0aGUgdGVzdCByZXN1bHRzLCB0aGUgcGVyZm9ybWFuY2UgaXMgaW1wcm92
+ZWQgb2J2aW91c2x5LCBhbmQgZ3Vlc3QKPj4gbWVtb3J5IHdpbGwgbm90IGJlIHdhc3RlZC4KPj4K
+Pj4gSW4gYWRkaXRpb24sIGluIG9yZGVyIHRvIHN1cHBvcnQgbWVyZ2VhYmxlIHJ4IGJ1ZmZlciBp
+biB2aXJ0aW8tdnNvY2ssCj4+IHdlIG5lZWQgdG8gYWRkIGEgcWVtdSBwYXRjaCB0byBzdXBwb3J0
+IHBhcnNlIGZlYXR1cmUuCj4+Cj4+IC0tLQo+PiB2MSAtPiB2MjoKPj4gICogQWRkcmVzc2VkIGNv
+bW1lbnRzIGZyb20gSmFzb24gV2FuZy4KPj4gICogQWRkIHBlcmZvcm1hbmNlIHRlc3QgcmVzdWx0
+IGluZGVwZW5kZW50bHkuCj4+ICAqIFVzZSBTa2JfcGFnZV9mcmFnX3JlZmlsbCgpIHdoaWNoIGNh
+biB1c2UgaGlnaCBvcmRlciBwYWdlIGFuZCByZWR1Y2UKPj4gICAgdGhlIHN0cmVzcyBvZiBwYWdl
+IGFsbG9jYXRvci4KPj4gICogU3RpbGwgdXNlIGZpeGVkIHNpemUoUEFHRV9TSVpFKSB0byBmaWxs
+IHJ4IGJ1ZmZlciwgYmVjYXVzZSB0b28gc21hbGwKPj4gICAgc2l6ZSBjYW4ndCBmaWxsIG9uZSBm
+dWxsIHBhY2tldCwgd2Ugb25seSAxMjggdnEgbnVtIG5vdy4KPj4gICogVXNlIGlvdmVjIHRvIHJl
+cGxhY2UgYnVmIGluIHN0cnVjdCB2aXJ0aW9fdnNvY2tfcGt0LCBrZWVwIHR4IGFuZCByeAo+PiAg
+ICBjb25zaXN0ZW5jeS4KPj4gICogQWRkIHZpcnRpb190cmFuc3BvcnQgb3BzIHRvIGdldCBtYXgg
+cGt0IGxlbiwgaW4gb3JkZXIgdG8gYmUgY29tcGF0aWJsZQo+PiAgICB3aXRoIG9sZCB2ZXJzaW9u
+Lgo+PiAtLS0KPj4KPj4gWWl3ZW4gSmlhbmcgKDUpOgo+PiAgIFZTT0NLOiBzdXBwb3J0IGZpbGwg
+bWVyZ2VhYmxlIHJ4IGJ1ZmZlciBpbiBndWVzdAo+PiAgIFZTT0NLOiBzdXBwb3J0IGZpbGwgZGF0
+YSB0byBtZXJnZWFibGUgcnggYnVmZmVyIGluIGhvc3QKPj4gICBWU09DSzogc3VwcG9ydCByZWNl
+aXZlIG1lcmdlYWJsZSByeCBidWZmZXIgaW4gZ3Vlc3QKPj4gICBWU09DSzogaW5jcmVhc2Ugc2Vu
+ZCBwa3QgbGVuIGluIG1lcmdlYWJsZSBtb2RlIHRvIGltcHJvdmUgcGVyZm9ybWFuY2UKPj4gICBW
+U09DSzogYmF0Y2ggc2VuZGluZyByeCBidWZmZXIgdG8gaW5jcmVhc2UgYmFuZHdpZHRoCj4+Cj4+
+ICBkcml2ZXJzL3Zob3N0L3Zzb2NrLmMgICAgICAgICAgICAgICAgICAgfCAxODMgKysrKysrKysr
+KysrKysrKysrKystLS0tLQo+PiAgaW5jbHVkZS9saW51eC92aXJ0aW9fdnNvY2suaCAgICAgICAg
+ICAgIHwgIDEzICstCj4+ICBpbmNsdWRlL3VhcGkvbGludXgvdmlydGlvX3Zzb2NrLmggICAgICAg
+fCAgIDUgKwo+PiAgbmV0L3Ztd192c29jay92aXJ0aW9fdHJhbnNwb3J0LmMgICAgICAgIHwgMjI5
+ICsrKysrKysrKysrKysrKysrKysrKysrKysrKy0tLS0tCj4+ICBuZXQvdm13X3Zzb2NrL3ZpcnRp
+b190cmFuc3BvcnRfY29tbW9uLmMgfCAgNjYgKysrKysrLS0tCj4+ICA1IGZpbGVzIGNoYW5nZWQs
+IDQxMSBpbnNlcnRpb25zKCspLCA4NSBkZWxldGlvbnMoLSkKPj4KPj4gLS0gCj4+IDEuOC4zLjEK
+PiAKPiAuCj4gCgoKX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19f
+X18KVmlydHVhbGl6YXRpb24gbWFpbGluZyBsaXN0ClZpcnR1YWxpemF0aW9uQGxpc3RzLmxpbnV4
+LWZvdW5kYXRpb24ub3JnCmh0dHBzOi8vbGlzdHMubGludXhmb3VuZGF0aW9uLm9yZy9tYWlsbWFu
+L2xpc3RpbmZvL3ZpcnR1YWxpemF0aW9u
