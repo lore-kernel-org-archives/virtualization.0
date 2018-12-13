@@ -1,7 +1,7 @@
 From: Jason Wang <jasowang@redhat.com>
-Subject: [PATCH net-next 2/3] vhost: fine grain userspace memory accessors
-Date: Thu, 13 Dec 2018 18:10:21 +0800
-Message-ID: <20181213101022.12475-3-jasowang__42742.2516899698$1544695726$gmane$org@redhat.com>
+Subject: [PATCH net-next 1/3] vhost: generalize adding used elem
+Date: Thu, 13 Dec 2018 18:10:20 +0800
+Message-ID: <20181213101022.12475-2-jasowang__47203.416520688$1544695734$gmane$org@redhat.com>
 References: <20181213101022.12475-1-jasowang@redhat.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
@@ -20,209 +20,35 @@ Errors-To: virtualization-bounces@lists.linux-foundation.org
 To: mst@redhat.com, jasowang@redhat.com, kvm@vger.kernel.org, virtualization@lists.linux-foundation.org, netdev@vger.kernel.org, linux-kernel@vger.kernel.org
 List-Id: virtualization@lists.linuxfoundation.org
 
-This is used to hide the metadata address from virtqueue helpers. This
-will allow to implement a vmap based fast accessing to metadata.
+Use one generic vhost_copy_to_user() instead of two dedicated
+accessor. This will simplify the conversion to fine grain accessors.
 
 Signed-off-by: Jason Wang <jasowang@redhat.com>
 ---
- drivers/vhost/vhost.c | 94 +++++++++++++++++++++++++++++++++++--------
- 1 file changed, 77 insertions(+), 17 deletions(-)
+ drivers/vhost/vhost.c | 11 +----------
+ 1 file changed, 1 insertion(+), 10 deletions(-)
 
 diff --git a/drivers/vhost/vhost.c b/drivers/vhost/vhost.c
-index 1c54ec1b82f8..bafe39d2e637 100644
+index 3a5f81a66d34..1c54ec1b82f8 100644
 --- a/drivers/vhost/vhost.c
 +++ b/drivers/vhost/vhost.c
-@@ -871,6 +871,34 @@ static inline void __user *__vhost_get_user(struct vhost_virtqueue *vq,
- 	ret; \
- })
- 
-+static inline int vhost_put_avail_event(struct vhost_virtqueue *vq)
-+{
-+	return vhost_put_user(vq, cpu_to_vhost16(vq, vq->avail_idx),
-+			      vhost_avail_event(vq));
-+}
-+
-+static inline int vhost_put_used(struct vhost_virtqueue *vq,
-+				 struct vring_used_elem *head, int idx,
-+				 int count)
-+{
-+	return vhost_copy_to_user(vq, vq->used->ring + idx, head,
-+				  count * sizeof(*head));
-+}
-+
-+static inline int vhost_put_used_flags(struct vhost_virtqueue *vq)
-+
-+{
-+	return vhost_put_user(vq, cpu_to_vhost16(vq, vq->used_flags),
-+			      &vq->used->flags);
-+}
-+
-+static inline int vhost_put_used_idx(struct vhost_virtqueue *vq)
-+
-+{
-+	return vhost_put_user(vq, cpu_to_vhost16(vq, vq->last_used_idx),
-+			      &vq->used->idx);
-+}
-+
- #define vhost_get_user(vq, x, ptr, type)		\
- ({ \
- 	int ret; \
-@@ -895,6 +923,43 @@ static inline void __user *__vhost_get_user(struct vhost_virtqueue *vq,
- #define vhost_get_used(vq, x, ptr) \
- 	vhost_get_user(vq, x, ptr, VHOST_ADDR_USED)
- 
-+static inline int vhost_get_avail_idx(struct vhost_virtqueue *vq,
-+				      __virtio16 *idx)
-+{
-+	return vhost_get_avail(vq, *idx, &vq->avail->idx);
-+}
-+
-+static inline int vhost_get_avail_head(struct vhost_virtqueue *vq,
-+				       __virtio16 *head, int idx)
-+{
-+	return vhost_get_avail(vq, *head,
-+			       &vq->avail->ring[idx & (vq->num - 1)]);
-+}
-+
-+static inline int vhost_get_avail_flags(struct vhost_virtqueue *vq,
-+					__virtio16 *flags)
-+{
-+	return vhost_get_avail(vq, *flags, &vq->avail->flags);
-+}
-+
-+static inline int vhost_get_used_event(struct vhost_virtqueue *vq,
-+				       __virtio16 *event)
-+{
-+	return vhost_get_avail(vq, *event, vhost_used_event(vq));
-+}
-+
-+static inline int vhost_get_used_idx(struct vhost_virtqueue *vq,
-+				     __virtio16 *idx)
-+{
-+	return vhost_get_used(vq, *idx, &vq->used->idx);
-+}
-+
-+static inline int vhost_get_desc(struct vhost_virtqueue *vq,
-+				 struct vring_desc *desc, int idx)
-+{
-+	return vhost_copy_from_user(vq, desc, vq->desc + idx, sizeof(*desc));
-+}
-+
- static int vhost_new_umem_range(struct vhost_umem *umem,
- 				u64 start, u64 size, u64 end,
- 				u64 userspace_addr, int perm)
-@@ -1751,8 +1816,7 @@ EXPORT_SYMBOL_GPL(vhost_log_write);
- static int vhost_update_used_flags(struct vhost_virtqueue *vq)
- {
- 	void __user *used;
--	if (vhost_put_user(vq, cpu_to_vhost16(vq, vq->used_flags),
--			   &vq->used->flags) < 0)
-+	if (vhost_put_used_flags(vq))
- 		return -EFAULT;
- 	if (unlikely(vq->log_used)) {
- 		/* Make sure the flag is seen before log. */
-@@ -1770,8 +1834,7 @@ static int vhost_update_used_flags(struct vhost_virtqueue *vq)
- 
- static int vhost_update_avail_event(struct vhost_virtqueue *vq, u16 avail_event)
- {
--	if (vhost_put_user(vq, cpu_to_vhost16(vq, vq->avail_idx),
--			   vhost_avail_event(vq)))
-+	if (vhost_put_avail_event(vq))
- 		return -EFAULT;
- 	if (unlikely(vq->log_used)) {
- 		void __user *used;
-@@ -1808,7 +1871,7 @@ int vhost_vq_init_access(struct vhost_virtqueue *vq)
- 		r = -EFAULT;
- 		goto err;
- 	}
--	r = vhost_get_used(vq, last_used_idx, &vq->used->idx);
-+	r = vhost_get_used_idx(vq, &last_used_idx);
- 	if (r) {
- 		vq_err(vq, "Can't access used idx at %p\n",
- 		       &vq->used->idx);
-@@ -2007,7 +2070,7 @@ int vhost_get_vq_desc(struct vhost_virtqueue *vq,
- 	last_avail_idx = vq->last_avail_idx;
- 
- 	if (vq->avail_idx == vq->last_avail_idx) {
--		if (unlikely(vhost_get_avail(vq, avail_idx, &vq->avail->idx))) {
-+		if (unlikely(vhost_get_avail_idx(vq, &avail_idx))) {
- 			vq_err(vq, "Failed to access avail idx at %p\n",
- 				&vq->avail->idx);
- 			return -EFAULT;
-@@ -2034,8 +2097,7 @@ int vhost_get_vq_desc(struct vhost_virtqueue *vq,
- 
- 	/* Grab the next descriptor number they're advertising, and increment
- 	 * the index we've seen. */
--	if (unlikely(vhost_get_avail(vq, ring_head,
--		     &vq->avail->ring[last_avail_idx & (vq->num - 1)]))) {
-+	if (unlikely(vhost_get_avail_head(vq, &ring_head, last_avail_idx))) {
- 		vq_err(vq, "Failed to read head: idx %d address %p\n",
- 		       last_avail_idx,
- 		       &vq->avail->ring[last_avail_idx % vq->num]);
-@@ -2070,8 +2132,7 @@ int vhost_get_vq_desc(struct vhost_virtqueue *vq,
- 			       i, vq->num, head);
- 			return -EINVAL;
- 		}
--		ret = vhost_copy_from_user(vq, &desc, vq->desc + i,
--					   sizeof desc);
-+		ret = vhost_get_desc(vq, &desc, i);
- 		if (unlikely(ret)) {
- 			vq_err(vq, "Failed to get descriptor: idx %d addr %p\n",
- 			       i, vq->desc + i);
-@@ -2164,7 +2225,7 @@ static int __vhost_add_used_n(struct vhost_virtqueue *vq,
+@@ -2164,16 +2164,7 @@ static int __vhost_add_used_n(struct vhost_virtqueue *vq,
  
  	start = vq->last_used_idx & (vq->num - 1);
  	used = vq->used->ring + start;
--	if (vhost_copy_to_user(vq, used, heads, count * sizeof *used)) {
-+	if (vhost_put_used(vq, heads, start, count)) {
+-	if (count == 1) {
+-		if (vhost_put_user(vq, heads[0].id, &used->id)) {
+-			vq_err(vq, "Failed to write used id");
+-			return -EFAULT;
+-		}
+-		if (vhost_put_user(vq, heads[0].len, &used->len)) {
+-			vq_err(vq, "Failed to write used len");
+-			return -EFAULT;
+-		}
+-	} else if (vhost_copy_to_user(vq, used, heads, count * sizeof *used)) {
++	if (vhost_copy_to_user(vq, used, heads, count * sizeof *used)) {
  		vq_err(vq, "Failed to write used");
  		return -EFAULT;
  	}
-@@ -2208,8 +2269,7 @@ int vhost_add_used_n(struct vhost_virtqueue *vq, struct vring_used_elem *heads,
- 
- 	/* Make sure buffer is written before we update index. */
- 	smp_wmb();
--	if (vhost_put_user(vq, cpu_to_vhost16(vq, vq->last_used_idx),
--			   &vq->used->idx)) {
-+	if (vhost_put_used_idx(vq)) {
- 		vq_err(vq, "Failed to increment used idx");
- 		return -EFAULT;
- 	}
-@@ -2241,7 +2301,7 @@ static bool vhost_notify(struct vhost_dev *dev, struct vhost_virtqueue *vq)
- 
- 	if (!vhost_has_feature(vq, VIRTIO_RING_F_EVENT_IDX)) {
- 		__virtio16 flags;
--		if (vhost_get_avail(vq, flags, &vq->avail->flags)) {
-+		if (vhost_get_avail_flags(vq, &flags)) {
- 			vq_err(vq, "Failed to get flags");
- 			return true;
- 		}
-@@ -2255,7 +2315,7 @@ static bool vhost_notify(struct vhost_dev *dev, struct vhost_virtqueue *vq)
- 	if (unlikely(!v))
- 		return true;
- 
--	if (vhost_get_avail(vq, event, vhost_used_event(vq))) {
-+	if (vhost_get_used_event(vq, &event)) {
- 		vq_err(vq, "Failed to get used event idx");
- 		return true;
- 	}
-@@ -2300,7 +2360,7 @@ bool vhost_vq_avail_empty(struct vhost_dev *dev, struct vhost_virtqueue *vq)
- 	if (vq->avail_idx != vq->last_avail_idx)
- 		return false;
- 
--	r = vhost_get_avail(vq, avail_idx, &vq->avail->idx);
-+	r = vhost_get_avail_idx(vq, &avail_idx);
- 	if (unlikely(r))
- 		return false;
- 	vq->avail_idx = vhost16_to_cpu(vq, avail_idx);
-@@ -2336,7 +2396,7 @@ bool vhost_enable_notify(struct vhost_dev *dev, struct vhost_virtqueue *vq)
- 	/* They could have slipped one in as we were doing that: make
- 	 * sure it's written, then check again. */
- 	smp_mb();
--	r = vhost_get_avail(vq, avail_idx, &vq->avail->idx);
-+	r = vhost_get_avail_idx(vq, &avail_idx);
- 	if (r) {
- 		vq_err(vq, "Failed to check avail idx at %p: %d\n",
- 		       &vq->avail->idx, r);
 -- 
 2.17.1
