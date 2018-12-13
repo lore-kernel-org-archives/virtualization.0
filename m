@@ -1,14 +1,16 @@
-From: jiangyiwen <jiangyiwen@huawei.com>
-Subject: Re: [PATCH v2 3/5] VSOCK: support receive mergeable rx buffer in guest
-Date: Thu, 13 Dec 2018 10:38:09 +0800
-Message-ID: <5C11C611.40901@huawei.com>
-References: <5C10D57B.3070701@huawei.com>
-	<20181212101936-mutt-send-email-mst@kernel.org>
+From: Jason Wang <jasowang@redhat.com>
+Subject: Re: [PATCH net V2 4/4] vhost: log dirty page correctly
+Date: Thu, 13 Dec 2018 10:39:41 +0800
+Message-ID: <0239c220-e7ca-c08f-be26-eb9be63fced3__6357.00552161342$1544668686$gmane$org@redhat.com>
+References: <20181212100819.21295-1-jasowang@redhat.com>
+	<20181212100819.21295-5-jasowang@redhat.com>
+	<20181212092435-mutt-send-email-mst@kernel.org>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset="utf-8"; Format="flowed"
+Content-Transfer-Encoding: base64
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <20181212101936-mutt-send-email-mst@kernel.org>
+In-Reply-To: <20181212092435-mutt-send-email-mst@kernel.org>
+Content-Language: en-US
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -19,457 +21,145 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
 To: "Michael S. Tsirkin" <mst@redhat.com>
-Cc: netdev@vger.kernel.org, kvm@vger.kernel.org, Stefan Hajnoczi <stefanha@redhat.com>, virtualization@lists.linux-foundation.org
+Cc: Jintack Lim <jintack@cs.columbia.edu>, netdev@vger.kernel.org, linux-kernel@vger.kernel.org, kvm@vger.kernel.org, virtualization@lists.linux-foundation.org
 List-Id: virtualization@lists.linuxfoundation.org
 
-Hi Michael,
-
-On 2018/12/12 23:31, Michael S. Tsirkin wrote:
-> On Wed, Dec 12, 2018 at 05:31:39PM +0800, jiangyiwen wrote:
->> Guest receive mergeable rx buffer, it can merge
->> scatter rx buffer into a big buffer and then copy
->> to user space.
->>
->> In addition, it also use iovec to replace buf in struct
->> virtio_vsock_pkt, keep tx and rx consistency. The only
->> difference is now tx still uses a segment of continuous
->> physical memory to implement.
->>
->> Signed-off-by: Yiwen Jiang <jiangyiwen@huawei.com>
->> ---
->>  drivers/vhost/vsock.c                   |  31 +++++++---
->>  include/linux/virtio_vsock.h            |   6 +-
->>  net/vmw_vsock/virtio_transport.c        | 105 ++++++++++++++++++++++++++++----
->>  net/vmw_vsock/virtio_transport_common.c |  59 ++++++++++++++----
->>  4 files changed, 166 insertions(+), 35 deletions(-)
-> 
-> 
-> This was supposed to be a guest patch, why is vhost changed here?
-> 
-
-In mergeable rx buff cases, it need to scatter big packets into several
-buffers, so I add kvec variable in struct virtio_vsock_pkt, at the same
-time, in order to keep tx and rx consistency, I use kvec to replace
-variable buf, because vhost use the variable pkt->buf, so this patch
-caused vhost is changed.
-
->> diff --git a/drivers/vhost/vsock.c b/drivers/vhost/vsock.c
->> index dc52b0f..c7ab0dd 100644
->> --- a/drivers/vhost/vsock.c
->> +++ b/drivers/vhost/vsock.c
->> @@ -179,6 +179,8 @@ static int get_rx_bufs(struct vhost_virtqueue *vq,
->>  		size_t nbytes;
->>  		size_t len;
->>  		s16 headcount;
->> +		size_t remain_len;
->> +		int i;
->>
->>  		spin_lock_bh(&vsock->send_pkt_list_lock);
->>  		if (list_empty(&vsock->send_pkt_list)) {
->> @@ -221,11 +223,19 @@ static int get_rx_bufs(struct vhost_virtqueue *vq,
->>  			break;
->>  		}
->>
->> -		nbytes = copy_to_iter(pkt->buf, pkt->len, &iov_iter);
->> -		if (nbytes != pkt->len) {
->> -			virtio_transport_free_pkt(pkt);
->> -			vq_err(vq, "Faulted on copying pkt buf\n");
->> -			break;
->> +		remain_len = pkt->len;
->> +		for (i = 0; i < pkt->nr_vecs; i++) {
->> +			int tmp_len;
->> +
->> +			tmp_len = min(remain_len, pkt->vec[i].iov_len);
->> +			nbytes = copy_to_iter(pkt->vec[i].iov_base, tmp_len, &iov_iter);
->> +			if (nbytes != tmp_len) {
->> +				virtio_transport_free_pkt(pkt);
->> +				vq_err(vq, "Faulted on copying pkt buf\n");
->> +				break;
->> +			}
->> +
->> +			remain_len -= tmp_len;
->>  		}
->>
->>  		vhost_add_used_n(vq, vq->heads, headcount);
->> @@ -341,6 +351,7 @@ static void vhost_transport_send_pkt_work(struct vhost_work *work)
->>  	struct iov_iter iov_iter;
->>  	size_t nbytes;
->>  	size_t len;
->> +	void *buf;
->>
->>  	if (in != 0) {
->>  		vq_err(vq, "Expected 0 input buffers, got %u\n", in);
->> @@ -375,13 +386,17 @@ static void vhost_transport_send_pkt_work(struct vhost_work *work)
->>  		return NULL;
->>  	}
->>
->> -	pkt->buf = kmalloc(pkt->len, GFP_KERNEL);
->> -	if (!pkt->buf) {
->> +	buf = kmalloc(pkt->len, GFP_KERNEL);
->> +	if (!buf) {
->>  		kfree(pkt);
->>  		return NULL;
->>  	}
->>
->> -	nbytes = copy_from_iter(pkt->buf, pkt->len, &iov_iter);
->> +	pkt->vec[0].iov_base = buf;
->> +	pkt->vec[0].iov_len = pkt->len;
->> +	pkt->nr_vecs = 1;
->> +
->> +	nbytes = copy_from_iter(buf, pkt->len, &iov_iter);
->>  	if (nbytes != pkt->len) {
->>  		vq_err(vq, "Expected %u byte payload, got %zu bytes\n",
->>  		       pkt->len, nbytes);
->> diff --git a/include/linux/virtio_vsock.h b/include/linux/virtio_vsock.h
->> index da9e1fe..734eeed 100644
->> --- a/include/linux/virtio_vsock.h
->> +++ b/include/linux/virtio_vsock.h
->> @@ -13,6 +13,8 @@
->>  #define VIRTIO_VSOCK_DEFAULT_RX_BUF_SIZE	(1024 * 4)
->>  #define VIRTIO_VSOCK_MAX_BUF_SIZE		0xFFFFFFFFUL
->>  #define VIRTIO_VSOCK_MAX_PKT_BUF_SIZE		(1024 * 64)
->> +/* virtio_vsock_pkt + max_pkt_len(default MAX_PKT_BUF_SIZE) */
->> +#define VIRTIO_VSOCK_MAX_VEC_NUM ((VIRTIO_VSOCK_MAX_PKT_BUF_SIZE / PAGE_SIZE) + 1)
->>
->>  /* Virtio-vsock feature */
->>  #define VIRTIO_VSOCK_F_MRG_RXBUF 0 /* Host can merge receive buffers. */
->> @@ -55,10 +57,12 @@ struct virtio_vsock_pkt {
->>  	struct list_head list;
->>  	/* socket refcnt not held, only use for cancellation */
->>  	struct vsock_sock *vsk;
->> -	void *buf;
->> +	struct kvec vec[VIRTIO_VSOCK_MAX_VEC_NUM];
->> +	int nr_vecs;
->>  	u32 len;
->>  	u32 off;
->>  	bool reply;
->> +	bool mergeable;
->>  };
->>
->>  struct virtio_vsock_pkt_info {
->> diff --git a/net/vmw_vsock/virtio_transport.c b/net/vmw_vsock/virtio_transport.c
->> index c4a465c..148b58a 100644
->> --- a/net/vmw_vsock/virtio_transport.c
->> +++ b/net/vmw_vsock/virtio_transport.c
->> @@ -155,8 +155,10 @@ static int virtio_transport_send_pkt_loopback(struct virtio_vsock *vsock,
->>
->>  		sg_init_one(&hdr, &pkt->hdr, sizeof(pkt->hdr));
->>  		sgs[out_sg++] = &hdr;
->> -		if (pkt->buf) {
->> -			sg_init_one(&buf, pkt->buf, pkt->len);
->> +		if (pkt->len) {
->> +			/* Currently only support a segment of memory in tx */
->> +			BUG_ON(pkt->vec[0].iov_len != pkt->len);
->> +			sg_init_one(&buf, pkt->vec[0].iov_base, pkt->vec[0].iov_len);
->>  			sgs[out_sg++] = &buf;
->>  		}
->>
->> @@ -304,23 +306,28 @@ static int fill_old_rx_buff(struct virtqueue *vq)
->>  	struct virtio_vsock_pkt *pkt;
->>  	struct scatterlist hdr, buf, *sgs[2];
->>  	int ret;
->> +	void *pkt_buf;
->>
->>  	pkt = kzalloc(sizeof(*pkt), GFP_KERNEL);
->>  	if (!pkt)
->>  		return -ENOMEM;
->>
->> -	pkt->buf = kmalloc(buf_len, GFP_KERNEL);
->> -	if (!pkt->buf) {
->> +	pkt_buf = kmalloc(buf_len, GFP_KERNEL);
->> +	if (!pkt_buf) {
->>  		virtio_transport_free_pkt(pkt);
->>  		return -ENOMEM;
->>  	}
->>
->> +	pkt->vec[0].iov_base = pkt_buf;
->> +	pkt->vec[0].iov_len = buf_len;
->> +	pkt->nr_vecs = 1;
->> +
->>  	pkt->len = buf_len;
->>
->>  	sg_init_one(&hdr, &pkt->hdr, sizeof(pkt->hdr));
->>  	sgs[0] = &hdr;
->>
->> -	sg_init_one(&buf, pkt->buf, buf_len);
->> +	sg_init_one(&buf, pkt->vec[0].iov_base, buf_len);
->>  	sgs[1] = &buf;
->>  	ret = virtqueue_add_sgs(vq, sgs, 0, 2, pkt, GFP_KERNEL);
->>  	if (ret)
->> @@ -388,11 +395,78 @@ static bool virtio_transport_more_replies(struct virtio_vsock *vsock)
->>  	return val < virtqueue_get_vring_size(vq);
->>  }
->>
->> +static struct virtio_vsock_pkt *receive_mergeable(struct virtqueue *vq,
->> +		struct virtio_vsock *vsock, unsigned int *total_len)
->> +{
->> +	struct virtio_vsock_pkt *pkt;
->> +	u16 num_buf;
->> +	void *buf;
->> +	unsigned int len;
->> +	size_t vsock_hlen = sizeof(struct virtio_vsock_pkt);
->> +
->> +	buf = virtqueue_get_buf(vq, &len);
->> +	if (!buf)
->> +		return NULL;
->> +
->> +	*total_len = len;
->> +	vsock->rx_buf_nr--;
->> +
->> +	if (unlikely(len < vsock_hlen)) {
->> +		put_page(virt_to_head_page(buf));
->> +		return NULL;
->> +	}
->> +
->> +	pkt = buf;
->> +	num_buf = le16_to_cpu(pkt->mrg_rxbuf_hdr.num_buffers);
->> +	if (!num_buf || num_buf > VIRTIO_VSOCK_MAX_VEC_NUM) {
->> +		put_page(virt_to_head_page(buf));
->> +		return NULL;
->> +	}
-> 
-> So everything just stops going, and host and user don't even
-> know what the reason is. And not only that - the next
-> packet will be corrupted because we skipped the first one.
-> 
-> 
-
-I understand this case will not encountered unless the code has
-*BUG*, like Host send some problematic packages (shorten/longer than
-expected). In this case, I think we should ignore/drop these packets.
-
-> 
->> +
->> +	/* Initialize pkt residual structure */
->> +	memset(&pkt->work, 0, vsock_hlen - sizeof(struct virtio_vsock_hdr) -
->> +			sizeof(struct virtio_vsock_mrg_rxbuf_hdr));
->> +
->> +	pkt->mergeable = true;
->> +	pkt->len = le32_to_cpu(pkt->hdr.len);
->> +	if (!pkt->len)
->> +		return pkt;
->> +
->> +	len -= vsock_hlen;
->> +	if (len) {
->> +		pkt->vec[pkt->nr_vecs].iov_base = buf + vsock_hlen;
->> +		pkt->vec[pkt->nr_vecs].iov_len = len;
->> +		/* Shared page with pkt, so get page in advance */
->> +		get_page(virt_to_head_page(buf));
->> +		pkt->nr_vecs++;
->> +	}
->> +
->> +	while (--num_buf) {
->> +		buf = virtqueue_get_buf(vq, &len);
->> +		if (!buf)
->> +			goto err;
->> +
->> +		*total_len += len;
->> +		vsock->rx_buf_nr--;
->> +
->> +		pkt->vec[pkt->nr_vecs].iov_base = buf;
->> +		pkt->vec[pkt->nr_vecs].iov_len = len;
->> +		pkt->nr_vecs++;
->> +	}
->> +
->> +	return pkt;
->> +err:
->> +	virtio_transport_free_pkt(pkt);
->> +	return NULL;
->> +}
->> +
->>  static void virtio_transport_rx_work(struct work_struct *work)
->>  {
->>  	struct virtio_vsock *vsock =
->>  		container_of(work, struct virtio_vsock, rx_work);
->>  	struct virtqueue *vq;
->> +	size_t vsock_hlen = vsock->mergeable ? sizeof(struct virtio_vsock_pkt) :
->> +			sizeof(struct virtio_vsock_hdr);
->>
->>  	vq = vsock->vqs[VSOCK_VQ_RX];
->>
->> @@ -412,21 +486,26 @@ static void virtio_transport_rx_work(struct work_struct *work)
->>  				goto out;
->>  			}
->>
->> -			pkt = virtqueue_get_buf(vq, &len);
->> -			if (!pkt) {
->> -				break;
->> -			}
->> +			if (likely(vsock->mergeable)) {
->> +				pkt = receive_mergeable(vq, vsock, &len);
->> +				if (!pkt)
->> +					break;
->> +			} else {
->> +				pkt = virtqueue_get_buf(vq, &len);
->> +				if (!pkt)
->> +					break;
->>
-> 
-> So looking at it, this seems to be the main source of the gain.
-> But why does this require host/guest changes?
-> 
-> 
-> The way I see it:
-> 	- get a buffer and create an skb
-> 	- get the next one, check header matches, if yes
-> 	  tack it on the skb as a fragment. If not then
-> 	  don't, deliver previous one and queue the new one.
-> 
-> 
-
-Vhost change reason I explain as above, and I hope use kvec
-to instead buf, after all buf only can express a contiguous
-physical memory.
-
-Thanks,
-Yiwen.
-
-> 
->> -			vsock->rx_buf_nr--;
->> +				vsock->rx_buf_nr--;
->> +			}
->>
->>  			/* Drop short/long packets */
->> -			if (unlikely(len < sizeof(pkt->hdr) ||
->> -				     len > sizeof(pkt->hdr) + pkt->len)) {
->> +			if (unlikely(len < vsock_hlen ||
->> +				     len > vsock_hlen + pkt->len)) {
->>  				virtio_transport_free_pkt(pkt);
->>  				continue;
->>  			}
->>
->> -			pkt->len = len - sizeof(pkt->hdr);
->> +			pkt->len = len - vsock_hlen;
->>  			virtio_transport_deliver_tap_pkt(pkt);
->>  			virtio_transport_recv_pkt(pkt);
->>  		}
->> diff --git a/net/vmw_vsock/virtio_transport_common.c b/net/vmw_vsock/virtio_transport_common.c
->> index 3ae3a33..123a8b6 100644
->> --- a/net/vmw_vsock/virtio_transport_common.c
->> +++ b/net/vmw_vsock/virtio_transport_common.c
->> @@ -44,6 +44,7 @@ static const struct virtio_transport *virtio_transport_get_ops(void)
->>  {
->>  	struct virtio_vsock_pkt *pkt;
->>  	int err;
->> +	void *buf = NULL;
->>
->>  	pkt = kzalloc(sizeof(*pkt), GFP_KERNEL);
->>  	if (!pkt)
->> @@ -62,12 +63,16 @@ static const struct virtio_transport *virtio_transport_get_ops(void)
->>  	pkt->vsk		= info->vsk;
->>
->>  	if (info->msg && len > 0) {
->> -		pkt->buf = kmalloc(len, GFP_KERNEL);
->> -		if (!pkt->buf)
->> +		buf = kmalloc(len, GFP_KERNEL);
->> +		if (!buf)
->>  			goto out_pkt;
->> -		err = memcpy_from_msg(pkt->buf, info->msg, len);
->> +		err = memcpy_from_msg(buf, info->msg, len);
->>  		if (err)
->>  			goto out;
->> +
->> +		pkt->vec[0].iov_base = buf;
->> +		pkt->vec[0].iov_len = len;
->> +		pkt->nr_vecs = 1;
->>  	}
->>
->>  	trace_virtio_transport_alloc_pkt(src_cid, src_port,
->> @@ -80,7 +85,7 @@ static const struct virtio_transport *virtio_transport_get_ops(void)
->>  	return pkt;
->>
->>  out:
->> -	kfree(pkt->buf);
->> +	kfree(buf);
->>  out_pkt:
->>  	kfree(pkt);
->>  	return NULL;
->> @@ -92,6 +97,7 @@ static struct sk_buff *virtio_transport_build_skb(void *opaque)
->>  	struct virtio_vsock_pkt *pkt = opaque;
->>  	struct af_vsockmon_hdr *hdr;
->>  	struct sk_buff *skb;
->> +	int i;
->>
->>  	skb = alloc_skb(sizeof(*hdr) + sizeof(pkt->hdr) + pkt->len,
->>  			GFP_ATOMIC);
->> @@ -134,7 +140,8 @@ static struct sk_buff *virtio_transport_build_skb(void *opaque)
->>  	skb_put_data(skb, &pkt->hdr, sizeof(pkt->hdr));
->>
->>  	if (pkt->len) {
->> -		skb_put_data(skb, pkt->buf, pkt->len);
->> +		for (i = 0; i < pkt->nr_vecs; i++)
->> +			skb_put_data(skb, pkt->vec[i].iov_base, pkt->vec[i].iov_len);
->>  	}
->>
->>  	return skb;
->> @@ -260,6 +267,9 @@ static int virtio_transport_send_credit_update(struct vsock_sock *vsk,
->>
->>  	spin_lock_bh(&vvs->rx_lock);
->>  	while (total < len && !list_empty(&vvs->rx_queue)) {
->> +		size_t copy_bytes, last_vec_total = 0, vec_off;
->> +		int i;
->> +
->>  		pkt = list_first_entry(&vvs->rx_queue,
->>  				       struct virtio_vsock_pkt, list);
->>
->> @@ -272,14 +282,28 @@ static int virtio_transport_send_credit_update(struct vsock_sock *vsk,
->>  		 */
->>  		spin_unlock_bh(&vvs->rx_lock);
->>
->> -		err = memcpy_to_msg(msg, pkt->buf + pkt->off, bytes);
->> -		if (err)
->> -			goto out;
->> +		for (i = 0; i < pkt->nr_vecs; i++) {
->> +			if (pkt->off > last_vec_total + pkt->vec[i].iov_len) {
->> +				last_vec_total += pkt->vec[i].iov_len;
->> +				continue;
->> +			}
->> +
->> +			vec_off = pkt->off - last_vec_total;
->> +			copy_bytes = min(pkt->vec[i].iov_len - vec_off, bytes);
->> +			err = memcpy_to_msg(msg, pkt->vec[i].iov_base + vec_off,
->> +					copy_bytes);
->> +			if (err)
->> +				goto out;
->> +
->> +			bytes -= copy_bytes;
->> +			pkt->off += copy_bytes;
->> +			total += copy_bytes;
->> +			last_vec_total += pkt->vec[i].iov_len;
->> +			if (!bytes)
->> +				break;
->> +		}
->>
->>  		spin_lock_bh(&vvs->rx_lock);
->> -
->> -		total += bytes;
->> -		pkt->off += bytes;
->>  		if (pkt->off == pkt->len) {
->>  			virtio_transport_dec_rx_pkt(vvs, pkt);
->>  			list_del(&pkt->list);
->> @@ -1050,8 +1074,17 @@ void virtio_transport_recv_pkt(struct virtio_vsock_pkt *pkt)
->>
->>  void virtio_transport_free_pkt(struct virtio_vsock_pkt *pkt)
->>  {
->> -	kfree(pkt->buf);
->> -	kfree(pkt);
->> +	int i;
->> +
->> +	if (pkt->mergeable) {
->> +		for (i = 0; i < pkt->nr_vecs; i++)
->> +			put_page(virt_to_head_page(pkt->vec[i].iov_base));
->> +		put_page(virt_to_head_page((void *)pkt));
->> +	} else {
->> +		for (i = 0; i < pkt->nr_vecs; i++)
->> +			kfree(pkt->vec[i].iov_base);
->> +		kfree(pkt);
->> +	}
->>  }
->>  EXPORT_SYMBOL_GPL(virtio_transport_free_pkt);
->>
->> -- 
->> 1.8.3.1
->>
-> 
-> .
-> 
+Ck9uIDIwMTgvMTIvMTIg5LiL5Y2IMTA6MzIsIE1pY2hhZWwgUy4gVHNpcmtpbiB3cm90ZToKPiBP
+biBXZWQsIERlYyAxMiwgMjAxOCBhdCAwNjowODoxOVBNICswODAwLCBKYXNvbiBXYW5nIHdyb3Rl
+Ogo+PiBWaG9zdCBkaXJ0eSBwYWdlIGxvZ2dpbmcgQVBJIGlzIGRlc2lnbmVkIHRvIHN5bmMgdGhy
+b3VnaCBHUEEuIEJ1dCB3ZQo+PiB0cnkgdG8gbG9nIEdJT1ZBIHdoZW4gZGV2aWNlIElPVExCIGlz
+IGVuYWJsZWQuIFRoaXMgaXMgd3JvbmcgYW5kIG1heQo+PiBsZWFkIHRvIG1pc3NpbmcgZGF0YSBh
+ZnRlciBtaWdyYXRpb24uCj4+Cj4+IFRvIHNvbHZlIHRoaXMgaXNzdWUsIHdoZW4gbG9nZ2luZyB3
+aXRoIGRldmljZSBJT1RMQiBlbmFibGVkLCB3ZSB3aWxsOgo+Pgo+PiAxKSByZXVzZSB0aGUgZGV2
+aWNlIElPVExCIHRyYW5zbGF0aW9uIHJlc3VsdCBvZiBHSU9WQS0+SFZBIG1hcHBpbmcgdG8KPj4g
+ICAgIGdldCBIVkEsIGZvciB3cml0YWJsZSBkZXNjcmlwdG9yLCBnZXQgSFZBIHRocm91Z2ggaW92
+ZWMuIEZvciB1c2VkCj4+ICAgICByaW5nIHVwZGF0ZSwgdHJhbnNsYXRlIGl0cyBHSU9WQSB0byBI
+VkEKPj4gMikgdHJhdmVyc2UgdGhlIEdQQS0+SFZBIG1hcHBpbmcgdG8gZ2V0IHRoZSBwb3NzaWJs
+ZSBHUEEgYW5kIGxvZwo+PiAgICAgdGhyb3VnaCBHUEEuIFBheSBhdHRlbnRpb24gdGhpcyByZXZl
+cnNlIG1hcHBpbmcgaXMgbm90IGd1YXJhbnRlZWQKPj4gICAgIHRvIGJlIHVuaXF1ZSwgc28gd2Ug
+c2hvdWxkIGxvZyBlYWNoIHBvc3NpYmxlIEdQQSBpbiB0aGlzIGNhc2UuCj4+Cj4+IFRoaXMgZml4
+IHRoZSBmYWlsdXJlIG9mIHNjcCB0byBndWVzdCBkdXJpbmcgbWlncmF0aW9uLiBJbiAtbmV4dCwg
+d2UKPj4gd2lsbCBwcm9iYWJseSBzdXBwb3J0IHBhc3NpbmcgR0lPVkEtPkdQQSBpbnN0ZWFkIG9m
+IEdJT1ZBLT5IVkEuCj4+Cj4+IEZpeGVzOiA2YjFlNmNjNzg1NWIgKCJ2aG9zdDogbmV3IGRldmlj
+ZSBJT1RMQiBBUEkiKQo+PiBSZXBvcnRlZC1ieTogSmludGFjayBMaW0gPGppbnRhY2tAY3MuY29s
+dW1iaWEuZWR1Pgo+PiBDYzogSmludGFjayBMaW0gPGppbnRhY2tAY3MuY29sdW1iaWEuZWR1Pgo+
+PiBTaWduZWQtb2ZmLWJ5OiBKYXNvbiBXYW5nIDxqYXNvd2FuZ0ByZWRoYXQuY29tPgo+IEl0J3Mg
+YSBuYXN0eSBidWcgZm9yIHN1cmUgYnV0IGl0J3MgYmVlbiBsaWtlIHRoaXMgZm9yIGEgbG9uZwo+
+IHRpbWUgc28gSSdtIGluY2xpbmVkIHRvIHNheSBsZXQncyBwdXQgaXQgaW4gNC4yMSwKPiBhbmQg
+cXVldWUgZm9yIHN0YWJsZS4KPgo+IFNvIHBsZWFzZSBzcGxpdCB0aGlzIG91dCBmcm9tIHRoaXMg
+c2VyaWVzLgoKCk9rLgoKCj4KPiBBbHNvLCBJJ2QgbGlrZSB0byBzZWUgYSBmZWF0dXJlIGJpdCB0
+aGF0IGFsbG93cyBHUEEgaW4gSU9UTEJzLgoKCkp1c3QgdG8gbWFrZSBzdXJlIEkgdW5kZXJzdGFu
+ZCB0aGlzLiBJdCBsb29rcyB0byBtZSB3ZSBzaG91bGQ6CgotIGFsbG93IHBhc3NpbmcgR0lPVkEt
+PkdQQSB0aHJvdWdoIFVBUEkKCi0gY2FjaGUgR0lPVkEtPkdQQSBzb21ld2hlcmUgYnV0IHN0aWxs
+IHVzZSBHSU9WQS0+SFZBIGluIGRldmljZSBJT1RMQiAKZm9yIHBlcmZvcm1hbmNlCgpJcyB0aGlz
+IHdoYXQgeW91IHN1Z2dlc3Q/CgpUaGFua3MKCgo+Cj4+IC0tLQo+PiAgIGRyaXZlcnMvdmhvc3Qv
+bmV0LmMgICB8ICAzICstCj4+ICAgZHJpdmVycy92aG9zdC92aG9zdC5jIHwgNzkgKysrKysrKysr
+KysrKysrKysrKysrKysrKysrKysrKysrKystLS0tLS0tLQo+PiAgIGRyaXZlcnMvdmhvc3Qvdmhv
+c3QuaCB8ICAzICstCj4+ICAgMyBmaWxlcyBjaGFuZ2VkLCA2OSBpbnNlcnRpb25zKCspLCAxNiBk
+ZWxldGlvbnMoLSkKPj4KPj4gZGlmZiAtLWdpdCBhL2RyaXZlcnMvdmhvc3QvbmV0LmMgYi9kcml2
+ZXJzL3Zob3N0L25ldC5jCj4+IGluZGV4IGFkN2E2ZjQ3NWE0NC4uNzg0ZGYyYjQ5NjI4IDEwMDY0
+NAo+PiAtLS0gYS9kcml2ZXJzL3Zob3N0L25ldC5jCj4+ICsrKyBiL2RyaXZlcnMvdmhvc3QvbmV0
+LmMKPj4gQEAgLTExOTIsNyArMTE5Miw4IEBAIHN0YXRpYyB2b2lkIGhhbmRsZV9yeChzdHJ1Y3Qg
+dmhvc3RfbmV0ICpuZXQpCj4+ICAgCQlpZiAobnZxLT5kb25lX2lkeCA+IFZIT1NUX05FVF9CQVRD
+SCkKPj4gICAJCQl2aG9zdF9uZXRfc2lnbmFsX3VzZWQobnZxKTsKPj4gICAJCWlmICh1bmxpa2Vs
+eSh2cV9sb2cpKQo+PiAtCQkJdmhvc3RfbG9nX3dyaXRlKHZxLCB2cV9sb2csIGxvZywgdmhvc3Rf
+bGVuKTsKPj4gKwkJCXZob3N0X2xvZ193cml0ZSh2cSwgdnFfbG9nLCBsb2csIHZob3N0X2xlbiwK
+Pj4gKwkJCQkJdnEtPmlvdiwgaW4pOwo+PiAgIAkJdG90YWxfbGVuICs9IHZob3N0X2xlbjsKPj4g
+ICAJCWlmICh1bmxpa2VseSh2aG9zdF9leGNlZWRzX3dlaWdodCgrK3JlY3ZfcGt0cywgdG90YWxf
+bGVuKSkpIHsKPj4gICAJCQl2aG9zdF9wb2xsX3F1ZXVlKCZ2cS0+cG9sbCk7Cj4+IGRpZmYgLS1n
+aXQgYS9kcml2ZXJzL3Zob3N0L3Zob3N0LmMgYi9kcml2ZXJzL3Zob3N0L3Zob3N0LmMKPj4gaW5k
+ZXggNTVlNWFhNjYyYWQ1Li4zNjYwMzEwNjA0ZmQgMTAwNjQ0Cj4+IC0tLSBhL2RyaXZlcnMvdmhv
+c3Qvdmhvc3QuYwo+PiArKysgYi9kcml2ZXJzL3Zob3N0L3Zob3N0LmMKPj4gQEAgLTE3MzMsMTEg
+KzE3MzMsNjcgQEAgc3RhdGljIGludCBsb2dfd3JpdGUodm9pZCBfX3VzZXIgKmxvZ19iYXNlLAo+
+PiAgIAlyZXR1cm4gcjsKPj4gICB9Cj4+ICAgCj4+ICtzdGF0aWMgaW50IGxvZ193cml0ZV9odmEo
+c3RydWN0IHZob3N0X3ZpcnRxdWV1ZSAqdnEsIHU2NCBodmEsIHU2NCBsZW4pCj4+ICt7Cj4+ICsJ
+c3RydWN0IHZob3N0X3VtZW0gKnVtZW0gPSB2cS0+dW1lbTsKPj4gKwlzdHJ1Y3Qgdmhvc3RfdW1l
+bV9ub2RlICp1Owo+PiArCXU2NCBncGE7Cj4+ICsJaW50IHI7Cj4+ICsJYm9vbCBoaXQgPSBmYWxz
+ZTsKPj4gKwo+PiArCWxpc3RfZm9yX2VhY2hfZW50cnkodSwgJnVtZW0tPnVtZW1fbGlzdCwgbGlu
+aykgewo+PiArCQlpZiAodS0+dXNlcnNwYWNlX2FkZHIgPCBodmEgJiYKPj4gKwkJICAgIHUtPnVz
+ZXJzcGFjZV9hZGRyICsgdS0+c2l6ZSA+PQo+PiArCQkgICAgaHZhICsgbGVuKSB7Cj4+ICsJCQln
+cGEgPSB1LT5zdGFydCArIGh2YSAtIHUtPnVzZXJzcGFjZV9hZGRyOwo+PiArCQkJciA9IGxvZ193
+cml0ZSh2cS0+bG9nX2Jhc2UsIGdwYSwgbGVuKTsKPj4gKwkJCWlmIChyIDwgMCkKPj4gKwkJCQly
+ZXR1cm4gcjsKPj4gKwkJCWhpdCA9IHRydWU7Cj4+ICsJCX0KPj4gKwl9Cj4+ICsKPj4gKwkvKiBO
+byByZXZlcnNlIG1hcHBpbmcsIHNob3VsZCBiZSBhIGJ1ZyAqLwo+PiArCVdBUk5fT04oIWhpdCk7
+Cj4gTWF5YmUgaXQgc2hvdWxkIGJ1dCB1c2Vyc3BhY2UgY2FuIHRyaWdnZXIgdGhpcyBlYXNpbHkg
+SSB0aGluay4KPiBXZSBuZWVkIHRvIHN0b3AgdGhlIGRldmljZSBub3Qgd2FybiBpbiBrZXJuZWwg
+bG9nLgo+Cj4gQWxzbyB0aGVyZSdzIGFuIGVycm9yIGZkOiBWSE9TVF9TRVRfVlJJTkdfRVJSLCBu
+ZWVkIHRvIHdha2UgaXQgdXAuCj4KCk9rLgoKCj4+ICsJcmV0dXJuIDA7Cj4+ICt9Cj4+ICsKPj4g
+K3N0YXRpYyB2b2lkIGxvZ191c2VkKHN0cnVjdCB2aG9zdF92aXJ0cXVldWUgKnZxLCB1NjQgdXNl
+ZF9vZmZzZXQsIHU2NCBsZW4pCj4+ICt7Cj4+ICsJc3RydWN0IGlvdmVjIGlvdls2NF07Cj4+ICsJ
+aW50IGksIHJldDsKPj4gKwo+PiArCWlmICghdnEtPmlvdGxiKSB7Cj4+ICsJCWxvZ193cml0ZSh2
+cS0+bG9nX2Jhc2UsIHZxLT5sb2dfYWRkciArIHVzZWRfb2Zmc2V0LCBsZW4pOwo+PiArCQlyZXR1
+cm47Cj4+ICsJfQo+IFRoaXMgY2hhbmdlIHNlZW1zIHF1ZXN0aW9uYWJsZS4gdXNlZCByaW5nIHdy
+aXRlcwo+IHVzZSB0aGVpciBvd24gbWFjaGluZXJ5IGl0IGRvZXMgbm90IGdvIHRocm91Z2ggaW90
+bGIuCj4gU2FtZSBzaG91bGQgYXBwbHkgdG8gbG9nIEkgdGhpbmsuCgoKVGhlIHByb2JsZW0gaXMg
+dXNlZCByaW5nIG1heSBub3QgYmUgcGh5c2ljYWxseSBjb250aWd1b3VzIHdpdGggRGV2aWNlIApJ
+T1RMQiBlbmFibGVkLiBTbyBpdCBzaG91bGQgZ28gdGhyb3VnaCBpdC4KCgo+Cj4+ICsKPj4gKwly
+ZXQgPSB0cmFuc2xhdGVfZGVzYyh2cSwgKHU2NCkodWludHB0cl90KXZxLT51c2VkICsgdXNlZF9v
+ZmZzZXQsCj4+ICsJCQkgICAgIGxlbiwgaW92LCA2NCwgVkhPU1RfQUNDRVNTX1dPKTsKPj4gKwlX
+QVJOX09OKHJldCA8IDApOwo+Cj4gU2FtZSB0aGluZyBoZXJlLiB0cmFuc2xhdGlvbiBmYWlsdXJl
+cyBjYW4gYmUgdHJpZ2dlcmVkIGZyb20gZ3Vlc3QuCj4gd2FybiBvbiBpcyBub3QgYSBnb29kIGVy
+cm9yIGhhbmRsaW5nIHN0cmF0ZWd5IC4uLgoKCk9rLiBMZXQgbWUgZml4IGl0LgoKClRoYW5rcwoK
+Cj4+ICsKPj4gKwlmb3IgKGkgPSAwOyBpIDwgcmV0OyBpKyspIHsKPj4gKwkJcmV0ID0gbG9nX3dy
+aXRlX2h2YSh2cSwJKHU2NCkodWludHB0cl90KWlvdltpXS5pb3ZfYmFzZSwKPj4gKwkJCQkgICAg
+aW92W2ldLmlvdl9sZW4pOwo+PiArCQlXQVJOX09OKHJldCk7Cj4+ICsJfQo+PiArfQo+PiArCj4+
+ICAgaW50IHZob3N0X2xvZ193cml0ZShzdHJ1Y3Qgdmhvc3RfdmlydHF1ZXVlICp2cSwgc3RydWN0
+IHZob3N0X2xvZyAqbG9nLAo+PiAtCQkgICAgdW5zaWduZWQgaW50IGxvZ19udW0sIHU2NCBsZW4p
+Cj4+ICsJCSAgICB1bnNpZ25lZCBpbnQgbG9nX251bSwgdTY0IGxlbiwgc3RydWN0IGlvdmVjICpp
+b3YsIGludCBjb3VudCkKPj4gICB7Cj4+ICAgCWludCBpLCByOwo+PiAgIAo+PiArCWlmICh2cS0+
+aW90bGIpIHsKPj4gKwkJZm9yIChpID0gMDsgaSA8IGNvdW50OyBpKyspIHsKPj4gKwkJCXIgPSBs
+b2dfd3JpdGVfaHZhKHZxLCAodTY0KSh1aW50cHRyX3QpaW92W2ldLmlvdl9iYXNlLAo+PiArCQkJ
+CQkgIGlvdltpXS5pb3ZfbGVuKTsKPj4gKwkJCWlmIChyIDwgMCkKPj4gKwkJCQlyZXR1cm4gcjsK
+Pj4gKwkJfQo+PiArCQlyZXR1cm4gMDsKPj4gKwl9Cj4+ICsKPj4gICAJLyogTWFrZSBzdXJlIGRh
+dGEgd3JpdHRlbiBpcyBzZWVuIGJlZm9yZSBsb2cuICovCj4+ICAgCXNtcF93bWIoKTsKPj4gICAJ
+Zm9yIChpID0gMDsgaSA8IGxvZ19udW07ICsraSkgewo+PiBAQCAtMTc2OSw5ICsxODI1LDggQEAg
+c3RhdGljIGludCB2aG9zdF91cGRhdGVfdXNlZF9mbGFncyhzdHJ1Y3Qgdmhvc3RfdmlydHF1ZXVl
+ICp2cSkKPj4gICAJCXNtcF93bWIoKTsKPj4gICAJCS8qIExvZyB1c2VkIGZsYWcgd3JpdGUuICov
+Cj4+ICAgCQl1c2VkID0gJnZxLT51c2VkLT5mbGFnczsKPj4gLQkJbG9nX3dyaXRlKHZxLT5sb2df
+YmFzZSwgdnEtPmxvZ19hZGRyICsKPj4gLQkJCSAgKHVzZWQgLSAodm9pZCBfX3VzZXIgKil2cS0+
+dXNlZCksCj4+IC0JCQkgIHNpemVvZiB2cS0+dXNlZC0+ZmxhZ3MpOwo+PiArCQlsb2dfdXNlZCh2
+cSwgKHVzZWQgLSAodm9pZCBfX3VzZXIgKil2cS0+dXNlZCksCj4+ICsJCQkgc2l6ZW9mIHZxLT51
+c2VkLT5mbGFncyk7Cj4+ICAgCQlpZiAodnEtPmxvZ19jdHgpCj4+ICAgCQkJZXZlbnRmZF9zaWdu
+YWwodnEtPmxvZ19jdHgsIDEpOwo+PiAgIAl9Cj4+IEBAIC0xNzg5LDkgKzE4NDQsOCBAQCBzdGF0
+aWMgaW50IHZob3N0X3VwZGF0ZV9hdmFpbF9ldmVudChzdHJ1Y3Qgdmhvc3RfdmlydHF1ZXVlICp2
+cSwgdTE2IGF2YWlsX2V2ZW50KQo+PiAgIAkJc21wX3dtYigpOwo+PiAgIAkJLyogTG9nIGF2YWls
+IGV2ZW50IHdyaXRlICovCj4+ICAgCQl1c2VkID0gdmhvc3RfYXZhaWxfZXZlbnQodnEpOwo+PiAt
+CQlsb2dfd3JpdGUodnEtPmxvZ19iYXNlLCB2cS0+bG9nX2FkZHIgKwo+PiAtCQkJICAodXNlZCAt
+ICh2b2lkIF9fdXNlciAqKXZxLT51c2VkKSwKPj4gLQkJCSAgc2l6ZW9mICp2aG9zdF9hdmFpbF9l
+dmVudCh2cSkpOwo+PiArCQlsb2dfdXNlZCh2cSwgKHVzZWQgLSAodm9pZCBfX3VzZXIgKil2cS0+
+dXNlZCksCj4+ICsJCQkgc2l6ZW9mICp2aG9zdF9hdmFpbF9ldmVudCh2cSkpOwo+PiAgIAkJaWYg
+KHZxLT5sb2dfY3R4KQo+PiAgIAkJCWV2ZW50ZmRfc2lnbmFsKHZxLT5sb2dfY3R4LCAxKTsKPj4g
+ICAJfQo+PiBAQCAtMjE5MSwxMCArMjI0NSw4IEBAIHN0YXRpYyBpbnQgX192aG9zdF9hZGRfdXNl
+ZF9uKHN0cnVjdCB2aG9zdF92aXJ0cXVldWUgKnZxLAo+PiAgIAkJLyogTWFrZSBzdXJlIGRhdGEg
+aXMgc2VlbiBiZWZvcmUgbG9nLiAqLwo+PiAgIAkJc21wX3dtYigpOwo+PiAgIAkJLyogTG9nIHVz
+ZWQgcmluZyBlbnRyeSB3cml0ZS4gKi8KPj4gLQkJbG9nX3dyaXRlKHZxLT5sb2dfYmFzZSwKPj4g
+LQkJCSAgdnEtPmxvZ19hZGRyICsKPj4gLQkJCSAgICgodm9pZCBfX3VzZXIgKil1c2VkIC0gKHZv
+aWQgX191c2VyICopdnEtPnVzZWQpLAo+PiAtCQkJICBjb3VudCAqIHNpemVvZiAqdXNlZCk7Cj4+
+ICsJCWxvZ191c2VkKHZxLCAoKHZvaWQgX191c2VyICopdXNlZCAtICh2b2lkIF9fdXNlciAqKXZx
+LT51c2VkKSwKPj4gKwkJCSBjb3VudCAqIHNpemVvZiAqdXNlZCk7Cj4+ICAgCX0KPj4gICAJb2xk
+ID0gdnEtPmxhc3RfdXNlZF9pZHg7Cj4+ICAgCW5ldyA9ICh2cS0+bGFzdF91c2VkX2lkeCArPSBj
+b3VudCk7Cj4+IEBAIC0yMjM2LDkgKzIyODgsOCBAQCBpbnQgdmhvc3RfYWRkX3VzZWRfbihzdHJ1
+Y3Qgdmhvc3RfdmlydHF1ZXVlICp2cSwgc3RydWN0IHZyaW5nX3VzZWRfZWxlbSAqaGVhZHMsCj4+
+ICAgCQkvKiBNYWtlIHN1cmUgdXNlZCBpZHggaXMgc2VlbiBiZWZvcmUgbG9nLiAqLwo+PiAgIAkJ
+c21wX3dtYigpOwo+PiAgIAkJLyogTG9nIHVzZWQgaW5kZXggdXBkYXRlLiAqLwo+PiAtCQlsb2df
+d3JpdGUodnEtPmxvZ19iYXNlLAo+PiAtCQkJICB2cS0+bG9nX2FkZHIgKyBvZmZzZXRvZihzdHJ1
+Y3QgdnJpbmdfdXNlZCwgaWR4KSwKPj4gLQkJCSAgc2l6ZW9mIHZxLT51c2VkLT5pZHgpOwo+PiAr
+CQlsb2dfdXNlZCh2cSwgb2Zmc2V0b2Yoc3RydWN0IHZyaW5nX3VzZWQsIGlkeCksCj4+ICsJCQkg
+c2l6ZW9mIHZxLT51c2VkLT5pZHgpOwo+PiAgIAkJaWYgKHZxLT5sb2dfY3R4KQo+PiAgIAkJCWV2
+ZW50ZmRfc2lnbmFsKHZxLT5sb2dfY3R4LCAxKTsKPj4gICAJfQo+PiBkaWZmIC0tZ2l0IGEvZHJp
+dmVycy92aG9zdC92aG9zdC5oIGIvZHJpdmVycy92aG9zdC92aG9zdC5oCj4+IGluZGV4IDQ2NmVm
+NzU0MjI5MS4uMWI2NzVkYWQ1ZTA1IDEwMDY0NAo+PiAtLS0gYS9kcml2ZXJzL3Zob3N0L3Zob3N0
+LmgKPj4gKysrIGIvZHJpdmVycy92aG9zdC92aG9zdC5oCj4+IEBAIC0yMDUsNyArMjA1LDggQEAg
+Ym9vbCB2aG9zdF92cV9hdmFpbF9lbXB0eShzdHJ1Y3Qgdmhvc3RfZGV2ICosIHN0cnVjdCB2aG9z
+dF92aXJ0cXVldWUgKik7Cj4+ICAgYm9vbCB2aG9zdF9lbmFibGVfbm90aWZ5KHN0cnVjdCB2aG9z
+dF9kZXYgKiwgc3RydWN0IHZob3N0X3ZpcnRxdWV1ZSAqKTsKPj4gICAKPj4gICBpbnQgdmhvc3Rf
+bG9nX3dyaXRlKHN0cnVjdCB2aG9zdF92aXJ0cXVldWUgKnZxLCBzdHJ1Y3Qgdmhvc3RfbG9nICps
+b2csCj4+IC0JCSAgICB1bnNpZ25lZCBpbnQgbG9nX251bSwgdTY0IGxlbik7Cj4+ICsJCSAgICB1
+bnNpZ25lZCBpbnQgbG9nX251bSwgdTY0IGxlbiwKPj4gKwkJICAgIHN0cnVjdCBpb3ZlYyAqaW92
+LCBpbnQgY291bnQpOwo+PiAgIGludCB2cV9pb3RsYl9wcmVmZXRjaChzdHJ1Y3Qgdmhvc3Rfdmly
+dHF1ZXVlICp2cSk7Cj4+ICAgCj4+ICAgc3RydWN0IHZob3N0X21zZ19ub2RlICp2aG9zdF9uZXdf
+bXNnKHN0cnVjdCB2aG9zdF92aXJ0cXVldWUgKnZxLCBpbnQgdHlwZSk7Cj4+IC0tIAo+PiAyLjE3
+LjEKX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX18KVmlydHVh
+bGl6YXRpb24gbWFpbGluZyBsaXN0ClZpcnR1YWxpemF0aW9uQGxpc3RzLmxpbnV4LWZvdW5kYXRp
+b24ub3JnCmh0dHBzOi8vbGlzdHMubGludXhmb3VuZGF0aW9uLm9yZy9tYWlsbWFuL2xpc3RpbmZv
+L3ZpcnR1YWxpemF0aW9u
