@@ -1,15 +1,11 @@
-From: Jean-Philippe Brucker <jean-philippe.brucker@arm.com>
-Subject: Re: [PATCH v6 0/7] Add virtio-iommu driver
-Date: Thu, 13 Dec 2018 12:50:29 +0000
-Message-ID: <9110873f-d344-b6b9-c722-9accfc329db2__22006.6243819476$1544705347$gmane$org@arm.com>
-References: <20181211182104.18241-1-jean-philippe.brucker@arm.com>
-	<20181212103545.GV16835@8bytes.org>
+From: Gerd Hoffmann <kraxel@redhat.com>
+Subject: [PATCH] drm/virtio: switch to generic fbdev emulation
+Date: Thu, 13 Dec 2018 14:49:15 +0100
+Message-ID: <20181213134915.24722-1-kraxel__6686.36539853669$1544708836$gmane$org@redhat.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="windows-1252"
-Content-Transfer-Encoding: quoted-printable
+Content-Type: text/plain; charset="us-ascii"
+Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <20181212103545.GV16835@8bytes.org>
-Content-Language: en-US
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -19,84 +15,330 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Joerg Roedel <joro@8bytes.org>
-Cc: Mark Rutland <Mark.Rutland@arm.com>, "virtio-dev@lists.oasis-open.org" <virtio-dev@lists.oasis-open.org>, Lorenzo Pieralisi <Lorenzo.Pieralisi@arm.com>, "tnowicki@caviumnetworks.com" <tnowicki@caviumnetworks.com>, "mst@redhat.com" <mst@redhat.com>, Marc Zyngier <Marc.Zyngier@arm.com>, "linux-pci@vger.kernel.org" <linux-pci@vger.kernel.org>, Will Deacon <Will.Deacon@arm.com>, Robin Murphy <Robin.Murphy@arm.com>, "virtualization@lists.linux-foundation.org" <virtualization@lists.linux-foundation.org>, "eric.auger@redhat.com" <eric.auger@redhat.com>, "iommu@lists.linux-foundation.org" <iommu@lists.linux-foundation.org>, "robh+dt@kernel.org" <robh+dt@kernel.org>, "bhelgaas@google.com" <bhelgaas@google.com>, "kvmarm@lists.cs.columbia.edu" <kvmarm@lists.cs.columbia.edu>, "devicetree@vger.kernel.org" <devicetree@vger.kernel.org>
+To: dri-devel@lists.freedesktop.org
+Cc: David Airlie <airlied@linux.ie>, open list <linux-kernel@vger.kernel.org>, "open list:VIRTIO GPU DRIVER" <virtualization@lists.linux-foundation.org>
 List-Id: virtualization@lists.linuxfoundation.org
 
-Hi Joerg,
+Signed-off-by: Gerd Hoffmann <kraxel@redhat.com>
+---
+ drivers/gpu/drm/virtio/virtgpu_drv.h     |  14 ---
+ drivers/gpu/drm/virtio/virtgpu_display.c |   1 -
+ drivers/gpu/drm/virtio/virtgpu_drv.c     |   9 +-
+ drivers/gpu/drm/virtio/virtgpu_fb.c      | 191 -------------------------------
+ drivers/gpu/drm/virtio/virtgpu_kms.c     |   8 --
+ 5 files changed, 8 insertions(+), 215 deletions(-)
 
-On 12/12/2018 10:35, Joerg Roedel wrote:
-> Hi,
-> =
-
-> to make progress on this, we should first agree on the protocol used
-> between guest and host. I have a few points to discuss on the protocol
-> first.
-> =
-
-> On Tue, Dec 11, 2018 at 06:20:57PM +0000, Jean-Philippe Brucker wrote:
->> [1] Virtio-iommu specification v0.9, sources and pdf
->>=A0=A0=A0=A0 git://linux-arm.org/virtio-iommu.git virtio-iommu/v0.9
->>=A0=A0=A0=A0 http://jpbrucker.net/virtio-iommu/spec/v0.9/virtio-iommu-v0.=
-9.pdf
-> =
-
-> Looking at this I wonder why it doesn't make the IOTLB visible to the
-> guest. the UNMAP requests seem to require that the TLB is already
-> flushed to make the unmap visible.
-> =
-
-> I think that will cost significant performance for both, vfio and
-> dma-iommu use-cases which both do (vfio at least to some degree),
-> deferred flushing.
-
-We already do deferred flush: UNMAP requests are added to the queue by
-iommu_unmap(), and then flushed out by iotlb_sync(). So we switch to the
-host only on iotlb_sync(), or when the request queue is full.
-
-> I also wonder whether the protocol should implement a
-> protocol version handshake and iommu-feature set queries.
-
-With the virtio transport there is a handshake when the device (IOMMU)
-is initialized, through feature bits and global config fields. Feature
-bits are made of both transport-specific features, including the version
-number, and device-specific features defined in section 2.3 of the above
-document (the transport is described in the virtio 1.0 specification).
-The device presents features that it supports in a register, and the
-driver masks out the feature bits that it doesn't support. Then the
-driver sets the global status to FEATURES_OK and initialization continues.
-
-In addition virtio-iommu has per-endpoint features through the PROBE
-request, since the vIOMMU may manage hardware (VFIO) and software
-(virtio) endpoints at the same time, which don't have the same DMA
-capabilities (different IOVA ranges, page granularity, reserved ranges,
-pgtable sharing, etc). At the moment this is a one-way probe, not a
-handshake. The device simply fills the properties of each endpoint, but
-the driver doesn't have to ack them. Initially there was a way to
-negotiate each PROBE property but it was deemed unnecessary during
-review. By leaving a few spare bits in the property headers I made sure
-it can be added back with a feature bit if we ever need it.
-
->> [3] git://linux-arm.org/linux-jpb.git virtio-iommu/v0.9.1
->>=A0=A0=A0=A0 git://linux-arm.org/kvmtool-jpb.git virtio-iommu/v0.9
-> =
-
-> Unfortunatly gitweb seems to be broken on linux-arm.org. What is missing
-> in this patch-set to make this work on x86?
-
-You should be able to access it here:
-http://www.linux-arm.org/git?p=3Dlinux-jpb.git;a=3Dshortlog;h=3Drefs/heads/=
-virtio-iommu/devel
-
-That branch contains missing bits for x86 support:
-
-* ACPI support. We have the code but it's waiting for an IORT spec
-update, to reserve the IORT node ID. I expect it to take a while, given
-that I'm alone requesting a change for something that's not upstream or
-in hardware.
-
-* DMA ops for x86 (see "HACK" commit). I'd like to use dma-iommu but I'm
-not sure how to implement the glue that sets dma_ops properly.
-
-Thanks,
-Jean
+diff --git a/drivers/gpu/drm/virtio/virtgpu_drv.h b/drivers/gpu/drm/virtio/virtgpu_drv.h
+index 1deb41d42e..63704915f8 100644
+--- a/drivers/gpu/drm/virtio/virtgpu_drv.h
++++ b/drivers/gpu/drm/virtio/virtgpu_drv.h
+@@ -137,19 +137,10 @@ struct virtio_gpu_framebuffer {
+ #define to_virtio_gpu_framebuffer(x) \
+ 	container_of(x, struct virtio_gpu_framebuffer, base)
+ 
+-struct virtio_gpu_fbdev {
+-	struct drm_fb_helper           helper;
+-	struct virtio_gpu_framebuffer  vgfb;
+-	struct virtio_gpu_device       *vgdev;
+-	struct delayed_work            work;
+-};
+-
+ struct virtio_gpu_mman {
+ 	struct ttm_bo_device		bdev;
+ };
+ 
+-struct virtio_gpu_fbdev;
+-
+ struct virtio_gpu_queue {
+ 	struct virtqueue *vq;
+ 	spinlock_t qlock;
+@@ -180,8 +171,6 @@ struct virtio_gpu_device {
+ 
+ 	struct virtio_gpu_mman mman;
+ 
+-	/* pointer to fbdev info structure */
+-	struct virtio_gpu_fbdev *vgfbdev;
+ 	struct virtio_gpu_output outputs[VIRTIO_GPU_MAX_SCANOUTS];
+ 	uint32_t num_scanouts;
+ 
+@@ -249,9 +238,6 @@ int virtio_gpu_mode_dumb_mmap(struct drm_file *file_priv,
+ 			      uint32_t handle, uint64_t *offset_p);
+ 
+ /* virtio_fb */
+-#define VIRTIO_GPUFB_CONN_LIMIT 1
+-int virtio_gpu_fbdev_init(struct virtio_gpu_device *vgdev);
+-void virtio_gpu_fbdev_fini(struct virtio_gpu_device *vgdev);
+ int virtio_gpu_surface_dirty(struct virtio_gpu_framebuffer *qfb,
+ 			     struct drm_clip_rect *clips,
+ 			     unsigned int num_clips);
+diff --git a/drivers/gpu/drm/virtio/virtgpu_display.c b/drivers/gpu/drm/virtio/virtgpu_display.c
+index b5580b11a0..e1c223e18d 100644
+--- a/drivers/gpu/drm/virtio/virtgpu_display.c
++++ b/drivers/gpu/drm/virtio/virtgpu_display.c
+@@ -390,6 +390,5 @@ void virtio_gpu_modeset_fini(struct virtio_gpu_device *vgdev)
+ 
+ 	for (i = 0 ; i < vgdev->num_scanouts; ++i)
+ 		kfree(vgdev->outputs[i].edid);
+-	virtio_gpu_fbdev_fini(vgdev);
+ 	drm_mode_config_cleanup(vgdev->ddev);
+ }
+diff --git a/drivers/gpu/drm/virtio/virtgpu_drv.c b/drivers/gpu/drm/virtio/virtgpu_drv.c
+index f7f32a885a..7df50920c1 100644
+--- a/drivers/gpu/drm/virtio/virtgpu_drv.c
++++ b/drivers/gpu/drm/virtio/virtgpu_drv.c
+@@ -42,13 +42,20 @@ module_param_named(modeset, virtio_gpu_modeset, int, 0400);
+ 
+ static int virtio_gpu_probe(struct virtio_device *vdev)
+ {
++	int ret;
++
+ 	if (vgacon_text_force() && virtio_gpu_modeset == -1)
+ 		return -EINVAL;
+ 
+ 	if (virtio_gpu_modeset == 0)
+ 		return -EINVAL;
+ 
+-	return drm_virtio_init(&driver, vdev);
++	ret = drm_virtio_init(&driver, vdev);
++	if (ret)
++		return ret;
++
++	drm_fbdev_generic_setup(vdev->priv, 32);
++	return 0;
+ }
+ 
+ static void virtio_gpu_remove(struct virtio_device *vdev)
+diff --git a/drivers/gpu/drm/virtio/virtgpu_fb.c b/drivers/gpu/drm/virtio/virtgpu_fb.c
+index fb1cc8b2f1..b07584b1c2 100644
+--- a/drivers/gpu/drm/virtio/virtgpu_fb.c
++++ b/drivers/gpu/drm/virtio/virtgpu_fb.c
+@@ -27,8 +27,6 @@
+ #include <drm/drm_fb_helper.h>
+ #include "virtgpu_drv.h"
+ 
+-#define VIRTIO_GPU_FBCON_POLL_PERIOD (HZ / 60)
+-
+ static int virtio_gpu_dirty_update(struct virtio_gpu_framebuffer *fb,
+ 				   bool store, int x, int y,
+ 				   int width, int height)
+@@ -150,192 +148,3 @@ int virtio_gpu_surface_dirty(struct virtio_gpu_framebuffer *vgfb,
+ 				      left, top, right - left, bottom - top);
+ 	return 0;
+ }
+-
+-static void virtio_gpu_fb_dirty_work(struct work_struct *work)
+-{
+-	struct delayed_work *delayed_work = to_delayed_work(work);
+-	struct virtio_gpu_fbdev *vfbdev =
+-		container_of(delayed_work, struct virtio_gpu_fbdev, work);
+-	struct virtio_gpu_framebuffer *vgfb = &vfbdev->vgfb;
+-
+-	virtio_gpu_dirty_update(&vfbdev->vgfb, false, vgfb->x1, vgfb->y1,
+-				vgfb->x2 - vgfb->x1, vgfb->y2 - vgfb->y1);
+-}
+-
+-static void virtio_gpu_3d_fillrect(struct fb_info *info,
+-				   const struct fb_fillrect *rect)
+-{
+-	struct virtio_gpu_fbdev *vfbdev = info->par;
+-
+-	drm_fb_helper_sys_fillrect(info, rect);
+-	virtio_gpu_dirty_update(&vfbdev->vgfb, true, rect->dx, rect->dy,
+-			     rect->width, rect->height);
+-	schedule_delayed_work(&vfbdev->work, VIRTIO_GPU_FBCON_POLL_PERIOD);
+-}
+-
+-static void virtio_gpu_3d_copyarea(struct fb_info *info,
+-				   const struct fb_copyarea *area)
+-{
+-	struct virtio_gpu_fbdev *vfbdev = info->par;
+-
+-	drm_fb_helper_sys_copyarea(info, area);
+-	virtio_gpu_dirty_update(&vfbdev->vgfb, true, area->dx, area->dy,
+-			   area->width, area->height);
+-	schedule_delayed_work(&vfbdev->work, VIRTIO_GPU_FBCON_POLL_PERIOD);
+-}
+-
+-static void virtio_gpu_3d_imageblit(struct fb_info *info,
+-				    const struct fb_image *image)
+-{
+-	struct virtio_gpu_fbdev *vfbdev = info->par;
+-
+-	drm_fb_helper_sys_imageblit(info, image);
+-	virtio_gpu_dirty_update(&vfbdev->vgfb, true, image->dx, image->dy,
+-			     image->width, image->height);
+-	schedule_delayed_work(&vfbdev->work, VIRTIO_GPU_FBCON_POLL_PERIOD);
+-}
+-
+-static struct fb_ops virtio_gpufb_ops = {
+-	.owner = THIS_MODULE,
+-	DRM_FB_HELPER_DEFAULT_OPS,
+-	.fb_fillrect = virtio_gpu_3d_fillrect,
+-	.fb_copyarea = virtio_gpu_3d_copyarea,
+-	.fb_imageblit = virtio_gpu_3d_imageblit,
+-};
+-
+-static int virtio_gpufb_create(struct drm_fb_helper *helper,
+-			       struct drm_fb_helper_surface_size *sizes)
+-{
+-	struct virtio_gpu_fbdev *vfbdev =
+-		container_of(helper, struct virtio_gpu_fbdev, helper);
+-	struct drm_device *dev = helper->dev;
+-	struct virtio_gpu_device *vgdev = dev->dev_private;
+-	struct fb_info *info;
+-	struct drm_framebuffer *fb;
+-	struct drm_mode_fb_cmd2 mode_cmd = {};
+-	struct virtio_gpu_object *obj;
+-	uint32_t format, size;
+-	int ret;
+-
+-	mode_cmd.width = sizes->surface_width;
+-	mode_cmd.height = sizes->surface_height;
+-	mode_cmd.pitches[0] = mode_cmd.width * 4;
+-	mode_cmd.pixel_format = DRM_FORMAT_HOST_XRGB8888;
+-
+-	format = virtio_gpu_translate_format(mode_cmd.pixel_format);
+-	if (format == 0)
+-		return -EINVAL;
+-
+-	size = mode_cmd.pitches[0] * mode_cmd.height;
+-	obj = virtio_gpu_alloc_object(dev, size, false, true);
+-	if (IS_ERR(obj))
+-		return PTR_ERR(obj);
+-
+-	virtio_gpu_cmd_create_resource(vgdev, obj, format,
+-				       mode_cmd.width, mode_cmd.height);
+-
+-	ret = virtio_gpu_object_kmap(obj);
+-	if (ret) {
+-		DRM_ERROR("failed to kmap fb %d\n", ret);
+-		goto err_obj_vmap;
+-	}
+-
+-	/* attach the object to the resource */
+-	ret = virtio_gpu_object_attach(vgdev, obj, NULL);
+-	if (ret)
+-		goto err_obj_attach;
+-
+-	info = drm_fb_helper_alloc_fbi(helper);
+-	if (IS_ERR(info)) {
+-		ret = PTR_ERR(info);
+-		goto err_fb_alloc;
+-	}
+-
+-	info->par = helper;
+-
+-	ret = virtio_gpu_framebuffer_init(dev, &vfbdev->vgfb,
+-					  &mode_cmd, &obj->gem_base);
+-	if (ret)
+-		goto err_fb_alloc;
+-
+-	fb = &vfbdev->vgfb.base;
+-
+-	vfbdev->helper.fb = fb;
+-
+-	strcpy(info->fix.id, "virtiodrmfb");
+-	info->fbops = &virtio_gpufb_ops;
+-	info->pixmap.flags = FB_PIXMAP_SYSTEM;
+-
+-	info->screen_buffer = obj->vmap;
+-	info->screen_size = obj->gem_base.size;
+-	drm_fb_helper_fill_fix(info, fb->pitches[0], fb->format->depth);
+-	drm_fb_helper_fill_var(info, &vfbdev->helper,
+-			       sizes->fb_width, sizes->fb_height);
+-
+-	info->fix.mmio_start = 0;
+-	info->fix.mmio_len = 0;
+-	return 0;
+-
+-err_fb_alloc:
+-	virtio_gpu_object_detach(vgdev, obj);
+-err_obj_attach:
+-err_obj_vmap:
+-	virtio_gpu_gem_free_object(&obj->gem_base);
+-	return ret;
+-}
+-
+-static int virtio_gpu_fbdev_destroy(struct drm_device *dev,
+-				    struct virtio_gpu_fbdev *vgfbdev)
+-{
+-	struct virtio_gpu_framebuffer *vgfb = &vgfbdev->vgfb;
+-
+-	drm_fb_helper_unregister_fbi(&vgfbdev->helper);
+-
+-	if (vgfb->base.obj[0])
+-		vgfb->base.obj[0] = NULL;
+-	drm_fb_helper_fini(&vgfbdev->helper);
+-	drm_framebuffer_cleanup(&vgfb->base);
+-
+-	return 0;
+-}
+-static const struct drm_fb_helper_funcs virtio_gpu_fb_helper_funcs = {
+-	.fb_probe = virtio_gpufb_create,
+-};
+-
+-int virtio_gpu_fbdev_init(struct virtio_gpu_device *vgdev)
+-{
+-	struct virtio_gpu_fbdev *vgfbdev;
+-	int bpp_sel = 32; /* TODO: parameter from somewhere? */
+-	int ret;
+-
+-	vgfbdev = kzalloc(sizeof(struct virtio_gpu_fbdev), GFP_KERNEL);
+-	if (!vgfbdev)
+-		return -ENOMEM;
+-
+-	vgfbdev->vgdev = vgdev;
+-	vgdev->vgfbdev = vgfbdev;
+-	INIT_DELAYED_WORK(&vgfbdev->work, virtio_gpu_fb_dirty_work);
+-
+-	drm_fb_helper_prepare(vgdev->ddev, &vgfbdev->helper,
+-			      &virtio_gpu_fb_helper_funcs);
+-	ret = drm_fb_helper_init(vgdev->ddev, &vgfbdev->helper,
+-				 VIRTIO_GPUFB_CONN_LIMIT);
+-	if (ret) {
+-		kfree(vgfbdev);
+-		return ret;
+-	}
+-
+-	drm_fb_helper_single_add_all_connectors(&vgfbdev->helper);
+-	drm_fb_helper_initial_config(&vgfbdev->helper, bpp_sel);
+-	return 0;
+-}
+-
+-void virtio_gpu_fbdev_fini(struct virtio_gpu_device *vgdev)
+-{
+-	if (!vgdev->vgfbdev)
+-		return;
+-
+-	virtio_gpu_fbdev_destroy(vgdev->ddev, vgdev->vgfbdev);
+-	kfree(vgdev->vgfbdev);
+-	vgdev->vgfbdev = NULL;
+-}
+diff --git a/drivers/gpu/drm/virtio/virtgpu_kms.c b/drivers/gpu/drm/virtio/virtgpu_kms.c
+index 3af6181c05..1072064a0d 100644
+--- a/drivers/gpu/drm/virtio/virtgpu_kms.c
++++ b/drivers/gpu/drm/virtio/virtgpu_kms.c
+@@ -28,11 +28,6 @@
+ #include <drm/drmP.h>
+ #include "virtgpu_drv.h"
+ 
+-static int virtio_gpu_fbdev = 1;
+-
+-MODULE_PARM_DESC(fbdev, "Disable/Enable framebuffer device & console");
+-module_param_named(fbdev, virtio_gpu_fbdev, int, 0400);
+-
+ static void virtio_gpu_config_changed_work_func(struct work_struct *work)
+ {
+ 	struct virtio_gpu_device *vgdev =
+@@ -212,9 +207,6 @@ int virtio_gpu_driver_load(struct drm_device *dev, unsigned long flags)
+ 	virtio_gpu_cmd_get_display_info(vgdev);
+ 	wait_event_timeout(vgdev->resp_wq, !vgdev->display_info_pending,
+ 			   5 * HZ);
+-	if (virtio_gpu_fbdev)
+-		virtio_gpu_fbdev_init(vgdev);
+-
+ 	return 0;
+ 
+ err_modeset:
+-- 
+2.9.3
