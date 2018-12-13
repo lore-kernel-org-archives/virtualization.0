@@ -1,17 +1,15 @@
 From: Stefan Hajnoczi <stefanha@redhat.com>
 Subject: Re: [PATCH v2 2/5] VSOCK: support fill data to mergeable rx buffer
 	in host
-Date: Thu, 13 Dec 2018 15:46:16 +0000
-Message-ID: <20181213154616.GM23318__30347.2854699523$1544715881$gmane$org@stefanha-x1.localdomain>
+Date: Thu, 13 Dec 2018 15:49:23 +0000
+Message-ID: <20181213154923.GN23318__40228.74097941$1544716059$gmane$org@stefanha-x1.localdomain>
 References: <5C10D4FB.6070009@huawei.com>
-	<20181212.110944.1077302806391053539.davem@davemloft.net>
-	<5C11CDF4.4040405@huawei.com>
-	<20181212.215905.1657023590815103551.davem@davemloft.net>
-	<5C120D69.10201@huawei.com>
+	<20181212103138-mutt-send-email-mst@kernel.org>
+	<5C11CD14.3040809@huawei.com>
 Mime-Version: 1.0
-Content-Type: multipart/mixed; boundary="===============9068602472177792121=="
+Content-Type: multipart/mixed; boundary="===============3882740791103829292=="
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <5C120D69.10201@huawei.com>
+In-Reply-To: <5C11CD14.3040809@huawei.com>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -22,87 +20,83 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
 To: jiangyiwen <jiangyiwen@huawei.com>
-Cc: kvm@vger.kernel.org, mst@redhat.com, netdev@vger.kernel.org, virtualization@lists.linux-foundation.org, David Miller <davem@davemloft.net>
+Cc: netdev@vger.kernel.org, virtualization@lists.linux-foundation.org, kvm@vger.kernel.org, "Michael S. Tsirkin" <mst@redhat.com>
 List-Id: virtualization@lists.linuxfoundation.org
 
 
---===============9068602472177792121==
+--===============3882740791103829292==
 Content-Type: multipart/signed; micalg=pgp-sha1;
-	protocol="application/pgp-signature"; boundary="EE8jvUPYYQjJtG7J"
+	protocol="application/pgp-signature"; boundary="citGix+cyBYE+lqp"
 Content-Disposition: inline
 
 
---EE8jvUPYYQjJtG7J
+--citGix+cyBYE+lqp
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
 Content-Transfer-Encoding: quoted-printable
 
-On Thu, Dec 13, 2018 at 03:42:33PM +0800, jiangyiwen wrote:
-> On 2018/12/13 13:59, David Miller wrote:
-> > From: jiangyiwen <jiangyiwen@huawei.com>
-> > Date: Thu, 13 Dec 2018 11:11:48 +0800
+On Thu, Dec 13, 2018 at 11:08:04AM +0800, jiangyiwen wrote:
+> On 2018/12/12 23:37, Michael S. Tsirkin wrote:
+> > On Wed, Dec 12, 2018 at 05:29:31PM +0800, jiangyiwen wrote:
+> >> When vhost support VIRTIO_VSOCK_F_MRG_RXBUF feature,
+> >> it will merge big packet into rx vq.
+> >>
+> >> Signed-off-by: Yiwen Jiang <jiangyiwen@huawei.com>
 > >=20
-> >> I hope Host can fill fewer bytes into rx virtqueue, so
-> >> I keep structure virtio_vsock_mrg_rxbuf_hdr one byte
-> >> alignment.
+> > I feel this approach jumps into making interface changes for
+> > optimizations too quickly. For example, what prevents us
+> > from taking a big buffer, prepending each chunk
+> > with the header and writing it out without
+> > host/guest interface changes?
 > >=20
-> > The question is if this actully matters.
+> > This should allow optimizations such as vhost_add_used_n
+> > batching.
 > >=20
-> > Do you know?
+> > I realize a header in each packet does have a cost,
+> > but it also has advantages such as improved robustness,
+> > I'd like to see more of an apples to apples comparison
+> > of the performance gain from skipping them.
 > >=20
-> > If the obejct this is embeeded inside of is at least 2 byte aligned,
-> > you are marking it packed for nothing.
-> >=20
-> > There are only %100 downsides to using the packed attribute.
-> >=20
-> > Simply define your datastructures properly, with fixed sized types,
-> > and all padding defined explicitly.
-> >=20
-> > .
 > >=20
 >=20
-> Hi David,
+> Hi Michael,
 >=20
-> Thanks a lot, I need to send number buffers from Host to Guest, so I think
-> we need to keep the structure size the same between host and guest.
-> But after your reminder, I feel my code may exist a serious problem,
-> that in mergeable mode, I send the total structure virtio_vsock_pkt
-> from Host to Guest, however, this structure size may be different
-> under different compilers (Guest and Host are different). Then, Guest
-> may parse the wrong packet length.
+> I don't fully understand what you mean, do you want to
+> see a performance comparison that before performance and
+> only use batching?
 >=20
-> David, I want to ask if there is such a problem?
->=20
-> In addition, why I send total virtio_vsock_pkt structure from Host to Gue=
-st?
-> - In order to avoid to allocate virtio_vsock_pkt memory when receiving
->   packets, in case of insufficient memory, it may have some advantages, a=
-nd
->   we may keep consistent with old version.
+> In my opinion, guest don't fill big buffer in rx vq because
+> the balance performance and guest memory pressure, add
+> mergeable feature can improve big packets performance,
+> as for small packets, I try to find out the reason, may be
+> the fluctuation of test results, or in mergeable mode, when
+> Host send a 4k packet to Guest, we should call vhost_get_vq_desc()
+> twice in host(hdr + 4k data), and in guest we also should call
+> virtqueue_get_buf() twice.
 
-Yes, virtio_vsock_pkt is internal driver state and should not be part of
-the host<->guest interface (also for security reasons it's not good to
-expose internal state structs across the interface).
+I like the idea of making optimizations in small steps and measuring the
+effect of each step.  This way we'll know which aspect caused the
+differences in benchmark results.
 
 Stefan
 
---EE8jvUPYYQjJtG7J
+--citGix+cyBYE+lqp
 Content-Type: application/pgp-signature; name="signature.asc"
 
 -----BEGIN PGP SIGNATURE-----
 
-iQEcBAEBAgAGBQJcEn7IAAoJEJykq7OBq3PIDswH/iNEtTreNge1H6Z5Q7lpBG1n
-T/FWMkzYUCPNRi8ZRhAkkLUttsRUs2gDdeyNIBce9pKwxcFzxQAnRbhcxF384v5V
-q2BbuMT+Lr/7rZmgtwrNV2L9vwKGu5ohuddmPF/c8La2tIYkQ+Gdl/7V+gPZ55LR
-ArUOcgK3czSs0YUftno9XN0sL9aqZ0rz5es2x5WMRGpI0LXFl/vyP5Ig5GDkA1Ou
-Gj4uaMJUiYN3mU7P9j0H45kCGQBCJH6aelcrAIS6d6xuj2uHF5b2vRFOZhCFwXYg
-mMWG6Uw3sGZuRAFwiFnzs1uOfzwahMimzG7pJGl9w+NUUbzN+Dxmd/t1ZEUQCY8=
-=K2zb
+iQEcBAEBAgAGBQJcEn+DAAoJEJykq7OBq3PI88EH/j8nz2j/p2Yg2w62DjCcZVky
+DPaHNwVkFHuMxrjcBoaimYPfADxtei9YWMvuXm1YwkHYA9RnPJE1RnqkAn+Dfrsp
+ZpwxqfGL1+mdJjzpvNhntZKNwd8GL//s/OA+4DJv4nkZNqQKTkAfklQfTe6JVKko
+lBHJcRNBYlPA35//cO1n1Qrt+4cB9Z2e8HvBVYnWJsz0kAKbJ9AlsbESgClE+mZc
+pU43NI5FE7YspbqFmU3kX3akQYtSWw6DSsLQ31fO5+PZiQpYeHuVikFOGlN1RgBn
+jG0bGLCxMR1gY+9nbYdI6xPadfHeRhR4k9/BI//T0vwzr7P+cgvMsR/CS8F9X9A=
+=TjD8
 -----END PGP SIGNATURE-----
 
---EE8jvUPYYQjJtG7J--
+--citGix+cyBYE+lqp--
 
---===============9068602472177792121==
+--===============3882740791103829292==
 Content-Type: text/plain; charset="us-ascii"
 MIME-Version: 1.0
 Content-Transfer-Encoding: 7bit
@@ -112,4 +106,4 @@ _______________________________________________
 Virtualization mailing list
 Virtualization@lists.linux-foundation.org
 https://lists.linuxfoundation.org/mailman/listinfo/virtualization
---===============9068602472177792121==--
+--===============3882740791103829292==--
