@@ -1,16 +1,18 @@
 From: "Michael S. Tsirkin" <mst@redhat.com>
-Subject: Re: [PATCH] vhost: return EINVAL if iovecs size does not match the
-	message size
-Date: Sun, 16 Dec 2018 14:41:48 -0500
-Message-ID: <20181216144011-mutt-send-email-mst__47834.5930147499$1544989224$gmane$org@kernel.org>
-References: <20181213145350.5454-1-ptikhomirov@virtuozzo.com>
-	<20181215.114611.1702968159223320911.davem@davemloft.net>
+Subject: Re: [PATCH net-next 0/3] vhost: accelerate metadata access through
+	vmap()
+Date: Sun, 16 Dec 2018 14:57:33 -0500
+Message-ID: <20181216144200-mutt-send-email-mst__14549.9352286153$1544990135$gmane$org@kernel.org>
+References: <20181213101022.12475-1-jasowang@redhat.com>
+	<20181213144116-mutt-send-email-mst@kernel.org>
+	<836932fc-9266-b73d-2ee5-645f399e1a54@redhat.com>
+	<20181215.114308.647436101869587689.davem@davemloft.net>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset="utf-8"
+Content-Transfer-Encoding: base64
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
 Content-Disposition: inline
-In-Reply-To: <20181215.114611.1702968159223320911.davem@davemloft.net>
+In-Reply-To: <20181215.114308.647436101869587689.davem@davemloft.net>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -21,21 +23,45 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
 To: David Miller <davem@davemloft.net>
-Cc: kvm@vger.kernel.org, netdev@vger.kernel.org, linux-kernel@vger.kernel.org, virtualization@lists.linux-foundation.org, khorenko@virtuozzo.com, ptikhomirov@virtuozzo.com
+Cc: netdev@vger.kernel.org, linux-kernel@vger.kernel.org, kvm@vger.kernel.org, virtualization@lists.linux-foundation.org
 List-Id: virtualization@lists.linuxfoundation.org
 
-On Sat, Dec 15, 2018 at 11:46:11AM -0800, David Miller wrote:
-> From: Pavel Tikhomirov <ptikhomirov@virtuozzo.com>
-> Date: Thu, 13 Dec 2018 17:53:50 +0300
-> 
-> > We've failed to copy and process vhost_iotlb_msg so let userspace at
-> > least know about it. For instance before these patch the code below runs
-> > without any error:
->  ...
-> > Signed-off-by: Pavel Tikhomirov <ptikhomirov@virtuozzo.com>
-> 
-> Michael, will you be taking this in via your tree?
-> 
-> Thanks.
-
-Will do, thanks!
+T24gU2F0LCBEZWMgMTUsIDIwMTggYXQgMTE6NDM6MDhBTSAtMDgwMCwgRGF2aWQgTWlsbGVyIHdy
+b3RlOgo+IEZyb206IEphc29uIFdhbmcgPGphc293YW5nQHJlZGhhdC5jb20+Cj4gRGF0ZTogRnJp
+LCAxNCBEZWMgMjAxOCAxMjoyOTo1NCArMDgwMAo+IAo+ID4gCj4gPiBPbiAyMDE4LzEyLzE0IOS4
+iuWNiDQ6MTIsIE1pY2hhZWwgUy4gVHNpcmtpbiB3cm90ZToKPiA+PiBPbiBUaHUsIERlYyAxMywg
+MjAxOCBhdCAwNjoxMDoxOVBNICswODAwLCBKYXNvbiBXYW5nIHdyb3RlOgo+ID4+PiBIaToKPiA+
+Pj4KPiA+Pj4gVGhpcyBzZXJpZXMgdHJpZXMgdG8gYWNjZXNzIHZpcnRxdWV1ZSBtZXRhZGF0YSB0
+aHJvdWdoIGtlcm5lbCB2aXJ0dWFsCj4gPj4+IGFkZHJlc3MgaW5zdGVhZCBvZiBjb3B5X3VzZXIo
+KSBmcmllbmRzIHNpbmNlIHRoZXkgaGFkIHRvbyBtdWNoCj4gPj4+IG92ZXJoZWFkcyBsaWtlIGNo
+ZWNrcywgc3BlYyBiYXJyaWVycyBvciBldmVuIGhhcmR3YXJlIGZlYXR1cmUKPiA+Pj4gdG9nZ2xp
+bmcuCj4gPj4+Cj4gPj4+IFRlc3Qgc2hvd3MgYWJvdXQgMjQlIGltcHJvdmVtZW50IG9uIFRYIFBQ
+Uy4gSXQgc2hvdWxkIGJlbmVmaXQgb3RoZXIKPiA+Pj4gY2FzZXMgYXMgd2VsbC4KPiA+Pj4KPiA+
+Pj4gUGxlYXNlIHJldmlldwo+ID4+IEkgdGhpbmsgdGhlIGlkZWEgb2Ygc3BlZWRpbmcgdXAgdXNl
+cnNwYWNlIGFjY2VzcyBpcyBhIGdvb2Qgb25lLgo+ID4+IEhvd2V2ZXIgSSB0aGluayB0aGF0IG1v
+dmluZyBhbGwgY2hlY2tzIHRvIHN0YXJ0IGlzIHdheSB0b28gYWdncmVzc2l2ZS4KPiA+IAo+ID4g
+Cj4gPiBTbyBkaWQgcGFja2V0IGFuZCBBRl9YRFAuIEFueXdheSwgc2hhcmluZyBhZGRyZXNzIHNw
+YWNlIGFuZCBhY2Nlc3MKPiA+IHRoZW0gZGlyZWN0bHkgaXMgdGhlIGZhc3Rlc3Qgd2F5LiBQZXJm
+b3JtYW5jZSBpcyB0aGUgbWFqb3IKPiA+IGNvbnNpZGVyYXRpb24gZm9yIHBlb3BsZSB0byBjaG9v
+c2UgYmFja2VuZC4gQ29tcGFyZSB0byB1c2Vyc3BhY2UKPiA+IGltcGxlbWVudGF0aW9uLCB2aG9z
+dCBkb2VzIG5vdCBoYXZlIHNlY3VyaXR5IGFkdmFudGFnZXMgYXQgYW55Cj4gPiBsZXZlbC4gSWYg
+dmhvc3QgaXMgc3RpbGwgc2xvdywgcGVvcGxlIHdpbGwgc3RhcnQgdG8gZGV2ZWxvcCBiYWNrZW5k
+cwo+ID4gYmFzZWQgb24gZS5nIEFGX1hEUC4KPiAKPiBFeGFjdGx5LCB0aGlzIGlzIHByZWNpc2Vs
+eSBob3cgdGhpcyBraW5kIG9mIHByb2JsZW0gc2hvdWxkIGJlIHNvbHZlZC4KPiAKPiBNaWNoYWVs
+LCBJIHN0cm9uZ2x5IHN1cHBvcnQgdGhlIGFwcHJvYWNoIEphc29uIGlzIHRha2luZyBoZXJlLCBh
+bmQgSQo+IHdvdWxkIGxpa2UgdG8gYXNrIHlvdSB0byBzZXJpb3VzbHkgcmVjb25zaWRlciB5b3Vy
+IG9iamVjdGlvbnMuCj4gCj4gVGhhbmsgeW91LgoKT2theS4gV29uJ3QgYmUgdGhlIGZpcnN0IHRp
+bWUgSSdtIHdyb25nLgoKTGV0J3Mgc2F5IHdlIGlnbm9yZSBzZWN1cml0eSBhc3BlY3RzLCBidXQg
+d2UgbmVlZCB0byBtYWtlIHN1cmUgdGhlCmZvbGxvd2luZyBhbGwga2VlcCB3b3JraW5nIChicm9r
+ZW4gd2l0aCB0aGlzIHJldmlzaW9uKToKLSBmaWxlIGJhY2tlZCBtZW1vcnkgKEkgZGlkbid0IHNl
+ZSB3aGVyZSB3ZSBtYXJrIG1lbW9yeSBkaXJ0eSAtCiAgaWYgd2UgZG9uJ3Qgd2UgZ2V0IGd1ZXN0
+IG1lbW9yeSBjb3JydXB0aW9uIG9uIGNsb3NlLCBpZiB3ZSBkbwogIHRoZW4gaG9zdCBjcmFzaCBh
+cyBodHRwczovL2x3bi5uZXQvQXJ0aWNsZXMvNzc0NDExLyBzZWVtcyB0byBhcHBseSBoZXJlPykK
+LSBUSFAKLSBhdXRvLU5VTUEKCkJlY2F1c2Ugdmhvc3QgaXNuJ3QgbGlrZSBBRl9YRFAgd2hlcmUg
+eW91IGNhbiBqdXN0IHRlbGwgcGVvcGxlICJ1c2UKaHVnZXRsYmZzIiBhbmQgImRhdGEgaXMgcmVt
+b3ZlZCBvbiBjbG9zZSIgLSBwZW9wbGUgYXJlIHVzaW5nIGl0IGluIGxvdHMKb2YgY29uZmlndXJh
+dGlvbnMgd2l0aCBndWVzdCBtZW1vcnkgc2hhcmVkIGJldHdlZW4gcmluZ3MgYW5kIHVucmVsYXRl
+ZApkYXRhLgoKSmFzb24sIHRob3VnaHRzIG9uIHRoZXNlPwoKLS0gCk1TVApfX19fX19fX19fX19f
+X19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fXwpWaXJ0dWFsaXphdGlvbiBtYWlsaW5n
+IGxpc3QKVmlydHVhbGl6YXRpb25AbGlzdHMubGludXgtZm91bmRhdGlvbi5vcmcKaHR0cHM6Ly9s
+aXN0cy5saW51eGZvdW5kYXRpb24ub3JnL21haWxtYW4vbGlzdGluZm8vdmlydHVhbGl6YXRpb24=
