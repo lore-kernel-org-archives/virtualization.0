@@ -1,7 +1,7 @@
 From: Gerd Hoffmann <kraxel@redhat.com>
-Subject: [PATCH 01/14] drm/bochs: encoder cleanup
-Date: Wed, 19 Dec 2018 12:51:14 +0100
-Message-ID: <20181219115127.31359-2-kraxel@redhat.com>
+Subject: [PATCH 06/14] drm/bochs: atomic: use atomic set_config helper
+Date: Wed, 19 Dec 2018 12:51:19 +0100
+Message-ID: <20181219115127.31359-7-kraxel@redhat.com>
 References: <20181219115127.31359-1-kraxel@redhat.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
@@ -21,57 +21,26 @@ To: dri-devel@lists.freedesktop.org, David Airlie <airlied@redhat.com>
 Cc: David Airlie <airlied@linux.ie>, open list <linux-kernel@vger.kernel.org>, "open list:DRM DRIVER FOR BOCHS VIRTUAL GPU" <virtualization@lists.linux-foundation.org>
 List-Id: virtualization@lists.linuxfoundation.org
 
-Most unused callbacks can be NULL pointers these days.
-Drop a bunch of empty encoder callbacks.
+Conversion to atomic modesetting, step four.
+Use atomic set_config helper for crtc.
 
 Signed-off-by: Gerd Hoffmann <kraxel@redhat.com>
 ---
- drivers/gpu/drm/bochs/bochs_kms.c | 26 --------------------------
- 1 file changed, 26 deletions(-)
+ drivers/gpu/drm/bochs/bochs_kms.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
 diff --git a/drivers/gpu/drm/bochs/bochs_kms.c b/drivers/gpu/drm/bochs/bochs_kms.c
-index f87c284dd9..c8ce54498d 100644
+index aa3ba0377a..dcc8b864fc 100644
 --- a/drivers/gpu/drm/bochs/bochs_kms.c
 +++ b/drivers/gpu/drm/bochs/bochs_kms.c
-@@ -170,31 +170,6 @@ static void bochs_crtc_init(struct drm_device *dev)
- 	drm_crtc_helper_add(crtc, &bochs_helper_funcs);
- }
+@@ -150,7 +150,7 @@ static void bochs_crtc_atomic_flush(struct drm_crtc *crtc,
  
--static void bochs_encoder_mode_set(struct drm_encoder *encoder,
--				   struct drm_display_mode *mode,
--				   struct drm_display_mode *adjusted_mode)
--{
--}
--
--static void bochs_encoder_dpms(struct drm_encoder *encoder, int state)
--{
--}
--
--static void bochs_encoder_prepare(struct drm_encoder *encoder)
--{
--}
--
--static void bochs_encoder_commit(struct drm_encoder *encoder)
--{
--}
--
--static const struct drm_encoder_helper_funcs bochs_encoder_helper_funcs = {
--	.dpms = bochs_encoder_dpms,
--	.mode_set = bochs_encoder_mode_set,
--	.prepare = bochs_encoder_prepare,
--	.commit = bochs_encoder_commit,
--};
--
- static const struct drm_encoder_funcs bochs_encoder_encoder_funcs = {
- 	.destroy = drm_encoder_cleanup,
- };
-@@ -207,7 +182,6 @@ static void bochs_encoder_init(struct drm_device *dev)
- 	encoder->possible_crtcs = 0x1;
- 	drm_encoder_init(dev, encoder, &bochs_encoder_encoder_funcs,
- 			 DRM_MODE_ENCODER_DAC, NULL);
--	drm_encoder_helper_add(encoder, &bochs_encoder_helper_funcs);
- }
- 
- 
+ /* These provide the minimum set of functions required to handle a CRTC */
+ static const struct drm_crtc_funcs bochs_crtc_funcs = {
+-	.set_config = drm_crtc_helper_set_config,
++	.set_config = drm_atomic_helper_set_config,
+ 	.destroy = drm_crtc_cleanup,
+ 	.page_flip = bochs_crtc_page_flip,
+ 	.reset = drm_atomic_helper_crtc_reset,
 -- 
 2.9.3
