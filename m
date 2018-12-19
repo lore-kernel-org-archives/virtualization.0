@@ -1,7 +1,7 @@
 From: Gerd Hoffmann <kraxel@redhat.com>
-Subject: [PATCH 12/14] drm/bochs: switch to generic drm fbdev emulation
-Date: Wed, 19 Dec 2018 12:51:25 +0100
-Message-ID: <20181219115127.31359-13-kraxel@redhat.com>
+Subject: [PATCH 10/14] drm/bochs: drop unused gpu_addr arg from bochs_bo_pin()
+Date: Wed, 19 Dec 2018 12:51:23 +0100
+Message-ID: <20181219115127.31359-11-kraxel__19512.5444479801$1545220225$gmane$org@redhat.com>
 References: <20181219115127.31359-1-kraxel@redhat.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
@@ -21,40 +21,89 @@ To: dri-devel@lists.freedesktop.org, David Airlie <airlied@redhat.com>
 Cc: David Airlie <airlied@linux.ie>, open list <linux-kernel@vger.kernel.org>, "open list:DRM DRIVER FOR BOCHS VIRTUAL GPU" <virtualization@lists.linux-foundation.org>
 List-Id: virtualization@lists.linuxfoundation.org
 
+It's always NULL, so just remove it.
+
 Signed-off-by: Gerd Hoffmann <kraxel@redhat.com>
 ---
- drivers/gpu/drm/bochs/bochs_drv.c | 5 +----
- 1 file changed, 1 insertion(+), 4 deletions(-)
+ drivers/gpu/drm/bochs/bochs.h       |  2 +-
+ drivers/gpu/drm/bochs/bochs_fbdev.c |  2 +-
+ drivers/gpu/drm/bochs/bochs_kms.c   |  2 +-
+ drivers/gpu/drm/bochs/bochs_mm.c    | 11 +----------
+ 4 files changed, 4 insertions(+), 13 deletions(-)
 
-diff --git a/drivers/gpu/drm/bochs/bochs_drv.c b/drivers/gpu/drm/bochs/bochs_drv.c
-index a9c7140e3b..f1f65324bb 100644
---- a/drivers/gpu/drm/bochs/bochs_drv.c
-+++ b/drivers/gpu/drm/bochs/bochs_drv.c
-@@ -27,7 +27,6 @@ static void bochs_unload(struct drm_device *dev)
- {
- 	struct bochs_device *bochs = dev->dev_private;
+diff --git a/drivers/gpu/drm/bochs/bochs.h b/drivers/gpu/drm/bochs/bochs.h
+index 4dc1b6384e..d0d474e06f 100644
+--- a/drivers/gpu/drm/bochs/bochs.h
++++ b/drivers/gpu/drm/bochs/bochs.h
+@@ -142,7 +142,7 @@ int bochs_dumb_create(struct drm_file *file, struct drm_device *dev,
+ int bochs_dumb_mmap_offset(struct drm_file *file, struct drm_device *dev,
+ 			   uint32_t handle, uint64_t *offset);
  
--	bochs_fbdev_fini(bochs);
- 	bochs_kms_fini(bochs);
- 	bochs_mm_fini(bochs);
- 	bochs_hw_fini(dev);
-@@ -58,9 +57,6 @@ static int bochs_load(struct drm_device *dev)
+-int bochs_bo_pin(struct bochs_bo *bo, u32 pl_flag, u64 *gpu_addr);
++int bochs_bo_pin(struct bochs_bo *bo, u32 pl_flag);
+ int bochs_bo_unpin(struct bochs_bo *bo);
+ 
+ /* bochs_kms.c */
+diff --git a/drivers/gpu/drm/bochs/bochs_fbdev.c b/drivers/gpu/drm/bochs/bochs_fbdev.c
+index d9f3d42999..92feb817ff 100644
+--- a/drivers/gpu/drm/bochs/bochs_fbdev.c
++++ b/drivers/gpu/drm/bochs/bochs_fbdev.c
+@@ -81,7 +81,7 @@ static int bochsfb_create(struct drm_fb_helper *helper,
  	if (ret)
- 		goto err;
+ 		return ret;
  
--	if (enable_fbdev)
--		bochs_fbdev_init(bochs);
+-	ret = bochs_bo_pin(bo, TTM_PL_FLAG_VRAM, NULL);
++	ret = bochs_bo_pin(bo, TTM_PL_FLAG_VRAM);
+ 	if (ret) {
+ 		DRM_ERROR("failed to pin fbcon\n");
+ 		ttm_bo_unreserve(&bo->bo);
+diff --git a/drivers/gpu/drm/bochs/bochs_kms.c b/drivers/gpu/drm/bochs/bochs_kms.c
+index 85dd268fa1..a1a0129f3e 100644
+--- a/drivers/gpu/drm/bochs/bochs_kms.c
++++ b/drivers/gpu/drm/bochs/bochs_kms.c
+@@ -96,7 +96,7 @@ static int bochs_plane_prepare_fb(struct drm_plane *plane,
+ 	if (!new_state->fb)
+ 		return 0;
+ 	bo = gem_to_bochs_bo(new_state->fb->obj[0]);
+-	return bochs_bo_pin(bo, TTM_PL_FLAG_VRAM, NULL);
++	return bochs_bo_pin(bo, TTM_PL_FLAG_VRAM);
+ }
+ 
+ static void bochs_plane_cleanup_fb(struct drm_plane *plane,
+diff --git a/drivers/gpu/drm/bochs/bochs_mm.c b/drivers/gpu/drm/bochs/bochs_mm.c
+index 0980411e41..5a0e092847 100644
+--- a/drivers/gpu/drm/bochs/bochs_mm.c
++++ b/drivers/gpu/drm/bochs/bochs_mm.c
+@@ -210,20 +210,13 @@ static void bochs_ttm_placement(struct bochs_bo *bo, int domain)
+ 	bo->placement.num_busy_placement = c;
+ }
+ 
+-static inline u64 bochs_bo_gpu_offset(struct bochs_bo *bo)
+-{
+-	return bo->bo.offset;
+-}
 -
+-int bochs_bo_pin(struct bochs_bo *bo, u32 pl_flag, u64 *gpu_addr)
++int bochs_bo_pin(struct bochs_bo *bo, u32 pl_flag)
+ {
+ 	struct ttm_operation_ctx ctx = { false, false };
+ 	int i, ret;
+ 
+ 	if (bo->pin_count) {
+ 		bo->pin_count++;
+-		if (gpu_addr)
+-			*gpu_addr = bochs_bo_gpu_offset(bo);
+ 		return 0;
+ 	}
+ 
+@@ -235,8 +228,6 @@ int bochs_bo_pin(struct bochs_bo *bo, u32 pl_flag, u64 *gpu_addr)
+ 		return ret;
+ 
+ 	bo->pin_count = 1;
+-	if (gpu_addr)
+-		*gpu_addr = bochs_bo_gpu_offset(bo);
  	return 0;
+ }
  
- err:
-@@ -178,6 +174,7 @@ static int bochs_pci_probe(struct pci_dev *pdev,
- 	if (ret)
- 		goto err_unload;
- 
-+	drm_fbdev_generic_setup(dev, 32);
- 	return ret;
- 
- err_unload:
 -- 
 2.9.3
