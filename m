@@ -1,7 +1,7 @@
 From: Gerd Hoffmann <kraxel@redhat.com>
-Subject: [PATCH 11/14] drm/bochs: add basic prime support
-Date: Wed, 19 Dec 2018 12:51:24 +0100
-Message-ID: <20181219115127.31359-12-kraxel__8651.61102633483$1545220244$gmane$org@redhat.com>
+Subject: [PATCH 14/14] drm/bochs: move remaining fb bits to kms
+Date: Wed, 19 Dec 2018 12:51:27 +0100
+Message-ID: <20181219115127.31359-15-kraxel__13121.3679830127$1545220244$gmane$org@redhat.com>
 References: <20181219115127.31359-1-kraxel@redhat.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
@@ -18,143 +18,98 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
 To: dri-devel@lists.freedesktop.org, David Airlie <airlied@redhat.com>
-Cc: David Airlie <airlied@linux.ie>, open list <linux-kernel@vger.kernel.org>, "open list:DRM DRIVER FOR BOCHS VIRTUAL GPU" <virtualization@lists.linux-foundation.org>
+Cc: David Airlie <airlied@linux.ie>, "open list:DRM DRIVER FOR BOCHS VIRTUAL GPU" <virtualization@lists.linux-foundation.org>, open list <linux-kernel@vger.kernel.org>
 List-Id: virtualization@lists.linuxfoundation.org
 
-Generic framebuffer emulation needs this.
+bochs_fbdev.c is almost empty now.  Move the remaining framebuffer bits
+over to bochs_kms.c.  Pure code motion. No functional change.
 
 Signed-off-by: Gerd Hoffmann <kraxel@redhat.com>
 ---
- drivers/gpu/drm/bochs/bochs.h     | 11 +++++++
- drivers/gpu/drm/bochs/bochs_drv.c | 15 +++++++++-
- drivers/gpu/drm/bochs/bochs_mm.c  | 63 +++++++++++++++++++++++++++++++++++++++
- 3 files changed, 88 insertions(+), 1 deletion(-)
+ drivers/gpu/drm/bochs/bochs_fbdev.c | 29 -----------------------------
+ drivers/gpu/drm/bochs/bochs_kms.c   | 17 +++++++++++++++++
+ drivers/gpu/drm/bochs/Makefile      |  2 +-
+ 3 files changed, 18 insertions(+), 30 deletions(-)
+ delete mode 100644 drivers/gpu/drm/bochs/bochs_fbdev.c
 
-diff --git a/drivers/gpu/drm/bochs/bochs.h b/drivers/gpu/drm/bochs/bochs.h
-index d0d474e06f..4236d5d811 100644
---- a/drivers/gpu/drm/bochs/bochs.h
-+++ b/drivers/gpu/drm/bochs/bochs.h
-@@ -145,6 +145,17 @@ int bochs_dumb_mmap_offset(struct drm_file *file, struct drm_device *dev,
- int bochs_bo_pin(struct bochs_bo *bo, u32 pl_flag);
- int bochs_bo_unpin(struct bochs_bo *bo);
+diff --git a/drivers/gpu/drm/bochs/bochs_fbdev.c b/drivers/gpu/drm/bochs/bochs_fbdev.c
+deleted file mode 100644
+index 7cac3f5253..0000000000
+--- a/drivers/gpu/drm/bochs/bochs_fbdev.c
++++ /dev/null
+@@ -1,29 +0,0 @@
+-/*
+- * This program is free software; you can redistribute it and/or modify
+- * it under the terms of the GNU General Public License as published by
+- * the Free Software Foundation; either version 2 of the License, or
+- * (at your option) any later version.
+- */
+-
+-#include "bochs.h"
+-#include <drm/drm_atomic_helper.h>
+-#include <drm/drm_gem_framebuffer_helper.h>
+-
+-/* ---------------------------------------------------------------------- */
+-
+-static struct drm_framebuffer *
+-bochs_gem_fb_create(struct drm_device *dev, struct drm_file *file,
+-		    const struct drm_mode_fb_cmd2 *mode_cmd)
+-{
+-	if (mode_cmd->pixel_format != DRM_FORMAT_XRGB8888 &&
+-	    mode_cmd->pixel_format != DRM_FORMAT_BGRX8888)
+-		return ERR_PTR(-EINVAL);
+-
+-	return drm_gem_fb_create(dev, file, mode_cmd);
+-}
+-
+-const struct drm_mode_config_funcs bochs_mode_funcs = {
+-	.fb_create = bochs_gem_fb_create,
+-	.atomic_check = drm_atomic_helper_check,
+-	.atomic_commit = drm_atomic_helper_commit,
+-};
+diff --git a/drivers/gpu/drm/bochs/bochs_kms.c b/drivers/gpu/drm/bochs/bochs_kms.c
+index a1a0129f3e..3688d0b616 100644
+--- a/drivers/gpu/drm/bochs/bochs_kms.c
++++ b/drivers/gpu/drm/bochs/bochs_kms.c
+@@ -9,6 +9,7 @@
+ #include <drm/drm_atomic_helper.h>
+ #include <drm/drm_plane_helper.h>
+ #include <drm/drm_atomic_uapi.h>
++#include <drm/drm_gem_framebuffer_helper.h>
  
-+int bochs_gem_prime_pin(struct drm_gem_object *obj);
-+void bochs_gem_prime_unpin(struct drm_gem_object *obj);
-+struct sg_table *bochs_gem_prime_get_sg_table(struct drm_gem_object *obj);
-+struct drm_gem_object *bochs_gem_prime_import_sg_table(
-+        struct drm_device *dev, struct dma_buf_attachment *attach,
-+        struct sg_table *sgt);
-+void *bochs_gem_prime_vmap(struct drm_gem_object *obj);
-+void bochs_gem_prime_vunmap(struct drm_gem_object *obj, void *vaddr);
-+int bochs_gem_prime_mmap(struct drm_gem_object *obj,
-+			 struct vm_area_struct *vma);
-+
- /* bochs_kms.c */
- int bochs_kms_init(struct bochs_device *bochs);
- void bochs_kms_fini(struct bochs_device *bochs);
-diff --git a/drivers/gpu/drm/bochs/bochs_drv.c b/drivers/gpu/drm/bochs/bochs_drv.c
-index 278f9d2e7f..a9c7140e3b 100644
---- a/drivers/gpu/drm/bochs/bochs_drv.c
-+++ b/drivers/gpu/drm/bochs/bochs_drv.c
-@@ -81,7 +81,8 @@ static const struct file_operations bochs_fops = {
- };
- 
- static struct drm_driver bochs_driver = {
--	.driver_features	= DRIVER_GEM | DRIVER_MODESET | DRIVER_ATOMIC,
-+	.driver_features	= DRIVER_GEM | DRIVER_MODESET | DRIVER_ATOMIC |
-+				  DRIVER_PRIME,
- 	.fops			= &bochs_fops,
- 	.name			= "bochs-drm",
- 	.desc			= "bochs dispi vga interface (qemu stdvga)",
-@@ -91,6 +92,18 @@ static struct drm_driver bochs_driver = {
- 	.gem_free_object_unlocked = bochs_gem_free_object,
- 	.dumb_create            = bochs_dumb_create,
- 	.dumb_map_offset        = bochs_dumb_mmap_offset,
-+
-+	.prime_handle_to_fd = drm_gem_prime_handle_to_fd,
-+	.prime_fd_to_handle = drm_gem_prime_fd_to_handle,
-+	.gem_prime_export = drm_gem_prime_export,
-+	.gem_prime_import = drm_gem_prime_import,
-+	.gem_prime_pin = bochs_gem_prime_pin,
-+	.gem_prime_unpin = bochs_gem_prime_unpin,
-+	.gem_prime_get_sg_table = bochs_gem_prime_get_sg_table,
-+	.gem_prime_import_sg_table = bochs_gem_prime_import_sg_table,
-+	.gem_prime_vmap = bochs_gem_prime_vmap,
-+	.gem_prime_vunmap = bochs_gem_prime_vunmap,
-+	.gem_prime_mmap = bochs_gem_prime_mmap,
- };
- 
- /* ---------------------------------------------------------------------- */
-diff --git a/drivers/gpu/drm/bochs/bochs_mm.c b/drivers/gpu/drm/bochs/bochs_mm.c
-index 5a0e092847..cfe061c25f 100644
---- a/drivers/gpu/drm/bochs/bochs_mm.c
-+++ b/drivers/gpu/drm/bochs/bochs_mm.c
-@@ -387,3 +387,66 @@ int bochs_dumb_mmap_offset(struct drm_file *file, struct drm_device *dev,
- 	drm_gem_object_put_unlocked(obj);
- 	return 0;
+ static int defx = 1024;
+ static int defy = 768;
+@@ -256,6 +257,22 @@ static void bochs_connector_init(struct drm_device *dev)
+ 	}
  }
-+
-+/* ---------------------------------------------------------------------- */
-+
-+int bochs_gem_prime_pin(struct drm_gem_object *obj)
+ 
++static struct drm_framebuffer *
++bochs_gem_fb_create(struct drm_device *dev, struct drm_file *file,
++		    const struct drm_mode_fb_cmd2 *mode_cmd)
 +{
-+	struct bochs_bo *bo = gem_to_bochs_bo(obj);
++	if (mode_cmd->pixel_format != DRM_FORMAT_XRGB8888 &&
++	    mode_cmd->pixel_format != DRM_FORMAT_BGRX8888)
++		return ERR_PTR(-EINVAL);
 +
-+	return bochs_bo_pin(bo, TTM_PL_FLAG_VRAM);
++	return drm_gem_fb_create(dev, file, mode_cmd);
 +}
 +
-+void bochs_gem_prime_unpin(struct drm_gem_object *obj)
-+{
-+	struct bochs_bo *bo = gem_to_bochs_bo(obj);
-+
-+	bochs_bo_unpin(bo);
-+}
-+
-+struct sg_table *bochs_gem_prime_get_sg_table(struct drm_gem_object *obj)
-+{
-+	WARN_ONCE(1, "not implemented");
-+	return ERR_PTR(-ENODEV);
-+}
-+
-+struct drm_gem_object *bochs_gem_prime_import_sg_table(
-+	struct drm_device *dev, struct dma_buf_attachment *attach,
-+	struct sg_table *table)
-+{
-+	WARN_ONCE(1, "not implemented");
-+	return ERR_PTR(-ENODEV);
-+}
-+
-+void *bochs_gem_prime_vmap(struct drm_gem_object *obj)
-+{
-+	struct bochs_bo *bo = gem_to_bochs_bo(obj);
-+	bool is_iomem;
-+	int ret;
-+
-+	ret = bochs_bo_pin(bo, TTM_PL_FLAG_VRAM);
-+	if (ret)
-+		return NULL;
-+	ret = ttm_bo_kmap(&bo->bo, 0, bo->bo.num_pages, &bo->kmap);
-+	if (ret) {
-+		bochs_bo_unpin(bo);
-+		return NULL;
-+	}
-+	return ttm_kmap_obj_virtual(&bo->kmap, &is_iomem);
-+}
-+
-+void bochs_gem_prime_vunmap(struct drm_gem_object *obj, void *vaddr)
-+{
-+	struct bochs_bo *bo = gem_to_bochs_bo(obj);
-+
-+	ttm_bo_kunmap(&bo->kmap);
-+	bochs_bo_unpin(bo);
-+}
-+
-+int bochs_gem_prime_mmap(struct drm_gem_object *obj,
-+			 struct vm_area_struct *vma)
-+{
-+	struct bochs_bo *bo = gem_to_bochs_bo(obj);
-+
-+	return ttm_fbdev_mmap(vma, &bo->bo);
-+}
++const struct drm_mode_config_funcs bochs_mode_funcs = {
++	.fb_create = bochs_gem_fb_create,
++	.atomic_check = drm_atomic_helper_check,
++	.atomic_commit = drm_atomic_helper_commit,
++};
+ 
+ int bochs_kms_init(struct bochs_device *bochs)
+ {
+diff --git a/drivers/gpu/drm/bochs/Makefile b/drivers/gpu/drm/bochs/Makefile
+index 98ef60a19e..e9e0f8f5eb 100644
+--- a/drivers/gpu/drm/bochs/Makefile
++++ b/drivers/gpu/drm/bochs/Makefile
+@@ -1,3 +1,3 @@
+-bochs-drm-y := bochs_drv.o bochs_mm.o bochs_kms.o bochs_fbdev.o bochs_hw.o
++bochs-drm-y := bochs_drv.o bochs_mm.o bochs_kms.o bochs_hw.o
+ 
+ obj-$(CONFIG_DRM_BOCHS)	+= bochs-drm.o
 -- 
 2.9.3
