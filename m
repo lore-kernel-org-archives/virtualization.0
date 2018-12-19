@@ -1,13 +1,13 @@
 From: Gerd Hoffmann <kraxel@redhat.com>
-Subject: [PATCH 13/14] drm/bochs: drop old fbdev emulation code
-Date: Wed, 19 Dec 2018 12:51:26 +0100
-Message-ID: <20181219115127.31359-14-kraxel__13349.5834460065$1545220266$gmane$org@redhat.com>
-References: <20181219115127.31359-1-kraxel@redhat.com>
+Subject: [PATCH 03/10] drm/virtio: drop virtio_gpu_fence_cleanup()
+Date: Wed, 19 Dec 2018 13:27:01 +0100
+Message-ID: <20181219122708.4586-4-kraxel__32147.2679418095$1545222340$gmane$org@redhat.com>
+References: <20181219122708.4586-1-kraxel@redhat.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <20181219115127.31359-1-kraxel@redhat.com>
+In-Reply-To: <20181219122708.4586-1-kraxel@redhat.com>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -18,224 +18,80 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
 To: dri-devel@lists.freedesktop.org, David Airlie <airlied@redhat.com>
-Cc: David Airlie <airlied@linux.ie>, open list <linux-kernel@vger.kernel.org>, "open list:DRM DRIVER FOR BOCHS VIRTUAL GPU" <virtualization@lists.linux-foundation.org>
+Cc: David Airlie <airlied@linux.ie>, open list <linux-kernel@vger.kernel.org>, "open list:VIRTIO GPU DRIVER" <virtualization@lists.linux-foundation.org>
 List-Id: virtualization@lists.linuxfoundation.org
 
-Not needed any more, bochs uses the generic emulation now.
+Just call drm_fence_put directly instead.
+Also set vgfb->fence to NULL after dropping the reference.
 
 Signed-off-by: Gerd Hoffmann <kraxel@redhat.com>
 ---
- drivers/gpu/drm/bochs/bochs.h       |   9 ---
- drivers/gpu/drm/bochs/bochs_drv.c   |   6 --
- drivers/gpu/drm/bochs/bochs_fbdev.c | 137 ------------------------------------
- 3 files changed, 152 deletions(-)
+ drivers/gpu/drm/virtio/virtgpu_drv.h   | 1 -
+ drivers/gpu/drm/virtio/virtgpu_fence.c | 8 --------
+ drivers/gpu/drm/virtio/virtgpu_ioctl.c | 2 +-
+ drivers/gpu/drm/virtio/virtgpu_plane.c | 6 ++++--
+ 4 files changed, 5 insertions(+), 12 deletions(-)
 
-diff --git a/drivers/gpu/drm/bochs/bochs.h b/drivers/gpu/drm/bochs/bochs.h
-index 4236d5d811..42a587e71e 100644
---- a/drivers/gpu/drm/bochs/bochs.h
-+++ b/drivers/gpu/drm/bochs/bochs.h
-@@ -80,12 +80,6 @@ struct bochs_device {
- 		struct ttm_bo_device bdev;
- 		bool initialized;
- 	} ttm;
--
--	/* fbdev */
--	struct {
--		struct drm_framebuffer *fb;
--		struct drm_fb_helper helper;
--	} fb;
- };
- 
- struct bochs_bo {
-@@ -161,7 +155,4 @@ int bochs_kms_init(struct bochs_device *bochs);
- void bochs_kms_fini(struct bochs_device *bochs);
- 
- /* bochs_fbdev.c */
--int bochs_fbdev_init(struct bochs_device *bochs);
--void bochs_fbdev_fini(struct bochs_device *bochs);
--
- extern const struct drm_mode_config_funcs bochs_mode_funcs;
-diff --git a/drivers/gpu/drm/bochs/bochs_drv.c b/drivers/gpu/drm/bochs/bochs_drv.c
-index f1f65324bb..ad1290ca7b 100644
---- a/drivers/gpu/drm/bochs/bochs_drv.c
-+++ b/drivers/gpu/drm/bochs/bochs_drv.c
-@@ -110,12 +110,9 @@ static int bochs_pm_suspend(struct device *dev)
- {
- 	struct pci_dev *pdev = to_pci_dev(dev);
- 	struct drm_device *drm_dev = pci_get_drvdata(pdev);
--	struct bochs_device *bochs = drm_dev->dev_private;
- 
- 	drm_kms_helper_poll_disable(drm_dev);
- 
--	drm_fb_helper_set_suspend_unlocked(&bochs->fb.helper, 1);
--
- 	return 0;
+diff --git a/drivers/gpu/drm/virtio/virtgpu_drv.h b/drivers/gpu/drm/virtio/virtgpu_drv.h
+index 63704915f8..bfb31fc3d0 100644
+--- a/drivers/gpu/drm/virtio/virtgpu_drv.h
++++ b/drivers/gpu/drm/virtio/virtgpu_drv.h
+@@ -337,7 +337,6 @@ int virtio_gpu_mmap(struct file *filp, struct vm_area_struct *vma);
+ /* virtio_gpu_fence.c */
+ struct virtio_gpu_fence *virtio_gpu_fence_alloc(
+ 	struct virtio_gpu_device *vgdev);
+-void virtio_gpu_fence_cleanup(struct virtio_gpu_fence *fence);
+ int virtio_gpu_fence_emit(struct virtio_gpu_device *vgdev,
+ 			  struct virtio_gpu_ctrl_hdr *cmd_hdr,
+ 			  struct virtio_gpu_fence *fence);
+diff --git a/drivers/gpu/drm/virtio/virtgpu_fence.c b/drivers/gpu/drm/virtio/virtgpu_fence.c
+index 4d6826b278..21bd4c4a32 100644
+--- a/drivers/gpu/drm/virtio/virtgpu_fence.c
++++ b/drivers/gpu/drm/virtio/virtgpu_fence.c
+@@ -81,14 +81,6 @@ struct virtio_gpu_fence *virtio_gpu_fence_alloc(struct virtio_gpu_device *vgdev)
+ 	return fence;
  }
  
-@@ -123,12 +120,9 @@ static int bochs_pm_resume(struct device *dev)
- {
- 	struct pci_dev *pdev = to_pci_dev(dev);
- 	struct drm_device *drm_dev = pci_get_drvdata(pdev);
--	struct bochs_device *bochs = drm_dev->dev_private;
- 
- 	drm_helper_resume_force_mode(drm_dev);
- 
--	drm_fb_helper_set_suspend_unlocked(&bochs->fb.helper, 0);
+-void virtio_gpu_fence_cleanup(struct virtio_gpu_fence *fence)
+-{
+-	if (!fence)
+-		return;
 -
- 	drm_kms_helper_poll_enable(drm_dev);
- 	return 0;
+-	dma_fence_put(&fence->f);
+-}
+-
+ int virtio_gpu_fence_emit(struct virtio_gpu_device *vgdev,
+ 			  struct virtio_gpu_ctrl_hdr *cmd_hdr,
+ 			  struct virtio_gpu_fence *fence)
+diff --git a/drivers/gpu/drm/virtio/virtgpu_ioctl.c b/drivers/gpu/drm/virtio/virtgpu_ioctl.c
+index 161b80fee4..14ce8188c0 100644
+--- a/drivers/gpu/drm/virtio/virtgpu_ioctl.c
++++ b/drivers/gpu/drm/virtio/virtgpu_ioctl.c
+@@ -351,7 +351,7 @@ static int virtio_gpu_resource_create_ioctl(struct drm_device *dev, void *data,
+ 		virtio_gpu_cmd_resource_create_3d(vgdev, qobj, &rc_3d);
+ 		ret = virtio_gpu_object_attach(vgdev, qobj, fence);
+ 		if (ret) {
+-			virtio_gpu_fence_cleanup(fence);
++			dma_fence_put(&fence->f);
+ 			goto fail_backoff;
+ 		}
+ 		ttm_eu_fence_buffer_objects(&ticket, &validate_list, &fence->f);
+diff --git a/drivers/gpu/drm/virtio/virtgpu_plane.c b/drivers/gpu/drm/virtio/virtgpu_plane.c
+index 548265b8e8..024c2aa0c9 100644
+--- a/drivers/gpu/drm/virtio/virtgpu_plane.c
++++ b/drivers/gpu/drm/virtio/virtgpu_plane.c
+@@ -169,8 +169,10 @@ static void virtio_gpu_cursor_cleanup_fb(struct drm_plane *plane,
+ 		return;
+ 
+ 	vgfb = to_virtio_gpu_framebuffer(plane->state->fb);
+-	if (vgfb->fence)
+-		virtio_gpu_fence_cleanup(vgfb->fence);
++	if (vgfb->fence) {
++		dma_fence_put(&vgfb->fence->f);
++		vgfb->fence = NULL;
++	}
  }
-diff --git a/drivers/gpu/drm/bochs/bochs_fbdev.c b/drivers/gpu/drm/bochs/bochs_fbdev.c
-index 92feb817ff..7cac3f5253 100644
---- a/drivers/gpu/drm/bochs/bochs_fbdev.c
-+++ b/drivers/gpu/drm/bochs/bochs_fbdev.c
-@@ -11,132 +11,6 @@
  
- /* ---------------------------------------------------------------------- */
- 
--static int bochsfb_mmap(struct fb_info *info,
--			struct vm_area_struct *vma)
--{
--	struct drm_fb_helper *fb_helper = info->par;
--	struct bochs_bo *bo = gem_to_bochs_bo(fb_helper->fb->obj[0]);
--
--	return ttm_fbdev_mmap(vma, &bo->bo);
--}
--
--static struct fb_ops bochsfb_ops = {
--	.owner = THIS_MODULE,
--	DRM_FB_HELPER_DEFAULT_OPS,
--	.fb_fillrect = drm_fb_helper_cfb_fillrect,
--	.fb_copyarea = drm_fb_helper_cfb_copyarea,
--	.fb_imageblit = drm_fb_helper_cfb_imageblit,
--	.fb_mmap = bochsfb_mmap,
--};
--
--static int bochsfb_create_object(struct bochs_device *bochs,
--				 const struct drm_mode_fb_cmd2 *mode_cmd,
--				 struct drm_gem_object **gobj_p)
--{
--	struct drm_device *dev = bochs->dev;
--	struct drm_gem_object *gobj;
--	u32 size;
--	int ret = 0;
--
--	size = mode_cmd->pitches[0] * mode_cmd->height;
--	ret = bochs_gem_create(dev, size, true, &gobj);
--	if (ret)
--		return ret;
--
--	*gobj_p = gobj;
--	return ret;
--}
--
--static int bochsfb_create(struct drm_fb_helper *helper,
--			  struct drm_fb_helper_surface_size *sizes)
--{
--	struct bochs_device *bochs =
--		container_of(helper, struct bochs_device, fb.helper);
--	struct fb_info *info;
--	struct drm_framebuffer *fb;
--	struct drm_mode_fb_cmd2 mode_cmd;
--	struct drm_gem_object *gobj = NULL;
--	struct bochs_bo *bo = NULL;
--	int size, ret;
--
--	if (sizes->surface_bpp != 32)
--		return -EINVAL;
--
--	mode_cmd.width = sizes->surface_width;
--	mode_cmd.height = sizes->surface_height;
--	mode_cmd.pitches[0] = sizes->surface_width * 4;
--	mode_cmd.pixel_format = DRM_FORMAT_HOST_XRGB8888;
--	size = mode_cmd.pitches[0] * mode_cmd.height;
--
--	/* alloc, pin & map bo */
--	ret = bochsfb_create_object(bochs, &mode_cmd, &gobj);
--	if (ret) {
--		DRM_ERROR("failed to create fbcon backing object %d\n", ret);
--		return ret;
--	}
--
--	bo = gem_to_bochs_bo(gobj);
--
--	ret = ttm_bo_reserve(&bo->bo, true, false, NULL);
--	if (ret)
--		return ret;
--
--	ret = bochs_bo_pin(bo, TTM_PL_FLAG_VRAM);
--	if (ret) {
--		DRM_ERROR("failed to pin fbcon\n");
--		ttm_bo_unreserve(&bo->bo);
--		return ret;
--	}
--
--	ret = ttm_bo_kmap(&bo->bo, 0, bo->bo.num_pages,
--			  &bo->kmap);
--	if (ret) {
--		DRM_ERROR("failed to kmap fbcon\n");
--		ttm_bo_unreserve(&bo->bo);
--		return ret;
--	}
--
--	ttm_bo_unreserve(&bo->bo);
--
--	/* init fb device */
--	info = drm_fb_helper_alloc_fbi(helper);
--	if (IS_ERR(info)) {
--		DRM_ERROR("Failed to allocate fbi: %ld\n", PTR_ERR(info));
--		return PTR_ERR(info);
--	}
--
--	info->par = &bochs->fb.helper;
--
--	fb = drm_gem_fbdev_fb_create(bochs->dev, sizes, 0, gobj, NULL);
--	if (IS_ERR(fb)) {
--		DRM_ERROR("Failed to create framebuffer: %ld\n", PTR_ERR(fb));
--		return PTR_ERR(fb);
--	}
--
--	/* setup helper */
--	bochs->fb.helper.fb = fb;
--
--	strcpy(info->fix.id, "bochsdrmfb");
--
--	info->fbops = &bochsfb_ops;
--
--	drm_fb_helper_fill_fix(info, fb->pitches[0], fb->format->depth);
--	drm_fb_helper_fill_var(info, &bochs->fb.helper, sizes->fb_width,
--			       sizes->fb_height);
--
--	info->screen_base = bo->kmap.virtual;
--	info->screen_size = size;
--
--	drm_vma_offset_remove(&bo->bo.bdev->vma_manager, &bo->bo.vma_node);
--	info->fix.smem_start = 0;
--	info->fix.smem_len = size;
--	return 0;
--}
--
--static const struct drm_fb_helper_funcs bochs_fb_helper_funcs = {
--	.fb_probe = bochsfb_create,
--};
--
- static struct drm_framebuffer *
- bochs_gem_fb_create(struct drm_device *dev, struct drm_file *file,
- 		    const struct drm_mode_fb_cmd2 *mode_cmd)
-@@ -153,14 +27,3 @@ const struct drm_mode_config_funcs bochs_mode_funcs = {
- 	.atomic_check = drm_atomic_helper_check,
- 	.atomic_commit = drm_atomic_helper_commit,
- };
--
--int bochs_fbdev_init(struct bochs_device *bochs)
--{
--	return drm_fb_helper_fbdev_setup(bochs->dev, &bochs->fb.helper,
--					 &bochs_fb_helper_funcs, 32, 1);
--}
--
--void bochs_fbdev_fini(struct bochs_device *bochs)
--{
--	drm_fb_helper_fbdev_teardown(bochs->dev);
--}
+ static void virtio_gpu_cursor_plane_update(struct drm_plane *plane,
 -- 
 2.9.3
