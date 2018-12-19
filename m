@@ -1,14 +1,15 @@
-From: David Miller <davem@davemloft.net>
-Subject: Re: [PATCH v2] VSOCK: Send reset control packet when socket is
-	partially bound
-Date: Tue, 18 Dec 2018 11:54:33 -0800 (PST)
-Message-ID: <20181218.115433.2044623159542485583.davem__47145.0238409036$1545162754$gmane$org@davemloft.net>
-References: <1545122046-43955-1-git-send-email-jhansen@vmware.com>
+From: Masahiro Yamada <yamada.masahiro@socionext.com>
+Subject: Re: [PATCH v3 00/12] x86,
+	kbuild: revert macrofying inline assembly code
+Date: Wed, 19 Dec 2018 12:19:13 +0900
+Message-ID: <CAK7LNAR-uayGwbzmvezVO1w6N4AJaLe07ctYt-P6VHQv3PczZw__5115.36245835504$1545189504$gmane$org@mail.gmail.com>
+References: <1545062607-8599-1-git-send-email-yamada.masahiro@socionext.com>
+	<C6D4A9B6-EED6-4DF7-8085-B1D3D221D25A@vmware.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset="utf-8"
+Content-Transfer-Encoding: base64
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <1545122046-43955-1-git-send-email-jhansen@vmware.com>
+In-Reply-To: <C6D4A9B6-EED6-4DF7-8085-B1D3D221D25A@vmware.com>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -18,25 +19,55 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: jhansen@vmware.com
-Cc: pv-drivers@vmware.com, netdev@vger.kernel.org, gregkh@linuxfoundation.org, linux-kernel@vger.kernel.org, virtualization@lists.linux-foundation.org
+To: Nadav Amit <namit@vmware.com>, X86 ML <x86@kernel.org>, Thomas Gleixner <tglx@linutronix.de>, Ingo Molnar <mingo@redhat.com>, Borislav Petkov <bp@alien8.de>, "H . Peter Anvin" <hpa@zytor.com>
+Cc: Peter Zijlstra <peterz@infradead.org>, Alexei Starovoitov <ast@kernel.org>, "virtualization@lists.linux-foundation.org" <virtualization@lists.linux-foundation.org>, Jan Beulich <JBeulich@suse.com>, Andrey Ryabinin <aryabinin@virtuozzo.com>, linux-arch <linux-arch@vger.kernel.org>, Arnd Bergmann <arnd@arndb.de>, Linux Kbuild mailing list <linux-kbuild@vger.kernel.org>, "linux-sparse@vger.kernel.org" <linux-sparse@vger.kernel.org>, Yonghong Song <yhs@fb.com>, Alexey Dobriyan <adobriyan@gmail.com>, Kees Cook <keescook@chromium.org>, Segher Boessenkool <segher@kernel.crashing.org>, Jann Horn <jannh@google.com>, Arnaldo Carvalho de Melo <acme@redhat.com>, Josh Poimboeuf <jpoimboe@redhat.com>, Alok Kataria <akataria@vmware.com>, Juergen Gross <jgross@suse.com>, Michal Marek <michal.lkml@markovi.net>, Richard Biener <rguenther@suse.de>, Ard Biesheuvel <ard.biesheuvel@linaro.or>
 List-Id: virtualization@lists.linuxfoundation.org
 
-From: Jorgen Hansen <jhansen@vmware.com>
-Date: Tue, 18 Dec 2018 00:34:06 -0800
-
-> If a server side socket is bound to an address, but not in the listening
-> state yet, incoming connection requests should receive a reset control
-> packet in response. However, the function used to send the reset
-> silently drops the reset packet if the sending socket isn't bound
-> to a remote address (as is the case for a bound socket not yet in
-> the listening state). This change fixes this by using the src
-> of the incoming packet as destination for the reset packet in
-> this case.
-> 
-> Fixes: d021c344051a ("VSOCK: Introduce VM Sockets")
-> Reviewed-by: Adit Ranadive <aditr@vmware.com>
-> Reviewed-by: Vishnu Dasa <vdasa@vmware.com>
-> Signed-off-by: Jorgen Hansen <jhansen@vmware.com>
-
-Applied and queued up for -stable, thanks.
+T24gV2VkLCBEZWMgMTksIDIwMTggYXQgNToyNiBBTSBOYWRhdiBBbWl0IDxuYW1pdEB2bXdhcmUu
+Y29tPiB3cm90ZToKPgo+ID4gT24gRGVjIDE3LCAyMDE4LCBhdCA4OjAzIEFNLCBNYXNhaGlybyBZ
+YW1hZGEgPHlhbWFkYS5tYXNhaGlyb0Bzb2Npb25leHQuY29tPiB3cm90ZToKPiA+Cj4gPiBUaGlz
+IHNlcmllcyByZXZlcnRzIHRoZSBpbi1rZXJuZWwgd29ya2Fyb3VuZHMgZm9yIGlubGluaW5nIGlz
+c3Vlcy4KPiA+Cj4gPiBUaGUgY29tbWl0IGRlc2NyaXB0aW9uIG9mIDc3YjBiZjU1YmM2NyBtZW50
+aW9uZWQKPiA+ICJXZSBhbHNvIGhvcGUgdGhhdCBHQ0Mgd2lsbCBldmVudHVhbGx5IGdldCBmaXhl
+ZCwuLi4iCj4gPgo+ID4gTm93LCBHQ0MgcHJvdmlkZXMgYSBzb2x1dGlvbi4KPiA+Cj4gPiBodHRw
+czovL25hMDEuc2FmZWxpbmtzLnByb3RlY3Rpb24ub3V0bG9vay5jb20vP3VybD1odHRwcyUzQSUy
+RiUyRmdjYy5nbnUub3JnJTJGb25saW5lZG9jcyUyRmdjYyUyRkV4dGVuZGVkLUFzbS5odG1sJmFt
+cDtkYXRhPTAyJTdDMDElN0NuYW1pdCU0MHZtd2FyZS5jb20lN0NjNDNmNDMzZDhjNjI0NGRlMTVm
+MTA4ZDY2NDNhNDllNCU3Q2IzOTEzOGNhM2NlZTRiNGFhNGQ2Y2Q4M2Q5ZGQ2MmYwJTdDMCU3QzAl
+N0M2MzY4MDY1OTg4OTk5NjI2NjkmYW1wO3NkYXRhPTg4VUoyNVJvaUhpazl2VENKS1pWNiUyRjd4
+cHpDR3N2S2I5TEZnMWtmRVlMMCUzRCZhbXA7cmVzZXJ2ZWQ9MAo+ID4gZXhwbGFpbnMgdGhlIG5l
+dyAiYXNtIGlubGluZSIgc3ludGF4Lgo+ID4KPiA+IFRoZSBwZXJmb3JtYW5jZSBpc3N1ZSB3aWxs
+IGJlIGV2ZW50dWFsbHkgc29sdmVkLgo+ID4KPiA+IFtBYm91dCBDb2RlIGNsZWFudXBzXQo+ID4K
+PiA+IEkga25vdyBOYWRhbSBBbWl0IGlzIG9wcG9zZWQgdG8gdGhlIGZ1bGwgcmV2ZXJ0Lgo+Cj4g
+TXkgbmFtZSBpcyBOYWRhdi4KCgpTb3JyeSBhYm91dCB0aGF0LgoKKEkgcmVsaWVkIG9uIGEgc3Bl
+bGwgY2hlY2tlci4gSSBzaG91bGQgYmUgY2FyZWZ1bCBhYm91dCB0eXBvcyBpbiBwZW9wbGUncyBu
+YW1lLikKCgoKPiA+IEhlIGFsc28gY2xhaW1zIGhpcyBtb3RpdmF0aW9uIGZvciBtYWNyb2Z5aW5n
+IHdhcyBub3Qgb25seQo+ID4gcGVyZm9ybWFuY2UsIGJ1dCBhbHNvIGNsZWFudXBzLgo+Cj4gTWFz
+YWhpcm8sIEkgdW5kZXJzdGFuZCB5b3VyIGNvbmNlcm5zIGFuZCBjcml0aWNpc20sIGFuZCBpbmRl
+ZWQgdmFyaW91cwo+IGFsdGVybmF0aXZlIHNvbHV0aW9ucyBleGlzdC4gSSBkbyBoYXZlIG15IHJl
+c2VydmF0aW9ucyBhYm91dCB0aGUgb25lIHlvdQo+IHByb3Bvc2UsIHNpbmNlIGl0IG1ha2VzIGNv
+ZGluZyBtb3JlIGNvbXBsaWNhdGVkIHRvIHNpbXBsaWZ5IHRoZSBNYWtlIHN5c3RlbS4KPiBZZXQs
+IG1vcmUgaW1wb3J0YW50LCBzdGFydGluZyB0aGlzIGRpc2N1c3Npb24gc3VkZGVubHkgbm93IGFm
+dGVyIFJDNyBpcwo+IHN0cmFuZ2UuCgoKCkkgZGlkIG5vdCB0aGluayB0aGlzIHdhcyBzbyBzdWRk
+ZW4uCgpXaGVuIEkgc3VnZ2VzdGVkIHRoZSByZXZlcnQgYSBmZXcgd2Vla3MgYWdvLApCb3Jpc2xh
+diB3YXMgZm9yIGl0LgpJIGRpZCBub3QgaGVhciBmcm9tIHRoZSBvdGhlciB4ODYgbWFpbnRhaW5l
+cnMuCgpBbnl3YXksIGl0IGlzIHRydWUgd2UgYXJlIHJ1bm5pbmcgb3V0IG9mIHRpbWUgZm9yIHRo
+ZSByZWxlYXNlLgoKCj4gQW55aG93LCBzaW5jZSBpdOKAmXMgb2J2aW91c2x5IG5vdCBteSBjYWxs
+LCBwbGVhc2UgZG9u4oCZdCBtYWtlIGl0Cj4gc291bmQgYXMgaWYgSSBhbSBhIHNpZGUgaW4gdGhl
+IGRlY2lzaW9uLgo+CgpOb3QgbXkgY2FsbCwgZWl0aGVyLgoKVGhhdCdzIHdoeSBJIHB1dCB0aGUg
+eDg2IG1haW50YWluZXJzIGluIHRoZSBUTyBsaXN0LAphbmQgb3RoZXIgcGVvcGxlIGluIENDLgoK
+VGhlIG9yaWdpbmFsIHBhdGNoIHNldCB3ZW50IGluIHZpYSB4ODYgdHJlZS4KU28sIGl0cyByZXZl
+cnQgc2V0LCBpZiB3ZSB3YW50LApzaG91bGQgZ28gaW4gdGhlIHNhbWUgcGF0aC4KCgoKQW55d2F5
+LCB3ZSBoYXZlIHRvIGRvIHNvbWV0aGluZyBmb3IgdjQuMjAuCk1heWJlLCBkaXNjdXNzaW5nIHNo
+b3J0LXRlcm0gLyBsb25nLXRlcm0gc29sdXRpb25zCnNlcGFyYXRlbHkgY291bGQgbW92ZSB0aGlu
+Z3MgZm9yd2FyZC4KCgpbMV0gU29sdXRpb24gZm9yIHY0LjIwCgpbMl0gU29sdXRpb24gZm9yIGZ1
+dHVyZSBrZXJuZWwKCgoKSWYgd2UgZG8gbm90IHdhbnQgdG8gc2VlIHRoZSByZXZlcnQgZm9yIFsx
+XSwKdGhlIGJlc3QgSSBjYW4gc3VnZ2VzdCBpcyB0byBjb3B5IGFyY2gveDg2L2tlcm5lbC9tYWNy
+b3Mucwp0byBpbmNsdWRlL2dlbmVyYXRlZC9tYWNyb3MuaApzbyB0aGF0IGl0IGlzIGtlcHQgZm9y
+IHRoZSBleHRlcm5hbCBtb2R1bGUgYnVpbGQuCihJdCBpcyBub3QgbGl0ZXJhbGx5IGluY2x1ZGVk
+IGJ5IGFueW9uZSwgYnV0IHNob3VsZCB3b3JrIGF0IGxlYXN0LikKCgoKRm9yIFsyXSwgd2hhdCBk
+byB3ZSB3YW50IHRvIHNlZT8KCgoKCi0tIApCZXN0IFJlZ2FyZHMKTWFzYWhpcm8gWWFtYWRhCl9f
+X19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fClZpcnR1YWxpemF0
+aW9uIG1haWxpbmcgbGlzdApWaXJ0dWFsaXphdGlvbkBsaXN0cy5saW51eC1mb3VuZGF0aW9uLm9y
+ZwpodHRwczovL2xpc3RzLmxpbnV4Zm91bmRhdGlvbi5vcmcvbWFpbG1hbi9saXN0aW5mby92aXJ0
+dWFsaXphdGlvbg==
