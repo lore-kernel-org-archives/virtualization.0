@@ -1,7 +1,7 @@
 From: Gerd Hoffmann <kraxel@redhat.com>
-Subject: [PATCH 01/10] drm/virtio: log error responses
-Date: Wed, 19 Dec 2018 13:26:59 +0100
-Message-ID: <20181219122708.4586-2-kraxel__12413.0893651911$1545222349$gmane$org@redhat.com>
+Subject: [PATCH 02/10] drm/virtio: fix pageflip flush
+Date: Wed, 19 Dec 2018 13:27:00 +0100
+Message-ID: <20181219122708.4586-3-kraxel__25796.6297482655$1545222356$gmane$org@redhat.com>
 References: <20181219122708.4586-1-kraxel@redhat.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
@@ -21,35 +21,35 @@ To: dri-devel@lists.freedesktop.org, David Airlie <airlied@redhat.com>
 Cc: David Airlie <airlied@linux.ie>, open list <linux-kernel@vger.kernel.org>, "open list:VIRTIO GPU DRIVER" <virtualization@lists.linux-foundation.org>
 List-Id: virtualization@lists.linuxfoundation.org
 
-If we got an error response code from the host, print it to the log.
+Sending the flush command only makes sense if we actually have
+a framebuffer attached to the scanout (handle != 0).
 
 Signed-off-by: Gerd Hoffmann <kraxel@redhat.com>
 ---
- drivers/gpu/drm/virtio/virtgpu_vq.c | 12 ++++++++++--
- 1 file changed, 10 insertions(+), 2 deletions(-)
+ drivers/gpu/drm/virtio/virtgpu_plane.c | 11 ++++++-----
+ 1 file changed, 6 insertions(+), 5 deletions(-)
 
-diff --git a/drivers/gpu/drm/virtio/virtgpu_vq.c b/drivers/gpu/drm/virtio/virtgpu_vq.c
-index e27c4aedb8..6bc2008b0d 100644
---- a/drivers/gpu/drm/virtio/virtgpu_vq.c
-+++ b/drivers/gpu/drm/virtio/virtgpu_vq.c
-@@ -192,8 +192,16 @@ void virtio_gpu_dequeue_ctrl_func(struct work_struct *work)
+diff --git a/drivers/gpu/drm/virtio/virtgpu_plane.c b/drivers/gpu/drm/virtio/virtgpu_plane.c
+index ead5c53d4e..548265b8e8 100644
+--- a/drivers/gpu/drm/virtio/virtgpu_plane.c
++++ b/drivers/gpu/drm/virtio/virtgpu_plane.c
+@@ -130,11 +130,12 @@ static void virtio_gpu_primary_plane_update(struct drm_plane *plane,
+ 				   plane->state->src_h >> 16,
+ 				   plane->state->src_x >> 16,
+ 				   plane->state->src_y >> 16);
+-	virtio_gpu_cmd_resource_flush(vgdev, handle,
+-				      plane->state->src_x >> 16,
+-				      plane->state->src_y >> 16,
+-				      plane->state->src_w >> 16,
+-				      plane->state->src_h >> 16);
++	if (handle)
++		virtio_gpu_cmd_resource_flush(vgdev, handle,
++					      plane->state->src_x >> 16,
++					      plane->state->src_y >> 16,
++					      plane->state->src_w >> 16,
++					      plane->state->src_h >> 16);
+ }
  
- 	list_for_each_entry_safe(entry, tmp, &reclaim_list, list) {
- 		resp = (struct virtio_gpu_ctrl_hdr *)entry->resp_buf;
--		if (resp->type != cpu_to_le32(VIRTIO_GPU_RESP_OK_NODATA))
--			DRM_DEBUG("response 0x%x\n", le32_to_cpu(resp->type));
-+		if (resp->type != cpu_to_le32(VIRTIO_GPU_RESP_OK_NODATA)) {
-+			if (resp->type >= cpu_to_le32(VIRTIO_GPU_RESP_ERR_UNSPEC)) {
-+				struct virtio_gpu_ctrl_hdr *cmd;
-+				cmd = (struct virtio_gpu_ctrl_hdr *)entry->buf;
-+				DRM_ERROR("response 0x%x (command 0x%x)\n",
-+					  le32_to_cpu(resp->type),
-+					  le32_to_cpu(cmd->type));
-+			} else
-+				DRM_DEBUG("response 0x%x\n", le32_to_cpu(resp->type));
-+		}
- 		if (resp->flags & cpu_to_le32(VIRTIO_GPU_FLAG_FENCE)) {
- 			u64 f = le64_to_cpu(resp->fence_id);
- 
+ static int virtio_gpu_cursor_prepare_fb(struct drm_plane *plane,
 -- 
 2.9.3
