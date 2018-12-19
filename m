@@ -1,7 +1,8 @@
 From: Gerd Hoffmann <kraxel@redhat.com>
-Subject: [PATCH 10/10] drm/virtio: ditch virtio_gpu_object_attach() calls
-Date: Wed, 19 Dec 2018 13:27:08 +0100
-Message-ID: <20181219122708.4586-11-kraxel__11800.427203025$1545222370$gmane$org@redhat.com>
+Subject: [PATCH 09/10] drm/virtio: move virtio_gpu_cmd_create_resource call
+	into virtio_gpu_object_create
+Date: Wed, 19 Dec 2018 13:27:07 +0100
+Message-ID: <20181219122708.4586-10-kraxel__21348.1192746714$1545222374$gmane$org@redhat.com>
 References: <20181219122708.4586-1-kraxel@redhat.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
@@ -21,56 +22,105 @@ To: dri-devel@lists.freedesktop.org, David Airlie <airlied@redhat.com>
 Cc: David Airlie <airlied@linux.ie>, open list <linux-kernel@vger.kernel.org>, "open list:VIRTIO GPU DRIVER" <virtualization@lists.linux-foundation.org>
 List-Id: virtualization@lists.linuxfoundation.org
 
-With virtio_gpu_object_create() being called earlier ttm_bo_init() will
-handle the virtio_gpu_object_attach() (via backend binding), so we can
-drop the extra calls now.
+Specifically call virtio_gpu_object_create() before ttm_bo_init().
 
 Signed-off-by: Gerd Hoffmann <kraxel@redhat.com>
 ---
- drivers/gpu/drm/virtio/virtgpu_gem.c   | 9 ---------
- drivers/gpu/drm/virtio/virtgpu_ioctl.c | 2 --
- 2 files changed, 11 deletions(-)
+ drivers/gpu/drm/virtio/virtgpu_drv.h    |  2 ++
+ drivers/gpu/drm/virtio/virtgpu_gem.c    |  3 +--
+ drivers/gpu/drm/virtio/virtgpu_ioctl.c  | 10 ++--------
+ drivers/gpu/drm/virtio/virtgpu_object.c | 10 ++++++++--
+ 4 files changed, 13 insertions(+), 12 deletions(-)
 
+diff --git a/drivers/gpu/drm/virtio/virtgpu_drv.h b/drivers/gpu/drm/virtio/virtgpu_drv.h
+index f9959306ae..f50ca81132 100644
+--- a/drivers/gpu/drm/virtio/virtgpu_drv.h
++++ b/drivers/gpu/drm/virtio/virtgpu_drv.h
+@@ -59,7 +59,9 @@ struct virtio_gpu_object_params {
+ 	uint32_t height;
+ 	unsigned long size;
+ 	bool pinned;
++	bool dumb;
+ 	/* 3d */
++	bool virgl;
+ 	uint32_t target;
+ 	uint32_t bind;
+ 	uint32_t depth;
 diff --git a/drivers/gpu/drm/virtio/virtgpu_gem.c b/drivers/gpu/drm/virtio/virtgpu_gem.c
-index ca84990382..4b01e5655c 100644
+index eea6c6e8db..ca84990382 100644
 --- a/drivers/gpu/drm/virtio/virtgpu_gem.c
 +++ b/drivers/gpu/drm/virtio/virtgpu_gem.c
-@@ -82,9 +82,7 @@ int virtio_gpu_mode_dumb_create(struct drm_file *file_priv,
- 				struct drm_device *dev,
- 				struct drm_mode_create_dumb *args)
- {
--	struct virtio_gpu_device *vgdev = dev->dev_private;
- 	struct drm_gem_object *gobj;
--	struct virtio_gpu_object *obj;
- 	struct virtio_gpu_object_params params = {
- 		.pinned = false,
- 	};
-@@ -108,13 +106,6 @@ int virtio_gpu_mode_dumb_create(struct drm_file *file_priv,
+@@ -102,20 +102,19 @@ int virtio_gpu_mode_dumb_create(struct drm_file *file_priv,
+ 	params.width = args->width;
+ 	params.height = args->height;
+ 	params.size = args->size;
++	params.dumb = true;
+ 	ret = virtio_gpu_gem_create(file_priv, dev, &params, &gobj,
+ 				    &args->handle);
  	if (ret)
  		goto fail;
  
--	obj = gem_to_virtio_gpu_obj(gobj);
--
--	/* attach the object to the resource */
--	ret = virtio_gpu_object_attach(vgdev, obj, NULL);
--	if (ret)
--		goto fail;
--
+ 	obj = gem_to_virtio_gpu_obj(gobj);
+-	virtio_gpu_cmd_create_resource(vgdev, obj, &params);
+ 
+ 	/* attach the object to the resource */
+ 	ret = virtio_gpu_object_attach(vgdev, obj, NULL);
+ 	if (ret)
+ 		goto fail;
+ 
+-	obj->dumb = true;
  	args->pitch = pitch;
  	return ret;
  
 diff --git a/drivers/gpu/drm/virtio/virtgpu_ioctl.c b/drivers/gpu/drm/virtio/virtgpu_ioctl.c
-index e5bd1fed56..90b3955b6f 100644
+index 65ac61f86a..e5bd1fed56 100644
 --- a/drivers/gpu/drm/virtio/virtgpu_ioctl.c
 +++ b/drivers/gpu/drm/virtio/virtgpu_ioctl.c
-@@ -319,8 +319,6 @@ static int virtio_gpu_resource_create_ioctl(struct drm_device *dev, void *data,
+@@ -301,6 +301,7 @@ static int virtio_gpu_resource_create_ioctl(struct drm_device *dev, void *data,
+ 	params.height = rc->height;
+ 	params.size = rc->size;
+ 	if (vgdev->has_virgl_3d) {
++		params.virgl = true;
+ 		params.target = rc->target;
+ 		params.bind = rc->bind;
+ 		params.depth = rc->depth;
+@@ -318,14 +319,7 @@ static int virtio_gpu_resource_create_ioctl(struct drm_device *dev, void *data,
  		return PTR_ERR(qobj);
  	obj = &qobj->gem_base;
  
--	ret = virtio_gpu_object_attach(vgdev, qobj, NULL);
+-	if (!vgdev->has_virgl_3d) {
+-		virtio_gpu_cmd_create_resource(vgdev, qobj, &params);
 -
+-		ret = virtio_gpu_object_attach(vgdev, qobj, NULL);
+-	} else {
+-		virtio_gpu_cmd_resource_create_3d(vgdev, qobj, &params);
+-		ret = virtio_gpu_object_attach(vgdev, qobj, NULL);
+-	}
++	ret = virtio_gpu_object_attach(vgdev, qobj, NULL);
+ 
  	ret = drm_gem_handle_create(file_priv, obj, &handle);
  	if (ret) {
- 		drm_gem_object_release(obj);
+diff --git a/drivers/gpu/drm/virtio/virtgpu_object.c b/drivers/gpu/drm/virtio/virtgpu_object.c
+index 62367e3f80..94da9e68d2 100644
+--- a/drivers/gpu/drm/virtio/virtgpu_object.c
++++ b/drivers/gpu/drm/virtio/virtgpu_object.c
+@@ -106,9 +106,15 @@ int virtio_gpu_object_create(struct virtio_gpu_device *vgdev,
+ 		kfree(bo);
+ 		return ret;
+ 	}
+-	bo->dumb = false;
++	bo->dumb = params->dumb;
++
++	if (params->virgl) {
++		virtio_gpu_cmd_resource_create_3d(vgdev, bo, params);
++	} else {
++		virtio_gpu_cmd_create_resource(vgdev, bo, params);
++	}
++
+ 	virtio_gpu_init_ttm_placement(bo, params->pinned);
+-
+ 	ret = ttm_bo_init(&vgdev->mman.bdev, &bo->tbo, params->size,
+ 			  ttm_bo_type_device, &bo->placement, 0,
+ 			  true, acc_size, NULL, NULL,
 -- 
 2.9.3
