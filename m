@@ -1,17 +1,17 @@
-From: Willem de Bruijn <willemdebruijn.kernel@gmail.com>
-Subject: Re: 4.20-rc6: WARNING: CPU: 30 PID: 197360 at
-	net/core/flow_dissector.c:764 __skb_flow_dissect
-Date: Thu, 20 Dec 2018 12:23:39 -0500
-Message-ID: <CAF=yD-KBkX3NxtDt6mv-PoujFfdtJJ66XsnGzx-KQop6EU6LRw__22028.1929862269$1545334194$gmane$org@mail.gmail.com>
-References: <ba519cd8-ab88-2868-f6d0-be321d8df0be@de.ibm.com>
-	<20181220091207.GA25942@splinter>
-	<0c5a8fa8-efb3-71f2-0da9-6fc0f133cdf9@de.ibm.com>
-	<20181220141752.GB861@splinter>
+From: Jean-Philippe Brucker <jean-philippe.brucker@arm.com>
+Subject: Re: [PATCH v6 0/7] Add virtio-iommu driver
+Date: Thu, 20 Dec 2018 17:59:46 +0000
+Message-ID: <e1c7aee9-083d-103a-87a9-b59d5e63d7aa__48117.0561317869$1545334479$gmane$org@arm.com>
+References: <20181211182104.18241-1-jean-philippe.brucker@arm.com>
+	<20181212103545.GV16835@8bytes.org>
+	<9110873f-d344-b6b9-c722-9accfc329db2@arm.com>
+	<20181219180417-mutt-send-email-mst@kernel.org>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset="utf-8"
+Content-Transfer-Encoding: base64
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <20181220141752.GB861@splinter>
+In-Reply-To: <20181219180417-mutt-send-email-mst@kernel.org>
+Content-Language: en-US
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -21,47 +21,57 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Ido Schimmel <idosch@idosch.org>
-Cc: Willem de Bruijn <willemb@google.com>, Michael S Tsirkin <mst@redhat.com>, Network Development <netdev@vger.kernel.org>, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>, "virtualization@lists.linux-foundation.org" <virtualization@lists.linux-foundation.org>
+To: "Michael S. Tsirkin" <mst@redhat.com>
+Cc: Mark Rutland <Mark.Rutland@arm.com>, "virtio-dev@lists.oasis-open.org" <virtio-dev@lists.oasis-open.org>, Lorenzo Pieralisi <Lorenzo.Pieralisi@arm.com>, "tnowicki@caviumnetworks.com" <tnowicki@caviumnetworks.com>, "devicetree@vger.kernel.org" <devicetree@vger.kernel.org>, Marc Zyngier <Marc.Zyngier@arm.com>, "linux-pci@vger.kernel.org" <linux-pci@vger.kernel.org>, Joerg Roedel <joro@8bytes.org>, Will Deacon <Will.Deacon@arm.com>, "virtualization@lists.linux-foundation.org" <virtualization@lists.linux-foundation.org>, "eric.auger@redhat.com" <eric.auger@redhat.com>, "iommu@lists.linux-foundation.org" <iommu@lists.linux-foundation.org>, "robh+dt@kernel.org" <robh+dt@kernel.org>, "bhelgaas@google.com" <bhelgaas@google.com>, Robin Murphy <Robin.Murphy@arm.com>, "kvmarm@lists.cs.columbia.edu" <kvmarm@lists.cs.columbia.edu>
 List-Id: virtualization@lists.linuxfoundation.org
 
-On Thu, Dec 20, 2018 at 11:17 AM Ido Schimmel <idosch@idosch.org> wrote:
->
-> On Thu, Dec 20, 2018 at 03:09:22PM +0100, Christian Borntraeger wrote:
-> > On 20.12.2018 10:12, Ido Schimmel wrote:
-> > > +Willem
-> > >
-> > > On Thu, Dec 20, 2018 at 08:45:40AM +0100, Christian Borntraeger wrote:
-> > >> Folks,
-> > >>
-> > >> I got this warning today. I cant tell when and why this happened, so I do not know yet how to reproduce.
-> > >> Maybe someone has a quick idea.
-> > >>
-> > >> [85109.572032] WARNING: CPU: 30 PID: 197360 at net/core/flow_dissector.c:764 __skb_flow_dissect+0x1f0/0x1318
-> > >
-> > > I managed to trigger this warning as well the other day, but from a
-> > > different call path:
-> >
-> > FWIW, it also seems to happen on 4.20-rc1. 4.19.0 seems fine. bisect seem to have failed so
-> > my reproducer is not reliable.
->
-> Yes, it is caused by commit d0e13a1488ad ("flow_dissector: lookup netns
-> by skb->sk if skb->dev is NULL")
->
-> $ git tag --contains d0e13a1488ad
-> v4.20-rc1
-> v4.20-rc2
-> v4.20-rc3
-> v4.20-rc4
-> v4.20-rc5
-> v4.20-rc6
-
-That tap_get_user_xdp path is also new for 4.20-rc1:
-
-    commit 0efac27791ee068075d80f07c55a229b1335ce12
-    tap: accept an array of XDP buffs through sendmsg()
-
-    $ git describe --contains 0efac27791ee
-    v4.20-rc1~14^2~382^2~1
-
-In v4.19 and before all packets went through tap_get_user.
+T24gMTkvMTIvMjAxOCAyMzowOSwgTWljaGFlbCBTLiBUc2lya2luIHdyb3RlOgo+IE9uIFRodSwg
+RGVjIDEzLCAyMDE4IGF0IDEyOjUwOjI5UE0gKzAwMDAsIEplYW4tUGhpbGlwcGUgQnJ1Y2tlciB3
+cm90ZToKPj4+PiBbM10gZ2l0Oi8vbGludXgtYXJtLm9yZy9saW51eC1qcGIuZ2l0IHZpcnRpby1p
+b21tdS92MC45LjEKPj4+PiDCoMKgwqDCoCBnaXQ6Ly9saW51eC1hcm0ub3JnL2t2bXRvb2wtanBi
+LmdpdCB2aXJ0aW8taW9tbXUvdjAuOQo+Pj4KPj4+IFVuZm9ydHVuYXRseSBnaXR3ZWIgc2VlbXMg
+dG8gYmUgYnJva2VuIG9uIGxpbnV4LWFybS5vcmcuIFdoYXQgaXMgbWlzc2luZwo+Pj4gaW4gdGhp
+cyBwYXRjaC1zZXQgdG8gbWFrZSB0aGlzIHdvcmsgb24geDg2Pwo+Pgo+PiBZb3Ugc2hvdWxkIGJl
+IGFibGUgdG8gYWNjZXNzIGl0IGhlcmU6Cj4+IGh0dHA6Ly93d3cubGludXgtYXJtLm9yZy9naXQ/
+cD1saW51eC1qcGIuZ2l0O2E9c2hvcnRsb2c7aD1yZWZzL2hlYWRzL3ZpcnRpby1pb21tdS9kZXZl
+bAo+Pgo+PiBUaGF0IGJyYW5jaCBjb250YWlucyBtaXNzaW5nIGJpdHMgZm9yIHg4NiBzdXBwb3J0
+Ogo+Pgo+PiAqIEFDUEkgc3VwcG9ydC4gV2UgaGF2ZSB0aGUgY29kZSBidXQgaXQncyB3YWl0aW5n
+IGZvciBhbiBJT1JUIHNwZWMKPj4gdXBkYXRlLCB0byByZXNlcnZlIHRoZSBJT1JUIG5vZGUgSUQu
+IEkgZXhwZWN0IGl0IHRvIHRha2UgYSB3aGlsZSwgZ2l2ZW4KPj4gdGhhdCBJJ20gYWxvbmUgcmVx
+dWVzdGluZyBhIGNoYW5nZSBmb3Igc29tZXRoaW5nIHRoYXQncyBub3QgdXBzdHJlYW0gb3IKPj4g
+aW4gaGFyZHdhcmUuCj4gCj4gRnJhbmtseSBJIHRoaW5rIHlvdSBzaG91bGQgdGFrZSBhIGhhcmQg
+bG9vayBhdCBqdXN0IGdldHRpbmcgdGhlIGRhdGEKPiBuZWVkZWQgZnJvbSB0aGUgUENJIGRldmlj
+ZSBpdHNlbGYuICBZb3UgZG9uJ3QgbmVlZCB0byBkZXBlbmQgb24gdmlydGlvLAo+IGl0IGNhbiBi
+ZSBhIHNtYWxsIGRyaXZlciB0aGF0IGdldHMgeW91IHRoYXQgZGF0YSBmcm9tIHRoZSBkZXZpY2Ug
+Y29uZmlnCj4gc3BhY2UgYW5kIHRoZW4ganVzdCBnb2VzIGF3YXkuCj4gCj4gSWYgeW91IHdhbnQg
+aGVscCB3aXRoIHdyaXRpbmcgc3VjaCBhIHNtYWxsIGRyaXZlciBsZXQgbWUga25vdy4KPiAKPiBJ
+ZiB0aGVyZSdzIGFuIGFkdmFudGFnZSB0byB2aXJ0aW8taW9tbXUgdGhlbiB0aGF0IHdvdWxkIGJl
+IGl0cwo+IHBvcnRhYmlsaXR5LCBhbmQgaXQgYWxsIGdvZXMgb3V0IG9mIHRoZSB3aW5kb3cgYmVj
+YXVzZQo+IG9mIGRlcGVuZGVuY2llcyBvbiBBQ1BJIGFuZCBEVCBhbmQgT0YgYW5kIHRoZSByZXN0
+IG9mIHRoZSB6b28uCgpCdXQgdGhlIHBvcnRhYmxlIHNvbHV0aW9ucyBhcmUgQUNQSSBhbmQgRFQu
+CgpEZXNjcmliaW5nIHRoZSBETUEgZGVwZW5kZW5jeSB0aHJvdWdoIGEgZGV2aWNlIHdvdWxkIHJl
+cXVpcmUgdGhlIGd1ZXN0CnRvIHByb2JlIHRoZSBkZXZpY2UgYmVmb3JlIGFsbCBvdGhlcnMuIEhv
+dyBkbyB3ZSBjb21tdW5pY2F0ZSB0aGlzPwoqIHBhc3MgYSBrZXJuZWwgcGFyYW1ldGVyIHNheWlu
+ZyBzb21ldGhpbmcgbGlrZSAicHJvYmVfZmlyc3Q9MDA6MDEuMCIKKiBtYWtlIHN1cmUgdGhhdCB0
+aGUgUENJIHJvb3QgY29tcGxleCBpcyBwcm9iZWQgYmVmb3JlIGFueSBvdGhlcgpwbGF0Zm9ybSBk
+ZXZpY2UgKHNpbmNlIHRoZSBJT01NVSBjYW4gbWFuYWdlIERNQSBvZiBwbGF0Zm9ybSBkZXZpY2Vz
+KS4KKiBjaGFuZ2UgRFQsIEFDUEkgYW5kIFBDSSBjb3JlIGNvZGUgdG8gaGFuZGxlIHRoaXMgcHJv
+YmVfZmlyc3Qga2VybmVsCnBhcmFtZXRlci4KCkJldHRlciBnbyB3aXRoIHNvbWV0aGluZyBzdGFu
+ZGFyZCwgdGhhdCBhbnkgT1MgYW5kIGh5cGVydmlzb3Iga25vd3MgaG93CnRvIHVzZSwgYW5kIHRo
+YXQgb3RoZXIgSU9NTVUgZGV2aWNlcyBhbHJlYWR5IHVzZS4KCj4+ICogRE1BIG9wcyBmb3IgeDg2
+IChzZWUgIkhBQ0siIGNvbW1pdCkuIEknZCBsaWtlIHRvIHVzZSBkbWEtaW9tbXUgYnV0IEknbQo+
+PiBub3Qgc3VyZSBob3cgdG8gaW1wbGVtZW50IHRoZSBnbHVlIHRoYXQgc2V0cyBkbWFfb3BzIHBy
+b3Blcmx5Lgo+Pgo+PiBUaGFua3MsCj4+IEplYW4KPiAKPiBPSyBzbyBJSVVDIHlvdSBhcmUgbG9v
+a2luZyBpbnRvIENocmlzdG9waCdzIHN1Z2dlc3Rpb25zIHRvIGZpeCB0aGF0IHVwPwoKRXZlbnR1
+YWxseSB5ZXMuIEknbGwgZ2l2ZSBpdCBhIHRyeSBuZXh0IHllYXIsIG9uY2UgdGhlIGRtYS1pb21t
+dSBjaGFuZ2VzCmFyZSBvbiB0aGUgbGlzdC4gSXQncyBub3QgYSBwcmlvcml0eSBmb3IgbWUsIGdp
+dmVuIHRoYXQgeDg2IGFscmVhZHkgaGFzCmEgcHZJT01NVSB3aXRoIFZULWQsIGFuZCB0aGF0IEFy
+bSBzdGlsbCBuZWVkcyBvbmUuIEl0IHNob3VsZG4ndCBibG9jawp0aGlzIHNlcmllcy4KCj4gVGhl
+cmUncyBzdGlsbCBhIGJpdCBvZiB0aW1lIGxlZnQgYmVmb3JlIHRoZSBtZXJnZSB3aW5kb3csCj4g
+bWF5YmUgeW91IGNhbiBtYWtlIGFib3ZlIGNoYW5nZXMuCgpJJ2xsIHdhaXQgdG8gc2VlIGlmIEpv
+ZXJnIGhhcyBvdGhlciBjb25jZXJucyBhYm91dCB0aGUgZGVzaWduIG9yIHRoZQpjb2RlLCBhbmQg
+cmVzZW5kIGluIEphbnVhcnkuIEkgdGhpbmsgdGhhdCBJT01NVSBkcml2ZXIgY2hhbmdlcyBzaG91
+bGQgZ28KdGhyb3VnaCBoaXMgdHJlZS4KClRoYW5rcywKSmVhbgpfX19fX19fX19fX19fX19fX19f
+X19fX19fX19fX19fX19fX19fX19fX19fX19fXwpWaXJ0dWFsaXphdGlvbiBtYWlsaW5nIGxpc3QK
+VmlydHVhbGl6YXRpb25AbGlzdHMubGludXgtZm91bmRhdGlvbi5vcmcKaHR0cHM6Ly9saXN0cy5s
+aW51eGZvdW5kYXRpb24ub3JnL21haWxtYW4vbGlzdGluZm8vdmlydHVhbGl6YXRpb24=
