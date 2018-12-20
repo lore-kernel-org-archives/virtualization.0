@@ -1,12 +1,11 @@
-From: "Michael S. Tsirkin" <mst@redhat.com>
-Subject: [PULL] virtio fix
-Date: Wed, 19 Dec 2018 18:29:58 -0500
-Message-ID: <20181219182958-mutt-send-email-mst__22422.7707171396$1545262418$gmane$org@kernel.org>
+From: Gerd Hoffmann <kraxel@redhat.com>
+Subject: [PATCH v2] drm/bochs: add edid present check
+Date: Thu, 20 Dec 2018 07:50:01 +0100
+Message-ID: <20181220065001.9594-1-kraxel__7907.53851547397$1545288486$gmane$org@redhat.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-Content-Disposition: inline
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -16,37 +15,38 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Linus Torvalds <torvalds@linux-foundation.org>
-Cc: netdev@vger.kernel.org, mst@redhat.com, linux-kernel@vger.kernel.org, kvm@vger.kernel.org, virtualization@lists.linux-foundation.org
+To: dri-devel@lists.freedesktop.org
+Cc: andr2000@gmail.com, David Airlie <airlied@linux.ie>, open list <linux-kernel@vger.kernel.org>, "open list:DRM DRIVER FOR BOCHS VIRTUAL GPU" <virtualization@lists.linux-foundation.org>
 List-Id: virtualization@lists.linuxfoundation.org
 
-Sorry about the last-minute pull req.
-But it does seem very very safe and also the tests
-aren't automatically built right now so the 0 day
-infrastructure won't help anyway.
+Check first two header bytes before trying to read the edid blob,
+to avoid the log being spammed in case qemu has no edid support (old
+qemu or edid turned off).
 
-The following changes since commit 7566ec393f4161572ba6f11ad5171fd5d59b0fbd:
+Fixes: 01f23459cf drm/bochs: add edid support.
+Signed-off-by: Gerd Hoffmann <kraxel@redhat.com>
+---
+ drivers/gpu/drm/bochs/bochs_hw.c | 8 ++++++++
+ 1 file changed, 8 insertions(+)
 
-  Linux 4.20-rc7 (2018-12-16 15:46:55 -0800)
-
-are available in the Git repository at:
-
-  git://git.kernel.org/pub/scm/linux/kernel/git/mst/vhost.git tags/for_linus
-
-for you to fetch changes up to c5c08bed843c2b2c048c16d1296d7631d7c1620e:
-
-  virtio: fix test build after uio.h change (2018-12-19 18:23:49 -0500)
-
-----------------------------------------------------------------
-virtio fix
-
-A last-minute fix for a test build.
-
-Signed-off-by: Michael S. Tsirkin <mst@redhat.com>
-
-----------------------------------------------------------------
-Michael S. Tsirkin (1):
-      virtio: fix test build after uio.h change
-
- tools/virtio/linux/kernel.h | 4 ++++
- 1 file changed, 4 insertions(+)
+diff --git a/drivers/gpu/drm/bochs/bochs_hw.c b/drivers/gpu/drm/bochs/bochs_hw.c
+index c90a0d492f..e1f8ffce00 100644
+--- a/drivers/gpu/drm/bochs/bochs_hw.c
++++ b/drivers/gpu/drm/bochs/bochs_hw.c
+@@ -89,6 +89,14 @@ int bochs_hw_load_edid(struct bochs_device *bochs)
+ 	if (!bochs->mmio)
+ 		return -1;
+ 
++	/*
++	 * Check first two EDID blob header bytes to figure whenever
++	 * edid support is enabled in qemu.
++	 */
++	if (readb(bochs->mmio + 0) != 0x00 ||
++	    readb(bochs->mmio + 1) != 0xff)
++		return -1;
++
+ 	kfree(bochs->edid);
+ 	bochs->edid = drm_do_get_edid(&bochs->connector,
+ 				      bochs_get_edid_block, bochs);
+-- 
+2.9.3
