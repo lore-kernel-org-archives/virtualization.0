@@ -1,11 +1,23 @@
-From: "Maria Lemos" <marialemos72@gmail.com>
-Subject: CISTI'2019 - Doctoral Symposium | Coimbra, Portugal
-Date: Tue, 25 Dec 2018 18:02:46 +0000
-Message-ID: <1039264265281@gmail-com>
-Reply-To: cistimail@gmail.com
+From: Jason Wang <jasowang@redhat.com>
+Subject: Re: [PATCH net-next 3/3] vhost: access vq metadata through kernel
+	virtual address
+Date: Wed, 26 Dec 2018 11:57:32 +0800
+Message-ID: <70978ed8-bf76-693a-0e11-d31b6234af5c__48490.7244485386$1545796543$gmane$org@redhat.com>
+References: <20181213101022.12475-1-jasowang@redhat.com>
+	<20181213101022.12475-4-jasowang@redhat.com>
+	<20181213102713-mutt-send-email-mst@kernel.org>
+	<d70c5ac1-c805-cefd-ace1-643a2e271ba0@redhat.com>
+	<20181214073332-mutt-send-email-mst@kernel.org>
+	<2ea274df-a79a-250f-648f-12927529d78a@redhat.com>
+	<20181224125237-mutt-send-email-mst@kernel.org>
+	<b31dbf4c-d499-1d34-f39f-f10cc0febc84@redhat.com>
+	<20181225071501-mutt-send-email-mst@kernel.org>
 Mime-Version: 1.0
-Content-Type: multipart/mixed; boundary="===============7535339925287520970=="
+Content-Type: text/plain; charset="utf-8"; Format="flowed"
+Content-Transfer-Encoding: base64
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
+In-Reply-To: <20181225071501-mutt-send-email-mst@kernel.org>
+Content-Language: en-US
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -15,390 +27,166 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: virtualization@lists.linux-foundation.org
+To: "Michael S. Tsirkin" <mst@redhat.com>
+Cc: netdev@vger.kernel.org, linux-kernel@vger.kernel.org, kvm@vger.kernel.org, virtualization@lists.linux-foundation.org
 List-Id: virtualization@lists.linuxfoundation.org
 
-This is a multi-part message in MIME format
-
---===============7535339925287520970==
-Content-Type: multipart/alternative; charset=utf-8; boundary="fwRSj=_0zpI9vKtdDAsvP8FKrgvM2RCWq9"
-
-This is a multi-part message in MIME format
-
---fwRSj=_0zpI9vKtdDAsvP8FKrgvM2RCWq9
-Content-Type: text/plain; charset="utf-8"
-Content-Transfer-Encoding: quoted-printable
-Content-Disposition: inline
-
-* Proceedings published in IEEE Xplore and indexed by ISI, Scopus, etc.
-
-
----------------------------------------------------------------------------=
-------------------------------------------------
-Doctoral Symposium of CISTI'2019 - 14th Iberian Conference on Information S=
-ystems and Technologies
-                                                   Coimbra, Portugal, 19 - =
-22 June 2019
-                                                               http://www.c=
-isti.eu/ <http://www.cisti.eu/>
----------------------------------------------------------------------------=
----------------------------------------------------------
-
- 
-
-The purpose of CISTI'2019=E2=80=99s Doctoral Symposium is to provide gradua=
-te students a setting where they can, informally, expose and discuss their =
-work, collecting valuable expert opinions and sharing new ideas, methods an=
-d applications. The Doctoral Symposium is an excellent opportunity for PhD =
-students to present and discuss their work in a Workshop format. Each prese=
-ntation will be evaluated by a panel composed by at least three Information=
- Systems and Technologies experts.
-
- 
-
-Contributions Submission
-
-The Doctoral Symposium is opened to PhD students whose research area includ=
-es the themes proposed for this Conference. Submissions must include an ext=
-ended abstract (maximum 4 pages), following the Conference style guide <htt=
-p://cisti.eu/2017/images/templates.zip>. All selected contributions will be=
- handed out along with the Conference Proceedings, in CD with an ISBN. Thes=
-e contributions will be available in the IEEE Xplore <https://ieeexplore.ie=
-ee.org/xpl/mostRecentIssue.jsp?punumber=3D8390719> Digital Library and will=
- be sent for indexing in ISI, Scopus, EI-Compendex, INSPEC and Google Schol=
-ar.
-
-Submissions must include the field, the PhD institution and the number of m=
-onths devoted to the development of the work. Additionally, they should inc=
-lude in a clear and succinct manner:
-
-    =E2=80=A2    The problem approached and its significance or relevance
-    =E2=80=A2    The research objectives and related investigation topics
-    =E2=80=A2    A brief display of what is already known
-    =E2=80=A2    A proposed solution methodology for the problem
-    =E2=80=A2    Expected results
-
- 
-
-Important Dates
-
-Paper submission: February 10, 2019
-
-Notification of acceptance: March 17, 2019
-
-Submission of accepted papers: March 31, 2019
-
-Payment of registration, to ensure the inclusion of an accepted paper in th=
-e conference proceedings: April 1, 2019
-
- 
-
-Organizing Committee
-
-=C3=81lvaro Rocha, Universidade de Coimbra
-
-Manuel P=C3=A9rez Cota, Universidad de Vigo
-
- 
-
-Scientific Committee
-
-Manuel P=C3=A9rez Cota, Universidad de Vigo (Chair)
-
-A. Augusto Sousa, FEUP, Universidade do Porto
-
-Adolfo Lozano Tello, Universidad de Extremadura
-
-Alma Mar=C3=ADa G=C3=B3mez Rodr=C3=ADguez, Universidade de Vigo
-
-=C3=81lvaro Rocha, Universidade de Coimbra
-
-Ana Am=C3=A9lia Carvalho, Universidade de Coimbra
-
-Ana Maria Ramalho Correia, NOVA Information Management School
-
-Ant=C3=B3nio Coelho, FEUP, Universidade do Porto
-
-Antonio Garcia-Loureiro, Universidad de Santiago de Compostela
-
-Arnaldo Martins, Universidade de Aveiro
-
-Arturo M=C3=A9ndez Pen=C3=ADn, Universidade de Vigo
-
-Br=C3=A1ulio Alturas, ISCTE - Insituto Universit=C3=A1rio de Lisboa
-
-Carlos Costa, ISEG, Universidade de Lisboa
-
-Carlos Ferr=C3=A1s Sexto, Universidad de Santiago de Compostela
-
-David Fonseca, La Salle, Universitat Ramon Llull
-
-Ernest Redondo, Universidad Polit=C3=A9cnica de Catalunya
-
-Fernando Moreira, Universidade Portucalense
-
-Fernando Ramos, Universidade de Aveiro
-
-Francisco Restivo, Universidade Cat=C3=B3lica Portuguesa
-
-Gon=C3=A7alo Paiva Dias, Universidade de Aveiro
-
-Gonzalo Cuevas Agustin, Universidad Polit=C3=A9cnica de Madrid
-
-Guilhermina Maria Lobato de Miranda, IE, Universidade de Lisboa
-
-Jo=C3=A3o Costa, Universidade de Coimbra
-
-Jo=C3=A3o Manuel R.S. Tavares, FEUP, Universidade do Porto
-
-Jos=C3=A9 Antonio Calvo-Manzano Villal=C3=B3n, Universidad Polit=C3=A9cnica=
- de Madrid
-
-Jos=C3=A9 Borbinha, IST, Universidade de Lisboa
-
-Jos=C3=A9 Machado, Universidade do Minho
-
-Jos=C3=A9 Martins, Universidade de Tr=C3=A1s-os-Montes e Alto Douro
-
-Juan de Dios Murillo, Universidad Nacional de Costa Rica
-
-Leandro Rodr=C3=ADguez Linares, Universidade de Vigo
-
-Luciano Boquete, Universidad de Alcal=C3=A1
-
-Luis Camarinha Matos, Universidade Nova de Lisboa
-
-Luis Macedo, Universidade de Coimbra
-
-Lu=C3=ADs Paulo Reis, FEUP, Universidade do Porto
-
-Marco Painho, NOVA Information Management School
-
-Mareca L=C3=B3pez Mar=C3=ADa Pilar, Universidad Polit=C3=A9cnica de Madrid
-
-Mar=C3=ADa Jos=C3=A9 Lado Touri=C3=B1o, Universidade de Vigo
-
-M=C3=A1rio Piattini, Universidad de Castilla-La Mancha
-
-M=C3=A1rio Rela, Universidade de Coimbra
-
-Martin Llamas-Nistal, Universidad de Vigo
-
-Miguel Ram=C3=B3n Gonz=C3=A1lez Castro, Ence, Energ=C3=ADa y Celulosa
-
-Nelson Rocha, Universidade de Aveiro
-
-Paulo Pinto, Univesidade Nova de Lisboa
-
-=C3=93scar Mealha, Universidade de Aveiro
-
-Ramiro Gon=C3=A7alves, Universidade de Tr=C3=A1s-os-Montes e Alto Douro
-
-Vitor Santos, NOVA Information Management School
-
-Yolanda Garc=C3=ADa V=C3=A1zquez, Universidad de Santiago de Compostela
-
-
-
-
-Doctoral Symposium webpage: https://goo.gl/JTrcLB
-
-
-Kind regards,
-
-CISTI'2019 Team
-http://www.cisti.eu/ <http://www.cisti.eu/>
-
-
-
- 
-
-
----
-This email has been checked for viruses by AVG.
-https://www.avg.com
-
---fwRSj=_0zpI9vKtdDAsvP8FKrgvM2RCWq9
-Content-Type: text/html; charset="utf-8"
-Content-Transfer-Encoding: quoted-printable
-Content-Disposition: inline
-
-<html>
-  <head>
-    <title></title>
-    <meta content=3D"text/html; charset=3Dutf-8" http-equiv=3D"Content-Type=
-" />
-  </head>
-  <body>
-    <p>* Proceedings published in IEEE Xplore and indexed by ISI, Scopus, e=
-tc.</p>
-    <p><br />--------------------------------------------------------------=
--------------------------------------------------------------<br />Doctoral=
- Symposium of CISTI'2019&nbsp;- 14th Iberian Conference on Information Syst=
-ems and Technologies<br />&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&=
-nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbs=
-p;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&=
-nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbs=
-p;&nbsp;&nbsp;&nbsp;&nbsp; Coimbra, Portugal,&nbsp;19 -&nbsp;22&nbsp;June 2=
-019<br />&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;=
-&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nb=
-sp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;=
-&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nb=
-sp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;=
-&nbsp;&nbsp;<a href=3D"http://www.cisti.eu/">http://www.cisti.eu/</a><br />=
----------------------------------------------------------------------------=
----------------------------------------------------------</p>
-    <p>&nbsp;</p>
-    <p>The purpose of CISTI'2019&rsquo;s Doctoral Symposium is to provide g=
-raduate students a setting where they can, informally, expose and discuss t=
-heir work, collecting valuable expert opinions and sharing new ideas, metho=
-ds and applications. The Doctoral Symposium is an excellent opportunity for=
- PhD students to present and discuss their work in a Workshop format. Each =
-presentation will be evaluated by a panel composed by at least three Inform=
-ation Systems and Technologies experts.</p>
-    <p>&nbsp;</p>
-    <p><strong>Contributions Submission</strong></p>
-    <p>The Doctoral Symposium is opened to PhD students whose research area=
- includes the themes proposed for this Conference. Submissions must include=
- an extended abstract (maximum 4 pages), following the Conference&nbsp;<str=
-ong><a href=3D"http://cisti.eu/2017/images/templates.zip" rel=3D"noopener n=
-oreferrer" target=3D"_blank">style guide</a></strong>. All selected contrib=
-utions will be handed out along with the Conference Proceedings, in CD with=
- an ISBN. These contributions&nbsp;<span class=3D"hps">will be available</s=
-pan>&nbsp;<span class=3D"hps">in</span>&nbsp;<span class=3D"hps">the&nbsp;<=
-strong><a href=3D"https://ieeexplore.ieee.org/xpl/mostRecentIssue.jsp?punum=
-ber=3D8390719" rel=3D"noopener noreferrer" target=3D"_blank">IEEE Xplore</a=
-></strong></span>&nbsp;D<span class=3D"hps">igital Library and&nbsp;</span>=
-<span class=3D"hps">will be sent</span>&nbsp;<span class=3D"hps">for indexi=
-ng in</span>&nbsp;ISI, Scopus, EI-Compendex,&nbsp;<span class=3D"hps">INSPE=
-C</span>&nbsp;and Google Scholar.</p>
-    <p>Submissions must include the field, the PhD institution and the numb=
-er of months devoted to the development of the work. Additionally, they sho=
-uld include in a clear and succinct manner:</p>
-    <p>&nbsp;&nbsp;&nbsp; &bull;&nbsp;&nbsp;&nbsp; The problem approached a=
-nd its significance or relevance<br />&nbsp;&nbsp;&nbsp; &bull;&nbsp;&nbsp;=
-&nbsp; The research objectives and related investigation topics<br />&nbsp;=
-&nbsp;&nbsp; &bull;&nbsp;&nbsp;&nbsp; A brief display of what is already kn=
-own<br />&nbsp;&nbsp;&nbsp; &bull;&nbsp;&nbsp;&nbsp; A proposed solution me=
-thodology for the problem<br />&nbsp;&nbsp;&nbsp; &bull;&nbsp;&nbsp;&nbsp; =
-Expected results</p>
-    <p>&nbsp;</p>
-    <p><strong>Important Dates</strong></p>
-    <p><span class=3D"hps">Paper</span>&nbsp;<span class=3D"hps">submission=
-:</span>&nbsp;<span class=3D"hps">February</span> 10,&nbsp;<span class=3D"h=
-ps">2019</span><br /><br /><span class=3D"hps">Notification of</span>&nbsp;=
-<span class=3D"hps">acceptance</span>: March 17,&nbsp;<span class=3D"hps">2=
-019</span><br /><br /><span class=3D"hps">Submission of</span>&nbsp;<span c=
-lass=3D"hps">accepted</span>&nbsp;<span class=3D"hps">papers</span>: March =
-31,&nbsp;<span class=3D"hps">2019</span><br /><br /><span class=3D"hps">Pay=
-ment of</span>&nbsp;<span class=3D"hps">registration</span>,&nbsp;<span cla=
-ss=3D"hps">to</span>&nbsp;<span class=3D"hps">ensure</span>&nbsp;<span clas=
-s=3D"hps">the</span>&nbsp;<span class=3D"hps">inclusion</span>&nbsp;<span c=
-lass=3D"hps">of an</span>&nbsp;<span class=3D"hps">accepted paper</span>&nb=
-sp;<span class=3D"hps">in the&nbsp;</span><span class=3D"hps">conference</s=
-pan>&nbsp;<span class=3D"hps">proceedings</span>: April <span class=3D"hps"=
->1</span>,&nbsp;<span class=3D"hps">2019</span></p>
-    <p><b>&nbsp;</b></p>
-    <p><b>Organizing Committee</b></p>
-    <p>&Aacute;lvaro Rocha, Universidade de Coimbra</p>
-    <p>Manuel P&eacute;rez Cota, Universidad de Vigo</p>
-    <p>&nbsp;</p>
-    <p><strong>Scientific Committee</strong></p>
-    <p>Manuel P&eacute;rez Cota, Universidad de Vigo (Chair)</p>
-    <p>A. Augusto Sousa, FEUP, Universidade do Porto</p>
-    <p>Adolfo Lozano Tello, Universidad de Extremadura</p>
-    <p>Alma Mar&iacute;a G&oacute;mez Rodr&iacute;guez, Universidade de Vig=
-o</p>
-    <p>&Aacute;lvaro Rocha, Universidade de Coimbra</p>
-    <p>Ana Am&eacute;lia Carvalho, Universidade de Coimbra</p>
-    <p>Ana Maria Ramalho Correia, NOVA Information Management School</p>
-    <p>Ant&oacute;nio Coelho, FEUP, Universidade do Porto</p>
-    <p>Antonio Garcia-Loureiro, Universidad de Santiago de Compostela</p>
-    <p>Arnaldo Martins, Universidade de Aveiro</p>
-    <p>Arturo M&eacute;ndez Pen&iacute;n, Universidade de Vigo</p>
-    <p>Br&aacute;ulio Alturas, ISCTE - Insituto Universit&aacute;rio de Lis=
-boa</p>
-    <p>Carlos Costa, ISEG, Universidade de Lisboa</p>
-    <p>Carlos Ferr&aacute;s Sexto, Universidad de Santiago de Compostela</p=
->
-    <p>David Fonseca, La Salle, Universitat Ramon Llull</p>
-    <p>Ernest Redondo, Universidad Polit&eacute;cnica de Catalunya</p>
-    <p>Fernando Moreira, Universidade Portucalense</p>
-    <p>Fernando Ramos, Universidade de Aveiro</p>
-    <p>Francisco Restivo, Universidade Cat&oacute;lica Portuguesa</p>
-    <p>Gon&ccedil;alo Paiva Dias, Universidade de Aveiro</p>
-    <p>Gonzalo Cuevas Agustin, Universidad Polit&eacute;cnica de Madrid</p>=
-
-    <p>Guilhermina Maria Lobato de Miranda, IE, Universidade de Lisboa</p>
-    <p>Jo&atilde;o Costa, Universidade de Coimbra</p>
-    <p>Jo&atilde;o Manuel R.S. Tavares, FEUP, Universidade do Porto</p>
-    <p>Jos&eacute; Antonio Calvo-Manzano Villal&oacute;n, Universidad Polit=
-&eacute;cnica de Madrid</p>
-    <p>Jos&eacute; Borbinha, IST, Universidade de Lisboa</p>
-    <p>Jos&eacute; Machado, Universidade do Minho</p>
-    <p>Jos&eacute; Martins, Universidade de Tr&aacute;s-os-Montes e Alto Do=
-uro</p>
-    <p>Juan de Dios Murillo, Universidad Nacional de Costa Rica</p>
-    <p>Leandro Rodr&iacute;guez Linares, Universidade de Vigo</p>
-    <p>Luciano Boquete, Universidad de Alcal&aacute;</p>
-    <p>Luis Camarinha Matos, Universidade Nova de Lisboa</p>
-    <p>Luis Macedo, Universidade de Coimbra</p>
-    <p>Lu&iacute;s Paulo Reis, FEUP, Universidade do Porto</p>
-    <p>Marco Painho, NOVA Information Management School</p>
-    <p>Mareca L&oacute;pez Mar&iacute;a Pilar, Universidad Polit&eacute;cni=
-ca de Madrid</p>
-    <p>Mar&iacute;a Jos&eacute; Lado Touri&ntilde;o, Universidade de Vigo</=
-p>
-    <p>M&aacute;rio Piattini, Universidad de Castilla-La Mancha</p>
-    <p>M&aacute;rio Rela, Universidade de Coimbra</p>
-    <p>Martin Llamas-Nistal, Universidad de Vigo</p>
-    <p>Miguel Ram&oacute;n Gonz&aacute;lez Castro, Ence, Energ&iacute;a y C=
-elulosa</p>
-    <p>Nelson Rocha, Universidade de Aveiro</p>
-    <p>Paulo Pinto, Univesidade Nova de Lisboa</p>
-    <p>&Oacute;scar Mealha, Universidade de Aveiro</p>
-    <p>Ramiro Gon&ccedil;alves, Universidade de Tr&aacute;s-os-Montes e Alt=
-o Douro</p>
-    <p>Vitor Santos, NOVA Information Management School</p>
-    <p>Yolanda Garc&iacute;a V&aacute;zquez, Universidad de Santiago de Com=
-postela</p>
-    <p><br /></p>
-    <p><span style=3D"font-weight: bold">Doctoral Symposium webpage</span>:=
- https://goo.gl/JTrcLB<br /><br /><br />Kind regards,<br /><br />CISTI'2019=
- Team<br /><a href=3D"http://www.cisti.eu/">http://www.cisti.eu/</a><br /><=
-br /></p>
-    <p>&nbsp;</p>
-  <div id=3D"DAB4FAD8-2DD7-40BB-A1B8-4E2AA1F9FDF2"><br />
-<table style=3D"border-top: 1px solid #D3D4DE;">
-	<tr>
-        <td style=3D"width: 55px; padding-top: 13px;"><a href=3D"http://www=
-=2Eavg.com/email-signature?utm_medium=3Demail&utm_source=3Dlink&utm_campaig=
-n=3Dsig-email&utm_content=3Demailclient" target=3D"_blank"><img src=3D"http=
-s://ipmcdn.avast.com/images/icons/icon-envelope-tick-green-avg-v1.png" alt=
-=3D""  width=3D"46" height=3D"29" style=3D"width: 46px; height: 29px;" /></=
-a></td>
-		<td style=3D"width: 470px; padding-top: 12px; color: #41424e; font-size: =
-13px; font-family: Arial, Helvetica, sans-serif; line-height: 18px;">Virus-=
-free. <a href=3D"http://www.avg.com/email-signature?utm_medium=3Demail&utm_=
-source=3Dlink&utm_campaign=3Dsig-email&utm_content=3Demailclient" target=3D=
-"_blank" style=3D"color: #4453ea;">www.avg.com</a>
-		</td>
-	</tr>
-</table><a href=3D"#DAB4FAD8-2DD7-40BB-A1B8-4E2AA1F9FDF2" width=3D"1" heigh=
-t=3D"1"> </a></div></body>
-</html>
-
---fwRSj=_0zpI9vKtdDAsvP8FKrgvM2RCWq9--
-
-
---===============7535339925287520970==
-Content-Type: text/plain; charset="us-ascii"
-MIME-Version: 1.0
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-
-_______________________________________________
-Virtualization mailing list
-Virtualization@lists.linux-foundation.org
-https://lists.linuxfoundation.org/mailman/listinfo/virtualization
---===============7535339925287520970==--
+Ck9uIDIwMTgvMTIvMjUg5LiL5Y2IODo1MCwgTWljaGFlbCBTLiBUc2lya2luIHdyb3RlOgo+IE9u
+IFR1ZSwgRGVjIDI1LCAyMDE4IGF0IDA2OjA1OjI1UE0gKzA4MDAsIEphc29uIFdhbmcgd3JvdGU6
+Cj4+IE9uIDIwMTgvMTIvMjUg5LiK5Y2IMjoxMCwgTWljaGFlbCBTLiBUc2lya2luIHdyb3RlOgo+
+Pj4gT24gTW9uLCBEZWMgMjQsIDIwMTggYXQgMDM6NTM6MTZQTSArMDgwMCwgSmFzb24gV2FuZyB3
+cm90ZToKPj4+PiBPbiAyMDE4LzEyLzE0IOS4i+WNiDg6MzYsIE1pY2hhZWwgUy4gVHNpcmtpbiB3
+cm90ZToKPj4+Pj4gT24gRnJpLCBEZWMgMTQsIDIwMTggYXQgMTE6NTc6MzVBTSArMDgwMCwgSmFz
+b24gV2FuZyB3cm90ZToKPj4+Pj4+IE9uIDIwMTgvMTIvMTMg5LiL5Y2IMTE6NDQsIE1pY2hhZWwg
+Uy4gVHNpcmtpbiB3cm90ZToKPj4+Pj4+PiBPbiBUaHUsIERlYyAxMywgMjAxOCBhdCAwNjoxMDoy
+MlBNICswODAwLCBKYXNvbiBXYW5nIHdyb3RlOgo+Pj4+Pj4+PiBJdCB3YXMgbm90aWNlZCB0aGF0
+IHRoZSBjb3B5X3VzZXIoKSBmcmllbmRzIHRoYXQgd2FzIHVzZWQgdG8gYWNjZXNzCj4+Pj4+Pj4+
+IHZpcnRxdWV1ZSBtZXRkYXRhIHRlbmRzIHRvIGJlIHZlcnkgZXhwZW5zaXZlIGZvciBkYXRhcGxh
+bmUKPj4+Pj4+Pj4gaW1wbGVtZW50YXRpb24gbGlrZSB2aG9zdCBzaW5jZSBpdCBpbnZvbHZlcyBs
+b3RzIG9mIHNvZnR3YXJlIGNoZWNrLAo+Pj4+Pj4+PiBzcGVjdWxhdGlvbiBiYXJyaWVyLCBoYXJk
+d2FyZSBmZWF0dXJlIHRvZ2dsaW5nIChlLmcgU01BUCkuIFRoZQo+Pj4+Pj4+PiBleHRyYSBjb3N0
+IHdpbGwgYmUgbW9yZSBvYnZpb3VzIHdoZW4gdHJhbnNmZXJyaW5nIHNtYWxsIHBhY2tldHMuCj4+
+Pj4+Pj4+Cj4+Pj4+Pj4+IFRoaXMgcGF0Y2ggdHJpZXMgdG8gZWxpbWluYXRlIHRob3NlIG92ZXJo
+ZWFkIGJ5IHBpbiB2cSBtZXRhZGF0YSBwYWdlcwo+Pj4+Pj4+PiBhbmQgYWNjZXNzIHRoZW0gdGhy
+b3VnaCB2bWFwKCkuIER1cmluZyBTRVRfVlJJTkdfQUREUiwgd2Ugd2lsbCBzZXR1cAo+Pj4+Pj4+
+PiB0aG9zZSBtYXBwaW5ncyBhbmQgbWVtb3J5IGFjY2Vzc29ycyBhcmUgbW9kaWZpZWQgdG8gdXNl
+IHBvaW50ZXJzIHRvCj4+Pj4+Pj4+IGFjY2VzcyB0aGUgbWV0YWRhdGEgZGlyZWN0bHkuCj4+Pj4+
+Pj4+Cj4+Pj4+Pj4+IE5vdGUsIHRoaXMgd2FzIG9ubHkgZG9uZSB3aGVuIGRldmljZSBJT1RMQiBp
+cyBub3QgZW5hYmxlZC4gV2UgY291bGQKPj4+Pj4+Pj4gdXNlIHNpbWlsYXIgbWV0aG9kIHRvIG9w
+dGltaXplIGl0IGluIHRoZSBmdXR1cmUuCj4+Pj4+Pj4+Cj4+Pj4+Pj4+IFRlc3RzIHNob3dzIGFi
+b3V0IH4yNCUgaW1wcm92ZW1lbnQgb24gVFggUFBTIHdoZW4gdXNpbmcgdmlydGlvLXVzZXIgKwo+
+Pj4+Pj4+PiB2aG9zdF9uZXQgKyB4ZHAxIG9uIFRBUCAoQ09ORklHX0hBUkRFTkVEX1VTRVJDT1BZ
+IGlzIG5vdCBlbmFibGVkKToKPj4+Pj4+Pj4KPj4+Pj4+Pj4gQmVmb3JlOiB+NS4wTXBwcwo+Pj4+
+Pj4+PiBBZnRlcjogIH42LjFNcHBzCj4+Pj4+Pj4+Cj4+Pj4+Pj4+IFNpZ25lZC1vZmYtYnk6IEph
+c29uIFdhbmc8amFzb3dhbmdAcmVkaGF0LmNvbT4KPj4+Pj4+Pj4gLS0tCj4+Pj4+Pj4+ICAgICAg
+ZHJpdmVycy92aG9zdC92aG9zdC5jIHwgMTc4ICsrKysrKysrKysrKysrKysrKysrKysrKysrKysr
+KysrKysrKysrKysrKwo+Pj4+Pj4+PiAgICAgIGRyaXZlcnMvdmhvc3Qvdmhvc3QuaCB8ICAxMSAr
+KysKPj4+Pj4+Pj4gICAgICAyIGZpbGVzIGNoYW5nZWQsIDE4OSBpbnNlcnRpb25zKCspCj4+Pj4+
+Pj4+Cj4+Pj4+Pj4+IGRpZmYgLS1naXQgYS9kcml2ZXJzL3Zob3N0L3Zob3N0LmMgYi9kcml2ZXJz
+L3Zob3N0L3Zob3N0LmMKPj4+Pj4+Pj4gaW5kZXggYmFmZTM5ZDJlNjM3Li4xYmQyNDIwM2FmYjYg
+MTAwNjQ0Cj4+Pj4+Pj4+IC0tLSBhL2RyaXZlcnMvdmhvc3Qvdmhvc3QuYwo+Pj4+Pj4+PiArKysg
+Yi9kcml2ZXJzL3Zob3N0L3Zob3N0LmMKPj4+Pj4+Pj4gQEAgLTQ0Myw2ICs0NDMsOSBAQCB2b2lk
+IHZob3N0X2Rldl9pbml0KHN0cnVjdCB2aG9zdF9kZXYgKmRldiwKPj4+Pj4+Pj4gICAgICAJCXZx
+LT5pbmRpcmVjdCA9IE5VTEw7Cj4+Pj4+Pj4+ICAgICAgCQl2cS0+aGVhZHMgPSBOVUxMOwo+Pj4+
+Pj4+PiAgICAgIAkJdnEtPmRldiA9IGRldjsKPj4+Pj4+Pj4gKwkJbWVtc2V0KCZ2cS0+YXZhaWxf
+cmluZywgMCwgc2l6ZW9mKHZxLT5hdmFpbF9yaW5nKSk7Cj4+Pj4+Pj4+ICsJCW1lbXNldCgmdnEt
+PnVzZWRfcmluZywgMCwgc2l6ZW9mKHZxLT51c2VkX3JpbmcpKTsKPj4+Pj4+Pj4gKwkJbWVtc2V0
+KCZ2cS0+ZGVzY19yaW5nLCAwLCBzaXplb2YodnEtPmRlc2NfcmluZykpOwo+Pj4+Pj4+PiAgICAg
+IAkJbXV0ZXhfaW5pdCgmdnEtPm11dGV4KTsKPj4+Pj4+Pj4gICAgICAJCXZob3N0X3ZxX3Jlc2V0
+KGRldiwgdnEpOwo+Pj4+Pj4+PiAgICAgIAkJaWYgKHZxLT5oYW5kbGVfa2ljaykKPj4+Pj4+Pj4g
+QEAgLTYxNCw2ICs2MTcsMTAyIEBAIHN0YXRpYyB2b2lkIHZob3N0X2NsZWFyX21zZyhzdHJ1Y3Qg
+dmhvc3RfZGV2ICpkZXYpCj4+Pj4+Pj4+ICAgICAgCXNwaW5fdW5sb2NrKCZkZXYtPmlvdGxiX2xv
+Y2spOwo+Pj4+Pj4+PiAgICAgIH0KPj4+Pj4+Pj4gK3N0YXRpYyBpbnQgdmhvc3RfaW5pdF92bWFw
+KHN0cnVjdCB2aG9zdF92bWFwICptYXAsIHVuc2lnbmVkIGxvbmcgdWFkZHIsCj4+Pj4+Pj4+ICsJ
+CQkgICBzaXplX3Qgc2l6ZSwgaW50IHdyaXRlKQo+Pj4+Pj4+PiArewo+Pj4+Pj4+PiArCXN0cnVj
+dCBwYWdlICoqcGFnZXM7Cj4+Pj4+Pj4+ICsJaW50IG5wYWdlcyA9IERJVl9ST1VORF9VUChzaXpl
+LCBQQUdFX1NJWkUpOwo+Pj4+Pj4+PiArCWludCBucGlubmVkOwo+Pj4+Pj4+PiArCXZvaWQgKnZh
+ZGRyOwo+Pj4+Pj4+PiArCj4+Pj4+Pj4+ICsJcGFnZXMgPSBrbWFsbG9jX2FycmF5KG5wYWdlcywg
+c2l6ZW9mKHN0cnVjdCBwYWdlICopLCBHRlBfS0VSTkVMKTsKPj4+Pj4+Pj4gKwlpZiAoIXBhZ2Vz
+KQo+Pj4+Pj4+PiArCQlyZXR1cm4gLUVOT01FTTsKPj4+Pj4+Pj4gKwo+Pj4+Pj4+PiArCW5waW5u
+ZWQgPSBnZXRfdXNlcl9wYWdlc19mYXN0KHVhZGRyLCBucGFnZXMsIHdyaXRlLCBwYWdlcyk7Cj4+
+Pj4+Pj4+ICsJaWYgKG5waW5uZWQgIT0gbnBhZ2VzKQo+Pj4+Pj4+PiArCQlnb3RvIGVycjsKPj4+
+Pj4+Pj4gKwo+Pj4+Pj4+IEFzIEkgc2FpZCBJIGhhdmUgZG91YnRzIGFib3V0IHRoZSB3aG9sZSBh
+cHByb2FjaCwgYnV0IHRoaXMKPj4+Pj4+PiBpbXBsZW1lbnRhdGlvbiBpbiBwYXJ0aWN1bGFyIGlz
+bid0IGEgZ29vZCBpZGVhCj4+Pj4+Pj4gYXMgaXQga2VlcHMgdGhlIHBhZ2UgYXJvdW5kIGZvcmV2
+ZXIuCj4+Pj4gVGhlIHBhZ2VzIHdpbCBiZSByZWxlYXNlZCBkdXJpbmcgc2V0IGZlYXR1cmVzLgo+
+Pj4+Cj4+Pj4KPj4+Pj4+PiBTbyBubyBUSFAsIG5vIE5VTUEgcmViYWxhbmNpbmcsCj4+Pj4gRm9y
+IFRIUCwgd2Ugd2lsbCBwcm9iYWJseSBtaXNzIDIgb3IgNCBwYWdlcywgYnV0IGRvZXMgdGhpcyBy
+ZWFsbHkgbWF0dGVyCj4+Pj4gY29uc2lkZXIgdGhlIGdhaW4gd2UgaGF2ZT8KPj4+IFdlIGFzIGlu
+IHZob3N0PyBuZXR3b3JraW5nIGlzbid0IHRoZSBvbmx5IHRoaW5nIGd1ZXN0IGRvZXMuCj4+PiBX
+ZSBkb24ndCBldmVuIGtub3cgaWYgdGhpcyBndWVzdCBkb2VzIGEgbG90IG9mIG5ldHdvcmtpbmcu
+Cj4+PiBZb3UgZG9uJ3QKPj4+IGtub3cgd2hhdCBlbHNlIGlzIGluIHRoaXMgaHVnZSBwYWdlLiBD
+YW4gYmUgc29tZXRoaW5nIHZlcnkgaW1wb3J0YW50Cj4+PiB0aGF0IGd1ZXN0IHRvdWNoZXMgYWxs
+IHRoZSB0aW1lLgo+Pgo+PiBXZWxsLCB0aGUgcHJvYmFiaWxpdHkgc2hvdWxkIGJlIHZlcnkgc21h
+bGwgY29uc2lkZXIgd2UgdXN1YWxseSBnaXZlIHNldmVyYWwKPj4gZ2lnYWJ5dGVzIHRvIGd1ZXN0
+LiBUaGUgcmVzdCBvZiB0aGUgcGFnZXMgdGhhdCBkb2Vzbid0IHNpdCBpbiB0aGUgc2FtZQo+PiBo
+dWdlcGFnZSB3aXRoIG1ldGFkYXRhIGNhbiBzdGlsbCBiZSBtZXJnZWQgYnkgVEhQLsKgIEFueXdh
+eSwgSSBjYW4gdGVzdCB0aGUKPj4gZGlmZmVyZW5jZXMuCj4gVGhhbmtzIQo+Cj4+Pj4gRm9yIE5V
+TUEgcmViYWxhbmNpbmcsIEknbSBldmVuIG5vdCBxdWl0ZSBzdXJlIGlmCj4+Pj4gaXQgY2FuIGhl
+bHBzIGZvciB0aGUgY2FzZSBvZiBJUEMgKHZob3N0KS4gSXQgbG9va3MgdG8gbWUgdGhlIHdvcnN0
+IGNhc2UgaXQKPj4+PiBtYXkgY2F1c2UgcGFnZSB0byBiZSB0aHJhc2ggYmV0d2VlbiBub2RlcyBp
+ZiB2aG9zdCBhbmQgdXNlcnNwYWNlIGFyZSBydW5uaW5nCj4+Pj4gaW4gdHdvIG5vZGVzLgo+Pj4g
+U28gYWdhaW4gaXQncyBhIGdhaW4gZm9yIHZob3N0IGJ1dCBoYXMgYSBjb21wbGV0ZWx5IHVucHJl
+ZGljdGFibGUgZWZmZWN0IG9uCj4+PiBvdGhlciBmdW5jdGlvbmFsaXR5IG9mIHRoZSBndWVzdC4K
+Pj4+Cj4+PiBUaGF0J3Mgd2hhdCBib3RoZXJzIG1lIHdpdGggdGhpcyBhcHByb2FjaC4KPj4KPj4g
+U286Cj4+Cj4+IC0gVGhlIHJlc3Qgb2YgdGhlIHBhZ2VzIGNvdWxkIHN0aWxsIGJlIGJhbGFuY2Vk
+IHRvIG90aGVyIG5vZGVzLCBubz8KPj4KPj4gLSB0cnkgdG8gYmFsYW5jZSBtZXRhZGF0YSBwYWdl
+cyAoYmVsb25ncyB0byBjby1vcGVyYXRlIHByb2Nlc3NlcykgaXRzZWxmIGlzCj4+IHN0aWxsIHF1
+ZXN0aW9uYWJsZQo+IEkgYW0gbm90IHN1cmUgd2h5LiBJdCBzaG91bGQgYmUgZWFzeSBlbm91Z2gg
+dG8gZm9yY2UgdGhlIFZDUFUgYW5kIHZob3N0Cj4gdG8gbW92ZSAoZS5nLiBzdGFydCB0aGVtIHBp
+bm5lZCB0byAxIGNwdSwgdGhlbiBwaW4gdGhlbSB0byBhbm90aGVyIG9uZSkuCj4gQ2xlYXJseSBz
+b21ldGltZXMgdGhpcyB3b3VsZCBiZSBuZWNlc3NhcnkgZm9yIGxvYWQgYmFsYW5jaW5nIHJlYXNv
+bnMuCgoKWWVzLCBidXQgaXQgbG9va3MgdG8gbWUgdGhlIHBhcnQgb2YgbW90aXZhdGlvbiBvZiBh
+dXRvIE5VTUEgaXMgdG8gYXZvaWQgCm1hbnVhbCBwaW5uaW5nLgoKCj4gV2l0aCBhdXRvbnVtYSBh
+ZnRlciBhIHdoaWxlIChjb3VsZCB0YWtlIHNlY29uZHMgYnV0IGl0IHdpbGwgaGFwcGVuKSB0aGUK
+PiBtZW1vcnkgd2lsbCBtaWdyYXRlLgo+CgpZZXMuIEFzIHlvdSBtZW50aW9uZWQgZHVyaW5nIHRo
+ZSBkaXNjdXNzLCBJIHdvbmRlciB3ZSBjb3VsZCBkbyBpdCAKc2ltaWxhcmx5IHRocm91Z2ggbW11
+IG5vdGlmaWVyIGxpa2UgQVBJQyBhY2Nlc3MgcGFnZSBpbiBjb21taXQgCmMyNGFlMGRjZDNlICgi
+a3ZtOiB4ODY6IFVucGluIGFuZCByZW1vdmUga3ZtX2FyY2gtPmFwaWNfYWNjZXNzX3BhZ2UiKQoK
+Cj4KPgo+Pj4KPj4+Cj4+Pgo+Pj4+Pj4gVGhpcyBpcyB0aGUgcHJpY2Ugb2YgYWxsIEdVUCB1c2Vy
+cyBub3Qgb25seSB2aG9zdCBpdHNlbGYuCj4+Pj4+IFllcy4gR1VQIGlzIGp1c3Qgbm90IGEgZ3Jl
+YXQgaW50ZXJmYWNlIGZvciB2aG9zdCB0byB1c2UuCj4+Pj4gWmVyb2NvcHkgY29kZXMgKGVuYWJs
+ZWQgYnkgZGVmdWFsdCkgdXNlIHRoZW0gZm9yIHllYXJzLgo+Pj4gQnV0IG9ubHkgZm9yIFRYIGFu
+ZCB0ZW1wb3JhcmlseS4gV2UgcGluLCByZWFkLCB1bnBpbi4KPj4KPj4gUHJvYmFibHkgbm90LiBG
+b3Igc2V2ZXJhbCByZWFzb25zIHRoYXQgdGhlIHBhZ2Ugd2lsbCBiZSBub3QgYmUgcmVsZWFzZWQg
+c29vbgo+PiBvciBoZWxkIGZvciBhIHZlcnkgbG9uZyBwZXJpb2Qgb2YgdGltZSBvciBldmVuIGZv
+cmV2ZXIuCj4KPiBXaXRoIHplcm8gY29weT8gV2VsbCBpdCdzIHBpbm5lZCB1bnRpbCB0cmFuc21p
+dC4gVGFrZXMgYSB3aGlsZQo+IGJ1dCBjb3VsZCBiZSBlbm91Z2ggZm9yIGF1dG9jb3B5IHRvIHdv
+cmsgZXNwIHNpbmNlCj4gaXRzIHRoZSBwYWNrZXQgbWVtb3J5IHNvIG5vdCByZXVzZWQgaW1tZWRp
+YXRlbHkuCj4KPj4+IFlvdXIgcGF0Y2ggaXMgZGlmZmVyZW50Cj4+Pgo+Pj4gLSBpdCB3cml0ZXMg
+aW50byBtZW1vcnkgYW5kIEdVUCBoYXMga25vd24gaXNzdWVzIHdpdGggZmlsZQo+Pj4gICAgIGJh
+Y2tlZCBtZW1vcnkKPj4KPj4gVGhlIG9yZGluYXJ5IHVzZXIgZm9yIHZob3N0IGlzIGFub255bW91
+cyBwYWdlcyBJIHRoaW5rPwo+Cj4gSXQncyBub3QgdGhlIG1vc3QgY29tbW9uIHNjZW5hcmlvIGFu
+ZCBub3QgdGhlIGZhc3Rlc3Qgb25lCj4gKGUuZy4gVEhQIGRvZXMgbm90IHdvcmspIGJ1dCBmaWxl
+IGJhY2tlZCBpcyB1c2VmdWwgc29tZXRpbWVzLgo+IEl0IHdvdWxkIG5vdCBiZSBuaWNlIGF0IGFs
+bCB0byBjb3JydXB0IGd1ZXN0IG1lbW9yeSBpbiB0aGF0IGNhc2UuCgoKT2suCgoKPgo+Pj4gLSBp
+dCBrZWVwcyBwYWdlcyBwaW5uZWQgZm9yZXZlcgo+Pj4KPj4+Cj4+Pgo+Pj4+Pj4gV2hhdCdzIG1v
+cmUKPj4+Pj4+IGltcG9ydGFudCwgdGhlIGdvYWwgaXMgbm90IHRvIGJlIGxlZnQgdG9vIG11Y2gg
+YmVoaW5kIGZvciBvdGhlciBiYWNrZW5kcwo+Pj4+Pj4gbGlrZSBEUERLIG9yIEFGX1hEUCAoYWxs
+IG9mIHdoaWNoIGFyZSB1c2luZyBHVVApLgo+Pj4+PiBTbyB0aGVzZSBndXlzIGFzc3VtZSB1c2Vy
+c3BhY2Uga25vd3Mgd2hhdCBpdCdzIGRvaW5nLgo+Pj4+PiBXZSBjYW4ndCBhc3N1bWUgdGhhdC4K
+Pj4+PiBXaGF0IGtpbmQgb2YgYXNzdW1wdGlvbiBkbyB5b3UgdGhleSBoYXZlPwo+Pj4+Cj4+Pj4K
+Pj4+Pj4+PiB1c2Vyc3BhY2UtY29udHJvbGxlZAo+Pj4+Pj4+IGFtb3VudCBvZiBtZW1vcnkgbG9j
+a2VkIHVwIGFuZCBub3QgYWNjb3VudGVkIGZvci4KPj4+Pj4+IEl0J3MgcHJldHR5IGVhc3kgdG8g
+YWRkIHRoaXMgc2luY2UgdGhlIHNsb3cgcGF0aCB3YXMgc3RpbGwga2VwdC4gSWYgd2UKPj4+Pj4+
+IGV4Y2VlZHMgdGhlIGxpbWl0YXRpb24sIHdlIGNhbiBzd2l0Y2ggYmFjayB0byBzbG93IHBhdGgu
+Cj4+Pj4+Pgo+Pj4+Pj4+IERvbid0IGdldCBtZSB3cm9uZyBpdCdzIGEgZ3JlYXQgcGF0Y2ggaW4g
+YW4gaWRlYWwgd29ybGQuCj4+Pj4+Pj4gQnV0IHRoZW4gaW4gYW4gaWRlYWwgd29ybGQgbm8gYmFy
+cmllcnMgc21hcCBldGMgYXJlIG5lY2Vzc2FyeSBhdCBhbGwuCj4+Pj4+PiBBZ2FpbiwgdGhpcyBp
+cyBvbmx5IGZvciBtZXRhZGF0YSBhY2Nlc3Npbmcgbm90IHRoZSBkYXRhIHdoaWNoIGhhcyBiZWVu
+IHVzZWQKPj4+Pj4+IGZvciB5ZWFycyBmb3IgcmVhbCB1c2UgY2FzZXMuCj4+Pj4+Pgo+Pj4+Pj4g
+Rm9yIFNNQVAsIGl0IG1ha2VzIHNlbnNlcyBmb3IgdGhlIGFkZHJlc3MgdGhhdCBrZXJuZWwgY2Fu
+IG5vdCBmb3JjYXN0LiBCdXQKPj4+Pj4+IGl0J3Mgbm90IHRoZSBjYXNlIGZvciB0aGUgdmhvc3Qg
+bWV0YWRhdGEgc2luY2Ugd2Uga25vdyB0aGUgYWRkcmVzcyB3aWxsIGJlCj4+Pj4+PiBhY2Nlc3Nl
+ZCB2ZXJ5IGZyZXF1ZW50bHkuIEZvciBzcGVjdWxhdGlvbiBiYXJyaWVyLCBpdCBoZWxwcyBub3Ro
+aW5nIGZvciB0aGUKPj4+Pj4+IGRhdGEgcGF0aCBvZiB2aG9zdCB3aGljaCBpcyBhIGt0aHJlYWQu
+Cj4+Pj4+IEkgZG9uJ3Qgc2VlIGhvdyBhIGt0aHJlYWQgbWFrZXMgYW55IGRpZmZlcmVuY2UuIFdl
+IGRvIGhhdmUgYSB2YWxpZGF0aW9uCj4+Pj4+IHN0ZXAgd2hpY2ggbWFrZXMgc29tZSBkaWZmZXJl
+bmNlLgo+Pj4+IFRoZSBwcm9ibGVtIGlzIG5vdCBrdGhyZWFkIGJ1dCB0aGUgYWRkcmVzcyBvZiB1
+c2Vyc3BhY2UgYWRkcmVzcy4gVGhlCj4+Pj4gYWRkcmVzc2VzIG9mIHZxIG1ldGFkYXRhIHRlbmRz
+IHRvIGJlIGNvbnNpc3RlbnQgZm9yIGEgd2hpbGUsIGFuZCB2aG9zdCBrbm93cwo+Pj4+IHRoZXkg
+d2lsbCBiZSBmcmVxdWVudGx5LiBTTUFQIGRvZXNuJ3QgaGVscCB0b28gbXVjaCBpbiB0aGlzIGNh
+c2UuCj4+Pj4KPj4+PiBUaGFua3MuCj4+PiBJdCdzIHRydWUgZm9yIGEgcmVhbCBsaWZlIGFwcGxp
+Y2F0aW9ucyBidXQgYSBtYWxpY2lvdXMgb25lCj4+PiBjYW4gY2FsbCB0aGUgc2V0dXAgaW9jdGxz
+IGFueSBudW1iZXIgb2YgdGltZXMuIEFuZCBTTUFQIGlzCj4+PiBhbGwgYWJvdXQgbWFsY2lvdXMg
+YXBwbGljYXRpb25zLgo+Pgo+PiBXZSBkb24ndCBkbyB0aGlzIGluIHRoZSBwYXRoIG9mIGlvY3Rs
+LCB0aGVyZSdzIG5vIGNvbnRleHQgc3dpdGNoIGJldHdlZW4KPj4gdXNlcnNwYWNlIGFuZCBrZXJu
+ZWwgaW4gdGhlIHdvcmtlciB0aHJlYWQuIFNNQVAgaXMgdXNlZCB0byBwcmV2ZW50IGtlcm5lbAo+
+PiBmcm9tIGFjY2Vzc2luZyB1c2Vyc3BhY2UgcGFnZXMgdW5leHBlY3RlZGx5IHdoaWNoIGlzIG5v
+dCB0aGUgY2FzZSBmb3IKPj4gbWV0YWRhdGEgYWNjZXNzLgo+Pgo+PiBUaGFua3MKPiBPSyBsZXQn
+cyBmb3JnZXQgc21hcCBmb3Igbm93LgoKClNvbWUgbnVtYmVycyBJIG1lYXN1cmVkOgoKT24gYW4g
+b2xkIFNhbmR5IGJyaWRnZSBtYWNoaW5lIHdpdGhvdXQgU01BUCBzdXBwb3J0LiBSZW1vdmUgc3Bl
+Y3VsYXRpb24gCmJhcnJpZXIgYm9vc3QgdGhlIHBlcmZvcm1hbmNlIGZyb20gNC42TXBwcyB0byA1
+LjFNcHBzCgpPbiBhIG5ld2VyIEJyb2Fkd2VsbCBtYWNoaW5lIHdpdGggU01BUCBzdXBwb3J0LiBS
+ZW1vdmUgc3BlY3VsYXRpb24gCmJhcnJpZXIgb25seSBnaXZlcyAyJS01JSBpbXByb3ZlbWVudCwg
+ZGlzYWJsZSBTTUFQIGNvbXBsZXRlbHkgdGhyb3VnaCAKS2NvbmZpZyBib29zdCA1NyUgcGVyZm9y
+bWFuY2UgZnJvbSA0LjhNcHBzIHRvIDcuNU1wcHMuIChWbWFwIGdpdmVzIDZNcHBzIAotIDYuMU1w
+cHMsIGl0IG9ubHkgYnlwYXNzIFNNQVAgZm9yIG1ldGFkYXRhKS4KClNvIGl0IGxvb2tzIGxpa2Ug
+Zm9yIHJlY2VudCBtYWNoaW5lLCBTTUFQIGJlY29tZXMgcGFpbiBwb2ludCB3aGVuIHRoZSAKY29w
+eSBpcyBzaG9ydCAoZS5nIDY0QikgZm9yIGhpZ2ggUFBTLgoKVGhhbmtzCgoKPgo+Pj4+Pj4gUGFj
+a2V0IG9yIEFGX1hEUCBiZW5lZml0IGZyb20KPj4+Pj4+IGFjY2Vzc2luZyBtZXRhZGF0YSBkaXJl
+Y3RseSwgd2Ugc2hvdWxkIGRvIGl0IGFzIHdlbGwuCj4+Pj4+Pgo+Pj4+Pj4gVGhhbmtzCl9fX19f
+X19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fClZpcnR1YWxpemF0aW9u
+IG1haWxpbmcgbGlzdApWaXJ0dWFsaXphdGlvbkBsaXN0cy5saW51eC1mb3VuZGF0aW9uLm9yZwpo
+dHRwczovL2xpc3RzLmxpbnV4Zm91bmRhdGlvbi5vcmcvbWFpbG1hbi9saXN0aW5mby92aXJ0dWFs
+aXphdGlvbg==
