@@ -1,16 +1,13 @@
-From: Jason Wang <jasowang@redhat.com>
-Subject: Re: [PATCH RFC 1/2] virtio-net: bql support
-Date: Thu, 27 Dec 2018 18:04:53 +0800
-Message-ID: <620cfd46-aa3e-7eb6-0757-f4afbafda44b__8077.37833024493$1545904989$gmane$org@redhat.com>
-References: <20181205225323.12555-1-mst@redhat.com>
-	<20181205225323.12555-2-mst@redhat.com>
-	<21384cb5-99a6-7431-1039-b356521e1bc3@redhat.com>
-	<20181226102100-mutt-send-email-mst@kernel.org>
+From: Christian Borntraeger <borntraeger@de.ibm.com>
+Subject: Re: [PATCH v37 0/3] Virtio-balloon: support free page reporting
+Date: Thu, 27 Dec 2018 12:31:11 +0100
+Message-ID: <0661b05a-d9d0-d374-44e8-2583463e94c2__6036.33580399237$1545910164$gmane$org@de.ibm.com>
+References: <1535333539-32420-1-git-send-email-wei.w.wang@intel.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="utf-8"; Format="flowed"
-Content-Transfer-Encoding: base64
+Content-Type: text/plain; charset="us-ascii"
+Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <20181226102100-mutt-send-email-mst@kernel.org>
+In-Reply-To: <1535333539-32420-1-git-send-email-wei.w.wang@intel.com>
 Content-Language: en-US
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
@@ -21,98 +18,85 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: "Michael S. Tsirkin" <mst@redhat.com>
-Cc: netdev@vger.kernel.org, linux-kernel@vger.kernel.org, virtualization@lists.linux-foundation.org, maxime.coquelin@redhat.com, wexu@redhat.com, "David S. Miller" <davem@davemloft.net>
+To: Wei Wang <wei.w.wang@intel.com>, virtio-dev@lists.oasis-open.org, linux-kernel@vger.kernel.org, virtualization@lists.linux-foundation.org, kvm@vger.kernel.org, linux-mm@kvack.org, mst@redhat.com, mhocko@kernel.org, akpm@linux-foundation.org, dgilbert@redhat.com
+Cc: yang.zhang.wz@gmail.com, riel@redhat.com, quan.xu0@gmail.com, liliang.opensource@gmail.com, pbonzini@redhat.com, nilal@redhat.com, torvalds@linux-foundation.org
 List-Id: virtualization@lists.linuxfoundation.org
 
-Ck9uIDIwMTgvMTIvMjYg5LiL5Y2IMTE6MjIsIE1pY2hhZWwgUy4gVHNpcmtpbiB3cm90ZToKPiBP
-biBUaHUsIERlYyAwNiwgMjAxOCBhdCAwNDoxNzozNlBNICswODAwLCBKYXNvbiBXYW5nIHdyb3Rl
-Ogo+PiBPbiAyMDE4LzEyLzYg5LiK5Y2INjo1NCwgTWljaGFlbCBTLiBUc2lya2luIHdyb3RlOgo+
-Pj4gV2hlbiB1c2VfbmFwaSBpcyBzZXQsIGxldCdzIGVuYWJsZSBCUUxzLiAgTm90ZTogc29tZSBv
-ZiB0aGUgaXNzdWVzIGFyZQo+Pj4gc2ltaWxhciB0byB3aWZpLiAgSXQncyB3b3J0aCBjb25zaWRl
-cmluZyB3aGV0aGVyIHNvbWV0aGluZyBzaW1pbGFyIHRvCj4+PiBjb21taXQgMzYxNDhjMmJiZmJl
-ICgibWFjODAyMTE6IEFkanVzdCBUU1EgcGFjaW5nIHNoaWZ0IikgbWlnaHQgYmUKPj4+IGJlbmVm
-aXRpYWwuCj4+Cj4+IEkndmUgcGxheWVkIGEgc2ltaWxhciBwYXRjaCBzZXZlcmFsIGRheXMgYmVm
-b3JlLiBUaGUgdHJpY2t5IHBhcnQgaXMgdGhlIG1vZGUKPj4gc3dpdGNoaW5nIGJldHdlZW4gbmFw
-aSBhbmQgbm8gbmFwaS4gV2Ugc2hvdWxkIG1ha2Ugc3VyZSB3aGVuIHRoZSBwYWNrZXQgaXMKPj4g
-c2VudCBhbmQgdHJha2NlZCBieSBCUUwswqAgaXQgc2hvdWxkIGJlIGNvbnN1bWVkIGJ5IEJRTCBh
-cyB3ZWxsLgo+Cj4gSSBqdXN0IHdlbnQgb3ZlciB0aGUgcGF0Y2ggYWdhaW4gYW5kIEkgZG9uJ3Qg
-dW5kZXJzdGFuZCB0aGlzIGNvbW1lbnQuCj4gVGhpcyBwYXRjaCBvbmx5IGVuYWJsZWQgQlFMIHdp
-dGggdHggbmFwaS4KPgo+IFRodXMgdGhlcmUncyBubyBtb2RlIHN3aXRjaGluZy4KPgo+IFdoYXQg
-ZGlkIEkgbWlzcz8KCgpDb25zaWRlciB0aGUgY2FzZToKCgpUWCBOQVBJIGlzIGRpc2FibGVkOgoK
-c2VuZCBOIHBhY2tldHMKCnR1cm4gVFggTkFQSSBvbjoKCmdldCB0eCBpbnRlcnJ1cHQKCkJRTCB0
-cnkgdG8gY29uc3VtZSB0aG9zZSBwYWNrZXRzIHdoZW4gbGVhZCBXQVJOIGZvciBkcWwuCgoKVGhh
-bmtzCgoKCj4KPgo+PiBJIGRpZCBpdCBieQo+PiB0cmFja2luZyBpdCB0aHJvdWdoIHNrYi0+Y2Iu
-wqAgQW5kIGRlYWwgd2l0aCB0aGUgZnJlZXplIGJ5IHJlc2V0IHRoZSBCUUwKPj4gc3RhdHVzLiBQ
-YXRjaCBhdHRhY2hlZC4KPj4KPj4gQnV0IHdoZW4gdGVzdGluZyB3aXRoIHZob3N0LW5ldCwgSSBk
-b24ndCB2ZXJ5IGEgc3RhYmxlIHBlcmZvcm1hbmNlLCBpdCB3YXMKPj4gcHJvYmFibHkgYmVjYXVz
-ZSB3ZSBiYXRjaCB0aGUgdXNlZCByaW5nIHVwZGF0aW5nIHNvIHR4IGludGVycnVwdCBtYXkgY29t
-ZQo+PiByYW5kb21seS4gV2UgcHJvYmFibHkgbmVlZCB0byBpbXBsZW1lbnQgdGltZSBib3VuZGVk
-IGNvYWxlc2NpbmcgbWVjaGFuaXNtCj4+IHdoaWNoIGNvdWxkIGJlIGNvbmZpZ3VyZWQgZnJvbSB1
-c2Vyc3BhY2UuCj4+Cj4+IEJ0dywgbWF5YmUgaXQncyB0aW1lIGp1c3QgZW5hYmxlIG5hcGkgVFgg
-YnkgZGVmYXVsdC4gSSBnZXQgfjEwJSBUQ1BfUlIKPj4gcmVncmVzc2lvbiBvbiBtYWNoaW5lIHdp
-dGhvdXQgQVBJQ3YsIChoYXZlbid0IGZvdW5kIHRpbWUgdG8gdGVzdCBBUElDdgo+PiBtYWNoaW5l
-KS4gQnV0IGNvbnNpZGVyIGl0IHdhcyBmb3IgY29ycmVjdG5lc3MsIEkgdGhpbmsgaXQncyBhY2Nl
-cHRhYmxlPyBUaGVuCj4+IHdlIGNhbiBkbyBvcHRpbWl6YXRpb24gb24gdG9wPwo+Pgo+Pgo+PiBU
-aGFua3MKPj4KPj4KPj4+IFNpZ25lZC1vZmYtYnk6IE1pY2hhZWwgUy4gVHNpcmtpbiA8bXN0QHJl
-ZGhhdC5jb20+Cj4+PiAtLS0KPj4+ICAgIGRyaXZlcnMvbmV0L3ZpcnRpb19uZXQuYyB8IDI3ICsr
-KysrKysrKysrKysrKysrKystLS0tLS0tLQo+Pj4gICAgMSBmaWxlIGNoYW5nZWQsIDE5IGluc2Vy
-dGlvbnMoKyksIDggZGVsZXRpb25zKC0pCj4+Pgo+Pj4gZGlmZiAtLWdpdCBhL2RyaXZlcnMvbmV0
-L3ZpcnRpb19uZXQuYyBiL2RyaXZlcnMvbmV0L3ZpcnRpb19uZXQuYwo+Pj4gaW5kZXggY2VjZmQ3
-N2M5ZjNjLi5iNjU3YmRlNmI5NGIgMTAwNjQ0Cj4+PiAtLS0gYS9kcml2ZXJzL25ldC92aXJ0aW9f
-bmV0LmMKPj4+ICsrKyBiL2RyaXZlcnMvbmV0L3ZpcnRpb19uZXQuYwo+Pj4gQEAgLTEzMjUsNyAr
-MTMyNSw4IEBAIHN0YXRpYyBpbnQgdmlydG5ldF9yZWNlaXZlKHN0cnVjdCByZWNlaXZlX3F1ZXVl
-ICpycSwgaW50IGJ1ZGdldCwKPj4+ICAgIAlyZXR1cm4gc3RhdHMucGFja2V0czsKPj4+ICAgIH0K
-Pj4+IC1zdGF0aWMgdm9pZCBmcmVlX29sZF94bWl0X3NrYnMoc3RydWN0IHNlbmRfcXVldWUgKnNx
-KQo+Pj4gK3N0YXRpYyB2b2lkIGZyZWVfb2xkX3htaXRfc2ticyhzdHJ1Y3Qgc2VuZF9xdWV1ZSAq
-c3EsIHN0cnVjdCBuZXRkZXZfcXVldWUgKnR4cSwKPj4+ICsJCQkgICAgICAgYm9vbCB1c2VfbmFw
-aSkKPj4+ICAgIHsKPj4+ICAgIAlzdHJ1Y3Qgc2tfYnVmZiAqc2tiOwo+Pj4gICAgCXVuc2lnbmVk
-IGludCBsZW47Cj4+PiBAQCAtMTM0Nyw2ICsxMzQ4LDkgQEAgc3RhdGljIHZvaWQgZnJlZV9vbGRf
-eG1pdF9za2JzKHN0cnVjdCBzZW5kX3F1ZXVlICpzcSkKPj4+ICAgIAlpZiAoIXBhY2tldHMpCj4+
-PiAgICAJCXJldHVybjsKPj4+ICsJaWYgKHVzZV9uYXBpKQo+Pj4gKwkJbmV0ZGV2X3R4X2NvbXBs
-ZXRlZF9xdWV1ZSh0eHEsIHBhY2tldHMsIGJ5dGVzKTsKPj4+ICsKPj4+ICAgIAl1NjRfc3RhdHNf
-dXBkYXRlX2JlZ2luKCZzcS0+c3RhdHMuc3luY3ApOwo+Pj4gICAgCXNxLT5zdGF0cy5ieXRlcyAr
-PSBieXRlczsKPj4+ICAgIAlzcS0+c3RhdHMucGFja2V0cyArPSBwYWNrZXRzOwo+Pj4gQEAgLTEz
-NjQsNyArMTM2OCw3IEBAIHN0YXRpYyB2b2lkIHZpcnRuZXRfcG9sbF9jbGVhbnR4KHN0cnVjdCBy
-ZWNlaXZlX3F1ZXVlICpycSkKPj4+ICAgIAkJcmV0dXJuOwo+Pj4gICAgCWlmIChfX25ldGlmX3R4
-X3RyeWxvY2sodHhxKSkgewo+Pj4gLQkJZnJlZV9vbGRfeG1pdF9za2JzKHNxKTsKPj4+ICsJCWZy
-ZWVfb2xkX3htaXRfc2ticyhzcSwgdHhxLCB0cnVlKTsKPj4+ICAgIAkJX19uZXRpZl90eF91bmxv
-Y2sodHhxKTsKPj4+ICAgIAl9Cj4+PiBAQCAtMTQ0MCw3ICsxNDQ0LDcgQEAgc3RhdGljIGludCB2
-aXJ0bmV0X3BvbGxfdHgoc3RydWN0IG5hcGlfc3RydWN0ICpuYXBpLCBpbnQgYnVkZ2V0KQo+Pj4g
-ICAgCXN0cnVjdCBuZXRkZXZfcXVldWUgKnR4cSA9IG5ldGRldl9nZXRfdHhfcXVldWUodmktPmRl
-diwgdnEydHhxKHNxLT52cSkpOwo+Pj4gICAgCV9fbmV0aWZfdHhfbG9jayh0eHEsIHJhd19zbXBf
-cHJvY2Vzc29yX2lkKCkpOwo+Pj4gLQlmcmVlX29sZF94bWl0X3NrYnMoc3EpOwo+Pj4gKwlmcmVl
-X29sZF94bWl0X3NrYnMoc3EsIHR4cSwgdHJ1ZSk7Cj4+PiAgICAJX19uZXRpZl90eF91bmxvY2so
-dHhxKTsKPj4+ICAgIAl2aXJ0cXVldWVfbmFwaV9jb21wbGV0ZShuYXBpLCBzcS0+dnEsIDApOwo+
-Pj4gQEAgLTE1MDUsMTMgKzE1MDksMTUgQEAgc3RhdGljIG5ldGRldl90eF90IHN0YXJ0X3htaXQo
-c3RydWN0IHNrX2J1ZmYgKnNrYiwgc3RydWN0IG5ldF9kZXZpY2UgKmRldikKPj4+ICAgIAlzdHJ1
-Y3Qgc2VuZF9xdWV1ZSAqc3EgPSAmdmktPnNxW3FudW1dOwo+Pj4gICAgCWludCBlcnI7Cj4+PiAg
-ICAJc3RydWN0IG5ldGRldl9xdWV1ZSAqdHhxID0gbmV0ZGV2X2dldF90eF9xdWV1ZShkZXYsIHFu
-dW0pOwo+Pj4gLQlib29sIGtpY2sgPSAhc2tiLT54bWl0X21vcmU7Cj4+PiArCWJvb2wgbW9yZSA9
-IHNrYi0+eG1pdF9tb3JlOwo+Pj4gICAgCWJvb2wgdXNlX25hcGkgPSBzcS0+bmFwaS53ZWlnaHQ7
-Cj4+PiArCXVuc2lnbmVkIGludCBieXRlcyA9IHNrYi0+bGVuOwo+Pj4gKwlib29sIGtpY2s7Cj4+
-PiAgICAJLyogRnJlZSB1cCBhbnkgcGVuZGluZyBvbGQgYnVmZmVycyBiZWZvcmUgcXVldWVpbmcg
-bmV3IG9uZXMuICovCj4+PiAtCWZyZWVfb2xkX3htaXRfc2ticyhzcSk7Cj4+PiArCWZyZWVfb2xk
-X3htaXRfc2ticyhzcSwgdHhxLCB1c2VfbmFwaSk7Cj4+PiAtCWlmICh1c2VfbmFwaSAmJiBraWNr
-KQo+Pj4gKwlpZiAodXNlX25hcGkgJiYgIW1vcmUpCj4+PiAgICAJCXZpcnRxdWV1ZV9lbmFibGVf
-Y2JfZGVsYXllZChzcS0+dnEpOwo+Pj4gICAgCS8qIHRpbWVzdGFtcCBwYWNrZXQgaW4gc29mdHdh
-cmUgKi8KPj4+IEBAIC0xNTUyLDcgKzE1NTgsNyBAQCBzdGF0aWMgbmV0ZGV2X3R4X3Qgc3RhcnRf
-eG1pdChzdHJ1Y3Qgc2tfYnVmZiAqc2tiLCBzdHJ1Y3QgbmV0X2RldmljZSAqZGV2KQo+Pj4gICAg
-CQlpZiAoIXVzZV9uYXBpICYmCj4+PiAgICAJCSAgICB1bmxpa2VseSghdmlydHF1ZXVlX2VuYWJs
-ZV9jYl9kZWxheWVkKHNxLT52cSkpKSB7Cj4+PiAgICAJCQkvKiBNb3JlIGp1c3QgZ290IHVzZWQs
-IGZyZWUgdGhlbSB0aGVuIHJlY2hlY2suICovCj4+PiAtCQkJZnJlZV9vbGRfeG1pdF9za2JzKHNx
-KTsKPj4+ICsJCQlmcmVlX29sZF94bWl0X3NrYnMoc3EsIHR4cSwgZmFsc2UpOwo+Pj4gICAgCQkJ
-aWYgKHNxLT52cS0+bnVtX2ZyZWUgPj0gMitNQVhfU0tCX0ZSQUdTKSB7Cj4+PiAgICAJCQkJbmV0
-aWZfc3RhcnRfc3VicXVldWUoZGV2LCBxbnVtKTsKPj4+ICAgIAkJCQl2aXJ0cXVldWVfZGlzYWJs
-ZV9jYihzcS0+dnEpOwo+Pj4gQEAgLTE1NjAsNyArMTU2NiwxMiBAQCBzdGF0aWMgbmV0ZGV2X3R4
-X3Qgc3RhcnRfeG1pdChzdHJ1Y3Qgc2tfYnVmZiAqc2tiLCBzdHJ1Y3QgbmV0X2RldmljZSAqZGV2
-KQo+Pj4gICAgCQl9Cj4+PiAgICAJfQo+Pj4gLQlpZiAoa2ljayB8fCBuZXRpZl94bWl0X3N0b3Bw
-ZWQodHhxKSkgewo+Pj4gKwlpZiAodXNlX25hcGkpCj4+PiArCQlraWNrID0gX19uZXRkZXZfdHhf
-c2VudF9xdWV1ZSh0eHEsIGJ5dGVzLCBtb3JlKTsKPj4+ICsJZWxzZQo+Pj4gKwkJa2ljayA9ICFt
-b3JlIHx8IG5ldGlmX3htaXRfc3RvcHBlZCh0eHEpOwo+Pj4gKwo+Pj4gKwlpZiAoa2ljaykgewo+
-Pj4gICAgCQlpZiAodmlydHF1ZXVlX2tpY2tfcHJlcGFyZShzcS0+dnEpICYmIHZpcnRxdWV1ZV9u
-b3RpZnkoc3EtPnZxKSkgewo+Pj4gICAgCQkJdTY0X3N0YXRzX3VwZGF0ZV9iZWdpbigmc3EtPnN0
-YXRzLnN5bmNwKTsKPj4+ICAgIAkJCXNxLT5zdGF0cy5raWNrcysrOwpfX19fX19fX19fX19fX19f
-X19fX19fX19fX19fX19fX19fX19fX19fX19fX19fXwpWaXJ0dWFsaXphdGlvbiBtYWlsaW5nIGxp
-c3QKVmlydHVhbGl6YXRpb25AbGlzdHMubGludXgtZm91bmRhdGlvbi5vcmcKaHR0cHM6Ly9saXN0
-cy5saW51eGZvdW5kYXRpb24ub3JnL21haWxtYW4vbGlzdGluZm8vdmlydHVhbGl6YXRpb24=
+This patch triggers random crashes in the guest kernel on s390 early during boot.
+No migration and no setting of the balloon is involved.
+
+
+
+
+On 27.08.2018 03:32, Wei Wang wrote:
+> The new feature, VIRTIO_BALLOON_F_FREE_PAGE_HINT, implemented by this
+> series enables the virtio-balloon driver to report hints of guest free
+> pages to host. It can be used to accelerate virtual machine (VM) live
+> migration. Here is an introduction of this usage:
+> 
+> Live migration needs to transfer the VM's memory from the source machine
+> to the destination round by round. For the 1st round, all the VM's memory
+> is transferred. From the 2nd round, only the pieces of memory that were
+> written by the guest (after the 1st round) are transferred. One method
+> that is popularly used by the hypervisor to track which part of memory is
+> written is to have the hypervisor write-protect all the guest memory.
+> 
+> This feature enables the optimization by skipping the transfer of guest
+> free pages during VM live migration. It is not concerned that the memory
+> pages are used after they are given to the hypervisor as a hint of the
+> free pages, because they will be tracked by the hypervisor and transferred
+> in the subsequent round if they are used and written.
+> 
+> * Tests
+> 1 Test Environment
+>     Host: Intel(R) Xeon(R) CPU E5-2699 v4 @ 2.20GHz
+>     Migration setup: migrate_set_speed 100G, migrate_set_downtime 400ms
+> 
+> 2 Test Results (results are averaged over several repeated runs)
+>     2.1 Guest setup: 8G RAM, 4 vCPU
+>         2.1.1 Idle guest live migration time
+>             Optimization v.s. Legacy = 620ms vs 2970ms
+>             --> ~79% reduction
+>         2.1.2 Guest live migration with Linux compilation workload
+>           (i.e. make bzImage -j4) running
+>           1) Live Migration Time:
+>              Optimization v.s. Legacy = 2273ms v.s. 4502ms
+>              --> ~50% reduction
+>           2) Linux Compilation Time:
+>              Optimization v.s. Legacy = 8min42s v.s. 8min43s
+>              --> no obvious difference
+> 
+>     2.2 Guest setup: 128G RAM, 4 vCPU
+>         2.2.1 Idle guest live migration time
+>             Optimization v.s. Legacy = 5294ms vs 41651ms
+>             --> ~87% reduction
+>         2.2.2 Guest live migration with Linux compilation workload
+>           1) Live Migration Time:
+>             Optimization v.s. Legacy = 8816ms v.s. 54201ms
+>             --> 84% reduction
+>           2) Linux Compilation Time:
+>              Optimization v.s. Legacy = 8min30s v.s. 8min36s
+>              --> no obvious difference
+> 
+> ChangeLog:
+> v36->v37:
+>     - free the reported pages to mm when receives a DONE cmd from host.
+>       Please see patch 1's commit log for reasons. Please see patch 1's
+>       commit for detailed explanations.
+> 
+> For ChangeLogs from v22 to v36, please reference
+> https://lkml.org/lkml/2018/7/20/199
+> 
+> For ChangeLogs before v21, please reference
+> https://lwn.net/Articles/743660/
+> 
+> Wei Wang (3):
+>   virtio-balloon: VIRTIO_BALLOON_F_FREE_PAGE_HINT
+>   mm/page_poison: expose page_poisoning_enabled to kernel modules
+>   virtio-balloon: VIRTIO_BALLOON_F_PAGE_POISON
+> 
+>  drivers/virtio/virtio_balloon.c     | 374 ++++++++++++++++++++++++++++++++----
+>  include/uapi/linux/virtio_balloon.h |   8 +
+>  mm/page_poison.c                    |   6 +
+>  3 files changed, 355 insertions(+), 33 deletions(-)
+> 
