@@ -1,14 +1,14 @@
 From: Christian Borntraeger <borntraeger@de.ibm.com>
-Subject: Re: [PATCH v37 0/3] Virtio-balloon: support free page reporting
-Date: Thu, 27 Dec 2018 12:59:04 +0100
-Message-ID: <de167161-b586-6aee-d6a5-a90d47bbe1d4__39348.4739390717$1545911839$gmane$org@de.ibm.com>
+Subject: Re: [PATCH v37 1/3] virtio-balloon: VIRTIO_BALLOON_F_FREE_PAGE_HINT
+Date: Thu, 27 Dec 2018 13:03:44 +0100
+Message-ID: <49d706f7-a0ee-e571-7d02-bcadac5ce742__31667.6148366698$1545912120$gmane$org@de.ibm.com>
 References: <1535333539-32420-1-git-send-email-wei.w.wang@intel.com>
-	<0661b05a-d9d0-d374-44e8-2583463e94c2@de.ibm.com>
+	<1535333539-32420-2-git-send-email-wei.w.wang@intel.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <0661b05a-d9d0-d374-44e8-2583463e94c2@de.ibm.com>
+In-Reply-To: <1535333539-32420-2-git-send-email-wei.w.wang@intel.com>
 Content-Language: en-US
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
@@ -23,108 +23,46 @@ To: Wei Wang <wei.w.wang@intel.com>, virtio-dev@lists.oasis-open.org, linux-kern
 Cc: yang.zhang.wz@gmail.com, riel@redhat.com, quan.xu0@gmail.com, liliang.opensource@gmail.com, Cornelia Huck <cohuck@redhat.com>, Halil Pasic <pasic@linux.ibm.com>, pbonzini@redhat.com, nilal@redhat.com, torvalds@linux-foundation.org
 List-Id: virtualization@lists.linuxfoundation.org
 
-On 27.12.2018 12:31, Christian Borntraeger wrote:
-> This patch triggers random crashes in the guest kernel on s390 early during boot.
-> No migration and no setting of the balloon is involved.
+On 27.08.2018 03:32, Wei Wang wrote:
+>  static int init_vqs(struct virtio_balloon *vb)
+>  {
+> -	struct virtqueue *vqs[3];
+> -	vq_callback_t *callbacks[] = { balloon_ack, balloon_ack, stats_request };
+> -	static const char * const names[] = { "inflate", "deflate", "stats" };
+> -	int err, nvqs;
+> +	struct virtqueue *vqs[VIRTIO_BALLOON_VQ_MAX];
+> +	vq_callback_t *callbacks[VIRTIO_BALLOON_VQ_MAX];
+> +	const char *names[VIRTIO_BALLOON_VQ_MAX];
+> +	int err;
 > 
+>  	/*
+> -	 * We expect two virtqueues: inflate and deflate, and
+> -	 * optionally stat.
+> +	 * Inflateq and deflateq are used unconditionally. The names[]
+> +	 * will be NULL if the related feature is not enabled, which will
+> +	 * cause no allocation for the corresponding virtqueue in find_vqs.
+>  	 */
 
-Adding Conny and Halil,
+This might be true for virtio-pci, but it is not for virtio-ccw.
 
-As the QEMU provides no PAGE_HINT feature yet, this quick hack makes the
-guest boot fine again:
-
-
-diff --git a/drivers/virtio/virtio_balloon.c b/drivers/virtio/virtio_balloon.c
-index 728ecd1eea305..aa2e1864c5736 100644
---- a/drivers/virtio/virtio_balloon.c
-+++ b/drivers/virtio/virtio_balloon.c
-@@ -492,7 +492,7 @@ static int init_vqs(struct virtio_balloon *vb)
-                callbacks[VIRTIO_BALLOON_VQ_FREE_PAGE] = NULL;
-        }
- 
--       err = vb->vdev->config->find_vqs(vb->vdev, VIRTIO_BALLOON_VQ_MAX,
-+       err = vb->vdev->config->find_vqs(vb->vdev, 3, //VIRTIO_BALLOON_VQ_MAX,
-                                         vqs, callbacks, names, NULL, NULL);
-        if (err)
-                return err;
-
-
-To me it looks like that virtio_ccw_find_vqs will abort if any of the virtqueues 
-that it is been asked for does not exist (including the earlier ones).
-
-
-Christian
-
-> 
-> On 27.08.2018 03:32, Wei Wang wrote:
->> The new feature, VIRTIO_BALLOON_F_FREE_PAGE_HINT, implemented by this
->> series enables the virtio-balloon driver to report hints of guest free
->> pages to host. It can be used to accelerate virtual machine (VM) live
->> migration. Here is an introduction of this usage:
->>
->> Live migration needs to transfer the VM's memory from the source machine
->> to the destination round by round. For the 1st round, all the VM's memory
->> is transferred. From the 2nd round, only the pieces of memory that were
->> written by the guest (after the 1st round) are transferred. One method
->> that is popularly used by the hypervisor to track which part of memory is
->> written is to have the hypervisor write-protect all the guest memory.
->>
->> This feature enables the optimization by skipping the transfer of guest
->> free pages during VM live migration. It is not concerned that the memory
->> pages are used after they are given to the hypervisor as a hint of the
->> free pages, because they will be tracked by the hypervisor and transferred
->> in the subsequent round if they are used and written.
->>
->> * Tests
->> 1 Test Environment
->>     Host: Intel(R) Xeon(R) CPU E5-2699 v4 @ 2.20GHz
->>     Migration setup: migrate_set_speed 100G, migrate_set_downtime 400ms
->>
->> 2 Test Results (results are averaged over several repeated runs)
->>     2.1 Guest setup: 8G RAM, 4 vCPU
->>         2.1.1 Idle guest live migration time
->>             Optimization v.s. Legacy = 620ms vs 2970ms
->>             --> ~79% reduction
->>         2.1.2 Guest live migration with Linux compilation workload
->>           (i.e. make bzImage -j4) running
->>           1) Live Migration Time:
->>              Optimization v.s. Legacy = 2273ms v.s. 4502ms
->>              --> ~50% reduction
->>           2) Linux Compilation Time:
->>              Optimization v.s. Legacy = 8min42s v.s. 8min43s
->>              --> no obvious difference
->>
->>     2.2 Guest setup: 128G RAM, 4 vCPU
->>         2.2.1 Idle guest live migration time
->>             Optimization v.s. Legacy = 5294ms vs 41651ms
->>             --> ~87% reduction
->>         2.2.2 Guest live migration with Linux compilation workload
->>           1) Live Migration Time:
->>             Optimization v.s. Legacy = 8816ms v.s. 54201ms
->>             --> 84% reduction
->>           2) Linux Compilation Time:
->>              Optimization v.s. Legacy = 8min30s v.s. 8min36s
->>              --> no obvious difference
->>
->> ChangeLog:
->> v36->v37:
->>     - free the reported pages to mm when receives a DONE cmd from host.
->>       Please see patch 1's commit log for reasons. Please see patch 1's
->>       commit for detailed explanations.
->>
->> For ChangeLogs from v22 to v36, please reference
->> https://lkml.org/lkml/2018/7/20/199
->>
->> For ChangeLogs before v21, please reference
->> https://lwn.net/Articles/743660/
->>
->> Wei Wang (3):
->>   virtio-balloon: VIRTIO_BALLOON_F_FREE_PAGE_HINT
->>   mm/page_poison: expose page_poisoning_enabled to kernel modules
->>   virtio-balloon: VIRTIO_BALLOON_F_PAGE_POISON
->>
->>  drivers/virtio/virtio_balloon.c     | 374 ++++++++++++++++++++++++++++++++----
->>  include/uapi/linux/virtio_balloon.h |   8 +
->>  mm/page_poison.c                    |   6 +
->>  3 files changed, 355 insertions(+), 33 deletions(-)
->>
+> -	nvqs = virtio_has_feature(vb->vdev, VIRTIO_BALLOON_F_STATS_VQ) ? 3 : 2;
+> -	err = virtio_find_vqs(vb->vdev, nvqs, vqs, callbacks, names, NULL);
+> +	callbacks[VIRTIO_BALLOON_VQ_INFLATE] = balloon_ack;
+> +	names[VIRTIO_BALLOON_VQ_INFLATE] = "inflate";
+> +	callbacks[VIRTIO_BALLOON_VQ_DEFLATE] = balloon_ack;
+> +	names[VIRTIO_BALLOON_VQ_DEFLATE] = "deflate";
+> +	names[VIRTIO_BALLOON_VQ_STATS] = NULL;
+> +	names[VIRTIO_BALLOON_VQ_FREE_PAGE] = NULL;
+> +
+> +	if (virtio_has_feature(vb->vdev, VIRTIO_BALLOON_F_STATS_VQ)) {
+> +		names[VIRTIO_BALLOON_VQ_STATS] = "stats";
+> +		callbacks[VIRTIO_BALLOON_VQ_STATS] = stats_request;
+> +	}
+> +
+> +	if (virtio_has_feature(vb->vdev, VIRTIO_BALLOON_F_FREE_PAGE_HINT)) {
+> +		names[VIRTIO_BALLOON_VQ_FREE_PAGE] = "free_page_vq";
+> +		callbacks[VIRTIO_BALLOON_VQ_FREE_PAGE] = NULL;
+> +	}
+> +
+> +	err = vb->vdev->config->find_vqs(vb->vdev, VIRTIO_BALLOON_VQ_MAX,
+[...]
