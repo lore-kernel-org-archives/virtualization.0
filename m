@@ -1,14 +1,15 @@
 From: Christian Borntraeger <borntraeger@de.ibm.com>
-Subject: Re: [PATCH v37 1/3] virtio-balloon: VIRTIO_BALLOON_F_FREE_PAGE_HINT
-Date: Thu, 27 Dec 2018 13:03:44 +0100
-Message-ID: <49d706f7-a0ee-e571-7d02-bcadac5ce742__31667.6148366698$1545912120$gmane$org@de.ibm.com>
+Subject: Re: [PATCH v37 0/3] Virtio-balloon: support free page reporting
+Date: Thu, 27 Dec 2018 13:17:20 +0100
+Message-ID: <e79b5c3d-aa89-6b99-00b1-c92c85fe214c__7364.06252622164$1545912932$gmane$org@de.ibm.com>
 References: <1535333539-32420-1-git-send-email-wei.w.wang@intel.com>
-	<1535333539-32420-2-git-send-email-wei.w.wang@intel.com>
+	<0661b05a-d9d0-d374-44e8-2583463e94c2@de.ibm.com>
+	<de167161-b586-6aee-d6a5-a90d47bbe1d4@de.ibm.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <1535333539-32420-2-git-send-email-wei.w.wang@intel.com>
+In-Reply-To: <de167161-b586-6aee-d6a5-a90d47bbe1d4@de.ibm.com>
 Content-Language: en-US
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
@@ -23,46 +24,51 @@ To: Wei Wang <wei.w.wang@intel.com>, virtio-dev@lists.oasis-open.org, linux-kern
 Cc: yang.zhang.wz@gmail.com, riel@redhat.com, quan.xu0@gmail.com, liliang.opensource@gmail.com, Cornelia Huck <cohuck@redhat.com>, Halil Pasic <pasic@linux.ibm.com>, pbonzini@redhat.com, nilal@redhat.com, torvalds@linux-foundation.org
 List-Id: virtualization@lists.linuxfoundation.org
 
-On 27.08.2018 03:32, Wei Wang wrote:
->  static int init_vqs(struct virtio_balloon *vb)
->  {
-> -	struct virtqueue *vqs[3];
-> -	vq_callback_t *callbacks[] = { balloon_ack, balloon_ack, stats_request };
-> -	static const char * const names[] = { "inflate", "deflate", "stats" };
-> -	int err, nvqs;
-> +	struct virtqueue *vqs[VIRTIO_BALLOON_VQ_MAX];
-> +	vq_callback_t *callbacks[VIRTIO_BALLOON_VQ_MAX];
-> +	const char *names[VIRTIO_BALLOON_VQ_MAX];
-> +	int err;
+
+
+On 27.12.2018 12:59, Christian Borntraeger wrote:
+> On 27.12.2018 12:31, Christian Borntraeger wrote:
+>> This patch triggers random crashes in the guest kernel on s390 early during boot.
+>> No migration and no setting of the balloon is involved.
+>>
 > 
->  	/*
-> -	 * We expect two virtqueues: inflate and deflate, and
-> -	 * optionally stat.
-> +	 * Inflateq and deflateq are used unconditionally. The names[]
-> +	 * will be NULL if the related feature is not enabled, which will
-> +	 * cause no allocation for the corresponding virtqueue in find_vqs.
->  	 */
+> Adding Conny and Halil,
+> 
+> As the QEMU provides no PAGE_HINT feature yet, this quick hack makes the
+> guest boot fine again:
+> 
+> 
+> diff --git a/drivers/virtio/virtio_balloon.c b/drivers/virtio/virtio_balloon.c
+> index 728ecd1eea305..aa2e1864c5736 100644
+> --- a/drivers/virtio/virtio_balloon.c
+> +++ b/drivers/virtio/virtio_balloon.c
+> @@ -492,7 +492,7 @@ static int init_vqs(struct virtio_balloon *vb)
+>                 callbacks[VIRTIO_BALLOON_VQ_FREE_PAGE] = NULL;
+>         }
+>  
+> -       err = vb->vdev->config->find_vqs(vb->vdev, VIRTIO_BALLOON_VQ_MAX,
+> +       err = vb->vdev->config->find_vqs(vb->vdev, 3, //VIRTIO_BALLOON_VQ_MAX,
+>                                          vqs, callbacks, names, NULL, NULL);
+>         if (err)
+>                 return err;
+> 
+> 
+> To me it looks like that virtio_ccw_find_vqs will abort if any of the virtqueues 
+> that it is been asked for does not exist (including the earlier ones).
+> 
 
-This might be true for virtio-pci, but it is not for virtio-ccw.
+This "hack" makes the random crashes go away, but the balloon interface itself
+does not work. (setting the value to anything will hang the guest). 
+As patch 1 also modifies the main path, there seem to be additional issues, maybe
+endianess
 
-> -	nvqs = virtio_has_feature(vb->vdev, VIRTIO_BALLOON_F_STATS_VQ) ? 3 : 2;
-> -	err = virtio_find_vqs(vb->vdev, nvqs, vqs, callbacks, names, NULL);
-> +	callbacks[VIRTIO_BALLOON_VQ_INFLATE] = balloon_ack;
-> +	names[VIRTIO_BALLOON_VQ_INFLATE] = "inflate";
-> +	callbacks[VIRTIO_BALLOON_VQ_DEFLATE] = balloon_ack;
-> +	names[VIRTIO_BALLOON_VQ_DEFLATE] = "deflate";
-> +	names[VIRTIO_BALLOON_VQ_STATS] = NULL;
-> +	names[VIRTIO_BALLOON_VQ_FREE_PAGE] = NULL;
-> +
-> +	if (virtio_has_feature(vb->vdev, VIRTIO_BALLOON_F_STATS_VQ)) {
-> +		names[VIRTIO_BALLOON_VQ_STATS] = "stats";
-> +		callbacks[VIRTIO_BALLOON_VQ_STATS] = stats_request;
-> +	}
-> +
-> +	if (virtio_has_feature(vb->vdev, VIRTIO_BALLOON_F_FREE_PAGE_HINT)) {
-> +		names[VIRTIO_BALLOON_VQ_FREE_PAGE] = "free_page_vq";
-> +		callbacks[VIRTIO_BALLOON_VQ_FREE_PAGE] = NULL;
-> +	}
-> +
-> +	err = vb->vdev->config->find_vqs(vb->vdev, VIRTIO_BALLOON_VQ_MAX,
-[...]
+Looking at things like
+
++		vb->cmd_id_received = VIRTIO_BALLOON_CMD_ID_STOP;
++		vb->cmd_id_active = cpu_to_virtio32(vb->vdev,
++						  VIRTIO_BALLOON_CMD_ID_STOP);
++		vb->cmd_id_stop = cpu_to_virtio32(vb->vdev,
++						  VIRTIO_BALLOON_CMD_ID_STOP);
+
+
+Why is cmd_id_received not using cpu_to_virtio32?
