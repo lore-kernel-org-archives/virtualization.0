@@ -1,13 +1,16 @@
 From: Christian Borntraeger <borntraeger@de.ibm.com>
-Subject: Re: [PATCH v1 0/2] Virtio: fix some vq allocation issues
-Date: Fri, 28 Dec 2018 08:57:16 +0100
-Message-ID: <c6746307-fae5-7652-af8d-19f560fc31d9__17817.548409994$1545983723$gmane$org@de.ibm.com>
-References: <1545963986-11280-1-git-send-email-wei.w.wang@intel.com>
+Subject: Re: [PATCH v37 1/3] virtio-balloon: VIRTIO_BALLOON_F_FREE_PAGE_HINT
+Date: Fri, 28 Dec 2018 09:03:46 +0100
+Message-ID: <2e801749-eb66-1d68-3c06-67cc6508e067@de.ibm.com>
+References: <1535333539-32420-1-git-send-email-wei.w.wang@intel.com>
+	<1535333539-32420-2-git-send-email-wei.w.wang@intel.com>
+	<49d706f7-a0ee-e571-7d02-bcadac5ce742@de.ibm.com>
+	<5C259485.2030809@intel.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset="utf-8"
+Content-Transfer-Encoding: base64
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <1545963986-11280-1-git-send-email-wei.w.wang@intel.com>
+In-Reply-To: <5C259485.2030809@intel.com>
 Content-Language: en-US
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
@@ -18,101 +21,34 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Wei Wang <wei.w.wang@intel.com>, virtio-dev@lists.oasis-open.org, linux-kernel@vger.kernel.org, virtualization@lists.linux-foundation.org, kvm@vger.kernel.org, mst@redhat.com, cohuck@redhat.com
-Cc: Halil Pasic <pasic@linux.ibm.com>, pbonzini@redhat.com, dgilbert@redhat.com
+To: Wei Wang <wei.w.wang@intel.com>, virtio-dev@lists.oasis-open.org, linux-kernel@vger.kernel.org, virtualization@lists.linux-foundation.org, kvm@vger.kernel.org, linux-mm@kvack.org, mst@redhat.com, mhocko@kernel.org, akpm@linux-foundation.org, dgilbert@redhat.com
+Cc: yang.zhang.wz@gmail.com, riel@redhat.com, quan.xu0@gmail.com, liliang.opensource@gmail.com, Cornelia Huck <cohuck@redhat.com>, Halil Pasic <pasic@linux.ibm.com>, pbonzini@redhat.com, nilal@redhat.com, torvalds@linux-foundation.org
 List-Id: virtualization@lists.linuxfoundation.org
 
-
-
-On 28.12.2018 03:26, Wei Wang wrote:
-> Some vqs don't need to be allocated when the related feature bits are
-> disabled. Callers notice the vq allocation layer by setting the related
-> names[i] to be NULL.
-> 
-> This patch series fixes the find_vqs implementations to handle this case.
-
-So the random crashes during boot are gone.
-What still does not work is actually using the balloon.
-
-So in the qemu monitor using lets say "balloon 1000"  will hang the guest.
-Seems to be a deadlock in the virtio-ccw code.  We seem to call the
-config code in the interrupt handler.
-
-crash> bt
-PID: 0      TASK: d9a400            CPU: 0   COMMAND: "swapper/0"
- LOWCORE INFO:
-  -psw      : 0x0404c00180000000 0x0000000000116472
-  -function : smp_yield_cpu at 116472
-  -prefix   : 0x7fffc000
-  -cpu timer: 0x7fffffcc8c0af5be
-  -clock cmp: 0x720a4e4002831000
-  -general registers:
-     000000000000000000 000000000000000000
-     0x000000000000009c 0x0000000000fac2b0
-     0x0000000000000015 0xffffffffffffffe2
-     0x000003e000100000 0x0000000000000001
-     000000000000000000 0x0000000000000001
-     0x00000000000003e8 0x000000000f85c020
-     000000000000000000 0x0000000000000001
-     0x0000000000116464 0x000003e00035fad0
-  -access registers:
-     0000000000 0000000000 0000000000 0000000000
-     0000000000 0000000000 0000000000 0000000000
-     0000000000 0000000000 0000000000 0000000000
-     0000000000 0000000000 0000000000 0000000000
-  -control registers:
-     0x0080000014866a10 0x0000000000fbc007
-     0x0000000000100140 000000000000000000
-     0x000000000000ffff 0x0000000000100140
-     0x0000000031000000 0x000000000f9281c3
-     000000000000000000 000000000000000000
-     000000000000000000 000000000000000000
-     000000000000000000 0x0000000000fbc007
-     0x00000000db000000 0x0000000000100280
-  -floating point registers:
-     000000000000000000 0x000002aa374b0298
-     0x0000000000000001 0x0000000000000010
-     0x00000000000001ae 0x000000000000000f
-     0x000002aa46056010 0x000002aa460681c0
-     0x000003ffd867d590 0x000003ffdca7c818
-     0x000003ffd867d58f 0x000003fff6ffdc60
-     0x000003ffd867dad8 0x000003ffdca7c5e8
-     0x000003ffd867dadc 0x000003ffdca7c818
-
- #0 [3e00035faf8] arch_spin_lock_wait at a7bd52
- #1 [3e00035fb50] ccw_io_helper at 9130ea
- #2 [3e00035fbd0] virtio_ccw_get_config at 914a28
- #3 [3e00035fc30] virtballoon_changed at 76e776
- #4 [3e00035fc70] virtio_config_changed at 76aabc
- #5 [3e00035fca8] virtio_ccw_int_handler at 914ede
- #6 [3e00035fd18] ccw_device_irq at 8941d4
- #7 [3e00035fd48] do_cio_interrupt at 885906
- #8 [3e00035fd80] __handle_irq_event_percpu at 1b3c22
- #9 [3e00035fdf0] handle_irq_event_percpu at 1b3e1e
-#10 [3e00035fe28] handle_percpu_irq at 1b87d8
-#11 [3e00035fe58] generic_handle_irq at 1b2ce6
-#12 [3e00035fe70] do_IRQ at 10c3b2
-#13 [3e00035fea8] io_int_handler at a86b3c
- PSW:  0404c00180000000 00000000001034f6 (enabled_wait+70)
- GPRS: ffffffffffffffff 0000000000000000 000000007ff70200 0706c00180000000 
-       000000000000000c 000001bf6f331c58 ffffffffffffffff 0000000000000000 
-       0000000000000000 0000000000000000 0000000000000000 0000000000000001 
-       000000007ff70200 0000000000a8b2f0 00000000001034f6 000003e000317e00 
- #0 [3e000317e28] arch_cpu_idle at 103842
- #1 [3e000317e48] do_idle at 17ad18
- #2 [3e000317e80] cpu_startup_entry at 17af16
- #3 [3e000317ea8] arch_call_rest_init at eac934
-
-
-> 
-> Wei Wang (2):
->   virtio_pci: use queue idx instead of array idx to set up the vq
->   virtio: don't allocate vqs when names[i] = NULL
-> 
->  drivers/misc/mic/vop/vop_main.c        |  9 +++++++--
->  drivers/remoteproc/remoteproc_virtio.c |  9 +++++++--
->  drivers/s390/virtio/virtio_ccw.c       | 12 +++++++++---
->  drivers/virtio/virtio_mmio.c           |  9 +++++++--
->  drivers/virtio/virtio_pci_common.c     |  8 ++++----
->  5 files changed, 34 insertions(+), 13 deletions(-)
-> 
+CgpPbiAyOC4xMi4yMDE4IDA0OjEyLCBXZWkgV2FuZyB3cm90ZToKPiBPbiAxMi8yNy8yMDE4IDA4
+OjAzIFBNLCBDaHJpc3RpYW4gQm9ybnRyYWVnZXIgd3JvdGU6Cj4+IE9uIDI3LjA4LjIwMTggMDM6
+MzIsIFdlaSBXYW5nIHdyb3RlOgo+Pj4gwqAgc3RhdGljIGludCBpbml0X3ZxcyhzdHJ1Y3Qgdmly
+dGlvX2JhbGxvb24gKnZiKQo+Pj4gwqAgewo+Pj4gLcKgwqDCoCBzdHJ1Y3QgdmlydHF1ZXVlICp2
+cXNbM107Cj4+PiAtwqDCoMKgIHZxX2NhbGxiYWNrX3QgKmNhbGxiYWNrc1tdID0geyBiYWxsb29u
+X2FjaywgYmFsbG9vbl9hY2ssIHN0YXRzX3JlcXVlc3QgfTsKPj4+IC3CoMKgwqAgc3RhdGljIGNv
+bnN0IGNoYXIgKiBjb25zdCBuYW1lc1tdID0geyAiaW5mbGF0ZSIsICJkZWZsYXRlIiwgInN0YXRz
+IiB9Owo+Pj4gLcKgwqDCoCBpbnQgZXJyLCBudnFzOwo+Pj4gK8KgwqDCoCBzdHJ1Y3QgdmlydHF1
+ZXVlICp2cXNbVklSVElPX0JBTExPT05fVlFfTUFYXTsKPj4+ICvCoMKgwqAgdnFfY2FsbGJhY2tf
+dCAqY2FsbGJhY2tzW1ZJUlRJT19CQUxMT09OX1ZRX01BWF07Cj4+PiArwqDCoMKgIGNvbnN0IGNo
+YXIgKm5hbWVzW1ZJUlRJT19CQUxMT09OX1ZRX01BWF07Cj4+PiArwqDCoMKgIGludCBlcnI7Cj4+
+Pgo+Pj4gwqDCoMKgwqDCoCAvKgo+Pj4gLcKgwqDCoMKgICogV2UgZXhwZWN0IHR3byB2aXJ0cXVl
+dWVzOiBpbmZsYXRlIGFuZCBkZWZsYXRlLCBhbmQKPj4+IC3CoMKgwqDCoCAqIG9wdGlvbmFsbHkg
+c3RhdC4KPj4+ICvCoMKgwqDCoCAqIEluZmxhdGVxIGFuZCBkZWZsYXRlcSBhcmUgdXNlZCB1bmNv
+bmRpdGlvbmFsbHkuIFRoZSBuYW1lc1tdCj4+PiArwqDCoMKgwqAgKiB3aWxsIGJlIE5VTEwgaWYg
+dGhlIHJlbGF0ZWQgZmVhdHVyZSBpcyBub3QgZW5hYmxlZCwgd2hpY2ggd2lsbAo+Pj4gK8KgwqDC
+oMKgICogY2F1c2Ugbm8gYWxsb2NhdGlvbiBmb3IgdGhlIGNvcnJlc3BvbmRpbmcgdmlydHF1ZXVl
+IGluIGZpbmRfdnFzLgo+Pj4gwqDCoMKgwqDCoMKgICovCj4+IFRoaXMgbWlnaHQgYmUgdHJ1ZSBm
+b3IgdmlydGlvLXBjaSwgYnV0IGl0IGlzIG5vdCBmb3IgdmlydGlvLWNjdy4KPiAKPiBIaSBDaHJp
+c3RpYW4sCj4gCj4gCj4gUGxlYXNlIHRyeSB0aGUgZml4IHBhdGNoZXM6IGh0dHBzOi8vbGttbC5v
+cmcvbGttbC8yMDE4LzEyLzI3LzMzNgoKU2VlIGFuc3dlciB0byB0aGF0IHRocmVhZC4gSXQgZml4
+ZXMgdGhlIHJhbmRvbSBib290IGNyYXNoZXMuClRoZXJlIGlzIHN0aWxsIHRoZSByZWdyZXNzaW9u
+IHRoYXQgYmFsbG9vbmluZyBkb2VzIG5vIGxvbmdlciB3b3JrIG9uCnMzOTAgKHNlZSB0aGUgY2Fs
+bCB0cmFjZSkuCgpfX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19f
+XwpWaXJ0dWFsaXphdGlvbiBtYWlsaW5nIGxpc3QKVmlydHVhbGl6YXRpb25AbGlzdHMubGludXgt
+Zm91bmRhdGlvbi5vcmcKaHR0cHM6Ly9saXN0cy5saW51eGZvdW5kYXRpb24ub3JnL21haWxtYW4v
+bGlzdGluZm8vdmlydHVhbGl6YXRpb24=
