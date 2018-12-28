@@ -1,11 +1,10 @@
-From: "icete@insticc.info" <icete@insticc.info>
-Subject: CFP WINSYS 2019 - Int.l Conf. on Wireless Networks and Mobile
-	Systems (Prague/Czech Republic)
-Date: 27 Dec 2018 23:05:51 +0000
-Message-ID: <20181227230545.1.7DB52452739F11AA@insticc.info>
+From: Wei Wang <wei.w.wang@intel.com>
+Subject: [PATCH v1 0/2] Virtio: fix some vq allocation issues
+Date: Fri, 28 Dec 2018 10:26:24 +0800
+Message-ID: <1545963986-11280-1-git-send-email-wei.w.wang__21225.5098428161$1545965968$gmane$org@intel.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="utf-8"
-Content-Transfer-Encoding: base64
+Content-Type: text/plain; charset="us-ascii"
+Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
@@ -16,30 +15,26 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: virtualization@lists.linux-foundation.org
+To: virtio-dev@lists.oasis-open.org, linux-kernel@vger.kernel.org, virtualization@lists.linux-foundation.org, kvm@vger.kernel.org, mst@redhat.com, cohuck@redhat.com
+Cc: dgilbert@redhat.com, pbonzini@redhat.com
 List-Id: virtualization@lists.linuxfoundation.org
 
-U1VCTUlTU0lPTiBERUFETElORSAKCkludGVybmF0aW9uYWwgQ29uZmVyZW5jZSBvbiBXaXJlbGVz
-cyBOZXR3b3JrcyBhbmQgTW9iaWxlIFN5c3RlbXMKClN1Ym1pc3Npb24gRGVhZGxpbmU6IEZlYnJ1
-YXJ5IDI4LCAyMDE5CgpodHRwOi8vd3d3LndpbnN5cy5pY2V0ZS5vcmcvCgpKdWx5IDI2IC0gMjgs
-IDIwMTkKUHJhZ3VlLCBDemVjaCBSZXB1YmxpYy4KCiBXSU5TWVMgaXMgb3JnYW5pemVkIGluIDMg
-bWFqb3IgdHJhY2tzOgoKIC0gU2Vuc29yIE5ldHdvcmtzIGFuZCBBZCBIb2MgQ29tbXVuaWNhdGlv
-bnMKIC0gV2lyZWxlc3MgYW5kIE1vYmlsZSBUZWNobm9sb2dpZXMKIC0gTW9iaWxlIFNvZnR3YXJl
-IGFuZCBTZXJ2aWNlcwoKDQpJbiBDb29wZXJhdGlvbiB3aXRoOiBQaG90b25pY3MyMSBhbmQgRU9T
-LiANCiAgICAgICAgICAgICAgICAgICAgDQpQcm9jZWVkaW5ncyB3aWxsIGJlIHN1Ym1pdHRlZCBm
-b3IgaW5kZXhhdGlvbiBieTogREJMUCwgVGhvbXNvbiBSZXV0ZXJzLCBFSSwgU0NPUFVTLCBTZW1h
-bnRpYyBTY2hvbGFyIGFuZCBHb29nbGUgU2Nob2xhci4gDQogICAgICAgICAgICAgICAgICAgIAog
-CkEgc2hvcnQgbGlzdCBvZiBwcmVzZW50ZWQgcGFwZXJzIHdpbGwgYmUgc2VsZWN0ZWQgc28gdGhh
-dCByZXZpc2VkIGFuZCBleHRlbmRlZCB2ZXJzaW9ucyBvZiB0aGVzZSBwYXBlcnMgd2lsbCBiZSBw
-dWJsaXNoZWQgYnkgU3ByaW5nZXIuCiAKQWxsIHBhcGVycyBwcmVzZW50ZWQgYXQgdGhlIGNvbmdy
-ZXNzIHZlbnVlIHdpbGwgYWxzbyBiZSBhdmFpbGFibGUgYXQgdGhlIFNDSVRFUFJFU1MgRGlnaXRh
-bCBMaWJyYXJ5IChodHRwOi8vd3d3LnNjaXRlcHJlc3Mub3JnL0RpZ2l0YWxMaWJyYXJ5LykuCiAg
-ClNob3VsZCB5b3UgaGF2ZSBhbnkgcXVlc3Rpb24gcGxlYXNlIGRvbid0IGhlc2l0YXRlIGNvbnRh
-Y3RpbmcgbWUuCiAKCktpbmQgcmVnYXJkcywKV0lOU1lTIFNlY3JldGFyaWF0CgpBZGRyZXNzOiBB
-di4gRC4gTWFudWVsIEksIDI3QSwgMsK6IGVzcS4KMjkxMC01OTUgU2V0dWJhbCwgUG9ydHVnYWwK
-VGVsOiArMzUxIDI2NSA1MjAgMTg1CkZheDogKzM1MSAyNjUgNTIwIDE4NgpXZWI6IGh0dHA6Ly93
-d3cud2luc3lzLmljZXRlLm9yZy8KZS1tYWlsOiB3aW5zeXMuc2VjcmV0YXJpYXRAaW5zdGljYy5v
-cmcKCl9fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fClZpcnR1
-YWxpemF0aW9uIG1haWxpbmcgbGlzdApWaXJ0dWFsaXphdGlvbkBsaXN0cy5saW51eC1mb3VuZGF0
-aW9uLm9yZwpodHRwczovL2xpc3RzLmxpbnV4Zm91bmRhdGlvbi5vcmcvbWFpbG1hbi9saXN0aW5m
-by92aXJ0dWFsaXphdGlvbg==
+Some vqs don't need to be allocated when the related feature bits are
+disabled. Callers notice the vq allocation layer by setting the related
+names[i] to be NULL.
+
+This patch series fixes the find_vqs implementations to handle this case.
+
+Wei Wang (2):
+  virtio_pci: use queue idx instead of array idx to set up the vq
+  virtio: don't allocate vqs when names[i] = NULL
+
+ drivers/misc/mic/vop/vop_main.c        |  9 +++++++--
+ drivers/remoteproc/remoteproc_virtio.c |  9 +++++++--
+ drivers/s390/virtio/virtio_ccw.c       | 12 +++++++++---
+ drivers/virtio/virtio_mmio.c           |  9 +++++++--
+ drivers/virtio/virtio_pci_common.c     |  8 ++++----
+ 5 files changed, 34 insertions(+), 13 deletions(-)
+
+-- 
+2.7.4
