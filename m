@@ -1,13 +1,15 @@
 From: Wei Wang <wei.w.wang@intel.com>
-Subject: [PATCH v1 2/2] virtio: don't allocate vqs when names[i] = NULL
-Date: Fri, 28 Dec 2018 10:26:26 +0800
-Message-ID: <1545963986-11280-3-git-send-email-wei.w.wang__24939.0211575248$1545965993$gmane$org@intel.com>
-References: <1545963986-11280-1-git-send-email-wei.w.wang@intel.com>
+Subject: Re: [PATCH v37 1/3] virtio-balloon: VIRTIO_BALLOON_F_FREE_PAGE_HINT
+Date: Fri, 28 Dec 2018 11:12:05 +0800
+Message-ID: <5C259485.2030809__38690.1644677438$1545966285$gmane$org@intel.com>
+References: <1535333539-32420-1-git-send-email-wei.w.wang@intel.com>
+	<1535333539-32420-2-git-send-email-wei.w.wang@intel.com>
+	<49d706f7-a0ee-e571-7d02-bcadac5ce742@de.ibm.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
+Content-Type: text/plain; charset="us-ascii"; Format="flowed"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <1545963986-11280-1-git-send-email-wei.w.wang@intel.com>
+In-Reply-To: <49d706f7-a0ee-e571-7d02-bcadac5ce742@de.ibm.com>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -17,128 +19,36 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: virtio-dev@lists.oasis-open.org, linux-kernel@vger.kernel.org, virtualization@lists.linux-foundation.org, kvm@vger.kernel.org, mst@redhat.com, cohuck@redhat.com
-Cc: dgilbert@redhat.com, pbonzini@redhat.com
+To: Christian Borntraeger <borntraeger@de.ibm.com>, virtio-dev@lists.oasis-open.org, linux-kernel@vger.kernel.org, virtualization@lists.linux-foundation.org, kvm@vger.kernel.org, linux-mm@kvack.org, mst@redhat.com, mhocko@kernel.org, akpm@linux-foundation.org, dgilbert@redhat.com
+Cc: yang.zhang.wz@gmail.com, riel@redhat.com, quan.xu0@gmail.com, liliang.opensource@gmail.com, Cornelia Huck <cohuck@redhat.com>, Halil Pasic <pasic@linux.ibm.com>, pbonzini@redhat.com, nilal@redhat.com, torvalds@linux-foundation.org
 List-Id: virtualization@lists.linuxfoundation.org
 
-Some vqs may not need to be allocated when their related feature bits
-are disabled. So callers may pass in such vqs with "names = NULL".
-Then we skip such vq allocations.
+On 12/27/2018 08:03 PM, Christian Borntraeger wrote:
+> On 27.08.2018 03:32, Wei Wang wrote:
+>>   static int init_vqs(struct virtio_balloon *vb)
+>>   {
+>> -	struct virtqueue *vqs[3];
+>> -	vq_callback_t *callbacks[] = { balloon_ack, balloon_ack, stats_request };
+>> -	static const char * const names[] = { "inflate", "deflate", "stats" };
+>> -	int err, nvqs;
+>> +	struct virtqueue *vqs[VIRTIO_BALLOON_VQ_MAX];
+>> +	vq_callback_t *callbacks[VIRTIO_BALLOON_VQ_MAX];
+>> +	const char *names[VIRTIO_BALLOON_VQ_MAX];
+>> +	int err;
+>>
+>>   	/*
+>> -	 * We expect two virtqueues: inflate and deflate, and
+>> -	 * optionally stat.
+>> +	 * Inflateq and deflateq are used unconditionally. The names[]
+>> +	 * will be NULL if the related feature is not enabled, which will
+>> +	 * cause no allocation for the corresponding virtqueue in find_vqs.
+>>   	 */
+> This might be true for virtio-pci, but it is not for virtio-ccw.
 
-Signed-off-by: Wei Wang <wei.w.wang@intel.com>
----
- drivers/misc/mic/vop/vop_main.c        |  9 +++++++--
- drivers/remoteproc/remoteproc_virtio.c |  9 +++++++--
- drivers/s390/virtio/virtio_ccw.c       | 12 +++++++++---
- drivers/virtio/virtio_mmio.c           |  9 +++++++--
- 4 files changed, 30 insertions(+), 9 deletions(-)
+Hi Christian,
 
-diff --git a/drivers/misc/mic/vop/vop_main.c b/drivers/misc/mic/vop/vop_main.c
-index 6b212c8..2bfa3a9 100644
---- a/drivers/misc/mic/vop/vop_main.c
-+++ b/drivers/misc/mic/vop/vop_main.c
-@@ -394,16 +394,21 @@ static int vop_find_vqs(struct virtio_device *dev, unsigned nvqs,
- 	struct _vop_vdev *vdev = to_vopvdev(dev);
- 	struct vop_device *vpdev = vdev->vpdev;
- 	struct mic_device_ctrl __iomem *dc = vdev->dc;
--	int i, err, retry;
-+	int i, err, retry, queue_idx = 0;
- 
- 	/* We must have this many virtqueues. */
- 	if (nvqs > ioread8(&vdev->desc->num_vq))
- 		return -ENOENT;
- 
- 	for (i = 0; i < nvqs; ++i) {
-+		if (!names[i]) {
-+			vqs[i] = NULL;
-+			continue;
-+		}
-+
- 		dev_dbg(_vop_dev(vdev), "%s: %d: %s\n",
- 			__func__, i, names[i]);
--		vqs[i] = vop_find_vq(dev, i, callbacks[i], names[i],
-+		vqs[i] = vop_find_vq(dev, queue_idx++, callbacks[i], names[i],
- 				     ctx ? ctx[i] : false);
- 		if (IS_ERR(vqs[i])) {
- 			err = PTR_ERR(vqs[i]);
-diff --git a/drivers/remoteproc/remoteproc_virtio.c b/drivers/remoteproc/remoteproc_virtio.c
-index 183fc42..2d7cd344 100644
---- a/drivers/remoteproc/remoteproc_virtio.c
-+++ b/drivers/remoteproc/remoteproc_virtio.c
-@@ -153,10 +153,15 @@ static int rproc_virtio_find_vqs(struct virtio_device *vdev, unsigned int nvqs,
- 				 const bool * ctx,
- 				 struct irq_affinity *desc)
- {
--	int i, ret;
-+	int i, ret, queue_idx = 0;
- 
- 	for (i = 0; i < nvqs; ++i) {
--		vqs[i] = rp_find_vq(vdev, i, callbacks[i], names[i],
-+		if (!names[i]) {
-+			vqs[i] = NULL;
-+			continue;
-+		}
-+
-+		vqs[i] = rp_find_vq(vdev, queue_idx++, callbacks[i], names[i],
- 				    ctx ? ctx[i] : false);
- 		if (IS_ERR(vqs[i])) {
- 			ret = PTR_ERR(vqs[i]);
-diff --git a/drivers/s390/virtio/virtio_ccw.c b/drivers/s390/virtio/virtio_ccw.c
-index fc9dbad..ae1d56d 100644
---- a/drivers/s390/virtio/virtio_ccw.c
-+++ b/drivers/s390/virtio/virtio_ccw.c
-@@ -635,7 +635,7 @@ static int virtio_ccw_find_vqs(struct virtio_device *vdev, unsigned nvqs,
- {
- 	struct virtio_ccw_device *vcdev = to_vc_device(vdev);
- 	unsigned long *indicatorp = NULL;
--	int ret, i;
-+	int ret, i, queue_idx = 0;
- 	struct ccw1 *ccw;
- 
- 	ccw = kzalloc(sizeof(*ccw), GFP_DMA | GFP_KERNEL);
-@@ -643,8 +643,14 @@ static int virtio_ccw_find_vqs(struct virtio_device *vdev, unsigned nvqs,
- 		return -ENOMEM;
- 
- 	for (i = 0; i < nvqs; ++i) {
--		vqs[i] = virtio_ccw_setup_vq(vdev, i, callbacks[i], names[i],
--					     ctx ? ctx[i] : false, ccw);
-+		if (!names[i]) {
-+			vqs[i] = NULL;
-+			continue;
-+		}
-+
-+		vqs[i] = virtio_ccw_setup_vq(vdev, queue_idx++, callbacks[i],
-+					     names[i], ctx ? ctx[i] : false,
-+					     ccw);
- 		if (IS_ERR(vqs[i])) {
- 			ret = PTR_ERR(vqs[i]);
- 			vqs[i] = NULL;
-diff --git a/drivers/virtio/virtio_mmio.c b/drivers/virtio/virtio_mmio.c
-index 4cd9ea5..d9dd0f78 100644
---- a/drivers/virtio/virtio_mmio.c
-+++ b/drivers/virtio/virtio_mmio.c
-@@ -468,7 +468,7 @@ static int vm_find_vqs(struct virtio_device *vdev, unsigned nvqs,
- {
- 	struct virtio_mmio_device *vm_dev = to_virtio_mmio_device(vdev);
- 	unsigned int irq = platform_get_irq(vm_dev->pdev, 0);
--	int i, err;
-+	int i, err, queue_idx = 0;
- 
- 	err = request_irq(irq, vm_interrupt, IRQF_SHARED,
- 			dev_name(&vdev->dev), vm_dev);
-@@ -476,7 +476,12 @@ static int vm_find_vqs(struct virtio_device *vdev, unsigned nvqs,
- 		return err;
- 
- 	for (i = 0; i < nvqs; ++i) {
--		vqs[i] = vm_setup_vq(vdev, i, callbacks[i], names[i],
-+		if (!names[i]) {
-+			vqs[i] = NULL;
-+			continue;
-+		}
-+
-+		vqs[i] = vm_setup_vq(vdev, queue_idx++, callbacks[i], names[i],
- 				     ctx ? ctx[i] : false);
- 		if (IS_ERR(vqs[i])) {
- 			vm_del_vqs(vdev);
--- 
-2.7.4
+
+Please try the fix patches: https://lkml.org/lkml/2018/12/27/336
+
+Best,
+Wei
