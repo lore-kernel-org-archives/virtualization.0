@@ -1,17 +1,11 @@
 From: Jason Wang <jasowang@redhat.com>
-Subject: Re: [RFC PATCH V2 3/3] vhost: access vq metadata through kernel
-	virtual address
-Date: Sat, 29 Dec 2018 20:41:33 +0800
-Message-ID: <86418701-d57d-70a4-6f4c-25598b2c077e@redhat.com>
-References: <20181228075537.21402-1-jasowang@redhat.com>
-	<20181228075537.21402-4-jasowang@redhat.com>
-	<20181228.113444.2162917443074434767.davem@davemloft.net>
+Subject: [RFC PATCH V3 0/5] Hi:
+Date: Sat, 29 Dec 2018 20:46:51 +0800
+Message-ID: <20181229124656.3900-1-jasowang__6332.7647200369$1546087506$gmane$org@redhat.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="utf-8"; Format="flowed"
-Content-Transfer-Encoding: base64
+Content-Type: text/plain; charset="us-ascii"
+Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <20181228.113444.2162917443074434767.davem@davemloft.net>
-Content-Language: en-US
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -21,36 +15,39 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: David Miller <davem@davemloft.net>
-Cc: netdev@vger.kernel.org, virtualization@lists.linux-foundation.org, linux-kernel@vger.kernel.org, kvm@vger.kernel.org, mst@redhat.com
+To: mst@redhat.com, jasowang@redhat.com, kvm@vger.kernel.org, virtualization@lists.linux-foundation.org, netdev@vger.kernel.org, linux-kernel@vger.kernel.org
+Cc: davem@davemloft.net
 List-Id: virtualization@lists.linuxfoundation.org
 
-Ck9uIDIwMTgvMTIvMjkg5LiK5Y2IMzozNCwgRGF2aWQgTWlsbGVyIHdyb3RlOgo+IEZyb206IEph
-c29uIFdhbmcgPGphc293YW5nQHJlZGhhdC5jb20+Cj4gRGF0ZTogRnJpLCAyOCBEZWMgMjAxOCAx
-NTo1NTozNyArMDgwMAo+Cj4+ICtzdGF0aWMgaW50IHZob3N0X2ludmFsaWRhdGVfdm1hcChzdHJ1
-Y3Qgdmhvc3RfdmlydHF1ZXVlICp2cSwKPj4gKwkJCQkgc3RydWN0IHZob3N0X3ZtYXAgKm1hcCwK
-Pj4gKwkJCQkgdW5zaWduZWQgbG9uZyB1YWRkciwKPj4gKwkJCQkgdW5zaWduZWQgbG9uZyBzdGFy
-dCwKPj4gKwkJCQkgdW5zaWduZWQgbG9uZyBlbmQsCj4+ICsJCQkJIGJvb2wgYmxvY2thYmxlKQo+
-PiArewo+PiArCWlmIChzdGFydCA8IHVhZGRyICYmIGVuZCA+PSB1YWRkcikgewo+PiArCQlpZiAo
-IWJsb2NrYWJsZSkKPj4gKwkJCXJldHVybiAtRUFHQUlOOwo+PiArCQltdXRleF9sb2NrKCZ2cS0+
-bXV0ZXgpOwo+PiArCQlpZiAobWFwLT5hZGRyKQo+PiArCQkJdnVubWFwKG1hcC0+dW5tYXBfYWRk
-cik7Cj4+ICsJCW1hcC0+YWRkciA9IE5VTEw7Cj4+ICsJCW1hcC0+dW5tYXBfYWRkciA9IE5VTEw7
-Cj4+ICsJCW11dGV4X3VubG9jaygmdnEtPm11dGV4KTsKPj4gKwl9Cj4+ICsKPj4gKwlyZXR1cm4g
-MDsKPj4gK30KPiBXaGF0IGFyZSB0aGUgcnVsZXMgZm9yIHRoZXNlIGludmFsaWRhdGUgb3BlcmF0
-aW9ucz8KPgo+IENhbiB0aGVyZSBiZSBwYXJ0aWFsIG92ZXJsYXBzPyAgSWYgc28sIHdvdWxkbid0
-IHlvdSBuZWVkIHNvbWUgd2F5IG9mCj4ga2VlcGluZyB0cmFjayBvZiB0aGUgcGFydGlhbGx5IG92
-ZXJsYXBwaW5nIHVubWFwcyBzbyB0aGF0IG9uY2UgYWxsIG9mCj4gdGhlIGludmFsaWRhdGVzIGNv
-dmVyaW5nIHRoZSByYW5nZSBvY2N1ciB5b3UgcHJvcGVybHkgY2xlYW51cCBhbmQgZG8KPiB0aGUg
-dnVubWFwKCk/CgoKWWVzLCB0aGVyZSBjYW4gYmUgcGFydGlhbCBvdmVybGFwLCBzbyB0aGUgY2hl
-Y2sgaXMgYnVnZ3kuIFdlIHdpbGwgcmVtYXAgCnRoZSB3aG9sZSByYW5nZSBpbiB2cV9tZXRhX3By
-ZWZldGNoKCkgYmVmb3JlIGRhdGFwYXRoIHBhdGggdHJ5IHRvIHVzZSAKdGhlbSwgc28gdGhlcmUn
-cyBubyBuZWVkIHRvIHRyYWNrIHBhcnRpYWwgbWFwcGluZyBoZXJlLgoKSSBzcG90IGFub3RoZXIg
-YnVnIHRoYXQgdGhlIGNhbGxlciB3aWxsIGFjY2VzcyB2cS0+YXZhaWwgd2l0aG91dCAKc3luY2hy
-b25pemVkIHdpdGggdmhvc3QgaW9jdGwuIFNpbmNlIHdlIGRvbid0IHdhbnQgdG8gaG9sZCB2cSBt
-dXRleCBmb3IgCmVhY2ggaW52YWxpZGF0aW9uLCBJIHdpbGwgdGVhciBkb3duIE1NVSBub3RpZmll
-ciBkdXJpbmcgdmhvc3QgaW9jdGwgdG8gCm1ha2Ugc3VyZSBpbnZhbGlkYXRpb24gcmVxdWVzdCBj
-YW4gYWNjZXNzIHRoZW0gd2l0aG91dCBob2xkIHZxIG11dGV4LgoKVGhhbmtzCgpfX19fX19fX19f
-X19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fXwpWaXJ0dWFsaXphdGlvbiBtYWls
-aW5nIGxpc3QKVmlydHVhbGl6YXRpb25AbGlzdHMubGludXgtZm91bmRhdGlvbi5vcmcKaHR0cHM6
-Ly9saXN0cy5saW51eGZvdW5kYXRpb24ub3JnL21haWxtYW4vbGlzdGluZm8vdmlydHVhbGl6YXRp
-b24=
+This series tries to access virtqueue metadata through kernel virtual
+address instead of copy_user() friends since they had too much
+overheads like checks, spec barriers or even hardware feature
+toggling.
+
+Test shows about 24% improvement on TX PPS. It should benefit other
+cases as well.
+
+Changes from V2:
+- fix buggy range overlapping check
+- tear down MMU notifier during vhost ioctl to make sure invalidation
+  request can read metadata userspace address and vq size without
+  holding vq mutex.
+Changes from V1:
+- instead of pinning pages, use MMU notifier to invalidate vmaps and
+  remap duing metadata prefetch
+- fix build warning on MIPS
+
+Jason Wang (5):
+  vhost: generalize adding used elem
+  vhost: fine grain userspace memory accessors
+  vhost: rename vq_iotlb_prefetch() to vq_meta_prefetch()
+  vhost: introduce helpers to get the size of metadata area
+  vhost: access vq metadata through kernel virtual address
+
+ drivers/vhost/net.c   |   4 +-
+ drivers/vhost/vhost.c | 416 +++++++++++++++++++++++++++++++++++++-----
+ drivers/vhost/vhost.h |  15 +-
+ 3 files changed, 384 insertions(+), 51 deletions(-)
+
+-- 
+2.17.1
