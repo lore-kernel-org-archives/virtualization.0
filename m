@@ -1,15 +1,15 @@
-From: David Miller <davem@davemloft.net>
-Subject: Re: [RFC PATCH V2 3/3] vhost: access vq metadata through kernel
-	virtual address
-Date: Fri, 28 Dec 2018 11:34:44 -0800 (PST)
-Message-ID: <20181228.113444.2162917443074434767.davem__40130.3674131215$1546025567$gmane$org@davemloft.net>
-References: <20181228075537.21402-1-jasowang@redhat.com>
-	<20181228075537.21402-4-jasowang@redhat.com>
+From: "Wang, Wei W" <wei.w.wang@intel.com>
+Subject: RE: [PATCH v1 0/2] Virtio: fix some vq allocation issues
+Date: Sat, 29 Dec 2018 02:45:49 +0000
+Message-ID: <286AC319A985734F985F78AFA26841F73DEEA8E9__32722.9851428003$1546051432$gmane$org@shsmsx102.ccr.corp.intel.com>
+References: <1545963986-11280-1-git-send-email-wei.w.wang@intel.com>
+	<c6746307-fae5-7652-af8d-19f560fc31d9@de.ibm.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <20181228075537.21402-4-jasowang@redhat.com>
+In-Reply-To: <c6746307-fae5-7652-af8d-19f560fc31d9@de.ibm.com>
+Content-Language: en-US
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -19,37 +19,26 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: jasowang@redhat.com
-Cc: netdev@vger.kernel.org, virtualization@lists.linux-foundation.org, linux-kernel@vger.kernel.org, kvm@vger.kernel.org, mst@redhat.com
+To: Christian Borntraeger <borntraeger@de.ibm.com>, "virtio-dev@lists.oasis-open.org" <virtio-dev@lists.oasis-open.org>, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>, "virtualization@lists.linux-foundation.org" <virtualization@lists.linux-foundation.org>, "kvm@vger.kernel.org" <kvm@vger.kernel.org>, "mst@redhat.com" <mst@redhat.com>, "cohuck@redhat.com" <cohuck@redhat.com>
+Cc: Halil Pasic <pasic@linux.ibm.com>, "pbonzini@redhat.com" <pbonzini@redhat.com>, "dgilbert@redhat.com" <dgilbert@redhat.com>
 List-Id: virtualization@lists.linuxfoundation.org
 
-From: Jason Wang <jasowang@redhat.com>
-Date: Fri, 28 Dec 2018 15:55:37 +0800
+On Friday, December 28, 2018 3:57 PM, Christian Borntraeger wrote:
+> On 28.12.2018 03:26, Wei Wang wrote:
+> > Some vqs don't need to be allocated when the related feature bits are
+> > disabled. Callers notice the vq allocation layer by setting the
+> > related names[i] to be NULL.
+> >
+> > This patch series fixes the find_vqs implementations to handle this case.
+> 
+> So the random crashes during boot are gone.
+> What still does not work is actually using the balloon.
+> 
+> So in the qemu monitor using lets say "balloon 1000"  will hang the guest.
+> Seems to be a deadlock in the virtio-ccw code.  We seem to call the config
+> code in the interrupt handler.
 
-> +static int vhost_invalidate_vmap(struct vhost_virtqueue *vq,
-> +				 struct vhost_vmap *map,
-> +				 unsigned long uaddr,
-> +				 unsigned long start,
-> +				 unsigned long end,
-> +				 bool blockable)
-> +{
-> +	if (start < uaddr && end >= uaddr) {
-> +		if (!blockable)
-> +			return -EAGAIN;
-> +		mutex_lock(&vq->mutex);
-> +		if (map->addr)
-> +			vunmap(map->unmap_addr);
-> +		map->addr = NULL;
-> +		map->unmap_addr = NULL;
-> +		mutex_unlock(&vq->mutex);
-> +	}
-> +
-> +	return 0;
-> +}
-
-What are the rules for these invalidate operations?
-
-Can there be partial overlaps?  If so, wouldn't you need some way of
-keeping track of the partially overlapping unmaps so that once all of
-the invalidates covering the range occur you properly cleanup and do
-the vunmap()?
+Yes. It reads a config register from the interrupt handler. Do you know why ccw doesn't support it and has some internal lock that caused the deadlock issue?
+ 
+Best,
+Wei
