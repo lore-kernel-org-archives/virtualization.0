@@ -1,11 +1,13 @@
 From: Jason Wang <jasowang@redhat.com>
-Subject: [RFC PATCH V3 0/5] Hi:
-Date: Sat, 29 Dec 2018 20:46:51 +0800
-Message-ID: <20181229124656.3900-1-jasowang__6332.7647200369$1546087506$gmane$org@redhat.com>
+Subject: [RFC PATCH V3 1/5] vhost: generalize adding used elem
+Date: Sat, 29 Dec 2018 20:46:52 +0800
+Message-ID: <20181229124656.3900-2-jasowang__41404.4967190877$1546087517$gmane$org@redhat.com>
+References: <20181229124656.3900-1-jasowang@redhat.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
+In-Reply-To: <20181229124656.3900-1-jasowang@redhat.com>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -19,35 +21,37 @@ To: mst@redhat.com, jasowang@redhat.com, kvm@vger.kernel.org, virtualization@lis
 Cc: davem@davemloft.net
 List-Id: virtualization@lists.linuxfoundation.org
 
-This series tries to access virtqueue metadata through kernel virtual
-address instead of copy_user() friends since they had too much
-overheads like checks, spec barriers or even hardware feature
-toggling.
+Use one generic vhost_copy_to_user() instead of two dedicated
+accessor. This will simplify the conversion to fine grain
+accessors. About 2% improvement of PPS were seen during vitio-user
+txonly test.
 
-Test shows about 24% improvement on TX PPS. It should benefit other
-cases as well.
+Signed-off-by: Jason Wang <jasowang@redhat.com>
+---
+ drivers/vhost/vhost.c | 11 +----------
+ 1 file changed, 1 insertion(+), 10 deletions(-)
 
-Changes from V2:
-- fix buggy range overlapping check
-- tear down MMU notifier during vhost ioctl to make sure invalidation
-  request can read metadata userspace address and vq size without
-  holding vq mutex.
-Changes from V1:
-- instead of pinning pages, use MMU notifier to invalidate vmaps and
-  remap duing metadata prefetch
-- fix build warning on MIPS
-
-Jason Wang (5):
-  vhost: generalize adding used elem
-  vhost: fine grain userspace memory accessors
-  vhost: rename vq_iotlb_prefetch() to vq_meta_prefetch()
-  vhost: introduce helpers to get the size of metadata area
-  vhost: access vq metadata through kernel virtual address
-
- drivers/vhost/net.c   |   4 +-
- drivers/vhost/vhost.c | 416 +++++++++++++++++++++++++++++++++++++-----
- drivers/vhost/vhost.h |  15 +-
- 3 files changed, 384 insertions(+), 51 deletions(-)
-
+diff --git a/drivers/vhost/vhost.c b/drivers/vhost/vhost.c
+index 55e5aa662ad5..f179b5ee14c4 100644
+--- a/drivers/vhost/vhost.c
++++ b/drivers/vhost/vhost.c
+@@ -2174,16 +2174,7 @@ static int __vhost_add_used_n(struct vhost_virtqueue *vq,
+ 
+ 	start = vq->last_used_idx & (vq->num - 1);
+ 	used = vq->used->ring + start;
+-	if (count == 1) {
+-		if (vhost_put_user(vq, heads[0].id, &used->id)) {
+-			vq_err(vq, "Failed to write used id");
+-			return -EFAULT;
+-		}
+-		if (vhost_put_user(vq, heads[0].len, &used->len)) {
+-			vq_err(vq, "Failed to write used len");
+-			return -EFAULT;
+-		}
+-	} else if (vhost_copy_to_user(vq, used, heads, count * sizeof *used)) {
++	if (vhost_copy_to_user(vq, used, heads, count * sizeof *used)) {
+ 		vq_err(vq, "Failed to write used");
+ 		return -EFAULT;
+ 	}
 -- 
 2.17.1
