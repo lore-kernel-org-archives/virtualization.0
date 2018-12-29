@@ -1,14 +1,16 @@
-From: "Wang, Wei W" <wei.w.wang@intel.com>
-Subject: RE: [PATCH v1 0/2] Virtio: fix some vq allocation issues
-Date: Sat, 29 Dec 2018 02:45:49 +0000
-Message-ID: <286AC319A985734F985F78AFA26841F73DEEA8E9__32722.9851428003$1546051432$gmane$org@shsmsx102.ccr.corp.intel.com>
-References: <1545963986-11280-1-git-send-email-wei.w.wang@intel.com>
-	<c6746307-fae5-7652-af8d-19f560fc31d9@de.ibm.com>
+From: Jason Wang <jasowang@redhat.com>
+Subject: Re: [RFC PATCH V2 3/3] vhost: access vq metadata through kernel
+	virtual address
+Date: Sat, 29 Dec 2018 20:41:33 +0800
+Message-ID: <86418701-d57d-70a4-6f4c-25598b2c077e@redhat.com>
+References: <20181228075537.21402-1-jasowang@redhat.com>
+	<20181228075537.21402-4-jasowang@redhat.com>
+	<20181228.113444.2162917443074434767.davem@davemloft.net>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset="utf-8"; Format="flowed"
+Content-Transfer-Encoding: base64
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <c6746307-fae5-7652-af8d-19f560fc31d9@de.ibm.com>
+In-Reply-To: <20181228.113444.2162917443074434767.davem@davemloft.net>
 Content-Language: en-US
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
@@ -19,26 +21,36 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Christian Borntraeger <borntraeger@de.ibm.com>, "virtio-dev@lists.oasis-open.org" <virtio-dev@lists.oasis-open.org>, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>, "virtualization@lists.linux-foundation.org" <virtualization@lists.linux-foundation.org>, "kvm@vger.kernel.org" <kvm@vger.kernel.org>, "mst@redhat.com" <mst@redhat.com>, "cohuck@redhat.com" <cohuck@redhat.com>
-Cc: Halil Pasic <pasic@linux.ibm.com>, "pbonzini@redhat.com" <pbonzini@redhat.com>, "dgilbert@redhat.com" <dgilbert@redhat.com>
+To: David Miller <davem@davemloft.net>
+Cc: netdev@vger.kernel.org, virtualization@lists.linux-foundation.org, linux-kernel@vger.kernel.org, kvm@vger.kernel.org, mst@redhat.com
 List-Id: virtualization@lists.linuxfoundation.org
 
-On Friday, December 28, 2018 3:57 PM, Christian Borntraeger wrote:
-> On 28.12.2018 03:26, Wei Wang wrote:
-> > Some vqs don't need to be allocated when the related feature bits are
-> > disabled. Callers notice the vq allocation layer by setting the
-> > related names[i] to be NULL.
-> >
-> > This patch series fixes the find_vqs implementations to handle this case.
-> 
-> So the random crashes during boot are gone.
-> What still does not work is actually using the balloon.
-> 
-> So in the qemu monitor using lets say "balloon 1000"  will hang the guest.
-> Seems to be a deadlock in the virtio-ccw code.  We seem to call the config
-> code in the interrupt handler.
-
-Yes. It reads a config register from the interrupt handler. Do you know why ccw doesn't support it and has some internal lock that caused the deadlock issue?
- 
-Best,
-Wei
+Ck9uIDIwMTgvMTIvMjkg5LiK5Y2IMzozNCwgRGF2aWQgTWlsbGVyIHdyb3RlOgo+IEZyb206IEph
+c29uIFdhbmcgPGphc293YW5nQHJlZGhhdC5jb20+Cj4gRGF0ZTogRnJpLCAyOCBEZWMgMjAxOCAx
+NTo1NTozNyArMDgwMAo+Cj4+ICtzdGF0aWMgaW50IHZob3N0X2ludmFsaWRhdGVfdm1hcChzdHJ1
+Y3Qgdmhvc3RfdmlydHF1ZXVlICp2cSwKPj4gKwkJCQkgc3RydWN0IHZob3N0X3ZtYXAgKm1hcCwK
+Pj4gKwkJCQkgdW5zaWduZWQgbG9uZyB1YWRkciwKPj4gKwkJCQkgdW5zaWduZWQgbG9uZyBzdGFy
+dCwKPj4gKwkJCQkgdW5zaWduZWQgbG9uZyBlbmQsCj4+ICsJCQkJIGJvb2wgYmxvY2thYmxlKQo+
+PiArewo+PiArCWlmIChzdGFydCA8IHVhZGRyICYmIGVuZCA+PSB1YWRkcikgewo+PiArCQlpZiAo
+IWJsb2NrYWJsZSkKPj4gKwkJCXJldHVybiAtRUFHQUlOOwo+PiArCQltdXRleF9sb2NrKCZ2cS0+
+bXV0ZXgpOwo+PiArCQlpZiAobWFwLT5hZGRyKQo+PiArCQkJdnVubWFwKG1hcC0+dW5tYXBfYWRk
+cik7Cj4+ICsJCW1hcC0+YWRkciA9IE5VTEw7Cj4+ICsJCW1hcC0+dW5tYXBfYWRkciA9IE5VTEw7
+Cj4+ICsJCW11dGV4X3VubG9jaygmdnEtPm11dGV4KTsKPj4gKwl9Cj4+ICsKPj4gKwlyZXR1cm4g
+MDsKPj4gK30KPiBXaGF0IGFyZSB0aGUgcnVsZXMgZm9yIHRoZXNlIGludmFsaWRhdGUgb3BlcmF0
+aW9ucz8KPgo+IENhbiB0aGVyZSBiZSBwYXJ0aWFsIG92ZXJsYXBzPyAgSWYgc28sIHdvdWxkbid0
+IHlvdSBuZWVkIHNvbWUgd2F5IG9mCj4ga2VlcGluZyB0cmFjayBvZiB0aGUgcGFydGlhbGx5IG92
+ZXJsYXBwaW5nIHVubWFwcyBzbyB0aGF0IG9uY2UgYWxsIG9mCj4gdGhlIGludmFsaWRhdGVzIGNv
+dmVyaW5nIHRoZSByYW5nZSBvY2N1ciB5b3UgcHJvcGVybHkgY2xlYW51cCBhbmQgZG8KPiB0aGUg
+dnVubWFwKCk/CgoKWWVzLCB0aGVyZSBjYW4gYmUgcGFydGlhbCBvdmVybGFwLCBzbyB0aGUgY2hl
+Y2sgaXMgYnVnZ3kuIFdlIHdpbGwgcmVtYXAgCnRoZSB3aG9sZSByYW5nZSBpbiB2cV9tZXRhX3By
+ZWZldGNoKCkgYmVmb3JlIGRhdGFwYXRoIHBhdGggdHJ5IHRvIHVzZSAKdGhlbSwgc28gdGhlcmUn
+cyBubyBuZWVkIHRvIHRyYWNrIHBhcnRpYWwgbWFwcGluZyBoZXJlLgoKSSBzcG90IGFub3RoZXIg
+YnVnIHRoYXQgdGhlIGNhbGxlciB3aWxsIGFjY2VzcyB2cS0+YXZhaWwgd2l0aG91dCAKc3luY2hy
+b25pemVkIHdpdGggdmhvc3QgaW9jdGwuIFNpbmNlIHdlIGRvbid0IHdhbnQgdG8gaG9sZCB2cSBt
+dXRleCBmb3IgCmVhY2ggaW52YWxpZGF0aW9uLCBJIHdpbGwgdGVhciBkb3duIE1NVSBub3RpZmll
+ciBkdXJpbmcgdmhvc3QgaW9jdGwgdG8gCm1ha2Ugc3VyZSBpbnZhbGlkYXRpb24gcmVxdWVzdCBj
+YW4gYWNjZXNzIHRoZW0gd2l0aG91dCBob2xkIHZxIG11dGV4LgoKVGhhbmtzCgpfX19fX19fX19f
+X19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fXwpWaXJ0dWFsaXphdGlvbiBtYWls
+aW5nIGxpc3QKVmlydHVhbGl6YXRpb25AbGlzdHMubGludXgtZm91bmRhdGlvbi5vcmcKaHR0cHM6
+Ly9saXN0cy5saW51eGZvdW5kYXRpb24ub3JnL21haWxtYW4vbGlzdGluZm8vdmlydHVhbGl6YXRp
+b24=
