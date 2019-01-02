@@ -1,14 +1,12 @@
 From: "Michael S. Tsirkin" <mst@redhat.com>
-Subject: Re: [RFC PATCH V3 0/5] Hi:
-Date: Wed, 2 Jan 2019 15:47:09 -0500
-Message-ID: <20190102154038-mutt-send-email-mst__42922.3771593117$1546461915$gmane$org@kernel.org>
-References: <20181229124656.3900-1-jasowang@redhat.com>
+Subject: [PATCH RFC 0/4] barriers using data dependency
+Date: Wed, 2 Jan 2019 15:57:45 -0500
+Message-ID: <20190102205715.14054-1-mst@redhat.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
 Content-Disposition: inline
-In-Reply-To: <20181229124656.3900-1-jasowang@redhat.com>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -18,46 +16,42 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Jason Wang <jasowang@redhat.com>
-Cc: netdev@vger.kernel.org, davem@davemloft.net, linux-kernel@vger.kernel.org, kvm@vger.kernel.org, virtualization@lists.linux-foundation.org
+To: linux-kernel@vger.kernel.org
+Cc: Andrea Parri <andrea.parri@amarulasolutions.com>, linux-arch@vger.kernel.org, "Paul E. McKenney" <paulmck@linux.vnet.ibm.com>, Peter Zijlstra <peterz@infradead.org>, Daniel Lustig <dlustig@nvidia.com>, Akira Yokosawa <akiyks@gmail.com>, Will Deacon <will.deacon@arm.com>, Nicholas Piggin <npiggin@gmail.com>, virtualization@lists.linux-foundation.org, David Howells <dhowells@redhat.com>, Alan Stern <stern@rowland.harvard.edu>, netdev@vger.kernel.org, Luc Maranget <luc.maranget@inria.fr>, Jade Alglave <j.alglave@ucl.ac.uk>, Boqun Feng <boqun.feng@gmail.com>
 List-Id: virtualization@lists.linuxfoundation.org
 
-On Sat, Dec 29, 2018 at 08:46:51PM +0800, Jason Wang wrote:
-> This series tries to access virtqueue metadata through kernel virtual
-> address instead of copy_user() friends since they had too much
-> overheads like checks, spec barriers or even hardware feature
-> toggling.
+So as explained in Documentation/memory-barriers.txt e.g.
+a load followed by a store require a full memory barrier,
+to avoid store being ordered before the load.
+Similarly load-load requires a read memory barrier.
 
-Will review, thanks!
-One questions that comes to mind is whether it's all about bypassing
-stac/clac.  Could you please include a performance comparison with
-nosmap?
+Thinking about it, we can actually create a data dependency
+by mixing the first loaded value into the pointer being
+accessed.
 
-> 
-> Test shows about 24% improvement on TX PPS. It should benefit other
-> cases as well.
->
-> Changes from V2:
-> - fix buggy range overlapping check
-> - tear down MMU notifier during vhost ioctl to make sure invalidation
->   request can read metadata userspace address and vq size without
->   holding vq mutex.
-> Changes from V1:
-> - instead of pinning pages, use MMU notifier to invalidate vmaps and
->   remap duing metadata prefetch
-> - fix build warning on MIPS
-> 
-> Jason Wang (5):
->   vhost: generalize adding used elem
->   vhost: fine grain userspace memory accessors
->   vhost: rename vq_iotlb_prefetch() to vq_meta_prefetch()
->   vhost: introduce helpers to get the size of metadata area
->   vhost: access vq metadata through kernel virtual address
-> 
->  drivers/vhost/net.c   |   4 +-
->  drivers/vhost/vhost.c | 416 +++++++++++++++++++++++++++++++++++++-----
->  drivers/vhost/vhost.h |  15 +-
->  3 files changed, 384 insertions(+), 51 deletions(-)
-> 
-> -- 
-> 2.17.1
+This adds an API for this and uses it in virtio.
+
+Written over the holiday and build tested only so far.
+
+This patchset is also suboptimal on e.g. x86 where e.g. smp_rmb is a nop.
+
+Sending out for early feedback/flames.
+
+Michael S. Tsirkin (4):
+  include/linux/compiler*.h: fix OPTIMIZER_HIDE_VAR
+  include/linux/compiler.h: allow memory operands
+  barriers: convert a control to a data dependency
+  virtio: use dependent_ptr_mb
+
+ Documentation/memory-barriers.txt | 20 ++++++++++++++++++++
+ arch/alpha/include/asm/barrier.h  |  1 +
+ drivers/virtio/virtio_ring.c      |  6 ++++--
+ include/asm-generic/barrier.h     | 18 ++++++++++++++++++
+ include/linux/compiler-clang.h    |  5 ++---
+ include/linux/compiler-gcc.h      |  4 ----
+ include/linux/compiler-intel.h    |  4 +---
+ include/linux/compiler.h          |  8 +++++++-
+ 8 files changed, 53 insertions(+), 13 deletions(-)
+
+-- 
+MST
