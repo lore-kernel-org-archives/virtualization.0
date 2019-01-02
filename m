@@ -1,20 +1,20 @@
-From: Cornelia Huck <cohuck@redhat.com>
-Subject: Re: [virtio-dev] RE: [PATCH v1 0/2] Virtio: fix some vq allocation
-	issues
-Date: Wed, 2 Jan 2019 14:23:38 +0100
-Message-ID: <20190102142338.15bfe876.cohuck__8286.04321363873$1546435307$gmane$org@redhat.com>
-References: <1545963986-11280-1-git-send-email-wei.w.wang@intel.com>
-	<c6746307-fae5-7652-af8d-19f560fc31d9@de.ibm.com>
-	<286AC319A985734F985F78AFA26841F73DEEA8E9@shsmsx102.ccr.corp.intel.com>
-	<20181230070600.512bbb8b@oc2783563651>
-	<286AC319A985734F985F78AFA26841F73DEEC8DF@shsmsx102.ccr.corp.intel.com>
-	<20190101004019.7f20aafa@oc2783563651>
-	<20190102105314.0b4e2485.cohuck@redhat.com>
+From: "Michael S. Tsirkin" <mst@redhat.com>
+Subject: Re: [PATCH RFC 1/2] virtio-net: bql support
+Date: Wed, 2 Jan 2019 08:54:24 -0500
+Message-ID: <20190102083202-mutt-send-email-mst@kernel.org>
+References: <20181205225323.12555-1-mst@redhat.com>
+	<20181205225323.12555-2-mst@redhat.com>
+	<21384cb5-99a6-7431-1039-b356521e1bc3@redhat.com>
+	<20181226102100-mutt-send-email-mst@kernel.org>
+	<620cfd46-aa3e-7eb6-0757-f4afbafda44b@redhat.com>
+	<20181230134539-mutt-send-email-mst@kernel.org>
+	<01e0fe8f-bd75-c39b-9d77-c5a9baf87348@redhat.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset="utf-8"
+Content-Transfer-Encoding: base64
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <20190102105314.0b4e2485.cohuck@redhat.com>
+Content-Disposition: inline
+In-Reply-To: <01e0fe8f-bd75-c39b-9d77-c5a9baf87348@redhat.com>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -24,51 +24,57 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Halil Pasic <pasic@linux.ibm.com>
-Cc: "virtio-dev@lists.oasis-open.org" <virtio-dev@lists.oasis-open.org>, "kvm@vger.kernel.org" <kvm@vger.kernel.org>, "mst@redhat.com" <mst@redhat.com>, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>, "virtualization@lists.linux-foundation.org" <virtualization@lists.linux-foundation.org>, "pbonzini@redhat.com" <pbonzini@redhat.com>, "dgilbert@redhat.com" <dgilbert@redhat.com>
+To: Jason Wang <jasowang@redhat.com>
+Cc: netdev@vger.kernel.org, linux-kernel@vger.kernel.org, virtualization@lists.linux-foundation.org, maxime.coquelin@redhat.com, wexu@redhat.com, "David S. Miller" <davem@davemloft.net>
 List-Id: virtualization@lists.linuxfoundation.org
 
-On Wed, 2 Jan 2019 10:53:14 +0100
-Cornelia Huck <cohuck@redhat.com> wrote:
-
-> On Tue, 1 Jan 2019 00:40:19 +0100
-> Halil Pasic <pasic@linux.ibm.com> wrote:
-
-> > As I said, at the moment I don't have a preference regarding the fix,
-> > partly because I'm not sure if "reading config inside the handler" is OK
-> > or not. Maybe Connie or Michael can help us here. I'm however sure that
-> > commit 86a5597 "virtio-balloon: VIRTIO_BALLOON_F_FREE_PAGE_HINT"
-> > breaks virtio-balloon with the ccw transport (i.e. effectively breaks 
-> > virtio-balloon on s390): it used to work before and does not work
-> > after.  
-> 
-> Yes, that's unfortunate.
-> 
-> > 
-> > AFAICT tweaking the balloon code may be simpler than tweaking the
-> > virtio-ccw (transport code). ccw_io_helper() relies on getting
-> > an interrupt when the issued IO is done. If virtio-ccw is buggy, it
-> > needs to be fixed, but I'm not sure it is.  
-> 
-> I would not call virtio-ccw buggy, but it has some constraints that
-> virtio-pci apparently doesn't have (and which did not show up so far;
-> e.g. virtio-blk schedules a work item on config change, so there's no
-> deadlock there.)
-> 
-> One way to get out of that constraint (don't interact with the config
-> space directly in the config changed handler) would be to schedule a
-> work item in virtio-ccw that calls virtio_config_changed() for the
-> device. My understanding is that delaying the notification to a work
-> queue would be fine.
-
-Unfortunately, calling virtio_config_changed() from a work item is not
-enough: That function takes the config_lock, and the virtio-ccw code to
-get the config both needs to allocate some memory and call schedule :/
-
-The best option really seems to be
-- have virtio-balloon move the handling of the config change onto a
-  workqueue or something like that, and
-- document that you cannot read/write the virtio config space from an
-  atomic context
-
-Unless someone has a better idea?
+T24gV2VkLCBKYW4gMDIsIDIwMTkgYXQgMTE6MzA6MTFBTSArMDgwMCwgSmFzb24gV2FuZyB3cm90
+ZToKPiAKPiBPbiAyMDE4LzEyLzMxIOS4iuWNiDI6NDgsIE1pY2hhZWwgUy4gVHNpcmtpbiB3cm90
+ZToKPiA+IE9uIFRodSwgRGVjIDI3LCAyMDE4IGF0IDA2OjA0OjUzUE0gKzA4MDAsIEphc29uIFdh
+bmcgd3JvdGU6Cj4gPiA+IE9uIDIwMTgvMTIvMjYg5LiL5Y2IMTE6MjIsIE1pY2hhZWwgUy4gVHNp
+cmtpbiB3cm90ZToKPiA+ID4gPiBPbiBUaHUsIERlYyAwNiwgMjAxOCBhdCAwNDoxNzozNlBNICsw
+ODAwLCBKYXNvbiBXYW5nIHdyb3RlOgo+ID4gPiA+ID4gT24gMjAxOC8xMi82IOS4iuWNiDY6NTQs
+IE1pY2hhZWwgUy4gVHNpcmtpbiB3cm90ZToKPiA+ID4gPiA+ID4gV2hlbiB1c2VfbmFwaSBpcyBz
+ZXQsIGxldCdzIGVuYWJsZSBCUUxzLiAgTm90ZTogc29tZSBvZiB0aGUgaXNzdWVzIGFyZQo+ID4g
+PiA+ID4gPiBzaW1pbGFyIHRvIHdpZmkuICBJdCdzIHdvcnRoIGNvbnNpZGVyaW5nIHdoZXRoZXIg
+c29tZXRoaW5nIHNpbWlsYXIgdG8KPiA+ID4gPiA+ID4gY29tbWl0IDM2MTQ4YzJiYmZiZSAoIm1h
+YzgwMjExOiBBZGp1c3QgVFNRIHBhY2luZyBzaGlmdCIpIG1pZ2h0IGJlCj4gPiA+ID4gPiA+IGJl
+bmVmaXRpYWwuCj4gPiA+ID4gPiBJJ3ZlIHBsYXllZCBhIHNpbWlsYXIgcGF0Y2ggc2V2ZXJhbCBk
+YXlzIGJlZm9yZS4gVGhlIHRyaWNreSBwYXJ0IGlzIHRoZSBtb2RlCj4gPiA+ID4gPiBzd2l0Y2hp
+bmcgYmV0d2VlbiBuYXBpIGFuZCBubyBuYXBpLiBXZSBzaG91bGQgbWFrZSBzdXJlIHdoZW4gdGhl
+IHBhY2tldCBpcwo+ID4gPiA+ID4gc2VudCBhbmQgdHJha2NlZCBieSBCUUwswqAgaXQgc2hvdWxk
+IGJlIGNvbnN1bWVkIGJ5IEJRTCBhcyB3ZWxsLgo+ID4gPiA+IEkganVzdCB3ZW50IG92ZXIgdGhl
+IHBhdGNoIGFnYWluIGFuZCBJIGRvbid0IHVuZGVyc3RhbmQgdGhpcyBjb21tZW50Lgo+ID4gPiA+
+IFRoaXMgcGF0Y2ggb25seSBlbmFibGVkIEJRTCB3aXRoIHR4IG5hcGkuCj4gPiA+ID4gCj4gPiA+
+ID4gVGh1cyB0aGVyZSdzIG5vIG1vZGUgc3dpdGNoaW5nLgo+ID4gPiA+IAo+ID4gPiA+IFdoYXQg
+ZGlkIEkgbWlzcz8KPiA+ID4gQ29uc2lkZXIgdGhlIGNhc2U6Cj4gPiA+IAo+ID4gPiAKPiA+ID4g
+VFggTkFQSSBpcyBkaXNhYmxlZDoKPiA+ID4gCj4gPiA+IHNlbmQgTiBwYWNrZXRzCj4gPiA+IAo+
+ID4gPiB0dXJuIFRYIE5BUEkgb246Cj4gPiA+IAo+ID4gPiBnZXQgdHggaW50ZXJydXB0Cj4gPiA+
+IAo+ID4gPiBCUUwgdHJ5IHRvIGNvbnN1bWUgdGhvc2UgcGFja2V0cyB3aGVuIGxlYWQgV0FSTiBm
+b3IgZHFsLgo+ID4gPiAKPiA+ID4gCj4gPiA+IFRoYW5rcwo+ID4gQ2FuIG9uZSByZWFsbHkgc3dp
+dGNoIHR4IG5hcGkgb24gYW5kIG9mZj8gSG93Pwo+ID4gV2hpbGUgcm9vdCBjYW4gY2hhbmdlIHRo
+ZSBuYXBpX3R4IG1vZHVsZSBwYXJhbWV0ZXIsIEkgZG9uJ3QgdGhpbmsKPiA+IHRoYXQgaGFzIGFu
+eSBlZmZlY3Qgb3V0c2lkZSBkZXZpY2UgcHJvYmUgdGltZS4gV2hhdCBkaWQgSSBtaXNzPwo+ID4g
+Cj4gPiAKPiA+IAo+IAo+IFdlIHN1cHBvcnQgc3dpdGNoIHRoZSBtb2RlIHRocm91Z2ggZXRodG9v
+bCByZWNlbnRseS4gU2VlCj4gCj4gY29tbWl0IDBjNDY1YmUxODNjN2M1N2EyNjQ0NmRmNmVhOTZk
+ODY3NmI4NjVmOTIKPiBBdXRob3I6IEphc29uIFdhbmcgPGphc293YW5nQHJlZGhhdC5jb20+Cj4g
+RGF0ZTrCoMKgIFR1ZSBPY3QgOSAxMDowNjoyNiAyMDE4ICswODAwCj4gCj4gwqDCoMKgIHZpcnRp
+b19uZXQ6IGV0aHRvb2wgdHggbmFwaSBjb25maWd1cmF0aW9uCj4gCj4gwqDCoMKgIEltcGxlbWVu
+dCBldGh0b29sIC5zZXRfY29hbGVzY2UgKC1DKSBhbmQgLmdldF9jb2FsZXNjZSAoLWMpIGhhbmRs
+ZXJzLgo+IMKgwqDCoCBJbnRlcnJ1cHQgbW9kZXJhdGlvbiBpcyBjdXJyZW50bHkgbm90IHN1cHBv
+cnRlZCwgc28gdGhlc2UgYWNjZXB0IGFuZAo+IMKgwqDCoCBkaXNwbGF5IHRoZSBkZWZhdWx0IHNl
+dHRpbmdzIG9mIDAgdXNlYyBhbmQgMSBmcmFtZS4KPiAKPiDCoMKgwqAgVG9nZ2xlIHR4IG5hcGkg
+dGhyb3VnaCBzZXR0aW5nIHR4LWZyYW1lcy4gU28gYXMgdG8gbm90IGludGVyZmVyZQo+IMKgwqDC
+oCB3aXRoIHBvc3NpYmxlIGZ1dHVyZSBpbnRlcnJ1cHQgbW9kZXJhdGlvbiwgdmFsdWUgMSBtZWFu
+cyB0eCBuYXBpIHdoaWxlCj4gwqDCoMKgIHZhbHVlIDAgbWVhbnMgbm90Lgo+IAo+IMKgwqDCoCBP
+bmx5IGFsbG93IHRoZSBzd2l0Y2hpbmcgd2hlbiBkZXZpY2UgaXMgZG93biBmb3Igc2ltcGxpY2l0
+eS4KPiAKPiDCoMKgwqAgTGluazogaHR0cHM6Ly9wYXRjaHdvcmsub3psYWJzLm9yZy9wYXRjaC85
+NDgxNDkvCj4gwqDCoMKgIFN1Z2dlc3RlZC1ieTogSmFzb24gV2FuZyA8amFzb3dhbmdAcmVkaGF0
+LmNvbT4KPiDCoMKgwqAgU2lnbmVkLW9mZi1ieTogV2lsbGVtIGRlIEJydWlqbiA8d2lsbGVtYkBn
+b29nbGUuY29tPgo+IMKgwqDCoCBTaWduZWQtb2ZmLWJ5OiBKYXNvbiBXYW5nIDxqYXNvd2FuZ0By
+ZWRoYXQuY29tPgo+IMKgwqDCoCBTaWduZWQtb2ZmLWJ5OiBEYXZpZCBTLiBNaWxsZXIgPGRhdmVt
+QGRhdmVtbG9mdC5uZXQ+Cj4gCj4gVGhhbmtzCgoKSXQncyBkaXNhYmxlZCB3aGVuIGRldmljZSBp
+cyB1cCAtIGlzbid0IHRoYXQgZW5vdWdoPwoKLS0gCk1TVApfX19fX19fX19fX19fX19fX19fX19f
+X19fX19fX19fX19fX19fX19fX19fX19fXwpWaXJ0dWFsaXphdGlvbiBtYWlsaW5nIGxpc3QKVmly
+dHVhbGl6YXRpb25AbGlzdHMubGludXgtZm91bmRhdGlvbi5vcmcKaHR0cHM6Ly9saXN0cy5saW51
+eGZvdW5kYXRpb24ub3JnL21haWxtYW4vbGlzdGluZm8vdmlydHVhbGl6YXRpb24=
