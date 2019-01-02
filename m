@@ -1,22 +1,14 @@
 From: Cornelia Huck <cohuck@redhat.com>
-Subject: Re: [virtio-dev] RE: [PATCH v1 0/2] Virtio: fix some vq allocation
-	issues
-Date: Wed, 2 Jan 2019 19:02:33 +0100
-Message-ID: <20190102190233.69b267fb.cohuck__13089.7413277582$1546452039$gmane$org@redhat.com>
-References: <1545963986-11280-1-git-send-email-wei.w.wang@intel.com>
-	<c6746307-fae5-7652-af8d-19f560fc31d9@de.ibm.com>
-	<286AC319A985734F985F78AFA26841F73DEEA8E9@shsmsx102.ccr.corp.intel.com>
-	<20181230070600.512bbb8b@oc2783563651>
-	<286AC319A985734F985F78AFA26841F73DEEC8DF@shsmsx102.ccr.corp.intel.com>
-	<20190101004019.7f20aafa@oc2783563651>
-	<20190102105314.0b4e2485.cohuck@redhat.com>
-	<20190102142338.15bfe876.cohuck@redhat.com>
-	<20190102165919.0cd9365a@oc2783563651>
+Subject: Re: [RFC PATCH 1/1] s390/virtio: handle find on invalid queue
+	gracefully
+Date: Wed, 2 Jan 2019 19:25:49 +0100
+Message-ID: <20190102192549.7d7fe4c4.cohuck@redhat.com>
+References: <20190102175020.45251-1-pasic@linux.ibm.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <20190102165919.0cd9365a@oc2783563651>
+In-Reply-To: <20190102175020.45251-1-pasic@linux.ibm.com>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -27,62 +19,68 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
 To: Halil Pasic <pasic@linux.ibm.com>
-Cc: "virtio-dev@lists.oasis-open.org" <virtio-dev@lists.oasis-open.org>, "kvm@vger.kernel.org" <kvm@vger.kernel.org>, "mst@redhat.com" <mst@redhat.com>, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>, "virtualization@lists.linux-foundation.org" <virtualization@lists.linux-foundation.org>, "pbonzini@redhat.com" <pbonzini@redhat.com>, "dgilbert@redhat.com" <dgilbert@redhat.com>
+Cc: linux-s390@vger.kernel.org, kvm@vger.kernel.org, virtualization@lists.linux-foundation.org
 List-Id: virtualization@lists.linuxfoundation.org
 
-On Wed, 2 Jan 2019 16:59:19 +0100
+On Wed,  2 Jan 2019 18:50:20 +0100
 Halil Pasic <pasic@linux.ibm.com> wrote:
 
-> On Wed, 2 Jan 2019 14:23:38 +0100
-> Cornelia Huck <cohuck@redhat.com> wrote:
+> A queue with a capacity of zero is clearly not a valid virtio queue.
+> Some emulators report zero queue size if queried with an invalid queue
+> index. Instead of crashing in this case let us just return -EINVAL. To
+> make that work properly, let us fix the notifier cleanup logic as well.
 > 
-> > On Wed, 2 Jan 2019 10:53:14 +0100
-> > Cornelia Huck <cohuck@redhat.com> wrote:
-> >   
-> > > On Tue, 1 Jan 2019 00:40:19 +0100
-> > > Halil Pasic <pasic@linux.ibm.com> wrote:  
-
-> > > > AFAICT tweaking the balloon code may be simpler than tweaking the
-> > > > virtio-ccw (transport code). ccw_io_helper() relies on getting
-> > > > an interrupt when the issued IO is done. If virtio-ccw is buggy, it
-> > > > needs to be fixed, but I'm not sure it is.    
-> > > 
-> > > I would not call virtio-ccw buggy, but it has some constraints that
-> > > virtio-pci apparently doesn't have (and which did not show up so far;
-> > > e.g. virtio-blk schedules a work item on config change, so there's no
-> > > deadlock there.)
-> > > 
-> > > One way to get out of that constraint (don't interact with the config
-> > > space directly in the config changed handler) would be to schedule a
-> > > work item in virtio-ccw that calls virtio_config_changed() for the
-> > > device. My understanding is that delaying the notification to a work
-> > > queue would be fine.  
-> > 
-> > Unfortunately, calling virtio_config_changed() from a work item is not
-> > enough: That function takes the config_lock, and the virtio-ccw code to
-> > get the config both needs to allocate some memory and call schedule :/
-> > 
-> > The best option really seems to be
-> > - have virtio-balloon move the handling of the config change onto a
-> >   workqueue or something like that, and
-> > - document that you cannot read/write the virtio config space from an
-> >   atomic context
-> > 
-> > Unless someone has a better idea?
-> >   
+> Signed-off-by: Halil Pasic <pasic@linux.ibm.com>
+> ---
 > 
-> I wonder, would making config_lock a mutex suffice?
+> This patch is motivated by commit 86a5597 "virtio-balloon:
+> VIRTIO_BALLOON_F_FREE_PAGE_HINT" (Wei Wang, 2018-08-27) which triggered
+> the described scenario.  The emulator in question is the current QEMU.
+> The problem we run into is the underflow in the following loop
+> in  __vring_new_virtqueue():
+> for (i = 0; i < vring.num-1; i++)
+> 	vq->vring.desc[i].next = cpu_to_virtio16(vdev, i + 1)
+> Namely vring.num is an unsigned int.
+> 
+> RFC because I'm not sure about -EINVAL being a good choice, and about
+> us caring about what happens if a virtio driver misbehaves like described.
 
-Unless I'm mistaken, you can't take a mutex in an interrupt path.
+For virtio-pci, the spec says that a zero queue size means that the
+queue is unavailable. I don't think we have specified that explicitly
+for virtio-ccw, but it does make sense.
 
-> I've already hinted that a virtio-balloon side fix is probably the
-> simpler variant. 
+virtio-pci returns -ENOENT in that case, which might be a good choice
+here as well.
 
-Yes, I think so as well.
+> 
+> ---
+>  drivers/s390/virtio/virtio_ccw.c | 6 ++++++
+>  1 file changed, 6 insertions(+)
+> 
+> diff --git a/drivers/s390/virtio/virtio_ccw.c b/drivers/s390/virtio/virtio_ccw.c
+> index fc9dbad476c0..147927ed4fca 100644
+> --- a/drivers/s390/virtio/virtio_ccw.c
+> +++ b/drivers/s390/virtio/virtio_ccw.c
+> @@ -272,6 +272,8 @@ static void virtio_ccw_drop_indicators(struct virtio_ccw_device *vcdev)
+>  {
+>  	struct virtio_ccw_vq_info *info;
+>  
+> +	if (!vcdev->airq_info)
+> +		return;
 
-> I agree, let's fix the regression first, and think about wether to teach
-> virtio-ccw to allow config manipulation from virtio_config_changed() or
-> not later.
+Which case is this guarding against? names[i] was NULL for every index?
 
-Or whether we can tweak the virtio code instead. But I agree, let's get
-things working again first.
+>  	list_for_each_entry(info, &vcdev->virtqueues, node)
+>  		drop_airq_indicator(info->vq, vcdev->airq_info);
+>  }
+> @@ -514,6 +516,10 @@ static struct virtqueue *virtio_ccw_setup_vq(struct virtio_device *vdev,
+>  		err = info->num;
+>  		goto out_err;
+>  	}
+> +	if (info->num == 0) {
+> +		err = -EINVAL;
+> +		goto out_err;
+> +	}
+>  	size = PAGE_ALIGN(vring_size(info->num, KVM_VIRTIO_CCW_RING_ALIGN));
+>  	info->queue = alloc_pages_exact(size, GFP_KERNEL | __GFP_ZERO);
+>  	if (info->queue == NULL) {
