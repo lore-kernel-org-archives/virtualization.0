@@ -1,19 +1,19 @@
-From: Jason Wang <jasowang@redhat.com>
-Subject: Re: [PATCH RFC 1/2] virtio-net: bql support
-Date: Wed, 2 Jan 2019 11:30:11 +0800
-Message-ID: <01e0fe8f-bd75-c39b-9d77-c5a9baf87348@redhat.com>
-References: <20181205225323.12555-1-mst@redhat.com>
-	<20181205225323.12555-2-mst@redhat.com>
-	<21384cb5-99a6-7431-1039-b356521e1bc3@redhat.com>
-	<20181226102100-mutt-send-email-mst@kernel.org>
-	<620cfd46-aa3e-7eb6-0757-f4afbafda44b@redhat.com>
-	<20181230134539-mutt-send-email-mst@kernel.org>
+From: Cornelia Huck <cohuck@redhat.com>
+Subject: Re: [virtio-dev] RE: [PATCH v1 0/2] Virtio: fix some vq allocation
+	issues
+Date: Wed, 2 Jan 2019 10:53:14 +0100
+Message-ID: <20190102105314.0b4e2485.cohuck__7146.63495678014$1546422681$gmane$org@redhat.com>
+References: <1545963986-11280-1-git-send-email-wei.w.wang@intel.com>
+	<c6746307-fae5-7652-af8d-19f560fc31d9@de.ibm.com>
+	<286AC319A985734F985F78AFA26841F73DEEA8E9@shsmsx102.ccr.corp.intel.com>
+	<20181230070600.512bbb8b@oc2783563651>
+	<286AC319A985734F985F78AFA26841F73DEEC8DF@shsmsx102.ccr.corp.intel.com>
+	<20190101004019.7f20aafa@oc2783563651>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="utf-8"; Format="flowed"
-Content-Transfer-Encoding: base64
+Content-Type: text/plain; charset="us-ascii"
+Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <20181230134539-mutt-send-email-mst@kernel.org>
-Content-Language: en-US
+In-Reply-To: <20190101004019.7f20aafa@oc2783563651>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -23,52 +23,97 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: "Michael S. Tsirkin" <mst@redhat.com>
-Cc: netdev@vger.kernel.org, linux-kernel@vger.kernel.org, virtualization@lists.linux-foundation.org, maxime.coquelin@redhat.com, wexu@redhat.com, "David S. Miller" <davem@davemloft.net>
+To: Halil Pasic <pasic@linux.ibm.com>
+Cc: "virtio-dev@lists.oasis-open.org" <virtio-dev@lists.oasis-open.org>, "kvm@vger.kernel.org" <kvm@vger.kernel.org>, "mst@redhat.com" <mst@redhat.com>, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>, "virtualization@lists.linux-foundation.org" <virtualization@lists.linux-foundation.org>, "pbonzini@redhat.com" <pbonzini@redhat.com>, "dgilbert@redhat.com" <dgilbert@redhat.com>
 List-Id: virtualization@lists.linuxfoundation.org
 
-Ck9uIDIwMTgvMTIvMzEg5LiK5Y2IMjo0OCwgTWljaGFlbCBTLiBUc2lya2luIHdyb3RlOgo+IE9u
-IFRodSwgRGVjIDI3LCAyMDE4IGF0IDA2OjA0OjUzUE0gKzA4MDAsIEphc29uIFdhbmcgd3JvdGU6
-Cj4+IE9uIDIwMTgvMTIvMjYg5LiL5Y2IMTE6MjIsIE1pY2hhZWwgUy4gVHNpcmtpbiB3cm90ZToK
-Pj4+IE9uIFRodSwgRGVjIDA2LCAyMDE4IGF0IDA0OjE3OjM2UE0gKzA4MDAsIEphc29uIFdhbmcg
-d3JvdGU6Cj4+Pj4gT24gMjAxOC8xMi82IOS4iuWNiDY6NTQsIE1pY2hhZWwgUy4gVHNpcmtpbiB3
-cm90ZToKPj4+Pj4gV2hlbiB1c2VfbmFwaSBpcyBzZXQsIGxldCdzIGVuYWJsZSBCUUxzLiAgTm90
-ZTogc29tZSBvZiB0aGUgaXNzdWVzIGFyZQo+Pj4+PiBzaW1pbGFyIHRvIHdpZmkuICBJdCdzIHdv
-cnRoIGNvbnNpZGVyaW5nIHdoZXRoZXIgc29tZXRoaW5nIHNpbWlsYXIgdG8KPj4+Pj4gY29tbWl0
-IDM2MTQ4YzJiYmZiZSAoIm1hYzgwMjExOiBBZGp1c3QgVFNRIHBhY2luZyBzaGlmdCIpIG1pZ2h0
-IGJlCj4+Pj4+IGJlbmVmaXRpYWwuCj4+Pj4gSSd2ZSBwbGF5ZWQgYSBzaW1pbGFyIHBhdGNoIHNl
-dmVyYWwgZGF5cyBiZWZvcmUuIFRoZSB0cmlja3kgcGFydCBpcyB0aGUgbW9kZQo+Pj4+IHN3aXRj
-aGluZyBiZXR3ZWVuIG5hcGkgYW5kIG5vIG5hcGkuIFdlIHNob3VsZCBtYWtlIHN1cmUgd2hlbiB0
-aGUgcGFja2V0IGlzCj4+Pj4gc2VudCBhbmQgdHJha2NlZCBieSBCUUwswqAgaXQgc2hvdWxkIGJl
-IGNvbnN1bWVkIGJ5IEJRTCBhcyB3ZWxsLgo+Pj4gSSBqdXN0IHdlbnQgb3ZlciB0aGUgcGF0Y2gg
-YWdhaW4gYW5kIEkgZG9uJ3QgdW5kZXJzdGFuZCB0aGlzIGNvbW1lbnQuCj4+PiBUaGlzIHBhdGNo
-IG9ubHkgZW5hYmxlZCBCUUwgd2l0aCB0eCBuYXBpLgo+Pj4KPj4+IFRodXMgdGhlcmUncyBubyBt
-b2RlIHN3aXRjaGluZy4KPj4+Cj4+PiBXaGF0IGRpZCBJIG1pc3M/Cj4+IENvbnNpZGVyIHRoZSBj
-YXNlOgo+Pgo+Pgo+PiBUWCBOQVBJIGlzIGRpc2FibGVkOgo+Pgo+PiBzZW5kIE4gcGFja2V0cwo+
-Pgo+PiB0dXJuIFRYIE5BUEkgb246Cj4+Cj4+IGdldCB0eCBpbnRlcnJ1cHQKPj4KPj4gQlFMIHRy
-eSB0byBjb25zdW1lIHRob3NlIHBhY2tldHMgd2hlbiBsZWFkIFdBUk4gZm9yIGRxbC4KPj4KPj4K
-Pj4gVGhhbmtzCj4gQ2FuIG9uZSByZWFsbHkgc3dpdGNoIHR4IG5hcGkgb24gYW5kIG9mZj8gSG93
-Pwo+IFdoaWxlIHJvb3QgY2FuIGNoYW5nZSB0aGUgbmFwaV90eCBtb2R1bGUgcGFyYW1ldGVyLCBJ
-IGRvbid0IHRoaW5rCj4gdGhhdCBoYXMgYW55IGVmZmVjdCBvdXRzaWRlIGRldmljZSBwcm9iZSB0
-aW1lLiBXaGF0IGRpZCBJIG1pc3M/Cj4KPgo+CgpXZSBzdXBwb3J0IHN3aXRjaCB0aGUgbW9kZSB0
-aHJvdWdoIGV0aHRvb2wgcmVjZW50bHkuIFNlZQoKY29tbWl0IDBjNDY1YmUxODNjN2M1N2EyNjQ0
-NmRmNmVhOTZkODY3NmI4NjVmOTIKQXV0aG9yOiBKYXNvbiBXYW5nIDxqYXNvd2FuZ0ByZWRoYXQu
-Y29tPgpEYXRlOsKgwqAgVHVlIE9jdCA5IDEwOjA2OjI2IDIwMTggKzA4MDAKCiDCoMKgwqAgdmly
-dGlvX25ldDogZXRodG9vbCB0eCBuYXBpIGNvbmZpZ3VyYXRpb24KCiDCoMKgwqAgSW1wbGVtZW50
-IGV0aHRvb2wgLnNldF9jb2FsZXNjZSAoLUMpIGFuZCAuZ2V0X2NvYWxlc2NlICgtYykgaGFuZGxl
-cnMuCiDCoMKgwqAgSW50ZXJydXB0IG1vZGVyYXRpb24gaXMgY3VycmVudGx5IG5vdCBzdXBwb3J0
-ZWQsIHNvIHRoZXNlIGFjY2VwdCBhbmQKIMKgwqDCoCBkaXNwbGF5IHRoZSBkZWZhdWx0IHNldHRp
-bmdzIG9mIDAgdXNlYyBhbmQgMSBmcmFtZS4KCiDCoMKgwqAgVG9nZ2xlIHR4IG5hcGkgdGhyb3Vn
-aCBzZXR0aW5nIHR4LWZyYW1lcy4gU28gYXMgdG8gbm90IGludGVyZmVyZQogwqDCoMKgIHdpdGgg
-cG9zc2libGUgZnV0dXJlIGludGVycnVwdCBtb2RlcmF0aW9uLCB2YWx1ZSAxIG1lYW5zIHR4IG5h
-cGkgd2hpbGUKIMKgwqDCoCB2YWx1ZSAwIG1lYW5zIG5vdC4KCiDCoMKgwqAgT25seSBhbGxvdyB0
-aGUgc3dpdGNoaW5nIHdoZW4gZGV2aWNlIGlzIGRvd24gZm9yIHNpbXBsaWNpdHkuCgogwqDCoMKg
-IExpbms6IGh0dHBzOi8vcGF0Y2h3b3JrLm96bGFicy5vcmcvcGF0Y2gvOTQ4MTQ5LwogwqDCoMKg
-IFN1Z2dlc3RlZC1ieTogSmFzb24gV2FuZyA8amFzb3dhbmdAcmVkaGF0LmNvbT4KIMKgwqDCoCBT
-aWduZWQtb2ZmLWJ5OiBXaWxsZW0gZGUgQnJ1aWpuIDx3aWxsZW1iQGdvb2dsZS5jb20+CiDCoMKg
-wqAgU2lnbmVkLW9mZi1ieTogSmFzb24gV2FuZyA8amFzb3dhbmdAcmVkaGF0LmNvbT4KIMKgwqDC
-oCBTaWduZWQtb2ZmLWJ5OiBEYXZpZCBTLiBNaWxsZXIgPGRhdmVtQGRhdmVtbG9mdC5uZXQ+CgpU
-aGFua3MKCl9fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fClZp
-cnR1YWxpemF0aW9uIG1haWxpbmcgbGlzdApWaXJ0dWFsaXphdGlvbkBsaXN0cy5saW51eC1mb3Vu
-ZGF0aW9uLm9yZwpodHRwczovL2xpc3RzLmxpbnV4Zm91bmRhdGlvbi5vcmcvbWFpbG1hbi9saXN0
-aW5mby92aXJ0dWFsaXphdGlvbg==
+On Tue, 1 Jan 2019 00:40:19 +0100
+Halil Pasic <pasic@linux.ibm.com> wrote:
+
+> On Mon, 31 Dec 2018 06:03:51 +0000
+> "Wang, Wei W" <wei.w.wang@intel.com> wrote:
+> 
+> > On Sunday, December 30, 2018 2:06 PM, Halil Pasic wrote:  
+> > > 
+> > > I guess you are the first one trying to read virtio config from within interrupt
+> > > context. AFAICT this never worked.  
+> > 
+> > I'm not sure about "never worked". It seems to work well with virtio-pci.
+> > But looking forward to hearing a solid reason why reading config inside
+> > the handler is forbidden (if that's true).  
+> 
+> By "never worked" I meant "never worked with virtio-ccw". Sorry
+> about the misunderstanding. Seems I've also failed to convey that I don't
+> know if reading config inside the handler is forbidden or not. So please
+> don't expect me providing the solid reasons you are looking forward to.
+
+It won't work with the current code, and this is all a bit ugly :( More
+verbose explanation below.
+
+> 
+> >   
+> > > About what happens. The apidoc of ccw_device_start() says it needs to be
+> > > called with the ccw device lock held, so ccw_io_helper() tries to take it (since
+> > > forever I guess). OTOH do_cio_interrupt() takes the subchannel lock and
+> > > io_subchannel_initialize_dev() makes the ccw device lock be the subchannel
+> > > lock. That means when one tries to get virtio config form within a cio
+> > > interrupt context we deadlock, because we try to take a lock we already have.
+> > > 
+> > > That said, I don't think this limitation is by design (i.e. intended).
+> > > Maybe Connie can help us with that question. AFAIK we have nothing
+> > > documented regarding this (neither that can nor can't).
+
+The main problem is that channel I/O is a fundamentally asynchronous
+mechanism. As channel devices don't have the concept of config spaces
+(or some other things that virtio needs), I decided to map
+reading/writing the config space to channel commands. Starting I/O on a
+subchannel always needs the lock (to avoid races on the subchannel),
+and the asynchronous interrupt for that I/O needs the lock as well (for
+the same reason; things like the scsw contain state that you want to
+access without races). A config change also means that the subchannel
+becomes state pending (and an interrupt is made pending), so the
+subchannel lock is taken for that path as well. (Virtqueue
+notifications are handled differently on modern QEMU, but that does not
+come into play here.)
+
+> > > 
+> > > Obviously, there are multiple ways around this problem, and at the moment
+> > > I can't tell which would be my preferred one.  
+> > 
+> > Yes, it's also not difficult to tweak the virtio-balloon code to avoid that issue.
+> > But if that's just an issue with ccw itself, I think it's better to tweak ccw and
+> > remain virtio-balloon unchanged.
+> >   
+> 
+> As I said, at the moment I don't have a preference regarding the fix,
+> partly because I'm not sure if "reading config inside the handler" is OK
+> or not. Maybe Connie or Michael can help us here. I'm however sure that
+> commit 86a5597 "virtio-balloon: VIRTIO_BALLOON_F_FREE_PAGE_HINT"
+> breaks virtio-balloon with the ccw transport (i.e. effectively breaks 
+> virtio-balloon on s390): it used to work before and does not work
+> after.
+
+Yes, that's unfortunate.
+
+> 
+> AFAICT tweaking the balloon code may be simpler than tweaking the
+> virtio-ccw (transport code). ccw_io_helper() relies on getting
+> an interrupt when the issued IO is done. If virtio-ccw is buggy, it
+> needs to be fixed, but I'm not sure it is.
+
+I would not call virtio-ccw buggy, but it has some constraints that
+virtio-pci apparently doesn't have (and which did not show up so far;
+e.g. virtio-blk schedules a work item on config change, so there's no
+deadlock there.)
+
+One way to get out of that constraint (don't interact with the config
+space directly in the config changed handler) would be to schedule a
+work item in virtio-ccw that calls virtio_config_changed() for the
+device. My understanding is that delaying the notification to a work
+queue would be fine.
+
+From what I can see, that should make us safe on any modern QEMU (that
+uses adapter interrupts). There still might be problems if we are using
+classic subchannel interrupts for virtqueue notifications and the
+handler interacts with the config space, but I'm not sure whether it is
+worth spending time on that.
