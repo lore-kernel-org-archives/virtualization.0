@@ -1,14 +1,14 @@
-From: Cornelia Huck <cohuck@redhat.com>
-Subject: Re: [RFC PATCH 1/1] s390/virtio: handle find on invalid queue
-	gracefully
-Date: Wed, 2 Jan 2019 19:25:49 +0100
-Message-ID: <20190102192549.7d7fe4c4.cohuck@redhat.com>
-References: <20190102175020.45251-1-pasic@linux.ibm.com>
+From: "Michael S. Tsirkin" <mst@redhat.com>
+Subject: Re: [RFC PATCH V3 0/5] Hi:
+Date: Wed, 2 Jan 2019 15:47:09 -0500
+Message-ID: <20190102154038-mutt-send-email-mst__42922.3771593117$1546461915$gmane$org@kernel.org>
+References: <20181229124656.3900-1-jasowang@redhat.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <20190102175020.45251-1-pasic@linux.ibm.com>
+Content-Disposition: inline
+In-Reply-To: <20181229124656.3900-1-jasowang@redhat.com>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -18,69 +18,46 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Halil Pasic <pasic@linux.ibm.com>
-Cc: linux-s390@vger.kernel.org, kvm@vger.kernel.org, virtualization@lists.linux-foundation.org
+To: Jason Wang <jasowang@redhat.com>
+Cc: netdev@vger.kernel.org, davem@davemloft.net, linux-kernel@vger.kernel.org, kvm@vger.kernel.org, virtualization@lists.linux-foundation.org
 List-Id: virtualization@lists.linuxfoundation.org
 
-On Wed,  2 Jan 2019 18:50:20 +0100
-Halil Pasic <pasic@linux.ibm.com> wrote:
+On Sat, Dec 29, 2018 at 08:46:51PM +0800, Jason Wang wrote:
+> This series tries to access virtqueue metadata through kernel virtual
+> address instead of copy_user() friends since they had too much
+> overheads like checks, spec barriers or even hardware feature
+> toggling.
 
-> A queue with a capacity of zero is clearly not a valid virtio queue.
-> Some emulators report zero queue size if queried with an invalid queue
-> index. Instead of crashing in this case let us just return -EINVAL. To
-> make that work properly, let us fix the notifier cleanup logic as well.
-> 
-> Signed-off-by: Halil Pasic <pasic@linux.ibm.com>
-> ---
-> 
-> This patch is motivated by commit 86a5597 "virtio-balloon:
-> VIRTIO_BALLOON_F_FREE_PAGE_HINT" (Wei Wang, 2018-08-27) which triggered
-> the described scenario.  The emulator in question is the current QEMU.
-> The problem we run into is the underflow in the following loop
-> in  __vring_new_virtqueue():
-> for (i = 0; i < vring.num-1; i++)
-> 	vq->vring.desc[i].next = cpu_to_virtio16(vdev, i + 1)
-> Namely vring.num is an unsigned int.
-> 
-> RFC because I'm not sure about -EINVAL being a good choice, and about
-> us caring about what happens if a virtio driver misbehaves like described.
-
-For virtio-pci, the spec says that a zero queue size means that the
-queue is unavailable. I don't think we have specified that explicitly
-for virtio-ccw, but it does make sense.
-
-virtio-pci returns -ENOENT in that case, which might be a good choice
-here as well.
+Will review, thanks!
+One questions that comes to mind is whether it's all about bypassing
+stac/clac.  Could you please include a performance comparison with
+nosmap?
 
 > 
-> ---
->  drivers/s390/virtio/virtio_ccw.c | 6 ++++++
->  1 file changed, 6 insertions(+)
+> Test shows about 24% improvement on TX PPS. It should benefit other
+> cases as well.
+>
+> Changes from V2:
+> - fix buggy range overlapping check
+> - tear down MMU notifier during vhost ioctl to make sure invalidation
+>   request can read metadata userspace address and vq size without
+>   holding vq mutex.
+> Changes from V1:
+> - instead of pinning pages, use MMU notifier to invalidate vmaps and
+>   remap duing metadata prefetch
+> - fix build warning on MIPS
 > 
-> diff --git a/drivers/s390/virtio/virtio_ccw.c b/drivers/s390/virtio/virtio_ccw.c
-> index fc9dbad476c0..147927ed4fca 100644
-> --- a/drivers/s390/virtio/virtio_ccw.c
-> +++ b/drivers/s390/virtio/virtio_ccw.c
-> @@ -272,6 +272,8 @@ static void virtio_ccw_drop_indicators(struct virtio_ccw_device *vcdev)
->  {
->  	struct virtio_ccw_vq_info *info;
->  
-> +	if (!vcdev->airq_info)
-> +		return;
-
-Which case is this guarding against? names[i] was NULL for every index?
-
->  	list_for_each_entry(info, &vcdev->virtqueues, node)
->  		drop_airq_indicator(info->vq, vcdev->airq_info);
->  }
-> @@ -514,6 +516,10 @@ static struct virtqueue *virtio_ccw_setup_vq(struct virtio_device *vdev,
->  		err = info->num;
->  		goto out_err;
->  	}
-> +	if (info->num == 0) {
-> +		err = -EINVAL;
-> +		goto out_err;
-> +	}
->  	size = PAGE_ALIGN(vring_size(info->num, KVM_VIRTIO_CCW_RING_ALIGN));
->  	info->queue = alloc_pages_exact(size, GFP_KERNEL | __GFP_ZERO);
->  	if (info->queue == NULL) {
+> Jason Wang (5):
+>   vhost: generalize adding used elem
+>   vhost: fine grain userspace memory accessors
+>   vhost: rename vq_iotlb_prefetch() to vq_meta_prefetch()
+>   vhost: introduce helpers to get the size of metadata area
+>   vhost: access vq metadata through kernel virtual address
+> 
+>  drivers/vhost/net.c   |   4 +-
+>  drivers/vhost/vhost.c | 416 +++++++++++++++++++++++++++++++++++++-----
+>  drivers/vhost/vhost.h |  15 +-
+>  3 files changed, 384 insertions(+), 51 deletions(-)
+> 
+> -- 
+> 2.17.1
