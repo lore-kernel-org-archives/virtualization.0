@@ -1,12 +1,16 @@
 From: "Michael S. Tsirkin" <mst@redhat.com>
-Subject: [PULL] virtio, vhost: features, fixes, cleanups
-Date: Wed, 2 Jan 2019 16:23:23 -0500
-Message-ID: <20190102162323-mutt-send-email-mst@kernel.org>
+Subject: Re: [PATCH RFC 3/4] barriers: convert a control to a data dependency
+Date: Wed, 2 Jan 2019 16:24:15 -0500
+Message-ID: <20190102162400-mutt-send-email-mst__27421.2473923855$1546464141$gmane$org@kernel.org>
+References: <20190102205715.14054-1-mst@redhat.com>
+	<20190102205715.14054-4-mst@redhat.com>
+	<20190102210024.GJ6310@bombadil.infradead.org>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
 Content-Disposition: inline
+In-Reply-To: <20190102210024.GJ6310@bombadil.infradead.org>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -16,56 +20,25 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Linus Torvalds <torvalds@linux-foundation.org>
-Cc: kvm@vger.kernel.org, mst@redhat.com, netdev@vger.kernel.org, linux-kernel@vger.kernel.org, virtualization@lists.linux-foundation.org, stefanha@redhat.com, pbonzini@redhat.com, changpeng.liu@intel.com, wangyan122@huawei.com
+To: Matthew Wilcox <willy@infradead.org>
+Cc: Andrea Parri <andrea.parri@amarulasolutions.com>, linux-doc@vger.kernel.org, Peter Zijlstra <peterz@infradead.org>, Akira Yokosawa <akiyks@gmail.com>, Will Deacon <will.deacon@arm.com>, virtualization@lists.linux-foundation.org, David Howells <dhowells@redhat.com>, linux-arch@vger.kernel.org, Jonathan Corbet <corbet@lwn.net>, linux-sparse@vger.kernel.org, Alan Stern <stern@rowland.harvard.edu>, Matt Turner <mattst88@gmail.com>, "Paul E. McKenney" <paulmck@linux.vnet.ibm.com>, Boqun Feng <boqun.feng@gmail.com>, Arnd Bergmann <arnd@arndb.de>, Daniel Lustig <dlustig@nvidia.com>, Nicholas Piggin <npiggin@gmail.com>, Ivan Kokshaysky <ink@jurassic.park.msu.ru>, Luc Maranget <luc.maranget@inria.fr>, Richard Henderson <rth@twiddle.net>, Jade Alglave <j.alglave@ucl.ac.uk>, netdev@vger.kernel.org, linux-kernel@vger.kernel.org, linux-alpha@vger.kernel.orgLuc Van Oostenryck <luc.>
 List-Id: virtualization@lists.linuxfoundation.org
 
-The following changes since commit 7566ec393f4161572ba6f11ad5171fd5d59b0fbd:
+On Wed, Jan 02, 2019 at 01:00:24PM -0800, Matthew Wilcox wrote:
+> On Wed, Jan 02, 2019 at 03:57:58PM -0500, Michael S. Tsirkin wrote:
+> > @@ -875,6 +893,8 @@ to the CPU containing it.  See the section on "Multicopy atomicity"
+> >  for more information.
+> >  
+> >  
+> > +
+> > +
+> >  In summary:
+> >  
+> >    (*) Control dependencies can order prior loads against later stores.
+> 
+> Was this hunk intentional?
 
-  Linux 4.20-rc7 (2018-12-16 15:46:55 -0800)
+Nope, thanks for catching this.
 
-are available in the Git repository at:
-
-  git://git.kernel.org/pub/scm/linux/kernel/git/mst/vhost.git tags/for_linus
-
-for you to fetch changes up to a691ffb46edd7cb12a17ff0965ab59dbc95f48de:
-
-  vhost: correct the related warning message (2018-12-19 18:23:50 -0500)
-
-----------------------------------------------------------------
-virtio, vhost: features, fixes, cleanups
-
-discard in virtio blk
-misc fixes and cleanups
-
-Signed-off-by: Michael S. Tsirkin <mst@redhat.com>
-
-----------------------------------------------------------------
-Changpeng Liu (1):
-      virtio_blk: add discard and write zeroes support
-
-Dongli Zhang (1):
-      virtio: remove deprecated VIRTIO_PCI_CONFIG()
-
-Michael S. Tsirkin (1):
-      virtio: fix test build after uio.h change
-
-Paolo Bonzini (1):
-      vhost: split structs into a separate header file
-
-Stefan Hajnoczi (1):
-      vhost/vsock: switch to a mutex for vhost_vsock_hash
-
-wangyan (1):
-      vhost: correct the related warning message
-
- drivers/block/virtio_blk.c         |  83 +++++++++++++++++++++++-
- drivers/vhost/scsi.c               |   4 +-
- drivers/vhost/vsock.c              |  16 ++---
- drivers/virtio/virtio_pci_legacy.c |   6 +-
- include/uapi/linux/vhost.h         | 113 +-------------------------------
- include/uapi/linux/vhost_types.h   | 128 +++++++++++++++++++++++++++++++++++++
- include/uapi/linux/virtio_blk.h    |  54 ++++++++++++++++
- tools/virtio/linux/kernel.h        |   4 ++
- 8 files changed, 283 insertions(+), 125 deletions(-)
- create mode 100644 include/uapi/linux/vhost_types.h
+-- 
+MST
