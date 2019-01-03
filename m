@@ -1,15 +1,11 @@
-From: Wei Wang <wei.w.wang@intel.com>
-Subject: Re: [PATCH v1 1/2] virtio-balloon: tweak config_changed implementation
-Date: Thu, 03 Jan 2019 18:31:41 +0800
-Message-ID: <5C2DE48D.4090105__31536.0254761346$1546511056$gmane$org@intel.com>
-References: <1546493462-32244-1-git-send-email-wei.w.wang@intel.com>
-	<1546493462-32244-2-git-send-email-wei.w.wang@intel.com>
-	<20190103104018.33eeaa29.cohuck@redhat.com>
+From: Cornelia Huck <cohuck@redhat.com>
+Subject: [PATCH] virtio-ccw: wire up ->bus_name callback
+Date: Thu,  3 Jan 2019 15:11:45 +0100
+Message-ID: <20190103141145.14554-1-cohuck@redhat.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"; Format="flowed"
+Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <20190103104018.33eeaa29.cohuck@redhat.com>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -19,25 +15,43 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Cornelia Huck <cohuck@redhat.com>
-Cc: virtio-dev@lists.oasis-open.org, kvm@vger.kernel.org, mst@redhat.com, linux-kernel@vger.kernel.org, virtualization@lists.linux-foundation.org, pasic@linux.ibm.com, pbonzini@redhat.com, dgilbert@redhat.com
+To: Halil Pasic <pasic@linux.ibm.com>
+Cc: linux-s390@vger.kernel.org, Cornelia Huck <cohuck@redhat.com>, kvm@vger.kernel.org, virtualization@lists.linux-foundation.org
 List-Id: virtualization@lists.linuxfoundation.org
 
-On 01/03/2019 05:40 PM, Cornelia Huck wrote:
-> On Thu,  3 Jan 2019 13:31:01 +0800
-> Wei Wang <wei.w.wang@intel.com> wrote:
->
->> virtio-ccw has deadlock issues with reading config registers inside the
-> s/config registers/the config space/ ?
+Return the bus id of the ccw proxy device. This makes 'ethtool -i'
+show a more useful value than 'virtio' in the bus-info field.
 
-Sounds good.
+Signed-off-by: Cornelia Huck <cohuck@redhat.com>
+---
+ drivers/s390/virtio/virtio_ccw.c | 8 ++++++++
+ 1 file changed, 8 insertions(+)
 
->
->> interrupt context, so we tweak the virtballoon_changed implementation
->> by moving the config read operations into the related workqueue contexts.
-> Also credit Christian with a Reported-by:?
-
-Yes, definitely. Sorry for missing that.
-
-Best,
-Wei
+diff --git a/drivers/s390/virtio/virtio_ccw.c b/drivers/s390/virtio/virtio_ccw.c
+index fc9dbad476c0..689aec54bfcf 100644
+--- a/drivers/s390/virtio/virtio_ccw.c
++++ b/drivers/s390/virtio/virtio_ccw.c
+@@ -967,6 +967,13 @@ static void virtio_ccw_set_status(struct virtio_device *vdev, u8 status)
+ 	kfree(ccw);
+ }
+ 
++static const char *virtio_ccw_bus_name(struct virtio_device *vdev)
++{
++	struct virtio_ccw_device *vcdev = to_vc_device(vdev);
++
++	return dev_name(&vcdev->cdev->dev);
++}
++
+ static const struct virtio_config_ops virtio_ccw_config_ops = {
+ 	.get_features = virtio_ccw_get_features,
+ 	.finalize_features = virtio_ccw_finalize_features,
+@@ -977,6 +984,7 @@ static const struct virtio_config_ops virtio_ccw_config_ops = {
+ 	.reset = virtio_ccw_reset,
+ 	.find_vqs = virtio_ccw_find_vqs,
+ 	.del_vqs = virtio_ccw_del_vqs,
++	.bus_name = virtio_ccw_bus_name,
+ };
+ 
+ 
+-- 
+2.17.2
