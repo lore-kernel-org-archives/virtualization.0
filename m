@@ -1,13 +1,13 @@
 From: Cornelia Huck <cohuck@redhat.com>
-Subject: Re: [PULL 0/1] virtio-ccw: one more patch for 4.21
-Date: Thu, 3 Jan 2019 09:55:07 +0100
-Message-ID: <20190103095507.7ef65472.cohuck@redhat.com>
-References: <20181219101414.13901-1-cohuck@redhat.com>
+Subject: Re: [PATCH v1 0/2] virtio-balloon: tweak config_changed
+Date: Thu, 3 Jan 2019 10:26:12 +0100
+Message-ID: <20190103102612.0226e6dc.cohuck__11586.9087436751$1546507462$gmane$org@redhat.com>
+References: <1546493462-32244-1-git-send-email-wei.w.wang@intel.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <20181219101414.13901-1-cohuck@redhat.com>
+In-Reply-To: <1546493462-32244-1-git-send-email-wei.w.wang@intel.com>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -17,35 +17,24 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: "Michael S . Tsirkin" <mst@redhat.com>
-Cc: Halil Pasic <pasic@linux.ibm.com>, linux-s390@vger.kernel.org, kvm@vger.kernel.org, virtualization@lists.linux-foundation.org
+To: Wei Wang <wei.w.wang@intel.com>
+Cc: virtio-dev@lists.oasis-open.org, kvm@vger.kernel.org, mst@redhat.com, linux-kernel@vger.kernel.org, virtualization@lists.linux-foundation.org, pasic@linux.ibm.com, pbonzini@redhat.com, dgilbert@redhat.com
 List-Id: virtualization@lists.linuxfoundation.org
 
-On Wed, 19 Dec 2018 11:14:13 +0100
-Cornelia Huck <cohuck@redhat.com> wrote:
+On Thu,  3 Jan 2019 13:31:00 +0800
+Wei Wang <wei.w.wang@intel.com> wrote:
 
-> The following changes since commit 37d1246af2d530710cf5822d2845774f01c03b22:
+> Since virtio-ccw doesn't work with accessing to the config registers
+> inside an interrupt context, this patch series avoids that issue by
+> moving the config register accesses to the related workqueue contexts.
 > 
->   virtio_net: bulk free tx skbs (2018-12-06 14:28:39 -0500)
+> Wei Wang (2):
+>   virtio-balloon: tweak config_changed implementation
+>   virtio-balloon: improve update_balloon_size_func
 > 
-> are available in the Git repository at:
-> 
->   git://git.kernel.org/pub/scm/linux/kernel/git/kvms390/linux.git tags/virtio-ccw-20181219
-> 
-> for you to fetch changes up to 6fb95ef30707f1b2fcaea8d6dc873055e0460b1a:
-> 
->   virtio-ccw: diag 500 may return a negative cookie (2018-12-19 11:01:57 +0100)
-> 
-> ----------------------------------------------------------------
-> One small documentation fix for 4.21.
-> 
-> ----------------------------------------------------------------
-> 
-> Cornelia Huck (1):
->   virtio-ccw: diag 500 may return a negative cookie
-> 
->  Documentation/virtual/kvm/s390-diag.txt | 3 ++-
->  1 file changed, 2 insertions(+), 1 deletion(-)
+>  drivers/virtio/virtio_balloon.c | 59 +++++++++++++++++++++--------------------
+>  1 file changed, 30 insertions(+), 29 deletions(-)
 > 
 
-ping?
+A quick test (various 'balloon <num>' in the QEMU monitor) with a
+virtio-balloon-ccw device seems to work fine here.
