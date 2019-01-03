@@ -1,7 +1,7 @@
 From: Cornelia Huck <cohuck@redhat.com>
-Subject: [PATCH] virtio-ccw: wire up ->bus_name callback
-Date: Thu,  3 Jan 2019 15:11:45 +0100
-Message-ID: <20190103141145.14554-1-cohuck@redhat.com>
+Subject: [PATCH 0/2] virtio: virtio_config_ops documentation
+Date: Thu,  3 Jan 2019 17:08:02 +0100
+Message-ID: <20190103160804.21438-1-cohuck__46735.8872331262$1546531570$gmane$org@redhat.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
@@ -15,43 +15,24 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Halil Pasic <pasic@linux.ibm.com>
-Cc: linux-s390@vger.kernel.org, Cornelia Huck <cohuck@redhat.com>, kvm@vger.kernel.org, virtualization@lists.linux-foundation.org
+To: "Michael S . Tsirkin" <mst@redhat.com>, Jason Wang <jasowang@redhat.com>
+Cc: virtio-dev@lists.oasis-open.org, Cornelia Huck <cohuck@redhat.com>, linux-kernel@vger.kernel.org, virtualization@lists.linux-foundation.org, Halil Pasic <pasic@linux.ibm.com>
 List-Id: virtualization@lists.linuxfoundation.org
 
-Return the bus id of the ccw proxy device. This makes 'ethtool -i'
-show a more useful value than 'virtio' in the bus-info field.
+After the latest virtio-balloon changes, it became clear that
+it is not obvious that some of the virtio operations (e.g.
+reading or writing the config space) cannot be done from an
+atomic context for all transports.
 
-Signed-off-by: Cornelia Huck <cohuck@redhat.com>
----
- drivers/s390/virtio/virtio_ccw.c | 8 ++++++++
- 1 file changed, 8 insertions(+)
+At least try to document that, and also fix some inconsistencies
+I noticed along the way.
 
-diff --git a/drivers/s390/virtio/virtio_ccw.c b/drivers/s390/virtio/virtio_ccw.c
-index fc9dbad476c0..689aec54bfcf 100644
---- a/drivers/s390/virtio/virtio_ccw.c
-+++ b/drivers/s390/virtio/virtio_ccw.c
-@@ -967,6 +967,13 @@ static void virtio_ccw_set_status(struct virtio_device *vdev, u8 status)
- 	kfree(ccw);
- }
- 
-+static const char *virtio_ccw_bus_name(struct virtio_device *vdev)
-+{
-+	struct virtio_ccw_device *vcdev = to_vc_device(vdev);
-+
-+	return dev_name(&vcdev->cdev->dev);
-+}
-+
- static const struct virtio_config_ops virtio_ccw_config_ops = {
- 	.get_features = virtio_ccw_get_features,
- 	.finalize_features = virtio_ccw_finalize_features,
-@@ -977,6 +984,7 @@ static const struct virtio_config_ops virtio_ccw_config_ops = {
- 	.reset = virtio_ccw_reset,
- 	.find_vqs = virtio_ccw_find_vqs,
- 	.del_vqs = virtio_ccw_del_vqs,
-+	.bus_name = virtio_ccw_bus_name,
- };
- 
- 
+Cornelia Huck (2):
+  virtio: fix virtio_config_ops description
+  virtio: document virtio_config_ops restrictions
+
+ include/linux/virtio_config.h | 13 +++++++++----
+ 1 file changed, 9 insertions(+), 4 deletions(-)
+
 -- 
 2.17.2
