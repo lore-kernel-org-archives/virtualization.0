@@ -1,14 +1,15 @@
-From: Cornelia Huck <cohuck@redhat.com>
-Subject: Re: [PATCH v1 2/2] virtio: don't allocate vqs when names[i] = NULL
-Date: Thu, 3 Jan 2019 10:59:16 +0100
-Message-ID: <20190103105916.3f3431c6.cohuck__43114.6704512232$1546509441$gmane$org@redhat.com>
-References: <1545963986-11280-1-git-send-email-wei.w.wang@intel.com>
-	<1545963986-11280-3-git-send-email-wei.w.wang@intel.com>
+From: Wei Wang <wei.w.wang@intel.com>
+Subject: Re: [PATCH v1 1/2] virtio-balloon: tweak config_changed implementation
+Date: Thu, 03 Jan 2019 18:31:41 +0800
+Message-ID: <5C2DE48D.4090105__31536.0254761346$1546511056$gmane$org@intel.com>
+References: <1546493462-32244-1-git-send-email-wei.w.wang@intel.com>
+	<1546493462-32244-2-git-send-email-wei.w.wang@intel.com>
+	<20190103104018.33eeaa29.cohuck@redhat.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
+Content-Type: text/plain; charset="us-ascii"; Format="flowed"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <1545963986-11280-3-git-send-email-wei.w.wang@intel.com>
+In-Reply-To: <20190103104018.33eeaa29.cohuck@redhat.com>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -18,27 +19,25 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Wei Wang <wei.w.wang@intel.com>
-Cc: virtio-dev@lists.oasis-open.org, kvm@vger.kernel.org, mst@redhat.com, linux-kernel@vger.kernel.org, virtualization@lists.linux-foundation.org, pbonzini@redhat.com, dgilbert@redhat.com
+To: Cornelia Huck <cohuck@redhat.com>
+Cc: virtio-dev@lists.oasis-open.org, kvm@vger.kernel.org, mst@redhat.com, linux-kernel@vger.kernel.org, virtualization@lists.linux-foundation.org, pasic@linux.ibm.com, pbonzini@redhat.com, dgilbert@redhat.com
 List-Id: virtualization@lists.linuxfoundation.org
 
-On Fri, 28 Dec 2018 10:26:26 +0800
-Wei Wang <wei.w.wang@intel.com> wrote:
+On 01/03/2019 05:40 PM, Cornelia Huck wrote:
+> On Thu,  3 Jan 2019 13:31:01 +0800
+> Wei Wang <wei.w.wang@intel.com> wrote:
+>
+>> virtio-ccw has deadlock issues with reading config registers inside the
+> s/config registers/the config space/ ?
 
-> Some vqs may not need to be allocated when their related feature bits
-> are disabled. So callers may pass in such vqs with "names = NULL".
+Sounds good.
 
-s/=/==/ (here and in the subject)
+>
+>> interrupt context, so we tweak the virtballoon_changed implementation
+>> by moving the config read operations into the related workqueue contexts.
+> Also credit Christian with a Reported-by:?
 
-> Then we skip such vq allocations.
+Yes, definitely. Sorry for missing that.
 
-> 
-> Signed-off-by: Wei Wang <wei.w.wang@intel.com>
-> ---
->  drivers/misc/mic/vop/vop_main.c        |  9 +++++++--
->  drivers/remoteproc/remoteproc_virtio.c |  9 +++++++--
->  drivers/s390/virtio/virtio_ccw.c       | 12 +++++++++---
->  drivers/virtio/virtio_mmio.c           |  9 +++++++--
->  4 files changed, 30 insertions(+), 9 deletions(-)
-
-Reviewed-by: Cornelia Huck <cohuck@redhat.com>
+Best,
+Wei
