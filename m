@@ -1,13 +1,14 @@
 From: Wei Wang <wei.w.wang@intel.com>
-Subject: [PATCH v1 2/2] virtio-balloon: improve update_balloon_size_func
-Date: Thu,  3 Jan 2019 13:31:02 +0800
-Message-ID: <1546493462-32244-3-git-send-email-wei.w.wang@intel.com>
-References: <1546493462-32244-1-git-send-email-wei.w.wang@intel.com>
+Subject: Re: [PATCH v1 0/2] Virtio: fix some vq allocation issues
+Date: Thu, 03 Jan 2019 14:18:22 +0800
+Message-ID: <5C2DA92E.9090503__3440.058817114$1546495857$gmane$org@intel.com>
+References: <1545963986-11280-1-git-send-email-wei.w.wang@intel.com>
+	<c6746307-fae5-7652-af8d-19f560fc31d9@de.ibm.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
+Content-Type: text/plain; charset="us-ascii"; Format="flowed"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <1546493462-32244-1-git-send-email-wei.w.wang@intel.com>
+In-Reply-To: <c6746307-fae5-7652-af8d-19f560fc31d9@de.ibm.com>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -17,35 +18,30 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: virtio-dev@lists.oasis-open.org, linux-kernel@vger.kernel.org, virtualization@lists.linux-foundation.org, kvm@vger.kernel.org, mst@redhat.com, cohuck@redhat.com
-Cc: pasic@linux.ibm.com, dgilbert@redhat.com, pbonzini@redhat.com
+To: Christian Borntraeger <borntraeger@de.ibm.com>, virtio-dev@lists.oasis-open.org, linux-kernel@vger.kernel.org, virtualization@lists.linux-foundation.org, kvm@vger.kernel.org, mst@redhat.com, cohuck@redhat.com
+Cc: Halil Pasic <pasic@linux.ibm.com>, pbonzini@redhat.com, dgilbert@redhat.com
 List-Id: virtualization@lists.linuxfoundation.org
 
-There is no need to update the balloon actual register when there is no
-ballooning request. This patch avoids update_balloon_size when diff is 0.
+On 12/28/2018 03:57 PM, Christian Borntraeger wrote:
+>
+> On 28.12.2018 03:26, Wei Wang wrote:
+>> Some vqs don't need to be allocated when the related feature bits are
+>> disabled. Callers notice the vq allocation layer by setting the related
+>> names[i] to be NULL.
+>>
+>> This patch series fixes the find_vqs implementations to handle this case.
+> So the random crashes during boot are gone.
+> What still does not work is actually using the balloon.
+>
+> So in the qemu monitor using lets say "balloon 1000"  will hang the guest.
+> Seems to be a deadlock in the virtio-ccw code.  We seem to call the
+> config code in the interrupt handler.
 
-Signed-off-by: Wei Wang <wei.w.wang@intel.com>
----
- drivers/virtio/virtio_balloon.c | 5 ++++-
- 1 file changed, 4 insertions(+), 1 deletion(-)
+Please try with applying both this series and the "virtio-balloon: tweak 
+config_changed"
+series that I just sent.
+This series fixes the ccw booting issue and that series tries to fix the 
+ccw deadlock issue.
 
-diff --git a/drivers/virtio/virtio_balloon.c b/drivers/virtio/virtio_balloon.c
-index 9a82a11..4884b85 100644
---- a/drivers/virtio/virtio_balloon.c
-+++ b/drivers/virtio/virtio_balloon.c
-@@ -435,9 +435,12 @@ static void update_balloon_size_func(struct work_struct *work)
- 			  update_balloon_size_work);
- 	diff = towards_target(vb);
- 
-+	if (!diff)
-+		return;
-+
- 	if (diff > 0)
- 		diff -= fill_balloon(vb, diff);
--	else if (diff < 0)
-+	else
- 		diff += leak_balloon(vb, -diff);
- 	update_balloon_size(vb);
- 
--- 
-2.7.4
+Best,
+Wei
