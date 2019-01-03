@@ -1,15 +1,15 @@
 From: "Michael S. Tsirkin" <mst@redhat.com>
-Subject: Re: [PATCH v1 1/2] virtio-balloon: tweak config_changed implementation
-Date: Thu, 3 Jan 2019 11:42:47 -0500
-Message-ID: <20190103113228-mutt-send-email-mst__44506.4007923522$1546533682$gmane$org@kernel.org>
-References: <1546493462-32244-1-git-send-email-wei.w.wang@intel.com>
-	<1546493462-32244-2-git-send-email-wei.w.wang@intel.com>
+Subject: Re: [PULL 0/1] virtio-ccw: one more patch for 4.21
+Date: Thu, 3 Jan 2019 11:50:22 -0500
+Message-ID: <20190103114955-mutt-send-email-mst@kernel.org>
+References: <20181219101414.13901-1-cohuck@redhat.com>
+	<20190103095507.7ef65472.cohuck@redhat.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
 Content-Disposition: inline
-In-Reply-To: <1546493462-32244-2-git-send-email-wei.w.wang@intel.com>
+In-Reply-To: <20190103095507.7ef65472.cohuck@redhat.com>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -19,119 +19,43 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Wei Wang <wei.w.wang@intel.com>
-Cc: virtio-dev@lists.oasis-open.org, kvm@vger.kernel.org, cohuck@redhat.com, linux-kernel@vger.kernel.org, virtualization@lists.linux-foundation.org, pasic@linux.ibm.com, pbonzini@redhat.com, dgilbert@redhat.com
+To: Cornelia Huck <cohuck@redhat.com>
+Cc: Halil Pasic <pasic@linux.ibm.com>, linux-s390@vger.kernel.org, kvm@vger.kernel.org, virtualization@lists.linux-foundation.org
 List-Id: virtualization@lists.linuxfoundation.org
 
-On Thu, Jan 03, 2019 at 01:31:01PM +0800, Wei Wang wrote:
-> virtio-ccw has deadlock issues with reading config registers inside the
-> interrupt context, so we tweak the virtballoon_changed implementation
-> by moving the config read operations into the related workqueue contexts.
+On Thu, Jan 03, 2019 at 09:55:07AM +0100, Cornelia Huck wrote:
+> On Wed, 19 Dec 2018 11:14:13 +0100
+> Cornelia Huck <cohuck@redhat.com> wrote:
 > 
-> Signed-off-by: Wei Wang <wei.w.wang@intel.com>
-> ---
->  drivers/virtio/virtio_balloon.c | 54 ++++++++++++++++++++---------------------
->  1 file changed, 26 insertions(+), 28 deletions(-)
+> > The following changes since commit 37d1246af2d530710cf5822d2845774f01c03b22:
+> > 
+> >   virtio_net: bulk free tx skbs (2018-12-06 14:28:39 -0500)
+> > 
+> > are available in the Git repository at:
+> > 
+> >   git://git.kernel.org/pub/scm/linux/kernel/git/kvms390/linux.git tags/virtio-ccw-20181219
+> > 
+> > for you to fetch changes up to 6fb95ef30707f1b2fcaea8d6dc873055e0460b1a:
+> > 
+> >   virtio-ccw: diag 500 may return a negative cookie (2018-12-19 11:01:57 +0100)
+> > 
+> > ----------------------------------------------------------------
+> > One small documentation fix for 4.21.
+> > 
+> > ----------------------------------------------------------------
+> > 
+> > Cornelia Huck (1):
+> >   virtio-ccw: diag 500 may return a negative cookie
+> > 
+> >  Documentation/virtual/kvm/s390-diag.txt | 3 ++-
+> >  1 file changed, 2 insertions(+), 1 deletion(-)
+> > 
 > 
-> diff --git a/drivers/virtio/virtio_balloon.c b/drivers/virtio/virtio_balloon.c
-> index 728ecd1..9a82a11 100644
-> --- a/drivers/virtio/virtio_balloon.c
-> +++ b/drivers/virtio/virtio_balloon.c
-> @@ -394,33 +394,15 @@ static void virtballoon_changed(struct virtio_device *vdev)
->  {
->  	struct virtio_balloon *vb = vdev->priv;
->  	unsigned long flags;
-> -	s64 diff = towards_target(vb);
-> -
-> -	if (diff) {
-> -		spin_lock_irqsave(&vb->stop_update_lock, flags);
-> -		if (!vb->stop_update)
-> -			queue_work(system_freezable_wq,
-> -				   &vb->update_balloon_size_work);
-> -		spin_unlock_irqrestore(&vb->stop_update_lock, flags);
-> -	}
->  
-> -	if (virtio_has_feature(vdev, VIRTIO_BALLOON_F_FREE_PAGE_HINT)) {
-> -		virtio_cread(vdev, struct virtio_balloon_config,
-> -			     free_page_report_cmd_id, &vb->cmd_id_received);
+> ping?
 
-There's one problem with this approach:
+Sorry holidays :)
 
-previously updating the cmd_id_received here would immediately
-stop the report in send_free_pages.
+I'll pick this up for the next pull.
 
-With this approach we are waiting for the wq to schedule,
-which might be blocked waiting for report to complete.
-So host can no longer quickly stop the report in progress.
-
-A simple work-around would be to set some kind of flag whenever there
-is a change interrupt, then have send_free_pages test it
-and re-read cmd_id_received.
-
-Needs to be an atomic I guess ...
-
-
-> -		if (vb->cmd_id_received == VIRTIO_BALLOON_CMD_ID_DONE) {
-> -			/* Pass ULONG_MAX to give back all the free pages */
-> -			return_free_pages_to_mm(vb, ULONG_MAX);
-> -		} else if (vb->cmd_id_received != VIRTIO_BALLOON_CMD_ID_STOP &&
-> -			   vb->cmd_id_received !=
-> -			   virtio32_to_cpu(vdev, vb->cmd_id_active)) {
-> -			spin_lock_irqsave(&vb->stop_update_lock, flags);
-> -			if (!vb->stop_update) {
-> -				queue_work(vb->balloon_wq,
-> -					   &vb->report_free_page_work);
-> -			}
-> -			spin_unlock_irqrestore(&vb->stop_update_lock, flags);
-> -		}
-> +	spin_lock_irqsave(&vb->stop_update_lock, flags);
-> +	if (!vb->stop_update) {
-> +		queue_work(system_freezable_wq,
-> +			   &vb->update_balloon_size_work);
-> +		if (virtio_has_feature(vdev, VIRTIO_BALLOON_F_FREE_PAGE_HINT))
-> +			queue_work(vb->balloon_wq, &vb->report_free_page_work);
->  	}
-> +	spin_unlock_irqrestore(&vb->stop_update_lock, flags);
->  }
->  
->  static void update_balloon_size(struct virtio_balloon *vb)
-> @@ -637,11 +619,9 @@ static int send_free_pages(struct virtio_balloon *vb)
->  	return 0;
->  }
->  
-> -static void report_free_page_func(struct work_struct *work)
-> +static void virtio_balloon_report_free_page(struct virtio_balloon *vb)
->  {
->  	int err;
-> -	struct virtio_balloon *vb = container_of(work, struct virtio_balloon,
-> -						 report_free_page_work);
->  	struct device *dev = &vb->vdev->dev;
->  
->  	/* Start by sending the received cmd id to host with an outbuf. */
-> @@ -659,6 +639,24 @@ static void report_free_page_func(struct work_struct *work)
->  		dev_err(dev, "Failed to send a stop id, err = %d\n", err);
->  }
->  
-> +static void report_free_page_func(struct work_struct *work)
-> +{
-> +	struct virtio_balloon *vb = container_of(work, struct virtio_balloon,
-> +						 report_free_page_work);
-> +
-> +	virtio_cread(vb->vdev, struct virtio_balloon_config,
-> +		     free_page_report_cmd_id, &vb->cmd_id_received);
-> +
-> +	if (vb->cmd_id_received == VIRTIO_BALLOON_CMD_ID_DONE) {
-> +		/* Pass ULONG_MAX to give back all the free pages */
-> +		return_free_pages_to_mm(vb, ULONG_MAX);
-> +	} else if (vb->cmd_id_received != VIRTIO_BALLOON_CMD_ID_STOP &&
-> +		   vb->cmd_id_received !=
-> +		   virtio32_to_cpu(vb->vdev, vb->cmd_id_active)) {
-> +		virtio_balloon_report_free_page(vb);
-> +	}
-> +}
-> +
->  #ifdef CONFIG_BALLOON_COMPACTION
->  /*
->   * virtballoon_migratepage - perform the balloon page migration on behalf of
-> -- 
-> 2.7.4
+-- 
+MST
