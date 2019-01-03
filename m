@@ -1,7 +1,7 @@
 From: Wei Wang <wei.w.wang@intel.com>
-Subject: [PATCH v1 1/2] virtio-balloon: tweak config_changed implementation
-Date: Thu,  3 Jan 2019 13:31:01 +0800
-Message-ID: <1546493462-32244-2-git-send-email-wei.w.wang@intel.com>
+Subject: [PATCH v1 2/2] virtio-balloon: improve update_balloon_size_func
+Date: Thu,  3 Jan 2019 13:31:02 +0800
+Message-ID: <1546493462-32244-3-git-send-email-wei.w.wang@intel.com>
 References: <1546493462-32244-1-git-send-email-wei.w.wang@intel.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
@@ -21,97 +21,31 @@ To: virtio-dev@lists.oasis-open.org, linux-kernel@vger.kernel.org, virtualizatio
 Cc: pasic@linux.ibm.com, dgilbert@redhat.com, pbonzini@redhat.com
 List-Id: virtualization@lists.linuxfoundation.org
 
-virtio-ccw has deadlock issues with reading config registers inside the
-interrupt context, so we tweak the virtballoon_changed implementation
-by moving the config read operations into the related workqueue contexts.
+There is no need to update the balloon actual register when there is no
+ballooning request. This patch avoids update_balloon_size when diff is 0.
 
 Signed-off-by: Wei Wang <wei.w.wang@intel.com>
 ---
- drivers/virtio/virtio_balloon.c | 54 ++++++++++++++++++++---------------------
- 1 file changed, 26 insertions(+), 28 deletions(-)
+ drivers/virtio/virtio_balloon.c | 5 ++++-
+ 1 file changed, 4 insertions(+), 1 deletion(-)
 
 diff --git a/drivers/virtio/virtio_balloon.c b/drivers/virtio/virtio_balloon.c
-index 728ecd1..9a82a11 100644
+index 9a82a11..4884b85 100644
 --- a/drivers/virtio/virtio_balloon.c
 +++ b/drivers/virtio/virtio_balloon.c
-@@ -394,33 +394,15 @@ static void virtballoon_changed(struct virtio_device *vdev)
- {
- 	struct virtio_balloon *vb = vdev->priv;
- 	unsigned long flags;
--	s64 diff = towards_target(vb);
--
--	if (diff) {
--		spin_lock_irqsave(&vb->stop_update_lock, flags);
--		if (!vb->stop_update)
--			queue_work(system_freezable_wq,
--				   &vb->update_balloon_size_work);
--		spin_unlock_irqrestore(&vb->stop_update_lock, flags);
--	}
+@@ -435,9 +435,12 @@ static void update_balloon_size_func(struct work_struct *work)
+ 			  update_balloon_size_work);
+ 	diff = towards_target(vb);
  
--	if (virtio_has_feature(vdev, VIRTIO_BALLOON_F_FREE_PAGE_HINT)) {
--		virtio_cread(vdev, struct virtio_balloon_config,
--			     free_page_report_cmd_id, &vb->cmd_id_received);
--		if (vb->cmd_id_received == VIRTIO_BALLOON_CMD_ID_DONE) {
--			/* Pass ULONG_MAX to give back all the free pages */
--			return_free_pages_to_mm(vb, ULONG_MAX);
--		} else if (vb->cmd_id_received != VIRTIO_BALLOON_CMD_ID_STOP &&
--			   vb->cmd_id_received !=
--			   virtio32_to_cpu(vdev, vb->cmd_id_active)) {
--			spin_lock_irqsave(&vb->stop_update_lock, flags);
--			if (!vb->stop_update) {
--				queue_work(vb->balloon_wq,
--					   &vb->report_free_page_work);
--			}
--			spin_unlock_irqrestore(&vb->stop_update_lock, flags);
--		}
-+	spin_lock_irqsave(&vb->stop_update_lock, flags);
-+	if (!vb->stop_update) {
-+		queue_work(system_freezable_wq,
-+			   &vb->update_balloon_size_work);
-+		if (virtio_has_feature(vdev, VIRTIO_BALLOON_F_FREE_PAGE_HINT))
-+			queue_work(vb->balloon_wq, &vb->report_free_page_work);
- 	}
-+	spin_unlock_irqrestore(&vb->stop_update_lock, flags);
- }
- 
- static void update_balloon_size(struct virtio_balloon *vb)
-@@ -637,11 +619,9 @@ static int send_free_pages(struct virtio_balloon *vb)
- 	return 0;
- }
- 
--static void report_free_page_func(struct work_struct *work)
-+static void virtio_balloon_report_free_page(struct virtio_balloon *vb)
- {
- 	int err;
--	struct virtio_balloon *vb = container_of(work, struct virtio_balloon,
--						 report_free_page_work);
- 	struct device *dev = &vb->vdev->dev;
- 
- 	/* Start by sending the received cmd id to host with an outbuf. */
-@@ -659,6 +639,24 @@ static void report_free_page_func(struct work_struct *work)
- 		dev_err(dev, "Failed to send a stop id, err = %d\n", err);
- }
- 
-+static void report_free_page_func(struct work_struct *work)
-+{
-+	struct virtio_balloon *vb = container_of(work, struct virtio_balloon,
-+						 report_free_page_work);
++	if (!diff)
++		return;
 +
-+	virtio_cread(vb->vdev, struct virtio_balloon_config,
-+		     free_page_report_cmd_id, &vb->cmd_id_received);
-+
-+	if (vb->cmd_id_received == VIRTIO_BALLOON_CMD_ID_DONE) {
-+		/* Pass ULONG_MAX to give back all the free pages */
-+		return_free_pages_to_mm(vb, ULONG_MAX);
-+	} else if (vb->cmd_id_received != VIRTIO_BALLOON_CMD_ID_STOP &&
-+		   vb->cmd_id_received !=
-+		   virtio32_to_cpu(vb->vdev, vb->cmd_id_active)) {
-+		virtio_balloon_report_free_page(vb);
-+	}
-+}
-+
- #ifdef CONFIG_BALLOON_COMPACTION
- /*
-  * virtballoon_migratepage - perform the balloon page migration on behalf of
+ 	if (diff > 0)
+ 		diff -= fill_balloon(vb, diff);
+-	else if (diff < 0)
++	else
+ 		diff += leak_balloon(vb, -diff);
+ 	update_balloon_size(vb);
+ 
 -- 
 2.7.4
