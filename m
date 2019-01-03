@@ -1,14 +1,13 @@
-From: Wei Wang <wei.w.wang@intel.com>
-Subject: Re: [PATCH v1 0/2] Virtio: fix some vq allocation issues
-Date: Thu, 03 Jan 2019 14:18:22 +0800
-Message-ID: <5C2DA92E.9090503__3440.058817114$1546495857$gmane$org@intel.com>
-References: <1545963986-11280-1-git-send-email-wei.w.wang@intel.com>
-	<c6746307-fae5-7652-af8d-19f560fc31d9@de.ibm.com>
+From: Cornelia Huck <cohuck@redhat.com>
+Subject: Re: [PULL 0/1] virtio-ccw: one more patch for 4.21
+Date: Thu, 3 Jan 2019 09:55:07 +0100
+Message-ID: <20190103095507.7ef65472.cohuck@redhat.com>
+References: <20181219101414.13901-1-cohuck@redhat.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"; Format="flowed"
+Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <c6746307-fae5-7652-af8d-19f560fc31d9@de.ibm.com>
+In-Reply-To: <20181219101414.13901-1-cohuck@redhat.com>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -18,30 +17,35 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Christian Borntraeger <borntraeger@de.ibm.com>, virtio-dev@lists.oasis-open.org, linux-kernel@vger.kernel.org, virtualization@lists.linux-foundation.org, kvm@vger.kernel.org, mst@redhat.com, cohuck@redhat.com
-Cc: Halil Pasic <pasic@linux.ibm.com>, pbonzini@redhat.com, dgilbert@redhat.com
+To: "Michael S . Tsirkin" <mst@redhat.com>
+Cc: Halil Pasic <pasic@linux.ibm.com>, linux-s390@vger.kernel.org, kvm@vger.kernel.org, virtualization@lists.linux-foundation.org
 List-Id: virtualization@lists.linuxfoundation.org
 
-On 12/28/2018 03:57 PM, Christian Borntraeger wrote:
->
-> On 28.12.2018 03:26, Wei Wang wrote:
->> Some vqs don't need to be allocated when the related feature bits are
->> disabled. Callers notice the vq allocation layer by setting the related
->> names[i] to be NULL.
->>
->> This patch series fixes the find_vqs implementations to handle this case.
-> So the random crashes during boot are gone.
-> What still does not work is actually using the balloon.
->
-> So in the qemu monitor using lets say "balloon 1000"  will hang the guest.
-> Seems to be a deadlock in the virtio-ccw code.  We seem to call the
-> config code in the interrupt handler.
+On Wed, 19 Dec 2018 11:14:13 +0100
+Cornelia Huck <cohuck@redhat.com> wrote:
 
-Please try with applying both this series and the "virtio-balloon: tweak 
-config_changed"
-series that I just sent.
-This series fixes the ccw booting issue and that series tries to fix the 
-ccw deadlock issue.
+> The following changes since commit 37d1246af2d530710cf5822d2845774f01c03b22:
+> 
+>   virtio_net: bulk free tx skbs (2018-12-06 14:28:39 -0500)
+> 
+> are available in the Git repository at:
+> 
+>   git://git.kernel.org/pub/scm/linux/kernel/git/kvms390/linux.git tags/virtio-ccw-20181219
+> 
+> for you to fetch changes up to 6fb95ef30707f1b2fcaea8d6dc873055e0460b1a:
+> 
+>   virtio-ccw: diag 500 may return a negative cookie (2018-12-19 11:01:57 +0100)
+> 
+> ----------------------------------------------------------------
+> One small documentation fix for 4.21.
+> 
+> ----------------------------------------------------------------
+> 
+> Cornelia Huck (1):
+>   virtio-ccw: diag 500 may return a negative cookie
+> 
+>  Documentation/virtual/kvm/s390-diag.txt | 3 ++-
+>  1 file changed, 2 insertions(+), 1 deletion(-)
+> 
 
-Best,
-Wei
+ping?
