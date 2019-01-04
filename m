@@ -1,15 +1,15 @@
 From: Cornelia Huck <cohuck@redhat.com>
 Subject: Re: [PATCH 2/2] virtio: document virtio_config_ops restrictions
-Date: Fri, 4 Jan 2019 13:39:39 +0100
-Message-ID: <20190104133939.7d52ebb3.cohuck__36769.97382795$1546605492$gmane$org@redhat.com>
+Date: Fri, 4 Jan 2019 13:48:55 +0100
+Message-ID: <20190104134855.72418c51.cohuck@redhat.com>
 References: <20190103160804.21438-1-cohuck@redhat.com>
 	<20190103160804.21438-3-cohuck@redhat.com>
-	<20190103112627-mutt-send-email-mst@kernel.org>
+	<20190103182849.7b0b0f0b@oc2783563651>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <20190103112627-mutt-send-email-mst@kernel.org>
+In-Reply-To: <20190103182849.7b0b0f0b@oc2783563651>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -19,14 +19,16 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: "Michael S. Tsirkin" <mst@redhat.com>
-Cc: virtio-dev@lists.oasis-open.org, linux-kernel@vger.kernel.org, virtualization@lists.linux-foundation.org, Halil Pasic <pasic@linux.ibm.com>
+To: Halil Pasic <pasic@linux.ibm.com>
+Cc: virtio-dev@lists.oasis-open.org, "Michael S . Tsirkin" <mst@redhat.com>, linux-kernel@vger.kernel.org, virtualization@lists.linux-foundation.org
 List-Id: virtualization@lists.linuxfoundation.org
 
-On Thu, 3 Jan 2019 11:28:28 -0500
-"Michael S. Tsirkin" <mst@redhat.com> wrote:
+On Thu, 3 Jan 2019 18:28:49 +0100
+Halil Pasic <pasic@linux.ibm.com> wrote:
 
-> On Thu, Jan 03, 2019 at 05:08:04PM +0100, Cornelia Huck wrote:
+> On Thu,  3 Jan 2019 17:08:04 +0100
+> Cornelia Huck <cohuck@redhat.com> wrote:
+> 
 > > Some transports (e.g. virtio-ccw) implement virtio operations that
 > > seem to be a simple read/write as something more involved that
 > > cannot be done from an atomic context.
@@ -50,15 +52,19 @@ On Thu, 3 Jan 2019 11:28:28 -0500
 > > + *       getting/setting a value as a simple read/write! Generally speaking,
 > > + *       any of @get/@set, @get_status/@set_status, or @get_features/
 > > + *       @finalize_features are NOT safe to be called from an atomic
-> > + *       context.
-> >   * @get: read the value of a configuration field
-> >   *	vdev: the virtio_device
-> >   *	offset: the offset of the configuration field  
+> > + *       context.  
 > 
-> Then might_sleep in virtio_cread/virtio_cwrite and
-> friends would be appropriate? I guess we'll need to fix
-> balloon first.
+> I think the only exception is @bus_name (and maybe @generation, I don't
+> know) because it does not have to 'speak' with the hypervisor. If a
+> transport operation has to 'speak' with the hypervisor, we do it by
+> making it interpret a channel program. That means not safe to be called
+> form atomic context. Or am I missing something?
 
-Yes, it makes sense to go over the code and add might_sleep to
-functions where it makes sense after the balloon changes have been
-merged.
+I explicitly singled out the listed callbacks because they read/write a
+value and there might be more to them than meets the eye. I would
+assume that nobody expects calling e.g. find_vqs (allocating queues)
+from an atomic context to be a good idea :) Maybe I should do
+s/Generally speaking/In particular/ ?
+
+That said, it's only a hint; we should add might_sleep as well to
+interfaces where it makes sense.
