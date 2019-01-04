@@ -1,13 +1,16 @@
-From: Wei Wang <wei.w.wang@intel.com>
-Subject: [PATCH v2 2/2] virtio-balloon: improve update_balloon_size_func
-Date: Fri,  4 Jan 2019 15:11:53 +0800
-Message-ID: <1546585913-34804-3-git-send-email-wei.w.wang__31978.9668814794$1546587905$gmane$org@intel.com>
-References: <1546585913-34804-1-git-send-email-wei.w.wang@intel.com>
+From: Cornelia Huck <cohuck@redhat.com>
+Subject: Re: [PULL 0/1] virtio-ccw: one more patch for 4.21
+Date: Fri, 4 Jan 2019 10:56:15 +0100
+Message-ID: <20190104105615.53a22d10.cohuck@redhat.com>
+References: <20181219101414.13901-1-cohuck@redhat.com>
+	<20190103095507.7ef65472.cohuck@redhat.com>
+	<20190103114955-mutt-send-email-mst@kernel.org>
+	<20190103115056-mutt-send-email-mst@kernel.org>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <1546585913-34804-1-git-send-email-wei.w.wang@intel.com>
+In-Reply-To: <20190103115056-mutt-send-email-mst@kernel.org>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -17,37 +20,50 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: virtio-dev@lists.oasis-open.org, linux-kernel@vger.kernel.org, virtualization@lists.linux-foundation.org, kvm@vger.kernel.org, mst@redhat.com, cohuck@redhat.com, pasic@linux.ibm.com, borntraeger@de.ibm.com
-Cc: pbonzini@redhat.com, dgilbert@redhat.com
+To: "Michael S. Tsirkin" <mst@redhat.com>
+Cc: Halil Pasic <pasic@linux.ibm.com>, linux-s390@vger.kernel.org, kvm@vger.kernel.org, virtualization@lists.linux-foundation.org
 List-Id: virtualization@lists.linuxfoundation.org
 
-There is no need to update the balloon actual register when there is no
-ballooning request. This patch avoids update_balloon_size when diff is 0.
+On Thu, 3 Jan 2019 11:51:45 -0500
+"Michael S. Tsirkin" <mst@redhat.com> wrote:
 
-Signed-off-by: Wei Wang <wei.w.wang@intel.com>
-Reviewed-by: Cornelia Huck <cohuck@redhat.com>
-Reviewed-by: Halil Pasic <pasic@linux.ibm.com>
----
- drivers/virtio/virtio_balloon.c | 5 ++++-
- 1 file changed, 4 insertions(+), 1 deletion(-)
+> On Thu, Jan 03, 2019 at 11:50:22AM -0500, Michael S. Tsirkin wrote:
+> > On Thu, Jan 03, 2019 at 09:55:07AM +0100, Cornelia Huck wrote:  
+> > > On Wed, 19 Dec 2018 11:14:13 +0100
+> > > Cornelia Huck <cohuck@redhat.com> wrote:
+> > >   
+> > > > The following changes since commit 37d1246af2d530710cf5822d2845774f01c03b22:
+> > > > 
+> > > >   virtio_net: bulk free tx skbs (2018-12-06 14:28:39 -0500)
+> > > > 
+> > > > are available in the Git repository at:
+> > > > 
+> > > >   git://git.kernel.org/pub/scm/linux/kernel/git/kvms390/linux.git tags/virtio-ccw-20181219
+> > > > 
+> > > > for you to fetch changes up to 6fb95ef30707f1b2fcaea8d6dc873055e0460b1a:
+> > > > 
+> > > >   virtio-ccw: diag 500 may return a negative cookie (2018-12-19 11:01:57 +0100)
+> > > > 
+> > > > ----------------------------------------------------------------
+> > > > One small documentation fix for 4.21.
+> > > > 
+> > > > ----------------------------------------------------------------
+> > > > 
+> > > > Cornelia Huck (1):
+> > > >   virtio-ccw: diag 500 may return a negative cookie
+> > > > 
+> > > >  Documentation/virtual/kvm/s390-diag.txt | 3 ++-
+> > > >  1 file changed, 2 insertions(+), 1 deletion(-)
+> > > >   
+> > > 
+> > > ping?  
+> > 
+> > Sorry holidays :)
+> > 
+> > I'll pick this up for the next pull.  
+> 
+> On a related note I'm not yet set up to handle pull requests,
+> I'd prefer just patches for now.
 
-diff --git a/drivers/virtio/virtio_balloon.c b/drivers/virtio/virtio_balloon.c
-index 35ee762..af1e6d9 100644
---- a/drivers/virtio/virtio_balloon.c
-+++ b/drivers/virtio/virtio_balloon.c
-@@ -453,9 +453,12 @@ static void update_balloon_size_func(struct work_struct *work)
- 			  update_balloon_size_work);
- 	diff = towards_target(vb);
- 
-+	if (!diff)
-+		return;
-+
- 	if (diff > 0)
- 		diff -= fill_balloon(vb, diff);
--	else if (diff < 0)
-+	else
- 		diff += leak_balloon(vb, -diff);
- 	update_balloon_size(vb);
- 
--- 
-2.7.4
+Thanks for letting me know; I presume you can simply pick up the patch
+as I sent it along in the pull request as well.
