@@ -1,16 +1,15 @@
-From: Cornelia Huck <cohuck@redhat.com>
-Subject: Re: [RFC PATCH 1/1] s390/virtio: handle find on invalid queue
-	gracefully
-Date: Fri, 4 Jan 2019 15:01:49 +0100
-Message-ID: <20190104150149.465ec71b.cohuck@redhat.com>
-References: <20190102175020.45251-1-pasic@linux.ibm.com>
-	<20190102192549.7d7fe4c4.cohuck@redhat.com>
-	<20190103140010.191ce605@oc2783563651>
+From: "Michael S. Tsirkin" <mst@redhat.com>
+Subject: Re: [PATCH v2 1/2] virtio-balloon: tweak config_changed implementation
+Date: Fri, 4 Jan 2019 10:44:35 -0500
+Message-ID: <20190104103213-mutt-send-email-mst__41291.7880611078$1546616560$gmane$org@kernel.org>
+References: <1546585913-34804-1-git-send-email-wei.w.wang@intel.com>
+	<1546585913-34804-2-git-send-email-wei.w.wang@intel.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <20190103140010.191ce605@oc2783563651>
+Content-Disposition: inline
+In-Reply-To: <1546585913-34804-2-git-send-email-wei.w.wang@intel.com>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -20,131 +19,182 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Halil Pasic <pasic@linux.ibm.com>
-Cc: linux-s390@vger.kernel.org, kvm@vger.kernel.org, virtualization@lists.linux-foundation.org
+To: Wei Wang <wei.w.wang@intel.com>
+Cc: virtio-dev@lists.oasis-open.org, kvm@vger.kernel.org, cohuck@redhat.com, linux-kernel@vger.kernel.org, virtualization@lists.linux-foundation.org, pasic@linux.ibm.com, pbonzini@redhat.com, dgilbert@redhat.com
 List-Id: virtualization@lists.linuxfoundation.org
 
-On Thu, 3 Jan 2019 14:00:10 +0100
-Halil Pasic <pasic@linux.ibm.com> wrote:
+On Fri, Jan 04, 2019 at 03:11:52PM +0800, Wei Wang wrote:
+> virtio-ccw has deadlock issues with reading the config space inside the
+> interrupt context, so we tweak the virtballoon_changed implementation
+> by moving the config read operations into the related workqueue contexts.
+> The config_read_bitmap is used as a flag to the workqueue callbacks
+> about the related config fields that need to be read.
+> 
+> Reported-by: Christian Borntraeger <borntraeger@de.ibm.com>
+> Signed-off-by: Wei Wang <wei.w.wang@intel.com>
+> ---
+>  drivers/virtio/virtio_balloon.c | 81 +++++++++++++++++++++++++++--------------
+>  1 file changed, 53 insertions(+), 28 deletions(-)
+> 
+> diff --git a/drivers/virtio/virtio_balloon.c b/drivers/virtio/virtio_balloon.c
+> index 728ecd1..35ee762 100644
+> --- a/drivers/virtio/virtio_balloon.c
+> +++ b/drivers/virtio/virtio_balloon.c
+> @@ -61,6 +61,10 @@ enum virtio_balloon_vq {
+>  	VIRTIO_BALLOON_VQ_MAX
+>  };
+>  
+> +enum virtio_balloon_config_read {
+> +	VIRTIO_BALLOON_CONFIG_READ_CMD_ID = 0,
+> +};
+> +
+>  struct virtio_balloon {
+>  	struct virtio_device *vdev;
+>  	struct virtqueue *inflate_vq, *deflate_vq, *stats_vq, *free_page_vq;
+> @@ -77,6 +81,8 @@ struct virtio_balloon {
+>  	/* Prevent updating balloon when it is being canceled. */
+>  	spinlock_t stop_update_lock;
+>  	bool stop_update;
+> +	/* Bitmap to indicate if reading the related config fields are needed */
+> +	unsigned long config_read_bitmap;
+>  
+>  	/* The list of allocated free pages, waiting to be given back to mm */
+>  	struct list_head free_page_list;
 
-> On Wed, 2 Jan 2019 19:25:49 +0100
-> Cornelia Huck <cohuck@redhat.com> wrote:
-> 
-> > On Wed,  2 Jan 2019 18:50:20 +0100
-> > Halil Pasic <pasic@linux.ibm.com> wrote:
-> >   
-> > > A queue with a capacity of zero is clearly not a valid virtio queue.
-> > > Some emulators report zero queue size if queried with an invalid queue
-> > > index. Instead of crashing in this case let us just return -EINVAL. To
-> > > make that work properly, let us fix the notifier cleanup logic as well.
-> > > 
-> > > Signed-off-by: Halil Pasic <pasic@linux.ibm.com>
-> > > ---
-> > > 
-> > > This patch is motivated by commit 86a5597 "virtio-balloon:
-> > > VIRTIO_BALLOON_F_FREE_PAGE_HINT" (Wei Wang, 2018-08-27) which triggered
-> > > the described scenario.  The emulator in question is the current QEMU.
-> > > The problem we run into is the underflow in the following loop
-> > > in  __vring_new_virtqueue():
-> > > for (i = 0; i < vring.num-1; i++)
-> > > 	vq->vring.desc[i].next = cpu_to_virtio16(vdev, i + 1)
-> > > Namely vring.num is an unsigned int.
-> > > 
-> > > RFC because I'm not sure about -EINVAL being a good choice, and about
-> > > us caring about what happens if a virtio driver misbehaves like described.  
-> > 
-> > For virtio-pci, the spec says that a zero queue size means that the
-> > queue is unavailable. I don't think we have specified that explicitly
-> > for virtio-ccw, but it does make sense.
-> > 
-> > virtio-pci returns -ENOENT in that case, which might be a good choice
-> > here as well.  
-> 
-> virtio-mmio does the same. I will change it to -ENOENT. Maybe also do
-> something like 
-> int virtio_ccw_read_vq_conf() {
-> [..]
-> 	return vcdev->config_block->num ?: -ENOENT;
-> }
-> 
-> instead of the extra if statement, or?
+It seems that you never initialize this bitmap. Probably harmless here
+but generally using uninitialized memory isn't good.
 
 
-Yes, why not.
+> @@ -390,37 +396,31 @@ static unsigned long return_free_pages_to_mm(struct virtio_balloon *vb,
+>  	return num_returned;
+>  }
+>  
+> +static void virtio_balloon_queue_free_page_work(struct virtio_balloon *vb)
+> +{
+> +	if (!virtio_has_feature(vb->vdev, VIRTIO_BALLOON_F_FREE_PAGE_HINT))
+> +		return;
+> +
+> +	/* No need to queue the work if the bit was already set. */
+> +	if (test_and_set_bit(VIRTIO_BALLOON_CONFIG_READ_CMD_ID,
+> +			     &vb->config_read_bitmap))
+> +		return;
+> +
+> +	queue_work(vb->balloon_wq, &vb->report_free_page_work);
+> +}
+> +
+>  static void virtballoon_changed(struct virtio_device *vdev)
+>  {
+>  	struct virtio_balloon *vb = vdev->priv;
+>  	unsigned long flags;
+> -	s64 diff = towards_target(vb);
+> -
+> -	if (diff) {
+> -		spin_lock_irqsave(&vb->stop_update_lock, flags);
+> -		if (!vb->stop_update)
+> -			queue_work(system_freezable_wq,
+> -				   &vb->update_balloon_size_work);
+> -		spin_unlock_irqrestore(&vb->stop_update_lock, flags);
+> -	}
+>  
+> -	if (virtio_has_feature(vdev, VIRTIO_BALLOON_F_FREE_PAGE_HINT)) {
+> -		virtio_cread(vdev, struct virtio_balloon_config,
+> -			     free_page_report_cmd_id, &vb->cmd_id_received);
+> -		if (vb->cmd_id_received == VIRTIO_BALLOON_CMD_ID_DONE) {
+> -			/* Pass ULONG_MAX to give back all the free pages */
+> -			return_free_pages_to_mm(vb, ULONG_MAX);
+> -		} else if (vb->cmd_id_received != VIRTIO_BALLOON_CMD_ID_STOP &&
+> -			   vb->cmd_id_received !=
+> -			   virtio32_to_cpu(vdev, vb->cmd_id_active)) {
+> -			spin_lock_irqsave(&vb->stop_update_lock, flags);
+> -			if (!vb->stop_update) {
+> -				queue_work(vb->balloon_wq,
+> -					   &vb->report_free_page_work);
+> -			}
+> -			spin_unlock_irqrestore(&vb->stop_update_lock, flags);
+> -		}
+> +	spin_lock_irqsave(&vb->stop_update_lock, flags);
+> +	if (!vb->stop_update) {
+> +		queue_work(system_freezable_wq,
+> +			   &vb->update_balloon_size_work);
+> +		virtio_balloon_queue_free_page_work(vb);
+>  	}
+> +	spin_unlock_irqrestore(&vb->stop_update_lock, flags);
+>  }
+>  
+>  static void update_balloon_size(struct virtio_balloon *vb)
+> @@ -609,6 +609,16 @@ static int get_free_page_and_send(struct virtio_balloon *vb)
+>  	return 0;
+>  }
+>  
+> +static void virtio_balloon_read_cmd_id_received(struct virtio_balloon *vb)
+> +{
+> +	if (!test_and_clear_bit(VIRTIO_BALLOON_CONFIG_READ_CMD_ID,
+> +				&vb->config_read_bitmap))
+> +		return;
+> +
+> +	virtio_cread(vb->vdev, struct virtio_balloon_config,
+> +		     free_page_report_cmd_id, &vb->cmd_id_received);
+> +}
+> +
+>  static int send_free_pages(struct virtio_balloon *vb)
+>  {
+>  	int err;
+> @@ -620,6 +630,7 @@ static int send_free_pages(struct virtio_balloon *vb)
+>  		 * stop the reporting.
+>  		 */
+>  		cmd_id_active = virtio32_to_cpu(vb->vdev, vb->cmd_id_active);
+> +		virtio_balloon_read_cmd_id_received(vb);
+>  		if (cmd_id_active != vb->cmd_id_received)
+>  			break;
+>  
+> @@ -637,11 +648,9 @@ static int send_free_pages(struct virtio_balloon *vb)
+>  	return 0;
+>  }
+>  
+> -static void report_free_page_func(struct work_struct *work)
+> +static void virtio_balloon_report_free_page(struct virtio_balloon *vb)
+>  {
+>  	int err;
+> -	struct virtio_balloon *vb = container_of(work, struct virtio_balloon,
+> -						 report_free_page_work);
+>  	struct device *dev = &vb->vdev->dev;
+>  
+>  	/* Start by sending the received cmd id to host with an outbuf. */
+> @@ -659,6 +668,22 @@ static void report_free_page_func(struct work_struct *work)
+>  		dev_err(dev, "Failed to send a stop id, err = %d\n", err);
+>  }
+>  
+> +static void report_free_page_func(struct work_struct *work)
+> +{
+> +	struct virtio_balloon *vb = container_of(work, struct virtio_balloon,
+> +						 report_free_page_work);
+> +
+> +	virtio_balloon_read_cmd_id_received(vb);
 
-> 
-> >   
-> > > 
-> > > ---
-> > >  drivers/s390/virtio/virtio_ccw.c | 6 ++++++
-> > >  1 file changed, 6 insertions(+)
-> > > 
-> > > diff --git a/drivers/s390/virtio/virtio_ccw.c b/drivers/s390/virtio/virtio_ccw.c
-> > > index fc9dbad476c0..147927ed4fca 100644
-> > > --- a/drivers/s390/virtio/virtio_ccw.c
-> > > +++ b/drivers/s390/virtio/virtio_ccw.c
-> > > @@ -272,6 +272,8 @@ static void virtio_ccw_drop_indicators(struct virtio_ccw_device *vcdev)
-> > >  {
-> > >  	struct virtio_ccw_vq_info *info;
-> > >  
-> > > +	if (!vcdev->airq_info)
-> > > +		return;  
-> > 
-> > Which case is this guarding against? names[i] was NULL for every index?
-> >   
-> 
-> Consider:
-> static int virtio_ccw_find_vqs(struct virtio_device *vdev, unsigned nvqs,       
->                                struct virtqueue *vqs[],                         
->                                vq_callback_t *callbacks[],                      
->                                const char * const names[],                      
->                                const bool *ctx,                                 
->                                struct irq_affinity *desc)                       
-> {                                                                               
->         struct virtio_ccw_device *vcdev = to_vc_device(vdev);                   
->         unsigned long *indicatorp = NULL;                                       
->         int ret, i;                                                             
->         struct ccw1 *ccw;                                                       
->                                                                                 
->         ccw = kzalloc(sizeof(*ccw), GFP_DMA | GFP_KERNEL);                      
->         if (!ccw)                                                               
->                 return -ENOMEM;                                                 
->                                                                                 
->         for (i = 0; i < nvqs; ++i) {                                            
->                 vqs[i] = virtio_ccw_setup_vq(vdev, i, callbacks[i], names[i],   
->                                              ctx ? ctx[i] : false, ccw);        
->                 if (IS_ERR(vqs[i])) {                                           
->                         ret = PTR_ERR(vqs[i]);                                  
->                         vqs[i] = NULL;                                          
->                         goto out;                                               
->                 }                                                               
->         }                      
-> [..]
->         if (vcdev->is_thinint) {                                                
->                 ret = virtio_ccw_register_adapter_ind(vcdev, vqs, nvqs, ccw);   
->                 if (ret)                                                        
->                         /* no error, just fall back to legacy interrupts */     
->                         vcdev->is_thinint = false;                              
->         }
-> [..]
-> out:                                                                            
->         kfree(indicatorp);                                                      
->         kfree(ccw);                                                             
->         virtio_ccw_del_vqs(vdev);                                               
->         return ret;                                                             
-> } 
-> when the loop that calls virtio_ccw_setup_vq() fails after a couple
-> of iterations. We end up with some queues in vcdev->virtqueues but
-> with virtio_ccw_register_adapter_ind() never called and thus with
-> vcdev->airq_info never set. So when virtio_ccw_del_vqs() tries to clean
-> up we get an invalid pointer dereference.
-> 
-> Does that answer your question?
+This will not achieve what you are trying to do,
+which is cancel reporting if it's in progress.
 
-Yes, thanks.
+You need to re-read each time you compare to cmd_id_active.
 
-> 
-> I don't quite get your comments about names[i] == NULL.
+An API similar to
+	u32 virtio_balloon_cmd_id_received(vb)
+seems to be called for, and I would rename cmd_id_received to
+cmd_id_received_cache to make sure we caught all users.
 
-I was looking at a tree with "virtio: don't allocate vqs when names[i]
-= NULL" applied :)
+
+
+> +	if (vb->cmd_id_received == VIRTIO_BALLOON_CMD_ID_DONE) {
+> +		/* Pass ULONG_MAX to give back all the free pages */
+> +		return_free_pages_to_mm(vb, ULONG_MAX);
+> +	} else if (vb->cmd_id_received != VIRTIO_BALLOON_CMD_ID_STOP &&
+> +		   vb->cmd_id_received !=
+> +		   virtio32_to_cpu(vb->vdev, vb->cmd_id_active)) {
+> +		virtio_balloon_report_free_page(vb);
+> +	}
+> +}
+> +
+>  #ifdef CONFIG_BALLOON_COMPACTION
+>  /*
+>   * virtballoon_migratepage - perform the balloon page migration on behalf of
+> -- 
+> 2.7.4
