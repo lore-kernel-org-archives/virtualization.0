@@ -1,16 +1,20 @@
 From: "Michael S. Tsirkin" <mst@redhat.com>
-Subject: Re: [PATCH RFC 2/4] include/linux/compiler.h: allow memory operands
-Date: Mon, 7 Jan 2019 13:16:50 -0500
-Message-ID: <20190107131350-mutt-send-email-mst@kernel.org>
+Subject: Re: [PATCH RFC 3/4] barriers: convert a control to a data dependency
+Date: Mon, 7 Jan 2019 14:13:29 -0500
+Message-ID: <20190107140447-mutt-send-email-mst__14336.4032068805$1546888300$gmane$org@kernel.org>
 References: <20190102205715.14054-1-mst@redhat.com>
-	<20190102205715.14054-3-mst@redhat.com>
-	<20190107175427.GB22911@fuggles.cambridge.arm.com>
+	<20190102205715.14054-4-mst@redhat.com>
+	<86023cbe-d1ae-a0d6-7b75-26556f1a0c1f@redhat.com>
+	<20190106231756-mutt-send-email-mst@kernel.org>
+	<20190107094610.GA2861@worktop.programming.kicks-ass.net>
+	<20190107082223-mutt-send-email-mst@kernel.org>
+	<20190107190236.GF1215@linux.ibm.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset="utf-8"
+Content-Transfer-Encoding: base64
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
 Content-Disposition: inline
-In-Reply-To: <20190107175427.GB22911@fuggles.cambridge.arm.com>
+In-Reply-To: <20190107190236.GF1215@linux.ibm.com>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -20,36 +24,63 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Will Deacon <will.deacon@arm.com>
-Cc: Andrea Parri <andrea.parri@amarulasolutions.com>, linux-arch@vger.kernel.org, "Paul E. McKenney" <paulmck@linux.vnet.ibm.com>, Peter Zijlstra <peterz@infradead.org>, Daniel Lustig <dlustig@nvidia.com>, Akira Yokosawa <akiyks@gmail.com>, linux-kernel@vger.kernel.org, Nicholas Piggin <npiggin@gmail.com>, virtualization@lists.linux-foundation.org, David Howells <dhowells@redhat.com>, linux-sparse@vger.kernel.org, Alan Stern <stern@rowland.harvard.edu>, netdev@vger.kernel.org, Luc Maranget <luc.maranget@inria.fr>, Jade Alglave <j.alglave@ucl.ac.uk>, Boqun Feng <boqun.feng@gmail.com>, Luc Van Oostenryck <luc.vanoostenryck@gmail.com>
+To: "Paul E. McKenney" <paulmck@linux.ibm.com>
+Cc: Andrea Parri <andrea.parri@amarulasolutions.com>, linux-doc@vger.kernel.org, Peter Zijlstra <peterz@infradead.org>, Akira Yokosawa <akiyks@gmail.com>, Will Deacon <will.deacon@arm.com>, virtualization@lists.linux-foundation.org, David Howells <dhowells@redhat.com>, linux-arch@vger.kernel.org, Jonathan Corbet <corbet@lwn.net>, linux-sparse@vger.kernel.org, Alan Stern <stern@rowland.harvard.edu>, Matt Turner <mattst88@gmail.com>, Jade Alglave <j.alglave@ucl.ac.uk>, Boqun Feng <boqun.feng@gmail.com>, Arnd Bergmann <arnd@arndb.de>, Daniel Lustig <dlustig@nvidia.com>, Nicholas Piggin <npiggin@gmail.com>, Ivan Kokshaysky <ink@jurassic.park.msu.ru>, Luc Maranget <luc.maranget@inria.fr>, Richard Henderson <rth@twiddle.net>, netdev@vger.kernel.org, linux-kernel@vger.kernel.org, linux-alpha@vger.kernel.org, Luc Van Oostenryck <luc.vanoostenryck@gmail.com>
 List-Id: virtualization@lists.linuxfoundation.org
 
-On Mon, Jan 07, 2019 at 05:54:27PM +0000, Will Deacon wrote:
-> On Wed, Jan 02, 2019 at 03:57:54PM -0500, Michael S. Tsirkin wrote:
-> > We don't really care whether the variable is in-register
-> > or in-memory. Relax the constraint accordingly.
-> > 
-> > Signed-off-by: Michael S. Tsirkin <mst@redhat.com>
-> > ---
-> >  include/linux/compiler.h | 2 +-
-> >  1 file changed, 1 insertion(+), 1 deletion(-)
-> > 
-> > diff --git a/include/linux/compiler.h b/include/linux/compiler.h
-> > index 1ad367b4cd8d..6601d39e8c48 100644
-> > --- a/include/linux/compiler.h
-> > +++ b/include/linux/compiler.h
-> > @@ -154,7 +154,7 @@ void ftrace_likely_update(struct ftrace_likely_data *f, int val,
-> >  #ifndef OPTIMIZER_HIDE_VAR
-> >  /* Make the optimizer believe the variable can be manipulated arbitrarily. */
-> >  #define OPTIMIZER_HIDE_VAR(var)						\
-> > -	__asm__ ("" : "=r" (var) : "0" (var))
-> > +	__asm__ ("" : "=rm" (var) : "0" (var))
-> >  #endif
-> 
-> I think this can break for architectures with write-back addressing modes
-> such as arm, where the "m" constraint is assumed to be evaluated precisely
-> once in the asm block.
-> 
-> Will
-
-Thanks, I'll drop this patch.
+T24gTW9uLCBKYW4gMDcsIDIwMTkgYXQgMTE6MDI6MzZBTSAtMDgwMCwgUGF1bCBFLiBNY0tlbm5l
+eSB3cm90ZToKPiBPbiBNb24sIEphbiAwNywgMjAxOSBhdCAwODozNjozNkFNIC0wNTAwLCBNaWNo
+YWVsIFMuIFRzaXJraW4gd3JvdGU6Cj4gPiBPbiBNb24sIEphbiAwNywgMjAxOSBhdCAxMDo0Njox
+MEFNICswMTAwLCBQZXRlciBaaWpsc3RyYSB3cm90ZToKPiA+ID4gT24gU3VuLCBKYW4gMDYsIDIw
+MTkgYXQgMTE6MjM6MDdQTSAtMDUwMCwgTWljaGFlbCBTLiBUc2lya2luIHdyb3RlOgo+ID4gPiA+
+IE9uIE1vbiwgSmFuIDA3LCAyMDE5IGF0IDExOjU4OjIzQU0gKzA4MDAsIEphc29uIFdhbmcgd3Jv
+dGU6Cj4gPiA+ID4gPiBPbiAyMDE5LzEvMyDkuIrljYg0OjU3LCBNaWNoYWVsIFMuIFRzaXJraW4g
+d3JvdGU6Cj4gPiA+IAo+ID4gPiA+ID4gPiArI2lmIGRlZmluZWQoQ09NUElMRVJfSEFTX09QVElN
+SVpFUl9ISURFX1ZBUikgJiYgXAo+ID4gPiA+ID4gPiArCSFkZWZpbmVkKEFSQ0hfTkVFRFNfUkVB
+RF9CQVJSSUVSX0RFUEVORFMpCj4gPiA+ID4gPiA+ICsKPiA+ID4gPiA+ID4gKyNkZWZpbmUgZGVw
+ZW5kZW50X3B0cl9tYihwdHIsIHZhbCkgKHsJCQkJCVwKPiA+ID4gPiA+ID4gKwlsb25nIGRlcGVu
+ZGVudF9wdHJfbWJfdmFsID0gKGxvbmcpKHZhbCk7CQkJXAo+ID4gPiA+ID4gPiArCWxvbmcgZGVw
+ZW5kZW50X3B0cl9tYl9wdHIgPSAobG9uZykocHRyKSAtIGRlcGVuZGVudF9wdHJfbWJfdmFsOwlc
+Cj4gPiA+ID4gPiA+ICsJCQkJCQkJCQlcCj4gPiA+ID4gPiA+ICsJQlVJTERfQlVHX09OKHNpemVv
+Zih2YWwpID4gc2l6ZW9mKGxvbmcpKTsJCQlcCj4gPiA+ID4gPiA+ICsJT1BUSU1JWkVSX0hJREVf
+VkFSKGRlcGVuZGVudF9wdHJfbWJfdmFsKTsJCQlcCj4gPiA+ID4gPiA+ICsJKHR5cGVvZihwdHIp
+KShkZXBlbmRlbnRfcHRyX21iX3B0ciArIGRlcGVuZGVudF9wdHJfbWJfdmFsKTsJXAo+ID4gPiA+
+ID4gPiArfSkKPiA+ID4gPiA+ID4gKwo+ID4gPiA+ID4gPiArI2Vsc2UKPiA+ID4gPiA+ID4gKwo+
+ID4gPiA+ID4gPiArI2RlZmluZSBkZXBlbmRlbnRfcHRyX21iKHB0ciwgdmFsKSAoeyBtYigpOyAo
+cHRyKTsgfSkKPiA+ID4gPiA+IAo+ID4gPiA+ID4gCj4gPiA+ID4gPiBTbyBmb3IgdGhlIGV4YW1w
+bGUgb2YgcGF0Y2ggNCwgd2UnZCBiZXR0ZXIgZmFsbCBiYWNrIHRvIHJtYigpIG9yIG5lZWQgYQo+
+ID4gPiA+ID4gZGVwZW5kZW50X3B0cl9ybWIoKT8KPiA+ID4gPiA+IAo+ID4gPiA+ID4gVGhhbmtz
+Cj4gPiA+ID4gCj4gPiA+ID4gWW91IG1lYW4gZm9yIHN0cm9uZ2x5IG9yZGVyZWQgYXJjaGl0ZWN0
+dXJlcyBsaWtlIEludGVsPwo+ID4gPiA+IFllcywgbWF5YmUgaXQgbWFrZXMgc2Vuc2UgdG8gaGF2
+ZSBkZXBlbmRlbnRfcHRyX3NtcF9ybWIsCj4gPiA+ID4gZGVwZW5kZW50X3B0cl9kbWFfcm1iIGFu
+ZCBkZXBlbmRlbnRfcHRyX3ZpcnRfcm1iLgo+ID4gPiA+IAo+ID4gPiA+IG1iIHZhcmlhbnQgaXMg
+dW51c2VkIHJpZ2h0IG5vdyBzbyBJJ2xsIHJlbW92ZSBpdC4KPiA+ID4gCj4gPiA+IEhvdyBhYm91
+dCBuYW1pbmcgdGhlIHRoaW5nOiBkZXBlbmRlbnRfcHRyKCkgPyBUaGF0IGlzIHdpdGhvdXQgYW55
+IChyKW1iCj4gPiA+IGltcGxpY2F0aW9ucyBhdCBhbGwuIFRoZSBhZGRyZXNzIGRlcGVuZGVuY3kg
+aXMgc3RyaWN0bHkgd2Vha2VyIHRoYW4gYW4KPiA+ID4gcm1iIGluIHRoYXQgaXQgd2lsbCBvbmx5
+IG9yZGVyIHRoZSB0d28gbG9hZHMgaW4gcWVzdGlvbiBhbmQgbm90LCBsaWtlCj4gPiA+IHJtYiwg
+YW55IHByaW9yIHRvIGFueSBsYXRlciBsb2FkLgo+ID4gCj4gPiBTbyBJJ20gZmluZSB3aXRoIHRo
+aXMgYXMgaXQncyBlbm91Z2ggZm9yIHZpcnRpbywgYnV0IEkgd291bGQgbGlrZSB0byBwb2ludCBv
+dXQgdHdvIHRoaW5nczoKPiA+IAo+ID4gMS4gRS5nLiBvbiB4ODYgYm90aCBTTVAgYW5kIERNQSB2
+YXJpYW50cyBjYW4gYmUgTk9QcyBidXQKPiA+IHRoZSBtYWRhdG9yeSBvbmUgY2FuJ3QsIHNvIGFz
+c3VtaW5nIHdlIGRvIG5vdCB3YW50Cj4gPiBpdCB0byBiZSBzdHJvbmdlciB0aGFuIHJtcCB0aGVu
+IGVpdGhlciB3ZSB3YW50Cj4gPiBzbXBfZGVwZW5kZW50X3B0cigpLCBkbWFfZGVwZW5kZW50X3B0
+cigpLCBkZXBlbmRlbnRfcHRyKCkKPiA+IG9yIHdlIGp1c3Qgd2lsbCBzcGVjaWZ5IHRoYXQgZGVw
+ZW5kZW50X3B0cigpIHdvcmtzIGZvcgo+ID4gYm90aCBETUEgYW5kIFNNUC4KPiA+IAo+ID4gMi4g
+RG93biB0aGUgcm9hZCwgc29tZW9uZSBtaWdodCB3YW50IHRvIG9yZGVyIGEgc3RvcmUgYWZ0ZXIg
+YSBsb2FkLgo+ID4gQWRkcmVzcyBkZXBlbmRlbmN5IGRvZXMgdGhhdCBmb3IgdXMgdG9vLiBBc3N1
+bWluZyB3ZSBtYWtlCj4gPiBkZXBlbmRlbnRfcHRyIGEgTk9QIG9uIHg4Niwgd2Ugd2lsbCB3YW50
+IGFuIG1iIHZhcmlhbnQKPiA+IHdoaWNoIGlzbid0IGEgTk9QIG9uIHg4Ni4gV2lsbCB3ZSB3YW50
+IHRvIHJlbmFtZQo+ID4gZGVwZW5kZW50X3B0ciB0byBkZXBlbmRlbnRfcHRyX3JtYiBhdCB0aGF0
+IHBvaW50Pwo+IAo+IEJ1dCB4ODYgcHJlc2VydmVzIHN0b3JlLWFmdGVyLWxvYWQgb3JkZXJpbmdz
+IGFueXdheSwgYW5kIGV2ZW4gQWxwaGEKPiByZXNwZWN0cyBvcmRlcmluZyBmcm9tIGxvYWRzIHRv
+IGRlcGVuZGVudCBzdG9yZXMuICBTbyB3aGF0IGFtIEkgbWlzc2luZwo+IGhlcmU/Cj4gCj4gCQkJ
+CQkJCVRoYW54LCBQYXVsCgpPaCB5b3UgYXJlIHJpZ2h0LiBTdG9yZXMgYXJlIG5vdCByZW9yZGVy
+ZWQgd2l0aCBvbGRlciBsb2FkcyBvbiB4ODYuCgpTbyBwb2ludCAyIGlzIG1vb3QuIFNvcnJ5IGFi
+b3V0IHRoZSBub2lzZS4KCkkgZ3Vlc3MgYXQgdGhpcyBwb2ludCB0aGUgb25seSBzdGlja2luZyBw
+b2ludCBpcyB0aGUgRUNDIGNvbXBpbGVyLgpJJ20gaW5jbGluZWQgdG8gc3RpY2sgYW4gbWIoKSB0
+aGVyZSwgc2VlaW5nIGFzIGl0IGRvZXNuJ3QgZXZlbgpoYXZlIHNwZWN0cmUgcHJvdGVjdGlvbiBl
+bmFibGVkLiBTbG93IGJ1dCBzYWZlLgoKLS0gCk1TVApfX19fX19fX19fX19fX19fX19fX19fX19f
+X19fX19fX19fX19fX19fX19fX19fXwpWaXJ0dWFsaXphdGlvbiBtYWlsaW5nIGxpc3QKVmlydHVh
+bGl6YXRpb25AbGlzdHMubGludXgtZm91bmRhdGlvbi5vcmcKaHR0cHM6Ly9saXN0cy5saW51eGZv
+dW5kYXRpb24ub3JnL21haWxtYW4vbGlzdGluZm8vdmlydHVhbGl6YXRpb24=
