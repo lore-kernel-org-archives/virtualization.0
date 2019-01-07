@@ -1,18 +1,11 @@
-From: Dan Williams <dan.j.williams@intel.com>
-Subject: Re: [RFC PATCH V3 0/5] Hi:
-Date: Sun, 6 Jan 2019 23:15:20 -0800
-Message-ID: <CAPcyv4iXFy0jfoQ_jQYq2yA7cqu4_Jcap4mvQesRRrV-hahGvQ__39327.6995434009$1546845211$gmane$org@mail.gmail.com>
-References: <20181229124656.3900-1-jasowang@redhat.com>
-	<20190102154038-mutt-send-email-mst@kernel.org>
-	<0efd115a-a7fb-54bf-5376-59d047a15fd3@redhat.com>
-	<20190106221832-mutt-send-email-mst@kernel.org>
-	<c15a17b3-b604-a105-af44-a7e6dfd79801@redhat.com>
-	<20190106230224-mutt-send-email-mst@kernel.org>
+From: Wei Wang <wei.w.wang@intel.com>
+Subject: [PATCH v3 0/3] virtio-balloon: tweak config_changed
+Date: Mon,  7 Jan 2019 15:01:03 +0800
+Message-ID: <1546844466-38079-1-git-send-email-wei.w.wang__22201.8844834112$1546846450$gmane$org@intel.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="utf-8"
-Content-Transfer-Encoding: base64
+Content-Type: text/plain; charset="us-ascii"
+Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <20190106230224-mutt-send-email-mst@kernel.org>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -22,51 +15,31 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: "Michael S. Tsirkin" <mst@redhat.com>
-Cc: KVM list <kvm@vger.kernel.org>, Netdev <netdev@vger.kernel.org>, Linux Kernel Mailing List <linux-kernel@vger.kernel.org>, virtualization@lists.linux-foundation.org, David Miller <davem@davemloft.net>
+To: virtio-dev@lists.oasis-open.org, linux-kernel@vger.kernel.org, virtualization@lists.linux-foundation.org, kvm@vger.kernel.org, mst@redhat.com, cohuck@redhat.com
+Cc: pasic@linux.ibm.com, dgilbert@redhat.com, pbonzini@redhat.com
 List-Id: virtualization@lists.linuxfoundation.org
 
-T24gU3VuLCBKYW4gNiwgMjAxOSBhdCA4OjE3IFBNIE1pY2hhZWwgUy4gVHNpcmtpbiA8bXN0QHJl
-ZGhhdC5jb20+IHdyb3RlOgo+Cj4gT24gTW9uLCBKYW4gMDcsIDIwMTkgYXQgMTE6NTM6NDFBTSAr
-MDgwMCwgSmFzb24gV2FuZyB3cm90ZToKPiA+Cj4gPiBPbiAyMDE5LzEvNyDkuIrljYgxMToyOCwg
-TWljaGFlbCBTLiBUc2lya2luIHdyb3RlOgo+ID4gPiBPbiBNb24sIEphbiAwNywgMjAxOSBhdCAx
-MDoxOTowM0FNICswODAwLCBKYXNvbiBXYW5nIHdyb3RlOgo+ID4gPiA+IE9uIDIwMTkvMS8zIOS4
-iuWNiDQ6NDcsIE1pY2hhZWwgUy4gVHNpcmtpbiB3cm90ZToKPiA+ID4gPiA+IE9uIFNhdCwgRGVj
-IDI5LCAyMDE4IGF0IDA4OjQ2OjUxUE0gKzA4MDAsIEphc29uIFdhbmcgd3JvdGU6Cj4gPiA+ID4g
-PiA+IFRoaXMgc2VyaWVzIHRyaWVzIHRvIGFjY2VzcyB2aXJ0cXVldWUgbWV0YWRhdGEgdGhyb3Vn
-aCBrZXJuZWwgdmlydHVhbAo+ID4gPiA+ID4gPiBhZGRyZXNzIGluc3RlYWQgb2YgY29weV91c2Vy
-KCkgZnJpZW5kcyBzaW5jZSB0aGV5IGhhZCB0b28gbXVjaAo+ID4gPiA+ID4gPiBvdmVyaGVhZHMg
-bGlrZSBjaGVja3MsIHNwZWMgYmFycmllcnMgb3IgZXZlbiBoYXJkd2FyZSBmZWF0dXJlCj4gPiA+
-ID4gPiA+IHRvZ2dsaW5nLgo+ID4gPiA+ID4gV2lsbCByZXZpZXcsIHRoYW5rcyEKPiA+ID4gPiA+
-IE9uZSBxdWVzdGlvbnMgdGhhdCBjb21lcyB0byBtaW5kIGlzIHdoZXRoZXIgaXQncyBhbGwgYWJv
-dXQgYnlwYXNzaW5nCj4gPiA+ID4gPiBzdGFjL2NsYWMuICBDb3VsZCB5b3UgcGxlYXNlIGluY2x1
-ZGUgYSBwZXJmb3JtYW5jZSBjb21wYXJpc29uIHdpdGgKPiA+ID4gPiA+IG5vc21hcD8KPiA+ID4g
-PiA+Cj4gPiA+ID4gT24gbWFjaGluZSB3aXRob3V0IFNNQVAgKFNhbmR5IEJyaWRnZSk6Cj4gPiA+
-ID4KPiA+ID4gPiBCZWZvcmU6IDQuOE1wcHMKPiA+ID4gPgo+ID4gPiA+IEFmdGVyOiA1LjJNcHBz
-Cj4gPiA+IE9LIHNvIHdvdWxkIHlvdSBzYXkgaXQncyByZWFsbHkgdW5zYWZlIHZlcnN1cyBzYWZl
-IGFjY2Vzc2VzPwo+ID4gPiBPciB3b3VsZCB5b3Ugc2F5IGl0J3MganVzdCBhIGJldHRlciB3cml0
-dGVuIGNvZGU/Cj4gPgo+ID4KPiA+IEl0J3MgdGhlIGVmZmVjdCBvZiByZW1vdmluZyBzcGVjdWxh
-dGlvbiBiYXJyaWVyLgo+Cj4KPiBZb3UgbWVhbiBfX3VhY2Nlc3NfYmVnaW5fbm9zcGVjIGludHJv
-ZHVjZWQgYnkKPiBjb21taXQgMzA0ZWMxYjA1MDMxMDU0OGRiMzMwNjNlNTY3MTIzZmFlOGZkMDMw
-MQo+ID8KPgo+IFNvIGZ1bmRhbWVudGFsbHkgd2UgZG8gYWNjZXNzX29rIGNoZWNrcyB3aGVuIHN1
-cHBseWluZwo+IHRoZSBtZW1vcnkgdGFibGUgdG8gdGhlIGtlcm5lbCB0aHJlYWQsIGFuZCB3ZSBz
-aG91bGQKPiBkbyB0aGUgc3BlYyBiYXJyaWVyIHRoZXJlLgo+Cj4gVGhlbiB3ZSBjYW4ganVzdCBj
-cmVhdGUgYW5kIHVzZSBhIHZhcmlhbnQgb2YgdWFjY2VzcyBtYWNyb3MgdGhhdCBkb2VzCj4gbm90
-IGluY2x1ZGUgdGhlIGJhcnJpZXI/Cj4KPiBPciwgaG93IGFib3V0IG1vdmluZyB0aGUgYmFycmll
-ciBpbnRvIGFjY2Vzc19vaz8KPiBUaGlzIHdheSByZXBlYXRlZCBhY2Nlc3NlcyB3aXRoIGEgc2lu
-Z2xlIGFjY2Vzc19vayBnZXQgYSBiaXQgZmFzdGVyLgo+IENDIERhbiBXaWxsaWFtcyBvbiB0aGlz
-IGlkZWEuCgpJdCB3b3VsZCBiZSBpbnRlcmVzdGluZyB0byBzZWUgaG93IGV4cGVuc2l2ZSByZS1k
-b2luZyB0aGUgYWRkcmVzcwpsaW1pdCBjaGVjayBpcyBjb21wYXJlZCB0byB0aGUgc3BlY3VsYXRp
-b24gYmFycmllci4gSS5lLiBqdXN0IHN3aXRjaAp2aG9zdF9nZXRfdXNlcigpIHRvIHVzZSBnZXRf
-dXNlcigpIHJhdGhlciB0aGFuIF9fZ2V0X3VzZXIoKS4gVGhhdCB3aWxsCnNhbml0aXplIHRoZSBw
-b2ludGVyIGluIHRoZSBzcGVjdWxhdGl2ZSBwYXRoIHdpdGhvdXQgYSBiYXJyaWVyLgoKSSByZWNh
-bGwgd2UgaGFkIGEgY29udmVydCBhY2Nlc3Nfb2soKSBkaXNjdXNzaW9uIHdpdGggdGhpcyByZXN1
-bHQgaGVyZToKCmh0dHBzOi8vbGttbC5vcmcvbGttbC8yMDE4LzEvMTcvOTI5CgouLi5idXQgaXQg
-c291bmRzIGxpa2UgeW91IGFyZSBwcm9wb3NpbmcgYSBzbWFsbGVyIHNjb3BlIGZpeHVwIGZvciB0
-aGUKdmhvc3QgdXNlIGNhc2U/IFNvbWV0aGluZyBsaWtlIGJhcnJpZXJfbm9zcGVjKCkgaW4gdGhl
-IHN1Y2Nlc3MgcGF0aApmb3IgYWxsIHZob3N0IGFjY2Vzc19vaygpIGNoZWNrcyBhbmQgdGhlbiBh
-IGdldF91c2VyKCkgdmFyaWFudCB0aGF0CmRpc2FibGVzIHRoZSBiYXJyaWVyLgpfX19fX19fX19f
-X19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fXwpWaXJ0dWFsaXphdGlvbiBtYWls
-aW5nIGxpc3QKVmlydHVhbGl6YXRpb25AbGlzdHMubGludXgtZm91bmRhdGlvbi5vcmcKaHR0cHM6
-Ly9saXN0cy5saW51eGZvdW5kYXRpb24ub3JnL21haWxtYW4vbGlzdGluZm8vdmlydHVhbGl6YXRp
-b24=
+Since virtio-ccw doesn't work with accessing to the config space
+inside an interrupt context, this patch series avoids that issue by
+moving the config register accesses to the related workqueue contexts.
+
+v2->v3 ChangeLog:
+    - rename cmd_id_received to cmd_id_received_cache, and have call sites
+      read the latest value via virtio_balloon_cmd_id_received. (Still
+      kept Cornelia and Halil's reviewed-by as it's a minor change)
+    - remove zeroing vb->num_free_page_blocks in probe since vb is
+      allocated via kzalloc.
+v1->v2 ChangeLog:
+    - add config_read_bitmap to indicate to the workqueue callbacks about
+      the necessity of reading the related config fields.
+
+Wei Wang (3):
+  virtio-balloon: tweak config_changed implementation
+  virtio-balloon: improve update_balloon_size_func
+  virtio_balloon: remove the unnecessary 0-initialization
+
+ drivers/virtio/virtio_balloon.c | 104 ++++++++++++++++++++++++++--------------
+ 1 file changed, 69 insertions(+), 35 deletions(-)
+
+-- 
+2.7.4
