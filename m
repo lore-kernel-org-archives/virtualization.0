@@ -1,15 +1,15 @@
-From: "Michael S. Tsirkin" <mst@redhat.com>
+From: Christian Borntraeger <borntraeger@de.ibm.com>
 Subject: Re: [PATCH v3 1/3] virtio-balloon: tweak config_changed implementation
-Date: Mon, 7 Jan 2019 08:47:20 -0500
-Message-ID: <20190107084555-mutt-send-email-mst__17554.6173625209$1546868721$gmane$org@kernel.org>
+Date: Mon, 7 Jan 2019 14:49:03 +0100
+Message-ID: <4ea022d4-6b89-b481-5747-871e154dd21a@de.ibm.com>
 References: <1546844466-38079-1-git-send-email-wei.w.wang@intel.com>
 	<1546844466-38079-2-git-send-email-wei.w.wang@intel.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-Content-Disposition: inline
 In-Reply-To: <1546844466-38079-2-git-send-email-wei.w.wang@intel.com>
+Content-Language: en-US
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -19,11 +19,13 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Wei Wang <wei.w.wang@intel.com>
-Cc: virtio-dev@lists.oasis-open.org, kvm@vger.kernel.org, cohuck@redhat.com, linux-kernel@vger.kernel.org, virtualization@lists.linux-foundation.org, pasic@linux.ibm.com, pbonzini@redhat.com, dgilbert@redhat.com
+To: Wei Wang <wei.w.wang@intel.com>, virtio-dev@lists.oasis-open.org, linux-kernel@vger.kernel.org, virtualization@lists.linux-foundation.org, kvm@vger.kernel.org, mst@redhat.com, cohuck@redhat.com
+Cc: pasic@linux.ibm.com, pbonzini@redhat.com, dgilbert@redhat.com
 List-Id: virtualization@lists.linuxfoundation.org
 
-On Mon, Jan 07, 2019 at 03:01:04PM +0800, Wei Wang wrote:
+
+
+On 07.01.2019 08:01, Wei Wang wrote:
 > virtio-ccw has deadlock issues with reading the config space inside the
 > interrupt context, so we tweak the virtballoon_changed implementation
 > by moving the config read operations into the related workqueue contexts.
@@ -38,8 +40,14 @@ On Mon, Jan 07, 2019 at 03:01:04PM +0800, Wei Wang wrote:
 > Reviewed-by: Cornelia Huck <cohuck@redhat.com>
 > Reviewed-by: Halil Pasic <pasic@linux.ibm.com>
 
-Please include a Fixes tag to list the problematic commit.
-See Documentation/process/submitting-patches.rst for the appropriate format.
+Together with 
+  virtio_pci: use queue idx instead of array idx to set up the vq
+  virtio: don't allocate vqs when names[i] = NULL
+
+Tested-by: Christian Borntraeger <borntraeger@de.ibm.com>
+
+as already said, would be good to add cc stable (and a Fixes: tag)
+
 
 > ---
 >  drivers/virtio/virtio_balloon.c | 98 +++++++++++++++++++++++++++--------------
@@ -224,5 +232,4 @@ See Documentation/process/submitting-patches.rst for the appropriate format.
 >  		vb->cmd_id_active = cpu_to_virtio32(vb->vdev,
 >  						  VIRTIO_BALLOON_CMD_ID_STOP);
 >  		vb->cmd_id_stop = cpu_to_virtio32(vb->vdev,
-> -- 
-> 2.7.4
+> 
