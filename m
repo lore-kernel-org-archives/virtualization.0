@@ -1,15 +1,20 @@
-From: Cornelia Huck <cohuck@redhat.com>
-Subject: Re: [PATCH v3 3/3] virtio_balloon: remove the unnecessary
-	0-initialization
-Date: Mon, 7 Jan 2019 15:07:38 +0100
-Message-ID: <20190107150738.03bdcf27.cohuck__46815.0689652704$1546869943$gmane$org@redhat.com>
-References: <1546844466-38079-1-git-send-email-wei.w.wang@intel.com>
-	<1546844466-38079-4-git-send-email-wei.w.wang@intel.com>
+From: "Michael S. Tsirkin" <mst@redhat.com>
+Subject: Re: [RFC PATCH V3 0/5] Hi:
+Date: Mon, 7 Jan 2019 09:11:38 -0500
+Message-ID: <20190107084853-mutt-send-email-mst__25755.9179015972$1546870215$gmane$org@kernel.org>
+References: <20181229124656.3900-1-jasowang@redhat.com>
+	<20190102154038-mutt-send-email-mst@kernel.org>
+	<0efd115a-a7fb-54bf-5376-59d047a15fd3@redhat.com>
+	<20190106221832-mutt-send-email-mst@kernel.org>
+	<c15a17b3-b604-a105-af44-a7e6dfd79801@redhat.com>
+	<20190106230224-mutt-send-email-mst@kernel.org>
+	<CAPcyv4iXFy0jfoQ_jQYq2yA7cqu4_Jcap4mvQesRRrV-hahGvQ@mail.gmail.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset="utf-8"
+Content-Transfer-Encoding: base64
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <1546844466-38079-4-git-send-email-wei.w.wang@intel.com>
+Content-Disposition: inline
+In-Reply-To: <CAPcyv4iXFy0jfoQ_jQYq2yA7cqu4_Jcap4mvQesRRrV-hahGvQ@mail.gmail.com>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -19,32 +24,72 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Wei Wang <wei.w.wang@intel.com>
-Cc: virtio-dev@lists.oasis-open.org, kvm@vger.kernel.org, mst@redhat.com, linux-kernel@vger.kernel.org, virtualization@lists.linux-foundation.org, pasic@linux.ibm.com, pbonzini@redhat.com, dgilbert@redhat.com
+To: Dan Williams <dan.j.williams@intel.com>
+Cc: KVM list <kvm@vger.kernel.org>, Netdev <netdev@vger.kernel.org>, Linux Kernel Mailing List <linux-kernel@vger.kernel.org>, virtualization@lists.linux-foundation.org, David Miller <davem@davemloft.net>
 List-Id: virtualization@lists.linuxfoundation.org
 
-On Mon,  7 Jan 2019 15:01:06 +0800
-Wei Wang <wei.w.wang@intel.com> wrote:
-
-> We've changed to kzalloc the vb struct, so no need to 0-initialize
-> this field one more time.
-> 
-> Signed-off-by: Wei Wang <wei.w.wang@intel.com>
-> ---
->  drivers/virtio/virtio_balloon.c | 1 -
->  1 file changed, 1 deletion(-)
-> 
-> diff --git a/drivers/virtio/virtio_balloon.c b/drivers/virtio/virtio_balloon.c
-> index e33dc8e..f19061b 100644
-> --- a/drivers/virtio/virtio_balloon.c
-> +++ b/drivers/virtio/virtio_balloon.c
-> @@ -925,7 +925,6 @@ static int virtballoon_probe(struct virtio_device *vdev)
->  						  VIRTIO_BALLOON_CMD_ID_STOP);
->  		vb->cmd_id_stop = cpu_to_virtio32(vb->vdev,
->  						  VIRTIO_BALLOON_CMD_ID_STOP);
-> -		vb->num_free_page_blocks = 0;
->  		spin_lock_init(&vb->free_page_list_lock);
->  		INIT_LIST_HEAD(&vb->free_page_list);
->  		if (virtio_has_feature(vdev, VIRTIO_BALLOON_F_PAGE_POISON)) {
-
-Reviewed-by: Cornelia Huck <cohuck@redhat.com>
+T24gU3VuLCBKYW4gMDYsIDIwMTkgYXQgMTE6MTU6MjBQTSAtMDgwMCwgRGFuIFdpbGxpYW1zIHdy
+b3RlOgo+IE9uIFN1biwgSmFuIDYsIDIwMTkgYXQgODoxNyBQTSBNaWNoYWVsIFMuIFRzaXJraW4g
+PG1zdEByZWRoYXQuY29tPiB3cm90ZToKPiA+Cj4gPiBPbiBNb24sIEphbiAwNywgMjAxOSBhdCAx
+MTo1Mzo0MUFNICswODAwLCBKYXNvbiBXYW5nIHdyb3RlOgo+ID4gPgo+ID4gPiBPbiAyMDE5LzEv
+NyDkuIrljYgxMToyOCwgTWljaGFlbCBTLiBUc2lya2luIHdyb3RlOgo+ID4gPiA+IE9uIE1vbiwg
+SmFuIDA3LCAyMDE5IGF0IDEwOjE5OjAzQU0gKzA4MDAsIEphc29uIFdhbmcgd3JvdGU6Cj4gPiA+
+ID4gPiBPbiAyMDE5LzEvMyDkuIrljYg0OjQ3LCBNaWNoYWVsIFMuIFRzaXJraW4gd3JvdGU6Cj4g
+PiA+ID4gPiA+IE9uIFNhdCwgRGVjIDI5LCAyMDE4IGF0IDA4OjQ2OjUxUE0gKzA4MDAsIEphc29u
+IFdhbmcgd3JvdGU6Cj4gPiA+ID4gPiA+ID4gVGhpcyBzZXJpZXMgdHJpZXMgdG8gYWNjZXNzIHZp
+cnRxdWV1ZSBtZXRhZGF0YSB0aHJvdWdoIGtlcm5lbCB2aXJ0dWFsCj4gPiA+ID4gPiA+ID4gYWRk
+cmVzcyBpbnN0ZWFkIG9mIGNvcHlfdXNlcigpIGZyaWVuZHMgc2luY2UgdGhleSBoYWQgdG9vIG11
+Y2gKPiA+ID4gPiA+ID4gPiBvdmVyaGVhZHMgbGlrZSBjaGVja3MsIHNwZWMgYmFycmllcnMgb3Ig
+ZXZlbiBoYXJkd2FyZSBmZWF0dXJlCj4gPiA+ID4gPiA+ID4gdG9nZ2xpbmcuCj4gPiA+ID4gPiA+
+IFdpbGwgcmV2aWV3LCB0aGFua3MhCj4gPiA+ID4gPiA+IE9uZSBxdWVzdGlvbnMgdGhhdCBjb21l
+cyB0byBtaW5kIGlzIHdoZXRoZXIgaXQncyBhbGwgYWJvdXQgYnlwYXNzaW5nCj4gPiA+ID4gPiA+
+IHN0YWMvY2xhYy4gIENvdWxkIHlvdSBwbGVhc2UgaW5jbHVkZSBhIHBlcmZvcm1hbmNlIGNvbXBh
+cmlzb24gd2l0aAo+ID4gPiA+ID4gPiBub3NtYXA/Cj4gPiA+ID4gPiA+Cj4gPiA+ID4gPiBPbiBt
+YWNoaW5lIHdpdGhvdXQgU01BUCAoU2FuZHkgQnJpZGdlKToKPiA+ID4gPiA+Cj4gPiA+ID4gPiBC
+ZWZvcmU6IDQuOE1wcHMKPiA+ID4gPiA+Cj4gPiA+ID4gPiBBZnRlcjogNS4yTXBwcwo+ID4gPiA+
+IE9LIHNvIHdvdWxkIHlvdSBzYXkgaXQncyByZWFsbHkgdW5zYWZlIHZlcnN1cyBzYWZlIGFjY2Vz
+c2VzPwo+ID4gPiA+IE9yIHdvdWxkIHlvdSBzYXkgaXQncyBqdXN0IGEgYmV0dGVyIHdyaXR0ZW4g
+Y29kZT8KPiA+ID4KPiA+ID4KPiA+ID4gSXQncyB0aGUgZWZmZWN0IG9mIHJlbW92aW5nIHNwZWN1
+bGF0aW9uIGJhcnJpZXIuCj4gPgo+ID4KPiA+IFlvdSBtZWFuIF9fdWFjY2Vzc19iZWdpbl9ub3Nw
+ZWMgaW50cm9kdWNlZCBieQo+ID4gY29tbWl0IDMwNGVjMWIwNTAzMTA1NDhkYjMzMDYzZTU2NzEy
+M2ZhZThmZDAzMDEKPiA+ID8KPiA+Cj4gPiBTbyBmdW5kYW1lbnRhbGx5IHdlIGRvIGFjY2Vzc19v
+ayBjaGVja3Mgd2hlbiBzdXBwbHlpbmcKPiA+IHRoZSBtZW1vcnkgdGFibGUgdG8gdGhlIGtlcm5l
+bCB0aHJlYWQsIGFuZCB3ZSBzaG91bGQKPiA+IGRvIHRoZSBzcGVjIGJhcnJpZXIgdGhlcmUuCj4g
+Pgo+ID4gVGhlbiB3ZSBjYW4ganVzdCBjcmVhdGUgYW5kIHVzZSBhIHZhcmlhbnQgb2YgdWFjY2Vz
+cyBtYWNyb3MgdGhhdCBkb2VzCj4gPiBub3QgaW5jbHVkZSB0aGUgYmFycmllcj8KPiA+Cj4gPiBP
+ciwgaG93IGFib3V0IG1vdmluZyB0aGUgYmFycmllciBpbnRvIGFjY2Vzc19vaz8KPiA+IFRoaXMg
+d2F5IHJlcGVhdGVkIGFjY2Vzc2VzIHdpdGggYSBzaW5nbGUgYWNjZXNzX29rIGdldCBhIGJpdCBm
+YXN0ZXIuCj4gPiBDQyBEYW4gV2lsbGlhbXMgb24gdGhpcyBpZGVhLgo+IAo+IEl0IHdvdWxkIGJl
+IGludGVyZXN0aW5nIHRvIHNlZSBob3cgZXhwZW5zaXZlIHJlLWRvaW5nIHRoZSBhZGRyZXNzCj4g
+bGltaXQgY2hlY2sgaXMgY29tcGFyZWQgdG8gdGhlIHNwZWN1bGF0aW9uIGJhcnJpZXIuIEkuZS4g
+anVzdCBzd2l0Y2gKPiB2aG9zdF9nZXRfdXNlcigpIHRvIHVzZSBnZXRfdXNlcigpIHJhdGhlciB0
+aGFuIF9fZ2V0X3VzZXIoKS4gVGhhdCB3aWxsCj4gc2FuaXRpemUgdGhlIHBvaW50ZXIgaW4gdGhl
+IHNwZWN1bGF0aXZlIHBhdGggd2l0aG91dCBhIGJhcnJpZXIuCgpIbW0gaXQncyB3YXkgY2hlYXBl
+ciBldmVuIHRob3VnaCBJSVJDIGl0J3MgbWVhc3VyZWFibGUuCkphc29uLCB3b3VsZCB5b3UgbGlr
+ZSB0byB0cnk/CkFsdGhvdWdoIGZyYW5rbHkgX19nZXRfdXNlciBiZWluZyBzbG93ZXIgdGhhbiBn
+ZXRfdXNlciBmZWVscyB2ZXJ5IHdyb25nLgpOb3QgeWV0IHN1cmUgd2hhdCB0byBkbyBleGFjdGx5
+IGJ1dCB3b3VsZCB5b3UgYWdyZWU/CgoKPiBJIHJlY2FsbCB3ZSBoYWQgYSBjb252ZXJ0IGFjY2Vz
+c19vaygpIGRpc2N1c3Npb24gd2l0aCB0aGlzIHJlc3VsdCBoZXJlOgo+IAo+IGh0dHBzOi8vbGtt
+bC5vcmcvbGttbC8yMDE4LzEvMTcvOTI5CgpTb3JyeSBsZXQgbWUgdHJ5IHRvIGNsYXJpZnkuIElJ
+VUMgc3BlY3VsYXRpbmcgYWNjZXNzX29rIG9uY2UKaXMgaGFybWxlc3MuIEFzIExpbnVzIHNhaWQg
+dGhlIHByb2JsZW0gaXMgd2l0aCAiX3N1YnNlcXVlbnRfCmFjY2Vzc2VzIHRoYXQgY2FuIHRoZW4g
+YmUgdXNlZCB0byBwZXJ0dXJiIHRoZSBjYWNoZSIuCgpUaHVzOgoKMS4gaWYgKCFhY2Nlc3Nfb2sp
+CjIuCXJldHVybgozLiAgZ2V0X3VzZXIKNC4gaWYgKCFhY2Nlc3Nfb2spCjUuCXJldHVybgo2LiAg
+Z2V0X3VzZXIKCllvdXIgcHJvcG9zYWwgdGhhdCBMaW51cyBuYWNrZWQgd2FzIHRvIGVmZmVjdGl2
+ZWx5IGFkZCBhIGJhcnJpZXIgYWZ0ZXIKbGluZXMgMiBhbmQgNSAoYWxzbyB1c2luZyB0aGUgYXJy
+YXlfaW5kZXhfbm9zcGVjIHRyaWNrIGZvciBzcGVlZCksCnJpZ2h0PyBVbmZvcnR1bmF0ZWx5IHRo
+YXQgbmVlZHMgYSBiaWcgQVBJIGNoYW5nZS4KCkkgYW0gYXNraW5nIGFib3V0IGFkZGluZyBiYXJy
+aWVyX25vc3BlYyB3aXRoaW4gYWNjZXNzX29rLgpUaHVzIGVmZmVjdGl2ZWx5IGJlZm9yZSBsaW5l
+cyAxIGFuZCA0LgphY2Nlc3Nfb2sgd2lsbCBiZSBzbG93ZXIgYnV0IGFmdGVyIGFsbCB0aGUgcG9p
+bnQgb2YgYWNjZXNzX29rIGlzCnRvIHRoZW4gYWNjZXNzIHRoZSBzYW1lIG1lbW9yeSBtdWx0aXBs
+ZSB0aW1lcy4KU28gd2Ugc2hvdWxkIGJlIG1ha2luZyBfX2dldF91c2VyIGZhc3RlciBhbmQgYWNj
+ZXNzX29rIHNsb3dlciAuLi4KCj4gLi4uYnV0IGl0IHNvdW5kcyBsaWtlIHlvdSBhcmUgcHJvcG9z
+aW5nIGEgc21hbGxlciBzY29wZSBmaXh1cCBmb3IgdGhlCj4gdmhvc3QgdXNlIGNhc2U/IFNvbWV0
+aGluZyBsaWtlIGJhcnJpZXJfbm9zcGVjKCkgaW4gdGhlIHN1Y2Nlc3MgcGF0aAo+IGZvciBhbGwg
+dmhvc3QgYWNjZXNzX29rKCkgY2hlY2tzIGFuZCB0aGVuIGEgZ2V0X3VzZXIoKSB2YXJpYW50IHRo
+YXQKPiBkaXNhYmxlcyB0aGUgYmFycmllci4KCk1heWJlIHdlJ2xsIGhhdmUgdG8uIEV4Y2VwdCBJ
+IGhvcGUgdmhvc3Qgd29uJ3QgZW5kIHVwIGJlaW5nIHRoZQpvbmx5IHVzZXIgb3RoZXJ3aXNlIGl0
+IHdpbGwgYmUgaGFyZCB0byBtYWludGFpbi4KCgotLSAKTVNUCl9fX19fX19fX19fX19fX19fX19f
+X19fX19fX19fX19fX19fX19fX19fX19fX19fClZpcnR1YWxpemF0aW9uIG1haWxpbmcgbGlzdApW
+aXJ0dWFsaXphdGlvbkBsaXN0cy5saW51eC1mb3VuZGF0aW9uLm9yZwpodHRwczovL2xpc3RzLmxp
+bnV4Zm91bmRhdGlvbi5vcmcvbWFpbG1hbi9saXN0aW5mby92aXJ0dWFsaXphdGlvbg==
