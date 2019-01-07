@@ -1,18 +1,13 @@
-From: "Michael S. Tsirkin" <mst@redhat.com>
-Subject: Re: [RFC PATCH V3 1/5] vhost: generalize adding used elem
-Date: Mon, 7 Jan 2019 09:50:19 -0500
-Message-ID: <20190107094739-mutt-send-email-mst__29841.3417571739$1546872505$gmane$org@kernel.org>
-References: <20181229124656.3900-1-jasowang@redhat.com>
-	<20181229124656.3900-2-jasowang@redhat.com>
-	<20190104162857-mutt-send-email-mst@kernel.org>
-	<20190105003339.GE11288@linux.intel.com>
-	<9111a7a2-8396-d866-449e-11ee4008f988@redhat.com>
+From: Cornelia Huck <cohuck@redhat.com>
+Subject: Re: [PATCH 1/1] s390/virtio: handle find on invalid queue gracefully
+Date: Mon, 7 Jan 2019 16:06:32 +0100
+Message-ID: <20190107160632.06b6f624.cohuck@redhat.com>
+References: <20190107123147.97038-1-pasic@linux.ibm.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="utf-8"
-Content-Transfer-Encoding: base64
+Content-Type: text/plain; charset="us-ascii"
+Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-Content-Disposition: inline
-In-Reply-To: <9111a7a2-8396-d866-449e-11ee4008f988@redhat.com>
+In-Reply-To: <20190107123147.97038-1-pasic@linux.ibm.com>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -22,39 +17,38 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Jason Wang <jasowang@redhat.com>
-Cc: kvm@vger.kernel.org, netdev@vger.kernel.org, linux-kernel@vger.kernel.org, Sean Christopherson <sean.j.christopherson@intel.com>, virtualization@lists.linux-foundation.org, davem@davemloft.net
+To: Halil Pasic <pasic@linux.ibm.com>
+Cc: linux-s390@vger.kernel.org, kvm@vger.kernel.org, virtualization@lists.linux-foundation.org
 List-Id: virtualization@lists.linuxfoundation.org
 
-T24gTW9uLCBKYW4gMDcsIDIwMTkgYXQgMDM6MDA6MTdQTSArMDgwMCwgSmFzb24gV2FuZyB3cm90
-ZToKPiAKPiBPbiAyMDE5LzEvNSDkuIrljYg4OjMzLCBTZWFuIENocmlzdG9waGVyc29uIHdyb3Rl
-Ogo+ID4gT24gRnJpLCBKYW4gMDQsIDIwMTkgYXQgMDQ6Mjk6MzRQTSAtMDUwMCwgTWljaGFlbCBT
-LiBUc2lya2luIHdyb3RlOgo+ID4gPiBPbiBTYXQsIERlYyAyOSwgMjAxOCBhdCAwODo0Njo1MlBN
-ICswODAwLCBKYXNvbiBXYW5nIHdyb3RlOgo+ID4gPiA+IFVzZSBvbmUgZ2VuZXJpYyB2aG9zdF9j
-b3B5X3RvX3VzZXIoKSBpbnN0ZWFkIG9mIHR3byBkZWRpY2F0ZWQKPiA+ID4gPiBhY2Nlc3Nvci4g
-VGhpcyB3aWxsIHNpbXBsaWZ5IHRoZSBjb252ZXJzaW9uIHRvIGZpbmUgZ3JhaW4KPiA+ID4gPiBh
-Y2Nlc3NvcnMuIEFib3V0IDIlIGltcHJvdmVtZW50IG9mIFBQUyB3ZXJlIHNlZW4gZHVyaW5nIHZp
-dGlvLXVzZXIKPiA+ID4gPiB0eG9ubHkgdGVzdC4KPiA+ID4gPiAKPiA+ID4gPiBTaWduZWQtb2Zm
-LWJ5OiBKYXNvbiBXYW5nIDxqYXNvd2FuZ0ByZWRoYXQuY29tPgo+ID4gPiBJIGRvbid0IGh2ZSBh
-IHByb2JsZW0gd2l0aCB0aGlzIHBhdGNoIGJ1dCBkbyB5b3UgaGF2ZQo+ID4gPiBhbnkgaWRlYSBo
-b3cgY29tZSByZW1vdmluZyB3aGF0J3Mgc3VwcG9zZWQgdG8gYmUKPiA+ID4gYW4gb3B0aW1pemF0
-aW9uIHNwZWVkcyB0aGluZ3MgdXA/Cj4gPiBXaXRoIFNNQVAsIHRoZSAyeCB2aG9zdF9wdXRfdXNl
-cigpIHdpbGwgYWxzbyBtZWFuIGFuIGV4dHJhIFNUQUMvQ0xBQyBwYWlyLAo+ID4gd2hpY2ggaXMg
-cHJvYmFibHkgc2xvd2VyIHRoYW4gdGhlIG92ZXJoZWFkIG9mIENBTEwrUkVUIHRvIHdoYXRldmVy
-IGZsYXZvcgo+ID4gb2YgY29weV91c2VyX2dlbmVyaWMoKSBnZXRzIHVzZWQuICBDQUxMK1JFVCBp
-cyByZWFsbHkgdGhlIG9ubHkgb3ZlcmhlYWQKPiA+IHNpbmNlIGFsbCB2YXJpYW50cyBvZiBjb3B5
-X3VzZXJfZ2VuZXJpYygpIHVucm9sbCBhY2Nlc3NlcyBzbWFsbGVyIHRoYW4KPiA+IDY0IGJ5dGVz
-LCBlLmcuIG9uIGEgNjQtYml0IHN5c3RlbSwgX19jb3B5X3RvX3VzZXIoKSB3aWxsIHdyaXRlIGFs
-bCA4Cj4gPiBieXRlcyBpbiBhIHNpbmdsZSBNT1YuCj4gPiAKPiA+IFJlbW92aW5nIHRoZSBzcGVj
-aWFsIGNhc2luZyBhbHNvIGVsaW1pbmF0ZXMgYSBmZXcgaHVuZHJlZCBieXRlcyBvZiBjb2RlCj4g
-PiBhcyB3ZWxsIGFzIHRoZSBuZWVkIGZvciBoYXJkd2FyZSB0byBwcmVkaWN0IGNvdW50PT0xIHZz
-LiBjb3VudD4xLgo+ID4gCj4gCj4gWWVzLCBJIGRvbid0IG1lYXN1cmUsIGJ1dCBTVEFDL0NBTEMg
-aXMgcHJldHR5IGV4cGVuc2l2ZSB3aGVuIHdlIGFyZSBkbyB2ZXJ5Cj4gc21hbGwgY29waWVzIGJh
-c2VkIG9uIHRoZSByZXN1bHQgb2Ygbm9zbWFwIFBQUy4KPiAKPiBUaGFua3MKClllcyBhbGwgdGhp
-cyByZWFsbHkgbG9va3MgbGlrZSBhIHBvc3RlciBjaGlsZCBmb3IgdWFjY2Vzc19iZWdpbi9lbmQK
-cGx1cyB1bnNhZmUgYWNjZXNzZXMuIEFuZCBpZiB0aGVzZSBBUElzIGRvbid0IGRvIHRoZSBqb2Ig
-Zm9yIHVzCnRoZW4gbWF5YmUgYmV0dGVyIG9uZXMgYXJlIG5lZWRlZCAuLi4KCgotLSAKTVNUCl9f
-X19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fClZpcnR1YWxpemF0
-aW9uIG1haWxpbmcgbGlzdApWaXJ0dWFsaXphdGlvbkBsaXN0cy5saW51eC1mb3VuZGF0aW9uLm9y
-ZwpodHRwczovL2xpc3RzLmxpbnV4Zm91bmRhdGlvbi5vcmcvbWFpbG1hbi9saXN0aW5mby92aXJ0
-dWFsaXphdGlvbg==
+On Mon,  7 Jan 2019 13:31:46 +0100
+Halil Pasic <pasic@linux.ibm.com> wrote:
+
+> A queue with a capacity of zero is clearly not a valid virtio queue.
+> Some emulators report zero queue size if queried with an invalid queue
+> index. Instead of crashing in this case let us just return -EINVAL. To
+
+s/-EINVAL/-ENOENT/
+
+> make that work properly, let us fix the notifier cleanup logic as well.
+> 
+> Signed-off-by: Halil Pasic <pasic@linux.ibm.com>
+> ---
+> This patch is motivated by commit 86a5597 "virtio-balloon:
+> VIRTIO_BALLOON_F_FREE_PAGE_HINT" (Wei Wang, 2018-08-27) which triggered
+> the described scenario.  The emulator in question is the current QEMU.
+> The problem we run into is the underflow in the following loop
+> in  __vring_new_virtqueue():
+> for (i = 0; i < vring.num-1; i++)
+> 	vq->vring.desc[i].next = cpu_to_virtio16(vdev, i + 1)
+> Namely vring.num is an unsigned int.
+> 
+> RFC --> v1:
+> * Change error code from -EINVAL to -ENOENT, so we are in line with the
+> other transports.
+> * Push down the detection of the error into virtio_ccw_read_vq_conf().
+> ---
+>  drivers/s390/virtio/virtio_ccw.c | 4 +++-
+>  1 file changed, 3 insertions(+), 1 deletion(-)
+
+Thanks, applied.
