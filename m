@@ -1,18 +1,14 @@
-From: "Michael S. Tsirkin" <mst@redhat.com>
-Subject: Re: [PATCH RFC 3/4] barriers: convert a control to a data dependency
-Date: Mon, 7 Jan 2019 08:36:36 -0500
-Message-ID: <20190107082223-mutt-send-email-mst@kernel.org>
-References: <20190102205715.14054-1-mst@redhat.com>
-	<20190102205715.14054-4-mst@redhat.com>
-	<86023cbe-d1ae-a0d6-7b75-26556f1a0c1f@redhat.com>
-	<20190106231756-mutt-send-email-mst@kernel.org>
-	<20190107094610.GA2861@worktop.programming.kicks-ass.net>
+From: Christian Borntraeger <borntraeger@de.ibm.com>
+Subject: Re: [PATCH v3 0/3] virtio-balloon: tweak config_changed
+Date: Mon, 7 Jan 2019 14:40:23 +0100
+Message-ID: <8eaba95f-5d3f-f225-31bf-65e6425330be__18985.2831689224$1546868309$gmane$org@de.ibm.com>
+References: <1546844466-38079-1-git-send-email-wei.w.wang@intel.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="utf-8"
-Content-Transfer-Encoding: base64
+Content-Type: text/plain; charset="us-ascii"
+Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-Content-Disposition: inline
-In-Reply-To: <20190107094610.GA2861@worktop.programming.kicks-ass.net>
+In-Reply-To: <1546844466-38079-1-git-send-email-wei.w.wang@intel.com>
+Content-Language: en-US
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -22,49 +18,34 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Peter Zijlstra <peterz@infradead.org>
-Cc: Andrea Parri <andrea.parri@amarulasolutions.com>, linux-doc@vger.kernel.org, Akira Yokosawa <akiyks@gmail.com>, Will Deacon <will.deacon@arm.com>, virtualization@lists.linux-foundation.org, David Howells <dhowells@redhat.com>, linux-arch@vger.kernel.org, Jonathan Corbet <corbet@lwn.net>, linux-sparse@vger.kernel.org, Alan Stern <stern@rowland.harvard.edu>, Matt Turner <mattst88@gmail.com>, "Paul E. McKenney" <paulmck@linux.vnet.ibm.com>, Boqun Feng <boqun.feng@gmail.com>, Arnd Bergmann <arnd@arndb.de>, Daniel Lustig <dlustig@nvidia.com>, Nicholas Piggin <npiggin@gmail.com>, Ivan Kokshaysky <ink@jurassic.park.msu.ru>, Luc Maranget <luc.maranget@inria.fr>, Richard Henderson <rth@twiddle.net>, Jade Alglave <j.alglave@ucl.ac.uk>, netdev@vger.kernel.org, linux-kernel@vger.kernel.org, linux-alpha@vger.kernel.org, Luc Van Oostenryck <luc.vanoostenryck@gmail.com>
+To: Wei Wang <wei.w.wang@intel.com>, virtio-dev@lists.oasis-open.org, linux-kernel@vger.kernel.org, virtualization@lists.linux-foundation.org, kvm@vger.kernel.org, mst@redhat.com, cohuck@redhat.com
+Cc: pasic@linux.ibm.com, pbonzini@redhat.com, dgilbert@redhat.com
 List-Id: virtualization@lists.linuxfoundation.org
 
-T24gTW9uLCBKYW4gMDcsIDIwMTkgYXQgMTA6NDY6MTBBTSArMDEwMCwgUGV0ZXIgWmlqbHN0cmEg
-d3JvdGU6Cj4gT24gU3VuLCBKYW4gMDYsIDIwMTkgYXQgMTE6MjM6MDdQTSAtMDUwMCwgTWljaGFl
-bCBTLiBUc2lya2luIHdyb3RlOgo+ID4gT24gTW9uLCBKYW4gMDcsIDIwMTkgYXQgMTE6NTg6MjNB
-TSArMDgwMCwgSmFzb24gV2FuZyB3cm90ZToKPiA+ID4gT24gMjAxOS8xLzMg5LiK5Y2INDo1Nywg
-TWljaGFlbCBTLiBUc2lya2luIHdyb3RlOgo+IAo+ID4gPiA+ICsjaWYgZGVmaW5lZChDT01QSUxF
-Ul9IQVNfT1BUSU1JWkVSX0hJREVfVkFSKSAmJiBcCj4gPiA+ID4gKwkhZGVmaW5lZChBUkNIX05F
-RURTX1JFQURfQkFSUklFUl9ERVBFTkRTKQo+ID4gPiA+ICsKPiA+ID4gPiArI2RlZmluZSBkZXBl
-bmRlbnRfcHRyX21iKHB0ciwgdmFsKSAoewkJCQkJXAo+ID4gPiA+ICsJbG9uZyBkZXBlbmRlbnRf
-cHRyX21iX3ZhbCA9IChsb25nKSh2YWwpOwkJCVwKPiA+ID4gPiArCWxvbmcgZGVwZW5kZW50X3B0
-cl9tYl9wdHIgPSAobG9uZykocHRyKSAtIGRlcGVuZGVudF9wdHJfbWJfdmFsOwlcCj4gPiA+ID4g
-KwkJCQkJCQkJCVwKPiA+ID4gPiArCUJVSUxEX0JVR19PTihzaXplb2YodmFsKSA+IHNpemVvZihs
-b25nKSk7CQkJXAo+ID4gPiA+ICsJT1BUSU1JWkVSX0hJREVfVkFSKGRlcGVuZGVudF9wdHJfbWJf
-dmFsKTsJCQlcCj4gPiA+ID4gKwkodHlwZW9mKHB0cikpKGRlcGVuZGVudF9wdHJfbWJfcHRyICsg
-ZGVwZW5kZW50X3B0cl9tYl92YWwpOwlcCj4gPiA+ID4gK30pCj4gPiA+ID4gKwo+ID4gPiA+ICsj
-ZWxzZQo+ID4gPiA+ICsKPiA+ID4gPiArI2RlZmluZSBkZXBlbmRlbnRfcHRyX21iKHB0ciwgdmFs
-KSAoeyBtYigpOyAocHRyKTsgfSkKPiA+ID4gCj4gPiA+IAo+ID4gPiBTbyBmb3IgdGhlIGV4YW1w
-bGUgb2YgcGF0Y2ggNCwgd2UnZCBiZXR0ZXIgZmFsbCBiYWNrIHRvIHJtYigpIG9yIG5lZWQgYQo+
-ID4gPiBkZXBlbmRlbnRfcHRyX3JtYigpPwo+ID4gPiAKPiA+ID4gVGhhbmtzCj4gPiAKPiA+IFlv
-dSBtZWFuIGZvciBzdHJvbmdseSBvcmRlcmVkIGFyY2hpdGVjdHVyZXMgbGlrZSBJbnRlbD8KPiA+
-IFllcywgbWF5YmUgaXQgbWFrZXMgc2Vuc2UgdG8gaGF2ZSBkZXBlbmRlbnRfcHRyX3NtcF9ybWIs
-Cj4gPiBkZXBlbmRlbnRfcHRyX2RtYV9ybWIgYW5kIGRlcGVuZGVudF9wdHJfdmlydF9ybWIuCj4g
-PiAKPiA+IG1iIHZhcmlhbnQgaXMgdW51c2VkIHJpZ2h0IG5vdyBzbyBJJ2xsIHJlbW92ZSBpdC4K
-PiAKPiBIb3cgYWJvdXQgbmFtaW5nIHRoZSB0aGluZzogZGVwZW5kZW50X3B0cigpID8gVGhhdCBp
-cyB3aXRob3V0IGFueSAociltYgo+IGltcGxpY2F0aW9ucyBhdCBhbGwuIFRoZSBhZGRyZXNzIGRl
-cGVuZGVuY3kgaXMgc3RyaWN0bHkgd2Vha2VyIHRoYW4gYW4KPiBybWIgaW4gdGhhdCBpdCB3aWxs
-IG9ubHkgb3JkZXIgdGhlIHR3byBsb2FkcyBpbiBxZXN0aW9uIGFuZCBub3QsIGxpa2UKPiBybWIs
-IGFueSBwcmlvciB0byBhbnkgbGF0ZXIgbG9hZC4KClNvIEknbSBmaW5lIHdpdGggdGhpcyBhcyBp
-dCdzIGVub3VnaCBmb3IgdmlydGlvLCBidXQgSSB3b3VsZCBsaWtlIHRvIHBvaW50IG91dCB0d28g
-dGhpbmdzOgoKMS4gRS5nLiBvbiB4ODYgYm90aCBTTVAgYW5kIERNQSB2YXJpYW50cyBjYW4gYmUg
-Tk9QcyBidXQKdGhlIG1hZGF0b3J5IG9uZSBjYW4ndCwgc28gYXNzdW1pbmcgd2UgZG8gbm90IHdh
-bnQKaXQgdG8gYmUgc3Ryb25nZXIgdGhhbiBybXAgdGhlbiBlaXRoZXIgd2Ugd2FudApzbXBfZGVw
-ZW5kZW50X3B0cigpLCBkbWFfZGVwZW5kZW50X3B0cigpLCBkZXBlbmRlbnRfcHRyKCkKb3Igd2Ug
-anVzdCB3aWxsIHNwZWNpZnkgdGhhdCBkZXBlbmRlbnRfcHRyKCkgd29ya3MgZm9yCmJvdGggRE1B
-IGFuZCBTTVAuCgoyLiBEb3duIHRoZSByb2FkLCBzb21lb25lIG1pZ2h0IHdhbnQgdG8gb3JkZXIg
-YSBzdG9yZSBhZnRlciBhIGxvYWQuCkFkZHJlc3MgZGVwZW5kZW5jeSBkb2VzIHRoYXQgZm9yIHVz
-IHRvby4gQXNzdW1pbmcgd2UgbWFrZQpkZXBlbmRlbnRfcHRyIGEgTk9QIG9uIHg4Niwgd2Ugd2ls
-bCB3YW50IGFuIG1iIHZhcmlhbnQKd2hpY2ggaXNuJ3QgYSBOT1Agb24geDg2LiBXaWxsIHdlIHdh
-bnQgdG8gcmVuYW1lCmRlcGVuZGVudF9wdHIgdG8gZGVwZW5kZW50X3B0cl9ybWIgYXQgdGhhdCBw
-b2ludD8KClRoYW5rcywKCi0tIApNU1QKX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19f
-X19fX19fX19fX19fX18KVmlydHVhbGl6YXRpb24gbWFpbGluZyBsaXN0ClZpcnR1YWxpemF0aW9u
-QGxpc3RzLmxpbnV4LWZvdW5kYXRpb24ub3JnCmh0dHBzOi8vbGlzdHMubGludXhmb3VuZGF0aW9u
-Lm9yZy9tYWlsbWFuL2xpc3RpbmZvL3ZpcnR1YWxpemF0aW9u
+Can you please cc stable? Right now 4.20 does not work under KVM.
+
+
+
+On 07.01.2019 08:01, Wei Wang wrote:
+> Since virtio-ccw doesn't work with accessing to the config space
+> inside an interrupt context, this patch series avoids that issue by
+> moving the config register accesses to the related workqueue contexts.
+> 
+> v2->v3 ChangeLog:
+>     - rename cmd_id_received to cmd_id_received_cache, and have call sites
+>       read the latest value via virtio_balloon_cmd_id_received. (Still
+>       kept Cornelia and Halil's reviewed-by as it's a minor change)
+>     - remove zeroing vb->num_free_page_blocks in probe since vb is
+>       allocated via kzalloc.
+> v1->v2 ChangeLog:
+>     - add config_read_bitmap to indicate to the workqueue callbacks about
+>       the necessity of reading the related config fields.
+> 
+> Wei Wang (3):
+>   virtio-balloon: tweak config_changed implementation
+>   virtio-balloon: improve update_balloon_size_func
+>   virtio_balloon: remove the unnecessary 0-initialization
+> 
+>  drivers/virtio/virtio_balloon.c | 104 ++++++++++++++++++++++++++--------------
+>  1 file changed, 69 insertions(+), 35 deletions(-)
+> 
