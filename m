@@ -1,22 +1,21 @@
-From: Dan Williams <dan.j.williams@intel.com>
-Subject: Re: [RFC PATCH V3 0/5] Hi:
-Date: Mon, 7 Jan 2019 14:44:24 -0800
-Message-ID: <CAPcyv4iQMQxZC8ehr2OP8_rqpuCeSWn5xyKN64JSyfR8_r7eOg__45295.7994108603$1546900955$gmane$org@mail.gmail.com>
-References: <20181229124656.3900-1-jasowang@redhat.com>
-	<20190102154038-mutt-send-email-mst@kernel.org>
-	<0efd115a-a7fb-54bf-5376-59d047a15fd3@redhat.com>
-	<20190106221832-mutt-send-email-mst@kernel.org>
-	<c15a17b3-b604-a105-af44-a7e6dfd79801@redhat.com>
-	<20190106230224-mutt-send-email-mst@kernel.org>
-	<CAPcyv4iXFy0jfoQ_jQYq2yA7cqu4_Jcap4mvQesRRrV-hahGvQ@mail.gmail.com>
-	<20190107084853-mutt-send-email-mst@kernel.org>
-	<CAPcyv4jf-4=2oGJrdvMBeRiAJnQoKbYhwZDD+5ZEH+xgDaOzRQ@mail.gmail.com>
-	<20190107172517-mutt-send-email-mst@kernel.org>
+From: Dominique Martinet <asmadeus@codewreck.org>
+Subject: Re: [PATCH v15 23/26] sched: early boot clock
+Date: Tue, 8 Jan 2019 00:48:39 +0100
+Message-ID: <20190107234839.GA15269__31773.8287304111$1546904818$gmane$org@nautica>
+References: <20180719205545.16512-1-pasha.tatashin@oracle.com>
+	<20180719205545.16512-24-pasha.tatashin@oracle.com>
+	<20181106054212.GA31768@nautica>
+	<95c3920e-bf80-0c7e-7854-01a1c3189c23@oracle.com>
+	<20190102202032.GA1034@eldamar.local>
+	<CA+CK2bC70pnL0Wimb0xt99J4nNfi8W3zuUHgAk-jsPuOP9jpHA@mail.gmail.com>
+	<20190103234339.GA17457@nautica>
+	<CA+CK2bDj1f=VpT+k-e8kSSaoLJ3W9-JPPq9udFdDwd6ijXi28g@mail.gmail.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="utf-8"
-Content-Transfer-Encoding: base64
+Content-Type: text/plain; charset="us-ascii"
+Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <20190107172517-mutt-send-email-mst@kernel.org>
+Content-Disposition: inline
+In-Reply-To: <CA+CK2bDj1f=VpT+k-e8kSSaoLJ3W9-JPPq9udFdDwd6ijXi28g@mail.gmail.com>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -26,65 +25,43 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: "Michael S. Tsirkin" <mst@redhat.com>
-Cc: KVM list <kvm@vger.kernel.org>, Netdev <netdev@vger.kernel.org>, Linux Kernel Mailing List <linux-kernel@vger.kernel.org>, virtualization@lists.linux-foundation.org, David Miller <davem@davemloft.net>
+To: Pavel Tatashin <pasha.tatashin@soleen.com>
+Cc: gnomes@lxorguk.ukuu.org.uk, feng.tang@intel.com, kvm@vger.kernel.org, Petr Mladek <pmladek@suse.com>, Peter Zijlstra <peterz@infradead.org>, heiko.carstens@de.ibm.com, qemu-devel@nongnu.org, virtualization@lists.linux-foundation.org, Steven Sistare <steven.sistare@oracle.com>, hpa@zytor.com, boris.ostrovsky@oracle.com, prarit@redhat.com, linux-s390@vger.kernel.org, x86@kernel.org, linux@armlinux.org.uk, Daniel Jordan <daniel.m.jordan@oracle.com>, mingo@redhat.com, Pavel Tatashin <pavel.tatashin@microsoft.com>, John Stultz <john.stultz@linaro.org>, Thomas Gleixner <tglx@linutronix.de>, Salvatore Bonaccorso <carnil@debian.org>, jgross@suse.com, douly.fnst@cn.fujitsu.com, sboyd@codeaurora.org, LKML <linux-kernel@vger.kernel.org>, schwidefsky@de.ibm.com, pbonzini@redhat.com
 List-Id: virtualization@lists.linuxfoundation.org
 
-T24gTW9uLCBKYW4gNywgMjAxOSBhdCAyOjI1IFBNIE1pY2hhZWwgUy4gVHNpcmtpbiA8bXN0QHJl
-ZGhhdC5jb20+IHdyb3RlOgo+Cj4gT24gTW9uLCBKYW4gMDcsIDIwMTkgYXQgMDE6Mzk6MTVQTSAt
-MDgwMCwgRGFuIFdpbGxpYW1zIHdyb3RlOgo+ID4gT24gTW9uLCBKYW4gNywgMjAxOSBhdCA2OjEx
-IEFNIE1pY2hhZWwgUy4gVHNpcmtpbiA8bXN0QHJlZGhhdC5jb20+IHdyb3RlOgo+ID4gPgo+ID4g
-PiBPbiBTdW4sIEphbiAwNiwgMjAxOSBhdCAxMToxNToyMFBNIC0wODAwLCBEYW4gV2lsbGlhbXMg
-d3JvdGU6Cj4gPiA+ID4gT24gU3VuLCBKYW4gNiwgMjAxOSBhdCA4OjE3IFBNIE1pY2hhZWwgUy4g
-VHNpcmtpbiA8bXN0QHJlZGhhdC5jb20+IHdyb3RlOgo+ID4gPiA+ID4KPiA+ID4gPiA+IE9uIE1v
-biwgSmFuIDA3LCAyMDE5IGF0IDExOjUzOjQxQU0gKzA4MDAsIEphc29uIFdhbmcgd3JvdGU6Cj4g
-PiA+ID4gPiA+Cj4gPiA+ID4gPiA+IE9uIDIwMTkvMS83IOS4iuWNiDExOjI4LCBNaWNoYWVsIFMu
-IFRzaXJraW4gd3JvdGU6Cj4gPiA+ID4gPiA+ID4gT24gTW9uLCBKYW4gMDcsIDIwMTkgYXQgMTA6
-MTk6MDNBTSArMDgwMCwgSmFzb24gV2FuZyB3cm90ZToKPiA+ID4gPiA+ID4gPiA+IE9uIDIwMTkv
-MS8zIOS4iuWNiDQ6NDcsIE1pY2hhZWwgUy4gVHNpcmtpbiB3cm90ZToKPiA+ID4gPiA+ID4gPiA+
-ID4gT24gU2F0LCBEZWMgMjksIDIwMTggYXQgMDg6NDY6NTFQTSArMDgwMCwgSmFzb24gV2FuZyB3
-cm90ZToKPiA+ID4gPiA+ID4gPiA+ID4gPiBUaGlzIHNlcmllcyB0cmllcyB0byBhY2Nlc3Mgdmly
-dHF1ZXVlIG1ldGFkYXRhIHRocm91Z2gga2VybmVsIHZpcnR1YWwKPiA+ID4gPiA+ID4gPiA+ID4g
-PiBhZGRyZXNzIGluc3RlYWQgb2YgY29weV91c2VyKCkgZnJpZW5kcyBzaW5jZSB0aGV5IGhhZCB0
-b28gbXVjaAo+ID4gPiA+ID4gPiA+ID4gPiA+IG92ZXJoZWFkcyBsaWtlIGNoZWNrcywgc3BlYyBi
-YXJyaWVycyBvciBldmVuIGhhcmR3YXJlIGZlYXR1cmUKPiA+ID4gPiA+ID4gPiA+ID4gPiB0b2dn
-bGluZy4KPiA+ID4gPiA+ID4gPiA+ID4gV2lsbCByZXZpZXcsIHRoYW5rcyEKPiA+ID4gPiA+ID4g
-PiA+ID4gT25lIHF1ZXN0aW9ucyB0aGF0IGNvbWVzIHRvIG1pbmQgaXMgd2hldGhlciBpdCdzIGFs
-bCBhYm91dCBieXBhc3NpbmcKPiA+ID4gPiA+ID4gPiA+ID4gc3RhYy9jbGFjLiAgQ291bGQgeW91
-IHBsZWFzZSBpbmNsdWRlIGEgcGVyZm9ybWFuY2UgY29tcGFyaXNvbiB3aXRoCj4gPiA+ID4gPiA+
-ID4gPiA+IG5vc21hcD8KPiA+ID4gPiA+ID4gPiA+ID4KPiA+ID4gPiA+ID4gPiA+IE9uIG1hY2hp
-bmUgd2l0aG91dCBTTUFQIChTYW5keSBCcmlkZ2UpOgo+ID4gPiA+ID4gPiA+ID4KPiA+ID4gPiA+
-ID4gPiA+IEJlZm9yZTogNC44TXBwcwo+ID4gPiA+ID4gPiA+ID4KPiA+ID4gPiA+ID4gPiA+IEFm
-dGVyOiA1LjJNcHBzCj4gPiA+ID4gPiA+ID4gT0sgc28gd291bGQgeW91IHNheSBpdCdzIHJlYWxs
-eSB1bnNhZmUgdmVyc3VzIHNhZmUgYWNjZXNzZXM/Cj4gPiA+ID4gPiA+ID4gT3Igd291bGQgeW91
-IHNheSBpdCdzIGp1c3QgYSBiZXR0ZXIgd3JpdHRlbiBjb2RlPwo+ID4gPiA+ID4gPgo+ID4gPiA+
-ID4gPgo+ID4gPiA+ID4gPiBJdCdzIHRoZSBlZmZlY3Qgb2YgcmVtb3Zpbmcgc3BlY3VsYXRpb24g
-YmFycmllci4KPiA+ID4gPiA+Cj4gPiA+ID4gPgo+ID4gPiA+ID4gWW91IG1lYW4gX191YWNjZXNz
-X2JlZ2luX25vc3BlYyBpbnRyb2R1Y2VkIGJ5Cj4gPiA+ID4gPiBjb21taXQgMzA0ZWMxYjA1MDMx
-MDU0OGRiMzMwNjNlNTY3MTIzZmFlOGZkMDMwMQo+ID4gPiA+ID4gPwo+ID4gPiA+ID4KPiA+ID4g
-PiA+IFNvIGZ1bmRhbWVudGFsbHkgd2UgZG8gYWNjZXNzX29rIGNoZWNrcyB3aGVuIHN1cHBseWlu
-Zwo+ID4gPiA+ID4gdGhlIG1lbW9yeSB0YWJsZSB0byB0aGUga2VybmVsIHRocmVhZCwgYW5kIHdl
-IHNob3VsZAo+ID4gPiA+ID4gZG8gdGhlIHNwZWMgYmFycmllciB0aGVyZS4KPiA+ID4gPiA+Cj4g
-PiA+ID4gPiBUaGVuIHdlIGNhbiBqdXN0IGNyZWF0ZSBhbmQgdXNlIGEgdmFyaWFudCBvZiB1YWNj
-ZXNzIG1hY3JvcyB0aGF0IGRvZXMKPiA+ID4gPiA+IG5vdCBpbmNsdWRlIHRoZSBiYXJyaWVyPwo+
-ID4gPiA+ID4KPiA+ID4gPiA+IE9yLCBob3cgYWJvdXQgbW92aW5nIHRoZSBiYXJyaWVyIGludG8g
-YWNjZXNzX29rPwo+ID4gPiA+ID4gVGhpcyB3YXkgcmVwZWF0ZWQgYWNjZXNzZXMgd2l0aCBhIHNp
-bmdsZSBhY2Nlc3Nfb2sgZ2V0IGEgYml0IGZhc3Rlci4KPiA+ID4gPiA+IENDIERhbiBXaWxsaWFt
-cyBvbiB0aGlzIGlkZWEuCj4gPiA+ID4KPiA+ID4gPiBJdCB3b3VsZCBiZSBpbnRlcmVzdGluZyB0
-byBzZWUgaG93IGV4cGVuc2l2ZSByZS1kb2luZyB0aGUgYWRkcmVzcwo+ID4gPiA+IGxpbWl0IGNo
-ZWNrIGlzIGNvbXBhcmVkIHRvIHRoZSBzcGVjdWxhdGlvbiBiYXJyaWVyLiBJLmUuIGp1c3Qgc3dp
-dGNoCj4gPiA+ID4gdmhvc3RfZ2V0X3VzZXIoKSB0byB1c2UgZ2V0X3VzZXIoKSByYXRoZXIgdGhh
-biBfX2dldF91c2VyKCkuIFRoYXQgd2lsbAo+ID4gPiA+IHNhbml0aXplIHRoZSBwb2ludGVyIGlu
-IHRoZSBzcGVjdWxhdGl2ZSBwYXRoIHdpdGhvdXQgYSBiYXJyaWVyLgo+ID4gPgo+ID4gPiBIbW0g
-aXQncyB3YXkgY2hlYXBlciBldmVuIHRob3VnaCBJSVJDIGl0J3MgbWVhc3VyZWFibGUuCj4gPiA+
-IEphc29uLCB3b3VsZCB5b3UgbGlrZSB0byB0cnk/Cj4gPiA+IEFsdGhvdWdoIGZyYW5rbHkgX19n
-ZXRfdXNlciBiZWluZyBzbG93ZXIgdGhhbiBnZXRfdXNlciBmZWVscyB2ZXJ5IHdyb25nLgo+ID4g
-PiBOb3QgeWV0IHN1cmUgd2hhdCB0byBkbyBleGFjdGx5IGJ1dCB3b3VsZCB5b3UgYWdyZWU/Cj4g
-Pgo+ID4gQWdyZWUuIF9fZ2V0X3VzZXIoKSBiZWluZyBmYXN0ZXIgdGhhbiBnZXRfdXNlcigpIGRl
-ZmVhdHMgdGhlIHdob2xlCj4gPiBwb2ludCBvZiBjb252ZXJ0aW5nIGNvZGUgcGF0aHMgdG8gdGhl
-IGFjY2Vzc19vaygpICsgX19nZXRfdXNlcigpCj4gPiBwYXR0ZXJuLgo+Cj4gRGlkIHlvdSBtZWFu
-IHRoZSByZXZlcnNlPwoKSG1tLCBuby4uLiBJJ2xsIHJlcGhyYXNlOiBfX2dldF91c2VyKCkgc2hv
-dWxkIGhhdmUgbG93ZXIgb3ZlcmhlYWQgdGhhbgpnZXRfdXNlcigpLgpfX19fX19fX19fX19fX19f
-X19fX19fX19fX19fX19fX19fX19fX19fX19fX19fXwpWaXJ0dWFsaXphdGlvbiBtYWlsaW5nIGxp
-c3QKVmlydHVhbGl6YXRpb25AbGlzdHMubGludXgtZm91bmRhdGlvbi5vcmcKaHR0cHM6Ly9saXN0
-cy5saW51eGZvdW5kYXRpb24ub3JnL21haWxtYW4vbGlzdGluZm8vdmlydHVhbGl6YXRpb24=
+Pavel Tatashin wrote on Mon, Jan 07, 2019:
+> I could not reproduce the problem. Did you suspend to memory between
+> wake ups? Does this time jump happen every time, even if your laptop
+> sleeps for a minute?
+
+I'm not sure I understand "suspend to memory between the wake ups".
+The full sequence is:
+ - start a VM (just in case, I let it boot till the end)
+ - suspend to memory (aka systemctl suspend) the host
+ - after resuming the host, soft reboot the VM (login through
+serial/ssh/whatever and reboot or in the qemu console 'system_reset')
+
+I've just slept exactly one minute and reproduced again with the fedora
+stock kernel now (4.19.13-300.fc29.x86_64) in the VM.
+
+Interestingly I'm not getting the same offset between multiple reboots
+now despite not suspending again; but if I don't suspend I cannot seem
+to get it to give an offset at all (only tried for a few minutes; this
+might not be true) ; OTOH I pushed my luck further and even with a five
+seconds sleep I'm getting a noticeable offset on first VM reboot after
+resume:
+
+[    0.000000] Hypervisor detected: KVM
+[    0.000000] kvm-clock: Using msrs 4b564d01 and 4b564d00
+[  179.362163] kvm-clock: cpu 0, msr 13c01001, primary cpu clock
+[  179.362163] clocksource: kvm-clock: mask: 0xffffffffffffffff max_cycles: 0x1cd42e4dffb, max_idle_ns: 881590591483 ns
+
+Honestly not sure what more information I could give, I'll try on some
+other hardware than my laptop (if I can get a server to resume after
+suspend through ipmi or wake on lan); but I don't have anything I could
+install ubuntu on to try their qemu's version... although I really don't
+want to believe that's the difference...
+
+Thanks,
+-- 
+Dominique
