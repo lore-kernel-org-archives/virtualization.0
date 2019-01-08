@@ -1,16 +1,17 @@
-From: Greg KH <gregkh@linuxfoundation.org>
-Subject: Re: [PATCH v4 3/3] virtio_balloon: remove the unnecessary
-	0-initialization
-Date: Tue, 8 Jan 2019 08:10:50 +0100
-Message-ID: <20190108071049.GC32048__42228.5149260007$1546931346$gmane$org@kroah.com>
-References: <1546923005-40517-1-git-send-email-wei.w.wang@intel.com>
-	<1546923005-40517-4-git-send-email-wei.w.wang@intel.com>
+From: Christian Borntraeger <borntraeger@de.ibm.com>
+Subject: Re: [PATCH v3 1/3] virtio-balloon: tweak config_changed implementation
+Date: Tue, 8 Jan 2019 09:46:04 +0100
+Message-ID: <20f5fb20-612a-fe37-c5e1-af5ecb98f5d3__20285.1864429705$1546937057$gmane$org@de.ibm.com>
+References: <1546844466-38079-1-git-send-email-wei.w.wang@intel.com>
+	<1546844466-38079-2-git-send-email-wei.w.wang@intel.com>
+	<4ea022d4-6b89-b481-5747-871e154dd21a@de.ibm.com>
+	<5C343688.2060609@intel.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset="utf-8"
+Content-Transfer-Encoding: base64
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-Content-Disposition: inline
-In-Reply-To: <1546923005-40517-4-git-send-email-wei.w.wang@intel.com>
+In-Reply-To: <5C343688.2060609@intel.com>
+Content-Language: en-US
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -20,41 +21,36 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Wei Wang <wei.w.wang@intel.com>
-Cc: virtio-dev@lists.oasis-open.org, kvm@vger.kernel.org, mst@redhat.com, cohuck@redhat.com, linux-kernel@vger.kernel.org, stable@vger.kernel.org, virtualization@lists.linux-foundation.org, pasic@linux.ibm.com, pbonzini@redhat.com, dgilbert@redhat.com
+To: Wei Wang <wei.w.wang@intel.com>, virtio-dev@lists.oasis-open.org, linux-kernel@vger.kernel.org, virtualization@lists.linux-foundation.org, kvm@vger.kernel.org, mst@redhat.com, cohuck@redhat.com
+Cc: pasic@linux.ibm.com, pbonzini@redhat.com, dgilbert@redhat.com
 List-Id: virtualization@lists.linuxfoundation.org
 
-On Tue, Jan 08, 2019 at 12:50:05PM +0800, Wei Wang wrote:
-> We've changed to kzalloc the vb struct, so no need to 0-initialize
-> this field one more time.
-> 
-> Signed-off-by: Wei Wang <wei.w.wang@intel.com>
-> Reviewed-by: Cornelia Huck <cohuck@redhat.com>
-> ---
->  drivers/virtio/virtio_balloon.c | 1 -
->  1 file changed, 1 deletion(-)
-> 
-> diff --git a/drivers/virtio/virtio_balloon.c b/drivers/virtio/virtio_balloon.c
-> index d48c12c..048959a 100644
-> --- a/drivers/virtio/virtio_balloon.c
-> +++ b/drivers/virtio/virtio_balloon.c
-> @@ -925,7 +925,6 @@ static int virtballoon_probe(struct virtio_device *vdev)
->  						  VIRTIO_BALLOON_CMD_ID_STOP);
->  		vb->cmd_id_stop = cpu_to_virtio32(vb->vdev,
->  						  VIRTIO_BALLOON_CMD_ID_STOP);
-> -		vb->num_free_page_blocks = 0;
->  		spin_lock_init(&vb->free_page_list_lock);
->  		INIT_LIST_HEAD(&vb->free_page_list);
->  		if (virtio_has_feature(vdev, VIRTIO_BALLOON_F_PAGE_POISON)) {
-> -- 
-> 2.7.4
-> 
-
-<formletter>
-
-This is not the correct way to submit patches for inclusion in the
-stable kernel tree.  Please read:
-    https://www.kernel.org/doc/html/latest/process/stable-kernel-rules.html
-for how to do this properly.
-
-</formletter>
+CgpPbiAwOC4wMS4yMDE5IDA2OjM1LCBXZWkgV2FuZyB3cm90ZToKPiBPbiAwMS8wNy8yMDE5IDA5
+OjQ5IFBNLCBDaHJpc3RpYW4gQm9ybnRyYWVnZXIgd3JvdGU6Cj4+Cj4+IE9uIDA3LjAxLjIwMTkg
+MDg6MDEsIFdlaSBXYW5nIHdyb3RlOgo+Pj4gdmlydGlvLWNjdyBoYXMgZGVhZGxvY2sgaXNzdWVz
+IHdpdGggcmVhZGluZyB0aGUgY29uZmlnIHNwYWNlIGluc2lkZSB0aGUKPj4+IGludGVycnVwdCBj
+b250ZXh0LCBzbyB3ZSB0d2VhayB0aGUgdmlydGJhbGxvb25fY2hhbmdlZCBpbXBsZW1lbnRhdGlv
+bgo+Pj4gYnkgbW92aW5nIHRoZSBjb25maWcgcmVhZCBvcGVyYXRpb25zIGludG8gdGhlIHJlbGF0
+ZWQgd29ya3F1ZXVlIGNvbnRleHRzLgo+Pj4gVGhlIGNvbmZpZ19yZWFkX2JpdG1hcCBpcyB1c2Vk
+IGFzIGEgZmxhZyB0byB0aGUgd29ya3F1ZXVlIGNhbGxiYWNrcwo+Pj4gYWJvdXQgdGhlIHJlbGF0
+ZWQgY29uZmlnIGZpZWxkcyB0aGF0IG5lZWQgdG8gYmUgcmVhZC4KPj4+Cj4+PiBUaGUgY21kX2lk
+X3JlY2VpdmVkIGlzIGFsc28gcmVuYW1lZCB0byBjbWRfaWRfcmVjZWl2ZWRfY2FjaGUsIGFuZAo+
+Pj4gdGhlIHZhbHVlIHNob3VsZCBiZSBvYnRhaW5lZCB2aWEgdmlydGlvX2JhbGxvb25fY21kX2lk
+X3JlY2VpdmVkLgo+Pj4KPj4+IFJlcG9ydGVkLWJ5OiBDaHJpc3RpYW4gQm9ybnRyYWVnZXIgPGJv
+cm50cmFlZ2VyQGRlLmlibS5jb20+Cj4+PiBTaWduZWQtb2ZmLWJ5OiBXZWkgV2FuZyA8d2VpLncu
+d2FuZ0BpbnRlbC5jb20+Cj4+PiBSZXZpZXdlZC1ieTogQ29ybmVsaWEgSHVjayA8Y29odWNrQHJl
+ZGhhdC5jb20+Cj4+PiBSZXZpZXdlZC1ieTogSGFsaWwgUGFzaWMgPHBhc2ljQGxpbnV4LmlibS5j
+b20+Cj4+IFRvZ2V0aGVyIHdpdGgKPj4gwqDCoCB2aXJ0aW9fcGNpOiB1c2UgcXVldWUgaWR4IGlu
+c3RlYWQgb2YgYXJyYXkgaWR4IHRvIHNldCB1cCB0aGUgdnEKPj4gwqDCoCB2aXJ0aW86IGRvbid0
+IGFsbG9jYXRlIHZxcyB3aGVuIG5hbWVzW2ldID0gTlVMTAo+Pgo+PiBUZXN0ZWQtYnk6IENocmlz
+dGlhbiBCb3JudHJhZWdlciA8Ym9ybnRyYWVnZXJAZGUuaWJtLmNvbT4KPiAKPiBPSy4gSSBkb24n
+dCBwbGFuIHRvIHNlbmQgYSBuZXcgdmVyc2lvbiBvZiB0aGUgYWJvdmUgcGF0Y2hlcyBhcyBubyBj
+aGFuZ2VzIG5lZWRlZCBzbyBmYXIuCj4gCj4gTWljaGFlbCwgaWYgdGhlIGFib3ZlIHR3byBwYXRj
+aGVzIGxvb2sgZ29vZCB0byB5b3UsIHBsZWFzZSBoZWxwIGFkZCB0aGUgcmVsYXRlZCB0ZXN0ZWQt
+YnkKPiBhbmQgcmV2aWV3ZWQtYnkgdGFncy4gVGhhbmtzLgoKQ2FuIHdlIGFsc28gbWFrZSBzdXJl
+IHRoYXQgCgp2aXJ0aW9fcGNpOiB1c2UgcXVldWUgaWR4IGluc3RlYWQgb2YgYXJyYXkgaWR4IHRv
+IHNldCB1cCB0aGUgdnEKdmlydGlvOiBkb24ndCBhbGxvY2F0ZSB2cXMgd2hlbiBuYW1lc1tpXSA9
+IE5VTEwKCmFsc28gbGFuZCBpbiBzdGFibGU/CgpfX19fX19fX19fX19fX19fX19fX19fX19fX19f
+X19fX19fX19fX19fX19fX19fXwpWaXJ0dWFsaXphdGlvbiBtYWlsaW5nIGxpc3QKVmlydHVhbGl6
+YXRpb25AbGlzdHMubGludXgtZm91bmRhdGlvbi5vcmcKaHR0cHM6Ly9saXN0cy5saW51eGZvdW5k
+YXRpb24ub3JnL21haWxtYW4vbGlzdGluZm8vdmlydHVhbGl6YXRpb24=
