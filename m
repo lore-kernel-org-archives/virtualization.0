@@ -1,7 +1,7 @@
 From: Gerd Hoffmann <kraxel@redhat.com>
-Subject: [PATCH v2 04/15] drm/bochs: atomic: add mode_set_nofb callback.
-Date: Tue,  8 Jan 2019 12:25:08 +0100
-Message-ID: <20190108112519.27473-5-kraxel__32980.8572344065$1546946625$gmane$org@redhat.com>
+Subject: [PATCH v2 07/15] drm/bochs: atomic: use atomic page_flip helper
+Date: Tue,  8 Jan 2019 12:25:11 +0100
+Message-ID: <20190108112519.27473-8-kraxel__43504.5958184221$1546946626$gmane$org@redhat.com>
 References: <20190108112519.27473-1-kraxel@redhat.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
@@ -21,41 +21,55 @@ To: dri-devel@lists.freedesktop.org, David Airlie <airlied@redhat.com>
 Cc: andr2000@gmail.com, David Airlie <airlied@linux.ie>, open list <linux-kernel@vger.kernel.org>, "open list:DRM DRIVER FOR BOCHS VIRTUAL GPU" <virtualization@lists.linux-foundation.org>
 List-Id: virtualization@lists.linuxfoundation.org
 
-Conversion to atomic modesetting, step two.
-Add mode_set_nofb crtc helper callback.
+Conversion to atomic modesetting, step five.
+Use atomic page_flip helper for crtc.
 
 Signed-off-by: Gerd Hoffmann <kraxel@redhat.com>
 Reviewed-by: Oleksandr Andrushchenko <oleksandr_andrushchenko@epam.com>
 ---
- drivers/gpu/drm/bochs/bochs_kms.c | 9 +++++++++
- 1 file changed, 9 insertions(+)
+ drivers/gpu/drm/bochs/bochs_kms.c | 23 +----------------------
+ 1 file changed, 1 insertion(+), 22 deletions(-)
 
 diff --git a/drivers/gpu/drm/bochs/bochs_kms.c b/drivers/gpu/drm/bochs/bochs_kms.c
-index 2cbd406b1f..56fd7be933 100644
+index 3c91ff652b..f39e291245 100644
 --- a/drivers/gpu/drm/bochs/bochs_kms.c
 +++ b/drivers/gpu/drm/bochs/bochs_kms.c
-@@ -86,6 +86,14 @@ static int bochs_crtc_mode_set(struct drm_crtc *crtc,
- 	return 0;
- }
- 
-+static void bochs_crtc_mode_set_nofb(struct drm_crtc *crtc)
-+{
-+	struct bochs_device *bochs =
-+		container_of(crtc, struct bochs_device, crtc);
-+
-+	bochs_hw_setmode(bochs, &crtc->mode);
-+}
-+
- static void bochs_crtc_prepare(struct drm_crtc *crtc)
+@@ -104,27 +104,6 @@ static void bochs_crtc_commit(struct drm_crtc *crtc)
  {
  }
-@@ -149,6 +157,7 @@ static const struct drm_crtc_helper_funcs bochs_helper_funcs = {
- 	.dpms = bochs_crtc_dpms,
- 	.mode_set = bochs_crtc_mode_set,
- 	.mode_set_base = bochs_crtc_mode_set_base,
-+	.mode_set_nofb = bochs_crtc_mode_set_nofb,
- 	.prepare = bochs_crtc_prepare,
- 	.commit = bochs_crtc_commit,
- 	.atomic_enable = bochs_crtc_atomic_enable,
+ 
+-static int bochs_crtc_page_flip(struct drm_crtc *crtc,
+-				struct drm_framebuffer *fb,
+-				struct drm_pending_vblank_event *event,
+-				uint32_t page_flip_flags,
+-				struct drm_modeset_acquire_ctx *ctx)
+-{
+-	struct bochs_device *bochs =
+-		container_of(crtc, struct bochs_device, crtc);
+-	struct drm_framebuffer *old_fb = crtc->primary->fb;
+-	unsigned long irqflags;
+-
+-	drm_atomic_set_fb_for_plane(crtc->primary->state, fb);
+-	bochs_crtc_mode_set_base(crtc, 0, 0, old_fb);
+-	if (event) {
+-		spin_lock_irqsave(&bochs->dev->event_lock, irqflags);
+-		drm_crtc_send_vblank_event(crtc, event);
+-		spin_unlock_irqrestore(&bochs->dev->event_lock, irqflags);
+-	}
+-	return 0;
+-}
+-
+ static void bochs_crtc_atomic_enable(struct drm_crtc *crtc,
+ 				     struct drm_crtc_state *old_crtc_state)
+ {
+@@ -152,7 +131,7 @@ static void bochs_crtc_atomic_flush(struct drm_crtc *crtc,
+ static const struct drm_crtc_funcs bochs_crtc_funcs = {
+ 	.set_config = drm_atomic_helper_set_config,
+ 	.destroy = drm_crtc_cleanup,
+-	.page_flip = bochs_crtc_page_flip,
++	.page_flip = drm_atomic_helper_page_flip,
+ 	.reset = drm_atomic_helper_crtc_reset,
+ 	.atomic_duplicate_state = drm_atomic_helper_crtc_duplicate_state,
+ 	.atomic_destroy_state = drm_atomic_helper_crtc_destroy_state,
 -- 
 2.9.3
