@@ -1,21 +1,11 @@
-From: "Steven Luong \(sluong\) via Virtualization"
-	<virtualization@lists.linux-foundation.org>
-Subject: Re: kernel vhost demands an interrupt from guest when the ring is
-	full in order to enable guest to submit new packets to the queue
-Date: Tue, 8 Jan 2019 19:05:21 +0000
-Message-ID: <85A70FBE-4B36-47C9-8351-E389BEE9983B@cisco.com>
-References: <4F657BB0-DFB3-445D-872D-C54FA7252542@contoso.com>
-	<20181217173642-mutt-send-email-mst@kernel.org>
-	<4FE702F9-8680-461F-822B-03E81082F4F2@cisco.com>
-	<20181217191142-mutt-send-email-mst@kernel.org>
-Reply-To: "Steven Luong \(sluong\)" <sluong@cisco.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset="utf-8"
-Content-Transfer-Encoding: base64
+From: Ioan Raicu <iraicu@cs.iit.edu>
+Subject: CFP: The 28th Int. ACM Symp. on High-Performance Parallel and
+	Distributed Computing (HPDC'19) 2019
+Date: Tue, 8 Jan 2019 15:08:35 -0600
+Message-ID: <3CEFD363-54B7-4030-BF1D-6BCFD11EB19E@cs.iit.edu>
+Mime-Version: 1.0 (Mac OS X Mail 12.1 \(3445.101.1\))
+Content-Type: multipart/mixed; boundary="===============3139103688113993640=="
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <20181217191142-mutt-send-email-mst@kernel.org>
-Content-Language: en-US
-Content-ID: <6048C1BBF66F464FA5E8247F1DFEE228@emea.cisco.com>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -25,186 +15,451 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: "Michael S. Tsirkin" <mst@redhat.com>
-Cc: "Jerome Tollet (jtollet)" <jtollet@cisco.com>, "Damjan Marion (damarion)" <damarion@cisco.com>, "virtualization@lists.linux-foundation.org" <virtualization@lists.linux-foundation.org>
+To: "virtualization@lists.linux-foundation.org" <virtualization@lists.linux-foundation.org>
 List-Id: virtualization@lists.linuxfoundation.org
 
-TWljaGFlbCwNCg0KVGhhbmsgeW91IHZlcnkgbXVjaCBmb3IgeW91ciBoZWxwLiBJIGdyZWF0bHkg
-YXBwcmVjaWF0ZSBpdC4NCg0KU3RldmVuDQoNCu+7v09uIDEyLzE3LzE4LCA0OjE2IFBNLCAiTWlj
-aGFlbCBTLiBUc2lya2luIiA8bXN0QHJlZGhhdC5jb20+IHdyb3RlOg0KDQogICAgT24gTW9uLCBE
-ZWMgMTcsIDIwMTggYXQgMTE6NTY6NTlQTSArMDAwMCwgU3RldmVuIEx1b25nIChzbHVvbmcpIHdy
-b3RlOg0KICAgID4gDQogICAgPiANCiAgICA+IE9uIDEyLzE3LzE4LCAyOjU1IFBNLCAiTWljaGFl
-bCBTLiBUc2lya2luIiA8bXN0QHJlZGhhdC5jb20+IHdyb3RlOg0KICAgID4gDQogICAgPiAgICAg
-T24gVGh1LCBEZWMgMTMsIDIwMTggYXQgMTE6MjQ6MjhQTSArMDAwMCwgU3RldmVuIEx1b25nIChz
-bHVvbmcpIHZpYSBWaXJ0dWFsaXphdGlvbiB3cm90ZToNCiAgICA+ICAgICA+IEZvbGtzLA0KICAg
-ID4gICAgID4gDQogICAgPiAgICAgPiAgDQogICAgPiAgICAgPiANCiAgICA+ICAgICA+IFdlIGNh
-bWUgYWNyb3NzIGEgbWVtb3J5IHJhY2UgY29uZGl0aW9uIGJldHdlZW4gVlBQIHZob3N0IGRyaXZl
-ciBhbmQgdGhlIGtlcm5lbA0KICAgID4gICAgID4gdmhvc3QuIFZQUCBpcyBydW5uaW5nIGEgdGFw
-IGludGVyZmFjZSBvdmVyIHZob3N0IGJhY2tlbmQuIEluIHRoaXMgY2FzZSwgVlBQIGlzDQogICAg
-PiAgICAgPiBhY3RpbmcgYXMgdGhlIHZob3N0IGRyaXZlciBtb2RlIGFuZCB0aGUga2VybmVsIHZo
-b3N0IGlzIGFjdGluZyBhcyB0aGUgdmhvc3QNCiAgICA+ICAgICA+IGRldmljZSBtb2RlLg0KICAg
-ID4gICAgID4gDQogICAgPiAgICAgPiAgDQogICAgPiAgICAgPiANCiAgICA+ICAgICA+IEluIHRo
-ZSBrZXJuZWwgdmhvc3TigJlzIFRYIHRyYWZmaWMgZGlyZWN0aW9uIHdoaWNoIGlzIFZQUOKAmXMg
-UlggdHJhZmZpYyBkaXJlY3Rpb24sDQogICAgPiAgICAgPiBrZXJuZWwgdmhvc3QgaXMgdGhlIHBy
-b2R1Y2VyIGFuZCBWUFAgaXMgdGhlIGNvbnN1bWVyLg0KICAgID4gICAgIA0KICAgID4gICAgIExv
-b2tpbmcgYXQgdmhvc3QgbmV0IGtlcm5lbCBjb2RlLCBpdCBzZWVtcyB0byB1c2UgdGhlDQogICAg
-PiAgICAgc2FtZSB0ZXJtaW5vbG9neSBhcyB2aXJ0aW8gbmV0Lg0KICAgID4gICAgIENhbiB5b3Ug
-cGxzIGNsYXJpZnkgd2hpY2ggcmluZyBudW1iZXIgZG8geW91IHVzZSAwIG9yIDE/DQogICAgPiAN
-CiAgICA+IDxTVkw+IDAuIDwvU1ZMPg0KICAgID4gICAgIA0KICAgID4gICAgIEkgd2lsbCBhc3N1
-bWUgcmluZyAwIGJlbG93Lg0KICAgID4gICAgIA0KICAgID4gICAgIA0KICAgID4gICAgIA0KICAg
-ID4gICAgID4gS2VybmVsIHZob3N0IHBsYWNlcw0KICAgID4gICAgID4gdHJhZmZpYyBpbiBrZXJu
-ZWwgdmhvc3TigJlzIFRYIHZyaW5nLiBWUFAgcmVtb3ZlcyB0cmFmZmljIGluIFZQUOKAmXMgUlgg
-dnJpbmcuDQogICAgPiAgICAgDQogICAgPiAgICAgDQogICAgPiAgICAgU28gVlBQIG1ha2VzIGJ1
-ZmZlcnMgYXZhaWxhYmxlIGFuZCB2aG9zdCBrZXJuZWwgdXNlcyB0aGVtPw0KICAgID4gICAgIA0K
-ICAgID4gPFNWTD4gQ29ycmVjdC4gPC9TVkw+DQogICAgPiAgICAgDQogICAgPiAgICAgPiBJdA0K
-ICAgID4gICAgID4gaXMgaW5ldml0YWJsZSB0aGF0IHRoZSB2cmluZyBtYXkgYmVjb21lIGZ1bGwg
-dW5kZXIgaGVhdnkgdHJhZmZpYyBhbmQgdGhlIGtlcm5lbA0KICAgID4gICAgID4gdmhvc3QgbWF5
-IGhhdmUgdG8gc3RvcCBhbmQgd2FpdCBmb3IgdGhlIGd1ZXN0IChWUFApIHRvIGVtcHR5IHRoZSB2
-cmluZyBhbmQgdG8NCiAgICA+ICAgICA+IHJlZmlsbCB0aGUgdnJpbmcgd2l0aCBkZXNjcmlwdG9y
-cy4gV2hlbiB0aGF0IGNhc2UgaGFwcGVucywga2VybmVsIHZob3N0IGNsZWFycw0KICAgID4gICAg
-ID4gdGhlIGJpdCBpbiB0aGUgdnJpbmfigJlzIHVzZWQgZmxhZyB0byByZXF1ZXN0IGFuIGludGVy
-cnVwdC9ub3RpZmljYXRpb24uIER1ZSB0bw0KICAgID4gICAgID4gc2hhcmVkIG1lbW9yeSByYWNl
-IGNvbmRpdGlvbiwgVlBQIG1heSBtaXNzIHRoZSBjbGVhcmluZyBvZiB0aGUgdnJpbmfigJlzIHVz
-ZWQNCiAgICA+ICAgICA+IGZsYWcgZnJvbSBrZXJuZWwgdmhvc3QgYW5kIGRpZG7igJl0IHNlbmQg
-a2VybmVsIHZob3N0IGFuIGludGVycnVwdCBhZnRlciBWUFANCiAgICA+ICAgICA+IGVtcHRpZXMg
-YW5kIHJlZmlsbHMgdGhlIHZyaW5nIHdpdGggbmV3IGRlc2NyaXB0b3JzLg0KICAgID4gICAgIA0K
-ICAgID4gICAgIFNvIGtlcm5lbCB2aG9zdCdzIHdha2V1cHMgYXJlIHNpZ25hbGxlZCB0aHJvdWdo
-IGV2ZW50ZmQgLSBJIGFzc3VtZQ0KICAgID4gICAgIHRoaXMgaXMgd2hhdCB5b3UgbWVhbiBieSBh
-biBpbnRlcnJ1cHQ/DQogICAgPiAgICAgDQogICAgPiAgICAgDQogICAgPiAgICAgVG8gcHJldmVu
-dCB0aGUgcmFjZSB0aGF0IHlvdSBkZXNjcmliZSwgdmhvc3QgaGFzIHRoaXMgY29kZToNCiAgICA+
-ICAgICANCiAgICA+ICAgICAgICAgICAgICAgICAgICAgLyogT0ssIG5vdyB3ZSBuZWVkIHRvIGtu
-b3cgYWJvdXQgYWRkZWQgZGVzY3JpcHRvcnMuICovDQogICAgPiAgICAgICAgICAgICAgICAgICAg
-IGlmICghaGVhZGNvdW50KSB7DQogICAgPiAgICAgICAgICAgICAgICAgICAgICAgICAgICAgaWYg
-KHVubGlrZWx5KGJ1c3lsb29wX2ludHIpKSB7DQogICAgPiAgICAgICAgICAgICAgICAgICAgICAg
-ICAgICAgICAgICAgICB2aG9zdF9wb2xsX3F1ZXVlKCZ2cS0+cG9sbCk7DQogICAgPiAgICAgICAg
-ICAgICAgICAgICAgICAgICAgICAgfSBlbHNlIGlmICh1bmxpa2VseSh2aG9zdF9lbmFibGVfbm90
-aWZ5KCZuZXQtPmRldiwgdnEpKSkgew0KICAgID4gICAgICAgICAgICAgICAgICAgICAgICAgICAg
-ICAgICAgICAgLyogVGhleSBoYXZlIHNsaXBwZWQgb25lIGluIGFzIHdlIHdlcmUNCiAgICA+ICAg
-ICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAqIGRvaW5nIHRoYXQ6IGNoZWNrIGFn
-YWluLiAqLw0KICAgID4gICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgdmhvc3Rf
-ZGlzYWJsZV9ub3RpZnkoJm5ldC0+ZGV2LCB2cSk7DQogICAgPiAgICAgICAgICAgICAgICAgICAg
-ICAgICAgICAgICAgICAgICBjb250aW51ZTsNCiAgICA+ICAgICAgICAgICAgICAgICAgICAgICAg
-ICAgICB9DQogICAgPiAgICAgICAgICAgICAgICAgICAgICAgICAgICAgLyogTm90aGluZyBuZXc/
-ICBXYWl0IGZvciBldmVudGZkIHRvIHRlbGwgdXMNCiAgICA+ICAgICANCiAgICA+ICAgICBTbyBy
-aW5nIHNob3VsZCBiZSByZS1jaGVja2VkIGFmdGVyIG5vdGlmaWNhdGlvbnMgYXJlIGVuYWJsZWQu
-DQogICAgPiAgICAgSWYgcmluZyBpcyBubyBsb25nZXIgZW1wdHksIHZob3N0IHdpbGwgcHJvY2Vl
-ZCB0byBoYW5kbGUgdGhlIHJpbmcuICANCiAgICA+ICAgICBUaGlzIGNvZGUgaGFzIGJlZW4gYXJv
-dW5kIGZvciBtYW55IHllYXJzLg0KICAgID4gICAgIA0KICAgID4gICAgIFRodXMgaWYgVlBQIGRv
-ZXNuJ3Qgd29yayB3aXRoIGl0IHRoZW4gSSBzdXNwZWN0IGl0IGRvZXMgc29tZXRoaW5nDQogICAg
-PiAgICAgZGlmZmVyZW50bHksIGUuZy4gaXMgaXQgcG9zc2libGUgdGhhdCBpdCBpcyBtaXNzaW5n
-IGEgbWVtb3J5DQogICAgPiAgICAgYmFycmllciBhZnRlciB3cml0aW5nIG91dCB0aGUgYXZhaWxh
-YmxlIGJ1ZmZlcnMgYW5kIGJlZm9yZQ0KICAgID4gICAgIGNoZWNraW5nIHRoZSBmbGFncz8NCiAg
-ICA+ICAgICANCiAgICA+ICAgICA8U1ZMPiBDYW4gdGhlIHJhY2UgY29uZGl0aW9uIGJlIGF2b2lk
-ZWQgdG90YWxseT8gSGVyZSBpcyB0aGUgc2NlbmFyaW8uDQogICAgPiANCiAgICA+IHQwOiBWUFAg
-cmVmaWxscyB0aGUgdnJpbmcgd2l0aCBuZXcgZGVzY3JpcHRvcnMsIG5vdCB5ZXQgc2V0cyBhdmFp
-bC0+aWR4IHRvIG1ha2UgaXQgYXZhaWxhYmxlIHRvIGtlcm5lbCB2aG9zdC4gDQogICAgPiB0MTog
-a2VybmVsIHZob3N0IGNoZWNrcyB0aGUgdnJpbmcsIHN0aWxsIHNlZXMgbm8gc3BhY2UgYXZhaWxh
-YmxlLCBidXQgZG9lcyBub3QgeWV0IGV4ZWN1dGUgdGhlIGxpbmUgb2YgY29kZSB0byBjbGVhciB0
-aGUgdXNlZC0+ZmxhZ3MNCiAgICA+IHQyOiB2cHAgZXhlY3V0ZXMgc2ZlbmNlLCBhbmQgc2V0cyBh
-dmFpbC0+aWR4IHRvIG1ha2UgaXQgYXZhaWxhYmxlIHRvIGtlcm5lbCB2aG9zdA0KICAgIA0KICAg
-IEF0IHRoaXMgcG9pbnQgeW91IG5lZWQgYSBmdWxsIG1lbW9yeSBiYXJyaWVyLiBFLmcuIG1mZW5j
-ZSwgb3IgeG9yLg0KICAgIE90aGVyd2lzZSB0aGUgcmVhZCBjYW4gZ2V0IHJlLW9yZGVyZWQgYmVm
-b3JlIHRoZSB3cml0ZS4NCiAgICANCiAgICA+IHQzOiB2cHAgY2hlY2tzIHVzZWQtPmZsYWdzLCBp
-dCBpcyBzdGlsbCAxLCB2cHAgc2tpcHMgc2VuZGluZyB0aGUgaW50ZXJydXB0DQogICAgPiB0NDog
-a2VybmVsIHZob3N0IGNsZWFycyB1c2VkLT5mbGFncyB0byBpbmRpY2F0ZSBpbnRlcnJ1cHQgaXMg
-cmVxdWlyZWQuIEJ1dCBWUFAganVzdCBtaXNzZWQgaXQuDQogICAgDQogICAgZmluZSBidXQgYXQg
-dGhpcyBwb2ludCBrZXJuZWwgdmhvc3Qgd2lsbCByZWNoZWNrIHVzaW5nIHZob3N0X2dldF9hdmFp
-bA0KICAgIGFuZCBwcm9jZXNzIHRoZSBidWZmZXJzLiBTbyB0aGUgbGFjayBvZiBub3RpZmljYXRp
-b24gaXNuJ3QgYSBwcm9ibGVtOg0KICAgIA0KICAgIGJvb2wgdmhvc3RfZW5hYmxlX25vdGlmeShz
-dHJ1Y3Qgdmhvc3RfZGV2ICpkZXYsIHN0cnVjdCB2aG9zdF92aXJ0cXVldWUgKnZxKQ0KICAgIHsN
-CiAgICAgICAgICAgIF9fdmlydGlvMTYgYXZhaWxfaWR4Ow0KICAgICAgICAgICAgaW50IHI7DQog
-ICAgDQogICAgICAgICAgICBpZiAoISh2cS0+dXNlZF9mbGFncyAmIFZSSU5HX1VTRURfRl9OT19O
-T1RJRlkpKQ0KICAgICAgICAgICAgICAgICAgICByZXR1cm4gZmFsc2U7DQogICAgICAgICAgICB2
-cS0+dXNlZF9mbGFncyAmPSB+VlJJTkdfVVNFRF9GX05PX05PVElGWTsNCiAgICAgICAgICAgIGlm
-ICghdmhvc3RfaGFzX2ZlYXR1cmUodnEsIFZJUlRJT19SSU5HX0ZfRVZFTlRfSURYKSkgew0KICAg
-ICAgICAgICAgICAgICAgICByID0gdmhvc3RfdXBkYXRlX3VzZWRfZmxhZ3ModnEpOw0KICAgICAg
-ICAgICAgICAgICAgICBpZiAocikgew0KICAgICAgICAgICAgICAgICAgICAgICAgICAgIHZxX2Vy
-cih2cSwgIkZhaWxlZCB0byBlbmFibGUgbm90aWZpY2F0aW9uIGF0ICVwOiAlZFxuIiwNCiAgICAg
-ICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgJnZxLT51c2VkLT5mbGFncywgcik7DQogICAg
-ICAgICAgICAgICAgICAgICAgICAgICAgcmV0dXJuIGZhbHNlOw0KICAgICAgICAgICAgICAgICAg
-ICB9DQogICAgICAgICAgICB9IGVsc2Ugew0KICAgICAgICAgICAgICAgICAgICByID0gdmhvc3Rf
-dXBkYXRlX2F2YWlsX2V2ZW50KHZxLCB2cS0+YXZhaWxfaWR4KTsNCiAgICAgICAgICAgICAgICAg
-ICAgaWYgKHIpIHsNCiAgICAgICAgICAgICAgICAgICAgICAgICAgICB2cV9lcnIodnEsICJGYWls
-ZWQgdG8gdXBkYXRlIGF2YWlsIGV2ZW50IGluZGV4IGF0ICVwOiAlZFxuIiwNCiAgICAgICAgICAg
-ICAgICAgICAgICAgICAgICAgICAgICAgdmhvc3RfYXZhaWxfZXZlbnQodnEpLCByKTsNCiAgICAg
-ICAgICAgICAgICAgICAgICAgICAgICByZXR1cm4gZmFsc2U7DQogICAgICAgICAgICAgICAgICAg
-IH0NCiAgICAgICAgICAgIH0NCiAgICAgICAgICAgIC8qIFRoZXkgY291bGQgaGF2ZSBzbGlwcGVk
-IG9uZSBpbiBhcyB3ZSB3ZXJlIGRvaW5nIHRoYXQ6IG1ha2UNCiAgICAgICAgICAgICAqIHN1cmUg
-aXQncyB3cml0dGVuLCB0aGVuIGNoZWNrIGFnYWluLiAqLw0KICAgICAgICAgICAgc21wX21iKCk7
-DQogICAgICAgICAgICByID0gdmhvc3RfZ2V0X2F2YWlsKHZxLCBhdmFpbF9pZHgsICZ2cS0+YXZh
-aWwtPmlkeCk7DQogICAgICAgICAgICBpZiAocikgew0KICAgICAgICAgICAgICAgICAgICB2cV9l
-cnIodnEsICJGYWlsZWQgdG8gY2hlY2sgYXZhaWwgaWR4IGF0ICVwOiAlZFxuIiwNCiAgICAgICAg
-ICAgICAgICAgICAgICAgICAgICZ2cS0+YXZhaWwtPmlkeCwgcik7DQogICAgICAgICAgICAgICAg
-ICAgIHJldHVybiBmYWxzZTsNCiAgICAgICAgICAgIH0NCiAgICANCiAgICAgICAgICAgIHJldHVy
-biB2aG9zdDE2X3RvX2NwdSh2cSwgYXZhaWxfaWR4KSAhPSB2cS0+YXZhaWxfaWR4Ow0KICAgIH0N
-CiAgICANCiAgICA+VGhlIHJlc3VsdCBpcyBrZXJuZWwgdmhvc3QgZ290IHN0dWNrIGV2ZW4gdGhv
-dWdoIHRoZSB2cmluZyBpcyBmaWxsZWQgd2l0aCBuZXcgZGVzY3JpcHRvcnMuDQogICAgDQogICAg
-U2hvdWxkbid0IGJlLiBNYXliZSB5b3UgYXJlIG1pc3NpbmcgYSBmZW5jZSBiZWZvcmUgcmVhZGlu
-ZyB1c2VkLT5mbGFncz8NCiAgICANCiAgICANCiAgICA+IFN0ZXZlbg0KICAgID4gDQogICAgPiA8
-L1NWTD4NCiAgICA+ICAgICANCiAgICA+ICAgICANCiAgICA+ICAgICA+IFVuZm9ydHVuYXRlbHks
-IHRoaXMgbWlzc2VkDQogICAgPiAgICAgPiBub3RpZmljYXRpb24gY2F1c2VzIHRoZSBrZXJuZWwg
-dmhvc3QgdG8gYmUgc3R1Y2sgYmVjYXVzZSBvbmNlIHRoZSBrZXJuZWwgdmhvc3QNCiAgICA+ICAg
-ICA+IGlzIHdhaXRpbmcgZm9yIGFuIGludGVycnVwdC9ub3RpZmljYXRpb24gZnJvbSB0aGUgZ3Vl
-c3QsIG9ubHkgYW4gaW50ZXJydXB0Lw0KICAgID4gICAgID4gbm90aWZpY2F0aW9uIGZyb20gdGhl
-IGd1ZXN0IGNhbiByZXN1bWUvcmUtZW5hYmxlIHRoZSBndWVzdCBmcm9tIHN1Ym1pdHRpbmcgbmV3
-DQogICAgPiAgICAgPiBwYWNrZXRzIHRvIHRoZSB2cmluZy4gVGhpcyBkZXNpZ24gc2VlbXMgdnVs
-bmVyYWJsZS4NCiAgICA+ICAgICANCiAgICA+ICAgICBUaGUgcHJvdG9jb2wgcmlnaHQgbm93IHJl
-bGllcyBvbiBub3RpZmljYXRpb25zIG5ldmVyIGJlaW5nIGxvc3QuDQogICAgPiAgICAgDQogICAg
-PiAgICAgSSBjYW4gaW1hZ2luZSBhbiBhbHRlcm5hdGl2ZSB3aGVyZSBkZXZpY2UgYWxzbyByZS1j
-aGVja3MNCiAgICA+ICAgICB0aGUgcmluZ3MgcGVyaW9kaWNhbGx5LCBidXQgdGhhdCB3b3VsZCBp
-bnZvbHZlIHJ1bm5pbmcNCiAgICA+ICAgICB0aW1lcnMgaG9zdCBzaWRlIHdoaWNoIGlzIG9ubHkg
-cG9zc2libGUgaWYgdGhlcmUncyBhDQogICAgPiAgICAgZnJlZSBwcm9jZXNzb3IgdGhhdCBjYW4g
-aGFuZGxlIHRoZW0uIEZ1cnRoZXIsDQogICAgPiAgICAgaXQgd2lsbCBzdGlsbCBsZWFkIHRvIHN0
-YWxscyBhbmQgcGFja2V0IGRyb3BzLCB3aGljaCB3aWxsDQogICAgPiAgICAgYmUgaGFyZGVyIHRv
-IGRlYnVnLg0KICAgID4gICAgIA0KICAgID4gICAgIFRoYXQncyBqdXN0IG15ICQuMDIsIHBscyBm
-ZWVsIGZyZWUgdG8gdGFrZSBpdCB3aXRoIHRoZSB2aXJ0aW8gdGMNCiAgICA+ICAgICBtYXliZSBv
-dGhlcnMgd2lsbCBmZWVsIGRpZmZlcmVudGx5Lg0KICAgID4gICAgIA0KICAgID4gICAgID4gU2hv
-dWxkIHRoZSBrZXJuZWwgdmhvc3QNCiAgICA+ICAgICA+IHRvdGFsbHkgZGVwZW5kIG9uIHRoZSBu
-b3RpZmljYXRpb24gZnJvbSB0aGUgZ3Vlc3Q/IFF1b3RpbmcgdGhlIHRleHQgZnJvbQ0KICAgID4g
-ICAgID4gDQogICAgPiAgICAgPiAgDQogICAgPiAgICAgPiANCiAgICA+ICAgICA+IGh0dHA6Ly9k
-b2NzLm9hc2lzLW9wZW4ub3JnL3ZpcnRpby92aXJ0aW8vdjEuMC92aXJ0aW8tdjEuMC5odG1sDQog
-ICAgPiAgICAgPiANCiAgICA+ICAgICA+ICANCiAgICA+ICAgICA+IA0KICAgID4gICAgID4gLyog
-VGhlIGRldmljZSB1c2VzIHRoaXMgaW4gdXNlZC0+ZmxhZ3MgdG8gYWR2aXNlIHRoZSBkcml2ZXI6
-IGRvbuKAmXQga2ljayBtZSANCiAgICA+ICAgICA+ICAqIHdoZW4geW91IGFkZCBhIGJ1ZmZlci4g
-IEl04oCZcyB1bnJlbGlhYmxlLCBzbyBpdOKAmXMgc2ltcGx5IGFuIA0KICAgID4gICAgID4gICog
-b3B0aW1pemF0aW9uLiAqLyANCiAgICA+ICAgICA+ICNkZWZpbmUgVklSVFFfVVNFRF9GX05PX05P
-VElGWSAgMSANCiAgICA+ICAgICA+IA0KICAgID4gICAgID4gIA0KICAgID4gICAgID4gDQogICAg
-PiAgICAgPiBJIGludGVycHJldCB0aGF0IHRoZSBub3RpZmljYXRpb24gaXMgc2ltcGx5IGFuIG9w
-dGltaXphdGlvbiwgbm90IGEgcmVsaWFibGUNCiAgICA+ICAgICA+IG5vdGlmaWNhdGlvbiBtZWNo
-YW5pc20uIA0KICAgID4gICAgIA0KICAgID4gICAgIFdoYXQgd2FzIG1lYW50IEkgdGhpbmsgaXMg
-dGhhdCBzdXBwcmVzc2lvbiBpcyB1bnJlbGlhYmxlLg0KICAgID4gICAgIA0KICAgID4gICAgID5T
-byB0aGUga2VybmVsIHZob3N0IHNob3VsZCBub3QgYmV0IHRoZSBmYXJtIG9uIGl0Lg0KICAgID4g
-ICAgID4gDQogICAgPiAgICAgPiAgDQogICAgPiAgICAgPiANCiAgICA+ICAgICA+IFdlIGVuY291
-bnRlciB0aGUgc2FtZSByYWNlIGNvbmRpdGlvbiBpbiBrZXJuZWwgdmhvc3TigJlzIFJYIHRyYWZm
-aWMgZGlyZWN0aW9uDQogICAgPiAgICAgPiB3aGljaCBjYXVzZXMgdGhlIGtlcm5lbCB2aG9zdCB0
-byBiZSBzdHVjayBkdWUgdG8gbWlzc2VkIGludGVycnVwdC9ub3RpZmljYXRpb24NCiAgICA+ICAg
-ICA+IGFsdGhvdWdoIGl0IGlzIGxlc3MgZnJlcXVlbnQuDQogICAgPiAgICAgDQogICAgPiAgICAg
-DQogICAgPiAgICAgRm9yIHRoZSByZXZlcnNlIGRpcmVjdGlvbiB0aGUgc3BlYyBhY3R1YWxseSBo
-YXMgc29tZSBwc2V1ZG8tY29kZSBhbmQgYSBzdWdnZXN0aW9uDQogICAgPiAgICAgYWJvdXQgaGFu
-ZGxpbmcgdGhhdCByYWNlOg0KICAgID4gICAgIA0KICAgID4gICAgIAlGb3Igb3B0aW1hbCBwZXJm
-b3JtYW5jZSwgYSBkcml2ZXIgTUFZIGRpc2FibGUgdXNlZCBidWZmZXIgbm90aWZpY2F0aW9ucyB3
-aGlsZSBwcm9jZXNzaW5nIHRoZSB1c2VkDQogICAgPiAgICAgCXJpbmcsIGJ1dCBiZXdhcmUgdGhl
-IHByb2JsZW0gb2YgbWlzc2luZyBub3RpZmljYXRpb25zIGJldHdlZW4gZW1wdHlpbmcgdGhlIHJp
-bmcgYW5kIHJlZW5hYmxpbmcgbm8tDQogICAgPiAgICAgCXRpZmljYXRpb25zLiBUaGlzIGlzIHVz
-dWFsbHkgaGFuZGxlZCBieSByZS1jaGVja2luZyBmb3IgbW9yZSB1c2VkIGJ1ZmZlcnMgYWZ0ZXIg
-bm90aWZpY2F0aW9ucyBhcmUgcmUtDQogICAgPiAgICAgCWVuYWJsZWQ6DQogICAgPiAgICAgDQog
-ICAgPiAgICAgCQl2aXJ0cV9kaXNhYmxlX3VzZWRfYnVmZmVyX25vdGlmaWNhdGlvbnModnEpOw0K
-ICAgID4gICAgIAkJZm9yICg7Oykgew0KICAgID4gICAgIAkJCWlmICh2cS0+bGFzdF9zZWVuX3Vz
-ZWQgIT0gbGUxNl90b19jcHUodmlydHEtPnVzZWQuaWR4KSkgew0KICAgID4gICAgIAkJCXZpcnRx
-X2VuYWJsZV91c2VkX2J1ZmZlcl9ub3RpZmljYXRpb25zKHZxKTsNCiAgICA+ICAgICAJCQltYigp
-Ow0KICAgID4gICAgIAkJCWlmICh2cS0+bGFzdF9zZWVuX3VzZWQgIT0gbGUxNl90b19jcHUodmly
-dHEtPnVzZWQuaWR4KSkNCiAgICA+ICAgICAJCQkJYnJlYWs7DQogICAgPiAgICAgCQkJdmlydHFf
-ZGlzYWJsZV91c2VkX2J1ZmZlcl9ub3RpZmljYXRpb25zKHZxKTsNCiAgICA+ICAgICAJCX0NCiAg
-ICA+ICAgICAJCXN0cnVjdCB2aXJ0cV91c2VkX2VsZW0gKmUgPSB2aXJ0cS51c2VkLT5yaW5nW3Zx
-LT5sYXN0X3NlZW5fdXNlZCV2c3pdOw0KICAgID4gICAgIAkJcHJvY2Vzc19idWZmZXIoZSk7DQog
-ICAgPiAgICAgCQl2cS0+bGFzdF9zZWVuX3VzZWQrKzsNCiAgICA+ICAgICANCiAgICA+ICAgICAN
-CiAgICA+ICAgICANCiAgICA+ICAgICA+ICANCiAgICA+ICAgICA+IA0KICAgID4gICAgID4gU3Rl
-dmVuDQogICAgPiAgICAgPiANCiAgICA+ICAgICANCiAgICA+ICAgICA+IF9fX19fX19fX19fX19f
-X19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fDQogICAgPiAgICAgPiBWaXJ0dWFsaXph
-dGlvbiBtYWlsaW5nIGxpc3QNCiAgICA+ICAgICA+IFZpcnR1YWxpemF0aW9uQGxpc3RzLmxpbnV4
-LWZvdW5kYXRpb24ub3JnDQogICAgPiAgICAgPiBodHRwczovL2xpc3RzLmxpbnV4Zm91bmRhdGlv
-bi5vcmcvbWFpbG1hbi9saXN0aW5mby92aXJ0dWFsaXphdGlvbg0KICAgID4gICAgIA0KICAgID4g
-ICAgIA0KICAgID4gDQogICAgDQoNCl9fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19f
-X19fX19fX19fX19fClZpcnR1YWxpemF0aW9uIG1haWxpbmcgbGlzdApWaXJ0dWFsaXphdGlvbkBs
-aXN0cy5saW51eC1mb3VuZGF0aW9uLm9yZwpodHRwczovL2xpc3RzLmxpbnV4Zm91bmRhdGlvbi5v
-cmcvbWFpbG1hbi9saXN0aW5mby92aXJ0dWFsaXphdGlvbg==
+
+--===============3139103688113993640==
+Content-Type: multipart/alternative;
+	boundary="Apple-Mail=_1691E4EF-A4C3-4035-B692-4075F29FBC35"
+
+
+--Apple-Mail=_1691E4EF-A4C3-4035-B692-4075F29FBC35
+Content-Transfer-Encoding: quoted-printable
+Content-Type: text/plain;
+	charset=utf-8
+
+The 28th International ACM Symposium on
+High-Performance Parallel and Distributed Computing (HPDC'19)
+Phoenix, Arizona, United States on June 24-28, 2019
+Sponsored by ACM SIGARCH
+http://www.hpdc.org/2019/
+http://www.hpdc.org/2019/papers/call-for-papers/hpdc2019-flyer.pdf=20
+=
+=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=
+=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=
+=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=
+=3D=3D=3D=3D=3D
+
+OVERVIEW
+=
+--------------------------------------------------------------------------=
+------
+The ACM International Symposium on High-Performance Parallel and =
+Distributed=20
+Computing (HPDC) is the premier annual conference for presenting the =
+latest=20
+research on the design, implementation, evaluation, and the use of =
+parallel and=20
+distributed systems for high-end computing. The 28th HPDC will take =
+place in=20
+Phoenix, Arizona, United States on June 24-28, 2019 as part of FCRC.
+
+SCOPE AND TOPICS
+=
+--------------------------------------------------------------------------=
+------
+Submissions are welcomed on high-performance parallel and distributed =
+computing=20
+(HPDC) topics including but not limited to: clouds, clusters, grids, big =
+data,=20
+massively multicore, and extreme-scale computing systems. Experience =
+reports of=20
+operational deployments that provide significantly novel insights for =
+future=20
+research on HPDC applications and systems will also receive special=20
+consideration.
+
+In the context of high-performance parallel and distributed computing, =
+the=20
+topics of interest include, but are not limited to:
+* Operating systems, networks, and architectures
+* High performance runtime environments=20
+* Massively multicore systems, including heterogeneous systems
+* Datacenter technology, resource virtualization
+* Programming languages, APIs, and system interoperation approaches
+* File and storage systems, I/O, and data management
+* Big data stacks and big data ecosystems
+* Resource management and scheduling, including energy-aware techniques
+* Performance modeling, analysis, and engineering
+* Fault tolerance, reliability, and availability
+* Operational guarantees, risk assessment, and management
+* Emerging application areas that include cloud/edge computing and IoT
+
+PAPER SUBMISSION GUIDELINES
+=
+--------------------------------------------------------------------------=
+------
+Authors are invited to submit technical papers of at most 12 pages in =
+PDF=20
+format, including figures and references. Papers should be formatted in =
+the ACM=20
+ACM Proceedings Style=20
+=
+(http://www.acm.org/publications/article-templates/proceedings-template.ht=
+ml)=20
+and submitted via the conference web site. Submitted papers must be =
+original=20
+work that has not appeared in and is not under consideration for another=20=
+
+conference or a journal.
+
+Submissions are now open here (https://hpdc19.hotcrp.com/).
+
+DEADLINES
+=
+--------------------------------------------------------------------------=
+------
+Abstracts due:		January 16, 2019
+Papers due:		January 23, 2019
+Author notifications:	March 25, 2019
+Camera ready:         	April, 2019
+Conference dates:	June 24 - 28, 2019
+
+ORGANIZING COMMITTEE
+=
+--------------------------------------------------------------------------=
+------
+General Chair:
+Jon Weissman		University of Minnesota, USA=09
+
+Program Chairs:
+Ali R. Butt		Virginia Tech, USA=09
+Evgenia Smirni		College of William and Mary, USA=09
+
+Local Chair:
+Ming Zhao		Arizona State University, USA=09
+
+Program Committee:
+George Amvrosiadis	Carnegie Mellon University, USA=09
+Christos Antonopoulos	University of Thessaly, Greece=09
+Ali Anwar		IBM Research, USA=09
+Michela Becchi		North Carolina State University, USA=09
+Kirk Cameron		Virginia Tech, USA=09
+Franck Cappello		Argonne National Lab, USA=09
+Giuliano Casale		Imperial College London, U.K.=09
+Abhishek Chandra	University of Minnesota, USA=09
+Ryan Chard		Argonne National Laboratory, USA=09
+Yue Cheng		George Mason University, USA=09
+Andrew A. Chien		University of Chicago, USA=09
+Peter Dinda		Northwestern University, USA=09
+Dick Epema		Delft University of Technology, The Netherlands=09=
+
+David Eyres		University of Otage, New Zealand=09
+Renato Figueiredo	University of Florida, USA=09
+Liana Fong		IBM, USA=09
+Jos=C3=A9 Fortes		University of Florida, USA=09
+Anshul Gandhi		Stony Brook University, USA=09
+Dimitrios Gizopoulos	University of Athens, Greece=09
+Kartik Gopalan		Binghamton University, USA=09
+Adriana Iamnitchi	University of South Florida, USA=09
+David Irwin		University of Massachusets at Amherst, USA=09
+Adwait Jog		The College of William and Mary, USA=09
+Changhee Jung		Virginia Tech, USA=09
+Jack Lange		University of Pittsburgh, USA=09
+Hang Liu		UMASS-Lowell, USA=09
+Jay Lofstead		Sandia National Laboratories, USA=09
+Xiaosong Ma		Qatar Computing Research Institute, Qatar=09
+Arthur Barney Maccabe	Oak Ridge National Laboratory, USA=09
+Carlos Maltzahn		University of California, Santa Cruz, USA=09
+Ningfang Mi		Northeastern University, USA=09
+Kathryn Mohror		Lawrence Livermore National Laboratory, USA=09
+Dimitrios Nikolopoulos	Queen's University Belfast, UK=09
+Karthik Pittabiraman	University of British Columbia, Canada=09
+Judy Qiu		Indiana University, USA=09
+M.Mustafa Rafique	Rochester Institute of Technology, USA=09
+Ioan Raicu		Illinois Institute of Technology, USA=09
+Lavanya Ramakrishnan	Lawrence Berkeley National Laboratory, USA=09
+Bin Ren			College of William and Mary, USA=09
+Matei Ripeanu		University of British Columbia, Canada=09
+Vasily Tarasov		IBM Research, USA=09
+Michela Taufer		University of Tennessee=09
+Douglas Thain		University of Notre Dame, USA=09
+Devesh Tiwari		Northeastern University, USA=09
+Ana Lucia Varbanescu	University of Amsterdam, The Netherlands=09
+Sudharshan Vazhkudai	Oak Ridge National Laboratory, USA=09
+Rich Wolski		University of California at Santa Barbara, USA=09=
+
+Ji Xue			Google, USA=09
+Feng Yan		University of Nevada Reno=09
+Li Zhang		IBM Research, USA
+
+
+
+=E2=80=94=20
+Ioan Raicu, Ph.D.
+Associate Professor in CS at Illinois Institute of Technology
+Guest Research Faculty in MCS at Argonne National Laboratory
+http://www.cs.iit.edu/~iraicu/
+http://datasys.cs.iit.edu/
+
+
+--Apple-Mail=_1691E4EF-A4C3-4035-B692-4075F29FBC35
+Content-Transfer-Encoding: quoted-printable
+Content-Type: text/html;
+	charset=utf-8
+
+<html><head><meta http-equiv=3D"Content-Type" content=3D"text/html; =
+charset=3Dutf-8"></head><body style=3D"word-wrap: break-word; =
+-webkit-nbsp-mode: space; line-break: after-white-space;" class=3D""><font=
+ face=3D"Courier" class=3D"">The 28th International ACM Symposium on<br =
+class=3D"">High-Performance Parallel and Distributed =
+Computing&nbsp;(HPDC'19)<br class=3D"">Phoenix, Arizona, United States =
+on June 24-28, 2019<br class=3D"">Sponsored by ACM SIGARCH<br =
+class=3D""><a href=3D"http://www.hpdc.org/2019/" =
+class=3D"">http://www.hpdc.org/2019/</a><br =
+class=3D"">http://www.hpdc.org/2019/papers/call-for-papers/hpdc2019-flyer.=
+pdf&nbsp;<br =
+class=3D"">=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=
+=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=
+=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=
+=3D=3D=3D=3D=3D=3D=3D=3D=3D<br class=3D""><br class=3D"">OVERVIEW<br =
+class=3D"">---------------------------------------------------------------=
+-----------------<br class=3D"">The ACM International Symposium on =
+High-Performance Parallel and Distributed&nbsp;<br class=3D"">Computing =
+(HPDC) is the premier annual conference for presenting the =
+latest&nbsp;<br class=3D"">research on the design, implementation, =
+evaluation, and the use of parallel and&nbsp;<br class=3D"">distributed =
+systems for high-end computing. The 28th HPDC will take place =
+in&nbsp;<br class=3D"">Phoenix, Arizona, United States on June 24-28, =
+2019 as part of FCRC.<br class=3D""><br class=3D"">SCOPE AND TOPICS<br =
+class=3D"">---------------------------------------------------------------=
+-----------------<br class=3D"">Submissions are welcomed on =
+high-performance parallel and distributed computing&nbsp;<br =
+class=3D"">(HPDC) topics including but not limited to: clouds, clusters, =
+grids, big data,&nbsp;<br class=3D"">massively multicore, and =
+extreme-scale computing systems. Experience reports of&nbsp;<br =
+class=3D"">operational deployments that provide significantly novel =
+insights for future&nbsp;<br class=3D"">research on HPDC applications =
+and systems will also receive special&nbsp;<br =
+class=3D"">consideration.<br class=3D""><br class=3D"">In the context of =
+high-performance parallel and distributed computing, the&nbsp;<br =
+class=3D"">topics of interest include, but are not limited to:<br =
+class=3D"">* Operating systems, networks, and architectures<br =
+class=3D"">* High performance runtime environments&nbsp;<br class=3D"">* =
+Massively multicore systems, including heterogeneous systems<br =
+class=3D"">* Datacenter technology, resource virtualization<br =
+class=3D"">* Programming languages, APIs, and system interoperation =
+approaches<br class=3D"">* File and storage systems, I/O, and data =
+management<br class=3D"">* Big data stacks and big data ecosystems<br =
+class=3D"">* Resource management and scheduling, including energy-aware =
+techniques<br class=3D"">* Performance modeling, analysis, and =
+engineering<br class=3D"">* Fault tolerance, reliability, and =
+availability<br class=3D"">* Operational guarantees, risk assessment, =
+and management<br class=3D"">* Emerging application areas that include =
+cloud/edge computing and IoT<br class=3D""><br class=3D"">PAPER =
+SUBMISSION GUIDELINES<br =
+class=3D"">---------------------------------------------------------------=
+-----------------<br class=3D"">Authors are invited to submit technical =
+papers of at most 12 pages in PDF&nbsp;<br class=3D"">format, including =
+figures and references. Papers should be formatted in the ACM&nbsp;<br =
+class=3D"">ACM Proceedings Style&nbsp;<br =
+class=3D"">(http://www.acm.org/publications/article-templates/proceedings-=
+template.html)&nbsp;<br class=3D"">and submitted via the conference web =
+site. Submitted papers must be original&nbsp;<br class=3D"">work that =
+has not appeared in and is not under consideration for another&nbsp;<br =
+class=3D"">conference or a journal.<br class=3D""><br =
+class=3D"">Submissions are now open here =
+(https://hpdc19.hotcrp.com/).<br class=3D""><br class=3D"">DEADLINES<br =
+class=3D"">---------------------------------------------------------------=
+-----------------<br class=3D"">Abstracts due:<span =
+class=3D"Apple-tab-span" style=3D"white-space: pre;">		=
+</span>January 16, 2019<br class=3D"">Papers due:<span =
+class=3D"Apple-tab-span" style=3D"white-space: pre;">		=
+</span>January 23, 2019<br class=3D"">Author notifications:<span =
+class=3D"Apple-tab-span" style=3D"white-space: pre;">	</span>March 25, =
+2019<br class=3D"">Camera ready: &nbsp; &nbsp; &nbsp; &nbsp;&nbsp;<span =
+class=3D"Apple-tab-span" style=3D"white-space: pre;">	</span>April, =
+2019<br class=3D"">Conference dates:<span class=3D"Apple-tab-span" =
+style=3D"white-space: pre;">	</span>June 24 - 28, 2019<br =
+class=3D""><br class=3D"">ORGANIZING COMMITTEE<br =
+class=3D"">---------------------------------------------------------------=
+-----------------<br class=3D"">General Chair:<br class=3D"">Jon =
+Weissman<span class=3D"Apple-tab-span" style=3D"white-space: pre;">		=
+</span>University of Minnesota, USA<span class=3D"Apple-tab-span" =
+style=3D"white-space: pre;">	</span><br class=3D""><br =
+class=3D"">Program Chairs:<br class=3D"">Ali R. Butt<span =
+class=3D"Apple-tab-span" style=3D"white-space: pre;">		=
+</span>Virginia Tech, USA<span class=3D"Apple-tab-span" =
+style=3D"white-space: pre;">	</span><br class=3D"">Evgenia =
+Smirni<span class=3D"Apple-tab-span" style=3D"white-space: pre;">		=
+</span>College of William and Mary, USA<span class=3D"Apple-tab-span" =
+style=3D"white-space: pre;">	</span><br class=3D""><br class=3D"">Local=
+ Chair:<br class=3D"">Ming Zhao<span class=3D"Apple-tab-span" =
+style=3D"white-space: pre;">		</span>Arizona State University, =
+USA<span class=3D"Apple-tab-span" style=3D"white-space: pre;">	=
+</span><br class=3D""><br class=3D"">Program Committee:<br =
+class=3D"">George Amvrosiadis<span class=3D"Apple-tab-span" =
+style=3D"white-space: pre;">	</span>Carnegie Mellon University, =
+USA<span class=3D"Apple-tab-span" style=3D"white-space: pre;">	=
+</span><br class=3D"">Christos Antonopoulos<span class=3D"Apple-tab-span" =
+style=3D"white-space: pre;">	</span>University of Thessaly, =
+Greece<span class=3D"Apple-tab-span" style=3D"white-space: pre;">	=
+</span><br class=3D"">Ali Anwar<span class=3D"Apple-tab-span" =
+style=3D"white-space: pre;">		</span>IBM Research, USA<span =
+class=3D"Apple-tab-span" style=3D"white-space: pre;">	</span><br =
+class=3D"">Michela Becchi<span class=3D"Apple-tab-span" =
+style=3D"white-space: pre;">		</span>North Carolina State =
+University, USA<span class=3D"Apple-tab-span" style=3D"white-space: =
+pre;">	</span><br class=3D"">Kirk Cameron<span class=3D"Apple-tab-span" =
+style=3D"white-space: pre;">		</span>Virginia Tech, USA<span =
+class=3D"Apple-tab-span" style=3D"white-space: pre;">	</span><br =
+class=3D"">Franck Cappello<span class=3D"Apple-tab-span" =
+style=3D"white-space: pre;">		</span>Argonne National Lab, =
+USA<span class=3D"Apple-tab-span" style=3D"white-space: pre;">	=
+</span><br class=3D"">Giuliano Casale<span class=3D"Apple-tab-span" =
+style=3D"white-space: pre;">		</span>Imperial College London, =
+U.K.<span class=3D"Apple-tab-span" style=3D"white-space: pre;">	=
+</span><br class=3D"">Abhishek Chandra<span class=3D"Apple-tab-span" =
+style=3D"white-space: pre;">	</span>University of Minnesota, USA<span =
+class=3D"Apple-tab-span" style=3D"white-space: pre;">	</span><br =
+class=3D"">Ryan Chard<span class=3D"Apple-tab-span" style=3D"white-space: =
+pre;">		</span>Argonne National Laboratory, USA<span =
+class=3D"Apple-tab-span" style=3D"white-space: pre;">	</span><br =
+class=3D"">Yue Cheng<span class=3D"Apple-tab-span" style=3D"white-space: =
+pre;">		</span>George Mason University, USA<span =
+class=3D"Apple-tab-span" style=3D"white-space: pre;">	</span><br =
+class=3D"">Andrew A. Chien<span class=3D"Apple-tab-span" =
+style=3D"white-space: pre;">		</span>University of Chicago, =
+USA<span class=3D"Apple-tab-span" style=3D"white-space: pre;">	=
+</span><br class=3D"">Peter Dinda<span class=3D"Apple-tab-span" =
+style=3D"white-space: pre;">		</span>Northwestern University, =
+USA<span class=3D"Apple-tab-span" style=3D"white-space: pre;">	=
+</span><br class=3D"">Dick Epema<span class=3D"Apple-tab-span" =
+style=3D"white-space: pre;">		</span>Delft University of =
+Technology, The Netherlands<span class=3D"Apple-tab-span" =
+style=3D"white-space: pre;">	</span><br class=3D"">David Eyres<span =
+class=3D"Apple-tab-span" style=3D"white-space: pre;">		=
+</span>University of Otage, New Zealand<span class=3D"Apple-tab-span" =
+style=3D"white-space: pre;">	</span><br class=3D"">Renato =
+Figueiredo<span class=3D"Apple-tab-span" style=3D"white-space: pre;">	=
+</span>University of Florida, USA<span class=3D"Apple-tab-span" =
+style=3D"white-space: pre;">	</span><br class=3D"">Liana Fong<span =
+class=3D"Apple-tab-span" style=3D"white-space: pre;">		=
+</span>IBM, USA<span class=3D"Apple-tab-span" style=3D"white-space: =
+pre;">	</span><br class=3D"">Jos=C3=A9 Fortes<span =
+class=3D"Apple-tab-span" style=3D"white-space: pre;">		=
+</span>University of Florida, USA<span class=3D"Apple-tab-span" =
+style=3D"white-space: pre;">	</span><br class=3D"">Anshul Gandhi<span =
+class=3D"Apple-tab-span" style=3D"white-space: pre;">		=
+</span>Stony Brook University, USA<span class=3D"Apple-tab-span" =
+style=3D"white-space: pre;">	</span><br class=3D"">Dimitrios =
+Gizopoulos<span class=3D"Apple-tab-span" style=3D"white-space: pre;">	=
+</span>University of Athens, Greece<span class=3D"Apple-tab-span" =
+style=3D"white-space: pre;">	</span><br class=3D"">Kartik =
+Gopalan<span class=3D"Apple-tab-span" style=3D"white-space: pre;">		=
+</span>Binghamton University, USA<span class=3D"Apple-tab-span" =
+style=3D"white-space: pre;">	</span><br class=3D"">Adriana =
+Iamnitchi<span class=3D"Apple-tab-span" style=3D"white-space: pre;">	=
+</span>University of South Florida, USA<span class=3D"Apple-tab-span" =
+style=3D"white-space: pre;">	</span><br class=3D"">David Irwin<span =
+class=3D"Apple-tab-span" style=3D"white-space: pre;">		=
+</span>University of Massachusets at Amherst, USA<span =
+class=3D"Apple-tab-span" style=3D"white-space: pre;">	</span><br =
+class=3D"">Adwait Jog<span class=3D"Apple-tab-span" style=3D"white-space: =
+pre;">		</span>The College of William and Mary, USA<span =
+class=3D"Apple-tab-span" style=3D"white-space: pre;">	</span><br =
+class=3D"">Changhee Jung<span class=3D"Apple-tab-span" =
+style=3D"white-space: pre;">		</span>Virginia Tech, USA<span =
+class=3D"Apple-tab-span" style=3D"white-space: pre;">	</span><br =
+class=3D"">Jack Lange<span class=3D"Apple-tab-span" style=3D"white-space: =
+pre;">		</span>University of Pittsburgh, USA<span =
+class=3D"Apple-tab-span" style=3D"white-space: pre;">	</span><br =
+class=3D"">Hang Liu<span class=3D"Apple-tab-span" style=3D"white-space: =
+pre;">		</span>UMASS-Lowell, USA<span class=3D"Apple-tab-span" =
+style=3D"white-space: pre;">	</span><br class=3D"">Jay Lofstead<span =
+class=3D"Apple-tab-span" style=3D"white-space: pre;">		=
+</span>Sandia National Laboratories, USA<span class=3D"Apple-tab-span" =
+style=3D"white-space: pre;">	</span><br class=3D"">Xiaosong Ma<span =
+class=3D"Apple-tab-span" style=3D"white-space: pre;">		=
+</span>Qatar Computing Research Institute, Qatar<span =
+class=3D"Apple-tab-span" style=3D"white-space: pre;">	</span><br =
+class=3D"">Arthur Barney Maccabe<span class=3D"Apple-tab-span" =
+style=3D"white-space: pre;">	</span>Oak Ridge National Laboratory, =
+USA<span class=3D"Apple-tab-span" style=3D"white-space: pre;">	=
+</span><br class=3D"">Carlos Maltzahn<span class=3D"Apple-tab-span" =
+style=3D"white-space: pre;">		</span>University of California, =
+Santa Cruz, USA<span class=3D"Apple-tab-span" style=3D"white-space: =
+pre;">	</span><br class=3D"">Ningfang Mi<span class=3D"Apple-tab-span" =
+style=3D"white-space: pre;">		</span>Northeastern University, =
+USA<span class=3D"Apple-tab-span" style=3D"white-space: pre;">	=
+</span><br class=3D"">Kathryn Mohror<span class=3D"Apple-tab-span" =
+style=3D"white-space: pre;">		</span>Lawrence Livermore =
+National Laboratory, USA<span class=3D"Apple-tab-span" =
+style=3D"white-space: pre;">	</span><br class=3D"">Dimitrios =
+Nikolopoulos<span class=3D"Apple-tab-span" style=3D"white-space: pre;">	=
+</span>Queen's University Belfast, UK<span class=3D"Apple-tab-span" =
+style=3D"white-space: pre;">	</span><br class=3D"">Karthik =
+Pittabiraman<span class=3D"Apple-tab-span" style=3D"white-space: pre;">	=
+</span>University of British Columbia, Canada<span =
+class=3D"Apple-tab-span" style=3D"white-space: pre;">	</span><br =
+class=3D"">Judy Qiu<span class=3D"Apple-tab-span" style=3D"white-space: =
+pre;">		</span>Indiana University, USA<span =
+class=3D"Apple-tab-span" style=3D"white-space: pre;">	</span><br =
+class=3D"">M.Mustafa Rafique<span class=3D"Apple-tab-span" =
+style=3D"white-space: pre;">	</span>Rochester Institute of =
+Technology, USA<span class=3D"Apple-tab-span" style=3D"white-space: =
+pre;">	</span><br class=3D"">Ioan Raicu<span class=3D"Apple-tab-span" =
+style=3D"white-space: pre;">		</span>Illinois Institute of =
+Technology, USA<span class=3D"Apple-tab-span" style=3D"white-space: =
+pre;">	</span><br class=3D"">Lavanya Ramakrishnan<span =
+class=3D"Apple-tab-span" style=3D"white-space: pre;">	</span>Lawrence =
+Berkeley National Laboratory, USA<span class=3D"Apple-tab-span" =
+style=3D"white-space: pre;">	</span><br class=3D"">Bin Ren<span =
+class=3D"Apple-tab-span" style=3D"white-space: pre;">			=
+</span>College of William and Mary, USA<span class=3D"Apple-tab-span" =
+style=3D"white-space: pre;">	</span><br class=3D"">Matei Ripeanu<span =
+class=3D"Apple-tab-span" style=3D"white-space: pre;">		=
+</span>University of British Columbia, Canada<span =
+class=3D"Apple-tab-span" style=3D"white-space: pre;">	</span><br =
+class=3D"">Vasily Tarasov<span class=3D"Apple-tab-span" =
+style=3D"white-space: pre;">		</span>IBM Research, USA<span =
+class=3D"Apple-tab-span" style=3D"white-space: pre;">	</span><br =
+class=3D"">Michela Taufer<span class=3D"Apple-tab-span" =
+style=3D"white-space: pre;">		</span>University of =
+Tennessee<span class=3D"Apple-tab-span" style=3D"white-space: pre;">	=
+</span><br class=3D"">Douglas Thain<span class=3D"Apple-tab-span" =
+style=3D"white-space: pre;">		</span>University of Notre Dame, =
+USA<span class=3D"Apple-tab-span" style=3D"white-space: pre;">	=
+</span><br class=3D"">Devesh Tiwari<span class=3D"Apple-tab-span" =
+style=3D"white-space: pre;">		</span>Northeastern University, =
+USA<span class=3D"Apple-tab-span" style=3D"white-space: pre;">	=
+</span><br class=3D"">Ana Lucia Varbanescu<span class=3D"Apple-tab-span" =
+style=3D"white-space: pre;">	</span>University of Amsterdam, The =
+Netherlands<span class=3D"Apple-tab-span" style=3D"white-space: pre;">	=
+</span><br class=3D"">Sudharshan Vazhkudai<span class=3D"Apple-tab-span" =
+style=3D"white-space: pre;">	</span>Oak Ridge National Laboratory, =
+USA<span class=3D"Apple-tab-span" style=3D"white-space: pre;">	=
+</span><br class=3D"">Rich Wolski<span class=3D"Apple-tab-span" =
+style=3D"white-space: pre;">		</span>University of California =
+at Santa Barbara, USA<span class=3D"Apple-tab-span" style=3D"white-space: =
+pre;">	</span><br class=3D"">Ji Xue<span class=3D"Apple-tab-span" =
+style=3D"white-space: pre;">			</span>Google, USA<span =
+class=3D"Apple-tab-span" style=3D"white-space: pre;">	</span><br =
+class=3D"">Feng Yan<span class=3D"Apple-tab-span" style=3D"white-space: =
+pre;">		</span>University of Nevada Reno<span =
+class=3D"Apple-tab-span" style=3D"white-space: pre;">	</span><br =
+class=3D"">Li Zhang<span class=3D"Apple-tab-span" style=3D"white-space: =
+pre;">		</span>IBM Research, USA</font><br class=3D""><br =
+class=3D""><br class=3D""><br class=3D""><div class=3D"">=E2=80=94&nbsp;<b=
+r class=3D"">Ioan Raicu, Ph.D.<br class=3D"">Associate Professor in CS =
+at Illinois Institute of Technology<br class=3D"">Guest Research Faculty =
+in MCS at Argonne National Laboratory<br class=3D""><a =
+href=3D"http://www.cs.iit.edu/~iraicu/" =
+class=3D"">http://www.cs.iit.edu/~iraicu/</a><br =
+class=3D"">http://datasys.cs.iit.edu/<br class=3D""></div><div =
+class=3D""><br class=3D""></div></body></html>=
+
+--Apple-Mail=_1691E4EF-A4C3-4035-B692-4075F29FBC35--
+
+--===============3139103688113993640==
+Content-Type: text/plain; charset="us-ascii"
+MIME-Version: 1.0
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+
+_______________________________________________
+Virtualization mailing list
+Virtualization@lists.linux-foundation.org
+https://lists.linuxfoundation.org/mailman/listinfo/virtualization
+--===============3139103688113993640==--
