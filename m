@@ -1,16 +1,21 @@
-From: "Michael S. Tsirkin" <mst@redhat.com>
-Subject: Re: [PATCH RFC 1/4] include/linux/compiler*.h: fix OPTIMIZER_HIDE_VAR
-Date: Tue, 8 Jan 2019 13:50:58 -0500
-Message-ID: <20190108134549-mutt-send-email-mst__1122.94558571211$1546973352$gmane$org@kernel.org>
-References: <20190102205715.14054-1-mst@redhat.com>
-	<20190102205715.14054-2-mst@redhat.com>
-	<CAKwvOdk3b6mnpTEEyY-JFrej8K12w9oTMLqi7q5aNiRMyJo6Ow@mail.gmail.com>
+From: "Steven Luong \(sluong\) via Virtualization"
+	<virtualization@lists.linux-foundation.org>
+Subject: Re: kernel vhost demands an interrupt from guest when the ring is
+	full in order to enable guest to submit new packets to the queue
+Date: Tue, 8 Jan 2019 19:05:21 +0000
+Message-ID: <85A70FBE-4B36-47C9-8351-E389BEE9983B@cisco.com>
+References: <4F657BB0-DFB3-445D-872D-C54FA7252542@contoso.com>
+	<20181217173642-mutt-send-email-mst@kernel.org>
+	<4FE702F9-8680-461F-822B-03E81082F4F2@cisco.com>
+	<20181217191142-mutt-send-email-mst@kernel.org>
+Reply-To: "Steven Luong \(sluong\)" <sluong@cisco.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset="utf-8"
+Content-Transfer-Encoding: base64
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-Content-Disposition: inline
-In-Reply-To: <CAKwvOdk3b6mnpTEEyY-JFrej8K12w9oTMLqi7q5aNiRMyJo6Ow@mail.gmail.com>
+In-Reply-To: <20181217191142-mutt-send-email-mst@kernel.org>
+Content-Language: en-US
+Content-ID: <6048C1BBF66F464FA5E8247F1DFEE228@emea.cisco.com>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -20,140 +25,186 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Nick Desaulniers <ndesaulniers@google.com>
-Cc: Andrea Parri <andrea.parri@amarulasolutions.com>, Peter Zijlstra <peterz@infradead.org>, Akira Yokosawa <akiyks@gmail.com>, Will Deacon <will.deacon@arm.com>, virtualization@lists.linux-foundation.org, David Howells <dhowells@redhat.com>, linux-arch@vger.kernel.org, linux-sparse@vger.kernel.org, Alan Stern <stern@rowland.harvard.edu>, "Paul E. McKenney" <paulmck@linux.vnet.ibm.com>, Boqun Feng <boqun.feng@gmail.com>, Daniel Lustig <dlustig@nvidia.com>, Nicholas Piggin <npiggin@gmail.com>, Luc Maranget <luc.maranget@inria.fr>, Eli Friedman <efriedma@codeaurora.org>, Jade Alglave <j.alglave@ucl.ac.uk>, netdev@vger.kernel.org, LKML <linux-kernel@vger.kernel.org>, Eric Christopher <echristo@google.com>, Miguel Ojeda <miguel.ojeda.sandonis@gmail.com>, Joe Perches <joe@perches.com>, Linus Torvalds <torvalds@linux-foundation.org>, Luc Van Oostenryck <luc.vanoostenryck@gmail.>
+To: "Michael S. Tsirkin" <mst@redhat.com>
+Cc: "Jerome Tollet (jtollet)" <jtollet@cisco.com>, "Damjan Marion (damarion)" <damarion@cisco.com>, "virtualization@lists.linux-foundation.org" <virtualization@lists.linux-foundation.org>
 List-Id: virtualization@lists.linuxfoundation.org
 
-On Tue, Jan 08, 2019 at 09:44:28AM -0800, Nick Desaulniers wrote:
-> Thanks for the patch and sorry for the delay; was totally unplugged
-> for the holidays.
-> On Wed, Jan 2, 2019 at 12:57 PM Michael S. Tsirkin <mst@redhat.com> wrote:
-> >
-> > Since commit 815f0ddb346c ("include/linux/compiler*.h: make compiler-*.h
-> > mutually exclusive") clang no longer reuses the OPTIMIZER_HIDE_VAR macro
-> > from compiler-gcc - instead it gets the version in
-> > include/linux/compiler.h.  Unfortunately that version doesn't actually
-> > prevent compiler from optimizing out the variable.
-> 
-> Good catch. Did you find this via eyeballing the code, a test, or some
-> other way?
-
-eyeballing
-
-> >
-> > Fix up by moving the macro out from compiler-gcc.h to compiler.h.
-> > Compilers without incline asm support will keep working
-> > since it's protected by an ifdef.
-> >
-> > Also fix up comments to match reality since we are no longer overriding
-> > any macros.
-> >
-> > Build-tested with gcc and clang.
-> >
-> > Fixes: 815f0ddb346c ("include/linux/compiler*.h: make compiler-*.h mutually exclusive")
-> > Cc: Eli Friedman <efriedma@codeaurora.org>
-> > Cc: Joe Perches <joe@perches.com>
-> > Cc: Nick Desaulniers <ndesaulniers@google.com>
-> > Cc: Linus Torvalds <torvalds@linux-foundation.org>
-> > Signed-off-by: Michael S. Tsirkin <mst@redhat.com>
-> 
-> Also for more context, see:
-> commit 7829fb09a2b4 ("lib: make memzero_explicit more robust against
-> dead store elimination")
-
-
-Interesting. That added this text:
-
- * while gcc behavior gets along with a normal
- * barrier(), llvm needs an explicit input variable to be assumed
- * clobbered.
-
-however:
-#define barrier_data(ptr) __asm__ __volatile__("": :"r"(ptr) :"memory")
-
-So no explicit variable is clobbered.
-Weird isn't it?
-
-
-
-> > ---
-> >  include/linux/compiler-clang.h | 5 ++---
-> >  include/linux/compiler-gcc.h   | 4 ----
-> >  include/linux/compiler-intel.h | 4 +---
-> >  include/linux/compiler.h       | 4 +++-
-> >  4 files changed, 6 insertions(+), 11 deletions(-)
-> >
-> > diff --git a/include/linux/compiler-clang.h b/include/linux/compiler-clang.h
-> > index 3e7dafb3ea80..7ddaeb5182e3 100644
-> > --- a/include/linux/compiler-clang.h
-> > +++ b/include/linux/compiler-clang.h
-> > @@ -3,9 +3,8 @@
-> >  #error "Please don't include <linux/compiler-clang.h> directly, include <linux/compiler.h> instead."
-> >  #endif
-> >
-> > -/* Some compiler specific definitions are overwritten here
-> > - * for Clang compiler
-> > - */
-> > +/* Compiler specific definitions for Clang compiler */
-> > +
-> >  #define uninitialized_var(x) x = *(&(x))
-> >
-> >  /* same as gcc, this was present in clang-2.6 so we can assume it works
-> > diff --git a/include/linux/compiler-gcc.h b/include/linux/compiler-gcc.h
-> > index 2010493e1040..72054d9f0eaa 100644
-> > --- a/include/linux/compiler-gcc.h
-> > +++ b/include/linux/compiler-gcc.h
-> > @@ -58,10 +58,6 @@
-> >         (typeof(ptr)) (__ptr + (off));                                  \
-> >  })
-> >
-> > -/* Make the optimizer believe the variable can be manipulated arbitrarily. */
-> > -#define OPTIMIZER_HIDE_VAR(var)                                                \
-> > -       __asm__ ("" : "=r" (var) : "0" (var))
-> > -
-> >  /*
-> >   * A trick to suppress uninitialized variable warning without generating any
-> >   * code
-> > diff --git a/include/linux/compiler-intel.h b/include/linux/compiler-intel.h
-> > index 517bd14e1222..b17f3cd18334 100644
-> > --- a/include/linux/compiler-intel.h
-> > +++ b/include/linux/compiler-intel.h
-> > @@ -5,9 +5,7 @@
-> >
-> >  #ifdef __ECC
-> >
-> > -/* Some compiler specific definitions are overwritten here
-> > - * for Intel ECC compiler
-> > - */
-> > +/* Compiler specific definitions for Intel ECC compiler */
-> >
-> >  #include <asm/intrinsics.h>
-> >
-> > diff --git a/include/linux/compiler.h b/include/linux/compiler.h
-> > index 06396c1cf127..1ad367b4cd8d 100644
-> > --- a/include/linux/compiler.h
-> > +++ b/include/linux/compiler.h
-> > @@ -152,7 +152,9 @@ void ftrace_likely_update(struct ftrace_likely_data *f, int val,
-> >  #endif
-> >
-> >  #ifndef OPTIMIZER_HIDE_VAR
-> > -#define OPTIMIZER_HIDE_VAR(var) barrier()
-> > +/* Make the optimizer believe the variable can be manipulated arbitrarily. */
-> > +#define OPTIMIZER_HIDE_VAR(var)                                                \
-> > +       __asm__ ("" : "=r" (var) : "0" (var))
-> >  #endif
-> 
-> This should be fine, thanks for the cleanup!  For now, we're not yet
-> confident to turn on Clang's integrated assembler for the kernel, but
-> I'll make sure to revisit this should we, in case Clang is then able
-> to optimize this out.
-> + Eric, who might know of a better trick for what we're trying to
-> accomplish with this macro.
-> 
-> Reviewed-by: Nick Desaulniers <ndesaulniers@google.com>
-> 
-> + Miguel
-> Miguel, would you mind taking this into your compiler-attributes tree?
-> -- 
-> Thanks,
-> ~Nick Desaulniers
+TWljaGFlbCwNCg0KVGhhbmsgeW91IHZlcnkgbXVjaCBmb3IgeW91ciBoZWxwLiBJIGdyZWF0bHkg
+YXBwcmVjaWF0ZSBpdC4NCg0KU3RldmVuDQoNCu+7v09uIDEyLzE3LzE4LCA0OjE2IFBNLCAiTWlj
+aGFlbCBTLiBUc2lya2luIiA8bXN0QHJlZGhhdC5jb20+IHdyb3RlOg0KDQogICAgT24gTW9uLCBE
+ZWMgMTcsIDIwMTggYXQgMTE6NTY6NTlQTSArMDAwMCwgU3RldmVuIEx1b25nIChzbHVvbmcpIHdy
+b3RlOg0KICAgID4gDQogICAgPiANCiAgICA+IE9uIDEyLzE3LzE4LCAyOjU1IFBNLCAiTWljaGFl
+bCBTLiBUc2lya2luIiA8bXN0QHJlZGhhdC5jb20+IHdyb3RlOg0KICAgID4gDQogICAgPiAgICAg
+T24gVGh1LCBEZWMgMTMsIDIwMTggYXQgMTE6MjQ6MjhQTSArMDAwMCwgU3RldmVuIEx1b25nIChz
+bHVvbmcpIHZpYSBWaXJ0dWFsaXphdGlvbiB3cm90ZToNCiAgICA+ICAgICA+IEZvbGtzLA0KICAg
+ID4gICAgID4gDQogICAgPiAgICAgPiAgDQogICAgPiAgICAgPiANCiAgICA+ICAgICA+IFdlIGNh
+bWUgYWNyb3NzIGEgbWVtb3J5IHJhY2UgY29uZGl0aW9uIGJldHdlZW4gVlBQIHZob3N0IGRyaXZl
+ciBhbmQgdGhlIGtlcm5lbA0KICAgID4gICAgID4gdmhvc3QuIFZQUCBpcyBydW5uaW5nIGEgdGFw
+IGludGVyZmFjZSBvdmVyIHZob3N0IGJhY2tlbmQuIEluIHRoaXMgY2FzZSwgVlBQIGlzDQogICAg
+PiAgICAgPiBhY3RpbmcgYXMgdGhlIHZob3N0IGRyaXZlciBtb2RlIGFuZCB0aGUga2VybmVsIHZo
+b3N0IGlzIGFjdGluZyBhcyB0aGUgdmhvc3QNCiAgICA+ICAgICA+IGRldmljZSBtb2RlLg0KICAg
+ID4gICAgID4gDQogICAgPiAgICAgPiAgDQogICAgPiAgICAgPiANCiAgICA+ICAgICA+IEluIHRo
+ZSBrZXJuZWwgdmhvc3TigJlzIFRYIHRyYWZmaWMgZGlyZWN0aW9uIHdoaWNoIGlzIFZQUOKAmXMg
+UlggdHJhZmZpYyBkaXJlY3Rpb24sDQogICAgPiAgICAgPiBrZXJuZWwgdmhvc3QgaXMgdGhlIHBy
+b2R1Y2VyIGFuZCBWUFAgaXMgdGhlIGNvbnN1bWVyLg0KICAgID4gICAgIA0KICAgID4gICAgIExv
+b2tpbmcgYXQgdmhvc3QgbmV0IGtlcm5lbCBjb2RlLCBpdCBzZWVtcyB0byB1c2UgdGhlDQogICAg
+PiAgICAgc2FtZSB0ZXJtaW5vbG9neSBhcyB2aXJ0aW8gbmV0Lg0KICAgID4gICAgIENhbiB5b3Ug
+cGxzIGNsYXJpZnkgd2hpY2ggcmluZyBudW1iZXIgZG8geW91IHVzZSAwIG9yIDE/DQogICAgPiAN
+CiAgICA+IDxTVkw+IDAuIDwvU1ZMPg0KICAgID4gICAgIA0KICAgID4gICAgIEkgd2lsbCBhc3N1
+bWUgcmluZyAwIGJlbG93Lg0KICAgID4gICAgIA0KICAgID4gICAgIA0KICAgID4gICAgIA0KICAg
+ID4gICAgID4gS2VybmVsIHZob3N0IHBsYWNlcw0KICAgID4gICAgID4gdHJhZmZpYyBpbiBrZXJu
+ZWwgdmhvc3TigJlzIFRYIHZyaW5nLiBWUFAgcmVtb3ZlcyB0cmFmZmljIGluIFZQUOKAmXMgUlgg
+dnJpbmcuDQogICAgPiAgICAgDQogICAgPiAgICAgDQogICAgPiAgICAgU28gVlBQIG1ha2VzIGJ1
+ZmZlcnMgYXZhaWxhYmxlIGFuZCB2aG9zdCBrZXJuZWwgdXNlcyB0aGVtPw0KICAgID4gICAgIA0K
+ICAgID4gPFNWTD4gQ29ycmVjdC4gPC9TVkw+DQogICAgPiAgICAgDQogICAgPiAgICAgPiBJdA0K
+ICAgID4gICAgID4gaXMgaW5ldml0YWJsZSB0aGF0IHRoZSB2cmluZyBtYXkgYmVjb21lIGZ1bGwg
+dW5kZXIgaGVhdnkgdHJhZmZpYyBhbmQgdGhlIGtlcm5lbA0KICAgID4gICAgID4gdmhvc3QgbWF5
+IGhhdmUgdG8gc3RvcCBhbmQgd2FpdCBmb3IgdGhlIGd1ZXN0IChWUFApIHRvIGVtcHR5IHRoZSB2
+cmluZyBhbmQgdG8NCiAgICA+ICAgICA+IHJlZmlsbCB0aGUgdnJpbmcgd2l0aCBkZXNjcmlwdG9y
+cy4gV2hlbiB0aGF0IGNhc2UgaGFwcGVucywga2VybmVsIHZob3N0IGNsZWFycw0KICAgID4gICAg
+ID4gdGhlIGJpdCBpbiB0aGUgdnJpbmfigJlzIHVzZWQgZmxhZyB0byByZXF1ZXN0IGFuIGludGVy
+cnVwdC9ub3RpZmljYXRpb24uIER1ZSB0bw0KICAgID4gICAgID4gc2hhcmVkIG1lbW9yeSByYWNl
+IGNvbmRpdGlvbiwgVlBQIG1heSBtaXNzIHRoZSBjbGVhcmluZyBvZiB0aGUgdnJpbmfigJlzIHVz
+ZWQNCiAgICA+ICAgICA+IGZsYWcgZnJvbSBrZXJuZWwgdmhvc3QgYW5kIGRpZG7igJl0IHNlbmQg
+a2VybmVsIHZob3N0IGFuIGludGVycnVwdCBhZnRlciBWUFANCiAgICA+ICAgICA+IGVtcHRpZXMg
+YW5kIHJlZmlsbHMgdGhlIHZyaW5nIHdpdGggbmV3IGRlc2NyaXB0b3JzLg0KICAgID4gICAgIA0K
+ICAgID4gICAgIFNvIGtlcm5lbCB2aG9zdCdzIHdha2V1cHMgYXJlIHNpZ25hbGxlZCB0aHJvdWdo
+IGV2ZW50ZmQgLSBJIGFzc3VtZQ0KICAgID4gICAgIHRoaXMgaXMgd2hhdCB5b3UgbWVhbiBieSBh
+biBpbnRlcnJ1cHQ/DQogICAgPiAgICAgDQogICAgPiAgICAgDQogICAgPiAgICAgVG8gcHJldmVu
+dCB0aGUgcmFjZSB0aGF0IHlvdSBkZXNjcmliZSwgdmhvc3QgaGFzIHRoaXMgY29kZToNCiAgICA+
+ICAgICANCiAgICA+ICAgICAgICAgICAgICAgICAgICAgLyogT0ssIG5vdyB3ZSBuZWVkIHRvIGtu
+b3cgYWJvdXQgYWRkZWQgZGVzY3JpcHRvcnMuICovDQogICAgPiAgICAgICAgICAgICAgICAgICAg
+IGlmICghaGVhZGNvdW50KSB7DQogICAgPiAgICAgICAgICAgICAgICAgICAgICAgICAgICAgaWYg
+KHVubGlrZWx5KGJ1c3lsb29wX2ludHIpKSB7DQogICAgPiAgICAgICAgICAgICAgICAgICAgICAg
+ICAgICAgICAgICAgICB2aG9zdF9wb2xsX3F1ZXVlKCZ2cS0+cG9sbCk7DQogICAgPiAgICAgICAg
+ICAgICAgICAgICAgICAgICAgICAgfSBlbHNlIGlmICh1bmxpa2VseSh2aG9zdF9lbmFibGVfbm90
+aWZ5KCZuZXQtPmRldiwgdnEpKSkgew0KICAgID4gICAgICAgICAgICAgICAgICAgICAgICAgICAg
+ICAgICAgICAgLyogVGhleSBoYXZlIHNsaXBwZWQgb25lIGluIGFzIHdlIHdlcmUNCiAgICA+ICAg
+ICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAqIGRvaW5nIHRoYXQ6IGNoZWNrIGFn
+YWluLiAqLw0KICAgID4gICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgdmhvc3Rf
+ZGlzYWJsZV9ub3RpZnkoJm5ldC0+ZGV2LCB2cSk7DQogICAgPiAgICAgICAgICAgICAgICAgICAg
+ICAgICAgICAgICAgICAgICBjb250aW51ZTsNCiAgICA+ICAgICAgICAgICAgICAgICAgICAgICAg
+ICAgICB9DQogICAgPiAgICAgICAgICAgICAgICAgICAgICAgICAgICAgLyogTm90aGluZyBuZXc/
+ICBXYWl0IGZvciBldmVudGZkIHRvIHRlbGwgdXMNCiAgICA+ICAgICANCiAgICA+ICAgICBTbyBy
+aW5nIHNob3VsZCBiZSByZS1jaGVja2VkIGFmdGVyIG5vdGlmaWNhdGlvbnMgYXJlIGVuYWJsZWQu
+DQogICAgPiAgICAgSWYgcmluZyBpcyBubyBsb25nZXIgZW1wdHksIHZob3N0IHdpbGwgcHJvY2Vl
+ZCB0byBoYW5kbGUgdGhlIHJpbmcuICANCiAgICA+ICAgICBUaGlzIGNvZGUgaGFzIGJlZW4gYXJv
+dW5kIGZvciBtYW55IHllYXJzLg0KICAgID4gICAgIA0KICAgID4gICAgIFRodXMgaWYgVlBQIGRv
+ZXNuJ3Qgd29yayB3aXRoIGl0IHRoZW4gSSBzdXNwZWN0IGl0IGRvZXMgc29tZXRoaW5nDQogICAg
+PiAgICAgZGlmZmVyZW50bHksIGUuZy4gaXMgaXQgcG9zc2libGUgdGhhdCBpdCBpcyBtaXNzaW5n
+IGEgbWVtb3J5DQogICAgPiAgICAgYmFycmllciBhZnRlciB3cml0aW5nIG91dCB0aGUgYXZhaWxh
+YmxlIGJ1ZmZlcnMgYW5kIGJlZm9yZQ0KICAgID4gICAgIGNoZWNraW5nIHRoZSBmbGFncz8NCiAg
+ICA+ICAgICANCiAgICA+ICAgICA8U1ZMPiBDYW4gdGhlIHJhY2UgY29uZGl0aW9uIGJlIGF2b2lk
+ZWQgdG90YWxseT8gSGVyZSBpcyB0aGUgc2NlbmFyaW8uDQogICAgPiANCiAgICA+IHQwOiBWUFAg
+cmVmaWxscyB0aGUgdnJpbmcgd2l0aCBuZXcgZGVzY3JpcHRvcnMsIG5vdCB5ZXQgc2V0cyBhdmFp
+bC0+aWR4IHRvIG1ha2UgaXQgYXZhaWxhYmxlIHRvIGtlcm5lbCB2aG9zdC4gDQogICAgPiB0MTog
+a2VybmVsIHZob3N0IGNoZWNrcyB0aGUgdnJpbmcsIHN0aWxsIHNlZXMgbm8gc3BhY2UgYXZhaWxh
+YmxlLCBidXQgZG9lcyBub3QgeWV0IGV4ZWN1dGUgdGhlIGxpbmUgb2YgY29kZSB0byBjbGVhciB0
+aGUgdXNlZC0+ZmxhZ3MNCiAgICA+IHQyOiB2cHAgZXhlY3V0ZXMgc2ZlbmNlLCBhbmQgc2V0cyBh
+dmFpbC0+aWR4IHRvIG1ha2UgaXQgYXZhaWxhYmxlIHRvIGtlcm5lbCB2aG9zdA0KICAgIA0KICAg
+IEF0IHRoaXMgcG9pbnQgeW91IG5lZWQgYSBmdWxsIG1lbW9yeSBiYXJyaWVyLiBFLmcuIG1mZW5j
+ZSwgb3IgeG9yLg0KICAgIE90aGVyd2lzZSB0aGUgcmVhZCBjYW4gZ2V0IHJlLW9yZGVyZWQgYmVm
+b3JlIHRoZSB3cml0ZS4NCiAgICANCiAgICA+IHQzOiB2cHAgY2hlY2tzIHVzZWQtPmZsYWdzLCBp
+dCBpcyBzdGlsbCAxLCB2cHAgc2tpcHMgc2VuZGluZyB0aGUgaW50ZXJydXB0DQogICAgPiB0NDog
+a2VybmVsIHZob3N0IGNsZWFycyB1c2VkLT5mbGFncyB0byBpbmRpY2F0ZSBpbnRlcnJ1cHQgaXMg
+cmVxdWlyZWQuIEJ1dCBWUFAganVzdCBtaXNzZWQgaXQuDQogICAgDQogICAgZmluZSBidXQgYXQg
+dGhpcyBwb2ludCBrZXJuZWwgdmhvc3Qgd2lsbCByZWNoZWNrIHVzaW5nIHZob3N0X2dldF9hdmFp
+bA0KICAgIGFuZCBwcm9jZXNzIHRoZSBidWZmZXJzLiBTbyB0aGUgbGFjayBvZiBub3RpZmljYXRp
+b24gaXNuJ3QgYSBwcm9ibGVtOg0KICAgIA0KICAgIGJvb2wgdmhvc3RfZW5hYmxlX25vdGlmeShz
+dHJ1Y3Qgdmhvc3RfZGV2ICpkZXYsIHN0cnVjdCB2aG9zdF92aXJ0cXVldWUgKnZxKQ0KICAgIHsN
+CiAgICAgICAgICAgIF9fdmlydGlvMTYgYXZhaWxfaWR4Ow0KICAgICAgICAgICAgaW50IHI7DQog
+ICAgDQogICAgICAgICAgICBpZiAoISh2cS0+dXNlZF9mbGFncyAmIFZSSU5HX1VTRURfRl9OT19O
+T1RJRlkpKQ0KICAgICAgICAgICAgICAgICAgICByZXR1cm4gZmFsc2U7DQogICAgICAgICAgICB2
+cS0+dXNlZF9mbGFncyAmPSB+VlJJTkdfVVNFRF9GX05PX05PVElGWTsNCiAgICAgICAgICAgIGlm
+ICghdmhvc3RfaGFzX2ZlYXR1cmUodnEsIFZJUlRJT19SSU5HX0ZfRVZFTlRfSURYKSkgew0KICAg
+ICAgICAgICAgICAgICAgICByID0gdmhvc3RfdXBkYXRlX3VzZWRfZmxhZ3ModnEpOw0KICAgICAg
+ICAgICAgICAgICAgICBpZiAocikgew0KICAgICAgICAgICAgICAgICAgICAgICAgICAgIHZxX2Vy
+cih2cSwgIkZhaWxlZCB0byBlbmFibGUgbm90aWZpY2F0aW9uIGF0ICVwOiAlZFxuIiwNCiAgICAg
+ICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgJnZxLT51c2VkLT5mbGFncywgcik7DQogICAg
+ICAgICAgICAgICAgICAgICAgICAgICAgcmV0dXJuIGZhbHNlOw0KICAgICAgICAgICAgICAgICAg
+ICB9DQogICAgICAgICAgICB9IGVsc2Ugew0KICAgICAgICAgICAgICAgICAgICByID0gdmhvc3Rf
+dXBkYXRlX2F2YWlsX2V2ZW50KHZxLCB2cS0+YXZhaWxfaWR4KTsNCiAgICAgICAgICAgICAgICAg
+ICAgaWYgKHIpIHsNCiAgICAgICAgICAgICAgICAgICAgICAgICAgICB2cV9lcnIodnEsICJGYWls
+ZWQgdG8gdXBkYXRlIGF2YWlsIGV2ZW50IGluZGV4IGF0ICVwOiAlZFxuIiwNCiAgICAgICAgICAg
+ICAgICAgICAgICAgICAgICAgICAgICAgdmhvc3RfYXZhaWxfZXZlbnQodnEpLCByKTsNCiAgICAg
+ICAgICAgICAgICAgICAgICAgICAgICByZXR1cm4gZmFsc2U7DQogICAgICAgICAgICAgICAgICAg
+IH0NCiAgICAgICAgICAgIH0NCiAgICAgICAgICAgIC8qIFRoZXkgY291bGQgaGF2ZSBzbGlwcGVk
+IG9uZSBpbiBhcyB3ZSB3ZXJlIGRvaW5nIHRoYXQ6IG1ha2UNCiAgICAgICAgICAgICAqIHN1cmUg
+aXQncyB3cml0dGVuLCB0aGVuIGNoZWNrIGFnYWluLiAqLw0KICAgICAgICAgICAgc21wX21iKCk7
+DQogICAgICAgICAgICByID0gdmhvc3RfZ2V0X2F2YWlsKHZxLCBhdmFpbF9pZHgsICZ2cS0+YXZh
+aWwtPmlkeCk7DQogICAgICAgICAgICBpZiAocikgew0KICAgICAgICAgICAgICAgICAgICB2cV9l
+cnIodnEsICJGYWlsZWQgdG8gY2hlY2sgYXZhaWwgaWR4IGF0ICVwOiAlZFxuIiwNCiAgICAgICAg
+ICAgICAgICAgICAgICAgICAgICZ2cS0+YXZhaWwtPmlkeCwgcik7DQogICAgICAgICAgICAgICAg
+ICAgIHJldHVybiBmYWxzZTsNCiAgICAgICAgICAgIH0NCiAgICANCiAgICAgICAgICAgIHJldHVy
+biB2aG9zdDE2X3RvX2NwdSh2cSwgYXZhaWxfaWR4KSAhPSB2cS0+YXZhaWxfaWR4Ow0KICAgIH0N
+CiAgICANCiAgICA+VGhlIHJlc3VsdCBpcyBrZXJuZWwgdmhvc3QgZ290IHN0dWNrIGV2ZW4gdGhv
+dWdoIHRoZSB2cmluZyBpcyBmaWxsZWQgd2l0aCBuZXcgZGVzY3JpcHRvcnMuDQogICAgDQogICAg
+U2hvdWxkbid0IGJlLiBNYXliZSB5b3UgYXJlIG1pc3NpbmcgYSBmZW5jZSBiZWZvcmUgcmVhZGlu
+ZyB1c2VkLT5mbGFncz8NCiAgICANCiAgICANCiAgICA+IFN0ZXZlbg0KICAgID4gDQogICAgPiA8
+L1NWTD4NCiAgICA+ICAgICANCiAgICA+ICAgICANCiAgICA+ICAgICA+IFVuZm9ydHVuYXRlbHks
+IHRoaXMgbWlzc2VkDQogICAgPiAgICAgPiBub3RpZmljYXRpb24gY2F1c2VzIHRoZSBrZXJuZWwg
+dmhvc3QgdG8gYmUgc3R1Y2sgYmVjYXVzZSBvbmNlIHRoZSBrZXJuZWwgdmhvc3QNCiAgICA+ICAg
+ICA+IGlzIHdhaXRpbmcgZm9yIGFuIGludGVycnVwdC9ub3RpZmljYXRpb24gZnJvbSB0aGUgZ3Vl
+c3QsIG9ubHkgYW4gaW50ZXJydXB0Lw0KICAgID4gICAgID4gbm90aWZpY2F0aW9uIGZyb20gdGhl
+IGd1ZXN0IGNhbiByZXN1bWUvcmUtZW5hYmxlIHRoZSBndWVzdCBmcm9tIHN1Ym1pdHRpbmcgbmV3
+DQogICAgPiAgICAgPiBwYWNrZXRzIHRvIHRoZSB2cmluZy4gVGhpcyBkZXNpZ24gc2VlbXMgdnVs
+bmVyYWJsZS4NCiAgICA+ICAgICANCiAgICA+ICAgICBUaGUgcHJvdG9jb2wgcmlnaHQgbm93IHJl
+bGllcyBvbiBub3RpZmljYXRpb25zIG5ldmVyIGJlaW5nIGxvc3QuDQogICAgPiAgICAgDQogICAg
+PiAgICAgSSBjYW4gaW1hZ2luZSBhbiBhbHRlcm5hdGl2ZSB3aGVyZSBkZXZpY2UgYWxzbyByZS1j
+aGVja3MNCiAgICA+ICAgICB0aGUgcmluZ3MgcGVyaW9kaWNhbGx5LCBidXQgdGhhdCB3b3VsZCBp
+bnZvbHZlIHJ1bm5pbmcNCiAgICA+ICAgICB0aW1lcnMgaG9zdCBzaWRlIHdoaWNoIGlzIG9ubHkg
+cG9zc2libGUgaWYgdGhlcmUncyBhDQogICAgPiAgICAgZnJlZSBwcm9jZXNzb3IgdGhhdCBjYW4g
+aGFuZGxlIHRoZW0uIEZ1cnRoZXIsDQogICAgPiAgICAgaXQgd2lsbCBzdGlsbCBsZWFkIHRvIHN0
+YWxscyBhbmQgcGFja2V0IGRyb3BzLCB3aGljaCB3aWxsDQogICAgPiAgICAgYmUgaGFyZGVyIHRv
+IGRlYnVnLg0KICAgID4gICAgIA0KICAgID4gICAgIFRoYXQncyBqdXN0IG15ICQuMDIsIHBscyBm
+ZWVsIGZyZWUgdG8gdGFrZSBpdCB3aXRoIHRoZSB2aXJ0aW8gdGMNCiAgICA+ICAgICBtYXliZSBv
+dGhlcnMgd2lsbCBmZWVsIGRpZmZlcmVudGx5Lg0KICAgID4gICAgIA0KICAgID4gICAgID4gU2hv
+dWxkIHRoZSBrZXJuZWwgdmhvc3QNCiAgICA+ICAgICA+IHRvdGFsbHkgZGVwZW5kIG9uIHRoZSBu
+b3RpZmljYXRpb24gZnJvbSB0aGUgZ3Vlc3Q/IFF1b3RpbmcgdGhlIHRleHQgZnJvbQ0KICAgID4g
+ICAgID4gDQogICAgPiAgICAgPiAgDQogICAgPiAgICAgPiANCiAgICA+ICAgICA+IGh0dHA6Ly9k
+b2NzLm9hc2lzLW9wZW4ub3JnL3ZpcnRpby92aXJ0aW8vdjEuMC92aXJ0aW8tdjEuMC5odG1sDQog
+ICAgPiAgICAgPiANCiAgICA+ICAgICA+ICANCiAgICA+ICAgICA+IA0KICAgID4gICAgID4gLyog
+VGhlIGRldmljZSB1c2VzIHRoaXMgaW4gdXNlZC0+ZmxhZ3MgdG8gYWR2aXNlIHRoZSBkcml2ZXI6
+IGRvbuKAmXQga2ljayBtZSANCiAgICA+ICAgICA+ICAqIHdoZW4geW91IGFkZCBhIGJ1ZmZlci4g
+IEl04oCZcyB1bnJlbGlhYmxlLCBzbyBpdOKAmXMgc2ltcGx5IGFuIA0KICAgID4gICAgID4gICog
+b3B0aW1pemF0aW9uLiAqLyANCiAgICA+ICAgICA+ICNkZWZpbmUgVklSVFFfVVNFRF9GX05PX05P
+VElGWSAgMSANCiAgICA+ICAgICA+IA0KICAgID4gICAgID4gIA0KICAgID4gICAgID4gDQogICAg
+PiAgICAgPiBJIGludGVycHJldCB0aGF0IHRoZSBub3RpZmljYXRpb24gaXMgc2ltcGx5IGFuIG9w
+dGltaXphdGlvbiwgbm90IGEgcmVsaWFibGUNCiAgICA+ICAgICA+IG5vdGlmaWNhdGlvbiBtZWNo
+YW5pc20uIA0KICAgID4gICAgIA0KICAgID4gICAgIFdoYXQgd2FzIG1lYW50IEkgdGhpbmsgaXMg
+dGhhdCBzdXBwcmVzc2lvbiBpcyB1bnJlbGlhYmxlLg0KICAgID4gICAgIA0KICAgID4gICAgID5T
+byB0aGUga2VybmVsIHZob3N0IHNob3VsZCBub3QgYmV0IHRoZSBmYXJtIG9uIGl0Lg0KICAgID4g
+ICAgID4gDQogICAgPiAgICAgPiAgDQogICAgPiAgICAgPiANCiAgICA+ICAgICA+IFdlIGVuY291
+bnRlciB0aGUgc2FtZSByYWNlIGNvbmRpdGlvbiBpbiBrZXJuZWwgdmhvc3TigJlzIFJYIHRyYWZm
+aWMgZGlyZWN0aW9uDQogICAgPiAgICAgPiB3aGljaCBjYXVzZXMgdGhlIGtlcm5lbCB2aG9zdCB0
+byBiZSBzdHVjayBkdWUgdG8gbWlzc2VkIGludGVycnVwdC9ub3RpZmljYXRpb24NCiAgICA+ICAg
+ICA+IGFsdGhvdWdoIGl0IGlzIGxlc3MgZnJlcXVlbnQuDQogICAgPiAgICAgDQogICAgPiAgICAg
+DQogICAgPiAgICAgRm9yIHRoZSByZXZlcnNlIGRpcmVjdGlvbiB0aGUgc3BlYyBhY3R1YWxseSBo
+YXMgc29tZSBwc2V1ZG8tY29kZSBhbmQgYSBzdWdnZXN0aW9uDQogICAgPiAgICAgYWJvdXQgaGFu
+ZGxpbmcgdGhhdCByYWNlOg0KICAgID4gICAgIA0KICAgID4gICAgIAlGb3Igb3B0aW1hbCBwZXJm
+b3JtYW5jZSwgYSBkcml2ZXIgTUFZIGRpc2FibGUgdXNlZCBidWZmZXIgbm90aWZpY2F0aW9ucyB3
+aGlsZSBwcm9jZXNzaW5nIHRoZSB1c2VkDQogICAgPiAgICAgCXJpbmcsIGJ1dCBiZXdhcmUgdGhl
+IHByb2JsZW0gb2YgbWlzc2luZyBub3RpZmljYXRpb25zIGJldHdlZW4gZW1wdHlpbmcgdGhlIHJp
+bmcgYW5kIHJlZW5hYmxpbmcgbm8tDQogICAgPiAgICAgCXRpZmljYXRpb25zLiBUaGlzIGlzIHVz
+dWFsbHkgaGFuZGxlZCBieSByZS1jaGVja2luZyBmb3IgbW9yZSB1c2VkIGJ1ZmZlcnMgYWZ0ZXIg
+bm90aWZpY2F0aW9ucyBhcmUgcmUtDQogICAgPiAgICAgCWVuYWJsZWQ6DQogICAgPiAgICAgDQog
+ICAgPiAgICAgCQl2aXJ0cV9kaXNhYmxlX3VzZWRfYnVmZmVyX25vdGlmaWNhdGlvbnModnEpOw0K
+ICAgID4gICAgIAkJZm9yICg7Oykgew0KICAgID4gICAgIAkJCWlmICh2cS0+bGFzdF9zZWVuX3Vz
+ZWQgIT0gbGUxNl90b19jcHUodmlydHEtPnVzZWQuaWR4KSkgew0KICAgID4gICAgIAkJCXZpcnRx
+X2VuYWJsZV91c2VkX2J1ZmZlcl9ub3RpZmljYXRpb25zKHZxKTsNCiAgICA+ICAgICAJCQltYigp
+Ow0KICAgID4gICAgIAkJCWlmICh2cS0+bGFzdF9zZWVuX3VzZWQgIT0gbGUxNl90b19jcHUodmly
+dHEtPnVzZWQuaWR4KSkNCiAgICA+ICAgICAJCQkJYnJlYWs7DQogICAgPiAgICAgCQkJdmlydHFf
+ZGlzYWJsZV91c2VkX2J1ZmZlcl9ub3RpZmljYXRpb25zKHZxKTsNCiAgICA+ICAgICAJCX0NCiAg
+ICA+ICAgICAJCXN0cnVjdCB2aXJ0cV91c2VkX2VsZW0gKmUgPSB2aXJ0cS51c2VkLT5yaW5nW3Zx
+LT5sYXN0X3NlZW5fdXNlZCV2c3pdOw0KICAgID4gICAgIAkJcHJvY2Vzc19idWZmZXIoZSk7DQog
+ICAgPiAgICAgCQl2cS0+bGFzdF9zZWVuX3VzZWQrKzsNCiAgICA+ICAgICANCiAgICA+ICAgICAN
+CiAgICA+ICAgICANCiAgICA+ICAgICA+ICANCiAgICA+ICAgICA+IA0KICAgID4gICAgID4gU3Rl
+dmVuDQogICAgPiAgICAgPiANCiAgICA+ICAgICANCiAgICA+ICAgICA+IF9fX19fX19fX19fX19f
+X19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fDQogICAgPiAgICAgPiBWaXJ0dWFsaXph
+dGlvbiBtYWlsaW5nIGxpc3QNCiAgICA+ICAgICA+IFZpcnR1YWxpemF0aW9uQGxpc3RzLmxpbnV4
+LWZvdW5kYXRpb24ub3JnDQogICAgPiAgICAgPiBodHRwczovL2xpc3RzLmxpbnV4Zm91bmRhdGlv
+bi5vcmcvbWFpbG1hbi9saXN0aW5mby92aXJ0dWFsaXphdGlvbg0KICAgID4gICAgIA0KICAgID4g
+ICAgIA0KICAgID4gDQogICAgDQoNCl9fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19f
+X19fX19fX19fX19fClZpcnR1YWxpemF0aW9uIG1haWxpbmcgbGlzdApWaXJ0dWFsaXphdGlvbkBs
+aXN0cy5saW51eC1mb3VuZGF0aW9uLm9yZwpodHRwczovL2xpc3RzLmxpbnV4Zm91bmRhdGlvbi5v
+cmcvbWFpbG1hbi9saXN0aW5mby92aXJ0dWFsaXphdGlvbg==
