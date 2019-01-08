@@ -1,7 +1,7 @@
 From: Wei Wang <wei.w.wang@intel.com>
-Subject: [PATCH v4 2/3] virtio-balloon: improve update_balloon_size_func
-Date: Tue,  8 Jan 2019 12:50:04 +0800
-Message-ID: <1546923005-40517-3-git-send-email-wei.w.wang__40342.7769001157$1546925041$gmane$org@intel.com>
+Subject: [PATCH v4 3/3] virtio_balloon: remove the unnecessary 0-initialization
+Date: Tue,  8 Jan 2019 12:50:05 +0800
+Message-ID: <1546923005-40517-4-git-send-email-wei.w.wang__28684.1566944078$1546925055$gmane$org@intel.com>
 References: <1546923005-40517-1-git-send-email-wei.w.wang@intel.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
@@ -21,34 +21,26 @@ To: virtio-dev@lists.oasis-open.org, linux-kernel@vger.kernel.org, stable@vger.k
 Cc: pasic@linux.ibm.com, dgilbert@redhat.com, pbonzini@redhat.com
 List-Id: virtualization@lists.linuxfoundation.org
 
-There is no need to update the balloon actual register when there is no
-ballooning request. This patch avoids update_balloon_size when diff is 0.
+We've changed to kzalloc the vb struct, so no need to 0-initialize
+this field one more time.
 
 Signed-off-by: Wei Wang <wei.w.wang@intel.com>
 Reviewed-by: Cornelia Huck <cohuck@redhat.com>
-Reviewed-by: Halil Pasic <pasic@linux.ibm.com>
-Tested-by: Christian Borntraeger <borntraeger@de.ibm.com>
 ---
- drivers/virtio/virtio_balloon.c | 5 ++++-
- 1 file changed, 4 insertions(+), 1 deletion(-)
+ drivers/virtio/virtio_balloon.c | 1 -
+ 1 file changed, 1 deletion(-)
 
 diff --git a/drivers/virtio/virtio_balloon.c b/drivers/virtio/virtio_balloon.c
-index 45d32f5..d48c12c 100644
+index d48c12c..048959a 100644
 --- a/drivers/virtio/virtio_balloon.c
 +++ b/drivers/virtio/virtio_balloon.c
-@@ -457,9 +457,12 @@ static void update_balloon_size_func(struct work_struct *work)
- 			  update_balloon_size_work);
- 	diff = towards_target(vb);
- 
-+	if (!diff)
-+		return;
-+
- 	if (diff > 0)
- 		diff -= fill_balloon(vb, diff);
--	else if (diff < 0)
-+	else
- 		diff += leak_balloon(vb, -diff);
- 	update_balloon_size(vb);
- 
+@@ -925,7 +925,6 @@ static int virtballoon_probe(struct virtio_device *vdev)
+ 						  VIRTIO_BALLOON_CMD_ID_STOP);
+ 		vb->cmd_id_stop = cpu_to_virtio32(vb->vdev,
+ 						  VIRTIO_BALLOON_CMD_ID_STOP);
+-		vb->num_free_page_blocks = 0;
+ 		spin_lock_init(&vb->free_page_list_lock);
+ 		INIT_LIST_HEAD(&vb->free_page_list);
+ 		if (virtio_has_feature(vdev, VIRTIO_BALLOON_F_PAGE_POISON)) {
 -- 
 2.7.4
