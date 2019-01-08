@@ -1,7 +1,7 @@
 From: Gerd Hoffmann <kraxel@redhat.com>
-Subject: [PATCH v2 06/15] drm/bochs: atomic: use atomic set_config helper
-Date: Tue,  8 Jan 2019 12:25:10 +0100
-Message-ID: <20190108112519.27473-7-kraxel@redhat.com>
+Subject: [PATCH v2 04/15] drm/bochs: atomic: add mode_set_nofb callback.
+Date: Tue,  8 Jan 2019 12:25:08 +0100
+Message-ID: <20190108112519.27473-5-kraxel__32980.8572344065$1546946625$gmane$org@redhat.com>
 References: <20190108112519.27473-1-kraxel@redhat.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
@@ -21,27 +21,41 @@ To: dri-devel@lists.freedesktop.org, David Airlie <airlied@redhat.com>
 Cc: andr2000@gmail.com, David Airlie <airlied@linux.ie>, open list <linux-kernel@vger.kernel.org>, "open list:DRM DRIVER FOR BOCHS VIRTUAL GPU" <virtualization@lists.linux-foundation.org>
 List-Id: virtualization@lists.linuxfoundation.org
 
-Conversion to atomic modesetting, step four.
-Use atomic set_config helper for crtc.
+Conversion to atomic modesetting, step two.
+Add mode_set_nofb crtc helper callback.
 
 Signed-off-by: Gerd Hoffmann <kraxel@redhat.com>
 Reviewed-by: Oleksandr Andrushchenko <oleksandr_andrushchenko@epam.com>
 ---
- drivers/gpu/drm/bochs/bochs_kms.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ drivers/gpu/drm/bochs/bochs_kms.c | 9 +++++++++
+ 1 file changed, 9 insertions(+)
 
 diff --git a/drivers/gpu/drm/bochs/bochs_kms.c b/drivers/gpu/drm/bochs/bochs_kms.c
-index 570f761ec4..3c91ff652b 100644
+index 2cbd406b1f..56fd7be933 100644
 --- a/drivers/gpu/drm/bochs/bochs_kms.c
 +++ b/drivers/gpu/drm/bochs/bochs_kms.c
-@@ -150,7 +150,7 @@ static void bochs_crtc_atomic_flush(struct drm_crtc *crtc,
+@@ -86,6 +86,14 @@ static int bochs_crtc_mode_set(struct drm_crtc *crtc,
+ 	return 0;
+ }
  
- /* These provide the minimum set of functions required to handle a CRTC */
- static const struct drm_crtc_funcs bochs_crtc_funcs = {
--	.set_config = drm_crtc_helper_set_config,
-+	.set_config = drm_atomic_helper_set_config,
- 	.destroy = drm_crtc_cleanup,
- 	.page_flip = bochs_crtc_page_flip,
- 	.reset = drm_atomic_helper_crtc_reset,
++static void bochs_crtc_mode_set_nofb(struct drm_crtc *crtc)
++{
++	struct bochs_device *bochs =
++		container_of(crtc, struct bochs_device, crtc);
++
++	bochs_hw_setmode(bochs, &crtc->mode);
++}
++
+ static void bochs_crtc_prepare(struct drm_crtc *crtc)
+ {
+ }
+@@ -149,6 +157,7 @@ static const struct drm_crtc_helper_funcs bochs_helper_funcs = {
+ 	.dpms = bochs_crtc_dpms,
+ 	.mode_set = bochs_crtc_mode_set,
+ 	.mode_set_base = bochs_crtc_mode_set_base,
++	.mode_set_nofb = bochs_crtc_mode_set_nofb,
+ 	.prepare = bochs_crtc_prepare,
+ 	.commit = bochs_crtc_commit,
+ 	.atomic_enable = bochs_crtc_atomic_enable,
 -- 
 2.9.3
