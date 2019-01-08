@@ -1,7 +1,7 @@
 From: Gerd Hoffmann <kraxel@redhat.com>
-Subject: [PATCH v2 15/15] drm/bochs: reserve bo for pin/unpin
-Date: Tue,  8 Jan 2019 12:25:19 +0100
-Message-ID: <20190108112519.27473-16-kraxel__46527.2670299329$1546946655$gmane$org@redhat.com>
+Subject: [PATCH v2 12/15] drm/bochs: switch to generic drm fbdev emulation
+Date: Tue,  8 Jan 2019 12:25:16 +0100
+Message-ID: <20190108112519.27473-13-kraxel__41459.7527975731$1546946657$gmane$org@redhat.com>
 References: <20190108112519.27473-1-kraxel@redhat.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
@@ -21,41 +21,51 @@ To: dri-devel@lists.freedesktop.org, David Airlie <airlied@redhat.com>
 Cc: andr2000@gmail.com, David Airlie <airlied@linux.ie>, open list <linux-kernel@vger.kernel.org>, "open list:DRM DRIVER FOR BOCHS VIRTUAL GPU" <virtualization@lists.linux-foundation.org>
 List-Id: virtualization@lists.linuxfoundation.org
 
-The buffer object must be reserved before calling
-ttm_bo_validate for pinning/unpinning.
-
 Signed-off-by: Gerd Hoffmann <kraxel@redhat.com>
 ---
- drivers/gpu/drm/bochs/bochs_mm.c | 8 ++++++++
- 1 file changed, 8 insertions(+)
+ drivers/gpu/drm/bochs/bochs_drv.c | 9 +--------
+ 1 file changed, 1 insertion(+), 8 deletions(-)
 
-diff --git a/drivers/gpu/drm/bochs/bochs_mm.c b/drivers/gpu/drm/bochs/bochs_mm.c
-index cfe061c25f..970a591908 100644
---- a/drivers/gpu/drm/bochs/bochs_mm.c
-+++ b/drivers/gpu/drm/bochs/bochs_mm.c
-@@ -223,7 +223,11 @@ int bochs_bo_pin(struct bochs_bo *bo, u32 pl_flag)
- 	bochs_ttm_placement(bo, pl_flag);
- 	for (i = 0; i < bo->placement.num_placement; i++)
- 		bo->placements[i].flags |= TTM_PL_FLAG_NO_EVICT;
-+	ret = ttm_bo_reserve(&bo->bo, true, false, NULL);
-+	if (ret)
-+		return ret;
- 	ret = ttm_bo_validate(&bo->bo, &bo->placement, &ctx);
-+	ttm_bo_unreserve(&bo->bo);
+diff --git a/drivers/gpu/drm/bochs/bochs_drv.c b/drivers/gpu/drm/bochs/bochs_drv.c
+index a9c7140e3b..350e34cf2c 100644
+--- a/drivers/gpu/drm/bochs/bochs_drv.c
++++ b/drivers/gpu/drm/bochs/bochs_drv.c
+@@ -16,10 +16,6 @@ static int bochs_modeset = -1;
+ module_param_named(modeset, bochs_modeset, int, 0444);
+ MODULE_PARM_DESC(modeset, "enable/disable kernel modesetting");
+ 
+-static bool enable_fbdev = true;
+-module_param_named(fbdev, enable_fbdev, bool, 0444);
+-MODULE_PARM_DESC(fbdev, "register fbdev device");
+-
+ /* ---------------------------------------------------------------------- */
+ /* drm interface                                                          */
+ 
+@@ -27,7 +23,6 @@ static void bochs_unload(struct drm_device *dev)
+ {
+ 	struct bochs_device *bochs = dev->dev_private;
+ 
+-	bochs_fbdev_fini(bochs);
+ 	bochs_kms_fini(bochs);
+ 	bochs_mm_fini(bochs);
+ 	bochs_hw_fini(dev);
+@@ -58,9 +53,6 @@ static int bochs_load(struct drm_device *dev)
  	if (ret)
- 		return ret;
+ 		goto err;
  
-@@ -247,7 +251,11 @@ int bochs_bo_unpin(struct bochs_bo *bo)
+-	if (enable_fbdev)
+-		bochs_fbdev_init(bochs);
+-
+ 	return 0;
  
- 	for (i = 0; i < bo->placement.num_placement; i++)
- 		bo->placements[i].flags &= ~TTM_PL_FLAG_NO_EVICT;
-+	ret = ttm_bo_reserve(&bo->bo, true, false, NULL);
-+	if (ret)
-+		return ret;
- 	ret = ttm_bo_validate(&bo->bo, &bo->placement, &ctx);
-+	ttm_bo_unreserve(&bo->bo);
+ err:
+@@ -178,6 +170,7 @@ static int bochs_pci_probe(struct pci_dev *pdev,
  	if (ret)
- 		return ret;
+ 		goto err_unload;
  
++	drm_fbdev_generic_setup(dev, 32);
+ 	return ret;
+ 
+ err_unload:
 -- 
 2.9.3
