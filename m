@@ -1,14 +1,14 @@
 From: Gerd Hoffmann <kraxel@redhat.com>
-Subject: Re: [PATCH] drm/virtio: Remove incorrect kfree()
-Date: Tue, 8 Jan 2019 11:40:51 +0100
-Message-ID: <20190108104051.nropnyozq7cvhp6s__21072.4454293542$1546943932$gmane$org@sirius.home.kraxel.org>
-References: <20190102175507.4653-1-ezequiel@collabora.com>
+Subject: Re: [PATCH] drm/virtio: Drop deprecated load/unload initialization
+Date: Tue, 8 Jan 2019 11:43:01 +0100
+Message-ID: <20190108104301.wrsrgpen5gcjbsqh__37742.3932929107$1546944060$gmane$org@sirius.home.kraxel.org>
+References: <20190103161600.19556-1-ezequiel@collabora.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
 Content-Disposition: inline
-In-Reply-To: <20190102175507.4653-1-ezequiel@collabora.com>
+In-Reply-To: <20190103161600.19556-1-ezequiel@collabora.com>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -22,15 +22,16 @@ To: Ezequiel Garcia <ezequiel@collabora.com>
 Cc: David Airlie <airlied@linux.ie>, Daniel Vetter <daniel@ffwll.ch>, dri-devel@lists.freedesktop.org, virtualization@lists.linux-foundation.org
 List-Id: virtualization@lists.linuxfoundation.org
 
-On Wed, Jan 02, 2019 at 02:55:06PM -0300, Ezequiel Garcia wrote:
-> The virtio_gpu_output is a member of struct virtio_gpu_device
-> and is not a dynamically-allocated chunk, so it's wrong to kfree() it.
-> Removing it fixes a memory corruption BUG() that can be triggered
-> when the virtio-gpu driver is removed.
-> 
-> Signed-off-by: Ezequiel Garcia <ezequiel@collabora.com>
+On Thu, Jan 03, 2019 at 01:16:00PM -0300, Ezequiel Garcia wrote:
+> Move the code around so the driver is probed the bus
+> .probe and removed from the bus .remove callbacks.
+> This commit is just a cleanup and shouldn't affect
+> functionality.
 
-Both patches are queued up.
+Doesn't apply cleanly to drm-misc-next, and git can't find the parent
+sha (for 3way merge) either.
+
+Can you rebase and resend?
 
 thanks,
   Gerd
