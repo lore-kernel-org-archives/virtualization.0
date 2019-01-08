@@ -1,7 +1,7 @@
 From: Gerd Hoffmann <kraxel@redhat.com>
-Subject: [PATCH v2 07/15] drm/bochs: atomic: use atomic page_flip helper
-Date: Tue,  8 Jan 2019 12:25:11 +0100
-Message-ID: <20190108112519.27473-8-kraxel__43504.5958184221$1546946626$gmane$org@redhat.com>
+Subject: [PATCH v2 14/15] drm/bochs: move remaining fb bits to kms
+Date: Tue,  8 Jan 2019 12:25:18 +0100
+Message-ID: <20190108112519.27473-15-kraxel__49816.1142030314$1546946627$gmane$org@redhat.com>
 References: <20190108112519.27473-1-kraxel@redhat.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
@@ -18,58 +18,99 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
 To: dri-devel@lists.freedesktop.org, David Airlie <airlied@redhat.com>
-Cc: andr2000@gmail.com, David Airlie <airlied@linux.ie>, open list <linux-kernel@vger.kernel.org>, "open list:DRM DRIVER FOR BOCHS VIRTUAL GPU" <virtualization@lists.linux-foundation.org>
+Cc: andr2000@gmail.com, David Airlie <airlied@linux.ie>, "open list:DRM DRIVER FOR BOCHS VIRTUAL GPU" <virtualization@lists.linux-foundation.org>, open list <linux-kernel@vger.kernel.org>
 List-Id: virtualization@lists.linuxfoundation.org
 
-Conversion to atomic modesetting, step five.
-Use atomic page_flip helper for crtc.
+bochs_fbdev.c is almost empty now.  Move the remaining framebuffer bits
+over to bochs_kms.c.  Pure code motion. No functional change.
 
 Signed-off-by: Gerd Hoffmann <kraxel@redhat.com>
 Reviewed-by: Oleksandr Andrushchenko <oleksandr_andrushchenko@epam.com>
 ---
- drivers/gpu/drm/bochs/bochs_kms.c | 23 +----------------------
- 1 file changed, 1 insertion(+), 22 deletions(-)
+ drivers/gpu/drm/bochs/bochs_fbdev.c | 29 -----------------------------
+ drivers/gpu/drm/bochs/bochs_kms.c   | 17 +++++++++++++++++
+ drivers/gpu/drm/bochs/Makefile      |  2 +-
+ 3 files changed, 18 insertions(+), 30 deletions(-)
+ delete mode 100644 drivers/gpu/drm/bochs/bochs_fbdev.c
 
-diff --git a/drivers/gpu/drm/bochs/bochs_kms.c b/drivers/gpu/drm/bochs/bochs_kms.c
-index 3c91ff652b..f39e291245 100644
---- a/drivers/gpu/drm/bochs/bochs_kms.c
-+++ b/drivers/gpu/drm/bochs/bochs_kms.c
-@@ -104,27 +104,6 @@ static void bochs_crtc_commit(struct drm_crtc *crtc)
- {
- }
- 
--static int bochs_crtc_page_flip(struct drm_crtc *crtc,
--				struct drm_framebuffer *fb,
--				struct drm_pending_vblank_event *event,
--				uint32_t page_flip_flags,
--				struct drm_modeset_acquire_ctx *ctx)
--{
--	struct bochs_device *bochs =
--		container_of(crtc, struct bochs_device, crtc);
--	struct drm_framebuffer *old_fb = crtc->primary->fb;
--	unsigned long irqflags;
+diff --git a/drivers/gpu/drm/bochs/bochs_fbdev.c b/drivers/gpu/drm/bochs/bochs_fbdev.c
+deleted file mode 100644
+index 7cac3f5253..0000000000
+--- a/drivers/gpu/drm/bochs/bochs_fbdev.c
++++ /dev/null
+@@ -1,29 +0,0 @@
+-/*
+- * This program is free software; you can redistribute it and/or modify
+- * it under the terms of the GNU General Public License as published by
+- * the Free Software Foundation; either version 2 of the License, or
+- * (at your option) any later version.
+- */
 -
--	drm_atomic_set_fb_for_plane(crtc->primary->state, fb);
--	bochs_crtc_mode_set_base(crtc, 0, 0, old_fb);
--	if (event) {
--		spin_lock_irqsave(&bochs->dev->event_lock, irqflags);
--		drm_crtc_send_vblank_event(crtc, event);
--		spin_unlock_irqrestore(&bochs->dev->event_lock, irqflags);
--	}
--	return 0;
+-#include "bochs.h"
+-#include <drm/drm_atomic_helper.h>
+-#include <drm/drm_gem_framebuffer_helper.h>
+-
+-/* ---------------------------------------------------------------------- */
+-
+-static struct drm_framebuffer *
+-bochs_gem_fb_create(struct drm_device *dev, struct drm_file *file,
+-		    const struct drm_mode_fb_cmd2 *mode_cmd)
+-{
+-	if (mode_cmd->pixel_format != DRM_FORMAT_XRGB8888 &&
+-	    mode_cmd->pixel_format != DRM_FORMAT_BGRX8888)
+-		return ERR_PTR(-EINVAL);
+-
+-	return drm_gem_fb_create(dev, file, mode_cmd);
 -}
 -
- static void bochs_crtc_atomic_enable(struct drm_crtc *crtc,
- 				     struct drm_crtc_state *old_crtc_state)
+-const struct drm_mode_config_funcs bochs_mode_funcs = {
+-	.fb_create = bochs_gem_fb_create,
+-	.atomic_check = drm_atomic_helper_check,
+-	.atomic_commit = drm_atomic_helper_commit,
+-};
+diff --git a/drivers/gpu/drm/bochs/bochs_kms.c b/drivers/gpu/drm/bochs/bochs_kms.c
+index fc856a02a2..e9d5dbc346 100644
+--- a/drivers/gpu/drm/bochs/bochs_kms.c
++++ b/drivers/gpu/drm/bochs/bochs_kms.c
+@@ -9,6 +9,7 @@
+ #include <drm/drm_atomic_helper.h>
+ #include <drm/drm_plane_helper.h>
+ #include <drm/drm_atomic_uapi.h>
++#include <drm/drm_gem_framebuffer_helper.h>
+ 
+ static int defx = 1024;
+ static int defy = 768;
+@@ -256,6 +257,22 @@ static void bochs_connector_init(struct drm_device *dev)
+ 	}
+ }
+ 
++static struct drm_framebuffer *
++bochs_gem_fb_create(struct drm_device *dev, struct drm_file *file,
++		    const struct drm_mode_fb_cmd2 *mode_cmd)
++{
++	if (mode_cmd->pixel_format != DRM_FORMAT_XRGB8888 &&
++	    mode_cmd->pixel_format != DRM_FORMAT_BGRX8888)
++		return ERR_PTR(-EINVAL);
++
++	return drm_gem_fb_create(dev, file, mode_cmd);
++}
++
++const struct drm_mode_config_funcs bochs_mode_funcs = {
++	.fb_create = bochs_gem_fb_create,
++	.atomic_check = drm_atomic_helper_check,
++	.atomic_commit = drm_atomic_helper_commit,
++};
+ 
+ int bochs_kms_init(struct bochs_device *bochs)
  {
-@@ -152,7 +131,7 @@ static void bochs_crtc_atomic_flush(struct drm_crtc *crtc,
- static const struct drm_crtc_funcs bochs_crtc_funcs = {
- 	.set_config = drm_atomic_helper_set_config,
- 	.destroy = drm_crtc_cleanup,
--	.page_flip = bochs_crtc_page_flip,
-+	.page_flip = drm_atomic_helper_page_flip,
- 	.reset = drm_atomic_helper_crtc_reset,
- 	.atomic_duplicate_state = drm_atomic_helper_crtc_duplicate_state,
- 	.atomic_destroy_state = drm_atomic_helper_crtc_destroy_state,
+diff --git a/drivers/gpu/drm/bochs/Makefile b/drivers/gpu/drm/bochs/Makefile
+index 98ef60a19e..e9e0f8f5eb 100644
+--- a/drivers/gpu/drm/bochs/Makefile
++++ b/drivers/gpu/drm/bochs/Makefile
+@@ -1,3 +1,3 @@
+-bochs-drm-y := bochs_drv.o bochs_mm.o bochs_kms.o bochs_fbdev.o bochs_hw.o
++bochs-drm-y := bochs_drv.o bochs_mm.o bochs_kms.o bochs_hw.o
+ 
+ obj-$(CONFIG_DRM_BOCHS)	+= bochs-drm.o
 -- 
 2.9.3
