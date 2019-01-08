@@ -1,21 +1,16 @@
-From: Jason Wang <jasowang@redhat.com>
-Subject: Re: [RFC PATCH V3 0/5] Hi:
-Date: Tue, 8 Jan 2019 19:42:43 +0800
-Message-ID: <2187b6ea-19f8-5894-f94e-3e042844bf96__2112.68579955703$1546947659$gmane$org@redhat.com>
-References: <20181229124656.3900-1-jasowang@redhat.com>
-	<20190102154038-mutt-send-email-mst@kernel.org>
-	<0efd115a-a7fb-54bf-5376-59d047a15fd3@redhat.com>
-	<20190106221832-mutt-send-email-mst@kernel.org>
-	<c15a17b3-b604-a105-af44-a7e6dfd79801@redhat.com>
-	<20190106230224-mutt-send-email-mst@kernel.org>
-	<CAPcyv4iXFy0jfoQ_jQYq2yA7cqu4_Jcap4mvQesRRrV-hahGvQ@mail.gmail.com>
-	<20190107084853-mutt-send-email-mst@kernel.org>
+From: "Michael S. Tsirkin" <mst@redhat.com>
+Subject: Re: [PATCH RFC 1/4] include/linux/compiler*.h: fix OPTIMIZER_HIDE_VAR
+Date: Tue, 8 Jan 2019 13:50:58 -0500
+Message-ID: <20190108134549-mutt-send-email-mst__1122.94558571211$1546973352$gmane$org@kernel.org>
+References: <20190102205715.14054-1-mst@redhat.com>
+	<20190102205715.14054-2-mst@redhat.com>
+	<CAKwvOdk3b6mnpTEEyY-JFrej8K12w9oTMLqi7q5aNiRMyJo6Ow@mail.gmail.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="utf-8"; Format="flowed"
-Content-Transfer-Encoding: base64
+Content-Type: text/plain; charset="us-ascii"
+Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <20190107084853-mutt-send-email-mst@kernel.org>
-Content-Language: en-US
+Content-Disposition: inline
+In-Reply-To: <CAKwvOdk3b6mnpTEEyY-JFrej8K12w9oTMLqi7q5aNiRMyJo6Ow@mail.gmail.com>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -25,75 +20,140 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: "Michael S. Tsirkin" <mst@redhat.com>, Dan Williams <dan.j.williams@intel.com>
-Cc: Netdev <netdev@vger.kernel.org>, David Miller <davem@davemloft.net>, Linux Kernel Mailing List <linux-kernel@vger.kernel.org>, KVM list <kvm@vger.kernel.org>, virtualization@lists.linux-foundation.org
+To: Nick Desaulniers <ndesaulniers@google.com>
+Cc: Andrea Parri <andrea.parri@amarulasolutions.com>, Peter Zijlstra <peterz@infradead.org>, Akira Yokosawa <akiyks@gmail.com>, Will Deacon <will.deacon@arm.com>, virtualization@lists.linux-foundation.org, David Howells <dhowells@redhat.com>, linux-arch@vger.kernel.org, linux-sparse@vger.kernel.org, Alan Stern <stern@rowland.harvard.edu>, "Paul E. McKenney" <paulmck@linux.vnet.ibm.com>, Boqun Feng <boqun.feng@gmail.com>, Daniel Lustig <dlustig@nvidia.com>, Nicholas Piggin <npiggin@gmail.com>, Luc Maranget <luc.maranget@inria.fr>, Eli Friedman <efriedma@codeaurora.org>, Jade Alglave <j.alglave@ucl.ac.uk>, netdev@vger.kernel.org, LKML <linux-kernel@vger.kernel.org>, Eric Christopher <echristo@google.com>, Miguel Ojeda <miguel.ojeda.sandonis@gmail.com>, Joe Perches <joe@perches.com>, Linus Torvalds <torvalds@linux-foundation.org>, Luc Van Oostenryck <luc.vanoostenryck@gmail.>
 List-Id: virtualization@lists.linuxfoundation.org
 
-Ck9uIDIwMTkvMS83IOS4i+WNiDEwOjExLCBNaWNoYWVsIFMuIFRzaXJraW4gd3JvdGU6Cj4gT24g
-U3VuLCBKYW4gMDYsIDIwMTkgYXQgMTE6MTU6MjBQTSAtMDgwMCwgRGFuIFdpbGxpYW1zIHdyb3Rl
-Ogo+PiBPbiBTdW4sIEphbiA2LCAyMDE5IGF0IDg6MTcgUE0gTWljaGFlbCBTLiBUc2lya2luIDxt
-c3RAcmVkaGF0LmNvbT4gd3JvdGU6Cj4+PiBPbiBNb24sIEphbiAwNywgMjAxOSBhdCAxMTo1Mzo0
-MUFNICswODAwLCBKYXNvbiBXYW5nIHdyb3RlOgo+Pj4+IE9uIDIwMTkvMS83IOS4iuWNiDExOjI4
-LCBNaWNoYWVsIFMuIFRzaXJraW4gd3JvdGU6Cj4+Pj4+IE9uIE1vbiwgSmFuIDA3LCAyMDE5IGF0
-IDEwOjE5OjAzQU0gKzA4MDAsIEphc29uIFdhbmcgd3JvdGU6Cj4+Pj4+PiBPbiAyMDE5LzEvMyDk
-uIrljYg0OjQ3LCBNaWNoYWVsIFMuIFRzaXJraW4gd3JvdGU6Cj4+Pj4+Pj4gT24gU2F0LCBEZWMg
-MjksIDIwMTggYXQgMDg6NDY6NTFQTSArMDgwMCwgSmFzb24gV2FuZyB3cm90ZToKPj4+Pj4+Pj4g
-VGhpcyBzZXJpZXMgdHJpZXMgdG8gYWNjZXNzIHZpcnRxdWV1ZSBtZXRhZGF0YSB0aHJvdWdoIGtl
-cm5lbCB2aXJ0dWFsCj4+Pj4+Pj4+IGFkZHJlc3MgaW5zdGVhZCBvZiBjb3B5X3VzZXIoKSBmcmll
-bmRzIHNpbmNlIHRoZXkgaGFkIHRvbyBtdWNoCj4+Pj4+Pj4+IG92ZXJoZWFkcyBsaWtlIGNoZWNr
-cywgc3BlYyBiYXJyaWVycyBvciBldmVuIGhhcmR3YXJlIGZlYXR1cmUKPj4+Pj4+Pj4gdG9nZ2xp
-bmcuCj4+Pj4+Pj4gV2lsbCByZXZpZXcsIHRoYW5rcyEKPj4+Pj4+PiBPbmUgcXVlc3Rpb25zIHRo
-YXQgY29tZXMgdG8gbWluZCBpcyB3aGV0aGVyIGl0J3MgYWxsIGFib3V0IGJ5cGFzc2luZwo+Pj4+
-Pj4+IHN0YWMvY2xhYy4gIENvdWxkIHlvdSBwbGVhc2UgaW5jbHVkZSBhIHBlcmZvcm1hbmNlIGNv
-bXBhcmlzb24gd2l0aAo+Pj4+Pj4+IG5vc21hcD8KPj4+Pj4+Pgo+Pj4+Pj4gT24gbWFjaGluZSB3
-aXRob3V0IFNNQVAgKFNhbmR5IEJyaWRnZSk6Cj4+Pj4+Pgo+Pj4+Pj4gQmVmb3JlOiA0LjhNcHBz
-Cj4+Pj4+Pgo+Pj4+Pj4gQWZ0ZXI6IDUuMk1wcHMKPj4+Pj4gT0sgc28gd291bGQgeW91IHNheSBp
-dCdzIHJlYWxseSB1bnNhZmUgdmVyc3VzIHNhZmUgYWNjZXNzZXM/Cj4+Pj4+IE9yIHdvdWxkIHlv
-dSBzYXkgaXQncyBqdXN0IGEgYmV0dGVyIHdyaXR0ZW4gY29kZT8KPj4+Pgo+Pj4+IEl0J3MgdGhl
-IGVmZmVjdCBvZiByZW1vdmluZyBzcGVjdWxhdGlvbiBiYXJyaWVyLgo+Pj4KPj4+IFlvdSBtZWFu
-IF9fdWFjY2Vzc19iZWdpbl9ub3NwZWMgaW50cm9kdWNlZCBieQo+Pj4gY29tbWl0IDMwNGVjMWIw
-NTAzMTA1NDhkYjMzMDYzZTU2NzEyM2ZhZThmZDAzMDEKPj4+ID8KPj4+Cj4+PiBTbyBmdW5kYW1l
-bnRhbGx5IHdlIGRvIGFjY2Vzc19vayBjaGVja3Mgd2hlbiBzdXBwbHlpbmcKPj4+IHRoZSBtZW1v
-cnkgdGFibGUgdG8gdGhlIGtlcm5lbCB0aHJlYWQsIGFuZCB3ZSBzaG91bGQKPj4+IGRvIHRoZSBz
-cGVjIGJhcnJpZXIgdGhlcmUuCj4+Pgo+Pj4gVGhlbiB3ZSBjYW4ganVzdCBjcmVhdGUgYW5kIHVz
-ZSBhIHZhcmlhbnQgb2YgdWFjY2VzcyBtYWNyb3MgdGhhdCBkb2VzCj4+PiBub3QgaW5jbHVkZSB0
-aGUgYmFycmllcj8KPj4+Cj4+PiBPciwgaG93IGFib3V0IG1vdmluZyB0aGUgYmFycmllciBpbnRv
-IGFjY2Vzc19vaz8KPj4+IFRoaXMgd2F5IHJlcGVhdGVkIGFjY2Vzc2VzIHdpdGggYSBzaW5nbGUg
-YWNjZXNzX29rIGdldCBhIGJpdCBmYXN0ZXIuCj4+PiBDQyBEYW4gV2lsbGlhbXMgb24gdGhpcyBp
-ZGVhLgo+PiBJdCB3b3VsZCBiZSBpbnRlcmVzdGluZyB0byBzZWUgaG93IGV4cGVuc2l2ZSByZS1k
-b2luZyB0aGUgYWRkcmVzcwo+PiBsaW1pdCBjaGVjayBpcyBjb21wYXJlZCB0byB0aGUgc3BlY3Vs
-YXRpb24gYmFycmllci4gSS5lLiBqdXN0IHN3aXRjaAo+PiB2aG9zdF9nZXRfdXNlcigpIHRvIHVz
-ZSBnZXRfdXNlcigpIHJhdGhlciB0aGFuIF9fZ2V0X3VzZXIoKS4gVGhhdCB3aWxsCj4+IHNhbml0
-aXplIHRoZSBwb2ludGVyIGluIHRoZSBzcGVjdWxhdGl2ZSBwYXRoIHdpdGhvdXQgYSBiYXJyaWVy
-Lgo+IEhtbSBpdCdzIHdheSBjaGVhcGVyIGV2ZW4gdGhvdWdoIElJUkMgaXQncyBtZWFzdXJlYWJs
-ZS4KPiBKYXNvbiwgd291bGQgeW91IGxpa2UgdG8gdHJ5PwoKCjAuNSUgcmVncmVzc2lvbiBhZnRl
-ciB1c2luZyBnZXRfdXNlcigpL3B1dF91c2VyKCkvLi4uCgoKPiBBbHRob3VnaCBmcmFua2x5IF9f
-Z2V0X3VzZXIgYmVpbmcgc2xvd2VyIHRoYW4gZ2V0X3VzZXIgZmVlbHMgdmVyeSB3cm9uZy4KPiBO
-b3QgeWV0IHN1cmUgd2hhdCB0byBkbyBleGFjdGx5IGJ1dCB3b3VsZCB5b3UgYWdyZWU/Cj4KPgo+
-PiBJIHJlY2FsbCB3ZSBoYWQgYSBjb252ZXJ0IGFjY2Vzc19vaygpIGRpc2N1c3Npb24gd2l0aCB0
-aGlzIHJlc3VsdCBoZXJlOgo+Pgo+PiBodHRwczovL2xrbWwub3JnL2xrbWwvMjAxOC8xLzE3Lzky
-OQo+IFNvcnJ5IGxldCBtZSB0cnkgdG8gY2xhcmlmeS4gSUlVQyBzcGVjdWxhdGluZyBhY2Nlc3Nf
-b2sgb25jZQo+IGlzIGhhcm1sZXNzLiBBcyBMaW51cyBzYWlkIHRoZSBwcm9ibGVtIGlzIHdpdGgg
-Il9zdWJzZXF1ZW50Xwo+IGFjY2Vzc2VzIHRoYXQgY2FuIHRoZW4gYmUgdXNlZCB0byBwZXJ0dXJi
-IHRoZSBjYWNoZSIuCj4KPiBUaHVzOgo+Cj4gMS4gaWYgKCFhY2Nlc3Nfb2spCj4gMi4JcmV0dXJu
-Cj4gMy4gIGdldF91c2VyCj4gNC4gaWYgKCFhY2Nlc3Nfb2spCj4gNS4JcmV0dXJuCj4gNi4gIGdl
-dF91c2VyCj4KPiBZb3VyIHByb3Bvc2FsIHRoYXQgTGludXMgbmFja2VkIHdhcyB0byBlZmZlY3Rp
-dmVseSBhZGQgYSBiYXJyaWVyIGFmdGVyCj4gbGluZXMgMiBhbmQgNSAoYWxzbyB1c2luZyB0aGUg
-YXJyYXlfaW5kZXhfbm9zcGVjIHRyaWNrIGZvciBzcGVlZCksCj4gcmlnaHQ/IFVuZm9ydHVuYXRl
-bHkgdGhhdCBuZWVkcyBhIGJpZyBBUEkgY2hhbmdlLgo+Cj4gSSBhbSBhc2tpbmcgYWJvdXQgYWRk
-aW5nIGJhcnJpZXJfbm9zcGVjIHdpdGhpbiBhY2Nlc3Nfb2suCj4gVGh1cyBlZmZlY3RpdmVseSBi
-ZWZvcmUgbGluZXMgMSBhbmQgNC4KPiBhY2Nlc3Nfb2sgd2lsbCBiZSBzbG93ZXIgYnV0IGFmdGVy
-IGFsbCB0aGUgcG9pbnQgb2YgYWNjZXNzX29rIGlzCj4gdG8gdGhlbiBhY2Nlc3MgdGhlIHNhbWUg
-bWVtb3J5IG11bHRpcGxlIHRpbWVzLgo+IFNvIHdlIHNob3VsZCBiZSBtYWtpbmcgX19nZXRfdXNl
-ciBmYXN0ZXIgYW5kIGFjY2Vzc19vayBzbG93ZXIgLi4uCgoKQW5kIHRoZSBiYXJyaWVyX25vc3Bl
-YygpIHdhcyBjb21wbGV0ZWx5IG5lY2Vzc2FyeSBpZiB5b3Ugd2FudCB0byBkbyAKd3JpdGUgaW5z
-dGVhZCByZWFkLgoKClRoYW5rcwoKCj4KPj4gLi4uYnV0IGl0IHNvdW5kcyBsaWtlIHlvdSBhcmUg
-cHJvcG9zaW5nIGEgc21hbGxlciBzY29wZSBmaXh1cCBmb3IgdGhlCj4+IHZob3N0IHVzZSBjYXNl
-PyBTb21ldGhpbmcgbGlrZSBiYXJyaWVyX25vc3BlYygpIGluIHRoZSBzdWNjZXNzIHBhdGgKPj4g
-Zm9yIGFsbCB2aG9zdCBhY2Nlc3Nfb2soKSBjaGVja3MgYW5kIHRoZW4gYSBnZXRfdXNlcigpIHZh
-cmlhbnQgdGhhdAo+PiBkaXNhYmxlcyB0aGUgYmFycmllci4KPiBNYXliZSB3ZSdsbCBoYXZlIHRv
-LiBFeGNlcHQgSSBob3BlIHZob3N0IHdvbid0IGVuZCB1cCBiZWluZyB0aGUKPiBvbmx5IHVzZXIg
-b3RoZXJ3aXNlIGl0IHdpbGwgYmUgaGFyZCB0byBtYWludGFpbi4KPgo+Cl9fX19fX19fX19fX19f
-X19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fClZpcnR1YWxpemF0aW9uIG1haWxpbmcg
-bGlzdApWaXJ0dWFsaXphdGlvbkBsaXN0cy5saW51eC1mb3VuZGF0aW9uLm9yZwpodHRwczovL2xp
-c3RzLmxpbnV4Zm91bmRhdGlvbi5vcmcvbWFpbG1hbi9saXN0aW5mby92aXJ0dWFsaXphdGlvbg==
+On Tue, Jan 08, 2019 at 09:44:28AM -0800, Nick Desaulniers wrote:
+> Thanks for the patch and sorry for the delay; was totally unplugged
+> for the holidays.
+> On Wed, Jan 2, 2019 at 12:57 PM Michael S. Tsirkin <mst@redhat.com> wrote:
+> >
+> > Since commit 815f0ddb346c ("include/linux/compiler*.h: make compiler-*.h
+> > mutually exclusive") clang no longer reuses the OPTIMIZER_HIDE_VAR macro
+> > from compiler-gcc - instead it gets the version in
+> > include/linux/compiler.h.  Unfortunately that version doesn't actually
+> > prevent compiler from optimizing out the variable.
+> 
+> Good catch. Did you find this via eyeballing the code, a test, or some
+> other way?
+
+eyeballing
+
+> >
+> > Fix up by moving the macro out from compiler-gcc.h to compiler.h.
+> > Compilers without incline asm support will keep working
+> > since it's protected by an ifdef.
+> >
+> > Also fix up comments to match reality since we are no longer overriding
+> > any macros.
+> >
+> > Build-tested with gcc and clang.
+> >
+> > Fixes: 815f0ddb346c ("include/linux/compiler*.h: make compiler-*.h mutually exclusive")
+> > Cc: Eli Friedman <efriedma@codeaurora.org>
+> > Cc: Joe Perches <joe@perches.com>
+> > Cc: Nick Desaulniers <ndesaulniers@google.com>
+> > Cc: Linus Torvalds <torvalds@linux-foundation.org>
+> > Signed-off-by: Michael S. Tsirkin <mst@redhat.com>
+> 
+> Also for more context, see:
+> commit 7829fb09a2b4 ("lib: make memzero_explicit more robust against
+> dead store elimination")
+
+
+Interesting. That added this text:
+
+ * while gcc behavior gets along with a normal
+ * barrier(), llvm needs an explicit input variable to be assumed
+ * clobbered.
+
+however:
+#define barrier_data(ptr) __asm__ __volatile__("": :"r"(ptr) :"memory")
+
+So no explicit variable is clobbered.
+Weird isn't it?
+
+
+
+> > ---
+> >  include/linux/compiler-clang.h | 5 ++---
+> >  include/linux/compiler-gcc.h   | 4 ----
+> >  include/linux/compiler-intel.h | 4 +---
+> >  include/linux/compiler.h       | 4 +++-
+> >  4 files changed, 6 insertions(+), 11 deletions(-)
+> >
+> > diff --git a/include/linux/compiler-clang.h b/include/linux/compiler-clang.h
+> > index 3e7dafb3ea80..7ddaeb5182e3 100644
+> > --- a/include/linux/compiler-clang.h
+> > +++ b/include/linux/compiler-clang.h
+> > @@ -3,9 +3,8 @@
+> >  #error "Please don't include <linux/compiler-clang.h> directly, include <linux/compiler.h> instead."
+> >  #endif
+> >
+> > -/* Some compiler specific definitions are overwritten here
+> > - * for Clang compiler
+> > - */
+> > +/* Compiler specific definitions for Clang compiler */
+> > +
+> >  #define uninitialized_var(x) x = *(&(x))
+> >
+> >  /* same as gcc, this was present in clang-2.6 so we can assume it works
+> > diff --git a/include/linux/compiler-gcc.h b/include/linux/compiler-gcc.h
+> > index 2010493e1040..72054d9f0eaa 100644
+> > --- a/include/linux/compiler-gcc.h
+> > +++ b/include/linux/compiler-gcc.h
+> > @@ -58,10 +58,6 @@
+> >         (typeof(ptr)) (__ptr + (off));                                  \
+> >  })
+> >
+> > -/* Make the optimizer believe the variable can be manipulated arbitrarily. */
+> > -#define OPTIMIZER_HIDE_VAR(var)                                                \
+> > -       __asm__ ("" : "=r" (var) : "0" (var))
+> > -
+> >  /*
+> >   * A trick to suppress uninitialized variable warning without generating any
+> >   * code
+> > diff --git a/include/linux/compiler-intel.h b/include/linux/compiler-intel.h
+> > index 517bd14e1222..b17f3cd18334 100644
+> > --- a/include/linux/compiler-intel.h
+> > +++ b/include/linux/compiler-intel.h
+> > @@ -5,9 +5,7 @@
+> >
+> >  #ifdef __ECC
+> >
+> > -/* Some compiler specific definitions are overwritten here
+> > - * for Intel ECC compiler
+> > - */
+> > +/* Compiler specific definitions for Intel ECC compiler */
+> >
+> >  #include <asm/intrinsics.h>
+> >
+> > diff --git a/include/linux/compiler.h b/include/linux/compiler.h
+> > index 06396c1cf127..1ad367b4cd8d 100644
+> > --- a/include/linux/compiler.h
+> > +++ b/include/linux/compiler.h
+> > @@ -152,7 +152,9 @@ void ftrace_likely_update(struct ftrace_likely_data *f, int val,
+> >  #endif
+> >
+> >  #ifndef OPTIMIZER_HIDE_VAR
+> > -#define OPTIMIZER_HIDE_VAR(var) barrier()
+> > +/* Make the optimizer believe the variable can be manipulated arbitrarily. */
+> > +#define OPTIMIZER_HIDE_VAR(var)                                                \
+> > +       __asm__ ("" : "=r" (var) : "0" (var))
+> >  #endif
+> 
+> This should be fine, thanks for the cleanup!  For now, we're not yet
+> confident to turn on Clang's integrated assembler for the kernel, but
+> I'll make sure to revisit this should we, in case Clang is then able
+> to optimize this out.
+> + Eric, who might know of a better trick for what we're trying to
+> accomplish with this macro.
+> 
+> Reviewed-by: Nick Desaulniers <ndesaulniers@google.com>
+> 
+> + Miguel
+> Miguel, would you mind taking this into your compiler-attributes tree?
+> -- 
+> Thanks,
+> ~Nick Desaulniers
