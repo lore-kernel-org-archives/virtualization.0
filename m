@@ -1,7 +1,7 @@
 From: Dominique Martinet <asmadeus@codewreck.org>
 Subject: Re: [PATCH v15 23/26] sched: early boot clock
-Date: Tue, 8 Jan 2019 00:48:39 +0100
-Message-ID: <20190107234839.GA15269__31773.8287304111$1546904818$gmane$org@nautica>
+Date: Tue, 8 Jan 2019 02:09:06 +0100
+Message-ID: <20190108010906.GA26465__16691.1874119707$1546909644$gmane$org@nautica>
 References: <20180719205545.16512-1-pasha.tatashin@oracle.com>
 	<20180719205545.16512-24-pasha.tatashin@oracle.com>
 	<20181106054212.GA31768@nautica>
@@ -10,12 +10,14 @@ References: <20180719205545.16512-1-pasha.tatashin@oracle.com>
 	<CA+CK2bC70pnL0Wimb0xt99J4nNfi8W3zuUHgAk-jsPuOP9jpHA@mail.gmail.com>
 	<20190103234339.GA17457@nautica>
 	<CA+CK2bDj1f=VpT+k-e8kSSaoLJ3W9-JPPq9udFdDwd6ijXi28g@mail.gmail.com>
+	<20190107234839.GA15269@nautica>
+	<CA+CK2bD3kbcNvkVf2kiKQYs+srcw7BdWngqt_wM7Z-QsBJyH6w@mail.gmail.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
 Content-Disposition: inline
-In-Reply-To: <CA+CK2bDj1f=VpT+k-e8kSSaoLJ3W9-JPPq9udFdDwd6ijXi28g@mail.gmail.com>
+In-Reply-To: <CA+CK2bD3kbcNvkVf2kiKQYs+srcw7BdWngqt_wM7Z-QsBJyH6w@mail.gmail.com>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -30,38 +32,11 @@ Cc: gnomes@lxorguk.ukuu.org.uk, feng.tang@intel.com, kvm@vger.kernel.org, Petr M
 List-Id: virtualization@lists.linuxfoundation.org
 
 Pavel Tatashin wrote on Mon, Jan 07, 2019:
-> I could not reproduce the problem. Did you suspend to memory between
-> wake ups? Does this time jump happen every time, even if your laptop
-> sleeps for a minute?
+> I did exactly the same sequence on Kaby Lake CPU and could not
+> reproduce it. What is your host CPU?
 
-I'm not sure I understand "suspend to memory between the wake ups".
-The full sequence is:
- - start a VM (just in case, I let it boot till the end)
- - suspend to memory (aka systemctl suspend) the host
- - after resuming the host, soft reboot the VM (login through
-serial/ssh/whatever and reboot or in the qemu console 'system_reset')
+skylake consumer laptop CPU: Intel(R) Core(TM) i7-6500U CPU @ 2.50GHz
 
-I've just slept exactly one minute and reproduced again with the fedora
-stock kernel now (4.19.13-300.fc29.x86_64) in the VM.
-
-Interestingly I'm not getting the same offset between multiple reboots
-now despite not suspending again; but if I don't suspend I cannot seem
-to get it to give an offset at all (only tried for a few minutes; this
-might not be true) ; OTOH I pushed my luck further and even with a five
-seconds sleep I'm getting a noticeable offset on first VM reboot after
-resume:
-
-[    0.000000] Hypervisor detected: KVM
-[    0.000000] kvm-clock: Using msrs 4b564d01 and 4b564d00
-[  179.362163] kvm-clock: cpu 0, msr 13c01001, primary cpu clock
-[  179.362163] clocksource: kvm-clock: mask: 0xffffffffffffffff max_cycles: 0x1cd42e4dffb, max_idle_ns: 881590591483 ns
-
-Honestly not sure what more information I could give, I'll try on some
-other hardware than my laptop (if I can get a server to resume after
-suspend through ipmi or wake on lan); but I don't have anything I could
-install ubuntu on to try their qemu's version... although I really don't
-want to believe that's the difference...
-
-Thanks,
+I don't have any kaby lake around; I have access to older servers though...
 -- 
 Dominique
