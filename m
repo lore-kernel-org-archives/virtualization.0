@@ -1,15 +1,15 @@
-From: Wei Wang <wei.w.wang@intel.com>
-Subject: Re: [PATCH v3 1/3] virtio-balloon: tweak config_changed implementation
-Date: Tue, 08 Jan 2019 13:35:04 +0800
-Message-ID: <5C343688.2060609__33979.9242363826$1546925277$gmane$org@intel.com>
-References: <1546844466-38079-1-git-send-email-wei.w.wang@intel.com>
-	<1546844466-38079-2-git-send-email-wei.w.wang@intel.com>
-	<4ea022d4-6b89-b481-5747-871e154dd21a@de.ibm.com>
+From: Greg KH <gregkh@linuxfoundation.org>
+Subject: Re: [PATCH v4 1/3] virtio-balloon: tweak config_changed implementation
+Date: Tue, 8 Jan 2019 08:10:34 +0100
+Message-ID: <20190108071034.GA32048__15069.4591262893$1546931321$gmane$org@kroah.com>
+References: <1546923005-40517-1-git-send-email-wei.w.wang@intel.com>
+	<1546923005-40517-2-git-send-email-wei.w.wang@intel.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"; Format="flowed"
+Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <4ea022d4-6b89-b481-5747-871e154dd21a@de.ibm.com>
+Content-Disposition: inline
+In-Reply-To: <1546923005-40517-2-git-send-email-wei.w.wang@intel.com>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -19,38 +19,36 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Christian Borntraeger <borntraeger@de.ibm.com>, virtio-dev@lists.oasis-open.org, linux-kernel@vger.kernel.org, virtualization@lists.linux-foundation.org, kvm@vger.kernel.org, mst@redhat.com, cohuck@redhat.com
-Cc: pasic@linux.ibm.com, pbonzini@redhat.com, dgilbert@redhat.com
+To: Wei Wang <wei.w.wang@intel.com>
+Cc: virtio-dev@lists.oasis-open.org, kvm@vger.kernel.org, mst@redhat.com, cohuck@redhat.com, linux-kernel@vger.kernel.org, stable@vger.kernel.org, virtualization@lists.linux-foundation.org, pasic@linux.ibm.com, pbonzini@redhat.com, dgilbert@redhat.com
 List-Id: virtualization@lists.linuxfoundation.org
 
-On 01/07/2019 09:49 PM, Christian Borntraeger wrote:
->
-> On 07.01.2019 08:01, Wei Wang wrote:
->> virtio-ccw has deadlock issues with reading the config space inside the
->> interrupt context, so we tweak the virtballoon_changed implementation
->> by moving the config read operations into the related workqueue contexts.
->> The config_read_bitmap is used as a flag to the workqueue callbacks
->> about the related config fields that need to be read.
->>
->> The cmd_id_received is also renamed to cmd_id_received_cache, and
->> the value should be obtained via virtio_balloon_cmd_id_received.
->>
->> Reported-by: Christian Borntraeger <borntraeger@de.ibm.com>
->> Signed-off-by: Wei Wang <wei.w.wang@intel.com>
->> Reviewed-by: Cornelia Huck <cohuck@redhat.com>
->> Reviewed-by: Halil Pasic <pasic@linux.ibm.com>
-> Together with
->    virtio_pci: use queue idx instead of array idx to set up the vq
->    virtio: don't allocate vqs when names[i] = NULL
->
+On Tue, Jan 08, 2019 at 12:50:03PM +0800, Wei Wang wrote:
+> virtio-ccw has deadlock issues with reading the config space inside the
+> interrupt context, so we tweak the virtballoon_changed implementation
+> by moving the config read operations into the related workqueue contexts.
+> The config_read_bitmap is used as a flag to the workqueue callbacks
+> about the related config fields that need to be read.
+> 
+> The cmd_id_received is also renamed to cmd_id_received_cache, and
+> the value should be obtained via virtio_balloon_cmd_id_received.
+> 
+> Fixes: 86a559787e6f ("virtio-balloon: VIRTIO_BALLOON_F_FREE_PAGE_HINT")
+> Reported-by: Christian Borntraeger <borntraeger@de.ibm.com>
+> Signed-off-by: Wei Wang <wei.w.wang@intel.com>
+> Reviewed-by: Cornelia Huck <cohuck@redhat.com>
+> Reviewed-by: Halil Pasic <pasic@linux.ibm.com>
 > Tested-by: Christian Borntraeger <borntraeger@de.ibm.com>
+> ---
+>  drivers/virtio/virtio_balloon.c | 98 +++++++++++++++++++++++++++--------------
+>  1 file changed, 65 insertions(+), 33 deletions(-)
+> 
 
-OK. I don't plan to send a new version of the above patches as no 
-changes needed so far.
+<formletter>
 
-Michael, if the above two patches look good to you, please help add the 
-related tested-by
-and reviewed-by tags. Thanks.
+This is not the correct way to submit patches for inclusion in the
+stable kernel tree.  Please read:
+    https://www.kernel.org/doc/html/latest/process/stable-kernel-rules.html
+for how to do this properly.
 
-Best,
-Wei
+</formletter>
