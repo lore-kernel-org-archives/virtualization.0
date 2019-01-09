@@ -1,14 +1,14 @@
-From: Jason Wang <jasowang@redhat.com>
-Subject: [PATCH net-next V2 3/3] vhost: don't touch avail ring if in_order is
-	negotiated
-Date: Wed,  9 Jan 2019 16:05:30 +0800
-Message-ID: <20190109080530.18572-4-jasowang__35589.5842229531$1547021057$gmane$org@redhat.com>
-References: <20190109080530.18572-1-jasowang@redhat.com>
+From: Christian Borntraeger <borntraeger@de.ibm.com>
+Subject: Re: [PATCH] vhost/vsock: fix vhost vsock cid hashing inconsistent
+Date: Wed, 9 Jan 2019 09:21:22 +0100
+Message-ID: <3dc7c965-6847-029d-7163-01d3f40897b7@de.ibm.com>
+References: <20190108080703.70050-1-zhabin@linux.alibaba.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <20190109080530.18572-1-jasowang@redhat.com>
+In-Reply-To: <20190108080703.70050-1-zhabin@linux.alibaba.com>
+Content-Language: en-US
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -18,63 +18,61 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: mst@redhat.com, jasowang@redhat.com
-Cc: netdev@vger.kernel.org, linux-kernel@vger.kernel.org, kvm@vger.kernel.org, virtualization@lists.linux-foundation.org
+To: Zha Bin <zhabin@linux.alibaba.com>, stefanha@redhat.com
+Cc: kvm@vger.kernel.org, mst@redhat.com, netdev@vger.kernel.org, linux-kernel@vger.kernel.org, virtualization@lists.linux-foundation.org, Peter Morjan <peter.morjan@de.ibm.com>, kata-dev@lists.katacontainers.io, gerry@linux.alibaba.com
 List-Id: virtualization@lists.linuxfoundation.org
 
-Device use descriptors table in order, so there's no need to read
-index from available ring. This eliminate the cache contention on
-available ring completely.
+Adding Peter,
 
-Virito-user + vhost_kernel + XDP_DROP on 2.60GHz Broadwell
+is this the same problem that you reported me today?
+Can you test Zha Bins patch?
 
-            Before /After
-SMAP on:  4.8Mpps   5.3Mpps(+10%)
-SMAP off: 6.6Mpps   7.0Mpps(+6%)
+Christian
 
-Signed-off-by: Jason Wang <jasowang@redhat.com>
----
- drivers/vhost/vhost.c | 19 ++++++++++++-------
- 1 file changed, 12 insertions(+), 7 deletions(-)
-
-diff --git a/drivers/vhost/vhost.c b/drivers/vhost/vhost.c
-index 55e5aa662ad5..ab0d05262235 100644
---- a/drivers/vhost/vhost.c
-+++ b/drivers/vhost/vhost.c
-@@ -2012,6 +2012,7 @@ int vhost_get_vq_desc(struct vhost_virtqueue *vq,
- 	__virtio16 avail_idx;
- 	__virtio16 ring_head;
- 	int ret, access;
-+	bool in_order = vhost_has_feature(vq, VIRTIO_F_IN_ORDER);
- 
- 	/* Check it isn't doing very strange things with descriptor numbers. */
- 	last_avail_idx = vq->last_avail_idx;
-@@ -2044,15 +2045,19 @@ int vhost_get_vq_desc(struct vhost_virtqueue *vq,
- 
- 	/* Grab the next descriptor number they're advertising, and increment
- 	 * the index we've seen. */
--	if (unlikely(vhost_get_avail(vq, ring_head,
--		     &vq->avail->ring[last_avail_idx & (vq->num - 1)]))) {
--		vq_err(vq, "Failed to read head: idx %d address %p\n",
--		       last_avail_idx,
--		       &vq->avail->ring[last_avail_idx % vq->num]);
--		return -EFAULT;
-+	if (!in_order) {
-+		if (unlikely(vhost_get_avail(vq, ring_head,
-+		    &vq->avail->ring[last_avail_idx & (vq->num - 1)]))) {
-+			vq_err(vq, "Failed to read head: idx %d address %p\n",
-+				last_avail_idx,
-+				&vq->avail->ring[last_avail_idx % vq->num]);
-+			return -EFAULT;
-+		}
-+		head = vhost16_to_cpu(vq, ring_head);
-+	} else {
-+		head = last_avail_idx & (vq->num - 1);
- 	}
- 
--	head = vhost16_to_cpu(vq, ring_head);
- 
- 	/* If their number is silly, that's an error. */
- 	if (unlikely(head >= vq->num)) {
--- 
-2.17.1
+On 08.01.2019 09:07, Zha Bin wrote:
+> The vsock core only supports 32bit CID, but the Virtio-vsock spec define
+> CID (dst_cid and src_cid) as u64 and the upper 32bits is reserved as
+> zero. This inconsistency causes one bug in vhost vsock driver. The
+> scenarios is:
+> 
+>   0. A hash table (vhost_vsock_hash) is used to map an CID to a vsock
+>   object. And hash_min() is used to compute the hash key. hash_min() is
+>   defined as:
+>   (sizeof(val) <= 4 ? hash_32(val, bits) : hash_long(val, bits)).
+>   That means the hash algorithm has dependency on the size of macro
+>   argument 'val'.
+>   0. In function vhost_vsock_set_cid(), a 64bit CID is passed to
+>   hash_min() to compute the hash key when inserting a vsock object into
+>   the hash table.
+>   0. In function vhost_vsock_get(), a 32bit CID is passed to hash_min()
+>   to compute the hash key when looking up a vsock for an CID.
+> 
+> Because the different size of the CID, hash_min() returns different hash
+> key, thus fails to look up the vsock object for an CID.
+> 
+> To fix this bug, we keep CID as u64 in the IOCTLs and virtio message
+> headers, but explicitly convert u64 to u32 when deal with the hash table
+> and vsock core.
+> 
+> Fixes: 834e772c8db0 ("vhost/vsock: fix use-after-free in network stack callers")
+> Link: https://github.com/stefanha/virtio/blob/vsock/trunk/content.tex
+> Signed-off-by: Zha Bin <zhabin@linux.alibaba.com>
+> Reviewed-by: Liu Jiang <gerry@linux.alibaba.com>
+> ---
+>  drivers/vhost/vsock.c | 2 +-
+>  1 file changed, 1 insertion(+), 1 deletion(-)
+> 
+> diff --git a/drivers/vhost/vsock.c b/drivers/vhost/vsock.c
+> index bc42d38ae031..3fbc068eaa9b 100644
+> --- a/drivers/vhost/vsock.c
+> +++ b/drivers/vhost/vsock.c
+> @@ -642,7 +642,7 @@ static int vhost_vsock_set_cid(struct vhost_vsock *vsock, u64 guest_cid)
+>  		hash_del_rcu(&vsock->hash);
+>  
+>  	vsock->guest_cid = guest_cid;
+> -	hash_add_rcu(vhost_vsock_hash, &vsock->hash, guest_cid);
+> +	hash_add_rcu(vhost_vsock_hash, &vsock->hash, vsock->guest_cid);
+>  	mutex_unlock(&vhost_vsock_mutex);
+>  
+>  	return 0;
+> 
