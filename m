@@ -1,7 +1,7 @@
-From: "Michael S. Tsirkin" <mst@redhat.com>
-Subject: __get_user slower than get_user (was Re: [RFC PATCH V3 0/5] Hi:)
-Date: Tue, 8 Jan 2019 23:31:14 -0500
-Message-ID: <20190108232459-mutt-send-email-mst@kernel.org>
+From: Linus Torvalds <torvalds@linux-foundation.org>
+Subject: Re: __get_user slower than get_user (was Re: [RFC PATCH V3 0/5] Hi:)
+Date: Tue, 8 Jan 2019 21:19:52 -0800
+Message-ID: <CAHk-=wjDQCttbTZjEC8DbZdq8=eTpS2e-9jQQD+WdutFArzHwQ__29854.7024060555$1547011203$gmane$org@mail.gmail.com>
 References: <20190102154038-mutt-send-email-mst@kernel.org>
 	<0efd115a-a7fb-54bf-5376-59d047a15fd3@redhat.com>
 	<20190106221832-mutt-send-email-mst@kernel.org>
@@ -12,12 +12,12 @@ References: <20190102154038-mutt-send-email-mst@kernel.org>
 	<CAPcyv4jf-4=2oGJrdvMBeRiAJnQoKbYhwZDD+5ZEH+xgDaOzRQ@mail.gmail.com>
 	<20190107172517-mutt-send-email-mst@kernel.org>
 	<CAPcyv4iQMQxZC8ehr2OP8_rqpuCeSWn5xyKN64JSyfR8_r7eOg@mail.gmail.com>
+	<20190108232459-mutt-send-email-mst@kernel.org>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="utf-8"
-Content-Transfer-Encoding: base64
+Content-Type: text/plain; charset="us-ascii"
+Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-Content-Disposition: inline
-In-Reply-To: <CAPcyv4iQMQxZC8ehr2OP8_rqpuCeSWn5xyKN64JSyfR8_r7eOg@mail.gmail.com>
+In-Reply-To: <20190108232459-mutt-send-email-mst@kernel.org>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -27,77 +27,39 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Dan Williams <dan.j.williams@intel.com>
-Cc: KVM list <kvm@vger.kernel.org>, Netdev <netdev@vger.kernel.org>, Linux Kernel Mailing List <linux-kernel@vger.kernel.org>, virtualization@lists.linux-foundation.org, Linus Torvalds <torvalds@linuxfoundation.org>, David Miller <davem@davemloft.net>
+To: "Michael S. Tsirkin" <mst@redhat.com>
+Cc: KVM list <kvm@vger.kernel.org>, Netdev <netdev@vger.kernel.org>, Linux Kernel Mailing List <linux-kernel@vger.kernel.org>, virtualization@lists.linux-foundation.org, Dan Williams <dan.j.williams@intel.com>, David Miller <davem@davemloft.net>
 List-Id: virtualization@lists.linuxfoundation.org
 
-T24gTW9uLCBKYW4gMDcsIDIwMTkgYXQgMDI6NDQ6MjRQTSAtMDgwMCwgRGFuIFdpbGxpYW1zIHdy
-b3RlOgo+IE9uIE1vbiwgSmFuIDcsIDIwMTkgYXQgMjoyNSBQTSBNaWNoYWVsIFMuIFRzaXJraW4g
-PG1zdEByZWRoYXQuY29tPiB3cm90ZToKPiA+Cj4gPiBPbiBNb24sIEphbiAwNywgMjAxOSBhdCAw
-MTozOToxNVBNIC0wODAwLCBEYW4gV2lsbGlhbXMgd3JvdGU6Cj4gPiA+IE9uIE1vbiwgSmFuIDcs
-IDIwMTkgYXQgNjoxMSBBTSBNaWNoYWVsIFMuIFRzaXJraW4gPG1zdEByZWRoYXQuY29tPiB3cm90
-ZToKPiA+ID4gPgo+ID4gPiA+IE9uIFN1biwgSmFuIDA2LCAyMDE5IGF0IDExOjE1OjIwUE0gLTA4
-MDAsIERhbiBXaWxsaWFtcyB3cm90ZToKPiA+ID4gPiA+IE9uIFN1biwgSmFuIDYsIDIwMTkgYXQg
-ODoxNyBQTSBNaWNoYWVsIFMuIFRzaXJraW4gPG1zdEByZWRoYXQuY29tPiB3cm90ZToKPiA+ID4g
-PiA+ID4KPiA+ID4gPiA+ID4gT24gTW9uLCBKYW4gMDcsIDIwMTkgYXQgMTE6NTM6NDFBTSArMDgw
-MCwgSmFzb24gV2FuZyB3cm90ZToKPiA+ID4gPiA+ID4gPgo+ID4gPiA+ID4gPiA+IE9uIDIwMTkv
-MS83IOS4iuWNiDExOjI4LCBNaWNoYWVsIFMuIFRzaXJraW4gd3JvdGU6Cj4gPiA+ID4gPiA+ID4g
-PiBPbiBNb24sIEphbiAwNywgMjAxOSBhdCAxMDoxOTowM0FNICswODAwLCBKYXNvbiBXYW5nIHdy
-b3RlOgo+ID4gPiA+ID4gPiA+ID4gPiBPbiAyMDE5LzEvMyDkuIrljYg0OjQ3LCBNaWNoYWVsIFMu
-IFRzaXJraW4gd3JvdGU6Cj4gPiA+ID4gPiA+ID4gPiA+ID4gT24gU2F0LCBEZWMgMjksIDIwMTgg
-YXQgMDg6NDY6NTFQTSArMDgwMCwgSmFzb24gV2FuZyB3cm90ZToKPiA+ID4gPiA+ID4gPiA+ID4g
-PiA+IFRoaXMgc2VyaWVzIHRyaWVzIHRvIGFjY2VzcyB2aXJ0cXVldWUgbWV0YWRhdGEgdGhyb3Vn
-aCBrZXJuZWwgdmlydHVhbAo+ID4gPiA+ID4gPiA+ID4gPiA+ID4gYWRkcmVzcyBpbnN0ZWFkIG9m
-IGNvcHlfdXNlcigpIGZyaWVuZHMgc2luY2UgdGhleSBoYWQgdG9vIG11Y2gKPiA+ID4gPiA+ID4g
-PiA+ID4gPiA+IG92ZXJoZWFkcyBsaWtlIGNoZWNrcywgc3BlYyBiYXJyaWVycyBvciBldmVuIGhh
-cmR3YXJlIGZlYXR1cmUKPiA+ID4gPiA+ID4gPiA+ID4gPiA+IHRvZ2dsaW5nLgo+ID4gPiA+ID4g
-PiA+ID4gPiA+IFdpbGwgcmV2aWV3LCB0aGFua3MhCj4gPiA+ID4gPiA+ID4gPiA+ID4gT25lIHF1
-ZXN0aW9ucyB0aGF0IGNvbWVzIHRvIG1pbmQgaXMgd2hldGhlciBpdCdzIGFsbCBhYm91dCBieXBh
-c3NpbmcKPiA+ID4gPiA+ID4gPiA+ID4gPiBzdGFjL2NsYWMuICBDb3VsZCB5b3UgcGxlYXNlIGlu
-Y2x1ZGUgYSBwZXJmb3JtYW5jZSBjb21wYXJpc29uIHdpdGgKPiA+ID4gPiA+ID4gPiA+ID4gPiBu
-b3NtYXA/Cj4gPiA+ID4gPiA+ID4gPiA+ID4KPiA+ID4gPiA+ID4gPiA+ID4gT24gbWFjaGluZSB3
-aXRob3V0IFNNQVAgKFNhbmR5IEJyaWRnZSk6Cj4gPiA+ID4gPiA+ID4gPiA+Cj4gPiA+ID4gPiA+
-ID4gPiA+IEJlZm9yZTogNC44TXBwcwo+ID4gPiA+ID4gPiA+ID4gPgo+ID4gPiA+ID4gPiA+ID4g
-PiBBZnRlcjogNS4yTXBwcwo+ID4gPiA+ID4gPiA+ID4gT0sgc28gd291bGQgeW91IHNheSBpdCdz
-IHJlYWxseSB1bnNhZmUgdmVyc3VzIHNhZmUgYWNjZXNzZXM/Cj4gPiA+ID4gPiA+ID4gPiBPciB3
-b3VsZCB5b3Ugc2F5IGl0J3MganVzdCBhIGJldHRlciB3cml0dGVuIGNvZGU/Cj4gPiA+ID4gPiA+
-ID4KPiA+ID4gPiA+ID4gPgo+ID4gPiA+ID4gPiA+IEl0J3MgdGhlIGVmZmVjdCBvZiByZW1vdmlu
-ZyBzcGVjdWxhdGlvbiBiYXJyaWVyLgo+ID4gPiA+ID4gPgo+ID4gPiA+ID4gPgo+ID4gPiA+ID4g
-PiBZb3UgbWVhbiBfX3VhY2Nlc3NfYmVnaW5fbm9zcGVjIGludHJvZHVjZWQgYnkKPiA+ID4gPiA+
-ID4gY29tbWl0IDMwNGVjMWIwNTAzMTA1NDhkYjMzMDYzZTU2NzEyM2ZhZThmZDAzMDEKPiA+ID4g
-PiA+ID4gPwo+ID4gPiA+ID4gPgo+ID4gPiA+ID4gPiBTbyBmdW5kYW1lbnRhbGx5IHdlIGRvIGFj
-Y2Vzc19vayBjaGVja3Mgd2hlbiBzdXBwbHlpbmcKPiA+ID4gPiA+ID4gdGhlIG1lbW9yeSB0YWJs
-ZSB0byB0aGUga2VybmVsIHRocmVhZCwgYW5kIHdlIHNob3VsZAo+ID4gPiA+ID4gPiBkbyB0aGUg
-c3BlYyBiYXJyaWVyIHRoZXJlLgo+ID4gPiA+ID4gPgo+ID4gPiA+ID4gPiBUaGVuIHdlIGNhbiBq
-dXN0IGNyZWF0ZSBhbmQgdXNlIGEgdmFyaWFudCBvZiB1YWNjZXNzIG1hY3JvcyB0aGF0IGRvZXMK
-PiA+ID4gPiA+ID4gbm90IGluY2x1ZGUgdGhlIGJhcnJpZXI/Cj4gPiA+ID4gPiA+Cj4gPiA+ID4g
-PiA+IE9yLCBob3cgYWJvdXQgbW92aW5nIHRoZSBiYXJyaWVyIGludG8gYWNjZXNzX29rPwo+ID4g
-PiA+ID4gPiBUaGlzIHdheSByZXBlYXRlZCBhY2Nlc3NlcyB3aXRoIGEgc2luZ2xlIGFjY2Vzc19v
-ayBnZXQgYSBiaXQgZmFzdGVyLgo+ID4gPiA+ID4gPiBDQyBEYW4gV2lsbGlhbXMgb24gdGhpcyBp
-ZGVhLgo+ID4gPiA+ID4KPiA+ID4gPiA+IEl0IHdvdWxkIGJlIGludGVyZXN0aW5nIHRvIHNlZSBo
-b3cgZXhwZW5zaXZlIHJlLWRvaW5nIHRoZSBhZGRyZXNzCj4gPiA+ID4gPiBsaW1pdCBjaGVjayBp
-cyBjb21wYXJlZCB0byB0aGUgc3BlY3VsYXRpb24gYmFycmllci4gSS5lLiBqdXN0IHN3aXRjaAo+
-ID4gPiA+ID4gdmhvc3RfZ2V0X3VzZXIoKSB0byB1c2UgZ2V0X3VzZXIoKSByYXRoZXIgdGhhbiBf
-X2dldF91c2VyKCkuIFRoYXQgd2lsbAo+ID4gPiA+ID4gc2FuaXRpemUgdGhlIHBvaW50ZXIgaW4g
-dGhlIHNwZWN1bGF0aXZlIHBhdGggd2l0aG91dCBhIGJhcnJpZXIuCj4gPiA+ID4KPiA+ID4gPiBI
-bW0gaXQncyB3YXkgY2hlYXBlciBldmVuIHRob3VnaCBJSVJDIGl0J3MgbWVhc3VyZWFibGUuCj4g
-PiA+ID4gSmFzb24sIHdvdWxkIHlvdSBsaWtlIHRvIHRyeT8KPiA+ID4gPiBBbHRob3VnaCBmcmFu
-a2x5IF9fZ2V0X3VzZXIgYmVpbmcgc2xvd2VyIHRoYW4gZ2V0X3VzZXIgZmVlbHMgdmVyeSB3cm9u
-Zy4KPiA+ID4gPiBOb3QgeWV0IHN1cmUgd2hhdCB0byBkbyBleGFjdGx5IGJ1dCB3b3VsZCB5b3Ug
-YWdyZWU/Cj4gPiA+Cj4gPiA+IEFncmVlLiBfX2dldF91c2VyKCkgYmVpbmcgZmFzdGVyIHRoYW4g
-Z2V0X3VzZXIoKSBkZWZlYXRzIHRoZSB3aG9sZQo+ID4gPiBwb2ludCBvZiBjb252ZXJ0aW5nIGNv
-ZGUgcGF0aHMgdG8gdGhlIGFjY2Vzc19vaygpICsgX19nZXRfdXNlcigpCj4gPiA+IHBhdHRlcm4u
-Cj4gPgo+ID4gRGlkIHlvdSBtZWFuIHRoZSByZXZlcnNlPwo+IAo+IEhtbSwgbm8uLi4gSSdsbCBy
-ZXBocmFzZTogX19nZXRfdXNlcigpIHNob3VsZCBoYXZlIGxvd2VyIG92ZXJoZWFkIHRoYW4KPiBn
-ZXRfdXNlcigpLgoKUmlnaHQgLi4uCgpMaW51cywgZ2l2ZW4gdGhhdCB5b3UganVzdCBjaGFuZ2Vk
-IGFsbCB1c2VycyBvZiBhY2Nlc3Nfb2sgYW55d2F5LCBkbwp5b3Ugc3RpbGwgdGhpbmsgdGhhdCB0
-aGUgYWNjZXNzX29rKCkgY29udmVyc2lvbiB0byByZXR1cm4gYSBzcGVjdWxhdGlvbgpzYW5pdGl6
-ZWQgcG9pbnRlciBvciBOVUxMIGlzIHRvbyBiaWcgYSBjb252ZXJzaW9uPwoKSXQgd2FzIHByZXZp
-b3VzbHkgZGlzY2FyZGVkIGhlcmU6Cmh0dHBzOi8vbGttbC5vcmcvbGttbC8yMDE4LzEvMTcvOTI5
-CmJ1dCBhdCB0aGF0IHBvaW50IHdlIGRpZG4ndCBoYXZlIG51bWJlcnMgYW5kIHRoZXJlIHdhcyBh
-biB1bmRlcnN0YW5kYWJsZQpydXNoIHRvIHNoaXAgc29tZXRoaW5nIHNhZmUuCgpBdCB0aGlzIHBv
-aW50IEkgdGhpbmsgdGhhdCB2aG9zdCBjYW4gc2hvdyB2ZXJ5IG1lYXN1cmVhYmxlIGdhaW5zIGZy
-b20KdGhpcyBjb252ZXJzaW9uLgoKVGhhbmtzLAoKLS0gCk1TVApfX19fX19fX19fX19fX19fX19f
-X19fX19fX19fX19fX19fX19fX19fX19fX19fXwpWaXJ0dWFsaXphdGlvbiBtYWlsaW5nIGxpc3QK
-VmlydHVhbGl6YXRpb25AbGlzdHMubGludXgtZm91bmRhdGlvbi5vcmcKaHR0cHM6Ly9saXN0cy5s
-aW51eGZvdW5kYXRpb24ub3JnL21haWxtYW4vbGlzdGluZm8vdmlydHVhbGl6YXRpb24=
+On Tue, Jan 8, 2019 at 8:31 PM Michael S. Tsirkin <mst@redhat.com> wrote:
+>
+> Linus, given that you just changed all users of access_ok anyway, do
+> you still think that the access_ok() conversion to return a speculation
+> sanitized pointer or NULL is too big a conversion?
+
+I didn't actually change a single access_ok().
+
+I changed the (very few) users of "user_access_begin()" to do an
+access_ok() in them. There were 8 of them total.
+
+It turns out that two of those cases (the strn*_user() ones) found
+bugs in the implementation of access_ok() of two architectures, and
+then looking at the others found that six more architectures also had
+problems, but those weren't actually because of any access_ok()
+changes, they were pre-existing issues. So we definitely had
+unfortunate bugs in access_ok(), but they were mostly the benign kind
+(ir the "use arguments twice - a real potential bug, but not one that
+actually likely makes any difference to existing users)
+
+Changing all 600+ users of access_ok() would be painful.
+
+That said, one thing I *would* like to do is to just get rid of
+__get_user() and __put_user() entirely. Or rather, just make them do
+exactly the same thing that the normal "get_user()"/"put_user()"
+functions do.
+
+And then, _within_ the case of get_user()/put_user(), doing the
+access_ok() as a data dependency rather than a lfence should be easy
+enough.
+
+                     Linus
