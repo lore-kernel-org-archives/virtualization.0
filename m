@@ -1,23 +1,11 @@
-From: Linus Torvalds <torvalds@linux-foundation.org>
-Subject: Re: __get_user slower than get_user (was Re: [RFC PATCH V3 0/5] Hi:)
-Date: Tue, 8 Jan 2019 21:19:52 -0800
-Message-ID: <CAHk-=wjDQCttbTZjEC8DbZdq8=eTpS2e-9jQQD+WdutFArzHwQ__29854.7024060555$1547011203$gmane$org@mail.gmail.com>
-References: <20190102154038-mutt-send-email-mst@kernel.org>
-	<0efd115a-a7fb-54bf-5376-59d047a15fd3@redhat.com>
-	<20190106221832-mutt-send-email-mst@kernel.org>
-	<c15a17b3-b604-a105-af44-a7e6dfd79801@redhat.com>
-	<20190106230224-mutt-send-email-mst@kernel.org>
-	<CAPcyv4iXFy0jfoQ_jQYq2yA7cqu4_Jcap4mvQesRRrV-hahGvQ@mail.gmail.com>
-	<20190107084853-mutt-send-email-mst@kernel.org>
-	<CAPcyv4jf-4=2oGJrdvMBeRiAJnQoKbYhwZDD+5ZEH+xgDaOzRQ@mail.gmail.com>
-	<20190107172517-mutt-send-email-mst@kernel.org>
-	<CAPcyv4iQMQxZC8ehr2OP8_rqpuCeSWn5xyKN64JSyfR8_r7eOg@mail.gmail.com>
-	<20190108232459-mutt-send-email-mst@kernel.org>
+From: Jason Wang <jasowang@redhat.com>
+Subject: [PATCH net V2] vhost: log dirty page correctly
+Date: Wed,  9 Jan 2019 15:29:47 +0800
+Message-ID: <20190109072947.23240-1-jasowang__19588.1356056363$1547018874$gmane$org@redhat.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <20190108232459-mutt-send-email-mst@kernel.org>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -27,39 +15,192 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: "Michael S. Tsirkin" <mst@redhat.com>
-Cc: KVM list <kvm@vger.kernel.org>, Netdev <netdev@vger.kernel.org>, Linux Kernel Mailing List <linux-kernel@vger.kernel.org>, virtualization@lists.linux-foundation.org, Dan Williams <dan.j.williams@intel.com>, David Miller <davem@davemloft.net>
+To: mst@redhat.com, jasowang@redhat.com
+Cc: Jintack Lim <jintack@cs.columbia.edu>, netdev@vger.kernel.org, linux-kernel@vger.kernel.org, kvm@vger.kernel.org, virtualization@lists.linux-foundation.org
 List-Id: virtualization@lists.linuxfoundation.org
 
-On Tue, Jan 8, 2019 at 8:31 PM Michael S. Tsirkin <mst@redhat.com> wrote:
->
-> Linus, given that you just changed all users of access_ok anyway, do
-> you still think that the access_ok() conversion to return a speculation
-> sanitized pointer or NULL is too big a conversion?
+Vhost dirty page logging API is designed to sync through GPA. But we
+try to log GIOVA when device IOTLB is enabled. This is wrong and may
+lead to missing data after migration.
 
-I didn't actually change a single access_ok().
+To solve this issue, when logging with device IOTLB enabled, we will:
 
-I changed the (very few) users of "user_access_begin()" to do an
-access_ok() in them. There were 8 of them total.
+1) reuse the device IOTLB translation result of GIOVA->HVA mapping to
+   get HVA, for writable descriptor, get HVA through iovec. For used
+   ring update, translate its GIOVA to HVA
+2) traverse the GPA->HVA mapping to get the possible GPA and log
+   through GPA. Pay attention this reverse mapping is not guaranteed
+   to be unique, so we should log each possible GPA in this case.
 
-It turns out that two of those cases (the strn*_user() ones) found
-bugs in the implementation of access_ok() of two architectures, and
-then looking at the others found that six more architectures also had
-problems, but those weren't actually because of any access_ok()
-changes, they were pre-existing issues. So we definitely had
-unfortunate bugs in access_ok(), but they were mostly the benign kind
-(ir the "use arguments twice - a real potential bug, but not one that
-actually likely makes any difference to existing users)
+This fix the failure of scp to guest during migration. In -next, we
+will probably support passing GIOVA->GPA instead of GIOVA->HVA.
 
-Changing all 600+ users of access_ok() would be painful.
+Fixes: 6b1e6cc7855b ("vhost: new device IOTLB API")
+Reported-by: Jintack Lim <jintack@cs.columbia.edu>
+Cc: Jintack Lim <jintack@cs.columbia.edu>
+Signed-off-by: Jason Wang <jasowang@redhat.com>
+---
+The patch is needed for stable.
+Changes from V1:
+- return error instead of warn
+---
+ drivers/vhost/net.c   |  3 +-
+ drivers/vhost/vhost.c | 82 +++++++++++++++++++++++++++++++++++--------
+ drivers/vhost/vhost.h |  3 +-
+ 3 files changed, 72 insertions(+), 16 deletions(-)
 
-That said, one thing I *would* like to do is to just get rid of
-__get_user() and __put_user() entirely. Or rather, just make them do
-exactly the same thing that the normal "get_user()"/"put_user()"
-functions do.
-
-And then, _within_ the case of get_user()/put_user(), doing the
-access_ok() as a data dependency rather than a lfence should be easy
-enough.
-
-                     Linus
+diff --git a/drivers/vhost/net.c b/drivers/vhost/net.c
+index 36f3d0f49e60..bca86bf7189f 100644
+--- a/drivers/vhost/net.c
++++ b/drivers/vhost/net.c
+@@ -1236,7 +1236,8 @@ static void handle_rx(struct vhost_net *net)
+ 		if (nvq->done_idx > VHOST_NET_BATCH)
+ 			vhost_net_signal_used(nvq);
+ 		if (unlikely(vq_log))
+-			vhost_log_write(vq, vq_log, log, vhost_len);
++			vhost_log_write(vq, vq_log, log, vhost_len,
++					vq->iov, in);
+ 		total_len += vhost_len;
+ 		if (unlikely(vhost_exceeds_weight(++recv_pkts, total_len))) {
+ 			vhost_poll_queue(&vq->poll);
+diff --git a/drivers/vhost/vhost.c b/drivers/vhost/vhost.c
+index 9f7942cbcbb2..ee095f08ffd4 100644
+--- a/drivers/vhost/vhost.c
++++ b/drivers/vhost/vhost.c
+@@ -1733,11 +1733,70 @@ static int log_write(void __user *log_base,
+ 	return r;
+ }
+ 
++static int log_write_hva(struct vhost_virtqueue *vq, u64 hva, u64 len)
++{
++	struct vhost_umem *umem = vq->umem;
++	struct vhost_umem_node *u;
++	u64 gpa;
++	int r;
++	bool hit = false;
++
++	list_for_each_entry(u, &umem->umem_list, link) {
++		if (u->userspace_addr < hva &&
++		    u->userspace_addr + u->size >=
++		    hva + len) {
++			gpa = u->start + hva - u->userspace_addr;
++			r = log_write(vq->log_base, gpa, len);
++			if (r < 0)
++				return r;
++			hit = true;
++		}
++	}
++
++	if (!hit)
++		return -EFAULT;
++
++	return 0;
++}
++
++static int log_used(struct vhost_virtqueue *vq, u64 used_offset, u64 len)
++{
++	struct iovec iov[64];
++	int i, ret;
++
++	if (!vq->iotlb)
++		return log_write(vq->log_base, vq->log_addr + used_offset, len);
++
++	ret = translate_desc(vq, (u64)(uintptr_t)vq->used + used_offset,
++			     len, iov, 64, VHOST_ACCESS_WO);
++	if (ret)
++		return ret;
++
++	for (i = 0; i < ret; i++) {
++		ret = log_write_hva(vq,	(u64)(uintptr_t)iov[i].iov_base,
++				    iov[i].iov_len);
++		if (ret)
++			return ret;
++	}
++
++	return 0;
++}
++
+ int vhost_log_write(struct vhost_virtqueue *vq, struct vhost_log *log,
+-		    unsigned int log_num, u64 len)
++		    unsigned int log_num, u64 len, struct iovec *iov, int count)
+ {
+ 	int i, r;
+ 
++	if (vq->iotlb) {
++		for (i = 0; i < count; i++) {
++			r = log_write_hva(vq, (u64)(uintptr_t)iov[i].iov_base,
++					  iov[i].iov_len);
++			if (r < 0)
++				return r;
++		}
++		return 0;
++	}
++
+ 	/* Make sure data written is seen before log. */
+ 	smp_wmb();
+ 	for (i = 0; i < log_num; ++i) {
+@@ -1769,9 +1828,8 @@ static int vhost_update_used_flags(struct vhost_virtqueue *vq)
+ 		smp_wmb();
+ 		/* Log used flag write. */
+ 		used = &vq->used->flags;
+-		log_write(vq->log_base, vq->log_addr +
+-			  (used - (void __user *)vq->used),
+-			  sizeof vq->used->flags);
++		log_used(vq, (used - (void __user *)vq->used),
++			 sizeof vq->used->flags);
+ 		if (vq->log_ctx)
+ 			eventfd_signal(vq->log_ctx, 1);
+ 	}
+@@ -1789,9 +1847,8 @@ static int vhost_update_avail_event(struct vhost_virtqueue *vq, u16 avail_event)
+ 		smp_wmb();
+ 		/* Log avail event write */
+ 		used = vhost_avail_event(vq);
+-		log_write(vq->log_base, vq->log_addr +
+-			  (used - (void __user *)vq->used),
+-			  sizeof *vhost_avail_event(vq));
++		log_used(vq, (used - (void __user *)vq->used),
++			 sizeof *vhost_avail_event(vq));
+ 		if (vq->log_ctx)
+ 			eventfd_signal(vq->log_ctx, 1);
+ 	}
+@@ -2191,10 +2248,8 @@ static int __vhost_add_used_n(struct vhost_virtqueue *vq,
+ 		/* Make sure data is seen before log. */
+ 		smp_wmb();
+ 		/* Log used ring entry write. */
+-		log_write(vq->log_base,
+-			  vq->log_addr +
+-			   ((void __user *)used - (void __user *)vq->used),
+-			  count * sizeof *used);
++		log_used(vq, ((void __user *)used - (void __user *)vq->used),
++			 count * sizeof *used);
+ 	}
+ 	old = vq->last_used_idx;
+ 	new = (vq->last_used_idx += count);
+@@ -2236,9 +2291,8 @@ int vhost_add_used_n(struct vhost_virtqueue *vq, struct vring_used_elem *heads,
+ 		/* Make sure used idx is seen before log. */
+ 		smp_wmb();
+ 		/* Log used index update. */
+-		log_write(vq->log_base,
+-			  vq->log_addr + offsetof(struct vring_used, idx),
+-			  sizeof vq->used->idx);
++		log_used(vq, offsetof(struct vring_used, idx),
++			 sizeof vq->used->idx);
+ 		if (vq->log_ctx)
+ 			eventfd_signal(vq->log_ctx, 1);
+ 	}
+diff --git a/drivers/vhost/vhost.h b/drivers/vhost/vhost.h
+index 466ef7542291..1b675dad5e05 100644
+--- a/drivers/vhost/vhost.h
++++ b/drivers/vhost/vhost.h
+@@ -205,7 +205,8 @@ bool vhost_vq_avail_empty(struct vhost_dev *, struct vhost_virtqueue *);
+ bool vhost_enable_notify(struct vhost_dev *, struct vhost_virtqueue *);
+ 
+ int vhost_log_write(struct vhost_virtqueue *vq, struct vhost_log *log,
+-		    unsigned int log_num, u64 len);
++		    unsigned int log_num, u64 len,
++		    struct iovec *iov, int count);
+ int vq_iotlb_prefetch(struct vhost_virtqueue *vq);
+ 
+ struct vhost_msg_node *vhost_new_msg(struct vhost_virtqueue *vq, int type);
+-- 
+2.17.1
