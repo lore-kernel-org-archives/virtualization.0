@@ -1,15 +1,17 @@
-From: Daniel Vetter <daniel@ffwll.ch>
-Subject: Re: [PATCH v2 15/15] drm/bochs: reserve bo for pin/unpin
-Date: Wed, 9 Jan 2019 11:10:44 +0100
-Message-ID: <20190109101044.GS21184__39019.2025145099$1547028527$gmane$org@phenom.ffwll.local>
-References: <20190108112519.27473-1-kraxel@redhat.com>
-	<20190108112519.27473-16-kraxel@redhat.com>
+From: Wei Wang <wei.w.wang@intel.com>
+Subject: Re: [PATCH v3 1/3] virtio-balloon: tweak config_changed implementation
+Date: Wed, 09 Jan 2019 18:35:01 +0800
+Message-ID: <5C35CE55.6030200__11128.6449050114$1547029663$gmane$org@intel.com>
+References: <1546844466-38079-1-git-send-email-wei.w.wang@intel.com>
+	<1546844466-38079-2-git-send-email-wei.w.wang@intel.com>
+	<4ea022d4-6b89-b481-5747-871e154dd21a@de.ibm.com>
+	<5C343688.2060609@intel.com>
+	<20f5fb20-612a-fe37-c5e1-af5ecb98f5d3@de.ibm.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
+Content-Type: text/plain; charset="us-ascii"; Format="flowed"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-Content-Disposition: inline
-In-Reply-To: <20190108112519.27473-16-kraxel@redhat.com>
+In-Reply-To: <20f5fb20-612a-fe37-c5e1-af5ecb98f5d3@de.ibm.com>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -19,68 +21,53 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Gerd Hoffmann <kraxel@redhat.com>
-Cc: andr2000@gmail.com, open list <linux-kernel@vger.kernel.org>, dri-devel@lists.freedesktop.org, "open list:DRM DRIVER FOR BOCHS VIRTUAL GPU" <virtualization@lists.linux-foundation.org>, David Airlie <airlied@linux.ie>, David Airlie <airlied@redhat.com>
+To: Christian Borntraeger <borntraeger@de.ibm.com>, virtio-dev@lists.oasis-open.org, linux-kernel@vger.kernel.org, virtualization@lists.linux-foundation.org, kvm@vger.kernel.org, mst@redhat.com, cohuck@redhat.com
+Cc: pasic@linux.ibm.com, pbonzini@redhat.com, dgilbert@redhat.com
 List-Id: virtualization@lists.linuxfoundation.org
 
-On Tue, Jan 08, 2019 at 12:25:19PM +0100, Gerd Hoffmann wrote:
-> The buffer object must be reserved before calling
-> ttm_bo_validate for pinning/unpinning.
-> 
-> Signed-off-by: Gerd Hoffmann <kraxel@redhat.com>
+On 01/08/2019 04:46 PM, Christian Borntraeger wrote:
+>
+> On 08.01.2019 06:35, Wei Wang wrote:
+>> On 01/07/2019 09:49 PM, Christian Borntraeger wrote:
+>>> On 07.01.2019 08:01, Wei Wang wrote:
+>>>> virtio-ccw has deadlock issues with reading the config space inside the
+>>>> interrupt context, so we tweak the virtballoon_changed implementation
+>>>> by moving the config read operations into the related workqueue contexts.
+>>>> The config_read_bitmap is used as a flag to the workqueue callbacks
+>>>> about the related config fields that need to be read.
+>>>>
+>>>> The cmd_id_received is also renamed to cmd_id_received_cache, and
+>>>> the value should be obtained via virtio_balloon_cmd_id_received.
+>>>>
+>>>> Reported-by: Christian Borntraeger <borntraeger@de.ibm.com>
+>>>> Signed-off-by: Wei Wang <wei.w.wang@intel.com>
+>>>> Reviewed-by: Cornelia Huck <cohuck@redhat.com>
+>>>> Reviewed-by: Halil Pasic <pasic@linux.ibm.com>
+>>> Together with
+>>>     virtio_pci: use queue idx instead of array idx to set up the vq
+>>>     virtio: don't allocate vqs when names[i] = NULL
+>>>
+>>> Tested-by: Christian Borntraeger <borntraeger@de.ibm.com>
+>> OK. I don't plan to send a new version of the above patches as no changes needed so far.
+>>
+>> Michael, if the above two patches look good to you, please help add the related tested-by
+>> and reviewed-by tags. Thanks.
+> Can we also make sure that
+>
+> virtio_pci: use queue idx instead of array idx to set up the vq
+> virtio: don't allocate vqs when names[i] = NULL
+>
+> also land in stable?
+>
 
-Seems a bit a bisect fumble in your series here: legacy kms code reserved
-the ttm bo before calling boch_bo_pin/unpin, your atomic code doesn't. I
-think pushing this into bochs_bo_pin/unpin makes sense for atomic, but to
-avoid bisect fail I think you need to have these temporarily in your
-cleanup/prepare_plane functions too.
+You could also send the request to stable after it gets merged to Linus' 
+tree.
+The stable review committee will decide whether to take it.
 
-Looked through the entire series, this here is the only issue I think
-should be fixed before merging (making atomic_enable optional can be done
-as a follow-up if you feel like it). With that addressed on the series:
+Please see Option 2:
 
-Acked-by: Daniel Vetter <daniel.vetter@ffwll.ch>
-> ---
->  drivers/gpu/drm/bochs/bochs_mm.c | 8 ++++++++
->  1 file changed, 8 insertions(+)
-> 
-> diff --git a/drivers/gpu/drm/bochs/bochs_mm.c b/drivers/gpu/drm/bochs/bochs_mm.c
-> index cfe061c25f..970a591908 100644
-> --- a/drivers/gpu/drm/bochs/bochs_mm.c
-> +++ b/drivers/gpu/drm/bochs/bochs_mm.c
-> @@ -223,7 +223,11 @@ int bochs_bo_pin(struct bochs_bo *bo, u32 pl_flag)
->  	bochs_ttm_placement(bo, pl_flag);
->  	for (i = 0; i < bo->placement.num_placement; i++)
->  		bo->placements[i].flags |= TTM_PL_FLAG_NO_EVICT;
-> +	ret = ttm_bo_reserve(&bo->bo, true, false, NULL);
-> +	if (ret)
-> +		return ret;
->  	ret = ttm_bo_validate(&bo->bo, &bo->placement, &ctx);
-> +	ttm_bo_unreserve(&bo->bo);
->  	if (ret)
->  		return ret;
->  
-> @@ -247,7 +251,11 @@ int bochs_bo_unpin(struct bochs_bo *bo)
->  
->  	for (i = 0; i < bo->placement.num_placement; i++)
->  		bo->placements[i].flags &= ~TTM_PL_FLAG_NO_EVICT;
-> +	ret = ttm_bo_reserve(&bo->bo, true, false, NULL);
-> +	if (ret)
-> +		return ret;
->  	ret = ttm_bo_validate(&bo->bo, &bo->placement, &ctx);
-> +	ttm_bo_unreserve(&bo->bo);
->  	if (ret)
->  		return ret;
->  
-> -- 
-> 2.9.3
-> 
-> _______________________________________________
-> dri-devel mailing list
-> dri-devel@lists.freedesktop.org
-> https://lists.freedesktop.org/mailman/listinfo/dri-devel
+https://www.kernel.org/doc/html/latest/process/stable-kernel-rules.html
 
--- 
-Daniel Vetter
-Software Engineer, Intel Corporation
-http://blog.ffwll.ch
+
+Best,
+Wei
