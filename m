@@ -1,13 +1,19 @@
-From: Pankaj Gupta <pagupta@redhat.com>
-Subject: [PATCH v3 3/5] libnvdimm: add nd_region buffered dax_dev flag
-Date: Wed,  9 Jan 2019 20:17:34 +0530
-Message-ID: <20190109144736.17452-4-pagupta__27060.8962433927$1547045248$gmane$org@redhat.com>
-References: <20190109144736.17452-1-pagupta@redhat.com>
+From: "Michael S. Tsirkin" <mst@redhat.com>
+Subject: Re: [PATCH v3 1/3] virtio-balloon: tweak config_changed implementation
+Date: Wed, 9 Jan 2019 09:49:28 -0500
+Message-ID: <20190109094844-mutt-send-email-mst@kernel.org>
+References: <1546844466-38079-1-git-send-email-wei.w.wang@intel.com>
+	<1546844466-38079-2-git-send-email-wei.w.wang@intel.com>
+	<4ea022d4-6b89-b481-5747-871e154dd21a@de.ibm.com>
+	<5C343688.2060609@intel.com>
+	<20f5fb20-612a-fe37-c5e1-af5ecb98f5d3@de.ibm.com>
+	<5C35CE55.6030200@intel.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <20190109144736.17452-1-pagupta@redhat.com>
+Content-Disposition: inline
+In-Reply-To: <5C35CE55.6030200@intel.com>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -17,154 +23,60 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: linux-kernel@vger.kernel.org, kvm@vger.kernel.org, qemu-devel@nongnu.org, linux-nvdimm@ml01.01.org, linux-fsdevel@vger.kernel.org, virtualization@lists.linux-foundation.org, linux-acpi@vger.kernel.org, linux-ext4@vger.kernel.org, linux-xfs@vger.kernel.org
-Cc: pagupta@redhat.com, jack@suse.cz, lcapitulino@redhat.com, adilger.kernel@dilger.ca, zwisler@kernel.org, eblake@redhat.com, dave.jiang@intel.com, darrick.wong@oracle.com, vishal.l.verma@intel.com, mst@redhat.com, willy@infradead.org, hch@infradead.org, jmoyer@redhat.com, nilal@redhat.com, riel@surriel.com, stefanha@redhat.com, imammedo@redhat.com, dan.j.williams@intel.com, tytso@mit.edu, xiaoguangrong.eric@gmail.com, rjw@rjwysocki.net, pbonzini@redhat.com
+To: Wei Wang <wei.w.wang@intel.com>
+Cc: virtio-dev@lists.oasis-open.org, kvm@vger.kernel.org, cohuck@redhat.com, linux-kernel@vger.kernel.org, virtualization@lists.linux-foundation.org, pasic@linux.ibm.com, pbonzini@redhat.com, dgilbert@redhat.com
 List-Id: virtualization@lists.linuxfoundation.org
 
-This patch adds 'DAXDEV_BUFFERED' flag which is set
-for virtio pmem corresponding nd_region. This later
-is used to disable MAP_SYNC functionality for ext4
-& xfs filesystem.
+On Wed, Jan 09, 2019 at 06:35:01PM +0800, Wei Wang wrote:
+> On 01/08/2019 04:46 PM, Christian Borntraeger wrote:
+> > 
+> > On 08.01.2019 06:35, Wei Wang wrote:
+> > > On 01/07/2019 09:49 PM, Christian Borntraeger wrote:
+> > > > On 07.01.2019 08:01, Wei Wang wrote:
+> > > > > virtio-ccw has deadlock issues with reading the config space inside the
+> > > > > interrupt context, so we tweak the virtballoon_changed implementation
+> > > > > by moving the config read operations into the related workqueue contexts.
+> > > > > The config_read_bitmap is used as a flag to the workqueue callbacks
+> > > > > about the related config fields that need to be read.
+> > > > > 
+> > > > > The cmd_id_received is also renamed to cmd_id_received_cache, and
+> > > > > the value should be obtained via virtio_balloon_cmd_id_received.
+> > > > > 
+> > > > > Reported-by: Christian Borntraeger <borntraeger@de.ibm.com>
+> > > > > Signed-off-by: Wei Wang <wei.w.wang@intel.com>
+> > > > > Reviewed-by: Cornelia Huck <cohuck@redhat.com>
+> > > > > Reviewed-by: Halil Pasic <pasic@linux.ibm.com>
+> > > > Together with
+> > > >     virtio_pci: use queue idx instead of array idx to set up the vq
+> > > >     virtio: don't allocate vqs when names[i] = NULL
+> > > > 
+> > > > Tested-by: Christian Borntraeger <borntraeger@de.ibm.com>
+> > > OK. I don't plan to send a new version of the above patches as no changes needed so far.
+> > > 
+> > > Michael, if the above two patches look good to you, please help add the related tested-by
+> > > and reviewed-by tags. Thanks.
+> > Can we also make sure that
+> > 
+> > virtio_pci: use queue idx instead of array idx to set up the vq
+> > virtio: don't allocate vqs when names[i] = NULL
+> > 
+> > also land in stable?
+> > 
+> 
+> You could also send the request to stable after it gets merged to Linus'
+> tree.
+> The stable review committee will decide whether to take it.
+> 
+> Please see Option 2:
+> 
+> https://www.kernel.org/doc/html/latest/process/stable-kernel-rules.html
+> 
+> 
+> Best,
+> Wei
 
-Signed-off-by: Pankaj Gupta <pagupta@redhat.com>
----
- drivers/dax/super.c          | 17 +++++++++++++++++
- drivers/nvdimm/pmem.c        |  3 +++
- drivers/nvdimm/region_devs.c |  7 +++++++
- drivers/virtio/pmem.c        |  1 +
- include/linux/dax.h          |  9 +++++++++
- include/linux/libnvdimm.h    |  6 ++++++
- 6 files changed, 43 insertions(+)
+That's mostly for 3rd party reporters.
+Why not Cc stable directly in the patches?
 
-diff --git a/drivers/dax/super.c b/drivers/dax/super.c
-index 6e928f3..9128740 100644
---- a/drivers/dax/super.c
-+++ b/drivers/dax/super.c
-@@ -167,6 +167,8 @@ enum dax_device_flags {
- 	DAXDEV_ALIVE,
- 	/* gate whether dax_flush() calls the low level flush routine */
- 	DAXDEV_WRITE_CACHE,
-+	/* flag to disable MAP_SYNC for virtio based host page cache flush */
-+	DAXDEV_BUFFERED,
- };
- 
- /**
-@@ -335,6 +337,21 @@ bool dax_write_cache_enabled(struct dax_device *dax_dev)
- }
- EXPORT_SYMBOL_GPL(dax_write_cache_enabled);
- 
-+void virtio_pmem_host_cache(struct dax_device *dax_dev, bool wc)
-+{
-+	if (wc)
-+		set_bit(DAXDEV_BUFFERED, &dax_dev->flags);
-+	else
-+		clear_bit(DAXDEV_BUFFERED, &dax_dev->flags);
-+}
-+EXPORT_SYMBOL_GPL(virtio_pmem_host_cache);
-+
-+bool virtio_pmem_host_cache_enabled(struct dax_device *dax_dev)
-+{
-+	return test_bit(DAXDEV_BUFFERED, &dax_dev->flags);
-+}
-+EXPORT_SYMBOL_GPL(virtio_pmem_host_cache_enabled);
-+
- bool dax_alive(struct dax_device *dax_dev)
- {
- 	lockdep_assert_held(&dax_srcu);
-diff --git a/drivers/nvdimm/pmem.c b/drivers/nvdimm/pmem.c
-index fe1217b..8d190a3 100644
---- a/drivers/nvdimm/pmem.c
-+++ b/drivers/nvdimm/pmem.c
-@@ -472,6 +472,9 @@ static int pmem_attach_disk(struct device *dev,
- 		return -ENOMEM;
- 	}
- 	dax_write_cache(dax_dev, nvdimm_has_cache(nd_region));
-+
-+	/* Set buffered bit in 'dax_dev' for virtio pmem */
-+	virtio_pmem_host_cache(dax_dev, nvdimm_is_buffered(nd_region));
- 	pmem->dax_dev = dax_dev;
- 
- 	gendev = disk_to_dev(disk);
-diff --git a/drivers/nvdimm/region_devs.c b/drivers/nvdimm/region_devs.c
-index f8218b4..1f8b2be 100644
---- a/drivers/nvdimm/region_devs.c
-+++ b/drivers/nvdimm/region_devs.c
-@@ -1264,6 +1264,13 @@ int nd_region_conflict(struct nd_region *nd_region, resource_size_t start,
- 	return device_for_each_child(&nvdimm_bus->dev, &ctx, region_conflict);
- }
- 
-+int nvdimm_is_buffered(struct nd_region *nd_region)
-+{
-+	return is_nd_pmem(&nd_region->dev) &&
-+		test_bit(ND_REGION_BUFFERED, &nd_region->flags);
-+}
-+EXPORT_SYMBOL_GPL(nvdimm_is_buffered);
-+
- void __exit nd_region_devs_exit(void)
- {
- 	ida_destroy(&region_ida);
-diff --git a/drivers/virtio/pmem.c b/drivers/virtio/pmem.c
-index 51f5349..901767b 100644
---- a/drivers/virtio/pmem.c
-+++ b/drivers/virtio/pmem.c
-@@ -81,6 +81,7 @@ static int virtio_pmem_probe(struct virtio_device *vdev)
- 	ndr_desc.numa_node = nid;
- 	ndr_desc.flush = virtio_pmem_flush;
- 	set_bit(ND_REGION_PAGEMAP, &ndr_desc.flags);
-+	set_bit(ND_REGION_BUFFERED, &ndr_desc.flags);
- 	nd_region = nvdimm_pmem_region_create(nvdimm_bus, &ndr_desc);
- 	nd_region->provider_data =  dev_to_virtio
- 					(nd_region->dev.parent->parent);
-diff --git a/include/linux/dax.h b/include/linux/dax.h
-index 0dd316a..d16e03e 100644
---- a/include/linux/dax.h
-+++ b/include/linux/dax.h
-@@ -37,6 +37,8 @@ void put_dax(struct dax_device *dax_dev);
- void kill_dax(struct dax_device *dax_dev);
- void dax_write_cache(struct dax_device *dax_dev, bool wc);
- bool dax_write_cache_enabled(struct dax_device *dax_dev);
-+void virtio_pmem_host_cache(struct dax_device *dax_dev, bool wc);
-+bool virtio_pmem_host_cache_enabled(struct dax_device *dax_dev);
- #else
- static inline struct dax_device *dax_get_by_host(const char *host)
- {
-@@ -64,6 +66,13 @@ static inline bool dax_write_cache_enabled(struct dax_device *dax_dev)
- {
- 	return false;
- }
-+static inline void virtio_pmem_host_cache(struct dax_device *dax_dev, bool wc)
-+{
-+}
-+static inline bool virtio_pmem_host_cache_enabled(struct dax_device *dax_dev)
-+{
-+	return false;
-+}
- #endif
- 
- struct writeback_control;
-diff --git a/include/linux/libnvdimm.h b/include/linux/libnvdimm.h
-index ca8bc07..94616f1 100644
---- a/include/linux/libnvdimm.h
-+++ b/include/linux/libnvdimm.h
-@@ -64,6 +64,11 @@ enum {
- 	 */
- 	ND_REGION_PERSIST_MEMCTRL = 2,
- 
-+	/* provides virtio based asynchronous flush mechanism for buffered
-+	 * host page cache.
-+	 */
-+	ND_REGION_BUFFERED = 3,
-+
- 	/* mark newly adjusted resources as requiring a label update */
- 	DPA_RESOURCE_ADJUSTED = 1 << 0,
- };
-@@ -265,6 +270,7 @@ int generic_nvdimm_flush(struct nd_region *nd_region);
- int nvdimm_has_flush(struct nd_region *nd_region);
- int nvdimm_has_cache(struct nd_region *nd_region);
- int nvdimm_in_overwrite(struct nvdimm *nvdimm);
-+int nvdimm_is_buffered(struct nd_region *nd_region);
- 
- static inline int nvdimm_ctl(struct nvdimm *nvdimm, unsigned int cmd, void *buf,
- 		unsigned int buf_len, int *cmd_rc)
 -- 
-2.9.3
+MST
