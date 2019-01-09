@@ -1,17 +1,19 @@
-From: Wei Wang <wei.w.wang@intel.com>
+From: Christian Borntraeger <borntraeger@de.ibm.com>
 Subject: Re: [PATCH v3 1/3] virtio-balloon: tweak config_changed implementation
-Date: Wed, 09 Jan 2019 18:35:01 +0800
-Message-ID: <5C35CE55.6030200__11128.6449050114$1547029663$gmane$org@intel.com>
+Date: Wed, 9 Jan 2019 13:07:16 +0100
+Message-ID: <8f0977ee-1cc1-56da-f4a6-641b8887648a__18496.2846492001$1547035525$gmane$org@de.ibm.com>
 References: <1546844466-38079-1-git-send-email-wei.w.wang@intel.com>
 	<1546844466-38079-2-git-send-email-wei.w.wang@intel.com>
 	<4ea022d4-6b89-b481-5747-871e154dd21a@de.ibm.com>
 	<5C343688.2060609@intel.com>
 	<20f5fb20-612a-fe37-c5e1-af5ecb98f5d3@de.ibm.com>
+	<5C35CE55.6030200@intel.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"; Format="flowed"
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset="utf-8"
+Content-Transfer-Encoding: base64
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <20f5fb20-612a-fe37-c5e1-af5ecb98f5d3@de.ibm.com>
+In-Reply-To: <5C35CE55.6030200@intel.com>
+Content-Language: en-US
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -21,53 +23,47 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Christian Borntraeger <borntraeger@de.ibm.com>, virtio-dev@lists.oasis-open.org, linux-kernel@vger.kernel.org, virtualization@lists.linux-foundation.org, kvm@vger.kernel.org, mst@redhat.com, cohuck@redhat.com
+To: Wei Wang <wei.w.wang@intel.com>, virtio-dev@lists.oasis-open.org, linux-kernel@vger.kernel.org, virtualization@lists.linux-foundation.org, kvm@vger.kernel.org, mst@redhat.com, cohuck@redhat.com
 Cc: pasic@linux.ibm.com, pbonzini@redhat.com, dgilbert@redhat.com
 List-Id: virtualization@lists.linuxfoundation.org
 
-On 01/08/2019 04:46 PM, Christian Borntraeger wrote:
->
-> On 08.01.2019 06:35, Wei Wang wrote:
->> On 01/07/2019 09:49 PM, Christian Borntraeger wrote:
->>> On 07.01.2019 08:01, Wei Wang wrote:
->>>> virtio-ccw has deadlock issues with reading the config space inside the
->>>> interrupt context, so we tweak the virtballoon_changed implementation
->>>> by moving the config read operations into the related workqueue contexts.
->>>> The config_read_bitmap is used as a flag to the workqueue callbacks
->>>> about the related config fields that need to be read.
->>>>
->>>> The cmd_id_received is also renamed to cmd_id_received_cache, and
->>>> the value should be obtained via virtio_balloon_cmd_id_received.
->>>>
->>>> Reported-by: Christian Borntraeger <borntraeger@de.ibm.com>
->>>> Signed-off-by: Wei Wang <wei.w.wang@intel.com>
->>>> Reviewed-by: Cornelia Huck <cohuck@redhat.com>
->>>> Reviewed-by: Halil Pasic <pasic@linux.ibm.com>
->>> Together with
->>>     virtio_pci: use queue idx instead of array idx to set up the vq
->>>     virtio: don't allocate vqs when names[i] = NULL
->>>
->>> Tested-by: Christian Borntraeger <borntraeger@de.ibm.com>
->> OK. I don't plan to send a new version of the above patches as no changes needed so far.
->>
->> Michael, if the above two patches look good to you, please help add the related tested-by
->> and reviewed-by tags. Thanks.
-> Can we also make sure that
->
-> virtio_pci: use queue idx instead of array idx to set up the vq
-> virtio: don't allocate vqs when names[i] = NULL
->
-> also land in stable?
->
-
-You could also send the request to stable after it gets merged to Linus' 
-tree.
-The stable review committee will decide whether to take it.
-
-Please see Option 2:
-
-https://www.kernel.org/doc/html/latest/process/stable-kernel-rules.html
-
-
-Best,
-Wei
+T24gMDkuMDEuMjAxOSAxMTozNSwgV2VpIFdhbmcgd3JvdGU6Cj4gT24gMDEvMDgvMjAxOSAwNDo0
+NiBQTSwgQ2hyaXN0aWFuIEJvcm50cmFlZ2VyIHdyb3RlOgo+Pgo+PiBPbiAwOC4wMS4yMDE5IDA2
+OjM1LCBXZWkgV2FuZyB3cm90ZToKPj4+IE9uIDAxLzA3LzIwMTkgMDk6NDkgUE0sIENocmlzdGlh
+biBCb3JudHJhZWdlciB3cm90ZToKPj4+PiBPbiAwNy4wMS4yMDE5IDA4OjAxLCBXZWkgV2FuZyB3
+cm90ZToKPj4+Pj4gdmlydGlvLWNjdyBoYXMgZGVhZGxvY2sgaXNzdWVzIHdpdGggcmVhZGluZyB0
+aGUgY29uZmlnIHNwYWNlIGluc2lkZSB0aGUKPj4+Pj4gaW50ZXJydXB0IGNvbnRleHQsIHNvIHdl
+IHR3ZWFrIHRoZSB2aXJ0YmFsbG9vbl9jaGFuZ2VkIGltcGxlbWVudGF0aW9uCj4+Pj4+IGJ5IG1v
+dmluZyB0aGUgY29uZmlnIHJlYWQgb3BlcmF0aW9ucyBpbnRvIHRoZSByZWxhdGVkIHdvcmtxdWV1
+ZSBjb250ZXh0cy4KPj4+Pj4gVGhlIGNvbmZpZ19yZWFkX2JpdG1hcCBpcyB1c2VkIGFzIGEgZmxh
+ZyB0byB0aGUgd29ya3F1ZXVlIGNhbGxiYWNrcwo+Pj4+PiBhYm91dCB0aGUgcmVsYXRlZCBjb25m
+aWcgZmllbGRzIHRoYXQgbmVlZCB0byBiZSByZWFkLgo+Pj4+Pgo+Pj4+PiBUaGUgY21kX2lkX3Jl
+Y2VpdmVkIGlzIGFsc28gcmVuYW1lZCB0byBjbWRfaWRfcmVjZWl2ZWRfY2FjaGUsIGFuZAo+Pj4+
+PiB0aGUgdmFsdWUgc2hvdWxkIGJlIG9idGFpbmVkIHZpYSB2aXJ0aW9fYmFsbG9vbl9jbWRfaWRf
+cmVjZWl2ZWQuCj4+Pj4+Cj4+Pj4+IFJlcG9ydGVkLWJ5OiBDaHJpc3RpYW4gQm9ybnRyYWVnZXIg
+PGJvcm50cmFlZ2VyQGRlLmlibS5jb20+Cj4+Pj4+IFNpZ25lZC1vZmYtYnk6IFdlaSBXYW5nIDx3
+ZWkudy53YW5nQGludGVsLmNvbT4KPj4+Pj4gUmV2aWV3ZWQtYnk6IENvcm5lbGlhIEh1Y2sgPGNv
+aHVja0ByZWRoYXQuY29tPgo+Pj4+PiBSZXZpZXdlZC1ieTogSGFsaWwgUGFzaWMgPHBhc2ljQGxp
+bnV4LmlibS5jb20+Cj4+Pj4gVG9nZXRoZXIgd2l0aAo+Pj4+IMKgwqDCoCB2aXJ0aW9fcGNpOiB1
+c2UgcXVldWUgaWR4IGluc3RlYWQgb2YgYXJyYXkgaWR4IHRvIHNldCB1cCB0aGUgdnEKPj4+PiDC
+oMKgwqAgdmlydGlvOiBkb24ndCBhbGxvY2F0ZSB2cXMgd2hlbiBuYW1lc1tpXSA9IE5VTEwKPj4+
+Pgo+Pj4+IFRlc3RlZC1ieTogQ2hyaXN0aWFuIEJvcm50cmFlZ2VyIDxib3JudHJhZWdlckBkZS5p
+Ym0uY29tPgo+Pj4gT0suIEkgZG9uJ3QgcGxhbiB0byBzZW5kIGEgbmV3IHZlcnNpb24gb2YgdGhl
+IGFib3ZlIHBhdGNoZXMgYXMgbm8gY2hhbmdlcyBuZWVkZWQgc28gZmFyLgo+Pj4KPj4+IE1pY2hh
+ZWwsIGlmIHRoZSBhYm92ZSB0d28gcGF0Y2hlcyBsb29rIGdvb2QgdG8geW91LCBwbGVhc2UgaGVs
+cCBhZGQgdGhlIHJlbGF0ZWQgdGVzdGVkLWJ5Cj4+PiBhbmQgcmV2aWV3ZWQtYnkgdGFncy4gVGhh
+bmtzLgo+PiBDYW4gd2UgYWxzbyBtYWtlIHN1cmUgdGhhdAo+Pgo+PiB2aXJ0aW9fcGNpOiB1c2Ug
+cXVldWUgaWR4IGluc3RlYWQgb2YgYXJyYXkgaWR4IHRvIHNldCB1cCB0aGUgdnEKPj4gdmlydGlv
+OiBkb24ndCBhbGxvY2F0ZSB2cXMgd2hlbiBuYW1lc1tpXSA9IE5VTEwKPj4KPj4gYWxzbyBsYW5k
+IGluIHN0YWJsZT8KPj4KPiAKPiBZb3UgY291bGQgYWxzbyBzZW5kIHRoZSByZXF1ZXN0IHRvIHN0
+YWJsZSBhZnRlciBpdCBnZXRzIG1lcmdlZCB0byBMaW51cycgdHJlZS4KPiBUaGUgc3RhYmxlIHJl
+dmlldyBjb21taXR0ZWUgd2lsbCBkZWNpZGUgd2hldGhlciB0byB0YWtlIGl0Lgo+IAo+IFBsZWFz
+ZSBzZWUgT3B0aW9uIDI6Cj4gCj4gaHR0cHM6Ly93d3cua2VybmVsLm9yZy9kb2MvaHRtbC9sYXRl
+c3QvcHJvY2Vzcy9zdGFibGUta2VybmVsLXJ1bGVzLmh0bWwKPiAKClRob3NlIHBhdGNoZXMgYXJl
+IG5vdCB1cHN0cmVhbSB5ZXQsIENvcnJlY3Q/CgpNaWNoYWVsLAoKY2FuIHlvdSBhZGQgdGhlIHN0
+YWJsZSB0YWcgYmVmb3JlIHN1Ym1pdHRpbmc/IElmIG5vdCwgY2FuIHlvdSBnaXZlIG1lIGEgaGVh
+ZHMgdXAgd2hlbiBkb2luZyB0aGUKcHVsbCByZXF1ZXN0IHNvIHRoYXQgSSBjYW4gcGluZyB0aGUg
+c3RhYmxlIGZvbGtzLgoKX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19f
+X19fX18KVmlydHVhbGl6YXRpb24gbWFpbGluZyBsaXN0ClZpcnR1YWxpemF0aW9uQGxpc3RzLmxp
+bnV4LWZvdW5kYXRpb24ub3JnCmh0dHBzOi8vbGlzdHMubGludXhmb3VuZGF0aW9uLm9yZy9tYWls
+bWFuL2xpc3RpbmZvL3ZpcnR1YWxpemF0aW9u
