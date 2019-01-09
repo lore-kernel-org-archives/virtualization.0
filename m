@@ -1,19 +1,13 @@
-From: "Michael S. Tsirkin" <mst@redhat.com>
-Subject: Re: [PATCH v3 1/3] virtio-balloon: tweak config_changed implementation
-Date: Wed, 9 Jan 2019 09:49:28 -0500
-Message-ID: <20190109094844-mutt-send-email-mst@kernel.org>
-References: <1546844466-38079-1-git-send-email-wei.w.wang@intel.com>
-	<1546844466-38079-2-git-send-email-wei.w.wang@intel.com>
-	<4ea022d4-6b89-b481-5747-871e154dd21a@de.ibm.com>
-	<5C343688.2060609@intel.com>
-	<20f5fb20-612a-fe37-c5e1-af5ecb98f5d3@de.ibm.com>
-	<5C35CE55.6030200@intel.com>
+From: Pankaj Gupta <pagupta@redhat.com>
+Subject: [PATCH v3 4/5] ext4: disable map_sync for virtio pmem
+Date: Wed,  9 Jan 2019 20:17:35 +0530
+Message-ID: <20190109144736.17452-5-pagupta__37239.5068676726$1547045265$gmane$org@redhat.com>
+References: <20190109144736.17452-1-pagupta@redhat.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-Content-Disposition: inline
-In-Reply-To: <5C35CE55.6030200@intel.com>
+In-Reply-To: <20190109144736.17452-1-pagupta@redhat.com>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -23,60 +17,48 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Wei Wang <wei.w.wang@intel.com>
-Cc: virtio-dev@lists.oasis-open.org, kvm@vger.kernel.org, cohuck@redhat.com, linux-kernel@vger.kernel.org, virtualization@lists.linux-foundation.org, pasic@linux.ibm.com, pbonzini@redhat.com, dgilbert@redhat.com
+To: linux-kernel@vger.kernel.org, kvm@vger.kernel.org, qemu-devel@nongnu.org, linux-nvdimm@ml01.01.org, linux-fsdevel@vger.kernel.org, virtualization@lists.linux-foundation.org, linux-acpi@vger.kernel.org, linux-ext4@vger.kernel.org, linux-xfs@vger.kernel.org
+Cc: pagupta@redhat.com, jack@suse.cz, lcapitulino@redhat.com, adilger.kernel@dilger.ca, zwisler@kernel.org, eblake@redhat.com, dave.jiang@intel.com, darrick.wong@oracle.com, vishal.l.verma@intel.com, mst@redhat.com, willy@infradead.org, hch@infradead.org, jmoyer@redhat.com, nilal@redhat.com, riel@surriel.com, stefanha@redhat.com, imammedo@redhat.com, dan.j.williams@intel.com, tytso@mit.edu, xiaoguangrong.eric@gmail.com, rjw@rjwysocki.net, pbonzini@redhat.com
 List-Id: virtualization@lists.linuxfoundation.org
 
-On Wed, Jan 09, 2019 at 06:35:01PM +0800, Wei Wang wrote:
-> On 01/08/2019 04:46 PM, Christian Borntraeger wrote:
-> > 
-> > On 08.01.2019 06:35, Wei Wang wrote:
-> > > On 01/07/2019 09:49 PM, Christian Borntraeger wrote:
-> > > > On 07.01.2019 08:01, Wei Wang wrote:
-> > > > > virtio-ccw has deadlock issues with reading the config space inside the
-> > > > > interrupt context, so we tweak the virtballoon_changed implementation
-> > > > > by moving the config read operations into the related workqueue contexts.
-> > > > > The config_read_bitmap is used as a flag to the workqueue callbacks
-> > > > > about the related config fields that need to be read.
-> > > > > 
-> > > > > The cmd_id_received is also renamed to cmd_id_received_cache, and
-> > > > > the value should be obtained via virtio_balloon_cmd_id_received.
-> > > > > 
-> > > > > Reported-by: Christian Borntraeger <borntraeger@de.ibm.com>
-> > > > > Signed-off-by: Wei Wang <wei.w.wang@intel.com>
-> > > > > Reviewed-by: Cornelia Huck <cohuck@redhat.com>
-> > > > > Reviewed-by: Halil Pasic <pasic@linux.ibm.com>
-> > > > Together with
-> > > >     virtio_pci: use queue idx instead of array idx to set up the vq
-> > > >     virtio: don't allocate vqs when names[i] = NULL
-> > > > 
-> > > > Tested-by: Christian Borntraeger <borntraeger@de.ibm.com>
-> > > OK. I don't plan to send a new version of the above patches as no changes needed so far.
-> > > 
-> > > Michael, if the above two patches look good to you, please help add the related tested-by
-> > > and reviewed-by tags. Thanks.
-> > Can we also make sure that
-> > 
-> > virtio_pci: use queue idx instead of array idx to set up the vq
-> > virtio: don't allocate vqs when names[i] = NULL
-> > 
-> > also land in stable?
-> > 
-> 
-> You could also send the request to stable after it gets merged to Linus'
-> tree.
-> The stable review committee will decide whether to take it.
-> 
-> Please see Option 2:
-> 
-> https://www.kernel.org/doc/html/latest/process/stable-kernel-rules.html
-> 
-> 
-> Best,
-> Wei
+Virtio pmem provides asynchronous host page cache flush
+mechanism. We don't support 'MAP_SYNC' with virtio pmem 
+and ext4. 
 
-That's mostly for 3rd party reporters.
-Why not Cc stable directly in the patches?
+Signed-off-by: Pankaj Gupta <pagupta@redhat.com>
+---
+ fs/ext4/file.c | 11 ++++++++++-
+ 1 file changed, 10 insertions(+), 1 deletion(-)
 
+diff --git a/fs/ext4/file.c b/fs/ext4/file.c
+index 69d65d4..e54f48b 100644
+--- a/fs/ext4/file.c
++++ b/fs/ext4/file.c
+@@ -360,8 +360,10 @@ static const struct vm_operations_struct ext4_file_vm_ops = {
+ static int ext4_file_mmap(struct file *file, struct vm_area_struct *vma)
+ {
+ 	struct inode *inode = file->f_mapping->host;
++	struct ext4_sb_info *sbi = EXT4_SB(inode->i_sb);
++	struct dax_device *dax_dev = sbi->s_daxdev;
+ 
+-	if (unlikely(ext4_forced_shutdown(EXT4_SB(inode->i_sb))))
++	if (unlikely(ext4_forced_shutdown(sbi)))
+ 		return -EIO;
+ 
+ 	/*
+@@ -371,6 +373,13 @@ static int ext4_file_mmap(struct file *file, struct vm_area_struct *vma)
+ 	if (!IS_DAX(file_inode(file)) && (vma->vm_flags & VM_SYNC))
+ 		return -EOPNOTSUPP;
+ 
++	/* We don't support synchronous mappings with guest direct access
++	 * and virtio based host page cache flush mechanism.
++	 */
++	if (IS_DAX(file_inode(file)) && virtio_pmem_host_cache_enabled(dax_dev)
++						&& (vma->vm_flags & VM_SYNC))
++		return -EOPNOTSUPP;
++
+ 	file_accessed(file);
+ 	if (IS_DAX(file_inode(file))) {
+ 		vma->vm_ops = &ext4_dax_vm_ops;
 -- 
-MST
+2.9.3
