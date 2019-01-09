@@ -1,15 +1,15 @@
 From: Pankaj Gupta <pagupta@redhat.com>
-Subject: Re: [PATCH v3 5/5] xfs: disable map_sync for virtio pmem
-Date: Wed, 9 Jan 2019 13:08:24 -0500 (EST)
-Message-ID: <739751810.61274195.1547057304156.JavaMail.zimbra__33501.2114876465$1547057357$gmane$org@redhat.com>
-References: <20190109144736.17452-1-pagupta@redhat.com>
-	<20190109144736.17452-6-pagupta@redhat.com>
-	<20190109162654.GW12689@magnolia>
+Subject: Re: [PATCH v3 3/5] libnvdimm: add nd_region buffered dax_dev flag
+Date: Wed, 9 Jan 2019 13:21:29 -0500 (EST)
+Message-ID: <888499462.61280342.1547058089165.JavaMail.zimbra__44744.3518940874$1547057977$gmane$org@redhat.com>
+References: <20190109135024.14093-1-pagupta@redhat.com>
+	<20190109135024.14093-4-pagupta@redhat.com>
+	<CAPcyv4jsa709BVPAx_BT5eFrODf-PUPOZ4aguDsjZVawVXTVHQ@mail.gmail.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <20190109162654.GW12689@magnolia>
+In-Reply-To: <CAPcyv4jsa709BVPAx_BT5eFrODf-PUPOZ4aguDsjZVawVXTVHQ@mail.gmail.com>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -19,52 +19,83 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: "Darrick J. Wong" <darrick.wong@oracle.com>
-Cc: jack@suse.cz, kvm@vger.kernel.org, linux-nvdimm@ml01.01.org, qemu-devel@nongnu.org, virtualization@lists.linux-foundation.org, adilger kernel <adilger.kernel@dilger.ca>, zwisler@kernel.org, eblake@redhat.com, dave jiang <dave.jiang@intel.com>, vishal l verma <vishal.l.verma@intel.com>, mst@redhat.com, willy@infradead.org, hch@infradead.org, linux-acpi@vger.kernel.org, jmoyer@redhat.com, nilal@redhat.com, riel@surriel.com, stefanha@redhat.com, imammedo@redhat.com, dan j williams <dan.j.williams@intel.com>, lcapitulino@redhat.com, linux-ext4@vger.kernel.org, tytso@mit.edu, xiaoguangrong eric <xiaoguangrong.eric@gmail.com>, rjw@rjwysocki.net, linux-kernel@vger.kernel.org, linux-xfs@vger.kernel.org, linux-fsdevel@vger.kernel.org, pbonzini@redhat.com
+To: Dan Williams <dan.j.williams@intel.com>
+Cc: Jan Kara <jack@suse.cz>, KVM list <kvm@vger.kernel.org>, linux-nvdimm <linux-nvdimm@ml01.01.org>, Qemu Developers <qemu-devel@nongnu.org>, virtualization@lists.linux-foundation.org, Andreas Dilger <adilger.kernel@dilger.ca>, Ross Zwisler <zwisler@kernel.org>, Eric Blake <eblake@redhat.com>, Dave Jiang <dave.jiang@intel.com>, "Darrick J. Wong" <darrick.wong@oracle.com>, Vishal L Verma <vishal.l.verma@intel.com>, "Michael S. Tsirkin" <mst@redhat.com>, Matthew Wilcox <willy@infradead.org>, Christoph Hellwig <hch@infradead.org>, Linux ACPI <linux-acpi@vger.kernel.org>, jmoyer <jmoyer@redhat.com>, Nitesh Narayan Lal <nilal@redhat.com>, Rik van Riel <riel@surriel.com>, Stefan Hajnoczi <stefanha@redhat.com>, Igor Mammedov <imammedo@redhat.com>, lcapitulino@redhat.com, linux-ext4 <linux-ext4@vger.kernel.org>, Theodore Ts'o <tytso@mit.edu>, Xiao Guangrong <xiaoguangrong.eric@>
 List-Id: virtualization@lists.linuxfoundation.org
 
 
-> > Virtio pmem provides asynchronous host page cache flush
-> > mechanism. we don't support 'MAP_SYNC' with virtio pmem
-> > and xfs.
-> > 
+> >
+> > This patch adds 'DAXDEV_BUFFERED' flag which is set
+> > for virtio pmem corresponding nd_region. This later
+> > is used to disable MAP_SYNC functionality for ext4
+> > & xfs filesystem.
+> >
 > > Signed-off-by: Pankaj Gupta <pagupta@redhat.com>
 > > ---
-> >  fs/xfs/xfs_file.c | 8 ++++++++
-> >  1 file changed, 8 insertions(+)
-> > 
-> > diff --git a/fs/xfs/xfs_file.c b/fs/xfs/xfs_file.c
-> > index e474250..eae4aa4 100644
-> > --- a/fs/xfs/xfs_file.c
-> > +++ b/fs/xfs/xfs_file.c
-> > @@ -1190,6 +1190,14 @@ xfs_file_mmap(
-> >  	if (!IS_DAX(file_inode(filp)) && (vma->vm_flags & VM_SYNC))
-> >  		return -EOPNOTSUPP;
-> >  
-> > +	/* We don't support synchronous mappings with guest direct access
-> > +	 * and virtio based host page cache mechanism.
-> > +	 */
-> > +	if (IS_DAX(file_inode(filp)) && virtio_pmem_host_cache_enabled(
+> >  drivers/dax/super.c          | 17 +++++++++++++++++
+> >  drivers/nvdimm/pmem.c        |  3 +++
+> >  drivers/nvdimm/region_devs.c |  7 +++++++
+> >  drivers/virtio/pmem.c        |  1 +
+> >  include/linux/dax.h          |  9 +++++++++
+> >  include/linux/libnvdimm.h    |  6 ++++++
+> >  6 files changed, 43 insertions(+)
+> >
+> > diff --git a/drivers/dax/super.c b/drivers/dax/super.c
+> > index 6e928f3..9128740 100644
+> > --- a/drivers/dax/super.c
+> > +++ b/drivers/dax/super.c
+> > @@ -167,6 +167,8 @@ enum dax_device_flags {
+> >         DAXDEV_ALIVE,
+> >         /* gate whether dax_flush() calls the low level flush routine */
+> >         DAXDEV_WRITE_CACHE,
+> > +       /* flag to disable MAP_SYNC for virtio based host page cache flush
+> > */
+> > +       DAXDEV_BUFFERED,
+> >  };
+> >
+> >  /**
+> > @@ -335,6 +337,21 @@ bool dax_write_cache_enabled(struct dax_device
+> > *dax_dev)
+> >  }
+> >  EXPORT_SYMBOL_GPL(dax_write_cache_enabled);
+> >
+> > +void virtio_pmem_host_cache(struct dax_device *dax_dev, bool wc)
+> > +{
+> > +       if (wc)
+> > +               set_bit(DAXDEV_BUFFERED, &dax_dev->flags);
+> > +       else
+> > +               clear_bit(DAXDEV_BUFFERED, &dax_dev->flags);
+> > +}
+> > +EXPORT_SYMBOL_GPL(virtio_pmem_host_cache);
 > 
-> Echoing what Jan said, this ought to be some sort of generic function
-> that tells us whether or not memory mapped from the dax device will
-> always still be accessible even after a crash (i.e. supports MAP_SYNC).
+> The "write_cache" property was structured this way because it can
+> conceivably change at runtime. The MAP_SYNC capability should be
+> static and never changed after init.
 
-o.k
+o.k. Will change.
+
 > 
-> What if the underlying file on the host is itself on pmem and can be
-> MAP_SYNC'd?  Shouldn't the guest be able to use MAP_SYNC as well?
+> > +bool virtio_pmem_host_cache_enabled(struct dax_device *dax_dev)
+> > +{
+> > +       return test_bit(DAXDEV_BUFFERED, &dax_dev->flags);
+> > +}
+> > +EXPORT_SYMBOL_GPL(virtio_pmem_host_cache_enabled);
+> 
+> Echoing Darrick and Jan this is should be a generic property of a
+> dax_device and not specific to virtio. I don't like the "buffered"
+> designation as that's not accurate. There may be hardware reasons why
+> a dax_device is not synchronous, like a requirement to flush a
+> write-pending queue or otherwise notify the device of new writes.
 
-Guest MAP_SYNC on actual host pmem will sync guest metadata, as guest 
-writes are persistent on actual pmem. Host side Qemu MAP_SYNC enabling
-work for pmem is in progress. It will make sure metadata at host side
-is in consistent state after a crash or any other metadata corruption 
-operation.
+Agree.
 
-For virtio-pmem, we are emulating pmem device over regular storage on
-host side. Guest need to call fsync followed by write to make sure
-guest metadata is in consistent state(or journalled). Host backing file
-data & metadata will also be persistent after guest to host fsync.
+> 
+> I would just have a dax_synchronous() helper and a DAXDEV_SYNC flag. I
+> would also modify alloc_dax() to take a flags argument so that the
+> capability can be instantiated when the dax_device is allocated.
+
+o.k. Will make the change.
 
 Thanks,
 Pankaj
+> 
