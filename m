@@ -1,11 +1,13 @@
 From: Jason Wang <jasowang@redhat.com>
-Subject: [PATCH net-next V2 0/3] basic in order support for vhost_net
-Date: Wed,  9 Jan 2019 16:05:27 +0800
-Message-ID: <20190109080530.18572-1-jasowang@redhat.com>
+Subject: [PATCH net-next V2 1/3] virtio: introduce in order feature bit
+Date: Wed,  9 Jan 2019 16:05:28 +0800
+Message-ID: <20190109080530.18572-2-jasowang__28239.5447059118$1547021026$gmane$org@redhat.com>
+References: <20190109080530.18572-1-jasowang@redhat.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
+In-Reply-To: <20190109080530.18572-1-jasowang@redhat.com>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -19,30 +21,27 @@ To: mst@redhat.com, jasowang@redhat.com
 Cc: netdev@vger.kernel.org, linux-kernel@vger.kernel.org, kvm@vger.kernel.org, virtualization@lists.linux-foundation.org
 List-Id: virtualization@lists.linuxfoundation.org
 
-Hi:
+Signed-off-by: Jason Wang <jasowang@redhat.com>
+---
+ include/uapi/linux/virtio_config.h | 6 ++++++
+ 1 file changed, 6 insertions(+)
 
-This series implement basic in order feature support for
-vhost_net. This feature requires both driver and device to use
-descriptors in order which can simplify the implementation and
-optimizaton for both side. The series also implement a simple
-optimization that avoid read available ring. Test shows 10%
-performance improvement at most.
-
-More optimizations could be done on top.
-
-Changes from V1:
-- no code changes
-- add result of SMAP off
-
-Jason Wang (3):
-  virtio: introduce in order feature bit
-  vhost_net: support in order feature
-  vhost: don't touch avail ring if in_order is negotiated
-
- drivers/vhost/net.c                |  6 ++++--
- drivers/vhost/vhost.c              | 19 ++++++++++++-------
- include/uapi/linux/virtio_config.h |  6 ++++++
- 3 files changed, 22 insertions(+), 9 deletions(-)
-
+diff --git a/include/uapi/linux/virtio_config.h b/include/uapi/linux/virtio_config.h
+index 1196e1c1d4f6..2698e069ed9e 100644
+--- a/include/uapi/linux/virtio_config.h
++++ b/include/uapi/linux/virtio_config.h
+@@ -78,6 +78,12 @@
+ /* This feature indicates support for the packed virtqueue layout. */
+ #define VIRTIO_F_RING_PACKED		34
+ 
++/*
++ * Device uses buffers in the same order in which they have been
++ * available.
++ */
++#define VIRTIO_F_IN_ORDER		35
++
+ /*
+  * Does the device support Single Root I/O Virtualization?
+  */
 -- 
 2.17.1
