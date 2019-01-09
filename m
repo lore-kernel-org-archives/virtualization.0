@@ -1,15 +1,15 @@
-From: "Michael S. Tsirkin" <mst@redhat.com>
-Subject: Re: [RFC 2/3] hw/virtio-rdma: VirtIO rdma device
-Date: Fri, 19 Apr 2019 19:20:22 -0400
-Message-ID: <20190419191910-mutt-send-email-mst@kernel.org>
-References: <20190411110157.14252-1-yuval.shaia@oracle.com>
-	<20190411110157.14252-3-yuval.shaia@oracle.com>
+From: "Darrick J. Wong" <darrick.wong@oracle.com>
+Subject: Re: [PATCH v3 5/5] xfs: disable map_sync for virtio pmem
+Date: Wed, 9 Jan 2019 08:26:54 -0800
+Message-ID: <20190109162654.GW12689__23667.2622313321$1555717062$gmane$org@magnolia>
+References: <20190109144736.17452-1-pagupta@redhat.com>
+	<20190109144736.17452-6-pagupta@redhat.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
 Content-Disposition: inline
-In-Reply-To: <20190411110157.14252-3-yuval.shaia@oracle.com>
+In-Reply-To: <20190109144736.17452-6-pagupta@redhat.com>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -19,30 +19,49 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Yuval Shaia <yuval.shaia@oracle.com>
-Cc: linux-rdma@vger.kernel.org, cohuck@redhat.com, qemu-devel@nongnu.org, virtualization@lists.linux-foundation.org, jgg@mellanox.com
+To: Pankaj Gupta <pagupta@redhat.com>
+Cc: jack@suse.cz, kvm@vger.kernel.org, linux-nvdimm@ml01.01.org, qemu-devel@nongnu.org, virtualization@lists.linux-foundation.org, adilger.kernel@dilger.ca, zwisler@kernel.org, eblake@redhat.com, dave.jiang@intel.com, vishal.l.verma@intel.com, mst@redhat.com, willy@infradead.org, hch@infradead.org, linux-acpi@vger.kernel.org, jmoyer@redhat.com, nilal@redhat.com, riel@surriel.com, stefanha@redhat.com, imammedo@redhat.com, dan.j.williams@intel.com, lcapitulino@redhat.com, linux-ext4@vger.kernel.org, tytso@mit.edu, xiaoguangrong.eric@gmail.com, rjw@rjwysocki.net, linux-kernel@vger.kernel.org, linux-xfs@vger.kernel.org, linux-fsdevel@vger.kernel.org, pbonzini@redhat.com
 List-Id: virtualization@lists.linuxfoundation.org
 
-On Thu, Apr 11, 2019 at 02:01:56PM +0300, Yuval Shaia wrote:
-> diff --git a/include/standard-headers/linux/virtio_ids.h b/include/standard-headers/linux/virtio_ids.h
-> index 6d5c3b2d4f..bd2c699450 100644
-> --- a/include/standard-headers/linux/virtio_ids.h
-> +++ b/include/standard-headers/linux/virtio_ids.h
-> @@ -43,5 +43,6 @@
->  #define VIRTIO_ID_INPUT        18 /* virtio input */
->  #define VIRTIO_ID_VSOCK        19 /* virtio vsock transport */
->  #define VIRTIO_ID_CRYPTO       20 /* virtio crypto */
-> +#define VIRTIO_ID_RDMA         26 /* virtio crypto */
+On Wed, Jan 09, 2019 at 08:17:36PM +0530, Pankaj Gupta wrote:
+> Virtio pmem provides asynchronous host page cache flush
+> mechanism. we don't support 'MAP_SYNC' with virtio pmem 
+> and xfs.
+> 
+> Signed-off-by: Pankaj Gupta <pagupta@redhat.com>
+> ---
+>  fs/xfs/xfs_file.c | 8 ++++++++
+>  1 file changed, 8 insertions(+)
+> 
+> diff --git a/fs/xfs/xfs_file.c b/fs/xfs/xfs_file.c
+> index e474250..eae4aa4 100644
+> --- a/fs/xfs/xfs_file.c
+> +++ b/fs/xfs/xfs_file.c
+> @@ -1190,6 +1190,14 @@ xfs_file_mmap(
+>  	if (!IS_DAX(file_inode(filp)) && (vma->vm_flags & VM_SYNC))
+>  		return -EOPNOTSUPP;
 >  
->  #endif /* _LINUX_VIRTIO_IDS_H */
+> +	/* We don't support synchronous mappings with guest direct access
+> +	 * and virtio based host page cache mechanism.
+> +	 */
+> +	if (IS_DAX(file_inode(filp)) && virtio_pmem_host_cache_enabled(
 
+Echoing what Jan said, this ought to be some sort of generic function
+that tells us whether or not memory mapped from the dax device will
+always still be accessible even after a crash (i.e. supports MAP_SYNC).
 
-Please reserve an ID with the virtio TC.
-Process:
-- create a github issue
-- post patch with Fixes: tag
-- wait a bit
-- if no comments on either ask for a vote
+What if the underlying file on the host is itself on pmem and can be
+MAP_SYNC'd?  Shouldn't the guest be able to use MAP_SYNC as well?
 
+--D
+
+> +		xfs_find_daxdev_for_inode(file_inode(filp))) &&
+> +					(vma->vm_flags & VM_SYNC))
+> +		return -EOPNOTSUPP;
+> +
+>  	file_accessed(filp);
+>  	vma->vm_ops = &xfs_file_vm_ops;
+>  	if (IS_DAX(file_inode(filp)))
 > -- 
-> 2.20.1
+> 2.9.3
+> 
