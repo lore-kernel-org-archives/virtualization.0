@@ -1,17 +1,20 @@
 From: "Michael S. Tsirkin" <mst@redhat.com>
-Subject: Re: [PATCH RFC 1/4] include/linux/compiler*.h: fix OPTIMIZER_HIDE_VAR
-Date: Wed, 9 Jan 2019 09:50:11 -0500
-Message-ID: <20190109094959-mutt-send-email-mst__6763.09315390444$1547045327$gmane$org@kernel.org>
-References: <20190102205715.14054-1-mst@redhat.com>
-	<20190102205715.14054-2-mst@redhat.com>
-	<CAKwvOdk3b6mnpTEEyY-JFrej8K12w9oTMLqi7q5aNiRMyJo6Ow@mail.gmail.com>
-	<CANiq72nEiw8+cZNnBOwF1ehv232ZJe5qzhdbaTEg0rOoV2p4sg@mail.gmail.com>
+Subject: Re: [PATCH v3 1/3] virtio-balloon: tweak config_changed implementation
+Date: Wed, 9 Jan 2019 09:52:07 -0500
+Message-ID: <20190109095048-mutt-send-email-mst__34704.0089466192$1547045439$gmane$org@kernel.org>
+References: <1546844466-38079-1-git-send-email-wei.w.wang@intel.com>
+	<1546844466-38079-2-git-send-email-wei.w.wang@intel.com>
+	<4ea022d4-6b89-b481-5747-871e154dd21a@de.ibm.com>
+	<5C343688.2060609@intel.com>
+	<20f5fb20-612a-fe37-c5e1-af5ecb98f5d3@de.ibm.com>
+	<5C35CE55.6030200@intel.com>
+	<8f0977ee-1cc1-56da-f4a6-641b8887648a@de.ibm.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset="iso-8859-1"
+Content-Transfer-Encoding: quoted-printable
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
 Content-Disposition: inline
-In-Reply-To: <CANiq72nEiw8+cZNnBOwF1ehv232ZJe5qzhdbaTEg0rOoV2p4sg@mail.gmail.com>
+In-Reply-To: <8f0977ee-1cc1-56da-f4a6-641b8887648a@de.ibm.com>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -21,35 +24,85 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Miguel Ojeda <miguel.ojeda.sandonis@gmail.com>
-Cc: Andrea Parri <andrea.parri@amarulasolutions.com>, Peter Zijlstra <peterz@infradead.org>, Akira Yokosawa <akiyks@gmail.com>, Will Deacon <will.deacon@arm.com>, virtualization@lists.linux-foundation.org, David Howells <dhowells@redhat.com>, linux-arch@vger.kernel.org, linux-sparse@vger.kernel.org, Alan Stern <stern@rowland.harvard.edu>, "Paul E. McKenney" <paulmck@linux.vnet.ibm.com>, Boqun Feng <boqun.feng@gmail.com>, Daniel Lustig <dlustig@nvidia.com>, Nicholas Piggin <npiggin@gmail.com>, Luc Maranget <luc.maranget@inria.fr>, Eli Friedman <efriedma@codeaurora.org>, Jade Alglave <j.alglave@ucl.ac.uk>, Network Development <netdev@vger.kernel.org>, Nick Desaulniers <ndesaulniers@google.com>, LKML <linux-kernel@vger.kernel.org>, Eric Christopher <echristo@google.com>, Joe Perches <joe@perches.com>, Linus Torvalds <torvalds@linux-foundation.org>, Luc Van Oostenryck <luc.van>
+To: Christian Borntraeger <borntraeger@de.ibm.com>
+Cc: virtio-dev@lists.oasis-open.org, kvm@vger.kernel.org, cohuck@redhat.com, linux-kernel@vger.kernel.org, virtualization@lists.linux-foundation.org, pasic@linux.ibm.com, pbonzini@redhat.com, dgilbert@redhat.com
 List-Id: virtualization@lists.linuxfoundation.org
 
-On Wed, Jan 09, 2019 at 11:35:52AM +0100, Miguel Ojeda wrote:
-> On Tue, Jan 8, 2019 at 6:44 PM Nick Desaulniers <ndesaulniers@google.com> wrote:
-> >
-> > Also for more context, see:
-> > commit 7829fb09a2b4 ("lib: make memzero_explicit more robust against
-> > dead store elimination")
-> 
-> By the way, shouldn't that barrier_data() be directly in compiler.h
-> too, since it is for both gcc & clang?
-> 
-> > Reviewed-by: Nick Desaulniers <ndesaulniers@google.com>
-> >
-> > + Miguel
-> > Miguel, would you mind taking this into your compiler-attributes tree?
-> 
-> Sure, at least we get quickly some linux-next time.
-> 
-> Note it would be nice to separate the patch into two (one for the
-> comments, another for OPTIMIZER_HIDE_VAR), and also possibly another
-> for barrier_data().
-> 
-> Cheers,
-> Miguel
+On Wed, Jan 09, 2019 at 01:07:16PM +0100, Christian Borntraeger wrote:
+> On 09.01.2019 11:35, Wei Wang wrote:
+> > On 01/08/2019 04:46 PM, Christian Borntraeger wrote:
+> >>
+> >> On 08.01.2019 06:35, Wei Wang wrote:
+> >>> On 01/07/2019 09:49 PM, Christian Borntraeger wrote:
+> >>>> On 07.01.2019 08:01, Wei Wang wrote:
+> >>>>> virtio-ccw has deadlock issues with reading the config space inside=
+ the
+> >>>>> interrupt context, so we tweak the virtballoon_changed implementati=
+on
+> >>>>> by moving the config read operations into the related workqueue con=
+texts.
+> >>>>> The config_read_bitmap is used as a flag to the workqueue callbacks
+> >>>>> about the related config fields that need to be read.
+> >>>>>
+> >>>>> The cmd_id_received is also renamed to cmd_id_received_cache, and
+> >>>>> the value should be obtained via virtio_balloon_cmd_id_received.
+> >>>>>
+> >>>>> Reported-by: Christian Borntraeger <borntraeger@de.ibm.com>
+> >>>>> Signed-off-by: Wei Wang <wei.w.wang@intel.com>
+> >>>>> Reviewed-by: Cornelia Huck <cohuck@redhat.com>
+> >>>>> Reviewed-by: Halil Pasic <pasic@linux.ibm.com>
+> >>>> Together with
+> >>>> =A0=A0=A0 virtio_pci: use queue idx instead of array idx to set up t=
+he vq
+> >>>> =A0=A0=A0 virtio: don't allocate vqs when names[i] =3D NULL
+> >>>>
+> >>>> Tested-by: Christian Borntraeger <borntraeger@de.ibm.com>
+> >>> OK. I don't plan to send a new version of the above patches as no cha=
+nges needed so far.
+> >>>
+> >>> Michael, if the above two patches look good to you, please help add t=
+he related tested-by
+> >>> and reviewed-by tags. Thanks.
+> >> Can we also make sure that
+> >>
+> >> virtio_pci: use queue idx instead of array idx to set up the vq
+> >> virtio: don't allocate vqs when names[i] =3D NULL
+> >>
+> >> also land in stable?
+> >>
+> > =
 
-Okay, I will try.
+> > You could also send the request to stable after it gets merged to Linus=
+' tree.
+> > The stable review committee will decide whether to take it.
+> > =
 
--- 
+> > Please see Option 2:
+> > =
+
+> > https://www.kernel.org/doc/html/latest/process/stable-kernel-rules.html
+> > =
+
+> =
+
+> Those patches are not upstream yet, Correct?
+> =
+
+> Michael,
+> =
+
+> can you add the stable tag before submitting? If not, can you give me a h=
+eads up when doing the
+> pull request so that I can ping the stable folks.
+
+Can you reply to patches that you feel are needed on stable with just
+
+Cc: stable@vger.kernel.org
+
+in the message body?
+
+Then it's all automatically handled by ack attaching scripts.
+
+-- =
+
 MST
