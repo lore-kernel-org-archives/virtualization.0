@@ -1,16 +1,15 @@
 From: Daniel Vetter <daniel@ffwll.ch>
-Subject: Re: [PATCH v2 03/15] drm/bochs: atomic: add
-	atomic_flush+atomic_enable callbacks.
-Date: Wed, 9 Jan 2019 11:06:17 +0100
-Message-ID: <20190109100617.GR21184__49601.7511272386$1547028262$gmane$org@phenom.ffwll.local>
+Subject: Re: [PATCH v2 15/15] drm/bochs: reserve bo for pin/unpin
+Date: Wed, 9 Jan 2019 11:10:44 +0100
+Message-ID: <20190109101044.GS21184__39019.2025145099$1547028527$gmane$org@phenom.ffwll.local>
 References: <20190108112519.27473-1-kraxel@redhat.com>
-	<20190108112519.27473-4-kraxel@redhat.com>
+	<20190108112519.27473-16-kraxel@redhat.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
 Content-Disposition: inline
-In-Reply-To: <20190108112519.27473-4-kraxel@redhat.com>
+In-Reply-To: <20190108112519.27473-16-kraxel@redhat.com>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -24,62 +23,55 @@ To: Gerd Hoffmann <kraxel@redhat.com>
 Cc: andr2000@gmail.com, open list <linux-kernel@vger.kernel.org>, dri-devel@lists.freedesktop.org, "open list:DRM DRIVER FOR BOCHS VIRTUAL GPU" <virtualization@lists.linux-foundation.org>, David Airlie <airlied@linux.ie>, David Airlie <airlied@redhat.com>
 List-Id: virtualization@lists.linuxfoundation.org
 
-On Tue, Jan 08, 2019 at 12:25:07PM +0100, Gerd Hoffmann wrote:
-> Conversion to atomic modesetting, step one.
-> Add atomic crtc helper callbacks.
+On Tue, Jan 08, 2019 at 12:25:19PM +0100, Gerd Hoffmann wrote:
+> The buffer object must be reserved before calling
+> ttm_bo_validate for pinning/unpinning.
 > 
 > Signed-off-by: Gerd Hoffmann <kraxel@redhat.com>
+
+Seems a bit a bisect fumble in your series here: legacy kms code reserved
+the ttm bo before calling boch_bo_pin/unpin, your atomic code doesn't. I
+think pushing this into bochs_bo_pin/unpin makes sense for atomic, but to
+avoid bisect fail I think you need to have these temporarily in your
+cleanup/prepare_plane functions too.
+
+Looked through the entire series, this here is the only issue I think
+should be fixed before merging (making atomic_enable optional can be done
+as a follow-up if you feel like it). With that addressed on the series:
+
+Acked-by: Daniel Vetter <daniel.vetter@ffwll.ch>
 > ---
->  drivers/gpu/drm/bochs/bochs_kms.c | 25 +++++++++++++++++++++++++
->  1 file changed, 25 insertions(+)
+>  drivers/gpu/drm/bochs/bochs_mm.c | 8 ++++++++
+>  1 file changed, 8 insertions(+)
 > 
-> diff --git a/drivers/gpu/drm/bochs/bochs_kms.c b/drivers/gpu/drm/bochs/bochs_kms.c
-> index f7e6d1a9b3..2cbd406b1f 100644
-> --- a/drivers/gpu/drm/bochs/bochs_kms.c
-> +++ b/drivers/gpu/drm/bochs/bochs_kms.c
-> @@ -115,6 +115,29 @@ static int bochs_crtc_page_flip(struct drm_crtc *crtc,
->  	return 0;
->  }
+> diff --git a/drivers/gpu/drm/bochs/bochs_mm.c b/drivers/gpu/drm/bochs/bochs_mm.c
+> index cfe061c25f..970a591908 100644
+> --- a/drivers/gpu/drm/bochs/bochs_mm.c
+> +++ b/drivers/gpu/drm/bochs/bochs_mm.c
+> @@ -223,7 +223,11 @@ int bochs_bo_pin(struct bochs_bo *bo, u32 pl_flag)
+>  	bochs_ttm_placement(bo, pl_flag);
+>  	for (i = 0; i < bo->placement.num_placement; i++)
+>  		bo->placements[i].flags |= TTM_PL_FLAG_NO_EVICT;
+> +	ret = ttm_bo_reserve(&bo->bo, true, false, NULL);
+> +	if (ret)
+> +		return ret;
+>  	ret = ttm_bo_validate(&bo->bo, &bo->placement, &ctx);
+> +	ttm_bo_unreserve(&bo->bo);
+>  	if (ret)
+>  		return ret;
 >  
-> +static void bochs_crtc_atomic_enable(struct drm_crtc *crtc,
-> +				     struct drm_crtc_state *old_crtc_state)
-> +{
-> +}
-
-A patch to make this optional in the helpers would be neat.
--Daniel
-
-> +
-> +static void bochs_crtc_atomic_flush(struct drm_crtc *crtc,
-> +				    struct drm_crtc_state *old_crtc_state)
-> +{
-> +	struct drm_device *dev = crtc->dev;
-> +	struct drm_pending_vblank_event *event;
-> +
-> +	if (crtc->state && crtc->state->event) {
-> +		unsigned long irqflags;
-> +
-> +		spin_lock_irqsave(&dev->event_lock, irqflags);
-> +		event = crtc->state->event;
-> +		crtc->state->event = NULL;
-> +		drm_crtc_send_vblank_event(crtc, event);
-> +		spin_unlock_irqrestore(&dev->event_lock, irqflags);
-> +	}
-> +}
-> +
-> +
->  /* These provide the minimum set of functions required to handle a CRTC */
->  static const struct drm_crtc_funcs bochs_crtc_funcs = {
->  	.set_config = drm_crtc_helper_set_config,
-> @@ -128,6 +151,8 @@ static const struct drm_crtc_helper_funcs bochs_helper_funcs = {
->  	.mode_set_base = bochs_crtc_mode_set_base,
->  	.prepare = bochs_crtc_prepare,
->  	.commit = bochs_crtc_commit,
-> +	.atomic_enable = bochs_crtc_atomic_enable,
-> +	.atomic_flush = bochs_crtc_atomic_flush,
->  };
+> @@ -247,7 +251,11 @@ int bochs_bo_unpin(struct bochs_bo *bo)
 >  
->  static const uint32_t bochs_formats[] = {
+>  	for (i = 0; i < bo->placement.num_placement; i++)
+>  		bo->placements[i].flags &= ~TTM_PL_FLAG_NO_EVICT;
+> +	ret = ttm_bo_reserve(&bo->bo, true, false, NULL);
+> +	if (ret)
+> +		return ret;
+>  	ret = ttm_bo_validate(&bo->bo, &bo->placement, &ctx);
+> +	ttm_bo_unreserve(&bo->bo);
+>  	if (ret)
+>  		return ret;
+>  
 > -- 
 > 2.9.3
 > 
