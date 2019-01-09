@@ -1,7 +1,7 @@
-From: Christian Borntraeger <borntraeger@de.ibm.com>
+From: "Michael S. Tsirkin" <mst@redhat.com>
 Subject: Re: [PATCH v3 1/3] virtio-balloon: tweak config_changed implementation
-Date: Wed, 9 Jan 2019 19:22:50 +0100
-Message-ID: <b67652e6-c77a-cf0c-c02e-1494645ade91__24835.4694959291$1547058063$gmane$org@de.ibm.com>
+Date: Wed, 9 Jan 2019 13:31:27 -0500
+Message-ID: <20190109133114-mutt-send-email-mst__28392.183854203$1547058590$gmane$org@kernel.org>
 References: <1546844466-38079-1-git-send-email-wei.w.wang@intel.com>
 	<1546844466-38079-2-git-send-email-wei.w.wang@intel.com>
 	<4ea022d4-6b89-b481-5747-871e154dd21a@de.ibm.com>
@@ -10,12 +10,13 @@ References: <1546844466-38079-1-git-send-email-wei.w.wang@intel.com>
 	<5C35CE55.6030200@intel.com>
 	<8f0977ee-1cc1-56da-f4a6-641b8887648a@de.ibm.com>
 	<20190109095048-mutt-send-email-mst@kernel.org>
+	<b67652e6-c77a-cf0c-c02e-1494645ade91@de.ibm.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="utf-8"
-Content-Transfer-Encoding: base64
+Content-Type: text/plain; charset="iso-8859-1"
+Content-Transfer-Encoding: quoted-printable
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <20190109095048-mutt-send-email-mst@kernel.org>
-Content-Language: en-US
+Content-Disposition: inline
+In-Reply-To: <b67652e6-c77a-cf0c-c02e-1494645ade91@de.ibm.com>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -25,57 +26,95 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: "Michael S. Tsirkin" <mst@redhat.com>
+To: Christian Borntraeger <borntraeger@de.ibm.com>
 Cc: virtio-dev@lists.oasis-open.org, kvm@vger.kernel.org, cohuck@redhat.com, linux-kernel@vger.kernel.org, virtualization@lists.linux-foundation.org, pasic@linux.ibm.com, pbonzini@redhat.com, dgilbert@redhat.com
 List-Id: virtualization@lists.linuxfoundation.org
 
-Ck9uIDA5LjAxLjIwMTkgMTU6NTIsIE1pY2hhZWwgUy4gVHNpcmtpbiB3cm90ZToKPiBPbiBXZWQs
-IEphbiAwOSwgMjAxOSBhdCAwMTowNzoxNlBNICswMTAwLCBDaHJpc3RpYW4gQm9ybnRyYWVnZXIg
-d3JvdGU6Cj4+IE9uIDA5LjAxLjIwMTkgMTE6MzUsIFdlaSBXYW5nIHdyb3RlOgo+Pj4gT24gMDEv
-MDgvMjAxOSAwNDo0NiBQTSwgQ2hyaXN0aWFuIEJvcm50cmFlZ2VyIHdyb3RlOgo+Pj4+Cj4+Pj4g
-T24gMDguMDEuMjAxOSAwNjozNSwgV2VpIFdhbmcgd3JvdGU6Cj4+Pj4+IE9uIDAxLzA3LzIwMTkg
-MDk6NDkgUE0sIENocmlzdGlhbiBCb3JudHJhZWdlciB3cm90ZToKPj4+Pj4+IE9uIDA3LjAxLjIw
-MTkgMDg6MDEsIFdlaSBXYW5nIHdyb3RlOgo+Pj4+Pj4+IHZpcnRpby1jY3cgaGFzIGRlYWRsb2Nr
-IGlzc3VlcyB3aXRoIHJlYWRpbmcgdGhlIGNvbmZpZyBzcGFjZSBpbnNpZGUgdGhlCj4+Pj4+Pj4g
-aW50ZXJydXB0IGNvbnRleHQsIHNvIHdlIHR3ZWFrIHRoZSB2aXJ0YmFsbG9vbl9jaGFuZ2VkIGlt
-cGxlbWVudGF0aW9uCj4+Pj4+Pj4gYnkgbW92aW5nIHRoZSBjb25maWcgcmVhZCBvcGVyYXRpb25z
-IGludG8gdGhlIHJlbGF0ZWQgd29ya3F1ZXVlIGNvbnRleHRzLgo+Pj4+Pj4+IFRoZSBjb25maWdf
-cmVhZF9iaXRtYXAgaXMgdXNlZCBhcyBhIGZsYWcgdG8gdGhlIHdvcmtxdWV1ZSBjYWxsYmFja3MK
-Pj4+Pj4+PiBhYm91dCB0aGUgcmVsYXRlZCBjb25maWcgZmllbGRzIHRoYXQgbmVlZCB0byBiZSBy
-ZWFkLgo+Pj4+Pj4+Cj4+Pj4+Pj4gVGhlIGNtZF9pZF9yZWNlaXZlZCBpcyBhbHNvIHJlbmFtZWQg
-dG8gY21kX2lkX3JlY2VpdmVkX2NhY2hlLCBhbmQKPj4+Pj4+PiB0aGUgdmFsdWUgc2hvdWxkIGJl
-IG9idGFpbmVkIHZpYSB2aXJ0aW9fYmFsbG9vbl9jbWRfaWRfcmVjZWl2ZWQuCj4+Pj4+Pj4KPj4+
-Pj4+PiBSZXBvcnRlZC1ieTogQ2hyaXN0aWFuIEJvcm50cmFlZ2VyIDxib3JudHJhZWdlckBkZS5p
-Ym0uY29tPgo+Pj4+Pj4+IFNpZ25lZC1vZmYtYnk6IFdlaSBXYW5nIDx3ZWkudy53YW5nQGludGVs
-LmNvbT4KPj4+Pj4+PiBSZXZpZXdlZC1ieTogQ29ybmVsaWEgSHVjayA8Y29odWNrQHJlZGhhdC5j
-b20+Cj4+Pj4+Pj4gUmV2aWV3ZWQtYnk6IEhhbGlsIFBhc2ljIDxwYXNpY0BsaW51eC5pYm0uY29t
-Pgo+Pj4+Pj4gVG9nZXRoZXIgd2l0aAo+Pj4+Pj4gwqDCoMKgIHZpcnRpb19wY2k6IHVzZSBxdWV1
-ZSBpZHggaW5zdGVhZCBvZiBhcnJheSBpZHggdG8gc2V0IHVwIHRoZSB2cQo+Pj4+Pj4gwqDCoMKg
-IHZpcnRpbzogZG9uJ3QgYWxsb2NhdGUgdnFzIHdoZW4gbmFtZXNbaV0gPSBOVUxMCj4+Pj4+Pgo+
-Pj4+Pj4gVGVzdGVkLWJ5OiBDaHJpc3RpYW4gQm9ybnRyYWVnZXIgPGJvcm50cmFlZ2VyQGRlLmli
-bS5jb20+Cj4+Pj4+IE9LLiBJIGRvbid0IHBsYW4gdG8gc2VuZCBhIG5ldyB2ZXJzaW9uIG9mIHRo
-ZSBhYm92ZSBwYXRjaGVzIGFzIG5vIGNoYW5nZXMgbmVlZGVkIHNvIGZhci4KPj4+Pj4KPj4+Pj4g
-TWljaGFlbCwgaWYgdGhlIGFib3ZlIHR3byBwYXRjaGVzIGxvb2sgZ29vZCB0byB5b3UsIHBsZWFz
-ZSBoZWxwIGFkZCB0aGUgcmVsYXRlZCB0ZXN0ZWQtYnkKPj4+Pj4gYW5kIHJldmlld2VkLWJ5IHRh
-Z3MuIFRoYW5rcy4KPj4+PiBDYW4gd2UgYWxzbyBtYWtlIHN1cmUgdGhhdAo+Pj4+Cj4+Pj4gdmly
-dGlvX3BjaTogdXNlIHF1ZXVlIGlkeCBpbnN0ZWFkIG9mIGFycmF5IGlkeCB0byBzZXQgdXAgdGhl
-IHZxCj4+Pj4gdmlydGlvOiBkb24ndCBhbGxvY2F0ZSB2cXMgd2hlbiBuYW1lc1tpXSA9IE5VTEwK
-Pj4+Pgo+Pj4+IGFsc28gbGFuZCBpbiBzdGFibGU/Cj4+Pj4KPj4+Cj4+PiBZb3UgY291bGQgYWxz
-byBzZW5kIHRoZSByZXF1ZXN0IHRvIHN0YWJsZSBhZnRlciBpdCBnZXRzIG1lcmdlZCB0byBMaW51
-cycgdHJlZS4KPj4+IFRoZSBzdGFibGUgcmV2aWV3IGNvbW1pdHRlZSB3aWxsIGRlY2lkZSB3aGV0
-aGVyIHRvIHRha2UgaXQuCj4+Pgo+Pj4gUGxlYXNlIHNlZSBPcHRpb24gMjoKPj4+Cj4+PiBodHRw
-czovL3d3dy5rZXJuZWwub3JnL2RvYy9odG1sL2xhdGVzdC9wcm9jZXNzL3N0YWJsZS1rZXJuZWwt
-cnVsZXMuaHRtbAo+Pj4KPj4KPj4gVGhvc2UgcGF0Y2hlcyBhcmUgbm90IHVwc3RyZWFtIHlldCwg
-Q29ycmVjdD8KPj4KPj4gTWljaGFlbCwKPj4KPj4gY2FuIHlvdSBhZGQgdGhlIHN0YWJsZSB0YWcg
-YmVmb3JlIHN1Ym1pdHRpbmc/IElmIG5vdCwgY2FuIHlvdSBnaXZlIG1lIGEgaGVhZHMgdXAgd2hl
-biBkb2luZyB0aGUKPj4gcHVsbCByZXF1ZXN0IHNvIHRoYXQgSSBjYW4gcGluZyB0aGUgc3RhYmxl
-IGZvbGtzLgo+IAo+IENhbiB5b3UgcmVwbHkgdG8gcGF0Y2hlcyB0aGF0IHlvdSBmZWVsIGFyZSBu
-ZWVkZWQgb24gc3RhYmxlIHdpdGgganVzdAo+IAo+IENjOiBzdGFibGVAdmdlci5rZXJuZWwub3Jn
-Cj4gCj4gaW4gdGhlIG1lc3NhZ2UgYm9keT8KPiAKPiBUaGVuIGl0J3MgYWxsIGF1dG9tYXRpY2Fs
-bHkgaGFuZGxlZCBieSBhY2sgYXR0YWNoaW5nIHNjcmlwdHMuCgpEb25lLiBCdXQgdGhpcyBvbmx5
-IHdvcmtzIGlmIHRob3NlIHBhdGNoZXMgYXJlIG5vdCBhbHJlYWR5IHBhcnQgb2YgYSB0cmVlLiBJ
-IGd1ZXNzIHRoZXkgaGF2ZSB0byBnbyB2aWEKeW91ciB0cmVlLCBjb3JyZWN0PwoKX19fX19fX19f
-X19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX18KVmlydHVhbGl6YXRpb24gbWFp
-bGluZyBsaXN0ClZpcnR1YWxpemF0aW9uQGxpc3RzLmxpbnV4LWZvdW5kYXRpb24ub3JnCmh0dHBz
-Oi8vbGlzdHMubGludXhmb3VuZGF0aW9uLm9yZy9tYWlsbWFuL2xpc3RpbmZvL3ZpcnR1YWxpemF0
-aW9u
+On Wed, Jan 09, 2019 at 07:22:50PM +0100, Christian Borntraeger wrote:
+> =
+
+> On 09.01.2019 15:52, Michael S. Tsirkin wrote:
+> > On Wed, Jan 09, 2019 at 01:07:16PM +0100, Christian Borntraeger wrote:
+> >> On 09.01.2019 11:35, Wei Wang wrote:
+> >>> On 01/08/2019 04:46 PM, Christian Borntraeger wrote:
+> >>>>
+> >>>> On 08.01.2019 06:35, Wei Wang wrote:
+> >>>>> On 01/07/2019 09:49 PM, Christian Borntraeger wrote:
+> >>>>>> On 07.01.2019 08:01, Wei Wang wrote:
+> >>>>>>> virtio-ccw has deadlock issues with reading the config space insi=
+de the
+> >>>>>>> interrupt context, so we tweak the virtballoon_changed implementa=
+tion
+> >>>>>>> by moving the config read operations into the related workqueue c=
+ontexts.
+> >>>>>>> The config_read_bitmap is used as a flag to the workqueue callbac=
+ks
+> >>>>>>> about the related config fields that need to be read.
+> >>>>>>>
+> >>>>>>> The cmd_id_received is also renamed to cmd_id_received_cache, and
+> >>>>>>> the value should be obtained via virtio_balloon_cmd_id_received.
+> >>>>>>>
+> >>>>>>> Reported-by: Christian Borntraeger <borntraeger@de.ibm.com>
+> >>>>>>> Signed-off-by: Wei Wang <wei.w.wang@intel.com>
+> >>>>>>> Reviewed-by: Cornelia Huck <cohuck@redhat.com>
+> >>>>>>> Reviewed-by: Halil Pasic <pasic@linux.ibm.com>
+> >>>>>> Together with
+> >>>>>> =A0=A0=A0 virtio_pci: use queue idx instead of array idx to set up=
+ the vq
+> >>>>>> =A0=A0=A0 virtio: don't allocate vqs when names[i] =3D NULL
+> >>>>>>
+> >>>>>> Tested-by: Christian Borntraeger <borntraeger@de.ibm.com>
+> >>>>> OK. I don't plan to send a new version of the above patches as no c=
+hanges needed so far.
+> >>>>>
+> >>>>> Michael, if the above two patches look good to you, please help add=
+ the related tested-by
+> >>>>> and reviewed-by tags. Thanks.
+> >>>> Can we also make sure that
+> >>>>
+> >>>> virtio_pci: use queue idx instead of array idx to set up the vq
+> >>>> virtio: don't allocate vqs when names[i] =3D NULL
+> >>>>
+> >>>> also land in stable?
+> >>>>
+> >>>
+> >>> You could also send the request to stable after it gets merged to Lin=
+us' tree.
+> >>> The stable review committee will decide whether to take it.
+> >>>
+> >>> Please see Option 2:
+> >>>
+> >>> https://www.kernel.org/doc/html/latest/process/stable-kernel-rules.ht=
+ml
+> >>>
+> >>
+> >> Those patches are not upstream yet, Correct?
+> >>
+> >> Michael,
+> >>
+> >> can you add the stable tag before submitting? If not, can you give me =
+a heads up when doing the
+> >> pull request so that I can ping the stable folks.
+> > =
+
+> > Can you reply to patches that you feel are needed on stable with just
+> > =
+
+> > Cc: stable@vger.kernel.org
+> > =
+
+> > in the message body?
+> > =
+
+> > Then it's all automatically handled by ack attaching scripts.
+> =
+
+> Done. But this only works if those patches are not already part of a tree=
+. I guess they have to go via
+> your tree, correct?
+
+Yes. It works because I rebase my tree.
+
+-- =
+
+MST
