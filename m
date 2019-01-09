@@ -1,7 +1,7 @@
 From: Jason Wang <jasowang@redhat.com>
-Subject: [PATCH net-next V2 1/3] virtio: introduce in order feature bit
-Date: Wed,  9 Jan 2019 16:05:28 +0800
-Message-ID: <20190109080530.18572-2-jasowang__28239.5447059118$1547021026$gmane$org@redhat.com>
+Subject: [PATCH net-next V2 2/3] vhost_net: support in order feature
+Date: Wed,  9 Jan 2019 16:05:29 +0800
+Message-ID: <20190109080530.18572-3-jasowang__4602.74190777472$1547021040$gmane$org@redhat.com>
 References: <20190109080530.18572-1-jasowang@redhat.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
@@ -21,27 +21,39 @@ To: mst@redhat.com, jasowang@redhat.com
 Cc: netdev@vger.kernel.org, linux-kernel@vger.kernel.org, kvm@vger.kernel.org, virtualization@lists.linux-foundation.org
 List-Id: virtualization@lists.linuxfoundation.org
 
+This makes vhost_net to support in order feature. This is as simple as
+use datacopy path when it was negotiated. An alternative is not to
+advertise in order when zerocopy is enabled which tends to be
+suboptimal consider zerocopy may suffer from e.g HOL issues.
+
 Signed-off-by: Jason Wang <jasowang@redhat.com>
 ---
- include/uapi/linux/virtio_config.h | 6 ++++++
- 1 file changed, 6 insertions(+)
+ drivers/vhost/net.c | 6 ++++--
+ 1 file changed, 4 insertions(+), 2 deletions(-)
 
-diff --git a/include/uapi/linux/virtio_config.h b/include/uapi/linux/virtio_config.h
-index 1196e1c1d4f6..2698e069ed9e 100644
---- a/include/uapi/linux/virtio_config.h
-+++ b/include/uapi/linux/virtio_config.h
-@@ -78,6 +78,12 @@
- /* This feature indicates support for the packed virtqueue layout. */
- #define VIRTIO_F_RING_PACKED		34
+diff --git a/drivers/vhost/net.c b/drivers/vhost/net.c
+index 36f3d0f49e60..0870f51a1c76 100644
+--- a/drivers/vhost/net.c
++++ b/drivers/vhost/net.c
+@@ -74,7 +74,8 @@ enum {
+ 	VHOST_NET_FEATURES = VHOST_FEATURES |
+ 			 (1ULL << VHOST_NET_F_VIRTIO_NET_HDR) |
+ 			 (1ULL << VIRTIO_NET_F_MRG_RXBUF) |
+-			 (1ULL << VIRTIO_F_IOMMU_PLATFORM)
++			 (1ULL << VIRTIO_F_IOMMU_PLATFORM) |
++	                 (1ULL << VIRTIO_F_IN_ORDER)
+ };
  
-+/*
-+ * Device uses buffers in the same order in which they have been
-+ * available.
-+ */
-+#define VIRTIO_F_IN_ORDER		35
-+
- /*
-  * Does the device support Single Root I/O Virtualization?
-  */
+ enum {
+@@ -977,7 +978,8 @@ static void handle_tx(struct vhost_net *net)
+ 	vhost_disable_notify(&net->dev, vq);
+ 	vhost_net_disable_vq(net, vq);
+ 
+-	if (vhost_sock_zcopy(sock))
++	if (vhost_sock_zcopy(sock) &&
++	    !vhost_has_feature(vq, VIRTIO_F_IN_ORDER))
+ 		handle_tx_zerocopy(net, sock);
+ 	else
+ 		handle_tx_copy(net, sock);
 -- 
 2.17.1
