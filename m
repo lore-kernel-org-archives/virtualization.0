@@ -1,14 +1,16 @@
-From: Gerd Hoffmann <kraxel@redhat.com>
-Subject: Re: [PATCH] qxl: Use struct_size() in kzalloc()
-Date: Wed, 9 Jan 2019 09:32:02 +0100
-Message-ID: <20190109083202.r4pxsuskcxdzpvzj__16097.1919111491$1547022601$gmane$org@sirius.home.kraxel.org>
-References: <20190108162152.GA25361@embeddedor>
+From: Daniel Vetter <daniel@ffwll.ch>
+Subject: Re: [PATCH v2 03/15] drm/bochs: atomic: add
+	atomic_flush+atomic_enable callbacks.
+Date: Wed, 9 Jan 2019 11:06:17 +0100
+Message-ID: <20190109100617.GR21184__49601.7511272386$1547028262$gmane$org@phenom.ffwll.local>
+References: <20190108112519.27473-1-kraxel@redhat.com>
+	<20190108112519.27473-4-kraxel@redhat.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
 Content-Disposition: inline
-In-Reply-To: <20190108162152.GA25361@embeddedor>
+In-Reply-To: <20190108112519.27473-4-kraxel@redhat.com>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -18,30 +20,75 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: "Gustavo A. R. Silva" <gustavo@embeddedor.com>
-Cc: David Airlie <airlied@linux.ie>, linux-kernel@vger.kernel.org, dri-devel@lists.freedesktop.org, virtualization@lists.linux-foundation.org, Daniel Vetter <daniel@ffwll.ch>, Dave Airlie <airlied@redhat.com>
+To: Gerd Hoffmann <kraxel@redhat.com>
+Cc: andr2000@gmail.com, open list <linux-kernel@vger.kernel.org>, dri-devel@lists.freedesktop.org, "open list:DRM DRIVER FOR BOCHS VIRTUAL GPU" <virtualization@lists.linux-foundation.org>, David Airlie <airlied@linux.ie>, David Airlie <airlied@redhat.com>
 List-Id: virtualization@lists.linuxfoundation.org
 
-On Tue, Jan 08, 2019 at 10:21:52AM -0600, Gustavo A. R. Silva wrote:
-> One of the more common cases of allocation size calculations is finding the
-> size of a structure that has a zero-sized array at the end, along with memory
-> for some number of elements for that array. For example:
+On Tue, Jan 08, 2019 at 12:25:07PM +0100, Gerd Hoffmann wrote:
+> Conversion to atomic modesetting, step one.
+> Add atomic crtc helper callbacks.
 > 
-> struct foo {
->     int stuff;
->     void *entry[];
-> };
+> Signed-off-by: Gerd Hoffmann <kraxel@redhat.com>
+> ---
+>  drivers/gpu/drm/bochs/bochs_kms.c | 25 +++++++++++++++++++++++++
+>  1 file changed, 25 insertions(+)
 > 
-> instance = kzalloc(sizeof(struct foo) + sizeof(void *) * count, GFP_KERNEL);
-> 
-> Instead of leaving these open-coded and prone to type mistakes, we can now
-> use the new struct_size() helper:
-> 
-> instance = kzalloc(struct_size(instance, entry, count), GFP_KERNEL);
-> 
-> This code was detected with the help of Coccinelle.
+> diff --git a/drivers/gpu/drm/bochs/bochs_kms.c b/drivers/gpu/drm/bochs/bochs_kms.c
+> index f7e6d1a9b3..2cbd406b1f 100644
+> --- a/drivers/gpu/drm/bochs/bochs_kms.c
+> +++ b/drivers/gpu/drm/bochs/bochs_kms.c
+> @@ -115,6 +115,29 @@ static int bochs_crtc_page_flip(struct drm_crtc *crtc,
+>  	return 0;
+>  }
+>  
+> +static void bochs_crtc_atomic_enable(struct drm_crtc *crtc,
+> +				     struct drm_crtc_state *old_crtc_state)
+> +{
+> +}
 
-Patch queued up.
+A patch to make this optional in the helpers would be neat.
+-Daniel
 
-thanks,
-  Gerd
+> +
+> +static void bochs_crtc_atomic_flush(struct drm_crtc *crtc,
+> +				    struct drm_crtc_state *old_crtc_state)
+> +{
+> +	struct drm_device *dev = crtc->dev;
+> +	struct drm_pending_vblank_event *event;
+> +
+> +	if (crtc->state && crtc->state->event) {
+> +		unsigned long irqflags;
+> +
+> +		spin_lock_irqsave(&dev->event_lock, irqflags);
+> +		event = crtc->state->event;
+> +		crtc->state->event = NULL;
+> +		drm_crtc_send_vblank_event(crtc, event);
+> +		spin_unlock_irqrestore(&dev->event_lock, irqflags);
+> +	}
+> +}
+> +
+> +
+>  /* These provide the minimum set of functions required to handle a CRTC */
+>  static const struct drm_crtc_funcs bochs_crtc_funcs = {
+>  	.set_config = drm_crtc_helper_set_config,
+> @@ -128,6 +151,8 @@ static const struct drm_crtc_helper_funcs bochs_helper_funcs = {
+>  	.mode_set_base = bochs_crtc_mode_set_base,
+>  	.prepare = bochs_crtc_prepare,
+>  	.commit = bochs_crtc_commit,
+> +	.atomic_enable = bochs_crtc_atomic_enable,
+> +	.atomic_flush = bochs_crtc_atomic_flush,
+>  };
+>  
+>  static const uint32_t bochs_formats[] = {
+> -- 
+> 2.9.3
+> 
+> _______________________________________________
+> dri-devel mailing list
+> dri-devel@lists.freedesktop.org
+> https://lists.freedesktop.org/mailman/listinfo/dri-devel
+
+-- 
+Daniel Vetter
+Software Engineer, Intel Corporation
+http://blog.ffwll.ch
