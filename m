@@ -1,8 +1,7 @@
 From: Gerd Hoffmann <kraxel@redhat.com>
-Subject: [PATCH v3 10/15] drm/bochs: drop unused gpu_addr arg from
-	bochs_bo_pin()
-Date: Thu, 10 Jan 2019 09:28:40 +0100
-Message-ID: <20190110082845.3453-11-kraxel__38579.7052681029$1547108880$gmane$org@redhat.com>
+Subject: [PATCH v3 09/15] drm/bochs: remove old bochs_crtc_* functions
+Date: Thu, 10 Jan 2019 09:28:39 +0100
+Message-ID: <20190110082845.3453-10-kraxel__70.9192398518965$1547108887$gmane$org@redhat.com>
 References: <20190110082845.3453-1-kraxel@redhat.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
@@ -22,91 +21,121 @@ To: dri-devel@lists.freedesktop.org, David Airlie <airlied@redhat.com>
 Cc: andr2000@gmail.com, David Airlie <airlied@linux.ie>, open list <linux-kernel@vger.kernel.org>, "open list:DRM DRIVER FOR BOCHS VIRTUAL GPU" <virtualization@lists.linux-foundation.org>
 List-Id: virtualization@lists.linuxfoundation.org
 
-It's always NULL, so just remove it.
+Remove the old, now unused crtc callbacks.
 
 Signed-off-by: Gerd Hoffmann <kraxel@redhat.com>
 Reviewed-by: Oleksandr Andrushchenko <oleksandr_andrushchenko@epam.com>
 Acked-by: Daniel Vetter <daniel.vetter@ffwll.ch>
 ---
- drivers/gpu/drm/bochs/bochs.h       |  2 +-
- drivers/gpu/drm/bochs/bochs_fbdev.c |  2 +-
- drivers/gpu/drm/bochs/bochs_kms.c   |  2 +-
- drivers/gpu/drm/bochs/bochs_mm.c    | 11 +----------
- 4 files changed, 4 insertions(+), 13 deletions(-)
+ drivers/gpu/drm/bochs/bochs_kms.c | 81 ---------------------------------------
+ 1 file changed, 81 deletions(-)
 
-diff --git a/drivers/gpu/drm/bochs/bochs.h b/drivers/gpu/drm/bochs/bochs.h
-index 4dc1b6384e..d0d474e06f 100644
---- a/drivers/gpu/drm/bochs/bochs.h
-+++ b/drivers/gpu/drm/bochs/bochs.h
-@@ -142,7 +142,7 @@ int bochs_dumb_create(struct drm_file *file, struct drm_device *dev,
- int bochs_dumb_mmap_offset(struct drm_file *file, struct drm_device *dev,
- 			   uint32_t handle, uint64_t *offset);
- 
--int bochs_bo_pin(struct bochs_bo *bo, u32 pl_flag, u64 *gpu_addr);
-+int bochs_bo_pin(struct bochs_bo *bo, u32 pl_flag);
- int bochs_bo_unpin(struct bochs_bo *bo);
- 
- /* bochs_kms.c */
-diff --git a/drivers/gpu/drm/bochs/bochs_fbdev.c b/drivers/gpu/drm/bochs/bochs_fbdev.c
-index d9f3d42999..92feb817ff 100644
---- a/drivers/gpu/drm/bochs/bochs_fbdev.c
-+++ b/drivers/gpu/drm/bochs/bochs_fbdev.c
-@@ -81,7 +81,7 @@ static int bochsfb_create(struct drm_fb_helper *helper,
- 	if (ret)
- 		return ret;
- 
--	ret = bochs_bo_pin(bo, TTM_PL_FLAG_VRAM, NULL);
-+	ret = bochs_bo_pin(bo, TTM_PL_FLAG_VRAM);
- 	if (ret) {
- 		DRM_ERROR("failed to pin fbcon\n");
- 		ttm_bo_unreserve(&bo->bo);
 diff --git a/drivers/gpu/drm/bochs/bochs_kms.c b/drivers/gpu/drm/bochs/bochs_kms.c
-index 5b7e1a7c6b..f663c54185 100644
+index 67c3674609..5b7e1a7c6b 100644
 --- a/drivers/gpu/drm/bochs/bochs_kms.c
 +++ b/drivers/gpu/drm/bochs/bochs_kms.c
-@@ -101,7 +101,7 @@ static int bochs_plane_prepare_fb(struct drm_plane *plane,
- 	ret = ttm_bo_reserve(&bo->bo, true, false, NULL);
- 	if (ret)
- 		return ret;
--	ret = bochs_bo_pin(bo, TTM_PL_FLAG_VRAM, NULL);
-+	ret = bochs_bo_pin(bo, TTM_PL_FLAG_VRAM);
- 	ttm_bo_unreserve(&bo->bo);
- 	return ret;
- }
-diff --git a/drivers/gpu/drm/bochs/bochs_mm.c b/drivers/gpu/drm/bochs/bochs_mm.c
-index 0980411e41..5a0e092847 100644
---- a/drivers/gpu/drm/bochs/bochs_mm.c
-+++ b/drivers/gpu/drm/bochs/bochs_mm.c
-@@ -210,20 +210,13 @@ static void bochs_ttm_placement(struct bochs_bo *bo, int domain)
- 	bo->placement.num_busy_placement = c;
- }
+@@ -20,74 +20,6 @@ MODULE_PARM_DESC(defy, "default y resolution");
  
--static inline u64 bochs_bo_gpu_offset(struct bochs_bo *bo)
+ /* ---------------------------------------------------------------------- */
+ 
+-static void bochs_crtc_dpms(struct drm_crtc *crtc, int mode)
 -{
--	return bo->bo.offset;
+-	switch (mode) {
+-	case DRM_MODE_DPMS_ON:
+-	case DRM_MODE_DPMS_STANDBY:
+-	case DRM_MODE_DPMS_SUSPEND:
+-	case DRM_MODE_DPMS_OFF:
+-	default:
+-		return;
+-	}
 -}
 -
--int bochs_bo_pin(struct bochs_bo *bo, u32 pl_flag, u64 *gpu_addr)
-+int bochs_bo_pin(struct bochs_bo *bo, u32 pl_flag)
+-static int bochs_crtc_mode_set_base(struct drm_crtc *crtc, int x, int y,
+-				    struct drm_framebuffer *old_fb)
+-{
+-	struct bochs_device *bochs =
+-		container_of(crtc, struct bochs_device, crtc);
+-	struct bochs_bo *bo;
+-	u64 gpu_addr = 0;
+-	int ret;
+-
+-	if (old_fb) {
+-		bo = gem_to_bochs_bo(old_fb->obj[0]);
+-		ret = ttm_bo_reserve(&bo->bo, true, false, NULL);
+-		if (ret) {
+-			DRM_ERROR("failed to reserve old_fb bo\n");
+-		} else {
+-			bochs_bo_unpin(bo);
+-			ttm_bo_unreserve(&bo->bo);
+-		}
+-	}
+-
+-	if (WARN_ON(crtc->primary->fb == NULL))
+-		return -EINVAL;
+-
+-	bo = gem_to_bochs_bo(crtc->primary->fb->obj[0]);
+-	ret = ttm_bo_reserve(&bo->bo, true, false, NULL);
+-	if (ret)
+-		return ret;
+-
+-	ret = bochs_bo_pin(bo, TTM_PL_FLAG_VRAM, &gpu_addr);
+-	if (ret) {
+-		ttm_bo_unreserve(&bo->bo);
+-		return ret;
+-	}
+-
+-	ttm_bo_unreserve(&bo->bo);
+-	bochs_hw_setbase(bochs, x, y, gpu_addr);
+-	return 0;
+-}
+-
+-static int bochs_crtc_mode_set(struct drm_crtc *crtc,
+-			       struct drm_display_mode *mode,
+-			       struct drm_display_mode *adjusted_mode,
+-			       int x, int y, struct drm_framebuffer *old_fb)
+-{
+-	struct bochs_device *bochs =
+-		container_of(crtc, struct bochs_device, crtc);
+-
+-	if (WARN_ON(crtc->primary->fb == NULL))
+-		return -EINVAL;
+-
+-	bochs_hw_setmode(bochs, mode);
+-	bochs_hw_setformat(bochs, crtc->primary->fb->format);
+-	bochs_crtc_mode_set_base(crtc, x, y, old_fb);
+-	return 0;
+-}
+-
+ static void bochs_crtc_mode_set_nofb(struct drm_crtc *crtc)
  {
- 	struct ttm_operation_ctx ctx = { false, false };
- 	int i, ret;
- 
- 	if (bo->pin_count) {
- 		bo->pin_count++;
--		if (gpu_addr)
--			*gpu_addr = bochs_bo_gpu_offset(bo);
- 		return 0;
- 	}
- 
-@@ -235,8 +228,6 @@ int bochs_bo_pin(struct bochs_bo *bo, u32 pl_flag, u64 *gpu_addr)
- 		return ret;
- 
- 	bo->pin_count = 1;
--	if (gpu_addr)
--		*gpu_addr = bochs_bo_gpu_offset(bo);
- 	return 0;
+ 	struct bochs_device *bochs =
+@@ -96,14 +28,6 @@ static void bochs_crtc_mode_set_nofb(struct drm_crtc *crtc)
+ 	bochs_hw_setmode(bochs, &crtc->mode);
  }
  
+-static void bochs_crtc_prepare(struct drm_crtc *crtc)
+-{
+-}
+-
+-static void bochs_crtc_commit(struct drm_crtc *crtc)
+-{
+-}
+-
+ static void bochs_crtc_atomic_enable(struct drm_crtc *crtc,
+ 				     struct drm_crtc_state *old_crtc_state)
+ {
+@@ -138,12 +62,7 @@ static const struct drm_crtc_funcs bochs_crtc_funcs = {
+ };
+ 
+ static const struct drm_crtc_helper_funcs bochs_helper_funcs = {
+-	.dpms = bochs_crtc_dpms,
+-	.mode_set = bochs_crtc_mode_set,
+-	.mode_set_base = bochs_crtc_mode_set_base,
+ 	.mode_set_nofb = bochs_crtc_mode_set_nofb,
+-	.prepare = bochs_crtc_prepare,
+-	.commit = bochs_crtc_commit,
+ 	.atomic_enable = bochs_crtc_atomic_enable,
+ 	.atomic_flush = bochs_crtc_atomic_flush,
+ };
 -- 
 2.9.3
