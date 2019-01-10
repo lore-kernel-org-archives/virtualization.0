@@ -1,7 +1,8 @@
 From: Gerd Hoffmann <kraxel@redhat.com>
-Subject: [PATCH v3 02/15] drm/bochs: split bochs_hw_setmode
-Date: Thu, 10 Jan 2019 09:28:32 +0100
-Message-ID: <20190110082845.3453-3-kraxel__16122.615550603$1547108863$gmane$org@redhat.com>
+Subject: [PATCH v3 10/15] drm/bochs: drop unused gpu_addr arg from
+	bochs_bo_pin()
+Date: Thu, 10 Jan 2019 09:28:40 +0100
+Message-ID: <20190110082845.3453-11-kraxel__38579.7052681029$1547108880$gmane$org@redhat.com>
 References: <20190110082845.3453-1-kraxel@redhat.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
@@ -21,92 +22,91 @@ To: dri-devel@lists.freedesktop.org, David Airlie <airlied@redhat.com>
 Cc: andr2000@gmail.com, David Airlie <airlied@linux.ie>, open list <linux-kernel@vger.kernel.org>, "open list:DRM DRIVER FOR BOCHS VIRTUAL GPU" <virtualization@lists.linux-foundation.org>
 List-Id: virtualization@lists.linuxfoundation.org
 
-Create a separate bochs_hw_setformat function to configure
-the framebuffer format (actually just the byteorder).
+It's always NULL, so just remove it.
 
 Signed-off-by: Gerd Hoffmann <kraxel@redhat.com>
 Reviewed-by: Oleksandr Andrushchenko <oleksandr_andrushchenko@epam.com>
 Acked-by: Daniel Vetter <daniel.vetter@ffwll.ch>
 ---
- drivers/gpu/drm/bochs/bochs.h     |  5 +++--
- drivers/gpu/drm/bochs/bochs_hw.c  | 19 ++++++++++++-------
- drivers/gpu/drm/bochs/bochs_kms.c |  3 ++-
- 3 files changed, 17 insertions(+), 10 deletions(-)
+ drivers/gpu/drm/bochs/bochs.h       |  2 +-
+ drivers/gpu/drm/bochs/bochs_fbdev.c |  2 +-
+ drivers/gpu/drm/bochs/bochs_kms.c   |  2 +-
+ drivers/gpu/drm/bochs/bochs_mm.c    | 11 +----------
+ 4 files changed, 4 insertions(+), 13 deletions(-)
 
 diff --git a/drivers/gpu/drm/bochs/bochs.h b/drivers/gpu/drm/bochs/bochs.h
-index fb38c8b857..4dc1b6384e 100644
+index 4dc1b6384e..d0d474e06f 100644
 --- a/drivers/gpu/drm/bochs/bochs.h
 +++ b/drivers/gpu/drm/bochs/bochs.h
-@@ -121,8 +121,9 @@ int bochs_hw_init(struct drm_device *dev);
- void bochs_hw_fini(struct drm_device *dev);
+@@ -142,7 +142,7 @@ int bochs_dumb_create(struct drm_file *file, struct drm_device *dev,
+ int bochs_dumb_mmap_offset(struct drm_file *file, struct drm_device *dev,
+ 			   uint32_t handle, uint64_t *offset);
  
- void bochs_hw_setmode(struct bochs_device *bochs,
--		      struct drm_display_mode *mode,
--		      const struct drm_format_info *format);
-+		      struct drm_display_mode *mode);
-+void bochs_hw_setformat(struct bochs_device *bochs,
-+			const struct drm_format_info *format);
- void bochs_hw_setbase(struct bochs_device *bochs,
- 		      int x, int y, u64 addr);
- int bochs_hw_load_edid(struct bochs_device *bochs);
-diff --git a/drivers/gpu/drm/bochs/bochs_hw.c b/drivers/gpu/drm/bochs/bochs_hw.c
-index d0b4e1cee8..3e04b2f0ec 100644
---- a/drivers/gpu/drm/bochs/bochs_hw.c
-+++ b/drivers/gpu/drm/bochs/bochs_hw.c
-@@ -204,8 +204,7 @@ void bochs_hw_fini(struct drm_device *dev)
- }
+-int bochs_bo_pin(struct bochs_bo *bo, u32 pl_flag, u64 *gpu_addr);
++int bochs_bo_pin(struct bochs_bo *bo, u32 pl_flag);
+ int bochs_bo_unpin(struct bochs_bo *bo);
  
- void bochs_hw_setmode(struct bochs_device *bochs,
--		      struct drm_display_mode *mode,
--		      const struct drm_format_info *format)
-+		      struct drm_display_mode *mode)
- {
- 	bochs->xres = mode->hdisplay;
- 	bochs->yres = mode->vdisplay;
-@@ -213,12 +212,8 @@ void bochs_hw_setmode(struct bochs_device *bochs,
- 	bochs->stride = mode->hdisplay * (bochs->bpp / 8);
- 	bochs->yres_virtual = bochs->fb_size / bochs->stride;
+ /* bochs_kms.c */
+diff --git a/drivers/gpu/drm/bochs/bochs_fbdev.c b/drivers/gpu/drm/bochs/bochs_fbdev.c
+index d9f3d42999..92feb817ff 100644
+--- a/drivers/gpu/drm/bochs/bochs_fbdev.c
++++ b/drivers/gpu/drm/bochs/bochs_fbdev.c
+@@ -81,7 +81,7 @@ static int bochsfb_create(struct drm_fb_helper *helper,
+ 	if (ret)
+ 		return ret;
  
--	DRM_DEBUG_DRIVER("%dx%d @ %d bpp, format %c%c%c%c, vy %d\n",
-+	DRM_DEBUG_DRIVER("%dx%d @ %d bpp, vy %d\n",
- 			 bochs->xres, bochs->yres, bochs->bpp,
--			 (format->format >>  0) & 0xff,
--			 (format->format >>  8) & 0xff,
--			 (format->format >> 16) & 0xff,
--			 (format->format >> 24) & 0xff,
- 			 bochs->yres_virtual);
- 
- 	bochs_vga_writeb(bochs, 0x3c0, 0x20); /* unblank */
-@@ -236,6 +231,16 @@ void bochs_hw_setmode(struct bochs_device *bochs,
- 
- 	bochs_dispi_write(bochs, VBE_DISPI_INDEX_ENABLE,
- 			  VBE_DISPI_ENABLED | VBE_DISPI_LFB_ENABLED);
-+}
-+
-+void bochs_hw_setformat(struct bochs_device *bochs,
-+			const struct drm_format_info *format)
-+{
-+	DRM_DEBUG_DRIVER("format %c%c%c%c\n",
-+			 (format->format >>  0) & 0xff,
-+			 (format->format >>  8) & 0xff,
-+			 (format->format >> 16) & 0xff,
-+			 (format->format >> 24) & 0xff);
- 
- 	switch (format->format) {
- 	case DRM_FORMAT_XRGB8888:
+-	ret = bochs_bo_pin(bo, TTM_PL_FLAG_VRAM, NULL);
++	ret = bochs_bo_pin(bo, TTM_PL_FLAG_VRAM);
+ 	if (ret) {
+ 		DRM_ERROR("failed to pin fbcon\n");
+ 		ttm_bo_unreserve(&bo->bo);
 diff --git a/drivers/gpu/drm/bochs/bochs_kms.c b/drivers/gpu/drm/bochs/bochs_kms.c
-index c8ce54498d..f7e6d1a9b3 100644
+index 5b7e1a7c6b..f663c54185 100644
 --- a/drivers/gpu/drm/bochs/bochs_kms.c
 +++ b/drivers/gpu/drm/bochs/bochs_kms.c
-@@ -80,7 +80,8 @@ static int bochs_crtc_mode_set(struct drm_crtc *crtc,
- 	if (WARN_ON(crtc->primary->fb == NULL))
- 		return -EINVAL;
+@@ -101,7 +101,7 @@ static int bochs_plane_prepare_fb(struct drm_plane *plane,
+ 	ret = ttm_bo_reserve(&bo->bo, true, false, NULL);
+ 	if (ret)
+ 		return ret;
+-	ret = bochs_bo_pin(bo, TTM_PL_FLAG_VRAM, NULL);
++	ret = bochs_bo_pin(bo, TTM_PL_FLAG_VRAM);
+ 	ttm_bo_unreserve(&bo->bo);
+ 	return ret;
+ }
+diff --git a/drivers/gpu/drm/bochs/bochs_mm.c b/drivers/gpu/drm/bochs/bochs_mm.c
+index 0980411e41..5a0e092847 100644
+--- a/drivers/gpu/drm/bochs/bochs_mm.c
++++ b/drivers/gpu/drm/bochs/bochs_mm.c
+@@ -210,20 +210,13 @@ static void bochs_ttm_placement(struct bochs_bo *bo, int domain)
+ 	bo->placement.num_busy_placement = c;
+ }
  
--	bochs_hw_setmode(bochs, mode, crtc->primary->fb->format);
-+	bochs_hw_setmode(bochs, mode);
-+	bochs_hw_setformat(bochs, crtc->primary->fb->format);
- 	bochs_crtc_mode_set_base(crtc, x, y, old_fb);
+-static inline u64 bochs_bo_gpu_offset(struct bochs_bo *bo)
+-{
+-	return bo->bo.offset;
+-}
+-
+-int bochs_bo_pin(struct bochs_bo *bo, u32 pl_flag, u64 *gpu_addr)
++int bochs_bo_pin(struct bochs_bo *bo, u32 pl_flag)
+ {
+ 	struct ttm_operation_ctx ctx = { false, false };
+ 	int i, ret;
+ 
+ 	if (bo->pin_count) {
+ 		bo->pin_count++;
+-		if (gpu_addr)
+-			*gpu_addr = bochs_bo_gpu_offset(bo);
+ 		return 0;
+ 	}
+ 
+@@ -235,8 +228,6 @@ int bochs_bo_pin(struct bochs_bo *bo, u32 pl_flag, u64 *gpu_addr)
+ 		return ret;
+ 
+ 	bo->pin_count = 1;
+-	if (gpu_addr)
+-		*gpu_addr = bochs_bo_gpu_offset(bo);
  	return 0;
  }
+ 
 -- 
 2.9.3
