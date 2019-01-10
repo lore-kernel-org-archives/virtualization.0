@@ -1,18 +1,11 @@
-From: Dan Carpenter <dan.carpenter@oracle.com>
-Subject: Re: [PATCH RFC 1/4] include/linux/compiler*.h: fix OPTIMIZER_HIDE_VAR
-Date: Thu, 10 Jan 2019 16:41:39 +0300
-Message-ID: <20190110134139.GE1743__18430.3254624412$1547127651$gmane$org@kadam>
-References: <20190102205715.14054-1-mst@redhat.com>
-	<20190102205715.14054-2-mst@redhat.com>
-	<CAKwvOdk3b6mnpTEEyY-JFrej8K12w9oTMLqi7q5aNiRMyJo6Ow@mail.gmail.com>
-	<CANiq72nEiw8+cZNnBOwF1ehv232ZJe5qzhdbaTEg0rOoV2p4sg@mail.gmail.com>
-	<20190109213543-mutt-send-email-mst@kernel.org>
+From: Joerg Roedel <joro@8bytes.org>
+Subject: [PATCH 0/3] Fix virtio-blk issue with SWIOTLB
+Date: Thu, 10 Jan 2019 14:44:30 +0100
+Message-ID: <20190110134433.15672-1-joro__36627.4831154898$1547127761$gmane$org@8bytes.org>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-Content-Disposition: inline
-In-Reply-To: <20190109213543-mutt-send-email-mst@kernel.org>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -22,34 +15,45 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: "Michael S. Tsirkin" <mst@redhat.com>
-Cc: Andrea Parri <andrea.parri@amarulasolutions.com>, Peter Zijlstra <peterz@infradead.org>, Akira Yokosawa <akiyks@gmail.com>, Will Deacon <will.deacon@arm.com>, virtualization@lists.linux-foundation.org, David Howells <dhowells@redhat.com>, linux-arch@vger.kernel.org, linux-sparse@vger.kernel.org, Alan Stern <stern@rowland.harvard.edu>, "Paul E. McKenney" <paulmck@linux.vnet.ibm.com>, Boqun Feng <boqun.feng@gmail.com>, Daniel Lustig <dlustig@nvidia.com>, Nicholas Piggin <npiggin@gmail.com>, Luc Maranget <luc.maranget@inria.fr>, Eli Friedman <efriedma@codeaurora.org>, Jade Alglave <j.alglave@ucl.ac.uk>, Network Development <netdev@vger.kernel.org>, Nick Desaulniers <ndesaulniers@google.com>, LKML <linux-kernel@vger.kernel.org>, Eric Christopher <echristo@google.com>, Miguel Ojeda <miguel.ojeda.sandonis@gmail.com>, Joe Perches <joe@perches.com>, Linus Torvalds <torvalds@l>
+To: "Michael S . Tsirkin" <mst@redhat.com>, Jason Wang <jasowang@redhat.com>, Konrad Rzeszutek Wilk <konrad.wilk@oracle.com>
+Cc: Jens Axboe <axboe@kernel.dk>, brijesh.singh@amd.com, Joerg Roedel <joro@8bytes.org>, jon.grimm@amd.com, jfehlig@suse.com, linux-kernel@vger.kernel.org, linux-block@vger.kernel.org, iommu@lists.linux-foundation.org, virtualization@lists.linux-foundation.org, hch@lst.de
 List-Id: virtualization@lists.linuxfoundation.org
 
-On Wed, Jan 09, 2019 at 09:36:41PM -0500, Michael S. Tsirkin wrote:
-> On Wed, Jan 09, 2019 at 11:35:52AM +0100, Miguel Ojeda wrote:
-> > On Tue, Jan 8, 2019 at 6:44 PM Nick Desaulniers <ndesaulniers@google.com> wrote:
-> > >
-> > > Also for more context, see:
-> > > commit 7829fb09a2b4 ("lib: make memzero_explicit more robust against
-> > > dead store elimination")
-> > 
-> > By the way, shouldn't that barrier_data() be directly in compiler.h
-> > too, since it is for both gcc & clang?
-> > 
-> > > Reviewed-by: Nick Desaulniers <ndesaulniers@google.com>
-> > >
-> > > + Miguel
-> > > Miguel, would you mind taking this into your compiler-attributes tree?
-> > 
-> > Sure, at least we get quickly some linux-next time.
-> 
-> 
-> BTW why linux-next? shouldn't this go into 5.0 and stable? It's a bugfix after all.
-> 
+Hi,
 
-It doesn't hurt to put things in linux-next for a week and then 5.0 and
--stable.  Not a lot of testing happens on linux-next, but some does.
+there is a problem with virtio-blk driven devices when
+virtio-ring uses SWIOTLB through the DMA-API. This happens
+for example in AMD-SEV enabled guests, where the guest RAM
+is mostly encrypted and all emulated DMA has to happen
+to/from the SWIOTLB aperture.
 
-regards,
-dan carpenter
+The problem is a limitation of the SWIOTLB implementation,
+which does not support allocations larger than 256kb. When
+the virtio-blk driver tries to read/write a block larger
+than that, the allocation of the dma-handle fails and an IO
+error is reported.
+
+This patch-set adds a check to the virtio-code whether it
+might be using SWIOTLB bounce buffering and limits the
+maximum segment size in the virtio-blk driver in this case,
+so that it doesn't try to do larger reads/writes.
+
+Please review.
+
+Thanks,
+
+	Joerg
+
+Joerg Roedel (3):
+  swiotlb: Export maximum allocation size
+  virtio: Introduce virtio_max_dma_size()
+  virtio-blk: Consider virtio_max_dma_size() for maximum segment size
+
+ drivers/block/virtio_blk.c   | 10 ++++++----
+ drivers/virtio/virtio_ring.c | 11 +++++++++++
+ include/linux/swiotlb.h      | 12 ++++++++++++
+ include/linux/virtio.h       |  2 ++
+ 4 files changed, 31 insertions(+), 4 deletions(-)
+
+-- 
+2.17.1
