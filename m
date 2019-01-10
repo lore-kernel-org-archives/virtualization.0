@@ -1,11 +1,14 @@
 From: Gerd Hoffmann <kraxel@redhat.com>
-Subject: [PATCH] drm/qxl: drop prime import/export callbacks
-Date: Thu, 10 Jan 2019 09:17:50 +0100
-Message-ID: <20190110081750.11358-1-kraxel__26028.9385485978$1547108151$gmane$org@redhat.com>
+Subject: [PATCH v3 03/15] drm/bochs: atomic: add atomic_flush+atomic_enable
+	callbacks.
+Date: Thu, 10 Jan 2019 09:28:33 +0100
+Message-ID: <20190110082845.3453-4-kraxel__8714.77774712748$1547108808$gmane$org@redhat.com>
+References: <20190110082845.3453-1-kraxel@redhat.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
+In-Reply-To: <20190110082845.3453-1-kraxel@redhat.com>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -15,63 +18,61 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: dri-devel@lists.freedesktop.org
-Cc: David Airlie <airlied@linux.ie>, open list <linux-kernel@vger.kernel.org>, "open list:DRM DRIVER FOR QXL VIRTUAL GPU" <virtualization@lists.linux-foundation.org>, "open list:DRM DRIVER FOR QXL VIRTUAL GPU" <spice-devel@lists.freedesktop.org>, Dave Airlie <airlied@redhat.com>
+To: dri-devel@lists.freedesktop.org, David Airlie <airlied@redhat.com>
+Cc: andr2000@gmail.com, David Airlie <airlied@linux.ie>, open list <linux-kernel@vger.kernel.org>, "open list:DRM DRIVER FOR BOCHS VIRTUAL GPU" <virtualization@lists.linux-foundation.org>
 List-Id: virtualization@lists.linuxfoundation.org
 
-Also set prime_handle_to_fd and prime_fd_to_handle to NULL,
-so drm will not advertive DRM_PRIME_CAP_{IMPORT,EXPORT} to
-userspace.
+Conversion to atomic modesetting, step one.
+Add atomic crtc helper callbacks.
 
 Signed-off-by: Gerd Hoffmann <kraxel@redhat.com>
+Acked-by: Daniel Vetter <daniel.vetter@ffwll.ch>
 ---
- drivers/gpu/drm/qxl/qxl_drv.c   |  4 ----
- drivers/gpu/drm/qxl/qxl_prime.c | 14 --------------
- 2 files changed, 18 deletions(-)
+ drivers/gpu/drm/bochs/bochs_kms.c | 25 +++++++++++++++++++++++++
+ 1 file changed, 25 insertions(+)
 
-diff --git a/drivers/gpu/drm/qxl/qxl_drv.c b/drivers/gpu/drm/qxl/qxl_drv.c
-index 13c8a662f9..ccb090f3ab 100644
---- a/drivers/gpu/drm/qxl/qxl_drv.c
-+++ b/drivers/gpu/drm/qxl/qxl_drv.c
-@@ -250,14 +250,10 @@ static struct drm_driver qxl_driver = {
- #if defined(CONFIG_DEBUG_FS)
- 	.debugfs_init = qxl_debugfs_init,
- #endif
--	.prime_handle_to_fd = drm_gem_prime_handle_to_fd,
--	.prime_fd_to_handle = drm_gem_prime_fd_to_handle,
- 	.gem_prime_export = drm_gem_prime_export,
- 	.gem_prime_import = drm_gem_prime_import,
- 	.gem_prime_pin = qxl_gem_prime_pin,
- 	.gem_prime_unpin = qxl_gem_prime_unpin,
--	.gem_prime_get_sg_table = qxl_gem_prime_get_sg_table,
--	.gem_prime_import_sg_table = qxl_gem_prime_import_sg_table,
- 	.gem_prime_vmap = qxl_gem_prime_vmap,
- 	.gem_prime_vunmap = qxl_gem_prime_vunmap,
- 	.gem_prime_mmap = qxl_gem_prime_mmap,
-diff --git a/drivers/gpu/drm/qxl/qxl_prime.c b/drivers/gpu/drm/qxl/qxl_prime.c
-index a55dece118..df65d3c1a7 100644
---- a/drivers/gpu/drm/qxl/qxl_prime.c
-+++ b/drivers/gpu/drm/qxl/qxl_prime.c
-@@ -38,20 +38,6 @@ void qxl_gem_prime_unpin(struct drm_gem_object *obj)
- 	WARN_ONCE(1, "not implemented");
+diff --git a/drivers/gpu/drm/bochs/bochs_kms.c b/drivers/gpu/drm/bochs/bochs_kms.c
+index f7e6d1a9b3..2cbd406b1f 100644
+--- a/drivers/gpu/drm/bochs/bochs_kms.c
++++ b/drivers/gpu/drm/bochs/bochs_kms.c
+@@ -115,6 +115,29 @@ static int bochs_crtc_page_flip(struct drm_crtc *crtc,
+ 	return 0;
  }
  
--struct sg_table *qxl_gem_prime_get_sg_table(struct drm_gem_object *obj)
--{
--	WARN_ONCE(1, "not implemented");
--	return ERR_PTR(-ENOSYS);
--}
--
--struct drm_gem_object *qxl_gem_prime_import_sg_table(
--	struct drm_device *dev, struct dma_buf_attachment *attach,
--	struct sg_table *table)
--{
--	WARN_ONCE(1, "not implemented");
--	return ERR_PTR(-ENOSYS);
--}
--
- void *qxl_gem_prime_vmap(struct drm_gem_object *obj)
- {
- 	WARN_ONCE(1, "not implemented");
++static void bochs_crtc_atomic_enable(struct drm_crtc *crtc,
++				     struct drm_crtc_state *old_crtc_state)
++{
++}
++
++static void bochs_crtc_atomic_flush(struct drm_crtc *crtc,
++				    struct drm_crtc_state *old_crtc_state)
++{
++	struct drm_device *dev = crtc->dev;
++	struct drm_pending_vblank_event *event;
++
++	if (crtc->state && crtc->state->event) {
++		unsigned long irqflags;
++
++		spin_lock_irqsave(&dev->event_lock, irqflags);
++		event = crtc->state->event;
++		crtc->state->event = NULL;
++		drm_crtc_send_vblank_event(crtc, event);
++		spin_unlock_irqrestore(&dev->event_lock, irqflags);
++	}
++}
++
++
+ /* These provide the minimum set of functions required to handle a CRTC */
+ static const struct drm_crtc_funcs bochs_crtc_funcs = {
+ 	.set_config = drm_crtc_helper_set_config,
+@@ -128,6 +151,8 @@ static const struct drm_crtc_helper_funcs bochs_helper_funcs = {
+ 	.mode_set_base = bochs_crtc_mode_set_base,
+ 	.prepare = bochs_crtc_prepare,
+ 	.commit = bochs_crtc_commit,
++	.atomic_enable = bochs_crtc_atomic_enable,
++	.atomic_flush = bochs_crtc_atomic_flush,
+ };
+ 
+ static const uint32_t bochs_formats[] = {
 -- 
 2.9.3
