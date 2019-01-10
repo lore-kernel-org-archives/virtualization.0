@@ -1,14 +1,16 @@
-From: =?UTF-8?Q?Noralf_Tr=c3=b8nnes?= <noralf@tronnes.org>
+From: Gerd Hoffmann <kraxel@redhat.com>
 Subject: Re: [PATCH v3 14/15] drm/bochs: drop old fbdev emulation code
-Date: Thu, 10 Jan 2019 09:57:48 +0100
-Message-ID: <faf265e5-8f47-f652-5b19-d55fd4ed7d67__42302.6134296835$1547111253$gmane$org@tronnes.org>
+Date: Thu, 10 Jan 2019 11:16:13 +0100
+Message-ID: <20190110101613.yo4ewkhy3nxs3do3__26621.0466543727$1547115260$gmane$org@sirius.home.kraxel.org>
 References: <20190110082845.3453-1-kraxel@redhat.com>
 	<20190110082845.3453-15-kraxel@redhat.com>
+	<faf265e5-8f47-f652-5b19-d55fd4ed7d67@tronnes.org>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <20190110082845.3453-15-kraxel@redhat.com>
+Content-Disposition: inline
+In-Reply-To: <faf265e5-8f47-f652-5b19-d55fd4ed7d67@tronnes.org>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -18,236 +20,31 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Gerd Hoffmann <kraxel@redhat.com>, dri-devel@lists.freedesktop.org, David Airlie <airlied@redhat.com>
-Cc: andr2000@gmail.com, David Airlie <airlied@linux.ie>, open list <linux-kernel@vger.kernel.org>, "open list:DRM DRIVER FOR BOCHS VIRTUAL GPU" <virtualization@lists.linux-foundation.org>
+To: Noralf =?utf-8?Q?Tr=C3=B8nnes?= <noralf@tronnes.org>
+Cc: andr2000@gmail.com, open list <linux-kernel@vger.kernel.org>, dri-devel@lists.freedesktop.org, "open list:DRM DRIVER FOR BOCHS VIRTUAL GPU" <virtualization@lists.linux-foundation.org>, David Airlie <airlied@linux.ie>, David Airlie <airlied@redhat.com>
 List-Id: virtualization@lists.linuxfoundation.org
 
+  Hi,
 
-
-Den 10.01.2019 09.28, skrev Gerd Hoffmann:
-> Not needed any more, bochs uses the generic emulation now.
+> > -	drm_fb_helper_set_suspend_unlocked(&bochs->fb.helper, 1);
 > 
-> Signed-off-by: Gerd Hoffmann <kraxel@redhat.com>
-> Reviewed-by: Oleksandr Andrushchenko <oleksandr_andrushchenko@epam.com>
-> Acked-by: Daniel Vetter <daniel.vetter@ffwll.ch>
-> ---
->  drivers/gpu/drm/bochs/bochs.h       |   9 ---
->  drivers/gpu/drm/bochs/bochs_drv.c   |   6 --
->  drivers/gpu/drm/bochs/bochs_fbdev.c | 129 ------------------------------------
->  3 files changed, 144 deletions(-)
+> The generic fbdev emulation doesn't take care of suspend/resume. You
+> could do this:
+> drm_fb_helper_set_suspend_unlocked(drm_dev->fb_helper, 1);
+
+Additional to drm_mode_config_helper_suspend() I assume?
+Does the call order matter?
+
+> >  	drm_helper_resume_force_mode(drm_dev);
 > 
-> diff --git a/drivers/gpu/drm/bochs/bochs.h b/drivers/gpu/drm/bochs/bochs.h
-> index ede22beb85..03711394f1 100644
-> --- a/drivers/gpu/drm/bochs/bochs.h
-> +++ b/drivers/gpu/drm/bochs/bochs.h
-> @@ -80,12 +80,6 @@ struct bochs_device {
->  		struct ttm_bo_device bdev;
->  		bool initialized;
->  	} ttm;
-> -
-> -	/* fbdev */
-> -	struct {
-> -		struct drm_framebuffer *fb;
-> -		struct drm_fb_helper helper;
-> -	} fb;
->  };
->  
->  struct bochs_bo {
-> @@ -157,7 +151,4 @@ int bochs_kms_init(struct bochs_device *bochs);
->  void bochs_kms_fini(struct bochs_device *bochs);
->  
->  /* bochs_fbdev.c */
-> -int bochs_fbdev_init(struct bochs_device *bochs);
-> -void bochs_fbdev_fini(struct bochs_device *bochs);
-> -
->  extern const struct drm_mode_config_funcs bochs_mode_funcs;
-> diff --git a/drivers/gpu/drm/bochs/bochs_drv.c b/drivers/gpu/drm/bochs/bochs_drv.c
-> index 1d86c0fb5f..a8968cd8d5 100644
-> --- a/drivers/gpu/drm/bochs/bochs_drv.c
-> +++ b/drivers/gpu/drm/bochs/bochs_drv.c
-> @@ -102,12 +102,9 @@ static int bochs_pm_suspend(struct device *dev)
->  {
->  	struct pci_dev *pdev = to_pci_dev(dev);
->  	struct drm_device *drm_dev = pci_get_drvdata(pdev);
-> -	struct bochs_device *bochs = drm_dev->dev_private;
->  
->  	drm_kms_helper_poll_disable(drm_dev);
->  
-> -	drm_fb_helper_set_suspend_unlocked(&bochs->fb.helper, 1);
-
-The generic fbdev emulation doesn't take care of suspend/resume. You
-could do this:
-drm_fb_helper_set_suspend_unlocked(drm_dev->fb_helper, 1);
-
-> -
->  	return 0;
->  }
->  
-> @@ -115,12 +112,9 @@ static int bochs_pm_resume(struct device *dev)
->  {
->  	struct pci_dev *pdev = to_pci_dev(dev);
->  	struct drm_device *drm_dev = pci_get_drvdata(pdev);
-> -	struct bochs_device *bochs = drm_dev->dev_private;
->  
->  	drm_helper_resume_force_mode(drm_dev);
-
-The docs for this function has this to say:
-* This function is deprecated. New drivers should implement atomic mode-
-* setting and use the atomic suspend/resume helpers.
-
-Maybe you can use drm_mode_config_helper_suspend/resume() instead like
-suggested in the drm_fbdev_generic_setup() docs.
-
-Noralf.
-
->  
-> -	drm_fb_helper_set_suspend_unlocked(&bochs->fb.helper, 0);
-> -
->  	drm_kms_helper_poll_enable(drm_dev);
->  	return 0;
->  }
-> diff --git a/drivers/gpu/drm/bochs/bochs_fbdev.c b/drivers/gpu/drm/bochs/bochs_fbdev.c
-> index ccf783b038..7cac3f5253 100644
-> --- a/drivers/gpu/drm/bochs/bochs_fbdev.c
-> +++ b/drivers/gpu/drm/bochs/bochs_fbdev.c
-> @@ -11,124 +11,6 @@
->  
->  /* ---------------------------------------------------------------------- */
->  
-> -static int bochsfb_mmap(struct fb_info *info,
-> -			struct vm_area_struct *vma)
-> -{
-> -	struct drm_fb_helper *fb_helper = info->par;
-> -	struct bochs_bo *bo = gem_to_bochs_bo(fb_helper->fb->obj[0]);
-> -
-> -	return ttm_fbdev_mmap(vma, &bo->bo);
-> -}
-> -
-> -static struct fb_ops bochsfb_ops = {
-> -	.owner = THIS_MODULE,
-> -	DRM_FB_HELPER_DEFAULT_OPS,
-> -	.fb_fillrect = drm_fb_helper_cfb_fillrect,
-> -	.fb_copyarea = drm_fb_helper_cfb_copyarea,
-> -	.fb_imageblit = drm_fb_helper_cfb_imageblit,
-> -	.fb_mmap = bochsfb_mmap,
-> -};
-> -
-> -static int bochsfb_create_object(struct bochs_device *bochs,
-> -				 const struct drm_mode_fb_cmd2 *mode_cmd,
-> -				 struct drm_gem_object **gobj_p)
-> -{
-> -	struct drm_device *dev = bochs->dev;
-> -	struct drm_gem_object *gobj;
-> -	u32 size;
-> -	int ret = 0;
-> -
-> -	size = mode_cmd->pitches[0] * mode_cmd->height;
-> -	ret = bochs_gem_create(dev, size, true, &gobj);
-> -	if (ret)
-> -		return ret;
-> -
-> -	*gobj_p = gobj;
-> -	return ret;
-> -}
-> -
-> -static int bochsfb_create(struct drm_fb_helper *helper,
-> -			  struct drm_fb_helper_surface_size *sizes)
-> -{
-> -	struct bochs_device *bochs =
-> -		container_of(helper, struct bochs_device, fb.helper);
-> -	struct fb_info *info;
-> -	struct drm_framebuffer *fb;
-> -	struct drm_mode_fb_cmd2 mode_cmd;
-> -	struct drm_gem_object *gobj = NULL;
-> -	struct bochs_bo *bo = NULL;
-> -	int size, ret;
-> -
-> -	if (sizes->surface_bpp != 32)
-> -		return -EINVAL;
-> -
-> -	mode_cmd.width = sizes->surface_width;
-> -	mode_cmd.height = sizes->surface_height;
-> -	mode_cmd.pitches[0] = sizes->surface_width * 4;
-> -	mode_cmd.pixel_format = DRM_FORMAT_HOST_XRGB8888;
-> -	size = mode_cmd.pitches[0] * mode_cmd.height;
-> -
-> -	/* alloc, pin & map bo */
-> -	ret = bochsfb_create_object(bochs, &mode_cmd, &gobj);
-> -	if (ret) {
-> -		DRM_ERROR("failed to create fbcon backing object %d\n", ret);
-> -		return ret;
-> -	}
-> -
-> -	bo = gem_to_bochs_bo(gobj);
-> -
-> -	ret = bochs_bo_pin(bo, TTM_PL_FLAG_VRAM);
-> -	if (ret) {
-> -		DRM_ERROR("failed to pin fbcon\n");
-> -		return ret;
-> -	}
-> -
-> -	ret = ttm_bo_kmap(&bo->bo, 0, bo->bo.num_pages,
-> -			  &bo->kmap);
-> -	if (ret) {
-> -		DRM_ERROR("failed to kmap fbcon\n");
-> -		return ret;
-> -	}
-> -
-> -	/* init fb device */
-> -	info = drm_fb_helper_alloc_fbi(helper);
-> -	if (IS_ERR(info)) {
-> -		DRM_ERROR("Failed to allocate fbi: %ld\n", PTR_ERR(info));
-> -		return PTR_ERR(info);
-> -	}
-> -
-> -	info->par = &bochs->fb.helper;
-> -
-> -	fb = drm_gem_fbdev_fb_create(bochs->dev, sizes, 0, gobj, NULL);
-> -	if (IS_ERR(fb)) {
-> -		DRM_ERROR("Failed to create framebuffer: %ld\n", PTR_ERR(fb));
-> -		return PTR_ERR(fb);
-> -	}
-> -
-> -	/* setup helper */
-> -	bochs->fb.helper.fb = fb;
-> -
-> -	strcpy(info->fix.id, "bochsdrmfb");
-> -
-> -	info->fbops = &bochsfb_ops;
-> -
-> -	drm_fb_helper_fill_fix(info, fb->pitches[0], fb->format->depth);
-> -	drm_fb_helper_fill_var(info, &bochs->fb.helper, sizes->fb_width,
-> -			       sizes->fb_height);
-> -
-> -	info->screen_base = bo->kmap.virtual;
-> -	info->screen_size = size;
-> -
-> -	drm_vma_offset_remove(&bo->bo.bdev->vma_manager, &bo->bo.vma_node);
-> -	info->fix.smem_start = 0;
-> -	info->fix.smem_len = size;
-> -	return 0;
-> -}
-> -
-> -static const struct drm_fb_helper_funcs bochs_fb_helper_funcs = {
-> -	.fb_probe = bochsfb_create,
-> -};
-> -
->  static struct drm_framebuffer *
->  bochs_gem_fb_create(struct drm_device *dev, struct drm_file *file,
->  		    const struct drm_mode_fb_cmd2 *mode_cmd)
-> @@ -145,14 +27,3 @@ const struct drm_mode_config_funcs bochs_mode_funcs = {
->  	.atomic_check = drm_atomic_helper_check,
->  	.atomic_commit = drm_atomic_helper_commit,
->  };
-> -
-> -int bochs_fbdev_init(struct bochs_device *bochs)
-> -{
-> -	return drm_fb_helper_fbdev_setup(bochs->dev, &bochs->fb.helper,
-> -					 &bochs_fb_helper_funcs, 32, 1);
-> -}
-> -
-> -void bochs_fbdev_fini(struct bochs_device *bochs)
-> -{
-> -	drm_fb_helper_fbdev_teardown(bochs->dev);
-> -}
+> The docs for this function has this to say:
+> * This function is deprecated. New drivers should implement atomic mode-
+> * setting and use the atomic suspend/resume helpers.
 > 
+> Maybe you can use drm_mode_config_helper_suspend/resume() instead like
+> suggested in the drm_fbdev_generic_setup() docs.
+
+That should work, yes.  The driver is simple enough ;)
+
+cheers,
+  Gerd
