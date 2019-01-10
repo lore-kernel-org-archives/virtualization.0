@@ -1,16 +1,11 @@
-From: Vincent Stehle <Vincent.Stehle@arm.com>
-Subject: Re: [PATCH] virtio:linux:kernel:NULL check after kmalloc is  needed
-Date: Thu, 10 Jan 2019 08:13:27 +0000
-Message-ID: <20190110081322.GA9056@debian>
-References: <1546926033-31684-1-git-send-email-wang.yi59@zte.com.cn>
-	<20190109093026-mutt-send-email-mst@kernel.org>
+From: Gerd Hoffmann <kraxel@redhat.com>
+Subject: [PATCH] drm/qxl: drop prime import/export callbacks
+Date: Thu, 10 Jan 2019 09:17:50 +0100
+Message-ID: <20190110081750.11358-1-kraxel__26028.9385485978$1547108151$gmane$org@redhat.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <20190109093026-mutt-send-email-mst@kernel.org>
-Content-Language: en-US
-Content-ID: <62E6D42661CCA64584508E52B364CFE3@eurprd08.prod.outlook.com>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -20,44 +15,63 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: "Michael S. Tsirkin" <mst@redhat.com>
-Cc: Yi Wang <wang.yi59@zte.com.cn>, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>, "virtualization@lists.linux-foundation.org" <virtualization@lists.linux-foundation.org>, "xue.zhihong@zte.com.cn" <xue.zhihong@zte.com.cn>, "huang.zijiang" <huang.zijiang@zte.com.cn>, "davem@davemloft.net" <davem@davemloft.net>
+To: dri-devel@lists.freedesktop.org
+Cc: David Airlie <airlied@linux.ie>, open list <linux-kernel@vger.kernel.org>, "open list:DRM DRIVER FOR QXL VIRTUAL GPU" <virtualization@lists.linux-foundation.org>, "open list:DRM DRIVER FOR QXL VIRTUAL GPU" <spice-devel@lists.freedesktop.org>, Dave Airlie <airlied@redhat.com>
 List-Id: virtualization@lists.linuxfoundation.org
 
-Hi,
+Also set prime_handle_to_fd and prime_fd_to_handle to NULL,
+so drm will not advertive DRM_PRIME_CAP_{IMPORT,EXPORT} to
+userspace.
 
-On Wed, Jan 09, 2019 at 09:30:37AM -0500, Michael S. Tsirkin wrote:
-> On Tue, Jan 08, 2019 at 01:40:33PM +0800, Yi Wang wrote:
-> > From: "huang.zijiang" <huang.zijiang@zte.com.cn>
-> >
-> > NULL check is needed because kmalloc maybe return NULL.
-> >
-> > Signed-off-by: huang.zijiang <huang.zijiang@zte.com.cn>
->
-> Can't hurt I will queue it.
->
-> > ---
-> >  tools/virtio/linux/kernel.h | 2 ++
-> >  1 file changed, 2 insertions(+)
-> >
-> > diff --git a/tools/virtio/linux/kernel.h b/tools/virtio/linux/kernel.h
-> > index 7ef45a4..2afcad8 100644
-> > --- a/tools/virtio/linux/kernel.h
-> > +++ b/tools/virtio/linux/kernel.h
-> > @@ -65,6 +65,8 @@ static inline void *kzalloc(size_t s, gfp_t gfp)
-> >  {
-> >  void *p = kmalloc(s, gfp);
-> >
-> > +if (!p)
-> > +return -ENOMEM;
-> >  memset(p, 0, s);
-> >  return p;
-> >  }
+Signed-off-by: Gerd Hoffmann <kraxel@redhat.com>
+---
+ drivers/gpu/drm/qxl/qxl_drv.c   |  4 ----
+ drivers/gpu/drm/qxl/qxl_prime.c | 14 --------------
+ 2 files changed, 18 deletions(-)
 
-Shouldn't this kzalloc() function return NULL in case of error instead of
--ENOMEM?
-
-Best regards,
-
-Vincent.
-IMPORTANT NOTICE: The contents of this email and any attachments are confidential and may also be privileged. If you are not the intended recipient, please notify the sender immediately and do not disclose the contents to any other person, use it for any purpose, or store or copy the information in any medium. Thank you.
+diff --git a/drivers/gpu/drm/qxl/qxl_drv.c b/drivers/gpu/drm/qxl/qxl_drv.c
+index 13c8a662f9..ccb090f3ab 100644
+--- a/drivers/gpu/drm/qxl/qxl_drv.c
++++ b/drivers/gpu/drm/qxl/qxl_drv.c
+@@ -250,14 +250,10 @@ static struct drm_driver qxl_driver = {
+ #if defined(CONFIG_DEBUG_FS)
+ 	.debugfs_init = qxl_debugfs_init,
+ #endif
+-	.prime_handle_to_fd = drm_gem_prime_handle_to_fd,
+-	.prime_fd_to_handle = drm_gem_prime_fd_to_handle,
+ 	.gem_prime_export = drm_gem_prime_export,
+ 	.gem_prime_import = drm_gem_prime_import,
+ 	.gem_prime_pin = qxl_gem_prime_pin,
+ 	.gem_prime_unpin = qxl_gem_prime_unpin,
+-	.gem_prime_get_sg_table = qxl_gem_prime_get_sg_table,
+-	.gem_prime_import_sg_table = qxl_gem_prime_import_sg_table,
+ 	.gem_prime_vmap = qxl_gem_prime_vmap,
+ 	.gem_prime_vunmap = qxl_gem_prime_vunmap,
+ 	.gem_prime_mmap = qxl_gem_prime_mmap,
+diff --git a/drivers/gpu/drm/qxl/qxl_prime.c b/drivers/gpu/drm/qxl/qxl_prime.c
+index a55dece118..df65d3c1a7 100644
+--- a/drivers/gpu/drm/qxl/qxl_prime.c
++++ b/drivers/gpu/drm/qxl/qxl_prime.c
+@@ -38,20 +38,6 @@ void qxl_gem_prime_unpin(struct drm_gem_object *obj)
+ 	WARN_ONCE(1, "not implemented");
+ }
+ 
+-struct sg_table *qxl_gem_prime_get_sg_table(struct drm_gem_object *obj)
+-{
+-	WARN_ONCE(1, "not implemented");
+-	return ERR_PTR(-ENOSYS);
+-}
+-
+-struct drm_gem_object *qxl_gem_prime_import_sg_table(
+-	struct drm_device *dev, struct dma_buf_attachment *attach,
+-	struct sg_table *table)
+-{
+-	WARN_ONCE(1, "not implemented");
+-	return ERR_PTR(-ENOSYS);
+-}
+-
+ void *qxl_gem_prime_vmap(struct drm_gem_object *obj)
+ {
+ 	WARN_ONCE(1, "not implemented");
+-- 
+2.9.3
