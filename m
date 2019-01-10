@@ -1,17 +1,16 @@
-From: "Michael S. Tsirkin" <mst@redhat.com>
-Subject: Re: [PATCH RFC 1/4] include/linux/compiler*.h: fix OPTIMIZER_HIDE_VAR
-Date: Wed, 9 Jan 2019 21:36:41 -0500
-Message-ID: <20190109213543-mutt-send-email-mst__24947.1373077997$1547087689$gmane$org@kernel.org>
-References: <20190102205715.14054-1-mst@redhat.com>
-	<20190102205715.14054-2-mst@redhat.com>
-	<CAKwvOdk3b6mnpTEEyY-JFrej8K12w9oTMLqi7q5aNiRMyJo6Ow@mail.gmail.com>
-	<CANiq72nEiw8+cZNnBOwF1ehv232ZJe5qzhdbaTEg0rOoV2p4sg@mail.gmail.com>
+From: Vincent Stehle <Vincent.Stehle@arm.com>
+Subject: Re: [PATCH] virtio:linux:kernel:NULL check after kmalloc is  needed
+Date: Thu, 10 Jan 2019 08:13:27 +0000
+Message-ID: <20190110081322.GA9056@debian>
+References: <1546926033-31684-1-git-send-email-wang.yi59@zte.com.cn>
+	<20190109093026-mutt-send-email-mst@kernel.org>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-Content-Disposition: inline
-In-Reply-To: <CANiq72nEiw8+cZNnBOwF1ehv232ZJe5qzhdbaTEg0rOoV2p4sg@mail.gmail.com>
+In-Reply-To: <20190109093026-mutt-send-email-mst@kernel.org>
+Content-Language: en-US
+Content-ID: <62E6D42661CCA64584508E52B364CFE3@eurprd08.prod.outlook.com>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -21,33 +20,44 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Miguel Ojeda <miguel.ojeda.sandonis@gmail.com>
-Cc: Andrea Parri <andrea.parri@amarulasolutions.com>, Peter Zijlstra <peterz@infradead.org>, Akira Yokosawa <akiyks@gmail.com>, Will Deacon <will.deacon@arm.com>, virtualization@lists.linux-foundation.org, David Howells <dhowells@redhat.com>, linux-arch@vger.kernel.org, linux-sparse@vger.kernel.org, Alan Stern <stern@rowland.harvard.edu>, "Paul E. McKenney" <paulmck@linux.vnet.ibm.com>, Boqun Feng <boqun.feng@gmail.com>, Daniel Lustig <dlustig@nvidia.com>, Nicholas Piggin <npiggin@gmail.com>, Luc Maranget <luc.maranget@inria.fr>, Eli Friedman <efriedma@codeaurora.org>, Jade Alglave <j.alglave@ucl.ac.uk>, Network Development <netdev@vger.kernel.org>, Nick Desaulniers <ndesaulniers@google.com>, LKML <linux-kernel@vger.kernel.org>, Eric Christopher <echristo@google.com>, Joe Perches <joe@perches.com>, Linus Torvalds <torvalds@linux-foundation.org>, Luc Van Oostenryck <luc.van>
+To: "Michael S. Tsirkin" <mst@redhat.com>
+Cc: Yi Wang <wang.yi59@zte.com.cn>, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>, "virtualization@lists.linux-foundation.org" <virtualization@lists.linux-foundation.org>, "xue.zhihong@zte.com.cn" <xue.zhihong@zte.com.cn>, "huang.zijiang" <huang.zijiang@zte.com.cn>, "davem@davemloft.net" <davem@davemloft.net>
 List-Id: virtualization@lists.linuxfoundation.org
 
-On Wed, Jan 09, 2019 at 11:35:52AM +0100, Miguel Ojeda wrote:
-> On Tue, Jan 8, 2019 at 6:44 PM Nick Desaulniers <ndesaulniers@google.com> wrote:
+Hi,
+
+On Wed, Jan 09, 2019 at 09:30:37AM -0500, Michael S. Tsirkin wrote:
+> On Tue, Jan 08, 2019 at 01:40:33PM +0800, Yi Wang wrote:
+> > From: "huang.zijiang" <huang.zijiang@zte.com.cn>
 > >
-> > Also for more context, see:
-> > commit 7829fb09a2b4 ("lib: make memzero_explicit more robust against
-> > dead store elimination")
-> 
-> By the way, shouldn't that barrier_data() be directly in compiler.h
-> too, since it is for both gcc & clang?
-> 
-> > Reviewed-by: Nick Desaulniers <ndesaulniers@google.com>
+> > NULL check is needed because kmalloc maybe return NULL.
 > >
-> > + Miguel
-> > Miguel, would you mind taking this into your compiler-attributes tree?
-> 
-> Sure, at least we get quickly some linux-next time.
+> > Signed-off-by: huang.zijiang <huang.zijiang@zte.com.cn>
+>
+> Can't hurt I will queue it.
+>
+> > ---
+> >  tools/virtio/linux/kernel.h | 2 ++
+> >  1 file changed, 2 insertions(+)
+> >
+> > diff --git a/tools/virtio/linux/kernel.h b/tools/virtio/linux/kernel.h
+> > index 7ef45a4..2afcad8 100644
+> > --- a/tools/virtio/linux/kernel.h
+> > +++ b/tools/virtio/linux/kernel.h
+> > @@ -65,6 +65,8 @@ static inline void *kzalloc(size_t s, gfp_t gfp)
+> >  {
+> >  void *p = kmalloc(s, gfp);
+> >
+> > +if (!p)
+> > +return -ENOMEM;
+> >  memset(p, 0, s);
+> >  return p;
+> >  }
 
+Shouldn't this kzalloc() function return NULL in case of error instead of
+-ENOMEM?
 
-BTW why linux-next? shouldn't this go into 5.0 and stable? It's a bugfix after all.
+Best regards,
 
-> Note it would be nice to separate the patch into two (one for the
-> comments, another for OPTIMIZER_HIDE_VAR), and also possibly another
-> for barrier_data().
-> 
-> Cheers,
-> Miguel
+Vincent.
+IMPORTANT NOTICE: The contents of this email and any attachments are confidential and may also be privileged. If you are not the intended recipient, please notify the sender immediately and do not disclose the contents to any other person, use it for any purpose, or store or copy the information in any medium. Thank you.
