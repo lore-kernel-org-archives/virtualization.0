@@ -1,12 +1,13 @@
-From: Joerg Roedel <joro@8bytes.org>
-Subject: [PATCH 2/3] virtio: Introduce virtio_max_dma_size()
-Date: Thu, 10 Jan 2019 14:44:32 +0100
-Message-ID: <20190110134433.15672-3-joro__26879.2043709711$1547127804$gmane$org@8bytes.org>
+From: Christoph Hellwig <hch@lst.de>
+Subject: Re: [PATCH 0/3] Fix virtio-blk issue with SWIOTLB
+Date: Thu, 10 Jan 2019 14:59:52 +0100
+Message-ID: <20190110135952.GC9255__4875.31556650556$1547128681$gmane$org@lst.de>
 References: <20190110134433.15672-1-joro@8bytes.org>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
+Content-Disposition: inline
 In-Reply-To: <20190110134433.15672-1-joro@8bytes.org>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
@@ -17,61 +18,35 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: "Michael S . Tsirkin" <mst@redhat.com>, Jason Wang <jasowang@redhat.com>, Konrad Rzeszutek Wilk <konrad.wilk@oracle.com>
-Cc: Jens Axboe <axboe@kernel.dk>, Joerg Roedel <jroedel@suse.de>, brijesh.singh@amd.com, jon.grimm@amd.com, jfehlig@suse.com, linux-kernel@vger.kernel.org, linux-block@vger.kernel.org, iommu@lists.linux-foundation.org, virtualization@lists.linux-foundation.org, hch@lst.de
+To: Joerg Roedel <joro@8bytes.org>
+Cc: Jens Axboe <axboe@kernel.dk>, jon.grimm@amd.com, brijesh.singh@amd.com, Konrad Rzeszutek Wilk <konrad.wilk@oracle.com>, "Michael S . Tsirkin" <mst@redhat.com>, jfehlig@suse.com, linux-kernel@vger.kernel.org, virtualization@lists.linux-foundation.org, linux-block@vger.kernel.org, iommu@lists.linux-foundation.org, hch@lst.de
 List-Id: virtualization@lists.linuxfoundation.org
 
-From: Joerg Roedel <jroedel@suse.de>
+On Thu, Jan 10, 2019 at 02:44:30PM +0100, Joerg Roedel wrote:
+> Hi,
+> 
+> there is a problem with virtio-blk driven devices when
+> virtio-ring uses SWIOTLB through the DMA-API. This happens
+> for example in AMD-SEV enabled guests, where the guest RAM
+> is mostly encrypted and all emulated DMA has to happen
+> to/from the SWIOTLB aperture.
+> 
+> The problem is a limitation of the SWIOTLB implementation,
+> which does not support allocations larger than 256kb. When
+> the virtio-blk driver tries to read/write a block larger
+> than that, the allocation of the dma-handle fails and an IO
+> error is reported.
 
-This function returns the maximum segment size for a single
-dma transaction of a virtio device. The possible limit comes
-from the SWIOTLB implementation in the Linux kernel, that
-has an upper limit of (currently) 256kb of contiguous
-memory it can map.
+s/allocations/mappings/, right?  We don't use the swiotlb
+buffer for the coherent allocations anymore, and I don't think
+virtio-blk uses them anyway.
 
-The functions return the lower limie when SWIOTLB is used for DMA
-transactions of the device and -1U otherwise.
+> This patch-set adds a check to the virtio-code whether it
+> might be using SWIOTLB bounce buffering and limits the
+> maximum segment size in the virtio-blk driver in this case,
+> so that it doesn't try to do larger reads/writes.
 
-Signed-off-by: Joerg Roedel <jroedel@suse.de>
----
- drivers/virtio/virtio_ring.c | 11 +++++++++++
- include/linux/virtio.h       |  2 ++
- 2 files changed, 13 insertions(+)
-
-diff --git a/drivers/virtio/virtio_ring.c b/drivers/virtio/virtio_ring.c
-index cd7e755484e3..c8d229da203e 100644
---- a/drivers/virtio/virtio_ring.c
-+++ b/drivers/virtio/virtio_ring.c
-@@ -266,6 +266,17 @@ static bool vring_use_dma_api(struct virtio_device *vdev)
- 	return false;
- }
- 
-+size_t virtio_max_dma_size(struct virtio_device *vdev)
-+{
-+	const struct dma_map_ops *ops = get_dma_ops(&vdev->dev);
-+	size_t max_segment_size = -1U;
-+
-+	if (vring_use_dma_api(vdev) && dma_is_direct(ops))
-+		max_segment_size = swiotlb_max_alloc_size();
-+
-+	return max_segment_size;
-+}
-+
- static void *vring_alloc_queue(struct virtio_device *vdev, size_t size,
- 			      dma_addr_t *dma_handle, gfp_t flag)
- {
-diff --git a/include/linux/virtio.h b/include/linux/virtio.h
-index fa1b5da2804e..673fe3ef3607 100644
---- a/include/linux/virtio.h
-+++ b/include/linux/virtio.h
-@@ -157,6 +157,8 @@ int virtio_device_freeze(struct virtio_device *dev);
- int virtio_device_restore(struct virtio_device *dev);
- #endif
- 
-+size_t virtio_max_dma_size(struct virtio_device *vdev);
-+
- #define virtio_device_for_each_vq(vdev, vq) \
- 	list_for_each_entry(vq, &vdev->vqs, list)
- 
--- 
-2.17.1
+I really don't like the fact that we hardcode swiotlb specific.
+This needs to be indirect through the dma ops or struct device,
+as various iommu implementations also have limits (although
+usually much larger ones).
