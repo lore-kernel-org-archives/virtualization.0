@@ -1,8 +1,7 @@
 From: Gerd Hoffmann <kraxel@redhat.com>
-Subject: [PATCH v3 03/15] drm/bochs: atomic: add atomic_flush+atomic_enable
-	callbacks.
-Date: Thu, 10 Jan 2019 09:28:33 +0100
-Message-ID: <20190110082845.3453-4-kraxel__8714.77774712748$1547108808$gmane$org@redhat.com>
+Subject: [PATCH v3 07/15] drm/bochs: atomic: use atomic page_flip helper
+Date: Thu, 10 Jan 2019 09:28:37 +0100
+Message-ID: <20190110082845.3453-8-kraxel__47124.5386674584$1547108817$gmane$org@redhat.com>
 References: <20190110082845.3453-1-kraxel@redhat.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
@@ -22,57 +21,56 @@ To: dri-devel@lists.freedesktop.org, David Airlie <airlied@redhat.com>
 Cc: andr2000@gmail.com, David Airlie <airlied@linux.ie>, open list <linux-kernel@vger.kernel.org>, "open list:DRM DRIVER FOR BOCHS VIRTUAL GPU" <virtualization@lists.linux-foundation.org>
 List-Id: virtualization@lists.linuxfoundation.org
 
-Conversion to atomic modesetting, step one.
-Add atomic crtc helper callbacks.
+Conversion to atomic modesetting, step five.
+Use atomic page_flip helper for crtc.
 
 Signed-off-by: Gerd Hoffmann <kraxel@redhat.com>
+Reviewed-by: Oleksandr Andrushchenko <oleksandr_andrushchenko@epam.com>
 Acked-by: Daniel Vetter <daniel.vetter@ffwll.ch>
 ---
- drivers/gpu/drm/bochs/bochs_kms.c | 25 +++++++++++++++++++++++++
- 1 file changed, 25 insertions(+)
+ drivers/gpu/drm/bochs/bochs_kms.c | 23 +----------------------
+ 1 file changed, 1 insertion(+), 22 deletions(-)
 
 diff --git a/drivers/gpu/drm/bochs/bochs_kms.c b/drivers/gpu/drm/bochs/bochs_kms.c
-index f7e6d1a9b3..2cbd406b1f 100644
+index 646f897cb2..67c3674609 100644
 --- a/drivers/gpu/drm/bochs/bochs_kms.c
 +++ b/drivers/gpu/drm/bochs/bochs_kms.c
-@@ -115,6 +115,29 @@ static int bochs_crtc_page_flip(struct drm_crtc *crtc,
- 	return 0;
+@@ -104,27 +104,6 @@ static void bochs_crtc_commit(struct drm_crtc *crtc)
+ {
  }
  
-+static void bochs_crtc_atomic_enable(struct drm_crtc *crtc,
-+				     struct drm_crtc_state *old_crtc_state)
-+{
-+}
-+
-+static void bochs_crtc_atomic_flush(struct drm_crtc *crtc,
-+				    struct drm_crtc_state *old_crtc_state)
-+{
-+	struct drm_device *dev = crtc->dev;
-+	struct drm_pending_vblank_event *event;
-+
-+	if (crtc->state && crtc->state->event) {
-+		unsigned long irqflags;
-+
-+		spin_lock_irqsave(&dev->event_lock, irqflags);
-+		event = crtc->state->event;
-+		crtc->state->event = NULL;
-+		drm_crtc_send_vblank_event(crtc, event);
-+		spin_unlock_irqrestore(&dev->event_lock, irqflags);
-+	}
-+}
-+
-+
- /* These provide the minimum set of functions required to handle a CRTC */
+-static int bochs_crtc_page_flip(struct drm_crtc *crtc,
+-				struct drm_framebuffer *fb,
+-				struct drm_pending_vblank_event *event,
+-				uint32_t page_flip_flags,
+-				struct drm_modeset_acquire_ctx *ctx)
+-{
+-	struct bochs_device *bochs =
+-		container_of(crtc, struct bochs_device, crtc);
+-	struct drm_framebuffer *old_fb = crtc->primary->fb;
+-	unsigned long irqflags;
+-
+-	drm_atomic_set_fb_for_plane(crtc->primary->state, fb);
+-	bochs_crtc_mode_set_base(crtc, 0, 0, old_fb);
+-	if (event) {
+-		spin_lock_irqsave(&bochs->dev->event_lock, irqflags);
+-		drm_crtc_send_vblank_event(crtc, event);
+-		spin_unlock_irqrestore(&bochs->dev->event_lock, irqflags);
+-	}
+-	return 0;
+-}
+-
+ static void bochs_crtc_atomic_enable(struct drm_crtc *crtc,
+ 				     struct drm_crtc_state *old_crtc_state)
+ {
+@@ -152,7 +131,7 @@ static void bochs_crtc_atomic_flush(struct drm_crtc *crtc,
  static const struct drm_crtc_funcs bochs_crtc_funcs = {
- 	.set_config = drm_crtc_helper_set_config,
-@@ -128,6 +151,8 @@ static const struct drm_crtc_helper_funcs bochs_helper_funcs = {
- 	.mode_set_base = bochs_crtc_mode_set_base,
- 	.prepare = bochs_crtc_prepare,
- 	.commit = bochs_crtc_commit,
-+	.atomic_enable = bochs_crtc_atomic_enable,
-+	.atomic_flush = bochs_crtc_atomic_flush,
- };
- 
- static const uint32_t bochs_formats[] = {
+ 	.set_config = drm_atomic_helper_set_config,
+ 	.destroy = drm_crtc_cleanup,
+-	.page_flip = bochs_crtc_page_flip,
++	.page_flip = drm_atomic_helper_page_flip,
+ 	.reset = drm_atomic_helper_crtc_reset,
+ 	.atomic_duplicate_state = drm_atomic_helper_crtc_duplicate_state,
+ 	.atomic_destroy_state = drm_atomic_helper_crtc_destroy_state,
 -- 
 2.9.3
