@@ -1,7 +1,8 @@
 From: Gerd Hoffmann <kraxel@redhat.com>
-Subject: [PATCH v3 14/15] drm/bochs: drop old fbdev emulation code
-Date: Thu, 10 Jan 2019 09:28:44 +0100
-Message-ID: <20190110082845.3453-15-kraxel__25931.4855597497$1547108916$gmane$org@redhat.com>
+Subject: [PATCH v3 05/15] drm/bochs: atomic: switch planes to atomic,
+	wire up helpers.
+Date: Thu, 10 Jan 2019 09:28:35 +0100
+Message-ID: <20190110082845.3453-6-kraxel__10293.0318950259$1547108917$gmane$org@redhat.com>
 References: <20190110082845.3453-1-kraxel@redhat.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
@@ -21,215 +22,184 @@ To: dri-devel@lists.freedesktop.org, David Airlie <airlied@redhat.com>
 Cc: andr2000@gmail.com, David Airlie <airlied@linux.ie>, open list <linux-kernel@vger.kernel.org>, "open list:DRM DRIVER FOR BOCHS VIRTUAL GPU" <virtualization@lists.linux-foundation.org>
 List-Id: virtualization@lists.linuxfoundation.org
 
-Not needed any more, bochs uses the generic emulation now.
+Conversion to atomic modesetting, step three.
+Wire up atomic helpers.  Switch planes to atomic.
+
+We are late to the party, the transitional helpers are gone,
+so this can't be splitted into smaller steps any more.
 
 Signed-off-by: Gerd Hoffmann <kraxel@redhat.com>
 Reviewed-by: Oleksandr Andrushchenko <oleksandr_andrushchenko@epam.com>
 Acked-by: Daniel Vetter <daniel.vetter@ffwll.ch>
 ---
- drivers/gpu/drm/bochs/bochs.h       |   9 ---
- drivers/gpu/drm/bochs/bochs_drv.c   |   6 --
- drivers/gpu/drm/bochs/bochs_fbdev.c | 129 ------------------------------------
- 3 files changed, 144 deletions(-)
+ drivers/gpu/drm/bochs/bochs_fbdev.c |  3 ++
+ drivers/gpu/drm/bochs/bochs_kms.c   | 82 +++++++++++++++++++++++++++++++++++--
+ 2 files changed, 82 insertions(+), 3 deletions(-)
 
-diff --git a/drivers/gpu/drm/bochs/bochs.h b/drivers/gpu/drm/bochs/bochs.h
-index ede22beb85..03711394f1 100644
---- a/drivers/gpu/drm/bochs/bochs.h
-+++ b/drivers/gpu/drm/bochs/bochs.h
-@@ -80,12 +80,6 @@ struct bochs_device {
- 		struct ttm_bo_device bdev;
- 		bool initialized;
- 	} ttm;
--
--	/* fbdev */
--	struct {
--		struct drm_framebuffer *fb;
--		struct drm_fb_helper helper;
--	} fb;
- };
- 
- struct bochs_bo {
-@@ -157,7 +151,4 @@ int bochs_kms_init(struct bochs_device *bochs);
- void bochs_kms_fini(struct bochs_device *bochs);
- 
- /* bochs_fbdev.c */
--int bochs_fbdev_init(struct bochs_device *bochs);
--void bochs_fbdev_fini(struct bochs_device *bochs);
--
- extern const struct drm_mode_config_funcs bochs_mode_funcs;
-diff --git a/drivers/gpu/drm/bochs/bochs_drv.c b/drivers/gpu/drm/bochs/bochs_drv.c
-index 1d86c0fb5f..a8968cd8d5 100644
---- a/drivers/gpu/drm/bochs/bochs_drv.c
-+++ b/drivers/gpu/drm/bochs/bochs_drv.c
-@@ -102,12 +102,9 @@ static int bochs_pm_suspend(struct device *dev)
- {
- 	struct pci_dev *pdev = to_pci_dev(dev);
- 	struct drm_device *drm_dev = pci_get_drvdata(pdev);
--	struct bochs_device *bochs = drm_dev->dev_private;
- 
- 	drm_kms_helper_poll_disable(drm_dev);
- 
--	drm_fb_helper_set_suspend_unlocked(&bochs->fb.helper, 1);
--
- 	return 0;
- }
- 
-@@ -115,12 +112,9 @@ static int bochs_pm_resume(struct device *dev)
- {
- 	struct pci_dev *pdev = to_pci_dev(dev);
- 	struct drm_device *drm_dev = pci_get_drvdata(pdev);
--	struct bochs_device *bochs = drm_dev->dev_private;
- 
- 	drm_helper_resume_force_mode(drm_dev);
- 
--	drm_fb_helper_set_suspend_unlocked(&bochs->fb.helper, 0);
--
- 	drm_kms_helper_poll_enable(drm_dev);
- 	return 0;
- }
 diff --git a/drivers/gpu/drm/bochs/bochs_fbdev.c b/drivers/gpu/drm/bochs/bochs_fbdev.c
-index ccf783b038..7cac3f5253 100644
+index dd3c7df267..d9f3d42999 100644
 --- a/drivers/gpu/drm/bochs/bochs_fbdev.c
 +++ b/drivers/gpu/drm/bochs/bochs_fbdev.c
-@@ -11,124 +11,6 @@
+@@ -6,6 +6,7 @@
+  */
+ 
+ #include "bochs.h"
++#include <drm/drm_atomic_helper.h>
+ #include <drm/drm_gem_framebuffer_helper.h>
  
  /* ---------------------------------------------------------------------- */
+@@ -149,6 +150,8 @@ bochs_gem_fb_create(struct drm_device *dev, struct drm_file *file,
  
--static int bochsfb_mmap(struct fb_info *info,
--			struct vm_area_struct *vma)
--{
--	struct drm_fb_helper *fb_helper = info->par;
--	struct bochs_bo *bo = gem_to_bochs_bo(fb_helper->fb->obj[0]);
--
--	return ttm_fbdev_mmap(vma, &bo->bo);
--}
--
--static struct fb_ops bochsfb_ops = {
--	.owner = THIS_MODULE,
--	DRM_FB_HELPER_DEFAULT_OPS,
--	.fb_fillrect = drm_fb_helper_cfb_fillrect,
--	.fb_copyarea = drm_fb_helper_cfb_copyarea,
--	.fb_imageblit = drm_fb_helper_cfb_imageblit,
--	.fb_mmap = bochsfb_mmap,
--};
--
--static int bochsfb_create_object(struct bochs_device *bochs,
--				 const struct drm_mode_fb_cmd2 *mode_cmd,
--				 struct drm_gem_object **gobj_p)
--{
--	struct drm_device *dev = bochs->dev;
--	struct drm_gem_object *gobj;
--	u32 size;
--	int ret = 0;
--
--	size = mode_cmd->pitches[0] * mode_cmd->height;
--	ret = bochs_gem_create(dev, size, true, &gobj);
--	if (ret)
--		return ret;
--
--	*gobj_p = gobj;
--	return ret;
--}
--
--static int bochsfb_create(struct drm_fb_helper *helper,
--			  struct drm_fb_helper_surface_size *sizes)
--{
--	struct bochs_device *bochs =
--		container_of(helper, struct bochs_device, fb.helper);
--	struct fb_info *info;
--	struct drm_framebuffer *fb;
--	struct drm_mode_fb_cmd2 mode_cmd;
--	struct drm_gem_object *gobj = NULL;
--	struct bochs_bo *bo = NULL;
--	int size, ret;
--
--	if (sizes->surface_bpp != 32)
--		return -EINVAL;
--
--	mode_cmd.width = sizes->surface_width;
--	mode_cmd.height = sizes->surface_height;
--	mode_cmd.pitches[0] = sizes->surface_width * 4;
--	mode_cmd.pixel_format = DRM_FORMAT_HOST_XRGB8888;
--	size = mode_cmd.pitches[0] * mode_cmd.height;
--
--	/* alloc, pin & map bo */
--	ret = bochsfb_create_object(bochs, &mode_cmd, &gobj);
--	if (ret) {
--		DRM_ERROR("failed to create fbcon backing object %d\n", ret);
--		return ret;
--	}
--
--	bo = gem_to_bochs_bo(gobj);
--
--	ret = bochs_bo_pin(bo, TTM_PL_FLAG_VRAM);
--	if (ret) {
--		DRM_ERROR("failed to pin fbcon\n");
--		return ret;
--	}
--
--	ret = ttm_bo_kmap(&bo->bo, 0, bo->bo.num_pages,
--			  &bo->kmap);
--	if (ret) {
--		DRM_ERROR("failed to kmap fbcon\n");
--		return ret;
--	}
--
--	/* init fb device */
--	info = drm_fb_helper_alloc_fbi(helper);
--	if (IS_ERR(info)) {
--		DRM_ERROR("Failed to allocate fbi: %ld\n", PTR_ERR(info));
--		return PTR_ERR(info);
--	}
--
--	info->par = &bochs->fb.helper;
--
--	fb = drm_gem_fbdev_fb_create(bochs->dev, sizes, 0, gobj, NULL);
--	if (IS_ERR(fb)) {
--		DRM_ERROR("Failed to create framebuffer: %ld\n", PTR_ERR(fb));
--		return PTR_ERR(fb);
--	}
--
--	/* setup helper */
--	bochs->fb.helper.fb = fb;
--
--	strcpy(info->fix.id, "bochsdrmfb");
--
--	info->fbops = &bochsfb_ops;
--
--	drm_fb_helper_fill_fix(info, fb->pitches[0], fb->format->depth);
--	drm_fb_helper_fill_var(info, &bochs->fb.helper, sizes->fb_width,
--			       sizes->fb_height);
--
--	info->screen_base = bo->kmap.virtual;
--	info->screen_size = size;
--
--	drm_vma_offset_remove(&bo->bo.bdev->vma_manager, &bo->bo.vma_node);
--	info->fix.smem_start = 0;
--	info->fix.smem_len = size;
--	return 0;
--}
--
--static const struct drm_fb_helper_funcs bochs_fb_helper_funcs = {
--	.fb_probe = bochsfb_create,
--};
--
- static struct drm_framebuffer *
- bochs_gem_fb_create(struct drm_device *dev, struct drm_file *file,
- 		    const struct drm_mode_fb_cmd2 *mode_cmd)
-@@ -145,14 +27,3 @@ const struct drm_mode_config_funcs bochs_mode_funcs = {
- 	.atomic_check = drm_atomic_helper_check,
- 	.atomic_commit = drm_atomic_helper_commit,
+ const struct drm_mode_config_funcs bochs_mode_funcs = {
+ 	.fb_create = bochs_gem_fb_create,
++	.atomic_check = drm_atomic_helper_check,
++	.atomic_commit = drm_atomic_helper_commit,
  };
--
--int bochs_fbdev_init(struct bochs_device *bochs)
--{
--	return drm_fb_helper_fbdev_setup(bochs->dev, &bochs->fb.helper,
--					 &bochs_fb_helper_funcs, 32, 1);
--}
--
--void bochs_fbdev_fini(struct bochs_device *bochs)
--{
--	drm_fb_helper_fbdev_teardown(bochs->dev);
--}
+ 
+ int bochs_fbdev_init(struct bochs_device *bochs)
+diff --git a/drivers/gpu/drm/bochs/bochs_kms.c b/drivers/gpu/drm/bochs/bochs_kms.c
+index 56fd7be933..c6993c2d59 100644
+--- a/drivers/gpu/drm/bochs/bochs_kms.c
++++ b/drivers/gpu/drm/bochs/bochs_kms.c
+@@ -6,7 +6,9 @@
+  */
+ 
+ #include "bochs.h"
++#include <drm/drm_atomic_helper.h>
+ #include <drm/drm_plane_helper.h>
++#include <drm/drm_atomic_uapi.h>
+ 
+ static int defx = 1024;
+ static int defy = 768;
+@@ -113,7 +115,7 @@ static int bochs_crtc_page_flip(struct drm_crtc *crtc,
+ 	struct drm_framebuffer *old_fb = crtc->primary->fb;
+ 	unsigned long irqflags;
+ 
+-	crtc->primary->fb = fb;
++	drm_atomic_set_fb_for_plane(crtc->primary->state, fb);
+ 	bochs_crtc_mode_set_base(crtc, 0, 0, old_fb);
+ 	if (event) {
+ 		spin_lock_irqsave(&bochs->dev->event_lock, irqflags);
+@@ -151,6 +153,9 @@ static const struct drm_crtc_funcs bochs_crtc_funcs = {
+ 	.set_config = drm_crtc_helper_set_config,
+ 	.destroy = drm_crtc_cleanup,
+ 	.page_flip = bochs_crtc_page_flip,
++	.reset = drm_atomic_helper_crtc_reset,
++	.atomic_duplicate_state = drm_atomic_helper_crtc_duplicate_state,
++	.atomic_destroy_state = drm_atomic_helper_crtc_destroy_state,
+ };
+ 
+ static const struct drm_crtc_helper_funcs bochs_helper_funcs = {
+@@ -169,6 +174,71 @@ static const uint32_t bochs_formats[] = {
+ 	DRM_FORMAT_BGRX8888,
+ };
+ 
++static void bochs_plane_atomic_update(struct drm_plane *plane,
++				      struct drm_plane_state *old_state)
++{
++	struct bochs_device *bochs = plane->dev->dev_private;
++	struct bochs_bo *bo;
++
++	if (!plane->state->fb)
++		return;
++	bo = gem_to_bochs_bo(plane->state->fb->obj[0]);
++	bochs_hw_setbase(bochs,
++			 plane->state->crtc_x,
++			 plane->state->crtc_y,
++			 bo->bo.offset);
++	bochs_hw_setformat(bochs, plane->state->fb->format);
++}
++
++static int bochs_plane_prepare_fb(struct drm_plane *plane,
++				struct drm_plane_state *new_state)
++{
++	struct bochs_bo *bo;
++	int ret;
++
++	if (!new_state->fb)
++		return 0;
++	bo = gem_to_bochs_bo(new_state->fb->obj[0]);
++
++	ret = ttm_bo_reserve(&bo->bo, true, false, NULL);
++	if (ret)
++		return ret;
++	ret = bochs_bo_pin(bo, TTM_PL_FLAG_VRAM, NULL);
++	ttm_bo_unreserve(&bo->bo);
++	return ret;
++}
++
++static void bochs_plane_cleanup_fb(struct drm_plane *plane,
++				   struct drm_plane_state *old_state)
++{
++	struct bochs_bo *bo;
++	int ret;
++
++	if (!old_state->fb)
++		return;
++	bo = gem_to_bochs_bo(old_state->fb->obj[0]);
++	ret = ttm_bo_reserve(&bo->bo, true, false, NULL);
++	if (ret)
++		return;
++	bochs_bo_unpin(bo);
++	ttm_bo_unreserve(&bo->bo);
++}
++
++static const struct drm_plane_helper_funcs bochs_plane_helper_funcs = {
++	.atomic_update = bochs_plane_atomic_update,
++	.prepare_fb = bochs_plane_prepare_fb,
++	.cleanup_fb = bochs_plane_cleanup_fb,
++};
++
++static const struct drm_plane_funcs bochs_plane_funcs = {
++       .update_plane   = drm_atomic_helper_update_plane,
++       .disable_plane  = drm_atomic_helper_disable_plane,
++       .destroy        = drm_primary_helper_destroy,
++       .reset          = drm_atomic_helper_plane_reset,
++       .atomic_duplicate_state = drm_atomic_helper_plane_duplicate_state,
++       .atomic_destroy_state = drm_atomic_helper_plane_destroy_state,
++};
++
+ static struct drm_plane *bochs_primary_plane(struct drm_device *dev)
+ {
+ 	struct drm_plane *primary;
+@@ -181,16 +251,17 @@ static struct drm_plane *bochs_primary_plane(struct drm_device *dev)
+ 	}
+ 
+ 	ret = drm_universal_plane_init(dev, primary, 0,
+-				       &drm_primary_helper_funcs,
++				       &bochs_plane_funcs,
+ 				       bochs_formats,
+ 				       ARRAY_SIZE(bochs_formats),
+ 				       NULL,
+ 				       DRM_PLANE_TYPE_PRIMARY, NULL);
+ 	if (ret) {
+ 		kfree(primary);
+-		primary = NULL;
++		return NULL;
+ 	}
+ 
++	drm_plane_helper_add(primary, &bochs_plane_helper_funcs);
+ 	return primary;
+ }
+ 
+@@ -275,6 +346,9 @@ static const struct drm_connector_funcs bochs_connector_connector_funcs = {
+ 	.dpms = drm_helper_connector_dpms,
+ 	.fill_modes = drm_helper_probe_single_connector_modes,
+ 	.destroy = drm_connector_cleanup,
++	.reset = drm_atomic_helper_connector_reset,
++	.atomic_duplicate_state = drm_atomic_helper_connector_duplicate_state,
++	.atomic_destroy_state = drm_atomic_helper_connector_destroy_state,
+ };
+ 
+ static void bochs_connector_init(struct drm_device *dev)
+@@ -318,6 +392,8 @@ int bochs_kms_init(struct bochs_device *bochs)
+ 	drm_connector_attach_encoder(&bochs->connector,
+ 					  &bochs->encoder);
+ 
++	drm_mode_config_reset(bochs->dev);
++
+ 	return 0;
+ }
+ 
 -- 
 2.9.3
