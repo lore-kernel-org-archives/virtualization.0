@@ -1,7 +1,7 @@
 From: Gerd Hoffmann <kraxel@redhat.com>
-Subject: [PATCH v4 08/16] drm/bochs: atomic: use suspend/resume helpers
-Date: Fri, 11 Jan 2019 06:37:44 +0100
-Message-ID: <20190111053752.4004-9-kraxel__14417.6534413875$1547692869$gmane$org@redhat.com>
+Subject: [PATCH v4 10/16] drm/bochs: remove old bochs_crtc_* functions
+Date: Fri, 11 Jan 2019 06:37:46 +0100
+Message-ID: <20190111053752.4004-11-kraxel__34905.3917489529$1547692882$gmane$org@redhat.com>
 References: <20190111053752.4004-1-kraxel@redhat.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
@@ -21,43 +21,121 @@ To: dri-devel@lists.freedesktop.org, David Airlie <airlied@redhat.com>
 Cc: andr2000@gmail.com, open list <linux-kernel@vger.kernel.org>, "open list:DRM DRIVER FOR BOCHS VIRTUAL GPU" <virtualization@lists.linux-foundation.org>, David Airlie <airlied@linux.ie>, noralf@tronnes.org
 List-Id: virtualization@lists.linuxfoundation.org
 
-Switch to atomic helpers: drm_mode_config_helper_suspend/resume().
+Remove the old, now unused crtc callbacks.
 
 Signed-off-by: Gerd Hoffmann <kraxel@redhat.com>
+Reviewed-by: Oleksandr Andrushchenko <oleksandr_andrushchenko@epam.com>
+Acked-by: Daniel Vetter <daniel.vetter@ffwll.ch>
 ---
- drivers/gpu/drm/bochs/bochs_drv.c | 11 ++---------
- 1 file changed, 2 insertions(+), 9 deletions(-)
+ drivers/gpu/drm/bochs/bochs_kms.c | 81 ---------------------------------------
+ 1 file changed, 81 deletions(-)
 
-diff --git a/drivers/gpu/drm/bochs/bochs_drv.c b/drivers/gpu/drm/bochs/bochs_drv.c
-index f3dd66ae99..08ba6029d2 100644
---- a/drivers/gpu/drm/bochs/bochs_drv.c
-+++ b/drivers/gpu/drm/bochs/bochs_drv.c
-@@ -103,11 +103,8 @@ static int bochs_pm_suspend(struct device *dev)
- 	struct drm_device *drm_dev = pci_get_drvdata(pdev);
- 	struct bochs_device *bochs = drm_dev->dev_private;
+diff --git a/drivers/gpu/drm/bochs/bochs_kms.c b/drivers/gpu/drm/bochs/bochs_kms.c
+index 67c3674609..5b7e1a7c6b 100644
+--- a/drivers/gpu/drm/bochs/bochs_kms.c
++++ b/drivers/gpu/drm/bochs/bochs_kms.c
+@@ -20,74 +20,6 @@ MODULE_PARM_DESC(defy, "default y resolution");
  
--	drm_kms_helper_poll_disable(drm_dev);
+ /* ---------------------------------------------------------------------- */
+ 
+-static void bochs_crtc_dpms(struct drm_crtc *crtc, int mode)
+-{
+-	switch (mode) {
+-	case DRM_MODE_DPMS_ON:
+-	case DRM_MODE_DPMS_STANDBY:
+-	case DRM_MODE_DPMS_SUSPEND:
+-	case DRM_MODE_DPMS_OFF:
+-	default:
+-		return;
+-	}
+-}
 -
- 	drm_fb_helper_set_suspend_unlocked(&bochs->fb.helper, 1);
+-static int bochs_crtc_mode_set_base(struct drm_crtc *crtc, int x, int y,
+-				    struct drm_framebuffer *old_fb)
+-{
+-	struct bochs_device *bochs =
+-		container_of(crtc, struct bochs_device, crtc);
+-	struct bochs_bo *bo;
+-	u64 gpu_addr = 0;
+-	int ret;
 -
+-	if (old_fb) {
+-		bo = gem_to_bochs_bo(old_fb->obj[0]);
+-		ret = ttm_bo_reserve(&bo->bo, true, false, NULL);
+-		if (ret) {
+-			DRM_ERROR("failed to reserve old_fb bo\n");
+-		} else {
+-			bochs_bo_unpin(bo);
+-			ttm_bo_unreserve(&bo->bo);
+-		}
+-	}
+-
+-	if (WARN_ON(crtc->primary->fb == NULL))
+-		return -EINVAL;
+-
+-	bo = gem_to_bochs_bo(crtc->primary->fb->obj[0]);
+-	ret = ttm_bo_reserve(&bo->bo, true, false, NULL);
+-	if (ret)
+-		return ret;
+-
+-	ret = bochs_bo_pin(bo, TTM_PL_FLAG_VRAM, &gpu_addr);
+-	if (ret) {
+-		ttm_bo_unreserve(&bo->bo);
+-		return ret;
+-	}
+-
+-	ttm_bo_unreserve(&bo->bo);
+-	bochs_hw_setbase(bochs, x, y, gpu_addr);
 -	return 0;
-+	return drm_mode_config_helper_suspend(drm_dev);
+-}
+-
+-static int bochs_crtc_mode_set(struct drm_crtc *crtc,
+-			       struct drm_display_mode *mode,
+-			       struct drm_display_mode *adjusted_mode,
+-			       int x, int y, struct drm_framebuffer *old_fb)
+-{
+-	struct bochs_device *bochs =
+-		container_of(crtc, struct bochs_device, crtc);
+-
+-	if (WARN_ON(crtc->primary->fb == NULL))
+-		return -EINVAL;
+-
+-	bochs_hw_setmode(bochs, mode);
+-	bochs_hw_setformat(bochs, crtc->primary->fb->format);
+-	bochs_crtc_mode_set_base(crtc, x, y, old_fb);
+-	return 0;
+-}
+-
+ static void bochs_crtc_mode_set_nofb(struct drm_crtc *crtc)
+ {
+ 	struct bochs_device *bochs =
+@@ -96,14 +28,6 @@ static void bochs_crtc_mode_set_nofb(struct drm_crtc *crtc)
+ 	bochs_hw_setmode(bochs, &crtc->mode);
  }
  
- static int bochs_pm_resume(struct device *dev)
-@@ -116,12 +113,8 @@ static int bochs_pm_resume(struct device *dev)
- 	struct drm_device *drm_dev = pci_get_drvdata(pdev);
- 	struct bochs_device *bochs = drm_dev->dev_private;
- 
--	drm_helper_resume_force_mode(drm_dev);
+-static void bochs_crtc_prepare(struct drm_crtc *crtc)
+-{
+-}
 -
- 	drm_fb_helper_set_suspend_unlocked(&bochs->fb.helper, 0);
+-static void bochs_crtc_commit(struct drm_crtc *crtc)
+-{
+-}
 -
--	drm_kms_helper_poll_enable(drm_dev);
--	return 0;
-+	return drm_mode_config_helper_resume(drm_dev);
- }
- #endif
+ static void bochs_crtc_atomic_enable(struct drm_crtc *crtc,
+ 				     struct drm_crtc_state *old_crtc_state)
+ {
+@@ -138,12 +62,7 @@ static const struct drm_crtc_funcs bochs_crtc_funcs = {
+ };
  
+ static const struct drm_crtc_helper_funcs bochs_helper_funcs = {
+-	.dpms = bochs_crtc_dpms,
+-	.mode_set = bochs_crtc_mode_set,
+-	.mode_set_base = bochs_crtc_mode_set_base,
+ 	.mode_set_nofb = bochs_crtc_mode_set_nofb,
+-	.prepare = bochs_crtc_prepare,
+-	.commit = bochs_crtc_commit,
+ 	.atomic_enable = bochs_crtc_atomic_enable,
+ 	.atomic_flush = bochs_crtc_atomic_flush,
+ };
 -- 
 2.9.3
