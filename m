@@ -1,14 +1,18 @@
-From: Pankaj Gupta <pagupta@redhat.com>
-Subject: Re: [PATCH v3 0/5] kvm "virtio pmem" device
-Date: Fri, 11 Jan 2019 02:45:04 -0500 (EST)
-Message-ID: <1326478078.61913951.1547192704870.JavaMail.zimbra__32786.0280326151$1547692925$gmane$org@redhat.com>
-References: <20190109144736.17452-1-pagupta@redhat.com>
-	<20190110012617.GA4205@dastard>
+From: Jason Wang <jasowang@redhat.com>
+Subject: Re: [RFC PATCH V3 0/5] Hi:
+Date: Fri, 11 Jan 2019 16:59:13 +0800
+Message-ID: <303660e9-5ad4-975d-535d-bd158d99884e__15403.0084297576$1547692945$gmane$org@redhat.com>
+References: <20181229124656.3900-1-jasowang@redhat.com>
+	<20190104163516-mutt-send-email-mst@kernel.org>
+	<68727e1b-1d51-0596-29c3-931475dd5dab@redhat.com>
+	<20190107094516-mutt-send-email-mst@kernel.org>
+	<682d520e-00e3-cdaa-d51e-23524ae48854@redhat.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset="utf-8"; Format="flowed"
+Content-Transfer-Encoding: base64
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <20190110012617.GA4205@dastard>
+In-Reply-To: <682d520e-00e3-cdaa-d51e-23524ae48854@redhat.com>
+Content-Language: en-US
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -18,60 +22,36 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Dave Chinner <david@fromorbit.com>
-Cc: jack@suse.cz, kvm@vger.kernel.org, linux-nvdimm@ml01.01.org, qemu-devel@nongnu.org, virtualization@lists.linux-foundation.org, adilger kernel <adilger.kernel@dilger.ca>, zwisler@kernel.org, eblake@redhat.com, dave jiang <dave.jiang@intel.com>, darrick wong <darrick.wong@oracle.com>, vishal l verma <vishal.l.verma@intel.com>, mst@redhat.com, willy@infradead.org, hch@infradead.org, linux-acpi@vger.kernel.org, jmoyer@redhat.com, nilal@redhat.com, riel@surriel.com, stefanha@redhat.com, imammedo@redhat.com, dan j williams <dan.j.williams@intel.com>, lcapitulino@redhat.com, linux-ext4@vger.kernel.org, tytso@mit.edu, xiaoguangrong eric <xiaoguangrong.eric@gmail.com>, rjw@rjwysocki.net, linux-kernel@vger.kernel.org, linux-xfs@vger.kernel.org, linux-fsdevel@vger.kernel.org, pbonzini@redhat.com
+To: "Michael S. Tsirkin" <mst@redhat.com>
+Cc: netdev@vger.kernel.org, davem@davemloft.net, linux-kernel@vger.kernel.org, kvm@vger.kernel.org, virtualization@lists.linux-foundation.org
 List-Id: virtualization@lists.linuxfoundation.org
 
-
-> 
-> On Wed, Jan 09, 2019 at 08:17:31PM +0530, Pankaj Gupta wrote:
-> >  This patch series has implementation for "virtio pmem".
-> >  "virtio pmem" is fake persistent memory(nvdimm) in guest
-> >  which allows to bypass the guest page cache. This also
-> >  implements a VIRTIO based asynchronous flush mechanism.
-> 
-> Hmmmm. Sharing the host page cache direct into the guest VM. Sounds
-> like a good idea, but.....
-> 
-> This means the guest VM can now run timing attacks to observe host
-> side page cache residency, and depending on the implementation I'm
-> guessing that the guest will be able to control host side page
-> cache eviction, too (e.g. via discard or hole punch operations).
-
-Not sure how? this is similar to mmapping virtual memory by any userspace 
-process. Any host userspace process can do such attack on host page cache
-using mincore & mmap shared file. 
-
-But i don't think guest can do this alone. For virtio-pmem usecase guest 
-won't be using page cache so timing attack from only guest side is not 
-possible unless host userspace can run checks on page cache eviction state
-using mincore etc. 
-
-As rightly described by Rik, guest will only access its own page cache pages 
-and if guest page cache is managed directly by host, this saves alot of 
-effort for guest in transferring guest state of page cache.  
-
-> 
-> Which means this functionality looks to me like a new vector for
-> information leakage into and out of the guest VM via guest
-> controlled host page cache manipulation.
-> 
-> https://arxiv.org/pdf/1901.01161
-> 
-> I might be wrong, but if I'm not we're going to have to be very
-> careful about how guest VMs can access and manipulate host side
-> resources like the page cache.....
-
-If I am following correctly the discussions in MM thread. 
-Important steps to mitigate this:
-
-* Avoid running mincore in privilege mode: to safeguard page evict state of any 
-  page cache page.
-* tweaking RWF_NOWAIT 
-
-I think if we secure ways to find current state(cached/evicted) of a page in host, 
-we should be able to mitigate the impact for any page cache page access attack 
-including virtio-pmem.
-
-Thanks,
-Pankaj
+Ck9uIDIwMTkvMS84IOS4i+WNiDY6MTIsIEphc29uIFdhbmcgd3JvdGU6Cj4KPiBPbiAyMDE5LzEv
+NyDkuIvljYgxMDo0NywgTWljaGFlbCBTLiBUc2lya2luIHdyb3RlOgo+PiBPbiBNb24sIEphbiAw
+NywgMjAxOSBhdCAwMjo1ODowOFBNICswODAwLCBKYXNvbiBXYW5nIHdyb3RlOgo+Pj4gT24gMjAx
+OS8xLzUg5LiK5Y2INTo0MSwgTWljaGFlbCBTLiBUc2lya2luIHdyb3RlOgo+Pj4+IE9uIFNhdCwg
+RGVjIDI5LCAyMDE4IGF0IDA4OjQ2OjUxUE0gKzA4MDAsIEphc29uIFdhbmcgd3JvdGU6Cj4+Pj4+
+IFRoaXMgc2VyaWVzIHRyaWVzIHRvIGFjY2VzcyB2aXJ0cXVldWUgbWV0YWRhdGEgdGhyb3VnaCBr
+ZXJuZWwgdmlydHVhbAo+Pj4+PiBhZGRyZXNzIGluc3RlYWQgb2YgY29weV91c2VyKCkgZnJpZW5k
+cyBzaW5jZSB0aGV5IGhhZCB0b28gbXVjaAo+Pj4+PiBvdmVyaGVhZHMgbGlrZSBjaGVja3MsIHNw
+ZWMgYmFycmllcnMgb3IgZXZlbiBoYXJkd2FyZSBmZWF0dXJlCj4+Pj4+IHRvZ2dsaW5nLgo+Pj4+
+IEkgdGhpbmsgaXQncyBhIHJlYXNvbmFibGUgYXBwcm9hY2guCj4+Pj4gSG93ZXZlciBJIG5lZWQg
+dG8gbG9vayBhdCB3aGV0aGVyIGFuZCB3aGljaCBtbXUgbm90aWZpZXJzIGFyZSAKPj4+PiBpbnZv
+a2VkIGJlZm9yZQo+Pj4+IHdyaXRlYmFjay4gRG8geW91IGtub3c/Cj4+Pgo+Pj4gSSBkb24ndCBr
+bm93IGJ1dCBqdXN0IGxvb2tpbmcgYXQgdGhlIE1NVSBub3RpZmllciBvcHMgZGVmaW5pdGlvbiwg
+Cj4+PiB0aGVyZSdzIG5vCj4+PiBzdWNoIGNhbGxiYWNrIGlmIG15IHVuZGVyc3RhbmRpbmcgaXMg
+Y29ycmVjdC4KPj4+Cj4+PiBUaGFua3MKPj4gSW4gdGhhdCBjYXNlIGhvdyBhcmUgeW91IG1ha2lu
+ZyBzdXJlIHVzZWQgcmluZyB1cGRhdGVzIGFyZSB3cml0dGVuIGJhY2s/Cj4+IElmIHRoZXkgYXJl
+bid0IGd1ZXN0IHdpbGwgY3Jhc2ggLi4uCj4KPgo+IEkgdGhpbmsgdGhpcyBpcyB0aGUgd3JpdGVi
+YWNrIGlzc3VlIHlvdSBtZW50aW9uZWQgZWFybHkuIEkgZG9uJ3QgZG8gYSAKPiBmb2xsb3d1cCBv
+biB0aGUgcG9pbnRlciBidXQgaXQgbG9va3MgdG8gbWUgc29tZSB3b3JrIGlzIG9uZ29pbmcgdG8g
+Zml4IAo+IHRoZSBpc3N1ZS4KPgo+IEkgY2FuIGludmVzdGlnYXRlIGl0IG1vcmUsIGJ1dCBpdCdz
+IG5vdCBzb21ldGhpbmcgbmV3LCBjb25zaWRlciB0aGUgCj4gY2FzZSBvZiBWRklPLgo+Cj4gVGhh
+bmtzCgoKT2ssIGFmdGVyIHNvbWUgaW52ZXN0aWdhdGlvbi4gVGhlIEdVUCArIGRpcnR5IHBhZ2Vz
+IGlzc3VlIGlzIG5vdCBlYXN5IHRvIApiZSBmaXhlZCBzbyBpdCBtYXkgc3RpbGwgdGFrZSBhIHdo
+aWxlLgoKQW4gaWRlYSBpcyBzd2l0Y2ggYmFjayB0byBjb3B5X3VzZXIoKSBmcmllbmRzIGlmIHdl
+IGZpbmQgdGhlIG1ldGFkYXRhIApwYWdlIGlzIG5vdCBhbm9ueW1vdXMuCgpEb2VzIHRoaXMgc291
+bmQgZ29vZCB0byB5b3U/CgpUaGFua3MKCl9fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19f
+X19fX19fX19fX19fX19fClZpcnR1YWxpemF0aW9uIG1haWxpbmcgbGlzdApWaXJ0dWFsaXphdGlv
+bkBsaXN0cy5saW51eC1mb3VuZGF0aW9uLm9yZwpodHRwczovL2xpc3RzLmxpbnV4Zm91bmRhdGlv
+bi5vcmcvbWFpbG1hbi9saXN0aW5mby92aXJ0dWFsaXphdGlvbg==
