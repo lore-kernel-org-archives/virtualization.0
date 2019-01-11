@@ -1,16 +1,15 @@
 From: Joerg Roedel <joro@8bytes.org>
-Subject: Re: [PATCH 1/3] swiotlb: Export maximum allocation size
-Date: Fri, 11 Jan 2019 10:12:31 +0100
-Message-ID: <20190111091231.GB5825__18436.6013193086$1547692960$gmane$org@8bytes.org>
+Subject: Re: [PATCH 0/3] Fix virtio-blk issue with SWIOTLB
+Date: Fri, 11 Jan 2019 10:15:02 +0100
+Message-ID: <20190111091502.GC5825__26613.9116058641$1547692985$gmane$org@8bytes.org>
 References: <20190110134433.15672-1-joro@8bytes.org>
-	<20190110134433.15672-2-joro@8bytes.org>
-	<20190110170205.GB27546@char.us.oracle.com>
+	<5ae1341e-62ec-0478-552b-259eabf9fb17@redhat.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
 Content-Disposition: inline
-In-Reply-To: <20190110170205.GB27546@char.us.oracle.com>
+In-Reply-To: <5ae1341e-62ec-0478-552b-259eabf9fb17@redhat.com>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -20,16 +19,17 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Konrad Rzeszutek Wilk <konrad.wilk@oracle.com>
-Cc: Jens Axboe <axboe@kernel.dk>, Joerg Roedel <jroedel@suse.de>, brijesh.singh@amd.com, "Michael S . Tsirkin" <mst@redhat.com>, jon.grimm@amd.com, jfehlig@suse.com, linux-kernel@vger.kernel.org, virtualization@lists.linux-foundation.org, linux-block@vger.kernel.org, iommu@lists.linux-foundation.org, hch@lst.de
+To: Jason Wang <jasowang@redhat.com>
+Cc: Jens Axboe <axboe@kernel.dk>, jon.grimm@amd.com, brijesh.singh@amd.com, Konrad Rzeszutek Wilk <konrad.wilk@oracle.com>, jfehlig@suse.com, "Michael S . Tsirkin" <mst@redhat.com>, linux-kernel@vger.kernel.org, virtualization@lists.linux-foundation.org, linux-block@vger.kernel.org, iommu@lists.linux-foundation.org, hch@lst.de
 List-Id: virtualization@lists.linuxfoundation.org
 
-On Thu, Jan 10, 2019 at 12:02:05PM -0500, Konrad Rzeszutek Wilk wrote:
-> Why not use swiotlb_nr_tbl ? That is how drivers/gpu/drm use to figure if they
-> need to limit the size of pages.
+On Fri, Jan 11, 2019 at 11:29:31AM +0800, Jason Wang wrote:
+> Just wonder if my understanding is correct IOMMU_PLATFORM must be set for
+> all virtio devices under AMD-SEV guests?
 
-That function just exports the overall size of the swiotlb aperture, no?
-What I need here is the maximum size for a single mapping.
+Yes, that is correct. Emulated DMA can only happen on the SWIOTLB
+aperture, because that memory is not encrypted. The guest bounces the
+data then to its encrypted memory.
 
 Regards,
 
