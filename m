@@ -1,7 +1,7 @@
 From: Gerd Hoffmann <kraxel@redhat.com>
-Subject: [PATCH v4 04/16] drm/bochs: atomic: add mode_set_nofb callback.
-Date: Fri, 11 Jan 2019 06:37:40 +0100
-Message-ID: <20190111053752.4004-5-kraxel__4203.55706378377$1547693672$gmane$org@redhat.com>
+Subject: [PATCH v4 14/16] drm/bochs: switch to generic drm fbdev emulation
+Date: Fri, 11 Jan 2019 06:37:50 +0100
+Message-ID: <20190111053752.4004-15-kraxel__38745.8392688588$1547693719$gmane$org@redhat.com>
 References: <20190111053752.4004-1-kraxel@redhat.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
@@ -21,42 +21,72 @@ To: dri-devel@lists.freedesktop.org, David Airlie <airlied@redhat.com>
 Cc: andr2000@gmail.com, open list <linux-kernel@vger.kernel.org>, "open list:DRM DRIVER FOR BOCHS VIRTUAL GPU" <virtualization@lists.linux-foundation.org>, David Airlie <airlied@linux.ie>, noralf@tronnes.org
 List-Id: virtualization@lists.linuxfoundation.org
 
-Conversion to atomic modesetting, step two.
-Add mode_set_nofb crtc helper callback.
-
 Signed-off-by: Gerd Hoffmann <kraxel@redhat.com>
-Reviewed-by: Oleksandr Andrushchenko <oleksandr_andrushchenko@epam.com>
 Acked-by: Daniel Vetter <daniel.vetter@ffwll.ch>
 ---
- drivers/gpu/drm/bochs/bochs_kms.c | 9 +++++++++
- 1 file changed, 9 insertions(+)
+ drivers/gpu/drm/bochs/bochs_drv.c | 13 +------------
+ 1 file changed, 1 insertion(+), 12 deletions(-)
 
-diff --git a/drivers/gpu/drm/bochs/bochs_kms.c b/drivers/gpu/drm/bochs/bochs_kms.c
-index 2cbd406b1f..56fd7be933 100644
---- a/drivers/gpu/drm/bochs/bochs_kms.c
-+++ b/drivers/gpu/drm/bochs/bochs_kms.c
-@@ -86,6 +86,14 @@ static int bochs_crtc_mode_set(struct drm_crtc *crtc,
+diff --git a/drivers/gpu/drm/bochs/bochs_drv.c b/drivers/gpu/drm/bochs/bochs_drv.c
+index a3f4e21078..cea42ac64d 100644
+--- a/drivers/gpu/drm/bochs/bochs_drv.c
++++ b/drivers/gpu/drm/bochs/bochs_drv.c
+@@ -16,10 +16,6 @@ static int bochs_modeset = -1;
+ module_param_named(modeset, bochs_modeset, int, 0444);
+ MODULE_PARM_DESC(modeset, "enable/disable kernel modesetting");
+ 
+-static bool enable_fbdev = true;
+-module_param_named(fbdev, enable_fbdev, bool, 0444);
+-MODULE_PARM_DESC(fbdev, "register fbdev device");
+-
+ /* ---------------------------------------------------------------------- */
+ /* drm interface                                                          */
+ 
+@@ -27,7 +23,6 @@ static void bochs_unload(struct drm_device *dev)
+ {
+ 	struct bochs_device *bochs = dev->dev_private;
+ 
+-	bochs_fbdev_fini(bochs);
+ 	bochs_kms_fini(bochs);
+ 	bochs_mm_fini(bochs);
+ 	bochs_hw_fini(dev);
+@@ -58,9 +53,6 @@ static int bochs_load(struct drm_device *dev)
+ 	if (ret)
+ 		goto err;
+ 
+-	if (enable_fbdev)
+-		bochs_fbdev_init(bochs);
+-
  	return 0;
+ 
+ err:
+@@ -110,9 +102,7 @@ static int bochs_pm_suspend(struct device *dev)
+ {
+ 	struct pci_dev *pdev = to_pci_dev(dev);
+ 	struct drm_device *drm_dev = pci_get_drvdata(pdev);
+-	struct bochs_device *bochs = drm_dev->dev_private;
+ 
+-	drm_fb_helper_set_suspend_unlocked(&bochs->fb.helper, 1);
+ 	return drm_mode_config_helper_suspend(drm_dev);
  }
  
-+static void bochs_crtc_mode_set_nofb(struct drm_crtc *crtc)
-+{
-+	struct bochs_device *bochs =
-+		container_of(crtc, struct bochs_device, crtc);
-+
-+	bochs_hw_setmode(bochs, &crtc->mode);
-+}
-+
- static void bochs_crtc_prepare(struct drm_crtc *crtc)
+@@ -120,9 +110,7 @@ static int bochs_pm_resume(struct device *dev)
  {
+ 	struct pci_dev *pdev = to_pci_dev(dev);
+ 	struct drm_device *drm_dev = pci_get_drvdata(pdev);
+-	struct bochs_device *bochs = drm_dev->dev_private;
+ 
+-	drm_fb_helper_set_suspend_unlocked(&bochs->fb.helper, 0);
+ 	return drm_mode_config_helper_resume(drm_dev);
  }
-@@ -149,6 +157,7 @@ static const struct drm_crtc_helper_funcs bochs_helper_funcs = {
- 	.dpms = bochs_crtc_dpms,
- 	.mode_set = bochs_crtc_mode_set,
- 	.mode_set_base = bochs_crtc_mode_set_base,
-+	.mode_set_nofb = bochs_crtc_mode_set_nofb,
- 	.prepare = bochs_crtc_prepare,
- 	.commit = bochs_crtc_commit,
- 	.atomic_enable = bochs_crtc_atomic_enable,
+ #endif
+@@ -167,6 +155,7 @@ static int bochs_pci_probe(struct pci_dev *pdev,
+ 	if (ret)
+ 		goto err_unload;
+ 
++	drm_fbdev_generic_setup(dev, 32);
+ 	return ret;
+ 
+ err_unload:
 -- 
 2.9.3
