@@ -1,7 +1,7 @@
 From: Gerd Hoffmann <kraxel@redhat.com>
-Subject: [PATCH v4 07/16] drm/bochs: atomic: use atomic page_flip helper
-Date: Fri, 11 Jan 2019 06:37:43 +0100
-Message-ID: <20190111053752.4004-8-kraxel__49647.3258747303$1547692771$gmane$org@redhat.com>
+Subject: [PATCH v4 01/16] drm/bochs: encoder cleanup
+Date: Fri, 11 Jan 2019 06:37:37 +0100
+Message-ID: <20190111053752.4004-2-kraxel__6309.44067747823$1547692789$gmane$org@redhat.com>
 References: <20190111053752.4004-1-kraxel@redhat.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
@@ -21,56 +21,59 @@ To: dri-devel@lists.freedesktop.org, David Airlie <airlied@redhat.com>
 Cc: andr2000@gmail.com, open list <linux-kernel@vger.kernel.org>, "open list:DRM DRIVER FOR BOCHS VIRTUAL GPU" <virtualization@lists.linux-foundation.org>, David Airlie <airlied@linux.ie>, noralf@tronnes.org
 List-Id: virtualization@lists.linuxfoundation.org
 
-Conversion to atomic modesetting, step five.
-Use atomic page_flip helper for crtc.
+Most unused callbacks can be NULL pointers these days.
+Drop a bunch of empty encoder callbacks.
 
 Signed-off-by: Gerd Hoffmann <kraxel@redhat.com>
 Reviewed-by: Oleksandr Andrushchenko <oleksandr_andrushchenko@epam.com>
 Acked-by: Daniel Vetter <daniel.vetter@ffwll.ch>
 ---
- drivers/gpu/drm/bochs/bochs_kms.c | 23 +----------------------
- 1 file changed, 1 insertion(+), 22 deletions(-)
+ drivers/gpu/drm/bochs/bochs_kms.c | 26 --------------------------
+ 1 file changed, 26 deletions(-)
 
 diff --git a/drivers/gpu/drm/bochs/bochs_kms.c b/drivers/gpu/drm/bochs/bochs_kms.c
-index 646f897cb2..67c3674609 100644
+index f87c284dd9..c8ce54498d 100644
 --- a/drivers/gpu/drm/bochs/bochs_kms.c
 +++ b/drivers/gpu/drm/bochs/bochs_kms.c
-@@ -104,27 +104,6 @@ static void bochs_crtc_commit(struct drm_crtc *crtc)
- {
+@@ -170,31 +170,6 @@ static void bochs_crtc_init(struct drm_device *dev)
+ 	drm_crtc_helper_add(crtc, &bochs_helper_funcs);
  }
  
--static int bochs_crtc_page_flip(struct drm_crtc *crtc,
--				struct drm_framebuffer *fb,
--				struct drm_pending_vblank_event *event,
--				uint32_t page_flip_flags,
--				struct drm_modeset_acquire_ctx *ctx)
+-static void bochs_encoder_mode_set(struct drm_encoder *encoder,
+-				   struct drm_display_mode *mode,
+-				   struct drm_display_mode *adjusted_mode)
 -{
--	struct bochs_device *bochs =
--		container_of(crtc, struct bochs_device, crtc);
--	struct drm_framebuffer *old_fb = crtc->primary->fb;
--	unsigned long irqflags;
--
--	drm_atomic_set_fb_for_plane(crtc->primary->state, fb);
--	bochs_crtc_mode_set_base(crtc, 0, 0, old_fb);
--	if (event) {
--		spin_lock_irqsave(&bochs->dev->event_lock, irqflags);
--		drm_crtc_send_vblank_event(crtc, event);
--		spin_unlock_irqrestore(&bochs->dev->event_lock, irqflags);
--	}
--	return 0;
 -}
 -
- static void bochs_crtc_atomic_enable(struct drm_crtc *crtc,
- 				     struct drm_crtc_state *old_crtc_state)
- {
-@@ -152,7 +131,7 @@ static void bochs_crtc_atomic_flush(struct drm_crtc *crtc,
- static const struct drm_crtc_funcs bochs_crtc_funcs = {
- 	.set_config = drm_atomic_helper_set_config,
- 	.destroy = drm_crtc_cleanup,
--	.page_flip = bochs_crtc_page_flip,
-+	.page_flip = drm_atomic_helper_page_flip,
- 	.reset = drm_atomic_helper_crtc_reset,
- 	.atomic_duplicate_state = drm_atomic_helper_crtc_duplicate_state,
- 	.atomic_destroy_state = drm_atomic_helper_crtc_destroy_state,
+-static void bochs_encoder_dpms(struct drm_encoder *encoder, int state)
+-{
+-}
+-
+-static void bochs_encoder_prepare(struct drm_encoder *encoder)
+-{
+-}
+-
+-static void bochs_encoder_commit(struct drm_encoder *encoder)
+-{
+-}
+-
+-static const struct drm_encoder_helper_funcs bochs_encoder_helper_funcs = {
+-	.dpms = bochs_encoder_dpms,
+-	.mode_set = bochs_encoder_mode_set,
+-	.prepare = bochs_encoder_prepare,
+-	.commit = bochs_encoder_commit,
+-};
+-
+ static const struct drm_encoder_funcs bochs_encoder_encoder_funcs = {
+ 	.destroy = drm_encoder_cleanup,
+ };
+@@ -207,7 +182,6 @@ static void bochs_encoder_init(struct drm_device *dev)
+ 	encoder->possible_crtcs = 0x1;
+ 	drm_encoder_init(dev, encoder, &bochs_encoder_encoder_funcs,
+ 			 DRM_MODE_ENCODER_DAC, NULL);
+-	drm_encoder_helper_add(encoder, &bochs_encoder_helper_funcs);
+ }
+ 
+ 
 -- 
 2.9.3
