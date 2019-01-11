@@ -1,13 +1,13 @@
-From: David Miller <davem@davemloft.net>
-Subject: Re: [PATCH net-next] virtio_net: bulk free tx skbs
-Date: Wed, 16 Jan 2019 15:31:58 -0800 (PST)
-Message-ID: <20190116.153158.1210819126964530944.davem__19237.848398234$1547692679$gmane$org@davemloft.net>
-References: <20190115012847.14730-1-mst@redhat.com>
+From: Gerd Hoffmann <kraxel@redhat.com>
+Subject: [PATCH v4 06/16] drm/bochs: atomic: use atomic set_config helper
+Date: Fri, 11 Jan 2019 06:37:42 +0100
+Message-ID: <20190111053752.4004-7-kraxel__38325.8375259631$1547692739$gmane$org@redhat.com>
+References: <20190111053752.4004-1-kraxel@redhat.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="iso-8859-7"
-Content-Transfer-Encoding: base64
+Content-Type: text/plain; charset="us-ascii"
+Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <20190115012847.14730-1-mst@redhat.com>
+In-Reply-To: <20190111053752.4004-1-kraxel@redhat.com>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -17,26 +17,32 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: mst@redhat.com
-Cc: netdev@vger.kernel.org, linux-kernel@vger.kernel.org, virtualization@lists.linux-foundation.org
+To: dri-devel@lists.freedesktop.org, David Airlie <airlied@redhat.com>
+Cc: andr2000@gmail.com, open list <linux-kernel@vger.kernel.org>, "open list:DRM DRIVER FOR BOCHS VIRTUAL GPU" <virtualization@lists.linux-foundation.org>, David Airlie <airlied@linux.ie>, noralf@tronnes.org
 List-Id: virtualization@lists.linuxfoundation.org
 
-RnJvbTogIk1pY2hhZWwgUy4gVHNpcmtpbiIgPG1zdEByZWRoYXQuY29tPg0KRGF0ZTogTW9uLCAx
-NCBKYW4gMjAxOSAyMDozNDoyNiAtMDUwMA0KDQo+IFVzZSBuYXBpX2NvbnN1bWVfc2tiKCkgdG8g
-Z2V0IGJ1bGsgZnJlZS4gIE5vdGUgdGhhdCBuYXBpX2NvbnN1bWVfc2tiIGlzDQo+IHNhZmUgdG8g
-Y2FsbCBpbiBhIG5vbi1uYXBpIGNvbnRleHQgYXMgbG9uZyBhcyB0aGUgbmFwaV9idWRnZXQgZmxh
-ZyBpcw0KPiBjb3JyZWN0Lg0KPiANCj4gU2lnbmVkLW9mZi1ieTogTWljaGFlbCBTLiBUc2lya2lu
-IDxtc3RAcmVkaGF0LmNvbT4NCj4gLS0tDQo+IA0KPiBNeSBwZXJmIHRlc3Rpbmcgc2V0dXAgaXMg
-ZG93biBidXQgaXQgd29ya3MgZmluZSBvbiBteSBkZXZlbCBib3ggYW5kDQo+IHNob3VsZCBiZSBm
-YWlybHkgdW5jb250cm92ZXJzaWFsLg0KDQpJdCB3b3VsZCBiZSB1bmNvbnRyb3ZlcnNpYWwgaWYg
-aXQgY29tcGlsZWQuDQoNCmRyaXZlcnMvbmV0L3ZpcnRpb19uZXQuYzogSW4gZnVuY3Rpb24goWZy
-ZWVfb2xkX3htaXRfc2tic6I6DQpkcml2ZXJzL25ldC92aXJ0aW9fbmV0LmM6MTM0NjoyNTogZXJy
-b3I6IKF1c2VfbmFwaaIgdW5kZWNsYXJlZCAoZmlyc3QgdXNlIGluIHRoaXMgZnVuY3Rpb24pOyBk
-aWQgeW91IG1lYW4goXVzZWRfbWF0aKI/DQogICBuYXBpX2NvbnN1bWVfc2tiKHNrYiwgdXNlX25h
-cGkpOw0KICAgICAgICAgICAgICAgICAgICAgICAgIF5+fn5+fn5+DQogICAgICAgICAgICAgICAg
-ICAgICAgICAgdXNlZF9tYXRoDQpkcml2ZXJzL25ldC92aXJ0aW9fbmV0LmM6MTM0NjoyNTogbm90
-ZTogZWFjaCB1bmRlY2xhcmVkIGlkZW50aWZpZXIgaXMgcmVwb3J0ZWQgb25seSBvbmNlIGZvciBl
-YWNoIGZ1bmN0aW9uIGl0IGFwcGVhcnMgaW4NCl9fX19fX19fX19fX19fX19fX19fX19fX19fX19f
-X19fX19fX19fX19fX19fX19fClZpcnR1YWxpemF0aW9uIG1haWxpbmcgbGlzdApWaXJ0dWFsaXph
-dGlvbkBsaXN0cy5saW51eC1mb3VuZGF0aW9uLm9yZwpodHRwczovL2xpc3RzLmxpbnV4Zm91bmRh
-dGlvbi5vcmcvbWFpbG1hbi9saXN0aW5mby92aXJ0dWFsaXphdGlvbg==
+Conversion to atomic modesetting, step four.
+Use atomic set_config helper for crtc.
+
+Signed-off-by: Gerd Hoffmann <kraxel@redhat.com>
+Reviewed-by: Oleksandr Andrushchenko <oleksandr_andrushchenko@epam.com>
+Acked-by: Daniel Vetter <daniel.vetter@ffwll.ch>
+---
+ drivers/gpu/drm/bochs/bochs_kms.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
+
+diff --git a/drivers/gpu/drm/bochs/bochs_kms.c b/drivers/gpu/drm/bochs/bochs_kms.c
+index c6993c2d59..646f897cb2 100644
+--- a/drivers/gpu/drm/bochs/bochs_kms.c
++++ b/drivers/gpu/drm/bochs/bochs_kms.c
+@@ -150,7 +150,7 @@ static void bochs_crtc_atomic_flush(struct drm_crtc *crtc,
+ 
+ /* These provide the minimum set of functions required to handle a CRTC */
+ static const struct drm_crtc_funcs bochs_crtc_funcs = {
+-	.set_config = drm_crtc_helper_set_config,
++	.set_config = drm_atomic_helper_set_config,
+ 	.destroy = drm_crtc_cleanup,
+ 	.page_flip = bochs_crtc_page_flip,
+ 	.reset = drm_atomic_helper_crtc_reset,
+-- 
+2.9.3
