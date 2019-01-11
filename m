@@ -1,15 +1,14 @@
-From: Konrad Rzeszutek Wilk <konrad.wilk@oracle.com>
-Subject: Re: [PATCH 1/3] swiotlb: Export maximum allocation size
-Date: Thu, 10 Jan 2019 12:02:05 -0500
-Message-ID: <20190110170205.GB27546__853.15612745962$1547139627$gmane$org@char.us.oracle.com>
+From: Jason Wang <jasowang@redhat.com>
+Subject: Re: [PATCH 0/3] Fix virtio-blk issue with SWIOTLB
+Date: Fri, 11 Jan 2019 11:29:31 +0800
+Message-ID: <5ae1341e-62ec-0478-552b-259eabf9fb17__41700.0638707124$1547177263$gmane$org@redhat.com>
 References: <20190110134433.15672-1-joro@8bytes.org>
-	<20190110134433.15672-2-joro@8bytes.org>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset="utf-8"; Format="flowed"
+Content-Transfer-Encoding: base64
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-Content-Disposition: inline
-In-Reply-To: <20190110134433.15672-2-joro@8bytes.org>
+In-Reply-To: <20190110134433.15672-1-joro@8bytes.org>
+Content-Language: en-US
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -19,58 +18,36 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Joerg Roedel <joro@8bytes.org>
-Cc: Jens Axboe <axboe@kernel.dk>, Joerg Roedel <jroedel@suse.de>, brijesh.singh@amd.com, "Michael S . Tsirkin" <mst@redhat.com>, jon.grimm@amd.com, jfehlig@suse.com, linux-kernel@vger.kernel.org, virtualization@lists.linux-foundation.org, linux-block@vger.kernel.org, iommu@lists.linux-foundation.org, hch@lst.de
+To: Joerg Roedel <joro@8bytes.org>, "Michael S . Tsirkin" <mst@redhat.com>, Konrad Rzeszutek Wilk <konrad.wilk@oracle.com>
+Cc: Jens Axboe <axboe@kernel.dk>, brijesh.singh@amd.com, jon.grimm@amd.com, jfehlig@suse.com, linux-kernel@vger.kernel.org, linux-block@vger.kernel.org, iommu@lists.linux-foundation.org, virtualization@lists.linux-foundation.org, hch@lst.de
 List-Id: virtualization@lists.linuxfoundation.org
 
-On Thu, Jan 10, 2019 at 02:44:31PM +0100, Joerg Roedel wrote:
-> From: Joerg Roedel <jroedel@suse.de>
-> 
-> The SWIOTLB implementation has a maximum size it can
-> allocate dma-handles for. This needs to be exported so that
-> device drivers don't try to allocate larger chunks.
-> 
-> This is especially important for block device drivers like
-> virtio-blk, that might do DMA through SWIOTLB.
-
-Why not use swiotlb_nr_tbl ? That is how drivers/gpu/drm use to figure if they
-need to limit the size of pages.
-> 
-> Signed-off-by: Joerg Roedel <jroedel@suse.de>
-> ---
->  include/linux/swiotlb.h | 12 ++++++++++++
->  1 file changed, 12 insertions(+)
-> 
-> diff --git a/include/linux/swiotlb.h b/include/linux/swiotlb.h
-> index 7c007ed7505f..0bcc80a97036 100644
-> --- a/include/linux/swiotlb.h
-> +++ b/include/linux/swiotlb.h
-> @@ -72,6 +72,11 @@ static inline bool is_swiotlb_buffer(phys_addr_t paddr)
->  	return paddr >= io_tlb_start && paddr < io_tlb_end;
->  }
->  
-> +static inline size_t swiotlb_max_alloc_size(void)
-> +{
-> +	return ((1UL << IO_TLB_SHIFT) * IO_TLB_SEGSIZE);
-> +}
-> +
->  bool swiotlb_map(struct device *dev, phys_addr_t *phys, dma_addr_t *dma_addr,
->  		size_t size, enum dma_data_direction dir, unsigned long attrs);
->  void __init swiotlb_exit(void);
-> @@ -95,6 +100,13 @@ static inline unsigned int swiotlb_max_segment(void)
->  {
->  	return 0;
->  }
-> +
-> +static inline size_t swiotlb_max_alloc_size(void)
-> +{
-> +	/* There is no limit when SWIOTLB isn't used */
-> +	return ~0UL;
-> +}
-> +
->  #endif /* CONFIG_SWIOTLB */
->  
->  extern void swiotlb_print_info(void);
-> -- 
-> 2.17.1
-> 
+Ck9uIDIwMTkvMS8xMCDkuIvljYg5OjQ0LCBKb2VyZyBSb2VkZWwgd3JvdGU6Cj4gSGksCj4KPiB0
+aGVyZSBpcyBhIHByb2JsZW0gd2l0aCB2aXJ0aW8tYmxrIGRyaXZlbiBkZXZpY2VzIHdoZW4KPiB2
+aXJ0aW8tcmluZyB1c2VzIFNXSU9UTEIgdGhyb3VnaCB0aGUgRE1BLUFQSS4gVGhpcyBoYXBwZW5z
+Cj4gZm9yIGV4YW1wbGUgaW4gQU1ELVNFViBlbmFibGVkIGd1ZXN0cywgd2hlcmUgdGhlIGd1ZXN0
+IFJBTQo+IGlzIG1vc3RseSBlbmNyeXB0ZWQgYW5kIGFsbCBlbXVsYXRlZCBETUEgaGFzIHRvIGhh
+cHBlbgo+IHRvL2Zyb20gdGhlIFNXSU9UTEIgYXBlcnR1cmUuCj4KPiBUaGUgcHJvYmxlbSBpcyBh
+IGxpbWl0YXRpb24gb2YgdGhlIFNXSU9UTEIgaW1wbGVtZW50YXRpb24sCj4gd2hpY2ggZG9lcyBu
+b3Qgc3VwcG9ydCBhbGxvY2F0aW9ucyBsYXJnZXIgdGhhbiAyNTZrYi4gV2hlbgo+IHRoZSB2aXJ0
+aW8tYmxrIGRyaXZlciB0cmllcyB0byByZWFkL3dyaXRlIGEgYmxvY2sgbGFyZ2VyCj4gdGhhbiB0
+aGF0LCB0aGUgYWxsb2NhdGlvbiBvZiB0aGUgZG1hLWhhbmRsZSBmYWlscyBhbmQgYW4gSU8KPiBl
+cnJvciBpcyByZXBvcnRlZC4KPgo+IFRoaXMgcGF0Y2gtc2V0IGFkZHMgYSBjaGVjayB0byB0aGUg
+dmlydGlvLWNvZGUgd2hldGhlciBpdAo+IG1pZ2h0IGJlIHVzaW5nIFNXSU9UTEIgYm91bmNlIGJ1
+ZmZlcmluZyBhbmQgbGltaXRzIHRoZQo+IG1heGltdW0gc2VnbWVudCBzaXplIGluIHRoZSB2aXJ0
+aW8tYmxrIGRyaXZlciBpbiB0aGlzIGNhc2UsCj4gc28gdGhhdCBpdCBkb2Vzbid0IHRyeSB0byBk
+byBsYXJnZXIgcmVhZHMvd3JpdGVzLgoKCkp1c3Qgd29uZGVyIGlmIG15IHVuZGVyc3RhbmRpbmcg
+aXMgY29ycmVjdCBJT01NVV9QTEFURk9STSBtdXN0IGJlIHNldCAKZm9yIGFsbCB2aXJ0aW8gZGV2
+aWNlcyB1bmRlciBBTUQtU0VWIGd1ZXN0cz8KClRoYW5rcwoKCj4KPiBQbGVhc2UgcmV2aWV3Lgo+
+Cj4gVGhhbmtzLAo+Cj4gCUpvZXJnCj4KPiBKb2VyZyBSb2VkZWwgKDMpOgo+ICAgIHN3aW90bGI6
+IEV4cG9ydCBtYXhpbXVtIGFsbG9jYXRpb24gc2l6ZQo+ICAgIHZpcnRpbzogSW50cm9kdWNlIHZp
+cnRpb19tYXhfZG1hX3NpemUoKQo+ICAgIHZpcnRpby1ibGs6IENvbnNpZGVyIHZpcnRpb19tYXhf
+ZG1hX3NpemUoKSBmb3IgbWF4aW11bSBzZWdtZW50IHNpemUKPgo+ICAgZHJpdmVycy9ibG9jay92
+aXJ0aW9fYmxrLmMgICB8IDEwICsrKysrKy0tLS0KPiAgIGRyaXZlcnMvdmlydGlvL3ZpcnRpb19y
+aW5nLmMgfCAxMSArKysrKysrKysrKwo+ICAgaW5jbHVkZS9saW51eC9zd2lvdGxiLmggICAgICB8
+IDEyICsrKysrKysrKysrKwo+ICAgaW5jbHVkZS9saW51eC92aXJ0aW8uaCAgICAgICB8ICAyICsr
+Cj4gICA0IGZpbGVzIGNoYW5nZWQsIDMxIGluc2VydGlvbnMoKyksIDQgZGVsZXRpb25zKC0pCj4K
+X19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX18KVmlydHVhbGl6
+YXRpb24gbWFpbGluZyBsaXN0ClZpcnR1YWxpemF0aW9uQGxpc3RzLmxpbnV4LWZvdW5kYXRpb24u
+b3JnCmh0dHBzOi8vbGlzdHMubGludXhmb3VuZGF0aW9uLm9yZy9tYWlsbWFuL2xpc3RpbmZvL3Zp
+cnR1YWxpemF0aW9u
