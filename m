@@ -1,13 +1,13 @@
-From: Jorgen Hansen via Virtualization
-	<virtualization@lists.linux-foundation.org>
-Subject: [PATCH] VMCI: Verify PPNs before sending to device
-Date: Fri, 11 Jan 2019 08:57:45 -0800
-Message-ID: <1547225865-53408-1-git-send-email-jhansen__22743.1749379777$1547693067$gmane$org@vmware.com>
-Reply-To: Jorgen Hansen <jhansen@vmware.com>
+From: Dave Airlie <airlied@gmail.com>
+Subject: Re: [PATCH] drm/qxl: drop prime import/export callbacks
+Date: Sat, 12 Jan 2019 07:13:42 +1000
+Message-ID: <CAPM=9tx8N6jxVzsT-RqtQFrFb9qLK4qUUje+d=fpTYZ6+PnYpg__1639.02537101439$1547693088$gmane$org@mail.gmail.com>
+References: <20190110081750.11358-1-kraxel@redhat.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
+In-Reply-To: <20190110081750.11358-1-kraxel@redhat.com>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -17,78 +17,72 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: linux-kernel@vger.kernel.org, virtualization@lists.linux-foundation.org
-Cc: pv-drivers@vmware.com, gregkh@linuxfoundation.org, Jorgen Hansen <jhansen@vmware.com>
+To: Gerd Hoffmann <kraxel@redhat.com>
+Cc: David Airlie <airlied@linux.ie>, open list <linux-kernel@vger.kernel.org>, dri-devel <dri-devel@lists.freedesktop.org>, "open list:DRM DRIVER FOR QXL VIRTUAL GPU" <virtualization@lists.linux-foundation.org>, Dave Airlie <airlied@redhat.com>, "open list:DRM DRIVER FOR QXL VIRTUAL GPU" <spice-devel@lists.freedesktop.org>
 List-Id: virtualization@lists.linuxfoundation.org
 
-The current version of the VMCI device only supports 32 bit PPNs,
-so check whether we are truncating PPNs, and fail the operation
-if we do. One such check did exist, but was wrong. Another
-check was missing.
+On Thu, 10 Jan 2019 at 18:17, Gerd Hoffmann <kraxel@redhat.com> wrote:
+>
+> Also set prime_handle_to_fd and prime_fd_to_handle to NULL,
+> so drm will not advertive DRM_PRIME_CAP_{IMPORT,EXPORT} to
+> userspace.
+>
+> Signed-off-by: Gerd Hoffmann <kraxel@redhat.com>
 
-Testing through code modification: constructed PPN not representable
-by 32-bit and observed that failure was reported.
-
-Fixes: 1f166439917b ("VMCI: guest side driver implementation.")
-Fixes: 06164d2b72aa ("VMCI: queue pairs implementation.")
-
-Signed-off-by: Jorgen Hansen <jhansen@vmware.com>
-Reviewed-by: Adit Ranadive <aditr@vmware.com>
-Reviewed-by: Vishnu Dasa <vdasa@vmware.com>
----
- drivers/misc/vmw_vmci/vmci_guest.c      | 10 +++++++---
- drivers/misc/vmw_vmci/vmci_queue_pair.c | 10 ++++------
- 2 files changed, 11 insertions(+), 9 deletions(-)
-
-diff --git a/drivers/misc/vmw_vmci/vmci_guest.c b/drivers/misc/vmw_vmci/vmci_guest.c
-index dad5abee656e..02bb3866cf9e 100644
---- a/drivers/misc/vmw_vmci/vmci_guest.c
-+++ b/drivers/misc/vmw_vmci/vmci_guest.c
-@@ -532,10 +532,14 @@ static int vmci_guest_probe_device(struct pci_dev *pdev,
- 	if (capabilities & VMCI_CAPS_NOTIFICATIONS) {
- 		unsigned long bitmap_ppn =
- 			vmci_dev->notification_base >> PAGE_SHIFT;
--		if (!vmci_dbell_register_notification_bitmap(bitmap_ppn)) {
-+		u32 bitmap_ppn32 = bitmap_ppn;
-+
-+		if ((sizeof(bitmap_ppn) > sizeof(bitmap_ppn32)
-+		     && bitmap_ppn != bitmap_ppn32) ||
-+		    !vmci_dbell_register_notification_bitmap(bitmap_ppn)) {
- 			dev_warn(&pdev->dev,
--				 "VMCI device unable to register notification bitmap with PPN 0x%x\n",
--				 (u32) bitmap_ppn);
-+				 "VMCI device unable to register notification bitmap with PPN 0x%lx\n",
-+				 bitmap_ppn);
- 			error = -ENXIO;
- 			goto err_remove_vmci_dev_g;
- 		}
-diff --git a/drivers/misc/vmw_vmci/vmci_queue_pair.c b/drivers/misc/vmw_vmci/vmci_queue_pair.c
-index 264f4ed8eef2..1da4f6cb01b2 100644
---- a/drivers/misc/vmw_vmci/vmci_queue_pair.c
-+++ b/drivers/misc/vmw_vmci/vmci_queue_pair.c
-@@ -465,9 +465,8 @@ static int qp_alloc_ppn_set(void *prod_q,
- 	for (i = 0; i < num_produce_pages; i++) {
- 		unsigned long pfn;
- 
--		produce_ppns[i] =
--			produce_q->kernel_if->u.g.pas[i] >> PAGE_SHIFT;
--		pfn = produce_ppns[i];
-+		pfn = produce_q->kernel_if->u.g.pas[i] >> PAGE_SHIFT;
-+		produce_ppns[i] = pfn;
- 
- 		/* Fail allocation if PFN isn't supported by hypervisor. */
- 		if (sizeof(pfn) > sizeof(*produce_ppns)
-@@ -478,9 +477,8 @@ static int qp_alloc_ppn_set(void *prod_q,
- 	for (i = 0; i < num_consume_pages; i++) {
- 		unsigned long pfn;
- 
--		consume_ppns[i] =
--			consume_q->kernel_if->u.g.pas[i] >> PAGE_SHIFT;
--		pfn = consume_ppns[i];
-+		pfn = consume_q->kernel_if->u.g.pas[i] >> PAGE_SHIFT;
-+		consume_ppns[i] = pfn;
- 
- 		/* Fail allocation if PFN isn't supported by hypervisor. */
- 		if (sizeof(pfn) > sizeof(*consume_ppns)
--- 
-2.17.1
+Reviewed-by: Dave Airlie <airlied@redhat.com>
+> ---
+>  drivers/gpu/drm/qxl/qxl_drv.c   |  4 ----
+>  drivers/gpu/drm/qxl/qxl_prime.c | 14 --------------
+>  2 files changed, 18 deletions(-)
+>
+> diff --git a/drivers/gpu/drm/qxl/qxl_drv.c b/drivers/gpu/drm/qxl/qxl_drv.c
+> index 13c8a662f9..ccb090f3ab 100644
+> --- a/drivers/gpu/drm/qxl/qxl_drv.c
+> +++ b/drivers/gpu/drm/qxl/qxl_drv.c
+> @@ -250,14 +250,10 @@ static struct drm_driver qxl_driver = {
+>  #if defined(CONFIG_DEBUG_FS)
+>         .debugfs_init = qxl_debugfs_init,
+>  #endif
+> -       .prime_handle_to_fd = drm_gem_prime_handle_to_fd,
+> -       .prime_fd_to_handle = drm_gem_prime_fd_to_handle,
+>         .gem_prime_export = drm_gem_prime_export,
+>         .gem_prime_import = drm_gem_prime_import,
+>         .gem_prime_pin = qxl_gem_prime_pin,
+>         .gem_prime_unpin = qxl_gem_prime_unpin,
+> -       .gem_prime_get_sg_table = qxl_gem_prime_get_sg_table,
+> -       .gem_prime_import_sg_table = qxl_gem_prime_import_sg_table,
+>         .gem_prime_vmap = qxl_gem_prime_vmap,
+>         .gem_prime_vunmap = qxl_gem_prime_vunmap,
+>         .gem_prime_mmap = qxl_gem_prime_mmap,
+> diff --git a/drivers/gpu/drm/qxl/qxl_prime.c b/drivers/gpu/drm/qxl/qxl_prime.c
+> index a55dece118..df65d3c1a7 100644
+> --- a/drivers/gpu/drm/qxl/qxl_prime.c
+> +++ b/drivers/gpu/drm/qxl/qxl_prime.c
+> @@ -38,20 +38,6 @@ void qxl_gem_prime_unpin(struct drm_gem_object *obj)
+>         WARN_ONCE(1, "not implemented");
+>  }
+>
+> -struct sg_table *qxl_gem_prime_get_sg_table(struct drm_gem_object *obj)
+> -{
+> -       WARN_ONCE(1, "not implemented");
+> -       return ERR_PTR(-ENOSYS);
+> -}
+> -
+> -struct drm_gem_object *qxl_gem_prime_import_sg_table(
+> -       struct drm_device *dev, struct dma_buf_attachment *attach,
+> -       struct sg_table *table)
+> -{
+> -       WARN_ONCE(1, "not implemented");
+> -       return ERR_PTR(-ENOSYS);
+> -}
+> -
+>  void *qxl_gem_prime_vmap(struct drm_gem_object *obj)
+>  {
+>         WARN_ONCE(1, "not implemented");
+> --
+> 2.9.3
+>
+> _______________________________________________
+> dri-devel mailing list
+> dri-devel@lists.freedesktop.org
+> https://lists.freedesktop.org/mailman/listinfo/dri-devel
