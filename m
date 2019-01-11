@@ -1,11 +1,13 @@
-From: Jason Wang <jasowang@redhat.com>
-Subject: [PATCH net V4] vhost: log dirty page correctly
-Date: Wed, 16 Jan 2019 16:54:42 +0800
-Message-ID: <20190116085442.3836-1-jasowang__34400.8523891263$1547693657$gmane$org@redhat.com>
+From: Gerd Hoffmann <kraxel@redhat.com>
+Subject: [PATCH v4 04/16] drm/bochs: atomic: add mode_set_nofb callback.
+Date: Fri, 11 Jan 2019 06:37:40 +0100
+Message-ID: <20190111053752.4004-5-kraxel__4203.55706378377$1547693672$gmane$org@redhat.com>
+References: <20190111053752.4004-1-kraxel@redhat.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
+In-Reply-To: <20190111053752.4004-1-kraxel@redhat.com>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -15,215 +17,46 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: mst@redhat.com, jasowang@redhat.com, kvm@vger.kernel.org, virtualization@lists.linux-foundation.org, netdev@vger.kernel.org, linux-kernel@vger.kernel.org
-Cc: Jintack Lim <jintack@cs.columbia.edu>
+To: dri-devel@lists.freedesktop.org, David Airlie <airlied@redhat.com>
+Cc: andr2000@gmail.com, open list <linux-kernel@vger.kernel.org>, "open list:DRM DRIVER FOR BOCHS VIRTUAL GPU" <virtualization@lists.linux-foundation.org>, David Airlie <airlied@linux.ie>, noralf@tronnes.org
 List-Id: virtualization@lists.linuxfoundation.org
 
-Vhost dirty page logging API is designed to sync through GPA. But we
-try to log GIOVA when device IOTLB is enabled. This is wrong and may
-lead to missing data after migration.
+Conversion to atomic modesetting, step two.
+Add mode_set_nofb crtc helper callback.
 
-To solve this issue, when logging with device IOTLB enabled, we will:
-
-1) reuse the device IOTLB translation result of GIOVA->HVA mapping to
-   get HVA, for writable descriptor, get HVA through iovec. For used
-   ring update, translate its GIOVA to HVA
-2) traverse the GPA->HVA mapping to get the possible GPA and log
-   through GPA. Pay attention this reverse mapping is not guaranteed
-   to be unique, so we should log each possible GPA in this case.
-
-This fix the failure of scp to guest during migration. In -next, we
-will probably support passing GIOVA->GPA instead of GIOVA->HVA.
-
-Fixes: 6b1e6cc7855b ("vhost: new device IOTLB API")
-Reported-by: Jintack Lim <jintack@cs.columbia.edu>
-Cc: Jintack Lim <jintack@cs.columbia.edu>
-Signed-off-by: Jason Wang <jasowang@redhat.com>
+Signed-off-by: Gerd Hoffmann <kraxel@redhat.com>
+Reviewed-by: Oleksandr Andrushchenko <oleksandr_andrushchenko@epam.com>
+Acked-by: Daniel Vetter <daniel.vetter@ffwll.ch>
 ---
-Changes from V3:
-- make sure each part of the hva was logged when crossing the boundary
-  of memory regions
-Changes from V2:
-- check and log the case of range overlap
-- remove unnecessary u64 cast
-- use smp_wmb() for the case of device IOTLB as well
-Changes from V1:
-- return error instead of warn
----
- drivers/vhost/net.c   |  3 +-
- drivers/vhost/vhost.c | 97 ++++++++++++++++++++++++++++++++++++-------
- drivers/vhost/vhost.h |  3 +-
- 3 files changed, 87 insertions(+), 16 deletions(-)
+ drivers/gpu/drm/bochs/bochs_kms.c | 9 +++++++++
+ 1 file changed, 9 insertions(+)
 
-diff --git a/drivers/vhost/net.c b/drivers/vhost/net.c
-index 36f3d0f49e60..bca86bf7189f 100644
---- a/drivers/vhost/net.c
-+++ b/drivers/vhost/net.c
-@@ -1236,7 +1236,8 @@ static void handle_rx(struct vhost_net *net)
- 		if (nvq->done_idx > VHOST_NET_BATCH)
- 			vhost_net_signal_used(nvq);
- 		if (unlikely(vq_log))
--			vhost_log_write(vq, vq_log, log, vhost_len);
-+			vhost_log_write(vq, vq_log, log, vhost_len,
-+					vq->iov, in);
- 		total_len += vhost_len;
- 		if (unlikely(vhost_exceeds_weight(++recv_pkts, total_len))) {
- 			vhost_poll_queue(&vq->poll);
-diff --git a/drivers/vhost/vhost.c b/drivers/vhost/vhost.c
-index 9f7942cbcbb2..babbb32b9bf0 100644
---- a/drivers/vhost/vhost.c
-+++ b/drivers/vhost/vhost.c
-@@ -1733,13 +1733,87 @@ static int log_write(void __user *log_base,
- 	return r;
+diff --git a/drivers/gpu/drm/bochs/bochs_kms.c b/drivers/gpu/drm/bochs/bochs_kms.c
+index 2cbd406b1f..56fd7be933 100644
+--- a/drivers/gpu/drm/bochs/bochs_kms.c
++++ b/drivers/gpu/drm/bochs/bochs_kms.c
+@@ -86,6 +86,14 @@ static int bochs_crtc_mode_set(struct drm_crtc *crtc,
+ 	return 0;
  }
  
-+static int log_write_hva(struct vhost_virtqueue *vq, u64 hva, u64 len)
++static void bochs_crtc_mode_set_nofb(struct drm_crtc *crtc)
 +{
-+	struct vhost_umem *umem = vq->umem;
-+	struct vhost_umem_node *u;
-+	u64 start, end, l, min;
-+	int r;
-+	bool hit = false;
++	struct bochs_device *bochs =
++		container_of(crtc, struct bochs_device, crtc);
 +
-+	while (len) {
-+		min = len;
-+		/* More than one GPAs can be mapped into a single HVA. So
-+		 * iterate all possible umems here to be safe.
-+		 */
-+		list_for_each_entry(u, &umem->umem_list, link) {
-+			if (u->userspace_addr > hva - 1 + len ||
-+			    u->userspace_addr - 1 + u->size < hva)
-+				continue;
-+			start = max(u->userspace_addr, hva);
-+			end = min(u->userspace_addr - 1 + u->size,
-+				  hva - 1 + len);
-+			l = end - start + 1;
-+			r = log_write(vq->log_base,
-+				      u->start + start - u->userspace_addr,
-+				      l);
-+			if (r < 0)
-+				return r;
-+			hit = true;
-+			min = min(l, min);
-+		}
-+
-+		if (!hit)
-+			return -EFAULT;
-+
-+		len -= min;
-+		hva += min;
-+	}
-+
-+	return 0;
++	bochs_hw_setmode(bochs, &crtc->mode);
 +}
 +
-+static int log_used(struct vhost_virtqueue *vq, u64 used_offset, u64 len)
-+{
-+	struct iovec iov[64];
-+	int i, ret;
-+
-+	if (!vq->iotlb)
-+		return log_write(vq->log_base, vq->log_addr + used_offset, len);
-+
-+	ret = translate_desc(vq, (uintptr_t)vq->used + used_offset,
-+			     len, iov, 64, VHOST_ACCESS_WO);
-+	if (ret)
-+		return ret;
-+
-+	for (i = 0; i < ret; i++) {
-+		ret = log_write_hva(vq,	(uintptr_t)iov[i].iov_base,
-+				    iov[i].iov_len);
-+		if (ret)
-+			return ret;
-+	}
-+
-+	return 0;
-+}
-+
- int vhost_log_write(struct vhost_virtqueue *vq, struct vhost_log *log,
--		    unsigned int log_num, u64 len)
-+		    unsigned int log_num, u64 len, struct iovec *iov, int count)
+ static void bochs_crtc_prepare(struct drm_crtc *crtc)
  {
- 	int i, r;
- 
- 	/* Make sure data written is seen before log. */
- 	smp_wmb();
-+
-+	if (vq->iotlb) {
-+		for (i = 0; i < count; i++) {
-+			r = log_write_hva(vq, (uintptr_t)iov[i].iov_base,
-+					  iov[i].iov_len);
-+			if (r < 0)
-+				return r;
-+		}
-+		return 0;
-+	}
-+
- 	for (i = 0; i < log_num; ++i) {
- 		u64 l = min(log[i].len, len);
- 		r = log_write(vq->log_base, log[i].addr, l);
-@@ -1769,9 +1843,8 @@ static int vhost_update_used_flags(struct vhost_virtqueue *vq)
- 		smp_wmb();
- 		/* Log used flag write. */
- 		used = &vq->used->flags;
--		log_write(vq->log_base, vq->log_addr +
--			  (used - (void __user *)vq->used),
--			  sizeof vq->used->flags);
-+		log_used(vq, (used - (void __user *)vq->used),
-+			 sizeof vq->used->flags);
- 		if (vq->log_ctx)
- 			eventfd_signal(vq->log_ctx, 1);
- 	}
-@@ -1789,9 +1862,8 @@ static int vhost_update_avail_event(struct vhost_virtqueue *vq, u16 avail_event)
- 		smp_wmb();
- 		/* Log avail event write */
- 		used = vhost_avail_event(vq);
--		log_write(vq->log_base, vq->log_addr +
--			  (used - (void __user *)vq->used),
--			  sizeof *vhost_avail_event(vq));
-+		log_used(vq, (used - (void __user *)vq->used),
-+			 sizeof *vhost_avail_event(vq));
- 		if (vq->log_ctx)
- 			eventfd_signal(vq->log_ctx, 1);
- 	}
-@@ -2191,10 +2263,8 @@ static int __vhost_add_used_n(struct vhost_virtqueue *vq,
- 		/* Make sure data is seen before log. */
- 		smp_wmb();
- 		/* Log used ring entry write. */
--		log_write(vq->log_base,
--			  vq->log_addr +
--			   ((void __user *)used - (void __user *)vq->used),
--			  count * sizeof *used);
-+		log_used(vq, ((void __user *)used - (void __user *)vq->used),
-+			 count * sizeof *used);
- 	}
- 	old = vq->last_used_idx;
- 	new = (vq->last_used_idx += count);
-@@ -2236,9 +2306,8 @@ int vhost_add_used_n(struct vhost_virtqueue *vq, struct vring_used_elem *heads,
- 		/* Make sure used idx is seen before log. */
- 		smp_wmb();
- 		/* Log used index update. */
--		log_write(vq->log_base,
--			  vq->log_addr + offsetof(struct vring_used, idx),
--			  sizeof vq->used->idx);
-+		log_used(vq, offsetof(struct vring_used, idx),
-+			 sizeof vq->used->idx);
- 		if (vq->log_ctx)
- 			eventfd_signal(vq->log_ctx, 1);
- 	}
-diff --git a/drivers/vhost/vhost.h b/drivers/vhost/vhost.h
-index 466ef7542291..1b675dad5e05 100644
---- a/drivers/vhost/vhost.h
-+++ b/drivers/vhost/vhost.h
-@@ -205,7 +205,8 @@ bool vhost_vq_avail_empty(struct vhost_dev *, struct vhost_virtqueue *);
- bool vhost_enable_notify(struct vhost_dev *, struct vhost_virtqueue *);
- 
- int vhost_log_write(struct vhost_virtqueue *vq, struct vhost_log *log,
--		    unsigned int log_num, u64 len);
-+		    unsigned int log_num, u64 len,
-+		    struct iovec *iov, int count);
- int vq_iotlb_prefetch(struct vhost_virtqueue *vq);
- 
- struct vhost_msg_node *vhost_new_msg(struct vhost_virtqueue *vq, int type);
+ }
+@@ -149,6 +157,7 @@ static const struct drm_crtc_helper_funcs bochs_helper_funcs = {
+ 	.dpms = bochs_crtc_dpms,
+ 	.mode_set = bochs_crtc_mode_set,
+ 	.mode_set_base = bochs_crtc_mode_set_base,
++	.mode_set_nofb = bochs_crtc_mode_set_nofb,
+ 	.prepare = bochs_crtc_prepare,
+ 	.commit = bochs_crtc_commit,
+ 	.atomic_enable = bochs_crtc_atomic_enable,
 -- 
-2.17.1
+2.9.3
