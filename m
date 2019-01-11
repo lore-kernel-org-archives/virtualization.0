@@ -1,17 +1,11 @@
 From: Jason Wang <jasowang@redhat.com>
-Subject: Re: [PATCH net V2] vhost: log dirty page correctly
-Date: Fri, 11 Jan 2019 11:58:32 +0800
-Message-ID: <b49e17ec-a420-7216-4ef4-22285df4f71c@redhat.com>
-References: <20190109072947.23240-1-jasowang@redhat.com>
-	<20190109091937-mutt-send-email-mst@kernel.org>
-	<8704a816-ec70-8e56-b141-3f17c41bb999@redhat.com>
-	<20190110090610-mutt-send-email-mst@kernel.org>
+Subject: [PATCH net V3] vhost: log dirty page correctly
+Date: Fri, 11 Jan 2019 12:00:36 +0800
+Message-ID: <20190111040036.12413-1-jasowang@redhat.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="utf-8"; Format="flowed"
-Content-Transfer-Encoding: base64
+Content-Type: text/plain; charset="us-ascii"
+Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <20190110090610-mutt-send-email-mst@kernel.org>
-Content-Language: en-US
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -21,71 +15,203 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: "Michael S. Tsirkin" <mst@redhat.com>
+To: mst@redhat.com, jasowang@redhat.com
 Cc: Jintack Lim <jintack@cs.columbia.edu>, netdev@vger.kernel.org, linux-kernel@vger.kernel.org, kvm@vger.kernel.org, virtualization@lists.linux-foundation.org
 List-Id: virtualization@lists.linuxfoundation.org
 
-Ck9uIDIwMTkvMS8xMCDkuIvljYgxMDowNywgTWljaGFlbCBTLiBUc2lya2luIHdyb3RlOgo+IE9u
-IFRodSwgSmFuIDEwLCAyMDE5IGF0IDA4OjM3OjE3UE0gKzA4MDAsIEphc29uIFdhbmcgd3JvdGU6
-Cj4+IE9uIDIwMTkvMS85IOS4i+WNiDEwOjI1LCBNaWNoYWVsIFMuIFRzaXJraW4gd3JvdGU6Cj4+
-PiBPbiBXZWQsIEphbiAwOSwgMjAxOSBhdCAwMzoyOTo0N1BNICswODAwLCBKYXNvbiBXYW5nIHdy
-b3RlOgo+Pj4+IFZob3N0IGRpcnR5IHBhZ2UgbG9nZ2luZyBBUEkgaXMgZGVzaWduZWQgdG8gc3lu
-YyB0aHJvdWdoIEdQQS4gQnV0IHdlCj4+Pj4gdHJ5IHRvIGxvZyBHSU9WQSB3aGVuIGRldmljZSBJ
-T1RMQiBpcyBlbmFibGVkLiBUaGlzIGlzIHdyb25nIGFuZCBtYXkKPj4+PiBsZWFkIHRvIG1pc3Np
-bmcgZGF0YSBhZnRlciBtaWdyYXRpb24uCj4+Pj4KPj4+PiBUbyBzb2x2ZSB0aGlzIGlzc3VlLCB3
-aGVuIGxvZ2dpbmcgd2l0aCBkZXZpY2UgSU9UTEIgZW5hYmxlZCwgd2Ugd2lsbDoKPj4+Pgo+Pj4+
-IDEpIHJldXNlIHRoZSBkZXZpY2UgSU9UTEIgdHJhbnNsYXRpb24gcmVzdWx0IG9mIEdJT1ZBLT5I
-VkEgbWFwcGluZyB0bwo+Pj4+ICAgICAgZ2V0IEhWQSwgZm9yIHdyaXRhYmxlIGRlc2NyaXB0b3Is
-IGdldCBIVkEgdGhyb3VnaCBpb3ZlYy4gRm9yIHVzZWQKPj4+PiAgICAgIHJpbmcgdXBkYXRlLCB0
-cmFuc2xhdGUgaXRzIEdJT1ZBIHRvIEhWQQo+Pj4+IDIpIHRyYXZlcnNlIHRoZSBHUEEtPkhWQSBt
-YXBwaW5nIHRvIGdldCB0aGUgcG9zc2libGUgR1BBIGFuZCBsb2cKPj4+PiAgICAgIHRocm91Z2gg
-R1BBLiBQYXkgYXR0ZW50aW9uIHRoaXMgcmV2ZXJzZSBtYXBwaW5nIGlzIG5vdCBndWFyYW50ZWVk
-Cj4+Pj4gICAgICB0byBiZSB1bmlxdWUsIHNvIHdlIHNob3VsZCBsb2cgZWFjaCBwb3NzaWJsZSBH
-UEEgaW4gdGhpcyBjYXNlLgo+Pj4+Cj4+Pj4gVGhpcyBmaXggdGhlIGZhaWx1cmUgb2Ygc2NwIHRv
-IGd1ZXN0IGR1cmluZyBtaWdyYXRpb24uIEluIC1uZXh0LCB3ZQo+Pj4+IHdpbGwgcHJvYmFibHkg
-c3VwcG9ydCBwYXNzaW5nIEdJT1ZBLT5HUEEgaW5zdGVhZCBvZiBHSU9WQS0+SFZBLgo+Pj4+Cj4+
-Pj4gRml4ZXM6IDZiMWU2Y2M3ODU1YiAoInZob3N0OiBuZXcgZGV2aWNlIElPVExCIEFQSSIpCj4+
-Pj4gUmVwb3J0ZWQtYnk6IEppbnRhY2sgTGltPGppbnRhY2tAY3MuY29sdW1iaWEuZWR1Pgo+Pj4+
-IENjOiBKaW50YWNrIExpbTxqaW50YWNrQGNzLmNvbHVtYmlhLmVkdT4KPj4+PiBTaWduZWQtb2Zm
-LWJ5OiBKYXNvbiBXYW5nPGphc293YW5nQHJlZGhhdC5jb20+Cj4+Pj4gLS0tCj4+Pj4gVGhlIHBh
-dGNoIGlzIG5lZWRlZCBmb3Igc3RhYmxlLgo+Pj4+IENoYW5nZXMgZnJvbSBWMToKPj4+PiAtIHJl
-dHVybiBlcnJvciBpbnN0ZWFkIG9mIHdhcm4KPj4+PiAtLS0KPj4+PiAgICBkcml2ZXJzL3Zob3N0
-L25ldC5jICAgfCAgMyArLQo+Pj4+ICAgIGRyaXZlcnMvdmhvc3Qvdmhvc3QuYyB8IDgyICsrKysr
-KysrKysrKysrKysrKysrKysrKysrKysrKysrKysrLS0tLS0tLS0KPj4+PiAgICBkcml2ZXJzL3Zo
-b3N0L3Zob3N0LmggfCAgMyArLQo+Pj4+ICAgIDMgZmlsZXMgY2hhbmdlZCwgNzIgaW5zZXJ0aW9u
-cygrKSwgMTYgZGVsZXRpb25zKC0pCj4+Pj4KPj4+PiBkaWZmIC0tZ2l0IGEvZHJpdmVycy92aG9z
-dC9uZXQuYyBiL2RyaXZlcnMvdmhvc3QvbmV0LmMKPj4+PiBpbmRleCAzNmYzZDBmNDllNjAuLmJj
-YTg2YmY3MTg5ZiAxMDA2NDQKPj4+PiAtLS0gYS9kcml2ZXJzL3Zob3N0L25ldC5jCj4+Pj4gKysr
-IGIvZHJpdmVycy92aG9zdC9uZXQuYwo+Pj4+IEBAIC0xMjM2LDcgKzEyMzYsOCBAQCBzdGF0aWMg
-dm9pZCBoYW5kbGVfcngoc3RydWN0IHZob3N0X25ldCAqbmV0KQo+Pj4+ICAgIAkJaWYgKG52cS0+
-ZG9uZV9pZHggPiBWSE9TVF9ORVRfQkFUQ0gpCj4+Pj4gICAgCQkJdmhvc3RfbmV0X3NpZ25hbF91
-c2VkKG52cSk7Cj4+Pj4gICAgCQlpZiAodW5saWtlbHkodnFfbG9nKSkKPj4+PiAtCQkJdmhvc3Rf
-bG9nX3dyaXRlKHZxLCB2cV9sb2csIGxvZywgdmhvc3RfbGVuKTsKPj4+PiArCQkJdmhvc3RfbG9n
-X3dyaXRlKHZxLCB2cV9sb2csIGxvZywgdmhvc3RfbGVuLAo+Pj4+ICsJCQkJCXZxLT5pb3YsIGlu
-KTsKPj4+PiAgICAJCXRvdGFsX2xlbiArPSB2aG9zdF9sZW47Cj4+Pj4gICAgCQlpZiAodW5saWtl
-bHkodmhvc3RfZXhjZWVkc193ZWlnaHQoKytyZWN2X3BrdHMsIHRvdGFsX2xlbikpKSB7Cj4+Pj4g
-ICAgCQkJdmhvc3RfcG9sbF9xdWV1ZSgmdnEtPnBvbGwpOwo+Pj4+IGRpZmYgLS1naXQgYS9kcml2
-ZXJzL3Zob3N0L3Zob3N0LmMgYi9kcml2ZXJzL3Zob3N0L3Zob3N0LmMKPj4+PiBpbmRleCA5Zjc5
-NDJjYmNiYjIuLmVlMDk1ZjA4ZmZkNCAxMDA2NDQKPj4+PiAtLS0gYS9kcml2ZXJzL3Zob3N0L3Zo
-b3N0LmMKPj4+PiArKysgYi9kcml2ZXJzL3Zob3N0L3Zob3N0LmMKPj4+PiBAQCAtMTczMywxMSAr
-MTczMyw3MCBAQCBzdGF0aWMgaW50IGxvZ193cml0ZSh2b2lkIF9fdXNlciAqbG9nX2Jhc2UsCj4+
-Pj4gICAgCXJldHVybiByOwo+Pj4+ICAgIH0KPj4+PiArc3RhdGljIGludCBsb2dfd3JpdGVfaHZh
-KHN0cnVjdCB2aG9zdF92aXJ0cXVldWUgKnZxLCB1NjQgaHZhLCB1NjQgbGVuKQo+Pj4+ICt7Cj4+
-Pj4gKwlzdHJ1Y3Qgdmhvc3RfdW1lbSAqdW1lbSA9IHZxLT51bWVtOwo+Pj4+ICsJc3RydWN0IHZo
-b3N0X3VtZW1fbm9kZSAqdTsKPj4+PiArCXU2NCBncGE7Cj4+Pj4gKwlpbnQgcjsKPj4+PiArCWJv
-b2wgaGl0ID0gZmFsc2U7Cj4+Pj4gKwo+Pj4+ICsJbGlzdF9mb3JfZWFjaF9lbnRyeSh1LCAmdW1l
-bS0+dW1lbV9saXN0LCBsaW5rKSB7Cj4+Pj4gKwkJaWYgKHUtPnVzZXJzcGFjZV9hZGRyIDwgaHZh
-ICYmCj4+Pj4gKwkJICAgIHUtPnVzZXJzcGFjZV9hZGRyICsgdS0+c2l6ZSA+PQo+Pj4+ICsJCSAg
-ICBodmEgKyBsZW4pIHsKPj4+IFNvIHRoaXMgdHJpZXMgdG8gc2VlIHRoYXQgdGhlIEdQQSByYW5n
-ZSBpcyBjb21wbGV0ZWx5IHdpdGhpbgo+Pj4gdGhlIEdWQSByZWdpb24uIERvZXMgdGhpcyBoYXZl
-IHRvIGJlIHRoZSBjYXNlPwo+PiBZb3UgbWVhbiBlLmcgYSBidWZmZXIgdGhhdCBjcm9zc2VzIHRo
-ZSBib3VuZGFyeSBvZiB0d28gbWVtb3J5IHJlZ2lvbnM/Cj4gWWVzIC0gd2hlcmUgaHZhIGFuZCBn
-dmEgY291bGQgYmUgY29udGlnaW91cy4KCgpPaywgbGV0IG1lIGFkZCB0aGUgb3ZlcmxhcCByYW5n
-ZSBsb2dnaW5nIGluIHYzLgoKCj4KPgo+Pj4gQW5kIGlmIHllcyB3aHkgbm90IHJldHVybiAwIGJl
-bG93IGluc3RlYWQgb2YgaGl0ID0gdHJ1ZT8KPj4gSSB0aGluayBpdCdzIHNhZmUgYnV0IG5vdCBz
-dXJlIGZvciB0aGUgY2FzZSBsaWtlIHR3byBHUEFzIGNhbiBtYXAgdG8gc2FtZQo+PiBIVkE/Cj4g
-T2ggSSBzZWUuIFllcyB0aGF0J3MgcG9zc2libGUuIERvY3VtZW50IHRoZSBtb3RpdmF0aW9uPwo+
-CgpPay4KClRoYW5rcwoKX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19f
-X19fX18KVmlydHVhbGl6YXRpb24gbWFpbGluZyBsaXN0ClZpcnR1YWxpemF0aW9uQGxpc3RzLmxp
-bnV4LWZvdW5kYXRpb24ub3JnCmh0dHBzOi8vbGlzdHMubGludXhmb3VuZGF0aW9uLm9yZy9tYWls
-bWFuL2xpc3RpbmZvL3ZpcnR1YWxpemF0aW9u
+Vhost dirty page logging API is designed to sync through GPA. But we
+try to log GIOVA when device IOTLB is enabled. This is wrong and may
+lead to missing data after migration.
+
+To solve this issue, when logging with device IOTLB enabled, we will:
+
+1) reuse the device IOTLB translation result of GIOVA->HVA mapping to
+   get HVA, for writable descriptor, get HVA through iovec. For used
+   ring update, translate its GIOVA to HVA
+2) traverse the GPA->HVA mapping to get the possible GPA and log
+   through GPA. Pay attention this reverse mapping is not guaranteed
+   to be unique, so we should log each possible GPA in this case.
+
+This fix the failure of scp to guest during migration. In -next, we
+will probably support passing GIOVA->GPA instead of GIOVA->HVA.
+
+Fixes: 6b1e6cc7855b ("vhost: new device IOTLB API")
+Reported-by: Jintack Lim <jintack@cs.columbia.edu>
+Cc: Jintack Lim <jintack@cs.columbia.edu>
+Signed-off-by: Jason Wang <jasowang@redhat.com>
+---
+Changes from V2:
+- check and log the case of range overlap
+- remove unnecessary u64 cast
+- use smp_wmb() for the case of device IOTLB as well
+Changes from V1:
+- return error instead of warn
+---
+ drivers/vhost/net.c   |  3 +-
+ drivers/vhost/vhost.c | 88 ++++++++++++++++++++++++++++++++++++-------
+ drivers/vhost/vhost.h |  3 +-
+ 3 files changed, 78 insertions(+), 16 deletions(-)
+
+diff --git a/drivers/vhost/net.c b/drivers/vhost/net.c
+index 36f3d0f49e60..bca86bf7189f 100644
+--- a/drivers/vhost/net.c
++++ b/drivers/vhost/net.c
+@@ -1236,7 +1236,8 @@ static void handle_rx(struct vhost_net *net)
+ 		if (nvq->done_idx > VHOST_NET_BATCH)
+ 			vhost_net_signal_used(nvq);
+ 		if (unlikely(vq_log))
+-			vhost_log_write(vq, vq_log, log, vhost_len);
++			vhost_log_write(vq, vq_log, log, vhost_len,
++					vq->iov, in);
+ 		total_len += vhost_len;
+ 		if (unlikely(vhost_exceeds_weight(++recv_pkts, total_len))) {
+ 			vhost_poll_queue(&vq->poll);
+diff --git a/drivers/vhost/vhost.c b/drivers/vhost/vhost.c
+index 9f7942cbcbb2..55a2e8f9f8ca 100644
+--- a/drivers/vhost/vhost.c
++++ b/drivers/vhost/vhost.c
+@@ -1733,13 +1733,78 @@ static int log_write(void __user *log_base,
+ 	return r;
+ }
+ 
++static int log_write_hva(struct vhost_virtqueue *vq, u64 hva, u64 len)
++{
++	struct vhost_umem *umem = vq->umem;
++	struct vhost_umem_node *u;
++	u64 start, end;
++	int r;
++	bool hit = false;
++
++	/* More than one GPAs can be mapped into a single HVA. So
++	 * iterate all possible umems here to be safe.
++	 */
++	list_for_each_entry(u, &umem->umem_list, link) {
++		if (u->userspace_addr > hva - 1 + len ||
++		    u->userspace_addr - 1 + u->size < hva)
++			continue;
++		start = max(u->userspace_addr, hva);
++		end = min(u->userspace_addr - 1 + u->size, hva - 1 + len);
++		r = log_write(vq->log_base,
++			      u->start + start - u->userspace_addr,
++			      end - start + 1);
++		if (r < 0)
++			return r;
++		hit = true;
++	}
++
++	if (!hit)
++		return -EFAULT;
++
++	return 0;
++}
++
++static int log_used(struct vhost_virtqueue *vq, u64 used_offset, u64 len)
++{
++	struct iovec iov[64];
++	int i, ret;
++
++	if (!vq->iotlb)
++		return log_write(vq->log_base, vq->log_addr + used_offset, len);
++
++	ret = translate_desc(vq, (uintptr_t)vq->used + used_offset,
++			     len, iov, 64, VHOST_ACCESS_WO);
++	if (ret)
++		return ret;
++
++	for (i = 0; i < ret; i++) {
++		ret = log_write_hva(vq,	(uintptr_t)iov[i].iov_base,
++				    iov[i].iov_len);
++		if (ret)
++			return ret;
++	}
++
++	return 0;
++}
++
+ int vhost_log_write(struct vhost_virtqueue *vq, struct vhost_log *log,
+-		    unsigned int log_num, u64 len)
++		    unsigned int log_num, u64 len, struct iovec *iov, int count)
+ {
+ 	int i, r;
+ 
+ 	/* Make sure data written is seen before log. */
+ 	smp_wmb();
++
++	if (vq->iotlb) {
++		for (i = 0; i < count; i++) {
++			r = log_write_hva(vq, (uintptr_t)iov[i].iov_base,
++					  iov[i].iov_len);
++			if (r < 0)
++				return r;
++		}
++		return 0;
++	}
++
+ 	for (i = 0; i < log_num; ++i) {
+ 		u64 l = min(log[i].len, len);
+ 		r = log_write(vq->log_base, log[i].addr, l);
+@@ -1769,9 +1834,8 @@ static int vhost_update_used_flags(struct vhost_virtqueue *vq)
+ 		smp_wmb();
+ 		/* Log used flag write. */
+ 		used = &vq->used->flags;
+-		log_write(vq->log_base, vq->log_addr +
+-			  (used - (void __user *)vq->used),
+-			  sizeof vq->used->flags);
++		log_used(vq, (used - (void __user *)vq->used),
++			 sizeof vq->used->flags);
+ 		if (vq->log_ctx)
+ 			eventfd_signal(vq->log_ctx, 1);
+ 	}
+@@ -1789,9 +1853,8 @@ static int vhost_update_avail_event(struct vhost_virtqueue *vq, u16 avail_event)
+ 		smp_wmb();
+ 		/* Log avail event write */
+ 		used = vhost_avail_event(vq);
+-		log_write(vq->log_base, vq->log_addr +
+-			  (used - (void __user *)vq->used),
+-			  sizeof *vhost_avail_event(vq));
++		log_used(vq, (used - (void __user *)vq->used),
++			 sizeof *vhost_avail_event(vq));
+ 		if (vq->log_ctx)
+ 			eventfd_signal(vq->log_ctx, 1);
+ 	}
+@@ -2191,10 +2254,8 @@ static int __vhost_add_used_n(struct vhost_virtqueue *vq,
+ 		/* Make sure data is seen before log. */
+ 		smp_wmb();
+ 		/* Log used ring entry write. */
+-		log_write(vq->log_base,
+-			  vq->log_addr +
+-			   ((void __user *)used - (void __user *)vq->used),
+-			  count * sizeof *used);
++		log_used(vq, ((void __user *)used - (void __user *)vq->used),
++			 count * sizeof *used);
+ 	}
+ 	old = vq->last_used_idx;
+ 	new = (vq->last_used_idx += count);
+@@ -2236,9 +2297,8 @@ int vhost_add_used_n(struct vhost_virtqueue *vq, struct vring_used_elem *heads,
+ 		/* Make sure used idx is seen before log. */
+ 		smp_wmb();
+ 		/* Log used index update. */
+-		log_write(vq->log_base,
+-			  vq->log_addr + offsetof(struct vring_used, idx),
+-			  sizeof vq->used->idx);
++		log_used(vq, offsetof(struct vring_used, idx),
++			 sizeof vq->used->idx);
+ 		if (vq->log_ctx)
+ 			eventfd_signal(vq->log_ctx, 1);
+ 	}
+diff --git a/drivers/vhost/vhost.h b/drivers/vhost/vhost.h
+index 466ef7542291..1b675dad5e05 100644
+--- a/drivers/vhost/vhost.h
++++ b/drivers/vhost/vhost.h
+@@ -205,7 +205,8 @@ bool vhost_vq_avail_empty(struct vhost_dev *, struct vhost_virtqueue *);
+ bool vhost_enable_notify(struct vhost_dev *, struct vhost_virtqueue *);
+ 
+ int vhost_log_write(struct vhost_virtqueue *vq, struct vhost_log *log,
+-		    unsigned int log_num, u64 len);
++		    unsigned int log_num, u64 len,
++		    struct iovec *iov, int count);
+ int vq_iotlb_prefetch(struct vhost_virtqueue *vq);
+ 
+ struct vhost_msg_node *vhost_new_msg(struct vhost_virtqueue *vq, int type);
+-- 
+2.17.1
