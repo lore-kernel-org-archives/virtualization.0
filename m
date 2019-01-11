@@ -1,7 +1,8 @@
 From: Gerd Hoffmann <kraxel@redhat.com>
-Subject: [PATCH v4 09/16] drm/bochs: atomic: set DRIVER_ATOMIC
-Date: Fri, 11 Jan 2019 06:37:45 +0100
-Message-ID: <20190111053752.4004-10-kraxel__42437.034022487$1547692821$gmane$org@redhat.com>
+Subject: [PATCH v4 03/16] drm/bochs: atomic: add atomic_flush+atomic_enable
+	callbacks.
+Date: Fri, 11 Jan 2019 06:37:39 +0100
+Message-ID: <20190111053752.4004-4-kraxel__36111.7902132266$1547692838$gmane$org@redhat.com>
 References: <20190111053752.4004-1-kraxel@redhat.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
@@ -21,28 +22,57 @@ To: dri-devel@lists.freedesktop.org, David Airlie <airlied@redhat.com>
 Cc: andr2000@gmail.com, open list <linux-kernel@vger.kernel.org>, "open list:DRM DRIVER FOR BOCHS VIRTUAL GPU" <virtualization@lists.linux-foundation.org>, David Airlie <airlied@linux.ie>, noralf@tronnes.org
 List-Id: virtualization@lists.linuxfoundation.org
 
-Conversion to atomic modesetting, final step.
-Set the DRIVER_ATOMIC flag.
+Conversion to atomic modesetting, step one.
+Add atomic crtc helper callbacks.
 
 Signed-off-by: Gerd Hoffmann <kraxel@redhat.com>
-Reviewed-by: Oleksandr Andrushchenko <oleksandr_andrushchenko@epam.com>
 Acked-by: Daniel Vetter <daniel.vetter@ffwll.ch>
 ---
- drivers/gpu/drm/bochs/bochs_drv.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ drivers/gpu/drm/bochs/bochs_kms.c | 25 +++++++++++++++++++++++++
+ 1 file changed, 25 insertions(+)
 
-diff --git a/drivers/gpu/drm/bochs/bochs_drv.c b/drivers/gpu/drm/bochs/bochs_drv.c
-index 08ba6029d2..a8cb22cffe 100644
---- a/drivers/gpu/drm/bochs/bochs_drv.c
-+++ b/drivers/gpu/drm/bochs/bochs_drv.c
-@@ -81,7 +81,7 @@ static const struct file_operations bochs_fops = {
+diff --git a/drivers/gpu/drm/bochs/bochs_kms.c b/drivers/gpu/drm/bochs/bochs_kms.c
+index f7e6d1a9b3..2cbd406b1f 100644
+--- a/drivers/gpu/drm/bochs/bochs_kms.c
++++ b/drivers/gpu/drm/bochs/bochs_kms.c
+@@ -115,6 +115,29 @@ static int bochs_crtc_page_flip(struct drm_crtc *crtc,
+ 	return 0;
+ }
+ 
++static void bochs_crtc_atomic_enable(struct drm_crtc *crtc,
++				     struct drm_crtc_state *old_crtc_state)
++{
++}
++
++static void bochs_crtc_atomic_flush(struct drm_crtc *crtc,
++				    struct drm_crtc_state *old_crtc_state)
++{
++	struct drm_device *dev = crtc->dev;
++	struct drm_pending_vblank_event *event;
++
++	if (crtc->state && crtc->state->event) {
++		unsigned long irqflags;
++
++		spin_lock_irqsave(&dev->event_lock, irqflags);
++		event = crtc->state->event;
++		crtc->state->event = NULL;
++		drm_crtc_send_vblank_event(crtc, event);
++		spin_unlock_irqrestore(&dev->event_lock, irqflags);
++	}
++}
++
++
+ /* These provide the minimum set of functions required to handle a CRTC */
+ static const struct drm_crtc_funcs bochs_crtc_funcs = {
+ 	.set_config = drm_crtc_helper_set_config,
+@@ -128,6 +151,8 @@ static const struct drm_crtc_helper_funcs bochs_helper_funcs = {
+ 	.mode_set_base = bochs_crtc_mode_set_base,
+ 	.prepare = bochs_crtc_prepare,
+ 	.commit = bochs_crtc_commit,
++	.atomic_enable = bochs_crtc_atomic_enable,
++	.atomic_flush = bochs_crtc_atomic_flush,
  };
  
- static struct drm_driver bochs_driver = {
--	.driver_features	= DRIVER_GEM | DRIVER_MODESET,
-+	.driver_features	= DRIVER_GEM | DRIVER_MODESET | DRIVER_ATOMIC,
- 	.fops			= &bochs_fops,
- 	.name			= "bochs-drm",
- 	.desc			= "bochs dispi vga interface (qemu stdvga)",
+ static const uint32_t bochs_formats[] = {
 -- 
 2.9.3
