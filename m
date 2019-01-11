@@ -1,13 +1,14 @@
-From: Dave Airlie <airlied@gmail.com>
-Subject: Re: [PATCH] drm/virtio: drop prime import/export callbacks
-Date: Sat, 12 Jan 2019 07:14:19 +1000
-Message-ID: <CAPM=9txB+gB6Wy42V+5bPN6XvVbxbbSmmg1bkzbQWmCcVT5BiQ__2303.35211749679$1547693105$gmane$org@mail.gmail.com>
-References: <20190110111545.26768-1-kraxel@redhat.com>
+From: Daniel Vetter <daniel@ffwll.ch>
+Subject: Re: [PATCH] drm/cirrus: fix connector leak at unload
+Date: Fri, 11 Jan 2019 23:06:20 +0100
+Message-ID: <20190111220620.GF21184__1074.67699931494$1547693120$gmane$org@phenom.ffwll.local>
+References: <20190111140242.29002-1-robdclark@gmail.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <20190110111545.26768-1-kraxel@redhat.com>
+Content-Disposition: inline
+In-Reply-To: <20190111140242.29002-1-robdclark@gmail.com>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -17,88 +18,45 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Gerd Hoffmann <kraxel@redhat.com>
-Cc: David Airlie <airlied@linux.ie>, open list <linux-kernel@vger.kernel.org>, dri-devel <dri-devel@lists.freedesktop.org>, "open list:VIRTIO GPU DRIVER" <virtualization@lists.linux-foundation.org>
+To: Rob Clark <robdclark@gmail.com>
+Cc: Rob Clark <rclark@redhat.com>, Daniel Stone <daniels@collabora.com>, David Airlie <airlied@linux.ie>, YueHaibing <yuehaibing@huawei.com>, linux-kernel@vger.kernel.org, dri-devel@lists.freedesktop.org, virtualization@lists.linux-foundation.org, Thomas Zimmermann <tzimmermann@suse.de>, Dave Airlie <airlied@redhat.com>, Thierry Reding <treding@nvidia.com>
 List-Id: virtualization@lists.linuxfoundation.org
 
-On Thu, 10 Jan 2019 at 21:16, Gerd Hoffmann <kraxel@redhat.com> wrote:
->
-> Also set prime_handle_to_fd and prime_fd_to_handle to NULL,
-> so drm will not advertive DRM_PRIME_CAP_{IMPORT,EXPORT} to
-> userspace.
-
-Reviewed-by: Dave Airlie <airlied@redhat.com>
->
-> Signed-off-by: Gerd Hoffmann <kraxel@redhat.com>
+On Fri, Jan 11, 2019 at 09:02:34AM -0500, Rob Clark wrote:
+> This fixes an '*ERROR* connector VGA-2 leaked!' splat at driver unload.
+> 
+> Signed-off-by: Rob Clark <robdclark@gmail.com>
 > ---
->  drivers/gpu/drm/virtio/virtgpu_drv.h   |  4 ----
->  drivers/gpu/drm/virtio/virtgpu_drv.c   |  4 ----
->  drivers/gpu/drm/virtio/virtgpu_prime.c | 14 --------------
->  3 files changed, 22 deletions(-)
->
-> diff --git a/drivers/gpu/drm/virtio/virtgpu_drv.h b/drivers/gpu/drm/virtio/virtgpu_drv.h
-> index cf896d8793..4f2f3c43a4 100644
-> --- a/drivers/gpu/drm/virtio/virtgpu_drv.h
-> +++ b/drivers/gpu/drm/virtio/virtgpu_drv.h
-> @@ -354,10 +354,6 @@ int virtio_gpu_object_wait(struct virtio_gpu_object *bo, bool no_wait);
->  /* virtgpu_prime.c */
->  int virtgpu_gem_prime_pin(struct drm_gem_object *obj);
->  void virtgpu_gem_prime_unpin(struct drm_gem_object *obj);
-> -struct sg_table *virtgpu_gem_prime_get_sg_table(struct drm_gem_object *obj);
-> -struct drm_gem_object *virtgpu_gem_prime_import_sg_table(
-> -       struct drm_device *dev, struct dma_buf_attachment *attach,
-> -       struct sg_table *sgt);
->  void *virtgpu_gem_prime_vmap(struct drm_gem_object *obj);
->  void virtgpu_gem_prime_vunmap(struct drm_gem_object *obj, void *vaddr);
->  int virtgpu_gem_prime_mmap(struct drm_gem_object *obj,
-> diff --git a/drivers/gpu/drm/virtio/virtgpu_drv.c b/drivers/gpu/drm/virtio/virtgpu_drv.c
-> index af92964b68..b996ac1d4f 100644
-> --- a/drivers/gpu/drm/virtio/virtgpu_drv.c
-> +++ b/drivers/gpu/drm/virtio/virtgpu_drv.c
-> @@ -205,14 +205,10 @@ static struct drm_driver driver = {
->  #if defined(CONFIG_DEBUG_FS)
->         .debugfs_init = virtio_gpu_debugfs_init,
->  #endif
-> -       .prime_handle_to_fd = drm_gem_prime_handle_to_fd,
-> -       .prime_fd_to_handle = drm_gem_prime_fd_to_handle,
->         .gem_prime_export = drm_gem_prime_export,
->         .gem_prime_import = drm_gem_prime_import,
->         .gem_prime_pin = virtgpu_gem_prime_pin,
->         .gem_prime_unpin = virtgpu_gem_prime_unpin,
-> -       .gem_prime_get_sg_table = virtgpu_gem_prime_get_sg_table,
-> -       .gem_prime_import_sg_table = virtgpu_gem_prime_import_sg_table,
->         .gem_prime_vmap = virtgpu_gem_prime_vmap,
->         .gem_prime_vunmap = virtgpu_gem_prime_vunmap,
->         .gem_prime_mmap = virtgpu_gem_prime_mmap,
-> diff --git a/drivers/gpu/drm/virtio/virtgpu_prime.c b/drivers/gpu/drm/virtio/virtgpu_prime.c
-> index 86ce0ae93f..c59ec34c80 100644
-> --- a/drivers/gpu/drm/virtio/virtgpu_prime.c
-> +++ b/drivers/gpu/drm/virtio/virtgpu_prime.c
-> @@ -39,20 +39,6 @@ void virtgpu_gem_prime_unpin(struct drm_gem_object *obj)
->         WARN_ONCE(1, "not implemented");
->  }
->
-> -struct sg_table *virtgpu_gem_prime_get_sg_table(struct drm_gem_object *obj)
-> -{
-> -       WARN_ONCE(1, "not implemented");
-> -       return ERR_PTR(-ENODEV);
-> -}
-> -
-> -struct drm_gem_object *virtgpu_gem_prime_import_sg_table(
-> -       struct drm_device *dev, struct dma_buf_attachment *attach,
-> -       struct sg_table *table)
-> -{
-> -       WARN_ONCE(1, "not implemented");
-> -       return ERR_PTR(-ENODEV);
-> -}
-> -
->  void *virtgpu_gem_prime_vmap(struct drm_gem_object *obj)
+> Similar case to the issue that was fixed recently in drm/ast
+
+Reviewed-by: Daniel Vetter <daniel.vetter@ffwll.ch>
+
+> 
+>  drivers/gpu/drm/cirrus/cirrus_fbdev.c | 2 ++
+>  1 file changed, 2 insertions(+)
+> 
+> diff --git a/drivers/gpu/drm/cirrus/cirrus_fbdev.c b/drivers/gpu/drm/cirrus/cirrus_fbdev.c
+> index 4dd499c7d1ba..bb379ec4c182 100644
+> --- a/drivers/gpu/drm/cirrus/cirrus_fbdev.c
+> +++ b/drivers/gpu/drm/cirrus/cirrus_fbdev.c
+> @@ -256,6 +256,8 @@ static int cirrus_fbdev_destroy(struct drm_device *dev,
 >  {
->         struct virtio_gpu_object *bo = gem_to_virtio_gpu_obj(obj);
-> --
-> 2.9.3
->
+>  	struct drm_framebuffer *gfb = gfbdev->gfb;
+>  
+> +	drm_crtc_force_disable_all(dev);
+> +
+>  	drm_fb_helper_unregister_fbi(&gfbdev->helper);
+>  
+>  	vfree(gfbdev->sysram);
+> -- 
+> 2.20.1
+> 
 > _______________________________________________
 > dri-devel mailing list
 > dri-devel@lists.freedesktop.org
 > https://lists.freedesktop.org/mailman/listinfo/dri-devel
+
+-- 
+Daniel Vetter
+Software Engineer, Intel Corporation
+http://blog.ffwll.ch
