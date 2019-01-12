@@ -1,15 +1,13 @@
-From: Daniel Vetter <daniel@ffwll.ch>
-Subject: Re: [PATCH] drm/cirrus: fix connector leak at unload
-Date: Fri, 11 Jan 2019 23:16:38 +0100
-Message-ID: <20190111221638.GG21184__38882.65169594$1547693132$gmane$org@phenom.ffwll.local>
-References: <20190111140242.29002-1-robdclark@gmail.com>
-	<20190111220620.GF21184@phenom.ffwll.local>
+From: David Miller <davem@davemloft.net>
+Subject: Re: [PATCH] vhost/vsock: fix vhost vsock cid hashing inconsistent
+Date: Fri, 11 Jan 2019 17:48:42 -0800 (PST)
+Message-ID: <20190111.174842.384650779633296454.davem__45480.8125192814$1547693147$gmane$org@davemloft.net>
+References: <20190108080703.70050-1-zhabin@linux.alibaba.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-Content-Disposition: inline
-In-Reply-To: <20190111220620.GF21184@phenom.ffwll.local>
+In-Reply-To: <20190108080703.70050-1-zhabin@linux.alibaba.com>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -19,57 +17,40 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Rob Clark <robdclark@gmail.com>
-Cc: Rob Clark <rclark@redhat.com>, Daniel Stone <daniels@collabora.com>, David Airlie <airlied@linux.ie>, YueHaibing <yuehaibing@huawei.com>, linux-kernel@vger.kernel.org, dri-devel@lists.freedesktop.org, virtualization@lists.linux-foundation.org, Thomas Zimmermann <tzimmermann@suse.de>, Dave Airlie <airlied@redhat.com>, Thierry Reding <treding@nvidia.com>
+To: zhabin@linux.alibaba.com
+Cc: kvm@vger.kernel.org, mst@redhat.com, netdev@vger.kernel.org, linux-kernel@vger.kernel.org, virtualization@lists.linux-foundation.org, stefanha@redhat.com, kata-dev@lists.katacontainers.io, gerry@linux.alibaba.com
 List-Id: virtualization@lists.linuxfoundation.org
 
-On Fri, Jan 11, 2019 at 11:06:20PM +0100, Daniel Vetter wrote:
-> On Fri, Jan 11, 2019 at 09:02:34AM -0500, Rob Clark wrote:
-> > This fixes an '*ERROR* connector VGA-2 leaked!' splat at driver unload.
-> > 
-> > Signed-off-by: Rob Clark <robdclark@gmail.com>
-> > ---
-> > Similar case to the issue that was fixed recently in drm/ast
-> 
-> Reviewed-by: Daniel Vetter <daniel.vetter@ffwll.ch>
+From: Zha Bin <zhabin@linux.alibaba.com>
+Date: Tue,  8 Jan 2019 16:07:03 +0800
 
-Actually I just pushed a patch to drm-misc-next to rename this function to
-drm_helper_force_disable_all(), so you need to respin ... My r-b still
-holds.
--Daniel
-
+> The vsock core only supports 32bit CID, but the Virtio-vsock spec define
+> CID (dst_cid and src_cid) as u64 and the upper 32bits is reserved as
+> zero. This inconsistency causes one bug in vhost vsock driver. The
+> scenarios is:
 > 
-> > 
-> >  drivers/gpu/drm/cirrus/cirrus_fbdev.c | 2 ++
-> >  1 file changed, 2 insertions(+)
-> > 
-> > diff --git a/drivers/gpu/drm/cirrus/cirrus_fbdev.c b/drivers/gpu/drm/cirrus/cirrus_fbdev.c
-> > index 4dd499c7d1ba..bb379ec4c182 100644
-> > --- a/drivers/gpu/drm/cirrus/cirrus_fbdev.c
-> > +++ b/drivers/gpu/drm/cirrus/cirrus_fbdev.c
-> > @@ -256,6 +256,8 @@ static int cirrus_fbdev_destroy(struct drm_device *dev,
-> >  {
-> >  	struct drm_framebuffer *gfb = gfbdev->gfb;
-> >  
-> > +	drm_crtc_force_disable_all(dev);
-> > +
-> >  	drm_fb_helper_unregister_fbi(&gfbdev->helper);
-> >  
-> >  	vfree(gfbdev->sysram);
-> > -- 
-> > 2.20.1
-> > 
-> > _______________________________________________
-> > dri-devel mailing list
-> > dri-devel@lists.freedesktop.org
-> > https://lists.freedesktop.org/mailman/listinfo/dri-devel
+>   0. A hash table (vhost_vsock_hash) is used to map an CID to a vsock
+>   object. And hash_min() is used to compute the hash key. hash_min() is
+>   defined as:
+>   (sizeof(val) <= 4 ? hash_32(val, bits) : hash_long(val, bits)).
+>   That means the hash algorithm has dependency on the size of macro
+>   argument 'val'.
+>   0. In function vhost_vsock_set_cid(), a 64bit CID is passed to
+>   hash_min() to compute the hash key when inserting a vsock object into
+>   the hash table.
+>   0. In function vhost_vsock_get(), a 32bit CID is passed to hash_min()
+>   to compute the hash key when looking up a vsock for an CID.
 > 
-> -- 
-> Daniel Vetter
-> Software Engineer, Intel Corporation
-> http://blog.ffwll.ch
+> Because the different size of the CID, hash_min() returns different hash
+> key, thus fails to look up the vsock object for an CID.
+> 
+> To fix this bug, we keep CID as u64 in the IOCTLs and virtio message
+> headers, but explicitly convert u64 to u32 when deal with the hash table
+> and vsock core.
+> 
+> Fixes: 834e772c8db0 ("vhost/vsock: fix use-after-free in network stack callers")
+> Link: https://github.com/stefanha/virtio/blob/vsock/trunk/content.tex
+> Signed-off-by: Zha Bin <zhabin@linux.alibaba.com>
+> Reviewed-by: Liu Jiang <gerry@linux.alibaba.com>
 
--- 
-Daniel Vetter
-Software Engineer, Intel Corporation
-http://blog.ffwll.ch
+Applied, thank you.
