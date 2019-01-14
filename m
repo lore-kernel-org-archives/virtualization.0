@@ -1,18 +1,14 @@
-From: Jason Wang <jasowang@redhat.com>
-Subject: Re: [PATCH 0/3] Fix virtio-blk issue with SWIOTLB
-Date: Mon, 14 Jan 2019 20:41:37 +0800
-Message-ID: <ac6d83d8-02de-dbdf-e309-3a1115642d50__38206.7763749093$1547693286$gmane$org@redhat.com>
-References: <20190110134433.15672-1-joro@8bytes.org>
-	<5ae1341e-62ec-0478-552b-259eabf9fb17@redhat.com>
-	<20190111091502.GC5825@8bytes.org>
-	<38bcbd46-674c-348a-cbd6-66bd431e986a@redhat.com>
-	<20190114095002.GA29874@lst.de>
+From: Cornelia Huck <cohuck@redhat.com>
+Subject: Re: [PATCH 1/2] virtio: fix virtio_config_ops description
+Date: Mon, 14 Jan 2019 15:09:58 +0100
+Message-ID: <20190114150958.39a4a56a.cohuck__3984.43763047016$1547693292$gmane$org@redhat.com>
+References: <20190103160804.21438-1-cohuck@redhat.com>
+	<20190103160804.21438-2-cohuck@redhat.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="utf-8"; Format="flowed"
-Content-Transfer-Encoding: base64
+Content-Type: text/plain; charset="us-ascii"
+Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <20190114095002.GA29874@lst.de>
-Content-Language: en-US
+In-Reply-To: <20190103160804.21438-2-cohuck@redhat.com>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -22,28 +18,55 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Christoph Hellwig <hch@lst.de>
-Cc: Jens Axboe <axboe@kernel.dk>, jon.grimm@amd.com, brijesh.singh@amd.com, Konrad Rzeszutek Wilk <konrad.wilk@oracle.com>, Joerg Roedel <joro@8bytes.org>, "Michael S . Tsirkin" <mst@redhat.com>, jfehlig@suse.com, linux-kernel@vger.kernel.org, virtualization@lists.linux-foundation.org, linux-block@vger.kernel.org, iommu@lists.linux-foundation.org
+To: "Michael S . Tsirkin" <mst@redhat.com>, Jason Wang <jasowang@redhat.com>
+Cc: Halil Pasic <pasic@linux.ibm.com>, virtio-dev@lists.oasis-open.org, linux-kernel@vger.kernel.org, virtualization@lists.linux-foundation.org
 List-Id: virtualization@lists.linuxfoundation.org
 
-Ck9uIDIwMTkvMS8xNCDkuIvljYg1OjUwLCBDaHJpc3RvcGggSGVsbHdpZyB3cm90ZToKPiBPbiBN
-b24sIEphbiAxNCwgMjAxOSBhdCAwNTo0MTo1NlBNICswODAwLCBKYXNvbiBXYW5nIHdyb3RlOgo+
-PiBPbiAyMDE5LzEvMTEg5LiL5Y2INToxNSwgSm9lcmcgUm9lZGVsIHdyb3RlOgo+Pj4gT24gRnJp
-LCBKYW4gMTEsIDIwMTkgYXQgMTE6Mjk6MzFBTSArMDgwMCwgSmFzb24gV2FuZyB3cm90ZToKPj4+
-PiBKdXN0IHdvbmRlciBpZiBteSB1bmRlcnN0YW5kaW5nIGlzIGNvcnJlY3QgSU9NTVVfUExBVEZP
-Uk0gbXVzdCBiZSBzZXQgZm9yCj4+Pj4gYWxsIHZpcnRpbyBkZXZpY2VzIHVuZGVyIEFNRC1TRVYg
-Z3Vlc3RzPwo+Pj4gWWVzLCB0aGF0IGlzIGNvcnJlY3QuIEVtdWxhdGVkIERNQSBjYW4gb25seSBo
-YXBwZW4gb24gdGhlIFNXSU9UTEIKPj4+IGFwZXJ0dXJlLCBiZWNhdXNlIHRoYXQgbWVtb3J5IGlz
-IG5vdCBlbmNyeXB0ZWQuIFRoZSBndWVzdCBib3VuY2VzIHRoZQo+Pj4gZGF0YSB0aGVuIHRvIGl0
-cyBlbmNyeXB0ZWQgbWVtb3J5Lgo+Pj4KPj4+IFJlZ2FyZHMsCj4+Pgo+Pj4gCUpvZXJnCj4+Cj4+
-IFRoYW5rcywgaGF2ZSB5b3UgdGVzdGVkIHZob3N0LW5ldCBpbiB0aGlzIGNhc2UuIEkgc3VzcGVj
-dCBpdCBtYXkgbm90IHdvcmsKPiBXaGljaCBicmluZ3MgbWUgYmFjayB0byBteSBwZXQgcGV2ZWUg
-dGhhdCB3ZSBuZWVkIHRvIHRha2UgYWN0aW9ucwo+IHRoYXQgdmlydGlvIHVzZXMgdGhlIHByb3Bl
-ciBkbWEgbWFwcGluZyBBUEkgYnkgZGVmYXVsdCB3aXRoIHF1aXJrcwo+IGZvciBsZWdhY3kgY2Fz
-ZXMuICBUaGUgbWFnaWMgYnlwYXNzIGl0IHVzZXMgaXMganVzdCBjYXVzaW5nIHByb2JsZW1zCj4g
-b3ZlciBwcm9ibGVtcy4KCgpZZXMsIEkgZnVsbHkgYWdyZWUgd2l0aCB5b3UuIFRoaXMgaXMgcHJv
-YmFibHkgYW4gZXhhY3QgZXhhbXBsZSBvZiBzdWNoIApwcm9ibGVtLgoKVGhhbmtzCgpfX19fX19f
-X19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fXwpWaXJ0dWFsaXphdGlvbiBt
-YWlsaW5nIGxpc3QKVmlydHVhbGl6YXRpb25AbGlzdHMubGludXgtZm91bmRhdGlvbi5vcmcKaHR0
-cHM6Ly9saXN0cy5saW51eGZvdW5kYXRpb24ub3JnL21haWxtYW4vbGlzdGluZm8vdmlydHVhbGl6
-YXRpb24=
+On Thu,  3 Jan 2019 17:08:03 +0100
+Cornelia Huck <cohuck@redhat.com> wrote:
+
+> - get_features has returned 64 bits since commit d025477368792
+>   ("virtio: add support for 64 bit features.")
+> - properly mark all optional callbacks
+> 
+> Signed-off-by: Cornelia Huck <cohuck@redhat.com>
+> ---
+>  include/linux/virtio_config.h | 8 ++++----
+>  1 file changed, 4 insertions(+), 4 deletions(-)
+> 
+> diff --git a/include/linux/virtio_config.h b/include/linux/virtio_config.h
+> index 32baf8e26735..7087ef946ba7 100644
+> --- a/include/linux/virtio_config.h
+> +++ b/include/linux/virtio_config.h
+> @@ -22,7 +22,7 @@ struct irq_affinity;
+>   *	offset: the offset of the configuration field
+>   *	buf: the buffer to read the field value from.
+>   *	len: the length of the buffer
+> - * @generation: config generation counter
+> + * @generation: config generation counter (optional)
+>   *	vdev: the virtio_device
+>   *	Returns the config generation counter
+>   * @get_status: read the status byte
+> @@ -48,17 +48,17 @@ struct irq_affinity;
+>   * @del_vqs: free virtqueues found by find_vqs().
+>   * @get_features: get the array of feature bits for this device.
+>   *	vdev: the virtio_device
+> - *	Returns the first 32 feature bits (all we currently need).
+> + *	Returns the first 64 feature bits (all we currently need).
+>   * @finalize_features: confirm what device features we'll be using.
+>   *	vdev: the virtio_device
+>   *	This gives the final feature bits for the device: it can change
+>   *	the dev->feature bits if it wants.
+>   *	Returns 0 on success or error status
+> - * @bus_name: return the bus name associated with the device
+> + * @bus_name: return the bus name associated with the device (optional)
+>   *	vdev: the virtio_device
+>   *      This returns a pointer to the bus name a la pci_name from which
+>   *      the caller can then copy.
+> - * @set_vq_affinity: set the affinity for a virtqueue.
+> + * @set_vq_affinity: set the affinity for a virtqueue (optional).
+>   * @get_vq_affinity: get the affinity for a virtqueue (optional).
+>   */
+>  typedef void vq_callback_t(struct virtqueue *);
+
+Ping. Any feedback on that patch?
