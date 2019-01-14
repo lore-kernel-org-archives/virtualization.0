@@ -1,19 +1,18 @@
-From: Pankaj Gupta <pagupta@redhat.com>
-Subject: Re: [Qemu-devel] [PATCH v3 0/5] kvm "virtio pmem" device
-Date: Mon, 14 Jan 2019 05:16:55 -0500 (EST)
-Message-ID: <2011860338.64100587.1547461015822.JavaMail.zimbra__32045.6375754022$1547693277$gmane$org@redhat.com>
-References: <20190109144736.17452-1-pagupta@redhat.com>
-	<20190110012617.GA4205@dastard>
-	<20190110101757.GC15790@quack2.suse.cz>
-	<1354249849.63357171.1547343519970.JavaMail.zimbra@redhat.com>
-	<CAPcyv4hwcgTUpgNCefCGu4DvgkYBp5b=f+hJ+FC=s5APYKoycg@mail.gmail.com>
-	<540171952.63371441.1547345866585.JavaMail.zimbra@redhat.com>
-	<20190114095520.GC13316@quack2.suse.cz>
+From: Jason Wang <jasowang@redhat.com>
+Subject: Re: [PATCH 0/3] Fix virtio-blk issue with SWIOTLB
+Date: Mon, 14 Jan 2019 20:41:37 +0800
+Message-ID: <ac6d83d8-02de-dbdf-e309-3a1115642d50__38206.7763749093$1547693286$gmane$org@redhat.com>
+References: <20190110134433.15672-1-joro@8bytes.org>
+	<5ae1341e-62ec-0478-552b-259eabf9fb17@redhat.com>
+	<20190111091502.GC5825@8bytes.org>
+	<38bcbd46-674c-348a-cbd6-66bd431e986a@redhat.com>
+	<20190114095002.GA29874@lst.de>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset="utf-8"; Format="flowed"
+Content-Transfer-Encoding: base64
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <20190114095520.GC13316@quack2.suse.cz>
+In-Reply-To: <20190114095002.GA29874@lst.de>
+Content-Language: en-US
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -23,46 +22,28 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Jan Kara <jack@suse.cz>
-Cc: KVM list <kvm@vger.kernel.org>, "Michael S. Tsirkin" <mst@redhat.com>, linux-nvdimm <linux-nvdimm@ml01.01.org>, Dave Chinner <david@fromorbit.com>, Qemu Developers <qemu-devel@nongnu.org>, virtualization@lists.linux-foundation.org, adilger kernel <adilger.kernel@dilger.ca>, Ross Zwisler <zwisler@kernel.org>, dave jiang <dave.jiang@intel.com>, darrick wong <darrick.wong@oracle.com>, vishal l verma <vishal.l.verma@intel.com>, Matthew Wilcox <willy@infradead.org>, Christoph Hellwig <hch@infradead.org>, Linux ACPI <linux-acpi@vger.kernel.org>, jmoyer <jmoyer@redhat.com>, linux-ext4 <linux-ext4@vger.kernel.org>, Rik van Riel <riel@surriel.com>, Stefan Hajnoczi <stefanha@redhat.com>, Paolo Bonzini <pbonzini@redhat.com>, Dan Williams <dan.j.williams@intel.com>, lcapitulino@redhat.com, Nitesh Narayan Lal <nilal@redhat.com>, Theodore Ts'o <tytso@mit.edu>xiaoguangrong eric <x>
+To: Christoph Hellwig <hch@lst.de>
+Cc: Jens Axboe <axboe@kernel.dk>, jon.grimm@amd.com, brijesh.singh@amd.com, Konrad Rzeszutek Wilk <konrad.wilk@oracle.com>, Joerg Roedel <joro@8bytes.org>, "Michael S . Tsirkin" <mst@redhat.com>, jfehlig@suse.com, linux-kernel@vger.kernel.org, virtualization@lists.linux-foundation.org, linux-block@vger.kernel.org, iommu@lists.linux-foundation.org
 List-Id: virtualization@lists.linuxfoundation.org
 
-
-> > > > > Right. Thinking about this I would be more concerned about the fact
-> > > > > that
-> > > > > guest can effectively pin amount of host's page cache upto size of
-> > > > > the
-> > > > > device/file passed to guest as PMEM, can't it Pankaj? Or is there
-> > > > > some
-> > > > > QEMU
-> > > > > magic that avoids this?
-> > > >
-> > > > Yes, guest will pin these host page cache pages using 'get_user_pages'
-> > > > by
-> > > > elevating the page reference count. But these pages can be reclaimed by
-> > > > host
-> > > > at any time when there is memory pressure.
-> > > 
-> > > Wait, how can the guest pin the host pages? I would expect this to
-> > > happen only when using vfio and device assignment. Otherwise, no the
-> > > host can't reclaim a pinned page, that's the whole point of a pin to
-> > > prevent the mm from reclaiming ownership.
-> > 
-> > yes. You are right I just used the pin word but it does not actually pin
-> > pages
-> > permanently. I had gone through the discussion on existing problems with
-> > get_user_pages and DMA e.g [1] to understand Jan's POV. It does mention GUP
-> > pin pages so I also used the word 'pin'. But guest does not permanently pin
-> > these pages and these pages can be reclaimed by host.
-> 
-> OK, then I was just confused how virtio-pmem is going to work. Thanks for
-> explanation! So can I imagine this as guest mmaping the host file and
-> providing the mapped range as "NVDIMM pages" to the kernel inside the
-> guest? Or is it more complex?
-
-yes, that's correct. Host's Qemu process virtual address range is used as guest physical 
-address and a direct mapping(EPT/NPT) is established. At guest side, this physical memory
-range is plugged into guest system memory map and DAX mapping is setup using nvdimm calls.
-
-Thanks,
-Pankaj
+Ck9uIDIwMTkvMS8xNCDkuIvljYg1OjUwLCBDaHJpc3RvcGggSGVsbHdpZyB3cm90ZToKPiBPbiBN
+b24sIEphbiAxNCwgMjAxOSBhdCAwNTo0MTo1NlBNICswODAwLCBKYXNvbiBXYW5nIHdyb3RlOgo+
+PiBPbiAyMDE5LzEvMTEg5LiL5Y2INToxNSwgSm9lcmcgUm9lZGVsIHdyb3RlOgo+Pj4gT24gRnJp
+LCBKYW4gMTEsIDIwMTkgYXQgMTE6Mjk6MzFBTSArMDgwMCwgSmFzb24gV2FuZyB3cm90ZToKPj4+
+PiBKdXN0IHdvbmRlciBpZiBteSB1bmRlcnN0YW5kaW5nIGlzIGNvcnJlY3QgSU9NTVVfUExBVEZP
+Uk0gbXVzdCBiZSBzZXQgZm9yCj4+Pj4gYWxsIHZpcnRpbyBkZXZpY2VzIHVuZGVyIEFNRC1TRVYg
+Z3Vlc3RzPwo+Pj4gWWVzLCB0aGF0IGlzIGNvcnJlY3QuIEVtdWxhdGVkIERNQSBjYW4gb25seSBo
+YXBwZW4gb24gdGhlIFNXSU9UTEIKPj4+IGFwZXJ0dXJlLCBiZWNhdXNlIHRoYXQgbWVtb3J5IGlz
+IG5vdCBlbmNyeXB0ZWQuIFRoZSBndWVzdCBib3VuY2VzIHRoZQo+Pj4gZGF0YSB0aGVuIHRvIGl0
+cyBlbmNyeXB0ZWQgbWVtb3J5Lgo+Pj4KPj4+IFJlZ2FyZHMsCj4+Pgo+Pj4gCUpvZXJnCj4+Cj4+
+IFRoYW5rcywgaGF2ZSB5b3UgdGVzdGVkIHZob3N0LW5ldCBpbiB0aGlzIGNhc2UuIEkgc3VzcGVj
+dCBpdCBtYXkgbm90IHdvcmsKPiBXaGljaCBicmluZ3MgbWUgYmFjayB0byBteSBwZXQgcGV2ZWUg
+dGhhdCB3ZSBuZWVkIHRvIHRha2UgYWN0aW9ucwo+IHRoYXQgdmlydGlvIHVzZXMgdGhlIHByb3Bl
+ciBkbWEgbWFwcGluZyBBUEkgYnkgZGVmYXVsdCB3aXRoIHF1aXJrcwo+IGZvciBsZWdhY3kgY2Fz
+ZXMuICBUaGUgbWFnaWMgYnlwYXNzIGl0IHVzZXMgaXMganVzdCBjYXVzaW5nIHByb2JsZW1zCj4g
+b3ZlciBwcm9ibGVtcy4KCgpZZXMsIEkgZnVsbHkgYWdyZWUgd2l0aCB5b3UuIFRoaXMgaXMgcHJv
+YmFibHkgYW4gZXhhY3QgZXhhbXBsZSBvZiBzdWNoIApwcm9ibGVtLgoKVGhhbmtzCgpfX19fX19f
+X19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fXwpWaXJ0dWFsaXphdGlvbiBt
+YWlsaW5nIGxpc3QKVmlydHVhbGl6YXRpb25AbGlzdHMubGludXgtZm91bmRhdGlvbi5vcmcKaHR0
+cHM6Ly9saXN0cy5saW51eGZvdW5kYXRpb24ub3JnL21haWxtYW4vbGlzdGluZm8vdmlydHVhbGl6
+YXRpb24=
