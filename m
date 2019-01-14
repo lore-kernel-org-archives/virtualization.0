@@ -1,7 +1,7 @@
-From: Robin Murphy <robin.murphy@arm.com>
+From: Christoph Hellwig <hch@lst.de>
 Subject: Re: [PATCH 0/3] Fix virtio-blk issue with SWIOTLB
-Date: Mon, 14 Jan 2019 19:12:08 +0000
-Message-ID: <cb290df3-4e17-a403-6d69-cf5a8a41c987__14841.5372743786$1547693500$gmane$org@arm.com>
+Date: Mon, 14 Jan 2019 21:19:35 +0100
+Message-ID: <20190114201935.GA10781__11297.0951515765$1547693512$gmane$org@lst.de>
 References: <20190110134433.15672-1-joro@8bytes.org>
 	<5ae1341e-62ec-0478-552b-259eabf9fb17@redhat.com>
 	<20190111091502.GC5825@8bytes.org>
@@ -10,11 +10,11 @@ References: <20190110134433.15672-1-joro@8bytes.org>
 	<ac6d83d8-02de-dbdf-e309-3a1115642d50@redhat.com>
 	<20190114131114-mutt-send-email-mst@kernel.org>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="utf-8"; Format="flowed"
-Content-Transfer-Encoding: base64
+Content-Type: text/plain; charset="us-ascii"
+Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
+Content-Disposition: inline
 In-Reply-To: <20190114131114-mutt-send-email-mst@kernel.org>
-Content-Language: en-GB
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -24,52 +24,45 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: "Michael S. Tsirkin" <mst@redhat.com>, Jason Wang <jasowang@redhat.com>
-Cc: Jens Axboe <axboe@kernel.dk>, brijesh.singh@amd.com, Konrad Rzeszutek Wilk <konrad.wilk@oracle.com>, jon.grimm@amd.com, linux-kernel@vger.kernel.org, iommu@lists.linux-foundation.org, virtualization@lists.linux-foundation.org, linux-block@vger.kernel.org, jfehlig@suse.com, Christoph Hellwig <hch@lst.de>
+To: "Michael S. Tsirkin" <mst@redhat.com>
+Cc: Jens Axboe <axboe@kernel.dk>, brijesh.singh@amd.com, Konrad Rzeszutek Wilk <konrad.wilk@oracle.com>, jon.grimm@amd.com, jfehlig@suse.com, linux-kernel@vger.kernel.org, virtualization@lists.linux-foundation.org, linux-block@vger.kernel.org, iommu@lists.linux-foundation.org, Christoph Hellwig <hch@lst.de>, Joerg Roedel <joro@8bytes.org>
 List-Id: virtualization@lists.linuxfoundation.org
 
-T24gMTQvMDEvMjAxOSAxODoyMCwgTWljaGFlbCBTLiBUc2lya2luIHdyb3RlOgo+IE9uIE1vbiwg
-SmFuIDE0LCAyMDE5IGF0IDA4OjQxOjM3UE0gKzA4MDAsIEphc29uIFdhbmcgd3JvdGU6Cj4+Cj4+
-IE9uIDIwMTkvMS8xNCDkuIvljYg1OjUwLCBDaHJpc3RvcGggSGVsbHdpZyB3cm90ZToKPj4+IE9u
-IE1vbiwgSmFuIDE0LCAyMDE5IGF0IDA1OjQxOjU2UE0gKzA4MDAsIEphc29uIFdhbmcgd3JvdGU6
-Cj4+Pj4gT24gMjAxOS8xLzExIOS4i+WNiDU6MTUsIEpvZXJnIFJvZWRlbCB3cm90ZToKPj4+Pj4g
-T24gRnJpLCBKYW4gMTEsIDIwMTkgYXQgMTE6Mjk6MzFBTSArMDgwMCwgSmFzb24gV2FuZyB3cm90
-ZToKPj4+Pj4+IEp1c3Qgd29uZGVyIGlmIG15IHVuZGVyc3RhbmRpbmcgaXMgY29ycmVjdCBJT01N
-VV9QTEFURk9STSBtdXN0IGJlIHNldCBmb3IKPj4+Pj4+IGFsbCB2aXJ0aW8gZGV2aWNlcyB1bmRl
-ciBBTUQtU0VWIGd1ZXN0cz8KPj4+Pj4gWWVzLCB0aGF0IGlzIGNvcnJlY3QuIEVtdWxhdGVkIERN
-QSBjYW4gb25seSBoYXBwZW4gb24gdGhlIFNXSU9UTEIKPj4+Pj4gYXBlcnR1cmUsIGJlY2F1c2Ug
-dGhhdCBtZW1vcnkgaXMgbm90IGVuY3J5cHRlZC4gVGhlIGd1ZXN0IGJvdW5jZXMgdGhlCj4+Pj4+
-IGRhdGEgdGhlbiB0byBpdHMgZW5jcnlwdGVkIG1lbW9yeS4KPj4+Pj4KPj4+Pj4gUmVnYXJkcywK
-Pj4+Pj4KPj4+Pj4gCUpvZXJnCj4+Pj4KPj4+PiBUaGFua3MsIGhhdmUgeW91IHRlc3RlZCB2aG9z
-dC1uZXQgaW4gdGhpcyBjYXNlLiBJIHN1c3BlY3QgaXQgbWF5IG5vdCB3b3JrCj4+PiBXaGljaCBi
-cmluZ3MgbWUgYmFjayB0byBteSBwZXQgcGV2ZWUgdGhhdCB3ZSBuZWVkIHRvIHRha2UgYWN0aW9u
-cwo+Pj4gdGhhdCB2aXJ0aW8gdXNlcyB0aGUgcHJvcGVyIGRtYSBtYXBwaW5nIEFQSSBieSBkZWZh
-dWx0IHdpdGggcXVpcmtzCj4+PiBmb3IgbGVnYWN5IGNhc2VzLiAgVGhlIG1hZ2ljIGJ5cGFzcyBp
-dCB1c2VzIGlzIGp1c3QgY2F1c2luZyBwcm9ibGVtcwo+Pj4gb3ZlciBwcm9ibGVtcy4KPj4KPj4K
-Pj4gWWVzLCBJIGZ1bGx5IGFncmVlIHdpdGggeW91LiBUaGlzIGlzIHByb2JhYmx5IGFuIGV4YWN0
-IGV4YW1wbGUgb2Ygc3VjaAo+PiBwcm9ibGVtLgo+Pgo+PiBUaGFua3MKPiAKPiBJIGRvbid0IHRo
-aW5rIHNvIC0gdGhlIGlzc3VlIGlzIHJlYWxseSB0aGF0IERNQSBBUEkgZG9lcyBub3QgeWV0IGhh
-bmRsZQo+IHRoZSBTRVYgY2FzZSAxMDAlIGNvcnJlY3RseS4gSSBzdXNwZWN0IHBhc3N0aHJvdWdo
-IGRldmljZXMgd291bGQgaGF2ZQo+IHRoZSBzYW1lIGlzc3VlLgoKSHVoPyBSZWdhcmRsZXNzIG9m
-IHdoaWNoIHZpcnRpbyBkZXZpY2VzIHVzZSBpdCBvciBub3QsIHRoZSBETUEgQVBJIGlzIApoYW5k
-bGluZyB0aGUgU0VWIGNhc2UgYXMgY29ycmVjdGx5IGFzIGl0IHBvc3NpYmx5IGNhbiwgYnkgZm9y
-Y2luZyAKZXZlcnl0aGluZyB0aHJvdWdoIHRoZSB1bmVuY3J5cHRlZCBib3VuY2UgYnVmZmVyLiBJ
-ZiB0aGUgc2VnbWVudHMgYmVpbmcgCm1hcHBlZCBhcmUgdG9vIGJpZyBmb3IgdGhhdCBib3VuY2Ug
-YnVmZmVyIGluIHRoZSBmaXJzdCBwbGFjZSwgdGhlcmUncyAKbm90aGluZyBpdCBjYW4gcG9zc2li
-bHkgZG8gZXhjZXB0IGZhaWwsIGdyYWNlZnVsbHkgb3Igb3RoZXJ3aXNlLgoKTm93LCBpbiB0aGVv
-cnksIHllcywgdGhlIHJlYWwgaXNzdWUgYXQgaGFuZCBpcyBub3QgdW5pcXVlIHRvIHZpcnRpby1i
-bGsgCm5vciBTRVYgLSBhbnkgZHJpdmVyIHdob3NlIGRldmljZSBoYXMgYSBzdWZmaWNpZW50bHkg
-bGFyZ2UgRE1BIHNlZ21lbnQgCnNpemUgYW5kIHdobyBtYW5hZ2VzIHRvIGdldCBzdWZmaWNpZW50
-IHBoeXNpY2FsbHktY29udGlndW91cyBtZW1vcnkgCmNvdWxkIHRlY2huaWNhbGx5IGdlbmVyYXRl
-IGEgc2NhdHRlcmxpc3Qgc2VnbWVudCBsb25nZXIgdGhhbiBTV0lPVExCIGNhbiAKaGFuZGxlLiBI
-b3dldmVyLCBpbiBwcmFjdGljZSB0aGF0IGJhc2ljYWxseSBuZXZlciBoYXBwZW5zLCBub3QgbGVh
-c3QgCmJlY2F1c2UgdmVyeSBmZXcgZHJpdmVycyBldmVyIG92ZXJyaWRlIHRoZSBkZWZhdWx0IDY0
-SyBETUEgc2VnbWVudCAKbGltaXQuIEFGQUlDUyBub3RoaW5nIGluIGRyaXZlcnMvdmlydGlvIGlz
-IGNhbGxpbmcgCmRtYV9zZXRfbWF4X3NlZ19zaXplKCkgb3Igb3RoZXJ3aXNlIGFzc2lnbmluZyBh
-bnkgZG1hX3Bhcm1zIHRvIHJlcGxhY2UgCnRoZSBkZWZhdWx0cyBlaXRoZXIsIHNvIHRoZSByZWFs
-bHkgaW50ZXJlc3RpbmcgcXVlc3Rpb24gaGVyZSBpcyBob3cgYXJlIAp0aGVzZSBhcHBhcmVudGx5
-LW91dC1vZi1zcGVjIDI1Nksgc2VnbWVudHMgZ2V0dGluZyBnZW5lcmF0ZWQgYXQgYWxsPwoKUm9i
-aW4uCl9fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fClZpcnR1
-YWxpemF0aW9uIG1haWxpbmcgbGlzdApWaXJ0dWFsaXphdGlvbkBsaXN0cy5saW51eC1mb3VuZGF0
-aW9uLm9yZwpodHRwczovL2xpc3RzLmxpbnV4Zm91bmRhdGlvbi5vcmcvbWFpbG1hbi9saXN0aW5m
-by92aXJ0dWFsaXphdGlvbg==
+On Mon, Jan 14, 2019 at 01:20:45PM -0500, Michael S. Tsirkin wrote:
+> I don't think so - the issue is really that DMA API does not yet handle
+> the SEV case 100% correctly. I suspect passthrough devices would have
+> the same issue.
+
+The DMA API handles the SEV case perfectly.  Its just that virtio_blk
+supports huge segments that virtio does not generally support, but that
+is not related to SEV in any way.
+
+> In fact whoever sets IOMMU_PLATFORM is completely unaffected by
+> Christoph's pet peeve.
+
+No, the above happens only when we set IOMMU_PLATFORM.
+
+> Christoph is saying that !IOMMU_PLATFORM devices should hide the
+> compatibility code in a special per-device DMA API implementation.
+> Which would be fine especially if we can manage not to introduce a bunch
+> of indirect calls all over the place and hurt performance.  It's just
+> that the benefit is unlikely to be big (e.g. we can't also get rid of
+> the virtio specific memory barriers) so no one was motivated enough to
+> work on it.
+
+No.  The problem is that we still haven't fully specified what
+IOMMU_PLATFORM and !IOMMU_PLATFORM actually mean.  Your
+"ACCESS_PLATFORM/ORDER_PLATFORM" commit in the virtio-spec repo
+improves it a little bit, but it is still far from enough.
+
+As a start VIRTIO_F_ORDER_PLATFORM and VIRTIO_F_ACCESS_PLATFORM
+absolutely MUST be set for hardware implementations.  Otherwise said
+hardware has no chance of working on anything but the most x86-like
+systems.
+
+Second software implementations SHOULD set VIRTIO_F_ACCESS_PLATFORM,
+because otherwise we can't add proper handling for things like SEV or
+the IBM "secure hypervisor" thing.
+
+Last but not least a lot of wording outside the area describing these
+flags really needs some major updates in terms of DMA access.
