@@ -1,16 +1,16 @@
-From: Gerd Hoffmann <kraxel@redhat.com>
-Subject: Re: [PATCH] drm/cirrus: fix connector leak at unload
-Date: Mon, 14 Jan 2019 08:38:22 +0100
-Message-ID: <20190114073822.3jzujq47cwfoizgh__7736.85783283344$1547693228$gmane$org@sirius.home.kraxel.org>
-References: <20190111140242.29002-1-robdclark@gmail.com>
-	<20190111220620.GF21184@phenom.ffwll.local>
-	<20190111221638.GG21184@phenom.ffwll.local>
+From: Jason Wang <jasowang@redhat.com>
+Subject: Re: [PATCH 0/3] Fix virtio-blk issue with SWIOTLB
+Date: Mon, 14 Jan 2019 17:41:56 +0800
+Message-ID: <38bcbd46-674c-348a-cbd6-66bd431e986a__4187.1304311373$1547693242$gmane$org@redhat.com>
+References: <20190110134433.15672-1-joro@8bytes.org>
+	<5ae1341e-62ec-0478-552b-259eabf9fb17@redhat.com>
+	<20190111091502.GC5825@8bytes.org>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset="utf-8"; Format="flowed"
+Content-Transfer-Encoding: base64
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-Content-Disposition: inline
-In-Reply-To: <20190111221638.GG21184@phenom.ffwll.local>
+In-Reply-To: <20190111091502.GC5825@8bytes.org>
+Content-Language: en-US
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -20,25 +20,20 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Rob Clark <robdclark@gmail.com>, dri-devel@lists.freedesktop.org, Rob Clark <rclark@redhat.com>, Daniel Stone <daniels@collabora.com>, David Airlie <airlied@linux.ie>, YueHaibing <yuehaibing@huawei.com>, linux-kernel@vger.kernel.org, virtualization@lists.linux-foundation.org, Thomas Zimmermann <tzimmermann@suse.de>, Dave Airlie <airlied@redhat.com>, Thierry Reding <treding@nvidia.com>
+To: Joerg Roedel <joro@8bytes.org>
+Cc: Jens Axboe <axboe@kernel.dk>, jon.grimm@amd.com, brijesh.singh@amd.com, Konrad Rzeszutek Wilk <konrad.wilk@oracle.com>, jfehlig@suse.com, "Michael S . Tsirkin" <mst@redhat.com>, linux-kernel@vger.kernel.org, virtualization@lists.linux-foundation.org, linux-block@vger.kernel.org, iommu@lists.linux-foundation.org, hch@lst.de
 List-Id: virtualization@lists.linuxfoundation.org
 
-On Fri, Jan 11, 2019 at 11:16:38PM +0100, Daniel Vetter wrote:
-> On Fri, Jan 11, 2019 at 11:06:20PM +0100, Daniel Vetter wrote:
-> > On Fri, Jan 11, 2019 at 09:02:34AM -0500, Rob Clark wrote:
-> > > This fixes an '*ERROR* connector VGA-2 leaked!' splat at driver unload.
-> > > 
-> > > Signed-off-by: Rob Clark <robdclark@gmail.com>
-> > > ---
-> > > Similar case to the issue that was fixed recently in drm/ast
-> > 
-> > Reviewed-by: Daniel Vetter <daniel.vetter@ffwll.ch>
-> 
-> Actually I just pushed a patch to drm-misc-next to rename this function to
-> drm_helper_force_disable_all(), so you need to respin ... My r-b still
-> holds.
-
-Fixed and queued up.
-
-thanks,
-  Gerd
+Ck9uIDIwMTkvMS8xMSDkuIvljYg1OjE1LCBKb2VyZyBSb2VkZWwgd3JvdGU6Cj4gT24gRnJpLCBK
+YW4gMTEsIDIwMTkgYXQgMTE6Mjk6MzFBTSArMDgwMCwgSmFzb24gV2FuZyB3cm90ZToKPj4gSnVz
+dCB3b25kZXIgaWYgbXkgdW5kZXJzdGFuZGluZyBpcyBjb3JyZWN0IElPTU1VX1BMQVRGT1JNIG11
+c3QgYmUgc2V0IGZvcgo+PiBhbGwgdmlydGlvIGRldmljZXMgdW5kZXIgQU1ELVNFViBndWVzdHM/
+Cj4gWWVzLCB0aGF0IGlzIGNvcnJlY3QuIEVtdWxhdGVkIERNQSBjYW4gb25seSBoYXBwZW4gb24g
+dGhlIFNXSU9UTEIKPiBhcGVydHVyZSwgYmVjYXVzZSB0aGF0IG1lbW9yeSBpcyBub3QgZW5jcnlw
+dGVkLiBUaGUgZ3Vlc3QgYm91bmNlcyB0aGUKPiBkYXRhIHRoZW4gdG8gaXRzIGVuY3J5cHRlZCBt
+ZW1vcnkuCj4KPiBSZWdhcmRzLAo+Cj4gCUpvZXJnCgoKVGhhbmtzLCBoYXZlIHlvdSB0ZXN0ZWQg
+dmhvc3QtbmV0IGluIHRoaXMgY2FzZS4gSSBzdXNwZWN0IGl0IG1heSBub3Qgd29yawoKCgpfX19f
+X19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fXwpWaXJ0dWFsaXphdGlv
+biBtYWlsaW5nIGxpc3QKVmlydHVhbGl6YXRpb25AbGlzdHMubGludXgtZm91bmRhdGlvbi5vcmcK
+aHR0cHM6Ly9saXN0cy5saW51eGZvdW5kYXRpb24ub3JnL21haWxtYW4vbGlzdGluZm8vdmlydHVh
+bGl6YXRpb24=
