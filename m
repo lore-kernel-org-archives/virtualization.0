@@ -1,17 +1,19 @@
-From: Christoph Hellwig <hch@lst.de>
-Subject: Re: [PATCH 0/3] Fix virtio-blk issue with SWIOTLB
-Date: Mon, 14 Jan 2019 10:50:02 +0100
-Message-ID: <20190114095002.GA29874__46216.4240344011$1547693254$gmane$org@lst.de>
-References: <20190110134433.15672-1-joro@8bytes.org>
-	<5ae1341e-62ec-0478-552b-259eabf9fb17@redhat.com>
-	<20190111091502.GC5825@8bytes.org>
-	<38bcbd46-674c-348a-cbd6-66bd431e986a@redhat.com>
+From: Jan Kara <jack@suse.cz>
+Subject: Re: [Qemu-devel] [PATCH v3 0/5] kvm "virtio pmem" device
+Date: Mon, 14 Jan 2019 10:55:20 +0100
+Message-ID: <20190114095520.GC13316__45254.6590626754$1547693266$gmane$org@quack2.suse.cz>
+References: <20190109144736.17452-1-pagupta@redhat.com>
+	<20190110012617.GA4205@dastard>
+	<20190110101757.GC15790@quack2.suse.cz>
+	<1354249849.63357171.1547343519970.JavaMail.zimbra@redhat.com>
+	<CAPcyv4hwcgTUpgNCefCGu4DvgkYBp5b=f+hJ+FC=s5APYKoycg@mail.gmail.com>
+	<540171952.63371441.1547345866585.JavaMail.zimbra@redhat.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="utf-8"
-Content-Transfer-Encoding: base64
+Content-Type: text/plain; charset="us-ascii"
+Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
 Content-Disposition: inline
-In-Reply-To: <38bcbd46-674c-348a-cbd6-66bd431e986a@redhat.com>
+In-Reply-To: <540171952.63371441.1547345866585.JavaMail.zimbra@redhat.com>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -21,25 +23,40 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Jason Wang <jasowang@redhat.com>
-Cc: Jens Axboe <axboe@kernel.dk>, jon.grimm@amd.com, brijesh.singh@amd.com, Konrad Rzeszutek Wilk <konrad.wilk@oracle.com>, Joerg Roedel <joro@8bytes.org>, "Michael S . Tsirkin" <mst@redhat.com>, jfehlig@suse.com, linux-kernel@vger.kernel.org, virtualization@lists.linux-foundation.org, linux-block@vger.kernel.org, iommu@lists.linux-foundation.org, hch@lst.de
+To: Pankaj Gupta <pagupta@redhat.com>
+Cc: Jan Kara <jack@suse.cz>, KVM list <kvm@vger.kernel.org>, "Michael S. Tsirkin" <mst@redhat.com>, linux-nvdimm <linux-nvdimm@ml01.01.org>, Dave Chinner <david@fromorbit.com>, Qemu Developers <qemu-devel@nongnu.org>, virtualization@lists.linux-foundation.org, adilger kernel <adilger.kernel@dilger.ca>, Ross Zwisler <zwisler@kernel.org>, dave jiang <dave.jiang@intel.com>, darrick wong <darrick.wong@oracle.com>, vishal l verma <vishal.l.verma@intel.com>, Matthew Wilcox <willy@infradead.org>, Christoph Hellwig <hch@infradead.org>, Linux ACPI <linux-acpi@vger.kernel.org>, jmoyer <jmoyer@redhat.com>, linux-ext4 <linux-ext4@vger.kernel.org>, Rik van Riel <riel@surriel.com>, Stefan Hajnoczi <stefanha@redhat.com>, Paolo Bonzini <pbonzini@redhat.com>, Dan Williams <dan.j.williams@intel.com>, lcapitulino@redhat.com, Nitesh Narayan Lal <nilal@redhat.com>, Theodore Ts'o <tytso@mit.ed>
 List-Id: virtualization@lists.linuxfoundation.org
 
-T24gTW9uLCBKYW4gMTQsIDIwMTkgYXQgMDU6NDE6NTZQTSArMDgwMCwgSmFzb24gV2FuZyB3cm90
-ZToKPgo+IE9uIDIwMTkvMS8xMSDkuIvljYg1OjE1LCBKb2VyZyBSb2VkZWwgd3JvdGU6Cj4+IE9u
-IEZyaSwgSmFuIDExLCAyMDE5IGF0IDExOjI5OjMxQU0gKzA4MDAsIEphc29uIFdhbmcgd3JvdGU6
-Cj4+PiBKdXN0IHdvbmRlciBpZiBteSB1bmRlcnN0YW5kaW5nIGlzIGNvcnJlY3QgSU9NTVVfUExB
-VEZPUk0gbXVzdCBiZSBzZXQgZm9yCj4+PiBhbGwgdmlydGlvIGRldmljZXMgdW5kZXIgQU1ELVNF
-ViBndWVzdHM/Cj4+IFllcywgdGhhdCBpcyBjb3JyZWN0LiBFbXVsYXRlZCBETUEgY2FuIG9ubHkg
-aGFwcGVuIG9uIHRoZSBTV0lPVExCCj4+IGFwZXJ0dXJlLCBiZWNhdXNlIHRoYXQgbWVtb3J5IGlz
-IG5vdCBlbmNyeXB0ZWQuIFRoZSBndWVzdCBib3VuY2VzIHRoZQo+PiBkYXRhIHRoZW4gdG8gaXRz
-IGVuY3J5cHRlZCBtZW1vcnkuCj4+Cj4+IFJlZ2FyZHMsCj4+Cj4+IAlKb2VyZwo+Cj4KPiBUaGFu
-a3MsIGhhdmUgeW91IHRlc3RlZCB2aG9zdC1uZXQgaW4gdGhpcyBjYXNlLiBJIHN1c3BlY3QgaXQg
-bWF5IG5vdCB3b3JrCgpXaGljaCBicmluZ3MgbWUgYmFjayB0byBteSBwZXQgcGV2ZWUgdGhhdCB3
-ZSBuZWVkIHRvIHRha2UgYWN0aW9ucwp0aGF0IHZpcnRpbyB1c2VzIHRoZSBwcm9wZXIgZG1hIG1h
-cHBpbmcgQVBJIGJ5IGRlZmF1bHQgd2l0aCBxdWlya3MKZm9yIGxlZ2FjeSBjYXNlcy4gIFRoZSBt
-YWdpYyBieXBhc3MgaXQgdXNlcyBpcyBqdXN0IGNhdXNpbmcgcHJvYmxlbXMKb3ZlciBwcm9ibGVt
-cy4KX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX18KVmlydHVh
-bGl6YXRpb24gbWFpbGluZyBsaXN0ClZpcnR1YWxpemF0aW9uQGxpc3RzLmxpbnV4LWZvdW5kYXRp
-b24ub3JnCmh0dHBzOi8vbGlzdHMubGludXhmb3VuZGF0aW9uLm9yZy9tYWlsbWFuL2xpc3RpbmZv
-L3ZpcnR1YWxpemF0aW9u
+On Sat 12-01-19 21:17:46, Pankaj Gupta wrote:
+> > > > Right. Thinking about this I would be more concerned about the fact that
+> > > > guest can effectively pin amount of host's page cache upto size of the
+> > > > device/file passed to guest as PMEM, can't it Pankaj? Or is there some
+> > > > QEMU
+> > > > magic that avoids this?
+> > >
+> > > Yes, guest will pin these host page cache pages using 'get_user_pages' by
+> > > elevating the page reference count. But these pages can be reclaimed by
+> > > host
+> > > at any time when there is memory pressure.
+> > 
+> > Wait, how can the guest pin the host pages? I would expect this to
+> > happen only when using vfio and device assignment. Otherwise, no the
+> > host can't reclaim a pinned page, that's the whole point of a pin to
+> > prevent the mm from reclaiming ownership.
+> 
+> yes. You are right I just used the pin word but it does not actually pin pages 
+> permanently. I had gone through the discussion on existing problems with 
+> get_user_pages and DMA e.g [1] to understand Jan's POV. It does mention GUP 
+> pin pages so I also used the word 'pin'. But guest does not permanently pin 
+> these pages and these pages can be reclaimed by host.
+
+OK, then I was just confused how virtio-pmem is going to work. Thanks for
+explanation! So can I imagine this as guest mmaping the host file and
+providing the mapped range as "NVDIMM pages" to the kernel inside the
+guest? Or is it more complex?
+
+								Honza
+
+-- 
+Jan Kara <jack@suse.com>
+SUSE Labs, CR
