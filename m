@@ -1,19 +1,18 @@
-From: Dan Williams <dan.j.williams@intel.com>
-Subject: Re: [PATCH v3 0/5] kvm "virtio pmem" device
-Date: Mon, 14 Jan 2019 13:35:57 -0800
-Message-ID: <CAPcyv4jtPcLV-s0sKNHwwk0ug7GLBV6699dpm1h3r2xSo879dg__37406.5709919252$1547693590$gmane$org@mail.gmail.com>
-References: <20190109144736.17452-1-pagupta@redhat.com>
-	<20190110012617.GA4205@dastard>
-	<1326478078.61913951.1547192704870.JavaMail.zimbra@redhat.com>
-	<20190113232902.GD4205@dastard>
-	<20190113233820.GX6310@bombadil.infradead.org>
-	<942065073.64011540.1547450140670.JavaMail.zimbra@redhat.com>
-	<20190114212501.GG4205@dastard>
+From: "Michael S. Tsirkin" <mst@redhat.com>
+Subject: Re: [PATCH 1/3] swiotlb: Export maximum allocation size
+Date: Mon, 14 Jan 2019 16:59:27 -0500
+Message-ID: <20190114165800-mutt-send-email-mst__45689.6135503941$1547693598$gmane$org@kernel.org>
+References: <20190110134433.15672-1-joro@8bytes.org>
+	<20190110134433.15672-2-joro@8bytes.org>
+	<20190110170205.GB27546@char.us.oracle.com>
+	<20190111091231.GB5825@8bytes.org>
+	<20190114204907.GH32038@char.us.oracle.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <20190114212501.GG4205@dastard>
+Content-Disposition: inline
+In-Reply-To: <20190114204907.GH32038@char.us.oracle.com>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -23,55 +22,34 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Dave Chinner <david@fromorbit.com>
-Cc: Pankaj Gupta <pagupta@redhat.com>, Jan Kara <jack@suse.cz>, KVM list <kvm@vger.kernel.org>, linux-nvdimm <linux-nvdimm@ml01.01.org>, Qemu Developers <qemu-devel@nongnu.org>, virtualization@lists.linux-foundation.org, adilger kernel <adilger.kernel@dilger.ca>, Ross Zwisler <zwisler@kernel.org>, Eric Blake <eblake@redhat.com>, dave jiang <dave.jiang@intel.com>, darrick wong <darrick.wong@oracle.com>, vishal l verma <vishal.l.verma@intel.com>, "Michael S. Tsirkin" <mst@redhat.com>, Matthew Wilcox <willy@infradead.org>, Christoph Hellwig <hch@infradead.org>, Linux ACPI <linux-acpi@vger.kernel.org>, jmoyer <jmoyer@redhat.com>, linux-ext4 <linux-ext4@vger.kernel.org>, Rik van Riel <riel@surriel.com>, Stefan Hajnoczi <stefanha@redhat.com>, Igor Mammedov <imammedo@redhat.com>, lcapitulino@redhat.com, Nitesh Narayan Lal <nilal@redhat.com>, Theodore Ts'o <tytso@mit.edu>, xiaogu
+To: Konrad Rzeszutek Wilk <konrad.wilk@oracle.com>
+Cc: Jens Axboe <axboe@kernel.dk>, Joerg Roedel <jroedel@suse.de>, brijesh.singh@amd.com, Joerg Roedel <joro@8bytes.org>, jon.grimm@amd.com, jfehlig@suse.com, linux-kernel@vger.kernel.org, virtualization@lists.linux-foundation.org, linux-block@vger.kernel.org, iommu@lists.linux-foundation.org, hch@lst.de
 List-Id: virtualization@lists.linuxfoundation.org
 
-On Mon, Jan 14, 2019 at 1:25 PM Dave Chinner <david@fromorbit.com> wrote:
->
-> On Mon, Jan 14, 2019 at 02:15:40AM -0500, Pankaj Gupta wrote:
-> >
-> > > > Until you have images (and hence host page cache) shared between
-> > > > multiple guests. People will want to do this, because it means they
-> > > > only need a single set of pages in host memory for executable
-> > > > binaries rather than a set of pages per guest. Then you have
-> > > > multiple guests being able to detect residency of the same set of
-> > > > pages. If the guests can then, in any way, control eviction of the
-> > > > pages from the host cache, then we have a guest-to-guest information
-> > > > leak channel.
-> > >
-> > > I don't think we should ever be considering something that would allow a
-> > > guest to evict page's from the host's pagecache [1].  The guest should
-> > > be able to kick its own references to the host's pagecache out of its
-> > > own pagecache, but not be able to influence whether the host or another
-> > > guest has a read-only mapping cached.
-> > >
-> > > [1] Unless the guest is allowed to modify the host's file; obviously
-> > > truncation, holepunching, etc are going to evict pages from the host's
-> > > page cache.
-> >
-> > This is so correct. Guest does not not evict host page cache pages directly.
->
-> They don't right now.
->
-> But someone is going to end up asking for discard to work so that
-> the guest can free unused space in the underlying spares image (i.e.
-> make use of fstrim or mount -o discard) because they have workloads
-> that have bursts of space usage and they need to trim the image
-> files afterwards to keep their overall space usage under control.
->
-> And then....
+On Mon, Jan 14, 2019 at 03:49:07PM -0500, Konrad Rzeszutek Wilk wrote:
+> On Fri, Jan 11, 2019 at 10:12:31AM +0100, Joerg Roedel wrote:
+> > On Thu, Jan 10, 2019 at 12:02:05PM -0500, Konrad Rzeszutek Wilk wrote:
+> > > Why not use swiotlb_nr_tbl ? That is how drivers/gpu/drm use to figure if they
+> > > need to limit the size of pages.
+> > 
+> > That function just exports the overall size of the swiotlb aperture, no?
+> > What I need here is the maximum size for a single mapping.
+> 
+> Yes. The other drivers just assumed that if there is SWIOTLB they would use
+> the smaller size by default (as in they knew the limitation).
+> 
+> But I agree it would be better to have something smarter - and also convert the
+> DRM drivers to piggy back on this.
+> 
+> Or alternatively we could make SWIOTLB handle bigger sizes..
 
-...we reject / push back on that patch citing the above concern.
 
-> > In case of virtio-pmem & DAX, guest clears guest page cache exceptional entries.
-> > Its solely decision of host to take action on the host page cache pages.
-> >
-> > In case of virtio-pmem, guest does not modify host file directly i.e don't
-> > perform hole punch & truncation operation directly on host file.
->
-> ... this will no longer be true, and the nuclear landmine in this
-> driver interface will have been armed....
+Just a thought: is it a good idea to teach blk_queue_max_segment_size
+to get the dma size? This will help us find other devices
+possibly missing this check.
 
-I agree with the need to be careful when / if explicit cache control
-is added, but that's not the case today.
+
+> > 
+> > Regards,
+> > 
+> > 	Joerg
