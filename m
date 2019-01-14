@@ -1,17 +1,16 @@
-From: Pankaj Gupta <pagupta@redhat.com>
-Subject: Re: [PATCH v3 0/5] kvm "virtio pmem" device
-Date: Mon, 14 Jan 2019 02:15:40 -0500 (EST)
-Message-ID: <942065073.64011540.1547450140670.JavaMail.zimbra__36816.4550782696$1547693222$gmane$org@redhat.com>
-References: <20190109144736.17452-1-pagupta@redhat.com>
-	<20190110012617.GA4205@dastard>
-	<1326478078.61913951.1547192704870.JavaMail.zimbra@redhat.com>
-	<20190113232902.GD4205@dastard>
-	<20190113233820.GX6310@bombadil.infradead.org>
+From: Gerd Hoffmann <kraxel@redhat.com>
+Subject: Re: [PATCH] drm/cirrus: fix connector leak at unload
+Date: Mon, 14 Jan 2019 08:38:22 +0100
+Message-ID: <20190114073822.3jzujq47cwfoizgh__7736.85783283344$1547693228$gmane$org@sirius.home.kraxel.org>
+References: <20190111140242.29002-1-robdclark@gmail.com>
+	<20190111220620.GF21184@phenom.ffwll.local>
+	<20190111221638.GG21184@phenom.ffwll.local>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <20190113233820.GX6310@bombadil.infradead.org>
+Content-Disposition: inline
+In-Reply-To: <20190111221638.GG21184@phenom.ffwll.local>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -21,36 +20,25 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Matthew Wilcox <willy@infradead.org>
-Cc: jack@suse.cz, kvm@vger.kernel.org, linux-nvdimm@ml01.01.org, Dave Chinner <david@fromorbit.com>, qemu-devel@nongnu.org, virtualization@lists.linux-foundation.org, adilger kernel <adilger.kernel@dilger.ca>, zwisler@kernel.org, eblake@redhat.com, dave jiang <dave.jiang@intel.com>, darrick wong <darrick.wong@oracle.com>, vishal l verma <vishal.l.verma@intel.com>, mst@redhat.com, hch@infradead.org, linux-acpi@vger.kernel.org, jmoyer@redhat.com, linux-ext4@vger.kernel.org, riel@surriel.com, stefanha@redhat.com, imammedo@redhat.com, dan j williams <dan.j.williams@intel.com>, lcapitulino@redhat.com, nilal@redhat.com, tytso@mit.edu, xiaoguangrong eric <xiaoguangrong.eric@gmail.com>, rjw@rjwysocki.net, linux-kernel@vger.kernel.org, linux-xfs@vger.kernel.org, linux-fsdevel@vger.kernel.org, pbonzini@redhat.com
+To: Rob Clark <robdclark@gmail.com>, dri-devel@lists.freedesktop.org, Rob Clark <rclark@redhat.com>, Daniel Stone <daniels@collabora.com>, David Airlie <airlied@linux.ie>, YueHaibing <yuehaibing@huawei.com>, linux-kernel@vger.kernel.org, virtualization@lists.linux-foundation.org, Thomas Zimmermann <tzimmermann@suse.de>, Dave Airlie <airlied@redhat.com>, Thierry Reding <treding@nvidia.com>
 List-Id: virtualization@lists.linuxfoundation.org
 
-
-> > Until you have images (and hence host page cache) shared between
-> > multiple guests. People will want to do this, because it means they
-> > only need a single set of pages in host memory for executable
-> > binaries rather than a set of pages per guest. Then you have
-> > multiple guests being able to detect residency of the same set of
-> > pages. If the guests can then, in any way, control eviction of the
-> > pages from the host cache, then we have a guest-to-guest information
-> > leak channel.
+On Fri, Jan 11, 2019 at 11:16:38PM +0100, Daniel Vetter wrote:
+> On Fri, Jan 11, 2019 at 11:06:20PM +0100, Daniel Vetter wrote:
+> > On Fri, Jan 11, 2019 at 09:02:34AM -0500, Rob Clark wrote:
+> > > This fixes an '*ERROR* connector VGA-2 leaked!' splat at driver unload.
+> > > 
+> > > Signed-off-by: Rob Clark <robdclark@gmail.com>
+> > > ---
+> > > Similar case to the issue that was fixed recently in drm/ast
+> > 
+> > Reviewed-by: Daniel Vetter <daniel.vetter@ffwll.ch>
 > 
-> I don't think we should ever be considering something that would allow a
-> guest to evict page's from the host's pagecache [1].  The guest should
-> be able to kick its own references to the host's pagecache out of its
-> own pagecache, but not be able to influence whether the host or another
-> guest has a read-only mapping cached.
-> 
-> [1] Unless the guest is allowed to modify the host's file; obviously
-> truncation, holepunching, etc are going to evict pages from the host's
-> page cache.
+> Actually I just pushed a patch to drm-misc-next to rename this function to
+> drm_helper_force_disable_all(), so you need to respin ... My r-b still
+> holds.
 
-This is so correct. Guest does not not evict host page cache pages directly. 
-In case of virtio-pmem & DAX, guest clears guest page cache exceptional entries.
-Its solely decision of host to take action on the host page cache pages.
+Fixed and queued up.
 
-In case of virtio-pmem, guest does not modify host file directly i.e don't
-perform hole punch & truncation operation directly on host file.  
-
-Thanks,
-Pankaj 
+thanks,
+  Gerd
