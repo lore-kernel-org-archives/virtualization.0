@@ -1,7 +1,7 @@
 From: Christoph Hellwig <hch@lst.de>
 Subject: Re: [PATCH 0/3] Fix virtio-blk issue with SWIOTLB
-Date: Mon, 14 Jan 2019 21:19:35 +0100
-Message-ID: <20190114201935.GA10781__11297.0951515765$1547693512$gmane$org@lst.de>
+Date: Mon, 14 Jan 2019 21:22:23 +0100
+Message-ID: <20190114202223.GB10781__3548.00523859939$1547693523$gmane$org@lst.de>
 References: <20190110134433.15672-1-joro@8bytes.org>
 	<5ae1341e-62ec-0478-552b-259eabf9fb17@redhat.com>
 	<20190111091502.GC5825@8bytes.org>
@@ -9,12 +9,13 @@ References: <20190110134433.15672-1-joro@8bytes.org>
 	<20190114095002.GA29874@lst.de>
 	<ac6d83d8-02de-dbdf-e309-3a1115642d50@redhat.com>
 	<20190114131114-mutt-send-email-mst@kernel.org>
+	<cb290df3-4e17-a403-6d69-cf5a8a41c987@arm.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
 Content-Disposition: inline
-In-Reply-To: <20190114131114-mutt-send-email-mst@kernel.org>
+In-Reply-To: <cb290df3-4e17-a403-6d69-cf5a8a41c987@arm.com>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -24,45 +25,34 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: "Michael S. Tsirkin" <mst@redhat.com>
-Cc: Jens Axboe <axboe@kernel.dk>, brijesh.singh@amd.com, Konrad Rzeszutek Wilk <konrad.wilk@oracle.com>, jon.grimm@amd.com, jfehlig@suse.com, linux-kernel@vger.kernel.org, virtualization@lists.linux-foundation.org, linux-block@vger.kernel.org, iommu@lists.linux-foundation.org, Christoph Hellwig <hch@lst.de>, Joerg Roedel <joro@8bytes.org>
+To: Robin Murphy <robin.murphy@arm.com>
+Cc: Jens Axboe <axboe@kernel.dk>, brijesh.singh@amd.com, Konrad Rzeszutek Wilk <konrad.wilk@oracle.com>, jon.grimm@amd.com, linux-kernel@vger.kernel.org, iommu@lists.linux-foundation.org, virtualization@lists.linux-foundation.org, linux-block@vger.kernel.org, jfehlig@suse.com, "Michael S. Tsirkin" <mst@redhat.com>, Christoph Hellwig <hch@lst.de>
 List-Id: virtualization@lists.linuxfoundation.org
 
-On Mon, Jan 14, 2019 at 01:20:45PM -0500, Michael S. Tsirkin wrote:
-> I don't think so - the issue is really that DMA API does not yet handle
-> the SEV case 100% correctly. I suspect passthrough devices would have
-> the same issue.
+On Mon, Jan 14, 2019 at 07:12:08PM +0000, Robin Murphy wrote:
+> Now, in theory, yes, the real issue at hand is not unique to virtio-blk nor 
+> SEV - any driver whose device has a sufficiently large DMA segment size and 
+> who manages to get sufficient physically-contiguous memory could 
+> technically generate a scatterlist segment longer than SWIOTLB can handle. 
+> However, in practice that basically never happens, not least because very 
+> few drivers ever override the default 64K DMA segment limit. AFAICS nothing 
+> in drivers/virtio is calling dma_set_max_seg_size() or otherwise assigning 
+> any dma_parms to replace the defaults either, so the really interesting 
+> question here is how are these apparently-out-of-spec 256K segments getting 
+> generated at all?
 
-The DMA API handles the SEV case perfectly.  Its just that virtio_blk
-supports huge segments that virtio does not generally support, but that
-is not related to SEV in any way.
+drivers/block/virtio_blk.c:virtblk_probe():
 
-> In fact whoever sets IOMMU_PLATFORM is completely unaffected by
-> Christoph's pet peeve.
+	/* Host can optionally specify maximum segment size and number of
+         * segments. */
+	err = virtio_cread_feature(vdev, VIRTIO_BLK_F_SIZE_MAX,
+				   struct virtio_blk_config, size_max, &v);
+        if (!err)
+		blk_queue_max_segment_size(q, v);
+	else
+		blk_queue_max_segment_size(q, -1U);
 
-No, the above happens only when we set IOMMU_PLATFORM.
-
-> Christoph is saying that !IOMMU_PLATFORM devices should hide the
-> compatibility code in a special per-device DMA API implementation.
-> Which would be fine especially if we can manage not to introduce a bunch
-> of indirect calls all over the place and hurt performance.  It's just
-> that the benefit is unlikely to be big (e.g. we can't also get rid of
-> the virtio specific memory barriers) so no one was motivated enough to
-> work on it.
-
-No.  The problem is that we still haven't fully specified what
-IOMMU_PLATFORM and !IOMMU_PLATFORM actually mean.  Your
-"ACCESS_PLATFORM/ORDER_PLATFORM" commit in the virtio-spec repo
-improves it a little bit, but it is still far from enough.
-
-As a start VIRTIO_F_ORDER_PLATFORM and VIRTIO_F_ACCESS_PLATFORM
-absolutely MUST be set for hardware implementations.  Otherwise said
-hardware has no chance of working on anything but the most x86-like
-systems.
-
-Second software implementations SHOULD set VIRTIO_F_ACCESS_PLATFORM,
-because otherwise we can't add proper handling for things like SEV or
-the IBM "secure hypervisor" thing.
-
-Last but not least a lot of wording outside the area describing these
-flags really needs some major updates in terms of DMA access.
+So it really is virtio_blk that is special here.  The host could
+set VIRTIO_BLK_F_SIZE_MAX to paper over the problem, but I really
+think we need a dma_max_segment_size API that is wired up through
+the dma_map_ops to sort this out for real.
