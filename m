@@ -1,14 +1,16 @@
-From: Cornelia Huck <cohuck@redhat.com>
-Subject: Re: [PATCH 1/2] virtio: fix virtio_config_ops description
-Date: Mon, 14 Jan 2019 15:09:58 +0100
-Message-ID: <20190114150958.39a4a56a.cohuck__3984.43763047016$1547693292$gmane$org@redhat.com>
-References: <20190103160804.21438-1-cohuck@redhat.com>
-	<20190103160804.21438-2-cohuck@redhat.com>
+From: "Jorgen S. Hansen via Virtualization"
+	<virtualization@lists.linux-foundation.org>
+Subject: RE: [PATCH] VMCI: Verify PPNs before sending to device
+Date: Mon, 14 Jan 2019 14:47:36 +0000
+Message-ID: <MWHPR05MB33768E548EF9B5AA752F129DDA800__2753.86231155625$1547693302$gmane$org@MWHPR05MB3376.namprd05.prod.outlook.com>
+References: <1547225865-53408-1-git-send-email-jhansen@vmware.com>
+Reply-To: "Jorgen S. Hansen" <jhansen@vmware.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <20190103160804.21438-2-cohuck@redhat.com>
+In-Reply-To: <1547225865-53408-1-git-send-email-jhansen@vmware.com>
+Content-Language: en-US
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -18,55 +20,102 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: "Michael S . Tsirkin" <mst@redhat.com>, Jason Wang <jasowang@redhat.com>
-Cc: Halil Pasic <pasic@linux.ibm.com>, virtio-dev@lists.oasis-open.org, linux-kernel@vger.kernel.org, virtualization@lists.linux-foundation.org
+To: "Jorgen S. Hansen" <jhansen@vmware.com>, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>, "virtualization@lists.linux-foundation.org" <virtualization@lists.linux-foundation.org>
+Cc: Pv-drivers <Pv-drivers@vmware.com>, "gregkh@linuxfoundation.org" <gregkh@linuxfoundation.org>
 List-Id: virtualization@lists.linuxfoundation.org
 
-On Thu,  3 Jan 2019 17:08:03 +0100
-Cornelia Huck <cohuck@redhat.com> wrote:
-
-> - get_features has returned 64 bits since commit d025477368792
->   ("virtio: add support for 64 bit features.")
-> - properly mark all optional callbacks
+> -----Original Message-----
+> From: Jorgen Hansen [mailto:jhansen@vmware.com]
+> Sent: Friday, January 11, 2019 8:58 AM
+> To: linux-kernel@vger.kernel.org; virtualization@lists.linux-foundation.org
+> Cc: gregkh@linuxfoundation.org; Pv-drivers <Pv-drivers@vmware.com>;
+> Jorgen S. Hansen <jhansen@vmware.com>
+> Subject: [PATCH] VMCI: Verify PPNs before sending to device
 > 
-> Signed-off-by: Cornelia Huck <cohuck@redhat.com>
+> The current version of the VMCI device only supports 32 bit PPNs, so check
+> whether we are truncating PPNs, and fail the operation if we do. One such
+> check did exist, but was wrong. Another check was missing.
+> 
+> Testing through code modification: constructed PPN not representable by
+> 32-bit and observed that failure was reported.
+> 
+> Fixes: 1f166439917b ("VMCI: guest side driver implementation.")
+> Fixes: 06164d2b72aa ("VMCI: queue pairs implementation.")
+> 
+> Signed-off-by: Jorgen Hansen <jhansen@vmware.com>
+> Reviewed-by: Adit Ranadive <aditr@vmware.com>
+> Reviewed-by: Vishnu Dasa <vdasa@vmware.com>
 > ---
->  include/linux/virtio_config.h | 8 ++++----
->  1 file changed, 4 insertions(+), 4 deletions(-)
+>  drivers/misc/vmw_vmci/vmci_guest.c      | 10 +++++++---
+>  drivers/misc/vmw_vmci/vmci_queue_pair.c | 10 ++++------
+>  2 files changed, 11 insertions(+), 9 deletions(-)
 > 
-> diff --git a/include/linux/virtio_config.h b/include/linux/virtio_config.h
-> index 32baf8e26735..7087ef946ba7 100644
-> --- a/include/linux/virtio_config.h
-> +++ b/include/linux/virtio_config.h
-> @@ -22,7 +22,7 @@ struct irq_affinity;
->   *	offset: the offset of the configuration field
->   *	buf: the buffer to read the field value from.
->   *	len: the length of the buffer
-> - * @generation: config generation counter
-> + * @generation: config generation counter (optional)
->   *	vdev: the virtio_device
->   *	Returns the config generation counter
->   * @get_status: read the status byte
-> @@ -48,17 +48,17 @@ struct irq_affinity;
->   * @del_vqs: free virtqueues found by find_vqs().
->   * @get_features: get the array of feature bits for this device.
->   *	vdev: the virtio_device
-> - *	Returns the first 32 feature bits (all we currently need).
-> + *	Returns the first 64 feature bits (all we currently need).
->   * @finalize_features: confirm what device features we'll be using.
->   *	vdev: the virtio_device
->   *	This gives the final feature bits for the device: it can change
->   *	the dev->feature bits if it wants.
->   *	Returns 0 on success or error status
-> - * @bus_name: return the bus name associated with the device
-> + * @bus_name: return the bus name associated with the device (optional)
->   *	vdev: the virtio_device
->   *      This returns a pointer to the bus name a la pci_name from which
->   *      the caller can then copy.
-> - * @set_vq_affinity: set the affinity for a virtqueue.
-> + * @set_vq_affinity: set the affinity for a virtqueue (optional).
->   * @get_vq_affinity: get the affinity for a virtqueue (optional).
->   */
->  typedef void vq_callback_t(struct virtqueue *);
+> diff --git a/drivers/misc/vmw_vmci/vmci_guest.c
+> b/drivers/misc/vmw_vmci/vmci_guest.c
+> index dad5abee656e..02bb3866cf9e 100644
+> --- a/drivers/misc/vmw_vmci/vmci_guest.c
+> +++ b/drivers/misc/vmw_vmci/vmci_guest.c
+> @@ -532,10 +532,14 @@ static int vmci_guest_probe_device(struct pci_dev
+> *pdev,
+>  	if (capabilities & VMCI_CAPS_NOTIFICATIONS) {
+>  		unsigned long bitmap_ppn =
+>  			vmci_dev->notification_base >> PAGE_SHIFT;
+> -		if (!vmci_dbell_register_notification_bitmap(bitmap_ppn)) {
+> +		u32 bitmap_ppn32 = bitmap_ppn;
+> +
+> +		if ((sizeof(bitmap_ppn) > sizeof(bitmap_ppn32)
+> +		     && bitmap_ppn != bitmap_ppn32) ||
+> +		    !vmci_dbell_register_notification_bitmap(bitmap_ppn)) {
+>  			dev_warn(&pdev->dev,
+> -				 "VMCI device unable to register notification
+> bitmap with PPN 0x%x\n",
+> -				 (u32) bitmap_ppn);
+> +				 "VMCI device unable to register notification
+> bitmap with PPN 0x%lx\n",
+> +				 bitmap_ppn);
+>  			error = -ENXIO;
+>  			goto err_remove_vmci_dev_g;
+>  		}
+> diff --git a/drivers/misc/vmw_vmci/vmci_queue_pair.c
+> b/drivers/misc/vmw_vmci/vmci_queue_pair.c
+> index 264f4ed8eef2..1da4f6cb01b2 100644
+> --- a/drivers/misc/vmw_vmci/vmci_queue_pair.c
+> +++ b/drivers/misc/vmw_vmci/vmci_queue_pair.c
+> @@ -465,9 +465,8 @@ static int qp_alloc_ppn_set(void *prod_q,
+>  	for (i = 0; i < num_produce_pages; i++) {
+>  		unsigned long pfn;
+> 
+> -		produce_ppns[i] =
+> -			produce_q->kernel_if->u.g.pas[i] >> PAGE_SHIFT;
+> -		pfn = produce_ppns[i];
+> +		pfn = produce_q->kernel_if->u.g.pas[i] >> PAGE_SHIFT;
+> +		produce_ppns[i] = pfn;
+> 
+>  		/* Fail allocation if PFN isn't supported by hypervisor. */
+>  		if (sizeof(pfn) > sizeof(*produce_ppns) @@ -478,9 +477,8
+> @@ static int qp_alloc_ppn_set(void *prod_q,
+>  	for (i = 0; i < num_consume_pages; i++) {
+>  		unsigned long pfn;
+> 
+> -		consume_ppns[i] =
+> -			consume_q->kernel_if->u.g.pas[i] >> PAGE_SHIFT;
+> -		pfn = consume_ppns[i];
+> +		pfn = consume_q->kernel_if->u.g.pas[i] >> PAGE_SHIFT;
+> +		consume_ppns[i] = pfn;
+> 
+>  		/* Fail allocation if PFN isn't supported by hypervisor. */
+>  		if (sizeof(pfn) > sizeof(*consume_ppns)
+> --
+> 2.17.1
 
-Ping. Any feedback on that patch?
+Please ignore this patch.
+
+Thomas Hellstrom reminded me that the dma mask for the device should
+be able to take care of this and since the VMCI device uses the default
+DMA mask, the device should only get 32-bit addresses. So we should
+Just remove the (wrong) overflow checks in vmci_queue_pair.c
+
+Another patch supporting larger addresses will be sent out later.
+
+Thanks,
+Jorgen
