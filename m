@@ -1,21 +1,16 @@
-From: Dave Chinner <david@fromorbit.com>
-Subject: Re: [PATCH v3 0/5] kvm "virtio pmem" device
-Date: Tue, 15 Jan 2019 09:21:32 +1100
-Message-ID: <20190114222132.GH4205__39118.3466338136$1547693613$gmane$org@dastard>
-References: <20190109144736.17452-1-pagupta@redhat.com>
-	<20190110012617.GA4205@dastard>
-	<1326478078.61913951.1547192704870.JavaMail.zimbra@redhat.com>
-	<20190113232902.GD4205@dastard>
-	<20190113233820.GX6310@bombadil.infradead.org>
-	<942065073.64011540.1547450140670.JavaMail.zimbra@redhat.com>
-	<20190114212501.GG4205@dastard>
-	<CAPcyv4jtPcLV-s0sKNHwwk0ug7GLBV6699dpm1h3r2xSo879dg@mail.gmail.com>
+From: "Michael S. Tsirkin" <mst@redhat.com>
+Subject: Re: [PATCH v3 1/3] virtio-balloon: tweak config_changed implementation
+Date: Mon, 14 Jan 2019 19:53:35 -0500
+Message-ID: <20190114195151-mutt-send-email-mst__5868.15439533002$1547693621$gmane$org@kernel.org>
+References: <1546844466-38079-1-git-send-email-wei.w.wang@intel.com>
+	<1546844466-38079-2-git-send-email-wei.w.wang@intel.com>
+	<4ea022d4-6b89-b481-5747-871e154dd21a@de.ibm.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
 Content-Disposition: inline
-In-Reply-To: <CAPcyv4jtPcLV-s0sKNHwwk0ug7GLBV6699dpm1h3r2xSo879dg@mail.gmail.com>
+In-Reply-To: <4ea022d4-6b89-b481-5747-871e154dd21a@de.ibm.com>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -25,79 +20,225 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Dan Williams <dan.j.williams@intel.com>
-Cc: Pankaj Gupta <pagupta@redhat.com>, Jan Kara <jack@suse.cz>, KVM list <kvm@vger.kernel.org>, linux-nvdimm <linux-nvdimm@ml01.01.org>, Qemu Developers <qemu-devel@nongnu.org>, virtualization@lists.linux-foundation.org, adilger kernel <adilger.kernel@dilger.ca>, Ross Zwisler <zwisler@kernel.org>, Eric Blake <eblake@redhat.com>, dave jiang <dave.jiang@intel.com>, darrick wong <darrick.wong@oracle.com>, vishal l verma <vishal.l.verma@intel.com>, "Michael S. Tsirkin" <mst@redhat.com>, Matthew Wilcox <willy@infradead.org>, Christoph Hellwig <hch@infradead.org>, Linux ACPI <linux-acpi@vger.kernel.org>, jmoyer <jmoyer@redhat.com>, linux-ext4 <linux-ext4@vger.kernel.org>, Rik van Riel <riel@surriel.com>, Stefan Hajnoczi <stefanha@redhat.com>, Igor Mammedov <imammedo@redhat.com>, lcapitulino@redhat.com, Nitesh Narayan Lal <nilal@redhat.com>, Theodore Ts'o <tytso@mit.edu>, xiaogu
+To: Christian Borntraeger <borntraeger@de.ibm.com>
+Cc: virtio-dev@lists.oasis-open.org, kvm@vger.kernel.org, cohuck@redhat.com, linux-kernel@vger.kernel.org, virtualization@lists.linux-foundation.org, pasic@linux.ibm.com, pbonzini@redhat.com, dgilbert@redhat.com
 List-Id: virtualization@lists.linuxfoundation.org
 
-On Mon, Jan 14, 2019 at 01:35:57PM -0800, Dan Williams wrote:
-> On Mon, Jan 14, 2019 at 1:25 PM Dave Chinner <david@fromorbit.com> wrote:
-> >
-> > On Mon, Jan 14, 2019 at 02:15:40AM -0500, Pankaj Gupta wrote:
-> > >
-> > > > > Until you have images (and hence host page cache) shared between
-> > > > > multiple guests. People will want to do this, because it means they
-> > > > > only need a single set of pages in host memory for executable
-> > > > > binaries rather than a set of pages per guest. Then you have
-> > > > > multiple guests being able to detect residency of the same set of
-> > > > > pages. If the guests can then, in any way, control eviction of the
-> > > > > pages from the host cache, then we have a guest-to-guest information
-> > > > > leak channel.
-> > > >
-> > > > I don't think we should ever be considering something that would allow a
-> > > > guest to evict page's from the host's pagecache [1].  The guest should
-> > > > be able to kick its own references to the host's pagecache out of its
-> > > > own pagecache, but not be able to influence whether the host or another
-> > > > guest has a read-only mapping cached.
-> > > >
-> > > > [1] Unless the guest is allowed to modify the host's file; obviously
-> > > > truncation, holepunching, etc are going to evict pages from the host's
-> > > > page cache.
-> > >
-> > > This is so correct. Guest does not not evict host page cache pages directly.
-> >
-> > They don't right now.
-> >
-> > But someone is going to end up asking for discard to work so that
-> > the guest can free unused space in the underlying spares image (i.e.
-> > make use of fstrim or mount -o discard) because they have workloads
-> > that have bursts of space usage and they need to trim the image
-> > files afterwards to keep their overall space usage under control.
-> >
-> > And then....
+On Mon, Jan 07, 2019 at 02:49:03PM +0100, Christian Borntraeger wrote:
 > 
-> ...we reject / push back on that patch citing the above concern.
-
-So at what point do we draw the line?
-
-We're allowing writable DAX mappings, but as I've pointed out that
-means we are going to be allowing  a potential information leak via
-files with shared extents to be directly mapped and written to.
-
-But we won't allow useful admin operations that allow better
-management of host side storage space similar to how normal image
-files are used by guests because it's an information leak vector?
-
-That's splitting some really fine hairs there...
-
-> > > In case of virtio-pmem & DAX, guest clears guest page cache exceptional entries.
-> > > Its solely decision of host to take action on the host page cache pages.
-> > >
-> > > In case of virtio-pmem, guest does not modify host file directly i.e don't
-> > > perform hole punch & truncation operation directly on host file.
-> >
-> > ... this will no longer be true, and the nuclear landmine in this
-> > driver interface will have been armed....
 > 
-> I agree with the need to be careful when / if explicit cache control
-> is added, but that's not the case today.
+> On 07.01.2019 08:01, Wei Wang wrote:
+> > virtio-ccw has deadlock issues with reading the config space inside the
+> > interrupt context, so we tweak the virtballoon_changed implementation
+> > by moving the config read operations into the related workqueue contexts.
+> > The config_read_bitmap is used as a flag to the workqueue callbacks
+> > about the related config fields that need to be read.
+> > 
+> > The cmd_id_received is also renamed to cmd_id_received_cache, and
+> > the value should be obtained via virtio_balloon_cmd_id_received.
+> > 
+> > Reported-by: Christian Borntraeger <borntraeger@de.ibm.com>
+> > Signed-off-by: Wei Wang <wei.w.wang@intel.com>
+> > Reviewed-by: Cornelia Huck <cohuck@redhat.com>
+> > Reviewed-by: Halil Pasic <pasic@linux.ibm.com>
+> 
+> Together with 
+>   virtio_pci: use queue idx instead of array idx to set up the vq
+>   virtio: don't allocate vqs when names[i] = NULL
+> 
+> Tested-by: Christian Borntraeger <borntraeger@de.ibm.com>
+> 
+> as already said, would be good to add cc stable (and a Fixes: tag)
 
-"if"?
 
-I expect it to be "when", not if. Expect the worst, plan for it now.
+I don't think you did that.
+Did it manually as the pull needed some manual handling
+but I won't next time and you will have to send it to
+Greg yourself.
 
-Cheers,
 
-Dave.
--- 
-Dave Chinner
-david@fromorbit.com
+> 
+> > ---
+> >  drivers/virtio/virtio_balloon.c | 98 +++++++++++++++++++++++++++--------------
+> >  1 file changed, 65 insertions(+), 33 deletions(-)
+> > 
+> > diff --git a/drivers/virtio/virtio_balloon.c b/drivers/virtio/virtio_balloon.c
+> > index 728ecd1..fb12fe2 100644
+> > --- a/drivers/virtio/virtio_balloon.c
+> > +++ b/drivers/virtio/virtio_balloon.c
+> > @@ -61,6 +61,10 @@ enum virtio_balloon_vq {
+> >  	VIRTIO_BALLOON_VQ_MAX
+> >  };
+> >  
+> > +enum virtio_balloon_config_read {
+> > +	VIRTIO_BALLOON_CONFIG_READ_CMD_ID = 0,
+> > +};
+> > +
+> >  struct virtio_balloon {
+> >  	struct virtio_device *vdev;
+> >  	struct virtqueue *inflate_vq, *deflate_vq, *stats_vq, *free_page_vq;
+> > @@ -77,14 +81,20 @@ struct virtio_balloon {
+> >  	/* Prevent updating balloon when it is being canceled. */
+> >  	spinlock_t stop_update_lock;
+> >  	bool stop_update;
+> > +	/* Bitmap to indicate if reading the related config fields are needed */
+> > +	unsigned long config_read_bitmap;
+> >  
+> >  	/* The list of allocated free pages, waiting to be given back to mm */
+> >  	struct list_head free_page_list;
+> >  	spinlock_t free_page_list_lock;
+> >  	/* The number of free page blocks on the above list */
+> >  	unsigned long num_free_page_blocks;
+> > -	/* The cmd id received from host */
+> > -	u32 cmd_id_received;
+> > +	/*
+> > +	 * The cmd id received from host.
+> > +	 * Read it via virtio_balloon_cmd_id_received to get the latest value
+> > +	 * sent from host.
+> > +	 */
+> > +	u32 cmd_id_received_cache;
+> >  	/* The cmd id that is actively in use */
+> >  	__virtio32 cmd_id_active;
+> >  	/* Buffer to store the stop sign */
+> > @@ -390,37 +400,31 @@ static unsigned long return_free_pages_to_mm(struct virtio_balloon *vb,
+> >  	return num_returned;
+> >  }
+> >  
+> > +static void virtio_balloon_queue_free_page_work(struct virtio_balloon *vb)
+> > +{
+> > +	if (!virtio_has_feature(vb->vdev, VIRTIO_BALLOON_F_FREE_PAGE_HINT))
+> > +		return;
+> > +
+> > +	/* No need to queue the work if the bit was already set. */
+> > +	if (test_and_set_bit(VIRTIO_BALLOON_CONFIG_READ_CMD_ID,
+> > +			     &vb->config_read_bitmap))
+> > +		return;
+> > +
+> > +	queue_work(vb->balloon_wq, &vb->report_free_page_work);
+> > +}
+> > +
+> >  static void virtballoon_changed(struct virtio_device *vdev)
+> >  {
+> >  	struct virtio_balloon *vb = vdev->priv;
+> >  	unsigned long flags;
+> > -	s64 diff = towards_target(vb);
+> > -
+> > -	if (diff) {
+> > -		spin_lock_irqsave(&vb->stop_update_lock, flags);
+> > -		if (!vb->stop_update)
+> > -			queue_work(system_freezable_wq,
+> > -				   &vb->update_balloon_size_work);
+> > -		spin_unlock_irqrestore(&vb->stop_update_lock, flags);
+> > -	}
+> >  
+> > -	if (virtio_has_feature(vdev, VIRTIO_BALLOON_F_FREE_PAGE_HINT)) {
+> > -		virtio_cread(vdev, struct virtio_balloon_config,
+> > -			     free_page_report_cmd_id, &vb->cmd_id_received);
+> > -		if (vb->cmd_id_received == VIRTIO_BALLOON_CMD_ID_DONE) {
+> > -			/* Pass ULONG_MAX to give back all the free pages */
+> > -			return_free_pages_to_mm(vb, ULONG_MAX);
+> > -		} else if (vb->cmd_id_received != VIRTIO_BALLOON_CMD_ID_STOP &&
+> > -			   vb->cmd_id_received !=
+> > -			   virtio32_to_cpu(vdev, vb->cmd_id_active)) {
+> > -			spin_lock_irqsave(&vb->stop_update_lock, flags);
+> > -			if (!vb->stop_update) {
+> > -				queue_work(vb->balloon_wq,
+> > -					   &vb->report_free_page_work);
+> > -			}
+> > -			spin_unlock_irqrestore(&vb->stop_update_lock, flags);
+> > -		}
+> > +	spin_lock_irqsave(&vb->stop_update_lock, flags);
+> > +	if (!vb->stop_update) {
+> > +		queue_work(system_freezable_wq,
+> > +			   &vb->update_balloon_size_work);
+> > +		virtio_balloon_queue_free_page_work(vb);
+> >  	}
+> > +	spin_unlock_irqrestore(&vb->stop_update_lock, flags);
+> >  }
+> >  
+> >  static void update_balloon_size(struct virtio_balloon *vb)
+> > @@ -527,6 +531,17 @@ static int init_vqs(struct virtio_balloon *vb)
+> >  	return 0;
+> >  }
+> >  
+> > +static u32 virtio_balloon_cmd_id_received(struct virtio_balloon *vb)
+> > +{
+> > +	if (test_and_clear_bit(VIRTIO_BALLOON_CONFIG_READ_CMD_ID,
+> > +			       &vb->config_read_bitmap))
+> > +		virtio_cread(vb->vdev, struct virtio_balloon_config,
+> > +			     free_page_report_cmd_id,
+> > +			     &vb->cmd_id_received_cache);
+> > +
+> > +	return vb->cmd_id_received_cache;
+> > +}
+> > +
+> >  static int send_cmd_id_start(struct virtio_balloon *vb)
+> >  {
+> >  	struct scatterlist sg;
+> > @@ -537,7 +552,8 @@ static int send_cmd_id_start(struct virtio_balloon *vb)
+> >  	while (virtqueue_get_buf(vq, &unused))
+> >  		;
+> >  
+> > -	vb->cmd_id_active = cpu_to_virtio32(vb->vdev, vb->cmd_id_received);
+> > +	vb->cmd_id_active = virtio32_to_cpu(vb->vdev,
+> > +					virtio_balloon_cmd_id_received(vb));
+> >  	sg_init_one(&sg, &vb->cmd_id_active, sizeof(vb->cmd_id_active));
+> >  	err = virtqueue_add_outbuf(vq, &sg, 1, &vb->cmd_id_active, GFP_KERNEL);
+> >  	if (!err)
+> > @@ -620,7 +636,8 @@ static int send_free_pages(struct virtio_balloon *vb)
+> >  		 * stop the reporting.
+> >  		 */
+> >  		cmd_id_active = virtio32_to_cpu(vb->vdev, vb->cmd_id_active);
+> > -		if (cmd_id_active != vb->cmd_id_received)
+> > +		if (unlikely(cmd_id_active !=
+> > +			     virtio_balloon_cmd_id_received(vb)))
+> >  			break;
+> >  
+> >  		/*
+> > @@ -637,11 +654,9 @@ static int send_free_pages(struct virtio_balloon *vb)
+> >  	return 0;
+> >  }
+> >  
+> > -static void report_free_page_func(struct work_struct *work)
+> > +static void virtio_balloon_report_free_page(struct virtio_balloon *vb)
+> >  {
+> >  	int err;
+> > -	struct virtio_balloon *vb = container_of(work, struct virtio_balloon,
+> > -						 report_free_page_work);
+> >  	struct device *dev = &vb->vdev->dev;
+> >  
+> >  	/* Start by sending the received cmd id to host with an outbuf. */
+> > @@ -659,6 +674,23 @@ static void report_free_page_func(struct work_struct *work)
+> >  		dev_err(dev, "Failed to send a stop id, err = %d\n", err);
+> >  }
+> >  
+> > +static void report_free_page_func(struct work_struct *work)
+> > +{
+> > +	struct virtio_balloon *vb = container_of(work, struct virtio_balloon,
+> > +						 report_free_page_work);
+> > +	u32 cmd_id_received;
+> > +
+> > +	cmd_id_received = virtio_balloon_cmd_id_received(vb);
+> > +	if (cmd_id_received == VIRTIO_BALLOON_CMD_ID_DONE) {
+> > +		/* Pass ULONG_MAX to give back all the free pages */
+> > +		return_free_pages_to_mm(vb, ULONG_MAX);
+> > +	} else if (cmd_id_received != VIRTIO_BALLOON_CMD_ID_STOP &&
+> > +		   cmd_id_received !=
+> > +		   virtio32_to_cpu(vb->vdev, vb->cmd_id_active)) {
+> > +		virtio_balloon_report_free_page(vb);
+> > +	}
+> > +}
+> > +
+> >  #ifdef CONFIG_BALLOON_COMPACTION
+> >  /*
+> >   * virtballoon_migratepage - perform the balloon page migration on behalf of
+> > @@ -885,7 +917,7 @@ static int virtballoon_probe(struct virtio_device *vdev)
+> >  			goto out_del_vqs;
+> >  		}
+> >  		INIT_WORK(&vb->report_free_page_work, report_free_page_func);
+> > -		vb->cmd_id_received = VIRTIO_BALLOON_CMD_ID_STOP;
+> > +		vb->cmd_id_received_cache = VIRTIO_BALLOON_CMD_ID_STOP;
+> >  		vb->cmd_id_active = cpu_to_virtio32(vb->vdev,
+> >  						  VIRTIO_BALLOON_CMD_ID_STOP);
+> >  		vb->cmd_id_stop = cpu_to_virtio32(vb->vdev,
+> > 
