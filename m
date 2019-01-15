@@ -1,12 +1,14 @@
-From: "Michael S. Tsirkin" <mst@redhat.com>
-Subject: [PATCH net-next] virtio_net: bulk free tx skbs
-Date: Mon, 14 Jan 2019 20:34:26 -0500
-Message-ID: <20190115012847.14730-1-mst__45080.0437051386$1547691854$gmane$org@redhat.com>
+From: Wei Wang <wei.w.wang@intel.com>
+Subject: Re: [PATCH 1/2] virtio: fix virtio_config_ops description
+Date: Tue, 15 Jan 2019 10:15:39 +0800
+Message-ID: <5C3D424B.70400__39959.2764712453$1547691866$gmane$org@intel.com>
+References: <20190103160804.21438-1-cohuck@redhat.com>	<20190103160804.21438-2-cohuck@redhat.com>
+	<20190114150958.39a4a56a.cohuck@redhat.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
+Content-Type: text/plain; charset="us-ascii"; Format="flowed"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-Content-Disposition: inline
+In-Reply-To: <20190114150958.39a4a56a.cohuck@redhat.com>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -16,35 +18,60 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: linux-kernel@vger.kernel.org
-Cc: netdev@vger.kernel.org, "David S. Miller" <davem@davemloft.net>, virtualization@lists.linux-foundation.org
+To: Cornelia Huck <cohuck@redhat.com>, "Michael S . Tsirkin" <mst@redhat.com>, Jason Wang <jasowang@redhat.com>
+Cc: Halil Pasic <pasic@linux.ibm.com>, virtio-dev@lists.oasis-open.org, linux-kernel@vger.kernel.org, virtualization@lists.linux-foundation.org
 List-Id: virtualization@lists.linuxfoundation.org
 
-Use napi_consume_skb() to get bulk free.  Note that napi_consume_skb is
-safe to call in a non-napi context as long as the napi_budget flag is
-correct.
+On 01/14/2019 10:09 PM, Cornelia Huck wrote:
+> On Thu,  3 Jan 2019 17:08:03 +0100
+> Cornelia Huck <cohuck@redhat.com> wrote:
+>
+>> - get_features has returned 64 bits since commit d025477368792
+>>    ("virtio: add support for 64 bit features.")
+>> - properly mark all optional callbacks
+>>
+>> Signed-off-by: Cornelia Huck <cohuck@redhat.com>
+>> ---
+>>   include/linux/virtio_config.h | 8 ++++----
+>>   1 file changed, 4 insertions(+), 4 deletions(-)
+>>
+>> diff --git a/include/linux/virtio_config.h b/include/linux/virtio_config.h
+>> index 32baf8e26735..7087ef946ba7 100644
+>> --- a/include/linux/virtio_config.h
+>> +++ b/include/linux/virtio_config.h
+>> @@ -22,7 +22,7 @@ struct irq_affinity;
+>>    *	offset: the offset of the configuration field
+>>    *	buf: the buffer to read the field value from.
+>>    *	len: the length of the buffer
+>> - * @generation: config generation counter
+>> + * @generation: config generation counter (optional)
+>>    *	vdev: the virtio_device
+>>    *	Returns the config generation counter
+>>    * @get_status: read the status byte
+>> @@ -48,17 +48,17 @@ struct irq_affinity;
+>>    * @del_vqs: free virtqueues found by find_vqs().
+>>    * @get_features: get the array of feature bits for this device.
+>>    *	vdev: the virtio_device
+>> - *	Returns the first 32 feature bits (all we currently need).
+>> + *	Returns the first 64 feature bits (all we currently need).
+>>    * @finalize_features: confirm what device features we'll be using.
+>>    *	vdev: the virtio_device
+>>    *	This gives the final feature bits for the device: it can change
+>>    *	the dev->feature bits if it wants.
+>>    *	Returns 0 on success or error status
+>> - * @bus_name: return the bus name associated with the device
+>> + * @bus_name: return the bus name associated with the device (optional)
+>>    *	vdev: the virtio_device
+>>    *      This returns a pointer to the bus name a la pci_name from which
+>>    *      the caller can then copy.
+>> - * @set_vq_affinity: set the affinity for a virtqueue.
+>> + * @set_vq_affinity: set the affinity for a virtqueue (optional).
+>>    * @get_vq_affinity: get the affinity for a virtqueue (optional).
+>>    */
+>>   typedef void vq_callback_t(struct virtqueue *);
+> Ping. Any feedback on that patch?
 
-Signed-off-by: Michael S. Tsirkin <mst@redhat.com>
----
+Reviewed-by: Wei Wang <wei.w.wang@intel.com>
 
-My perf testing setup is down but it works fine on my devel box and
-should be fairly uncontroversial.
-
- drivers/net/virtio_net.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
-
-diff --git a/drivers/net/virtio_net.c b/drivers/net/virtio_net.c
-index 023725086046..d76dcc68cbb6 100644
---- a/drivers/net/virtio_net.c
-+++ b/drivers/net/virtio_net.c
-@@ -1343,7 +1343,7 @@ static void free_old_xmit_skbs(struct send_queue *sq)
- 		bytes += skb->len;
- 		packets++;
- 
--		dev_consume_skb_any(skb);
-+		napi_consume_skb(skb, use_napi);
- 	}
- 
- 	/* Avoid overhead when no packets have been processed
--- 
-MST
+Best,
+Wei
