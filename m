@@ -1,14 +1,12 @@
-From: Jason Wang <jasowang@redhat.com>
-Subject: Re: [PATCH] vhost/vsock: fix vhost vsock cid hashing inconsistent
-Date: Fri, 11 Jan 2019 12:13:36 +0800
-Message-ID: <ebcc2c6c-d188-fe0f-2d24-0997203484f7__34615.4998791919$1547179907$gmane$org@redhat.com>
-References: <20190108080703.70050-1-zhabin@linux.alibaba.com>
+From: "Michael S. Tsirkin" <mst@redhat.com>
+Subject: [PATCH net-next] virtio_net: bulk free tx skbs
+Date: Mon, 14 Jan 2019 20:34:26 -0500
+Message-ID: <20190115012847.14730-1-mst__45080.0437051386$1547691854$gmane$org@redhat.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="utf-8"; Format="flowed"
-Content-Transfer-Encoding: base64
+Content-Type: text/plain; charset="us-ascii"
+Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <20190108080703.70050-1-zhabin@linux.alibaba.com>
-Content-Language: en-US
+Content-Disposition: inline
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -18,48 +16,35 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Zha Bin <zhabin@linux.alibaba.com>, stefanha@redhat.com
-Cc: kvm@vger.kernel.org, mst@redhat.com, netdev@vger.kernel.org, linux-kernel@vger.kernel.org, virtualization@lists.linux-foundation.org, kata-dev@lists.katacontainers.io, gerry@linux.alibaba.com
+To: linux-kernel@vger.kernel.org
+Cc: netdev@vger.kernel.org, "David S. Miller" <davem@davemloft.net>, virtualization@lists.linux-foundation.org
 List-Id: virtualization@lists.linuxfoundation.org
 
-Ck9uIDIwMTkvMS84IOS4i+WNiDQ6MDcsIFpoYSBCaW4gd3JvdGU6Cj4gVGhlIHZzb2NrIGNvcmUg
-b25seSBzdXBwb3J0cyAzMmJpdCBDSUQsIGJ1dCB0aGUgVmlydGlvLXZzb2NrIHNwZWMgZGVmaW5l
-Cj4gQ0lEIChkc3RfY2lkIGFuZCBzcmNfY2lkKSBhcyB1NjQgYW5kIHRoZSB1cHBlciAzMmJpdHMg
-aXMgcmVzZXJ2ZWQgYXMKPiB6ZXJvLiBUaGlzIGluY29uc2lzdGVuY3kgY2F1c2VzIG9uZSBidWcg
-aW4gdmhvc3QgdnNvY2sgZHJpdmVyLiBUaGUKPiBzY2VuYXJpb3MgaXM6Cj4KPiAgICAwLiBBIGhh
-c2ggdGFibGUgKHZob3N0X3Zzb2NrX2hhc2gpIGlzIHVzZWQgdG8gbWFwIGFuIENJRCB0byBhIHZz
-b2NrCj4gICAgb2JqZWN0LiBBbmQgaGFzaF9taW4oKSBpcyB1c2VkIHRvIGNvbXB1dGUgdGhlIGhh
-c2gga2V5LiBoYXNoX21pbigpIGlzCj4gICAgZGVmaW5lZCBhczoKPiAgICAoc2l6ZW9mKHZhbCkg
-PD0gNCA/IGhhc2hfMzIodmFsLCBiaXRzKSA6IGhhc2hfbG9uZyh2YWwsIGJpdHMpKS4KPiAgICBU
-aGF0IG1lYW5zIHRoZSBoYXNoIGFsZ29yaXRobSBoYXMgZGVwZW5kZW5jeSBvbiB0aGUgc2l6ZSBv
-ZiBtYWNybwo+ICAgIGFyZ3VtZW50ICd2YWwnLgo+ICAgIDAuIEluIGZ1bmN0aW9uIHZob3N0X3Zz
-b2NrX3NldF9jaWQoKSwgYSA2NGJpdCBDSUQgaXMgcGFzc2VkIHRvCj4gICAgaGFzaF9taW4oKSB0
-byBjb21wdXRlIHRoZSBoYXNoIGtleSB3aGVuIGluc2VydGluZyBhIHZzb2NrIG9iamVjdCBpbnRv
-Cj4gICAgdGhlIGhhc2ggdGFibGUuCj4gICAgMC4gSW4gZnVuY3Rpb24gdmhvc3RfdnNvY2tfZ2V0
-KCksIGEgMzJiaXQgQ0lEIGlzIHBhc3NlZCB0byBoYXNoX21pbigpCj4gICAgdG8gY29tcHV0ZSB0
-aGUgaGFzaCBrZXkgd2hlbiBsb29raW5nIHVwIGEgdnNvY2sgZm9yIGFuIENJRC4KPgo+IEJlY2F1
-c2UgdGhlIGRpZmZlcmVudCBzaXplIG9mIHRoZSBDSUQsIGhhc2hfbWluKCkgcmV0dXJucyBkaWZm
-ZXJlbnQgaGFzaAo+IGtleSwgdGh1cyBmYWlscyB0byBsb29rIHVwIHRoZSB2c29jayBvYmplY3Qg
-Zm9yIGFuIENJRC4KPgo+IFRvIGZpeCB0aGlzIGJ1Zywgd2Uga2VlcCBDSUQgYXMgdTY0IGluIHRo
-ZSBJT0NUTHMgYW5kIHZpcnRpbyBtZXNzYWdlCj4gaGVhZGVycywgYnV0IGV4cGxpY2l0bHkgY29u
-dmVydCB1NjQgdG8gdTMyIHdoZW4gZGVhbCB3aXRoIHRoZSBoYXNoIHRhYmxlCj4gYW5kIHZzb2Nr
-IGNvcmUuCj4KPiBGaXhlczogODM0ZTc3MmM4ZGIwICgidmhvc3QvdnNvY2s6IGZpeCB1c2UtYWZ0
-ZXItZnJlZSBpbiBuZXR3b3JrIHN0YWNrIGNhbGxlcnMiKQo+IExpbms6IGh0dHBzOi8vZ2l0aHVi
-LmNvbS9zdGVmYW5oYS92aXJ0aW8vYmxvYi92c29jay90cnVuay9jb250ZW50LnRleAo+IFNpZ25l
-ZC1vZmYtYnk6IFpoYSBCaW4gPHpoYWJpbkBsaW51eC5hbGliYWJhLmNvbT4KPiBSZXZpZXdlZC1i
-eTogTGl1IEppYW5nIDxnZXJyeUBsaW51eC5hbGliYWJhLmNvbT4KPiAtLS0KPiAgIGRyaXZlcnMv
-dmhvc3QvdnNvY2suYyB8IDIgKy0KPiAgIDEgZmlsZSBjaGFuZ2VkLCAxIGluc2VydGlvbigrKSwg
-MSBkZWxldGlvbigtKQo+Cj4gZGlmZiAtLWdpdCBhL2RyaXZlcnMvdmhvc3QvdnNvY2suYyBiL2Ry
-aXZlcnMvdmhvc3QvdnNvY2suYwo+IGluZGV4IGJjNDJkMzhhZTAzMS4uM2ZiYzA2OGVhYTliIDEw
-MDY0NAo+IC0tLSBhL2RyaXZlcnMvdmhvc3QvdnNvY2suYwo+ICsrKyBiL2RyaXZlcnMvdmhvc3Qv
-dnNvY2suYwo+IEBAIC02NDIsNyArNjQyLDcgQEAgc3RhdGljIGludCB2aG9zdF92c29ja19zZXRf
-Y2lkKHN0cnVjdCB2aG9zdF92c29jayAqdnNvY2ssIHU2NCBndWVzdF9jaWQpCj4gICAJCWhhc2hf
-ZGVsX3JjdSgmdnNvY2stPmhhc2gpOwo+ICAgCj4gICAJdnNvY2stPmd1ZXN0X2NpZCA9IGd1ZXN0
-X2NpZDsKPiAtCWhhc2hfYWRkX3JjdSh2aG9zdF92c29ja19oYXNoLCAmdnNvY2stPmhhc2gsIGd1
-ZXN0X2NpZCk7Cj4gKwloYXNoX2FkZF9yY3Uodmhvc3RfdnNvY2tfaGFzaCwgJnZzb2NrLT5oYXNo
-LCB2c29jay0+Z3Vlc3RfY2lkKTsKPiAgIAltdXRleF91bmxvY2soJnZob3N0X3Zzb2NrX211dGV4
-KTsKPiAgIAo+ICAgCXJldHVybiAwOwoKCkFja2VkLWJ5OiBKYXNvbiBXYW5nIDxqYXNvd2FuZ0By
-ZWRoYXQuY29tPgoKCl9fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19f
-X19fClZpcnR1YWxpemF0aW9uIG1haWxpbmcgbGlzdApWaXJ0dWFsaXphdGlvbkBsaXN0cy5saW51
-eC1mb3VuZGF0aW9uLm9yZwpodHRwczovL2xpc3RzLmxpbnV4Zm91bmRhdGlvbi5vcmcvbWFpbG1h
-bi9saXN0aW5mby92aXJ0dWFsaXphdGlvbg==
+Use napi_consume_skb() to get bulk free.  Note that napi_consume_skb is
+safe to call in a non-napi context as long as the napi_budget flag is
+correct.
+
+Signed-off-by: Michael S. Tsirkin <mst@redhat.com>
+---
+
+My perf testing setup is down but it works fine on my devel box and
+should be fairly uncontroversial.
+
+ drivers/net/virtio_net.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
+
+diff --git a/drivers/net/virtio_net.c b/drivers/net/virtio_net.c
+index 023725086046..d76dcc68cbb6 100644
+--- a/drivers/net/virtio_net.c
++++ b/drivers/net/virtio_net.c
+@@ -1343,7 +1343,7 @@ static void free_old_xmit_skbs(struct send_queue *sq)
+ 		bytes += skb->len;
+ 		packets++;
+ 
+-		dev_consume_skb_any(skb);
++		napi_consume_skb(skb, use_napi);
+ 	}
+ 
+ 	/* Avoid overhead when no packets have been processed
+-- 
+MST
