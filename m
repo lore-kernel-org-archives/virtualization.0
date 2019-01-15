@@ -1,21 +1,13 @@
-From: Christoph Hellwig <hch@lst.de>
-Subject: Re: [PATCH 0/3] Fix virtio-blk issue with SWIOTLB
-Date: Tue, 15 Jan 2019 14:20:19 +0100
-Message-ID: <20190115132019.GA28778__12469.865618232$1547692278$gmane$org@lst.de>
-References: <20190110134433.15672-1-joro@8bytes.org>
-	<5ae1341e-62ec-0478-552b-259eabf9fb17@redhat.com>
-	<20190111091502.GC5825@8bytes.org>
-	<38bcbd46-674c-348a-cbd6-66bd431e986a@redhat.com>
-	<20190114095002.GA29874@lst.de>
-	<ac6d83d8-02de-dbdf-e309-3a1115642d50@redhat.com>
-	<20190114131114-mutt-send-email-mst@kernel.org>
-	<20190115083742.GF5825@8bytes.org>
+From: Joerg Roedel <joro@8bytes.org>
+Subject: [PATCH 1/3] swiotlb: Introduce swiotlb_max_mapping_size()
+Date: Tue, 15 Jan 2019 14:22:55 +0100
+Message-ID: <20190115132257.6426-2-joro__8484.82821970737$1547692294$gmane$org@8bytes.org>
+References: <20190115132257.6426-1-joro@8bytes.org>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-Content-Disposition: inline
-In-Reply-To: <20190115083742.GF5825@8bytes.org>
+In-Reply-To: <20190115132257.6426-1-joro@8bytes.org>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -25,53 +17,57 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Joerg Roedel <joro@8bytes.org>
-Cc: Jens Axboe <axboe@kernel.dk>, jon.grimm@amd.com, brijesh.singh@amd.com, Konrad Rzeszutek Wilk <konrad.wilk@oracle.com>, "Michael S. Tsirkin" <mst@redhat.com>, jfehlig@suse.com, linux-kernel@vger.kernel.org, virtualization@lists.linux-foundation.org, linux-block@vger.kernel.org, iommu@lists.linux-foundation.org, Christoph Hellwig <hch@lst.de>
+To: "Michael S . Tsirkin" <mst@redhat.com>, Jason Wang <jasowang@redhat.com>, Konrad Rzeszutek Wilk <konrad.wilk@oracle.com>, Christoph Hellwig <hch@lst.de>
+Cc: Jens Axboe <axboe@kernel.dk>, jroedel@suse.de, brijesh.singh@amd.com, joro@8bytes.org, jon.grimm@amd.com, jfehlig@suse.com, linux-kernel@vger.kernel.org, linux-block@vger.kernel.org, iommu@lists.linux-foundation.org, virtualization@lists.linux-foundation.org
 List-Id: virtualization@lists.linuxfoundation.org
 
-On Tue, Jan 15, 2019 at 09:37:42AM +0100, Joerg Roedel wrote:
-> On Mon, Jan 14, 2019 at 01:20:45PM -0500, Michael S. Tsirkin wrote:
-> > Which would be fine especially if we can manage not to introduce a bunch
-> > of indirect calls all over the place and hurt performance.
-> 
-> Which indirect calls? In case of unset dma_ops the DMA-API functions
-> call directly into the dma-direct implementation, no indirect calls at
-> all.
+From: Joerg Roedel <jroedel@suse.de>
 
-True.  But the NULL-ops dma direct case still has two issues that might
-not work for virtio:
+The function returns the maximum size that can be remapped
+by the SWIOTLB implementation. This function will be later
+exposed to users through the DMA-API.
 
- (a) if the architecture supports devices that are not DMA coherent it
-     will dip into a special allocator and do cache maintainance for
-     streaming mappings.  Although it would be a bit of a hack we could
-     work around this in virtio doings something like:
+Signed-off-by: Joerg Roedel <jroedel@suse.de>
+---
+ include/linux/swiotlb.h | 5 +++++
+ kernel/dma/swiotlb.c    | 5 +++++
+ 2 files changed, 10 insertions(+)
 
-#if defined(CONFIG_ARCH_HAS_SYNC_DMA_FOR_DEVICE) || \
-    defined(CONFIG_ARCH_HAS_SYNC_DMA_FOR_CPU) || \
-    defined(CONFIG_ARCH_HAS_SYNC_DMA_FOR_CPU_ALL)
-	dev->dma_coherent = true;
-#endif
-
-    except that won't work for mips, which has a mode where it does
-    a system instead of device level coherency flag and thus doesn't
-    look at this struct device field
-
- (b) we can still mangle the DMA address, either using the
-     dma_pfn_offset field in struct device, or by a full override
-     of __phys_to_dma / __dma_to_phys by the architecture code.
-     The first could be solved using a hack like the one above,
-     but the latter would be a little harder.  In the long run
-     I'd love to get rid of that hook and have everyone use the
-     generic offset code, but for that we first need to support
-     multiple ranges with different offset and do quite some
-     nasty arch code surgery.
+diff --git a/include/linux/swiotlb.h b/include/linux/swiotlb.h
+index 7c007ed7505f..ceb623321f38 100644
+--- a/include/linux/swiotlb.h
++++ b/include/linux/swiotlb.h
+@@ -62,6 +62,7 @@ extern void swiotlb_tbl_sync_single(struct device *hwdev,
  
-So for the legacy virtio case I fear we need to keep local dma mapping
-implementation for now.  I just wish now recent hypervisor would ever
-offer devices in this broken legacy mode..
-
-> 
-> Regards,
-> 
-> 	Joerg
----end quoted text---
+ extern int
+ swiotlb_dma_supported(struct device *hwdev, u64 mask);
++extern size_t swiotlb_max_mapping_size(struct device *dev);
+ 
+ #ifdef CONFIG_SWIOTLB
+ extern enum swiotlb_force swiotlb_force;
+@@ -95,6 +96,10 @@ static inline unsigned int swiotlb_max_segment(void)
+ {
+ 	return 0;
+ }
++static inline size_t swiotlb_max_mapping_size(struct device *dev)
++{
++	return SIZE_MAX;
++}
+ #endif /* CONFIG_SWIOTLB */
+ 
+ extern void swiotlb_print_info(void);
+diff --git a/kernel/dma/swiotlb.c b/kernel/dma/swiotlb.c
+index d6361776dc5c..c950b3e9f683 100644
+--- a/kernel/dma/swiotlb.c
++++ b/kernel/dma/swiotlb.c
+@@ -660,3 +660,8 @@ swiotlb_dma_supported(struct device *hwdev, u64 mask)
+ {
+ 	return __phys_to_dma(hwdev, io_tlb_end - 1) <= mask;
+ }
++
++size_t swiotlb_max_mapping_size(struct device *dev)
++{
++	return ((size_t)1 << IO_TLB_SHIFT) * IO_TLB_SEGSIZE;
++}
+-- 
+2.17.1
