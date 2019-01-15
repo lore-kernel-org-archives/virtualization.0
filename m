@@ -1,8 +1,7 @@
 From: Joerg Roedel <joro@8bytes.org>
-Subject: [PATCH 3/3] virtio-blk: Consider dma_max_mapping_size() for maximum
-	segment size
-Date: Tue, 15 Jan 2019 14:22:57 +0100
-Message-ID: <20190115132257.6426-4-joro__37337.4540744864$1547692325$gmane$org@8bytes.org>
+Subject: [PATCH 2/3] dma: Introduce dma_max_mapping_size()
+Date: Tue, 15 Jan 2019 14:22:56 +0100
+Message-ID: <20190115132257.6426-3-joro__39697.3823699684$1547692342$gmane$org@8bytes.org>
 References: <20190115132257.6426-1-joro@8bytes.org>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
@@ -24,47 +23,75 @@ List-Id: virtualization@lists.linuxfoundation.org
 
 From: Joerg Roedel <jroedel@suse.de>
 
-Segments can't be larger than the maximum DMA mapping size
-supported on the platform. Take that into account when
-setting the maximum segment size for a block device.
+The function returns the maximum size that can be mapped
+using DMA-API functions. The patch also adds the
+implementation for direct DMA and a new dma_map_ops pointer
+so that other implementations can expose their limit.
 
 Signed-off-by: Joerg Roedel <jroedel@suse.de>
 ---
- drivers/block/virtio_blk.c | 10 ++++++----
- 1 file changed, 6 insertions(+), 4 deletions(-)
+ include/linux/dma-mapping.h | 16 ++++++++++++++++
+ kernel/dma/direct.c         | 10 ++++++++++
+ 2 files changed, 26 insertions(+)
 
-diff --git a/drivers/block/virtio_blk.c b/drivers/block/virtio_blk.c
-index b16a887bbd02..6193962a7fec 100644
---- a/drivers/block/virtio_blk.c
-+++ b/drivers/block/virtio_blk.c
-@@ -723,7 +723,7 @@ static int virtblk_probe(struct virtio_device *vdev)
- 	struct request_queue *q;
- 	int err, index;
+diff --git a/include/linux/dma-mapping.h b/include/linux/dma-mapping.h
+index f6ded992c183..a3ca8a71a704 100644
+--- a/include/linux/dma-mapping.h
++++ b/include/linux/dma-mapping.h
+@@ -130,6 +130,7 @@ struct dma_map_ops {
+ 			enum dma_data_direction direction);
+ 	int (*dma_supported)(struct device *dev, u64 mask);
+ 	u64 (*get_required_mask)(struct device *dev);
++	size_t (*max_mapping_size)(struct device *dev);
+ };
  
--	u32 v, blk_size, sg_elems, opt_io_size;
-+	u32 v, blk_size, max_size, sg_elems, opt_io_size;
- 	u16 min_io_size;
- 	u8 physical_block_exp, alignment_offset;
+ #define DMA_MAPPING_ERROR		(~(dma_addr_t)0)
+@@ -257,6 +258,8 @@ static inline void dma_direct_sync_sg_for_cpu(struct device *dev,
+ }
+ #endif
  
-@@ -826,14 +826,16 @@ static int virtblk_probe(struct virtio_device *vdev)
- 	/* No real sector limit. */
- 	blk_queue_max_hw_sectors(q, -1U);
- 
-+	max_size = dma_max_mapping_size(&vdev->dev);
++size_t dma_direct_max_mapping_size(struct device *dev);
 +
- 	/* Host can optionally specify maximum segment size and number of
- 	 * segments. */
- 	err = virtio_cread_feature(vdev, VIRTIO_BLK_F_SIZE_MAX,
- 				   struct virtio_blk_config, size_max, &v);
- 	if (!err)
--		blk_queue_max_segment_size(q, v);
--	else
--		blk_queue_max_segment_size(q, -1U);
-+		max_size = min(max_size, v);
-+
-+	blk_queue_max_segment_size(q, max_size);
+ #ifdef CONFIG_HAS_DMA
+ #include <asm/dma-mapping.h>
  
- 	/* Host can optionally specify the block size of the device */
- 	err = virtio_cread_feature(vdev, VIRTIO_BLK_F_BLK_SIZE,
+@@ -440,6 +443,19 @@ static inline int dma_mapping_error(struct device *dev, dma_addr_t dma_addr)
+ 	return 0;
+ }
+ 
++static inline size_t dma_max_mapping_size(struct device *dev)
++{
++	const struct dma_map_ops *ops = get_dma_ops(dev);
++	size_t size = SIZE_MAX;
++
++	if (dma_is_direct(ops))
++		size = dma_direct_max_mapping_size(dev);
++	else if (ops && ops->max_mapping_size)
++		size = ops->max_mapping_size(dev);
++
++	return size;
++}
++
+ void *dma_alloc_attrs(struct device *dev, size_t size, dma_addr_t *dma_handle,
+ 		gfp_t flag, unsigned long attrs);
+ void dma_free_attrs(struct device *dev, size_t size, void *cpu_addr,
+diff --git a/kernel/dma/direct.c b/kernel/dma/direct.c
+index 355d16acee6d..84917e1003c4 100644
+--- a/kernel/dma/direct.c
++++ b/kernel/dma/direct.c
+@@ -380,3 +380,13 @@ int dma_direct_supported(struct device *dev, u64 mask)
+ 	 */
+ 	return mask >= __phys_to_dma(dev, min_mask);
+ }
++
++size_t dma_direct_max_mapping_size(struct device *dev)
++{
++	/*
++	 * Return the minimum of the direct DMA limit and the SWIOTLB limit.
++	 * Since direct DMA has no limit, it is fine to just return the SWIOTLB
++	 * limit.
++	 */
++	return swiotlb_max_mapping_size(dev);
++}
 -- 
 2.17.1
