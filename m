@@ -1,13 +1,11 @@
-From: Jani Nikula <jani.nikula@linux.intel.com>
-Subject: Re: [PATCH] drm: Split out drm_probe_helper.h
-Date: Tue, 15 Jan 2019 12:57:33 +0200
-Message-ID: <87tvia5gte.fsf__31317.0286165134$1547692060$gmane$org@intel.com>
-References: <20190115104137.25695-1-daniel.vetter@ffwll.ch>
+From: Jean-Philippe Brucker <jean-philippe.brucker@arm.com>
+Subject: [PATCH v7 0/7] Add virtio-iommu driver
+Date: Tue, 15 Jan 2019 12:19:52 +0000
+Message-ID: <20190115121959.23763-1-jean-philippe.brucker__46674.0031530664$1547692081$gmane$org@arm.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <20190115104137.25695-1-daniel.vetter@ffwll.ch>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -17,74 +15,68 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Intel Graphics Development <intel-gfx@lists.freedesktop.org>
-Cc: Daniel Vetter <daniel.vetter@ffwll.ch>, DRI Development <dri-devel@lists.freedesktop.org>, virtualization@lists.linux-foundation.org, Laurent Pinchart <laurent.pinchart@ideasonboard.com>, Benjamin Gaignard <benjamin.gaignard@linaro.org>, Daniel Vetter <daniel.vetter@intel.com>, Sam Ravnborg <sam@ravnborg.org>, linux-stm32@st-md-mailman.stormreply.com, linux-samsung-soc@vger.kernel.org, amd-gfx@lists.freedesktop.org, linux-rockchip@lists.infradead.org, nouveau@lists.freedesktop.org, spice-devel@lists.freedesktop.org, linux-arm-msm@vger.kernel.org, etnaviv@lists.freedesktop.org, linux-mediatek@lists.infradead.org, Rodrigo Vivi <rodrigo.vivi@intel.com>, linux-tegra@vger.kernel.org, linux-amlogic@lists.infradead.org, linux-arm-kernel@lists.infradead.org, xen-devel@lists.xen.org, linux-renesas-soc@vger.kernel.org, freedreno@lists.freedesktop.org
+To: iommu@lists.linux-foundation.org, linux-pci@vger.kernel.org, devicetree@vger.kernel.org, virtualization@lists.linux-foundation.org, virtio-dev@lists.oasis-open.org, joro@8bytes.org, mst@redhat.com
+Cc: mark.rutland@arm.com, lorenzo.pieralisi@arm.com, tnowicki@caviumnetworks.com, marc.zyngier@arm.com, robin.murphy@arm.com, will.deacon@arm.com, eric.auger@redhat.com, robh+dt@kernel.org, bhelgaas@google.com, kvmarm@lists.cs.columbia.edu
 List-Id: virtualization@lists.linuxfoundation.org
 
-On Tue, 15 Jan 2019, Daniel Vetter <daniel.vetter@ffwll.ch> wrote:
-> Having the probe helper stuff (which pretty much everyone needs) in
-> the drm_crtc_helper.h file (which atomic drivers should never need) is
-> confusing. Split them out.
->
-> To make sure I actually achieved the goal here I went through all
-> drivers. And indeed, all atomic drivers are now free of
-> drm_crtc_helper.h includes.
->
-> v2: Make it compile. There was so much compile fail on arm drivers
-> that I figured I'll better not include any of the acks on v1.
->
-> v3: Massive rebase because i915 has lost a lot of drmP.h includes, but
-> not all: Through drm_crtc_helper.h > drm_modeset_helper.h -> drmP.h
-> there was still one, which this patch largely removes. Which means
-> rolling out lots more includes all over.
->
-> This will also conflict with ongoing drmP.h cleanup by others I
-> expect.
->
-> v3: Rebase on top of atomic bochs.
->
-> Cc: Sam Ravnborg <sam@ravnborg.org>
-> Cc: Jani Nikula <jani.nikula@linux.intel.com>
-> Cc: Laurent Pinchart <laurent.pinchart@ideasonboard.com>
-> Acked-by: Rodrigo Vivi <rodrigo.vivi@intel.com> (v2)
-> Acked-by: Benjamin Gaignard <benjamin.gaignard@linaro.org> (v2)
-> Signed-off-by: Daniel Vetter <daniel.vetter@intel.com>
-> Cc: linux-arm-kernel@lists.infradead.org
-> Cc: virtualization@lists.linux-foundation.org
-> Cc: etnaviv@lists.freedesktop.org
-> Cc: linux-samsung-soc@vger.kernel.org
-> Cc: intel-gfx@lists.freedesktop.org
-> Cc: linux-mediatek@lists.infradead.org
-> Cc: linux-amlogic@lists.infradead.org
-> Cc: linux-arm-msm@vger.kernel.org
-> Cc: freedreno@lists.freedesktop.org
-> Cc: nouveau@lists.freedesktop.org
-> Cc: spice-devel@lists.freedesktop.org
-> Cc: amd-gfx@lists.freedesktop.org
-> Cc: linux-renesas-soc@vger.kernel.org
-> Cc: linux-rockchip@lists.infradead.org
-> Cc: linux-stm32@st-md-mailman.stormreply.com
-> Cc: linux-tegra@vger.kernel.org
-> Cc: xen-devel@lists.xen.org
-> ---
-> Merging this is going to be a bit a mess due to all the ongoing drmP.h
-> cleanups. I think the following should work:
-> - Apply Sam's prep patches for removing drmP.h from
->   drm_modeset_helper.h
-> - Get the i915 drmP.h cleanup backmerged into drm-misc-next
-> - Apply this patch.
-> - Apply Sam's patch to remove drmP.h from drm_modeset_helper.h
-> - All through drm-misc-next, which has some potential for trivial
->   conflicts around #includes with other drivers unfortunately.
->
-> I hope there's no other driver who'll blow up accidentally because
-> someone else is doing a drmP.h cleanup. Laurent maybe?
->
-> Jani, ack on this?
+Implement the virtio-iommu driver, following specification v0.9 [1].
 
-Acked-by: Jani Nikula <jani.nikula@intel.com>
+This is a simple rebase onto Linux v5.0-rc2. We now use the
+dev_iommu_fwspec_get() helper introduced in v5.0 instead of accessing
+dev->iommu_fwspec, but there aren't any functional change from v6 [2].
 
+Our current goal for virtio-iommu is to get a paravirtual IOMMU working
+on Arm, and enable device assignment to guest userspace. In this
+use-case the mappings are static, and don't require optimal performance,
+so this series tries to keep things simple. However there is plenty more
+to do for features and optimizations, and having this base in v5.1 would
+be good. Given that most of the changes are to drivers/iommu, I believe
+the driver and future changes should go via the IOMMU tree.
 
+You can find Linux driver and kvmtool device on v0.9.2 branches [3],
+module and x86 support on virtio-iommu/devel. Also tested with Eric's
+QEMU device [4]. Please note that the series depends on Robin's
+probe-deferral fix [5], which will hopefully land in v5.0.
+
+[1] Virtio-iommu specification v0.9, sources and pdf
+    git://linux-arm.org/virtio-iommu.git virtio-iommu/v0.9
+    http://jpbrucker.net/virtio-iommu/spec/v0.9/virtio-iommu-v0.9.pdf
+
+[2] [PATCH v6 0/7] Add virtio-iommu driver
+    https://lists.linuxfoundation.org/pipermail/iommu/2018-December/032127.html
+
+[3] git://linux-arm.org/linux-jpb.git virtio-iommu/v0.9.2
+    git://linux-arm.org/kvmtool-jpb.git virtio-iommu/v0.9.2
+
+[4] [RFC v9 00/17] VIRTIO-IOMMU device
+    https://www.mail-archive.com/qemu-devel@nongnu.org/msg575578.html
+
+[5] [PATCH] iommu/of: Fix probe-deferral
+    https://www.spinics.net/lists/arm-kernel/msg698371.html
+
+Jean-Philippe Brucker (7):
+  dt-bindings: virtio-mmio: Add IOMMU description
+  dt-bindings: virtio: Add virtio-pci-iommu node
+  of: Allow the iommu-map property to omit untranslated devices
+  PCI: OF: Initialize dev->fwnode appropriately
+  iommu: Add virtio-iommu driver
+  iommu/virtio: Add probe request
+  iommu/virtio: Add event queue
+
+ .../devicetree/bindings/virtio/iommu.txt      |   66 +
+ .../devicetree/bindings/virtio/mmio.txt       |   30 +
+ MAINTAINERS                                   |    7 +
+ drivers/iommu/Kconfig                         |   11 +
+ drivers/iommu/Makefile                        |    1 +
+ drivers/iommu/virtio-iommu.c                  | 1158 +++++++++++++++++
+ drivers/of/base.c                             |   10 +-
+ drivers/pci/of.c                              |    7 +
+ include/uapi/linux/virtio_ids.h               |    1 +
+ include/uapi/linux/virtio_iommu.h             |  161 +++
+ 10 files changed, 1449 insertions(+), 3 deletions(-)
+ create mode 100644 Documentation/devicetree/bindings/virtio/iommu.txt
+ create mode 100644 drivers/iommu/virtio-iommu.c
+ create mode 100644 include/uapi/linux/virtio_iommu.h
 
 -- 
-Jani Nikula, Intel Open Source Graphics Center
+2.19.1
