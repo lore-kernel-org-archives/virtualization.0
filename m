@@ -1,7 +1,7 @@
 From: Christoph Hellwig <hch@lst.de>
 Subject: Re: [PATCH 0/3] Fix virtio-blk issue with SWIOTLB
-Date: Tue, 15 Jan 2019 14:09:22 +0100
-Message-ID: <20190115130922.GB28364__29684.0519564741$1547692259$gmane$org@lst.de>
+Date: Tue, 15 Jan 2019 14:20:19 +0100
+Message-ID: <20190115132019.GA28778__12469.865618232$1547692278$gmane$org@lst.de>
 References: <20190110134433.15672-1-joro@8bytes.org>
 	<5ae1341e-62ec-0478-552b-259eabf9fb17@redhat.com>
 	<20190111091502.GC5825@8bytes.org>
@@ -9,14 +9,13 @@ References: <20190110134433.15672-1-joro@8bytes.org>
 	<20190114095002.GA29874@lst.de>
 	<ac6d83d8-02de-dbdf-e309-3a1115642d50@redhat.com>
 	<20190114131114-mutt-send-email-mst@kernel.org>
-	<20190114201935.GA10781@lst.de>
-	<20190114153004-mutt-send-email-mst@kernel.org>
+	<20190115083742.GF5825@8bytes.org>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
 Content-Disposition: inline
-In-Reply-To: <20190114153004-mutt-send-email-mst@kernel.org>
+In-Reply-To: <20190115083742.GF5825@8bytes.org>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -26,39 +25,53 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: "Michael S. Tsirkin" <mst@redhat.com>
-Cc: Jens Axboe <axboe@kernel.dk>, brijesh.singh@amd.com, Konrad Rzeszutek Wilk <konrad.wilk@oracle.com>, jon.grimm@amd.com, jfehlig@suse.com, linux-kernel@vger.kernel.org, virtualization@lists.linux-foundation.org, linux-block@vger.kernel.org, iommu@lists.linux-foundation.org, Christoph Hellwig <hch@lst.de>, Joerg Roedel <joro@8bytes.org>
+To: Joerg Roedel <joro@8bytes.org>
+Cc: Jens Axboe <axboe@kernel.dk>, jon.grimm@amd.com, brijesh.singh@amd.com, Konrad Rzeszutek Wilk <konrad.wilk@oracle.com>, "Michael S. Tsirkin" <mst@redhat.com>, jfehlig@suse.com, linux-kernel@vger.kernel.org, virtualization@lists.linux-foundation.org, linux-block@vger.kernel.org, iommu@lists.linux-foundation.org, Christoph Hellwig <hch@lst.de>
 List-Id: virtualization@lists.linuxfoundation.org
 
-On Mon, Jan 14, 2019 at 03:48:47PM -0500, Michael S. Tsirkin wrote:
-> I think you are exaggerating a little here.  Limited access with e.g.
-> need to flush caches is common on lower end but less common on higher
-> end systems used for virtualization.  As you point out that changes with
-> e.g. SEV but then SEV is a pretty niche thing so far.
+On Tue, Jan 15, 2019 at 09:37:42AM +0100, Joerg Roedel wrote:
+> On Mon, Jan 14, 2019 at 01:20:45PM -0500, Michael S. Tsirkin wrote:
+> > Which would be fine especially if we can manage not to introduce a bunch
+> > of indirect calls all over the place and hurt performance.
 > 
-> So I would make that a SHOULD probably.
+> Which indirect calls? In case of unset dma_ops the DMA-API functions
+> call directly into the dma-direct implementation, no indirect calls at
+> all.
 
-The problem is that without using DMA ops you can't just plug the device
-into a random system, which is a total no-go for periphals.
+True.  But the NULL-ops dma direct case still has two issues that might
+not work for virtio:
 
-And cache flushing is not that uncommmon, e.g. every sparc systems
-needs it, many arm/arm64 ones, some power ones, lots of mips ones, etc.
+ (a) if the architecture supports devices that are not DMA coherent it
+     will dip into a special allocator and do cache maintainance for
+     streaming mappings.  Although it would be a bit of a hack we could
+     work around this in virtio doings something like:
 
-But cache flushing is just one side of it - lots of systems have either
-mandatory or option IOMMUs, and without the platform access flag that
-doesn't work.  As does that case where you have a DMA offset, which
-is extremly common on arm and power systems.  So you might find a few
-non-x86 systems you can plug it in and it'll just work, but it won't
-be all that many.  And even on x86 your device will be completely broken
-if the users dares to use an IOMMU.
+#if defined(CONFIG_ARCH_HAS_SYNC_DMA_FOR_DEVICE) || \
+    defined(CONFIG_ARCH_HAS_SYNC_DMA_FOR_CPU) || \
+    defined(CONFIG_ARCH_HAS_SYNC_DMA_FOR_CPU_ALL)
+	dev->dma_coherent = true;
+#endif
 
-> > flags really needs some major updates in terms of DMA access.
+    except that won't work for mips, which has a mode where it does
+    a system instead of device level coherency flag and thus doesn't
+    look at this struct device field
+
+ (b) we can still mangle the DMA address, either using the
+     dma_pfn_offset field in struct device, or by a full override
+     of __phys_to_dma / __dma_to_phys by the architecture code.
+     The first could be solved using a hack like the one above,
+     but the latter would be a little harder.  In the long run
+     I'd love to get rid of that hook and have everyone use the
+     generic offset code, but for that we first need to support
+     multiple ranges with different offset and do quite some
+     nasty arch code surgery.
+ 
+So for the legacy virtio case I fear we need to keep local dma mapping
+implementation for now.  I just wish now recent hypervisor would ever
+offer devices in this broken legacy mode..
+
 > 
-> Thanks for the reminder. Yes generally spec tends to still say e.g.
-> "physical address" where it really means a "DMA address" in Linux terms.
-> Whether changing that will make things much clearer I'm not sure. E.g.
-> hardware designers don't much care I guess.
-
-At least say bus address - as said above the CPU and bus concepts of
-physicall addresses are different in many systems.  Including x86
-when you use IOMMUs.
+> Regards,
+> 
+> 	Joerg
+---end quoted text---
