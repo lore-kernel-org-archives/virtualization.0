@@ -1,15 +1,20 @@
-From: Jason Wang <jasowang@redhat.com>
-Subject: Re: [PATCH net V3] vhost: log dirty page correctly
-Date: Tue, 15 Jan 2019 15:14:32 +0800
-Message-ID: <066c07e4-d8e4-40ec-8689-64b90b76c6d6__37184.5069494613$1547692002$gmane$org@redhat.com>
-References: <20190111040036.12413-1-jasowang@redhat.com>
-	<20190114125357-mutt-send-email-mst@kernel.org>
+From: Joerg Roedel <joro@8bytes.org>
+Subject: Re: [PATCH 0/3] Fix virtio-blk issue with SWIOTLB
+Date: Tue, 15 Jan 2019 09:37:42 +0100
+Message-ID: <20190115083742.GF5825__17537.3789076277$1547692024$gmane$org@8bytes.org>
+References: <20190110134433.15672-1-joro@8bytes.org>
+	<5ae1341e-62ec-0478-552b-259eabf9fb17@redhat.com>
+	<20190111091502.GC5825@8bytes.org>
+	<38bcbd46-674c-348a-cbd6-66bd431e986a@redhat.com>
+	<20190114095002.GA29874@lst.de>
+	<ac6d83d8-02de-dbdf-e309-3a1115642d50@redhat.com>
+	<20190114131114-mutt-send-email-mst@kernel.org>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="utf-8"; Format="flowed"
-Content-Transfer-Encoding: base64
+Content-Type: text/plain; charset="us-ascii"
+Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <20190114125357-mutt-send-email-mst@kernel.org>
-Content-Language: en-US
+Content-Disposition: inline
+In-Reply-To: <20190114131114-mutt-send-email-mst@kernel.org>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -20,75 +25,17 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
 To: "Michael S. Tsirkin" <mst@redhat.com>
-Cc: Jintack Lim <jintack@cs.columbia.edu>, netdev@vger.kernel.org, linux-kernel@vger.kernel.org, kvm@vger.kernel.org, virtualization@lists.linux-foundation.org
+Cc: Jens Axboe <axboe@kernel.dk>, brijesh.singh@amd.com, Konrad Rzeszutek Wilk <konrad.wilk@oracle.com>, jon.grimm@amd.com, jfehlig@suse.com, linux-kernel@vger.kernel.org, virtualization@lists.linux-foundation.org, linux-block@vger.kernel.org, iommu@lists.linux-foundation.org, Christoph Hellwig <hch@lst.de>
 List-Id: virtualization@lists.linuxfoundation.org
 
-Ck9uIDIwMTkvMS8xNSDkuIrljYgyOjA0LCBNaWNoYWVsIFMuIFRzaXJraW4gd3JvdGU6Cj4gT24g
-RnJpLCBKYW4gMTEsIDIwMTkgYXQgMTI6MDA6MzZQTSArMDgwMCwgSmFzb24gV2FuZyB3cm90ZToK
-Pj4gVmhvc3QgZGlydHkgcGFnZSBsb2dnaW5nIEFQSSBpcyBkZXNpZ25lZCB0byBzeW5jIHRocm91
-Z2ggR1BBLiBCdXQgd2UKPj4gdHJ5IHRvIGxvZyBHSU9WQSB3aGVuIGRldmljZSBJT1RMQiBpcyBl
-bmFibGVkLiBUaGlzIGlzIHdyb25nIGFuZCBtYXkKPj4gbGVhZCB0byBtaXNzaW5nIGRhdGEgYWZ0
-ZXIgbWlncmF0aW9uLgo+Pgo+PiBUbyBzb2x2ZSB0aGlzIGlzc3VlLCB3aGVuIGxvZ2dpbmcgd2l0
-aCBkZXZpY2UgSU9UTEIgZW5hYmxlZCwgd2Ugd2lsbDoKPj4KPj4gMSkgcmV1c2UgdGhlIGRldmlj
-ZSBJT1RMQiB0cmFuc2xhdGlvbiByZXN1bHQgb2YgR0lPVkEtPkhWQSBtYXBwaW5nIHRvCj4+ICAg
-ICBnZXQgSFZBLCBmb3Igd3JpdGFibGUgZGVzY3JpcHRvciwgZ2V0IEhWQSB0aHJvdWdoIGlvdmVj
-LiBGb3IgdXNlZAo+PiAgICAgcmluZyB1cGRhdGUsIHRyYW5zbGF0ZSBpdHMgR0lPVkEgdG8gSFZB
-Cj4+IDIpIHRyYXZlcnNlIHRoZSBHUEEtPkhWQSBtYXBwaW5nIHRvIGdldCB0aGUgcG9zc2libGUg
-R1BBIGFuZCBsb2cKPj4gICAgIHRocm91Z2ggR1BBLiBQYXkgYXR0ZW50aW9uIHRoaXMgcmV2ZXJz
-ZSBtYXBwaW5nIGlzIG5vdCBndWFyYW50ZWVkCj4+ICAgICB0byBiZSB1bmlxdWUsIHNvIHdlIHNo
-b3VsZCBsb2cgZWFjaCBwb3NzaWJsZSBHUEEgaW4gdGhpcyBjYXNlLgo+Pgo+PiBUaGlzIGZpeCB0
-aGUgZmFpbHVyZSBvZiBzY3AgdG8gZ3Vlc3QgZHVyaW5nIG1pZ3JhdGlvbi4gSW4gLW5leHQsIHdl
-Cj4+IHdpbGwgcHJvYmFibHkgc3VwcG9ydCBwYXNzaW5nIEdJT1ZBLT5HUEEgaW5zdGVhZCBvZiBH
-SU9WQS0+SFZBLgo+Pgo+PiBGaXhlczogNmIxZTZjYzc4NTViICgidmhvc3Q6IG5ldyBkZXZpY2Ug
-SU9UTEIgQVBJIikKPj4gUmVwb3J0ZWQtYnk6IEppbnRhY2sgTGltPGppbnRhY2tAY3MuY29sdW1i
-aWEuZWR1Pgo+PiBDYzogSmludGFjayBMaW08amludGFja0Bjcy5jb2x1bWJpYS5lZHU+Cj4+IFNp
-Z25lZC1vZmYtYnk6IEphc29uIFdhbmc8amFzb3dhbmdAcmVkaGF0LmNvbT4KPj4gLS0tCj4+IENo
-YW5nZXMgZnJvbSBWMjoKPj4gLSBjaGVjayBhbmQgbG9nIHRoZSBjYXNlIG9mIHJhbmdlIG92ZXJs
-YXAKPj4gLSByZW1vdmUgdW5uZWNlc3NhcnkgdTY0IGNhc3QKPj4gLSB1c2Ugc21wX3dtYigpIGZv
-ciB0aGUgY2FzZSBvZiBkZXZpY2UgSU9UTEIgYXMgd2VsbAo+PiBDaGFuZ2VzIGZyb20gVjE6Cj4+
-IC0gcmV0dXJuIGVycm9yIGluc3RlYWQgb2Ygd2Fybgo+PiAtLS0KPj4gICBkcml2ZXJzL3Zob3N0
-L25ldC5jICAgfCAgMyArLQo+PiAgIGRyaXZlcnMvdmhvc3Qvdmhvc3QuYyB8IDg4ICsrKysrKysr
-KysrKysrKysrKysrKysrKysrKysrKysrKysrKy0tLS0tLS0KPj4gICBkcml2ZXJzL3Zob3N0L3Zo
-b3N0LmggfCAgMyArLQo+PiAgIDMgZmlsZXMgY2hhbmdlZCwgNzggaW5zZXJ0aW9ucygrKSwgMTYg
-ZGVsZXRpb25zKC0pCj4+Cj4+IGRpZmYgLS1naXQgYS9kcml2ZXJzL3Zob3N0L25ldC5jIGIvZHJp
-dmVycy92aG9zdC9uZXQuYwo+PiBpbmRleCAzNmYzZDBmNDllNjAuLmJjYTg2YmY3MTg5ZiAxMDA2
-NDQKPj4gLS0tIGEvZHJpdmVycy92aG9zdC9uZXQuYwo+PiArKysgYi9kcml2ZXJzL3Zob3N0L25l
-dC5jCj4+IEBAIC0xMjM2LDcgKzEyMzYsOCBAQCBzdGF0aWMgdm9pZCBoYW5kbGVfcngoc3RydWN0
-IHZob3N0X25ldCAqbmV0KQo+PiAgIAkJaWYgKG52cS0+ZG9uZV9pZHggPiBWSE9TVF9ORVRfQkFU
-Q0gpCj4+ICAgCQkJdmhvc3RfbmV0X3NpZ25hbF91c2VkKG52cSk7Cj4+ICAgCQlpZiAodW5saWtl
-bHkodnFfbG9nKSkKPj4gLQkJCXZob3N0X2xvZ193cml0ZSh2cSwgdnFfbG9nLCBsb2csIHZob3N0
-X2xlbik7Cj4+ICsJCQl2aG9zdF9sb2dfd3JpdGUodnEsIHZxX2xvZywgbG9nLCB2aG9zdF9sZW4s
-Cj4+ICsJCQkJCXZxLT5pb3YsIGluKTsKPj4gICAJCXRvdGFsX2xlbiArPSB2aG9zdF9sZW47Cj4+
-ICAgCQlpZiAodW5saWtlbHkodmhvc3RfZXhjZWVkc193ZWlnaHQoKytyZWN2X3BrdHMsIHRvdGFs
-X2xlbikpKSB7Cj4+ICAgCQkJdmhvc3RfcG9sbF9xdWV1ZSgmdnEtPnBvbGwpOwo+PiBkaWZmIC0t
-Z2l0IGEvZHJpdmVycy92aG9zdC92aG9zdC5jIGIvZHJpdmVycy92aG9zdC92aG9zdC5jCj4+IGlu
-ZGV4IDlmNzk0MmNiY2JiMi4uNTVhMmU4ZjlmOGNhIDEwMDY0NAo+PiAtLS0gYS9kcml2ZXJzL3Zo
-b3N0L3Zob3N0LmMKPj4gKysrIGIvZHJpdmVycy92aG9zdC92aG9zdC5jCj4+IEBAIC0xNzMzLDEz
-ICsxNzMzLDc4IEBAIHN0YXRpYyBpbnQgbG9nX3dyaXRlKHZvaWQgX191c2VyICpsb2dfYmFzZSwK
-Pj4gICAJcmV0dXJuIHI7Cj4+ICAgfQo+PiAgIAo+PiArc3RhdGljIGludCBsb2dfd3JpdGVfaHZh
-KHN0cnVjdCB2aG9zdF92aXJ0cXVldWUgKnZxLCB1NjQgaHZhLCB1NjQgbGVuKQo+PiArewo+PiAr
-CXN0cnVjdCB2aG9zdF91bWVtICp1bWVtID0gdnEtPnVtZW07Cj4+ICsJc3RydWN0IHZob3N0X3Vt
-ZW1fbm9kZSAqdTsKPj4gKwl1NjQgc3RhcnQsIGVuZDsKPj4gKwlpbnQgcjsKPj4gKwlib29sIGhp
-dCA9IGZhbHNlOwo+PiArCj4+ICsJLyogTW9yZSB0aGFuIG9uZSBHUEFzIGNhbiBiZSBtYXBwZWQg
-aW50byBhIHNpbmdsZSBIVkEuIFNvCj4+ICsJICogaXRlcmF0ZSBhbGwgcG9zc2libGUgdW1lbXMg
-aGVyZSB0byBiZSBzYWZlLgo+PiArCSAqLwo+PiArCWxpc3RfZm9yX2VhY2hfZW50cnkodSwgJnVt
-ZW0tPnVtZW1fbGlzdCwgbGluaykgewo+PiArCQlpZiAodS0+dXNlcnNwYWNlX2FkZHIgPiBodmEg
-LSAxICsgbGVuIHx8Cj4+ICsJCSAgICB1LT51c2Vyc3BhY2VfYWRkciAtIDEgKyB1LT5zaXplIDwg
-aHZhKQo+PiArCQkJY29udGludWU7Cj4+ICsJCXN0YXJ0ID0gbWF4KHUtPnVzZXJzcGFjZV9hZGRy
-LCBodmEpOwo+PiArCQllbmQgPSBtaW4odS0+dXNlcnNwYWNlX2FkZHIgLSAxICsgdS0+c2l6ZSwg
-aHZhIC0gMSArIGxlbik7Cj4+ICsJCXIgPSBsb2dfd3JpdGUodnEtPmxvZ19iYXNlLAo+PiArCQkJ
-ICAgICAgdS0+c3RhcnQgKyBzdGFydCAtIHUtPnVzZXJzcGFjZV9hZGRyLAo+PiArCQkJICAgICAg
-ZW5kIC0gc3RhcnQgKyAxKTsKPj4gKwkJaWYgKHIgPCAwKQo+PiArCQkJcmV0dXJuIHI7Cj4+ICsJ
-CWhpdCA9IHRydWU7Cj4+ICsJfQo+PiArCj4+ICsJaWYgKCFoaXQpCj4+ICsJCXJldHVybiAtRUZB
-VUxUOwo+PiArCj4+ICsJcmV0dXJuIDA7Cj4+ICt9Cj4+ICsKPiBJIGRlZmluaXRlbHkgbGlrZSB0
-aGUgc2ltcGxpY2l0eS4KPgo+IEJ1dCB0aGVyZSdzIG9uZSBwb2ludCBsZWZ0IGhlcmU6IGlmIGxl
-biBjcm9zc2VzIGEgcmVnaW9uIGJvdW5kYXJ5LAo+IGJ1dCBkb2Vzbid0IGFsbCBmYWxsIHdpdGhp
-biBhIHJlZ2lvbiwgd2UgZG9uJ3QgY29uc2lzdGVudGx5IHJlcG9ydCAtRUZBVUxULgo+Cj4gU28g
-SSBzdXNwZWN0IHdlIG5lZWQgdG8gc3RhcnQgYnkgZmluZGluZyBhIHJlZ2lvbiB0aGF0IGNvbnRh
-aW5zIGh2YS4KPiBJZiB0aGVyZSBhcmUgbWFueSBvZiB0aGVzZSAtIG1vdmUgcmlnaHQgdG8gdGhl
-IGVuZCBvZiB0aGUKPiBsZWZ0bW9zdCBvbmUgYW5kIHRoZW4gcmVwZWF0IHVudGlsIHdlIHJ1biBv
-dXQgb2YgbGVuCj4gb3IgZmFpbCB0byBmaW5kIGEgcmVnaW9uIGFuZCBleGl0IHdpdGggLUVGQVVM
-VC4KPgoKT2ssIHdpbGwgZG8gaXQgaW4gVjQuCgpUaGFua3MKCgo+Cj4KX19fX19fX19fX19fX19f
-X19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX18KVmlydHVhbGl6YXRpb24gbWFpbGluZyBs
-aXN0ClZpcnR1YWxpemF0aW9uQGxpc3RzLmxpbnV4LWZvdW5kYXRpb24ub3JnCmh0dHBzOi8vbGlz
-dHMubGludXhmb3VuZGF0aW9uLm9yZy9tYWlsbWFuL2xpc3RpbmZvL3ZpcnR1YWxpemF0aW9u
+On Mon, Jan 14, 2019 at 01:20:45PM -0500, Michael S. Tsirkin wrote:
+> Which would be fine especially if we can manage not to introduce a bunch
+> of indirect calls all over the place and hurt performance.
+
+Which indirect calls? In case of unset dma_ops the DMA-API functions
+call directly into the dma-direct implementation, no indirect calls at
+all.
+
+Regards,
+
+	Joerg
