@@ -1,15 +1,15 @@
 From: Wei Wang <wei.w.wang@intel.com>
-Subject: Re: [virtio-dev] [PATCH 2/2] virtio: document virtio_config_ops
-	restrictions
-Date: Tue, 15 Jan 2019 10:18:09 +0800
-Message-ID: <5C3D42E1.7030005__9414.58162055842$1547691881$gmane$org@intel.com>
-References: <20190103160804.21438-1-cohuck@redhat.com>
-	<20190103160804.21438-3-cohuck@redhat.com>
+Subject: Re: [PATCH v3 2/3] virtio-balloon: improve update_balloon_size_func
+Date: Tue, 15 Jan 2019 10:18:59 +0800
+Message-ID: <5C3D4313.7090306__18280.3657757633$1547691896$gmane$org@intel.com>
+References: <1546844466-38079-1-git-send-email-wei.w.wang@intel.com>
+	<1546844466-38079-3-git-send-email-wei.w.wang@intel.com>
+	<20190114195450-mutt-send-email-mst@kernel.org>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"; Format="flowed"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <20190103160804.21438-3-cohuck@redhat.com>
+In-Reply-To: <20190114195450-mutt-send-email-mst@kernel.org>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -19,41 +19,27 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Cornelia Huck <cohuck@redhat.com>, "Michael S . Tsirkin" <mst@redhat.com>, Jason Wang <jasowang@redhat.com>
-Cc: Halil Pasic <pasic@linux.ibm.com>, virtio-dev@lists.oasis-open.org, linux-kernel@vger.kernel.org, virtualization@lists.linux-foundation.org
+To: "Michael S. Tsirkin" <mst@redhat.com>
+Cc: virtio-dev@lists.oasis-open.org, kvm@vger.kernel.org, cohuck@redhat.com, linux-kernel@vger.kernel.org, virtualization@lists.linux-foundation.org, pasic@linux.ibm.com, pbonzini@redhat.com, dgilbert@redhat.com
 List-Id: virtualization@lists.linuxfoundation.org
 
-On 01/04/2019 12:08 AM, Cornelia Huck wrote:
-> Some transports (e.g. virtio-ccw) implement virtio operations that
-> seem to be a simple read/write as something more involved that
-> cannot be done from an atomic context.
+On 01/15/2019 09:00 AM, Michael S. Tsirkin wrote:
+> On Mon, Jan 07, 2019 at 03:01:05PM +0800, Wei Wang wrote:
+>> There is no need to update the balloon actual register when there is no
+>> ballooning request. This patch avoids update_balloon_size when diff is 0.
+>>
+>> Signed-off-by: Wei Wang <wei.w.wang@intel.com>
+>> Reviewed-by: Cornelia Huck <cohuck@redhat.com>
+>> Reviewed-by: Halil Pasic <pasic@linux.ibm.com>
+> It sounds reasonable but it does have a side effect of
+> not writing into actual anymore.
 >
-> Give at least a hint about that.
+> I am not sure actual never can get out of sync as a result.
 >
-> Signed-off-by: Cornelia Huck <cohuck@redhat.com>
-> ---
->   include/linux/virtio_config.h | 5 +++++
->   1 file changed, 5 insertions(+)
+> So better deferred, pls send this in the next merge window.
 >
-> diff --git a/include/linux/virtio_config.h b/include/linux/virtio_config.h
-> index 7087ef946ba7..987b6491b946 100644
-> --- a/include/linux/virtio_config.h
-> +++ b/include/linux/virtio_config.h
-> @@ -12,6 +12,11 @@ struct irq_affinity;
->   
->   /**
->    * virtio_config_ops - operations for configuring a virtio device
-> + * Note: Do not assume that a transport implements all of the operations
-> + *       getting/setting a value as a simple read/write! Generally speaking,
-> + *       any of @get/@set, @get_status/@set_status, or @get_features/
-> + *       @finalize_features are NOT safe to be called from an atomic
-> + *       context.
->    * @get: read the value of a configuration field
->    *	vdev: the virtio_device
->    *	offset: the offset of the configuration field
 
-
-Reviewed-by: Wei Wang <wei.w.wang@intel.com>
+No problem, it's not urgent to me.
 
 Best,
 Wei
