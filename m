@@ -1,17 +1,20 @@
-From: "Michael S. Tsirkin" <mst@redhat.com>
-Subject: Re: [PATCH 1/2] virtio: fix virtio_config_ops description
-Date: Mon, 14 Jan 2019 21:20:15 -0500
-Message-ID: <20190114211953-mutt-send-email-mst__26579.9316963696$1547691933$gmane$org@kernel.org>
-References: <20190103160804.21438-1-cohuck@redhat.com>
-	<20190103160804.21438-2-cohuck@redhat.com>
-	<20190114150958.39a4a56a.cohuck@redhat.com>
-	<5C3D424B.70400@intel.com>
+From: Pankaj Gupta <pagupta@redhat.com>
+Subject: Re: [PATCH v3 0/5] kvm "virtio pmem" device
+Date: Tue, 15 Jan 2019 00:35:06 -0500 (EST)
+Message-ID: <1684638419.64320214.1547530506805.JavaMail.zimbra__32260.0646097728$1547691950$gmane$org@redhat.com>
+References: <20190109144736.17452-1-pagupta@redhat.com>
+	<1326478078.61913951.1547192704870.JavaMail.zimbra@redhat.com>
+	<20190113232902.GD4205@dastard>
+	<20190113233820.GX6310@bombadil.infradead.org>
+	<942065073.64011540.1547450140670.JavaMail.zimbra@redhat.com>
+	<20190114212501.GG4205@dastard>
+	<CAPcyv4jtPcLV-s0sKNHwwk0ug7GLBV6699dpm1h3r2xSo879dg@mail.gmail.com>
+	<20190114222132.GH4205@dastard>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-Content-Disposition: inline
-In-Reply-To: <5C3D424B.70400@intel.com>
+In-Reply-To: <20190114222132.GH4205@dastard>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -21,67 +24,125 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Wei Wang <wei.w.wang@intel.com>
-Cc: virtio-dev@lists.oasis-open.org, Cornelia Huck <cohuck@redhat.com>, linux-kernel@vger.kernel.org, virtualization@lists.linux-foundation.org, Halil Pasic <pasic@linux.ibm.com>
+To: Dave Chinner <david@fromorbit.com>
+Cc: Jan Kara <jack@suse.cz>, KVM list <kvm@vger.kernel.org>, linux-nvdimm <linux-nvdimm@ml01.01.org>, Qemu Developers <qemu-devel@nongnu.org>, virtualization@lists.linux-foundation.org, adilger kernel <adilger.kernel@dilger.ca>, Ross Zwisler <zwisler@kernel.org>, Eric Blake <eblake@redhat.com>, dave jiang <dave.jiang@intel.com>, darrick wong <darrick.wong@oracle.com>, vishal l verma <vishal.l.verma@intel.com>, "Michael S. Tsirkin" <mst@redhat.com>, Matthew Wilcox <willy@infradead.org>, Christoph Hellwig <hch@infradead.org>, Linux ACPI <linux-acpi@vger.kernel.org>, jmoyer <jmoyer@redhat.com>, linux-ext4 <linux-ext4@vger.kernel.org>, Rik van Riel <riel@surriel.com>, Stefan Hajnoczi <stefanha@redhat.com>, Igor Mammedov <imammedo@redhat.com>, Dan Williams <dan.j.williams@intel.com>, lcapitulino@redhat.com, Nitesh Narayan Lal <nilal@redhat.com>, Theodore Ts'o <tytso@mit.edu>
 List-Id: virtualization@lists.linuxfoundation.org
 
-On Tue, Jan 15, 2019 at 10:15:39AM +0800, Wei Wang wrote:
-> On 01/14/2019 10:09 PM, Cornelia Huck wrote:
-> > On Thu,  3 Jan 2019 17:08:03 +0100
-> > Cornelia Huck <cohuck@redhat.com> wrote:
+
+> > > On Mon, Jan 14, 2019 at 02:15:40AM -0500, Pankaj Gupta wrote:
+> > > >
+> > > > > > Until you have images (and hence host page cache) shared between
+> > > > > > multiple guests. People will want to do this, because it means they
+> > > > > > only need a single set of pages in host memory for executable
+> > > > > > binaries rather than a set of pages per guest. Then you have
+> > > > > > multiple guests being able to detect residency of the same set of
+> > > > > > pages. If the guests can then, in any way, control eviction of the
+> > > > > > pages from the host cache, then we have a guest-to-guest
+> > > > > > information
+> > > > > > leak channel.
+> > > > >
+> > > > > I don't think we should ever be considering something that would
+> > > > > allow a
+> > > > > guest to evict page's from the host's pagecache [1].  The guest
+> > > > > should
+> > > > > be able to kick its own references to the host's pagecache out of its
+> > > > > own pagecache, but not be able to influence whether the host or
+> > > > > another
+> > > > > guest has a read-only mapping cached.
+> > > > >
+> > > > > [1] Unless the guest is allowed to modify the host's file; obviously
+> > > > > truncation, holepunching, etc are going to evict pages from the
+> > > > > host's
+> > > > > page cache.
+> > > >
+> > > > This is so correct. Guest does not not evict host page cache pages
+> > > > directly.
+> > >
+> > > They don't right now.
+> > >
+> > > But someone is going to end up asking for discard to work so that
+> > > the guest can free unused space in the underlying spares image (i.e.
+> > > make use of fstrim or mount -o discard) because they have workloads
+> > > that have bursts of space usage and they need to trim the image
+> > > files afterwards to keep their overall space usage under control.
+> > >
+> > > And then....
 > > 
-> > > - get_features has returned 64 bits since commit d025477368792
-> > >    ("virtio: add support for 64 bit features.")
-> > > - properly mark all optional callbacks
-> > > 
-> > > Signed-off-by: Cornelia Huck <cohuck@redhat.com>
-> > > ---
-> > >   include/linux/virtio_config.h | 8 ++++----
-> > >   1 file changed, 4 insertions(+), 4 deletions(-)
-> > > 
-> > > diff --git a/include/linux/virtio_config.h b/include/linux/virtio_config.h
-> > > index 32baf8e26735..7087ef946ba7 100644
-> > > --- a/include/linux/virtio_config.h
-> > > +++ b/include/linux/virtio_config.h
-> > > @@ -22,7 +22,7 @@ struct irq_affinity;
-> > >    *	offset: the offset of the configuration field
-> > >    *	buf: the buffer to read the field value from.
-> > >    *	len: the length of the buffer
-> > > - * @generation: config generation counter
-> > > + * @generation: config generation counter (optional)
-> > >    *	vdev: the virtio_device
-> > >    *	Returns the config generation counter
-> > >    * @get_status: read the status byte
-> > > @@ -48,17 +48,17 @@ struct irq_affinity;
-> > >    * @del_vqs: free virtqueues found by find_vqs().
-> > >    * @get_features: get the array of feature bits for this device.
-> > >    *	vdev: the virtio_device
-> > > - *	Returns the first 32 feature bits (all we currently need).
-> > > + *	Returns the first 64 feature bits (all we currently need).
-> > >    * @finalize_features: confirm what device features we'll be using.
-> > >    *	vdev: the virtio_device
-> > >    *	This gives the final feature bits for the device: it can change
-> > >    *	the dev->feature bits if it wants.
-> > >    *	Returns 0 on success or error status
-> > > - * @bus_name: return the bus name associated with the device
-> > > + * @bus_name: return the bus name associated with the device (optional)
-> > >    *	vdev: the virtio_device
-> > >    *      This returns a pointer to the bus name a la pci_name from which
-> > >    *      the caller can then copy.
-> > > - * @set_vq_affinity: set the affinity for a virtqueue.
-> > > + * @set_vq_affinity: set the affinity for a virtqueue (optional).
-> > >    * @get_vq_affinity: get the affinity for a virtqueue (optional).
-> > >    */
-> > >   typedef void vq_callback_t(struct virtqueue *);
-> > Ping. Any feedback on that patch?
+> > ...we reject / push back on that patch citing the above concern.
 > 
-> Reviewed-by: Wei Wang <wei.w.wang@intel.com>
+> So at what point do we draw the line?
 > 
-> Best,
-> Wei
+> We're allowing writable DAX mappings, but as I've pointed out that
+> means we are going to be allowing  a potential information leak via
+> files with shared extents to be directly mapped and written to.
+> 
+> But we won't allow useful admin operations that allow better
+> management of host side storage space similar to how normal image
+> files are used by guests because it's an information leak vector?
 
-Pushed already, can't add tags.
-Sorry about that.
+First of all Thank you for all the useful discussions. 
+I am summarizing here:
 
--- 
-MST
+- We have to live with the limitation to not support fstrim and 
+  mount -o discard options with virtio-pmem as they will evict 
+  host page cache pages. We cannot allow this for virtio-pmem
+  for security reasons. These filesystem commands will just zero out 
+  unused pages currently.
+
+- If alot of space is unused and not freed guest can request host 
+  Administrator for truncating the host backing image. 
+  We are also planning to support qcow2 sparse image format at 
+  host side with virtio-pmem.
+
+- There is no existing solution for Qemu persistent memory 
+  emulation with write support currently. This solution provides 
+  us the paravartualized way of emulating persistent memory. It 
+  does not emulate of ACPI structures instead it just uses VIRTIO 
+  for communication between guest & host. It is fast because of its
+  asynchronous nature and it works well. This makes use of at guest 
+  side libnvdimm API's 
+  
+- If disk size freeing problem with guest files trim truncate is 
+  very important for users, they can still use real hardware which 
+  will provide them both (advance disk features & page cache by pass).
+
+Considering all the above reasons I think this feature is useful
+from virtualization point of view. As Dave rightly said we should
+be careful and I think now we are careful with the security implications
+of this device. 
+
+Thanks again for all the inputs.
+
+Best regards,
+Pankaj  
+
+
+> 
+> That's splitting some really fine hairs there...
+> 
+> > > > In case of virtio-pmem & DAX, guest clears guest page cache exceptional
+> > > > entries.
+> > > > Its solely decision of host to take action on the host page cache
+> > > > pages.
+> > > >
+> > > > In case of virtio-pmem, guest does not modify host file directly i.e
+> > > > don't
+> > > > perform hole punch & truncation operation directly on host file.
+> > >
+> > > ... this will no longer be true, and the nuclear landmine in this
+> > > driver interface will have been armed....
+> > 
+> > I agree with the need to be careful when / if explicit cache control
+> > is added, but that's not the case today.
+> 
+> "if"?
+> 
+> I expect it to be "when", not if. Expect the worst, plan for it now.
+> 
+> Cheers,
+> 
+> Dave.
+> --
+> Dave Chinner
+> david@fromorbit.com
+> 
