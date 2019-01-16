@@ -1,15 +1,13 @@
-From: "Michael S. Tsirkin" <mst@redhat.com>
-Subject: Re: [PATCH v3 2/3] virtio-balloon: improve update_balloon_size_func
-Date: Mon, 14 Jan 2019 20:00:27 -0500
-Message-ID: <20190114195450-mutt-send-email-mst__19128.8380804055$1547693633$gmane$org@kernel.org>
-References: <1546844466-38079-1-git-send-email-wei.w.wang@intel.com>
-	<1546844466-38079-3-git-send-email-wei.w.wang@intel.com>
+From: Gerd Hoffmann <kraxel@redhat.com>
+Subject: [PATCH 1/3] drm/qxl: add mode/framebuffer check functions
+Date: Wed, 16 Jan 2019 09:35:19 +0100
+Message-ID: <20190116083521.22673-2-kraxel__38265.9483272166$1547693643$gmane$org@redhat.com>
+References: <20190116083521.22673-1-kraxel@redhat.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-Content-Disposition: inline
-In-Reply-To: <1546844466-38079-3-git-send-email-wei.w.wang@intel.com>
+In-Reply-To: <20190116083521.22673-1-kraxel@redhat.com>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -19,49 +17,83 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Wei Wang <wei.w.wang@intel.com>
-Cc: virtio-dev@lists.oasis-open.org, kvm@vger.kernel.org, cohuck@redhat.com, linux-kernel@vger.kernel.org, virtualization@lists.linux-foundation.org, pasic@linux.ibm.com, pbonzini@redhat.com, dgilbert@redhat.com
+To: dri-devel@lists.freedesktop.org
+Cc: David Airlie <airlied@linux.ie>, open list <linux-kernel@vger.kernel.org>, "open list:DRM DRIVER FOR QXL VIRTUAL GPU" <virtualization@lists.linux-foundation.org>, Daniel Vetter <daniel@ffwll.ch>, "open list:DRM DRIVER FOR QXL VIRTUAL GPU" <spice-devel@lists.freedesktop.org>, Dave Airlie <airlied@redhat.com>
 List-Id: virtualization@lists.linuxfoundation.org
 
-On Mon, Jan 07, 2019 at 03:01:05PM +0800, Wei Wang wrote:
-> There is no need to update the balloon actual register when there is no
-> ballooning request. This patch avoids update_balloon_size when diff is 0.
-> 
-> Signed-off-by: Wei Wang <wei.w.wang@intel.com>
-> Reviewed-by: Cornelia Huck <cohuck@redhat.com>
-> Reviewed-by: Halil Pasic <pasic@linux.ibm.com>
+Add a helper functions to check video modes.  Also add a helper to check
+framebuffer buffer objects, using the former for consistency.  That way
+we should not fail in qxl_primary_atomic_check() because video modes
+which are too big will not be added to the mode list in the first place.
 
-It sounds reasonable but it does have a side effect of
-not writing into actual anymore.
+Signed-off-by: Gerd Hoffmann <kraxel@redhat.com>
+---
+ drivers/gpu/drm/qxl/qxl_display.c | 37 +++++++++++++++++++------------------
+ 1 file changed, 19 insertions(+), 18 deletions(-)
 
-I am not sure actual never can get out of sync as a result.
-
-So better deferred, pls send this in the next merge window.
-
-
-
-
-> ---
->  drivers/virtio/virtio_balloon.c | 5 ++++-
->  1 file changed, 4 insertions(+), 1 deletion(-)
-> 
-> diff --git a/drivers/virtio/virtio_balloon.c b/drivers/virtio/virtio_balloon.c
-> index fb12fe2..e33dc8e 100644
-> --- a/drivers/virtio/virtio_balloon.c
-> +++ b/drivers/virtio/virtio_balloon.c
-> @@ -457,9 +457,12 @@ static void update_balloon_size_func(struct work_struct *work)
->  			  update_balloon_size_work);
->  	diff = towards_target(vb);
->  
-> +	if (!diff)
-> +		return;
-> +
->  	if (diff > 0)
->  		diff -= fill_balloon(vb, diff);
-> -	else if (diff < 0)
-> +	else
->  		diff += leak_balloon(vb, -diff);
->  	update_balloon_size(vb);
->  
-> -- 
-> 2.7.4
+diff --git a/drivers/gpu/drm/qxl/qxl_display.c b/drivers/gpu/drm/qxl/qxl_display.c
+index 1f8fddcc34..07a37d52c4 100644
+--- a/drivers/gpu/drm/qxl/qxl_display.c
++++ b/drivers/gpu/drm/qxl/qxl_display.c
+@@ -191,6 +191,21 @@ void qxl_display_read_client_monitors_config(struct qxl_device *qdev)
+ 	}
+ }
+ 
++static int qxl_check_mode(struct qxl_device *qdev,
++			  unsigned int width,
++			  unsigned int height)
++{
++	if (width * height * 4 > qdev->vram_size)
++		return -ENOMEM;
++	return 0;
++}
++
++static int qxl_check_framebuffer(struct qxl_device *qdev,
++				 struct qxl_bo *bo)
++{
++	return qxl_check_mode(qdev, bo->surf.width, bo->surf.height);
++}
++
+ static int qxl_add_monitors_config_modes(struct drm_connector *connector,
+                                          unsigned *pwidth,
+                                          unsigned *pheight)
+@@ -466,12 +481,7 @@ static int qxl_primary_atomic_check(struct drm_plane *plane,
+ 
+ 	bo = gem_to_qxl_bo(state->fb->obj[0]);
+ 
+-	if (bo->surf.stride * bo->surf.height > qdev->vram_size) {
+-		DRM_ERROR("Mode doesn't fit in vram size (vgamem)");
+-		return -EINVAL;
+-	}
+-
+-	return 0;
++	return qxl_check_framebuffer(qdev, bo);
+ }
+ 
+ static int qxl_primary_apply_cursor(struct drm_plane *plane)
+@@ -941,20 +951,11 @@ static enum drm_mode_status qxl_conn_mode_valid(struct drm_connector *connector,
+ {
+ 	struct drm_device *ddev = connector->dev;
+ 	struct qxl_device *qdev = ddev->dev_private;
+-	int i;
+ 
+-	/* TODO: is this called for user defined modes? (xrandr --add-mode)
+-	 * TODO: check that the mode fits in the framebuffer */
++	if (qxl_check_mode(qdev, mode->hdisplay, mode->vdisplay) != 0)
++		return MODE_BAD;
+ 
+-	if (qdev->monitors_config_width == mode->hdisplay &&
+-	    qdev->monitors_config_height == mode->vdisplay)
+-		return MODE_OK;
+-
+-	for (i = 0; i < ARRAY_SIZE(common_modes); i++) {
+-		if (common_modes[i].w == mode->hdisplay && common_modes[i].h == mode->vdisplay)
+-			return MODE_OK;
+-	}
+-	return MODE_BAD;
++	return MODE_OK;
+ }
+ 
+ static struct drm_encoder *qxl_best_encoder(struct drm_connector *connector)
+-- 
+2.9.3
