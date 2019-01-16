@@ -1,13 +1,11 @@
-From: Gerd Hoffmann <kraxel@redhat.com>
-Subject: [PATCH 1/3] drm/qxl: add mode/framebuffer check functions
-Date: Wed, 16 Jan 2019 09:35:19 +0100
-Message-ID: <20190116083521.22673-2-kraxel__38265.9483272166$1547693643$gmane$org@redhat.com>
-References: <20190116083521.22673-1-kraxel@redhat.com>
+From: Jason Wang <jasowang@redhat.com>
+Subject: [PATCH net V4] vhost: log dirty page correctly
+Date: Wed, 16 Jan 2019 16:54:42 +0800
+Message-ID: <20190116085442.3836-1-jasowang__34400.8523891263$1547693657$gmane$org@redhat.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <20190116083521.22673-1-kraxel@redhat.com>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -17,83 +15,215 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: dri-devel@lists.freedesktop.org
-Cc: David Airlie <airlied@linux.ie>, open list <linux-kernel@vger.kernel.org>, "open list:DRM DRIVER FOR QXL VIRTUAL GPU" <virtualization@lists.linux-foundation.org>, Daniel Vetter <daniel@ffwll.ch>, "open list:DRM DRIVER FOR QXL VIRTUAL GPU" <spice-devel@lists.freedesktop.org>, Dave Airlie <airlied@redhat.com>
+To: mst@redhat.com, jasowang@redhat.com, kvm@vger.kernel.org, virtualization@lists.linux-foundation.org, netdev@vger.kernel.org, linux-kernel@vger.kernel.org
+Cc: Jintack Lim <jintack@cs.columbia.edu>
 List-Id: virtualization@lists.linuxfoundation.org
 
-Add a helper functions to check video modes.  Also add a helper to check
-framebuffer buffer objects, using the former for consistency.  That way
-we should not fail in qxl_primary_atomic_check() because video modes
-which are too big will not be added to the mode list in the first place.
+Vhost dirty page logging API is designed to sync through GPA. But we
+try to log GIOVA when device IOTLB is enabled. This is wrong and may
+lead to missing data after migration.
 
-Signed-off-by: Gerd Hoffmann <kraxel@redhat.com>
+To solve this issue, when logging with device IOTLB enabled, we will:
+
+1) reuse the device IOTLB translation result of GIOVA->HVA mapping to
+   get HVA, for writable descriptor, get HVA through iovec. For used
+   ring update, translate its GIOVA to HVA
+2) traverse the GPA->HVA mapping to get the possible GPA and log
+   through GPA. Pay attention this reverse mapping is not guaranteed
+   to be unique, so we should log each possible GPA in this case.
+
+This fix the failure of scp to guest during migration. In -next, we
+will probably support passing GIOVA->GPA instead of GIOVA->HVA.
+
+Fixes: 6b1e6cc7855b ("vhost: new device IOTLB API")
+Reported-by: Jintack Lim <jintack@cs.columbia.edu>
+Cc: Jintack Lim <jintack@cs.columbia.edu>
+Signed-off-by: Jason Wang <jasowang@redhat.com>
 ---
- drivers/gpu/drm/qxl/qxl_display.c | 37 +++++++++++++++++++------------------
- 1 file changed, 19 insertions(+), 18 deletions(-)
+Changes from V3:
+- make sure each part of the hva was logged when crossing the boundary
+  of memory regions
+Changes from V2:
+- check and log the case of range overlap
+- remove unnecessary u64 cast
+- use smp_wmb() for the case of device IOTLB as well
+Changes from V1:
+- return error instead of warn
+---
+ drivers/vhost/net.c   |  3 +-
+ drivers/vhost/vhost.c | 97 ++++++++++++++++++++++++++++++++++++-------
+ drivers/vhost/vhost.h |  3 +-
+ 3 files changed, 87 insertions(+), 16 deletions(-)
 
-diff --git a/drivers/gpu/drm/qxl/qxl_display.c b/drivers/gpu/drm/qxl/qxl_display.c
-index 1f8fddcc34..07a37d52c4 100644
---- a/drivers/gpu/drm/qxl/qxl_display.c
-+++ b/drivers/gpu/drm/qxl/qxl_display.c
-@@ -191,6 +191,21 @@ void qxl_display_read_client_monitors_config(struct qxl_device *qdev)
- 	}
+diff --git a/drivers/vhost/net.c b/drivers/vhost/net.c
+index 36f3d0f49e60..bca86bf7189f 100644
+--- a/drivers/vhost/net.c
++++ b/drivers/vhost/net.c
+@@ -1236,7 +1236,8 @@ static void handle_rx(struct vhost_net *net)
+ 		if (nvq->done_idx > VHOST_NET_BATCH)
+ 			vhost_net_signal_used(nvq);
+ 		if (unlikely(vq_log))
+-			vhost_log_write(vq, vq_log, log, vhost_len);
++			vhost_log_write(vq, vq_log, log, vhost_len,
++					vq->iov, in);
+ 		total_len += vhost_len;
+ 		if (unlikely(vhost_exceeds_weight(++recv_pkts, total_len))) {
+ 			vhost_poll_queue(&vq->poll);
+diff --git a/drivers/vhost/vhost.c b/drivers/vhost/vhost.c
+index 9f7942cbcbb2..babbb32b9bf0 100644
+--- a/drivers/vhost/vhost.c
++++ b/drivers/vhost/vhost.c
+@@ -1733,13 +1733,87 @@ static int log_write(void __user *log_base,
+ 	return r;
  }
  
-+static int qxl_check_mode(struct qxl_device *qdev,
-+			  unsigned int width,
-+			  unsigned int height)
++static int log_write_hva(struct vhost_virtqueue *vq, u64 hva, u64 len)
 +{
-+	if (width * height * 4 > qdev->vram_size)
-+		return -ENOMEM;
++	struct vhost_umem *umem = vq->umem;
++	struct vhost_umem_node *u;
++	u64 start, end, l, min;
++	int r;
++	bool hit = false;
++
++	while (len) {
++		min = len;
++		/* More than one GPAs can be mapped into a single HVA. So
++		 * iterate all possible umems here to be safe.
++		 */
++		list_for_each_entry(u, &umem->umem_list, link) {
++			if (u->userspace_addr > hva - 1 + len ||
++			    u->userspace_addr - 1 + u->size < hva)
++				continue;
++			start = max(u->userspace_addr, hva);
++			end = min(u->userspace_addr - 1 + u->size,
++				  hva - 1 + len);
++			l = end - start + 1;
++			r = log_write(vq->log_base,
++				      u->start + start - u->userspace_addr,
++				      l);
++			if (r < 0)
++				return r;
++			hit = true;
++			min = min(l, min);
++		}
++
++		if (!hit)
++			return -EFAULT;
++
++		len -= min;
++		hva += min;
++	}
++
 +	return 0;
 +}
 +
-+static int qxl_check_framebuffer(struct qxl_device *qdev,
-+				 struct qxl_bo *bo)
++static int log_used(struct vhost_virtqueue *vq, u64 used_offset, u64 len)
 +{
-+	return qxl_check_mode(qdev, bo->surf.width, bo->surf.height);
++	struct iovec iov[64];
++	int i, ret;
++
++	if (!vq->iotlb)
++		return log_write(vq->log_base, vq->log_addr + used_offset, len);
++
++	ret = translate_desc(vq, (uintptr_t)vq->used + used_offset,
++			     len, iov, 64, VHOST_ACCESS_WO);
++	if (ret)
++		return ret;
++
++	for (i = 0; i < ret; i++) {
++		ret = log_write_hva(vq,	(uintptr_t)iov[i].iov_base,
++				    iov[i].iov_len);
++		if (ret)
++			return ret;
++	}
++
++	return 0;
 +}
 +
- static int qxl_add_monitors_config_modes(struct drm_connector *connector,
-                                          unsigned *pwidth,
-                                          unsigned *pheight)
-@@ -466,12 +481,7 @@ static int qxl_primary_atomic_check(struct drm_plane *plane,
- 
- 	bo = gem_to_qxl_bo(state->fb->obj[0]);
- 
--	if (bo->surf.stride * bo->surf.height > qdev->vram_size) {
--		DRM_ERROR("Mode doesn't fit in vram size (vgamem)");
--		return -EINVAL;
--	}
--
--	return 0;
-+	return qxl_check_framebuffer(qdev, bo);
- }
- 
- static int qxl_primary_apply_cursor(struct drm_plane *plane)
-@@ -941,20 +951,11 @@ static enum drm_mode_status qxl_conn_mode_valid(struct drm_connector *connector,
+ int vhost_log_write(struct vhost_virtqueue *vq, struct vhost_log *log,
+-		    unsigned int log_num, u64 len)
++		    unsigned int log_num, u64 len, struct iovec *iov, int count)
  {
- 	struct drm_device *ddev = connector->dev;
- 	struct qxl_device *qdev = ddev->dev_private;
--	int i;
+ 	int i, r;
  
--	/* TODO: is this called for user defined modes? (xrandr --add-mode)
--	 * TODO: check that the mode fits in the framebuffer */
-+	if (qxl_check_mode(qdev, mode->hdisplay, mode->vdisplay) != 0)
-+		return MODE_BAD;
+ 	/* Make sure data written is seen before log. */
+ 	smp_wmb();
++
++	if (vq->iotlb) {
++		for (i = 0; i < count; i++) {
++			r = log_write_hva(vq, (uintptr_t)iov[i].iov_base,
++					  iov[i].iov_len);
++			if (r < 0)
++				return r;
++		}
++		return 0;
++	}
++
+ 	for (i = 0; i < log_num; ++i) {
+ 		u64 l = min(log[i].len, len);
+ 		r = log_write(vq->log_base, log[i].addr, l);
+@@ -1769,9 +1843,8 @@ static int vhost_update_used_flags(struct vhost_virtqueue *vq)
+ 		smp_wmb();
+ 		/* Log used flag write. */
+ 		used = &vq->used->flags;
+-		log_write(vq->log_base, vq->log_addr +
+-			  (used - (void __user *)vq->used),
+-			  sizeof vq->used->flags);
++		log_used(vq, (used - (void __user *)vq->used),
++			 sizeof vq->used->flags);
+ 		if (vq->log_ctx)
+ 			eventfd_signal(vq->log_ctx, 1);
+ 	}
+@@ -1789,9 +1862,8 @@ static int vhost_update_avail_event(struct vhost_virtqueue *vq, u16 avail_event)
+ 		smp_wmb();
+ 		/* Log avail event write */
+ 		used = vhost_avail_event(vq);
+-		log_write(vq->log_base, vq->log_addr +
+-			  (used - (void __user *)vq->used),
+-			  sizeof *vhost_avail_event(vq));
++		log_used(vq, (used - (void __user *)vq->used),
++			 sizeof *vhost_avail_event(vq));
+ 		if (vq->log_ctx)
+ 			eventfd_signal(vq->log_ctx, 1);
+ 	}
+@@ -2191,10 +2263,8 @@ static int __vhost_add_used_n(struct vhost_virtqueue *vq,
+ 		/* Make sure data is seen before log. */
+ 		smp_wmb();
+ 		/* Log used ring entry write. */
+-		log_write(vq->log_base,
+-			  vq->log_addr +
+-			   ((void __user *)used - (void __user *)vq->used),
+-			  count * sizeof *used);
++		log_used(vq, ((void __user *)used - (void __user *)vq->used),
++			 count * sizeof *used);
+ 	}
+ 	old = vq->last_used_idx;
+ 	new = (vq->last_used_idx += count);
+@@ -2236,9 +2306,8 @@ int vhost_add_used_n(struct vhost_virtqueue *vq, struct vring_used_elem *heads,
+ 		/* Make sure used idx is seen before log. */
+ 		smp_wmb();
+ 		/* Log used index update. */
+-		log_write(vq->log_base,
+-			  vq->log_addr + offsetof(struct vring_used, idx),
+-			  sizeof vq->used->idx);
++		log_used(vq, offsetof(struct vring_used, idx),
++			 sizeof vq->used->idx);
+ 		if (vq->log_ctx)
+ 			eventfd_signal(vq->log_ctx, 1);
+ 	}
+diff --git a/drivers/vhost/vhost.h b/drivers/vhost/vhost.h
+index 466ef7542291..1b675dad5e05 100644
+--- a/drivers/vhost/vhost.h
++++ b/drivers/vhost/vhost.h
+@@ -205,7 +205,8 @@ bool vhost_vq_avail_empty(struct vhost_dev *, struct vhost_virtqueue *);
+ bool vhost_enable_notify(struct vhost_dev *, struct vhost_virtqueue *);
  
--	if (qdev->monitors_config_width == mode->hdisplay &&
--	    qdev->monitors_config_height == mode->vdisplay)
--		return MODE_OK;
--
--	for (i = 0; i < ARRAY_SIZE(common_modes); i++) {
--		if (common_modes[i].w == mode->hdisplay && common_modes[i].h == mode->vdisplay)
--			return MODE_OK;
--	}
--	return MODE_BAD;
-+	return MODE_OK;
- }
+ int vhost_log_write(struct vhost_virtqueue *vq, struct vhost_log *log,
+-		    unsigned int log_num, u64 len);
++		    unsigned int log_num, u64 len,
++		    struct iovec *iov, int count);
+ int vq_iotlb_prefetch(struct vhost_virtqueue *vq);
  
- static struct drm_encoder *qxl_best_encoder(struct drm_connector *connector)
+ struct vhost_msg_node *vhost_new_msg(struct vhost_virtqueue *vq, int type);
 -- 
-2.9.3
+2.17.1
