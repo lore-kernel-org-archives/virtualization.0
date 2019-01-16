@@ -1,13 +1,13 @@
-From: Alex Deucher <alexdeucher@gmail.com>
-Subject: Re: [PATCH] drm: Split out drm_probe_helper.h
-Date: Tue, 15 Jan 2019 22:30:11 -0500
-Message-ID: <CADnq5_Oa0dj1+eOcAF6QxVxy0XRXNggZT+4K=Cm_=G80V-ejGQ__28264.9944223978$1547692446$gmane$org@mail.gmail.com>
-References: <20190115104137.25695-1-daniel.vetter@ffwll.ch>
+From: Gerd Hoffmann <kraxel@redhat.com>
+Subject: [PATCH 2/3] drm/qxl: add qxl_add_mode helper function
+Date: Wed, 16 Jan 2019 09:35:20 +0100
+Message-ID: <20190116083521.22673-3-kraxel__18590.3713609607$1547692467$gmane$org@redhat.com>
+References: <20190116083521.22673-1-kraxel@redhat.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <20190115104137.25695-1-daniel.vetter@ffwll.ch>
+In-Reply-To: <20190116083521.22673-1-kraxel@redhat.com>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -17,73 +17,143 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Daniel Vetter <daniel.vetter@ffwll.ch>
-Cc: nouveau <nouveau@lists.freedesktop.org>, DRI Development <dri-devel@lists.freedesktop.org>, "open list:VIRTIO CORE,
-	NET..." <virtualization@lists.linux-foundation.org>, Laurent Pinchart <laurent.pinchart@ideasonboard.com>, Benjamin Gaignard <benjamin.gaignard@linaro.org>, Daniel Vetter <daniel.vetter@intel.com>, Sam Ravnborg <sam@ravnborg.org>, linux-stm32@st-md-mailman.stormreply.com, linux-samsung-soc@vger.kernel.org, amd-gfx list <amd-gfx@lists.freedesktop.org>, linux-rockchip@lists.infradead.org, spice-devel@lists.freedesktop.org, linux-arm-msm <linux-arm-msm@vger.kernel.org>, Intel Graphics Development <intel-gfx@lists.freedesktop.org>, etnaviv@lists.freedesktop.org, Jani Nikula <jani.nikula@linux.intel.com>, linux-mediatek@lists.infradead.org, Rodrigo Vivi <rodrigo.vivi@intel.com>, linux-tegra@vger.kernel.org, linux-amlogic@lists.infradead.org, linux-arm-kernel@l
+To: dri-devel@lists.freedesktop.org
+Cc: David Airlie <airlied@linux.ie>, open list <linux-kernel@vger.kernel.org>, "open list:DRM DRIVER FOR QXL VIRTUAL GPU" <virtualization@lists.linux-foundation.org>, Daniel Vetter <daniel@ffwll.ch>, "open list:DRM DRIVER FOR QXL VIRTUAL GPU" <spice-devel@lists.freedesktop.org>, Dave Airlie <airlied@redhat.com>
 List-Id: virtualization@lists.linuxfoundation.org
 
-On Tue, Jan 15, 2019 at 5:41 AM Daniel Vetter <daniel.vetter@ffwll.ch> wrote:
->
-> Having the probe helper stuff (which pretty much everyone needs) in
-> the drm_crtc_helper.h file (which atomic drivers should never need) is
-> confusing. Split them out.
->
-> To make sure I actually achieved the goal here I went through all
-> drivers. And indeed, all atomic drivers are now free of
-> drm_crtc_helper.h includes.
->
-> v2: Make it compile. There was so much compile fail on arm drivers
-> that I figured I'll better not include any of the acks on v1.
->
-> v3: Massive rebase because i915 has lost a lot of drmP.h includes, but
-> not all: Through drm_crtc_helper.h > drm_modeset_helper.h -> drmP.h
-> there was still one, which this patch largely removes. Which means
-> rolling out lots more includes all over.
->
-> This will also conflict with ongoing drmP.h cleanup by others I
-> expect.
->
-> v3: Rebase on top of atomic bochs.
->
-> Cc: Sam Ravnborg <sam@ravnborg.org>
-> Cc: Jani Nikula <jani.nikula@linux.intel.com>
-> Cc: Laurent Pinchart <laurent.pinchart@ideasonboard.com>
-> Acked-by: Rodrigo Vivi <rodrigo.vivi@intel.com> (v2)
-> Acked-by: Benjamin Gaignard <benjamin.gaignard@linaro.org> (v2)
-> Signed-off-by: Daniel Vetter <daniel.vetter@intel.com>
-> Cc: linux-arm-kernel@lists.infradead.org
-> Cc: virtualization@lists.linux-foundation.org
-> Cc: etnaviv@lists.freedesktop.org
-> Cc: linux-samsung-soc@vger.kernel.org
-> Cc: intel-gfx@lists.freedesktop.org
-> Cc: linux-mediatek@lists.infradead.org
-> Cc: linux-amlogic@lists.infradead.org
-> Cc: linux-arm-msm@vger.kernel.org
-> Cc: freedreno@lists.freedesktop.org
-> Cc: nouveau@lists.freedesktop.org
-> Cc: spice-devel@lists.freedesktop.org
-> Cc: amd-gfx@lists.freedesktop.org
-> Cc: linux-renesas-soc@vger.kernel.org
-> Cc: linux-rockchip@lists.infradead.org
-> Cc: linux-stm32@st-md-mailman.stormreply.com
-> Cc: linux-tegra@vger.kernel.org
-> Cc: xen-devel@lists.xen.org
-> ---
-> Merging this is going to be a bit a mess due to all the ongoing drmP.h
-> cleanups. I think the following should work:
-> - Apply Sam's prep patches for removing drmP.h from
->   drm_modeset_helper.h
-> - Get the i915 drmP.h cleanup backmerged into drm-misc-next
-> - Apply this patch.
-> - Apply Sam's patch to remove drmP.h from drm_modeset_helper.h
-> - All through drm-misc-next, which has some potential for trivial
->   conflicts around #includes with other drivers unfortunately.
->
-> I hope there's no other driver who'll blow up accidentally because
-> someone else is doing a drmP.h cleanup. Laurent maybe?
->
-> Jani, ack on this?
-> -Daniel
+Add a helper function to add custom video modes to a connector.
 
-amdgpu and radeon:
-Acked-by: Alex Deucher <alexander.deucher@amd.com>
+Signed-off-by: Gerd Hoffmann <kraxel@redhat.com>
+---
+ drivers/gpu/drm/qxl/qxl_display.c | 84 +++++++++++++++++++++++----------------
+ 1 file changed, 49 insertions(+), 35 deletions(-)
+
+diff --git a/drivers/gpu/drm/qxl/qxl_display.c b/drivers/gpu/drm/qxl/qxl_display.c
+index 07a37d52c4..b87f72f59e 100644
+--- a/drivers/gpu/drm/qxl/qxl_display.c
++++ b/drivers/gpu/drm/qxl/qxl_display.c
+@@ -206,15 +206,36 @@ static int qxl_check_framebuffer(struct qxl_device *qdev,
+ 	return qxl_check_mode(qdev, bo->surf.width, bo->surf.height);
+ }
+ 
+-static int qxl_add_monitors_config_modes(struct drm_connector *connector,
+-                                         unsigned *pwidth,
+-                                         unsigned *pheight)
++static int qxl_add_mode(struct drm_connector *connector,
++			unsigned int width,
++			unsigned int height,
++			bool preferred)
++{
++	struct drm_device *dev = connector->dev;
++	struct qxl_device *qdev = dev->dev_private;
++	struct drm_display_mode *mode = NULL;
++	int rc;
++
++	rc = qxl_check_mode(qdev, width, height);
++	if (rc != 0)
++		return 0;
++
++	mode = drm_cvt_mode(dev, width, height, 60, false, false, false);
++	if (preferred)
++		mode->type |= DRM_MODE_TYPE_PREFERRED;
++	mode->hdisplay = width;
++	mode->vdisplay = height;
++	drm_mode_set_name(mode);
++	drm_mode_probed_add(connector, mode);
++	return 1;
++}
++
++static int qxl_add_monitors_config_modes(struct drm_connector *connector)
+ {
+ 	struct drm_device *dev = connector->dev;
+ 	struct qxl_device *qdev = dev->dev_private;
+ 	struct qxl_output *output = drm_connector_to_qxl_output(connector);
+ 	int h = output->index;
+-	struct drm_display_mode *mode = NULL;
+ 	struct qxl_head *head;
+ 
+ 	if (!qdev->monitors_config)
+@@ -229,19 +250,7 @@ static int qxl_add_monitors_config_modes(struct drm_connector *connector,
+ 	head = &qdev->client_monitors_config->heads[h];
+ 	DRM_DEBUG_KMS("head %d is %dx%d\n", h, head->width, head->height);
+ 
+-	mode = drm_cvt_mode(dev, head->width, head->height, 60, false, false,
+-			    false);
+-	mode->type |= DRM_MODE_TYPE_PREFERRED;
+-	mode->hdisplay = head->width;
+-	mode->vdisplay = head->height;
+-	drm_mode_set_name(mode);
+-	*pwidth = head->width;
+-	*pheight = head->height;
+-	drm_mode_probed_add(connector, mode);
+-	/* remember the last custom size for mode validation */
+-	qdev->monitors_config_width = mode->hdisplay;
+-	qdev->monitors_config_height = mode->vdisplay;
+-	return 1;
++	return qxl_add_mode(connector, head->width, head->height, true);
+ }
+ 
+ static struct mode_size {
+@@ -267,22 +276,16 @@ static struct mode_size {
+ 	{1920, 1200}
+ };
+ 
+-static int qxl_add_common_modes(struct drm_connector *connector,
+-                                unsigned int pwidth,
+-                                unsigned int pheight)
++static int qxl_add_common_modes(struct drm_connector *connector)
+ {
+-	struct drm_device *dev = connector->dev;
+-	struct drm_display_mode *mode = NULL;
+-	int i;
++	int i, ret = 0;
+ 
+-	for (i = 0; i < ARRAY_SIZE(common_modes); i++) {
+-		mode = drm_cvt_mode(dev, common_modes[i].w, common_modes[i].h,
+-				    60, false, false, false);
+-		if (common_modes[i].w == pwidth && common_modes[i].h == pheight)
+-			mode->type |= DRM_MODE_TYPE_PREFERRED;
+-		drm_mode_probed_add(connector, mode);
+-	}
+-	return i - 1;
++	for (i = 0; i < ARRAY_SIZE(common_modes); i++)
++		ret += qxl_add_mode(connector,
++				    common_modes[i].w,
++				    common_modes[i].h,
++				    false);
++	return ret;
+ }
+ 
+ static void qxl_send_monitors_config(struct qxl_device *qdev)
+@@ -935,14 +938,25 @@ static int qdev_crtc_init(struct drm_device *dev, int crtc_id)
+ 
+ static int qxl_conn_get_modes(struct drm_connector *connector)
+ {
++	struct drm_device *dev = connector->dev;
++	struct qxl_device *qdev = dev->dev_private;
++	struct qxl_output *output = drm_connector_to_qxl_output(connector);
+ 	unsigned int pwidth = 1024;
+ 	unsigned int pheight = 768;
+ 	int ret = 0;
+ 
+-	ret = qxl_add_monitors_config_modes(connector, &pwidth, &pheight);
+-	if (ret < 0)
+-		return ret;
+-	ret += qxl_add_common_modes(connector, pwidth, pheight);
++	if (qdev->client_monitors_config) {
++		struct qxl_head *head;
++		head = &qdev->client_monitors_config->heads[output->index];
++		if (head->width)
++			pwidth = head->width;
++		if (head->height)
++			pheight = head->height;
++	}
++
++	ret += qxl_add_common_modes(connector);
++	ret += qxl_add_monitors_config_modes(connector);
++	drm_set_preferred_mode(connector, pwidth, pheight);
+ 	return ret;
+ }
+ 
+-- 
+2.9.3
