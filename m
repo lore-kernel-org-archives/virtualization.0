@@ -1,14 +1,13 @@
-From: Sam Ravnborg <sam@ravnborg.org>
-Subject: Re: [PATCH] drm: Split out drm_probe_helper.h
-Date: Wed, 16 Jan 2019 19:10:18 +0100
-Message-ID: <20190116181018.GA27364__19725.0553560027$1547692629$gmane$org@ravnborg.org>
-References: <20190116163442.12622-1-daniel.vetter@ffwll.ch>
+From: David Miller <davem@davemloft.net>
+Subject: Re: [PATCH net-next] virtio_net: bulk free tx skbs
+Date: Wed, 16 Jan 2019 15:31:58 -0800 (PST)
+Message-ID: <20190116.153158.1210819126964530944.davem__19237.848398234$1547692679$gmane$org@davemloft.net>
+References: <20190115012847.14730-1-mst@redhat.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset="iso-8859-7"
+Content-Transfer-Encoding: base64
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-Content-Disposition: inline
-In-Reply-To: <20190116163442.12622-1-daniel.vetter@ffwll.ch>
+In-Reply-To: <20190115012847.14730-1-mst@redhat.com>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -18,44 +17,26 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Daniel Vetter <daniel.vetter@ffwll.ch>
-Cc: Neil Armstrong <narmstrong@baylibre.com>, nouveau@lists.freedesktop.org, Liviu Dudau <liviu.dudau@arm.com>, DRI Development <dri-devel@lists.freedesktop.org>, virtualization@lists.linux-foundation.org, Laurent Pinchart <laurent.pinchart@ideasonboard.com>, Benjamin Gaignard <benjamin.gaignard@linaro.org>, Daniel Vetter <daniel.vetter@intel.com>, linux-stm32@st-md-mailman.stormreply.com, linux-samsung-soc@vger.kernel.org, Oleksandr Andrushchenko <oleksandr_andrushchenko@epam.com>, amd-gfx@lists.freedesktop.org, linux-rockchip@lists.infradead.org, CK Hu <ck.hu@mediatek.com>, spice-devel@lists.freedesktop.org, Jani Nikula <jani.nikula@intel.com>, linux-arm-msm@vger.kernel.org, intel-gfx@lists.freedesktop.org, etnaviv@lists.freedesktop.org, Jani Nikula <jani.nikula@linux.intel.com>, linux-mediatek@lists.infradead.org, Rodrigo Vivi <rodrigo.vivi@intel.com>, linux-tegra@vger
+To: mst@redhat.com
+Cc: netdev@vger.kernel.org, linux-kernel@vger.kernel.org, virtualization@lists.linux-foundation.org
 List-Id: virtualization@lists.linuxfoundation.org
 
-Hi Daniel.
-
-> v5: Actually try to sort them, and while at it, sort all the ones I
-> touch.
-
-Applied this variant on top of drm-misc and did a build test.
-Looked good for ia64, x86 and alpha.
-
-Took a closer look at the changes to atmel_hlcd - and they looked OK.
-
-But I noticed that atmel_hlcdc uses only drm_kms_helper_poll_init() and
-drm_kms_helper_poll_fini().
-But there are no hits on DRM_CONNECTOR_POLL - so I think we maybe
-have a driver here where we have plugged the drm_poll infrastructure,
-but it is not in use.
-
->  include/drm/drm_crtc_helper.h                 | 16 -----------
-
-The list of include files in this file could be dropped and replaced by:
-struct drm_connector;
-struct drm_device;
-struct drm_display_mode;
-struct drm_encoder;
-struct drm_framebuffer;
-struct drm_mode_set;
-struct drm_modeset_acquire_ctx;
-
-I tried to do so on top of your patch.
-But there were too many build errros and I somehow lost the motivation.
-
-
->  include/drm/drm_probe_helper.h                | 27 +++++++++++++++++++
-This on the other hand is fine - as expected as this is a new file.
-
-But the above is just some random comments so:
-
-Acked-by: Sam Ravnborg <sam@ravnborg.org>
+RnJvbTogIk1pY2hhZWwgUy4gVHNpcmtpbiIgPG1zdEByZWRoYXQuY29tPg0KRGF0ZTogTW9uLCAx
+NCBKYW4gMjAxOSAyMDozNDoyNiAtMDUwMA0KDQo+IFVzZSBuYXBpX2NvbnN1bWVfc2tiKCkgdG8g
+Z2V0IGJ1bGsgZnJlZS4gIE5vdGUgdGhhdCBuYXBpX2NvbnN1bWVfc2tiIGlzDQo+IHNhZmUgdG8g
+Y2FsbCBpbiBhIG5vbi1uYXBpIGNvbnRleHQgYXMgbG9uZyBhcyB0aGUgbmFwaV9idWRnZXQgZmxh
+ZyBpcw0KPiBjb3JyZWN0Lg0KPiANCj4gU2lnbmVkLW9mZi1ieTogTWljaGFlbCBTLiBUc2lya2lu
+IDxtc3RAcmVkaGF0LmNvbT4NCj4gLS0tDQo+IA0KPiBNeSBwZXJmIHRlc3Rpbmcgc2V0dXAgaXMg
+ZG93biBidXQgaXQgd29ya3MgZmluZSBvbiBteSBkZXZlbCBib3ggYW5kDQo+IHNob3VsZCBiZSBm
+YWlybHkgdW5jb250cm92ZXJzaWFsLg0KDQpJdCB3b3VsZCBiZSB1bmNvbnRyb3ZlcnNpYWwgaWYg
+aXQgY29tcGlsZWQuDQoNCmRyaXZlcnMvbmV0L3ZpcnRpb19uZXQuYzogSW4gZnVuY3Rpb24goWZy
+ZWVfb2xkX3htaXRfc2tic6I6DQpkcml2ZXJzL25ldC92aXJ0aW9fbmV0LmM6MTM0NjoyNTogZXJy
+b3I6IKF1c2VfbmFwaaIgdW5kZWNsYXJlZCAoZmlyc3QgdXNlIGluIHRoaXMgZnVuY3Rpb24pOyBk
+aWQgeW91IG1lYW4goXVzZWRfbWF0aKI/DQogICBuYXBpX2NvbnN1bWVfc2tiKHNrYiwgdXNlX25h
+cGkpOw0KICAgICAgICAgICAgICAgICAgICAgICAgIF5+fn5+fn5+DQogICAgICAgICAgICAgICAg
+ICAgICAgICAgdXNlZF9tYXRoDQpkcml2ZXJzL25ldC92aXJ0aW9fbmV0LmM6MTM0NjoyNTogbm90
+ZTogZWFjaCB1bmRlY2xhcmVkIGlkZW50aWZpZXIgaXMgcmVwb3J0ZWQgb25seSBvbmNlIGZvciBl
+YWNoIGZ1bmN0aW9uIGl0IGFwcGVhcnMgaW4NCl9fX19fX19fX19fX19fX19fX19fX19fX19fX19f
+X19fX19fX19fX19fX19fX19fClZpcnR1YWxpemF0aW9uIG1haWxpbmcgbGlzdApWaXJ0dWFsaXph
+dGlvbkBsaXN0cy5saW51eC1mb3VuZGF0aW9uLm9yZwpodHRwczovL2xpc3RzLmxpbnV4Zm91bmRh
+dGlvbi5vcmcvbWFpbG1hbi9saXN0aW5mby92aXJ0dWFsaXphdGlvbg==
