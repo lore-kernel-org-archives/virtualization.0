@@ -1,15 +1,16 @@
 From: Jason Wang <jasowang@redhat.com>
-Subject: Re: [PATCH net 7/7] virtio_net: Differentiate sk_buff and xdp_frame
-	on freeing
-Date: Thu, 17 Jan 2019 21:04:30 +0800
-Message-ID: <669e0ca6-c095-75eb-66ec-b9f3ab5e58de__8037.77320911667$1547755037$gmane$org@redhat.com>
+Subject: Re: [PATCH net 5/7] virtio_net: Don't process redirected XDP frames
+	when XDP is disabled
+Date: Thu, 17 Jan 2019 21:05:47 +0800
+Message-ID: <24359f65-fe45-46d1-5344-f0cc4705009b__23425.6770615049$1547755057$gmane$org@redhat.com>
 References: <1547724045-2726-1-git-send-email-makita.toshiaki@lab.ntt.co.jp>
-	<1547724045-2726-8-git-send-email-makita.toshiaki@lab.ntt.co.jp>
+	<1547724045-2726-6-git-send-email-makita.toshiaki@lab.ntt.co.jp>
+	<b6a4ba3f-98f4-ba4d-a318-309780be74ae@redhat.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"; Format="flowed"
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset="utf-8"; Format="flowed"
+Content-Transfer-Encoding: base64
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <1547724045-2726-8-git-send-email-makita.toshiaki@lab.ntt.co.jp>
+In-Reply-To: <b6a4ba3f-98f4-ba4d-a318-309780be74ae@redhat.com>
 Content-Language: en-US
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
@@ -21,155 +22,97 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
 To: Toshiaki Makita <makita.toshiaki@lab.ntt.co.jp>, "David S. Miller" <davem@davemloft.net>, "Michael S. Tsirkin" <mst@redhat.com>
-Cc: netdev@vger.kernel.org, virtualization@lists.linux-foundation.org
+Cc: netdev@vger.kernel.org, Jesper Dangaard Brouer <brouer@redhat.com>, virtualization@lists.linux-foundation.org
 List-Id: virtualization@lists.linuxfoundation.org
 
-
-On 2019/1/17 7:20, Toshiaki Makita wrote:
-> We do not reset or free up unused buffers when enabling/disabling XDP,
-> so it can happen that xdp_frames are freed after disabling XDP or
-> sk_buffs are freed after enabling XDP on xdp tx queues.
-> Thus we need to handle both forms (xdp_frames and sk_buffs) regardless
-> of XDP setting.
-> One way to trigger this problem is to disable XDP when napi_tx is
-> enabled. In that case, virtnet_xdp_set() calls virtnet_napi_enable()
-> which kicks NAPI. The NAPI handler will call virtnet_poll_cleantx()
-> which invokes free_old_xmit_skbs() for queues which have been used by
-> XDP.
->
-> Note that even with this change we need to keep skipping
-> free_old_xmit_skbs() from NAPI handlers when XDP is enabled, because XDP
-> tx queues do not aquire queue locks.
->
-> Fixes: 4941d472bf95 ("virtio-net: do not reset during XDP set")
-> Signed-off-by: Toshiaki Makita <makita.toshiaki@lab.ntt.co.jp>
-> ---
->   drivers/net/virtio_net.c | 54 +++++++++++++++++++++++++++++++++++++-----------
->   1 file changed, 42 insertions(+), 12 deletions(-)
->
-> diff --git a/drivers/net/virtio_net.c b/drivers/net/virtio_net.c
-> index 996de69..6598c25 100644
-> --- a/drivers/net/virtio_net.c
-> +++ b/drivers/net/virtio_net.c
-> @@ -57,6 +57,8 @@
->   #define VIRTIO_XDP_TX		BIT(0)
->   #define VIRTIO_XDP_REDIR	BIT(1)
->   
-> +#define VIRTIO_XDP_FLAG	BIT(0)
-> +
->   /* RX packet size EWMA. The average packet size is used to determine the packet
->    * buffer size when refilling RX rings. As the entire RX ring may be refilled
->    * at once, the weight is chosen so that the EWMA will be insensitive to short-
-> @@ -252,6 +254,21 @@ struct padded_vnet_hdr {
->   	char padding[4];
->   };
->   
-> +static bool is_xdp_frame(void *ptr)
-> +{
-> +	return (unsigned long)ptr & VIRTIO_XDP_FLAG;
-> +}
-> +
-> +static void *xdp_to_ptr(struct xdp_frame *ptr)
-> +{
-> +	return (void *)((unsigned long)ptr | VIRTIO_XDP_FLAG);
-> +}
-> +
-> +static struct xdp_frame *ptr_to_xdp(void *ptr)
-> +{
-> +	return (struct xdp_frame *)((unsigned long)ptr & ~VIRTIO_XDP_FLAG);
-> +}
-> +
->   /* Converting between virtqueue no. and kernel tx/rx queue no.
->    * 0:rx0 1:tx0 2:rx1 3:tx1 ... 2N:rxN 2N+1:txN 2N+2:cvq
->    */
-> @@ -462,7 +479,8 @@ static int __virtnet_xdp_xmit_one(struct virtnet_info *vi,
->   
->   	sg_init_one(sq->sg, xdpf->data, xdpf->len);
->   
-> -	err = virtqueue_add_outbuf(sq->vq, sq->sg, 1, xdpf, GFP_ATOMIC);
-> +	err = virtqueue_add_outbuf(sq->vq, sq->sg, 1, xdp_to_ptr(xdpf),
-> +				   GFP_ATOMIC);
->   	if (unlikely(err))
->   		return -ENOSPC; /* Caller handle free/refcnt */
->   
-> @@ -482,13 +500,13 @@ static int virtnet_xdp_xmit(struct net_device *dev,
->   {
->   	struct virtnet_info *vi = netdev_priv(dev);
->   	struct receive_queue *rq = vi->rq;
-> -	struct xdp_frame *xdpf_sent;
->   	struct bpf_prog *xdp_prog;
->   	struct send_queue *sq;
->   	unsigned int len;
->   	int drops = 0;
->   	int kicks = 0;
->   	int ret, err;
-> +	void *ptr;
->   	int i;
->   
->   	/* Only allow ndo_xdp_xmit if XDP is loaded on dev, as this
-> @@ -507,8 +525,12 @@ static int virtnet_xdp_xmit(struct net_device *dev,
->   	}
->   
->   	/* Free up any pending old buffers before queueing new ones. */
-> -	while ((xdpf_sent = virtqueue_get_buf(sq->vq, &len)) != NULL)
-> -		xdp_return_frame(xdpf_sent);
-> +	while ((ptr = virtqueue_get_buf(sq->vq, &len)) != NULL) {
-> +		if (likely(is_xdp_frame(ptr)))
-> +			xdp_return_frame(ptr_to_xdp(ptr));
-> +		else
-> +			dev_consume_skb_any(ptr);
-> +	}
->   
->   	for (i = 0; i < n; i++) {
->   		struct xdp_frame *xdpf = frames[i];
-> @@ -1329,18 +1351,26 @@ static int virtnet_receive(struct receive_queue *rq, int budget,
->   
->   static void free_old_xmit_skbs(struct send_queue *sq)
->   {
-> -	struct sk_buff *skb;
->   	unsigned int len;
->   	unsigned int packets = 0;
->   	unsigned int bytes = 0;
-> +	void *ptr;
->   
-> -	while ((skb = virtqueue_get_buf(sq->vq, &len)) != NULL) {
-> -		pr_debug("Sent skb %p\n", skb);
-> +	while ((ptr = virtqueue_get_buf(sq->vq, &len)) != NULL) {
-> +		if (likely(!is_xdp_frame(ptr))) {
-> +			struct sk_buff *skb = ptr;
->   
-> -		bytes += skb->len;
-> -		packets++;
-> +			pr_debug("Sent skb %p\n", skb);
->   
-> -		dev_consume_skb_any(skb);
-> +			bytes += skb->len;
-> +			dev_consume_skb_any(skb);
-> +		} else {
-> +			struct xdp_frame *frame = ptr_to_xdp(ptr);
-> +
-> +			bytes += frame->len;
-> +			xdp_return_frame(frame);
-> +		}
-> +		packets++;
->   	}
->   
->   	/* Avoid overhead when no packets have been processed
-> @@ -2665,10 +2695,10 @@ static void free_unused_bufs(struct virtnet_info *vi)
->   	for (i = 0; i < vi->max_queue_pairs; i++) {
->   		struct virtqueue *vq = vi->sq[i].vq;
->   		while ((buf = virtqueue_detach_unused_buf(vq)) != NULL) {
-> -			if (!is_xdp_raw_buffer_queue(vi, i))
-> +			if (!is_xdp_frame(buf))
->   				dev_kfree_skb(buf);
->   			else
-> -				xdp_return_frame(buf);
-> +				xdp_return_frame(ptr_to_xdp(buf));
->   		}
->   	}
->   
-
-
-Acked-by: Jason Wang <jasowang@redhat.com>
-
-Thanks!
+Ck9uIDIwMTkvMS8xNyDkuIvljYg4OjUzLCBKYXNvbiBXYW5nIHdyb3RlOgo+Cj4gT24gMjAxOS8x
+LzE3IOS4i+WNiDc6MjAsIFRvc2hpYWtpIE1ha2l0YSB3cm90ZToKPj4gQ29tbWl0IDhkY2M1YjBh
+YjBlYyAoInZpcnRpb19uZXQ6IGZpeCBuZG9feGRwX3htaXQgY3Jhc2ggdG93YXJkcyBkZXYgbm90
+Cj4+IHJlYWR5IGZvciBYRFAiKSB0cmllZCB0byBhdm9pZCBhY2Nlc3MgdG8gdW5leHBlY3RlZCBz
+cSB3aGlsZSBYRFAgaXMKPj4gZGlzYWJsZWQsIGJ1dCB3YXMgbm90IGNvbXBsZXRlLgo+Pgo+PiBU
+aGVyZSB3YXMgYSBzbWFsbCB3aW5kb3cgd2hpY2ggY2F1c2VzIG91dCBvZiBib3VuZHMgc3EgYWNj
+ZXNzIGluCj4+IHZpcnRuZXRfeGRwX3htaXQoKSB3aGlsZSBkaXNhYmxpbmcgWERQLgo+Pgo+PiBB
+biBleGFtcGxlIGNhc2Ugb2YKPj4gwqAgLSBjdXJyX3F1ZXVlX3BhaXJzID0gNiAoMiBmb3IgU0tC
+IGFuZCA0IGZvciBYRFApCj4+IMKgIC0gb25saW5lX2NwdV9udW0gPSB4ZHBfcXVldWVfcGFyaXMg
+PSA0Cj4+IHdoZW4gWERQIGlzIGVuYWJsZWQ6Cj4+Cj4+IENQVSAwwqDCoMKgwqDCoMKgwqDCoMKg
+wqDCoMKgwqDCoMKgwqDCoMKgwqDCoMKgwqDCoMKgIENQVSAxCj4+IChEaXNhYmxpbmcgWERQKcKg
+wqDCoMKgwqDCoMKgwqDCoMKgwqDCoMKgwqAgKFByb2Nlc3NpbmcgcmVkaXJlY3RlZCBYRFAgZnJh
+bWVzKQo+Pgo+PiDCoMKgwqDCoMKgwqDCoMKgwqDCoMKgwqDCoMKgwqDCoMKgwqDCoMKgwqDCoMKg
+wqDCoMKgwqDCoMKgwqAgdmlydG5ldF94ZHBfeG1pdCgpCj4+IHZpcnRuZXRfeGRwX3NldCgpCj4+
+IMKgIF92aXJ0bmV0X3NldF9xdWV1ZXMoKQo+PiDCoMKgIHNldCBjdXJyX3F1ZXVlX3BhaXJzICgy
+KQo+PiDCoMKgwqDCoMKgwqDCoMKgwqDCoMKgwqDCoMKgwqDCoMKgwqDCoMKgwqDCoMKgwqDCoMKg
+wqDCoMKgwqDCoCBjaGVjayBpZiBycS0+eGRwX3Byb2cgaXMgbm90IE5VTEwKPj4gwqDCoMKgwqDC
+oMKgwqDCoMKgwqDCoMKgwqDCoMKgwqDCoMKgwqDCoMKgwqDCoMKgwqDCoMKgwqDCoMKgwqAgdmly
+dG5ldF94ZHBfc3EodmkpCj4+IMKgwqDCoMKgwqDCoMKgwqDCoMKgwqDCoMKgwqDCoMKgwqDCoMKg
+wqDCoMKgwqDCoMKgwqDCoMKgwqDCoMKgwqAgcXAgPSBjdXJyX3F1ZXVlX3BhaXJzIC0KPj4gwqDC
+oMKgwqDCoMKgwqDCoMKgwqDCoMKgwqDCoMKgwqDCoMKgwqDCoMKgwqDCoMKgwqDCoMKgwqDCoMKg
+wqDCoMKgwqDCoMKgwqAgeGRwX3F1ZXVlX3BhaXJzICsKPj4gwqDCoMKgwqDCoMKgwqDCoMKgwqDC
+oMKgwqDCoMKgwqDCoMKgwqDCoMKgwqDCoMKgwqDCoMKgwqDCoMKgwqDCoMKgwqDCoMKgwqAgc21w
+X3Byb2Nlc3Nvcl9pZCgpCj4+IMKgwqDCoMKgwqDCoMKgwqDCoMKgwqDCoMKgwqDCoMKgwqDCoMKg
+wqDCoMKgwqDCoMKgwqDCoMKgwqDCoMKgwqDCoMKgwqAgPSAyIC0gNCArIDEgPSAtMQo+PiDCoMKg
+wqDCoMKgwqDCoMKgwqDCoMKgwqDCoMKgwqDCoMKgwqDCoMKgwqDCoMKgwqDCoMKgwqDCoMKgwqDC
+oMKgIHNxID0gJnZpLT5zcVtxcF0gLy8gb3V0IG9mIGJvdW5kcyAKPj4gYWNjZXNzCj4+IMKgwqAg
+c2V0IHhkcF9xdWV1ZV9wYWlycyAoMCkKPj4gwqDCoCBycS0+eGRwX3Byb2cgPSBOVUxMCj4+Cj4+
+IEJhc2ljYWxseSB3ZSBzaG91bGQgbm90IGNoYW5nZSBjdXJyX3F1ZXVlX3BhaXJzIGFuZCB4ZHBf
+cXVldWVfcGFpcnMKPj4gd2hpbGUgc29tZW9uZSBjYW4gcmVhZCB0aGUgdmFsdWVzLiBUaHVzLCB3
+aGVuIGRpc2FibGluZyBYRFAsIGFzc2lnbiBOVUxMCj4+IHRvIHJxLT54ZHBfcHJvZyBmaXJzdCwg
+YW5kIHdhaXQgZm9yIFJDVSBncmFjZSBwZXJpb2QsIHRoZW4gY2hhbmdlCj4+IHh4eF9xdWV1ZV9w
+YWlycy4KPj4gTm90ZSB0aGF0IHdlIG5lZWQgdG8ga2VlcCB0aGUgY3VycmVudCBvcmRlciB3aGVu
+IGVuYWJsaW5nIFhEUCB0aG91Z2guCj4+Cj4+IEZpeGVzOiAxODZiM2M5OThjNTAgKCJ2aXJ0aW8t
+bmV0OiBzdXBwb3J0IFhEUF9SRURJUkVDVCIpCj4+IFNpZ25lZC1vZmYtYnk6IFRvc2hpYWtpIE1h
+a2l0YSA8bWFraXRhLnRvc2hpYWtpQGxhYi5udHQuY28uanA+Cj4KPgo+IEkgd29uZGVyIHdoZXRo
+ZXIgb3Igbm90IHdlIGNvdWxkIHNpbXBseSBkbzoKPgo+Cj4gaWYgKHByb2cpIHsKCgpTaG91bGQg
+YmUgIXByb2cKCgo+Cj4gwqDCoMKgIHJjdV9hc3NpZ25fcG9pbnRlcigpCj4KPiDCoMKgwqAgc3lu
+Y2hyb25pemVfbmV0KCkKPgo+IH0KPgo+IHNldCBxdWV1ZXMKPgo+IGlmICghcHJvZykgewoKClNo
+b3VsZCBiZSBwcm9nLgoKVGhhbmtzCgoKPgo+IMKgwqDCoCByY3VfYXNzaWduX3BvaW50ZXIoKQo+
+Cj4gfQo+Cj4gVGhhbmtzCj4KPgo+PiAtLS0KPj4gwqAgZHJpdmVycy9uZXQvdmlydGlvX25ldC5j
+IHwgMzIgKysrKysrKysrKysrKysrKysrKysrKysrKy0tLS0tLS0KPj4gwqAgMSBmaWxlIGNoYW5n
+ZWQsIDI1IGluc2VydGlvbnMoKyksIDcgZGVsZXRpb25zKC0pCj4+Cj4+IGRpZmYgLS1naXQgYS9k
+cml2ZXJzL25ldC92aXJ0aW9fbmV0LmMgYi9kcml2ZXJzL25ldC92aXJ0aW9fbmV0LmMKPj4gaW5k
+ZXggMjA0ZWVkZi4uYWU5M2YwZSAxMDA2NDQKPj4gLS0tIGEvZHJpdmVycy9uZXQvdmlydGlvX25l
+dC5jCj4+ICsrKyBiL2RyaXZlcnMvbmV0L3ZpcnRpb19uZXQuYwo+PiBAQCAtMjQyNCwxNCArMjQy
+NCwxNiBAQCBzdGF0aWMgaW50IHZpcnRuZXRfeGRwX3NldChzdHJ1Y3QgbmV0X2RldmljZSAKPj4g
+KmRldiwgc3RydWN0IGJwZl9wcm9nICpwcm9nLAo+PiDCoMKgwqDCoMKgwqDCoMKgwqAgfQo+PiDC
+oMKgwqDCoMKgIH0KPj4gwqAgLcKgwqDCoCBlcnIgPSBfdmlydG5ldF9zZXRfcXVldWVzKHZpLCBj
+dXJyX3FwICsgeGRwX3FwKTsKPj4gLcKgwqDCoCBpZiAoZXJyKQo+PiAtwqDCoMKgwqDCoMKgwqAg
+Z290byBlcnI7Cj4+IC3CoMKgwqAgbmV0aWZfc2V0X3JlYWxfbnVtX3J4X3F1ZXVlcyhkZXYsIGN1
+cnJfcXAgKyB4ZHBfcXApOwo+PiAtwqDCoMKgIHZpLT54ZHBfcXVldWVfcGFpcnMgPSB4ZHBfcXA7
+Cj4+ICvCoMKgwqAgb2xkX3Byb2cgPSBydG5sX2RlcmVmZXJlbmNlKHZpLT5ycVswXS54ZHBfcHJv
+Zyk7Cj4+ICvCoMKgwqAgaWYgKCFvbGRfcHJvZyAmJiBwcm9nKSB7Cj4+ICvCoMKgwqDCoMKgwqDC
+oCBlcnIgPSBfdmlydG5ldF9zZXRfcXVldWVzKHZpLCBjdXJyX3FwICsgeGRwX3FwKTsKPj4gK8Kg
+wqDCoMKgwqDCoMKgIGlmIChlcnIpCj4+ICvCoMKgwqDCoMKgwqDCoMKgwqDCoMKgIGdvdG8gZXJy
+X25ld19wcm9nOwo+PiArwqDCoMKgwqDCoMKgwqAgbmV0aWZfc2V0X3JlYWxfbnVtX3J4X3F1ZXVl
+cyhkZXYsIGN1cnJfcXAgKyB4ZHBfcXApOwo+PiArwqDCoMKgwqDCoMKgwqAgdmktPnhkcF9xdWV1
+ZV9wYWlycyA9IHhkcF9xcDsKPj4gK8KgwqDCoCB9Cj4+IMKgIMKgwqDCoMKgwqAgZm9yIChpID0g
+MDsgaSA8IHZpLT5tYXhfcXVldWVfcGFpcnM7IGkrKykgewo+PiAtwqDCoMKgwqDCoMKgwqAgb2xk
+X3Byb2cgPSBydG5sX2RlcmVmZXJlbmNlKHZpLT5ycVtpXS54ZHBfcHJvZyk7Cj4+IMKgwqDCoMKg
+wqDCoMKgwqDCoCByY3VfYXNzaWduX3BvaW50ZXIodmktPnJxW2ldLnhkcF9wcm9nLCBwcm9nKTsK
+Pj4gwqDCoMKgwqDCoMKgwqDCoMKgIGlmIChpID09IDApIHsKPj4gwqDCoMKgwqDCoMKgwqDCoMKg
+wqDCoMKgwqAgaWYgKCFvbGRfcHJvZykKPj4gQEAgLTI0MzksNiArMjQ0MSwxOCBAQCBzdGF0aWMg
+aW50IHZpcnRuZXRfeGRwX3NldChzdHJ1Y3QgbmV0X2RldmljZSAKPj4gKmRldiwgc3RydWN0IGJw
+Zl9wcm9nICpwcm9nLAo+PiDCoMKgwqDCoMKgwqDCoMKgwqDCoMKgwqDCoCBpZiAoIXByb2cpCj4+
+IMKgwqDCoMKgwqDCoMKgwqDCoMKgwqDCoMKgwqDCoMKgwqAgdmlydG5ldF9yZXN0b3JlX2d1ZXN0
+X29mZmxvYWRzKHZpKTsKPj4gwqDCoMKgwqDCoMKgwqDCoMKgIH0KPj4gK8KgwqDCoCB9Cj4+ICsK
+Pj4gK8KgwqDCoCBpZiAob2xkX3Byb2cgJiYgIXByb2cpIHsKPj4gK8KgwqDCoMKgwqDCoMKgIHN5
+bmNocm9uaXplX25ldCgpOwo+PiArwqDCoMKgwqDCoMKgwqAgZXJyID0gX3ZpcnRuZXRfc2V0X3F1
+ZXVlcyh2aSwgY3Vycl9xcCArIHhkcF9xcCk7Cj4+ICvCoMKgwqDCoMKgwqDCoCBpZiAoZXJyKQo+
+PiArwqDCoMKgwqDCoMKgwqDCoMKgwqDCoCBnb3RvIGVycl9vbGRfcHJvZzsKPj4gK8KgwqDCoMKg
+wqDCoMKgIG5ldGlmX3NldF9yZWFsX251bV9yeF9xdWV1ZXMoZGV2LCBjdXJyX3FwICsgeGRwX3Fw
+KTsKPj4gK8KgwqDCoMKgwqDCoMKgIHZpLT54ZHBfcXVldWVfcGFpcnMgPSB4ZHBfcXA7Cj4+ICvC
+oMKgwqAgfQo+PiArCj4+ICvCoMKgwqAgZm9yIChpID0gMDsgaSA8IHZpLT5tYXhfcXVldWVfcGFp
+cnM7IGkrKykgewo+PiDCoMKgwqDCoMKgwqDCoMKgwqAgaWYgKG9sZF9wcm9nKQo+PiDCoMKgwqDC
+oMKgwqDCoMKgwqDCoMKgwqDCoCBicGZfcHJvZ19wdXQob2xkX3Byb2cpOwo+PiDCoMKgwqDCoMKg
+wqDCoMKgwqAgaWYgKG5ldGlmX3J1bm5pbmcoZGV2KSkgewo+PiBAQCAtMjQ1MCw3ICsyNDY0LDEx
+IEBAIHN0YXRpYyBpbnQgdmlydG5ldF94ZHBfc2V0KHN0cnVjdCBuZXRfZGV2aWNlIAo+PiAqZGV2
+LCBzdHJ1Y3QgYnBmX3Byb2cgKnByb2csCj4+IMKgIMKgwqDCoMKgwqAgcmV0dXJuIDA7Cj4+IMKg
+IC1lcnI6Cj4+ICtlcnJfb2xkX3Byb2c6Cj4+ICvCoMKgwqAgdmlydG5ldF9jbGVhcl9ndWVzdF9v
+ZmZsb2Fkcyh2aSk7Cj4+ICvCoMKgwqAgZm9yIChpID0gMDsgaSA8IHZpLT5tYXhfcXVldWVfcGFp
+cnM7IGkrKykKPj4gK8KgwqDCoMKgwqDCoMKgIHJjdV9hc3NpZ25fcG9pbnRlcih2aS0+cnFbaV0u
+eGRwX3Byb2csIG9sZF9wcm9nKTsKPj4gK2Vycl9uZXdfcHJvZzoKPj4gwqDCoMKgwqDCoCBpZiAo
+bmV0aWZfcnVubmluZyhkZXYpKSB7Cj4+IMKgwqDCoMKgwqDCoMKgwqDCoCBmb3IgKGkgPSAwOyBp
+IDwgdmktPm1heF9xdWV1ZV9wYWlyczsgaSsrKSB7Cj4+IMKgwqDCoMKgwqDCoMKgwqDCoMKgwqDC
+oMKgIHZpcnRuZXRfbmFwaV9lbmFibGUodmktPnJxW2ldLnZxLCAmdmktPnJxW2ldLm5hcGkpOwpf
+X19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fXwpWaXJ0dWFsaXph
+dGlvbiBtYWlsaW5nIGxpc3QKVmlydHVhbGl6YXRpb25AbGlzdHMubGludXgtZm91bmRhdGlvbi5v
+cmcKaHR0cHM6Ly9saXN0cy5saW51eGZvdW5kYXRpb24ub3JnL21haWxtYW4vbGlzdGluZm8vdmly
+dHVhbGl6YXRpb24=
