@@ -1,15 +1,15 @@
 From: Jason Wang <jasowang@redhat.com>
-Subject: Re: [PATCH net 6/7] virtio_net: Use xdp_return_frame to free
-	xdp_frames on destroying vqs
-Date: Thu, 17 Jan 2019 20:56:39 +0800
-Message-ID: <fce18995-52c8-dadd-bab5-4683686e46a8__7842.31525981358$1547755022$gmane$org@redhat.com>
+Subject: Re: [PATCH net 7/7] virtio_net: Differentiate sk_buff and xdp_frame
+	on freeing
+Date: Thu, 17 Jan 2019 21:04:30 +0800
+Message-ID: <669e0ca6-c095-75eb-66ec-b9f3ab5e58de__8037.77320911667$1547755037$gmane$org@redhat.com>
 References: <1547724045-2726-1-git-send-email-makita.toshiaki@lab.ntt.co.jp>
-	<1547724045-2726-7-git-send-email-makita.toshiaki@lab.ntt.co.jp>
+	<1547724045-2726-8-git-send-email-makita.toshiaki@lab.ntt.co.jp>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="utf-8"; Format="flowed"
-Content-Transfer-Encoding: base64
+Content-Type: text/plain; charset="us-ascii"; Format="flowed"
+Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <1547724045-2726-7-git-send-email-makita.toshiaki@lab.ntt.co.jp>
+In-Reply-To: <1547724045-2726-8-git-send-email-makita.toshiaki@lab.ntt.co.jp>
 Content-Language: en-US
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
@@ -21,25 +21,155 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
 To: Toshiaki Makita <makita.toshiaki@lab.ntt.co.jp>, "David S. Miller" <davem@davemloft.net>, "Michael S. Tsirkin" <mst@redhat.com>
-Cc: netdev@vger.kernel.org, Jesper Dangaard Brouer <brouer@redhat.com>, virtualization@lists.linux-foundation.org
+Cc: netdev@vger.kernel.org, virtualization@lists.linux-foundation.org
 List-Id: virtualization@lists.linuxfoundation.org
 
-Ck9uIDIwMTkvMS8xNyDkuIvljYg3OjIwLCBUb3NoaWFraSBNYWtpdGEgd3JvdGU6Cj4gcHV0X3Bh
-Z2UoKSBjYW4gd29yayBhcyBhIGZhbGxiYWNrIGZvciBmcmVlaW5nIHhkcF9mcmFtZXMsIGJ1dCB0
-aGUKPiBhcHByb3ByaWF0ZSB3YXkgaXMgdG8gdXNlIHhkcF9yZXR1cm5fZnJhbWUoKS4KPgo+IEZp
-eGVzOiBjYWMzMjBjODUwZWYgKCJ2aXJ0aW9fbmV0OiBjb252ZXJ0IHRvIHVzZSBnZW5lcmljIHhk
-cF9mcmFtZSBhbmQgeGRwX3JldHVybl9mcmFtZSBBUEkiKQo+IFNpZ25lZC1vZmYtYnk6IFRvc2hp
-YWtpIE1ha2l0YSA8bWFraXRhLnRvc2hpYWtpQGxhYi5udHQuY28uanA+Cj4gLS0tCj4gICBkcml2
-ZXJzL25ldC92aXJ0aW9fbmV0LmMgfCAyICstCj4gICAxIGZpbGUgY2hhbmdlZCwgMSBpbnNlcnRp
-b24oKyksIDEgZGVsZXRpb24oLSkKPgo+IGRpZmYgLS1naXQgYS9kcml2ZXJzL25ldC92aXJ0aW9f
-bmV0LmMgYi9kcml2ZXJzL25ldC92aXJ0aW9fbmV0LmMKPiBpbmRleCBhZTkzZjBlLi45OTZkZTY5
-IDEwMDY0NAo+IC0tLSBhL2RyaXZlcnMvbmV0L3ZpcnRpb19uZXQuYwo+ICsrKyBiL2RyaXZlcnMv
-bmV0L3ZpcnRpb19uZXQuYwo+IEBAIC0yNjY4LDcgKzI2NjgsNyBAQCBzdGF0aWMgdm9pZCBmcmVl
-X3VudXNlZF9idWZzKHN0cnVjdCB2aXJ0bmV0X2luZm8gKnZpKQo+ICAgCQkJaWYgKCFpc194ZHBf
-cmF3X2J1ZmZlcl9xdWV1ZSh2aSwgaSkpCj4gICAJCQkJZGV2X2tmcmVlX3NrYihidWYpOwo+ICAg
-CQkJZWxzZQo+IC0JCQkJcHV0X3BhZ2UodmlydF90b19oZWFkX3BhZ2UoYnVmKSk7Cj4gKwkJCQl4
-ZHBfcmV0dXJuX2ZyYW1lKGJ1Zik7Cj4gICAJCX0KPiAgIAl9Cj4gICAKCgpBY2tlZC1ieTogSmFz
-b24gV2FuZyA8amFzb3dhbmdAcmVkaGF0LmNvbT4KCgpfX19fX19fX19fX19fX19fX19fX19fX19f
-X19fX19fX19fX19fX19fX19fX19fXwpWaXJ0dWFsaXphdGlvbiBtYWlsaW5nIGxpc3QKVmlydHVh
-bGl6YXRpb25AbGlzdHMubGludXgtZm91bmRhdGlvbi5vcmcKaHR0cHM6Ly9saXN0cy5saW51eGZv
-dW5kYXRpb24ub3JnL21haWxtYW4vbGlzdGluZm8vdmlydHVhbGl6YXRpb24=
+
+On 2019/1/17 7:20, Toshiaki Makita wrote:
+> We do not reset or free up unused buffers when enabling/disabling XDP,
+> so it can happen that xdp_frames are freed after disabling XDP or
+> sk_buffs are freed after enabling XDP on xdp tx queues.
+> Thus we need to handle both forms (xdp_frames and sk_buffs) regardless
+> of XDP setting.
+> One way to trigger this problem is to disable XDP when napi_tx is
+> enabled. In that case, virtnet_xdp_set() calls virtnet_napi_enable()
+> which kicks NAPI. The NAPI handler will call virtnet_poll_cleantx()
+> which invokes free_old_xmit_skbs() for queues which have been used by
+> XDP.
+>
+> Note that even with this change we need to keep skipping
+> free_old_xmit_skbs() from NAPI handlers when XDP is enabled, because XDP
+> tx queues do not aquire queue locks.
+>
+> Fixes: 4941d472bf95 ("virtio-net: do not reset during XDP set")
+> Signed-off-by: Toshiaki Makita <makita.toshiaki@lab.ntt.co.jp>
+> ---
+>   drivers/net/virtio_net.c | 54 +++++++++++++++++++++++++++++++++++++-----------
+>   1 file changed, 42 insertions(+), 12 deletions(-)
+>
+> diff --git a/drivers/net/virtio_net.c b/drivers/net/virtio_net.c
+> index 996de69..6598c25 100644
+> --- a/drivers/net/virtio_net.c
+> +++ b/drivers/net/virtio_net.c
+> @@ -57,6 +57,8 @@
+>   #define VIRTIO_XDP_TX		BIT(0)
+>   #define VIRTIO_XDP_REDIR	BIT(1)
+>   
+> +#define VIRTIO_XDP_FLAG	BIT(0)
+> +
+>   /* RX packet size EWMA. The average packet size is used to determine the packet
+>    * buffer size when refilling RX rings. As the entire RX ring may be refilled
+>    * at once, the weight is chosen so that the EWMA will be insensitive to short-
+> @@ -252,6 +254,21 @@ struct padded_vnet_hdr {
+>   	char padding[4];
+>   };
+>   
+> +static bool is_xdp_frame(void *ptr)
+> +{
+> +	return (unsigned long)ptr & VIRTIO_XDP_FLAG;
+> +}
+> +
+> +static void *xdp_to_ptr(struct xdp_frame *ptr)
+> +{
+> +	return (void *)((unsigned long)ptr | VIRTIO_XDP_FLAG);
+> +}
+> +
+> +static struct xdp_frame *ptr_to_xdp(void *ptr)
+> +{
+> +	return (struct xdp_frame *)((unsigned long)ptr & ~VIRTIO_XDP_FLAG);
+> +}
+> +
+>   /* Converting between virtqueue no. and kernel tx/rx queue no.
+>    * 0:rx0 1:tx0 2:rx1 3:tx1 ... 2N:rxN 2N+1:txN 2N+2:cvq
+>    */
+> @@ -462,7 +479,8 @@ static int __virtnet_xdp_xmit_one(struct virtnet_info *vi,
+>   
+>   	sg_init_one(sq->sg, xdpf->data, xdpf->len);
+>   
+> -	err = virtqueue_add_outbuf(sq->vq, sq->sg, 1, xdpf, GFP_ATOMIC);
+> +	err = virtqueue_add_outbuf(sq->vq, sq->sg, 1, xdp_to_ptr(xdpf),
+> +				   GFP_ATOMIC);
+>   	if (unlikely(err))
+>   		return -ENOSPC; /* Caller handle free/refcnt */
+>   
+> @@ -482,13 +500,13 @@ static int virtnet_xdp_xmit(struct net_device *dev,
+>   {
+>   	struct virtnet_info *vi = netdev_priv(dev);
+>   	struct receive_queue *rq = vi->rq;
+> -	struct xdp_frame *xdpf_sent;
+>   	struct bpf_prog *xdp_prog;
+>   	struct send_queue *sq;
+>   	unsigned int len;
+>   	int drops = 0;
+>   	int kicks = 0;
+>   	int ret, err;
+> +	void *ptr;
+>   	int i;
+>   
+>   	/* Only allow ndo_xdp_xmit if XDP is loaded on dev, as this
+> @@ -507,8 +525,12 @@ static int virtnet_xdp_xmit(struct net_device *dev,
+>   	}
+>   
+>   	/* Free up any pending old buffers before queueing new ones. */
+> -	while ((xdpf_sent = virtqueue_get_buf(sq->vq, &len)) != NULL)
+> -		xdp_return_frame(xdpf_sent);
+> +	while ((ptr = virtqueue_get_buf(sq->vq, &len)) != NULL) {
+> +		if (likely(is_xdp_frame(ptr)))
+> +			xdp_return_frame(ptr_to_xdp(ptr));
+> +		else
+> +			dev_consume_skb_any(ptr);
+> +	}
+>   
+>   	for (i = 0; i < n; i++) {
+>   		struct xdp_frame *xdpf = frames[i];
+> @@ -1329,18 +1351,26 @@ static int virtnet_receive(struct receive_queue *rq, int budget,
+>   
+>   static void free_old_xmit_skbs(struct send_queue *sq)
+>   {
+> -	struct sk_buff *skb;
+>   	unsigned int len;
+>   	unsigned int packets = 0;
+>   	unsigned int bytes = 0;
+> +	void *ptr;
+>   
+> -	while ((skb = virtqueue_get_buf(sq->vq, &len)) != NULL) {
+> -		pr_debug("Sent skb %p\n", skb);
+> +	while ((ptr = virtqueue_get_buf(sq->vq, &len)) != NULL) {
+> +		if (likely(!is_xdp_frame(ptr))) {
+> +			struct sk_buff *skb = ptr;
+>   
+> -		bytes += skb->len;
+> -		packets++;
+> +			pr_debug("Sent skb %p\n", skb);
+>   
+> -		dev_consume_skb_any(skb);
+> +			bytes += skb->len;
+> +			dev_consume_skb_any(skb);
+> +		} else {
+> +			struct xdp_frame *frame = ptr_to_xdp(ptr);
+> +
+> +			bytes += frame->len;
+> +			xdp_return_frame(frame);
+> +		}
+> +		packets++;
+>   	}
+>   
+>   	/* Avoid overhead when no packets have been processed
+> @@ -2665,10 +2695,10 @@ static void free_unused_bufs(struct virtnet_info *vi)
+>   	for (i = 0; i < vi->max_queue_pairs; i++) {
+>   		struct virtqueue *vq = vi->sq[i].vq;
+>   		while ((buf = virtqueue_detach_unused_buf(vq)) != NULL) {
+> -			if (!is_xdp_raw_buffer_queue(vi, i))
+> +			if (!is_xdp_frame(buf))
+>   				dev_kfree_skb(buf);
+>   			else
+> -				xdp_return_frame(buf);
+> +				xdp_return_frame(ptr_to_xdp(buf));
+>   		}
+>   	}
+>   
+
+
+Acked-by: Jason Wang <jasowang@redhat.com>
+
+Thanks!
