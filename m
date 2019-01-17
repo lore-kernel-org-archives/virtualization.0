@@ -1,16 +1,14 @@
-From: Jesper Dangaard Brouer <brouer@redhat.com>
-Subject: Re: [PATCH net 6/7] virtio_net: Use xdp_return_frame to free
-	xdp_frames on destroying vqs
-Date: Thu, 17 Jan 2019 14:39:13 +0100
-Message-ID: <20190117143913.7c178e2f__5689.67247750169$1547755126$gmane$org@redhat.com>
+From: "Michael S. Tsirkin" <mst@redhat.com>
+Subject: Re: [PATCH net 0/7] virtio_net: Fix problems around XDP tx and napi_tx
+Date: Thu, 17 Jan 2019 09:55:35 -0500
+Message-ID: <20190117095243-mutt-send-email-mst__18519.7392748252$1547755155$gmane$org@kernel.org>
 References: <1547724045-2726-1-git-send-email-makita.toshiaki@lab.ntt.co.jp>
-	<1547724045-2726-7-git-send-email-makita.toshiaki@lab.ntt.co.jp>
-	<fce18995-52c8-dadd-bab5-4683686e46a8@redhat.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="utf-8"
-Content-Transfer-Encoding: base64
+Content-Type: text/plain; charset="us-ascii"
+Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <fce18995-52c8-dadd-bab5-4683686e46a8@redhat.com>
+Content-Disposition: inline
+In-Reply-To: <1547724045-2726-1-git-send-email-makita.toshiaki@lab.ntt.co.jp>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -20,34 +18,47 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Jason Wang <jasowang@redhat.com>
-Cc: "Michael S. Tsirkin" <mst@redhat.com>, netdev@vger.kernel.org, virtualization@lists.linux-foundation.org, brouer@redhat.com, "David S. Miller" <davem@davemloft.net>
+To: Toshiaki Makita <makita.toshiaki@lab.ntt.co.jp>
+Cc: Willem de Bruijn <willemb@google.com>, netdev@vger.kernel.org, virtualization@lists.linux-foundation.org, Jesper Dangaard Brouer <brouer@redhat.com>, "David S. Miller" <davem@davemloft.net>
 List-Id: virtualization@lists.linuxfoundation.org
 
-T24gVGh1LCAxNyBKYW4gMjAxOSAyMDo1NjozOSArMDgwMApKYXNvbiBXYW5nIDxqYXNvd2FuZ0By
-ZWRoYXQuY29tPiB3cm90ZToKCj4gT24gMjAxOS8xLzE3IOS4i+WNiDc6MjAsIFRvc2hpYWtpIE1h
-a2l0YSB3cm90ZToKPiA+IHB1dF9wYWdlKCkgY2FuIHdvcmsgYXMgYSBmYWxsYmFjayBmb3IgZnJl
-ZWluZyB4ZHBfZnJhbWVzLCBidXQgdGhlCj4gPiBhcHByb3ByaWF0ZSB3YXkgaXMgdG8gdXNlIHhk
-cF9yZXR1cm5fZnJhbWUoKS4KPiA+Cj4gPiBGaXhlczogY2FjMzIwYzg1MGVmICgidmlydGlvX25l
-dDogY29udmVydCB0byB1c2UgZ2VuZXJpYyB4ZHBfZnJhbWUgYW5kIHhkcF9yZXR1cm5fZnJhbWUg
-QVBJIikKPiA+IFNpZ25lZC1vZmYtYnk6IFRvc2hpYWtpIE1ha2l0YSA8bWFraXRhLnRvc2hpYWtp
-QGxhYi5udHQuY28uanA+Cj4gPiAtLS0KPiA+ICAgZHJpdmVycy9uZXQvdmlydGlvX25ldC5jIHwg
-MiArLQo+ID4gICAxIGZpbGUgY2hhbmdlZCwgMSBpbnNlcnRpb24oKyksIDEgZGVsZXRpb24oLSkK
-PiA+Cj4gPiBkaWZmIC0tZ2l0IGEvZHJpdmVycy9uZXQvdmlydGlvX25ldC5jIGIvZHJpdmVycy9u
-ZXQvdmlydGlvX25ldC5jCj4gPiBpbmRleCBhZTkzZjBlLi45OTZkZTY5IDEwMDY0NAo+ID4gLS0t
-IGEvZHJpdmVycy9uZXQvdmlydGlvX25ldC5jCj4gPiArKysgYi9kcml2ZXJzL25ldC92aXJ0aW9f
-bmV0LmMKPiA+IEBAIC0yNjY4LDcgKzI2NjgsNyBAQCBzdGF0aWMgdm9pZCBmcmVlX3VudXNlZF9i
-dWZzKHN0cnVjdCB2aXJ0bmV0X2luZm8gKnZpKQo+ID4gICAJCQlpZiAoIWlzX3hkcF9yYXdfYnVm
-ZmVyX3F1ZXVlKHZpLCBpKSkKPiA+ICAgCQkJCWRldl9rZnJlZV9za2IoYnVmKTsKPiA+ICAgCQkJ
-ZWxzZQo+ID4gLQkJCQlwdXRfcGFnZSh2aXJ0X3RvX2hlYWRfcGFnZShidWYpKTsKPiA+ICsJCQkJ
-eGRwX3JldHVybl9mcmFtZShidWYpOwoKSSBhc3N1bWUgdGhlIGlzX3hkcF9yYXdfYnVmZmVyX3F1
-ZXVlKCkgdGVzdCBhc3N1cmVzIHRoYXQgdGhpcyB2b2lkICpidWYKaXMgYSBzdHJ1Y3QgeGRwX2Zy
-YW1lLgoKPiA+ICAgCQl9Cj4gPiAgIAl9Cj4gPiAgICAgCj4gCj4gCj4gQWNrZWQtYnk6IEphc29u
-IFdhbmcgPGphc293YW5nQHJlZGhhdC5jb20+CgpBY2tlZC1ieTogSmVzcGVyIERhbmdhYXJkIEJy
-b3VlciA8YnJvdWVyQHJlZGhhdC5jb20+CgotLSAKQmVzdCByZWdhcmRzLAogIEplc3BlciBEYW5n
-YWFyZCBCcm91ZXIKICBNU2MuQ1MsIFByaW5jaXBhbCBLZXJuZWwgRW5naW5lZXIgYXQgUmVkIEhh
-dAogIExpbmtlZEluOiBodHRwOi8vd3d3LmxpbmtlZGluLmNvbS9pbi9icm91ZXIKX19fX19fX19f
-X19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX18KVmlydHVhbGl6YXRpb24gbWFp
-bGluZyBsaXN0ClZpcnR1YWxpemF0aW9uQGxpc3RzLmxpbnV4LWZvdW5kYXRpb24ub3JnCmh0dHBz
-Oi8vbGlzdHMubGludXhmb3VuZGF0aW9uLm9yZy9tYWlsbWFuL2xpc3RpbmZvL3ZpcnR1YWxpemF0
-aW9u
+On Thu, Jan 17, 2019 at 08:20:38PM +0900, Toshiaki Makita wrote:
+> While I'm looking into how to account standard tx counters on XDP tx
+> processing, I found several bugs around XDP tx and napi_tx.
+> 
+> Patch1: Fix oops on error path. Patch2 depends on this.
+> Patch2: Fix memory corruption on freeing xdp_frames with napi_tx enabled.
+> Patch3: Minor fix patch5 depends on.
+> Patch4: Fix memory corruption on processing xdp_frames when XDP is disabled.
+>   Also patch5 depends on this.
+> Patch5: Fix memory corruption on processing xdp_frames while XDP is being
+>   disabled.
+> Patch6: Minor fix patch7 depends on.
+> Patch7: Fix memory corruption on freeing sk_buff or xdp_frames when a normal
+>   queue is reused for XDP and vise versa.
+> 
+> Signed-off-by: Toshiaki Makita <makita.toshiaki@lab.ntt.co.jp>
+
+Series:
+
+Acked-by: Michael S. Tsirkin <mst@redhat.com>
+
+I guess we need this stuff on stable?
+I'm especially happy with Patch7 as it makes my BQL
+work a bit easier.
+
+> Toshiaki Makita (7):
+>   virtio_net: Don't enable NAPI when interface is down
+>   virtio_net: Don't call free_old_xmit_skbs for xdp_frames
+>   virtio_net: Fix not restoring real_num_rx_queues
+>   virtio_net: Fix out of bounds access of sq
+>   virtio_net: Don't process redirected XDP frames when XDP is disabled
+>   virtio_net: Use xdp_return_frame to free xdp_frames on destroying vqs
+>   virtio_net: Differentiate sk_buff and xdp_frame on freeing
+> 
+>  drivers/net/virtio_net.c | 154 +++++++++++++++++++++++++++++++++--------------
+>  1 file changed, 109 insertions(+), 45 deletions(-)
+> 
+> -- 
+> 1.8.3.1
+> 
