@@ -1,14 +1,14 @@
-From: Gerd Hoffmann <kraxel@redhat.com>
-Subject: [PATCH v4 12/16] drm/bochs: move ttm_bo_(un)reserve calls into
-	bochs_bo_{pin, unpin}
-Date: Fri, 11 Jan 2019 06:37:48 +0100
-Message-ID: <20190111053752.4004-13-kraxel__5388.8107221157$1547693745$gmane$org@redhat.com>
-References: <20190111053752.4004-1-kraxel@redhat.com>
+From: Toshiaki Makita <makita.toshiaki@lab.ntt.co.jp>
+Subject: [PATCH net 2/7] virtio_net: Don't call free_old_xmit_skbs for
+	xdp_frames
+Date: Thu, 17 Jan 2019 20:20:40 +0900
+Message-ID: <1547724045-2726-3-git-send-email-makita.toshiaki__9412.03572224385$1547754813$gmane$org@lab.ntt.co.jp>
+References: <1547724045-2726-1-git-send-email-makita.toshiaki@lab.ntt.co.jp>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <20190111053752.4004-1-kraxel@redhat.com>
+In-Reply-To: <1547724045-2726-1-git-send-email-makita.toshiaki@lab.ntt.co.jp>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -18,117 +18,141 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: dri-devel@lists.freedesktop.org, David Airlie <airlied@redhat.com>
-Cc: andr2000@gmail.com, open list <linux-kernel@vger.kernel.org>, "open list:DRM DRIVER FOR BOCHS VIRTUAL GPU" <virtualization@lists.linux-foundation.org>, David Airlie <airlied@linux.ie>, noralf@tronnes.org
+To: "David S. Miller" <davem@davemloft.net>, "Michael S. Tsirkin" <mst@redhat.com>, Jason Wang <jasowang@redhat.com>
+Cc: netdev@vger.kernel.org, Willem de Bruijn <willemb@google.com>, virtualization@lists.linux-foundation.org
 List-Id: virtualization@lists.linuxfoundation.org
 
-Signed-off-by: Gerd Hoffmann <kraxel@redhat.com>
-Acked-by: Daniel Vetter <daniel.vetter@ffwll.ch>
----
- drivers/gpu/drm/bochs/bochs_fbdev.c |  8 --------
- drivers/gpu/drm/bochs/bochs_kms.c   | 14 +-------------
- drivers/gpu/drm/bochs/bochs_mm.c    |  8 ++++++++
- 3 files changed, 9 insertions(+), 21 deletions(-)
+When napi_tx is enabled, virtnet_poll_cleantx() called
+free_old_xmit_skbs() even for xdp send queue.
+This is bogus since the queue has xdp_frames, not sk_buffs, thus mangled
+device tx bytes counters because skb->len is meaningless value, and even
+triggered oops due to general protection fault on freeing them.
 
-diff --git a/drivers/gpu/drm/bochs/bochs_fbdev.c b/drivers/gpu/drm/bochs/bochs_fbdev.c
-index 92feb817ff..ccf783b038 100644
---- a/drivers/gpu/drm/bochs/bochs_fbdev.c
-+++ b/drivers/gpu/drm/bochs/bochs_fbdev.c
-@@ -77,14 +77,9 @@ static int bochsfb_create(struct drm_fb_helper *helper,
- 
- 	bo = gem_to_bochs_bo(gobj);
- 
--	ret = ttm_bo_reserve(&bo->bo, true, false, NULL);
--	if (ret)
--		return ret;
--
- 	ret = bochs_bo_pin(bo, TTM_PL_FLAG_VRAM);
- 	if (ret) {
- 		DRM_ERROR("failed to pin fbcon\n");
--		ttm_bo_unreserve(&bo->bo);
- 		return ret;
- 	}
- 
-@@ -92,12 +87,9 @@ static int bochsfb_create(struct drm_fb_helper *helper,
- 			  &bo->kmap);
- 	if (ret) {
- 		DRM_ERROR("failed to kmap fbcon\n");
--		ttm_bo_unreserve(&bo->bo);
- 		return ret;
- 	}
- 
--	ttm_bo_unreserve(&bo->bo);
--
- 	/* init fb device */
- 	info = drm_fb_helper_alloc_fbi(helper);
- 	if (IS_ERR(info)) {
-diff --git a/drivers/gpu/drm/bochs/bochs_kms.c b/drivers/gpu/drm/bochs/bochs_kms.c
-index f663c54185..fc856a02a2 100644
---- a/drivers/gpu/drm/bochs/bochs_kms.c
-+++ b/drivers/gpu/drm/bochs/bochs_kms.c
-@@ -92,34 +92,22 @@ static int bochs_plane_prepare_fb(struct drm_plane *plane,
- 				struct drm_plane_state *new_state)
- {
- 	struct bochs_bo *bo;
--	int ret;
- 
- 	if (!new_state->fb)
- 		return 0;
- 	bo = gem_to_bochs_bo(new_state->fb->obj[0]);
--
--	ret = ttm_bo_reserve(&bo->bo, true, false, NULL);
--	if (ret)
--		return ret;
--	ret = bochs_bo_pin(bo, TTM_PL_FLAG_VRAM);
--	ttm_bo_unreserve(&bo->bo);
--	return ret;
-+	return bochs_bo_pin(bo, TTM_PL_FLAG_VRAM);
+Since xdp send queues do not aquire locks, old xdp_frames should be
+freed only in virtnet_xdp_xmit(), so just skip free_old_xmit_skbs() for
+xdp send queues.
+
+Similarly virtnet_poll_tx() called free_old_xmit_skbs(). This NAPI
+handler is called even without calling start_xmit() because cb for tx is
+by default enabled. Once the handler is called, it enabled the cb again,
+and then the handler would be called again. We don't need this handler
+for XDP, so don't enable cb as well as not calling free_old_xmit_skbs().
+
+Also, we need to disable tx NAPI when disabling XDP, so
+virtnet_poll_tx() can safely access curr_queue_pairs and
+xdp_queue_pairs, which are not atomically updated while disabling XDP.
+
+Fixes: b92f1e6751a6 ("virtio-net: transmit napi")
+Fixes: 7b0411ef4aa6 ("virtio-net: clean tx descriptors from rx napi")
+Signed-off-by: Toshiaki Makita <makita.toshiaki@lab.ntt.co.jp>
+---
+ drivers/net/virtio_net.c | 49 ++++++++++++++++++++++++++++++++----------------
+ 1 file changed, 33 insertions(+), 16 deletions(-)
+
+diff --git a/drivers/net/virtio_net.c b/drivers/net/virtio_net.c
+index a08da9e..7d35e6d 100644
+--- a/drivers/net/virtio_net.c
++++ b/drivers/net/virtio_net.c
+@@ -1358,6 +1358,16 @@ static void free_old_xmit_skbs(struct send_queue *sq)
+ 	u64_stats_update_end(&sq->stats.syncp);
  }
  
- static void bochs_plane_cleanup_fb(struct drm_plane *plane,
- 				   struct drm_plane_state *old_state)
++static bool is_xdp_raw_buffer_queue(struct virtnet_info *vi, int q)
++{
++	if (q < (vi->curr_queue_pairs - vi->xdp_queue_pairs))
++		return false;
++	else if (q < vi->curr_queue_pairs)
++		return true;
++	else
++		return false;
++}
++
+ static void virtnet_poll_cleantx(struct receive_queue *rq)
  {
- 	struct bochs_bo *bo;
--	int ret;
+ 	struct virtnet_info *vi = rq->vq->vdev->priv;
+@@ -1365,7 +1375,7 @@ static void virtnet_poll_cleantx(struct receive_queue *rq)
+ 	struct send_queue *sq = &vi->sq[index];
+ 	struct netdev_queue *txq = netdev_get_tx_queue(vi->dev, index);
  
- 	if (!old_state->fb)
+-	if (!sq->napi.weight)
++	if (!sq->napi.weight || is_xdp_raw_buffer_queue(vi, index))
  		return;
- 	bo = gem_to_bochs_bo(old_state->fb->obj[0]);
--	ret = ttm_bo_reserve(&bo->bo, true, false, NULL);
--	if (ret)
--		return;
- 	bochs_bo_unpin(bo);
--	ttm_bo_unreserve(&bo->bo);
+ 
+ 	if (__netif_tx_trylock(txq)) {
+@@ -1442,8 +1452,16 @@ static int virtnet_poll_tx(struct napi_struct *napi, int budget)
+ {
+ 	struct send_queue *sq = container_of(napi, struct send_queue, napi);
+ 	struct virtnet_info *vi = sq->vq->vdev->priv;
+-	struct netdev_queue *txq = netdev_get_tx_queue(vi->dev, vq2txq(sq->vq));
++	unsigned int index = vq2txq(sq->vq);
++	struct netdev_queue *txq;
+ 
++	if (unlikely(is_xdp_raw_buffer_queue(vi, index))) {
++		/* We don't need to enable cb for XDP */
++		napi_complete_done(napi, 0);
++		return 0;
++	}
++
++	txq = netdev_get_tx_queue(vi->dev, index);
+ 	__netif_tx_lock(txq, raw_smp_processor_id());
+ 	free_old_xmit_skbs(sq);
+ 	__netif_tx_unlock(txq);
+@@ -2402,9 +2420,12 @@ static int virtnet_xdp_set(struct net_device *dev, struct bpf_prog *prog,
+ 	}
+ 
+ 	/* Make sure NAPI is not using any XDP TX queues for RX. */
+-	if (netif_running(dev))
+-		for (i = 0; i < vi->max_queue_pairs; i++)
++	if (netif_running(dev)) {
++		for (i = 0; i < vi->max_queue_pairs; i++) {
+ 			napi_disable(&vi->rq[i].napi);
++			virtnet_napi_tx_disable(&vi->sq[i].napi);
++		}
++	}
+ 
+ 	netif_set_real_num_rx_queues(dev, curr_qp + xdp_qp);
+ 	err = _virtnet_set_queues(vi, curr_qp + xdp_qp);
+@@ -2423,16 +2444,22 @@ static int virtnet_xdp_set(struct net_device *dev, struct bpf_prog *prog,
+ 		}
+ 		if (old_prog)
+ 			bpf_prog_put(old_prog);
+-		if (netif_running(dev))
++		if (netif_running(dev)) {
+ 			virtnet_napi_enable(vi->rq[i].vq, &vi->rq[i].napi);
++			virtnet_napi_tx_enable(vi, vi->sq[i].vq,
++					       &vi->sq[i].napi);
++		}
+ 	}
+ 
+ 	return 0;
+ 
+ err:
+ 	if (netif_running(dev)) {
+-		for (i = 0; i < vi->max_queue_pairs; i++)
++		for (i = 0; i < vi->max_queue_pairs; i++) {
+ 			virtnet_napi_enable(vi->rq[i].vq, &vi->rq[i].napi);
++			virtnet_napi_tx_enable(vi, vi->sq[i].vq,
++					       &vi->sq[i].napi);
++		}
+ 	}
+ 	if (prog)
+ 		bpf_prog_sub(prog, vi->max_queue_pairs - 1);
+@@ -2615,16 +2642,6 @@ static void free_receive_page_frags(struct virtnet_info *vi)
+ 			put_page(vi->rq[i].alloc_frag.page);
  }
  
- static const struct drm_plane_helper_funcs bochs_plane_helper_funcs = {
-diff --git a/drivers/gpu/drm/bochs/bochs_mm.c b/drivers/gpu/drm/bochs/bochs_mm.c
-index 5a0e092847..fcbf35456d 100644
---- a/drivers/gpu/drm/bochs/bochs_mm.c
-+++ b/drivers/gpu/drm/bochs/bochs_mm.c
-@@ -223,7 +223,11 @@ int bochs_bo_pin(struct bochs_bo *bo, u32 pl_flag)
- 	bochs_ttm_placement(bo, pl_flag);
- 	for (i = 0; i < bo->placement.num_placement; i++)
- 		bo->placements[i].flags |= TTM_PL_FLAG_NO_EVICT;
-+	ret = ttm_bo_reserve(&bo->bo, true, false, NULL);
-+	if (ret)
-+		return ret;
- 	ret = ttm_bo_validate(&bo->bo, &bo->placement, &ctx);
-+	ttm_bo_unreserve(&bo->bo);
- 	if (ret)
- 		return ret;
- 
-@@ -247,7 +251,11 @@ int bochs_bo_unpin(struct bochs_bo *bo)
- 
- 	for (i = 0; i < bo->placement.num_placement; i++)
- 		bo->placements[i].flags &= ~TTM_PL_FLAG_NO_EVICT;
-+	ret = ttm_bo_reserve(&bo->bo, true, false, NULL);
-+	if (ret)
-+		return ret;
- 	ret = ttm_bo_validate(&bo->bo, &bo->placement, &ctx);
-+	ttm_bo_unreserve(&bo->bo);
- 	if (ret)
- 		return ret;
- 
+-static bool is_xdp_raw_buffer_queue(struct virtnet_info *vi, int q)
+-{
+-	if (q < (vi->curr_queue_pairs - vi->xdp_queue_pairs))
+-		return false;
+-	else if (q < vi->curr_queue_pairs)
+-		return true;
+-	else
+-		return false;
+-}
+-
+ static void free_unused_bufs(struct virtnet_info *vi)
+ {
+ 	void *buf;
 -- 
-2.9.3
+1.8.3.1
