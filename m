@@ -1,15 +1,16 @@
-From: "Michael S. Tsirkin" <mst@redhat.com>
-Subject: Re: [PATCH net-next] virtio_net: bulk free tx skbs
-Date: Thu, 17 Jan 2019 08:34:56 -0500
-Message-ID: <20190117083429-mutt-send-email-mst__27018.2005399422$1547755105$gmane$org@kernel.org>
-References: <20190115012847.14730-1-mst@redhat.com>
-	<20190116.153158.1210819126964530944.davem@davemloft.net>
+From: Jesper Dangaard Brouer <brouer@redhat.com>
+Subject: Re: [PATCH net 6/7] virtio_net: Use xdp_return_frame to free
+	xdp_frames on destroying vqs
+Date: Thu, 17 Jan 2019 14:39:13 +0100
+Message-ID: <20190117143913.7c178e2f__5689.67247750169$1547755126$gmane$org@redhat.com>
+References: <1547724045-2726-1-git-send-email-makita.toshiaki@lab.ntt.co.jp>
+	<1547724045-2726-7-git-send-email-makita.toshiaki@lab.ntt.co.jp>
+	<fce18995-52c8-dadd-bab5-4683686e46a8@redhat.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="utf-8"
 Content-Transfer-Encoding: base64
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-Content-Disposition: inline
-In-Reply-To: <20190116.153158.1210819126964530944.davem@davemloft.net>
+In-Reply-To: <fce18995-52c8-dadd-bab5-4683686e46a8@redhat.com>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -19,29 +20,34 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: David Miller <davem@davemloft.net>
-Cc: netdev@vger.kernel.org, linux-kernel@vger.kernel.org, virtualization@lists.linux-foundation.org
+To: Jason Wang <jasowang@redhat.com>
+Cc: "Michael S. Tsirkin" <mst@redhat.com>, netdev@vger.kernel.org, virtualization@lists.linux-foundation.org, brouer@redhat.com, "David S. Miller" <davem@davemloft.net>
 List-Id: virtualization@lists.linuxfoundation.org
 
-T24gV2VkLCBKYW4gMTYsIDIwMTkgYXQgMDM6MzE6NThQTSAtMDgwMCwgRGF2aWQgTWlsbGVyIHdy
-b3RlOgo+IEZyb206ICJNaWNoYWVsIFMuIFRzaXJraW4iIDxtc3RAcmVkaGF0LmNvbT4KPiBEYXRl
-OiBNb24sIDE0IEphbiAyMDE5IDIwOjM0OjI2IC0wNTAwCj4gCj4gPiBVc2UgbmFwaV9jb25zdW1l
-X3NrYigpIHRvIGdldCBidWxrIGZyZWUuICBOb3RlIHRoYXQgbmFwaV9jb25zdW1lX3NrYiBpcwo+
-ID4gc2FmZSB0byBjYWxsIGluIGEgbm9uLW5hcGkgY29udGV4dCBhcyBsb25nIGFzIHRoZSBuYXBp
-X2J1ZGdldCBmbGFnIGlzCj4gPiBjb3JyZWN0Lgo+ID4gCj4gPiBTaWduZWQtb2ZmLWJ5OiBNaWNo
-YWVsIFMuIFRzaXJraW4gPG1zdEByZWRoYXQuY29tPgo+ID4gLS0tCj4gPiAKPiA+IE15IHBlcmYg
-dGVzdGluZyBzZXR1cCBpcyBkb3duIGJ1dCBpdCB3b3JrcyBmaW5lIG9uIG15IGRldmVsIGJveCBh
-bmQKPiA+IHNob3VsZCBiZSBmYWlybHkgdW5jb250cm92ZXJzaWFsLgo+IAo+IEl0IHdvdWxkIGJl
-IHVuY29udHJvdmVyc2lhbCBpZiBpdCBjb21waWxlZC4KPiAKPiBkcml2ZXJzL25ldC92aXJ0aW9f
-bmV0LmM6IEluIGZ1bmN0aW9uIOKAmGZyZWVfb2xkX3htaXRfc2tic+KAmToKPiBkcml2ZXJzL25l
-dC92aXJ0aW9fbmV0LmM6MTM0NjoyNTogZXJyb3I6IOKAmHVzZV9uYXBp4oCZIHVuZGVjbGFyZWQg
-KGZpcnN0IHVzZSBpbiB0aGlzIGZ1bmN0aW9uKTsgZGlkIHlvdSBtZWFuIOKAmHVzZWRfbWF0aOKA
-mT8KPiAgICBuYXBpX2NvbnN1bWVfc2tiKHNrYiwgdXNlX25hcGkpOwo+ICAgICAgICAgICAgICAg
-ICAgICAgICAgICBefn5+fn5+fgo+ICAgICAgICAgICAgICAgICAgICAgICAgICB1c2VkX21hdGgK
-PiBkcml2ZXJzL25ldC92aXJ0aW9fbmV0LmM6MTM0NjoyNTogbm90ZTogZWFjaCB1bmRlY2xhcmVk
-IGlkZW50aWZpZXIgaXMgcmVwb3J0ZWQgb25seSBvbmNlIGZvciBlYWNoIGZ1bmN0aW9uIGl0IGFw
-cGVhcnMgaW4KClllcyBteSBiYWQgaXQgd2FzIG9uIHRvcCBvZiBvdGhlciBwYXRjaGVzLgpJJ20g
-cmViYXNpbmcgYW5kIHdpbGwgcmVwb3N0LgoKLS0gCk1TVApfX19fX19fX19fX19fX19fX19fX19f
-X19fX19fX19fX19fX19fX19fX19fX19fXwpWaXJ0dWFsaXphdGlvbiBtYWlsaW5nIGxpc3QKVmly
-dHVhbGl6YXRpb25AbGlzdHMubGludXgtZm91bmRhdGlvbi5vcmcKaHR0cHM6Ly9saXN0cy5saW51
-eGZvdW5kYXRpb24ub3JnL21haWxtYW4vbGlzdGluZm8vdmlydHVhbGl6YXRpb24=
+T24gVGh1LCAxNyBKYW4gMjAxOSAyMDo1NjozOSArMDgwMApKYXNvbiBXYW5nIDxqYXNvd2FuZ0By
+ZWRoYXQuY29tPiB3cm90ZToKCj4gT24gMjAxOS8xLzE3IOS4i+WNiDc6MjAsIFRvc2hpYWtpIE1h
+a2l0YSB3cm90ZToKPiA+IHB1dF9wYWdlKCkgY2FuIHdvcmsgYXMgYSBmYWxsYmFjayBmb3IgZnJl
+ZWluZyB4ZHBfZnJhbWVzLCBidXQgdGhlCj4gPiBhcHByb3ByaWF0ZSB3YXkgaXMgdG8gdXNlIHhk
+cF9yZXR1cm5fZnJhbWUoKS4KPiA+Cj4gPiBGaXhlczogY2FjMzIwYzg1MGVmICgidmlydGlvX25l
+dDogY29udmVydCB0byB1c2UgZ2VuZXJpYyB4ZHBfZnJhbWUgYW5kIHhkcF9yZXR1cm5fZnJhbWUg
+QVBJIikKPiA+IFNpZ25lZC1vZmYtYnk6IFRvc2hpYWtpIE1ha2l0YSA8bWFraXRhLnRvc2hpYWtp
+QGxhYi5udHQuY28uanA+Cj4gPiAtLS0KPiA+ICAgZHJpdmVycy9uZXQvdmlydGlvX25ldC5jIHwg
+MiArLQo+ID4gICAxIGZpbGUgY2hhbmdlZCwgMSBpbnNlcnRpb24oKyksIDEgZGVsZXRpb24oLSkK
+PiA+Cj4gPiBkaWZmIC0tZ2l0IGEvZHJpdmVycy9uZXQvdmlydGlvX25ldC5jIGIvZHJpdmVycy9u
+ZXQvdmlydGlvX25ldC5jCj4gPiBpbmRleCBhZTkzZjBlLi45OTZkZTY5IDEwMDY0NAo+ID4gLS0t
+IGEvZHJpdmVycy9uZXQvdmlydGlvX25ldC5jCj4gPiArKysgYi9kcml2ZXJzL25ldC92aXJ0aW9f
+bmV0LmMKPiA+IEBAIC0yNjY4LDcgKzI2NjgsNyBAQCBzdGF0aWMgdm9pZCBmcmVlX3VudXNlZF9i
+dWZzKHN0cnVjdCB2aXJ0bmV0X2luZm8gKnZpKQo+ID4gICAJCQlpZiAoIWlzX3hkcF9yYXdfYnVm
+ZmVyX3F1ZXVlKHZpLCBpKSkKPiA+ICAgCQkJCWRldl9rZnJlZV9za2IoYnVmKTsKPiA+ICAgCQkJ
+ZWxzZQo+ID4gLQkJCQlwdXRfcGFnZSh2aXJ0X3RvX2hlYWRfcGFnZShidWYpKTsKPiA+ICsJCQkJ
+eGRwX3JldHVybl9mcmFtZShidWYpOwoKSSBhc3N1bWUgdGhlIGlzX3hkcF9yYXdfYnVmZmVyX3F1
+ZXVlKCkgdGVzdCBhc3N1cmVzIHRoYXQgdGhpcyB2b2lkICpidWYKaXMgYSBzdHJ1Y3QgeGRwX2Zy
+YW1lLgoKPiA+ICAgCQl9Cj4gPiAgIAl9Cj4gPiAgICAgCj4gCj4gCj4gQWNrZWQtYnk6IEphc29u
+IFdhbmcgPGphc293YW5nQHJlZGhhdC5jb20+CgpBY2tlZC1ieTogSmVzcGVyIERhbmdhYXJkIEJy
+b3VlciA8YnJvdWVyQHJlZGhhdC5jb20+CgotLSAKQmVzdCByZWdhcmRzLAogIEplc3BlciBEYW5n
+YWFyZCBCcm91ZXIKICBNU2MuQ1MsIFByaW5jaXBhbCBLZXJuZWwgRW5naW5lZXIgYXQgUmVkIEhh
+dAogIExpbmtlZEluOiBodHRwOi8vd3d3LmxpbmtlZGluLmNvbS9pbi9icm91ZXIKX19fX19fX19f
+X19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX18KVmlydHVhbGl6YXRpb24gbWFp
+bGluZyBsaXN0ClZpcnR1YWxpemF0aW9uQGxpc3RzLmxpbnV4LWZvdW5kYXRpb24ub3JnCmh0dHBz
+Oi8vbGlzdHMubGludXhmb3VuZGF0aW9uLm9yZy9tYWlsbWFuL2xpc3RpbmZvL3ZpcnR1YWxpemF0
+aW9u
