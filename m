@@ -1,12 +1,13 @@
-From: David Miller <davem@davemloft.net>
+From: "Michael S. Tsirkin" <mst@redhat.com>
 Subject: Re: [PATCH net V4] vhost: log dirty page correctly
-Date: Thu, 17 Jan 2019 21:47:05 -0800 (PST)
-Message-ID: <20190117.214705.1465557777501427449.davem__12639.4260827967$1547811665$gmane$org@davemloft.net>
+Date: Thu, 17 Jan 2019 15:42:41 -0500
+Message-ID: <20190117154226-mutt-send-email-mst__41611.3721942112$1547811711$gmane$org@kernel.org>
 References: <20190116085442.3836-1-jasowang@redhat.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
+Content-Disposition: inline
 In-Reply-To: <20190116085442.3836-1-jasowang@redhat.com>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
@@ -17,13 +18,11 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: jasowang@redhat.com
-Cc: kvm@vger.kernel.org, mst@redhat.com, netdev@vger.kernel.org, linux-kernel@vger.kernel.org, virtualization@lists.linux-foundation.org, jintack@cs.columbia.edu
+To: Jason Wang <jasowang@redhat.com>
+Cc: Jintack Lim <jintack@cs.columbia.edu>, netdev@vger.kernel.org, linux-kernel@vger.kernel.org, kvm@vger.kernel.org, virtualization@lists.linux-foundation.org
 List-Id: virtualization@lists.linuxfoundation.org
 
-From: Jason Wang <jasowang@redhat.com>
-Date: Wed, 16 Jan 2019 16:54:42 +0800
-
+On Wed, Jan 16, 2019 at 04:54:42PM +0800, Jason Wang wrote:
 > Vhost dirty page logging API is designed to sync through GPA. But we
 > try to log GIOVA when device IOTLB is enabled. This is wrong and may
 > lead to missing data after migration.
@@ -45,4 +44,195 @@ Date: Wed, 16 Jan 2019 16:54:42 +0800
 > Cc: Jintack Lim <jintack@cs.columbia.edu>
 > Signed-off-by: Jason Wang <jasowang@redhat.com>
 
-Applied and queued up for -stable.
+This one looks good to me
+
+Acked-by: Michael S. Tsirkin <mst@redhat.com>
+
+> ---
+> Changes from V3:
+> - make sure each part of the hva was logged when crossing the boundary
+>   of memory regions
+> Changes from V2:
+> - check and log the case of range overlap
+> - remove unnecessary u64 cast
+> - use smp_wmb() for the case of device IOTLB as well
+> Changes from V1:
+> - return error instead of warn
+> ---
+>  drivers/vhost/net.c   |  3 +-
+>  drivers/vhost/vhost.c | 97 ++++++++++++++++++++++++++++++++++++-------
+>  drivers/vhost/vhost.h |  3 +-
+>  3 files changed, 87 insertions(+), 16 deletions(-)
+> 
+> diff --git a/drivers/vhost/net.c b/drivers/vhost/net.c
+> index 36f3d0f49e60..bca86bf7189f 100644
+> --- a/drivers/vhost/net.c
+> +++ b/drivers/vhost/net.c
+> @@ -1236,7 +1236,8 @@ static void handle_rx(struct vhost_net *net)
+>  		if (nvq->done_idx > VHOST_NET_BATCH)
+>  			vhost_net_signal_used(nvq);
+>  		if (unlikely(vq_log))
+> -			vhost_log_write(vq, vq_log, log, vhost_len);
+> +			vhost_log_write(vq, vq_log, log, vhost_len,
+> +					vq->iov, in);
+>  		total_len += vhost_len;
+>  		if (unlikely(vhost_exceeds_weight(++recv_pkts, total_len))) {
+>  			vhost_poll_queue(&vq->poll);
+> diff --git a/drivers/vhost/vhost.c b/drivers/vhost/vhost.c
+> index 9f7942cbcbb2..babbb32b9bf0 100644
+> --- a/drivers/vhost/vhost.c
+> +++ b/drivers/vhost/vhost.c
+> @@ -1733,13 +1733,87 @@ static int log_write(void __user *log_base,
+>  	return r;
+>  }
+>  
+> +static int log_write_hva(struct vhost_virtqueue *vq, u64 hva, u64 len)
+> +{
+> +	struct vhost_umem *umem = vq->umem;
+> +	struct vhost_umem_node *u;
+> +	u64 start, end, l, min;
+> +	int r;
+> +	bool hit = false;
+> +
+> +	while (len) {
+> +		min = len;
+> +		/* More than one GPAs can be mapped into a single HVA. So
+> +		 * iterate all possible umems here to be safe.
+> +		 */
+> +		list_for_each_entry(u, &umem->umem_list, link) {
+> +			if (u->userspace_addr > hva - 1 + len ||
+> +			    u->userspace_addr - 1 + u->size < hva)
+> +				continue;
+> +			start = max(u->userspace_addr, hva);
+> +			end = min(u->userspace_addr - 1 + u->size,
+> +				  hva - 1 + len);
+> +			l = end - start + 1;
+> +			r = log_write(vq->log_base,
+> +				      u->start + start - u->userspace_addr,
+> +				      l);
+> +			if (r < 0)
+> +				return r;
+> +			hit = true;
+> +			min = min(l, min);
+> +		}
+> +
+> +		if (!hit)
+> +			return -EFAULT;
+> +
+> +		len -= min;
+> +		hva += min;
+> +	}
+> +
+> +	return 0;
+> +}
+> +
+> +static int log_used(struct vhost_virtqueue *vq, u64 used_offset, u64 len)
+> +{
+> +	struct iovec iov[64];
+> +	int i, ret;
+> +
+> +	if (!vq->iotlb)
+> +		return log_write(vq->log_base, vq->log_addr + used_offset, len);
+> +
+> +	ret = translate_desc(vq, (uintptr_t)vq->used + used_offset,
+> +			     len, iov, 64, VHOST_ACCESS_WO);
+> +	if (ret)
+> +		return ret;
+> +
+> +	for (i = 0; i < ret; i++) {
+> +		ret = log_write_hva(vq,	(uintptr_t)iov[i].iov_base,
+> +				    iov[i].iov_len);
+> +		if (ret)
+> +			return ret;
+> +	}
+> +
+> +	return 0;
+> +}
+> +
+>  int vhost_log_write(struct vhost_virtqueue *vq, struct vhost_log *log,
+> -		    unsigned int log_num, u64 len)
+> +		    unsigned int log_num, u64 len, struct iovec *iov, int count)
+>  {
+>  	int i, r;
+>  
+>  	/* Make sure data written is seen before log. */
+>  	smp_wmb();
+> +
+> +	if (vq->iotlb) {
+> +		for (i = 0; i < count; i++) {
+> +			r = log_write_hva(vq, (uintptr_t)iov[i].iov_base,
+> +					  iov[i].iov_len);
+> +			if (r < 0)
+> +				return r;
+> +		}
+> +		return 0;
+> +	}
+> +
+>  	for (i = 0; i < log_num; ++i) {
+>  		u64 l = min(log[i].len, len);
+>  		r = log_write(vq->log_base, log[i].addr, l);
+> @@ -1769,9 +1843,8 @@ static int vhost_update_used_flags(struct vhost_virtqueue *vq)
+>  		smp_wmb();
+>  		/* Log used flag write. */
+>  		used = &vq->used->flags;
+> -		log_write(vq->log_base, vq->log_addr +
+> -			  (used - (void __user *)vq->used),
+> -			  sizeof vq->used->flags);
+> +		log_used(vq, (used - (void __user *)vq->used),
+> +			 sizeof vq->used->flags);
+>  		if (vq->log_ctx)
+>  			eventfd_signal(vq->log_ctx, 1);
+>  	}
+> @@ -1789,9 +1862,8 @@ static int vhost_update_avail_event(struct vhost_virtqueue *vq, u16 avail_event)
+>  		smp_wmb();
+>  		/* Log avail event write */
+>  		used = vhost_avail_event(vq);
+> -		log_write(vq->log_base, vq->log_addr +
+> -			  (used - (void __user *)vq->used),
+> -			  sizeof *vhost_avail_event(vq));
+> +		log_used(vq, (used - (void __user *)vq->used),
+> +			 sizeof *vhost_avail_event(vq));
+>  		if (vq->log_ctx)
+>  			eventfd_signal(vq->log_ctx, 1);
+>  	}
+> @@ -2191,10 +2263,8 @@ static int __vhost_add_used_n(struct vhost_virtqueue *vq,
+>  		/* Make sure data is seen before log. */
+>  		smp_wmb();
+>  		/* Log used ring entry write. */
+> -		log_write(vq->log_base,
+> -			  vq->log_addr +
+> -			   ((void __user *)used - (void __user *)vq->used),
+> -			  count * sizeof *used);
+> +		log_used(vq, ((void __user *)used - (void __user *)vq->used),
+> +			 count * sizeof *used);
+>  	}
+>  	old = vq->last_used_idx;
+>  	new = (vq->last_used_idx += count);
+> @@ -2236,9 +2306,8 @@ int vhost_add_used_n(struct vhost_virtqueue *vq, struct vring_used_elem *heads,
+>  		/* Make sure used idx is seen before log. */
+>  		smp_wmb();
+>  		/* Log used index update. */
+> -		log_write(vq->log_base,
+> -			  vq->log_addr + offsetof(struct vring_used, idx),
+> -			  sizeof vq->used->idx);
+> +		log_used(vq, offsetof(struct vring_used, idx),
+> +			 sizeof vq->used->idx);
+>  		if (vq->log_ctx)
+>  			eventfd_signal(vq->log_ctx, 1);
+>  	}
+> diff --git a/drivers/vhost/vhost.h b/drivers/vhost/vhost.h
+> index 466ef7542291..1b675dad5e05 100644
+> --- a/drivers/vhost/vhost.h
+> +++ b/drivers/vhost/vhost.h
+> @@ -205,7 +205,8 @@ bool vhost_vq_avail_empty(struct vhost_dev *, struct vhost_virtqueue *);
+>  bool vhost_enable_notify(struct vhost_dev *, struct vhost_virtqueue *);
+>  
+>  int vhost_log_write(struct vhost_virtqueue *vq, struct vhost_log *log,
+> -		    unsigned int log_num, u64 len);
+> +		    unsigned int log_num, u64 len,
+> +		    struct iovec *iov, int count);
+>  int vq_iotlb_prefetch(struct vhost_virtqueue *vq);
+>  
+>  struct vhost_msg_node *vhost_new_msg(struct vhost_virtqueue *vq, int type);
+> -- 
+> 2.17.1
