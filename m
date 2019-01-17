@@ -1,13 +1,13 @@
-From: Toshiaki Makita <makita.toshiaki@lab.ntt.co.jp>
-Subject: [PATCH net 1/7] virtio_net: Don't enable NAPI when interface is down
-Date: Thu, 17 Jan 2019 20:20:39 +0900
-Message-ID: <1547724045-2726-2-git-send-email-makita.toshiaki__12961.7505627268$1547755238$gmane$org@lab.ntt.co.jp>
-References: <1547724045-2726-1-git-send-email-makita.toshiaki@lab.ntt.co.jp>
+From: David Miller <davem@davemloft.net>
+Subject: Re: [PATCH net V4] vhost: log dirty page correctly
+Date: Thu, 17 Jan 2019 11:58:55 -0800 (PST)
+Message-ID: <20190117.115855.725358558291814993.davem__21229.1419077248$1547755256$gmane$org@davemloft.net>
+References: <20190116085442.3836-1-jasowang@redhat.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <1547724045-2726-1-git-send-email-makita.toshiaki@lab.ntt.co.jp>
+In-Reply-To: <20190116085442.3836-1-jasowang@redhat.com>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -17,40 +17,34 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: "David S. Miller" <davem@davemloft.net>, "Michael S. Tsirkin" <mst@redhat.com>, Jason Wang <jasowang@redhat.com>
-Cc: netdev@vger.kernel.org, virtualization@lists.linux-foundation.org
+To: jasowang@redhat.com
+Cc: kvm@vger.kernel.org, mst@redhat.com, netdev@vger.kernel.org, linux-kernel@vger.kernel.org, virtualization@lists.linux-foundation.org, jintack@cs.columbia.edu
 List-Id: virtualization@lists.linuxfoundation.org
 
-Commit 4e09ff536284 ("virtio-net: disable NAPI only when enabled during
-XDP set") tried to fix inappropriate NAPI enabling/disabling when
-!netif_running(), but was not complete.
+From: Jason Wang <jasowang@redhat.com>
+Date: Wed, 16 Jan 2019 16:54:42 +0800
 
-On error path virtio_net could enable NAPI even when !netif_running().
-This can cause enabling NAPI twice on virtnet_open(), which would
-trigger BUG_ON() in napi_enable().
+> Vhost dirty page logging API is designed to sync through GPA. But we
+> try to log GIOVA when device IOTLB is enabled. This is wrong and may
+> lead to missing data after migration.
+> 
+> To solve this issue, when logging with device IOTLB enabled, we will:
+> 
+> 1) reuse the device IOTLB translation result of GIOVA->HVA mapping to
+>    get HVA, for writable descriptor, get HVA through iovec. For used
+>    ring update, translate its GIOVA to HVA
+> 2) traverse the GPA->HVA mapping to get the possible GPA and log
+>    through GPA. Pay attention this reverse mapping is not guaranteed
+>    to be unique, so we should log each possible GPA in this case.
+> 
+> This fix the failure of scp to guest during migration. In -next, we
+> will probably support passing GIOVA->GPA instead of GIOVA->HVA.
+> 
+> Fixes: 6b1e6cc7855b ("vhost: new device IOTLB API")
+> Reported-by: Jintack Lim <jintack@cs.columbia.edu>
+> Cc: Jintack Lim <jintack@cs.columbia.edu>
+> Signed-off-by: Jason Wang <jasowang@redhat.com>
 
-Fixes: 4941d472bf95b ("virtio-net: do not reset during XDP set")
-Signed-off-by: Toshiaki Makita <makita.toshiaki@lab.ntt.co.jp>
----
- drivers/net/virtio_net.c | 6 ++++--
- 1 file changed, 4 insertions(+), 2 deletions(-)
+Michaell, can I get a review for this please?
 
-diff --git a/drivers/net/virtio_net.c b/drivers/net/virtio_net.c
-index 0237250..a08da9e 100644
---- a/drivers/net/virtio_net.c
-+++ b/drivers/net/virtio_net.c
-@@ -2430,8 +2430,10 @@ static int virtnet_xdp_set(struct net_device *dev, struct bpf_prog *prog,
- 	return 0;
- 
- err:
--	for (i = 0; i < vi->max_queue_pairs; i++)
--		virtnet_napi_enable(vi->rq[i].vq, &vi->rq[i].napi);
-+	if (netif_running(dev)) {
-+		for (i = 0; i < vi->max_queue_pairs; i++)
-+			virtnet_napi_enable(vi->rq[i].vq, &vi->rq[i].napi);
-+	}
- 	if (prog)
- 		bpf_prog_sub(prog, vi->max_queue_pairs - 1);
- 	return err;
--- 
-1.8.3.1
+Thank you.
