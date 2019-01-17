@@ -1,14 +1,15 @@
-From: "Michael S. Tsirkin" <mst@redhat.com>
-Subject: Re: [PATCH net 0/7] virtio_net: Fix problems around XDP tx and napi_tx
-Date: Thu, 17 Jan 2019 09:55:35 -0500
-Message-ID: <20190117095243-mutt-send-email-mst__18519.7392748252$1547755155$gmane$org@kernel.org>
-References: <1547724045-2726-1-git-send-email-makita.toshiaki@lab.ntt.co.jp>
+From: Daniel Vetter <daniel@ffwll.ch>
+Subject: Re: [PATCH] drm: Split out drm_probe_helper.h
+Date: Thu, 17 Jan 2019 17:45:41 +0100
+Message-ID: <20190117164541.GE3271__9205.96864675662$1547755177$gmane$org@phenom.ffwll.local>
+References: <20190116163442.12622-1-daniel.vetter@ffwll.ch>
+	<20190116181018.GA27364@ravnborg.org>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
 Content-Disposition: inline
-In-Reply-To: <1547724045-2726-1-git-send-email-makita.toshiaki@lab.ntt.co.jp>
+In-Reply-To: <20190116181018.GA27364@ravnborg.org>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -18,47 +19,57 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Toshiaki Makita <makita.toshiaki@lab.ntt.co.jp>
-Cc: Willem de Bruijn <willemb@google.com>, netdev@vger.kernel.org, virtualization@lists.linux-foundation.org, Jesper Dangaard Brouer <brouer@redhat.com>, "David S. Miller" <davem@davemloft.net>
+To: Sam Ravnborg <sam@ravnborg.org>
+Cc: Neil Armstrong <narmstrong@baylibre.com>, Daniel Vetter <daniel.vetter@ffwll.ch>, Liviu Dudau <liviu.dudau@arm.com>, DRI Development <dri-devel@lists.freedesktop.org>, virtualization@lists.linux-foundation.org, Laurent Pinchart <laurent.pinchart@ideasonboard.com>, Benjamin Gaignard <benjamin.gaignard@linaro.org>, Daniel Vetter <daniel.vetter@intel.com>, linux-stm32@st-md-mailman.stormreply.com, linux-samsung-soc@vger.kernel.org, Oleksandr Andrushchenko <oleksandr_andrushchenko@epam.com>, amd-gfx@lists.freedesktop.org, linux-rockchip@lists.infradead.org, nouveau@lists.freedesktop.org, CK Hu <ck.hu@mediatek.com>, spice-devel@lists.freedesktop.org, Jani Nikula <jani.nikula@intel.com>, linux-arm-msm@vger.kernel.org, intel-gfx@lists.freedesktop.org, etnaviv@lists.freedesktop.org, Jani Nikula <jani.nikula@linux.intel.com>, linux-mediatek@lists.infradead.orgRodrigo Vivi <ro>
 List-Id: virtualization@lists.linuxfoundation.org
 
-On Thu, Jan 17, 2019 at 08:20:38PM +0900, Toshiaki Makita wrote:
-> While I'm looking into how to account standard tx counters on XDP tx
-> processing, I found several bugs around XDP tx and napi_tx.
+On Wed, Jan 16, 2019 at 07:10:18PM +0100, Sam Ravnborg wrote:
+> Hi Daniel.
 > 
-> Patch1: Fix oops on error path. Patch2 depends on this.
-> Patch2: Fix memory corruption on freeing xdp_frames with napi_tx enabled.
-> Patch3: Minor fix patch5 depends on.
-> Patch4: Fix memory corruption on processing xdp_frames when XDP is disabled.
->   Also patch5 depends on this.
-> Patch5: Fix memory corruption on processing xdp_frames while XDP is being
->   disabled.
-> Patch6: Minor fix patch7 depends on.
-> Patch7: Fix memory corruption on freeing sk_buff or xdp_frames when a normal
->   queue is reused for XDP and vise versa.
+> > v5: Actually try to sort them, and while at it, sort all the ones I
+> > touch.
 > 
-> Signed-off-by: Toshiaki Makita <makita.toshiaki@lab.ntt.co.jp>
+> Applied this variant on top of drm-misc and did a build test.
+> Looked good for ia64, x86 and alpha.
+> 
+> Took a closer look at the changes to atmel_hlcd - and they looked OK.
+> 
+> But I noticed that atmel_hlcdc uses only drm_kms_helper_poll_init() and
+> drm_kms_helper_poll_fini().
+> But there are no hits on DRM_CONNECTOR_POLL - so I think we maybe
+> have a driver here where we have plugged the drm_poll infrastructure,
+> but it is not in use.
+> 
+> >  include/drm/drm_crtc_helper.h                 | 16 -----------
+> 
+> The list of include files in this file could be dropped and replaced by:
+> struct drm_connector;
+> struct drm_device;
+> struct drm_display_mode;
+> struct drm_encoder;
+> struct drm_framebuffer;
+> struct drm_mode_set;
+> struct drm_modeset_acquire_ctx;
+> 
+> I tried to do so on top of your patch.
+> But there were too many build errros and I somehow lost the motivation.
 
-Series:
+Yeah the drm_crtc_helper.h header is a bit the miniature drmP.h for legacy
+kms drivers. Just removing it from all the atomic drivers caused lots of
+fallout, I expect even more if you entirely remove the includes it has.
+Maybe a todo, care to pls create that patch since it's your idea?
+-Daniel
 
-Acked-by: Michael S. Tsirkin <mst@redhat.com>
+> 
+> 
+> >  include/drm/drm_probe_helper.h                | 27 +++++++++++++++++++
+> This on the other hand is fine - as expected as this is a new file.
+> 
+> But the above is just some random comments so:
+> 
+> Acked-by: Sam Ravnborg <sam@ravnborg.org>
 
-I guess we need this stuff on stable?
-I'm especially happy with Patch7 as it makes my BQL
-work a bit easier.
-
-> Toshiaki Makita (7):
->   virtio_net: Don't enable NAPI when interface is down
->   virtio_net: Don't call free_old_xmit_skbs for xdp_frames
->   virtio_net: Fix not restoring real_num_rx_queues
->   virtio_net: Fix out of bounds access of sq
->   virtio_net: Don't process redirected XDP frames when XDP is disabled
->   virtio_net: Use xdp_return_frame to free xdp_frames on destroying vqs
->   virtio_net: Differentiate sk_buff and xdp_frame on freeing
-> 
->  drivers/net/virtio_net.c | 154 +++++++++++++++++++++++++++++++++--------------
->  1 file changed, 109 insertions(+), 45 deletions(-)
-> 
-> -- 
-> 1.8.3.1
-> 
+-- 
+Daniel Vetter
+Software Engineer, Intel Corporation
+http://blog.ffwll.ch
