@@ -1,7 +1,7 @@
 From: Gerd Hoffmann <kraxel@redhat.com>
-Subject: [PATCH v3 02/23] drm/qxl: drop unused qxl_fb_virtual_address
-Date: Fri, 18 Jan 2019 13:19:59 +0100
-Message-ID: <20190118122020.27596-3-kraxel__20803.4633230001$1547814246$gmane$org@redhat.com>
+Subject: [PATCH v3 17/23] drm/qxl: use generic fbdev emulation
+Date: Fri, 18 Jan 2019 13:20:14 +0100
+Message-ID: <20190118122020.27596-18-kraxel__11625.1254258261$1547814273$gmane$org@redhat.com>
 References: <20190118122020.27596-1-kraxel@redhat.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
@@ -21,28 +21,49 @@ To: dri-devel@lists.freedesktop.org
 Cc: David Airlie <airlied@linux.ie>, open list <linux-kernel@vger.kernel.org>, "open list:DRM DRIVER FOR QXL VIRTUAL GPU" <virtualization@lists.linux-foundation.org>, Daniel Vetter <daniel@ffwll.ch>, "open list:DRM DRIVER FOR QXL VIRTUAL GPU" <spice-devel@lists.freedesktop.org>, Dave Airlie <airlied@redhat.com>
 List-Id: virtualization@lists.linuxfoundation.org
 
+Switch qxl over to the new generic fbdev emulation.
+
 Signed-off-by: Gerd Hoffmann <kraxel@redhat.com>
 ---
- drivers/gpu/drm/qxl/qxl_drv.h | 7 -------
- 1 file changed, 7 deletions(-)
+ drivers/gpu/drm/qxl/qxl_display.c | 7 -------
+ drivers/gpu/drm/qxl/qxl_drv.c     | 2 ++
+ 2 files changed, 2 insertions(+), 7 deletions(-)
 
-diff --git a/drivers/gpu/drm/qxl/qxl_drv.h b/drivers/gpu/drm/qxl/qxl_drv.h
-index 38c5a8b1df..7eabf4a9ed 100644
---- a/drivers/gpu/drm/qxl/qxl_drv.h
-+++ b/drivers/gpu/drm/qxl/qxl_drv.h
-@@ -308,13 +308,6 @@ void qxl_ring_free(struct qxl_ring *ring);
- void qxl_ring_init_hdr(struct qxl_ring *ring);
- int qxl_check_idle(struct qxl_ring *ring);
+diff --git a/drivers/gpu/drm/qxl/qxl_display.c b/drivers/gpu/drm/qxl/qxl_display.c
+index ef832f98ab..9c751f01e3 100644
+--- a/drivers/gpu/drm/qxl/qxl_display.c
++++ b/drivers/gpu/drm/qxl/qxl_display.c
+@@ -1221,18 +1221,11 @@ int qxl_modeset_init(struct qxl_device *qdev)
+ 	qxl_display_read_client_monitors_config(qdev);
  
--static inline void *
--qxl_fb_virtual_address(struct qxl_device *qdev, unsigned long physical)
--{
--	DRM_DEBUG_DRIVER("not implemented (%lu)\n", physical);
--	return 0;
--}
+ 	drm_mode_config_reset(&qdev->ddev);
 -
- static inline uint64_t
- qxl_bo_physical_address(struct qxl_device *qdev, struct qxl_bo *bo,
- 			unsigned long offset)
+-	/* primary surface must be created by this point, to allow
+-	 * issuing command queue commands and having them read by
+-	 * spice server. */
+-	qxl_fbdev_init(qdev);
+ 	return 0;
+ }
+ 
+ void qxl_modeset_fini(struct qxl_device *qdev)
+ {
+-	qxl_fbdev_fini(qdev);
+-
+ 	qxl_destroy_monitors_object(qdev);
+ 	drm_mode_config_cleanup(&qdev->ddev);
+ }
+diff --git a/drivers/gpu/drm/qxl/qxl_drv.c b/drivers/gpu/drm/qxl/qxl_drv.c
+index 13c8a662f9..3fce7d16df 100644
+--- a/drivers/gpu/drm/qxl/qxl_drv.c
++++ b/drivers/gpu/drm/qxl/qxl_drv.c
+@@ -93,6 +93,8 @@ qxl_pci_probe(struct pci_dev *pdev, const struct pci_device_id *ent)
+ 	if (ret)
+ 		goto modeset_cleanup;
+ 
++	drm_fb_helper_remove_conflicting_pci_framebuffers(pdev, 0, "qxl");
++	drm_fbdev_generic_setup(&qdev->ddev, 32);
+ 	return 0;
+ 
+ modeset_cleanup:
 -- 
 2.9.3
