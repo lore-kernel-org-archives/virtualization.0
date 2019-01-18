@@ -1,7 +1,7 @@
 From: Gerd Hoffmann <kraxel@redhat.com>
-Subject: [PATCH v3 13/23] drm/qxl: use shadow bo directly
-Date: Fri, 18 Jan 2019 13:20:10 +0100
-Message-ID: <20190118122020.27596-14-kraxel__3820.69170377708$1547814010$gmane$org@redhat.com>
+Subject: [PATCH v3 15/23] drm/qxl: use qxl_num_crtc directly
+Date: Fri, 18 Jan 2019 13:20:12 +0100
+Message-ID: <20190118122020.27596-16-kraxel__1604.26729494265$1547814029$gmane$org@redhat.com>
 References: <20190118122020.27596-1-kraxel@redhat.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
@@ -21,142 +21,99 @@ To: dri-devel@lists.freedesktop.org
 Cc: David Airlie <airlied@linux.ie>, open list <linux-kernel@vger.kernel.org>, "open list:DRM DRIVER FOR QXL VIRTUAL GPU" <virtualization@lists.linux-foundation.org>, Daniel Vetter <daniel@ffwll.ch>, "open list:DRM DRIVER FOR QXL VIRTUAL GPU" <spice-devel@lists.freedesktop.org>, Dave Airlie <airlied@redhat.com>
 List-Id: virtualization@lists.linuxfoundation.org
 
-Pass the shadow bo to qxl_io_create_primary() instead of expecting
-qxl_io_create_primary to check bo->shadow.  Set is_primary flag on the
-shadow bo.  Move the is_primary tracking into qxl_io_create_primary()
-and qxl_io_destroy_primary() functions.
-
-That simplifies primary surface tracking and the workflow in
-qxl_primary_atomic_update().
+qdev->monitors_config->max_allowed is effectively set by the
+qxl.num_heads module parameter, stored in the qxl_num_crtc variable.
+Lets get rid of the indirection and use the variable qxl_num_crtc
+directly.  The kernel doesn't need to dereference pointers each time it
+needs the value, and when reading the code you don't have to trace where
+and why qdev->monitors_config->max_allowed is set.
 
 Signed-off-by: Gerd Hoffmann <kraxel@redhat.com>
-
-qxl_io_create/destroy_primary: primary_bo tracking [fixup]
 ---
- drivers/gpu/drm/qxl/qxl_cmd.c     | 10 +++++-----
- drivers/gpu/drm/qxl/qxl_display.c | 33 +++++++++++----------------------
- 2 files changed, 16 insertions(+), 27 deletions(-)
+ drivers/gpu/drm/qxl/qxl_display.c | 25 +++++++++++--------------
+ 1 file changed, 11 insertions(+), 14 deletions(-)
 
-diff --git a/drivers/gpu/drm/qxl/qxl_cmd.c b/drivers/gpu/drm/qxl/qxl_cmd.c
-index 8e64127259..0a2e51af12 100644
---- a/drivers/gpu/drm/qxl/qxl_cmd.c
-+++ b/drivers/gpu/drm/qxl/qxl_cmd.c
-@@ -374,6 +374,8 @@ void qxl_io_flush_surfaces(struct qxl_device *qdev)
- void qxl_io_destroy_primary(struct qxl_device *qdev)
- {
- 	wait_for_io_cmd(qdev, 0, QXL_IO_DESTROY_PRIMARY_ASYNC);
-+	qdev->primary_bo->is_primary = false;
-+	drm_gem_object_put_unlocked(&qdev->primary_bo->gem_base);
- 	qdev->primary_bo = NULL;
- }
- 
-@@ -390,11 +392,7 @@ void qxl_io_create_primary(struct qxl_device *qdev, struct qxl_bo *bo)
- 	create->width = bo->surf.width;
- 	create->height = bo->surf.height;
- 	create->stride = bo->surf.stride;
--	if (bo->shadow) {
--		create->mem = qxl_bo_physical_address(qdev, bo->shadow, 0);
--	} else {
--		create->mem = qxl_bo_physical_address(qdev, bo, 0);
--	}
-+	create->mem = qxl_bo_physical_address(qdev, bo, 0);
- 
- 	DRM_DEBUG_DRIVER("mem = %llx, from %p\n", create->mem, bo->kptr);
- 
-@@ -403,6 +401,8 @@ void qxl_io_create_primary(struct qxl_device *qdev, struct qxl_bo *bo)
- 
- 	wait_for_io_cmd(qdev, 0, QXL_IO_CREATE_PRIMARY_ASYNC);
- 	qdev->primary_bo = bo;
-+	qdev->primary_bo->is_primary = true;
-+	drm_gem_object_get(&qdev->primary_bo->gem_base);
- }
- 
- void qxl_io_memslot_add(struct qxl_device *qdev, uint8_t id)
 diff --git a/drivers/gpu/drm/qxl/qxl_display.c b/drivers/gpu/drm/qxl/qxl_display.c
-index d3215eac9b..ff13bc6a4a 100644
+index d9de43e5fd..ef832f98ab 100644
 --- a/drivers/gpu/drm/qxl/qxl_display.c
 +++ b/drivers/gpu/drm/qxl/qxl_display.c
-@@ -401,13 +401,15 @@ static int qxl_framebuffer_surface_dirty(struct drm_framebuffer *fb,
- 	struct qxl_device *qdev = fb->dev->dev_private;
- 	struct drm_clip_rect norect;
- 	struct qxl_bo *qobj;
-+	bool is_primary;
- 	int inc = 1;
+@@ -80,10 +80,10 @@ static int qxl_display_copy_rom_client_monitors_config(struct qxl_device *qdev)
+ 		DRM_DEBUG_KMS("no client monitors configured\n");
+ 		return status;
+ 	}
+-	if (num_monitors > qdev->monitors_config->max_allowed) {
++	if (num_monitors > qxl_num_crtc) {
+ 		DRM_DEBUG_KMS("client monitors list will be truncated: %d < %d\n",
+-			      qdev->monitors_config->max_allowed, num_monitors);
+-		num_monitors = qdev->monitors_config->max_allowed;
++			      qxl_num_crtc, num_monitors);
++		num_monitors = qxl_num_crtc;
+ 	} else {
+ 		num_monitors = qdev->rom->client_monitors_config.count;
+ 	}
+@@ -96,8 +96,7 @@ static int qxl_display_copy_rom_client_monitors_config(struct qxl_device *qdev)
+ 		return status;
+ 	}
+ 	/* we copy max from the client but it isn't used */
+-	qdev->client_monitors_config->max_allowed =
+-				qdev->monitors_config->max_allowed;
++	qdev->client_monitors_config->max_allowed = qxl_num_crtc;
+ 	for (i = 0 ; i < qdev->client_monitors_config->count ; ++i) {
+ 		struct qxl_urect *c_rect =
+ 			&qdev->rom->client_monitors_config.heads[i];
+@@ -204,7 +203,7 @@ static int qxl_add_monitors_config_modes(struct drm_connector *connector,
  
- 	drm_modeset_lock_all(fb->dev);
- 
- 	qobj = gem_to_qxl_bo(fb->obj[0]);
- 	/* if we aren't primary surface ignore this */
--	if (!qobj->is_primary) {
-+	is_primary = qobj->shadow ? qobj->shadow->is_primary : qobj->is_primary;
-+	if (!is_primary) {
- 		drm_modeset_unlock_all(fb->dev);
+ 	if (!qdev->monitors_config)
  		return 0;
+-	if (h >= qdev->monitors_config->max_allowed)
++	if (h >= qxl_num_crtc)
+ 		return 0;
+ 	if (!qdev->client_monitors_config)
+ 		return 0;
+@@ -307,8 +306,7 @@ static void qxl_crtc_update_monitors_config(struct drm_crtc *crtc,
+ 		return;
  	}
-@@ -526,14 +528,13 @@ static void qxl_primary_atomic_update(struct drm_plane *plane,
+ 
+-	if (!qdev->monitors_config ||
+-	    qdev->monitors_config->max_allowed <= i)
++	if (!qdev->monitors_config || qxl_num_crtc <= i)
+ 		return;
+ 
+ 	head.id = i;
+@@ -350,9 +348,10 @@ static void qxl_crtc_update_monitors_config(struct drm_crtc *crtc,
+ 	if (oldcount != qdev->monitors_config->count)
+ 		DRM_DEBUG_KMS("active heads %d -> %d (%d total)\n",
+ 			      oldcount, qdev->monitors_config->count,
+-			      qdev->monitors_config->max_allowed);
++			      qxl_num_crtc);
+ 
+ 	qdev->monitors_config->heads[i] = head;
++	qdev->monitors_config->max_allowed = qxl_num_crtc;
+ 	qxl_send_monitors_config(qdev);
+ }
+ 
+@@ -1146,9 +1145,8 @@ int qxl_create_monitors_object(struct qxl_device *qdev)
  {
- 	struct qxl_device *qdev = plane->dev->dev_private;
- 	struct qxl_bo *bo = gem_to_qxl_bo(plane->state->fb->obj[0]);
--	struct qxl_bo *bo_old;
-+	struct qxl_bo *bo_old, *primary;
- 	struct drm_clip_rect norect = {
- 	    .x1 = 0,
- 	    .y1 = 0,
- 	    .x2 = plane->state->fb->width,
- 	    .y2 = plane->state->fb->height
- 	};
--	bool same_shadow = false;
+ 	int ret;
+ 	struct drm_gem_object *gobj;
+-	int max_allowed = qxl_num_crtc;
+ 	int monitors_config_size = sizeof(struct qxl_monitors_config) +
+-		max_allowed * sizeof(struct qxl_head);
++		qxl_num_crtc * sizeof(struct qxl_head);
  
- 	if (old_state->fb) {
- 		bo_old = gem_to_qxl_bo(old_state->fb->obj[0]);
-@@ -541,26 +542,13 @@ static void qxl_primary_atomic_update(struct drm_plane *plane,
- 		bo_old = NULL;
- 	}
+ 	ret = qxl_gem_object_create(qdev, monitors_config_size, 0,
+ 				    QXL_GEM_DOMAIN_VRAM,
+@@ -1170,9 +1168,8 @@ int qxl_create_monitors_object(struct qxl_device *qdev)
+ 		qxl_bo_physical_address(qdev, qdev->monitors_config_bo, 0);
  
--	if (bo == bo_old)
--		return;
-+	primary = bo->shadow ? bo->shadow : bo;
- 
--	if (bo_old && bo_old->shadow && bo->shadow &&
--	    bo_old->shadow == bo->shadow) {
--		same_shadow = true;
--	}
+ 	memset(qdev->monitors_config, 0, monitors_config_size);
+-	qdev->monitors_config->max_allowed = max_allowed;
 -
--	if (bo_old && bo_old->is_primary) {
--		if (!same_shadow)
-+	if (!primary->is_primary) {
-+		if (qdev->primary_bo)
- 			qxl_io_destroy_primary(qdev);
--		bo_old->is_primary = false;
--	}
--
--	if (!bo->is_primary) {
--		if (!same_shadow) {
--			qxl_io_create_primary(qdev, bo);
--			qxl_primary_apply_cursor(plane);
--		}
--		bo->is_primary = true;
-+		qxl_io_create_primary(qdev, primary);
-+		qxl_primary_apply_cursor(plane);
- 	}
+-	qdev->dumb_heads = kcalloc(max_allowed, sizeof(qdev->dumb_heads[0]), GFP_KERNEL);
++	qdev->dumb_heads = kcalloc(qxl_num_crtc, sizeof(qdev->dumb_heads[0]),
++				   GFP_KERNEL);
+ 	return 0;
+ }
  
- 	qxl_draw_dirty_fb(qdev, plane->state->fb, bo, 0, 0, &norect, 1, 1);
-@@ -756,6 +744,7 @@ static int qxl_plane_prepare_fb(struct drm_plane *plane,
- 			qxl_bo_create(qdev, user_bo->gem_base.size,
- 				      true, true, QXL_GEM_DOMAIN_SURFACE, NULL,
- 				      &user_bo->shadow);
-+			user_bo->shadow->surf = user_bo->surf;
- 		}
- 	}
- 
-@@ -784,7 +773,7 @@ static void qxl_plane_cleanup_fb(struct drm_plane *plane,
- 	user_bo = gem_to_qxl_bo(obj);
- 	qxl_bo_unpin(user_bo);
- 
--	if (user_bo->shadow && !user_bo->is_primary) {
-+	if (user_bo->shadow && !user_bo->shadow->is_primary) {
- 		drm_gem_object_put_unlocked(&user_bo->shadow->gem_base);
- 		user_bo->shadow = NULL;
- 	}
 -- 
 2.9.3
