@@ -1,7 +1,8 @@
 From: Gerd Hoffmann <kraxel@redhat.com>
-Subject: [PATCH v3 08/23] drm/qxl: use QXL_GEM_DOMAIN_SURFACE for shadow bo.
-Date: Fri, 18 Jan 2019 13:20:05 +0100
-Message-ID: <20190118122020.27596-9-kraxel__10044.7745797739$1547814146$gmane$org@redhat.com>
+Subject: [PATCH v3 01/23] drm/qxl: drop ttm_mem_reg arg from
+	qxl_hw_surface_alloc()
+Date: Fri, 18 Jan 2019 13:19:58 +0100
+Message-ID: <20190118122020.27596-2-kraxel__13625.3503653736$1547814159$gmane$org@redhat.com>
 References: <20190118122020.27596-1-kraxel@redhat.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
@@ -21,27 +22,73 @@ To: dri-devel@lists.freedesktop.org
 Cc: David Airlie <airlied@linux.ie>, open list <linux-kernel@vger.kernel.org>, "open list:DRM DRIVER FOR QXL VIRTUAL GPU" <virtualization@lists.linux-foundation.org>, Daniel Vetter <daniel@ffwll.ch>, "open list:DRM DRIVER FOR QXL VIRTUAL GPU" <spice-devel@lists.freedesktop.org>, Dave Airlie <airlied@redhat.com>
 List-Id: virtualization@lists.linuxfoundation.org
 
-The shadow bo is used as qxl surface, so allocate it as
-QXL_GEM_DOMAIN_SURFACE.  Should usually be allocated in
-PRIV ttm domain then, so this reduces VRAM memory pressure.
+Not used, is always NULL.
 
 Signed-off-by: Gerd Hoffmann <kraxel@redhat.com>
 ---
- drivers/gpu/drm/qxl/qxl_display.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ drivers/gpu/drm/qxl/qxl_drv.h    |  3 +--
+ drivers/gpu/drm/qxl/qxl_cmd.c    | 14 ++------------
+ drivers/gpu/drm/qxl/qxl_object.c |  2 +-
+ 3 files changed, 4 insertions(+), 15 deletions(-)
 
-diff --git a/drivers/gpu/drm/qxl/qxl_display.c b/drivers/gpu/drm/qxl/qxl_display.c
-index 1f8fddcc34..86bfc19bea 100644
---- a/drivers/gpu/drm/qxl/qxl_display.c
-+++ b/drivers/gpu/drm/qxl/qxl_display.c
-@@ -758,7 +758,7 @@ static int qxl_plane_prepare_fb(struct drm_plane *plane,
- 			user_bo->shadow = old_bo->shadow;
- 		} else {
- 			qxl_bo_create(qdev, user_bo->gem_base.size,
--				      true, true, QXL_GEM_DOMAIN_VRAM, NULL,
-+				      true, true, QXL_GEM_DOMAIN_SURFACE, NULL,
- 				      &user_bo->shadow);
- 		}
+diff --git a/drivers/gpu/drm/qxl/qxl_drv.h b/drivers/gpu/drm/qxl/qxl_drv.h
+index 13a0254b59..38c5a8b1df 100644
+--- a/drivers/gpu/drm/qxl/qxl_drv.h
++++ b/drivers/gpu/drm/qxl/qxl_drv.h
+@@ -497,8 +497,7 @@ int qxl_surface_id_alloc(struct qxl_device *qdev,
+ void qxl_surface_id_dealloc(struct qxl_device *qdev,
+ 			    uint32_t surface_id);
+ int qxl_hw_surface_alloc(struct qxl_device *qdev,
+-			 struct qxl_bo *surf,
+-			 struct ttm_mem_reg *mem);
++			 struct qxl_bo *surf);
+ int qxl_hw_surface_dealloc(struct qxl_device *qdev,
+ 			   struct qxl_bo *surf);
+ 
+diff --git a/drivers/gpu/drm/qxl/qxl_cmd.c b/drivers/gpu/drm/qxl/qxl_cmd.c
+index 2e100f6442..5ba831c78c 100644
+--- a/drivers/gpu/drm/qxl/qxl_cmd.c
++++ b/drivers/gpu/drm/qxl/qxl_cmd.c
+@@ -460,8 +460,7 @@ void qxl_surface_id_dealloc(struct qxl_device *qdev,
+ }
+ 
+ int qxl_hw_surface_alloc(struct qxl_device *qdev,
+-			 struct qxl_bo *surf,
+-			 struct ttm_mem_reg *new_mem)
++			 struct qxl_bo *surf)
+ {
+ 	struct qxl_surface_cmd *cmd;
+ 	struct qxl_release *release;
+@@ -487,16 +486,7 @@ int qxl_hw_surface_alloc(struct qxl_device *qdev,
+ 	cmd->u.surface_create.width = surf->surf.width;
+ 	cmd->u.surface_create.height = surf->surf.height;
+ 	cmd->u.surface_create.stride = surf->surf.stride;
+-	if (new_mem) {
+-		int slot_id = surf->type == QXL_GEM_DOMAIN_VRAM ? qdev->main_mem_slot : qdev->surfaces_mem_slot;
+-		struct qxl_memslot *slot = &(qdev->mem_slots[slot_id]);
+-
+-		/* TODO - need to hold one of the locks to read tbo.offset */
+-		cmd->u.surface_create.data = slot->high_bits;
+-
+-		cmd->u.surface_create.data |= (new_mem->start << PAGE_SHIFT) + surf->tbo.bdev->man[new_mem->mem_type].gpu_offset;
+-	} else
+-		cmd->u.surface_create.data = qxl_bo_physical_address(qdev, surf, 0);
++	cmd->u.surface_create.data = qxl_bo_physical_address(qdev, surf, 0);
+ 	cmd->surface_id = surf->surface_id;
+ 	qxl_release_unmap(qdev, release, &cmd->release_info);
+ 
+diff --git a/drivers/gpu/drm/qxl/qxl_object.c b/drivers/gpu/drm/qxl/qxl_object.c
+index 91f3bbc73e..34eff8b21e 100644
+--- a/drivers/gpu/drm/qxl/qxl_object.c
++++ b/drivers/gpu/drm/qxl/qxl_object.c
+@@ -332,7 +332,7 @@ int qxl_bo_check_id(struct qxl_device *qdev, struct qxl_bo *bo)
+ 		if (ret)
+ 			return ret;
+ 
+-		ret = qxl_hw_surface_alloc(qdev, bo, NULL);
++		ret = qxl_hw_surface_alloc(qdev, bo);
+ 		if (ret)
+ 			return ret;
  	}
 -- 
 2.9.3
