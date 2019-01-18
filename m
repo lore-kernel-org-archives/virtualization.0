@@ -1,7 +1,7 @@
 From: Gerd Hoffmann <kraxel@redhat.com>
-Subject: [PATCH v3 15/23] drm/qxl: use qxl_num_crtc directly
-Date: Fri, 18 Jan 2019 13:20:12 +0100
-Message-ID: <20190118122020.27596-16-kraxel__1604.26729494265$1547814029$gmane$org@redhat.com>
+Subject: [PATCH v3 19/23] drm/qxl: implement qxl_gem_prime_(un)pin
+Date: Fri, 18 Jan 2019 13:20:16 +0100
+Message-ID: <20190118122020.27596-20-kraxel__19761.6356112578$1547814043$gmane$org@redhat.com>
 References: <20190118122020.27596-1-kraxel@redhat.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
@@ -21,99 +21,42 @@ To: dri-devel@lists.freedesktop.org
 Cc: David Airlie <airlied@linux.ie>, open list <linux-kernel@vger.kernel.org>, "open list:DRM DRIVER FOR QXL VIRTUAL GPU" <virtualization@lists.linux-foundation.org>, Daniel Vetter <daniel@ffwll.ch>, "open list:DRM DRIVER FOR QXL VIRTUAL GPU" <spice-devel@lists.freedesktop.org>, Dave Airlie <airlied@redhat.com>
 List-Id: virtualization@lists.linuxfoundation.org
 
-qdev->monitors_config->max_allowed is effectively set by the
-qxl.num_heads module parameter, stored in the qxl_num_crtc variable.
-Lets get rid of the indirection and use the variable qxl_num_crtc
-directly.  The kernel doesn't need to dereference pointers each time it
-needs the value, and when reading the code you don't have to trace where
-and why qdev->monitors_config->max_allowed is set.
-
 Signed-off-by: Gerd Hoffmann <kraxel@redhat.com>
 ---
- drivers/gpu/drm/qxl/qxl_display.c | 25 +++++++++++--------------
- 1 file changed, 11 insertions(+), 14 deletions(-)
+ drivers/gpu/drm/qxl/qxl_prime.c | 10 +++++++---
+ 1 file changed, 7 insertions(+), 3 deletions(-)
 
-diff --git a/drivers/gpu/drm/qxl/qxl_display.c b/drivers/gpu/drm/qxl/qxl_display.c
-index d9de43e5fd..ef832f98ab 100644
---- a/drivers/gpu/drm/qxl/qxl_display.c
-+++ b/drivers/gpu/drm/qxl/qxl_display.c
-@@ -80,10 +80,10 @@ static int qxl_display_copy_rom_client_monitors_config(struct qxl_device *qdev)
- 		DRM_DEBUG_KMS("no client monitors configured\n");
- 		return status;
- 	}
--	if (num_monitors > qdev->monitors_config->max_allowed) {
-+	if (num_monitors > qxl_num_crtc) {
- 		DRM_DEBUG_KMS("client monitors list will be truncated: %d < %d\n",
--			      qdev->monitors_config->max_allowed, num_monitors);
--		num_monitors = qdev->monitors_config->max_allowed;
-+			      qxl_num_crtc, num_monitors);
-+		num_monitors = qxl_num_crtc;
- 	} else {
- 		num_monitors = qdev->rom->client_monitors_config.count;
- 	}
-@@ -96,8 +96,7 @@ static int qxl_display_copy_rom_client_monitors_config(struct qxl_device *qdev)
- 		return status;
- 	}
- 	/* we copy max from the client but it isn't used */
--	qdev->client_monitors_config->max_allowed =
--				qdev->monitors_config->max_allowed;
-+	qdev->client_monitors_config->max_allowed = qxl_num_crtc;
- 	for (i = 0 ; i < qdev->client_monitors_config->count ; ++i) {
- 		struct qxl_urect *c_rect =
- 			&qdev->rom->client_monitors_config.heads[i];
-@@ -204,7 +203,7 @@ static int qxl_add_monitors_config_modes(struct drm_connector *connector,
+diff --git a/drivers/gpu/drm/qxl/qxl_prime.c b/drivers/gpu/drm/qxl/qxl_prime.c
+index 708378844c..22e1faf047 100644
+--- a/drivers/gpu/drm/qxl/qxl_prime.c
++++ b/drivers/gpu/drm/qxl/qxl_prime.c
+@@ -22,6 +22,7 @@
+  * Authors: Andreas Pokorny
+  */
  
- 	if (!qdev->monitors_config)
- 		return 0;
--	if (h >= qdev->monitors_config->max_allowed)
-+	if (h >= qxl_num_crtc)
- 		return 0;
- 	if (!qdev->client_monitors_config)
- 		return 0;
-@@ -307,8 +306,7 @@ static void qxl_crtc_update_monitors_config(struct drm_crtc *crtc,
- 		return;
- 	}
++#include "qxl_drv.h"
+ #include "qxl_object.h"
  
--	if (!qdev->monitors_config ||
--	    qdev->monitors_config->max_allowed <= i)
-+	if (!qdev->monitors_config || qxl_num_crtc <= i)
- 		return;
+ /* Empty Implementations as there should not be any other driver for a virtual
+@@ -29,13 +30,16 @@
  
- 	head.id = i;
-@@ -350,9 +348,10 @@ static void qxl_crtc_update_monitors_config(struct drm_crtc *crtc,
- 	if (oldcount != qdev->monitors_config->count)
- 		DRM_DEBUG_KMS("active heads %d -> %d (%d total)\n",
- 			      oldcount, qdev->monitors_config->count,
--			      qdev->monitors_config->max_allowed);
-+			      qxl_num_crtc);
- 
- 	qdev->monitors_config->heads[i] = head;
-+	qdev->monitors_config->max_allowed = qxl_num_crtc;
- 	qxl_send_monitors_config(qdev);
- }
- 
-@@ -1146,9 +1145,8 @@ int qxl_create_monitors_object(struct qxl_device *qdev)
+ int qxl_gem_prime_pin(struct drm_gem_object *obj)
  {
- 	int ret;
- 	struct drm_gem_object *gobj;
--	int max_allowed = qxl_num_crtc;
- 	int monitors_config_size = sizeof(struct qxl_monitors_config) +
--		max_allowed * sizeof(struct qxl_head);
-+		qxl_num_crtc * sizeof(struct qxl_head);
- 
- 	ret = qxl_gem_object_create(qdev, monitors_config_size, 0,
- 				    QXL_GEM_DOMAIN_VRAM,
-@@ -1170,9 +1168,8 @@ int qxl_create_monitors_object(struct qxl_device *qdev)
- 		qxl_bo_physical_address(qdev, qdev->monitors_config_bo, 0);
- 
- 	memset(qdev->monitors_config, 0, monitors_config_size);
--	qdev->monitors_config->max_allowed = max_allowed;
--
--	qdev->dumb_heads = kcalloc(max_allowed, sizeof(qdev->dumb_heads[0]), GFP_KERNEL);
-+	qdev->dumb_heads = kcalloc(qxl_num_crtc, sizeof(qdev->dumb_heads[0]),
-+				   GFP_KERNEL);
- 	return 0;
+-	WARN_ONCE(1, "not implemented");
+-	return -ENOSYS;
++	struct qxl_bo *bo = gem_to_qxl_bo(obj);
++
++	return qxl_bo_pin(bo);
  }
  
+ void qxl_gem_prime_unpin(struct drm_gem_object *obj)
+ {
+-	WARN_ONCE(1, "not implemented");
++	struct qxl_bo *bo = gem_to_qxl_bo(obj);
++
++	qxl_bo_unpin(bo);
+ }
+ 
+ struct sg_table *qxl_gem_prime_get_sg_table(struct drm_gem_object *obj)
 -- 
 2.9.3
