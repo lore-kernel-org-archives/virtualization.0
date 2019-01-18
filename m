@@ -1,17 +1,17 @@
-From: Ville =?iso-8859-1?Q?Syrj=E4l=E4?= <ville.syrjala@linux.intel.com>
+From: Daniel Vetter <daniel@ffwll.ch>
 Subject: Re: [PATCH v3 23/23] drm/qxl: add overflow checks to
 	qxl_mode_dumb_create()
-Date: Fri, 18 Jan 2019 18:32:33 +0200
-Message-ID: <20190118163233.GM20097__15580.7265117348$1547845173$gmane$org@intel.com>
+Date: Fri, 18 Jan 2019 18:15:44 +0100
+Message-ID: <CAKMK7uF0e+cTXv-TyRDrqFUSKQCtnB99V3jRtrLbmPcptkEs+Q__46433.9022328661$1547845187$gmane$org@mail.gmail.com>
 References: <20190118122020.27596-1-kraxel@redhat.com>
 	<20190118122020.27596-24-kraxel@redhat.com>
 	<20190118154944.GH3271@phenom.ffwll.local>
+	<20190118163233.GM20097@intel.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="iso-8859-1"
-Content-Transfer-Encoding: quoted-printable
+Content-Type: text/plain; charset="utf-8"
+Content-Transfer-Encoding: base64
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-Content-Disposition: inline
-In-Reply-To: <20190118154944.GH3271@phenom.ffwll.local>
+In-Reply-To: <20190118163233.GM20097@intel.com>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -21,78 +21,57 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Gerd Hoffmann <kraxel@redhat.com>, dri-devel@lists.freedesktop.org, Dave Airlie <airlied@redhat.com>, David Airlie <airlied@linux.ie>, "open list:DRM DRIVER FOR QXL VIRTUAL GPU" <virtualization@lists.linux-foundation.org>, "open list:DRM DRIVER FOR QXL VIRTUAL GPU" <spice-devel@lists.freedesktop.org>, open list <linux-kernel@vger.kernel.org>
+To: =?UTF-8?B?VmlsbGUgU3lyasOkbMOk?= <ville.syrjala@linux.intel.com>
+Cc: David Airlie <airlied@linux.ie>, open list <linux-kernel@vger.kernel.org>, dri-devel <dri-devel@lists.freedesktop.org>, "open list:DRM DRIVER FOR QXL VIRTUAL GPU" <virtualization@lists.linux-foundation.org>, "open list:DRM DRIVER FOR QXL VIRTUAL GPU" <spice-devel@lists.freedesktop.org>, Dave Airlie <airlied@redhat.com>
 List-Id: virtualization@lists.linuxfoundation.org
 
-On Fri, Jan 18, 2019 at 04:49:44PM +0100, Daniel Vetter wrote:
-> On Fri, Jan 18, 2019 at 01:20:20PM +0100, Gerd Hoffmann wrote:
-> > Signed-off-by: Gerd Hoffmann <kraxel@redhat.com>
-> =
-
-> We already do all reasonable overflow checks in drm_mode_create_dumb(). If
-> you don't trust them I think would be better time spent typing an igt to
-> test this than adding redundant check in all drivers.
-> =
-
-> You're also missing one check for bpp underflows :-)
-
-BTW I just noticed that we don't seem to validating =
-
-create_dumb->flags at all. Someone should probably add some
-checks for that, or mark it as deprecated in case we already
-lost the battle with userspace stack garbage.
-
-> -Daniel
-> =
-
-> > ---
-> >  drivers/gpu/drm/qxl/qxl_dumb.c | 10 ++++++----
-> >  1 file changed, 6 insertions(+), 4 deletions(-)
-> > =
-
-> > diff --git a/drivers/gpu/drm/qxl/qxl_dumb.c b/drivers/gpu/drm/qxl/qxl_d=
-umb.c
-> > index 272d19b677..bed6d06ee4 100644
-> > --- a/drivers/gpu/drm/qxl/qxl_dumb.c
-> > +++ b/drivers/gpu/drm/qxl/qxl_dumb.c
-> > @@ -37,11 +37,13 @@ int qxl_mode_dumb_create(struct drm_file *file_priv,
-> >  	uint32_t handle;
-> >  	int r;
-> >  	struct qxl_surface surf;
-> > -	uint32_t pitch, format;
-> > +	uint32_t pitch, size, format;
-> >  =
-
-> > -	pitch =3D args->width * ((args->bpp + 1) / 8);
-> > -	args->size =3D pitch * args->height;
-> > -	args->size =3D ALIGN(args->size, PAGE_SIZE);
-> > +	if (check_mul_overflow(args->width, ((args->bpp + 1) / 8), &pitch))
-> > +		return -EINVAL;
-> > +	if (check_mul_overflow(pitch, args->height, &size))
-> > +		return -EINVAL;
-> > +	args->size =3D ALIGN(size, PAGE_SIZE);
-> >  =
-
-> >  	switch (args->bpp) {
-> >  	case 16:
-> > -- =
-
-> > 2.9.3
-> > =
-
-> =
-
-> -- =
-
-> Daniel Vetter
-> Software Engineer, Intel Corporation
-> http://blog.ffwll.ch
-> _______________________________________________
-> dri-devel mailing list
-> dri-devel@lists.freedesktop.org
-> https://lists.freedesktop.org/mailman/listinfo/dri-devel
-
--- =
-
-Ville Syrj=E4l=E4
-Intel
+T24gRnJpLCBKYW4gMTgsIDIwMTkgYXQgNTozMiBQTSBWaWxsZSBTeXJqw6Rsw6QKPHZpbGxlLnN5
+cmphbGFAbGludXguaW50ZWwuY29tPiB3cm90ZToKPgo+IE9uIEZyaSwgSmFuIDE4LCAyMDE5IGF0
+IDA0OjQ5OjQ0UE0gKzAxMDAsIERhbmllbCBWZXR0ZXIgd3JvdGU6Cj4gPiBPbiBGcmksIEphbiAx
+OCwgMjAxOSBhdCAwMToyMDoyMFBNICswMTAwLCBHZXJkIEhvZmZtYW5uIHdyb3RlOgo+ID4gPiBT
+aWduZWQtb2ZmLWJ5OiBHZXJkIEhvZmZtYW5uIDxrcmF4ZWxAcmVkaGF0LmNvbT4KPiA+Cj4gPiBX
+ZSBhbHJlYWR5IGRvIGFsbCByZWFzb25hYmxlIG92ZXJmbG93IGNoZWNrcyBpbiBkcm1fbW9kZV9j
+cmVhdGVfZHVtYigpLiBJZgo+ID4geW91IGRvbid0IHRydXN0IHRoZW0gSSB0aGluayB3b3VsZCBi
+ZSBiZXR0ZXIgdGltZSBzcGVudCB0eXBpbmcgYW4gaWd0IHRvCj4gPiB0ZXN0IHRoaXMgdGhhbiBh
+ZGRpbmcgcmVkdW5kYW50IGNoZWNrIGluIGFsbCBkcml2ZXJzLgo+ID4KPiA+IFlvdSdyZSBhbHNv
+IG1pc3Npbmcgb25lIGNoZWNrIGZvciBicHAgdW5kZXJmbG93cyA6LSkKPgo+IEJUVyBJIGp1c3Qg
+bm90aWNlZCB0aGF0IHdlIGRvbid0IHNlZW0gdG8gdmFsaWRhdGluZwo+IGNyZWF0ZV9kdW1iLT5m
+bGFncyBhdCBhbGwuIFNvbWVvbmUgc2hvdWxkIHByb2JhYmx5IGFkZCBzb21lCj4gY2hlY2tzIGZv
+ciB0aGF0LCBvciBtYXJrIGl0IGFzIGRlcHJlY2F0ZWQgaW4gY2FzZSB3ZSBhbHJlYWR5Cj4gbG9z
+dCB0aGUgYmF0dGxlIHdpdGggdXNlcnNwYWNlIHN0YWNrIGdhcmJhZ2UuCgpHaXZlbiB0aGF0IGV2
+ZXJ5IGttcyBjbGllbnQvY29tcG9zaXRvciB1bmRlciB0aGUgc3VuIHVzZXMgdGhpcyAob3IKd2Vs
+bCwgYWxsIHRoZSBnZW5lcmljIG9uZXMgYXQgbGVhc3QpIEkgdGhpbmsgd2UgY2FuIHNhZmVseSBh
+c3N1bWUgdG8KaGF2ZSBsb3N0IHRoYXQgYmF0dGxlIDotLwotRGFuaWVsCgo+Cj4gPiAtRGFuaWVs
+Cj4gPgo+ID4gPiAtLS0KPiA+ID4gIGRyaXZlcnMvZ3B1L2RybS9xeGwvcXhsX2R1bWIuYyB8IDEw
+ICsrKysrKy0tLS0KPiA+ID4gIDEgZmlsZSBjaGFuZ2VkLCA2IGluc2VydGlvbnMoKyksIDQgZGVs
+ZXRpb25zKC0pCj4gPiA+Cj4gPiA+IGRpZmYgLS1naXQgYS9kcml2ZXJzL2dwdS9kcm0vcXhsL3F4
+bF9kdW1iLmMgYi9kcml2ZXJzL2dwdS9kcm0vcXhsL3F4bF9kdW1iLmMKPiA+ID4gaW5kZXggMjcy
+ZDE5YjY3Ny4uYmVkNmQwNmVlNCAxMDA2NDQKPiA+ID4gLS0tIGEvZHJpdmVycy9ncHUvZHJtL3F4
+bC9xeGxfZHVtYi5jCj4gPiA+ICsrKyBiL2RyaXZlcnMvZ3B1L2RybS9xeGwvcXhsX2R1bWIuYwo+
+ID4gPiBAQCAtMzcsMTEgKzM3LDEzIEBAIGludCBxeGxfbW9kZV9kdW1iX2NyZWF0ZShzdHJ1Y3Qg
+ZHJtX2ZpbGUgKmZpbGVfcHJpdiwKPiA+ID4gICAgIHVpbnQzMl90IGhhbmRsZTsKPiA+ID4gICAg
+IGludCByOwo+ID4gPiAgICAgc3RydWN0IHF4bF9zdXJmYWNlIHN1cmY7Cj4gPiA+IC0gICB1aW50
+MzJfdCBwaXRjaCwgZm9ybWF0Owo+ID4gPiArICAgdWludDMyX3QgcGl0Y2gsIHNpemUsIGZvcm1h
+dDsKPiA+ID4KPiA+ID4gLSAgIHBpdGNoID0gYXJncy0+d2lkdGggKiAoKGFyZ3MtPmJwcCArIDEp
+IC8gOCk7Cj4gPiA+IC0gICBhcmdzLT5zaXplID0gcGl0Y2ggKiBhcmdzLT5oZWlnaHQ7Cj4gPiA+
+IC0gICBhcmdzLT5zaXplID0gQUxJR04oYXJncy0+c2l6ZSwgUEFHRV9TSVpFKTsKPiA+ID4gKyAg
+IGlmIChjaGVja19tdWxfb3ZlcmZsb3coYXJncy0+d2lkdGgsICgoYXJncy0+YnBwICsgMSkgLyA4
+KSwgJnBpdGNoKSkKPiA+ID4gKyAgICAgICAgICAgcmV0dXJuIC1FSU5WQUw7Cj4gPiA+ICsgICBp
+ZiAoY2hlY2tfbXVsX292ZXJmbG93KHBpdGNoLCBhcmdzLT5oZWlnaHQsICZzaXplKSkKPiA+ID4g
+KyAgICAgICAgICAgcmV0dXJuIC1FSU5WQUw7Cj4gPiA+ICsgICBhcmdzLT5zaXplID0gQUxJR04o
+c2l6ZSwgUEFHRV9TSVpFKTsKPiA+ID4KPiA+ID4gICAgIHN3aXRjaCAoYXJncy0+YnBwKSB7Cj4g
+PiA+ICAgICBjYXNlIDE2Ogo+ID4gPiAtLQo+ID4gPiAyLjkuMwo+ID4gPgo+ID4KPiA+IC0tCj4g
+PiBEYW5pZWwgVmV0dGVyCj4gPiBTb2Z0d2FyZSBFbmdpbmVlciwgSW50ZWwgQ29ycG9yYXRpb24K
+PiA+IGh0dHA6Ly9ibG9nLmZmd2xsLmNoCj4gPiBfX19fX19fX19fX19fX19fX19fX19fX19fX19f
+X19fX19fX19fX19fX19fX19fXwo+ID4gZHJpLWRldmVsIG1haWxpbmcgbGlzdAo+ID4gZHJpLWRl
+dmVsQGxpc3RzLmZyZWVkZXNrdG9wLm9yZwo+ID4gaHR0cHM6Ly9saXN0cy5mcmVlZGVza3RvcC5v
+cmcvbWFpbG1hbi9saXN0aW5mby9kcmktZGV2ZWwKPgo+IC0tCj4gVmlsbGUgU3lyasOkbMOkCj4g
+SW50ZWwKPiBfX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fXwo+
+IGRyaS1kZXZlbCBtYWlsaW5nIGxpc3QKPiBkcmktZGV2ZWxAbGlzdHMuZnJlZWRlc2t0b3Aub3Jn
+Cj4gaHR0cHM6Ly9saXN0cy5mcmVlZGVza3RvcC5vcmcvbWFpbG1hbi9saXN0aW5mby9kcmktZGV2
+ZWwKCgoKLS0gCkRhbmllbCBWZXR0ZXIKU29mdHdhcmUgRW5naW5lZXIsIEludGVsIENvcnBvcmF0
+aW9uCis0MSAoMCkgNzkgMzY1IDU3IDQ4IC0gaHR0cDovL2Jsb2cuZmZ3bGwuY2gKX19fX19fX19f
+X19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX18KVmlydHVhbGl6YXRpb24gbWFp
+bGluZyBsaXN0ClZpcnR1YWxpemF0aW9uQGxpc3RzLmxpbnV4LWZvdW5kYXRpb24ub3JnCmh0dHBz
+Oi8vbGlzdHMubGludXhmb3VuZGF0aW9uLm9yZy9tYWlsbWFuL2xpc3RpbmZvL3ZpcnR1YWxpemF0
+aW9u
