@@ -1,7 +1,7 @@
 From: Gerd Hoffmann <kraxel@redhat.com>
-Subject: [PATCH v3 20/23] drm/qxl: add mode/framebuffer check functions
-Date: Fri, 18 Jan 2019 13:20:17 +0100
-Message-ID: <20190118122020.27596-21-kraxel__10140.545157674$1547814072$gmane$org@redhat.com>
+Subject: [PATCH v3 22/23] drm/qxl: use kernel mode db
+Date: Fri, 18 Jan 2019 13:20:19 +0100
+Message-ID: <20190118122020.27596-23-kraxel__28458.7079695941$1547814092$gmane$org@redhat.com>
 References: <20190118122020.27596-1-kraxel@redhat.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
@@ -21,86 +21,67 @@ To: dri-devel@lists.freedesktop.org
 Cc: David Airlie <airlied@linux.ie>, open list <linux-kernel@vger.kernel.org>, "open list:DRM DRIVER FOR QXL VIRTUAL GPU" <virtualization@lists.linux-foundation.org>, Daniel Vetter <daniel@ffwll.ch>, "open list:DRM DRIVER FOR QXL VIRTUAL GPU" <spice-devel@lists.freedesktop.org>, Dave Airlie <airlied@redhat.com>
 List-Id: virtualization@lists.linuxfoundation.org
 
-Add a helper functions to check video modes.  Also add a helper to check
-framebuffer buffer objects, using the former for consistency.  That way
-we should not fail in qxl_primary_atomic_check() because video modes
-which are too big will not be added to the mode list in the first place.
+Add all standard modes from the kernel's video mode data base.
+Keep a few non-standard modes in the qxl mode list.
 
 Signed-off-by: Gerd Hoffmann <kraxel@redhat.com>
 ---
- drivers/gpu/drm/qxl/qxl_display.c | 44 +++++++++++++++++++++++----------------
- 1 file changed, 26 insertions(+), 18 deletions(-)
+ drivers/gpu/drm/qxl/qxl_display.c | 27 +++++++--------------------
+ 1 file changed, 7 insertions(+), 20 deletions(-)
 
 diff --git a/drivers/gpu/drm/qxl/qxl_display.c b/drivers/gpu/drm/qxl/qxl_display.c
-index 9c751f01e3..fed2ea018d 100644
+index 926fcb49b2..df768b0c83 100644
 --- a/drivers/gpu/drm/qxl/qxl_display.c
 +++ b/drivers/gpu/drm/qxl/qxl_display.c
-@@ -190,6 +190,28 @@ void qxl_display_read_client_monitors_config(struct qxl_device *qdev)
- 	}
- }
+@@ -262,34 +262,20 @@ static int qxl_add_monitors_config_modes(struct drm_connector *connector)
+ static struct mode_size {
+ 	int w;
+ 	int h;
+-} common_modes[] = {
+-	{ 640,  480},
++} extra_modes[] = {
+ 	{ 720,  480},
+-	{ 800,  600},
+-	{ 848,  480},
+-	{1024,  768},
+ 	{1152,  768},
+-	{1280,  720},
+-	{1280,  800},
+ 	{1280,  854},
+-	{1280,  960},
+-	{1280, 1024},
+-	{1440,  900},
+-	{1400, 1050},
+-	{1680, 1050},
+-	{1600, 1200},
+-	{1920, 1080},
+-	{1920, 1200}
+ };
  
-+static int qxl_check_mode(struct qxl_device *qdev,
-+			  unsigned int width,
-+			  unsigned int height)
-+{
-+	unsigned int stride;
-+	unsigned int size;
-+
-+	if (check_mul_overflow(width, 4u, &stride))
-+		return -EINVAL;
-+	if (check_mul_overflow(stride, height, &size))
-+		return -EINVAL;
-+	if (size > qdev->vram_size)
-+		return -ENOMEM;
-+	return 0;
-+}
-+
-+static int qxl_check_framebuffer(struct qxl_device *qdev,
-+				 struct qxl_bo *bo)
-+{
-+	return qxl_check_mode(qdev, bo->surf.width, bo->surf.height);
-+}
-+
- static int qxl_add_monitors_config_modes(struct drm_connector *connector,
-                                          unsigned *pwidth,
-                                          unsigned *pheight)
-@@ -469,12 +491,7 @@ static int qxl_primary_atomic_check(struct drm_plane *plane,
- 
- 	bo = gem_to_qxl_bo(state->fb->obj[0]);
- 
--	if (bo->surf.stride * bo->surf.height > qdev->vram_size) {
--		DRM_ERROR("Mode doesn't fit in vram size (vgamem)");
--		return -EINVAL;
--	}
--
--	return 0;
-+	return qxl_check_framebuffer(qdev, bo);
- }
- 
- static int qxl_primary_apply_cursor(struct drm_plane *plane)
-@@ -990,20 +1007,11 @@ static enum drm_mode_status qxl_conn_mode_valid(struct drm_connector *connector,
+-static int qxl_add_common_modes(struct drm_connector *connector)
++static int qxl_add_extra_modes(struct drm_connector *connector)
  {
- 	struct drm_device *ddev = connector->dev;
- 	struct qxl_device *qdev = ddev->dev_private;
--	int i;
+ 	int i, ret = 0;
  
--	/* TODO: is this called for user defined modes? (xrandr --add-mode)
--	 * TODO: check that the mode fits in the framebuffer */
-+	if (qxl_check_mode(qdev, mode->hdisplay, mode->vdisplay) != 0)
-+		return MODE_BAD;
- 
--	if (qdev->monitors_config_width == mode->hdisplay &&
--	    qdev->monitors_config_height == mode->vdisplay)
--		return MODE_OK;
--
--	for (i = 0; i < ARRAY_SIZE(common_modes); i++) {
--		if (common_modes[i].w == mode->hdisplay && common_modes[i].h == mode->vdisplay)
--			return MODE_OK;
--	}
--	return MODE_BAD;
-+	return MODE_OK;
+-	for (i = 0; i < ARRAY_SIZE(common_modes); i++)
++	for (i = 0; i < ARRAY_SIZE(extra_modes); i++)
+ 		ret += qxl_add_mode(connector,
+-				    common_modes[i].w,
+-				    common_modes[i].h,
++				    extra_modes[i].w,
++				    extra_modes[i].h,
+ 				    false);
+ 	return ret;
  }
+@@ -1010,7 +996,8 @@ static int qxl_conn_get_modes(struct drm_connector *connector)
+ 			pheight = head->height;
+ 	}
  
- static struct drm_encoder *qxl_best_encoder(struct drm_connector *connector)
+-	ret += qxl_add_common_modes(connector);
++	ret += drm_add_modes_noedid(connector, 8192, 8192);
++	ret += qxl_add_extra_modes(connector);
+ 	ret += qxl_add_monitors_config_modes(connector);
+ 	drm_set_preferred_mode(connector, pwidth, pheight);
+ 	return ret;
 -- 
 2.9.3
