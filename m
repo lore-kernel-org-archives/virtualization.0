@@ -1,14 +1,16 @@
-From: Jason Wang <jasowang@redhat.com>
-Subject: Re: [PATCH v2] virtio_net: bulk free tx skbs
-Date: Fri, 18 Jan 2019 20:51:37 +0800
-Message-ID: <e0610506-ef97-21e4-bad4-e22bd077234c__1925.05108793757$1547815790$gmane$org@redhat.com>
-References: <20190118041842.24067-1-mst@redhat.com>
+From: Daniel Vetter <daniel@ffwll.ch>
+Subject: Re: [PATCH v3 23/23] drm/qxl: add overflow checks to
+	qxl_mode_dumb_create()
+Date: Fri, 18 Jan 2019 16:49:44 +0100
+Message-ID: <20190118154944.GH3271__43706.7984989428$1547826469$gmane$org@phenom.ffwll.local>
+References: <20190118122020.27596-1-kraxel@redhat.com>
+	<20190118122020.27596-24-kraxel@redhat.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="utf-8"; Format="flowed"
-Content-Transfer-Encoding: base64
+Content-Type: text/plain; charset="us-ascii"
+Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <20190118041842.24067-1-mst@redhat.com>
-Content-Language: en-US
+Content-Disposition: inline
+In-Reply-To: <20190118122020.27596-24-kraxel@redhat.com>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -18,57 +20,51 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: "Michael S. Tsirkin" <mst@redhat.com>, linux-kernel@vger.kernel.org
-Cc: netdev@vger.kernel.org, "David S. Miller" <davem@davemloft.net>, virtualization@lists.linux-foundation.org
+To: Gerd Hoffmann <kraxel@redhat.com>
+Cc: David Airlie <airlied@linux.ie>, open list <linux-kernel@vger.kernel.org>, dri-devel@lists.freedesktop.org, "open list:DRM DRIVER FOR QXL VIRTUAL GPU" <virtualization@lists.linux-foundation.org>, Daniel Vetter <daniel@ffwll.ch>, "open list:DRM DRIVER FOR QXL VIRTUAL GPU" <spice-devel@lists.freedesktop.org>, Dave Airlie <airlied@redhat.com>
 List-Id: virtualization@lists.linuxfoundation.org
 
-Ck9uIDIwMTkvMS8xOCDkuIvljYgxMjoyMCwgTWljaGFlbCBTLiBUc2lya2luIHdyb3RlOgo+IFVz
-ZSBuYXBpX2NvbnN1bWVfc2tiKCkgdG8gZ2V0IGJ1bGsgZnJlZS4gIE5vdGUgdGhhdCBuYXBpX2Nv
-bnN1bWVfc2tiIGlzCj4gc2FmZSB0byBjYWxsIGluIGEgbm9uLW5hcGkgY29udGV4dCBhcyBsb25n
-IGFzIHRoZSBuYXBpX2J1ZGdldCBmbGFnIGlzCj4gY29ycmVjdC4KPgo+IFNpZ25lZC1vZmYtYnk6
-IE1pY2hhZWwgUy4gVHNpcmtpbiA8bXN0QHJlZGhhdC5jb20+Cj4gLS0tCj4KPiBDaGFuZ2VzIGZy
-b20gdjE6Cj4gCXJlYmFzZSBvbiBtYXN0ZXIuCj4KPiBsaWdodGx5IHRlc3RlZCBvbiBkZXZlbG9w
-ZXIncyBib3guCj4KPiAgIGRyaXZlcnMvbmV0L3ZpcnRpb19uZXQuYyB8IDEyICsrKysrKy0tLS0t
-LQo+ICAgMSBmaWxlIGNoYW5nZWQsIDYgaW5zZXJ0aW9ucygrKSwgNiBkZWxldGlvbnMoLSkKCgpB
-Y2tlZC1ieTogSmFzb24gV2FuZyA8amFzb3dhbmdAcmVkaGF0LmNvbT4KCgo+Cj4gZGlmZiAtLWdp
-dCBhL2RyaXZlcnMvbmV0L3ZpcnRpb19uZXQuYyBiL2RyaXZlcnMvbmV0L3ZpcnRpb19uZXQuYwo+
-IGluZGV4IDAyMzcyNTA4NjA0Ni4uOGZhZGQ4ZWFmNjAxIDEwMDY0NAo+IC0tLSBhL2RyaXZlcnMv
-bmV0L3ZpcnRpb19uZXQuYwo+ICsrKyBiL2RyaXZlcnMvbmV0L3ZpcnRpb19uZXQuYwo+IEBAIC0x
-MzMwLDcgKzEzMzAsNyBAQCBzdGF0aWMgaW50IHZpcnRuZXRfcmVjZWl2ZShzdHJ1Y3QgcmVjZWl2
-ZV9xdWV1ZSAqcnEsIGludCBidWRnZXQsCj4gICAJcmV0dXJuIHN0YXRzLnBhY2tldHM7Cj4gICB9
-Cj4gICAKPiAtc3RhdGljIHZvaWQgZnJlZV9vbGRfeG1pdF9za2JzKHN0cnVjdCBzZW5kX3F1ZXVl
-ICpzcSkKPiArc3RhdGljIHZvaWQgZnJlZV9vbGRfeG1pdF9za2JzKHN0cnVjdCBzZW5kX3F1ZXVl
-ICpzcSwgYm9vbCBpbl9uYXBpKQo+ICAgewo+ICAgCXN0cnVjdCBza19idWZmICpza2I7Cj4gICAJ
-dW5zaWduZWQgaW50IGxlbjsKPiBAQCAtMTM0Myw3ICsxMzQzLDcgQEAgc3RhdGljIHZvaWQgZnJl
-ZV9vbGRfeG1pdF9za2JzKHN0cnVjdCBzZW5kX3F1ZXVlICpzcSkKPiAgIAkJYnl0ZXMgKz0gc2ti
-LT5sZW47Cj4gICAJCXBhY2tldHMrKzsKPiAgIAo+IC0JCWRldl9jb25zdW1lX3NrYl9hbnkoc2ti
-KTsKPiArCQluYXBpX2NvbnN1bWVfc2tiKHNrYiwgaW5fbmFwaSk7Cj4gICAJfQo+ICAgCj4gICAJ
-LyogQXZvaWQgb3ZlcmhlYWQgd2hlbiBubyBwYWNrZXRzIGhhdmUgYmVlbiBwcm9jZXNzZWQKPiBA
-QCAtMTM2OSw3ICsxMzY5LDcgQEAgc3RhdGljIHZvaWQgdmlydG5ldF9wb2xsX2NsZWFudHgoc3Ry
-dWN0IHJlY2VpdmVfcXVldWUgKnJxKQo+ICAgCQlyZXR1cm47Cj4gICAKPiAgIAlpZiAoX19uZXRp
-Zl90eF90cnlsb2NrKHR4cSkpIHsKPiAtCQlmcmVlX29sZF94bWl0X3NrYnMoc3EpOwo+ICsJCWZy
-ZWVfb2xkX3htaXRfc2ticyhzcSwgdHJ1ZSk7Cj4gICAJCV9fbmV0aWZfdHhfdW5sb2NrKHR4cSk7
-Cj4gICAJfQo+ICAgCj4gQEAgLTE0NDUsNyArMTQ0NSw3IEBAIHN0YXRpYyBpbnQgdmlydG5ldF9w
-b2xsX3R4KHN0cnVjdCBuYXBpX3N0cnVjdCAqbmFwaSwgaW50IGJ1ZGdldCkKPiAgIAlzdHJ1Y3Qg
-bmV0ZGV2X3F1ZXVlICp0eHEgPSBuZXRkZXZfZ2V0X3R4X3F1ZXVlKHZpLT5kZXYsIHZxMnR4cShz
-cS0+dnEpKTsKPiAgIAo+ICAgCV9fbmV0aWZfdHhfbG9jayh0eHEsIHJhd19zbXBfcHJvY2Vzc29y
-X2lkKCkpOwo+IC0JZnJlZV9vbGRfeG1pdF9za2JzKHNxKTsKPiArCWZyZWVfb2xkX3htaXRfc2ti
-cyhzcSwgdHJ1ZSk7Cj4gICAJX19uZXRpZl90eF91bmxvY2sodHhxKTsKPiAgIAo+ICAgCXZpcnRx
-dWV1ZV9uYXBpX2NvbXBsZXRlKG5hcGksIHNxLT52cSwgMCk7Cj4gQEAgLTE1MTQsNyArMTUxNCw3
-IEBAIHN0YXRpYyBuZXRkZXZfdHhfdCBzdGFydF94bWl0KHN0cnVjdCBza19idWZmICpza2IsIHN0
-cnVjdCBuZXRfZGV2aWNlICpkZXYpCj4gICAJYm9vbCB1c2VfbmFwaSA9IHNxLT5uYXBpLndlaWdo
-dDsKPiAgIAo+ICAgCS8qIEZyZWUgdXAgYW55IHBlbmRpbmcgb2xkIGJ1ZmZlcnMgYmVmb3JlIHF1
-ZXVlaW5nIG5ldyBvbmVzLiAqLwo+IC0JZnJlZV9vbGRfeG1pdF9za2JzKHNxKTsKPiArCWZyZWVf
-b2xkX3htaXRfc2ticyhzcSwgZmFsc2UpOwo+ICAgCj4gICAJaWYgKHVzZV9uYXBpICYmIGtpY2sp
-Cj4gICAJCXZpcnRxdWV1ZV9lbmFibGVfY2JfZGVsYXllZChzcS0+dnEpOwo+IEBAIC0xNTU3LDcg
-KzE1NTcsNyBAQCBzdGF0aWMgbmV0ZGV2X3R4X3Qgc3RhcnRfeG1pdChzdHJ1Y3Qgc2tfYnVmZiAq
-c2tiLCBzdHJ1Y3QgbmV0X2RldmljZSAqZGV2KQo+ICAgCQlpZiAoIXVzZV9uYXBpICYmCj4gICAJ
-CSAgICB1bmxpa2VseSghdmlydHF1ZXVlX2VuYWJsZV9jYl9kZWxheWVkKHNxLT52cSkpKSB7Cj4g
-ICAJCQkvKiBNb3JlIGp1c3QgZ290IHVzZWQsIGZyZWUgdGhlbSB0aGVuIHJlY2hlY2suICovCj4g
-LQkJCWZyZWVfb2xkX3htaXRfc2ticyhzcSk7Cj4gKwkJCWZyZWVfb2xkX3htaXRfc2ticyhzcSwg
-ZmFsc2UpOwo+ICAgCQkJaWYgKHNxLT52cS0+bnVtX2ZyZWUgPj0gMitNQVhfU0tCX0ZSQUdTKSB7
-Cj4gICAJCQkJbmV0aWZfc3RhcnRfc3VicXVldWUoZGV2LCBxbnVtKTsKPiAgIAkJCQl2aXJ0cXVl
-dWVfZGlzYWJsZV9jYihzcS0+dnEpOwpfX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19f
-X19fX19fX19fX19fXwpWaXJ0dWFsaXphdGlvbiBtYWlsaW5nIGxpc3QKVmlydHVhbGl6YXRpb25A
-bGlzdHMubGludXgtZm91bmRhdGlvbi5vcmcKaHR0cHM6Ly9saXN0cy5saW51eGZvdW5kYXRpb24u
-b3JnL21haWxtYW4vbGlzdGluZm8vdmlydHVhbGl6YXRpb24=
+On Fri, Jan 18, 2019 at 01:20:20PM +0100, Gerd Hoffmann wrote:
+> Signed-off-by: Gerd Hoffmann <kraxel@redhat.com>
+
+We already do all reasonable overflow checks in drm_mode_create_dumb(). If
+you don't trust them I think would be better time spent typing an igt to
+test this than adding redundant check in all drivers.
+
+You're also missing one check for bpp underflows :-)
+-Daniel
+
+> ---
+>  drivers/gpu/drm/qxl/qxl_dumb.c | 10 ++++++----
+>  1 file changed, 6 insertions(+), 4 deletions(-)
+> 
+> diff --git a/drivers/gpu/drm/qxl/qxl_dumb.c b/drivers/gpu/drm/qxl/qxl_dumb.c
+> index 272d19b677..bed6d06ee4 100644
+> --- a/drivers/gpu/drm/qxl/qxl_dumb.c
+> +++ b/drivers/gpu/drm/qxl/qxl_dumb.c
+> @@ -37,11 +37,13 @@ int qxl_mode_dumb_create(struct drm_file *file_priv,
+>  	uint32_t handle;
+>  	int r;
+>  	struct qxl_surface surf;
+> -	uint32_t pitch, format;
+> +	uint32_t pitch, size, format;
+>  
+> -	pitch = args->width * ((args->bpp + 1) / 8);
+> -	args->size = pitch * args->height;
+> -	args->size = ALIGN(args->size, PAGE_SIZE);
+> +	if (check_mul_overflow(args->width, ((args->bpp + 1) / 8), &pitch))
+> +		return -EINVAL;
+> +	if (check_mul_overflow(pitch, args->height, &size))
+> +		return -EINVAL;
+> +	args->size = ALIGN(size, PAGE_SIZE);
+>  
+>  	switch (args->bpp) {
+>  	case 16:
+> -- 
+> 2.9.3
+> 
+
+-- 
+Daniel Vetter
+Software Engineer, Intel Corporation
+http://blog.ffwll.ch
