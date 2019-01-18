@@ -1,14 +1,17 @@
-From: Toshiaki Makita <makita.toshiaki@lab.ntt.co.jp>
-Subject: Re: [PATCH net 0/7] virtio_net: Fix problems around XDP tx and napi_tx
-Date: Fri, 18 Jan 2019 11:01:17 +0900
-Message-ID: <ecf1bd12-7f11-781f-4ce8-ef87da53a885__35016.33156925$1547811588$gmane$org@lab.ntt.co.jp>
+From: Jason Wang <jasowang@redhat.com>
+Subject: Re: [PATCH net 2/7] virtio_net: Don't call free_old_xmit_skbs for
+	xdp_frames
+Date: Fri, 18 Jan 2019 11:50:17 +0800
+Message-ID: <0c6144fa-1e2c-4a50-c238-5c7f53672a25__38984.6763377593$1547811605$gmane$org@redhat.com>
 References: <1547724045-2726-1-git-send-email-makita.toshiaki@lab.ntt.co.jp>
-	<20190117095243-mutt-send-email-mst@kernel.org>
+	<1547724045-2726-3-git-send-email-makita.toshiaki@lab.ntt.co.jp>
+	<7c8955f5-cd38-c26f-9932-0aa0be573b4e@redhat.com>
+	<8b097123-5e10-69dd-a638-65e4dc6d7882@lab.ntt.co.jp>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset="utf-8"; Format="flowed"
+Content-Transfer-Encoding: base64
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <20190117095243-mutt-send-email-mst@kernel.org>
+In-Reply-To: <8b097123-5e10-69dd-a638-65e4dc6d7882@lab.ntt.co.jp>
 Content-Language: en-US
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
@@ -19,59 +22,38 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: "Michael S. Tsirkin" <mst@redhat.com>
-Cc: Willem de Bruijn <willemb@google.com>, netdev@vger.kernel.org, virtualization@lists.linux-foundation.org, Jesper Dangaard Brouer <brouer@redhat.com>, "David S. Miller" <davem@davemloft.net>
+To: Toshiaki Makita <makita.toshiaki@lab.ntt.co.jp>, "David S. Miller" <davem@davemloft.net>, "Michael S. Tsirkin" <mst@redhat.com>
+Cc: netdev@vger.kernel.org, Willem de Bruijn <willemb@google.com>, virtualization@lists.linux-foundation.org
 List-Id: virtualization@lists.linuxfoundation.org
 
-On 2019/01/17 23:55, Michael S. Tsirkin wrote:
-> On Thu, Jan 17, 2019 at 08:20:38PM +0900, Toshiaki Makita wrote:
->> While I'm looking into how to account standard tx counters on XDP tx
->> processing, I found several bugs around XDP tx and napi_tx.
->>
->> Patch1: Fix oops on error path. Patch2 depends on this.
->> Patch2: Fix memory corruption on freeing xdp_frames with napi_tx enabled.
->> Patch3: Minor fix patch5 depends on.
->> Patch4: Fix memory corruption on processing xdp_frames when XDP is disabled.
->>   Also patch5 depends on this.
->> Patch5: Fix memory corruption on processing xdp_frames while XDP is being
->>   disabled.
->> Patch6: Minor fix patch7 depends on.
->> Patch7: Fix memory corruption on freeing sk_buff or xdp_frames when a normal
->>   queue is reused for XDP and vise versa.
->>
->> Signed-off-by: Toshiaki Makita <makita.toshiaki@lab.ntt.co.jp>
-> 
-> Series:
-> 
-> Acked-by: Michael S. Tsirkin <mst@redhat.com>
-
-Thanks for the review.
-
-> 
-> I guess we need this stuff on stable?
-
-I think so.
-
-> I'm especially happy with Patch7 as it makes my BQL
-> work a bit easier.
-> 
->> Toshiaki Makita (7):
->>   virtio_net: Don't enable NAPI when interface is down
->>   virtio_net: Don't call free_old_xmit_skbs for xdp_frames
->>   virtio_net: Fix not restoring real_num_rx_queues
->>   virtio_net: Fix out of bounds access of sq
->>   virtio_net: Don't process redirected XDP frames when XDP is disabled
->>   virtio_net: Use xdp_return_frame to free xdp_frames on destroying vqs
->>   virtio_net: Differentiate sk_buff and xdp_frame on freeing
->>
->>  drivers/net/virtio_net.c | 154 +++++++++++++++++++++++++++++++++--------------
->>  1 file changed, 109 insertions(+), 45 deletions(-)
->>
->> -- 
->> 1.8.3.1
->>
-> 
-> 
-
--- 
-Toshiaki Makita
+Ck9uIDIwMTkvMS8xOCDkuIrljYg5OjQ0LCBUb3NoaWFraSBNYWtpdGEgd3JvdGU6Cj4gT24gMjAx
+OS8wMS8xNyAyMTozOSwgSmFzb24gV2FuZyB3cm90ZToKPj4gT24gMjAxOS8xLzE3IOS4i+WNiDc6
+MjAsIFRvc2hpYWtpIE1ha2l0YSB3cm90ZToKPj4+IFdoZW4gbmFwaV90eCBpcyBlbmFibGVkLCB2
+aXJ0bmV0X3BvbGxfY2xlYW50eCgpIGNhbGxlZAo+Pj4gZnJlZV9vbGRfeG1pdF9za2JzKCkgZXZl
+biBmb3IgeGRwIHNlbmQgcXVldWUuCj4+PiBUaGlzIGlzIGJvZ3VzIHNpbmNlIHRoZSBxdWV1ZSBo
+YXMgeGRwX2ZyYW1lcywgbm90IHNrX2J1ZmZzLCB0aHVzIG1hbmdsZWQKPj4+IGRldmljZSB0eCBi
+eXRlcyBjb3VudGVycyBiZWNhdXNlIHNrYi0+bGVuIGlzIG1lYW5pbmdsZXNzIHZhbHVlLCBhbmQg
+ZXZlbgo+Pj4gdHJpZ2dlcmVkIG9vcHMgZHVlIHRvIGdlbmVyYWwgcHJvdGVjdGlvbiBmYXVsdCBv
+biBmcmVlaW5nIHRoZW0uCj4+Pgo+Pj4gU2luY2UgeGRwIHNlbmQgcXVldWVzIGRvIG5vdCBhcXVp
+cmUgbG9ja3MsIG9sZCB4ZHBfZnJhbWVzIHNob3VsZCBiZQo+Pj4gZnJlZWQgb25seSBpbiB2aXJ0
+bmV0X3hkcF94bWl0KCksIHNvIGp1c3Qgc2tpcCBmcmVlX29sZF94bWl0X3NrYnMoKSBmb3IKPj4+
+IHhkcCBzZW5kIHF1ZXVlcy4KPj4+Cj4+PiBTaW1pbGFybHkgdmlydG5ldF9wb2xsX3R4KCkgY2Fs
+bGVkIGZyZWVfb2xkX3htaXRfc2ticygpLiBUaGlzIE5BUEkKPj4+IGhhbmRsZXIgaXMgY2FsbGVk
+IGV2ZW4gd2l0aG91dCBjYWxsaW5nIHN0YXJ0X3htaXQoKSBiZWNhdXNlIGNiIGZvciB0eCBpcwo+
+Pj4gYnkgZGVmYXVsdCBlbmFibGVkLiBPbmNlIHRoZSBoYW5kbGVyIGlzIGNhbGxlZCwgaXQgZW5h
+YmxlZCB0aGUgY2IgYWdhaW4sCj4+PiBhbmQgdGhlbiB0aGUgaGFuZGxlciB3b3VsZCBiZSBjYWxs
+ZWQgYWdhaW4uIFdlIGRvbid0IG5lZWQgdGhpcyBoYW5kbGVyCj4+PiBmb3IgWERQLCBzbyBkb24n
+dCBlbmFibGUgY2IgYXMgd2VsbCBhcyBub3QgY2FsbGluZyBmcmVlX29sZF94bWl0X3NrYnMoKS4K
+Pj4+Cj4+PiBBbHNvLCB3ZSBuZWVkIHRvIGRpc2FibGUgdHggTkFQSSB3aGVuIGRpc2FibGluZyBY
+RFAsIHNvCj4+PiB2aXJ0bmV0X3BvbGxfdHgoKSBjYW4gc2FmZWx5IGFjY2VzcyBjdXJyX3F1ZXVl
+X3BhaXJzIGFuZAo+Pj4geGRwX3F1ZXVlX3BhaXJzLCB3aGljaCBhcmUgbm90IGF0b21pY2FsbHkg
+dXBkYXRlZCB3aGlsZSBkaXNhYmxpbmcgWERQLgo+Pgo+PiBJIHN1Z2dlc3QgdG8gc3BsaXQgdGhp
+cyBpbnRvIGFub3RoZXIgcGF0Y2ggb3Igc3F1YXNoIHRoaXMgcGFydCB0byBwYXRjaCAxLgo+IFRo
+aXMgcGFydCBpcyBmb3IgaW52b2NhdGlvbiBvZiBpc194ZHBfcmF3X2J1ZmZlcl9xdWV1ZSgpIGZy
+b20KPiB2aXJ0bmV0X3BvbGxfdHgoKSwgd2hpY2ggaXMgYWRkZWQgaW4gdGhpcyBwYXRjaCwgc28g
+SSdtIHRoaW5raW5nIGl0J3MKPiBtb3JlIG5hdHVyYWwgdG8ga2VlcCB0aGlzIGh1bmsgaW4gdGhp
+cyBwYXRjaC4KCgpJIHNlZS4KCkFja2VkLWJ5OiBKYXNvbiBXYW5nIDxqYXNvd2FuZ0ByZWRoYXQu
+Y29tPgoKVGhhbmtzCgpfX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19f
+X19fXwpWaXJ0dWFsaXphdGlvbiBtYWlsaW5nIGxpc3QKVmlydHVhbGl6YXRpb25AbGlzdHMubGlu
+dXgtZm91bmRhdGlvbi5vcmcKaHR0cHM6Ly9saXN0cy5saW51eGZvdW5kYXRpb24ub3JnL21haWxt
+YW4vbGlzdGluZm8vdmlydHVhbGl6YXRpb24=
