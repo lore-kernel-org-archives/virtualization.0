@@ -1,8 +1,7 @@
 From: Gerd Hoffmann <kraxel@redhat.com>
-Subject: [PATCH v3 23/23] drm/qxl: add overflow checks to
-	qxl_mode_dumb_create()
-Date: Fri, 18 Jan 2019 13:20:20 +0100
-Message-ID: <20190118122020.27596-24-kraxel__27790.2290378281$1547814231$gmane$org@redhat.com>
+Subject: [PATCH v3 02/23] drm/qxl: drop unused qxl_fb_virtual_address
+Date: Fri, 18 Jan 2019 13:19:59 +0100
+Message-ID: <20190118122020.27596-3-kraxel__20803.4633230001$1547814246$gmane$org@redhat.com>
 References: <20190118122020.27596-1-kraxel@redhat.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
@@ -24,30 +23,26 @@ List-Id: virtualization@lists.linuxfoundation.org
 
 Signed-off-by: Gerd Hoffmann <kraxel@redhat.com>
 ---
- drivers/gpu/drm/qxl/qxl_dumb.c | 10 ++++++----
- 1 file changed, 6 insertions(+), 4 deletions(-)
+ drivers/gpu/drm/qxl/qxl_drv.h | 7 -------
+ 1 file changed, 7 deletions(-)
 
-diff --git a/drivers/gpu/drm/qxl/qxl_dumb.c b/drivers/gpu/drm/qxl/qxl_dumb.c
-index 272d19b677..bed6d06ee4 100644
---- a/drivers/gpu/drm/qxl/qxl_dumb.c
-+++ b/drivers/gpu/drm/qxl/qxl_dumb.c
-@@ -37,11 +37,13 @@ int qxl_mode_dumb_create(struct drm_file *file_priv,
- 	uint32_t handle;
- 	int r;
- 	struct qxl_surface surf;
--	uint32_t pitch, format;
-+	uint32_t pitch, size, format;
+diff --git a/drivers/gpu/drm/qxl/qxl_drv.h b/drivers/gpu/drm/qxl/qxl_drv.h
+index 38c5a8b1df..7eabf4a9ed 100644
+--- a/drivers/gpu/drm/qxl/qxl_drv.h
++++ b/drivers/gpu/drm/qxl/qxl_drv.h
+@@ -308,13 +308,6 @@ void qxl_ring_free(struct qxl_ring *ring);
+ void qxl_ring_init_hdr(struct qxl_ring *ring);
+ int qxl_check_idle(struct qxl_ring *ring);
  
--	pitch = args->width * ((args->bpp + 1) / 8);
--	args->size = pitch * args->height;
--	args->size = ALIGN(args->size, PAGE_SIZE);
-+	if (check_mul_overflow(args->width, ((args->bpp + 1) / 8), &pitch))
-+		return -EINVAL;
-+	if (check_mul_overflow(pitch, args->height, &size))
-+		return -EINVAL;
-+	args->size = ALIGN(size, PAGE_SIZE);
- 
- 	switch (args->bpp) {
- 	case 16:
+-static inline void *
+-qxl_fb_virtual_address(struct qxl_device *qdev, unsigned long physical)
+-{
+-	DRM_DEBUG_DRIVER("not implemented (%lu)\n", physical);
+-	return 0;
+-}
+-
+ static inline uint64_t
+ qxl_bo_physical_address(struct qxl_device *qdev, struct qxl_bo *bo,
+ 			unsigned long offset)
 -- 
 2.9.3
