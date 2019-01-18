@@ -1,7 +1,7 @@
 From: Gerd Hoffmann <kraxel@redhat.com>
-Subject: [PATCH v3 22/23] drm/qxl: use kernel mode db
-Date: Fri, 18 Jan 2019 13:20:19 +0100
-Message-ID: <20190118122020.27596-23-kraxel__28458.7079695941$1547814092$gmane$org@redhat.com>
+Subject: [PATCH v3 16/23] drm/qxl: implement prime kmap/kunmap
+Date: Fri, 18 Jan 2019 13:20:13 +0100
+Message-ID: <20190118122020.27596-17-kraxel__20505.5218576037$1547814107$gmane$org@redhat.com>
 References: <20190118122020.27596-1-kraxel@redhat.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
@@ -21,67 +21,106 @@ To: dri-devel@lists.freedesktop.org
 Cc: David Airlie <airlied@linux.ie>, open list <linux-kernel@vger.kernel.org>, "open list:DRM DRIVER FOR QXL VIRTUAL GPU" <virtualization@lists.linux-foundation.org>, Daniel Vetter <daniel@ffwll.ch>, "open list:DRM DRIVER FOR QXL VIRTUAL GPU" <spice-devel@lists.freedesktop.org>, Dave Airlie <airlied@redhat.com>
 List-Id: virtualization@lists.linuxfoundation.org
 
-Add all standard modes from the kernel's video mode data base.
-Keep a few non-standard modes in the qxl mode list.
+Generic fbdev emulation needs this.  Also: We must keep track of the
+number of mappings now, so we don't unmap early in case two users want a
+kmap of the same bo.  Add a sanity check to destroy callback to make
+sure kmap/kunmap is balanced.
 
 Signed-off-by: Gerd Hoffmann <kraxel@redhat.com>
 ---
- drivers/gpu/drm/qxl/qxl_display.c | 27 +++++++--------------------
- 1 file changed, 7 insertions(+), 20 deletions(-)
+ drivers/gpu/drm/qxl/qxl_drv.h    |  1 +
+ drivers/gpu/drm/qxl/qxl_object.c |  6 ++++++
+ drivers/gpu/drm/qxl/qxl_prime.c  | 17 +++++++++++++----
+ 3 files changed, 20 insertions(+), 4 deletions(-)
 
-diff --git a/drivers/gpu/drm/qxl/qxl_display.c b/drivers/gpu/drm/qxl/qxl_display.c
-index 926fcb49b2..df768b0c83 100644
---- a/drivers/gpu/drm/qxl/qxl_display.c
-+++ b/drivers/gpu/drm/qxl/qxl_display.c
-@@ -262,34 +262,20 @@ static int qxl_add_monitors_config_modes(struct drm_connector *connector)
- static struct mode_size {
- 	int w;
- 	int h;
--} common_modes[] = {
--	{ 640,  480},
-+} extra_modes[] = {
- 	{ 720,  480},
--	{ 800,  600},
--	{ 848,  480},
--	{1024,  768},
- 	{1152,  768},
--	{1280,  720},
--	{1280,  800},
- 	{1280,  854},
--	{1280,  960},
--	{1280, 1024},
--	{1440,  900},
--	{1400, 1050},
--	{1680, 1050},
--	{1600, 1200},
--	{1920, 1080},
--	{1920, 1200}
- };
+diff --git a/drivers/gpu/drm/qxl/qxl_drv.h b/drivers/gpu/drm/qxl/qxl_drv.h
+index 43c6df9cf9..8c3af1cdbe 100644
+--- a/drivers/gpu/drm/qxl/qxl_drv.h
++++ b/drivers/gpu/drm/qxl/qxl_drv.h
+@@ -84,6 +84,7 @@ struct qxl_bo {
+ 	struct ttm_bo_kmap_obj		kmap;
+ 	unsigned int pin_count;
+ 	void				*kptr;
++	unsigned int                    map_count;
+ 	int                             type;
  
--static int qxl_add_common_modes(struct drm_connector *connector)
-+static int qxl_add_extra_modes(struct drm_connector *connector)
- {
- 	int i, ret = 0;
+ 	/* Constant after initialization */
+diff --git a/drivers/gpu/drm/qxl/qxl_object.c b/drivers/gpu/drm/qxl/qxl_object.c
+index 024c8dd317..4928fa6029 100644
+--- a/drivers/gpu/drm/qxl/qxl_object.c
++++ b/drivers/gpu/drm/qxl/qxl_object.c
+@@ -36,6 +36,7 @@ static void qxl_ttm_bo_destroy(struct ttm_buffer_object *tbo)
+ 	qdev = (struct qxl_device *)bo->gem_base.dev->dev_private;
  
--	for (i = 0; i < ARRAY_SIZE(common_modes); i++)
-+	for (i = 0; i < ARRAY_SIZE(extra_modes); i++)
- 		ret += qxl_add_mode(connector,
--				    common_modes[i].w,
--				    common_modes[i].h,
-+				    extra_modes[i].w,
-+				    extra_modes[i].h,
- 				    false);
- 	return ret;
- }
-@@ -1010,7 +996,8 @@ static int qxl_conn_get_modes(struct drm_connector *connector)
- 			pheight = head->height;
+ 	qxl_surface_evict(qdev, bo, false);
++	WARN_ON_ONCE(bo->map_count > 0);
+ 	mutex_lock(&qdev->gem.mutex);
+ 	list_del_init(&bo->list);
+ 	mutex_unlock(&qdev->gem.mutex);
+@@ -131,6 +132,7 @@ int qxl_bo_kmap(struct qxl_bo *bo, void **ptr)
+ 	if (bo->kptr) {
+ 		if (ptr)
+ 			*ptr = bo->kptr;
++		bo->map_count++;
+ 		return 0;
  	}
+ 	r = ttm_bo_kmap(&bo->tbo, 0, bo->tbo.num_pages, &bo->kmap);
+@@ -139,6 +141,7 @@ int qxl_bo_kmap(struct qxl_bo *bo, void **ptr)
+ 	bo->kptr = ttm_kmap_obj_virtual(&bo->kmap, &is_iomem);
+ 	if (ptr)
+ 		*ptr = bo->kptr;
++	bo->map_count = 1;
+ 	return 0;
+ }
  
--	ret += qxl_add_common_modes(connector);
-+	ret += drm_add_modes_noedid(connector, 8192, 8192);
-+	ret += qxl_add_extra_modes(connector);
- 	ret += qxl_add_monitors_config_modes(connector);
- 	drm_set_preferred_mode(connector, pwidth, pheight);
- 	return ret;
+@@ -180,6 +183,9 @@ void qxl_bo_kunmap(struct qxl_bo *bo)
+ {
+ 	if (bo->kptr == NULL)
+ 		return;
++	bo->map_count--;
++	if (bo->map_count > 0)
++		return;
+ 	bo->kptr = NULL;
+ 	ttm_bo_kunmap(&bo->kmap);
+ }
+diff --git a/drivers/gpu/drm/qxl/qxl_prime.c b/drivers/gpu/drm/qxl/qxl_prime.c
+index a55dece118..708378844c 100644
+--- a/drivers/gpu/drm/qxl/qxl_prime.c
++++ b/drivers/gpu/drm/qxl/qxl_prime.c
+@@ -22,7 +22,7 @@
+  * Authors: Andreas Pokorny
+  */
+ 
+-#include "qxl_drv.h"
++#include "qxl_object.h"
+ 
+ /* Empty Implementations as there should not be any other driver for a virtual
+  * device that might share buffers with qxl */
+@@ -54,13 +54,22 @@ struct drm_gem_object *qxl_gem_prime_import_sg_table(
+ 
+ void *qxl_gem_prime_vmap(struct drm_gem_object *obj)
+ {
+-	WARN_ONCE(1, "not implemented");
+-	return ERR_PTR(-ENOSYS);
++	struct qxl_bo *bo = gem_to_qxl_bo(obj);
++	void *ptr;
++	int ret;
++
++	ret = qxl_bo_kmap(bo, &ptr);
++	if (ret < 0)
++		return ERR_PTR(ret);
++
++	return ptr;
+ }
+ 
+ void qxl_gem_prime_vunmap(struct drm_gem_object *obj, void *vaddr)
+ {
+-	WARN_ONCE(1, "not implemented");
++	struct qxl_bo *bo = gem_to_qxl_bo(obj);
++
++	qxl_bo_kunmap(bo);
+ }
+ 
+ int qxl_gem_prime_mmap(struct drm_gem_object *obj,
 -- 
 2.9.3
