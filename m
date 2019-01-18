@@ -1,17 +1,14 @@
 From: Toshiaki Makita <makita.toshiaki@lab.ntt.co.jp>
-Subject: Re: [PATCH net 5/7] virtio_net: Don't process redirected XDP frames
-	when XDP is disabled
-Date: Fri, 18 Jan 2019 10:56:27 +0900
-Message-ID: <efe2af1b-4af1-da87-577c-e34bd5536572__40442.6614557908$1547811573$gmane$org@lab.ntt.co.jp>
+Subject: Re: [PATCH net 0/7] virtio_net: Fix problems around XDP tx and napi_tx
+Date: Fri, 18 Jan 2019 11:01:17 +0900
+Message-ID: <ecf1bd12-7f11-781f-4ce8-ef87da53a885__35016.33156925$1547811588$gmane$org@lab.ntt.co.jp>
 References: <1547724045-2726-1-git-send-email-makita.toshiaki@lab.ntt.co.jp>
-	<1547724045-2726-6-git-send-email-makita.toshiaki@lab.ntt.co.jp>
-	<b6a4ba3f-98f4-ba4d-a318-309780be74ae@redhat.com>
-	<24359f65-fe45-46d1-5344-f0cc4705009b@redhat.com>
+	<20190117095243-mutt-send-email-mst@kernel.org>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="utf-8"
-Content-Transfer-Encoding: base64
+Content-Type: text/plain; charset="us-ascii"
+Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <24359f65-fe45-46d1-5344-f0cc4705009b@redhat.com>
+In-Reply-To: <20190117095243-mutt-send-email-mst@kernel.org>
 Content-Language: en-US
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
@@ -22,60 +19,59 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Jason Wang <jasowang@redhat.com>, "David S. Miller" <davem@davemloft.net>, "Michael S. Tsirkin" <mst@redhat.com>
-Cc: netdev@vger.kernel.org, Jesper Dangaard Brouer <brouer@redhat.com>, virtualization@lists.linux-foundation.org
+To: "Michael S. Tsirkin" <mst@redhat.com>
+Cc: Willem de Bruijn <willemb@google.com>, netdev@vger.kernel.org, virtualization@lists.linux-foundation.org, Jesper Dangaard Brouer <brouer@redhat.com>, "David S. Miller" <davem@davemloft.net>
 List-Id: virtualization@lists.linuxfoundation.org
 
-T24gMjAxOS8wMS8xNyAyMjowNSwgSmFzb24gV2FuZyB3cm90ZToKPiBPbiAyMDE5LzEvMTcg5LiL
-5Y2IODo1MywgSmFzb24gV2FuZyB3cm90ZToKPj4gT24gMjAxOS8xLzE3IOS4i+WNiDc6MjAsIFRv
-c2hpYWtpIE1ha2l0YSB3cm90ZToKPj4+IENvbW1pdCA4ZGNjNWIwYWIwZWMgKCJ2aXJ0aW9fbmV0
-OiBmaXggbmRvX3hkcF94bWl0IGNyYXNoIHRvd2FyZHMgZGV2IG5vdAo+Pj4gcmVhZHkgZm9yIFhE
-UCIpIHRyaWVkIHRvIGF2b2lkIGFjY2VzcyB0byB1bmV4cGVjdGVkIHNxIHdoaWxlIFhEUCBpcwo+
-Pj4gZGlzYWJsZWQsIGJ1dCB3YXMgbm90IGNvbXBsZXRlLgo+Pj4KPj4+IFRoZXJlIHdhcyBhIHNt
-YWxsIHdpbmRvdyB3aGljaCBjYXVzZXMgb3V0IG9mIGJvdW5kcyBzcSBhY2Nlc3MgaW4KPj4+IHZp
-cnRuZXRfeGRwX3htaXQoKSB3aGlsZSBkaXNhYmxpbmcgWERQLgo+Pj4KPj4+IEFuIGV4YW1wbGUg
-Y2FzZSBvZgo+Pj4gwqAgLSBjdXJyX3F1ZXVlX3BhaXJzID0gNiAoMiBmb3IgU0tCIGFuZCA0IGZv
-ciBYRFApCj4+PiDCoCAtIG9ubGluZV9jcHVfbnVtID0geGRwX3F1ZXVlX3BhcmlzID0gNAo+Pj4g
-d2hlbiBYRFAgaXMgZW5hYmxlZDoKPj4+Cj4+PiBDUFUgMMKgwqDCoMKgwqDCoMKgwqDCoMKgwqDC
-oMKgwqDCoMKgwqDCoMKgwqDCoMKgwqDCoCBDUFUgMQo+Pj4gKERpc2FibGluZyBYRFApwqDCoMKg
-wqDCoMKgwqDCoMKgwqDCoMKgwqDCoCAoUHJvY2Vzc2luZyByZWRpcmVjdGVkIFhEUCBmcmFtZXMp
-Cj4+Pgo+Pj4gwqDCoMKgwqDCoMKgwqDCoMKgwqDCoMKgwqDCoMKgwqDCoMKgwqDCoMKgwqDCoMKg
-wqDCoMKgwqDCoMKgIHZpcnRuZXRfeGRwX3htaXQoKQo+Pj4gdmlydG5ldF94ZHBfc2V0KCkKPj4+
-IMKgIF92aXJ0bmV0X3NldF9xdWV1ZXMoKQo+Pj4gwqDCoCBzZXQgY3Vycl9xdWV1ZV9wYWlycyAo
-MikKPj4+IMKgwqDCoMKgwqDCoMKgwqDCoMKgwqDCoMKgwqDCoMKgwqDCoMKgwqDCoMKgwqDCoMKg
-wqDCoMKgwqDCoMKgIGNoZWNrIGlmIHJxLT54ZHBfcHJvZyBpcyBub3QgTlVMTAo+Pj4gwqDCoMKg
-wqDCoMKgwqDCoMKgwqDCoMKgwqDCoMKgwqDCoMKgwqDCoMKgwqDCoMKgwqDCoMKgwqDCoMKgwqAg
-dmlydG5ldF94ZHBfc3EodmkpCj4+PiDCoMKgwqDCoMKgwqDCoMKgwqDCoMKgwqDCoMKgwqDCoMKg
-wqDCoMKgwqDCoMKgwqDCoMKgwqDCoMKgwqDCoMKgIHFwID0gY3Vycl9xdWV1ZV9wYWlycyAtCj4+
-PiDCoMKgwqDCoMKgwqDCoMKgwqDCoMKgwqDCoMKgwqDCoMKgwqDCoMKgwqDCoMKgwqDCoMKgwqDC
-oMKgwqDCoMKgwqDCoMKgwqDCoCB4ZHBfcXVldWVfcGFpcnMgKwo+Pj4gwqDCoMKgwqDCoMKgwqDC
-oMKgwqDCoMKgwqDCoMKgwqDCoMKgwqDCoMKgwqDCoMKgwqDCoMKgwqDCoMKgwqDCoMKgwqDCoMKg
-wqAgc21wX3Byb2Nlc3Nvcl9pZCgpCj4+PiDCoMKgwqDCoMKgwqDCoMKgwqDCoMKgwqDCoMKgwqDC
-oMKgwqDCoMKgwqDCoMKgwqDCoMKgwqDCoMKgwqDCoMKgwqDCoMKgID0gMiAtIDQgKyAxID0gLTEK
-Pj4+IMKgwqDCoMKgwqDCoMKgwqDCoMKgwqDCoMKgwqDCoMKgwqDCoMKgwqDCoMKgwqDCoMKgwqDC
-oMKgwqDCoMKgwqAgc3EgPSAmdmktPnNxW3FwXSAvLyBvdXQgb2YgYm91bmRzCj4+PiBhY2Nlc3MK
-Pj4+IMKgwqAgc2V0IHhkcF9xdWV1ZV9wYWlycyAoMCkKPj4+IMKgwqAgcnEtPnhkcF9wcm9nID0g
-TlVMTAo+Pj4KPj4+IEJhc2ljYWxseSB3ZSBzaG91bGQgbm90IGNoYW5nZSBjdXJyX3F1ZXVlX3Bh
-aXJzIGFuZCB4ZHBfcXVldWVfcGFpcnMKPj4+IHdoaWxlIHNvbWVvbmUgY2FuIHJlYWQgdGhlIHZh
-bHVlcy4gVGh1cywgd2hlbiBkaXNhYmxpbmcgWERQLCBhc3NpZ24gTlVMTAo+Pj4gdG8gcnEtPnhk
-cF9wcm9nIGZpcnN0LCBhbmQgd2FpdCBmb3IgUkNVIGdyYWNlIHBlcmlvZCwgdGhlbiBjaGFuZ2UK
-Pj4+IHh4eF9xdWV1ZV9wYWlycy4KPj4+IE5vdGUgdGhhdCB3ZSBuZWVkIHRvIGtlZXAgdGhlIGN1
-cnJlbnQgb3JkZXIgd2hlbiBlbmFibGluZyBYRFAgdGhvdWdoLgo+Pj4KPj4+IEZpeGVzOiAxODZi
-M2M5OThjNTAgKCJ2aXJ0aW8tbmV0OiBzdXBwb3J0IFhEUF9SRURJUkVDVCIpCj4+PiBTaWduZWQt
-b2ZmLWJ5OiBUb3NoaWFraSBNYWtpdGEgPG1ha2l0YS50b3NoaWFraUBsYWIubnR0LmNvLmpwPgo+
-Pgo+Pgo+PiBJIHdvbmRlciB3aGV0aGVyIG9yIG5vdCB3ZSBjb3VsZCBzaW1wbHkgZG86Cj4+Cj4+
-Cj4+IGlmIChwcm9nKSB7Cj4gCj4gCj4gU2hvdWxkIGJlICFwcm9nCj4gCj4gCj4+Cj4+IMKgwqDC
-oCByY3VfYXNzaWduX3BvaW50ZXIoKQo+Pgo+PiDCoMKgwqAgc3luY2hyb25pemVfbmV0KCkKPj4K
-Pj4gfQo+Pgo+PiBzZXQgcXVldWVzCj4+Cj4+IGlmICghcHJvZykgewo+IAo+IAo+IFNob3VsZCBi
-ZSBwcm9nLgoKRWl0aGVyIHdvdWxkIHdvcmsuCgpXaXRoIHlvdXIgc3VnZ2VzdGlvbiB0aGUgY29k
-ZSB3aWxsIGxvb2sgbGlrZToKCi0tLQppZiAoIXByb2cpIHsKCWZvciAoLi4uKSB7CgkJcmN1X2Fz
-c2lnbl9wb2ludGVyKCk7CgkJLi4uCgl9CglzeW5jaHJvbml6ZV9uZXQoKTsKfQoKdmlydG5ldF9z
-ZXRfcXVldWVzKCk7Cm5ldGlmX3NldF9yZWFsX251bV9yeF9xdWV1ZXMoKTsKdmktPnhkcF9xdWV1
-ZV9wYWlycyA9IHhkcF9xcDsKCmlmIChwcm9nKSB7Cglmb3IgKC4uLikgewoJCXJjdV9hc3NpZ25f
-cG9pbnRlcigpOwoJCS4uLgoJfQp9Ci0tLQoKQnV0IHN0cmljdGx5IHNwZWFraW5nLCB2aXJ0bmV0
-X3NldF9xdWV1ZXMoKSBzaG91bGQgbm90IGJlIG5lY2Vzc2FyeSBpZgoocHJvZyAhPSBOVUxMICYm
-IG9sZF9wcm9nICE9IE5VTEwpLgpJZiB5b3UgcHJlZmVyIHRoaXMsIEkgY2FuIG1vZGlmeSBpdCBh
-Y2NvcmRpbmdseS4KCi0tIApUb3NoaWFraSBNYWtpdGEKCl9fX19fX19fX19fX19fX19fX19fX19f
-X19fX19fX19fX19fX19fX19fX19fX19fClZpcnR1YWxpemF0aW9uIG1haWxpbmcgbGlzdApWaXJ0
-dWFsaXphdGlvbkBsaXN0cy5saW51eC1mb3VuZGF0aW9uLm9yZwpodHRwczovL2xpc3RzLmxpbnV4
-Zm91bmRhdGlvbi5vcmcvbWFpbG1hbi9saXN0aW5mby92aXJ0dWFsaXphdGlvbg==
+On 2019/01/17 23:55, Michael S. Tsirkin wrote:
+> On Thu, Jan 17, 2019 at 08:20:38PM +0900, Toshiaki Makita wrote:
+>> While I'm looking into how to account standard tx counters on XDP tx
+>> processing, I found several bugs around XDP tx and napi_tx.
+>>
+>> Patch1: Fix oops on error path. Patch2 depends on this.
+>> Patch2: Fix memory corruption on freeing xdp_frames with napi_tx enabled.
+>> Patch3: Minor fix patch5 depends on.
+>> Patch4: Fix memory corruption on processing xdp_frames when XDP is disabled.
+>>   Also patch5 depends on this.
+>> Patch5: Fix memory corruption on processing xdp_frames while XDP is being
+>>   disabled.
+>> Patch6: Minor fix patch7 depends on.
+>> Patch7: Fix memory corruption on freeing sk_buff or xdp_frames when a normal
+>>   queue is reused for XDP and vise versa.
+>>
+>> Signed-off-by: Toshiaki Makita <makita.toshiaki@lab.ntt.co.jp>
+> 
+> Series:
+> 
+> Acked-by: Michael S. Tsirkin <mst@redhat.com>
+
+Thanks for the review.
+
+> 
+> I guess we need this stuff on stable?
+
+I think so.
+
+> I'm especially happy with Patch7 as it makes my BQL
+> work a bit easier.
+> 
+>> Toshiaki Makita (7):
+>>   virtio_net: Don't enable NAPI when interface is down
+>>   virtio_net: Don't call free_old_xmit_skbs for xdp_frames
+>>   virtio_net: Fix not restoring real_num_rx_queues
+>>   virtio_net: Fix out of bounds access of sq
+>>   virtio_net: Don't process redirected XDP frames when XDP is disabled
+>>   virtio_net: Use xdp_return_frame to free xdp_frames on destroying vqs
+>>   virtio_net: Differentiate sk_buff and xdp_frame on freeing
+>>
+>>  drivers/net/virtio_net.c | 154 +++++++++++++++++++++++++++++++++--------------
+>>  1 file changed, 109 insertions(+), 45 deletions(-)
+>>
+>> -- 
+>> 1.8.3.1
+>>
+> 
+> 
+
+-- 
+Toshiaki Makita
