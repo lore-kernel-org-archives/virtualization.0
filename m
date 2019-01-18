@@ -1,14 +1,13 @@
-From: "Michael S. Tsirkin" <mst@redhat.com>
-Subject: Re: [PATCH net V4] vhost: log dirty page correctly
-Date: Thu, 17 Jan 2019 15:42:41 -0500
-Message-ID: <20190117154226-mutt-send-email-mst__41611.3721942112$1547811711$gmane$org@kernel.org>
-References: <20190116085442.3836-1-jasowang@redhat.com>
+From: Gerd Hoffmann <kraxel@redhat.com>
+Subject: [PATCH v3 04/23] drm/qxl: change the way slot is detected
+Date: Fri, 18 Jan 2019 13:20:01 +0100
+Message-ID: <20190118122020.27596-5-kraxel@redhat.com>
+References: <20190118122020.27596-1-kraxel@redhat.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-Content-Disposition: inline
-In-Reply-To: <20190116085442.3836-1-jasowang@redhat.com>
+In-Reply-To: <20190118122020.27596-1-kraxel@redhat.com>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -18,221 +17,38 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Jason Wang <jasowang@redhat.com>
-Cc: Jintack Lim <jintack@cs.columbia.edu>, netdev@vger.kernel.org, linux-kernel@vger.kernel.org, kvm@vger.kernel.org, virtualization@lists.linux-foundation.org
+To: dri-devel@lists.freedesktop.org
+Cc: David Airlie <airlied@linux.ie>, open list <linux-kernel@vger.kernel.org>, "open list:DRM DRIVER FOR QXL VIRTUAL GPU" <virtualization@lists.linux-foundation.org>, Daniel Vetter <daniel@ffwll.ch>, "open list:DRM DRIVER FOR QXL VIRTUAL GPU" <spice-devel@lists.freedesktop.org>, Dave Airlie <airlied@redhat.com>, Frediano Ziglio <fziglio@redhat.com>
 List-Id: virtualization@lists.linuxfoundation.org
 
-On Wed, Jan 16, 2019 at 04:54:42PM +0800, Jason Wang wrote:
-> Vhost dirty page logging API is designed to sync through GPA. But we
-> try to log GIOVA when device IOTLB is enabled. This is wrong and may
-> lead to missing data after migration.
-> 
-> To solve this issue, when logging with device IOTLB enabled, we will:
-> 
-> 1) reuse the device IOTLB translation result of GIOVA->HVA mapping to
->    get HVA, for writable descriptor, get HVA through iovec. For used
->    ring update, translate its GIOVA to HVA
-> 2) traverse the GPA->HVA mapping to get the possible GPA and log
->    through GPA. Pay attention this reverse mapping is not guaranteed
->    to be unique, so we should log each possible GPA in this case.
-> 
-> This fix the failure of scp to guest during migration. In -next, we
-> will probably support passing GIOVA->GPA instead of GIOVA->HVA.
-> 
-> Fixes: 6b1e6cc7855b ("vhost: new device IOTLB API")
-> Reported-by: Jintack Lim <jintack@cs.columbia.edu>
-> Cc: Jintack Lim <jintack@cs.columbia.edu>
-> Signed-off-by: Jason Wang <jasowang@redhat.com>
+From: Frediano Ziglio <fziglio@redhat.com>
 
-This one looks good to me
+Instead of relaying on surface type use the actual placement.
+This allow to have different placement for a single type of
+surface.
 
-Acked-by: Michael S. Tsirkin <mst@redhat.com>
+Signed-off-by: Frediano Ziglio <fziglio@redhat.com>
 
-> ---
-> Changes from V3:
-> - make sure each part of the hva was logged when crossing the boundary
->   of memory regions
-> Changes from V2:
-> - check and log the case of range overlap
-> - remove unnecessary u64 cast
-> - use smp_wmb() for the case of device IOTLB as well
-> Changes from V1:
-> - return error instead of warn
-> ---
->  drivers/vhost/net.c   |  3 +-
->  drivers/vhost/vhost.c | 97 ++++++++++++++++++++++++++++++++++++-------
->  drivers/vhost/vhost.h |  3 +-
->  3 files changed, 87 insertions(+), 16 deletions(-)
-> 
-> diff --git a/drivers/vhost/net.c b/drivers/vhost/net.c
-> index 36f3d0f49e60..bca86bf7189f 100644
-> --- a/drivers/vhost/net.c
-> +++ b/drivers/vhost/net.c
-> @@ -1236,7 +1236,8 @@ static void handle_rx(struct vhost_net *net)
->  		if (nvq->done_idx > VHOST_NET_BATCH)
->  			vhost_net_signal_used(nvq);
->  		if (unlikely(vq_log))
-> -			vhost_log_write(vq, vq_log, log, vhost_len);
-> +			vhost_log_write(vq, vq_log, log, vhost_len,
-> +					vq->iov, in);
->  		total_len += vhost_len;
->  		if (unlikely(vhost_exceeds_weight(++recv_pkts, total_len))) {
->  			vhost_poll_queue(&vq->poll);
-> diff --git a/drivers/vhost/vhost.c b/drivers/vhost/vhost.c
-> index 9f7942cbcbb2..babbb32b9bf0 100644
-> --- a/drivers/vhost/vhost.c
-> +++ b/drivers/vhost/vhost.c
-> @@ -1733,13 +1733,87 @@ static int log_write(void __user *log_base,
->  	return r;
->  }
->  
-> +static int log_write_hva(struct vhost_virtqueue *vq, u64 hva, u64 len)
-> +{
-> +	struct vhost_umem *umem = vq->umem;
-> +	struct vhost_umem_node *u;
-> +	u64 start, end, l, min;
-> +	int r;
-> +	bool hit = false;
-> +
-> +	while (len) {
-> +		min = len;
-> +		/* More than one GPAs can be mapped into a single HVA. So
-> +		 * iterate all possible umems here to be safe.
-> +		 */
-> +		list_for_each_entry(u, &umem->umem_list, link) {
-> +			if (u->userspace_addr > hva - 1 + len ||
-> +			    u->userspace_addr - 1 + u->size < hva)
-> +				continue;
-> +			start = max(u->userspace_addr, hva);
-> +			end = min(u->userspace_addr - 1 + u->size,
-> +				  hva - 1 + len);
-> +			l = end - start + 1;
-> +			r = log_write(vq->log_base,
-> +				      u->start + start - u->userspace_addr,
-> +				      l);
-> +			if (r < 0)
-> +				return r;
-> +			hit = true;
-> +			min = min(l, min);
-> +		}
-> +
-> +		if (!hit)
-> +			return -EFAULT;
-> +
-> +		len -= min;
-> +		hva += min;
-> +	}
-> +
-> +	return 0;
-> +}
-> +
-> +static int log_used(struct vhost_virtqueue *vq, u64 used_offset, u64 len)
-> +{
-> +	struct iovec iov[64];
-> +	int i, ret;
-> +
-> +	if (!vq->iotlb)
-> +		return log_write(vq->log_base, vq->log_addr + used_offset, len);
-> +
-> +	ret = translate_desc(vq, (uintptr_t)vq->used + used_offset,
-> +			     len, iov, 64, VHOST_ACCESS_WO);
-> +	if (ret)
-> +		return ret;
-> +
-> +	for (i = 0; i < ret; i++) {
-> +		ret = log_write_hva(vq,	(uintptr_t)iov[i].iov_base,
-> +				    iov[i].iov_len);
-> +		if (ret)
-> +			return ret;
-> +	}
-> +
-> +	return 0;
-> +}
-> +
->  int vhost_log_write(struct vhost_virtqueue *vq, struct vhost_log *log,
-> -		    unsigned int log_num, u64 len)
-> +		    unsigned int log_num, u64 len, struct iovec *iov, int count)
->  {
->  	int i, r;
->  
->  	/* Make sure data written is seen before log. */
->  	smp_wmb();
-> +
-> +	if (vq->iotlb) {
-> +		for (i = 0; i < count; i++) {
-> +			r = log_write_hva(vq, (uintptr_t)iov[i].iov_base,
-> +					  iov[i].iov_len);
-> +			if (r < 0)
-> +				return r;
-> +		}
-> +		return 0;
-> +	}
-> +
->  	for (i = 0; i < log_num; ++i) {
->  		u64 l = min(log[i].len, len);
->  		r = log_write(vq->log_base, log[i].addr, l);
-> @@ -1769,9 +1843,8 @@ static int vhost_update_used_flags(struct vhost_virtqueue *vq)
->  		smp_wmb();
->  		/* Log used flag write. */
->  		used = &vq->used->flags;
-> -		log_write(vq->log_base, vq->log_addr +
-> -			  (used - (void __user *)vq->used),
-> -			  sizeof vq->used->flags);
-> +		log_used(vq, (used - (void __user *)vq->used),
-> +			 sizeof vq->used->flags);
->  		if (vq->log_ctx)
->  			eventfd_signal(vq->log_ctx, 1);
->  	}
-> @@ -1789,9 +1862,8 @@ static int vhost_update_avail_event(struct vhost_virtqueue *vq, u16 avail_event)
->  		smp_wmb();
->  		/* Log avail event write */
->  		used = vhost_avail_event(vq);
-> -		log_write(vq->log_base, vq->log_addr +
-> -			  (used - (void __user *)vq->used),
-> -			  sizeof *vhost_avail_event(vq));
-> +		log_used(vq, (used - (void __user *)vq->used),
-> +			 sizeof *vhost_avail_event(vq));
->  		if (vq->log_ctx)
->  			eventfd_signal(vq->log_ctx, 1);
->  	}
-> @@ -2191,10 +2263,8 @@ static int __vhost_add_used_n(struct vhost_virtqueue *vq,
->  		/* Make sure data is seen before log. */
->  		smp_wmb();
->  		/* Log used ring entry write. */
-> -		log_write(vq->log_base,
-> -			  vq->log_addr +
-> -			   ((void __user *)used - (void __user *)vq->used),
-> -			  count * sizeof *used);
-> +		log_used(vq, ((void __user *)used - (void __user *)vq->used),
-> +			 count * sizeof *used);
->  	}
->  	old = vq->last_used_idx;
->  	new = (vq->last_used_idx += count);
-> @@ -2236,9 +2306,8 @@ int vhost_add_used_n(struct vhost_virtqueue *vq, struct vring_used_elem *heads,
->  		/* Make sure used idx is seen before log. */
->  		smp_wmb();
->  		/* Log used index update. */
-> -		log_write(vq->log_base,
-> -			  vq->log_addr + offsetof(struct vring_used, idx),
-> -			  sizeof vq->used->idx);
-> +		log_used(vq, offsetof(struct vring_used, idx),
-> +			 sizeof vq->used->idx);
->  		if (vq->log_ctx)
->  			eventfd_signal(vq->log_ctx, 1);
->  	}
-> diff --git a/drivers/vhost/vhost.h b/drivers/vhost/vhost.h
-> index 466ef7542291..1b675dad5e05 100644
-> --- a/drivers/vhost/vhost.h
-> +++ b/drivers/vhost/vhost.h
-> @@ -205,7 +205,8 @@ bool vhost_vq_avail_empty(struct vhost_dev *, struct vhost_virtqueue *);
->  bool vhost_enable_notify(struct vhost_dev *, struct vhost_virtqueue *);
->  
->  int vhost_log_write(struct vhost_virtqueue *vq, struct vhost_log *log,
-> -		    unsigned int log_num, u64 len);
-> +		    unsigned int log_num, u64 len,
-> +		    struct iovec *iov, int count);
->  int vq_iotlb_prefetch(struct vhost_virtqueue *vq);
->  
->  struct vhost_msg_node *vhost_new_msg(struct vhost_virtqueue *vq, int type);
-> -- 
-> 2.17.1
+[ kraxel: rebased, adapted to upstream changes ]
+
+Signed-off-by: Gerd Hoffmann <kraxel@redhat.com>
+---
+ drivers/gpu/drm/qxl/qxl_drv.h | 3 ++-
+ 1 file changed, 2 insertions(+), 1 deletion(-)
+
+diff --git a/drivers/gpu/drm/qxl/qxl_drv.h b/drivers/gpu/drm/qxl/qxl_drv.h
+index f9dddfe7d9..d015d4fff1 100644
+--- a/drivers/gpu/drm/qxl/qxl_drv.h
++++ b/drivers/gpu/drm/qxl/qxl_drv.h
+@@ -311,7 +311,8 @@ static inline uint64_t
+ qxl_bo_physical_address(struct qxl_device *qdev, struct qxl_bo *bo,
+ 			unsigned long offset)
+ {
+-	struct qxl_memslot *slot = bo->type == QXL_GEM_DOMAIN_VRAM
++	struct qxl_memslot *slot =
++		(bo->tbo.mem.mem_type == TTM_PL_VRAM)
+ 		? &qdev->main_slot : &qdev->surfaces_slot;
+ 
+ 	/* TODO - need to hold one of the locks to read tbo.offset */
+-- 
+2.9.3
