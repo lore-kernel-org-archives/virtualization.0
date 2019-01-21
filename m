@@ -1,12 +1,14 @@
-From: "Michael S. Tsirkin" <mst@redhat.com>
-Subject: [PULL] virtio, vhost: fixes and cleanups
-Date: Sun, 20 Jan 2019 11:14:20 -0500
-Message-ID: <20190120111420-mutt-send-email-mst__33155.7611273185$1548000869$gmane$org@kernel.org>
+From: "hch@infradead.org" <hch@infradead.org>
+Subject: Re: [RFC] virtio_ring: check dma_mem for xen_domain
+Date: Mon, 21 Jan 2019 00:28:30 -0800
+Message-ID: <20190121082830.GC12420__23231.3358145349$1548059396$gmane$org@infradead.org>
+References: <20190121050056.14325-1-peng.fan@nxp.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
 Content-Disposition: inline
+In-Reply-To: <20190121050056.14325-1-peng.fan@nxp.com>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -16,54 +18,25 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Linus Torvalds <torvalds@linux-foundation.org>
-Cc: bijan.mottahedeh@oracle.com, kvm@vger.kernel.org, mst@redhat.com, netdev@vger.kernel.org, cohuck@redhat.com, linux-kernel@vger.kernel.org, virtualization@lists.linux-foundation.org, ptikhomirov@virtuozzo.com
+To: Peng Fan <peng.fan@nxp.com>
+Cc: "sstabellini@kernel.org" <sstabellini@kernel.org>, "mst@redhat.com" <mst@redhat.com>, "linux-remoteproc@vger.kernel.org" <linux-remoteproc@vger.kernel.org>, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>, "virtualization@lists.linux-foundation.org" <virtualization@lists.linux-foundation.org>, "hch@infradead.org" <hch@infradead.org>, "xen-devel@lists.xenproject.org" <xen-devel@lists.xenproject.org>
 List-Id: virtualization@lists.linuxfoundation.org
 
-This mostly fixes the fallout from the balloon changes.
+On Mon, Jan 21, 2019 at 04:51:57AM +0000, Peng Fan wrote:
+> on i.MX8QM, M4_1 is communicating with DomU using rpmsg with a fixed
+> address as the dma mem buffer which is predefined.
+> 
+> Without this patch, the flow is:
+> vring_map_one_sg -> vring_use_dma_api
+>                  -> dma_map_page
+> 		       -> __swiotlb_map_page
+> 		                ->swiotlb_map_page
+> 				->__dma_map_area(phys_to_virt(dma_to_phys(dev, dev_addr)), size, dir);
+> However we are using per device dma area for rpmsg, phys_to_virt
+> could not return a correct virtual address for virtual address in
+> vmalloc area. Then kernel panic.
 
-The following changes since commit 1c7fc5cbc33980acd13d668f1c8f0313d6ae9fd8:
+And that is the right thing to do.  You must not call dma_map_* on
+memory that was allocated from dma_alloc_*.
 
-  Linux 5.0-rc2 (2019-01-14 10:41:12 +1200)
-
-are available in the Git repository at:
-
-  git://git.kernel.org/pub/scm/linux/kernel/git/mst/vhost.git tags/for_linus
-
-for you to fetch changes up to 8e5dadfe76cf2862ebf3e4f22adef29982df7766:
-
-  vhost/scsi: Use copy_to_iter() to send control queue response (2019-01-14 20:28:08 -0500)
-
-----------------------------------------------------------------
-virtio, vhost: fixes, cleanups
-
-fixes and cleanups all over the place
-
-Signed-off-by: Michael S. Tsirkin <mst@redhat.com>
-
-----------------------------------------------------------------
-Bijan Mottahedeh (1):
-      vhost/scsi: Use copy_to_iter() to send control queue response
-
-Cornelia Huck (2):
-      virtio: fix virtio_config_ops description
-      virtio: document virtio_config_ops restrictions
-
-Pavel Tikhomirov (1):
-      vhost: return EINVAL if iovecs size does not match the message size
-
-Wei Wang (3):
-      virtio_pci: use queue idx instead of array idx to set up the vq
-      virtio: don't allocate vqs when names[i] = NULL
-      virtio-balloon: tweak config_changed implementation
-
- drivers/misc/mic/vop/vop_main.c        |  9 +++-
- drivers/remoteproc/remoteproc_virtio.c |  9 +++-
- drivers/s390/virtio/virtio_ccw.c       | 12 +++--
- drivers/vhost/scsi.c                   | 20 ++++---
- drivers/vhost/vhost.c                  |  8 ++-
- drivers/virtio/virtio_balloon.c        | 98 ++++++++++++++++++++++------------
- drivers/virtio/virtio_mmio.c           |  9 +++-
- drivers/virtio/virtio_pci_common.c     |  8 +--
- include/linux/virtio_config.h          | 13 +++--
- 9 files changed, 126 insertions(+), 60 deletions(-)
+We actually have another thread which appears to be for this same issue.
