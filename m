@@ -1,11 +1,10 @@
-From: "webist@insticc.info" <webist@insticc.info>
-Subject: CFP WEBIST 2019 - 14th Int.l Conf. on Web Information Systems and
-	Technologies (Vienna/Austria)
-Date: 22 Jan 2019 15:22:45 +0000
-Message-ID: <20190122152245.1.DC16CB03DD2ED9BC@insticc.info>
+From: Tiwei Bie <tiwei.bie@intel.com>
+Subject: [PATCH] virtio: support VIRTIO_F_ORDER_PLATFORM
+Date: Wed, 23 Jan 2019 01:03:46 +0800
+Message-ID: <20190122170346.6279-1-tiwei.bie__1141.61449471197$1548176948$gmane$org@intel.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="utf-8"
-Content-Transfer-Encoding: base64
+Content-Type: text/plain; charset="us-ascii"
+Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
@@ -16,30 +15,68 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: virtualization@lists.linux-foundation.org
+To: mst@redhat.com, jasowang@redhat.com, virtualization@lists.linux-foundation.org, linux-kernel@vger.kernel.org, virtio-dev@lists.oasis-open.org
 List-Id: virtualization@lists.linuxfoundation.org
 
-U1VCTUlTU0lPTiBERUFETElORSAKCjE0dGggSW50ZXJuYXRpb25hbCBDb25mZXJlbmNlIG9uIFdl
-YiBJbmZvcm1hdGlvbiBTeXN0ZW1zIGFuZCBUZWNobm9sb2dpZXMKClN1Ym1pc3Npb24gRGVhZGxp
-bmU6IEFwcmlsIDI5LCAyMDE5CgpodHRwOi8vd3d3LndlYmlzdC5vcmcvCgpTZXB0ZW1iZXIgMTgg
-LSAyMCwgMjAxOQpWaWVubmEsIEF1c3RyaWEuCgogV0VCSVNUIGlzIG9yZ2FuaXplZCBpbiA1IG1h
-am9yIHRyYWNrczoKCiAtIEludGVybmV0IFRlY2hub2xvZ3kKIC0gTW9iaWxlIGFuZCBOTFAgSW5m
-b3JtYXRpb24gU3lzdGVtcwogLSBTZXJ2aWNlIEJhc2VkIEluZm9ybWF0aW9uIFN5c3RlbXMsIFBs
-YXRmb3JtcyBhbmQgRWNvLVN5c3RlbXMKIC0gV2ViIEludGVsbGlnZW5jZQogLSBXZWIgSW50ZXJm
-YWNlcwoKDQpQcm9jZWVkaW5ncyB3aWxsIGJlIHN1Ym1pdHRlZCBmb3IgaW5kZXhhdGlvbiBieTog
-REJMUCwgVGhvbXNvbiBSZXV0ZXJzLCBFSSwgU0NPUFVTLCBTZW1hbnRpYyBTY2hvbGFyIGFuZCBH
-b29nbGUgU2Nob2xhci4gDQogICAgICAgICAgICAgICAgICAgIAogCkEgc2hvcnQgbGlzdCBvZiBw
-cmVzZW50ZWQgcGFwZXJzIHdpbGwgYmUgc2VsZWN0ZWQgc28gdGhhdCByZXZpc2VkIGFuZCBleHRl
-bmRlZCB2ZXJzaW9ucyBvZiB0aGVzZSBwYXBlcnMgd2lsbCBiZSBwdWJsaXNoZWQgYnkgU3ByaW5n
-ZXIuCiAKQWxsIHBhcGVycyBwcmVzZW50ZWQgYXQgdGhlIGNvbmdyZXNzIHZlbnVlIHdpbGwgYWxz
-byBiZSBhdmFpbGFibGUgYXQgdGhlIFNDSVRFUFJFU1MgRGlnaXRhbCBMaWJyYXJ5IChodHRwOi8v
-d3d3LnNjaXRlcHJlc3Mub3JnL0RpZ2l0YWxMaWJyYXJ5LykuCiAgClNob3VsZCB5b3UgaGF2ZSBh
-bnkgcXVlc3Rpb24gcGxlYXNlIGRvbid0IGhlc2l0YXRlIGNvbnRhY3RpbmcgbWUuCiAKCktpbmQg
-cmVnYXJkcywKV0VCSVNUIFNlY3JldGFyaWF0CgpBZGRyZXNzOiBBdmVuaWRhIGRlIFPDo28gRnJh
-bmNpc2NvIFhhdmllciBMb3RlIDdMIENhdmUKMjkxMC01OTUgU2V0dWJhbCwgUG9ydHVnYWwKVGVs
-OiArMzUxIDI2NSA1MjAgMTg0CkZheDogKzM1MSAyNjUgNTIwIDE4NgpXZWI6IGh0dHA6Ly93d3cu
-d2ViaXN0Lm9yZy8KZS1tYWlsOiB3ZWJpc3Quc2VjcmV0YXJpYXRAaW5zdGljYy5vcmcKCl9fX19f
-X19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fClZpcnR1YWxpemF0aW9u
-IG1haWxpbmcgbGlzdApWaXJ0dWFsaXphdGlvbkBsaXN0cy5saW51eC1mb3VuZGF0aW9uLm9yZwpo
-dHRwczovL2xpc3RzLmxpbnV4Zm91bmRhdGlvbi5vcmcvbWFpbG1hbi9saXN0aW5mby92aXJ0dWFs
-aXphdGlvbg==
+This patch introduces the support for VIRTIO_F_ORDER_PLATFORM.
+When this feature is negotiated, driver will use the barriers
+suitable for hardware devices.
+
+Signed-off-by: Tiwei Bie <tiwei.bie@intel.com>
+---
+ drivers/virtio/virtio_ring.c       | 8 ++++++++
+ include/uapi/linux/virtio_config.h | 6 ++++++
+ 2 files changed, 14 insertions(+)
+
+diff --git a/drivers/virtio/virtio_ring.c b/drivers/virtio/virtio_ring.c
+index cd7e755484e3..27d3f057493e 100644
+--- a/drivers/virtio/virtio_ring.c
++++ b/drivers/virtio/virtio_ring.c
+@@ -1609,6 +1609,9 @@ static struct virtqueue *vring_create_virtqueue_packed(
+ 		!context;
+ 	vq->event = virtio_has_feature(vdev, VIRTIO_RING_F_EVENT_IDX);
+ 
++	if (virtio_has_feature(vdev, VIRTIO_F_ORDER_PLATFORM))
++		vq->weak_barriers = false;
++
+ 	vq->packed.ring_dma_addr = ring_dma_addr;
+ 	vq->packed.driver_event_dma_addr = driver_event_dma_addr;
+ 	vq->packed.device_event_dma_addr = device_event_dma_addr;
+@@ -2079,6 +2082,9 @@ struct virtqueue *__vring_new_virtqueue(unsigned int index,
+ 		!context;
+ 	vq->event = virtio_has_feature(vdev, VIRTIO_RING_F_EVENT_IDX);
+ 
++	if (virtio_has_feature(vdev, VIRTIO_F_ORDER_PLATFORM))
++		vq->weak_barriers = false;
++
+ 	vq->split.queue_dma_addr = 0;
+ 	vq->split.queue_size_in_bytes = 0;
+ 
+@@ -2213,6 +2219,8 @@ void vring_transport_features(struct virtio_device *vdev)
+ 			break;
+ 		case VIRTIO_F_RING_PACKED:
+ 			break;
++		case VIRTIO_F_ORDER_PLATFORM:
++			break;
+ 		default:
+ 			/* We don't understand this bit. */
+ 			__virtio_clear_bit(vdev, i);
+diff --git a/include/uapi/linux/virtio_config.h b/include/uapi/linux/virtio_config.h
+index 1196e1c1d4f6..ff8e7dc9d4dd 100644
+--- a/include/uapi/linux/virtio_config.h
++++ b/include/uapi/linux/virtio_config.h
+@@ -78,6 +78,12 @@
+ /* This feature indicates support for the packed virtqueue layout. */
+ #define VIRTIO_F_RING_PACKED		34
+ 
++/*
++ * This feature indicates that memory accesses by the driver and the
++ * device are ordered in a way described by the platform.
++ */
++#define VIRTIO_F_ORDER_PLATFORM		36
++
+ /*
+  * Does the device support Single Root I/O Virtualization?
+  */
+-- 
+2.17.1
