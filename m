@@ -1,15 +1,14 @@
-From: Sam Ravnborg <sam@ravnborg.org>
-Subject: Re: [PATCH] drm: Split out drm_probe_helper.h
-Date: Wed, 23 Jan 2019 18:00:15 +0100
-Message-ID: <20190123170015.GA23138__14649.9328709737$1548263042$gmane$org@ravnborg.org>
-References: <20190116181018.GA27364@ravnborg.org>
-	<20190117210334.13234-1-daniel.vetter@ffwll.ch>
+From: Konrad Rzeszutek Wilk <konrad.wilk@oracle.com>
+Subject: Re: [PATCH 0/5 v3] Fix virtio-blk issue with SWIOTLB
+Date: Wed, 23 Jan 2019 12:09:48 -0500
+Message-ID: <20190123170946.GB22672__4815.56514730386$1548263634$gmane$org@Konrads-MacBook-Pro.local>
+References: <20190123163049.24863-1-joro@8bytes.org>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
 Content-Disposition: inline
-In-Reply-To: <20190117210334.13234-1-daniel.vetter@ffwll.ch>
+In-Reply-To: <20190123163049.24863-1-joro@8bytes.org>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -19,26 +18,70 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Daniel Vetter <daniel.vetter@ffwll.ch>
-Cc: Neil Armstrong <narmstrong@baylibre.com>, nouveau@lists.freedesktop.org, Liviu Dudau <liviu.dudau@arm.com>, DRI Development <dri-devel@lists.freedesktop.org>, virtualization@lists.linux-foundation.org, Laurent Pinchart <laurent.pinchart@ideasonboard.com>, Benjamin Gaignard <benjamin.gaignard@linaro.org>, Daniel Vetter <daniel.vetter@intel.com>, linux-stm32@st-md-mailman.stormreply.com, linux-samsung-soc@vger.kernel.org, Oleksandr Andrushchenko <oleksandr_andrushchenko@epam.com>, amd-gfx@lists.freedesktop.org, linux-rockchip@lists.infradead.org, CK Hu <ck.hu@mediatek.com>, spice-devel@lists.freedesktop.org, Jani Nikula <jani.nikula@intel.com>, linux-arm-msm@vger.kernel.org, intel-gfx@lists.freedesktop.org, etnaviv@lists.freedesktop.org, Jani Nikula <jani.nikula@linux.intel.com>, linux-mediatek@lists.infradead.org, Rodrigo Vivi <rodrigo.vivi@intel.com>, linux-tegra@vger
+To: Joerg Roedel <joro@8bytes.org>
+Cc: Jens Axboe <axboe@kernel.dk>, jroedel@suse.de, brijesh.singh@amd.com, "Michael S . Tsirkin" <mst@redhat.com>, jon.grimm@amd.com, jfehlig@suse.com, linux-kernel@vger.kernel.org, virtualization@lists.linux-foundation.org, linux-block@vger.kernel.org, iommu@lists.linux-foundation.org, Christoph Hellwig <hch@lst.de>
 List-Id: virtualization@lists.linuxfoundation.org
 
-Hi Daniel.
-
-On Thu, Jan 17, 2019 at 10:03:34PM +0100, Daniel Vetter wrote:
-> Having the probe helper stuff (which pretty much everyone needs) in
-> the drm_crtc_helper.h file (which atomic drivers should never need) is
-> confusing. Split them out.
+On Wed, Jan 23, 2019 at 05:30:44PM +0100, Joerg Roedel wrote:
+> Hi,
 > 
-> To make sure I actually achieved the goal here I went through all
-> drivers. And indeed, all atomic drivers are now free of
-> drm_crtc_helper.h includes.
+> here is the third version of this patch-set. Previous
+> versions can be found here:
+> 
+> 	V1: https://lore.kernel.org/lkml/20190110134433.15672-1-joro@8bytes.org/
+> 
+> 	V2: https://lore.kernel.org/lkml/20190115132257.6426-1-joro@8bytes.org/
+> 
+> The problem solved here is a limitation of the SWIOTLB implementation,
+> which does not support allocations larger than 256kb.  When the
+> virtio-blk driver tries to read/write a block larger than that, the
+> allocation of the dma-handle fails and an IO error is reported.
+> 
+> Changes to v2 are:
+> 
+> 	* Check if SWIOTLB is active before returning its limit in
+> 	  dma_direct_max_mapping_size()
+> 
+> 	* Only apply the maximum segment limit in virtio-blk when
+> 	  DMA-API is used for the vring
+> 
+> Please review.
+> 
+> Thanks,
+> 
+> 	Joerg
+> 
+> Joerg Roedel (5):
+>   swiotlb: Introduce swiotlb_max_mapping_size()
+>   swiotlb: Add is_swiotlb_active() function
+>   dma: Introduce dma_max_mapping_size()
+>   virtio: Introduce virtio_max_dma_size()
+>   virtio-blk: Consider virtio_max_dma_size() for maximum segment size
+> 
+>  drivers/block/virtio_blk.c   | 10 ++++++----
+>  drivers/virtio/virtio_ring.c | 10 ++++++++++
 
-How are the plans to get this patchset merged?
-There were dependencies on onging drmP.h removal in i915 IIRC?
-I guess my "Minimize drmP.h dependencies" patch-set also have a role in this.
+The kvm-devel mailing list should have been copied on those.
 
-This does not hold up any work of mine, mainly wanted to make
-sure this was not lost between all the other patches.
+When you do can you please put 'Reviewed-by: Konrad Rzeszutek Wilk
+<konrad.wilk@oracle.com>' on all of them?
 
-	Sam
+Thank you!
+
+P.S.
+Christopher, I am assuming you are OK with this idea, if so - and once
+the owners of 'virtio' Ack, do you want to put it in my tree?
+
+Thanks!
+>  include/linux/dma-mapping.h  | 16 ++++++++++++++++
+>  include/linux/swiotlb.h      | 11 +++++++++++
+>  include/linux/virtio.h       |  2 ++
+>  kernel/dma/direct.c          | 11 +++++++++++
+>  kernel/dma/swiotlb.c         | 10 ++++++++++
+>  7 files changed, 66 insertions(+), 4 deletions(-)
+
+
+> 
+> -- 
+> 2.17.1
+> 
