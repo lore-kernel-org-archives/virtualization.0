@@ -1,7 +1,7 @@
 From: Joerg Roedel <joro@8bytes.org>
-Subject: [PATCH 2/5] swiotlb: Add is_swiotlb_active() function
-Date: Wed, 23 Jan 2019 17:30:46 +0100
-Message-ID: <20190123163049.24863-3-joro__478.8428473816$1548261276$gmane$org@8bytes.org>
+Subject: [PATCH 4/5] virtio: Introduce virtio_max_dma_size()
+Date: Wed, 23 Jan 2019 17:30:48 +0100
+Message-ID: <20190123163049.24863-5-joro__24044.9692749948$1548261298$gmane$org@8bytes.org>
 References: <20190123163049.24863-1-joro@8bytes.org>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
@@ -23,51 +23,55 @@ List-Id: virtualization@lists.linuxfoundation.org
 
 From: Joerg Roedel <jroedel@suse.de>
 
-This function will be used from dma_direct code to determine
-the maximum segment size of a dma mapping.
+This function returns the maximum segment size for a single
+dma transaction of a virtio device. The possible limit comes
+from the SWIOTLB implementation in the Linux kernel, that
+has an upper limit of (currently) 256kb of contiguous
+memory it can map. Other DMA-API implementations might also
+have limits.
+
+Use the new dma_max_mapping_size() function to determine the
+maximum mapping size when DMA-API is in use for virtio.
 
 Signed-off-by: Joerg Roedel <jroedel@suse.de>
 ---
- include/linux/swiotlb.h | 6 ++++++
- kernel/dma/swiotlb.c    | 5 +++++
- 2 files changed, 11 insertions(+)
+ drivers/virtio/virtio_ring.c | 10 ++++++++++
+ include/linux/virtio.h       |  2 ++
+ 2 files changed, 12 insertions(+)
 
-diff --git a/include/linux/swiotlb.h b/include/linux/swiotlb.h
-index ceb623321f38..5c087d330b4b 100644
---- a/include/linux/swiotlb.h
-+++ b/include/linux/swiotlb.h
-@@ -63,6 +63,7 @@ extern void swiotlb_tbl_sync_single(struct device *hwdev,
- extern int
- swiotlb_dma_supported(struct device *hwdev, u64 mask);
- extern size_t swiotlb_max_mapping_size(struct device *dev);
-+bool is_swiotlb_active(void);
- 
- #ifdef CONFIG_SWIOTLB
- extern enum swiotlb_force swiotlb_force;
-@@ -100,6 +101,11 @@ static inline size_t swiotlb_max_mapping_size(struct device *dev)
- {
- 	return SIZE_MAX;
+diff --git a/drivers/virtio/virtio_ring.c b/drivers/virtio/virtio_ring.c
+index cd7e755484e3..9ca3fe6af9fa 100644
+--- a/drivers/virtio/virtio_ring.c
++++ b/drivers/virtio/virtio_ring.c
+@@ -266,6 +266,16 @@ static bool vring_use_dma_api(struct virtio_device *vdev)
+ 	return false;
  }
-+
-+static inline bool is_swiotlb_active(void)
-+{
-+	return false;
-+}
- #endif /* CONFIG_SWIOTLB */
  
- extern void swiotlb_print_info(void);
-diff --git a/kernel/dma/swiotlb.c b/kernel/dma/swiotlb.c
-index 9cb21259cb0b..9fbd075081d9 100644
---- a/kernel/dma/swiotlb.c
-+++ b/kernel/dma/swiotlb.c
-@@ -667,3 +667,8 @@ size_t swiotlb_max_mapping_size(struct device *dev)
- {
- 	return ((size_t)1 << IO_TLB_SHIFT) * IO_TLB_SEGSIZE;
- }
-+
-+bool is_swiotlb_active(void)
++size_t virtio_max_dma_size(struct virtio_device *vdev)
 +{
-+	return !no_iotlb_memory;
++	size_t max_segment_size = SIZE_MAX;
++
++	if (vring_use_dma_api(vdev))
++		max_segment_size = dma_max_mapping_size(&vdev->dev);
++
++	return max_segment_size;
 +}
++
+ static void *vring_alloc_queue(struct virtio_device *vdev, size_t size,
+ 			      dma_addr_t *dma_handle, gfp_t flag)
+ {
+diff --git a/include/linux/virtio.h b/include/linux/virtio.h
+index fa1b5da2804e..673fe3ef3607 100644
+--- a/include/linux/virtio.h
++++ b/include/linux/virtio.h
+@@ -157,6 +157,8 @@ int virtio_device_freeze(struct virtio_device *dev);
+ int virtio_device_restore(struct virtio_device *dev);
+ #endif
+ 
++size_t virtio_max_dma_size(struct virtio_device *vdev);
++
+ #define virtio_device_for_each_vq(vdev, vq) \
+ 	list_for_each_entry(vq, &vdev->vqs, list)
+ 
 -- 
 2.17.1
