@@ -1,15 +1,14 @@
-From: Tiwei Bie <tiwei.bie@intel.com>
-Subject: Re: [PATCH] virtio: support VIRTIO_F_ORDER_PLATFORM
-Date: Wed, 23 Jan 2019 16:02:27 +0800
-Message-ID: <20190123080227.GA23394__28219.3581153237$1548230934$gmane$org@dpdk-tbie>
-References: <20190122170346.6279-1-tiwei.bie@intel.com>
-	<20190122230247-mutt-send-email-mst@kernel.org>
+From: Joerg Roedel <joro@8bytes.org>
+Subject: Re: [PATCH v7 0/7] Add virtio-iommu driver
+Date: Wed, 23 Jan 2019 09:34:35 +0100
+Message-ID: <20190123083435.x3svwqp472mdgglw__1631.39377707324$1548232729$gmane$org@8bytes.org>
+References: <20190115121959.23763-1-jean-philippe.brucker@arm.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
 Content-Disposition: inline
-In-Reply-To: <20190122230247-mutt-send-email-mst@kernel.org>
+In-Reply-To: <20190115121959.23763-1-jean-philippe.brucker@arm.com>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -19,83 +18,34 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: "Michael S. Tsirkin" <mst@redhat.com>
-Cc: virtio-dev@lists.oasis-open.org, linux-kernel@vger.kernel.org, virtualization@lists.linux-foundation.org
+To: Jean-Philippe Brucker <jean-philippe.brucker@arm.com>
+Cc: mark.rutland@arm.com, virtio-dev@lists.oasis-open.org, lorenzo.pieralisi@arm.com, tnowicki@caviumnetworks.com, mst@redhat.com, marc.zyngier@arm.com, linux-pci@vger.kernel.org, will.deacon@arm.com, robin.murphy@arm.com, virtualization@lists.linux-foundation.org, eric.auger@redhat.com, iommu@lists.linux-foundation.org, robh+dt@kernel.org, bhelgaas@google.com, kvmarm@lists.cs.columbia.edu, devicetree@vger.kernel.org
 List-Id: virtualization@lists.linuxfoundation.org
 
-On Tue, Jan 22, 2019 at 11:04:29PM -0500, Michael S. Tsirkin wrote:
-> On Wed, Jan 23, 2019 at 01:03:46AM +0800, Tiwei Bie wrote:
-> > This patch introduces the support for VIRTIO_F_ORDER_PLATFORM.
-> > When this feature is negotiated, driver will use the barriers
-> > suitable for hardware devices.
-> > 
-> > Signed-off-by: Tiwei Bie <tiwei.bie@intel.com>
-> 
-> Could you pls add a bit more explanation in the commit log?
-> E.g. which configurations are broken without this patch?
-> How severe is the problem?
+Hi Jean-Philippe,
 
-Sure. Will do that.
+thanks for all your hard work on this!
 
-Thanks
+On Tue, Jan 15, 2019 at 12:19:52PM +0000, Jean-Philippe Brucker wrote:
+> Implement the virtio-iommu driver, following specification v0.9 [1].
 
-> 
-> I'm trying to decide whether this belongs in 5.0 or 5.1.
-> 
-> > ---
-> >  drivers/virtio/virtio_ring.c       | 8 ++++++++
-> >  include/uapi/linux/virtio_config.h | 6 ++++++
-> >  2 files changed, 14 insertions(+)
-> > 
-> > diff --git a/drivers/virtio/virtio_ring.c b/drivers/virtio/virtio_ring.c
-> > index cd7e755484e3..27d3f057493e 100644
-> > --- a/drivers/virtio/virtio_ring.c
-> > +++ b/drivers/virtio/virtio_ring.c
-> > @@ -1609,6 +1609,9 @@ static struct virtqueue *vring_create_virtqueue_packed(
-> >  		!context;
-> >  	vq->event = virtio_has_feature(vdev, VIRTIO_RING_F_EVENT_IDX);
-> >  
-> > +	if (virtio_has_feature(vdev, VIRTIO_F_ORDER_PLATFORM))
-> > +		vq->weak_barriers = false;
-> > +
-> >  	vq->packed.ring_dma_addr = ring_dma_addr;
-> >  	vq->packed.driver_event_dma_addr = driver_event_dma_addr;
-> >  	vq->packed.device_event_dma_addr = device_event_dma_addr;
-> > @@ -2079,6 +2082,9 @@ struct virtqueue *__vring_new_virtqueue(unsigned int index,
-> >  		!context;
-> >  	vq->event = virtio_has_feature(vdev, VIRTIO_RING_F_EVENT_IDX);
-> >  
-> > +	if (virtio_has_feature(vdev, VIRTIO_F_ORDER_PLATFORM))
-> > +		vq->weak_barriers = false;
-> > +
-> >  	vq->split.queue_dma_addr = 0;
-> >  	vq->split.queue_size_in_bytes = 0;
-> >  
-> > @@ -2213,6 +2219,8 @@ void vring_transport_features(struct virtio_device *vdev)
-> >  			break;
-> >  		case VIRTIO_F_RING_PACKED:
-> >  			break;
-> > +		case VIRTIO_F_ORDER_PLATFORM:
-> > +			break;
-> >  		default:
-> >  			/* We don't understand this bit. */
-> >  			__virtio_clear_bit(vdev, i);
-> > diff --git a/include/uapi/linux/virtio_config.h b/include/uapi/linux/virtio_config.h
-> > index 1196e1c1d4f6..ff8e7dc9d4dd 100644
-> > --- a/include/uapi/linux/virtio_config.h
-> > +++ b/include/uapi/linux/virtio_config.h
-> > @@ -78,6 +78,12 @@
-> >  /* This feature indicates support for the packed virtqueue layout. */
-> >  #define VIRTIO_F_RING_PACKED		34
-> >  
-> > +/*
-> > + * This feature indicates that memory accesses by the driver and the
-> > + * device are ordered in a way described by the platform.
-> > + */
-> > +#define VIRTIO_F_ORDER_PLATFORM		36
-> > +
-> >  /*
-> >   * Does the device support Single Root I/O Virtualization?
-> >   */
-> > -- 
-> > 2.17.1
+To make progress on this I think the spec needs to be close to something
+that can be included into the official virtio-specification. Have you
+proposed the specification for inclusion there?
+
+This is because I can't merge a driver that might be incompatible to
+future implementations because the specification needs to be changed on
+its way to an official standard.
+
+I had a short discussion with Michael S. Tsirkin about that and from
+what I understood the spec needs to be proposed for inclusion on the
+virtio-comment[1] mailing list and later the TC needs to vote on it.
+Please work with Michael on this to get the specification official (or
+at least pretty close to something that will be part of the official
+virtio standard).
+
+Regards,
+
+	Joerg
+
+[1] https://www.oasis-open.org/committees/comments/index.php?wg_abbrev=virtio
