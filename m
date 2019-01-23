@@ -1,15 +1,14 @@
-From: "Michael S. Tsirkin" <mst@redhat.com>
-Subject: Re: [Xen-devel] [RFC] virtio_ring: check dma_mem for xen_domain
-Date: Tue, 22 Jan 2019 21:57:18 -0500
-Message-ID: <20190122210710-mutt-send-email-mst__5683.48786780319$1548212460$gmane$org@kernel.org>
-References: <20190121050056.14325-1-peng.fan@nxp.com>
-	<alpine.DEB.2.10.1901221113410.17936@sstabellini-ThinkPad-X260>
+From: Jason Wang <jasowang@redhat.com>
+Subject: Re: [virtio-dev] [PATCH] virtio: support VIRTIO_F_ORDER_PLATFORM
+Date: Wed, 23 Jan 2019 11:08:04 +0800
+Message-ID: <ecf89b02-57ba-478f-1e28-4286888a4b26__17775.4137361021$1548213047$gmane$org@redhat.com>
+References: <20190122170346.6279-1-tiwei.bie@intel.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset="utf-8"; Format="flowed"
+Content-Transfer-Encoding: base64
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-Content-Disposition: inline
-In-Reply-To: <alpine.DEB.2.10.1901221113410.17936@sstabellini-ThinkPad-X260>
+In-Reply-To: <20190122170346.6279-1-tiwei.bie@intel.com>
+Content-Language: en-US
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -19,175 +18,61 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Stefano Stabellini <sstabellini@kernel.org>
-Cc: jgross@suse.com, Peng Fan <peng.fan@nxp.com>, "linux-remoteproc@vger.kernel.org" <linux-remoteproc@vger.kernel.org>, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>, "virtualization@lists.linux-foundation.org" <virtualization@lists.linux-foundation.org>, "hch@infradead.org" <hch@infradead.org>, luto@kernel.org, "xen-devel@lists.xenproject.org" <xen-devel@lists.xenproject.org>, boris.ostrovsky@oracle.com
+To: Tiwei Bie <tiwei.bie@intel.com>, mst@redhat.com, virtualization@lists.linux-foundation.org, linux-kernel@vger.kernel.org, virtio-dev@lists.oasis-open.org
 List-Id: virtualization@lists.linuxfoundation.org
 
-On Tue, Jan 22, 2019 at 11:59:31AM -0800, Stefano Stabellini wrote:
-> On Mon, 21 Jan 2019, Peng Fan wrote:
-> > on i.MX8QM, M4_1 is communicating with DomU using rpmsg with a fixed
-> > address as the dma mem buffer which is predefined.
-> > 
-> > Without this patch, the flow is:
-> > vring_map_one_sg -> vring_use_dma_api
-> >                  -> dma_map_page
-> > 		       -> __swiotlb_map_page
-> > 		                ->swiotlb_map_page
-> > 				->__dma_map_area(phys_to_virt(dma_to_phys(dev, dev_addr)), size, dir);
-> > However we are using per device dma area for rpmsg, phys_to_virt
-> > could not return a correct virtual address for virtual address in
-> > vmalloc area. Then kernel panic.
-> > 
-> > With this patch, vring_use_dma_api will return false, and
-> > vring_map_one_sg will return sg_phys(sg) which is the correct phys
-> > address in the predefined memory region.
-> > vring_map_one_sg -> vring_use_dma_api
-> >                  -> sg_phys(sg)
-> > 
-> > Signed-off-by: Peng Fan <peng.fan@nxp.com>
-> > ---
-> >  drivers/virtio/virtio_ring.c | 4 +++-
-> >  1 file changed, 3 insertions(+), 1 deletion(-)
-> > 
-> > diff --git a/drivers/virtio/virtio_ring.c b/drivers/virtio/virtio_ring.c
-> > index cd7e755484e3..8993d7cb3592 100644
-> > --- a/drivers/virtio/virtio_ring.c
-> > +++ b/drivers/virtio/virtio_ring.c
-> > @@ -248,6 +248,8 @@ static inline bool virtqueue_use_indirect(struct virtqueue *_vq,
-> >  
-> >  static bool vring_use_dma_api(struct virtio_device *vdev)
-> >  {
-> > +	struct device *dma_dev = vdev->dev.parent;
-> > +
-> >  	if (!virtio_has_iommu_quirk(vdev))
-> >  		return true;
-> >  
-> > @@ -260,7 +262,7 @@ static bool vring_use_dma_api(struct virtio_device *vdev)
-> >  	 * the DMA API if we're a Xen guest, which at least allows
-> >  	 * all of the sensible Xen configurations to work correctly.
-> >  	 */
-> > -	if (xen_domain())
-> > +	if (xen_domain() && !dma_dev->dma_mem)
-> >  		return true;
-> >  
-> >  	return false;
-> 
-> I can see you spotted a real issue, but this is not the right fix. We
-> just need something a bit more flexible than xen_domain(): there are
-> many kinds of Xen domains on different architectures, we basically want
-> to enable this (return true from vring_use_dma_api) only when the xen
-> swiotlb is meant to be used. Does the appended patch fix the issue you
-> have?
-> 
-> ---
-> 
-> xen: introduce xen_vring_use_dma
-> 
-> From: Stefano Stabellini <stefanos@xilinx.com>
-> 
-> Export xen_swiotlb on arm and arm64.
-> 
-> Use xen_swiotlb to determine when vring should use dma APIs to map the
-> ring: when xen_swiotlb is enabled the dma API is required. When it is
-> disabled, it is not required.
-> 
-> Reported-by: Peng Fan <peng.fan@nxp.com>
-> Signed-off-by: Stefano Stabellini <stefanos@xilinx.com>
-> 
-> diff --git a/arch/arm/include/asm/xen/swiotlb-xen.h b/arch/arm/include/asm/xen/swiotlb-xen.h
-> new file mode 100644
-> index 0000000..455ade5
-> --- /dev/null
-> +++ b/arch/arm/include/asm/xen/swiotlb-xen.h
-> @@ -0,0 +1 @@
-> +#include <xen/arm/swiotlb-xen.h>
-> diff --git a/arch/arm/xen/mm.c b/arch/arm/xen/mm.c
-> index cb44aa2..8592863 100644
-> --- a/arch/arm/xen/mm.c
-> +++ b/arch/arm/xen/mm.c
-> @@ -21,6 +21,8 @@
->  #include <asm/xen/hypercall.h>
->  #include <asm/xen/interface.h>
->  
-> +int xen_swiotlb __read_mostly;
-> +
->  unsigned long xen_get_swiotlb_free_pages(unsigned int order)
->  {
->  	struct memblock_region *reg;
-> @@ -189,6 +191,7 @@ int __init xen_mm_init(void)
->  	struct gnttab_cache_flush cflush;
->  	if (!xen_initial_domain())
->  		return 0;
-> +	xen_swiotlb = 1;
->  	xen_swiotlb_init(1, false);
->  	xen_dma_ops = &xen_swiotlb_dma_ops;
->  
-> diff --git a/arch/arm64/include/asm/xen/swiotlb-xen.h b/arch/arm64/include/asm/xen/swiotlb-xen.h
-> new file mode 100644
-> index 0000000..455ade5
-> --- /dev/null
-> +++ b/arch/arm64/include/asm/xen/swiotlb-xen.h
-> @@ -0,0 +1 @@
-> +#include <xen/arm/swiotlb-xen.h>
-> diff --git a/drivers/virtio/virtio_ring.c b/drivers/virtio/virtio_ring.c
-> index cd7e755..bf8badc 100644
-> --- a/drivers/virtio/virtio_ring.c
-> +++ b/drivers/virtio/virtio_ring.c
-> @@ -260,7 +260,7 @@ static bool vring_use_dma_api(struct virtio_device *vdev)
->  	 * the DMA API if we're a Xen guest, which at least allows
->  	 * all of the sensible Xen configurations to work correctly.
->  	 */
-> -	if (xen_domain())
-> +	if (xen_vring_use_dma())
->  		return true;
->  
->  	return false;
-> diff --git a/include/xen/arm/swiotlb-xen.h b/include/xen/arm/swiotlb-xen.h
-> new file mode 100644
-> index 0000000..2aac7c4
-> --- /dev/null
-> +++ b/include/xen/arm/swiotlb-xen.h
-> @@ -0,0 +1,10 @@
-> +#ifndef _ASM_ARM_XEN_SWIOTLB_XEN_H
-> +#define _ASM_ARM_XEN_SWIOTLB_XEN_H
-> +
-> +#ifdef CONFIG_SWIOTLB_XEN
-> +extern int xen_swiotlb;
-> +#else
-> +#define xen_swiotlb (0)
-> +#endif
-> +
-> +#endif
-> diff --git a/include/xen/xen.h b/include/xen/xen.h
-> index 0e21567..74a536d 100644
-> --- a/include/xen/xen.h
-> +++ b/include/xen/xen.h
-> @@ -46,4 +46,10 @@ enum xen_domain_type {
->  bool xen_biovec_phys_mergeable(const struct bio_vec *vec1,
->  		const struct bio_vec *vec2);
->  
-> +#include <asm/xen/swiotlb-xen.h>
-> +static inline int xen_vring_use_dma(void)
-> +{
-> +	return !!xen_swiotlb;
-
-Given xen_swiotlb is only defined on arm, how will
-this build on other architectures?
-
-> +}
-> +
->  #endif	/* _XEN_XEN_H */
-
-I'd say at this point, I'm sorry we didn't come up with PLATFORM_ACCESS
-when we added the xen hack.
-
-I'm not objecting to this patch but I would also like to bypass the xen
-hack for VIRTIO 1 devices. In particular I know rpmsg is still virtio 0
-so it's not an issue for it. Is Xen already using VIRTIO 1, and without
-setting PLATFORM_ACCESS? If not I would like to teach
-vring_use_dma_api to return false on VIRTIO_1 && !PLATFORM_ACCESS.
-
-Would that be acceptable?
-
--- 
-MST
+Ck9uIDIwMTkvMS8yMyDkuIrljYgxOjAzLCBUaXdlaSBCaWUgd3JvdGU6Cj4gVGhpcyBwYXRjaCBp
+bnRyb2R1Y2VzIHRoZSBzdXBwb3J0IGZvciBWSVJUSU9fRl9PUkRFUl9QTEFURk9STS4KPiBXaGVu
+IHRoaXMgZmVhdHVyZSBpcyBuZWdvdGlhdGVkLCBkcml2ZXIgd2lsbCB1c2UgdGhlIGJhcnJpZXJz
+Cj4gc3VpdGFibGUgZm9yIGhhcmR3YXJlIGRldmljZXMuCj4KPiBTaWduZWQtb2ZmLWJ5OiBUaXdl
+aSBCaWUgPHRpd2VpLmJpZUBpbnRlbC5jb20+Cj4gLS0tCj4gICBkcml2ZXJzL3ZpcnRpby92aXJ0
+aW9fcmluZy5jICAgICAgIHwgOCArKysrKysrKwo+ICAgaW5jbHVkZS91YXBpL2xpbnV4L3ZpcnRp
+b19jb25maWcuaCB8IDYgKysrKysrCj4gICAyIGZpbGVzIGNoYW5nZWQsIDE0IGluc2VydGlvbnMo
+KykKPgo+IGRpZmYgLS1naXQgYS9kcml2ZXJzL3ZpcnRpby92aXJ0aW9fcmluZy5jIGIvZHJpdmVy
+cy92aXJ0aW8vdmlydGlvX3JpbmcuYwo+IGluZGV4IGNkN2U3NTU0ODRlMy4uMjdkM2YwNTc0OTNl
+IDEwMDY0NAo+IC0tLSBhL2RyaXZlcnMvdmlydGlvL3ZpcnRpb19yaW5nLmMKPiArKysgYi9kcml2
+ZXJzL3ZpcnRpby92aXJ0aW9fcmluZy5jCj4gQEAgLTE2MDksNiArMTYwOSw5IEBAIHN0YXRpYyBz
+dHJ1Y3QgdmlydHF1ZXVlICp2cmluZ19jcmVhdGVfdmlydHF1ZXVlX3BhY2tlZCgKPiAgIAkJIWNv
+bnRleHQ7Cj4gICAJdnEtPmV2ZW50ID0gdmlydGlvX2hhc19mZWF0dXJlKHZkZXYsIFZJUlRJT19S
+SU5HX0ZfRVZFTlRfSURYKTsKPiAgIAo+ICsJaWYgKHZpcnRpb19oYXNfZmVhdHVyZSh2ZGV2LCBW
+SVJUSU9fRl9PUkRFUl9QTEFURk9STSkpCj4gKwkJdnEtPndlYWtfYmFycmllcnMgPSBmYWxzZTsK
+PiArCj4gICAJdnEtPnBhY2tlZC5yaW5nX2RtYV9hZGRyID0gcmluZ19kbWFfYWRkcjsKPiAgIAl2
+cS0+cGFja2VkLmRyaXZlcl9ldmVudF9kbWFfYWRkciA9IGRyaXZlcl9ldmVudF9kbWFfYWRkcjsK
+PiAgIAl2cS0+cGFja2VkLmRldmljZV9ldmVudF9kbWFfYWRkciA9IGRldmljZV9ldmVudF9kbWFf
+YWRkcjsKPiBAQCAtMjA3OSw2ICsyMDgyLDkgQEAgc3RydWN0IHZpcnRxdWV1ZSAqX192cmluZ19u
+ZXdfdmlydHF1ZXVlKHVuc2lnbmVkIGludCBpbmRleCwKPiAgIAkJIWNvbnRleHQ7Cj4gICAJdnEt
+PmV2ZW50ID0gdmlydGlvX2hhc19mZWF0dXJlKHZkZXYsIFZJUlRJT19SSU5HX0ZfRVZFTlRfSURY
+KTsKPiAgIAo+ICsJaWYgKHZpcnRpb19oYXNfZmVhdHVyZSh2ZGV2LCBWSVJUSU9fRl9PUkRFUl9Q
+TEFURk9STSkpCj4gKwkJdnEtPndlYWtfYmFycmllcnMgPSBmYWxzZTsKPiArCj4gICAJdnEtPnNw
+bGl0LnF1ZXVlX2RtYV9hZGRyID0gMDsKPiAgIAl2cS0+c3BsaXQucXVldWVfc2l6ZV9pbl9ieXRl
+cyA9IDA7Cj4gICAKPiBAQCAtMjIxMyw2ICsyMjE5LDggQEAgdm9pZCB2cmluZ190cmFuc3BvcnRf
+ZmVhdHVyZXMoc3RydWN0IHZpcnRpb19kZXZpY2UgKnZkZXYpCj4gICAJCQlicmVhazsKPiAgIAkJ
+Y2FzZSBWSVJUSU9fRl9SSU5HX1BBQ0tFRDoKPiAgIAkJCWJyZWFrOwo+ICsJCWNhc2UgVklSVElP
+X0ZfT1JERVJfUExBVEZPUk06Cj4gKwkJCWJyZWFrOwo+ICAgCQlkZWZhdWx0Ogo+ICAgCQkJLyog
+V2UgZG9uJ3QgdW5kZXJzdGFuZCB0aGlzIGJpdC4gKi8KPiAgIAkJCV9fdmlydGlvX2NsZWFyX2Jp
+dCh2ZGV2LCBpKTsKPiBkaWZmIC0tZ2l0IGEvaW5jbHVkZS91YXBpL2xpbnV4L3ZpcnRpb19jb25m
+aWcuaCBiL2luY2x1ZGUvdWFwaS9saW51eC92aXJ0aW9fY29uZmlnLmgKPiBpbmRleCAxMTk2ZTFj
+MWQ0ZjYuLmZmOGU3ZGM5ZDRkZCAxMDA2NDQKPiAtLS0gYS9pbmNsdWRlL3VhcGkvbGludXgvdmly
+dGlvX2NvbmZpZy5oCj4gKysrIGIvaW5jbHVkZS91YXBpL2xpbnV4L3ZpcnRpb19jb25maWcuaAo+
+IEBAIC03OCw2ICs3OCwxMiBAQAo+ICAgLyogVGhpcyBmZWF0dXJlIGluZGljYXRlcyBzdXBwb3J0
+IGZvciB0aGUgcGFja2VkIHZpcnRxdWV1ZSBsYXlvdXQuICovCj4gICAjZGVmaW5lIFZJUlRJT19G
+X1JJTkdfUEFDS0VECQkzNAo+ICAgCj4gKy8qCj4gKyAqIFRoaXMgZmVhdHVyZSBpbmRpY2F0ZXMg
+dGhhdCBtZW1vcnkgYWNjZXNzZXMgYnkgdGhlIGRyaXZlciBhbmQgdGhlCj4gKyAqIGRldmljZSBh
+cmUgb3JkZXJlZCBpbiBhIHdheSBkZXNjcmliZWQgYnkgdGhlIHBsYXRmb3JtLgo+ICsgKi8KPiAr
+I2RlZmluZSBWSVJUSU9fRl9PUkRFUl9QTEFURk9STQkJMzYKPiArCj4gICAvKgo+ICAgICogRG9l
+cyB0aGUgZGV2aWNlIHN1cHBvcnQgU2luZ2xlIFJvb3QgSS9PIFZpcnR1YWxpemF0aW9uPwo+ICAg
+ICovCgoKSSB3b25kZXIgd2hldGhlciBvciBub3QgdGhpcyBpcyBzdWZmaWNpZW50LiBJcyBkbWEg
+YmFycmllciBpbXBsaWVzIGEgCm1taW8gYmFycmllcj8gTG9va3Mgbm90LgoKU2VlIGlhNjQvaW5j
+bHVkZS9hc20vYmFycmllci5oOgoKIMKgKiBOb3RlOiAibWIoKSIgYW5kIGl0cyB2YXJpYW50cyBj
+YW5ub3QgYmUgdXNlZCBhcyBhIGZlbmNlIHRvIG9yZGVyCiDCoCogYWNjZXNzZXMgdG8gbWVtb3J5
+IG1hcHBlZCBJL08gcmVnaXN0ZXJzLsKgIEZvciB0aGF0LCBtZi5hIG5lZWRzIHRvCiDCoCogYmUg
+dXNlZC7CoCBIb3dldmVyLCB3ZSBkb24ndCB3YW50IHRvIGFsd2F5cyB1c2UgbWYuYSBiZWNhdXNl
+IChhKQogwqAqIGl0J3MgKHByZXN1bWFibHkpIG11Y2ggc2xvd2VyIHRoYW4gbWYgYW5kIChiKSBt
+Zi5hIGlzIHN1cHBvcnRlZCBmb3IKIMKgKiBzZXF1ZW50aWFsIG1lbW9yeSBwYWdlcyBvbmx5Lgog
+wqAqLwojZGVmaW5lIG1iKCnCoMKgwqDCoMKgwqDCoMKgwqDCoMKgIGlhNjRfbWYoKQojZGVmaW5l
+IHJtYigpwqDCoMKgwqDCoMKgwqDCoMKgwqAgbWIoKQojZGVmaW5lIHdtYigpwqDCoMKgwqDCoMKg
+wqDCoMKgwqAgbWIoKQoKI2RlZmluZSBkbWFfcm1iKCnCoMKgwqDCoMKgwqAgbWIoKQo9PmVmaW5l
+IGRtYV93bWIoKcKgwqDCoMKgwqDCoCBtYigpCgpUaGFua3MKCl9fX19fX19fX19fX19fX19fX19f
+X19fX19fX19fX19fX19fX19fX19fX19fX19fClZpcnR1YWxpemF0aW9uIG1haWxpbmcgbGlzdApW
+aXJ0dWFsaXphdGlvbkBsaXN0cy5saW51eC1mb3VuZGF0aW9uLm9yZwpodHRwczovL2xpc3RzLmxp
+bnV4Zm91bmRhdGlvbi5vcmcvbWFpbG1hbi9saXN0aW5mby92aXJ0dWFsaXphdGlvbg==
