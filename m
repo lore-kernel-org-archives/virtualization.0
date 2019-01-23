@@ -1,14 +1,15 @@
-From: "Michael S. Tsirkin" <mst@redhat.com>
-Subject: Re: [PATCH 0/5 v3] Fix virtio-blk issue with SWIOTLB
-Date: Wed, 23 Jan 2019 13:51:29 -0500
-Message-ID: <20190123135000-mutt-send-email-mst__10073.6872105458$1548269733$gmane$org@kernel.org>
+From: Christoph Hellwig <hch@lst.de>
+Subject: Re: [PATCH 2/5] swiotlb: Add is_swiotlb_active() function
+Date: Wed, 23 Jan 2019 22:27:55 +0100
+Message-ID: <20190123212755.GA9032__47431.0418868967$1548278887$gmane$org@lst.de>
 References: <20190123163049.24863-1-joro@8bytes.org>
+	<20190123163049.24863-3-joro@8bytes.org>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
 Content-Disposition: inline
-In-Reply-To: <20190123163049.24863-1-joro@8bytes.org>
+In-Reply-To: <20190123163049.24863-3-joro@8bytes.org>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -19,60 +20,17 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
 To: Joerg Roedel <joro@8bytes.org>
-Cc: Jens Axboe <axboe@kernel.dk>, jroedel@suse.de, brijesh.singh@amd.com, Konrad Rzeszutek Wilk <konrad.wilk@oracle.com>, jon.grimm@amd.com, jfehlig@suse.com, linux-kernel@vger.kernel.org, virtualization@lists.linux-foundation.org, linux-block@vger.kernel.org, iommu@lists.linux-foundation.org, Christoph Hellwig <hch@lst.de>
+Cc: Jens Axboe <axboe@kernel.dk>, jon.grimm@amd.com, brijesh.singh@amd.com, Konrad Rzeszutek Wilk <konrad.wilk@oracle.com>, "Michael S . Tsirkin" <mst@redhat.com>, jfehlig@suse.com, linux-kernel@vger.kernel.org, virtualization@lists.linux-foundation.org, linux-block@vger.kernel.org, iommu@lists.linux-foundation.org, jroedel@suse.de, Christoph Hellwig <hch@lst.de>
 List-Id: virtualization@lists.linuxfoundation.org
 
-On Wed, Jan 23, 2019 at 05:30:44PM +0100, Joerg Roedel wrote:
-> Hi,
-> 
-> here is the third version of this patch-set. Previous
-> versions can be found here:
-> 
-> 	V1: https://lore.kernel.org/lkml/20190110134433.15672-1-joro@8bytes.org/
-> 
-> 	V2: https://lore.kernel.org/lkml/20190115132257.6426-1-joro@8bytes.org/
-> 
-> The problem solved here is a limitation of the SWIOTLB implementation,
-> which does not support allocations larger than 256kb.  When the
-> virtio-blk driver tries to read/write a block larger than that, the
-> allocation of the dma-handle fails and an IO error is reported.
+On Wed, Jan 23, 2019 at 05:30:46PM +0100, Joerg Roedel wrote:
+> +bool is_swiotlb_active(void)
+> +{
+> +	return !no_iotlb_memory;
+> +}
 
-
-OK looks good to me.
-I will park this in my tree for now this way it will get
-testing in linux-next.
-Can I get an ack from DMA maintainers on the DMA bits for
-merging this in 5.0?
-
-> Changes to v2 are:
-> 
-> 	* Check if SWIOTLB is active before returning its limit in
-> 	  dma_direct_max_mapping_size()
-> 
-> 	* Only apply the maximum segment limit in virtio-blk when
-> 	  DMA-API is used for the vring
-> 
-> Please review.
-> 
-> Thanks,
-> 
-> 	Joerg
-> 
-> Joerg Roedel (5):
->   swiotlb: Introduce swiotlb_max_mapping_size()
->   swiotlb: Add is_swiotlb_active() function
->   dma: Introduce dma_max_mapping_size()
->   virtio: Introduce virtio_max_dma_size()
->   virtio-blk: Consider virtio_max_dma_size() for maximum segment size
-> 
->  drivers/block/virtio_blk.c   | 10 ++++++----
->  drivers/virtio/virtio_ring.c | 10 ++++++++++
->  include/linux/dma-mapping.h  | 16 ++++++++++++++++
->  include/linux/swiotlb.h      | 11 +++++++++++
->  include/linux/virtio.h       |  2 ++
->  kernel/dma/direct.c          | 11 +++++++++++
->  kernel/dma/swiotlb.c         | 10 ++++++++++
->  7 files changed, 66 insertions(+), 4 deletions(-)
-> 
-> -- 
-> 2.17.1
+As I've just introduced and fixed a bug in this area in the current
+cycle - I don't think no_iotlb_memory is what your want (and maybe
+not useful at all): if the arch valls swiotlb_exit after previously
+initializing a buffer it won't be set.  You probably want to check
+for non-zero io_tlb_start and/or io_tlb_end.
