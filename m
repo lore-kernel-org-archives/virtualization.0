@@ -1,14 +1,16 @@
-From: "Michael S. Tsirkin" <mst@redhat.com>
-Subject: Re: [PATCH] virtio: support VIRTIO_F_ORDER_PLATFORM
-Date: Tue, 22 Jan 2019 23:04:29 -0500
-Message-ID: <20190122230247-mutt-send-email-mst__23073.1044359104$1548216458$gmane$org@kernel.org>
+From: Jason Wang <jasowang@redhat.com>
+Subject: Re: [virtio-dev] [PATCH] virtio: support VIRTIO_F_ORDER_PLATFORM
+Date: Wed, 23 Jan 2019 14:56:00 +0800
+Message-ID: <7f07c837-d3d0-b5c0-9ecb-29b545b377c3__15676.8742877588$1548226702$gmane$org@redhat.com>
 References: <20190122170346.6279-1-tiwei.bie@intel.com>
+	<ecf89b02-57ba-478f-1e28-4286888a4b26@redhat.com>
+	<20190122224203-mutt-send-email-mst@kernel.org>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset="utf-8"; Format="flowed"
+Content-Transfer-Encoding: base64
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-Content-Disposition: inline
-In-Reply-To: <20190122170346.6279-1-tiwei.bie@intel.com>
+In-Reply-To: <20190122224203-mutt-send-email-mst@kernel.org>
+Content-Language: en-US
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -18,77 +20,85 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Tiwei Bie <tiwei.bie@intel.com>
+To: "Michael S. Tsirkin" <mst@redhat.com>
 Cc: virtio-dev@lists.oasis-open.org, linux-kernel@vger.kernel.org, virtualization@lists.linux-foundation.org
 List-Id: virtualization@lists.linuxfoundation.org
 
-On Wed, Jan 23, 2019 at 01:03:46AM +0800, Tiwei Bie wrote:
-> This patch introduces the support for VIRTIO_F_ORDER_PLATFORM.
-> When this feature is negotiated, driver will use the barriers
-> suitable for hardware devices.
-> 
-> Signed-off-by: Tiwei Bie <tiwei.bie@intel.com>
-
-Could you pls add a bit more explanation in the commit log?
-E.g. which configurations are broken without this patch?
-How severe is the problem?
-
-I'm trying to decide whether this belongs in 5.0 or 5.1.
-
-> ---
->  drivers/virtio/virtio_ring.c       | 8 ++++++++
->  include/uapi/linux/virtio_config.h | 6 ++++++
->  2 files changed, 14 insertions(+)
-> 
-> diff --git a/drivers/virtio/virtio_ring.c b/drivers/virtio/virtio_ring.c
-> index cd7e755484e3..27d3f057493e 100644
-> --- a/drivers/virtio/virtio_ring.c
-> +++ b/drivers/virtio/virtio_ring.c
-> @@ -1609,6 +1609,9 @@ static struct virtqueue *vring_create_virtqueue_packed(
->  		!context;
->  	vq->event = virtio_has_feature(vdev, VIRTIO_RING_F_EVENT_IDX);
->  
-> +	if (virtio_has_feature(vdev, VIRTIO_F_ORDER_PLATFORM))
-> +		vq->weak_barriers = false;
-> +
->  	vq->packed.ring_dma_addr = ring_dma_addr;
->  	vq->packed.driver_event_dma_addr = driver_event_dma_addr;
->  	vq->packed.device_event_dma_addr = device_event_dma_addr;
-> @@ -2079,6 +2082,9 @@ struct virtqueue *__vring_new_virtqueue(unsigned int index,
->  		!context;
->  	vq->event = virtio_has_feature(vdev, VIRTIO_RING_F_EVENT_IDX);
->  
-> +	if (virtio_has_feature(vdev, VIRTIO_F_ORDER_PLATFORM))
-> +		vq->weak_barriers = false;
-> +
->  	vq->split.queue_dma_addr = 0;
->  	vq->split.queue_size_in_bytes = 0;
->  
-> @@ -2213,6 +2219,8 @@ void vring_transport_features(struct virtio_device *vdev)
->  			break;
->  		case VIRTIO_F_RING_PACKED:
->  			break;
-> +		case VIRTIO_F_ORDER_PLATFORM:
-> +			break;
->  		default:
->  			/* We don't understand this bit. */
->  			__virtio_clear_bit(vdev, i);
-> diff --git a/include/uapi/linux/virtio_config.h b/include/uapi/linux/virtio_config.h
-> index 1196e1c1d4f6..ff8e7dc9d4dd 100644
-> --- a/include/uapi/linux/virtio_config.h
-> +++ b/include/uapi/linux/virtio_config.h
-> @@ -78,6 +78,12 @@
->  /* This feature indicates support for the packed virtqueue layout. */
->  #define VIRTIO_F_RING_PACKED		34
->  
-> +/*
-> + * This feature indicates that memory accesses by the driver and the
-> + * device are ordered in a way described by the platform.
-> + */
-> +#define VIRTIO_F_ORDER_PLATFORM		36
-> +
->  /*
->   * Does the device support Single Root I/O Virtualization?
->   */
-> -- 
-> 2.17.1
+Ck9uIDIwMTkvMS8yMyDkuIrljYgxMTo0OSwgTWljaGFlbCBTLiBUc2lya2luIHdyb3RlOgo+IE9u
+IFdlZCwgSmFuIDIzLCAyMDE5IGF0IDExOjA4OjA0QU0gKzA4MDAsIEphc29uIFdhbmcgd3JvdGU6
+Cj4+IE9uIDIwMTkvMS8yMyDkuIrljYgxOjAzLCBUaXdlaSBCaWUgd3JvdGU6Cj4+PiBUaGlzIHBh
+dGNoIGludHJvZHVjZXMgdGhlIHN1cHBvcnQgZm9yIFZJUlRJT19GX09SREVSX1BMQVRGT1JNLgo+
+Pj4gV2hlbiB0aGlzIGZlYXR1cmUgaXMgbmVnb3RpYXRlZCwgZHJpdmVyIHdpbGwgdXNlIHRoZSBi
+YXJyaWVycwo+Pj4gc3VpdGFibGUgZm9yIGhhcmR3YXJlIGRldmljZXMuCj4+Pgo+Pj4gU2lnbmVk
+LW9mZi1ieTogVGl3ZWkgQmllIDx0aXdlaS5iaWVAaW50ZWwuY29tPgo+Pj4gLS0tCj4+PiAgICBk
+cml2ZXJzL3ZpcnRpby92aXJ0aW9fcmluZy5jICAgICAgIHwgOCArKysrKysrKwo+Pj4gICAgaW5j
+bHVkZS91YXBpL2xpbnV4L3ZpcnRpb19jb25maWcuaCB8IDYgKysrKysrCj4+PiAgICAyIGZpbGVz
+IGNoYW5nZWQsIDE0IGluc2VydGlvbnMoKykKPj4+Cj4+PiBkaWZmIC0tZ2l0IGEvZHJpdmVycy92
+aXJ0aW8vdmlydGlvX3JpbmcuYyBiL2RyaXZlcnMvdmlydGlvL3ZpcnRpb19yaW5nLmMKPj4+IGlu
+ZGV4IGNkN2U3NTU0ODRlMy4uMjdkM2YwNTc0OTNlIDEwMDY0NAo+Pj4gLS0tIGEvZHJpdmVycy92
+aXJ0aW8vdmlydGlvX3JpbmcuYwo+Pj4gKysrIGIvZHJpdmVycy92aXJ0aW8vdmlydGlvX3Jpbmcu
+Ywo+Pj4gQEAgLTE2MDksNiArMTYwOSw5IEBAIHN0YXRpYyBzdHJ1Y3QgdmlydHF1ZXVlICp2cmlu
+Z19jcmVhdGVfdmlydHF1ZXVlX3BhY2tlZCgKPj4+ICAgIAkJIWNvbnRleHQ7Cj4+PiAgICAJdnEt
+PmV2ZW50ID0gdmlydGlvX2hhc19mZWF0dXJlKHZkZXYsIFZJUlRJT19SSU5HX0ZfRVZFTlRfSURY
+KTsKPj4+ICsJaWYgKHZpcnRpb19oYXNfZmVhdHVyZSh2ZGV2LCBWSVJUSU9fRl9PUkRFUl9QTEFU
+Rk9STSkpCj4+PiArCQl2cS0+d2Vha19iYXJyaWVycyA9IGZhbHNlOwo+Pj4gKwo+Pj4gICAgCXZx
+LT5wYWNrZWQucmluZ19kbWFfYWRkciA9IHJpbmdfZG1hX2FkZHI7Cj4+PiAgICAJdnEtPnBhY2tl
+ZC5kcml2ZXJfZXZlbnRfZG1hX2FkZHIgPSBkcml2ZXJfZXZlbnRfZG1hX2FkZHI7Cj4+PiAgICAJ
+dnEtPnBhY2tlZC5kZXZpY2VfZXZlbnRfZG1hX2FkZHIgPSBkZXZpY2VfZXZlbnRfZG1hX2FkZHI7
+Cj4+PiBAQCAtMjA3OSw2ICsyMDgyLDkgQEAgc3RydWN0IHZpcnRxdWV1ZSAqX192cmluZ19uZXdf
+dmlydHF1ZXVlKHVuc2lnbmVkIGludCBpbmRleCwKPj4+ICAgIAkJIWNvbnRleHQ7Cj4+PiAgICAJ
+dnEtPmV2ZW50ID0gdmlydGlvX2hhc19mZWF0dXJlKHZkZXYsIFZJUlRJT19SSU5HX0ZfRVZFTlRf
+SURYKTsKPj4+ICsJaWYgKHZpcnRpb19oYXNfZmVhdHVyZSh2ZGV2LCBWSVJUSU9fRl9PUkRFUl9Q
+TEFURk9STSkpCj4+PiArCQl2cS0+d2Vha19iYXJyaWVycyA9IGZhbHNlOwo+Pj4gKwo+Pj4gICAg
+CXZxLT5zcGxpdC5xdWV1ZV9kbWFfYWRkciA9IDA7Cj4+PiAgICAJdnEtPnNwbGl0LnF1ZXVlX3Np
+emVfaW5fYnl0ZXMgPSAwOwo+Pj4gQEAgLTIyMTMsNiArMjIxOSw4IEBAIHZvaWQgdnJpbmdfdHJh
+bnNwb3J0X2ZlYXR1cmVzKHN0cnVjdCB2aXJ0aW9fZGV2aWNlICp2ZGV2KQo+Pj4gICAgCQkJYnJl
+YWs7Cj4+PiAgICAJCWNhc2UgVklSVElPX0ZfUklOR19QQUNLRUQ6Cj4+PiAgICAJCQlicmVhazsK
+Pj4+ICsJCWNhc2UgVklSVElPX0ZfT1JERVJfUExBVEZPUk06Cj4+PiArCQkJYnJlYWs7Cj4+PiAg
+ICAJCWRlZmF1bHQ6Cj4+PiAgICAJCQkvKiBXZSBkb24ndCB1bmRlcnN0YW5kIHRoaXMgYml0LiAq
+Lwo+Pj4gICAgCQkJX192aXJ0aW9fY2xlYXJfYml0KHZkZXYsIGkpOwo+Pj4gZGlmZiAtLWdpdCBh
+L2luY2x1ZGUvdWFwaS9saW51eC92aXJ0aW9fY29uZmlnLmggYi9pbmNsdWRlL3VhcGkvbGludXgv
+dmlydGlvX2NvbmZpZy5oCj4+PiBpbmRleCAxMTk2ZTFjMWQ0ZjYuLmZmOGU3ZGM5ZDRkZCAxMDA2
+NDQKPj4+IC0tLSBhL2luY2x1ZGUvdWFwaS9saW51eC92aXJ0aW9fY29uZmlnLmgKPj4+ICsrKyBi
+L2luY2x1ZGUvdWFwaS9saW51eC92aXJ0aW9fY29uZmlnLmgKPj4+IEBAIC03OCw2ICs3OCwxMiBA
+QAo+Pj4gICAgLyogVGhpcyBmZWF0dXJlIGluZGljYXRlcyBzdXBwb3J0IGZvciB0aGUgcGFja2Vk
+IHZpcnRxdWV1ZSBsYXlvdXQuICovCj4+PiAgICAjZGVmaW5lIFZJUlRJT19GX1JJTkdfUEFDS0VE
+CQkzNAo+Pj4gKy8qCj4+PiArICogVGhpcyBmZWF0dXJlIGluZGljYXRlcyB0aGF0IG1lbW9yeSBh
+Y2Nlc3NlcyBieSB0aGUgZHJpdmVyIGFuZCB0aGUKPj4+ICsgKiBkZXZpY2UgYXJlIG9yZGVyZWQg
+aW4gYSB3YXkgZGVzY3JpYmVkIGJ5IHRoZSBwbGF0Zm9ybS4KPj4+ICsgKi8KPj4+ICsjZGVmaW5l
+IFZJUlRJT19GX09SREVSX1BMQVRGT1JNCQkzNgo+Pj4gKwo+Pj4gICAgLyoKPj4+ICAgICAqIERv
+ZXMgdGhlIGRldmljZSBzdXBwb3J0IFNpbmdsZSBSb290IEkvTyBWaXJ0dWFsaXphdGlvbj8KPj4+
+ICAgICAqLwo+Pgo+PiBJIHdvbmRlciB3aGV0aGVyIG9yIG5vdCB0aGlzIGlzIHN1ZmZpY2llbnQu
+IElzIGRtYSBiYXJyaWVyIGltcGxpZXMgYSBtbWlvCj4+IGJhcnJpZXI/IExvb2tzIG5vdC4KPiBJ
+SVVDIHdlIGRvbid0IG5lZWQgYW4gbW1pbyBiYXJyaWVyIGJlY2F1c2Ugd2UgYXJlIHVzaW5nIGEK
+PiBzZXJpYWxpemluZyBBUEk6IERvY3VtZW50YXRpb24vbWVtb3J5LWJhcnJpZXJzLnR4dCBzYXlz
+Ogo+Cj4gCU5vdGUgdGhhdCwgd2hlbiB1c2luZyB3cml0ZWwoKSwgYSBwcmlvcgo+ICAgICAgIHdt
+YigpIGlzIG5vdCBuZWVkZWQgdG8gZ3VhcmFudGVlIHRoYXQgdGhlIGNhY2hlIGNvaGVyZW50IG1l
+bW9yeSB3cml0ZXMKPiAgICAgICBoYXZlIGNvbXBsZXRlZCBiZWZvcmUgd3JpdGluZyB0byB0aGUg
+TU1JTyByZWdpb24uCgoKQWgsIEkgZ2V0IHRoaXMuCgoKPgo+Cj4+IFNlZSBpYTY0L2luY2x1ZGUv
+YXNtL2JhcnJpZXIuaDoKPj4KPj4gIMKgKiBOb3RlOiAibWIoKSIgYW5kIGl0cyB2YXJpYW50cyBj
+YW5ub3QgYmUgdXNlZCBhcyBhIGZlbmNlIHRvIG9yZGVyCj4+ICDCoCogYWNjZXNzZXMgdG8gbWVt
+b3J5IG1hcHBlZCBJL08gcmVnaXN0ZXJzLsKgIEZvciB0aGF0LCBtZi5hIG5lZWRzIHRvCj4+ICDC
+oCogYmUgdXNlZC7CoCBIb3dldmVyLCB3ZSBkb24ndCB3YW50IHRvIGFsd2F5cyB1c2UgbWYuYSBi
+ZWNhdXNlIChhKQo+PiAgwqAqIGl0J3MgKHByZXN1bWFibHkpIG11Y2ggc2xvd2VyIHRoYW4gbWYg
+YW5kIChiKSBtZi5hIGlzIHN1cHBvcnRlZCBmb3IKPj4gIMKgKiBzZXF1ZW50aWFsIG1lbW9yeSBw
+YWdlcyBvbmx5Lgo+PiAgwqAqLwo+PiAjZGVmaW5lIG1iKCnCoMKgwqDCoMKgwqDCoMKgwqDCoMKg
+IGlhNjRfbWYoKQo+PiAjZGVmaW5lIHJtYigpwqDCoMKgwqDCoMKgwqDCoMKgwqAgbWIoKQo+PiAj
+ZGVmaW5lIHdtYigpwqDCoMKgwqDCoMKgwqDCoMKgwqAgbWIoKQo+Pgo+PiAjZGVmaW5lIGRtYV9y
+bWIoKcKgwqDCoMKgwqDCoCBtYigpCj4+ID0+ZWZpbmUgZG1hX3dtYigpwqDCoMKgwqDCoMKgIG1i
+KCkKPj4KPj4gVGhhbmtzCj4gRnJhbmtseSBubyBpZGVhIGFib3V0IGlhNjQuCgoKTmVpdGhlciBk
+aWQgbWUuCgoKPiAgIFNvcnJ5LiBBcmUgYW55IGxlc3MgZXNvdGVyaWMgcGxhdGZvcm1zCj4gYWZm
+ZWN0ZWQ/Cj4KCkUuZyBwcGM2ND8KCmRlZmluZSBkbWFfd21iKCnCoMKgwqDCoMKgwqAgX19hc21f
+XyBfX3ZvbGF0aWxlX18gKHN0cmluZ2lmeV9pbl9jKFNNUFdNQikgOiA6IAo6Im1lbW9cCnJ5IikK
+Ci8qCiDCoCogRW5mb3JjZSBzeW5jaHJvbmlzYXRpb24gb2Ygc3RvcmVzIHZzLiBzcGluX3VubG9j
+awogwqAqICh0aGlzIGRvZXMgaXQgZXhwbGljaXRseSwgdGhvdWdoIG91ciBpbXBsZW1lbnRhdGlv
+biBvZiBzcGluX3VubG9jawogwqAqIGRvZXMgaXQgaW1wbGljaXRlbHkgdG9vKQogwqAqLwpzdGF0
+aWMgaW5saW5lIHZvaWQgbW1pb3diKHZvaWQpCnsKIMKgwqDCoMKgwqDCoMKgIHVuc2lnbmVkIGxv
+bmcgdG1wOwoKIMKgwqDCoMKgwqDCoMKgIF9fYXNtX18gX192b2xhdGlsZV9fKCJzeW5jOyBsaSAl
+MCwwOyBzdGIgJTAsJTEoMTMpIgogwqDCoMKgwqDCoMKgwqAgOiAiPSZyIiAodG1wKSA6ICJpIiAo
+b2Zmc2V0b2Yoc3RydWN0IHBhY2Ffc3RydWN0LCBpb19zeW5jKSkKIMKgwqDCoMKgwqDCoMKgIDog
+Im1lbW9yeSIpOwp9CgpkbWFfd21iKCkgaXMgbHdzeW5jIHdoaWNoIGlzIG1vcmUgbGlnaHR3ZWln
+aHQgdGhhbiBzeW5jIEkgZ3Vlc3M/CgpUaGFua3MKCgpfX19fX19fX19fX19fX19fX19fX19fX19f
+X19fX19fX19fX19fX19fX19fX19fXwpWaXJ0dWFsaXphdGlvbiBtYWlsaW5nIGxpc3QKVmlydHVh
+bGl6YXRpb25AbGlzdHMubGludXgtZm91bmRhdGlvbi5vcmcKaHR0cHM6Ly9saXN0cy5saW51eGZv
+dW5kYXRpb24ub3JnL21haWxtYW4vbGlzdGluZm8vdmlydHVhbGl6YXRpb24=
