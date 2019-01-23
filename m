@@ -1,17 +1,15 @@
 From: "Michael S. Tsirkin" <mst@redhat.com>
-Subject: Re: [virtio-dev] [PATCH] virtio: support VIRTIO_F_ORDER_PLATFORM
-Date: Wed, 23 Jan 2019 08:49:00 -0500
-Message-ID: <20190123084308-mutt-send-email-mst__8587.07315507985$1548251532$gmane$org@kernel.org>
-References: <20190122170346.6279-1-tiwei.bie@intel.com>
-	<ecf89b02-57ba-478f-1e28-4286888a4b26@redhat.com>
-	<20190122224203-mutt-send-email-mst@kernel.org>
-	<7f07c837-d3d0-b5c0-9ecb-29b545b377c3@redhat.com>
+Subject: Re: [PATCH net-next V4 0/5] vhost: accelerate metadata access
+	through vmap()
+Date: Wed, 23 Jan 2019 08:58:07 -0500
+Message-ID: <20190123085652-mutt-send-email-mst__23075.3979690903$1548252123$gmane$org@kernel.org>
+References: <20190123095557.30168-1-jasowang@redhat.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="utf-8"
-Content-Transfer-Encoding: base64
+Content-Type: text/plain; charset="us-ascii"
+Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
 Content-Disposition: inline
-In-Reply-To: <7f07c837-d3d0-b5c0-9ecb-29b545b377c3@redhat.com>
+In-Reply-To: <20190123095557.30168-1-jasowang@redhat.com>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -22,107 +20,46 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
 To: Jason Wang <jasowang@redhat.com>
-Cc: virtio-dev@lists.oasis-open.org, linux-kernel@vger.kernel.org, virtualization@lists.linux-foundation.org
+Cc: netdev@vger.kernel.org, linux-kernel@vger.kernel.org, kvm@vger.kernel.org, virtualization@lists.linux-foundation.org
 List-Id: virtualization@lists.linuxfoundation.org
 
-T24gV2VkLCBKYW4gMjMsIDIwMTkgYXQgMDI6NTY6MDBQTSArMDgwMCwgSmFzb24gV2FuZyB3cm90
-ZToKPiAKPiBPbiAyMDE5LzEvMjMg5LiK5Y2IMTE6NDksIE1pY2hhZWwgUy4gVHNpcmtpbiB3cm90
-ZToKPiA+IE9uIFdlZCwgSmFuIDIzLCAyMDE5IGF0IDExOjA4OjA0QU0gKzA4MDAsIEphc29uIFdh
-bmcgd3JvdGU6Cj4gPiA+IE9uIDIwMTkvMS8yMyDkuIrljYgxOjAzLCBUaXdlaSBCaWUgd3JvdGU6
-Cj4gPiA+ID4gVGhpcyBwYXRjaCBpbnRyb2R1Y2VzIHRoZSBzdXBwb3J0IGZvciBWSVJUSU9fRl9P
-UkRFUl9QTEFURk9STS4KPiA+ID4gPiBXaGVuIHRoaXMgZmVhdHVyZSBpcyBuZWdvdGlhdGVkLCBk
-cml2ZXIgd2lsbCB1c2UgdGhlIGJhcnJpZXJzCj4gPiA+ID4gc3VpdGFibGUgZm9yIGhhcmR3YXJl
-IGRldmljZXMuCj4gPiA+ID4gCj4gPiA+ID4gU2lnbmVkLW9mZi1ieTogVGl3ZWkgQmllIDx0aXdl
-aS5iaWVAaW50ZWwuY29tPgo+ID4gPiA+IC0tLQo+ID4gPiA+ICAgIGRyaXZlcnMvdmlydGlvL3Zp
-cnRpb19yaW5nLmMgICAgICAgfCA4ICsrKysrKysrCj4gPiA+ID4gICAgaW5jbHVkZS91YXBpL2xp
-bnV4L3ZpcnRpb19jb25maWcuaCB8IDYgKysrKysrCj4gPiA+ID4gICAgMiBmaWxlcyBjaGFuZ2Vk
-LCAxNCBpbnNlcnRpb25zKCspCj4gPiA+ID4gCj4gPiA+ID4gZGlmZiAtLWdpdCBhL2RyaXZlcnMv
-dmlydGlvL3ZpcnRpb19yaW5nLmMgYi9kcml2ZXJzL3ZpcnRpby92aXJ0aW9fcmluZy5jCj4gPiA+
-ID4gaW5kZXggY2Q3ZTc1NTQ4NGUzLi4yN2QzZjA1NzQ5M2UgMTAwNjQ0Cj4gPiA+ID4gLS0tIGEv
-ZHJpdmVycy92aXJ0aW8vdmlydGlvX3JpbmcuYwo+ID4gPiA+ICsrKyBiL2RyaXZlcnMvdmlydGlv
-L3ZpcnRpb19yaW5nLmMKPiA+ID4gPiBAQCAtMTYwOSw2ICsxNjA5LDkgQEAgc3RhdGljIHN0cnVj
-dCB2aXJ0cXVldWUgKnZyaW5nX2NyZWF0ZV92aXJ0cXVldWVfcGFja2VkKAo+ID4gPiA+ICAgIAkJ
-IWNvbnRleHQ7Cj4gPiA+ID4gICAgCXZxLT5ldmVudCA9IHZpcnRpb19oYXNfZmVhdHVyZSh2ZGV2
-LCBWSVJUSU9fUklOR19GX0VWRU5UX0lEWCk7Cj4gPiA+ID4gKwlpZiAodmlydGlvX2hhc19mZWF0
-dXJlKHZkZXYsIFZJUlRJT19GX09SREVSX1BMQVRGT1JNKSkKPiA+ID4gPiArCQl2cS0+d2Vha19i
-YXJyaWVycyA9IGZhbHNlOwo+ID4gPiA+ICsKPiA+ID4gPiAgICAJdnEtPnBhY2tlZC5yaW5nX2Rt
-YV9hZGRyID0gcmluZ19kbWFfYWRkcjsKPiA+ID4gPiAgICAJdnEtPnBhY2tlZC5kcml2ZXJfZXZl
-bnRfZG1hX2FkZHIgPSBkcml2ZXJfZXZlbnRfZG1hX2FkZHI7Cj4gPiA+ID4gICAgCXZxLT5wYWNr
-ZWQuZGV2aWNlX2V2ZW50X2RtYV9hZGRyID0gZGV2aWNlX2V2ZW50X2RtYV9hZGRyOwo+ID4gPiA+
-IEBAIC0yMDc5LDYgKzIwODIsOSBAQCBzdHJ1Y3QgdmlydHF1ZXVlICpfX3ZyaW5nX25ld192aXJ0
-cXVldWUodW5zaWduZWQgaW50IGluZGV4LAo+ID4gPiA+ICAgIAkJIWNvbnRleHQ7Cj4gPiA+ID4g
-ICAgCXZxLT5ldmVudCA9IHZpcnRpb19oYXNfZmVhdHVyZSh2ZGV2LCBWSVJUSU9fUklOR19GX0VW
-RU5UX0lEWCk7Cj4gPiA+ID4gKwlpZiAodmlydGlvX2hhc19mZWF0dXJlKHZkZXYsIFZJUlRJT19G
-X09SREVSX1BMQVRGT1JNKSkKPiA+ID4gPiArCQl2cS0+d2Vha19iYXJyaWVycyA9IGZhbHNlOwo+
-ID4gPiA+ICsKPiA+ID4gPiAgICAJdnEtPnNwbGl0LnF1ZXVlX2RtYV9hZGRyID0gMDsKPiA+ID4g
-PiAgICAJdnEtPnNwbGl0LnF1ZXVlX3NpemVfaW5fYnl0ZXMgPSAwOwo+ID4gPiA+IEBAIC0yMjEz
-LDYgKzIyMTksOCBAQCB2b2lkIHZyaW5nX3RyYW5zcG9ydF9mZWF0dXJlcyhzdHJ1Y3QgdmlydGlv
-X2RldmljZSAqdmRldikKPiA+ID4gPiAgICAJCQlicmVhazsKPiA+ID4gPiAgICAJCWNhc2UgVklS
-VElPX0ZfUklOR19QQUNLRUQ6Cj4gPiA+ID4gICAgCQkJYnJlYWs7Cj4gPiA+ID4gKwkJY2FzZSBW
-SVJUSU9fRl9PUkRFUl9QTEFURk9STToKPiA+ID4gPiArCQkJYnJlYWs7Cj4gPiA+ID4gICAgCQlk
-ZWZhdWx0Ogo+ID4gPiA+ICAgIAkJCS8qIFdlIGRvbid0IHVuZGVyc3RhbmQgdGhpcyBiaXQuICov
-Cj4gPiA+ID4gICAgCQkJX192aXJ0aW9fY2xlYXJfYml0KHZkZXYsIGkpOwo+ID4gPiA+IGRpZmYg
-LS1naXQgYS9pbmNsdWRlL3VhcGkvbGludXgvdmlydGlvX2NvbmZpZy5oIGIvaW5jbHVkZS91YXBp
-L2xpbnV4L3ZpcnRpb19jb25maWcuaAo+ID4gPiA+IGluZGV4IDExOTZlMWMxZDRmNi4uZmY4ZTdk
-YzlkNGRkIDEwMDY0NAo+ID4gPiA+IC0tLSBhL2luY2x1ZGUvdWFwaS9saW51eC92aXJ0aW9fY29u
-ZmlnLmgKPiA+ID4gPiArKysgYi9pbmNsdWRlL3VhcGkvbGludXgvdmlydGlvX2NvbmZpZy5oCj4g
-PiA+ID4gQEAgLTc4LDYgKzc4LDEyIEBACj4gPiA+ID4gICAgLyogVGhpcyBmZWF0dXJlIGluZGlj
-YXRlcyBzdXBwb3J0IGZvciB0aGUgcGFja2VkIHZpcnRxdWV1ZSBsYXlvdXQuICovCj4gPiA+ID4g
-ICAgI2RlZmluZSBWSVJUSU9fRl9SSU5HX1BBQ0tFRAkJMzQKPiA+ID4gPiArLyoKPiA+ID4gPiAr
-ICogVGhpcyBmZWF0dXJlIGluZGljYXRlcyB0aGF0IG1lbW9yeSBhY2Nlc3NlcyBieSB0aGUgZHJp
-dmVyIGFuZCB0aGUKPiA+ID4gPiArICogZGV2aWNlIGFyZSBvcmRlcmVkIGluIGEgd2F5IGRlc2Ny
-aWJlZCBieSB0aGUgcGxhdGZvcm0uCj4gPiA+ID4gKyAqLwo+ID4gPiA+ICsjZGVmaW5lIFZJUlRJ
-T19GX09SREVSX1BMQVRGT1JNCQkzNgo+ID4gPiA+ICsKPiA+ID4gPiAgICAvKgo+ID4gPiA+ICAg
-ICAqIERvZXMgdGhlIGRldmljZSBzdXBwb3J0IFNpbmdsZSBSb290IEkvTyBWaXJ0dWFsaXphdGlv
-bj8KPiA+ID4gPiAgICAgKi8KPiA+ID4gCj4gPiA+IEkgd29uZGVyIHdoZXRoZXIgb3Igbm90IHRo
-aXMgaXMgc3VmZmljaWVudC4gSXMgZG1hIGJhcnJpZXIgaW1wbGllcyBhIG1taW8KPiA+ID4gYmFy
-cmllcj8gTG9va3Mgbm90Lgo+ID4gSUlVQyB3ZSBkb24ndCBuZWVkIGFuIG1taW8gYmFycmllciBi
-ZWNhdXNlIHdlIGFyZSB1c2luZyBhCj4gPiBzZXJpYWxpemluZyBBUEk6IERvY3VtZW50YXRpb24v
-bWVtb3J5LWJhcnJpZXJzLnR4dCBzYXlzOgo+ID4gCj4gPiAJTm90ZSB0aGF0LCB3aGVuIHVzaW5n
-IHdyaXRlbCgpLCBhIHByaW9yCj4gPiAgICAgICB3bWIoKSBpcyBub3QgbmVlZGVkIHRvIGd1YXJh
-bnRlZSB0aGF0IHRoZSBjYWNoZSBjb2hlcmVudCBtZW1vcnkgd3JpdGVzCj4gPiAgICAgICBoYXZl
-IGNvbXBsZXRlZCBiZWZvcmUgd3JpdGluZyB0byB0aGUgTU1JTyByZWdpb24uCj4gCj4gCj4gQWgs
-IEkgZ2V0IHRoaXMuCj4gCj4gCj4gPiAKPiA+IAo+ID4gPiBTZWUgaWE2NC9pbmNsdWRlL2FzbS9i
-YXJyaWVyLmg6Cj4gPiA+IAo+ID4gPiAgwqAqIE5vdGU6ICJtYigpIiBhbmQgaXRzIHZhcmlhbnRz
-IGNhbm5vdCBiZSB1c2VkIGFzIGEgZmVuY2UgdG8gb3JkZXIKPiA+ID4gIMKgKiBhY2Nlc3NlcyB0
-byBtZW1vcnkgbWFwcGVkIEkvTyByZWdpc3RlcnMuwqAgRm9yIHRoYXQsIG1mLmEgbmVlZHMgdG8K
-PiA+ID4gIMKgKiBiZSB1c2VkLsKgIEhvd2V2ZXIsIHdlIGRvbid0IHdhbnQgdG8gYWx3YXlzIHVz
-ZSBtZi5hIGJlY2F1c2UgKGEpCj4gPiA+ICDCoCogaXQncyAocHJlc3VtYWJseSkgbXVjaCBzbG93
-ZXIgdGhhbiBtZiBhbmQgKGIpIG1mLmEgaXMgc3VwcG9ydGVkIGZvcgo+ID4gPiAgwqAqIHNlcXVl
-bnRpYWwgbWVtb3J5IHBhZ2VzIG9ubHkuCj4gPiA+ICDCoCovCj4gPiA+ICNkZWZpbmUgbWIoKcKg
-wqDCoMKgwqDCoMKgwqDCoMKgwqAgaWE2NF9tZigpCj4gPiA+ICNkZWZpbmUgcm1iKCnCoMKgwqDC
-oMKgwqDCoMKgwqDCoCBtYigpCj4gPiA+ICNkZWZpbmUgd21iKCnCoMKgwqDCoMKgwqDCoMKgwqDC
-oCBtYigpCj4gPiA+IAo+ID4gPiAjZGVmaW5lIGRtYV9ybWIoKcKgwqDCoMKgwqDCoCBtYigpCj4g
-PiA+ID0+ZWZpbmUgZG1hX3dtYigpwqDCoMKgwqDCoMKgIG1iKCkKPiA+ID4gCj4gPiA+IFRoYW5r
-cwo+ID4gRnJhbmtseSBubyBpZGVhIGFib3V0IGlhNjQuCj4gCj4gCj4gTmVpdGhlciBkaWQgbWUu
-Cj4gCj4gCj4gPiAgIFNvcnJ5LiBBcmUgYW55IGxlc3MgZXNvdGVyaWMgcGxhdGZvcm1zCj4gPiBh
-ZmZlY3RlZD8KPiA+IAo+IAo+IEUuZyBwcGM2ND8KClNvCgp2b2lkIGlvd3JpdGUzMih1MzIgdmFs
-LCB2b2lkIF9faW9tZW0gKmFkZHIpCnsKICAgICAgICB3cml0ZWwodmFsLCBhZGRyKTsKfQoKYW5k
-IHRoYXQgZXZlbnR1YWxseSBnZXRzIHRvIHRoaXMgb25lOgoKCiNkZWZpbmUgREVGX01NSU9fT1VU
-X0QobmFtZSwgc2l6ZSwgaW5zbikgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgIFwKc3Rh
-dGljIGlubGluZSB2b2lkIG5hbWUodm9sYXRpbGUgdSMjc2l6ZSBfX2lvbWVtICphZGRyLCB1IyNz
-aXplIHZhbCkgICAgXAp7ICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAg
-ICAgICAgICAgICAgICAgICAgICAgICAgICAgICBcCiAgICAgICAgX19hc21fXyBfX3ZvbGF0aWxl
-X18oInN5bmM7IiNpbnNuIiVVMCVYMCAlMSwlMCIgICAgICAgICAgICAgICAgIFwKICAgICAgICAg
-ICAgICAgIDogIj1tIiAoKmFkZHIpIDogInIiICh2YWwpIDogIm1lbW9yeSIpOyAgICAgICAgICAg
-ICAgICAgXAogICAgICAgIElPX1NFVF9TWU5DX0ZMQUcoKTsgICAgICAgICAgICAgICAgICAgICAg
-ICAgICAgICAgICAgICAgICAgICAgICBcCn0KCmFuZAoKI2lmZGVmIENPTkZJR19QUEM2NAojZGVm
-aW5lIElPX1NFVF9TWU5DX0ZMQUcoKSAgICAgIGRvIHsgbG9jYWxfcGFjYS0+aW9fc3luYyA9IDE7
-IH0gd2hpbGUoMCkKI2Vsc2UKI2RlZmluZSBJT19TRVRfU1lOQ19GTEFHKCkKI2VuZGlmCgoKCgoK
-PiBkZWZpbmUgZG1hX3dtYigpwqDCoMKgwqDCoMKgIF9fYXNtX18gX192b2xhdGlsZV9fIChzdHJp
-bmdpZnlfaW5fYyhTTVBXTUIpIDogOgo+IDoibWVtb1wKPiByeSIpCj4gCj4gLyoKPiDCoCogRW5m
-b3JjZSBzeW5jaHJvbmlzYXRpb24gb2Ygc3RvcmVzIHZzLiBzcGluX3VubG9jawo+IMKgKiAodGhp
-cyBkb2VzIGl0IGV4cGxpY2l0bHksIHRob3VnaCBvdXIgaW1wbGVtZW50YXRpb24gb2Ygc3Bpbl91
-bmxvY2sKCkkgZG9uJ3Qga25vdyB3aGljaCBzcGluX3VubG9jayBkb2VzIGl0IHJlZmVyIHRvIGhl
-cmUuCgo+IMKgKiBkb2VzIGl0IGltcGxpY2l0ZWx5IHRvbykKPiDCoCovCj4gc3RhdGljIGlubGlu
-ZSB2b2lkIG1taW93Yih2b2lkKQo+IHsKPiDCoMKgwqDCoMKgwqDCoCB1bnNpZ25lZCBsb25nIHRt
-cDsKPiAKPiDCoMKgwqDCoMKgwqDCoCBfX2FzbV9fIF9fdm9sYXRpbGVfXygic3luYzsgbGkgJTAs
-MDsgc3RiICUwLCUxKDEzKSIKPiDCoMKgwqDCoMKgwqDCoCA6ICI9JnIiICh0bXApIDogImkiIChv
-ZmZzZXRvZihzdHJ1Y3QgcGFjYV9zdHJ1Y3QsIGlvX3N5bmMpKQo+IMKgwqDCoMKgwqDCoMKgIDog
-Im1lbW9yeSIpOwo+IH0KClNvIHN5bmMrc2V0IGlvX3N5bmMgaGVyZSBhbmQgc3luYytpb19zeW5j
-IGFib3ZlLgoKPiBkbWFfd21iKCkgaXMgbHdzeW5jIHdoaWNoIGlzIG1vcmUgbGlnaHR3ZWlnaHQg
-dGhhbiBzeW5jIEkgZ3Vlc3M/Cj4gCj4gVGhhbmtzCj4gCgpTb3VuZHMgYWJvdXQgcmlnaHQuCgoK
-LS0gCk1TVApfX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fXwpW
-aXJ0dWFsaXphdGlvbiBtYWlsaW5nIGxpc3QKVmlydHVhbGl6YXRpb25AbGlzdHMubGludXgtZm91
-bmRhdGlvbi5vcmcKaHR0cHM6Ly9saXN0cy5saW51eGZvdW5kYXRpb24ub3JnL21haWxtYW4vbGlz
-dGluZm8vdmlydHVhbGl6YXRpb24=
+On Wed, Jan 23, 2019 at 05:55:52PM +0800, Jason Wang wrote:
+> This series tries to access virtqueue metadata through kernel virtual
+> address instead of copy_user() friends since they had too much
+> overheads like checks, spec barriers or even hardware feature
+> toggling.
+> 
+> Test shows about 24% improvement on TX PPS. It should benefit other
+> cases as well.
+
+ok I think this addresses most comments but it's a big change and we
+just started 1.1 review so to pls give me a week to review this ok?
+
+> Changes from V3:
+> - don't try to use vmap for file backed pages
+> - rebase to master
+> Changes from V2:
+> - fix buggy range overlapping check
+> - tear down MMU notifier during vhost ioctl to make sure invalidation
+>   request can read metadata userspace address and vq size without
+>   holding vq mutex.
+> Changes from V1:
+> - instead of pinning pages, use MMU notifier to invalidate vmaps and
+>   remap duing metadata prefetch
+> - fix build warning on MIPS
+> 
+> Jason Wang (5):
+>   vhost: generalize adding used elem
+>   vhost: fine grain userspace memory accessors
+>   vhost: rename vq_iotlb_prefetch() to vq_meta_prefetch()
+>   vhost: introduce helpers to get the size of metadata area
+>   vhost: access vq metadata through kernel virtual address
+> 
+>  drivers/vhost/net.c   |   4 +-
+>  drivers/vhost/vhost.c | 441 +++++++++++++++++++++++++++++++++++++-----
+>  drivers/vhost/vhost.h |  15 +-
+>  mm/shmem.c            |   1 +
+>  4 files changed, 410 insertions(+), 51 deletions(-)
+> 
+> -- 
+> 2.17.1
