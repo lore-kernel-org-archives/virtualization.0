@@ -1,15 +1,15 @@
-From: "hch@infradead.org" <hch@infradead.org>
-Subject: Re: [Xen-devel] [RFC] virtio_ring: check dma_mem for xen_domain
-Date: Tue, 22 Jan 2019 23:12:32 -0800
-Message-ID: <20190123071232.GA20526__26943.9993704268$1548227762$gmane$org@infradead.org>
-References: <20190121050056.14325-1-peng.fan@nxp.com>
-	<alpine.DEB.2.10.1901221113410.17936@sstabellini-ThinkPad-X260>
+From: Tiwei Bie <tiwei.bie@intel.com>
+Subject: Re: [PATCH] virtio: support VIRTIO_F_ORDER_PLATFORM
+Date: Wed, 23 Jan 2019 16:02:27 +0800
+Message-ID: <20190123080227.GA23394__28219.3581153237$1548230934$gmane$org@dpdk-tbie>
+References: <20190122170346.6279-1-tiwei.bie@intel.com>
+	<20190122230247-mutt-send-email-mst@kernel.org>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
 Content-Disposition: inline
-In-Reply-To: <alpine.DEB.2.10.1901221113410.17936@sstabellini-ThinkPad-X260>
+In-Reply-To: <20190122230247-mutt-send-email-mst@kernel.org>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -19,34 +19,83 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Stefano Stabellini <sstabellini@kernel.org>
-Cc: jgross@suse.com, Peng Fan <peng.fan@nxp.com>, "mst@redhat.com" <mst@redhat.com>, "linux-remoteproc@vger.kernel.org" <linux-remoteproc@vger.kernel.org>, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>, "virtualization@lists.linux-foundation.org" <virtualization@lists.linux-foundation.org>, "hch@infradead.org" <hch@infradead.org>, luto@kernel.org, "xen-devel@lists.xenproject.org" <xen-devel@lists.xenproject.org>, boris.ostrovsky@oracle.com
+To: "Michael S. Tsirkin" <mst@redhat.com>
+Cc: virtio-dev@lists.oasis-open.org, linux-kernel@vger.kernel.org, virtualization@lists.linux-foundation.org
 List-Id: virtualization@lists.linuxfoundation.org
 
-On Tue, Jan 22, 2019 at 11:59:31AM -0800, Stefano Stabellini wrote:
-> >  	if (!virtio_has_iommu_quirk(vdev))
-> >  		return true;
-> >  
-> > @@ -260,7 +262,7 @@ static bool vring_use_dma_api(struct virtio_device *vdev)
-> >  	 * the DMA API if we're a Xen guest, which at least allows
-> >  	 * all of the sensible Xen configurations to work correctly.
-> >  	 */
-> > -	if (xen_domain())
-> > +	if (xen_domain() && !dma_dev->dma_mem)
-> >  		return true;
-> >  
-> >  	return false;
+On Tue, Jan 22, 2019 at 11:04:29PM -0500, Michael S. Tsirkin wrote:
+> On Wed, Jan 23, 2019 at 01:03:46AM +0800, Tiwei Bie wrote:
+> > This patch introduces the support for VIRTIO_F_ORDER_PLATFORM.
+> > When this feature is negotiated, driver will use the barriers
+> > suitable for hardware devices.
+> > 
+> > Signed-off-by: Tiwei Bie <tiwei.bie@intel.com>
 > 
-> I can see you spotted a real issue, but this is not the right fix. We
-> just need something a bit more flexible than xen_domain(): there are
-> many kinds of Xen domains on different architectures, we basically want
-> to enable this (return true from vring_use_dma_api) only when the xen
-> swiotlb is meant to be used. Does the appended patch fix the issue you
-> have?
+> Could you pls add a bit more explanation in the commit log?
+> E.g. which configurations are broken without this patch?
+> How severe is the problem?
 
-The problem generally is the other way around - if dma_dev->dma_mem
-is set the device decription in the device tree explicitly requires
-using this memory, so we must _always_ use the DMA API.
+Sure. Will do that.
 
-The problem is just that that rproc driver absuses the DMA API
-in horrible ways.
+Thanks
+
+> 
+> I'm trying to decide whether this belongs in 5.0 or 5.1.
+> 
+> > ---
+> >  drivers/virtio/virtio_ring.c       | 8 ++++++++
+> >  include/uapi/linux/virtio_config.h | 6 ++++++
+> >  2 files changed, 14 insertions(+)
+> > 
+> > diff --git a/drivers/virtio/virtio_ring.c b/drivers/virtio/virtio_ring.c
+> > index cd7e755484e3..27d3f057493e 100644
+> > --- a/drivers/virtio/virtio_ring.c
+> > +++ b/drivers/virtio/virtio_ring.c
+> > @@ -1609,6 +1609,9 @@ static struct virtqueue *vring_create_virtqueue_packed(
+> >  		!context;
+> >  	vq->event = virtio_has_feature(vdev, VIRTIO_RING_F_EVENT_IDX);
+> >  
+> > +	if (virtio_has_feature(vdev, VIRTIO_F_ORDER_PLATFORM))
+> > +		vq->weak_barriers = false;
+> > +
+> >  	vq->packed.ring_dma_addr = ring_dma_addr;
+> >  	vq->packed.driver_event_dma_addr = driver_event_dma_addr;
+> >  	vq->packed.device_event_dma_addr = device_event_dma_addr;
+> > @@ -2079,6 +2082,9 @@ struct virtqueue *__vring_new_virtqueue(unsigned int index,
+> >  		!context;
+> >  	vq->event = virtio_has_feature(vdev, VIRTIO_RING_F_EVENT_IDX);
+> >  
+> > +	if (virtio_has_feature(vdev, VIRTIO_F_ORDER_PLATFORM))
+> > +		vq->weak_barriers = false;
+> > +
+> >  	vq->split.queue_dma_addr = 0;
+> >  	vq->split.queue_size_in_bytes = 0;
+> >  
+> > @@ -2213,6 +2219,8 @@ void vring_transport_features(struct virtio_device *vdev)
+> >  			break;
+> >  		case VIRTIO_F_RING_PACKED:
+> >  			break;
+> > +		case VIRTIO_F_ORDER_PLATFORM:
+> > +			break;
+> >  		default:
+> >  			/* We don't understand this bit. */
+> >  			__virtio_clear_bit(vdev, i);
+> > diff --git a/include/uapi/linux/virtio_config.h b/include/uapi/linux/virtio_config.h
+> > index 1196e1c1d4f6..ff8e7dc9d4dd 100644
+> > --- a/include/uapi/linux/virtio_config.h
+> > +++ b/include/uapi/linux/virtio_config.h
+> > @@ -78,6 +78,12 @@
+> >  /* This feature indicates support for the packed virtqueue layout. */
+> >  #define VIRTIO_F_RING_PACKED		34
+> >  
+> > +/*
+> > + * This feature indicates that memory accesses by the driver and the
+> > + * device are ordered in a way described by the platform.
+> > + */
+> > +#define VIRTIO_F_ORDER_PLATFORM		36
+> > +
+> >  /*
+> >   * Does the device support Single Root I/O Virtualization?
+> >   */
+> > -- 
+> > 2.17.1
