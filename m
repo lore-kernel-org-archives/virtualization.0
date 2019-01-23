@@ -1,14 +1,15 @@
-From: Joerg Roedel <joro@8bytes.org>
-Subject: [PATCH 5/5] virtio-blk: Consider virtio_max_dma_size() for maximum
-	segment size
-Date: Wed, 23 Jan 2019 17:30:49 +0100
-Message-ID: <20190123163049.24863-6-joro__15355.9949410678$1548261383$gmane$org@8bytes.org>
-References: <20190123163049.24863-1-joro@8bytes.org>
+From: Sam Ravnborg <sam@ravnborg.org>
+Subject: Re: [PATCH] drm: Split out drm_probe_helper.h
+Date: Wed, 23 Jan 2019 18:00:15 +0100
+Message-ID: <20190123170015.GA23138__14649.9328709737$1548263042$gmane$org@ravnborg.org>
+References: <20190116181018.GA27364@ravnborg.org>
+	<20190117210334.13234-1-daniel.vetter@ffwll.ch>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <20190123163049.24863-1-joro@8bytes.org>
+Content-Disposition: inline
+In-Reply-To: <20190117210334.13234-1-daniel.vetter@ffwll.ch>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -18,53 +19,26 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: "Michael S . Tsirkin" <mst@redhat.com>, Jason Wang <jasowang@redhat.com>, Konrad Rzeszutek Wilk <konrad.wilk@oracle.com>, Christoph Hellwig <hch@lst.de>
-Cc: Jens Axboe <axboe@kernel.dk>, jroedel@suse.de, brijesh.singh@amd.com, joro@8bytes.org, jon.grimm@amd.com, jfehlig@suse.com, linux-kernel@vger.kernel.org, linux-block@vger.kernel.org, iommu@lists.linux-foundation.org, virtualization@lists.linux-foundation.org
+To: Daniel Vetter <daniel.vetter@ffwll.ch>
+Cc: Neil Armstrong <narmstrong@baylibre.com>, nouveau@lists.freedesktop.org, Liviu Dudau <liviu.dudau@arm.com>, DRI Development <dri-devel@lists.freedesktop.org>, virtualization@lists.linux-foundation.org, Laurent Pinchart <laurent.pinchart@ideasonboard.com>, Benjamin Gaignard <benjamin.gaignard@linaro.org>, Daniel Vetter <daniel.vetter@intel.com>, linux-stm32@st-md-mailman.stormreply.com, linux-samsung-soc@vger.kernel.org, Oleksandr Andrushchenko <oleksandr_andrushchenko@epam.com>, amd-gfx@lists.freedesktop.org, linux-rockchip@lists.infradead.org, CK Hu <ck.hu@mediatek.com>, spice-devel@lists.freedesktop.org, Jani Nikula <jani.nikula@intel.com>, linux-arm-msm@vger.kernel.org, intel-gfx@lists.freedesktop.org, etnaviv@lists.freedesktop.org, Jani Nikula <jani.nikula@linux.intel.com>, linux-mediatek@lists.infradead.org, Rodrigo Vivi <rodrigo.vivi@intel.com>, linux-tegra@vger
 List-Id: virtualization@lists.linuxfoundation.org
 
-From: Joerg Roedel <jroedel@suse.de>
+Hi Daniel.
 
-Segments can't be larger than the maximum DMA mapping size
-supported on the platform. Take that into account when
-setting the maximum segment size for a block device.
+On Thu, Jan 17, 2019 at 10:03:34PM +0100, Daniel Vetter wrote:
+> Having the probe helper stuff (which pretty much everyone needs) in
+> the drm_crtc_helper.h file (which atomic drivers should never need) is
+> confusing. Split them out.
+> 
+> To make sure I actually achieved the goal here I went through all
+> drivers. And indeed, all atomic drivers are now free of
+> drm_crtc_helper.h includes.
 
-Signed-off-by: Joerg Roedel <jroedel@suse.de>
----
- drivers/block/virtio_blk.c | 10 ++++++----
- 1 file changed, 6 insertions(+), 4 deletions(-)
+How are the plans to get this patchset merged?
+There were dependencies on onging drmP.h removal in i915 IIRC?
+I guess my "Minimize drmP.h dependencies" patch-set also have a role in this.
 
-diff --git a/drivers/block/virtio_blk.c b/drivers/block/virtio_blk.c
-index b16a887bbd02..4bc083b7c9b5 100644
---- a/drivers/block/virtio_blk.c
-+++ b/drivers/block/virtio_blk.c
-@@ -723,7 +723,7 @@ static int virtblk_probe(struct virtio_device *vdev)
- 	struct request_queue *q;
- 	int err, index;
- 
--	u32 v, blk_size, sg_elems, opt_io_size;
-+	u32 v, blk_size, max_size, sg_elems, opt_io_size;
- 	u16 min_io_size;
- 	u8 physical_block_exp, alignment_offset;
- 
-@@ -826,14 +826,16 @@ static int virtblk_probe(struct virtio_device *vdev)
- 	/* No real sector limit. */
- 	blk_queue_max_hw_sectors(q, -1U);
- 
-+	max_size = virtio_max_dma_size(vdev);
-+
- 	/* Host can optionally specify maximum segment size and number of
- 	 * segments. */
- 	err = virtio_cread_feature(vdev, VIRTIO_BLK_F_SIZE_MAX,
- 				   struct virtio_blk_config, size_max, &v);
- 	if (!err)
--		blk_queue_max_segment_size(q, v);
--	else
--		blk_queue_max_segment_size(q, -1U);
-+		max_size = min(max_size, v);
-+
-+	blk_queue_max_segment_size(q, max_size);
- 
- 	/* Host can optionally specify the block size of the device */
- 	err = virtio_cread_feature(vdev, VIRTIO_BLK_F_BLK_SIZE,
--- 
-2.17.1
+This does not hold up any work of mine, mainly wanted to make
+sure this was not lost between all the other patches.
+
+	Sam
