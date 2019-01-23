@@ -1,17 +1,15 @@
-From: "hch@infradead.org" <hch@infradead.org>
-Subject: Re: [Xen-devel] [RFC] virtio_ring: check dma_mem for xen_domain
-Date: Wed, 23 Jan 2019 13:14:05 -0800
-Message-ID: <20190123211405.GA4971__9945.41029665328$1548279091$gmane$org@infradead.org>
-References: <20190121050056.14325-1-peng.fan@nxp.com>
-	<alpine.DEB.2.10.1901221113410.17936@sstabellini-ThinkPad-X260>
-	<20190123071232.GA20526@infradead.org>
-	<alpine.DEB.2.10.1901230935280.17936@sstabellini-ThinkPad-X260>
+From: Konrad Rzeszutek Wilk <konrad.wilk@oracle.com>
+Subject: Re: [PATCH 0/5 v3] Fix virtio-blk issue with SWIOTLB
+Date: Wed, 23 Jan 2019 16:14:53 -0500
+Message-ID: <20190123211453.GA2474__22022.2723715537$1548279113$gmane$org@char.us.oracle.com>
+References: <20190123163049.24863-1-joro@8bytes.org>
+	<20190123135000-mutt-send-email-mst@kernel.org>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="utf-8"
-Content-Transfer-Encoding: base64
+Content-Type: text/plain; charset="us-ascii"
+Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
 Content-Disposition: inline
-In-Reply-To: <alpine.DEB.2.10.1901230935280.17936@sstabellini-ThinkPad-X260>
+In-Reply-To: <20190123135000-mutt-send-email-mst@kernel.org>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -21,37 +19,64 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Stefano Stabellini <sstabellini@kernel.org>
-Cc: jgross@suse.com, Peng Fan <peng.fan@nxp.com>, "mst@redhat.com" <mst@redhat.com>, "linux-remoteproc@vger.kernel.org" <linux-remoteproc@vger.kernel.org>, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>, "virtualization@lists.linux-foundation.org" <virtualization@lists.linux-foundation.org>, "hch@infradead.org" <hch@infradead.org>, luto@kernel.org, "xen-devel@lists.xenproject.org" <xen-devel@lists.xenproject.org>, boris.ostrovsky@oracle.com
+To: "Michael S. Tsirkin" <mst@redhat.com>
+Cc: Jens Axboe <axboe@kernel.dk>, jroedel@suse.de, brijesh.singh@amd.com, Joerg Roedel <joro@8bytes.org>, jon.grimm@amd.com, jfehlig@suse.com, linux-kernel@vger.kernel.org, virtualization@lists.linux-foundation.org, linux-block@vger.kernel.org, iommu@lists.linux-foundation.org, Christoph Hellwig <hch@lst.de>
 List-Id: virtualization@lists.linuxfoundation.org
 
-T24gV2VkLCBKYW4gMjMsIDIwMTkgYXQgMDE6MDQ6MzNQTSAtMDgwMCwgU3RlZmFubyBTdGFiZWxs
-aW5pIHdyb3RlOgo+IElmIHZyaW5nX3VzZV9kbWFfYXBpIGlzIGFjdHVhbGx5IHN1cHBvc2VkIHRv
-IHJldHVybiB0cnVlIHdoZW4KPiBkbWFfZGV2LT5kbWFfbWVtIGlzIHNldCwgdGhlbiBib3RoIFBl
-bmcncyBwYXRjaCBhbmQgdGhlIHBhdGNoIEkgd3JvdGUKPiBhcmUgbm90IGZpeGluZyB0aGUgcmVh
-bCBpc3N1ZSBoZXJlLgo+IAo+IEkgZG9uJ3Qga25vdyBlbm91Z2ggYWJvdXQgcmVtb3RlcHJvYyB0
-byBrbm93IHdoZXJlIHRoZSBwcm9ibGVtIGFjdHVhbGx5Cj4gbGllcyB0aG91Z2guCgpUaGUgcHJv
-YmxlbSBpcyB0aGUgZm9sbG93aW5nOgoKRGV2aWNlcyBjYW4gZGVjbGFyZSBhIHNwZWNpZmljIG1l
-bW9yeSByZWdpb24gdGhhdCB0aGV5IHdhbnQgdG8gdXNlIHdoZW4KdGhlIGRyaXZlciBjYWxscyBk
-bWFfYWxsb2NfY29oZXJlbnQgZm9yIHRoZSBkZXZpY2UsIHRoaXMgaXMgZG9uZSB1c2luZwp0aGUg
-c2hhcmVkLWRtYS1wb29sIERUIGF0dHJpYnV0ZSwgd2hpY2ggY29tZXMgaW4gdHdvIHZhcmlhbnRz
-IHRoYXQKd291bGQgYmUgYSBsaXR0bGUgdG8gbXVjaCB0byBleHBsYWluIGhlcmUuCgpyZW1vdGVw
-cm9jIG1ha2VzIHVzZSBvZiB0aGF0IGJlY2F1c2UgYXBwYXJlbnRseSB0aGUgZGV2aWNlIGNhbgpv
-bmx5IGNvbW11bmljYXRlIHVzaW5nIHRoYXQgcmVnaW9uLiAgQnV0IGl0IHRoZW4gZmVlZHMgYmFj
-ayBtZW1vcnkKb2J0YWluZWQgd2l0aCBkbWFfYWxsb2NfY29oZXJlbnQgaW50byB0aGUgdmlydGlv
-IGNvZGUuICBGb3IgdGhhdAppdCBjYWxscyB2bWFsbG9jX3RvX3BhZ2Ugb24gdGhlIGRtYV9hbGxv
-Y19jb2hlcmVudCwgd2hpY2ggaXMgYSBodWdlCm5vLWdvIGZvciB0aGUgxJBNQSBBUEkgYW5kIG9u
-bHkgd29ya2VkIGFjY2lkZW50YWxseSBvbiBhIGZldyBwbGF0Zm9ybSwKYW5kIGFwcGFyZW50bHkg
-YXJtNjQganVzdCBjaGFuZ2VkIGEgZmV3IGludGVybmFscyB0aGF0IG1hZGUgaXQgc3RvcAp3b3Jr
-aW5nIGZvciByZW1vdGVwcm9jLgoKVGhlIHJpZ2h0IGFuc3dlciBpcyB0byBub3QgdXNlIHRoZSBE
-TUEgQVBJIHRvIGFsbG9jYXRlIG1lbW9yeSBmcm9tCmEgZGV2aWNlLXNwZWZpY2ljIHJlZ2lvbiwg
-YnV0IHRvIHRpZSB0aGUgZHJpdmVyIGRpcmVjdGx5IGludG8gdGhlCkRUIHJlc2VydmVkIG1lbW9y
-eSBBUEkgaW4gYSB3YXkgdGhhdCBhbGxvd3MgaXQgdG8gZWFzaWx0IG9idGFpbgphIHN0cnVjdCBk
-ZXZpY2UgZm9yIGl0LgoKVGhpcyBpcyBvcnRob2dvbmFsIHRvIGFub3RoZXIgaXNzdWUsIGFuZCB0
-aGF0IGlzIHRoYXQgaGFyZHdhcmUKdmlydGlvIGRldmljZXMgcmVhbGx5IGFsd2F5cyBuZWVkIHRv
-IHVzZSB0aGUgRE1BIEFQSSwgb3RoZXJ3aXNlCndlJ2xsIGJ5cGFzcyBzdWNoIGZlYXR1cmVzIGFz
-IHRoZSBkZXZpY2Ugc3BlY2lmaWMgRE1BIHBvb2xzLApETUEgb2Zmc2V0cywgY2FjaGUgZmx1c2hp
-bmcsIGV0YywgZXRjLgpfX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19f
-X19fXwpWaXJ0dWFsaXphdGlvbiBtYWlsaW5nIGxpc3QKVmlydHVhbGl6YXRpb25AbGlzdHMubGlu
-dXgtZm91bmRhdGlvbi5vcmcKaHR0cHM6Ly9saXN0cy5saW51eGZvdW5kYXRpb24ub3JnL21haWxt
-YW4vbGlzdGluZm8vdmlydHVhbGl6YXRpb24=
+On Wed, Jan 23, 2019 at 01:51:29PM -0500, Michael S. Tsirkin wrote:
+> On Wed, Jan 23, 2019 at 05:30:44PM +0100, Joerg Roedel wrote:
+> > Hi,
+> > 
+> > here is the third version of this patch-set. Previous
+> > versions can be found here:
+> > 
+> > 	V1: https://lore.kernel.org/lkml/20190110134433.15672-1-joro@8bytes.org/
+> > 
+> > 	V2: https://lore.kernel.org/lkml/20190115132257.6426-1-joro@8bytes.org/
+> > 
+> > The problem solved here is a limitation of the SWIOTLB implementation,
+> > which does not support allocations larger than 256kb.  When the
+> > virtio-blk driver tries to read/write a block larger than that, the
+> > allocation of the dma-handle fails and an IO error is reported.
+> 
+> 
+> OK looks good to me.
+> I will park this in my tree for now this way it will get
+> testing in linux-next.
+> Can I get an ack from DMA maintainers on the DMA bits for
+> merging this in 5.0?
+
+You got mine (SWIOTBL is my area).
+> 
+> > Changes to v2 are:
+> > 
+> > 	* Check if SWIOTLB is active before returning its limit in
+> > 	  dma_direct_max_mapping_size()
+> > 
+> > 	* Only apply the maximum segment limit in virtio-blk when
+> > 	  DMA-API is used for the vring
+> > 
+> > Please review.
+> > 
+> > Thanks,
+> > 
+> > 	Joerg
+> > 
+> > Joerg Roedel (5):
+> >   swiotlb: Introduce swiotlb_max_mapping_size()
+> >   swiotlb: Add is_swiotlb_active() function
+> >   dma: Introduce dma_max_mapping_size()
+> >   virtio: Introduce virtio_max_dma_size()
+> >   virtio-blk: Consider virtio_max_dma_size() for maximum segment size
+> > 
+> >  drivers/block/virtio_blk.c   | 10 ++++++----
+> >  drivers/virtio/virtio_ring.c | 10 ++++++++++
+> >  include/linux/dma-mapping.h  | 16 ++++++++++++++++
+> >  include/linux/swiotlb.h      | 11 +++++++++++
+> >  include/linux/virtio.h       |  2 ++
+> >  kernel/dma/direct.c          | 11 +++++++++++
+> >  kernel/dma/swiotlb.c         | 10 ++++++++++
+> >  7 files changed, 66 insertions(+), 4 deletions(-)
+> > 
+> > -- 
+> > 2.17.1
