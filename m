@@ -1,16 +1,16 @@
-From: Christoph Hellwig <hch@lst.de>
-Subject: Re: [PATCH 1/5] swiotlb: Introduce swiotlb_max_mapping_size()
-Date: Thu, 24 Jan 2019 09:47:48 +0100
-Message-ID: <20190124084748.GA19510__32597.0857682236$1548319683$gmane$org@lst.de>
-References: <20190123163049.24863-1-joro@8bytes.org>
-	<20190123163049.24863-2-joro@8bytes.org>
-	<20190123212813.GB9032@lst.de> <20190124082431.GH32526@8bytes.org>
+From: Daniel Vetter <daniel@ffwll.ch>
+Subject: Re: [PATCH] drm: Split out drm_probe_helper.h
+Date: Thu, 24 Jan 2019 10:46:47 +0100
+Message-ID: <20190124094646.GR3271__15113.376760722$1548323227$gmane$org@phenom.ffwll.local>
+References: <20190116181018.GA27364@ravnborg.org>
+	<20190117210334.13234-1-daniel.vetter@ffwll.ch>
+	<20190123170015.GA23138@ravnborg.org>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
 Content-Disposition: inline
-In-Reply-To: <20190124082431.GH32526@8bytes.org>
+In-Reply-To: <20190123170015.GA23138@ravnborg.org>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -20,19 +20,37 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Joerg Roedel <joro@8bytes.org>
-Cc: Jens Axboe <axboe@kernel.dk>, jon.grimm@amd.com, brijesh.singh@amd.com, Konrad Rzeszutek Wilk <konrad.wilk@oracle.com>, "Michael S . Tsirkin" <mst@redhat.com>, jfehlig@suse.com, linux-kernel@vger.kernel.org, virtualization@lists.linux-foundation.org, linux-block@vger.kernel.org, iommu@lists.linux-foundation.org, jroedel@suse.de, Christoph Hellwig <hch@lst.de>
+To: Sam Ravnborg <sam@ravnborg.org>
+Cc: Neil Armstrong <narmstrong@baylibre.com>, Daniel Vetter <daniel.vetter@ffwll.ch>, Liviu Dudau <liviu.dudau@arm.com>, DRI Development <dri-devel@lists.freedesktop.org>, virtualization@lists.linux-foundation.org, Laurent Pinchart <laurent.pinchart@ideasonboard.com>, Benjamin Gaignard <benjamin.gaignard@linaro.org>, Daniel Vetter <daniel.vetter@intel.com>, linux-stm32@st-md-mailman.stormreply.com, linux-samsung-soc@vger.kernel.org, Oleksandr Andrushchenko <oleksandr_andrushchenko@epam.com>, amd-gfx@lists.freedesktop.org, linux-rockchip@lists.infradead.org, nouveau@lists.freedesktop.org, CK Hu <ck.hu@mediatek.com>, spice-devel@lists.freedesktop.org, Jani Nikula <jani.nikula@intel.com>, linux-arm-msm@vger.kernel.org, intel-gfx@lists.freedesktop.org, etnaviv@lists.freedesktop.org, Jani Nikula <jani.nikula@linux.intel.com>, linux-mediatek@lists.infradead.orgRodrigo Vivi <ro>
 List-Id: virtualization@lists.linuxfoundation.org
 
-On Thu, Jan 24, 2019 at 09:24:31AM +0100, Joerg Roedel wrote:
-> On Wed, Jan 23, 2019 at 10:28:13PM +0100, Christoph Hellwig wrote:
-> > On Wed, Jan 23, 2019 at 05:30:45PM +0100, Joerg Roedel wrote:
-> > > +extern size_t swiotlb_max_mapping_size(struct device *dev);
-> > 
-> > No need for the extern keyword on function declarations in headers.
+On Wed, Jan 23, 2019 at 06:00:15PM +0100, Sam Ravnborg wrote:
+> Hi Daniel.
 > 
-> Right, but all other function declarations in that header file have
-> 'extern' too, so I added it also for that one.
+> On Thu, Jan 17, 2019 at 10:03:34PM +0100, Daniel Vetter wrote:
+> > Having the probe helper stuff (which pretty much everyone needs) in
+> > the drm_crtc_helper.h file (which atomic drivers should never need) is
+> > confusing. Split them out.
+> > 
+> > To make sure I actually achieved the goal here I went through all
+> > drivers. And indeed, all atomic drivers are now free of
+> > drm_crtc_helper.h includes.
+> 
+> How are the plans to get this patchset merged?
+> There were dependencies on onging drmP.h removal in i915 IIRC?
+> I guess my "Minimize drmP.h dependencies" patch-set also have a role in this.
 
-Your patch 3 also doesn't use an extern.  And I have to say I
-much prefer it that way..
+Working on it, a pull request got lost. I originally wanted to get this
+all resolved this week, probably going to be next week now :-(
+-Daniel
+
+
+> This does not hold up any work of mine, mainly wanted to make
+> sure this was not lost between all the other patches.
+> 
+> 	Sam
+
+-- 
+Daniel Vetter
+Software Engineer, Intel Corporation
+http://blog.ffwll.ch
