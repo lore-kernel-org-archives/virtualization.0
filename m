@@ -1,13 +1,21 @@
-From: Daniel Vetter <daniel.vetter@ffwll.ch>
-Subject: [PATCH 19/26] drm/qxl: Use drm_fb_helper_fill_info
-Date: Thu, 24 Jan 2019 17:58:24 +0100
-Message-ID: <20190124165831.16427-20-daniel.vetter@ffwll.ch>
-References: <20190124165831.16427-1-daniel.vetter@ffwll.ch>
+From: "Michael S. Tsirkin" <mst@redhat.com>
+Subject: Re: [Xen-devel] [RFC] virtio_ring: check dma_mem for xen_domain
+Date: Thu, 24 Jan 2019 15:34:25 -0500
+Message-ID: <20190124145849-mutt-send-email-mst__11507.3378592328$1548362080$gmane$org@kernel.org>
+References: <20190121050056.14325-1-peng.fan@nxp.com>
+	<alpine.DEB.2.10.1901221113410.17936@sstabellini-ThinkPad-X260>
+	<20190123071232.GA20526@infradead.org>
+	<alpine.DEB.2.10.1901230935280.17936@sstabellini-ThinkPad-X260>
+	<20190123211405.GA4971@infradead.org>
+	<alpine.DEB.2.10.1901231427010.17936@sstabellini-ThinkPad-X260>
+	<AM0PR04MB4481BE680ACB40E78456DA64889A0@AM0PR04MB4481.eurprd04.prod.outlook.com>
+	<alpine.DEB.2.10.1901241110290.17936@sstabellini-ThinkPad-X260>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset="utf-8"
+Content-Transfer-Encoding: base64
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <20190124165831.16427-1-daniel.vetter@ffwll.ch>
+Content-Disposition: inline
+In-Reply-To: <alpine.DEB.2.10.1901241110290.17936@sstabellini-ThinkPad-X260>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -17,54 +25,67 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: DRI Development <dri-devel@lists.freedesktop.org>
-Cc: spice-devel@lists.freedesktop.org, Daniel Vetter <daniel.vetter@ffwll.ch>, Intel Graphics Development <intel-gfx@lists.freedesktop.org>, virtualization@lists.linux-foundation.org, Daniel Vetter <daniel.vetter@intel.com>, Dave Airlie <airlied@redhat.com>
+To: Stefano Stabellini <sstabellini@kernel.org>
+Cc: "jgross@suse.com" <jgross@suse.com>, Peng Fan <peng.fan@nxp.com>, "linux-remoteproc@vger.kernel.org" <linux-remoteproc@vger.kernel.org>, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>, "virtualization@lists.linux-foundation.org" <virtualization@lists.linux-foundation.org>, "hch@infradead.org" <hch@infradead.org>, "jliang@xilinx.com" <jliang@xilinx.com>, "luto@kernel.org" <luto@kernel.org>, "xen-devel@lists.xenproject.org" <xen-devel@lists.xenproject.org>, "boris.ostrovsky@oracle.com" <boris.ostrovsky@oracle.com>, "bjorn.andersson@linaro.org" <bjorn.andersson@linaro.org>
 List-Id: virtualization@lists.linuxfoundation.org
 
-This should not result in any changes.
-
-Signed-off-by: Daniel Vetter <daniel.vetter@intel.com>
-Cc: Dave Airlie <airlied@redhat.com>
-Cc: Gerd Hoffmann <kraxel@redhat.com>
-Cc: virtualization@lists.linux-foundation.org
-Cc: spice-devel@lists.freedesktop.org
----
- drivers/gpu/drm/qxl/qxl_fb.c | 9 +--------
- 1 file changed, 1 insertion(+), 8 deletions(-)
-
-diff --git a/drivers/gpu/drm/qxl/qxl_fb.c b/drivers/gpu/drm/qxl/qxl_fb.c
-index d028471597ef..22dc9a7a643b 100644
---- a/drivers/gpu/drm/qxl/qxl_fb.c
-+++ b/drivers/gpu/drm/qxl/qxl_fb.c
-@@ -219,8 +219,6 @@ static int qxlfb_create(struct drm_fb_helper *helper,
- 		goto out_unref;
- 	}
- 
--	info->par = helper;
--
- 	fb = drm_gem_fbdev_fb_create(&qdev->ddev, sizes, 64, gobj,
- 				     &qxlfb_fb_funcs);
- 	if (IS_ERR(fb)) {
-@@ -232,10 +230,6 @@ static int qxlfb_create(struct drm_fb_helper *helper,
- 	/* setup helper with fb data */
- 	qdev->fb_helper.fb = fb;
- 
--	strcpy(info->fix.id, "qxldrmfb");
--
--	drm_fb_helper_fill_fix(info, fb->pitches[0], fb->format->depth);
--
- 	info->fbops = &qxlfb_ops;
- 
- 	/*
-@@ -247,8 +241,7 @@ static int qxlfb_create(struct drm_fb_helper *helper,
- 	info->screen_base = shadow;
- 	info->screen_size = gobj->size;
- 
--	drm_fb_helper_fill_var(info, &qdev->fb_helper, sizes->fb_width,
--			       sizes->fb_height);
-+	drm_fb_helper_fill_info(info, &qdev->fb_helper);
- 
- 	/* setup aperture base/size for vesafb takeover */
- 	info->apertures->ranges[0].base = qdev->ddev.mode_config.fb_base;
--- 
-2.20.1
+T24gVGh1LCBKYW4gMjQsIDIwMTkgYXQgMTE6MTQ6NTNBTSAtMDgwMCwgU3RlZmFubyBTdGFiZWxs
+aW5pIHdyb3RlOgo+IE9uIFRodSwgMjQgSmFuIDIwMTksIFBlbmcgRmFuIHdyb3RlOgo+ID4gSGkg
+c3RlZmFubywKPiA+IAo+ID4gPiAtLS0tLU9yaWdpbmFsIE1lc3NhZ2UtLS0tLQo+ID4gPiBGcm9t
+OiBTdGVmYW5vIFN0YWJlbGxpbmkgW21haWx0bzpzc3RhYmVsbGluaUBrZXJuZWwub3JnXQo+ID4g
+PiBTZW50OiAyMDE55bm0MeaciDI05pelIDc6NDQKPiA+ID4gVG86IGhjaEBpbmZyYWRlYWQub3Jn
+Cj4gPiA+IENjOiBTdGVmYW5vIFN0YWJlbGxpbmkgPHNzdGFiZWxsaW5pQGtlcm5lbC5vcmc+OyBQ
+ZW5nIEZhbgo+ID4gPiA8cGVuZy5mYW5AbnhwLmNvbT47IG1zdEByZWRoYXQuY29tOyBqYXNvd2Fu
+Z0ByZWRoYXQuY29tOwo+ID4gPiB4ZW4tZGV2ZWxAbGlzdHMueGVucHJvamVjdC5vcmc7IGxpbnV4
+LXJlbW90ZXByb2NAdmdlci5rZXJuZWwub3JnOwo+ID4gPiBsaW51eC1rZXJuZWxAdmdlci5rZXJu
+ZWwub3JnOyB2aXJ0dWFsaXphdGlvbkBsaXN0cy5saW51eC1mb3VuZGF0aW9uLm9yZzsKPiA+ID4g
+bHV0b0BrZXJuZWwub3JnOyBqZ3Jvc3NAc3VzZS5jb207IGJvcmlzLm9zdHJvdnNreUBvcmFjbGUu
+Y29tOwo+ID4gPiBiam9ybi5hbmRlcnNzb25AbGluYXJvLm9yZzsgamxpYW5nQHhpbGlueC5jb20K
+PiA+ID4gU3ViamVjdDogUmU6IFtYZW4tZGV2ZWxdIFtSRkNdIHZpcnRpb19yaW5nOiBjaGVjayBk
+bWFfbWVtIGZvciB4ZW5fZG9tYWluCj4gPiA+IAo+ID4gPiBPbiBXZWQsIDIzIEphbiAyMDE5LCBo
+Y2hAaW5mcmFkZWFkLm9yZyB3cm90ZToKPiA+ID4gPiBPbiBXZWQsIEphbiAyMywgMjAxOSBhdCAw
+MTowNDozM1BNIC0wODAwLCBTdGVmYW5vIFN0YWJlbGxpbmkgd3JvdGU6Cj4gPiA+ID4gPiBJZiB2
+cmluZ191c2VfZG1hX2FwaSBpcyBhY3R1YWxseSBzdXBwb3NlZCB0byByZXR1cm4gdHJ1ZSB3aGVu
+Cj4gPiA+ID4gPiBkbWFfZGV2LT5kbWFfbWVtIGlzIHNldCwgdGhlbiBib3RoIFBlbmcncyBwYXRj
+aCBhbmQgdGhlIHBhdGNoIEkKPiA+ID4gPiA+IHdyb3RlIGFyZSBub3QgZml4aW5nIHRoZSByZWFs
+IGlzc3VlIGhlcmUuCj4gPiA+ID4gPgo+ID4gPiA+ID4gSSBkb24ndCBrbm93IGVub3VnaCBhYm91
+dCByZW1vdGVwcm9jIHRvIGtub3cgd2hlcmUgdGhlIHByb2JsZW0KPiA+ID4gPiA+IGFjdHVhbGx5
+IGxpZXMgdGhvdWdoLgo+ID4gPiA+Cj4gPiA+ID4gVGhlIHByb2JsZW0gaXMgdGhlIGZvbGxvd2lu
+ZzoKPiA+ID4gPgo+ID4gPiA+IERldmljZXMgY2FuIGRlY2xhcmUgYSBzcGVjaWZpYyBtZW1vcnkg
+cmVnaW9uIHRoYXQgdGhleSB3YW50IHRvIHVzZQo+ID4gPiA+IHdoZW4gdGhlIGRyaXZlciBjYWxs
+cyBkbWFfYWxsb2NfY29oZXJlbnQgZm9yIHRoZSBkZXZpY2UsIHRoaXMgaXMgZG9uZQo+ID4gPiA+
+IHVzaW5nIHRoZSBzaGFyZWQtZG1hLXBvb2wgRFQgYXR0cmlidXRlLCB3aGljaCBjb21lcyBpbiB0
+d28gdmFyaWFudHMKPiA+ID4gPiB0aGF0IHdvdWxkIGJlIGEgbGl0dGxlIHRvIG11Y2ggdG8gZXhw
+bGFpbiBoZXJlLgo+ID4gPiA+Cj4gPiA+ID4gcmVtb3RlcHJvYyBtYWtlcyB1c2Ugb2YgdGhhdCBi
+ZWNhdXNlIGFwcGFyZW50bHkgdGhlIGRldmljZSBjYW4gb25seQo+ID4gPiA+IGNvbW11bmljYXRl
+IHVzaW5nIHRoYXQgcmVnaW9uLiAgQnV0IGl0IHRoZW4gZmVlZHMgYmFjayBtZW1vcnkgb2J0YWlu
+ZWQKPiA+ID4gPiB3aXRoIGRtYV9hbGxvY19jb2hlcmVudCBpbnRvIHRoZSB2aXJ0aW8gY29kZS4g
+IEZvciB0aGF0IGl0IGNhbGxzCj4gPiA+ID4gdm1hbGxvY190b19wYWdlIG9uIHRoZSBkbWFfYWxs
+b2NfY29oZXJlbnQsIHdoaWNoIGlzIGEgaHVnZSBuby1nbyBmb3IKPiA+ID4gPiB0aGUgxJBNQSBB
+UEkgYW5kIG9ubHkgd29ya2VkIGFjY2lkZW50YWxseSBvbiBhIGZldyBwbGF0Zm9ybSwgYW5kCj4g
+PiA+ID4gYXBwYXJlbnRseSBhcm02NCBqdXN0IGNoYW5nZWQgYSBmZXcgaW50ZXJuYWxzIHRoYXQg
+bWFkZSBpdCBzdG9wCj4gPiA+ID4gd29ya2luZyBmb3IgcmVtb3RlcHJvYy4KPiA+ID4gPgo+ID4g
+PiA+IFRoZSByaWdodCBhbnN3ZXIgaXMgdG8gbm90IHVzZSB0aGUgRE1BIEFQSSB0byBhbGxvY2F0
+ZSBtZW1vcnkgZnJvbSBhCj4gPiA+ID4gZGV2aWNlLXNwZWZpY2ljIHJlZ2lvbiwgYnV0IHRvIHRp
+ZSB0aGUgZHJpdmVyIGRpcmVjdGx5IGludG8gdGhlIERUCj4gPiA+ID4gcmVzZXJ2ZWQgbWVtb3J5
+IEFQSSBpbiBhIHdheSB0aGF0IGFsbG93cyBpdCB0byBlYXNpbHQgb2J0YWluIGEgc3RydWN0Cj4g
+PiA+ID4gZGV2aWNlIGZvciBpdC4KPiA+ID4gCj4gPiA+IElmIEkgdW5kZXJzdGFuZCBjb3JyZWN0
+bHksIFBlbmcgc2hvdWxkIGJlIGFibGUgdG8gcmVwcm9kdWNlIHRoZSBwcm9ibGVtIG9uCj4gPiA+
+IG5hdGl2ZSBMaW51eCB3aXRob3V0IGFueSBYZW4gaW52b2x2ZW1lbnQgc2ltcGx5IGJ5IGZvcmNp
+bmcKPiA+ID4gdnJpbmdfdXNlX2RtYV9hcGkgdG8gcmV0dXJuIHRydWUuIFBlbmcsIGNhbiB5b3Ug
+Y29uZmlybT8KPiA+IAo+ID4gSXQgaXMgYW5vdGhlciBpc3N1ZSB3aXRob3V0IHhlbiBpbnZvbHZl
+bWVudCwgCj4gPiBUaGVyZSBpcyBhbiB0aHJlYWQgdGFsa2luZyB0aGlzOiBodHRwczovL3BhdGNo
+d29yay5rZXJuZWwub3JnL3BhdGNoLzEwNzQyOTIzLwo+ID4gCj4gPiBXaXRob3V0IHhlbiwgdnJp
+bmdfdXNlX2RtYV9hcGkgd2lsbCByZXR1cm4gZmFsc2UuCj4gPiBXaXRoIHhlbiwgaWYgdnJpbmdf
+dXNlX2RtYV9hcGkgcmV0dXJucyB0cnVlLCBpdCB3aWxsIGRtYV9tYXBfeHggYW5kIHRyaWdnZXIg
+ZHVtcC4KPiAKPiBJdCBpcyB0cnVlIHRoYXQgZm9yIFhlbiBvbiBBUk0gRG9tVXMgaXQgaXMgbm90
+IG5lY2Vzc2FyeSB0b2RheSB0byByZXR1cm4KPiB0cnVlIGZyb20gdnJpbmdfdXNlX2RtYV9hcGku
+IEhvd2V2ZXIsIHJldHVybmluZyB0cnVlIGZyb20KPiB2cmluZ191c2VfZG1hX2FwaSBzaG91bGQg
+bm90IGJyZWFrIExpbnV4LiBXaGVuIHRoZSBycG1lc2cgaXNzdWUgaXMKPiBmaXhlZCwgdGhpcyBw
+cm9ibGVtIHNob3VsZCBhbHNvIGdvIGF3YXkgd2l0aG91dCBhbnkgbmVlZCBmb3IgYWRkaXRpb25h
+bAo+IGNoYW5nZXMgb24gdGhlIHhlbiBzaWRlIEkgdGhpbmsuCgpMZXQgbGVzcyBzeXN0ZW1zIGJ5
+cGFzcyB0aGUgc3RhbmRhcmQgdmlydGlvIGxvZ2ljICh1c2luZyBmZWF0dXJlIGJpdAp0byBmaWd1
+cmUgb3V0IGJ5cGFzc2luZyBETUEgQVBJKSwgdGhlIGJldHRlci4KX19fX19fX19fX19fX19fX19f
+X19fX19fX19fX19fX19fX19fX19fX19fX19fX18KVmlydHVhbGl6YXRpb24gbWFpbGluZyBsaXN0
+ClZpcnR1YWxpemF0aW9uQGxpc3RzLmxpbnV4LWZvdW5kYXRpb24ub3JnCmh0dHBzOi8vbGlzdHMu
+bGludXhmb3VuZGF0aW9uLm9yZy9tYWlsbWFuL2xpc3RpbmZvL3ZpcnR1YWxpemF0aW9u
