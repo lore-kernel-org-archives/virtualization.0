@@ -1,17 +1,15 @@
-From: Joerg Roedel <joro@8bytes.org>
-Subject: Re: [PATCH 2/5] swiotlb: Add is_swiotlb_active() function
-Date: Thu, 24 Jan 2019 16:00:00 +0100
-Message-ID: <20190124150000.GN32526__43055.9791204118$1548342018$gmane$org@8bytes.org>
-References: <20190123163049.24863-1-joro@8bytes.org>
-	<20190123163049.24863-3-joro@8bytes.org>
-	<20190123212755.GA9032@lst.de> <20190124082923.GI32526@8bytes.org>
-	<20190124084107.GA19441@lst.de>
+From: Jean-Philippe Brucker <jean-philippe.brucker@arm.com>
+Subject: Re: [PATCH v7 0/7] Add virtio-iommu driver
+Date: Thu, 24 Jan 2019 16:03:55 +0000
+Message-ID: <a6315ab3-bffb-7470-365d-b26df6524bda__2226.22986636765$1548345879$gmane$org@arm.com>
+References: <20190115121959.23763-1-jean-philippe.brucker@arm.com>
+	<20190123083435.x3svwqp472mdgglw@8bytes.org>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-Content-Disposition: inline
-In-Reply-To: <20190124084107.GA19441@lst.de>
+In-Reply-To: <20190123083435.x3svwqp472mdgglw@8bytes.org>
+Content-Language: en-US
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -21,32 +19,80 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Christoph Hellwig <hch@lst.de>
-Cc: Jens Axboe <axboe@kernel.dk>, jon.grimm@amd.com, brijesh.singh@amd.com, Konrad Rzeszutek Wilk <konrad.wilk@oracle.com>, "Michael S . Tsirkin" <mst@redhat.com>, jfehlig@suse.com, linux-kernel@vger.kernel.org, virtualization@lists.linux-foundation.org, linux-block@vger.kernel.org, iommu@lists.linux-foundation.org, jroedel@suse.de
+To: Joerg Roedel <joro@8bytes.org>
+Cc: Mark Rutland <Mark.Rutland@arm.com>, "virtio-dev@lists.oasis-open.org" <virtio-dev@lists.oasis-open.org>, Lorenzo Pieralisi <Lorenzo.Pieralisi@arm.com>, "tnowicki@caviumnetworks.com" <tnowicki@caviumnetworks.com>, "mst@redhat.com" <mst@redhat.com>, Marc Zyngier <Marc.Zyngier@arm.com>, "linux-pci@vger.kernel.org" <linux-pci@vger.kernel.org>, Will Deacon <Will.Deacon@arm.com>, Robin Murphy <Robin.Murphy@arm.com>, "virtualization@lists.linux-foundation.org" <virtualization@lists.linux-foundation.org>, "eric.auger@redhat.com" <eric.auger@redhat.com>, "iommu@lists.linux-foundation.org" <iommu@lists.linux-foundation.org>, "robh+dt@kernel.org" <robh+dt@kernel.org>, "bhelgaas@google.com" <bhelgaas@google.com>, "kvmarm@lists.cs.columbia.edu" <kvmarm@lists.cs.columbia.edu>, "devicetree@vger.kernel.org" <devicetree@vger.kernel.org>
 List-Id: virtualization@lists.linuxfoundation.org
 
-On Thu, Jan 24, 2019 at 09:41:07AM +0100, Christoph Hellwig wrote:
-> On Thu, Jan 24, 2019 at 09:29:23AM +0100, Joerg Roedel wrote:
-> > > As I've just introduced and fixed a bug in this area in the current
-> > > cycle - I don't think no_iotlb_memory is what your want (and maybe
-> > > not useful at all): if the arch valls swiotlb_exit after previously
-> > > initializing a buffer it won't be set.  You probably want to check
-> > > for non-zero io_tlb_start and/or io_tlb_end.
-> > 
-> > Okay, but that requires that I also set io_tlb_start and friends back to
-> > zero in the failure path of swiotlb_init(). Otherwise it could be left
-> > non-zero in case swiotlb_init_with_tbl() returns an error.
+Hi Joerg,
+
+On 23/01/2019 08:34, Joerg Roedel wrote:
+> Hi Jean-Philippe,
 > 
-> Indeed, and we'll need to do that anyway as otherwise the dma mapping
-> path might cause problems similar to the one when swiotlb_exit is
-> called that I fixed.
+> thanks for all your hard work on this!
+> 
+> On Tue, Jan 15, 2019 at 12:19:52PM +0000, Jean-Philippe Brucker wrote:
+>> Implement the virtio-iommu driver, following specification v0.9 [1].
+> 
+> To make progress on this I think the spec needs to be close to something
+> that can be included into the official virtio-specification. Have you
+> proposed the specification for inclusion there?
 
-Turns out the the error path in swiotlb_init() is redundant because it
-will never be executed. If the function returns it will always return 0
-because in case of failure it will just panic (through memblock_alloc).
+I haven't yet. I did send a few drafts of the spec to the mailing list,
+using arbitrary version numbers (0.1 - 0.9), and received excellent
+feedback from Eric, Kevin, Ashok and others [2], but I hadn't formally
+asked for inclusion yet. Since I haven't made any major change to the
+interface in a while, I'll get on that.
 
-I'll clean that up in a separate patch-set. There are more users of that
-function and all of them panic when the function fails.
+> This is because I can't merge a driver that might be incompatible to
+> future implementations because the specification needs to be changed on
+> its way to an official standard.
+
+Makes sense, though I think other virtio devices have been developed a
+little more organically: device and driver code got upstreamed first,
+and then the specification describing their interface got merged into
+the standard. For example I believe that code for crypto, input and GPU
+devices were upstreamed long before the specification was merged. Once
+an implementation is upstream, the interface is expected to be
+backward-compatible (all subsequent changes are introduced using feature
+bits).
+
+So I've been working with this process in mind, also described by Jens
+at KVM forum 2017 [3]:
+(1) Reserve a device ID, and get that merged into virtio (ID 23 for
+virtio-iommu was reserved last year)
+(2) Open-source an implementation (this driver and Eric's device)
+(3) Formalize and upstream the device specification
+
+But I get that some overlap between (2) and (3) would have been better.
+So far the spec document has been reviewed mainly from the IOMMU point
+of view, and might require more changes to be in line with the other
+virtio devices -- hopefully just wording changes. I'll kick off step
+(3), but I think the virtio folks are a bit busy with finalizing the 1.1
+spec so I expect it to take a while.
+
+Thanks,
+Jean
+
+[2] RFC https://markmail.org/thread/l6b2rpc46nua4egs
+    0.4 https://markmail.org/thread/f5k37mab7tnrslin
+    0.5 https://markmail.org/thread/tz65oolu5do7hi6n
+    0.6 https://markmail.org/thread/dppbg6owzrx2km2n
+    0.7 https://markmail.org/thread/dgdy4hicswpakmsq
+
+[3] The future of virtio: riddles, myths and surprises
+    https://www.linux-kvm.org/images/0/03/Virtio_fall_2017.pdf
+    https://www.youtube.com/watch?v=z9cWwgYH97A
 
 
-	Joerg
+> I had a short discussion with Michael S. Tsirkin about that and from
+> what I understood the spec needs to be proposed for inclusion on the
+> virtio-comment[1] mailing list and later the TC needs to vote on it.
+> Please work with Michael on this to get the specification official (or
+> at least pretty close to something that will be part of the official
+> virtio standard).
+> 
+> Regards,
+> 
+> 	Joerg
+> 
+> [1] https://www.oasis-open.org/committees/comments/index.php?wg_abbrev=virtio
