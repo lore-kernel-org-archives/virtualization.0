@@ -1,17 +1,17 @@
-From: "Michael S. Tsirkin" <mst@redhat.com>
-Subject: Re: [PATCH 5/5] virtio-blk: Consider virtio_max_dma_size() for
-	maximum segment size
-Date: Wed, 23 Jan 2019 17:25:00 -0500
-Message-ID: <20190123170850-mutt-send-email-mst__11756.8842297018$1548282323$gmane$org@kernel.org>
-References: <20190123163049.24863-1-joro@8bytes.org>
-	<20190123163049.24863-6-joro@8bytes.org>
-	<20190123213139.GD9032@lst.de>
+From: Jason Wang <jasowang@redhat.com>
+Subject: Re: [PATCH net-next V4 5/5] vhost: access vq metadata through kernel
+	virtual address
+Date: Thu, 24 Jan 2019 12:07:54 +0800
+Message-ID: <335ba55b-087f-4b35-6311-540070b9647f@redhat.com>
+References: <20190123095557.30168-1-jasowang@redhat.com>
+	<20190123095557.30168-6-jasowang@redhat.com>
+	<20190123085821-mutt-send-email-mst@kernel.org>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset="utf-8"; Format="flowed"
+Content-Transfer-Encoding: base64
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-Content-Disposition: inline
-In-Reply-To: <20190123213139.GD9032@lst.de>
+In-Reply-To: <20190123085821-mutt-send-email-mst@kernel.org>
+Content-Language: en-US
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -21,39 +21,112 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Christoph Hellwig <hch@lst.de>
-Cc: Jens Axboe <axboe@kernel.dk>, jroedel@suse.de, brijesh.singh@amd.com, Konrad Rzeszutek Wilk <konrad.wilk@oracle.com>, Joerg Roedel <joro@8bytes.org>, jon.grimm@amd.com, jfehlig@suse.com, linux-kernel@vger.kernel.org, virtualization@lists.linux-foundation.org, linux-block@vger.kernel.org, iommu@lists.linux-foundation.org, pbonzini@redhat.com, jsnow@redhat.com
+To: "Michael S. Tsirkin" <mst@redhat.com>
+Cc: netdev@vger.kernel.org, linux-kernel@vger.kernel.org, kvm@vger.kernel.org, virtualization@lists.linux-foundation.org
 List-Id: virtualization@lists.linuxfoundation.org
 
-On Wed, Jan 23, 2019 at 10:31:39PM +0100, Christoph Hellwig wrote:
-> On Wed, Jan 23, 2019 at 05:30:49PM +0100, Joerg Roedel wrote:
-> > +	max_size = virtio_max_dma_size(vdev);
-> > +
-> >  	/* Host can optionally specify maximum segment size and number of
-> >  	 * segments. */
-> >  	err = virtio_cread_feature(vdev, VIRTIO_BLK_F_SIZE_MAX,
-> >  				   struct virtio_blk_config, size_max, &v);
-> >  	if (!err)
-> > -		blk_queue_max_segment_size(q, v);
-> > -	else
-> > -		blk_queue_max_segment_size(q, -1U);
-> > +		max_size = min(max_size, v);
-> > +
-> > +	blk_queue_max_segment_size(q, max_size);
-> 
-> I wonder if we should just move the dma max segment size check
-> into blk_queue_max_segment_size so that all block drivers benefit
-> from it.  Even if not I think at least the SCSI midlayer should
-> be updated to support it.
-> 
-> Btw, I wonder why virtio-scsi sticks to the default segment size,
-> unlike virtio-blk.
-
-Well no one bothered exposing that through that device.
-Why does virtio block have it? Hard for me to say. First driver version
-had it already but QEMU does not seem to use it and it seems that it
-never did.
-
-
--- 
-MST
+Ck9uIDIwMTkvMS8yMyDkuIvljYgxMDowOCwgTWljaGFlbCBTLiBUc2lya2luIHdyb3RlOgo+IE9u
+IFdlZCwgSmFuIDIzLCAyMDE5IGF0IDA1OjU1OjU3UE0gKzA4MDAsIEphc29uIFdhbmcgd3JvdGU6
+Cj4+IEl0IHdhcyBub3RpY2VkIHRoYXQgdGhlIGNvcHlfdXNlcigpIGZyaWVuZHMgdGhhdCB3YXMg
+dXNlZCB0byBhY2Nlc3MKPj4gdmlydHF1ZXVlIG1ldGRhdGEgdGVuZHMgdG8gYmUgdmVyeSBleHBl
+bnNpdmUgZm9yIGRhdGFwbGFuZQo+PiBpbXBsZW1lbnRhdGlvbiBsaWtlIHZob3N0IHNpbmNlIGl0
+IGludm9sdmVzIGxvdHMgb2Ygc29mdHdhcmUgY2hlY2tzLAo+PiBzcGVjdWxhdGlvbiBiYXJyaWVy
+LCBoYXJkd2FyZSBmZWF0dXJlIHRvZ2dsaW5nIChlLmcgU01BUCkuIFRoZQo+PiBleHRyYSBjb3N0
+IHdpbGwgYmUgbW9yZSBvYnZpb3VzIHdoZW4gdHJhbnNmZXJyaW5nIHNtYWxsIHBhY2tldHMgc2lu
+Y2UKPj4gdGhlIHRpbWUgc3BlbnQgb24gbWV0YWRhdGEgYWNjZXNzaW5nIGJlY29tZSBtb3JlIHNp
+Z25pZmljYW50Lgo+Pgo+PiBUaGlzIHBhdGNoIHRyaWVzIHRvIGVsaW1pbmF0ZSB0aG9zZSBvdmVy
+aGVhZHMgYnkgYWNjZXNzaW5nIHRoZW0KPj4gdGhyb3VnaCBrZXJuZWwgdmlydHVhbCBhZGRyZXNz
+IGJ5IHZtYXAoKS4gVG8gbWFrZSB0aGUgcGFnZXMgY2FuIGJlCj4+IG1pZ3JhdGVkLCBpbnN0ZWFk
+IG9mIHBpbm5pbmcgdGhlbSB0aHJvdWdoIEdVUCwgd2UgdXNlIE1NVSBub3RpZmllcnMgdG8KPj4g
+aW52YWxpZGF0ZSB2bWFwcyBhbmQgcmUtZXN0YWJsaXNoIHZtYXBzIGR1cmluZyBlYWNoIHJvdW5k
+IG9mIG1ldGFkYXRhCj4+IHByZWZldGNoaW5nIGlmIG5lY2Vzc2FyeS4gRm9yIGRldmljZXMgdGhh
+dCBkb2Vzbid0IHVzZSBtZXRhZGF0YQo+PiBwcmVmZXRjaGluZywgdGhlIG1lbW9yeSBhY2Nlc3Nv
+cnMgZmFsbGJhY2sgdG8gbm9ybWFsIGNvcHlfdXNlcigpCj4+IGltcGxlbWVudGF0aW9uIGdyYWNl
+ZnVsbHkuIFRoZSBpbnZhbGlkYXRpb24gd2FzIHN5bmNocm9uaXplZCB3aXRoCj4+IGRhdGFwYXRo
+IHRocm91Z2ggdnEgbXV0ZXgsIGFuZCBpbiBvcmRlciB0byBhdm9pZCBob2xkIHZxIG11dGV4IGR1
+cmluZwo+PiByYW5nZSBjaGVja2luZywgTU1VIG5vdGlmaWVyIHdhcyB0ZWFyZWQgZG93biB3aGVu
+IHRyeWluZyB0byBtb2RpZnkgdnEKPj4gbWV0YWRhdGEuCj4+Cj4+IEFub3RoZXIgdGhpbmcgaXMg
+a2VybmVsIGxhY2tzIGVmZmljaWVudCBzb2x1dGlvbiBmb3IgdHJhY2tpbmcgZGlydHkKPj4gcGFn
+ZXMgYnkgdm1hcCgpLCB0aGlzIHdpbGwgbGVhZCBpc3N1ZXMgaWYgdmhvc3QgaXMgdXNpbmcgZmls
+ZSBiYWNrZWQKPj4gbWVtb3J5IHdoaWNoIG5lZWRzIGNhcmUgb2Ygd3JpdGViYWNrLiBUaGlzIHBh
+dGNoIHNvbHZlcyB0aGlzIGlzc3VlIGJ5Cj4+IGp1c3Qgc2tpcHBpbmcgdGhlIHZtYSB0aGF0IGlz
+IGZpbGUgYmFja2VkIGFuZCBmYWxsYmFjayB0byBub3JtYWwKPj4gY29weV91c2VyKCkgZnJpZW5k
+cy4gVGhpcyBtaWdodCBpbnRyb2R1Y2Ugc29tZSBvdmVyaGVhZHMgZm9yIGZpbGUKPj4gYmFja2Vk
+IHVzZXJzIGJ1dCBjb25zaWRlciB0aGlzIHVzZSBjYXNlIGlzIHJhcmUgd2UgY291bGQgZG8KPj4g
+b3B0aW1pemF0aW9ucyBvbiB0b3AuCj4+Cj4+IE5vdGUgdGhhdCB0aGlzIHdhcyBvbmx5IGRvbmUg
+d2hlbiBkZXZpY2UgSU9UTEIgaXMgbm90IGVuYWJsZWQuIFdlCj4+IGNvdWxkIHVzZSBzaW1pbGFy
+IG1ldGhvZCB0byBvcHRpbWl6ZSBpdCBpbiB0aGUgZnV0dXJlLgo+Pgo+PiBUZXN0cyBzaG93cyBh
+dCBtb3N0IGFib3V0IDIyJSBpbXByb3ZlbWVudCBvbiBUWCBQUFMgd2hlbiB1c2luZwo+PiB2aXJ0
+aW8tdXNlciArIHZob3N0X25ldCArIHhkcDEgKyBUQVAgb24gMi42R0h6IEJyb2Fkd2VsbDoKPj4K
+Pj4gICAgICAgICAgU01BUCBvbiB8IFNNQVAgb2ZmCj4+IEJlZm9yZTogNS4wTXBwcyB8IDYuNk1w
+cHMKPj4gQWZ0ZXI6ICA2LjFNcHBzIHwgNy40TXBwcwo+Pgo+PiBTaWduZWQtb2ZmLWJ5OiBKYXNv
+biBXYW5nIDxqYXNvd2FuZ0ByZWRoYXQuY29tPgo+Cj4gU28gdGhpcyBpcyB0aGUgYnVsayBvZiB0
+aGUgY2hhbmdlLgo+IFRocmVlZSB0aGluZ3MgdGhhdCBJIG5lZWQgdG8gbG9vayBpbnRvCj4gLSBB
+cmUgdGhlcmUgYW55IHNlY3VyaXR5IGlzc3VlcyB3aXRoIGJ5cGFzc2luZyB0aGUgc3BlY3VsYXRp
+b24gYmFycmllcgo+ICAgIHRoYXQgaXMgbm9ybWFsbHkgcHJlc2VudCBhZnRlciBhY2Nlc3Nfb2s/
+CgoKSWYgd2UgY2FuIG1ha2Ugc3VyZSB0aGUgYnlwYXNzaW5nIHdhcyBvbmx5IHVzZWQgaW4gYSBr
+dGhyZWFkICh2aG9zdCksIGl0IApzaG91bGQgYmUgZmluZSBJIHRoaW5rLgoKCj4gLSBIb3cgaGFy
+ZCBkb2VzIHRoZSBzcGVjaWFsIGhhbmRsaW5nIGZvcgo+ICAgIGZpbGUgYmFja2VkIHN0b3JhZ2Ug
+bWFrZSB0ZXN0aW5nPwoKCkl0J3MgYXMgc2ltcGxlIGFzIHVuLWNvbW1lbnRpbmcgdmhvc3RfY2Fu
+X3ZtYXAoKT8gT3IgSSBjYW4gdHJ5IHRvIGhhY2sgCnFlbXUgb3IgZHBkayB0byB0ZXN0IHRoaXMu
+CgoKPiAgICBPbiB0aGUgb25lIGhhbmQgd2UgY291bGQgYWRkIGEgbW9kdWxlIHBhcmFtZXRlciB0
+bwo+ICAgIGZvcmNlIGNvcHkgdG8vZnJvbSB1c2VyLiBvbiB0aGUgb3RoZXIgdGhhdCdzCj4gICAg
+YW5vdGhlciBjb25maWd1cmF0aW9uIHdlIG5lZWQgdG8gc3VwcG9ydC4KCgpUaGF0IHNvdW5kcyBz
+dWItb3B0aW1hbCBzaW5jZSBpdCBsZWF2ZSB0aGUgY2hvaWNlIHRvIHVzZXJzLgoKCj4gICAgQnV0
+IGlvdGxiIGlzIG5vdCB1c2luZyB2bWFwLCBzbyBtYXliZSB0aGF0J3MgZW5vdWdoCj4gICAgZm9y
+IHRlc3RpbmcuCj4gLSBIb3cgaGFyZCBpcyBpdCB0byBmaWd1cmUgb3V0IHdoaWNoIG1vZGUgdXNl
+cyB3aGljaCBjb2RlLgo+Cj4KPgo+IE1lYW53aGlsZSwgY291bGQgeW91IHBscyBwb3N0IGRhdGEg
+Y29tcGFyaW5nIHRoaXMgbGFzdCBwYXRjaCB3aXRoIHRoZQo+IGJlbG93PyAgVGhpcyByZW1vdmVz
+IHRoZSBzcGVjdWxhdGlvbiBiYXJyaWVyIHJlcGxhY2luZyBpdCB3aXRoIGEKPiAodXNlbGVzcyBi
+dXQgYXQgbGVhc3QgbW9yZSBsaWdodHdlaWdodCkgZGF0YSBkZXBlbmRlbmN5LgoKClNNQVAgb2Zm
+CgpZb3VyIHBhdGNoOiA3LjJNUFBzCgp2bWFwOiA3LjRNcHBzCgpJIGRvbid0IHRlc3QgU01BUCBv
+biwgc2luY2UgaXQgd2lsbCBiZSBtdWNoIHNsb3cgZm9yIHN1cmUuCgpUaGFua3MKCgo+Cj4gVGhh
+bmtzIQo+Cj4KPiBkaWZmIC0tZ2l0IGEvZHJpdmVycy92aG9zdC92aG9zdC5jIGIvZHJpdmVycy92
+aG9zdC92aG9zdC5jCj4gaW5kZXggYmFjOTM5YWY4ZGJiLi4zNTJlZTdlMTQ0NzYgMTAwNjQ0Cj4g
+LS0tIGEvZHJpdmVycy92aG9zdC92aG9zdC5jCj4gKysrIGIvZHJpdmVycy92aG9zdC92aG9zdC5j
+Cj4gQEAgLTczOSw3ICs3MzksNyBAQCBzdGF0aWMgaW50IHZob3N0X2NvcHlfdG9fdXNlcihzdHJ1
+Y3Qgdmhvc3RfdmlydHF1ZXVlICp2cSwgdm9pZCBfX3VzZXIgKnRvLAo+ICAgCWludCByZXQ7Cj4g
+ICAKPiAgIAlpZiAoIXZxLT5pb3RsYikKPiAtCQlyZXR1cm4gX19jb3B5X3RvX3VzZXIodG8sIGZy
+b20sIHNpemUpOwo+ICsJCXJldHVybiBjb3B5X3RvX3VzZXIodG8sIGZyb20sIHNpemUpOwo+ICAg
+CWVsc2Ugewo+ICAgCQkvKiBUaGlzIGZ1bmN0aW9uIHNob3VsZCBiZSBjYWxsZWQgYWZ0ZXIgaW90
+bGIKPiAgIAkJICogcHJlZmV0Y2gsIHdoaWNoIG1lYW5zIHdlJ3JlIHN1cmUgdGhhdCBhbGwgdnEK
+PiBAQCAtNzUyLDcgKzc1Miw3IEBAIHN0YXRpYyBpbnQgdmhvc3RfY29weV90b191c2VyKHN0cnVj
+dCB2aG9zdF92aXJ0cXVldWUgKnZxLCB2b2lkIF9fdXNlciAqdG8sCj4gICAJCQkJICAgICBWSE9T
+VF9BRERSX1VTRUQpOwo+ICAgCj4gICAJCWlmICh1YWRkcikKPiAtCQkJcmV0dXJuIF9fY29weV90
+b191c2VyKHVhZGRyLCBmcm9tLCBzaXplKTsKPiArCQkJcmV0dXJuIGNvcHlfdG9fdXNlcih1YWRk
+ciwgZnJvbSwgc2l6ZSk7Cj4gICAKPiAgIAkJcmV0ID0gdHJhbnNsYXRlX2Rlc2ModnEsICh1NjQp
+KHVpbnRwdHJfdCl0bywgc2l6ZSwgdnEtPmlvdGxiX2lvdiwKPiAgIAkJCQkgICAgIEFSUkFZX1NJ
+WkUodnEtPmlvdGxiX2lvdiksCj4gQEAgLTc3NCw3ICs3NzQsNyBAQCBzdGF0aWMgaW50IHZob3N0
+X2NvcHlfZnJvbV91c2VyKHN0cnVjdCB2aG9zdF92aXJ0cXVldWUgKnZxLCB2b2lkICp0bywKPiAg
+IAlpbnQgcmV0Owo+ICAgCj4gICAJaWYgKCF2cS0+aW90bGIpCj4gLQkJcmV0dXJuIF9fY29weV9m
+cm9tX3VzZXIodG8sIGZyb20sIHNpemUpOwo+ICsJCXJldHVybiBjb3B5X2Zyb21fdXNlcih0bywg
+ZnJvbSwgc2l6ZSk7Cj4gICAJZWxzZSB7Cj4gICAJCS8qIFRoaXMgZnVuY3Rpb24gc2hvdWxkIGJl
+IGNhbGxlZCBhZnRlciBpb3RsYgo+ICAgCQkgKiBwcmVmZXRjaCwgd2hpY2ggbWVhbnMgd2UncmUg
+c3VyZSB0aGF0IHZxCj4gQEAgLTc4Nyw3ICs3ODcsNyBAQCBzdGF0aWMgaW50IHZob3N0X2NvcHlf
+ZnJvbV91c2VyKHN0cnVjdCB2aG9zdF92aXJ0cXVldWUgKnZxLCB2b2lkICp0bywKPiAgIAkJc3Ry
+dWN0IGlvdl9pdGVyIGY7Cj4gICAKPiAgIAkJaWYgKHVhZGRyKQo+IC0JCQlyZXR1cm4gX19jb3B5
+X2Zyb21fdXNlcih0bywgdWFkZHIsIHNpemUpOwo+ICsJCQlyZXR1cm4gY29weV9mcm9tX3VzZXIo
+dG8sIHVhZGRyLCBzaXplKTsKPiAgIAo+ICAgCQlyZXQgPSB0cmFuc2xhdGVfZGVzYyh2cSwgKHU2
+NCkodWludHB0cl90KWZyb20sIHNpemUsIHZxLT5pb3RsYl9pb3YsCj4gICAJCQkJICAgICBBUlJB
+WV9TSVpFKHZxLT5pb3RsYl9pb3YpLAo+IEBAIC04NTUsMTMgKzg1NSwxMyBAQCBzdGF0aWMgaW5s
+aW5lIHZvaWQgX191c2VyICpfX3Zob3N0X2dldF91c2VyKHN0cnVjdCB2aG9zdF92aXJ0cXVldWUg
+KnZxLAo+ICAgKHsgXAo+ICAgCWludCByZXQgPSAtRUZBVUxUOyBcCj4gICAJaWYgKCF2cS0+aW90
+bGIpIHsgXAo+IC0JCXJldCA9IF9fcHV0X3VzZXIoeCwgcHRyKTsgXAo+ICsJCXJldCA9IHB1dF91
+c2VyKHgsIHB0cik7IFwKPiAgIAl9IGVsc2UgeyBcCj4gICAJCV9fdHlwZW9mX18ocHRyKSB0byA9
+IFwKPiAgIAkJCShfX3R5cGVvZl9fKHB0cikpIF9fdmhvc3RfZ2V0X3VzZXIodnEsIHB0ciwJXAo+
+ICAgCQkJCQkgIHNpemVvZigqcHRyKSwgVkhPU1RfQUREUl9VU0VEKTsgXAo+ICAgCQlpZiAodG8g
+IT0gTlVMTCkgXAo+IC0JCQlyZXQgPSBfX3B1dF91c2VyKHgsIHRvKTsgXAo+ICsJCQlyZXQgPSBw
+dXRfdXNlcih4LCB0byk7IFwKPiAgIAkJZWxzZSBcCj4gICAJCQlyZXQgPSAtRUZBVUxUOwlcCj4g
+ICAJfSBcCj4gQEAgLTg3MiwxNCArODcyLDE0IEBAIHN0YXRpYyBpbmxpbmUgdm9pZCBfX3VzZXIg
+Kl9fdmhvc3RfZ2V0X3VzZXIoc3RydWN0IHZob3N0X3ZpcnRxdWV1ZSAqdnEsCj4gICAoeyBcCj4g
+ICAJaW50IHJldDsgXAo+ICAgCWlmICghdnEtPmlvdGxiKSB7IFwKPiAtCQlyZXQgPSBfX2dldF91
+c2VyKHgsIHB0cik7IFwKPiArCQlyZXQgPSBnZXRfdXNlcih4LCBwdHIpOyBcCj4gICAJfSBlbHNl
+IHsgXAo+ICAgCQlfX3R5cGVvZl9fKHB0cikgZnJvbSA9IFwKPiAgIAkJCShfX3R5cGVvZl9fKHB0
+cikpIF9fdmhvc3RfZ2V0X3VzZXIodnEsIHB0ciwgXAo+ICAgCQkJCQkJCSAgIHNpemVvZigqcHRy
+KSwgXAo+ICAgCQkJCQkJCSAgIHR5cGUpOyBcCj4gICAJCWlmIChmcm9tICE9IE5VTEwpIFwKPiAt
+CQkJcmV0ID0gX19nZXRfdXNlcih4LCBmcm9tKTsgXAo+ICsJCQlyZXQgPSBnZXRfdXNlcih4LCBm
+cm9tKTsgXAo+ICAgCQllbHNlIFwKPiAgIAkJCXJldCA9IC1FRkFVTFQ7IFwKPiAgIAl9IFwKX19f
+X19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX18KVmlydHVhbGl6YXRp
+b24gbWFpbGluZyBsaXN0ClZpcnR1YWxpemF0aW9uQGxpc3RzLmxpbnV4LWZvdW5kYXRpb24ub3Jn
+Cmh0dHBzOi8vbGlzdHMubGludXhmb3VuZGF0aW9uLm9yZy9tYWlsbWFuL2xpc3RpbmZvL3ZpcnR1
+YWxpemF0aW9u
