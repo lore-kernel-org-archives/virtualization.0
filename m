@@ -1,16 +1,18 @@
-From: Daniel Vetter <daniel@ffwll.ch>
-Subject: Re: [PATCH] drm: Split out drm_probe_helper.h
-Date: Thu, 24 Jan 2019 10:46:47 +0100
-Message-ID: <20190124094646.GR3271__15113.376760722$1548323227$gmane$org@phenom.ffwll.local>
-References: <20190116181018.GA27364@ravnborg.org>
-	<20190117210334.13234-1-daniel.vetter@ffwll.ch>
-	<20190123170015.GA23138@ravnborg.org>
+From: Joerg Roedel <joro@8bytes.org>
+Subject: Re: [PATCH 5/5] virtio-blk: Consider virtio_max_dma_size() for
+	maximum segment size
+Date: Thu, 24 Jan 2019 10:51:51 +0100
+Message-ID: <20190124095150.GL32526__46240.5429965415$1548323532$gmane$org@8bytes.org>
+References: <20190123163049.24863-1-joro@8bytes.org>
+	<20190123163049.24863-6-joro@8bytes.org>
+	<20190123213139.GD9032@lst.de> <20190124084011.GJ32526@8bytes.org>
+	<20190124084221.GB19441@lst.de>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
 Content-Disposition: inline
-In-Reply-To: <20190123170015.GA23138@ravnborg.org>
+In-Reply-To: <20190124084221.GB19441@lst.de>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -20,37 +22,45 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Sam Ravnborg <sam@ravnborg.org>
-Cc: Neil Armstrong <narmstrong@baylibre.com>, Daniel Vetter <daniel.vetter@ffwll.ch>, Liviu Dudau <liviu.dudau@arm.com>, DRI Development <dri-devel@lists.freedesktop.org>, virtualization@lists.linux-foundation.org, Laurent Pinchart <laurent.pinchart@ideasonboard.com>, Benjamin Gaignard <benjamin.gaignard@linaro.org>, Daniel Vetter <daniel.vetter@intel.com>, linux-stm32@st-md-mailman.stormreply.com, linux-samsung-soc@vger.kernel.org, Oleksandr Andrushchenko <oleksandr_andrushchenko@epam.com>, amd-gfx@lists.freedesktop.org, linux-rockchip@lists.infradead.org, nouveau@lists.freedesktop.org, CK Hu <ck.hu@mediatek.com>, spice-devel@lists.freedesktop.org, Jani Nikula <jani.nikula@intel.com>, linux-arm-msm@vger.kernel.org, intel-gfx@lists.freedesktop.org, etnaviv@lists.freedesktop.org, Jani Nikula <jani.nikula@linux.intel.com>, linux-mediatek@lists.infradead.orgRodrigo Vivi <ro>
+To: Christoph Hellwig <hch@lst.de>
+Cc: Jens Axboe <axboe@kernel.dk>, jon.grimm@amd.com, brijesh.singh@amd.com, Konrad Rzeszutek Wilk <konrad.wilk@oracle.com>, "Michael S . Tsirkin" <mst@redhat.com>, jfehlig@suse.com, linux-kernel@vger.kernel.org, virtualization@lists.linux-foundation.org, linux-block@vger.kernel.org, iommu@lists.linux-foundation.org, jroedel@suse.de
 List-Id: virtualization@lists.linuxfoundation.org
 
-On Wed, Jan 23, 2019 at 06:00:15PM +0100, Sam Ravnborg wrote:
-> Hi Daniel.
-> 
-> On Thu, Jan 17, 2019 at 10:03:34PM +0100, Daniel Vetter wrote:
-> > Having the probe helper stuff (which pretty much everyone needs) in
-> > the drm_crtc_helper.h file (which atomic drivers should never need) is
-> > confusing. Split them out.
-> > 
-> > To make sure I actually achieved the goal here I went through all
-> > drivers. And indeed, all atomic drivers are now free of
-> > drm_crtc_helper.h includes.
-> 
-> How are the plans to get this patchset merged?
-> There were dependencies on onging drmP.h removal in i915 IIRC?
-> I guess my "Minimize drmP.h dependencies" patch-set also have a role in this.
+On Thu, Jan 24, 2019 at 09:42:21AM +0100, Christoph Hellwig wrote:
+> Yes.  But more importantly it would fix the limit for all other block
+> drivers that set large segment sizes when running over swiotlb.
 
-Working on it, a pull request got lost. I originally wanted to get this
-all resolved this week, probably going to be next week now :-(
--Daniel
+True, so it would be something like the diff below? I havn't worked on
+the block layer, so I don't know if that needs additional checks for
+->dev or anything.
 
-
-> This does not hold up any work of mine, mainly wanted to make
-> sure this was not lost between all the other patches.
-> 
-> 	Sam
-
--- 
-Daniel Vetter
-Software Engineer, Intel Corporation
-http://blog.ffwll.ch
+diff --git a/block/blk-settings.c b/block/blk-settings.c
+index 3e7038e475ee..9a927280c904 100644
+--- a/block/blk-settings.c
++++ b/block/blk-settings.c
+@@ -1,6 +1,7 @@
+ /*
+  * Functions related to setting various queue properties from drivers
+  */
++#include <linux/dma-mapping.h>
+ #include <linux/kernel.h>
+ #include <linux/module.h>
+ #include <linux/init.h>
+@@ -303,13 +304,17 @@ EXPORT_SYMBOL_GPL(blk_queue_max_discard_segments);
+  **/
+ void blk_queue_max_segment_size(struct request_queue *q, unsigned int max_size)
+ {
++	unsigned int dma_max_size;
++
+ 	if (max_size < PAGE_SIZE) {
+ 		max_size = PAGE_SIZE;
+ 		printk(KERN_INFO "%s: set to minimum %d\n",
+ 		       __func__, max_size);
+ 	}
+ 
+-	q->limits.max_segment_size = max_size;
++	dma_max_size = dma_max_mapping_size(q->backing_dev_info->dev);
++
++	q->limits.max_segment_size = min(max_size, dma_max_size);
+ }
+ EXPORT_SYMBOL(blk_queue_max_segment_size);
