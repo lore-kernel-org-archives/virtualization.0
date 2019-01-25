@@ -1,14 +1,15 @@
 From: =?UTF-8?Q?Noralf_Tr=c3=b8nnes?= <noralf@tronnes.org>
-Subject: Re: [PATCH v3 04/23] drm/qxl: change the way slot is detected
-Date: Fri, 25 Jan 2019 16:52:50 +0100
-Message-ID: <a0bd0249-baad-76d3-4270-a1c4610fd8f1__2794.71902629069$1548442377$gmane$org@tronnes.org>
+Subject: Re: [PATCH v3 05/23] drm/qxl: drop unused fields from struct
+	qxl_device
+Date: Fri, 25 Jan 2019 16:53:32 +0100
+Message-ID: <a756762d-eb82-7424-4184-03678c404210__35331.6006063082$1548442387$gmane$org@tronnes.org>
 References: <20190118122020.27596-1-kraxel@redhat.com>
-	<20190118122020.27596-5-kraxel@redhat.com>
+	<20190118122020.27596-6-kraxel@redhat.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="utf-8"
 Content-Transfer-Encoding: base64
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <20190118122020.27596-5-kraxel@redhat.com>
+In-Reply-To: <20190118122020.27596-6-kraxel@redhat.com>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -19,18 +20,14 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
 To: Gerd Hoffmann <kraxel@redhat.com>, dri-devel@lists.freedesktop.org
-Cc: David Airlie <airlied@linux.ie>, open list <linux-kernel@vger.kernel.org>, "open list:DRM DRIVER FOR QXL VIRTUAL GPU" <virtualization@lists.linux-foundation.org>, Dave Airlie <airlied@redhat.com>, "open list:DRM DRIVER FOR QXL VIRTUAL GPU" <spice-devel@lists.freedesktop.org>, Frediano Ziglio <fziglio@redhat.com>
+Cc: David Airlie <airlied@linux.ie>, "open list:DRM DRIVER FOR QXL VIRTUAL GPU" <spice-devel@lists.freedesktop.org>, Dave Airlie <airlied@redhat.com>, open list <linux-kernel@vger.kernel.org>, "open list:DRM DRIVER FOR QXL VIRTUAL GPU" <virtualization@lists.linux-foundation.org>
 List-Id: virtualization@lists.linuxfoundation.org
 
-CgpEZW4gMTguMDEuMjAxOSAxMy4yMCwgc2tyZXYgR2VyZCBIb2ZmbWFubjoKPiBGcm9tOiBGcmVk
-aWFubyBaaWdsaW8gPGZ6aWdsaW9AcmVkaGF0LmNvbT4KPiAKPiBJbnN0ZWFkIG9mIHJlbGF5aW5n
-IG9uIHN1cmZhY2UgdHlwZSB1c2UgdGhlIGFjdHVhbCBwbGFjZW1lbnQuCj4gVGhpcyBhbGxvdyB0
-byBoYXZlIGRpZmZlcmVudCBwbGFjZW1lbnQgZm9yIGEgc2luZ2xlIHR5cGUgb2YKPiBzdXJmYWNl
-Lgo+IAo+IFNpZ25lZC1vZmYtYnk6IEZyZWRpYW5vIFppZ2xpbyA8ZnppZ2xpb0ByZWRoYXQuY29t
-Pgo+IAo+IFsga3JheGVsOiByZWJhc2VkLCBhZGFwdGVkIHRvIHVwc3RyZWFtIGNoYW5nZXMgXQo+
-IAo+IFNpZ25lZC1vZmYtYnk6IEdlcmQgSG9mZm1hbm4gPGtyYXhlbEByZWRoYXQuY29tPgo+IC0t
-LQoKQWNrZWQtYnk6IE5vcmFsZiBUcsO4bm5lcyA8bm9yYWxmQHRyb25uZXMub3JnPgpfX19fX19f
-X19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fXwpWaXJ0dWFsaXphdGlvbiBt
-YWlsaW5nIGxpc3QKVmlydHVhbGl6YXRpb25AbGlzdHMubGludXgtZm91bmRhdGlvbi5vcmcKaHR0
-cHM6Ly9saXN0cy5saW51eGZvdW5kYXRpb24ub3JnL21haWxtYW4vbGlzdGluZm8vdmlydHVhbGl6
-YXRpb24=
+CgpEZW4gMTguMDEuMjAxOSAxMy4yMCwgc2tyZXYgR2VyZCBIb2ZmbWFubjoKPiBzbG90X2lkX2Jp
+dHMgYW5kIHNsb3RfZ2VuX2JpdHMgY2FuIGJlIHJlYWQgZGlyZWN0bHkgZnJvbSBxeGxyb20gaW5z
+dGVhZC4KPiB2YV9zbG90X21hc2sgaXMgbmV2ZXIgdXNlZCBhbnl3aGVyZS4KPiAKPiBTaWduZWQt
+b2ZmLWJ5OiBHZXJkIEhvZmZtYW5uIDxrcmF4ZWxAcmVkaGF0LmNvbT4KPiAtLS0KCkFja2VkLWJ5
+OiBOb3JhbGYgVHLDuG5uZXMgPG5vcmFsZkB0cm9ubmVzLm9yZz4KX19fX19fX19fX19fX19fX19f
+X19fX19fX19fX19fX19fX19fX19fX19fX19fX18KVmlydHVhbGl6YXRpb24gbWFpbGluZyBsaXN0
+ClZpcnR1YWxpemF0aW9uQGxpc3RzLmxpbnV4LWZvdW5kYXRpb24ub3JnCmh0dHBzOi8vbGlzdHMu
+bGludXhmb3VuZGF0aW9uLm9yZy9tYWlsbWFuL2xpc3RpbmZvL3ZpcnR1YWxpemF0aW9u
