@@ -1,15 +1,15 @@
 From: =?UTF-8?Q?Noralf_Tr=c3=b8nnes?= <noralf@tronnes.org>
-Subject: Re: [PATCH v3 06/23] drm/qxl: use separate offset spaces for the two
-	slots / ttm memory types.
-Date: Fri, 25 Jan 2019 16:57:16 +0100
-Message-ID: <80a3d205-78d2-f723-e452-b56c01a73b34__40110.8154723019$1548442401$gmane$org@tronnes.org>
+Subject: Re: [PATCH v3 07/23] drm/qxl: allow both PRIV and VRAM placement for
+	QXL_GEM_DOMAIN_SURFACE
+Date: Fri, 25 Jan 2019 16:58:17 +0100
+Message-ID: <b02d7064-4a5d-057e-5342-e60688e8afbd__7756.29743454687$1548442413$gmane$org@tronnes.org>
 References: <20190118122020.27596-1-kraxel@redhat.com>
-	<20190118122020.27596-7-kraxel@redhat.com>
+	<20190118122020.27596-8-kraxel@redhat.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="utf-8"
 Content-Transfer-Encoding: base64
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <20190118122020.27596-7-kraxel@redhat.com>
+In-Reply-To: <20190118122020.27596-8-kraxel@redhat.com>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -23,14 +23,14 @@ To: Gerd Hoffmann <kraxel@redhat.com>, dri-devel@lists.freedesktop.org
 Cc: David Airlie <airlied@linux.ie>, "open list:DRM DRIVER FOR QXL VIRTUAL GPU" <spice-devel@lists.freedesktop.org>, Dave Airlie <airlied@redhat.com>, open list <linux-kernel@vger.kernel.org>, "open list:DRM DRIVER FOR QXL VIRTUAL GPU" <virtualization@lists.linux-foundation.org>
 List-Id: virtualization@lists.linuxfoundation.org
 
-CgpEZW4gMTguMDEuMjAxOSAxMy4yMCwgc2tyZXYgR2VyZCBIb2ZmbWFubjoKPiBXaXRob3V0IHRo
-YXQgdHRtIG9mZnNldHMgYXJlIG5vdCB1bmlxdWUsIHRoZXkgY2FuIHJlZmVyIHRvIG9iamVjdHMK
-PiBpbiBib3RoIFZSQU0gYW5kIFBSSVYgbWVtb3J5IChha2EgbWFpbiBhbmQgc3VyZmFjZXMgc2xv
-dCkuCj4gCj4gT25lIG9mIHRob3NlICJ3aHkgdGhpbmdzIGRpZG4ndCBibG93IHVwIHdpdGhvdXQg
-dGhpcyIgbW9tZW50cy4KPiBQcm9iYWJseSBvZmZzZXQgY29uZmxpY3RzIGFyZSByYXJlIGVub3Vn
-aCBieSBwdXJlIGx1Y2suCj4gCj4gU2lnbmVkLW9mZi1ieTogR2VyZCBIb2ZmbWFubiA8a3JheGVs
-QHJlZGhhdC5jb20+Cj4gLS0tCgpBY2tlZC1ieTogTm9yYWxmIFRyw7hubmVzIDxub3JhbGZAdHJv
-bm5lcy5vcmc+Cl9fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19f
-ClZpcnR1YWxpemF0aW9uIG1haWxpbmcgbGlzdApWaXJ0dWFsaXphdGlvbkBsaXN0cy5saW51eC1m
-b3VuZGF0aW9uLm9yZwpodHRwczovL2xpc3RzLmxpbnV4Zm91bmRhdGlvbi5vcmcvbWFpbG1hbi9s
-aXN0aW5mby92aXJ0dWFsaXphdGlvbg==
+CgpEZW4gMTguMDEuMjAxOSAxMy4yMCwgc2tyZXYgR2VyZCBIb2ZmbWFubjoKPiBxeGwgc3VyZmFj
+ZXMgKHVzZWQgZm9yIGZyYW1lYnVmZmVycyBhbmQgZ2VtIG9iamVjdHMpIGNhbiBsaXZlIGluIGJv
+dGgKPiBWUkFNIGFuZCBQUklWIHR0bSBkb21haW5zLiAgVXBkYXRlIHBsYWNlbWVudCBzZXR1cCB0
+byBpbmNsdWRlIGJvdGguCj4gUHV0IFBSSVYgZmlyc3QgaW4gdGhlIGxpc3Qgc28gaXQgaXMgcHJl
+ZmVycmVkLCBzbyBWUkFNIHdpbGwgaGF2ZSBtb3JlCj4gcm9vbSBmb3Igb2JqZWN0cyB3aGljaCBt
+dXN0IGJlIGFsbG9jYXRlZCB0aGVyZS4KPiAKPiBTaWduZWQtb2ZmLWJ5OiBHZXJkIEhvZmZtYW5u
+IDxrcmF4ZWxAcmVkaGF0LmNvbT4KPiAtLS0KCkFja2VkLWJ5OiBOb3JhbGYgVHLDuG5uZXMgPG5v
+cmFsZkB0cm9ubmVzLm9yZz4KX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19f
+X19fX19fX18KVmlydHVhbGl6YXRpb24gbWFpbGluZyBsaXN0ClZpcnR1YWxpemF0aW9uQGxpc3Rz
+LmxpbnV4LWZvdW5kYXRpb24ub3JnCmh0dHBzOi8vbGlzdHMubGludXhmb3VuZGF0aW9uLm9yZy9t
+YWlsbWFuL2xpc3RpbmZvL3ZpcnR1YWxpemF0aW9u
