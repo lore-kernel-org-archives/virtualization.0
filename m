@@ -1,17 +1,16 @@
 From: Gerd Hoffmann <kraxel@redhat.com>
-Subject: Re: [PATCH v3 10/23] drm/qxl: move qxl_primary_apply_cursor to
-	correct place
-Date: Mon, 28 Jan 2019 09:10:05 +0100
-Message-ID: <20190128081005.j6z2ecnytuocfidh__43830.3692311578$1548681672$gmane$org@sirius.home.kraxel.org>
+Subject: Re: [PATCH v3 17/23] drm/qxl: use generic fbdev emulation
+Date: Mon, 28 Jan 2019 09:59:51 +0100
+Message-ID: <20190128085951.gkap3by26xgkbwaa__40344.3847362482$1548681688$gmane$org@sirius.home.kraxel.org>
 References: <20190118122020.27596-1-kraxel@redhat.com>
-	<20190118122020.27596-11-kraxel@redhat.com>
-	<b3c756b3-c7b6-f4d3-5208-c8de0168d655@tronnes.org>
+	<20190118122020.27596-18-kraxel@redhat.com>
+	<e31c0fdd-315a-59cf-e7fe-dfd6a064f6ee@tronnes.org>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="iso-8859-1"
 Content-Transfer-Encoding: quoted-printable
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
 Content-Disposition: inline
-In-Reply-To: <b3c756b3-c7b6-f4d3-5208-c8de0168d655@tronnes.org>
+In-Reply-To: <e31c0fdd-315a-59cf-e7fe-dfd6a064f6ee@tronnes.org>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -25,49 +24,68 @@ To: Noralf =?utf-8?Q?Tr=C3=B8nnes?= <noralf@tronnes.org>
 Cc: David Airlie <airlied@linux.ie>, open list <linux-kernel@vger.kernel.org>, dri-devel@lists.freedesktop.org, "open list:DRM DRIVER FOR QXL VIRTUAL GPU" <virtualization@lists.linux-foundation.org>, Dave Airlie <airlied@redhat.com>, "open list:DRM DRIVER FOR QXL VIRTUAL GPU" <spice-devel@lists.freedesktop.org>
 List-Id: virtualization@lists.linuxfoundation.org
 
-> > The cursor must be set again after creating the primary surface.
-> > Also drop the error message.
-
-> >  	if (!bo->is_primary) {
-> > -		if (!same_shadow)
-> > +		if (!same_shadow) {
-> >  			qxl_io_create_primary(qdev, 0, bo);
-> > +			qxl_primary_apply_cursor(plane);
-> > +		}
-> >  		bo->is_primary =3D true;
-> >  	}
-> >  =
-
-> > =
+On Fri, Jan 25, 2019 at 06:25:27PM +0100, Noralf Tr=F8nnes wrote:
+> =
 
 > =
 
-> I don't see how the commit message matches what you're doing. It gives
-> the impression that it must be applied under yet another condition, but
-> the condition for applying the cursor is changed from bo_old->is_primary
-> to !bo->is_primary.
+> Den 18.01.2019 13.20, skrev Gerd Hoffmann:
+> > Switch qxl over to the new generic fbdev emulation.
+> > =
 
-The qxl device ties the cursor to the primary surface.  Therefore
-calling qxl_io_destroy_primary() and qxl_io_create_primary() to switch
-the framebuffer causes the cursor information being lost and the driver
-must re-apply it.
+> > Signed-off-by: Gerd Hoffmann <kraxel@redhat.com>
+> > ---
+> >  drivers/gpu/drm/qxl/qxl_display.c | 7 -------
+> >  drivers/gpu/drm/qxl/qxl_drv.c     | 2 ++
+> >  2 files changed, 2 insertions(+), 7 deletions(-)
+> > =
 
-The correct call order to do that is qxl_io_destroy_primary() +
-qxl_io_create_primary() + qxl_primary_apply_cursor().
+> > diff --git a/drivers/gpu/drm/qxl/qxl_display.c b/drivers/gpu/drm/qxl/qx=
+l_display.c
+> > index ef832f98ab..9c751f01e3 100644
+> > --- a/drivers/gpu/drm/qxl/qxl_display.c
+> > +++ b/drivers/gpu/drm/qxl/qxl_display.c
+> > @@ -1221,18 +1221,11 @@ int qxl_modeset_init(struct qxl_device *qdev)
+> >  	qxl_display_read_client_monitors_config(qdev);
+> >  =
 
-The old code did qxl_io_destroy_primary() + qxl_primary_apply_cursor() +
-qxl_io_create_primary().  Due to qxl_primary_apply_cursor request being
-queued in a ringbuffer and qxl_io_create_primary() trapping to the
-hypervisor instantly there is a high chance that qxl_io_create_primary()
-is processed first even with the wrong call order.  But it's racy and
-thus not reliable.
+> >  	drm_mode_config_reset(&qdev->ddev);
+> > -
+> > -	/* primary surface must be created by this point, to allow
+> > -	 * issuing command queue commands and having them read by
+> > -	 * spice server. */
+> > -	qxl_fbdev_init(qdev);
+> >  	return 0;
+> >  }
+> >  =
 
-> It probably makes sense to someone that knows the driver.
+> >  void qxl_modeset_fini(struct qxl_device *qdev)
+> >  {
+> > -	qxl_fbdev_fini(qdev);
+> > -
+> >  	qxl_destroy_monitors_object(qdev);
+> >  	drm_mode_config_cleanup(&qdev->ddev);
+> >  }
+> > diff --git a/drivers/gpu/drm/qxl/qxl_drv.c b/drivers/gpu/drm/qxl/qxl_dr=
+v.c
+> > index 13c8a662f9..3fce7d16df 100644
+> > --- a/drivers/gpu/drm/qxl/qxl_drv.c
+> > +++ b/drivers/gpu/drm/qxl/qxl_drv.c
+> > @@ -93,6 +93,8 @@ qxl_pci_probe(struct pci_dev *pdev, const struct pci_=
+device_id *ent)
+> >  	if (ret)
+> >  		goto modeset_cleanup;
+> >  =
 
-If the above explains things better to you I should probably replace the
-commit message with that.
+> > +	drm_fb_helper_remove_conflicting_pci_framebuffers(pdev, 0, "qxl");
+> =
 
-> Acked-by: Noralf Tr=F8nnes <noralf@tronnes.org>
+> I couldn't find that this was part of old fbdev code, so it would be
+> nice to mention it in the commit message.
 
-thanks,
+It actually is, but a bit hidden because it doesn't use a helper you can
+easily grep for.  Instead sets fb_info->apertures->ranges[0] in
+qxlfb_create(), which has the same effect.
+
+cheers,
   Gerd
