@@ -1,16 +1,19 @@
-From: =?UTF-8?Q?Noralf_Tr=c3=b8nnes?= <noralf@tronnes.org>
-Subject: Re: [PATCH v3 17/23] drm/qxl: use generic fbdev emulation
-Date: Mon, 28 Jan 2019 11:39:55 +0100
-Message-ID: <21961c13-6481-814e-5d7b-9db8509050f7__28036.5075961285$1548681147$gmane$org@tronnes.org>
+From: Gerd Hoffmann <kraxel@redhat.com>
+Subject: Re: [PATCH v3 10/23] drm/qxl: move qxl_primary_apply_cursor to
+	correct place
+Date: Mon, 28 Jan 2019 12:40:41 +0100
+Message-ID: <20190128114041.ujyrq4ls6kbi7w3a__34153.8607304514$1548681158$gmane$org@sirius.home.kraxel.org>
 References: <20190118122020.27596-1-kraxel@redhat.com>
-	<20190118122020.27596-18-kraxel@redhat.com>
-	<e31c0fdd-315a-59cf-e7fe-dfd6a064f6ee@tronnes.org>
-	<20190128085951.gkap3by26xgkbwaa@sirius.home.kraxel.org>
+	<20190118122020.27596-11-kraxel@redhat.com>
+	<b3c756b3-c7b6-f4d3-5208-c8de0168d655@tronnes.org>
+	<20190128081005.j6z2ecnytuocfidh@sirius.home.kraxel.org>
+	<44e41026-e091-659d-ac9c-fefa47e2335b@tronnes.org>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="utf-8"
-Content-Transfer-Encoding: base64
+Content-Type: text/plain; charset="us-ascii"
+Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <20190128085951.gkap3by26xgkbwaa@sirius.home.kraxel.org>
+Content-Disposition: inline
+In-Reply-To: <44e41026-e091-659d-ac9c-fefa47e2335b@tronnes.org>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -20,46 +23,35 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Gerd Hoffmann <kraxel@redhat.com>
+To: Noralf =?utf-8?Q?Tr=C3=B8nnes?= <noralf@tronnes.org>
 Cc: David Airlie <airlied@linux.ie>, open list <linux-kernel@vger.kernel.org>, dri-devel@lists.freedesktop.org, "open list:DRM DRIVER FOR QXL VIRTUAL GPU" <virtualization@lists.linux-foundation.org>, Dave Airlie <airlied@redhat.com>, "open list:DRM DRIVER FOR QXL VIRTUAL GPU" <spice-devel@lists.freedesktop.org>
 List-Id: virtualization@lists.linuxfoundation.org
 
-CgpEZW4gMjguMDEuMjAxOSAwOS41OSwgc2tyZXYgR2VyZCBIb2ZmbWFubjoKPiBPbiBGcmksIEph
-biAyNSwgMjAxOSBhdCAwNjoyNToyN1BNICswMTAwLCBOb3JhbGYgVHLDuG5uZXMgd3JvdGU6Cj4+
-Cj4+Cj4+IERlbiAxOC4wMS4yMDE5IDEzLjIwLCBza3JldiBHZXJkIEhvZmZtYW5uOgo+Pj4gU3dp
-dGNoIHF4bCBvdmVyIHRvIHRoZSBuZXcgZ2VuZXJpYyBmYmRldiBlbXVsYXRpb24uCj4+Pgo+Pj4g
-U2lnbmVkLW9mZi1ieTogR2VyZCBIb2ZmbWFubiA8a3JheGVsQHJlZGhhdC5jb20+Cj4+PiAtLS0K
-Pj4+ICBkcml2ZXJzL2dwdS9kcm0vcXhsL3F4bF9kaXNwbGF5LmMgfCA3IC0tLS0tLS0KPj4+ICBk
-cml2ZXJzL2dwdS9kcm0vcXhsL3F4bF9kcnYuYyAgICAgfCAyICsrCj4+PiAgMiBmaWxlcyBjaGFu
-Z2VkLCAyIGluc2VydGlvbnMoKyksIDcgZGVsZXRpb25zKC0pCj4+Pgo+Pj4gZGlmZiAtLWdpdCBh
-L2RyaXZlcnMvZ3B1L2RybS9xeGwvcXhsX2Rpc3BsYXkuYyBiL2RyaXZlcnMvZ3B1L2RybS9xeGwv
-cXhsX2Rpc3BsYXkuYwo+Pj4gaW5kZXggZWY4MzJmOThhYi4uOWM3NTFmMDFlMyAxMDA2NDQKPj4+
-IC0tLSBhL2RyaXZlcnMvZ3B1L2RybS9xeGwvcXhsX2Rpc3BsYXkuYwo+Pj4gKysrIGIvZHJpdmVy
-cy9ncHUvZHJtL3F4bC9xeGxfZGlzcGxheS5jCj4+PiBAQCAtMTIyMSwxOCArMTIyMSwxMSBAQCBp
-bnQgcXhsX21vZGVzZXRfaW5pdChzdHJ1Y3QgcXhsX2RldmljZSAqcWRldikKPj4+ICAJcXhsX2Rp
-c3BsYXlfcmVhZF9jbGllbnRfbW9uaXRvcnNfY29uZmlnKHFkZXYpOwo+Pj4gIAo+Pj4gIAlkcm1f
-bW9kZV9jb25maWdfcmVzZXQoJnFkZXYtPmRkZXYpOwo+Pj4gLQo+Pj4gLQkvKiBwcmltYXJ5IHN1
-cmZhY2UgbXVzdCBiZSBjcmVhdGVkIGJ5IHRoaXMgcG9pbnQsIHRvIGFsbG93Cj4+PiAtCSAqIGlz
-c3VpbmcgY29tbWFuZCBxdWV1ZSBjb21tYW5kcyBhbmQgaGF2aW5nIHRoZW0gcmVhZCBieQo+Pj4g
-LQkgKiBzcGljZSBzZXJ2ZXIuICovCj4+PiAtCXF4bF9mYmRldl9pbml0KHFkZXYpOwo+Pj4gIAly
-ZXR1cm4gMDsKPj4+ICB9Cj4+PiAgCj4+PiAgdm9pZCBxeGxfbW9kZXNldF9maW5pKHN0cnVjdCBx
-eGxfZGV2aWNlICpxZGV2KQo+Pj4gIHsKPj4+IC0JcXhsX2ZiZGV2X2ZpbmkocWRldik7Cj4+PiAt
-Cj4+PiAgCXF4bF9kZXN0cm95X21vbml0b3JzX29iamVjdChxZGV2KTsKPj4+ICAJZHJtX21vZGVf
-Y29uZmlnX2NsZWFudXAoJnFkZXYtPmRkZXYpOwo+Pj4gIH0KPj4+IGRpZmYgLS1naXQgYS9kcml2
-ZXJzL2dwdS9kcm0vcXhsL3F4bF9kcnYuYyBiL2RyaXZlcnMvZ3B1L2RybS9xeGwvcXhsX2Rydi5j
-Cj4+PiBpbmRleCAxM2M4YTY2MmY5Li4zZmNlN2QxNmRmIDEwMDY0NAo+Pj4gLS0tIGEvZHJpdmVy
-cy9ncHUvZHJtL3F4bC9xeGxfZHJ2LmMKPj4+ICsrKyBiL2RyaXZlcnMvZ3B1L2RybS9xeGwvcXhs
-X2Rydi5jCj4+PiBAQCAtOTMsNiArOTMsOCBAQCBxeGxfcGNpX3Byb2JlKHN0cnVjdCBwY2lfZGV2
-ICpwZGV2LCBjb25zdCBzdHJ1Y3QgcGNpX2RldmljZV9pZCAqZW50KQo+Pj4gIAlpZiAocmV0KQo+
-Pj4gIAkJZ290byBtb2Rlc2V0X2NsZWFudXA7Cj4+PiAgCj4+PiArCWRybV9mYl9oZWxwZXJfcmVt
-b3ZlX2NvbmZsaWN0aW5nX3BjaV9mcmFtZWJ1ZmZlcnMocGRldiwgMCwgInF4bCIpOwo+Pgo+PiBJ
-IGNvdWxkbid0IGZpbmQgdGhhdCB0aGlzIHdhcyBwYXJ0IG9mIG9sZCBmYmRldiBjb2RlLCBzbyBp
-dCB3b3VsZCBiZQo+PiBuaWNlIHRvIG1lbnRpb24gaXQgaW4gdGhlIGNvbW1pdCBtZXNzYWdlLgo+
-IAo+IEl0IGFjdHVhbGx5IGlzLCBidXQgYSBiaXQgaGlkZGVuIGJlY2F1c2UgaXQgZG9lc24ndCB1
-c2UgYSBoZWxwZXIgeW91IGNhbgo+IGVhc2lseSBncmVwIGZvci4gIEluc3RlYWQgc2V0cyBmYl9p
-bmZvLT5hcGVydHVyZXMtPnJhbmdlc1swXSBpbgo+IHF4bGZiX2NyZWF0ZSgpLCB3aGljaCBoYXMg
-dGhlIHNhbWUgZWZmZWN0Lgo+IAoKSW5kZWVkLAoKQWNrZWQtYnk6IE5vcmFsZiBUcsO4bm5lcyA8
-bm9yYWxmQHRyb25uZXMub3JnPgpfX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19f
-X19fX19fX19fXwpWaXJ0dWFsaXphdGlvbiBtYWlsaW5nIGxpc3QKVmlydHVhbGl6YXRpb25AbGlz
-dHMubGludXgtZm91bmRhdGlvbi5vcmcKaHR0cHM6Ly9saXN0cy5saW51eGZvdW5kYXRpb24ub3Jn
-L21haWxtYW4vbGlzdGluZm8vdmlydHVhbGl6YXRpb24=
+  Hi,
+
+> > If the above explains things better to you I should probably replace the
+> > commit message with that.
+> 
+> This is actually my first review of a driver that I'm not familiar with.
+> I'm not quite sure how much in depth understanding that is required to
+> put my ack on it.
+
+Usually I try to show that by picking either Reviewed-by (I'm confident
+the changes are fine) or Acked-by (Changes look sane, but I don't know
+the code base and/or hardware good enough to be sure).
+
+> Going further into the patchset I realised that
+> there's no way that I can verify the logic without being intimate with
+> the driver.
+
+Yep.  Same for me when looking at patches for other drivers.  I think
+this is one reason why it isn't that easy to get patches for drivers
+reviewed where effectively only a single maintainer/developer is working
+on.
+
+> I liked your expanded explanation better.
+
+Updated the commit message.
+
+cheers,
+  Gerd
