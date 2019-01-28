@@ -1,16 +1,16 @@
-From: Gerd Hoffmann <kraxel@redhat.com>
-Subject: Re: [PATCH v3 17/23] drm/qxl: use generic fbdev emulation
-Date: Mon, 28 Jan 2019 09:59:51 +0100
-Message-ID: <20190128085951.gkap3by26xgkbwaa__40344.3847362482$1548681688$gmane$org@sirius.home.kraxel.org>
-References: <20190118122020.27596-1-kraxel@redhat.com>
-	<20190118122020.27596-18-kraxel@redhat.com>
-	<e31c0fdd-315a-59cf-e7fe-dfd6a064f6ee@tronnes.org>
+From: "Michael S. Tsirkin" <mst@redhat.com>
+Subject: Re: [PATCH 0/5 v3] Fix virtio-blk issue with SWIOTLB
+Date: Mon, 28 Jan 2019 10:20:05 -0500
+Message-ID: <20190128101852-mutt-send-email-mst__28704.7729407035$1548701572$gmane$org@kernel.org>
+References: <20190123163049.24863-1-joro@8bytes.org>
+	<20190123135000-mutt-send-email-mst@kernel.org>
+	<20190123211453.GA2474@char.us.oracle.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="iso-8859-1"
-Content-Transfer-Encoding: quoted-printable
+Content-Type: text/plain; charset="us-ascii"
+Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
 Content-Disposition: inline
-In-Reply-To: <e31c0fdd-315a-59cf-e7fe-dfd6a064f6ee@tronnes.org>
+In-Reply-To: <20190123211453.GA2474@char.us.oracle.com>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -20,72 +20,72 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Noralf =?utf-8?Q?Tr=C3=B8nnes?= <noralf@tronnes.org>
-Cc: David Airlie <airlied@linux.ie>, open list <linux-kernel@vger.kernel.org>, dri-devel@lists.freedesktop.org, "open list:DRM DRIVER FOR QXL VIRTUAL GPU" <virtualization@lists.linux-foundation.org>, Dave Airlie <airlied@redhat.com>, "open list:DRM DRIVER FOR QXL VIRTUAL GPU" <spice-devel@lists.freedesktop.org>
+To: Konrad Rzeszutek Wilk <konrad.wilk@oracle.com>
+Cc: Jens Axboe <axboe@kernel.dk>, jroedel@suse.de, brijesh.singh@amd.com, mst@redhat.com, Joerg Roedel <joro@8bytes.org>, jon.grimm@amd.com, jfehlig@suse.com, linux-kernel@vger.kernel.org, virtualization@lists.linux-foundation.org, linux-block@vger.kernel.org, iommu@lists.linux-foundation.org, Christoph Hellwig <hch@lst.de>
 List-Id: virtualization@lists.linuxfoundation.org
 
-On Fri, Jan 25, 2019 at 06:25:27PM +0100, Noralf Tr=F8nnes wrote:
-> =
+On Wed, Jan 23, 2019 at 04:14:53PM -0500, Konrad Rzeszutek Wilk wrote:
+> On Wed, Jan 23, 2019 at 01:51:29PM -0500, Michael S. Tsirkin wrote:
+> > On Wed, Jan 23, 2019 at 05:30:44PM +0100, Joerg Roedel wrote:
+> > > Hi,
+> > > 
+> > > here is the third version of this patch-set. Previous
+> > > versions can be found here:
+> > > 
+> > > 	V1: https://lore.kernel.org/lkml/20190110134433.15672-1-joro@8bytes.org/
+> > > 
+> > > 	V2: https://lore.kernel.org/lkml/20190115132257.6426-1-joro@8bytes.org/
+> > > 
+> > > The problem solved here is a limitation of the SWIOTLB implementation,
+> > > which does not support allocations larger than 256kb.  When the
+> > > virtio-blk driver tries to read/write a block larger than that, the
+> > > allocation of the dma-handle fails and an IO error is reported.
+> > 
+> > 
+> > OK looks good to me.
+> > I will park this in my tree for now this way it will get
+> > testing in linux-next.
+> > Can I get an ack from DMA maintainers on the DMA bits for
+> > merging this in 5.0?
+> 
+> You got mine (SWIOTBL is my area).
 
-> =
+OK so
 
-> Den 18.01.2019 13.20, skrev Gerd Hoffmann:
-> > Switch qxl over to the new generic fbdev emulation.
-> > =
+Reviewed-by: Konrad Rzeszutek Wilk <konrad.wilk@oracle.com>
 
-> > Signed-off-by: Gerd Hoffmann <kraxel@redhat.com>
-> > ---
-> >  drivers/gpu/drm/qxl/qxl_display.c | 7 -------
-> >  drivers/gpu/drm/qxl/qxl_drv.c     | 2 ++
-> >  2 files changed, 2 insertions(+), 7 deletions(-)
-> > =
 
-> > diff --git a/drivers/gpu/drm/qxl/qxl_display.c b/drivers/gpu/drm/qxl/qx=
-l_display.c
-> > index ef832f98ab..9c751f01e3 100644
-> > --- a/drivers/gpu/drm/qxl/qxl_display.c
-> > +++ b/drivers/gpu/drm/qxl/qxl_display.c
-> > @@ -1221,18 +1221,11 @@ int qxl_modeset_init(struct qxl_device *qdev)
-> >  	qxl_display_read_client_monitors_config(qdev);
-> >  =
 
-> >  	drm_mode_config_reset(&qdev->ddev);
-> > -
-> > -	/* primary surface must be created by this point, to allow
-> > -	 * issuing command queue commands and having them read by
-> > -	 * spice server. */
-> > -	qxl_fbdev_init(qdev);
-> >  	return 0;
-> >  }
-> >  =
-
-> >  void qxl_modeset_fini(struct qxl_device *qdev)
-> >  {
-> > -	qxl_fbdev_fini(qdev);
-> > -
-> >  	qxl_destroy_monitors_object(qdev);
-> >  	drm_mode_config_cleanup(&qdev->ddev);
-> >  }
-> > diff --git a/drivers/gpu/drm/qxl/qxl_drv.c b/drivers/gpu/drm/qxl/qxl_dr=
-v.c
-> > index 13c8a662f9..3fce7d16df 100644
-> > --- a/drivers/gpu/drm/qxl/qxl_drv.c
-> > +++ b/drivers/gpu/drm/qxl/qxl_drv.c
-> > @@ -93,6 +93,8 @@ qxl_pci_probe(struct pci_dev *pdev, const struct pci_=
-device_id *ent)
-> >  	if (ret)
-> >  		goto modeset_cleanup;
-> >  =
-
-> > +	drm_fb_helper_remove_conflicting_pci_framebuffers(pdev, 0, "qxl");
-> =
-
-> I couldn't find that this was part of old fbdev code, so it would be
-> nice to mention it in the commit message.
-
-It actually is, but a bit hidden because it doesn't use a helper you can
-easily grep for.  Instead sets fb_info->apertures->ranges[0] in
-qxlfb_create(), which has the same effect.
-
-cheers,
-  Gerd
+> > 
+> > > Changes to v2 are:
+> > > 
+> > > 	* Check if SWIOTLB is active before returning its limit in
+> > > 	  dma_direct_max_mapping_size()
+> > > 
+> > > 	* Only apply the maximum segment limit in virtio-blk when
+> > > 	  DMA-API is used for the vring
+> > > 
+> > > Please review.
+> > > 
+> > > Thanks,
+> > > 
+> > > 	Joerg
+> > > 
+> > > Joerg Roedel (5):
+> > >   swiotlb: Introduce swiotlb_max_mapping_size()
+> > >   swiotlb: Add is_swiotlb_active() function
+> > >   dma: Introduce dma_max_mapping_size()
+> > >   virtio: Introduce virtio_max_dma_size()
+> > >   virtio-blk: Consider virtio_max_dma_size() for maximum segment size
+> > > 
+> > >  drivers/block/virtio_blk.c   | 10 ++++++----
+> > >  drivers/virtio/virtio_ring.c | 10 ++++++++++
+> > >  include/linux/dma-mapping.h  | 16 ++++++++++++++++
+> > >  include/linux/swiotlb.h      | 11 +++++++++++
+> > >  include/linux/virtio.h       |  2 ++
+> > >  kernel/dma/direct.c          | 11 +++++++++++
+> > >  kernel/dma/swiotlb.c         | 10 ++++++++++
+> > >  7 files changed, 66 insertions(+), 4 deletions(-)
+> > > 
+> > > -- 
+> > > 2.17.1
