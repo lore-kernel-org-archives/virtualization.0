@@ -1,19 +1,11 @@
-From: Gerd Hoffmann <kraxel@redhat.com>
-Subject: Re: [PATCH v3 10/23] drm/qxl: move qxl_primary_apply_cursor to
-	correct place
-Date: Mon, 28 Jan 2019 12:40:41 +0100
-Message-ID: <20190128114041.ujyrq4ls6kbi7w3a__34153.8607304514$1548681158$gmane$org@sirius.home.kraxel.org>
-References: <20190118122020.27596-1-kraxel@redhat.com>
-	<20190118122020.27596-11-kraxel@redhat.com>
-	<b3c756b3-c7b6-f4d3-5208-c8de0168d655@tronnes.org>
-	<20190128081005.j6z2ecnytuocfidh@sirius.home.kraxel.org>
-	<44e41026-e091-659d-ac9c-fefa47e2335b@tronnes.org>
+From: Jason Wang <jasowang@redhat.com>
+Subject: [PATCH net] vhost: fix OOB in get_rx_bufs()
+Date: Mon, 28 Jan 2019 15:05:05 +0800
+Message-ID: <20190128070505.18335-1-jasowang__3658.65792134485$1548681629$gmane$org@redhat.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-Content-Disposition: inline
-In-Reply-To: <44e41026-e091-659d-ac9c-fefa47e2335b@tronnes.org>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -23,35 +15,153 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Noralf =?utf-8?Q?Tr=C3=B8nnes?= <noralf@tronnes.org>
-Cc: David Airlie <airlied@linux.ie>, open list <linux-kernel@vger.kernel.org>, dri-devel@lists.freedesktop.org, "open list:DRM DRIVER FOR QXL VIRTUAL GPU" <virtualization@lists.linux-foundation.org>, Dave Airlie <airlied@redhat.com>, "open list:DRM DRIVER FOR QXL VIRTUAL GPU" <spice-devel@lists.freedesktop.org>
+To: mst@redhat.com, jasowang@redhat.com, stefanha@redhat.com
+Cc: netdev@vger.kernel.org, linux-kernel@vger.kernel.org, kvm@vger.kernel.org, virtualization@lists.linux-foundation.org
 List-Id: virtualization@lists.linuxfoundation.org
 
-  Hi,
+After batched used ring updating was introduced in commit e2b3b35eb989
+("vhost_net: batch used ring update in rx"). We tend to batch heads in
+vq->heads for more than one packet. But the quota passed to
+get_rx_bufs() was not correctly limited, which can result a OOB write
+in vq->heads.
 
-> > If the above explains things better to you I should probably replace the
-> > commit message with that.
-> 
-> This is actually my first review of a driver that I'm not familiar with.
-> I'm not quite sure how much in depth understanding that is required to
-> put my ack on it.
+        headcount = get_rx_bufs(vq, vq->heads + nvq->done_idx,
+                    vhost_len, &in, vq_log, &log,
+                    likely(mergeable) ? UIO_MAXIOV : 1);
 
-Usually I try to show that by picking either Reviewed-by (I'm confident
-the changes are fine) or Acked-by (Changes look sane, but I don't know
-the code base and/or hardware good enough to be sure).
+UIO_MAXIOV was still used which is wrong since we could have batched
+used in vq->heads, this will cause OOB if the next buffer needs more
+than 960 (1024 (UIO_MAXIOV) - 64 (VHOST_NET_BATCH)) heads after we've
+batched 64 (VHOST_NET_BATCH) heads:
 
-> Going further into the patchset I realised that
-> there's no way that I can verify the logic without being intimate with
-> the driver.
+=============================================================================
+BUG kmalloc-8k (Tainted: G    B            ): Redzone overwritten
+-----------------------------------------------------------------------------
 
-Yep.  Same for me when looking at patches for other drivers.  I think
-this is one reason why it isn't that easy to get patches for drivers
-reviewed where effectively only a single maintainer/developer is working
-on.
+INFO: 0x00000000fd93b7a2-0x00000000f0713384. First byte 0xa9 instead of 0xcc
+INFO: Allocated in alloc_pd+0x22/0x60 age=3933677 cpu=2 pid=2674
+    kmem_cache_alloc_trace+0xbb/0x140
+    alloc_pd+0x22/0x60
+    gen8_ppgtt_create+0x11d/0x5f0
+    i915_ppgtt_create+0x16/0x80
+    i915_gem_create_context+0x248/0x390
+    i915_gem_context_create_ioctl+0x4b/0xe0
+    drm_ioctl_kernel+0xa5/0xf0
+    drm_ioctl+0x2ed/0x3a0
+    do_vfs_ioctl+0x9f/0x620
+    ksys_ioctl+0x6b/0x80
+    __x64_sys_ioctl+0x11/0x20
+    do_syscall_64+0x43/0xf0
+    entry_SYSCALL_64_after_hwframe+0x44/0xa9
+INFO: Slab 0x00000000d13e87af objects=3 used=3 fp=0x          (null) flags=0x200000000010201
+INFO: Object 0x0000000003278802 @offset=17064 fp=0x00000000e2e6652b
 
-> I liked your expanded explanation better.
+Fixing this by allocating UIO_MAXIOV + VHOST_NET_BATCH iovs for
+vhost-net. This is done through set the limitation through
+vhost_dev_init(), then set_owner can allocate the number of iov in a
+per device manner.
 
-Updated the commit message.
+This fixes CVE-2018-16880.
 
-cheers,
-  Gerd
+Fixes: e2b3b35eb989 ("vhost_net: batch used ring update in rx")
+Signed-off-by: Jason Wang <jasowang@redhat.com>
+---
+ drivers/vhost/net.c   | 3 ++-
+ drivers/vhost/scsi.c  | 2 +-
+ drivers/vhost/vhost.c | 7 ++++---
+ drivers/vhost/vhost.h | 4 +++-
+ drivers/vhost/vsock.c | 2 +-
+ 5 files changed, 11 insertions(+), 7 deletions(-)
+
+diff --git a/drivers/vhost/net.c b/drivers/vhost/net.c
+index bca86bf7189f..df51a35cf537 100644
+--- a/drivers/vhost/net.c
++++ b/drivers/vhost/net.c
+@@ -1337,7 +1337,8 @@ static int vhost_net_open(struct inode *inode, struct file *f)
+ 		n->vqs[i].rx_ring = NULL;
+ 		vhost_net_buf_init(&n->vqs[i].rxq);
+ 	}
+-	vhost_dev_init(dev, vqs, VHOST_NET_VQ_MAX);
++	vhost_dev_init(dev, vqs, VHOST_NET_VQ_MAX,
++		       UIO_MAXIOV + VHOST_NET_BATCH);
+ 
+ 	vhost_poll_init(n->poll + VHOST_NET_VQ_TX, handle_tx_net, EPOLLOUT, dev);
+ 	vhost_poll_init(n->poll + VHOST_NET_VQ_RX, handle_rx_net, EPOLLIN, dev);
+diff --git a/drivers/vhost/scsi.c b/drivers/vhost/scsi.c
+index 344684f3e2e4..23593cb23dd0 100644
+--- a/drivers/vhost/scsi.c
++++ b/drivers/vhost/scsi.c
+@@ -1627,7 +1627,7 @@ static int vhost_scsi_open(struct inode *inode, struct file *f)
+ 		vqs[i] = &vs->vqs[i].vq;
+ 		vs->vqs[i].vq.handle_kick = vhost_scsi_handle_kick;
+ 	}
+-	vhost_dev_init(&vs->dev, vqs, VHOST_SCSI_MAX_VQ);
++	vhost_dev_init(&vs->dev, vqs, VHOST_SCSI_MAX_VQ, UIO_MAXIOV);
+ 
+ 	vhost_scsi_init_inflight(vs, NULL);
+ 
+diff --git a/drivers/vhost/vhost.c b/drivers/vhost/vhost.c
+index 15a216cdd507..24a129fcdd61 100644
+--- a/drivers/vhost/vhost.c
++++ b/drivers/vhost/vhost.c
+@@ -390,9 +390,9 @@ static long vhost_dev_alloc_iovecs(struct vhost_dev *dev)
+ 		vq->indirect = kmalloc_array(UIO_MAXIOV,
+ 					     sizeof(*vq->indirect),
+ 					     GFP_KERNEL);
+-		vq->log = kmalloc_array(UIO_MAXIOV, sizeof(*vq->log),
++		vq->log = kmalloc_array(dev->iov_limit, sizeof(*vq->log),
+ 					GFP_KERNEL);
+-		vq->heads = kmalloc_array(UIO_MAXIOV, sizeof(*vq->heads),
++		vq->heads = kmalloc_array(dev->iov_limit, sizeof(*vq->heads),
+ 					  GFP_KERNEL);
+ 		if (!vq->indirect || !vq->log || !vq->heads)
+ 			goto err_nomem;
+@@ -414,7 +414,7 @@ static void vhost_dev_free_iovecs(struct vhost_dev *dev)
+ }
+ 
+ void vhost_dev_init(struct vhost_dev *dev,
+-		    struct vhost_virtqueue **vqs, int nvqs)
++		    struct vhost_virtqueue **vqs, int nvqs, int iov_limit)
+ {
+ 	struct vhost_virtqueue *vq;
+ 	int i;
+@@ -427,6 +427,7 @@ void vhost_dev_init(struct vhost_dev *dev,
+ 	dev->iotlb = NULL;
+ 	dev->mm = NULL;
+ 	dev->worker = NULL;
++	dev->iov_limit = iov_limit;
+ 	init_llist_head(&dev->work_list);
+ 	init_waitqueue_head(&dev->wait);
+ 	INIT_LIST_HEAD(&dev->read_list);
+diff --git a/drivers/vhost/vhost.h b/drivers/vhost/vhost.h
+index 1b675dad5e05..9490e7ddb340 100644
+--- a/drivers/vhost/vhost.h
++++ b/drivers/vhost/vhost.h
+@@ -170,9 +170,11 @@ struct vhost_dev {
+ 	struct list_head read_list;
+ 	struct list_head pending_list;
+ 	wait_queue_head_t wait;
++	int iov_limit;
+ };
+ 
+-void vhost_dev_init(struct vhost_dev *, struct vhost_virtqueue **vqs, int nvqs);
++void vhost_dev_init(struct vhost_dev *, struct vhost_virtqueue **vqs,
++		    int nvqs, int iov_limit);
+ long vhost_dev_set_owner(struct vhost_dev *dev);
+ bool vhost_dev_has_owner(struct vhost_dev *dev);
+ long vhost_dev_check_owner(struct vhost_dev *);
+diff --git a/drivers/vhost/vsock.c b/drivers/vhost/vsock.c
+index 3fbc068eaa9b..bb5fc0e9fbc2 100644
+--- a/drivers/vhost/vsock.c
++++ b/drivers/vhost/vsock.c
+@@ -531,7 +531,7 @@ static int vhost_vsock_dev_open(struct inode *inode, struct file *file)
+ 	vsock->vqs[VSOCK_VQ_TX].handle_kick = vhost_vsock_handle_tx_kick;
+ 	vsock->vqs[VSOCK_VQ_RX].handle_kick = vhost_vsock_handle_rx_kick;
+ 
+-	vhost_dev_init(&vsock->dev, vqs, ARRAY_SIZE(vsock->vqs));
++	vhost_dev_init(&vsock->dev, vqs, ARRAY_SIZE(vsock->vqs), UIO_MAXIOV);
+ 
+ 	file->private_data = vsock;
+ 	spin_lock_init(&vsock->send_pkt_list_lock);
+-- 
+2.17.1
