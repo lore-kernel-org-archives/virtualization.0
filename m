@@ -1,19 +1,18 @@
-From: "hch@infradead.org" <hch@infradead.org>
-Subject: Re: [Xen-devel] [RFC] virtio_ring: check dma_mem for xen_domain
-Date: Mon, 28 Jan 2019 00:00:29 -0800
-Message-ID: <20190128080028.GA18476__15314.353261941$1548681639$gmane$org@infradead.org>
-References: <20190121050056.14325-1-peng.fan@nxp.com>
-	<alpine.DEB.2.10.1901221113410.17936@sstabellini-ThinkPad-X260>
-	<20190123071232.GA20526@infradead.org>
-	<alpine.DEB.2.10.1901230935280.17936@sstabellini-ThinkPad-X260>
-	<20190123211405.GA4971@infradead.org>
-	<AM0PR04MB4481F3986CFB6D1EF26FA135889B0@AM0PR04MB4481.eurprd04.prod.outlook.com>
+From: Christoph Hellwig <hch@lst.de>
+Subject: Re: [PATCH 5/5] virtio-blk: Consider virtio_max_dma_size() for
+	maximum segment size
+Date: Mon, 28 Jan 2019 09:05:26 +0100
+Message-ID: <20190128080526.GA3874__17321.7613528081$1548681659$gmane$org@lst.de>
+References: <20190123163049.24863-1-joro@8bytes.org>
+	<20190123163049.24863-6-joro@8bytes.org>
+	<20190123213139.GD9032@lst.de> <20190124084011.GJ32526@8bytes.org>
+	<20190124084221.GB19441@lst.de> <20190124095150.GL32526@8bytes.org>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
 Content-Disposition: inline
-In-Reply-To: <AM0PR04MB4481F3986CFB6D1EF26FA135889B0@AM0PR04MB4481.eurprd04.prod.outlook.com>
+In-Reply-To: <20190124095150.GL32526@8bytes.org>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -23,32 +22,20 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Peng Fan <peng.fan@nxp.com>
-Cc: "jgross@suse.com" <jgross@suse.com>, Stefano Stabellini <sstabellini@kernel.org>, Andy Duan <fugang.duan@nxp.com>, "mst@redhat.com" <mst@redhat.com>, "linux-remoteproc@vger.kernel.org" <linux-remoteproc@vger.kernel.org>, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>, "virtualization@lists.linux-foundation.org" <virtualization@lists.linux-foundation.org>, "hch@infradead.org" <hch@infradead.org>, "luto@kernel.org" <luto@kernel.org>, "xen-devel@lists.xenproject.org" <xen-devel@lists.xenproject.org>, "boris.ostrovsky@oracle.com" <boris.ostrovsky@oracle.com>
+To: Joerg Roedel <joro@8bytes.org>
+Cc: Jens Axboe <axboe@kernel.dk>, jon.grimm@amd.com, brijesh.singh@amd.com, Konrad Rzeszutek Wilk <konrad.wilk@oracle.com>, "Michael S . Tsirkin" <mst@redhat.com>, jfehlig@suse.com, linux-kernel@vger.kernel.org, virtualization@lists.linux-foundation.org, linux-block@vger.kernel.org, iommu@lists.linux-foundation.org, jroedel@suse.de, Christoph Hellwig <hch@lst.de>
 List-Id: virtualization@lists.linuxfoundation.org
 
-On Fri, Jan 25, 2019 at 09:45:26AM +0000, Peng Fan wrote:
-> Just have a question, 
+On Thu, Jan 24, 2019 at 10:51:51AM +0100, Joerg Roedel wrote:
+> On Thu, Jan 24, 2019 at 09:42:21AM +0100, Christoph Hellwig wrote:
+> > Yes.  But more importantly it would fix the limit for all other block
+> > drivers that set large segment sizes when running over swiotlb.
 > 
-> Since vmalloc_to_page is ok for cma area, no need to take cma and per device
-> cma into consideration right? 
+> True, so it would be something like the diff below? I havn't worked on
+> the block layer, so I don't know if that needs additional checks for
+> ->dev or anything.
 
-The CMA area itself it a physical memory region.  If it is a non-highmem
-region you can call virt_to_page on the virtual addresses for it.  If
-it is in highmem it doesn't even have a kernel virtual address by
-default.
-
-> we only need to implement a piece code to handle per device specific region
-> using RESERVEDMEM_OF_DECLARE, just like:
-> RESERVEDMEM_OF_DECLARE(rpmsg-dma, "rpmsg-dma-pool", 
-> rmem_rpmsg_dma_setup);
-> And implement the device_init call back and build a map between page and phys.
-> Then in rpmsg driver, scatter list could use page structure, no need vmalloc_to_page
-> for per device dma.
-> 
-> Is this the right way?
-
-I think this should work fine.  If you have the cycles for it I'd
-actually love to be able to have generic CMA DT glue for non DMA API
-driver allocations, as there obviously is a need for it.  So basically
-the same as above, just added to kernel/cma.c as a generic API.
+Looks sensible.  Maybe for now we'll just do the virtio-blk case
+that triggered it, and we'll do something like this patch for the
+next merge window.  We'll also need to apply the same magic to the
+DMA boundary.
