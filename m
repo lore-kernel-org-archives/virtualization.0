@@ -1,18 +1,17 @@
-From: Christoph Hellwig <hch@lst.de>
-Subject: Re: [PATCH 5/5] virtio-blk: Consider virtio_max_dma_size() for
-	maximum segment size
-Date: Mon, 28 Jan 2019 09:05:26 +0100
-Message-ID: <20190128080526.GA3874__17321.7613528081$1548681659$gmane$org@lst.de>
-References: <20190123163049.24863-1-joro@8bytes.org>
-	<20190123163049.24863-6-joro@8bytes.org>
-	<20190123213139.GD9032@lst.de> <20190124084011.GJ32526@8bytes.org>
-	<20190124084221.GB19441@lst.de> <20190124095150.GL32526@8bytes.org>
+From: Gerd Hoffmann <kraxel@redhat.com>
+Subject: Re: [PATCH v3 10/23] drm/qxl: move qxl_primary_apply_cursor to
+	correct place
+Date: Mon, 28 Jan 2019 09:10:05 +0100
+Message-ID: <20190128081005.j6z2ecnytuocfidh__43830.3692311578$1548681672$gmane$org@sirius.home.kraxel.org>
+References: <20190118122020.27596-1-kraxel@redhat.com>
+	<20190118122020.27596-11-kraxel@redhat.com>
+	<b3c756b3-c7b6-f4d3-5208-c8de0168d655@tronnes.org>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset="iso-8859-1"
+Content-Transfer-Encoding: quoted-printable
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
 Content-Disposition: inline
-In-Reply-To: <20190124095150.GL32526@8bytes.org>
+In-Reply-To: <b3c756b3-c7b6-f4d3-5208-c8de0168d655@tronnes.org>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -22,20 +21,53 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Joerg Roedel <joro@8bytes.org>
-Cc: Jens Axboe <axboe@kernel.dk>, jon.grimm@amd.com, brijesh.singh@amd.com, Konrad Rzeszutek Wilk <konrad.wilk@oracle.com>, "Michael S . Tsirkin" <mst@redhat.com>, jfehlig@suse.com, linux-kernel@vger.kernel.org, virtualization@lists.linux-foundation.org, linux-block@vger.kernel.org, iommu@lists.linux-foundation.org, jroedel@suse.de, Christoph Hellwig <hch@lst.de>
+To: Noralf =?utf-8?Q?Tr=C3=B8nnes?= <noralf@tronnes.org>
+Cc: David Airlie <airlied@linux.ie>, open list <linux-kernel@vger.kernel.org>, dri-devel@lists.freedesktop.org, "open list:DRM DRIVER FOR QXL VIRTUAL GPU" <virtualization@lists.linux-foundation.org>, Dave Airlie <airlied@redhat.com>, "open list:DRM DRIVER FOR QXL VIRTUAL GPU" <spice-devel@lists.freedesktop.org>
 List-Id: virtualization@lists.linuxfoundation.org
 
-On Thu, Jan 24, 2019 at 10:51:51AM +0100, Joerg Roedel wrote:
-> On Thu, Jan 24, 2019 at 09:42:21AM +0100, Christoph Hellwig wrote:
-> > Yes.  But more importantly it would fix the limit for all other block
-> > drivers that set large segment sizes when running over swiotlb.
-> 
-> True, so it would be something like the diff below? I havn't worked on
-> the block layer, so I don't know if that needs additional checks for
-> ->dev or anything.
+> > The cursor must be set again after creating the primary surface.
+> > Also drop the error message.
 
-Looks sensible.  Maybe for now we'll just do the virtio-blk case
-that triggered it, and we'll do something like this patch for the
-next merge window.  We'll also need to apply the same magic to the
-DMA boundary.
+> >  	if (!bo->is_primary) {
+> > -		if (!same_shadow)
+> > +		if (!same_shadow) {
+> >  			qxl_io_create_primary(qdev, 0, bo);
+> > +			qxl_primary_apply_cursor(plane);
+> > +		}
+> >  		bo->is_primary =3D true;
+> >  	}
+> >  =
+
+> > =
+
+> =
+
+> I don't see how the commit message matches what you're doing. It gives
+> the impression that it must be applied under yet another condition, but
+> the condition for applying the cursor is changed from bo_old->is_primary
+> to !bo->is_primary.
+
+The qxl device ties the cursor to the primary surface.  Therefore
+calling qxl_io_destroy_primary() and qxl_io_create_primary() to switch
+the framebuffer causes the cursor information being lost and the driver
+must re-apply it.
+
+The correct call order to do that is qxl_io_destroy_primary() +
+qxl_io_create_primary() + qxl_primary_apply_cursor().
+
+The old code did qxl_io_destroy_primary() + qxl_primary_apply_cursor() +
+qxl_io_create_primary().  Due to qxl_primary_apply_cursor request being
+queued in a ringbuffer and qxl_io_create_primary() trapping to the
+hypervisor instantly there is a high chance that qxl_io_create_primary()
+is processed first even with the wrong call order.  But it's racy and
+thus not reliable.
+
+> It probably makes sense to someone that knows the driver.
+
+If the above explains things better to you I should probably replace the
+commit message with that.
+
+> Acked-by: Noralf Tr=F8nnes <noralf@tronnes.org>
+
+thanks,
+  Gerd
