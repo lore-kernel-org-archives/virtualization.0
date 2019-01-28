@@ -1,14 +1,17 @@
-From: David Miller <davem@davemloft.net>
-Subject: Re: [PATCH net-next V4 0/5] vhost: accelerate metadata access
-	through vmap()
-Date: Sat, 26 Jan 2019 14:37:08 -0800 (PST)
-Message-ID: <20190126.143708.1203048880266877709.davem__11173.2646169671$1548596130$gmane$org@davemloft.net>
-References: <20190123095557.30168-1-jasowang@redhat.com>
+From: =?UTF-8?Q?Noralf_Tr=c3=b8nnes?= <noralf@tronnes.org>
+Subject: Re: [PATCH v3 10/23] drm/qxl: move qxl_primary_apply_cursor to
+	correct place
+Date: Mon, 28 Jan 2019 11:38:27 +0100
+Message-ID: <44e41026-e091-659d-ac9c-fefa47e2335b__32407.0399555907$1548681133$gmane$org@tronnes.org>
+References: <20190118122020.27596-1-kraxel@redhat.com>
+	<20190118122020.27596-11-kraxel@redhat.com>
+	<b3c756b3-c7b6-f4d3-5208-c8de0168d655@tronnes.org>
+	<20190128081005.j6z2ecnytuocfidh@sirius.home.kraxel.org>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset="utf-8"
+Content-Transfer-Encoding: base64
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <20190123095557.30168-1-jasowang@redhat.com>
+In-Reply-To: <20190128081005.j6z2ecnytuocfidh@sirius.home.kraxel.org>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -18,29 +21,46 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: jasowang@redhat.com
-Cc: netdev@vger.kernel.org, mst@redhat.com, linux-kernel@vger.kernel.org, kvm@vger.kernel.org, virtualization@lists.linux-foundation.org
+To: Gerd Hoffmann <kraxel@redhat.com>
+Cc: David Airlie <airlied@linux.ie>, open list <linux-kernel@vger.kernel.org>, dri-devel@lists.freedesktop.org, "open list:DRM DRIVER FOR QXL VIRTUAL GPU" <virtualization@lists.linux-foundation.org>, Dave Airlie <airlied@redhat.com>, "open list:DRM DRIVER FOR QXL VIRTUAL GPU" <spice-devel@lists.freedesktop.org>
 List-Id: virtualization@lists.linuxfoundation.org
 
-From: Jason Wang <jasowang@redhat.com>
-Date: Wed, 23 Jan 2019 17:55:52 +0800
-
-> This series tries to access virtqueue metadata through kernel virtual
-> address instead of copy_user() friends since they had too much
-> overheads like checks, spec barriers or even hardware feature
-> toggling.
-> 
-> Test shows about 24% improvement on TX PPS. It should benefit other
-> cases as well.
-
-I've read over the discussion of patch #5 a few times.
-
-And it seems to me that, at a minimum, a few things still need to
-be resolved:
-
-1) More perf data added to commit message.
-
-2) Whether invalidate_range_start() and invalidate_range_end() must
-   be paired.
-
-Etc.  So I am marking this series "Changes Requested".
+CgpEZW4gMjguMDEuMjAxOSAwOS4xMCwgc2tyZXYgR2VyZCBIb2ZmbWFubjoKPj4+IFRoZSBjdXJz
+b3IgbXVzdCBiZSBzZXQgYWdhaW4gYWZ0ZXIgY3JlYXRpbmcgdGhlIHByaW1hcnkgc3VyZmFjZS4K
+Pj4+IEFsc28gZHJvcCB0aGUgZXJyb3IgbWVzc2FnZS4KPiAKPj4+ICAJaWYgKCFiby0+aXNfcHJp
+bWFyeSkgewo+Pj4gLQkJaWYgKCFzYW1lX3NoYWRvdykKPj4+ICsJCWlmICghc2FtZV9zaGFkb3cp
+IHsKPj4+ICAJCQlxeGxfaW9fY3JlYXRlX3ByaW1hcnkocWRldiwgMCwgYm8pOwo+Pj4gKwkJCXF4
+bF9wcmltYXJ5X2FwcGx5X2N1cnNvcihwbGFuZSk7Cj4+PiArCQl9Cj4+PiAgCQliby0+aXNfcHJp
+bWFyeSA9IHRydWU7Cj4+PiAgCX0KPj4+ICAKPj4+Cj4+Cj4+IEkgZG9uJ3Qgc2VlIGhvdyB0aGUg
+Y29tbWl0IG1lc3NhZ2UgbWF0Y2hlcyB3aGF0IHlvdSdyZSBkb2luZy4gSXQgZ2l2ZXMKPj4gdGhl
+IGltcHJlc3Npb24gdGhhdCBpdCBtdXN0IGJlIGFwcGxpZWQgdW5kZXIgeWV0IGFub3RoZXIgY29u
+ZGl0aW9uLCBidXQKPj4gdGhlIGNvbmRpdGlvbiBmb3IgYXBwbHlpbmcgdGhlIGN1cnNvciBpcyBj
+aGFuZ2VkIGZyb20gYm9fb2xkLT5pc19wcmltYXJ5Cj4+IHRvICFiby0+aXNfcHJpbWFyeS4KPiAK
+PiBUaGUgcXhsIGRldmljZSB0aWVzIHRoZSBjdXJzb3IgdG8gdGhlIHByaW1hcnkgc3VyZmFjZS4g
+IFRoZXJlZm9yZQo+IGNhbGxpbmcgcXhsX2lvX2Rlc3Ryb3lfcHJpbWFyeSgpIGFuZCBxeGxfaW9f
+Y3JlYXRlX3ByaW1hcnkoKSB0byBzd2l0Y2gKPiB0aGUgZnJhbWVidWZmZXIgY2F1c2VzIHRoZSBj
+dXJzb3IgaW5mb3JtYXRpb24gYmVpbmcgbG9zdCBhbmQgdGhlIGRyaXZlcgo+IG11c3QgcmUtYXBw
+bHkgaXQuCj4gCj4gVGhlIGNvcnJlY3QgY2FsbCBvcmRlciB0byBkbyB0aGF0IGlzIHF4bF9pb19k
+ZXN0cm95X3ByaW1hcnkoKSArCj4gcXhsX2lvX2NyZWF0ZV9wcmltYXJ5KCkgKyBxeGxfcHJpbWFy
+eV9hcHBseV9jdXJzb3IoKS4KPiAKPiBUaGUgb2xkIGNvZGUgZGlkIHF4bF9pb19kZXN0cm95X3By
+aW1hcnkoKSArIHF4bF9wcmltYXJ5X2FwcGx5X2N1cnNvcigpICsKPiBxeGxfaW9fY3JlYXRlX3By
+aW1hcnkoKS4gIER1ZSB0byBxeGxfcHJpbWFyeV9hcHBseV9jdXJzb3IgcmVxdWVzdCBiZWluZwo+
+IHF1ZXVlZCBpbiBhIHJpbmdidWZmZXIgYW5kIHF4bF9pb19jcmVhdGVfcHJpbWFyeSgpIHRyYXBw
+aW5nIHRvIHRoZQo+IGh5cGVydmlzb3IgaW5zdGFudGx5IHRoZXJlIGlzIGEgaGlnaCBjaGFuY2Ug
+dGhhdCBxeGxfaW9fY3JlYXRlX3ByaW1hcnkoKQo+IGlzIHByb2Nlc3NlZCBmaXJzdCBldmVuIHdp
+dGggdGhlIHdyb25nIGNhbGwgb3JkZXIuICBCdXQgaXQncyByYWN5IGFuZAo+IHRodXMgbm90IHJl
+bGlhYmxlLgo+IAo+PiBJdCBwcm9iYWJseSBtYWtlcyBzZW5zZSB0byBzb21lb25lIHRoYXQga25v
+d3MgdGhlIGRyaXZlci4KPiAKPiBJZiB0aGUgYWJvdmUgZXhwbGFpbnMgdGhpbmdzIGJldHRlciB0
+byB5b3UgSSBzaG91bGQgcHJvYmFibHkgcmVwbGFjZSB0aGUKPiBjb21taXQgbWVzc2FnZSB3aXRo
+IHRoYXQuCj4gCgpUaGlzIGlzIGFjdHVhbGx5IG15IGZpcnN0IHJldmlldyBvZiBhIGRyaXZlciB0
+aGF0IEknbSBub3QgZmFtaWxpYXIgd2l0aC4KSSdtIG5vdCBxdWl0ZSBzdXJlIGhvdyBtdWNoIGlu
+IGRlcHRoIHVuZGVyc3RhbmRpbmcgdGhhdCBpcyByZXF1aXJlZCB0bwpwdXQgbXkgYWNrIG9uIGl0
+LiBHb2luZyBmdXJ0aGVyIGludG8gdGhlIHBhdGNoc2V0IEkgcmVhbGlzZWQgdGhhdAp0aGVyZSdz
+IG5vIHdheSB0aGF0IEkgY2FuIHZlcmlmeSB0aGUgbG9naWMgd2l0aG91dCBiZWluZyBpbnRpbWF0
+ZSB3aXRoCnRoZSBkcml2ZXIuIFNvIEkgaGF2ZSB0cmllZCB0byB2ZXJpZnkgdGhpbmdzIGZyb20g
+YSBrbXMgcG9pbnQgb2Ygdmlldy4KCkkgbGlrZWQgeW91ciBleHBhbmRlZCBleHBsYW5hdGlvbiBi
+ZXR0ZXIuCgpOb3JhbGYuCgo+PiBBY2tlZC1ieTogTm9yYWxmIFRyw7hubmVzIDxub3JhbGZAdHJv
+bm5lcy5vcmc+Cj4gCj4gdGhhbmtzLAo+ICAgR2VyZAo+IApfX19fX19fX19fX19fX19fX19fX19f
+X19fX19fX19fX19fX19fX19fX19fX19fXwpWaXJ0dWFsaXphdGlvbiBtYWlsaW5nIGxpc3QKVmly
+dHVhbGl6YXRpb25AbGlzdHMubGludXgtZm91bmRhdGlvbi5vcmcKaHR0cHM6Ly9saXN0cy5saW51
+eGZvdW5kYXRpb24ub3JnL21haWxtYW4vbGlzdGluZm8vdmlydHVhbGl6YXRpb24=
