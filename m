@@ -1,17 +1,19 @@
-From: Konrad Rzeszutek Wilk <konrad.wilk@oracle.com>
-Subject: Re: [PATCH 0/5 v3] Fix virtio-blk issue with SWIOTLB
-Date: Mon, 28 Jan 2019 10:53:22 -0500
-Message-ID: <20190128155322.GA32686__23773.2361698121$1548701813$gmane$org@char.us.oracle.com>
+From: "Michael S. Tsirkin" <mst@redhat.com>
+Subject: Re: [PATCH 5/5] virtio-blk: Consider virtio_max_dma_size() for
+	maximum segment size
+Date: Mon, 28 Jan 2019 12:14:33 -0500
+Message-ID: <20190128121407-mutt-send-email-mst__39916.8881982163$1548701820$gmane$org@kernel.org>
 References: <20190123163049.24863-1-joro@8bytes.org>
-	<20190123135000-mutt-send-email-mst@kernel.org>
-	<20190123211453.GA2474@char.us.oracle.com>
-	<20190128101852-mutt-send-email-mst@kernel.org>
+	<20190123163049.24863-6-joro@8bytes.org>
+	<20190123213139.GD9032@lst.de> <20190124084011.GJ32526@8bytes.org>
+	<20190124084221.GB19441@lst.de> <20190124095150.GL32526@8bytes.org>
+	<20190128080526.GA3874@lst.de>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
 Content-Disposition: inline
-In-Reply-To: <20190128101852-mutt-send-email-mst@kernel.org>
+In-Reply-To: <20190128080526.GA3874@lst.de>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -21,75 +23,26 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: "Michael S. Tsirkin" <mst@redhat.com>
-Cc: Jens Axboe <axboe@kernel.dk>, jroedel@suse.de, brijesh.singh@amd.com, Joerg Roedel <joro@8bytes.org>, jon.grimm@amd.com, jfehlig@suse.com, linux-kernel@vger.kernel.org, virtualization@lists.linux-foundation.org, linux-block@vger.kernel.org, iommu@lists.linux-foundation.org, Christoph Hellwig <hch@lst.de>
+To: Christoph Hellwig <hch@lst.de>
+Cc: Jens Axboe <axboe@kernel.dk>, jroedel@suse.de, brijesh.singh@amd.com, Konrad Rzeszutek Wilk <konrad.wilk@oracle.com>, Joerg Roedel <joro@8bytes.org>, jon.grimm@amd.com, jfehlig@suse.com, linux-kernel@vger.kernel.org, virtualization@lists.linux-foundation.org, linux-block@vger.kernel.org, iommu@lists.linux-foundation.org
 List-Id: virtualization@lists.linuxfoundation.org
 
-On Mon, Jan 28, 2019 at 10:20:05AM -0500, Michael S. Tsirkin wrote:
-> On Wed, Jan 23, 2019 at 04:14:53PM -0500, Konrad Rzeszutek Wilk wrote:
-> > On Wed, Jan 23, 2019 at 01:51:29PM -0500, Michael S. Tsirkin wrote:
-> > > On Wed, Jan 23, 2019 at 05:30:44PM +0100, Joerg Roedel wrote:
-> > > > Hi,
-> > > > 
-> > > > here is the third version of this patch-set. Previous
-> > > > versions can be found here:
-> > > > 
-> > > > 	V1: https://lore.kernel.org/lkml/20190110134433.15672-1-joro@8bytes.org/
-> > > > 
-> > > > 	V2: https://lore.kernel.org/lkml/20190115132257.6426-1-joro@8bytes.org/
-> > > > 
-> > > > The problem solved here is a limitation of the SWIOTLB implementation,
-> > > > which does not support allocations larger than 256kb.  When the
-> > > > virtio-blk driver tries to read/write a block larger than that, the
-> > > > allocation of the dma-handle fails and an IO error is reported.
-> > > 
-> > > 
-> > > OK looks good to me.
-> > > I will park this in my tree for now this way it will get
-> > > testing in linux-next.
-> > > Can I get an ack from DMA maintainers on the DMA bits for
-> > > merging this in 5.0?
+On Mon, Jan 28, 2019 at 09:05:26AM +0100, Christoph Hellwig wrote:
+> On Thu, Jan 24, 2019 at 10:51:51AM +0100, Joerg Roedel wrote:
+> > On Thu, Jan 24, 2019 at 09:42:21AM +0100, Christoph Hellwig wrote:
+> > > Yes.  But more importantly it would fix the limit for all other block
+> > > drivers that set large segment sizes when running over swiotlb.
 > > 
-> > You got mine (SWIOTBL is my area).
+> > True, so it would be something like the diff below? I havn't worked on
+> > the block layer, so I don't know if that needs additional checks for
+> > ->dev or anything.
 > 
-> OK so
-> 
-> Reviewed-by: Konrad Rzeszutek Wilk <konrad.wilk@oracle.com>
+> Looks sensible.  Maybe for now we'll just do the virtio-blk case
+> that triggered it, and we'll do something like this patch for the
+> next merge window.  We'll also need to apply the same magic to the
+> DMA boundary.
 
-Yes :-)
-> 
-> 
-> 
-> > > 
-> > > > Changes to v2 are:
-> > > > 
-> > > > 	* Check if SWIOTLB is active before returning its limit in
-> > > > 	  dma_direct_max_mapping_size()
-> > > > 
-> > > > 	* Only apply the maximum segment limit in virtio-blk when
-> > > > 	  DMA-API is used for the vring
-> > > > 
-> > > > Please review.
-> > > > 
-> > > > Thanks,
-> > > > 
-> > > > 	Joerg
-> > > > 
-> > > > Joerg Roedel (5):
-> > > >   swiotlb: Introduce swiotlb_max_mapping_size()
-> > > >   swiotlb: Add is_swiotlb_active() function
-> > > >   dma: Introduce dma_max_mapping_size()
-> > > >   virtio: Introduce virtio_max_dma_size()
-> > > >   virtio-blk: Consider virtio_max_dma_size() for maximum segment size
-> > > > 
-> > > >  drivers/block/virtio_blk.c   | 10 ++++++----
-> > > >  drivers/virtio/virtio_ring.c | 10 ++++++++++
-> > > >  include/linux/dma-mapping.h  | 16 ++++++++++++++++
-> > > >  include/linux/swiotlb.h      | 11 +++++++++++
-> > > >  include/linux/virtio.h       |  2 ++
-> > > >  kernel/dma/direct.c          | 11 +++++++++++
-> > > >  kernel/dma/swiotlb.c         | 10 ++++++++++
-> > > >  7 files changed, 66 insertions(+), 4 deletions(-)
-> > > > 
-> > > > -- 
-> > > > 2.17.1
+So do I get an ack for this patch then?
+
+-- 
+MST
