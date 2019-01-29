@@ -1,19 +1,12 @@
-From: "Michael S. Tsirkin" <mst@redhat.com>
-Subject: Re: [RFC PATCH] virtio_ring: Use DMA API if guest memory is encrypted
-Date: Tue, 29 Jan 2019 22:26:57 -0500
-Message-ID: <20190129222021-mutt-send-email-mst__47618.9388473117$1548826427$gmane$org@kernel.org>
-References: <87zhrj8kcp.fsf@morokweng.localdomain>
-	<87womn8inf.fsf@morokweng.localdomain>
-	<20190129134750-mutt-send-email-mst@kernel.org>
-	<6c68f7f7-1b28-6eba-9b8b-2c32efac9701@redhat.com>
-	<20190129213137-mutt-send-email-mst@kernel.org>
-	<94ab8910-594e-a056-c799-5536d8ae2b0e@redhat.com>
+From: Daniel Vetter <daniel.vetter@ffwll.ch>
+Subject: [PATCH 1/3] drm/irq: Don't check for DRIVER_HAVE_IRQ in
+	drm_irq_(un)install
+Date: Tue, 29 Jan 2019 11:42:46 +0100
+Message-ID: <20190129104248.26607-1-daniel.vetter__20991.5939530887$1548826438$gmane$org@ffwll.ch>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="utf-8"
-Content-Transfer-Encoding: base64
+Content-Type: text/plain; charset="us-ascii"
+Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-Content-Disposition: inline
-In-Reply-To: <94ab8910-594e-a056-c799-5536d8ae2b0e@redhat.com>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -23,132 +16,300 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Jason Wang <jasowang@redhat.com>
-Cc: Jean-Philippe Brucker <jean-philippe.brucker@arm.com>, Benjamin Herrenschmidt <benh@kernel.crashing.org>, Alexey Kardashevskiy <aik@linux.ibm.com>, Ram Pai <linuxram@us.ibm.com>, linux-kernel@vger.kernel.org, virtualization@lists.linux-foundation.org, Paul Mackerras <paulus@ozlabs.org>, iommu@lists.linux-foundation.org, linuxppc-dev@lists.ozlabs.org, Christoph Hellwig <hch@lst.de>, Thiago Jung Bauermann <bauerman@linux.ibm.com>, David Gibson <david@gibson.dropbear.id.au>
+To: DRI Development <dri-devel@lists.freedesktop.org>
+Cc: Sam Ravnborg <sam@ravnborg.org>, Daniel Vetter <daniel.vetter@intel.com>, linux-arm-msm@vger.kernel.org, Intel Graphics Development <intel-gfx@lists.freedesktop.org>, amd-gfx@lists.freedesktop.org, virtualization@lists.linux-foundation.org, linux-renesas-soc@vger.kernel.org, spice-devel@lists.freedesktop.org, Daniel Vetter <daniel.vetter@ffwll.ch>, linux-amlogic@lists.infradead.org, freedreno@lists.freedesktop.org, linux-arm-kernel@lists.infradead.org, Emil Velikov <emil.velikov@collabora.com>
 List-Id: virtualization@lists.linuxfoundation.org
 
-T24gV2VkLCBKYW4gMzAsIDIwMTkgYXQgMTE6MDU6NDJBTSArMDgwMCwgSmFzb24gV2FuZyB3cm90
-ZToKPiAKPiBPbiAyMDE5LzEvMzAg5LiK5Y2IMTA6MzYsIE1pY2hhZWwgUy4gVHNpcmtpbiB3cm90
-ZToKPiA+IE9uIFdlZCwgSmFuIDMwLCAyMDE5IGF0IDEwOjI0OjAxQU0gKzA4MDAsIEphc29uIFdh
-bmcgd3JvdGU6Cj4gPiA+IE9uIDIwMTkvMS8zMCDkuIrljYgzOjAyLCBNaWNoYWVsIFMuIFRzaXJr
-aW4gd3JvdGU6Cj4gPiA+ID4gT24gVHVlLCBKYW4gMjksIDIwMTkgYXQgMDM6NDI6NDRQTSAtMDIw
-MCwgVGhpYWdvIEp1bmcgQmF1ZXJtYW5uIHdyb3RlOgo+ID4gPiA+ID4gRml4aW5nIGFkZHJlc3Mg
-b2YgcG93ZXJwYyBtYWlsaW5nIGxpc3QuCj4gPiA+ID4gPiAKPiA+ID4gPiA+IFRoaWFnbyBKdW5n
-IEJhdWVybWFubiA8YmF1ZXJtYW5AbGludXguaWJtLmNvbT4gd3JpdGVzOgo+ID4gPiA+ID4gCj4g
-PiA+ID4gPiA+IEhlbGxvLAo+ID4gPiA+ID4gPiAKPiA+ID4gPiA+ID4gV2l0aCBDaHJpc3RvcGgn
-cyByZXdvcmsgb2YgdGhlIERNQSBBUEkgdGhhdCByZWNlbnRseSBsYW5kZWQsIHRoZSBwYXRjaAo+
-ID4gPiA+ID4gPiBiZWxvdyBpcyB0aGUgb25seSBjaGFuZ2UgbmVlZGVkIGluIHZpcnRpbyB0byBt
-YWtlIGl0IHdvcmsgaW4gYSBQT1dFUgo+ID4gPiA+ID4gPiBzZWN1cmUgZ3Vlc3QgdW5kZXIgdGhl
-IHVsdHJhdmlzb3IuCj4gPiA+ID4gPiA+IAo+ID4gPiA+ID4gPiBUaGUgb3RoZXIgY2hhbmdlIHdl
-IG5lZWQgKG1ha2luZyBzdXJlIHRoZSBkZXZpY2UncyBkbWFfbWFwX29wcyBpcyBOVUxMCj4gPiA+
-ID4gPiA+IHNvIHRoYXQgdGhlIGRtYS1kaXJlY3Qvc3dpb3RsYiBjb2RlIGlzIHVzZWQpIGNhbiBi
-ZSBtYWRlIGluCj4gPiA+ID4gPiA+IHBvd2VycGMtc3BlY2lmaWMgY29kZS4KPiA+ID4gPiA+ID4g
-Cj4gPiA+ID4gPiA+IE9mIGNvdXJzZSwgSSBhbHNvIGhhdmUgcGF0Y2hlcyAoc29vbiB0byBiZSBw
-b3N0ZWQgYXMgUkZDKSB3aGljaCBob29rIHVwCj4gPiA+ID4gPiA+IDxsaW51eC9tZW1fZW5jcnlw
-dC5oPiB0byB0aGUgcG93ZXJwYyBzZWN1cmUgZ3Vlc3Qgc3VwcG9ydCBjb2RlLgo+ID4gPiA+ID4g
-PiAKPiA+ID4gPiA+ID4gV2hhdCBkbyB5b3UgdGhpbms/Cj4gPiA+ID4gPiA+IAo+ID4gPiA+ID4g
-PiAgIEZyb20gZDA2MjlhMzZhNzVjNjc4YjRhNzJiODUzZjhmN2Y4YzE3ZWVkZDZiMyBNb24gU2Vw
-IDE3IDAwOjAwOjAwIDIwMDEKPiA+ID4gPiA+ID4gRnJvbTogVGhpYWdvIEp1bmcgQmF1ZXJtYW5u
-IDxiYXVlcm1hbkBsaW51eC5pYm0uY29tPgo+ID4gPiA+ID4gPiBEYXRlOiBUaHUsIDI0IEphbiAy
-MDE5IDIyOjA4OjAyIC0wMjAwCj4gPiA+ID4gPiA+IFN1YmplY3Q6IFtSRkMgUEFUQ0hdIHZpcnRp
-b19yaW5nOiBVc2UgRE1BIEFQSSBpZiBndWVzdCBtZW1vcnkgaXMgZW5jcnlwdGVkCj4gPiA+ID4g
-PiA+IAo+ID4gPiA+ID4gPiBUaGUgaG9zdCBjYW4ndCBhY2Nlc3MgdGhlIGd1ZXN0IG1lbW9yeSB3
-aGVuIGl0J3MgZW5jcnlwdGVkLCBzbyB1c2luZwo+ID4gPiA+ID4gPiByZWd1bGFyIG1lbW9yeSBw
-YWdlcyBmb3IgdGhlIHJpbmcgaXNuJ3QgYW4gb3B0aW9uLiBHbyB0aHJvdWdoIHRoZSBETUEgQVBJ
-Lgo+ID4gPiA+ID4gPiAKPiA+ID4gPiA+ID4gU2lnbmVkLW9mZi1ieTogVGhpYWdvIEp1bmcgQmF1
-ZXJtYW5uIDxiYXVlcm1hbkBsaW51eC5pYm0uY29tPgo+ID4gPiA+IFdlbGwgSSB0aGluayB0aGlz
-IHdpbGwgY29tZSBiYWNrIHRvIGJpdGUgdXMgKHdpdG5lc3MgeGVuIHdoaWNoIGlzIG5vdwo+ID4g
-PiA+IHJld29ya2luZyBwcmVjaXNlbHkgdGhpcyBwYXRoIC0gYnV0IGF0IGxlYXN0IHRoZXkgYXJl
-bid0IHRvIGJsYW1lLCB4ZW4KPiA+ID4gPiBjYW1lIGJlZm9yZSBBQ0NFU1NfUExBVEZPUk0pLgo+
-ID4gPiA+IAo+ID4gPiA+IEkgYWxzbyBzdGlsbCB0aGluayB0aGUgcmlnaHQgdGhpbmcgd291bGQg
-aGF2ZSBiZWVuIHRvIHNldAo+ID4gPiA+IEFDQ0VTU19QTEFURk9STSBmb3IgYWxsIHN5c3RlbXMg
-d2hlcmUgZGV2aWNlIGNhbid0IGFjY2VzcyBhbGwgbWVtb3J5Lgo+ID4gPiA+IAo+ID4gPiA+IEJ1
-dCBJIGFsc28gdGhpbmsgSSBkb24ndCBoYXZlIHRoZSBlbmVyZ3kgdG8gYXJndWUgYWJvdXQgcG93
-ZXIgc2VjdXJlCj4gPiA+ID4gZ3Vlc3QgYW55bW9yZS4gIFNvIGJlIGl0IGZvciBwb3dlciBzZWN1
-cmUgZ3Vlc3Qgc2luY2UgdGhlIGludm9sdmVkCj4gPiA+ID4gZW5naW5lZXJzIGRpc2FncmVlIHdp
-dGggbWUuICBIZXkgSSd2ZSBiZWVuIHdyb25nIGluIHRoZSBwYXN0IDspLgo+ID4gPiA+IAo+ID4g
-PiA+IEJ1dCB0aGUgbmFtZSAic2V2X2FjdGl2ZSIgbWFrZXMgbWUgc2NhcmVkIGJlY2F1c2UgYXQg
-bGVhc3QgQU1EIGd1eXMgd2hvCj4gPiA+ID4gd2VyZSBkb2luZyB0aGUgc2Vuc2libGUgdGhpbmcg
-YW5kIHNldHRpbmcgQUNDRVNTX1BMQVRGT1JNICh1bmxlc3MgSSdtCj4gPiA+ID4gd3Jvbmc/IEkg
-cmVlbWVtYmVyIGRpc3RpbmN0bHkgdGhhdCdzIHNvKSB3aWxsIGxpa2VseSBiZSBhZmZlY3RlZCB0
-b28uCj4gPiA+ID4gV2UgZG9uJ3Qgd2FudCB0aGF0Lgo+ID4gPiA+IAo+ID4gPiA+IFNvIGxldCdz
-IGZpbmQgYSB3YXkgdG8gbWFrZSBzdXJlIGl0J3MganVzdCBwb3dlciBzZWN1cmUgZ3Vlc3QgZm9y
-IG5vdwo+ID4gPiA+IHBscy4KPiA+ID4gPiAKPiA+ID4gPiBJIGFsc28gdGhpbmsgd2Ugc2hvdWxk
-IGFkZCBhIGRtYV9hcGkgbmVhciBmZWF0dXJlcyB1bmRlciB2aXJ0aW9fZGV2aWNlCj4gPiA+ID4g
-c3VjaCB0aGF0IHRoZXNlIGhhY2tzIGNhbiBtb3ZlIG9mZiBkYXRhIHBhdGguCj4gPiA+IAo+ID4g
-PiBBbnl3YXkgdGhlIGN1cnJlbnQgWGVuIGNvZGUgaXMgY29uZmxpY3Qgd2l0aCBzcGVjIHdoaWNo
-IHNhaWQ6Cj4gPiA+IAo+ID4gPiAiSWYgdGhpcyBmZWF0dXJlIGJpdCBpcyBzZXQgdG8gMCwgdGhl
-biB0aGUgZGV2aWNlIGhhcyBzYW1lIGFjY2VzcyB0byBtZW1vcnkKPiA+ID4gYWRkcmVzc2VzIHN1
-cHBsaWVkIHRvIGl0IGFzIHRoZSBkcml2ZXIgaGFzLiBJbiBwYXJ0aWN1bGFyLCB0aGUgZGV2aWNl
-IHdpbGwKPiA+ID4gYWx3YXlzIHVzZSBwaHlzaWNhbCBhZGRyZXNzZXMgbWF0Y2hpbmcgYWRkcmVz
-c2VzIHVzZWQgYnkgdGhlIGRyaXZlcgo+ID4gPiAodHlwaWNhbGx5IG1lYW5pbmcgcGh5c2ljYWwg
-YWRkcmVzc2VzIHVzZWQgYnkgdGhlIENQVSkgYW5kIG5vdCB0cmFuc2xhdGVkCj4gPiA+IGZ1cnRo
-ZXIsIGFuZCBjYW4gYWNjZXNzIGFueSBhZGRyZXNzIHN1cHBsaWVkIHRvIGl0IGJ5IHRoZSBkcml2
-ZXIuIFdoZW4KPiA+ID4gY2xlYXIsIHRoaXMgb3ZlcnJpZGVzIGFueSBwbGF0Zm9ybS1zcGVjaWZp
-YyBkZXNjcmlwdGlvbiBvZiB3aGV0aGVyIGRldmljZQo+ID4gPiBhY2Nlc3MgaXMgbGltaXRlZCBv
-ciB0cmFuc2xhdGVkIGluIGFueSB3YXksIGUuZy4gd2hldGhlciBhbiBJT01NVSBtYXkgYmUKPiA+
-ID4gcHJlc2VudC4gIgo+ID4gPiAKPiA+ID4gSSB3b25kZXIgaG93IG11Y2ggdmFsdWUgdGhhdCB0
-aGUgYWJvdmUgZGVzY3JpcHRpb24gY2FuIGdpdmUgdXMuIEl0J3Mga2luZCBvZgo+ID4gPiBvZGQg
-dGhhdCB0aGUgYmVoYXZpb3Igb2YgIndoZW4gdGhlIGZlYXR1cmUgaXMgbm90IG5lZ290aWF0ZWQi
-IGlzIGRlc2NyaWJlZAo+ID4gPiBpbiB0aGUgc3BlYy4KPiA+IEhtbSB3aGF0J3Mgb2RkIGFib3V0
-IGl0PyBXZSBuZWVkIHRvIGRlc2NyaWJlIHRoZSBiZWhhdmlvdXIgaXMgYWxsIGNhc2VzLgo+IAo+
-IAo+IFdlbGwsIHRyeSB0byBsaW1pdCB0aGUgYmVoYXZpb3Igb2YgJ2xlZ2FjeScgZHJpdmVyIGlz
-IHRyaWNreSBvciBldmVuCj4gaW1wb3NzaWJsZS4gWGVuIGlzIGFuIGV4YWN0IGV4YW1wbGUgZm9y
-IHRoaXMuCgpTbyBkb24ndC4gWGVuIGdvdCBncmFuZC1mYXRoZXJlZCBpbiBiZWNhdXNlIHdoZW4g
-dGhhdCBjYW1lCmFsb25nIHdlIHRob3VnaHQgaXQncyBhIG9uZSBvZmYgdGhpbmcuIFdhcyBlYXNp
-ZXIgdG8ganVzdAphZGQgdGhhdCBhcyBhIHNwZWNpYWwgY2FzZS4gQnV0IHJlYWxseSA+OTklIG9m
-IHBlb3BsZQpoYXZlIGEgaHlwZXJ2aXNvciBkZXZpY2Ugd2l0aCBkaXJlY3QgZ3Vlc3QgbWVtb3J5
-IGFjY2Vzcy4KQWxsIGVsc2UgaXMgZXNvdGVyaWNhLgoKPiAKPiA+IAo+ID4gPiBQZXJzb25hbGx5
-IEkgdGhpbmsgd2UgY2FuIHJlbW92ZSB0aGUgYWJvdmUgYW5kIHRoZW4gd2UgY2FuCj4gPiA+IHN3
-aXRjaCB0byB1c2UgRE1BIEFQSSB1bmNvbmRpdGlvbmFsbHkgaW4gZ3Vlc3QgZHJpdmVyLiBJdCBt
-YXkgaGF2ZSBzaW5nbGUKPiA+ID4gZGlnaXQgcmVncmVzc2lvbiBwcm9iYWJseSwgd2UgY2FuIHRy
-eSB0byBvdmVyY29tZSBpdC4KPiA+ID4gCj4gPiA+IFRoYW5rcwo+ID4gVGhpcyBoYXMgYmVlbiBk
-aXNjdXNzZWQgYWQgbmF1c2V1bS4gdmlydGlvIGlzIGFsbCBhYm91dCBjb21wYXRpYmlsaXR5Lgo+
-ID4gTG9zaW5nIGEgY291cGxlIG9mIGxpbmVzIG9mIGNvZGUgaXNuJ3Qgd29ydGggYnJlYWtpbmcg
-d29ya2luZyBzZXR1cHMuCj4gPiBQZW9wbGUgdGhhdCB3YW50ICJqdXN0IHVzZSBETUEgQVBJIG5v
-IHRyaWNrcyIgbm93IGhhdmUgdGhlIG9wdGlvbi4KPiA+IFNldHRpbmcgYSBmbGFnIGluIGEgZmVh
-dHVyZSBiaXQgbWFwIGlzIGxpdGVyYWxseSBhIHNpbmdsZSBsaW5lCj4gPiBvZiBjb2RlIGluIHRo
-ZSBoeXBlcnZpc29yLiBTbyBzdG9wIHB1c2hpbmcgZm9yIGJyZWFraW5nIHdvcmtpbmcKPiA+IGxl
-Z2FjeSBzZXR1cHMgYW5kIGp1c3QgZml4IGl0IGluIHRoZSByaWdodCBwbGFjZS4KPiAKPiAKPiBJ
-IG1heSBtaXNzIHNvZW10aGluZywgd2hpY2gga2luZCBvZiBsZWdhY3kgc2V0dXAgaXMgYnJva2Vu
-PyBEbyB5b3UgbWVhbgo+IHVzaW5nIHZpcnRpbyB3aXRob3V0IElPTU1VX1BMQVRGT1JNIG9uIHBs
-YXRmb3JtIHdpdGggSU9NTVU/IFdlIGFjdHVhbGx5Cj4gdW5icmVhayB0aGlzIHNldHVwLgo+IAo+
-IFRoYW5rcwoKCkxlZ2FjeSBzZXR1cHMgYnkgZGVmaW5pdGlvbiBhcmUgd29ya2luZyBzZXR1cHMu
-ICBUaGUgcnVsZXMgYXJlIHByZXR0eQpzaW1wbGUuIEJ5IGRlZmF1bHQgdmlydGlvID09IGZ1bGwg
-Z3Vlc3QgbWVtb3J5IGFjY2Vzcy4KSWYgeW91ciBhY2Nlc3MgaXMgbGltaXRlZCBvciB0cmFuc2xh
-dGVkIGluIGFueSB3YXksIHlvdSB1c2UgYSBkZXZpY2UKd2l0aCBBQ0NFU1NfUExBVEZPUk0uIFdo
-ZW4gaW4gZG91YnQgdXNlIEFDQ0VTU19QTEFURk9STS4KClhlbiB3YXMgdGhlcmUgYmVmb3JlLCBh
-bmQgaXQgZG9lcyBub3QgaGF2ZSBhIGZsYWcgYW5kIGl0IHN0aWxsCndhbnRzIEFDQ0VTU19QTEFU
-Rk9STSBzZW1hbnRpY3Mgd2l0aG91dCBzZXR0aW5nIEFDQ0VTU19QTEFURk9STQpzb21ldGltZXMu
-IFNvIHdlIGRvbid0IHdhbnQgdG8gYnJlYWsgZXhpc3Rpbmcgc2V0dXBzLAphbmQgd2UgbWFrZSBh
-biBleGNlcHRpb24gaW4gdGhhdCBjYXNlLgpJIGRvbid0IHJlYWxseSBzZWUgYW55IGdvb2QgcmVh
-c29uIHRvIG1ha2UgbW9yZSBleGNlcHRpb25zLgoKTm9yIElNSE8gc2hvdWxkIHdlIHRydXN0IGFs
-bCBwbGF0Zm9ybSBwZW9wbGUgdG8ga25vdyBhYm91dCB2aXJ0aW8KYW5kIGhhdmUgc3BlY2lhbCBr
-aW5kIG9mIERNQSBBUEkganVzdCBmb3IgdmlydGlvLgoKCj4gCj4gPiAKPiA+ID4gPiBCeSB0aGUg
-d2F5IGNvdWxkIHlvdSBwbGVhc2UgcmVzcG9uZCBhYm91dCB2aXJ0aW8taW9tbXUgYW5kCj4gPiA+
-ID4gd2h5IHRoZXJlJ3Mgbm8gc3VwcG9ydCBmb3IgQUNDRVNTX1BMQVRGT1JNIG9uIHBvd2VyPwo+
-ID4gPiA+IAo+ID4gPiA+IEkgaGF2ZSBDYydkIHlvdSBvbiB0aGVzZSBkaXNjdXNzaW9ucy4KPiA+
-ID4gPiAKPiA+ID4gPiAKPiA+ID4gPiBUaGFua3MhCj4gPiA+ID4gCj4gPiA+ID4gCj4gPiA+ID4g
-PiA+IC0tLQo+ID4gPiA+ID4gPiAgICBkcml2ZXJzL3ZpcnRpby92aXJ0aW9fcmluZy5jIHwgNSAr
-KysrLQo+ID4gPiA+ID4gPiAgICAxIGZpbGUgY2hhbmdlZCwgNCBpbnNlcnRpb25zKCspLCAxIGRl
-bGV0aW9uKC0pCj4gPiA+ID4gPiA+IAo+ID4gPiA+ID4gPiBkaWZmIC0tZ2l0IGEvZHJpdmVycy92
-aXJ0aW8vdmlydGlvX3JpbmcuYyBiL2RyaXZlcnMvdmlydGlvL3ZpcnRpb19yaW5nLmMKPiA+ID4g
-PiA+ID4gaW5kZXggY2Q3ZTc1NTQ4NGUzLi4zMjFhMjcwNzUzODAgMTAwNjQ0Cj4gPiA+ID4gPiA+
-IC0tLSBhL2RyaXZlcnMvdmlydGlvL3ZpcnRpb19yaW5nLmMKPiA+ID4gPiA+ID4gKysrIGIvZHJp
-dmVycy92aXJ0aW8vdmlydGlvX3JpbmcuYwo+ID4gPiA+ID4gPiBAQCAtMjU5LDggKzI1OSwxMSBA
-QCBzdGF0aWMgYm9vbCB2cmluZ191c2VfZG1hX2FwaShzdHJ1Y3QgdmlydGlvX2RldmljZSAqdmRl
-dikKPiA+ID4gPiA+ID4gICAgCSAqIG5vdCB3b3JrIHdpdGhvdXQgYW4gZXZlbiBsYXJnZXIga2x1
-ZGdlLiAgSW5zdGVhZCwgZW5hYmxlCj4gPiA+ID4gPiA+ICAgIAkgKiB0aGUgRE1BIEFQSSBpZiB3
-ZSdyZSBhIFhlbiBndWVzdCwgd2hpY2ggYXQgbGVhc3QgYWxsb3dzCj4gPiA+ID4gPiA+ICAgIAkg
-KiBhbGwgb2YgdGhlIHNlbnNpYmxlIFhlbiBjb25maWd1cmF0aW9ucyB0byB3b3JrIGNvcnJlY3Rs
-eS4KPiA+ID4gPiA+ID4gKwkgKgo+ID4gPiA+ID4gPiArCSAqIEFsc28sIGlmIGd1ZXN0IG1lbW9y
-eSBpcyBlbmNyeXB0ZWQgdGhlIGhvc3QgY2FuJ3QgYWNjZXNzCj4gPiA+ID4gPiA+ICsJICogaXQg
-ZGlyZWN0bHkuIEluIHRoaXMgY2FzZSwgd2UnbGwgbmVlZCB0byB1c2UgdGhlIERNQSBBUEkuCj4g
-PiA+ID4gPiA+ICAgIAkgKi8KPiA+ID4gPiA+ID4gLQlpZiAoeGVuX2RvbWFpbigpKQo+ID4gPiA+
-ID4gPiArCWlmICh4ZW5fZG9tYWluKCkgfHwgc2V2X2FjdGl2ZSgpKQo+ID4gPiA+ID4gPiAgICAJ
-CXJldHVybiB0cnVlOwo+ID4gPiA+ID4gPiAKPiA+ID4gPiA+ID4gICAgCXJldHVybiBmYWxzZTsK
-PiA+ID4gPiA+IC0tIAo+ID4gPiA+ID4gVGhpYWdvIEp1bmcgQmF1ZXJtYW5uCj4gPiA+ID4gPiBJ
-Qk0gTGludXggVGVjaG5vbG9neSBDZW50ZXIKX19fX19fX19fX19fX19fX19fX19fX19fX19fX19f
-X19fX19fX19fX19fX19fX18KVmlydHVhbGl6YXRpb24gbWFpbGluZyBsaXN0ClZpcnR1YWxpemF0
-aW9uQGxpc3RzLmxpbnV4LWZvdW5kYXRpb24ub3JnCmh0dHBzOi8vbGlzdHMubGludXhmb3VuZGF0
-aW9uLm9yZy9tYWlsbWFuL2xpc3RpbmZvL3ZpcnR1YWxpemF0aW9u
+If a non-legacy driver calls these it's valid to assume there is
+interrupt support. The flag is really only needed for legacy drivers,
+which control IRQ enabling/disabling through the DRM_IOCTL_CONTROL
+legacy IOCTL.
+
+Also remove all the flag usage from non-legacy drivers.
+
+v2: Review from Emil:
+- improve commit message
+- I forgot hibmc, fix that
+
+Cc: linux-arm-kernel@lists.infradead.org
+Cc: intel-gfx@lists.freedesktop.org
+Cc: linux-amlogic@lists.infradead.org
+Cc: linux-arm-msm@vger.kernel.org
+Cc: freedreno@lists.freedesktop.org
+Cc: virtualization@lists.linux-foundation.org
+Cc: spice-devel@lists.freedesktop.org
+Cc: amd-gfx@lists.freedesktop.org
+Cc: linux-renesas-soc@vger.kernel.org
+Reviewed-by: Emil Velikov <emil.velikov@collabora.com>
+Reviewed-by: Sam Ravnborg <sam@ravnborg.org>
+Signed-off-by: Daniel Vetter <daniel.vetter@intel.com>
+---
+ drivers/gpu/drm/amd/amdgpu/amdgpu_drv.c         | 2 +-
+ drivers/gpu/drm/arm/hdlcd_drv.c                 | 2 +-
+ drivers/gpu/drm/atmel-hlcdc/atmel_hlcdc_dc.c    | 2 +-
+ drivers/gpu/drm/drm_irq.c                       | 6 ------
+ drivers/gpu/drm/fsl-dcu/fsl_dcu_drm_drv.c       | 2 +-
+ drivers/gpu/drm/gma500/psb_drv.c                | 2 +-
+ drivers/gpu/drm/hisilicon/hibmc/hibmc_drm_drv.c | 3 +--
+ drivers/gpu/drm/i915/i915_drv.c                 | 2 +-
+ drivers/gpu/drm/meson/meson_drv.c               | 2 +-
+ drivers/gpu/drm/msm/msm_drv.c                   | 3 +--
+ drivers/gpu/drm/mxsfb/mxsfb_drv.c               | 3 +--
+ drivers/gpu/drm/qxl/qxl_drv.c                   | 2 +-
+ drivers/gpu/drm/radeon/radeon_drv.c             | 2 +-
+ drivers/gpu/drm/shmobile/shmob_drm_drv.c        | 2 +-
+ drivers/gpu/drm/tilcdc/tilcdc_drv.c             | 2 +-
+ drivers/gpu/drm/vc4/vc4_drv.c                   | 1 -
+ drivers/gpu/drm/vmwgfx/vmwgfx_drv.c             | 2 +-
+ drivers/staging/vboxvideo/vbox_drv.c            | 2 +-
+ 18 files changed, 16 insertions(+), 26 deletions(-)
+
+diff --git a/drivers/gpu/drm/amd/amdgpu/amdgpu_drv.c b/drivers/gpu/drm/amd/amdgpu/amdgpu_drv.c
+index 0c22bae0c736..22502417c18c 100644
+--- a/drivers/gpu/drm/amd/amdgpu/amdgpu_drv.c
++++ b/drivers/gpu/drm/amd/amdgpu/amdgpu_drv.c
+@@ -1189,7 +1189,7 @@ amdgpu_get_crtc_scanout_position(struct drm_device *dev, unsigned int pipe,
+ static struct drm_driver kms_driver = {
+ 	.driver_features =
+ 	    DRIVER_USE_AGP | DRIVER_ATOMIC |
+-	    DRIVER_HAVE_IRQ | DRIVER_IRQ_SHARED | DRIVER_GEM |
++	    DRIVER_IRQ_SHARED | DRIVER_GEM |
+ 	    DRIVER_PRIME | DRIVER_RENDER | DRIVER_MODESET | DRIVER_SYNCOBJ,
+ 	.load = amdgpu_driver_load_kms,
+ 	.open = amdgpu_driver_open_kms,
+diff --git a/drivers/gpu/drm/arm/hdlcd_drv.c b/drivers/gpu/drm/arm/hdlcd_drv.c
+index e68935b80917..8fc0b884c428 100644
+--- a/drivers/gpu/drm/arm/hdlcd_drv.c
++++ b/drivers/gpu/drm/arm/hdlcd_drv.c
+@@ -229,7 +229,7 @@ static int hdlcd_debugfs_init(struct drm_minor *minor)
+ DEFINE_DRM_GEM_CMA_FOPS(fops);
+ 
+ static struct drm_driver hdlcd_driver = {
+-	.driver_features = DRIVER_HAVE_IRQ | DRIVER_GEM |
++	.driver_features = DRIVER_GEM |
+ 			   DRIVER_MODESET | DRIVER_PRIME |
+ 			   DRIVER_ATOMIC,
+ 	.irq_handler = hdlcd_irq,
+diff --git a/drivers/gpu/drm/atmel-hlcdc/atmel_hlcdc_dc.c b/drivers/gpu/drm/atmel-hlcdc/atmel_hlcdc_dc.c
+index 034a91112098..0be13eceedba 100644
+--- a/drivers/gpu/drm/atmel-hlcdc/atmel_hlcdc_dc.c
++++ b/drivers/gpu/drm/atmel-hlcdc/atmel_hlcdc_dc.c
+@@ -720,7 +720,7 @@ static void atmel_hlcdc_dc_irq_uninstall(struct drm_device *dev)
+ DEFINE_DRM_GEM_CMA_FOPS(fops);
+ 
+ static struct drm_driver atmel_hlcdc_dc_driver = {
+-	.driver_features = DRIVER_HAVE_IRQ | DRIVER_GEM |
++	.driver_features = DRIVER_GEM |
+ 			   DRIVER_MODESET | DRIVER_PRIME |
+ 			   DRIVER_ATOMIC,
+ 	.irq_handler = atmel_hlcdc_dc_irq_handler,
+diff --git a/drivers/gpu/drm/drm_irq.c b/drivers/gpu/drm/drm_irq.c
+index 45a07652fa00..c5babb3e4752 100644
+--- a/drivers/gpu/drm/drm_irq.c
++++ b/drivers/gpu/drm/drm_irq.c
+@@ -103,9 +103,6 @@ int drm_irq_install(struct drm_device *dev, int irq)
+ 	int ret;
+ 	unsigned long sh_flags = 0;
+ 
+-	if (!drm_core_check_feature(dev, DRIVER_HAVE_IRQ))
+-		return -EOPNOTSUPP;
+-
+ 	if (irq == 0)
+ 		return -EINVAL;
+ 
+@@ -174,9 +171,6 @@ int drm_irq_uninstall(struct drm_device *dev)
+ 	bool irq_enabled;
+ 	int i;
+ 
+-	if (!drm_core_check_feature(dev, DRIVER_HAVE_IRQ))
+-		return -EOPNOTSUPP;
+-
+ 	irq_enabled = dev->irq_enabled;
+ 	dev->irq_enabled = false;
+ 
+diff --git a/drivers/gpu/drm/fsl-dcu/fsl_dcu_drm_drv.c b/drivers/gpu/drm/fsl-dcu/fsl_dcu_drm_drv.c
+index 54ace3436605..dfc73aade325 100644
+--- a/drivers/gpu/drm/fsl-dcu/fsl_dcu_drm_drv.c
++++ b/drivers/gpu/drm/fsl-dcu/fsl_dcu_drm_drv.c
+@@ -137,7 +137,7 @@ static irqreturn_t fsl_dcu_drm_irq(int irq, void *arg)
+ DEFINE_DRM_GEM_CMA_FOPS(fsl_dcu_drm_fops);
+ 
+ static struct drm_driver fsl_dcu_drm_driver = {
+-	.driver_features	= DRIVER_HAVE_IRQ | DRIVER_GEM | DRIVER_MODESET
++	.driver_features	= DRIVER_GEM | DRIVER_MODESET
+ 				| DRIVER_PRIME | DRIVER_ATOMIC,
+ 	.load			= fsl_dcu_load,
+ 	.unload			= fsl_dcu_unload,
+diff --git a/drivers/gpu/drm/gma500/psb_drv.c b/drivers/gpu/drm/gma500/psb_drv.c
+index ac32ab5aa002..7cf14aeb1c28 100644
+--- a/drivers/gpu/drm/gma500/psb_drv.c
++++ b/drivers/gpu/drm/gma500/psb_drv.c
+@@ -468,7 +468,7 @@ static const struct file_operations psb_gem_fops = {
+ };
+ 
+ static struct drm_driver driver = {
+-	.driver_features = DRIVER_HAVE_IRQ | DRIVER_IRQ_SHARED | \
++	.driver_features = DRIVER_IRQ_SHARED | \
+ 			   DRIVER_MODESET | DRIVER_GEM,
+ 	.load = psb_driver_load,
+ 	.unload = psb_driver_unload,
+diff --git a/drivers/gpu/drm/hisilicon/hibmc/hibmc_drm_drv.c b/drivers/gpu/drm/hisilicon/hibmc/hibmc_drm_drv.c
+index 85a701af6530..8ed94fcd42a7 100644
+--- a/drivers/gpu/drm/hisilicon/hibmc/hibmc_drm_drv.c
++++ b/drivers/gpu/drm/hisilicon/hibmc/hibmc_drm_drv.c
+@@ -56,8 +56,7 @@ static irqreturn_t hibmc_drm_interrupt(int irq, void *arg)
+ }
+ 
+ static struct drm_driver hibmc_driver = {
+-	.driver_features	= DRIVER_GEM | DRIVER_MODESET |
+-				  DRIVER_ATOMIC | DRIVER_HAVE_IRQ,
++	.driver_features	= DRIVER_GEM | DRIVER_MODESET | DRIVER_ATOMIC,
+ 	.fops			= &hibmc_fops,
+ 	.name			= "hibmc",
+ 	.date			= "20160828",
+diff --git a/drivers/gpu/drm/i915/i915_drv.c b/drivers/gpu/drm/i915/i915_drv.c
+index 337ee650d2de..550cfb945942 100644
+--- a/drivers/gpu/drm/i915/i915_drv.c
++++ b/drivers/gpu/drm/i915/i915_drv.c
+@@ -3010,7 +3010,7 @@ static struct drm_driver driver = {
+ 	 * deal with them for Intel hardware.
+ 	 */
+ 	.driver_features =
+-	    DRIVER_HAVE_IRQ | DRIVER_IRQ_SHARED | DRIVER_GEM | DRIVER_PRIME |
++	    DRIVER_IRQ_SHARED | DRIVER_GEM | DRIVER_PRIME |
+ 	    DRIVER_RENDER | DRIVER_MODESET | DRIVER_ATOMIC | DRIVER_SYNCOBJ,
+ 	.release = i915_driver_release,
+ 	.open = i915_driver_open,
+diff --git a/drivers/gpu/drm/meson/meson_drv.c b/drivers/gpu/drm/meson/meson_drv.c
+index 2cbc6c7bb823..2281ed3eb774 100644
+--- a/drivers/gpu/drm/meson/meson_drv.c
++++ b/drivers/gpu/drm/meson/meson_drv.c
+@@ -94,7 +94,7 @@ static irqreturn_t meson_irq(int irq, void *arg)
+ DEFINE_DRM_GEM_CMA_FOPS(fops);
+ 
+ static struct drm_driver meson_driver = {
+-	.driver_features	= DRIVER_HAVE_IRQ | DRIVER_GEM |
++	.driver_features	= DRIVER_GEM |
+ 				  DRIVER_MODESET | DRIVER_PRIME |
+ 				  DRIVER_ATOMIC,
+ 
+diff --git a/drivers/gpu/drm/msm/msm_drv.c b/drivers/gpu/drm/msm/msm_drv.c
+index d2cdc7b553fe..8747fb32a106 100644
+--- a/drivers/gpu/drm/msm/msm_drv.c
++++ b/drivers/gpu/drm/msm/msm_drv.c
+@@ -1063,8 +1063,7 @@ static const struct file_operations fops = {
+ };
+ 
+ static struct drm_driver msm_driver = {
+-	.driver_features    = DRIVER_HAVE_IRQ |
+-				DRIVER_GEM |
++	.driver_features    = DRIVER_GEM |
+ 				DRIVER_PRIME |
+ 				DRIVER_RENDER |
+ 				DRIVER_ATOMIC |
+diff --git a/drivers/gpu/drm/mxsfb/mxsfb_drv.c b/drivers/gpu/drm/mxsfb/mxsfb_drv.c
+index 54c8cdaeb576..967379f3f571 100644
+--- a/drivers/gpu/drm/mxsfb/mxsfb_drv.c
++++ b/drivers/gpu/drm/mxsfb/mxsfb_drv.c
+@@ -322,8 +322,7 @@ DEFINE_DRM_GEM_CMA_FOPS(fops);
+ 
+ static struct drm_driver mxsfb_driver = {
+ 	.driver_features	= DRIVER_GEM | DRIVER_MODESET |
+-				  DRIVER_PRIME | DRIVER_ATOMIC |
+-				  DRIVER_HAVE_IRQ,
++				  DRIVER_PRIME | DRIVER_ATOMIC,
+ 	.irq_handler		= mxsfb_irq_handler,
+ 	.irq_preinstall		= mxsfb_irq_preinstall,
+ 	.irq_uninstall		= mxsfb_irq_preinstall,
+diff --git a/drivers/gpu/drm/qxl/qxl_drv.c b/drivers/gpu/drm/qxl/qxl_drv.c
+index a9d4c1ee12f3..1669d4b79253 100644
+--- a/drivers/gpu/drm/qxl/qxl_drv.c
++++ b/drivers/gpu/drm/qxl/qxl_drv.c
+@@ -245,7 +245,7 @@ static struct pci_driver qxl_pci_driver = {
+ 
+ static struct drm_driver qxl_driver = {
+ 	.driver_features = DRIVER_GEM | DRIVER_MODESET | DRIVER_PRIME |
+-			   DRIVER_HAVE_IRQ | DRIVER_IRQ_SHARED |
++			   DRIVER_IRQ_SHARED |
+ 			   DRIVER_ATOMIC,
+ 
+ 	.dumb_create = qxl_mode_dumb_create,
+diff --git a/drivers/gpu/drm/radeon/radeon_drv.c b/drivers/gpu/drm/radeon/radeon_drv.c
+index 8897c3d18fbb..450a9d473c30 100644
+--- a/drivers/gpu/drm/radeon/radeon_drv.c
++++ b/drivers/gpu/drm/radeon/radeon_drv.c
+@@ -535,7 +535,7 @@ radeon_get_crtc_scanout_position(struct drm_device *dev, unsigned int pipe,
+ static struct drm_driver kms_driver = {
+ 	.driver_features =
+ 	    DRIVER_USE_AGP |
+-	    DRIVER_HAVE_IRQ | DRIVER_IRQ_SHARED | DRIVER_GEM |
++	    DRIVER_IRQ_SHARED | DRIVER_GEM |
+ 	    DRIVER_PRIME | DRIVER_RENDER,
+ 	.load = radeon_driver_load_kms,
+ 	.open = radeon_driver_open_kms,
+diff --git a/drivers/gpu/drm/shmobile/shmob_drm_drv.c b/drivers/gpu/drm/shmobile/shmob_drm_drv.c
+index 2002e7c55e80..cb821adfc321 100644
+--- a/drivers/gpu/drm/shmobile/shmob_drm_drv.c
++++ b/drivers/gpu/drm/shmobile/shmob_drm_drv.c
+@@ -127,7 +127,7 @@ static irqreturn_t shmob_drm_irq(int irq, void *arg)
+ DEFINE_DRM_GEM_CMA_FOPS(shmob_drm_fops);
+ 
+ static struct drm_driver shmob_drm_driver = {
+-	.driver_features	= DRIVER_HAVE_IRQ | DRIVER_GEM | DRIVER_MODESET
++	.driver_features	= DRIVER_GEM | DRIVER_MODESET
+ 				| DRIVER_PRIME,
+ 	.irq_handler		= shmob_drm_irq,
+ 	.gem_free_object_unlocked = drm_gem_cma_free_object,
+diff --git a/drivers/gpu/drm/tilcdc/tilcdc_drv.c b/drivers/gpu/drm/tilcdc/tilcdc_drv.c
+index 13b11acd4a5e..3030af9e7b35 100644
+--- a/drivers/gpu/drm/tilcdc/tilcdc_drv.c
++++ b/drivers/gpu/drm/tilcdc/tilcdc_drv.c
+@@ -512,7 +512,7 @@ static int tilcdc_debugfs_init(struct drm_minor *minor)
+ DEFINE_DRM_GEM_CMA_FOPS(fops);
+ 
+ static struct drm_driver tilcdc_driver = {
+-	.driver_features    = (DRIVER_HAVE_IRQ | DRIVER_GEM | DRIVER_MODESET |
++	.driver_features    = (DRIVER_GEM | DRIVER_MODESET |
+ 			       DRIVER_PRIME | DRIVER_ATOMIC),
+ 	.irq_handler        = tilcdc_irq,
+ 	.gem_free_object_unlocked = drm_gem_cma_free_object,
+diff --git a/drivers/gpu/drm/vc4/vc4_drv.c b/drivers/gpu/drm/vc4/vc4_drv.c
+index f6f5cd80c04d..5fcd2f0da7f7 100644
+--- a/drivers/gpu/drm/vc4/vc4_drv.c
++++ b/drivers/gpu/drm/vc4/vc4_drv.c
+@@ -175,7 +175,6 @@ static struct drm_driver vc4_drm_driver = {
+ 	.driver_features = (DRIVER_MODESET |
+ 			    DRIVER_ATOMIC |
+ 			    DRIVER_GEM |
+-			    DRIVER_HAVE_IRQ |
+ 			    DRIVER_RENDER |
+ 			    DRIVER_PRIME |
+ 			    DRIVER_SYNCOBJ),
+diff --git a/drivers/gpu/drm/vmwgfx/vmwgfx_drv.c b/drivers/gpu/drm/vmwgfx/vmwgfx_drv.c
+index 25afb1d594e3..d159d0400013 100644
+--- a/drivers/gpu/drm/vmwgfx/vmwgfx_drv.c
++++ b/drivers/gpu/drm/vmwgfx/vmwgfx_drv.c
+@@ -1582,7 +1582,7 @@ static const struct file_operations vmwgfx_driver_fops = {
+ };
+ 
+ static struct drm_driver driver = {
+-	.driver_features = DRIVER_HAVE_IRQ | DRIVER_IRQ_SHARED |
++	.driver_features = DRIVER_IRQ_SHARED |
+ 	DRIVER_MODESET | DRIVER_PRIME | DRIVER_RENDER | DRIVER_ATOMIC,
+ 	.load = vmw_driver_load,
+ 	.unload = vmw_driver_unload,
+diff --git a/drivers/staging/vboxvideo/vbox_drv.c b/drivers/staging/vboxvideo/vbox_drv.c
+index cc6532d8c2fa..78cbcd68d4f3 100644
+--- a/drivers/staging/vboxvideo/vbox_drv.c
++++ b/drivers/staging/vboxvideo/vbox_drv.c
+@@ -221,7 +221,7 @@ static void vbox_master_drop(struct drm_device *dev, struct drm_file *file_priv)
+ 
+ static struct drm_driver driver = {
+ 	.driver_features =
+-	    DRIVER_MODESET | DRIVER_GEM | DRIVER_HAVE_IRQ | DRIVER_IRQ_SHARED |
++	    DRIVER_MODESET | DRIVER_GEM | DRIVER_IRQ_SHARED |
+ 	    DRIVER_PRIME | DRIVER_ATOMIC,
+ 	.dev_priv_size = 0,
+ 
+-- 
+2.20.1
