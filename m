@@ -1,15 +1,16 @@
 From: "Michael S. Tsirkin" <mst@redhat.com>
-Subject: Re: [RFC PATCH] virtio_ring: Use DMA API if guest memory is encrypted
-Date: Tue, 29 Jan 2019 14:02:36 -0500
-Message-ID: <20190129134750-mutt-send-email-mst__17037.7311458409$1548825682$gmane$org@kernel.org>
-References: <87zhrj8kcp.fsf@morokweng.localdomain>
-	<87womn8inf.fsf@morokweng.localdomain>
+Subject: Re: [PATCH v2 net 5/7] virtio_net: Don't process redirected XDP
+	frames when XDP is disabled
+Date: Tue, 29 Jan 2019 17:50:49 -0500
+Message-ID: <20190129175044-mutt-send-email-mst__27502.9071535513$1548826020$gmane$org@kernel.org>
+References: <1548722759-2470-1-git-send-email-makita.toshiaki@lab.ntt.co.jp>
+	<1548722759-2470-6-git-send-email-makita.toshiaki@lab.ntt.co.jp>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
 Content-Disposition: inline
-In-Reply-To: <87womn8inf.fsf@morokweng.localdomain>
+In-Reply-To: <1548722759-2470-6-git-send-email-makita.toshiaki@lab.ntt.co.jp>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -19,95 +20,124 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Thiago Jung Bauermann <bauerman@linux.ibm.com>
-Cc: Jean-Philippe Brucker <jean-philippe.brucker@arm.com>, Benjamin Herrenschmidt <benh@kernel.crashing.org>, Alexey Kardashevskiy <aik@linux.ibm.com>, Ram Pai <linuxram@us.ibm.com>, linux-kernel@vger.kernel.org, virtualization@lists.linux-foundation.org, Paul Mackerras <paulus@ozlabs.org>, iommu@lists.linux-foundation.org, linuxppc-dev@lists.ozlabs.org, Christoph Hellwig <hch@lst.de>, David Gibson <david@gibson.dropbear.id.au>
+To: Toshiaki Makita <makita.toshiaki@lab.ntt.co.jp>
+Cc: netdev@vger.kernel.org, Jesper Dangaard Brouer <brouer@redhat.com>, "David S. Miller" <davem@davemloft.net>, virtualization@lists.linux-foundation.org
 List-Id: virtualization@lists.linuxfoundation.org
 
-On Tue, Jan 29, 2019 at 03:42:44PM -0200, Thiago Jung Bauermann wrote:
+On Tue, Jan 29, 2019 at 09:45:57AM +0900, Toshiaki Makita wrote:
+> Commit 8dcc5b0ab0ec ("virtio_net: fix ndo_xdp_xmit crash towards dev not
+> ready for XDP") tried to avoid access to unexpected sq while XDP is
+> disabled, but was not complete.
 > 
-> Fixing address of powerpc mailing list.
+> There was a small window which causes out of bounds sq access in
+> virtnet_xdp_xmit() while disabling XDP.
 > 
-> Thiago Jung Bauermann <bauerman@linux.ibm.com> writes:
+> An example case of
+>  - curr_queue_pairs = 6 (2 for SKB and 4 for XDP)
+>  - online_cpu_num = xdp_queue_paris = 4
+> when XDP is enabled:
 > 
-> > Hello,
-> >
-> > With Christoph's rework of the DMA API that recently landed, the patch
-> > below is the only change needed in virtio to make it work in a POWER
-> > secure guest under the ultravisor.
-> >
-> > The other change we need (making sure the device's dma_map_ops is NULL
-> > so that the dma-direct/swiotlb code is used) can be made in
-> > powerpc-specific code.
-> >
-> > Of course, I also have patches (soon to be posted as RFC) which hook up
-> > <linux/mem_encrypt.h> to the powerpc secure guest support code.
-> >
-> > What do you think?
-> >
-> > From d0629a36a75c678b4a72b853f8f7f8c17eedd6b3 Mon Sep 17 00:00:00 2001
-> > From: Thiago Jung Bauermann <bauerman@linux.ibm.com>
-> > Date: Thu, 24 Jan 2019 22:08:02 -0200
-> > Subject: [RFC PATCH] virtio_ring: Use DMA API if guest memory is encrypted
-> >
-> > The host can't access the guest memory when it's encrypted, so using
-> > regular memory pages for the ring isn't an option. Go through the DMA API.
-> >
-> > Signed-off-by: Thiago Jung Bauermann <bauerman@linux.ibm.com>
-
-Well I think this will come back to bite us (witness xen which is now
-reworking precisely this path - but at least they aren't to blame, xen
-came before ACCESS_PLATFORM).
-
-I also still think the right thing would have been to set
-ACCESS_PLATFORM for all systems where device can't access all memory.
-
-But I also think I don't have the energy to argue about power secure
-guest anymore.  So be it for power secure guest since the involved
-engineers disagree with me.  Hey I've been wrong in the past ;).
-
-But the name "sev_active" makes me scared because at least AMD guys who
-were doing the sensible thing and setting ACCESS_PLATFORM (unless I'm
-wrong? I reemember distinctly that's so) will likely be affected too.
-We don't want that.
-
-So let's find a way to make sure it's just power secure guest for now
-pls.
-
-I also think we should add a dma_api near features under virtio_device
-such that these hacks can move off data path.
-
-By the way could you please respond about virtio-iommu and
-why there's no support for ACCESS_PLATFORM on power?
-
-I have Cc'd you on these discussions.
-
-
-Thanks!
-
-
-> > ---
-> >  drivers/virtio/virtio_ring.c | 5 ++++-
-> >  1 file changed, 4 insertions(+), 1 deletion(-)
-> >
-> > diff --git a/drivers/virtio/virtio_ring.c b/drivers/virtio/virtio_ring.c
-> > index cd7e755484e3..321a27075380 100644
-> > --- a/drivers/virtio/virtio_ring.c
-> > +++ b/drivers/virtio/virtio_ring.c
-> > @@ -259,8 +259,11 @@ static bool vring_use_dma_api(struct virtio_device *vdev)
-> >  	 * not work without an even larger kludge.  Instead, enable
-> >  	 * the DMA API if we're a Xen guest, which at least allows
-> >  	 * all of the sensible Xen configurations to work correctly.
-> > +	 *
-> > +	 * Also, if guest memory is encrypted the host can't access
-> > +	 * it directly. In this case, we'll need to use the DMA API.
-> >  	 */
-> > -	if (xen_domain())
-> > +	if (xen_domain() || sev_active())
-> >  		return true;
-> >
-> >  	return false;
+> CPU 0                         CPU 1
+> (Disabling XDP)               (Processing redirected XDP frames)
 > 
+>                               virtnet_xdp_xmit()
+> virtnet_xdp_set()
+>  _virtnet_set_queues()
+>   set curr_queue_pairs (2)
+>                                check if rq->xdp_prog is not NULL
+>                                virtnet_xdp_sq(vi)
+>                                 qp = curr_queue_pairs -
+>                                      xdp_queue_pairs +
+>                                      smp_processor_id()
+>                                    = 2 - 4 + 1 = -1
+>                                 sq = &vi->sq[qp] // out of bounds access
+>   set xdp_queue_pairs (0)
+>   rq->xdp_prog = NULL
 > 
+> Basically we should not change curr_queue_pairs and xdp_queue_pairs
+> while someone can read the values. Thus, when disabling XDP, assign NULL
+> to rq->xdp_prog first, and wait for RCU grace period, then change
+> xxx_queue_pairs.
+> Note that we need to keep the current order when enabling XDP though.
+> 
+> - v2: Make rcu_assign_pointer/synchronize_net conditional instead of
+>       _virtnet_set_queues.
+> 
+> Fixes: 186b3c998c50 ("virtio-net: support XDP_REDIRECT")
+> Signed-off-by: Toshiaki Makita <makita.toshiaki@lab.ntt.co.jp>
+
+Acked-by: Michael S. Tsirkin <mst@redhat.com>
+
+> ---
+>  drivers/net/virtio_net.c | 33 ++++++++++++++++++++++++++-------
+>  1 file changed, 26 insertions(+), 7 deletions(-)
+> 
+> diff --git a/drivers/net/virtio_net.c b/drivers/net/virtio_net.c
+> index 669b65c..cea52e4 100644
+> --- a/drivers/net/virtio_net.c
+> +++ b/drivers/net/virtio_net.c
+> @@ -2410,6 +2410,10 @@ static int virtnet_xdp_set(struct net_device *dev, struct bpf_prog *prog,
+>  		return -ENOMEM;
+>  	}
+>  
+> +	old_prog = rtnl_dereference(vi->rq[0].xdp_prog);
+> +	if (!prog && !old_prog)
+> +		return 0;
+> +
+>  	if (prog) {
+>  		prog = bpf_prog_add(prog, vi->max_queue_pairs - 1);
+>  		if (IS_ERR(prog))
+> @@ -2424,21 +2428,30 @@ static int virtnet_xdp_set(struct net_device *dev, struct bpf_prog *prog,
+>  		}
+>  	}
+>  
+> +	if (!prog) {
+> +		for (i = 0; i < vi->max_queue_pairs; i++) {
+> +			rcu_assign_pointer(vi->rq[i].xdp_prog, prog);
+> +			if (i == 0)
+> +				virtnet_restore_guest_offloads(vi);
+> +		}
+> +		synchronize_net();
+> +	}
+> +
+>  	err = _virtnet_set_queues(vi, curr_qp + xdp_qp);
+>  	if (err)
+>  		goto err;
+>  	netif_set_real_num_rx_queues(dev, curr_qp + xdp_qp);
+>  	vi->xdp_queue_pairs = xdp_qp;
+>  
+> -	for (i = 0; i < vi->max_queue_pairs; i++) {
+> -		old_prog = rtnl_dereference(vi->rq[i].xdp_prog);
+> -		rcu_assign_pointer(vi->rq[i].xdp_prog, prog);
+> -		if (i == 0) {
+> -			if (!old_prog)
+> +	if (prog) {
+> +		for (i = 0; i < vi->max_queue_pairs; i++) {
+> +			rcu_assign_pointer(vi->rq[i].xdp_prog, prog);
+> +			if (i == 0 && !old_prog)
+>  				virtnet_clear_guest_offloads(vi);
+> -			if (!prog)
+> -				virtnet_restore_guest_offloads(vi);
+>  		}
+> +	}
+> +
+> +	for (i = 0; i < vi->max_queue_pairs; i++) {
+>  		if (old_prog)
+>  			bpf_prog_put(old_prog);
+>  		if (netif_running(dev)) {
+> @@ -2451,6 +2464,12 @@ static int virtnet_xdp_set(struct net_device *dev, struct bpf_prog *prog,
+>  	return 0;
+>  
+>  err:
+> +	if (!prog) {
+> +		virtnet_clear_guest_offloads(vi);
+> +		for (i = 0; i < vi->max_queue_pairs; i++)
+> +			rcu_assign_pointer(vi->rq[i].xdp_prog, old_prog);
+> +	}
+> +
+>  	if (netif_running(dev)) {
+>  		for (i = 0; i < vi->max_queue_pairs; i++) {
+>  			virtnet_napi_enable(vi->rq[i].vq, &vi->rq[i].napi);
 > -- 
-> Thiago Jung Bauermann
-> IBM Linux Technology Center
+> 1.8.3.1
+> 
