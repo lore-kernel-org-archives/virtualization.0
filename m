@@ -1,13 +1,20 @@
-From: David Miller <davem@davemloft.net>
-Subject: Re: [PATCH net] vhost: fix OOB in get_rx_bufs()
-Date: Mon, 28 Jan 2019 22:54:44 -0800 (PST)
-Message-ID: <20190128.225444.1929870241029842289.davem__25397.3379543581$1548826290$gmane$org@davemloft.net>
-References: <20190128070505.18335-1-jasowang@redhat.com>
+From: Christoph Hellwig <hch@lst.de>
+Subject: Re: [PATCH 5/5] virtio-blk: Consider virtio_max_dma_size() for
+	maximum segment size
+Date: Tue, 29 Jan 2019 08:38:39 +0100
+Message-ID: <20190129073839.GB4087__36873.4165023611$1548826302$gmane$org@lst.de>
+References: <20190123163049.24863-1-joro@8bytes.org>
+	<20190123163049.24863-6-joro@8bytes.org>
+	<20190123213139.GD9032@lst.de> <20190124084011.GJ32526@8bytes.org>
+	<20190124084221.GB19441@lst.de> <20190124095150.GL32526@8bytes.org>
+	<20190128080526.GA3874@lst.de>
+	<20190128121407-mutt-send-email-mst@kernel.org>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <20190128070505.18335-1-jasowang@redhat.com>
+Content-Disposition: inline
+In-Reply-To: <20190128121407-mutt-send-email-mst@kernel.org>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -17,36 +24,26 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: jasowang@redhat.com
-Cc: kvm@vger.kernel.org, mst@redhat.com, netdev@vger.kernel.org, linux-kernel@vger.kernel.org, virtualization@lists.linux-foundation.org, stefanha@redhat.com
+To: "Michael S. Tsirkin" <mst@redhat.com>
+Cc: Jens Axboe <axboe@kernel.dk>, jroedel@suse.de, brijesh.singh@amd.com, Konrad Rzeszutek Wilk <konrad.wilk@oracle.com>, jon.grimm@amd.com, jfehlig@suse.com, linux-kernel@vger.kernel.org, virtualization@lists.linux-foundation.org, linux-block@vger.kernel.org, iommu@lists.linux-foundation.org, Christoph Hellwig <hch@lst.de>, Joerg Roedel <joro@8bytes.org>
 List-Id: virtualization@lists.linuxfoundation.org
 
-From: Jason Wang <jasowang@redhat.com>
-Date: Mon, 28 Jan 2019 15:05:05 +0800
+On Mon, Jan 28, 2019 at 12:14:33PM -0500, Michael S. Tsirkin wrote:
+> On Mon, Jan 28, 2019 at 09:05:26AM +0100, Christoph Hellwig wrote:
+> > On Thu, Jan 24, 2019 at 10:51:51AM +0100, Joerg Roedel wrote:
+> > > On Thu, Jan 24, 2019 at 09:42:21AM +0100, Christoph Hellwig wrote:
+> > > > Yes.  But more importantly it would fix the limit for all other block
+> > > > drivers that set large segment sizes when running over swiotlb.
+> > > 
+> > > True, so it would be something like the diff below? I havn't worked on
+> > > the block layer, so I don't know if that needs additional checks for
+> > > ->dev or anything.
+> > 
+> > Looks sensible.  Maybe for now we'll just do the virtio-blk case
+> > that triggered it, and we'll do something like this patch for the
+> > next merge window.  We'll also need to apply the same magic to the
+> > DMA boundary.
+> 
+> So do I get an ack for this patch then?
 
-> After batched used ring updating was introduced in commit e2b3b35eb989
-> ("vhost_net: batch used ring update in rx"). We tend to batch heads in
-> vq->heads for more than one packet. But the quota passed to
-> get_rx_bufs() was not correctly limited, which can result a OOB write
-> in vq->heads.
-> 
->         headcount = get_rx_bufs(vq, vq->heads + nvq->done_idx,
->                     vhost_len, &in, vq_log, &log,
->                     likely(mergeable) ? UIO_MAXIOV : 1);
-> 
-> UIO_MAXIOV was still used which is wrong since we could have batched
-> used in vq->heads, this will cause OOB if the next buffer needs more
-> than 960 (1024 (UIO_MAXIOV) - 64 (VHOST_NET_BATCH)) heads after we've
-> batched 64 (VHOST_NET_BATCH) heads:
- ...
-> Fixing this by allocating UIO_MAXIOV + VHOST_NET_BATCH iovs for
-> vhost-net. This is done through set the limitation through
-> vhost_dev_init(), then set_owner can allocate the number of iov in a
-> per device manner.
-> 
-> This fixes CVE-2018-16880.
-> 
-> Fixes: e2b3b35eb989 ("vhost_net: batch used ring update in rx")
-> Signed-off-by: Jason Wang <jasowang@redhat.com>
-
-Applied and queued up for -stable, thanks!
+I'll wait for a resend of the series to review the whole thing.
