@@ -1,16 +1,15 @@
 From: "Michael S. Tsirkin" <mst@redhat.com>
-Subject: Re: [PATCH v2 net 7/7] virtio_net: Differentiate sk_buff and
-	xdp_frame on freeing
-Date: Tue, 29 Jan 2019 17:51:10 -0500
-Message-ID: <20190129175100-mutt-send-email-mst__27466.3730104052$1548826031$gmane$org@kernel.org>
-References: <1548722759-2470-1-git-send-email-makita.toshiaki@lab.ntt.co.jp>
-	<1548722759-2470-8-git-send-email-makita.toshiaki@lab.ntt.co.jp>
+Subject: Re: [PATCH net] vhost: fix OOB in get_rx_bufs()
+Date: Tue, 29 Jan 2019 17:54:44 -0500
+Message-ID: <20190129175145-mutt-send-email-mst__37243.7250380003$1548826044$gmane$org@kernel.org>
+References: <20190128070505.18335-1-jasowang@redhat.com>
+	<20190128.225444.1929870241029842289.davem@davemloft.net>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
 Content-Disposition: inline
-In-Reply-To: <1548722759-2470-8-git-send-email-makita.toshiaki@lab.ntt.co.jp>
+In-Reply-To: <20190128.225444.1929870241029842289.davem@davemloft.net>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -20,160 +19,46 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Toshiaki Makita <makita.toshiaki@lab.ntt.co.jp>
-Cc: netdev@vger.kernel.org, "David S. Miller" <davem@davemloft.net>, virtualization@lists.linux-foundation.org
+To: David Miller <davem@davemloft.net>
+Cc: kvm@vger.kernel.org, netdev@vger.kernel.org, linux-kernel@vger.kernel.org, virtualization@lists.linux-foundation.org, stefanha@redhat.com
 List-Id: virtualization@lists.linuxfoundation.org
 
-On Tue, Jan 29, 2019 at 09:45:59AM +0900, Toshiaki Makita wrote:
-> We do not reset or free up unused buffers when enabling/disabling XDP,
-> so it can happen that xdp_frames are freed after disabling XDP or
-> sk_buffs are freed after enabling XDP on xdp tx queues.
-> Thus we need to handle both forms (xdp_frames and sk_buffs) regardless
-> of XDP setting.
-> One way to trigger this problem is to disable XDP when napi_tx is
-> enabled. In that case, virtnet_xdp_set() calls virtnet_napi_enable()
-> which kicks NAPI. The NAPI handler will call virtnet_poll_cleantx()
-> which invokes free_old_xmit_skbs() for queues which have been used by
-> XDP.
+On Mon, Jan 28, 2019 at 10:54:44PM -0800, David Miller wrote:
+> From: Jason Wang <jasowang@redhat.com>
+> Date: Mon, 28 Jan 2019 15:05:05 +0800
 > 
-> Note that even with this change we need to keep skipping
-> free_old_xmit_skbs() from NAPI handlers when XDP is enabled, because XDP
-> tx queues do not aquire queue locks.
+> > After batched used ring updating was introduced in commit e2b3b35eb989
+> > ("vhost_net: batch used ring update in rx"). We tend to batch heads in
+> > vq->heads for more than one packet. But the quota passed to
+> > get_rx_bufs() was not correctly limited, which can result a OOB write
+> > in vq->heads.
+> > 
+> >         headcount = get_rx_bufs(vq, vq->heads + nvq->done_idx,
+> >                     vhost_len, &in, vq_log, &log,
+> >                     likely(mergeable) ? UIO_MAXIOV : 1);
+> > 
+> > UIO_MAXIOV was still used which is wrong since we could have batched
+> > used in vq->heads, this will cause OOB if the next buffer needs more
+> > than 960 (1024 (UIO_MAXIOV) - 64 (VHOST_NET_BATCH)) heads after we've
+> > batched 64 (VHOST_NET_BATCH) heads:
+>  ...
+> > Fixing this by allocating UIO_MAXIOV + VHOST_NET_BATCH iovs for
+> > vhost-net. This is done through set the limitation through
+> > vhost_dev_init(), then set_owner can allocate the number of iov in a
+> > per device manner.
+> > 
+> > This fixes CVE-2018-16880.
+> > 
+> > Fixes: e2b3b35eb989 ("vhost_net: batch used ring update in rx")
+> > Signed-off-by: Jason Wang <jasowang@redhat.com>
 > 
-> - v2: Use napi_consume_skb() instead of dev_consume_skb_any()
-> 
-> Fixes: 4941d472bf95 ("virtio-net: do not reset during XDP set")
-> Signed-off-by: Toshiaki Makita <makita.toshiaki@lab.ntt.co.jp>
+> Applied and queued up for -stable, thanks!
 
-Acked-by: Michael S. Tsirkin <mst@redhat.com>
+Wow it seems we are down to hours round time post to queue.
+It would be hard to keep up that rate generally.
+However, I am guessing this was already in downstreams, and it's a CVE,
+so I guess it's a no brainer and review wasn't really necessary - was
+that the idea? Just checking.
 
-> ---
-> NOTE: Dropped Acked-by because of the v2 change.
-> 
->  drivers/net/virtio_net.c | 54 +++++++++++++++++++++++++++++++++++++-----------
->  1 file changed, 42 insertions(+), 12 deletions(-)
-> 
-> diff --git a/drivers/net/virtio_net.c b/drivers/net/virtio_net.c
-> index 1d454ce..2594481 100644
-> --- a/drivers/net/virtio_net.c
-> +++ b/drivers/net/virtio_net.c
-> @@ -57,6 +57,8 @@
->  #define VIRTIO_XDP_TX		BIT(0)
->  #define VIRTIO_XDP_REDIR	BIT(1)
->  
-> +#define VIRTIO_XDP_FLAG	BIT(0)
-> +
->  /* RX packet size EWMA. The average packet size is used to determine the packet
->   * buffer size when refilling RX rings. As the entire RX ring may be refilled
->   * at once, the weight is chosen so that the EWMA will be insensitive to short-
-> @@ -252,6 +254,21 @@ struct padded_vnet_hdr {
->  	char padding[4];
->  };
->  
-> +static bool is_xdp_frame(void *ptr)
-> +{
-> +	return (unsigned long)ptr & VIRTIO_XDP_FLAG;
-> +}
-> +
-> +static void *xdp_to_ptr(struct xdp_frame *ptr)
-> +{
-> +	return (void *)((unsigned long)ptr | VIRTIO_XDP_FLAG);
-> +}
-> +
-> +static struct xdp_frame *ptr_to_xdp(void *ptr)
-> +{
-> +	return (struct xdp_frame *)((unsigned long)ptr & ~VIRTIO_XDP_FLAG);
-> +}
-> +
->  /* Converting between virtqueue no. and kernel tx/rx queue no.
->   * 0:rx0 1:tx0 2:rx1 3:tx1 ... 2N:rxN 2N+1:txN 2N+2:cvq
->   */
-> @@ -462,7 +479,8 @@ static int __virtnet_xdp_xmit_one(struct virtnet_info *vi,
->  
->  	sg_init_one(sq->sg, xdpf->data, xdpf->len);
->  
-> -	err = virtqueue_add_outbuf(sq->vq, sq->sg, 1, xdpf, GFP_ATOMIC);
-> +	err = virtqueue_add_outbuf(sq->vq, sq->sg, 1, xdp_to_ptr(xdpf),
-> +				   GFP_ATOMIC);
->  	if (unlikely(err))
->  		return -ENOSPC; /* Caller handle free/refcnt */
->  
-> @@ -482,13 +500,13 @@ static int virtnet_xdp_xmit(struct net_device *dev,
->  {
->  	struct virtnet_info *vi = netdev_priv(dev);
->  	struct receive_queue *rq = vi->rq;
-> -	struct xdp_frame *xdpf_sent;
->  	struct bpf_prog *xdp_prog;
->  	struct send_queue *sq;
->  	unsigned int len;
->  	int drops = 0;
->  	int kicks = 0;
->  	int ret, err;
-> +	void *ptr;
->  	int i;
->  
->  	/* Only allow ndo_xdp_xmit if XDP is loaded on dev, as this
-> @@ -507,8 +525,12 @@ static int virtnet_xdp_xmit(struct net_device *dev,
->  	}
->  
->  	/* Free up any pending old buffers before queueing new ones. */
-> -	while ((xdpf_sent = virtqueue_get_buf(sq->vq, &len)) != NULL)
-> -		xdp_return_frame(xdpf_sent);
-> +	while ((ptr = virtqueue_get_buf(sq->vq, &len)) != NULL) {
-> +		if (likely(is_xdp_frame(ptr)))
-> +			xdp_return_frame(ptr_to_xdp(ptr));
-> +		else
-> +			napi_consume_skb(ptr, false);
-> +	}
->  
->  	for (i = 0; i < n; i++) {
->  		struct xdp_frame *xdpf = frames[i];
-> @@ -1329,18 +1351,26 @@ static int virtnet_receive(struct receive_queue *rq, int budget,
->  
->  static void free_old_xmit_skbs(struct send_queue *sq, bool in_napi)
->  {
-> -	struct sk_buff *skb;
->  	unsigned int len;
->  	unsigned int packets = 0;
->  	unsigned int bytes = 0;
-> +	void *ptr;
->  
-> -	while ((skb = virtqueue_get_buf(sq->vq, &len)) != NULL) {
-> -		pr_debug("Sent skb %p\n", skb);
-> +	while ((ptr = virtqueue_get_buf(sq->vq, &len)) != NULL) {
-> +		if (likely(!is_xdp_frame(ptr))) {
-> +			struct sk_buff *skb = ptr;
->  
-> -		bytes += skb->len;
-> -		packets++;
-> +			pr_debug("Sent skb %p\n", skb);
->  
-> -		napi_consume_skb(skb, in_napi);
-> +			bytes += skb->len;
-> +			napi_consume_skb(skb, in_napi);
-> +		} else {
-> +			struct xdp_frame *frame = ptr_to_xdp(ptr);
-> +
-> +			bytes += frame->len;
-> +			xdp_return_frame(frame);
-> +		}
-> +		packets++;
->  	}
->  
->  	/* Avoid overhead when no packets have been processed
-> @@ -2666,10 +2696,10 @@ static void free_unused_bufs(struct virtnet_info *vi)
->  	for (i = 0; i < vi->max_queue_pairs; i++) {
->  		struct virtqueue *vq = vi->sq[i].vq;
->  		while ((buf = virtqueue_detach_unused_buf(vq)) != NULL) {
-> -			if (!is_xdp_raw_buffer_queue(vi, i))
-> +			if (!is_xdp_frame(buf))
->  				dev_kfree_skb(buf);
->  			else
-> -				xdp_return_frame(buf);
-> +				xdp_return_frame(ptr_to_xdp(buf));
->  		}
->  	}
->  
-> -- 
-> 1.8.3.1
-> 
+-- 
+MST
