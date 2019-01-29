@@ -1,16 +1,16 @@
 From: "Michael S. Tsirkin" <mst@redhat.com>
-Subject: Re: [PATCH v2 net 5/7] virtio_net: Don't process redirected XDP
-	frames when XDP is disabled
-Date: Tue, 29 Jan 2019 17:50:49 -0500
-Message-ID: <20190129175044-mutt-send-email-mst__27502.9071535513$1548826020$gmane$org@kernel.org>
+Subject: Re: [PATCH v2 net 7/7] virtio_net: Differentiate sk_buff and
+	xdp_frame on freeing
+Date: Tue, 29 Jan 2019 17:51:10 -0500
+Message-ID: <20190129175100-mutt-send-email-mst__27466.3730104052$1548826031$gmane$org@kernel.org>
 References: <1548722759-2470-1-git-send-email-makita.toshiaki@lab.ntt.co.jp>
-	<1548722759-2470-6-git-send-email-makita.toshiaki@lab.ntt.co.jp>
+	<1548722759-2470-8-git-send-email-makita.toshiaki@lab.ntt.co.jp>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
 Content-Disposition: inline
-In-Reply-To: <1548722759-2470-6-git-send-email-makita.toshiaki@lab.ntt.co.jp>
+In-Reply-To: <1548722759-2470-8-git-send-email-makita.toshiaki@lab.ntt.co.jp>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -21,123 +21,159 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
 To: Toshiaki Makita <makita.toshiaki@lab.ntt.co.jp>
-Cc: netdev@vger.kernel.org, Jesper Dangaard Brouer <brouer@redhat.com>, "David S. Miller" <davem@davemloft.net>, virtualization@lists.linux-foundation.org
+Cc: netdev@vger.kernel.org, "David S. Miller" <davem@davemloft.net>, virtualization@lists.linux-foundation.org
 List-Id: virtualization@lists.linuxfoundation.org
 
-On Tue, Jan 29, 2019 at 09:45:57AM +0900, Toshiaki Makita wrote:
-> Commit 8dcc5b0ab0ec ("virtio_net: fix ndo_xdp_xmit crash towards dev not
-> ready for XDP") tried to avoid access to unexpected sq while XDP is
-> disabled, but was not complete.
+On Tue, Jan 29, 2019 at 09:45:59AM +0900, Toshiaki Makita wrote:
+> We do not reset or free up unused buffers when enabling/disabling XDP,
+> so it can happen that xdp_frames are freed after disabling XDP or
+> sk_buffs are freed after enabling XDP on xdp tx queues.
+> Thus we need to handle both forms (xdp_frames and sk_buffs) regardless
+> of XDP setting.
+> One way to trigger this problem is to disable XDP when napi_tx is
+> enabled. In that case, virtnet_xdp_set() calls virtnet_napi_enable()
+> which kicks NAPI. The NAPI handler will call virtnet_poll_cleantx()
+> which invokes free_old_xmit_skbs() for queues which have been used by
+> XDP.
 > 
-> There was a small window which causes out of bounds sq access in
-> virtnet_xdp_xmit() while disabling XDP.
+> Note that even with this change we need to keep skipping
+> free_old_xmit_skbs() from NAPI handlers when XDP is enabled, because XDP
+> tx queues do not aquire queue locks.
 > 
-> An example case of
->  - curr_queue_pairs = 6 (2 for SKB and 4 for XDP)
->  - online_cpu_num = xdp_queue_paris = 4
-> when XDP is enabled:
+> - v2: Use napi_consume_skb() instead of dev_consume_skb_any()
 > 
-> CPU 0                         CPU 1
-> (Disabling XDP)               (Processing redirected XDP frames)
-> 
->                               virtnet_xdp_xmit()
-> virtnet_xdp_set()
->  _virtnet_set_queues()
->   set curr_queue_pairs (2)
->                                check if rq->xdp_prog is not NULL
->                                virtnet_xdp_sq(vi)
->                                 qp = curr_queue_pairs -
->                                      xdp_queue_pairs +
->                                      smp_processor_id()
->                                    = 2 - 4 + 1 = -1
->                                 sq = &vi->sq[qp] // out of bounds access
->   set xdp_queue_pairs (0)
->   rq->xdp_prog = NULL
-> 
-> Basically we should not change curr_queue_pairs and xdp_queue_pairs
-> while someone can read the values. Thus, when disabling XDP, assign NULL
-> to rq->xdp_prog first, and wait for RCU grace period, then change
-> xxx_queue_pairs.
-> Note that we need to keep the current order when enabling XDP though.
-> 
-> - v2: Make rcu_assign_pointer/synchronize_net conditional instead of
->       _virtnet_set_queues.
-> 
-> Fixes: 186b3c998c50 ("virtio-net: support XDP_REDIRECT")
+> Fixes: 4941d472bf95 ("virtio-net: do not reset during XDP set")
 > Signed-off-by: Toshiaki Makita <makita.toshiaki@lab.ntt.co.jp>
 
 Acked-by: Michael S. Tsirkin <mst@redhat.com>
 
 > ---
->  drivers/net/virtio_net.c | 33 ++++++++++++++++++++++++++-------
->  1 file changed, 26 insertions(+), 7 deletions(-)
+> NOTE: Dropped Acked-by because of the v2 change.
+> 
+>  drivers/net/virtio_net.c | 54 +++++++++++++++++++++++++++++++++++++-----------
+>  1 file changed, 42 insertions(+), 12 deletions(-)
 > 
 > diff --git a/drivers/net/virtio_net.c b/drivers/net/virtio_net.c
-> index 669b65c..cea52e4 100644
+> index 1d454ce..2594481 100644
 > --- a/drivers/net/virtio_net.c
 > +++ b/drivers/net/virtio_net.c
-> @@ -2410,6 +2410,10 @@ static int virtnet_xdp_set(struct net_device *dev, struct bpf_prog *prog,
->  		return -ENOMEM;
->  	}
+> @@ -57,6 +57,8 @@
+>  #define VIRTIO_XDP_TX		BIT(0)
+>  #define VIRTIO_XDP_REDIR	BIT(1)
 >  
-> +	old_prog = rtnl_dereference(vi->rq[0].xdp_prog);
-> +	if (!prog && !old_prog)
-> +		return 0;
+> +#define VIRTIO_XDP_FLAG	BIT(0)
 > +
->  	if (prog) {
->  		prog = bpf_prog_add(prog, vi->max_queue_pairs - 1);
->  		if (IS_ERR(prog))
-> @@ -2424,21 +2428,30 @@ static int virtnet_xdp_set(struct net_device *dev, struct bpf_prog *prog,
->  		}
+>  /* RX packet size EWMA. The average packet size is used to determine the packet
+>   * buffer size when refilling RX rings. As the entire RX ring may be refilled
+>   * at once, the weight is chosen so that the EWMA will be insensitive to short-
+> @@ -252,6 +254,21 @@ struct padded_vnet_hdr {
+>  	char padding[4];
+>  };
+>  
+> +static bool is_xdp_frame(void *ptr)
+> +{
+> +	return (unsigned long)ptr & VIRTIO_XDP_FLAG;
+> +}
+> +
+> +static void *xdp_to_ptr(struct xdp_frame *ptr)
+> +{
+> +	return (void *)((unsigned long)ptr | VIRTIO_XDP_FLAG);
+> +}
+> +
+> +static struct xdp_frame *ptr_to_xdp(void *ptr)
+> +{
+> +	return (struct xdp_frame *)((unsigned long)ptr & ~VIRTIO_XDP_FLAG);
+> +}
+> +
+>  /* Converting between virtqueue no. and kernel tx/rx queue no.
+>   * 0:rx0 1:tx0 2:rx1 3:tx1 ... 2N:rxN 2N+1:txN 2N+2:cvq
+>   */
+> @@ -462,7 +479,8 @@ static int __virtnet_xdp_xmit_one(struct virtnet_info *vi,
+>  
+>  	sg_init_one(sq->sg, xdpf->data, xdpf->len);
+>  
+> -	err = virtqueue_add_outbuf(sq->vq, sq->sg, 1, xdpf, GFP_ATOMIC);
+> +	err = virtqueue_add_outbuf(sq->vq, sq->sg, 1, xdp_to_ptr(xdpf),
+> +				   GFP_ATOMIC);
+>  	if (unlikely(err))
+>  		return -ENOSPC; /* Caller handle free/refcnt */
+>  
+> @@ -482,13 +500,13 @@ static int virtnet_xdp_xmit(struct net_device *dev,
+>  {
+>  	struct virtnet_info *vi = netdev_priv(dev);
+>  	struct receive_queue *rq = vi->rq;
+> -	struct xdp_frame *xdpf_sent;
+>  	struct bpf_prog *xdp_prog;
+>  	struct send_queue *sq;
+>  	unsigned int len;
+>  	int drops = 0;
+>  	int kicks = 0;
+>  	int ret, err;
+> +	void *ptr;
+>  	int i;
+>  
+>  	/* Only allow ndo_xdp_xmit if XDP is loaded on dev, as this
+> @@ -507,8 +525,12 @@ static int virtnet_xdp_xmit(struct net_device *dev,
 >  	}
 >  
-> +	if (!prog) {
-> +		for (i = 0; i < vi->max_queue_pairs; i++) {
-> +			rcu_assign_pointer(vi->rq[i].xdp_prog, prog);
-> +			if (i == 0)
-> +				virtnet_restore_guest_offloads(vi);
+>  	/* Free up any pending old buffers before queueing new ones. */
+> -	while ((xdpf_sent = virtqueue_get_buf(sq->vq, &len)) != NULL)
+> -		xdp_return_frame(xdpf_sent);
+> +	while ((ptr = virtqueue_get_buf(sq->vq, &len)) != NULL) {
+> +		if (likely(is_xdp_frame(ptr)))
+> +			xdp_return_frame(ptr_to_xdp(ptr));
+> +		else
+> +			napi_consume_skb(ptr, false);
+> +	}
+>  
+>  	for (i = 0; i < n; i++) {
+>  		struct xdp_frame *xdpf = frames[i];
+> @@ -1329,18 +1351,26 @@ static int virtnet_receive(struct receive_queue *rq, int budget,
+>  
+>  static void free_old_xmit_skbs(struct send_queue *sq, bool in_napi)
+>  {
+> -	struct sk_buff *skb;
+>  	unsigned int len;
+>  	unsigned int packets = 0;
+>  	unsigned int bytes = 0;
+> +	void *ptr;
+>  
+> -	while ((skb = virtqueue_get_buf(sq->vq, &len)) != NULL) {
+> -		pr_debug("Sent skb %p\n", skb);
+> +	while ((ptr = virtqueue_get_buf(sq->vq, &len)) != NULL) {
+> +		if (likely(!is_xdp_frame(ptr))) {
+> +			struct sk_buff *skb = ptr;
+>  
+> -		bytes += skb->len;
+> -		packets++;
+> +			pr_debug("Sent skb %p\n", skb);
+>  
+> -		napi_consume_skb(skb, in_napi);
+> +			bytes += skb->len;
+> +			napi_consume_skb(skb, in_napi);
+> +		} else {
+> +			struct xdp_frame *frame = ptr_to_xdp(ptr);
+> +
+> +			bytes += frame->len;
+> +			xdp_return_frame(frame);
 > +		}
-> +		synchronize_net();
-> +	}
-> +
->  	err = _virtnet_set_queues(vi, curr_qp + xdp_qp);
->  	if (err)
->  		goto err;
->  	netif_set_real_num_rx_queues(dev, curr_qp + xdp_qp);
->  	vi->xdp_queue_pairs = xdp_qp;
+> +		packets++;
+>  	}
 >  
-> -	for (i = 0; i < vi->max_queue_pairs; i++) {
-> -		old_prog = rtnl_dereference(vi->rq[i].xdp_prog);
-> -		rcu_assign_pointer(vi->rq[i].xdp_prog, prog);
-> -		if (i == 0) {
-> -			if (!old_prog)
-> +	if (prog) {
-> +		for (i = 0; i < vi->max_queue_pairs; i++) {
-> +			rcu_assign_pointer(vi->rq[i].xdp_prog, prog);
-> +			if (i == 0 && !old_prog)
->  				virtnet_clear_guest_offloads(vi);
-> -			if (!prog)
-> -				virtnet_restore_guest_offloads(vi);
+>  	/* Avoid overhead when no packets have been processed
+> @@ -2666,10 +2696,10 @@ static void free_unused_bufs(struct virtnet_info *vi)
+>  	for (i = 0; i < vi->max_queue_pairs; i++) {
+>  		struct virtqueue *vq = vi->sq[i].vq;
+>  		while ((buf = virtqueue_detach_unused_buf(vq)) != NULL) {
+> -			if (!is_xdp_raw_buffer_queue(vi, i))
+> +			if (!is_xdp_frame(buf))
+>  				dev_kfree_skb(buf);
+>  			else
+> -				xdp_return_frame(buf);
+> +				xdp_return_frame(ptr_to_xdp(buf));
 >  		}
-> +	}
-> +
-> +	for (i = 0; i < vi->max_queue_pairs; i++) {
->  		if (old_prog)
->  			bpf_prog_put(old_prog);
->  		if (netif_running(dev)) {
-> @@ -2451,6 +2464,12 @@ static int virtnet_xdp_set(struct net_device *dev, struct bpf_prog *prog,
->  	return 0;
+>  	}
 >  
->  err:
-> +	if (!prog) {
-> +		virtnet_clear_guest_offloads(vi);
-> +		for (i = 0; i < vi->max_queue_pairs; i++)
-> +			rcu_assign_pointer(vi->rq[i].xdp_prog, old_prog);
-> +	}
-> +
->  	if (netif_running(dev)) {
->  		for (i = 0; i < vi->max_queue_pairs; i++) {
->  			virtnet_napi_enable(vi->rq[i].vq, &vi->rq[i].napi);
 > -- 
 > 1.8.3.1
 > 
