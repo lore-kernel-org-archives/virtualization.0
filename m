@@ -1,13 +1,11 @@
 From: Joerg Roedel <joro@8bytes.org>
-Subject: [PATCH 4/5] virtio: Introduce virtio_max_dma_size()
-Date: Tue, 29 Jan 2019 09:43:41 +0100
-Message-ID: <20190129084342.26030-5-joro__38118.1798571319$1548826371$gmane$org@8bytes.org>
-References: <20190129084342.26030-1-joro@8bytes.org>
+Subject: [PATCH 0/5 v4] Fix virtio-blk issue with SWIOTLB
+Date: Tue, 29 Jan 2019 09:43:37 +0100
+Message-ID: <20190129084342.26030-1-joro__22646.6015259334$1548826382$gmane$org@8bytes.org>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <20190129084342.26030-1-joro@8bytes.org>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -21,58 +19,96 @@ To: "Michael S . Tsirkin" <mst@redhat.com>, Jason Wang <jasowang@redhat.com>, Ko
 Cc: Jens Axboe <axboe@kernel.dk>, jroedel@suse.de, brijesh.singh@amd.com, joro@8bytes.org, jon.grimm@amd.com, jfehlig@suse.com, linux-kernel@vger.kernel.org, linux-block@vger.kernel.org, iommu@lists.linux-foundation.org, virtualization@lists.linux-foundation.org
 List-Id: virtualization@lists.linuxfoundation.org
 
-From: Joerg Roedel <jroedel@suse.de>
 
-This function returns the maximum segment size for a single
-dma transaction of a virtio device. The possible limit comes
-from the SWIOTLB implementation in the Linux kernel, that
-has an upper limit of (currently) 256kb of contiguous
-memory it can map. Other DMA-API implementations might also
-have limits.
+Hi,
 
-Use the new dma_max_mapping_size() function to determine the
-maximum mapping size when DMA-API is in use for virtio.
+here is the fourth version of this patch-set. Previous
+versions can be found here:
 
-Reviewed-by: Konrad Rzeszutek Wilk <konrad.wilk@oracle.com>
-Signed-off-by: Joerg Roedel <jroedel@suse.de>
----
+	V1: https://lore.kernel.org/lkml/20190110134433.15672-1-joro@8bytes.org/
+
+	V2: https://lore.kernel.org/lkml/20190115132257.6426-1-joro@8bytes.org/
+
+	V3: https://lore.kernel.org/lkml/20190123163049.24863-1-joro@8bytes.org/
+
+The problem solved here is a limitation of the SWIOTLB implementation,
+which does not support allocations larger than 256kb.  When the
+virtio-blk driver tries to read/write a block larger than that, the
+allocation of the dma-handle fails and an IO error is reported.
+
+For all changes to v3, a diff to v3 of the patch-set is at
+the end of this email.
+
+Please review.
+
+Thanks,
+
+	Joerg
+
+Joerg Roedel (5):
+  swiotlb: Introduce swiotlb_max_mapping_size()
+  swiotlb: Add is_swiotlb_active() function
+  dma: Introduce dma_max_mapping_size()
+  virtio: Introduce virtio_max_dma_size()
+  virtio-blk: Consider virtio_max_dma_size() for maximum segment size
+
+ Documentation/DMA-API.txt    |  8 ++++++++
+ drivers/block/virtio_blk.c   | 10 ++++++----
  drivers/virtio/virtio_ring.c | 10 ++++++++++
+ include/linux/dma-mapping.h  | 16 ++++++++++++++++
+ include/linux/swiotlb.h      | 11 +++++++++++
  include/linux/virtio.h       |  2 ++
- 2 files changed, 12 insertions(+)
+ kernel/dma/direct.c          | 11 +++++++++++
+ kernel/dma/swiotlb.c         | 14 ++++++++++++++
+ 8 files changed, 78 insertions(+), 4 deletions(-)
 
-diff --git a/drivers/virtio/virtio_ring.c b/drivers/virtio/virtio_ring.c
-index cd7e755484e3..9ca3fe6af9fa 100644
---- a/drivers/virtio/virtio_ring.c
-+++ b/drivers/virtio/virtio_ring.c
-@@ -266,6 +266,16 @@ static bool vring_use_dma_api(struct virtio_device *vdev)
- 	return false;
- }
- 
-+size_t virtio_max_dma_size(struct virtio_device *vdev)
-+{
-+	size_t max_segment_size = SIZE_MAX;
-+
-+	if (vring_use_dma_api(vdev))
-+		max_segment_size = dma_max_mapping_size(&vdev->dev);
-+
-+	return max_segment_size;
-+}
-+
- static void *vring_alloc_queue(struct virtio_device *vdev, size_t size,
- 			      dma_addr_t *dma_handle, gfp_t flag)
- {
-diff --git a/include/linux/virtio.h b/include/linux/virtio.h
-index fa1b5da2804e..673fe3ef3607 100644
---- a/include/linux/virtio.h
-+++ b/include/linux/virtio.h
-@@ -157,6 +157,8 @@ int virtio_device_freeze(struct virtio_device *dev);
- int virtio_device_restore(struct virtio_device *dev);
- #endif
- 
-+size_t virtio_max_dma_size(struct virtio_device *vdev);
-+
- #define virtio_device_for_each_vq(vdev, vq) \
- 	list_for_each_entry(vq, &vdev->vqs, list)
- 
 -- 
 2.17.1
+
+diff --git a/Documentation/DMA-API.txt b/Documentation/DMA-API.txt
+index e133ccd60228..acfe3d0f78d1 100644
+--- a/Documentation/DMA-API.txt
++++ b/Documentation/DMA-API.txt
+@@ -195,6 +195,14 @@ Requesting the required mask does not alter the current mask.  If you
+ wish to take advantage of it, you should issue a dma_set_mask()
+ call to set the mask to the value returned.
+ 
++::
++
++	size_t
++	dma_direct_max_mapping_size(struct device *dev);
++
++Returns the maximum size of a mapping for the device. The size parameter
++of the mapping functions like dma_map_single(), dma_map_page() and
++others should not be larger than the returned value.
+ 
+ Part Id - Streaming DMA mappings
+ --------------------------------
+diff --git a/include/linux/swiotlb.h b/include/linux/swiotlb.h
+index 5c087d330b4b..e9e786b4b598 100644
+--- a/include/linux/swiotlb.h
++++ b/include/linux/swiotlb.h
+@@ -62,7 +62,7 @@ extern void swiotlb_tbl_sync_single(struct device *hwdev,
+ 
+ extern int
+ swiotlb_dma_supported(struct device *hwdev, u64 mask);
+-extern size_t swiotlb_max_mapping_size(struct device *dev);
++size_t swiotlb_max_mapping_size(struct device *dev);
+ bool is_swiotlb_active(void);
+ 
+ #ifdef CONFIG_SWIOTLB
+diff --git a/kernel/dma/swiotlb.c b/kernel/dma/swiotlb.c
+index 9fbd075081d9..c873f9cc2146 100644
+--- a/kernel/dma/swiotlb.c
++++ b/kernel/dma/swiotlb.c
+@@ -670,5 +670,9 @@ size_t swiotlb_max_mapping_size(struct device *dev)
+ 
+ bool is_swiotlb_active(void)
+ {
+-	return !no_iotlb_memory;
++	/*
++	 * When SWIOTLB is initialized, even if io_tlb_start points to physical
++	 * address zero, io_tlb_end surely doesn't.
++	 */
++	return io_tlb_end != 0;
+ }
