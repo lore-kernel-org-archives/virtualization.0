@@ -1,18 +1,14 @@
-From: Jason Wang <jasowang@redhat.com>
-Subject: Re: [PATCH v2 net 7/7] virtio_net: Differentiate sk_buff and
-	xdp_frame on freeing
-Date: Tue, 29 Jan 2019 10:49:45 +0800
-Message-ID: <9df542d3-c0b5-5170-1913-9174a2c37a8e__49333.8194953807$1548742798$gmane$org@redhat.com>
-References: <1548722759-2470-1-git-send-email-makita.toshiaki@lab.ntt.co.jp>
-	<1548722759-2470-8-git-send-email-makita.toshiaki@lab.ntt.co.jp>
-	<6267c42f-ce1e-1b63-2af9-84a76090f686@redhat.com>
-	<5f114c25-1f42-996b-134c-962b64597e74@lab.ntt.co.jp>
+From: "Michael S. Tsirkin" <mst@redhat.com>
+Subject: Re: [PATCH] virtio_net: Introduce extended RSC feature
+Date: Tue, 29 Jan 2019 11:07:47 -0500
+Message-ID: <20190129110636-mutt-send-email-mst__6691.69266927696$1548825316$gmane$org@kernel.org>
+References: <20190129125236.12165-1-yuri.benditovich@daynix.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="utf-8"; Format="flowed"
-Content-Transfer-Encoding: base64
+Content-Type: text/plain; charset="us-ascii"
+Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <5f114c25-1f42-996b-134c-962b64597e74@lab.ntt.co.jp>
-Content-Language: en-US
+Content-Disposition: inline
+In-Reply-To: <20190129125236.12165-1-yuri.benditovich@daynix.com>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -22,30 +18,65 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Toshiaki Makita <makita.toshiaki@lab.ntt.co.jp>, "David S. Miller" <davem@davemloft.net>, "Michael S. Tsirkin" <mst@redhat.com>
-Cc: netdev@vger.kernel.org, virtualization@lists.linux-foundation.org
+To: Yuri Benditovich <yuri.benditovich@daynix.com>
+Cc: yan@daynix.com, linux-kernel@vger.kernel.org, virtualization@lists.linux-foundation.org
 List-Id: virtualization@lists.linuxfoundation.org
 
-Ck9uIDIwMTkvMS8yOSDkuIrljYgxMDozNSwgVG9zaGlha2kgTWFraXRhIHdyb3RlOgo+IE9uIDIw
-MTkvMDEvMjkgMTE6MjMsIEphc29uIFdhbmcgd3JvdGU6Cj4+IE9uIDIwMTkvMS8yOSDkuIrljYg4
-OjQ1LCBUb3NoaWFraSBNYWtpdGEgd3JvdGU6Cj4gLi4uCj4+PiBAQCAtMjY2NiwxMCArMjY5Niwx
-MCBAQCBzdGF0aWMgdm9pZCBmcmVlX3VudXNlZF9idWZzKHN0cnVjdAo+Pj4gdmlydG5ldF9pbmZv
-ICp2aSkKPj4+ICDCoMKgwqDCoMKgIGZvciAoaSA9IDA7IGkgPCB2aS0+bWF4X3F1ZXVlX3BhaXJz
-OyBpKyspIHsKPj4+ICDCoMKgwqDCoMKgwqDCoMKgwqAgc3RydWN0IHZpcnRxdWV1ZSAqdnEgPSB2
-aS0+c3FbaV0udnE7Cj4+PiAgwqDCoMKgwqDCoMKgwqDCoMKgIHdoaWxlICgoYnVmID0gdmlydHF1
-ZXVlX2RldGFjaF91bnVzZWRfYnVmKHZxKSkgIT0gTlVMTCkgewo+Pj4gLcKgwqDCoMKgwqDCoMKg
-wqDCoMKgwqAgaWYgKCFpc194ZHBfcmF3X2J1ZmZlcl9xdWV1ZSh2aSwgaSkpCj4+PiArwqDCoMKg
-wqDCoMKgwqDCoMKgwqDCoCBpZiAoIWlzX3hkcF9mcmFtZShidWYpKQo+Pgo+PiBJIGJlbGlldmUg
-dGhpcyBpcyB0aGUgbGFzdCB1c2VyIG9mIGlzX3hkcF9yYXdfYnVmZmVyX3F1ZXVlKCksIG1heWJl
-IHlvdQo+PiBjYW4gc2VudCBhIHBhdGNoIG9uIHRvcCB0byByZW1vdmUgaXQuCj4gQWN0dWFsbHkg
-cGF0Y2gyIGFkZGVkIG5ldyB1c2VycyBvZiBpdCA7KQoKClJpZ2h0LCBJIG1pc3NlZCB0aGF0LgoK
-VGhhbmtzCgoKPgo+Pgo+Pj4gIMKgwqDCoMKgwqDCoMKgwqDCoMKgwqDCoMKgwqDCoMKgwqAgZGV2
-X2tmcmVlX3NrYihidWYpOwo+Pj4gIMKgwqDCoMKgwqDCoMKgwqDCoMKgwqDCoMKgIGVsc2UKPj4+
-IC3CoMKgwqDCoMKgwqDCoMKgwqDCoMKgwqDCoMKgwqAgeGRwX3JldHVybl9mcmFtZShidWYpOwo+
-Pj4gK8KgwqDCoMKgwqDCoMKgwqDCoMKgwqDCoMKgwqDCoCB4ZHBfcmV0dXJuX2ZyYW1lKHB0cl90
-b194ZHAoYnVmKSk7Cj4+PiAgwqDCoMKgwqDCoMKgwqDCoMKgIH0KPj4+ICDCoMKgwqDCoMKgIH0K
-Pj4+ICAgIAo+Pgo+PiBBY2tlZC1ieTogSmFzb24gV2FuZyA8amFzb3dhbmdAcmVkaGF0LmNvbT4K
-Pj4KPiBUaGFua3MhCj4KX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19f
-X19fX18KVmlydHVhbGl6YXRpb24gbWFpbGluZyBsaXN0ClZpcnR1YWxpemF0aW9uQGxpc3RzLmxp
-bnV4LWZvdW5kYXRpb24ub3JnCmh0dHBzOi8vbGlzdHMubGludXhmb3VuZGF0aW9uLm9yZy9tYWls
-bWFuL2xpc3RpbmZvL3ZpcnR1YWxpemF0aW9u
+On Tue, Jan 29, 2019 at 02:52:36PM +0200, Yuri Benditovich wrote:
+> VIRTIO_NET_F_RSC_EXT feature bit indicates that the device
+> is able to provide extended RSC information. When the feature
+> is active and 'gso_type' field in received packet is not GSO_NONE,
+> the device reports number of coalesced packets in 'csum_start'
+> field and number of duplicated acks in 'csum_offset' field
+> and sets VIRTIO_NET_HDR_F_RSC_INFO in 'flags' field.
+> 
+> Signed-off-by: Yuri Benditovich <yuri.benditovich@daynix.com>
+> ---
+>  include/uapi/linux/virtio_net.h | 15 ++++++++++++++-
+>  1 file changed, 14 insertions(+), 1 deletion(-)
+> 
+> diff --git a/include/uapi/linux/virtio_net.h b/include/uapi/linux/virtio_net.h
+> index a3715a3224c1..93c71d714475 100644
+> --- a/include/uapi/linux/virtio_net.h
+> +++ b/include/uapi/linux/virtio_net.h
+> @@ -56,7 +56,7 @@
+>  #define VIRTIO_NET_F_MQ	22	/* Device supports Receive Flow
+>  					 * Steering */
+>  #define VIRTIO_NET_F_CTRL_MAC_ADDR 23	/* Set MAC address */
+> -
+> +#define VIRTIO_NET_F_RSC_EXT	  61	/* Provides extended RSC info */
+>  #define VIRTIO_NET_F_STANDBY	  62	/* Act as standby for another device
+>  					 * with the same MAC.
+>  					 */
+> @@ -104,6 +104,7 @@ struct virtio_net_config {
+>  struct virtio_net_hdr_v1 {
+>  #define VIRTIO_NET_HDR_F_NEEDS_CSUM	1	/* Use csum_start, csum_offset */
+>  #define VIRTIO_NET_HDR_F_DATA_VALID	2	/* Csum is valid */
+> +#define VIRTIO_NET_HDR_F_RSC_INFO	4   /* rsc_ext data in csum_ fields */
+>  	__u8 flags;
+>  #define VIRTIO_NET_HDR_GSO_NONE		0	/* Not a GSO frame */
+>  #define VIRTIO_NET_HDR_GSO_TCPV4	1	/* GSO frame, IPv4 TCP (TSO) */
+> @@ -140,6 +141,18 @@ struct virtio_net_hdr_mrg_rxbuf {
+>  	struct virtio_net_hdr hdr;
+>  	__virtio16 num_buffers;	/* Number of merged rx buffers */
+>  };
+> +
+> +static inline __virtio16 *virtio_net_rsc_ext_num_packets(
+> +	struct virtio_net_hdr *hdr)
+> +{
+> +	return &hdr->csum_start;
+> +}
+> +
+> +static inline __virtio16 *virtio_net_rsc_ext_num_dupacks(
+> +	struct virtio_net_hdr *hdr)
+> +{
+> +	return &hdr->csum_offset;
+> +}
+>  #endif /* ...VIRTIO_NET_NO_LEGACY */
+
+Coding style is off here. But really I don't think these inlines are
+needed here. Put them in qemu or something.
+
+>  /*
+> -- 
+> 2.17.1
