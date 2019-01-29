@@ -1,15 +1,11 @@
-From: "Darrick J. Wong" <darrick.wong@oracle.com>
-Subject: Re: [PATCH v3 5/5] xfs: disable map_sync for virtio pmem
-Date: Wed, 9 Jan 2019 08:26:54 -0800
-Message-ID: <20190109162654.GW12689__23667.2622313321$1555717062$gmane$org@magnolia>
-References: <20190109144736.17452-1-pagupta@redhat.com>
-	<20190109144736.17452-6-pagupta@redhat.com>
+From: Thiago Jung Bauermann <bauerman@linux.ibm.com>
+Subject: [RFC PATCH] virtio_ring: Use DMA API if guest memory is encrypted
+Date: Tue, 29 Jan 2019 15:08:12 -0200
+Message-ID: <87zhrj8kcp.fsf__16593.5698709049$1555717074$gmane$org@morokweng.localdomain>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-Content-Disposition: inline
-In-Reply-To: <20190109144736.17452-6-pagupta@redhat.com>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -19,49 +15,53 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Pankaj Gupta <pagupta@redhat.com>
-Cc: jack@suse.cz, kvm@vger.kernel.org, linux-nvdimm@ml01.01.org, qemu-devel@nongnu.org, virtualization@lists.linux-foundation.org, adilger.kernel@dilger.ca, zwisler@kernel.org, eblake@redhat.com, dave.jiang@intel.com, vishal.l.verma@intel.com, mst@redhat.com, willy@infradead.org, hch@infradead.org, linux-acpi@vger.kernel.org, jmoyer@redhat.com, nilal@redhat.com, riel@surriel.com, stefanha@redhat.com, imammedo@redhat.com, dan.j.williams@intel.com, lcapitulino@redhat.com, linux-ext4@vger.kernel.org, tytso@mit.edu, xiaoguangrong.eric@gmail.com, rjw@rjwysocki.net, linux-kernel@vger.kernel.org, linux-xfs@vger.kernel.org, linux-fsdevel@vger.kernel.org, pbonzini@redhat.com
+To: virtualization@lists.linux-foundation.org
+Cc: "Michael S . Tsirkin" <mst@redhat.com>, Benjamin Herrenschmidt <benh@kernel.crashing.org>, Alexey Kardashevskiy <aik@linux.ibm.com>, Ram Pai <linuxram@us.ibm.com>, linux-kernel@vger.kernel.org, Paul Mackerras <paulus@ozlabs.org>, iommu@lists.linux-foundation.org, linuxppc-devel@lists.ozlabs.org, Christoph Hellwig <hch@lst.de>, David Gibson <david@gibson.dropbear.id.au>
 List-Id: virtualization@lists.linuxfoundation.org
 
-On Wed, Jan 09, 2019 at 08:17:36PM +0530, Pankaj Gupta wrote:
-> Virtio pmem provides asynchronous host page cache flush
-> mechanism. we don't support 'MAP_SYNC' with virtio pmem 
-> and xfs.
-> 
-> Signed-off-by: Pankaj Gupta <pagupta@redhat.com>
-> ---
->  fs/xfs/xfs_file.c | 8 ++++++++
->  1 file changed, 8 insertions(+)
-> 
-> diff --git a/fs/xfs/xfs_file.c b/fs/xfs/xfs_file.c
-> index e474250..eae4aa4 100644
-> --- a/fs/xfs/xfs_file.c
-> +++ b/fs/xfs/xfs_file.c
-> @@ -1190,6 +1190,14 @@ xfs_file_mmap(
->  	if (!IS_DAX(file_inode(filp)) && (vma->vm_flags & VM_SYNC))
->  		return -EOPNOTSUPP;
->  
-> +	/* We don't support synchronous mappings with guest direct access
-> +	 * and virtio based host page cache mechanism.
-> +	 */
-> +	if (IS_DAX(file_inode(filp)) && virtio_pmem_host_cache_enabled(
 
-Echoing what Jan said, this ought to be some sort of generic function
-that tells us whether or not memory mapped from the dax device will
-always still be accessible even after a crash (i.e. supports MAP_SYNC).
+Hello,
 
-What if the underlying file on the host is itself on pmem and can be
-MAP_SYNC'd?  Shouldn't the guest be able to use MAP_SYNC as well?
+With Christoph's rework of the DMA API that recently landed, the patch
+below is the only change needed in virtio to make it work in a POWER
+secure guest under the ultravisor.
 
---D
+The other change we need (making sure the device's dma_map_ops is NULL
+so that the dma-direct/swiotlb code is used) can be made in
+powerpc-specific code.
 
-> +		xfs_find_daxdev_for_inode(file_inode(filp))) &&
-> +					(vma->vm_flags & VM_SYNC))
-> +		return -EOPNOTSUPP;
-> +
->  	file_accessed(filp);
->  	vma->vm_ops = &xfs_file_vm_ops;
->  	if (IS_DAX(file_inode(filp)))
-> -- 
-> 2.9.3
-> 
+Of course, I also have patches (soon to be posted as RFC) which hook up
+<linux/mem_encrypt.h> to the powerpc secure guest support code.
+
+What do you think?
+
+From d0629a36a75c678b4a72b853f8f7f8c17eedd6b3 Mon Sep 17 00:00:00 2001
+From: Thiago Jung Bauermann <bauerman@linux.ibm.com>
+Date: Thu, 24 Jan 2019 22:08:02 -0200
+Subject: [RFC PATCH] virtio_ring: Use DMA API if guest memory is encrypted
+
+The host can't access the guest memory when it's encrypted, so using
+regular memory pages for the ring isn't an option. Go through the DMA API.
+
+Signed-off-by: Thiago Jung Bauermann <bauerman@linux.ibm.com>
+---
+ drivers/virtio/virtio_ring.c | 5 ++++-
+ 1 file changed, 4 insertions(+), 1 deletion(-)
+
+diff --git a/drivers/virtio/virtio_ring.c b/drivers/virtio/virtio_ring.c
+index cd7e755484e3..321a27075380 100644
+--- a/drivers/virtio/virtio_ring.c
++++ b/drivers/virtio/virtio_ring.c
+@@ -259,8 +259,11 @@ static bool vring_use_dma_api(struct virtio_device *vdev)
+ 	 * not work without an even larger kludge.  Instead, enable
+ 	 * the DMA API if we're a Xen guest, which at least allows
+ 	 * all of the sensible Xen configurations to work correctly.
++	 *
++	 * Also, if guest memory is encrypted the host can't access
++	 * it directly. In this case, we'll need to use the DMA API.
+ 	 */
+-	if (xen_domain())
++	if (xen_domain() || sev_active())
+ 		return true;
+
+ 	return false;
