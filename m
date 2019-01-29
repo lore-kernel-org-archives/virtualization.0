@@ -1,14 +1,16 @@
-From: Toshiaki Makita <makita.toshiaki@lab.ntt.co.jp>
-Subject: [PATCH v2 net 7/7] virtio_net: Differentiate sk_buff and xdp_frame on
-	freeing
-Date: Tue, 29 Jan 2019 09:45:59 +0900
-Message-ID: <1548722759-2470-8-git-send-email-makita.toshiaki__6445.52215687639$1548742730$gmane$org@lab.ntt.co.jp>
+From: Jason Wang <jasowang@redhat.com>
+Subject: Re: [PATCH v2 net 5/7] virtio_net: Don't process redirected XDP
+	frames when XDP is disabled
+Date: Tue, 29 Jan 2019 10:20:11 +0800
+Message-ID: <c76c0e36-aef2-5bbc-92f7-5040749208f8__24397.7275722258$1548742741$gmane$org@redhat.com>
 References: <1548722759-2470-1-git-send-email-makita.toshiaki@lab.ntt.co.jp>
+	<1548722759-2470-6-git-send-email-makita.toshiaki@lab.ntt.co.jp>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset="utf-8"; Format="flowed"
+Content-Transfer-Encoding: base64
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <1548722759-2470-1-git-send-email-makita.toshiaki@lab.ntt.co.jp>
+In-Reply-To: <1548722759-2470-6-git-send-email-makita.toshiaki@lab.ntt.co.jp>
+Content-Language: en-US
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -18,155 +20,44 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: "David S. Miller" <davem@davemloft.net>, "Michael S. Tsirkin" <mst@redhat.com>, Jason Wang <jasowang@redhat.com>
-Cc: netdev@vger.kernel.org, virtualization@lists.linux-foundation.org
+To: Toshiaki Makita <makita.toshiaki@lab.ntt.co.jp>, "David S. Miller" <davem@davemloft.net>, "Michael S. Tsirkin" <mst@redhat.com>
+Cc: netdev@vger.kernel.org, Jesper Dangaard Brouer <brouer@redhat.com>, virtualization@lists.linux-foundation.org
 List-Id: virtualization@lists.linuxfoundation.org
 
-We do not reset or free up unused buffers when enabling/disabling XDP,
-so it can happen that xdp_frames are freed after disabling XDP or
-sk_buffs are freed after enabling XDP on xdp tx queues.
-Thus we need to handle both forms (xdp_frames and sk_buffs) regardless
-of XDP setting.
-One way to trigger this problem is to disable XDP when napi_tx is
-enabled. In that case, virtnet_xdp_set() calls virtnet_napi_enable()
-which kicks NAPI. The NAPI handler will call virtnet_poll_cleantx()
-which invokes free_old_xmit_skbs() for queues which have been used by
-XDP.
-
-Note that even with this change we need to keep skipping
-free_old_xmit_skbs() from NAPI handlers when XDP is enabled, because XDP
-tx queues do not aquire queue locks.
-
-- v2: Use napi_consume_skb() instead of dev_consume_skb_any()
-
-Fixes: 4941d472bf95 ("virtio-net: do not reset during XDP set")
-Signed-off-by: Toshiaki Makita <makita.toshiaki@lab.ntt.co.jp>
----
-NOTE: Dropped Acked-by because of the v2 change.
-
- drivers/net/virtio_net.c | 54 +++++++++++++++++++++++++++++++++++++-----------
- 1 file changed, 42 insertions(+), 12 deletions(-)
-
-diff --git a/drivers/net/virtio_net.c b/drivers/net/virtio_net.c
-index 1d454ce..2594481 100644
---- a/drivers/net/virtio_net.c
-+++ b/drivers/net/virtio_net.c
-@@ -57,6 +57,8 @@
- #define VIRTIO_XDP_TX		BIT(0)
- #define VIRTIO_XDP_REDIR	BIT(1)
- 
-+#define VIRTIO_XDP_FLAG	BIT(0)
-+
- /* RX packet size EWMA. The average packet size is used to determine the packet
-  * buffer size when refilling RX rings. As the entire RX ring may be refilled
-  * at once, the weight is chosen so that the EWMA will be insensitive to short-
-@@ -252,6 +254,21 @@ struct padded_vnet_hdr {
- 	char padding[4];
- };
- 
-+static bool is_xdp_frame(void *ptr)
-+{
-+	return (unsigned long)ptr & VIRTIO_XDP_FLAG;
-+}
-+
-+static void *xdp_to_ptr(struct xdp_frame *ptr)
-+{
-+	return (void *)((unsigned long)ptr | VIRTIO_XDP_FLAG);
-+}
-+
-+static struct xdp_frame *ptr_to_xdp(void *ptr)
-+{
-+	return (struct xdp_frame *)((unsigned long)ptr & ~VIRTIO_XDP_FLAG);
-+}
-+
- /* Converting between virtqueue no. and kernel tx/rx queue no.
-  * 0:rx0 1:tx0 2:rx1 3:tx1 ... 2N:rxN 2N+1:txN 2N+2:cvq
-  */
-@@ -462,7 +479,8 @@ static int __virtnet_xdp_xmit_one(struct virtnet_info *vi,
- 
- 	sg_init_one(sq->sg, xdpf->data, xdpf->len);
- 
--	err = virtqueue_add_outbuf(sq->vq, sq->sg, 1, xdpf, GFP_ATOMIC);
-+	err = virtqueue_add_outbuf(sq->vq, sq->sg, 1, xdp_to_ptr(xdpf),
-+				   GFP_ATOMIC);
- 	if (unlikely(err))
- 		return -ENOSPC; /* Caller handle free/refcnt */
- 
-@@ -482,13 +500,13 @@ static int virtnet_xdp_xmit(struct net_device *dev,
- {
- 	struct virtnet_info *vi = netdev_priv(dev);
- 	struct receive_queue *rq = vi->rq;
--	struct xdp_frame *xdpf_sent;
- 	struct bpf_prog *xdp_prog;
- 	struct send_queue *sq;
- 	unsigned int len;
- 	int drops = 0;
- 	int kicks = 0;
- 	int ret, err;
-+	void *ptr;
- 	int i;
- 
- 	/* Only allow ndo_xdp_xmit if XDP is loaded on dev, as this
-@@ -507,8 +525,12 @@ static int virtnet_xdp_xmit(struct net_device *dev,
- 	}
- 
- 	/* Free up any pending old buffers before queueing new ones. */
--	while ((xdpf_sent = virtqueue_get_buf(sq->vq, &len)) != NULL)
--		xdp_return_frame(xdpf_sent);
-+	while ((ptr = virtqueue_get_buf(sq->vq, &len)) != NULL) {
-+		if (likely(is_xdp_frame(ptr)))
-+			xdp_return_frame(ptr_to_xdp(ptr));
-+		else
-+			napi_consume_skb(ptr, false);
-+	}
- 
- 	for (i = 0; i < n; i++) {
- 		struct xdp_frame *xdpf = frames[i];
-@@ -1329,18 +1351,26 @@ static int virtnet_receive(struct receive_queue *rq, int budget,
- 
- static void free_old_xmit_skbs(struct send_queue *sq, bool in_napi)
- {
--	struct sk_buff *skb;
- 	unsigned int len;
- 	unsigned int packets = 0;
- 	unsigned int bytes = 0;
-+	void *ptr;
- 
--	while ((skb = virtqueue_get_buf(sq->vq, &len)) != NULL) {
--		pr_debug("Sent skb %p\n", skb);
-+	while ((ptr = virtqueue_get_buf(sq->vq, &len)) != NULL) {
-+		if (likely(!is_xdp_frame(ptr))) {
-+			struct sk_buff *skb = ptr;
- 
--		bytes += skb->len;
--		packets++;
-+			pr_debug("Sent skb %p\n", skb);
- 
--		napi_consume_skb(skb, in_napi);
-+			bytes += skb->len;
-+			napi_consume_skb(skb, in_napi);
-+		} else {
-+			struct xdp_frame *frame = ptr_to_xdp(ptr);
-+
-+			bytes += frame->len;
-+			xdp_return_frame(frame);
-+		}
-+		packets++;
- 	}
- 
- 	/* Avoid overhead when no packets have been processed
-@@ -2666,10 +2696,10 @@ static void free_unused_bufs(struct virtnet_info *vi)
- 	for (i = 0; i < vi->max_queue_pairs; i++) {
- 		struct virtqueue *vq = vi->sq[i].vq;
- 		while ((buf = virtqueue_detach_unused_buf(vq)) != NULL) {
--			if (!is_xdp_raw_buffer_queue(vi, i))
-+			if (!is_xdp_frame(buf))
- 				dev_kfree_skb(buf);
- 			else
--				xdp_return_frame(buf);
-+				xdp_return_frame(ptr_to_xdp(buf));
- 		}
- 	}
- 
--- 
-1.8.3.1
+Ck9uIDIwMTkvMS8yOSDkuIrljYg4OjQ1LCBUb3NoaWFraSBNYWtpdGEgd3JvdGU6Cj4gQ29tbWl0
+IDhkY2M1YjBhYjBlYyAoInZpcnRpb19uZXQ6IGZpeCBuZG9feGRwX3htaXQgY3Jhc2ggdG93YXJk
+cyBkZXYgbm90Cj4gcmVhZHkgZm9yIFhEUCIpIHRyaWVkIHRvIGF2b2lkIGFjY2VzcyB0byB1bmV4
+cGVjdGVkIHNxIHdoaWxlIFhEUCBpcwo+IGRpc2FibGVkLCBidXQgd2FzIG5vdCBjb21wbGV0ZS4K
+Pgo+IFRoZXJlIHdhcyBhIHNtYWxsIHdpbmRvdyB3aGljaCBjYXVzZXMgb3V0IG9mIGJvdW5kcyBz
+cSBhY2Nlc3MgaW4KPiB2aXJ0bmV0X3hkcF94bWl0KCkgd2hpbGUgZGlzYWJsaW5nIFhEUC4KPgo+
+IEFuIGV4YW1wbGUgY2FzZSBvZgo+ICAgLSBjdXJyX3F1ZXVlX3BhaXJzID0gNiAoMiBmb3IgU0tC
+IGFuZCA0IGZvciBYRFApCj4gICAtIG9ubGluZV9jcHVfbnVtID0geGRwX3F1ZXVlX3BhcmlzID0g
+NAo+IHdoZW4gWERQIGlzIGVuYWJsZWQ6Cj4KPiBDUFUgMCAgICAgICAgICAgICAgICAgICAgICAg
+ICBDUFUgMQo+IChEaXNhYmxpbmcgWERQKSAgICAgICAgICAgICAgIChQcm9jZXNzaW5nIHJlZGly
+ZWN0ZWQgWERQIGZyYW1lcykKPgo+ICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICB2aXJ0
+bmV0X3hkcF94bWl0KCkKPiB2aXJ0bmV0X3hkcF9zZXQoKQo+ICAgX3ZpcnRuZXRfc2V0X3F1ZXVl
+cygpCj4gICAgc2V0IGN1cnJfcXVldWVfcGFpcnMgKDIpCj4gICAgICAgICAgICAgICAgICAgICAg
+ICAgICAgICAgICBjaGVjayBpZiBycS0+eGRwX3Byb2cgaXMgbm90IE5VTEwKPiAgICAgICAgICAg
+ICAgICAgICAgICAgICAgICAgICAgIHZpcnRuZXRfeGRwX3NxKHZpKQo+ICAgICAgICAgICAgICAg
+ICAgICAgICAgICAgICAgICAgIHFwID0gY3Vycl9xdWV1ZV9wYWlycyAtCj4gICAgICAgICAgICAg
+ICAgICAgICAgICAgICAgICAgICAgICAgICB4ZHBfcXVldWVfcGFpcnMgKwo+ICAgICAgICAgICAg
+ICAgICAgICAgICAgICAgICAgICAgICAgICAgc21wX3Byb2Nlc3Nvcl9pZCgpCj4gICAgICAgICAg
+ICAgICAgICAgICAgICAgICAgICAgICAgICAgPSAyIC0gNCArIDEgPSAtMQo+ICAgICAgICAgICAg
+ICAgICAgICAgICAgICAgICAgICAgIHNxID0gJnZpLT5zcVtxcF0gLy8gb3V0IG9mIGJvdW5kcyBh
+Y2Nlc3MKPiAgICBzZXQgeGRwX3F1ZXVlX3BhaXJzICgwKQo+ICAgIHJxLT54ZHBfcHJvZyA9IE5V
+TEwKPgo+IEJhc2ljYWxseSB3ZSBzaG91bGQgbm90IGNoYW5nZSBjdXJyX3F1ZXVlX3BhaXJzIGFu
+ZCB4ZHBfcXVldWVfcGFpcnMKPiB3aGlsZSBzb21lb25lIGNhbiByZWFkIHRoZSB2YWx1ZXMuIFRo
+dXMsIHdoZW4gZGlzYWJsaW5nIFhEUCwgYXNzaWduIE5VTEwKPiB0byBycS0+eGRwX3Byb2cgZmly
+c3QsIGFuZCB3YWl0IGZvciBSQ1UgZ3JhY2UgcGVyaW9kLCB0aGVuIGNoYW5nZQo+IHh4eF9xdWV1
+ZV9wYWlycy4KPiBOb3RlIHRoYXQgd2UgbmVlZCB0byBrZWVwIHRoZSBjdXJyZW50IG9yZGVyIHdo
+ZW4gZW5hYmxpbmcgWERQIHRob3VnaC4KPgo+IC0gdjI6IE1ha2UgcmN1X2Fzc2lnbl9wb2ludGVy
+L3N5bmNocm9uaXplX25ldCBjb25kaXRpb25hbCBpbnN0ZWFkIG9mCj4gICAgICAgIF92aXJ0bmV0
+X3NldF9xdWV1ZXMuCj4KPiBGaXhlczogMTg2YjNjOTk4YzUwICgidmlydGlvLW5ldDogc3VwcG9y
+dCBYRFBfUkVESVJFQ1QiKQo+IFNpZ25lZC1vZmYtYnk6IFRvc2hpYWtpIE1ha2l0YSA8bWFraXRh
+LnRvc2hpYWtpQGxhYi5udHQuY28uanA+Cj4gLS0tCj4gICBkcml2ZXJzL25ldC92aXJ0aW9fbmV0
+LmMgfCAzMyArKysrKysrKysrKysrKysrKysrKysrKysrKy0tLS0tLS0KPiAgIDEgZmlsZSBjaGFu
+Z2VkLCAyNiBpbnNlcnRpb25zKCspLCA3IGRlbGV0aW9ucygtKQoKCkFja2VkLWJ5OiBKYXNvbiBX
+YW5nIDxqYXNvd2FuZ0ByZWRoYXQuY29tPgoKVGhhbmtzLgoKX19fX19fX19fX19fX19fX19fX19f
+X19fX19fX19fX19fX19fX19fX19fX19fX18KVmlydHVhbGl6YXRpb24gbWFpbGluZyBsaXN0ClZp
+cnR1YWxpemF0aW9uQGxpc3RzLmxpbnV4LWZvdW5kYXRpb24ub3JnCmh0dHBzOi8vbGlzdHMubGlu
+dXhmb3VuZGF0aW9uLm9yZy9tYWlsbWFuL2xpc3RpbmZvL3ZpcnR1YWxpemF0aW9u
