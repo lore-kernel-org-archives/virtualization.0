@@ -1,8 +1,8 @@
 From: Gerd Hoffmann <kraxel@redhat.com>
-Subject: [PATCH v2 2/6] drm/virtio: use struct to pass params to
-	virtio_gpu_object_create()
-Date: Wed, 30 Jan 2019 10:43:34 +0100
-Message-ID: <20190130094338.14203-3-kraxel__33573.3851230302$1548841444$gmane$org@redhat.com>
+Subject: [PATCH v2 4/6] drm/virtio: params struct for
+	virtio_gpu_cmd_create_resource_3d()
+Date: Wed, 30 Jan 2019 10:43:36 +0100
+Message-ID: <20190130094338.14203-5-kraxel__45442.1452990331$1548841458$gmane$org@redhat.com>
 References: <20190130094338.14203-1-kraxel@redhat.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
@@ -22,220 +22,135 @@ To: dri-devel@lists.freedesktop.org
 Cc: David Airlie <airlied@linux.ie>, open list <linux-kernel@vger.kernel.org>, Daniel Vetter <daniel@ffwll.ch>, "open list:VIRTIO GPU DRIVER" <virtualization@lists.linux-foundation.org>
 List-Id: virtualization@lists.linuxfoundation.org
 
-Create virtio_gpu_object_params, use that to pass object parameters to
-virtio_gpu_object_create.  This is just the first step, followup patches
-will add more parameters to the struct.  The plan is to use the struct
-for all object parameters.
-
-Also drop unused "kernel" parameter for virtio_gpu_alloc_object(), it is
-unused and always false.
+Add 3d resource parameters to virtio_gpu_object_params struct.  With
+that in place we can use it for virtio_gpu_cmd_resource_create_3d()
+calls.
 
 Signed-off-by: Gerd Hoffmann <kraxel@redhat.com>
 ---
- drivers/gpu/drm/virtio/virtgpu_drv.h    | 15 ++++++++++-----
- drivers/gpu/drm/virtio/virtgpu_gem.c    | 17 ++++++++++-------
- drivers/gpu/drm/virtio/virtgpu_ioctl.c  | 11 ++++++-----
- drivers/gpu/drm/virtio/virtgpu_object.c | 22 +++++++++-------------
- 4 files changed, 35 insertions(+), 30 deletions(-)
+ drivers/gpu/drm/virtio/virtgpu_drv.h   | 10 +++++++++-
+ drivers/gpu/drm/virtio/virtgpu_ioctl.c | 25 ++++++++++---------------
+ drivers/gpu/drm/virtio/virtgpu_vq.c    | 16 +++++++++++++---
+ 3 files changed, 32 insertions(+), 19 deletions(-)
 
 diff --git a/drivers/gpu/drm/virtio/virtgpu_drv.h b/drivers/gpu/drm/virtio/virtgpu_drv.h
-index d577cb76f5..40928980a2 100644
+index a40215c10e..3265e62725 100644
 --- a/drivers/gpu/drm/virtio/virtgpu_drv.h
 +++ b/drivers/gpu/drm/virtio/virtgpu_drv.h
-@@ -50,6 +50,11 @@
- #define DRIVER_MINOR 1
- #define DRIVER_PATCHLEVEL 0
+@@ -56,6 +56,14 @@ struct virtio_gpu_object_params {
+ 	uint32_t height;
+ 	unsigned long size;
+ 	bool pinned;
++	/* 3d */
++	uint32_t target;
++	uint32_t bind;
++	uint32_t depth;
++	uint32_t array_size;
++	uint32_t last_level;
++	uint32_t nr_samples;
++	uint32_t flags;
+ };
  
-+struct virtio_gpu_object_params {
-+	unsigned long size;
-+	bool pinned;
-+};
-+
  struct virtio_gpu_object {
- 	struct drm_gem_object gem_base;
- 	uint32_t hw_res_handle;
-@@ -217,16 +222,16 @@ int virtio_gpu_gem_init(struct virtio_gpu_device *vgdev);
- void virtio_gpu_gem_fini(struct virtio_gpu_device *vgdev);
- int virtio_gpu_gem_create(struct drm_file *file,
- 			  struct drm_device *dev,
--			  uint64_t size,
-+			  struct virtio_gpu_object_params *params,
- 			  struct drm_gem_object **obj_p,
- 			  uint32_t *handle_p);
- int virtio_gpu_gem_object_open(struct drm_gem_object *obj,
- 			       struct drm_file *file);
- void virtio_gpu_gem_object_close(struct drm_gem_object *obj,
- 				 struct drm_file *file);
--struct virtio_gpu_object *virtio_gpu_alloc_object(struct drm_device *dev,
--						  size_t size, bool kernel,
--						  bool pinned);
-+struct virtio_gpu_object*
-+virtio_gpu_alloc_object(struct drm_device *dev,
-+			struct virtio_gpu_object_params *params);
- int virtio_gpu_mode_dumb_create(struct drm_file *file_priv,
- 				struct drm_device *dev,
- 				struct drm_mode_create_dumb *args);
-@@ -342,7 +347,7 @@ void virtio_gpu_fence_event_process(struct virtio_gpu_device *vdev,
- 
- /* virtio_gpu_object */
- int virtio_gpu_object_create(struct virtio_gpu_device *vgdev,
--			     unsigned long size, bool kernel, bool pinned,
-+			     struct virtio_gpu_object_params *params,
- 			     struct virtio_gpu_object **bo_ptr);
- void virtio_gpu_object_kunmap(struct virtio_gpu_object *bo);
- int virtio_gpu_object_kmap(struct virtio_gpu_object *bo);
-diff --git a/drivers/gpu/drm/virtio/virtgpu_gem.c b/drivers/gpu/drm/virtio/virtgpu_gem.c
-index f065863939..b5f2d94ce5 100644
---- a/drivers/gpu/drm/virtio/virtgpu_gem.c
-+++ b/drivers/gpu/drm/virtio/virtgpu_gem.c
-@@ -34,15 +34,15 @@ void virtio_gpu_gem_free_object(struct drm_gem_object *gem_obj)
- 		virtio_gpu_object_unref(&obj);
- }
- 
--struct virtio_gpu_object *virtio_gpu_alloc_object(struct drm_device *dev,
--						  size_t size, bool kernel,
--						  bool pinned)
-+struct virtio_gpu_object*
-+virtio_gpu_alloc_object(struct drm_device *dev,
-+			struct virtio_gpu_object_params *params)
- {
- 	struct virtio_gpu_device *vgdev = dev->dev_private;
- 	struct virtio_gpu_object *obj;
- 	int ret;
- 
--	ret = virtio_gpu_object_create(vgdev, size, kernel, pinned, &obj);
-+	ret = virtio_gpu_object_create(vgdev, params, &obj);
- 	if (ret)
- 		return ERR_PTR(ret);
- 
-@@ -51,7 +51,7 @@ struct virtio_gpu_object *virtio_gpu_alloc_object(struct drm_device *dev,
- 
- int virtio_gpu_gem_create(struct drm_file *file,
- 			  struct drm_device *dev,
--			  uint64_t size,
-+			  struct virtio_gpu_object_params *params,
- 			  struct drm_gem_object **obj_p,
- 			  uint32_t *handle_p)
- {
-@@ -59,7 +59,7 @@ int virtio_gpu_gem_create(struct drm_file *file,
- 	int ret;
- 	u32 handle;
- 
--	obj = virtio_gpu_alloc_object(dev, size, false, false);
-+	obj = virtio_gpu_alloc_object(dev, params);
- 	if (IS_ERR(obj))
- 		return PTR_ERR(obj);
- 
-@@ -85,6 +85,7 @@ int virtio_gpu_mode_dumb_create(struct drm_file *file_priv,
- 	struct virtio_gpu_device *vgdev = dev->dev_private;
- 	struct drm_gem_object *gobj;
- 	struct virtio_gpu_object *obj;
-+	struct virtio_gpu_object_params params = { 0 };
- 	int ret;
- 	uint32_t pitch;
- 	uint32_t format;
-@@ -96,7 +97,9 @@ int virtio_gpu_mode_dumb_create(struct drm_file *file_priv,
- 	args->size = pitch * args->height;
- 	args->size = ALIGN(args->size, PAGE_SIZE);
- 
--	ret = virtio_gpu_gem_create(file_priv, dev, args->size, &gobj,
-+	params.pinned = false,
-+	params.size = args->size;
-+	ret = virtio_gpu_gem_create(file_priv, dev, &params, &gobj,
- 				    &args->handle);
- 	if (ret)
- 		goto fail;
+@@ -310,7 +318,7 @@ void virtio_gpu_cmd_transfer_to_host_3d(struct virtio_gpu_device *vgdev,
+ void
+ virtio_gpu_cmd_resource_create_3d(struct virtio_gpu_device *vgdev,
+ 				  struct virtio_gpu_object *bo,
+-				  struct virtio_gpu_resource_create_3d *rc_3d);
++				  struct virtio_gpu_object_params *params);
+ void virtio_gpu_ctrl_ack(struct virtqueue *vq);
+ void virtio_gpu_cursor_ack(struct virtqueue *vq);
+ void virtio_gpu_fence_ack(struct virtqueue *vq);
 diff --git a/drivers/gpu/drm/virtio/virtgpu_ioctl.c b/drivers/gpu/drm/virtio/virtgpu_ioctl.c
-index 14ce8188c0..fa7b958ca2 100644
+index 84c2216fd4..431e5d767e 100644
 --- a/drivers/gpu/drm/virtio/virtgpu_ioctl.c
 +++ b/drivers/gpu/drm/virtio/virtgpu_ioctl.c
-@@ -279,12 +279,12 @@ static int virtio_gpu_resource_create_ioctl(struct drm_device *dev, void *data,
- 	struct virtio_gpu_object *qobj;
- 	struct drm_gem_object *obj;
- 	uint32_t handle = 0;
--	uint32_t size;
- 	struct list_head validate_list;
+@@ -283,7 +283,6 @@ static int virtio_gpu_resource_create_ioctl(struct drm_device *dev, void *data,
  	struct ttm_validate_buffer mainbuf;
  	struct virtio_gpu_fence *fence = NULL;
  	struct ww_acquire_ctx ticket;
- 	struct virtio_gpu_resource_create_3d rc_3d;
-+	struct virtio_gpu_object_params params = { 0 };
+-	struct virtio_gpu_resource_create_3d rc_3d;
+ 	struct virtio_gpu_object_params params = { 0 };
  
  	if (vgdev->has_virgl_3d == false) {
- 		if (rc->depth > 1)
-@@ -302,13 +302,14 @@ static int virtio_gpu_resource_create_ioctl(struct drm_device *dev, void *data,
- 	INIT_LIST_HEAD(&validate_list);
- 	memset(&mainbuf, 0, sizeof(struct ttm_validate_buffer));
- 
--	size = rc->size;
-+	params.pinned = false,
-+	params.size = rc->size;
- 
+@@ -307,7 +306,15 @@ static int virtio_gpu_resource_create_ioctl(struct drm_device *dev, void *data,
+ 	params.width = rc->width;
+ 	params.height = rc->height;
+ 	params.size = rc->size;
+-
++	if (vgdev->has_virgl_3d) {
++		params.target = rc->target;
++		params.bind = rc->bind;
++		params.depth = rc->depth;
++		params.array_size = rc->array_size;
++		params.last_level = rc->last_level;
++		params.nr_samples = rc->nr_samples;
++		params.flags = rc->flags;
++	}
  	/* allocate a single page size object */
--	if (size == 0)
--		size = PAGE_SIZE;
-+	if (params.size == 0)
-+		params.size = PAGE_SIZE;
+ 	if (params.size == 0)
+ 		params.size = PAGE_SIZE;
+@@ -333,25 +340,13 @@ static int virtio_gpu_resource_create_ioctl(struct drm_device *dev, void *data,
+ 			goto fail_unref;
+ 		}
  
--	qobj = virtio_gpu_alloc_object(dev, size, false, false);
-+	qobj = virtio_gpu_alloc_object(dev, &params);
- 	if (IS_ERR(qobj))
- 		return PTR_ERR(qobj);
- 	obj = &qobj->gem_base;
-diff --git a/drivers/gpu/drm/virtio/virtgpu_object.c b/drivers/gpu/drm/virtio/virtgpu_object.c
-index f39a183d59..62367e3f80 100644
---- a/drivers/gpu/drm/virtio/virtgpu_object.c
-+++ b/drivers/gpu/drm/virtio/virtgpu_object.c
-@@ -79,21 +79,16 @@ static void virtio_gpu_init_ttm_placement(struct virtio_gpu_object *vgbo,
- }
+-		rc_3d.resource_id = cpu_to_le32(qobj->hw_res_handle);
+-		rc_3d.target = cpu_to_le32(rc->target);
+-		rc_3d.format = cpu_to_le32(rc->format);
+-		rc_3d.bind = cpu_to_le32(rc->bind);
+-		rc_3d.width = cpu_to_le32(rc->width);
+-		rc_3d.height = cpu_to_le32(rc->height);
+-		rc_3d.depth = cpu_to_le32(rc->depth);
+-		rc_3d.array_size = cpu_to_le32(rc->array_size);
+-		rc_3d.last_level = cpu_to_le32(rc->last_level);
+-		rc_3d.nr_samples = cpu_to_le32(rc->nr_samples);
+-		rc_3d.flags = cpu_to_le32(rc->flags);
+-
+ 		fence = virtio_gpu_fence_alloc(vgdev);
+ 		if (!fence) {
+ 			ret = -ENOMEM;
+ 			goto fail_backoff;
+ 		}
  
- int virtio_gpu_object_create(struct virtio_gpu_device *vgdev,
--			     unsigned long size, bool kernel, bool pinned,
-+			     struct virtio_gpu_object_params *params,
- 			     struct virtio_gpu_object **bo_ptr)
+-		virtio_gpu_cmd_resource_create_3d(vgdev, qobj, &rc_3d);
++		virtio_gpu_cmd_resource_create_3d(vgdev, qobj, &params);
+ 		ret = virtio_gpu_object_attach(vgdev, qobj, fence);
+ 		if (ret) {
+ 			dma_fence_put(&fence->f);
+diff --git a/drivers/gpu/drm/virtio/virtgpu_vq.c b/drivers/gpu/drm/virtio/virtgpu_vq.c
+index 363b8b8577..ca93ec6ca3 100644
+--- a/drivers/gpu/drm/virtio/virtgpu_vq.c
++++ b/drivers/gpu/drm/virtio/virtgpu_vq.c
+@@ -826,7 +826,7 @@ void virtio_gpu_cmd_context_detach_resource(struct virtio_gpu_device *vgdev,
+ void
+ virtio_gpu_cmd_resource_create_3d(struct virtio_gpu_device *vgdev,
+ 				  struct virtio_gpu_object *bo,
+-				  struct virtio_gpu_resource_create_3d *rc_3d)
++				  struct virtio_gpu_object_params *params)
  {
- 	struct virtio_gpu_object *bo;
--	enum ttm_bo_type type;
- 	size_t acc_size;
- 	int ret;
+ 	struct virtio_gpu_resource_create_3d *cmd_p;
+ 	struct virtio_gpu_vbuffer *vbuf;
+@@ -834,9 +834,19 @@ virtio_gpu_cmd_resource_create_3d(struct virtio_gpu_device *vgdev,
+ 	cmd_p = virtio_gpu_alloc_cmd(vgdev, &vbuf, sizeof(*cmd_p));
+ 	memset(cmd_p, 0, sizeof(*cmd_p));
  
--	if (kernel)
--		type = ttm_bo_type_kernel;
--	else
--		type = ttm_bo_type_device;
- 	*bo_ptr = NULL;
+-	*cmd_p = *rc_3d;
+ 	cmd_p->hdr.type = cpu_to_le32(VIRTIO_GPU_CMD_RESOURCE_CREATE_3D);
+-	cmd_p->hdr.flags = 0;
++	cmd_p->resource_id = cpu_to_le32(bo->hw_res_handle);
++	cmd_p->format = cpu_to_le32(params->format);
++	cmd_p->width = cpu_to_le32(params->width);
++	cmd_p->height = cpu_to_le32(params->height);
++
++	cmd_p->target = cpu_to_le32(params->target);
++	cmd_p->bind = cpu_to_le32(params->bind);
++	cmd_p->depth = cpu_to_le32(params->depth);
++	cmd_p->array_size = cpu_to_le32(params->array_size);
++	cmd_p->last_level = cpu_to_le32(params->last_level);
++	cmd_p->nr_samples = cpu_to_le32(params->nr_samples);
++	cmd_p->flags = cpu_to_le32(params->flags);
  
--	acc_size = ttm_bo_dma_acc_size(&vgdev->mman.bdev, size,
-+	acc_size = ttm_bo_dma_acc_size(&vgdev->mman.bdev, params->size,
- 				       sizeof(struct virtio_gpu_object));
- 
- 	bo = kzalloc(sizeof(struct virtio_gpu_object), GFP_KERNEL);
-@@ -104,19 +99,20 @@ int virtio_gpu_object_create(struct virtio_gpu_device *vgdev,
- 		kfree(bo);
- 		return ret;
- 	}
--	size = roundup(size, PAGE_SIZE);
--	ret = drm_gem_object_init(vgdev->ddev, &bo->gem_base, size);
-+	params->size = roundup(params->size, PAGE_SIZE);
-+	ret = drm_gem_object_init(vgdev->ddev, &bo->gem_base, params->size);
- 	if (ret != 0) {
- 		virtio_gpu_resource_id_put(vgdev, bo->hw_res_handle);
- 		kfree(bo);
- 		return ret;
- 	}
- 	bo->dumb = false;
--	virtio_gpu_init_ttm_placement(bo, pinned);
-+	virtio_gpu_init_ttm_placement(bo, params->pinned);
- 
--	ret = ttm_bo_init(&vgdev->mman.bdev, &bo->tbo, size, type,
--			  &bo->placement, 0, !kernel, acc_size,
--			  NULL, NULL, &virtio_gpu_ttm_bo_destroy);
-+	ret = ttm_bo_init(&vgdev->mman.bdev, &bo->tbo, params->size,
-+			  ttm_bo_type_device, &bo->placement, 0,
-+			  true, acc_size, NULL, NULL,
-+			  &virtio_gpu_ttm_bo_destroy);
- 	/* ttm_bo_init failure will call the destroy */
- 	if (ret != 0)
- 		return ret;
+ 	virtio_gpu_queue_ctrl_buffer(vgdev, vbuf);
+ 	bo->created = true;
 -- 
 2.9.3
