@@ -1,14 +1,13 @@
-From: Gerd Hoffmann <kraxel@redhat.com>
-Subject: [PATCH v2 6/6] drm/virtio: move virtio_gpu_cmd_create_resource call
-	into virtio_gpu_object_create
-Date: Wed, 30 Jan 2019 10:43:38 +0100
-Message-ID: <20190130094338.14203-7-kraxel__47475.2701631346$1548841509$gmane$org@redhat.com>
-References: <20190130094338.14203-1-kraxel@redhat.com>
+From: Joerg Roedel <joro@8bytes.org>
+Subject: [PATCH 3/5] dma: Introduce dma_max_mapping_size()
+Date: Wed, 30 Jan 2019 17:40:05 +0100
+Message-ID: <20190130164007.26497-4-joro__2669.44293850742$1548872719$gmane$org@8bytes.org>
+References: <20190130164007.26497-1-joro@8bytes.org>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <20190130094338.14203-1-kraxel@redhat.com>
+In-Reply-To: <20190130164007.26497-1-joro@8bytes.org>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -18,143 +17,105 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: dri-devel@lists.freedesktop.org
-Cc: David Airlie <airlied@linux.ie>, open list <linux-kernel@vger.kernel.org>, Daniel Vetter <daniel@ffwll.ch>, "open list:VIRTIO GPU DRIVER" <virtualization@lists.linux-foundation.org>
+To: "Michael S . Tsirkin" <mst@redhat.com>, Jason Wang <jasowang@redhat.com>, Konrad Rzeszutek Wilk <konrad.wilk@oracle.com>, Christoph Hellwig <hch@lst.de>
+Cc: Jens Axboe <axboe@kernel.dk>, Thomas.Lendacky@amd.com, jroedel@suse.de, brijesh.singh@amd.com, joro@8bytes.org, jon.grimm@amd.com, jfehlig@suse.com, linux-kernel@vger.kernel.org, linux-block@vger.kernel.org, iommu@lists.linux-foundation.org, virtualization@lists.linux-foundation.org
 List-Id: virtualization@lists.linuxfoundation.org
 
-Specifically call virtio_gpu_object_create() before ttm_bo_init(), so
-the object is already created when ttm calls the
-virtio_gpu_ttm_tt_bind() callback (which in turn calls
-virtio_gpu_object_attach()).
+From: Joerg Roedel <jroedel@suse.de>
 
-With that in place virtio_gpu_object_attach() will never be called with
-an object which is not yet created, so the extra
-virtio_gpu_object_attach() calls done after
-virtio_gpu_cmd_create_resource() is not needed any more.
+The function returns the maximum size that can be mapped
+using DMA-API functions. The patch also adds the
+implementation for direct DMA and a new dma_map_ops pointer
+so that other implementations can expose their limit.
 
-Signed-off-by: Gerd Hoffmann <kraxel@redhat.com>
+Reviewed-by: Konrad Rzeszutek Wilk <konrad.wilk@oracle.com>
+Reviewed-by: Christoph Hellwig <hch@lst.de>
+Signed-off-by: Joerg Roedel <jroedel@suse.de>
 ---
- drivers/gpu/drm/virtio/virtgpu_drv.h    |  2 ++
- drivers/gpu/drm/virtio/virtgpu_gem.c    | 12 +-----------
- drivers/gpu/drm/virtio/virtgpu_ioctl.c  | 10 +---------
- drivers/gpu/drm/virtio/virtgpu_object.c | 10 ++++++++--
- drivers/gpu/drm/virtio/virtgpu_vq.c     |  4 ++--
- 5 files changed, 14 insertions(+), 24 deletions(-)
+ Documentation/DMA-API.txt   |  8 ++++++++
+ include/linux/dma-mapping.h | 16 ++++++++++++++++
+ kernel/dma/direct.c         | 12 ++++++++++++
+ 3 files changed, 36 insertions(+)
 
-diff --git a/drivers/gpu/drm/virtio/virtgpu_drv.h b/drivers/gpu/drm/virtio/virtgpu_drv.h
-index 3265e62725..52f3950f82 100644
---- a/drivers/gpu/drm/virtio/virtgpu_drv.h
-+++ b/drivers/gpu/drm/virtio/virtgpu_drv.h
-@@ -56,7 +56,9 @@ struct virtio_gpu_object_params {
- 	uint32_t height;
- 	unsigned long size;
- 	bool pinned;
-+	bool dumb;
- 	/* 3d */
-+	bool virgl;
- 	uint32_t target;
- 	uint32_t bind;
- 	uint32_t depth;
-diff --git a/drivers/gpu/drm/virtio/virtgpu_gem.c b/drivers/gpu/drm/virtio/virtgpu_gem.c
-index 3a63ffcd4b..b5d7df17ac 100644
---- a/drivers/gpu/drm/virtio/virtgpu_gem.c
-+++ b/drivers/gpu/drm/virtio/virtgpu_gem.c
-@@ -82,9 +82,7 @@ int virtio_gpu_mode_dumb_create(struct drm_file *file_priv,
- 				struct drm_device *dev,
- 				struct drm_mode_create_dumb *args)
- {
--	struct virtio_gpu_device *vgdev = dev->dev_private;
- 	struct drm_gem_object *gobj;
--	struct virtio_gpu_object *obj;
- 	struct virtio_gpu_object_params params = { 0 };
- 	int ret;
- 	uint32_t pitch;
-@@ -101,20 +99,12 @@ int virtio_gpu_mode_dumb_create(struct drm_file *file_priv,
- 	params.width = args->width;
- 	params.height = args->height;
- 	params.size = args->size;
-+	params.dumb = true;
- 	ret = virtio_gpu_gem_create(file_priv, dev, &params, &gobj,
- 				    &args->handle);
- 	if (ret)
- 		goto fail;
+diff --git a/Documentation/DMA-API.txt b/Documentation/DMA-API.txt
+index e133ccd60228..acfe3d0f78d1 100644
+--- a/Documentation/DMA-API.txt
++++ b/Documentation/DMA-API.txt
+@@ -195,6 +195,14 @@ Requesting the required mask does not alter the current mask.  If you
+ wish to take advantage of it, you should issue a dma_set_mask()
+ call to set the mask to the value returned.
  
--	obj = gem_to_virtio_gpu_obj(gobj);
--	virtio_gpu_cmd_create_resource(vgdev, obj, &params);
--
--	/* attach the object to the resource */
--	ret = virtio_gpu_object_attach(vgdev, obj, NULL);
--	if (ret)
--		goto fail;
--
--	obj->dumb = true;
- 	args->pitch = pitch;
- 	return ret;
- 
-diff --git a/drivers/gpu/drm/virtio/virtgpu_ioctl.c b/drivers/gpu/drm/virtio/virtgpu_ioctl.c
-index da06ebbb3a..3a1c447098 100644
---- a/drivers/gpu/drm/virtio/virtgpu_ioctl.c
-+++ b/drivers/gpu/drm/virtio/virtgpu_ioctl.c
-@@ -300,6 +300,7 @@ static int virtio_gpu_resource_create_ioctl(struct drm_device *dev, void *data,
- 	params.height = rc->height;
- 	params.size = rc->size;
- 	if (vgdev->has_virgl_3d) {
-+		params.virgl = true;
- 		params.target = rc->target;
- 		params.bind = rc->bind;
- 		params.depth = rc->depth;
-@@ -317,15 +318,6 @@ static int virtio_gpu_resource_create_ioctl(struct drm_device *dev, void *data,
- 		return PTR_ERR(qobj);
- 	obj = &qobj->gem_base;
- 
--	if (!vgdev->has_virgl_3d) {
--		virtio_gpu_cmd_create_resource(vgdev, qobj, &params);
--
--		ret = virtio_gpu_object_attach(vgdev, qobj, NULL);
--	} else {
--		virtio_gpu_cmd_resource_create_3d(vgdev, qobj, &params);
--		ret = virtio_gpu_object_attach(vgdev, qobj, NULL);
--	}
--
- 	ret = drm_gem_handle_create(file_priv, obj, &handle);
- 	if (ret) {
- 		drm_gem_object_release(obj);
-diff --git a/drivers/gpu/drm/virtio/virtgpu_object.c b/drivers/gpu/drm/virtio/virtgpu_object.c
-index 62367e3f80..94da9e68d2 100644
---- a/drivers/gpu/drm/virtio/virtgpu_object.c
-+++ b/drivers/gpu/drm/virtio/virtgpu_object.c
-@@ -106,9 +106,15 @@ int virtio_gpu_object_create(struct virtio_gpu_device *vgdev,
- 		kfree(bo);
- 		return ret;
- 	}
--	bo->dumb = false;
-+	bo->dumb = params->dumb;
++::
 +
-+	if (params->virgl) {
-+		virtio_gpu_cmd_resource_create_3d(vgdev, bo, params);
-+	} else {
-+		virtio_gpu_cmd_create_resource(vgdev, bo, params);
-+	}
++	size_t
++	dma_direct_max_mapping_size(struct device *dev);
 +
- 	virtio_gpu_init_ttm_placement(bo, params->pinned);
--
- 	ret = ttm_bo_init(&vgdev->mman.bdev, &bo->tbo, params->size,
- 			  ttm_bo_type_device, &bo->placement, 0,
- 			  true, acc_size, NULL, NULL,
-diff --git a/drivers/gpu/drm/virtio/virtgpu_vq.c b/drivers/gpu/drm/virtio/virtgpu_vq.c
-index ca93ec6ca3..292663c192 100644
---- a/drivers/gpu/drm/virtio/virtgpu_vq.c
-+++ b/drivers/gpu/drm/virtio/virtgpu_vq.c
-@@ -932,8 +932,8 @@ int virtio_gpu_object_attach(struct virtio_gpu_device *vgdev,
- 	struct scatterlist *sg;
- 	int si, nents;
++Returns the maximum size of a mapping for the device. The size parameter
++of the mapping functions like dma_map_single(), dma_map_page() and
++others should not be larger than the returned value.
  
--	if (!obj->created)
--		return 0;
-+	if (WARN_ON_ONCE(!obj->created))
-+		return -EINVAL;
+ Part Id - Streaming DMA mappings
+ --------------------------------
+diff --git a/include/linux/dma-mapping.h b/include/linux/dma-mapping.h
+index f6ded992c183..a3ca8a71a704 100644
+--- a/include/linux/dma-mapping.h
++++ b/include/linux/dma-mapping.h
+@@ -130,6 +130,7 @@ struct dma_map_ops {
+ 			enum dma_data_direction direction);
+ 	int (*dma_supported)(struct device *dev, u64 mask);
+ 	u64 (*get_required_mask)(struct device *dev);
++	size_t (*max_mapping_size)(struct device *dev);
+ };
  
- 	if (!obj->pages) {
- 		int ret;
+ #define DMA_MAPPING_ERROR		(~(dma_addr_t)0)
+@@ -257,6 +258,8 @@ static inline void dma_direct_sync_sg_for_cpu(struct device *dev,
+ }
+ #endif
+ 
++size_t dma_direct_max_mapping_size(struct device *dev);
++
+ #ifdef CONFIG_HAS_DMA
+ #include <asm/dma-mapping.h>
+ 
+@@ -440,6 +443,19 @@ static inline int dma_mapping_error(struct device *dev, dma_addr_t dma_addr)
+ 	return 0;
+ }
+ 
++static inline size_t dma_max_mapping_size(struct device *dev)
++{
++	const struct dma_map_ops *ops = get_dma_ops(dev);
++	size_t size = SIZE_MAX;
++
++	if (dma_is_direct(ops))
++		size = dma_direct_max_mapping_size(dev);
++	else if (ops && ops->max_mapping_size)
++		size = ops->max_mapping_size(dev);
++
++	return size;
++}
++
+ void *dma_alloc_attrs(struct device *dev, size_t size, dma_addr_t *dma_handle,
+ 		gfp_t flag, unsigned long attrs);
+ void dma_free_attrs(struct device *dev, size_t size, void *cpu_addr,
+diff --git a/kernel/dma/direct.c b/kernel/dma/direct.c
+index 355d16acee6d..81ca8170b928 100644
+--- a/kernel/dma/direct.c
++++ b/kernel/dma/direct.c
+@@ -380,3 +380,15 @@ int dma_direct_supported(struct device *dev, u64 mask)
+ 	 */
+ 	return mask >= __phys_to_dma(dev, min_mask);
+ }
++
++size_t dma_direct_max_mapping_size(struct device *dev)
++{
++	size_t size = SIZE_MAX;
++
++	/* If SWIOTLB is active, use its maximum mapping size */
++	if (is_swiotlb_active())
++		size = swiotlb_max_mapping_size(dev);
++
++	return size;
++}
++EXPORT_SYMBOL(dma_direct_max_mapping_size);
 -- 
-2.9.3
+2.17.1
