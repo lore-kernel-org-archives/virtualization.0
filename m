@@ -1,8 +1,8 @@
 From: Gerd Hoffmann <kraxel@redhat.com>
-Subject: [PATCH v2 1/6] drm/virtio: move virtio_gpu_object_{attach,
-	detach} calls.
-Date: Wed, 30 Jan 2019 10:43:33 +0100
-Message-ID: <20190130094338.14203-2-kraxel__26973.2164846332$1548841473$gmane$org@redhat.com>
+Subject: [PATCH v2 5/6] drm/virtio: drop fencing in
+	virtio_gpu_resource_create_ioctl
+Date: Wed, 30 Jan 2019 10:43:37 +0100
+Message-ID: <20190130094338.14203-6-kraxel__31069.1440406785$1548841494$gmane$org@redhat.com>
 References: <20190130094338.14203-1-kraxel@redhat.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
@@ -22,163 +22,110 @@ To: dri-devel@lists.freedesktop.org
 Cc: David Airlie <airlied@linux.ie>, open list <linux-kernel@vger.kernel.org>, Daniel Vetter <daniel@ffwll.ch>, "open list:VIRTIO GPU DRIVER" <virtualization@lists.linux-foundation.org>
 List-Id: virtualization@lists.linuxfoundation.org
 
-Drop the dummy ttm backend implementation, add a real one for
-TTM_PL_FLAG_TT objects.  The bin/unbind callbacks will call
-virtio_gpu_object_{attach,detach}, to update the object state
-on the host side, instead of invoking those calls from the
-move_notify() callback.
+There is no need to wait for completion here.
 
-With that in place the move and move_notify callbacks are not
-needed any more, so drop them.
+The host will process commands in submit order, so commands can
+reference the new resource just fine even when queued up before
+completion.
+
+On the guest side there is no need to wait for completion too.  Which
+btw is different from resource destroy, where we have to make sure the
+host has seen the destroy and thus doesn't use it any more before
+releasing the pages backing the resource.
 
 Signed-off-by: Gerd Hoffmann <kraxel@redhat.com>
 ---
- drivers/gpu/drm/virtio/virtgpu_ttm.c | 92 ++++++++++--------------------------
- 1 file changed, 24 insertions(+), 68 deletions(-)
+ drivers/gpu/drm/virtio/virtgpu_ioctl.c | 51 +---------------------------------
+ 1 file changed, 1 insertion(+), 50 deletions(-)
 
-diff --git a/drivers/gpu/drm/virtio/virtgpu_ttm.c b/drivers/gpu/drm/virtio/virtgpu_ttm.c
-index 4bfbf25fab..77407976c7 100644
---- a/drivers/gpu/drm/virtio/virtgpu_ttm.c
-+++ b/drivers/gpu/drm/virtio/virtgpu_ttm.c
-@@ -194,42 +194,45 @@ static void virtio_gpu_ttm_io_mem_free(struct ttm_bo_device *bdev,
-  */
- struct virtio_gpu_ttm_tt {
- 	struct ttm_dma_tt		ttm;
--	struct virtio_gpu_device	*vgdev;
--	u64				offset;
-+	struct virtio_gpu_object        *obj;
- };
+diff --git a/drivers/gpu/drm/virtio/virtgpu_ioctl.c b/drivers/gpu/drm/virtio/virtgpu_ioctl.c
+index 431e5d767e..da06ebbb3a 100644
+--- a/drivers/gpu/drm/virtio/virtgpu_ioctl.c
++++ b/drivers/gpu/drm/virtio/virtgpu_ioctl.c
+@@ -279,10 +279,6 @@ static int virtio_gpu_resource_create_ioctl(struct drm_device *dev, void *data,
+ 	struct virtio_gpu_object *qobj;
+ 	struct drm_gem_object *obj;
+ 	uint32_t handle = 0;
+-	struct list_head validate_list;
+-	struct ttm_validate_buffer mainbuf;
+-	struct virtio_gpu_fence *fence = NULL;
+-	struct ww_acquire_ctx ticket;
+ 	struct virtio_gpu_object_params params = { 0 };
  
--static int virtio_gpu_ttm_backend_bind(struct ttm_tt *ttm,
--				       struct ttm_mem_reg *bo_mem)
-+static int virtio_gpu_ttm_tt_bind(struct ttm_tt *ttm,
-+				  struct ttm_mem_reg *bo_mem)
- {
--	struct virtio_gpu_ttm_tt *gtt = (void *)ttm;
-+	struct virtio_gpu_ttm_tt *gtt =
-+		container_of(ttm, struct virtio_gpu_ttm_tt, ttm.ttm);
-+	struct virtio_gpu_device *vgdev =
-+		virtio_gpu_get_vgdev(gtt->obj->tbo.bdev);
+ 	if (vgdev->has_virgl_3d == false) {
+@@ -298,9 +294,6 @@ static int virtio_gpu_resource_create_ioctl(struct drm_device *dev, void *data,
+ 			return -EINVAL;
+ 	}
  
--	gtt->offset = (unsigned long)(bo_mem->start << PAGE_SHIFT);
--	if (!ttm->num_pages)
--		WARN(1, "nothing to bind %lu pages for mreg %p back %p!\n",
--		     ttm->num_pages, bo_mem, ttm);
+-	INIT_LIST_HEAD(&validate_list);
+-	memset(&mainbuf, 0, sizeof(struct ttm_validate_buffer));
 -
--	/* Not implemented */
-+	virtio_gpu_object_attach(vgdev, gtt->obj, NULL);
- 	return 0;
- }
+ 	params.pinned = false,
+ 	params.format = rc->format;
+ 	params.width = rc->width;
+@@ -329,62 +322,20 @@ static int virtio_gpu_resource_create_ioctl(struct drm_device *dev, void *data,
  
--static int virtio_gpu_ttm_backend_unbind(struct ttm_tt *ttm)
-+static int virtio_gpu_ttm_tt_unbind(struct ttm_tt *ttm)
- {
--	/* Not implemented */
-+	struct virtio_gpu_ttm_tt *gtt =
-+		container_of(ttm, struct virtio_gpu_ttm_tt, ttm.ttm);
-+	struct virtio_gpu_device *vgdev =
-+		virtio_gpu_get_vgdev(gtt->obj->tbo.bdev);
-+
-+	virtio_gpu_object_detach(vgdev, gtt->obj);
- 	return 0;
- }
- 
--static void virtio_gpu_ttm_backend_destroy(struct ttm_tt *ttm)
-+static void virtio_gpu_ttm_tt_destroy(struct ttm_tt *ttm)
- {
--	struct virtio_gpu_ttm_tt *gtt = (void *)ttm;
-+	struct virtio_gpu_ttm_tt *gtt =
-+		container_of(ttm, struct virtio_gpu_ttm_tt, ttm.ttm);
- 
- 	ttm_dma_tt_fini(&gtt->ttm);
- 	kfree(gtt);
- }
- 
--static struct ttm_backend_func virtio_gpu_backend_func = {
--	.bind = &virtio_gpu_ttm_backend_bind,
--	.unbind = &virtio_gpu_ttm_backend_unbind,
--	.destroy = &virtio_gpu_ttm_backend_destroy,
-+static struct ttm_backend_func virtio_gpu_tt_func = {
-+	.bind = &virtio_gpu_ttm_tt_bind,
-+	.unbind = &virtio_gpu_ttm_tt_unbind,
-+	.destroy = &virtio_gpu_ttm_tt_destroy,
- };
- 
- static struct ttm_tt *virtio_gpu_ttm_tt_create(struct ttm_buffer_object *bo,
-@@ -242,8 +245,8 @@ static struct ttm_tt *virtio_gpu_ttm_tt_create(struct ttm_buffer_object *bo,
- 	gtt = kzalloc(sizeof(struct virtio_gpu_ttm_tt), GFP_KERNEL);
- 	if (gtt == NULL)
- 		return NULL;
--	gtt->ttm.ttm.func = &virtio_gpu_backend_func;
--	gtt->vgdev = vgdev;
-+	gtt->ttm.ttm.func = &virtio_gpu_tt_func;
-+	gtt->obj = container_of(bo, struct virtio_gpu_object, tbo);
- 	if (ttm_dma_tt_init(&gtt->ttm, bo, page_flags)) {
- 		kfree(gtt);
- 		return NULL;
-@@ -251,51 +254,6 @@ static struct ttm_tt *virtio_gpu_ttm_tt_create(struct ttm_buffer_object *bo,
- 	return &gtt->ttm.ttm;
- }
- 
--static void virtio_gpu_move_null(struct ttm_buffer_object *bo,
--				 struct ttm_mem_reg *new_mem)
--{
--	struct ttm_mem_reg *old_mem = &bo->mem;
+ 		ret = virtio_gpu_object_attach(vgdev, qobj, NULL);
+ 	} else {
+-		/* use a gem reference since unref list undoes them */
+-		drm_gem_object_get(&qobj->gem_base);
+-		mainbuf.bo = &qobj->tbo;
+-		list_add(&mainbuf.head, &validate_list);
 -
--	BUG_ON(old_mem->mm_node != NULL);
--	*old_mem = *new_mem;
--	new_mem->mm_node = NULL;
--}
--
--static int virtio_gpu_bo_move(struct ttm_buffer_object *bo, bool evict,
--			      struct ttm_operation_ctx *ctx,
--			      struct ttm_mem_reg *new_mem)
--{
--	int ret;
--
--	ret = ttm_bo_wait(bo, ctx->interruptible, ctx->no_wait_gpu);
--	if (ret)
--		return ret;
--
--	virtio_gpu_move_null(bo, new_mem);
--	return 0;
--}
--
--static void virtio_gpu_bo_move_notify(struct ttm_buffer_object *tbo,
--				      bool evict,
--				      struct ttm_mem_reg *new_mem)
--{
--	struct virtio_gpu_object *bo;
--	struct virtio_gpu_device *vgdev;
--
--	bo = container_of(tbo, struct virtio_gpu_object, tbo);
--	vgdev = (struct virtio_gpu_device *)bo->gem_base.dev->dev_private;
--
--	if (!new_mem || (new_mem->placement & TTM_PL_FLAG_SYSTEM)) {
--		if (bo->hw_res_handle)
--			virtio_gpu_object_detach(vgdev, bo);
--
--	} else if (new_mem->placement & TTM_PL_FLAG_TT) {
--		if (bo->hw_res_handle) {
--			virtio_gpu_object_attach(vgdev, bo, NULL);
+-		ret = virtio_gpu_object_list_validate(&ticket, &validate_list);
+-		if (ret) {
+-			DRM_DEBUG("failed to validate\n");
+-			goto fail_unref;
 -		}
--	}
--}
 -
- static void virtio_gpu_bo_swap_notify(struct ttm_buffer_object *tbo)
- {
- 	struct virtio_gpu_object *bo;
-@@ -314,11 +272,9 @@ static struct ttm_bo_driver virtio_gpu_bo_driver = {
- 	.init_mem_type = &virtio_gpu_init_mem_type,
- 	.eviction_valuable = ttm_bo_eviction_valuable,
- 	.evict_flags = &virtio_gpu_evict_flags,
--	.move = &virtio_gpu_bo_move,
- 	.verify_access = &virtio_gpu_verify_access,
- 	.io_mem_reserve = &virtio_gpu_ttm_io_mem_reserve,
- 	.io_mem_free = &virtio_gpu_ttm_io_mem_free,
--	.move_notify = &virtio_gpu_bo_move_notify,
- 	.swap_notify = &virtio_gpu_bo_swap_notify,
- };
+-		fence = virtio_gpu_fence_alloc(vgdev);
+-		if (!fence) {
+-			ret = -ENOMEM;
+-			goto fail_backoff;
+-		}
+-
+ 		virtio_gpu_cmd_resource_create_3d(vgdev, qobj, &params);
+-		ret = virtio_gpu_object_attach(vgdev, qobj, fence);
+-		if (ret) {
+-			dma_fence_put(&fence->f);
+-			goto fail_backoff;
+-		}
+-		ttm_eu_fence_buffer_objects(&ticket, &validate_list, &fence->f);
++		ret = virtio_gpu_object_attach(vgdev, qobj, NULL);
+ 	}
  
+ 	ret = drm_gem_handle_create(file_priv, obj, &handle);
+ 	if (ret) {
+-
+ 		drm_gem_object_release(obj);
+-		if (vgdev->has_virgl_3d) {
+-			virtio_gpu_unref_list(&validate_list);
+-			dma_fence_put(&fence->f);
+-		}
+ 		return ret;
+ 	}
+ 	drm_gem_object_put_unlocked(obj);
+ 
+ 	rc->res_handle = qobj->hw_res_handle; /* similiar to a VM address */
+ 	rc->bo_handle = handle;
+-
+-	if (vgdev->has_virgl_3d) {
+-		virtio_gpu_unref_list(&validate_list);
+-		dma_fence_put(&fence->f);
+-	}
+ 	return 0;
+-fail_backoff:
+-	ttm_eu_backoff_reservation(&ticket, &validate_list);
+-fail_unref:
+-	if (vgdev->has_virgl_3d) {
+-		virtio_gpu_unref_list(&validate_list);
+-		dma_fence_put(&fence->f);
+-	}
+-//fail_obj:
+-//	drm_gem_object_handle_unreference_unlocked(obj);
+-	return ret;
+ }
+ 
+ static int virtio_gpu_resource_info_ioctl(struct drm_device *dev, void *data,
 -- 
 2.9.3
