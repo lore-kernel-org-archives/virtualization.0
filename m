@@ -1,7 +1,8 @@
 From: Joerg Roedel <joro@8bytes.org>
-Subject: [PATCH 4/5] virtio: Introduce virtio_max_dma_size()
-Date: Wed, 30 Jan 2019 17:40:06 +0100
-Message-ID: <20190130164007.26497-5-joro__44655.561148987$1548872733$gmane$org@8bytes.org>
+Subject: [PATCH 5/5] virtio-blk: Consider virtio_max_dma_size() for maximum
+	segment size
+Date: Wed, 30 Jan 2019 17:40:07 +0100
+Message-ID: <20190130164007.26497-6-joro__21002.5035937846$1548872748$gmane$org@8bytes.org>
 References: <20190130164007.26497-1-joro@8bytes.org>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
@@ -23,58 +24,49 @@ List-Id: virtualization@lists.linuxfoundation.org
 
 From: Joerg Roedel <jroedel@suse.de>
 
-This function returns the maximum segment size for a single
-dma transaction of a virtio device. The possible limit comes
-from the SWIOTLB implementation in the Linux kernel, that
-has an upper limit of (currently) 256kb of contiguous
-memory it can map. Other DMA-API implementations might also
-have limits.
-
-Use the new dma_max_mapping_size() function to determine the
-maximum mapping size when DMA-API is in use for virtio.
+Segments can't be larger than the maximum DMA mapping size
+supported on the platform. Take that into account when
+setting the maximum segment size for a block device.
 
 Reviewed-by: Konrad Rzeszutek Wilk <konrad.wilk@oracle.com>
 Reviewed-by: Christoph Hellwig <hch@lst.de>
 Signed-off-by: Joerg Roedel <jroedel@suse.de>
 ---
- drivers/virtio/virtio_ring.c | 11 +++++++++++
- include/linux/virtio.h       |  2 ++
- 2 files changed, 13 insertions(+)
+ drivers/block/virtio_blk.c | 10 ++++++----
+ 1 file changed, 6 insertions(+), 4 deletions(-)
 
-diff --git a/drivers/virtio/virtio_ring.c b/drivers/virtio/virtio_ring.c
-index cd7e755484e3..8a31c6862b2b 100644
---- a/drivers/virtio/virtio_ring.c
-+++ b/drivers/virtio/virtio_ring.c
-@@ -266,6 +266,17 @@ static bool vring_use_dma_api(struct virtio_device *vdev)
- 	return false;
- }
+diff --git a/drivers/block/virtio_blk.c b/drivers/block/virtio_blk.c
+index b16a887bbd02..4bc083b7c9b5 100644
+--- a/drivers/block/virtio_blk.c
++++ b/drivers/block/virtio_blk.c
+@@ -723,7 +723,7 @@ static int virtblk_probe(struct virtio_device *vdev)
+ 	struct request_queue *q;
+ 	int err, index;
  
-+size_t virtio_max_dma_size(struct virtio_device *vdev)
-+{
-+	size_t max_segment_size = SIZE_MAX;
-+
-+	if (vring_use_dma_api(vdev))
-+		max_segment_size = dma_max_mapping_size(&vdev->dev);
-+
-+	return max_segment_size;
-+}
-+EXPORT_SYMBOL_GPL(virtio_max_dma_size);
-+
- static void *vring_alloc_queue(struct virtio_device *vdev, size_t size,
- 			      dma_addr_t *dma_handle, gfp_t flag)
- {
-diff --git a/include/linux/virtio.h b/include/linux/virtio.h
-index fa1b5da2804e..673fe3ef3607 100644
---- a/include/linux/virtio.h
-+++ b/include/linux/virtio.h
-@@ -157,6 +157,8 @@ int virtio_device_freeze(struct virtio_device *dev);
- int virtio_device_restore(struct virtio_device *dev);
- #endif
+-	u32 v, blk_size, sg_elems, opt_io_size;
++	u32 v, blk_size, max_size, sg_elems, opt_io_size;
+ 	u16 min_io_size;
+ 	u8 physical_block_exp, alignment_offset;
  
-+size_t virtio_max_dma_size(struct virtio_device *vdev);
-+
- #define virtio_device_for_each_vq(vdev, vq) \
- 	list_for_each_entry(vq, &vdev->vqs, list)
+@@ -826,14 +826,16 @@ static int virtblk_probe(struct virtio_device *vdev)
+ 	/* No real sector limit. */
+ 	blk_queue_max_hw_sectors(q, -1U);
  
++	max_size = virtio_max_dma_size(vdev);
++
+ 	/* Host can optionally specify maximum segment size and number of
+ 	 * segments. */
+ 	err = virtio_cread_feature(vdev, VIRTIO_BLK_F_SIZE_MAX,
+ 				   struct virtio_blk_config, size_max, &v);
+ 	if (!err)
+-		blk_queue_max_segment_size(q, v);
+-	else
+-		blk_queue_max_segment_size(q, -1U);
++		max_size = min(max_size, v);
++
++	blk_queue_max_segment_size(q, max_size);
+ 
+ 	/* Host can optionally specify the block size of the device */
+ 	err = virtio_cread_feature(vdev, VIRTIO_BLK_F_BLK_SIZE,
 -- 
 2.17.1
