@@ -1,17 +1,16 @@
-From: "Michael S. Tsirkin" <mst@redhat.com>
-Subject: Re: [PATCH net] vhost: fix OOB in get_rx_bufs()
-Date: Tue, 29 Jan 2019 20:36:31 -0500
-Message-ID: <20190129203157-mutt-send-email-mst__7791.3820090302$1548826210$gmane$org@kernel.org>
-References: <20190128.225444.1929870241029842289.davem@davemloft.net>
-	<20190129175145-mutt-send-email-mst@kernel.org>
-	<20190129.151026.358327408932275252.davem@davemloft.net>
-	<20190129.153810.493942539151548676.davem@davemloft.net>
+From: Jason Wang <jasowang@redhat.com>
+Subject: Re: [RFC PATCH] virtio_ring: Use DMA API if guest memory is encrypted
+Date: Wed, 30 Jan 2019 10:24:01 +0800
+Message-ID: <6c68f7f7-1b28-6eba-9b8b-2c32efac9701__7738.78125926188$1548826225$gmane$org@redhat.com>
+References: <87zhrj8kcp.fsf@morokweng.localdomain>
+	<87womn8inf.fsf@morokweng.localdomain>
+	<20190129134750-mutt-send-email-mst@kernel.org>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset="utf-8"; Format="flowed"
+Content-Transfer-Encoding: base64
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-Content-Disposition: inline
-In-Reply-To: <20190129.153810.493942539151548676.davem@davemloft.net>
+In-Reply-To: <20190129134750-mutt-send-email-mst@kernel.org>
+Content-Language: en-US
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -21,33 +20,86 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: David Miller <davem@davemloft.net>
-Cc: kvm@vger.kernel.org, netdev@vger.kernel.org, linux-kernel@vger.kernel.org, virtualization@lists.linux-foundation.org, stefanha@redhat.com
+To: "Michael S. Tsirkin" <mst@redhat.com>, Thiago Jung Bauermann <bauerman@linux.ibm.com>
+Cc: Jean-Philippe Brucker <jean-philippe.brucker@arm.com>, Benjamin Herrenschmidt <benh@kernel.crashing.org>, Alexey Kardashevskiy <aik@linux.ibm.com>, Ram Pai <linuxram@us.ibm.com>, linux-kernel@vger.kernel.org, virtualization@lists.linux-foundation.org, Paul Mackerras <paulus@ozlabs.org>, iommu@lists.linux-foundation.org, linuxppc-dev@lists.ozlabs.org, Christoph Hellwig <hch@lst.de>, David Gibson <david@gibson.dropbear.id.au>
 List-Id: virtualization@lists.linuxfoundation.org
 
-On Tue, Jan 29, 2019 at 03:38:10PM -0800, David Miller wrote:
-> From: David Miller <davem@davemloft.net>
-> Date: Tue, 29 Jan 2019 15:10:26 -0800 (PST)
-> 
-> > Yeah the CVE pushed my hand a little bit, and I knew I was going to
-> > send Linus a pull request today because David Watson needs some TLS
-> > changes in net-next.
-> 
-> I also want to make a general comment.... for the record.
-> 
-> If I let patches slip consistently past 24 hours my backlog is
-> unmanageable.  Even with aggressively applying things quickly I'm
-> right now at 70-75.  If I do not do what I am doing, then it's in the
-> 100-150 range.
-> 
-> So I am at the point where I often must move forward with patches that
-> I think I personally can verify and vet on my own.
-
-If it helps I can include most virtio stuff in my pull requests instead.
-Or if that can't work since there's too often a dependency on net-next,
-maybe Jason wants to create a tree and send pull requests to you.  Let
-us know if that will help, and which of the options looks better from
-your POV.
-
--- 
-MST
+Ck9uIDIwMTkvMS8zMCDkuIrljYgzOjAyLCBNaWNoYWVsIFMuIFRzaXJraW4gd3JvdGU6Cj4gT24g
+VHVlLCBKYW4gMjksIDIwMTkgYXQgMDM6NDI6NDRQTSAtMDIwMCwgVGhpYWdvIEp1bmcgQmF1ZXJt
+YW5uIHdyb3RlOgo+PiBGaXhpbmcgYWRkcmVzcyBvZiBwb3dlcnBjIG1haWxpbmcgbGlzdC4KPj4K
+Pj4gVGhpYWdvIEp1bmcgQmF1ZXJtYW5uIDxiYXVlcm1hbkBsaW51eC5pYm0uY29tPiB3cml0ZXM6
+Cj4+Cj4+PiBIZWxsbywKPj4+Cj4+PiBXaXRoIENocmlzdG9waCdzIHJld29yayBvZiB0aGUgRE1B
+IEFQSSB0aGF0IHJlY2VudGx5IGxhbmRlZCwgdGhlIHBhdGNoCj4+PiBiZWxvdyBpcyB0aGUgb25s
+eSBjaGFuZ2UgbmVlZGVkIGluIHZpcnRpbyB0byBtYWtlIGl0IHdvcmsgaW4gYSBQT1dFUgo+Pj4g
+c2VjdXJlIGd1ZXN0IHVuZGVyIHRoZSB1bHRyYXZpc29yLgo+Pj4KPj4+IFRoZSBvdGhlciBjaGFu
+Z2Ugd2UgbmVlZCAobWFraW5nIHN1cmUgdGhlIGRldmljZSdzIGRtYV9tYXBfb3BzIGlzIE5VTEwK
+Pj4+IHNvIHRoYXQgdGhlIGRtYS1kaXJlY3Qvc3dpb3RsYiBjb2RlIGlzIHVzZWQpIGNhbiBiZSBt
+YWRlIGluCj4+PiBwb3dlcnBjLXNwZWNpZmljIGNvZGUuCj4+Pgo+Pj4gT2YgY291cnNlLCBJIGFs
+c28gaGF2ZSBwYXRjaGVzIChzb29uIHRvIGJlIHBvc3RlZCBhcyBSRkMpIHdoaWNoIGhvb2sgdXAK
+Pj4+IDxsaW51eC9tZW1fZW5jcnlwdC5oPiB0byB0aGUgcG93ZXJwYyBzZWN1cmUgZ3Vlc3Qgc3Vw
+cG9ydCBjb2RlLgo+Pj4KPj4+IFdoYXQgZG8geW91IHRoaW5rPwo+Pj4KPj4+ICBGcm9tIGQwNjI5
+YTM2YTc1YzY3OGI0YTcyYjg1M2Y4ZjdmOGMxN2VlZGQ2YjMgTW9uIFNlcCAxNyAwMDowMDowMCAy
+MDAxCj4+PiBGcm9tOiBUaGlhZ28gSnVuZyBCYXVlcm1hbm4gPGJhdWVybWFuQGxpbnV4LmlibS5j
+b20+Cj4+PiBEYXRlOiBUaHUsIDI0IEphbiAyMDE5IDIyOjA4OjAyIC0wMjAwCj4+PiBTdWJqZWN0
+OiBbUkZDIFBBVENIXSB2aXJ0aW9fcmluZzogVXNlIERNQSBBUEkgaWYgZ3Vlc3QgbWVtb3J5IGlz
+IGVuY3J5cHRlZAo+Pj4KPj4+IFRoZSBob3N0IGNhbid0IGFjY2VzcyB0aGUgZ3Vlc3QgbWVtb3J5
+IHdoZW4gaXQncyBlbmNyeXB0ZWQsIHNvIHVzaW5nCj4+PiByZWd1bGFyIG1lbW9yeSBwYWdlcyBm
+b3IgdGhlIHJpbmcgaXNuJ3QgYW4gb3B0aW9uLiBHbyB0aHJvdWdoIHRoZSBETUEgQVBJLgo+Pj4K
+Pj4+IFNpZ25lZC1vZmYtYnk6IFRoaWFnbyBKdW5nIEJhdWVybWFubiA8YmF1ZXJtYW5AbGludXgu
+aWJtLmNvbT4KPiBXZWxsIEkgdGhpbmsgdGhpcyB3aWxsIGNvbWUgYmFjayB0byBiaXRlIHVzICh3
+aXRuZXNzIHhlbiB3aGljaCBpcyBub3cKPiByZXdvcmtpbmcgcHJlY2lzZWx5IHRoaXMgcGF0aCAt
+IGJ1dCBhdCBsZWFzdCB0aGV5IGFyZW4ndCB0byBibGFtZSwgeGVuCj4gY2FtZSBiZWZvcmUgQUND
+RVNTX1BMQVRGT1JNKS4KPgo+IEkgYWxzbyBzdGlsbCB0aGluayB0aGUgcmlnaHQgdGhpbmcgd291
+bGQgaGF2ZSBiZWVuIHRvIHNldAo+IEFDQ0VTU19QTEFURk9STSBmb3IgYWxsIHN5c3RlbXMgd2hl
+cmUgZGV2aWNlIGNhbid0IGFjY2VzcyBhbGwgbWVtb3J5Lgo+Cj4gQnV0IEkgYWxzbyB0aGluayBJ
+IGRvbid0IGhhdmUgdGhlIGVuZXJneSB0byBhcmd1ZSBhYm91dCBwb3dlciBzZWN1cmUKPiBndWVz
+dCBhbnltb3JlLiAgU28gYmUgaXQgZm9yIHBvd2VyIHNlY3VyZSBndWVzdCBzaW5jZSB0aGUgaW52
+b2x2ZWQKPiBlbmdpbmVlcnMgZGlzYWdyZWUgd2l0aCBtZS4gIEhleSBJJ3ZlIGJlZW4gd3Jvbmcg
+aW4gdGhlIHBhc3QgOykuCj4KPiBCdXQgdGhlIG5hbWUgInNldl9hY3RpdmUiIG1ha2VzIG1lIHNj
+YXJlZCBiZWNhdXNlIGF0IGxlYXN0IEFNRCBndXlzIHdobwo+IHdlcmUgZG9pbmcgdGhlIHNlbnNp
+YmxlIHRoaW5nIGFuZCBzZXR0aW5nIEFDQ0VTU19QTEFURk9STSAodW5sZXNzIEknbQo+IHdyb25n
+PyBJIHJlZW1lbWJlciBkaXN0aW5jdGx5IHRoYXQncyBzbykgd2lsbCBsaWtlbHkgYmUgYWZmZWN0
+ZWQgdG9vLgo+IFdlIGRvbid0IHdhbnQgdGhhdC4KPgo+IFNvIGxldCdzIGZpbmQgYSB3YXkgdG8g
+bWFrZSBzdXJlIGl0J3MganVzdCBwb3dlciBzZWN1cmUgZ3Vlc3QgZm9yIG5vdwo+IHBscy4KPgo+
+IEkgYWxzbyB0aGluayB3ZSBzaG91bGQgYWRkIGEgZG1hX2FwaSBuZWFyIGZlYXR1cmVzIHVuZGVy
+IHZpcnRpb19kZXZpY2UKPiBzdWNoIHRoYXQgdGhlc2UgaGFja3MgY2FuIG1vdmUgb2ZmIGRhdGEg
+cGF0aC4KCgpBbnl3YXkgdGhlIGN1cnJlbnQgWGVuIGNvZGUgaXMgY29uZmxpY3Qgd2l0aCBzcGVj
+IHdoaWNoIHNhaWQ6CgoiSWYgdGhpcyBmZWF0dXJlIGJpdCBpcyBzZXQgdG8gMCwgdGhlbiB0aGUg
+ZGV2aWNlIGhhcyBzYW1lIGFjY2VzcyB0byAKbWVtb3J5IGFkZHJlc3NlcyBzdXBwbGllZCB0byBp
+dCBhcyB0aGUgZHJpdmVyIGhhcy4gSW4gcGFydGljdWxhciwgdGhlIApkZXZpY2Ugd2lsbCBhbHdh
+eXMgdXNlIHBoeXNpY2FsIGFkZHJlc3NlcyBtYXRjaGluZyBhZGRyZXNzZXMgdXNlZCBieSB0aGUg
+CmRyaXZlciAodHlwaWNhbGx5IG1lYW5pbmcgcGh5c2ljYWwgYWRkcmVzc2VzIHVzZWQgYnkgdGhl
+IENQVSkgYW5kIG5vdCAKdHJhbnNsYXRlZCBmdXJ0aGVyLCBhbmQgY2FuIGFjY2VzcyBhbnkgYWRk
+cmVzcyBzdXBwbGllZCB0byBpdCBieSB0aGUgCmRyaXZlci4gV2hlbiBjbGVhciwgdGhpcyBvdmVy
+cmlkZXMgYW55IHBsYXRmb3JtLXNwZWNpZmljIGRlc2NyaXB0aW9uIG9mIAp3aGV0aGVyIGRldmlj
+ZSBhY2Nlc3MgaXMgbGltaXRlZCBvciB0cmFuc2xhdGVkIGluIGFueSB3YXksIGUuZy4gd2hldGhl
+ciAKYW4gSU9NTVUgbWF5IGJlIHByZXNlbnQuICIKCkkgd29uZGVyIGhvdyBtdWNoIHZhbHVlIHRo
+YXQgdGhlIGFib3ZlIGRlc2NyaXB0aW9uIGNhbiBnaXZlIHVzLiBJdCdzIApraW5kIG9mIG9kZCB0
+aGF0IHRoZSBiZWhhdmlvciBvZiAid2hlbiB0aGUgZmVhdHVyZSBpcyBub3QgbmVnb3RpYXRlZCIg
+aXMgCmRlc2NyaWJlZCBpbiB0aGUgc3BlYy4gUGVyc29uYWxseSBJIHRoaW5rIHdlIGNhbiByZW1v
+dmUgdGhlIGFib3ZlIGFuZCAKdGhlbiB3ZSBjYW4gc3dpdGNoIHRvIHVzZSBETUEgQVBJIHVuY29u
+ZGl0aW9uYWxseSBpbiBndWVzdCBkcml2ZXIuIEl0IAptYXkgaGF2ZSBzaW5nbGUgZGlnaXQgcmVn
+cmVzc2lvbiBwcm9iYWJseSwgd2UgY2FuIHRyeSB0byBvdmVyY29tZSBpdC4KClRoYW5rcwoKCj4K
+PiBCeSB0aGUgd2F5IGNvdWxkIHlvdSBwbGVhc2UgcmVzcG9uZCBhYm91dCB2aXJ0aW8taW9tbXUg
+YW5kCj4gd2h5IHRoZXJlJ3Mgbm8gc3VwcG9ydCBmb3IgQUNDRVNTX1BMQVRGT1JNIG9uIHBvd2Vy
+Pwo+Cj4gSSBoYXZlIENjJ2QgeW91IG9uIHRoZXNlIGRpc2N1c3Npb25zLgo+Cj4KPiBUaGFua3Mh
+Cj4KPgo+Pj4gLS0tCj4+PiAgIGRyaXZlcnMvdmlydGlvL3ZpcnRpb19yaW5nLmMgfCA1ICsrKyst
+Cj4+PiAgIDEgZmlsZSBjaGFuZ2VkLCA0IGluc2VydGlvbnMoKyksIDEgZGVsZXRpb24oLSkKPj4+
+Cj4+PiBkaWZmIC0tZ2l0IGEvZHJpdmVycy92aXJ0aW8vdmlydGlvX3JpbmcuYyBiL2RyaXZlcnMv
+dmlydGlvL3ZpcnRpb19yaW5nLmMKPj4+IGluZGV4IGNkN2U3NTU0ODRlMy4uMzIxYTI3MDc1Mzgw
+IDEwMDY0NAo+Pj4gLS0tIGEvZHJpdmVycy92aXJ0aW8vdmlydGlvX3JpbmcuYwo+Pj4gKysrIGIv
+ZHJpdmVycy92aXJ0aW8vdmlydGlvX3JpbmcuYwo+Pj4gQEAgLTI1OSw4ICsyNTksMTEgQEAgc3Rh
+dGljIGJvb2wgdnJpbmdfdXNlX2RtYV9hcGkoc3RydWN0IHZpcnRpb19kZXZpY2UgKnZkZXYpCj4+
+PiAgIAkgKiBub3Qgd29yayB3aXRob3V0IGFuIGV2ZW4gbGFyZ2VyIGtsdWRnZS4gIEluc3RlYWQs
+IGVuYWJsZQo+Pj4gICAJICogdGhlIERNQSBBUEkgaWYgd2UncmUgYSBYZW4gZ3Vlc3QsIHdoaWNo
+IGF0IGxlYXN0IGFsbG93cwo+Pj4gICAJICogYWxsIG9mIHRoZSBzZW5zaWJsZSBYZW4gY29uZmln
+dXJhdGlvbnMgdG8gd29yayBjb3JyZWN0bHkuCj4+PiArCSAqCj4+PiArCSAqIEFsc28sIGlmIGd1
+ZXN0IG1lbW9yeSBpcyBlbmNyeXB0ZWQgdGhlIGhvc3QgY2FuJ3QgYWNjZXNzCj4+PiArCSAqIGl0
+IGRpcmVjdGx5LiBJbiB0aGlzIGNhc2UsIHdlJ2xsIG5lZWQgdG8gdXNlIHRoZSBETUEgQVBJLgo+
+Pj4gICAJICovCj4+PiAtCWlmICh4ZW5fZG9tYWluKCkpCj4+PiArCWlmICh4ZW5fZG9tYWluKCkg
+fHwgc2V2X2FjdGl2ZSgpKQo+Pj4gICAJCXJldHVybiB0cnVlOwo+Pj4KPj4+ICAgCXJldHVybiBm
+YWxzZTsKPj4KPj4gLS0gCj4+IFRoaWFnbyBKdW5nIEJhdWVybWFubgo+PiBJQk0gTGludXggVGVj
+aG5vbG9neSBDZW50ZXIKX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19f
+X19fX18KVmlydHVhbGl6YXRpb24gbWFpbGluZyBsaXN0ClZpcnR1YWxpemF0aW9uQGxpc3RzLmxp
+bnV4LWZvdW5kYXRpb24ub3JnCmh0dHBzOi8vbGlzdHMubGludXhmb3VuZGF0aW9uLm9yZy9tYWls
+bWFuL2xpc3RpbmZvL3ZpcnR1YWxpemF0aW9u
