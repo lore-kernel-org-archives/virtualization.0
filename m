@@ -1,14 +1,15 @@
-From: Cornelia Huck <cohuck@redhat.com>
-Subject: Re: [PATCH RFC] virtio: hint if callbacks surprisingly might sleep
-Date: Thu, 31 Jan 2019 16:41:46 +0100
-Message-ID: <20190131164146.285c69d1.cohuck__20274.5288888522$1548967682$gmane$org@redhat.com>
-References: <20190131125314.29647-1-cohuck@redhat.com>
-	<20190131102713-mutt-send-email-mst@kernel.org>
+From: Konrad Rzeszutek Wilk <konrad.wilk@oracle.com>
+Subject: Re: [PATCH v6 00/27] x86: PIE support and option to extend KASLR
+	randomization
+Date: Thu, 31 Jan 2019 16:40:38 -0500
+Message-ID: <20190131214038.GI28234__26893.3920351387$1548971157$gmane$org@char.us.oracle.com>
+References: <20190131192533.34130-1-thgarnie@chromium.org>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <20190131102713-mutt-send-email-mst@kernel.org>
+Content-Disposition: inline
+In-Reply-To: <20190131192533.34130-1-thgarnie@chromium.org>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -18,37 +19,17 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: "Michael S. Tsirkin" <mst@redhat.com>
-Cc: Halil Pasic <pasic@linux.ibm.com>, linux-s390@vger.kernel.org, linux-kernel@vger.kernel.org, virtualization@lists.linux-foundation.org
+To: Thomas Garnier <thgarnie@chromium.org>
+Cc: kernel-hardening@lists.openwall.com, Jan Kiszka <jan.kiszka@siemens.com>, Pavel Machek <pavel@ucw.cz>, Andrey Ryabinin <aryabinin@virtuozzo.com>, Christoph Lameter <cl@linux.com>, Rafael =?iso-8859-1?Q?=C1vila_de_Esp=EDndola?= <rafael@espindo.la>, linux-arch@vger.kernel.org, Andi Kleen <ak@linux.intel.com>, Michael Ellerman <mpe@ellerman.id.au>, linux-sparse@vger.kernel.org, xen-devel@lists.xenproject.org, Alexander Popov <alex.popov@linux.com>, Len Brown <len.brown@intel.com>, linux-pm@vger.kernel.org, Nicholas Piggin <npiggin@gmail.com>, Cao jin <caoj.fnst@cn.fujitsu.com>, Mike Rapoport <rppt@linux.vnet.ibm.com>, Andy Lutomirski <luto@kernel.org>, Dennis Zhou <dennis@kernel.org>, Thomas Gleixner <tglx@linutronix.de>, nixiaoming <nixiaoming@huawei.com>, Michal Marek <michal.lkml@markovi.net>, Greg Kroah-Hartman <gregkh@linuxfoundation.org>, Nick Desaulniers <ndesaulnie>
 List-Id: virtualization@lists.linuxfoundation.org
 
-On Thu, 31 Jan 2019 10:27:53 -0500
-"Michael S. Tsirkin" <mst@redhat.com> wrote:
+On Thu, Jan 31, 2019 at 11:24:07AM -0800, Thomas Garnier wrote:
+> There has been no major concern in the latest iterations. I am interested on
+> what would be the best way to slowly integrate this patchset upstream.
 
-> On Thu, Jan 31, 2019 at 01:53:14PM +0100, Cornelia Huck wrote:
-> > A virtio transport is free to implement some of the callbacks in
-> > virtio_config_ops in a matter that they cannot be called from
-> > atomic context (e.g. virtio-ccw, which maps a lot of the callbacks
-> > to channel I/O, which is an inherently asynchronous mechanism).
-> > This can be very surprising for developers using the much more
-> > common virtio-pci transport, just to find out that things break
-> > when used on s390.
-> > 
-> > The documentation for virtio_config_ops now contains a comment
-> > explaining this, but it makes sense to add a might_sleep() annotation
-> > to various wrapper functions in the virtio core to avoid surprises
-> > later.
-> > 
-> > Note that annotations are NOT added to two classes of calls:
-> > - direct calls from device drivers (all current callers should be
-> >   fine, however)
-> > - calls which clearly won't be made from atomic context (such as
-> >   those ultimately coming in via the driver core)
-> > 
-> > Signed-off-by: Cornelia Huck <cohuck@redhat.com>  
-> 
-> 
-> Makes sense to me. I don't think we should push our luck in
-> this release though, better defer until the merge window.
+One question that I was somehow expected in this cover letter - what
+about all those lovely speculative bugs? As in say some one hasn't
+updated their machine with the Spectre v3a microcode - wouldn't they
+be able to get the kernel virtual address space?
 
-Nod, that's definitely something for the next release.
+In effect rendering all this hard-work not needed?
