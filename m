@@ -1,11 +1,16 @@
-From: Cornelia Huck <cohuck@redhat.com>
-Subject: [PATCH RFC] virtio: hint if callbacks surprisingly might sleep
-Date: Thu, 31 Jan 2019 13:53:14 +0100
-Message-ID: <20190131125314.29647-1-cohuck__39857.6672816247$1548967572$gmane$org@redhat.com>
+From: Joerg Roedel <joro@8bytes.org>
+Subject: [PATCH] dma: Uninline dma_max_mapping_size()
+Date: Thu, 31 Jan 2019 14:01:27 +0100
+Message-ID: <20190131130127.GP32526__47818.1502244965$1548967589$gmane$org@8bytes.org>
+References: <20190130164007.26497-1-joro@8bytes.org>
+	<20190130164007.26497-4-joro@8bytes.org>
+	<20190131104129.GA9241@lst.de>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
+Content-Disposition: inline
+In-Reply-To: <20190131104129.GA9241@lst.de>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -15,149 +20,109 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: "Michael S . Tsirkin" <mst@redhat.com>, Jason Wang <jasowang@redhat.com>
-Cc: Halil Pasic <pasic@linux.ibm.com>, linux-s390@vger.kernel.org, Cornelia Huck <cohuck@redhat.com>, linux-kernel@vger.kernel.org, virtualization@lists.linux-foundation.org
+To: Christoph Hellwig <hch@lst.de>
+Cc: Jens Axboe <axboe@kernel.dk>, Thomas.Lendacky@amd.com, jon.grimm@amd.com, brijesh.singh@amd.com, Konrad Rzeszutek Wilk <konrad.wilk@oracle.com>, "Michael S . Tsirkin" <mst@redhat.com>, jfehlig@suse.com, linux-kernel@vger.kernel.org, virtualization@lists.linux-foundation.org, linux-block@vger.kernel.org, iommu@lists.linux-foundation.org, jroedel@suse.de
 List-Id: virtualization@lists.linuxfoundation.org
 
-A virtio transport is free to implement some of the callbacks in
-virtio_config_ops in a matter that they cannot be called from
-atomic context (e.g. virtio-ccw, which maps a lot of the callbacks
-to channel I/O, which is an inherently asynchronous mechanism).
-This can be very surprising for developers using the much more
-common virtio-pci transport, just to find out that things break
-when used on s390.
+On Thu, Jan 31, 2019 at 11:41:29AM +0100, Christoph Hellwig wrote:
+> Sorry for not noticing last time, but since 5.0 we keep all non-fast
+> path DMA mapping interfaces out of line, so this should move to
+> kernel/dma/mapping.c.
 
-The documentation for virtio_config_ops now contains a comment
-explaining this, but it makes sense to add a might_sleep() annotation
-to various wrapper functions in the virtio core to avoid surprises
-later.
+Okay, attached patch does that. It applies on-top of this patch-set.
 
-Note that annotations are NOT added to two classes of calls:
-- direct calls from device drivers (all current callers should be
-  fine, however)
-- calls which clearly won't be made from atomic context (such as
-  those ultimately coming in via the driver core)
+Michael, feel free to either apply this on-top of the patch-set or merge
+the diff into patch 3, whatever you prefer.
 
-Signed-off-by: Cornelia Huck <cohuck@redhat.com>
+From 2bb95d2136280c79de9553852ee3370f6d42d7b3 Mon Sep 17 00:00:00 2001
+From: Joerg Roedel <jroedel@suse.de>
+Date: Thu, 31 Jan 2019 13:55:27 +0100
+Subject: [PATCH] dma: Uninline dma_max_mapping_size()
+
+The function is not performance sensitive and doesn't need
+to be inlined at every call-site. Move it out of the header
+into the appropriate C source file.
+
+Signed-off-by: Joerg Roedel <jroedel@suse.de>
 ---
+ include/linux/dma-mapping.h | 18 +++++-------------
+ kernel/dma/direct.c         |  1 -
+ kernel/dma/mapping.c        | 14 ++++++++++++++
+ 3 files changed, 19 insertions(+), 14 deletions(-)
 
-I think it is safe to add this now that the issues with the balloon
-have been fixed.
-
-Note that this is not bulletproof (nor is it inteded to be). The
-intention is to make it easier for people to catch problems earlier.
-
----
- drivers/virtio/virtio.c       |  2 ++
- include/linux/virtio_config.h | 13 +++++++++++++
- 2 files changed, 15 insertions(+)
-
-diff --git a/drivers/virtio/virtio.c b/drivers/virtio/virtio.c
-index 59e36ef4920f..98b30f54342c 100644
---- a/drivers/virtio/virtio.c
-+++ b/drivers/virtio/virtio.c
-@@ -161,6 +161,7 @@ EXPORT_SYMBOL_GPL(virtio_config_enable);
- 
- void virtio_add_status(struct virtio_device *dev, unsigned int status)
- {
-+	might_sleep();
- 	dev->config->set_status(dev, dev->config->get_status(dev) | status);
+diff --git a/include/linux/dma-mapping.h b/include/linux/dma-mapping.h
+index a3ca8a71a704..5b21f14802e1 100644
+--- a/include/linux/dma-mapping.h
++++ b/include/linux/dma-mapping.h
+@@ -443,19 +443,6 @@ static inline int dma_mapping_error(struct device *dev, dma_addr_t dma_addr)
+ 	return 0;
  }
- EXPORT_SYMBOL_GPL(virtio_add_status);
-@@ -170,6 +171,7 @@ int virtio_finalize_features(struct virtio_device *dev)
- 	int ret = dev->config->finalize_features(dev);
- 	unsigned status;
  
-+	might_sleep();
- 	if (ret)
- 		return ret;
- 
-diff --git a/include/linux/virtio_config.h b/include/linux/virtio_config.h
-index 987b6491b946..bb4cc4910750 100644
---- a/include/linux/virtio_config.h
-+++ b/include/linux/virtio_config.h
-@@ -290,6 +290,7 @@ static inline __virtio64 cpu_to_virtio64(struct virtio_device *vdev, u64 val)
- /* Config space accessors. */
- #define virtio_cread(vdev, structname, member, ptr)			\
- 	do {								\
-+		might_sleep();						\
- 		/* Must match the member's type, and be integer */	\
- 		if (!typecheck(typeof((((structname*)0)->member)), *(ptr))) \
- 			(*ptr) = 1;					\
-@@ -319,6 +320,7 @@ static inline __virtio64 cpu_to_virtio64(struct virtio_device *vdev, u64 val)
- /* Config space accessors. */
- #define virtio_cwrite(vdev, structname, member, ptr)			\
- 	do {								\
-+		might_sleep();						\
- 		/* Must match the member's type, and be integer */	\
- 		if (!typecheck(typeof((((structname*)0)->member)), *(ptr))) \
- 			BUG_ON((*ptr) == 1);				\
-@@ -358,6 +360,7 @@ static inline void __virtio_cread_many(struct virtio_device *vdev,
- 		vdev->config->generation(vdev) : 0;
- 	int i;
- 
-+	might_sleep();
- 	do {
- 		old = gen;
- 
-@@ -380,6 +383,8 @@ static inline void virtio_cread_bytes(struct virtio_device *vdev,
- static inline u8 virtio_cread8(struct virtio_device *vdev, unsigned int offset)
+-static inline size_t dma_max_mapping_size(struct device *dev)
+-{
+-	const struct dma_map_ops *ops = get_dma_ops(dev);
+-	size_t size = SIZE_MAX;
+-
+-	if (dma_is_direct(ops))
+-		size = dma_direct_max_mapping_size(dev);
+-	else if (ops && ops->max_mapping_size)
+-		size = ops->max_mapping_size(dev);
+-
+-	return size;
+-}
+-
+ void *dma_alloc_attrs(struct device *dev, size_t size, dma_addr_t *dma_handle,
+ 		gfp_t flag, unsigned long attrs);
+ void dma_free_attrs(struct device *dev, size_t size, void *cpu_addr,
+@@ -476,6 +463,7 @@ int dma_supported(struct device *dev, u64 mask);
+ int dma_set_mask(struct device *dev, u64 mask);
+ int dma_set_coherent_mask(struct device *dev, u64 mask);
+ u64 dma_get_required_mask(struct device *dev);
++size_t dma_max_mapping_size(struct device *dev);
+ #else /* CONFIG_HAS_DMA */
+ static inline dma_addr_t dma_map_page_attrs(struct device *dev,
+ 		struct page *page, size_t offset, size_t size,
+@@ -577,6 +565,10 @@ static inline u64 dma_get_required_mask(struct device *dev)
  {
- 	u8 ret;
+ 	return 0;
+ }
++static inline size_t dma_max_mapping_size(struct device *dev)
++{
++	return 0;
++}
+ #endif /* CONFIG_HAS_DMA */
+ 
+ static inline dma_addr_t dma_map_single_attrs(struct device *dev, void *ptr,
+diff --git a/kernel/dma/direct.c b/kernel/dma/direct.c
+index 81ca8170b928..6310ad01f915 100644
+--- a/kernel/dma/direct.c
++++ b/kernel/dma/direct.c
+@@ -391,4 +391,3 @@ size_t dma_direct_max_mapping_size(struct device *dev)
+ 
+ 	return size;
+ }
+-EXPORT_SYMBOL(dma_direct_max_mapping_size);
+diff --git a/kernel/dma/mapping.c b/kernel/dma/mapping.c
+index a11006b6d8e8..5753008ab286 100644
+--- a/kernel/dma/mapping.c
++++ b/kernel/dma/mapping.c
+@@ -357,3 +357,17 @@ void dma_cache_sync(struct device *dev, void *vaddr, size_t size,
+ 		ops->cache_sync(dev, vaddr, size, dir);
+ }
+ EXPORT_SYMBOL(dma_cache_sync);
 +
-+	might_sleep();
- 	vdev->config->get(vdev, offset, &ret, sizeof(ret));
- 	return ret;
- }
-@@ -387,6 +392,7 @@ static inline u8 virtio_cread8(struct virtio_device *vdev, unsigned int offset)
- static inline void virtio_cwrite8(struct virtio_device *vdev,
- 				  unsigned int offset, u8 val)
- {
-+	might_sleep();
- 	vdev->config->set(vdev, offset, &val, sizeof(val));
- }
- 
-@@ -394,6 +400,8 @@ static inline u16 virtio_cread16(struct virtio_device *vdev,
- 				 unsigned int offset)
- {
- 	u16 ret;
++size_t dma_max_mapping_size(struct device *dev)
++{
++	const struct dma_map_ops *ops = get_dma_ops(dev);
++	size_t size = SIZE_MAX;
 +
-+	might_sleep();
- 	vdev->config->get(vdev, offset, &ret, sizeof(ret));
- 	return virtio16_to_cpu(vdev, (__force __virtio16)ret);
- }
-@@ -401,6 +409,7 @@ static inline u16 virtio_cread16(struct virtio_device *vdev,
- static inline void virtio_cwrite16(struct virtio_device *vdev,
- 				   unsigned int offset, u16 val)
- {
-+	might_sleep();
- 	val = (__force u16)cpu_to_virtio16(vdev, val);
- 	vdev->config->set(vdev, offset, &val, sizeof(val));
- }
-@@ -409,6 +418,8 @@ static inline u32 virtio_cread32(struct virtio_device *vdev,
- 				 unsigned int offset)
- {
- 	u32 ret;
++	if (dma_is_direct(ops))
++		size = dma_direct_max_mapping_size(dev);
++	else if (ops && ops->max_mapping_size)
++		size = ops->max_mapping_size(dev);
 +
-+	might_sleep();
- 	vdev->config->get(vdev, offset, &ret, sizeof(ret));
- 	return virtio32_to_cpu(vdev, (__force __virtio32)ret);
- }
-@@ -416,6 +427,7 @@ static inline u32 virtio_cread32(struct virtio_device *vdev,
- static inline void virtio_cwrite32(struct virtio_device *vdev,
- 				   unsigned int offset, u32 val)
- {
-+	might_sleep();
- 	val = (__force u32)cpu_to_virtio32(vdev, val);
- 	vdev->config->set(vdev, offset, &val, sizeof(val));
- }
-@@ -431,6 +443,7 @@ static inline u64 virtio_cread64(struct virtio_device *vdev,
- static inline void virtio_cwrite64(struct virtio_device *vdev,
- 				   unsigned int offset, u64 val)
- {
-+	might_sleep();
- 	val = (__force u64)cpu_to_virtio64(vdev, val);
- 	vdev->config->set(vdev, offset, &val, sizeof(val));
- }
++	return size;
++}
++EXPORT_SYMBOL_GPL(dma_max_mapping_size);
 -- 
-2.17.2
+2.16.4
