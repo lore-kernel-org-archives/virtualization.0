@@ -1,15 +1,14 @@
-From: David Miller <davem@davemloft.net>
-Subject: Re: [PATCH net] virtio_net: Account for tx bytes and packets on
-	sending xdp_frames
-Date: Thu, 31 Jan 2019 09:45:23 -0800 (PST)
-Message-ID: <20190131.094523.2248120325911339180.davem__25769.1266526066$1548966858$gmane$org@davemloft.net>
-References: <1548934830-2389-1-git-send-email-makita.toshiaki@lab.ntt.co.jp>
-	<20190131101516-mutt-send-email-mst@kernel.org>
+From: Kees Cook <keescook@chromium.org>
+Subject: Re: [PATCH v6 00/27] x86: PIE support and option to extend KASLR
+	randomization
+Date: Fri, 1 Feb 2019 08:59:21 +1300
+Message-ID: <CAGXu5jLGFd2UY89bPm_WQvcsX+RDMg0XoJvuXwfknJrGxpn4Ng__37736.7100141541$1548967285$gmane$org@mail.gmail.com>
+References: <20190131192533.34130-1-thgarnie@chromium.org>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <20190131101516-mutt-send-email-mst@kernel.org>
+In-Reply-To: <20190131192533.34130-1-thgarnie@chromium.org>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -19,34 +18,23 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: mst@redhat.com
-Cc: hawk@kernel.org, netdev@vger.kernel.org, virtualization@lists.linux-foundation.org, dsahern@gmail.com
+To: Thomas Garnier <thgarnie@chromium.org>
+Cc: Kernel Hardening <kernel-hardening@lists.openwall.com>, Jan Kiszka <jan.kiszka@siemens.com>, Pavel Machek <pavel@ucw.cz>, Andrey Ryabinin <aryabinin@virtuozzo.com>, Christoph Lameter <cl@linux.com>, =?UTF-8?Q?Rafael_=C3=81vila_de_Esp=C3=ADndola?= <rafael@espindo.la>, linux-arch <linux-arch@vger.kernel.org>, Andi Kleen <ak@linux.intel.com>, Michael Ellerman <mpe@ellerman.id.au>, Sparse Mailing-list <linux-sparse@vger.kernel.org>, xen-devel <xen-devel@lists.xenproject.org>, Alexander Popov <alex.popov@linux.com>, Len Brown <len.brown@intel.com>, Linux PM list <linux-pm@vger.kernel.org>, Nicholas Piggin <npiggin@gmail.com>, Cao jin <caoj.fnst@cn.fujitsu.com>, Mike Rapoport <rppt@linux.vnet.ibm.com>, Andy Lutomirski <luto@kernel.org>, Dennis Zhou <dennis@kernel.org>, Thomas Gleixner <tglx@linutronix.de>, nixiaoming <nixiaoming@huawei.com>, Michal Marek <michal.lkml@markovi.>
 List-Id: virtualization@lists.linuxfoundation.org
 
-From: "Michael S. Tsirkin" <mst@redhat.com>
-Date: Thu, 31 Jan 2019 10:25:17 -0500
+On Fri, Feb 1, 2019 at 8:28 AM Thomas Garnier <thgarnie@chromium.org> wrote:
+> These patches make the changes necessary to build the kernel as Position
+> Independent Executable (PIE) on x86_64. A PIE kernel can be relocated below
+> the top 2G of the virtual address space. It allows to optionally extend the
+> KASLR randomization range from 1G to 3G. The chosen range is the one currently
+> available, future changes will allow the kernel module to have a wider
+> randomization range.
 
-> On Thu, Jan 31, 2019 at 08:40:30PM +0900, Toshiaki Makita wrote:
->> Previously virtnet_xdp_xmit() did not account for device tx counters,
->> which caused confusions.
->> To be consistent with SKBs, account them on freeing xdp_frames.
->> 
->> Reported-by: David Ahern <dsahern@gmail.com>
->> Signed-off-by: Toshiaki Makita <makita.toshiaki@lab.ntt.co.jp>
-> 
-> Well we count them on receive so I guess it makes sense for consistency
-> 
-> Acked-by: Michael S. Tsirkin <mst@redhat.com>
-> 
-> however, I really wonder whether adding more and more standard net stack
-> things like this will end up costing most of XDP its speed.
-> 
-> Should we instead make sure *not* to account XDP packets
-> in any counters at all? XDP programs can use maps
-> to do their own counting...
+This also lays the groundwork for doing compilation-unit-granularity
+KASLR, as Kristen has been working on. With PIE working, the
+relocations are more sane and boot-time reordering becomes possible
+(or at least, it becomes the same logically as doing the work on
+modules, etc).
 
-This has been definitely a discussion point, and something we should
-develop a clear, strong, policy on.
-
-David, Jesper, care to chime in where we ended up in that last thread
-discussion this?
+-- 
+Kees Cook
