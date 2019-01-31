@@ -1,8 +1,7 @@
-From: Toshiaki Makita <makita.toshiaki@lab.ntt.co.jp>
-Subject: [PATCH net] virtio_net: Account for tx bytes and packets on sending
-	xdp_frames
-Date: Thu, 31 Jan 2019 20:40:30 +0900
-Message-ID: <1548934830-2389-1-git-send-email-makita.toshiaki__30451.7165802949$1548967560$gmane$org@lab.ntt.co.jp>
+From: Cornelia Huck <cohuck@redhat.com>
+Subject: [PATCH RFC] virtio: hint if callbacks surprisingly might sleep
+Date: Thu, 31 Jan 2019 13:53:14 +0100
+Message-ID: <20190131125314.29647-1-cohuck__39857.6672816247$1548967572$gmane$org@redhat.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
@@ -16,64 +15,149 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: "David S. Miller" <davem@davemloft.net>, "Michael S. Tsirkin" <mst@redhat.com>, Jason Wang <jasowang@redhat.com>
-Cc: netdev@vger.kernel.org, virtualization@lists.linux-foundation.org, David Ahern <dsahern@gmail.com>
+To: "Michael S . Tsirkin" <mst@redhat.com>, Jason Wang <jasowang@redhat.com>
+Cc: Halil Pasic <pasic@linux.ibm.com>, linux-s390@vger.kernel.org, Cornelia Huck <cohuck@redhat.com>, linux-kernel@vger.kernel.org, virtualization@lists.linux-foundation.org
 List-Id: virtualization@lists.linuxfoundation.org
 
-Previously virtnet_xdp_xmit() did not account for device tx counters,
-which caused confusions.
-To be consistent with SKBs, account them on freeing xdp_frames.
+A virtio transport is free to implement some of the callbacks in
+virtio_config_ops in a matter that they cannot be called from
+atomic context (e.g. virtio-ccw, which maps a lot of the callbacks
+to channel I/O, which is an inherently asynchronous mechanism).
+This can be very surprising for developers using the much more
+common virtio-pci transport, just to find out that things break
+when used on s390.
 
-Reported-by: David Ahern <dsahern@gmail.com>
-Signed-off-by: Toshiaki Makita <makita.toshiaki@lab.ntt.co.jp>
+The documentation for virtio_config_ops now contains a comment
+explaining this, but it makes sense to add a might_sleep() annotation
+to various wrapper functions in the virtio core to avoid surprises
+later.
+
+Note that annotations are NOT added to two classes of calls:
+- direct calls from device drivers (all current callers should be
+  fine, however)
+- calls which clearly won't be made from atomic context (such as
+  those ultimately coming in via the driver core)
+
+Signed-off-by: Cornelia Huck <cohuck@redhat.com>
 ---
- drivers/net/virtio_net.c | 20 ++++++++++++++++----
- 1 file changed, 16 insertions(+), 4 deletions(-)
 
-diff --git a/drivers/net/virtio_net.c b/drivers/net/virtio_net.c
-index 2594481..4cfceb7 100644
---- a/drivers/net/virtio_net.c
-+++ b/drivers/net/virtio_net.c
-@@ -503,6 +503,8 @@ static int virtnet_xdp_xmit(struct net_device *dev,
- 	struct bpf_prog *xdp_prog;
- 	struct send_queue *sq;
- 	unsigned int len;
-+	int packets = 0;
-+	int bytes = 0;
- 	int drops = 0;
- 	int kicks = 0;
- 	int ret, err;
-@@ -526,10 +528,18 @@ static int virtnet_xdp_xmit(struct net_device *dev,
+I think it is safe to add this now that the issues with the balloon
+have been fixed.
+
+Note that this is not bulletproof (nor is it inteded to be). The
+intention is to make it easier for people to catch problems earlier.
+
+---
+ drivers/virtio/virtio.c       |  2 ++
+ include/linux/virtio_config.h | 13 +++++++++++++
+ 2 files changed, 15 insertions(+)
+
+diff --git a/drivers/virtio/virtio.c b/drivers/virtio/virtio.c
+index 59e36ef4920f..98b30f54342c 100644
+--- a/drivers/virtio/virtio.c
++++ b/drivers/virtio/virtio.c
+@@ -161,6 +161,7 @@ EXPORT_SYMBOL_GPL(virtio_config_enable);
  
- 	/* Free up any pending old buffers before queueing new ones. */
- 	while ((ptr = virtqueue_get_buf(sq->vq, &len)) != NULL) {
--		if (likely(is_xdp_frame(ptr)))
--			xdp_return_frame(ptr_to_xdp(ptr));
--		else
--			napi_consume_skb(ptr, false);
-+		if (likely(is_xdp_frame(ptr))) {
-+			struct xdp_frame *frame = ptr_to_xdp(ptr);
-+
-+			bytes += frame->len;
-+			xdp_return_frame(frame);
-+		} else {
-+			struct sk_buff *skb = ptr;
-+
-+			bytes += skb->len;
-+			napi_consume_skb(skb, false);
-+		}
-+		packets++;
- 	}
+ void virtio_add_status(struct virtio_device *dev, unsigned int status)
+ {
++	might_sleep();
+ 	dev->config->set_status(dev, dev->config->get_status(dev) | status);
+ }
+ EXPORT_SYMBOL_GPL(virtio_add_status);
+@@ -170,6 +171,7 @@ int virtio_finalize_features(struct virtio_device *dev)
+ 	int ret = dev->config->finalize_features(dev);
+ 	unsigned status;
  
- 	for (i = 0; i < n; i++) {
-@@ -549,6 +559,8 @@ static int virtnet_xdp_xmit(struct net_device *dev,
- 	}
- out:
- 	u64_stats_update_begin(&sq->stats.syncp);
-+	sq->stats.bytes += bytes;
-+	sq->stats.packets += packets;
- 	sq->stats.xdp_tx += n;
- 	sq->stats.xdp_tx_drops += drops;
- 	sq->stats.kicks += kicks;
++	might_sleep();
+ 	if (ret)
+ 		return ret;
+ 
+diff --git a/include/linux/virtio_config.h b/include/linux/virtio_config.h
+index 987b6491b946..bb4cc4910750 100644
+--- a/include/linux/virtio_config.h
++++ b/include/linux/virtio_config.h
+@@ -290,6 +290,7 @@ static inline __virtio64 cpu_to_virtio64(struct virtio_device *vdev, u64 val)
+ /* Config space accessors. */
+ #define virtio_cread(vdev, structname, member, ptr)			\
+ 	do {								\
++		might_sleep();						\
+ 		/* Must match the member's type, and be integer */	\
+ 		if (!typecheck(typeof((((structname*)0)->member)), *(ptr))) \
+ 			(*ptr) = 1;					\
+@@ -319,6 +320,7 @@ static inline __virtio64 cpu_to_virtio64(struct virtio_device *vdev, u64 val)
+ /* Config space accessors. */
+ #define virtio_cwrite(vdev, structname, member, ptr)			\
+ 	do {								\
++		might_sleep();						\
+ 		/* Must match the member's type, and be integer */	\
+ 		if (!typecheck(typeof((((structname*)0)->member)), *(ptr))) \
+ 			BUG_ON((*ptr) == 1);				\
+@@ -358,6 +360,7 @@ static inline void __virtio_cread_many(struct virtio_device *vdev,
+ 		vdev->config->generation(vdev) : 0;
+ 	int i;
+ 
++	might_sleep();
+ 	do {
+ 		old = gen;
+ 
+@@ -380,6 +383,8 @@ static inline void virtio_cread_bytes(struct virtio_device *vdev,
+ static inline u8 virtio_cread8(struct virtio_device *vdev, unsigned int offset)
+ {
+ 	u8 ret;
++
++	might_sleep();
+ 	vdev->config->get(vdev, offset, &ret, sizeof(ret));
+ 	return ret;
+ }
+@@ -387,6 +392,7 @@ static inline u8 virtio_cread8(struct virtio_device *vdev, unsigned int offset)
+ static inline void virtio_cwrite8(struct virtio_device *vdev,
+ 				  unsigned int offset, u8 val)
+ {
++	might_sleep();
+ 	vdev->config->set(vdev, offset, &val, sizeof(val));
+ }
+ 
+@@ -394,6 +400,8 @@ static inline u16 virtio_cread16(struct virtio_device *vdev,
+ 				 unsigned int offset)
+ {
+ 	u16 ret;
++
++	might_sleep();
+ 	vdev->config->get(vdev, offset, &ret, sizeof(ret));
+ 	return virtio16_to_cpu(vdev, (__force __virtio16)ret);
+ }
+@@ -401,6 +409,7 @@ static inline u16 virtio_cread16(struct virtio_device *vdev,
+ static inline void virtio_cwrite16(struct virtio_device *vdev,
+ 				   unsigned int offset, u16 val)
+ {
++	might_sleep();
+ 	val = (__force u16)cpu_to_virtio16(vdev, val);
+ 	vdev->config->set(vdev, offset, &val, sizeof(val));
+ }
+@@ -409,6 +418,8 @@ static inline u32 virtio_cread32(struct virtio_device *vdev,
+ 				 unsigned int offset)
+ {
+ 	u32 ret;
++
++	might_sleep();
+ 	vdev->config->get(vdev, offset, &ret, sizeof(ret));
+ 	return virtio32_to_cpu(vdev, (__force __virtio32)ret);
+ }
+@@ -416,6 +427,7 @@ static inline u32 virtio_cread32(struct virtio_device *vdev,
+ static inline void virtio_cwrite32(struct virtio_device *vdev,
+ 				   unsigned int offset, u32 val)
+ {
++	might_sleep();
+ 	val = (__force u32)cpu_to_virtio32(vdev, val);
+ 	vdev->config->set(vdev, offset, &val, sizeof(val));
+ }
+@@ -431,6 +443,7 @@ static inline u64 virtio_cread64(struct virtio_device *vdev,
+ static inline void virtio_cwrite64(struct virtio_device *vdev,
+ 				   unsigned int offset, u64 val)
+ {
++	might_sleep();
+ 	val = (__force u64)cpu_to_virtio64(vdev, val);
+ 	vdev->config->set(vdev, offset, &val, sizeof(val));
+ }
 -- 
-1.8.3.1
+2.17.2
