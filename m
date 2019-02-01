@@ -1,17 +1,12 @@
-From: =?UTF-8?Q?Noralf_Tr=c3=b8nnes?= <noralf@tronnes.org>
-Subject: Re: [PATCH v2 4/6] drm/virtio: params struct for
-	virtio_gpu_cmd_create_resource_3d()
-Date: Fri, 1 Feb 2019 10:31:23 +0100
-Message-ID: <b1d7b700-6d0f-fee1-bec9-3b4f9962a9f5__21665.5035897688$1549067126$gmane$org@tronnes.org>
-References: <20190130094338.14203-1-kraxel@redhat.com>
-	<20190130094338.14203-5-kraxel@redhat.com>
-	<4d3064ef-9993-106a-74b5-73a29c08975e@tronnes.org>
-	<20190201080113.mhlzpyek62cfc5qe@sirius.home.kraxel.org>
+From: "Michael S. Tsirkin" <mst@redhat.com>
+Subject: [PATCH] virtio: drop internal struct from UAPI
+Date: Fri, 1 Feb 2019 17:16:01 -0500
+Message-ID: <20190201221553.7210-1-mst__12034.8488840804$1549068362$gmane$org@redhat.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="utf-8"
-Content-Transfer-Encoding: base64
+Content-Type: text/plain; charset="us-ascii"
+Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <20190201080113.mhlzpyek62cfc5qe@sirius.home.kraxel.org>
+Content-Disposition: inline
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -21,22 +16,58 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Gerd Hoffmann <kraxel@redhat.com>
-Cc: David Airlie <airlied@linux.ie>, open list <linux-kernel@vger.kernel.org>, dri-devel@lists.freedesktop.org, "open list:VIRTIO GPU DRIVER" <virtualization@lists.linux-foundation.org>
+To: linux-kernel@vger.kernel.org
+Cc: virtualization@lists.linux-foundation.org
 List-Id: virtualization@lists.linuxfoundation.org
 
-CgpEZW4gMDEuMDIuMjAxOSAwOS4wMSwgc2tyZXYgR2VyZCBIb2ZmbWFubjoKPiBPbiBUaHUsIEph
-biAzMSwgMjAxOSBhdCAxMTo0NzozOEFNICswMTAwLCBOb3JhbGYgVHLDuG5uZXMgd3JvdGU6Cj4+
-Cj4+Cj4+IERlbiAzMC4wMS4yMDE5IDEwLjQzLCBza3JldiBHZXJkIEhvZmZtYW5uOgo+Pj4gQWRk
-IDNkIHJlc291cmNlIHBhcmFtZXRlcnMgdG8gdmlydGlvX2dwdV9vYmplY3RfcGFyYW1zIHN0cnVj
-dC4gIFdpdGgKPj4+IHRoYXQgaW4gcGxhY2Ugd2UgY2FuIHVzZSBpdCBmb3IgdmlydGlvX2dwdV9j
-bWRfcmVzb3VyY2VfY3JlYXRlXzNkKCkKPj4+IGNhbGxzLgo+Pj4KPj4+IFNpZ25lZC1vZmYtYnk6
-IEdlcmQgSG9mZm1hbm4gPGtyYXhlbEByZWRoYXQuY29tPgo+Pj4gLS0tCj4+Cj4+IFlvdSBkb24n
-dCByZW1vdmUgdGhlIHN0cnVjdCB2aXJ0aW9fZ3B1X3Jlc291cmNlX2NyZWF0ZV8zZCBkZWZpbml0
-aW9uLAo+PiBidXQgaXQgbG9va3MgbGlrZSB0aGVyZSdzIG5vIHVzZXJzIGxlZnQ/Cj4gCj4gdmly
-dGlvX2dwdV9jbWRfcmVzb3VyY2VfY3JlYXRlXzNkKCkgc3RpbGwgdXNlcyBpdCAoYW5kIGhhcyB0
-bywgaXQgaXMKPiBwYXJ0IG9mIHRoZSBndWVzdCA8LT4gaG9zdCBwcm90b2NvbCkuCj4gCgpBY2tl
-ZC1ieTogTm9yYWxmIFRyw7hubmVzIDxub3JhbGZAdHJvbm5lcy5vcmc+Cl9fX19fX19fX19fX19f
-X19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fClZpcnR1YWxpemF0aW9uIG1haWxpbmcg
-bGlzdApWaXJ0dWFsaXphdGlvbkBsaXN0cy5saW51eC1mb3VuZGF0aW9uLm9yZwpodHRwczovL2xp
-c3RzLmxpbnV4Zm91bmRhdGlvbi5vcmcvbWFpbG1hbi9saXN0aW5mby92aXJ0dWFsaXphdGlvbg==
+There's no reason to expose struct vring_packed in UAPI - if we do we
+won't be able to change or drop it, and it's not part of any interface.
+
+Let's move it to virtio_ring.c
+
+Cc: Tiwei Bie <tiwei.bie@intel.com>
+Signed-off-by: Michael S. Tsirkin <mst@redhat.com>
+---
+ drivers/virtio/virtio_ring.c     |  7 ++++++-
+ include/uapi/linux/virtio_ring.h | 10 ----------
+ 2 files changed, 6 insertions(+), 11 deletions(-)
+
+diff --git a/drivers/virtio/virtio_ring.c b/drivers/virtio/virtio_ring.c
+index 412e0c431d87..1c85b3423182 100644
+--- a/drivers/virtio/virtio_ring.c
++++ b/drivers/virtio/virtio_ring.c
+@@ -152,7 +152,12 @@ struct vring_virtqueue {
+ 		/* Available for packed ring */
+ 		struct {
+ 			/* Actual memory layout for this queue. */
+-			struct vring_packed vring;
++			struct {
++				unsigned int num;
++				struct vring_packed_desc *desc;
++				struct vring_packed_desc_event *driver;
++				struct vring_packed_desc_event *device;
++			} vring;
+ 
+ 			/* Driver ring wrap counter. */
+ 			bool avail_wrap_counter;
+diff --git a/include/uapi/linux/virtio_ring.h b/include/uapi/linux/virtio_ring.h
+index 2414f8af26b3..4c4e24c291a5 100644
+--- a/include/uapi/linux/virtio_ring.h
++++ b/include/uapi/linux/virtio_ring.h
+@@ -213,14 +213,4 @@ struct vring_packed_desc {
+ 	__le16 flags;
+ };
+ 
+-struct vring_packed {
+-	unsigned int num;
+-
+-	struct vring_packed_desc *desc;
+-
+-	struct vring_packed_desc_event *driver;
+-
+-	struct vring_packed_desc_event *device;
+-};
+-
+ #endif /* _UAPI_LINUX_VIRTIO_RING_H */
+-- 
+MST
