@@ -1,18 +1,17 @@
-From: Toshiaki Makita <makita.toshiaki@lab.ntt.co.jp>
-Subject: Re: [PATCH net] virtio_net: Account for tx bytes and packets on
-	sending xdp_frames
-Date: Fri, 1 Feb 2019 10:53:44 +0900
-Message-ID: <8cc0a8c8-39b4-a9c4-0ca0-ee4cc42ea42a__41315.4873227299$1549068540$gmane$org@lab.ntt.co.jp>
-References: <1548934830-2389-1-git-send-email-makita.toshiaki@lab.ntt.co.jp>
-	<20190131101516-mutt-send-email-mst@kernel.org>
-	<20190131.094523.2248120325911339180.davem@davemloft.net>
-	<20190131211555.3b15c81f@carbon>
+From: Gerd Hoffmann <kraxel@redhat.com>
+Subject: Re: [PATCH v2 5/6] drm/virtio: drop fencing in
+	virtio_gpu_resource_create_ioctl
+Date: Fri, 1 Feb 2019 08:23:41 +0100
+Message-ID: <20190201072341.nujqrkxbq3fg7djd__7678.11353305063$1549068713$gmane$org@sirius.home.kraxel.org>
+References: <20190130094338.14203-1-kraxel@redhat.com>
+	<20190130094338.14203-6-kraxel@redhat.com>
+	<CAAfnVB=z36CtTsCiEy1uVTNvE9DVuSDKLNdMVFO+tBJqiQ7s1A@mail.gmail.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <20190131211555.3b15c81f@carbon>
-Content-Language: en-US
+Content-Disposition: inline
+In-Reply-To: <CAAfnVB=z36CtTsCiEy1uVTNvE9DVuSDKLNdMVFO+tBJqiQ7s1A@mail.gmail.com>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -22,74 +21,52 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Jesper Dangaard Brouer <brouer@redhat.com>, David Miller <davem@davemloft.net>
-Cc: hawk@kernel.org, mst@redhat.com, netdev@vger.kernel.org, virtualization@lists.linux-foundation.org, =?UTF-8?Q?Toke_H=c3=b8iland-J=c3=b8rgensen?= <thoiland@redhat.com>, dsahern@gmail.com
+To: Gurchetan Singh <gurchetansingh@chromium.org>
+Cc: David Airlie <airlied@linux.ie>, open list <linux-kernel@vger.kernel.org>, ML dri-devel <dri-devel@lists.freedesktop.org>, "open list:VIRTIO GPU DRIVER" <virtualization@lists.linux-foundation.org>
 List-Id: virtualization@lists.linuxfoundation.org
 
-On 2019/02/01 5:15, Jesper Dangaard Brouer wrote:
-> On Thu, 31 Jan 2019 09:45:23 -0800 (PST)
-> David Miller <davem@davemloft.net> wrote:
+On Thu, Jan 31, 2019 at 11:04:31AM -0800, Gurchetan Singh wrote:
+> On Wed, Jan 30, 2019 at 1:43 AM Gerd Hoffmann <kraxel@redhat.com> wrote:
+> >
+> > There is no need to wait for completion here.
+> >
+> > The host will process commands in submit order, so commands can
+> > reference the new resource just fine even when queued up before
+> > completion.
 > 
->> From: "Michael S. Tsirkin" <mst@redhat.com>
->> Date: Thu, 31 Jan 2019 10:25:17 -0500
->>
->>> On Thu, Jan 31, 2019 at 08:40:30PM +0900, Toshiaki Makita wrote:  
->>>> Previously virtnet_xdp_xmit() did not account for device tx counters,
->>>> which caused confusions.
->>>> To be consistent with SKBs, account them on freeing xdp_frames.
->>>>
->>>> Reported-by: David Ahern <dsahern@gmail.com>
->>>> Signed-off-by: Toshiaki Makita <makita.toshiaki@lab.ntt.co.jp>  
->>>
->>> Well we count them on receive so I guess it makes sense for consistency
->>>
->>> Acked-by: Michael S. Tsirkin <mst@redhat.com>
->>>
->>> however, I really wonder whether adding more and more standard net stack
->>> things like this will end up costing most of XDP its speed.
->>>
->>> Should we instead make sure *not* to account XDP packets
->>> in any counters at all? XDP programs can use maps
->>> to do their own counting...  
->>
->> This has been definitely a discussion point, and something we should
->> develop a clear, strong, policy on.
->>
->> David, Jesper, care to chime in where we ended up in that last thread
->> discussion this?
+> Does virtio_gpu_execbuffer_ioctl also wait for completion for a host response?
+
+No.
+
+But you pass in a list of objects (drm_virtgpu_execbuffer->bo_handles)
+used.  They will all get reserved, so you can use DRM_IOCTL_VIRTGPU_WAIT
+on any of these objects to wait for completion.
+
+Recently the driver got support for returning a fence fd for the
+execbuffer, which you can also use to wait for completion in case your
+kernel is new enough.
+
+> From the guest driver perspective, a fence is just implemented has a
+> virtio 3D resource.
 > 
-> IHMO packets RX and TX on a device need to be accounted, in standard
-> counters, regardless of XDP.  For XDP RX the packet is counted as RX,
-> regardless if XDP choose to XDP_DROP.  On XDP TX which is via
-> XDP_REDIRECT or XDP_TX, the driver that transmit the packet need to
-> account the packet in a TX counter (this if often delayed to DMA TX
-> completion handling).  We cannot break the expectation that RX and TX
-> counter are visible to userspace stats tools. XDP should not make these
-> packets invisible.
+> https://gitlab.freedesktop.org/mesa/mesa/blob/master/src/gallium/winsys/virgl/drm/virgl_drm_winsys.c#L787
 > 
-> Performance wise, I don't see an issue. As updating these counters
-> (packets and bytes) can be done as a bulk, either when driver NAPI RX
-> func ends, or in TX DMA completion, like most drivers already do today.
-> Further more, most drivers save this in per RX ring data-area, which
-> are only summed when userspace read these.
+> The DRM_IOCTL_VIRTGPU_WAIT ioctl essentially waits for the reservation
+> objects associated with that fence resource to become available.  So
+> the flow is:
+> 
+> virtio_gpu_execbuffer_ioctl
+> virtio_gpu_resource_create_ioctl with fence resource
+> virtio_gpu_wait_ioctl with that fence resource --> associated with a
+> GL wait on the host side
 
-Agreed.
+Oh.  /me looks surprised.
+Wasn't aware that userspace is doing *that*.
 
-> A separate question (and project) raised by David Ahern, was if we
-> should have more detailed stats on the different XDP action return
-> codes, as an easy means for sysadms to diagnose running XDP programs.
-> That is something that require more discussions, as it can impact
-> performance, and likely need to be opt-in.  My opinion is yes we should
-> do this for the sake of better User eXperience, BUT *only* if we can find
-> a technical solution that does not hurt performance.
+> Does this change modify this sequence of events?
 
-Basically the situation for the detailed stats is the same as standard
-stats, at least in virtio_net. Stats are updated as a bulk, and the
-counters reside in RX/TX ring structures.
-Probably this way of implementation would be ok performance-wise?
-But as other drivers may have different situations, if it is generally
-difficult to avoid performance penalty I'm OK with making them opt-in as
-a standard way.
+Yes.  DRM_IOCTL_VIRTGPU_WAIT will not wait any more.  Guess I have to
+scratch the patch then ...
 
--- 
-Toshiaki Makita
+cheers,
+  Gerd
