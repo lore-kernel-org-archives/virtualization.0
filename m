@@ -1,14 +1,14 @@
-From: Christoph Hellwig <hch@lst.de>
-Subject: Re: [PATCH 0/5 v6] Fix virtio-blk issue with SWIOTLB
-Date: Fri, 1 Feb 2019 09:09:46 +0100
-Message-ID: <20190201080946.GA15512__38205.7593482145$1549068738$gmane$org@lst.de>
-References: <20190131163403.11363-1-joro@8bytes.org>
+From: Jason Wang <jasowang@redhat.com>
+Subject: Re: [PATCH] virtio: drop internal struct from UAPI
+Date: Sat, 2 Feb 2019 11:18:36 +0800
+Message-ID: <423ece1f-5eb9-8023-81f0-90fc57e19e24__12094.4954034471$1549163414$gmane$org@redhat.com>
+References: <20190201221553.7210-1-mst@redhat.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset="utf-8"; Format="flowed"
+Content-Transfer-Encoding: base64
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-Content-Disposition: inline
-In-Reply-To: <20190131163403.11363-1-joro@8bytes.org>
+In-Reply-To: <20190201221553.7210-1-mst@redhat.com>
+Content-Language: en-US
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -18,9 +18,41 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Joerg Roedel <joro@8bytes.org>
-Cc: Jens Axboe <axboe@kernel.dk>, Thomas.Lendacky@amd.com, jon.grimm@amd.com, brijesh.singh@amd.com, Konrad Rzeszutek Wilk <konrad.wilk@oracle.com>, "Michael S . Tsirkin" <mst@redhat.com>, jfehlig@suse.com, linux-kernel@vger.kernel.org, virtualization@lists.linux-foundation.org, linux-block@vger.kernel.org, iommu@lists.linux-foundation.org, jroedel@suse.de, Christoph Hellwig <hch@lst.de>
+To: "Michael S. Tsirkin" <mst@redhat.com>, linux-kernel@vger.kernel.org
+Cc: virtualization@lists.linux-foundation.org
 List-Id: virtualization@lists.linuxfoundation.org
 
-For some reason patch 5 didn't make it to my inbox, but assuming
-nothing has changed this whole series looks good to me now.
+Ck9uIDIwMTkvMi8yIOS4iuWNiDY6MTYsIE1pY2hhZWwgUy4gVHNpcmtpbiB3cm90ZToKPiBUaGVy
+ZSdzIG5vIHJlYXNvbiB0byBleHBvc2Ugc3RydWN0IHZyaW5nX3BhY2tlZCBpbiBVQVBJIC0gaWYg
+d2UgZG8gd2UKPiB3b24ndCBiZSBhYmxlIHRvIGNoYW5nZSBvciBkcm9wIGl0LCBhbmQgaXQncyBu
+b3QgcGFydCBvZiBhbnkgaW50ZXJmYWNlLgo+Cj4gTGV0J3MgbW92ZSBpdCB0byB2aXJ0aW9fcmlu
+Zy5jCj4KPiBDYzogVGl3ZWkgQmllIDx0aXdlaS5iaWVAaW50ZWwuY29tPgo+IFNpZ25lZC1vZmYt
+Ynk6IE1pY2hhZWwgUy4gVHNpcmtpbiA8bXN0QHJlZGhhdC5jb20+Cj4gLS0tCj4gICBkcml2ZXJz
+L3ZpcnRpby92aXJ0aW9fcmluZy5jICAgICB8ICA3ICsrKysrKy0KPiAgIGluY2x1ZGUvdWFwaS9s
+aW51eC92aXJ0aW9fcmluZy5oIHwgMTAgLS0tLS0tLS0tLQo+ICAgMiBmaWxlcyBjaGFuZ2VkLCA2
+IGluc2VydGlvbnMoKyksIDExIGRlbGV0aW9ucygtKQo+Cj4gZGlmZiAtLWdpdCBhL2RyaXZlcnMv
+dmlydGlvL3ZpcnRpb19yaW5nLmMgYi9kcml2ZXJzL3ZpcnRpby92aXJ0aW9fcmluZy5jCj4gaW5k
+ZXggNDEyZTBjNDMxZDg3Li4xYzg1YjM0MjMxODIgMTAwNjQ0Cj4gLS0tIGEvZHJpdmVycy92aXJ0
+aW8vdmlydGlvX3JpbmcuYwo+ICsrKyBiL2RyaXZlcnMvdmlydGlvL3ZpcnRpb19yaW5nLmMKPiBA
+QCAtMTUyLDcgKzE1MiwxMiBAQCBzdHJ1Y3QgdnJpbmdfdmlydHF1ZXVlIHsKPiAgIAkJLyogQXZh
+aWxhYmxlIGZvciBwYWNrZWQgcmluZyAqLwo+ICAgCQlzdHJ1Y3Qgewo+ICAgCQkJLyogQWN0dWFs
+IG1lbW9yeSBsYXlvdXQgZm9yIHRoaXMgcXVldWUuICovCj4gLQkJCXN0cnVjdCB2cmluZ19wYWNr
+ZWQgdnJpbmc7Cj4gKwkJCXN0cnVjdCB7Cj4gKwkJCQl1bnNpZ25lZCBpbnQgbnVtOwo+ICsJCQkJ
+c3RydWN0IHZyaW5nX3BhY2tlZF9kZXNjICpkZXNjOwo+ICsJCQkJc3RydWN0IHZyaW5nX3BhY2tl
+ZF9kZXNjX2V2ZW50ICpkcml2ZXI7Cj4gKwkJCQlzdHJ1Y3QgdnJpbmdfcGFja2VkX2Rlc2NfZXZl
+bnQgKmRldmljZTsKPiArCQkJfSB2cmluZzsKPiAgIAo+ICAgCQkJLyogRHJpdmVyIHJpbmcgd3Jh
+cCBjb3VudGVyLiAqLwo+ICAgCQkJYm9vbCBhdmFpbF93cmFwX2NvdW50ZXI7Cj4gZGlmZiAtLWdp
+dCBhL2luY2x1ZGUvdWFwaS9saW51eC92aXJ0aW9fcmluZy5oIGIvaW5jbHVkZS91YXBpL2xpbnV4
+L3ZpcnRpb19yaW5nLmgKPiBpbmRleCAyNDE0ZjhhZjI2YjMuLjRjNGUyNGMyOTFhNSAxMDA2NDQK
+PiAtLS0gYS9pbmNsdWRlL3VhcGkvbGludXgvdmlydGlvX3JpbmcuaAo+ICsrKyBiL2luY2x1ZGUv
+dWFwaS9saW51eC92aXJ0aW9fcmluZy5oCj4gQEAgLTIxMywxNCArMjEzLDQgQEAgc3RydWN0IHZy
+aW5nX3BhY2tlZF9kZXNjIHsKPiAgIAlfX2xlMTYgZmxhZ3M7Cj4gICB9Owo+ICAgCj4gLXN0cnVj
+dCB2cmluZ19wYWNrZWQgewo+IC0JdW5zaWduZWQgaW50IG51bTsKPiAtCj4gLQlzdHJ1Y3QgdnJp
+bmdfcGFja2VkX2Rlc2MgKmRlc2M7Cj4gLQo+IC0Jc3RydWN0IHZyaW5nX3BhY2tlZF9kZXNjX2V2
+ZW50ICpkcml2ZXI7Cj4gLQo+IC0Jc3RydWN0IHZyaW5nX3BhY2tlZF9kZXNjX2V2ZW50ICpkZXZp
+Y2U7Cj4gLX07Cj4gLQo+ICAgI2VuZGlmIC8qIF9VQVBJX0xJTlVYX1ZJUlRJT19SSU5HX0ggKi8K
+CgpBY2tlZC1ieTogSmFzb24gV2FuZyA8amFzb3dhbmdAcmVkaGF0LmNvbT4KCgpfX19fX19fX19f
+X19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fXwpWaXJ0dWFsaXphdGlvbiBtYWls
+aW5nIGxpc3QKVmlydHVhbGl6YXRpb25AbGlzdHMubGludXgtZm91bmRhdGlvbi5vcmcKaHR0cHM6
+Ly9saXN0cy5saW51eGZvdW5kYXRpb24ub3JnL21haWxtYW4vbGlzdGluZm8vdmlydHVhbGl6YXRp
+b24=
