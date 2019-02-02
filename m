@@ -1,14 +1,14 @@
-From: Jason Wang <jasowang@redhat.com>
+From: Tiwei Bie <tiwei.bie@intel.com>
 Subject: Re: [PATCH] virtio: drop internal struct from UAPI
-Date: Sat, 2 Feb 2019 11:18:36 +0800
-Message-ID: <423ece1f-5eb9-8023-81f0-90fc57e19e24__12094.4954034471$1549163414$gmane$org@redhat.com>
+Date: Sat, 2 Feb 2019 12:04:40 +0800
+Message-ID: <20190202040440.GA19948__6592.99878623045$1549163430$gmane$org@dpdk-tbie>
 References: <20190201221553.7210-1-mst@redhat.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="utf-8"; Format="flowed"
-Content-Transfer-Encoding: base64
+Content-Type: text/plain; charset="us-ascii"
+Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
+Content-Disposition: inline
 In-Reply-To: <20190201221553.7210-1-mst@redhat.com>
-Content-Language: en-US
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -18,41 +18,61 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: "Michael S. Tsirkin" <mst@redhat.com>, linux-kernel@vger.kernel.org
-Cc: virtualization@lists.linux-foundation.org
+To: "Michael S. Tsirkin" <mst@redhat.com>
+Cc: linux-kernel@vger.kernel.org, virtualization@lists.linux-foundation.org
 List-Id: virtualization@lists.linuxfoundation.org
 
-Ck9uIDIwMTkvMi8yIOS4iuWNiDY6MTYsIE1pY2hhZWwgUy4gVHNpcmtpbiB3cm90ZToKPiBUaGVy
-ZSdzIG5vIHJlYXNvbiB0byBleHBvc2Ugc3RydWN0IHZyaW5nX3BhY2tlZCBpbiBVQVBJIC0gaWYg
-d2UgZG8gd2UKPiB3b24ndCBiZSBhYmxlIHRvIGNoYW5nZSBvciBkcm9wIGl0LCBhbmQgaXQncyBu
-b3QgcGFydCBvZiBhbnkgaW50ZXJmYWNlLgo+Cj4gTGV0J3MgbW92ZSBpdCB0byB2aXJ0aW9fcmlu
-Zy5jCj4KPiBDYzogVGl3ZWkgQmllIDx0aXdlaS5iaWVAaW50ZWwuY29tPgo+IFNpZ25lZC1vZmYt
-Ynk6IE1pY2hhZWwgUy4gVHNpcmtpbiA8bXN0QHJlZGhhdC5jb20+Cj4gLS0tCj4gICBkcml2ZXJz
-L3ZpcnRpby92aXJ0aW9fcmluZy5jICAgICB8ICA3ICsrKysrKy0KPiAgIGluY2x1ZGUvdWFwaS9s
-aW51eC92aXJ0aW9fcmluZy5oIHwgMTAgLS0tLS0tLS0tLQo+ICAgMiBmaWxlcyBjaGFuZ2VkLCA2
-IGluc2VydGlvbnMoKyksIDExIGRlbGV0aW9ucygtKQo+Cj4gZGlmZiAtLWdpdCBhL2RyaXZlcnMv
-dmlydGlvL3ZpcnRpb19yaW5nLmMgYi9kcml2ZXJzL3ZpcnRpby92aXJ0aW9fcmluZy5jCj4gaW5k
-ZXggNDEyZTBjNDMxZDg3Li4xYzg1YjM0MjMxODIgMTAwNjQ0Cj4gLS0tIGEvZHJpdmVycy92aXJ0
-aW8vdmlydGlvX3JpbmcuYwo+ICsrKyBiL2RyaXZlcnMvdmlydGlvL3ZpcnRpb19yaW5nLmMKPiBA
-QCAtMTUyLDcgKzE1MiwxMiBAQCBzdHJ1Y3QgdnJpbmdfdmlydHF1ZXVlIHsKPiAgIAkJLyogQXZh
-aWxhYmxlIGZvciBwYWNrZWQgcmluZyAqLwo+ICAgCQlzdHJ1Y3Qgewo+ICAgCQkJLyogQWN0dWFs
-IG1lbW9yeSBsYXlvdXQgZm9yIHRoaXMgcXVldWUuICovCj4gLQkJCXN0cnVjdCB2cmluZ19wYWNr
-ZWQgdnJpbmc7Cj4gKwkJCXN0cnVjdCB7Cj4gKwkJCQl1bnNpZ25lZCBpbnQgbnVtOwo+ICsJCQkJ
-c3RydWN0IHZyaW5nX3BhY2tlZF9kZXNjICpkZXNjOwo+ICsJCQkJc3RydWN0IHZyaW5nX3BhY2tl
-ZF9kZXNjX2V2ZW50ICpkcml2ZXI7Cj4gKwkJCQlzdHJ1Y3QgdnJpbmdfcGFja2VkX2Rlc2NfZXZl
-bnQgKmRldmljZTsKPiArCQkJfSB2cmluZzsKPiAgIAo+ICAgCQkJLyogRHJpdmVyIHJpbmcgd3Jh
-cCBjb3VudGVyLiAqLwo+ICAgCQkJYm9vbCBhdmFpbF93cmFwX2NvdW50ZXI7Cj4gZGlmZiAtLWdp
-dCBhL2luY2x1ZGUvdWFwaS9saW51eC92aXJ0aW9fcmluZy5oIGIvaW5jbHVkZS91YXBpL2xpbnV4
-L3ZpcnRpb19yaW5nLmgKPiBpbmRleCAyNDE0ZjhhZjI2YjMuLjRjNGUyNGMyOTFhNSAxMDA2NDQK
-PiAtLS0gYS9pbmNsdWRlL3VhcGkvbGludXgvdmlydGlvX3JpbmcuaAo+ICsrKyBiL2luY2x1ZGUv
-dWFwaS9saW51eC92aXJ0aW9fcmluZy5oCj4gQEAgLTIxMywxNCArMjEzLDQgQEAgc3RydWN0IHZy
-aW5nX3BhY2tlZF9kZXNjIHsKPiAgIAlfX2xlMTYgZmxhZ3M7Cj4gICB9Owo+ICAgCj4gLXN0cnVj
-dCB2cmluZ19wYWNrZWQgewo+IC0JdW5zaWduZWQgaW50IG51bTsKPiAtCj4gLQlzdHJ1Y3QgdnJp
-bmdfcGFja2VkX2Rlc2MgKmRlc2M7Cj4gLQo+IC0Jc3RydWN0IHZyaW5nX3BhY2tlZF9kZXNjX2V2
-ZW50ICpkcml2ZXI7Cj4gLQo+IC0Jc3RydWN0IHZyaW5nX3BhY2tlZF9kZXNjX2V2ZW50ICpkZXZp
-Y2U7Cj4gLX07Cj4gLQo+ICAgI2VuZGlmIC8qIF9VQVBJX0xJTlVYX1ZJUlRJT19SSU5HX0ggKi8K
-CgpBY2tlZC1ieTogSmFzb24gV2FuZyA8amFzb3dhbmdAcmVkaGF0LmNvbT4KCgpfX19fX19fX19f
-X19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fXwpWaXJ0dWFsaXphdGlvbiBtYWls
-aW5nIGxpc3QKVmlydHVhbGl6YXRpb25AbGlzdHMubGludXgtZm91bmRhdGlvbi5vcmcKaHR0cHM6
-Ly9saXN0cy5saW51eGZvdW5kYXRpb24ub3JnL21haWxtYW4vbGlzdGluZm8vdmlydHVhbGl6YXRp
-b24=
+On Fri, Feb 01, 2019 at 05:16:01PM -0500, Michael S. Tsirkin wrote:
+> There's no reason to expose struct vring_packed in UAPI - if we do we
+> won't be able to change or drop it, and it's not part of any interface.
+> 
+> Let's move it to virtio_ring.c
+> 
+> Cc: Tiwei Bie <tiwei.bie@intel.com>
+> Signed-off-by: Michael S. Tsirkin <mst@redhat.com>
+> ---
+>  drivers/virtio/virtio_ring.c     |  7 ++++++-
+>  include/uapi/linux/virtio_ring.h | 10 ----------
+>  2 files changed, 6 insertions(+), 11 deletions(-)
+> 
+> diff --git a/drivers/virtio/virtio_ring.c b/drivers/virtio/virtio_ring.c
+> index 412e0c431d87..1c85b3423182 100644
+> --- a/drivers/virtio/virtio_ring.c
+> +++ b/drivers/virtio/virtio_ring.c
+> @@ -152,7 +152,12 @@ struct vring_virtqueue {
+>  		/* Available for packed ring */
+>  		struct {
+>  			/* Actual memory layout for this queue. */
+> -			struct vring_packed vring;
+> +			struct {
+> +				unsigned int num;
+> +				struct vring_packed_desc *desc;
+> +				struct vring_packed_desc_event *driver;
+> +				struct vring_packed_desc_event *device;
+> +			} vring;
+>  
+>  			/* Driver ring wrap counter. */
+>  			bool avail_wrap_counter;
+> diff --git a/include/uapi/linux/virtio_ring.h b/include/uapi/linux/virtio_ring.h
+> index 2414f8af26b3..4c4e24c291a5 100644
+> --- a/include/uapi/linux/virtio_ring.h
+> +++ b/include/uapi/linux/virtio_ring.h
+> @@ -213,14 +213,4 @@ struct vring_packed_desc {
+>  	__le16 flags;
+>  };
+>  
+> -struct vring_packed {
+> -	unsigned int num;
+> -
+> -	struct vring_packed_desc *desc;
+> -
+> -	struct vring_packed_desc_event *driver;
+> -
+> -	struct vring_packed_desc_event *device;
+> -};
+> -
+>  #endif /* _UAPI_LINUX_VIRTIO_RING_H */
+> -- 
+> MST
+
+Acked-by: Tiwei Bie <tiwei.bie@intel.com>
