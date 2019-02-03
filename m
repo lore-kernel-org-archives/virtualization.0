@@ -1,15 +1,15 @@
-From: "Michael S. Tsirkin" <mst@redhat.com>
-Subject: security implications of caching with virtio pmem (was Re: [PATCH v3
-	0/5] kvm "virtio pmem" device)
-Date: Mon, 4 Feb 2019 17:56:22 -0500
-Message-ID: <20190204170515-mutt-send-email-mst__43722.0806534$1549340983$gmane$org@kernel.org>
-References: <20190109144736.17452-1-pagupta@redhat.com>
+From: Ben Hutchings <ben@decadent.org.uk>
+Subject: [PATCH 3.16 139/305] clockevents/drivers/i8253: Add support for
+	PIT shutdown quirk
+Date: Sun, 03 Feb 2019 14:45:08 +0100
+Message-ID: <lsq.1549201508.388753594__7574.22094918496$1549341472$gmane$org@decadent.org.uk>
+References: <lsq.1549201507.384106140@decadent.org.uk>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
 Content-Disposition: inline
-In-Reply-To: <20190109144736.17452-1-pagupta@redhat.com>
+In-Reply-To: <lsq.1549201507.384106140@decadent.org.uk>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -19,85 +19,85 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Pankaj Gupta <pagupta@redhat.com>
-Cc: jack@suse.cz, kvm@vger.kernel.org, linux-nvdimm@ml01.01.org, qemu-devel@nongnu.org, virtualization@lists.linux-foundation.org, adilger.kernel@dilger.ca, zwisler@kernel.org, eblake@redhat.com, Andrea Arcangeli <aarcange@redhat.com>, dave.jiang@intel.com, darrick.wong@oracle.com, vishal.l.verma@intel.com, willy@infradead.org, hch@infradead.org, linux-acpi@vger.kernel.org, jmoyer@redhat.com, nilal@redhat.com, riel@surriel.com, stefanha@redhat.com, imammedo@redhat.com, dan.j.williams@intel.com, lcapitulino@redhat.com, linux-ext4@vger.kernel.org, tytso@mit.edu, xiaoguangrong.eric@gmail.com, rjw@rjwysocki.net, linux-kernel@vger.kernel.org, linux-xfs@vger.kernel.org, linux-fsdevel@vger.kernel.org, pbonzini@redhat.com
+To: linux-kernel@vger.kernel.org, stable@vger.kernel.org
+Cc: "jgross@suse.com" <jgross@suse.com>, "olaf@aepfle.de" <olaf@aepfle.de>, Michael Kelley <mikelley@microsoft.com>, "gregkh@linuxfoundation.org" <gregkh@linuxfoundation.org>, Denis Kirjanov <kda@linux-powerpc.org>, "daniel.lezcano@linaro.org" <daniel.lezcano@linaro.org>, "virtualization@lists.linux-foundation.org" <virtualization@lists.linux-foundation.org>, "apw@canonical.com" <apw@canonical.com>, Thomas Gleixner <tglx@linutronix.de>, "marcelo.cerri@canonical.com" <marcelo.cerri@canonical.com>, "devel@linuxdriverproject.org" <devel@linuxdriverproject.org>, akpm@linux-foundation.org, "akataria@vmware.com" <akataria@vmware.com>
 List-Id: virtualization@lists.linuxfoundation.org
 
+3.16.63-rc1 review patch.  If anyone has any objections, please let me know.
 
-On Wed, Jan 09, 2019 at 08:17:31PM +0530, Pankaj Gupta wrote:
->  This patch series has implementation for "virtio pmem". 
->  "virtio pmem" is fake persistent memory(nvdimm) in guest 
->  which allows to bypass the guest page cache. This also
->  implements a VIRTIO based asynchronous flush mechanism.  
+------------------
 
+From: Michael Kelley <mikelley@microsoft.com>
 
-At Pankaj's request I looked at information leak implications of virtio
-pmem in light of the recent page cache side channels paper
-(https://arxiv.org/pdf/1901.01161.pdf) - to see what
-kind of side channels it might create if any.  TLDR - I think that
-depending on the host side implementation there could be some, but this
-might be addressable by better documentation in both code and spec.
-The fake dax approach backing the guest memory by a host page cache
-does seem to have potential issues.
+commit 35b69a420bfb56b7b74cb635ea903db05e357bec upstream.
 
-For clarity: we are talking about leaking information either to a VM, or
-within a VM (I did not look into leaks to hypervisor in configurations
-such as SEV) through host page cache.
+Add support for platforms where pit_shutdown() doesn't work because of a
+quirk in the PIT emulation. On these platforms setting the counter register
+to zero causes the PIT to start running again, negating the shutdown.
 
-Leaks into a VM: It seems clear that while pmem allows memory accesses
-versus read/write with e.g. a block device, from host page cache point
-of view this doesn't matter much: reads populate cache in the same way
-as memory faults.  Thus ignoring presence of information leaks (which is
-an interesting question e.g. in light of recent discard support) pmem
-doesn't seem to be any better or worse for leaking information into a
-VM.
+Provide a global variable that controls whether the counter register is
+zero'ed, which platform specific code can override.
 
-Leaks within VM: Right now pmem seems to bypass the guest page cache
-completely.  Whether pmem memory is then resident in a page cache would
-be up to the device/host. Assuming that it is, the "Preventing
-Efficient Eviction while Increasing the System Performance"
-countermeasure for the page cache side channel attack would appear to
-become ineffective with pmem. What is suggested is a per-process
-management of the page cache, and host does not have visibility of
-processes within a VM. Another possible countermeasure - not discussed
-in the paper - could be modify the applications to lock the security
-relevant pages in memory.  Again this becomes impractical with pmem as
-host does not have visibility into that. However note that as long
-as the only countermeasure linux uses is "Privileged Access"
-(i.e. blocking mincore) nothing can be done as guest page cache
-remains as vulnerable as host page cache.
+Signed-off-by: Michael Kelley <mikelley@microsoft.com>
+Signed-off-by: Thomas Gleixner <tglx@linutronix.de>
+Cc: "gregkh@linuxfoundation.org" <gregkh@linuxfoundation.org>
+Cc: "devel@linuxdriverproject.org" <devel@linuxdriverproject.org>
+Cc: "daniel.lezcano@linaro.org" <daniel.lezcano@linaro.org>
+Cc: "virtualization@lists.linux-foundation.org" <virtualization@lists.linux-foundation.org>
+Cc: "jgross@suse.com" <jgross@suse.com>
+Cc: "akataria@vmware.com" <akataria@vmware.com>
+Cc: "olaf@aepfle.de" <olaf@aepfle.de>
+Cc: "apw@canonical.com" <apw@canonical.com>
+Cc: vkuznets <vkuznets@redhat.com>
+Cc: "jasowang@redhat.com" <jasowang@redhat.com>
+Cc: "marcelo.cerri@canonical.com" <marcelo.cerri@canonical.com>
+Cc: KY Srinivasan <kys@microsoft.com>
+Link: https://lkml.kernel.org/r/1541303219-11142-2-git-send-email-mikelley@microsoft.com
+[bwh: Backported to 3.16:
+ - Don't use __ro_after_init
+ - Adjust context, indentation]
+Signed-off-by: Ben Hutchings <ben@decadent.org.uk>
+---
+ drivers/clocksource/i8253.c | 14 ++++++++++++--
+ include/linux/i8253.h       |  1 +
+ 2 files changed, 13 insertions(+), 2 deletions(-)
 
-
-Countermeasures: which host-side countermeasures can be designed would
-depend on which countermeasures are used guest-side - we would need to
-make sure they are not broken by pmem.  For "Preventing Efficient
-Eviction while Increasing the System Performance" modifying the host
-implementation to ensure that pmem device bypasses the host page cache
-would seem to address the security problem.Similarly, ensuring that a
-real memory device (e.g. DAX, RAM such as hugetlbfs, pmem for nested
-virt) is used for pmem would make the memory locking countermeasure
-work.  Whether with such limitations the device is still useful
-performance wise is an open question.  These questions probably should
-be addressed in the documentation, spec and possible qemu code.
-
-
-
-Severity of the security implications: some people argue that the
-security implications of the page cache leaks are minor.  I do not have
-an opinion on this: the severity would seem to depend on the specific
-configuration.
-
-
-Other security implications: recent discussion seems to suggest there
-are other concerns around e.g. resource management and thus DOS
-potential. If that's so, it's a matter for a separate discussion
-as I didn't look into that in depth.
-
-Some or all of the above might be based on a misunderstanding of the
-current pmem code, the whitepaper and linux page cache in general.
-If so I apologise, do not hesitate to call out any mistakes.
-
-Thanks!
-
--- 
-MST
+--- a/drivers/clocksource/i8253.c
++++ b/drivers/clocksource/i8253.c
+@@ -19,6 +19,13 @@
+ DEFINE_RAW_SPINLOCK(i8253_lock);
+ EXPORT_SYMBOL(i8253_lock);
+ 
++/*
++ * Handle PIT quirk in pit_shutdown() where zeroing the counter register
++ * restarts the PIT, negating the shutdown. On platforms with the quirk,
++ * platform specific code can set this to false.
++ */
++bool i8253_clear_counter_on_shutdown = true;
++
+ #ifdef CONFIG_CLKSRC_I8253
+ /*
+  * Since the PIT overflows every tick, its not very useful
+@@ -123,8 +130,11 @@ static void init_pit_timer(enum clock_ev
+ 		if (evt->mode == CLOCK_EVT_MODE_PERIODIC ||
+ 		    evt->mode == CLOCK_EVT_MODE_ONESHOT) {
+ 			outb_p(0x30, PIT_MODE);
+-			outb_p(0, PIT_CH0);
+-			outb_p(0, PIT_CH0);
++
++			if (i8253_clear_counter_on_shutdown) {
++				outb_p(0, PIT_CH0);
++				outb_p(0, PIT_CH0);
++			}
+ 		}
+ 		break;
+ 
+--- a/include/linux/i8253.h
++++ b/include/linux/i8253.h
+@@ -21,6 +21,7 @@
+ #define PIT_LATCH	((PIT_TICK_RATE + HZ/2) / HZ)
+ 
+ extern raw_spinlock_t i8253_lock;
++extern bool i8253_clear_counter_on_shutdown;
+ extern struct clock_event_device i8253_clockevent;
+ extern void clockevent_i8253_init(bool oneshot);
