@@ -1,11 +1,18 @@
-From: Gerd Hoffmann <kraxel@redhat.com>
-Subject: [PATCH] drm/cirrus: add plane setup
-Date: Mon,  4 Feb 2019 12:01:31 +0100
-Message-ID: <20190204110131.21467-1-kraxel__1601.90198091499$1549341799$gmane$org@redhat.com>
+From: Jesper Dangaard Brouer <brouer@redhat.com>
+Subject: Re: [PATCH net] virtio_net: Account for tx bytes and packets on
+	sending xdp_frames
+Date: Mon, 4 Feb 2019 12:53:07 +0100
+Message-ID: <20190204125307.08492005__48459.4487746776$1549341809$gmane$org@redhat.com>
+References: <1548934830-2389-1-git-send-email-makita.toshiaki@lab.ntt.co.jp>
+	<20190131101516-mutt-send-email-mst@kernel.org>
+	<20190131.094523.2248120325911339180.davem@davemloft.net>
+	<20190131211555.3b15c81f@carbon>
+	<b8c97120-851f-450f-dc71-59350236329e@gmail.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
+In-Reply-To: <b8c97120-851f-450f-dc71-59350236329e@gmail.com>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -15,108 +22,51 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: dri-devel@lists.freedesktop.org
-Cc: David Airlie <airlied@linux.ie>, open list <linux-kernel@vger.kernel.org>, "open list:DRM DRIVER FOR QEMU'S CIRRUS DEVICE" <virtualization@lists.linux-foundation.org>, Daniel Vetter <daniel@ffwll.ch>, Dave Airlie <airlied@redhat.com>
+To: David Ahern <dsahern@gmail.com>
+Cc: Jakub Kicinski <jakub.kicinski@netronome.com>, hawk@kernel.org, mst@redhat.com, netdev@vger.kernel.org, brouer@redhat.com, John Fastabend <john.fastabend@gmail.com>, virtualization@lists.linux-foundation.org, Saeed Mahameed <saeedm@mellanox.com>, Toke =?UTF-8?B?SMO4aWxhbmQtSsO4cmdlbnNlbg==?= <thoiland@redhat.com>, Daniel Borkmann <borkmann@iogearbox.net>, David Miller <davem@davemloft.net>, Tariq Toukan <tariqt@mellanox.com>
 List-Id: virtualization@lists.linuxfoundation.org
 
-Commit "f4bd542bca drm/fb-helper: Scale back depth to supported maximum"
-uncovered a bug in the cirrus driver.  It must create its own primary
-plane, using the correct format list, depending on the bpp module
-parameter, so it is consistent with mode_config->preferred_depth.
+On Sat, 2 Feb 2019 14:27:26 -0700
+David Ahern <dsahern@gmail.com> wrote:
 
-Signed-off-by: Gerd Hoffmann <kraxel@redhat.com>
----
- drivers/gpu/drm/cirrus/cirrus_mode.c | 67 +++++++++++++++++++++++++++++++++++-
- 1 file changed, 66 insertions(+), 1 deletion(-)
+> On 1/31/19 1:15 PM, Jesper Dangaard Brouer wrote:
+> >>
+> >> David, Jesper, care to chime in where we ended up in that last thread
+> >> discussion this?  
+> > 
+> > IHMO packets RX and TX on a device need to be accounted, in standard
+> > counters, regardless of XDP.  For XDP RX the packet is counted as RX,
+> > regardless if XDP choose to XDP_DROP.  On XDP TX which is via
+> > XDP_REDIRECT or XDP_TX, the driver that transmit the packet need to
+> > account the packet in a TX counter (this if often delayed to DMA TX
+> > completion handling).  We cannot break the expectation that RX and TX
+> > counter are visible to userspace stats tools. XDP should not make these
+> > packets invisible.  
+> 
+> Agreed. What I was pushing on that last thread was Rx, Tx and dropped
+> are all accounted by the driver in standard stats. Basically if the
+> driver touched it, the driver's counters should indicate that.
 
-diff --git a/drivers/gpu/drm/cirrus/cirrus_mode.c b/drivers/gpu/drm/cirrus/cirrus_mode.c
-index a830e70fc0..2e966a22c5 100644
---- a/drivers/gpu/drm/cirrus/cirrus_mode.c
-+++ b/drivers/gpu/drm/cirrus/cirrus_mode.c
-@@ -360,10 +360,67 @@ static const struct drm_crtc_helper_funcs cirrus_helper_funcs = {
- };
- 
- /* CRTC setup */
-+static const uint32_t cirrus_formats_16[] = {
-+	DRM_FORMAT_RGB565,
-+};
-+
-+static const uint32_t cirrus_formats_24[] = {
-+	DRM_FORMAT_RGB888,
-+};
-+
-+static const uint32_t cirrus_formats_32[] = {
-+	DRM_FORMAT_XRGB8888,
-+	DRM_FORMAT_ARGB8888,
-+};
-+
-+static struct drm_plane *cirrus_primary_plane(struct drm_device *dev)
-+{
-+	const uint32_t *formats;
-+	uint32_t nformats;
-+	struct drm_plane *primary;
-+	int ret;
-+
-+	switch (cirrus_bpp) {
-+	case 16:
-+		formats = cirrus_formats_16;
-+		nformats = ARRAY_SIZE(cirrus_formats_16);
-+		break;
-+	case 24:
-+		formats = cirrus_formats_24;
-+		nformats = ARRAY_SIZE(cirrus_formats_24);
-+		break;
-+	case 32:
-+		formats = cirrus_formats_32;
-+		nformats = ARRAY_SIZE(cirrus_formats_32);
-+		break;
-+	default:
-+		return NULL;
-+	}
-+
-+	primary = kzalloc(sizeof(*primary), GFP_KERNEL);
-+	if (primary == NULL) {
-+		DRM_DEBUG_KMS("Failed to allocate primary plane\n");
-+		return NULL;
-+	}
-+
-+	ret = drm_universal_plane_init(dev, primary, 0,
-+				       &drm_primary_helper_funcs,
-+				       formats, nformats,
-+				       NULL,
-+				       DRM_PLANE_TYPE_PRIMARY, NULL);
-+	if (ret) {
-+		kfree(primary);
-+		primary = NULL;
-+	}
-+
-+	return primary;
-+}
-+
- static void cirrus_crtc_init(struct drm_device *dev)
- {
- 	struct cirrus_device *cdev = dev->dev_private;
- 	struct cirrus_crtc *cirrus_crtc;
-+	struct drm_plane *primary;
- 
- 	cirrus_crtc = kzalloc(sizeof(struct cirrus_crtc) +
- 			      (CIRRUSFB_CONN_LIMIT * sizeof(struct drm_connector *)),
-@@ -372,7 +429,15 @@ static void cirrus_crtc_init(struct drm_device *dev)
- 	if (cirrus_crtc == NULL)
- 		return;
- 
--	drm_crtc_init(dev, &cirrus_crtc->base, &cirrus_crtc_funcs);
-+	primary = cirrus_primary_plane(dev);
-+	if (primary == NULL) {
-+		kfree(cirrus_crtc);
-+		return;
-+	}
-+
-+	drm_crtc_init_with_planes(dev, &cirrus_crtc->base,
-+				  primary, NULL,
-+				  &cirrus_crtc_funcs, NULL);
- 
- 	drm_mode_crtc_set_gamma_size(&cirrus_crtc->base, CIRRUS_LUT_SIZE);
- 	cdev->mode_info.crtc = cirrus_crtc;
+Sound like we all agree (except with the dropped counter, see below).
+
+Do notice that mlx5 driver doesn't do this.  It is actually rather
+confusing to use XDP on mlx5, as when XDP "consume" which include
+XDP_DROP, XDP_REDIRECT or XDP_TX, then the driver standard stats are
+not incremented... the packet is invisible to "ifconfig" stat based
+tools.
+
+
+> The push back was on dropped packets and whether that counter should be
+> bumped on XDP_DROP.
+
+My opinion is the XDP_DROP action should NOT increment the drivers drop
+counter.  First of all the "dropped" counter is also use for other
+stuff, which will confuse that this counter express.  Second, choosing
+XDP_DROP is a policy choice, it still means it was RX-ed at the driver
+level.
+
 -- 
-2.9.3
+Best regards,
+  Jesper Dangaard Brouer
+  MSc.CS, Principal Kernel Engineer at Red Hat
+  LinkedIn: http://www.linkedin.com/in/brouer
