@@ -1,13 +1,14 @@
 From: David Miller <davem@davemloft.net>
-Subject: Re: [PATCH v3 0/2] vsock/virtio: fix issues on device hot-unplug
-Date: Sun, 03 Feb 2019 11:06:41 -0800 (PST)
-Message-ID: <20190203.110641.1343135792694929353.davem__15160.22042358$1549341501$gmane$org@davemloft.net>
-References: <20190201114207.97217-1-sgarzare@redhat.com>
+Subject: Re: [PATCH net] virtio_net: Account for tx bytes and packets on
+	sending xdp_frames
+Date: Sun, 03 Feb 2019 20:18:39 -0800 (PST)
+Message-ID: <20190203.201839.868838128610349474.davem__31956.3346494519$1549341633$gmane$org@davemloft.net>
+References: <1548934830-2389-1-git-send-email-makita.toshiaki@lab.ntt.co.jp>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <20190201114207.97217-1-sgarzare@redhat.com>
+In-Reply-To: <1548934830-2389-1-git-send-email-makita.toshiaki@lab.ntt.co.jp>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -17,28 +18,18 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: sgarzare@redhat.com
-Cc: netdev@vger.kernel.org, linux-kernel@vger.kernel.org, kvm@vger.kernel.org, stefanha@redhat.com, virtualization@lists.linux-foundation.org
+To: makita.toshiaki@lab.ntt.co.jp
+Cc: netdev@vger.kernel.org, virtualization@lists.linux-foundation.org, dsahern@gmail.com, mst@redhat.com
 List-Id: virtualization@lists.linuxfoundation.org
 
-From: Stefano Garzarella <sgarzare@redhat.com>
-Date: Fri,  1 Feb 2019 12:42:05 +0100
+From: Toshiaki Makita <makita.toshiaki@lab.ntt.co.jp>
+Date: Thu, 31 Jan 2019 20:40:30 +0900
 
-> These patches try to handle the hot-unplug of vsock virtio transport device in
-> a proper way.
+> Previously virtnet_xdp_xmit() did not account for device tx counters,
+> which caused confusions.
+> To be consistent with SKBs, account them on freeing xdp_frames.
 > 
-> Maybe move the vsock_core_init()/vsock_core_exit() functions in the module_init
-> and module_exit of vsock_virtio_transport module can't be the best way, but the
-> architecture of vsock_core forces us to this approach for now.
-> 
-> The vsock_core proto_ops expect a valid pointer to the transport device, so we
-> can't call vsock_core_exit() until there are open sockets.
-> 
-> v2 -> v3:
->  - Rebased on master
-> 
-> v1 -> v2:
->  - Fixed commit message of patch 1.
->  - Added Reviewed-by, Acked-by tags by Stefan
+> Reported-by: David Ahern <dsahern@gmail.com>
+> Signed-off-by: Toshiaki Makita <makita.toshiaki@lab.ntt.co.jp>
 
-Series applied.
+Applied, thank you.
