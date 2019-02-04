@@ -1,20 +1,15 @@
 From: "Michael S. Tsirkin" <mst@redhat.com>
-Subject: Re: [RFC PATCH] virtio_ring: Use DMA API if guest memory is encrypted
-Date: Mon, 4 Feb 2019 16:38:21 -0500
-Message-ID: <20190204152416-mutt-send-email-mst__10230.6713046104$1549340969$gmane$org@kernel.org>
-References: <87zhrj8kcp.fsf@morokweng.localdomain>
-	<87womn8inf.fsf@morokweng.localdomain>
-	<20190129134750-mutt-send-email-mst@kernel.org>
-	<6c68f7f7-1b28-6eba-9b8b-2c32efac9701@redhat.com>
-	<20190129213137-mutt-send-email-mst@kernel.org>
-	<20190130074427.GA29516@lst.de>
-	<875ztzxvw2.fsf@morokweng.localdomain>
+Subject: security implications of caching with virtio pmem (was Re: [PATCH v3
+	0/5] kvm "virtio pmem" device)
+Date: Mon, 4 Feb 2019 17:56:22 -0500
+Message-ID: <20190204170515-mutt-send-email-mst__43722.0806534$1549340983$gmane$org@kernel.org>
+References: <20190109144736.17452-1-pagupta@redhat.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
 Content-Disposition: inline
-In-Reply-To: <875ztzxvw2.fsf@morokweng.localdomain>
+In-Reply-To: <20190109144736.17452-1-pagupta@redhat.com>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -24,61 +19,85 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Thiago Jung Bauermann <bauerman@linux.ibm.com>
-Cc: Jean-Philippe Brucker <jean-philippe.brucker@arm.com>, Benjamin Herrenschmidt <benh@kernel.crashing.org>, Alexey Kardashevskiy <aik@linux.ibm.com>, Ram Pai <linuxram@us.ibm.com>, linux-kernel@vger.kernel.org, virtualization@lists.linux-foundation.org, Paul Mackerras <paulus@ozlabs.org>, iommu@lists.linux-foundation.org, linuxppc-dev@lists.ozlabs.org, Christoph Hellwig <hch@lst.de>, David Gibson <david@gibson.dropbear.id.au>
+To: Pankaj Gupta <pagupta@redhat.com>
+Cc: jack@suse.cz, kvm@vger.kernel.org, linux-nvdimm@ml01.01.org, qemu-devel@nongnu.org, virtualization@lists.linux-foundation.org, adilger.kernel@dilger.ca, zwisler@kernel.org, eblake@redhat.com, Andrea Arcangeli <aarcange@redhat.com>, dave.jiang@intel.com, darrick.wong@oracle.com, vishal.l.verma@intel.com, willy@infradead.org, hch@infradead.org, linux-acpi@vger.kernel.org, jmoyer@redhat.com, nilal@redhat.com, riel@surriel.com, stefanha@redhat.com, imammedo@redhat.com, dan.j.williams@intel.com, lcapitulino@redhat.com, linux-ext4@vger.kernel.org, tytso@mit.edu, xiaoguangrong.eric@gmail.com, rjw@rjwysocki.net, linux-kernel@vger.kernel.org, linux-xfs@vger.kernel.org, linux-fsdevel@vger.kernel.org, pbonzini@redhat.com
 List-Id: virtualization@lists.linuxfoundation.org
 
-On Mon, Feb 04, 2019 at 04:15:41PM -0200, Thiago Jung Bauermann wrote:
-> 
-> Christoph Hellwig <hch@lst.de> writes:
-> 
-> > On Tue, Jan 29, 2019 at 09:36:08PM -0500, Michael S. Tsirkin wrote:
-> >> This has been discussed ad nauseum. virtio is all about compatibility.
-> >> Losing a couple of lines of code isn't worth breaking working setups.
-> >> People that want "just use DMA API no tricks" now have the option.
-> >> Setting a flag in a feature bit map is literally a single line
-> >> of code in the hypervisor. So stop pushing for breaking working
-> >> legacy setups and just fix it in the right place.
-> >
-> > I agree with the legacy aspect.  What I am missing is an extremely
-> > strong wording that says you SHOULD always set this flag for new
-> > hosts, including an explanation why.
-> 
-> My understanding of ACCESS_PLATFORM is that it means "this device will
-> behave in all aspects like a regular device attached to this bus".
+
+On Wed, Jan 09, 2019 at 08:17:31PM +0530, Pankaj Gupta wrote:
+>  This patch series has implementation for "virtio pmem". 
+>  "virtio pmem" is fake persistent memory(nvdimm) in guest 
+>  which allows to bypass the guest page cache. This also
+>  implements a VIRTIO based asynchronous flush mechanism.  
 
 
-Not really. Look it up in the spec:
+At Pankaj's request I looked at information leak implications of virtio
+pmem in light of the recent page cache side channels paper
+(https://arxiv.org/pdf/1901.01161.pdf) - to see what
+kind of side channels it might create if any.  TLDR - I think that
+depending on the host side implementation there could be some, but this
+might be addressable by better documentation in both code and spec.
+The fake dax approach backing the guest memory by a host page cache
+does seem to have potential issues.
 
-VIRTIO_F_ACCESS_PLATFORM(33) This feature indicates that the device can be used on a platform
-	where device access to data in memory is limited and/or translated. E.g. this is the case if the device
-	can be located behind an IOMMU that translates bus addresses from the device into physical addresses
-	in memory, if the device can be limited to only access certain memory addresses or if special commands
-	such as a cache flush can be needed to synchronise data in memory with the device. Whether accesses
-	are actually limited or translated is described by platform-specific means. If this feature bit is set to 0,
-	then the device has same access to memory addresses supplied to it as the driver has. In particular, the
-	device will always use physical addresses matching addresses used by the driver (typically meaning
-	physical addresses used by the CPU) and not translated further, and can access any address supplied
-	to it by the driver. When clear, this overrides any platform-specific description of whether device access
-	is limited or translated in any way, e.g. whether an IOMMU may be present.
+For clarity: we are talking about leaking information either to a VM, or
+within a VM (I did not look into leaks to hypervisor in configurations
+such as SEV) through host page cache.
+
+Leaks into a VM: It seems clear that while pmem allows memory accesses
+versus read/write with e.g. a block device, from host page cache point
+of view this doesn't matter much: reads populate cache in the same way
+as memory faults.  Thus ignoring presence of information leaks (which is
+an interesting question e.g. in light of recent discard support) pmem
+doesn't seem to be any better or worse for leaking information into a
+VM.
+
+Leaks within VM: Right now pmem seems to bypass the guest page cache
+completely.  Whether pmem memory is then resident in a page cache would
+be up to the device/host. Assuming that it is, the "Preventing
+Efficient Eviction while Increasing the System Performance"
+countermeasure for the page cache side channel attack would appear to
+become ineffective with pmem. What is suggested is a per-process
+management of the page cache, and host does not have visibility of
+processes within a VM. Another possible countermeasure - not discussed
+in the paper - could be modify the applications to lock the security
+relevant pages in memory.  Again this becomes impractical with pmem as
+host does not have visibility into that. However note that as long
+as the only countermeasure linux uses is "Privileged Access"
+(i.e. blocking mincore) nothing can be done as guest page cache
+remains as vulnerable as host page cache.
+
+
+Countermeasures: which host-side countermeasures can be designed would
+depend on which countermeasures are used guest-side - we would need to
+make sure they are not broken by pmem.  For "Preventing Efficient
+Eviction while Increasing the System Performance" modifying the host
+implementation to ensure that pmem device bypasses the host page cache
+would seem to address the security problem.Similarly, ensuring that a
+real memory device (e.g. DAX, RAM such as hugetlbfs, pmem for nested
+virt) is used for pmem would make the memory locking countermeasure
+work.  Whether with such limitations the device is still useful
+performance wise is an open question.  These questions probably should
+be addressed in the documentation, spec and possible qemu code.
 
 
 
-> Is
-> that it? Therefore it should be set because it's the sane thing to do?
-
-It's the sane thing to do unless you want the very specific thing that
-having it clear means, which is just have it be another CPU.
-
-It was designed to make, when set, as many guests as we can work
-correctly, and it seems to be successful in doing exactly that.
-
-Unfortunately there could be legacy guests that do work correctly but
-become slow. Whether trying to somehow work around that
-can paint us into a corner where things again don't
-work for some people is a question worth discussing.
+Severity of the security implications: some people argue that the
+security implications of the page cache leaks are minor.  I do not have
+an opinion on this: the severity would seem to depend on the specific
+configuration.
 
 
-> --
-> Thiago Jung Bauermann
-> IBM Linux Technology Center
+Other security implications: recent discussion seems to suggest there
+are other concerns around e.g. resource management and thus DOS
+potential. If that's so, it's a matter for a separate discussion
+as I didn't look into that in depth.
+
+Some or all of the above might be based on a misunderstanding of the
+current pmem code, the whitepaper and linux page cache in general.
+If so I apologise, do not hesitate to call out any mistakes.
+
+Thanks!
+
+-- 
+MST
