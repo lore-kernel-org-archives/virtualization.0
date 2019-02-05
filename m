@@ -1,14 +1,21 @@
-From: Daniel Vetter <daniel@ffwll.ch>
-Subject: Re: [PATCH] drm/bochs: fix bochs_gem_prime_mmap
-Date: Tue, 5 Feb 2019 10:01:28 +0100
-Message-ID: <20190205090128.GA3271__40224.6086437785$1549381212$gmane$org@phenom.ffwll.local>
-References: <20190204183858.8976-1-kraxel@redhat.com>
+From: Christoph Hellwig <hch@lst.de>
+Subject: Re: [RFC PATCH] virtio_ring: Use DMA API if guest memory is encrypted
+Date: Tue, 5 Feb 2019 08:24:07 +0100
+Message-ID: <20190205072407.GA4311__766.240868118473$1549381333$gmane$org@lst.de>
+References: <87zhrj8kcp.fsf@morokweng.localdomain>
+	<87womn8inf.fsf@morokweng.localdomain>
+	<20190129134750-mutt-send-email-mst@kernel.org>
+	<6c68f7f7-1b28-6eba-9b8b-2c32efac9701@redhat.com>
+	<20190129213137-mutt-send-email-mst@kernel.org>
+	<20190130074427.GA29516@lst.de>
+	<875ztzxvw2.fsf@morokweng.localdomain>
+	<20190204152416-mutt-send-email-mst@kernel.org>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
 Content-Disposition: inline
-In-Reply-To: <20190204183858.8976-1-kraxel@redhat.com>
+In-Reply-To: <20190204152416-mutt-send-email-mst@kernel.org>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -18,50 +25,26 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Gerd Hoffmann <kraxel@redhat.com>
-Cc: David Airlie <airlied@linux.ie>, open list <linux-kernel@vger.kernel.org>, Daniel Vetter <daniel@ffwll.ch>, dri-devel@lists.freedesktop.org, "open list:DRM DRIVER FOR BOCHS VIRTUAL GPU" <virtualization@lists.linux-foundation.org>
+To: "Michael S. Tsirkin" <mst@redhat.com>
+Cc: Jean-Philippe Brucker <jean-philippe.brucker@arm.com>, Benjamin Herrenschmidt <benh@kernel.crashing.org>, Alexey Kardashevskiy <aik@linux.ibm.com>, Ram Pai <linuxram@us.ibm.com>, linux-kernel@vger.kernel.org, virtualization@lists.linux-foundation.org, Paul Mackerras <paulus@ozlabs.org>, iommu@lists.linux-foundation.org, linuxppc-dev@lists.ozlabs.org, Christoph Hellwig <hch@lst.de>, Thiago Jung Bauermann <bauerman@linux.ibm.com>, David Gibson <david@gibson.dropbear.id.au>
 List-Id: virtualization@lists.linuxfoundation.org
 
-On Mon, Feb 04, 2019 at 07:38:58PM +0100, Gerd Hoffmann wrote:
-> ttm_fbdev_mmap() just doesn't work.  It appears to work fine, mmap()
-> returns success, but any attempt to actually access the mapping causes a
-> SIGBUS.
+On Mon, Feb 04, 2019 at 04:38:21PM -0500, Michael S. Tsirkin wrote:
+> It was designed to make, when set, as many guests as we can work
+> correctly, and it seems to be successful in doing exactly that.
 > 
-> We can just use drm_gem_prime_mmap() instead.  Almost.  We have to copy
-> over the start offset from the ttm_buffer_object vm_node to the
-> drm_gem_object vm_node so the offset math in drm_gem_prime_mmap() works
-> correctly for us even though we use ttm to manage our objects.
-> 
-> Signed-off-by: Gerd Hoffmann <kraxel@redhat.com>
+> Unfortunately there could be legacy guests that do work correctly but
+> become slow. Whether trying to somehow work around that
+> can paint us into a corner where things again don't
+> work for some people is a question worth discussing.
 
-Would be kinda neat if we could teach ttm to not have it's own vma node
-...
+The other problem is that some qemu machines just throw passthrough
+devices and virtio devices on the same virtual PCI(e) bus, and have a
+common IOMMU setup for the whole bus / root port / domain.  I think
+this is completely bogus, but unfortunately it is out in the field.
 
-Anyway, lgtm.
-
-Reviewed-by: Daniel Vetter <daniel.vetter@ffwll.ch>
-
-> ---
->  drivers/gpu/drm/bochs/bochs_mm.c | 3 ++-
->  1 file changed, 2 insertions(+), 1 deletion(-)
-> 
-> diff --git a/drivers/gpu/drm/bochs/bochs_mm.c b/drivers/gpu/drm/bochs/bochs_mm.c
-> index 641a33f134..49463348a0 100644
-> --- a/drivers/gpu/drm/bochs/bochs_mm.c
-> +++ b/drivers/gpu/drm/bochs/bochs_mm.c
-> @@ -442,5 +442,6 @@ int bochs_gem_prime_mmap(struct drm_gem_object *obj,
->  {
->  	struct bochs_bo *bo = gem_to_bochs_bo(obj);
->  
-> -	return ttm_fbdev_mmap(vma, &bo->bo);
-> +	bo->gem.vma_node.vm_node.start = bo->bo.vma_node.vm_node.start;
-> +	return drm_gem_prime_mmap(obj, vma);
->  }
-> -- 
-> 2.9.3
-> 
-
--- 
-Daniel Vetter
-Software Engineer, Intel Corporation
-http://blog.ffwll.ch
+Given that power is one of these examples I suspect that is what
+Thiago referes to.  But in this case the answer can't be that we
+pile on hack ontop of another, but instead introduce a new qemu
+machine that separates these clearly, and make that mandatory for
+the secure guest support.
