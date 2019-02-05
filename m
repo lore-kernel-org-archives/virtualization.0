@@ -1,18 +1,15 @@
-From: Jesper Dangaard Brouer <brouer@redhat.com>
-Subject: Re: [PATCH net] virtio_net: Account for tx bytes and packets on
-	sending xdp_frames
-Date: Mon, 4 Feb 2019 12:53:07 +0100
-Message-ID: <20190204125307.08492005__48459.4487746776$1549341809$gmane$org@redhat.com>
-References: <1548934830-2389-1-git-send-email-makita.toshiaki@lab.ntt.co.jp>
-	<20190131101516-mutt-send-email-mst@kernel.org>
-	<20190131.094523.2248120325911339180.davem@davemloft.net>
-	<20190131211555.3b15c81f@carbon>
-	<b8c97120-851f-450f-dc71-59350236329e@gmail.com>
+From: Pankaj Gupta <pagupta@redhat.com>
+Subject: Re: [Qemu-devel] security implications of caching with virtio pmem
+	(was Re: [PATCH v3 0/5] kvm "virtio pmem" device)
+Date: Tue, 5 Feb 2019 02:29:37 -0500 (EST)
+Message-ID: <1689233487.69735950.1549351777236.JavaMail.zimbra__23370.6105545693$1549381182$gmane$org@redhat.com>
+References: <20190109144736.17452-1-pagupta@redhat.com>
+	<20190204170515-mutt-send-email-mst@kernel.org>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <b8c97120-851f-450f-dc71-59350236329e@gmail.com>
+In-Reply-To: <20190204170515-mutt-send-email-mst@kernel.org>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -22,51 +19,88 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: David Ahern <dsahern@gmail.com>
-Cc: Jakub Kicinski <jakub.kicinski@netronome.com>, hawk@kernel.org, mst@redhat.com, netdev@vger.kernel.org, brouer@redhat.com, John Fastabend <john.fastabend@gmail.com>, virtualization@lists.linux-foundation.org, Saeed Mahameed <saeedm@mellanox.com>, Toke =?UTF-8?B?SMO4aWxhbmQtSsO4cmdlbnNlbg==?= <thoiland@redhat.com>, Daniel Borkmann <borkmann@iogearbox.net>, David Miller <davem@davemloft.net>, Tariq Toukan <tariqt@mellanox.com>
+To: "Michael S. Tsirkin" <mst@redhat.com>
+Cc: jack@suse.cz, kvm@vger.kernel.org, linux-nvdimm@ml01.01.org, david@fromorbit.com, qemu-devel@nongnu.org, virtualization@lists.linux-foundation.org, adilger kernel <adilger.kernel@dilger.ca>, zwisler@kernel.org, Andrea Arcangeli <aarcange@redhat.com>, dave jiang <dave.jiang@intel.com>, darrick wong <darrick.wong@oracle.com>, vishal l verma <vishal.l.verma@intel.com>, willy@infradead.org, hch@infradead.org, linux-acpi@vger.kernel.org, jmoyer@redhat.com, nilal@redhat.com, riel@surriel.com, stefanha@redhat.com, pbonzini@redhat.com, dan j williams <dan.j.williams@intel.com>, lcapitulino@redhat.com, linux-ext4@vger.kernel.org, tytso@mit.edu, xiaoguangrong eric <xiaoguangrong.eric@gmail.com>, rjw@rjwysocki.net, linux-kernel@vger.kernel.org, linux-xfs@vger.kernel.org, linux-fsdevel@vger.kernel.org, imammedo@redhat.com
 List-Id: virtualization@lists.linuxfoundation.org
 
-On Sat, 2 Feb 2019 14:27:26 -0700
-David Ahern <dsahern@gmail.com> wrote:
 
-> On 1/31/19 1:15 PM, Jesper Dangaard Brouer wrote:
-> >>
-> >> David, Jesper, care to chime in where we ended up in that last thread
-> >> discussion this?  
-> > 
-> > IHMO packets RX and TX on a device need to be accounted, in standard
-> > counters, regardless of XDP.  For XDP RX the packet is counted as RX,
-> > regardless if XDP choose to XDP_DROP.  On XDP TX which is via
-> > XDP_REDIRECT or XDP_TX, the driver that transmit the packet need to
-> > account the packet in a TX counter (this if often delayed to DMA TX
-> > completion handling).  We cannot break the expectation that RX and TX
-> > counter are visible to userspace stats tools. XDP should not make these
-> > packets invisible.  
++CC [Dave Chinner], to maintain updated CC list  
+
+> >  This patch series has implementation for "virtio pmem".
+> >  "virtio pmem" is fake persistent memory(nvdimm) in guest
+> >  which allows to bypass the guest page cache. This also
+> >  implements a VIRTIO based asynchronous flush mechanism.
 > 
-> Agreed. What I was pushing on that last thread was Rx, Tx and dropped
-> are all accounted by the driver in standard stats. Basically if the
-> driver touched it, the driver's counters should indicate that.
-
-Sound like we all agree (except with the dropped counter, see below).
-
-Do notice that mlx5 driver doesn't do this.  It is actually rather
-confusing to use XDP on mlx5, as when XDP "consume" which include
-XDP_DROP, XDP_REDIRECT or XDP_TX, then the driver standard stats are
-not incremented... the packet is invisible to "ifconfig" stat based
-tools.
-
-
-> The push back was on dropped packets and whether that counter should be
-> bumped on XDP_DROP.
-
-My opinion is the XDP_DROP action should NOT increment the drivers drop
-counter.  First of all the "dropped" counter is also use for other
-stuff, which will confuse that this counter express.  Second, choosing
-XDP_DROP is a policy choice, it still means it was RX-ed at the driver
-level.
-
--- 
-Best regards,
-  Jesper Dangaard Brouer
-  MSc.CS, Principal Kernel Engineer at Red Hat
-  LinkedIn: http://www.linkedin.com/in/brouer
+> 
+> At Pankaj's request I looked at information leak implications of virtio
+> pmem in light of the recent page cache side channels paper
+> (https://arxiv.org/pdf/1901.01161.pdf) - to see what
+> kind of side channels it might create if any.  TLDR - I think that
+> depending on the host side implementation there could be some, but this
+> might be addressable by better documentation in both code and spec.
+> The fake dax approach backing the guest memory by a host page cache
+> does seem to have potential issues.
+> 
+> For clarity: we are talking about leaking information either to a VM, or
+> within a VM (I did not look into leaks to hypervisor in configurations
+> such as SEV) through host page cache.
+> 
+> Leaks into a VM: It seems clear that while pmem allows memory accesses
+> versus read/write with e.g. a block device, from host page cache point
+> of view this doesn't matter much: reads populate cache in the same way
+> as memory faults.  Thus ignoring presence of information leaks (which is
+> an interesting question e.g. in light of recent discard support) pmem
+> doesn't seem to be any better or worse for leaking information into a
+> VM.
+> 
+> Leaks within VM: Right now pmem seems to bypass the guest page cache
+> completely.  Whether pmem memory is then resident in a page cache would
+> be up to the device/host. Assuming that it is, the "Preventing
+> Efficient Eviction while Increasing the System Performance"
+> countermeasure for the page cache side channel attack would appear to
+> become ineffective with pmem. What is suggested is a per-process
+> management of the page cache, and host does not have visibility of
+> processes within a VM. Another possible countermeasure - not discussed
+> in the paper - could be modify the applications to lock the security
+> relevant pages in memory.  Again this becomes impractical with pmem as
+> host does not have visibility into that. However note that as long
+> as the only countermeasure linux uses is "Privileged Access"
+> (i.e. blocking mincore) nothing can be done as guest page cache
+> remains as vulnerable as host page cache.
+> 
+> 
+> Countermeasures: which host-side countermeasures can be designed would
+> depend on which countermeasures are used guest-side - we would need to
+> make sure they are not broken by pmem.  For "Preventing Efficient
+> Eviction while Increasing the System Performance" modifying the host
+> implementation to ensure that pmem device bypasses the host page cache
+> would seem to address the security problem.Similarly, ensuring that a
+> real memory device (e.g. DAX, RAM such as hugetlbfs, pmem for nested
+> virt) is used for pmem would make the memory locking countermeasure
+> work.  Whether with such limitations the device is still useful
+> performance wise is an open question.  These questions probably should
+> be addressed in the documentation, spec and possible qemu code.
+> 
+> 
+> 
+> Severity of the security implications: some people argue that the
+> security implications of the page cache leaks are minor.  I do not have
+> an opinion on this: the severity would seem to depend on the specific
+> configuration.
+> 
+> 
+> Other security implications: recent discussion seems to suggest there
+> are other concerns around e.g. resource management and thus DOS
+> potential. If that's so, it's a matter for a separate discussion
+> as I didn't look into that in depth.
+> 
+> Some or all of the above might be based on a misunderstanding of the
+> current pmem code, the whitepaper and linux page cache in general.
+> If so I apologise, do not hesitate to call out any mistakes.
+> 
+> Thanks!
+> 
+> --
+> MST
+> 
+> 
