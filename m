@@ -1,22 +1,15 @@
-From: Jakub Kicinski <jakub.kicinski@netronome.com>
-Subject: Re: [PATCH net] virtio_net: Account for tx bytes and packets on
-	sending xdp_frames
-Date: Wed, 6 Feb 2019 07:52:16 -0800
-Message-ID: <20190206075216.22b66d58__5476.26252971298$1549469921$gmane$org@cakuba.netronome.com>
-References: <1548934830-2389-1-git-send-email-makita.toshiaki@lab.ntt.co.jp>
-	<20190131101516-mutt-send-email-mst@kernel.org>
-	<20190131.094523.2248120325911339180.davem@davemloft.net>
-	<20190131211555.3b15c81f@carbon>
-	<b8c97120-851f-450f-dc71-59350236329e@gmail.com>
-	<20190204125307.08492005@redhat.com>
-	<bdcfedd6-465d-4485-e268-25c4ce6b9fcf@gmail.com>
-	<140ecbe1e25f54f90d859cc696c4119aa96bc6eb.camel@mellanox.com>
-	<20190206144814.46996933@carbon>
+From: "Michael S. Tsirkin" <mst@redhat.com>
+Subject: Re: [PATCH 0/6] vmw_balloon: 64-bit limit support, compaction,
+	shrinker
+Date: Wed, 6 Feb 2019 12:52:00 -0500
+Message-ID: <20190206124926-mutt-send-email-mst__16491.5923307248$1549475561$gmane$org@kernel.org>
+References: <20190206051336.2425-1-namit@vmware.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <20190206144814.46996933@carbon>
+Content-Disposition: inline
+In-Reply-To: <20190206051336.2425-1-namit@vmware.com>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -26,36 +19,51 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Jesper Dangaard Brouer <brouer@redhat.com>
-Cc: "mst@redhat.com" <mst@redhat.com>, "netdev@vger.kernel.org" <netdev@vger.kernel.org>, "john.fastabend@gmail.com" <john.fastabend@gmail.com>, "virtualization@lists.linux-foundation.org" <virtualization@lists.linux-foundation.org>, Saeed Mahameed <saeedm@mellanox.com>, "thoiland@redhat.com" <thoiland@redhat.com>, "dsahern@gmail.com" <dsahern@gmail.com>, "borkmann@iogearbox.net" <borkmann@iogearbox.net>, "davem@davemloft.net" <davem@davemloft.net>, Tariq Toukan <tariqt@mellanox.com>
+To: Nadav Amit <namit@vmware.com>
+Cc: Arnd Bergmann <arnd@arndb.de>, Greg Kroah-Hartman <gregkh@linuxfoundation.org>, linux-kernel@vger.kernel.org, virtualization@lists.linux-foundation.org, linux-mm@kvack.org, Julien Freche <jfreche@vmware.com>
 List-Id: virtualization@lists.linuxfoundation.org
 
-On Wed, 6 Feb 2019 14:48:14 +0100, Jesper Dangaard Brouer wrote:
-> On Wed, 6 Feb 2019 00:06:33 +0000
-> Saeed Mahameed <saeedm@mellanox.com> wrote:
+On Tue, Feb 05, 2019 at 09:13:30PM -0800, Nadav Amit wrote:
+> Various enhancements for VMware balloon, some of which are remainder
+> from a previous patch-set.
 > 
-> > 3) Unrelated, In non XDP case, if skb allocation fails or driver fails
-> > to pass the skb up to the stack for somereason, should the driver
-> > increase rx packets ? IMHO the answer should be yes if we want to have
-> > similar behavior between XDP and non XDP cases.  
+> Patch 1: Aumps the version number, following recent changes
+> Patch 2: Adds support for 64-bit memory limit
+> Patches 3-4: Support for compaction
+> Patch 5: Support for memory shrinker - disabled by default
+> Patch 6: Split refused pages to improve performance
 > 
-> I don't think "skb allocation fails" should increase rx packets
-> counter.  The difference is that these events are outside sysadm/users
-> control, and is an error detected inside the driver.  The XDP program
-> takes a policy choice to XDP_DROP a packet, which can be accounted
-> inside the XDP prog (as the samples show) or as we also discuss via a
-> more generic XDP-action counters.
+> Since the 3rd patch requires Michael Tsirkin ack, which has not arrived
+> in the last couple of times the patch was sent, please consider applying
+> patches 1-2 for 5.1.
+> 
+> Cc: "Michael S. Tsirkin" <mst@redhat.com>
+> Cc: Jason Wang <jasowang@redhat.com>
+> Cc: linux-mm@kvack.org
+> Cc: virtualization@lists.linux-foundation.org
 
-FWIW that's my understanding as well.  My understanding of Linux stats
-is that they are incrementing one counter per packet.  I.e. in RX
-direction success packets are those given to the stack, and for TX
-those given to the hardware.  Standards (IETF/IEEE) usually count stats
-on the same layer boundary, but I think software generally counts when
-it's done with the packet.
 
-I haven't seen it documented anywhere, yet.  I have tried to document
-it in the docs of the recent RFC:
-https://patchwork.ozlabs.org/patch/1032332/
+I don't seem to have got anything except patch 0 either directly
+or through virtualization@lists.linux-foundation.org
+Could you bounce the relevant patches there?
 
-Incidentally XDP_DROP may have been better named XDP_DISCARD from stats
-perspective ;)
+Thanks!
+
+> Nadav Amit (5):
+>   vmw_balloon: bump version number
+>   mm/balloon_compaction: list interfaces
+>   vmw_balloon: compaction support
+>   vmw_balloon: add memory shrinker
+>   vmw_balloon: split refused pages
+> 
+> Xavier Deguillard (1):
+>   vmw_balloon: support 64-bit memory limit
+> 
+>  drivers/misc/Kconfig               |   1 +
+>  drivers/misc/vmw_balloon.c         | 511 ++++++++++++++++++++++++++---
+>  include/linux/balloon_compaction.h |   4 +
+>  mm/balloon_compaction.c            | 139 +++++---
+>  4 files changed, 566 insertions(+), 89 deletions(-)
+> 
+> -- 
+> 2.17.1
