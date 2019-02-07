@@ -1,16 +1,15 @@
-From: Joerg Roedel <jroedel@suse.de>
-Subject: Re: [PATCH 0/5 v6] Fix virtio-blk issue with SWIOTLB
-Date: Thu, 7 Feb 2019 09:49:33 +0100
-Message-ID: <20190207084933.GA22272__43216.1505030066$1549529398$gmane$org@suse.de>
-References: <20190131163403.11363-1-joro@8bytes.org>
-	<20190205155133-mutt-send-email-mst@kernel.org>
-	<20190207084613.GW32526@8bytes.org>
+From: "Koenig, Christian" <Christian.Koenig@amd.com>
+Subject: Re: [PATCH 0/5] Clean up TTM mmap offsets
+Date: Thu, 7 Feb 2019 09:36:34 +0000
+Message-ID: <e03e4cff-557b-9d50-dba8-94835e768743__19301.5558224701$1549532207$gmane$org@amd.com>
+References: <20190207085931.29569-1-tzimmermann@suse.de>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset="utf-8"
+Content-Transfer-Encoding: base64
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-Content-Disposition: inline
-In-Reply-To: <20190207084613.GW32526@8bytes.org>
+In-Reply-To: <20190207085931.29569-1-tzimmermann@suse.de>
+Content-Language: en-US
+Content-ID: <DFCEA3265F6B2C499E84EF7C4807B3AF@namprd12.prod.outlook.com>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -20,15 +19,57 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Joerg Roedel <joro@8bytes.org>
-Cc: Jens Axboe <axboe@kernel.dk>, Thomas.Lendacky@amd.com, jon.grimm@amd.com, brijesh.singh@amd.com, Konrad Rzeszutek Wilk <konrad.wilk@oracle.com>, "Michael S. Tsirkin" <mst@redhat.com>, jfehlig@suse.com, linux-kernel@vger.kernel.org, virtualization@lists.linux-foundation.org, linux-block@vger.kernel.org, iommu@lists.linux-foundation.org, Christoph Hellwig <hch@lst.de>
+To: Thomas Zimmermann <tzimmermann@suse.de>, "Deucher, Alexander" <Alexander.Deucher@amd.com>, "Zhou,
+	David(ChunMing)" <David1.Zhou@amd.com>, "airlied@redhat.com" <airlied@redhat.com>, "kraxel@redhat.com" <kraxel@redhat.com>, "z.liuxinliang@hisilicon.com" <z.liuxinliang@hisilicon.com>, "zourongrong@gmail.com" <zourongrong@gmail.com>, "kong.kongxinwei@hisilicon.com" <kong.kongxinwei@hisilicon.com>, "puck.chen@hisilicon.com" <puck.chen@hisilicon.com>, "bskeggs@redhat.com" <bskeggs@redhat.com>, "thellstrom@vmware.com" <thellstrom@vmware.com>, "linux-graphics-maintainer@vmware.com" <linux-graphics-maintainer@vmware.com>, "daniel@ffwll.ch" <daniel@ffwll.ch>, "hdegoede@redhat.com" <hdegoede@redhat.com>, "arnd@arndb.de" <arnd@arndb.de>, "gregkh@linuxfoundation.org" <gregkh@linuxfoundation.org>, "Huang, Ray" <Ray.Huang@amd.com>, "Zhang, Jerry" <Jerry.Zhang@amd.com>
+Cc: "spice-devel@lists.freedesktop.org" <spice-devel@lists.freedesktop.org>, "amd-gfx@lists.freedesktop.org" <amd-gfx@lists.freedesktop.org>, "dri-devel@lists.freedesktop.org" <dri-devel@lists.freedesktop.org>, "virtualization@lists.linux-foundation.org" <virtualization@lists.linux-foundation.org>
 List-Id: virtualization@lists.linuxfoundation.org
 
-On Thu, Feb 07, 2019 at 09:46:13AM +0100, Joerg Roedel wrote:
-> Hmm, I didn't get any kbuild emails for this series. Can you please
-> forward it me so that I can look into it?
-
-Nevermind, just found them in another inbox.
-
-
-	Joerg
+QW0gMDcuMDIuMTkgdW0gMDk6NTkgc2NocmllYiBUaG9tYXMgWmltbWVybWFubjoNCj4gQWxtb3N0
+IGFsbCBUVE0tYmFzZWQgZHJpdmVycyB1c2UgdGhlIHNhbWUgdmFsdWVzIGZvciB0aGUgbW1hcC1h
+YmxlDQo+IHJhbmdlIG9mIEJPIGFkZHJlc3Nlcy4gRWFjaCBkcml2ZXIgdGhlcmVmb3JlIGR1cGxp
+Y2F0ZXMgdGhlDQo+IERSTV9GSUxFX1BBR0VfT0ZGU0VUIGNvbnN0YW50LiBPVE9ILCB0aGUgbW1h
+cCByYW5nZSdzIHNpemUgaXMgbm90DQo+IGNvbmZpZ3VyYWJsZSBieSBkcml2ZXJzLg0KPg0KPiBU
+aGlzIHBhdGNoIHNldCByZXBsYWNlcyBkcml2ZXItc3BlY2lmaWMgY29uZmlndXJhdGlvbiB3aXRo
+IGEgc2luZ2xlDQo+IHNldHVwLiBBbGwgY29kZSBpcyBsb2NhdGVkIHdpdGhpbiBUVE0uIFRUTSBh
+bmQgR0VNIHNoYXJlIHRoZSBzYW1lDQo+IHJhbmdlIGZvciBtbWFwLWFibGUgQk9zLg0KPg0KPiBU
+aG9tYXMgWmltbWVybWFubiAoNSk6DQo+ICAgIHN0YWdpbmcvdmJveHZpZGVvOiBVc2Ugc2FtZSBC
+TyBtbWFwIG9mZnNldCBhcyBvdGhlciBkcml2ZXJzDQo+ICAgIGRybS90dG06IERlZmluZSBhIHNp
+bmdsZSBEUk1fRklMRV9QQUdFX09GRlNFVCBjb25zdGFudA0KPiAgICBkcm0vdHRtOiBSZW1vdmUg
+ZmlsZV9wYWdlX29mZnNldCBwYXJhbWV0ZXIgZnJvbSB0dG1fYm9fZGV2aWNlX2luaXQoKQ0KPiAg
+ICBkcm0vdHRtOiBRdWljay10ZXN0IG1tYXAgb2Zmc2V0IGluIHR0bV9ib19tbWFwKCkNCj4gICAg
+ZHJtOiBVc2UgdGhlIHNhbWUgbW1hcC1yYW5nZSBvZmZzZXQgYW5kIHNpemUgZm9yIEdFTSBhbmQg
+VFRNDQoNClJldmlld2VkLWJ5OiBDaHJpc3RpYW4gS8O2bmlnIDxjaHJpc3RpYW4ua29lbmlnQGFt
+ZC5jb20+IGZvciB0aGUgd2hvbGUgDQpzZXJpZXMuDQoNCk5pY2UgY2xlYW51cCEgVGhhbmtzLA0K
+Q2hyaXN0aWFuLg0KDQo+DQo+ICAgZHJpdmVycy9ncHUvZHJtL2FtZC9hbWRncHUvYW1kZ3B1X3R0
+bS5jICAgICB8IDEyICsrLS0tLS0tLS0tLQ0KPiAgIGRyaXZlcnMvZ3B1L2RybS9hc3QvYXN0X2Ry
+di5oICAgICAgICAgICAgICAgfCAgMiAtLQ0KPiAgIGRyaXZlcnMvZ3B1L2RybS9hc3QvYXN0X3R0
+bS5jICAgICAgICAgICAgICAgfCAxMCArKy0tLS0tLS0tDQo+ICAgZHJpdmVycy9ncHUvZHJtL2Jv
+Y2hzL2JvY2hzLmggICAgICAgICAgICAgICB8ICAyIC0tDQo+ICAgZHJpdmVycy9ncHUvZHJtL2Jv
+Y2hzL2JvY2hzX21tLmMgICAgICAgICAgICB8IDEwICsrLS0tLS0tLS0NCj4gICBkcml2ZXJzL2dw
+dS9kcm0vY2lycnVzL2NpcnJ1c19kcnYuaCAgICAgICAgIHwgIDEgLQ0KPiAgIGRyaXZlcnMvZ3B1
+L2RybS9jaXJydXMvY2lycnVzX3R0bS5jICAgICAgICAgfCAxMCArKy0tLS0tLS0tDQo+ICAgZHJp
+dmVycy9ncHUvZHJtL2RybV9nZW0uYyAgICAgICAgICAgICAgICAgICB8IDE3IC0tLS0tLS0tLS0t
+LS0tLS0tDQo+ICAgZHJpdmVycy9ncHUvZHJtL2hpc2lsaWNvbi9oaWJtYy9oaWJtY190dG0uYyB8
+IDEyICsrLS0tLS0tLS0tLQ0KPiAgIGRyaXZlcnMvZ3B1L2RybS9tZ2FnMjAwL21nYWcyMDBfZHJ2
+LmggICAgICAgfCAgMSAtDQo+ICAgZHJpdmVycy9ncHUvZHJtL21nYWcyMDAvbWdhZzIwMF90dG0u
+YyAgICAgICB8IDEwICsrLS0tLS0tLS0NCj4gICBkcml2ZXJzL2dwdS9kcm0vbm91dmVhdS9ub3V2
+ZWF1X2Rydi5oICAgICAgIHwgIDIgLS0NCj4gICBkcml2ZXJzL2dwdS9kcm0vbm91dmVhdS9ub3V2
+ZWF1X3R0bS5jICAgICAgIHwgIDQgLS0tLQ0KPiAgIGRyaXZlcnMvZ3B1L2RybS9xeGwvcXhsX2Ry
+di5oICAgICAgICAgICAgICAgfCAgMyAtLS0NCj4gICBkcml2ZXJzL2dwdS9kcm0vcXhsL3F4bF90
+dG0uYyAgICAgICAgICAgICAgIHwgMTEgKysrLS0tLS0tLS0NCj4gICBkcml2ZXJzL2dwdS9kcm0v
+cmFkZW9uL3JhZGVvbl90dG0uYyAgICAgICAgIHwgMTMgKystLS0tLS0tLS0tLQ0KPiAgIGRyaXZl
+cnMvZ3B1L2RybS90dG0vdHRtX2JvLmMgICAgICAgICAgICAgICAgfCAgNiArKystLS0NCj4gICBk
+cml2ZXJzL2dwdS9kcm0vdHRtL3R0bV9ib192bS5jICAgICAgICAgICAgIHwgIDMgKysrDQo+ICAg
+ZHJpdmVycy9ncHUvZHJtL3ZpcnRpby92aXJ0Z3B1X3R0bS5jICAgICAgICB8ICA0ICstLS0NCj4g
+ICBkcml2ZXJzL2dwdS9kcm0vdm13Z2Z4L3Ztd2dmeF9kcnYuYyAgICAgICAgIHwgIDEgLQ0KPiAg
+IGRyaXZlcnMvZ3B1L2RybS92bXdnZngvdm13Z2Z4X2Rydi5oICAgICAgICAgfCAgMSAtDQo+ICAg
+ZHJpdmVycy9ncHUvZHJtL3Ztd2dmeC92bXdnZnhfdHRtX2dsdWUuYyAgICB8IDExICsrLS0tLS0t
+LS0tDQo+ICAgZHJpdmVycy9zdGFnaW5nL3Zib3h2aWRlby92Ym94X2Rydi5oICAgICAgICB8ICAy
+IC0tDQo+ICAgZHJpdmVycy9zdGFnaW5nL3Zib3h2aWRlby92Ym94X3R0bS5jICAgICAgICB8IDEy
+ICsrKy0tLS0tLS0tLQ0KPiAgIGluY2x1ZGUvZHJtL2RybV92bWFfbWFuYWdlci5oICAgICAgICAg
+ICAgICAgfCAxMiArKysrKysrKysrKysNCj4gICBpbmNsdWRlL2RybS90dG0vdHRtX2JvX2RyaXZl
+ci5oICAgICAgICAgICAgIHwgIDIgKy0NCj4gICAyNiBmaWxlcyBjaGFuZ2VkLCA0MiBpbnNlcnRp
+b25zKCspLCAxMzIgZGVsZXRpb25zKC0pDQo+DQoNCl9fX19fX19fX19fX19fX19fX19fX19fX19f
+X19fX19fX19fX19fX19fX19fX19fClZpcnR1YWxpemF0aW9uIG1haWxpbmcgbGlzdApWaXJ0dWFs
+aXphdGlvbkBsaXN0cy5saW51eC1mb3VuZGF0aW9uLm9yZwpodHRwczovL2xpc3RzLmxpbnV4Zm91
+bmRhdGlvbi5vcmcvbWFpbG1hbi9saXN0aW5mby92aXJ0dWFsaXphdGlvbg==
