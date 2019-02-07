@@ -1,15 +1,11 @@
-From: "Koenig, Christian" <Christian.Koenig@amd.com>
-Subject: Re: [PATCH 0/5] Clean up TTM mmap offsets
-Date: Thu, 7 Feb 2019 09:36:34 +0000
-Message-ID: <e03e4cff-557b-9d50-dba8-94835e768743__19301.5558224701$1549532207$gmane$org@amd.com>
-References: <20190207085931.29569-1-tzimmermann@suse.de>
+From: Joerg Roedel <joro@8bytes.org>
+Subject: [PATCH v7 0/5] Fix virtio-blk issue with SWIOTLB
+Date: Thu,  7 Feb 2019 12:59:12 +0100
+Message-ID: <20190207115917.20535-1-joro__40521.9096153573$1549553171$gmane$org@8bytes.org>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="utf-8"
-Content-Transfer-Encoding: base64
+Content-Type: text/plain; charset="us-ascii"
+Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <20190207085931.29569-1-tzimmermann@suse.de>
-Content-Language: en-US
-Content-ID: <DFCEA3265F6B2C499E84EF7C4807B3AF@namprd12.prod.outlook.com>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -19,57 +15,59 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Thomas Zimmermann <tzimmermann@suse.de>, "Deucher, Alexander" <Alexander.Deucher@amd.com>, "Zhou,
-	David(ChunMing)" <David1.Zhou@amd.com>, "airlied@redhat.com" <airlied@redhat.com>, "kraxel@redhat.com" <kraxel@redhat.com>, "z.liuxinliang@hisilicon.com" <z.liuxinliang@hisilicon.com>, "zourongrong@gmail.com" <zourongrong@gmail.com>, "kong.kongxinwei@hisilicon.com" <kong.kongxinwei@hisilicon.com>, "puck.chen@hisilicon.com" <puck.chen@hisilicon.com>, "bskeggs@redhat.com" <bskeggs@redhat.com>, "thellstrom@vmware.com" <thellstrom@vmware.com>, "linux-graphics-maintainer@vmware.com" <linux-graphics-maintainer@vmware.com>, "daniel@ffwll.ch" <daniel@ffwll.ch>, "hdegoede@redhat.com" <hdegoede@redhat.com>, "arnd@arndb.de" <arnd@arndb.de>, "gregkh@linuxfoundation.org" <gregkh@linuxfoundation.org>, "Huang, Ray" <Ray.Huang@amd.com>, "Zhang, Jerry" <Jerry.Zhang@amd.com>
-Cc: "spice-devel@lists.freedesktop.org" <spice-devel@lists.freedesktop.org>, "amd-gfx@lists.freedesktop.org" <amd-gfx@lists.freedesktop.org>, "dri-devel@lists.freedesktop.org" <dri-devel@lists.freedesktop.org>, "virtualization@lists.linux-foundation.org" <virtualization@lists.linux-foundation.org>
+To: "Michael S . Tsirkin" <mst@redhat.com>, Jason Wang <jasowang@redhat.com>, Konrad Rzeszutek Wilk <konrad.wilk@oracle.com>, Christoph Hellwig <hch@lst.de>
+Cc: Jens Axboe <axboe@kernel.dk>, Thomas.Lendacky@amd.com, jroedel@suse.de, brijesh.singh@amd.com, joro@8bytes.org, jon.grimm@amd.com, jfehlig@suse.com, linux-kernel@vger.kernel.org, linux-block@vger.kernel.org, iommu@lists.linux-foundation.org, virtualization@lists.linux-foundation.org
 List-Id: virtualization@lists.linuxfoundation.org
 
-QW0gMDcuMDIuMTkgdW0gMDk6NTkgc2NocmllYiBUaG9tYXMgWmltbWVybWFubjoNCj4gQWxtb3N0
-IGFsbCBUVE0tYmFzZWQgZHJpdmVycyB1c2UgdGhlIHNhbWUgdmFsdWVzIGZvciB0aGUgbW1hcC1h
-YmxlDQo+IHJhbmdlIG9mIEJPIGFkZHJlc3Nlcy4gRWFjaCBkcml2ZXIgdGhlcmVmb3JlIGR1cGxp
-Y2F0ZXMgdGhlDQo+IERSTV9GSUxFX1BBR0VfT0ZGU0VUIGNvbnN0YW50LiBPVE9ILCB0aGUgbW1h
-cCByYW5nZSdzIHNpemUgaXMgbm90DQo+IGNvbmZpZ3VyYWJsZSBieSBkcml2ZXJzLg0KPg0KPiBU
-aGlzIHBhdGNoIHNldCByZXBsYWNlcyBkcml2ZXItc3BlY2lmaWMgY29uZmlndXJhdGlvbiB3aXRo
-IGEgc2luZ2xlDQo+IHNldHVwLiBBbGwgY29kZSBpcyBsb2NhdGVkIHdpdGhpbiBUVE0uIFRUTSBh
-bmQgR0VNIHNoYXJlIHRoZSBzYW1lDQo+IHJhbmdlIGZvciBtbWFwLWFibGUgQk9zLg0KPg0KPiBU
-aG9tYXMgWmltbWVybWFubiAoNSk6DQo+ICAgIHN0YWdpbmcvdmJveHZpZGVvOiBVc2Ugc2FtZSBC
-TyBtbWFwIG9mZnNldCBhcyBvdGhlciBkcml2ZXJzDQo+ICAgIGRybS90dG06IERlZmluZSBhIHNp
-bmdsZSBEUk1fRklMRV9QQUdFX09GRlNFVCBjb25zdGFudA0KPiAgICBkcm0vdHRtOiBSZW1vdmUg
-ZmlsZV9wYWdlX29mZnNldCBwYXJhbWV0ZXIgZnJvbSB0dG1fYm9fZGV2aWNlX2luaXQoKQ0KPiAg
-ICBkcm0vdHRtOiBRdWljay10ZXN0IG1tYXAgb2Zmc2V0IGluIHR0bV9ib19tbWFwKCkNCj4gICAg
-ZHJtOiBVc2UgdGhlIHNhbWUgbW1hcC1yYW5nZSBvZmZzZXQgYW5kIHNpemUgZm9yIEdFTSBhbmQg
-VFRNDQoNClJldmlld2VkLWJ5OiBDaHJpc3RpYW4gS8O2bmlnIDxjaHJpc3RpYW4ua29lbmlnQGFt
-ZC5jb20+IGZvciB0aGUgd2hvbGUgDQpzZXJpZXMuDQoNCk5pY2UgY2xlYW51cCEgVGhhbmtzLA0K
-Q2hyaXN0aWFuLg0KDQo+DQo+ICAgZHJpdmVycy9ncHUvZHJtL2FtZC9hbWRncHUvYW1kZ3B1X3R0
-bS5jICAgICB8IDEyICsrLS0tLS0tLS0tLQ0KPiAgIGRyaXZlcnMvZ3B1L2RybS9hc3QvYXN0X2Ry
-di5oICAgICAgICAgICAgICAgfCAgMiAtLQ0KPiAgIGRyaXZlcnMvZ3B1L2RybS9hc3QvYXN0X3R0
-bS5jICAgICAgICAgICAgICAgfCAxMCArKy0tLS0tLS0tDQo+ICAgZHJpdmVycy9ncHUvZHJtL2Jv
-Y2hzL2JvY2hzLmggICAgICAgICAgICAgICB8ICAyIC0tDQo+ICAgZHJpdmVycy9ncHUvZHJtL2Jv
-Y2hzL2JvY2hzX21tLmMgICAgICAgICAgICB8IDEwICsrLS0tLS0tLS0NCj4gICBkcml2ZXJzL2dw
-dS9kcm0vY2lycnVzL2NpcnJ1c19kcnYuaCAgICAgICAgIHwgIDEgLQ0KPiAgIGRyaXZlcnMvZ3B1
-L2RybS9jaXJydXMvY2lycnVzX3R0bS5jICAgICAgICAgfCAxMCArKy0tLS0tLS0tDQo+ICAgZHJp
-dmVycy9ncHUvZHJtL2RybV9nZW0uYyAgICAgICAgICAgICAgICAgICB8IDE3IC0tLS0tLS0tLS0t
-LS0tLS0tDQo+ICAgZHJpdmVycy9ncHUvZHJtL2hpc2lsaWNvbi9oaWJtYy9oaWJtY190dG0uYyB8
-IDEyICsrLS0tLS0tLS0tLQ0KPiAgIGRyaXZlcnMvZ3B1L2RybS9tZ2FnMjAwL21nYWcyMDBfZHJ2
-LmggICAgICAgfCAgMSAtDQo+ICAgZHJpdmVycy9ncHUvZHJtL21nYWcyMDAvbWdhZzIwMF90dG0u
-YyAgICAgICB8IDEwICsrLS0tLS0tLS0NCj4gICBkcml2ZXJzL2dwdS9kcm0vbm91dmVhdS9ub3V2
-ZWF1X2Rydi5oICAgICAgIHwgIDIgLS0NCj4gICBkcml2ZXJzL2dwdS9kcm0vbm91dmVhdS9ub3V2
-ZWF1X3R0bS5jICAgICAgIHwgIDQgLS0tLQ0KPiAgIGRyaXZlcnMvZ3B1L2RybS9xeGwvcXhsX2Ry
-di5oICAgICAgICAgICAgICAgfCAgMyAtLS0NCj4gICBkcml2ZXJzL2dwdS9kcm0vcXhsL3F4bF90
-dG0uYyAgICAgICAgICAgICAgIHwgMTEgKysrLS0tLS0tLS0NCj4gICBkcml2ZXJzL2dwdS9kcm0v
-cmFkZW9uL3JhZGVvbl90dG0uYyAgICAgICAgIHwgMTMgKystLS0tLS0tLS0tLQ0KPiAgIGRyaXZl
-cnMvZ3B1L2RybS90dG0vdHRtX2JvLmMgICAgICAgICAgICAgICAgfCAgNiArKystLS0NCj4gICBk
-cml2ZXJzL2dwdS9kcm0vdHRtL3R0bV9ib192bS5jICAgICAgICAgICAgIHwgIDMgKysrDQo+ICAg
-ZHJpdmVycy9ncHUvZHJtL3ZpcnRpby92aXJ0Z3B1X3R0bS5jICAgICAgICB8ICA0ICstLS0NCj4g
-ICBkcml2ZXJzL2dwdS9kcm0vdm13Z2Z4L3Ztd2dmeF9kcnYuYyAgICAgICAgIHwgIDEgLQ0KPiAg
-IGRyaXZlcnMvZ3B1L2RybS92bXdnZngvdm13Z2Z4X2Rydi5oICAgICAgICAgfCAgMSAtDQo+ICAg
-ZHJpdmVycy9ncHUvZHJtL3Ztd2dmeC92bXdnZnhfdHRtX2dsdWUuYyAgICB8IDExICsrLS0tLS0t
-LS0tDQo+ICAgZHJpdmVycy9zdGFnaW5nL3Zib3h2aWRlby92Ym94X2Rydi5oICAgICAgICB8ICAy
-IC0tDQo+ICAgZHJpdmVycy9zdGFnaW5nL3Zib3h2aWRlby92Ym94X3R0bS5jICAgICAgICB8IDEy
-ICsrKy0tLS0tLS0tLQ0KPiAgIGluY2x1ZGUvZHJtL2RybV92bWFfbWFuYWdlci5oICAgICAgICAg
-ICAgICAgfCAxMiArKysrKysrKysrKysNCj4gICBpbmNsdWRlL2RybS90dG0vdHRtX2JvX2RyaXZl
-ci5oICAgICAgICAgICAgIHwgIDIgKy0NCj4gICAyNiBmaWxlcyBjaGFuZ2VkLCA0MiBpbnNlcnRp
-b25zKCspLCAxMzIgZGVsZXRpb25zKC0pDQo+DQoNCl9fX19fX19fX19fX19fX19fX19fX19fX19f
-X19fX19fX19fX19fX19fX19fX19fClZpcnR1YWxpemF0aW9uIG1haWxpbmcgbGlzdApWaXJ0dWFs
-aXphdGlvbkBsaXN0cy5saW51eC1mb3VuZGF0aW9uLm9yZwpodHRwczovL2xpc3RzLmxpbnV4Zm91
-bmRhdGlvbi5vcmcvbWFpbG1hbi9saXN0aW5mby92aXJ0dWFsaXphdGlvbg==
+Hi,
+
+here is the next version of this patch-set. Previous
+versions can be found here:
+
+	V1: https://lore.kernel.org/lkml/20190110134433.15672-1-joro@8bytes.org/
+
+	V2: https://lore.kernel.org/lkml/20190115132257.6426-1-joro@8bytes.org/
+
+	V3: https://lore.kernel.org/lkml/20190123163049.24863-1-joro@8bytes.org/
+
+	V4: https://lore.kernel.org/lkml/20190129084342.26030-1-joro@8bytes.org/
+
+	V5: https://lore.kernel.org/lkml/20190130164007.26497-1-joro@8bytes.org/
+
+	V6: https://lore.kernel.org/lkml/20190131163403.11363-1-joro@8bytes.org/
+
+The problem solved here is a limitation of the SWIOTLB implementation,
+which does not support allocations larger than 256kb.  When the
+virtio-blk driver tries to read/write a block larger than that, the
+allocation of the dma-handle fails and an IO error is reported.
+
+Changes to v6 are:
+
+	- Fix build errors with CONFIG_SWIOTLB=n
+
+Please review.
+
+Thanks,
+
+	Joerg
+
+Joerg Roedel (5):
+  swiotlb: Introduce swiotlb_max_mapping_size()
+  swiotlb: Add is_swiotlb_active() function
+  dma: Introduce dma_max_mapping_size()
+  virtio: Introduce virtio_max_dma_size()
+  virtio-blk: Consider virtio_max_dma_size() for maximum segment size
+
+ Documentation/DMA-API.txt    |  8 ++++++++
+ drivers/block/virtio_blk.c   | 10 ++++++----
+ drivers/virtio/virtio_ring.c | 11 +++++++++++
+ include/linux/dma-mapping.h  |  8 ++++++++
+ include/linux/swiotlb.h      | 11 +++++++++++
+ include/linux/virtio.h       |  2 ++
+ kernel/dma/direct.c          | 11 +++++++++++
+ kernel/dma/mapping.c         | 14 ++++++++++++++
+ kernel/dma/swiotlb.c         | 14 ++++++++++++++
+ 9 files changed, 85 insertions(+), 4 deletions(-)
+
+-- 
+2.17.1
