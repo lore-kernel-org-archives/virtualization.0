@@ -1,17 +1,15 @@
 From: "Michael S. Tsirkin" <mst@redhat.com>
 Subject: Re: [PATCH 3/6] mm/balloon_compaction: list interfaces
-Date: Wed, 6 Feb 2019 20:26:42 -0500
-Message-ID: <20190206202628-mutt-send-email-mst__36502.7723064244$1549508758$gmane$org@kernel.org>
+Date: Wed, 6 Feb 2019 19:32:11 -0500
+Message-ID: <20190206191936-mutt-send-email-mst__3308.10324974067$1549509174$gmane$org@kernel.org>
 References: <20190206235706.4851-1-namit@vmware.com>
 	<20190206235706.4851-4-namit@vmware.com>
-	<20190206191936-mutt-send-email-mst@kernel.org>
-	<0DFA5F3F-8358-4268-83C7-9937C5F0CFFF@vmware.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="utf-8"
-Content-Transfer-Encoding: base64
+Content-Type: text/plain; charset="us-ascii"
+Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
 Content-Disposition: inline
-In-Reply-To: <0DFA5F3F-8358-4268-83C7-9937C5F0CFFF@vmware.com>
+In-Reply-To: <20190206235706.4851-4-namit@vmware.com>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -22,84 +20,231 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
 To: Nadav Amit <namit@vmware.com>
-Cc: Arnd Bergmann <arnd@arndb.de>, Greg Kroah-Hartman <gregkh@linuxfoundation.org>, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>, "virtualization@lists.linux-foundation.org" <virtualization@lists.linux-foundation.org>, "linux-mm@kvack.org" <linux-mm@kvack.org>, Julien Freche <jfreche@vmware.com>
+Cc: Arnd Bergmann <arnd@arndb.de>, Greg Kroah-Hartman <gregkh@linuxfoundation.org>, linux-kernel@vger.kernel.org, virtualization@lists.linux-foundation.org, linux-mm@kvack.org, Julien Freche <jfreche@vmware.com>
 List-Id: virtualization@lists.linuxfoundation.org
 
-T24gVGh1LCBGZWIgMDcsIDIwMTkgYXQgMTI6NDM6NTFBTSArMDAwMCwgTmFkYXYgQW1pdCB3cm90
-ZToKPiA+IE9uIEZlYiA2LCAyMDE5LCBhdCA0OjMyIFBNLCBNaWNoYWVsIFMuIFRzaXJraW4gPG1z
-dEByZWRoYXQuY29tPiB3cm90ZToKPiA+IAo+ID4gT24gV2VkLCBGZWIgMDYsIDIwMTkgYXQgMDM6
-NTc6MDNQTSAtMDgwMCwgTmFkYXYgQW1pdCB3cm90ZToKPiA+PiBJbnRyb2R1Y2UgaW50ZXJmYWNl
-cyBmb3IgYmFsbG9vbmluZyBlbnF1ZXVlaW5nIGFuZCBkZXF1ZXVlaW5nIG9mIGEgbGlzdAo+ID4+
-IG9mIHBhZ2VzLiBUaGVzZSBpbnRlcmZhY2VzIHJlZHVjZSB0aGUgb3ZlcmhlYWQgb2Ygc3Rvcmlu
-ZyBhbmQgcmVzdG9yaW5nCj4gPj4gSVJRcyBieSBiYXRjaGluZyB0aGUgb3BlcmF0aW9ucy4gSW4g
-YWRkaXRpb24gdGhleSBkbyBub3QgcGFuaWMgaWYgdGhlCj4gPj4gbGlzdCBvZiBwYWdlcyBpcyBl
-bXB0eS4KPiA+PiAKPiAKPiBbU25pcF0KPiAKPiBGaXJzdCwgdGhhbmtzIGZvciB0aGUgcXVpY2sg
-ZmVlZGJhY2suCj4gCj4gPj4gKwo+ID4+ICsvKioKPiA+PiArICogYmFsbG9vbl9wYWdlX2xpc3Rf
-ZW5xdWV1ZSgpIC0gaW5zZXJ0cyBhIGxpc3Qgb2YgcGFnZXMgaW50byB0aGUgYmFsbG9vbiBwYWdl
-Cj4gPj4gKyAqCQkJCSBsaXN0Lgo+ID4+ICsgKiBAYl9kZXZfaW5mbzogYmFsbG9vbiBkZXZpY2Ug
-ZGVzY3JpcHRvciB3aGVyZSB3ZSB3aWxsIGluc2VydCBhIG5ldyBwYWdlIHRvCj4gPj4gKyAqIEBw
-YWdlczogcGFnZXMgdG8gZW5xdWV1ZSAtIGFsbG9jYXRlZCB1c2luZyBiYWxsb29uX3BhZ2VfYWxs
-b2MuCj4gPj4gKyAqCj4gPj4gKyAqIERyaXZlciBtdXN0IGNhbGwgaXQgdG8gcHJvcGVybHkgZW5x
-dWV1ZSBhIGJhbGxvb24gcGFnZXMgYmVmb3JlIGRlZmluaXRpdmVseQo+ID4+ICsgKiByZW1vdmlu
-ZyBpdCBmcm9tIHRoZSBndWVzdCBzeXN0ZW0uCj4gPj4gKyAqLwo+ID4+ICt2b2lkIGJhbGxvb25f
-cGFnZV9saXN0X2VucXVldWUoc3RydWN0IGJhbGxvb25fZGV2X2luZm8gKmJfZGV2X2luZm8sCj4g
-Pj4gKwkJCSAgICAgICBzdHJ1Y3QgbGlzdF9oZWFkICpwYWdlcykKPiA+PiArewo+ID4+ICsJc3Ry
-dWN0IHBhZ2UgKnBhZ2UsICp0bXA7Cj4gPj4gKwl1bnNpZ25lZCBsb25nIGZsYWdzOwo+ID4+ICsK
-PiA+PiArCXNwaW5fbG9ja19pcnFzYXZlKCZiX2Rldl9pbmZvLT5wYWdlc19sb2NrLCBmbGFncyk7
-Cj4gPj4gKwlsaXN0X2Zvcl9lYWNoX2VudHJ5X3NhZmUocGFnZSwgdG1wLCBwYWdlcywgbHJ1KQo+
-ID4+ICsJCWJhbGxvb25fcGFnZV9lbnF1ZXVlX29uZShiX2Rldl9pbmZvLCBwYWdlKTsKPiA+PiAr
-CXNwaW5fdW5sb2NrX2lycXJlc3RvcmUoJmJfZGV2X2luZm8tPnBhZ2VzX2xvY2ssIGZsYWdzKTsK
-PiA+IAo+ID4gQXMgdGhpcyBpcyBzY2FubmluZyBwYWdlcyBvbmUgYnkgb25lIGFueXdheSwgaXQg
-d2lsbCBiZSB1c2VmdWwKPiA+IHRvIGhhdmUgdGhpcyByZXR1cm4gdGhlICMgb2YgcGFnZXMgZW5x
-dWV1ZWQuCj4gCj4gU3VyZS4KPiAKPiA+IAo+ID4+ICt9Cj4gPj4gK0VYUE9SVF9TWU1CT0xfR1BM
-KGJhbGxvb25fcGFnZV9saXN0X2VucXVldWUpOwo+ID4+ICsKPiA+PiArLyoqCj4gPj4gKyAqIGJh
-bGxvb25fcGFnZV9saXN0X2RlcXVldWUoKSAtIHJlbW92ZXMgcGFnZXMgZnJvbSBiYWxsb29uJ3Mg
-cGFnZSBsaXN0IGFuZAo+ID4+ICsgKgkJCQkgcmV0dXJucyBhIGxpc3Qgb2YgdGhlIHBhZ2VzLgo+
-ID4+ICsgKiBAYl9kZXZfaW5mbzogYmFsbG9vbiBkZXZpY2UgZGVjcmlwdG9yIHdoZXJlIHdlIHdp
-bGwgZ3JhYiBhIHBhZ2UgZnJvbS4KPiA+PiArICogQHBhZ2VzOiBwb2ludGVyIHRvIHRoZSBsaXN0
-IG9mIHBhZ2VzIHRoYXQgd291bGQgYmUgcmV0dXJuZWQgdG8gdGhlIGNhbGxlci4KPiA+PiArICog
-QG5fcmVxX3BhZ2VzOiBudW1iZXIgb2YgcmVxdWVzdGVkIHBhZ2VzLgo+ID4+ICsgKgo+ID4+ICsg
-KiBEcml2ZXIgbXVzdCBjYWxsIGl0IHRvIHByb3Blcmx5IGRlLWFsbG9jYXRlIGEgcHJldmlvdXMg
-ZW5saXN0ZWQgYmFsbG9vbiBwYWdlcwo+ID4+ICsgKiBiZWZvcmUgZGVmaW5ldGl2ZWx5IHJlbGVh
-c2luZyBpdCBiYWNrIHRvIHRoZSBndWVzdCBzeXN0ZW0uIFRoaXMgZnVuY3Rpb24KPiA+PiArICog
-dHJpZXMgdG8gcmVtb3ZlIEBuX3JlcV9wYWdlcyBmcm9tIHRoZSBiYWxsb29uZWQgcGFnZXMgYW5k
-IHJldHVybiBpdCB0byB0aGUKPiA+PiArICogY2FsbGVyIGluIHRoZSBAcGFnZXMgbGlzdC4KPiA+
-PiArICoKPiA+PiArICogTm90ZSB0aGF0IHRoaXMgZnVuY3Rpb24gbWF5IGZhaWwgdG8gZGVxdWV1
-ZSBzb21lIHBhZ2VzIHRlbXBvcmFyaWx5IGVtcHR5IGR1ZQo+ID4+ICsgKiB0byBjb21wYWN0aW9u
-IGlzb2xhdGVkIHBhZ2VzLgo+ID4+ICsgKgo+ID4+ICsgKiBSZXR1cm46IG51bWJlciBvZiBwYWdl
-cyB0aGF0IHdlcmUgYWRkZWQgdG8gdGhlIEBwYWdlcyBsaXN0Lgo+ID4+ICsgKi8KPiA+PiAraW50
-IGJhbGxvb25fcGFnZV9saXN0X2RlcXVldWUoc3RydWN0IGJhbGxvb25fZGV2X2luZm8gKmJfZGV2
-X2luZm8sCj4gPj4gKwkJCSAgICAgICBzdHJ1Y3QgbGlzdF9oZWFkICpwYWdlcywgaW50IG5fcmVx
-X3BhZ2VzKQo+ID4gCj4gPiBBcmUgd2Ugc3VyZSB0aGlzIGludCBuZXZlciBvdmVyZmxvd3M/IFdo
-eSBub3QganVzdCB1c2UgdTY0Cj4gPiBvciBzaXplX3Qgc3RyYWlnaHQgYXdheT8KPiAKPiBzaXpl
-X3QgaXQgaXMuCj4gCj4gPiAKPiA+PiArewo+ID4+ICsJc3RydWN0IHBhZ2UgKnBhZ2UsICp0bXA7
-Cj4gPj4gKwl1bnNpZ25lZCBsb25nIGZsYWdzOwo+ID4+ICsJaW50IG5fcGFnZXMgPSAwOwo+ID4+
-ICsKPiA+PiArCXNwaW5fbG9ja19pcnFzYXZlKCZiX2Rldl9pbmZvLT5wYWdlc19sb2NrLCBmbGFn
-cyk7Cj4gPj4gKwlsaXN0X2Zvcl9lYWNoX2VudHJ5X3NhZmUocGFnZSwgdG1wLCAmYl9kZXZfaW5m
-by0+cGFnZXMsIGxydSkgewo+ID4+ICsJCS8qCj4gPj4gKwkJICogQmxvY2sgb3RoZXJzIGZyb20g
-YWNjZXNzaW5nIHRoZSAncGFnZScgd2hpbGUgd2UgZ2V0IGFyb3VuZAo+ID4+ICsJCSAqIGVzdGFi
-bGlzaGluZyBhZGRpdGlvbmFsIHJlZmVyZW5jZXMgYW5kIHByZXBhcmluZyB0aGUgJ3BhZ2UnCj4g
-Pj4gKwkJICogdG8gYmUgcmVsZWFzZWQgYnkgdGhlIGJhbGxvb24gZHJpdmVyLgo+ID4+ICsJCSAq
-Lwo+ID4+ICsJCWlmICghdHJ5bG9ja19wYWdlKHBhZ2UpKQo+ID4+ICsJCQljb250aW51ZTsKPiA+
-PiArCj4gPj4gKwkJaWYgKElTX0VOQUJMRUQoQ09ORklHX0JBTExPT05fQ09NUEFDVElPTikgJiYK
-PiA+PiArCQkgICAgUGFnZUlzb2xhdGVkKHBhZ2UpKSB7Cj4gPj4gKwkJCS8qIHJhY2VkIHdpdGgg
-aXNvbGF0aW9uICovCj4gPj4gKwkJCXVubG9ja19wYWdlKHBhZ2UpOwo+ID4+ICsJCQljb250aW51
-ZTsKPiA+PiArCQl9Cj4gPj4gKwkJYmFsbG9vbl9wYWdlX2RlbGV0ZShwYWdlKTsKPiA+PiArCQlf
-X2NvdW50X3ZtX2V2ZW50KEJBTExPT05fREVGTEFURSk7Cj4gPj4gKwkJdW5sb2NrX3BhZ2UocGFn
-ZSk7Cj4gPj4gKwkJbGlzdF9hZGQoJnBhZ2UtPmxydSwgcGFnZXMpOwo+ID4+ICsJCWlmICgrK25f
-cGFnZXMgPj0gbl9yZXFfcGFnZXMpCj4gPj4gKwkJCWJyZWFrOwo+ID4+ICsJfQo+ID4+ICsJc3Bp
-bl91bmxvY2tfaXJxcmVzdG9yZSgmYl9kZXZfaW5mby0+cGFnZXNfbG9jaywgZmxhZ3MpOwo+ID4+
-ICsKPiA+PiArCXJldHVybiBuX3BhZ2VzOwo+ID4+ICt9Cj4gPj4gK0VYUE9SVF9TWU1CT0xfR1BM
-KGJhbGxvb25fcGFnZV9saXN0X2RlcXVldWUpOwo+ID4+ICsKPiA+IAo+ID4gVGhpcyBsb29rcyBx
-dWl0ZSByZWFzb25hYmxlLiBJbiBmYWN0IHZpcnRpbyBjYW4gYmUgcmV3b3JrZWQgdG8gdXNlCj4g
-PiB0aGlzIHRvbyBhbmQgdGhlbiB0aGUgb3JpZ2luYWwgb25lIGNhbiBiZSBkcm9wcGVkLgo+ID4g
-Cj4gPiBIYXZlIHRoZSB0aW1lPwo+IAo+IE9idmlvdXNseSBub3QsIGJ1dCBJIGFtIHdpbGxpbmcg
-dG8gbWFrZSB0aGUgdGltZS4gV2hhdCBJIGNhbm5vdCDigJxtYWtlIiBpcyBhbgo+IGFwcHJvdmFs
-IHRvIHNlbmQgcGF0Y2hlcyBmb3Igb3RoZXIgaHlwZXJ2aXNvcnMuIExldCBtZSBydW4gYSBxdWlj
-ayBjaGVjawo+IHdpdGggb3VyIEZPU1MgcGVvcGxlIGhlcmUuCj4gCj4gQW55aG93LCBJIGhvcGUg
-aXQgd291bGQgbm90IHByZXZlbnQgdGhlIHBhdGNoZXMgZnJvbSBnZXR0aW5nIHRvIHRoZSBuZXh0
-Cj4gcmVsZWFzZS4KPiAKCk5vLCB0aGF0J3Mgbm90IGEgYmxvY2tlci4KCi0tIApNU1QKX19fX19f
-X19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX18KVmlydHVhbGl6YXRpb24g
-bWFpbGluZyBsaXN0ClZpcnR1YWxpemF0aW9uQGxpc3RzLmxpbnV4LWZvdW5kYXRpb24ub3JnCmh0
-dHBzOi8vbGlzdHMubGludXhmb3VuZGF0aW9uLm9yZy9tYWlsbWFuL2xpc3RpbmZvL3ZpcnR1YWxp
-emF0aW9u
+On Wed, Feb 06, 2019 at 03:57:03PM -0800, Nadav Amit wrote:
+> Introduce interfaces for ballooning enqueueing and dequeueing of a list
+> of pages. These interfaces reduce the overhead of storing and restoring
+> IRQs by batching the operations. In addition they do not panic if the
+> list of pages is empty.
+> 
+> Cc: "Michael S. Tsirkin" <mst@redhat.com>
+> Cc: Jason Wang <jasowang@redhat.com>
+> Cc: linux-mm@kvack.org
+> Cc: virtualization@lists.linux-foundation.org
+> Reviewed-by: Xavier Deguillard <xdeguillard@vmware.com>
+> Signed-off-by: Nadav Amit <namit@vmware.com>
+> ---
+>  include/linux/balloon_compaction.h |   4 +
+>  mm/balloon_compaction.c            | 139 +++++++++++++++++++++--------
+>  2 files changed, 105 insertions(+), 38 deletions(-)
+> 
+> diff --git a/include/linux/balloon_compaction.h b/include/linux/balloon_compaction.h
+> index 53051f3d8f25..2c5a8e09e413 100644
+> --- a/include/linux/balloon_compaction.h
+> +++ b/include/linux/balloon_compaction.h
+> @@ -72,6 +72,10 @@ extern struct page *balloon_page_alloc(void);
+>  extern void balloon_page_enqueue(struct balloon_dev_info *b_dev_info,
+>  				 struct page *page);
+>  extern struct page *balloon_page_dequeue(struct balloon_dev_info *b_dev_info);
+> +extern void balloon_page_list_enqueue(struct balloon_dev_info *b_dev_info,
+> +				      struct list_head *pages);
+> +extern int balloon_page_list_dequeue(struct balloon_dev_info *b_dev_info,
+> +				     struct list_head *pages, int n_req_pages);
+>  
+>  static inline void balloon_devinfo_init(struct balloon_dev_info *balloon)
+>  {
+> diff --git a/mm/balloon_compaction.c b/mm/balloon_compaction.c
+> index ef858d547e2d..b8e82864f82c 100644
+> --- a/mm/balloon_compaction.c
+> +++ b/mm/balloon_compaction.c
+> @@ -10,6 +10,100 @@
+>  #include <linux/export.h>
+>  #include <linux/balloon_compaction.h>
+>  
+> +static int balloon_page_enqueue_one(struct balloon_dev_info *b_dev_info,
+> +				     struct page *page)
+> +{
+> +	/*
+> +	 * Block others from accessing the 'page' when we get around to
+> +	 * establishing additional references. We should be the only one
+> +	 * holding a reference to the 'page' at this point.
+> +	 */
+> +	if (!trylock_page(page)) {
+> +		WARN_ONCE(1, "balloon inflation failed to enqueue page\n");
+> +		return -EFAULT;
+> +	}
+> +	list_del(&page->lru);
+> +	balloon_page_insert(b_dev_info, page);
+> +	unlock_page(page);
+> +	__count_vm_event(BALLOON_INFLATE);
+> +	return 0;
+> +}
+> +
+> +/**
+> + * balloon_page_list_enqueue() - inserts a list of pages into the balloon page
+> + *				 list.
+> + * @b_dev_info: balloon device descriptor where we will insert a new page to
+> + * @pages: pages to enqueue - allocated using balloon_page_alloc.
+> + *
+> + * Driver must call it to properly enqueue a balloon pages before definitively
+> + * removing it from the guest system.
+> + */
+> +void balloon_page_list_enqueue(struct balloon_dev_info *b_dev_info,
+> +			       struct list_head *pages)
+> +{
+> +	struct page *page, *tmp;
+> +	unsigned long flags;
+> +
+> +	spin_lock_irqsave(&b_dev_info->pages_lock, flags);
+> +	list_for_each_entry_safe(page, tmp, pages, lru)
+> +		balloon_page_enqueue_one(b_dev_info, page);
+> +	spin_unlock_irqrestore(&b_dev_info->pages_lock, flags);
+
+As this is scanning pages one by one anyway, it will be useful
+to have this return the # of pages enqueued.
+
+> +}
+> +EXPORT_SYMBOL_GPL(balloon_page_list_enqueue);
+> +
+> +/**
+> + * balloon_page_list_dequeue() - removes pages from balloon's page list and
+> + *				 returns a list of the pages.
+> + * @b_dev_info: balloon device decriptor where we will grab a page from.
+> + * @pages: pointer to the list of pages that would be returned to the caller.
+> + * @n_req_pages: number of requested pages.
+> + *
+> + * Driver must call it to properly de-allocate a previous enlisted balloon pages
+> + * before definetively releasing it back to the guest system. This function
+> + * tries to remove @n_req_pages from the ballooned pages and return it to the
+> + * caller in the @pages list.
+> + *
+> + * Note that this function may fail to dequeue some pages temporarily empty due
+> + * to compaction isolated pages.
+> + *
+> + * Return: number of pages that were added to the @pages list.
+> + */
+> +int balloon_page_list_dequeue(struct balloon_dev_info *b_dev_info,
+> +			       struct list_head *pages, int n_req_pages)
+
+Are we sure this int never overflows? Why not just use u64
+or size_t straight away?
+
+> +{
+> +	struct page *page, *tmp;
+> +	unsigned long flags;
+> +	int n_pages = 0;
+> +
+> +	spin_lock_irqsave(&b_dev_info->pages_lock, flags);
+> +	list_for_each_entry_safe(page, tmp, &b_dev_info->pages, lru) {
+> +		/*
+> +		 * Block others from accessing the 'page' while we get around
+> +		 * establishing additional references and preparing the 'page'
+> +		 * to be released by the balloon driver.
+> +		 */
+> +		if (!trylock_page(page))
+> +			continue;
+> +
+> +		if (IS_ENABLED(CONFIG_BALLOON_COMPACTION) &&
+> +		    PageIsolated(page)) {
+> +			/* raced with isolation */
+> +			unlock_page(page);
+> +			continue;
+> +		}
+> +		balloon_page_delete(page);
+> +		__count_vm_event(BALLOON_DEFLATE);
+> +		unlock_page(page);
+> +		list_add(&page->lru, pages);
+> +		if (++n_pages >= n_req_pages)
+> +			break;
+> +	}
+> +	spin_unlock_irqrestore(&b_dev_info->pages_lock, flags);
+> +
+> +	return n_pages;
+> +}
+> +EXPORT_SYMBOL_GPL(balloon_page_list_dequeue);
+> +
+
+This looks quite reasonable. In fact virtio can be reworked to use
+this too and then the original one can be dropped.
+
+Have the time?
+
+>  /*
+>   * balloon_page_alloc - allocates a new page for insertion into the balloon
+>   *			  page list.
+> @@ -43,17 +137,9 @@ void balloon_page_enqueue(struct balloon_dev_info *b_dev_info,
+>  {
+>  	unsigned long flags;
+>  
+> -	/*
+> -	 * Block others from accessing the 'page' when we get around to
+> -	 * establishing additional references. We should be the only one
+> -	 * holding a reference to the 'page' at this point.
+> -	 */
+> -	BUG_ON(!trylock_page(page));
+>  	spin_lock_irqsave(&b_dev_info->pages_lock, flags);
+> -	balloon_page_insert(b_dev_info, page);
+> -	__count_vm_event(BALLOON_INFLATE);
+> +	balloon_page_enqueue_one(b_dev_info, page);
+>  	spin_unlock_irqrestore(&b_dev_info->pages_lock, flags);
+> -	unlock_page(page);
+>  }
+>  EXPORT_SYMBOL_GPL(balloon_page_enqueue);
+>  
+> @@ -70,36 +156,13 @@ EXPORT_SYMBOL_GPL(balloon_page_enqueue);
+>   */
+>  struct page *balloon_page_dequeue(struct balloon_dev_info *b_dev_info)
+>  {
+> -	struct page *page, *tmp;
+>  	unsigned long flags;
+> -	bool dequeued_page;
+> +	LIST_HEAD(pages);
+> +	int n_pages;
+>  
+> -	dequeued_page = false;
+> -	spin_lock_irqsave(&b_dev_info->pages_lock, flags);
+> -	list_for_each_entry_safe(page, tmp, &b_dev_info->pages, lru) {
+> -		/*
+> -		 * Block others from accessing the 'page' while we get around
+> -		 * establishing additional references and preparing the 'page'
+> -		 * to be released by the balloon driver.
+> -		 */
+> -		if (trylock_page(page)) {
+> -#ifdef CONFIG_BALLOON_COMPACTION
+> -			if (PageIsolated(page)) {
+> -				/* raced with isolation */
+> -				unlock_page(page);
+> -				continue;
+> -			}
+> -#endif
+> -			balloon_page_delete(page);
+> -			__count_vm_event(BALLOON_DEFLATE);
+> -			unlock_page(page);
+> -			dequeued_page = true;
+> -			break;
+> -		}
+> -	}
+> -	spin_unlock_irqrestore(&b_dev_info->pages_lock, flags);
+> +	n_pages = balloon_page_list_dequeue(b_dev_info, &pages, 1);
+>  
+> -	if (!dequeued_page) {
+> +	if (n_pages != 1) {
+>  		/*
+>  		 * If we are unable to dequeue a balloon page because the page
+>  		 * list is empty and there is no isolated pages, then something
+> @@ -112,9 +175,9 @@ struct page *balloon_page_dequeue(struct balloon_dev_info *b_dev_info)
+>  			     !b_dev_info->isolated_pages))
+>  			BUG();
+>  		spin_unlock_irqrestore(&b_dev_info->pages_lock, flags);
+> -		page = NULL;
+> +		return NULL;
+>  	}
+> -	return page;
+> +	return list_first_entry(&pages, struct page, lru);
+>  }
+>  EXPORT_SYMBOL_GPL(balloon_page_dequeue);
+>  
+> -- 
+> 2.17.1
