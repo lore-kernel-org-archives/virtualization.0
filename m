@@ -1,11 +1,21 @@
-From: Gerd Hoffmann <kraxel@redhat.com>
-Subject: [PATCH] drm/virtio: do NOT reuse resource ids
-Date: Fri,  8 Feb 2019 15:04:09 +0100
-Message-ID: <20190208140409.15280-1-kraxel__40900.0875473552$1549716020$gmane$org@redhat.com>
+From: Jesper Dangaard Brouer <brouer@redhat.com>
+Subject: Re: [PATCH net] virtio_net: Account for tx bytes and packets on
+	sending xdp_frames
+Date: Fri, 8 Feb 2019 17:02:41 +0100
+Message-ID: <20190208170241.2fa28dff__10317.6892896713$1549716090$gmane$org@carbon>
+References: <1548934830-2389-1-git-send-email-makita.toshiaki@lab.ntt.co.jp>
+	<20190131101516-mutt-send-email-mst@kernel.org>
+	<20190131.094523.2248120325911339180.davem@davemloft.net>
+	<20190131211555.3b15c81f@carbon>
+	<b8c97120-851f-450f-dc71-59350236329e@gmail.com>
+	<20190204125307.08492005@redhat.com>
+	<bdcfedd6-465d-4485-e268-25c4ce6b9fcf@gmail.com>
+	<140ecbe1e25f54f90d859cc696c4119aa96bc6eb.camel@mellanox.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
+In-Reply-To: <140ecbe1e25f54f90d859cc696c4119aa96bc6eb.camel@mellanox.com>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -15,67 +25,41 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: dri-devel@lists.freedesktop.org, David Airlie <airlied@redhat.com>
-Cc: David Airlie <airlied@linux.ie>, open list <linux-kernel@vger.kernel.org>, Daniel Vetter <daniel@ffwll.ch>, "open list:VIRTIO GPU DRIVER" <virtualization@lists.linux-foundation.org>
+To: Saeed Mahameed <saeedm@mellanox.com>
+Cc: "jakub.kicinski@netronome.com" <jakub.kicinski@netronome.com>, "hawk@kernel.org" <hawk@kernel.org>, "mst@redhat.com" <mst@redhat.com>, "netdev@vger.kernel.org" <netdev@vger.kernel.org>, "john.fastabend@gmail.com" <john.fastabend@gmail.com>, brouer@redhat.com, "virtualization@lists.linux-foundation.org" <virtualization@lists.linux-foundation.org>, "thoiland@redhat.com" <thoiland@redhat.com>, "dsahern@gmail.com" <dsahern@gmail.com>, "borkmann@iogearbox.net" <borkmann@iogearbox.net>, "davem@davemloft.net" <davem@davemloft.net>, Tariq Toukan <tariqt@mellanox.com>
 List-Id: virtualization@lists.linuxfoundation.org
 
-Bisected guest kernel changes crashing qemu.  Landed at
-"6c1cd97bda drm/virtio: fix resource id handling".  Looked again, and
-noticed we where not only leaking *some* ids, but *all* ids.  The old
-code never ever called virtio_gpu_resource_id_put().
+On Wed, 6 Feb 2019 00:06:33 +0000 Saeed Mahameed <saeedm@mellanox.com> wrote:
 
-So, commit 6c1cd97bda effectively makes the linux kernel starting
-re-using IDs after releasing them, and apparently virglrenderer can't
-deal with that.  Oops.
+> 2) Driver should keep track of XDP decisions statistics, report them in
+> ethtool and in the new API suggested by David. track even (XDP_PASS) ?
+> 
+> Maybe instead of having all drivers track the statistics on their own,
+> we should move the responsibility to upper layer.
+> 
+> Idea: since we already have rxq_info structure per XDP ring (no false
+> sharing) and available per xdp_buff we can do:
+> 
+> +++ b/include/linux/filter.h
+> @@ -651,7 +651,9 @@ static __always_inline u32 bpf_prog_run_xdp(const
+> struct bpf_prog *prog,
+>          * already takes rcu_read_lock() when fetching the program, so
+>          * it's not necessary here anymore.
+>          */
+> -       return BPF_PROG_RUN(prog, xdp);
+> +       u32 ret = BPF_PROG_RUN(prog, xdp);
+> +       xdp->xdp_rxq_info.stats[ret]++
+> +       return ret;
+>  }
+> 
+> still we need a way (API) to report the rxq_info to whoever needs to
+> read current XDP stats 
 
-This patch puts a temporary stopgap into place for the 5.0 release.
+I'm capturing this as tasks under the XDP-project github page:
+ https://github.com/xdp-project/xdp-project/pull/13/files
 
-Cc: David Airlie <airlied@redhat.com>
-Signed-off-by: Gerd Hoffmann <kraxel@redhat.com>
----
-
-Notes:
-    Hi Dave, I'll be offline next week, so please commit to
-    drm-next-fixes if you think this patch is acceptable.
-
- drivers/gpu/drm/virtio/virtgpu_object.c | 13 +++++++++++++
- 1 file changed, 13 insertions(+)
-
-diff --git a/drivers/gpu/drm/virtio/virtgpu_object.c b/drivers/gpu/drm/virtio/virtgpu_object.c
-index f39a183d59..e7e9460350 100644
---- a/drivers/gpu/drm/virtio/virtgpu_object.c
-+++ b/drivers/gpu/drm/virtio/virtgpu_object.c
-@@ -28,10 +28,21 @@
- static int virtio_gpu_resource_id_get(struct virtio_gpu_device *vgdev,
- 				       uint32_t *resid)
- {
-+#if 0
- 	int handle = ida_alloc(&vgdev->resource_ida, GFP_KERNEL);
- 
- 	if (handle < 0)
- 		return handle;
-+#else
-+	static int handle;
-+
-+	/*
-+	 * FIXME: dirty hack to avoid re-using IDs, virglrenderer
-+	 * can't deal with that.  Needs fixing in virglrenderer, also
-+	 * should figure a better way to handle that in the guest.
-+	 */
-+	handle++;
-+#endif
- 
- 	*resid = handle + 1;
- 	return 0;
-@@ -39,7 +50,9 @@ static int virtio_gpu_resource_id_get(struct virtio_gpu_device *vgdev,
- 
- static void virtio_gpu_resource_id_put(struct virtio_gpu_device *vgdev, uint32_t id)
- {
-+#if 0
- 	ida_free(&vgdev->resource_ida, id - 1);
-+#endif
- }
- 
- static void virtio_gpu_ttm_bo_destroy(struct ttm_buffer_object *tbo)
 -- 
-2.9.3
+Best regards,
+  Jesper Dangaard Brouer
+  MSc.CS, Principal Kernel Engineer at Red Hat
+  LinkedIn: http://www.linkedin.com/in/brouer
