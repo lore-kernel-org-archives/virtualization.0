@@ -1,14 +1,11 @@
-From: Joerg Roedel <joro@8bytes.org>
-Subject: [PATCH v7 5/5] virtio-blk: Consider virtio_max_dma_size() for maximum
-	segment size
-Date: Thu,  7 Feb 2019 12:59:17 +0100
-Message-ID: <20190207115917.20535-6-joro__26360.6997601286$1549553252$gmane$org@8bytes.org>
-References: <20190207115917.20535-1-joro@8bytes.org>
+From: Gerd Hoffmann <kraxel@redhat.com>
+Subject: [PATCH] drm/virtio: do NOT reuse resource ids
+Date: Fri,  8 Feb 2019 15:04:09 +0100
+Message-ID: <20190208140409.15280-1-kraxel__40900.0875473552$1549716020$gmane$org@redhat.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <20190207115917.20535-1-joro@8bytes.org>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -18,55 +15,67 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: "Michael S . Tsirkin" <mst@redhat.com>, Jason Wang <jasowang@redhat.com>, Konrad Rzeszutek Wilk <konrad.wilk@oracle.com>, Christoph Hellwig <hch@lst.de>
-Cc: Jens Axboe <axboe@kernel.dk>, Thomas.Lendacky@amd.com, jroedel@suse.de, brijesh.singh@amd.com, joro@8bytes.org, jon.grimm@amd.com, jfehlig@suse.com, linux-kernel@vger.kernel.org, linux-block@vger.kernel.org, iommu@lists.linux-foundation.org, virtualization@lists.linux-foundation.org
+To: dri-devel@lists.freedesktop.org, David Airlie <airlied@redhat.com>
+Cc: David Airlie <airlied@linux.ie>, open list <linux-kernel@vger.kernel.org>, Daniel Vetter <daniel@ffwll.ch>, "open list:VIRTIO GPU DRIVER" <virtualization@lists.linux-foundation.org>
 List-Id: virtualization@lists.linuxfoundation.org
 
-From: Joerg Roedel <jroedel@suse.de>
+Bisected guest kernel changes crashing qemu.  Landed at
+"6c1cd97bda drm/virtio: fix resource id handling".  Looked again, and
+noticed we where not only leaking *some* ids, but *all* ids.  The old
+code never ever called virtio_gpu_resource_id_put().
 
-Segments can't be larger than the maximum DMA mapping size
-supported on the platform. Take that into account when
-setting the maximum segment size for a block device.
+So, commit 6c1cd97bda effectively makes the linux kernel starting
+re-using IDs after releasing them, and apparently virglrenderer can't
+deal with that.  Oops.
 
-Reviewed-by: Konrad Rzeszutek Wilk <konrad.wilk@oracle.com>
-Reviewed-by: Christoph Hellwig <hch@lst.de>
-Signed-off-by: Joerg Roedel <jroedel@suse.de>
+This patch puts a temporary stopgap into place for the 5.0 release.
+
+Cc: David Airlie <airlied@redhat.com>
+Signed-off-by: Gerd Hoffmann <kraxel@redhat.com>
 ---
- drivers/block/virtio_blk.c | 10 ++++++----
- 1 file changed, 6 insertions(+), 4 deletions(-)
 
-diff --git a/drivers/block/virtio_blk.c b/drivers/block/virtio_blk.c
-index b16a887bbd02..4bc083b7c9b5 100644
---- a/drivers/block/virtio_blk.c
-+++ b/drivers/block/virtio_blk.c
-@@ -723,7 +723,7 @@ static int virtblk_probe(struct virtio_device *vdev)
- 	struct request_queue *q;
- 	int err, index;
+Notes:
+    Hi Dave, I'll be offline next week, so please commit to
+    drm-next-fixes if you think this patch is acceptable.
+
+ drivers/gpu/drm/virtio/virtgpu_object.c | 13 +++++++++++++
+ 1 file changed, 13 insertions(+)
+
+diff --git a/drivers/gpu/drm/virtio/virtgpu_object.c b/drivers/gpu/drm/virtio/virtgpu_object.c
+index f39a183d59..e7e9460350 100644
+--- a/drivers/gpu/drm/virtio/virtgpu_object.c
++++ b/drivers/gpu/drm/virtio/virtgpu_object.c
+@@ -28,10 +28,21 @@
+ static int virtio_gpu_resource_id_get(struct virtio_gpu_device *vgdev,
+ 				       uint32_t *resid)
+ {
++#if 0
+ 	int handle = ida_alloc(&vgdev->resource_ida, GFP_KERNEL);
  
--	u32 v, blk_size, sg_elems, opt_io_size;
-+	u32 v, blk_size, max_size, sg_elems, opt_io_size;
- 	u16 min_io_size;
- 	u8 physical_block_exp, alignment_offset;
- 
-@@ -826,14 +826,16 @@ static int virtblk_probe(struct virtio_device *vdev)
- 	/* No real sector limit. */
- 	blk_queue_max_hw_sectors(q, -1U);
- 
-+	max_size = virtio_max_dma_size(vdev);
+ 	if (handle < 0)
+ 		return handle;
++#else
++	static int handle;
 +
- 	/* Host can optionally specify maximum segment size and number of
- 	 * segments. */
- 	err = virtio_cread_feature(vdev, VIRTIO_BLK_F_SIZE_MAX,
- 				   struct virtio_blk_config, size_max, &v);
- 	if (!err)
--		blk_queue_max_segment_size(q, v);
--	else
--		blk_queue_max_segment_size(q, -1U);
-+		max_size = min(max_size, v);
-+
-+	blk_queue_max_segment_size(q, max_size);
++	/*
++	 * FIXME: dirty hack to avoid re-using IDs, virglrenderer
++	 * can't deal with that.  Needs fixing in virglrenderer, also
++	 * should figure a better way to handle that in the guest.
++	 */
++	handle++;
++#endif
  
- 	/* Host can optionally specify the block size of the device */
- 	err = virtio_cread_feature(vdev, VIRTIO_BLK_F_BLK_SIZE,
+ 	*resid = handle + 1;
+ 	return 0;
+@@ -39,7 +50,9 @@ static int virtio_gpu_resource_id_get(struct virtio_gpu_device *vgdev,
+ 
+ static void virtio_gpu_resource_id_put(struct virtio_gpu_device *vgdev, uint32_t id)
+ {
++#if 0
+ 	ida_free(&vgdev->resource_ida, id - 1);
++#endif
+ }
+ 
+ static void virtio_gpu_ttm_bo_destroy(struct ttm_buffer_object *tbo)
 -- 
-2.17.1
+2.9.3
