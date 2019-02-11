@@ -1,15 +1,17 @@
-From: Pankaj Gupta <pagupta@redhat.com>
+From: Dave Chinner <david@fromorbit.com>
 Subject: Re: [Qemu-devel] security implications of caching with virtio pmem
 	(was Re: [PATCH v3 0/5] kvm "virtio pmem" device)
-Date: Mon, 11 Feb 2019 02:29:46 -0500 (EST)
-Message-ID: <888328358.132676.1549870186945.JavaMail.zimbra__35662.9776347958$1549986961$gmane$org@redhat.com>
+Date: Tue, 12 Feb 2019 09:29:07 +1100
+Message-ID: <20190211222907.GR14116__36349.0477598802$1549987184$gmane$org@dastard>
 References: <20190109144736.17452-1-pagupta@redhat.com>
 	<20190204170515-mutt-send-email-mst@kernel.org>
+	<888328358.132676.1549870186945.JavaMail.zimbra@redhat.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <20190204170515-mutt-send-email-mst@kernel.org>
+Content-Disposition: inline
+In-Reply-To: <888328358.132676.1549870186945.JavaMail.zimbra@redhat.com>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -19,103 +21,24 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: "Michael S. Tsirkin" <mst@redhat.com>, dchinner@redhat.com
-Cc: jack@suse.cz, kvm@vger.kernel.org, linux-nvdimm@ml01.01.org, qemu-devel@nongnu.org, virtualization@lists.linux-foundation.org, adilger kernel <adilger.kernel@dilger.ca>, zwisler@kernel.org, Andrea Arcangeli <aarcange@redhat.com>, dave jiang <dave.jiang@intel.com>, darrick wong <darrick.wong@oracle.com>, vishal l verma <vishal.l.verma@intel.com>, willy@infradead.org, hch@infradead.org, linux-acpi@vger.kernel.org, jmoyer@redhat.com, nilal@redhat.com, riel@surriel.com, stefanha@redhat.com, pbonzini@redhat.com, dan j williams <dan.j.williams@intel.com>, lcapitulino@redhat.com, linux-ext4@vger.kernel.org, tytso@mit.edu, xiaoguangrong eric <xiaoguangrong.eric@gmail.com>, rjw@rjwysocki.net, linux-kernel@vger.kernel.org, linux-xfs@vger.kernel.org, linux-fsdevel@vger.kernel.org, imammedo@redhat.com
+To: Pankaj Gupta <pagupta@redhat.com>
+Cc: jack@suse.cz, kvm@vger.kernel.org, linux-nvdimm@ml01.01.org, qemu-devel@nongnu.org, virtualization@lists.linux-foundation.org, pbonzini@redhat.com, adilger kernel <adilger.kernel@dilger.ca>, zwisler@kernel.org, Andrea Arcangeli <aarcange@redhat.com>, dave jiang <dave.jiang@intel.com>, darrick wong <darrick.wong@oracle.com>, vishal l verma <vishal.l.verma@intel.com>, "Michael S. Tsirkin" <mst@redhat.com>, willy@infradead.org, hch@infradead.org, linux-acpi@vger.kernel.org, jmoyer@redhat.com, nilal@redhat.com, riel@surriel.com, stefanha@redhat.com, dchinner@redhat.com, dan j williams <dan.j.williams@intel.com>, lcapitulino@redhat.com, linux-ext4@vger.kernel.org, tytso@mit.edu, xiaoguangrong eric <xiaoguangrong.eric@gmail.com>, rjw@rjwysocki.net, linux-kernel@vger.kernel.org, linux-xfs@vger.kernel.org, linux-fsdevel@vger.kernel.org, imammedo@redhat.com
 List-Id: virtualization@lists.linuxfoundation.org
 
+On Mon, Feb 11, 2019 at 02:29:46AM -0500, Pankaj Gupta wrote:
+> Hello Dave,
+> Are we okay with this?
 
-Hi Michael, 
+Sure.
 
-Thanks for looking into this and summarizing in detail. 
+I'm not sure I agree with all the analysis presented, but, well, I
+haven't looked any deeper because I'm tired of being shouted at and
+being called argumentative for daring to ask hard questions about
+this topic....
 
-> >  This patch series has implementation for "virtio pmem".
-> >  "virtio pmem" is fake persistent memory(nvdimm) in guest
-> >  which allows to bypass the guest page cache. This also
-> >  implements a VIRTIO based asynchronous flush mechanism.
-> 
-> 
-> At Pankaj's request I looked at information leak implications of virtio
-> pmem in light of the recent page cache side channels paper
-> (https://arxiv.org/pdf/1901.01161.pdf) - to see what
-> kind of side channels it might create if any.  TLDR - I think that
-> depending on the host side implementation there could be some, but this
-> might be addressable by better documentation in both code and spec.
-> The fake dax approach backing the guest memory by a host page cache
-> does seem to have potential issues.
-> 
-> For clarity: we are talking about leaking information either to a VM, or
-> within a VM (I did not look into leaks to hypervisor in configurations
-> such as SEV) through host page cache.
-> 
-> Leaks into a VM: It seems clear that while pmem allows memory accesses
-> versus read/write with e.g. a block device, from host page cache point
-> of view this doesn't matter much: reads populate cache in the same way
-> as memory faults.  Thus ignoring presence of information leaks (which is
-> an interesting question e.g. in light of recent discard support) pmem
-> doesn't seem to be any better or worse for leaking information into a
-> VM.
-> 
-> Leaks within VM: Right now pmem seems to bypass the guest page cache
-> completely.  Whether pmem memory is then resident in a page cache would
-> be up to the device/host. Assuming that it is, the "Preventing
-> Efficient Eviction while Increasing the System Performance"
-> countermeasure for the page cache side channel attack would appear to
-> become ineffective with pmem. What is suggested is a per-process
-> management of the page cache, and host does not have visibility of
-> processes within a VM. Another possible countermeasure - not discussed
-> in the paper - could be modify the applications to lock the security
-> relevant pages in memory.  Again this becomes impractical with pmem as
-> host does not have visibility into that. However note that as long
-> as the only countermeasure linux uses is "Privileged Access"
-> (i.e. blocking mincore) nothing can be done as guest page cache
-> remains as vulnerable as host page cache.
-> 
-> 
-> Countermeasures: which host-side countermeasures can be designed would
-> depend on which countermeasures are used guest-side - we would need to
-> make sure they are not broken by pmem.  For "Preventing Efficient
-> Eviction while Increasing the System Performance" modifying the host
-> implementation to ensure that pmem device bypasses the host page cache
-> would seem to address the security problem.Similarly, ensuring that a
-> real memory device (e.g. DAX, RAM such as hugetlbfs, pmem for nested
-> virt) is used for pmem would make the memory locking countermeasure
-> work.  Whether with such limitations the device is still useful
-> performance wise is an open question.  These questions probably should
-> be addressed in the documentation, spec and possible qemu code.
-> 
-> 
-> 
-> Severity of the security implications: some people argue that the
-> security implications of the page cache leaks are minor.  I do not have
-> an opinion on this: the severity would seem to depend on the specific
-> configuration.
-> 
-> 
-> Other security implications: recent discussion seems to suggest there
-> are other concerns around e.g. resource management and thus DOS
-> potential. If that's so, it's a matter for a separate discussion
-> as I didn't look into that in depth.
-> 
-> Some or all of the above might be based on a misunderstanding of the
-> current pmem code, the whitepaper and linux page cache in general.
-> If so I apologise, do not hesitate to call out any mistakes.
+Cheers,
 
-I agree similar to any guest VM(without virtio-pmem) or any host 
-userspace process, virtio-pmem may also have some security implications.
-We need to document these in virtio-pmem host device specification
-and in qemu code. This is to make sure while creating virtio-pmem
-device, we are aware of these implications and create/use 
-host side device backing file accordingly as per the use-case
-described by David here [1].
-
-I will document these in next version of my patch series.
-
-Hello Dave,
-Are we okay with this?
-
-Thank you everyone for the discussion.
-
-[1] https://marc.info/?l=linux-kernel&m=154946989419403&w=2
-
-Best regards,
-Pankaj    
+Dave.
+-- 
+Dave Chinner
+david@fromorbit.com
