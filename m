@@ -1,18 +1,15 @@
-From: Thomas Hellstrom via Virtualization
-	<virtualization@lists.linux-foundation.org>
-Subject: Re: [PATCH 2/5] drm/ttm: Define a single DRM_FILE_PAGE_OFFSET constant
-Date: Thu, 7 Feb 2019 19:07:42 +0000
-Message-ID: <67782273034c55fd14d7c5d20ba35309ade32afe.camel__18319.6622225054$1549716363$gmane$org@vmware.com>
-References: <20190207085931.29569-1-tzimmermann@suse.de>
-	<20190207085931.29569-3-tzimmermann@suse.de>
-Reply-To: Thomas Hellstrom <thellstrom@vmware.com>
+From: Pankaj Gupta <pagupta@redhat.com>
+Subject: Re: [Qemu-devel] security implications of caching with virtio pmem
+	(was Re: [PATCH v3 0/5] kvm "virtio pmem" device)
+Date: Mon, 11 Feb 2019 02:29:46 -0500 (EST)
+Message-ID: <888328358.132676.1549870186945.JavaMail.zimbra__35662.9776347958$1549986961$gmane$org@redhat.com>
+References: <20190109144736.17452-1-pagupta@redhat.com>
+	<20190204170515-mutt-send-email-mst@kernel.org>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <20190207085931.29569-3-tzimmermann@suse.de>
-Content-Language: en-US
-Content-ID: <6EEB2504C6D02A44B866B4D8ACED3D53@namprd05.prod.outlook.com>
+In-Reply-To: <20190204170515-mutt-send-email-mst@kernel.org>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -22,63 +19,103 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: "kraxel@redhat.com" <kraxel@redhat.com>, "zourongrong@gmail.com" <zourongrong@gmail.com>, "christian.koenig@amd.com" <christian.koenig@amd.com>, "hdegoede@redhat.com" <hdegoede@redhat.com>, "tzimmermann@suse.de" <tzimmermann@suse.de>, "alexander.deucher@amd.com" <alexander.deucher@amd.com>, "David1.Zhou@amd.com" <David1.Zhou@amd.com>, "ray.huang@amd.com" <ray.huang@amd.com>, "bskeggs@redhat.com" <bskeggs@redhat.com>, "kong.kongxinwei@hisilicon.com" <kong.kongxinwei@hisilicon.com>, "airlied@redhat.com" <airlied@redhat.com>, "daniel@ffwll.ch" <daniel@ffwll.ch>, "Jerry.Zhang@amd.com" <Jerry.Zhang@amd.com>, Linux-graphics-maintainer <Linux-graphics-maintainer@vmware.com>, "gregkh@linuxfoundation.org" <gregkh@linuxfoundation.org>, "z.liuxinliang@hisilicon.com" <z.liuxinliang@hisilicon.com>, "puck.chen@hisilicon.com" <puck.chen@hisilicon.com>, "arnd@arndb.de" <arnd@arndb.de>
-Cc: "spice-devel@lists.freedesktop.org" <spice-devel@lists.freedesktop.org>, "amd-gfx@lists.freedesktop.org" <amd-gfx@lists.freedesktop.org>, "dri-devel@lists.freedesktop.org" <dri-devel@lists.freedesktop.org>, "virtualization@lists.linux-foundation.org" <virtualization@lists.linux-foundation.org>
+To: "Michael S. Tsirkin" <mst@redhat.com>, dchinner@redhat.com
+Cc: jack@suse.cz, kvm@vger.kernel.org, linux-nvdimm@ml01.01.org, qemu-devel@nongnu.org, virtualization@lists.linux-foundation.org, adilger kernel <adilger.kernel@dilger.ca>, zwisler@kernel.org, Andrea Arcangeli <aarcange@redhat.com>, dave jiang <dave.jiang@intel.com>, darrick wong <darrick.wong@oracle.com>, vishal l verma <vishal.l.verma@intel.com>, willy@infradead.org, hch@infradead.org, linux-acpi@vger.kernel.org, jmoyer@redhat.com, nilal@redhat.com, riel@surriel.com, stefanha@redhat.com, pbonzini@redhat.com, dan j williams <dan.j.williams@intel.com>, lcapitulino@redhat.com, linux-ext4@vger.kernel.org, tytso@mit.edu, xiaoguangrong eric <xiaoguangrong.eric@gmail.com>, rjw@rjwysocki.net, linux-kernel@vger.kernel.org, linux-xfs@vger.kernel.org, linux-fsdevel@vger.kernel.org, imammedo@redhat.com
 List-Id: virtualization@lists.linuxfoundation.org
 
-On Thu, 2019-02-07 at 09:59 +0100, Thomas Zimmermann wrote:
-> Most TTM drivers define the constant DRM_FILE_PAGE_OFFSET of the same
-> value. The only exception is vboxvideo, which is being converted to
-> the
-> new offset by this patch. Unifying the constants in a single place
-> simplifies the driver code.
-> 
-> Signed-off-by: Thomas Zimmermann <tzimmermann@suse.de>
-> ---
->  drivers/gpu/drm/amd/amdgpu/amdgpu_ttm.c     | 2 --
->  drivers/gpu/drm/ast/ast_drv.h               | 2 --
->  drivers/gpu/drm/bochs/bochs.h               | 2 --
->  drivers/gpu/drm/cirrus/cirrus_drv.h         | 1 -
->  drivers/gpu/drm/hisilicon/hibmc/hibmc_ttm.c | 2 --
->  drivers/gpu/drm/mgag200/mgag200_drv.h       | 1 -
->  drivers/gpu/drm/nouveau/nouveau_drv.h       | 2 --
->  drivers/gpu/drm/qxl/qxl_drv.h               | 3 ---
->  drivers/gpu/drm/radeon/radeon_ttm.c         | 2 --
->  drivers/gpu/drm/virtio/virtgpu_ttm.c        | 2 --
->  drivers/gpu/drm/vmwgfx/vmwgfx_drv.c         | 2 +-
->  drivers/gpu/drm/vmwgfx/vmwgfx_drv.h         | 1 -
->  drivers/gpu/drm/vmwgfx/vmwgfx_ttm_glue.c    | 2 +-
->  drivers/staging/vboxvideo/vbox_drv.h        | 2 --
->  include/drm/ttm/ttm_bo_driver.h             | 2 ++
->  15 files changed, 4 insertions(+), 24 deletions(-)
+
+Hi Michael, 
+
+Thanks for looking into this and summarizing in detail. 
+
+> >  This patch series has implementation for "virtio pmem".
+> >  "virtio pmem" is fake persistent memory(nvdimm) in guest
+> >  which allows to bypass the guest page cache. This also
+> >  implements a VIRTIO based asynchronous flush mechanism.
 > 
 > 
+> At Pankaj's request I looked at information leak implications of virtio
+> pmem in light of the recent page cache side channels paper
+> (https://arxiv.org/pdf/1901.01161.pdf) - to see what
+> kind of side channels it might create if any.  TLDR - I think that
+> depending on the host side implementation there could be some, but this
+> might be addressable by better documentation in both code and spec.
+> The fake dax approach backing the guest memory by a host page cache
+> does seem to have potential issues.
+> 
+> For clarity: we are talking about leaking information either to a VM, or
+> within a VM (I did not look into leaks to hypervisor in configurations
+> such as SEV) through host page cache.
+> 
+> Leaks into a VM: It seems clear that while pmem allows memory accesses
+> versus read/write with e.g. a block device, from host page cache point
+> of view this doesn't matter much: reads populate cache in the same way
+> as memory faults.  Thus ignoring presence of information leaks (which is
+> an interesting question e.g. in light of recent discard support) pmem
+> doesn't seem to be any better or worse for leaking information into a
+> VM.
+> 
+> Leaks within VM: Right now pmem seems to bypass the guest page cache
+> completely.  Whether pmem memory is then resident in a page cache would
+> be up to the device/host. Assuming that it is, the "Preventing
+> Efficient Eviction while Increasing the System Performance"
+> countermeasure for the page cache side channel attack would appear to
+> become ineffective with pmem. What is suggested is a per-process
+> management of the page cache, and host does not have visibility of
+> processes within a VM. Another possible countermeasure - not discussed
+> in the paper - could be modify the applications to lock the security
+> relevant pages in memory.  Again this becomes impractical with pmem as
+> host does not have visibility into that. However note that as long
+> as the only countermeasure linux uses is "Privileged Access"
+> (i.e. blocking mincore) nothing can be done as guest page cache
+> remains as vulnerable as host page cache.
+> 
+> 
+> Countermeasures: which host-side countermeasures can be designed would
+> depend on which countermeasures are used guest-side - we would need to
+> make sure they are not broken by pmem.  For "Preventing Efficient
+> Eviction while Increasing the System Performance" modifying the host
+> implementation to ensure that pmem device bypasses the host page cache
+> would seem to address the security problem.Similarly, ensuring that a
+> real memory device (e.g. DAX, RAM such as hugetlbfs, pmem for nested
+> virt) is used for pmem would make the memory locking countermeasure
+> work.  Whether with such limitations the device is still useful
+> performance wise is an open question.  These questions probably should
+> be addressed in the documentation, spec and possible qemu code.
+> 
+> 
+> 
+> Severity of the security implications: some people argue that the
+> security implications of the page cache leaks are minor.  I do not have
+> an opinion on this: the severity would seem to depend on the specific
+> configuration.
+> 
+> 
+> Other security implications: recent discussion seems to suggest there
+> are other concerns around e.g. resource management and thus DOS
+> potential. If that's so, it's a matter for a separate discussion
+> as I didn't look into that in depth.
+> 
+> Some or all of the above might be based on a misunderstanding of the
+> current pmem code, the whitepaper and linux page cache in general.
+> If so I apologise, do not hesitate to call out any mistakes.
 
-...
+I agree similar to any guest VM(without virtio-pmem) or any host 
+userspace process, virtio-pmem may also have some security implications.
+We need to document these in virtio-pmem host device specification
+and in qemu code. This is to make sure while creating virtio-pmem
+device, we are aware of these implications and create/use 
+host side device backing file accordingly as per the use-case
+described by David here [1].
 
-> diff --git a/include/drm/ttm/ttm_bo_driver.h
-> b/include/drm/ttm/ttm_bo_driver.h
-> index cbf3180cb612..c0bed72492f3 100644
-> --- a/include/drm/ttm/ttm_bo_driver.h
-> +++ b/include/drm/ttm/ttm_bo_driver.h
-> @@ -49,6 +49,8 @@
->  #define TTM_MEMTYPE_FLAG_MAPPABLE      (1 << 1)	/* Memory
-> mappable */
->  #define TTM_MEMTYPE_FLAG_CMA           (1 << 3)	/* Can't map
-> aperture */
->  
-> +#define DRM_FILE_PAGE_OFFSET (0x100000000ULL >> PAGE_SHIFT)
-> +
+I will document these in next version of my patch series.
 
-IMO strictly, the place in the drm file address space where a driver
-chooses to insert the TTM bo address space is to be determined by DRM,
-(as also the define indicates) rather than TTM. So I think the right
-place for this define is a drm header, not a ttm header.
+Hello Dave,
+Are we okay with this?
 
-Thanks,
-Thomas
+Thank you everyone for the discussion.
 
+[1] https://marc.info/?l=linux-kernel&m=154946989419403&w=2
 
->  struct ttm_mem_type_manager;
->  
->  struct ttm_mem_type_manager_func {
+Best regards,
+Pankaj    
