@@ -1,8 +1,8 @@
-From: Stephen Hemminger <stephen@networkplumber.org>
+From: David Miller <davem@davemloft.net>
 Subject: Re: [PATCH net] vhost: correctly check the return value of
 	translate_desc() in log_used()
-Date: Fri, 15 Feb 2019 08:45:02 -0800
-Message-ID: <20190215084502.23feed0e__21439.7011369996$1550249118$gmane$org@shemminger-XPS-13-9360>
+Date: Fri, 15 Feb 2019 10:03:56 -0800 (PST)
+Message-ID: <20190215.100356.251698752340585300.davem__7430.92044010467$1550253850$gmane$org@davemloft.net>
 References: <20190215075324.18891-1-jasowang@redhat.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
@@ -18,12 +18,12 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Jason Wang <jasowang@redhat.com>
-Cc: netdev@vger.kernel.org, virtualization@lists.linux-foundation.org, linux-kernel@vger.kernel.org, kvm@vger.kernel.org, mst@redhat.com
+To: jasowang@redhat.com
+Cc: kvm@vger.kernel.org, mst@redhat.com, netdev@vger.kernel.org, linux-kernel@vger.kernel.org, virtualization@lists.linux-foundation.org
 List-Id: virtualization@lists.linuxfoundation.org
 
-On Fri, 15 Feb 2019 15:53:24 +0800
-Jason Wang <jasowang@redhat.com> wrote:
+From: Jason Wang <jasowang@redhat.com>
+Date: Fri, 15 Feb 2019 15:53:24 +0800
 
 > When fail, translate_desc() returns negative value, otherwise the
 > number of iovs. So we should fail when the return value is negative
@@ -33,5 +33,6 @@ Jason Wang <jasowang@redhat.com> wrote:
 > Fixes: cc5e71075947 ("vhost: log dirty page correctly")
 > Signed-off-by: Jason Wang <jasowang@redhat.com>
 
-Looks good. It is best to put the Addresses-Coverity-Id tag on these kind
-of bug fixes so that the automated tools see it.
+Jason, please put the Fixes tag first.
+
+Thank you.
