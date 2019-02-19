@@ -1,15 +1,15 @@
 From: Jason Wang <jasowang@redhat.com>
 Subject: Re: [PATCH net] vhost: correctly check the return value of
 	translate_desc() in log_used()
-Date: Tue, 19 Feb 2019 14:50:46 +0800
-Message-ID: <43623186-8759-507f-836e-0ef633b23264__36000.1453825802$1550559103$gmane$org@redhat.com>
+Date: Tue, 19 Feb 2019 14:51:26 +0800
+Message-ID: <ca449a21-5018-19ad-1b20-f9a1348ae6d2__37937.6104728848$1550559143$gmane$org@redhat.com>
 References: <20190215075324.18891-1-jasowang@redhat.com>
-	<20190215.100356.251698752340585300.davem@davemloft.net>
+	<20190215084502.23feed0e@shemminger-XPS-13-9360>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="utf-8"; Format="flowed"
 Content-Transfer-Encoding: base64
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <20190215.100356.251698752340585300.davem@davemloft.net>
+In-Reply-To: <20190215084502.23feed0e@shemminger-XPS-13-9360>
 Content-Language: en-US
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
@@ -20,21 +20,22 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: David Miller <davem@davemloft.net>
-Cc: kvm@vger.kernel.org, mst@redhat.com, netdev@vger.kernel.org, linux-kernel@vger.kernel.org, virtualization@lists.linux-foundation.org
+To: Stephen Hemminger <stephen@networkplumber.org>
+Cc: netdev@vger.kernel.org, virtualization@lists.linux-foundation.org, linux-kernel@vger.kernel.org, kvm@vger.kernel.org, mst@redhat.com
 List-Id: virtualization@lists.linuxfoundation.org
 
-Ck9uIDIwMTkvMi8xNiDkuIrljYgyOjAzLCBEYXZpZCBNaWxsZXIgd3JvdGU6Cj4gRnJvbTogSmFz
-b24gV2FuZzxqYXNvd2FuZ0ByZWRoYXQuY29tPgo+IERhdGU6IEZyaSwgMTUgRmViIDIwMTkgMTU6
-NTM6MjQgKzA4MDAKPgo+PiBXaGVuIGZhaWwsIHRyYW5zbGF0ZV9kZXNjKCkgcmV0dXJucyBuZWdh
-dGl2ZSB2YWx1ZSwgb3RoZXJ3aXNlIHRoZQo+PiBudW1iZXIgb2YgaW92cy4gU28gd2Ugc2hvdWxk
-IGZhaWwgd2hlbiB0aGUgcmV0dXJuIHZhbHVlIGlzIG5lZ2F0aXZlCj4+IGluc3RlYWQgb2YgYSBi
-bGluZGx5IGNoZWNrIGFnYWluc3QgemVyby4KPj4KPj4gUmVwb3J0ZWQtYnk6IFN0ZXBoZW4gSGVt
-bWluZ2VyPHN0ZXBoZW5AbmV0d29ya3BsdW1iZXIub3JnPgo+PiBGaXhlczogY2M1ZTcxMDc1OTQ3
-ICgidmhvc3Q6IGxvZyBkaXJ0eSBwYWdlIGNvcnJlY3RseSIpCj4+IFNpZ25lZC1vZmYtYnk6IEph
-c29uIFdhbmc8amFzb3dhbmdAcmVkaGF0LmNvbT4KPiBKYXNvbiwgcGxlYXNlIHB1dCB0aGUgRml4
-ZXMgdGFnIGZpcnN0Lgo+Cj4gVGhhbmsgeW91LgoKCk9rLiBXaWxsIHBvc3QgVjIuCgpUaGFua3MK
-Cl9fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fClZpcnR1YWxp
-emF0aW9uIG1haWxpbmcgbGlzdApWaXJ0dWFsaXphdGlvbkBsaXN0cy5saW51eC1mb3VuZGF0aW9u
-Lm9yZwpodHRwczovL2xpc3RzLmxpbnV4Zm91bmRhdGlvbi5vcmcvbWFpbG1hbi9saXN0aW5mby92
-aXJ0dWFsaXphdGlvbg==
+Ck9uIDIwMTkvMi8xNiDkuIrljYgxMjo0NSwgU3RlcGhlbiBIZW1taW5nZXIgd3JvdGU6Cj4gT24g
+RnJpLCAxNSBGZWIgMjAxOSAxNTo1MzoyNCArMDgwMAo+IEphc29uIFdhbmcgPGphc293YW5nQHJl
+ZGhhdC5jb20+IHdyb3RlOgo+Cj4+IFdoZW4gZmFpbCwgdHJhbnNsYXRlX2Rlc2MoKSByZXR1cm5z
+IG5lZ2F0aXZlIHZhbHVlLCBvdGhlcndpc2UgdGhlCj4+IG51bWJlciBvZiBpb3ZzLiBTbyB3ZSBz
+aG91bGQgZmFpbCB3aGVuIHRoZSByZXR1cm4gdmFsdWUgaXMgbmVnYXRpdmUKPj4gaW5zdGVhZCBv
+ZiBhIGJsaW5kbHkgY2hlY2sgYWdhaW5zdCB6ZXJvLgo+Pgo+PiBSZXBvcnRlZC1ieTogU3RlcGhl
+biBIZW1taW5nZXIgPHN0ZXBoZW5AbmV0d29ya3BsdW1iZXIub3JnPgo+PiBGaXhlczogY2M1ZTcx
+MDc1OTQ3ICgidmhvc3Q6IGxvZyBkaXJ0eSBwYWdlIGNvcnJlY3RseSIpCj4+IFNpZ25lZC1vZmYt
+Ynk6IEphc29uIFdhbmcgPGphc293YW5nQHJlZGhhdC5jb20+Cj4gTG9va3MgZ29vZC4gSXQgaXMg
+YmVzdCB0byBwdXQgdGhlIEFkZHJlc3Nlcy1Db3Zlcml0eS1JZCB0YWcgb24gdGhlc2Uga2luZAo+
+IG9mIGJ1ZyBmaXhlcyBzbyB0aGF0IHRoZSBhdXRvbWF0ZWQgdG9vbHMgc2VlIGl0LgoKCk9rLiBX
+aWxsIGRvIHRoaXMgaW4gVjIuCgpUaGFua3MKCgpfX19fX19fX19fX19fX19fX19fX19fX19fX19f
+X19fX19fX19fX19fX19fX19fXwpWaXJ0dWFsaXphdGlvbiBtYWlsaW5nIGxpc3QKVmlydHVhbGl6
+YXRpb25AbGlzdHMubGludXgtZm91bmRhdGlvbi5vcmcKaHR0cHM6Ly9saXN0cy5saW51eGZvdW5k
+YXRpb24ub3JnL21haWxtYW4vbGlzdGluZm8vdmlydHVhbGl6YXRpb24=
