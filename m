@@ -1,8 +1,8 @@
-From: Jason Wang <jasowang@redhat.com>
-Subject: [PATCH net V2] vhost: correctly check the return value of
-	translate_desc() in log_used()
-Date: Tue, 19 Feb 2019 14:53:44 +0800
-Message-ID: <20190219065344.24923-1-jasowang__11652.7184307174$1550559271$gmane$org@redhat.com>
+From: Colin King <colin.king@canonical.com>
+Subject: [PATCH][next] vhost: only return early if ret indicates an error or
+	no iovecs have been processed
+Date: Tue, 19 Feb 2019 13:57:13 +0000
+Message-ID: <20190219135713.10426-1-colin.king__34418.7281721801$1550584670$gmane$org@canonical.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
@@ -16,26 +16,28 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: mst@redhat.com, jasowang@redhat.com
-Cc: netdev@vger.kernel.org, linux-kernel@vger.kernel.org, kvm@vger.kernel.org, virtualization@lists.linux-foundation.org
+To: "Michael S . Tsirkin" <mst@redhat.com>, Jason Wang <jasowang@redhat.com>, kvm@vger.kernel.org, virtualization@lists.linux-foundation.org, netdev@vger.kernel.org
+Cc: kernel-janitors@vger.kernel.org, linux-kernel@vger.kernel.org
 List-Id: virtualization@lists.linuxfoundation.org
 
-When fail, translate_desc() returns negative value, otherwise the
-number of iovs. So we should fail when the return value is negative
-instead of a blindly check against zero.
+From: Colin Ian King <colin.king@canonical.com>
 
-Detected by CoverityScan, CID# 1442593:  Control flow issues  (DEADCODE)
+Currently the loop that calls log_write_hva on each iovec is never
+executed because of an incorrect error check on the return from the
+call to translate_desc.  The check should be checking for a -ve error
+return and because it makes no sense to iterate over zero items, the
+checks should also check for zero too.
+
+Detected by CoverityScan, CID#1476969 ("Logically dead code")
 
 Fixes: cc5e71075947 ("vhost: log dirty page correctly")
-Acked-by: Michael S. Tsirkin <mst@redhat.com>
-Reported-by: Stephen Hemminger <stephen@networkplumber.org>
-Signed-off-by: Jason Wang <jasowang@redhat.com>
+Signed-off-by: Colin Ian King <colin.king@canonical.com>
 ---
  drivers/vhost/vhost.c | 2 +-
  1 file changed, 1 insertion(+), 1 deletion(-)
 
 diff --git a/drivers/vhost/vhost.c b/drivers/vhost/vhost.c
-index 24a129fcdd61..a2e5dc7716e2 100644
+index 24a129fcdd61..a9a1709a859a 100644
 --- a/drivers/vhost/vhost.c
 +++ b/drivers/vhost/vhost.c
 @@ -1788,7 +1788,7 @@ static int log_used(struct vhost_virtqueue *vq, u64 used_offset, u64 len)
@@ -43,9 +45,9 @@ index 24a129fcdd61..a2e5dc7716e2 100644
  	ret = translate_desc(vq, (uintptr_t)vq->used + used_offset,
  			     len, iov, 64, VHOST_ACCESS_WO);
 -	if (ret)
-+	if (ret < 0)
++	if (ret <= 0)
  		return ret;
  
  	for (i = 0; i < ret; i++) {
 -- 
-2.17.1
+2.20.1
