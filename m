@@ -1,13 +1,16 @@
-From: Daniel Vetter <daniel.vetter@ffwll.ch>
-Subject: [PATCH 2/2] drm/bochs: Drop best_encoder
-Date: Thu, 21 Feb 2019 16:58:57 +0100
-Message-ID: <20190221155857.19773-2-daniel.vetter__21961.9862082013$1550764966$gmane$org@ffwll.ch>
-References: <20190221155857.19773-1-daniel.vetter@ffwll.ch>
+From: "gregkh@linuxfoundation.org" <gregkh@linuxfoundation.org>
+Subject: Re: [PATCH] VMCI: Support upto 64-bit PPNs
+Date: Thu, 21 Feb 2019 20:42:19 +0100
+Message-ID: <20190221194219.GA2347__12362.3268025526$1550778389$gmane$org@kroah.com>
+References: <20190215162738.21334-1-vdasa@vmware.com>
+	<20190216195253.GB11061@kroah.com>
+	<8C694A7E-488C-42A9-83F8-AA4FB4E57A5A@vmware.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <20190221155857.19773-1-daniel.vetter@ffwll.ch>
+Content-Disposition: inline
+In-Reply-To: <8C694A7E-488C-42A9-83F8-AA4FB4E57A5A@vmware.com>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -17,43 +20,28 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: DRI Development <dri-devel@lists.freedesktop.org>
-Cc: Daniel Vetter <daniel.vetter@ffwll.ch>, virtualization@lists.linux-foundation.org, Daniel Vetter <daniel.vetter@intel.com>
+To: Vishnu DASA <vdasa@vmware.com>
+Cc: Pv-drivers <Pv-drivers@vmware.com>, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>, "virtualization@lists.linux-foundation.org" <virtualization@lists.linux-foundation.org>
 List-Id: virtualization@lists.linuxfoundation.org
 
-This is the default for atomic drivers.
+A: Because it messes up the order in which people normally read text.
+Q: Why is top-posting such a bad thing?
+A: Top-posting.
+Q: What is the most annoying thing in e-mail?
 
-Signed-off-by: Daniel Vetter <daniel.vetter@intel.com>
-Cc: Gerd Hoffmann <kraxel@redhat.com>
-Cc: virtualization@lists.linux-foundation.org
----
- drivers/gpu/drm/bochs/bochs_kms.c | 11 -----------
- 1 file changed, 11 deletions(-)
+A: No.
+Q: Should I include quotations after my reply?
 
-diff --git a/drivers/gpu/drm/bochs/bochs_kms.c b/drivers/gpu/drm/bochs/bochs_kms.c
-index 9cd82e3631fb..9e7cd6b34106 100644
---- a/drivers/gpu/drm/bochs/bochs_kms.c
-+++ b/drivers/gpu/drm/bochs/bochs_kms.c
-@@ -214,20 +214,9 @@ static enum drm_mode_status bochs_connector_mode_valid(struct drm_connector *con
- 	return MODE_OK;
- }
- 
--static struct drm_encoder *
--bochs_connector_best_encoder(struct drm_connector *connector)
--{
--	int enc_id = connector->encoder_ids[0];
--	/* pick the encoder ids */
--	if (enc_id)
--		return drm_encoder_find(connector->dev, NULL, enc_id);
--	return NULL;
--}
--
- static const struct drm_connector_helper_funcs bochs_connector_connector_helper_funcs = {
- 	.get_modes = bochs_connector_get_modes,
- 	.mode_valid = bochs_connector_mode_valid,
--	.best_encoder = bochs_connector_best_encoder,
- };
- 
- static const struct drm_connector_funcs bochs_connector_connector_funcs = {
--- 
-2.20.1
+http://daringfireball.net/2007/07/on_top
+
+On Thu, Feb 21, 2019 at 07:26:29PM +0000, Vishnu DASA wrote:
+> Hi Greg,
+> Sounds like a good idea to use the BIT() macro but can I do that in a
+> separate change to cover the entire file (and perhaps other vmci files
+> too)?
+
+Yes, that would be fine.
+
+thanks,
+
+greg k-h
