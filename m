@@ -1,16 +1,13 @@
-From: Daniel Vetter <daniel@ffwll.ch>
-Subject: Re: [PATCH v2 2/2] drm/qxl: kick out vgacon
-Date: Thu, 21 Feb 2019 16:17:03 +0100
-Message-ID: <CAKMK7uE+YzvBuaJVrNc0VzTQKmnDzNMoZDXohrh0M+PAfRFcBw__22168.7347556994$1550762393$gmane$org@mail.gmail.com>
-References: <20190221113534.20764-1-kraxel@redhat.com>
-	<20190221113534.20764-3-kraxel@redhat.com>
-	<20190221122011.GP2665@phenom.ffwll.local>
-	<20190221151139.ul2ihzd2yi4m47tf@sirius.home.kraxel.org>
+From: Daniel Vetter <daniel.vetter@ffwll.ch>
+Subject: [PATCH 2/2] drm/bochs: Drop best_encoder
+Date: Thu, 21 Feb 2019 16:58:57 +0100
+Message-ID: <20190221155857.19773-2-daniel.vetter__21961.9862082013$1550764966$gmane$org@ffwll.ch>
+References: <20190221155857.19773-1-daniel.vetter@ffwll.ch>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <20190221151139.ul2ihzd2yi4m47tf@sirius.home.kraxel.org>
+In-Reply-To: <20190221155857.19773-1-daniel.vetter@ffwll.ch>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -20,27 +17,43 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Gerd Hoffmann <kraxel@redhat.com>
-Cc: David Airlie <airlied@linux.ie>, open list <linux-kernel@vger.kernel.org>, dri-devel <dri-devel@lists.freedesktop.org>, "open list:DRM DRIVER FOR QXL VIRTUAL GPU" <virtualization@lists.linux-foundation.org>, "open list:DRM DRIVER FOR QXL VIRTUAL GPU" <spice-devel@lists.freedesktop.org>, Dave Airlie <airlied@redhat.com>
+To: DRI Development <dri-devel@lists.freedesktop.org>
+Cc: Daniel Vetter <daniel.vetter@ffwll.ch>, virtualization@lists.linux-foundation.org, Daniel Vetter <daniel.vetter@intel.com>
 List-Id: virtualization@lists.linuxfoundation.org
 
-On Thu, Feb 21, 2019 at 4:11 PM Gerd Hoffmann <kraxel@redhat.com> wrote:
->
->   Hi,
->
-> > I was thinking of checking whether pdev is a VGA class device and whether
-> > it decodes vga access, and in that case automatically calling
->
-> How can I figure that?  Ok, class is easy, but decode?  pci.h offers
-> functions to set vga decode but not to get that info ...
+This is the default for atomic drivers.
 
-PCI_COMMAND_MEM and PCI_COMMAND_IO. There doesn't seem to be any
-separate bits really. That's at least what I've gleaned from vgaarb.c.
-The magic legacy vga decode bits only seem to exist on bridges, maybe
-we can extract that logic from vgaarb.c (yes this is all a bit
-spiralling out of control).
--Daniel
+Signed-off-by: Daniel Vetter <daniel.vetter@intel.com>
+Cc: Gerd Hoffmann <kraxel@redhat.com>
+Cc: virtualization@lists.linux-foundation.org
+---
+ drivers/gpu/drm/bochs/bochs_kms.c | 11 -----------
+ 1 file changed, 11 deletions(-)
+
+diff --git a/drivers/gpu/drm/bochs/bochs_kms.c b/drivers/gpu/drm/bochs/bochs_kms.c
+index 9cd82e3631fb..9e7cd6b34106 100644
+--- a/drivers/gpu/drm/bochs/bochs_kms.c
++++ b/drivers/gpu/drm/bochs/bochs_kms.c
+@@ -214,20 +214,9 @@ static enum drm_mode_status bochs_connector_mode_valid(struct drm_connector *con
+ 	return MODE_OK;
+ }
+ 
+-static struct drm_encoder *
+-bochs_connector_best_encoder(struct drm_connector *connector)
+-{
+-	int enc_id = connector->encoder_ids[0];
+-	/* pick the encoder ids */
+-	if (enc_id)
+-		return drm_encoder_find(connector->dev, NULL, enc_id);
+-	return NULL;
+-}
+-
+ static const struct drm_connector_helper_funcs bochs_connector_connector_helper_funcs = {
+ 	.get_modes = bochs_connector_get_modes,
+ 	.mode_valid = bochs_connector_mode_valid,
+-	.best_encoder = bochs_connector_best_encoder,
+ };
+ 
+ static const struct drm_connector_funcs bochs_connector_connector_funcs = {
 -- 
-Daniel Vetter
-Software Engineer, Intel Corporation
-+41 (0) 79 365 57 48 - http://blog.ffwll.ch
+2.20.1
