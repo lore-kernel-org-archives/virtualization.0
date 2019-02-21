@@ -1,16 +1,15 @@
 From: Thiago Jung Bauermann <bauerman@linux.ibm.com>
 Subject: Re: [PATCH v7 0/7] Add virtio-iommu driver
-Date: Thu, 21 Feb 2019 18:57:17 -0300
-Message-ID: <87a7ioby9u.fsf__14246.6794279002$1555717176$gmane$org@morokweng.localdomain>
+Date: Thu, 21 Feb 2019 19:18:59 -0300
+Message-ID: <878sy8bx9o.fsf__4371.39264993078$1555717189$gmane$org@morokweng.localdomain>
 References: <20190115121959.23763-1-jean-philippe.brucker@arm.com>
-	<20190118103235-mutt-send-email-mst@kernel.org>
-	<0ba215f5-e856-bf31-8dd9-a85710714a7a@arm.com>
-	<20190129135345-mutt-send-email-mst@kernel.org>
+	<20190123083435.x3svwqp472mdgglw@8bytes.org>
+	<a6315ab3-bffb-7470-365d-b26df6524bda@arm.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset="utf-8"
+Content-Transfer-Encoding: base64
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-reply-to: <20190129135345-mutt-send-email-mst@kernel.org>
+In-reply-to: <a6315ab3-bffb-7470-365d-b26df6524bda@arm.com>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -20,115 +19,61 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: "Michael S. Tsirkin" <mst@redhat.com>
-Cc: mark.rutland@arm.com, devicetree@vger.kernel.org, tnowicki@caviumnetworks.com, virtio-dev@lists.oasis-open.org, Jean-Philippe Brucker <jean-philippe.brucker@arm.com>, linux-pci@vger.kernel.org, linuxppc-dev@lists.ozlabs.org, will.deacon@arm.com, virtualization@lists.linux-foundation.org, marc.zyngier@arm.com, iommu@lists.linux-foundation.org, robh+dt@kernel.org, bhelgaas@google.com, robin.murphy@arm.com, kvmarm@lists.cs.columbia.edu
+To: Jean-Philippe Brucker <jean-philippe.brucker@arm.com>
+Cc: Mark Rutland <Mark.Rutland@arm.com>, "virtio-dev@lists.oasis-open.org" <virtio-dev@lists.oasis-open.org>, "tnowicki@caviumnetworks.com" <tnowicki@caviumnetworks.com>, "mst@redhat.com" <mst@redhat.com>, Marc Zyngier <Marc.Zyngier@arm.com>, "linux-pci@vger.kernel.org" <linux-pci@vger.kernel.org>, Joerg Roedel <joro@8bytes.org>, Will Deacon <Will.Deacon@arm.com>, "virtualization@lists.linux-foundation.org" <virtualization@lists.linux-foundation.org>, "iommu@lists.linux-foundation.org" <iommu@lists.linux-foundation.org>, "robh+dt@kernel.org" <robh+dt@kernel.org>, "kvmarm@lists.cs.columbia.edu" <kvmarm@lists.cs.columbia.edu>, "bhelgaas@google.com" <bhelgaas@google.com>, Robin Murphy <Robin.Murphy@arm.com>, "devicetree@vger.kernel.org" <devicetree@vger.kernel.org>
 List-Id: virtualization@lists.linuxfoundation.org
 
-
-Michael S. Tsirkin <mst@redhat.com> writes:
-
-> On Mon, Jan 21, 2019 at 11:29:05AM +0000, Jean-Philippe Brucker wrote:
->> Hi,
->>
->> On 18/01/2019 15:51, Michael S. Tsirkin wrote:
->> >
->> > On Tue, Jan 15, 2019 at 12:19:52PM +0000, Jean-Philippe Brucker wrote:
->> >> Implement the virtio-iommu driver, following specification v0.9 [1].
->> >>
->> >> This is a simple rebase onto Linux v5.0-rc2. We now use the
->> >> dev_iommu_fwspec_get() helper introduced in v5.0 instead of accessing
->> >> dev->iommu_fwspec, but there aren't any functional change from v6 [2].
->> >>
->> >> Our current goal for virtio-iommu is to get a paravirtual IOMMU working
->> >> on Arm, and enable device assignment to guest userspace. In this
->> >> use-case the mappings are static, and don't require optimal performance,
->> >> so this series tries to keep things simple. However there is plenty more
->> >> to do for features and optimizations, and having this base in v5.1 would
->> >> be good. Given that most of the changes are to drivers/iommu, I believe
->> >> the driver and future changes should go via the IOMMU tree.
->> >>
->> >> You can find Linux driver and kvmtool device on v0.9.2 branches [3],
->> >> module and x86 support on virtio-iommu/devel. Also tested with Eric's
->> >> QEMU device [4]. Please note that the series depends on Robin's
->> >> probe-deferral fix [5], which will hopefully land in v5.0.
->> >>
->> >> [1] Virtio-iommu specification v0.9, sources and pdf
->> >>     git://linux-arm.org/virtio-iommu.git virtio-iommu/v0.9
->> >>     http://jpbrucker.net/virtio-iommu/spec/v0.9/virtio-iommu-v0.9.pdf
->> >>
->> >> [2] [PATCH v6 0/7] Add virtio-iommu driver
->> >>     https://lists.linuxfoundation.org/pipermail/iommu/2018-December/032127.html
->> >>
->> >> [3] git://linux-arm.org/linux-jpb.git virtio-iommu/v0.9.2
->> >>     git://linux-arm.org/kvmtool-jpb.git virtio-iommu/v0.9.2
->> >>
->> >> [4] [RFC v9 00/17] VIRTIO-IOMMU device
->> >>     https://www.mail-archive.com/qemu-devel@nongnu.org/msg575578.html
->> >>
->> >> [5] [PATCH] iommu/of: Fix probe-deferral
->> >>     https://www.spinics.net/lists/arm-kernel/msg698371.html
->> >
->> > Thanks for the work!
->> > So really my only issue with this is that there's no
->> > way for the IOMMU to describe the devices that it
->> > covers.
->> >
->> > As a result that is then done in a platform-specific way.
->> >
->> > And this means that for example it does not solve the problem that e.g.
->> > some power people have in that their platform simply does not have a way
->> > to specify which devices are covered by the IOMMU.
->>
->> Isn't power using device tree? I haven't looked much at power because I
->> was told a while ago that they already paravirtualize their IOMMU and
->> don't need virtio-iommu, except perhaps for some legacy platforms. Or
->> something along those lines. But I would certainly be interested in
->> enabling the IOMMU for more architectures.
->
-> I have CC'd the relevant ppc developers, let's see what do they think.
-
-I'm far from being an expert, but what could be very useful for us is to
-have a way for the guest to request IOMMU bypass for a device.
-
-From what I understand, the pSeries platform used by POWER guests always
-puts devices behind an IOMMU, so at least for current systems a
-description of which devices are covered by the IOMMU would always say
-"all of them".
-
->> As for the enumeration problem, I still don't think we can get much
->> better than DT and ACPI as solutions (and IMO they are necessary to make
->> this device portable). But I believe that getting DT and ACPI support is
->> just a one-off inconvenience. That is, once the required bindings are
->> accepted, any future extension can then be done at the virtio level with
->> feature bits and probe requests, without having to update ACPI or DT.
-
-There is a device tree binding that can specify devices connected to a
-given IOMMU in Documentation/devicetree/bindings/iommu/iommu.txt.
-I don't believe POWER machines use it though.
-
->> Thanks,
->> Jean
->>
->> > Solving that problem would make me much more excited about
->> > this device.
->> >
->> > On the other hand I can see that while there have been some
->> > developments most of the code has been stable for quite a while now.
->> >
->> > So what I am trying to do right about now, is making a small module that
->> > loads early and pokes at the IOMMU sufficiently to get the data about
->> > which devices use the IOMMU out of it using standard virtio config
->> > space.  IIUC it's claimed to be impossible without messy changes to the
->> > boot sequence.
->> >
->> > If I succeed at least on some platforms I'll ask that this design is
->> > worked into this device, minimizing info that goes through DT/ACPI.  If
->> > I see I can't make it in time to meet the next merge window, I plan
->> > merging the existing patches using DT (barring surprises).
->> >
->> > As I only have a very small amount of time to spend on this attempt, If
->> > someone else wants to try doing that in parallel, that would be great!
-
---
-Thiago Jung Bauermann
-IBM Linux Technology Center
+CkhlbGxvIEplYW4tUGhpbGlwcGUsCgpKZWFuLVBoaWxpcHBlIEJydWNrZXIgPGplYW4tcGhpbGlw
+cGUuYnJ1Y2tlckBhcm0uY29tPiB3cml0ZXM6Cj4gTWFrZXMgc2Vuc2UsIHRob3VnaCBJIHRoaW5r
+IG90aGVyIHZpcnRpbyBkZXZpY2VzIGhhdmUgYmVlbiBkZXZlbG9wZWQgYQo+IGxpdHRsZSBtb3Jl
+IG9yZ2FuaWNhbGx5OiBkZXZpY2UgYW5kIGRyaXZlciBjb2RlIGdvdCB1cHN0cmVhbWVkIGZpcnN0
+LAo+IGFuZCB0aGVuIHRoZSBzcGVjaWZpY2F0aW9uIGRlc2NyaWJpbmcgdGhlaXIgaW50ZXJmYWNl
+IGdvdCBtZXJnZWQgaW50bwo+IHRoZSBzdGFuZGFyZC4gRm9yIGV4YW1wbGUgSSBiZWxpZXZlIHRo
+YXQgY29kZSBmb3IgY3J5cHRvLCBpbnB1dCBhbmQgR1BVCj4gZGV2aWNlcyB3ZXJlIHVwc3RyZWFt
+ZWQgbG9uZyBiZWZvcmUgdGhlIHNwZWNpZmljYXRpb24gd2FzIG1lcmdlZC4gT25jZQo+IGFuIGlt
+cGxlbWVudGF0aW9uIGlzIHVwc3RyZWFtLCB0aGUgaW50ZXJmYWNlIGlzIGV4cGVjdGVkIHRvIGJl
+Cj4gYmFja3dhcmQtY29tcGF0aWJsZSAoYWxsIHN1YnNlcXVlbnQgY2hhbmdlcyBhcmUgaW50cm9k
+dWNlZCB1c2luZyBmZWF0dXJlCj4gYml0cykuCj4KPiBTbyBJJ3ZlIGJlZW4gd29ya2luZyB3aXRo
+IHRoaXMgcHJvY2VzcyBpbiBtaW5kLCBhbHNvIGRlc2NyaWJlZCBieSBKZW5zCj4gYXQgS1ZNIGZv
+cnVtIDIwMTcgWzNdOgo+ICgxKSBSZXNlcnZlIGEgZGV2aWNlIElELCBhbmQgZ2V0IHRoYXQgbWVy
+Z2VkIGludG8gdmlydGlvIChJRCAyMyBmb3IKPiB2aXJ0aW8taW9tbXUgd2FzIHJlc2VydmVkIGxh
+c3QgeWVhcikKPiAoMikgT3Blbi1zb3VyY2UgYW4gaW1wbGVtZW50YXRpb24gKHRoaXMgZHJpdmVy
+IGFuZCBFcmljJ3MgZGV2aWNlKQo+ICgzKSBGb3JtYWxpemUgYW5kIHVwc3RyZWFtIHRoZSBkZXZp
+Y2Ugc3BlY2lmaWNhdGlvbgo+Cj4gQnV0IEkgZ2V0IHRoYXQgc29tZSBvdmVybGFwIGJldHdlZW4g
+KDIpIGFuZCAoMykgd291bGQgaGF2ZSBiZWVuIGJldHRlci4KPiBTbyBmYXIgdGhlIHNwZWMgZG9j
+dW1lbnQgaGFzIGJlZW4gcmV2aWV3ZWQgbWFpbmx5IGZyb20gdGhlIElPTU1VIHBvaW50Cj4gb2Yg
+dmlldywgYW5kIG1pZ2h0IHJlcXVpcmUgbW9yZSBjaGFuZ2VzIHRvIGJlIGluIGxpbmUgd2l0aCB0
+aGUgb3RoZXIKPiB2aXJ0aW8gZGV2aWNlcyAtLSBob3BlZnVsbHkganVzdCB3b3JkaW5nIGNoYW5n
+ZXMuIEknbGwga2ljayBvZmYgc3RlcAo+ICgzKSwgYnV0IEkgdGhpbmsgdGhlIHZpcnRpbyBmb2xr
+cyBhcmUgYSBiaXQgYnVzeSB3aXRoIGZpbmFsaXppbmcgdGhlIDEuMQo+IHNwZWMgc28gSSBleHBl
+Y3QgaXQgdG8gdGFrZSBhIHdoaWxlLgoKSSByZWFkIHYwLjkgb2YgdGhlIHNwZWMgYW5kIGhhdmUg
+c29tZSBtaW5vciBjb21tZW50cywgaG9wZSB0aGlzIGlzIGEKZ29vZCBwbGFjZSB0byBzZW5kIHRo
+ZW06CgoxLiBJbiBzZWN0aW9uIDIuNi4yLCBvbmUgcmVhZHMKCiAgICBJZiB0aGUgVklSVElPX0lP
+TU1VX0ZfSU5QVVRfUkFOR0UgZmVhdHVyZSBpcyBvZmZlcmVkIGFuZCB0aGUgcmFuZ2UKICAgIGRl
+c2NyaWJlZCBieSBmaWVsZHMgdmlydF9zdGFydCBhbmQgdmlydF9lbmQgZG9lc27igJl0IGZpdCBp
+biB0aGUgcmFuZ2UKICAgIGRlc2NyaWJlZCBieSBpbnB1dF9yYW5nZSwgdGhlIGRldmljZSBNQVkg
+c2V0IHN0YXR1cyB0byBWSVJUSU9fLQogICAgSU9NTVVfU19SQU5HRSBhbmQgaWdub3JlIHRoZSBy
+ZXF1ZXN0LgoKU2hvdWxkbid0IGludCBzYXkgIklmIHRoZSBWSVJUSU9fSU9NTVVfRl9JTlBVVF9S
+QU5HRSBmZWF0dXJlIGlzCm5lZ290aWF0ZWQiIGluc3RlYWQ/CgoyLiBUaGVyZSdzIGEgdHlwbyBh
+dCB0aGUgZW5kIG9mIHNlY3Rpb24gMi42LjU6CgogICAgVGhlIFZJUlRJT19JT01NVV9NQVBfRl9N
+TUlPIGZsYWcgaXMgYSBtZW1vcnkgdHlwZSByYXRoZXIgdGhhbiBhCiAgICBwcm90ZWN0aW9uIGxh
+Zy4KCnMvbGFnL2ZsYWcvCgozLiBJbiBzZWN0aW9uIDMuMS4yLjEuMSwgdGhlIHZpb21tdSBjb21w
+YXRpYmxlIGZpZWxkIHNheXMgInZpcnRpbyxtbWlvIi4KU2hvdWxkbid0IGl0IHNheSAidmlydGlv
+LG1taW8taW9tbXUiIGluc3RlYWQsIHRvIGJlIGNvbnNpc3RlbnQgd2l0aAoidmlydGlvLHBjaS1p
+b21tdSI/Cgo0LiBUaGVyZSdzIGEgdHlwbyBpbiBzZWN0aW9uIDMuMzoKCiAgICBBIGhvc3QgYnJp
+ZGdlIG1heSBsaW1pdCB0aGUgaW5wdXQgYWRkcmVzcyBzcGFjZSDigJMgdHJhbnNhY3Rpb24KICAg
+IGFjY2Vzc2luZyBzb21lIGFkZHJlc3NlcyB3b27igJl0IHJlYWNoIHRoZSBwaHlzaWNhbCBJT01N
+VS4KCnMvdHJhbnNhY3Rpb24vdHJhbnNhY3Rpb25zLwoKSSBhbHNvIGhhdmUgb25lIGxhc3QgY29t
+bWVudCB3aGljaCB5b3UgbWF5IGZyZWVseSBpZ25vcmUsIGNvbnNpZGVyaW5nCml0J3MgY2xlYXJs
+eSBqdXN0IHBlcnNvbmFsIG9waW5pb24gYW5kIGFsc28gY29uc2lkZXJpbmcgdGhhdCB0aGUKc3Bl
+Y2lmaWNhdGlvbiBpcyBtYXR1cmUgYXQgdGhpcyBwb2ludDogaXQgc3BlY2lmaWVzIG1lbW9yeSBy
+YW5nZXMgYnkKc3BlY2lmeWluZyBzdGFydCBhbmQgZW5kIGFkZHJlc3Nlcy4gTXkgZXhwZXJpZW5j
+ZSBoYXMgYmVlbiB0aGF0IHRoaXMgaXMKZXJyb3IgcHJvbmUsIGxlYWRpbmcgdG8gY29uZnVzaW9u
+IGFuZCBidWdzIHJlZ2FyZGluZyB3aGV0aGVyIHRoZSBlbmQKYWRkcmVzcyBpcyBpbmNsdXNpdmUg
+b3IgZXhjbHVzaXZlLiBJIHRlbmQgdG8gcHJlZmVyIGV4cHJlc3NpbmcgbWVtb3J5CnJhbmdlcyBi
+eSBzcGVjaWZ5aW5nIGEgc3RhcnQgYWRkcmVzcyBhbmQgYSBsZW5ndGgsIHdoaWNoIGVsaW1pbmF0
+ZXMKYW1iaWd1aXR5LgoKLS0KVGhpYWdvIEp1bmcgQmF1ZXJtYW5uCklCTSBMaW51eCBUZWNobm9s
+b2d5IENlbnRlcgoKX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19f
+X18KVmlydHVhbGl6YXRpb24gbWFpbGluZyBsaXN0ClZpcnR1YWxpemF0aW9uQGxpc3RzLmxpbnV4
+LWZvdW5kYXRpb24ub3JnCmh0dHBzOi8vbGlzdHMubGludXhmb3VuZGF0aW9uLm9yZy9tYWlsbWFu
+L2xpc3RpbmZvL3ZpcnR1YWxpemF0aW9u
