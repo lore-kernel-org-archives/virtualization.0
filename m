@@ -1,14 +1,12 @@
-From: Gerd Hoffmann <kraxel@redhat.com>
-Subject: Re: [PATCH -next] drm/qxl: remove set but not used variable 'bo_old'
-Date: Thu, 21 Feb 2019 13:05:45 +0100
-Message-ID: <20190221120545.dnllvgdszdk4yf5z__305.205436755784$1550750985$gmane$org@sirius.home.kraxel.org>
-References: <20190218085459.196470-1-yuehaibing@huawei.com>
+From: "webist@insticc.info" <webist@insticc.info>
+Subject: CFP WEBIST 2019 - 15th Int.l Conf. on Web Information Systems and
+	Technologies (Vienna/Austria)
+Date: 21 Feb 2019 12:18:30 +0000
+Message-ID: <20190221121832.1.11BBA03C6C652195@insticc.info>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset="utf-8"
+Content-Transfer-Encoding: base64
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-Content-Disposition: inline
-In-Reply-To: <20190218085459.196470-1-yuehaibing@huawei.com>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -18,20 +16,32 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: YueHaibing <yuehaibing@huawei.com>
-Cc: David Airlie <airlied@linux.ie>, kernel-janitors@vger.kernel.org, linux-kernel@vger.kernel.org, dri-devel@lists.freedesktop.org, virtualization@lists.linux-foundation.org, Daniel Vetter <daniel@ffwll.ch>, spice-devel@lists.freedesktop.org, Dave Airlie <airlied@redhat.com>
+To: virtualization@lists.linux-foundation.org
 List-Id: virtualization@lists.linuxfoundation.org
 
-On Mon, Feb 18, 2019 at 08:54:59AM +0000, YueHaibing wrote:
-> Fixes gcc '-Wunused-but-set-variable' warning:
-> 
-> drivers/gpu/drm/qxl/qxl_display.c: In function 'qxl_primary_atomic_update':
-> drivers/gpu/drm/qxl/qxl_display.c:538:17: warning:
->  variable 'bo_old' set but not used [-Wunused-but-set-variable]
-> 
-> It's not used any more after 4979904c62b9 ("drm/qxl: use shadow bo directly")
-
-Pushed to drm-misc-next.
-
-thanks,
-  Gerd
+U1VCTUlTU0lPTiBERUFETElORSAKCjE1dGggSW50ZXJuYXRpb25hbCBDb25mZXJlbmNlIG9uIFdl
+YiBJbmZvcm1hdGlvbiBTeXN0ZW1zIGFuZCBUZWNobm9sb2dpZXMKClN1Ym1pc3Npb24gRGVhZGxp
+bmU6IEFwcmlsIDI5LCAyMDE5CgpodHRwOi8vd3d3LndlYmlzdC5vcmcvCgpTZXB0ZW1iZXIgMTgg
+LSAyMCwgMjAxOQpWaWVubmEsIEF1c3RyaWEuCgogV0VCSVNUIGlzIG9yZ2FuaXplZCBpbiA1IG1h
+am9yIHRyYWNrczoKCiAtIEludGVybmV0IFRlY2hub2xvZ3kKIC0gTW9iaWxlIGFuZCBOTFAgSW5m
+b3JtYXRpb24gU3lzdGVtcwogLSBTZXJ2aWNlIEJhc2VkIEluZm9ybWF0aW9uIFN5c3RlbXMsIFBs
+YXRmb3JtcyBhbmQgRWNvLVN5c3RlbXMKIC0gV2ViIEludGVsbGlnZW5jZQogLSBXZWIgSW50ZXJm
+YWNlcwoKDQpQcm9jZWVkaW5ncyB3aWxsIGJlIHN1Ym1pdHRlZCBmb3IgaW5kZXhhdGlvbiBieTog
+REJMUCwgVGhvbXNvbiBSZXV0ZXJzLCBFSSwgU0NPUFVTLCBTZW1hbnRpYyBTY2hvbGFyIGFuZCBH
+b29nbGUgU2Nob2xhci4gDQogICAgICAgICAgICAgICAgICAgIAogCldpdGggdGhlIHByZXNlbmNl
+IG9mIGludGVybmF0aW9uYWxseSBkaXN0aW5ndWlzaGVkIGtleW5vdGUgc3BlYWtlcnM6ClN0ZWZm
+ZW4gU3RhYWIsIFVuaXZlcnNpdHkgb2YgS29ibGVuei1MYW5kYXUsIEdlcm1hbnkKS2FybCBBYmVy
+ZXIsIEVQRkwsIFN3aXR6ZXJsYW5kCgoKQSBzaG9ydCBsaXN0IG9mIHByZXNlbnRlZCBwYXBlcnMg
+d2lsbCBiZSBzZWxlY3RlZCBzbyB0aGF0IHJldmlzZWQgYW5kIGV4dGVuZGVkIHZlcnNpb25zIG9m
+IHRoZXNlIHBhcGVycyB3aWxsIGJlIHB1Ymxpc2hlZCBieSBTcHJpbmdlci4KIApBbGwgcGFwZXJz
+IHByZXNlbnRlZCBhdCB0aGUgY29uZ3Jlc3MgdmVudWUgd2lsbCBhbHNvIGJlIGF2YWlsYWJsZSBh
+dCB0aGUgU0NJVEVQUkVTUyBEaWdpdGFsIExpYnJhcnkgKGh0dHA6Ly93d3cuc2NpdGVwcmVzcy5v
+cmcvRGlnaXRhbExpYnJhcnkvKS4KICAKU2hvdWxkIHlvdSBoYXZlIGFueSBxdWVzdGlvbiBwbGVh
+c2UgZG9uJ3QgaGVzaXRhdGUgY29udGFjdGluZyBtZS4KIAoKS2luZCByZWdhcmRzLApXRUJJU1Qg
+U2VjcmV0YXJpYXQKCkFkZHJlc3M6IEF2ZW5pZGEgZGUgU8OjbyBGcmFuY2lzY28gWGF2aWVyIExv
+dGUgN0wgQ2F2ZQoyOTEwLTU5NSBTZXR1YmFsLCBQb3J0dWdhbApUZWw6ICszNTEgMjY1IDUyMCAx
+ODQKRmF4OiArMzUxIDI2NSA1MjAgMTg2CldlYjogaHR0cDovL3d3dy53ZWJpc3Qub3JnLwplLW1h
+aWw6IHdlYmlzdC5zZWNyZXRhcmlhdEBpbnN0aWNjLm9yZwoKX19fX19fX19fX19fX19fX19fX19f
+X19fX19fX19fX19fX19fX19fX19fX19fX18KVmlydHVhbGl6YXRpb24gbWFpbGluZyBsaXN0ClZp
+cnR1YWxpemF0aW9uQGxpc3RzLmxpbnV4LWZvdW5kYXRpb24ub3JnCmh0dHBzOi8vbGlzdHMubGlu
+dXhmb3VuZGF0aW9uLm9yZy9tYWlsbWFuL2xpc3RpbmZvL3ZpcnR1YWxpemF0aW9u
