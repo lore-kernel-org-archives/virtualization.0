@@ -1,12 +1,15 @@
-From: "peccs@insticc.info" <peccs@insticc.info>
-Subject: CFP PECCS 2019 - 9th Int.l Conf. on Pervasive and Embedded
-	Computing and Communication Systems (Vienna/Austria)
-Date: 21 Feb 2019 12:18:41 +0000
-Message-ID: <20190221121843.1.966DBAB74D6C12BF@insticc.info>
+From: Daniel Vetter <daniel@ffwll.ch>
+Subject: Re: [PATCH v2 2/2] drm/qxl: kick out vgacon
+Date: Thu, 21 Feb 2019 13:20:11 +0100
+Message-ID: <20190221122011.GP2665__13479.1766804241$1550751815$gmane$org@phenom.ffwll.local>
+References: <20190221113534.20764-1-kraxel@redhat.com>
+	<20190221113534.20764-3-kraxel@redhat.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="utf-8"
-Content-Transfer-Encoding: base64
+Content-Type: text/plain; charset="us-ascii"
+Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
+Content-Disposition: inline
+In-Reply-To: <20190221113534.20764-3-kraxel@redhat.com>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -16,35 +19,47 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: virtualization@lists.linux-foundation.org
+To: Gerd Hoffmann <kraxel@redhat.com>
+Cc: David Airlie <airlied@linux.ie>, open list <linux-kernel@vger.kernel.org>, dri-devel@lists.freedesktop.org, "open list:DRM DRIVER FOR QXL VIRTUAL GPU" <virtualization@lists.linux-foundation.org>, daniel@ffwll.ch, "open list:DRM DRIVER FOR QXL VIRTUAL GPU" <spice-devel@lists.freedesktop.org>, Dave Airlie <airlied@redhat.com>
 List-Id: virtualization@lists.linuxfoundation.org
 
-U1VCTUlTU0lPTiBERUFETElORSAKCjl0aCBJbnRlcm5hdGlvbmFsIENvbmZlcmVuY2Ugb24gUGVy
-dmFzaXZlIGFuZCBFbWJlZGRlZCBDb21wdXRpbmcgYW5kIENvbW11bmljYXRpb24gU3lzdGVtcwoK
-U3VibWlzc2lvbiBEZWFkbGluZTogQXByaWwgMjksIDIwMTkKCmh0dHA6Ly93d3cucGVjY3Mub3Jn
-LwoKU2VwdGVtYmVyIDE5IC0gMjAsIDIwMTkKVmllbm5hLCBBdXN0cmlhLgoKIFBFQ0NTIGlzIG9y
-Z2FuaXplZCBpbiA1IG1ham9yIHRyYWNrczoKCiAtIFdpcmVsZXNzIGFuZCBNb2JpbGUgVGVjaG5v
-bG9naWVzCiAtIFNlbnNvciBOZXR3b3JrczogU29mdHdhcmUsIEFyY2hpdGVjdHVyZXMgYW5kIEFw
-cGxpY2F0aW9uc8KgCiAtIEludGVsbGlnZW50IERhdGEgQW5hbHlzaXMgYW5kIFByb2Nlc3NpbmcK
-IC0gTW9iaWxlIENvbXB1dGluZyBTeXN0ZW1zIGFuZCBTZXJ2aWNlcwogLSBNdWx0aW1lZGlhIFNp
-Z25hbCBQcm9jZXNzaW5nwqAKCg0KUHJvY2VlZGluZ3Mgd2lsbCBiZSBzdWJtaXR0ZWQgZm9yIGlu
-ZGV4YXRpb24gYnk6IERCTFAsIFRob21zb24gUmV1dGVycywgRUksIFNDT1BVUywgU2VtYW50aWMg
-U2Nob2xhciBhbmQgR29vZ2xlIFNjaG9sYXIuIA0KICAgICAgICAgICAgICAgICAgICAKIApXaXRo
-IHRoZSBwcmVzZW5jZSBvZiBpbnRlcm5hdGlvbmFsbHkgZGlzdGluZ3Vpc2hlZCBrZXlub3RlIHNw
-ZWFrZXJzOgpBbmRyZWFzIEhvbHppbmdlciwgTWVkaWNhbCBVbml2ZXJzaXR5IEdyYXosIEF1c3Ry
-aWEKS2F5eWFsaSBNb2hhbWVkLCBJbnRlcm5hdGlvbmFsIEZlZGVyYXRpb24gb2YgR2xvYmFsICYg
-R3JlZW4gSW5mb3JtYXRpb24gQ29tbXVudWNhdGlvbiBUZWNobm9sb2d5LCBVbml0ZWQgU3RhdGVz
-CgoKQSBzaG9ydCBsaXN0IG9mIHByZXNlbnRlZCBwYXBlcnMgd2lsbCBiZSBzZWxlY3RlZCBzbyB0
-aGF0IHJldmlzZWQgYW5kIGV4dGVuZGVkIHZlcnNpb25zIG9mIHRoZXNlIHBhcGVycyB3aWxsIGJl
-IHB1Ymxpc2hlZCBieSBTcHJpbmdlci4KIApBbGwgcGFwZXJzIHByZXNlbnRlZCBhdCB0aGUgY29u
-Z3Jlc3MgdmVudWUgd2lsbCBhbHNvIGJlIGF2YWlsYWJsZSBhdCB0aGUgU0NJVEVQUkVTUyBEaWdp
-dGFsIExpYnJhcnkgKGh0dHA6Ly93d3cuc2NpdGVwcmVzcy5vcmcvRGlnaXRhbExpYnJhcnkvKS4K
-ICAKU2hvdWxkIHlvdSBoYXZlIGFueSBxdWVzdGlvbiBwbGVhc2UgZG9uJ3QgaGVzaXRhdGUgY29u
-dGFjdGluZyBtZS4KIAoKS2luZCByZWdhcmRzLApQRUNDUyBTZWNyZXRhcmlhdAoKQWRkcmVzczog
-QXZlbmlkYSBkZSBTw6NvIEZyYW5jaXNjbyBYYXZpZXIgTG90ZSA3TCBDYXZlCjI5MTAtNTk1IFNl
-dHViYWwsIFBvcnR1Z2FsClRlbDogKzM1MSAyNjUgNTIwIDE4NQpGYXg6ICszNTEgMjY1IDUyMCAx
-ODYKV2ViOiBodHRwOi8vd3d3LnBlY2NzLm9yZy8KZS1tYWlsOiBwZWNjcy5zZWNyZXRhcmlhdEBp
-bnN0aWNjLm9yZwoKX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19f
-X18KVmlydHVhbGl6YXRpb24gbWFpbGluZyBsaXN0ClZpcnR1YWxpemF0aW9uQGxpc3RzLmxpbnV4
-LWZvdW5kYXRpb24ub3JnCmh0dHBzOi8vbGlzdHMubGludXhmb3VuZGF0aW9uLm9yZy9tYWlsbWFu
-L2xpc3RpbmZvL3ZpcnR1YWxpemF0aW9u
+On Thu, Feb 21, 2019 at 12:35:34PM +0100, Gerd Hoffmann wrote:
+> Problem:  qxl switches from native mode back into vga compatibility mode
+> when it notices someone is accessing vga registers.  And vgacon does
+> exactly that before fbcon takes over.  So make sure we kick out vgacon
+> early enough that it wouldn't disturb us.
+> 
+> Signed-off-by: Gerd Hoffmann <kraxel@redhat.com>
+> ---
+>  drivers/gpu/drm/qxl/qxl_drv.c | 1 +
+>  1 file changed, 1 insertion(+)
+> 
+> diff --git a/drivers/gpu/drm/qxl/qxl_drv.c b/drivers/gpu/drm/qxl/qxl_drv.c
+> index bb81e310eb..08446561aa 100644
+> --- a/drivers/gpu/drm/qxl/qxl_drv.c
+> +++ b/drivers/gpu/drm/qxl/qxl_drv.c
+> @@ -95,6 +95,7 @@ qxl_pci_probe(struct pci_dev *pdev, const struct pci_device_id *ent)
+>  		goto modeset_cleanup;
+>  
+>  	drm_fb_helper_remove_conflicting_pci_framebuffers(pdev, 0, "qxl");
+> +	drm_fb_helper_kick_out_vgacon();
+
+I was thinking of checking whether pdev is a VGA class device and whether
+it decodes vga access, and in that case automatically calling
+kick_out_vgacon from remove_conflicting_pci_framebuffer. Since that's what
+drivers want anyway, and those who don't can open code it.
+
+Or is there an issue with that?
+-Daniel
+
+>  	drm_fbdev_generic_setup(&qdev->ddev, 32);
+>  	return 0;
+>  
+> -- 
+> 2.9.3
+> 
+
+-- 
+Daniel Vetter
+Software Engineer, Intel Corporation
+http://blog.ffwll.ch
