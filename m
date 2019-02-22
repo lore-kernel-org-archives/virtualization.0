@@ -1,17 +1,24 @@
-From: Jean-Philippe Brucker <jean-philippe.brucker@arm.com>
-Subject: Re: [PATCH v7 0/7] Add virtio-iommu driver
-Date: Fri, 22 Feb 2019 12:18:17 +0000
-Message-ID: <76121ff1-0777-085a-5b38-d38b2c6cb25f__898.593645409562$1550838239$gmane$org@arm.com>
-References: <20190115121959.23763-1-jean-philippe.brucker@arm.com>
-	<20190123083435.x3svwqp472mdgglw@8bytes.org>
-	<a6315ab3-bffb-7470-365d-b26df6524bda@arm.com>
-	<878sy8bx9o.fsf@morokweng.localdomain>
+From: "Michael S. Tsirkin" <mst@redhat.com>
+Subject: Re: [virtio-dev] Re: net_failover slave udev renaming (was Re: [RFC
+	PATCH net-next v6 4/4] netvsc: refactor notifier/event handling code to
+	use the bypass framework)
+Date: Fri, 22 Feb 2019 10:14:23 -0500
+Message-ID: <20190222100753-mutt-send-email-mst__20115.7290766545$1550848644$gmane$org@kernel.org>
+References: <1523386790-12396-1-git-send-email-sridhar.samudrala@intel.com>
+	<1523386790-12396-5-git-send-email-sridhar.samudrala@intel.com>
+	<20180410142608.50f15b45@xeon-e3>
+	<20180411075334.GK2028@nanopsycho>
+	<CADGSJ214RJV_zWVBGv0Ydo=CJj6WESTYAH=PpaYLFHdtWVrm3g@mail.gmail.com>
+	<20190221203808-mutt-send-email-mst@kernel.org>
+	<581e4399-3969-aecd-e923-03bbc0880733@oracle.com>
+	<91d4cbb1-be7a-b53c-6b2a-99bef07e7c53@intel.com>
+	<d9ef40a2-237b-0cce-4401-ecaeac4c602a@oracle.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="utf-8"
-Content-Transfer-Encoding: base64
+Content-Type: text/plain; charset="us-ascii"
+Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <878sy8bx9o.fsf@morokweng.localdomain>
-Content-Language: en-US
+Content-Disposition: inline
+In-Reply-To: <d9ef40a2-237b-0cce-4401-ecaeac4c602a@oracle.com>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -21,96 +28,112 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Thiago Jung Bauermann <bauerman@linux.ibm.com>
-Cc: Mark Rutland <Mark.Rutland@arm.com>, "virtio-dev@lists.oasis-open.org" <virtio-dev@lists.oasis-open.org>, "tnowicki@caviumnetworks.com" <tnowicki@caviumnetworks.com>, "mst@redhat.com" <mst@redhat.com>, Marc Zyngier <Marc.Zyngier@arm.com>, "linux-pci@vger.kernel.org" <linux-pci@vger.kernel.org>, Joerg Roedel <joro@8bytes.org>, Will Deacon <Will.Deacon@arm.com>, "virtualization@lists.linux-foundation.org" <virtualization@lists.linux-foundation.org>, "iommu@lists.linux-foundation.org" <iommu@lists.linux-foundation.org>, "robh+dt@kernel.org" <robh+dt@kernel.org>, "kvmarm@lists.cs.columbia.edu" <kvmarm@lists.cs.columbia.edu>, "bhelgaas@google.com" <bhelgaas@google.com>, Robin Murphy <Robin.Murphy@arm.com>, "devicetree@vger.kernel.org" <devicetree@vger.kernel.org>
+To: si-wei liu <si-wei.liu@oracle.com>
+Cc: Alexander Duyck <alexander.h.duyck@intel.com>, virtio-dev <virtio-dev@lists.oasis-open.org>, Jiri Pirko <jiri@resnulli.us>, Jakub Kicinski <kubakici@wp.pl>, "Samudrala, Sridhar" <sridhar.samudrala@intel.com>, virtualization@lists.linux-foundation.org, Siwei Liu <loseweigh@gmail.com>, liran.alon@oracle.com, Netdev <netdev@vger.kernel.org>, David Miller <davem@davemloft.net>
 List-Id: virtualization@lists.linuxfoundation.org
 
-SGkgVGhpYWdvLAoKT24gMjEvMDIvMjAxOSAyMjoxOCwgVGhpYWdvIEp1bmcgQmF1ZXJtYW5uIHdy
-b3RlOgo+IAo+IEhlbGxvIEplYW4tUGhpbGlwcGUsCj4gCj4gSmVhbi1QaGlsaXBwZSBCcnVja2Vy
-IDxqZWFuLXBoaWxpcHBlLmJydWNrZXJAYXJtLmNvbT4gd3JpdGVzOgo+PiBNYWtlcyBzZW5zZSwg
-dGhvdWdoIEkgdGhpbmsgb3RoZXIgdmlydGlvIGRldmljZXMgaGF2ZSBiZWVuIGRldmVsb3BlZCBh
-Cj4+IGxpdHRsZSBtb3JlIG9yZ2FuaWNhbGx5OiBkZXZpY2UgYW5kIGRyaXZlciBjb2RlIGdvdCB1
-cHN0cmVhbWVkIGZpcnN0LAo+PiBhbmQgdGhlbiB0aGUgc3BlY2lmaWNhdGlvbiBkZXNjcmliaW5n
-IHRoZWlyIGludGVyZmFjZSBnb3QgbWVyZ2VkIGludG8KPj4gdGhlIHN0YW5kYXJkLiBGb3IgZXhh
-bXBsZSBJIGJlbGlldmUgdGhhdCBjb2RlIGZvciBjcnlwdG8sIGlucHV0IGFuZCBHUFUKPj4gZGV2
-aWNlcyB3ZXJlIHVwc3RyZWFtZWQgbG9uZyBiZWZvcmUgdGhlIHNwZWNpZmljYXRpb24gd2FzIG1l
-cmdlZC4gT25jZQo+PiBhbiBpbXBsZW1lbnRhdGlvbiBpcyB1cHN0cmVhbSwgdGhlIGludGVyZmFj
-ZSBpcyBleHBlY3RlZCB0byBiZQo+PiBiYWNrd2FyZC1jb21wYXRpYmxlIChhbGwgc3Vic2VxdWVu
-dCBjaGFuZ2VzIGFyZSBpbnRyb2R1Y2VkIHVzaW5nIGZlYXR1cmUKPj4gYml0cykuCj4+Cj4+IFNv
-IEkndmUgYmVlbiB3b3JraW5nIHdpdGggdGhpcyBwcm9jZXNzIGluIG1pbmQsIGFsc28gZGVzY3Jp
-YmVkIGJ5IEplbnMKPj4gYXQgS1ZNIGZvcnVtIDIwMTcgWzNdOgo+PiAoMSkgUmVzZXJ2ZSBhIGRl
-dmljZSBJRCwgYW5kIGdldCB0aGF0IG1lcmdlZCBpbnRvIHZpcnRpbyAoSUQgMjMgZm9yCj4+IHZp
-cnRpby1pb21tdSB3YXMgcmVzZXJ2ZWQgbGFzdCB5ZWFyKQo+PiAoMikgT3Blbi1zb3VyY2UgYW4g
-aW1wbGVtZW50YXRpb24gKHRoaXMgZHJpdmVyIGFuZCBFcmljJ3MgZGV2aWNlKQo+PiAoMykgRm9y
-bWFsaXplIGFuZCB1cHN0cmVhbSB0aGUgZGV2aWNlIHNwZWNpZmljYXRpb24KPj4KPj4gQnV0IEkg
-Z2V0IHRoYXQgc29tZSBvdmVybGFwIGJldHdlZW4gKDIpIGFuZCAoMykgd291bGQgaGF2ZSBiZWVu
-IGJldHRlci4KPj4gU28gZmFyIHRoZSBzcGVjIGRvY3VtZW50IGhhcyBiZWVuIHJldmlld2VkIG1h
-aW5seSBmcm9tIHRoZSBJT01NVSBwb2ludAo+PiBvZiB2aWV3LCBhbmQgbWlnaHQgcmVxdWlyZSBt
-b3JlIGNoYW5nZXMgdG8gYmUgaW4gbGluZSB3aXRoIHRoZSBvdGhlcgo+PiB2aXJ0aW8gZGV2aWNl
-cyAtLSBob3BlZnVsbHkganVzdCB3b3JkaW5nIGNoYW5nZXMuIEknbGwga2ljayBvZmYgc3RlcAo+
-PiAoMyksIGJ1dCBJIHRoaW5rIHRoZSB2aXJ0aW8gZm9sa3MgYXJlIGEgYml0IGJ1c3kgd2l0aCBm
-aW5hbGl6aW5nIHRoZSAxLjEKPj4gc3BlYyBzbyBJIGV4cGVjdCBpdCB0byB0YWtlIGEgd2hpbGUu
-Cj4gCj4gSSByZWFkIHYwLjkgb2YgdGhlIHNwZWMgYW5kIGhhdmUgc29tZSBtaW5vciBjb21tZW50
-cywgaG9wZSB0aGlzIGlzIGEKPiBnb29kIHBsYWNlIHRvIHNlbmQgdGhlbToKClRoYW5rcyBhIGxv
-dCwgSSdsbCBmaXggdGhlbSBpbiBteSBuZXh0IHBvc3RpbmcuIE5vdGUgdGhhdCBJIHJlY2VudGx5
-CnNlbnQgdjAuMTAgdG8gdmlydGlvLWNvbW1lbnQsIHRvIHJlcXVlc3QgaW5jbHVzaW9uIGludG8g
-dGhlIHN0YW5kYXJkIFsxXQpidXQgeW91ciBjb21tZW50cyBzdGlsbCBhcHBseSB0byB2MC4xMC4K
-ClsxXQpodHRwczovL2xpc3RzLm9hc2lzLW9wZW4ub3JnL2FyY2hpdmVzL3ZpcnRpby1jb21tZW50
-LzIwMTkwMS9tc2cwMDAxNi5odG1sCgo+IDEuIEluIHNlY3Rpb24gMi42LjIsIG9uZSByZWFkcwo+
-IAo+ICAgICBJZiB0aGUgVklSVElPX0lPTU1VX0ZfSU5QVVRfUkFOR0UgZmVhdHVyZSBpcyBvZmZl
-cmVkIGFuZCB0aGUgcmFuZ2UKPiAgICAgZGVzY3JpYmVkIGJ5IGZpZWxkcyB2aXJ0X3N0YXJ0IGFu
-ZCB2aXJ0X2VuZCBkb2VzbuKAmXQgZml0IGluIHRoZSByYW5nZQo+ICAgICBkZXNjcmliZWQgYnkg
-aW5wdXRfcmFuZ2UsIHRoZSBkZXZpY2UgTUFZIHNldCBzdGF0dXMgdG8gVklSVElPXy0KPiAgICAg
-SU9NTVVfU19SQU5HRSBhbmQgaWdub3JlIHRoZSByZXF1ZXN0Lgo+IAo+IFNob3VsZG4ndCBpbnQg
-c2F5ICJJZiB0aGUgVklSVElPX0lPTU1VX0ZfSU5QVVRfUkFOR0UgZmVhdHVyZSBpcwo+IG5lZ290
-aWF0ZWQiIGluc3RlYWQ/CgpZZXMsIHRoYXQgc2VlbXMgY2xlYXJlciBhbmQgbW9yZSBjb25zaXN0
-ZW50IHdpdGggb3RoZXIgZGV2aWNlcywgSSdsbApjaGFuZ2UgaXQuIEluIHRoaXMgY2FzZSAib2Zm
-ZXJlZCIgaXMgZXF1aXZhbGVudCB0byAibmVnb3RpYXRlZCIsIGJlY2F1c2UKdGhlIGRyaXZlciBT
-SE9VTEQgYWNjZXB0IHRoZSBmZWF0dXJlIG9yIGVsc2UgdGhlIGRldmljZSBtYXkgcmVmdXNlIHRv
-CnNldCBGRUFUVVJFU19PSy4gQSB2YWxpZCBpbnB1dF9yYW5nZSBmaWVsZCBnZW5lcmFsbHkgaW5k
-aWNhdGVzIHRoYXQgdGhlCmRldmljZSBpcyBpbmNhcGFibGUgb2YgY3JlYXRpbmcgbWFwcGluZ3Mg
-b3V0c2lkZSB0aGlzIHJhbmdlLCBhbmQgaXQncwppbXBvcnRhbnQgdGhhdCB0aGUgZHJpdmVyIGFj
-a25vd2xlZGdlcyBpdC4KCj4gMi4gVGhlcmUncyBhIHR5cG8gYXQgdGhlIGVuZCBvZiBzZWN0aW9u
-IDIuNi41Ogo+IAo+ICAgICBUaGUgVklSVElPX0lPTU1VX01BUF9GX01NSU8gZmxhZyBpcyBhIG1l
-bW9yeSB0eXBlIHJhdGhlciB0aGFuIGEKPiAgICAgcHJvdGVjdGlvbiBsYWcuCj4gCj4gcy9sYWcv
-ZmxhZy8KCkZpeGVkIGluIHYwLjEwCgo+IDMuIEluIHNlY3Rpb24gMy4xLjIuMS4xLCB0aGUgdmlv
-bW11IGNvbXBhdGlibGUgZmllbGQgc2F5cyAidmlydGlvLG1taW8iLgo+IFNob3VsZG4ndCBpdCBz
-YXkgInZpcnRpbyxtbWlvLWlvbW11IiBpbnN0ZWFkLCB0byBiZSBjb25zaXN0ZW50IHdpdGgKPiAi
-dmlydGlvLHBjaS1pb21tdSI/CgoidmlydGlvLG1taW8iIGFscmVhZHkgZXhpc3RzLCBhbmQgYWxs
-b3dzIHRoZSB2aXJ0aW8tbW1pbyBkcml2ZXIgdG8gcGljawp1cCBhbnkgdmlydGlvIGRldmljZS4g
-VGhlIGRldmljZSB0eXBlIGlzIHRoZW4gZGlzY292ZXJlZCB3aGlsZSBwcm9iaW5nLAphbmQgZG9l
-c24ndCBuZWVkIHRvIGJlIGluIHRoZSBjb21wYXRpYmxlIHN0cmluZy4KCiJ2aXJ0aW8scGNpLWlv
-bW11IiBpcyBzb21ldGhpbmcgSSBpbnRyb2R1Y2VkIHNwZWNpZmljYWxseSBmb3IgdGhlCnZpcnRp
-by1pb21tdSwgc2luY2UgaXQncyB0aGUgb25seSB2aXJ0aW8tcGNpIGRldmljZSB0aGF0IHJlcXVp
-cmVzIGEKZGV2aWNlIHRyZWUgbm9kZSAtIHRvIGRlc2NyaWJlIHRoZSBJT01NVSB0b3BvbG9neSBl
-YXJsaWVyIHRoYW4gdGhlIFBDSQpwcm9iZS4gSWYgd2Ugd2FudCBzeW1tZXRyeSBJJ2QgcmF0aGVy
-IHJlcGxhY2UgInZpcnRpbyxwY2ktaW9tbXUiIHdpdGgKInZpcnRpbyxwY2kiLCBidXQgaXQgd291
-bGRuJ3QgYmUgdXNlZCBieSBvdGhlciB2aXJ0aW8gZGV2aWNlIHR5cGVzLiBBbmQKSSBoYXZlIHRv
-IGFkbWl0IEknbSByZWx1Y3RhbnQgdG8gY2hhbmdlIHRoaXMgYmluZGluZyBub3csIGdpdmVuIHRo
-YXQgaXQKaGFzIGJlZW4gcmV2aWV3ZWQgKHBhdGNoIDIvNykgYW5kIGlzIHJlYWR5IHRvIGdvLgoK
-PiA0LiBUaGVyZSdzIGEgdHlwbyBpbiBzZWN0aW9uIDMuMzoKPiAKPiAgICAgQSBob3N0IGJyaWRn
-ZSBtYXkgbGltaXQgdGhlIGlucHV0IGFkZHJlc3Mgc3BhY2Ug4oCTIHRyYW5zYWN0aW9uCj4gICAg
-IGFjY2Vzc2luZyBzb21lIGFkZHJlc3NlcyB3b27igJl0IHJlYWNoIHRoZSBwaHlzaWNhbCBJT01N
-VS4KPiAKPiBzL3RyYW5zYWN0aW9uL3RyYW5zYWN0aW9ucy8KCkknbGwgZml4IGl0LCB0aGFua3MK
-Cj4gSSBhbHNvIGhhdmUgb25lIGxhc3QgY29tbWVudCB3aGljaCB5b3UgbWF5IGZyZWVseSBpZ25v
-cmUsIGNvbnNpZGVyaW5nCj4gaXQncyBjbGVhcmx5IGp1c3QgcGVyc29uYWwgb3BpbmlvbiBhbmQg
-YWxzbyBjb25zaWRlcmluZyB0aGF0IHRoZQo+IHNwZWNpZmljYXRpb24gaXMgbWF0dXJlIGF0IHRo
-aXMgcG9pbnQ6IGl0IHNwZWNpZmllcyBtZW1vcnkgcmFuZ2VzIGJ5Cj4gc3BlY2lmeWluZyBzdGFy
-dCBhbmQgZW5kIGFkZHJlc3Nlcy4gTXkgZXhwZXJpZW5jZSBoYXMgYmVlbiB0aGF0IHRoaXMgaXMK
-PiBlcnJvciBwcm9uZSwgbGVhZGluZyB0byBjb25mdXNpb24gYW5kIGJ1Z3MgcmVnYXJkaW5nIHdo
-ZXRoZXIgdGhlIGVuZAo+IGFkZHJlc3MgaXMgaW5jbHVzaXZlIG9yIGV4Y2x1c2l2ZS4gSSB0ZW5k
-IHRvIHByZWZlciBleHByZXNzaW5nIG1lbW9yeQo+IHJhbmdlcyBieSBzcGVjaWZ5aW5nIGEgc3Rh
-cnQgYWRkcmVzcyBhbmQgYSBsZW5ndGgsIHdoaWNoIGVsaW1pbmF0ZXMKPiBhbWJpZ3VpdHkuCgpX
-aGlsZSB0aGUgaW5pdGlhbCB2ZXJzaW9ucyBoYWQgc3RhcnQgYW5kIGxlbmd0aCwgSSBjaGFuZ2Vk
-IGl0IGJlY2F1c2UgaXQKY2Fubm90IGV4cHJlc3MgdGhlIHdob2xlIDY0LWJpdCByYW5nZS4gSWYg
-dGhlIGd1ZXN0IHdhbnRzIHRvIGRvCnVubWFwLWFsbCAoYW5kIHRoZSBpbnB1dCByYW5nZSBpcyA2
-NC1iaXQpLCB0aGVuIGl0IGNhbiBzZW5kIGEgc2luZ2xlClVOTUFQIHJlcXVlc3Qgd2l0aCBzdGFy
-dD0wLCBlbmQ9fjBVTEwsIHdoaWNoIHdvdWxkbid0IGJlIHBvc3NpYmxlIHdpdGgKc3RhcnQgYW5k
-IGxlbmd0aC4gQXJndWFibHkgYSB2ZXJ5IHJhcmUgdXNlLWNhc2UsIGJ1dCBvbmUgSSd2ZSB0cmll
-ZCB0bwppbXBsZW1lbnQgYXQgbGVhc3QgdHdpY2Ugd2l0aCBWRklPIDopIEknbGwgc2VlIGlmIEkg
-Y2FuIG1ha2UgaXQgbW9yZQpvYnZpb3VzIHRoYXQgZW5kIGlzIGluY2x1c2l2ZSwgc2luY2UgdGhl
-IHdvcmQgZG9lc24ndCBhcHBlYXIgYXQgYWxsIGluCnRoZSBjdXJyZW50IGRyYWZ0LgoKVGhhbmtz
-LApKZWFuCl9fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fClZp
-cnR1YWxpemF0aW9uIG1haWxpbmcgbGlzdApWaXJ0dWFsaXphdGlvbkBsaXN0cy5saW51eC1mb3Vu
-ZGF0aW9uLm9yZwpodHRwczovL2xpc3RzLmxpbnV4Zm91bmRhdGlvbi5vcmcvbWFpbG1hbi9saXN0
-aW5mby92aXJ0dWFsaXphdGlvbg==
+On Thu, Feb 21, 2019 at 11:55:11PM -0800, si-wei liu wrote:
+> 
+> 
+> On 2/21/2019 11:00 PM, Samudrala, Sridhar wrote:
+> > 
+> > 
+> > On 2/21/2019 7:33 PM, si-wei liu wrote:
+> > > 
+> > > 
+> > > On 2/21/2019 5:39 PM, Michael S. Tsirkin wrote:
+> > > > On Thu, Feb 21, 2019 at 05:14:44PM -0800, Siwei Liu wrote:
+> > > > > Sorry for replying to this ancient thread. There was some remaining
+> > > > > issue that I don't think the initial net_failover patch got addressed
+> > > > > cleanly, see:
+> > > > > 
+> > > > > https://bugs.launchpad.net/ubuntu/+source/linux/+bug/1815268
+> > > > > 
+> > > > > The renaming of 'eth0' to 'ens4' fails because the udev userspace was
+> > > > > not specifically writtten for such kernel automatic enslavement.
+> > > > > Specifically, if it is a bond or team, the slave would typically get
+> > > > > renamed *before* virtual device gets created, that's what udev can
+> > > > > control (without getting netdev opened early by the other part of
+> > > > > kernel) and other userspace components for e.g. initramfs,
+> > > > > init-scripts can coordinate well in between. The in-kernel
+> > > > > auto-enslavement of net_failover breaks this userspace convention,
+> > > > > which don't provides a solution if user care about consistent naming
+> > > > > on the slave netdevs specifically.
+> > > > > 
+> > > > > Previously this issue had been specifically called out when IFF_HIDDEN
+> > > > > and the 1-netdev was proposed, but no one gives out a solution to this
+> > > > > problem ever since. Please share your mind how to proceed and solve
+> > > > > this userspace issue if netdev does not welcome a 1-netdev model.
+> > > > Above says:
+> > > > 
+> > > >     there's no motivation in the systemd/udevd community at
+> > > >     this point to refactor the rename logic and make it work well with
+> > > >     3-netdev.
+> > > > 
+> > > > What would the fix be? Skip slave devices?
+> > > > 
+> > > There's nothing user can get if just skipping slave devices - the
+> > > name is still unchanged and unpredictable e.g. eth0, or eth1 the
+> > > next reboot, while the rest may conform to the naming scheme (ens3
+> > > and such). There's no way one can fix this in userspace alone - when
+> > > the failover is created the enslaved netdev was opened by the kernel
+> > > earlier than the userspace is made aware of, and there's no
+> > > negotiation protocol for kernel to know when userspace has done
+> > > initial renaming of the interface. I would expect netdev list should
+> > > at least provide the direction in general for how this can be
+> > > solved...
+
+
+I was just wondering what did you mean when you said
+"refactor the rename logic and make it work well with 3-netdev" -
+was there a proposal udev rejected?
+
+Anyway, can we write a time diagram for what happens in which order that
+leads to failure?  That would help look for triggers that we can tie
+into, or add new ones.
+
+
+
+
+
+
+> > > 
+> > Is there an issue if slave device names are not predictable? The user/admin scripts are expected
+> > to only work with the master failover device.
+> Where does this expectation come from?
+> 
+> Admin users may have ethtool or tc configurations that need to deal with
+> predictable interface name. Third-party app which was built upon specifying
+> certain interface name can't be modified to chase dynamic names.
+> 
+> Specifically, we have pre-canned image that uses ethtool to fine tune VF
+> offload settings post boot for specific workload. Those images won't work
+> well if the name is constantly changing just after couple rounds of live
+> migration.
+
+It should be possible to specify the ethtool configuration on the
+master and have it automatically propagated to the slave.
+
+BTW this is something we should look at IMHO.
+
+> > Moreover, you were suggesting hiding the lower slave devices anyway. There was some discussion
+> > about moving them to a hidden network namespace so that they are not visible from the default namespace.
+> > I looked into this sometime back, but did not find the right kernel api to create a network namespace within
+> > kernel. If so, we could use this mechanism to simulate a 1-netdev model.
+> Yes, that's one possible implementation (IMHO the key is to make 1-netdev
+> model as much transparent to a real NIC as possible, while a hidden netns is
+> just the vehicle). However, I recall there was resistance around this
+> discussion that even the concept of hiding itself is a taboo for Linux
+> netdev. I would like to summon potential alternatives before concluding
+> 1-netdev is the only solution too soon.
+> 
+> Thanks,
+> -Siwei
+
+Your scripts would not work at all then, right?
+
+
+> > 
+> > > -Siwei
+> > > 
+> > > 
