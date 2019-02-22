@@ -1,15 +1,16 @@
-From: Thiago Jung Bauermann <bauerman@linux.ibm.com>
-Subject: Re: [PATCH v7 0/7] Add virtio-iommu driver
-Date: Thu, 21 Feb 2019 19:18:59 -0300
-Message-ID: <878sy8bx9o.fsf__4371.39264993078$1555717189$gmane$org@morokweng.localdomain>
-References: <20190115121959.23763-1-jean-philippe.brucker@arm.com>
-	<20190123083435.x3svwqp472mdgglw@8bytes.org>
-	<a6315ab3-bffb-7470-365d-b26df6524bda@arm.com>
+From: Alistair Francis <alistair23@gmail.com>
+Subject: Re: [PATCH] drm/bochs: Fix the ID mismatch error
+Date: Fri, 22 Feb 2019 10:05:04 -0800
+Message-ID: <CAKmqyKNNwHin9XD1-9z13XZrRch_36Po_0R5X=GNUTGAAOek_A__27796.8638272554$1555717201$gmane$org@mail.gmail.com>
+References: <20190221003231.31625-1-alistair.francis@wdc.com>
+	<20190221115227.ipwjpn3xm4q7jfg2@sirius.home.kraxel.org>
+	<CAKmqyKM_pb-riJ+jO65eT0SsVDxrstPOgurPuDf92Fd4C8k1Ug@mail.gmail.com>
+	<20190222053747.rhed6j6nyi6tmg4l@sirius.home.kraxel.org>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="utf-8"
-Content-Transfer-Encoding: base64
+Content-Type: text/plain; charset="us-ascii"
+Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-reply-to: <a6315ab3-bffb-7470-365d-b26df6524bda@arm.com>
+In-Reply-To: <20190222053747.rhed6j6nyi6tmg4l@sirius.home.kraxel.org>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -19,61 +20,45 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Jean-Philippe Brucker <jean-philippe.brucker@arm.com>
-Cc: Mark Rutland <Mark.Rutland@arm.com>, "virtio-dev@lists.oasis-open.org" <virtio-dev@lists.oasis-open.org>, "tnowicki@caviumnetworks.com" <tnowicki@caviumnetworks.com>, "mst@redhat.com" <mst@redhat.com>, Marc Zyngier <Marc.Zyngier@arm.com>, "linux-pci@vger.kernel.org" <linux-pci@vger.kernel.org>, Joerg Roedel <joro@8bytes.org>, Will Deacon <Will.Deacon@arm.com>, "virtualization@lists.linux-foundation.org" <virtualization@lists.linux-foundation.org>, "iommu@lists.linux-foundation.org" <iommu@lists.linux-foundation.org>, "robh+dt@kernel.org" <robh+dt@kernel.org>, "kvmarm@lists.cs.columbia.edu" <kvmarm@lists.cs.columbia.edu>, "bhelgaas@google.com" <bhelgaas@google.com>, Robin Murphy <Robin.Murphy@arm.com>, "devicetree@vger.kernel.org" <devicetree@vger.kernel.org>
+To: "kraxel@redhat.com" <kraxel@redhat.com>
+Cc: "david.abdurachmanov@gmail.com" <david.abdurachmanov@gmail.com>, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>, "dri-devel@lists.freedesktop.org" <dri-devel@lists.freedesktop.org>, "virtualization@lists.linux-foundation.org" <virtualization@lists.linux-foundation.org>, Alistair Francis <Alistair.Francis@wdc.com>, "linux-riscv@lists.infradead.org" <linux-riscv@lists.infradead.org>
 List-Id: virtualization@lists.linuxfoundation.org
 
-CkhlbGxvIEplYW4tUGhpbGlwcGUsCgpKZWFuLVBoaWxpcHBlIEJydWNrZXIgPGplYW4tcGhpbGlw
-cGUuYnJ1Y2tlckBhcm0uY29tPiB3cml0ZXM6Cj4gTWFrZXMgc2Vuc2UsIHRob3VnaCBJIHRoaW5r
-IG90aGVyIHZpcnRpbyBkZXZpY2VzIGhhdmUgYmVlbiBkZXZlbG9wZWQgYQo+IGxpdHRsZSBtb3Jl
-IG9yZ2FuaWNhbGx5OiBkZXZpY2UgYW5kIGRyaXZlciBjb2RlIGdvdCB1cHN0cmVhbWVkIGZpcnN0
-LAo+IGFuZCB0aGVuIHRoZSBzcGVjaWZpY2F0aW9uIGRlc2NyaWJpbmcgdGhlaXIgaW50ZXJmYWNl
-IGdvdCBtZXJnZWQgaW50bwo+IHRoZSBzdGFuZGFyZC4gRm9yIGV4YW1wbGUgSSBiZWxpZXZlIHRo
-YXQgY29kZSBmb3IgY3J5cHRvLCBpbnB1dCBhbmQgR1BVCj4gZGV2aWNlcyB3ZXJlIHVwc3RyZWFt
-ZWQgbG9uZyBiZWZvcmUgdGhlIHNwZWNpZmljYXRpb24gd2FzIG1lcmdlZC4gT25jZQo+IGFuIGlt
-cGxlbWVudGF0aW9uIGlzIHVwc3RyZWFtLCB0aGUgaW50ZXJmYWNlIGlzIGV4cGVjdGVkIHRvIGJl
-Cj4gYmFja3dhcmQtY29tcGF0aWJsZSAoYWxsIHN1YnNlcXVlbnQgY2hhbmdlcyBhcmUgaW50cm9k
-dWNlZCB1c2luZyBmZWF0dXJlCj4gYml0cykuCj4KPiBTbyBJJ3ZlIGJlZW4gd29ya2luZyB3aXRo
-IHRoaXMgcHJvY2VzcyBpbiBtaW5kLCBhbHNvIGRlc2NyaWJlZCBieSBKZW5zCj4gYXQgS1ZNIGZv
-cnVtIDIwMTcgWzNdOgo+ICgxKSBSZXNlcnZlIGEgZGV2aWNlIElELCBhbmQgZ2V0IHRoYXQgbWVy
-Z2VkIGludG8gdmlydGlvIChJRCAyMyBmb3IKPiB2aXJ0aW8taW9tbXUgd2FzIHJlc2VydmVkIGxh
-c3QgeWVhcikKPiAoMikgT3Blbi1zb3VyY2UgYW4gaW1wbGVtZW50YXRpb24gKHRoaXMgZHJpdmVy
-IGFuZCBFcmljJ3MgZGV2aWNlKQo+ICgzKSBGb3JtYWxpemUgYW5kIHVwc3RyZWFtIHRoZSBkZXZp
-Y2Ugc3BlY2lmaWNhdGlvbgo+Cj4gQnV0IEkgZ2V0IHRoYXQgc29tZSBvdmVybGFwIGJldHdlZW4g
-KDIpIGFuZCAoMykgd291bGQgaGF2ZSBiZWVuIGJldHRlci4KPiBTbyBmYXIgdGhlIHNwZWMgZG9j
-dW1lbnQgaGFzIGJlZW4gcmV2aWV3ZWQgbWFpbmx5IGZyb20gdGhlIElPTU1VIHBvaW50Cj4gb2Yg
-dmlldywgYW5kIG1pZ2h0IHJlcXVpcmUgbW9yZSBjaGFuZ2VzIHRvIGJlIGluIGxpbmUgd2l0aCB0
-aGUgb3RoZXIKPiB2aXJ0aW8gZGV2aWNlcyAtLSBob3BlZnVsbHkganVzdCB3b3JkaW5nIGNoYW5n
-ZXMuIEknbGwga2ljayBvZmYgc3RlcAo+ICgzKSwgYnV0IEkgdGhpbmsgdGhlIHZpcnRpbyBmb2xr
-cyBhcmUgYSBiaXQgYnVzeSB3aXRoIGZpbmFsaXppbmcgdGhlIDEuMQo+IHNwZWMgc28gSSBleHBl
-Y3QgaXQgdG8gdGFrZSBhIHdoaWxlLgoKSSByZWFkIHYwLjkgb2YgdGhlIHNwZWMgYW5kIGhhdmUg
-c29tZSBtaW5vciBjb21tZW50cywgaG9wZSB0aGlzIGlzIGEKZ29vZCBwbGFjZSB0byBzZW5kIHRo
-ZW06CgoxLiBJbiBzZWN0aW9uIDIuNi4yLCBvbmUgcmVhZHMKCiAgICBJZiB0aGUgVklSVElPX0lP
-TU1VX0ZfSU5QVVRfUkFOR0UgZmVhdHVyZSBpcyBvZmZlcmVkIGFuZCB0aGUgcmFuZ2UKICAgIGRl
-c2NyaWJlZCBieSBmaWVsZHMgdmlydF9zdGFydCBhbmQgdmlydF9lbmQgZG9lc27igJl0IGZpdCBp
-biB0aGUgcmFuZ2UKICAgIGRlc2NyaWJlZCBieSBpbnB1dF9yYW5nZSwgdGhlIGRldmljZSBNQVkg
-c2V0IHN0YXR1cyB0byBWSVJUSU9fLQogICAgSU9NTVVfU19SQU5HRSBhbmQgaWdub3JlIHRoZSBy
-ZXF1ZXN0LgoKU2hvdWxkbid0IGludCBzYXkgIklmIHRoZSBWSVJUSU9fSU9NTVVfRl9JTlBVVF9S
-QU5HRSBmZWF0dXJlIGlzCm5lZ290aWF0ZWQiIGluc3RlYWQ/CgoyLiBUaGVyZSdzIGEgdHlwbyBh
-dCB0aGUgZW5kIG9mIHNlY3Rpb24gMi42LjU6CgogICAgVGhlIFZJUlRJT19JT01NVV9NQVBfRl9N
-TUlPIGZsYWcgaXMgYSBtZW1vcnkgdHlwZSByYXRoZXIgdGhhbiBhCiAgICBwcm90ZWN0aW9uIGxh
-Zy4KCnMvbGFnL2ZsYWcvCgozLiBJbiBzZWN0aW9uIDMuMS4yLjEuMSwgdGhlIHZpb21tdSBjb21w
-YXRpYmxlIGZpZWxkIHNheXMgInZpcnRpbyxtbWlvIi4KU2hvdWxkbid0IGl0IHNheSAidmlydGlv
-LG1taW8taW9tbXUiIGluc3RlYWQsIHRvIGJlIGNvbnNpc3RlbnQgd2l0aAoidmlydGlvLHBjaS1p
-b21tdSI/Cgo0LiBUaGVyZSdzIGEgdHlwbyBpbiBzZWN0aW9uIDMuMzoKCiAgICBBIGhvc3QgYnJp
-ZGdlIG1heSBsaW1pdCB0aGUgaW5wdXQgYWRkcmVzcyBzcGFjZSDigJMgdHJhbnNhY3Rpb24KICAg
-IGFjY2Vzc2luZyBzb21lIGFkZHJlc3NlcyB3b27igJl0IHJlYWNoIHRoZSBwaHlzaWNhbCBJT01N
-VS4KCnMvdHJhbnNhY3Rpb24vdHJhbnNhY3Rpb25zLwoKSSBhbHNvIGhhdmUgb25lIGxhc3QgY29t
-bWVudCB3aGljaCB5b3UgbWF5IGZyZWVseSBpZ25vcmUsIGNvbnNpZGVyaW5nCml0J3MgY2xlYXJs
-eSBqdXN0IHBlcnNvbmFsIG9waW5pb24gYW5kIGFsc28gY29uc2lkZXJpbmcgdGhhdCB0aGUKc3Bl
-Y2lmaWNhdGlvbiBpcyBtYXR1cmUgYXQgdGhpcyBwb2ludDogaXQgc3BlY2lmaWVzIG1lbW9yeSBy
-YW5nZXMgYnkKc3BlY2lmeWluZyBzdGFydCBhbmQgZW5kIGFkZHJlc3Nlcy4gTXkgZXhwZXJpZW5j
-ZSBoYXMgYmVlbiB0aGF0IHRoaXMgaXMKZXJyb3IgcHJvbmUsIGxlYWRpbmcgdG8gY29uZnVzaW9u
-IGFuZCBidWdzIHJlZ2FyZGluZyB3aGV0aGVyIHRoZSBlbmQKYWRkcmVzcyBpcyBpbmNsdXNpdmUg
-b3IgZXhjbHVzaXZlLiBJIHRlbmQgdG8gcHJlZmVyIGV4cHJlc3NpbmcgbWVtb3J5CnJhbmdlcyBi
-eSBzcGVjaWZ5aW5nIGEgc3RhcnQgYWRkcmVzcyBhbmQgYSBsZW5ndGgsIHdoaWNoIGVsaW1pbmF0
-ZXMKYW1iaWd1aXR5LgoKLS0KVGhpYWdvIEp1bmcgQmF1ZXJtYW5uCklCTSBMaW51eCBUZWNobm9s
-b2d5IENlbnRlcgoKX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19f
-X18KVmlydHVhbGl6YXRpb24gbWFpbGluZyBsaXN0ClZpcnR1YWxpemF0aW9uQGxpc3RzLmxpbnV4
-LWZvdW5kYXRpb24ub3JnCmh0dHBzOi8vbGlzdHMubGludXhmb3VuZGF0aW9uLm9yZy9tYWlsbWFu
-L2xpc3RpbmZvL3ZpcnR1YWxpemF0aW9u
+On Thu, Feb 21, 2019 at 9:37 PM kraxel@redhat.com <kraxel@redhat.com> wrote:
+>
+> On Thu, Feb 21, 2019 at 10:44:06AM -0800, Alistair Francis wrote:
+> > On Thu, Feb 21, 2019 at 3:52 AM kraxel@redhat.com <kraxel@redhat.com> wrote:
+> > >
+> > > On Thu, Feb 21, 2019 at 12:33:03AM +0000, Alistair Francis wrote:
+> > > > When running RISC-V QEMU with the Bochs device attached via PCIe the
+> > > > probe of the Bochs device fails with:
+> > > >     [drm:bochs_hw_init] *ERROR* ID mismatch
+> > > >
+> > > > This was introduced by this commit:
+> > > >     7780eb9ce8 bochs: convert to drm_dev_register
+> > > >
+> > > > To fix the error we ensure that pci_enable_device() is called before
+> > > > bochs_load().
+> > > >
+> > > > Signed-off-by: Alistair Francis <alistair.francis@wdc.com>
+> > > > Reported-by: David Abdurachmanov <david.abdurachmanov@gmail.com>
+> > >
+> > > Pushed to drm-misc-fixes.
+> >
+> > Thanks. Any chance this will make it into 5.0?
+>
+> Hmm, we are damn close to the release, not sure there will be one more
+> drm-fixes pull req.  But I've added a proper Fixes: tag, so even if the
+> patch misses the boat it should land in the stable branches shortly
+> thereafter.
+
+Landing in the stable branches is probably enough. If you do end up
+sending another pull request it would be great if this gets in. It
+would be nice to have this fixed in the official 5.0 tag.
+
+Alistair
+
+>
+> cheers,
+>   Gerd
+>
