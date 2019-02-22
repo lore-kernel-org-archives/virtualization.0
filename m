@@ -1,14 +1,20 @@
-From: "Michael S. Tsirkin" <mst@redhat.com>
-Subject: Re: [PATCH] tpm: Add driver for TPM over virtio
-Date: Fri, 22 Feb 2019 00:51:18 -0500
-Message-ID: <20190222003207-mutt-send-email-mst@kernel.org>
-References: <388c5b80-21a7-1e91-a11f-3a1c1432368b@gmail.com>
+From: "Samudrala, Sridhar" <sridhar.samudrala@intel.com>
+Subject: Re: [virtio-dev] Re: net_failover slave udev renaming (was Re: [RFC
+	PATCH net-next v6 4/4] netvsc: refactor notifier/event handling code to
+	use the bypass framework)
+Date: Thu, 21 Feb 2019 23:00:04 -0800
+Message-ID: <91d4cbb1-be7a-b53c-6b2a-99bef07e7c53__9156.46033115394$1550819140$gmane$org@intel.com>
+References: <1523386790-12396-1-git-send-email-sridhar.samudrala@intel.com>
+	<1523386790-12396-5-git-send-email-sridhar.samudrala@intel.com>
+	<20180410142608.50f15b45@xeon-e3> <20180411075334.GK2028@nanopsycho>
+	<CADGSJ214RJV_zWVBGv0Ydo=CJj6WESTYAH=PpaYLFHdtWVrm3g@mail.gmail.com>
+	<20190221203808-mutt-send-email-mst@kernel.org>
+	<581e4399-3969-aecd-e923-03bbc0880733@oracle.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
-Content-Transfer-Encoding: 7bit
+Content-Type: multipart/mixed; boundary="===============3960901401281411382=="
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-Content-Disposition: inline
-In-Reply-To: <388c5b80-21a7-1e91-a11f-3a1c1432368b@gmail.com>
+In-Reply-To: <581e4399-3969-aecd-e923-03bbc0880733@oracle.com>
+Content-Language: en-US
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -18,584 +24,210 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: David Tolnay <dtolnay@gmail.com>
-Cc: dgreid@chromium.org, Jarkko Sakkinen <jarkko.sakkinen@linux.intel.com>, virtualization@lists.linux-foundation.org, Jason Gunthorpe <jgg@ziepe.ca>, Peter Huewe <peterhuewe@gmx.de>, apronin@chromium.org, linux-integrity@vger.kernel.org
+To: si-wei liu <si-wei.liu@oracle.com>, "Michael S. Tsirkin" <mst@redhat.com>, Siwei Liu <loseweigh@gmail.com>
+Cc: Alexander Duyck <alexander.h.duyck@intel.com>, virtio-dev <virtio-dev@lists.oasis-open.org>, Jiri Pirko <jiri@resnulli.us>, Jakub Kicinski <kubakici@wp.pl>, Netdev <netdev@vger.kernel.org>, virtualization@lists.linux-foundation.org, liran.alon@oracle.com, David Miller <davem@davemloft.net>
 List-Id: virtualization@lists.linuxfoundation.org
 
-On Thu, Feb 21, 2019 at 06:14:02PM -0800, David Tolnay wrote:
-> Add a config TCG_VIRTIO_VTPM which enables a driver providing the guest
-> kernel side of TPM over virtio.
-> 
-> Use case: TPM support is needed for performing trusted work from within
-> a virtual machine launched by Chrome OS.
-> 
-> Tested inside crosvm, the Chrome OS virtual machine monitor. Crosvm's
-> implementation of the virtio TPM device can be found in these two source
-> files:
-> 
-> - https://chromium.googlesource.com/chromiumos/platform/crosvm/+/18ce5713e6cb99c40aafec52b67c28ba12a44f31/devices/src/virtio/tpm.rs
-> - https://chromium.googlesource.com/chromiumos/platform/crosvm/+/18ce5713e6cb99c40aafec52b67c28ba12a44f31/tpm2/src/lib.rs
-> 
-> and is currently backed by the libtpm2 TPM simulator:
-> 
-> - https://chromium.googlesource.com/chromiumos/third_party/tpm2/
-> 
-> Reviewed-on: https://chromium-review.googlesource.com/1387655
-> Reviewed-by: Andrey Pronin <apronin@chromium.org>
-> Tested-by: David Tolnay <dtolnay@gmail.com>
-> Signed-off-by: David Tolnay <dtolnay@gmail.com>
-> ---
-> UNRESOLVED:
-> The driver assumes virtio device number VIRTIO_ID_TPM=31. If there is
-> interest in accepting a virtio TPM driver into the kernel, the Chrome OS
-> team will coordinate with the OASIS virtio technical committee to secure
-> an agreed upon device number and include it in a later patchset.
+This is a multi-part message in MIME format.
+--===============3960901401281411382==
+Content-Type: multipart/alternative;
+ boundary="------------3DC89C74F2F5950B3AA5C02B"
+Content-Language: en-US
 
-I am not a tpm expert but I don't see why not.
+This is a multi-part message in MIME format.
+--------------3DC89C74F2F5950B3AA5C02B
+Content-Type: text/plain; charset=windows-1252; format=flowed
+Content-Transfer-Encoding: 8bit
 
 
->  drivers/char/tpm/Kconfig      |   9 +
->  drivers/char/tpm/Makefile     |   1 +
->  drivers/char/tpm/tpm_virtio.c | 460 ++++++++++++++++++++++++++++++++++
-
-Maintainer entry?
-
->  3 files changed, 470 insertions(+)
->  create mode 100644 drivers/char/tpm/tpm_virtio.c
-> 
-> diff --git a/drivers/char/tpm/Kconfig b/drivers/char/tpm/Kconfig
-> index 536e55d3919f..8997060e248e 100644
-> --- a/drivers/char/tpm/Kconfig
-> +++ b/drivers/char/tpm/Kconfig
-> @@ -164,6 +164,15 @@ config TCG_VTPM_PROXY
->  	  /dev/vtpmX and a server-side file descriptor on which the vTPM
->  	  can receive commands.
->  
-> +config TCG_VIRTIO_VTPM
-> +	tristate "Virtio vTPM"
-> +	depends on TCG_TPM
-> +	help
-> +	  This driver provides the guest kernel side of TPM over Virtio. If
-> +	  you are building Linux to run inside of a hypervisor that supports
-> +	  TPM over Virtio, say Yes and the virtualized TPM will be
-> +	  accessible from the guest.
-> +
->  
->  source "drivers/char/tpm/st33zp24/Kconfig"
->  endif # TCG_TPM
-> diff --git a/drivers/char/tpm/Makefile b/drivers/char/tpm/Makefile
-> index a01c4cab902a..4f5d1071257a 100644
-> --- a/drivers/char/tpm/Makefile
-> +++ b/drivers/char/tpm/Makefile
-> @@ -33,3 +33,4 @@ obj-$(CONFIG_TCG_TIS_ST33ZP24) += st33zp24/
->  obj-$(CONFIG_TCG_XEN) += xen-tpmfront.o
->  obj-$(CONFIG_TCG_CRB) += tpm_crb.o
->  obj-$(CONFIG_TCG_VTPM_PROXY) += tpm_vtpm_proxy.o
-> +obj-$(CONFIG_TCG_VIRTIO_VTPM) += tpm_virtio.o
-> diff --git a/drivers/char/tpm/tpm_virtio.c b/drivers/char/tpm/tpm_virtio.c
-> new file mode 100644
-> index 000000000000..f3239d983f18
-> --- /dev/null
-> +++ b/drivers/char/tpm/tpm_virtio.c
-> @@ -0,0 +1,460 @@
-> +// SPDX-License-Identifier: GPL-2.0
-> +/*
-> + * Copyright 2019 Google Inc.
-> + *
-> + * Author: David Tolnay <dtolnay@gmail.com>
-> + *
-> + * ---
-> + *
-> + * Device driver for TPM over virtio.
-> + *
-> + * This driver employs a single virtio queue to handle both send and recv. TPM
-> + * commands are sent over virtio to the hypervisor during a TPM send operation
-> + * and responses are received over the same queue during a recv operation.
-> + *
-> + * The driver contains a single buffer that is the only buffer we ever place on
-> + * the virtio queue. Commands are copied from the caller's command buffer into
-> + * the driver's buffer before handing off to virtio, and responses are received
-> + * into the driver's buffer then copied into the caller's response buffer. This
-> + * allows us to be resilient to timeouts. When a send or recv operation times
-> + * out, the caller is free to destroy their buffer; we don't want the hypervisor
-> + * continuing to perform reads or writes against that destroyed buffer.
-> + *
-> + * This driver does not support concurrent send and recv operations. Mutual
-> + * exclusion is upheld by the tpm_mutex lock held in tpm-interface.c around the
-> + * calls to chip->ops->send and chip->ops->recv.
-> + *
-> + * The intended hypervisor-side implementation is as follows.
-> + *
-> + *     while true:
-> + *         await next virtio buffer.
-> + *         expect first descriptor in chain to be guest-to-host.
-> + *         read tpm command from that buffer.
-> + *         synchronously perform TPM work determined by the command.
-> + *         expect second descriptor in chain to be host-to-guest.
-> + *         write TPM response into that buffer.
-> + *         place buffer on virtio used queue indicating how many bytes written.
-
-That's fine I think except generally it should be legal for guest
-to split each buffer to several segments.
+On 2/21/2019 7:33 PM, si-wei liu wrote:
+>
+>
+> On 2/21/2019 5:39 PM, Michael S. Tsirkin wrote:
+>> On Thu, Feb 21, 2019 at 05:14:44PM -0800, Siwei Liu wrote:
+>>> Sorry for replying to this ancient thread. There was some remaining
+>>> issue that I don't think the initial net_failover patch got addressed
+>>> cleanly, see:
+>>>
+>>> https://bugs.launchpad.net/ubuntu/+source/linux/+bug/1815268
+>>>
+>>> The renaming of 'eth0' to 'ens4' fails because the udev userspace was
+>>> not specifically writtten for such kernel automatic enslavement.
+>>> Specifically, if it is a bond or team, the slave would typically get
+>>> renamed *before* virtual device gets created, that's what udev can
+>>> control (without getting netdev opened early by the other part of
+>>> kernel) and other userspace components for e.g. initramfs,
+>>> init-scripts can coordinate well in between. The in-kernel
+>>> auto-enslavement of net_failover breaks this userspace convention,
+>>> which don't provides a solution if user care about consistent naming
+>>> on the slave netdevs specifically.
+>>>
+>>> Previously this issue had been specifically called out when IFF_HIDDEN
+>>> and the 1-netdev was proposed, but no one gives out a solution to this
+>>> problem ever since. Please share your mind how to proceed and solve
+>>> this userspace issue if netdev does not welcome a 1-netdev model.
+>> Above says:
+>>
+>>     there's no motivation in the systemd/udevd community at
+>>     this point to refactor the rename logic and make it work well with
+>>     3-netdev.
+>>
+>> What would the fix be? Skip slave devices?
+>>
+> There's nothing user can get if just skipping slave devices - the name 
+> is still unchanged and unpredictable e.g. eth0, or eth1 the next 
+> reboot, while the rest may conform to the naming scheme (ens3 and 
+> such). There's no way one can fix this in userspace alone - when the 
+> failover is created the enslaved netdev was opened by the kernel 
+> earlier than the userspace is made aware of, and there's no 
+> negotiation protocol for kernel to know when userspace has done 
+> initial renaming of the interface. I would expect netdev list should 
+> at least provide the direction in general for how this can be solved...
+>
+Is there an issue if slave device names are not predictable? The user/admin scripts are expected
+to only work with the master failover device.
+Moreover, you were suggesting hiding the lower slave devices anyway. There was some discussion
+about moving them to a hidden network namespace so that they are not visible from the default namespace.
+I looked into this sometime back, but did not find the right kernel api to create a network namespace within
+kernel. If so, we could use this mechanism to simulate a 1-netdev model.
 
 
+> -Siwei
+>
+>
 
-> + */
-> +
-> +#include <linux/virtio_config.h>
-> +
-> +#include "tpm.h"
-> +
-> +/*
-> + * Timeout duration when waiting on the hypervisor to complete its end of the
-> + * TPM operation. This timeout is relatively high because certain TPM operations
-> + * can take dozens of seconds.
-> + */
-> +#define TPM_VIRTIO_TIMEOUT (120 * HZ)
+--------------3DC89C74F2F5950B3AA5C02B
+Content-Type: text/html; charset=windows-1252
+Content-Transfer-Encoding: 8bit
 
-Should we read this from device? E.g. a busy hypervisor might
-take longer to respond ...
+<html>
+  <head>
+    <meta http-equiv="Content-Type" content="text/html;
+      charset=windows-1252">
+  </head>
+  <body text="#000000" bgcolor="#FFFFFF">
+    <p><br>
+    </p>
+    <div class="moz-cite-prefix">On 2/21/2019 7:33 PM, si-wei liu wrote:<br>
+    </div>
+    <blockquote type="cite"
+      cite="mid:581e4399-3969-aecd-e923-03bbc0880733@oracle.com">
+      <br>
+      <br>
+      On 2/21/2019 5:39 PM, Michael S. Tsirkin wrote:
+      <br>
+      <blockquote type="cite">On Thu, Feb 21, 2019 at 05:14:44PM -0800,
+        Siwei Liu wrote:
+        <br>
+        <blockquote type="cite">Sorry for replying to this ancient
+          thread. There was some remaining
+          <br>
+          issue that I don't think the initial net_failover patch got
+          addressed
+          <br>
+          cleanly, see:
+          <br>
+          <br>
+          <a class="moz-txt-link-freetext" href="https://bugs.launchpad.net/ubuntu/+source/linux/+bug/1815268">https://bugs.launchpad.net/ubuntu/+source/linux/+bug/1815268</a>
+          <br>
+          <br>
+          The renaming of 'eth0' to 'ens4' fails because the udev
+          userspace was
+          <br>
+          not specifically writtten for such kernel automatic
+          enslavement.
+          <br>
+          Specifically, if it is a bond or team, the slave would
+          typically get
+          <br>
+          renamed *before* virtual device gets created, that's what udev
+          can
+          <br>
+          control (without getting netdev opened early by the other part
+          of
+          <br>
+          kernel) and other userspace components for e.g. initramfs,
+          <br>
+          init-scripts can coordinate well in between. The in-kernel
+          <br>
+          auto-enslavement of net_failover breaks this userspace
+          convention,
+          <br>
+          which don't provides a solution if user care about consistent
+          naming
+          <br>
+          on the slave netdevs specifically.
+          <br>
+          <br>
+          Previously this issue had been specifically called out when
+          IFF_HIDDEN
+          <br>
+          and the 1-netdev was proposed, but no one gives out a solution
+          to this
+          <br>
+          problem ever since. Please share your mind how to proceed and
+          solve
+          <br>
+          this userspace issue if netdev does not welcome a 1-netdev
+          model.
+          <br>
+        </blockquote>
+        Above says:
+        <br>
+        <br>
+            there's no motivation in the systemd/udevd community at
+        <br>
+            this point to refactor the rename logic and make it work
+        well with
+        <br>
+            3-netdev.
+        <br>
+        <br>
+        What would the fix be? Skip slave devices?
+        <br>
+        <br>
+      </blockquote>
+      There's nothing user can get if just skipping slave devices - the
+      name is still unchanged and unpredictable e.g. eth0, or eth1 the
+      next reboot, while the rest may conform to the naming scheme (ens3
+      and such). There's no way one can fix this in userspace alone -
+      when the failover is created the enslaved netdev was opened by the
+      kernel earlier than the userspace is made aware of, and there's no
+      negotiation protocol for kernel to know when userspace has done
+      initial renaming of the interface. I would expect netdev list
+      should at least provide the direction in general for how this can
+      be solved...
+      <br>
+      <br>
+    </blockquote>
+    <pre>Is there an issue if slave device names are not predictable? The user/admin scripts are expected
+to only work with the master failover device.
+Moreover, you were suggesting hiding the lower slave devices anyway. There was some discussion
+about moving them to a hidden network namespace so that they are not visible from the default namespace.
+I looked into this sometime back, but did not find the right kernel api to create a network namespace within
+kernel. If so, we could use this mechanism to simulate a 1-netdev model.
+</pre>
+    <p><br>
+    </p>
+    <blockquote type="cite"
+      cite="mid:581e4399-3969-aecd-e923-03bbc0880733@oracle.com">-Siwei
+      <br>
+      <br>
+      <br>
+    </blockquote>
+  </body>
+</html>
 
+--------------3DC89C74F2F5950B3AA5C02B--
 
-> +
-> +struct vtpm_device {
-> +	/*
-> +	 * Data structure for integration with the common code of the TPM driver
-> +	 * in tpm-chip.c.
-> +	 */
-> +	struct tpm_chip *chip;
-> +
-> +	/*
-> +	 * Virtio queue for sending TPM commands out of the virtual machine and
-> +	 * receiving TPM responses back from the hypervisor.
-> +	 */
-> +	struct virtqueue *vq;
-> +
-> +	/*
-> +	 * Completion that is notified when a virtio operation has been
-> +	 * fulfilled by the hypervisor.
-> +	 */
-> +	struct completion complete;
-> +
-> +	/*
-> +	 * Whether driver currently holds ownership of the virtqueue buffer.
-> +	 * When false, the hypervisor is in the process of reading or writing
-> +	 * the buffer and the driver must not touch it.
-> +	 */
-> +	bool driver_has_buffer;
-> +
-> +	/*
-> +	 * Whether during the most recent TPM operation, a virtqueue_kick failed
-> +	 * or a wait timed out.
-> +	 *
-> +	 * The next send or recv operation will attempt a kick upon seeing this
-> +	 * status. That should clear up the queue in the case that the
-> +	 * hypervisor became temporarily nonresponsive, such as by resource
-> +	 * exhaustion on the host. The extra kick enables recovery from kicks
-> +	 * going unnoticed by the hypervisor as well as recovery from virtio
-> +	 * callbacks going unnoticed by the guest kernel.
+--===============3960901401281411382==
+Content-Type: text/plain; charset="us-ascii"
+MIME-Version: 1.0
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
 
-Well not necessarily. E.g. virtqueue_kick does not
-kick if hypervisor didn't enable notifications
-(e.g. with event idx they get disabled automatically).
-So it won't recover if hypervisor can discard
-kicks.
-
-I think this comment needs clarification.
-
-
-> +	 */
-> +	bool needs_kick;
-> +
-> +	/* Number of bytes available to read from the virtqueue buffer. */
-> +	unsigned int readable;
-> +
-> +	/*
-> +	 * Buffer in which all virtio transfers take place. Buffer size is the
-> +	 * maximum legal TPM command or response message size.
-> +	 */
-> +	u8 virtqueue_buffer[TPM_BUFSIZE];
-> +};
-> +
-> +/*
-> + * Wait for ownership of the virtqueue buffer.
-> + *
-> + * The why-string should begin with "waiting to..." or "waiting for..." with no
-> + * trailing newline. It will appear in log output.
-> + *
-> + * Returns zero for success, otherwise negative error.
-> + */
-> +static int vtpm_wait_for_buffer(struct vtpm_device *dev, const char *why)
-> +{
-> +	int ret;
-> +	bool did_kick;
-> +	struct tpm_chip *chip = dev->chip;
-> +	unsigned long deadline = jiffies + TPM_VIRTIO_TIMEOUT;
-> +
-> +	/* Kick queue if needed. */
-> +	if (dev->needs_kick) {
-> +		did_kick = virtqueue_kick(dev->vq);
-> +		if (!did_kick) {
-> +			dev_notice(&chip->dev, "kick failed; will retry\n");
-> +			return -EBUSY;
-> +		}
-> +		dev->needs_kick = false;
-> +	}
-> +
-> +	while (!dev->driver_has_buffer) {
-> +		unsigned long now = jiffies;
-> +
-> +		/* Check timeout, otherwise `deadline - now` may underflow. */
-> +		if time_after_eq(now, deadline) {
-> +			dev_warn(&chip->dev, "timed out %s\n", why);
-> +			dev->needs_kick = true;
-> +			return -ETIMEDOUT;
-> +		}
-> +
-> +		/*
-> +		 * Wait to be signaled by virtio callback.
-> +		 *
-> +		 * Positive ret is jiffies remaining until timeout when the
-> +		 * completion occurred, which means successful completion. Zero
-> +		 * ret is timeout. Negative ret is error.
-> +		 */
-> +		ret = wait_for_completion_killable_timeout(
-> +				&dev->complete, deadline - now);
-> +
-> +		/* Log if completion did not occur. */
-> +		if (ret == -ERESTARTSYS) {
-> +			/* Not a warning if it was simply interrupted. */
-> +			dev_dbg(&chip->dev, "interrupted %s\n", why);
-> +		} else if (ret == 0) {
-> +			dev_warn(&chip->dev, "timed out %s\n", why);
-> +			ret = -ETIMEDOUT;
-
-Should we check NEEDS_RESET bit and try to reset the device?
-Or is that too drastic?
-
-> +		} else if (ret < 0) {
-> +			dev_warn(&chip->dev, "failed while %s: error %d\n",
-> +					why, -ret);
-> +		}
-> +
-> +		/*
-> +		 * Return error if completion did not occur. Schedule kick to be
-> +		 * retried at the start of the next send/recv to help unblock
-> +		 * the queue.
-> +		 */
-> +		if (ret < 0) {
-> +			dev->needs_kick = true;
-> +			return ret;
-> +		}
-> +
-> +		/* Completion occurred. Expect response buffer back. */
-> +		if (virtqueue_get_buf(dev->vq, &dev->readable)) {
-> +			dev->driver_has_buffer = true;
-> +
-> +			if (dev->readable > TPM_BUFSIZE) {
-> +				dev_crit(&chip->dev,
-> +						"hypervisor bug: response exceeds max size, %u > %u\n",
-> +						dev->readable,
-> +						(unsigned int) TPM_BUFSIZE);
-> +				dev->readable = TPM_BUFSIZE;
-> +				return -EPROTO;
-> +			}
-> +		}
-> +	}
-> +
-> +	return 0;
-> +}
-> +
-> +static int vtpm_op_send(struct tpm_chip *chip, u8 *caller_buf, size_t len)
-> +{
-> +	int ret;
-> +	bool did_kick;
-> +	struct scatterlist sg_outbuf, sg_inbuf;
-> +	struct scatterlist *sgs[2] = { &sg_outbuf, &sg_inbuf };
-> +	struct vtpm_device *dev = dev_get_drvdata(&chip->dev);
-> +	u8 *virtqueue_buf = dev->virtqueue_buffer;
-> +
-> +	dev_dbg(&chip->dev, __func__ " %zu bytes\n", len);
-> +
-> +	if (len > TPM_BUFSIZE) {
-> +		dev_err(&chip->dev,
-> +				"command is too long, %zu > %zu\n",
-> +				len, (size_t) TPM_BUFSIZE);
-> +		return -EINVAL;
-> +	}
-> +
-> +	/*
-> +	 * Wait until hypervisor relinquishes ownership of the virtqueue buffer.
-> +	 *
-> +	 * This may block if the previous recv operation timed out in the guest
-> +	 * kernel but is still being processed by the hypervisor. Also may block
-> +	 * if send operations are performed back-to-back, such as if something
-> +	 * in the caller failed in between a send and recv.
-> +	 *
-> +	 * During normal operation absent of any errors or timeouts, this does
-> +	 * not block.
-> +	 */
-> +	ret = vtpm_wait_for_buffer(dev, "waiting to begin send");
-> +	if (ret)
-> +		return ret;
-> +
-> +	/* Driver owns virtqueue buffer and may now write into it. */
-> +	memcpy(virtqueue_buf, caller_buf, len);
-> +
-> +	/*
-> +	 * Enqueue the virtqueue buffer once as outgoing virtio data (written by
-> +	 * the virtual machine and read by the hypervisor) and again as incoming
-> +	 * data (written by the hypervisor and read by the virtual machine).
-> +	 * This step moves ownership of the virtqueue buffer from driver to
-> +	 * hypervisor.
-> +	 *
-> +	 * Note that we don't know here how big of a buffer the caller will use
-> +	 * with their later call to recv. We allow the hypervisor to write up to
-> +	 * the TPM max message size. If the caller ends up using a smaller
-> +	 * buffer with recv that is too small to hold the entire response, the
-> +	 * recv will return an error. This conceivably breaks TPM
-> +	 * implementations that want to produce a different verbosity of
-> +	 * response depending on the receiver's buffer size.
-> +	 */
-> +	sg_init_one(&sg_outbuf, virtqueue_buf, len);
-> +	sg_init_one(&sg_inbuf, virtqueue_buf, TPM_BUFSIZE);
-> +	ret = virtqueue_add_sgs(dev->vq, sgs, 1, 1, virtqueue_buf, GFP_KERNEL);
-> +	if (ret) {
-> +		dev_err(&chip->dev, "failed virtqueue_add_sgs\n");
-> +		return ret;
-> +	}
-> +
-> +	/* Kick the other end of the virtqueue after having added a buffer. */
-> +	did_kick = virtqueue_kick(dev->vq);
-> +	if (!did_kick) {
-> +		dev->needs_kick = true;
-> +		dev_notice(&chip->dev, "kick failed; will retry\n");
-> +
-> +		/*
-> +		 * We return 0 anyway because what the caller doesn't know can't
-> +		 * hurt them. They can call recv and it will retry the kick. If
-> +		 * that works, everything is fine.
-> +		 *
-> +		 * If the retry in recv fails too, they will get -EBUSY from
-> +		 * recv.
-> +		 */
-> +	}
-> +
-> +	/*
-> +	 * Hypervisor is now processing the TPM command asynchronously. It will
-> +	 * read the command from the output buffer and write the response into
-> +	 * the input buffer (which are the same buffer). When done, it will send
-> +	 * back the buffers over virtio and the driver's virtio callback will
-> +	 * complete dev->complete so that we know the response is ready to be
-> +	 * read.
-> +	 *
-> +	 * It is important to have copied data out of the caller's buffer into
-> +	 * the driver's virtqueue buffer because the caller is free to destroy
-> +	 * their buffer when this call returns. We can't avoid copying by
-> +	 * waiting here for the hypervisor to finish reading, because if that
-> +	 * wait times out, we return and the caller may destroy their buffer
-> +	 * while the hypervisor is continuing to read from it.
-> +	 */
-> +	dev->driver_has_buffer = false;
-> +	return 0;
-> +}
-> +
-> +static int vtpm_op_recv(struct tpm_chip *chip, u8 *caller_buf, size_t len)
-> +{
-> +	int ret;
-> +	struct vtpm_device *dev = dev_get_drvdata(&chip->dev);
-> +	u8 *virtqueue_buf = dev->virtqueue_buffer;
-> +
-> +	dev_dbg(&chip->dev, __func__ "\n");
-> +
-> +	/*
-> +	 * Wait until the virtqueue buffer is owned by the driver.
-> +	 *
-> +	 * This will usually block while the hypervisor finishes processing the
-> +	 * most recent TPM command.
-> +	 */
-> +	ret = vtpm_wait_for_buffer(dev, "waiting for TPM response");
-> +	if (ret)
-> +		return ret;
-> +
-> +	dev_dbg(&chip->dev, "received %u bytes\n", dev->readable);
-> +
-> +	if (dev->readable > len) {
-> +		dev_notice(&chip->dev,
-> +				"TPM response is bigger than receiver's buffer: %u > %zu\n",
-> +				dev->readable, len);
-> +		return -EINVAL;
-> +	}
-> +
-> +	/* Copy response over to the caller. */
-> +	memcpy(caller_buf, virtqueue_buf, dev->readable);
-> +
-> +	return dev->readable;
-> +}
-> +
-> +static void vtpm_op_cancel(struct tpm_chip *chip)
-> +{
-> +	/*
-> +	 * Cancel is not called in this driver's use of tpm-interface.c. It may
-> +	 * be triggered through tpm-sysfs but that can be implemented as needed.
-> +	 * Be aware that tpm-sysfs performs cancellation without holding the
-> +	 * tpm_mutex that protects our send and recv operations, so a future
-> +	 * implementation will need to consider thread safety of concurrent
-> +	 * send/recv and cancel.
-> +	 */
-> +	dev_notice(&chip->dev, "cancellation is not implemented\n");
-> +}
-> +
-> +static u8 vtpm_op_status(struct tpm_chip *chip)
-> +{
-> +	/*
-> +	 * Status is for TPM drivers that want tpm-interface.c to poll for
-> +	 * completion before calling recv. Usually this is when the hardware
-> +	 * needs to be polled i.e. there is no other way for recv to block on
-> +	 * the TPM command completion.
-> +	 *
-> +	 * Polling goes until `(status & complete_mask) == complete_val`. This
-> +	 * driver defines both complete_mask and complete_val as 0 and blocks on
-> +	 * our own completion object in recv instead.
-> +	 */
-> +	return 0;
-> +}
-> +
-> +static const struct tpm_class_ops vtpm_ops = {
-> +	.flags = TPM_OPS_AUTO_STARTUP,
-> +	.send = vtpm_op_send,
-> +	.recv = vtpm_op_recv,
-> +	.cancel = vtpm_op_cancel,
-> +	.status = vtpm_op_status,
-> +	.req_complete_mask = 0,
-> +	.req_complete_val = 0,
-> +};
-> +
-> +static void vtpm_virtio_complete(struct virtqueue *vq)
-> +{
-> +	struct virtio_device *vdev = vq->vdev;
-> +	struct vtpm_device *dev = vdev->priv;
-> +
-> +	complete(&dev->complete);
-> +}
-> +
-> +static int vtpm_probe(struct virtio_device *vdev)
-> +{
-> +	int err;
-> +	struct vtpm_device *dev;
-> +	struct virtqueue *vq;
-> +	struct tpm_chip *chip;
-> +
-> +	dev_dbg(&vdev->dev, __func__ "\n");
-> +
-> +	dev = kzalloc(sizeof(struct vtpm_device), GFP_KERNEL);
-> +	if (!dev) {
-> +		err = -ENOMEM;
-> +		dev_err(&vdev->dev, "failed kzalloc\n");
-> +		goto err_dev_alloc;
-> +	}
-> +	vdev->priv = dev;
-> +
-> +	vq = virtio_find_single_vq(vdev, vtpm_virtio_complete, "vtpm");
-> +	if (IS_ERR(vq)) {
-> +		err = PTR_ERR(vq);
-> +		dev_err(&vdev->dev, "failed virtio_find_single_vq\n");
-> +		goto err_virtio_find;
-> +	}
-> +	dev->vq = vq;
-> +
-> +	chip = tpm_chip_alloc(&vdev->dev, &vtpm_ops);
-> +	if (IS_ERR(chip)) {
-> +		err = PTR_ERR(chip);
-> +		dev_err(&vdev->dev, "failed tpm_chip_alloc\n");
-> +		goto err_chip_alloc;
-> +	}
-> +	dev_set_drvdata(&chip->dev, dev);
-> +	chip->flags |= TPM_CHIP_FLAG_TPM2;
-> +	dev->chip = chip;
-> +
-> +	init_completion(&dev->complete);
-> +	dev->driver_has_buffer = true;
-> +	dev->needs_kick = false;
-> +	dev->readable = 0;
-> +
-> +	/*
-> +	 * Required in order to enable vq use in probe function for auto
-> +	 * startup.
-> +	 */
-> +	virtio_device_ready(vdev);
-> +
-> +	err = tpm_chip_register(dev->chip);
-> +	if (err) {
-> +		dev_err(&vdev->dev, "failed tpm_chip_register\n");
-> +		goto err_chip_register;
-> +	}
-> +
-> +	return 0;
-> +
-> +err_chip_register:
-> +	put_device(&dev->chip->dev);
-> +err_chip_alloc:
-> +	vdev->config->del_vqs(vdev);
-> +err_virtio_find:
-> +	kfree(dev);
-> +err_dev_alloc:
-> +	return err;
-> +}
-> +
-> +static void vtpm_remove(struct virtio_device *vdev)
-> +{
-> +	struct vtpm_device *dev = vdev->priv;
-> +
-> +	/* Undo tpm_chip_register. */
-> +	tpm_chip_unregister(dev->chip);
-> +
-> +	/* Undo tpm_chip_alloc. */
-> +	put_device(&dev->chip->dev);
-> +
-> +	vdev->config->reset(vdev);
-> +	vdev->config->del_vqs(vdev);
-> +
-> +	kfree(dev);
-> +}
-> +
-> +#define VIRTIO_ID_TPM 31
-> +
-> +static struct virtio_device_id id_table[] = {
-> +	{
-> +		.device = VIRTIO_ID_TPM,
-> +		.vendor = VIRTIO_DEV_ANY_ID,
-> +	},
-> +	{},
-> +};
-
-Let's write
-
-static struct virtio_device_id id_table[] = {
-        { VIRTIO_ID_TPM, VIRTIO_DEV_ANY_ID },
-        { 0 },
-};
-
-for consistency with other virtio devices.
-
-> +
-> +static struct virtio_driver vtpm_driver = {
-> +	.driver.name = KBUILD_MODNAME,
-> +	.driver.owner = THIS_MODULE,
-> +	.id_table = id_table,
-> +	.probe = vtpm_probe,
-> +	.remove = vtpm_remove,
-
-Freeze/restore?
-
-
-> +};
-> +
-> +module_virtio_driver(vtpm_driver);
-> +
-> +MODULE_AUTHOR("David Tolnay (dtolnay@gmail.com)");
-> +MODULE_DESCRIPTION("Virtio vTPM Driver");
-> +MODULE_VERSION("1.0");
-> +MODULE_LICENSE("GPL");
-> -- 
-> 2.20.1
+_______________________________________________
+Virtualization mailing list
+Virtualization@lists.linux-foundation.org
+https://lists.linuxfoundation.org/mailman/listinfo/virtualization
+--===============3960901401281411382==--
