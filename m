@@ -1,18 +1,13 @@
 From: Gerd Hoffmann <kraxel@redhat.com>
-Subject: Re: [PATCH v2 2/2] drm/qxl: kick out vgacon
-Date: Fri, 22 Feb 2019 08:14:18 +0100
-Message-ID: <20190222071418.mafr3rtrtspd44fr__18938.9244232856$1550819949$gmane$org@sirius.home.kraxel.org>
-References: <20190221113534.20764-1-kraxel@redhat.com>
-	<20190221113534.20764-3-kraxel@redhat.com>
-	<20190221122011.GP2665@phenom.ffwll.local>
-	<20190221151139.ul2ihzd2yi4m47tf@sirius.home.kraxel.org>
-	<CAKMK7uE+YzvBuaJVrNc0VzTQKmnDzNMoZDXohrh0M+PAfRFcBw@mail.gmail.com>
+Subject: [PATCH v4 2/2] drm/qxl: remove conflicting framebuffers earlier
+Date: Fri, 22 Feb 2019 08:16:04 +0100
+Message-ID: <20190222071604.26024-3-kraxel__49052.2480149352$1550819960$gmane$org@redhat.com>
+References: <20190222071604.26024-1-kraxel@redhat.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-Content-Disposition: inline
-In-Reply-To: <CAKMK7uE+YzvBuaJVrNc0VzTQKmnDzNMoZDXohrh0M+PAfRFcBw@mail.gmail.com>
+In-Reply-To: <20190222071604.26024-1-kraxel@redhat.com>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -22,21 +17,39 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Daniel Vetter <daniel@ffwll.ch>
-Cc: David Airlie <airlied@linux.ie>, open list <linux-kernel@vger.kernel.org>, dri-devel <dri-devel@lists.freedesktop.org>, "open list:DRM DRIVER FOR QXL VIRTUAL GPU" <virtualization@lists.linux-foundation.org>, "open list:DRM DRIVER FOR QXL VIRTUAL GPU" <spice-devel@lists.freedesktop.org>, Dave Airlie <airlied@redhat.com>
+To: dri-devel@lists.freedesktop.org
+Cc: David Airlie <airlied@linux.ie>, open list <linux-kernel@vger.kernel.org>, "open list:DRM DRIVER FOR QXL VIRTUAL GPU" <virtualization@lists.linux-foundation.org>, daniel@ffwll.ch, "open list:DRM DRIVER FOR QXL VIRTUAL GPU" <spice-devel@lists.freedesktop.org>, Dave Airlie <airlied@redhat.com>
 List-Id: virtualization@lists.linuxfoundation.org
 
-  Hi,
+Add error checking while being at it.
 
-> PCI_COMMAND_MEM and PCI_COMMAND_IO. There doesn't seem to be any
-> separate bits really. That's at least what I've gleaned from vgaarb.c.
-> The magic legacy vga decode bits only seem to exist on bridges, maybe
-> we can extract that logic from vgaarb.c (yes this is all a bit
-> spiralling out of control).
+Signed-off-by: Gerd Hoffmann <kraxel@redhat.com>
+---
+ drivers/gpu/drm/qxl/qxl_drv.c | 5 ++++-
+ 1 file changed, 4 insertions(+), 1 deletion(-)
 
-Also makes me wonder whenever vgaarb is the better place (compared to
-drm_fb_helper).  Tried that, doesn't look too bad, should continue
-working with CONFIG_FB=n.  Will send patches in a moment.
-
-cheers,
-  Gerd
+diff --git a/drivers/gpu/drm/qxl/qxl_drv.c b/drivers/gpu/drm/qxl/qxl_drv.c
+index bb81e310eb6d..578d867a81d5 100644
+--- a/drivers/gpu/drm/qxl/qxl_drv.c
++++ b/drivers/gpu/drm/qxl/qxl_drv.c
+@@ -79,6 +79,10 @@ qxl_pci_probe(struct pci_dev *pdev, const struct pci_device_id *ent)
+ 	if (ret)
+ 		goto free_dev;
+ 
++	ret = drm_fb_helper_remove_conflicting_pci_framebuffers(pdev, 0, "qxl");
++	if (ret)
++		goto disable_pci;
++
+ 	ret = qxl_device_init(qdev, &qxl_driver, pdev);
+ 	if (ret)
+ 		goto disable_pci;
+@@ -94,7 +98,6 @@ qxl_pci_probe(struct pci_dev *pdev, const struct pci_device_id *ent)
+ 	if (ret)
+ 		goto modeset_cleanup;
+ 
+-	drm_fb_helper_remove_conflicting_pci_framebuffers(pdev, 0, "qxl");
+ 	drm_fbdev_generic_setup(&qdev->ddev, 32);
+ 	return 0;
+ 
+-- 
+2.9.3
