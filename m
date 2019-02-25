@@ -1,22 +1,13 @@
-From: "Michael S. Tsirkin" <mst@redhat.com>
-Subject: Re: [PATCH] tpm: Add driver for TPM over virtio
-Date: Fri, 22 Feb 2019 18:05:01 -0500
-Message-ID: <20190222180341-mutt-send-email-mst@kernel.org>
-References: <388c5b80-21a7-1e91-a11f-3a1c1432368b@gmail.com>
-	<20190222102610.GB5613@linux.intel.com>
-	<20190222101728-mutt-send-email-mst@kernel.org>
-	<20190222193156.GA6475@linux.intel.com>
-	<20190222193305.GB6475@linux.intel.com>
-	<20190222161636-mutt-send-email-mst@kernel.org>
-	<20190222215001.GA21427@linux.intel.com>
-	<f16bd565-0a7e-d7bb-a5e8-eda48ac8de80@gmail.com>
-	<20190222223634.GA27601@linux.intel.com>
+From: Gerd Hoffmann <kraxel@redhat.com>
+Subject: [PATCH v6 3/3] drm/qxl: remove conflicting framebuffers earlier
+Date: Mon, 25 Feb 2019 09:30:09 +0100
+Message-ID: <20190225083009.16082-4-kraxel__41887.6607714751$1551083676$gmane$org@redhat.com>
+References: <20190225083009.16082-1-kraxel@redhat.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-Content-Disposition: inline
-In-Reply-To: <20190222223634.GA27601@linux.intel.com>
+In-Reply-To: <20190225083009.16082-1-kraxel@redhat.com>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -26,18 +17,40 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Jarkko Sakkinen <jarkko.sakkinen@linux.intel.com>
-Cc: dgreid@chromium.org, virtualization@lists.linux-foundation.org, Jason Gunthorpe <jgg@ziepe.ca>, linux-integrity@vger.kernel.org, Peter Huewe <peterhuewe@gmx.de>, apronin@chromium.org, David Tolnay <dtolnay@gmail.com>
+To: dri-devel@lists.freedesktop.org
+Cc: David Airlie <airlied@linux.ie>, intel-gfx@lists.freedesktop.org, open list <linux-kernel@vger.kernel.org>, "open list:DRM DRIVER FOR QXL VIRTUAL GPU" <virtualization@lists.linux-foundation.org>, daniel@ffwll.ch, "open list:DRM DRIVER FOR QXL VIRTUAL GPU" <spice-devel@lists.freedesktop.org>, Dave Airlie <airlied@redhat.com>
 List-Id: virtualization@lists.linuxfoundation.org
 
-On Sat, Feb 23, 2019 at 12:36:34AM +0200, Jarkko Sakkinen wrote:
-> I do not require spec quality documentation. Just a few paragraphs of
-> what is in crosvm, kernel etc. and something about inner workings to
-> get a rough idea. No need for TCG level spec for this :-)
+Add error checking while being at it.
 
-OTOH for virtio if there's no implementation in a popular
-hypervisor/language, we do ask for a somewhat detailed
-spec.
+Signed-off-by: Gerd Hoffmann <kraxel@redhat.com>
+Reviewed-by: Daniel Vetter <daniel.vetter@ffwll.ch>
+---
+ drivers/gpu/drm/qxl/qxl_drv.c | 5 ++++-
+ 1 file changed, 4 insertions(+), 1 deletion(-)
 
+diff --git a/drivers/gpu/drm/qxl/qxl_drv.c b/drivers/gpu/drm/qxl/qxl_drv.c
+index bb81e310eb6d..578d867a81d5 100644
+--- a/drivers/gpu/drm/qxl/qxl_drv.c
++++ b/drivers/gpu/drm/qxl/qxl_drv.c
+@@ -79,6 +79,10 @@ qxl_pci_probe(struct pci_dev *pdev, const struct pci_device_id *ent)
+ 	if (ret)
+ 		goto free_dev;
+ 
++	ret = drm_fb_helper_remove_conflicting_pci_framebuffers(pdev, 0, "qxl");
++	if (ret)
++		goto disable_pci;
++
+ 	ret = qxl_device_init(qdev, &qxl_driver, pdev);
+ 	if (ret)
+ 		goto disable_pci;
+@@ -94,7 +98,6 @@ qxl_pci_probe(struct pci_dev *pdev, const struct pci_device_id *ent)
+ 	if (ret)
+ 		goto modeset_cleanup;
+ 
+-	drm_fb_helper_remove_conflicting_pci_framebuffers(pdev, 0, "qxl");
+ 	drm_fbdev_generic_setup(&qdev->ddev, 32);
+ 	return 0;
+ 
 -- 
-MST
+2.9.3
