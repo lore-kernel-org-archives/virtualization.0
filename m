@@ -1,14 +1,14 @@
 From: =?UTF-8?Q?Noralf_Tr=c3=b8nnes?= <noralf@tronnes.org>
-Subject: Re: [PATCH 2/3] drm/virtio: implement prime pin/unpin
-Date: Wed, 27 Feb 2019 18:07:36 +0100
-Message-ID: <f74d6ae1-126d-8708-96a0-31ce9e62bf55__16432.2169310012$1551287707$gmane$org@tronnes.org>
+Subject: Re: [PATCH 1/3] drm/virtio: implement prime mmap
+Date: Wed, 27 Feb 2019 18:11:17 +0100
+Message-ID: <83886094-a5f4-bb79-f727-ed0c7b81eac3__22756.9180585974$1551288091$gmane$org@tronnes.org>
 References: <20190227144441.6755-1-kraxel@redhat.com>
-	<20190227144441.6755-3-kraxel@redhat.com>
+	<20190227144441.6755-2-kraxel@redhat.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="utf-8"
 Content-Transfer-Encoding: base64
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <20190227144441.6755-3-kraxel@redhat.com>
+In-Reply-To: <20190227144441.6755-2-kraxel@redhat.com>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -22,27 +22,11 @@ To: Gerd Hoffmann <kraxel@redhat.com>, dri-devel@lists.freedesktop.org
 Cc: David Airlie <airlied@linux.ie>, open list <linux-kernel@vger.kernel.org>, "open list:VIRTIO GPU DRIVER" <virtualization@lists.linux-foundation.org>
 List-Id: virtualization@lists.linuxfoundation.org
 
-CgpEZW4gMjcuMDIuMjAxOSAxNS40NCwgc2tyZXYgR2VyZCBIb2ZmbWFubjoKPiB2aXJ0aW8tZ3B1
-IG9iamVjdHMgbmV2ZXIgbW92ZSBhcm91bmQsIHNvIGVmZmVjdGl2ZWx5IHRoZXkgYXJlIHBpbm5l
-ZAo+IGFsbCB0aGUgdGltZS4gIFRoaXMgbWFrZXMgdGhlIHRoZSBpbXBsZW1lbnRhdGlvbiBwcmV0
-dHkgZWFzeSA7KQo+IAo+IFNpZ25lZC1vZmYtYnk6IEdlcmQgSG9mZm1hbm4gPGtyYXhlbEByZWRo
-YXQuY29tPgo+IC0tLQo+ICBkcml2ZXJzL2dwdS9kcm0vdmlydGlvL3ZpcnRncHVfcHJpbWUuYyB8
-IDYgKysrLS0tCj4gIDEgZmlsZSBjaGFuZ2VkLCAzIGluc2VydGlvbnMoKyksIDMgZGVsZXRpb25z
-KC0pCj4gCj4gZGlmZiAtLWdpdCBhL2RyaXZlcnMvZ3B1L2RybS92aXJ0aW8vdmlydGdwdV9wcmlt
-ZS5jIGIvZHJpdmVycy9ncHUvZHJtL3ZpcnRpby92aXJ0Z3B1X3ByaW1lLmMKPiBpbmRleCBiNGM5
-MTk5MzQ5ZTcuLjBmY2FlMGU0NmFiZCAxMDA2NDQKPiAtLS0gYS9kcml2ZXJzL2dwdS9kcm0vdmly
-dGlvL3ZpcnRncHVfcHJpbWUuYwo+ICsrKyBiL2RyaXZlcnMvZ3B1L2RybS92aXJ0aW8vdmlydGdw
-dV9wcmltZS5jCj4gQEAgLTMwLDEzICszMCwxMyBAQAo+ICAKPiAgaW50IHZpcnRncHVfZ2VtX3By
-aW1lX3BpbihzdHJ1Y3QgZHJtX2dlbV9vYmplY3QgKm9iaikKPiAgewo+IC0JV0FSTl9PTkNFKDEs
-ICJub3QgaW1wbGVtZW50ZWQiKTsKPiAtCXJldHVybiAtRU5PREVWOwo+ICsJLyogbm90aGluZzog
-YWxsIHZpcnRpby1ncHUgb2JqZWN0cyBhcmUgcGlubmVkIGFsbCB0aGUgdGltZSAqLwo+ICsJcmV0
-dXJuIDA7Cj4gIH0KPiAgCj4gIHZvaWQgdmlydGdwdV9nZW1fcHJpbWVfdW5waW4oc3RydWN0IGRy
-bV9nZW1fb2JqZWN0ICpvYmopCj4gIHsKPiAtCVdBUk5fT05DRSgxLCAibm90IGltcGxlbWVudGVk
-Iik7Cj4gKwkvKiBub3RoaW5nICovCj4gIH0KCllvdSBjYW4ganVzdCByZW1vdmUgdGhlc2UgZHVt
-bWllcyB0aGUgY2FsbGJhY2tzIGFyZSBvcHRpb25hbC4gU2VlCmRybV9nZW1fcGluKCkuCgpXaXRo
-IHRoYXQ6CgpSZXZpZXdlZC1ieTogTm9yYWxmIFRyw7hubmVzIDxub3JhbGZAdHJvbm5lcy5vcmc+
-Cgo+ICAKPiAgdm9pZCAqdmlydGdwdV9nZW1fcHJpbWVfdm1hcChzdHJ1Y3QgZHJtX2dlbV9vYmpl
-Y3QgKm9iaikKPiAKX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19f
-X18KVmlydHVhbGl6YXRpb24gbWFpbGluZyBsaXN0ClZpcnR1YWxpemF0aW9uQGxpc3RzLmxpbnV4
-LWZvdW5kYXRpb24ub3JnCmh0dHBzOi8vbGlzdHMubGludXhmb3VuZGF0aW9uLm9yZy9tYWlsbWFu
-L2xpc3RpbmZvL3ZpcnR1YWxpemF0aW9u
+CgpEZW4gMjcuMDIuMjAxOSAxNS40NCwgc2tyZXYgR2VyZCBIb2ZmbWFubjoKPiBTeW5jIGdlbSB2
+bV9ub2RlLnN0YXJ0IHdpdGggdHRtIHZtX25vZGUuc3RhcnQsCj4gdGhlbiB3ZSBjYW4ganVzdCBj
+YWxsIGRybV9nZW1fcHJpbWVfbW1hcCgpLgo+IAo+IFNpZ25lZC1vZmYtYnk6IEdlcmQgSG9mZm1h
+bm4gPGtyYXhlbEByZWRoYXQuY29tPgo+IC0tLQoKQWNrZWQtYnk6IE5vcmFsZiBUcsO4bm5lcyA8
+bm9yYWxmQHRyb25uZXMub3JnPgpfX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19f
+X19fX19fX19fXwpWaXJ0dWFsaXphdGlvbiBtYWlsaW5nIGxpc3QKVmlydHVhbGl6YXRpb25AbGlz
+dHMubGludXgtZm91bmRhdGlvbi5vcmcKaHR0cHM6Ly9saXN0cy5saW51eGZvdW5kYXRpb24ub3Jn
+L21haWxtYW4vbGlzdGluZm8vdmlydHVhbGl6YXRpb24=
