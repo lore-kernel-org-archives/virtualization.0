@@ -1,15 +1,13 @@
-From: Greg KH <gregkh@linuxfoundation.org>
-Subject: Re: [PATCH v2 char-misc-next 4/7] mic: vop: Add loopback driver
-Date: Tue, 26 Feb 2019 12:56:18 +0100
-Message-ID: <20190226115618.GB4094__12080.0760969118$1551182757$gmane$org@kroah.com>
-References: <20190222153056.18878-1-vincent.whitchurch@axis.com>
-	<20190222153056.18878-7-vincent.whitchurch@axis.com>
+From: Gerd Hoffmann <kraxel@redhat.com>
+Subject: [PATCH 2/3] drm/virtio: implement prime pin/unpin
+Date: Wed, 27 Feb 2019 15:44:40 +0100
+Message-ID: <20190227144441.6755-3-kraxel__20561.8344874651$1551279250$gmane$org@redhat.com>
+References: <20190227144441.6755-1-kraxel@redhat.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-Content-Disposition: inline
-In-Reply-To: <20190222153056.18878-7-vincent.whitchurch@axis.com>
+In-Reply-To: <20190227144441.6755-1-kraxel@redhat.com>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -19,29 +17,38 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Vincent Whitchurch <vincent.whitchurch@axis.com>
-Cc: Vincent Whitchurch <rabinv@axis.com>, arnd@arndb.de, linux-kernel@vger.kernel.org, sudeep.dutt@intel.com, virtualization@lists.linux-foundation.org, ashutosh.dixit@intel.com
+To: dri-devel@lists.freedesktop.org
+Cc: David Airlie <airlied@linux.ie>, open list <linux-kernel@vger.kernel.org>, Daniel Vetter <daniel@ffwll.ch>, "open list:VIRTIO GPU DRIVER" <virtualization@lists.linux-foundation.org>
 List-Id: virtualization@lists.linuxfoundation.org
 
-On Fri, Feb 22, 2019 at 04:30:52PM +0100, Vincent Whitchurch wrote:
-> Add a loopback driver to allow testing and evaluation of the VOP
-> framework without special hardware.  The host and the guest will run
-> under the same kernel.
-> 
-> Signed-off-by: Vincent Whitchurch <vincent.whitchurch@axis.com>
-> ---
->  drivers/misc/mic/Kconfig            |  10 +
->  drivers/misc/mic/vop/Makefile       |   2 +
->  drivers/misc/mic/vop/vop_loopback.c | 382 ++++++++++++++++++++++++++++
->  3 files changed, 394 insertions(+)
->  create mode 100644 drivers/misc/mic/vop/vop_loopback.c
+virtio-gpu objects never move around, so effectively they are pinned
+all the time.  This makes the the implementation pretty easy ;)
 
-You sent 2 4/7 patches in this series, is that intentional?  Are they
-different?
+Signed-off-by: Gerd Hoffmann <kraxel@redhat.com>
+---
+ drivers/gpu/drm/virtio/virtgpu_prime.c | 6 +++---
+ 1 file changed, 3 insertions(+), 3 deletions(-)
 
-I've applied the first 3 here, can you rebase and resend the rest of
-these, without any duplicated patches?
-
-thanks,
-
-greg k-h
+diff --git a/drivers/gpu/drm/virtio/virtgpu_prime.c b/drivers/gpu/drm/virtio/virtgpu_prime.c
+index b4c9199349e7..0fcae0e46abd 100644
+--- a/drivers/gpu/drm/virtio/virtgpu_prime.c
++++ b/drivers/gpu/drm/virtio/virtgpu_prime.c
+@@ -30,13 +30,13 @@
+ 
+ int virtgpu_gem_prime_pin(struct drm_gem_object *obj)
+ {
+-	WARN_ONCE(1, "not implemented");
+-	return -ENODEV;
++	/* nothing: all virtio-gpu objects are pinned all the time */
++	return 0;
+ }
+ 
+ void virtgpu_gem_prime_unpin(struct drm_gem_object *obj)
+ {
+-	WARN_ONCE(1, "not implemented");
++	/* nothing */
+ }
+ 
+ void *virtgpu_gem_prime_vmap(struct drm_gem_object *obj)
+-- 
+2.9.3
