@@ -1,17 +1,25 @@
-From: Marc Zyngier <marc.zyngier@arm.com>
-Subject: Re: Regression with "arm64: KVM: Skip MMIO insn after emulation" on
-	4.4 stable
-Date: Thu, 28 Feb 2019 12:19:28 +0000
-Message-ID: <026689da-720b-1a24-78cb-ff4e08603d88__1795.22762061737$1551356932$gmane$org@arm.com>
-References: <CABVzXAnm78j6mwbNF2MWTwkBcXVmCdWYdZfXJBhiThOEK3135w@mail.gmail.com>
-	<20190228081605.GB865@kroah.com> <86r2bswb5e.wl-marc.zyngier@arm.com>
-	<6dd1026e-5310-0b41-2e90-716120180956@arm.com>
+From: "Michael S. Tsirkin" <mst@redhat.com>
+Subject: Re: [virtio-dev] Re: net_failover slave udev renaming (was Re: [RFC
+	PATCH net-next v6 4/4] netvsc: refactor notifier/event handling code to
+	use the bypass framework)
+Date: Thu, 28 Feb 2019 09:26:06 -0500
+Message-ID: <20190228091119-mutt-send-email-mst__27709.1645448067$1551364655$gmane$org@kernel.org>
+References: <20190222100753-mutt-send-email-mst@kernel.org>
+	<e6a53bd1-83ab-f170-406a-03276e8c87e2@oracle.com>
+	<20190225210529-mutt-send-email-mst@kernel.org>
+	<d1060c75-eaba-ab6f-ff31-38cb3a47c711@oracle.com>
+	<20190227173710-mutt-send-email-mst@kernel.org>
+	<c72ce9eb-254c-cc3e-1969-f7f108506d5e@oracle.com>
+	<20190227184601-mutt-send-email-mst@kernel.org>
+	<a617ce13-4114-469d-ef33-a1c91150eeca@oracle.com>
+	<20190227193923-mutt-send-email-mst@kernel.org>
+	<36901346-e3d5-4e51-6a8d-678eb5b9e352@oracle.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <6dd1026e-5310-0b41-2e90-716120180956@arm.com>
-Content-Language: en-US
+Content-Disposition: inline
+In-Reply-To: <36901346-e3d5-4e51-6a8d-678eb5b9e352@oracle.com>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -21,85 +29,41 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Greg KH <gregkh@linuxfoundation.org>, Daniel Verkamp <dverkamp@chromium.org>
-Cc: Mark Rutland <mark.rutland@arm.com>, stable@vger.kernel.org, virtualization@lists.linux-foundation.org
+To: si-wei liu <si-wei.liu@oracle.com>
+Cc: Alexander Duyck <alexander.h.duyck@intel.com>, virtio-dev <virtio-dev@lists.oasis-open.org>, Jiri Pirko <jiri@resnulli.us>, Jakub Kicinski <kubakici@wp.pl>, "Samudrala, Sridhar" <sridhar.samudrala@intel.com>, virtualization@lists.linux-foundation.org, Siwei Liu <loseweigh@gmail.com>, liran.alon@oracle.com, Netdev <netdev@vger.kernel.org>, David Miller <davem@davemloft.net>
 List-Id: virtualization@lists.linuxfoundation.org
 
-On 28/02/2019 11:13, Marc Zyngier wrote:
-> On 28/02/2019 08:49, Marc Zyngier wrote:
->> On Thu, 28 Feb 2019 08:16:05 +0000,
->> Greg KH <gregkh@linuxfoundation.org> wrote:
->>
->> Hi both,
->>
->>>
->>> On Wed, Feb 27, 2019 at 04:36:39PM -0800, Daniel Verkamp wrote:
->>>> Hello,
->>>>
->>>> In my testing of crosvm[1] with Linux 4.4.175, I am observing failures
->>>> on a 'kevin' Chromebook (RK3399) device - the guest kernel does not
->>>> even get to the point of printing its first messages, and the host
->>>> seems to be spinning at 100% CPU in KVM_RUN.
->>>>
->>>> I narrowed this down to the 4.4 stable backport of "arm64: KVM: Skip
->>>> MMIO insn after emulation" - with this patch reverted, I can boot the
->>>> guest kernel as normal again.
->>>>
->>>> Unfortunately, I am unable to easily test with a newer upstream kernel
->>>> (this board is using the Chrome OS kernel with many additional patches
->>>> applied on top of 4.4), so I'm not sure if this issue was introduced
->>>> in the mainline commit or only in the stable branch.  Is it possible
->>>> that this patch has other dependencies that were missed in the
->>>> backport?  It looks like it was part of a larger series, but only this
->>>> patch got pulled for 4.4 stable.
->>
->> Thanks for reporting this. I'll have a look ASAP.
->>
->>> It looks like this got pulled in by Sasha's bot which is why it was
->>> applied.
->>>
->>> I have no objection to reverting this if it is causing problems, unless
->>> someone here really thinks it needs to remain in the tree?
->>
->> Can we hold on a tiny bit so that I can verify we haven't regressed
->> crosvm all the way into mainline?
->>
->> Daniel, is there any chance you could test with kvmtool as well on
->> your setup? You can easily compile it as a static binary and run it
->> from ChromeOS with:
->>
->> lkvm-static run -c 1 -p "earlycon=uart,mmio,0x3f8" -l Image
->>
->> which should start a UP guest and drop you to a shell. In the
->> meantime, I'm starting to build crosvm on my kevin running mainline.
-> 
-> OK, that wasn't a fun experience. Some build instructions for the mere
-> mortals (aka non-ChromeOS people) would be nice (and a mention that
-> crosvm cannot yet deal with GICv3-only systems...)
-> 
-> Anyway, I've got enough of it working that I can boot a trivial Debian
-> guest on kevin running 5.0-rc7, so I'm pretty confident that mainline is
-> OK. I'll move back to 4.4, and try to understand what happens there.
+On Thu, Feb 28, 2019 at 01:32:12AM -0800, si-wei liu wrote:
+> > > Will the
+> > > change break userspace further?
+> > > 
+> > > -Siwei
+> > Didn't you show userspace is already broken. You can't "further
+> > break it", rename already fails.
+> It's a race, userspace tends to give slave a user(space) desired name but
+> sometimes may fail due to this race. Today if failover master is not up,
+> rename would succeed anyway. While what you proposed prohibits user from
+> providing a name in all circumstances if I understand you correctly. That's
+> what I meant of breaking userspace further. On the other hand, you seem to
+> tighten the kernel default naming to udev predictable names, which is
+> derived from only recent systemd-udevd, while there exists many possible
+> userspace naming schemes out of that. Users today who deliberately chooses
+> to disable predictable naming (net.ifnames=0 biosdevname=0) and fall back to
+> kernel provided names would expect the ethX pattern, with this change
+> admin/user scripts which matches the ethX pattern could potentially break.
 
-I got 4.4.175 running on an AMD Seattle, and this patch broke more than
-just crosvm. It actually breaks the whole KVM in-kernel device emulation
-which can't make forward progress (it is forever stuck on the same
-instruction, writing to the emulated GIC). Both QEMU and kvmtool are
-also affected. Irk. :-(
+Whatever crashes with a name not matching ethX will crash on the
+standby interface *anyway*.
 
-It turns out 4.4.175 is missing two patches on which $SUBJECT relies:
+So I think what you are saying is that someone might have already
+written scripts and gotten them to work on v4.17 when STANDBY was
+included and these scripts rely on ethX. Now these scripts
+will break.
 
-83091db981e1 KVM: arm/arm64: Fix MMIO emulation data handling
-1d6a821277aa arm/arm64: KVM: Feed initialized memory to MMIO accesses
+Maybe it is still early enough (just half a year passed) that the
+number of these users would be small.  So how about a kernel config
+option and maybe a module parameter to rename the primary?  People can
+then opt in to the old broken behaviour.
 
-which are implicit dependencies for it. With these two patches
-cherry-picked, I get both kvmtool and crosvm working.
-
-Greg: I'll send these two patches backported to 4.4-stable ASAP, so that
-we don't have to revert anything.
-
-Thanks,
-
-	M.
 -- 
-Jazz is not dead. It just smells funny...
+MST
