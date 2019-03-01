@@ -1,14 +1,13 @@
 From: Gerd Hoffmann <kraxel@redhat.com>
-Subject: Re: [PATCH] drm/virtio: Allow userspace to mmap() framebuffer
-Date: Fri, 1 Mar 2019 06:51:35 +0100
-Message-ID: <20190301055135.qqph6ggypjvhuoan__49465.4948169895$1551420129$gmane$org@sirius.home.kraxel.org>
-References: <20190228164741.15590-1-JPEWhacker@gmail.com>
+Subject: [PATCH v7 3/4] drm/qxl: remove conflicting framebuffers earlier
+Date: Fri,  1 Mar 2019 10:25:01 +0100
+Message-ID: <20190301092502.30948-4-kraxel__29219.5663366996$1551432970$gmane$org@redhat.com>
+References: <20190301092502.30948-1-kraxel@redhat.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-Content-Disposition: inline
-In-Reply-To: <20190228164741.15590-1-JPEWhacker@gmail.com>
+In-Reply-To: <20190301092502.30948-1-kraxel@redhat.com>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -18,17 +17,40 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Joshua Watt <jpewhacker@gmail.com>
-Cc: David Airlie <airlied@linux.ie>, linux-kernel@vger.kernel.org, Daniel Vetter <daniel@ffwll.ch>, dri-devel@lists.freedesktop.org, virtualization@lists.linux-foundation.org
+To: dri-devel@lists.freedesktop.org
+Cc: David Airlie <airlied@linux.ie>, intel-gfx@lists.freedesktop.org, open list <linux-kernel@vger.kernel.org>, "open list:DRM DRIVER FOR QXL VIRTUAL GPU" <virtualization@lists.linux-foundation.org>, daniel@ffwll.ch, "open list:DRM DRIVER FOR QXL VIRTUAL GPU" <spice-devel@lists.freedesktop.org>, Dave Airlie <airlied@redhat.com>
 List-Id: virtualization@lists.linuxfoundation.org
 
-On Thu, Feb 28, 2019 at 10:47:41AM -0600, Joshua Watt wrote:
-> Reports the size of the virtgpu framebuffer to userspace and installs
-> the deferred I/O handlers so that userspace can mmap() and write to it.
+Add error checking while being at it.
 
-Fixed already, as side effect of switching virtio to the generic fbdev
-emulation.  Patches are in the drm-misc-next branch and should land
-upstream in the 5.1 merge window.
+Signed-off-by: Gerd Hoffmann <kraxel@redhat.com>
+Reviewed-by: Daniel Vetter <daniel.vetter@ffwll.ch>
+---
+ drivers/gpu/drm/qxl/qxl_drv.c | 5 ++++-
+ 1 file changed, 4 insertions(+), 1 deletion(-)
 
-cheers,
-  Gerd
+diff --git a/drivers/gpu/drm/qxl/qxl_drv.c b/drivers/gpu/drm/qxl/qxl_drv.c
+index bb81e310eb6d..578d867a81d5 100644
+--- a/drivers/gpu/drm/qxl/qxl_drv.c
++++ b/drivers/gpu/drm/qxl/qxl_drv.c
+@@ -79,6 +79,10 @@ qxl_pci_probe(struct pci_dev *pdev, const struct pci_device_id *ent)
+ 	if (ret)
+ 		goto free_dev;
+ 
++	ret = drm_fb_helper_remove_conflicting_pci_framebuffers(pdev, 0, "qxl");
++	if (ret)
++		goto disable_pci;
++
+ 	ret = qxl_device_init(qdev, &qxl_driver, pdev);
+ 	if (ret)
+ 		goto disable_pci;
+@@ -94,7 +98,6 @@ qxl_pci_probe(struct pci_dev *pdev, const struct pci_device_id *ent)
+ 	if (ret)
+ 		goto modeset_cleanup;
+ 
+-	drm_fb_helper_remove_conflicting_pci_framebuffers(pdev, 0, "qxl");
+ 	drm_fbdev_generic_setup(&qdev->ddev, 32);
+ 	return 0;
+ 
+-- 
+2.9.3
