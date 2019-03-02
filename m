@@ -1,25 +1,28 @@
-From: "Michael S. Tsirkin" <mst@redhat.com>
+From: Siwei Liu <loseweigh@gmail.com>
 Subject: Re: [virtio-dev] Re: net_failover slave udev renaming (was Re: [RFC
 	PATCH net-next v6 4/4] netvsc: refactor notifier/event handling code to
 	use the bypass framework)
-Date: Fri, 1 Mar 2019 08:27:28 -0500
-Message-ID: <20190301082448-mutt-send-email-mst__44972.427030892$1551447476$gmane$org@kernel.org>
-References: <20190225210529-mutt-send-email-mst@kernel.org>
-	<d1060c75-eaba-ab6f-ff31-38cb3a47c711@oracle.com>
-	<20190227173710-mutt-send-email-mst@kernel.org>
+Date: Fri, 1 Mar 2019 16:30:37 -0800
+Message-ID: <CADGSJ23LOke=BfDFRTnjx06L5fZ1A4+yf1Hb3KC5tgNk5xvGbA__27888.633070846$1551487476$gmane$org@mail.gmail.com>
+References: <20190227173710-mutt-send-email-mst@kernel.org>
 	<c72ce9eb-254c-cc3e-1969-f7f108506d5e@oracle.com>
 	<20190227184601-mutt-send-email-mst@kernel.org>
 	<a617ce13-4114-469d-ef33-a1c91150eeca@oracle.com>
 	<20190227193923-mutt-send-email-mst@kernel.org>
-	<36901346-e3d5-4e51-6a8d-678eb5b9e352@oracle.com>
-	<20190228091119-mutt-send-email-mst@kernel.org>
-	<8a387954-1e21-947b-a5a9-c49adaea2e81@oracle.com>
+	<20190227165205.307ed83c@cakuba.netronome.com>
+	<20190227201857-mutt-send-email-mst@kernel.org>
+	<20190227175218.736e13b6@cakuba.netronome.com>
+	<20190227233812-mutt-send-email-mst@kernel.org>
+	<20190228101356.39ac70aa@cakuba.netronome.com>
+	<20190228143511-mutt-send-email-mst@kernel.org>
+	<20190228115641.7afe6f09@cakuba.netronome.com>
+	<CADGSJ239j-fG_vifkj-gTnAb_RXtBEbnQCFdZGimcgPXh35CMA@mail.gmail.com>
+	<20190228170520.527ed6df@cakuba.netronome.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-Content-Disposition: inline
-In-Reply-To: <8a387954-1e21-947b-a5a9-c49adaea2e81@oracle.com>
+In-Reply-To: <20190228170520.527ed6df@cakuba.netronome.com>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -29,83 +32,100 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: si-wei liu <si-wei.liu@oracle.com>
-Cc: Alexander Duyck <alexander.h.duyck@intel.com>, virtio-dev <virtio-dev@lists.oasis-open.org>, Jiri Pirko <jiri@resnulli.us>, Jakub Kicinski <kubakici@wp.pl>, "Samudrala, Sridhar" <sridhar.samudrala@intel.com>, virtualization@lists.linux-foundation.org, Siwei Liu <loseweigh@gmail.com>, liran.alon@oracle.com, Netdev <netdev@vger.kernel.org>, David Miller <davem@davemloft.net>
+To: Jakub Kicinski <kubakici@wp.pl>
+Cc: Alexander Duyck <alexander.h.duyck@intel.com>, Jiri Pirko <jiri@resnulli.us>, "Michael S. Tsirkin" <mst@redhat.com>, "Samudrala,
+	Sridhar" <sridhar.samudrala@intel.com>, virtualization@lists.linux-foundation.org, liran.alon@oracle.com, Netdev <netdev@vger.kernel.org>, si-wei liu <si-wei.liu@oracle.com>, David Miller <davem@davemloft.net>
 List-Id: virtualization@lists.linuxfoundation.org
 
-On Thu, Feb 28, 2019 at 05:30:56PM -0800, si-wei liu wrote:
-> 
-> 
-> On 2/28/2019 6:26 AM, Michael S. Tsirkin wrote:
-> > On Thu, Feb 28, 2019 at 01:32:12AM -0800, si-wei liu wrote:
-> > > > > Will the
-> > > > > change break userspace further?
-> > > > > 
-> > > > > -Siwei
-> > > > Didn't you show userspace is already broken. You can't "further
-> > > > break it", rename already fails.
-> > > It's a race, userspace tends to give slave a user(space) desired name but
-> > > sometimes may fail due to this race. Today if failover master is not up,
-> > > rename would succeed anyway. While what you proposed prohibits user from
-> > > providing a name in all circumstances if I understand you correctly. That's
-> > > what I meant of breaking userspace further. On the other hand, you seem to
-> > > tighten the kernel default naming to udev predictable names, which is
-> > > derived from only recent systemd-udevd, while there exists many possible
-> > > userspace naming schemes out of that. Users today who deliberately chooses
-> > > to disable predictable naming (net.ifnames=0 biosdevname=0) and fall back to
-> > > kernel provided names would expect the ethX pattern, with this change
-> > > admin/user scripts which matches the ethX pattern could potentially break.
-> > Whatever crashes with a name not matching ethX will crash on the
-> > standby interface *anyway*.
-> With udev predictable naming disabled they should not. It's not hard for
-> user to look for device attribute to persistent the name well, in a
-> consistent and reliable way.
+On Thu, Feb 28, 2019 at 5:05 PM Jakub Kicinski <kubakici@wp.pl> wrote:
+>
+> On Thu, 28 Feb 2019 16:20:28 -0800, Siwei Liu wrote:
+> > On Thu, Feb 28, 2019 at 11:56 AM Jakub Kicinski wrote:
+> > > On Thu, 28 Feb 2019 14:36:56 -0500, Michael S. Tsirkin wrote:
+> > > > > It is a bit of a the chicken or the egg situation ;)  But users can
+> > > > > just blacklist, too.  Anyway, I think this is far better than module
+> > > > > parameters
+> > > >
+> > > > Sorry I'm a bit confused. What is better than what?
+> > >
+> > > I mean that blacklist net_failover or module param to disable
+> > > net_failover and handle in user space are better than trying to solve
+> > > the renaming at kernel level (either by adding module params that make
+> > > the kernel rename devices or letting user space change names of running
+> > > devices if they are slaves).
+> >
+> > Before I was aksed to revive this old mail thread, I knew the
+> > discussion could end up with something like this. Yes, theoretically
+> > there's a point - basically you don't believe kernel should take risk
+> > in fixing the issue, so you push back the hope to something in
+> > hypothesis that actually wasn't done and hard to get done in reality.
+> > It's not too different than saying "hey, what you're asking for is
+> > simply wrong, don't do it! Go back to modify userspace to create a
+> > bond or team instead!" FWIW I want to emphasize that the debate for
+> > what should be the right place to implement this failover facility:
+> > userspace versus kernel, had been around for almost a decade, and no
+> > real work ever happened in userspace to "standardize" this in the
+> > Linux world.
+>
+> Let me offer you my very subjective opinion of why "no real work ever
+> happened in user space".  The actors who have primary interest to get
+> the auto-bonding working are HW vendors trying to either convince
+> customers to use SR-IOV, or being pressured by customers to make SR-IOV
+> easier to consume.  HW vendors hire driver developers, not user space
+> developers.  So the solution we arrive at is in the kernel for a non
+> technical reason (Conway's law, sort of).
+>
+> $ cd NetworkManager/
+> $ git log --pretty=format:"%ae" | \
+>     grep '\(mellanox\|intel\|broadcom\|netronome\)' | sort | uniq -c
+>      81 andrew.zaborowski@intel.com
+>       2 David.Woodhouse@intel.com
+>       2 ismo.puustinen@intel.com
+>       1 michael.i.doherty@intel.com
+>
+> Andrew works on WiFi.
+>
 
-Well that's special code for failover already. So far we just
-taught userspace to skip renaming slave interfaces.
+I'm sorry, but we don't use NetworkManager in our cloud images at all.
+We sufferd from lots of problems when booting from remote iSCSI disk
+with NetworkManager enabled, and it looks like those issues are still
+there while that's not (my subjective impression) a network config
+tool mainly targeting desktop and WiFi users ever cares about. At
+least a sign of lack of sufficient testing was made there.
 
-> > 
-> > So I think what you are saying is that someone might have already
-> > written scripts and gotten them to work on v4.17 when STANDBY was
-> > included and these scripts rely on ethX. Now these scripts
-> > will break.
-> The controversial part is the new kernel naming pattern. Initially I thought
-> there shouldn't be such crazy scripts relying on the pattern, but when I
-> worked on cloud-init it I realized that there's already a lot of software
-> taking assumption around the 'eth0' name. In the past I've seen random
-> scripts that parses the ethX name assumes (incorrectly) the name ends up
-> with digits, or even the digits and name are 1:1 mapped. Of course, you can
-> say these are bugs in scripts themselves.
+From cloud service provider perspective, we always prefer single
+central solution than speak to various distro vendors with their own
+network daemons/config tools thus different solutions. It's hard to
+coordicate all efforts in one place. From my personal perspetive, the
+in-kernel auto-slave solution is nothing technically inferior than any
+userspace implementation, and every major OS/cloud providers choose to
+implement this in-kernel model for the same reason. I don't want to
+argue more if there's value or not for net_failover to be in Linux
+kernel, given that it's already there I think it's better to move on.
 
-No what I say is that they will crash on rename of standby too.
+We have done extensive work in reporting (actually, fix them
+internally before posting) issues to the dracut, udev,
+initramfs-tools, and cloud-init community. Although as claimed the
+3-netdev should be transparent to userspace in general, the reality is
+opposite: the effort is nothing differenet than bring up a new type of
+virutal bond than any existing userspace tool would otherwise expect
+for a regular physical netdev. If there's ever concern about breaking
+userspace, I bet no one ever tries to start using it. If they did they
+know what I am saying. The dup MAC address setting and plugging order
+are totally new to userspace that none of userspace tools fail to know
+how to plumb failover interface in a proper way, if without fixing
+them one or another.
 
-> Anyway, I'll let others in the netdev to comment on this new scheme, maybe
-> that's the concern of merely myself. The good part of your proposal is that
-> we can get consistent slave name, which still plays its role until we move
-> towards making slave names less relevant, i.e. ideally a 1-netdev model. I
-> think we both agree that the master matters more than the slave names.
-> > 
-> > Maybe it is still early enough (just half a year passed) that the
-> > number of these users would be small.  So how about a kernel config
-> > option and maybe a module parameter to rename the primary?  People can
-> > then opt in to the old broken behaviour.
-> Were I could I would ask  why a similar opt-in (kernel config or module
-> parameter) couldn't be implemented to open up the rename restriction on
-> slave, net_failover in particular. What I felt about this rename restriction
-> was more because of historical reason than anything else, while net_failover
-> is comparatively a new type of link that we are now designing proper use
-> case it should support, and can get it shaped to whatever it fits. My
-> personal view is that the slave can't be renamed when master is running is
-> just implementation details that got incorrectly exposed to userspace apps
-> for many years. It's old behavior with historical reason for sure, but I
-> don't think this applies to net_failover.
-> 
-> (FWIW as one previous bond maintainer for another OS, we relieved the rename
-> restriction slaves 13 year ago, while no single complaint or issue was ever
-> raised because of this change over the years, neither from the customers of
-> tens of millions of installation base, nor the FOSS software running atop.
-> Of course, Linux is different so that experience doesn't count.)
-> 
-> Thanks,
-> -Siwei
-> 
+-Siwei
+
+> I have asked the NetworkManager folks to implement this feature last
+> year when net_failover got dangerously close to getting merged, and
+> they said they were never approached with this request before, much less
+> offered code that solve it.  Unfortunately before they got around to it
+> net_failover was merged already, and they didn't proceed.
+>
+> So to my knowledge nobody ever tried to solve this in user space.
+> I don't think net_failover is particularly terrible, or that renaming
+> of primary in the kernel is the end of the world, but I'd appreciate if
+> you could point me to efforts to solve it upstream in user space
+> components, or acknowledge that nobody actually tried that.
