@@ -1,12 +1,13 @@
-From: Pankaj Gupta <pagupta@redhat.com>
+From: "Michael S. Tsirkin" <mst@redhat.com>
 Subject: Re: [PATCH] virtio_console: free unused buffers with virtio port
-Date: Mon, 4 Mar 2019 08:28:44 -0500 (EST)
-Message-ID: <50743754.9007443.1551706124243.JavaMail.zimbra__5075.54270313761$1551706921$gmane$org@redhat.com>
+Date: Mon, 4 Mar 2019 14:25:31 -0500
+Message-ID: <20190304142506-mutt-send-email-mst__22896.1232279957$1551728392$gmane$org@kernel.org>
 References: <20190304130511.14450-1-pagupta@redhat.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
+Content-Disposition: inline
 In-Reply-To: <20190304130511.14450-1-pagupta@redhat.com>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
@@ -17,30 +18,31 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: linux-kernel@vger.kernel.org, virtualization@lists.linux-foundation.org
-Cc: arnd@arndb.de, mst@redhat.com, Gal Hammer <ghammer@redhat.com>, gregkh@linuxfoundation.org, amit@kernel.org, xiaohli@redhat.com
+To: Pankaj Gupta <pagupta@redhat.com>
+Cc: arnd@arndb.de, amit@kernel.org, gregkh@linuxfoundation.org, linux-kernel@vger.kernel.org, virtualization@lists.linux-foundation.org, xiaohli@redhat.com
 List-Id: virtualization@lists.linuxfoundation.org
 
-
-Adding Gal in CC [Forgot to add]
-
+On Mon, Mar 04, 2019 at 06:35:11PM +0530, Pankaj Gupta wrote:
+>   The commit a7a69ec0d8e4 ("virtio_console: free buffers after reset")
+>   deffered detaching of unused buffer to virtio device unplug time. 
 > 
-> The commit a7a69ec0d8e4 ("virtio_console: free buffers after reset")
->   deffered detaching of unused buffer to virtio device unplug time.
-> 
->   This causes unplug/replug of single port in virtio device with an
->   error "Error allocating inbufs\n". As we don't free the unused buffers
+>   This causes unplug/replug of single port in virtio device with an 
+>   error "Error allocating inbufs\n". As we don't free the unused buffers 
 >   attached with the port. Re-plug the same port tries to allocate new
->   buffers in virtqueue and results in this error if queue is full.
+>   buffers in virtqueue and results in this error if queue is full. 
 > 
 >   This patch removes the unused buffers in vq's when we unplug the port.
->   This is the best we can do as we cannot call device_reset because virtio
->   device is still active. This was the working behaviour before the change
+>   This is the best we can do as we cannot call device_reset because virtio 
+>   device is still active. This was the working behaviour before the change 
 >   introduced in commit b3258ff1d6.
 > 
 >   Reported-by: Xiaohui Li <xiaohli@redhat.com>
 >   Fixes: b3258ff1d6 ("virtio_console: free buffers after reset")
 >   Signed-off-by: Pankaj Gupta <pagupta@redhat.com>
+
+I think if you do this you need to add support
+in the packed ring.
+
 > ---
 >  drivers/char/virtio_console.c | 14 +++++++++++---
 >  1 file changed, 11 insertions(+), 3 deletions(-)
@@ -50,45 +52,43 @@ Adding Gal in CC [Forgot to add]
 > --- a/drivers/char/virtio_console.c
 > +++ b/drivers/char/virtio_console.c
 > @@ -1506,15 +1506,25 @@ static void remove_port(struct kref *kref)
->          kfree(port);
+>  	kfree(port);
 >  }
 >  
 > +static void remove_unused_bufs(struct virtqueue *vq)
 > +{
-> +        struct port_buffer *buf;
+> +	struct port_buffer *buf;
 > +
-> +        while ((buf = virtqueue_detach_unused_buf(vq)))
-> +                free_buf(buf, true);
+> +	while ((buf = virtqueue_detach_unused_buf(vq)))
+> +		free_buf(buf, true);
 > +}
 > +
 >  static void remove_port_data(struct port *port)
 >  {
->          spin_lock_irq(&port->inbuf_lock);
->          /* Remove unused data this port might have received. */
->          discard_port_data(port);
-> +        remove_unused_bufs(port->in_vq);
->          spin_unlock_irq(&port->inbuf_lock);
+>  	spin_lock_irq(&port->inbuf_lock);
+>  	/* Remove unused data this port might have received. */
+>  	discard_port_data(port);
+> +	remove_unused_bufs(port->in_vq);
+>  	spin_unlock_irq(&port->inbuf_lock);
 >  
->          spin_lock_irq(&port->outvq_lock);
->          reclaim_consumed_buffers(port);
-> +        remove_unused_bufs(port->out_vq);
->          spin_unlock_irq(&port->outvq_lock);
+>  	spin_lock_irq(&port->outvq_lock);
+>  	reclaim_consumed_buffers(port);
+> +	remove_unused_bufs(port->out_vq);
+>  	spin_unlock_irq(&port->outvq_lock);
 >  }
 >  
 > @@ -1950,11 +1960,9 @@ static void remove_vqs(struct ports_device *portdev)
->          struct virtqueue *vq;
+>  	struct virtqueue *vq;
 >  
->          virtio_device_for_each_vq(portdev->vdev, vq) {
-> -                struct port_buffer *buf;
+>  	virtio_device_for_each_vq(portdev->vdev, vq) {
+> -		struct port_buffer *buf;
 >  
->                  flush_bufs(vq, true);
-> -                while ((buf = virtqueue_detach_unused_buf(vq)))
-> -                        free_buf(buf, true);
-> +                remove_unused_bufs(vq);
->          }
->          portdev->vdev->config->del_vqs(portdev->vdev);
->          kfree(portdev->in_vqs);
-> --
+>  		flush_bufs(vq, true);
+> -		while ((buf = virtqueue_detach_unused_buf(vq)))
+> -			free_buf(buf, true);
+> +		remove_unused_bufs(vq);
+>  	}
+>  	portdev->vdev->config->del_vqs(portdev->vdev);
+>  	kfree(portdev->in_vqs);
+> -- 
 > 2.20.1
-> 
-> 
