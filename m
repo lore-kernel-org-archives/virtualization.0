@@ -1,25 +1,12 @@
-From: Liran Alon <liran.alon@oracle.com>
-Subject: Re: [virtio-dev] Re: net_failover slave udev renaming (was Re: [RFC
-	PATCH net-next v6 4/4] netvsc: refactor notifier/event handling code to
-	use the bypass framework)
-Date: Thu, 28 Feb 2019 02:00:48 +0200
-Message-ID: <A93B8FB2-9B60-417B-BE7A-94173B8FE584__45690.1904124365$1555717215$gmane$org@oracle.com>
-References: <20190221203808-mutt-send-email-mst@kernel.org>
-	<581e4399-3969-aecd-e923-03bbc0880733@oracle.com>
-	<91d4cbb1-be7a-b53c-6b2a-99bef07e7c53@intel.com>
-	<d9ef40a2-237b-0cce-4401-ecaeac4c602a@oracle.com>
-	<20190222100753-mutt-send-email-mst@kernel.org>
-	<e6a53bd1-83ab-f170-406a-03276e8c87e2@oracle.com>
-	<20190225210529-mutt-send-email-mst@kernel.org>
-	<d1060c75-eaba-ab6f-ff31-38cb3a47c711@oracle.com>
-	<20190227173710-mutt-send-email-mst@kernel.org>
-	<c72ce9eb-254c-cc3e-1969-f7f108506d5e@oracle.com>
-	<20190227184601-mutt-send-email-mst@kernel.org>
-Mime-Version: 1.0 (Mac OS X Mail 11.1 \(3445.4.7\))
-Content-Type: text/plain; charset="utf-8"
-Content-Transfer-Encoding: base64
+From: =?UTF-8?q?Adalbert=20Laz=C4=83r?= <alazar@bitdefender.com>
+Subject: [PATCH] vsock/virtio: fix kernel panic from
+	virtio_transport_reset_no_sock
+Date: Tue,  5 Mar 2019 20:01:45 +0200
+Message-ID: <20190305180145.27161-1-alazar__47968.3499130019$1555717228$gmane$org@bitdefender.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset="us-ascii"
+Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <20190227184601-mutt-send-email-mst@kernel.org>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -29,250 +16,92 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: "Michael S. Tsirkin" <mst@redhat.com>
-Cc: Alexander Duyck <alexander.h.duyck@intel.com>, virtio-dev <virtio-dev@lists.oasis-open.org>, Jiri Pirko <jiri@resnulli.us>, Jakub Kicinski <kubakici@wp.pl>, "Samudrala, Sridhar" <sridhar.samudrala@intel.com>, virtualization@lists.linux-foundation.org, Siwei Liu <loseweigh@gmail.com>, Netdev <netdev@vger.kernel.org>, si-wei liu <si-wei.liu@oracle.com>, David Miller <davem@davemloft.net>
+To: Stefan Hajnoczi <stefanha@redhat.com>, "David S . Miller" <davem@davemloft.net>, Stefano Garzarella <sgarzare@redhat.com>
+Cc: =?UTF-8?q?Adalbert=20Laz=C4=83r?= <alazar@bitdefender.com>, netdev@vger.kernel.org, linux-kernel@vger.kernel.org, kvm@vger.kernel.org, virtualization@lists.linux-foundation.org
 List-Id: virtualization@lists.linuxfoundation.org
 
-Cgo+IE9uIDI4IEZlYiAyMDE5LCBhdCAxOjUwLCBNaWNoYWVsIFMuIFRzaXJraW4gPG1zdEByZWRo
-YXQuY29tPiB3cm90ZToKPiAKPiBPbiBXZWQsIEZlYiAyNywgMjAxOSBhdCAwMzozNDo1NlBNIC0w
-ODAwLCBzaS13ZWkgbGl1IHdyb3RlOgo+PiAKPj4gCj4+IE9uIDIvMjcvMjAxOSAyOjM4IFBNLCBN
-aWNoYWVsIFMuIFRzaXJraW4gd3JvdGU6Cj4+PiBPbiBUdWUsIEZlYiAyNiwgMjAxOSBhdCAwNDox
-NzoyMVBNIC0wODAwLCBzaS13ZWkgbGl1IHdyb3RlOgo+Pj4+IAo+Pj4+IE9uIDIvMjUvMjAxOSA2
-OjA4IFBNLCBNaWNoYWVsIFMuIFRzaXJraW4gd3JvdGU6Cj4+Pj4+IE9uIE1vbiwgRmViIDI1LCAy
-MDE5IGF0IDA0OjU4OjA3UE0gLTA4MDAsIHNpLXdlaSBsaXUgd3JvdGU6Cj4+Pj4+PiBPbiAyLzIy
-LzIwMTkgNzoxNCBBTSwgTWljaGFlbCBTLiBUc2lya2luIHdyb3RlOgo+Pj4+Pj4+IE9uIFRodSwg
-RmViIDIxLCAyMDE5IGF0IDExOjU1OjExUE0gLTA4MDAsIHNpLXdlaSBsaXUgd3JvdGU6Cj4+Pj4+
-Pj4+IE9uIDIvMjEvMjAxOSAxMTowMCBQTSwgU2FtdWRyYWxhLCBTcmlkaGFyIHdyb3RlOgo+Pj4+
-Pj4+Pj4gT24gMi8yMS8yMDE5IDc6MzMgUE0sIHNpLXdlaSBsaXUgd3JvdGU6Cj4+Pj4+Pj4+Pj4g
-T24gMi8yMS8yMDE5IDU6MzkgUE0sIE1pY2hhZWwgUy4gVHNpcmtpbiB3cm90ZToKPj4+Pj4+Pj4+
-Pj4gT24gVGh1LCBGZWIgMjEsIDIwMTkgYXQgMDU6MTQ6NDRQTSAtMDgwMCwgU2l3ZWkgTGl1IHdy
-b3RlOgo+Pj4+Pj4+Pj4+Pj4gU29ycnkgZm9yIHJlcGx5aW5nIHRvIHRoaXMgYW5jaWVudCB0aHJl
-YWQuIFRoZXJlIHdhcyBzb21lIHJlbWFpbmluZwo+Pj4+Pj4+Pj4+Pj4gaXNzdWUgdGhhdCBJIGRv
-bid0IHRoaW5rIHRoZSBpbml0aWFsIG5ldF9mYWlsb3ZlciBwYXRjaCBnb3QgYWRkcmVzc2VkCj4+
-Pj4+Pj4+Pj4+PiBjbGVhbmx5LCBzZWU6Cj4+Pj4+Pj4+Pj4+PiAKPj4+Pj4+Pj4+Pj4+IGh0dHBz
-Oi8vdXJsZGVmZW5zZS5wcm9vZnBvaW50LmNvbS92Mi91cmw/dT1odHRwcy0zQV9fYnVncy5sYXVu
-Y2hwYWQubmV0X3VidW50dV8tMkJzb3VyY2VfbGludXhfLTJCYnVnXzE4MTUyNjgmZD1Ed0lCQWcm
-Yz1Sb1AxWXVtQ1hDZ2FXSHZsWllSOFBaaDhCdjdxSXJNVUI2NWVhcElfSm5FJnI9Sms2UThuTnpr
-UTZMSjZnNDJxQVJrZzZyeUlER1FyLXlLWFBOR1picFR4MCZtPWFMLVFmVW9TWXg4cjBYQ09Ca2NE
-dEY4Zi1jWXhySkkzc2tZTEZUYjhYSkUmcz15azZOcXYzYTZfSk16eXJYS1k2N2gwMEZ5TnJESnlR
-LVBZTUZmZkRTVFhNJmU9Cj4+Pj4+Pj4+Pj4+PiAKPj4+Pj4+Pj4+Pj4+IFRoZSByZW5hbWluZyBv
-ZiAnZXRoMCcgdG8gJ2VuczQnIGZhaWxzIGJlY2F1c2UgdGhlIHVkZXYgdXNlcnNwYWNlIHdhcwo+
-Pj4+Pj4+Pj4+Pj4gbm90IHNwZWNpZmljYWxseSB3cml0dHRlbiBmb3Igc3VjaCBrZXJuZWwgYXV0
-b21hdGljIGVuc2xhdmVtZW50Lgo+Pj4+Pj4+Pj4+Pj4gU3BlY2lmaWNhbGx5LCBpZiBpdCBpcyBh
-IGJvbmQgb3IgdGVhbSwgdGhlIHNsYXZlIHdvdWxkIHR5cGljYWxseSBnZXQKPj4+Pj4+Pj4+Pj4+
-IHJlbmFtZWQgKmJlZm9yZSogdmlydHVhbCBkZXZpY2UgZ2V0cyBjcmVhdGVkLCB0aGF0J3Mgd2hh
-dCB1ZGV2IGNhbgo+Pj4+Pj4+Pj4+Pj4gY29udHJvbCAod2l0aG91dCBnZXR0aW5nIG5ldGRldiBv
-cGVuZWQgZWFybHkgYnkgdGhlIG90aGVyIHBhcnQgb2YKPj4+Pj4+Pj4+Pj4+IGtlcm5lbCkgYW5k
-IG90aGVyIHVzZXJzcGFjZSBjb21wb25lbnRzIGZvciBlLmcuIGluaXRyYW1mcywKPj4+Pj4+Pj4+
-Pj4+IGluaXQtc2NyaXB0cyBjYW4gY29vcmRpbmF0ZSB3ZWxsIGluIGJldHdlZW4uIFRoZSBpbi1r
-ZXJuZWwKPj4+Pj4+Pj4+Pj4+IGF1dG8tZW5zbGF2ZW1lbnQgb2YgbmV0X2ZhaWxvdmVyIGJyZWFr
-cyB0aGlzIHVzZXJzcGFjZSBjb252ZW50aW9uLAo+Pj4+Pj4+Pj4+Pj4gd2hpY2ggZG9uJ3QgcHJv
-dmlkZXMgYSBzb2x1dGlvbiBpZiB1c2VyIGNhcmUgYWJvdXQgY29uc2lzdGVudCBuYW1pbmcKPj4+
-Pj4+Pj4+Pj4+IG9uIHRoZSBzbGF2ZSBuZXRkZXZzIHNwZWNpZmljYWxseS4KPj4+Pj4+Pj4+Pj4+
-IAo+Pj4+Pj4+Pj4+Pj4gUHJldmlvdXNseSB0aGlzIGlzc3VlIGhhZCBiZWVuIHNwZWNpZmljYWxs
-eSBjYWxsZWQgb3V0IHdoZW4gSUZGX0hJRERFTgo+Pj4+Pj4+Pj4+Pj4gYW5kIHRoZSAxLW5ldGRl
-diB3YXMgcHJvcG9zZWQsIGJ1dCBubyBvbmUgZ2l2ZXMgb3V0IGEgc29sdXRpb24gdG8gdGhpcwo+
-Pj4+Pj4+Pj4+Pj4gcHJvYmxlbSBldmVyIHNpbmNlLiBQbGVhc2Ugc2hhcmUgeW91ciBtaW5kIGhv
-dyB0byBwcm9jZWVkIGFuZCBzb2x2ZQo+Pj4+Pj4+Pj4+Pj4gdGhpcyB1c2Vyc3BhY2UgaXNzdWUg
-aWYgbmV0ZGV2IGRvZXMgbm90IHdlbGNvbWUgYSAxLW5ldGRldiBtb2RlbC4KPj4+Pj4+Pj4+Pj4g
-QWJvdmUgc2F5czoKPj4+Pj4+Pj4+Pj4gCj4+Pj4+Pj4+Pj4+ICAgICAgIHRoZXJlJ3Mgbm8gbW90
-aXZhdGlvbiBpbiB0aGUgc3lzdGVtZC91ZGV2ZCBjb21tdW5pdHkgYXQKPj4+Pj4+Pj4+Pj4gICAg
-ICAgdGhpcyBwb2ludCB0byByZWZhY3RvciB0aGUgcmVuYW1lIGxvZ2ljIGFuZCBtYWtlIGl0IHdv
-cmsgd2VsbCB3aXRoCj4+Pj4+Pj4+Pj4+ICAgICAgIDMtbmV0ZGV2Lgo+Pj4+Pj4+Pj4+PiAKPj4+
-Pj4+Pj4+Pj4gV2hhdCB3b3VsZCB0aGUgZml4IGJlPyBTa2lwIHNsYXZlIGRldmljZXM/Cj4+Pj4+
-Pj4+Pj4+IAo+Pj4+Pj4+Pj4+IFRoZXJlJ3Mgbm90aGluZyB1c2VyIGNhbiBnZXQgaWYganVzdCBz
-a2lwcGluZyBzbGF2ZSBkZXZpY2VzIC0gdGhlCj4+Pj4+Pj4+Pj4gbmFtZSBpcyBzdGlsbCB1bmNo
-YW5nZWQgYW5kIHVucHJlZGljdGFibGUgZS5nLiBldGgwLCBvciBldGgxIHRoZQo+Pj4+Pj4+Pj4+
-IG5leHQgcmVib290LCB3aGlsZSB0aGUgcmVzdCBtYXkgY29uZm9ybSB0byB0aGUgbmFtaW5nIHNj
-aGVtZSAoZW5zMwo+Pj4+Pj4+Pj4+IGFuZCBzdWNoKS4gVGhlcmUncyBubyB3YXkgb25lIGNhbiBm
-aXggdGhpcyBpbiB1c2Vyc3BhY2UgYWxvbmUgLSB3aGVuCj4+Pj4+Pj4+Pj4gdGhlIGZhaWxvdmVy
-IGlzIGNyZWF0ZWQgdGhlIGVuc2xhdmVkIG5ldGRldiB3YXMgb3BlbmVkIGJ5IHRoZSBrZXJuZWwK
-Pj4+Pj4+Pj4+PiBlYXJsaWVyIHRoYW4gdGhlIHVzZXJzcGFjZSBpcyBtYWRlIGF3YXJlIG9mLCBh
-bmQgdGhlcmUncyBubwo+Pj4+Pj4+Pj4+IG5lZ290aWF0aW9uIHByb3RvY29sIGZvciBrZXJuZWwg
-dG8ga25vdyB3aGVuIHVzZXJzcGFjZSBoYXMgZG9uZQo+Pj4+Pj4+Pj4+IGluaXRpYWwgcmVuYW1p
-bmcgb2YgdGhlIGludGVyZmFjZS4gSSB3b3VsZCBleHBlY3QgbmV0ZGV2IGxpc3Qgc2hvdWxkCj4+
-Pj4+Pj4+Pj4gYXQgbGVhc3QgcHJvdmlkZSB0aGUgZGlyZWN0aW9uIGluIGdlbmVyYWwgZm9yIGhv
-dyB0aGlzIGNhbiBiZQo+Pj4+Pj4+Pj4+IHNvbHZlZC4uLgo+Pj4+Pj4+IEkgd2FzIGp1c3Qgd29u
-ZGVyaW5nIHdoYXQgZGlkIHlvdSBtZWFuIHdoZW4geW91IHNhaWQKPj4+Pj4+PiAicmVmYWN0b3Ig
-dGhlIHJlbmFtZSBsb2dpYyBhbmQgbWFrZSBpdCB3b3JrIHdlbGwgd2l0aCAzLW5ldGRldiIgLQo+
-Pj4+Pj4+IHdhcyB0aGVyZSBhIHByb3Bvc2FsIHVkZXYgcmVqZWN0ZWQ/Cj4+Pj4+PiBOby4gSSBu
-ZXZlciBiZWxpZXZlZCB0aGlzIHBhcnRpY3VsYXIgaXNzdWUgY2FuIGJlIGZpeGVkIGluIHVzZXJz
-cGFjZSBhbG9uZS4KPj4+Pj4+IFByZXZpb3VzbHkgc29tZW9uZSBoYWQgc2FpZCBpdCBjb3VsZCBi
-ZSwgYnV0IEkgbmV2ZXIgc2VlIGFueSB3b3JrIG9yCj4+Pj4+PiByZWxldmFudCBkaXNjdXNzaW9u
-IGV2ZXIgaGFwcGVuZWQgaW4gdmFyaW91cyB1c2Vyc3BhY2UgY29tbXVuaXRpZXMgKGZvciBlLmcu
-Cj4+Pj4+PiBkcmFjdXQsIGluaXRyYW1mcy10b29scywgc3lzdGVtZCwgdWRldiwgYW5kIE5ldHdv
-cmtNYW5hZ2VyKS4gSU1ITyB0aGUgcm9vdAo+Pj4+Pj4gb2YgdGhlIGlzc3VlIGRlcml2ZXMgZnJv
-bSB0aGUga2VybmVsLCBpdCBtYWtlcyBtb3JlIHNlbnNlIHRvIHN0YXJ0IGZyb20KPj4+Pj4+IG5l
-dGRldiwgd29yayBvdXQgYW5kIGRlY2lkZSBvbiBhIHNvbHV0aW9uOiBzZWUgd2hhdCBjYW4gYmUg
-ZG9uZSBpbiB0aGUKPj4+Pj4+IGtlcm5lbCBpbiBvcmRlciB0byBmaXggaXQsIHRoZW4gYWZ0ZXIg
-dGhhdCBlbmdhZ2UgdXNlcnNwYWNlIGNvbW11bml0eSBmb3IKPj4+Pj4+IHRoZSBmZWFzaWJpbGl0
-eS4uLgo+Pj4+Pj4gCj4+Pj4+Pj4gQW55d2F5LCBjYW4gd2Ugd3JpdGUgYSB0aW1lIGRpYWdyYW0g
-Zm9yIHdoYXQgaGFwcGVucyBpbiB3aGljaCBvcmRlciB0aGF0Cj4+Pj4+Pj4gbGVhZHMgdG8gZmFp
-bHVyZT8gIFRoYXQgd291bGQgaGVscCBsb29rIGZvciB0cmlnZ2VycyB0aGF0IHdlIGNhbiB0aWUK
-Pj4+Pj4+PiBpbnRvLCBvciBhZGQgbmV3IG9uZXMuCj4+Pj4+Pj4gCj4+Pj4+PiBTZWUgYXR0YWNo
-ZWQgZGlhZ3JhbS4KPj4+Pj4+IAo+Pj4+Pj4+IAo+Pj4+Pj4+IAo+Pj4+Pj4+Pj4gSXMgdGhlcmUg
-YW4gaXNzdWUgaWYgc2xhdmUgZGV2aWNlIG5hbWVzIGFyZSBub3QgcHJlZGljdGFibGU/IFRoZSB1
-c2VyL2FkbWluIHNjcmlwdHMgYXJlIGV4cGVjdGVkCj4+Pj4+Pj4+PiB0byBvbmx5IHdvcmsgd2l0
-aCB0aGUgbWFzdGVyIGZhaWxvdmVyIGRldmljZS4KPj4+Pj4+Pj4gV2hlcmUgZG9lcyB0aGlzIGV4
-cGVjdGF0aW9uIGNvbWUgZnJvbT8KPj4+Pj4+Pj4gCj4+Pj4+Pj4+IEFkbWluIHVzZXJzIG1heSBo
-YXZlIGV0aHRvb2wgb3IgdGMgY29uZmlndXJhdGlvbnMgdGhhdCBuZWVkIHRvIGRlYWwgd2l0aAo+
-Pj4+Pj4+PiBwcmVkaWN0YWJsZSBpbnRlcmZhY2UgbmFtZS4gVGhpcmQtcGFydHkgYXBwIHdoaWNo
-IHdhcyBidWlsdCB1cG9uIHNwZWNpZnlpbmcKPj4+Pj4+Pj4gY2VydGFpbiBpbnRlcmZhY2UgbmFt
-ZSBjYW4ndCBiZSBtb2RpZmllZCB0byBjaGFzZSBkeW5hbWljIG5hbWVzLgo+Pj4+Pj4+PiAKPj4+
-Pj4+Pj4gU3BlY2lmaWNhbGx5LCB3ZSBoYXZlIHByZS1jYW5uZWQgaW1hZ2UgdGhhdCB1c2VzIGV0
-aHRvb2wgdG8gZmluZSB0dW5lIFZGCj4+Pj4+Pj4+IG9mZmxvYWQgc2V0dGluZ3MgcG9zdCBib290
-IGZvciBzcGVjaWZpYyB3b3JrbG9hZC4gVGhvc2UgaW1hZ2VzIHdvbid0IHdvcmsKPj4+Pj4+Pj4g
-d2VsbCBpZiB0aGUgbmFtZSBpcyBjb25zdGFudGx5IGNoYW5naW5nIGp1c3QgYWZ0ZXIgY291cGxl
-IHJvdW5kcyBvZiBsaXZlCj4+Pj4+Pj4+IG1pZ3JhdGlvbi4KPj4+Pj4+PiBJdCBzaG91bGQgYmUg
-cG9zc2libGUgdG8gc3BlY2lmeSB0aGUgZXRodG9vbCBjb25maWd1cmF0aW9uIG9uIHRoZQo+Pj4+
-Pj4+IG1hc3RlciBhbmQgaGF2ZSBpdCBhdXRvbWF0aWNhbGx5IHByb3BhZ2F0ZWQgdG8gdGhlIHNs
-YXZlLgo+Pj4+Pj4+IAo+Pj4+Pj4+IEJUVyB0aGlzIGlzIHNvbWV0aGluZyB3ZSBzaG91bGQgbG9v
-ayBhdCBJTUhPLgo+Pj4+Pj4gSSB3YXMgZWxhYm9yYXRpbmcgYSBmZXcgZXhhbXBsZXMgdGhhdCB0
-aGUgZXhwZWN0YXRpb24gYW5kIGFzc3VtcHRpb24gdGhhdAo+Pj4+Pj4gdXNlci9hZG1pbiBzY3Jp
-cHRzIG9ubHkgZGVhbCB3aXRoIG1hc3RlciBmYWlsb3ZlciBkZXZpY2UgaXMgaW5jb3JyZWN0LiBJ
-dAo+Pj4+Pj4gaGFkIG5ldmVyIGJlZW4gdGFrZW4gZ29vZCBjYXJlIG9mLCBhbHRob3VnaCBJIGRp
-ZCB0cnkgdG8gZW1waGFzaXplIGl0IGZyb20KPj4+Pj4+IHRoZSB2ZXJ5IGJlZ2lubmluZy4KPj4+
-Pj4+IAo+Pj4+Pj4gQmFzaWNhbGx5IHdoYXQgeW91IHNhaWQgYWJvdXQgcHJvcGFnYXRpbmcgdGhl
-IGV0aHRvb2wgY29uZmlndXJhdGlvbiBkb3duIHRvCj4+Pj4+PiB0aGUgc2xhdmUgaXMgdGhlIGtl
-eSBwdXJzdWFuY2Ugb2YgMS1uZXRkZXYgbW9kZWwuIEhvd2V2ZXIsIHdoYXQgSSBhbSBzZWVraW5n
-Cj4+Pj4+PiBub3cgaXMgYW55IGFsdGVybmF0aXZlIHRoYXQgY2FuIGFsc28gZml4IHRoZSBzcGVj
-aWZpYyB1ZGV2IHJlbmFtZSBwcm9ibGVtLAo+Pj4+Pj4gYmVmb3JlIGNvbmNsdWRpbmcgdGhhdCAx
-LW5ldGRldiBpcyB0aGUgb25seSBzb2x1dGlvbi4gR2VuZXJhbGx5IGEgMS1uZXRkZXYKPj4+Pj4+
-IHNjaGVtZSB3b3VsZCB0YWtlIHRpbWUgdG8gaW1wbGVtZW50LCB3aGlsZSBJJ20gdHJ5aW5nIHRv
-IGZpbmQgYSB3YXkgb3V0IHRvCj4+Pj4+PiBmaXggdGhpcyBwYXJ0aWN1bGFyIG5hbWluZyBwcm9i
-bGVtIHVuZGVyIDMtbmV0ZGV2Lgo+Pj4+Pj4gCj4+Pj4+Pj4+PiBNb3Jlb3ZlciwgeW91IHdlcmUg
-c3VnZ2VzdGluZyBoaWRpbmcgdGhlIGxvd2VyIHNsYXZlIGRldmljZXMgYW55d2F5LiBUaGVyZSB3
-YXMgc29tZSBkaXNjdXNzaW9uCj4+Pj4+Pj4+PiBhYm91dCBtb3ZpbmcgdGhlbSB0byBhIGhpZGRl
-biBuZXR3b3JrIG5hbWVzcGFjZSBzbyB0aGF0IHRoZXkgYXJlIG5vdCB2aXNpYmxlIGZyb20gdGhl
-IGRlZmF1bHQgbmFtZXNwYWNlLgo+Pj4+Pj4+Pj4gSSBsb29rZWQgaW50byB0aGlzIHNvbWV0aW1l
-IGJhY2ssIGJ1dCBkaWQgbm90IGZpbmQgdGhlIHJpZ2h0IGtlcm5lbCBhcGkgdG8gY3JlYXRlIGEg
-bmV0d29yayBuYW1lc3BhY2Ugd2l0aGluCj4+Pj4+Pj4+PiBrZXJuZWwuIElmIHNvLCB3ZSBjb3Vs
-ZCB1c2UgdGhpcyBtZWNoYW5pc20gdG8gc2ltdWxhdGUgYSAxLW5ldGRldiBtb2RlbC4KPj4+Pj4+
-Pj4gWWVzLCB0aGF0J3Mgb25lIHBvc3NpYmxlIGltcGxlbWVudGF0aW9uIChJTUhPIHRoZSBrZXkg
-aXMgdG8gbWFrZSAxLW5ldGRldgo+Pj4+Pj4+PiBtb2RlbCBhcyBtdWNoIHRyYW5zcGFyZW50IHRv
-IGEgcmVhbCBOSUMgYXMgcG9zc2libGUsIHdoaWxlIGEgaGlkZGVuIG5ldG5zIGlzCj4+Pj4+Pj4+
-IGp1c3QgdGhlIHZlaGljbGUpLiBIb3dldmVyLCBJIHJlY2FsbCB0aGVyZSB3YXMgcmVzaXN0YW5j
-ZSBhcm91bmQgdGhpcwo+Pj4+Pj4+PiBkaXNjdXNzaW9uIHRoYXQgZXZlbiB0aGUgY29uY2VwdCBv
-ZiBoaWRpbmcgaXRzZWxmIGlzIGEgdGFib28gZm9yIExpbnV4Cj4+Pj4+Pj4+IG5ldGRldi4gSSB3
-b3VsZCBsaWtlIHRvIHN1bW1vbiBwb3RlbnRpYWwgYWx0ZXJuYXRpdmVzIGJlZm9yZSBjb25jbHVk
-aW5nCj4+Pj4+Pj4+IDEtbmV0ZGV2IGlzIHRoZSBvbmx5IHNvbHV0aW9uIHRvbyBzb29uLgo+Pj4+
-Pj4+PiAKPj4+Pj4+Pj4gVGhhbmtzLAo+Pj4+Pj4+PiAtU2l3ZWkKPj4+Pj4+PiBZb3VyIHNjcmlw
-dHMgd291bGQgbm90IHdvcmsgYXQgYWxsIHRoZW4sIHJpZ2h0Pwo+Pj4+Pj4gQXQgdGhpcyBwb2lu
-dCB3ZSBkb24ndCBjbGFpbSBpbWFnZXMgd2l0aCBzdWNoIHVzYWdlIGFzIFNSLUlPViBsaXZlCj4+
-Pj4+PiBtaWdyYXRlLWFibGUuIFdlIHdvdWxkIGZsYWcgaXQgYXMgbGl2ZSBtaWdyYXRlLWFibGUg
-dW50aWwgdGhpcyBldGh0b29sCj4+Pj4+PiBjb25maWcgaXNzdWUgaXMgZnVsbHkgYWRkcmVzc2Vk
-IGFuZCBhIHRyYW5zcGFyZW50IGxpdmUgbWlncmF0aW9uIHNvbHV0aW9uCj4+Pj4+PiBlbWVyZ2Vz
-IGluIHVwc3RyZWFtIGV2ZW50dWFsbHkuCj4+Pj4+PiAKPj4+Pj4+IAo+Pj4+Pj4gVGhhbmtzLAo+
-Pj4+Pj4gLVNpd2VpCj4+Pj4+Pj4+Pj4gLVNpd2VpCj4+Pj4+Pj4+Pj4gCj4+Pj4+Pj4+Pj4gCj4+
-Pj4+Pj4gLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0t
-LS0tLS0tLS0tLS0tLS0tLS0tCj4+Pj4+Pj4gVG8gdW5zdWJzY3JpYmUsIGUtbWFpbDogdmlydGlv
-LWRldi11bnN1YnNjcmliZUBsaXN0cy5vYXNpcy1vcGVuLm9yZwo+Pj4+Pj4+IEZvciBhZGRpdGlv
-bmFsIGNvbW1hbmRzLCBlLW1haWw6IHZpcnRpby1kZXYtaGVscEBsaXN0cy5vYXNpcy1vcGVuLm9y
-Zwo+Pj4+Pj4+IAo+Pj4+Pj4gICAgbmV0X2ZhaWxvdmVyKGtlcm5lbCkgICAgICAgICAgICAgICAg
-ICAgICAgICAgICAgfCAgICBuZXR3b3JrLnNlcnZpY2UgKHVzZXIpICAgIHwgICAgICAgICAgc3lz
-dGVtZC11ZGV2ZCAodXNlcikKPj4+Pj4+IC0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0t
-LS0tLS0tLS0tLS0tLS0tLS0tKy0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLSstLS0tLS0t
-LS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLQo+Pj4+Pj4gKHN0YW5kYnkgdmly
-dGlvLW5ldCBhbmQgbmV0X2ZhaWxvdmVyICAgICAgICAgICAgICB8ICAgICAgICAgICAgICAgICAg
-ICAgICAgICAgICAgfAo+Pj4+Pj4gZGV2aWNlcyBjcmVhdGVkIGFuZCBpbml0aWFsaXplZCwgICAg
-ICAgICAgICAgICAgICB8ICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgfAo+Pj4+Pj4gaS5l
-LiB2aXJ0bmV0X3Byb2JlKCktPiAgICAgICAgICAgICAgICAgICAgICAgICAgICB8ICAgICAgICAg
-ICAgICAgICAgICAgICAgICAgICAgfAo+Pj4+Pj4gICAgICAgICBuZXRfZmFpbG92ZXJfY3JlYXRl
-KCkgICAgICAgICAgICAgICAgICAgICAgfCAgICAgICAgICAgICAgICAgICAgICAgICAgICAgIHwK
-Pj4+Pj4+IHdhcyBkb25lLikgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAg
-fCAgICAgICAgICAgICAgICAgICAgICAgICAgICAgIHwKPj4+Pj4+ICAgICAgICAgICAgICAgICAg
-ICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgIHwgICAgICAgICAgICAgICAgICAgICAg
-ICAgICAgICB8Cj4+Pj4+PiAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAg
-ICAgICAgICAgICB8ICBydW5zIGBpZnVwIGVuczMnIC0+ICAgICAgICAgfAo+Pj4+Pj4gICAgICAg
-ICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgfCAgICBpcCBsaW5r
-IHNldCBkZXYgZW5zMyB1cCAgIHwKPj4+Pj4+IG5ldF9mYWlsb3Zlcl9vcGVuKCkgICAgICAgICAg
-ICAgICAgICAgICAgICAgICAgICAgfCAgICAgICAgICAgICAgICAgICAgICAgICAgICAgIHwKPj4+
-Pj4+ICAgIGRldl9vcGVuKHZpcnRuZXRfZGV2KSAgICAgICAgICAgICAgICAgICAgICAgICAgIHwg
-ICAgICAgICAgICAgICAgICAgICAgICAgICAgICB8Cj4+Pj4+PiAgICAgIHZpcnRuZXRfb3Blbih2
-aXJ0bmV0X2RldikgICAgICAgICAgICAgICAgICAgICB8ICAgICAgICAgICAgICAgICAgICAgICAg
-ICAgICAgfAo+Pj4+Pj4gICAgbmV0aWZfY2Fycmllcl9vbihmYWlsb3Zlcl9kZXYpICAgICAgICAg
-ICAgICAgICAgfCAgICAgICAgICAgICAgICAgICAgICAgICAgICAgIHwKPj4+Pj4+ICAgIC4uLiAg
-ICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgIHwgICAgICAgICAgICAg
-ICAgICAgICAgICAgICAgICB8Cj4+Pj4+PiAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAg
-ICAgICAgICAgICAgICAgICAgICB8ICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgfAo+Pj4+
-Pj4gKFZGIGhvdCBwbHVnZ2VkIGluKSAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICB8ICAg
-ICAgICAgICAgICAgICAgICAgICAgICAgICAgfAo+Pj4+Pj4gaXhnYmV2Zl9wcm9iZSgpICAgICAg
-ICAgICAgICAgICAgICAgICAgICAgICAgICAgICB8ICAgICAgICAgICAgICAgICAgICAgICAgICAg
-ICAgfAo+Pj4+Pj4gICByZWdpc3Rlcl9uZXRkZXYoaXhnYmV2Zl9uZXRkZXYpICAgICAgICAgICAg
-ICAgICAgfCAgICAgICAgICAgICAgICAgICAgICAgICAgICAgIHwKPj4+Pj4+ICAgIG5ldGRldl9y
-ZWdpc3Rlcl9rb2JqZWN0KGl4Z2JldmZfbmV0ZGV2KSAgICAgICAgIHwgICAgICAgICAgICAgICAg
-ICAgICAgICAgICAgICB8Cj4+Pj4+PiAgICAga29iamVjdF9hZGQoaXhnYmV2Zl9kZXYpICAgICAg
-ICAgICAgICAgICAgICAgICB8ICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgfAo+Pj4+Pj4g
-ICAgICBkZXZpY2VfYWRkKGl4Z2JldmZfZGV2KSAgICAgICAgICAgICAgICAgICAgICAgfCAgICAg
-ICAgICAgICAgICAgICAgICAgICAgICAgIHwKPj4+Pj4+ICAgICAgIGtvYmplY3RfdWV2ZW50KCZp
-eGdiZXZmX2Rldi0+a29iaiwgS09CSl9BREQpIHwgICAgICAgICAgICAgICAgICAgICAgICAgICAg
-ICB8Cj4+Pj4+PiAgICAgICAgbmV0bGlua19icm9hZGNhc3QoKSAgICAgICAgICAgICAgICAgICAg
-ICAgICB8ICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgfAo+Pj4+Pj4gICAgLi4uICAgICAg
-ICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgfCAgICAgICAgICAgICAgICAg
-ICAgICAgICAgICAgIHwKPj4+Pj4+ICAgIGNhbGxfbmV0ZGV2aWNlX25vdGlmaWVycyhORVRERVZf
-UkVHSVNURVIpICAgICAgIHwgICAgICAgICAgICAgICAgICAgICAgICAgICAgICB8Cj4+Pj4+PiAg
-ICAgZmFpbG92ZXJfZXZlbnQoLi4uLCBORVRERVZfUkVHSVNURVIsIC4uLikgICAgICB8ICAgICAg
-ICAgICAgICAgICAgICAgICAgICAgICAgfAo+Pj4+Pj4gICAgICBmYWlsb3Zlcl9zbGF2ZV9yZWdp
-c3RlcihpeGdiZXZmX25ldGRldikgICAgICAgfCAgICAgICAgICAgICAgICAgICAgICAgICAgICAg
-IHwKPj4+Pj4+ICAgICAgIG5ldF9mYWlsb3Zlcl9zbGF2ZV9yZWdpc3RlcihpeGdiZXZmX25ldGRl
-dikgIHwgICAgICAgICAgICAgICAgICAgICAgICAgICAgICB8Cj4+Pj4+PiAgICAgICAgZGV2X29w
-ZW4oaXhnYmV2Zl9uZXRkZXYpICAgICAgICAgICAgICAgICAgICB8ICAgICAgICAgICAgICAgICAg
-ICAgICAgICAgICAgfAo+Pj4+Pj4gICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAg
-ICAgICAgICAgICAgICAgfCAgICAgICAgICAgICAgICAgICAgICAgICAgICAgIHwKPj4+Pj4+ICAg
-ICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgIHwgICAgICAg
-ICAgICAgICAgICAgICAgICAgICAgICB8Cj4+Pj4+PiAgICAgICAgICAgICAgICAgICAgICAgICAg
-ICAgICAgICAgICAgICAgICAgICAgICAgICB8ICAgICAgICAgICAgICAgICAgICAgICAgICAgICAg
-fCAgIHJlY2VpdmVkIEFERCB1ZXZlbnQgZnJvbSBuZXRsaW5rIGZkCj4+Pj4+PiAgICAgICAgICAg
-ICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICB8ICAgICAgICAgICAgICAg
-ICAgICAgICAgICAgICAgfCAgIC4uLgo+Pj4+Pj4gICAgICAgICAgICAgICAgICAgICAgICAgICAg
-ICAgICAgICAgICAgICAgICAgICAgICAgfCAgICAgICAgICAgICAgICAgICAgICAgICAgICAgIHwg
-ICB1ZGV2LWJ1aWx0aW4tbmV0X2lkLmM6ZGV2X3BjaV9zbG90KCkKPj4+Pj4+ICAgICAgICAgICAg
-ICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgIHwgICAgICAgICAgICAgICAg
-ICAgICAgICAgICAgICB8ICAgKGRlY2lkZWQgdG8gcmVuYW1lZCAnZXRoMCcgKQo+Pj4+Pj4gICAg
-ICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgfCAgICAgICAg
-ICAgICAgICAgICAgICAgICAgICAgIHwgICAgIGlwIGxpbmsgc2V0IGRldiBldGgwIG5hbWUgZW5z
-NAo+Pj4+Pj4gKGRldl9jaGFuZ2VfbmFtZSgpIHJldHVybnMgLUVCVVNZIGFzICAgICAgICAgICAg
-ICB8ICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgfAo+Pj4+Pj4gaXhnYmV2Zl9uZXRkZXYt
-PmZsYWdzIGhhcyBJRkZfVVApICAgICAgICAgICAgICAgICB8ICAgICAgICAgICAgICAgICAgICAg
-ICAgICAgICAgfAo+Pj4+Pj4gICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAg
-ICAgICAgICAgICAgfCAgICAgICAgICAgICAgICAgICAgICAgICAgICAgIHwKPj4+Pj4+IAo+Pj4+
-PiBHaXZlbiByZW5hbWluZyBzbGF2ZXMgZG9lcyBub3Qgd29yayBhbnl3YXk6Cj4+Pj4gSSB3YXMg
-YWN0dWFsbHkgdGhpbmtpbmcgd2hhdCBpZiB3ZSByZWxpZXZlIHRoZSByZW5hbWUgcmVzdHJpY3Rp
-b24ganVzdCBmb3IKPj4+PiB0aGUgZmFpbG92ZXIgc2xhdmU/IFdoYXQgdGhlIGltcGFjdCB3b3Vs
-ZCBiZT8gSSB0aGluayB1c2VycyBkb24ndCBjYXJlIGFib3V0Cj4+Pj4gc2xhdmUgYmVpbmcgcmVu
-YW1lZCB3aGVuIGl0J3MgaW4gdXNlLCBlc3BlY2lhbGx5IHRoZSBpbml0aWFsIHJlbmFtZS4KPj4+
-PiBUaG91Z2h0cz8KPj4+PiAKPj4+Pj4gICB3b3VsZCBpdCB3b3JrIGlmIHdlIGp1c3QKPj4+Pj4g
-aGFyZC1jb2RlZCBzbGF2ZSBuYW1lcyBpbnN0ZWFkPwo+Pj4+PiAKPj4+Pj4gRS5nLgo+Pj4+PiAx
-LiBmYWlsIHNsYXZlIHJlbmFtZXMKPj4+Pj4gMi4gcmVuYW1lIG9mIGZhaWxvdmVyIHRvIFhYIGF1
-dG9tYXRpY2FsbHkgcmVuYW1lcyBzdGFuZGJ5IHRvIFhYbnNieQo+Pj4+PiAgICAgYW5kIHByaW1h
-cnkgdG8gWFhucHJ5Cj4+Pj4gVGhhdCB3b3VsZG4ndCBoZWxwLiBUaGUgdGltZSB3aGVuIHRoZSBm
-YWlsb3ZlciBtYXN0ZXIgZ2V0cyByZW5hbWVkLCB0aGUgVkYKPj4+PiBtYXkgbm90IGJlIHByZXNl
-bnQuCj4+PiBJbiB0aGlzIHNjaGVtZSBpZiBWRiBpcyBub3QgdGhlcmUgaXQgd2lsbCBiZSByZW5h
-bWVkIGltbWVkaWF0ZWx5IGFmdGVyIHJlZ2lzdHJhdGlvbi4KPj4gV2hvIHdpbGwgYmUgcmVzcG9u
-c2libGUgdG8gcmVuYW1lIHRoZSBzbGF2ZSwgdGhlIGtlcm5lbD8KPiAKPiBUaGF0J3MgdGhlIGlk
-ZWEuCj4gCj4+IE5vdGUgdGhlIG1hc3RlcidzCj4+IG5hbWUgbWF5IG9yIG1heSBub3QgY29tZSBm
-cm9tIHRoZSB1c2Vyc3BhY2UuIElmIGl0IGNvbWVzIGZyb20gdGhlIHVzZXJzcGFjZSwKPj4gc2hv
-dWxkIHRoZSB1c2Vyc3BhY2UgZGFlbW9uIGNoYW5nZSB0aGVpciBleHBlY3RhdGlvbiBub3QgdG8g
-bmFtZS9yZW5hbWUKPj4gX2FueV8gc2xhdmVzICh0b2RheSB0aGVyZSdzIG5vIGRpc3RpbmN0aW9u
-KT8KPiAKPiBZZXMgdGhlIGlkZWEgd291bGQgYmUgdG8gZmFpbCByZW5hbWluZyBzbGF2ZXMuCj4g
-Cj4+IEhvdyBkbyB1c2VycyBrbm93IHdoaWNoIG5hbWUgdG8KPj4gdHJ1c3QsIGRlcGVuZGluZyBv
-biB3aGljaCB3aW5zIHRoZSByYWNlIG1vcmUgb2Z0ZW4/IFNheSBpZiBrZXJuZWwgd2FudHMgYQo+
-PiBlbnMzbnByeSBuYW1lIHdoaWxlIHVzZXJzcGFjZSB3YW50cyBpdCBuYW1lZCBhcyBlbnM0Lgo+
-PiAKPj4gLVNpd2VpCj4gCj4gV2l0aCB0aGlzIGFwcHJvYWNoIGtlcm5lbCB3aWxsIGRlbnkgYXR0
-ZW1wdHMgYnkgdXNlcnNwYWNlIHRvIHJlbmFtZQo+IHNsYXZlcy4gIFNsYXZlcyB3aWxsIGFsd2F5
-cyBiZSBuYW1lZCBYWFhuc2J5IGFuZCBYWG5wcnkuIE1hc3RlciByZW5hbWVzCj4gd2lsbCByZW5h
-bWUgYm90aCBzbGF2ZXMuCj4gCj4gSXQgc2VlbXMgcHJldHR5IHNvbGlkIHRvIG1lLCB0aGUgb25s
-eSBpc3N1ZSBpcyB0aGF0IGluIHRoZW9yeSB1c2Vyc3BhY2UKPiBjYW4gdXNlIGEgbmFtZSBsaWtl
-IFhYWG5zYnkgZm9yIHNvbWV0aGluZyBlbHNlLiBCdXQgdGhpcyBzZWVtcyB1bmxpa2VseS4KCkni
-gJltIGZvbmQgb2YgdGhpcyBpZGVhIGFuZCBJIGhhdmUgc2ltaWxhciBvcGluaW9uLgpJIHRoaW5r
-IGl0IHNpbXBsaWZpZXMgdGhlIGlzc3VlIGhlcmUuCkkgZG9u4oCZdCBzZWUgYSByZWFsIHJlYXNv
-biBmb3IgY3VzdG9tZXIgdG8gZGVmaW5lIHVkZXYgcnVsZSB0byByZW5hbWUgYSBuZXQtZmFpbG92
-ZXIgc2xhdmUgdG8gaGF2ZSBkaWZmZXJlbnQgcG9zdGZpeC4KCi1MaXJhbgoKPiAKPiAKPj4+IAo+
-Pj4+IEkgZG9uJ3QgbGlrZSB0aGUgaWRlYSB0byBkZWxheSBleHBvc2luZyBmYWlsb3ZlciBtYXN0
-ZXIKPj4+PiB1bnRpbCBWRiBpcyBob3QgcGx1Z2dlZCBpbiAocHJvYmFibHkgc3ViamVjdCB0byB2
-YXJpb3VzIGZhaWx1cmVzKSBsYXRlci4KPj4+PiAKPj4+PiBUaGFua3MsCj4+Pj4gLVNpd2VpCj4+
-PiAKPj4+IEkgYWdyZWUsIHRoaXMgd2FzIG5vdCB3aGF0IEkgbWVhbnQuCj4+PiAKPj4+Pj4gCgpf
-X19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fXwpWaXJ0dWFsaXph
-dGlvbiBtYWlsaW5nIGxpc3QKVmlydHVhbGl6YXRpb25AbGlzdHMubGludXgtZm91bmRhdGlvbi5v
-cmcKaHR0cHM6Ly9saXN0cy5saW51eGZvdW5kYXRpb24ub3JnL21haWxtYW4vbGlzdGluZm8vdmly
-dHVhbGl6YXRpb24=
+Previous to commit 22b5c0b63f32 ("vsock/virtio: fix kernel panic after device hot-unplug"),
+vsock_core_init() was called from virtio_vsock_probe(). Now,
+virtio_transport_reset_no_sock() can be called before vsock_core_init()
+has the chance to run.
+
+[Wed Feb 27 14:17:09 2019] BUG: unable to handle kernel NULL pointer dereference at 0000000000000110
+[Wed Feb 27 14:17:09 2019] #PF error: [normal kernel read fault]
+[Wed Feb 27 14:17:09 2019] PGD 0 P4D 0
+[Wed Feb 27 14:17:09 2019] Oops: 0000 [#1] SMP PTI
+[Wed Feb 27 14:17:09 2019] CPU: 3 PID: 59 Comm: kworker/3:1 Not tainted 5.0.0-rc7-390-generic-hvi #390
+[Wed Feb 27 14:17:09 2019] Hardware name: QEMU Standard PC (i440FX + PIIX, 1996), BIOS Ubuntu-1.8.2-1ubuntu1 04/01/2014
+[Wed Feb 27 14:17:09 2019] Workqueue: virtio_vsock virtio_transport_rx_work [vmw_vsock_virtio_transport]
+[Wed Feb 27 14:17:09 2019] RIP: 0010:virtio_transport_reset_no_sock+0x8c/0xc0 [vmw_vsock_virtio_transport_common]
+[Wed Feb 27 14:17:09 2019] Code: 35 8b 4f 14 48 8b 57 08 31 f6 44 8b 4f 10 44 8b 07 48 8d 7d c8 e8 84 f8 ff ff 48 85 c0 48 89 c3 74 2a e8 f7 31 03 00 48 89 df <48> 8b 80 10 01 00 00 e8 68 fb 69 ed 48 8b 75 f0 65 48 33 34 25 28
+[Wed Feb 27 14:17:09 2019] RSP: 0018:ffffb42701ab7d40 EFLAGS: 00010282
+[Wed Feb 27 14:17:09 2019] RAX: 0000000000000000 RBX: ffff9d79637ee080 RCX: 0000000000000003
+[Wed Feb 27 14:17:09 2019] RDX: 0000000000000001 RSI: 0000000000000002 RDI: ffff9d79637ee080
+[Wed Feb 27 14:17:09 2019] RBP: ffffb42701ab7d78 R08: ffff9d796fae70e0 R09: ffff9d796f403500
+[Wed Feb 27 14:17:09 2019] R10: ffffb42701ab7d90 R11: 0000000000000000 R12: ffff9d7969d09240
+[Wed Feb 27 14:17:09 2019] R13: ffff9d79624e6840 R14: ffff9d7969d09318 R15: ffff9d796d48ff80
+[Wed Feb 27 14:17:09 2019] FS:  0000000000000000(0000) GS:ffff9d796fac0000(0000) knlGS:0000000000000000
+[Wed Feb 27 14:17:09 2019] CS:  0010 DS: 0000 ES: 0000 CR0: 0000000080050033
+[Wed Feb 27 14:17:09 2019] CR2: 0000000000000110 CR3: 0000000427f22000 CR4: 00000000000006e0
+[Wed Feb 27 14:17:09 2019] DR0: 0000000000000000 DR1: 0000000000000000 DR2: 0000000000000000
+[Wed Feb 27 14:17:09 2019] DR3: 0000000000000000 DR6: 00000000fffe0ff0 DR7: 0000000000000400
+[Wed Feb 27 14:17:09 2019] Call Trace:
+[Wed Feb 27 14:17:09 2019]  virtio_transport_recv_pkt+0x63/0x820 [vmw_vsock_virtio_transport_common]
+[Wed Feb 27 14:17:09 2019]  ? kfree+0x17e/0x190
+[Wed Feb 27 14:17:09 2019]  ? detach_buf_split+0x145/0x160
+[Wed Feb 27 14:17:09 2019]  ? __switch_to_asm+0x40/0x70
+[Wed Feb 27 14:17:09 2019]  virtio_transport_rx_work+0xa0/0x106 [vmw_vsock_virtio_transport]
+[Wed Feb 27 14:17:09 2019] NET: Registered protocol family 40
+[Wed Feb 27 14:17:09 2019]  process_one_work+0x167/0x410
+[Wed Feb 27 14:17:09 2019]  worker_thread+0x4d/0x460
+[Wed Feb 27 14:17:09 2019]  kthread+0x105/0x140
+[Wed Feb 27 14:17:09 2019]  ? rescuer_thread+0x360/0x360
+[Wed Feb 27 14:17:09 2019]  ? kthread_destroy_worker+0x50/0x50
+[Wed Feb 27 14:17:09 2019]  ret_from_fork+0x35/0x40
+[Wed Feb 27 14:17:09 2019] Modules linked in: vmw_vsock_virtio_transport vmw_vsock_virtio_transport_common input_leds vsock serio_raw i2c_piix4 mac_hid qemu_fw_cfg autofs4 cirrus ttm drm_kms_helper syscopyarea sysfillrect sysimgblt fb_sys_fops virtio_net psmouse drm net_failover pata_acpi virtio_blk failover floppy
+[Wed Feb 27 14:17:09 2019] CR2: 0000000000000110
+[Wed Feb 27 14:17:09 2019] ---[ end trace baa35abd2e040fe5 ]---
+[Wed Feb 27 14:17:09 2019] RIP: 0010:virtio_transport_reset_no_sock+0x8c/0xc0 [vmw_vsock_virtio_transport_common]
+[Wed Feb 27 14:17:09 2019] Code: 35 8b 4f 14 48 8b 57 08 31 f6 44 8b 4f 10 44 8b 07 48 8d 7d c8 e8 84 f8 ff ff 48 85 c0 48 89 c3 74 2a e8 f7 31 03 00 48 89 df <48> 8b 80 10 01 00 00 e8 68 fb 69 ed 48 8b 75 f0 65 48 33 34 25 28
+[Wed Feb 27 14:17:09 2019] RSP: 0018:ffffb42701ab7d40 EFLAGS: 00010282
+[Wed Feb 27 14:17:09 2019] RAX: 0000000000000000 RBX: ffff9d79637ee080 RCX: 0000000000000003
+[Wed Feb 27 14:17:09 2019] RDX: 0000000000000001 RSI: 0000000000000002 RDI: ffff9d79637ee080
+[Wed Feb 27 14:17:09 2019] RBP: ffffb42701ab7d78 R08: ffff9d796fae70e0 R09: ffff9d796f403500
+[Wed Feb 27 14:17:09 2019] R10: ffffb42701ab7d90 R11: 0000000000000000 R12: ffff9d7969d09240
+[Wed Feb 27 14:17:09 2019] R13: ffff9d79624e6840 R14: ffff9d7969d09318 R15: ffff9d796d48ff80
+[Wed Feb 27 14:17:09 2019] FS:  0000000000000000(0000) GS:ffff9d796fac0000(0000) knlGS:0000000000000000
+[Wed Feb 27 14:17:09 2019] CS:  0010 DS: 0000 ES: 0000 CR0: 0000000080050033
+[Wed Feb 27 14:17:09 2019] CR2: 0000000000000110 CR3: 0000000427f22000 CR4: 00000000000006e0
+[Wed Feb 27 14:17:09 2019] DR0: 0000000000000000 DR1: 0000000000000000 DR2: 0000000000000000
+[Wed Feb 27 14:17:09 2019] DR3: 0000000000000000 DR6: 00000000fffe0ff0 DR7: 0000000000000400
+---
+ net/vmw_vsock/virtio_transport_common.c | 7 ++++++-
+ 1 file changed, 6 insertions(+), 1 deletion(-)
+
+diff --git a/net/vmw_vsock/virtio_transport_common.c b/net/vmw_vsock/virtio_transport_common.c
+index 3ae3a33da70b..502201aaff2a 100644
+--- a/net/vmw_vsock/virtio_transport_common.c
++++ b/net/vmw_vsock/virtio_transport_common.c
+@@ -662,6 +662,7 @@ static int virtio_transport_reset(struct vsock_sock *vsk,
+  */
+ static int virtio_transport_reset_no_sock(struct virtio_vsock_pkt *pkt)
+ {
++	const struct virtio_transport *t;
+ 	struct virtio_vsock_pkt_info info = {
+ 		.op = VIRTIO_VSOCK_OP_RST,
+ 		.type = le16_to_cpu(pkt->hdr.type),
+@@ -680,7 +681,11 @@ static int virtio_transport_reset_no_sock(struct virtio_vsock_pkt *pkt)
+ 	if (!pkt)
+ 		return -ENOMEM;
+ 
+-	return virtio_transport_get_ops()->send_pkt(pkt);
++	t = virtio_transport_get_ops();
++	if (!t)
++		return -ENOTCONN;
++
++	return t->send_pkt(pkt);
+ }
+ 
+ static void virtio_transport_wait_close(struct sock *sk, long timeout)
+-- 
+2.21.0
