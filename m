@@ -1,12 +1,15 @@
-From: =?UTF-8?q?Adalbert=20Laz=C4=83r?= <alazar@bitdefender.com>
-Subject: [PATCH] vsock/virtio: fix kernel panic from
+From: Stefano Garzarella <sgarzare@redhat.com>
+Subject: Re: [PATCH] vsock/virtio: fix kernel panic from
 	virtio_transport_reset_no_sock
-Date: Tue,  5 Mar 2019 20:01:45 +0200
-Message-ID: <20190305180145.27161-1-alazar__47968.3499130019$1555717228$gmane$org@bitdefender.com>
+Date: Wed, 6 Mar 2019 09:12:36 +0100
+Message-ID: <20190306081236.mcd4o27yw67euzgv__8649.7157624521$1555717238$gmane$org@steredhat.homenet.telecomitalia.it>
+References: <20190305180145.27161-1-alazar@bitdefender.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset="utf-8"
+Content-Transfer-Encoding: base64
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
+Content-Disposition: inline
+In-Reply-To: <20190305180145.27161-1-alazar@bitdefender.com>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -16,92 +19,119 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Stefan Hajnoczi <stefanha@redhat.com>, "David S . Miller" <davem@davemloft.net>, Stefano Garzarella <sgarzare@redhat.com>
-Cc: =?UTF-8?q?Adalbert=20Laz=C4=83r?= <alazar@bitdefender.com>, netdev@vger.kernel.org, linux-kernel@vger.kernel.org, kvm@vger.kernel.org, virtualization@lists.linux-foundation.org
+To: Adalbert =?utf-8?B?TGF6xINy?= <alazar@bitdefender.com>
+Cc: kvm@vger.kernel.org, netdev@vger.kernel.org, linux-kernel@vger.kernel.org, virtualization@lists.linux-foundation.org, Stefan Hajnoczi <stefanha@redhat.com>, "David S . Miller" <davem@davemloft.net>
 List-Id: virtualization@lists.linuxfoundation.org
 
-Previous to commit 22b5c0b63f32 ("vsock/virtio: fix kernel panic after device hot-unplug"),
-vsock_core_init() was called from virtio_vsock_probe(). Now,
-virtio_transport_reset_no_sock() can be called before vsock_core_init()
-has the chance to run.
-
-[Wed Feb 27 14:17:09 2019] BUG: unable to handle kernel NULL pointer dereference at 0000000000000110
-[Wed Feb 27 14:17:09 2019] #PF error: [normal kernel read fault]
-[Wed Feb 27 14:17:09 2019] PGD 0 P4D 0
-[Wed Feb 27 14:17:09 2019] Oops: 0000 [#1] SMP PTI
-[Wed Feb 27 14:17:09 2019] CPU: 3 PID: 59 Comm: kworker/3:1 Not tainted 5.0.0-rc7-390-generic-hvi #390
-[Wed Feb 27 14:17:09 2019] Hardware name: QEMU Standard PC (i440FX + PIIX, 1996), BIOS Ubuntu-1.8.2-1ubuntu1 04/01/2014
-[Wed Feb 27 14:17:09 2019] Workqueue: virtio_vsock virtio_transport_rx_work [vmw_vsock_virtio_transport]
-[Wed Feb 27 14:17:09 2019] RIP: 0010:virtio_transport_reset_no_sock+0x8c/0xc0 [vmw_vsock_virtio_transport_common]
-[Wed Feb 27 14:17:09 2019] Code: 35 8b 4f 14 48 8b 57 08 31 f6 44 8b 4f 10 44 8b 07 48 8d 7d c8 e8 84 f8 ff ff 48 85 c0 48 89 c3 74 2a e8 f7 31 03 00 48 89 df <48> 8b 80 10 01 00 00 e8 68 fb 69 ed 48 8b 75 f0 65 48 33 34 25 28
-[Wed Feb 27 14:17:09 2019] RSP: 0018:ffffb42701ab7d40 EFLAGS: 00010282
-[Wed Feb 27 14:17:09 2019] RAX: 0000000000000000 RBX: ffff9d79637ee080 RCX: 0000000000000003
-[Wed Feb 27 14:17:09 2019] RDX: 0000000000000001 RSI: 0000000000000002 RDI: ffff9d79637ee080
-[Wed Feb 27 14:17:09 2019] RBP: ffffb42701ab7d78 R08: ffff9d796fae70e0 R09: ffff9d796f403500
-[Wed Feb 27 14:17:09 2019] R10: ffffb42701ab7d90 R11: 0000000000000000 R12: ffff9d7969d09240
-[Wed Feb 27 14:17:09 2019] R13: ffff9d79624e6840 R14: ffff9d7969d09318 R15: ffff9d796d48ff80
-[Wed Feb 27 14:17:09 2019] FS:  0000000000000000(0000) GS:ffff9d796fac0000(0000) knlGS:0000000000000000
-[Wed Feb 27 14:17:09 2019] CS:  0010 DS: 0000 ES: 0000 CR0: 0000000080050033
-[Wed Feb 27 14:17:09 2019] CR2: 0000000000000110 CR3: 0000000427f22000 CR4: 00000000000006e0
-[Wed Feb 27 14:17:09 2019] DR0: 0000000000000000 DR1: 0000000000000000 DR2: 0000000000000000
-[Wed Feb 27 14:17:09 2019] DR3: 0000000000000000 DR6: 00000000fffe0ff0 DR7: 0000000000000400
-[Wed Feb 27 14:17:09 2019] Call Trace:
-[Wed Feb 27 14:17:09 2019]  virtio_transport_recv_pkt+0x63/0x820 [vmw_vsock_virtio_transport_common]
-[Wed Feb 27 14:17:09 2019]  ? kfree+0x17e/0x190
-[Wed Feb 27 14:17:09 2019]  ? detach_buf_split+0x145/0x160
-[Wed Feb 27 14:17:09 2019]  ? __switch_to_asm+0x40/0x70
-[Wed Feb 27 14:17:09 2019]  virtio_transport_rx_work+0xa0/0x106 [vmw_vsock_virtio_transport]
-[Wed Feb 27 14:17:09 2019] NET: Registered protocol family 40
-[Wed Feb 27 14:17:09 2019]  process_one_work+0x167/0x410
-[Wed Feb 27 14:17:09 2019]  worker_thread+0x4d/0x460
-[Wed Feb 27 14:17:09 2019]  kthread+0x105/0x140
-[Wed Feb 27 14:17:09 2019]  ? rescuer_thread+0x360/0x360
-[Wed Feb 27 14:17:09 2019]  ? kthread_destroy_worker+0x50/0x50
-[Wed Feb 27 14:17:09 2019]  ret_from_fork+0x35/0x40
-[Wed Feb 27 14:17:09 2019] Modules linked in: vmw_vsock_virtio_transport vmw_vsock_virtio_transport_common input_leds vsock serio_raw i2c_piix4 mac_hid qemu_fw_cfg autofs4 cirrus ttm drm_kms_helper syscopyarea sysfillrect sysimgblt fb_sys_fops virtio_net psmouse drm net_failover pata_acpi virtio_blk failover floppy
-[Wed Feb 27 14:17:09 2019] CR2: 0000000000000110
-[Wed Feb 27 14:17:09 2019] ---[ end trace baa35abd2e040fe5 ]---
-[Wed Feb 27 14:17:09 2019] RIP: 0010:virtio_transport_reset_no_sock+0x8c/0xc0 [vmw_vsock_virtio_transport_common]
-[Wed Feb 27 14:17:09 2019] Code: 35 8b 4f 14 48 8b 57 08 31 f6 44 8b 4f 10 44 8b 07 48 8d 7d c8 e8 84 f8 ff ff 48 85 c0 48 89 c3 74 2a e8 f7 31 03 00 48 89 df <48> 8b 80 10 01 00 00 e8 68 fb 69 ed 48 8b 75 f0 65 48 33 34 25 28
-[Wed Feb 27 14:17:09 2019] RSP: 0018:ffffb42701ab7d40 EFLAGS: 00010282
-[Wed Feb 27 14:17:09 2019] RAX: 0000000000000000 RBX: ffff9d79637ee080 RCX: 0000000000000003
-[Wed Feb 27 14:17:09 2019] RDX: 0000000000000001 RSI: 0000000000000002 RDI: ffff9d79637ee080
-[Wed Feb 27 14:17:09 2019] RBP: ffffb42701ab7d78 R08: ffff9d796fae70e0 R09: ffff9d796f403500
-[Wed Feb 27 14:17:09 2019] R10: ffffb42701ab7d90 R11: 0000000000000000 R12: ffff9d7969d09240
-[Wed Feb 27 14:17:09 2019] R13: ffff9d79624e6840 R14: ffff9d7969d09318 R15: ffff9d796d48ff80
-[Wed Feb 27 14:17:09 2019] FS:  0000000000000000(0000) GS:ffff9d796fac0000(0000) knlGS:0000000000000000
-[Wed Feb 27 14:17:09 2019] CS:  0010 DS: 0000 ES: 0000 CR0: 0000000080050033
-[Wed Feb 27 14:17:09 2019] CR2: 0000000000000110 CR3: 0000000427f22000 CR4: 00000000000006e0
-[Wed Feb 27 14:17:09 2019] DR0: 0000000000000000 DR1: 0000000000000000 DR2: 0000000000000000
-[Wed Feb 27 14:17:09 2019] DR3: 0000000000000000 DR6: 00000000fffe0ff0 DR7: 0000000000000400
----
- net/vmw_vsock/virtio_transport_common.c | 7 ++++++-
- 1 file changed, 6 insertions(+), 1 deletion(-)
-
-diff --git a/net/vmw_vsock/virtio_transport_common.c b/net/vmw_vsock/virtio_transport_common.c
-index 3ae3a33da70b..502201aaff2a 100644
---- a/net/vmw_vsock/virtio_transport_common.c
-+++ b/net/vmw_vsock/virtio_transport_common.c
-@@ -662,6 +662,7 @@ static int virtio_transport_reset(struct vsock_sock *vsk,
-  */
- static int virtio_transport_reset_no_sock(struct virtio_vsock_pkt *pkt)
- {
-+	const struct virtio_transport *t;
- 	struct virtio_vsock_pkt_info info = {
- 		.op = VIRTIO_VSOCK_OP_RST,
- 		.type = le16_to_cpu(pkt->hdr.type),
-@@ -680,7 +681,11 @@ static int virtio_transport_reset_no_sock(struct virtio_vsock_pkt *pkt)
- 	if (!pkt)
- 		return -ENOMEM;
- 
--	return virtio_transport_get_ops()->send_pkt(pkt);
-+	t = virtio_transport_get_ops();
-+	if (!t)
-+		return -ENOTCONN;
-+
-+	return t->send_pkt(pkt);
- }
- 
- static void virtio_transport_wait_close(struct sock *sk, long timeout)
--- 
-2.21.0
+SGkgQWRhbGJlcnQsCnRoYW5rcyBmb3IgY2F0Y2hpbmcgdGhpcyBpc3N1ZSwgSSBoYXZlIGEgY29t
+bWVudCBiZWxvdy4KCk9uIFR1ZSwgTWFyIDA1LCAyMDE5IGF0IDA4OjAxOjQ1UE0gKzAyMDAsIEFk
+YWxiZXJ0IExhesSDciB3cm90ZToKPiBQcmV2aW91cyB0byBjb21taXQgMjJiNWMwYjYzZjMyICgi
+dnNvY2svdmlydGlvOiBmaXgga2VybmVsIHBhbmljIGFmdGVyIGRldmljZSBob3QtdW5wbHVnIiks
+Cj4gdnNvY2tfY29yZV9pbml0KCkgd2FzIGNhbGxlZCBmcm9tIHZpcnRpb192c29ja19wcm9iZSgp
+LiBOb3csCj4gdmlydGlvX3RyYW5zcG9ydF9yZXNldF9ub19zb2NrKCkgY2FuIGJlIGNhbGxlZCBi
+ZWZvcmUgdnNvY2tfY29yZV9pbml0KCkKPiBoYXMgdGhlIGNoYW5jZSB0byBydW4uCj4gCj4gW1dl
+ZCBGZWIgMjcgMTQ6MTc6MDkgMjAxOV0gQlVHOiB1bmFibGUgdG8gaGFuZGxlIGtlcm5lbCBOVUxM
+IHBvaW50ZXIgZGVyZWZlcmVuY2UgYXQgMDAwMDAwMDAwMDAwMDExMAo+IFtXZWQgRmViIDI3IDE0
+OjE3OjA5IDIwMTldICNQRiBlcnJvcjogW25vcm1hbCBrZXJuZWwgcmVhZCBmYXVsdF0KPiBbV2Vk
+IEZlYiAyNyAxNDoxNzowOSAyMDE5XSBQR0QgMCBQNEQgMAo+IFtXZWQgRmViIDI3IDE0OjE3OjA5
+IDIwMTldIE9vcHM6IDAwMDAgWyMxXSBTTVAgUFRJCj4gW1dlZCBGZWIgMjcgMTQ6MTc6MDkgMjAx
+OV0gQ1BVOiAzIFBJRDogNTkgQ29tbToga3dvcmtlci8zOjEgTm90IHRhaW50ZWQgNS4wLjAtcmM3
+LTM5MC1nZW5lcmljLWh2aSAjMzkwCj4gW1dlZCBGZWIgMjcgMTQ6MTc6MDkgMjAxOV0gSGFyZHdh
+cmUgbmFtZTogUUVNVSBTdGFuZGFyZCBQQyAoaTQ0MEZYICsgUElJWCwgMTk5NiksIEJJT1MgVWJ1
+bnR1LTEuOC4yLTF1YnVudHUxIDA0LzAxLzIwMTQKPiBbV2VkIEZlYiAyNyAxNDoxNzowOSAyMDE5
+XSBXb3JrcXVldWU6IHZpcnRpb192c29jayB2aXJ0aW9fdHJhbnNwb3J0X3J4X3dvcmsgW3Ztd192
+c29ja192aXJ0aW9fdHJhbnNwb3J0XQo+IFtXZWQgRmViIDI3IDE0OjE3OjA5IDIwMTldIFJJUDog
+MDAxMDp2aXJ0aW9fdHJhbnNwb3J0X3Jlc2V0X25vX3NvY2srMHg4Yy8weGMwIFt2bXdfdnNvY2tf
+dmlydGlvX3RyYW5zcG9ydF9jb21tb25dCj4gW1dlZCBGZWIgMjcgMTQ6MTc6MDkgMjAxOV0gQ29k
+ZTogMzUgOGIgNGYgMTQgNDggOGIgNTcgMDggMzEgZjYgNDQgOGIgNGYgMTAgNDQgOGIgMDcgNDgg
+OGQgN2QgYzggZTggODQgZjggZmYgZmYgNDggODUgYzAgNDggODkgYzMgNzQgMmEgZTggZjcgMzEg
+MDMgMDAgNDggODkgZGYgPDQ4PiA4YiA4MCAxMCAwMSAwMCAwMCBlOCA2OCBmYiA2OSBlZCA0OCA4
+YiA3NSBmMCA2NSA0OCAzMyAzNCAyNSAyOAo+IFtXZWQgRmViIDI3IDE0OjE3OjA5IDIwMTldIFJT
+UDogMDAxODpmZmZmYjQyNzAxYWI3ZDQwIEVGTEFHUzogMDAwMTAyODIKPiBbV2VkIEZlYiAyNyAx
+NDoxNzowOSAyMDE5XSBSQVg6IDAwMDAwMDAwMDAwMDAwMDAgUkJYOiBmZmZmOWQ3OTYzN2VlMDgw
+IFJDWDogMDAwMDAwMDAwMDAwMDAwMwo+IFtXZWQgRmViIDI3IDE0OjE3OjA5IDIwMTldIFJEWDog
+MDAwMDAwMDAwMDAwMDAwMSBSU0k6IDAwMDAwMDAwMDAwMDAwMDIgUkRJOiBmZmZmOWQ3OTYzN2Vl
+MDgwCj4gW1dlZCBGZWIgMjcgMTQ6MTc6MDkgMjAxOV0gUkJQOiBmZmZmYjQyNzAxYWI3ZDc4IFIw
+ODogZmZmZjlkNzk2ZmFlNzBlMCBSMDk6IGZmZmY5ZDc5NmY0MDM1MDAKPiBbV2VkIEZlYiAyNyAx
+NDoxNzowOSAyMDE5XSBSMTA6IGZmZmZiNDI3MDFhYjdkOTAgUjExOiAwMDAwMDAwMDAwMDAwMDAw
+IFIxMjogZmZmZjlkNzk2OWQwOTI0MAo+IFtXZWQgRmViIDI3IDE0OjE3OjA5IDIwMTldIFIxMzog
+ZmZmZjlkNzk2MjRlNjg0MCBSMTQ6IGZmZmY5ZDc5NjlkMDkzMTggUjE1OiBmZmZmOWQ3OTZkNDhm
+ZjgwCj4gW1dlZCBGZWIgMjcgMTQ6MTc6MDkgMjAxOV0gRlM6ICAwMDAwMDAwMDAwMDAwMDAwKDAw
+MDApIEdTOmZmZmY5ZDc5NmZhYzAwMDAoMDAwMCkga25sR1M6MDAwMDAwMDAwMDAwMDAwMAo+IFtX
+ZWQgRmViIDI3IDE0OjE3OjA5IDIwMTldIENTOiAgMDAxMCBEUzogMDAwMCBFUzogMDAwMCBDUjA6
+IDAwMDAwMDAwODAwNTAwMzMKPiBbV2VkIEZlYiAyNyAxNDoxNzowOSAyMDE5XSBDUjI6IDAwMDAw
+MDAwMDAwMDAxMTAgQ1IzOiAwMDAwMDAwNDI3ZjIyMDAwIENSNDogMDAwMDAwMDAwMDAwMDZlMAo+
+IFtXZWQgRmViIDI3IDE0OjE3OjA5IDIwMTldIERSMDogMDAwMDAwMDAwMDAwMDAwMCBEUjE6IDAw
+MDAwMDAwMDAwMDAwMDAgRFIyOiAwMDAwMDAwMDAwMDAwMDAwCj4gW1dlZCBGZWIgMjcgMTQ6MTc6
+MDkgMjAxOV0gRFIzOiAwMDAwMDAwMDAwMDAwMDAwIERSNjogMDAwMDAwMDBmZmZlMGZmMCBEUjc6
+IDAwMDAwMDAwMDAwMDA0MDAKPiBbV2VkIEZlYiAyNyAxNDoxNzowOSAyMDE5XSBDYWxsIFRyYWNl
+Ogo+IFtXZWQgRmViIDI3IDE0OjE3OjA5IDIwMTldICB2aXJ0aW9fdHJhbnNwb3J0X3JlY3ZfcGt0
+KzB4NjMvMHg4MjAgW3Ztd192c29ja192aXJ0aW9fdHJhbnNwb3J0X2NvbW1vbl0KPiBbV2VkIEZl
+YiAyNyAxNDoxNzowOSAyMDE5XSAgPyBrZnJlZSsweDE3ZS8weDE5MAo+IFtXZWQgRmViIDI3IDE0
+OjE3OjA5IDIwMTldICA/IGRldGFjaF9idWZfc3BsaXQrMHgxNDUvMHgxNjAKPiBbV2VkIEZlYiAy
+NyAxNDoxNzowOSAyMDE5XSAgPyBfX3N3aXRjaF90b19hc20rMHg0MC8weDcwCj4gW1dlZCBGZWIg
+MjcgMTQ6MTc6MDkgMjAxOV0gIHZpcnRpb190cmFuc3BvcnRfcnhfd29yaysweGEwLzB4MTA2IFt2
+bXdfdnNvY2tfdmlydGlvX3RyYW5zcG9ydF0KPiBbV2VkIEZlYiAyNyAxNDoxNzowOSAyMDE5XSBO
+RVQ6IFJlZ2lzdGVyZWQgcHJvdG9jb2wgZmFtaWx5IDQwCj4gW1dlZCBGZWIgMjcgMTQ6MTc6MDkg
+MjAxOV0gIHByb2Nlc3Nfb25lX3dvcmsrMHgxNjcvMHg0MTAKPiBbV2VkIEZlYiAyNyAxNDoxNzow
+OSAyMDE5XSAgd29ya2VyX3RocmVhZCsweDRkLzB4NDYwCj4gW1dlZCBGZWIgMjcgMTQ6MTc6MDkg
+MjAxOV0gIGt0aHJlYWQrMHgxMDUvMHgxNDAKPiBbV2VkIEZlYiAyNyAxNDoxNzowOSAyMDE5XSAg
+PyByZXNjdWVyX3RocmVhZCsweDM2MC8weDM2MAo+IFtXZWQgRmViIDI3IDE0OjE3OjA5IDIwMTld
+ICA/IGt0aHJlYWRfZGVzdHJveV93b3JrZXIrMHg1MC8weDUwCj4gW1dlZCBGZWIgMjcgMTQ6MTc6
+MDkgMjAxOV0gIHJldF9mcm9tX2ZvcmsrMHgzNS8weDQwCj4gW1dlZCBGZWIgMjcgMTQ6MTc6MDkg
+MjAxOV0gTW9kdWxlcyBsaW5rZWQgaW46IHZtd192c29ja192aXJ0aW9fdHJhbnNwb3J0IHZtd192
+c29ja192aXJ0aW9fdHJhbnNwb3J0X2NvbW1vbiBpbnB1dF9sZWRzIHZzb2NrIHNlcmlvX3JhdyBp
+MmNfcGlpeDQgbWFjX2hpZCBxZW11X2Z3X2NmZyBhdXRvZnM0IGNpcnJ1cyB0dG0gZHJtX2ttc19o
+ZWxwZXIgc3lzY29weWFyZWEgc3lzZmlsbHJlY3Qgc3lzaW1nYmx0IGZiX3N5c19mb3BzIHZpcnRp
+b19uZXQgcHNtb3VzZSBkcm0gbmV0X2ZhaWxvdmVyIHBhdGFfYWNwaSB2aXJ0aW9fYmxrIGZhaWxv
+dmVyIGZsb3BweQo+IFtXZWQgRmViIDI3IDE0OjE3OjA5IDIwMTldIENSMjogMDAwMDAwMDAwMDAw
+MDExMAo+IFtXZWQgRmViIDI3IDE0OjE3OjA5IDIwMTldIC0tLVsgZW5kIHRyYWNlIGJhYTM1YWJk
+MmUwNDBmZTUgXS0tLQo+IFtXZWQgRmViIDI3IDE0OjE3OjA5IDIwMTldIFJJUDogMDAxMDp2aXJ0
+aW9fdHJhbnNwb3J0X3Jlc2V0X25vX3NvY2srMHg4Yy8weGMwIFt2bXdfdnNvY2tfdmlydGlvX3Ry
+YW5zcG9ydF9jb21tb25dCj4gW1dlZCBGZWIgMjcgMTQ6MTc6MDkgMjAxOV0gQ29kZTogMzUgOGIg
+NGYgMTQgNDggOGIgNTcgMDggMzEgZjYgNDQgOGIgNGYgMTAgNDQgOGIgMDcgNDggOGQgN2QgYzgg
+ZTggODQgZjggZmYgZmYgNDggODUgYzAgNDggODkgYzMgNzQgMmEgZTggZjcgMzEgMDMgMDAgNDgg
+ODkgZGYgPDQ4PiA4YiA4MCAxMCAwMSAwMCAwMCBlOCA2OCBmYiA2OSBlZCA0OCA4YiA3NSBmMCA2
+NSA0OCAzMyAzNCAyNSAyOAo+IFtXZWQgRmViIDI3IDE0OjE3OjA5IDIwMTldIFJTUDogMDAxODpm
+ZmZmYjQyNzAxYWI3ZDQwIEVGTEFHUzogMDAwMTAyODIKPiBbV2VkIEZlYiAyNyAxNDoxNzowOSAy
+MDE5XSBSQVg6IDAwMDAwMDAwMDAwMDAwMDAgUkJYOiBmZmZmOWQ3OTYzN2VlMDgwIFJDWDogMDAw
+MDAwMDAwMDAwMDAwMwo+IFtXZWQgRmViIDI3IDE0OjE3OjA5IDIwMTldIFJEWDogMDAwMDAwMDAw
+MDAwMDAwMSBSU0k6IDAwMDAwMDAwMDAwMDAwMDIgUkRJOiBmZmZmOWQ3OTYzN2VlMDgwCj4gW1dl
+ZCBGZWIgMjcgMTQ6MTc6MDkgMjAxOV0gUkJQOiBmZmZmYjQyNzAxYWI3ZDc4IFIwODogZmZmZjlk
+Nzk2ZmFlNzBlMCBSMDk6IGZmZmY5ZDc5NmY0MDM1MDAKPiBbV2VkIEZlYiAyNyAxNDoxNzowOSAy
+MDE5XSBSMTA6IGZmZmZiNDI3MDFhYjdkOTAgUjExOiAwMDAwMDAwMDAwMDAwMDAwIFIxMjogZmZm
+ZjlkNzk2OWQwOTI0MAo+IFtXZWQgRmViIDI3IDE0OjE3OjA5IDIwMTldIFIxMzogZmZmZjlkNzk2
+MjRlNjg0MCBSMTQ6IGZmZmY5ZDc5NjlkMDkzMTggUjE1OiBmZmZmOWQ3OTZkNDhmZjgwCj4gW1dl
+ZCBGZWIgMjcgMTQ6MTc6MDkgMjAxOV0gRlM6ICAwMDAwMDAwMDAwMDAwMDAwKDAwMDApIEdTOmZm
+ZmY5ZDc5NmZhYzAwMDAoMDAwMCkga25sR1M6MDAwMDAwMDAwMDAwMDAwMAo+IFtXZWQgRmViIDI3
+IDE0OjE3OjA5IDIwMTldIENTOiAgMDAxMCBEUzogMDAwMCBFUzogMDAwMCBDUjA6IDAwMDAwMDAw
+ODAwNTAwMzMKPiBbV2VkIEZlYiAyNyAxNDoxNzowOSAyMDE5XSBDUjI6IDAwMDAwMDAwMDAwMDAx
+MTAgQ1IzOiAwMDAwMDAwNDI3ZjIyMDAwIENSNDogMDAwMDAwMDAwMDAwMDZlMAo+IFtXZWQgRmVi
+IDI3IDE0OjE3OjA5IDIwMTldIERSMDogMDAwMDAwMDAwMDAwMDAwMCBEUjE6IDAwMDAwMDAwMDAw
+MDAwMDAgRFIyOiAwMDAwMDAwMDAwMDAwMDAwCj4gW1dlZCBGZWIgMjcgMTQ6MTc6MDkgMjAxOV0g
+RFIzOiAwMDAwMDAwMDAwMDAwMDAwIERSNjogMDAwMDAwMDBmZmZlMGZmMCBEUjc6IDAwMDAwMDAw
+MDAwMDA0MDAKPiAtLS0KPiAgbmV0L3Ztd192c29jay92aXJ0aW9fdHJhbnNwb3J0X2NvbW1vbi5j
+IHwgNyArKysrKystCj4gIDEgZmlsZSBjaGFuZ2VkLCA2IGluc2VydGlvbnMoKyksIDEgZGVsZXRp
+b24oLSkKPiAKPiBkaWZmIC0tZ2l0IGEvbmV0L3Ztd192c29jay92aXJ0aW9fdHJhbnNwb3J0X2Nv
+bW1vbi5jIGIvbmV0L3Ztd192c29jay92aXJ0aW9fdHJhbnNwb3J0X2NvbW1vbi5jCj4gaW5kZXgg
+M2FlM2EzM2RhNzBiLi41MDIyMDFhYWZmMmEgMTAwNjQ0Cj4gLS0tIGEvbmV0L3Ztd192c29jay92
+aXJ0aW9fdHJhbnNwb3J0X2NvbW1vbi5jCj4gKysrIGIvbmV0L3Ztd192c29jay92aXJ0aW9fdHJh
+bnNwb3J0X2NvbW1vbi5jCj4gQEAgLTY2Miw2ICs2NjIsNyBAQCBzdGF0aWMgaW50IHZpcnRpb190
+cmFuc3BvcnRfcmVzZXQoc3RydWN0IHZzb2NrX3NvY2sgKnZzaywKPiAgICovCj4gIHN0YXRpYyBp
+bnQgdmlydGlvX3RyYW5zcG9ydF9yZXNldF9ub19zb2NrKHN0cnVjdCB2aXJ0aW9fdnNvY2tfcGt0
+ICpwa3QpCj4gIHsKPiArCWNvbnN0IHN0cnVjdCB2aXJ0aW9fdHJhbnNwb3J0ICp0Owo+ICAJc3Ry
+dWN0IHZpcnRpb192c29ja19wa3RfaW5mbyBpbmZvID0gewo+ICAJCS5vcCA9IFZJUlRJT19WU09D
+S19PUF9SU1QsCj4gIAkJLnR5cGUgPSBsZTE2X3RvX2NwdShwa3QtPmhkci50eXBlKSwKPiBAQCAt
+NjgwLDcgKzY4MSwxMSBAQCBzdGF0aWMgaW50IHZpcnRpb190cmFuc3BvcnRfcmVzZXRfbm9fc29j
+ayhzdHJ1Y3QgdmlydGlvX3Zzb2NrX3BrdCAqcGt0KQo+ICAJaWYgKCFwa3QpCj4gIAkJcmV0dXJu
+IC1FTk9NRU07Cj4gIAo+IC0JcmV0dXJuIHZpcnRpb190cmFuc3BvcnRfZ2V0X29wcygpLT5zZW5k
+X3BrdChwa3QpOwo+ICsJdCA9IHZpcnRpb190cmFuc3BvcnRfZ2V0X29wcygpOwo+ICsJaWYgKCF0
+KQo+ICsJCXJldHVybiAtRU5PVENPTk47CgpTaG91bGQgYmUgYmV0dGVyIHRvIGRvIHRoaXMgY2hl
+Y2sgYmVmb3JlIHRoZSB2aXJ0aW9fdHJhbnNwb3J0X2FsbG9jX3BrdD8KCk90aGVyd2lzZSwgSSB0
+aGluayB3ZSBzaG91bGQgZnJlZSB0aGF0IHBhY2tldCBiZWZvcmUgdG8gcmV0dXJuIC1FTk9UQ09O
+Ti4KClRoYW5rcywKU3RlZmFubwoKPiArCj4gKwlyZXR1cm4gdC0+c2VuZF9wa3QocGt0KTsKPiAg
+fQo+ICAKPiAgc3RhdGljIHZvaWQgdmlydGlvX3RyYW5zcG9ydF93YWl0X2Nsb3NlKHN0cnVjdCBz
+b2NrICpzaywgbG9uZyB0aW1lb3V0KQo+IC0tIAo+IDIuMjEuMAo+IApfX19fX19fX19fX19fX19f
+X19fX19fX19fX19fX19fX19fX19fX19fX19fX19fXwpWaXJ0dWFsaXphdGlvbiBtYWlsaW5nIGxp
+c3QKVmlydHVhbGl6YXRpb25AbGlzdHMubGludXgtZm91bmRhdGlvbi5vcmcKaHR0cHM6Ly9saXN0
+cy5saW51eGZvdW5kYXRpb24ub3JnL21haWxtYW4vbGlzdGluZm8vdmlydHVhbGl6YXRpb24=
