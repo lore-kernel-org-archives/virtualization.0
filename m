@@ -1,15 +1,15 @@
 From: Adalbert =?iso-8859-2?b?TGF643I=?= <alazar@bitdefender.com>
 Subject: Re: [PATCH] vsock/virtio: fix kernel panic from
 	virtio_transport_reset_no_sock
-Date: Wed, 06 Mar 2019 10:53:32 +0200
-Message-ID: <46463.0110118137$1555717253@news.gmane.org>
+Date: Wed, 06 Mar 2019 11:10:41 +0200
+Message-ID: <21195.0241516874$1555717265@news.gmane.org>
 References: <20190305180145.27161-1-alazar@bitdefender.com>
-	<20190306081236.mcd4o27yw67euzgv@steredhat.homenet.telecomitalia.it>
+	<20190306084104.GA22159@stefanha-x1.localdomain>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset="utf-8"
+Content-Transfer-Encoding: base64
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <20190306081236.mcd4o27yw67euzgv@steredhat.homenet.telecomitalia.it>
+In-Reply-To: <20190306084104.GA22159@stefanha-x1.localdomain>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -19,33 +19,41 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Stefano Garzarella <sgarzare@redhat.com>
-Cc: kvm@vger.kernel.org, netdev@vger.kernel.org, linux-kernel@vger.kernel.org, virtualization@lists.linux-foundation.org, Stefan Hajnoczi <stefanha@redhat.com>, "David S . Miller" <davem@davemloft.net>
+To: Stefan Hajnoczi <stefanha@gmail.com>
+Cc: kvm@vger.kernel.org, netdev@vger.kernel.org, linux-kernel@vger.kernel.org, virtualization@lists.linux-foundation.org, Stefan Hajnoczi <stefanha@redhat.com>, "David S . Miller" <davem@davemloft.net>, Stefano Garzarella <sgarzare@redhat.com>
 List-Id: virtualization@lists.linuxfoundation.org
 
-On Wed, 6 Mar 2019 09:12:36 +0100, Stefano Garzarella <sgarzare@redhat.com> wrote:
-> > --- a/net/vmw_vsock/virtio_transport_common.c
-> > +++ b/net/vmw_vsock/virtio_transport_common.c
-> > @@ -662,6 +662,7 @@ static int virtio_transport_reset(struct vsock_sock *vsk,
-> >   */
-> >  static int virtio_transport_reset_no_sock(struct virtio_vsock_pkt *pkt)
-> >  {
-> > +	const struct virtio_transport *t;
-> >  	struct virtio_vsock_pkt_info info = {
-> >  		.op = VIRTIO_VSOCK_OP_RST,
-> >  		.type = le16_to_cpu(pkt->hdr.type),
-> > @@ -680,7 +681,11 @@ static int virtio_transport_reset_no_sock(struct virtio_vsock_pkt *pkt)
-> >  	if (!pkt)
-> >  		return -ENOMEM;
-> >  
-> > -	return virtio_transport_get_ops()->send_pkt(pkt);
-> > +	t = virtio_transport_get_ops();
-> > +	if (!t)
-> > +		return -ENOTCONN;
-> 
-> Should be better to do this check before the virtio_transport_alloc_pkt?
-> 
-> Otherwise, I think we should free that packet before to return -ENOTCONN.
-
-Right! :D
-I will send a second version.
+T24gV2VkLCA2IE1hciAyMDE5IDA4OjQxOjA0ICswMDAwLCBTdGVmYW4gSGFqbm9jemkgPHN0ZWZh
+bmhhQGdtYWlsLmNvbT4gd3JvdGU6Cj4gT24gVHVlLCBNYXIgMDUsIDIwMTkgYXQgMDg6MDE6NDVQ
+TSArMDIwMCwgQWRhbGJlcnQgTGF6xINyIHdyb3RlOgo+IAo+IFRoYW5rcyBmb3IgdGhlIHBhdGNo
+LCBBZGFsYmVydCEgIFBsZWFzZSBhZGQgYSBTaWduZWQtb2ZmLWJ5IHRhZyBzbyB5b3VyCj4gcGF0
+Y2ggY2FuIGJlIG1lcmdlZCAoc2VlIERvY3VtZW50YXRpb24vcHJvY2Vzcy9zdWJtaXR0aW5nLXBh
+dGNoZXMucnN0Cj4gQ2hhcHRlciAxMSBmb3IgZGV0YWlscyBvbiB0aGUgRGV2ZWxvcGVyJ3MgQ2Vy
+dGlmaWNhdGUgb2YgT3JpZ2luKS4KPiAKPiA+ICBzdGF0aWMgaW50IHZpcnRpb190cmFuc3BvcnRf
+cmVzZXRfbm9fc29jayhzdHJ1Y3QgdmlydGlvX3Zzb2NrX3BrdCAqcGt0KQo+ID4gIHsKPiA+ICsJ
+Y29uc3Qgc3RydWN0IHZpcnRpb190cmFuc3BvcnQgKnQ7Cj4gPiAgCXN0cnVjdCB2aXJ0aW9fdnNv
+Y2tfcGt0X2luZm8gaW5mbyA9IHsKPiA+ICAJCS5vcCA9IFZJUlRJT19WU09DS19PUF9SU1QsCj4g
+PiAgCQkudHlwZSA9IGxlMTZfdG9fY3B1KHBrdC0+aGRyLnR5cGUpLAo+ID4gQEAgLTY4MCw3ICs2
+ODEsMTEgQEAgc3RhdGljIGludCB2aXJ0aW9fdHJhbnNwb3J0X3Jlc2V0X25vX3NvY2soc3RydWN0
+IHZpcnRpb192c29ja19wa3QgKnBrdCkKPiA+ICAJaWYgKCFwa3QpCj4gPiAgCQlyZXR1cm4gLUVO
+T01FTTsKPiA+ICAKPiA+IC0JcmV0dXJuIHZpcnRpb190cmFuc3BvcnRfZ2V0X29wcygpLT5zZW5k
+X3BrdChwa3QpOwo+ID4gKwl0ID0gdmlydGlvX3RyYW5zcG9ydF9nZXRfb3BzKCk7Cj4gPiArCWlm
+ICghdCkKPiA+ICsJCXJldHVybiAtRU5PVENPTk47Cj4gCj4gcGt0IGlzIGxlYWtlZCBoZXJlLiAg
+VGhpcyBpcyBhbiBlYXN5IG1pc3Rha2UgdG8gbWFrZSBiZWNhdXNlIHRoZSBjb2RlIGlzCj4gdW5j
+bGVhci4gCgpUaGFuayB5b3UgZm9yIHlvdXIga2luZCB3b3JkcyA6KQoKPiBUaGUgcGt0IGFyZ3Vt
+ZW50IGlzIHRoZSByZWNlaXZlZCBwYWNrZXQgdGhhdCB3ZSBtdXN0IHJlcGx5IHRvLgo+IFRoZSBy
+ZXBseSBwYWNrZXQgaXMgYWxsb2NhdGVkIGp1c3QgYmVmb3JlIGxpbmUgNjgwIGFuZCBtdXN0IGJl
+IGZyZWUKPiBleHBsaWNpdGx5IGZvciByZXR1cm4gLUVOT1RDT05OLgo+IAo+IFlvdSBjYW4gYXZv
+aWQgdGhlIGxlYWsgYW5kIG1ha2UgdGhlIGNvZGUgZWFzaWVyIHRvIHJlYWQgbGlrZSB0aGlzOgo+
+IAo+ICAgc3RydWN0IHZpcnRpb192c29ja19wa3QgKnJlcGx5Owo+IAo+ICAgLi4uCj4gCj4gICAg
+ICAtLS0tLS0gYXZvaWQgcmV1c2luZyAncGt0Jwo+ICAgICB2Cj4gICByZXBseSA9IHZpcnRpb190
+cmFuc3BvcnRfYWxsb2NfcGt0KCZpbmZvLCAwLCAuLi4pOwo+ICAgaWYgKCFyZXBseSkKPiAgICAg
+ICByZXR1cm4gLUVOT01FTTsKPiAKPiAgIHQgPSB2aXJ0aW9fdHJhbnNwb3J0X2dldF9vcHMoKTsK
+PiAgIGlmICghdCkgewo+ICAgICAgIHZpcnRpb190cmFuc3BvcnRfZnJlZV9wa3QocmVwbHkpOyA8
+LS0gcHJldmVudCBtZW1vcnkgbGVhawo+ICAgICAgIHJldHVybiAtRU5PVENPTk47Cj4gICB9Cj4g
+ICByZXR1cm4gdC0+c2VuZF9wa3QocmVwbHkpOwoKV2hhdCBkbyB5b3UgdGhpbmsgYWJvdXQgU3Rl
+ZmFubydzIHN1Z2dlc3Rpb24sIHRvIG1vdmUgdGhlIGNoZWNrIGFib3ZlCnRoZSBsaW5lIHdlcmUg
+dGhlIHJlcGx5IGlzIGFsbG9jYXRlZD8KX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19f
+X19fX19fX19fX19fX18KVmlydHVhbGl6YXRpb24gbWFpbGluZyBsaXN0ClZpcnR1YWxpemF0aW9u
+QGxpc3RzLmxpbnV4LWZvdW5kYXRpb24ub3JnCmh0dHBzOi8vbGlzdHMubGludXhmb3VuZGF0aW9u
+Lm9yZy9tYWlsbWFuL2xpc3RpbmZvL3ZpcnR1YWxpemF0aW9u
