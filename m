@@ -1,14 +1,15 @@
 From: Christophe de Dinechin <christophe.de.dinechin@gmail.com>
-Subject: Re: [RFC PATCH V2 2/5] vhost: fine grain userspace memory accessors
-Date: Wed, 6 Mar 2019 11:45:31 +0100
-Message-ID: <4C1386C5-F153-43DD-8B14-CC752FA5A07A__32540.5953962886$1555717289$gmane$org@dinechin.org>
+Subject: Re: [RFC PATCH V2 4/5] vhost: introduce helpers to get the size of
+	metadata area
+Date: Wed, 6 Mar 2019 11:56:48 +0100
+Message-ID: <608E47C2-5130-41DE-9D52-02807EBCDD43__35250.3334566549$1555717300$gmane$org@dinechin.org>
 References: <1551856692-3384-1-git-send-email-jasowang@redhat.com>
-	<1551856692-3384-3-git-send-email-jasowang@redhat.com>
+	<1551856692-3384-5-git-send-email-jasowang@redhat.com>
 Mime-Version: 1.0 (Mac OS X Mail 11.5 \(3445.9.1\))
-Content-Type: text/plain; charset="utf-8"
-Content-Transfer-Encoding: base64
+Content-Type: text/plain; charset="us-ascii"
+Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <1551856692-3384-3-git-send-email-jasowang@redhat.com>
+In-Reply-To: <1551856692-3384-5-git-send-email-jasowang@redhat.com>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -19,145 +20,111 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
 To: Jason Wang <jasowang@redhat.com>
-Cc: aarcange@redhat.com, KVM list <kvm@vger.kernel.org>, "Michael S. Tsirkin" <mst@redhat.com>, netdev@vger.kernel.org, open list <linux-kernel@vger.kernel.org>, "open list:VIRTIO GPU DRIVER" <virtualization@lists.linux-foundation.org>, linux-mm@kvack.org
+Cc: aarcange@redhat.com, kvm@vger.kernel.org, mst@redhat.com, netdev@vger.kernel.org, linux-kernel@vger.kernel.org, virtualization@lists.linux-foundation.org, linux-mm@kvack.org
 List-Id: virtualization@lists.linuxfoundation.org
 
-Cgo+IE9uIDYgTWFyIDIwMTksIGF0IDA4OjE4LCBKYXNvbiBXYW5nIDxqYXNvd2FuZ0ByZWRoYXQu
-Y29tPiB3cm90ZToKPiAKPiBUaGlzIGlzIHVzZWQgdG8gaGlkZSB0aGUgbWV0YWRhdGEgYWRkcmVz
-cyBmcm9tIHZpcnRxdWV1ZSBoZWxwZXJzLiBUaGlzCj4gd2lsbCBhbGxvdyB0byBpbXBsZW1lbnQg
-YSB2bWFwIGJhc2VkIGZhc3QgYWNjZXNzaW5nIHRvIG1ldGFkYXRhLgo+IAo+IFNpZ25lZC1vZmYt
-Ynk6IEphc29uIFdhbmcgPGphc293YW5nQHJlZGhhdC5jb20+Cj4gLS0tCj4gZHJpdmVycy92aG9z
-dC92aG9zdC5jIHwgOTQgKysrKysrKysrKysrKysrKysrKysrKysrKysrKysrKysrKysrKysrKyst
-LS0tLS0tLS0tCj4gMSBmaWxlIGNoYW5nZWQsIDc3IGluc2VydGlvbnMoKyksIDE3IGRlbGV0aW9u
-cygtKQo+IAo+IGRpZmYgLS1naXQgYS9kcml2ZXJzL3Zob3N0L3Zob3N0LmMgYi9kcml2ZXJzL3Zo
-b3N0L3Zob3N0LmMKPiBpbmRleCA0MDBhYTc4Li4yOTcwOWU3IDEwMDY0NAo+IC0tLSBhL2RyaXZl
-cnMvdmhvc3Qvdmhvc3QuYwo+ICsrKyBiL2RyaXZlcnMvdmhvc3Qvdmhvc3QuYwo+IEBAIC04Njks
-NiArODY5LDM0IEBAIHN0YXRpYyBpbmxpbmUgdm9pZCBfX3VzZXIgKl9fdmhvc3RfZ2V0X3VzZXIo
-c3RydWN0IHZob3N0X3ZpcnRxdWV1ZSAqdnEsCj4gCXJldDsgXAo+IH0pCj4gCj4gK3N0YXRpYyBp
-bmxpbmUgaW50IHZob3N0X3B1dF9hdmFpbF9ldmVudChzdHJ1Y3Qgdmhvc3RfdmlydHF1ZXVlICp2
-cSkKPiArewo+ICsJcmV0dXJuIHZob3N0X3B1dF91c2VyKHZxLCBjcHVfdG9fdmhvc3QxNih2cSwg
-dnEtPmF2YWlsX2lkeCksCj4gKwkJCSAgICAgIHZob3N0X2F2YWlsX2V2ZW50KHZxKSk7Cj4gK30K
-PiArCj4gK3N0YXRpYyBpbmxpbmUgaW50IHZob3N0X3B1dF91c2VkKHN0cnVjdCB2aG9zdF92aXJ0
-cXVldWUgKnZxLAo+ICsJCQkJIHN0cnVjdCB2cmluZ191c2VkX2VsZW0gKmhlYWQsIGludCBpZHgs
-Cj4gKwkJCQkgaW50IGNvdW50KQo+ICt7Cj4gKwlyZXR1cm4gdmhvc3RfY29weV90b191c2VyKHZx
-LCB2cS0+dXNlZC0+cmluZyArIGlkeCwgaGVhZCwKPiArCQkJCSAgY291bnQgKiBzaXplb2YoKmhl
-YWQpKTsKPiArfQo+ICsKPiArc3RhdGljIGlubGluZSBpbnQgdmhvc3RfcHV0X3VzZWRfZmxhZ3Mo
-c3RydWN0IHZob3N0X3ZpcnRxdWV1ZSAqdnEpCj4gKwo+ICt7Cj4gKwlyZXR1cm4gdmhvc3RfcHV0
-X3VzZXIodnEsIGNwdV90b192aG9zdDE2KHZxLCB2cS0+dXNlZF9mbGFncyksCj4gKwkJCSAgICAg
-ICZ2cS0+dXNlZC0+ZmxhZ3MpOwo+ICt9Cj4gKwo+ICtzdGF0aWMgaW5saW5lIGludCB2aG9zdF9w
-dXRfdXNlZF9pZHgoc3RydWN0IHZob3N0X3ZpcnRxdWV1ZSAqdnEpCj4gKwo+ICt7Cj4gKwlyZXR1
-cm4gdmhvc3RfcHV0X3VzZXIodnEsIGNwdV90b192aG9zdDE2KHZxLCB2cS0+bGFzdF91c2VkX2lk
-eCksCj4gKwkJCSAgICAgICZ2cS0+dXNlZC0+aWR4KTsKPiArfQo+ICsKPiAjZGVmaW5lIHZob3N0
-X2dldF91c2VyKHZxLCB4LCBwdHIsIHR5cGUpCQlcCj4gKHsgXAo+IAlpbnQgcmV0OyBcCj4gQEAg
-LTkwNyw2ICs5MzUsNDMgQEAgc3RhdGljIHZvaWQgdmhvc3RfZGV2X3VubG9ja192cXMoc3RydWN0
-IHZob3N0X2RldiAqZCkKPiAJCW11dGV4X3VubG9jaygmZC0+dnFzW2ldLT5tdXRleCk7Cj4gfQo+
-IAo+ICtzdGF0aWMgaW5saW5lIGludCB2aG9zdF9nZXRfYXZhaWxfaWR4KHN0cnVjdCB2aG9zdF92
-aXJ0cXVldWUgKnZxLAo+ICsJCQkJICAgICAgX192aXJ0aW8xNiAqaWR4KQo+ICt7Cj4gKwlyZXR1
-cm4gdmhvc3RfZ2V0X2F2YWlsKHZxLCAqaWR4LCAmdnEtPmF2YWlsLT5pZHgpOwo+ICt9Cj4gKwo+
-ICtzdGF0aWMgaW5saW5lIGludCB2aG9zdF9nZXRfYXZhaWxfaGVhZChzdHJ1Y3Qgdmhvc3Rfdmly
-dHF1ZXVlICp2cSwKPiArCQkJCSAgICAgICBfX3ZpcnRpbzE2ICpoZWFkLCBpbnQgaWR4KQo+ICt7
-Cj4gKwlyZXR1cm4gdmhvc3RfZ2V0X2F2YWlsKHZxLCAqaGVhZCwKPiArCQkJICAgICAgICZ2cS0+
-YXZhaWwtPnJpbmdbaWR4ICYgKHZxLT5udW0gLSAxKV0pOwo+ICt9Cj4gKwo+ICtzdGF0aWMgaW5s
-aW5lIGludCB2aG9zdF9nZXRfYXZhaWxfZmxhZ3Moc3RydWN0IHZob3N0X3ZpcnRxdWV1ZSAqdnEs
-Cj4gKwkJCQkJX192aXJ0aW8xNiAqZmxhZ3MpCj4gK3sKPiArCXJldHVybiB2aG9zdF9nZXRfYXZh
-aWwodnEsICpmbGFncywgJnZxLT5hdmFpbC0+ZmxhZ3MpOwo+ICt9Cj4gKwo+ICtzdGF0aWMgaW5s
-aW5lIGludCB2aG9zdF9nZXRfdXNlZF9ldmVudChzdHJ1Y3Qgdmhvc3RfdmlydHF1ZXVlICp2cSwK
-PiArCQkJCSAgICAgICBfX3ZpcnRpbzE2ICpldmVudCkKPiArewo+ICsJcmV0dXJuIHZob3N0X2dl
-dF9hdmFpbCh2cSwgKmV2ZW50LCB2aG9zdF91c2VkX2V2ZW50KHZxKSk7Cj4gK30KPiArCj4gK3N0
-YXRpYyBpbmxpbmUgaW50IHZob3N0X2dldF91c2VkX2lkeChzdHJ1Y3Qgdmhvc3RfdmlydHF1ZXVl
-ICp2cSwKPiArCQkJCSAgICAgX192aXJ0aW8xNiAqaWR4KQo+ICt7Cj4gKwlyZXR1cm4gdmhvc3Rf
-Z2V0X3VzZWQodnEsICppZHgsICZ2cS0+dXNlZC0+aWR4KTsKPiArfQo+ICsKPiArc3RhdGljIGlu
-bGluZSBpbnQgdmhvc3RfZ2V0X2Rlc2Moc3RydWN0IHZob3N0X3ZpcnRxdWV1ZSAqdnEsCj4gKwkJ
-CQkgc3RydWN0IHZyaW5nX2Rlc2MgKmRlc2MsIGludCBpZHgpCj4gK3sKPiArCXJldHVybiB2aG9z
-dF9jb3B5X2Zyb21fdXNlcih2cSwgZGVzYywgdnEtPmRlc2MgKyBpZHgsIHNpemVvZigqZGVzYykp
-Owo+ICt9Cj4gKwo+IHN0YXRpYyBpbnQgdmhvc3RfbmV3X3VtZW1fcmFuZ2Uoc3RydWN0IHZob3N0
-X3VtZW0gKnVtZW0sCj4gCQkJCXU2NCBzdGFydCwgdTY0IHNpemUsIHU2NCBlbmQsCj4gCQkJCXU2
-NCB1c2Vyc3BhY2VfYWRkciwgaW50IHBlcm0pCj4gQEAgLTE4NDAsOCArMTkwNSw3IEBAIGludCB2
-aG9zdF9sb2dfd3JpdGUoc3RydWN0IHZob3N0X3ZpcnRxdWV1ZSAqdnEsIHN0cnVjdCB2aG9zdF9s
-b2cgKmxvZywKPiBzdGF0aWMgaW50IHZob3N0X3VwZGF0ZV91c2VkX2ZsYWdzKHN0cnVjdCB2aG9z
-dF92aXJ0cXVldWUgKnZxKQo+IHsKPiAJdm9pZCBfX3VzZXIgKnVzZWQ7Cj4gLQlpZiAodmhvc3Rf
-cHV0X3VzZXIodnEsIGNwdV90b192aG9zdDE2KHZxLCB2cS0+dXNlZF9mbGFncyksCj4gLQkJCSAg
-ICZ2cS0+dXNlZC0+ZmxhZ3MpIDwgMCkKPiArCWlmICh2aG9zdF9wdXRfdXNlZF9mbGFncyh2cSkp
-Cj4gCQlyZXR1cm4gLUVGQVVMVDsKPiAJaWYgKHVubGlrZWx5KHZxLT5sb2dfdXNlZCkpIHsKPiAJ
-CS8qIE1ha2Ugc3VyZSB0aGUgZmxhZyBpcyBzZWVuIGJlZm9yZSBsb2cuICovCj4gQEAgLTE4NTgs
-OCArMTkyMiw3IEBAIHN0YXRpYyBpbnQgdmhvc3RfdXBkYXRlX3VzZWRfZmxhZ3Moc3RydWN0IHZo
-b3N0X3ZpcnRxdWV1ZSAqdnEpCj4gCj4gc3RhdGljIGludCB2aG9zdF91cGRhdGVfYXZhaWxfZXZl
-bnQoc3RydWN0IHZob3N0X3ZpcnRxdWV1ZSAqdnEsIHUxNiBhdmFpbF9ldmVudCkKPiB7Cj4gLQlp
-ZiAodmhvc3RfcHV0X3VzZXIodnEsIGNwdV90b192aG9zdDE2KHZxLCB2cS0+YXZhaWxfaWR4KSwK
-PiAtCQkJICAgdmhvc3RfYXZhaWxfZXZlbnQodnEpKSkKPiArCWlmICh2aG9zdF9wdXRfYXZhaWxf
-ZXZlbnQodnEpKQo+IAkJcmV0dXJuIC1FRkFVTFQ7Cj4gCWlmICh1bmxpa2VseSh2cS0+bG9nX3Vz
-ZWQpKSB7Cj4gCQl2b2lkIF9fdXNlciAqdXNlZDsKPiBAQCAtMTg5NSw3ICsxOTU4LDcgQEAgaW50
-IHZob3N0X3ZxX2luaXRfYWNjZXNzKHN0cnVjdCB2aG9zdF92aXJ0cXVldWUgKnZxKQo+IAkJciA9
-IC1FRkFVTFQ7Cj4gCQlnb3RvIGVycjsKPiAJfQo+IC0JciA9IHZob3N0X2dldF91c2VkKHZxLCBs
-YXN0X3VzZWRfaWR4LCAmdnEtPnVzZWQtPmlkeCk7Cj4gKwlyID0gdmhvc3RfZ2V0X3VzZWRfaWR4
-KHZxLCAmbGFzdF91c2VkX2lkeCk7Cj4gCWlmIChyKSB7Cj4gCQl2cV9lcnIodnEsICJDYW4ndCBh
-Y2Nlc3MgdXNlZCBpZHggYXQgJXBcbiIsCj4gCQkgICAgICAgJnZxLT51c2VkLT5pZHgpOwoKRnJv
-bSB0aGUgZXJyb3IgY2FzZSwgaXQgbG9va3MgbGlrZSB5b3UgYXJlIG5vdCBlbnRpcmVseSBlbmNh
-cHN1bGF0aW5nCmtub3dsZWRnZSBvZiB3aGF0IHRoZSBhY2Nlc3NvciB1c2VzLCBpLmUuIGl04oCZ
-cyBub3Q6CgoJCXZxX2Vycih2cSwgIkNhbid0IGFjY2VzcyB1c2VkIGlkeCBhdCAlcFxuIiwKCQkg
-ICAgICAgJmxhc3RfdXNlcl9pZHgpOwoKTWF5YmUgbW92ZSBlcnJvciBtZXNzYWdlIHdpdGhpbiBh
-Y2Nlc3Nvcj8KCj4gQEAgLTIwOTQsNyArMjE1Nyw3IEBAIGludCB2aG9zdF9nZXRfdnFfZGVzYyhz
-dHJ1Y3Qgdmhvc3RfdmlydHF1ZXVlICp2cSwKPiAJbGFzdF9hdmFpbF9pZHggPSB2cS0+bGFzdF9h
-dmFpbF9pZHg7Cj4gCj4gCWlmICh2cS0+YXZhaWxfaWR4ID09IHZxLT5sYXN0X2F2YWlsX2lkeCkg
-ewo+IC0JCWlmICh1bmxpa2VseSh2aG9zdF9nZXRfYXZhaWwodnEsIGF2YWlsX2lkeCwgJnZxLT5h
-dmFpbC0+aWR4KSkpIHsKPiArCQlpZiAodW5saWtlbHkodmhvc3RfZ2V0X2F2YWlsX2lkeCh2cSwg
-JmF2YWlsX2lkeCkpKSB7Cj4gCQkJdnFfZXJyKHZxLCAiRmFpbGVkIHRvIGFjY2VzcyBhdmFpbCBp
-ZHggYXQgJXBcbiIsCj4gCQkJCSZ2cS0+YXZhaWwtPmlkeCk7Cj4gCQkJcmV0dXJuIC1FRkFVTFQ7
-CgpTYW1lIGhlcmUuCgo+IEBAIC0yMTIxLDggKzIxODQsNyBAQCBpbnQgdmhvc3RfZ2V0X3ZxX2Rl
-c2Moc3RydWN0IHZob3N0X3ZpcnRxdWV1ZSAqdnEsCj4gCj4gCS8qIEdyYWIgdGhlIG5leHQgZGVz
-Y3JpcHRvciBudW1iZXIgdGhleSdyZSBhZHZlcnRpc2luZywgYW5kIGluY3JlbWVudAo+IAkgKiB0
-aGUgaW5kZXggd2UndmUgc2Vlbi4gKi8KPiAtCWlmICh1bmxpa2VseSh2aG9zdF9nZXRfYXZhaWwo
-dnEsIHJpbmdfaGVhZCwKPiAtCQkgICAgICZ2cS0+YXZhaWwtPnJpbmdbbGFzdF9hdmFpbF9pZHgg
-JiAodnEtPm51bSAtIDEpXSkpKSB7Cj4gKwlpZiAodW5saWtlbHkodmhvc3RfZ2V0X2F2YWlsX2hl
-YWQodnEsICZyaW5nX2hlYWQsIGxhc3RfYXZhaWxfaWR4KSkpIHsKPiAJCXZxX2Vycih2cSwgIkZh
-aWxlZCB0byByZWFkIGhlYWQ6IGlkeCAlZCBhZGRyZXNzICVwXG4iLAo+IAkJICAgICAgIGxhc3Rf
-YXZhaWxfaWR4LAo+IAkJICAgICAgICZ2cS0+YXZhaWwtPnJpbmdbbGFzdF9hdmFpbF9pZHggJSB2
-cS0+bnVtXSk7Cj4gQEAgLTIxNTcsOCArMjIxOSw3IEBAIGludCB2aG9zdF9nZXRfdnFfZGVzYyhz
-dHJ1Y3Qgdmhvc3RfdmlydHF1ZXVlICp2cSwKPiAJCQkgICAgICAgaSwgdnEtPm51bSwgaGVhZCk7
-Cj4gCQkJcmV0dXJuIC1FSU5WQUw7Cj4gCQl9Cj4gLQkJcmV0ID0gdmhvc3RfY29weV9mcm9tX3Vz
-ZXIodnEsICZkZXNjLCB2cS0+ZGVzYyArIGksCj4gLQkJCQkJICAgc2l6ZW9mIGRlc2MpOwo+ICsJ
-CXJldCA9IHZob3N0X2dldF9kZXNjKHZxLCAmZGVzYywgaSk7Cj4gCQlpZiAodW5saWtlbHkocmV0
-KSkgewo+IAkJCXZxX2Vycih2cSwgIkZhaWxlZCB0byBnZXQgZGVzY3JpcHRvcjogaWR4ICVkIGFk
-ZHIgJXBcbiIsCj4gCQkJICAgICAgIGksIHZxLT5kZXNjICsgaSk7Cj4gQEAgLTIyNTEsNyArMjMx
-Miw3IEBAIHN0YXRpYyBpbnQgX192aG9zdF9hZGRfdXNlZF9uKHN0cnVjdCB2aG9zdF92aXJ0cXVl
-dWUgKnZxLAo+IAo+IAlzdGFydCA9IHZxLT5sYXN0X3VzZWRfaWR4ICYgKHZxLT5udW0gLSAxKTsK
-PiAJdXNlZCA9IHZxLT51c2VkLT5yaW5nICsgc3RhcnQ7Cj4gLQlpZiAodmhvc3RfY29weV90b191
-c2VyKHZxLCB1c2VkLCBoZWFkcywgY291bnQgKiBzaXplb2YgKnVzZWQpKSB7Cj4gKwlpZiAodmhv
-c3RfcHV0X3VzZWQodnEsIGhlYWRzLCBzdGFydCwgY291bnQpKSB7Cj4gCQl2cV9lcnIodnEsICJG
-YWlsZWQgdG8gd3JpdGUgdXNlZCIpOwo+IAkJcmV0dXJuIC1FRkFVTFQ7Cj4gCX0KPiBAQCAtMjI5
-Myw4ICsyMzU0LDcgQEAgaW50IHZob3N0X2FkZF91c2VkX24oc3RydWN0IHZob3N0X3ZpcnRxdWV1
-ZSAqdnEsIHN0cnVjdCB2cmluZ191c2VkX2VsZW0gKmhlYWRzLAo+IAo+IAkvKiBNYWtlIHN1cmUg
-YnVmZmVyIGlzIHdyaXR0ZW4gYmVmb3JlIHdlIHVwZGF0ZSBpbmRleC4gKi8KPiAJc21wX3dtYigp
-Owo+IC0JaWYgKHZob3N0X3B1dF91c2VyKHZxLCBjcHVfdG9fdmhvc3QxNih2cSwgdnEtPmxhc3Rf
-dXNlZF9pZHgpLAo+IC0JCQkgICAmdnEtPnVzZWQtPmlkeCkpIHsKPiArCWlmICh2aG9zdF9wdXRf
-dXNlZF9pZHgodnEpKSB7Cj4gCQl2cV9lcnIodnEsICJGYWlsZWQgdG8gaW5jcmVtZW50IHVzZWQg
-aWR4Iik7Cj4gCQlyZXR1cm4gLUVGQVVMVDsKPiAJfQo+IEBAIC0yMzI3LDcgKzIzODcsNyBAQCBz
-dGF0aWMgYm9vbCB2aG9zdF9ub3RpZnkoc3RydWN0IHZob3N0X2RldiAqZGV2LCBzdHJ1Y3Qgdmhv
-c3RfdmlydHF1ZXVlICp2cSkKPiAKPiAJaWYgKCF2aG9zdF9oYXNfZmVhdHVyZSh2cSwgVklSVElP
-X1JJTkdfRl9FVkVOVF9JRFgpKSB7Cj4gCQlfX3ZpcnRpbzE2IGZsYWdzOwo+IC0JCWlmICh2aG9z
-dF9nZXRfYXZhaWwodnEsIGZsYWdzLCAmdnEtPmF2YWlsLT5mbGFncykpIHsKPiArCQlpZiAodmhv
-c3RfZ2V0X2F2YWlsX2ZsYWdzKHZxLCAmZmxhZ3MpKSB7Cj4gCQkJdnFfZXJyKHZxLCAiRmFpbGVk
-IHRvIGdldCBmbGFncyIpOwo+IAkJCXJldHVybiB0cnVlOwo+IAkJfQo+IEBAIC0yMzQxLDcgKzI0
-MDEsNyBAQCBzdGF0aWMgYm9vbCB2aG9zdF9ub3RpZnkoc3RydWN0IHZob3N0X2RldiAqZGV2LCBz
-dHJ1Y3Qgdmhvc3RfdmlydHF1ZXVlICp2cSkKPiAJaWYgKHVubGlrZWx5KCF2KSkKPiAJCXJldHVy
-biB0cnVlOwo+IAo+IC0JaWYgKHZob3N0X2dldF9hdmFpbCh2cSwgZXZlbnQsIHZob3N0X3VzZWRf
-ZXZlbnQodnEpKSkgewo+ICsJaWYgKHZob3N0X2dldF91c2VkX2V2ZW50KHZxLCAmZXZlbnQpKSB7
-Cj4gCQl2cV9lcnIodnEsICJGYWlsZWQgdG8gZ2V0IHVzZWQgZXZlbnQgaWR4Iik7Cj4gCQlyZXR1
-cm4gdHJ1ZTsKPiAJfQo+IEBAIC0yMzg2LDcgKzI0NDYsNyBAQCBib29sIHZob3N0X3ZxX2F2YWls
-X2VtcHR5KHN0cnVjdCB2aG9zdF9kZXYgKmRldiwgc3RydWN0IHZob3N0X3ZpcnRxdWV1ZSAqdnEp
-Cj4gCWlmICh2cS0+YXZhaWxfaWR4ICE9IHZxLT5sYXN0X2F2YWlsX2lkeCkKPiAJCXJldHVybiBm
-YWxzZTsKPiAKPiAtCXIgPSB2aG9zdF9nZXRfYXZhaWwodnEsIGF2YWlsX2lkeCwgJnZxLT5hdmFp
-bC0+aWR4KTsKPiArCXIgPSB2aG9zdF9nZXRfYXZhaWxfaWR4KHZxLCAmYXZhaWxfaWR4KTsKPiAJ
-aWYgKHVubGlrZWx5KHIpKQo+IAkJcmV0dXJuIGZhbHNlOwo+IAl2cS0+YXZhaWxfaWR4ID0gdmhv
-c3QxNl90b19jcHUodnEsIGF2YWlsX2lkeCk7Cj4gQEAgLTI0MjIsNyArMjQ4Miw3IEBAIGJvb2wg
-dmhvc3RfZW5hYmxlX25vdGlmeShzdHJ1Y3Qgdmhvc3RfZGV2ICpkZXYsIHN0cnVjdCB2aG9zdF92
-aXJ0cXVldWUgKnZxKQo+IAkvKiBUaGV5IGNvdWxkIGhhdmUgc2xpcHBlZCBvbmUgaW4gYXMgd2Ug
-d2VyZSBkb2luZyB0aGF0OiBtYWtlCj4gCSAqIHN1cmUgaXQncyB3cml0dGVuLCB0aGVuIGNoZWNr
-IGFnYWluLiAqLwo+IAlzbXBfbWIoKTsKPiAtCXIgPSB2aG9zdF9nZXRfYXZhaWwodnEsIGF2YWls
-X2lkeCwgJnZxLT5hdmFpbC0+aWR4KTsKPiArCXIgPSB2aG9zdF9nZXRfYXZhaWxfaWR4KHZxLCAm
-YXZhaWxfaWR4KTsKPiAJaWYgKHIpIHsKPiAJCXZxX2Vycih2cSwgIkZhaWxlZCB0byBjaGVjayBh
-dmFpbCBpZHggYXQgJXA6ICVkXG4iLAo+IAkJICAgICAgICZ2cS0+YXZhaWwtPmlkeCwgcik7Cj4g
-LS0gCj4gMS44LjMuMQo+IAoKX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19f
-X19fX19fX18KVmlydHVhbGl6YXRpb24gbWFpbGluZyBsaXN0ClZpcnR1YWxpemF0aW9uQGxpc3Rz
-LmxpbnV4LWZvdW5kYXRpb24ub3JnCmh0dHBzOi8vbGlzdHMubGludXhmb3VuZGF0aW9uLm9yZy9t
-YWlsbWFuL2xpc3RpbmZvL3ZpcnR1YWxpemF0aW9u
+
+
+> On 6 Mar 2019, at 08:18, Jason Wang <jasowang@redhat.com> wrote:
+> 
+> Signed-off-by: Jason Wang <jasowang@redhat.com>
+> ---
+> drivers/vhost/vhost.c | 46 ++++++++++++++++++++++++++++------------------
+> 1 file changed, 28 insertions(+), 18 deletions(-)
+> 
+> diff --git a/drivers/vhost/vhost.c b/drivers/vhost/vhost.c
+> index 2025543..1015464 100644
+> --- a/drivers/vhost/vhost.c
+> +++ b/drivers/vhost/vhost.c
+> @@ -413,6 +413,27 @@ static void vhost_dev_free_iovecs(struct vhost_dev *dev)
+> 		vhost_vq_free_iovecs(dev->vqs[i]);
+> }
+> 
+> +static size_t vhost_get_avail_size(struct vhost_virtqueue *vq, int num)
+
+Nit: Any reason not to make `num` unsigned or size_t?
+
+> +{
+> +	size_t event = vhost_has_feature(vq, VIRTIO_RING_F_EVENT_IDX) ? 2 : 0;
+> +
+> +	return sizeof(*vq->avail) +
+> +	       sizeof(*vq->avail->ring) * num + event;
+> +}
+> +
+> +static size_t vhost_get_used_size(struct vhost_virtqueue *vq, int num)
+> +{
+> +	size_t event = vhost_has_feature(vq, VIRTIO_RING_F_EVENT_IDX) ? 2 : 0;
+> +
+> +	return sizeof(*vq->used) +
+> +	       sizeof(*vq->used->ring) * num + event;
+> +}
+> +
+> +static size_t vhost_get_desc_size(struct vhost_virtqueue *vq, int num)
+> +{
+> +	return sizeof(*vq->desc) * num;
+> +}
+> +
+> void vhost_dev_init(struct vhost_dev *dev,
+> 		    struct vhost_virtqueue **vqs, int nvqs, int iov_limit)
+> {
+> @@ -1253,13 +1274,9 @@ static bool vq_access_ok(struct vhost_virtqueue *vq, unsigned int num,
+> 			 struct vring_used __user *used)
+> 
+> {
+> -	size_t s = vhost_has_feature(vq, VIRTIO_RING_F_EVENT_IDX) ? 2 : 0;
+> -
+> -	return access_ok(desc, num * sizeof *desc) &&
+> -	       access_ok(avail,
+> -			 sizeof *avail + num * sizeof *avail->ring + s) &&
+> -	       access_ok(used,
+> -			sizeof *used + num * sizeof *used->ring + s);
+> +	return access_ok(desc, vhost_get_desc_size(vq, num)) &&
+> +	       access_ok(avail, vhost_get_avail_size(vq, num)) &&
+> +	       access_ok(used, vhost_get_used_size(vq, num));
+> }
+> 
+> static void vhost_vq_meta_update(struct vhost_virtqueue *vq,
+> @@ -1311,22 +1328,18 @@ static bool iotlb_access_ok(struct vhost_virtqueue *vq,
+> 
+> int vq_meta_prefetch(struct vhost_virtqueue *vq)
+> {
+> -	size_t s = vhost_has_feature(vq, VIRTIO_RING_F_EVENT_IDX) ? 2 : 0;
+> 	unsigned int num = vq->num;
+> 
+> 	if (!vq->iotlb)
+> 		return 1;
+> 
+> 	return iotlb_access_ok(vq, VHOST_ACCESS_RO, (u64)(uintptr_t)vq->desc,
+> -			       num * sizeof(*vq->desc), VHOST_ADDR_DESC) &&
+> +			       vhost_get_desc_size(vq, num), VHOST_ADDR_DESC) &&
+> 	       iotlb_access_ok(vq, VHOST_ACCESS_RO, (u64)(uintptr_t)vq->avail,
+> -			       sizeof *vq->avail +
+> -			       num * sizeof(*vq->avail->ring) + s,
+> +			       vhost_get_avail_size(vq, num),
+> 			       VHOST_ADDR_AVAIL) &&
+> 	       iotlb_access_ok(vq, VHOST_ACCESS_WO, (u64)(uintptr_t)vq->used,
+> -			       sizeof *vq->used +
+> -			       num * sizeof(*vq->used->ring) + s,
+> -			       VHOST_ADDR_USED);
+> +			       vhost_get_used_size(vq, num), VHOST_ADDR_USED);
+> }
+> EXPORT_SYMBOL_GPL(vq_meta_prefetch);
+> 
+> @@ -1343,13 +1356,10 @@ bool vhost_log_access_ok(struct vhost_dev *dev)
+> static bool vq_log_access_ok(struct vhost_virtqueue *vq,
+> 			     void __user *log_base)
+> {
+> -	size_t s = vhost_has_feature(vq, VIRTIO_RING_F_EVENT_IDX) ? 2 : 0;
+> -
+> 	return vq_memory_access_ok(log_base, vq->umem,
+> 				   vhost_has_feature(vq, VHOST_F_LOG_ALL)) &&
+> 		(!vq->log_used || log_access_ok(log_base, vq->log_addr,
+> -					sizeof *vq->used +
+> -					vq->num * sizeof *vq->used->ring + s));
+> +				  vhost_get_used_size(vq, vq->num)));
+> }
+> 
+> /* Can we start vq? */
+> -- 
+> 1.8.3.1
+> 
