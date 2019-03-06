@@ -1,16 +1,18 @@
-From: Adalbert =?iso-8859-2?b?TGF643I=?= <alazar@bitdefender.com>
-Subject: Re: [PATCH] vsock/virtio: fix kernel panic from
-	virtio_transport_reset_no_sock
-Date: Wed, 06 Mar 2019 19:25:19 +0200
-Message-ID: <150.538089086183$1555717317@news.gmane.org>
-References: <20190305180145.27161-1-alazar@bitdefender.com>
-	<20190306084104.GA22159@stefanha-x1.localdomain>
-	<1551863441.5559.19509.@c1753101230bd75c4bdbfe8f0947046bcaf69c6c>
-Mime-Version: 1.0
-Content-Type: text/plain; charset="utf-8"
-Content-Transfer-Encoding: base64
+From: Liran Alon <liran.alon@oracle.com>
+Subject: Re: [RFC PATCH net-next] failover: allow name change on IFF_UP slave
+	interfaces
+Date: Thu, 7 Mar 2019 01:36:10 +0200
+Message-ID: <D8A06856-62A4-44BC-920E-9BE60011C9C1__43717.373050616$1555717325$gmane$org@oracle.com>
+References: <1551747059-11831-1-git-send-email-si-wei.liu@oracle.com>
+	<20190306120430.GA2819@nanopsycho>
+	<7d1e79f6-01ff-413d-dac0-ee34258aafec@oracle.com>
+	<cb71d2c4-c2b9-28df-1882-154ee3b9b9b6@intel.com>
+	<7bc9dc90-6597-4223-c192-55a314ff079f@oracle.com>
+Mime-Version: 1.0 (Mac OS X Mail 11.1 \(3445.4.7\))
+Content-Type: text/plain; charset="us-ascii"
+Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <20190306170216.GC29057@stefanha-x1.localdomain>
+In-Reply-To: <7bc9dc90-6597-4223-c192-55a314ff079f@oracle.com>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -20,37 +22,52 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Stefan Hajnoczi <stefanha@redhat.com>
-Cc: kvm@vger.kernel.org, linux-kernel@vger.kernel.org, virtualization@lists.linux-foundation.org, netdev@vger.kernel.org, "David S . Miller" <davem@davemloft.net>, Stefano Garzarella <sgarzare@redhat.com>
+To: si-wei liu <si-wei.liu@oracle.com>
+Cc: Jiri Pirko <jiri@resnulli.us>, "Michael S. Tsirkin" <mst@redhat.com>, Jakub Kicinski <kubakici@wp.pl>, "Samudrala,
+	Sridhar" <sridhar.samudrala@intel.com>, virtualization@lists.linux-foundation.org, Netdev <netdev@vger.kernel.org>, boris.ostrovsky@oracle.com, David Miller <davem@davemloft.net>
 List-Id: virtualization@lists.linuxfoundation.org
 
-T24gV2VkLCA2IE1hciAyMDE5IDE3OjAyOjE2ICswMDAwLCBTdGVmYW4gSGFqbm9jemkgPHN0ZWZh
-bmhhQHJlZGhhdC5jb20+IHdyb3RlOgo+IE9uIFdlZCwgTWFyIDA2LCAyMDE5IGF0IDExOjEwOjQx
-QU0gKzAyMDAsIEFkYWxiZXJ0IExhesSDciB3cm90ZToKPiA+IE9uIFdlZCwgNiBNYXIgMjAxOSAw
-ODo0MTowNCArMDAwMCwgU3RlZmFuIEhham5vY3ppIDxzdGVmYW5oYUBnbWFpbC5jb20+IHdyb3Rl
-Ogo+ID4gPiBPbiBUdWUsIE1hciAwNSwgMjAxOSBhdCAwODowMTo0NVBNICswMjAwLCBBZGFsYmVy
-dCBMYXrEg3Igd3JvdGU6Cj4gPiA+IFRoZSBwa3QgYXJndW1lbnQgaXMgdGhlIHJlY2VpdmVkIHBh
-Y2tldCB0aGF0IHdlIG11c3QgcmVwbHkgdG8uCj4gPiA+IFRoZSByZXBseSBwYWNrZXQgaXMgYWxs
-b2NhdGVkIGp1c3QgYmVmb3JlIGxpbmUgNjgwIGFuZCBtdXN0IGJlIGZyZWUKPiA+ID4gZXhwbGlj
-aXRseSBmb3IgcmV0dXJuIC1FTk9UQ09OTi4KPiA+ID4gCj4gPiA+IFlvdSBjYW4gYXZvaWQgdGhl
-IGxlYWsgYW5kIG1ha2UgdGhlIGNvZGUgZWFzaWVyIHRvIHJlYWQgbGlrZSB0aGlzOgo+ID4gPiAK
-PiA+ID4gICBzdHJ1Y3QgdmlydGlvX3Zzb2NrX3BrdCAqcmVwbHk7Cj4gPiA+IAo+ID4gPiAgIC4u
-Lgo+ID4gPiAKPiA+ID4gICAgICAtLS0tLS0gYXZvaWQgcmV1c2luZyAncGt0Jwo+ID4gPiAgICAg
-dgo+ID4gPiAgIHJlcGx5ID0gdmlydGlvX3RyYW5zcG9ydF9hbGxvY19wa3QoJmluZm8sIDAsIC4u
-Lik7Cj4gPiA+ICAgaWYgKCFyZXBseSkKPiA+ID4gICAgICAgcmV0dXJuIC1FTk9NRU07Cj4gPiA+
-IAo+ID4gPiAgIHQgPSB2aXJ0aW9fdHJhbnNwb3J0X2dldF9vcHMoKTsKPiA+ID4gICBpZiAoIXQp
-IHsKPiA+ID4gICAgICAgdmlydGlvX3RyYW5zcG9ydF9mcmVlX3BrdChyZXBseSk7IDwtLSBwcmV2
-ZW50IG1lbW9yeSBsZWFrCj4gPiA+ICAgICAgIHJldHVybiAtRU5PVENPTk47Cj4gPiA+ICAgfQo+
-ID4gPiAgIHJldHVybiB0LT5zZW5kX3BrdChyZXBseSk7Cj4gPiAKPiA+IFdoYXQgZG8geW91IHRo
-aW5rIGFib3V0IFN0ZWZhbm8ncyBzdWdnZXN0aW9uLCB0byBtb3ZlIHRoZSBjaGVjayBhYm92ZQo+
-ID4gdGhlIGxpbmUgd2VyZSB0aGUgcmVwbHkgaXMgYWxsb2NhdGVkPwo+IAo+IFRoYXQncyBmaW5l
-IHRvby4KPiAKPiBIb3dldmVyIGEgZm9sbG93IHVwIHBhdGNoIHRvIGVsaW1pbmF0ZSB0aGUgY29u
-ZnVzaW5nIHdheSB0aGF0ICdwa3QnIGlzCj4gcmV1c2VkIGlzIHN0aWxsIHdhcnJhbnRlZC4gIElm
-IHlvdSBhcmUgYnVzeSBJJ2QgYmUgaGFwcHkgdG8gc2VuZCB0aGF0Cj4gY2xlYW51cC4KPiAKPiBT
-dGVmYW4KCkkndmUgZ290IGl0LCBhIGNvdXBsZSBvZiBtaW51dGVzIGFmdGVyIEkndmUgcmVwbGll
-ZCA6KQpUaGUgc2Vjb25kIHZlcnNpb25bMV0gc2hvdWxkIGJlIGluIHlvdXIgbWFpbGJveC4KClRo
-YW5rIHlvdSwKQWRhbGJlcnQKClsxXTogaHR0cHM6Ly9wYXRjaHdvcmsua2VybmVsLm9yZy9wYXRj
-aC8xMDg0MDc4Ny8KX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19f
-X18KVmlydHVhbGl6YXRpb24gbWFpbGluZyBsaXN0ClZpcnR1YWxpemF0aW9uQGxpc3RzLmxpbnV4
-LWZvdW5kYXRpb24ub3JnCmh0dHBzOi8vbGlzdHMubGludXhmb3VuZGF0aW9uLm9yZy9tYWlsbWFu
-L2xpc3RpbmZvL3ZpcnR1YWxpemF0aW9u
+
+
+> On 6 Mar 2019, at 23:42, si-wei liu <si-wei.liu@oracle.com> wrote:
+> 
+> 
+> 
+> On 3/6/2019 1:36 PM, Samudrala, Sridhar wrote:
+>> 
+>> On 3/6/2019 1:26 PM, si-wei liu wrote:
+>>> 
+>>> 
+>>> On 3/6/2019 4:04 AM, Jiri Pirko wrote:
+>>>>> --- a/net/core/failover.c
+>>>>> +++ b/net/core/failover.c
+>>>>> @@ -16,6 +16,11 @@
+>>>>> 
+>>>>> static LIST_HEAD(failover_list);
+>>>>> static DEFINE_SPINLOCK(failover_lock);
+>>>>> +static bool slave_rename_ok = true;
+>>>>> +
+>>>>> +module_param(slave_rename_ok, bool, (S_IRUGO | S_IWUSR));
+>>>>> +MODULE_PARM_DESC(slave_rename_ok,
+>>>>> +		 "If set allow renaming the slave when failover master is up");
+>>>>> 
+>>>> No module parameters please. If you need to set something do it using
+>>>> rtnl_link_ops. Thanks.
+>>>> 
+>>>> 
+>>> I understand what you ask for, but without module parameters userspace don't work. During boot (dracut) the virtio netdev gets enslaved earlier than when userspace comes up, so failover has to determine the setting during initialization/creation. This config is not dynamic, at least for the life cycle of a particular failover link it shouldn't be changed. Without module parameter, how does the userspace specify this value during kernel initialization? 
+>>> 
+>> Can we enable this by default and not make it configurable via module parameter?
+>> Is there any  usecase where someone expects rename to fail with failover slaves?
+> Probably just cater for those application that assumes fixed name on UP interface?
+> 
+> It's already the default for the configurable. I myself don't think that's a big problem for failover users. So far there's not even QEMU support I think everything can be changed. I don't feel strong to just fix it without introducing configurable. But maybe Michael or others think it differently...
+> 
+> If no one objects, I don't feel strong to make it fixed behavior.
+> 
+> -Siwei
+> 
+
+I agree we should just remove the module parameter.
+
+-Liran
