@@ -1,15 +1,16 @@
-From: Jiri Pirko <jiri@resnulli.us>
-Subject: Re: [RFC PATCH net-next] failover: allow name change on IFF_UP slave
-	interfaces
-Date: Wed, 6 Mar 2019 13:04:30 +0100
-Message-ID: <20190306120430.GA2819__29782.8878088453$1551874493$gmane$org@nanopsycho>
-References: <1551747059-11831-1-git-send-email-si-wei.liu@oracle.com>
+From: "Michael S. Tsirkin" <mst@redhat.com>
+Subject: Re: [RFC PATCH V2 5/5] vhost: access vq metadata through kernel
+	virtual address
+Date: Wed, 6 Mar 2019 11:31:23 -0500
+Message-ID: <20190306092837-mutt-send-email-mst__34624.2163491965$1551889901$gmane$org@kernel.org>
+References: <1551856692-3384-1-git-send-email-jasowang@redhat.com>
+	<1551856692-3384-6-git-send-email-jasowang@redhat.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
 Content-Disposition: inline
-In-Reply-To: <1551747059-11831-1-git-send-email-si-wei.liu@oracle.com>
+In-Reply-To: <1551856692-3384-6-git-send-email-jasowang@redhat.com>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -19,156 +20,584 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Si-Wei Liu <si-wei.liu@oracle.com>
-Cc: "Michael S. Tsirkin" <mst@redhat.com>, Jakub Kicinski <kubakici@wp.pl>, Sridhar Samudrala <sridhar.samudrala@intel.com>, virtualization@lists.linux-foundation.org, liran.alon@oracle.com, Netdev <netdev@vger.kernel.org>, boris.ostrovsky@oracle.com, David Miller <davem@davemloft.net>
+To: Jason Wang <jasowang@redhat.com>
+Cc: aarcange@redhat.com, kvm@vger.kernel.org, netdev@vger.kernel.org, linux-kernel@vger.kernel.org, virtualization@lists.linux-foundation.org, linux-mm@kvack.org
 List-Id: virtualization@lists.linuxfoundation.org
 
-Tue, Mar 05, 2019 at 01:50:59AM CET, si-wei.liu@oracle.com wrote:
->When a netdev appears through hot plug then gets enslaved by a failover
->master that is already up and running, the slave will be opened
->right away after getting enslaved. Today there's a race that userspace
->(udev) may fail to rename the slave if the kernel (net_failover)
->opens the slave earlier than when the userspace rename happens.
->Unlike bond or team, the primary slave of failover can't be renamed by
->userspace ahead of time, since the kernel initiated auto-enslavement is
->unable to, or rather, is never meant to be synchronized with the rename
->request from userspace.
->
->As the failover slave interfaces are not designed to be operated
->directly by userspace apps: IP configuration, filter rules with
->regard to network traffic passing and etc., should all be done on master
->interface. In general, userspace apps only care about the
->name of master interface, while slave names are less important as long
->as admin users can see reliable names that may carry
->other information describing the netdev. For e.g., they can infer that
->"ens3nsby" is a standby slave of "ens3", while for a
->name like "eth0" they can't tell which master it belongs to.
->
->Historically the name of IFF_UP interface can't be changed because
->there might be admin script or management software that is already
->relying on such behavior and assumes that the slave name can't be
->changed once UP. But failover is special: with the in-kernel
->auto-enslavement mechanism, the userspace expectation for device
->enumeration and bring-up order is already broken. Previously initramfs
->and various userspace config tools were modified to bypass failover
->slaves because of auto-enslavement and duplicate MAC address. Similarly,
->in case that users care about seeing reliable slave name, the new type
->of failover slaves needs to be taken care of specifically in userspace
->anyway.
->
->For that to work, now introduce a module-level tunable,
->"slave_rename_ok" that allows users to lift up the rename restriction on
->failover slave which is already UP. Although it's possible this change
->potentially break userspace component (most likely configuration scripts
->or management software) that assumes slave name can't be changed while
->UP, it's relatively a limited and controllable set among all userspace
->components, which can be fixed specifically to work with the new naming
->behavior of the failover slave. Userspace component interacting with
->slaves should be changed to operate on failover master instead, as the
->failover slave is dynamic in nature which may come and go at any point.
->The goal is to make the role of failover slaves less relevant, and
->all userspace should only deal with master in the long run. The default
->for the "slave_rename_ok" is set to true(1). If userspace doesn't have
->the right support in place meanwhile users don't care about reliable
->userspace naming, the value can be set to false(0).
->
->Signed-off-by: Si-Wei.Liu@oracle.com
->Reviewed-by: Liran Alon <liran.alon@oracle.com>
->---
-> include/linux/netdevice.h |  3 +++
-> net/core/dev.c            |  3 ++-
-> net/core/failover.c       | 11 +++++++++--
-> 3 files changed, 14 insertions(+), 3 deletions(-)
->
->diff --git a/include/linux/netdevice.h b/include/linux/netdevice.h
->index 857f8ab..6d9e4e0 100644
->--- a/include/linux/netdevice.h
->+++ b/include/linux/netdevice.h
->@@ -1487,6 +1487,7 @@ struct net_device_ops {
->  * @IFF_NO_RX_HANDLER: device doesn't support the rx_handler hook
->  * @IFF_FAILOVER: device is a failover master device
->  * @IFF_FAILOVER_SLAVE: device is lower dev of a failover master device
->+ * @IFF_SLAVE_RENAME_OK: rename is allowed while slave device is running
->  */
-> enum netdev_priv_flags {
-> 	IFF_802_1Q_VLAN			= 1<<0,
->@@ -1518,6 +1519,7 @@ enum netdev_priv_flags {
-> 	IFF_NO_RX_HANDLER		= 1<<26,
-> 	IFF_FAILOVER			= 1<<27,
-> 	IFF_FAILOVER_SLAVE		= 1<<28,
->+	IFF_SLAVE_RENAME_OK		= 1<<29,
-> };
+On Wed, Mar 06, 2019 at 02:18:12AM -0500, Jason Wang wrote:
+> It was noticed that the copy_user() friends that was used to access
+> virtqueue metdata tends to be very expensive for dataplane
+> implementation like vhost since it involves lots of software checks,
+> speculation barrier, hardware feature toggling (e.g SMAP). The
+> extra cost will be more obvious when transferring small packets since
+> the time spent on metadata accessing become more significant.
 > 
-> #define IFF_802_1Q_VLAN			IFF_802_1Q_VLAN
->@@ -1548,6 +1550,7 @@ enum netdev_priv_flags {
-> #define IFF_NO_RX_HANDLER		IFF_NO_RX_HANDLER
-> #define IFF_FAILOVER			IFF_FAILOVER
-> #define IFF_FAILOVER_SLAVE		IFF_FAILOVER_SLAVE
->+#define IFF_SLAVE_RENAME_OK		IFF_SLAVE_RENAME_OK
+> This patch tries to eliminate those overheads by accessing them
+> through kernel virtual address by vmap(). To make the pages can be
+> migrated, instead of pinning them through GUP, we use MMU notifiers to
+> invalidate vmaps and re-establish vmaps during each round of metadata
+> prefetching if necessary. It looks to me .invalidate_range() is
+> sufficient for catching this since we don't need extra TLB flush. For
+> devices that doesn't use metadata prefetching, the memory accessors
+> fallback to normal copy_user() implementation gracefully. The
+> invalidation was synchronized with datapath through vq mutex, and in
+> order to avoid hold vq mutex during range checking, MMU notifier was
+> teared down when trying to modify vq metadata.
 > 
-> /**
->  *	struct net_device - The DEVICE structure.
->diff --git a/net/core/dev.c b/net/core/dev.c
->index 722d50d..ae070de 100644
->--- a/net/core/dev.c
->+++ b/net/core/dev.c
->@@ -1180,7 +1180,8 @@ int dev_change_name(struct net_device *dev, const char *newname)
-> 	BUG_ON(!dev_net(dev));
+> Dirty page checking is done by calling set_page_dirty_locked()
+> explicitly for the page that used ring stay after each round of
+> processing.
 > 
-> 	net = dev_net(dev);
->-	if (dev->flags & IFF_UP)
->+	if (dev->flags & IFF_UP &&
->+	    !(dev->priv_flags & IFF_SLAVE_RENAME_OK))
-> 		return -EBUSY;
+> Note that this was only done when device IOTLB is not enabled. We
+> could use similar method to optimize it in the future.
 > 
-> 	write_seqcount_begin(&devnet_rename_seq);
->diff --git a/net/core/failover.c b/net/core/failover.c
->index 4a92a98..1fd8bbb 100644
->--- a/net/core/failover.c
->+++ b/net/core/failover.c
->@@ -16,6 +16,11 @@
+> Tests shows at most about 22% improvement on TX PPS when using
+> virtio-user + vhost_net + xdp1 + TAP on 2.6GHz Broadwell:
 > 
-> static LIST_HEAD(failover_list);
-> static DEFINE_SPINLOCK(failover_lock);
->+static bool slave_rename_ok = true;
->+
->+module_param(slave_rename_ok, bool, (S_IRUGO | S_IWUSR));
->+MODULE_PARM_DESC(slave_rename_ok,
->+		 "If set allow renaming the slave when failover master is up");
+>         SMAP on | SMAP off
+> Before: 5.0Mpps | 6.6Mpps
+> After:  6.1Mpps | 7.4Mpps
+> 
+> Cc: <linux-mm@kvack.org>
+> Signed-off-by: Jason Wang <jasowang@redhat.com>
+> ---
+>  drivers/vhost/net.c   |   2 +
+>  drivers/vhost/vhost.c | 281 +++++++++++++++++++++++++++++++++++++++++++++++++-
+>  drivers/vhost/vhost.h |  16 +++
+>  3 files changed, 297 insertions(+), 2 deletions(-)
+> 
+> diff --git a/drivers/vhost/net.c b/drivers/vhost/net.c
+> index bf55f99..c276371 100644
+> --- a/drivers/vhost/net.c
+> +++ b/drivers/vhost/net.c
+> @@ -982,6 +982,7 @@ static void handle_tx(struct vhost_net *net)
+>  	else
+>  		handle_tx_copy(net, sock);
+>  
+> +	vq_meta_prefetch_done(vq);
+>  out:
+>  	mutex_unlock(&vq->mutex);
+>  }
+> @@ -1250,6 +1251,7 @@ static void handle_rx(struct vhost_net *net)
+>  		vhost_net_enable_vq(net, vq);
+>  out:
+>  	vhost_net_signal_used(nvq);
+> +	vq_meta_prefetch_done(vq);
+>  	mutex_unlock(&vq->mutex);
+>  }
+>  
+> diff --git a/drivers/vhost/vhost.c b/drivers/vhost/vhost.c
+> index 1015464..36ccf7c 100644
+> --- a/drivers/vhost/vhost.c
+> +++ b/drivers/vhost/vhost.c
+> @@ -434,6 +434,74 @@ static size_t vhost_get_desc_size(struct vhost_virtqueue *vq, int num)
+>  	return sizeof(*vq->desc) * num;
+>  }
+>  
+> +static void vhost_uninit_vmap(struct vhost_vmap *map)
+> +{
+> +	if (map->addr) {
+> +		vunmap(map->unmap_addr);
+> +		kfree(map->pages);
+> +		map->pages = NULL;
+> +		map->npages = 0;
+> +	}
+> +
+> +	map->addr = NULL;
+> +	map->unmap_addr = NULL;
+> +}
+> +
+> +static void vhost_invalidate_vmap(struct vhost_virtqueue *vq,
+> +				  struct vhost_vmap *map,
+> +				  unsigned long ustart,
+> +				  size_t size,
+> +				  unsigned long start,
+> +				  unsigned long end)
+> +{
+> +	if (end < ustart || start > ustart - 1 + size)
+> +		return;
+> +
+> +	dump_stack();
+> +	mutex_lock(&vq->mutex);
+> +	vhost_uninit_vmap(map);
+> +	mutex_unlock(&vq->mutex);
+> +}
+> +
+> +
+> +static void vhost_invalidate(struct vhost_dev *dev,
+> +			     unsigned long start, unsigned long end)
+> +{
+> +	int i;
+> +
+> +	for (i = 0; i < dev->nvqs; i++) {
+> +		struct vhost_virtqueue *vq = dev->vqs[i];
+> +
+> +		vhost_invalidate_vmap(vq, &vq->avail_ring,
+> +				      (unsigned long)vq->avail,
+> +				      vhost_get_avail_size(vq, vq->num),
+> +				      start, end);
+> +		vhost_invalidate_vmap(vq, &vq->desc_ring,
+> +				      (unsigned long)vq->desc,
+> +				      vhost_get_desc_size(vq, vq->num),
+> +				      start, end);
+> +		vhost_invalidate_vmap(vq, &vq->used_ring,
+> +				      (unsigned long)vq->used,
+> +				      vhost_get_used_size(vq, vq->num),
+> +				      start, end);
+> +	}
+> +}
+> +
+> +
+> +static void vhost_invalidate_range(struct mmu_notifier *mn,
+> +				   struct mm_struct *mm,
+> +				   unsigned long start, unsigned long end)
+> +{
+> +	struct vhost_dev *dev = container_of(mn, struct vhost_dev,
+> +					     mmu_notifier);
+> +
+> +	vhost_invalidate(dev, start, end);
+> +}
+> +
+> +static const struct mmu_notifier_ops vhost_mmu_notifier_ops = {
+> +	.invalidate_range = vhost_invalidate_range,
+> +};
+> +
+>  void vhost_dev_init(struct vhost_dev *dev,
+>  		    struct vhost_virtqueue **vqs, int nvqs, int iov_limit)
+>  {
 
-No module parameters please. If you need to set something do it using
-rtnl_link_ops. Thanks.
+
+Note that
+.invalidate_range seems to be called after page lock has
+been dropped.
+
+Looking at page dirty below:
 
 
-> 
-> static struct net_device *failover_get_bymac(u8 *mac, struct failover_ops **ops)
-> {
->@@ -81,13 +86,15 @@ static int failover_slave_register(struct net_device *slave_dev)
-> 	}
-> 
-> 	slave_dev->priv_flags |= IFF_FAILOVER_SLAVE;
->+	if (slave_rename_ok)
->+		slave_dev->priv_flags |= IFF_SLAVE_RENAME_OK;
-> 
-> 	if (fops && fops->slave_register &&
-> 	    !fops->slave_register(slave_dev, failover_dev))
-> 		return NOTIFY_OK;
-> 
-> 	netdev_upper_dev_unlink(slave_dev, failover_dev);
->-	slave_dev->priv_flags &= ~IFF_FAILOVER_SLAVE;
->+	slave_dev->priv_flags &= ~(IFF_FAILOVER_SLAVE | IFF_SLAVE_RENAME_OK);
-> err_upper_link:
-> 	netdev_rx_handler_unregister(slave_dev);
-> done:
->@@ -121,7 +128,7 @@ int failover_slave_unregister(struct net_device *slave_dev)
-> 
-> 	netdev_rx_handler_unregister(slave_dev);
-> 	netdev_upper_dev_unlink(slave_dev, failover_dev);
->-	slave_dev->priv_flags &= ~IFF_FAILOVER_SLAVE;
->+	slave_dev->priv_flags &= ~(IFF_FAILOVER_SLAVE | IFF_SLAVE_RENAME_OK);
-> 
-> 	if (fops && fops->slave_unregister &&
-> 	    !fops->slave_unregister(slave_dev, failover_dev))
->-- 
->1.8.3.1
->
+
+
+> @@ -449,6 +517,7 @@ void vhost_dev_init(struct vhost_dev *dev,
+>  	dev->mm = NULL;
+>  	dev->worker = NULL;
+>  	dev->iov_limit = iov_limit;
+> +	dev->mmu_notifier.ops = &vhost_mmu_notifier_ops;
+>  	init_llist_head(&dev->work_list);
+>  	init_waitqueue_head(&dev->wait);
+>  	INIT_LIST_HEAD(&dev->read_list);
+> @@ -462,6 +531,9 @@ void vhost_dev_init(struct vhost_dev *dev,
+>  		vq->indirect = NULL;
+>  		vq->heads = NULL;
+>  		vq->dev = dev;
+> +		vq->avail_ring.addr = NULL;
+> +		vq->used_ring.addr = NULL;
+> +		vq->desc_ring.addr = NULL;
+>  		mutex_init(&vq->mutex);
+>  		vhost_vq_reset(dev, vq);
+>  		if (vq->handle_kick)
+> @@ -542,7 +614,13 @@ long vhost_dev_set_owner(struct vhost_dev *dev)
+>  	if (err)
+>  		goto err_cgroup;
+>  
+> +	err = mmu_notifier_register(&dev->mmu_notifier, dev->mm);
+> +	if (err)
+> +		goto err_mmu_notifier;
+> +
+>  	return 0;
+> +err_mmu_notifier:
+> +	vhost_dev_free_iovecs(dev);
+>  err_cgroup:
+>  	kthread_stop(worker);
+>  	dev->worker = NULL;
+> @@ -633,6 +711,81 @@ static void vhost_clear_msg(struct vhost_dev *dev)
+>  	spin_unlock(&dev->iotlb_lock);
+>  }
+>  
+> +static int vhost_init_vmap(struct vhost_dev *dev,
+> +			   struct vhost_vmap *map, unsigned long uaddr,
+> +			   size_t size, int write)
+> +{
+> +	struct page **pages;
+> +	int npages = DIV_ROUND_UP(size, PAGE_SIZE);
+> +	int npinned;
+> +	void *vaddr;
+> +	int err = -EFAULT;
+> +
+> +	err = -ENOMEM;
+> +	pages = kmalloc_array(npages, sizeof(struct page *), GFP_KERNEL);
+> +	if (!pages)
+> +		goto err_uaddr;
+> +
+> +	err = EFAULT;
+> +	npinned = get_user_pages_fast(uaddr, npages, write, pages);
+> +	if (npinned != npages)
+> +		goto err_gup;
+> +
+> +	vaddr = vmap(pages, npages, VM_MAP, PAGE_KERNEL);
+> +	if (!vaddr)
+> +		goto err_gup;
+> +
+> +	map->addr = vaddr + (uaddr & (PAGE_SIZE - 1));
+> +	map->unmap_addr = vaddr;
+> +	map->npages = npages;
+> +	map->pages = pages;
+> +
+> +err_gup:
+> +	/* Don't pin pages, mmu notifier will notify us about page
+> +	 * migration.
+> +	 */
+> +	if (npinned > 0)
+> +		release_pages(pages, npinned);
+> +err_uaddr:
+> +	return err;
+> +}
+> +
+> +static void vhost_uninit_vq_vmaps(struct vhost_virtqueue *vq)
+> +{
+> +	vhost_uninit_vmap(&vq->avail_ring);
+> +	vhost_uninit_vmap(&vq->desc_ring);
+> +	vhost_uninit_vmap(&vq->used_ring);
+> +}
+> +
+> +static int vhost_setup_avail_vmap(struct vhost_virtqueue *vq,
+> +				  unsigned long avail)
+> +{
+> +	return vhost_init_vmap(vq->dev, &vq->avail_ring, avail,
+> +			       vhost_get_avail_size(vq, vq->num), false);
+> +}
+> +
+> +static int vhost_setup_desc_vmap(struct vhost_virtqueue *vq,
+> +				 unsigned long desc)
+> +{
+> +	return vhost_init_vmap(vq->dev, &vq->desc_ring, desc,
+> +			       vhost_get_desc_size(vq, vq->num), false);
+> +}
+> +
+> +static int vhost_setup_used_vmap(struct vhost_virtqueue *vq,
+> +				 unsigned long used)
+> +{
+> +	return vhost_init_vmap(vq->dev, &vq->used_ring, used,
+> +			       vhost_get_used_size(vq, vq->num), true);
+> +}
+> +
+> +static void vhost_set_vmap_dirty(struct vhost_vmap *used)
+> +{
+> +	int i;
+> +
+> +	for (i = 0; i < used->npages; i++)
+> +		set_page_dirty_lock(used->pages[i]);
+
+
+This seems to rely on page lock to mark page dirty.
+
+Could it happen that page writeback will check the
+page, find it clean, and then you mark it dirty and then
+invalidate callback is called?
+
+
+> +}
+> +
+>  void vhost_dev_cleanup(struct vhost_dev *dev)
+>  {
+>  	int i;
+> @@ -662,8 +815,12 @@ void vhost_dev_cleanup(struct vhost_dev *dev)
+>  		kthread_stop(dev->worker);
+>  		dev->worker = NULL;
+>  	}
+> -	if (dev->mm)
+> +	for (i = 0; i < dev->nvqs; i++)
+> +		vhost_uninit_vq_vmaps(dev->vqs[i]);
+> +	if (dev->mm) {
+> +		mmu_notifier_unregister(&dev->mmu_notifier, dev->mm);
+>  		mmput(dev->mm);
+> +	}
+>  	dev->mm = NULL;
+>  }
+>  EXPORT_SYMBOL_GPL(vhost_dev_cleanup);
+> @@ -892,6 +1049,16 @@ static inline void __user *__vhost_get_user(struct vhost_virtqueue *vq,
+>  
+>  static inline int vhost_put_avail_event(struct vhost_virtqueue *vq)
+>  {
+> +	if (!vq->iotlb) {
+> +		struct vring_used *used = vq->used_ring.addr;
+> +
+> +		if (likely(used)) {
+> +			*((__virtio16 *)&used->ring[vq->num]) =
+> +				cpu_to_vhost16(vq, vq->avail_idx);
+> +			return 0;
+> +		}
+> +	}
+> +
+>  	return vhost_put_user(vq, cpu_to_vhost16(vq, vq->avail_idx),
+>  			      vhost_avail_event(vq));
+>  }
+> @@ -900,6 +1067,16 @@ static inline int vhost_put_used(struct vhost_virtqueue *vq,
+>  				 struct vring_used_elem *head, int idx,
+>  				 int count)
+>  {
+> +	if (!vq->iotlb) {
+> +		struct vring_used *used = vq->used_ring.addr;
+> +
+> +		if (likely(used)) {
+> +			memcpy(used->ring + idx, head,
+> +			       count * sizeof(*head));
+> +			return 0;
+> +		}
+> +	}
+> +
+>  	return vhost_copy_to_user(vq, vq->used->ring + idx, head,
+>  				  count * sizeof(*head));
+>  }
+> @@ -907,6 +1084,15 @@ static inline int vhost_put_used(struct vhost_virtqueue *vq,
+>  static inline int vhost_put_used_flags(struct vhost_virtqueue *vq)
+>  
+>  {
+> +	if (!vq->iotlb) {
+> +		struct vring_used *used = vq->used_ring.addr;
+> +
+> +		if (likely(used)) {
+> +			used->flags = cpu_to_vhost16(vq, vq->used_flags);
+> +			return 0;
+> +		}
+> +	}
+> +
+>  	return vhost_put_user(vq, cpu_to_vhost16(vq, vq->used_flags),
+>  			      &vq->used->flags);
+>  }
+> @@ -914,6 +1100,15 @@ static inline int vhost_put_used_flags(struct vhost_virtqueue *vq)
+>  static inline int vhost_put_used_idx(struct vhost_virtqueue *vq)
+>  
+>  {
+> +	if (!vq->iotlb) {
+> +		struct vring_used *used = vq->used_ring.addr;
+> +
+> +		if (likely(used)) {
+> +			used->idx = cpu_to_vhost16(vq, vq->last_used_idx);
+> +			return 0;
+> +		}
+> +	}
+> +
+>  	return vhost_put_user(vq, cpu_to_vhost16(vq, vq->last_used_idx),
+>  			      &vq->used->idx);
+>  }
+> @@ -959,12 +1154,30 @@ static void vhost_dev_unlock_vqs(struct vhost_dev *d)
+>  static inline int vhost_get_avail_idx(struct vhost_virtqueue *vq,
+>  				      __virtio16 *idx)
+>  {
+> +	if (!vq->iotlb) {
+> +		struct vring_avail *avail = vq->avail_ring.addr;
+> +
+> +		if (likely(avail)) {
+> +			*idx = avail->idx;
+> +			return 0;
+> +		}
+> +	}
+> +
+>  	return vhost_get_avail(vq, *idx, &vq->avail->idx);
+>  }
+>  
+>  static inline int vhost_get_avail_head(struct vhost_virtqueue *vq,
+>  				       __virtio16 *head, int idx)
+>  {
+> +	if (!vq->iotlb) {
+> +		struct vring_avail *avail = vq->avail_ring.addr;
+> +
+> +		if (likely(avail)) {
+> +			*head = avail->ring[idx & (vq->num - 1)];
+> +			return 0;
+> +		}
+> +	}
+> +
+>  	return vhost_get_avail(vq, *head,
+>  			       &vq->avail->ring[idx & (vq->num - 1)]);
+>  }
+> @@ -972,24 +1185,60 @@ static inline int vhost_get_avail_head(struct vhost_virtqueue *vq,
+>  static inline int vhost_get_avail_flags(struct vhost_virtqueue *vq,
+>  					__virtio16 *flags)
+>  {
+> +	if (!vq->iotlb) {
+> +		struct vring_avail *avail = vq->avail_ring.addr;
+> +
+> +		if (likely(avail)) {
+> +			*flags = avail->flags;
+> +			return 0;
+> +		}
+> +	}
+> +
+>  	return vhost_get_avail(vq, *flags, &vq->avail->flags);
+>  }
+>  
+>  static inline int vhost_get_used_event(struct vhost_virtqueue *vq,
+>  				       __virtio16 *event)
+>  {
+> +	if (!vq->iotlb) {
+> +		struct vring_avail *avail = vq->avail_ring.addr;
+> +
+> +		if (likely(avail)) {
+> +			*event = (__virtio16)avail->ring[vq->num];
+> +			return 0;
+> +		}
+> +	}
+> +
+>  	return vhost_get_avail(vq, *event, vhost_used_event(vq));
+>  }
+>  
+>  static inline int vhost_get_used_idx(struct vhost_virtqueue *vq,
+>  				     __virtio16 *idx)
+>  {
+> +	if (!vq->iotlb) {
+> +		struct vring_used *used = vq->used_ring.addr;
+> +
+> +		if (likely(used)) {
+> +			*idx = used->idx;
+> +			return 0;
+> +		}
+> +	}
+> +
+>  	return vhost_get_used(vq, *idx, &vq->used->idx);
+>  }
+>  
+>  static inline int vhost_get_desc(struct vhost_virtqueue *vq,
+>  				 struct vring_desc *desc, int idx)
+>  {
+> +	if (!vq->iotlb) {
+> +		struct vring_desc *d = vq->desc_ring.addr;
+> +
+> +		if (likely(d)) {
+> +			*desc = *(d + idx);
+> +			return 0;
+> +		}
+> +	}
+> +
+>  	return vhost_copy_from_user(vq, desc, vq->desc + idx, sizeof(*desc));
+>  }
+>  
+> @@ -1330,8 +1579,16 @@ int vq_meta_prefetch(struct vhost_virtqueue *vq)
+>  {
+>  	unsigned int num = vq->num;
+>  
+> -	if (!vq->iotlb)
+> +	if (!vq->iotlb) {
+> +		if (unlikely(!vq->avail_ring.addr))
+> +			vhost_setup_avail_vmap(vq, (unsigned long)vq->avail);
+> +		if (unlikely(!vq->desc_ring.addr))
+> +			vhost_setup_desc_vmap(vq, (unsigned long)vq->desc);
+> +		if (unlikely(!vq->used_ring.addr))
+> +			vhost_setup_used_vmap(vq, (unsigned long)vq->used);
+> +
+>  		return 1;
+> +	}
+>  
+>  	return iotlb_access_ok(vq, VHOST_ACCESS_RO, (u64)(uintptr_t)vq->desc,
+>  			       vhost_get_desc_size(vq, num), VHOST_ADDR_DESC) &&
+> @@ -1343,6 +1600,15 @@ int vq_meta_prefetch(struct vhost_virtqueue *vq)
+>  }
+>  EXPORT_SYMBOL_GPL(vq_meta_prefetch);
+>  
+> +void vq_meta_prefetch_done(struct vhost_virtqueue *vq)
+> +{
+> +	if (vq->iotlb)
+> +		return;
+> +	if (likely(vq->used_ring.addr))
+> +		vhost_set_vmap_dirty(&vq->used_ring);
+> +}
+> +EXPORT_SYMBOL_GPL(vq_meta_prefetch_done);
+> +
+>  /* Can we log writes? */
+>  /* Caller should have device mutex but not vq mutex */
+>  bool vhost_log_access_ok(struct vhost_dev *dev)
+> @@ -1483,6 +1749,13 @@ long vhost_vring_ioctl(struct vhost_dev *d, unsigned int ioctl, void __user *arg
+>  
+>  	mutex_lock(&vq->mutex);
+>  
+> +	/* Unregister MMU notifer to allow invalidation callback
+> +	 * can access vq->avail, vq->desc , vq->used and vq->num
+> +	 * without holding vq->mutex.
+> +	 */
+> +	if (d->mm)
+> +		mmu_notifier_unregister(&d->mmu_notifier, d->mm);
+> +
+>  	switch (ioctl) {
+>  	case VHOST_SET_VRING_NUM:
+>  		/* Resizing ring with an active backend?
+> @@ -1499,6 +1772,7 @@ long vhost_vring_ioctl(struct vhost_dev *d, unsigned int ioctl, void __user *arg
+>  			r = -EINVAL;
+>  			break;
+>  		}
+> +		vhost_uninit_vq_vmaps(vq);
+>  		vq->num = s.num;
+>  		break;
+>  	case VHOST_SET_VRING_BASE:
+> @@ -1581,6 +1855,7 @@ long vhost_vring_ioctl(struct vhost_dev *d, unsigned int ioctl, void __user *arg
+>  		vq->avail = (void __user *)(unsigned long)a.avail_user_addr;
+>  		vq->log_addr = a.log_guest_addr;
+>  		vq->used = (void __user *)(unsigned long)a.used_user_addr;
+> +		vhost_uninit_vq_vmaps(vq);
+>  		break;
+>  	case VHOST_SET_VRING_KICK:
+>  		if (copy_from_user(&f, argp, sizeof f)) {
+> @@ -1656,6 +1931,8 @@ long vhost_vring_ioctl(struct vhost_dev *d, unsigned int ioctl, void __user *arg
+>  	if (pollstart && vq->handle_kick)
+>  		r = vhost_poll_start(&vq->poll, vq->kick);
+>  
+> +	if (d->mm)
+> +		mmu_notifier_register(&d->mmu_notifier, d->mm);
+>  	mutex_unlock(&vq->mutex);
+>  
+>  	if (pollstop && vq->handle_kick)
+> diff --git a/drivers/vhost/vhost.h b/drivers/vhost/vhost.h
+> index 7a7fc00..146076e 100644
+> --- a/drivers/vhost/vhost.h
+> +++ b/drivers/vhost/vhost.h
+> @@ -12,6 +12,8 @@
+>  #include <linux/virtio_config.h>
+>  #include <linux/virtio_ring.h>
+>  #include <linux/atomic.h>
+> +#include <linux/pagemap.h>
+> +#include <linux/mmu_notifier.h>
+>  
+>  struct vhost_work;
+>  typedef void (*vhost_work_fn_t)(struct vhost_work *work);
+> @@ -80,6 +82,13 @@ enum vhost_uaddr_type {
+>  	VHOST_NUM_ADDRS = 3,
+>  };
+>  
+> +struct vhost_vmap {
+> +	void *addr;
+> +	void *unmap_addr;
+> +	int npages;
+> +	struct page **pages;
+> +};
+> +
+>  /* The virtqueue structure describes a queue attached to a device. */
+>  struct vhost_virtqueue {
+>  	struct vhost_dev *dev;
+> @@ -90,6 +99,11 @@ struct vhost_virtqueue {
+>  	struct vring_desc __user *desc;
+>  	struct vring_avail __user *avail;
+>  	struct vring_used __user *used;
+> +
+> +	struct vhost_vmap avail_ring;
+> +	struct vhost_vmap desc_ring;
+> +	struct vhost_vmap used_ring;
+> +
+>  	const struct vhost_umem_node *meta_iotlb[VHOST_NUM_ADDRS];
+>  	struct file *kick;
+>  	struct eventfd_ctx *call_ctx;
+> @@ -158,6 +172,7 @@ struct vhost_msg_node {
+>  
+>  struct vhost_dev {
+>  	struct mm_struct *mm;
+> +	struct mmu_notifier mmu_notifier;
+>  	struct mutex mutex;
+>  	struct vhost_virtqueue **vqs;
+>  	int nvqs;
+> @@ -210,6 +225,7 @@ int vhost_log_write(struct vhost_virtqueue *vq, struct vhost_log *log,
+>  		    unsigned int log_num, u64 len,
+>  		    struct iovec *iov, int count);
+>  int vq_meta_prefetch(struct vhost_virtqueue *vq);
+> +void vq_meta_prefetch_done(struct vhost_virtqueue *vq);
+>  
+>  struct vhost_msg_node *vhost_new_msg(struct vhost_virtqueue *vq, int type);
+>  void vhost_enqueue_msg(struct vhost_dev *dev,
+> -- 
+> 1.8.3.1
