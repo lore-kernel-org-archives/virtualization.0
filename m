@@ -1,11 +1,13 @@
 From: Jason Wang <jasowang@redhat.com>
-Subject: [RFC PATCH V2 0/5] vhost: accelerate metadata access through vmap()
-Date: Wed,  6 Mar 2019 02:18:07 -0500
-Message-ID: <1551856692-3384-1-git-send-email-jasowang@redhat.com>
+Subject: [RFC PATCH V2 1/5] vhost: generalize adding used elem
+Date: Wed,  6 Mar 2019 02:18:08 -0500
+Message-ID: <1551856692-3384-2-git-send-email-jasowang__48544.6552791231$1551856722$gmane$org@redhat.com>
+References: <1551856692-3384-1-git-send-email-jasowang@redhat.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
+In-Reply-To: <1551856692-3384-1-git-send-email-jasowang@redhat.com>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -19,44 +21,37 @@ To: jasowang@redhat.com, mst@redhat.com, kvm@vger.kernel.org, virtualization@lis
 Cc: aarcange@redhat.com, linux-mm@kvack.org
 List-Id: virtualization@lists.linuxfoundation.org
 
-This series tries to access virtqueue metadata through kernel virtual
-address instead of copy_user() friends since they had too much
-overheads like checks, spec barriers or even hardware feature
-toggling. This is done through setup kernel address through vmap() and
-resigter MMU notifier for invalidation.
+Use one generic vhost_copy_to_user() instead of two dedicated
+accessor. This will simplify the conversion to fine grain
+accessors. About 2% improvement of PPS were seen during vitio-user
+txonly test.
 
-Test shows about 24% improvement on TX PPS. TCP_STREAM doesn't see
-obvious improvement.
+Signed-off-by: Jason Wang <jasowang@redhat.com>
+---
+ drivers/vhost/vhost.c | 11 +----------
+ 1 file changed, 1 insertion(+), 10 deletions(-)
 
-Thanks
-
-Changes from V4:
-- use invalidate_range() instead of invalidate_range_start()
-- track dirty pages
-Changes from V3:
-- don't try to use vmap for file backed pages
-- rebase to master
-Changes from V2:
-- fix buggy range overlapping check
-- tear down MMU notifier during vhost ioctl to make sure invalidation
-  request can read metadata userspace address and vq size without
-  holding vq mutex.
-Changes from V1:
-- instead of pinning pages, use MMU notifier to invalidate vmaps and
-  remap duing metadata prefetch
-- fix build warning on MIPS
-
-Jason Wang (5):
-  vhost: generalize adding used elem
-  vhost: fine grain userspace memory accessors
-  vhost: rename vq_iotlb_prefetch() to vq_meta_prefetch()
-  vhost: introduce helpers to get the size of metadata area
-  vhost: access vq metadata through kernel virtual address
-
- drivers/vhost/net.c   |   6 +-
- drivers/vhost/vhost.c | 434 ++++++++++++++++++++++++++++++++++++++++++++------
- drivers/vhost/vhost.h |  18 ++-
- 3 files changed, 407 insertions(+), 51 deletions(-)
-
+diff --git a/drivers/vhost/vhost.c b/drivers/vhost/vhost.c
+index a2e5dc7..400aa78 100644
+--- a/drivers/vhost/vhost.c
++++ b/drivers/vhost/vhost.c
+@@ -2251,16 +2251,7 @@ static int __vhost_add_used_n(struct vhost_virtqueue *vq,
+ 
+ 	start = vq->last_used_idx & (vq->num - 1);
+ 	used = vq->used->ring + start;
+-	if (count == 1) {
+-		if (vhost_put_user(vq, heads[0].id, &used->id)) {
+-			vq_err(vq, "Failed to write used id");
+-			return -EFAULT;
+-		}
+-		if (vhost_put_user(vq, heads[0].len, &used->len)) {
+-			vq_err(vq, "Failed to write used len");
+-			return -EFAULT;
+-		}
+-	} else if (vhost_copy_to_user(vq, used, heads, count * sizeof *used)) {
++	if (vhost_copy_to_user(vq, used, heads, count * sizeof *used)) {
+ 		vq_err(vq, "Failed to write used");
+ 		return -EFAULT;
+ 	}
 -- 
 1.8.3.1
