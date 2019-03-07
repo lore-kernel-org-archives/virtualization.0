@@ -1,18 +1,19 @@
-From: Liran Alon <liran.alon@oracle.com>
-Subject: Re: [RFC PATCH net-next] failover: allow name change on IFF_UP slave
-	interfaces
-Date: Thu, 7 Mar 2019 01:36:10 +0200
-Message-ID: <D8A06856-62A4-44BC-920E-9BE60011C9C1__43717.373050616$1555717325$gmane$org@oracle.com>
-References: <1551747059-11831-1-git-send-email-si-wei.liu@oracle.com>
-	<20190306120430.GA2819@nanopsycho>
-	<7d1e79f6-01ff-413d-dac0-ee34258aafec@oracle.com>
-	<cb71d2c4-c2b9-28df-1882-154ee3b9b9b6@intel.com>
-	<7bc9dc90-6597-4223-c192-55a314ff079f@oracle.com>
-Mime-Version: 1.0 (Mac OS X Mail 11.1 \(3445.4.7\))
-Content-Type: text/plain; charset="us-ascii"
-Content-Transfer-Encoding: 7bit
+From: Jerome Glisse <jglisse@redhat.com>
+Subject: Re: [RFC PATCH V2 5/5] vhost: access vq metadata through kernel
+	virtual address
+Date: Thu, 7 Mar 2019 14:09:10 -0500
+Message-ID: <20190307190910.GE3835__17086.3526918524$1555717337$gmane$org@redhat.com>
+References: <1551856692-3384-1-git-send-email-jasowang@redhat.com>
+	<1551856692-3384-6-git-send-email-jasowang@redhat.com>
+	<20190306092837-mutt-send-email-mst@kernel.org>
+	<15105894-4ec1-1ed0-1976-7b68ed9eeeda@redhat.com>
+	<20190307101708-mutt-send-email-mst@kernel.org>
+Mime-Version: 1.0
+Content-Type: text/plain; charset="utf-8"
+Content-Transfer-Encoding: base64
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <7bc9dc90-6597-4223-c192-55a314ff079f@oracle.com>
+Content-Disposition: inline
+In-Reply-To: <20190307101708-mutt-send-email-mst@kernel.org>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -22,52 +23,36 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: si-wei liu <si-wei.liu@oracle.com>
-Cc: Jiri Pirko <jiri@resnulli.us>, "Michael S. Tsirkin" <mst@redhat.com>, Jakub Kicinski <kubakici@wp.pl>, "Samudrala,
-	Sridhar" <sridhar.samudrala@intel.com>, virtualization@lists.linux-foundation.org, Netdev <netdev@vger.kernel.org>, boris.ostrovsky@oracle.com, David Miller <davem@davemloft.net>
+To: "Michael S. Tsirkin" <mst@redhat.com>
+Cc: aarcange@redhat.com, kvm@vger.kernel.org, netdev@vger.kernel.org, linux-kernel@vger.kernel.org, virtualization@lists.linux-foundation.org, linux-mm@kvack.org
 List-Id: virtualization@lists.linuxfoundation.org
 
-
-
-> On 6 Mar 2019, at 23:42, si-wei liu <si-wei.liu@oracle.com> wrote:
-> 
-> 
-> 
-> On 3/6/2019 1:36 PM, Samudrala, Sridhar wrote:
->> 
->> On 3/6/2019 1:26 PM, si-wei liu wrote:
->>> 
->>> 
->>> On 3/6/2019 4:04 AM, Jiri Pirko wrote:
->>>>> --- a/net/core/failover.c
->>>>> +++ b/net/core/failover.c
->>>>> @@ -16,6 +16,11 @@
->>>>> 
->>>>> static LIST_HEAD(failover_list);
->>>>> static DEFINE_SPINLOCK(failover_lock);
->>>>> +static bool slave_rename_ok = true;
->>>>> +
->>>>> +module_param(slave_rename_ok, bool, (S_IRUGO | S_IWUSR));
->>>>> +MODULE_PARM_DESC(slave_rename_ok,
->>>>> +		 "If set allow renaming the slave when failover master is up");
->>>>> 
->>>> No module parameters please. If you need to set something do it using
->>>> rtnl_link_ops. Thanks.
->>>> 
->>>> 
->>> I understand what you ask for, but without module parameters userspace don't work. During boot (dracut) the virtio netdev gets enslaved earlier than when userspace comes up, so failover has to determine the setting during initialization/creation. This config is not dynamic, at least for the life cycle of a particular failover link it shouldn't be changed. Without module parameter, how does the userspace specify this value during kernel initialization? 
->>> 
->> Can we enable this by default and not make it configurable via module parameter?
->> Is there any  usecase where someone expects rename to fail with failover slaves?
-> Probably just cater for those application that assumes fixed name on UP interface?
-> 
-> It's already the default for the configurable. I myself don't think that's a big problem for failover users. So far there's not even QEMU support I think everything can be changed. I don't feel strong to just fix it without introducing configurable. But maybe Michael or others think it differently...
-> 
-> If no one objects, I don't feel strong to make it fixed behavior.
-> 
-> -Siwei
-> 
-
-I agree we should just remove the module parameter.
-
--Liran
+T24gVGh1LCBNYXIgMDcsIDIwMTkgYXQgMTA6MzQ6MzlBTSAtMDUwMCwgTWljaGFlbCBTLiBUc2ly
+a2luIHdyb3RlOgo+IE9uIFRodSwgTWFyIDA3LCAyMDE5IGF0IDEwOjQ1OjU3QU0gKzA4MDAsIEph
+c29uIFdhbmcgd3JvdGU6Cj4gPiAKPiA+IE9uIDIwMTkvMy83IOS4iuWNiDEyOjMxLCBNaWNoYWVs
+IFMuIFRzaXJraW4gd3JvdGU6Cj4gPiA+ID4gK3N0YXRpYyB2b2lkIHZob3N0X3NldF92bWFwX2Rp
+cnR5KHN0cnVjdCB2aG9zdF92bWFwICp1c2VkKQo+ID4gPiA+ICt7Cj4gPiA+ID4gKwlpbnQgaTsK
+PiA+ID4gPiArCj4gPiA+ID4gKwlmb3IgKGkgPSAwOyBpIDwgdXNlZC0+bnBhZ2VzOyBpKyspCj4g
+PiA+ID4gKwkJc2V0X3BhZ2VfZGlydHlfbG9jayh1c2VkLT5wYWdlc1tpXSk7Cj4gPiA+IFRoaXMg
+c2VlbXMgdG8gcmVseSBvbiBwYWdlIGxvY2sgdG8gbWFyayBwYWdlIGRpcnR5Lgo+ID4gPiAKPiA+
+ID4gQ291bGQgaXQgaGFwcGVuIHRoYXQgcGFnZSB3cml0ZWJhY2sgd2lsbCBjaGVjayB0aGUKPiA+
+ID4gcGFnZSwgZmluZCBpdCBjbGVhbiwgYW5kIHRoZW4geW91IG1hcmsgaXQgZGlydHkgYW5kIHRo
+ZW4KPiA+ID4gaW52YWxpZGF0ZSBjYWxsYmFjayBpcyBjYWxsZWQ/Cj4gPiA+IAo+ID4gPiAKPiA+
+IAo+ID4gWWVzLiBCdXQgZG9lcyB0aGlzIGJyZWFrIGFueXRoaW5nPwo+ID4gVGhlIHBhZ2UgaXMg
+c3RpbGwgdGhlcmUsIHdlIGp1c3QgcmVtb3ZlIGEKPiA+IGtlcm5lbCBtYXBwaW5nIHRvIGl0Lgo+
+ID4gCj4gPiBUaGFua3MKPiAKPiBZZXMgaXQncyB0aGUgc2FtZSBwcm9ibGVtIGFzIGUuZy4gUkRN
+QToKPiAJd2UndmUganVzdCBtYXJrZWQgdGhlIHBhZ2UgYXMgZGlydHkgd2l0aG91dCBoYXZpbmcg
+YnVmZmVycy4KPiAJRXZlbnR1YWxseSB3cml0ZWJhY2sgd2lsbCBmaW5kIGl0IGFuZCBmaWxlc3lz
+dGVtIHdpbGwgY29tcGxhaW4uLi4KPiAJU28gaWYgdGhlIHBhZ2VzIGFyZSBiYWNrZWQgYnkgYSBu
+b24tUkFNLWJhc2VkIGZpbGVzeXN0ZW0sIGl04oCZcyBhbGwganVzdCBicm9rZW4uCj4gCj4gb25l
+IGNhbiBob3BlIHRoYXQgUkRNQSBndXlzIHdpbGwgZml4IGl0IGluIHNvbWUgd2F5IGV2ZW50dWFs
+bHkuCj4gRm9yIG5vdywgbWF5YmUgYWRkIGEgZmxhZyBpbiBlLmcuIFZNQSB0aGF0IHNheXMgdGhh
+dCB0aGVyZSdzIG5vCj4gd3JpdGViYWNrIHNvIGl0J3Mgc2FmZSB0byBtYXJrIHBhZ2UgZGlydHkg
+YXQgYW55IHBvaW50PwoKSSB0aG91Z2h0IHRoaXMgcGF0Y2ggd2FzIG9ubHkgZm9yIGFub255bW91
+cyBtZW1vcnkgaWUgbm90IGZpbGUgYmFjayA/CklmIHNvIHRoZW4gc2V0IGRpcnR5IGlzIG1vc3Rs
+eSB1c2VsZXNzIGl0IHdvdWxkIG9ubHkgYmUgdXNlIGZvciBzd2FwCmJ1dCBmb3IgdGhpcyB5b3Ug
+Y2FuIHVzZSBhbiB1bmxvY2sgdmVyc2lvbiB0byBzZXQgdGhlIHBhZ2UgZGlydHkuCgpDaGVlcnMs
+CkrDqXLDtG1lCl9fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19f
+ClZpcnR1YWxpemF0aW9uIG1haWxpbmcgbGlzdApWaXJ0dWFsaXphdGlvbkBsaXN0cy5saW51eC1m
+b3VuZGF0aW9uLm9yZwpodHRwczovL2xpc3RzLmxpbnV4Zm91bmRhdGlvbi5vcmcvbWFpbG1hbi9s
+aXN0aW5mby92aXJ0dWFsaXphdGlvbg==
