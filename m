@@ -1,18 +1,16 @@
 From: "Michael S. Tsirkin" <mst@redhat.com>
 Subject: Re: [RFC PATCH V2 5/5] vhost: access vq metadata through kernel
 	virtual address
-Date: Thu, 7 Mar 2019 10:34:39 -0500
-Message-ID: <20190307101708-mutt-send-email-mst__8708.43339232437$1551972898$gmane$org@kernel.org>
+Date: Thu, 7 Mar 2019 10:47:22 -0500
+Message-ID: <20190307103503-mutt-send-email-mst__47981.5263229952$1551973656$gmane$org@kernel.org>
 References: <1551856692-3384-1-git-send-email-jasowang@redhat.com>
 	<1551856692-3384-6-git-send-email-jasowang@redhat.com>
-	<20190306092837-mutt-send-email-mst@kernel.org>
-	<15105894-4ec1-1ed0-1976-7b68ed9eeeda@redhat.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="utf-8"
-Content-Transfer-Encoding: base64
+Content-Type: text/plain; charset="us-ascii"
+Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
 Content-Disposition: inline
-In-Reply-To: <15105894-4ec1-1ed0-1976-7b68ed9eeeda@redhat.com>
+In-Reply-To: <1551856692-3384-6-git-send-email-jasowang@redhat.com>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -26,26 +24,35 @@ To: Jason Wang <jasowang@redhat.com>
 Cc: aarcange@redhat.com, kvm@vger.kernel.org, netdev@vger.kernel.org, linux-kernel@vger.kernel.org, virtualization@lists.linux-foundation.org, linux-mm@kvack.org
 List-Id: virtualization@lists.linuxfoundation.org
 
-T24gVGh1LCBNYXIgMDcsIDIwMTkgYXQgMTA6NDU6NTdBTSArMDgwMCwgSmFzb24gV2FuZyB3cm90
-ZToKPiAKPiBPbiAyMDE5LzMvNyDkuIrljYgxMjozMSwgTWljaGFlbCBTLiBUc2lya2luIHdyb3Rl
-Ogo+ID4gPiArc3RhdGljIHZvaWQgdmhvc3Rfc2V0X3ZtYXBfZGlydHkoc3RydWN0IHZob3N0X3Zt
-YXAgKnVzZWQpCj4gPiA+ICt7Cj4gPiA+ICsJaW50IGk7Cj4gPiA+ICsKPiA+ID4gKwlmb3IgKGkg
-PSAwOyBpIDwgdXNlZC0+bnBhZ2VzOyBpKyspCj4gPiA+ICsJCXNldF9wYWdlX2RpcnR5X2xvY2so
-dXNlZC0+cGFnZXNbaV0pOwo+ID4gVGhpcyBzZWVtcyB0byByZWx5IG9uIHBhZ2UgbG9jayB0byBt
-YXJrIHBhZ2UgZGlydHkuCj4gPiAKPiA+IENvdWxkIGl0IGhhcHBlbiB0aGF0IHBhZ2Ugd3JpdGVi
-YWNrIHdpbGwgY2hlY2sgdGhlCj4gPiBwYWdlLCBmaW5kIGl0IGNsZWFuLCBhbmQgdGhlbiB5b3Ug
-bWFyayBpdCBkaXJ0eSBhbmQgdGhlbgo+ID4gaW52YWxpZGF0ZSBjYWxsYmFjayBpcyBjYWxsZWQ/
-Cj4gPiAKPiA+IAo+IAo+IFllcy4gQnV0IGRvZXMgdGhpcyBicmVhayBhbnl0aGluZz8KPiBUaGUg
-cGFnZSBpcyBzdGlsbCB0aGVyZSwgd2UganVzdCByZW1vdmUgYQo+IGtlcm5lbCBtYXBwaW5nIHRv
-IGl0Lgo+IAo+IFRoYW5rcwoKWWVzIGl0J3MgdGhlIHNhbWUgcHJvYmxlbSBhcyBlLmcuIFJETUE6
-Cgl3ZSd2ZSBqdXN0IG1hcmtlZCB0aGUgcGFnZSBhcyBkaXJ0eSB3aXRob3V0IGhhdmluZyBidWZm
-ZXJzLgoJRXZlbnR1YWxseSB3cml0ZWJhY2sgd2lsbCBmaW5kIGl0IGFuZCBmaWxlc3lzdGVtIHdp
-bGwgY29tcGxhaW4uLi4KCVNvIGlmIHRoZSBwYWdlcyBhcmUgYmFja2VkIGJ5IGEgbm9uLVJBTS1i
-YXNlZCBmaWxlc3lzdGVtLCBpdOKAmXMgYWxsIGp1c3QgYnJva2VuLgoKb25lIGNhbiBob3BlIHRo
-YXQgUkRNQSBndXlzIHdpbGwgZml4IGl0IGluIHNvbWUgd2F5IGV2ZW50dWFsbHkuCkZvciBub3cs
-IG1heWJlIGFkZCBhIGZsYWcgaW4gZS5nLiBWTUEgdGhhdCBzYXlzIHRoYXQgdGhlcmUncyBubwp3
-cml0ZWJhY2sgc28gaXQncyBzYWZlIHRvIG1hcmsgcGFnZSBkaXJ0eSBhdCBhbnkgcG9pbnQ/CgoK
-CgoKLS0gCk1TVApfX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19f
-XwpWaXJ0dWFsaXphdGlvbiBtYWlsaW5nIGxpc3QKVmlydHVhbGl6YXRpb25AbGlzdHMubGludXgt
-Zm91bmRhdGlvbi5vcmcKaHR0cHM6Ly9saXN0cy5saW51eGZvdW5kYXRpb24ub3JnL21haWxtYW4v
-bGlzdGluZm8vdmlydHVhbGl6YXRpb24=
+On Wed, Mar 06, 2019 at 02:18:12AM -0500, Jason Wang wrote:
+> +static const struct mmu_notifier_ops vhost_mmu_notifier_ops = {
+> +	.invalidate_range = vhost_invalidate_range,
+> +};
+> +
+>  void vhost_dev_init(struct vhost_dev *dev,
+>  		    struct vhost_virtqueue **vqs, int nvqs, int iov_limit)
+>  {
+
+I also wonder here: when page is write protected then
+it does not look like .invalidate_range is invoked.
+
+E.g. mm/ksm.c calls
+
+mmu_notifier_invalidate_range_start and
+mmu_notifier_invalidate_range_end but not mmu_notifier_invalidate_range.
+
+Similarly, rmap in page_mkclean_one will not call
+mmu_notifier_invalidate_range.
+
+If I'm right vhost won't get notified when page is write-protected since you
+didn't install start/end notifiers. Note that end notifier can be called
+with page locked, so it's not as straight-forward as just adding a call.
+Writing into a write-protected page isn't a good idea.
+
+Note that documentation says:
+	it is fine to delay the mmu_notifier_invalidate_range
+	call to mmu_notifier_invalidate_range_end() outside the page table lock.
+implying it's called just later.
+
+-- 
+MST
