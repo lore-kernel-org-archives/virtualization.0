@@ -1,18 +1,21 @@
 From: Jerome Glisse <jglisse@redhat.com>
 Subject: Re: [RFC PATCH V2 5/5] vhost: access vq metadata through kernel
 	virtual address
-Date: Thu, 7 Mar 2019 14:17:20 -0500
-Message-ID: <20190307191720.GF3835__26212.8098214575$1555717362$gmane$org@redhat.com>
+Date: Thu, 7 Mar 2019 15:17:22 -0500
+Message-ID: <20190307201722.GG3835__15562.201470469$1555717374$gmane$org@redhat.com>
 References: <1551856692-3384-1-git-send-email-jasowang@redhat.com>
 	<1551856692-3384-6-git-send-email-jasowang@redhat.com>
-	<20190307103503-mutt-send-email-mst@kernel.org>
-	<20190307124700-mutt-send-email-mst@kernel.org>
+	<20190306092837-mutt-send-email-mst@kernel.org>
+	<15105894-4ec1-1ed0-1976-7b68ed9eeeda@redhat.com>
+	<20190307101708-mutt-send-email-mst@kernel.org>
+	<20190307190910.GE3835@redhat.com>
+	<20190307193838.GQ23850@redhat.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="iso-8859-1"
 Content-Transfer-Encoding: quoted-printable
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
 Content-Disposition: inline
-In-Reply-To: <20190307124700-mutt-send-email-mst@kernel.org>
+In-Reply-To: <20190307193838.GQ23850@redhat.com>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -22,91 +25,129 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: "Michael S. Tsirkin" <mst@redhat.com>
-Cc: aarcange@redhat.com, kvm@vger.kernel.org, netdev@vger.kernel.org, linux-kernel@vger.kernel.org, virtualization@lists.linux-foundation.org, linux-mm@kvack.org
+To: Andrea Arcangeli <aarcange@redhat.com>
+Cc: Jan Kara <jack@suse.cz>, kvm@vger.kernel.org, "Michael S. Tsirkin" <mst@redhat.com>, netdev@vger.kernel.org, linux-kernel@vger.kernel.org, virtualization@lists.linux-foundation.org, linux-mm@kvack.org
 List-Id: virtualization@lists.linuxfoundation.org
 
-On Thu, Mar 07, 2019 at 12:56:45PM -0500, Michael S. Tsirkin wrote:
-> On Thu, Mar 07, 2019 at 10:47:22AM -0500, Michael S. Tsirkin wrote:
-> > On Wed, Mar 06, 2019 at 02:18:12AM -0500, Jason Wang wrote:
-> > > +static const struct mmu_notifier_ops vhost_mmu_notifier_ops =3D {
-> > > +	.invalidate_range =3D vhost_invalidate_range,
-> > > +};
-> > > +
-> > >  void vhost_dev_init(struct vhost_dev *dev,
-> > >  		    struct vhost_virtqueue **vqs, int nvqs, int iov_limit)
-> > >  {
-> > =
-
-> > I also wonder here: when page is write protected then
-> > it does not look like .invalidate_range is invoked.
-> > =
-
-> > E.g. mm/ksm.c calls
-> > =
-
-> > mmu_notifier_invalidate_range_start and
-> > mmu_notifier_invalidate_range_end but not mmu_notifier_invalidate_range.
-> > =
-
-> > Similarly, rmap in page_mkclean_one will not call
-> > mmu_notifier_invalidate_range.
-> > =
-
-> > If I'm right vhost won't get notified when page is write-protected sinc=
-e you
-> > didn't install start/end notifiers. Note that end notifier can be called
-> > with page locked, so it's not as straight-forward as just adding a call.
-> > Writing into a write-protected page isn't a good idea.
-> > =
-
-> > Note that documentation says:
-> > 	it is fine to delay the mmu_notifier_invalidate_range
-> > 	call to mmu_notifier_invalidate_range_end() outside the page table loc=
-k.
-> > implying it's called just later.
+On Thu, Mar 07, 2019 at 02:38:38PM -0500, Andrea Arcangeli wrote:
+> On Thu, Mar 07, 2019 at 02:09:10PM -0500, Jerome Glisse wrote:
+> > I thought this patch was only for anonymous memory ie not file back ?
 > =
 
-> OK I missed the fact that _end actually calls
-> mmu_notifier_invalidate_range internally. So that part is fine but the
-> fact that you are trying to take page lock under VQ mutex and take same
-> mutex within notifier probably means it's broken for ksm and rmap at
-> least since these call invalidate with lock taken.
+> Yes, the other common usages are on hugetlbfs/tmpfs that also don't
+> need to implement writeback and are obviously safe too.
 > =
 
-> And generally, Andrea told me offline one can not take mutex under
-> the notifier callback. I CC'd Andrea for why.
+> > If so then set dirty is mostly useless it would only be use for swap
+> > but for this you can use an unlock version to set the page dirty.
+> =
 
-Correct, you _can not_ take mutex or any sleeping lock from within the
-invalidate_range callback as those callback happens under the page table
-spinlock. You can however do so under the invalidate_range_start call-
-back only if it is a blocking allow callback (there is a flag passdown
-with the invalidate_range_start callback if you are not allow to block
-then return EBUSY and the invalidation will be aborted).
+> It's not a practical issue but a security issue perhaps: you can
+> change the KVM userland to run on VM_SHARED ext4 as guest physical
+> memory, you could do that with the qemu command line that is used to
+> place it on tmpfs or hugetlbfs for example and some proprietary KVM
+> userland may do for other reasons. In general it shouldn't be possible
+> to crash the kernel with this, and it wouldn't be nice to fail if
+> somebody decides to put VM_SHARED ext4 (we could easily allow vhost
+> ring only backed by anon or tmpfs or hugetlbfs to solve this of
+> course).
+> =
 
+> It sounds like we should at least optimize away the _lock from
+> set_page_dirty if it's anon/hugetlbfs/tmpfs, would be nice if there
+> was a clean way to do that.
+> =
+
+> Now assuming we don't nak the use on ext4 VM_SHARED and we stick to
+> set_page_dirty_lock for such case: could you recap how that
+> __writepage ext4 crash was solved if try_to_free_buffers() run on a
+> pinned GUP page (in our vhost case try_to_unmap would have gotten rid
+> of the pins through the mmu notifier and the page would have been
+> freed just fine).
+
+So for the above the easiest thing is to call set_page_dirty() from
+the mmu notifier callback. It is always safe to use the non locking
+variant from such callback. Well it is safe only if the page was
+map with write permission prior to the callback so here i assume
+nothing stupid is going on and that you only vmap page with write
+if they have a CPU pte with write and if not then you force a write
+page fault.
+
+Basicly from mmu notifier callback you have the same right as zap
+pte has.
+> =
+
+
+> The first two things that come to mind is that we can easily forbid
+> the try_to_free_buffers() if the page might be pinned by GUP, it has
+> false positives with the speculative pagecache lookups but it cannot
+> give false negatives. We use those checks to know when a page is
+> pinned by GUP, for example, where we cannot merge KSM pages with gup
+> pins etc... However what if the elevated refcount wasn't there when
+> try_to_free_buffers run and is there when __remove_mapping runs?
+> =
+
+> What I mean is that it sounds easy to forbid try_to_free_buffers for
+> the long term pins, but that still won't prevent the same exact issue
+> for a transient pin (except the window to trigger it will be much smaller=
+).
+
+I think here you do not want to go down the same path as what is being
+plane for GUP. GUP is being fix for "broken" hardware. Myself i am
+converting proper hardware to no longer use GUP but rely on mmu notifier.
+
+So i would not do any dance with blocking try_to_free_buffer, just
+do everything from mmu notifier callback and you are fine.
 
 > =
 
-> That's a separate issue from set_page_dirty when memory is file backed.
+> I basically don't see how long term GUP pins breaks stuff in ext4
+> while transient short term GUP pins like O_DIRECT don't. The VM code
+> isn't able to disambiguate if the pin is short or long term and it
+> won't even be able to tell the difference between a GUP pin (long or
+> short term) and a speculative get_page_unless_zero run by the
+> pagecache speculative pagecache lookup. Even a random speculative
+> pagecache lookup that runs just before __remove_mapping, can cause
+> __remove_mapping to fail despite try_to_free_buffers() succeeded
+> before it (like if there was a transient or long term GUP
+> pin). speculative lookup that can happen across all page struct at all
+> times and they will cause page_ref_freeze in __remove_mapping to
+> fail.
+> =
 
-If you can access file back page then i suggest using set_page_dirty
-from within a special version of vunmap() so that when you vunmap you
-set the page dirty without taking page lock. It is safe to do so
-always from within an mmu notifier callback if you had the page map
-with write permission which means that the page had write permission
-in the userspace pte too and thus it having dirty pte is expected
-and calling set_page_dirty on the page is allowed without any lock.
-Locking will happen once the userspace pte are tear down through the
-page table lock.
+> I'm sure I'm missing details on the ext4 __writepage problem and how
+> set_page_dirty_lock broke stuff with long term GUP pins, so I'm
+> asking...
 
-> It's because of all these issues that I preferred just accessing
-> userspace memory and handling faults. Unfortunately there does not
-> appear to exist an API that whitelists a specific driver along the lines
-> of "I checked this code for speculative info leaks, don't add barriers
-> on data path please".
+O_DIRECT can suffer from the same issue but the race window for that
+is small enough that it is unlikely it ever happened. But for device
+driver that GUP page for hours/days/weeks/months ... obviously the
+race window is big enough here. It affects many fs (ext4, xfs, ...)
+in different ways. I think ext4 is the most obvious because of the
+kernel log trace it leaves behind.
 
-Maybe it would be better to explore adding such helper then remapping
-page into kernel address space ?
+Bottom line is for set_page_dirty to be safe you need the following:
+    lock_page()
+    page_mkwrite()
+    set_pte_with_write()
+    unlock_page()
+
+Now when loosing the write permission on the pte you will first get
+a mmu notifier callback so anyone that abide by mmu notifier is fine
+as long as they only write to the page if they found a pte with
+write as it means the above sequence did happen and page is write-
+able until the mmu notifier callback happens.
+
+When you lookup a page into the page cache you still need to call
+page_mkwrite() before installing a write-able pte.
+
+Here for this vmap thing all you need is that the original user
+pte had the write flag. If you only allow write in the vmap when
+the original pte had write and you abide by mmu notifier then it
+is ok to call set_page_dirty from the mmu notifier (but not after).
+
+Hence why my suggestion is a special vunmap that call set_page_dirty
+on the page from the mmu notifier.
 
 Cheers,
 J=E9r=F4me
