@@ -1,14 +1,18 @@
-From: Stefano Garzarella <sgarzare@redhat.com>
-Subject: Re: [PATCH v2] vsock/virtio: fix kernel panic from
-	virtio_transport_reset_no_sock
-Date: Thu, 7 Mar 2019 20:12:43 +0100
-Message-ID: <CAGxU2F5o94ARkqZVf5FRMaZNET9X7M82kej7Od+mg3MQ7iJV3A__39242.4500825413$1555717350$gmane$org@mail.gmail.com>
-References: <20190306101353.9938-1-alazar@bitdefender.com>
+From: Jerome Glisse <jglisse@redhat.com>
+Subject: Re: [RFC PATCH V2 5/5] vhost: access vq metadata through kernel
+	virtual address
+Date: Thu, 7 Mar 2019 14:17:20 -0500
+Message-ID: <20190307191720.GF3835__26212.8098214575$1555717362$gmane$org@redhat.com>
+References: <1551856692-3384-1-git-send-email-jasowang@redhat.com>
+	<1551856692-3384-6-git-send-email-jasowang@redhat.com>
+	<20190307103503-mutt-send-email-mst@kernel.org>
+	<20190307124700-mutt-send-email-mst@kernel.org>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="utf-8"
-Content-Transfer-Encoding: base64
+Content-Type: text/plain; charset="iso-8859-1"
+Content-Transfer-Encoding: quoted-printable
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <20190306101353.9938-1-alazar@bitdefender.com>
+Content-Disposition: inline
+In-Reply-To: <20190307124700-mutt-send-email-mst@kernel.org>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -18,115 +22,91 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: =?UTF-8?Q?Adalbert_Laz=C4=83r?= <alazar@bitdefender.com>
-Cc: kvm@vger.kernel.org, netdev@vger.kernel.org, linux-kernel@vger.kernel.org, virtualization@lists.linux-foundation.org, Stefan Hajnoczi <stefanha@redhat.com>, "David S . Miller" <davem@davemloft.net>, Alexandru Herghelegiu <aherghelegiu@bitdefender.com>
+To: "Michael S. Tsirkin" <mst@redhat.com>
+Cc: aarcange@redhat.com, kvm@vger.kernel.org, netdev@vger.kernel.org, linux-kernel@vger.kernel.org, virtualization@lists.linux-foundation.org, linux-mm@kvack.org
 List-Id: virtualization@lists.linuxfoundation.org
 
-T24gV2VkLCBNYXIgNiwgMjAxOSBhdCAxMToxMyBBTSBBZGFsYmVydCBMYXrEg3IgPGFsYXphckBi
-aXRkZWZlbmRlci5jb20+IHdyb3RlOgo+Cj4gUHJldmlvdXMgdG8gY29tbWl0IDIyYjVjMGI2M2Yz
-MiAoInZzb2NrL3ZpcnRpbzogZml4IGtlcm5lbCBwYW5pYwo+IGFmdGVyIGRldmljZSBob3QtdW5w
-bHVnIiksIHZzb2NrX2NvcmVfaW5pdCgpIHdhcyBjYWxsZWQgZnJvbQo+IHZpcnRpb192c29ja19w
-cm9iZSgpLiBOb3csIHZpcnRpb190cmFuc3BvcnRfcmVzZXRfbm9fc29jaygpIGNhbiBiZSBjYWxs
-ZWQKPiBiZWZvcmUgdnNvY2tfY29yZV9pbml0KCkgaGFzIHRoZSBjaGFuY2UgdG8gcnVuLgo+Cj4g
-W1dlZCBGZWIgMjcgMTQ6MTc6MDkgMjAxOV0gQlVHOiB1bmFibGUgdG8gaGFuZGxlIGtlcm5lbCBO
-VUxMIHBvaW50ZXIgZGVyZWZlcmVuY2UgYXQgMDAwMDAwMDAwMDAwMDExMAo+IFtXZWQgRmViIDI3
-IDE0OjE3OjA5IDIwMTldICNQRiBlcnJvcjogW25vcm1hbCBrZXJuZWwgcmVhZCBmYXVsdF0KPiBb
-V2VkIEZlYiAyNyAxNDoxNzowOSAyMDE5XSBQR0QgMCBQNEQgMAo+IFtXZWQgRmViIDI3IDE0OjE3
-OjA5IDIwMTldIE9vcHM6IDAwMDAgWyMxXSBTTVAgUFRJCj4gW1dlZCBGZWIgMjcgMTQ6MTc6MDkg
-MjAxOV0gQ1BVOiAzIFBJRDogNTkgQ29tbToga3dvcmtlci8zOjEgTm90IHRhaW50ZWQgNS4wLjAt
-cmM3LTM5MC1nZW5lcmljLWh2aSAjMzkwCj4gW1dlZCBGZWIgMjcgMTQ6MTc6MDkgMjAxOV0gSGFy
-ZHdhcmUgbmFtZTogUUVNVSBTdGFuZGFyZCBQQyAoaTQ0MEZYICsgUElJWCwgMTk5NiksIEJJT1Mg
-VWJ1bnR1LTEuOC4yLTF1YnVudHUxIDA0LzAxLzIwMTQKPiBbV2VkIEZlYiAyNyAxNDoxNzowOSAy
-MDE5XSBXb3JrcXVldWU6IHZpcnRpb192c29jayB2aXJ0aW9fdHJhbnNwb3J0X3J4X3dvcmsgW3Zt
-d192c29ja192aXJ0aW9fdHJhbnNwb3J0XQo+IFtXZWQgRmViIDI3IDE0OjE3OjA5IDIwMTldIFJJ
-UDogMDAxMDp2aXJ0aW9fdHJhbnNwb3J0X3Jlc2V0X25vX3NvY2srMHg4Yy8weGMwIFt2bXdfdnNv
-Y2tfdmlydGlvX3RyYW5zcG9ydF9jb21tb25dCj4gW1dlZCBGZWIgMjcgMTQ6MTc6MDkgMjAxOV0g
-Q29kZTogMzUgOGIgNGYgMTQgNDggOGIgNTcgMDggMzEgZjYgNDQgOGIgNGYgMTAgNDQgOGIgMDcg
-NDggOGQgN2QgYzggZTggODQgZjggZmYgZmYgNDggODUgYzAgNDggODkgYzMgNzQgMmEgZTggZjcg
-MzEgMDMgMDAgNDggODkgZGYgPDQ4PiA4YiA4MCAxMCAwMSAwMCAwMCBlOCA2OCBmYiA2OSBlZCA0
-OCA4YiA3NSBmMCA2NSA0OCAzMyAzNCAyNSAyOAo+IFtXZWQgRmViIDI3IDE0OjE3OjA5IDIwMTld
-IFJTUDogMDAxODpmZmZmYjQyNzAxYWI3ZDQwIEVGTEFHUzogMDAwMTAyODIKPiBbV2VkIEZlYiAy
-NyAxNDoxNzowOSAyMDE5XSBSQVg6IDAwMDAwMDAwMDAwMDAwMDAgUkJYOiBmZmZmOWQ3OTYzN2Vl
-MDgwIFJDWDogMDAwMDAwMDAwMDAwMDAwMwo+IFtXZWQgRmViIDI3IDE0OjE3OjA5IDIwMTldIFJE
-WDogMDAwMDAwMDAwMDAwMDAwMSBSU0k6IDAwMDAwMDAwMDAwMDAwMDIgUkRJOiBmZmZmOWQ3OTYz
-N2VlMDgwCj4gW1dlZCBGZWIgMjcgMTQ6MTc6MDkgMjAxOV0gUkJQOiBmZmZmYjQyNzAxYWI3ZDc4
-IFIwODogZmZmZjlkNzk2ZmFlNzBlMCBSMDk6IGZmZmY5ZDc5NmY0MDM1MDAKPiBbV2VkIEZlYiAy
-NyAxNDoxNzowOSAyMDE5XSBSMTA6IGZmZmZiNDI3MDFhYjdkOTAgUjExOiAwMDAwMDAwMDAwMDAw
-MDAwIFIxMjogZmZmZjlkNzk2OWQwOTI0MAo+IFtXZWQgRmViIDI3IDE0OjE3OjA5IDIwMTldIFIx
-MzogZmZmZjlkNzk2MjRlNjg0MCBSMTQ6IGZmZmY5ZDc5NjlkMDkzMTggUjE1OiBmZmZmOWQ3OTZk
-NDhmZjgwCj4gW1dlZCBGZWIgMjcgMTQ6MTc6MDkgMjAxOV0gRlM6ICAwMDAwMDAwMDAwMDAwMDAw
-KDAwMDApIEdTOmZmZmY5ZDc5NmZhYzAwMDAoMDAwMCkga25sR1M6MDAwMDAwMDAwMDAwMDAwMAo+
-IFtXZWQgRmViIDI3IDE0OjE3OjA5IDIwMTldIENTOiAgMDAxMCBEUzogMDAwMCBFUzogMDAwMCBD
-UjA6IDAwMDAwMDAwODAwNTAwMzMKPiBbV2VkIEZlYiAyNyAxNDoxNzowOSAyMDE5XSBDUjI6IDAw
-MDAwMDAwMDAwMDAxMTAgQ1IzOiAwMDAwMDAwNDI3ZjIyMDAwIENSNDogMDAwMDAwMDAwMDAwMDZl
-MAo+IFtXZWQgRmViIDI3IDE0OjE3OjA5IDIwMTldIERSMDogMDAwMDAwMDAwMDAwMDAwMCBEUjE6
-IDAwMDAwMDAwMDAwMDAwMDAgRFIyOiAwMDAwMDAwMDAwMDAwMDAwCj4gW1dlZCBGZWIgMjcgMTQ6
-MTc6MDkgMjAxOV0gRFIzOiAwMDAwMDAwMDAwMDAwMDAwIERSNjogMDAwMDAwMDBmZmZlMGZmMCBE
-Ujc6IDAwMDAwMDAwMDAwMDA0MDAKPiBbV2VkIEZlYiAyNyAxNDoxNzowOSAyMDE5XSBDYWxsIFRy
-YWNlOgo+IFtXZWQgRmViIDI3IDE0OjE3OjA5IDIwMTldICB2aXJ0aW9fdHJhbnNwb3J0X3JlY3Zf
-cGt0KzB4NjMvMHg4MjAgW3Ztd192c29ja192aXJ0aW9fdHJhbnNwb3J0X2NvbW1vbl0KPiBbV2Vk
-IEZlYiAyNyAxNDoxNzowOSAyMDE5XSAgPyBrZnJlZSsweDE3ZS8weDE5MAo+IFtXZWQgRmViIDI3
-IDE0OjE3OjA5IDIwMTldICA/IGRldGFjaF9idWZfc3BsaXQrMHgxNDUvMHgxNjAKPiBbV2VkIEZl
-YiAyNyAxNDoxNzowOSAyMDE5XSAgPyBfX3N3aXRjaF90b19hc20rMHg0MC8weDcwCj4gW1dlZCBG
-ZWIgMjcgMTQ6MTc6MDkgMjAxOV0gIHZpcnRpb190cmFuc3BvcnRfcnhfd29yaysweGEwLzB4MTA2
-IFt2bXdfdnNvY2tfdmlydGlvX3RyYW5zcG9ydF0KPiBbV2VkIEZlYiAyNyAxNDoxNzowOSAyMDE5
-XSBORVQ6IFJlZ2lzdGVyZWQgcHJvdG9jb2wgZmFtaWx5IDQwCj4gW1dlZCBGZWIgMjcgMTQ6MTc6
-MDkgMjAxOV0gIHByb2Nlc3Nfb25lX3dvcmsrMHgxNjcvMHg0MTAKPiBbV2VkIEZlYiAyNyAxNDox
-NzowOSAyMDE5XSAgd29ya2VyX3RocmVhZCsweDRkLzB4NDYwCj4gW1dlZCBGZWIgMjcgMTQ6MTc6
-MDkgMjAxOV0gIGt0aHJlYWQrMHgxMDUvMHgxNDAKPiBbV2VkIEZlYiAyNyAxNDoxNzowOSAyMDE5
-XSAgPyByZXNjdWVyX3RocmVhZCsweDM2MC8weDM2MAo+IFtXZWQgRmViIDI3IDE0OjE3OjA5IDIw
-MTldICA/IGt0aHJlYWRfZGVzdHJveV93b3JrZXIrMHg1MC8weDUwCj4gW1dlZCBGZWIgMjcgMTQ6
-MTc6MDkgMjAxOV0gIHJldF9mcm9tX2ZvcmsrMHgzNS8weDQwCj4gW1dlZCBGZWIgMjcgMTQ6MTc6
-MDkgMjAxOV0gTW9kdWxlcyBsaW5rZWQgaW46IHZtd192c29ja192aXJ0aW9fdHJhbnNwb3J0IHZt
-d192c29ja192aXJ0aW9fdHJhbnNwb3J0X2NvbW1vbiBpbnB1dF9sZWRzIHZzb2NrIHNlcmlvX3Jh
-dyBpMmNfcGlpeDQgbWFjX2hpZCBxZW11X2Z3X2NmZyBhdXRvZnM0IGNpcnJ1cyB0dG0gZHJtX2tt
-c19oZWxwZXIgc3lzY29weWFyZWEgc3lzZmlsbHJlY3Qgc3lzaW1nYmx0IGZiX3N5c19mb3BzIHZp
-cnRpb19uZXQgcHNtb3VzZSBkcm0gbmV0X2ZhaWxvdmVyIHBhdGFfYWNwaSB2aXJ0aW9fYmxrIGZh
-aWxvdmVyIGZsb3BweQo+Cj4gRml4ZXM6IDIyYjVjMGI2M2YzMiAoInZzb2NrL3ZpcnRpbzogZml4
-IGtlcm5lbCBwYW5pYyBhZnRlciBkZXZpY2UgaG90LXVucGx1ZyIpCj4gUmVwb3J0ZWQtYnk6IEFs
-ZXhhbmRydSBIZXJnaGVsZWdpdSA8YWhlcmdoZWxlZ2l1QGJpdGRlZmVuZGVyLmNvbT4KPiBTaWdu
-ZWQtb2ZmLWJ5OiBBZGFsYmVydCBMYXrEg3IgPGFsYXphckBiaXRkZWZlbmRlci5jb20+Cj4gQ28t
-ZGV2ZWxvcGVkLWJ5OiBTdGVmYW4gSGFqbm9jemkgPHN0ZWZhbmhhQHJlZGhhdC5jb20+Cj4gLS0t
-Cj4gIG5ldC92bXdfdnNvY2svdmlydGlvX3RyYW5zcG9ydF9jb21tb24uYyB8IDIyICsrKysrKysr
-KysrKysrKy0tLS0tLS0KPiAgMSBmaWxlIGNoYW5nZWQsIDE1IGluc2VydGlvbnMoKyksIDcgZGVs
-ZXRpb25zKC0pCj4KClRoYW5rcywgTEdUTSEKClJldmlld2VkLWJ5OiBTdGVmYW5vIEdhcnphcmVs
-bGEgPHNnYXJ6YXJlQHJlZGhhdC5jb20+CgoKPiBkaWZmIC0tZ2l0IGEvbmV0L3Ztd192c29jay92
-aXJ0aW9fdHJhbnNwb3J0X2NvbW1vbi5jIGIvbmV0L3Ztd192c29jay92aXJ0aW9fdHJhbnNwb3J0
-X2NvbW1vbi5jCj4gaW5kZXggM2FlM2EzM2RhNzBiLi42MDI3MTVmYzlhNzUgMTAwNjQ0Cj4gLS0t
-IGEvbmV0L3Ztd192c29jay92aXJ0aW9fdHJhbnNwb3J0X2NvbW1vbi5jCj4gKysrIGIvbmV0L3Zt
-d192c29jay92aXJ0aW9fdHJhbnNwb3J0X2NvbW1vbi5jCj4gQEAgLTY2Miw2ICs2NjIsOCBAQCBz
-dGF0aWMgaW50IHZpcnRpb190cmFuc3BvcnRfcmVzZXQoc3RydWN0IHZzb2NrX3NvY2sgKnZzaywK
-PiAgICovCj4gIHN0YXRpYyBpbnQgdmlydGlvX3RyYW5zcG9ydF9yZXNldF9ub19zb2NrKHN0cnVj
-dCB2aXJ0aW9fdnNvY2tfcGt0ICpwa3QpCj4gIHsKPiArICAgICAgIGNvbnN0IHN0cnVjdCB2aXJ0
-aW9fdHJhbnNwb3J0ICp0Owo+ICsgICAgICAgc3RydWN0IHZpcnRpb192c29ja19wa3QgKnJlcGx5
-Owo+ICAgICAgICAgc3RydWN0IHZpcnRpb192c29ja19wa3RfaW5mbyBpbmZvID0gewo+ICAgICAg
-ICAgICAgICAgICAub3AgPSBWSVJUSU9fVlNPQ0tfT1BfUlNULAo+ICAgICAgICAgICAgICAgICAu
-dHlwZSA9IGxlMTZfdG9fY3B1KHBrdC0+aGRyLnR5cGUpLAo+IEBAIC02NzIsMTUgKzY3NCwyMSBA
-QCBzdGF0aWMgaW50IHZpcnRpb190cmFuc3BvcnRfcmVzZXRfbm9fc29jayhzdHJ1Y3QgdmlydGlv
-X3Zzb2NrX3BrdCAqcGt0KQo+ICAgICAgICAgaWYgKGxlMTZfdG9fY3B1KHBrdC0+aGRyLm9wKSA9
-PSBWSVJUSU9fVlNPQ0tfT1BfUlNUKQo+ICAgICAgICAgICAgICAgICByZXR1cm4gMDsKPgo+IC0g
-ICAgICAgcGt0ID0gdmlydGlvX3RyYW5zcG9ydF9hbGxvY19wa3QoJmluZm8sIDAsCj4gLSAgICAg
-ICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICBsZTY0X3RvX2NwdShwa3QtPmhkci5k
-c3RfY2lkKSwKPiAtICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgIGxlMzJf
-dG9fY3B1KHBrdC0+aGRyLmRzdF9wb3J0KSwKPiAtICAgICAgICAgICAgICAgICAgICAgICAgICAg
-ICAgICAgICAgICAgIGxlNjRfdG9fY3B1KHBrdC0+aGRyLnNyY19jaWQpLAo+IC0gICAgICAgICAg
-ICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgbGUzMl90b19jcHUocGt0LT5oZHIuc3JjX3Bv
-cnQpKTsKPiAtICAgICAgIGlmICghcGt0KQo+ICsgICAgICAgcmVwbHkgPSB2aXJ0aW9fdHJhbnNw
-b3J0X2FsbG9jX3BrdCgmaW5mbywgMCwKPiArICAgICAgICAgICAgICAgICAgICAgICAgICAgICAg
-ICAgICAgICAgICAgbGU2NF90b19jcHUocGt0LT5oZHIuZHN0X2NpZCksCj4gKyAgICAgICAgICAg
-ICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgIGxlMzJfdG9fY3B1KHBrdC0+aGRyLmRzdF9w
-b3J0KSwKPiArICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgbGU2NF90
-b19jcHUocGt0LT5oZHIuc3JjX2NpZCksCj4gKyAgICAgICAgICAgICAgICAgICAgICAgICAgICAg
-ICAgICAgICAgICAgIGxlMzJfdG9fY3B1KHBrdC0+aGRyLnNyY19wb3J0KSk7Cj4gKyAgICAgICBp
-ZiAoIXJlcGx5KQo+ICAgICAgICAgICAgICAgICByZXR1cm4gLUVOT01FTTsKPgo+IC0gICAgICAg
-cmV0dXJuIHZpcnRpb190cmFuc3BvcnRfZ2V0X29wcygpLT5zZW5kX3BrdChwa3QpOwo+ICsgICAg
-ICAgdCA9IHZpcnRpb190cmFuc3BvcnRfZ2V0X29wcygpOwo+ICsgICAgICAgaWYgKCF0KSB7Cj4g
-KyAgICAgICAgICAgICAgIHZpcnRpb190cmFuc3BvcnRfZnJlZV9wa3QocmVwbHkpOwo+ICsgICAg
-ICAgICAgICAgICByZXR1cm4gLUVOT1RDT05OOwo+ICsgICAgICAgfQo+ICsKPiArICAgICAgIHJl
-dHVybiB0LT5zZW5kX3BrdChyZXBseSk7Cj4gIH0KPgo+ICBzdGF0aWMgdm9pZCB2aXJ0aW9fdHJh
-bnNwb3J0X3dhaXRfY2xvc2Uoc3RydWN0IHNvY2sgKnNrLCBsb25nIHRpbWVvdXQpCj4KCgotLSAK
-U3RlZmFubyBHYXJ6YXJlbGxhClNvZnR3YXJlIEVuZ2luZWVyIEAgUmVkIEhhdApfX19fX19fX19f
-X19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fXwpWaXJ0dWFsaXphdGlvbiBtYWls
-aW5nIGxpc3QKVmlydHVhbGl6YXRpb25AbGlzdHMubGludXgtZm91bmRhdGlvbi5vcmcKaHR0cHM6
-Ly9saXN0cy5saW51eGZvdW5kYXRpb24ub3JnL21haWxtYW4vbGlzdGluZm8vdmlydHVhbGl6YXRp
-b24=
+On Thu, Mar 07, 2019 at 12:56:45PM -0500, Michael S. Tsirkin wrote:
+> On Thu, Mar 07, 2019 at 10:47:22AM -0500, Michael S. Tsirkin wrote:
+> > On Wed, Mar 06, 2019 at 02:18:12AM -0500, Jason Wang wrote:
+> > > +static const struct mmu_notifier_ops vhost_mmu_notifier_ops =3D {
+> > > +	.invalidate_range =3D vhost_invalidate_range,
+> > > +};
+> > > +
+> > >  void vhost_dev_init(struct vhost_dev *dev,
+> > >  		    struct vhost_virtqueue **vqs, int nvqs, int iov_limit)
+> > >  {
+> > =
+
+> > I also wonder here: when page is write protected then
+> > it does not look like .invalidate_range is invoked.
+> > =
+
+> > E.g. mm/ksm.c calls
+> > =
+
+> > mmu_notifier_invalidate_range_start and
+> > mmu_notifier_invalidate_range_end but not mmu_notifier_invalidate_range.
+> > =
+
+> > Similarly, rmap in page_mkclean_one will not call
+> > mmu_notifier_invalidate_range.
+> > =
+
+> > If I'm right vhost won't get notified when page is write-protected sinc=
+e you
+> > didn't install start/end notifiers. Note that end notifier can be called
+> > with page locked, so it's not as straight-forward as just adding a call.
+> > Writing into a write-protected page isn't a good idea.
+> > =
+
+> > Note that documentation says:
+> > 	it is fine to delay the mmu_notifier_invalidate_range
+> > 	call to mmu_notifier_invalidate_range_end() outside the page table loc=
+k.
+> > implying it's called just later.
+> =
+
+> OK I missed the fact that _end actually calls
+> mmu_notifier_invalidate_range internally. So that part is fine but the
+> fact that you are trying to take page lock under VQ mutex and take same
+> mutex within notifier probably means it's broken for ksm and rmap at
+> least since these call invalidate with lock taken.
+> =
+
+> And generally, Andrea told me offline one can not take mutex under
+> the notifier callback. I CC'd Andrea for why.
+
+Correct, you _can not_ take mutex or any sleeping lock from within the
+invalidate_range callback as those callback happens under the page table
+spinlock. You can however do so under the invalidate_range_start call-
+back only if it is a blocking allow callback (there is a flag passdown
+with the invalidate_range_start callback if you are not allow to block
+then return EBUSY and the invalidation will be aborted).
+
+
+> =
+
+> That's a separate issue from set_page_dirty when memory is file backed.
+
+If you can access file back page then i suggest using set_page_dirty
+from within a special version of vunmap() so that when you vunmap you
+set the page dirty without taking page lock. It is safe to do so
+always from within an mmu notifier callback if you had the page map
+with write permission which means that the page had write permission
+in the userspace pte too and thus it having dirty pte is expected
+and calling set_page_dirty on the page is allowed without any lock.
+Locking will happen once the userspace pte are tear down through the
+page table lock.
+
+> It's because of all these issues that I preferred just accessing
+> userspace memory and handling faults. Unfortunately there does not
+> appear to exist an API that whitelists a specific driver along the lines
+> of "I checked this code for speculative info leaks, don't add barriers
+> on data path please".
+
+Maybe it would be better to explore adding such helper then remapping
+page into kernel address space ?
+
+Cheers,
+J=E9r=F4me
