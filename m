@@ -1,21 +1,21 @@
 From: Jerome Glisse <jglisse@redhat.com>
 Subject: Re: [RFC PATCH V2 5/5] vhost: access vq metadata through kernel
 	virtual address
-Date: Fri, 8 Mar 2019 10:02:37 -0500
-Message-ID: <20190308150236.GB3661__22996.5527703584$1555717434$gmane$org@redhat.com>
+Date: Fri, 8 Mar 2019 15:06:11 -0500
+Message-ID: <20190308200609.GA6969__32987.2909396485$1555717447$gmane$org@redhat.com>
 References: <1551856692-3384-1-git-send-email-jasowang@redhat.com>
 	<1551856692-3384-6-git-send-email-jasowang@redhat.com>
 	<20190307103503-mutt-send-email-mst@kernel.org>
 	<20190307124700-mutt-send-email-mst@kernel.org>
-	<20190307191720.GF3835@redhat.com>
-	<43408100-84d9-a359-3e78-dc65fb7b0ad1@redhat.com>
-	<20190308075506-mutt-send-email-mst@kernel.org>
+	<20190307191622.GP23850@redhat.com>
+	<e2fad6ed-9257-b53c-394b-bc913fc444c0@redhat.com>
+	<20190308194845.GC26923@redhat.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="utf-8"
-Content-Transfer-Encoding: base64
+Content-Type: text/plain; charset="iso-8859-1"
+Content-Transfer-Encoding: quoted-printable
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
 Content-Disposition: inline
-In-Reply-To: <20190308075506-mutt-send-email-mst@kernel.org>
+In-Reply-To: <20190308194845.GC26923@redhat.com>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -25,85 +25,90 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: "Michael S. Tsirkin" <mst@redhat.com>
-Cc: aarcange@redhat.com, kvm@vger.kernel.org, netdev@vger.kernel.org, linux-kernel@vger.kernel.org, virtualization@lists.linux-foundation.org, linux-mm@kvack.org
+To: Andrea Arcangeli <aarcange@redhat.com>
+Cc: kvm@vger.kernel.org, "Michael S. Tsirkin" <mst@redhat.com>, netdev@vger.kernel.org, linux-kernel@vger.kernel.org, virtualization@lists.linux-foundation.org, linux-mm@kvack.org
 List-Id: virtualization@lists.linuxfoundation.org
 
-T24gRnJpLCBNYXIgMDgsIDIwMTkgYXQgMDc6NTY6MDRBTSAtMDUwMCwgTWljaGFlbCBTLiBUc2ly
-a2luIHdyb3RlOgo+IE9uIEZyaSwgTWFyIDA4LCAyMDE5IGF0IDA0OjU4OjQ0UE0gKzA4MDAsIEph
-c29uIFdhbmcgd3JvdGU6Cj4gPiAKPiA+IE9uIDIwMTkvMy84IOS4iuWNiDM6MTcsIEplcm9tZSBH
-bGlzc2Ugd3JvdGU6Cj4gPiA+IE9uIFRodSwgTWFyIDA3LCAyMDE5IGF0IDEyOjU2OjQ1UE0gLTA1
-MDAsIE1pY2hhZWwgUy4gVHNpcmtpbiB3cm90ZToKPiA+ID4gPiBPbiBUaHUsIE1hciAwNywgMjAx
-OSBhdCAxMDo0NzoyMkFNIC0wNTAwLCBNaWNoYWVsIFMuIFRzaXJraW4gd3JvdGU6Cj4gPiA+ID4g
-PiBPbiBXZWQsIE1hciAwNiwgMjAxOSBhdCAwMjoxODoxMkFNIC0wNTAwLCBKYXNvbiBXYW5nIHdy
-b3RlOgo+ID4gPiA+ID4gPiArc3RhdGljIGNvbnN0IHN0cnVjdCBtbXVfbm90aWZpZXJfb3BzIHZo
-b3N0X21tdV9ub3RpZmllcl9vcHMgPSB7Cj4gPiA+ID4gPiA+ICsJLmludmFsaWRhdGVfcmFuZ2Ug
-PSB2aG9zdF9pbnZhbGlkYXRlX3JhbmdlLAo+ID4gPiA+ID4gPiArfTsKPiA+ID4gPiA+ID4gKwo+
-ID4gPiA+ID4gPiAgIHZvaWQgdmhvc3RfZGV2X2luaXQoc3RydWN0IHZob3N0X2RldiAqZGV2LAo+
-ID4gPiA+ID4gPiAgIAkJICAgIHN0cnVjdCB2aG9zdF92aXJ0cXVldWUgKip2cXMsIGludCBudnFz
-LCBpbnQgaW92X2xpbWl0KQo+ID4gPiA+ID4gPiAgIHsKPiA+ID4gPiA+IEkgYWxzbyB3b25kZXIg
-aGVyZTogd2hlbiBwYWdlIGlzIHdyaXRlIHByb3RlY3RlZCB0aGVuCj4gPiA+ID4gPiBpdCBkb2Vz
-IG5vdCBsb29rIGxpa2UgLmludmFsaWRhdGVfcmFuZ2UgaXMgaW52b2tlZC4KPiA+ID4gPiA+IAo+
-ID4gPiA+ID4gRS5nLiBtbS9rc20uYyBjYWxscwo+ID4gPiA+ID4gCj4gPiA+ID4gPiBtbXVfbm90
-aWZpZXJfaW52YWxpZGF0ZV9yYW5nZV9zdGFydCBhbmQKPiA+ID4gPiA+IG1tdV9ub3RpZmllcl9p
-bnZhbGlkYXRlX3JhbmdlX2VuZCBidXQgbm90IG1tdV9ub3RpZmllcl9pbnZhbGlkYXRlX3Jhbmdl
-Lgo+ID4gPiA+ID4gCj4gPiA+ID4gPiBTaW1pbGFybHksIHJtYXAgaW4gcGFnZV9ta2NsZWFuX29u
-ZSB3aWxsIG5vdCBjYWxsCj4gPiA+ID4gPiBtbXVfbm90aWZpZXJfaW52YWxpZGF0ZV9yYW5nZS4K
-PiA+ID4gPiA+IAo+ID4gPiA+ID4gSWYgSSdtIHJpZ2h0IHZob3N0IHdvbid0IGdldCBub3RpZmll
-ZCB3aGVuIHBhZ2UgaXMgd3JpdGUtcHJvdGVjdGVkIHNpbmNlIHlvdQo+ID4gPiA+ID4gZGlkbid0
-IGluc3RhbGwgc3RhcnQvZW5kIG5vdGlmaWVycy4gTm90ZSB0aGF0IGVuZCBub3RpZmllciBjYW4g
-YmUgY2FsbGVkCj4gPiA+ID4gPiB3aXRoIHBhZ2UgbG9ja2VkLCBzbyBpdCdzIG5vdCBhcyBzdHJh
-aWdodC1mb3J3YXJkIGFzIGp1c3QgYWRkaW5nIGEgY2FsbC4KPiA+ID4gPiA+IFdyaXRpbmcgaW50
-byBhIHdyaXRlLXByb3RlY3RlZCBwYWdlIGlzbid0IGEgZ29vZCBpZGVhLgo+ID4gPiA+ID4gCj4g
-PiA+ID4gPiBOb3RlIHRoYXQgZG9jdW1lbnRhdGlvbiBzYXlzOgo+ID4gPiA+ID4gCWl0IGlzIGZp
-bmUgdG8gZGVsYXkgdGhlIG1tdV9ub3RpZmllcl9pbnZhbGlkYXRlX3JhbmdlCj4gPiA+ID4gPiAJ
-Y2FsbCB0byBtbXVfbm90aWZpZXJfaW52YWxpZGF0ZV9yYW5nZV9lbmQoKSBvdXRzaWRlIHRoZSBw
-YWdlIHRhYmxlIGxvY2suCj4gPiA+ID4gPiBpbXBseWluZyBpdCdzIGNhbGxlZCBqdXN0IGxhdGVy
-Lgo+ID4gPiA+IE9LIEkgbWlzc2VkIHRoZSBmYWN0IHRoYXQgX2VuZCBhY3R1YWxseSBjYWxscwo+
-ID4gPiA+IG1tdV9ub3RpZmllcl9pbnZhbGlkYXRlX3JhbmdlIGludGVybmFsbHkuIFNvIHRoYXQg
-cGFydCBpcyBmaW5lIGJ1dCB0aGUKPiA+ID4gPiBmYWN0IHRoYXQgeW91IGFyZSB0cnlpbmcgdG8g
-dGFrZSBwYWdlIGxvY2sgdW5kZXIgVlEgbXV0ZXggYW5kIHRha2Ugc2FtZQo+ID4gPiA+IG11dGV4
-IHdpdGhpbiBub3RpZmllciBwcm9iYWJseSBtZWFucyBpdCdzIGJyb2tlbiBmb3Iga3NtIGFuZCBy
-bWFwIGF0Cj4gPiA+ID4gbGVhc3Qgc2luY2UgdGhlc2UgY2FsbCBpbnZhbGlkYXRlIHdpdGggbG9j
-ayB0YWtlbi4KPiA+ID4gPiAKPiA+ID4gPiBBbmQgZ2VuZXJhbGx5LCBBbmRyZWEgdG9sZCBtZSBv
-ZmZsaW5lIG9uZSBjYW4gbm90IHRha2UgbXV0ZXggdW5kZXIKPiA+ID4gPiB0aGUgbm90aWZpZXIg
-Y2FsbGJhY2suIEkgQ0MnZCBBbmRyZWEgZm9yIHdoeS4KPiA+ID4gQ29ycmVjdCwgeW91IF9jYW4g
-bm90XyB0YWtlIG11dGV4IG9yIGFueSBzbGVlcGluZyBsb2NrIGZyb20gd2l0aGluIHRoZQo+ID4g
-PiBpbnZhbGlkYXRlX3JhbmdlIGNhbGxiYWNrIGFzIHRob3NlIGNhbGxiYWNrIGhhcHBlbnMgdW5k
-ZXIgdGhlIHBhZ2UgdGFibGUKPiA+ID4gc3BpbmxvY2suIFlvdSBjYW4gaG93ZXZlciBkbyBzbyB1
-bmRlciB0aGUgaW52YWxpZGF0ZV9yYW5nZV9zdGFydCBjYWxsLQo+ID4gPiBiYWNrIG9ubHkgaWYg
-aXQgaXMgYSBibG9ja2luZyBhbGxvdyBjYWxsYmFjayAodGhlcmUgaXMgYSBmbGFnIHBhc3Nkb3du
-Cj4gPiA+IHdpdGggdGhlIGludmFsaWRhdGVfcmFuZ2Vfc3RhcnQgY2FsbGJhY2sgaWYgeW91IGFy
-ZSBub3QgYWxsb3cgdG8gYmxvY2sKPiA+ID4gdGhlbiByZXR1cm4gRUJVU1kgYW5kIHRoZSBpbnZh
-bGlkYXRpb24gd2lsbCBiZSBhYm9ydGVkKS4KPiA+ID4gCj4gPiA+IAo+ID4gPiA+IFRoYXQncyBh
-IHNlcGFyYXRlIGlzc3VlIGZyb20gc2V0X3BhZ2VfZGlydHkgd2hlbiBtZW1vcnkgaXMgZmlsZSBi
-YWNrZWQuCj4gPiA+IElmIHlvdSBjYW4gYWNjZXNzIGZpbGUgYmFjayBwYWdlIHRoZW4gaSBzdWdn
-ZXN0IHVzaW5nIHNldF9wYWdlX2RpcnR5Cj4gPiA+IGZyb20gd2l0aGluIGEgc3BlY2lhbCB2ZXJz
-aW9uIG9mIHZ1bm1hcCgpIHNvIHRoYXQgd2hlbiB5b3UgdnVubWFwIHlvdQo+ID4gPiBzZXQgdGhl
-IHBhZ2UgZGlydHkgd2l0aG91dCB0YWtpbmcgcGFnZSBsb2NrLiBJdCBpcyBzYWZlIHRvIGRvIHNv
-Cj4gPiA+IGFsd2F5cyBmcm9tIHdpdGhpbiBhbiBtbXUgbm90aWZpZXIgY2FsbGJhY2sgaWYgeW91
-IGhhZCB0aGUgcGFnZSBtYXAKPiA+ID4gd2l0aCB3cml0ZSBwZXJtaXNzaW9uIHdoaWNoIG1lYW5z
-IHRoYXQgdGhlIHBhZ2UgaGFkIHdyaXRlIHBlcm1pc3Npb24KPiA+ID4gaW4gdGhlIHVzZXJzcGFj
-ZSBwdGUgdG9vIGFuZCB0aHVzIGl0IGhhdmluZyBkaXJ0eSBwdGUgaXMgZXhwZWN0ZWQKPiA+ID4g
-YW5kIGNhbGxpbmcgc2V0X3BhZ2VfZGlydHkgb24gdGhlIHBhZ2UgaXMgYWxsb3dlZCB3aXRob3V0
-IGFueSBsb2NrLgo+ID4gPiBMb2NraW5nIHdpbGwgaGFwcGVuIG9uY2UgdGhlIHVzZXJzcGFjZSBw
-dGUgYXJlIHRlYXIgZG93biB0aHJvdWdoIHRoZQo+ID4gPiBwYWdlIHRhYmxlIGxvY2suCj4gPiAK
-PiA+IAo+ID4gQ2FuIEkgc2ltcGx5IGNhbiBzZXRfcGFnZV9kaXJ0eSgpIGJlZm9yZSB2dW5tYXAo
-KSBpbiB0aGUgbW11IG5vdGlmaWVyCj4gPiBjYWxsYmFjaywgb3IgaXMgdGhlcmUgYW55IHJlYXNv
-biB0aGF0IGl0IG11c3QgYmUgY2FsbGVkIHdpdGhpbiB2dW1hcCgpPwo+ID4gCj4gPiBUaGFua3MK
-PiAKPiAKPiBJIHRoaW5rIHRoaXMgaXMgd2hhdCBKZXJvbWUgaXMgc2F5aW5nLCB5ZXMuCj4gTWF5
-YmUgYWRkIGEgcGF0Y2ggdG8gbW11IG5vdGlmaWVyIGRvYyBmaWxlLCBkb2N1bWVudGluZyB0aGlz
-Pwo+IAoKQmV0dGVyIHRvIGRvIGluIHZ1bm1hcCBhcyB5b3UgY2FuIGxvb2sgYXQga2VybmVsIHZt
-YXAgcHRlIHRvIHNlZSBpZgp0aGUgZGlydHkgYml0IGlzIHNldCBhbmQgb25seSBjYWxsIHNldF9w
-YWdlX2RpcnR5IGluIHRoYXQgY2FzZS4gQnV0CnllcyB5b3UgY2FuIGRvIGl0IG91dHNpZGUgdnVu
-bWFwIGluIHdoaWNoIGNhc2UgeW91IGhhdmUgdG8gY2FsbCBkaXJ0eQpmb3IgYWxsIHBhZ2VzIHVu
-bGVzcyB5b3UgaGF2ZSBzb21lIG90aGVyIHdheSB0byBrbm93IGlmIGEgcGFnZSB3YXMKd3JpdHRl
-biB0byBvciBub3QuCgpOb3RlIHRoYXQgaWYgeW91IGFsc28gbmVlZCB0byBkbyB0aGF0IHdoZW4g
-eW91IHRlYXIgZG93biB0aGUgdnVubWFwCnRocm91Z2ggdGhlIHJlZ3VsYXIgcGF0aCBidXQgd2l0
-aCBhbiBleGNsdXNpb24gZnJvbSBtbXUgbm90aWZpZXIuClNvIGlmIG1tdSBub3RpZmllciBpcyBy
-dW5uaW5nIHRoZW4geW91IGNhbiBza2lwIHRoZSBzZXRfcGFnZV9kaXJ0eQppZiBub25lIGFyZSBy
-dW5uaW5nIGFuZCB5b3UgaG9sZCB0aGUgbG9jayB0aGVuIHlvdSBjYW4gc2FmZWx5IGNhbGwKc2V0
-X3BhZ2VfZGlydHkuCgpDaGVlcnMsCkrDqXLDtG1lCl9fX19fX19fX19fX19fX19fX19fX19fX19f
-X19fX19fX19fX19fX19fX19fX19fClZpcnR1YWxpemF0aW9uIG1haWxpbmcgbGlzdApWaXJ0dWFs
-aXphdGlvbkBsaXN0cy5saW51eC1mb3VuZGF0aW9uLm9yZwpodHRwczovL2xpc3RzLmxpbnV4Zm91
-bmRhdGlvbi5vcmcvbWFpbG1hbi9saXN0aW5mby92aXJ0dWFsaXphdGlvbg==
+On Fri, Mar 08, 2019 at 02:48:45PM -0500, Andrea Arcangeli wrote:
+> Hello Jeson,
+> =
+
+> On Fri, Mar 08, 2019 at 04:50:36PM +0800, Jason Wang wrote:
+> > Just to make sure I understand here. For boosting through huge TLB, do =
+
+> > you mean we can do that in the future (e.g by mapping more userspace =
+
+> > pages to kenrel) or it can be done by this series (only about three 4K =
+
+> > pages were vmapped per virtqueue)?
+> =
+
+> When I answered about the advantages of mmu notifier and I mentioned
+> guaranteed 2m/gigapages where available, I overlooked the detail you
+> were using vmap instead of kmap. So with vmap you're actually doing
+> the opposite, it slows down the access because it will always use a 4k
+> TLB even if QEMU runs on THP or gigapages hugetlbfs.
+> =
+
+> If there's just one page (or a few pages) in each vmap there's no need
+> of vmap, the linearity vmap provides doesn't pay off in such
+> case.
+> =
+
+> So likely there's further room for improvement here that you can
+> achieve in the current series by just dropping vmap/vunmap.
+> =
+
+> You can just use kmap (or kmap_atomic if you're in preemptible
+> section, should work from bh/irq).
+> =
+
+> In short the mmu notifier to invalidate only sets a "struct page *
+> userringpage" pointer to NULL without calls to vunmap.
+> =
+
+> In all cases immediately after gup_fast returns you can always call
+> put_page immediately (which explains why I'd like an option to drop
+> FOLL_GET from gup_fast to speed it up).
+
+By the way this is on my todo list, i want to merge HMM page snapshoting
+with gup code which means mostly allowing to gup_fast without taking a
+reference on the page (so without FOLL_GET). I hope to get to that some-
+time before summer.
+
+> =
+
+> Then you can check the sequence_counter and inc/dec counter increased
+> by _start/_end. That will tell you if the page you got and you called
+> put_page to immediately unpin it or even to free it, cannot go away
+> under you until the invalidate is called.
+> =
+
+> If sequence counters and counter tells that gup_fast raced with anyt
+> mmu notifier invalidate you can just repeat gup_fast. Otherwise you're
+> done, the page cannot go away under you, the host virtual to host
+> physical mapping cannot change either. And the page is not pinned
+> either. So you can just set the "struct page * userringpage =3D page"
+> where "page" was the one setup by gup_fast.
+> =
+
+> When later the invalidate runs, you can just call set_page_dirty if
+> gup_fast was called with "write =3D 1" and then you clear the pointer
+> "userringpage =3D NULL".
+> =
+
+> When you need to read/write to the memory
+> kmap/kmap_atomic(userringpage) should work.
+> =
+
+> In short because there's no hardware involvement here, the established
+> mapping is just the pointer to the page, there is no need of setting
+> up any pagetables or to do any TLB flushes (except on 32bit archs if
+> the page is above the direct mapping but it never happens on 64bit
+> archs).
+
+Agree. The vmap is probably overkill if you only have a handfull of
+them kmap will be faster.
+
+Cheers,
+J=E9r=F4me
