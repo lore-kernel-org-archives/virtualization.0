@@ -1,21 +1,20 @@
 From: Jerome Glisse <jglisse@redhat.com>
 Subject: Re: [RFC PATCH V2 5/5] vhost: access vq metadata through kernel
 	virtual address
-Date: Thu, 7 Mar 2019 15:17:22 -0500
-Message-ID: <20190307201722.GG3835__15562.201470469$1555717374$gmane$org@redhat.com>
+Date: Thu, 7 Mar 2019 21:55:39 -0500
+Message-ID: <20190308025539.GA5562__13980.5865053617$1555717387$gmane$org@redhat.com>
 References: <1551856692-3384-1-git-send-email-jasowang@redhat.com>
 	<1551856692-3384-6-git-send-email-jasowang@redhat.com>
-	<20190306092837-mutt-send-email-mst@kernel.org>
-	<15105894-4ec1-1ed0-1976-7b68ed9eeeda@redhat.com>
-	<20190307101708-mutt-send-email-mst@kernel.org>
-	<20190307190910.GE3835@redhat.com>
-	<20190307193838.GQ23850@redhat.com>
+	<20190307103503-mutt-send-email-mst@kernel.org>
+	<20190307124700-mutt-send-email-mst@kernel.org>
+	<20190307191720.GF3835@redhat.com>
+	<20190307211506-mutt-send-email-mst@kernel.org>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="iso-8859-1"
 Content-Transfer-Encoding: quoted-printable
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
 Content-Disposition: inline
-In-Reply-To: <20190307193838.GQ23850@redhat.com>
+In-Reply-To: <20190307211506-mutt-send-email-mst@kernel.org>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -25,129 +24,51 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Andrea Arcangeli <aarcange@redhat.com>
-Cc: Jan Kara <jack@suse.cz>, kvm@vger.kernel.org, "Michael S. Tsirkin" <mst@redhat.com>, netdev@vger.kernel.org, linux-kernel@vger.kernel.org, virtualization@lists.linux-foundation.org, linux-mm@kvack.org
+To: "Michael S. Tsirkin" <mst@redhat.com>
+Cc: aarcange@redhat.com, kvm@vger.kernel.org, netdev@vger.kernel.org, linux-kernel@vger.kernel.org, virtualization@lists.linux-foundation.org, linux-mm@kvack.org
 List-Id: virtualization@lists.linuxfoundation.org
 
-On Thu, Mar 07, 2019 at 02:38:38PM -0500, Andrea Arcangeli wrote:
-> On Thu, Mar 07, 2019 at 02:09:10PM -0500, Jerome Glisse wrote:
-> > I thought this patch was only for anonymous memory ie not file back ?
+On Thu, Mar 07, 2019 at 09:21:03PM -0500, Michael S. Tsirkin wrote:
+> On Thu, Mar 07, 2019 at 02:17:20PM -0500, Jerome Glisse wrote:
+> > > It's because of all these issues that I preferred just accessing
+> > > userspace memory and handling faults. Unfortunately there does not
+> > > appear to exist an API that whitelists a specific driver along the li=
+nes
+> > > of "I checked this code for speculative info leaks, don't add barriers
+> > > on data path please".
+> > =
+
+> > Maybe it would be better to explore adding such helper then remapping
+> > page into kernel address space ?
 > =
 
-> Yes, the other common usages are on hugetlbfs/tmpfs that also don't
-> need to implement writeback and are obviously safe too.
-> =
+> I explored it a bit (see e.g. thread around: "__get_user slower than
+> get_user") and I can tell you it's not trivial given the issue is around
+> security.  So in practice it does not seem fair to keep a significant
+> optimization out of kernel because *maybe* we can do it differently even
+> better :)
 
-> > If so then set dirty is mostly useless it would only be use for swap
-> > but for this you can use an unlock version to set the page dirty.
-> =
+Maybe a slightly different approach between this patchset and other
+copy user API would work here. What you want really is something like
+a temporary mlock on a range of memory so that it is safe for the
+kernel to access range of userspace virtual address ie page are
+present and with proper permission hence there can be no page fault
+while you are accessing thing from kernel context.
 
-> It's not a practical issue but a security issue perhaps: you can
-> change the KVM userland to run on VM_SHARED ext4 as guest physical
-> memory, you could do that with the qemu command line that is used to
-> place it on tmpfs or hugetlbfs for example and some proprietary KVM
-> userland may do for other reasons. In general it shouldn't be possible
-> to crash the kernel with this, and it wouldn't be nice to fail if
-> somebody decides to put VM_SHARED ext4 (we could easily allow vhost
-> ring only backed by anon or tmpfs or hugetlbfs to solve this of
-> course).
-> =
+So you can have like a range structure and mmu notifier. When you
+lock the range you block mmu notifier to allow your code to work on
+the userspace VA safely. Once you are done you unlock and let the
+mmu notifier go on. It is pretty much exactly this patchset except
+that you remove all the kernel vmap code. A nice thing about that
+is that you do not need to worry about calling set page dirty it
+will already be handle by the userspace VA pte. It also use less
+memory than when you have kernel vmap.
 
-> It sounds like we should at least optimize away the _lock from
-> set_page_dirty if it's anon/hugetlbfs/tmpfs, would be nice if there
-> was a clean way to do that.
-> =
+This idea might be defeated by security feature where the kernel is
+running in its own address space without the userspace address
+space present.
 
-> Now assuming we don't nak the use on ext4 VM_SHARED and we stick to
-> set_page_dirty_lock for such case: could you recap how that
-> __writepage ext4 crash was solved if try_to_free_buffers() run on a
-> pinned GUP page (in our vhost case try_to_unmap would have gotten rid
-> of the pins through the mmu notifier and the page would have been
-> freed just fine).
-
-So for the above the easiest thing is to call set_page_dirty() from
-the mmu notifier callback. It is always safe to use the non locking
-variant from such callback. Well it is safe only if the page was
-map with write permission prior to the callback so here i assume
-nothing stupid is going on and that you only vmap page with write
-if they have a CPU pte with write and if not then you force a write
-page fault.
-
-Basicly from mmu notifier callback you have the same right as zap
-pte has.
-> =
-
-
-> The first two things that come to mind is that we can easily forbid
-> the try_to_free_buffers() if the page might be pinned by GUP, it has
-> false positives with the speculative pagecache lookups but it cannot
-> give false negatives. We use those checks to know when a page is
-> pinned by GUP, for example, where we cannot merge KSM pages with gup
-> pins etc... However what if the elevated refcount wasn't there when
-> try_to_free_buffers run and is there when __remove_mapping runs?
-> =
-
-> What I mean is that it sounds easy to forbid try_to_free_buffers for
-> the long term pins, but that still won't prevent the same exact issue
-> for a transient pin (except the window to trigger it will be much smaller=
-).
-
-I think here you do not want to go down the same path as what is being
-plane for GUP. GUP is being fix for "broken" hardware. Myself i am
-converting proper hardware to no longer use GUP but rely on mmu notifier.
-
-So i would not do any dance with blocking try_to_free_buffer, just
-do everything from mmu notifier callback and you are fine.
-
-> =
-
-> I basically don't see how long term GUP pins breaks stuff in ext4
-> while transient short term GUP pins like O_DIRECT don't. The VM code
-> isn't able to disambiguate if the pin is short or long term and it
-> won't even be able to tell the difference between a GUP pin (long or
-> short term) and a speculative get_page_unless_zero run by the
-> pagecache speculative pagecache lookup. Even a random speculative
-> pagecache lookup that runs just before __remove_mapping, can cause
-> __remove_mapping to fail despite try_to_free_buffers() succeeded
-> before it (like if there was a transient or long term GUP
-> pin). speculative lookup that can happen across all page struct at all
-> times and they will cause page_ref_freeze in __remove_mapping to
-> fail.
-> =
-
-> I'm sure I'm missing details on the ext4 __writepage problem and how
-> set_page_dirty_lock broke stuff with long term GUP pins, so I'm
-> asking...
-
-O_DIRECT can suffer from the same issue but the race window for that
-is small enough that it is unlikely it ever happened. But for device
-driver that GUP page for hours/days/weeks/months ... obviously the
-race window is big enough here. It affects many fs (ext4, xfs, ...)
-in different ways. I think ext4 is the most obvious because of the
-kernel log trace it leaves behind.
-
-Bottom line is for set_page_dirty to be safe you need the following:
-    lock_page()
-    page_mkwrite()
-    set_pte_with_write()
-    unlock_page()
-
-Now when loosing the write permission on the pte you will first get
-a mmu notifier callback so anyone that abide by mmu notifier is fine
-as long as they only write to the page if they found a pte with
-write as it means the above sequence did happen and page is write-
-able until the mmu notifier callback happens.
-
-When you lookup a page into the page cache you still need to call
-page_mkwrite() before installing a write-able pte.
-
-Here for this vmap thing all you need is that the original user
-pte had the write flag. If you only allow write in the vmap when
-the original pte had write and you abide by mmu notifier then it
-is ok to call set_page_dirty from the mmu notifier (but not after).
-
-Hence why my suggestion is a special vunmap that call set_page_dirty
-on the page from the mmu notifier.
+Anyway just wanted to put the idea forward.
 
 Cheers,
 J=E9r=F4me
