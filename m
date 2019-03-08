@@ -1,24 +1,20 @@
 From: Jerome Glisse <jglisse@redhat.com>
 Subject: Re: [RFC PATCH V2 5/5] vhost: access vq metadata through kernel
 	virtual address
-Date: Thu, 7 Mar 2019 22:45:40 -0500
-Message-ID: <20190308034540.GC5562__24800.0687382714$1555717410$gmane$org@redhat.com>
+Date: Fri, 8 Mar 2019 09:58:01 -0500
+Message-ID: <20190308145800.GA3661__22704.5102788665$1555717422$gmane$org@redhat.com>
 References: <1551856692-3384-1-git-send-email-jasowang@redhat.com>
 	<1551856692-3384-6-git-send-email-jasowang@redhat.com>
 	<20190307103503-mutt-send-email-mst@kernel.org>
 	<20190307124700-mutt-send-email-mst@kernel.org>
-	<20190307191720.GF3835@redhat.com>
-	<20190307211506-mutt-send-email-mst@kernel.org>
-	<20190308025539.GA5562@redhat.com>
-	<20190307221549-mutt-send-email-mst@kernel.org>
-	<20190308034053.GB5562@redhat.com>
-	<20190307224143-mutt-send-email-mst@kernel.org>
+	<20190307191622.GP23850@redhat.com>
+	<e2fad6ed-9257-b53c-394b-bc913fc444c0@redhat.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="iso-8859-1"
-Content-Transfer-Encoding: quoted-printable
+Content-Type: text/plain; charset="utf-8"
+Content-Transfer-Encoding: base64
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
 Content-Disposition: inline
-In-Reply-To: <20190307224143-mutt-send-email-mst@kernel.org>
+In-Reply-To: <e2fad6ed-9257-b53c-394b-bc913fc444c0@redhat.com>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -28,81 +24,104 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: "Michael S. Tsirkin" <mst@redhat.com>
-Cc: aarcange@redhat.com, kvm@vger.kernel.org, netdev@vger.kernel.org, linux-kernel@vger.kernel.org, virtualization@lists.linux-foundation.org, linux-mm@kvack.org
+To: Jason Wang <jasowang@redhat.com>
+Cc: Andrea Arcangeli <aarcange@redhat.com>, kvm@vger.kernel.org, "Michael S. Tsirkin" <mst@redhat.com>, netdev@vger.kernel.org, linux-kernel@vger.kernel.org, virtualization@lists.linux-foundation.org, linux-mm@kvack.org
 List-Id: virtualization@lists.linuxfoundation.org
 
-On Thu, Mar 07, 2019 at 10:43:12PM -0500, Michael S. Tsirkin wrote:
-> On Thu, Mar 07, 2019 at 10:40:53PM -0500, Jerome Glisse wrote:
-> > On Thu, Mar 07, 2019 at 10:16:00PM -0500, Michael S. Tsirkin wrote:
-> > > On Thu, Mar 07, 2019 at 09:55:39PM -0500, Jerome Glisse wrote:
-> > > > On Thu, Mar 07, 2019 at 09:21:03PM -0500, Michael S. Tsirkin wrote:
-> > > > > On Thu, Mar 07, 2019 at 02:17:20PM -0500, Jerome Glisse wrote:
-> > > > > > > It's because of all these issues that I preferred just access=
-ing
-> > > > > > > userspace memory and handling faults. Unfortunately there doe=
-s not
-> > > > > > > appear to exist an API that whitelists a specific driver alon=
-g the lines
-> > > > > > > of "I checked this code for speculative info leaks, don't add=
- barriers
-> > > > > > > on data path please".
-> > > > > > =
-
-> > > > > > Maybe it would be better to explore adding such helper then rem=
-apping
-> > > > > > page into kernel address space ?
-> > > > > =
-
-> > > > > I explored it a bit (see e.g. thread around: "__get_user slower t=
-han
-> > > > > get_user") and I can tell you it's not trivial given the issue is=
- around
-> > > > > security.  So in practice it does not seem fair to keep a signifi=
-cant
-> > > > > optimization out of kernel because *maybe* we can do it different=
-ly even
-> > > > > better :)
-> > > > =
-
-> > > > Maybe a slightly different approach between this patchset and other
-> > > > copy user API would work here. What you want really is something li=
-ke
-> > > > a temporary mlock on a range of memory so that it is safe for the
-> > > > kernel to access range of userspace virtual address ie page are
-> > > > present and with proper permission hence there can be no page fault
-> > > > while you are accessing thing from kernel context.
-> > > > =
-
-> > > > So you can have like a range structure and mmu notifier. When you
-> > > > lock the range you block mmu notifier to allow your code to work on
-> > > > the userspace VA safely. Once you are done you unlock and let the
-> > > > mmu notifier go on. It is pretty much exactly this patchset except
-> > > > that you remove all the kernel vmap code. A nice thing about that
-> > > > is that you do not need to worry about calling set page dirty it
-> > > > will already be handle by the userspace VA pte. It also use less
-> > > > memory than when you have kernel vmap.
-> > > > =
-
-> > > > This idea might be defeated by security feature where the kernel is
-> > > > running in its own address space without the userspace address
-> > > > space present.
-> > > =
-
-> > > Like smap?
-> > =
-
-> > Yes like smap but also other newer changes, with similar effect, since
-> > the spectre drama.
-> > =
-
-> > Cheers,
-> > J=E9r=F4me
-> =
-
-> Sorry do you mean meltdown and kpti?
-
-Yes all that and similar thing. I do not have the full list in my head.
-
-Cheers,
-J=E9r=F4me
+T24gRnJpLCBNYXIgMDgsIDIwMTkgYXQgMDQ6NTA6MzZQTSArMDgwMCwgSmFzb24gV2FuZyB3cm90
+ZToKPiAKPiBPbiAyMDE5LzMvOCDkuIrljYgzOjE2LCBBbmRyZWEgQXJjYW5nZWxpIHdyb3RlOgo+
+ID4gT24gVGh1LCBNYXIgMDcsIDIwMTkgYXQgMTI6NTY6NDVQTSAtMDUwMCwgTWljaGFlbCBTLiBU
+c2lya2luIHdyb3RlOgo+ID4gPiBPbiBUaHUsIE1hciAwNywgMjAxOSBhdCAxMDo0NzoyMkFNIC0w
+NTAwLCBNaWNoYWVsIFMuIFRzaXJraW4gd3JvdGU6Cj4gPiA+ID4gT24gV2VkLCBNYXIgMDYsIDIw
+MTkgYXQgMDI6MTg6MTJBTSAtMDUwMCwgSmFzb24gV2FuZyB3cm90ZToKPiA+ID4gPiA+ICtzdGF0
+aWMgY29uc3Qgc3RydWN0IG1tdV9ub3RpZmllcl9vcHMgdmhvc3RfbW11X25vdGlmaWVyX29wcyA9
+IHsKPiA+ID4gPiA+ICsJLmludmFsaWRhdGVfcmFuZ2UgPSB2aG9zdF9pbnZhbGlkYXRlX3Jhbmdl
+LAo+ID4gPiA+ID4gK307Cj4gPiA+ID4gPiArCj4gPiA+ID4gPiAgIHZvaWQgdmhvc3RfZGV2X2lu
+aXQoc3RydWN0IHZob3N0X2RldiAqZGV2LAo+ID4gPiA+ID4gICAJCSAgICBzdHJ1Y3Qgdmhvc3Rf
+dmlydHF1ZXVlICoqdnFzLCBpbnQgbnZxcywgaW50IGlvdl9saW1pdCkKPiA+ID4gPiA+ICAgewo+
+ID4gPiA+IEkgYWxzbyB3b25kZXIgaGVyZTogd2hlbiBwYWdlIGlzIHdyaXRlIHByb3RlY3RlZCB0
+aGVuCj4gPiA+ID4gaXQgZG9lcyBub3QgbG9vayBsaWtlIC5pbnZhbGlkYXRlX3JhbmdlIGlzIGlu
+dm9rZWQuCj4gPiA+ID4gCj4gPiA+ID4gRS5nLiBtbS9rc20uYyBjYWxscwo+ID4gPiA+IAo+ID4g
+PiA+IG1tdV9ub3RpZmllcl9pbnZhbGlkYXRlX3JhbmdlX3N0YXJ0IGFuZAo+ID4gPiA+IG1tdV9u
+b3RpZmllcl9pbnZhbGlkYXRlX3JhbmdlX2VuZCBidXQgbm90IG1tdV9ub3RpZmllcl9pbnZhbGlk
+YXRlX3JhbmdlLgo+ID4gPiA+IAo+ID4gPiA+IFNpbWlsYXJseSwgcm1hcCBpbiBwYWdlX21rY2xl
+YW5fb25lIHdpbGwgbm90IGNhbGwKPiA+ID4gPiBtbXVfbm90aWZpZXJfaW52YWxpZGF0ZV9yYW5n
+ZS4KPiA+ID4gPiAKPiA+ID4gPiBJZiBJJ20gcmlnaHQgdmhvc3Qgd29uJ3QgZ2V0IG5vdGlmaWVk
+IHdoZW4gcGFnZSBpcyB3cml0ZS1wcm90ZWN0ZWQgc2luY2UgeW91Cj4gPiA+ID4gZGlkbid0IGlu
+c3RhbGwgc3RhcnQvZW5kIG5vdGlmaWVycy4gTm90ZSB0aGF0IGVuZCBub3RpZmllciBjYW4gYmUg
+Y2FsbGVkCj4gPiA+ID4gd2l0aCBwYWdlIGxvY2tlZCwgc28gaXQncyBub3QgYXMgc3RyYWlnaHQt
+Zm9yd2FyZCBhcyBqdXN0IGFkZGluZyBhIGNhbGwuCj4gPiA+ID4gV3JpdGluZyBpbnRvIGEgd3Jp
+dGUtcHJvdGVjdGVkIHBhZ2UgaXNuJ3QgYSBnb29kIGlkZWEuCj4gPiA+ID4gCj4gPiA+ID4gTm90
+ZSB0aGF0IGRvY3VtZW50YXRpb24gc2F5czoKPiA+ID4gPiAJaXQgaXMgZmluZSB0byBkZWxheSB0
+aGUgbW11X25vdGlmaWVyX2ludmFsaWRhdGVfcmFuZ2UKPiA+ID4gPiAJY2FsbCB0byBtbXVfbm90
+aWZpZXJfaW52YWxpZGF0ZV9yYW5nZV9lbmQoKSBvdXRzaWRlIHRoZSBwYWdlIHRhYmxlIGxvY2su
+Cj4gPiA+ID4gaW1wbHlpbmcgaXQncyBjYWxsZWQganVzdCBsYXRlci4KPiA+ID4gT0sgSSBtaXNz
+ZWQgdGhlIGZhY3QgdGhhdCBfZW5kIGFjdHVhbGx5IGNhbGxzCj4gPiA+IG1tdV9ub3RpZmllcl9p
+bnZhbGlkYXRlX3JhbmdlIGludGVybmFsbHkuIFNvIHRoYXQgcGFydCBpcyBmaW5lIGJ1dCB0aGUK
+PiA+ID4gZmFjdCB0aGF0IHlvdSBhcmUgdHJ5aW5nIHRvIHRha2UgcGFnZSBsb2NrIHVuZGVyIFZR
+IG11dGV4IGFuZCB0YWtlIHNhbWUKPiA+ID4gbXV0ZXggd2l0aGluIG5vdGlmaWVyIHByb2JhYmx5
+IG1lYW5zIGl0J3MgYnJva2VuIGZvciBrc20gYW5kIHJtYXAgYXQKPiA+ID4gbGVhc3Qgc2luY2Ug
+dGhlc2UgY2FsbCBpbnZhbGlkYXRlIHdpdGggbG9jayB0YWtlbi4KPiA+IFllcyB0aGlzIGxvY2sg
+aW52ZXJzaW9uIG5lZWRzIG1vcmUgdGhvdWdodHMuCj4gPiAKPiA+ID4gQW5kIGdlbmVyYWxseSwg
+QW5kcmVhIHRvbGQgbWUgb2ZmbGluZSBvbmUgY2FuIG5vdCB0YWtlIG11dGV4IHVuZGVyCj4gPiA+
+IHRoZSBub3RpZmllciBjYWxsYmFjay4gSSBDQydkIEFuZHJlYSBmb3Igd2h5Lgo+ID4gWWVzLCB0
+aGUgcHJvYmxlbSB0aGVuIGlzIHRoZSAtPmludmFsaWRhdGVfcGFnZSBpcyBjYWxsZWQgdGhlbiB1
+bmRlciBQVAo+ID4gbG9jayBzbyBpdCBjYW5ub3QgdGFrZSBtdXRleCwgeW91IGFsc28gY2Fubm90
+IHRha2UgdGhlIHBhZ2VfbG9jaywgaXQKPiA+IGNhbiBhdCBtb3N0IHRha2UgYSBzcGlubG9jayBv
+ciB0cnlsb2NrX3BhZ2UuCj4gPiAKPiA+IFNvIGl0IG11c3Qgc3dpdGNoIGJhY2sgdG8gdGhlIF9z
+dGFydC9fZW5kIG1ldGhvZHMgdW5sZXNzIHlvdSByZXdyaXRlCj4gPiB0aGUgbG9ja2luZy4KPiA+
+IAo+ID4gVGhlIGRpZmZlcmVuY2Ugd2l0aCBfc3RhcnQvX2VuZCwgaXMgdGhhdCAtPmludmFsaWRh
+dGVfcmFuZ2UgYXZvaWRzIHRoZQo+ID4gX3N0YXJ0IGNhbGxiYWNrIGJhc2ljYWxseSwgYnV0IHRv
+IGF2b2lkIHRoZSBfc3RhcnQgY2FsbGJhY2sgc2FmZWx5LCBpdAo+ID4gaGFzIHRvIGJlIGNhbGxl
+ZCBpbiBiZXR3ZWVuIHRoZSBwdGVwX2NsZWFyX2ZsdXNoIGFuZCB0aGUgc2V0X3B0ZV9hdAo+ID4g
+d2hlbmV2ZXIgdGhlIHBmbiBjaGFuZ2VzIGxpa2UgZHVyaW5nIGEgQ09XLiBTbyBpdCBjYW5ub3Qg
+YmUgY29hbGVzY2VkCj4gPiBpbiBhIHNpbmdsZSBUTEIgZmx1c2ggdGhhdCBpbnZhbGlkYXRlcyBh
+bGwgc3B0ZXMgaW4gYSByYW5nZSBsaWtlIHdlCj4gPiBwcmVmZXIgZm9yIHBlcmZvcm1hbmNlIHJl
+YXNvbnMgZm9yIGV4YW1wbGUgaW4gS1ZNLiBJdCBhbHNvIGNhbm5vdAo+ID4gc2xlZXAuCj4gPiAK
+PiA+IEluIHNob3J0IC0+aW52YWxpZGF0ZV9yYW5nZSBtdXN0IGJlIHJlYWxseSBmYXN0IChpdCBz
+aG91bGRuJ3QgcmVxdWlyZQo+ID4gdG8gc2VuZCBJUEkgdG8gYWxsIG90aGVyIENQVXMgbGlrZSBL
+Vk0gbWF5IHJlcXVpcmUgZHVyaW5nIGFuCj4gPiBpbnZhbGlkYXRlX3JhbmdlX3N0YXJ0KSBhbmQg
+aXQgbXVzdCBub3Qgc2xlZXAsIGluIG9yZGVyIHRvIHByZWZlciBpdAo+ID4gdG8gX3N0YXJ0L19l
+bmQuCj4gPiAKPiA+IEkuZS4gdGhlIGludmFsaWRhdGUgb2YgdGhlIHNlY29uZGFyeSBNTVUgdGhh
+dCB3YWxrcyB0aGUgbGludXgKPiA+IHBhZ2V0YWJsZXMgaW4gaGFyZHdhcmUgKGluIHZob3N0IGNh
+c2Ugd2l0aCBHVVAgaW4gc29mdHdhcmUpIGhhcyB0bwo+ID4gaGFwcGVuIHdoaWxlIHRoZSBsaW51
+eCBwYWdldGFibGUgaXMgemVybywgb3RoZXJ3aXNlIGEgY29uY3VycmVudAo+ID4gaGFyZHdhcmUg
+cGFnZXRhYmxlIGxvb2t1cCBjb3VsZCByZS1pbnN0YW50aWF0ZSBhIG1hcHBpbmcgdG8gdGhlIG9s
+ZAo+ID4gcGFnZSBpbiBiZXR3ZWVuIHRoZSBzZXRfcHRlX2F0IGFuZCB0aGUgaW52YWxpZGF0ZV9y
+YW5nZV9lbmQgKHdoaWNoCj4gPiBpbnRlcm5hbGx5IGNhbGxzIC0+aW52YWxpZGF0ZV9yYW5nZSku
+IEplcm9tZSBkb2N1bWVudGVkIGl0IG5pY2VseSBpbgo+ID4gRG9jdW1lbnRhdGlvbi92bS9tbXVf
+bm90aWZpZXIucnN0IC4KPiAKPiAKPiBSaWdodCwgSSd2ZSBhY3R1YWxseSBnb25lIHRocm91Z2gg
+dGhpcyBzZXZlcmFsIHRpbWVzIGJ1dCBzb21lIGRldGFpbHMgd2VyZQo+IG1pc3NlZCBieSBtZSBv
+YnZpb3VzbHkuCj4gCj4gCj4gPiAKPiA+IE5vdyB5b3UgZG9uJ3QgcmVhbGx5IHdhbGsgdGhlIHBh
+Z2V0YWJsZSBpbiBoYXJkd2FyZSBpbiB2aG9zdCwgYnV0IGlmCj4gPiB5b3UgdXNlIGd1cF9mYXN0
+IGFmdGVyIHVzZW1tKCkgaXQncyBzaW1pbGFyLgo+ID4gCj4gPiBGb3Igdmhvc3QgdGhlIGludmFs
+aWRhdGUgd291bGQgYmUgcmVhbGx5IGZhc3QsIHRoZXJlIGFyZSBubyBJUEkgdG8KPiA+IGRlbGl2
+ZXIgYXQgYWxsLCB0aGUgcHJvYmxlbSBpcyBqdXN0IHRoZSBtdXRleC4KPiAKPiAKPiBZZXMuIEEg
+cG9zc2libGUgc29sdXRpb24gaXMgdG8gaW50cm9kdWNlIGEgdmFsaWQgZmxhZyBmb3IgVkEuIFZo
+b3N0IG1heSBvbmx5Cj4gdHJ5IHRvIGFjY2VzcyBrZXJuZWwgVkEgd2hlbiBpdCB3YXMgdmFsaWQu
+IEludmFsaWRhdGVfcmFuZ2Vfc3RhcnQoKSB3aWxsCj4gY2xlYXIgdGhpcyB1bmRlciB0aGUgcHJv
+dGVjdGlvbiBvZiB0aGUgdnEgbXV0ZXggd2hlbiBpdCBjYW4gYmxvY2suIFRoZW4KPiBpbnZhbGlk
+YXRlX3JhbmdlX2VuZCgpIHRoZW4gY2FuIGNsZWFyIHRoaXMgZmxhZy4gQW4gaXNzdWUgaXMgYmxv
+Y2thYmxlIGlzwqAKPiBhbHdheXMgZmFsc2UgZm9yIHJhbmdlX2VuZCgpLgo+IAoKTm90ZSB0aGF0
+IHRoZXJlIGNhbiBiZSBtdWx0aXBsZSBhc3luY2hyb25vdXMgY29uY3VycmVudCBpbnZhbGlkYXRl
+X3JhbmdlCmNhbGxiYWNrcy4gU28gYSBmbGFnIGRvZXMgbm90IHdvcmsgYnV0IGEgY291bnRlciBv
+ZiBudW1iZXIgb2YgYWN0aXZlCmludmFsaWRhdGlvbiB3b3VsZC4gU2VlIGhvdyBLU00gaXMgZG9p
+bmcgaXQgZm9yIGluc3RhbmNlIGluIGt2bV9tYWluLmMKClRoZSBwYXR0ZXJuIGZvciB0aGlzIGtp
+bmQgb2YgdGhpbmcgaXM6CiAgICBteV9pbnZhbGlkYXRlX3JhbmdlX3N0YXJ0KHN0YXJ0LGVuZCkg
+ewogICAgICAgIC4uLgogICAgICAgIGlmIChteXN0cnVjdF9vdmVybGFwKG15c3RydWN0LCBzdGFy
+dCwgZW5kKSkgewogICAgICAgICAgICBteXN0cnVjdF9sb2NrKCk7CiAgICAgICAgICAgIG15c3Ry
+dWN0LT5pbnZhbGlkYXRlX2NvdW50Kys7CiAgICAgICAgICAgIC4uLgogICAgICAgICAgICBteXN0
+cnVjdF91bmxvY2soKTsKICAgICAgICB9CiAgICB9CgogICAgbXlfaW52YWxpZGF0ZV9yYW5nZV9l
+bmQoc3RhcnQsZW5kKSB7CiAgICAgICAgLi4uCiAgICAgICAgaWYgKG15c3RydWN0X292ZXJsYXAo
+bXlzdHJ1Y3QsIHN0YXJ0LCBlbmQpKSB7CiAgICAgICAgICAgIG15c3RydWN0X2xvY2soKTsKICAg
+ICAgICAgICAgbXlzdHJ1Y3QtPmludmFsaWRhdGVfY291bnQtLTsKICAgICAgICAgICAgLi4uCiAg
+ICAgICAgICAgIG15c3RydWN0X3VubG9jaygpOwogICAgICAgIH0KICAgIH0KCiAgICBteV9hY2Nl
+c3NfdmEobXlzdHJ1Y3QpIHsKICAgIGFnYWluOgogICAgICAgIHdhaXRfb24oIW15c3RydWN0LT5p
+bnZhbGlkYXRlX2NvdW50KQogICAgICAgIG15c3RydWN0X2xvY2soKTsKICAgICAgICBpZiAobXlz
+dHJ1Y3QtPmludmFsaWRhdGVfY291bnQpIHsKICAgICAgICAgICAgbXlzdHJ1Y3RfdW5sb2NrKCk7
+CiAgICAgICAgICAgIGdvdG8gYWdhaW47CiAgICAgICAgfQogICAgICAgIEdVUCgpOwogICAgICAg
+IC4uLgogICAgICAgIG15c3RydWN0X3VubG9jaygpOwogICAgfQoKQ2hlZXJzLApKw6lyw7RtZQpf
+X19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fXwpWaXJ0dWFsaXph
+dGlvbiBtYWlsaW5nIGxpc3QKVmlydHVhbGl6YXRpb25AbGlzdHMubGludXgtZm91bmRhdGlvbi5v
+cmcKaHR0cHM6Ly9saXN0cy5saW51eGZvdW5kYXRpb24ub3JnL21haWxtYW4vbGlzdGluZm8vdmly
+dHVhbGl6YXRpb24=
