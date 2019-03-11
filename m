@@ -1,14 +1,16 @@
-From: Gerd Hoffmann <kraxel@redhat.com>
-Subject: Re: [PATCH] drm/bochs: Fix NULL dereference on atomic_disable helper
-Date: Mon, 11 Mar 2019 07:22:00 +0100
-Message-ID: <20190311062200.4mtel3j5fjxtxrcf__36457.8348978952$1552285333$gmane$org@sirius.home.kraxel.org>
-References: <20190310212150.xhhb4abzm7j3ain2@smtp.gmail.com>
+From: "Michael S. Tsirkin" <mst@redhat.com>
+Subject: Re: [PATCH] virtio_console: free unused buffers with virtio port
+Date: Mon, 11 Mar 2019 02:35:37 -0400
+Message-ID: <20190311023154-mutt-send-email-mst@kernel.org>
+References: <20190304130511.14450-1-pagupta@redhat.com>
+	<20190304142506-mutt-send-email-mst@kernel.org>
+	<444210313.9669582.1551769746169.JavaMail.zimbra@redhat.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
 Content-Disposition: inline
-In-Reply-To: <20190310212150.xhhb4abzm7j3ain2@smtp.gmail.com>
+In-Reply-To: <444210313.9669582.1551769746169.JavaMail.zimbra@redhat.com>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -18,34 +20,109 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Rodrigo Siqueira <rodrigosiqueiramelo@gmail.com>
-Cc: David Airlie <airlied@linux.ie>, linux-kernel@vger.kernel.org, dri-devel@lists.freedesktop.org, Daniel Vetter <daniel@ffwll.ch>, virtualization@lists.linux-foundation.org
+To: Pankaj Gupta <pagupta@redhat.com>
+Cc: arnd@arndb.de, amit@kernel.org, Gal Hammer <ghammer@redhat.com>, gregkh@linuxfoundation.org, linux-kernel@vger.kernel.org, virtualization@lists.linux-foundation.org, xiaohli@redhat.com
 List-Id: virtualization@lists.linuxfoundation.org
 
-On Sun, Mar 10, 2019 at 06:21:50PM -0300, Rodrigo Siqueira wrote:
-> When the subtest basic-plain-flip from IGT project was executed on Bochs
-> driver, the following bug appears:
+On Tue, Mar 05, 2019 at 02:09:06AM -0500, Pankaj Gupta wrote:
 > 
-> BUG: unable to handle kernel NULL pointer dereference at 0000000000000000
+> Hello Michael,
+> 
+> Thanks for your reply.
+> 
+> > 
+> > On Mon, Mar 04, 2019 at 06:35:11PM +0530, Pankaj Gupta wrote:
+> > >   The commit a7a69ec0d8e4 ("virtio_console: free buffers after reset")
+> > >   deffered detaching of unused buffer to virtio device unplug time.
+> > > 
+> > >   This causes unplug/replug of single port in virtio device with an
+> > >   error "Error allocating inbufs\n". As we don't free the unused buffers
+> > >   attached with the port. Re-plug the same port tries to allocate new
+> > >   buffers in virtqueue and results in this error if queue is full.
 
->  ? drm_atomic_helper_commit_modeset_disables+0x396/0x3e0 [drm_kms_helper]
+That's the basic issue, isn't it? Why aren't we
+reusing buffers that are already there?
 
-> +static void  bochs_crtc_atomic_disable(struct drm_crtc *crtc,
-> +				       struct drm_crtc_state *old_state)
-> +{
-> +}
-> +
->  static void bochs_crtc_atomic_flush(struct drm_crtc *crtc,
->  				    struct drm_crtc_state *old_crtc_state)
->  {
-> @@ -66,6 +71,7 @@ static const struct drm_crtc_funcs bochs_crtc_funcs = {
->  static const struct drm_crtc_helper_funcs bochs_helper_funcs = {
->  	.mode_set_nofb = bochs_crtc_mode_set_nofb,
->  	.atomic_enable = bochs_crtc_atomic_enable,
-> +	.atomic_disable = bochs_crtc_atomic_disable,
 
-Shouldn't we make the callback optional instead of adding empty dummy
-functions to drivers?
+> > > 
+> > >   This patch removes the unused buffers in vq's when we unplug the port.
+> > >   This is the best we can do as we cannot call device_reset because virtio
+> > >   device is still active. This was the working behaviour before the change
+> > >   introduced in commit b3258ff1d6.
+> > > 
+> > >   Reported-by: Xiaohui Li <xiaohli@redhat.com>
+> > >   Fixes: b3258ff1d6 ("virtio_console: free buffers after reset")
+> > >   Signed-off-by: Pankaj Gupta <pagupta@redhat.com>
+> > 
+> > I think if you do this you need to add support
+> > in the packed ring.
+> 
+> o.k. I will look at the implementation details for "support
+> of packed ring" for virtio_console. This will take some time.
+> 
+> Meanwhile "virtio_console" port hotplug/unplug is broken in upstream.
+> Can we accept this patch as it fixes the upstream and together
+> with parent patch(b3258ff1d6) does nice cleanups as well.
+> 
+> Thanks,
+> Pankaj  
 
-cheers,
-  Gerd
+Sorry, no - I don't think we should fix one configuration by breaking the other.
+If you want to go back, then that's a spec violation, but I guess we can
+fix the spec to match.  OK, but code-wise if you call
+virtqueue_detach_unused_buf without device reset then you need to teach
+packed ring code to support that.
+
+
+
+> > 
+> > > ---
+> > >  drivers/char/virtio_console.c | 14 +++++++++++---
+> > >  1 file changed, 11 insertions(+), 3 deletions(-)
+> > > 
+> > > diff --git a/drivers/char/virtio_console.c b/drivers/char/virtio_console.c
+> > > index fbeb71953526..5fbf2ac73111 100644
+> > > --- a/drivers/char/virtio_console.c
+> > > +++ b/drivers/char/virtio_console.c
+> > > @@ -1506,15 +1506,25 @@ static void remove_port(struct kref *kref)
+> > >          kfree(port);
+> > >  }
+> > >  
+> > > +static void remove_unused_bufs(struct virtqueue *vq)
+> > > +{
+> > > +        struct port_buffer *buf;
+> > > +
+> > > +        while ((buf = virtqueue_detach_unused_buf(vq)))
+> > > +                free_buf(buf, true);
+> > > +}
+> > > +
+> > >  static void remove_port_data(struct port *port)
+> > >  {
+> > >          spin_lock_irq(&port->inbuf_lock);
+> > >          /* Remove unused data this port might have received. */
+> > >          discard_port_data(port);
+> > > +        remove_unused_bufs(port->in_vq);
+> > >          spin_unlock_irq(&port->inbuf_lock);
+> > >  
+> > >          spin_lock_irq(&port->outvq_lock);
+> > >          reclaim_consumed_buffers(port);
+> > > +        remove_unused_bufs(port->out_vq);
+> > >          spin_unlock_irq(&port->outvq_lock);
+> > >  }
+> > >  
+> > > @@ -1950,11 +1960,9 @@ static void remove_vqs(struct ports_device *portdev)
+> > >          struct virtqueue *vq;
+> > >  
+> > >          virtio_device_for_each_vq(portdev->vdev, vq) {
+> > > -                struct port_buffer *buf;
+> > >  
+> > >                  flush_bufs(vq, true);
+> > > -                while ((buf = virtqueue_detach_unused_buf(vq)))
+> > > -                        free_buf(buf, true);
+> > > +                remove_unused_bufs(vq);
+> > >          }
+> > >          portdev->vdev->config->del_vqs(portdev->vdev);
+> > >          kfree(portdev->in_vqs);
+> > > --
+> > > 2.20.1
+> > 
