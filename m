@@ -1,20 +1,14 @@
-From: Daniel Vetter <daniel@ffwll.ch>
-Subject: Re: [PATCH] drm/bochs: Fix NULL dereference on atomic_disable helper
-Date: Mon, 11 Mar 2019 19:48:39 +0100
-Message-ID: <20190311184839.GO2665__15446.6400666692$1552330137$gmane$org@phenom.ffwll.local>
-References: <20190310212150.xhhb4abzm7j3ain2@smtp.gmail.com>
-	<20190311062200.4mtel3j5fjxtxrcf@sirius.home.kraxel.org>
-	<20190311101159.t6mbzm5sdwuh5muc@smtp.gmail.com>
-	<20190311130716.6hjqci43clic5lxx@sirius.home.kraxel.org>
-	<20190311132358.GF2665@phenom.ffwll.local>
-	<20190311133919.azyhtioxf23duf3g@sirius.home.kraxel.org>
-	<20190311174958.xdw4lrvf6ydeplvc@smtp.gmail.com>
+From: Randy Dunlap <rdunlap@infradead.org>
+Subject: Re: [PATCH] VMCI: Use BIT() macro for bit definitions
+Date: Mon, 11 Mar 2019 15:38:56 -0700
+Message-ID: <8e80e76d-1793-fc45-9f89-cf8e61dc4a16__20700.7393635408$1552343979$gmane$org@infradead.org>
+References: <20190311220928.4560-1-vdasa@vmware.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-Content-Disposition: inline
-In-Reply-To: <20190311174958.xdw4lrvf6ydeplvc@smtp.gmail.com>
+In-Reply-To: <20190311220928.4560-1-vdasa@vmware.com>
+Content-Language: en-US
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -24,41 +18,97 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Rodrigo Siqueira <rodrigosiqueiramelo@gmail.com>
-Cc: David Airlie <airlied@linux.ie>, virtualization@lists.linux-foundation.org, dri-devel@lists.freedesktop.org, linux-kernel@vger.kernel.org
+To: Vishnu DASA <vdasa@vmware.com>, "gregkh@linuxfoundation.org" <gregkh@linuxfoundation.org>, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>, "virtualization@lists.linux-foundation.org" <virtualization@lists.linux-foundation.org>
+Cc: Pv-drivers <Pv-drivers@vmware.com>
 List-Id: virtualization@lists.linuxfoundation.org
 
-On Mon, Mar 11, 2019 at 02:49:58PM -0300, Rodrigo Siqueira wrote:
-> On 03/11, Gerd Hoffmann wrote:
-> >   Hi,
-> > 
-> > > > IIRC the drm code checks for the atomic_enable callback presence to
-> > > > figure whenever it should take the atomic or legacy code paths.
-> > > 
-> > > It should check for drm_driver->mode_config.funcs.atomic_commit for that,
-> > > see drm_drv_uses_atomic_modeset(). Anything else should be a bug.
-> > > 
-> > > Or do you mean the fallback to the old crtc helper prepare/commit
-> > > callbacks?
-> > 
-> > Probably the later.  There was some reason why I've left in the empty
-> > bochs_crtc_atomic_enable() callback ...
+On 3/11/19 3:09 PM, Vishnu DASA wrote:
+> No functional changes, cleanup only.
 > 
-> Just for checking before I start to work in this patch:
-> The correct solution should be made atomic_enable and atomic_disable
-> optional, right? I should do it, and check if Bochs driver really needs
-> bochs_crtc_atomic_enable after my change, right?
+> Reviewed-by: Adit Ranadive <aditr@vmware.com>
+> Reviewed-by: Jorgen Hansen <jhansen@vmware.com>
+> Signed-off-by: Vishnu Dasa <vdasa@vmware.com>
+> ---
+>  include/linux/vmw_vmci_defs.h | 34 +++++++++++++++++-----------------
+>  1 file changed, 17 insertions(+), 17 deletions(-)
+> 
 
-Yup. I just tried to remember why we haven't done this yet, but I think
-that was a patch to make crtc->helper_funcs optional. And that doesn't
-make sense imo, since if your crtc doesn't do anything then you don't
-really have an atomic driver :-) And if there's ever a legit use case for
-this, then that drive probably shouldn't use the atomic helpers ...
+Now this header file needs to #include <linux/bitops.h>
+or <linux/bits.h> for the BIT() macro.
 
-But making crtc_helper_funcs->atomic_enable/disable optional sounds like a
-good idea.
--Daniel
+Do the users of this header file build cleanly anyway?
+Even if so, we prefer not to depend on implicit or accidental header
+file inclusions that may change in the future.
+
+> diff --git a/include/linux/vmw_vmci_defs.h b/include/linux/vmw_vmci_defs.h
+> index eaa1e762bf06..007e28053da8 100644
+> --- a/include/linux/vmw_vmci_defs.h
+> +++ b/include/linux/vmw_vmci_defs.h
+> @@ -33,27 +33,27 @@
+>  #define VMCI_MAX_DEVICES 1
+>  
+>  /* Status register bits. */
+> -#define VMCI_STATUS_INT_ON     0x1
+> +#define VMCI_STATUS_INT_ON     BIT(0)
+>  
+>  /* Control register bits. */
+> -#define VMCI_CONTROL_RESET        0x1
+> -#define VMCI_CONTROL_INT_ENABLE   0x2
+> -#define VMCI_CONTROL_INT_DISABLE  0x4
+> +#define VMCI_CONTROL_RESET        BIT(0)
+> +#define VMCI_CONTROL_INT_ENABLE   BIT(1)
+> +#define VMCI_CONTROL_INT_DISABLE  BIT(2)
+>  
+>  /* Capabilities register bits. */
+> -#define VMCI_CAPS_HYPERCALL     0x1
+> -#define VMCI_CAPS_GUESTCALL     0x2
+> -#define VMCI_CAPS_DATAGRAM      0x4
+> -#define VMCI_CAPS_NOTIFICATIONS 0x8
+> -#define VMCI_CAPS_PPN64         0x10
+> +#define VMCI_CAPS_HYPERCALL     BIT(0)
+> +#define VMCI_CAPS_GUESTCALL     BIT(1)
+> +#define VMCI_CAPS_DATAGRAM      BIT(2)
+> +#define VMCI_CAPS_NOTIFICATIONS BIT(3)
+> +#define VMCI_CAPS_PPN64         BIT(4)
+>  
+>  /* Interrupt Cause register bits. */
+> -#define VMCI_ICR_DATAGRAM      0x1
+> -#define VMCI_ICR_NOTIFICATION  0x2
+> +#define VMCI_ICR_DATAGRAM      BIT(0)
+> +#define VMCI_ICR_NOTIFICATION  BIT(1)
+>  
+>  /* Interrupt Mask register bits. */
+> -#define VMCI_IMR_DATAGRAM      0x1
+> -#define VMCI_IMR_NOTIFICATION  0x2
+> +#define VMCI_IMR_DATAGRAM      BIT(0)
+> +#define VMCI_IMR_NOTIFICATION  BIT(1)
+>  
+>  /* Maximum MSI/MSI-X interrupt vectors in the device. */
+>  #define VMCI_MAX_INTRS 2
+> @@ -463,9 +463,9 @@ struct vmci_datagram {
+>   * datagram callback is invoked in a delayed context (not interrupt context).
+>   */
+>  #define VMCI_FLAG_DG_NONE          0
+> -#define VMCI_FLAG_WELLKNOWN_DG_HND 0x1
+> -#define VMCI_FLAG_ANYCID_DG_HND    0x2
+> -#define VMCI_FLAG_DG_DELAYED_CB    0x4
+> +#define VMCI_FLAG_WELLKNOWN_DG_HND BIT(0)
+> +#define VMCI_FLAG_ANYCID_DG_HND    BIT(1)
+> +#define VMCI_FLAG_DG_DELAYED_CB    BIT(2)
+>  
+>  /*
+>   * Maximum supported size of a VMCI datagram for routable datagrams.
+> @@ -694,7 +694,7 @@ struct vmci_qp_detach_msg {
+>  };
+>  
+>  /* VMCI Doorbell API. */
+> -#define VMCI_FLAG_DELAYED_CB 0x01
+> +#define VMCI_FLAG_DELAYED_CB BIT(0)
+>  
+>  typedef void (*vmci_callback) (void *client_data);
+>  
+> 
+
+
 -- 
-Daniel Vetter
-Software Engineer, Intel Corporation
-http://blog.ffwll.ch
+~Randy
