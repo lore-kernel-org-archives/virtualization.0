@@ -1,16 +1,16 @@
-From: Pankaj Gupta <pagupta@redhat.com>
-Subject: Re: [PATCH] virtio_console: free unused buffers with virtio port
-Date: Mon, 11 Mar 2019 02:53:29 -0400 (EDT)
-Message-ID: <901790411.11174738.1552287209805.JavaMail.zimbra__29015.0649192341$1552287221$gmane$org@redhat.com>
-References: <20190304130511.14450-1-pagupta@redhat.com>
-	<20190304142506-mutt-send-email-mst@kernel.org>
-	<444210313.9669582.1551769746169.JavaMail.zimbra@redhat.com>
-	<20190311023154-mutt-send-email-mst@kernel.org>
+From: Jason Wang <jasowang@redhat.com>
+Subject: Re: [RFC PATCH V2 0/5] vhost: accelerate metadata access through
+	vmap()
+Date: Mon, 11 Mar 2019 15:13:17 +0800
+Message-ID: <56374231-7ba7-0227-8d6d-4d968d71b4d6__21444.6658430219$1552288419$gmane$org@redhat.com>
+References: <1551856692-3384-1-git-send-email-jasowang@redhat.com>
+	<20190308141220.GA21082@infradead.org>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset="utf-8"; Format="flowed"
+Content-Transfer-Encoding: base64
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <20190311023154-mutt-send-email-mst@kernel.org>
+In-Reply-To: <20190308141220.GA21082@infradead.org>
+Content-Language: en-US
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -20,128 +20,23 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: "Michael S. Tsirkin" <mst@redhat.com>
-Cc: arnd@arndb.de, amit@kernel.org, Gal Hammer <ghammer@redhat.com>, gregkh@linuxfoundation.org, linux-kernel@vger.kernel.org, virtualization@lists.linux-foundation.org, xiaohli@redhat.com
+To: Christoph Hellwig <hch@infradead.org>
+Cc: aarcange@redhat.com, linux-parisc@vger.kernel.org, kvm@vger.kernel.org, mst@redhat.com, netdev@vger.kernel.org, linux-kernel@vger.kernel.org, virtualization@lists.linux-foundation.org, linux-mm@kvack.org, linux-arm-kernel@lists.infradead.org
 List-Id: virtualization@lists.linuxfoundation.org
 
-
-> > 
-> > Hello Michael,
-> > 
-> > Thanks for your reply.
-> > 
-> > > 
-> > > On Mon, Mar 04, 2019 at 06:35:11PM +0530, Pankaj Gupta wrote:
-> > > >   The commit a7a69ec0d8e4 ("virtio_console: free buffers after reset")
-> > > >   deffered detaching of unused buffer to virtio device unplug time.
-> > > > 
-> > > >   This causes unplug/replug of single port in virtio device with an
-> > > >   error "Error allocating inbufs\n". As we don't free the unused
-> > > >   buffers
-> > > >   attached with the port. Re-plug the same port tries to allocate new
-> > > >   buffers in virtqueue and results in this error if queue is full.
-> 
-> That's the basic issue, isn't it? Why aren't we
-> reusing buffers that are already there?
-
-I think that that's how initial design has been. Will see if I can fix this.
-
-> 
-> 
-> > > > 
-> > > >   This patch removes the unused buffers in vq's when we unplug the
-> > > >   port.
-> > > >   This is the best we can do as we cannot call device_reset because
-> > > >   virtio
-> > > >   device is still active. This was the working behaviour before the
-> > > >   change
-> > > >   introduced in commit b3258ff1d6.
-> > > > 
-> > > >   Reported-by: Xiaohui Li <xiaohli@redhat.com>
-> > > >   Fixes: b3258ff1d6 ("virtio_console: free buffers after reset")
-> > > >   Signed-off-by: Pankaj Gupta <pagupta@redhat.com>
-> > > 
-> > > I think if you do this you need to add support
-> > > in the packed ring.
-> > 
-> > o.k. I will look at the implementation details for "support
-> > of packed ring" for virtio_console. This will take some time.
-> > 
-> > Meanwhile "virtio_console" port hotplug/unplug is broken in upstream.
-> > Can we accept this patch as it fixes the upstream and together
-> > with parent patch(b3258ff1d6) does nice cleanups as well.
-> > 
-> > Thanks,
-> > Pankaj
-> 
-> Sorry, no - I don't think we should fix one configuration by breaking the
-> other.
-> If you want to go back, then that's a spec violation, but I guess we can
-> fix the spec to match.  OK, but code-wise if you call
-> virtqueue_detach_unused_buf without device reset then you need to teach
-> packed ring code to support that.
-
-o.k. Will look at this.
-
-Thanks for the pointers.
-
-Thanks,
-Pankaj
-
-> 
-> 
-> 
-> > > 
-> > > > ---
-> > > >  drivers/char/virtio_console.c | 14 +++++++++++---
-> > > >  1 file changed, 11 insertions(+), 3 deletions(-)
-> > > > 
-> > > > diff --git a/drivers/char/virtio_console.c
-> > > > b/drivers/char/virtio_console.c
-> > > > index fbeb71953526..5fbf2ac73111 100644
-> > > > --- a/drivers/char/virtio_console.c
-> > > > +++ b/drivers/char/virtio_console.c
-> > > > @@ -1506,15 +1506,25 @@ static void remove_port(struct kref *kref)
-> > > >          kfree(port);
-> > > >  }
-> > > >  
-> > > > +static void remove_unused_bufs(struct virtqueue *vq)
-> > > > +{
-> > > > +        struct port_buffer *buf;
-> > > > +
-> > > > +        while ((buf = virtqueue_detach_unused_buf(vq)))
-> > > > +                free_buf(buf, true);
-> > > > +}
-> > > > +
-> > > >  static void remove_port_data(struct port *port)
-> > > >  {
-> > > >          spin_lock_irq(&port->inbuf_lock);
-> > > >          /* Remove unused data this port might have received. */
-> > > >          discard_port_data(port);
-> > > > +        remove_unused_bufs(port->in_vq);
-> > > >          spin_unlock_irq(&port->inbuf_lock);
-> > > >  
-> > > >          spin_lock_irq(&port->outvq_lock);
-> > > >          reclaim_consumed_buffers(port);
-> > > > +        remove_unused_bufs(port->out_vq);
-> > > >          spin_unlock_irq(&port->outvq_lock);
-> > > >  }
-> > > >  
-> > > > @@ -1950,11 +1960,9 @@ static void remove_vqs(struct ports_device
-> > > > *portdev)
-> > > >          struct virtqueue *vq;
-> > > >  
-> > > >          virtio_device_for_each_vq(portdev->vdev, vq) {
-> > > > -                struct port_buffer *buf;
-> > > >  
-> > > >                  flush_bufs(vq, true);
-> > > > -                while ((buf = virtqueue_detach_unused_buf(vq)))
-> > > > -                        free_buf(buf, true);
-> > > > +                remove_unused_bufs(vq);
-> > > >          }
-> > > >          portdev->vdev->config->del_vqs(portdev->vdev);
-> > > >          kfree(portdev->in_vqs);
-> > > > --
-> > > > 2.20.1
-> > > 
-> 
+Ck9uIDIwMTkvMy84IOS4i+WNiDEwOjEyLCBDaHJpc3RvcGggSGVsbHdpZyB3cm90ZToKPiBPbiBX
+ZWQsIE1hciAwNiwgMjAxOSBhdCAwMjoxODowN0FNIC0wNTAwLCBKYXNvbiBXYW5nIHdyb3RlOgo+
+PiBUaGlzIHNlcmllcyB0cmllcyB0byBhY2Nlc3MgdmlydHF1ZXVlIG1ldGFkYXRhIHRocm91Z2gg
+a2VybmVsIHZpcnR1YWwKPj4gYWRkcmVzcyBpbnN0ZWFkIG9mIGNvcHlfdXNlcigpIGZyaWVuZHMg
+c2luY2UgdGhleSBoYWQgdG9vIG11Y2gKPj4gb3ZlcmhlYWRzIGxpa2UgY2hlY2tzLCBzcGVjIGJh
+cnJpZXJzIG9yIGV2ZW4gaGFyZHdhcmUgZmVhdHVyZQo+PiB0b2dnbGluZy4gVGhpcyBpcyBkb25l
+IHRocm91Z2ggc2V0dXAga2VybmVsIGFkZHJlc3MgdGhyb3VnaCB2bWFwKCkgYW5kCj4+IHJlc2ln
+dGVyIE1NVSBub3RpZmllciBmb3IgaW52YWxpZGF0aW9uLgo+Pgo+PiBUZXN0IHNob3dzIGFib3V0
+IDI0JSBpbXByb3ZlbWVudCBvbiBUWCBQUFMuIFRDUF9TVFJFQU0gZG9lc24ndCBzZWUKPj4gb2J2
+aW91cyBpbXByb3ZlbWVudC4KPiBIb3cgaXMgdGhpcyBnb2luZyB0byB3b3JrIGZvciBDUFVzIHdp
+dGggdmlydHVhbGx5IHRhZ2dlZCBjYWNoZXM/CgoKQW55dGhpbmcgZGlmZmVyZW50IHRoYXQgeW91
+IHdvcnJ5PyBJIGNhbiBoYXZlIGEgdGVzdCBidXQgZG8geW91IGtub3cgYW55IAphcmNocyB0aGF0
+IHVzZSB2aXJ0dWFsIHRhZyBjYWNoZT8KClRoYW5rcwoKX19fX19fX19fX19fX19fX19fX19fX19f
+X19fX19fX19fX19fX19fX19fX19fX18KVmlydHVhbGl6YXRpb24gbWFpbGluZyBsaXN0ClZpcnR1
+YWxpemF0aW9uQGxpc3RzLmxpbnV4LWZvdW5kYXRpb24ub3JnCmh0dHBzOi8vbGlzdHMubGludXhm
+b3VuZGF0aW9uLm9yZy9tYWlsbWFuL2xpc3RpbmZvL3ZpcnR1YWxpemF0aW9u
