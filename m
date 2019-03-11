@@ -1,22 +1,16 @@
-From: "Michael S. Tsirkin" <mst@redhat.com>
-Subject: Re: [RFC PATCH V2 5/5] vhost: access vq metadata through kernel
-	virtual address
-Date: Mon, 11 Mar 2019 08:48:37 -0400
-Message-ID: <20190311084525-mutt-send-email-mst__43215.9005709522$1552308531$gmane$org@kernel.org>
-References: <1551856692-3384-1-git-send-email-jasowang@redhat.com>
-	<1551856692-3384-6-git-send-email-jasowang@redhat.com>
-	<20190307103503-mutt-send-email-mst@kernel.org>
-	<20190307124700-mutt-send-email-mst@kernel.org>
-	<20190307191622.GP23850@redhat.com>
-	<e2fad6ed-9257-b53c-394b-bc913fc444c0@redhat.com>
-	<20190308194845.GC26923@redhat.com>
-	<8b68a2a0-907a-15f5-a07f-fc5b53d7ea19@redhat.com>
+From: Gerd Hoffmann <kraxel@redhat.com>
+Subject: Re: [PATCH] drm/bochs: Fix NULL dereference on atomic_disable helper
+Date: Mon, 11 Mar 2019 14:07:16 +0100
+Message-ID: <20190311130716.6hjqci43clic5lxx__20144.0955557459$1552309650$gmane$org@sirius.home.kraxel.org>
+References: <20190310212150.xhhb4abzm7j3ain2@smtp.gmail.com>
+	<20190311062200.4mtel3j5fjxtxrcf@sirius.home.kraxel.org>
+	<20190311101159.t6mbzm5sdwuh5muc@smtp.gmail.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="utf-8"
-Content-Transfer-Encoding: base64
+Content-Type: text/plain; charset="us-ascii"
+Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
 Content-Disposition: inline
-In-Reply-To: <8b68a2a0-907a-15f5-a07f-fc5b53d7ea19@redhat.com>
+In-Reply-To: <20190311101159.t6mbzm5sdwuh5muc@smtp.gmail.com>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -26,75 +20,33 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Jason Wang <jasowang@redhat.com>
-Cc: Andrea Arcangeli <aarcange@redhat.com>, kvm@vger.kernel.org, netdev@vger.kernel.org, linux-kernel@vger.kernel.org, virtualization@lists.linux-foundation.org, linux-mm@kvack.org, Jerome Glisse <jglisse@redhat.com>
+To: Rodrigo Siqueira <rodrigosiqueiramelo@gmail.com>
+Cc: David Airlie <airlied@linux.ie>, linux-kernel@vger.kernel.org, dri-devel@lists.freedesktop.org, Daniel Vetter <daniel@ffwll.ch>, virtualization@lists.linux-foundation.org
 List-Id: virtualization@lists.linuxfoundation.org
 
-T24gTW9uLCBNYXIgMTEsIDIwMTkgYXQgMDM6NDA6MzFQTSArMDgwMCwgSmFzb24gV2FuZyB3cm90
-ZToKPiAKPiBPbiAyMDE5LzMvOSDkuIrljYgzOjQ4LCBBbmRyZWEgQXJjYW5nZWxpIHdyb3RlOgo+
-ID4gSGVsbG8gSmVzb24sCj4gPiAKPiA+IE9uIEZyaSwgTWFyIDA4LCAyMDE5IGF0IDA0OjUwOjM2
-UE0gKzA4MDAsIEphc29uIFdhbmcgd3JvdGU6Cj4gPiA+IEp1c3QgdG8gbWFrZSBzdXJlIEkgdW5k
-ZXJzdGFuZCBoZXJlLiBGb3IgYm9vc3RpbmcgdGhyb3VnaCBodWdlIFRMQiwgZG8KPiA+ID4geW91
-IG1lYW4gd2UgY2FuIGRvIHRoYXQgaW4gdGhlIGZ1dHVyZSAoZS5nIGJ5IG1hcHBpbmcgbW9yZSB1
-c2Vyc3BhY2UKPiA+ID4gcGFnZXMgdG8ga2VucmVsKSBvciBpdCBjYW4gYmUgZG9uZSBieSB0aGlz
-IHNlcmllcyAob25seSBhYm91dCB0aHJlZSA0Swo+ID4gPiBwYWdlcyB3ZXJlIHZtYXBwZWQgcGVy
-IHZpcnRxdWV1ZSk/Cj4gPiBXaGVuIEkgYW5zd2VyZWQgYWJvdXQgdGhlIGFkdmFudGFnZXMgb2Yg
-bW11IG5vdGlmaWVyIGFuZCBJIG1lbnRpb25lZAo+ID4gZ3VhcmFudGVlZCAybS9naWdhcGFnZXMg
-d2hlcmUgYXZhaWxhYmxlLCBJIG92ZXJsb29rZWQgdGhlIGRldGFpbCB5b3UKPiA+IHdlcmUgdXNp
-bmcgdm1hcCBpbnN0ZWFkIG9mIGttYXAuIFNvIHdpdGggdm1hcCB5b3UncmUgYWN0dWFsbHkgZG9p
-bmcKPiA+IHRoZSBvcHBvc2l0ZSwgaXQgc2xvd3MgZG93biB0aGUgYWNjZXNzIGJlY2F1c2UgaXQg
-d2lsbCBhbHdheXMgdXNlIGEgNGsKPiA+IFRMQiBldmVuIGlmIFFFTVUgcnVucyBvbiBUSFAgb3Ig
-Z2lnYXBhZ2VzIGh1Z2V0bGJmcy4KPiA+IAo+ID4gSWYgdGhlcmUncyBqdXN0IG9uZSBwYWdlIChv
-ciBhIGZldyBwYWdlcykgaW4gZWFjaCB2bWFwIHRoZXJlJ3Mgbm8gbmVlZAo+ID4gb2Ygdm1hcCwg
-dGhlIGxpbmVhcml0eSB2bWFwIHByb3ZpZGVzIGRvZXNuJ3QgcGF5IG9mZiBpbiBzdWNoCj4gPiBj
-YXNlLgo+ID4gCj4gPiBTbyBsaWtlbHkgdGhlcmUncyBmdXJ0aGVyIHJvb20gZm9yIGltcHJvdmVt
-ZW50IGhlcmUgdGhhdCB5b3UgY2FuCj4gPiBhY2hpZXZlIGluIHRoZSBjdXJyZW50IHNlcmllcyBi
-eSBqdXN0IGRyb3BwaW5nIHZtYXAvdnVubWFwLgo+ID4gCj4gPiBZb3UgY2FuIGp1c3QgdXNlIGtt
-YXAgKG9yIGttYXBfYXRvbWljIGlmIHlvdSdyZSBpbiBwcmVlbXB0aWJsZQo+ID4gc2VjdGlvbiwg
-c2hvdWxkIHdvcmsgZnJvbSBiaC9pcnEpLgo+ID4gCj4gPiBJbiBzaG9ydCB0aGUgbW11IG5vdGlm
-aWVyIHRvIGludmFsaWRhdGUgb25seSBzZXRzIGEgInN0cnVjdCBwYWdlICoKPiA+IHVzZXJyaW5n
-cGFnZSIgcG9pbnRlciB0byBOVUxMIHdpdGhvdXQgY2FsbHMgdG8gdnVubWFwLgo+ID4gCj4gPiBJ
-biBhbGwgY2FzZXMgaW1tZWRpYXRlbHkgYWZ0ZXIgZ3VwX2Zhc3QgcmV0dXJucyB5b3UgY2FuIGFs
-d2F5cyBjYWxsCj4gPiBwdXRfcGFnZSBpbW1lZGlhdGVseSAod2hpY2ggZXhwbGFpbnMgd2h5IEkn
-ZCBsaWtlIGFuIG9wdGlvbiB0byBkcm9wCj4gPiBGT0xMX0dFVCBmcm9tIGd1cF9mYXN0IHRvIHNw
-ZWVkIGl0IHVwKS4KPiA+IAo+ID4gVGhlbiB5b3UgY2FuIGNoZWNrIHRoZSBzZXF1ZW5jZV9jb3Vu
-dGVyIGFuZCBpbmMvZGVjIGNvdW50ZXIgaW5jcmVhc2VkCj4gPiBieSBfc3RhcnQvX2VuZC4gVGhh
-dCB3aWxsIHRlbGwgeW91IGlmIHRoZSBwYWdlIHlvdSBnb3QgYW5kIHlvdSBjYWxsZWQKPiA+IHB1
-dF9wYWdlIHRvIGltbWVkaWF0ZWx5IHVucGluIGl0IG9yIGV2ZW4gdG8gZnJlZSBpdCwgY2Fubm90
-IGdvIGF3YXkKPiA+IHVuZGVyIHlvdSB1bnRpbCB0aGUgaW52YWxpZGF0ZSBpcyBjYWxsZWQuCj4g
-PiAKPiA+IElmIHNlcXVlbmNlIGNvdW50ZXJzIGFuZCBjb3VudGVyIHRlbGxzIHRoYXQgZ3VwX2Zh
-c3QgcmFjZWQgd2l0aCBhbnl0Cj4gPiBtbXUgbm90aWZpZXIgaW52YWxpZGF0ZSB5b3UgY2FuIGp1
-c3QgcmVwZWF0IGd1cF9mYXN0LiBPdGhlcndpc2UgeW91J3JlCj4gPiBkb25lLCB0aGUgcGFnZSBj
-YW5ub3QgZ28gYXdheSB1bmRlciB5b3UsIHRoZSBob3N0IHZpcnR1YWwgdG8gaG9zdAo+ID4gcGh5
-c2ljYWwgbWFwcGluZyBjYW5ub3QgY2hhbmdlIGVpdGhlci4gQW5kIHRoZSBwYWdlIGlzIG5vdCBw
-aW5uZWQKPiA+IGVpdGhlci4gU28geW91IGNhbiBqdXN0IHNldCB0aGUgInN0cnVjdCBwYWdlICog
-dXNlcnJpbmdwYWdlID0gcGFnZSIKPiA+IHdoZXJlICJwYWdlIiB3YXMgdGhlIG9uZSBzZXR1cCBi
-eSBndXBfZmFzdC4KPiA+IAo+ID4gV2hlbiBsYXRlciB0aGUgaW52YWxpZGF0ZSBydW5zLCB5b3Ug
-Y2FuIGp1c3QgY2FsbCBzZXRfcGFnZV9kaXJ0eSBpZgo+ID4gZ3VwX2Zhc3Qgd2FzIGNhbGxlZCB3
-aXRoICJ3cml0ZSA9IDEiIGFuZCB0aGVuIHlvdSBjbGVhciB0aGUgcG9pbnRlcgo+ID4gInVzZXJy
-aW5ncGFnZSA9IE5VTEwiLgo+ID4gCj4gPiBXaGVuIHlvdSBuZWVkIHRvIHJlYWQvd3JpdGUgdG8g
-dGhlIG1lbW9yeQo+ID4ga21hcC9rbWFwX2F0b21pYyh1c2VycmluZ3BhZ2UpIHNob3VsZCB3b3Jr
-Lgo+IAo+IAo+IFllcywgSSd2ZSBjb25zaWRlcmVkIGttYXAoKSBmcm9tIHRoZSBzdGFydC4gVGhl
-IHJlYXNvbiBJIGRvbid0IGRvIHRoYXQgaXMKPiBsYXJnZSB2aXJ0cXVldWUgbWF5IG5lZWQgbW9y
-ZSB0aGFuIG9uZSBwYWdlIHNvIFZBIG1pZ2h0IG5vdCBiZSBjb250aWd1b3VzLgo+IEJ1dCB0aGlz
-IGlzIHByb2JhYmx5IG5vdCBhIGJpZyBpc3N1ZSB3aGljaCBqdXN0IG5lZWQgbW9yZSB0cmlja3Mg
-aW4gdGhlCj4gdmhvc3QgbWVtb3J5IGFjY2Vzc29ycy4KPiAKPiAKPiA+IAo+ID4gSW4gc2hvcnQg
-YmVjYXVzZSB0aGVyZSdzIG5vIGhhcmR3YXJlIGludm9sdmVtZW50IGhlcmUsIHRoZSBlc3RhYmxp
-c2hlZAo+ID4gbWFwcGluZyBpcyBqdXN0IHRoZSBwb2ludGVyIHRvIHRoZSBwYWdlLCB0aGVyZSBp
-cyBubyBuZWVkIG9mIHNldHRpbmcKPiA+IHVwIGFueSBwYWdldGFibGVzIG9yIHRvIGRvIGFueSBU
-TEIgZmx1c2hlcyAoZXhjZXB0IG9uIDMyYml0IGFyY2hzIGlmCj4gPiB0aGUgcGFnZSBpcyBhYm92
-ZSB0aGUgZGlyZWN0IG1hcHBpbmcgYnV0IGl0IG5ldmVyIGhhcHBlbnMgb24gNjRiaXQKPiA+IGFy
-Y2hzKS4KPiAKPiAKPiBJIHNlZSwgSSBiZWxpZXZlIHdlIGRvbid0IGNhcmUgbXVjaCBhYm91dCB0
-aGUgcGVyZm9ybWFuY2Ugb2YgMzJiaXQgYXJjaHMgKG9yCj4gd2UgY2FuIGp1c3QgZmFsbGJhY2sg
-dG8gY29weV90b191c2VyKCkgZnJpZW5kcykuCgpVc2luZyBjb3B5WHVzZXIgaXMgYmV0dGVyIEkg
-Z3Vlc3MuCgo+IFVzaW5nIGRpcmVjdCBtYXBwaW5nIChJCj4gZ3Vlc3Mga2VybmVsIHdpbGwgYWx3
-YXlzIHRyeSBodWdlcGFnZSBmb3IgdGhhdD8pIHNob3VsZCBiZSBiZXR0ZXIgYW5kIHdlIGNhbgo+
-IGV2ZW4gdXNlIGl0IGZvciB0aGUgZGF0YSB0cmFuc2ZlciBub3Qgb25seSBmb3IgdGhlIG1ldGFk
-YXRhLgo+IAo+IFRoYW5rcwoKV2UgY2FuJ3QgcmVhbGx5LiBUaGUgYmlnIGlzc3VlIGlzIGdldCB1
-c2VyIHBhZ2VzLiBEb2luZyB0aGF0IG9uIGRhdGEKcGF0aCB3aWxsIGJlIHNsb3dlciB0aGFuIGNv
-cHlYdXNlci4gT3IgbWF5YmUgaXQgd29uJ3Qgd2l0aCB0aGUKYW1vdW50IG9mIG1pdGlnYXRpb25z
-IHNwcmVhZCBhcm91bmQuIEdvIGFoZWFkIGFuZCB0cnkuCgoKPiAKPiA+IAo+ID4gVGhhbmtzLAo+
-ID4gQW5kcmVhCl9fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19f
-ClZpcnR1YWxpemF0aW9uIG1haWxpbmcgbGlzdApWaXJ0dWFsaXphdGlvbkBsaXN0cy5saW51eC1m
-b3VuZGF0aW9uLm9yZwpodHRwczovL2xpc3RzLmxpbnV4Zm91bmRhdGlvbi5vcmcvbWFpbG1hbi9s
-aXN0aW5mby92aXJ0dWFsaXphdGlvbg==
+  Hi,
+
+> > >  static void bochs_crtc_atomic_flush(struct drm_crtc *crtc,
+> > >  				    struct drm_crtc_state *old_crtc_state)
+> > >  {
+> > > @@ -66,6 +71,7 @@ static const struct drm_crtc_funcs bochs_crtc_funcs = {
+> > >  static const struct drm_crtc_helper_funcs bochs_helper_funcs = {
+> > >  	.mode_set_nofb = bochs_crtc_mode_set_nofb,
+> > >  	.atomic_enable = bochs_crtc_atomic_enable,
+> > > +	.atomic_disable = bochs_crtc_atomic_disable,
+> > 
+> > Shouldn't we make the callback optional instead of adding empty dummy
+> > functions to drivers?
+> 
+> Hi Gerd,
+> 
+> I agree, and I can work in this issue.
+> Just one question, should we make atomic_enable optional as well?
+
+IIRC the drm code checks for the atomic_enable callback presence to
+figure whenever it should take the atomic or legacy code paths.
+
+So, I think that will not work.
+
+cheers,
+  Gerd
