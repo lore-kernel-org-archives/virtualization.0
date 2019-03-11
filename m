@@ -1,13 +1,14 @@
-From: Pankaj Gupta <pagupta@redhat.com>
-Subject: Re: [PATCH] virtio_console: free unused buffers with virtio port
-Date: Mon, 11 Mar 2019 01:58:11 -0400 (EDT)
-Message-ID: <1061079510.11168464.1552283891949.JavaMail.zimbra__33300.6351416529$1552283905$gmane$org@redhat.com>
-References: <20190304130511.14450-1-pagupta@redhat.com>
+From: Gerd Hoffmann <kraxel@redhat.com>
+Subject: Re: [PATCH] drm/bochs: Fix NULL dereference on atomic_disable helper
+Date: Mon, 11 Mar 2019 07:22:00 +0100
+Message-ID: <20190311062200.4mtel3j5fjxtxrcf__36457.8348978952$1552285333$gmane$org@sirius.home.kraxel.org>
+References: <20190310212150.xhhb4abzm7j3ain2@smtp.gmail.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <20190304130511.14450-1-pagupta@redhat.com>
+Content-Disposition: inline
+In-Reply-To: <20190310212150.xhhb4abzm7j3ain2@smtp.gmail.com>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -17,85 +18,34 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: linux-kernel@vger.kernel.org, virtualization@lists.linux-foundation.org
-Cc: arnd@arndb.de, mst@redhat.com, Gal Hammer <ghammer@redhat.com>, gregkh@linuxfoundation.org, amit@kernel.org, xiaohli@redhat.com
+To: Rodrigo Siqueira <rodrigosiqueiramelo@gmail.com>
+Cc: David Airlie <airlied@linux.ie>, linux-kernel@vger.kernel.org, dri-devel@lists.freedesktop.org, Daniel Vetter <daniel@ffwll.ch>, virtualization@lists.linux-foundation.org
 List-Id: virtualization@lists.linuxfoundation.org
 
-
+On Sun, Mar 10, 2019 at 06:21:50PM -0300, Rodrigo Siqueira wrote:
+> When the subtest basic-plain-flip from IGT project was executed on Bochs
+> driver, the following bug appears:
 > 
-> The commit a7a69ec0d8e4 ("virtio_console: free buffers after reset")
->   deffered detaching of unused buffer to virtio device unplug time.
-> 
->   This causes unplug/replug of single port in virtio device with an
->   error "Error allocating inbufs\n". As we don't free the unused buffers
->   attached with the port. Re-plug the same port tries to allocate new
->   buffers in virtqueue and results in this error if queue is full.
-> 
->   This patch removes the unused buffers in vq's when we unplug the port.
->   This is the best we can do as we cannot call device_reset because virtio
->   device is still active. This was the working behaviour before the change
->   introduced in commit b3258ff1d6.
+> BUG: unable to handle kernel NULL pointer dereference at 0000000000000000
 
-ping.
+>  ? drm_atomic_helper_commit_modeset_disables+0x396/0x3e0 [drm_kms_helper]
 
-This patch fixes a regression in upstream kernel, virtio_console driver.
-Can we please have this merged.
-
-Thanks,
-Pankaj
-
-> 
->   Reported-by: Xiaohui Li <xiaohli@redhat.com>
->   Fixes: b3258ff1d6 ("virtio_console: free buffers after reset")
->   Signed-off-by: Pankaj Gupta <pagupta@redhat.com>
-> ---
->  drivers/char/virtio_console.c | 14 +++++++++++---
->  1 file changed, 11 insertions(+), 3 deletions(-)
-> 
-> diff --git a/drivers/char/virtio_console.c b/drivers/char/virtio_console.c
-> index fbeb71953526..5fbf2ac73111 100644
-> --- a/drivers/char/virtio_console.c
-> +++ b/drivers/char/virtio_console.c
-> @@ -1506,15 +1506,25 @@ static void remove_port(struct kref *kref)
->  	kfree(port);
->  }
->  
-> +static void remove_unused_bufs(struct virtqueue *vq)
+> +static void  bochs_crtc_atomic_disable(struct drm_crtc *crtc,
+> +				       struct drm_crtc_state *old_state)
 > +{
-> +	struct port_buffer *buf;
-> +
-> +	while ((buf = virtqueue_detach_unused_buf(vq)))
-> +		free_buf(buf, true);
 > +}
 > +
->  static void remove_port_data(struct port *port)
+>  static void bochs_crtc_atomic_flush(struct drm_crtc *crtc,
+>  				    struct drm_crtc_state *old_crtc_state)
 >  {
->  	spin_lock_irq(&port->inbuf_lock);
->  	/* Remove unused data this port might have received. */
->  	discard_port_data(port);
-> +	remove_unused_bufs(port->in_vq);
->  	spin_unlock_irq(&port->inbuf_lock);
->  
->  	spin_lock_irq(&port->outvq_lock);
->  	reclaim_consumed_buffers(port);
-> +	remove_unused_bufs(port->out_vq);
->  	spin_unlock_irq(&port->outvq_lock);
->  }
->  
-> @@ -1950,11 +1960,9 @@ static void remove_vqs(struct ports_device *portdev)
->  	struct virtqueue *vq;
->  
->  	virtio_device_for_each_vq(portdev->vdev, vq) {
-> -		struct port_buffer *buf;
->  
->  		flush_bufs(vq, true);
-> -		while ((buf = virtqueue_detach_unused_buf(vq)))
-> -			free_buf(buf, true);
-> +		remove_unused_bufs(vq);
->  	}
->  	portdev->vdev->config->del_vqs(portdev->vdev);
->  	kfree(portdev->in_vqs);
-> --
-> 2.20.1
-> 
-> 
+> @@ -66,6 +71,7 @@ static const struct drm_crtc_funcs bochs_crtc_funcs = {
+>  static const struct drm_crtc_helper_funcs bochs_helper_funcs = {
+>  	.mode_set_nofb = bochs_crtc_mode_set_nofb,
+>  	.atomic_enable = bochs_crtc_atomic_enable,
+> +	.atomic_disable = bochs_crtc_atomic_disable,
+
+Shouldn't we make the callback optional instead of adding empty dummy
+functions to drivers?
+
+cheers,
+  Gerd
