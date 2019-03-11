@@ -1,12 +1,13 @@
-From: "Michael S. Tsirkin" <mst@redhat.com>
-Subject: [PULL] virtio,vhost: cleanups and fixes
-Date: Sat, 9 Mar 2019 22:44:35 -0500
-Message-ID: <20190309224435-mutt-send-email-mst@kernel.org>
+From: Pankaj Gupta <pagupta@redhat.com>
+Subject: Re: [PATCH] virtio_console: free unused buffers with virtio port
+Date: Mon, 11 Mar 2019 01:58:11 -0400 (EDT)
+Message-ID: <1061079510.11168464.1552283891949.JavaMail.zimbra__33300.6351416529$1552283905$gmane$org@redhat.com>
+References: <20190304130511.14450-1-pagupta@redhat.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-Content-Disposition: inline
+In-Reply-To: <20190304130511.14450-1-pagupta@redhat.com>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -16,65 +17,85 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Linus Torvalds <torvalds@linux-foundation.org>
-Cc: jroedel@suse.de, kvm@vger.kernel.org, arnd@arndb.de, mst@redhat.com, netdev@vger.kernel.org, cohuck@redhat.com, linux-kernel@vger.kernel.org, virtualization@lists.linux-foundation.org, pasic@linux.ibm.com
+To: linux-kernel@vger.kernel.org, virtualization@lists.linux-foundation.org
+Cc: arnd@arndb.de, mst@redhat.com, Gal Hammer <ghammer@redhat.com>, gregkh@linuxfoundation.org, amit@kernel.org, xiaohli@redhat.com
 List-Id: virtualization@lists.linuxfoundation.org
 
-The following changes since commit 1c163f4c7b3f621efff9b28a47abb36f7378d783:
 
-  Linux 5.0 (2019-03-03 15:21:29 -0800)
+> 
+> The commit a7a69ec0d8e4 ("virtio_console: free buffers after reset")
+>   deffered detaching of unused buffer to virtio device unplug time.
+> 
+>   This causes unplug/replug of single port in virtio device with an
+>   error "Error allocating inbufs\n". As we don't free the unused buffers
+>   attached with the port. Re-plug the same port tries to allocate new
+>   buffers in virtqueue and results in this error if queue is full.
+> 
+>   This patch removes the unused buffers in vq's when we unplug the port.
+>   This is the best we can do as we cannot call device_reset because virtio
+>   device is still active. This was the working behaviour before the change
+>   introduced in commit b3258ff1d6.
 
-are available in the Git repository at:
+ping.
 
-  git://git.kernel.org/pub/scm/linux/kernel/git/mst/vhost.git tags/for_linus
+This patch fixes a regression in upstream kernel, virtio_console driver.
+Can we please have this merged.
 
-for you to fetch changes up to cfdbb4ed31aa777d59b288810f66eb06249ee5b7:
+Thanks,
+Pankaj
 
-  vhost: silence an unused-variable warning (2019-03-06 11:32:37 -0500)
-
-----------------------------------------------------------------
-virtio: fixes, cleanups
-
-Several fixes, most notably fix for virtio on swiotlb systems.
-
-Signed-off-by: Michael S. Tsirkin <mst@redhat.com>
-
-----------------------------------------------------------------
-Arnd Bergmann (1):
-      vhost: silence an unused-variable warning
-
-Cornelia Huck (3):
-      virtio-ccw: diag 500 may return a negative cookie
-      virtio-ccw: wire up ->bus_name callback
-      virtio: hint if callbacks surprisingly might sleep
-
-Halil Pasic (1):
-      s390/virtio: handle find on invalid queue gracefully
-
-Joerg Roedel (5):
-      swiotlb: Introduce swiotlb_max_mapping_size()
-      swiotlb: Add is_swiotlb_active() function
-      dma: Introduce dma_max_mapping_size()
-      virtio: Introduce virtio_max_dma_size()
-      virtio-blk: Consider virtio_max_dma_size() for maximum segment size
-
-Wei Wang (2):
-      virtio-balloon: improve update_balloon_size_func
-      virtio_balloon: remove the unnecessary 0-initialization
-
- Documentation/DMA-API.txt               |  8 ++++++++
- Documentation/virtual/kvm/s390-diag.txt |  3 ++-
- drivers/block/virtio_blk.c              | 10 ++++++----
- drivers/s390/virtio/virtio_ccw.c        | 12 +++++++++++-
- drivers/vhost/vhost.c                   |  2 +-
- drivers/virtio/virtio.c                 |  2 ++
- drivers/virtio/virtio_balloon.c         |  6 ++++--
- drivers/virtio/virtio_ring.c            | 11 +++++++++++
- include/linux/dma-mapping.h             |  8 ++++++++
- include/linux/swiotlb.h                 | 11 +++++++++++
- include/linux/virtio.h                  |  2 ++
- include/linux/virtio_config.h           | 13 +++++++++++++
- kernel/dma/direct.c                     | 11 +++++++++++
- kernel/dma/mapping.c                    | 14 ++++++++++++++
- kernel/dma/swiotlb.c                    | 14 ++++++++++++++
- 15 files changed, 118 insertions(+), 9 deletions(-)
+> 
+>   Reported-by: Xiaohui Li <xiaohli@redhat.com>
+>   Fixes: b3258ff1d6 ("virtio_console: free buffers after reset")
+>   Signed-off-by: Pankaj Gupta <pagupta@redhat.com>
+> ---
+>  drivers/char/virtio_console.c | 14 +++++++++++---
+>  1 file changed, 11 insertions(+), 3 deletions(-)
+> 
+> diff --git a/drivers/char/virtio_console.c b/drivers/char/virtio_console.c
+> index fbeb71953526..5fbf2ac73111 100644
+> --- a/drivers/char/virtio_console.c
+> +++ b/drivers/char/virtio_console.c
+> @@ -1506,15 +1506,25 @@ static void remove_port(struct kref *kref)
+>  	kfree(port);
+>  }
+>  
+> +static void remove_unused_bufs(struct virtqueue *vq)
+> +{
+> +	struct port_buffer *buf;
+> +
+> +	while ((buf = virtqueue_detach_unused_buf(vq)))
+> +		free_buf(buf, true);
+> +}
+> +
+>  static void remove_port_data(struct port *port)
+>  {
+>  	spin_lock_irq(&port->inbuf_lock);
+>  	/* Remove unused data this port might have received. */
+>  	discard_port_data(port);
+> +	remove_unused_bufs(port->in_vq);
+>  	spin_unlock_irq(&port->inbuf_lock);
+>  
+>  	spin_lock_irq(&port->outvq_lock);
+>  	reclaim_consumed_buffers(port);
+> +	remove_unused_bufs(port->out_vq);
+>  	spin_unlock_irq(&port->outvq_lock);
+>  }
+>  
+> @@ -1950,11 +1960,9 @@ static void remove_vqs(struct ports_device *portdev)
+>  	struct virtqueue *vq;
+>  
+>  	virtio_device_for_each_vq(portdev->vdev, vq) {
+> -		struct port_buffer *buf;
+>  
+>  		flush_bufs(vq, true);
+> -		while ((buf = virtqueue_detach_unused_buf(vq)))
+> -			free_buf(buf, true);
+> +		remove_unused_bufs(vq);
+>  	}
+>  	portdev->vdev->config->del_vqs(portdev->vdev);
+>  	kfree(portdev->in_vqs);
+> --
+> 2.20.1
+> 
+> 
