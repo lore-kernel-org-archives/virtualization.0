@@ -1,23 +1,14 @@
-From: Jan Kara <jack@suse.cz>
-Subject: Re: [RFC PATCH V2 5/5] vhost: access vq metadata through kernel
-	virtual address
-Date: Mon, 11 Mar 2019 15:45:27 +0100
-Message-ID: <20190311144527.GM11553__9584.72826039127$1552315539$gmane$org@quack2.suse.cz>
-References: <1551856692-3384-1-git-send-email-jasowang@redhat.com>
-	<1551856692-3384-6-git-send-email-jasowang@redhat.com>
-	<20190306092837-mutt-send-email-mst@kernel.org>
-	<15105894-4ec1-1ed0-1976-7b68ed9eeeda@redhat.com>
-	<20190307101708-mutt-send-email-mst@kernel.org>
-	<20190307190910.GE3835@redhat.com>
-	<20190307193838.GQ23850@redhat.com>
-	<20190307201722.GG3835@redhat.com>
-	<20190307212717.GS23850@redhat.com>
+From: Hans de Goede <hdegoede@redhat.com>
+Subject: Re: [PATCH 0/5] Clean up TTM mmap offsets
+Date: Mon, 11 Mar 2019 17:39:31 +0100
+Message-ID: <2509b876-8335-4be6-b33b-bbf11a73145f@redhat.com>
+References: <20190207085931.29569-1-tzimmermann@suse.de>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
+Content-Type: text/plain; charset="us-ascii"; Format="flowed"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-Content-Disposition: inline
-In-Reply-To: <20190307212717.GS23850@redhat.com>
+In-Reply-To: <20190207085931.29569-1-tzimmermann@suse.de>
+Content-Language: en-US
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -27,38 +18,33 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Andrea Arcangeli <aarcange@redhat.com>
-Cc: Jan Kara <jack@suse.cz>, kvm@vger.kernel.org, "Michael S. Tsirkin" <mst@redhat.com>, netdev@vger.kernel.org, linux-kernel@vger.kernel.org, virtualization@lists.linux-foundation.org, linux-mm@kvack.org, Jerome Glisse <jglisse@redhat.com>
+To: Thomas Zimmermann <tzimmermann@suse.de>, alexander.deucher@amd.com, christian.koenig@amd.com, David1.Zhou@amd.com, airlied@redhat.com, kraxel@redhat.com, z.liuxinliang@hisilicon.com, zourongrong@gmail.com, kong.kongxinwei@hisilicon.com, puck.chen@hisilicon.com, bskeggs@redhat.com, thellstrom@vmware.com, linux-graphics-maintainer@vmware.com, daniel@ffwll.ch, arnd@arndb.de, gregkh@linuxfoundation.org, ray.huang@amd.com, Jerry.Zhang@amd.com
+Cc: spice-devel@lists.freedesktop.org, amd-gfx@lists.freedesktop.org, dri-devel@lists.freedesktop.org, virtualization@lists.linux-foundation.org
 List-Id: virtualization@lists.linuxfoundation.org
 
-On Thu 07-03-19 16:27:17, Andrea Arcangeli wrote:
-> > driver that GUP page for hours/days/weeks/months ... obviously the
-> > race window is big enough here. It affects many fs (ext4, xfs, ...)
-> > in different ways. I think ext4 is the most obvious because of the
-> > kernel log trace it leaves behind.
-> > 
-> > Bottom line is for set_page_dirty to be safe you need the following:
-> >     lock_page()
-> >     page_mkwrite()
-> >     set_pte_with_write()
-> >     unlock_page()
+Hi,
+
+On 07-02-19 09:59, Thomas Zimmermann wrote:
+> Almost all TTM-based drivers use the same values for the mmap-able
+> range of BO addresses. Each driver therefore duplicates the
+> DRM_FILE_PAGE_OFFSET constant. OTOH, the mmap range's size is not
+> configurable by drivers.
 > 
-> I also wondered why ext4 writepage doesn't recreate the bh if they got
-> dropped by the VM and page->private is 0. I mean, page->index and
-> page->mapping are still there, that's enough info for writepage itself
-> to take a slow path and calls page_mkwrite to find where to write the
-> page on disk.
+> This patch set replaces driver-specific configuration with a single
+> setup. All code is located within TTM. TTM and GEM share the same
+> range for mmap-able BOs.
+> 
+> Thomas Zimmermann (5):
+>    staging/vboxvideo: Use same BO mmap offset as other drivers
+>    drm/ttm: Define a single DRM_FILE_PAGE_OFFSET constant
+>    drm/ttm: Remove file_page_offset parameter from ttm_bo_device_init()
+>    drm/ttm: Quick-test mmap offset in ttm_bo_mmap()
+>    drm: Use the same mmap-range offset and size for GEM and TTM
 
-There are two problems:
+Note I'm about to push a patch-series to drm-misc-next which moves
+vboxvideo out of staging and I see that this series has not landed
+in drm-misc-next yet, so it will needs to be rebased.
 
-1) What to do with errors that page_mkwrite() can generate (ENOMEM, ENOSPC,
-EIO). On page fault you just propagate them to userspace, on set_page_dirty()
-you have no chance so you just silently loose data.
+Regards,
 
-2) We need various locks to protect page_mkwrite(), possibly do some IO.
-set_page_dirty() is rather uncertain context to acquire locks or do IO...
-
-									Honza
--- 
-Jan Kara <jack@suse.com>
-SUSE Labs, CR
+Hans
