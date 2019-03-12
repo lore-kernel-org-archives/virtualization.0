@@ -1,13 +1,23 @@
-From: Cornelia Huck <cohuck@redhat.com>
-Subject: Re: virtio-blk: should num_vqs be limited by num_possible_cpus()?
-Date: Tue, 12 Mar 2019 18:33:51 +0100
-Message-ID: <20190312183351.74764f4f.cohuck@redhat.com>
-References: <e4afe4c5-0262-4500-aeec-60f30734b4fc@default>
+From: Andrea Arcangeli <aarcange@redhat.com>
+Subject: Re: [RFC PATCH V2 0/5] vhost: accelerate metadata access through
+	vmap()
+Date: Tue, 12 Mar 2019 16:04:50 -0400
+Message-ID: <20190312200450.GA25147@redhat.com>
+References: <20190308141220.GA21082@infradead.org>
+	<56374231-7ba7-0227-8d6d-4d968d71b4d6@redhat.com>
+	<20190311095405-mutt-send-email-mst@kernel.org>
+	<20190311.111413.1140896328197448401.davem@davemloft.net>
+	<6b6dcc4a-2f08-ba67-0423-35787f3b966c@redhat.com>
+	<20190311235140-mutt-send-email-mst@kernel.org>
+	<76c353ed-d6de-99a9-76f9-f258074c1462@redhat.com>
+	<20190312075033-mutt-send-email-mst@kernel.org>
+	<1552405610.3083.17.camel@HansenPartnership.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset="iso-8859-1"
+Content-Transfer-Encoding: quoted-printable
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <e4afe4c5-0262-4500-aeec-60f30734b4fc@default>
+Content-Disposition: inline
+In-Reply-To: <1552405610.3083.17.camel@HansenPartnership.com>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -17,77 +27,61 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Dongli Zhang <dongli.zhang@oracle.com>
-Cc: linux-block@vger.kernel.org, axboe@kernel.dk, mst@redhat.com, linux-kernel@vger.kernel.org, virtualization@lists.linux-foundation.org
+To: James Bottomley <James.Bottomley@HansenPartnership.com>
+Cc: linux-parisc@vger.kernel.org, kvm@vger.kernel.org, "Michael S. Tsirkin" <mst@redhat.com>, netdev@vger.kernel.org, linux-kernel@vger.kernel.org, virtualization@lists.linux-foundation.org, hch@infradead.org, linux-mm@kvack.org, David Miller <davem@davemloft.net>, linux-arm-kernel@lists.infradead.org
 List-Id: virtualization@lists.linuxfoundation.org
 
-On Tue, 12 Mar 2019 10:22:46 -0700 (PDT)
-Dongli Zhang <dongli.zhang@oracle.com> wrote:
+On Tue, Mar 12, 2019 at 08:46:50AM -0700, James Bottomley wrote:
+> On Tue, 2019-03-12 at 07:54 -0400, Michael S. Tsirkin wrote:
+> > On Tue, Mar 12, 2019 at 03:17:00PM +0800, Jason Wang wrote:
+> > > =
 
-> I observed that there is one msix vector for config and one shared vector
-> for all queues in below qemu cmdline, when the num-queues for virtio-blk
-> is more than the number of possible cpus:
-> 
-> qemu: "-smp 4" while "-device virtio-blk-pci,drive=drive-0,id=virtblk0,num-queues=6"
-> 
-> # cat /proc/interrupts 
->            CPU0       CPU1       CPU2       CPU3
-> ... ...
->  24:          0          0          0          0   PCI-MSI 65536-edge      virtio0-config
->  25:          0          0          0         59   PCI-MSI 65537-edge      virtio0-virtqueues
-> ... ...
-> 
-> 
-> However, when num-queues is the same as number of possible cpus:
-> 
-> qemu: "-smp 4" while "-device virtio-blk-pci,drive=drive-0,id=virtblk0,num-queues=4"
-> 
-> # cat /proc/interrupts 
->            CPU0       CPU1       CPU2       CPU3
-> ... ... 
->  24:          0          0          0          0   PCI-MSI 65536-edge      virtio0-config
->  25:          2          0          0          0   PCI-MSI 65537-edge      virtio0-req.0
->  26:          0         35          0          0   PCI-MSI 65538-edge      virtio0-req.1
->  27:          0          0         32          0   PCI-MSI 65539-edge      virtio0-req.2
->  28:          0          0          0          0   PCI-MSI 65540-edge      virtio0-req.3
-> ... ...
-> 
-> In above case, there is one msix vector per queue.
+> > > On 2019/3/12 =E4=B8=8A=E5=8D=8811:52, Michael S. Tsirkin wrote:
+> > > > On Tue, Mar 12, 2019 at 10:59:09AM +0800, Jason Wang wrote:
+> [...]
+> > > At least for -stable, we need the flush?
+> > > =
 
-Please note that this is pci-specific...
+> > > =
 
-> 
-> 
-> This is because the max number of queues is not limited by the number of
-> possible cpus.
-> 
-> By default, nvme (regardless about write_queues and poll_queues) and
-> xen-blkfront limit the number of queues with num_possible_cpus().
+> > > > Three atomic ops per bit is way to expensive.
+> > > =
 
-...and these are probably pci-specific as well.
+> > > =
 
-> 
-> 
-> Is this by design on purpose, or can we fix with below?
-> 
-> 
-> diff --git a/drivers/block/virtio_blk.c b/drivers/block/virtio_blk.c
-> index 4bc083b..df95ce3 100644
-> --- a/drivers/block/virtio_blk.c
-> +++ b/drivers/block/virtio_blk.c
-> @@ -513,6 +513,8 @@ static int init_vq(struct virtio_blk *vblk)
->  	if (err)
->  		num_vqs = 1;
->  
-> +	num_vqs = min(num_possible_cpus(), num_vqs);
-> +
->  	vblk->vqs = kmalloc_array(num_vqs, sizeof(*vblk->vqs), GFP_KERNEL);
->  	if (!vblk->vqs)
->  		return -ENOMEM;
+> > > Yes.
+> > > =
 
-virtio-blk, however, is not pci-specific.
+> > > Thanks
+> > =
 
-If we are using the ccw transport on s390, a completely different
-interrupt mechanism is in use ('floating' interrupts, which are not
-per-cpu). A check like that should therefore not go into the generic
-driver.
+> > See James's reply - I stand corrected we do kunmap so no need to
+> > flush.
+> =
+
+> Well, I said that's what we do on Parisc.  The cachetlb document
+> definitely says if you alter the data between kmap and kunmap you are
+> responsible for the flush.  It's just that flush_dcache_page() is a no-
+> op on x86 so they never remember to add it and since it will crash
+> parisc if you get it wrong we finally gave up trying to make them.
+> =
+
+> But that's the point: it is a no-op on your favourite architecture so
+> it costs you nothing to add it.
+
+Yes, the fact Parisc gave up and is doing it on kunmap is reasonable
+approach for Parisc, but it doesn't move the needle as far as vhost
+common code is concerned, because other archs don't flush any cache on
+kunmap.
+
+So either all other archs give up trying to optimize, or vhost still
+has to call flush_dcache_page() after kunmap.
+
+Which means after we fix vhost to add the flush_dcache_page after
+kunmap, Parisc will get a double hit (but it also means Parisc was the
+only one of those archs needed explicit cache flushes, where vhost
+worked correctly so far.. so it kinds of proofs your point of giving
+up being the safe choice).
+
+Thanks,
+Andrea
