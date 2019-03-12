@@ -1,24 +1,19 @@
 From: Jason Wang <jasowang@redhat.com>
-Subject: Re: [RFC PATCH V2 5/5] vhost: access vq metadata through kernel
-	virtual address
-Date: Tue, 12 Mar 2019 15:15:22 +0800
-Message-ID: <3b00dc4a-b1b7-aa3f-c4ba-515138e4d6dd__11484.771785193$1552374941$gmane$org@redhat.com>
-References: <1551856692-3384-1-git-send-email-jasowang@redhat.com>
-	<1551856692-3384-6-git-send-email-jasowang@redhat.com>
-	<20190307103503-mutt-send-email-mst@kernel.org>
-	<20190307124700-mutt-send-email-mst@kernel.org>
-	<20190307191622.GP23850@redhat.com>
-	<e2fad6ed-9257-b53c-394b-bc913fc444c0@redhat.com>
-	<20190308194845.GC26923@redhat.com>
-	<8b68a2a0-907a-15f5-a07f-fc5b53d7ea19@redhat.com>
-	<20190311084525-mutt-send-email-mst@kernel.org>
-	<ff45ea43-1145-5ea6-767c-1a99d55a9c61@redhat.com>
-	<20190311234956-mutt-send-email-mst@kernel.org>
+Subject: Re: [RFC PATCH V2 0/5] vhost: accelerate metadata access through
+	vmap()
+Date: Tue, 12 Mar 2019 15:17:00 +0800
+Message-ID: <76c353ed-d6de-99a9-76f9-f258074c1462__30780.3071149223$1552375048$gmane$org@redhat.com>
+References: <20190308141220.GA21082@infradead.org>
+	<56374231-7ba7-0227-8d6d-4d968d71b4d6@redhat.com>
+	<20190311095405-mutt-send-email-mst@kernel.org>
+	<20190311.111413.1140896328197448401.davem@davemloft.net>
+	<6b6dcc4a-2f08-ba67-0423-35787f3b966c@redhat.com>
+	<20190311235140-mutt-send-email-mst@kernel.org>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="utf-8"; Format="flowed"
 Content-Transfer-Encoding: base64
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <20190311234956-mutt-send-email-mst@kernel.org>
+In-Reply-To: <20190311235140-mutt-send-email-mst@kernel.org>
 Content-Language: en-US
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
@@ -30,23 +25,53 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
 To: "Michael S. Tsirkin" <mst@redhat.com>
-Cc: Andrea Arcangeli <aarcange@redhat.com>, kvm@vger.kernel.org, netdev@vger.kernel.org, linux-kernel@vger.kernel.org, virtualization@lists.linux-foundation.org, linux-mm@kvack.org, Jerome Glisse <jglisse@redhat.com>
+Cc: aarcange@redhat.com, linux-parisc@vger.kernel.org, kvm@vger.kernel.org, netdev@vger.kernel.org, linux-kernel@vger.kernel.org, virtualization@lists.linux-foundation.org, hch@infradead.org, linux-mm@kvack.org, David Miller <davem@davemloft.net>, linux-arm-kernel@lists.infradead.org
 List-Id: virtualization@lists.linuxfoundation.org
 
-Ck9uIDIwMTkvMy8xMiDkuIrljYgxMTo1MCwgTWljaGFlbCBTLiBUc2lya2luIHdyb3RlOgo+Pj4+
-IFVzaW5nIGRpcmVjdCBtYXBwaW5nIChJCj4+Pj4gZ3Vlc3Mga2VybmVsIHdpbGwgYWx3YXlzIHRy
-eSBodWdlcGFnZSBmb3IgdGhhdD8pIHNob3VsZCBiZSBiZXR0ZXIgYW5kIHdlIGNhbgo+Pj4+IGV2
-ZW4gdXNlIGl0IGZvciB0aGUgZGF0YSB0cmFuc2ZlciBub3Qgb25seSBmb3IgdGhlIG1ldGFkYXRh
-Lgo+Pj4+Cj4+Pj4gVGhhbmtzCj4+PiBXZSBjYW4ndCByZWFsbHkuIFRoZSBiaWcgaXNzdWUgaXMg
-Z2V0IHVzZXIgcGFnZXMuIERvaW5nIHRoYXQgb24gZGF0YQo+Pj4gcGF0aCB3aWxsIGJlIHNsb3dl
-ciB0aGFuIGNvcHlYdXNlci4KPj4gSSBtZWFudCBpZiB3ZSBjYW4gZmluZCBhIHdheSB0byBhdm9p
-ZCBkb2luZyBndXAgaW4gZGF0YXBhdGguIEUuZyB2aG9zdAo+PiBtYWludGFpbiBhIHJhbmdlIHRy
-ZWUgYW5kIGFkZCBvciByZW1vdmUgcmFuZ2VzIHRocm91Z2ggTU1VIG5vdGlmaWVyLiBUaGVuIGlu
-Cj4+IGRhdGFwYXRoLCBpZiB3ZSBmaW5kIHRoZSByYW5nZSwgdGhlbiB1c2UgZGlyZWN0IG1hcHBp
-bmcgb3RoZXJ3aXNlCj4+IGNvcHlfdG9fdXNlcigpLgo+Pgo+PiBUaGFua3MKPiBXZSBjYW4gdHJ5
-LiBCdXQgSSdtIG5vdCBzdXJlIHRoZXJlJ3MgYW55IHJlYXNvbiB0byB0aGluayB0aGVyZSdzIGFu
-eQo+IGxvY2FsaXR5IHRoZXJlLgo+CgpPaywgYnV0IHdoYXQga2luZCBvZiBsb2NhbGl0eSBkbyB5
-b3UgbWVhbiBoZXJlPwoKVGhhbmtzCgpfX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19f
-X19fX19fX19fX19fXwpWaXJ0dWFsaXphdGlvbiBtYWlsaW5nIGxpc3QKVmlydHVhbGl6YXRpb25A
-bGlzdHMubGludXgtZm91bmRhdGlvbi5vcmcKaHR0cHM6Ly9saXN0cy5saW51eGZvdW5kYXRpb24u
-b3JnL21haWxtYW4vbGlzdGluZm8vdmlydHVhbGl6YXRpb24=
+Ck9uIDIwMTkvMy8xMiDkuIrljYgxMTo1MiwgTWljaGFlbCBTLiBUc2lya2luIHdyb3RlOgo+IE9u
+IFR1ZSwgTWFyIDEyLCAyMDE5IGF0IDEwOjU5OjA5QU0gKzA4MDAsIEphc29uIFdhbmcgd3JvdGU6
+Cj4+IE9uIDIwMTkvMy8xMiDkuIrljYgyOjE0LCBEYXZpZCBNaWxsZXIgd3JvdGU6Cj4+PiBGcm9t
+OiAiTWljaGFlbCBTLiBUc2lya2luIiA8bXN0QHJlZGhhdC5jb20+Cj4+PiBEYXRlOiBNb24sIDEx
+IE1hciAyMDE5IDA5OjU5OjI4IC0wNDAwCj4+Pgo+Pj4+IE9uIE1vbiwgTWFyIDExLCAyMDE5IGF0
+IDAzOjEzOjE3UE0gKzA4MDAsIEphc29uIFdhbmcgd3JvdGU6Cj4+Pj4+IE9uIDIwMTkvMy84IOS4
+i+WNiDEwOjEyLCBDaHJpc3RvcGggSGVsbHdpZyB3cm90ZToKPj4+Pj4+IE9uIFdlZCwgTWFyIDA2
+LCAyMDE5IGF0IDAyOjE4OjA3QU0gLTA1MDAsIEphc29uIFdhbmcgd3JvdGU6Cj4+Pj4+Pj4gVGhp
+cyBzZXJpZXMgdHJpZXMgdG8gYWNjZXNzIHZpcnRxdWV1ZSBtZXRhZGF0YSB0aHJvdWdoIGtlcm5l
+bCB2aXJ0dWFsCj4+Pj4+Pj4gYWRkcmVzcyBpbnN0ZWFkIG9mIGNvcHlfdXNlcigpIGZyaWVuZHMg
+c2luY2UgdGhleSBoYWQgdG9vIG11Y2gKPj4+Pj4+PiBvdmVyaGVhZHMgbGlrZSBjaGVja3MsIHNw
+ZWMgYmFycmllcnMgb3IgZXZlbiBoYXJkd2FyZSBmZWF0dXJlCj4+Pj4+Pj4gdG9nZ2xpbmcuIFRo
+aXMgaXMgZG9uZSB0aHJvdWdoIHNldHVwIGtlcm5lbCBhZGRyZXNzIHRocm91Z2ggdm1hcCgpIGFu
+ZAo+Pj4+Pj4+IHJlc2lndGVyIE1NVSBub3RpZmllciBmb3IgaW52YWxpZGF0aW9uLgo+Pj4+Pj4+
+Cj4+Pj4+Pj4gVGVzdCBzaG93cyBhYm91dCAyNCUgaW1wcm92ZW1lbnQgb24gVFggUFBTLiBUQ1Bf
+U1RSRUFNIGRvZXNuJ3Qgc2VlCj4+Pj4+Pj4gb2J2aW91cyBpbXByb3ZlbWVudC4KPj4+Pj4+IEhv
+dyBpcyB0aGlzIGdvaW5nIHRvIHdvcmsgZm9yIENQVXMgd2l0aCB2aXJ0dWFsbHkgdGFnZ2VkIGNh
+Y2hlcz8KPj4+Pj4gQW55dGhpbmcgZGlmZmVyZW50IHRoYXQgeW91IHdvcnJ5Pwo+Pj4+IElmIGNh
+Y2hlcyBoYXZlIHZpcnR1YWwgdGFncyB0aGVuIGtlcm5lbCBhbmQgdXNlcnNwYWNlIHZpZXcgb2Yg
+bWVtb3J5Cj4+Pj4gbWlnaHQgbm90IGJlIGF1dG9tYXRpY2FsbHkgaW4gc3luYyBpZiB0aGV5IGFj
+Y2VzcyBtZW1vcnkKPj4+PiB0aHJvdWdoIGRpZmZlcmVudCB2aXJ0dWFsIGFkZHJlc3Nlcy4gWW91
+IG5lZWQgdG8gZG8gdGhpbmdzIGxpa2UKPj4+PiBmbHVzaF9jYWNoZV9wYWdlLCBwcm9iYWJseSBt
+dWx0aXBsZSB0aW1lcy4KPj4+ICJmbHVzaF9kY2FjaGVfcGFnZSgpIgo+Pgo+PiBJIGdldCB0aGlz
+LiBUaGVuIEkgdGhpbmsgdGhlIGN1cnJlbnQgc2V0X2JpdF90b191c2VyKCkgaXMgc3VzcGljaW91
+cywgd2UKPj4gcHJvYmFibHkgbWlzcyBhIGZsdXNoX2RjYWNoZV9wYWdlKCkgdGhlcmU6Cj4+Cj4+
+Cj4+IHN0YXRpYyBpbnQgc2V0X2JpdF90b191c2VyKGludCBuciwgdm9pZCBfX3VzZXIgKmFkZHIp
+Cj4+IHsKPj4gIMKgwqDCoMKgwqDCoMKgIHVuc2lnbmVkIGxvbmcgbG9nID0gKHVuc2lnbmVkIGxv
+bmcpYWRkcjsKPj4gIMKgwqDCoMKgwqDCoMKgIHN0cnVjdCBwYWdlICpwYWdlOwo+PiAgwqDCoMKg
+wqDCoMKgwqAgdm9pZCAqYmFzZTsKPj4gIMKgwqDCoMKgwqDCoMKgIGludCBiaXQgPSBuciArIChs
+b2cgJSBQQUdFX1NJWkUpICogODsKPj4gIMKgwqDCoMKgwqDCoMKgIGludCByOwo+Pgo+PiAgwqDC
+oMKgwqDCoMKgwqAgciA9IGdldF91c2VyX3BhZ2VzX2Zhc3QobG9nLCAxLCAxLCAmcGFnZSk7Cj4+
+ICDCoMKgwqDCoMKgwqDCoCBpZiAociA8IDApCj4+ICDCoMKgwqDCoMKgwqDCoMKgwqDCoMKgwqDC
+oMKgwqAgcmV0dXJuIHI7Cj4+ICDCoMKgwqDCoMKgwqDCoCBCVUdfT04ociAhPSAxKTsKPj4gIMKg
+wqDCoMKgwqDCoMKgIGJhc2UgPSBrbWFwX2F0b21pYyhwYWdlKTsKPj4gIMKgwqDCoMKgwqDCoMKg
+IHNldF9iaXQoYml0LCBiYXNlKTsKPj4gIMKgwqDCoMKgwqDCoMKgIGt1bm1hcF9hdG9taWMoYmFz
+ZSk7Cj4+ICDCoMKgwqDCoMKgwqDCoCBzZXRfcGFnZV9kaXJ0eV9sb2NrKHBhZ2UpOwo+PiAgwqDC
+oMKgwqDCoMKgwqAgcHV0X3BhZ2UocGFnZSk7Cj4+ICDCoMKgwqDCoMKgwqDCoCByZXR1cm4gMDsK
+Pj4gfQo+Pgo+PiBUaGFua3MKPiBJIHRoaW5rIHlvdSBhcmUgcmlnaHQuIFRoZSBjb3JyZWN0IGZp
+eCB0aG91Z2ggaXMgdG8gcmUtaW1wbGVtZW50Cj4gaXQgdXNpbmcgYXNtIGFuZCBoYW5kbGluZyBw
+YWdlZmF1bHQsIG5vdCBndXAuCgoKSSBhZ3JlZSBidXQgaXQgbmVlZHMgdG8gaW50cm9kdWNlIG5l
+dyBoZWxwZXJzIGluIGFzbcKgIGZvciBhbGwgYXJjaHMgCndoaWNoIGlzIG5vdCB0cml2aWFsLiBB
+dCBsZWFzdCBmb3IgLXN0YWJsZSwgd2UgbmVlZCB0aGUgZmx1c2g/CgoKPiBUaHJlZSBhdG9taWMg
+b3BzIHBlciBiaXQgaXMgd2F5IHRvIGV4cGVuc2l2ZS4KCgpZZXMuCgpUaGFua3MKCl9fX19fX19f
+X19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fClZpcnR1YWxpemF0aW9uIG1h
+aWxpbmcgbGlzdApWaXJ0dWFsaXphdGlvbkBsaXN0cy5saW51eC1mb3VuZGF0aW9uLm9yZwpodHRw
+czovL2xpc3RzLmxpbnV4Zm91bmRhdGlvbi5vcmcvbWFpbG1hbi9saXN0aW5mby92aXJ0dWFsaXph
+dGlvbg==
