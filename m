@@ -1,10 +1,9 @@
 From: Andrea Arcangeli <aarcange@redhat.com>
 Subject: Re: [RFC PATCH V2 0/5] vhost: accelerate metadata access through
 	vmap()
-Date: Tue, 12 Mar 2019 16:04:50 -0400
-Message-ID: <20190312200450.GA25147@redhat.com>
-References: <20190308141220.GA21082@infradead.org>
-	<56374231-7ba7-0227-8d6d-4d968d71b4d6@redhat.com>
+Date: Tue, 12 Mar 2019 17:11:17 -0400
+Message-ID: <20190312211117.GB25147__22717.0351239451$1552425094$gmane$org@redhat.com>
+References: <56374231-7ba7-0227-8d6d-4d968d71b4d6@redhat.com>
 	<20190311095405-mutt-send-email-mst@kernel.org>
 	<20190311.111413.1140896328197448401.davem@davemloft.net>
 	<6b6dcc4a-2f08-ba67-0423-35787f3b966c@redhat.com>
@@ -12,12 +11,14 @@ References: <20190308141220.GA21082@infradead.org>
 	<76c353ed-d6de-99a9-76f9-f258074c1462@redhat.com>
 	<20190312075033-mutt-send-email-mst@kernel.org>
 	<1552405610.3083.17.camel@HansenPartnership.com>
+	<20190312200450.GA25147@redhat.com>
+	<1552424017.14432.11.camel@HansenPartnership.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="iso-8859-1"
-Content-Transfer-Encoding: quoted-printable
+Content-Type: text/plain; charset="us-ascii"
+Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
 Content-Disposition: inline
-In-Reply-To: <1552405610.3083.17.camel@HansenPartnership.com>
+In-Reply-To: <1552424017.14432.11.camel@HansenPartnership.com>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -31,57 +32,130 @@ To: James Bottomley <James.Bottomley@HansenPartnership.com>
 Cc: linux-parisc@vger.kernel.org, kvm@vger.kernel.org, "Michael S. Tsirkin" <mst@redhat.com>, netdev@vger.kernel.org, linux-kernel@vger.kernel.org, virtualization@lists.linux-foundation.org, hch@infradead.org, linux-mm@kvack.org, David Miller <davem@davemloft.net>, linux-arm-kernel@lists.infradead.org
 List-Id: virtualization@lists.linuxfoundation.org
 
-On Tue, Mar 12, 2019 at 08:46:50AM -0700, James Bottomley wrote:
-> On Tue, 2019-03-12 at 07:54 -0400, Michael S. Tsirkin wrote:
-> > On Tue, Mar 12, 2019 at 03:17:00PM +0800, Jason Wang wrote:
-> > > =
+On Tue, Mar 12, 2019 at 01:53:37PM -0700, James Bottomley wrote:
+> I've got to say: optimize what?  What code do we ever have in the
+> kernel that kmap's a page and then doesn't do anything with it? You can
+> guarantee that on kunmap the page is either referenced (needs
+> invalidating) or updated (needs flushing). The in-kernel use of kmap is
+> always
+> 
+> kmap
+> do something with the mapped page
+> kunmap
+> 
+> In a very short interval.  It seems just a simplification to make
+> kunmap do the flush if needed rather than try to have the users
+> remember.  The thing which makes this really simple is that on most
+> architectures flush and invalidate is the same operation.  If you
+> really want to optimize you can use the referenced and dirty bits on
+> the kmapped pte to tell you what operation to do, but if your flush is
+> your invalidate, you simply assume the data needs flushing on kunmap
+> without checking anything.
 
-> > > On 2019/3/12 =E4=B8=8A=E5=8D=8811:52, Michael S. Tsirkin wrote:
-> > > > On Tue, Mar 12, 2019 at 10:59:09AM +0800, Jason Wang wrote:
-> [...]
-> > > At least for -stable, we need the flush?
-> > > =
+Except other archs like arm64 and sparc do the cache flushing on
+copy_to_user_page and copy_user_page, not on kunmap.
 
-> > > =
+#define copy_user_page(to,from,vaddr,pg) __cpu_copy_user_page(to, from, vaddr)
+void __cpu_copy_user_page(void *kto, const void *kfrom, unsigned long vaddr)
+{
+	struct page *page = virt_to_page(kto);
+	copy_page(kto, kfrom);
+	flush_dcache_page(page);
+}
+#define copy_user_page(to, from, vaddr, page)	\
+	do {	copy_page(to, from);		\
+		sparc_flush_page_to_ram(page);	\
+	} while (0)
 
-> > > > Three atomic ops per bit is way to expensive.
-> > > =
+And they do nothing on kunmap:
 
-> > > =
+static inline void kunmap(struct page *page)
+{
+	BUG_ON(in_interrupt());
+	if (!PageHighMem(page))
+		return;
+	kunmap_high(page);
+}
+void kunmap_high(struct page *page)
+{
+	unsigned long vaddr;
+	unsigned long nr;
+	unsigned long flags;
+	int need_wakeup;
+	unsigned int color = get_pkmap_color(page);
+	wait_queue_head_t *pkmap_map_wait;
 
-> > > Yes.
-> > > =
+	lock_kmap_any(flags);
+	vaddr = (unsigned long)page_address(page);
+	BUG_ON(!vaddr);
+	nr = PKMAP_NR(vaddr);
 
-> > > Thanks
-> > =
+	/*
+	 * A count must never go down to zero
+	 * without a TLB flush!
+	 */
+	need_wakeup = 0;
+	switch (--pkmap_count[nr]) {
+	case 0:
+		BUG();
+	case 1:
+		/*
+		 * Avoid an unnecessary wake_up() function call.
+		 * The common case is pkmap_count[] == 1, but
+		 * no waiters.
+		 * The tasks queued in the wait-queue are guarded
+		 * by both the lock in the wait-queue-head and by
+		 * the kmap_lock.  As the kmap_lock is held here,
+		 * no need for the wait-queue-head's lock.  Simply
+		 * test if the queue is empty.
+		 */
+		pkmap_map_wait = get_pkmap_wait_queue_head(color);
+		need_wakeup = waitqueue_active(pkmap_map_wait);
+	}
+	unlock_kmap_any(flags);
 
-> > See James's reply - I stand corrected we do kunmap so no need to
-> > flush.
-> =
+	/* do wake-up, if needed, race-free outside of the spin lock */
+	if (need_wakeup)
+		wake_up(pkmap_map_wait);
+}
+static inline void kunmap(struct page *page)
+{
+}
 
-> Well, I said that's what we do on Parisc.  The cachetlb document
-> definitely says if you alter the data between kmap and kunmap you are
-> responsible for the flush.  It's just that flush_dcache_page() is a no-
-> op on x86 so they never remember to add it and since it will crash
-> parisc if you get it wrong we finally gave up trying to make them.
-> =
+because they already did it just above.
 
-> But that's the point: it is a no-op on your favourite architecture so
-> it costs you nothing to add it.
 
-Yes, the fact Parisc gave up and is doing it on kunmap is reasonable
-approach for Parisc, but it doesn't move the needle as far as vhost
-common code is concerned, because other archs don't flush any cache on
-kunmap.
+> > Which means after we fix vhost to add the flush_dcache_page after
+> > kunmap, Parisc will get a double hit (but it also means Parisc was
+> > the only one of those archs needed explicit cache flushes, where
+> > vhost worked correctly so far.. so it kinds of proofs your point of
+> > giving up being the safe choice).
+> 
+> What double hit?  If there's no cache to flush then cache flush is a
+> no-op.  It's also a highly piplineable no-op because the CPU has the L1
+> cache within easy reach.  The only event when flush takes a large
+> amount time is if we actually have dirty data to write back to main
+> memory.
 
-So either all other archs give up trying to optimize, or vhost still
-has to call flush_dcache_page() after kunmap.
+The double hit is in parisc copy_to_user_page:
 
-Which means after we fix vhost to add the flush_dcache_page after
-kunmap, Parisc will get a double hit (but it also means Parisc was the
-only one of those archs needed explicit cache flushes, where vhost
-worked correctly so far.. so it kinds of proofs your point of giving
-up being the safe choice).
+#define copy_to_user_page(vma, page, vaddr, dst, src, len) \
+do { \
+	flush_cache_page(vma, vaddr, page_to_pfn(page)); \
+	memcpy(dst, src, len); \
+	flush_kernel_dcache_range_asm((unsigned long)dst, (unsigned long)dst + len); \
+} while (0)
+
+That is executed just before kunmap:
+
+static inline void kunmap(struct page *page)
+{
+	flush_kernel_dcache_page_addr(page_address(page));
+}
+
+Can't argue about the fact your "safer" kunmap is safer, but we cannot
+rely on common code unless we remove some optimization from the common
+code abstractions and we make all archs do kunmap like parisc.
 
 Thanks,
 Andrea
