@@ -1,21 +1,12 @@
-From: "Michael S. Tsirkin" <mst@redhat.com>
-Subject: Re: [RFC PATCH V2 0/5] vhost: accelerate metadata access through
-	vmap()
-Date: Tue, 12 Mar 2019 07:54:02 -0400
-Message-ID: <20190312075033-mutt-send-email-mst__47209.0506505751$1552391657$gmane$org@kernel.org>
-References: <20190308141220.GA21082@infradead.org>
-	<56374231-7ba7-0227-8d6d-4d968d71b4d6@redhat.com>
-	<20190311095405-mutt-send-email-mst@kernel.org>
-	<20190311.111413.1140896328197448401.davem@davemloft.net>
-	<6b6dcc4a-2f08-ba67-0423-35787f3b966c@redhat.com>
-	<20190311235140-mutt-send-email-mst@kernel.org>
-	<76c353ed-d6de-99a9-76f9-f258074c1462@redhat.com>
+From: Dongli Zhang <dongli.zhang@oracle.com>
+Subject: virtio-blk: should num_vqs be limited by num_possible_cpus()?
+Date: Tue, 12 Mar 2019 10:22:46 -0700 (PDT)
+Message-ID: <e4afe4c5-0262-4500-aeec-60f30734b4fc@default>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="utf-8"
-Content-Transfer-Encoding: base64
+Content-Type: text/plain; charset="us-ascii"
+Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
 Content-Disposition: inline
-In-Reply-To: <76c353ed-d6de-99a9-76f9-f258074c1462@redhat.com>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -25,61 +16,69 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Jason Wang <jasowang@redhat.com>
-Cc: aarcange@redhat.com, linux-parisc@vger.kernel.org, kvm@vger.kernel.org, netdev@vger.kernel.org, linux-kernel@vger.kernel.org, virtualization@lists.linux-foundation.org, hch@infradead.org, linux-mm@kvack.org, David Miller <davem@davemloft.net>, linux-arm-kernel@lists.infradead.org
+To: virtualization@lists.linux-foundation.org, linux-block@vger.kernel.org
+Cc: axboe@kernel.dk, linux-kernel@vger.kernel.org, mst@redhat.com
 List-Id: virtualization@lists.linuxfoundation.org
 
-T24gVHVlLCBNYXIgMTIsIDIwMTkgYXQgMDM6MTc6MDBQTSArMDgwMCwgSmFzb24gV2FuZyB3cm90
-ZToKPiAKPiBPbiAyMDE5LzMvMTIg5LiK5Y2IMTE6NTIsIE1pY2hhZWwgUy4gVHNpcmtpbiB3cm90
-ZToKPiA+IE9uIFR1ZSwgTWFyIDEyLCAyMDE5IGF0IDEwOjU5OjA5QU0gKzA4MDAsIEphc29uIFdh
-bmcgd3JvdGU6Cj4gPiA+IE9uIDIwMTkvMy8xMiDkuIrljYgyOjE0LCBEYXZpZCBNaWxsZXIgd3Jv
-dGU6Cj4gPiA+ID4gRnJvbTogIk1pY2hhZWwgUy4gVHNpcmtpbiIgPG1zdEByZWRoYXQuY29tPgo+
-ID4gPiA+IERhdGU6IE1vbiwgMTEgTWFyIDIwMTkgMDk6NTk6MjggLTA0MDAKPiA+ID4gPiAKPiA+
-ID4gPiA+IE9uIE1vbiwgTWFyIDExLCAyMDE5IGF0IDAzOjEzOjE3UE0gKzA4MDAsIEphc29uIFdh
-bmcgd3JvdGU6Cj4gPiA+ID4gPiA+IE9uIDIwMTkvMy84IOS4i+WNiDEwOjEyLCBDaHJpc3RvcGgg
-SGVsbHdpZyB3cm90ZToKPiA+ID4gPiA+ID4gPiBPbiBXZWQsIE1hciAwNiwgMjAxOSBhdCAwMjox
-ODowN0FNIC0wNTAwLCBKYXNvbiBXYW5nIHdyb3RlOgo+ID4gPiA+ID4gPiA+ID4gVGhpcyBzZXJp
-ZXMgdHJpZXMgdG8gYWNjZXNzIHZpcnRxdWV1ZSBtZXRhZGF0YSB0aHJvdWdoIGtlcm5lbCB2aXJ0
-dWFsCj4gPiA+ID4gPiA+ID4gPiBhZGRyZXNzIGluc3RlYWQgb2YgY29weV91c2VyKCkgZnJpZW5k
-cyBzaW5jZSB0aGV5IGhhZCB0b28gbXVjaAo+ID4gPiA+ID4gPiA+ID4gb3ZlcmhlYWRzIGxpa2Ug
-Y2hlY2tzLCBzcGVjIGJhcnJpZXJzIG9yIGV2ZW4gaGFyZHdhcmUgZmVhdHVyZQo+ID4gPiA+ID4g
-PiA+ID4gdG9nZ2xpbmcuIFRoaXMgaXMgZG9uZSB0aHJvdWdoIHNldHVwIGtlcm5lbCBhZGRyZXNz
-IHRocm91Z2ggdm1hcCgpIGFuZAo+ID4gPiA+ID4gPiA+ID4gcmVzaWd0ZXIgTU1VIG5vdGlmaWVy
-IGZvciBpbnZhbGlkYXRpb24uCj4gPiA+ID4gPiA+ID4gPiAKPiA+ID4gPiA+ID4gPiA+IFRlc3Qg
-c2hvd3MgYWJvdXQgMjQlIGltcHJvdmVtZW50IG9uIFRYIFBQUy4gVENQX1NUUkVBTSBkb2Vzbid0
-IHNlZQo+ID4gPiA+ID4gPiA+ID4gb2J2aW91cyBpbXByb3ZlbWVudC4KPiA+ID4gPiA+ID4gPiBI
-b3cgaXMgdGhpcyBnb2luZyB0byB3b3JrIGZvciBDUFVzIHdpdGggdmlydHVhbGx5IHRhZ2dlZCBj
-YWNoZXM/Cj4gPiA+ID4gPiA+IEFueXRoaW5nIGRpZmZlcmVudCB0aGF0IHlvdSB3b3JyeT8KPiA+
-ID4gPiA+IElmIGNhY2hlcyBoYXZlIHZpcnR1YWwgdGFncyB0aGVuIGtlcm5lbCBhbmQgdXNlcnNw
-YWNlIHZpZXcgb2YgbWVtb3J5Cj4gPiA+ID4gPiBtaWdodCBub3QgYmUgYXV0b21hdGljYWxseSBp
-biBzeW5jIGlmIHRoZXkgYWNjZXNzIG1lbW9yeQo+ID4gPiA+ID4gdGhyb3VnaCBkaWZmZXJlbnQg
-dmlydHVhbCBhZGRyZXNzZXMuIFlvdSBuZWVkIHRvIGRvIHRoaW5ncyBsaWtlCj4gPiA+ID4gPiBm
-bHVzaF9jYWNoZV9wYWdlLCBwcm9iYWJseSBtdWx0aXBsZSB0aW1lcy4KPiA+ID4gPiAiZmx1c2hf
-ZGNhY2hlX3BhZ2UoKSIKPiA+ID4gCj4gPiA+IEkgZ2V0IHRoaXMuIFRoZW4gSSB0aGluayB0aGUg
-Y3VycmVudCBzZXRfYml0X3RvX3VzZXIoKSBpcyBzdXNwaWNpb3VzLCB3ZQo+ID4gPiBwcm9iYWJs
-eSBtaXNzIGEgZmx1c2hfZGNhY2hlX3BhZ2UoKSB0aGVyZToKPiA+ID4gCj4gPiA+IAo+ID4gPiBz
-dGF0aWMgaW50IHNldF9iaXRfdG9fdXNlcihpbnQgbnIsIHZvaWQgX191c2VyICphZGRyKQo+ID4g
-PiB7Cj4gPiA+ICDCoMKgwqDCoMKgwqDCoCB1bnNpZ25lZCBsb25nIGxvZyA9ICh1bnNpZ25lZCBs
-b25nKWFkZHI7Cj4gPiA+ICDCoMKgwqDCoMKgwqDCoCBzdHJ1Y3QgcGFnZSAqcGFnZTsKPiA+ID4g
-IMKgwqDCoMKgwqDCoMKgIHZvaWQgKmJhc2U7Cj4gPiA+ICDCoMKgwqDCoMKgwqDCoCBpbnQgYml0
-ID0gbnIgKyAobG9nICUgUEFHRV9TSVpFKSAqIDg7Cj4gPiA+ICDCoMKgwqDCoMKgwqDCoCBpbnQg
-cjsKPiA+ID4gCj4gPiA+ICDCoMKgwqDCoMKgwqDCoCByID0gZ2V0X3VzZXJfcGFnZXNfZmFzdChs
-b2csIDEsIDEsICZwYWdlKTsKPiA+ID4gIMKgwqDCoMKgwqDCoMKgIGlmIChyIDwgMCkKPiA+ID4g
-IMKgwqDCoMKgwqDCoMKgwqDCoMKgwqDCoMKgwqDCoCByZXR1cm4gcjsKPiA+ID4gIMKgwqDCoMKg
-wqDCoMKgIEJVR19PTihyICE9IDEpOwo+ID4gPiAgwqDCoMKgwqDCoMKgwqAgYmFzZSA9IGttYXBf
-YXRvbWljKHBhZ2UpOwo+ID4gPiAgwqDCoMKgwqDCoMKgwqAgc2V0X2JpdChiaXQsIGJhc2UpOwo+
-ID4gPiAgwqDCoMKgwqDCoMKgwqAga3VubWFwX2F0b21pYyhiYXNlKTsKPiA+ID4gIMKgwqDCoMKg
-wqDCoMKgIHNldF9wYWdlX2RpcnR5X2xvY2socGFnZSk7Cj4gPiA+ICDCoMKgwqDCoMKgwqDCoCBw
-dXRfcGFnZShwYWdlKTsKPiA+ID4gIMKgwqDCoMKgwqDCoMKgIHJldHVybiAwOwo+ID4gPiB9Cj4g
-PiA+IAo+ID4gPiBUaGFua3MKPiA+IEkgdGhpbmsgeW91IGFyZSByaWdodC4gVGhlIGNvcnJlY3Qg
-Zml4IHRob3VnaCBpcyB0byByZS1pbXBsZW1lbnQKPiA+IGl0IHVzaW5nIGFzbSBhbmQgaGFuZGxp
-bmcgcGFnZWZhdWx0LCBub3QgZ3VwLgo+IAo+IAo+IEkgYWdyZWUgYnV0IGl0IG5lZWRzIHRvIGlu
-dHJvZHVjZSBuZXcgaGVscGVycyBpbiBhc23CoCBmb3IgYWxsIGFyY2hzIHdoaWNoIGlzCj4gbm90
-IHRyaXZpYWwuCgpXZSBjYW4gaGF2ZSBhIGdlbmVyaWMgaW1wbGVtZW50YXRpb24gdXNpbmcga21h
-cC4KCj4gQXQgbGVhc3QgZm9yIC1zdGFibGUsIHdlIG5lZWQgdGhlIGZsdXNoPwo+IAo+IAo+ID4g
-VGhyZWUgYXRvbWljIG9wcyBwZXIgYml0IGlzIHdheSB0byBleHBlbnNpdmUuCj4gCj4gCj4gWWVz
-Lgo+IAo+IFRoYW5rcwoKU2VlIEphbWVzJ3MgcmVwbHkgLSBJIHN0YW5kIGNvcnJlY3RlZCB3ZSBk
-byBrdW5tYXAgc28gbm8gbmVlZCB0byBmbHVzaC4KCi0tIApNU1QKX19fX19fX19fX19fX19fX19f
-X19fX19fX19fX19fX19fX19fX19fX19fX19fX18KVmlydHVhbGl6YXRpb24gbWFpbGluZyBsaXN0
-ClZpcnR1YWxpemF0aW9uQGxpc3RzLmxpbnV4LWZvdW5kYXRpb24ub3JnCmh0dHBzOi8vbGlzdHMu
-bGludXhmb3VuZGF0aW9uLm9yZy9tYWlsbWFuL2xpc3RpbmZvL3ZpcnR1YWxpemF0aW9u
+I observed that there is one msix vector for config and one shared vector
+for all queues in below qemu cmdline, when the num-queues for virtio-blk
+is more than the number of possible cpus:
+
+qemu: "-smp 4" while "-device virtio-blk-pci,drive=drive-0,id=virtblk0,num-queues=6"
+
+# cat /proc/interrupts 
+           CPU0       CPU1       CPU2       CPU3
+... ...
+ 24:          0          0          0          0   PCI-MSI 65536-edge      virtio0-config
+ 25:          0          0          0         59   PCI-MSI 65537-edge      virtio0-virtqueues
+... ...
+
+
+However, when num-queues is the same as number of possible cpus:
+
+qemu: "-smp 4" while "-device virtio-blk-pci,drive=drive-0,id=virtblk0,num-queues=4"
+
+# cat /proc/interrupts 
+           CPU0       CPU1       CPU2       CPU3
+... ... 
+ 24:          0          0          0          0   PCI-MSI 65536-edge      virtio0-config
+ 25:          2          0          0          0   PCI-MSI 65537-edge      virtio0-req.0
+ 26:          0         35          0          0   PCI-MSI 65538-edge      virtio0-req.1
+ 27:          0          0         32          0   PCI-MSI 65539-edge      virtio0-req.2
+ 28:          0          0          0          0   PCI-MSI 65540-edge      virtio0-req.3
+... ...
+
+In above case, there is one msix vector per queue.
+
+
+This is because the max number of queues is not limited by the number of
+possible cpus.
+
+By default, nvme (regardless about write_queues and poll_queues) and
+xen-blkfront limit the number of queues with num_possible_cpus().
+
+
+Is this by design on purpose, or can we fix with below?
+
+
+diff --git a/drivers/block/virtio_blk.c b/drivers/block/virtio_blk.c
+index 4bc083b..df95ce3 100644
+--- a/drivers/block/virtio_blk.c
++++ b/drivers/block/virtio_blk.c
+@@ -513,6 +513,8 @@ static int init_vq(struct virtio_blk *vblk)
+ 	if (err)
+ 		num_vqs = 1;
+ 
++	num_vqs = min(num_possible_cpus(), num_vqs);
++
+ 	vblk->vqs = kmalloc_array(num_vqs, sizeof(*vblk->vqs), GFP_KERNEL);
+ 	if (!vblk->vqs)
+ 		return -ENOMEM;
+--
+
+
+PS: The same issue is applicable to virtio-scsi as well.
+
+Thank you very much!
+
+Dongli Zhang
