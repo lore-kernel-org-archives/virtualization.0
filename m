@@ -1,14 +1,18 @@
 From: Dongli Zhang <dongli.zhang@oracle.com>
 Subject: Re: virtio-blk: should num_vqs be limited by num_possible_cpus()?
-Date: Thu, 14 Mar 2019 23:36:16 +0800
-Message-ID: <7a1e3b7a-1df5-2f4a-3f41-a6342102b882@oracle.com>
+Date: Fri, 15 Mar 2019 00:08:18 +0800
+Message-ID: <74cf10ad-34bb-333a-3119-6021697c8e33__37262.4691155337$1552579720$gmane$org@oracle.com>
 References: <e4afe4c5-0262-4500-aeec-60f30734b4fc@default>
-	<20190314082926-mutt-send-email-mst@kernel.org>
+	<20190312183351.74764f4f.cohuck@redhat.com>
+	<173d19c9-24db-35f2-269f-0b9b83bd0ad6@oracle.com>
+	<20190313103900.1ea7f996.cohuck@redhat.com>
+	<a3f24cfa-5160-0ccc-decc-a48362c8de19@oracle.com>
+	<20190314131339.1b61fff6.cohuck@redhat.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <20190314082926-mutt-send-email-mst@kernel.org>
+In-Reply-To: <20190314131339.1b61fff6.cohuck@redhat.com>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -18,150 +22,145 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: "Michael S. Tsirkin" <mst@redhat.com>
-Cc: linux-block@vger.kernel.org, axboe@kernel.dk, linux-kernel@vger.kernel.org, virtualization@lists.linux-foundation.org
+To: Cornelia Huck <cohuck@redhat.com>
+Cc: axboe@kernel.dk, mst@redhat.com, linux-kernel@vger.kernel.org, virtualization@lists.linux-foundation.org, linux-block@vger.kernel.org
 List-Id: virtualization@lists.linuxfoundation.org
 
 
 
-On 03/14/2019 08:32 PM, Michael S. Tsirkin wrote:
-> On Tue, Mar 12, 2019 at 10:22:46AM -0700, Dongli Zhang wrote:
->> I observed that there is one msix vector for config and one shared vector
->> for all queues in below qemu cmdline, when the num-queues for virtio-blk
->> is more than the number of possible cpus:
+On 03/14/2019 08:13 PM, Cornelia Huck wrote:
+> On Thu, 14 Mar 2019 14:12:32 +0800
+> Dongli Zhang <dongli.zhang@oracle.com> wrote:
+> 
+>> On 3/13/19 5:39 PM, Cornelia Huck wrote:
+>>> On Wed, 13 Mar 2019 11:26:04 +0800
+>>> Dongli Zhang <dongli.zhang@oracle.com> wrote:
+>>>   
+>>>> On 3/13/19 1:33 AM, Cornelia Huck wrote:  
+>>>>> On Tue, 12 Mar 2019 10:22:46 -0700 (PDT)
+>>>>> Dongli Zhang <dongli.zhang@oracle.com> wrote:
+> 
+>>>>>> Is this by design on purpose, or can we fix with below?
+>>>>>>
+>>>>>>
+>>>>>> diff --git a/drivers/block/virtio_blk.c b/drivers/block/virtio_blk.c
+>>>>>> index 4bc083b..df95ce3 100644
+>>>>>> --- a/drivers/block/virtio_blk.c
+>>>>>> +++ b/drivers/block/virtio_blk.c
+>>>>>> @@ -513,6 +513,8 @@ static int init_vq(struct virtio_blk *vblk)
+>>>>>>  	if (err)
+>>>>>>  		num_vqs = 1;
+>>>>>>  
+>>>>>> +	num_vqs = min(num_possible_cpus(), num_vqs);
+>>>>>> +
+>>>>>>  	vblk->vqs = kmalloc_array(num_vqs, sizeof(*vblk->vqs), GFP_KERNEL);
+>>>>>>  	if (!vblk->vqs)
+>>>>>>  		return -ENOMEM;    
+>>>>>
+>>>>> virtio-blk, however, is not pci-specific.
+>>>>>
+>>>>> If we are using the ccw transport on s390, a completely different
+>>>>> interrupt mechanism is in use ('floating' interrupts, which are not
+>>>>> per-cpu). A check like that should therefore not go into the generic
+>>>>> driver.
+>>>>>     
+>>>>
+>>>> So far there seems two options.
+>>>>
+>>>> The 1st option is to ask the qemu user to always specify "-num-queues" with the
+>>>> same number of vcpus when running x86 guest with pci for virtio-blk or
+>>>> virtio-scsi, in order to assign a vector for each queue.  
+>>>
+>>> That does seem like an extra burden for the user: IIUC, things work
+>>> even if you have too many queues, it's just not optimal. It sounds like
+>>> something that can be done by a management layer (e.g. libvirt), though.
+>>>   
+>>>> Or, is it fine for virtio folks to add a new hook to 'struct virtio_config_ops'
+>>>> so that different platforms (e.g., pci or ccw) would use different ways to limit
+>>>> the max number of queues in guest, with something like below?  
+>>>
+>>> That sounds better, as both transports and drivers can opt-in here.
+>>>
+>>> However, maybe it would be even better to try to come up with a better
+>>> strategy of allocating msix vectors in virtio-pci. More vectors in the
+>>> num_queues > num_cpus case, even if they still need to be shared?
+>>> Individual vectors for n-1 cpus and then a shared one for the remaining
+>>> queues?
+>>>
+>>> It might even be device-specific: Have some low-traffic status queues
+>>> share a vector, and provide an individual vector for high-traffic
+>>> queues. Would need some device<->transport interface, obviously.
+>>>   
 >>
->> qemu: "-smp 4" while "-device virtio-blk-pci,drive=drive-0,id=virtblk0,num-queues=6"
-> 
-> So why do this?
-
-I observed this when I was testing virtio-blk and block layer.
-
-I just assign a very large 'num-queues' to virtio-blk and keep changing the
-number of vcpu in order to study blk-mq.
-
-The num-queues for nvme (qemu) is by default 64, while it is 1 for virtio-blk.
-
-> 
->> # cat /proc/interrupts 
->>            CPU0       CPU1       CPU2       CPU3
+>> This sounds a little bit similar to multiple hctx maps?
+>>
+>> So far, as virtio-blk only supports set->nr_maps = 1, no matter how many hw
+>> queues are assigned for virtio-blk, blk_mq_alloc_tag_set() would use at most
+>> nr_cpu_ids hw queues.
+>>
+>> 2981 int blk_mq_alloc_tag_set(struct blk_mq_tag_set *set)
 >> ... ...
->>  24:          0          0          0          0   PCI-MSI 65536-edge      virtio0-config
->>  25:          0          0          0         59   PCI-MSI 65537-edge      virtio0-virtqueues
->> ... ...
+>> 3021         /*
+>> 3022          * There is no use for more h/w queues than cpus if we just have
+>> 3023          * a single map
+>> 3024          */
+>> 3025         if (set->nr_maps == 1 && set->nr_hw_queues > nr_cpu_ids)
+>> 3026                 set->nr_hw_queues = nr_cpu_ids;
 >>
->>
->> However, when num-queues is the same as number of possible cpus:
->>
->> qemu: "-smp 4" while "-device virtio-blk-pci,drive=drive-0,id=virtblk0,num-queues=4"
->>
->> # cat /proc/interrupts 
->>            CPU0       CPU1       CPU2       CPU3
->> ... ... 
->>  24:          0          0          0          0   PCI-MSI 65536-edge      virtio0-config
->>  25:          2          0          0          0   PCI-MSI 65537-edge      virtio0-req.0
->>  26:          0         35          0          0   PCI-MSI 65538-edge      virtio0-req.1
->>  27:          0          0         32          0   PCI-MSI 65539-edge      virtio0-req.2
->>  28:          0          0          0          0   PCI-MSI 65540-edge      virtio0-req.3
->> ... ...
->>
->> In above case, there is one msix vector per queue.
->>
->>
->> This is because the max number of queues is not limited by the number of
->> possible cpus.
->>
->> By default, nvme (regardless about write_queues and poll_queues) and
->> xen-blkfront limit the number of queues with num_possible_cpus().
->>
->>
->> Is this by design on purpose, or can we fix with below?
->>
->>
->> diff --git a/drivers/block/virtio_blk.c b/drivers/block/virtio_blk.c
->> index 4bc083b..df95ce3 100644
->> --- a/drivers/block/virtio_blk.c
->> +++ b/drivers/block/virtio_blk.c
->> @@ -513,6 +513,8 @@ static int init_vq(struct virtio_blk *vblk)
->>  	if (err)
->>  		num_vqs = 1;
->>  
->> +	num_vqs = min(num_possible_cpus(), num_vqs);
->> +
->>  	vblk->vqs = kmalloc_array(num_vqs, sizeof(*vblk->vqs), GFP_KERNEL);
->>  	if (!vblk->vqs)
->>  		return -ENOMEM;
->> --
->>
->>
->> PS: The same issue is applicable to virtio-scsi as well.
->>
->> Thank you very much!
->>
->> Dongli Zhang
+>> Even the block layer would limit the number of hw queues by nr_cpu_ids when
+>> (set->nr_maps == 1).
 > 
-> I don't think this will address the issue if there's vcpu hotplug though.
-> Because it's not about num_possible_cpus it's about the # of active VCPUs,
-> right? Does block hangle CPU hotplug generally?
-> We could maybe address that by switching vq to msi vector mapping in
-> a cpu hotplug notifier...
+> Correct me if I'm wrong, but there seem to be two kinds of limitations
+> involved here:
+> - Allocation of msix vectors by the virtio-pci transport. We end up
+>   with shared vectors if we have more virtqueues than vcpus. Other
+>   transports may or may not have similar issues, but essentially, this
+>   is something that applies to all kind of virtio devices attached via
+>   the virtio-pci transport.
+
+It depends.
+
+For virtio-net, we need to specify the number of available vectors on qemu side,
+e.g.,:
+
+-device virtio-net-pci,netdev=tapnet,mq=true,vectors=16
+
+This parameter is specific for virtio-net.
+
+Suppose if 'queues=8' while 'vectors=16', as 2*8+1 > 16, there will be lack of
+vectors and guest would not be able to assign one vector for each queue.
+
+I was tortured by this long time ago and it seems qemu would minimize the memory
+allocation and the default 'vectors' is 3.
+
+BTW, why cannot we have a more consistent configuration for most qemu devices,
+e.g., so far:
+
+virtio-blk use 'num-queues'
+nvme use 'num_queues'
+virtio-net use 'queues' for tap :)
+
+> - The block layer limits the number of hw queues to the number of
+>   vcpus. This applies only to virtio devices that interact with the
+>   block layer, but regardless of the virtio transport.
+
+Yes: virtio-blk and virtio-scsi.
+
+> 
+>> That's why I think virtio-blk should use the similar solution as nvme
+>> (regardless about write_queues and poll_queues) and xen-blkfront.
+> 
+> Ok, the hw queues limit from above would be an argument to limit to
+> #vcpus in the virtio-blk driver, regardless of the transport used. (No
+> idea if there are better ways to deal with this, I'm not familiar with
+> the interface.)
+> 
+> For virtio devices that don't interact with the block layer and are
+> attached via the virtio-pci transport, it might still make sense to
+> revisit vector allocation.
 > 
 
-It looks it is about num_possible_cpus/nr_cpu_ids for cpu hotplug.
-
-
-For instance, below is when only 2 out of 6 cpus are initialized while
-virtio-blk has 6 queues.
-
-"-smp 2,maxcpus=6" and "-device
-virtio-blk-pci,drive=drive0,id=disk0,num-queues=6,iothread=io1"
-
-# cat /sys/devices/system/cpu/present
-0-1
-# cat /sys/devices/system/cpu/possible
-0-5
-# cat /proc/interrupts  | grep virtio
- 24:          0          0   PCI-MSI 65536-edge      virtio0-config
- 25:       1864          0   PCI-MSI 65537-edge      virtio0-req.0
- 26:          0       1069   PCI-MSI 65538-edge      virtio0-req.1
- 27:          0          0   PCI-MSI 65539-edge      virtio0-req.2
- 28:          0          0   PCI-MSI 65540-edge      virtio0-req.3
- 29:          0          0   PCI-MSI 65541-edge      virtio0-req.4
- 30:          0          0   PCI-MSI 65542-edge      virtio0-req.5
-
-6 + 1 irqs are assigned even 4 out of 6 cpus are still offline.
-
-
-Below is about the nvme emulated by qemu. While 2 out of 6 cpus are initial
-assigned, nvme has 64 queues by default.
-
-"-smp 2,maxcpus=6" and "-device nvme,drive=drive1,serial=deadbeaf1"
-
-# cat /sys/devices/system/cpu/present
-0-1
-# cat /sys/devices/system/cpu/possible
-0-5
-# cat /proc/interrupts | grep nvme
- 31:          0         16   PCI-MSI 81920-edge      nvme0q0
- 32:         35          0   PCI-MSI 81921-edge      nvme0q1
- 33:          0         42   PCI-MSI 81922-edge      nvme0q2
- 34:          0          0   PCI-MSI 81923-edge      nvme0q3
- 35:          0          0   PCI-MSI 81924-edge      nvme0q4
- 36:          0          0   PCI-MSI 81925-edge      nvme0q5
- 37:          0          0   PCI-MSI 81926-edge      nvme0q6
-
-6 io queues are assigned with irq, although only 2 cpus are online.
-
-
-When only 2 out of 48 cpus are online, there are 48 hctx created by block layer.
-
-"-smp 2,maxcpus=48" and "-device
-virtio-blk-pci,drive=drive0,id=disk0,num-queues=48,iothread=io1"
-
-# ls /sys/kernel/debug/block/vda/ | grep hctx | wc -l
-48
-
-
-The above indicates the number of hw queues/irq is related to
-num_possible_cpus/nr_cpu_ids.
+As mentioned above, we need to specify 'vectors' for virtio-net as the default
+value is only 3 (config + tx + rx). That would make a little difference?
 
 Dongli Zhang
