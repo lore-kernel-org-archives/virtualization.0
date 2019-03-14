@@ -1,11 +1,13 @@
 From: David Howells <dhowells@redhat.com>
-Subject: [PATCH 00/38] VFS: Convert trivial filesystems and more
-Date: Thu, 14 Mar 2019 16:08:44 +0000
-Message-ID: <155257972443.13720.11743171471060355965.stgit__18484.2474105366$1552579782$gmane$org@warthog.procyon.org.uk>
+Subject: [PATCH 15/38] vfs: Convert virtio_balloon to fs_context
+Date: Thu, 14 Mar 2019 16:10:55 +0000
+Message-ID: <155257985551.13720.4140347473578124492.stgit__12192.7309244469$1552579872$gmane$org@warthog.procyon.org.uk>
+References: <155257972443.13720.11743171471060355965.stgit@warthog.procyon.org.uk>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
+In-Reply-To: <155257972443.13720.11743171471060355965.stgit@warthog.procyon.org.uk>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -16,120 +18,50 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
 To: viro@zeniv.linux.org.uk
-Cc: Uma Krishnan <ukrishn@linux.ibm.com>, linux-aio@kvack.org, linux-efi@vger.kernel.org, linux-ia64@vger.kernel.org, Sergey Senozhatsky <sergey.senozhatsky.work@gmail.com>, "Michael S. Tsirkin" <mst@redhat.com>, David Airlie <airlied@linux.ie>, dri-devel@lists.freedesktop.org, virtualization@lists.linux-foundation.org, Keith Busch <keith.busch@intel.com>, Chris Mason <clm@fb.com>, Joel Fernandes <joel@joelfernandes.org>, Todd Kjos <tkjos@android.com>, "Manoj N. Kumar" <manoj@linux.ibm.com>, Christoph Hellwig <hch@lst.de>, devel@driverdev.osuosl.org, Matthew Garrett <matthew.garrett@nebula.com>, Stefano Stabellini <sstabellini@kernel.org>, Dave Jiang <dave.jiang@intel.com>, Paul Moore <paul@paul-moore.com>, linux-scsi@vger.kernel.org, linux-nvdimm@lists.01.org, linux-rdma@vger.kernel.org, Vishal Verma <vishal.l.verma@intel.com>, Boris Ostrovsky <boris.ostrovsky@oracle.com>
+Cc: "Michael S. Tsirkin" <mst@redhat.com>, linux-kernel@vger.kernel.org, virtualization@lists.linux-foundation.org, dhowells@redhat.com, linux-fsdevel@vger.kernel.org
 List-Id: virtualization@lists.linuxfoundation.org
 
-
-Hi Al,
-
-Here's a set of patches that:
-
- (1) Provides a convenience member in struct fs_context that is OR'd into
-     sb->s_iflags by sget_fc().
-
- (2) Provides a convenience vfs_init_pseudo_fs_context() helper function
-     for doing most of the work in mounting a pseudo filesystem.
-
- (3) Converts all the trivial filesystems that have no arguments to
-     fs_context.
-
- (4) Converts binderfs (which was trivial before January).
-
- (5) Converts ramfs, tmpfs, rootfs and devtmpfs.
-
- (6) Kills off mount_pseudo(), mount_pseudo_xattr(), mount_ns(),
-     sget_userns().
-
-The patches can be found here also:
-
-	https://git.kernel.org/pub/scm/linux/kernel/git/dhowells/linux-fs.git
-
-on branch:
-
-	mount-api-viro
-
-David
+Signed-off-by: David Howells <dhowells@redhat.com>
+cc: "Michael S. Tsirkin" <mst@redhat.com>
+cc: Jason Wang <jasowang@redhat.com>
+cc: virtualization@lists.linux-foundation.org
 ---
-David Howells (38):
-      vfs: Provide sb->s_iflags settings in fs_context struct
-      vfs: Provide a mount_pseudo-replacement for fs_context
-      vfs: Convert aio to fs_context
-      vfs: Convert anon_inodes to fs_context
-      vfs: Convert bdev to fs_context
-      vfs: Convert nsfs to fs_context
-      vfs: Convert pipe to fs_context
-      vfs: Convert zsmalloc to fs_context
-      vfs: Convert sockfs to fs_context
-      vfs: Convert dax to fs_context
-      vfs: Convert drm to fs_context
-      vfs: Convert ia64 perfmon to fs_context
-      vfs: Convert cxl to fs_context
-      vfs: Convert ocxlflash to fs_context
-      vfs: Convert virtio_balloon to fs_context
-      vfs: Convert btrfs_test to fs_context
-      vfs: Kill off mount_pseudo() and mount_pseudo_xattr()
-      vfs: Use sget_fc() for pseudo-filesystems
-      vfs: Convert binderfs to fs_context
-      vfs: Convert nfsctl to fs_context
-      vfs: Convert rpc_pipefs to fs_context
-      vfs: Kill off mount_ns()
-      vfs: Kill sget_userns()
-      vfs: Convert binfmt_misc to fs_context
-      vfs: Convert configfs to fs_context
-      vfs: Convert efivarfs to fs_context
-      vfs: Convert fusectl to fs_context
-      vfs: Convert qib_fs/ipathfs to fs_context
-      vfs: Convert ibmasmfs to fs_context
-      vfs: Convert oprofilefs to fs_context
-      vfs: Convert gadgetfs to fs_context
-      vfs: Convert xenfs to fs_context
-      vfs: Convert openpromfs to fs_context
-      vfs: Convert apparmorfs to fs_context
-      vfs: Convert securityfs to fs_context
-      vfs: Convert selinuxfs to fs_context
-      vfs: Convert smackfs to fs_context
-      tmpfs, devtmpfs, ramfs, rootfs: Convert to fs_context
 
+ drivers/virtio/virtio_balloon.c |   19 ++++++++++---------
+ 1 file changed, 10 insertions(+), 9 deletions(-)
 
- arch/ia64/kernel/perfmon.c         |   14 +
- drivers/android/binderfs.c         |  173 +++++++++-------
- drivers/base/devtmpfs.c            |   16 +
- drivers/dax/super.c                |   13 +
- drivers/gpu/drm/drm_drv.c          |   14 +
- drivers/infiniband/hw/qib/qib_fs.c |   26 ++
- drivers/misc/cxl/api.c             |   10 -
- drivers/misc/ibmasm/ibmasmfs.c     |   21 +-
- drivers/oprofile/oprofilefs.c      |   20 +-
- drivers/scsi/cxlflash/ocxl_hw.c    |   21 +-
- drivers/usb/gadget/legacy/inode.c  |   21 +-
- drivers/virtio/virtio_balloon.c    |   19 +-
- drivers/xen/xenfs/super.c          |   21 +-
- fs/aio.c                           |   15 +
- fs/anon_inodes.c                   |   12 +
- fs/binfmt_misc.c                   |   20 +-
- fs/block_dev.c                     |   14 +
- fs/btrfs/tests/btrfs-tests.c       |   13 +
- fs/configfs/mount.c                |   20 +-
- fs/efivarfs/super.c                |   20 +-
- fs/fuse/control.c                  |   20 +-
- fs/libfs.c                         |   91 ++++++--
- fs/nfsd/nfsctl.c                   |   33 ++-
- fs/nsfs.c                          |   13 +
- fs/openpromfs/inode.c              |   20 +-
- fs/pipe.c                          |   12 +
- fs/ramfs/inode.c                   |  104 ++++++---
- fs/super.c                         |  106 ++--------
- include/linux/fs.h                 |   21 --
- include/linux/fs_context.h         |    8 +
- include/linux/ramfs.h              |    6 -
- include/linux/shmem_fs.h           |    4 
- init/do_mounts.c                   |   12 -
- mm/shmem.c                         |  396 ++++++++++++++++++++++++------------
- mm/zsmalloc.c                      |   19 +-
- net/socket.c                       |   14 +
- net/sunrpc/rpc_pipe.c              |   34 ++-
- security/apparmor/apparmorfs.c     |   20 +-
- security/inode.c                   |   21 +-
- security/selinux/selinuxfs.c       |   20 +-
- security/smack/smackfs.c           |   34 ++-
- 41 files changed, 902 insertions(+), 609 deletions(-)
+diff --git a/drivers/virtio/virtio_balloon.c b/drivers/virtio/virtio_balloon.c
+index f19061b585a4..89d67c8aa719 100644
+--- a/drivers/virtio/virtio_balloon.c
++++ b/drivers/virtio/virtio_balloon.c
+@@ -757,21 +757,22 @@ static int virtballoon_migratepage(struct balloon_dev_info *vb_dev_info,
+ 
+ 	return MIGRATEPAGE_SUCCESS;
+ }
++#include <linux/fs_context.h>
+ 
+-static struct dentry *balloon_mount(struct file_system_type *fs_type,
+-		int flags, const char *dev_name, void *data)
+-{
+-	static const struct dentry_operations ops = {
+-		.d_dname = simple_dname,
+-	};
++static const struct dentry_operations balloon_dops = {
++	.d_dname = simple_dname,
++};
+ 
+-	return mount_pseudo(fs_type, "balloon-kvm:", NULL, &ops,
+-				BALLOON_KVM_MAGIC);
++static int balloon_init_fs_context(struct fs_context *fc)
++{
++	return vfs_init_pseudo_fs_context(fc, "balloon-kvm:",
++					  NULL, NULL,
++					  &balloon_dops, BALLOON_KVM_MAGIC);
+ }
+ 
+ static struct file_system_type balloon_fs = {
+ 	.name           = "balloon-kvm",
+-	.mount          = balloon_mount,
++	.init_fs_context = balloon_init_fs_context,
+ 	.kill_sb        = kill_anon_super,
+ };
