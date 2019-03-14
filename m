@@ -1,13 +1,24 @@
-From: David Howells <dhowells@redhat.com>
-Subject: [PATCH 15/38] vfs: Convert virtio_balloon to fs_context
-Date: Thu, 14 Mar 2019 16:10:55 +0000
-Message-ID: <155257985551.13720.4140347473578124492.stgit__12192.7309244469$1552579872$gmane$org@warthog.procyon.org.uk>
-References: <155257972443.13720.11743171471060355965.stgit@warthog.procyon.org.uk>
+From: Andrea Arcangeli <aarcange@redhat.com>
+Subject: Re: [RFC PATCH V2 0/5] vhost: accelerate metadata access through
+	vmap()
+Date: Thu, 14 Mar 2019 15:33:33 -0400
+Message-ID: <20190314193333.GA24542__10496.330358886$1552592098$gmane$org@redhat.com>
+References: <20190311235140-mutt-send-email-mst@kernel.org>
+	<76c353ed-d6de-99a9-76f9-f258074c1462@redhat.com>
+	<20190312075033-mutt-send-email-mst@kernel.org>
+	<1552405610.3083.17.camel@HansenPartnership.com>
+	<20190312200450.GA25147@redhat.com>
+	<1552424017.14432.11.camel@HansenPartnership.com>
+	<20190313160529.GB15134@infradead.org>
+	<1552495028.3022.37.camel@HansenPartnership.com>
+	<20190314064004-mutt-send-email-mst@kernel.org>
+	<74015196-2e18-4fe0-50ac-0c9d497315c7@redhat.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <155257972443.13720.11743171471060355965.stgit@warthog.procyon.org.uk>
+Content-Disposition: inline
+In-Reply-To: <74015196-2e18-4fe0-50ac-0c9d497315c7@redhat.com>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -17,51 +28,196 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: viro@zeniv.linux.org.uk
-Cc: "Michael S. Tsirkin" <mst@redhat.com>, linux-kernel@vger.kernel.org, virtualization@lists.linux-foundation.org, dhowells@redhat.com, linux-fsdevel@vger.kernel.org
+To: Jason Wang <jasowang@redhat.com>
+Cc: Christoph Hellwig <hch@infradead.org>, linux-parisc@vger.kernel.org, kvm@vger.kernel.org, "Michael S. Tsirkin" <mst@redhat.com>, netdev@vger.kernel.org, linux-kernel@vger.kernel.org, virtualization@lists.linux-foundation.org, James Bottomley <James.Bottomley@hansenpartnership.com>, linux-mm@kvack.org, David Miller <davem@davemloft.net>, linux-arm-kernel@lists.infradead.org
 List-Id: virtualization@lists.linuxfoundation.org
 
-Signed-off-by: David Howells <dhowells@redhat.com>
-cc: "Michael S. Tsirkin" <mst@redhat.com>
-cc: Jason Wang <jasowang@redhat.com>
-cc: virtualization@lists.linux-foundation.org
----
+Hello Jason,
 
- drivers/virtio/virtio_balloon.c |   19 ++++++++++---------
- 1 file changed, 10 insertions(+), 9 deletions(-)
+On Thu, Mar 14, 2019 at 09:49:03PM +0800, Jason Wang wrote:
+> Yes since we don't want to slow down 32bit.
 
-diff --git a/drivers/virtio/virtio_balloon.c b/drivers/virtio/virtio_balloon.c
-index f19061b585a4..89d67c8aa719 100644
---- a/drivers/virtio/virtio_balloon.c
-+++ b/drivers/virtio/virtio_balloon.c
-@@ -757,21 +757,22 @@ static int virtballoon_migratepage(struct balloon_dev_info *vb_dev_info,
- 
- 	return MIGRATEPAGE_SUCCESS;
- }
-+#include <linux/fs_context.h>
- 
--static struct dentry *balloon_mount(struct file_system_type *fs_type,
--		int flags, const char *dev_name, void *data)
--{
--	static const struct dentry_operations ops = {
--		.d_dname = simple_dname,
--	};
-+static const struct dentry_operations balloon_dops = {
-+	.d_dname = simple_dname,
-+};
- 
--	return mount_pseudo(fs_type, "balloon-kvm:", NULL, &ops,
--				BALLOON_KVM_MAGIC);
-+static int balloon_init_fs_context(struct fs_context *fc)
-+{
-+	return vfs_init_pseudo_fs_context(fc, "balloon-kvm:",
-+					  NULL, NULL,
-+					  &balloon_dops, BALLOON_KVM_MAGIC);
- }
- 
- static struct file_system_type balloon_fs = {
- 	.name           = "balloon-kvm",
--	.mount          = balloon_mount,
-+	.init_fs_context = balloon_init_fs_context,
- 	.kill_sb        = kill_anon_super,
- };
+If you've a lot of ram there's no justification to stick to a 32bit
+kernel, so I don't think there's need to maintain a separate model
+just for 32bit. I really wouldn't care about the performance of 32bit
+with >700MB of RAM if that would cause any maintenance burden. Let's
+focus on the best 64bit implementation that will work equally
+optimally on 32bit with <= 700M of RAM.
+
+Talking to Jerome about the set_page_dirty issue, he raised the point
+of what happens if two thread calls a mmu notifier invalidate
+simultaneously. The first mmu notifier could call set_page_dirty and
+then proceed in try_to_free_buffers or page_mkclean and then the
+concurrent mmu notifier that arrives second, then must not call
+set_page_dirty a second time.
+
+With KVM sptes mappings and vhost mappings you would call
+set_page_dirty (if you invoked gup with FOLL_WRITE) only when
+effectively tearing down any secondary mapping (you've got pointers in
+both cases for the mapping). So there's no way to risk a double
+set_page_dirty from concurrent mmu notifier invalidate because the
+invalidate takes a lock when it has to teardown the mapping and so
+set_page_dirty is only run in the first invalidate method and not in
+the second. In the spte case even better, as you wouldn't need to call
+it even at teardown time unless the spte is dirty (if shadow mask
+allows dirty sptes with EPT2 or NPT or shadow MMU).
+
+If you instead had to invalidate a secondary MMU mapping that isn't
+tracked by the driver (again: not vhost nor KVM case), you could have
+used the dirty bit of the kernel pagetable to call set_page_dirty and
+disambiguate but that's really messy, and it would prevent the use of
+gigapages in the direct mapping too and it'd require vmap for 4k
+tracking.
+
+To make sure set_page_dirty is run a single time no matter if the
+invalidate known when a mapping is tear down, I suggested the below
+model:
+
+  access = FOLL_WRITE
+
+repeat:
+  page = gup_fast(access)
+  put_page(page) /* need a way to drop FOLL_GET from gup_fast instead! */
+
+  spin_lock(mmu_notifier_lock);
+  if (race with invalidate) {
+    spin_unlock..
+    goto repeat;
+  }
+  if (access == FOLL_WRITE)
+    set_page_dirty(page)
+  establish writable mapping in secondary MMU on page
+  spin_unlock
+
+(replace spin_lock with mutex_lock for vhost of course if you stick to
+a mutex and _start/_end instead of non-sleepable ->invalidate_range)
+
+"race with invalidate" is the usual "mmu_notifier_retry" in kvm_host.h
+to be implemented for vhost.
+
+We could add a FOLL_DIRTY flag to add to FOLL_TOUCH to move the
+set_page_dirty inside GUP forced (currently it's not forced if the
+linux pte is already dirty). And we could remove FOLL_GET.
+
+Then if you have the ability to disambiguate which is the first
+invalidate that tears down a mapping to any given page (vhost can do
+that trivially, it's just a pointer to a page struct to kmap), in the
+mmu notifier invalidate just before dropping the spinlock you would
+do this check:
+
+def vhost_invalidate_range_start():
+   [..]
+   spin_lock(mmu_notifier_lock);
+   [..]
+   if (vhost->page_pointer) {
+      if (access == FOLL_WRITE)
+	VM_WARN_ON(!PageDirty(vhost->page_pointer));
+      vhost->page_pointer = NULL;
+      /* no put_page, already done at gup time */
+   }
+   spin_unlock(..
+
+Generally speaking set_page_dirty is safer done after the last
+modification to the data of the page. However the way stable page
+works, as long as the mmu notifier invalidate didn't run, the PG_dirty
+cannot go away.
+
+So this model solves the issue with guaranteeing a single
+set_page_dirty is run before page_mkclean or try_to_free_buffers can
+run, even for drivers that implement the invalidate as a generic "TLB
+flush" across the whole secondary MMU and that cannot disambiguate the
+first invalidate from a second invalidate if they're issued
+concurrently on the same address by two different CPUs.
+
+So for those drivers that can disambiguate trivially (like KVM and
+vhost) we'll just add a debug check in the invalidate to validate the
+common code for all mmu notifier users.
+
+This is the solution for RDMA hardware and everything that can support
+mmu notifiers too and they can take infinitely long secondary MMU
+mappins without interfering with stable pages at all (i.e. long term
+pins but without pinning) perfectly safe and transparent to the whole
+stable page code.
+
+I think O_DIRECT for stable pages shall be solved taking the page lock
+or writeback lock or a new rwsem in the inode that is taken for
+writing by page_mkclean and try_to_free_buffers and for reading by
+outstanding O_DIRECT in flight I/O, like I suggested probably ages ago
+but then we only made GUP take the page pin, which is fine for mmu
+notifier actually (except those didn't exist back then). To solve
+O_DIRECT we can leverage the 100% guarantee that the pin will be
+dropped ASAP and stop page_mkclean and stop or trylock in
+try_to_free_buffers in such case.
+
+mm_take_all_locks is major hurdle that prevents usage in O_DIRECT
+case, even if we "cache it" if you fork(); write; exit() in a loop
+it'll still cause heavy lock overhead. MMU notifier registration isn't
+intended to happen in fast and frequent paths like the write()
+syscall. Dropping mm_take_all_locks would bring other downsides: a
+regular quiescent point can happen in between _start/_end and _start
+must be always called first all the mmu notifier retry counters we
+rely on would break. One way would be to add srcu_read_lock _before_
+you can call mm_has_mm_has_notifiers(mm), then yes we could replace
+mm_take_all_locks with synchronize_srcu. It would save a lot of CPU
+and a ton of locked operations, but it'd potentially increase the
+latency of the registration so the first O_DIRECT write() in a process
+could still potentially stall (still better than mm_take_all_locks
+which would use a lot more CPU and hurt SMP scalability in threaded
+programs). The downside is all VM fast paths would get some overhead
+because of srcu_read_lock even when mmu notifier is not registered,
+which is what we carefully avoided by taking a larger hit in the
+registration with mm_take_all_locks. This is why I don't think mmu
+notifier is a good solution to solve O_DIRECT stable pages even in
+theory O_DIRECT could use the exact same model as vhost to solve
+stable pages.
+
+If we solve O_DIRECT with new per-page locking or a new rwsem inode
+lock leveraging the fact we're guaranteed the pin to go away ASAP,
+what's left is the case of PCI devices mapping userland memory for
+indefinite amount of time that cannot support MMU notifier because of
+hardware limitations.
+
+Mentioning virtualization as a case taking long term PIN is incorrect,
+that didn't happen since the introduction of MMU notifier.
+
+vfio for device assignment to KVM takes the long term pins, but that's
+because the iommus may not support the mmu notifier, mmu notifier
+could solve the vfio case too.
+
+PCI devices that pretend to keep a constant mapping on userland
+virtual memory and that cannot support MMU notifier because they lack
+a secondary MMU, cripple the Linux VM and there's no solution to
+that. Even if we solve the stable pages problem, they will still
+practically disable all advanced VM features.
+
+I think it would be ok to solve the stable pages in 3 different ways:
+
+1) mmu notifier as above when mmu_notifier_register doesn't need to
+   run often and the hardware can support it
+
+2) O_DIRECT with new locking stopping page_mkclean/try_to_free_buffers
+   until I/O completion, leveraging the fact the pin&lock are
+   guaranteed to be dropped&released ASAP
+
+3) something else for pci devices that cannot support MMU notifier
+   because of hardware limitations, bounce buffers would be fine as
+   well
+
+I'm not even sure if in 3) it is worth worrying about being able to
+routinely flush to disk the dirty data, but then bounce buffers could
+solve that. Altering the page mapped in the pte sounds like a complex
+solution when you could copy the physical page just before issuing the
+I/O in the writeback code. To find if a GUP pin exists it's enough to
+check what KSM does:
+
+		/*
+		 * Check that no O_DIRECT or similar I/O is in progress on the
+		 * page
+		 */
+		if (page_mapcount(page) + 1 + swapped != page_count(page)) {
+
+That can give false positives (even through random pins coming from
+speculative cache lookups), but not false negatives.
+
+Thanks,
+Andrea
