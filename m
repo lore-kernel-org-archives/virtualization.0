@@ -1,24 +1,17 @@
-From: "Michael S. Tsirkin" <mst@redhat.com>
-Subject: Re: [RFC PATCH V2 0/5] vhost: accelerate metadata access through
-	vmap()
-Date: Thu, 14 Mar 2019 06:42:21 -0400
-Message-ID: <20190314064004-mutt-send-email-mst__39379.589683243$1552560160$gmane$org@kernel.org>
-References: <20190311.111413.1140896328197448401.davem@davemloft.net>
-	<6b6dcc4a-2f08-ba67-0423-35787f3b966c@redhat.com>
-	<20190311235140-mutt-send-email-mst@kernel.org>
-	<76c353ed-d6de-99a9-76f9-f258074c1462@redhat.com>
-	<20190312075033-mutt-send-email-mst@kernel.org>
-	<1552405610.3083.17.camel@HansenPartnership.com>
-	<20190312200450.GA25147@redhat.com>
-	<1552424017.14432.11.camel@HansenPartnership.com>
-	<20190313160529.GB15134@infradead.org>
-	<1552495028.3022.37.camel@HansenPartnership.com>
+From: Cornelia Huck <cohuck@redhat.com>
+Subject: Re: virtio-blk: should num_vqs be limited by num_possible_cpus()?
+Date: Thu, 14 Mar 2019 13:13:39 +0100
+Message-ID: <20190314131339.1b61fff6.cohuck__3381.64198198996$1552565636$gmane$org@redhat.com>
+References: <e4afe4c5-0262-4500-aeec-60f30734b4fc@default>
+	<20190312183351.74764f4f.cohuck@redhat.com>
+	<173d19c9-24db-35f2-269f-0b9b83bd0ad6@oracle.com>
+	<20190313103900.1ea7f996.cohuck@redhat.com>
+	<a3f24cfa-5160-0ccc-decc-a48362c8de19@oracle.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-Content-Disposition: inline
-In-Reply-To: <1552495028.3022.37.camel@HansenPartnership.com>
+In-Reply-To: <a3f24cfa-5160-0ccc-decc-a48362c8de19@oracle.com>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -28,92 +21,110 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: James Bottomley <James.Bottomley@hansenpartnership.com>
-Cc: Andrea Arcangeli <aarcange@redhat.com>, linux-parisc@vger.kernel.org, kvm@vger.kernel.org, netdev@vger.kernel.org, linux-kernel@vger.kernel.org, virtualization@lists.linux-foundation.org, Christoph Hellwig <hch@infradead.org>, linux-mm@kvack.org, David Miller <davem@davemloft.net>, linux-arm-kernel@lists.infradead.org
+To: Dongli Zhang <dongli.zhang@oracle.com>
+Cc: axboe@kernel.dk, mst@redhat.com, linux-kernel@vger.kernel.org, virtualization@lists.linux-foundation.org, linux-block@vger.kernel.org
 List-Id: virtualization@lists.linuxfoundation.org
 
-On Wed, Mar 13, 2019 at 09:37:08AM -0700, James Bottomley wrote:
-> On Wed, 2019-03-13 at 09:05 -0700, Christoph Hellwig wrote:
-> > On Tue, Mar 12, 2019 at 01:53:37PM -0700, James Bottomley wrote:
-> > > I've got to say: optimize what?  What code do we ever have in the
-> > > kernel that kmap's a page and then doesn't do anything with it? You
-> > > can
-> > > guarantee that on kunmap the page is either referenced (needs
-> > > invalidating) or updated (needs flushing). The in-kernel use of
-> > > kmap is
-> > > always
-> > > 
-> > > kmap
-> > > do something with the mapped page
-> > > kunmap
-> > > 
-> > > In a very short interval.  It seems just a simplification to make
-> > > kunmap do the flush if needed rather than try to have the users
-> > > remember.  The thing which makes this really simple is that on most
-> > > architectures flush and invalidate is the same operation.  If you
-> > > really want to optimize you can use the referenced and dirty bits
-> > > on the kmapped pte to tell you what operation to do, but if your
-> > > flush is your invalidate, you simply assume the data needs flushing
-> > > on kunmap without checking anything.
-> > 
-> > I agree that this would be a good way to simplify the API.   Now
-> > we'd just need volunteers to implement this for all architectures
-> > that need cache flushing and then remove the explicit flushing in
-> > the callers..
-> 
-> Well, it's already done on parisc ...  I can help with this if we agree
-> it's the best way forward.  It's really only architectures that
-> implement flush_dcache_page that would need modifying.
-> 
-> It may also improve performance because some kmap/use/flush/kunmap
-> sequences have flush_dcache_page() instead of
-> flush_kernel_dcache_page() and the former is hugely expensive and
-> usually unnecessary because GUP already flushed all the user aliases.
-> 
-> In the interests of full disclosure the reason we do it for parisc is
-> because our later machines have problems even with clean aliases.  So
-> on most VIPT systems, doing kmap/read/kunmap creates a fairly harmless
-> clean alias.  Technically it should be invalidated, because if you
-> remap the same page to the same colour you get cached stale data, but
-> in practice the data is expired from the cache long before that
-> happens, so the problem is almost never seen if the flush is forgotten.
->  Our problem is on the P9xxx processor: they have a L1/L2 VIPT L3 PIPT
-> cache.  As the L1/L2 caches expire clean data, they place the expiring
-> contents into L3, but because L3 is PIPT, the stale alias suddenly
-> becomes the default for any read of they physical page because any
-> update which dirtied the cache line often gets written to main memory
-> and placed into the L3 as clean *before* the clean alias in L1/L2 gets
-> expired, so the older clean alias replaces it.
-> 
-> Our only recourse is to kill all aliases with prejudice before the
-> kernel loses ownership.
-> 
-> > > > Which means after we fix vhost to add the flush_dcache_page after
-> > > > kunmap, Parisc will get a double hit (but it also means Parisc
-> > > > was the only one of those archs needed explicit cache flushes,
-> > > > where vhost worked correctly so far.. so it kinds of proofs your
-> > > > point of giving up being the safe choice).
-> > > 
-> > > What double hit?  If there's no cache to flush then cache flush is
-> > > a no-op.  It's also a highly piplineable no-op because the CPU has
-> > > the L1 cache within easy reach.  The only event when flush takes a
-> > > large amount time is if we actually have dirty data to write back
-> > > to main memory.
-> > 
-> > I've heard people complaining that on some microarchitectures even
-> > no-op cache flushes are relatively expensive.  Don't ask me why,
-> > but if we can easily avoid double flushes we should do that.
-> 
-> It's still not entirely free for us.  Our internal cache line is around
-> 32 bytes (some have 16 and some have 64) but that means we need 128
-> flushes for a page ... we definitely can't pipeline them all.  So I
-> agree duplicate flush elimination would be a small improvement.
-> 
-> James
+On Thu, 14 Mar 2019 14:12:32 +0800
+Dongli Zhang <dongli.zhang@oracle.com> wrote:
 
-I suspect we'll keep the copyXuser path around for 32 bit anyway -
-right Jason?
-So we can also keep using that on parisc...
+> On 3/13/19 5:39 PM, Cornelia Huck wrote:
+> > On Wed, 13 Mar 2019 11:26:04 +0800
+> > Dongli Zhang <dongli.zhang@oracle.com> wrote:
+> >   
+> >> On 3/13/19 1:33 AM, Cornelia Huck wrote:  
+> >>> On Tue, 12 Mar 2019 10:22:46 -0700 (PDT)
+> >>> Dongli Zhang <dongli.zhang@oracle.com> wrote:
 
--- 
-MST
+> >>>> Is this by design on purpose, or can we fix with below?
+> >>>>
+> >>>>
+> >>>> diff --git a/drivers/block/virtio_blk.c b/drivers/block/virtio_blk.c
+> >>>> index 4bc083b..df95ce3 100644
+> >>>> --- a/drivers/block/virtio_blk.c
+> >>>> +++ b/drivers/block/virtio_blk.c
+> >>>> @@ -513,6 +513,8 @@ static int init_vq(struct virtio_blk *vblk)
+> >>>>  	if (err)
+> >>>>  		num_vqs = 1;
+> >>>>  
+> >>>> +	num_vqs = min(num_possible_cpus(), num_vqs);
+> >>>> +
+> >>>>  	vblk->vqs = kmalloc_array(num_vqs, sizeof(*vblk->vqs), GFP_KERNEL);
+> >>>>  	if (!vblk->vqs)
+> >>>>  		return -ENOMEM;    
+> >>>
+> >>> virtio-blk, however, is not pci-specific.
+> >>>
+> >>> If we are using the ccw transport on s390, a completely different
+> >>> interrupt mechanism is in use ('floating' interrupts, which are not
+> >>> per-cpu). A check like that should therefore not go into the generic
+> >>> driver.
+> >>>     
+> >>
+> >> So far there seems two options.
+> >>
+> >> The 1st option is to ask the qemu user to always specify "-num-queues" with the
+> >> same number of vcpus when running x86 guest with pci for virtio-blk or
+> >> virtio-scsi, in order to assign a vector for each queue.  
+> > 
+> > That does seem like an extra burden for the user: IIUC, things work
+> > even if you have too many queues, it's just not optimal. It sounds like
+> > something that can be done by a management layer (e.g. libvirt), though.
+> >   
+> >> Or, is it fine for virtio folks to add a new hook to 'struct virtio_config_ops'
+> >> so that different platforms (e.g., pci or ccw) would use different ways to limit
+> >> the max number of queues in guest, with something like below?  
+> > 
+> > That sounds better, as both transports and drivers can opt-in here.
+> > 
+> > However, maybe it would be even better to try to come up with a better
+> > strategy of allocating msix vectors in virtio-pci. More vectors in the
+> > num_queues > num_cpus case, even if they still need to be shared?
+> > Individual vectors for n-1 cpus and then a shared one for the remaining
+> > queues?
+> > 
+> > It might even be device-specific: Have some low-traffic status queues
+> > share a vector, and provide an individual vector for high-traffic
+> > queues. Would need some device<->transport interface, obviously.
+> >   
+> 
+> This sounds a little bit similar to multiple hctx maps?
+> 
+> So far, as virtio-blk only supports set->nr_maps = 1, no matter how many hw
+> queues are assigned for virtio-blk, blk_mq_alloc_tag_set() would use at most
+> nr_cpu_ids hw queues.
+> 
+> 2981 int blk_mq_alloc_tag_set(struct blk_mq_tag_set *set)
+> ... ...
+> 3021         /*
+> 3022          * There is no use for more h/w queues than cpus if we just have
+> 3023          * a single map
+> 3024          */
+> 3025         if (set->nr_maps == 1 && set->nr_hw_queues > nr_cpu_ids)
+> 3026                 set->nr_hw_queues = nr_cpu_ids;
+> 
+> Even the block layer would limit the number of hw queues by nr_cpu_ids when
+> (set->nr_maps == 1).
+
+Correct me if I'm wrong, but there seem to be two kinds of limitations
+involved here:
+- Allocation of msix vectors by the virtio-pci transport. We end up
+  with shared vectors if we have more virtqueues than vcpus. Other
+  transports may or may not have similar issues, but essentially, this
+  is something that applies to all kind of virtio devices attached via
+  the virtio-pci transport.
+- The block layer limits the number of hw queues to the number of
+  vcpus. This applies only to virtio devices that interact with the
+  block layer, but regardless of the virtio transport.
+
+> That's why I think virtio-blk should use the similar solution as nvme
+> (regardless about write_queues and poll_queues) and xen-blkfront.
+
+Ok, the hw queues limit from above would be an argument to limit to
+#vcpus in the virtio-blk driver, regardless of the transport used. (No
+idea if there are better ways to deal with this, I'm not familiar with
+the interface.)
+
+For virtio devices that don't interact with the block layer and are
+attached via the virtio-pci transport, it might still make sense to
+revisit vector allocation.
