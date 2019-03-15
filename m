@@ -1,8 +1,8 @@
-From: Andrea Arcangeli <aarcange@redhat.com>
+From: Jason Wang <jasowang@redhat.com>
 Subject: Re: [RFC PATCH V2 0/5] vhost: accelerate metadata access through
 	vmap()
-Date: Thu, 14 Mar 2019 15:33:33 -0400
-Message-ID: <20190314193333.GA24542__10496.330358886$1552592098$gmane$org@redhat.com>
+Date: Fri, 15 Mar 2019 12:39:47 +0800
+Message-ID: <37ef63f2-b2f5-a9b0-564a-912970e46af1__35157.3568464787$1552624815$gmane$org@redhat.com>
 References: <20190311235140-mutt-send-email-mst@kernel.org>
 	<76c353ed-d6de-99a9-76f9-f258074c1462@redhat.com>
 	<20190312075033-mutt-send-email-mst@kernel.org>
@@ -13,12 +13,13 @@ References: <20190311235140-mutt-send-email-mst@kernel.org>
 	<1552495028.3022.37.camel@HansenPartnership.com>
 	<20190314064004-mutt-send-email-mst@kernel.org>
 	<74015196-2e18-4fe0-50ac-0c9d497315c7@redhat.com>
+	<20190314193333.GA24542@redhat.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset="utf-8"; Format="flowed"
+Content-Transfer-Encoding: base64
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-Content-Disposition: inline
-In-Reply-To: <74015196-2e18-4fe0-50ac-0c9d497315c7@redhat.com>
+In-Reply-To: <20190314193333.GA24542@redhat.com>
+Content-Language: en-US
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -28,196 +29,193 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Jason Wang <jasowang@redhat.com>
+To: Andrea Arcangeli <aarcange@redhat.com>
 Cc: Christoph Hellwig <hch@infradead.org>, linux-parisc@vger.kernel.org, kvm@vger.kernel.org, "Michael S. Tsirkin" <mst@redhat.com>, netdev@vger.kernel.org, linux-kernel@vger.kernel.org, virtualization@lists.linux-foundation.org, James Bottomley <James.Bottomley@hansenpartnership.com>, linux-mm@kvack.org, David Miller <davem@davemloft.net>, linux-arm-kernel@lists.infradead.org
 List-Id: virtualization@lists.linuxfoundation.org
 
-Hello Jason,
-
-On Thu, Mar 14, 2019 at 09:49:03PM +0800, Jason Wang wrote:
-> Yes since we don't want to slow down 32bit.
-
-If you've a lot of ram there's no justification to stick to a 32bit
-kernel, so I don't think there's need to maintain a separate model
-just for 32bit. I really wouldn't care about the performance of 32bit
-with >700MB of RAM if that would cause any maintenance burden. Let's
-focus on the best 64bit implementation that will work equally
-optimally on 32bit with <= 700M of RAM.
-
-Talking to Jerome about the set_page_dirty issue, he raised the point
-of what happens if two thread calls a mmu notifier invalidate
-simultaneously. The first mmu notifier could call set_page_dirty and
-then proceed in try_to_free_buffers or page_mkclean and then the
-concurrent mmu notifier that arrives second, then must not call
-set_page_dirty a second time.
-
-With KVM sptes mappings and vhost mappings you would call
-set_page_dirty (if you invoked gup with FOLL_WRITE) only when
-effectively tearing down any secondary mapping (you've got pointers in
-both cases for the mapping). So there's no way to risk a double
-set_page_dirty from concurrent mmu notifier invalidate because the
-invalidate takes a lock when it has to teardown the mapping and so
-set_page_dirty is only run in the first invalidate method and not in
-the second. In the spte case even better, as you wouldn't need to call
-it even at teardown time unless the spte is dirty (if shadow mask
-allows dirty sptes with EPT2 or NPT or shadow MMU).
-
-If you instead had to invalidate a secondary MMU mapping that isn't
-tracked by the driver (again: not vhost nor KVM case), you could have
-used the dirty bit of the kernel pagetable to call set_page_dirty and
-disambiguate but that's really messy, and it would prevent the use of
-gigapages in the direct mapping too and it'd require vmap for 4k
-tracking.
-
-To make sure set_page_dirty is run a single time no matter if the
-invalidate known when a mapping is tear down, I suggested the below
-model:
-
-  access = FOLL_WRITE
-
-repeat:
-  page = gup_fast(access)
-  put_page(page) /* need a way to drop FOLL_GET from gup_fast instead! */
-
-  spin_lock(mmu_notifier_lock);
-  if (race with invalidate) {
-    spin_unlock..
-    goto repeat;
-  }
-  if (access == FOLL_WRITE)
-    set_page_dirty(page)
-  establish writable mapping in secondary MMU on page
-  spin_unlock
-
-(replace spin_lock with mutex_lock for vhost of course if you stick to
-a mutex and _start/_end instead of non-sleepable ->invalidate_range)
-
-"race with invalidate" is the usual "mmu_notifier_retry" in kvm_host.h
-to be implemented for vhost.
-
-We could add a FOLL_DIRTY flag to add to FOLL_TOUCH to move the
-set_page_dirty inside GUP forced (currently it's not forced if the
-linux pte is already dirty). And we could remove FOLL_GET.
-
-Then if you have the ability to disambiguate which is the first
-invalidate that tears down a mapping to any given page (vhost can do
-that trivially, it's just a pointer to a page struct to kmap), in the
-mmu notifier invalidate just before dropping the spinlock you would
-do this check:
-
-def vhost_invalidate_range_start():
-   [..]
-   spin_lock(mmu_notifier_lock);
-   [..]
-   if (vhost->page_pointer) {
-      if (access == FOLL_WRITE)
-	VM_WARN_ON(!PageDirty(vhost->page_pointer));
-      vhost->page_pointer = NULL;
-      /* no put_page, already done at gup time */
-   }
-   spin_unlock(..
-
-Generally speaking set_page_dirty is safer done after the last
-modification to the data of the page. However the way stable page
-works, as long as the mmu notifier invalidate didn't run, the PG_dirty
-cannot go away.
-
-So this model solves the issue with guaranteeing a single
-set_page_dirty is run before page_mkclean or try_to_free_buffers can
-run, even for drivers that implement the invalidate as a generic "TLB
-flush" across the whole secondary MMU and that cannot disambiguate the
-first invalidate from a second invalidate if they're issued
-concurrently on the same address by two different CPUs.
-
-So for those drivers that can disambiguate trivially (like KVM and
-vhost) we'll just add a debug check in the invalidate to validate the
-common code for all mmu notifier users.
-
-This is the solution for RDMA hardware and everything that can support
-mmu notifiers too and they can take infinitely long secondary MMU
-mappins without interfering with stable pages at all (i.e. long term
-pins but without pinning) perfectly safe and transparent to the whole
-stable page code.
-
-I think O_DIRECT for stable pages shall be solved taking the page lock
-or writeback lock or a new rwsem in the inode that is taken for
-writing by page_mkclean and try_to_free_buffers and for reading by
-outstanding O_DIRECT in flight I/O, like I suggested probably ages ago
-but then we only made GUP take the page pin, which is fine for mmu
-notifier actually (except those didn't exist back then). To solve
-O_DIRECT we can leverage the 100% guarantee that the pin will be
-dropped ASAP and stop page_mkclean and stop or trylock in
-try_to_free_buffers in such case.
-
-mm_take_all_locks is major hurdle that prevents usage in O_DIRECT
-case, even if we "cache it" if you fork(); write; exit() in a loop
-it'll still cause heavy lock overhead. MMU notifier registration isn't
-intended to happen in fast and frequent paths like the write()
-syscall. Dropping mm_take_all_locks would bring other downsides: a
-regular quiescent point can happen in between _start/_end and _start
-must be always called first all the mmu notifier retry counters we
-rely on would break. One way would be to add srcu_read_lock _before_
-you can call mm_has_mm_has_notifiers(mm), then yes we could replace
-mm_take_all_locks with synchronize_srcu. It would save a lot of CPU
-and a ton of locked operations, but it'd potentially increase the
-latency of the registration so the first O_DIRECT write() in a process
-could still potentially stall (still better than mm_take_all_locks
-which would use a lot more CPU and hurt SMP scalability in threaded
-programs). The downside is all VM fast paths would get some overhead
-because of srcu_read_lock even when mmu notifier is not registered,
-which is what we carefully avoided by taking a larger hit in the
-registration with mm_take_all_locks. This is why I don't think mmu
-notifier is a good solution to solve O_DIRECT stable pages even in
-theory O_DIRECT could use the exact same model as vhost to solve
-stable pages.
-
-If we solve O_DIRECT with new per-page locking or a new rwsem inode
-lock leveraging the fact we're guaranteed the pin to go away ASAP,
-what's left is the case of PCI devices mapping userland memory for
-indefinite amount of time that cannot support MMU notifier because of
-hardware limitations.
-
-Mentioning virtualization as a case taking long term PIN is incorrect,
-that didn't happen since the introduction of MMU notifier.
-
-vfio for device assignment to KVM takes the long term pins, but that's
-because the iommus may not support the mmu notifier, mmu notifier
-could solve the vfio case too.
-
-PCI devices that pretend to keep a constant mapping on userland
-virtual memory and that cannot support MMU notifier because they lack
-a secondary MMU, cripple the Linux VM and there's no solution to
-that. Even if we solve the stable pages problem, they will still
-practically disable all advanced VM features.
-
-I think it would be ok to solve the stable pages in 3 different ways:
-
-1) mmu notifier as above when mmu_notifier_register doesn't need to
-   run often and the hardware can support it
-
-2) O_DIRECT with new locking stopping page_mkclean/try_to_free_buffers
-   until I/O completion, leveraging the fact the pin&lock are
-   guaranteed to be dropped&released ASAP
-
-3) something else for pci devices that cannot support MMU notifier
-   because of hardware limitations, bounce buffers would be fine as
-   well
-
-I'm not even sure if in 3) it is worth worrying about being able to
-routinely flush to disk the dirty data, but then bounce buffers could
-solve that. Altering the page mapped in the pte sounds like a complex
-solution when you could copy the physical page just before issuing the
-I/O in the writeback code. To find if a GUP pin exists it's enough to
-check what KSM does:
-
-		/*
-		 * Check that no O_DIRECT or similar I/O is in progress on the
-		 * page
-		 */
-		if (page_mapcount(page) + 1 + swapped != page_count(page)) {
-
-That can give false positives (even through random pins coming from
-speculative cache lookups), but not false negatives.
-
-Thanks,
-Andrea
+Ck9uIDIwMTkvMy8xNSDkuIrljYgzOjMzLCBBbmRyZWEgQXJjYW5nZWxpIHdyb3RlOgo+IEhlbGxv
+IEphc29uLAo+Cj4gT24gVGh1LCBNYXIgMTQsIDIwMTkgYXQgMDk6NDk6MDNQTSArMDgwMCwgSmFz
+b24gV2FuZyB3cm90ZToKPj4gWWVzIHNpbmNlIHdlIGRvbid0IHdhbnQgdG8gc2xvdyBkb3duIDMy
+Yml0Lgo+IElmIHlvdSd2ZSBhIGxvdCBvZiByYW0gdGhlcmUncyBubyBqdXN0aWZpY2F0aW9uIHRv
+IHN0aWNrIHRvIGEgMzJiaXQKPiBrZXJuZWwsIHNvIEkgZG9uJ3QgdGhpbmsgdGhlcmUncyBuZWVk
+IHRvIG1haW50YWluIGEgc2VwYXJhdGUgbW9kZWwKPiBqdXN0IGZvciAzMmJpdC4gSSByZWFsbHkg
+d291bGRuJ3QgY2FyZSBhYm91dCB0aGUgcGVyZm9ybWFuY2Ugb2YgMzJiaXQKPiB3aXRoID43MDBN
+QiBvZiBSQU0gaWYgdGhhdCB3b3VsZCBjYXVzZSBhbnkgbWFpbnRlbmFuY2UgYnVyZGVuLiBMZXQn
+cwo+IGZvY3VzIG9uIHRoZSBiZXN0IDY0Yml0IGltcGxlbWVudGF0aW9uIHRoYXQgd2lsbCB3b3Jr
+IGVxdWFsbHkKPiBvcHRpbWFsbHkgb24gMzJiaXQgd2l0aCA8PSA3MDBNIG9mIFJBTS4KCgpZZXMs
+IGJ1dCBwcm9iYWJseSB0aGVyZSBhcmUgc3RpbGwgc29tZSByZWFzb25zIG9mIGtlZXBpbmcgY29w
+eV91c2VyKCkgCmZyaWVuZHMgYXMgYSBmYWxsYmFjay4gV2hlbiB3ZSBoYXZlIGEgbGFyZ2Ugdmly
+dHF1ZXVlLCB0aGUgcmluZyBtYXkgCm9jY3VweSBtb3JlIHRoYW4gb25lIHBhZ2UuIFRoaXMgbWVh
+bnMgdGhlIFZBIG1pZ2h0IG5vdCBiZSBjb250aWd1b3VzIAp3aGVuIHVzaW5nIGttYXAoKS4gSW5z
+dGVhZCBvZiBkb2luZyB0cmlja3MgaW4gdGhlIGFjY2Vzc29yaWVzLCBtYXliZSAKaXQncyBvciBz
+aW1wbGVyIGJldHRlciBqdXN0IGZhbGwgYmFjayB0byBjb3B5X3VzZXIoKSBpbiB0aGlzIGNhc2Uu
+IEFuZCAKd2UgbWVldCB0aGUgc2ltaWxhciBpc3N1ZSB3aGVuIHNvZnR3YXJlIGRldmljZSBJT1RM
+QiBpcyB1c2VkIGZvciB2aG9zdC4gCkFuZCBpbiB0aGUgZm9sbG93aW5nIGV4YW1wbGUgZm9yIGd1
+cCwgd2UgY2FuIHNpbXBseSBkbyBhIGZhbGxiYWNrIHdoZW4gCndlIHJhY2Ugd2l0aCB0aGUgaW52
+YWxpZGF0aW9uLgoKTWljaGFlbCBhbHNvIHRlbmRzIHRvIGtlZXAgdGhlIGNvcHlfdXNlcigpLCBo
+ZSBzdWdnZXN0ZWQgdG8gdXNlIApjb3B5X3VzZXIoKSBmb3IgVklWVCBhcmNocyB0aGVuIHRoZXJl
+J3Mgbm8gbmVlZCBmb3IgYSBleHBsaWNpdCAKZmx1c2hfZGNhY2hlX3BhZ2UoKS4gQW5kIGhlIGFs
+c28gd2FudCBhIG1vZHVsZSBwYXJhbWV0ZXIgZm9yIGZhbGxpbmcgCmJhY2sgdG8gY29weV91c2Vy
+KCkgZm9yIGUuZyBkZWJ1Z2dpbmcgcHVycG9zZS4KCgo+Cj4gVGFsa2luZyB0byBKZXJvbWUgYWJv
+dXQgdGhlIHNldF9wYWdlX2RpcnR5IGlzc3VlLCBoZSByYWlzZWQgdGhlIHBvaW50Cj4gb2Ygd2hh
+dCBoYXBwZW5zIGlmIHR3byB0aHJlYWQgY2FsbHMgYSBtbXUgbm90aWZpZXIgaW52YWxpZGF0ZQo+
+IHNpbXVsdGFuZW91c2x5LiBUaGUgZmlyc3QgbW11IG5vdGlmaWVyIGNvdWxkIGNhbGwgc2V0X3Bh
+Z2VfZGlydHkgYW5kCj4gdGhlbiBwcm9jZWVkIGluIHRyeV90b19mcmVlX2J1ZmZlcnMgb3IgcGFn
+ZV9ta2NsZWFuIGFuZCB0aGVuIHRoZQo+IGNvbmN1cnJlbnQgbW11IG5vdGlmaWVyIHRoYXQgYXJy
+aXZlcyBzZWNvbmQsIHRoZW4gbXVzdCBub3QgY2FsbAo+IHNldF9wYWdlX2RpcnR5IGEgc2Vjb25k
+IHRpbWUuCj4KPiBXaXRoIEtWTSBzcHRlcyBtYXBwaW5ncyBhbmQgdmhvc3QgbWFwcGluZ3MgeW91
+IHdvdWxkIGNhbGwKPiBzZXRfcGFnZV9kaXJ0eSAoaWYgeW91IGludm9rZWQgZ3VwIHdpdGggRk9M
+TF9XUklURSkgb25seSB3aGVuCj4gZWZmZWN0aXZlbHkgdGVhcmluZyBkb3duIGFueSBzZWNvbmRh
+cnkgbWFwcGluZyAoeW91J3ZlIGdvdCBwb2ludGVycyBpbgo+IGJvdGggY2FzZXMgZm9yIHRoZSBt
+YXBwaW5nKS4gU28gdGhlcmUncyBubyB3YXkgdG8gcmlzayBhIGRvdWJsZQo+IHNldF9wYWdlX2Rp
+cnR5IGZyb20gY29uY3VycmVudCBtbXUgbm90aWZpZXIgaW52YWxpZGF0ZSBiZWNhdXNlIHRoZQo+
+IGludmFsaWRhdGUgdGFrZXMgYSBsb2NrIHdoZW4gaXQgaGFzIHRvIHRlYXJkb3duIHRoZSBtYXBw
+aW5nIGFuZCBzbwo+IHNldF9wYWdlX2RpcnR5IGlzIG9ubHkgcnVuIGluIHRoZSBmaXJzdCBpbnZh
+bGlkYXRlIG1ldGhvZCBhbmQgbm90IGluCj4gdGhlIHNlY29uZC4gSW4gdGhlIHNwdGUgY2FzZSBl
+dmVuIGJldHRlciwgYXMgeW91IHdvdWxkbid0IG5lZWQgdG8gY2FsbAo+IGl0IGV2ZW4gYXQgdGVh
+cmRvd24gdGltZSB1bmxlc3MgdGhlIHNwdGUgaXMgZGlydHkgKGlmIHNoYWRvdyBtYXNrCj4gYWxs
+b3dzIGRpcnR5IHNwdGVzIHdpdGggRVBUMiBvciBOUFQgb3Igc2hhZG93IE1NVSkuCgoKSSBzZWUs
+IHRoZSBzb3VuZHMgaW5kZWVkIGJldHRlci4KCgo+Cj4gSWYgeW91IGluc3RlYWQgaGFkIHRvIGlu
+dmFsaWRhdGUgYSBzZWNvbmRhcnkgTU1VIG1hcHBpbmcgdGhhdCBpc24ndAo+IHRyYWNrZWQgYnkg
+dGhlIGRyaXZlciAoYWdhaW46IG5vdCB2aG9zdCBub3IgS1ZNIGNhc2UpLCB5b3UgY291bGQgaGF2
+ZQo+IHVzZWQgdGhlIGRpcnR5IGJpdCBvZiB0aGUga2VybmVsIHBhZ2V0YWJsZSB0byBjYWxsIHNl
+dF9wYWdlX2RpcnR5IGFuZAo+IGRpc2FtYmlndWF0ZSBidXQgdGhhdCdzIHJlYWxseSBtZXNzeSwg
+YW5kIGl0IHdvdWxkIHByZXZlbnQgdGhlIHVzZSBvZgo+IGdpZ2FwYWdlcyBpbiB0aGUgZGlyZWN0
+IG1hcHBpbmcgdG9vIGFuZCBpdCdkIHJlcXVpcmUgdm1hcCBmb3IgNGsKPiB0cmFja2luZy4KPgo+
+IFRvIG1ha2Ugc3VyZSBzZXRfcGFnZV9kaXJ0eSBpcyBydW4gYSBzaW5nbGUgdGltZSBubyBtYXR0
+ZXIgaWYgdGhlCj4gaW52YWxpZGF0ZSBrbm93biB3aGVuIGEgbWFwcGluZyBpcyB0ZWFyIGRvd24s
+IEkgc3VnZ2VzdGVkIHRoZSBiZWxvdwo+IG1vZGVsOgo+Cj4gICAgYWNjZXNzID0gRk9MTF9XUklU
+RQo+Cj4gcmVwZWF0Ogo+ICAgIHBhZ2UgPSBndXBfZmFzdChhY2Nlc3MpCj4gICAgcHV0X3BhZ2Uo
+cGFnZSkgLyogbmVlZCBhIHdheSB0byBkcm9wIEZPTExfR0VUIGZyb20gZ3VwX2Zhc3QgaW5zdGVh
+ZCEgKi8KPgo+ICAgIHNwaW5fbG9jayhtbXVfbm90aWZpZXJfbG9jayk7Cj4gICAgaWYgKHJhY2Ug
+d2l0aCBpbnZhbGlkYXRlKSB7Cj4gICAgICBzcGluX3VubG9jay4uCj4gICAgICBnb3RvIHJlcGVh
+dDsKPiAgICB9Cj4gICAgaWYgKGFjY2VzcyA9PSBGT0xMX1dSSVRFKQo+ICAgICAgc2V0X3BhZ2Vf
+ZGlydHkocGFnZSkKPiAgICBlc3RhYmxpc2ggd3JpdGFibGUgbWFwcGluZyBpbiBzZWNvbmRhcnkg
+TU1VIG9uIHBhZ2UKPiAgICBzcGluX3VubG9jawo+Cj4gKHJlcGxhY2Ugc3Bpbl9sb2NrIHdpdGgg
+bXV0ZXhfbG9jayBmb3Igdmhvc3Qgb2YgY291cnNlIGlmIHlvdSBzdGljayB0bwo+IGEgbXV0ZXgg
+YW5kIF9zdGFydC9fZW5kIGluc3RlYWQgb2Ygbm9uLXNsZWVwYWJsZSAtPmludmFsaWRhdGVfcmFu
+Z2UpCgoKWWVzLCBJIHByb2JhYmx5IHN0aWNrIHRvIHRoZSB2cSBtdXRleCBzaW5jZSB0aGUgaW52
+YWxpZGF0aW9uIG5lZWRzIHRvIGJlIApzeW5jaHJvbml6ZWQgd2l0aCB0aGUgd2hvbGUgcGFja2V0
+IHByb2Nlc3Npbmcgcm91dGluZS4KCgo+ICJyYWNlIHdpdGggaW52YWxpZGF0ZSIgaXMgdGhlIHVz
+dWFsICJtbXVfbm90aWZpZXJfcmV0cnkiIGluIGt2bV9ob3N0LmgKPiB0byBiZSBpbXBsZW1lbnRl
+ZCBmb3Igdmhvc3QuCj4KPiBXZSBjb3VsZCBhZGQgYSBGT0xMX0RJUlRZIGZsYWcgdG8gYWRkIHRv
+IEZPTExfVE9VQ0ggdG8gbW92ZSB0aGUKPiBzZXRfcGFnZV9kaXJ0eSBpbnNpZGUgR1VQIGZvcmNl
+ZCAoY3VycmVudGx5IGl0J3Mgbm90IGZvcmNlZCBpZiB0aGUKPiBsaW51eCBwdGUgaXMgYWxyZWFk
+eSBkaXJ0eSkuIEFuZCB3ZSBjb3VsZCByZW1vdmUgRk9MTF9HRVQuCj4KPiBUaGVuIGlmIHlvdSBo
+YXZlIHRoZSBhYmlsaXR5IHRvIGRpc2FtYmlndWF0ZSB3aGljaCBpcyB0aGUgZmlyc3QKPiBpbnZh
+bGlkYXRlIHRoYXQgdGVhcnMgZG93biBhIG1hcHBpbmcgdG8gYW55IGdpdmVuIHBhZ2UgKHZob3N0
+IGNhbiBkbwo+IHRoYXQgdHJpdmlhbGx5LCBpdCdzIGp1c3QgYSBwb2ludGVyIHRvIGEgcGFnZSBz
+dHJ1Y3QgdG8ga21hcCksIGluIHRoZQo+IG1tdSBub3RpZmllciBpbnZhbGlkYXRlIGp1c3QgYmVm
+b3JlIGRyb3BwaW5nIHRoZSBzcGlubG9jayB5b3Ugd291bGQKPiBkbyB0aGlzIGNoZWNrOgo+Cj4g
+ZGVmIHZob3N0X2ludmFsaWRhdGVfcmFuZ2Vfc3RhcnQoKToKPiAgICAgWy4uXQo+ICAgICBzcGlu
+X2xvY2sobW11X25vdGlmaWVyX2xvY2spOwo+ICAgICBbLi5dCj4gICAgIGlmICh2aG9zdC0+cGFn
+ZV9wb2ludGVyKSB7Cj4gICAgICAgIGlmIChhY2Nlc3MgPT0gRk9MTF9XUklURSkKPiAJVk1fV0FS
+Tl9PTighUGFnZURpcnR5KHZob3N0LT5wYWdlX3BvaW50ZXIpKTsKPiAgICAgICAgdmhvc3QtPnBh
+Z2VfcG9pbnRlciA9IE5VTEw7Cj4gICAgICAgIC8qIG5vIHB1dF9wYWdlLCBhbHJlYWR5IGRvbmUg
+YXQgZ3VwIHRpbWUgKi8KPiAgICAgfQo+ICAgICBzcGluX3VubG9jayguLgo+Cj4gR2VuZXJhbGx5
+IHNwZWFraW5nIHNldF9wYWdlX2RpcnR5IGlzIHNhZmVyIGRvbmUgYWZ0ZXIgdGhlIGxhc3QKPiBt
+b2RpZmljYXRpb24gdG8gdGhlIGRhdGEgb2YgdGhlIHBhZ2UuIEhvd2V2ZXIgdGhlIHdheSBzdGFi
+bGUgcGFnZQo+IHdvcmtzLCBhcyBsb25nIGFzIHRoZSBtbXUgbm90aWZpZXIgaW52YWxpZGF0ZSBk
+aWRuJ3QgcnVuLCB0aGUgUEdfZGlydHkKPiBjYW5ub3QgZ28gYXdheS4KCgpPay4KCgo+Cj4gU28g
+dGhpcyBtb2RlbCBzb2x2ZXMgdGhlIGlzc3VlIHdpdGggZ3VhcmFudGVlaW5nIGEgc2luZ2xlCj4g
+c2V0X3BhZ2VfZGlydHkgaXMgcnVuIGJlZm9yZSBwYWdlX21rY2xlYW4gb3IgdHJ5X3RvX2ZyZWVf
+YnVmZmVycyBjYW4KPiBydW4sIGV2ZW4gZm9yIGRyaXZlcnMgdGhhdCBpbXBsZW1lbnQgdGhlIGlu
+dmFsaWRhdGUgYXMgYSBnZW5lcmljICJUTEIKPiBmbHVzaCIgYWNyb3NzIHRoZSB3aG9sZSBzZWNv
+bmRhcnkgTU1VIGFuZCB0aGF0IGNhbm5vdCBkaXNhbWJpZ3VhdGUgdGhlCj4gZmlyc3QgaW52YWxp
+ZGF0ZSBmcm9tIGEgc2Vjb25kIGludmFsaWRhdGUgaWYgdGhleSdyZSBpc3N1ZWQKPiBjb25jdXJy
+ZW50bHkgb24gdGhlIHNhbWUgYWRkcmVzcyBieSB0d28gZGlmZmVyZW50IENQVXMuCj4KPiBTbyBm
+b3IgdGhvc2UgZHJpdmVycyB0aGF0IGNhbiBkaXNhbWJpZ3VhdGUgdHJpdmlhbGx5IChsaWtlIEtW
+TSBhbmQKPiB2aG9zdCkgd2UnbGwganVzdCBhZGQgYSBkZWJ1ZyBjaGVjayBpbiB0aGUgaW52YWxp
+ZGF0ZSB0byB2YWxpZGF0ZSB0aGUKPiBjb21tb24gY29kZSBmb3IgYWxsIG1tdSBub3RpZmllciB1
+c2Vycy4KPgo+IFRoaXMgaXMgdGhlIHNvbHV0aW9uIGZvciBSRE1BIGhhcmR3YXJlIGFuZCBldmVy
+eXRoaW5nIHRoYXQgY2FuIHN1cHBvcnQKPiBtbXUgbm90aWZpZXJzIHRvbyBhbmQgdGhleSBjYW4g
+dGFrZSBpbmZpbml0ZWx5IGxvbmcgc2Vjb25kYXJ5IE1NVQo+IG1hcHBpbnMgd2l0aG91dCBpbnRl
+cmZlcmluZyB3aXRoIHN0YWJsZSBwYWdlcyBhdCBhbGwgKGkuZS4gbG9uZyB0ZXJtCj4gcGlucyBi
+dXQgd2l0aG91dCBwaW5uaW5nKSBwZXJmZWN0bHkgc2FmZSBhbmQgdHJhbnNwYXJlbnQgdG8gdGhl
+IHdob2xlCj4gc3RhYmxlIHBhZ2UgY29kZS4KPgo+IEkgdGhpbmsgT19ESVJFQ1QgZm9yIHN0YWJs
+ZSBwYWdlcyBzaGFsbCBiZSBzb2x2ZWQgdGFraW5nIHRoZSBwYWdlIGxvY2sKPiBvciB3cml0ZWJh
+Y2sgbG9jayBvciBhIG5ldyByd3NlbSBpbiB0aGUgaW5vZGUgdGhhdCBpcyB0YWtlbiBmb3IKPiB3
+cml0aW5nIGJ5IHBhZ2VfbWtjbGVhbiBhbmQgdHJ5X3RvX2ZyZWVfYnVmZmVycyBhbmQgZm9yIHJl
+YWRpbmcgYnkKPiBvdXRzdGFuZGluZyBPX0RJUkVDVCBpbiBmbGlnaHQgSS9PLCBsaWtlIEkgc3Vn
+Z2VzdGVkIHByb2JhYmx5IGFnZXMgYWdvCj4gYnV0IHRoZW4gd2Ugb25seSBtYWRlIEdVUCB0YWtl
+IHRoZSBwYWdlIHBpbiwgd2hpY2ggaXMgZmluZSBmb3IgbW11Cj4gbm90aWZpZXIgYWN0dWFsbHkg
+KGV4Y2VwdCB0aG9zZSBkaWRuJ3QgZXhpc3QgYmFjayB0aGVuKS4gVG8gc29sdmUKPiBPX0RJUkVD
+VCB3ZSBjYW4gbGV2ZXJhZ2UgdGhlIDEwMCUgZ3VhcmFudGVlIHRoYXQgdGhlIHBpbiB3aWxsIGJl
+Cj4gZHJvcHBlZCBBU0FQIGFuZCBzdG9wIHBhZ2VfbWtjbGVhbiBhbmQgc3RvcCBvciB0cnlsb2Nr
+IGluCj4gdHJ5X3RvX2ZyZWVfYnVmZmVycyBpbiBzdWNoIGNhc2UuCj4KPiBtbV90YWtlX2FsbF9s
+b2NrcyBpcyBtYWpvciBodXJkbGUgdGhhdCBwcmV2ZW50cyB1c2FnZSBpbiBPX0RJUkVDVAo+IGNh
+c2UsIGV2ZW4gaWYgd2UgImNhY2hlIGl0IiBpZiB5b3UgZm9yaygpOyB3cml0ZTsgZXhpdCgpIGlu
+IGEgbG9vcAo+IGl0J2xsIHN0aWxsIGNhdXNlIGhlYXZ5IGxvY2sgb3ZlcmhlYWQuIE1NVSBub3Rp
+ZmllciByZWdpc3RyYXRpb24gaXNuJ3QKPiBpbnRlbmRlZCB0byBoYXBwZW4gaW4gZmFzdCBhbmQg
+ZnJlcXVlbnQgcGF0aHMgbGlrZSB0aGUgd3JpdGUoKQo+IHN5c2NhbGwuIERyb3BwaW5nIG1tX3Rh
+a2VfYWxsX2xvY2tzIHdvdWxkIGJyaW5nIG90aGVyIGRvd25zaWRlczogYQo+IHJlZ3VsYXIgcXVp
+ZXNjZW50IHBvaW50IGNhbiBoYXBwZW4gaW4gYmV0d2VlbiBfc3RhcnQvX2VuZCBhbmQgX3N0YXJ0
+Cj4gbXVzdCBiZSBhbHdheXMgY2FsbGVkIGZpcnN0IGFsbCB0aGUgbW11IG5vdGlmaWVyIHJldHJ5
+IGNvdW50ZXJzIHdlCj4gcmVseSBvbiB3b3VsZCBicmVhay4gT25lIHdheSB3b3VsZCBiZSB0byBh
+ZGQgc3JjdV9yZWFkX2xvY2sgX2JlZm9yZV8KPiB5b3UgY2FuIGNhbGwgbW1faGFzX21tX2hhc19u
+b3RpZmllcnMobW0pLCB0aGVuIHllcyB3ZSBjb3VsZCByZXBsYWNlCj4gbW1fdGFrZV9hbGxfbG9j
+a3Mgd2l0aCBzeW5jaHJvbml6ZV9zcmN1LiBJdCB3b3VsZCBzYXZlIGEgbG90IG9mIENQVQo+IGFu
+ZCBhIHRvbiBvZiBsb2NrZWQgb3BlcmF0aW9ucywgYnV0IGl0J2QgcG90ZW50aWFsbHkgaW5jcmVh
+c2UgdGhlCj4gbGF0ZW5jeSBvZiB0aGUgcmVnaXN0cmF0aW9uIHNvIHRoZSBmaXJzdCBPX0RJUkVD
+VCB3cml0ZSgpIGluIGEgcHJvY2Vzcwo+IGNvdWxkIHN0aWxsIHBvdGVudGlhbGx5IHN0YWxsIChz
+dGlsbCBiZXR0ZXIgdGhhbiBtbV90YWtlX2FsbF9sb2Nrcwo+IHdoaWNoIHdvdWxkIHVzZSBhIGxv
+dCBtb3JlIENQVSBhbmQgaHVydCBTTVAgc2NhbGFiaWxpdHkgaW4gdGhyZWFkZWQKPiBwcm9ncmFt
+cykuIFRoZSBkb3duc2lkZSBpcyBhbGwgVk0gZmFzdCBwYXRocyB3b3VsZCBnZXQgc29tZSBvdmVy
+aGVhZAo+IGJlY2F1c2Ugb2Ygc3JjdV9yZWFkX2xvY2sgZXZlbiB3aGVuIG1tdSBub3RpZmllciBp
+cyBub3QgcmVnaXN0ZXJlZCwKPiB3aGljaCBpcyB3aGF0IHdlIGNhcmVmdWxseSBhdm9pZGVkIGJ5
+IHRha2luZyBhIGxhcmdlciBoaXQgaW4gdGhlCj4gcmVnaXN0cmF0aW9uIHdpdGggbW1fdGFrZV9h
+bGxfbG9ja3MuIFRoaXMgaXMgd2h5IEkgZG9uJ3QgdGhpbmsgbW11Cj4gbm90aWZpZXIgaXMgYSBn
+b29kIHNvbHV0aW9uIHRvIHNvbHZlIE9fRElSRUNUIHN0YWJsZSBwYWdlcyBldmVuIGluCj4gdGhl
+b3J5IE9fRElSRUNUIGNvdWxkIHVzZSB0aGUgZXhhY3Qgc2FtZSBtb2RlbCBhcyB2aG9zdCB0byBz
+b2x2ZQo+IHN0YWJsZSBwYWdlcy4KPgo+IElmIHdlIHNvbHZlIE9fRElSRUNUIHdpdGggbmV3IHBl
+ci1wYWdlIGxvY2tpbmcgb3IgYSBuZXcgcndzZW0gaW5vZGUKPiBsb2NrIGxldmVyYWdpbmcgdGhl
+IGZhY3Qgd2UncmUgZ3VhcmFudGVlZCB0aGUgcGluIHRvIGdvIGF3YXkgQVNBUCwKPiB3aGF0J3Mg
+bGVmdCBpcyB0aGUgY2FzZSBvZiBQQ0kgZGV2aWNlcyBtYXBwaW5nIHVzZXJsYW5kIG1lbW9yeSBm
+b3IKPiBpbmRlZmluaXRlIGFtb3VudCBvZiB0aW1lIHRoYXQgY2Fubm90IHN1cHBvcnQgTU1VIG5v
+dGlmaWVyIGJlY2F1c2Ugb2YKPiBoYXJkd2FyZSBsaW1pdGF0aW9ucy4KCgpZZXMgYW5kIHRoaXMg
+aXMgcGFydCBvZiB0aGUgaXNzdWUgd2UgbWV0IGluIHZob3N0IFRYIHplcm9jb3B5IGNvZGUuIApX
+aGF0J3MgbW9yZSBpbnRlcmVzdGluZyBpcyB0aGF0IGEgc2tiIGNvdWxkIGJlIGhlbGQgb2YgYSBz
+b2Z0d2FyZSBsYXllciAKZS5nIHFkaXNjIGFzIHdlbGwuIE1NVSBub3RpZmllciBjb3VsZCBiZSB1
+c2VkIGZvciBkZWFsaW5nIHdpdGggc3VjaCAKc29mdHdhcmUgaG9sZGluZyBlLmcgY29weSBwYWNr
+ZXRzIGludG8gbmV3IHBhZ2VzLiBCdXQgdGhpcyBtYXkgcmVxdWlyZXMgCm1vcmUgdGhvdWdodHMg
+c2luY2UgdGhpcyBtYXkgcmFjZSB3aXRoIG5ldHdvcmtpbmcgc3RhY2suCgoKPgo+IE1lbnRpb25p
+bmcgdmlydHVhbGl6YXRpb24gYXMgYSBjYXNlIHRha2luZyBsb25nIHRlcm0gUElOIGlzIGluY29y
+cmVjdCwKPiB0aGF0IGRpZG4ndCBoYXBwZW4gc2luY2UgdGhlIGludHJvZHVjdGlvbiBvZiBNTVUg
+bm90aWZpZXIuCj4KPiB2ZmlvIGZvciBkZXZpY2UgYXNzaWdubWVudCB0byBLVk0gdGFrZXMgdGhl
+IGxvbmcgdGVybSBwaW5zLCBidXQgdGhhdCdzCj4gYmVjYXVzZSB0aGUgaW9tbXVzIG1heSBub3Qg
+c3VwcG9ydCB0aGUgbW11IG5vdGlmaWVyLCBtbXUgbm90aWZpZXIKPiBjb3VsZCBzb2x2ZSB0aGUg
+dmZpbyBjYXNlIHRvby4KCgpUaGlzIG1pZ2h0IHJlcXVpcmUgdGhlIHN1cHBvcnQgb2YgcGFnZSBm
+YXVsdHMgZnJvbSBJT01NVSBoYXJkd2FyZS4KCgo+Cj4gUENJIGRldmljZXMgdGhhdCBwcmV0ZW5k
+IHRvIGtlZXAgYSBjb25zdGFudCBtYXBwaW5nIG9uIHVzZXJsYW5kCj4gdmlydHVhbCBtZW1vcnkg
+YW5kIHRoYXQgY2Fubm90IHN1cHBvcnQgTU1VIG5vdGlmaWVyIGJlY2F1c2UgdGhleSBsYWNrCj4g
+YSBzZWNvbmRhcnkgTU1VLCBjcmlwcGxlIHRoZSBMaW51eCBWTSBhbmQgdGhlcmUncyBubyBzb2x1
+dGlvbiB0bwo+IHRoYXQuIEV2ZW4gaWYgd2Ugc29sdmUgdGhlIHN0YWJsZSBwYWdlcyBwcm9ibGVt
+LCB0aGV5IHdpbGwgc3RpbGwKPiBwcmFjdGljYWxseSBkaXNhYmxlIGFsbCBhZHZhbmNlZCBWTSBm
+ZWF0dXJlcy4KPgo+IEkgdGhpbmsgaXQgd291bGQgYmUgb2sgdG8gc29sdmUgdGhlIHN0YWJsZSBw
+YWdlcyBpbiAzIGRpZmZlcmVudCB3YXlzOgo+Cj4gMSkgbW11IG5vdGlmaWVyIGFzIGFib3ZlIHdo
+ZW4gbW11X25vdGlmaWVyX3JlZ2lzdGVyIGRvZXNuJ3QgbmVlZCB0bwo+ICAgICBydW4gb2Z0ZW4g
+YW5kIHRoZSBoYXJkd2FyZSBjYW4gc3VwcG9ydCBpdAo+Cj4gMikgT19ESVJFQ1Qgd2l0aCBuZXcg
+bG9ja2luZyBzdG9wcGluZyBwYWdlX21rY2xlYW4vdHJ5X3RvX2ZyZWVfYnVmZmVycwo+ICAgICB1
+bnRpbCBJL08gY29tcGxldGlvbiwgbGV2ZXJhZ2luZyB0aGUgZmFjdCB0aGUgcGluJmxvY2sgYXJl
+Cj4gICAgIGd1YXJhbnRlZWQgdG8gYmUgZHJvcHBlZCZyZWxlYXNlZCBBU0FQCj4KPiAzKSBzb21l
+dGhpbmcgZWxzZSBmb3IgcGNpIGRldmljZXMgdGhhdCBjYW5ub3Qgc3VwcG9ydCBNTVUgbm90aWZp
+ZXIKPiAgICAgYmVjYXVzZSBvZiBoYXJkd2FyZSBsaW1pdGF0aW9ucywgYm91bmNlIGJ1ZmZlcnMg
+d291bGQgYmUgZmluZSBhcwo+ICAgICB3ZWxsCj4KPiBJJ20gbm90IGV2ZW4gc3VyZSBpZiBpbiAz
+KSBpdCBpcyB3b3J0aCB3b3JyeWluZyBhYm91dCBiZWluZyBhYmxlIHRvCj4gcm91dGluZWx5IGZs
+dXNoIHRvIGRpc2sgdGhlIGRpcnR5IGRhdGEsIGJ1dCB0aGVuIGJvdW5jZSBidWZmZXJzIGNvdWxk
+Cj4gc29sdmUgdGhhdC4gQWx0ZXJpbmcgdGhlIHBhZ2UgbWFwcGVkIGluIHRoZSBwdGUgc291bmRz
+IGxpa2UgYSBjb21wbGV4Cj4gc29sdXRpb24gd2hlbiB5b3UgY291bGQgY29weSB0aGUgcGh5c2lj
+YWwgcGFnZSBqdXN0IGJlZm9yZSBpc3N1aW5nIHRoZQo+IEkvTyBpbiB0aGUgd3JpdGViYWNrIGNv
+ZGUuIFRvIGZpbmQgaWYgYSBHVVAgcGluIGV4aXN0cyBpdCdzIGVub3VnaCB0bwo+IGNoZWNrIHdo
+YXQgS1NNIGRvZXM6Cj4KPiAJCS8qCj4gCQkgKiBDaGVjayB0aGF0IG5vIE9fRElSRUNUIG9yIHNp
+bWlsYXIgSS9PIGlzIGluIHByb2dyZXNzIG9uIHRoZQo+IAkJICogcGFnZQo+IAkJICovCj4gCQlp
+ZiAocGFnZV9tYXBjb3VudChwYWdlKSArIDEgKyBzd2FwcGVkICE9IHBhZ2VfY291bnQocGFnZSkp
+IHsKPgo+IFRoYXQgY2FuIGdpdmUgZmFsc2UgcG9zaXRpdmVzIChldmVuIHRocm91Z2ggcmFuZG9t
+IHBpbnMgY29taW5nIGZyb20KPiBzcGVjdWxhdGl2ZSBjYWNoZSBsb29rdXBzKSwgYnV0IG5vdCBm
+YWxzZSBuZWdhdGl2ZXMuCj4KPiBUaGFua3MsCj4gQW5kcmVhCgoKVGhhbmtzIGZvciB0aGUgcGF0
+aWVudCBhbmQgZGV0YWlsZWQgZXhwbGFuYXRpb24gd2l0aCBsb3RzIG9mIApiYWNrZ3JvdW5kcy4g
+SXQgaGVscCB0byB1bmRlcnN0YW5kIHRoZSB3aG9sZSBwaWN0dXJlIGEgbG90LgoKX19fX19fX19f
+X19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX18KVmlydHVhbGl6YXRpb24gbWFp
+bGluZyBsaXN0ClZpcnR1YWxpemF0aW9uQGxpc3RzLmxpbnV4LWZvdW5kYXRpb24ub3JnCmh0dHBz
+Oi8vbGlzdHMubGludXhmb3VuZGF0aW9uLm9yZy9tYWlsbWFuL2xpc3RpbmZvL3ZpcnR1YWxpemF0
+aW9u
