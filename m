@@ -1,12 +1,12 @@
 From: Gerd Hoffmann <kraxel@redhat.com>
-Subject: [PATCH v3 3/5] drm/virtio: params struct for
-	virtio_gpu_cmd_create_resource()
-Date: Mon, 18 Mar 2019 12:33:30 +0100
-Message-ID: <20190318113332.10900-4-kraxel__3291.57331013761$1552908904$gmane$org@redhat.com>
+Subject: [PATCH v3 2/5] drm/virtio: use struct to pass params to
+	virtio_gpu_object_create()
+Date: Mon, 18 Mar 2019 12:33:29 +0100
+Message-ID: <20190318113332.10900-3-kraxel__35247.6984074869$1552908918$gmane$org@redhat.com>
 References: <20190318113332.10900-1-kraxel@redhat.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="utf-8"
-Content-Transfer-Encoding: base64
+Content-Type: text/plain; charset="us-ascii"
+Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
 In-Reply-To: <20190318113332.10900-1-kraxel@redhat.com>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
@@ -22,92 +22,244 @@ To: dri-devel@lists.freedesktop.org
 Cc: David Airlie <airlied@linux.ie>, open list <linux-kernel@vger.kernel.org>, "open list:VIRTIO GPU DRIVER" <virtualization@lists.linux-foundation.org>, =?UTF-8?q?Noralf=20Tr=C3=B8nnes?= <noralf@tronnes.org>, Daniel Vetter <daniel@ffwll.ch>, Gurchetan Singh <gurchetansingh@chromium.org>
 List-Id: virtualization@lists.linuxfoundation.org
 
-QWRkIGZvcm1hdCwgd2lkdGggYW5kIGhlaWdodCBmaWVsZHMgdG8gdGhlIHZpcnRpb19ncHVfb2Jq
-ZWN0X3BhcmFtcwpzdHJ1Y3QuICBXaXRoIHRoYXQgaW4gcGxhY2Ugd2UgY2FuIHVzZSB0aGUgcGFy
-YW1ldGVyIHN0cnVjdCBmb3IKdmlydGlvX2dwdV9jbWRfY3JlYXRlX3Jlc291cmNlKCkgY2FsbHMg
-dG9vLgoKU2lnbmVkLW9mZi1ieTogR2VyZCBIb2ZmbWFubiA8a3JheGVsQHJlZGhhdC5jb20+CkFj
-a2VkLWJ5OiBOb3JhbGYgVHLDuG5uZXMgPG5vcmFsZkB0cm9ubmVzLm9yZz4KLS0tCiBkcml2ZXJz
-L2dwdS9kcm0vdmlydGlvL3ZpcnRncHVfZHJ2LmggICB8ICA3ICsrKystLS0KIGRyaXZlcnMvZ3B1
-L2RybS92aXJ0aW8vdmlydGdwdV9nZW0uYyAgIHwgIDggKysrKy0tLS0KIGRyaXZlcnMvZ3B1L2Ry
-bS92aXJ0aW8vdmlydGdwdV9pb2N0bC5jIHwgIDYgKysrKy0tCiBkcml2ZXJzL2dwdS9kcm0vdmly
-dGlvL3ZpcnRncHVfdnEuYyAgICB8IDEwICsrKystLS0tLS0KIDQgZmlsZXMgY2hhbmdlZCwgMTYg
-aW5zZXJ0aW9ucygrKSwgMTUgZGVsZXRpb25zKC0pCgpkaWZmIC0tZ2l0IGEvZHJpdmVycy9ncHUv
-ZHJtL3ZpcnRpby92aXJ0Z3B1X2Rydi5oIGIvZHJpdmVycy9ncHUvZHJtL3ZpcnRpby92aXJ0Z3B1
-X2Rydi5oCmluZGV4IDE2NzQ2YzBmYzBjZi4uNWIzOGMzOTdhZmJjIDEwMDY0NAotLS0gYS9kcml2
-ZXJzL2dwdS9kcm0vdmlydGlvL3ZpcnRncHVfZHJ2LmgKKysrIGIvZHJpdmVycy9ncHUvZHJtL3Zp
-cnRpby92aXJ0Z3B1X2Rydi5oCkBAIC01MSw2ICs1MSw5IEBACiAjZGVmaW5lIERSSVZFUl9QQVRD
-SExFVkVMIDAKIAogc3RydWN0IHZpcnRpb19ncHVfb2JqZWN0X3BhcmFtcyB7CisJdWludDMyX3Qg
-Zm9ybWF0OworCXVpbnQzMl90IHdpZHRoOworCXVpbnQzMl90IGhlaWdodDsKIAl1bnNpZ25lZCBs
-b25nIHNpemU7CiB9OwogCkBAIC0yNDcsOSArMjUwLDcgQEAgaW50IHZpcnRpb19ncHVfYWxsb2Nf
-dmJ1ZnMoc3RydWN0IHZpcnRpb19ncHVfZGV2aWNlICp2Z2Rldik7CiB2b2lkIHZpcnRpb19ncHVf
-ZnJlZV92YnVmcyhzdHJ1Y3QgdmlydGlvX2dwdV9kZXZpY2UgKnZnZGV2KTsKIHZvaWQgdmlydGlv
-X2dwdV9jbWRfY3JlYXRlX3Jlc291cmNlKHN0cnVjdCB2aXJ0aW9fZ3B1X2RldmljZSAqdmdkZXYs
-CiAJCQkJICAgIHN0cnVjdCB2aXJ0aW9fZ3B1X29iamVjdCAqYm8sCi0JCQkJICAgIHVpbnQzMl90
-IGZvcm1hdCwKLQkJCQkgICAgdWludDMyX3Qgd2lkdGgsCi0JCQkJICAgIHVpbnQzMl90IGhlaWdo
-dCk7CisJCQkJICAgIHN0cnVjdCB2aXJ0aW9fZ3B1X29iamVjdF9wYXJhbXMgKnBhcmFtcyk7CiB2
-b2lkIHZpcnRpb19ncHVfY21kX3VucmVmX3Jlc291cmNlKHN0cnVjdCB2aXJ0aW9fZ3B1X2Rldmlj
-ZSAqdmdkZXYsCiAJCQkJICAgdWludDMyX3QgcmVzb3VyY2VfaWQpOwogdm9pZCB2aXJ0aW9fZ3B1
-X2NtZF90cmFuc2Zlcl90b19ob3N0XzJkKHN0cnVjdCB2aXJ0aW9fZ3B1X2RldmljZSAqdmdkZXYs
-CmRpZmYgLS1naXQgYS9kcml2ZXJzL2dwdS9kcm0vdmlydGlvL3ZpcnRncHVfZ2VtLmMgYi9kcml2
-ZXJzL2dwdS9kcm0vdmlydGlvL3ZpcnRncHVfZ2VtLmMKaW5kZXggZmZlYjczNDAwM2U0Li5hYzE1
-ODYzNjQzZTcgMTAwNjQ0Ci0tLSBhL2RyaXZlcnMvZ3B1L2RybS92aXJ0aW8vdmlydGdwdV9nZW0u
-YworKysgYi9kcml2ZXJzL2dwdS9kcm0vdmlydGlvL3ZpcnRncHVfZ2VtLmMKQEAgLTg4LDcgKzg4
-LDYgQEAgaW50IHZpcnRpb19ncHVfbW9kZV9kdW1iX2NyZWF0ZShzdHJ1Y3QgZHJtX2ZpbGUgKmZp
-bGVfcHJpdiwKIAlzdHJ1Y3QgdmlydGlvX2dwdV9vYmplY3RfcGFyYW1zIHBhcmFtcyA9IHsgMCB9
-OwogCWludCByZXQ7CiAJdWludDMyX3QgcGl0Y2g7Ci0JdWludDMyX3QgZm9ybWF0OwogCiAJaWYg
-KGFyZ3MtPmJwcCAhPSAzMikKIAkJcmV0dXJuIC1FSU5WQUw7CkBAIC05NywxNiArOTYsMTcgQEAg
-aW50IHZpcnRpb19ncHVfbW9kZV9kdW1iX2NyZWF0ZShzdHJ1Y3QgZHJtX2ZpbGUgKmZpbGVfcHJp
-diwKIAlhcmdzLT5zaXplID0gcGl0Y2ggKiBhcmdzLT5oZWlnaHQ7CiAJYXJncy0+c2l6ZSA9IEFM
-SUdOKGFyZ3MtPnNpemUsIFBBR0VfU0laRSk7CiAKKwlwYXJhbXMuZm9ybWF0ID0gdmlydGlvX2dw
-dV90cmFuc2xhdGVfZm9ybWF0KERSTV9GT1JNQVRfSE9TVF9YUkdCODg4OCk7CisJcGFyYW1zLndp
-ZHRoID0gYXJncy0+d2lkdGg7CisJcGFyYW1zLmhlaWdodCA9IGFyZ3MtPmhlaWdodDsKIAlwYXJh
-bXMuc2l6ZSA9IGFyZ3MtPnNpemU7CiAJcmV0ID0gdmlydGlvX2dwdV9nZW1fY3JlYXRlKGZpbGVf
-cHJpdiwgZGV2LCAmcGFyYW1zLCAmZ29iaiwKIAkJCQkgICAgJmFyZ3MtPmhhbmRsZSk7CiAJaWYg
-KHJldCkKIAkJZ290byBmYWlsOwogCi0JZm9ybWF0ID0gdmlydGlvX2dwdV90cmFuc2xhdGVfZm9y
-bWF0KERSTV9GT1JNQVRfSE9TVF9YUkdCODg4OCk7CiAJb2JqID0gZ2VtX3RvX3ZpcnRpb19ncHVf
-b2JqKGdvYmopOwotCXZpcnRpb19ncHVfY21kX2NyZWF0ZV9yZXNvdXJjZSh2Z2Rldiwgb2JqLCBm
-b3JtYXQsCi0JCQkJICAgICAgIGFyZ3MtPndpZHRoLCBhcmdzLT5oZWlnaHQpOworCXZpcnRpb19n
-cHVfY21kX2NyZWF0ZV9yZXNvdXJjZSh2Z2Rldiwgb2JqLCAmcGFyYW1zKTsKIAogCS8qIGF0dGFj
-aCB0aGUgb2JqZWN0IHRvIHRoZSByZXNvdXJjZSAqLwogCXJldCA9IHZpcnRpb19ncHVfb2JqZWN0
-X2F0dGFjaCh2Z2Rldiwgb2JqLCBOVUxMKTsKZGlmZiAtLWdpdCBhL2RyaXZlcnMvZ3B1L2RybS92
-aXJ0aW8vdmlydGdwdV9pb2N0bC5jIGIvZHJpdmVycy9ncHUvZHJtL3ZpcnRpby92aXJ0Z3B1X2lv
-Y3RsLmMKaW5kZXggM2IwNTMyMGJjZjczLi5kMTc1MWVlNDg4ZTUgMTAwNjQ0Ci0tLSBhL2RyaXZl
-cnMvZ3B1L2RybS92aXJ0aW8vdmlydGdwdV9pb2N0bC5jCisrKyBiL2RyaXZlcnMvZ3B1L2RybS92
-aXJ0aW8vdmlydGdwdV9pb2N0bC5jCkBAIC0zMDIsNiArMzAyLDkgQEAgc3RhdGljIGludCB2aXJ0
-aW9fZ3B1X3Jlc291cmNlX2NyZWF0ZV9pb2N0bChzdHJ1Y3QgZHJtX2RldmljZSAqZGV2LCB2b2lk
-ICpkYXRhLAogCUlOSVRfTElTVF9IRUFEKCZ2YWxpZGF0ZV9saXN0KTsKIAltZW1zZXQoJm1haW5i
-dWYsIDAsIHNpemVvZihzdHJ1Y3QgdHRtX3ZhbGlkYXRlX2J1ZmZlcikpOwogCisJcGFyYW1zLmZv
-cm1hdCA9IHJjLT5mb3JtYXQ7CisJcGFyYW1zLndpZHRoID0gcmMtPndpZHRoOworCXBhcmFtcy5o
-ZWlnaHQgPSByYy0+aGVpZ2h0OwogCXBhcmFtcy5zaXplID0gcmMtPnNpemU7CiAKIAkvKiBhbGxv
-Y2F0ZSBhIHNpbmdsZSBwYWdlIHNpemUgb2JqZWN0ICovCkBAIC0zMTQsOCArMzE3LDcgQEAgc3Rh
-dGljIGludCB2aXJ0aW9fZ3B1X3Jlc291cmNlX2NyZWF0ZV9pb2N0bChzdHJ1Y3QgZHJtX2Rldmlj
-ZSAqZGV2LCB2b2lkICpkYXRhLAogCW9iaiA9ICZxb2JqLT5nZW1fYmFzZTsKIAogCWlmICghdmdk
-ZXYtPmhhc192aXJnbF8zZCkgewotCQl2aXJ0aW9fZ3B1X2NtZF9jcmVhdGVfcmVzb3VyY2Uodmdk
-ZXYsIHFvYmosIHJjLT5mb3JtYXQsCi0JCQkJCSAgICAgICByYy0+d2lkdGgsIHJjLT5oZWlnaHQp
-OworCQl2aXJ0aW9fZ3B1X2NtZF9jcmVhdGVfcmVzb3VyY2UodmdkZXYsIHFvYmosICZwYXJhbXMp
-OwogCiAJCXJldCA9IHZpcnRpb19ncHVfb2JqZWN0X2F0dGFjaCh2Z2RldiwgcW9iaiwgTlVMTCk7
-CiAJfSBlbHNlIHsKZGlmZiAtLWdpdCBhL2RyaXZlcnMvZ3B1L2RybS92aXJ0aW8vdmlydGdwdV92
-cS5jIGIvZHJpdmVycy9ncHUvZHJtL3ZpcnRpby92aXJ0Z3B1X3ZxLmMKaW5kZXggNmJjMjAwOGIw
-ZDBkLi4zNjNiOGI4NTc3NWUgMTAwNjQ0Ci0tLSBhL2RyaXZlcnMvZ3B1L2RybS92aXJ0aW8vdmly
-dGdwdV92cS5jCisrKyBiL2RyaXZlcnMvZ3B1L2RybS92aXJ0aW8vdmlydGdwdV92cS5jCkBAIC0z
-NzYsOSArMzc2LDcgQEAgc3RhdGljIGludCB2aXJ0aW9fZ3B1X3F1ZXVlX2N1cnNvcihzdHJ1Y3Qg
-dmlydGlvX2dwdV9kZXZpY2UgKnZnZGV2LAogLyogY3JlYXRlIGEgYmFzaWMgcmVzb3VyY2UgKi8K
-IHZvaWQgdmlydGlvX2dwdV9jbWRfY3JlYXRlX3Jlc291cmNlKHN0cnVjdCB2aXJ0aW9fZ3B1X2Rl
-dmljZSAqdmdkZXYsCiAJCQkJICAgIHN0cnVjdCB2aXJ0aW9fZ3B1X29iamVjdCAqYm8sCi0JCQkJ
-ICAgIHVpbnQzMl90IGZvcm1hdCwKLQkJCQkgICAgdWludDMyX3Qgd2lkdGgsCi0JCQkJICAgIHVp
-bnQzMl90IGhlaWdodCkKKwkJCQkgICAgc3RydWN0IHZpcnRpb19ncHVfb2JqZWN0X3BhcmFtcyAq
-cGFyYW1zKQogewogCXN0cnVjdCB2aXJ0aW9fZ3B1X3Jlc291cmNlX2NyZWF0ZV8yZCAqY21kX3A7
-CiAJc3RydWN0IHZpcnRpb19ncHVfdmJ1ZmZlciAqdmJ1ZjsKQEAgLTM4OCw5ICszODYsOSBAQCB2
-b2lkIHZpcnRpb19ncHVfY21kX2NyZWF0ZV9yZXNvdXJjZShzdHJ1Y3QgdmlydGlvX2dwdV9kZXZp
-Y2UgKnZnZGV2LAogCiAJY21kX3AtPmhkci50eXBlID0gY3B1X3RvX2xlMzIoVklSVElPX0dQVV9D
-TURfUkVTT1VSQ0VfQ1JFQVRFXzJEKTsKIAljbWRfcC0+cmVzb3VyY2VfaWQgPSBjcHVfdG9fbGUz
-Mihiby0+aHdfcmVzX2hhbmRsZSk7Ci0JY21kX3AtPmZvcm1hdCA9IGNwdV90b19sZTMyKGZvcm1h
-dCk7Ci0JY21kX3AtPndpZHRoID0gY3B1X3RvX2xlMzIod2lkdGgpOwotCWNtZF9wLT5oZWlnaHQg
-PSBjcHVfdG9fbGUzMihoZWlnaHQpOworCWNtZF9wLT5mb3JtYXQgPSBjcHVfdG9fbGUzMihwYXJh
-bXMtPmZvcm1hdCk7CisJY21kX3AtPndpZHRoID0gY3B1X3RvX2xlMzIocGFyYW1zLT53aWR0aCk7
-CisJY21kX3AtPmhlaWdodCA9IGNwdV90b19sZTMyKHBhcmFtcy0+aGVpZ2h0KTsKIAogCXZpcnRp
-b19ncHVfcXVldWVfY3RybF9idWZmZXIodmdkZXYsIHZidWYpOwogCWJvLT5jcmVhdGVkID0gdHJ1
-ZTsKLS0gCjIuMTguMQoKX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19f
-X19fX18KVmlydHVhbGl6YXRpb24gbWFpbGluZyBsaXN0ClZpcnR1YWxpemF0aW9uQGxpc3RzLmxp
-bnV4LWZvdW5kYXRpb24ub3JnCmh0dHBzOi8vbGlzdHMubGludXhmb3VuZGF0aW9uLm9yZy9tYWls
-bWFuL2xpc3RpbmZvL3ZpcnR1YWxpemF0aW9u
+Create virtio_gpu_object_params, use that to pass object parameters to
+virtio_gpu_object_create.  This is just the first step, followup patches
+will add more parameters to the struct.  The plan is to use the struct
+for all object parameters.
+
+Drop unused "kernel" parameter for virtio_gpu_alloc_object(), it is
+unused and always false.
+
+Also drop "pinned" parameter.  virtio-gpu doesn't shuffle around
+objects, so effecively they all are pinned anyway.  Hardcode
+TTM_PL_FLAG_NO_EVICT so ttm knows.  Doesn't change much for the moment
+as virtio-gpu supports TTM_PL_FLAG_TT only so there is no opportunity to
+move around objects.  That'll probably change in the future though.
+
+Signed-off-by: Gerd Hoffmann <kraxel@redhat.com>
+---
+ drivers/gpu/drm/virtio/virtgpu_drv.h    | 14 +++++++-----
+ drivers/gpu/drm/virtio/virtgpu_gem.c    | 16 ++++++++------
+ drivers/gpu/drm/virtio/virtgpu_ioctl.c  | 10 ++++-----
+ drivers/gpu/drm/virtio/virtgpu_object.c | 29 ++++++++++---------------
+ 4 files changed, 35 insertions(+), 34 deletions(-)
+
+diff --git a/drivers/gpu/drm/virtio/virtgpu_drv.h b/drivers/gpu/drm/virtio/virtgpu_drv.h
+index 86a264cee362..16746c0fc0cf 100644
+--- a/drivers/gpu/drm/virtio/virtgpu_drv.h
++++ b/drivers/gpu/drm/virtio/virtgpu_drv.h
+@@ -50,6 +50,10 @@
+ #define DRIVER_MINOR 1
+ #define DRIVER_PATCHLEVEL 0
+ 
++struct virtio_gpu_object_params {
++	unsigned long size;
++};
++
+ struct virtio_gpu_object {
+ 	struct drm_gem_object gem_base;
+ 	uint32_t hw_res_handle;
+@@ -217,16 +221,16 @@ int virtio_gpu_gem_init(struct virtio_gpu_device *vgdev);
+ void virtio_gpu_gem_fini(struct virtio_gpu_device *vgdev);
+ int virtio_gpu_gem_create(struct drm_file *file,
+ 			  struct drm_device *dev,
+-			  uint64_t size,
++			  struct virtio_gpu_object_params *params,
+ 			  struct drm_gem_object **obj_p,
+ 			  uint32_t *handle_p);
+ int virtio_gpu_gem_object_open(struct drm_gem_object *obj,
+ 			       struct drm_file *file);
+ void virtio_gpu_gem_object_close(struct drm_gem_object *obj,
+ 				 struct drm_file *file);
+-struct virtio_gpu_object *virtio_gpu_alloc_object(struct drm_device *dev,
+-						  size_t size, bool kernel,
+-						  bool pinned);
++struct virtio_gpu_object*
++virtio_gpu_alloc_object(struct drm_device *dev,
++			struct virtio_gpu_object_params *params);
+ int virtio_gpu_mode_dumb_create(struct drm_file *file_priv,
+ 				struct drm_device *dev,
+ 				struct drm_mode_create_dumb *args);
+@@ -342,7 +346,7 @@ void virtio_gpu_fence_event_process(struct virtio_gpu_device *vdev,
+ 
+ /* virtio_gpu_object */
+ int virtio_gpu_object_create(struct virtio_gpu_device *vgdev,
+-			     unsigned long size, bool kernel, bool pinned,
++			     struct virtio_gpu_object_params *params,
+ 			     struct virtio_gpu_object **bo_ptr);
+ void virtio_gpu_object_kunmap(struct virtio_gpu_object *bo);
+ int virtio_gpu_object_kmap(struct virtio_gpu_object *bo);
+diff --git a/drivers/gpu/drm/virtio/virtgpu_gem.c b/drivers/gpu/drm/virtio/virtgpu_gem.c
+index f06586393974..ffeb734003e4 100644
+--- a/drivers/gpu/drm/virtio/virtgpu_gem.c
++++ b/drivers/gpu/drm/virtio/virtgpu_gem.c
+@@ -34,15 +34,15 @@ void virtio_gpu_gem_free_object(struct drm_gem_object *gem_obj)
+ 		virtio_gpu_object_unref(&obj);
+ }
+ 
+-struct virtio_gpu_object *virtio_gpu_alloc_object(struct drm_device *dev,
+-						  size_t size, bool kernel,
+-						  bool pinned)
++struct virtio_gpu_object*
++virtio_gpu_alloc_object(struct drm_device *dev,
++			struct virtio_gpu_object_params *params)
+ {
+ 	struct virtio_gpu_device *vgdev = dev->dev_private;
+ 	struct virtio_gpu_object *obj;
+ 	int ret;
+ 
+-	ret = virtio_gpu_object_create(vgdev, size, kernel, pinned, &obj);
++	ret = virtio_gpu_object_create(vgdev, params, &obj);
+ 	if (ret)
+ 		return ERR_PTR(ret);
+ 
+@@ -51,7 +51,7 @@ struct virtio_gpu_object *virtio_gpu_alloc_object(struct drm_device *dev,
+ 
+ int virtio_gpu_gem_create(struct drm_file *file,
+ 			  struct drm_device *dev,
+-			  uint64_t size,
++			  struct virtio_gpu_object_params *params,
+ 			  struct drm_gem_object **obj_p,
+ 			  uint32_t *handle_p)
+ {
+@@ -59,7 +59,7 @@ int virtio_gpu_gem_create(struct drm_file *file,
+ 	int ret;
+ 	u32 handle;
+ 
+-	obj = virtio_gpu_alloc_object(dev, size, false, false);
++	obj = virtio_gpu_alloc_object(dev, params);
+ 	if (IS_ERR(obj))
+ 		return PTR_ERR(obj);
+ 
+@@ -85,6 +85,7 @@ int virtio_gpu_mode_dumb_create(struct drm_file *file_priv,
+ 	struct virtio_gpu_device *vgdev = dev->dev_private;
+ 	struct drm_gem_object *gobj;
+ 	struct virtio_gpu_object *obj;
++	struct virtio_gpu_object_params params = { 0 };
+ 	int ret;
+ 	uint32_t pitch;
+ 	uint32_t format;
+@@ -96,7 +97,8 @@ int virtio_gpu_mode_dumb_create(struct drm_file *file_priv,
+ 	args->size = pitch * args->height;
+ 	args->size = ALIGN(args->size, PAGE_SIZE);
+ 
+-	ret = virtio_gpu_gem_create(file_priv, dev, args->size, &gobj,
++	params.size = args->size;
++	ret = virtio_gpu_gem_create(file_priv, dev, &params, &gobj,
+ 				    &args->handle);
+ 	if (ret)
+ 		goto fail;
+diff --git a/drivers/gpu/drm/virtio/virtgpu_ioctl.c b/drivers/gpu/drm/virtio/virtgpu_ioctl.c
+index 14ce8188c052..3b05320bcf73 100644
+--- a/drivers/gpu/drm/virtio/virtgpu_ioctl.c
++++ b/drivers/gpu/drm/virtio/virtgpu_ioctl.c
+@@ -279,12 +279,12 @@ static int virtio_gpu_resource_create_ioctl(struct drm_device *dev, void *data,
+ 	struct virtio_gpu_object *qobj;
+ 	struct drm_gem_object *obj;
+ 	uint32_t handle = 0;
+-	uint32_t size;
+ 	struct list_head validate_list;
+ 	struct ttm_validate_buffer mainbuf;
+ 	struct virtio_gpu_fence *fence = NULL;
+ 	struct ww_acquire_ctx ticket;
+ 	struct virtio_gpu_resource_create_3d rc_3d;
++	struct virtio_gpu_object_params params = { 0 };
+ 
+ 	if (vgdev->has_virgl_3d == false) {
+ 		if (rc->depth > 1)
+@@ -302,13 +302,13 @@ static int virtio_gpu_resource_create_ioctl(struct drm_device *dev, void *data,
+ 	INIT_LIST_HEAD(&validate_list);
+ 	memset(&mainbuf, 0, sizeof(struct ttm_validate_buffer));
+ 
+-	size = rc->size;
++	params.size = rc->size;
+ 
+ 	/* allocate a single page size object */
+-	if (size == 0)
+-		size = PAGE_SIZE;
++	if (params.size == 0)
++		params.size = PAGE_SIZE;
+ 
+-	qobj = virtio_gpu_alloc_object(dev, size, false, false);
++	qobj = virtio_gpu_alloc_object(dev, &params);
+ 	if (IS_ERR(qobj))
+ 		return PTR_ERR(qobj);
+ 	obj = &qobj->gem_base;
+diff --git a/drivers/gpu/drm/virtio/virtgpu_object.c b/drivers/gpu/drm/virtio/virtgpu_object.c
+index e7e946035027..538b93417f70 100644
+--- a/drivers/gpu/drm/virtio/virtgpu_object.c
++++ b/drivers/gpu/drm/virtio/virtgpu_object.c
+@@ -74,39 +74,33 @@ static void virtio_gpu_ttm_bo_destroy(struct ttm_buffer_object *tbo)
+ 	kfree(bo);
+ }
+ 
+-static void virtio_gpu_init_ttm_placement(struct virtio_gpu_object *vgbo,
+-					  bool pinned)
++static void virtio_gpu_init_ttm_placement(struct virtio_gpu_object *vgbo)
+ {
+ 	u32 c = 1;
+-	u32 pflag = pinned ? TTM_PL_FLAG_NO_EVICT : 0;
+ 
+ 	vgbo->placement.placement = &vgbo->placement_code;
+ 	vgbo->placement.busy_placement = &vgbo->placement_code;
+ 	vgbo->placement_code.fpfn = 0;
+ 	vgbo->placement_code.lpfn = 0;
+ 	vgbo->placement_code.flags =
+-		TTM_PL_MASK_CACHING | TTM_PL_FLAG_TT | pflag;
++		TTM_PL_MASK_CACHING | TTM_PL_FLAG_TT |
++		TTM_PL_FLAG_NO_EVICT;
+ 	vgbo->placement.num_placement = c;
+ 	vgbo->placement.num_busy_placement = c;
+ 
+ }
+ 
+ int virtio_gpu_object_create(struct virtio_gpu_device *vgdev,
+-			     unsigned long size, bool kernel, bool pinned,
++			     struct virtio_gpu_object_params *params,
+ 			     struct virtio_gpu_object **bo_ptr)
+ {
+ 	struct virtio_gpu_object *bo;
+-	enum ttm_bo_type type;
+ 	size_t acc_size;
+ 	int ret;
+ 
+-	if (kernel)
+-		type = ttm_bo_type_kernel;
+-	else
+-		type = ttm_bo_type_device;
+ 	*bo_ptr = NULL;
+ 
+-	acc_size = ttm_bo_dma_acc_size(&vgdev->mman.bdev, size,
++	acc_size = ttm_bo_dma_acc_size(&vgdev->mman.bdev, params->size,
+ 				       sizeof(struct virtio_gpu_object));
+ 
+ 	bo = kzalloc(sizeof(struct virtio_gpu_object), GFP_KERNEL);
+@@ -117,19 +111,20 @@ int virtio_gpu_object_create(struct virtio_gpu_device *vgdev,
+ 		kfree(bo);
+ 		return ret;
+ 	}
+-	size = roundup(size, PAGE_SIZE);
+-	ret = drm_gem_object_init(vgdev->ddev, &bo->gem_base, size);
++	params->size = roundup(params->size, PAGE_SIZE);
++	ret = drm_gem_object_init(vgdev->ddev, &bo->gem_base, params->size);
+ 	if (ret != 0) {
+ 		virtio_gpu_resource_id_put(vgdev, bo->hw_res_handle);
+ 		kfree(bo);
+ 		return ret;
+ 	}
+ 	bo->dumb = false;
+-	virtio_gpu_init_ttm_placement(bo, pinned);
++	virtio_gpu_init_ttm_placement(bo);
+ 
+-	ret = ttm_bo_init(&vgdev->mman.bdev, &bo->tbo, size, type,
+-			  &bo->placement, 0, !kernel, acc_size,
+-			  NULL, NULL, &virtio_gpu_ttm_bo_destroy);
++	ret = ttm_bo_init(&vgdev->mman.bdev, &bo->tbo, params->size,
++			  ttm_bo_type_device, &bo->placement, 0,
++			  true, acc_size, NULL, NULL,
++			  &virtio_gpu_ttm_bo_destroy);
+ 	/* ttm_bo_init failure will call the destroy */
+ 	if (ret != 0)
+ 		return ret;
+-- 
+2.18.1
