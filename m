@@ -1,11 +1,20 @@
-From: Peter Xu <peterx@redhat.com>
-Subject: [PATCH] virtio_net: remove hcpu from virtnet_clean_affinity
-Date: Mon, 18 Mar 2019 14:56:06 +0800
-Message-ID: <20190318065606.17100-1-peterx__9823.55857720307$1552892219$gmane$org@redhat.com>
+From: Jason Wang <jasowang@redhat.com>
+Subject: Re: virtio-blk: should num_vqs be limited by num_possible_cpus()?
+Date: Mon, 18 Mar 2019 15:47:26 +0800
+Message-ID: <1df52766-88fb-6b23-d160-b891c3017133__37789.3020676979$1552895315$gmane$org@redhat.com>
+References: <e4afe4c5-0262-4500-aeec-60f30734b4fc@default>
+	<20190312183351.74764f4f.cohuck@redhat.com>
+	<173d19c9-24db-35f2-269f-0b9b83bd0ad6@oracle.com>
+	<20190313103900.1ea7f996.cohuck@redhat.com>
+	<a3f24cfa-5160-0ccc-decc-a48362c8de19@oracle.com>
+	<537e6420-8994-43d6-1d4d-ccb6e0fafa0b@redhat.com>
+	<20190315134112.7d63348c.cohuck@redhat.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset="utf-8"; Format="flowed"
+Content-Transfer-Encoding: base64
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
+In-Reply-To: <20190315134112.7d63348c.cohuck@redhat.com>
+Content-Language: en-US
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -15,61 +24,31 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: linux-kernel@vger.kernel.org
-Cc: netdev@vger.kernel.org, virtualization@lists.linux-foundation.org, "Michael S . Tsirkin" <mst@redhat.com>
+To: Cornelia Huck <cohuck@redhat.com>
+Cc: axboe@kernel.dk, mst@redhat.com, linux-kernel@vger.kernel.org, virtualization@lists.linux-foundation.org, linux-block@vger.kernel.org
 List-Id: virtualization@lists.linuxfoundation.org
 
-The variable is never used.
-
-CC: Michael S. Tsirkin <mst@redhat.com>
-CC: Jason Wang <jasowang@redhat.com>
-CC: virtualization@lists.linux-foundation.org
-CC: netdev@vger.kernel.org
-CC: linux-kernel@vger.kernel.org
-Signed-off-by: Peter Xu <peterx@redhat.com>
----
- drivers/net/virtio_net.c | 8 ++++----
- 1 file changed, 4 insertions(+), 4 deletions(-)
-
-diff --git a/drivers/net/virtio_net.c b/drivers/net/virtio_net.c
-index 7eb38ea9ba56..1b03c4b6ebff 100644
---- a/drivers/net/virtio_net.c
-+++ b/drivers/net/virtio_net.c
-@@ -1925,7 +1925,7 @@ static int virtnet_vlan_rx_kill_vid(struct net_device *dev,
- 	return 0;
- }
- 
--static void virtnet_clean_affinity(struct virtnet_info *vi, long hcpu)
-+static void virtnet_clean_affinity(struct virtnet_info *vi)
- {
- 	int i;
- 
-@@ -1949,7 +1949,7 @@ static void virtnet_set_affinity(struct virtnet_info *vi)
- 	int stride;
- 
- 	if (!zalloc_cpumask_var(&mask, GFP_KERNEL)) {
--		virtnet_clean_affinity(vi, -1);
-+		virtnet_clean_affinity(vi);
- 		return;
- 	}
- 
-@@ -1999,7 +1999,7 @@ static int virtnet_cpu_down_prep(unsigned int cpu, struct hlist_node *node)
- 	struct virtnet_info *vi = hlist_entry_safe(node, struct virtnet_info,
- 						   node);
- 
--	virtnet_clean_affinity(vi, cpu);
-+	virtnet_clean_affinity(vi);
- 	return 0;
- }
- 
-@@ -2735,7 +2735,7 @@ static void virtnet_del_vqs(struct virtnet_info *vi)
- {
- 	struct virtio_device *vdev = vi->vdev;
- 
--	virtnet_clean_affinity(vi, -1);
-+	virtnet_clean_affinity(vi);
- 
- 	vdev->config->del_vqs(vdev);
- 
--- 
-2.17.1
+Ck9uIDIwMTkvMy8xNSDkuIvljYg4OjQxLCBDb3JuZWxpYSBIdWNrIHdyb3RlOgo+IE9uIEZyaSwg
+MTUgTWFyIDIwMTkgMTI6NTA6MTEgKzA4MDAKPiBKYXNvbiBXYW5nIDxqYXNvd2FuZ0ByZWRoYXQu
+Y29tPiB3cm90ZToKPgo+PiBPciBzb21ldGhpbmcgbGlrZSBJIHByb3Bvc2VkIHNldmVyYWwgeWVh
+cnMgYWdvPwo+PiBodHRwczovL2RvLWRiMi5sa21sLm9yZy9sa21sLzIwMTQvMTIvMjUvMTY5Cj4+
+Cj4+IEJ0dywgZm9yIHZpcnRpby1uZXQsIEkgdGhpbmsgd2UgYWN0dWFsbHkgd2FudCB0byBnbyBm
+b3IgaGF2aW5nIGEgbWF4aW11bQo+PiBudW1iZXIgb2Ygc3VwcG9ydGVkIHF1ZXVlcyBsaWtlIHdo
+YXQgaGFyZHdhcmUgZGlkLiBUaGlzIHdvdWxkIGJlIHVzZWZ1bAo+PiBmb3IgZS5nIGNwdSBob3Rw
+bHVnIG9yIFhEUCAocmVxdWlyZXMgcGVyIGNwdSBUWCBxdWV1ZSkuIEJ1dCB0aGUgY3VycmVudAo+
+PiB2ZWN0b3IgYWxsb2NhdGlvbiBkb2Vzbid0IHN1cHBvcnQgdGhpcyB3aGljaCB3aWxsIHJlc3Vs
+dHMgYWxsIHZpcnRxdWV1ZXMKPj4gdG8gc2hhcmUgYSBzaW5nbGUgdmVjdG9yLiBXZSBtYXkgaW5k
+ZWVkIG5lZWQgbW9yZSBmbGV4aWJsZSBwb2xpY3kgaGVyZS4KPiBJIHRoaW5rIGl0IHNob3VsZCBi
+ZSBwb3NzaWJsZSBmb3IgdGhlIGRyaXZlciB0byBnaXZlIHRoZSB0cmFuc3BvcnQKPiBoaW50cyBo
+b3cgdG8gc2V0IHVwIHRoZWlyIHF1ZXVlcy9pbnRlcnJ1cHQgc3RydWN0dXJlcy4gKFRoZSBkcml2
+ZXIKPiBwcm9iYWJseSBrbm93cyBiZXN0IGFib3V0IGl0cyByZXF1aXJlbWVudHMuKSBQZXJoYXBz
+IHdoZXRoZXIgYSBxdWV1ZSBpcwo+IGhpZ2ggb3IgbG93IGZyZXF1ZW5jeSwgb3Igd2hldGhlciBp
+dCBzaG91bGQgYmUgbG93IGxhdGVuY3ksIG9yIGV2ZW4KPiB3aGV0aGVyIHR3byBxdWV1ZXMgY291
+bGQgc2hhcmUgYSBub3RpZmljYXRpb24gbWVjaGFuaXNtIHdpdGhvdXQKPiBkcmF3YmFja3MuIEl0
+J3MgdXAgdG8gdGhlIHRyYW5zcG9ydCB0byBtYWtlIHVzZSBvZiB0aGF0IGluZm9ybWF0aW9uLCBp
+Zgo+IHBvc3NpYmxlLgoKCkV4YWN0bHkgYW5kIGl0IHdhcyB3aGF0IHRoZSBhYm92ZSBzZXJpZXMg
+dHJpZWQgdG8gZG8gYnkgcHJvdmlkaW5nIGhpbnRzIApvZiBlLmcgd2hpY2ggcXVldWVzIHdhbnQg
+dG8gc2hhcmUgYSBub3RpZmljYXRpb24uCgpUaGFua3MKCl9fX19fX19fX19fX19fX19fX19fX19f
+X19fX19fX19fX19fX19fX19fX19fX19fClZpcnR1YWxpemF0aW9uIG1haWxpbmcgbGlzdApWaXJ0
+dWFsaXphdGlvbkBsaXN0cy5saW51eC1mb3VuZGF0aW9uLm9yZwpodHRwczovL2xpc3RzLmxpbnV4
+Zm91bmRhdGlvbi5vcmcvbWFpbG1hbi9saXN0aW5mby92aXJ0dWFsaXphdGlvbg==
