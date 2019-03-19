@@ -1,21 +1,13 @@
-From: Dongli Zhang <dongli.zhang@oracle.com>
-Subject: Re: virtio-blk: should num_vqs be limited by num_possible_cpus()?
-Date: Tue, 19 Mar 2019 10:22:21 +0800
-Message-ID: <0fbdcfa6-cbd7-4f09-93b1-40898d5f77d1__3417.5827795238$1552962052$gmane$org@oracle.com>
-References: <e4afe4c5-0262-4500-aeec-60f30734b4fc@default>
-	<20190312183351.74764f4f.cohuck@redhat.com>
-	<173d19c9-24db-35f2-269f-0b9b83bd0ad6@oracle.com>
-	<20190313103900.1ea7f996.cohuck@redhat.com>
-	<a3f24cfa-5160-0ccc-decc-a48362c8de19@oracle.com>
-	<537e6420-8994-43d6-1d4d-ccb6e0fafa0b@redhat.com>
-	<20190315134112.7d63348c.cohuck@redhat.com>
-	<1df52766-88fb-6b23-d160-b891c3017133@redhat.com>
+From: David Miller <davem@davemloft.net>
+Subject: Re: [PATCH] virtio_net: remove hcpu from virtnet_clean_affinity
+Date: Mon, 18 Mar 2019 22:26:54 -0700 (PDT)
+Message-ID: <20190318.222654.406823620667582106.davem__20321.2526555703$1552973362$gmane$org@davemloft.net>
+References: <20190318065606.17100-1-peterx@redhat.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="utf-8"
-Content-Transfer-Encoding: base64
+Content-Type: text/plain; charset="us-ascii"
+Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <1df52766-88fb-6b23-d160-b891c3017133@redhat.com>
-Content-Language: en-US
+In-Reply-To: <20190318065606.17100-1-peterx@redhat.com>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -25,60 +17,23 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Jason Wang <jasowang@redhat.com>, Cornelia Huck <cohuck@redhat.com>
-Cc: linux-block@vger.kernel.org, axboe@kernel.dk, virtualization@lists.linux-foundation.org, linux-kernel@vger.kernel.org, mst@redhat.com
+To: peterx@redhat.com
+Cc: netdev@vger.kernel.org, virtualization@lists.linux-foundation.org, linux-kernel@vger.kernel.org, mst@redhat.com
 List-Id: virtualization@lists.linuxfoundation.org
 
-SGkgSmFzb24sCgpPbiAzLzE4LzE5IDM6NDcgUE0sIEphc29uIFdhbmcgd3JvdGU6Cj4gCj4gT24g
-MjAxOS8zLzE1IOS4i+WNiDg6NDEsIENvcm5lbGlhIEh1Y2sgd3JvdGU6Cj4+IE9uIEZyaSwgMTUg
-TWFyIDIwMTkgMTI6NTA6MTEgKzA4MDAKPj4gSmFzb24gV2FuZyA8amFzb3dhbmdAcmVkaGF0LmNv
-bT4gd3JvdGU6Cj4+Cj4+PiBPciBzb21ldGhpbmcgbGlrZSBJIHByb3Bvc2VkIHNldmVyYWwgeWVh
-cnMgYWdvPwo+Pj4gaHR0cHM6Ly9kby1kYjIubGttbC5vcmcvbGttbC8yMDE0LzEyLzI1LzE2OQo+
-Pj4KPj4+IEJ0dywgZm9yIHZpcnRpby1uZXQsIEkgdGhpbmsgd2UgYWN0dWFsbHkgd2FudCB0byBn
-byBmb3IgaGF2aW5nIGEgbWF4aW11bQo+Pj4gbnVtYmVyIG9mIHN1cHBvcnRlZCBxdWV1ZXMgbGlr
-ZSB3aGF0IGhhcmR3YXJlIGRpZC4gVGhpcyB3b3VsZCBiZSB1c2VmdWwKPj4+IGZvciBlLmcgY3B1
-IGhvdHBsdWcgb3IgWERQIChyZXF1aXJlcyBwZXIgY3B1IFRYIHF1ZXVlKS4gQnV0IHRoZSBjdXJy
-ZW50Cj4+PiB2ZWN0b3IgYWxsb2NhdGlvbiBkb2Vzbid0IHN1cHBvcnQgdGhpcyB3aGljaCB3aWxs
-IHJlc3VsdHMgYWxsIHZpcnRxdWV1ZXMKPj4+IHRvIHNoYXJlIGEgc2luZ2xlIHZlY3Rvci4gV2Ug
-bWF5IGluZGVlZCBuZWVkIG1vcmUgZmxleGlibGUgcG9saWN5IGhlcmUuCj4+IEkgdGhpbmsgaXQg
-c2hvdWxkIGJlIHBvc3NpYmxlIGZvciB0aGUgZHJpdmVyIHRvIGdpdmUgdGhlIHRyYW5zcG9ydAo+
-PiBoaW50cyBob3cgdG8gc2V0IHVwIHRoZWlyIHF1ZXVlcy9pbnRlcnJ1cHQgc3RydWN0dXJlcy4g
-KFRoZSBkcml2ZXIKPj4gcHJvYmFibHkga25vd3MgYmVzdCBhYm91dCBpdHMgcmVxdWlyZW1lbnRz
-LikgUGVyaGFwcyB3aGV0aGVyIGEgcXVldWUgaXMKPj4gaGlnaCBvciBsb3cgZnJlcXVlbmN5LCBv
-ciB3aGV0aGVyIGl0IHNob3VsZCBiZSBsb3cgbGF0ZW5jeSwgb3IgZXZlbgo+PiB3aGV0aGVyIHR3
-byBxdWV1ZXMgY291bGQgc2hhcmUgYSBub3RpZmljYXRpb24gbWVjaGFuaXNtIHdpdGhvdXQKPj4g
-ZHJhd2JhY2tzLiBJdCdzIHVwIHRvIHRoZSB0cmFuc3BvcnQgdG8gbWFrZSB1c2Ugb2YgdGhhdCBp
-bmZvcm1hdGlvbiwgaWYKPj4gcG9zc2libGUuCj4gCj4gCj4gRXhhY3RseSBhbmQgaXQgd2FzIHdo
-YXQgdGhlIGFib3ZlIHNlcmllcyB0cmllZCB0byBkbyBieSBwcm92aWRpbmcgaGludHMgb2YgZS5n
-Cj4gd2hpY2ggcXVldWVzIHdhbnQgdG8gc2hhcmUgYSBub3RpZmljYXRpb24uCj4gCgpJIHJlYWQg
-YWJvdXQgeW91ciBwYXRjaCBzZXQgb24gcHJvdmlkaW5nIG1vcmUgZmxleGliaWxpdHkgb2YgcXVl
-dWUtdG8tdmVjdG9yCm1hcHBpbmcuCgpPbmUgdXNlIGNhc2Ugb2YgdGhlIHBhdGNoIHNldCBpcyB3
-ZSB3b3VsZCBiZSBhYmxlIHRvIGVuYWJsZSBtb3JlIHF1ZXVlcyB3aGVuCnRoZXJlIGlzIGxpbWl0
-ZWQgbnVtYmVyIG9mIHZlY3RvcnMuCgpBbm90aGVyIHVzZSBjYXNlIHdlIG1heSBjbGFzc2lmeSBx
-dWV1ZXMgYXMgaGlnaHQgcHJpb3JpdHkgb3IgbG93IHByaW9yaXR5IGFzCm1lbnRpb25lZCBieSBD
-b3JuZWxpYS4KCkZvciB2aXJ0aW8tYmxrLCB3ZSBtYXkgZXh0ZW5kIHZpcnRpby1ibGsgYmFzZWQg
-b24gdGhpcyBwYXRjaCBzZXQgdG8gZW5hYmxlCnNvbWV0aGluZyBzaW1pbGFyIHRvIHdyaXRlX3F1
-ZXVlcy9wb2xsX3F1ZXVlcyBpbiBudm1lLCB3aGVuIChzZXQtPm5yX21hcHMgIT0gMSkuCgoKWWV0
-LCB0aGUgcXVlc3Rpb24gSSBhbSBhc2tpbmcgaW4gdGhpcyBlbWFpbCB0aHJlYWQgaXMgZm9yIGEg
-ZGlmZmVyZW5jZSBzY2VuYXJpby4KClRoZSBpc3N1ZSBpcyBub3Qgd2UgYXJlIG5vdCBoYXZpbmcg
-ZW5vdWdoIHZlY3RvcnMgKGFsdGhvdWdoIHRoaXMgaXMgd2h5IG9ubHkgMQp2ZWN0b3IgaXMgYWxs
-b2NhdGVkIGZvciBhbGwgdmlydGlvLWJsayBxdWV1ZXMpLiBBcyBzbyBmYXIgdmlydGlvLWJsayBo
-YXMKKHNldC0+bnJfbWFwcyA9PSAxKSwgYmxvY2sgbGF5ZXIgd291bGQgbGltaXQgdGhlIG51bWJl
-ciBvZiBodyBxdWV1ZXMgYnkKbnJfY3B1X2lkcywgd2UgaW5kZWVkIGRvIG5vdCBuZWVkIG1vcmUg
-dGhhbiBucl9jcHVfaWRzIGh3IHF1ZXVlcyBpbiB2aXJ0aW8tYmxrLgoKVGhhdCdzIHdoeSBJIGFz
-ayB3aHkgbm90IGNoYW5nZSB0aGUgZmxvdyBhcyBiZWxvdyBvcHRpb25zIHdoZW4gdGhlIG51bWJl
-ciBvZgpzdXBwb3J0ZWQgaHcgcXVldWVzIGlzIG1vcmUgdGhhbiBucl9jcHVfaWRzIChhbmQgc2V0
-LT5ucl9tYXBzID09IDEuIHZpcnRpby1ibGsKZG9lcyBub3Qgc2V0IG5yX21hcHMgYW5kIGJsb2Nr
-IGxheWVyIHdvdWxkIHNldCBpdCB0byAxIHdoZW4gdGhlIGRyaXZlciBkb2VzIG5vdApzcGVjaWZ5
-IHdpdGggYSB2YWx1ZSk6CgpvcHRpb24gMToKQXMgd2hhdCBudm1lIGFuZCB4ZW4tbmV0ZnJvbnQg
-ZG8sIGxpbWl0IHRoZSBodyBxdWV1ZSBudW1iZXIgYnkgbnJfY3B1X2lkcy4KCm9wdGlvbiAyOgpJ
-ZiB0aGUgdmVjdG9ycyBpcyBub3QgZW5vdWdoLCB1c2UgdGhlIG1heCBudW1iZXIgdmVjdG9yIChp
-bmRlZWQgbnJfY3B1X2lkcykgYXMKbnVtYmVyIG9mIGh3IHF1ZXVlcy4KCm9wdGlvbiAzOgpXZSBz
-aG91bGQgYWxsb3cgbW9yZSB2ZWN0b3JzIGV2ZW4gdGhlIGJsb2NrIGxheWVyIHdvdWxkIHN1cHBv
-cnQgYXQgbW9zdApucl9jcHVfaWRzIHF1ZXVlcy4KCgpJIHVuZGVyc3RhbmQgYSBuZXcgcG9saWN5
-IGZvciBxdWV1ZS12ZWN0b3IgbWFwcGluZyBpcyB2ZXJ5IGhlbHBmdWwuIEkgYW0ganVzdAphc2tp
-bmcgdGhlIHF1ZXN0aW9uIGZyb20gYmxvY2sgbGF5ZXIncyBwb2ludCBvZiB2aWV3LgoKVGhhbmsg
-eW91IHZlcnkgbXVjaCEKCkRvbmdsaSBaaGFuZwpfX19fX19fX19fX19fX19fX19fX19fX19fX19f
-X19fX19fX19fX19fX19fX19fXwpWaXJ0dWFsaXphdGlvbiBtYWlsaW5nIGxpc3QKVmlydHVhbGl6
-YXRpb25AbGlzdHMubGludXgtZm91bmRhdGlvbi5vcmcKaHR0cHM6Ly9saXN0cy5saW51eGZvdW5k
-YXRpb24ub3JnL21haWxtYW4vbGlzdGluZm8vdmlydHVhbGl6YXRpb24=
+From: Peter Xu <peterx@redhat.com>
+Date: Mon, 18 Mar 2019 14:56:06 +0800
+
+> The variable is never used.
+> 
+> CC: Michael S. Tsirkin <mst@redhat.com>
+> CC: Jason Wang <jasowang@redhat.com>
+> CC: virtualization@lists.linux-foundation.org
+> CC: netdev@vger.kernel.org
+> CC: linux-kernel@vger.kernel.org
+> Signed-off-by: Peter Xu <peterx@redhat.com>
+
+This looks rather uncontroversial and straightforward so I've applied
+this to net-next.
+
+Thanks.
