@@ -1,16 +1,20 @@
-From: Tomeu Vizoso <tomeu.vizoso@collabora.com>
-Subject: Re: [PATCH v3 1/2] drm/virtio: Add window server support
-Date: Mon, 18 Mar 2019 13:47:31 +0100
-Message-ID: <a777160f-5191-3808-7003-774df6d21f0e__45673.8197872014$1552913315$gmane$org@collabora.com>
-References: <20180126135803.29781-1-tomeu.vizoso@collabora.com>
-	<20180126135803.29781-2-tomeu.vizoso@collabora.com>
-	<20180201163623.5cs2ysykg5wgulf4@sirius.home.kraxel.org>
-	<49785e0d-936a-c3b4-62dd-aafc7083a942@collabora.com>
+From: Dongli Zhang <dongli.zhang@oracle.com>
+Subject: Re: virtio-blk: should num_vqs be limited by num_possible_cpus()?
+Date: Tue, 19 Mar 2019 10:22:21 +0800
+Message-ID: <0fbdcfa6-cbd7-4f09-93b1-40898d5f77d1__3417.5827795238$1552962052$gmane$org@oracle.com>
+References: <e4afe4c5-0262-4500-aeec-60f30734b4fc@default>
+	<20190312183351.74764f4f.cohuck@redhat.com>
+	<173d19c9-24db-35f2-269f-0b9b83bd0ad6@oracle.com>
+	<20190313103900.1ea7f996.cohuck@redhat.com>
+	<a3f24cfa-5160-0ccc-decc-a48362c8de19@oracle.com>
+	<537e6420-8994-43d6-1d4d-ccb6e0fafa0b@redhat.com>
+	<20190315134112.7d63348c.cohuck@redhat.com>
+	<1df52766-88fb-6b23-d160-b891c3017133@redhat.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"; Format="flowed"
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset="utf-8"
+Content-Transfer-Encoding: base64
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <49785e0d-936a-c3b4-62dd-aafc7083a942@collabora.com>
+In-Reply-To: <1df52766-88fb-6b23-d160-b891c3017133@redhat.com>
 Content-Language: en-US
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
@@ -21,92 +25,60 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Gerd Hoffmann <kraxel@redhat.com>
-Cc: "Michael S. Tsirkin" <mst@redhat.com>, David Airlie <airlied@linux.ie>, linux-kernel@vger.kernel.org, dri-devel@lists.freedesktop.org, virtualization@lists.linux-foundation.org, Zach Reizner <zachr@google.com>, kernel@collabora.com
+To: Jason Wang <jasowang@redhat.com>, Cornelia Huck <cohuck@redhat.com>
+Cc: linux-block@vger.kernel.org, axboe@kernel.dk, virtualization@lists.linux-foundation.org, linux-kernel@vger.kernel.org, mst@redhat.com
 List-Id: virtualization@lists.linuxfoundation.org
 
-[Tomasz wants to comment, adding him to CC]
-
-On 2/5/18 9:19 AM, Tomeu Vizoso wrote:
-> On 1 February 2018 at 17:36, Gerd Hoffmann <kraxel@redhat.com> wrote:
->> Hi,
->>
->> Sorry for joining the party late. Had a broken finger and was
->> offline for a bunch of weeks (and a buif backlog afterwards ...).
-> 
-> Hi, no problem, hope it's fine now.
-> 
->>> This is to allow clients running within VMs to be able to
->>> communicate with a compositor in the host. Clients will use the
->>> communication protocol that the compositor supports, and virtio-gpu
->>> will assist with making buffers available in both sides, and
->>> copying content as needed.
->>
->> Why not use virtio-vsock to run the wayland protocol? I don't like
->> the idea to duplicate something with very simliar functionality in 
->> virtio-gpu.
-> 
-> The reason for abandoning that approach was the type of objects that
-> could be shared via virtio-vsock would be extremely limited. Besides
-> that being potentially confusing to users, it would mean from the
-> implementation side that either virtio-vsock would gain a dependency on
-> the drm subsystem, or an appropriate abstraction for shareable buffers
-> would need to be added for little gain.
-> 
-> Another factor that was taken into account was that the complexity
-> required for implementing passing protocol data around was very small
-> when compared with the buffer sharing mechanism.
-> 
->>> It is expected that a service in the guest will act as a proxy, 
->>> interacting with virtio-gpu to support unmodified clients.
->>
->> If you have a guest proxy anyway using virtio-sock for the protocol 
->> stream and virtio-gpu for buffer sharing (and some day 3d rendering
->> too) should work fine I think.
-> 
-> If I understand correctly your proposal, virtio-gpu would be used for
-> creating buffers that could be shared across domains, but something
-> equivalent to SCM_RIGHTS would still be needed in virtio-vsock?
-> 
-> If so, that's what was planned initially, with the concern being that we
-> would be adding a bunch of complexity to virtio-vsock that would be only
-> used in this specific use case. Then we would also need to figure out
-> how virtio-vsock would be able to work with buffers from virtio-gpu
-> (either direct dependency or a new abstraction).
-> 
-> If the mechanics of passing presentation data were very complex, I think
-> this approach would have more merit. But as you can see from the code,
-> it isn't that bad.
-> 
->>> When the client notifies the compositor that it can read from that
-> buffer,
->>> the proxy should copy the contents from the SHM region to the
->>> virtio-gpu resource and call DRM_VIRTGPU_TRANSFER_TO_HOST.
->>
->> What is the plan for the host side? I see basically two options. Either 
->> implement the host wayland proxy directly in qemu. Or
->> implement it as separate process, which then needs some help from
->> qemu to get access to the buffers. The later would allow qemu running
->> independant from the desktop session.
-> 
-> Regarding synchronizing buffers, this will stop becoming needed in
-> subsequent commits as all shared memory is allocated in the host and
-> mapped to the guest via KVM_SET_USER_MEMORY_REGION.
-> 
-> This is already the case for buffers passed from the compositor to the
-> clients (see patch 2/2), and I'm working on the equivalent for buffers
-> from the guest to the host (clients still have to create buffers with
-> DRM_VIRTGPU_RESOURCE_CREATE but they will be only backend by host memory
-> so no calls to DRM_VIRTGPU_TRANSFER_TO_HOST are needed).
-> 
-> But in the case that we still need a proxy for some reason on the host
-> side, I think it would be better to have it in the same process where
-> virtio-gpu is implemented. In crosvm's case it would be in a process
-> separate from the main VMM, as device processes are isolated from each
-> other with minijail (see
-> https://chromium.googlesource.com/chromiumos/platform/crosvm/ ).
-> 
-> Regards,
-> 
-> Tomeu
-> 
+SGkgSmFzb24sCgpPbiAzLzE4LzE5IDM6NDcgUE0sIEphc29uIFdhbmcgd3JvdGU6Cj4gCj4gT24g
+MjAxOS8zLzE1IOS4i+WNiDg6NDEsIENvcm5lbGlhIEh1Y2sgd3JvdGU6Cj4+IE9uIEZyaSwgMTUg
+TWFyIDIwMTkgMTI6NTA6MTEgKzA4MDAKPj4gSmFzb24gV2FuZyA8amFzb3dhbmdAcmVkaGF0LmNv
+bT4gd3JvdGU6Cj4+Cj4+PiBPciBzb21ldGhpbmcgbGlrZSBJIHByb3Bvc2VkIHNldmVyYWwgeWVh
+cnMgYWdvPwo+Pj4gaHR0cHM6Ly9kby1kYjIubGttbC5vcmcvbGttbC8yMDE0LzEyLzI1LzE2OQo+
+Pj4KPj4+IEJ0dywgZm9yIHZpcnRpby1uZXQsIEkgdGhpbmsgd2UgYWN0dWFsbHkgd2FudCB0byBn
+byBmb3IgaGF2aW5nIGEgbWF4aW11bQo+Pj4gbnVtYmVyIG9mIHN1cHBvcnRlZCBxdWV1ZXMgbGlr
+ZSB3aGF0IGhhcmR3YXJlIGRpZC4gVGhpcyB3b3VsZCBiZSB1c2VmdWwKPj4+IGZvciBlLmcgY3B1
+IGhvdHBsdWcgb3IgWERQIChyZXF1aXJlcyBwZXIgY3B1IFRYIHF1ZXVlKS4gQnV0IHRoZSBjdXJy
+ZW50Cj4+PiB2ZWN0b3IgYWxsb2NhdGlvbiBkb2Vzbid0IHN1cHBvcnQgdGhpcyB3aGljaCB3aWxs
+IHJlc3VsdHMgYWxsIHZpcnRxdWV1ZXMKPj4+IHRvIHNoYXJlIGEgc2luZ2xlIHZlY3Rvci4gV2Ug
+bWF5IGluZGVlZCBuZWVkIG1vcmUgZmxleGlibGUgcG9saWN5IGhlcmUuCj4+IEkgdGhpbmsgaXQg
+c2hvdWxkIGJlIHBvc3NpYmxlIGZvciB0aGUgZHJpdmVyIHRvIGdpdmUgdGhlIHRyYW5zcG9ydAo+
+PiBoaW50cyBob3cgdG8gc2V0IHVwIHRoZWlyIHF1ZXVlcy9pbnRlcnJ1cHQgc3RydWN0dXJlcy4g
+KFRoZSBkcml2ZXIKPj4gcHJvYmFibHkga25vd3MgYmVzdCBhYm91dCBpdHMgcmVxdWlyZW1lbnRz
+LikgUGVyaGFwcyB3aGV0aGVyIGEgcXVldWUgaXMKPj4gaGlnaCBvciBsb3cgZnJlcXVlbmN5LCBv
+ciB3aGV0aGVyIGl0IHNob3VsZCBiZSBsb3cgbGF0ZW5jeSwgb3IgZXZlbgo+PiB3aGV0aGVyIHR3
+byBxdWV1ZXMgY291bGQgc2hhcmUgYSBub3RpZmljYXRpb24gbWVjaGFuaXNtIHdpdGhvdXQKPj4g
+ZHJhd2JhY2tzLiBJdCdzIHVwIHRvIHRoZSB0cmFuc3BvcnQgdG8gbWFrZSB1c2Ugb2YgdGhhdCBp
+bmZvcm1hdGlvbiwgaWYKPj4gcG9zc2libGUuCj4gCj4gCj4gRXhhY3RseSBhbmQgaXQgd2FzIHdo
+YXQgdGhlIGFib3ZlIHNlcmllcyB0cmllZCB0byBkbyBieSBwcm92aWRpbmcgaGludHMgb2YgZS5n
+Cj4gd2hpY2ggcXVldWVzIHdhbnQgdG8gc2hhcmUgYSBub3RpZmljYXRpb24uCj4gCgpJIHJlYWQg
+YWJvdXQgeW91ciBwYXRjaCBzZXQgb24gcHJvdmlkaW5nIG1vcmUgZmxleGliaWxpdHkgb2YgcXVl
+dWUtdG8tdmVjdG9yCm1hcHBpbmcuCgpPbmUgdXNlIGNhc2Ugb2YgdGhlIHBhdGNoIHNldCBpcyB3
+ZSB3b3VsZCBiZSBhYmxlIHRvIGVuYWJsZSBtb3JlIHF1ZXVlcyB3aGVuCnRoZXJlIGlzIGxpbWl0
+ZWQgbnVtYmVyIG9mIHZlY3RvcnMuCgpBbm90aGVyIHVzZSBjYXNlIHdlIG1heSBjbGFzc2lmeSBx
+dWV1ZXMgYXMgaGlnaHQgcHJpb3JpdHkgb3IgbG93IHByaW9yaXR5IGFzCm1lbnRpb25lZCBieSBD
+b3JuZWxpYS4KCkZvciB2aXJ0aW8tYmxrLCB3ZSBtYXkgZXh0ZW5kIHZpcnRpby1ibGsgYmFzZWQg
+b24gdGhpcyBwYXRjaCBzZXQgdG8gZW5hYmxlCnNvbWV0aGluZyBzaW1pbGFyIHRvIHdyaXRlX3F1
+ZXVlcy9wb2xsX3F1ZXVlcyBpbiBudm1lLCB3aGVuIChzZXQtPm5yX21hcHMgIT0gMSkuCgoKWWV0
+LCB0aGUgcXVlc3Rpb24gSSBhbSBhc2tpbmcgaW4gdGhpcyBlbWFpbCB0aHJlYWQgaXMgZm9yIGEg
+ZGlmZmVyZW5jZSBzY2VuYXJpby4KClRoZSBpc3N1ZSBpcyBub3Qgd2UgYXJlIG5vdCBoYXZpbmcg
+ZW5vdWdoIHZlY3RvcnMgKGFsdGhvdWdoIHRoaXMgaXMgd2h5IG9ubHkgMQp2ZWN0b3IgaXMgYWxs
+b2NhdGVkIGZvciBhbGwgdmlydGlvLWJsayBxdWV1ZXMpLiBBcyBzbyBmYXIgdmlydGlvLWJsayBo
+YXMKKHNldC0+bnJfbWFwcyA9PSAxKSwgYmxvY2sgbGF5ZXIgd291bGQgbGltaXQgdGhlIG51bWJl
+ciBvZiBodyBxdWV1ZXMgYnkKbnJfY3B1X2lkcywgd2UgaW5kZWVkIGRvIG5vdCBuZWVkIG1vcmUg
+dGhhbiBucl9jcHVfaWRzIGh3IHF1ZXVlcyBpbiB2aXJ0aW8tYmxrLgoKVGhhdCdzIHdoeSBJIGFz
+ayB3aHkgbm90IGNoYW5nZSB0aGUgZmxvdyBhcyBiZWxvdyBvcHRpb25zIHdoZW4gdGhlIG51bWJl
+ciBvZgpzdXBwb3J0ZWQgaHcgcXVldWVzIGlzIG1vcmUgdGhhbiBucl9jcHVfaWRzIChhbmQgc2V0
+LT5ucl9tYXBzID09IDEuIHZpcnRpby1ibGsKZG9lcyBub3Qgc2V0IG5yX21hcHMgYW5kIGJsb2Nr
+IGxheWVyIHdvdWxkIHNldCBpdCB0byAxIHdoZW4gdGhlIGRyaXZlciBkb2VzIG5vdApzcGVjaWZ5
+IHdpdGggYSB2YWx1ZSk6CgpvcHRpb24gMToKQXMgd2hhdCBudm1lIGFuZCB4ZW4tbmV0ZnJvbnQg
+ZG8sIGxpbWl0IHRoZSBodyBxdWV1ZSBudW1iZXIgYnkgbnJfY3B1X2lkcy4KCm9wdGlvbiAyOgpJ
+ZiB0aGUgdmVjdG9ycyBpcyBub3QgZW5vdWdoLCB1c2UgdGhlIG1heCBudW1iZXIgdmVjdG9yIChp
+bmRlZWQgbnJfY3B1X2lkcykgYXMKbnVtYmVyIG9mIGh3IHF1ZXVlcy4KCm9wdGlvbiAzOgpXZSBz
+aG91bGQgYWxsb3cgbW9yZSB2ZWN0b3JzIGV2ZW4gdGhlIGJsb2NrIGxheWVyIHdvdWxkIHN1cHBv
+cnQgYXQgbW9zdApucl9jcHVfaWRzIHF1ZXVlcy4KCgpJIHVuZGVyc3RhbmQgYSBuZXcgcG9saWN5
+IGZvciBxdWV1ZS12ZWN0b3IgbWFwcGluZyBpcyB2ZXJ5IGhlbHBmdWwuIEkgYW0ganVzdAphc2tp
+bmcgdGhlIHF1ZXN0aW9uIGZyb20gYmxvY2sgbGF5ZXIncyBwb2ludCBvZiB2aWV3LgoKVGhhbmsg
+eW91IHZlcnkgbXVjaCEKCkRvbmdsaSBaaGFuZwpfX19fX19fX19fX19fX19fX19fX19fX19fX19f
+X19fX19fX19fX19fX19fX19fXwpWaXJ0dWFsaXphdGlvbiBtYWlsaW5nIGxpc3QKVmlydHVhbGl6
+YXRpb25AbGlzdHMubGludXgtZm91bmRhdGlvbi5vcmcKaHR0cHM6Ly9saXN0cy5saW51eGZvdW5k
+YXRpb24ub3JnL21haWxtYW4vbGlzdGluZm8vdmlydHVhbGl6YXRpb24=
