@@ -1,20 +1,17 @@
-From: "Michael S. Tsirkin" <mst@redhat.com>
-Subject: Re: [summary] virtio network device failover writeup
-Date: Wed, 20 Mar 2019 10:09:40 -0400
-Message-ID: <20190320100747-mutt-send-email-mst__20769.1038887546$1553091145$gmane$org@kernel.org>
-References: <20190317095052-mutt-send-email-mst@kernel.org>
-	<54E7C3AF-C3C5-4AF2-86C9-AA50389F855F@oracle.com>
-	<20190319084647.727f8dcf@shemminger-XPS-13-9360>
-	<20190319171638-mutt-send-email-mst@kernel.org>
-	<79F5D7C0-BBAA-4F78-9039-27A444970002@oracle.com>
-	<20190320061632-mutt-send-email-mst@kernel.org>
-	<E0606AE7-7DE2-47C7-B64A-8161FD814277@oracle.com>
+From: Thiago Jung Bauermann <bauerman@linux.ibm.com>
+Subject: Re: [RFC PATCH] virtio_ring: Use DMA API if guest memory is encrypted
+Date: Wed, 20 Mar 2019 13:13:41 -0300
+Message-ID: <87ef71seve.fsf__10945.4876089998$1553098581$gmane$org@morokweng.localdomain>
+References: <87zhrj8kcp.fsf@morokweng.localdomain>
+	<87womn8inf.fsf@morokweng.localdomain>
+	<20190129134750-mutt-send-email-mst@kernel.org>
+	<877eefxvyb.fsf@morokweng.localdomain>
+	<20190204144048-mutt-send-email-mst@kernel.org>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="utf-8"
-Content-Transfer-Encoding: base64
+Content-Type: text/plain; charset="us-ascii"
+Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-Content-Disposition: inline
-In-Reply-To: <E0606AE7-7DE2-47C7-B64A-8161FD814277@oracle.com>
+In-reply-to: <20190204144048-mutt-send-email-mst@kernel.org>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -24,73 +21,178 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Liran Alon <liran.alon@oracle.com>
-Cc: vuhuong@mellanox.com, Jiri Pirko <jiri@resnulli.us>, Jakub Kicinski <kubakici@wp.pl>, Sridhar Samudrala <sridhar.samudrala@intel.com>, Alexander Duyck <alexander.duyck@gmail.com>, virtualization@lists.linux-foundation.org, Netdev <netdev@vger.kernel.org>, Si-Wei Liu <si-wei.liu@oracle.com>, boris.ostrovsky@oracle.com, David Miller <davem@davemloft.net>, ogerlitz@mellanox.com
+To: "Michael S. Tsirkin" <mst@redhat.com>
+Cc: Mike Anderson <andmike@linux.ibm.com>, Jean-Philippe Brucker <jean-philippe.brucker@arm.com>, Benjamin Herrenschmidt <benh@kernel.crashing.org>, Alexey Kardashevskiy <aik@linux.ibm.com>, Ram Pai <linuxram@us.ibm.com>, linux-kernel@vger.kernel.org, virtualization@lists.linux-foundation.org, Paul Mackerras <paulus@ozlabs.org>, iommu@lists.linux-foundation.org, linuxppc-dev@lists.ozlabs.org, Christoph Hellwig <hch@lst.de>, David Gibson <david@gibson.dropbear.id.au>
 List-Id: virtualization@lists.linuxfoundation.org
 
-T24gV2VkLCBNYXIgMjAsIDIwMTkgYXQgMDI6MjM6MzZQTSArMDIwMCwgTGlyYW4gQWxvbiB3cm90
-ZToKPiAKPiAKPiA+IE9uIDIwIE1hciAyMDE5LCBhdCAxMjoyNSwgTWljaGFlbCBTLiBUc2lya2lu
-IDxtc3RAcmVkaGF0LmNvbT4gd3JvdGU6Cj4gPiAKPiA+IE9uIFdlZCwgTWFyIDIwLCAyMDE5IGF0
-IDAxOjI1OjU4QU0gKzAyMDAsIExpcmFuIEFsb24gd3JvdGU6Cj4gPj4gCj4gPj4gCj4gPj4+IE9u
-IDE5IE1hciAyMDE5LCBhdCAyMzoxOSwgTWljaGFlbCBTLiBUc2lya2luIDxtc3RAcmVkaGF0LmNv
-bT4gd3JvdGU6Cj4gPj4+IAo+ID4+PiBPbiBUdWUsIE1hciAxOSwgMjAxOSBhdCAwODo0Njo0N0FN
-IC0wNzAwLCBTdGVwaGVuIEhlbW1pbmdlciB3cm90ZToKPiA+Pj4+IE9uIFR1ZSwgMTkgTWFyIDIw
-MTkgMTQ6Mzg6MDYgKzAyMDAKPiA+Pj4+IExpcmFuIEFsb24gPGxpcmFuLmFsb25Ab3JhY2xlLmNv
-bT4gd3JvdGU6Cj4gPj4+PiAKPiA+Pj4+PiBiLjMpIGNsb3VkLWluaXQ6IElmIGNvbmZpZ3VyZWQg
-dG8gcGVyZm9ybSBuZXR3b3JrLWNvbmZpZ3VyYXRpb24sIGl0IGF0dGVtcHRzIHRvIGNvbmZpZ3Vy
-ZSBhbGwgYXZhaWxhYmxlIG5ldGRldnMuIEl0IHNob3VsZCBhdm9pZCBob3dldmVyIGRvaW5nIHNv
-IG9uIG5ldC1mYWlsb3ZlciBzbGF2ZXMuCj4gPj4+Pj4gKE1pY3Jvc29mdCBoYXMgaGFuZGxlZCB0
-aGlzIGJ5IGFkZGluZyBhIG1lY2hhbmlzbSBpbiBjbG91ZC1pbml0IHRvIGJsYWNrbGlzdCBhIG5l
-dGRldiBmcm9tIGJlaW5nIGNvbmZpZ3VyZWQgaW4gY2FzZSBpdCBpcyBvd25lZCBieSBhIHNwZWNp
-ZmljIFBDSSBkcml2ZXIuIFNwZWNpZmljYWxseSwgdGhleSBibGFja2xpc3QgTWVsbGFub3ggVkYg
-ZHJpdmVyLiBIb3dldmVyLCB0aGlzIHRlY2huaXF1ZSBkb2VzbuKAmXQgd29yayBmb3IgdGhlIG5l
-dC1mYWlsb3ZlciBtZWNoYW5pc20gYmVjYXVzZSBib3RoIHRoZSBuZXQtZmFpbG92ZXIgbmV0ZGV2
-IGFuZCB0aGUgdmlydGlvLW5ldCBuZXRkZXYgYXJlIG93bmVkIGJ5IHRoZSB2aXJ0aW8tbmV0IFBD
-SSBkcml2ZXIpLgo+ID4+Pj4gCj4gPj4+PiBDbG91ZC1pbml0IHNob3VsZCByZWFsbHkganVzdCBp
-Z25vcmUgYWxsIGRldmljZXMgdGhhdCBoYXZlIGEgbWFzdGVyIGRldmljZS4KPiA+Pj4+IFRoYXQg
-d291bGQgaGF2ZSBiZWVuIG1vcmUgZ2VuZXJhbCwgYW5kIHNhZmVyIGZvciBvdGhlciB1c2UgY2Fz
-ZXMuCj4gPj4+IAo+ID4+PiBHaXZlbiBsb3RzIG9mIHVzZXJzcGFjZSBkb2Vzbid0IGRvIHRoaXMs
-IEkgd29uZGVyIHdoZXRoZXIgaXQgd291bGQgYmUKPiA+Pj4gc2FmZXIgdG8ganVzdCBzb21laG93
-IHByZXRlbmQgdG8gdXNlcnNwYWNlIHRoYXQgdGhlIHNsYXZlIGxpbmtzIGFyZQo+ID4+PiBkb3du
-PyBBbmQgYWRkIGEgc3BlY2lhbCBhdHRyaWJ1dGUgZm9yIHRoZSBhY3R1YWwgbGluayBzdGF0ZS4K
-PiA+PiAKPiA+PiBJIHRoaW5rIHRoaXMgbWF5IGJlIHByb2JsZW1hdGljIGFzIGl0IHdvdWxkIGFs
-c28gYnJlYWsgbGVnaXQgdXNlIGNhc2UKPiA+PiBvZiB1c2Vyc3BhY2UgYXR0ZW1wdCB0byBzZXQg
-dmFyaW91cyBjb25maWcgb24gVkYgc2xhdmUuCj4gPj4gSW4gZ2VuZXJhbCwgbHlpbmcgdG8gdXNl
-cnNwYWNlIHVzdWFsbHkgbGVhZHMgdG8gcHJvYmxlbXMuCj4gPiAKPiA+IEkgaGVhciB5b3Ugb24g
-dGhpcy4gU28gaG93IGFib3V0IGluc3RlYWQgb2YgbHlpbmcsCj4gPiB3ZSBiYXNpY2FsbHkganVz
-dCBmYWlsIHNvbWUgYWNjZXNzZXMgdG8gc2xhdmVzCj4gPiB1bmxlc3MgYSBmbGFnIGlzIHNldCBl
-LmcuIGluIGV0aHRvb2wuCj4gPiAKPiA+IFNvbWUgdXNlcnNwYWNlIHdpbGwgbmVlZCB0byBjaGFu
-Z2UgdG8gc2V0IGl0IGJ1dCBpbiBhIG1pbm9yIHdheS4KPiA+IEFyZ3VhYmx5L2hvcGVmdWxseSBm
-YWlsdXJlIHRvIHNldCBjb25maWcgd291bGQgZ2VuZXJhbGx5IGJlIGEgc2FmZXIKPiA+IGZhaWx1
-cmUuCj4gCj4gT25jZSB1c2Vyc3BhY2Ugd2lsbCBzZXQgdGhpcyBuZXcgZmxhZyBieSBldGh0b29s
-LCBhbGwgb3BlcmF0aW9ucyBkb25lIGJ5IG90aGVyIHVzZXJzcGFjZSBjb21wb25lbnRzIHdpbGwg
-c3RpbGwgd29yay4KClNvcnJ5IGFib3V0IGJlaW5nIHVuY2xlYXIsIHRoZSBpZGVhIHdvdWxkIGJl
-IHRvIHJlcXVpcmUgdGhlIGZsYWcgb24gZWFjaCBldGh0b29sIG9wZXJhdGlvbi4KCj4gRS5nLiBS
-dW5uaW5nIGRoY2xpZW50IHdpdGhvdXQgcGFyYW1ldGVycywgYWZ0ZXIgdGhpcyBmbGFnIHdhcyBz
-ZXQsIHdpbGwgc3RpbGwgYXR0ZW1wdCB0byBwZXJmb3JtIERIQ1Agb24gaXQgYW5kIHdpbGwgbm93
-IHN1Y2NlZWQuCgpJIHRoaW5rIHNlbmRpbmcvcmVjZWl2aW5nIHNob3VsZCBwcm9iYWJseSBqdXN0
-IGZhaWwgdW5jb25kaXRpb25hbGx5LgoKPiBUaGVyZWZvcmUsIHRoaXMgcHJvcG9zYWwganVzdCBl
-ZmZlY3RpdmVseSBkZWxheXMgd2hlbiB0aGUgbmV0LWZhaWxvdmVyIHNsYXZlIGNhbiBiZSBvcGVy
-YXRlZCBvbiBieSB1c2Vyc3BhY2UuCj4gQnV0IHdoYXQgd2UgYWN0dWFsbHkgd2FudCBpcyB0byBu
-ZXZlciBhbGxvdyBhIG5ldC1mYWlsb3ZlciBzbGF2ZSB0byBiZSBvcGVyYXRlZCBieSB1c2Vyc3Bh
-Y2UgdW5sZXNzIGl0IGlzIGV4cGxpY2l0bHkgc3RhdGVkCj4gYnkgdXNlcnNwYWNlIHRoYXQgaXQg
-d2lzaGVzIHRvIHBlcmZvcm0gYSBzZXQgb2YgYWN0aW9ucyBvbiB0aGUgbmV0LWZhaWxvdmVyIHNs
-YXZlLgo+IAo+IFNvbWV0aGluZyB0aGF0IHdhcyBhY2hpZXZlZCBpZiwgZm9yIGV4YW1wbGUsIHRo
-ZSBuZXQtZmFpbG92ZXIgc2xhdmVzIHdlcmUgaW4gYSBkaWZmZXJlbnQgbmV0bnMgdGhhbiBkZWZh
-dWx0IG5ldG5zLgo+IFRoaXMgYWxzbyBhbGlnbnMgd2l0aCBleHBlY3RlZCBjdXN0b21lciBleHBl
-cmllbmNlIHRoYXQgbW9zdCBjdXN0b21lcnMganVzdCB3YW50IHRvIHNlZSBhIDE6MSBtYXBwaW5n
-IGJldHdlZW4gYSB2TklDIGFuZCBhIHZpc2libGUgbmV0ZGV2Lgo+IEJ1dCBvZiBjb3Vyc2UgbWF5
-YmUgdGhlcmUgYXJlIG90aGVyIGlkZWFzIHRoYXQgY2FuIGFjaGlldmUgc2ltaWxhciBiZWhhdmlv
-dXIuCj4gCj4gLUxpcmFuCj4gCj4gPiAKPiA+IFdoaWNoIHRoaW5ncyB0byBmYWlsPyBQcm9iYWJs
-eSBzZW5kaW5nL3JlY2VpdmluZyBwYWNrZXRzPyAgR2V0dGluZyBNQUM/Cj4gPiBNb3JlPwo+ID4g
-Cj4gPj4gSWYgd2UgcmVhY2gKPiA+PiB0byBhIHNjZW5hcmlvIHdoZXJlIHdlIHRyeSB0byBhdm9p
-ZCB1c2Vyc3BhY2UgaXNzdWVzIGdlbmVyaWNhbGx5IGFuZAo+ID4+IG5vdCBvbiBhIHVzZXJzcGFj
-ZSBjb21wb25lbnQgYmFzaXMsIEkgYmVsaWV2ZSB0aGUgcmlnaHQgcGF0aCBzaG91bGQgYmUKPiA+
-PiB0byBoaWRlIHRoZSBuZXQtZmFpbG92ZXIgc2xhdmVzIHN1Y2ggdGhhdCBleHBsaWNpdCBhY3Rp
-b24gaXMgcmVxdWlyZWQKPiA+PiB0byBhY3R1YWxseSBtYW5pcHVsYXRlIHRoZW0gKEFzIGRlc2Ny
-aWJlZCBpbiBibG9nLXBvc3QpLiBFLmcuCj4gPj4gQXV0b21hdGljYWxseSBtb3ZlIG5ldC1mYWls
-b3ZlciBzbGF2ZXMgYnkga2VybmVsIHRvIGEgZGlmZmVyZW50IG5ldG5zLgo+ID4+IAo+ID4+IC1M
-aXJhbgo+ID4+IAo+ID4+PiAKPiA+Pj4gLS0gCj4gPj4+IE1TVApfX19fX19fX19fX19fX19fX19f
-X19fX19fX19fX19fX19fX19fX19fX19fX19fXwpWaXJ0dWFsaXphdGlvbiBtYWlsaW5nIGxpc3QK
-VmlydHVhbGl6YXRpb25AbGlzdHMubGludXgtZm91bmRhdGlvbi5vcmcKaHR0cHM6Ly9saXN0cy5s
-aW51eGZvdW5kYXRpb24ub3JnL21haWxtYW4vbGlzdGluZm8vdmlydHVhbGl6YXRpb24=
+
+Hello Michael,
+
+Sorry for the delay in responding. We had some internal discussions on
+this.
+
+Michael S. Tsirkin <mst@redhat.com> writes:
+
+> On Mon, Feb 04, 2019 at 04:14:20PM -0200, Thiago Jung Bauermann wrote:
+>>
+>> Hello Michael,
+>>
+>> Michael S. Tsirkin <mst@redhat.com> writes:
+>>
+>> > On Tue, Jan 29, 2019 at 03:42:44PM -0200, Thiago Jung Bauermann wrote:
+>> So while ACCESS_PLATFORM solves our problems for secure guests, we can't
+>> turn it on by default because we can't affect legacy systems. Doing so
+>> would penalize existing systems that can access all memory. They would
+>> all have to unnecessarily go through address translations, and take a
+>> performance hit.
+>
+> So as step one, you just give hypervisor admin an option to run legacy
+> systems faster by blocking secure mode. I don't see why that is
+> so terrible.
+
+There are a few reasons why:
+
+1. It's bad user experience to require people to fiddle with knobs for
+obscure reasons if it's possible to design things such that they Just
+Work.
+
+2. "User" in this case can be a human directly calling QEMU, but could
+also be libvirt or one of its users, or some other framework. This means
+having to adjust and/or educate an open-ended number of people and
+software. It's best avoided if possible.
+
+3. The hypervisor admin and the admin of the guest system don't
+necessarily belong to the same organization (e.g., cloud provider and
+cloud customer), so there may be some friction when they need to
+coordinate to get this right.
+
+4. A feature of our design is that the guest may or may not decide to
+"go secure" at boot time, so it's best not to depend on flags that may
+or may not have been set at the time QEMU was started.
+
+>> The semantics of ACCESS_PLATFORM assume that the hypervisor/QEMU knows
+>> in advance - right when the VM is instantiated - that it will not have
+>> access to all guest memory.
+>
+> Not quite. It just means that hypervisor can live with not having
+> access to all memory. If platform wants to give it access
+> to all memory that is quite all right.
+
+Except that on powerpc it also means "there's an IOMMU present" and
+there's no way to say "bypass IOMMU translation". :-/
+
+>> Another way of looking at this issue which also explains our reluctance
+>> is that the only difference between a secure guest and a regular guest
+>> (at least regarding virtio) is that the former uses swiotlb while the
+>> latter doens't.
+>
+> But swiotlb is just one implementation. It's a guest internal thing. The
+> issue is that memory isn't host accessible.
+
+From what I understand of the ACCESS_PLATFORM definition, the host will
+only ever try to access memory addresses that are supplied to it by the
+guest, so all of the secure guest memory that the host cares about is
+accessible:
+
+    If this feature bit is set to 0, then the device has same access to
+    memory addresses supplied to it as the driver has. In particular,
+    the device will always use physical addresses matching addresses
+    used by the driver (typically meaning physical addresses used by the
+    CPU) and not translated further, and can access any address supplied
+    to it by the driver. When clear, this overrides any
+    platform-specific description of whether device access is limited or
+    translated in any way, e.g. whether an IOMMU may be present.
+
+All of the above is true for POWER guests, whether they are secure
+guests or not.
+
+Or are you saying that a virtio device may want to access memory
+addresses that weren't supplied to it by the driver?
+
+>> And from the device's point of view they're
+>> indistinguishable. It can't tell one guest that is using swiotlb from
+>> one that isn't. And that implies that secure guest vs regular guest
+>> isn't a virtio interface issue, it's "guest internal affairs". So
+>> there's no reason to reflect that in the feature flags.
+>
+> So don't. The way not to reflect that in the feature flags is
+> to set ACCESS_PLATFORM.  Then you say *I don't care let platform device*.
+>
+>
+> Without ACCESS_PLATFORM
+> virtio has a very specific opinion about the security of the
+> device, and that opinion is that device is part of the guest
+> supervisor security domain.
+
+Sorry for being a bit dense, but not sure what "the device is part of
+the guest supervisor security domain" means. In powerpc-speak,
+"supervisor" is the operating system so perhaps that explains my
+confusion. Are you saying that without ACCESS_PLATFORM, the guest
+considers the host to be part of the guest operating system's security
+domain? If so, does that have any other implication besides "the host
+can access any address supplied to it by the driver"? If that is the
+case, perhaps the definition of ACCESS_PLATFORM needs to be amended to
+include that information because it's not part of the current
+definition.
+
+>> That said, we still would like to arrive at a proper design for this
+>> rather than add yet another hack if we can avoid it. So here's another
+>> proposal: considering that the dma-direct code (in kernel/dma/direct.c)
+>> automatically uses swiotlb when necessary (thanks to Christoph's recent
+>> DMA work), would it be ok to replace virtio's own direct-memory code
+>> that is used in the !ACCESS_PLATFORM case with the dma-direct code? That
+>> way we'll get swiotlb even with !ACCESS_PLATFORM, and virtio will get a
+>> code cleanup (replace open-coded stuff with calls to existing
+>> infrastructure).
+>
+> Let's say I have some doubts that there's an API that
+> matches what virtio with its bag of legacy compatibility exactly.
+
+Ok.
+
+>> > But the name "sev_active" makes me scared because at least AMD guys who
+>> > were doing the sensible thing and setting ACCESS_PLATFORM
+>>
+>> My understanding is, AMD guest-platform knows in advance that their
+>> guest will run in secure mode and hence sets the flag at the time of VM
+>> instantiation. Unfortunately we dont have that luxury on our platforms.
+>
+> Well you do have that luxury. It looks like that there are existing
+> guests that already acknowledge ACCESS_PLATFORM and you are not happy
+> with how that path is slow. So you are trying to optimize for
+> them by clearing ACCESS_PLATFORM and then you have lost ability
+> to invoke DMA API.
+>
+> For example if there was another flag just like ACCESS_PLATFORM
+> just not yet used by anyone, you would be all fine using that right?
+
+Yes, a new flag sounds like a great idea. What about the definition
+below?
+
+VIRTIO_F_ACCESS_PLATFORM_NO_IOMMU This feature has the same meaning as
+    VIRTIO_F_ACCESS_PLATFORM both when set and when not set, with the
+    exception that the IOMMU is explicitly defined to be off or bypassed
+    when accessing memory addresses supplied to the device by the
+    driver. This flag should be set by the guest if offered, but to
+    allow for backward-compatibility device implementations allow for it
+    to be left unset by the guest. It is an error to set both this flag
+    and VIRTIO_F_ACCESS_PLATFORM.
+
+> Is there any justification to doing that beyond someone putting
+> out slow code in the past?
+
+The definition of the ACCESS_PLATFORM flag is generic and captures the
+notion of memory access restrictions for the device. Unfortunately, on
+powerpc pSeries guests it also implies that the IOMMU is turned on even
+though pSeries guests have never used IOMMU for virtio devices. Combined
+with the lack of a way to turn off or bypass the IOMMU for virtio
+devices, this means that existing guests in the field are compelled to
+use the IOMMU even though that never was the case before, and said
+guests having no mechanism to turn it off.
+
+Therefore, we need a new flag to signal the memory access restriction
+present in secure guests which doesn't also imply turning on the IOMMU.
+
+--
+Thiago Jung Bauermann
+IBM Linux Technology Center
