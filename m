@@ -1,17 +1,19 @@
-From: Thiago Jung Bauermann <bauerman@linux.ibm.com>
+From: "Michael S. Tsirkin" <mst@redhat.com>
 Subject: Re: [RFC PATCH] virtio_ring: Use DMA API if guest memory is encrypted
-Date: Wed, 20 Mar 2019 13:13:41 -0300
-Message-ID: <87ef71seve.fsf__10945.4876089998$1553098581$gmane$org@morokweng.localdomain>
+Date: Wed, 20 Mar 2019 17:17:39 -0400
+Message-ID: <20190320171027-mutt-send-email-mst__8356.3996756979$1553116678$gmane$org@kernel.org>
 References: <87zhrj8kcp.fsf@morokweng.localdomain>
 	<87womn8inf.fsf@morokweng.localdomain>
 	<20190129134750-mutt-send-email-mst@kernel.org>
 	<877eefxvyb.fsf@morokweng.localdomain>
 	<20190204144048-mutt-send-email-mst@kernel.org>
+	<87ef71seve.fsf@morokweng.localdomain>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-reply-to: <20190204144048-mutt-send-email-mst@kernel.org>
+Content-Disposition: inline
+In-Reply-To: <87ef71seve.fsf@morokweng.localdomain>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -21,178 +23,143 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: "Michael S. Tsirkin" <mst@redhat.com>
+To: Thiago Jung Bauermann <bauerman@linux.ibm.com>
 Cc: Mike Anderson <andmike@linux.ibm.com>, Jean-Philippe Brucker <jean-philippe.brucker@arm.com>, Benjamin Herrenschmidt <benh@kernel.crashing.org>, Alexey Kardashevskiy <aik@linux.ibm.com>, Ram Pai <linuxram@us.ibm.com>, linux-kernel@vger.kernel.org, virtualization@lists.linux-foundation.org, Paul Mackerras <paulus@ozlabs.org>, iommu@lists.linux-foundation.org, linuxppc-dev@lists.ozlabs.org, Christoph Hellwig <hch@lst.de>, David Gibson <david@gibson.dropbear.id.au>
 List-Id: virtualization@lists.linuxfoundation.org
 
+On Wed, Mar 20, 2019 at 01:13:41PM -0300, Thiago Jung Bauermann wrote:
+> >> Another way of looking at this issue which also explains our reluctance
+> >> is that the only difference between a secure guest and a regular guest
+> >> (at least regarding virtio) is that the former uses swiotlb while the
+> >> latter doens't.
+> >
+> > But swiotlb is just one implementation. It's a guest internal thing. The
+> > issue is that memory isn't host accessible.
+> 
+> >From what I understand of the ACCESS_PLATFORM definition, the host will
+> only ever try to access memory addresses that are supplied to it by the
+> guest, so all of the secure guest memory that the host cares about is
+> accessible:
+> 
+>     If this feature bit is set to 0, then the device has same access to
+>     memory addresses supplied to it as the driver has. In particular,
+>     the device will always use physical addresses matching addresses
+>     used by the driver (typically meaning physical addresses used by the
+>     CPU) and not translated further, and can access any address supplied
+>     to it by the driver. When clear, this overrides any
+>     platform-specific description of whether device access is limited or
+>     translated in any way, e.g. whether an IOMMU may be present.
+> 
+> All of the above is true for POWER guests, whether they are secure
+> guests or not.
+> 
+> Or are you saying that a virtio device may want to access memory
+> addresses that weren't supplied to it by the driver?
 
-Hello Michael,
+Your logic would apply to IOMMUs as well.  For your mode, there are
+specific encrypted memory regions that driver has access to but device
+does not. that seems to violate the constraint.
 
-Sorry for the delay in responding. We had some internal discussions on
-this.
 
-Michael S. Tsirkin <mst@redhat.com> writes:
+> >> And from the device's point of view they're
+> >> indistinguishable. It can't tell one guest that is using swiotlb from
+> >> one that isn't. And that implies that secure guest vs regular guest
+> >> isn't a virtio interface issue, it's "guest internal affairs". So
+> >> there's no reason to reflect that in the feature flags.
+> >
+> > So don't. The way not to reflect that in the feature flags is
+> > to set ACCESS_PLATFORM.  Then you say *I don't care let platform device*.
+> >
+> >
+> > Without ACCESS_PLATFORM
+> > virtio has a very specific opinion about the security of the
+> > device, and that opinion is that device is part of the guest
+> > supervisor security domain.
+> 
+> Sorry for being a bit dense, but not sure what "the device is part of
+> the guest supervisor security domain" means. In powerpc-speak,
+> "supervisor" is the operating system so perhaps that explains my
+> confusion. Are you saying that without ACCESS_PLATFORM, the guest
+> considers the host to be part of the guest operating system's security
+> domain?
 
-> On Mon, Feb 04, 2019 at 04:14:20PM -0200, Thiago Jung Bauermann wrote:
->>
->> Hello Michael,
->>
->> Michael S. Tsirkin <mst@redhat.com> writes:
->>
->> > On Tue, Jan 29, 2019 at 03:42:44PM -0200, Thiago Jung Bauermann wrote:
->> So while ACCESS_PLATFORM solves our problems for secure guests, we can't
->> turn it on by default because we can't affect legacy systems. Doing so
->> would penalize existing systems that can access all memory. They would
->> all have to unnecessarily go through address translations, and take a
->> performance hit.
->
-> So as step one, you just give hypervisor admin an option to run legacy
-> systems faster by blocking secure mode. I don't see why that is
-> so terrible.
+I think so. The spec says "device has same access as driver".
 
-There are a few reasons why:
+> If so, does that have any other implication besides "the host
+> can access any address supplied to it by the driver"? If that is the
+> case, perhaps the definition of ACCESS_PLATFORM needs to be amended to
+> include that information because it's not part of the current
+> definition.
+> 
+> >> That said, we still would like to arrive at a proper design for this
+> >> rather than add yet another hack if we can avoid it. So here's another
+> >> proposal: considering that the dma-direct code (in kernel/dma/direct.c)
+> >> automatically uses swiotlb when necessary (thanks to Christoph's recent
+> >> DMA work), would it be ok to replace virtio's own direct-memory code
+> >> that is used in the !ACCESS_PLATFORM case with the dma-direct code? That
+> >> way we'll get swiotlb even with !ACCESS_PLATFORM, and virtio will get a
+> >> code cleanup (replace open-coded stuff with calls to existing
+> >> infrastructure).
+> >
+> > Let's say I have some doubts that there's an API that
+> > matches what virtio with its bag of legacy compatibility exactly.
+> 
+> Ok.
+> 
+> >> > But the name "sev_active" makes me scared because at least AMD guys who
+> >> > were doing the sensible thing and setting ACCESS_PLATFORM
+> >>
+> >> My understanding is, AMD guest-platform knows in advance that their
+> >> guest will run in secure mode and hence sets the flag at the time of VM
+> >> instantiation. Unfortunately we dont have that luxury on our platforms.
+> >
+> > Well you do have that luxury. It looks like that there are existing
+> > guests that already acknowledge ACCESS_PLATFORM and you are not happy
+> > with how that path is slow. So you are trying to optimize for
+> > them by clearing ACCESS_PLATFORM and then you have lost ability
+> > to invoke DMA API.
+> >
+> > For example if there was another flag just like ACCESS_PLATFORM
+> > just not yet used by anyone, you would be all fine using that right?
+> 
+> Yes, a new flag sounds like a great idea. What about the definition
+> below?
+> 
+> VIRTIO_F_ACCESS_PLATFORM_NO_IOMMU This feature has the same meaning as
+>     VIRTIO_F_ACCESS_PLATFORM both when set and when not set, with the
+>     exception that the IOMMU is explicitly defined to be off or bypassed
+>     when accessing memory addresses supplied to the device by the
+>     driver. This flag should be set by the guest if offered, but to
+>     allow for backward-compatibility device implementations allow for it
+>     to be left unset by the guest. It is an error to set both this flag
+>     and VIRTIO_F_ACCESS_PLATFORM.
 
-1. It's bad user experience to require people to fiddle with knobs for
-obscure reasons if it's possible to design things such that they Just
-Work.
+It looks kind of narrow but it's an option.
+I wonder how we'll define what's an iommu though.
 
-2. "User" in this case can be a human directly calling QEMU, but could
-also be libvirt or one of its users, or some other framework. This means
-having to adjust and/or educate an open-ended number of people and
-software. It's best avoided if possible.
+Another idea is maybe something like virtio-iommu?
 
-3. The hypervisor admin and the admin of the guest system don't
-necessarily belong to the same organization (e.g., cloud provider and
-cloud customer), so there may be some friction when they need to
-coordinate to get this right.
+> > Is there any justification to doing that beyond someone putting
+> > out slow code in the past?
+> 
+> The definition of the ACCESS_PLATFORM flag is generic and captures the
+> notion of memory access restrictions for the device. Unfortunately, on
+> powerpc pSeries guests it also implies that the IOMMU is turned on
 
-4. A feature of our design is that the guest may or may not decide to
-"go secure" at boot time, so it's best not to depend on flags that may
-or may not have been set at the time QEMU was started.
+IIUC that's really because on pSeries IOMMU is *always* turned on.
+Platform has no way to say what you want it to say
+which is bypass the iommu for the specific device.
 
->> The semantics of ACCESS_PLATFORM assume that the hypervisor/QEMU knows
->> in advance - right when the VM is instantiated - that it will not have
->> access to all guest memory.
->
-> Not quite. It just means that hypervisor can live with not having
-> access to all memory. If platform wants to give it access
-> to all memory that is quite all right.
-
-Except that on powerpc it also means "there's an IOMMU present" and
-there's no way to say "bypass IOMMU translation". :-/
-
->> Another way of looking at this issue which also explains our reluctance
->> is that the only difference between a secure guest and a regular guest
->> (at least regarding virtio) is that the former uses swiotlb while the
->> latter doens't.
->
-> But swiotlb is just one implementation. It's a guest internal thing. The
-> issue is that memory isn't host accessible.
-
-From what I understand of the ACCESS_PLATFORM definition, the host will
-only ever try to access memory addresses that are supplied to it by the
-guest, so all of the secure guest memory that the host cares about is
-accessible:
-
-    If this feature bit is set to 0, then the device has same access to
-    memory addresses supplied to it as the driver has. In particular,
-    the device will always use physical addresses matching addresses
-    used by the driver (typically meaning physical addresses used by the
-    CPU) and not translated further, and can access any address supplied
-    to it by the driver. When clear, this overrides any
-    platform-specific description of whether device access is limited or
-    translated in any way, e.g. whether an IOMMU may be present.
-
-All of the above is true for POWER guests, whether they are secure
-guests or not.
-
-Or are you saying that a virtio device may want to access memory
-addresses that weren't supplied to it by the driver?
-
->> And from the device's point of view they're
->> indistinguishable. It can't tell one guest that is using swiotlb from
->> one that isn't. And that implies that secure guest vs regular guest
->> isn't a virtio interface issue, it's "guest internal affairs". So
->> there's no reason to reflect that in the feature flags.
->
-> So don't. The way not to reflect that in the feature flags is
-> to set ACCESS_PLATFORM.  Then you say *I don't care let platform device*.
->
->
-> Without ACCESS_PLATFORM
-> virtio has a very specific opinion about the security of the
-> device, and that opinion is that device is part of the guest
-> supervisor security domain.
-
-Sorry for being a bit dense, but not sure what "the device is part of
-the guest supervisor security domain" means. In powerpc-speak,
-"supervisor" is the operating system so perhaps that explains my
-confusion. Are you saying that without ACCESS_PLATFORM, the guest
-considers the host to be part of the guest operating system's security
-domain? If so, does that have any other implication besides "the host
-can access any address supplied to it by the driver"? If that is the
-case, perhaps the definition of ACCESS_PLATFORM needs to be amended to
-include that information because it's not part of the current
-definition.
-
->> That said, we still would like to arrive at a proper design for this
->> rather than add yet another hack if we can avoid it. So here's another
->> proposal: considering that the dma-direct code (in kernel/dma/direct.c)
->> automatically uses swiotlb when necessary (thanks to Christoph's recent
->> DMA work), would it be ok to replace virtio's own direct-memory code
->> that is used in the !ACCESS_PLATFORM case with the dma-direct code? That
->> way we'll get swiotlb even with !ACCESS_PLATFORM, and virtio will get a
->> code cleanup (replace open-coded stuff with calls to existing
->> infrastructure).
->
-> Let's say I have some doubts that there's an API that
-> matches what virtio with its bag of legacy compatibility exactly.
-
-Ok.
-
->> > But the name "sev_active" makes me scared because at least AMD guys who
->> > were doing the sensible thing and setting ACCESS_PLATFORM
->>
->> My understanding is, AMD guest-platform knows in advance that their
->> guest will run in secure mode and hence sets the flag at the time of VM
->> instantiation. Unfortunately we dont have that luxury on our platforms.
->
-> Well you do have that luxury. It looks like that there are existing
-> guests that already acknowledge ACCESS_PLATFORM and you are not happy
-> with how that path is slow. So you are trying to optimize for
-> them by clearing ACCESS_PLATFORM and then you have lost ability
-> to invoke DMA API.
->
-> For example if there was another flag just like ACCESS_PLATFORM
-> just not yet used by anyone, you would be all fine using that right?
-
-Yes, a new flag sounds like a great idea. What about the definition
-below?
-
-VIRTIO_F_ACCESS_PLATFORM_NO_IOMMU This feature has the same meaning as
-    VIRTIO_F_ACCESS_PLATFORM both when set and when not set, with the
-    exception that the IOMMU is explicitly defined to be off or bypassed
-    when accessing memory addresses supplied to the device by the
-    driver. This flag should be set by the guest if offered, but to
-    allow for backward-compatibility device implementations allow for it
-    to be left unset by the guest. It is an error to set both this flag
-    and VIRTIO_F_ACCESS_PLATFORM.
-
-> Is there any justification to doing that beyond someone putting
-> out slow code in the past?
-
-The definition of the ACCESS_PLATFORM flag is generic and captures the
-notion of memory access restrictions for the device. Unfortunately, on
-powerpc pSeries guests it also implies that the IOMMU is turned on even
-though pSeries guests have never used IOMMU for virtio devices. Combined
-with the lack of a way to turn off or bypass the IOMMU for virtio
-devices, this means that existing guests in the field are compelled to
-use the IOMMU even though that never was the case before, and said
-guests having no mechanism to turn it off.
-
-Therefore, we need a new flag to signal the memory access restriction
-present in secure guests which doesn't also imply turning on the IOMMU.
-
---
-Thiago Jung Bauermann
-IBM Linux Technology Center
+> even
+> though pSeries guests have never used IOMMU for virtio devices. Combined
+> with the lack of a way to turn off or bypass the IOMMU for virtio
+> devices, this means that existing guests in the field are compelled to
+> use the IOMMU even though that never was the case before, and said
+> guests having no mechanism to turn it off.
+> 
+> Therefore, we need a new flag to signal the memory access restriction
+> present in secure guests which doesn't also imply turning on the IOMMU.
+> 
+> --
+> Thiago Jung Bauermann
+> IBM Linux Technology Center
