@@ -1,19 +1,22 @@
 From: "Michael S. Tsirkin" <mst@redhat.com>
-Subject: Re: [RFC PATCH] virtio_ring: Use DMA API if guest memory is encrypted
-Date: Wed, 20 Mar 2019 17:17:39 -0400
-Message-ID: <20190320171027-mutt-send-email-mst__8356.3996756979$1553116678$gmane$org@kernel.org>
-References: <87zhrj8kcp.fsf@morokweng.localdomain>
-	<87womn8inf.fsf@morokweng.localdomain>
-	<20190129134750-mutt-send-email-mst@kernel.org>
-	<877eefxvyb.fsf@morokweng.localdomain>
-	<20190204144048-mutt-send-email-mst@kernel.org>
-	<87ef71seve.fsf@morokweng.localdomain>
+Subject: Re: [summary] virtio network device failover writeup
+Date: Wed, 20 Mar 2019 18:10:37 -0400
+Message-ID: <20190320180641-mutt-send-email-mst__13317.1582290501$1553119862$gmane$org@kernel.org>
+References: <20190317095052-mutt-send-email-mst@kernel.org>
+	<54E7C3AF-C3C5-4AF2-86C9-AA50389F855F@oracle.com>
+	<20190319084647.727f8dcf@shemminger-XPS-13-9360>
+	<20190319171638-mutt-send-email-mst@kernel.org>
+	<79F5D7C0-BBAA-4F78-9039-27A444970002@oracle.com>
+	<20190320061632-mutt-send-email-mst@kernel.org>
+	<E0606AE7-7DE2-47C7-B64A-8161FD814277@oracle.com>
+	<20190320100747-mutt-send-email-mst@kernel.org>
+	<36772E22-7A8F-4C42-A731-398E3204B418@oracle.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset="utf-8"
+Content-Transfer-Encoding: base64
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
 Content-Disposition: inline
-In-Reply-To: <87ef71seve.fsf@morokweng.localdomain>
+In-Reply-To: <36772E22-7A8F-4C42-A731-398E3204B418@oracle.com>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -23,143 +26,117 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Thiago Jung Bauermann <bauerman@linux.ibm.com>
-Cc: Mike Anderson <andmike@linux.ibm.com>, Jean-Philippe Brucker <jean-philippe.brucker@arm.com>, Benjamin Herrenschmidt <benh@kernel.crashing.org>, Alexey Kardashevskiy <aik@linux.ibm.com>, Ram Pai <linuxram@us.ibm.com>, linux-kernel@vger.kernel.org, virtualization@lists.linux-foundation.org, Paul Mackerras <paulus@ozlabs.org>, iommu@lists.linux-foundation.org, linuxppc-dev@lists.ozlabs.org, Christoph Hellwig <hch@lst.de>, David Gibson <david@gibson.dropbear.id.au>
+To: Liran Alon <liran.alon@oracle.com>
+Cc: vuhuong@mellanox.com, Jiri Pirko <jiri@resnulli.us>, Jakub Kicinski <kubakici@wp.pl>, Sridhar Samudrala <sridhar.samudrala@intel.com>, Alexander Duyck <alexander.duyck@gmail.com>, virtualization@lists.linux-foundation.org, Netdev <netdev@vger.kernel.org>, Si-Wei Liu <si-wei.liu@oracle.com>, boris.ostrovsky@oracle.com, David Miller <davem@davemloft.net>, ogerlitz@mellanox.com
 List-Id: virtualization@lists.linuxfoundation.org
 
-On Wed, Mar 20, 2019 at 01:13:41PM -0300, Thiago Jung Bauermann wrote:
-> >> Another way of looking at this issue which also explains our reluctance
-> >> is that the only difference between a secure guest and a regular guest
-> >> (at least regarding virtio) is that the former uses swiotlb while the
-> >> latter doens't.
-> >
-> > But swiotlb is just one implementation. It's a guest internal thing. The
-> > issue is that memory isn't host accessible.
-> 
-> >From what I understand of the ACCESS_PLATFORM definition, the host will
-> only ever try to access memory addresses that are supplied to it by the
-> guest, so all of the secure guest memory that the host cares about is
-> accessible:
-> 
->     If this feature bit is set to 0, then the device has same access to
->     memory addresses supplied to it as the driver has. In particular,
->     the device will always use physical addresses matching addresses
->     used by the driver (typically meaning physical addresses used by the
->     CPU) and not translated further, and can access any address supplied
->     to it by the driver. When clear, this overrides any
->     platform-specific description of whether device access is limited or
->     translated in any way, e.g. whether an IOMMU may be present.
-> 
-> All of the above is true for POWER guests, whether they are secure
-> guests or not.
-> 
-> Or are you saying that a virtio device may want to access memory
-> addresses that weren't supplied to it by the driver?
-
-Your logic would apply to IOMMUs as well.  For your mode, there are
-specific encrypted memory regions that driver has access to but device
-does not. that seems to violate the constraint.
-
-
-> >> And from the device's point of view they're
-> >> indistinguishable. It can't tell one guest that is using swiotlb from
-> >> one that isn't. And that implies that secure guest vs regular guest
-> >> isn't a virtio interface issue, it's "guest internal affairs". So
-> >> there's no reason to reflect that in the feature flags.
-> >
-> > So don't. The way not to reflect that in the feature flags is
-> > to set ACCESS_PLATFORM.  Then you say *I don't care let platform device*.
-> >
-> >
-> > Without ACCESS_PLATFORM
-> > virtio has a very specific opinion about the security of the
-> > device, and that opinion is that device is part of the guest
-> > supervisor security domain.
-> 
-> Sorry for being a bit dense, but not sure what "the device is part of
-> the guest supervisor security domain" means. In powerpc-speak,
-> "supervisor" is the operating system so perhaps that explains my
-> confusion. Are you saying that without ACCESS_PLATFORM, the guest
-> considers the host to be part of the guest operating system's security
-> domain?
-
-I think so. The spec says "device has same access as driver".
-
-> If so, does that have any other implication besides "the host
-> can access any address supplied to it by the driver"? If that is the
-> case, perhaps the definition of ACCESS_PLATFORM needs to be amended to
-> include that information because it's not part of the current
-> definition.
-> 
-> >> That said, we still would like to arrive at a proper design for this
-> >> rather than add yet another hack if we can avoid it. So here's another
-> >> proposal: considering that the dma-direct code (in kernel/dma/direct.c)
-> >> automatically uses swiotlb when necessary (thanks to Christoph's recent
-> >> DMA work), would it be ok to replace virtio's own direct-memory code
-> >> that is used in the !ACCESS_PLATFORM case with the dma-direct code? That
-> >> way we'll get swiotlb even with !ACCESS_PLATFORM, and virtio will get a
-> >> code cleanup (replace open-coded stuff with calls to existing
-> >> infrastructure).
-> >
-> > Let's say I have some doubts that there's an API that
-> > matches what virtio with its bag of legacy compatibility exactly.
-> 
-> Ok.
-> 
-> >> > But the name "sev_active" makes me scared because at least AMD guys who
-> >> > were doing the sensible thing and setting ACCESS_PLATFORM
-> >>
-> >> My understanding is, AMD guest-platform knows in advance that their
-> >> guest will run in secure mode and hence sets the flag at the time of VM
-> >> instantiation. Unfortunately we dont have that luxury on our platforms.
-> >
-> > Well you do have that luxury. It looks like that there are existing
-> > guests that already acknowledge ACCESS_PLATFORM and you are not happy
-> > with how that path is slow. So you are trying to optimize for
-> > them by clearing ACCESS_PLATFORM and then you have lost ability
-> > to invoke DMA API.
-> >
-> > For example if there was another flag just like ACCESS_PLATFORM
-> > just not yet used by anyone, you would be all fine using that right?
-> 
-> Yes, a new flag sounds like a great idea. What about the definition
-> below?
-> 
-> VIRTIO_F_ACCESS_PLATFORM_NO_IOMMU This feature has the same meaning as
->     VIRTIO_F_ACCESS_PLATFORM both when set and when not set, with the
->     exception that the IOMMU is explicitly defined to be off or bypassed
->     when accessing memory addresses supplied to the device by the
->     driver. This flag should be set by the guest if offered, but to
->     allow for backward-compatibility device implementations allow for it
->     to be left unset by the guest. It is an error to set both this flag
->     and VIRTIO_F_ACCESS_PLATFORM.
-
-It looks kind of narrow but it's an option.
-I wonder how we'll define what's an iommu though.
-
-Another idea is maybe something like virtio-iommu?
-
-> > Is there any justification to doing that beyond someone putting
-> > out slow code in the past?
-> 
-> The definition of the ACCESS_PLATFORM flag is generic and captures the
-> notion of memory access restrictions for the device. Unfortunately, on
-> powerpc pSeries guests it also implies that the IOMMU is turned on
-
-IIUC that's really because on pSeries IOMMU is *always* turned on.
-Platform has no way to say what you want it to say
-which is bypass the iommu for the specific device.
-
-> even
-> though pSeries guests have never used IOMMU for virtio devices. Combined
-> with the lack of a way to turn off or bypass the IOMMU for virtio
-> devices, this means that existing guests in the field are compelled to
-> use the IOMMU even though that never was the case before, and said
-> guests having no mechanism to turn it off.
-> 
-> Therefore, we need a new flag to signal the memory access restriction
-> present in secure guests which doesn't also imply turning on the IOMMU.
-> 
-> --
-> Thiago Jung Bauermann
-> IBM Linux Technology Center
+T24gV2VkLCBNYXIgMjAsIDIwMTkgYXQgMTE6NDM6NDFQTSArMDIwMCwgTGlyYW4gQWxvbiB3cm90
+ZToKPiAKPiAKPiA+IE9uIDIwIE1hciAyMDE5LCBhdCAxNjowOSwgTWljaGFlbCBTLiBUc2lya2lu
+IDxtc3RAcmVkaGF0LmNvbT4gd3JvdGU6Cj4gPiAKPiA+IE9uIFdlZCwgTWFyIDIwLCAyMDE5IGF0
+IDAyOjIzOjM2UE0gKzAyMDAsIExpcmFuIEFsb24gd3JvdGU6Cj4gPj4gCj4gPj4gCj4gPj4+IE9u
+IDIwIE1hciAyMDE5LCBhdCAxMjoyNSwgTWljaGFlbCBTLiBUc2lya2luIDxtc3RAcmVkaGF0LmNv
+bT4gd3JvdGU6Cj4gPj4+IAo+ID4+PiBPbiBXZWQsIE1hciAyMCwgMjAxOSBhdCAwMToyNTo1OEFN
+ICswMjAwLCBMaXJhbiBBbG9uIHdyb3RlOgo+ID4+Pj4gCj4gPj4+PiAKPiA+Pj4+PiBPbiAxOSBN
+YXIgMjAxOSwgYXQgMjM6MTksIE1pY2hhZWwgUy4gVHNpcmtpbiA8bXN0QHJlZGhhdC5jb20+IHdy
+b3RlOgo+ID4+Pj4+IAo+ID4+Pj4+IE9uIFR1ZSwgTWFyIDE5LCAyMDE5IGF0IDA4OjQ2OjQ3QU0g
+LTA3MDAsIFN0ZXBoZW4gSGVtbWluZ2VyIHdyb3RlOgo+ID4+Pj4+PiBPbiBUdWUsIDE5IE1hciAy
+MDE5IDE0OjM4OjA2ICswMjAwCj4gPj4+Pj4+IExpcmFuIEFsb24gPGxpcmFuLmFsb25Ab3JhY2xl
+LmNvbT4gd3JvdGU6Cj4gPj4+Pj4+IAo+ID4+Pj4+Pj4gYi4zKSBjbG91ZC1pbml0OiBJZiBjb25m
+aWd1cmVkIHRvIHBlcmZvcm0gbmV0d29yay1jb25maWd1cmF0aW9uLCBpdCBhdHRlbXB0cyB0byBj
+b25maWd1cmUgYWxsIGF2YWlsYWJsZSBuZXRkZXZzLiBJdCBzaG91bGQgYXZvaWQgaG93ZXZlciBk
+b2luZyBzbyBvbiBuZXQtZmFpbG92ZXIgc2xhdmVzLgo+ID4+Pj4+Pj4gKE1pY3Jvc29mdCBoYXMg
+aGFuZGxlZCB0aGlzIGJ5IGFkZGluZyBhIG1lY2hhbmlzbSBpbiBjbG91ZC1pbml0IHRvIGJsYWNr
+bGlzdCBhIG5ldGRldiBmcm9tIGJlaW5nIGNvbmZpZ3VyZWQgaW4gY2FzZSBpdCBpcyBvd25lZCBi
+eSBhIHNwZWNpZmljIFBDSSBkcml2ZXIuIFNwZWNpZmljYWxseSwgdGhleSBibGFja2xpc3QgTWVs
+bGFub3ggVkYgZHJpdmVyLiBIb3dldmVyLCB0aGlzIHRlY2huaXF1ZSBkb2VzbuKAmXQgd29yayBm
+b3IgdGhlIG5ldC1mYWlsb3ZlciBtZWNoYW5pc20gYmVjYXVzZSBib3RoIHRoZSBuZXQtZmFpbG92
+ZXIgbmV0ZGV2IGFuZCB0aGUgdmlydGlvLW5ldCBuZXRkZXYgYXJlIG93bmVkIGJ5IHRoZSB2aXJ0
+aW8tbmV0IFBDSSBkcml2ZXIpLgo+ID4+Pj4+PiAKPiA+Pj4+Pj4gQ2xvdWQtaW5pdCBzaG91bGQg
+cmVhbGx5IGp1c3QgaWdub3JlIGFsbCBkZXZpY2VzIHRoYXQgaGF2ZSBhIG1hc3RlciBkZXZpY2Uu
+Cj4gPj4+Pj4+IFRoYXQgd291bGQgaGF2ZSBiZWVuIG1vcmUgZ2VuZXJhbCwgYW5kIHNhZmVyIGZv
+ciBvdGhlciB1c2UgY2FzZXMuCj4gPj4+Pj4gCj4gPj4+Pj4gR2l2ZW4gbG90cyBvZiB1c2Vyc3Bh
+Y2UgZG9lc24ndCBkbyB0aGlzLCBJIHdvbmRlciB3aGV0aGVyIGl0IHdvdWxkIGJlCj4gPj4+Pj4g
+c2FmZXIgdG8ganVzdCBzb21laG93IHByZXRlbmQgdG8gdXNlcnNwYWNlIHRoYXQgdGhlIHNsYXZl
+IGxpbmtzIGFyZQo+ID4+Pj4+IGRvd24/IEFuZCBhZGQgYSBzcGVjaWFsIGF0dHJpYnV0ZSBmb3Ig
+dGhlIGFjdHVhbCBsaW5rIHN0YXRlLgo+ID4+Pj4gCj4gPj4+PiBJIHRoaW5rIHRoaXMgbWF5IGJl
+IHByb2JsZW1hdGljIGFzIGl0IHdvdWxkIGFsc28gYnJlYWsgbGVnaXQgdXNlIGNhc2UKPiA+Pj4+
+IG9mIHVzZXJzcGFjZSBhdHRlbXB0IHRvIHNldCB2YXJpb3VzIGNvbmZpZyBvbiBWRiBzbGF2ZS4K
+PiA+Pj4+IEluIGdlbmVyYWwsIGx5aW5nIHRvIHVzZXJzcGFjZSB1c3VhbGx5IGxlYWRzIHRvIHBy
+b2JsZW1zLgo+ID4+PiAKPiA+Pj4gSSBoZWFyIHlvdSBvbiB0aGlzLiBTbyBob3cgYWJvdXQgaW5z
+dGVhZCBvZiBseWluZywKPiA+Pj4gd2UgYmFzaWNhbGx5IGp1c3QgZmFpbCBzb21lIGFjY2Vzc2Vz
+IHRvIHNsYXZlcwo+ID4+PiB1bmxlc3MgYSBmbGFnIGlzIHNldCBlLmcuIGluIGV0aHRvb2wuCj4g
+Pj4+IAo+ID4+PiBTb21lIHVzZXJzcGFjZSB3aWxsIG5lZWQgdG8gY2hhbmdlIHRvIHNldCBpdCBi
+dXQgaW4gYSBtaW5vciB3YXkuCj4gPj4+IEFyZ3VhYmx5L2hvcGVmdWxseSBmYWlsdXJlIHRvIHNl
+dCBjb25maWcgd291bGQgZ2VuZXJhbGx5IGJlIGEgc2FmZXIKPiA+Pj4gZmFpbHVyZS4KPiA+PiAK
+PiA+PiBPbmNlIHVzZXJzcGFjZSB3aWxsIHNldCB0aGlzIG5ldyBmbGFnIGJ5IGV0aHRvb2wsIGFs
+bCBvcGVyYXRpb25zIGRvbmUgYnkgb3RoZXIgdXNlcnNwYWNlIGNvbXBvbmVudHMgd2lsbCBzdGls
+bCB3b3JrLgo+ID4gCj4gPiBTb3JyeSBhYm91dCBiZWluZyB1bmNsZWFyLCB0aGUgaWRlYSB3b3Vs
+ZCBiZSB0byByZXF1aXJlIHRoZSBmbGFnIG9uIGVhY2ggZXRodG9vbCBvcGVyYXRpb24uCj4gCj4g
+T2guIEkgaGF2ZSBpbmRlZWQgbWlzdW5kZXJzdG9vZCB5b3VyIHByZXZpb3VzIGVtYWlsIHRoZW4u
+IDopCj4gVGhhbmtzIGZvciBjbGFyaWZ5aW5nLgo+IAo+ID4gCj4gPj4gRS5nLiBSdW5uaW5nIGRo
+Y2xpZW50IHdpdGhvdXQgcGFyYW1ldGVycywgYWZ0ZXIgdGhpcyBmbGFnIHdhcyBzZXQsIHdpbGwg
+c3RpbGwgYXR0ZW1wdCB0byBwZXJmb3JtIERIQ1Agb24gaXQgYW5kIHdpbGwgbm93IHN1Y2NlZWQu
+Cj4gPiAKPiA+IEkgdGhpbmsgc2VuZGluZy9yZWNlaXZpbmcgc2hvdWxkIHByb2JhYmx5IGp1c3Qg
+ZmFpbCB1bmNvbmRpdGlvbmFsbHkuCj4gCj4gWW91IG1lYW4gdGhhdCB5b3Ugd2lzaCB0aGF0IHNv
+bWVob3cga2VybmVsIHdpbGwgcHJldmVudCBUeCBvbiBuZXQtZmFpbG92ZXIgc2xhdmUgbmV0ZGV2
+Cj4gdW5sZXNzIHNrYiBpcyBtYXJrZWQgd2l0aCBzb21lIGZsYWcgdG8gaW5kaWNhdGUgaXQgaGFz
+IGJlZW4gc2VudCB2aWEgdGhlIG5ldC1mYWlsb3ZlciBtYXN0ZXI/CgpXZSBjYW4gbWF5YmUgYXZv
+aWQgYmluZGluZyBhIHByb3RvY29sIHNvY2tldCB0byB0aGUgZGV2aWNlPwoKPiBUaGlzIGluZGVl
+ZCByZXNvbHZlcyB0aGUgZ3JvdXAgb2YgdXNlcnNwYWNlIGlzc3VlcyBhcm91bmQgcGVyZm9ybWlu
+ZyBESENQIG9uIG5ldC1mYWlsb3ZlciBzbGF2ZXMgZGlyZWN0bHkgKEJ5IGRyYWN1dC9pbml0cmFt
+ZnMsIGRoY2xpZW50IGFuZCBldGMuKS4KPiAKPiBIb3dldmVyLCBJIHNlZSBhIGNvdXBsZSBvZiBk
+b3duLXNpZGVzIHRvIGl0Ogo+IDEpIEl0IGRvZXNu4oCZdCByZXNvbHZlIGFsbCB1c2Vyc3BhY2Ug
+aXNzdWVzIGxpc3RlZCBpbiB0aGlzIGVtYWlsIHRocmVhZC4gRm9yIGV4YW1wbGUsIGNsb3VkLWlu
+aXQgd2lsbCBzdGlsbCBhdHRlbXB0IHRvIHBlcmZvcm0gbmV0d29yayBjb25maWcgb24gbmV0LWZh
+aWxvdmVyIHNsYXZlcy4KPiBJdCBhbHNvIGRvZXNu4oCZdCBoZWxwIHdpdGggcmVnYXJkIHRvIFVi
+dW50deKAmXMgbmV0cGxhbiBpc3N1ZSB0aGF0IGNyZWF0ZXMgdWRldiBydWxlcyB0aGF0IG1hdGNo
+IG9ubHkgYnkgTUFDLgoKCkhvdyBhYm91dCB3ZSBmYWlsIHRvIHJldHJpZXZlIG1hYyBmcm9tIHRo
+ZSBzbGF2ZT8KCj4gMikgSXQgYnJpbmdzIG5vbi1pbnR1aXRpdmUgY3VzdG9tZXIgZXhwZXJpZW5j
+ZS4gRm9yIGV4YW1wbGUsIGEgY3VzdG9tZXIgbWF5IGF0dGVtcHQgdG8gYW5hbHlzZSBjb25uZWN0
+aXZpdHkgaXNzdWUgYnkgY2hlY2tpbmcgdGhlIGNvbm5lY3Rpdml0eQo+IG9uIGEgbmV0LWZhaWxv
+dmVyIHNsYXZlIChlLmcuIHRoZSBWRikgYnV0IHdpbGwgc2VlIG5vIGNvbm5lY3Rpdml0eSB3aGVu
+IGluLWZhY3QgY2hlY2tpbmcgdGhlIGNvbm5lY3Rpdml0eSBvbiB0aGUgbmV0LWZhaWxvdmVyIG1h
+c3RlciBuZXRkZXYgc2hvd3MgY29ycmVjdCBjb25uZWN0aXZpdHkuCj4gCj4gVGhlIHNldCBvZiBj
+aGFuZ2VzIEkgdmlzaW9uIHRvIGZpeCBvdXIgaXNzdWVzIGFyZToKPiAxKSBIaWRlIG5ldC1mYWls
+b3ZlciBzbGF2ZXMgaW4gYSBkaWZmZXJlbnQgbmV0bnMgY3JlYXRlZCBhbmQgbWFuYWdlZCBieSB0
+aGUga2VybmVsLiBCdXQgdGhhdCB1c2VyIGNhbiBlbnRlciB0byBpdCBhbmQgbWFuYWdlIHRoZSBu
+ZXRkZXZzIHRoZXJlIGlmIHdpc2hlcyB0byBkbyBzbyBleHBsaWNpdGx5Lgo+IChFLmcuIENvbmZp
+Z3VyZSB0aGUgbmV0LWZhaWxvdmVyIFZGIHNsYXZlIGluIHNvbWUgc3BlY2lhbCB3YXkpLgo+IDIp
+IE1hdGNoIHRoZSB2aXJ0aW8tbmV0IGFuZCB0aGUgVkYgYmFzZWQgb24gYSBQViBhdHRyaWJ1dGUg
+aW5zdGVhZCBvZiBNQUMuIChTaW1pbGFyIHRvIGFzIGRvbmUgaW4gTmV0VlNDKS4gRS5nLiBQcm92
+aWRlIGEgdmlydGlvLW5ldCBpbnRlcmZhY2UgdG8gZ2V0IFBDSSBzbG90IHdoZXJlIHRoZSBtYXRj
+aGluZyBWRiB3aWxsIGJlIGhvdC1wbHVnZ2VkIGJ5IGh5cGVydmlzb3IuCj4gMykgSGF2ZSBhbiBl
+eHBsaWNpdCB2aXJ0aW8tbmV0IGNvbnRyb2wgbWVzc2FnZSB0byBjb21tYW5kIGh5cGVydmlzb3Ig
+dG8gc3dpdGNoIGRhdGEtcGF0aCBmcm9tIHZpcnRpby1uZXQgdG8gVkYgYW5kIHZpY2UtdmVyc2Eu
+IEluc3RlYWQgb2YgcmVseWluZyBvbiBpbnRlcmNlcHRpbmcgdGhlIFBDSSBtYXN0ZXIgZW5hYmxl
+LWJpdAo+IGFzIGFuIGluZGljYXRvciBvbiB3aGVuIFZGIGlzIGFib3V0IHRvIGJlIHNldCB1cC4g
+KFNpbWlsYXIgdG8gYXMgZG9uZSBpbiBOZXRWU0MpLgo+IAo+IElzIHRoZXJlIGFueSBjbGVhciBp
+c3N1ZSB3ZSBzZWUgcmVnYXJkaW5nIHRoZSBhYm92ZSBzdWdnZXN0aW9uPwo+IAo+IC1MaXJhbgoK
+VGhlIGlzc3VlIHdvdWxkIGJlIHRoaXM6IGhvdyBkbyB3ZSBhdm9pZCBjb25mbGljdGluZyB3aXRo
+IG5hbWVzcGFjZXMKY3JlYXRlZCBieSB1c2Vycz8KCj4gPiAKPiA+PiBUaGVyZWZvcmUsIHRoaXMg
+cHJvcG9zYWwganVzdCBlZmZlY3RpdmVseSBkZWxheXMgd2hlbiB0aGUgbmV0LWZhaWxvdmVyIHNs
+YXZlIGNhbiBiZSBvcGVyYXRlZCBvbiBieSB1c2Vyc3BhY2UuCj4gPj4gQnV0IHdoYXQgd2UgYWN0
+dWFsbHkgd2FudCBpcyB0byBuZXZlciBhbGxvdyBhIG5ldC1mYWlsb3ZlciBzbGF2ZSB0byBiZSBv
+cGVyYXRlZCBieSB1c2Vyc3BhY2UgdW5sZXNzIGl0IGlzIGV4cGxpY2l0bHkgc3RhdGVkCj4gPj4g
+YnkgdXNlcnNwYWNlIHRoYXQgaXQgd2lzaGVzIHRvIHBlcmZvcm0gYSBzZXQgb2YgYWN0aW9ucyBv
+biB0aGUgbmV0LWZhaWxvdmVyIHNsYXZlLgo+ID4+IAo+ID4+IFNvbWV0aGluZyB0aGF0IHdhcyBh
+Y2hpZXZlZCBpZiwgZm9yIGV4YW1wbGUsIHRoZSBuZXQtZmFpbG92ZXIgc2xhdmVzIHdlcmUgaW4g
+YSBkaWZmZXJlbnQgbmV0bnMgdGhhbiBkZWZhdWx0IG5ldG5zLgo+ID4+IFRoaXMgYWxzbyBhbGln
+bnMgd2l0aCBleHBlY3RlZCBjdXN0b21lciBleHBlcmllbmNlIHRoYXQgbW9zdCBjdXN0b21lcnMg
+anVzdCB3YW50IHRvIHNlZSBhIDE6MSBtYXBwaW5nIGJldHdlZW4gYSB2TklDIGFuZCBhIHZpc2li
+bGUgbmV0ZGV2Lgo+ID4+IEJ1dCBvZiBjb3Vyc2UgbWF5YmUgdGhlcmUgYXJlIG90aGVyIGlkZWFz
+IHRoYXQgY2FuIGFjaGlldmUgc2ltaWxhciBiZWhhdmlvdXIuCj4gPj4gCj4gPj4gLUxpcmFuCj4g
+Pj4gCj4gPj4+IAo+ID4+PiBXaGljaCB0aGluZ3MgdG8gZmFpbD8gUHJvYmFibHkgc2VuZGluZy9y
+ZWNlaXZpbmcgcGFja2V0cz8gIEdldHRpbmcgTUFDPwo+ID4+PiBNb3JlPwo+ID4+PiAKPiA+Pj4+
+IElmIHdlIHJlYWNoCj4gPj4+PiB0byBhIHNjZW5hcmlvIHdoZXJlIHdlIHRyeSB0byBhdm9pZCB1
+c2Vyc3BhY2UgaXNzdWVzIGdlbmVyaWNhbGx5IGFuZAo+ID4+Pj4gbm90IG9uIGEgdXNlcnNwYWNl
+IGNvbXBvbmVudCBiYXNpcywgSSBiZWxpZXZlIHRoZSByaWdodCBwYXRoIHNob3VsZCBiZQo+ID4+
+Pj4gdG8gaGlkZSB0aGUgbmV0LWZhaWxvdmVyIHNsYXZlcyBzdWNoIHRoYXQgZXhwbGljaXQgYWN0
+aW9uIGlzIHJlcXVpcmVkCj4gPj4+PiB0byBhY3R1YWxseSBtYW5pcHVsYXRlIHRoZW0gKEFzIGRl
+c2NyaWJlZCBpbiBibG9nLXBvc3QpLiBFLmcuCj4gPj4+PiBBdXRvbWF0aWNhbGx5IG1vdmUgbmV0
+LWZhaWxvdmVyIHNsYXZlcyBieSBrZXJuZWwgdG8gYSBkaWZmZXJlbnQgbmV0bnMuCj4gPj4+PiAK
+PiA+Pj4+IC1MaXJhbgo+ID4+Pj4gCj4gPj4+Pj4gCj4gPj4+Pj4gLS0gCj4gPj4+Pj4gTVNUCl9f
+X19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fClZpcnR1YWxpemF0
+aW9uIG1haWxpbmcgbGlzdApWaXJ0dWFsaXphdGlvbkBsaXN0cy5saW51eC1mb3VuZGF0aW9uLm9y
+ZwpodHRwczovL2xpc3RzLmxpbnV4Zm91bmRhdGlvbi5vcmcvbWFpbG1hbi9saXN0aW5mby92aXJ0
+dWFsaXphdGlvbg==
