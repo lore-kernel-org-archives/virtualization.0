@@ -1,11 +1,18 @@
-From: Gerd Hoffmann <kraxel@redhat.com>
-Subject: [PATCH] drm/virtio: make resource id workaround runtime switchable.
-Date: Wed, 20 Mar 2019 09:51:33 +0100
-Message-ID: <20190320085133.26632-1-kraxel__35205.4817880102$1553072034$gmane$org@redhat.com>
+From: "Michael S. Tsirkin" <mst@redhat.com>
+Subject: Re: [summary] virtio network device failover writeup
+Date: Wed, 20 Mar 2019 06:25:01 -0400
+Message-ID: <20190320061632-mutt-send-email-mst__23085.8859185659$1553077673$gmane$org@kernel.org>
+References: <20190317095052-mutt-send-email-mst@kernel.org>
+	<54E7C3AF-C3C5-4AF2-86C9-AA50389F855F@oracle.com>
+	<20190319084647.727f8dcf@shemminger-XPS-13-9360>
+	<20190319171638-mutt-send-email-mst@kernel.org>
+	<79F5D7C0-BBAA-4F78-9039-27A444970002@oracle.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset="utf-8"
+Content-Transfer-Encoding: base64
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
+Content-Disposition: inline
+In-Reply-To: <79F5D7C0-BBAA-4F78-9039-27A444970002@oracle.com>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -15,79 +22,49 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: dri-devel@lists.freedesktop.org
-Cc: David Airlie <airlied@linux.ie>, open list <linux-kernel@vger.kernel.org>, Daniel Vetter <daniel@ffwll.ch>, "open list:VIRTIO GPU DRIVER" <virtualization@lists.linux-foundation.org>
+To: Liran Alon <liran.alon@oracle.com>
+Cc: vuhuong@mellanox.com, Jiri Pirko <jiri@resnulli.us>, Jakub Kicinski <kubakici@wp.pl>, Sridhar Samudrala <sridhar.samudrala@intel.com>, Alexander Duyck <alexander.duyck@gmail.com>, virtualization@lists.linux-foundation.org, Netdev <netdev@vger.kernel.org>, Si-Wei Liu <si-wei.liu@oracle.com>, boris.ostrovsky@oracle.com, David Miller <davem@davemloft.net>, ogerlitz@mellanox.com
 List-Id: virtualization@lists.linuxfoundation.org
 
-Also update the comment with a reference to the virglrenderer fix.
-
-Signed-off-by: Gerd Hoffmann <kraxel@redhat.com>
----
- drivers/gpu/drm/virtio/virtgpu_object.c | 44 ++++++++++++++-----------
- 1 file changed, 24 insertions(+), 20 deletions(-)
-
-diff --git a/drivers/gpu/drm/virtio/virtgpu_object.c b/drivers/gpu/drm/virtio/virtgpu_object.c
-index e7e946035027..a73dae4e5029 100644
---- a/drivers/gpu/drm/virtio/virtgpu_object.c
-+++ b/drivers/gpu/drm/virtio/virtgpu_object.c
-@@ -25,34 +25,38 @@
- 
- #include "virtgpu_drv.h"
- 
-+static int virtio_gpu_virglrenderer_workaround = 1;
-+module_param_named(virglhack, virtio_gpu_virglrenderer_workaround, int, 0400);
-+
- static int virtio_gpu_resource_id_get(struct virtio_gpu_device *vgdev,
- 				       uint32_t *resid)
- {
--#if 0
--	int handle = ida_alloc(&vgdev->resource_ida, GFP_KERNEL);
--
--	if (handle < 0)
--		return handle;
--#else
--	static int handle;
--
--	/*
--	 * FIXME: dirty hack to avoid re-using IDs, virglrenderer
--	 * can't deal with that.  Needs fixing in virglrenderer, also
--	 * should figure a better way to handle that in the guest.
--	 */
--	handle++;
--#endif
--
--	*resid = handle + 1;
-+	if (virtio_gpu_virglrenderer_workaround) {
-+		/*
-+		 * Hack to avoid re-using resource IDs.
-+		 *
-+		 * virglrenderer versions up to (and including) 0.7.0
-+		 * can't deal with that.  virglrenderer commit
-+		 * "f91a9dd35715 Fix unlinking resources from hash
-+		 * table." (Feb 2019) fixes the bug.
-+		 */
-+		static int handle;
-+		handle++;
-+		*resid = handle + 1;
-+	} else {
-+		int handle = ida_alloc(&vgdev->resource_ida, GFP_KERNEL);
-+		if (handle < 0)
-+			return handle;
-+		*resid = handle + 1;
-+	}
- 	return 0;
- }
- 
- static void virtio_gpu_resource_id_put(struct virtio_gpu_device *vgdev, uint32_t id)
- {
--#if 0
--	ida_free(&vgdev->resource_ida, id - 1);
--#endif
-+	if (!virtio_gpu_virglrenderer_workaround) {
-+		ida_free(&vgdev->resource_ida, id - 1);
-+	}
- }
- 
- static void virtio_gpu_ttm_bo_destroy(struct ttm_buffer_object *tbo)
--- 
-2.18.1
+T24gV2VkLCBNYXIgMjAsIDIwMTkgYXQgMDE6MjU6NThBTSArMDIwMCwgTGlyYW4gQWxvbiB3cm90
+ZToKPiAKPiAKPiA+IE9uIDE5IE1hciAyMDE5LCBhdCAyMzoxOSwgTWljaGFlbCBTLiBUc2lya2lu
+IDxtc3RAcmVkaGF0LmNvbT4gd3JvdGU6Cj4gPiAKPiA+IE9uIFR1ZSwgTWFyIDE5LCAyMDE5IGF0
+IDA4OjQ2OjQ3QU0gLTA3MDAsIFN0ZXBoZW4gSGVtbWluZ2VyIHdyb3RlOgo+ID4+IE9uIFR1ZSwg
+MTkgTWFyIDIwMTkgMTQ6Mzg6MDYgKzAyMDAKPiA+PiBMaXJhbiBBbG9uIDxsaXJhbi5hbG9uQG9y
+YWNsZS5jb20+IHdyb3RlOgo+ID4+IAo+ID4+PiBiLjMpIGNsb3VkLWluaXQ6IElmIGNvbmZpZ3Vy
+ZWQgdG8gcGVyZm9ybSBuZXR3b3JrLWNvbmZpZ3VyYXRpb24sIGl0IGF0dGVtcHRzIHRvIGNvbmZp
+Z3VyZSBhbGwgYXZhaWxhYmxlIG5ldGRldnMuIEl0IHNob3VsZCBhdm9pZCBob3dldmVyIGRvaW5n
+IHNvIG9uIG5ldC1mYWlsb3ZlciBzbGF2ZXMuCj4gPj4+IChNaWNyb3NvZnQgaGFzIGhhbmRsZWQg
+dGhpcyBieSBhZGRpbmcgYSBtZWNoYW5pc20gaW4gY2xvdWQtaW5pdCB0byBibGFja2xpc3QgYSBu
+ZXRkZXYgZnJvbSBiZWluZyBjb25maWd1cmVkIGluIGNhc2UgaXQgaXMgb3duZWQgYnkgYSBzcGVj
+aWZpYyBQQ0kgZHJpdmVyLiBTcGVjaWZpY2FsbHksIHRoZXkgYmxhY2tsaXN0IE1lbGxhbm94IFZG
+IGRyaXZlci4gSG93ZXZlciwgdGhpcyB0ZWNobmlxdWUgZG9lc27igJl0IHdvcmsgZm9yIHRoZSBu
+ZXQtZmFpbG92ZXIgbWVjaGFuaXNtIGJlY2F1c2UgYm90aCB0aGUgbmV0LWZhaWxvdmVyIG5ldGRl
+diBhbmQgdGhlIHZpcnRpby1uZXQgbmV0ZGV2IGFyZSBvd25lZCBieSB0aGUgdmlydGlvLW5ldCBQ
+Q0kgZHJpdmVyKS4KPiA+PiAKPiA+PiBDbG91ZC1pbml0IHNob3VsZCByZWFsbHkganVzdCBpZ25v
+cmUgYWxsIGRldmljZXMgdGhhdCBoYXZlIGEgbWFzdGVyIGRldmljZS4KPiA+PiBUaGF0IHdvdWxk
+IGhhdmUgYmVlbiBtb3JlIGdlbmVyYWwsIGFuZCBzYWZlciBmb3Igb3RoZXIgdXNlIGNhc2VzLgo+
+ID4gCj4gPiBHaXZlbiBsb3RzIG9mIHVzZXJzcGFjZSBkb2Vzbid0IGRvIHRoaXMsIEkgd29uZGVy
+IHdoZXRoZXIgaXQgd291bGQgYmUKPiA+IHNhZmVyIHRvIGp1c3Qgc29tZWhvdyBwcmV0ZW5kIHRv
+IHVzZXJzcGFjZSB0aGF0IHRoZSBzbGF2ZSBsaW5rcyBhcmUKPiA+IGRvd24/IEFuZCBhZGQgYSBz
+cGVjaWFsIGF0dHJpYnV0ZSBmb3IgdGhlIGFjdHVhbCBsaW5rIHN0YXRlLgo+IAo+IEkgdGhpbmsg
+dGhpcyBtYXkgYmUgcHJvYmxlbWF0aWMgYXMgaXQgd291bGQgYWxzbyBicmVhayBsZWdpdCB1c2Ug
+Y2FzZQo+IG9mIHVzZXJzcGFjZSBhdHRlbXB0IHRvIHNldCB2YXJpb3VzIGNvbmZpZyBvbiBWRiBz
+bGF2ZS4KPiBJbiBnZW5lcmFsLCBseWluZyB0byB1c2Vyc3BhY2UgdXN1YWxseSBsZWFkcyB0byBw
+cm9ibGVtcy4KCkkgaGVhciB5b3Ugb24gdGhpcy4gU28gaG93IGFib3V0IGluc3RlYWQgb2YgbHlp
+bmcsCndlIGJhc2ljYWxseSBqdXN0IGZhaWwgc29tZSBhY2Nlc3NlcyB0byBzbGF2ZXMKdW5sZXNz
+IGEgZmxhZyBpcyBzZXQgZS5nLiBpbiBldGh0b29sLgoKU29tZSB1c2Vyc3BhY2Ugd2lsbCBuZWVk
+IHRvIGNoYW5nZSB0byBzZXQgaXQgYnV0IGluIGEgbWlub3Igd2F5LgpBcmd1YWJseS9ob3BlZnVs
+bHkgZmFpbHVyZSB0byBzZXQgY29uZmlnIHdvdWxkIGdlbmVyYWxseSBiZSBhIHNhZmVyCmZhaWx1
+cmUuCgpXaGljaCB0aGluZ3MgdG8gZmFpbD8gUHJvYmFibHkgc2VuZGluZy9yZWNlaXZpbmcgcGFj
+a2V0cz8gIEdldHRpbmcgTUFDPwpNb3JlPwoKPiBJZiB3ZSByZWFjaAo+IHRvIGEgc2NlbmFyaW8g
+d2hlcmUgd2UgdHJ5IHRvIGF2b2lkIHVzZXJzcGFjZSBpc3N1ZXMgZ2VuZXJpY2FsbHkgYW5kCj4g
+bm90IG9uIGEgdXNlcnNwYWNlIGNvbXBvbmVudCBiYXNpcywgSSBiZWxpZXZlIHRoZSByaWdodCBw
+YXRoIHNob3VsZCBiZQo+IHRvIGhpZGUgdGhlIG5ldC1mYWlsb3ZlciBzbGF2ZXMgc3VjaCB0aGF0
+IGV4cGxpY2l0IGFjdGlvbiBpcyByZXF1aXJlZAo+IHRvIGFjdHVhbGx5IG1hbmlwdWxhdGUgdGhl
+bSAoQXMgZGVzY3JpYmVkIGluIGJsb2ctcG9zdCkuIEUuZy4KPiBBdXRvbWF0aWNhbGx5IG1vdmUg
+bmV0LWZhaWxvdmVyIHNsYXZlcyBieSBrZXJuZWwgdG8gYSBkaWZmZXJlbnQgbmV0bnMuCj4gCj4g
+LUxpcmFuCj4gCj4gPiAKPiA+IC0tIAo+ID4gTVNUCl9fX19fX19fX19fX19fX19fX19fX19fX19f
+X19fX19fX19fX19fX19fX19fX19fClZpcnR1YWxpemF0aW9uIG1haWxpbmcgbGlzdApWaXJ0dWFs
+aXphdGlvbkBsaXN0cy5saW51eC1mb3VuZGF0aW9uLm9yZwpodHRwczovL2xpc3RzLmxpbnV4Zm91
+bmRhdGlvbi5vcmcvbWFpbG1hbi9saXN0aW5mby92aXJ0dWFsaXphdGlvbg==
