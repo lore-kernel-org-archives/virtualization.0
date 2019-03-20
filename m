@@ -1,16 +1,11 @@
-From: "Michael S. Tsirkin" <mst@redhat.com>
-Subject: Re: [summary] virtio network device failover writeup
-Date: Tue, 19 Mar 2019 17:19:55 -0400
-Message-ID: <20190319171638-mutt-send-email-mst__45278.2453897939$1553030516$gmane$org@kernel.org>
-References: <20190317095052-mutt-send-email-mst@kernel.org>
-	<54E7C3AF-C3C5-4AF2-86C9-AA50389F855F@oracle.com>
-	<20190319084647.727f8dcf@shemminger-XPS-13-9360>
+From: Gerd Hoffmann <kraxel@redhat.com>
+Subject: [PATCH] drm/virtio: add virtio-gpu-features debugfs file.
+Date: Wed, 20 Mar 2019 09:36:12 +0100
+Message-ID: <20190320083612.32067-1-kraxel__1784.45994840644$1553071094$gmane$org@redhat.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="utf-8"
-Content-Transfer-Encoding: base64
+Content-Type: text/plain; charset="us-ascii"
+Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-Content-Disposition: inline
-In-Reply-To: <20190319084647.727f8dcf@shemminger-XPS-13-9360>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -20,29 +15,64 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Stephen Hemminger <stephen@networkplumber.org>
-Cc: vuhuong@mellanox.com, Jiri Pirko <jiri@resnulli.us>, Jakub Kicinski <kubakici@wp.pl>, Sridhar Samudrala <sridhar.samudrala@intel.com>, Alexander Duyck <alexander.duyck@gmail.com>, virtualization@lists.linux-foundation.org, Liran Alon <liran.alon@oracle.com>, Netdev <netdev@vger.kernel.org>, Si-Wei Liu <si-wei.liu@oracle.com>, boris.ostrovsky@oracle.com, David Miller <davem@davemloft.net>, ogerlitz@mellanox.com
+To: dri-devel@lists.freedesktop.org
+Cc: David Airlie <airlied@linux.ie>, open list <linux-kernel@vger.kernel.org>, Daniel Vetter <daniel@ffwll.ch>, "open list:VIRTIO GPU DRIVER" <virtualization@lists.linux-foundation.org>
 List-Id: virtualization@lists.linuxfoundation.org
 
-T24gVHVlLCBNYXIgMTksIDIwMTkgYXQgMDg6NDY6NDdBTSAtMDcwMCwgU3RlcGhlbiBIZW1taW5n
-ZXIgd3JvdGU6Cj4gT24gVHVlLCAxOSBNYXIgMjAxOSAxNDozODowNiArMDIwMAo+IExpcmFuIEFs
-b24gPGxpcmFuLmFsb25Ab3JhY2xlLmNvbT4gd3JvdGU6Cj4gCj4gPiBiLjMpIGNsb3VkLWluaXQ6
-IElmIGNvbmZpZ3VyZWQgdG8gcGVyZm9ybSBuZXR3b3JrLWNvbmZpZ3VyYXRpb24sIGl0IGF0dGVt
-cHRzIHRvIGNvbmZpZ3VyZSBhbGwgYXZhaWxhYmxlIG5ldGRldnMuIEl0IHNob3VsZCBhdm9pZCBo
-b3dldmVyIGRvaW5nIHNvIG9uIG5ldC1mYWlsb3ZlciBzbGF2ZXMuCj4gPiAoTWljcm9zb2Z0IGhh
-cyBoYW5kbGVkIHRoaXMgYnkgYWRkaW5nIGEgbWVjaGFuaXNtIGluIGNsb3VkLWluaXQgdG8gYmxh
-Y2tsaXN0IGEgbmV0ZGV2IGZyb20gYmVpbmcgY29uZmlndXJlZCBpbiBjYXNlIGl0IGlzIG93bmVk
-IGJ5IGEgc3BlY2lmaWMgUENJIGRyaXZlci4gU3BlY2lmaWNhbGx5LCB0aGV5IGJsYWNrbGlzdCBN
-ZWxsYW5veCBWRiBkcml2ZXIuIEhvd2V2ZXIsIHRoaXMgdGVjaG5pcXVlIGRvZXNu4oCZdCB3b3Jr
-IGZvciB0aGUgbmV0LWZhaWxvdmVyIG1lY2hhbmlzbSBiZWNhdXNlIGJvdGggdGhlIG5ldC1mYWls
-b3ZlciBuZXRkZXYgYW5kIHRoZSB2aXJ0aW8tbmV0IG5ldGRldiBhcmUgb3duZWQgYnkgdGhlIHZp
-cnRpby1uZXQgUENJIGRyaXZlcikuCj4gCj4gQ2xvdWQtaW5pdCBzaG91bGQgcmVhbGx5IGp1c3Qg
-aWdub3JlIGFsbCBkZXZpY2VzIHRoYXQgaGF2ZSBhIG1hc3RlciBkZXZpY2UuCj4gVGhhdCB3b3Vs
-ZCBoYXZlIGJlZW4gbW9yZSBnZW5lcmFsLCBhbmQgc2FmZXIgZm9yIG90aGVyIHVzZSBjYXNlcy4K
-CkdpdmVuIGxvdHMgb2YgdXNlcnNwYWNlIGRvZXNuJ3QgZG8gdGhpcywgSSB3b25kZXIgd2hldGhl
-ciBpdCB3b3VsZCBiZQpzYWZlciB0byBqdXN0IHNvbWVob3cgcHJldGVuZCB0byB1c2Vyc3BhY2Ug
-dGhhdCB0aGUgc2xhdmUgbGlua3MgYXJlCmRvd24/IEFuZCBhZGQgYSBzcGVjaWFsIGF0dHJpYnV0
-ZSBmb3IgdGhlIGFjdHVhbCBsaW5rIHN0YXRlLgoKLS0gCk1TVApfX19fX19fX19fX19fX19fX19f
-X19fX19fX19fX19fX19fX19fX19fX19fX19fXwpWaXJ0dWFsaXphdGlvbiBtYWlsaW5nIGxpc3QK
-VmlydHVhbGl6YXRpb25AbGlzdHMubGludXgtZm91bmRhdGlvbi5vcmcKaHR0cHM6Ly9saXN0cy5s
-aW51eGZvdW5kYXRpb24ub3JnL21haWxtYW4vbGlzdGluZm8vdmlydHVhbGl6YXRpb24=
+This file prints which features the virtio-gpu device has.
+
+Also add "virtio-gpu-" prefix to the existing fence file,
+to make clear this is a driver-specific debugfs file.
+
+Signed-off-by: Gerd Hoffmann <kraxel@redhat.com>
+---
+ drivers/gpu/drm/virtio/virtgpu_debugfs.c | 27 +++++++++++++++++++++++-
+ 1 file changed, 26 insertions(+), 1 deletion(-)
+
+diff --git a/drivers/gpu/drm/virtio/virtgpu_debugfs.c b/drivers/gpu/drm/virtio/virtgpu_debugfs.c
+index 73dc99046c43..ed0fcda713c3 100644
+--- a/drivers/gpu/drm/virtio/virtgpu_debugfs.c
++++ b/drivers/gpu/drm/virtio/virtgpu_debugfs.c
+@@ -28,6 +28,30 @@
+ 
+ #include "virtgpu_drv.h"
+ 
++static void virtio_add_bool(struct seq_file *m, const char *name,
++				    bool value)
++{
++	seq_printf(m, "%-16s : %s\n", name, value ? "yes" : "no");
++}
++
++static void virtio_add_int(struct seq_file *m, const char *name,
++				   int value)
++{
++	seq_printf(m, "%-16s : %d\n", name, value);
++}
++
++static int virtio_gpu_features(struct seq_file *m, void *data)
++{
++	struct drm_info_node *node = (struct drm_info_node *) m->private;
++	struct virtio_gpu_device *vgdev = node->minor->dev->dev_private;
++
++	virtio_add_bool(m, "virgl", vgdev->has_virgl_3d);
++	virtio_add_bool(m, "edid", vgdev->has_edid);
++	virtio_add_int(m, "cap sets", vgdev->num_capsets);
++	virtio_add_int(m, "scanouts", vgdev->num_scanouts);
++	return 0;
++}
++
+ static int
+ virtio_gpu_debugfs_irq_info(struct seq_file *m, void *data)
+ {
+@@ -41,7 +65,8 @@ virtio_gpu_debugfs_irq_info(struct seq_file *m, void *data)
+ }
+ 
+ static struct drm_info_list virtio_gpu_debugfs_list[] = {
+-	{ "irq_fence", virtio_gpu_debugfs_irq_info, 0, NULL },
++	{ "virtio-gpu-features", virtio_gpu_features },
++	{ "virtio-gpu-irq-fence", virtio_gpu_debugfs_irq_info, 0, NULL },
+ };
+ 
+ #define VIRTIO_GPU_DEBUGFS_ENTRIES ARRAY_SIZE(virtio_gpu_debugfs_list)
+-- 
+2.18.1
