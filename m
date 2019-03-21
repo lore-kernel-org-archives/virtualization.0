@@ -1,21 +1,23 @@
-From: Stefan Hajnoczi <stefanha@redhat.com>
-Subject: Re: virtio-blk: should num_vqs be limited by num_possible_cpus()?
-Date: Thu, 21 Mar 2019 15:57:46 +0000
-Message-ID: <20190321155746.GE31434__5503.73617313511$1553183885$gmane$org@stefanha-x1.localdomain>
-References: <e4afe4c5-0262-4500-aeec-60f30734b4fc@default>
-	<20190312183351.74764f4f.cohuck@redhat.com>
-	<173d19c9-24db-35f2-269f-0b9b83bd0ad6@oracle.com>
-	<20190313103900.1ea7f996.cohuck@redhat.com>
-	<a3f24cfa-5160-0ccc-decc-a48362c8de19@oracle.com>
-	<537e6420-8994-43d6-1d4d-ccb6e0fafa0b@redhat.com>
-	<20190315134112.7d63348c.cohuck@redhat.com>
-	<1df52766-88fb-6b23-d160-b891c3017133@redhat.com>
-	<0fbdcfa6-cbd7-4f09-93b1-40898d5f77d1@oracle.com>
-	<f92a5ef9-04b9-d6fa-a7f8-c855a87cd0fb@redhat.com>
+From: "Michael S. Tsirkin" <mst@redhat.com>
+Subject: Re: [summary] virtio network device failover writeup
+Date: Thu, 21 Mar 2019 13:12:23 -0400
+Message-ID: <20190321131006-mutt-send-email-mst@kernel.org>
+References: <B3FB267A-2DC0-4A4C-8193-7F420BC9791B@oracle.com>
+	<20190321044920-mutt-send-email-mst@kernel.org>
+	<CD40EA09-242D-41E1-8BD2-4FF4BB4D1986@oracle.com>
+	<20190321082532-mutt-send-email-mst@kernel.org>
+	<BB2B938F-D2F0-47F8-B651-70EC8A19BC6B@oracle.com>
+	<20190321085159-mutt-send-email-mst@kernel.org>
+	<2939FB15-720A-4C9E-92B7-2DBA139DDE0F@oracle.com>
+	<20190321084517.773a65fa@shemminger-XPS-13-9360>
+	<20190321114557-mutt-send-email-mst@kernel.org>
+	<BC327EF2-22C7-402B-9078-93891A4774D6@oracle.com>
 Mime-Version: 1.0
-Content-Type: multipart/mixed; boundary="===============0124710237906000291=="
+Content-Type: text/plain; charset="utf-8"
+Content-Transfer-Encoding: base64
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <f92a5ef9-04b9-d6fa-a7f8-c855a87cd0fb@redhat.com>
+Content-Disposition: inline
+In-Reply-To: <BC327EF2-22C7-402B-9078-93891A4774D6@oracle.com>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -25,75 +27,37 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Jason Wang <jasowang@redhat.com>
-Cc: axboe@kernel.dk, mst@redhat.com, Cornelia Huck <cohuck@redhat.com>, linux-kernel@vger.kernel.org, virtualization@lists.linux-foundation.org, linux-block@vger.kernel.org
+To: Liran Alon <liran.alon@oracle.com>
+Cc: vuhuong@mellanox.com, Jiri Pirko <jiri@resnulli.us>, Jakub Kicinski <kubakici@wp.pl>, Sridhar Samudrala <sridhar.samudrala@intel.com>, Alexander Duyck <alexander.duyck@gmail.com>, virtualization@lists.linux-foundation.org, Netdev <netdev@vger.kernel.org>, Si-Wei Liu <si-wei.liu@oracle.com>, boris.ostrovsky@oracle.com, David Miller <davem@davemloft.net>, ogerlitz@mellanox.com
 List-Id: virtualization@lists.linuxfoundation.org
 
-
---===============0124710237906000291==
-Content-Type: multipart/signed; micalg=pgp-sha1;
-	protocol="application/pgp-signature"; boundary="ryJZkp9/svQ58syV"
-Content-Disposition: inline
-
-
---ryJZkp9/svQ58syV
-Content-Type: text/plain; charset=utf-8
-Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
-
-On Wed, Mar 20, 2019 at 08:53:33PM +0800, Jason Wang wrote:
->=20
-> On 2019/3/19 =E4=B8=8A=E5=8D=8810:22, Dongli Zhang wrote:
-> > Hi Jason,
-> >=20
-> > On 3/18/19 3:47 PM, Jason Wang wrote:
-> > > On 2019/3/15 =E4=B8=8B=E5=8D=888:41, Cornelia Huck wrote:
-> > > > On Fri, 15 Mar 2019 12:50:11 +0800
-> > > > Jason Wang <jasowang@redhat.com> wrote:
-> > option 3:
-> > We should allow more vectors even the block layer would support at most
-> > nr_cpu_ids queues.
-> >=20
-> >=20
-> > I understand a new policy for queue-vector mapping is very helpful. I a=
-m just
-> > asking the question from block layer's point of view.
-> >=20
-> > Thank you very much!
-> >=20
-> > Dongli Zhang
->=20
->=20
-> Don't know much for block, cc Stefan for more idea.
-
-Thanks for CCing me.  I don't have much input at this stage.
-
-Stefan
-
---ryJZkp9/svQ58syV
-Content-Type: application/pgp-signature; name="signature.asc"
-
------BEGIN PGP SIGNATURE-----
-
-iQEcBAEBAgAGBQJck7R5AAoJEJykq7OBq3PISGcH+gL2UqKuOclQNeDq8We5P/mv
-norBWe7BE3V9Aj0u8b9s6rNXKi9XYRoKPMMC3jf8EZmefL95c4nsaCG8cNG0juj8
-uv50QGn0VoN9tXlVakv2+b99X2mXhFfok0Z68+jPYq1LMIRFaTVqZkutgiIXOBLV
-rG20zEUVSHvoY/n7TWXmJRn3O/PSYxoR312UR/vwFZWlQUwZJme4yYFpBBiuY7ur
-I8F2OmH0oVtb/qvJ9XF2zqI48Nwy5OWnhkTNRHSsudw7njAwJfXRNpk/GbOlHLYD
-FnQGST7MJrpiQCvCWkZADFGJ1wmlb0bFJ1R5qkME5+zxYq2VbQ9CiiklD8yBXBw=
-=9/HK
------END PGP SIGNATURE-----
-
---ryJZkp9/svQ58syV--
-
---===============0124710237906000291==
-Content-Type: text/plain; charset="us-ascii"
-MIME-Version: 1.0
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-
-_______________________________________________
-Virtualization mailing list
-Virtualization@lists.linux-foundation.org
-https://lists.linuxfoundation.org/mailman/listinfo/virtualization
---===============0124710237906000291==--
+T24gVGh1LCBNYXIgMjEsIDIwMTkgYXQgMDY6MzE6MzVQTSArMDIwMCwgTGlyYW4gQWxvbiB3cm90
+ZToKPiAKPiAKPiA+IE9uIDIxIE1hciAyMDE5LCBhdCAxNzo1MCwgTWljaGFlbCBTLiBUc2lya2lu
+IDxtc3RAcmVkaGF0LmNvbT4gd3JvdGU6Cj4gPiAKPiA+IE9uIFRodSwgTWFyIDIxLCAyMDE5IGF0
+IDA4OjQ1OjE3QU0gLTA3MDAsIFN0ZXBoZW4gSGVtbWluZ2VyIHdyb3RlOgo+ID4+IE9uIFRodSwg
+MjEgTWFyIDIwMTkgMTU6MDQ6MzcgKzAyMDAKPiA+PiBMaXJhbiBBbG9uIDxsaXJhbi5hbG9uQG9y
+YWNsZS5jb20+IHdyb3RlOgo+ID4+IAo+ID4+Pj4gCj4gPj4+PiBPSy4gTm93IHdoYXQgaGFwcGVu
+cyBpZiBtYXN0ZXIgaXMgbW92ZWQgdG8gYW5vdGhlciBuYW1lc3BhY2U/IERvIHdlIG5lZWQKPiA+
+Pj4+IHRvIG1vdmUgdGhlIHNsYXZlcyB0b28/ICAKPiA+Pj4gCj4gPj4+IE5vLiBXaHkgd291bGQg
+d2UgbW92ZSB0aGUgc2xhdmVzPyBUaGUgd2hvbGUgcG9pbnQgaXMgdG8gbWFrZSBtb3N0IGN1c3Rv
+bWVyIGlnbm9yZSB0aGUgbmV0LWZhaWxvdmVyIHNsYXZlcyBhbmQgcmVtYWluIHRoZW0g4oCcaGlk
+ZGVu4oCdIGluIHRoZWlyIGRlZGljYXRlZCBuZXRucy4KPiA+Pj4gV2Ugd29u4oCZdCBwcmV2ZW50
+IGN1c3RvbWVyIGZyb20gZXhwbGljaXRseSBtb3ZpbmcgdGhlIG5ldC1mYWlsb3ZlciBzbGF2ZXMg
+b3V0IG9mIHRoaXMgbmV0bnMsIGJ1dCB3ZSB3aWxsIG5vdCBtb3ZlIHRoZW0gb3V0IG9mIHRoZXJl
+IGF1dG9tYXRpY2FsbHkuCj4gPj4gCj4gPj4gCj4gPj4gVGhlIDItZGV2aWNlIG5ldHZzYyBhbHJl
+YWR5IGhhbmRsZXMgY2FzZSB3aGVyZSBtYXN0ZXIgY2hhbmdlcyBuYW1lc3BhY2UuCj4gPiAKPiA+
+IElzIGl0IGJ5IG1vdmluZyBzbGF2ZSB3aXRoIGl0Pwo+IAo+IFNlZSBjMGE0MWI4ODdjZTYgKCJo
+dl9uZXR2c2M6IG1vdmUgVkYgdG8gc2FtZSBuYW1lc3BhY2UgYXMgbmV0dnNjIGRldmljZeKAnSku
+Cj4gSXQgc2VlbXMgdGhhdCB3aGVuIE5ldFZTQyBtYXN0ZXIgbmV0ZGV2IGNoYW5nZXMgbmV0bnMs
+IHRoZSBWRiBpcyBtb3ZlZCB0byB0aGUgc2FtZSBuZXRucyBieSB0aGUgTmV0VlNDIGRyaXZlci4K
+PiBLaW5kYSB0aGUgb3Bwb3NpdGUgdGhhbiB3aGF0IHdlIGFyZSBzdWdnZXN0aW5nIGhlcmUgdG8g
+bWFrZSBzdXJlIHRoYXQgdGhlIG5ldC1mYWlsb3ZlciBtYXN0ZXIgbmV0ZGV2IGlzIG9uIGEgc2Vw
+YXJhdGUKPiBuZXRucyB0aGFuIGl04oCZcyBzbGF2ZXMuLi4KPiAKPiAtTGlyYW4KPiAKPiA+IAo+
+ID4gLS0gCj4gPiBNU1QKCk5vdCBleGFjdGx5IG9wcG9zaXRlIEknZCBzYXkuCgpJZiBmYWlsb3Zl
+ciBpcyBpbiBob3N0IG5zLCBzbGF2ZXMgaW4gL3ByaW1hcnkgYW5kIC9zdGFuZGJ5LCB0aGVuIG1v
+dmluZwpmYWlsb3ZlciB0byAvY29udGFpbmVyIHNob3VsZCBtb3ZlIHNsYXZlcyB0byAvY29udGFp
+bmVyL3ByaW1hcnkgYW5kCi9jb250YWluZXIvc3RhbmRieS4KCgotLSAKTVNUCl9fX19fX19fX19f
+X19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fClZpcnR1YWxpemF0aW9uIG1haWxp
+bmcgbGlzdApWaXJ0dWFsaXphdGlvbkBsaXN0cy5saW51eC1mb3VuZGF0aW9uLm9yZwpodHRwczov
+L2xpc3RzLmxpbnV4Zm91bmRhdGlvbi5vcmcvbWFpbG1hbi9saXN0aW5mby92aXJ0dWFsaXphdGlv
+bg==
