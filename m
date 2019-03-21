@@ -1,23 +1,15 @@
 From: "Michael S. Tsirkin" <mst@redhat.com>
-Subject: Re: [summary] virtio network device failover writeup
-Date: Thu, 21 Mar 2019 09:51:02 -0400
-Message-ID: <20190321094217-mutt-send-email-mst__37313.6011812434$1553176287$gmane$org@kernel.org>
-References: <20190320180641-mutt-send-email-mst@kernel.org>
-	<B3FB267A-2DC0-4A4C-8193-7F420BC9791B@oracle.com>
-	<20190321044920-mutt-send-email-mst@kernel.org>
-	<CD40EA09-242D-41E1-8BD2-4FF4BB4D1986@oracle.com>
-	<20190321082532-mutt-send-email-mst@kernel.org>
-	<BB2B938F-D2F0-47F8-B651-70EC8A19BC6B@oracle.com>
-	<20190321085159-mutt-send-email-mst@kernel.org>
-	<2939FB15-720A-4C9E-92B7-2DBA139DDE0F@oracle.com>
-	<20190321090619-mutt-send-email-mst@kernel.org>
-	<1B52153B-B968-4E5B-8959-E7E83CE7FEAF@oracle.com>
+Subject: Re: [PATCH net v2] failover: allow name change on IFF_UP slave
+	interfaces
+Date: Thu, 21 Mar 2019 10:04:35 -0400
+Message-ID: <20190321100110-mutt-send-email-mst__662.892979902097$1553177094$gmane$org@kernel.org>
+References: <1551928112-32109-1-git-send-email-si-wei.liu@oracle.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="utf-8"
-Content-Transfer-Encoding: base64
+Content-Type: text/plain; charset="us-ascii"
+Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
 Content-Disposition: inline
-In-Reply-To: <1B52153B-B968-4E5B-8959-E7E83CE7FEAF@oracle.com>
+In-Reply-To: <1551928112-32109-1-git-send-email-si-wei.liu@oracle.com>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -27,126 +19,150 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Liran Alon <liran.alon@oracle.com>
-Cc: vuhuong@mellanox.com, Jiri Pirko <jiri@resnulli.us>, Jakub Kicinski <kubakici@wp.pl>, Sridhar Samudrala <sridhar.samudrala@intel.com>, Alexander Duyck <alexander.duyck@gmail.com>, virtualization@lists.linux-foundation.org, Netdev <netdev@vger.kernel.org>, Si-Wei Liu <si-wei.liu@oracle.com>, boris.ostrovsky@oracle.com, David Miller <davem@davemloft.net>, ogerlitz@mellanox.com
+To: Si-Wei Liu <si-wei.liu@oracle.com>
+Cc: Jiri Pirko <jiri@resnulli.us>, Jakub Kicinski <kubakici@wp.pl>, Sridhar Samudrala <sridhar.samudrala@intel.com>, Alexander Duyck <alexander.duyck@gmail.com>, virtualization@lists.linux-foundation.org, liran.alon@oracle.com, Netdev <netdev@vger.kernel.org>, boris.ostrovsky@oracle.com, David Miller <davem@davemloft.net>
 List-Id: virtualization@lists.linuxfoundation.org
 
-T24gVGh1LCBNYXIgMjEsIDIwMTkgYXQgMDM6MjQ6MzlQTSArMDIwMCwgTGlyYW4gQWxvbiB3cm90
-ZToKPiAKPiAKPiA+IE9uIDIxIE1hciAyMDE5LCBhdCAxNToxMiwgTWljaGFlbCBTLiBUc2lya2lu
-IDxtc3RAcmVkaGF0LmNvbT4gd3JvdGU6Cj4gPiAKPiA+IE9uIFRodSwgTWFyIDIxLCAyMDE5IGF0
-IDAzOjA0OjM3UE0gKzAyMDAsIExpcmFuIEFsb24gd3JvdGU6Cj4gPj4gCj4gPj4gCj4gPj4+IE9u
-IDIxIE1hciAyMDE5LCBhdCAxNDo1NywgTWljaGFlbCBTLiBUc2lya2luIDxtc3RAcmVkaGF0LmNv
-bT4gd3JvdGU6Cj4gPj4+IAo+ID4+PiBPbiBUaHUsIE1hciAyMSwgMjAxOSBhdCAwMjo0Nzo1MFBN
-ICswMjAwLCBMaXJhbiBBbG9uIHdyb3RlOgo+ID4+Pj4gCj4gPj4+PiAKPiA+Pj4+PiBPbiAyMSBN
-YXIgMjAxOSwgYXQgMTQ6MzcsIE1pY2hhZWwgUy4gVHNpcmtpbiA8bXN0QHJlZGhhdC5jb20+IHdy
-b3RlOgo+ID4+Pj4+IAo+ID4+Pj4+IE9uIFRodSwgTWFyIDIxLCAyMDE5IGF0IDEyOjA3OjU3UE0g
-KzAyMDAsIExpcmFuIEFsb24gd3JvdGU6Cj4gPj4+Pj4+Pj4+PiAyKSBJdCBicmluZ3Mgbm9uLWlu
-dHVpdGl2ZSBjdXN0b21lciBleHBlcmllbmNlLiBGb3IgZXhhbXBsZSwgYSBjdXN0b21lciBtYXkg
-YXR0ZW1wdCB0byBhbmFseXNlIGNvbm5lY3Rpdml0eSBpc3N1ZSBieSBjaGVja2luZyB0aGUgY29u
-bmVjdGl2aXR5Cj4gPj4+Pj4+Pj4+PiBvbiBhIG5ldC1mYWlsb3ZlciBzbGF2ZSAoZS5nLiB0aGUg
-VkYpIGJ1dCB3aWxsIHNlZSBubyBjb25uZWN0aXZpdHkgd2hlbiBpbi1mYWN0IGNoZWNraW5nIHRo
-ZSBjb25uZWN0aXZpdHkgb24gdGhlIG5ldC1mYWlsb3ZlciBtYXN0ZXIgbmV0ZGV2IHNob3dzIGNv
-cnJlY3QgY29ubmVjdGl2aXR5Lgo+ID4+Pj4+Pj4+Pj4gCj4gPj4+Pj4+Pj4+PiBUaGUgc2V0IG9m
-IGNoYW5nZXMgSSB2aXNpb24gdG8gZml4IG91ciBpc3N1ZXMgYXJlOgo+ID4+Pj4+Pj4+Pj4gMSkg
-SGlkZSBuZXQtZmFpbG92ZXIgc2xhdmVzIGluIGEgZGlmZmVyZW50IG5ldG5zIGNyZWF0ZWQgYW5k
-IG1hbmFnZWQgYnkgdGhlIGtlcm5lbC4gQnV0IHRoYXQgdXNlciBjYW4gZW50ZXIgdG8gaXQgYW5k
-IG1hbmFnZSB0aGUgbmV0ZGV2cyB0aGVyZSBpZiB3aXNoZXMgdG8gZG8gc28gZXhwbGljaXRseS4K
-PiA+Pj4+Pj4+Pj4+IChFLmcuIENvbmZpZ3VyZSB0aGUgbmV0LWZhaWxvdmVyIFZGIHNsYXZlIGlu
-IHNvbWUgc3BlY2lhbCB3YXkpLgo+ID4+Pj4+Pj4+Pj4gMikgTWF0Y2ggdGhlIHZpcnRpby1uZXQg
-YW5kIHRoZSBWRiBiYXNlZCBvbiBhIFBWIGF0dHJpYnV0ZSBpbnN0ZWFkIG9mIE1BQy4gKFNpbWls
-YXIgdG8gYXMgZG9uZSBpbiBOZXRWU0MpLiBFLmcuIFByb3ZpZGUgYSB2aXJ0aW8tbmV0IGludGVy
-ZmFjZSB0byBnZXQgUENJIHNsb3Qgd2hlcmUgdGhlIG1hdGNoaW5nIFZGIHdpbGwgYmUgaG90LXBs
-dWdnZWQgYnkgaHlwZXJ2aXNvci4KPiA+Pj4+Pj4+Pj4+IDMpIEhhdmUgYW4gZXhwbGljaXQgdmly
-dGlvLW5ldCBjb250cm9sIG1lc3NhZ2UgdG8gY29tbWFuZCBoeXBlcnZpc29yIHRvIHN3aXRjaCBk
-YXRhLXBhdGggZnJvbSB2aXJ0aW8tbmV0IHRvIFZGIGFuZCB2aWNlLXZlcnNhLiBJbnN0ZWFkIG9m
-IHJlbHlpbmcgb24gaW50ZXJjZXB0aW5nIHRoZSBQQ0kgbWFzdGVyIGVuYWJsZS1iaXQKPiA+Pj4+
-Pj4+Pj4+IGFzIGFuIGluZGljYXRvciBvbiB3aGVuIFZGIGlzIGFib3V0IHRvIGJlIHNldCB1cC4g
-KFNpbWlsYXIgdG8gYXMgZG9uZSBpbiBOZXRWU0MpLgo+ID4+Pj4+Pj4+Pj4gCj4gPj4+Pj4+Pj4+
-PiBJcyB0aGVyZSBhbnkgY2xlYXIgaXNzdWUgd2Ugc2VlIHJlZ2FyZGluZyB0aGUgYWJvdmUgc3Vn
-Z2VzdGlvbj8KPiA+Pj4+Pj4+Pj4+IAo+ID4+Pj4+Pj4+Pj4gLUxpcmFuCj4gPj4+Pj4+Pj4+IAo+
-ID4+Pj4+Pj4+PiBUaGUgaXNzdWUgd291bGQgYmUgdGhpczogaG93IGRvIHdlIGF2b2lkIGNvbmZs
-aWN0aW5nIHdpdGggbmFtZXNwYWNlcwo+ID4+Pj4+Pj4+PiBjcmVhdGVkIGJ5IHVzZXJzPwo+ID4+
-Pj4+Pj4+IAo+ID4+Pj4+Pj4+IFRoaXMgaXMga2luZGEgY29udHJvdmVyc2lhbCwgYnV0IG1heWJl
-IHNlcGFyYXRlIG5ldG5zIG5hbWVzIGludG8gMiBncm91cHM6IGhpZGRlbiBhbmQgbm9ybWFsLgo+
-ID4+Pj4+Pj4+IFRvIHJlZmVyZW5jZSBhIGhpZGRlbiBuZXRucywgeW91IG5lZWQgdG8gZG8gaXQg
-ZXhwbGljaXRseS4gCj4gPj4+Pj4+Pj4gSGlkZGVuIGFuZCBub3JtYWwgbmV0bnMgbmFtZXMgY2Fu
-IGNvbGxpZGUgYXMgdGhleSB3aWxsIGJlIG1haW50YWluZWQgaW4gZGlmZmVyZW50IG5hbWVzcGFj
-ZXMgKFllcyBJ4oCZbSBvdmVybG9hZGluZyB0aGUgdGVybSBuYW1lc3BhY2UgaGVyZeKApikuCj4g
-Pj4+Pj4+PiAKPiA+Pj4+Pj4+IE1heWJlIGl0J3MgYW4gdW5uYW1lZCBuYW1lc3BhY2UuIEhpZGRl
-biB1bnRpbCB1c2Vyc3BhY2UgZ2l2ZXMgaXQgYSBuYW1lPwo+ID4+Pj4+PiAKPiA+Pj4+Pj4gVGhp
-cyBpcyBhbHNvIGEgZ29vZCBpZGVhIHRoYXQgd2lsbCBzb2x2ZSB0aGUgaXNzdWUuIFllcy4KPiA+
-Pj4+Pj4gCj4gPj4+Pj4+PiAKPiA+Pj4+Pj4+PiBEb2VzIHRoaXMgc2VlbXMgcmVhc29uYWJsZT8K
-PiA+Pj4+Pj4+PiAKPiA+Pj4+Pj4+PiAtTGlyYW4KPiA+Pj4+Pj4+IAo+ID4+Pj4+Pj4gUmVhc29u
-YWJsZSBJJ2Qgc2F5IHllcywgZWFzeSB0byBpbXBsZW1lbnQgcHJvYmFibHkgbm8uIEJ1dCBtYXli
-ZSBJCj4gPj4+Pj4+PiBtaXNzZWQgYSB0cmljayBvciB0d28uCj4gPj4+Pj4+IAo+ID4+Pj4+PiBC
-VFcsIGZyb20gYSBwcmFjdGljYWwgcG9pbnQgb2YgdmlldywgSSB0aGluayB0aGF0IGV2ZW4gdW50
-aWwgd2UgZmlndXJlIG91dCBhIHNvbHV0aW9uIG9uIGhvdyB0byBpbXBsZW1lbnQgdGhpcywKPiA+
-Pj4+Pj4gaXQgd2FzIGJldHRlciB0byBjcmVhdGUgYW4ga2VybmVsIGF1dG8tZ2VuZXJhdGVkIG5h
-bWUgKGUuZy4g4oCca2VybmVsX25ldF9mYWlsb3Zlcl9zbGF2ZXMiKQo+ID4+Pj4+PiB0aGF0IHdp
-bGwgYnJlYWsgb25seSB1c2Vyc3BhY2Ugd29ya2xvYWRzIHRoYXQgYnkgYSB2ZXJ5IHJhcmUtY2hh
-bmNlIGhhdmUgYSBuZXRucyB0aGF0IGNvbGxpZGVzIHdpdGggdGhpcyB0aGVuCj4gPj4+Pj4+IHRo
-ZSBicmVha2FnZSB3ZSBoYXZlIHRvZGF5IGZvciB0aGUgdmFyaW91cyB1c2Vyc3BhY2UgY29tcG9u
-ZW50cy4KPiA+Pj4+Pj4gCj4gPj4+Pj4+IC1MaXJhbgo+ID4+Pj4+IAo+ID4+Pj4+IEl0IHNlZW1z
-IHF1aXRlIGVhc3kgdG8gc3VwcGx5IHRoYXQgYXMgYSBtb2R1bGUgcGFyYW1ldGVyLiBEbyB3ZSBu
-ZWVkIHR3bwo+ID4+Pj4+IG5hbWVzcGFjZXMgdGhvdWdoPyBXb24ndCBzb21lIHVzZXJzcGFjZSBz
-dGlsbCBiZSBjb25mdXNlZCBieSB0aGUgdHdvCj4gPj4+Pj4gc2xhdmVzIHNoYXJpbmcgdGhlIE1B
-QyBhZGRyZXNzPwo+ID4+Pj4gCj4gPj4+PiBUaGF04oCZcyBvbmUgcmVhc29uYWJsZSBvcHRpb24u
-Cj4gPj4+PiBBbm90aGVyIG9uZSBpcyB0aGF0IHdlIHdpbGwgaW5kZWVkIGNoYW5nZSB0aGUgbWVj
-aGFuaXNtIGJ5IHdoaWNoIHdlIGRldGVybWluZSBhIFZGIHNob3VsZCBiZSBib25kZWQgd2l0aCBh
-IHZpcnRpby1uZXQgZGV2aWNlLgo+ID4+Pj4gaS5lLiBFeHBvc2UgYSBuZXcgdmlydGlvLW5ldCBw
-cm9wZXJ0eSB0aGF0IHNwZWNpZnkgdGhlIFBDSSBzbG90IG9mIHRoZSBWRiB0byBiZSBib25kZWQg
-d2l0aC4KPiA+Pj4+IAo+ID4+Pj4gVGhlIHNlY29uZCBzZWVtcyBjbGVhbmVyIGJ1dCBJIGRvbuKA
-mXQgaGF2ZSBhIHN0cm9uZyBvcGluaW9uIG9uIHRoaXMuIEJvdGggc2VlbSByZWFzb25hYmxlIHRv
-IG1lIGFuZCB5b3VyIHN1Z2dlc3Rpb24gaXMgZmFzdGVyIHRvIGltcGxlbWVudCBmcm9tIGN1cnJl
-bnQgc3RhdGUgb2YgdGhpbmdzLgo+ID4+Pj4gCj4gPj4+PiAtTGlyYW4KPiA+Pj4gCj4gPj4+IE9L
-LiBOb3cgd2hhdCBoYXBwZW5zIGlmIG1hc3RlciBpcyBtb3ZlZCB0byBhbm90aGVyIG5hbWVzcGFj
-ZT8gRG8gd2UgbmVlZAo+ID4+PiB0byBtb3ZlIHRoZSBzbGF2ZXMgdG9vPwo+ID4+IAo+ID4+IE5v
-LiBXaHkgd291bGQgd2UgbW92ZSB0aGUgc2xhdmVzPwo+ID4gCj4gPiAKPiA+IFRoZSByZWFzb24g
-d2UgaGF2ZSAzIGRldmljZSBtb2RlbCBhdCBhbGwgaXMgc28gdXNlcnMgY2FuIGZpbmUgdHVuZSB0
-aGUKPiA+IHNsYXZlcy4KPiAKPiBJIEFncmVlLgo+IAo+ID4gSSBkb24ndCBzZWUgd2h5IHRoaXMg
-YXBwbGllcyB0byB0aGUgcm9vdCBuYW1lc3BhY2UgYnV0IG5vdAo+ID4gYSBjb250YWluZXIuIElm
-IGl0IGhhcyBhY2Nlc3MgdG8gZmFpbG92ZXIgaXQgc2hvdWxkIGhhdmUgYWNjZXNzCj4gPiB0byBz
-bGF2ZXMuCj4gCj4gT2ggbm93IEkgc2VlIHlvdXIgcG9pbnQuIEkgaGF2ZW7igJl0IHRob3VnaHQg
-YWJvdXQgdGhlIGNvbnRhaW5lcnMgdXNhZ2UuCj4gTXkgdGhpbmtpbmcgd2FzIHRoYXQgY3VzdG9t
-ZXIgY2FuIGFsd2F5cyBqdXN0IGVudGVyIHRvIHRoZSDigJxoaWRkZW7igJ0gbmV0bnMgYW5kIGNv
-bmZpZ3VyZSB0aGVyZSB3aGF0ZXZlciBoZSB3YW50cy4KPiAKPiBEbyB5b3UgaGF2ZSBhIHN1Z2dl
-c3Rpb24gaG93IHRvIGhhbmRsZSB0aGlzPwo+IAo+IE9uZSBvcHRpb24gY2FuIGJlIHRoYXQgZXZl
-cnkgInZpc2libGUiIG5ldG5zIG9uIHN5c3RlbSB3aWxsIGhhdmUgYSDigJxoaWRkZW7igJ0gdW5u
-YW1lZCBuZXRucyB3aGVyZSB0aGUgbmV0LWZhaWxvdmVyIHNsYXZlcyByZXNpZGUgaW4uCj4gSWYg
-Y3VzdG9tZXIgd2lzaGVzIHRvIGJlIGFibGUgdG8gZW50ZXIgdG8gdGhhdCBuZXRucyBhbmQgbWFu
-YWdlIHRoZSBuZXQtZmFpbG92ZXIgc2xhdmVzIGV4cGxpY2l0bHksIGl0IHdpbGwgbmVlZCB0byBo
-YXZlIGFuIHVwZGF0ZWQgaXByb3V0ZTIKPiB0aGF0IGtub3dzIGhvdyB0byBlbnRlciB0byB0aGF0
-IGhpZGRlbiBuZXRucy4gRm9yIG1vc3QgY3VzdG9tZXJzLCB0aGV5IHdvbuKAmXQgbmVlZCB0byBl
-dmVyIGVudGVyIHRoYXQgbmV0bnMgYW5kIHRodXMgaXQgaXMgb2sgdGhleSBkb27igJl0Cj4gaGF2
-ZSB0aGlzIHVwZGF0ZWQgaXByb3V0ZTIuCgpSaWdodCBzbyBzbGF2ZXMgbmVlZCB0byBiZSBtb3Zl
-ZCB3aGVuZXZlciBtYXN0ZXIgaXMgbW92ZWQuCgpHaXZlbiB0aGUgYW1vdW50IG9mIG1lc3MgaW52
-b2x2ZWQsIHNob3VsZCB3ZSBqdXN0IHRlYWNoCnVzZXJzcGFjZSB0byBjcmVhdGUgdGhlIGhpZGRl
-biBuZXRucyBhbmQgbW92ZSBzbGF2ZXMgdGhlcmU/Cgo+ID4gCj4gPj4gVGhlIHdob2xlIHBvaW50
-IGlzIHRvIG1ha2UgbW9zdCBjdXN0b21lciBpZ25vcmUgdGhlIG5ldC1mYWlsb3ZlciBzbGF2ZXMg
-YW5kIHJlbWFpbiB0aGVtIOKAnGhpZGRlbuKAnSBpbiB0aGVpciBkZWRpY2F0ZWQgbmV0bnMuCj4g
-PiAKPiA+IFNvIHRoYXQgbWFrZXMgdGhlIGNvbW1vbiBjYXNlIGVhc3kuIFRoYXQgaXMgZ29vZC4g
-TXkgd29ycnkgaXMgaXQgbWlnaHQKPiA+IG1ha2Ugc29tZSB1bmNvbW1vbiBjYXNlcyBpbXBvc3Np
-YmxlLgo+ID4gCj4gPj4gV2Ugd29u4oCZdCBwcmV2ZW50IGN1c3RvbWVyIGZyb20gZXhwbGljaXRs
-eSBtb3ZpbmcgdGhlIG5ldC1mYWlsb3ZlciBzbGF2ZXMgb3V0IG9mIHRoaXMgbmV0bnMsIGJ1dCB3
-ZSB3aWxsIG5vdCBtb3ZlIHRoZW0gb3V0IG9mIHRoZXJlIGF1dG9tYXRpY2FsbHkuCj4gPj4gCj4g
-Pj4+IAo+ID4+PiBBbHNvIHNpd2VpJ3MgcGF0Y2ggaXMgdGhlbiBraW5kIG9mIGV4dHJhbmVvdXMg
-cmlnaHQ/Cj4gPj4+IEF0dGVtcHRzIHRvIHJlbmFtZSBhIHNsYXZlIHdpbGwgbm93IGZhaWwgYXMg
-aXQncyBpbiBhIG5hbWVzcGFjZeKApgo+ID4+IAo+ID4+IEnigJltIG5vdCBzdXJlIGFjdHVhbGx5
-LiBJc24ndCB1ZGV2L3N5c3RlbWQgbmV0bnMtYXdhcmU/Cj4gPj4gSSB3b3VsZCBleHBlY3QgaXQg
-dG8gYmUgYWJsZSB0byBwcm92aWRlIG5hbWVzIGFsc28gdG8gbmV0ZGV2cyBpbiBuZXRucyBkaWZm
-ZXJlbnQgdGhhbiBkZWZhdWx0IG5ldG5zLgo+ID4gCj4gPiBJIHRoaW5rIG1vc3QgcGVvcGxlIG1v
-dmUgZGV2aWNlcyBhZnRlciB0aGV5IGFyZSByZW5hbWVkLgo+IAo+IFNvPwo+IFNpLVdlaSBwYXRj
-aCBoYW5kbGVzIHRoZSBpc3N1ZSB0aGF0IHJlc29sdmVzIGZyb20gdGhlIGZhY3QgdGhlIG5ldC1m
-YWlsb3ZlciBtYXN0ZXIgd2lsbCBiZSBvcGVuZWQgYmVmb3JlIHRoZSByZW5hbWUgb24gdGhlIG5l
-dC1mYWlsb3ZlciBzbGF2ZXMgb2NjdXIuCj4gVGhpcyBzaG91bGQgaGFwcGVuICh0byBteSB1bmRl
-cnN0YW5kaW5nKSByZWdhcmRsZXNzIG9mIG5ldHdvcmsgbmFtZXNwYWNlcy4KPiAKPiAtTGlyYW4K
-Ck15IHBvaW50IHdhcyB0aGF0IGFueSB0b29sIHRoYXQgbW92ZXMgZGV2aWNlcyBhZnRlciB0aGV5
-CmFyZSByZW5hbWVkIHdpbGwgYmUgYnJva2VuIGJ5IGtlcm5lbCBhdXRvbWF0aWNhbGx5IHB1dHRp
-bmcKdGhlbSBpbiBhIG5hbWVzcGFjZS4KCj4gPiAKPiA+PiBJZiB0aGF04oCZcyB0aGUgY2FzZSwg
-U2ktV2VpIHBhdGNoIHRvIGJlIGFibGUgdG8gcmVuYW1lIGEgbmV0LWZhaWxvdmVyIHNsYXZlIHdo
-ZW4gaXQgaXMgYWxyZWFkeSBvcGVuIGlzIHN0aWxsIHJlcXVpcmVkLiBBcyB0aGUgcmFjZS1jb25k
-aXRpb24gc3RpbGwgZXhpc3RzLgo+ID4+IAo+ID4+IC1MaXJhbgo+ID4+IAo+ID4+PiAKPiA+Pj4+
-PiAKPiA+Pj4+PiAtLSAKPiA+Pj4+PiBNU1QKX19fX19fX19fX19fX19fX19fX19fX19fX19fX19f
-X19fX19fX19fX19fX19fX18KVmlydHVhbGl6YXRpb24gbWFpbGluZyBsaXN0ClZpcnR1YWxpemF0
-aW9uQGxpc3RzLmxpbnV4LWZvdW5kYXRpb24ub3JnCmh0dHBzOi8vbGlzdHMubGludXhmb3VuZGF0
-aW9uLm9yZy9tYWlsbWFuL2xpc3RpbmZvL3ZpcnR1YWxpemF0aW9u
+On Wed, Mar 06, 2019 at 10:08:32PM -0500, Si-Wei Liu wrote:
+> When a netdev appears through hot plug then gets enslaved by a failover
+> master that is already up and running, the slave will be opened
+> right away after getting enslaved. Today there's a race that userspace
+> (udev) may fail to rename the slave if the kernel (net_failover)
+> opens the slave earlier than when the userspace rename happens.
+> Unlike bond or team, the primary slave of failover can't be renamed by
+> userspace ahead of time, since the kernel initiated auto-enslavement is
+> unable to, or rather, is never meant to be synchronized with the rename
+> request from userspace.
+> 
+> As the failover slave interfaces are not designed to be operated
+> directly by userspace apps: IP configuration, filter rules with
+> regard to network traffic passing and etc., should all be done on master
+> interface. In general, userspace apps only care about the
+> name of master interface, while slave names are less important as long
+> as admin users can see reliable names that may carry
+> other information describing the netdev. For e.g., they can infer that
+> "ens3nsby" is a standby slave of "ens3", while for a
+> name like "eth0" they can't tell which master it belongs to.
+> 
+> Historically the name of IFF_UP interface can't be changed because
+> there might be admin script or management software that is already
+> relying on such behavior and assumes that the slave name can't be
+> changed once UP. But failover is special: with the in-kernel
+> auto-enslavement mechanism, the userspace expectation for device
+> enumeration and bring-up order is already broken. Previously initramfs
+> and various userspace config tools were modified to bypass failover
+> slaves because of auto-enslavement and duplicate MAC address. Similarly,
+> in case that users care about seeing reliable slave name, the new type
+> of failover slaves needs to be taken care of specifically in userspace
+> anyway.
+> 
+> It's less risky to lift up the rename restriction on failover slave
+> which is already UP. Although it's possible this change may potentially
+> break userspace component (most likely configuration scripts or
+> management software) that assumes slave name can't be changed while
+> UP, it's relatively a limited and controllable set among all userspace
+> components, which can be fixed specifically to work with the new naming
+> behavior of failover slaves. Userspace component interacting with
+> slaves should be changed to operate on failover master instead, as the
+> failover slave is dynamic in nature which may come and go at any point.
+> The goal is to make the role of failover slaves less relevant, and
+> all userspace should only deal with master in the long run.
+> 
+> Fixes: 30c8bd5aa8b2 ("net: Introduce generic failover module")
+> Signed-off-by: Si-Wei Liu <si-wei.liu@oracle.com>
+> Reviewed-by: Liran Alon <liran.alon@oracle.com>
+> Acked-by: Michael S. Tsirkin <mst@redhat.com>
+
+I worry that userspace might have made a bunch of assumptions
+that names never change as long as interface is up.
+So listening for up events ensures that interface
+is not renamed.
+
+How about sending down and up events around such renames?
+
+
+
+> ---
+> v1 -> v2:
+> - Drop configurable module parameter (Sridhar)
+> 
+> 
+>  include/linux/netdevice.h | 3 +++
+>  net/core/dev.c            | 3 ++-
+>  net/core/failover.c       | 6 +++---
+>  3 files changed, 8 insertions(+), 4 deletions(-)
+> 
+> diff --git a/include/linux/netdevice.h b/include/linux/netdevice.h
+> index 857f8ab..6d9e4e0 100644
+> --- a/include/linux/netdevice.h
+> +++ b/include/linux/netdevice.h
+> @@ -1487,6 +1487,7 @@ struct net_device_ops {
+>   * @IFF_NO_RX_HANDLER: device doesn't support the rx_handler hook
+>   * @IFF_FAILOVER: device is a failover master device
+>   * @IFF_FAILOVER_SLAVE: device is lower dev of a failover master device
+> + * @IFF_SLAVE_RENAME_OK: rename is allowed while slave device is running
+>   */
+>  enum netdev_priv_flags {
+>  	IFF_802_1Q_VLAN			= 1<<0,
+> @@ -1518,6 +1519,7 @@ enum netdev_priv_flags {
+>  	IFF_NO_RX_HANDLER		= 1<<26,
+>  	IFF_FAILOVER			= 1<<27,
+>  	IFF_FAILOVER_SLAVE		= 1<<28,
+> +	IFF_SLAVE_RENAME_OK		= 1<<29,
+>  };
+>  
+>  #define IFF_802_1Q_VLAN			IFF_802_1Q_VLAN
+> @@ -1548,6 +1550,7 @@ enum netdev_priv_flags {
+>  #define IFF_NO_RX_HANDLER		IFF_NO_RX_HANDLER
+>  #define IFF_FAILOVER			IFF_FAILOVER
+>  #define IFF_FAILOVER_SLAVE		IFF_FAILOVER_SLAVE
+> +#define IFF_SLAVE_RENAME_OK		IFF_SLAVE_RENAME_OK
+>  
+>  /**
+>   *	struct net_device - The DEVICE structure.
+> diff --git a/net/core/dev.c b/net/core/dev.c
+> index 722d50d..ae070de 100644
+> --- a/net/core/dev.c
+> +++ b/net/core/dev.c
+> @@ -1180,7 +1180,8 @@ int dev_change_name(struct net_device *dev, const char *newname)
+>  	BUG_ON(!dev_net(dev));
+>  
+>  	net = dev_net(dev);
+> -	if (dev->flags & IFF_UP)
+> +	if (dev->flags & IFF_UP &&
+> +	    !(dev->priv_flags & IFF_SLAVE_RENAME_OK))
+>  		return -EBUSY;
+>  
+>  	write_seqcount_begin(&devnet_rename_seq);
+> diff --git a/net/core/failover.c b/net/core/failover.c
+> index 4a92a98..34c5c87 100644
+> --- a/net/core/failover.c
+> +++ b/net/core/failover.c
+> @@ -80,14 +80,14 @@ static int failover_slave_register(struct net_device *slave_dev)
+>  		goto err_upper_link;
+>  	}
+>  
+> -	slave_dev->priv_flags |= IFF_FAILOVER_SLAVE;
+> +	slave_dev->priv_flags |= (IFF_FAILOVER_SLAVE | IFF_SLAVE_RENAME_OK);
+>  
+>  	if (fops && fops->slave_register &&
+>  	    !fops->slave_register(slave_dev, failover_dev))
+>  		return NOTIFY_OK;
+>  
+>  	netdev_upper_dev_unlink(slave_dev, failover_dev);
+> -	slave_dev->priv_flags &= ~IFF_FAILOVER_SLAVE;
+> +	slave_dev->priv_flags &= ~(IFF_FAILOVER_SLAVE | IFF_SLAVE_RENAME_OK);
+>  err_upper_link:
+>  	netdev_rx_handler_unregister(slave_dev);
+>  done:
+> @@ -121,7 +121,7 @@ int failover_slave_unregister(struct net_device *slave_dev)
+>  
+>  	netdev_rx_handler_unregister(slave_dev);
+>  	netdev_upper_dev_unlink(slave_dev, failover_dev);
+> -	slave_dev->priv_flags &= ~IFF_FAILOVER_SLAVE;
+> +	slave_dev->priv_flags &= ~(IFF_FAILOVER_SLAVE | IFF_SLAVE_RENAME_OK);
+>  
+>  	if (fops && fops->slave_unregister &&
+>  	    !fops->slave_unregister(slave_dev, failover_dev))
+> -- 
+> 1.8.3.1
