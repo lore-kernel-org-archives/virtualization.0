@@ -1,23 +1,15 @@
-From: Liran Alon <liran.alon@oracle.com>
-Subject: Re: [summary] virtio network device failover writeup
-Date: Thu, 21 Mar 2019 19:15:19 +0200
-Message-ID: <65C9DA4E-D959-4F9D-AD5B-1831387E652E__43468.0021878862$1555717633$gmane$org@oracle.com>
-References: <B3FB267A-2DC0-4A4C-8193-7F420BC9791B@oracle.com>
-	<20190321044920-mutt-send-email-mst@kernel.org>
-	<CD40EA09-242D-41E1-8BD2-4FF4BB4D1986@oracle.com>
-	<20190321082532-mutt-send-email-mst@kernel.org>
-	<BB2B938F-D2F0-47F8-B651-70EC8A19BC6B@oracle.com>
-	<20190321085159-mutt-send-email-mst@kernel.org>
-	<2939FB15-720A-4C9E-92B7-2DBA139DDE0F@oracle.com>
-	<20190321084517.773a65fa@shemminger-XPS-13-9360>
-	<20190321114557-mutt-send-email-mst@kernel.org>
-	<BC327EF2-22C7-402B-9078-93891A4774D6@oracle.com>
-	<20190321131006-mutt-send-email-mst@kernel.org>
-Mime-Version: 1.0 (Mac OS X Mail 11.1 \(3445.4.7\))
-Content-Type: text/plain; charset="utf-8"
-Content-Transfer-Encoding: base64
+From: Mukesh Ojha <mojha@codeaurora.org>
+Subject: Re: [PATCH v2 -next] drm/virtio: remove set but not used variable
+	'vgdev'
+Date: Mon, 25 Mar 2019 17:05:26 +0530
+Message-ID: <e15b1f58-080f-c5b8-d210-c6a819f829d3__26660.3181998775$1555717650$gmane$org@codeaurora.org>
+References: <20190320020308.12745-1-yuehaibing@huawei.com>
+	<20190325092631.152060-1-yuehaibing@huawei.com>
+Mime-Version: 1.0
+Content-Type: multipart/mixed; boundary="===============2124774030552844822=="
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <20190321131006-mutt-send-email-mst@kernel.org>
+In-Reply-To: <20190325092631.152060-1-yuehaibing@huawei.com>
+Content-Language: en-US
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -27,42 +19,172 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: "Michael S. Tsirkin" <mst@redhat.com>
-Cc: vuhuong@mellanox.com, Jiri Pirko <jiri@resnulli.us>, Jakub Kicinski <kubakici@wp.pl>, Sridhar Samudrala <sridhar.samudrala@intel.com>, Alexander Duyck <alexander.duyck@gmail.com>, virtualization@lists.linux-foundation.org, Netdev <netdev@vger.kernel.org>, Si-Wei Liu <si-wei.liu@oracle.com>, boris.ostrovsky@oracle.com, David Miller <davem@davemloft.net>, ogerlitz@mellanox.com
+To: YueHaibing <yuehaibing@huawei.com>, David Airlie <airlied@linux.ie>, Gerd Hoffmann <kraxel@redhat.com>, Daniel Vetter <daniel@ffwll.ch>
+Cc: kernel-janitors@vger.kernel.org, linux-kernel@vger.kernel.org, dri-devel@lists.freedesktop.org, virtualization@lists.linux-foundation.org
 List-Id: virtualization@lists.linuxfoundation.org
 
-Cgo+IE9uIDIxIE1hciAyMDE5LCBhdCAxOToxMiwgTWljaGFlbCBTLiBUc2lya2luIDxtc3RAcmVk
-aGF0LmNvbT4gd3JvdGU6Cj4gCj4gT24gVGh1LCBNYXIgMjEsIDIwMTkgYXQgMDY6MzE6MzVQTSAr
-MDIwMCwgTGlyYW4gQWxvbiB3cm90ZToKPj4gCj4+IAo+Pj4gT24gMjEgTWFyIDIwMTksIGF0IDE3
-OjUwLCBNaWNoYWVsIFMuIFRzaXJraW4gPG1zdEByZWRoYXQuY29tPiB3cm90ZToKPj4+IAo+Pj4g
-T24gVGh1LCBNYXIgMjEsIDIwMTkgYXQgMDg6NDU6MTdBTSAtMDcwMCwgU3RlcGhlbiBIZW1taW5n
-ZXIgd3JvdGU6Cj4+Pj4gT24gVGh1LCAyMSBNYXIgMjAxOSAxNTowNDozNyArMDIwMAo+Pj4+IExp
-cmFuIEFsb24gPGxpcmFuLmFsb25Ab3JhY2xlLmNvbT4gd3JvdGU6Cj4+Pj4gCj4+Pj4+PiAKPj4+
-Pj4+IE9LLiBOb3cgd2hhdCBoYXBwZW5zIGlmIG1hc3RlciBpcyBtb3ZlZCB0byBhbm90aGVyIG5h
-bWVzcGFjZT8gRG8gd2UgbmVlZAo+Pj4+Pj4gdG8gbW92ZSB0aGUgc2xhdmVzIHRvbz8gIAo+Pj4+
-PiAKPj4+Pj4gTm8uIFdoeSB3b3VsZCB3ZSBtb3ZlIHRoZSBzbGF2ZXM/IFRoZSB3aG9sZSBwb2lu
-dCBpcyB0byBtYWtlIG1vc3QgY3VzdG9tZXIgaWdub3JlIHRoZSBuZXQtZmFpbG92ZXIgc2xhdmVz
-IGFuZCByZW1haW4gdGhlbSDigJxoaWRkZW7igJ0gaW4gdGhlaXIgZGVkaWNhdGVkIG5ldG5zLgo+
-Pj4+PiBXZSB3b27igJl0IHByZXZlbnQgY3VzdG9tZXIgZnJvbSBleHBsaWNpdGx5IG1vdmluZyB0
-aGUgbmV0LWZhaWxvdmVyIHNsYXZlcyBvdXQgb2YgdGhpcyBuZXRucywgYnV0IHdlIHdpbGwgbm90
-IG1vdmUgdGhlbSBvdXQgb2YgdGhlcmUgYXV0b21hdGljYWxseS4KPj4+PiAKPj4+PiAKPj4+PiBU
-aGUgMi1kZXZpY2UgbmV0dnNjIGFscmVhZHkgaGFuZGxlcyBjYXNlIHdoZXJlIG1hc3RlciBjaGFu
-Z2VzIG5hbWVzcGFjZS4KPj4+IAo+Pj4gSXMgaXQgYnkgbW92aW5nIHNsYXZlIHdpdGggaXQ/Cj4+
-IAo+PiBTZWUgYzBhNDFiODg3Y2U2ICgiaHZfbmV0dnNjOiBtb3ZlIFZGIHRvIHNhbWUgbmFtZXNw
-YWNlIGFzIG5ldHZzYyBkZXZpY2XigJ0pLgo+PiBJdCBzZWVtcyB0aGF0IHdoZW4gTmV0VlNDIG1h
-c3RlciBuZXRkZXYgY2hhbmdlcyBuZXRucywgdGhlIFZGIGlzIG1vdmVkIHRvIHRoZSBzYW1lIG5l
-dG5zIGJ5IHRoZSBOZXRWU0MgZHJpdmVyLgo+PiBLaW5kYSB0aGUgb3Bwb3NpdGUgdGhhbiB3aGF0
-IHdlIGFyZSBzdWdnZXN0aW5nIGhlcmUgdG8gbWFrZSBzdXJlIHRoYXQgdGhlIG5ldC1mYWlsb3Zl
-ciBtYXN0ZXIgbmV0ZGV2IGlzIG9uIGEgc2VwYXJhdGUKPj4gbmV0bnMgdGhhbiBpdOKAmXMgc2xh
-dmVzLi4uCj4+IAo+PiAtTGlyYW4KPj4gCj4+PiAKPj4+IC0tIAo+Pj4gTVNUCj4gCj4gTm90IGV4
-YWN0bHkgb3Bwb3NpdGUgSSdkIHNheS4KPiAKPiBJZiBmYWlsb3ZlciBpcyBpbiBob3N0IG5zLCBz
-bGF2ZXMgaW4gL3ByaW1hcnkgYW5kIC9zdGFuZGJ5LCB0aGVuIG1vdmluZwo+IGZhaWxvdmVyIHRv
-IC9jb250YWluZXIgc2hvdWxkIG1vdmUgc2xhdmVzIHRvIC9jb250YWluZXIvcHJpbWFyeSBhbmQK
-PiAvY29udGFpbmVyL3N0YW5kYnkuCgpZZXMgSSBhZ3JlZS4KSSBtZWFudCB0aGF0IHRoZXkgdHJp
-ZWQgdG8ga2VlcCB0aGUgVkYgb24gdGhlIHNhbWUgbmV0bnMgYXMgdGhlIE5ldFZTQy4KQnV0IG9m
-IGNvdXJzZSB3aGF0IHlvdSBqdXN0IGRlc2NyaWJlZCBpcyBleGFjdGx5IHRoZSBmdW5jdGlvbmFs
-aXR5IEkgd291bGQgaGF2ZSB3YW50ZWQgaW4gb3VyIG5ldC1mYWlsb3ZlciBtZWNoYW5pc20uCgot
-TGlyYW4KCj4gCj4gCj4gLS0gCj4gTVNUCgpfX19fX19fX19fX19fX19fX19fX19fX19fX19fX19f
-X19fX19fX19fX19fX19fXwpWaXJ0dWFsaXphdGlvbiBtYWlsaW5nIGxpc3QKVmlydHVhbGl6YXRp
-b25AbGlzdHMubGludXgtZm91bmRhdGlvbi5vcmcKaHR0cHM6Ly9saXN0cy5saW51eGZvdW5kYXRp
-b24ub3JnL21haWxtYW4vbGlzdGluZm8vdmlydHVhbGl6YXRpb24=
+This is a multi-part message in MIME format.
+--===============2124774030552844822==
+Content-Type: multipart/alternative;
+ boundary="------------D4021CC7E0B3F614E6F51445"
+Content-Language: en-US
+
+This is a multi-part message in MIME format.
+--------------D4021CC7E0B3F614E6F51445
+Content-Type: text/plain; charset=utf-8; format=flowed
+Content-Transfer-Encoding: 7bit
+
+
+On 3/25/2019 2:56 PM, YueHaibing wrote:
+> Fixes gcc '-Wunused-but-set-variable' warning:
+>
+> drivers/gpu/drm/virtio/virtgpu_ttm.c: In function 'virtio_gpu_init_mem_type':
+> drivers/gpu/drm/virtio/virtgpu_ttm.c:117:28: warning:
+>   variable 'vgdev' set but not used [-Wunused-but-set-variable]
+>
+> drivers/gpu/drm/virtio/virtgpu_ttm.c: In function 'virtio_gpu_bo_swap_notify':
+> drivers/gpu/drm/virtio/virtgpu_ttm.c:300:28: warning:
+>   variable 'vgdev' set but not used [-Wunused-but-set-variable]
+>
+> It is never used since introduction in dc5698e80cf7 ("Add virtio gpu driver.")
+>
+> Signed-off-by: YueHaibing <yuehaibing@huawei.com>
+
+
+Reviewed-by: Mukesh Ojha <mojha@codeaurora.org 
+<mailto:mojha@codeaurora.org>>
+
+Thanks.
+Mukesh
+
+> ---
+> v2: fix patch prefix
+> ---
+>   drivers/gpu/drm/virtio/virtgpu_ttm.c | 6 ------
+>   1 file changed, 6 deletions(-)
+>
+> diff --git a/drivers/gpu/drm/virtio/virtgpu_ttm.c b/drivers/gpu/drm/virtio/virtgpu_ttm.c
+> index d6225ba20b30..eb007c2569d8 100644
+> --- a/drivers/gpu/drm/virtio/virtgpu_ttm.c
+> +++ b/drivers/gpu/drm/virtio/virtgpu_ttm.c
+> @@ -114,10 +114,6 @@ static const struct ttm_mem_type_manager_func virtio_gpu_bo_manager_func = {
+>   static int virtio_gpu_init_mem_type(struct ttm_bo_device *bdev, uint32_t type,
+>   				    struct ttm_mem_type_manager *man)
+>   {
+> -	struct virtio_gpu_device *vgdev;
+> -
+> -	vgdev = virtio_gpu_get_vgdev(bdev);
+> -
+>   	switch (type) {
+>   	case TTM_PL_SYSTEM:
+>   		/* System memory */
+> @@ -297,10 +293,8 @@ static void virtio_gpu_bo_move_notify(struct ttm_buffer_object *tbo,
+>   static void virtio_gpu_bo_swap_notify(struct ttm_buffer_object *tbo)
+>   {
+>   	struct virtio_gpu_object *bo;
+> -	struct virtio_gpu_device *vgdev;
+>   
+>   	bo = container_of(tbo, struct virtio_gpu_object, tbo);
+> -	vgdev = (struct virtio_gpu_device *)bo->gem_base.dev->dev_private;
+>   
+>   	if (bo->pages)
+>   		virtio_gpu_object_free_sg_table(bo);
+>
+>
+>
+
+--------------D4021CC7E0B3F614E6F51445
+Content-Type: text/html; charset=utf-8
+Content-Transfer-Encoding: 7bit
+
+<html>
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+  </head>
+  <body text="#000000" bgcolor="#FFFFFF">
+    <p><br>
+    </p>
+    <div class="moz-cite-prefix">On 3/25/2019 2:56 PM, YueHaibing wrote:<br>
+    </div>
+    <blockquote type="cite"
+      cite="mid:20190325092631.152060-1-yuehaibing@huawei.com">
+      <pre class="moz-quote-pre" wrap="">Fixes gcc '-Wunused-but-set-variable' warning:
+
+drivers/gpu/drm/virtio/virtgpu_ttm.c: In function 'virtio_gpu_init_mem_type':
+drivers/gpu/drm/virtio/virtgpu_ttm.c:117:28: warning:
+ variable 'vgdev' set but not used [-Wunused-but-set-variable]
+
+drivers/gpu/drm/virtio/virtgpu_ttm.c: In function 'virtio_gpu_bo_swap_notify':
+drivers/gpu/drm/virtio/virtgpu_ttm.c:300:28: warning:
+ variable 'vgdev' set but not used [-Wunused-but-set-variable]
+
+It is never used since introduction in dc5698e80cf7 ("Add virtio gpu driver.")
+
+Signed-off-by: YueHaibing <a class="moz-txt-link-rfc2396E" href="mailto:yuehaibing@huawei.com">&lt;yuehaibing@huawei.com&gt;</a></pre>
+    </blockquote>
+    <p><br>
+    </p>
+    <p>
+      Reviewed-by: Mukesh Ojha &lt;<a href="mailto:mojha@codeaurora.org"
+        title="mojha@codeaurora.org" class="mailto">mojha@codeaurora.org</a>&gt;
+    </p>
+    <p>
+      Thanks.<br>
+      Mukesh
+    </p>
+    <blockquote type="cite"
+      cite="mid:20190325092631.152060-1-yuehaibing@huawei.com">
+      <pre class="moz-quote-pre" wrap="">
+---
+v2: fix patch prefix
+---
+ drivers/gpu/drm/virtio/virtgpu_ttm.c | 6 ------
+ 1 file changed, 6 deletions(-)
+
+diff --git a/drivers/gpu/drm/virtio/virtgpu_ttm.c b/drivers/gpu/drm/virtio/virtgpu_ttm.c
+index d6225ba20b30..eb007c2569d8 100644
+--- a/drivers/gpu/drm/virtio/virtgpu_ttm.c
++++ b/drivers/gpu/drm/virtio/virtgpu_ttm.c
+@@ -114,10 +114,6 @@ static const struct ttm_mem_type_manager_func virtio_gpu_bo_manager_func = {
+ static int virtio_gpu_init_mem_type(struct ttm_bo_device *bdev, uint32_t type,
+ 				    struct ttm_mem_type_manager *man)
+ {
+-	struct virtio_gpu_device *vgdev;
+-
+-	vgdev = virtio_gpu_get_vgdev(bdev);
+-
+ 	switch (type) {
+ 	case TTM_PL_SYSTEM:
+ 		/* System memory */
+@@ -297,10 +293,8 @@ static void virtio_gpu_bo_move_notify(struct ttm_buffer_object *tbo,
+ static void virtio_gpu_bo_swap_notify(struct ttm_buffer_object *tbo)
+ {
+ 	struct virtio_gpu_object *bo;
+-	struct virtio_gpu_device *vgdev;
+ 
+ 	bo = container_of(tbo, struct virtio_gpu_object, tbo);
+-	vgdev = (struct virtio_gpu_device *)bo-&gt;gem_base.dev-&gt;dev_private;
+ 
+ 	if (bo-&gt;pages)
+ 		virtio_gpu_object_free_sg_table(bo);
+
+
+
+</pre>
+    </blockquote>
+  </body>
+</html>
+
+--------------D4021CC7E0B3F614E6F51445--
+
+--===============2124774030552844822==
+Content-Type: text/plain; charset="us-ascii"
+MIME-Version: 1.0
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+
+_______________________________________________
+Virtualization mailing list
+Virtualization@lists.linux-foundation.org
+https://lists.linuxfoundation.org/mailman/listinfo/virtualization
+--===============2124774030552844822==--
