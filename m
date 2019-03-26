@@ -1,18 +1,19 @@
-From: Dmitry Vyukov via Virtualization
-	<virtualization@lists.linux-foundation.org>
-Subject: Re: INFO: task hung in vhost_net_stop_vq
-Date: Tue, 26 Mar 2019 11:28:18 +0100
-Message-ID: <CACT4Y+Z1s-Lx1UXHKj88kQoOcbiD8gwyuRU3F_+cceP3pzbbrw__15218.5951521219$1553596123$gmane$org@mail.gmail.com>
-References: <0000000000004f8499057be95e1d@google.com>
-	<0000000000008ee87005847fc985@google.com>
-	<20190325100223-mutt-send-email-mst@kernel.org>
-	<df4f2cf6-8469-f894-8f45-7c48a6a1801f@redhat.com>
-Reply-To: Dmitry Vyukov <dvyukov@google.com>
+From: "Michael S. Tsirkin" <mst@redhat.com>
+Subject: Re: [RFC PATCH] virtio_ring: Use DMA API if guest memory is encrypted
+Date: Tue, 26 Mar 2019 12:53:59 -0400
+Message-ID: <20190325084348-mutt-send-email-mst__34742.2226493777$1553619257$gmane$org@kernel.org>
+References: <87zhrj8kcp.fsf@morokweng.localdomain>
+	<87womn8inf.fsf@morokweng.localdomain>
+	<20190129134750-mutt-send-email-mst@kernel.org>
+	<6c68f7f7-1b28-6eba-9b8b-2c32efac9701@redhat.com>
+	<20190129213137-mutt-send-email-mst@kernel.org>
+	<20190130074427.GA29516@lst.de>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="utf-8"
-Content-Transfer-Encoding: base64
+Content-Type: text/plain; charset="us-ascii"
+Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <df4f2cf6-8469-f894-8f45-7c48a6a1801f@redhat.com>
+Content-Disposition: inline
+In-Reply-To: <20190130074427.GA29516@lst.de>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -22,63 +23,29 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Jason Wang <jasowang@redhat.com>
-Cc: syzbot <syzbot+d21e6e297322a900c128@syzkaller.appspotmail.com>, weiyj.lk@gmail.com, KVM list <kvm@vger.kernel.org>, "Michael S. Tsirkin" <mst@redhat.com>, netdev <netdev@vger.kernel.org>, syzkaller-bugs <syzkaller-bugs@googlegroups.com>, LKML <linux-kernel@vger.kernel.org>, virtualization@lists.linux-foundation.org
+To: Christoph Hellwig <hch@lst.de>
+Cc: Lorenzo.Pieralisi@arm.com, tnowicki@caviumnetworks.com, Jean-Philippe Brucker <jean-philippe.brucker@arm.com>, Benjamin Herrenschmidt <benh@kernel.crashing.org>, Alexey Kardashevskiy <aik@linux.ibm.com>, Ram Pai <linuxram@us.ibm.com>, linux-kernel@vger.kernel.org, Will.Deacon@arm.com, virtualization@lists.linux-foundation.org, Paul Mackerras <paulus@ozlabs.org>, eric.auger@redhat.com, iommu@lists.linux-foundation.org, Marc.Zyngier@arm.com, Robin.Murphy@arm.com, linuxppc-dev@lists.ozlabs.org, joro@8bytes.org, David Gibson <david@gibson.dropbear.id.au>
 List-Id: virtualization@lists.linuxfoundation.org
 
-T24gVHVlLCBNYXIgMjYsIDIwMTkgYXQgMTE6MTcgQU0gSmFzb24gV2FuZyA8amFzb3dhbmdAcmVk
-aGF0LmNvbT4gd3JvdGU6Cj4KPgo+IE9uIDIwMTkvMy8yNSDkuIvljYgxMDowMiwgTWljaGFlbCBT
-LiBUc2lya2luIHdyb3RlOgo+ID4gTG9va3MgbGlrZSBtb3JlIGlvdGxiIGxvY2tpbmcgbWVzcz8K
-Pgo+Cj4gTG9va2luZyBhdCB0aGUgY2FsbHRyYWNlOgo+Cj4gWyAgMjIxLjc0MzY3NV0gPT09PT09
-PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09Cj4gWyAgMjIxLjc0NDI5N10g
-WyBJTkZPOiBwb3NzaWJsZSByZWN1cnNpdmUgbG9ja2luZyBkZXRlY3RlZCBdCj4gWyAgMjIxLjc0
-NDk0NF0gNC43LjArICMxIE5vdCB0YWludGVkCj4gWyAgMjIxLjc0NTMyNl0gLS0tLS0tLS0tLS0t
-LS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tCj4gWyAgMjIxLjc0NjEyOF0gc3l6LWV4
-ZWN1dG9yMS82ODIzIGlzIHRyeWluZyB0byBhY3F1aXJlIGxvY2s6Cj4gWyAgMjIxLjc0NjczN10g
-ICgmdnEtPm11dGV4KXsrLisuLi59LCBhdDogWzxmZmZmZmZmZjg0NDg0YjcwPl0gdmhvc3RfcHJv
-Y2Vzc19pb3RsYl9tc2crMHhlMC8weDllMAo+IFsgIDIyMS43NDc3ODldCj4gWyAgMjIxLjc0Nzc4
-OV0gYnV0IHRhc2sgaXMgYWxyZWFkeSBob2xkaW5nIGxvY2s6Cj4gWyAgMjIxLjc0ODQ3MF0gICgm
-dnEtPm11dGV4KXsrLisuLi59LCBhdDogWzxmZmZmZmZmZjg0NDg0YjcwPl0gdmhvc3RfcHJvY2Vz
-c19pb3RsYl9tc2crMHhlMC8weDllMAo+IFsgIDIyMS43NDk1MzVdCj4gWyAgMjIxLjc0OTUzNV0g
-b3RoZXIgaW5mbyB0aGF0IG1pZ2h0IGhlbHAgdXMgZGVidWcgdGhpczoKPiBbICAyMjEuNzUwMjgw
-XSAgUG9zc2libGUgdW5zYWZlIGxvY2tpbmcgc2NlbmFyaW86Cj4gWyAgMjIxLjc1MDI4MF0KPiBb
-ICAyMjEuNzUwOTQ2XSAgICAgICAgQ1BVMAo+IFsgIDIyMS43NTEyMzJdICAgICAgICAtLS0tCj4g
-WyAgMjIxLjc1MTUyM10gICBsb2NrKCZ2cS0+bXV0ZXgpOwo+IFsgIDIyMS43NTE5MjJdICAgbG9j
-aygmdnEtPm11dGV4KTsKPiBbICAyMjEuNzUyMzM5XQo+IFsgIDIyMS43NTIzMzldICAqKiogREVB
-RExPQ0sgKioqCj4gWyAgMjIxLjc1MjMzOV0KPgo+IEkgY291bGQgbm90IHRoaW5rIG9mIGEgcGF0
-aCB0aGF0IGNhbiBoaXQgdGhpcy4gQW5kIEkgY291bGQgbm90IHJlcHJvZHVjZSB3aXRoIHRoZSBy
-ZXByb2R1Y2VyIGluIHRoZSBsaW5rIGluIG5ldC1uZXh0LgoKCkxvb2tpbmcgYXQgdGhlIGJpc2Vj
-dGlvbiBsb2csIHN5emJvdCBpcyBhYmxlIHRvIHJlcHJvZHVjZSB0aGlzCnN1cGVyLXJlbGlhYmx5
-IG9uIG11bHRpcGxlIGtlcm5lbCByZXZpc2lvbnMuIEFyZSB5b3Ugc3VyZSB5b3UgYXJlCnVzaW5n
-IHRoZSByaWdodCBjb25maWcvcmV2aXNpb24/IFdoYXQgZWxzZSBjYW4gYmUgaW4gcGxheT8gc3l6
-Ym90IHVzZXMKVk1zLiBUaGUgaW1hZ2UgaXMgYXZhaWxhYmxlLgoKCj4gVGhhbmtzCj4KPgo+ID4K
-PiA+IE9uIFR1ZSwgTWFyIDE5LCAyMDE5IGF0IDEwOjIxOjAwUE0gLTA3MDAsIHN5emJvdCB3cm90
-ZToKPiA+PiBzeXpib3QgaGFzIGJpc2VjdGVkIHRoaXMgYnVnIHRvOgo+ID4+Cj4gPj4gY29tbWl0
-IDZiMWU2Y2M3ODU1YjA5YTBhOWJmYTFkOWYzMDE3MmJhMzY2ZjE2MWMKPiA+PiBBdXRob3I6IEph
-c29uIFdhbmcgPGphc293YW5nQHJlZGhhdC5jb20+Cj4gPj4gRGF0ZTogICBUaHUgSnVuIDIzIDA2
-OjA0OjMyIDIwMTYgKzAwMDAKPiA+Pgo+ID4+ICAgICAgdmhvc3Q6IG5ldyBkZXZpY2UgSU9UTEIg
-QVBJCj4gPj4KPiA+PiBiaXNlY3Rpb24gbG9nOiAgaHR0cHM6Ly9zeXprYWxsZXIuYXBwc3BvdC5j
-b20veC9iaXNlY3QudHh0P3g9MTQ4NmFkMjcyMDAwMDAKPiA+PiBzdGFydCBjb21taXQ6ICAgNmIx
-ZTZjYzcgdmhvc3Q6IG5ldyBkZXZpY2UgSU9UTEIgQVBJCj4gPj4gZ2l0IHRyZWU6ICAgICAgIHVw
-c3RyZWFtCj4gPj4gZmluYWwgY3Jhc2g6ICAgIGh0dHBzOi8vc3l6a2FsbGVyLmFwcHNwb3QuY29t
-L3gvcmVwb3J0LnR4dD94PTE2ODZhZDI3MjAwMDAwCj4gPj4gY29uc29sZSBvdXRwdXQ6IGh0dHBz
-Oi8vc3l6a2FsbGVyLmFwcHNwb3QuY29tL3gvbG9nLnR4dD94PTEyODZhZDI3MjAwMDAwCj4gPj4g
-a2VybmVsIGNvbmZpZzogIGh0dHBzOi8vc3l6a2FsbGVyLmFwcHNwb3QuY29tL3gvLmNvbmZpZz94
-PWM5NGY5ZjBjMDM2M2RiNGIKPiA+PiBkYXNoYm9hcmQgbGluazogaHR0cHM6Ly9zeXprYWxsZXIu
-YXBwc3BvdC5jb20vYnVnP2V4dGlkPWQyMWU2ZTI5NzMyMmE5MDBjMTI4Cj4gPj4gc3l6IHJlcHJv
-OiAgICAgIGh0dHBzOi8vc3l6a2FsbGVyLmFwcHNwb3QuY29tL3gvcmVwcm8uc3l6P3g9MTQxZGIz
-NGQ0MDAwMDAKPiA+PiBDIHJlcHJvZHVjZXI6ICAgaHR0cHM6Ly9zeXprYWxsZXIuYXBwc3BvdC5j
-b20veC9yZXByby5jP3g9MTA4ZWYyOTM0MDAwMDAKPiA+Pgo+ID4+IFJlcG9ydGVkLWJ5OiBzeXpi
-b3QrZDIxZTZlMjk3MzIyYTkwMGMxMjhAc3l6a2FsbGVyLmFwcHNwb3RtYWlsLmNvbQo+ID4+IEZp
-eGVzOiA2YjFlNmNjNyAoInZob3N0OiBuZXcgZGV2aWNlIElPVExCIEFQSSIpCj4KPiAtLQo+IFlv
-dSByZWNlaXZlZCB0aGlzIG1lc3NhZ2UgYmVjYXVzZSB5b3UgYXJlIHN1YnNjcmliZWQgdG8gdGhl
-IEdvb2dsZSBHcm91cHMgInN5emthbGxlci1idWdzIiBncm91cC4KPiBUbyB1bnN1YnNjcmliZSBm
-cm9tIHRoaXMgZ3JvdXAgYW5kIHN0b3AgcmVjZWl2aW5nIGVtYWlscyBmcm9tIGl0LCBzZW5kIGFu
-IGVtYWlsIHRvIHN5emthbGxlci1idWdzK3Vuc3Vic2NyaWJlQGdvb2dsZWdyb3Vwcy5jb20uCj4g
-VG8gdmlldyB0aGlzIGRpc2N1c3Npb24gb24gdGhlIHdlYiB2aXNpdCBodHRwczovL2dyb3Vwcy5n
-b29nbGUuY29tL2QvbXNnaWQvc3l6a2FsbGVyLWJ1Z3MvZGY0ZjJjZjYtODQ2OS1mODk0LThmNDUt
-N2M0OGE2YTE4MDFmJTQwcmVkaGF0LmNvbS4KPiBGb3IgbW9yZSBvcHRpb25zLCB2aXNpdCBodHRw
-czovL2dyb3Vwcy5nb29nbGUuY29tL2Qvb3B0b3V0LgpfX19fX19fX19fX19fX19fX19fX19fX19f
-X19fX19fX19fX19fX19fX19fX19fXwpWaXJ0dWFsaXphdGlvbiBtYWlsaW5nIGxpc3QKVmlydHVh
-bGl6YXRpb25AbGlzdHMubGludXgtZm91bmRhdGlvbi5vcmcKaHR0cHM6Ly9saXN0cy5saW51eGZv
-dW5kYXRpb24ub3JnL21haWxtYW4vbGlzdGluZm8vdmlydHVhbGl6YXRpb24=
+On Wed, Jan 30, 2019 at 08:44:27AM +0100, Christoph Hellwig wrote:
+> On Tue, Jan 29, 2019 at 09:36:08PM -0500, Michael S. Tsirkin wrote:
+> > This has been discussed ad nauseum. virtio is all about compatibility.
+> > Losing a couple of lines of code isn't worth breaking working setups.
+> > People that want "just use DMA API no tricks" now have the option.
+> > Setting a flag in a feature bit map is literally a single line
+> > of code in the hypervisor. So stop pushing for breaking working
+> > legacy setups and just fix it in the right place.
+> 
+> I agree with the legacy aspect.  What I am missing is an extremely
+> strong wording that says you SHOULD always set this flag for new
+> hosts, including an explanation why.
+
+
+So as far as power is concerned, IIUC the issue they are struggling with is
+that some platforms do not support pass-through mode in the emulated IOMMU.
+Disabling PLATFORM_ACCESS is so far a way around that, unfortunately just for
+virtio devices.  I would like virtio-iommu to be able to address that need as
+well.
+
+-- 
+MST
