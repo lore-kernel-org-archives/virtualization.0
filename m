@@ -1,14 +1,14 @@
-From: =?UTF-8?Q?Noralf_Tr=c3=b8nnes?= <noralf@tronnes.org>
-Subject: Re: [PATCH v3 5/5] drm/virtio: rework resource creation workflow.
-Date: Wed, 27 Mar 2019 15:41:20 +0100
-Message-ID: <4561a2be-cc58-9e87-2a60-7d05a7e6f6df__41889.1525290505$1553697693$gmane$org@tronnes.org>
-References: <20190318113332.10900-1-kraxel@redhat.com>
-	<20190318113332.10900-6-kraxel@redhat.com>
+From: Paolo Bonzini <pbonzini@redhat.com>
+Subject: Re: [PATCH] MAiNTAINERS: add Paolo, Stefan for virtio blk/scsi
+Date: Wed, 27 Mar 2019 16:08:05 +0100
+Message-ID: <1a5d4b76-e11d-3a12-4971-64581bffe636@redhat.com>
+References: <20190327103254-mutt-send-email-mst@kernel.org>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="utf-8"
-Content-Transfer-Encoding: base64
+Content-Type: text/plain; charset="us-ascii"
+Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <20190318113332.10900-6-kraxel@redhat.com>
+In-Reply-To: <20190327103254-mutt-send-email-mst@kernel.org>
+Content-Language: en-US
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -18,30 +18,56 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Gerd Hoffmann <kraxel@redhat.com>, dri-devel@lists.freedesktop.org
-Cc: David Airlie <airlied@linux.ie>, "open list:VIRTIO GPU DRIVER" <virtualization@lists.linux-foundation.org>, open list <linux-kernel@vger.kernel.org>, Daniel Vetter <daniel@ffwll.ch>, Gurchetan Singh <gurchetansingh@chromium.org>
+To: "Michael S. Tsirkin" <mst@redhat.com>, stefanha@redhat.com, virtualization@lists.linux-foundation.org
 List-Id: virtualization@lists.linuxfoundation.org
 
-CgpEZW4gMTguMDMuMjAxOSAxMi4zMywgc2tyZXYgR2VyZCBIb2ZmbWFubjoKPiBUaGlzIHBhdGNo
-IG1vdmVzIHRoZSB2aXJ0aW9fZ3B1X2NtZF9jcmVhdGVfcmVzb3VyY2UoKSBjYWxsICh3aGljaAo+
-IG5vdGlmaWVzIHRoZSBob3N0IGFib3V0IHRoZSBuZXcgcmVzb3VyY2UgY3JlYXRlZCkgaW50byB0
-aGUKPiB2aXJ0aW9fZ3B1X29iamVjdF9jcmVhdGUoKSBmdW5jdGlvbi4gIFRoYXQgd2F5IHdlIGNh
-biBjYWxsCj4gdmlydGlvX2dwdV9jbWRfY3JlYXRlX3Jlc291cmNlKCkgYmVmb3JlIHR0bV9ib19p
-bml0KCksIHNvIHRoZSBob3N0Cj4gYWxyZWFkeSBrbm93cyBhYm91dCB0aGUgb2JqZWN0IHdoZW4g
-dHRtIGluaXRpYWxpemVzIHRoZSBvYmplY3QgYW5kIGNhbGxzCj4gb3VyIGRyaXZlciBjYWxsYmFj
-a3MuCj4gCj4gU3BlY2lmaWNhbGx5IHRoZSBvYmplY3QgaXMgYWxyZWFkeSBjcmVhdGVkIHdoZW4g
-dGhlCj4gdmlydGlvX2dwdV90dG1fdHRfYmluZCgpIGNhbGxiYWNrIGludm9rZXMgdmlydGlvX2dw
-dV9vYmplY3RfYXR0YWNoKCksCj4gc28gdGhlIGV4dHJhIHZpcnRpb19ncHVfb2JqZWN0X2F0dGFj
-aCgpIGNhbGxzIGRvbmUgYWZ0ZXIKPiB2aXJ0aW9fZ3B1X29iamVjdF9jcmVhdGUoKSBhcmUgbm90
-IG5lZWRlZCBhbnkgbW9yZS4KPiAKPiBUaGUgZmVuY2Ugc3VwcG9ydCBmb3IgdGhlIGNyZWF0ZSBp
-b2N0bCBiZWNvbWVzIGEgYml0IG1vcmUgdHJpY2t5IHRob3VnaC4KPiBUaGUgY29kZSBtb3ZlZCBp
-bnRvIHZpcnRpb19ncHVfb2JqZWN0X2NyZWF0ZSgpIHRvby4gIFdlIGZpcnN0IHN1Ym1pdCB0aGUK
-PiAoZmVuY2VkKSB2aXJ0aW9fZ3B1X2NtZF9jcmVhdGVfcmVzb3VyY2UoKSBjb21tYW5kLCB0aGVu
-IGluaXRpYWxpemUgdGhlCj4gdHRtIG9iamVjdCwgYW5kIGZpbmFsbHkgYXR0YWNoIGp1c3QgY3Jl
-YXRlZCBvYmplY3QgdG8gdGhlIGZlbmNlIGZvciB0aGUKPiBjb21tYW5kIGluIGNhc2UgaXQgZGlk
-bid0IGZpbmlzaCB5ZXQuCj4gCj4gU2lnbmVkLW9mZi1ieTogR2VyZCBIb2ZmbWFubiA8a3JheGVs
-QHJlZGhhdC5jb20+Cj4gLS0tCgpBY2tlZC1ieTogTm9yYWxmIFRyw7hubmVzIDxub3JhbGZAdHJv
-bm5lcy5vcmc+Cl9fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19f
-ClZpcnR1YWxpemF0aW9uIG1haWxpbmcgbGlzdApWaXJ0dWFsaXphdGlvbkBsaXN0cy5saW51eC1m
-b3VuZGF0aW9uLm9yZwpodHRwczovL2xpc3RzLmxpbnV4Zm91bmRhdGlvbi5vcmcvbWFpbG1hbi9s
-aXN0aW5mby92aXJ0dWFsaXphdGlvbg==
+On 27/03/19 15:33, Michael S. Tsirkin wrote:
+> Jason doesn't really have the time to review blk/scsi
+> patches. Paolo and Setfan agreed to help out.
+> 
+> Thanks guys!
+> 
+> Signed-off-by: Michael S. Tsirkin <mst@redhat.com>
+> 
+> ---
+> 
+> diff --git a/MAINTAINERS b/MAINTAINERS
+> index 95a5ebecd04f..8326d19c1681 100644
+> --- a/MAINTAINERS
+> +++ b/MAINTAINERS
+> @@ -16247,7 +16247,7 @@ F:	drivers/char/virtio_console.c
+>  F:	include/linux/virtio_console.h
+>  F:	include/uapi/linux/virtio_console.h
+>  
+> -VIRTIO CORE, NET AND BLOCK DRIVERS
+> +VIRTIO CORE AND NET DRIVERS
+>  M:	"Michael S. Tsirkin" <mst@redhat.com>
+>  M:	Jason Wang <jasowang@redhat.com>
+>  L:	virtualization@lists.linux-foundation.org
+> @@ -16262,6 +16262,18 @@ F:	include/uapi/linux/virtio_*.h
+>  F:	drivers/crypto/virtio/
+>  F:	mm/balloon_compaction.c
+>  
+> +VIRTIO BLOCK AND SCSI DRIVERS
+> +M:	"Michael S. Tsirkin" <mst@redhat.com>
+> +M:	Paolo Bonzini <pbonzini@redhat.com>
+> +M:	Stefan Hajnoczi <stefanha@redhat.com>
+
+Please make this R at least for me, so that it's clear that patches
+still flow through your and Jason's tree.  Not sure if you want to keep
+Jason as M.
+
+Paolo
+
+> +L:	virtualization@lists.linux-foundation.org
+> +S:	Maintained
+> +F:	drivers/block/virtio_blk.c
+> +F:	drivers/scsi/virtio_scsi.c
+> +F:	include/uapi/linux/virtio_blk.h
+> +F:	include/uapi/linux/virtio_scsi.h
+> +F:	drivers/vhost/scsi.c
+> +
+>  VIRTIO CRYPTO DRIVER
+>  M:	Gonglei <arei.gonglei@huawei.com>
+>  L:	virtualization@lists.linux-foundation.org
+> 
