@@ -1,13 +1,12 @@
-From: =?UTF-8?Q?Noralf_Tr=c3=b8nnes?= <noralf@tronnes.org>
-Subject: Re: [PATCH] drm/virtio: add virtio-gpu-features debugfs file.
-Date: Wed, 27 Mar 2019 14:49:28 +0100
-Message-ID: <da55d18d-d14b-cc8c-685f-f61f4509d82e__76.7976905748924$1553694604$gmane$org@tronnes.org>
-References: <20190320083612.32067-1-kraxel@redhat.com>
+From: "Michael S. Tsirkin" <mst@redhat.com>
+Subject: [PATCH] MAiNTAINERS: add Paolo, Stefan for virtio blk/scsi
+Date: Wed, 27 Mar 2019 10:33:57 -0400
+Message-ID: <20190327103254-mutt-send-email-mst@kernel.org>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="utf-8"
-Content-Transfer-Encoding: base64
+Content-Type: text/plain; charset="us-ascii"
+Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <20190320083612.32067-1-kraxel@redhat.com>
+Content-Disposition: inline
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -17,17 +16,47 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Gerd Hoffmann <kraxel@redhat.com>, dri-devel@lists.freedesktop.org
-Cc: David Airlie <airlied@linux.ie>, open list <linux-kernel@vger.kernel.org>, "open list:VIRTIO GPU DRIVER" <virtualization@lists.linux-foundation.org>
+To: pbonzini@redhat.com, stefanha@redhat.com, virtualization@lists.linux-foundation.org
 List-Id: virtualization@lists.linuxfoundation.org
 
-CgpEZW4gMjAuMDMuMjAxOSAwOS4zNiwgc2tyZXYgR2VyZCBIb2ZmbWFubjoKPiBUaGlzIGZpbGUg
-cHJpbnRzIHdoaWNoIGZlYXR1cmVzIHRoZSB2aXJ0aW8tZ3B1IGRldmljZSBoYXMuCj4gCj4gQWxz
-byBhZGQgInZpcnRpby1ncHUtIiBwcmVmaXggdG8gdGhlIGV4aXN0aW5nIGZlbmNlIGZpbGUsCj4g
-dG8gbWFrZSBjbGVhciB0aGlzIGlzIGEgZHJpdmVyLXNwZWNpZmljIGRlYnVnZnMgZmlsZS4KPiAK
-PiBTaWduZWQtb2ZmLWJ5OiBHZXJkIEhvZmZtYW5uIDxrcmF4ZWxAcmVkaGF0LmNvbT4KPiAtLS0K
-CkFja2VkLWJ5OiBOb3JhbGYgVHLDuG5uZXMgPG5vcmFsZkB0cm9ubmVzLm9yZz4KX19fX19fX19f
-X19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX18KVmlydHVhbGl6YXRpb24gbWFp
-bGluZyBsaXN0ClZpcnR1YWxpemF0aW9uQGxpc3RzLmxpbnV4LWZvdW5kYXRpb24ub3JnCmh0dHBz
-Oi8vbGlzdHMubGludXhmb3VuZGF0aW9uLm9yZy9tYWlsbWFuL2xpc3RpbmZvL3ZpcnR1YWxpemF0
-aW9u
+Jason doesn't really have the time to review blk/scsi
+patches. Paolo and Setfan agreed to help out.
+
+Thanks guys!
+
+Signed-off-by: Michael S. Tsirkin <mst@redhat.com>
+
+---
+
+diff --git a/MAINTAINERS b/MAINTAINERS
+index 95a5ebecd04f..8326d19c1681 100644
+--- a/MAINTAINERS
++++ b/MAINTAINERS
+@@ -16247,7 +16247,7 @@ F:	drivers/char/virtio_console.c
+ F:	include/linux/virtio_console.h
+ F:	include/uapi/linux/virtio_console.h
+ 
+-VIRTIO CORE, NET AND BLOCK DRIVERS
++VIRTIO CORE AND NET DRIVERS
+ M:	"Michael S. Tsirkin" <mst@redhat.com>
+ M:	Jason Wang <jasowang@redhat.com>
+ L:	virtualization@lists.linux-foundation.org
+@@ -16262,6 +16262,18 @@ F:	include/uapi/linux/virtio_*.h
+ F:	drivers/crypto/virtio/
+ F:	mm/balloon_compaction.c
+ 
++VIRTIO BLOCK AND SCSI DRIVERS
++M:	"Michael S. Tsirkin" <mst@redhat.com>
++M:	Paolo Bonzini <pbonzini@redhat.com>
++M:	Stefan Hajnoczi <stefanha@redhat.com>
++L:	virtualization@lists.linux-foundation.org
++S:	Maintained
++F:	drivers/block/virtio_blk.c
++F:	drivers/scsi/virtio_scsi.c
++F:	include/uapi/linux/virtio_blk.h
++F:	include/uapi/linux/virtio_scsi.h
++F:	drivers/vhost/scsi.c
++
+ VIRTIO CRYPTO DRIVER
+ M:	Gonglei <arei.gonglei@huawei.com>
+ L:	virtualization@lists.linux-foundation.org
