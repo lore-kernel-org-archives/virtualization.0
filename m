@@ -1,19 +1,14 @@
-From: "Michael S. Tsirkin" <mst@redhat.com>
-Subject: Re: [RFC PATCH] virtio_ring: Use DMA API if guest memory is encrypted
-Date: Tue, 26 Mar 2019 12:53:59 -0400
-Message-ID: <20190325084348-mutt-send-email-mst__34742.2226493777$1553619257$gmane$org@kernel.org>
-References: <87zhrj8kcp.fsf@morokweng.localdomain>
-	<87womn8inf.fsf@morokweng.localdomain>
-	<20190129134750-mutt-send-email-mst@kernel.org>
-	<6c68f7f7-1b28-6eba-9b8b-2c32efac9701@redhat.com>
-	<20190129213137-mutt-send-email-mst@kernel.org>
-	<20190130074427.GA29516@lst.de>
+From: Stephen Hemminger <stephen@networkplumber.org>
+Subject: Re: [PATCH net v3] failover: allow name change on IFF_UP slave
+	interfaces
+Date: Tue, 26 Mar 2019 19:13:42 -0700
+Message-ID: <20190326191342.11f0cb55__6596.95113297261$1553652846$gmane$org@shemminger-XPS-13-9360>
+References: <1553644093-10917-1-git-send-email-si-wei.liu@oracle.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-Content-Disposition: inline
-In-Reply-To: <20190130074427.GA29516@lst.de>
+In-Reply-To: <1553644093-10917-1-git-send-email-si-wei.liu@oracle.com>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -23,29 +18,62 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Christoph Hellwig <hch@lst.de>
-Cc: Lorenzo.Pieralisi@arm.com, tnowicki@caviumnetworks.com, Jean-Philippe Brucker <jean-philippe.brucker@arm.com>, Benjamin Herrenschmidt <benh@kernel.crashing.org>, Alexey Kardashevskiy <aik@linux.ibm.com>, Ram Pai <linuxram@us.ibm.com>, linux-kernel@vger.kernel.org, Will.Deacon@arm.com, virtualization@lists.linux-foundation.org, Paul Mackerras <paulus@ozlabs.org>, eric.auger@redhat.com, iommu@lists.linux-foundation.org, Marc.Zyngier@arm.com, Robin.Murphy@arm.com, linuxppc-dev@lists.ozlabs.org, joro@8bytes.org, David Gibson <david@gibson.dropbear.id.au>
+To: Si-Wei Liu <si-wei.liu@oracle.com>
+Cc: jiri@resnulli.us, mst@redhat.com, kubakici@wp.pl, sridhar.samudrala@intel.com, alexander.duyck@gmail.com, virtualization@lists.linux-foundation.org, liran.alon@oracle.com, netdev@vger.kernel.org, boris.ostrovsky@oracle.com, davem@davemloft.net
 List-Id: virtualization@lists.linuxfoundation.org
 
-On Wed, Jan 30, 2019 at 08:44:27AM +0100, Christoph Hellwig wrote:
-> On Tue, Jan 29, 2019 at 09:36:08PM -0500, Michael S. Tsirkin wrote:
-> > This has been discussed ad nauseum. virtio is all about compatibility.
-> > Losing a couple of lines of code isn't worth breaking working setups.
-> > People that want "just use DMA API no tricks" now have the option.
-> > Setting a flag in a feature bit map is literally a single line
-> > of code in the hypervisor. So stop pushing for breaking working
-> > legacy setups and just fix it in the right place.
+On Tue, 26 Mar 2019 19:48:13 -0400
+Si-Wei Liu <si-wei.liu@oracle.com> wrote:
+
+> When a netdev appears through hot plug then gets enslaved by a failover
+> master that is already up and running, the slave will be opened
+> right away after getting enslaved. Today there's a race that userspace
+> (udev) may fail to rename the slave if the kernel (net_failover)
+> opens the slave earlier than when the userspace rename happens.
+> Unlike bond or team, the primary slave of failover can't be renamed by
+> userspace ahead of time, since the kernel initiated auto-enslavement is
+> unable to, or rather, is never meant to be synchronized with the rename
+> request from userspace.
 > 
-> I agree with the legacy aspect.  What I am missing is an extremely
-> strong wording that says you SHOULD always set this flag for new
-> hosts, including an explanation why.
+> As the failover slave interfaces are not designed to be operated
+> directly by userspace apps: IP configuration, filter rules with
+> regard to network traffic passing and etc., should all be done on master
+> interface. In general, userspace apps only care about the
+> name of master interface, while slave names are less important as long
+> as admin users can see reliable names that may carry
+> other information describing the netdev. For e.g., they can infer that
+> "ens3nsby" is a standby slave of "ens3", while for a
+> name like "eth0" they can't tell which master it belongs to.
+> 
+> Historically the name of IFF_UP interface can't be changed because
+> there might be admin script or management software that is already
+> relying on such behavior and assumes that the slave name can't be
+> changed once UP. But failover is special: with the in-kernel
+> auto-enslavement mechanism, the userspace expectation for device
+> enumeration and bring-up order is already broken. Previously initramfs
+> and various userspace config tools were modified to bypass failover
+> slaves because of auto-enslavement and duplicate MAC address. Similarly,
+> in case that users care about seeing reliable slave name, the new type
+> of failover slaves needs to be taken care of specifically in userspace
+> anyway.
+> 
+> It's less risky to lift up the rename restriction on failover slave
+> which is already UP. Although it's possible this change may potentially
+> break userspace component (most likely configuration scripts or
+> management software) that assumes slave name can't be changed while
+> UP, it's relatively a limited and controllable set among all userspace
+> components, which can be fixed specifically to listen for the rename
+> and/or link down/up events on failover slaves. Userspace component
+> interacting with slaves is expected to be changed to operate on failover
+> master interface instead, as the failover slave is dynamic in nature
+> which may come and go at any point.  The goal is to make the role of
+> failover slaves less relevant, and userspace components should only
+> deal with failover master in the long run.
+> 
+> Fixes: 30c8bd5aa8b2 ("net: Introduce generic failover module")
+> Signed-off-by: Si-Wei Liu <si-wei.liu@oracle.com>
+> Reviewed-by: Liran Alon <liran.alon@oracle.com>
 
 
-So as far as power is concerned, IIUC the issue they are struggling with is
-that some platforms do not support pass-through mode in the emulated IOMMU.
-Disabling PLATFORM_ACCESS is so far a way around that, unfortunately just for
-virtio devices.  I would like virtio-iommu to be able to address that need as
-well.
-
--- 
-MST
+Why do you need to do dev_close/dev_open which will bounce
+the link?
