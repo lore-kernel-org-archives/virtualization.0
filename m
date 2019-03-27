@@ -1,15 +1,12 @@
-From: "Michael S. Tsirkin" <mst@redhat.com>
+From: Stefan Hajnoczi <stefanha@redhat.com>
 Subject: Re: [PATCH] MAiNTAINERS: add Paolo, Stefan for virtio blk/scsi
-Date: Wed, 27 Mar 2019 11:36:47 -0400
-Message-ID: <20190327113606-mutt-send-email-mst@kernel.org>
+Date: Wed, 27 Mar 2019 16:57:54 +0000
+Message-ID: <20190327165754.GF27283@stefanha-x1.localdomain>
 References: <20190327103254-mutt-send-email-mst@kernel.org>
-	<1a5d4b76-e11d-3a12-4971-64581bffe636@redhat.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
-Content-Transfer-Encoding: 7bit
+Content-Type: multipart/mixed; boundary="===============3616095758319735099=="
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-Content-Disposition: inline
-In-Reply-To: <1a5d4b76-e11d-3a12-4971-64581bffe636@redhat.com>
+In-Reply-To: <20190327103254-mutt-send-email-mst@kernel.org>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -19,60 +16,63 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Paolo Bonzini <pbonzini@redhat.com>
-Cc: stefanha@redhat.com, virtualization@lists.linux-foundation.org
+To: "Michael S. Tsirkin" <mst@redhat.com>
+Cc: pbonzini@redhat.com, virtualization@lists.linux-foundation.org
 List-Id: virtualization@lists.linuxfoundation.org
 
-On Wed, Mar 27, 2019 at 04:08:05PM +0100, Paolo Bonzini wrote:
-> On 27/03/19 15:33, Michael S. Tsirkin wrote:
-> > Jason doesn't really have the time to review blk/scsi
-> > patches. Paolo and Setfan agreed to help out.
-> > 
-> > Thanks guys!
-> > 
-> > Signed-off-by: Michael S. Tsirkin <mst@redhat.com>
-> > 
-> > ---
-> > 
-> > diff --git a/MAINTAINERS b/MAINTAINERS
-> > index 95a5ebecd04f..8326d19c1681 100644
-> > --- a/MAINTAINERS
-> > +++ b/MAINTAINERS
-> > @@ -16247,7 +16247,7 @@ F:	drivers/char/virtio_console.c
-> >  F:	include/linux/virtio_console.h
-> >  F:	include/uapi/linux/virtio_console.h
-> >  
-> > -VIRTIO CORE, NET AND BLOCK DRIVERS
-> > +VIRTIO CORE AND NET DRIVERS
-> >  M:	"Michael S. Tsirkin" <mst@redhat.com>
-> >  M:	Jason Wang <jasowang@redhat.com>
-> >  L:	virtualization@lists.linux-foundation.org
-> > @@ -16262,6 +16262,18 @@ F:	include/uapi/linux/virtio_*.h
-> >  F:	drivers/crypto/virtio/
-> >  F:	mm/balloon_compaction.c
-> >  
-> > +VIRTIO BLOCK AND SCSI DRIVERS
-> > +M:	"Michael S. Tsirkin" <mst@redhat.com>
-> > +M:	Paolo Bonzini <pbonzini@redhat.com>
-> > +M:	Stefan Hajnoczi <stefanha@redhat.com>
-> 
-> Please make this R at least for me, so that it's clear that patches
-> still flow through your and Jason's tree.  Not sure if you want to keep
-> Jason as M.
-> 
-> Paolo
 
-Not for block I think. He never reviews these.
+--===============3616095758319735099==
+Content-Type: multipart/signed; micalg=pgp-sha1;
+	protocol="application/pgp-signature"; boundary="qp4W5+cUSnZs0RIF"
+Content-Disposition: inline
 
-> > +L:	virtualization@lists.linux-foundation.org
-> > +S:	Maintained
-> > +F:	drivers/block/virtio_blk.c
-> > +F:	drivers/scsi/virtio_scsi.c
-> > +F:	include/uapi/linux/virtio_blk.h
-> > +F:	include/uapi/linux/virtio_scsi.h
-> > +F:	drivers/vhost/scsi.c
-> > +
-> >  VIRTIO CRYPTO DRIVER
-> >  M:	Gonglei <arei.gonglei@huawei.com>
-> >  L:	virtualization@lists.linux-foundation.org
-> > 
+
+--qp4W5+cUSnZs0RIF
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+Content-Transfer-Encoding: quoted-printable
+
+On Wed, Mar 27, 2019 at 10:33:57AM -0400, Michael S. Tsirkin wrote:
+> Jason doesn't really have the time to review blk/scsi
+> patches. Paolo and Setfan agreed to help out.
+>=20
+> Thanks guys!
+>=20
+> Signed-off-by: Michael S. Tsirkin <mst@redhat.com>
+>=20
+> ---
+
+There is relatively little activity in this area so I'd like to reply
+with Reviewed-by/Acked-by on the mailing list and have patches merged
+via your virtio tree.  That way I do not maintain a sub-tree and send
+you pull requests.  Does this sound good?
+
+Acked-by: Stefan Hajnoczi <stefanha@redhat.com>
+
+--qp4W5+cUSnZs0RIF
+Content-Type: application/pgp-signature; name="signature.asc"
+
+-----BEGIN PGP SIGNATURE-----
+
+iQEcBAEBAgAGBQJcm6uSAAoJEJykq7OBq3PIm58H/iuYdQt45J7QPvOj14nzwETM
+QbtjQhssIpSpSwTQ+A6lpXsIM5zg4/7wuvaoCaclpWtrvPD7GFhsKncCUk2L7l9g
+sIjuCDE9XOs4A/0HOa1AAzK9KkdWddGmJFnfEEpRoW1oN8g0EIZDePoMiOYUNHzf
+pb16qZvtJ07xdWF6o1os1a5vPXwzfs93JmEBgdmg3IkjrNnZR/hRg58jMFF/ENBZ
+rV7IVk9V6lv9H5G3hyQjm1Nl9498jfm8qcmrhgnTo2UyOiHzAMUb7Vt2aYfmtuxO
+qE1VgoiDTSXzwWeqLz1M4R+xsTjgNGBn3Gv2v1fVjoNVwaV06wfa02Dz7WPEYoA=
+=9zSo
+-----END PGP SIGNATURE-----
+
+--qp4W5+cUSnZs0RIF--
+
+--===============3616095758319735099==
+Content-Type: text/plain; charset="us-ascii"
+MIME-Version: 1.0
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+
+_______________________________________________
+Virtualization mailing list
+Virtualization@lists.linux-foundation.org
+https://lists.linuxfoundation.org/mailman/listinfo/virtualization
+--===============3616095758319735099==--
