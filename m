@@ -1,14 +1,12 @@
-From: Stephen Hemminger <stephen@networkplumber.org>
-Subject: Re: [PATCH net v3] failover: allow name change on IFF_UP slave
-	interfaces
-Date: Tue, 26 Mar 2019 19:13:42 -0700
-Message-ID: <20190326191342.11f0cb55__6596.95113297261$1553652846$gmane$org@shemminger-XPS-13-9360>
-References: <1553644093-10917-1-git-send-email-si-wei.liu@oracle.com>
+From: Dongli Zhang <dongli.zhang@oracle.com>
+Subject: [PATCH 0/2] Limit number of hw queues by nr_cpu_ids for virtio-blk
+	and virtio-scsi
+Date: Wed, 27 Mar 2019 18:36:33 +0800
+Message-ID: <1553682995-5682-1-git-send-email-dongli.zhang@oracle.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <1553644093-10917-1-git-send-email-si-wei.liu@oracle.com>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -18,62 +16,100 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Si-Wei Liu <si-wei.liu@oracle.com>
-Cc: jiri@resnulli.us, mst@redhat.com, kubakici@wp.pl, sridhar.samudrala@intel.com, alexander.duyck@gmail.com, virtualization@lists.linux-foundation.org, liran.alon@oracle.com, netdev@vger.kernel.org, boris.ostrovsky@oracle.com, davem@davemloft.net
+To: linux-scsi@vger.kernel.org, virtualization@lists.linux-foundation.org, linux-block@vger.kernel.org
+Cc: axboe@kernel.dk, martin.petersen@oracle.com, mst@redhat.com, cohuck@redhat.com, linux-kernel@vger.kernel.org, jejb@linux.ibm.com
 List-Id: virtualization@lists.linuxfoundation.org
 
-On Tue, 26 Mar 2019 19:48:13 -0400
-Si-Wei Liu <si-wei.liu@oracle.com> wrote:
+When tag_set->nr_maps is 1, the block layer limits the number of hw queues
+by nr_cpu_ids. No matter how many hw queues are use by
+virtio-blk/virtio-scsi, as they both have (tag_set->nr_maps == 1), they
+can use at most nr_cpu_ids hw queues.
 
-> When a netdev appears through hot plug then gets enslaved by a failover
-> master that is already up and running, the slave will be opened
-> right away after getting enslaved. Today there's a race that userspace
-> (udev) may fail to rename the slave if the kernel (net_failover)
-> opens the slave earlier than when the userspace rename happens.
-> Unlike bond or team, the primary slave of failover can't be renamed by
-> userspace ahead of time, since the kernel initiated auto-enslavement is
-> unable to, or rather, is never meant to be synchronized with the rename
-> request from userspace.
-> 
-> As the failover slave interfaces are not designed to be operated
-> directly by userspace apps: IP configuration, filter rules with
-> regard to network traffic passing and etc., should all be done on master
-> interface. In general, userspace apps only care about the
-> name of master interface, while slave names are less important as long
-> as admin users can see reliable names that may carry
-> other information describing the netdev. For e.g., they can infer that
-> "ens3nsby" is a standby slave of "ens3", while for a
-> name like "eth0" they can't tell which master it belongs to.
-> 
-> Historically the name of IFF_UP interface can't be changed because
-> there might be admin script or management software that is already
-> relying on such behavior and assumes that the slave name can't be
-> changed once UP. But failover is special: with the in-kernel
-> auto-enslavement mechanism, the userspace expectation for device
-> enumeration and bring-up order is already broken. Previously initramfs
-> and various userspace config tools were modified to bypass failover
-> slaves because of auto-enslavement and duplicate MAC address. Similarly,
-> in case that users care about seeing reliable slave name, the new type
-> of failover slaves needs to be taken care of specifically in userspace
-> anyway.
-> 
-> It's less risky to lift up the rename restriction on failover slave
-> which is already UP. Although it's possible this change may potentially
-> break userspace component (most likely configuration scripts or
-> management software) that assumes slave name can't be changed while
-> UP, it's relatively a limited and controllable set among all userspace
-> components, which can be fixed specifically to listen for the rename
-> and/or link down/up events on failover slaves. Userspace component
-> interacting with slaves is expected to be changed to operate on failover
-> master interface instead, as the failover slave is dynamic in nature
-> which may come and go at any point.  The goal is to make the role of
-> failover slaves less relevant, and userspace components should only
-> deal with failover master in the long run.
-> 
-> Fixes: 30c8bd5aa8b2 ("net: Introduce generic failover module")
-> Signed-off-by: Si-Wei Liu <si-wei.liu@oracle.com>
-> Reviewed-by: Liran Alon <liran.alon@oracle.com>
+In addition, specifically for pci scenario, when the 'num-queues' specified
+by qemu is more than maxcpus, virtio-blk/virtio-scsi would not be able to
+allocate more than maxcpus vectors in order to have a vector for each
+queue. As a result, they fall back into MSI-X with one vector for config
+and one shared for queues.
+
+Considering above reasons, this patch set limits the number of hw queues
+used by nr_cpu_ids for both virtio-blk and virtio-scsi.
+
+-------------------------------------------------------------
+
+Here is test result of virtio-scsi:
+
+qemu cmdline:
+
+-smp 2,maxcpus=4, \
+-device virtio-scsi-pci,id=scsi0,num_queues=8, \
+-device scsi-hd,drive=drive0,bus=scsi0.0,channel=0,scsi-id=0,lun=0, \
+-drive file=test.img,if=none,id=drive0
+
+Although maxcpus=4 and num_queues=8, 4 queues are used while 2 interrupts
+are allocated.
+
+# cat /proc/interrupts
+... ...
+ 24:          0          0   PCI-MSI 65536-edge      virtio0-config
+ 25:          0        369   PCI-MSI 65537-edge      virtio0-virtqueues
+... ...
+
+# /sys/block/sda/mq/
+0  1  2  3   ------> 4 queues although qemu sets num_queues=8
 
 
-Why do you need to do dev_close/dev_open which will bounce
-the link?
+With the patch set, there is per-queue interrupt.
+
+# cat /proc/interrupts
+ 24:          0          0   PCI-MSI 65536-edge      virtio0-config
+ 25:          0          0   PCI-MSI 65537-edge      virtio0-control
+ 26:          0          0   PCI-MSI 65538-edge      virtio0-event
+ 27:        296          0   PCI-MSI 65539-edge      virtio0-request
+ 28:          0        139   PCI-MSI 65540-edge      virtio0-request
+ 29:          0          0   PCI-MSI 65541-edge      virtio0-request
+ 30:          0          0   PCI-MSI 65542-edge      virtio0-request
+
+# ls /sys/block/sda/mq
+0  1  2  3
+
+-------------------------------------------------------------
+
+Here is test result of virtio-blk:
+
+qemu cmdline:
+
+-smp 2,maxcpus=4,
+-device virtio-blk-pci,drive=drive-virtio-disk0,id=virtio-disk0,num-queues=8
+-drive test.img,format=raw,if=none,id=drive-virtio-disk0
+
+Although maxcpus=4 and num-queues=8, 4 queues are used while 2 interrupts
+are allocated.
+
+# cat /proc/interrupts
+... ...
+ 24:          0          0   PCI-MSI 65536-edge      virtio0-config
+ 25:          0         65   PCI-MSI 65537-edge      virtio0-virtqueues
+... ...
+
+# ls /sys/block/vda/mq
+0  1  2  3    -------> 4 queues although qemu sets num_queues=8
+
+
+With the patch set, there is per-queue interrupt.
+
+# cat /proc/interrupts
+ 24:          0          0   PCI-MSI 65536-edge      virtio0-config
+ 25:         64          0   PCI-MSI 65537-edge      virtio0-req.0
+ 26:          0      10290   PCI-MSI 65538-edge      virtio0-req.1
+ 27:          0          0   PCI-MSI 65539-edge      virtio0-req.2
+ 28:          0          0   PCI-MSI 65540-edge      virtio0-req.3
+
+# ls /sys/block/vda/mq/
+0  1  2  3
+
+
+Reference: https://lore.kernel.org/lkml/e4afe4c5-0262-4500-aeec-60f30734b4fc@default/
+
+Thank you very much!
+
+Dongli Zhang
