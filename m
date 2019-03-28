@@ -1,15 +1,16 @@
-From: Juergen Gross <jgross@suse.com>
-Subject: Re: [PATCH] MAINTAINERS: Update PARAVIRT_OPS_INTERFACE and
-	VMWARE_HYPERVISOR_INTERFACE
-Date: Thu, 28 Mar 2019 15:03:42 +0100
-Message-ID: <1f8eec54-73f7-fbc8-4b37-04d56cbd7edd__34434.9018925399$1553781845$gmane$org@suse.com>
-References: <20190328120558.29897-1-thellstrom@vmware.com>
+From: Stephen Hemminger <stephen@networkplumber.org>
+Subject: Re: [PATCH net v3] failover: allow name change on IFF_UP slave
+	interfaces
+Date: Thu, 28 Mar 2019 10:14:26 -0700
+Message-ID: <20190328101426.25bf5316@shemminger-XPS-13-9360>
+References: <1553644093-10917-1-git-send-email-si-wei.liu@oracle.com>
+	<20190327111132.GI6979@nanopsycho>
+	<06fa1aec-d9a6-3ca7-8849-a1656349ab83@oracle.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="utf-8"
-Content-Transfer-Encoding: base64
+Content-Type: text/plain; charset="us-ascii"
+Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <20190328120558.29897-1-thellstrom@vmware.com>
-Content-Language: de-DE
+In-Reply-To: <06fa1aec-d9a6-3ca7-8849-a1656349ab83@oracle.com>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -19,22 +20,125 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Thomas Hellstrom <thellstrom@vmware.com>, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>
-Cc: Pv-drivers <Pv-drivers@vmware.com>, "x86@kernel.org" <x86@kernel.org>, "virtualization@lists.linux-foundation.org" <virtualization@lists.linux-foundation.org>, "mingo@redhat.com" <mingo@redhat.com>, "hpa@zytor.com" <hpa@zytor.com>, Alok Kataria <akataria@vmware.com>, "tglx@linutronix.de" <tglx@linutronix.de>
+To: si-wei liu <si-wei.liu@oracle.com>
+Cc: Jiri Pirko <jiri@resnulli.us>, mst@redhat.com, kubakici@wp.pl, sridhar.samudrala@intel.com, alexander.duyck@gmail.com, virtualization@lists.linux-foundation.org, liran.alon@oracle.com, netdev@vger.kernel.org, boris.ostrovsky@oracle.com, davem@davemloft.net
 List-Id: virtualization@lists.linuxfoundation.org
 
-T24gMjgvMDMvMjAxOSAxMzowNiwgVGhvbWFzIEhlbGxzdHJvbSB3cm90ZToKPiBBbG9rIEthdGFy
-aWEgd2lsbCBiZSBoYW5kaW5nIG92ZXIgVk13YXJlJ3MgbWFpbnRhaW5lcnNoaXAgb2YgdGhlc2UK
-PiBpbnRlcmZhY2VzIHRvIFRob21hcyBIZWxsc3Ryw7ZtLCB3aXRoIHB2LWRyaXZlcnMgYXMgYmFj
-a3VwIGNvbnRhY3QuCj4gCj4gQ2M6IEp1ZXJnZW4gR3Jvc3MgPGpncm9zc0BzdXNlLmNvbT4KPiBD
-YzogdmlydHVhbGl6YXRpb25AbGlzdHMubGludXgtZm91bmRhdGlvbi5vcmcKPiBDYzogeDg2QGtl
-cm5lbC5vcmcKPiBDYzogdGdseEBsaW51dHJvbml4LmRlCj4gQ2M6IG1pbmdvQHJlZGhhdC5jb20K
-PiBDYzogaHBhQHp5dG9yLmNvbQo+IENjOiBsaW51eC1rZXJuZWxAdmdlci5rZXJuZWwub3JnCj4g
-Q2M6IEFsb2sgS2F0YXJpYSA8YWthdGFyaWFAdm13YXJlLmNvbT4KPiBDYzogPHB2LWRyaXZlcnNA
-dm13YXJlLmNvbT4KPiBTaWduZWQtb2ZmLWJ5OiBUaG9tYXMgSGVsbHN0cm9tIDx0aGVsbHN0cm9t
-QHZtd2FyZS5jb20+Cj4gQWNrZWQtYnk6IEFsb2sgS2F0YXJpYSA8YWthdGFyaWFAdm13YXJlLmNv
-bT4KCkFja2VkLWJ5OiBKdWVyZ2VuIEdyb3NzIDxqZ3Jvc3NAc3VzZS5jb20+CgoKSnVlcmdlbgpf
-X19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fXwpWaXJ0dWFsaXph
-dGlvbiBtYWlsaW5nIGxpc3QKVmlydHVhbGl6YXRpb25AbGlzdHMubGludXgtZm91bmRhdGlvbi5v
-cmcKaHR0cHM6Ly9saXN0cy5saW51eGZvdW5kYXRpb24ub3JnL21haWxtYW4vbGlzdGluZm8vdmly
-dHVhbGl6YXRpb24=
+On Wed, 27 Mar 2019 16:44:19 -0700
+si-wei liu <si-wei.liu@oracle.com> wrote:
+
+> On 3/27/2019 4:11 AM, Jiri Pirko wrote:
+> > Wed, Mar 27, 2019 at 12:48:13AM CET, si-wei.liu@oracle.com wrote:  
+> >> When a netdev appears through hot plug then gets enslaved by a failover
+> >> master that is already up and running, the slave will be opened
+> >> right away after getting enslaved. Today there's a race that userspace
+> >> (udev) may fail to rename the slave if the kernel (net_failover)
+> >> opens the slave earlier than when the userspace rename happens.
+> >> Unlike bond or team, the primary slave of failover can't be renamed by
+> >> userspace ahead of time, since the kernel initiated auto-enslavement is
+> >> unable to, or rather, is never meant to be synchronized with the rename
+> >> request from userspace.
+> >>
+> >> As the failover slave interfaces are not designed to be operated
+> >> directly by userspace apps: IP configuration, filter rules with
+> >> regard to network traffic passing and etc., should all be done on master
+> >> interface. In general, userspace apps only care about the
+> >> name of master interface, while slave names are less important as long
+> >> as admin users can see reliable names that may carry
+> >> other information describing the netdev. For e.g., they can infer that
+> >> "ens3nsby" is a standby slave of "ens3", while for a
+> >> name like "eth0" they can't tell which master it belongs to.
+> >>
+> >> Historically the name of IFF_UP interface can't be changed because
+> >> there might be admin script or management software that is already
+> >> relying on such behavior and assumes that the slave name can't be
+> >> changed once UP. But failover is special: with the in-kernel
+> >> auto-enslavement mechanism, the userspace expectation for device
+> >> enumeration and bring-up order is already broken. Previously initramfs
+> >> and various userspace config tools were modified to bypass failover
+> >> slaves because of auto-enslavement and duplicate MAC address. Similarly,
+> >> in case that users care about seeing reliable slave name, the new type
+> >> of failover slaves needs to be taken care of specifically in userspace
+> >> anyway.
+> >>
+> >> It's less risky to lift up the rename restriction on failover slave
+> >> which is already UP. Although it's possible this change may potentially
+> >> break userspace component (most likely configuration scripts or
+> >> management software) that assumes slave name can't be changed while
+> >> UP, it's relatively a limited and controllable set among all userspace
+> >> components, which can be fixed specifically to listen for the rename
+> >> and/or link down/up events on failover slaves. Userspace component
+> >> interacting with slaves is expected to be changed to operate on failover
+> >> master interface instead, as the failover slave is dynamic in nature
+> >> which may come and go at any point.  The goal is to make the role of
+> >> failover slaves less relevant, and userspace components should only
+> >> deal with failover master in the long run.
+> >>
+> >> Fixes: 30c8bd5aa8b2 ("net: Introduce generic failover module")
+> >> Signed-off-by: Si-Wei Liu <si-wei.liu@oracle.com>
+> >> Reviewed-by: Liran Alon <liran.alon@oracle.com>
+> >>
+> >> --
+> >> v1 -> v2:
+> >> - Drop configurable module parameter (Sridhar)
+> >>
+> >> v2 -> v3:
+> >> - Drop additional IFF_SLAVE_RENAME_OK flag (Sridhar)
+> >> - Send down and up events around rename (Michael S. Tsirkin)
+> >> ---
+> >> net/core/dev.c | 37 ++++++++++++++++++++++++++++++++++---
+> >> 1 file changed, 34 insertions(+), 3 deletions(-)
+> >>
+> >> diff --git a/net/core/dev.c b/net/core/dev.c
+> >> index 722d50d..3e0cd80 100644
+> >> --- a/net/core/dev.c
+> >> +++ b/net/core/dev.c
+> >> @@ -1171,6 +1171,7 @@ int dev_get_valid_name(struct net *net, struct net_device *dev,
+> >> int dev_change_name(struct net_device *dev, const char *newname)
+> >> {
+> >> 	unsigned char old_assign_type;
+> >> +	bool reopen_needed = false;
+> >> 	char oldname[IFNAMSIZ];
+> >> 	int err = 0;
+> >> 	int ret;
+> >> @@ -1180,8 +1181,24 @@ int dev_change_name(struct net_device *dev, const char *newname)
+> >> 	BUG_ON(!dev_net(dev));
+> >>
+> >> 	net = dev_net(dev);
+> >> -	if (dev->flags & IFF_UP)
+> >> -		return -EBUSY;
+> >> +
+> >> +	/* Allow failover slave to rename even when
+> >> +	 * it is up and running.
+> >> +	 *
+> >> +	 * Failover slaves are special, since userspace
+> >> +	 * might rename the slave after the interface
+> >> +	 * has been brought up and running due to
+> >> +	 * auto-enslavement.
+> >> +	 *
+> >> +	 * Failover users don't actually care about slave
+> >> +	 * name change, as they are only expected to operate
+> >> +	 * on master interface directly.
+> >> +	 */
+> >> +	if (dev->flags & IFF_UP) {
+> >> +		if (likely(!(dev->priv_flags & IFF_FAILOVER_SLAVE)))
+> >> +			return -EBUSY;
+> >> +		reopen_needed = true;
+> >> +	}
+> >>
+> >> 	write_seqcount_begin(&devnet_rename_seq);
+> >>
+> >> @@ -1198,6 +1215,9 @@ int dev_change_name(struct net_device *dev, const char *newname)
+> >> 		return err;
+> >> 	}
+> >>
+> >> +	if (reopen_needed)
+> >> +		dev_close(dev);  
+> > Ugh. Don't dev_close/dev_open on name change.  
+> See my response to Michael and Stephen. What's your suggestion then?
+
+To a DEV_CHANGE notification instead?
+
+
+My opinion is that allowing name change is not worth the doing.
+Also, the kernel should never do the name change, it is up to userspace.
