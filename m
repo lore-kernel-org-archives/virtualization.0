@@ -1,16 +1,16 @@
-From: Gerd Hoffmann <kraxel@redhat.com>
-Subject: Re: [PATCH v2 -next] drm/virtio: remove set but not used variable
-	'vgdev'
-Date: Thu, 28 Mar 2019 11:32:09 +0100
-Message-ID: <20190328103209.wmdakmzmiwaxf7cx__19799.0813919873$1553769145$gmane$org@sirius.home.kraxel.org>
-References: <20190320020308.12745-1-yuehaibing@huawei.com>
-	<20190325092631.152060-1-yuehaibing@huawei.com>
+From: Thomas Hellstrom via Virtualization
+	<virtualization@lists.linux-foundation.org>
+Subject: [PATCH] MAINTAINERS: Update PARAVIRT_OPS_INTERFACE and
+	VMWARE_HYPERVISOR_INTERFACE
+Date: Thu, 28 Mar 2019 12:06:37 +0000
+Message-ID: <20190328120558.29897-1-thellstrom__9505.38504855416$1553774817$gmane$org@vmware.com>
+Reply-To: Thomas Hellstrom <thellstrom@vmware.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset="utf-8"
+Content-Transfer-Encoding: base64
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-Content-Disposition: inline
-In-Reply-To: <20190325092631.152060-1-yuehaibing@huawei.com>
+Content-Language: en-US
+Content-ID: <601AB622D4A05F48918C23567434C532@namprd05.prod.outlook.com>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -20,24 +20,36 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: YueHaibing <yuehaibing@huawei.com>
-Cc: David Airlie <airlied@linux.ie>, kernel-janitors@vger.kernel.org, linux-kernel@vger.kernel.org, dri-devel@lists.freedesktop.org, virtualization@lists.linux-foundation.org, Daniel Vetter <daniel@ffwll.ch>
+To: "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>
+Cc: Juergen Gross <jgross@suse.com>, Thomas Hellstrom <thellstrom@vmware.com>, Pv-drivers <Pv-drivers@vmware.com>, "x86@kernel.org" <x86@kernel.org>, "virtualization@lists.linux-foundation.org" <virtualization@lists.linux-foundation.org>, "mingo@redhat.com" <mingo@redhat.com>, "hpa@zytor.com" <hpa@zytor.com>, "tglx@linutronix.de" <tglx@linutronix.de>, Alok Kataria <akataria@vmware.com>
 List-Id: virtualization@lists.linuxfoundation.org
 
-On Mon, Mar 25, 2019 at 09:26:31AM +0000, YueHaibing wrote:
-> Fixes gcc '-Wunused-but-set-variable' warning:
-> 
-> drivers/gpu/drm/virtio/virtgpu_ttm.c: In function 'virtio_gpu_init_mem_type':
-> drivers/gpu/drm/virtio/virtgpu_ttm.c:117:28: warning:
->  variable 'vgdev' set but not used [-Wunused-but-set-variable]
-> 
-> drivers/gpu/drm/virtio/virtgpu_ttm.c: In function 'virtio_gpu_bo_swap_notify':
-> drivers/gpu/drm/virtio/virtgpu_ttm.c:300:28: warning:
->  variable 'vgdev' set but not used [-Wunused-but-set-variable]
-> 
-> It is never used since introduction in dc5698e80cf7 ("Add virtio gpu driver.")
-
-Patch queued up.
-
-thanks,
-  Gerd
+QWxvayBLYXRhcmlhIHdpbGwgYmUgaGFuZGluZyBvdmVyIFZNd2FyZSdzIG1haW50YWluZXJzaGlw
+IG9mIHRoZXNlDQppbnRlcmZhY2VzIHRvIFRob21hcyBIZWxsc3Ryw7ZtLCB3aXRoIHB2LWRyaXZl
+cnMgYXMgYmFja3VwIGNvbnRhY3QuDQoNCkNjOiBKdWVyZ2VuIEdyb3NzIDxqZ3Jvc3NAc3VzZS5j
+b20+DQpDYzogdmlydHVhbGl6YXRpb25AbGlzdHMubGludXgtZm91bmRhdGlvbi5vcmcNCkNjOiB4
+ODZAa2VybmVsLm9yZw0KQ2M6IHRnbHhAbGludXRyb25peC5kZQ0KQ2M6IG1pbmdvQHJlZGhhdC5j
+b20NCkNjOiBocGFAenl0b3IuY29tDQpDYzogbGludXgta2VybmVsQHZnZXIua2VybmVsLm9yZw0K
+Q2M6IEFsb2sgS2F0YXJpYSA8YWthdGFyaWFAdm13YXJlLmNvbT4NCkNjOiA8cHYtZHJpdmVyc0B2
+bXdhcmUuY29tPg0KU2lnbmVkLW9mZi1ieTogVGhvbWFzIEhlbGxzdHJvbSA8dGhlbGxzdHJvbUB2
+bXdhcmUuY29tPg0KQWNrZWQtYnk6IEFsb2sgS2F0YXJpYSA8YWthdGFyaWFAdm13YXJlLmNvbT4N
+Ci0tLQ0KIE1BSU5UQUlORVJTIHwgNiArKysrLS0NCiAxIGZpbGUgY2hhbmdlZCwgNCBpbnNlcnRp
+b25zKCspLCAyIGRlbGV0aW9ucygtKQ0KDQpkaWZmIC0tZ2l0IGEvTUFJTlRBSU5FUlMgYi9NQUlO
+VEFJTkVSUw0KaW5kZXggM2U1YTVkMjYzZjI5Li4xNjBiMjA4YjkzZDYgMTAwNjQ0DQotLS0gYS9N
+QUlOVEFJTkVSUw0KKysrIGIvTUFJTlRBSU5FUlMNCkBAIC0xMTcxMSw3ICsxMTcxMSw4IEBAIEY6
+CURvY3VtZW50YXRpb24vcGFycG9ydCoudHh0DQogDQogUEFSQVZJUlRfT1BTIElOVEVSRkFDRQ0K
+IE06CUp1ZXJnZW4gR3Jvc3MgPGpncm9zc0BzdXNlLmNvbT4NCi1NOglBbG9rIEthdGFyaWEgPGFr
+YXRhcmlhQHZtd2FyZS5jb20+DQorTToJVGhvbWFzIEhlbGxzdHJvbSA8dGhlbGxzdHJvbUB2bXdh
+cmUuY29tPg0KK006CSJWTXdhcmUsIEluYy4iIDxwdi1kcml2ZXJzQHZtd2FyZS5jb20+DQogTDoJ
+dmlydHVhbGl6YXRpb25AbGlzdHMubGludXgtZm91bmRhdGlvbi5vcmcNCiBTOglTdXBwb3J0ZWQN
+CiBGOglEb2N1bWVudGF0aW9uL3ZpcnR1YWwvcGFyYXZpcnRfb3BzLnR4dA0KQEAgLTE2NjIwLDcg
+KzE2NjIxLDggQEAgUzoJTWFpbnRhaW5lZA0KIEY6CWRyaXZlcnMvbWlzYy92bXdfYmFsbG9vbi5j
+DQogDQogVk1XQVJFIEhZUEVSVklTT1IgSU5URVJGQUNFDQotTToJQWxvayBLYXRhcmlhIDxha2F0
+YXJpYUB2bXdhcmUuY29tPg0KK006CVRob21hcyBIZWxsc3Ryb20gPHRoZWxsc3Ryb21Adm13YXJl
+LmNvbT4NCitNOgkiVk13YXJlLCBJbmMuIiA8cHYtZHJpdmVyc0B2bXdhcmUuY29tPg0KIEw6CXZp
+cnR1YWxpemF0aW9uQGxpc3RzLmxpbnV4LWZvdW5kYXRpb24ub3JnDQogUzoJU3VwcG9ydGVkDQog
+RjoJYXJjaC94ODYva2VybmVsL2NwdS92bXdhcmUuYw0KLS0gDQoyLjIwLjENCg0KX19fX19fX19f
+X19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX18KVmlydHVhbGl6YXRpb24gbWFp
+bGluZyBsaXN0ClZpcnR1YWxpemF0aW9uQGxpc3RzLmxpbnV4LWZvdW5kYXRpb24ub3JnCmh0dHBz
+Oi8vbGlzdHMubGludXhmb3VuZGF0aW9uLm9yZy9tYWlsbWFuL2xpc3RpbmZvL3ZpcnR1YWxpemF0
+aW9u
