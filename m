@@ -1,17 +1,14 @@
-From: "Michael S. Tsirkin" <mst@redhat.com>
-Subject: Re: [PATCH net v4] failover: allow name change on IFF_UP slave
-	interfaces
-Date: Fri, 29 Mar 2019 18:31:25 -0400
-Message-ID: <20190329183044-mutt-send-email-mst__5043.10003468476$1553898722$gmane$org@kernel.org>
-References: <1553816847-28121-1-git-send-email-si-wei.liu@oracle.com>
-	<983b8634-b39a-7942-70a5-8f3dc5720997@intel.com>
-	<bb2239d2-9900-07b3-f969-c188899eb4e6@oracle.com>
+From: Borislav Petkov <bp@alien8.de>
+Subject: [PATCH 2/5] x86: Convert some slow-path static_cpu_has() callers to
+	boot_cpu_has()
+Date: Sat, 30 Mar 2019 12:20:19 +0100
+Message-ID: <20190330112022.28888-3-bp__23535.851021164$1553944869$gmane$org@alien8.de>
+References: <20190330112022.28888-1-bp@alien8.de>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-Content-Disposition: inline
-In-Reply-To: <bb2239d2-9900-07b3-f969-c188899eb4e6@oracle.com>
+In-Reply-To: <20190330112022.28888-1-bp@alien8.de>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -21,138 +18,304 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: si-wei liu <si-wei.liu@oracle.com>
-Cc: jiri@resnulli.us, kubakici@wp.pl, "Samudrala,
-	Sridhar" <sridhar.samudrala@intel.com>, alexander.duyck@gmail.com, virtualization@lists.linux-foundation.org, liran.alon@oracle.com, netdev@vger.kernel.org, boris.ostrovsky@oracle.com, davem@davemloft.net
+To: LKML <linux-kernel@vger.kernel.org>
+Cc: x86@kernel.org, Peter Zijlstra <peterz@infradead.org>, Sebastian Andrzej Siewior <bigeasy@linutronix.de>, Dominik Brodowski <linux@dominikbrodowski.net>, virtualization@lists.linux-foundation.org, Dave Hansen <dave.hansen@intel.com>, "H. Peter Anvin" <hpa@zytor.com>, Nadav Amit <nadav.amit@gmail.com>, "Rafael J. Wysocki" <rafael.j.wysocki@intel.com>, Ingo Molnar <mingo@redhat.com>, Rik van Riel <riel@surriel.com>, Thomas Lendacky <Thomas.Lendacky@amd.com>, Joerg Roedel <jroedel@suse.de>, Jann Horn <jannh@google.com>, Aubrey Li <aubrey.li@intel.com>, Thomas Gleixner <tglx@linutronix.de>, linux-edac@vger.kernel.org, Juergen Gross <jgross@suse.com>, Tony Luck <tony.luck@intel.com>, Konrad Rzeszutek Wilk <konrad.wilk@oracle.com>, Andy Lutomirski <luto@amacapital.net>, Masami Hiramatsu <mhiramat@kernel.org>, "Kirill A. Shutemov" <kirill.shutemov@linux.intel.com>
 List-Id: virtualization@lists.linuxfoundation.org
 
-On Fri, Mar 29, 2019 at 12:50:25PM -0700, si-wei liu wrote:
-> 
-> 
-> On 3/28/2019 10:55 PM, Samudrala, Sridhar wrote:
-> > 
-> > 
-> > On 3/28/2019 4:47 PM, Si-Wei Liu wrote:
-> > > When a netdev appears through hot plug then gets enslaved by a failover
-> > > master that is already up and running, the slave will be opened
-> > > right away after getting enslaved. Today there's a race that userspace
-> > > (udev) may fail to rename the slave if the kernel (net_failover)
-> > > opens the slave earlier than when the userspace rename happens.
-> > > Unlike bond or team, the primary slave of failover can't be renamed by
-> > > userspace ahead of time, since the kernel initiated auto-enslavement is
-> > > unable to, or rather, is never meant to be synchronized with the rename
-> > > request from userspace.
-> > > 
-> > > As the failover slave interfaces are not designed to be operated
-> > > directly by userspace apps: IP configuration, filter rules with
-> > > regard to network traffic passing and etc., should all be done on master
-> > > interface. In general, userspace apps only care about the
-> > > name of master interface, while slave names are less important as long
-> > > as admin users can see reliable names that may carry
-> > > other information describing the netdev. For e.g., they can infer that
-> > > "ens3nsby" is a standby slave of "ens3", while for a
-> > > name like "eth0" they can't tell which master it belongs to.
-> > > 
-> > > Historically the name of IFF_UP interface can't be changed because
-> > > there might be admin script or management software that is already
-> > > relying on such behavior and assumes that the slave name can't be
-> > > changed once UP. But failover is special: with the in-kernel
-> > > auto-enslavement mechanism, the userspace expectation for device
-> > > enumeration and bring-up order is already broken. Previously initramfs
-> > > and various userspace config tools were modified to bypass failover
-> > > slaves because of auto-enslavement and duplicate MAC address. Similarly,
-> > > in case that users care about seeing reliable slave name, the new type
-> > > of failover slaves needs to be taken care of specifically in userspace
-> > > anyway.
-> > > 
-> > > It's less risky to lift up the rename restriction on failover slave
-> > > which is already UP. Although it's possible this change may potentially
-> > > break userspace component (most likely configuration scripts or
-> > > management software) that assumes slave name can't be changed while
-> > > UP, it's relatively a limited and controllable set among all userspace
-> > > components, which can be fixed specifically to listen for the rename
-> > > and/or link down/up events on failover slaves. Userspace component
-> > > interacting with slaves is expected to be changed to operate on failover
-> > > master interface instead, as the failover slave is dynamic in nature
-> > > which may come and go at any point.  The goal is to make the role of
-> > > failover slaves less relevant, and userspace components should only
-> > > deal with failover master in the long run.
-> > > 
-> > > Fixes: 30c8bd5aa8b2 ("net: Introduce generic failover module")
-> > > Signed-off-by: Si-Wei Liu <si-wei.liu@oracle.com>
-> > > Reviewed-by: Liran Alon <liran.alon@oracle.com>
-> > > 
-> > > -- 
-> > > v1 -> v2:
-> > > - Drop configurable module parameter (Sridhar)
-> > > 
-> > > v2 -> v3:
-> > > - Drop additional IFF_SLAVE_RENAME_OK flag (Sridhar)
-> > > - Send down and up events around rename (Michael S. Tsirkin)
-> > > 
-> > > v3 -> v4:
-> > > - Simplify notification to be sent (Stephen Hemminger)
-> > > ---
-> > >   net/core/dev.c | 24 +++++++++++++++++++++++-
-> > >   1 file changed, 23 insertions(+), 1 deletion(-)
-> > > 
-> > > diff --git a/net/core/dev.c b/net/core/dev.c
-> > > index 722d50d..6ae5874 100644
-> > > --- a/net/core/dev.c
-> > > +++ b/net/core/dev.c
-> > > @@ -1180,7 +1180,21 @@ int dev_change_name(struct net_device *dev,
-> > > const char *newname)
-> > >       BUG_ON(!dev_net(dev));
-> > >         net = dev_net(dev);
-> > > -    if (dev->flags & IFF_UP)
-> > > +
-> > > +    /* Allow failover slave to rename even when
-> > > +     * it is up and running.
-> > > +     *
-> > > +     * Failover slaves are special, since userspace
-> > > +     * might rename the slave after the interface
-> > > +     * has been brought up and running due to
-> > > +     * auto-enslavement.
-> > > +     *
-> > > +     * Failover users don't actually care about slave
-> > > +     * name change, as they are only expected to operate
-> > > +     * on master interface directly.
-> > > +     */
-> > > +    if (dev->flags & IFF_UP &&
-> > > +        likely(!(dev->priv_flags & IFF_FAILOVER_SLAVE)))
-> > >           return -EBUSY;
-> > >         write_seqcount_begin(&devnet_rename_seq);
-> > > @@ -1227,6 +1241,14 @@ int dev_change_name(struct net_device *dev,
-> > > const char *newname)
-> > >       hlist_add_head_rcu(&dev->name_hlist, dev_name_hash(net,
-> > > dev->name));
-> > >       write_unlock_bh(&dev_base_lock);
-> > >   +    if (unlikely(dev->flags & IFF_UP)) {
-> > > +        struct netdev_notifier_change_info change_info;
-> > > +
-> > > +        change_info.flags_changed = 0;
-> > > +        call_netdevice_notifiers_info(NETDEV_CHANGE, dev,
-> > > +                          &change_info.info);
-> > 
-> > This function no longer takes the dev parameter in the net-next kernel.
-> OK. Will get my patch updated with the latest net-next tree.
-> 
-> > 
-> > Did you consider calling netdev_state_change() although it does send a
-> > RTM_NEWLINK message too. May be just fixing the notifier call should be
-> > fine.
-> I did look at it and the extra RTM_NEWLINK message was indeed the reason I
-> got it rewritten. You see, how the way of initialization is inherited.
-> 
-> Thanks,
-> -Siwei
+From: Borislav Petkov <bp@suse.de>
 
-More messages just increase the chance existing scripts will work.
-Don't see what the harm is.
+Using static_cpu_has() is pointless on those paths, convert them to the
+boot_cpu_has() variant.
 
-> > 
-> > > +    }
-> > > +
-> > >       ret = call_netdevice_notifiers(NETDEV_CHANGENAME, dev);
-> > >       ret = notifier_to_errno(ret);
-> > > 
+No functional changes.
+
+Reported-by: Nadav Amit <nadav.amit@gmail.com>
+Signed-off-by: Borislav Petkov <bp@suse.de>
+Cc: Aubrey Li <aubrey.li@intel.com>
+Cc: Dave Hansen <dave.hansen@intel.com>
+Cc: Dominik Brodowski <linux@dominikbrodowski.net>
+Cc: "H. Peter Anvin" <hpa@zytor.com>
+Cc: Ingo Molnar <mingo@redhat.com>
+Cc: Jann Horn <jannh@google.com>
+Cc: Joerg Roedel <jroedel@suse.de>
+Cc: Juergen Gross <jgross@suse.com>
+Cc: "Kirill A. Shutemov" <kirill.shutemov@linux.intel.com>
+Cc: Konrad Rzeszutek Wilk <konrad.wilk@oracle.com>
+Cc: Thomas Lendacky <Thomas.Lendacky@amd.com>
+Cc: linux-edac@vger.kernel.org
+Cc: Masami Hiramatsu <mhiramat@kernel.org>
+Cc: Peter Zijlstra <peterz@infradead.org>
+Cc: "Rafael J. Wysocki" <rafael.j.wysocki@intel.com>
+Cc: Rik van Riel <riel@surriel.com>
+Cc: Sebastian Andrzej Siewior <bigeasy@linutronix.de>
+Cc: Thomas Gleixner <tglx@linutronix.de>
+Cc: Tony Luck <tony.luck@intel.com>
+Cc: virtualization@lists.linux-foundation.org
+Cc: x86@kernel.org
+---
+ arch/x86/include/asm/fpu/internal.h  |  7 +++----
+ arch/x86/kernel/apic/apic_numachip.c |  2 +-
+ arch/x86/kernel/cpu/aperfmperf.c     |  6 +++---
+ arch/x86/kernel/cpu/common.c         |  2 +-
+ arch/x86/kernel/cpu/mce/inject.c     |  2 +-
+ arch/x86/kernel/cpu/proc.c           | 10 +++++-----
+ arch/x86/kernel/ldt.c                | 14 +++++++-------
+ arch/x86/kernel/paravirt.c           |  2 +-
+ arch/x86/kernel/process.c            |  4 ++--
+ arch/x86/kernel/reboot.c             |  2 +-
+ arch/x86/kernel/vm86_32.c            |  2 +-
+ 11 files changed, 26 insertions(+), 27 deletions(-)
+
+diff --git a/arch/x86/include/asm/fpu/internal.h b/arch/x86/include/asm/fpu/internal.h
+index fb04a3ded7dd..745a19d34f23 100644
+--- a/arch/x86/include/asm/fpu/internal.h
++++ b/arch/x86/include/asm/fpu/internal.h
+@@ -253,7 +253,7 @@ static inline void copy_xregs_to_kernel_booting(struct xregs_state *xstate)
+ 
+ 	WARN_ON(system_state != SYSTEM_BOOTING);
+ 
+-	if (static_cpu_has(X86_FEATURE_XSAVES))
++	if (boot_cpu_has(X86_FEATURE_XSAVES))
+ 		XSTATE_OP(XSAVES, xstate, lmask, hmask, err);
+ 	else
+ 		XSTATE_OP(XSAVE, xstate, lmask, hmask, err);
+@@ -275,7 +275,7 @@ static inline void copy_kernel_to_xregs_booting(struct xregs_state *xstate)
+ 
+ 	WARN_ON(system_state != SYSTEM_BOOTING);
+ 
+-	if (static_cpu_has(X86_FEATURE_XSAVES))
++	if (boot_cpu_has(X86_FEATURE_XSAVES))
+ 		XSTATE_OP(XRSTORS, xstate, lmask, hmask, err);
+ 	else
+ 		XSTATE_OP(XRSTOR, xstate, lmask, hmask, err);
+@@ -497,8 +497,7 @@ static inline void fpregs_activate(struct fpu *fpu)
+  *  - switch_fpu_finish() restores the new state as
+  *    necessary.
+  */
+-static inline void
+-switch_fpu_prepare(struct fpu *old_fpu, int cpu)
++static inline void switch_fpu_prepare(struct fpu *old_fpu, int cpu)
+ {
+ 	if (static_cpu_has(X86_FEATURE_FPU) && old_fpu->initialized) {
+ 		if (!copy_fpregs_to_fpstate(old_fpu))
+diff --git a/arch/x86/kernel/apic/apic_numachip.c b/arch/x86/kernel/apic/apic_numachip.c
+index 78778b54f904..a5464b8b6c46 100644
+--- a/arch/x86/kernel/apic/apic_numachip.c
++++ b/arch/x86/kernel/apic/apic_numachip.c
+@@ -175,7 +175,7 @@ static void fixup_cpu_id(struct cpuinfo_x86 *c, int node)
+ 	this_cpu_write(cpu_llc_id, node);
+ 
+ 	/* Account for nodes per socket in multi-core-module processors */
+-	if (static_cpu_has(X86_FEATURE_NODEID_MSR)) {
++	if (boot_cpu_has(X86_FEATURE_NODEID_MSR)) {
+ 		rdmsrl(MSR_FAM10H_NODE_ID, val);
+ 		nodes = ((val >> 3) & 7) + 1;
+ 	}
+diff --git a/arch/x86/kernel/cpu/aperfmperf.c b/arch/x86/kernel/cpu/aperfmperf.c
+index 804c49493938..64d5aec24203 100644
+--- a/arch/x86/kernel/cpu/aperfmperf.c
++++ b/arch/x86/kernel/cpu/aperfmperf.c
+@@ -83,7 +83,7 @@ unsigned int aperfmperf_get_khz(int cpu)
+ 	if (!cpu_khz)
+ 		return 0;
+ 
+-	if (!static_cpu_has(X86_FEATURE_APERFMPERF))
++	if (!boot_cpu_has(X86_FEATURE_APERFMPERF))
+ 		return 0;
+ 
+ 	aperfmperf_snapshot_cpu(cpu, ktime_get(), true);
+@@ -99,7 +99,7 @@ void arch_freq_prepare_all(void)
+ 	if (!cpu_khz)
+ 		return;
+ 
+-	if (!static_cpu_has(X86_FEATURE_APERFMPERF))
++	if (!boot_cpu_has(X86_FEATURE_APERFMPERF))
+ 		return;
+ 
+ 	for_each_online_cpu(cpu)
+@@ -115,7 +115,7 @@ unsigned int arch_freq_get_on_cpu(int cpu)
+ 	if (!cpu_khz)
+ 		return 0;
+ 
+-	if (!static_cpu_has(X86_FEATURE_APERFMPERF))
++	if (!boot_cpu_has(X86_FEATURE_APERFMPERF))
+ 		return 0;
+ 
+ 	if (aperfmperf_snapshot_cpu(cpu, ktime_get(), true))
+diff --git a/arch/x86/kernel/cpu/common.c b/arch/x86/kernel/cpu/common.c
+index cb28e98a0659..95a5faf3a6a0 100644
+--- a/arch/x86/kernel/cpu/common.c
++++ b/arch/x86/kernel/cpu/common.c
+@@ -1668,7 +1668,7 @@ static void setup_getcpu(int cpu)
+ 	unsigned long cpudata = vdso_encode_cpunode(cpu, early_cpu_to_node(cpu));
+ 	struct desc_struct d = { };
+ 
+-	if (static_cpu_has(X86_FEATURE_RDTSCP))
++	if (boot_cpu_has(X86_FEATURE_RDTSCP))
+ 		write_rdtscp_aux(cpudata);
+ 
+ 	/* Store CPU and node number in limit. */
+diff --git a/arch/x86/kernel/cpu/mce/inject.c b/arch/x86/kernel/cpu/mce/inject.c
+index 3f82afd0f46f..a6026170af92 100644
+--- a/arch/x86/kernel/cpu/mce/inject.c
++++ b/arch/x86/kernel/cpu/mce/inject.c
+@@ -526,7 +526,7 @@ static void do_inject(void)
+ 	 * only on the node base core. Refer to D18F3x44[NbMcaToMstCpuEn] for
+ 	 * Fam10h and later BKDGs.
+ 	 */
+-	if (static_cpu_has(X86_FEATURE_AMD_DCM) &&
++	if (boot_cpu_has(X86_FEATURE_AMD_DCM) &&
+ 	    b == 4 &&
+ 	    boot_cpu_data.x86 < 0x17) {
+ 		toggle_nb_mca_mst_cpu(amd_get_nb_id(cpu));
+diff --git a/arch/x86/kernel/cpu/proc.c b/arch/x86/kernel/cpu/proc.c
+index 2c8522a39ed5..cb2e49810d68 100644
+--- a/arch/x86/kernel/cpu/proc.c
++++ b/arch/x86/kernel/cpu/proc.c
+@@ -35,11 +35,11 @@ static void show_cpuinfo_misc(struct seq_file *m, struct cpuinfo_x86 *c)
+ 		   "fpu_exception\t: %s\n"
+ 		   "cpuid level\t: %d\n"
+ 		   "wp\t\t: yes\n",
+-		   static_cpu_has_bug(X86_BUG_FDIV) ? "yes" : "no",
+-		   static_cpu_has_bug(X86_BUG_F00F) ? "yes" : "no",
+-		   static_cpu_has_bug(X86_BUG_COMA) ? "yes" : "no",
+-		   static_cpu_has(X86_FEATURE_FPU) ? "yes" : "no",
+-		   static_cpu_has(X86_FEATURE_FPU) ? "yes" : "no",
++		   boot_cpu_has_bug(X86_BUG_FDIV) ? "yes" : "no",
++		   boot_cpu_has_bug(X86_BUG_F00F) ? "yes" : "no",
++		   boot_cpu_has_bug(X86_BUG_COMA) ? "yes" : "no",
++		   boot_cpu_has(X86_FEATURE_FPU) ? "yes" : "no",
++		   boot_cpu_has(X86_FEATURE_FPU) ? "yes" : "no",
+ 		   c->cpuid_level);
+ }
+ #else
+diff --git a/arch/x86/kernel/ldt.c b/arch/x86/kernel/ldt.c
+index 6135ae8ce036..b2463fcb20a8 100644
+--- a/arch/x86/kernel/ldt.c
++++ b/arch/x86/kernel/ldt.c
+@@ -113,7 +113,7 @@ static void do_sanity_check(struct mm_struct *mm,
+ 		 * tables.
+ 		 */
+ 		WARN_ON(!had_kernel_mapping);
+-		if (static_cpu_has(X86_FEATURE_PTI))
++		if (boot_cpu_has(X86_FEATURE_PTI))
+ 			WARN_ON(!had_user_mapping);
+ 	} else {
+ 		/*
+@@ -121,7 +121,7 @@ static void do_sanity_check(struct mm_struct *mm,
+ 		 * Sync the pgd to the usermode tables.
+ 		 */
+ 		WARN_ON(had_kernel_mapping);
+-		if (static_cpu_has(X86_FEATURE_PTI))
++		if (boot_cpu_has(X86_FEATURE_PTI))
+ 			WARN_ON(had_user_mapping);
+ 	}
+ }
+@@ -156,7 +156,7 @@ static void map_ldt_struct_to_user(struct mm_struct *mm)
+ 	k_pmd = pgd_to_pmd_walk(k_pgd, LDT_BASE_ADDR);
+ 	u_pmd = pgd_to_pmd_walk(u_pgd, LDT_BASE_ADDR);
+ 
+-	if (static_cpu_has(X86_FEATURE_PTI) && !mm->context.ldt)
++	if (boot_cpu_has(X86_FEATURE_PTI) && !mm->context.ldt)
+ 		set_pmd(u_pmd, *k_pmd);
+ }
+ 
+@@ -181,7 +181,7 @@ static void map_ldt_struct_to_user(struct mm_struct *mm)
+ {
+ 	pgd_t *pgd = pgd_offset(mm, LDT_BASE_ADDR);
+ 
+-	if (static_cpu_has(X86_FEATURE_PTI) && !mm->context.ldt)
++	if (boot_cpu_has(X86_FEATURE_PTI) && !mm->context.ldt)
+ 		set_pgd(kernel_to_user_pgdp(pgd), *pgd);
+ }
+ 
+@@ -208,7 +208,7 @@ map_ldt_struct(struct mm_struct *mm, struct ldt_struct *ldt, int slot)
+ 	spinlock_t *ptl;
+ 	int i, nr_pages;
+ 
+-	if (!static_cpu_has(X86_FEATURE_PTI))
++	if (!boot_cpu_has(X86_FEATURE_PTI))
+ 		return 0;
+ 
+ 	/*
+@@ -271,7 +271,7 @@ static void unmap_ldt_struct(struct mm_struct *mm, struct ldt_struct *ldt)
+ 		return;
+ 
+ 	/* LDT map/unmap is only required for PTI */
+-	if (!static_cpu_has(X86_FEATURE_PTI))
++	if (!boot_cpu_has(X86_FEATURE_PTI))
+ 		return;
+ 
+ 	nr_pages = DIV_ROUND_UP(ldt->nr_entries * LDT_ENTRY_SIZE, PAGE_SIZE);
+@@ -311,7 +311,7 @@ static void free_ldt_pgtables(struct mm_struct *mm)
+ 	unsigned long start = LDT_BASE_ADDR;
+ 	unsigned long end = LDT_END_ADDR;
+ 
+-	if (!static_cpu_has(X86_FEATURE_PTI))
++	if (!boot_cpu_has(X86_FEATURE_PTI))
+ 		return;
+ 
+ 	tlb_gather_mmu(&tlb, mm, start, end);
+diff --git a/arch/x86/kernel/paravirt.c b/arch/x86/kernel/paravirt.c
+index c0e0101133f3..7bbaa6baf37f 100644
+--- a/arch/x86/kernel/paravirt.c
++++ b/arch/x86/kernel/paravirt.c
+@@ -121,7 +121,7 @@ DEFINE_STATIC_KEY_TRUE(virt_spin_lock_key);
+ 
+ void __init native_pv_lock_init(void)
+ {
+-	if (!static_cpu_has(X86_FEATURE_HYPERVISOR))
++	if (!boot_cpu_has(X86_FEATURE_HYPERVISOR))
+ 		static_branch_disable(&virt_spin_lock_key);
+ }
+ 
+diff --git a/arch/x86/kernel/process.c b/arch/x86/kernel/process.c
+index 58ac7be52c7a..16a7113e91c5 100644
+--- a/arch/x86/kernel/process.c
++++ b/arch/x86/kernel/process.c
+@@ -236,7 +236,7 @@ static int get_cpuid_mode(void)
+ 
+ static int set_cpuid_mode(struct task_struct *task, unsigned long cpuid_enabled)
+ {
+-	if (!static_cpu_has(X86_FEATURE_CPUID_FAULT))
++	if (!boot_cpu_has(X86_FEATURE_CPUID_FAULT))
+ 		return -ENODEV;
+ 
+ 	if (cpuid_enabled)
+@@ -666,7 +666,7 @@ static int prefer_mwait_c1_over_halt(const struct cpuinfo_x86 *c)
+ 	if (c->x86_vendor != X86_VENDOR_INTEL)
+ 		return 0;
+ 
+-	if (!cpu_has(c, X86_FEATURE_MWAIT) || static_cpu_has_bug(X86_BUG_MONITOR))
++	if (!cpu_has(c, X86_FEATURE_MWAIT) || boot_cpu_has_bug(X86_BUG_MONITOR))
+ 		return 0;
+ 
+ 	return 1;
+diff --git a/arch/x86/kernel/reboot.c b/arch/x86/kernel/reboot.c
+index 725624b6c0c0..d62ebbc5ec78 100644
+--- a/arch/x86/kernel/reboot.c
++++ b/arch/x86/kernel/reboot.c
+@@ -108,7 +108,7 @@ void __noreturn machine_real_restart(unsigned int type)
+ 	write_cr3(real_mode_header->trampoline_pgd);
+ 
+ 	/* Exiting long mode will fail if CR4.PCIDE is set. */
+-	if (static_cpu_has(X86_FEATURE_PCID))
++	if (boot_cpu_has(X86_FEATURE_PCID))
+ 		cr4_clear_bits(X86_CR4_PCIDE);
+ #endif
+ 
+diff --git a/arch/x86/kernel/vm86_32.c b/arch/x86/kernel/vm86_32.c
+index a092b6b40c6b..6a38717d179c 100644
+--- a/arch/x86/kernel/vm86_32.c
++++ b/arch/x86/kernel/vm86_32.c
+@@ -369,7 +369,7 @@ static long do_sys_vm86(struct vm86plus_struct __user *user_vm86, bool plus)
+ 	preempt_disable();
+ 	tsk->thread.sp0 += 16;
+ 
+-	if (static_cpu_has(X86_FEATURE_SEP)) {
++	if (boot_cpu_has(X86_FEATURE_SEP)) {
+ 		tsk->thread.sysenter_cs = 0;
+ 		refresh_sysenter_cs(&tsk->thread);
+ 	}
+-- 
+2.21.0
