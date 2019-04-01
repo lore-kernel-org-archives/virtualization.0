@@ -1,7 +1,7 @@
 From: Gerd Hoffmann <kraxel@redhat.com>
-Subject: [PATCH 1/3] drm/virtio: add missing drm_atomic_helper_shutdown() call.
-Date: Mon,  1 Apr 2019 16:03:04 +0200
-Message-ID: <20190401140306.28063-2-kraxel__3947.19333141751$1554127453$gmane$org@redhat.com>
+Subject: [PATCH 2/3] drm/bochs: add missing drm_atomic_helper_shutdown() call.
+Date: Mon,  1 Apr 2019 16:03:05 +0200
+Message-ID: <20190401140306.28063-3-kraxel__2499.80206587992$1554127464$gmane$org@redhat.com>
 References: <20190401140306.28063-1-kraxel@redhat.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
@@ -18,24 +18,25 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
 To: dri-devel@lists.freedesktop.org
-Cc: David Airlie <airlied@linux.ie>, open list <linux-kernel@vger.kernel.org>, Daniel Vetter <daniel@ffwll.ch>, "open list:VIRTIO GPU DRIVER" <virtualization@lists.linux-foundation.org>
+Cc: David Airlie <airlied@linux.ie>, open list <linux-kernel@vger.kernel.org>, Daniel Vetter <daniel@ffwll.ch>, "open list:DRM DRIVER FOR BOCHS VIRTUAL GPU" <virtualization@lists.linux-foundation.org>
 List-Id: virtualization@lists.linuxfoundation.org
 
 Signed-off-by: Gerd Hoffmann <kraxel@redhat.com>
 ---
- drivers/gpu/drm/virtio/virtgpu_display.c | 1 +
+ drivers/gpu/drm/bochs/bochs_kms.c | 1 +
  1 file changed, 1 insertion(+)
 
-diff --git a/drivers/gpu/drm/virtio/virtgpu_display.c b/drivers/gpu/drm/virtio/virtgpu_display.c
-index 653ec7d0bf4d..86843a4d6102 100644
---- a/drivers/gpu/drm/virtio/virtgpu_display.c
-+++ b/drivers/gpu/drm/virtio/virtgpu_display.c
-@@ -385,5 +385,6 @@ void virtio_gpu_modeset_fini(struct virtio_gpu_device *vgdev)
- 
- 	for (i = 0 ; i < vgdev->num_scanouts; ++i)
- 		kfree(vgdev->outputs[i].edid);
-+	drm_atomic_helper_shutdown(vgdev->ddev);
- 	drm_mode_config_cleanup(vgdev->ddev);
- }
+diff --git a/drivers/gpu/drm/bochs/bochs_kms.c b/drivers/gpu/drm/bochs/bochs_kms.c
+index 9e7cd6b34106..93cb27f93d39 100644
+--- a/drivers/gpu/drm/bochs/bochs_kms.c
++++ b/drivers/gpu/drm/bochs/bochs_kms.c
+@@ -293,6 +293,7 @@ int bochs_kms_init(struct bochs_device *bochs)
+ void bochs_kms_fini(struct bochs_device *bochs)
+ {
+ 	if (bochs->mode_config_initialized) {
++		drm_atomic_helper_shutdown(bochs->dev);
+ 		drm_mode_config_cleanup(bochs->dev);
+ 		bochs->mode_config_initialized = false;
+ 	}
 -- 
 2.18.1
