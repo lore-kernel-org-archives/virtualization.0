@@ -1,8 +1,7 @@
 From: Gerd Hoffmann <kraxel@redhat.com>
-Subject: [PATCH 3/3] drm/cirrus: add missing drm_helper_force_disable_all()
-	call.
-Date: Mon,  1 Apr 2019 16:03:06 +0200
-Message-ID: <20190401140306.28063-4-kraxel__11945.2523345657$1554127429$gmane$org@redhat.com>
+Subject: [PATCH 1/3] drm/virtio: add missing drm_atomic_helper_shutdown() call.
+Date: Mon,  1 Apr 2019 16:03:04 +0200
+Message-ID: <20190401140306.28063-2-kraxel__3947.19333141751$1554127453$gmane$org@redhat.com>
 References: <20190401140306.28063-1-kraxel@redhat.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
@@ -19,25 +18,24 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
 To: dri-devel@lists.freedesktop.org
-Cc: David Airlie <airlied@linux.ie>, open list <linux-kernel@vger.kernel.org>, "open list:DRM DRIVER FOR QEMU'S CIRRUS DEVICE" <virtualization@lists.linux-foundation.org>, Daniel Vetter <daniel@ffwll.ch>, Dave Airlie <airlied@redhat.com>
+Cc: David Airlie <airlied@linux.ie>, open list <linux-kernel@vger.kernel.org>, Daniel Vetter <daniel@ffwll.ch>, "open list:VIRTIO GPU DRIVER" <virtualization@lists.linux-foundation.org>
 List-Id: virtualization@lists.linuxfoundation.org
 
 Signed-off-by: Gerd Hoffmann <kraxel@redhat.com>
 ---
- drivers/gpu/drm/cirrus/cirrus_mode.c | 1 +
+ drivers/gpu/drm/virtio/virtgpu_display.c | 1 +
  1 file changed, 1 insertion(+)
 
-diff --git a/drivers/gpu/drm/cirrus/cirrus_mode.c b/drivers/gpu/drm/cirrus/cirrus_mode.c
-index 7f9bc32af685..32ce2c1040b4 100644
---- a/drivers/gpu/drm/cirrus/cirrus_mode.c
-+++ b/drivers/gpu/drm/cirrus/cirrus_mode.c
-@@ -615,6 +615,7 @@ void cirrus_modeset_fini(struct cirrus_device *cdev)
- 	cirrus_fbdev_fini(cdev);
+diff --git a/drivers/gpu/drm/virtio/virtgpu_display.c b/drivers/gpu/drm/virtio/virtgpu_display.c
+index 653ec7d0bf4d..86843a4d6102 100644
+--- a/drivers/gpu/drm/virtio/virtgpu_display.c
++++ b/drivers/gpu/drm/virtio/virtgpu_display.c
+@@ -385,5 +385,6 @@ void virtio_gpu_modeset_fini(struct virtio_gpu_device *vgdev)
  
- 	if (cdev->mode_info.mode_config_initialized) {
-+		drm_helper_force_disable_all(cdev->dev);
- 		drm_mode_config_cleanup(cdev->dev);
- 		cdev->mode_info.mode_config_initialized = false;
- 	}
+ 	for (i = 0 ; i < vgdev->num_scanouts; ++i)
+ 		kfree(vgdev->outputs[i].edid);
++	drm_atomic_helper_shutdown(vgdev->ddev);
+ 	drm_mode_config_cleanup(vgdev->ddev);
+ }
 -- 
 2.18.1
