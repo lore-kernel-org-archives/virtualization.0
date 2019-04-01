@@ -1,15 +1,16 @@
 From: Juergen Gross <jgross@suse.com>
-Subject: Re: [PATCH 2/5] x86: Convert some slow-path static_cpu_has() callers
-	to boot_cpu_has()
-Date: Sat, 30 Mar 2019 13:50:48 +0100
-Message-ID: <9b1c18da-d337-7c9d-52fe-854375eb8d55__29188.3423853264$1553950297$gmane$org@suse.com>
-References: <20190330112022.28888-1-bp@alien8.de>
-	<20190330112022.28888-3-bp@alien8.de>
+Subject: Re: [PATCH] x86/paravirt: Guard against invalid cpu # in
+	pv_vcpu_is_preempted()
+Date: Mon, 1 Apr 2019 08:38:14 +0200
+Message-ID: <ad016e8f-acb5-6685-b7b6-de801c002dc6__38469.6534530789$1554100707$gmane$org@suse.com>
+References: <20190325155706.26987-1-longman@redhat.com>
+	<e01da674-cbf0-22f1-7aba-6041f892b689@suse.com>
+	<5a48f5fb-799e-84f8-1fa7-eda851878d50@redhat.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset="utf-8"
+Content-Transfer-Encoding: base64
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <20190330112022.28888-3-bp@alien8.de>
+In-Reply-To: <5a48f5fb-799e-84f8-1fa7-eda851878d50@redhat.com>
 Content-Language: de-DE
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
@@ -20,22 +21,68 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Borislav Petkov <bp@alien8.de>, LKML <linux-kernel@vger.kernel.org>
-Cc: "Rafael J. Wysocki" <rafael.j.wysocki@intel.com>, Peter Zijlstra <peterz@infradead.org>, Sebastian Andrzej Siewior <bigeasy@linutronix.de>, Dominik Brodowski <linux@dominikbrodowski.net>, virtualization@lists.linux-foundation.org, Dave Hansen <dave.hansen@intel.com>, "H. Peter Anvin" <hpa@zytor.com>, Nadav Amit <nadav.amit@gmail.com>, x86@kernel.org, Ingo Molnar <mingo@redhat.com>, Rik van Riel <riel@surriel.com>, Thomas Lendacky <Thomas.Lendacky@amd.com>, Joerg Roedel <jroedel@suse.de>, Jann Horn <jannh@google.com>, Aubrey Li <aubrey.li@intel.com>, Thomas Gleixner <tglx@linutronix.de>, linux-edac@vger.kernel.org, Tony Luck <tony.luck@intel.com>, Konrad Rzeszutek Wilk <konrad.wilk@oracle.com>, Andy Lutomirski <luto@amacapital.net>, Masami Hiramatsu <mhiramat@kernel.org>, "Kirill A. Shutemov" <kirill.shutemov@linux.intel.com>
+To: Waiman Long <longman@redhat.com>, Alok Kataria <akataria@vmware.com>, Thomas Gleixner <tglx@linutronix.de>, Ingo Molnar <mingo@redhat.com>, Borislav Petkov <bp@alien8.de>, "H. Peter Anvin" <hpa@zytor.com>, Peter Zijlstra <peterz@infradead.org>, Will Deacon <will.deacon@arm.com>
+Cc: Paolo Bonzini <pbonzini@redhat.com>, x86@kernel.org, linux-kernel@vger.kernel.org, virtualization@lists.linux-foundation.org
 List-Id: virtualization@lists.linuxfoundation.org
 
-On 30/03/2019 12:20, Borislav Petkov wrote:
-> From: Borislav Petkov <bp@suse.de>
-> 
-> Using static_cpu_has() is pointless on those paths, convert them to the
-> boot_cpu_has() variant.
-> 
-> No functional changes.
-> 
-> Reported-by: Nadav Amit <nadav.amit@gmail.com>
-> Signed-off-by: Borislav Petkov <bp@suse.de>
-
-For the paravirt part: Reviewed-by: Juergen Gross <jgross@suse.com>
-
-
-Juergen
+T24gMjUvMDMvMjAxOSAxOTowMywgV2FpbWFuIExvbmcgd3JvdGU6Cj4gT24gMDMvMjUvMjAxOSAx
+Mjo0MCBQTSwgSnVlcmdlbiBHcm9zcyB3cm90ZToKPj4gT24gMjUvMDMvMjAxOSAxNjo1NywgV2Fp
+bWFuIExvbmcgd3JvdGU6Cj4+PiBJdCB3YXMgZm91bmQgdGhhdCBwYXNzaW5nIGFuIGludmFsaWQg
+Y3B1IG51bWJlciB0byBwdl92Y3B1X2lzX3ByZWVtcHRlZCgpCj4+PiBtaWdodCBwYW5pYyB0aGUg
+a2VybmVsIGluIGEgVk0gZ3Vlc3QuIEZvciBleGFtcGxlLAo+Pj4KPj4+IFsgICAgMi41MzEwNzdd
+IE9vcHM6IDAwMDAgWyMxXSBTTVAgUFRJCj4+PiAgIDoKPj4+IFsgICAgMi41MzI1NDVdIEhhcmR3
+YXJlIG5hbWU6IFJlZCBIYXQgS1ZNLCBCSU9TIDAuNS4xIDAxLzAxLzIwMTEKPj4+IFsgICAgMi41
+MzMzMjFdIFJJUDogMDAxMDpfX3Jhd19jYWxsZWVfc2F2ZV9fX2t2bV92Y3B1X2lzX3ByZWVtcHRl
+ZCsweDAvMHgyMAo+Pj4KPj4+IFRvIGd1YXJkIGFnYWluc3QgdGhpcyBraW5kIG9mIGtlcm5lbCBw
+YW5pYywgY2hlY2sgaXMgYWRkZWQgdG8KPj4+IHB2X3ZjcHVfaXNfcHJlZW1wdGVkKCkgdG8gbWFr
+ZSBzdXJlIHRoYXQgbm8gaW52YWxpZCBjcHUgbnVtYmVyIHdpbGwKPj4+IGJlIHVzZWQuCj4+Pgo+
+Pj4gU2lnbmVkLW9mZi1ieTogV2FpbWFuIExvbmcgPGxvbmdtYW5AcmVkaGF0LmNvbT4KPj4+IC0t
+LQo+Pj4gIGFyY2gveDg2L2luY2x1ZGUvYXNtL3BhcmF2aXJ0LmggfCA2ICsrKysrKwo+Pj4gIDEg
+ZmlsZSBjaGFuZ2VkLCA2IGluc2VydGlvbnMoKykKPj4+Cj4+PiBkaWZmIC0tZ2l0IGEvYXJjaC94
+ODYvaW5jbHVkZS9hc20vcGFyYXZpcnQuaCBiL2FyY2gveDg2L2luY2x1ZGUvYXNtL3BhcmF2aXJ0
+LmgKPj4+IGluZGV4IGMyNWMzOGEwNWMxYy4uNGNmYjQ2NWRjZGU0IDEwMDY0NAo+Pj4gLS0tIGEv
+YXJjaC94ODYvaW5jbHVkZS9hc20vcGFyYXZpcnQuaAo+Pj4gKysrIGIvYXJjaC94ODYvaW5jbHVk
+ZS9hc20vcGFyYXZpcnQuaAo+Pj4gQEAgLTY3MSw2ICs2NzEsMTIgQEAgc3RhdGljIF9fYWx3YXlz
+X2lubGluZSB2b2lkIHB2X2tpY2soaW50IGNwdSkKPj4+ICAKPj4+ICBzdGF0aWMgX19hbHdheXNf
+aW5saW5lIGJvb2wgcHZfdmNwdV9pc19wcmVlbXB0ZWQobG9uZyBjcHUpCj4+PiAgewo+Pj4gKwkv
+Kgo+Pj4gKwkgKiBHdWFyZCBhZ2FpbnN0IGludmFsaWQgY3B1IG51bWJlciBvciB0aGUga2VybmVs
+IG1pZ2h0IHBhbmljLgo+Pj4gKwkgKi8KPj4+ICsJaWYgKFdBUk5fT05fT05DRSgodW5zaWduZWQg
+bG9uZyljcHUgPj0gbnJfY3B1X2lkcykpCj4+PiArCQlyZXR1cm4gZmFsc2U7Cj4+PiArCj4+PiAg
+CXJldHVybiBQVk9QX0NBTExFRTEoYm9vbCwgbG9jay52Y3B1X2lzX3ByZWVtcHRlZCwgY3B1KTsK
+Pj4+ICB9Cj4+IENhbiB0aGlzIHJlYWxseSBoYXBwZW4gd2l0aG91dCBiZWluZyBhIHByb2dyYW1t
+aW5nIGVycm9yPwo+IAo+IFRoaXMgc2hvdWxkbid0IGhhcHBlbiB3aXRob3V0IGEgcHJvZ3JhbW1p
+bmcgZXJyb3IsIEkgdGhpbmsuIEluIG15IGNhc2UsCj4gaXQgd2FzIGNhdXNlZCBieSBhIHJhY2Ug
+Y29uZGl0aW9uIGxlYWRpbmcgdG8gdXNlLWFmdGVyLWZyZWUgb2YgdGhlIGNwdQo+IG51bWJlci4g
+SG93ZXZlciwgbXkgcG9pbnQgaXMgdGhhdCBlcnJvciBsaWtlIHRoYXQgc2hvdWxkbid0IGNhdXNl
+IHRoZQo+IGtlcm5lbCB0byBwYW5pYy4KPiAKPj4gQmFzaWNhbGx5IHlvdSdkIG5lZWQgdG8gZ3Vh
+cmQgYWxsIHBlcmNwdSBhcmVhIGFjY2Vzc2VzIHRvIGZvcmVpZ24gY3B1cwo+PiB0aGlzIHdheS4g
+V2h5IGlzIHRoaXMgb25lIHNwZWNpYWw/Cj4gCj4gSXQgZGVwZW5kcy4gSWYgb3V0LW9mLWJvdW5k
+IGFjY2VzcyBjYW4gb25seSBoYXBwZW4gd2l0aCBvYnZpb3VzCj4gcHJvZ3JhbW1pbmcgZXJyb3Is
+IEkgZG9uJ3QgdGhpbmsgd2UgbmVlZCB0byBndWFyZCBhZ2FpbnN0IHRoZW0uIEluIHRoaXMKPiBj
+YXNlLCBJIGFtIG5vdCB0b3RhbGx5IHN1cmUgaWYgdGhlIHJhY2UgY29uZGl0aW9uIHRoYXQgSSBm
+b3VuZCBtYXkKPiBoYXBwZW4gd2l0aCBleGlzdGluZyBjb2RlIG9yIG5vdC4gVG8gYmUgcHJ1ZGVu
+dCwgSSBkZWNpZGUgdG8gc2VuZCB0aGlzCj4gcGF0Y2ggb3V0Lgo+IAo+IFRoZSByYWNlIGNvbmRp
+dGlvbiB0aGF0IEkgYW0gbG9va2luZyBhdCBpcyBhcyBmb2xsb3dzOgo+IAo+IMKgIENQVSAwwqDC
+oMKgwqDCoMKgwqDCoMKgwqDCoMKgwqDCoMKgwqDCoMKgwqDCoMKgwqDCoMKgIENQVSAxCj4gwqAg
+LS0tLS3CoMKgwqDCoMKgwqDCoMKgwqDCoMKgwqDCoMKgwqDCoMKgwqDCoMKgwqDCoMKgwqAgLS0t
+LS0KPiB1cF93cml0ZToKPiDCoCBvd25lciA9IE5VTEw7Cj4gwqAgPHJlbGVhc2UtYmFycmllcj4K
+PiDCoCBjb3VudCA9IDA7Cj4gCj4gPHJjdS1mcmVlIHRhc2sgc3RydWN0dXJlPgo+IMKgCj4gwqDC
+oMKgwqDCoMKgwqDCoMKgwqDCoMKgwqDCoMKgwqDCoMKgwqDCoMKgwqDCoMKgwqAgcndzZW1fY2Fu
+X3NwaW5fb25fb3duZXI6Cj4gwqDCoMKgwqDCoMKgwqDCoMKgwqDCoMKgwqDCoMKgwqDCoMKgwqDC
+oMKgwqDCoMKgwqDCoMKgIHJjdV9yZWFkX2xvY2soKTsKPiDCoMKgwqDCoMKgwqDCoMKgwqDCoMKg
+wqDCoMKgwqDCoMKgwqDCoMKgwqDCoMKgwqDCoMKgwqAgcmVhZCBvd25lcjsKPiDCoMKgwqDCoMKg
+wqDCoMKgwqDCoMKgwqDCoMKgwqDCoMKgwqDCoMKgwqDCoMKgwqDCoMKgwqDCoMKgIDoKPiDCoMKg
+wqDCoMKgwqDCoMKgwqDCoMKgwqDCoMKgwqDCoMKgwqDCoMKgwqDCoMKgwqDCoMKgwqAgdmNwdV9p
+c19wcmVlbXB0ZWQob3duZXItPmNwdSk7Cj4gwqDCoMKgwqDCoMKgwqDCoMKgwqDCoMKgwqDCoMKg
+wqDCoMKgwqDCoMKgwqDCoMKgwqDCoMKgwqDCoCA6Cj4gwqDCoMKgwqDCoMKgwqDCoMKgwqDCoMKg
+wqDCoMKgwqDCoMKgwqDCoMKgwqDCoMKgwqDCoMKgIHJjdV9yZWFkX3VubG9jaygpCj4gCj4gV2hl
+biBJIHRyaWVkIHRvIG1lcmdlIHRoZSBvd25lciBpbnRvIHRoZSBjb3VudCAoY2xlYXIgdGhlIG93
+bmVyIGFmdGVyCj4gdGhlIGJhcnJpZXIpLCBJIGNhbiByZXByb2R1Y2UgdGhlIGNyYXNoIDEwMCUg
+d2hlbiBib290aW5nIHVwIHRoZSBrZXJuZWwKPiBpbiBhIFZNIGd1ZXN0LiBIb3dldmVyLCBJIGFt
+IG5vdCBzdXJlIGlmIHRoZSBjb25maWd1cmF0aW9uIGFib3ZlIGlzIHNhZmUKPiBhbmQgaXMganVz
+dCB2ZXJ5IGhhcmQgdG8gcmVwcm9kdWNlLgo+IAo+IEFsdGVybmF0aXZlbHksIEkgY2FuIGFsc28g
+ZG8gdGhlIGNwdSBjaGVjayBiZWZvcmUgY2FsbGluZwo+IHZjcHVfaXNfcHJlZW1wdGVkKCkuCgpJ
+IHRoaW5rIEknZCBwcmVmZXIgdGhhdC4KCgpKdWVyZ2VuCgpfX19fX19fX19fX19fX19fX19fX19f
+X19fX19fX19fX19fX19fX19fX19fX19fXwpWaXJ0dWFsaXphdGlvbiBtYWlsaW5nIGxpc3QKVmly
+dHVhbGl6YXRpb25AbGlzdHMubGludXgtZm91bmRhdGlvbi5vcmcKaHR0cHM6Ly9saXN0cy5saW51
+eGZvdW5kYXRpb24ub3JnL21haWxtYW4vbGlzdGluZm8vdmlydHVhbGl6YXRpb24=
