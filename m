@@ -1,18 +1,14 @@
-From: Waiman Long <longman@redhat.com>
-Subject: Re: [PATCH] x86/paravirt: Guard against invalid cpu # in
-	pv_vcpu_is_preempted()
-Date: Mon, 1 Apr 2019 10:01:49 -0400
-Message-ID: <8baba234-55f5-8513-5da5-b6f32dedc970__19641.4029853017$1554127328$gmane$org@redhat.com>
-References: <20190325155706.26987-1-longman@redhat.com>
-	<e01da674-cbf0-22f1-7aba-6041f892b689@suse.com>
-	<5a48f5fb-799e-84f8-1fa7-eda851878d50@redhat.com>
-	<ad016e8f-acb5-6685-b7b6-de801c002dc6@suse.com>
+From: Gerd Hoffmann <kraxel@redhat.com>
+Subject: [PATCH 3/3] drm/cirrus: add missing drm_helper_force_disable_all()
+	call.
+Date: Mon,  1 Apr 2019 16:03:06 +0200
+Message-ID: <20190401140306.28063-4-kraxel__11945.2523345657$1554127429$gmane$org@redhat.com>
+References: <20190401140306.28063-1-kraxel@redhat.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="utf-8"
-Content-Transfer-Encoding: base64
+Content-Type: text/plain; charset="us-ascii"
+Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <ad016e8f-acb5-6685-b7b6-de801c002dc6@suse.com>
-Content-Language: en-US
+In-Reply-To: <20190401140306.28063-1-kraxel@redhat.com>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -22,72 +18,26 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Juergen Gross <jgross@suse.com>, Alok Kataria <akataria@vmware.com>, Thomas Gleixner <tglx@linutronix.de>, Ingo Molnar <mingo@redhat.com>, Borislav Petkov <bp@alien8.de>, "H. Peter Anvin" <hpa@zytor.com>, Peter Zijlstra <peterz@infradead.org>, Will Deacon <will.deacon@arm.com>
-Cc: Paolo Bonzini <pbonzini@redhat.com>, x86@kernel.org, linux-kernel@vger.kernel.org, virtualization@lists.linux-foundation.org
+To: dri-devel@lists.freedesktop.org
+Cc: David Airlie <airlied@linux.ie>, open list <linux-kernel@vger.kernel.org>, "open list:DRM DRIVER FOR QEMU'S CIRRUS DEVICE" <virtualization@lists.linux-foundation.org>, Daniel Vetter <daniel@ffwll.ch>, Dave Airlie <airlied@redhat.com>
 List-Id: virtualization@lists.linuxfoundation.org
 
-T24gMDQvMDEvMjAxOSAwMjozOCBBTSwgSnVlcmdlbiBHcm9zcyB3cm90ZToKPiBPbiAyNS8wMy8y
-MDE5IDE5OjAzLCBXYWltYW4gTG9uZyB3cm90ZToKPj4gT24gMDMvMjUvMjAxOSAxMjo0MCBQTSwg
-SnVlcmdlbiBHcm9zcyB3cm90ZToKPj4+IE9uIDI1LzAzLzIwMTkgMTY6NTcsIFdhaW1hbiBMb25n
-IHdyb3RlOgo+Pj4+IEl0IHdhcyBmb3VuZCB0aGF0IHBhc3NpbmcgYW4gaW52YWxpZCBjcHUgbnVt
-YmVyIHRvIHB2X3ZjcHVfaXNfcHJlZW1wdGVkKCkKPj4+PiBtaWdodCBwYW5pYyB0aGUga2VybmVs
-IGluIGEgVk0gZ3Vlc3QuIEZvciBleGFtcGxlLAo+Pj4+Cj4+Pj4gWyAgICAyLjUzMTA3N10gT29w
-czogMDAwMCBbIzFdIFNNUCBQVEkKPj4+PiAgIDoKPj4+PiBbICAgIDIuNTMyNTQ1XSBIYXJkd2Fy
-ZSBuYW1lOiBSZWQgSGF0IEtWTSwgQklPUyAwLjUuMSAwMS8wMS8yMDExCj4+Pj4gWyAgICAyLjUz
-MzMyMV0gUklQOiAwMDEwOl9fcmF3X2NhbGxlZV9zYXZlX19fa3ZtX3ZjcHVfaXNfcHJlZW1wdGVk
-KzB4MC8weDIwCj4+Pj4KPj4+PiBUbyBndWFyZCBhZ2FpbnN0IHRoaXMga2luZCBvZiBrZXJuZWwg
-cGFuaWMsIGNoZWNrIGlzIGFkZGVkIHRvCj4+Pj4gcHZfdmNwdV9pc19wcmVlbXB0ZWQoKSB0byBt
-YWtlIHN1cmUgdGhhdCBubyBpbnZhbGlkIGNwdSBudW1iZXIgd2lsbAo+Pj4+IGJlIHVzZWQuCj4+
-Pj4KPj4+PiBTaWduZWQtb2ZmLWJ5OiBXYWltYW4gTG9uZyA8bG9uZ21hbkByZWRoYXQuY29tPgo+
-Pj4+IC0tLQo+Pj4+ICBhcmNoL3g4Ni9pbmNsdWRlL2FzbS9wYXJhdmlydC5oIHwgNiArKysrKysK
-Pj4+PiAgMSBmaWxlIGNoYW5nZWQsIDYgaW5zZXJ0aW9ucygrKQo+Pj4+Cj4+Pj4gZGlmZiAtLWdp
-dCBhL2FyY2gveDg2L2luY2x1ZGUvYXNtL3BhcmF2aXJ0LmggYi9hcmNoL3g4Ni9pbmNsdWRlL2Fz
-bS9wYXJhdmlydC5oCj4+Pj4gaW5kZXggYzI1YzM4YTA1YzFjLi40Y2ZiNDY1ZGNkZTQgMTAwNjQ0
-Cj4+Pj4gLS0tIGEvYXJjaC94ODYvaW5jbHVkZS9hc20vcGFyYXZpcnQuaAo+Pj4+ICsrKyBiL2Fy
-Y2gveDg2L2luY2x1ZGUvYXNtL3BhcmF2aXJ0LmgKPj4+PiBAQCAtNjcxLDYgKzY3MSwxMiBAQCBz
-dGF0aWMgX19hbHdheXNfaW5saW5lIHZvaWQgcHZfa2ljayhpbnQgY3B1KQo+Pj4+ICAKPj4+PiAg
-c3RhdGljIF9fYWx3YXlzX2lubGluZSBib29sIHB2X3ZjcHVfaXNfcHJlZW1wdGVkKGxvbmcgY3B1
-KQo+Pj4+ICB7Cj4+Pj4gKwkvKgo+Pj4+ICsJICogR3VhcmQgYWdhaW5zdCBpbnZhbGlkIGNwdSBu
-dW1iZXIgb3IgdGhlIGtlcm5lbCBtaWdodCBwYW5pYy4KPj4+PiArCSAqLwo+Pj4+ICsJaWYgKFdB
-Uk5fT05fT05DRSgodW5zaWduZWQgbG9uZyljcHUgPj0gbnJfY3B1X2lkcykpCj4+Pj4gKwkJcmV0
-dXJuIGZhbHNlOwo+Pj4+ICsKPj4+PiAgCXJldHVybiBQVk9QX0NBTExFRTEoYm9vbCwgbG9jay52
-Y3B1X2lzX3ByZWVtcHRlZCwgY3B1KTsKPj4+PiAgfQo+Pj4gQ2FuIHRoaXMgcmVhbGx5IGhhcHBl
-biB3aXRob3V0IGJlaW5nIGEgcHJvZ3JhbW1pbmcgZXJyb3I/Cj4+IFRoaXMgc2hvdWxkbid0IGhh
-cHBlbiB3aXRob3V0IGEgcHJvZ3JhbW1pbmcgZXJyb3IsIEkgdGhpbmsuIEluIG15IGNhc2UsCj4+
-IGl0IHdhcyBjYXVzZWQgYnkgYSByYWNlIGNvbmRpdGlvbiBsZWFkaW5nIHRvIHVzZS1hZnRlci1m
-cmVlIG9mIHRoZSBjcHUKPj4gbnVtYmVyLiBIb3dldmVyLCBteSBwb2ludCBpcyB0aGF0IGVycm9y
-IGxpa2UgdGhhdCBzaG91bGRuJ3QgY2F1c2UgdGhlCj4+IGtlcm5lbCB0byBwYW5pYy4KPj4KPj4+
-IEJhc2ljYWxseSB5b3UnZCBuZWVkIHRvIGd1YXJkIGFsbCBwZXJjcHUgYXJlYSBhY2Nlc3NlcyB0
-byBmb3JlaWduIGNwdXMKPj4+IHRoaXMgd2F5LiBXaHkgaXMgdGhpcyBvbmUgc3BlY2lhbD8KPj4g
-SXQgZGVwZW5kcy4gSWYgb3V0LW9mLWJvdW5kIGFjY2VzcyBjYW4gb25seSBoYXBwZW4gd2l0aCBv
-YnZpb3VzCj4+IHByb2dyYW1taW5nIGVycm9yLCBJIGRvbid0IHRoaW5rIHdlIG5lZWQgdG8gZ3Vh
-cmQgYWdhaW5zdCB0aGVtLiBJbiB0aGlzCj4+IGNhc2UsIEkgYW0gbm90IHRvdGFsbHkgc3VyZSBp
-ZiB0aGUgcmFjZSBjb25kaXRpb24gdGhhdCBJIGZvdW5kIG1heQo+PiBoYXBwZW4gd2l0aCBleGlz
-dGluZyBjb2RlIG9yIG5vdC4gVG8gYmUgcHJ1ZGVudCwgSSBkZWNpZGUgdG8gc2VuZCB0aGlzCj4+
-IHBhdGNoIG91dC4KPj4KPj4gVGhlIHJhY2UgY29uZGl0aW9uIHRoYXQgSSBhbSBsb29raW5nIGF0
-IGlzIGFzIGZvbGxvd3M6Cj4+Cj4+IMKgIENQVSAwwqDCoMKgwqDCoMKgwqDCoMKgwqDCoMKgwqDC
-oMKgwqDCoMKgwqDCoMKgwqDCoMKgIENQVSAxCj4+IMKgIC0tLS0twqDCoMKgwqDCoMKgwqDCoMKg
-wqDCoMKgwqDCoMKgwqDCoMKgwqDCoMKgwqDCoMKgIC0tLS0tCj4+IHVwX3dyaXRlOgo+PiDCoCBv
-d25lciA9IE5VTEw7Cj4+IMKgIDxyZWxlYXNlLWJhcnJpZXI+Cj4+IMKgIGNvdW50ID0gMDsKPj4K
-Pj4gPHJjdS1mcmVlIHRhc2sgc3RydWN0dXJlPgo+PiDCoAo+PiDCoMKgwqDCoMKgwqDCoMKgwqDC
-oMKgwqDCoMKgwqDCoMKgwqDCoMKgwqDCoMKgwqDCoCByd3NlbV9jYW5fc3Bpbl9vbl9vd25lcjoK
-Pj4gwqDCoMKgwqDCoMKgwqDCoMKgwqDCoMKgwqDCoMKgwqDCoMKgwqDCoMKgwqDCoMKgwqDCoMKg
-IHJjdV9yZWFkX2xvY2soKTsKPj4gwqDCoMKgwqDCoMKgwqDCoMKgwqDCoMKgwqDCoMKgwqDCoMKg
-wqDCoMKgwqDCoMKgwqDCoMKgIHJlYWQgb3duZXI7Cj4+IMKgwqDCoMKgwqDCoMKgwqDCoMKgwqDC
-oMKgwqDCoMKgwqDCoMKgwqDCoMKgwqDCoMKgwqDCoMKgwqAgOgo+PiDCoMKgwqDCoMKgwqDCoMKg
-wqDCoMKgwqDCoMKgwqDCoMKgwqDCoMKgwqDCoMKgwqDCoMKgwqAgdmNwdV9pc19wcmVlbXB0ZWQo
-b3duZXItPmNwdSk7Cj4+IMKgwqDCoMKgwqDCoMKgwqDCoMKgwqDCoMKgwqDCoMKgwqDCoMKgwqDC
-oMKgwqDCoMKgwqDCoMKgwqAgOgo+PiDCoMKgwqDCoMKgwqDCoMKgwqDCoMKgwqDCoMKgwqDCoMKg
-wqDCoMKgwqDCoMKgwqDCoMKgwqAgcmN1X3JlYWRfdW5sb2NrKCkKPj4KPj4gV2hlbiBJIHRyaWVk
-IHRvIG1lcmdlIHRoZSBvd25lciBpbnRvIHRoZSBjb3VudCAoY2xlYXIgdGhlIG93bmVyIGFmdGVy
-Cj4+IHRoZSBiYXJyaWVyKSwgSSBjYW4gcmVwcm9kdWNlIHRoZSBjcmFzaCAxMDAlIHdoZW4gYm9v
-dGluZyB1cCB0aGUga2VybmVsCj4+IGluIGEgVk0gZ3Vlc3QuIEhvd2V2ZXIsIEkgYW0gbm90IHN1
-cmUgaWYgdGhlIGNvbmZpZ3VyYXRpb24gYWJvdmUgaXMgc2FmZQo+PiBhbmQgaXMganVzdCB2ZXJ5
-IGhhcmQgdG8gcmVwcm9kdWNlLgo+Pgo+PiBBbHRlcm5hdGl2ZWx5LCBJIGNhbiBhbHNvIGRvIHRo
-ZSBjcHUgY2hlY2sgYmVmb3JlIGNhbGxpbmcKPj4gdmNwdV9pc19wcmVlbXB0ZWQoKS4KPiBJIHRo
-aW5rIEknZCBwcmVmZXIgdGhhdC4KPgo+Cj4gSnVlcmdlbgo+Ckl0IHR1cm5zIG91dCB0aGF0IGl0
-IG1heSBiZSBjYXVzZWQgYnkgYSBzb2Z0d2FyZSBidWcgYWZ0ZXIgYWxsLiBZb3UgY2FuCmlnbm9y
-ZSB0aGlzIHBhdGNoIGZvciBub3cuCgpUaGFua3MsCkxvbmdtYW4KCl9fX19fX19fX19fX19fX19f
-X19fX19fX19fX19fX19fX19fX19fX19fX19fX19fClZpcnR1YWxpemF0aW9uIG1haWxpbmcgbGlz
-dApWaXJ0dWFsaXphdGlvbkBsaXN0cy5saW51eC1mb3VuZGF0aW9uLm9yZwpodHRwczovL2xpc3Rz
-LmxpbnV4Zm91bmRhdGlvbi5vcmcvbWFpbG1hbi9saXN0aW5mby92aXJ0dWFsaXphdGlvbg==
+Signed-off-by: Gerd Hoffmann <kraxel@redhat.com>
+---
+ drivers/gpu/drm/cirrus/cirrus_mode.c | 1 +
+ 1 file changed, 1 insertion(+)
+
+diff --git a/drivers/gpu/drm/cirrus/cirrus_mode.c b/drivers/gpu/drm/cirrus/cirrus_mode.c
+index 7f9bc32af685..32ce2c1040b4 100644
+--- a/drivers/gpu/drm/cirrus/cirrus_mode.c
++++ b/drivers/gpu/drm/cirrus/cirrus_mode.c
+@@ -615,6 +615,7 @@ void cirrus_modeset_fini(struct cirrus_device *cdev)
+ 	cirrus_fbdev_fini(cdev);
+ 
+ 	if (cdev->mode_info.mode_config_initialized) {
++		drm_helper_force_disable_all(cdev->dev);
+ 		drm_mode_config_cleanup(cdev->dev);
+ 		cdev->mode_info.mode_config_initialized = false;
+ 	}
+-- 
+2.18.1
