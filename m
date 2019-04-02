@@ -1,7 +1,7 @@
 From: Gerd Hoffmann <kraxel@redhat.com>
-Subject: [PATCH 1/2] drm/bochs: drop mode_config_initialized
-Date: Tue,  2 Apr 2019 11:04:58 +0200
-Message-ID: <20190402090459.12126-2-kraxel__30322.7791491494$1554195918$gmane$org@redhat.com>
+Subject: [PATCH 2/2] drm/cirrus: drop mode_info.mode_config_initialized
+Date: Tue,  2 Apr 2019 11:04:59 +0200
+Message-ID: <20190402090459.12126-3-kraxel__12279.3327247322$1554195926$gmane$org@redhat.com>
 References: <20190402090459.12126-1-kraxel@redhat.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
@@ -18,50 +18,51 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
 To: dri-devel@lists.freedesktop.org
-Cc: David Airlie <airlied@linux.ie>, open list <linux-kernel@vger.kernel.org>, Daniel Vetter <daniel@ffwll.ch>, "open list:DRM DRIVER FOR BOCHS VIRTUAL GPU" <virtualization@lists.linux-foundation.org>
+Cc: David Airlie <airlied@linux.ie>, open list <linux-kernel@vger.kernel.org>, "open list:DRM DRIVER FOR QEMU'S CIRRUS DEVICE" <virtualization@lists.linux-foundation.org>, Daniel Vetter <daniel@ffwll.ch>, Dave Airlie <airlied@redhat.com>
 List-Id: virtualization@lists.linuxfoundation.org
 
 Signed-off-by: Gerd Hoffmann <kraxel@redhat.com>
 ---
- drivers/gpu/drm/bochs/bochs.h     | 1 -
- drivers/gpu/drm/bochs/bochs_kms.c | 8 ++------
- 2 files changed, 2 insertions(+), 7 deletions(-)
+ drivers/gpu/drm/cirrus/cirrus_drv.h  | 1 -
+ drivers/gpu/drm/cirrus/cirrus_mode.c | 9 ++-------
+ 2 files changed, 2 insertions(+), 8 deletions(-)
 
-diff --git a/drivers/gpu/drm/bochs/bochs.h b/drivers/gpu/drm/bochs/bochs.h
-index 03711394f1ed..a7f6723bebdd 100644
---- a/drivers/gpu/drm/bochs/bochs.h
-+++ b/drivers/gpu/drm/bochs/bochs.h
-@@ -73,7 +73,6 @@ struct bochs_device {
- 	struct drm_crtc crtc;
- 	struct drm_encoder encoder;
- 	struct drm_connector connector;
--	bool mode_config_initialized;
+diff --git a/drivers/gpu/drm/cirrus/cirrus_drv.h b/drivers/gpu/drm/cirrus/cirrus_drv.h
+index 915709739257..828b150cdb20 100644
+--- a/drivers/gpu/drm/cirrus/cirrus_drv.h
++++ b/drivers/gpu/drm/cirrus/cirrus_drv.h
+@@ -101,7 +101,6 @@ struct cirrus_crtc {
  
- 	/* ttm */
- 	struct {
-diff --git a/drivers/gpu/drm/bochs/bochs_kms.c b/drivers/gpu/drm/bochs/bochs_kms.c
-index 93cb27f93d39..485f9cf05e8b 100644
---- a/drivers/gpu/drm/bochs/bochs_kms.c
-+++ b/drivers/gpu/drm/bochs/bochs_kms.c
-@@ -267,7 +267,6 @@ const struct drm_mode_config_funcs bochs_mode_funcs = {
- int bochs_kms_init(struct bochs_device *bochs)
+ struct cirrus_fbdev;
+ struct cirrus_mode_info {
+-	bool				mode_config_initialized;
+ 	struct cirrus_crtc		*crtc;
+ 	/* pointer to fbdev info structure */
+ 	struct cirrus_fbdev		*gfbdev;
+diff --git a/drivers/gpu/drm/cirrus/cirrus_mode.c b/drivers/gpu/drm/cirrus/cirrus_mode.c
+index 32ce2c1040b4..b109cd71426f 100644
+--- a/drivers/gpu/drm/cirrus/cirrus_mode.c
++++ b/drivers/gpu/drm/cirrus/cirrus_mode.c
+@@ -575,7 +575,6 @@ int cirrus_modeset_init(struct cirrus_device *cdev)
+ 	int ret;
+ 
+ 	drm_mode_config_init(cdev->dev);
+-	cdev->mode_info.mode_config_initialized = true;
+ 
+ 	cdev->dev->mode_config.max_width = CIRRUS_MAX_FB_WIDTH;
+ 	cdev->dev->mode_config.max_height = CIRRUS_MAX_FB_HEIGHT;
+@@ -613,10 +612,6 @@ int cirrus_modeset_init(struct cirrus_device *cdev)
+ void cirrus_modeset_fini(struct cirrus_device *cdev)
  {
- 	drm_mode_config_init(bochs->dev);
--	bochs->mode_config_initialized = true;
- 
- 	bochs->dev->mode_config.max_width = 8192;
- 	bochs->dev->mode_config.max_height = 8192;
-@@ -292,9 +291,6 @@ int bochs_kms_init(struct bochs_device *bochs)
- 
- void bochs_kms_fini(struct bochs_device *bochs)
- {
--	if (bochs->mode_config_initialized) {
--		drm_atomic_helper_shutdown(bochs->dev);
--		drm_mode_config_cleanup(bochs->dev);
--		bochs->mode_config_initialized = false;
+ 	cirrus_fbdev_fini(cdev);
+-
+-	if (cdev->mode_info.mode_config_initialized) {
+-		drm_helper_force_disable_all(cdev->dev);
+-		drm_mode_config_cleanup(cdev->dev);
+-		cdev->mode_info.mode_config_initialized = false;
 -	}
-+	drm_atomic_helper_shutdown(bochs->dev);
-+	drm_mode_config_cleanup(bochs->dev);
++	drm_helper_force_disable_all(cdev->dev);
++	drm_mode_config_cleanup(cdev->dev);
  }
 -- 
 2.18.1
