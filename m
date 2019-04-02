@@ -1,15 +1,15 @@
-From: "Samudrala, Sridhar" <sridhar.samudrala@intel.com>
+From: "Michael S. Tsirkin" <mst@redhat.com>
 Subject: Re: [PATCH net v5] failover: allow name change on IFF_UP slave
 	interfaces
-Date: Tue, 2 Apr 2019 13:03:10 -0700
-Message-ID: <c4e91e72-b2ba-7431-1b48-dc2c40123103__28043.2822460838$1554235403$gmane$org@intel.com>
+Date: Tue, 2 Apr 2019 17:50:52 -0400
+Message-ID: <20190402175018-mutt-send-email-mst@kernel.org>
 References: <1554159893-29704-1-git-send-email-si-wei.liu@oracle.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"; Format="flowed"
+Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
+Content-Disposition: inline
 In-Reply-To: <1554159893-29704-1-git-send-email-si-wei.liu@oracle.com>
-Content-Language: en-US
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -19,11 +19,11 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Si-Wei Liu <si-wei.liu@oracle.com>, mst@redhat.com, stephen@networkplumber.org, davem@davemloft.net, kubakici@wp.pl, alexander.duyck@gmail.com, jiri@resnulli.us, netdev@vger.kernel.org, virtualization@lists.linux-foundation.org
-Cc: boris.ostrovsky@oracle.com, liran.alon@oracle.com
+To: Si-Wei Liu <si-wei.liu@oracle.com>
+Cc: jiri@resnulli.us, kubakici@wp.pl, sridhar.samudrala@intel.com, alexander.duyck@gmail.com, virtualization@lists.linux-foundation.org, liran.alon@oracle.com, netdev@vger.kernel.org, boris.ostrovsky@oracle.com, davem@davemloft.net
 List-Id: virtualization@lists.linuxfoundation.org
 
-On 4/1/2019 4:04 PM, Si-Wei Liu wrote:
+On Mon, Apr 01, 2019 at 07:04:53PM -0400, Si-Wei Liu wrote:
 > When a netdev appears through hot plug then gets enslaved by a failover
 > master that is already up and running, the slave will be opened
 > right away after getting enslaved. Today there's a race that userspace
@@ -72,9 +72,6 @@ On 4/1/2019 4:04 PM, Si-Wei Liu wrote:
 > Fixes: 30c8bd5aa8b2 ("net: Introduce generic failover module")
 > Signed-off-by: Si-Wei Liu <si-wei.liu@oracle.com>
 > Reviewed-by: Liran Alon <liran.alon@oracle.com>
-
-Acked-by: Sridhar Samudrala <sridhar.samudrala@intel.com>
-
 > 
 > --
 > v1 -> v2:
@@ -91,17 +88,21 @@ Acked-by: Sridhar Samudrala <sridhar.samudrala@intel.com>
 > - Sync up code with latest net-next (Sridhar)
 > - Use proper structure initialization (Stephen, Jiri)
 > ---
->   net/core/dev.c | 25 ++++++++++++++++++++++++-
->   1 file changed, 24 insertions(+), 1 deletion(-)
+
+
+Acked-by: Michael S. Tsirkin <mst@redhat.com>
+
+>  net/core/dev.c | 25 ++++++++++++++++++++++++-
+>  1 file changed, 24 insertions(+), 1 deletion(-)
 > 
 > diff --git a/net/core/dev.c b/net/core/dev.c
 > index 9823b77..b694184 100644
 > --- a/net/core/dev.c
 > +++ b/net/core/dev.c
 > @@ -1185,7 +1185,21 @@ int dev_change_name(struct net_device *dev, const char *newname)
->   	BUG_ON(!dev_net(dev));
->   
->   	net = dev_net(dev);
+>  	BUG_ON(!dev_net(dev));
+>  
+>  	net = dev_net(dev);
 > -	if (dev->flags & IFF_UP)
 > +
 > +	/* Allow failover slave to rename even when
@@ -118,13 +119,13 @@ Acked-by: Sridhar Samudrala <sridhar.samudrala@intel.com>
 > +	 */
 > +	if (dev->flags & IFF_UP &&
 > +	    likely(!(dev->priv_flags & IFF_FAILOVER_SLAVE)))
->   		return -EBUSY;
->   
->   	write_seqcount_begin(&devnet_rename_seq);
+>  		return -EBUSY;
+>  
+>  	write_seqcount_begin(&devnet_rename_seq);
 > @@ -1232,6 +1246,15 @@ int dev_change_name(struct net_device *dev, const char *newname)
->   	hlist_add_head_rcu(&dev->name_hlist, dev_name_hash(net, dev->name));
->   	write_unlock_bh(&dev_base_lock);
->   
+>  	hlist_add_head_rcu(&dev->name_hlist, dev_name_hash(net, dev->name));
+>  	write_unlock_bh(&dev_base_lock);
+>  
 > +	if (unlikely(dev->flags & IFF_UP)) {
 > +		struct netdev_notifier_change_info change_info = {
 > +			.info.dev = dev,
@@ -134,7 +135,8 @@ Acked-by: Sridhar Samudrala <sridhar.samudrala@intel.com>
 > +					      &change_info.info);
 > +	}
 > +
->   	ret = call_netdevice_notifiers(NETDEV_CHANGENAME, dev);
->   	ret = notifier_to_errno(ret);
->   
-> 
+>  	ret = call_netdevice_notifiers(NETDEV_CHANGENAME, dev);
+>  	ret = notifier_to_errno(ret);
+>  
+> -- 
+> 1.8.3.1
