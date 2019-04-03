@@ -1,11 +1,16 @@
-From: Fabrizio Castro <fabrizio.castro@bp.renesas.com>
-Subject: [PATCH] virtio: Fix indentation of VIRTIO_MMIO
-Date: Wed,  3 Apr 2019 16:04:09 +0100
-Message-ID: <1554303849-26630-1-git-send-email-fabrizio.castro__48249.6726488293$1555717729$gmane$org@bp.renesas.com>
+From: "Darrick J. Wong" <darrick.wong@oracle.com>
+Subject: Re: [PATCH v4 5/5] xfs: disable map_sync for async flush
+Date: Wed, 3 Apr 2019 15:39:22 -0700
+Message-ID: <20190403223921.GM5147__12032.7635014959$1555717743$gmane$org@magnolia>
+References: <20190403104018.23947-1-pagupta@redhat.com>
+	<20190403104018.23947-6-pagupta@redhat.com>
+	<20190403220912.GB26298@dastard>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
+Content-Disposition: inline
+In-Reply-To: <20190403220912.GB26298@dastard>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -15,37 +20,75 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: "Michael S. Tsirkin" <mst@redhat.com>, Jason Wang <jasowang@redhat.com>
-Cc: Fabrizio Castro <fabrizio.castro@bp.renesas.com>, linux-kernel@vger.kernel.org, virtualization@lists.linux-foundation.org
+To: Dave Chinner <david@fromorbit.com>
+Cc: Pankaj Gupta <pagupta@redhat.com>, jack@suse.cz, kvm@vger.kernel.org, mst@redhat.com, qemu-devel@nongnu.org, virtualization@lists.linux-foundation.org, adilger.kernel@dilger.ca, zwisler@kernel.org, aarcange@redhat.com, dave.jiang@intel.com, linux-nvdimm@lists.01.org, vishal.l.verma@intel.com, willy@infradead.org, hch@infradead.org, linux-acpi@vger.kernel.org, jmoyer@redhat.com, linux-ext4@vger.kernel.org, lenb@kernel.org, riel@surriel.com, stefanha@redhat.com, dan.j.williams@intel.com, lcapitulino@redhat.com, nilal@redhat.com, tytso@mit.edu, xiaoguangrong.eric@gmail.com, cohuck@redhat.com, rjw@rjwysocki.net, linux-kernel@vger.kernel.org, linux-xfs@vger.kernel.org, linux-fsdevel@vger.kernel.org, imammedo@redhat.com
 List-Id: virtualization@lists.linuxfoundation.org
 
-VIRTIO_MMIO config option block starts with a space, fix that.
+On Thu, Apr 04, 2019 at 09:09:12AM +1100, Dave Chinner wrote:
+> On Wed, Apr 03, 2019 at 04:10:18PM +0530, Pankaj Gupta wrote:
+> > Virtio pmem provides asynchronous host page cache flush
+> > mechanism. we don't support 'MAP_SYNC' with virtio pmem 
+> > and xfs.
+> > 
+> > Signed-off-by: Pankaj Gupta <pagupta@redhat.com>
+> > ---
+> >  fs/xfs/xfs_file.c | 8 ++++++++
+> >  1 file changed, 8 insertions(+)
+> > 
+> > diff --git a/fs/xfs/xfs_file.c b/fs/xfs/xfs_file.c
+> > index 1f2e2845eb76..dced2eb8c91a 100644
+> > --- a/fs/xfs/xfs_file.c
+> > +++ b/fs/xfs/xfs_file.c
+> > @@ -1203,6 +1203,14 @@ xfs_file_mmap(
+> >  	if (!IS_DAX(file_inode(filp)) && (vma->vm_flags & VM_SYNC))
+> >  		return -EOPNOTSUPP;
+> >  
+> > +	/* We don't support synchronous mappings with DAX files if
+> > +	 * dax_device is not synchronous.
+> > +	 */
+> > +	if (IS_DAX(file_inode(filp)) && !dax_synchronous(
+> > +		xfs_find_daxdev_for_inode(file_inode(filp))) &&
+> > +					(vma->vm_flags & VM_SYNC))
+> > +		return -EOPNOTSUPP;
+> > +
+> >  	file_accessed(filp);
+> >  	vma->vm_ops = &xfs_file_vm_ops;
+> >  	if (IS_DAX(file_inode(filp)))
+> 
+> All this ad hoc IS_DAX conditional logic is getting pretty nasty.
+> 
+> xfs_file_mmap(
+> ....
+> {
+> 	struct inode	*inode = file_inode(filp);
+> 
+> 	if (vma->vm_flags & VM_SYNC) {
+> 		if (!IS_DAX(inode))
+> 			return -EOPNOTSUPP;
+> 		if (!dax_synchronous(xfs_find_daxdev_for_inode(inode))
+> 			return -EOPNOTSUPP;
+> 	}
+> 
+> 	file_accessed(filp);
+> 	vma->vm_ops = &xfs_file_vm_ops;
+> 	if (IS_DAX(inode))
+> 		vma->vm_flags |= VM_HUGEPAGE;
+> 	return 0;
+> }
+> 
+> 
+> Even better, factor out all the "MAP_SYNC supported" checks into a
+> helper so that the filesystem code just doesn't have to care about
+> the details of checking for DAX+MAP_SYNC support....
 
-Signed-off-by: Fabrizio Castro <fabrizio.castro@bp.renesas.com>
----
- drivers/virtio/Kconfig | 8 ++++----
- 1 file changed, 4 insertions(+), 4 deletions(-)
+Seconded, since ext4 has nearly the same flag validation logic.
 
-diff --git a/drivers/virtio/Kconfig b/drivers/virtio/Kconfig
-index 3589764..1b5c9f0 100644
---- a/drivers/virtio/Kconfig
-+++ b/drivers/virtio/Kconfig
-@@ -62,12 +62,12 @@ config VIRTIO_INPUT
- 
- 	 If unsure, say M.
- 
-- config VIRTIO_MMIO
-+config VIRTIO_MMIO
- 	tristate "Platform bus driver for memory mapped virtio devices"
- 	depends on HAS_IOMEM && HAS_DMA
-- 	select VIRTIO
-- 	---help---
-- 	 This drivers provides support for memory mapped virtio
-+	select VIRTIO
-+	---help---
-+	 This drivers provides support for memory mapped virtio
- 	 platform device driver.
- 
-  	 If unsure, say N.
--- 
-2.7.4
+--D
+
+> 
+> Cheers,
+> 
+> Dave.
+> -- 
+> Dave Chinner
+> david@fromorbit.com
