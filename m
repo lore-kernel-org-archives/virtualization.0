@@ -1,7 +1,7 @@
 From: Yuval Shaia <yuval.shaia@oracle.com>
-Subject: [PATCH] virtio-net: Remove inclusion of pci.h
-Date: Wed,  3 Apr 2019 11:20:45 +0300
-Message-ID: <20190403082045.16089-1-yuval.shaia__22977.9043862194$1555717697$gmane$org@oracle.com>
+Subject: [PATCH] virtio-net: Fix some minor formatting errors
+Date: Wed,  3 Apr 2019 12:10:13 +0300
+Message-ID: <20190403091013.16847-1-yuval.shaia__31022.4927075737$1555717702$gmane$org@oracle.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
@@ -19,24 +19,45 @@ To: mst@redhat.com, jasowang@redhat.com, davem@davemloft.net, virtualization@lis
 Cc: Yuval Shaia <yuval.shaia@oracle.com>
 List-Id: virtualization@lists.linuxfoundation.org
 
-This header is not in use - remove it.
-
 Signed-off-by: Yuval Shaia <yuval.shaia@oracle.com>
 ---
- drivers/net/virtio_net.c | 1 -
- 1 file changed, 1 deletion(-)
+ drivers/net/virtio_net.c | 10 ++++++----
+ 1 file changed, 6 insertions(+), 4 deletions(-)
 
 diff --git a/drivers/net/virtio_net.c b/drivers/net/virtio_net.c
-index 7eb38ea9ba56..07c1e81087b2 100644
+index 07c1e81087b2..be1188815c72 100644
 --- a/drivers/net/virtio_net.c
 +++ b/drivers/net/virtio_net.c
-@@ -31,7 +31,6 @@
- #include <linux/average.h>
- #include <linux/filter.h>
- #include <linux/kernel.h>
--#include <linux/pci.h>
- #include <net/route.h>
- #include <net/xdp.h>
- #include <net/net_failover.h>
+@@ -1587,7 +1587,8 @@ static netdev_tx_t start_xmit(struct sk_buff *skb, struct net_device *dev)
+ 		dev->stats.tx_fifo_errors++;
+ 		if (net_ratelimit())
+ 			dev_warn(&dev->dev,
+-				 "Unexpected TXQ (%d) queue failure: %d\n", qnum, err);
++				 "Unexpected TXQ (%d) queue failure: %d\n",
++				 qnum, err);
+ 		dev->stats.tx_dropped++;
+ 		dev_kfree_skb_any(skb);
+ 		return NETDEV_TX_OK;
+@@ -2383,7 +2384,7 @@ static int virtnet_set_guest_offloads(struct virtnet_info *vi, u64 offloads)
+ 
+ 	if (!virtnet_send_command(vi, VIRTIO_NET_CTRL_GUEST_OFFLOADS,
+ 				  VIRTIO_NET_CTRL_GUEST_OFFLOADS_SET, &sg)) {
+-		dev_warn(&vi->dev->dev, "Fail to set guest offload. \n");
++		dev_warn(&vi->dev->dev, "Fail to set guest offload.\n");
+ 		return -EINVAL;
+ 	}
+ 
+@@ -3114,8 +3115,9 @@ static int virtnet_probe(struct virtio_device *vdev)
+ 			/* Should never trigger: MTU was previously validated
+ 			 * in virtnet_validate.
+ 			 */
+-			dev_err(&vdev->dev, "device MTU appears to have changed "
+-				"it is now %d < %d", mtu, dev->min_mtu);
++			dev_err(&vdev->dev,
++				"device MTU appears to have changed it is now %d < %d",
++				mtu, dev->min_mtu);
+ 			goto free;
+ 		}
+ 
 -- 
 2.19.1
