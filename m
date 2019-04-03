@@ -1,14 +1,18 @@
-From: Daniel Stone <daniel@fooishbar.org>
-Subject: Re: [PATCH] drm/cirrus: rewrite and modernize driver.
-Date: Wed, 3 Apr 2019 16:15:08 +0100
-Message-ID: <CAPj87rOE2K9nxV2p+KrMTDnijdKpmNP8BGSUJyK9YtFueJpkqw__6146.09739729843$1554304531$gmane$org@mail.gmail.com>
-References: <20190403072318.31507-1-kraxel@redhat.com>
-	<85ba308177f4e9ddee336d5110cb6df7a447cebf.camel@redhat.com>
+From: Stephen Hemminger <stephen@networkplumber.org>
+Subject: Re: [PATCH net v5] failover: allow name change on IFF_UP slave
+	interfaces
+Date: Wed, 3 Apr 2019 08:46:46 -0700
+Message-ID: <20190403084646.1aee960c__14018.6681573809$1554306424$gmane$org@shemminger-XPS-13-9360>
+References: <1554159893-29704-1-git-send-email-si-wei.liu@oracle.com>
+	<20190402145359.55814e11@shemminger-XPS-13-9360>
+	<d62006dc-d602-7389-cc27-2c1873163ad2@oracle.com>
+	<20190402201451.1f6201b8@shemminger-XPS-13-9360>
+	<d034f2f1-592c-7ce3-6bb3-05c53d195678@intel.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <85ba308177f4e9ddee336d5110cb6df7a447cebf.camel@redhat.com>
+In-Reply-To: <d034f2f1-592c-7ce3-6bb3-05c53d195678@intel.com>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -18,44 +22,47 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Adam Jackson <ajax@redhat.com>
-Cc: David Airlie <airlied@linux.ie>, open list <linux-kernel@vger.kernel.org>, dri-devel <dri-devel@lists.freedesktop.org>, "open list:DRM DRIVER FOR QEMU'S CIRRUS DEVICE" <virtualization@lists.linux-foundation.org>, Dave Airlie <airlied@redhat.com>
+To: "Samudrala, Sridhar" <sridhar.samudrala@intel.com>
+Cc: jiri@resnulli.us, mst@redhat.com, kubakici@wp.pl, netdev@vger.kernel.org, alexander.duyck@gmail.com, virtualization@lists.linux-foundation.org, liran.alon@oracle.com, si-wei liu <si-wei.liu@oracle.com>, boris.ostrovsky@oracle.com, davem@davemloft.net
 List-Id: virtualization@lists.linuxfoundation.org
 
-On Wed, 3 Apr 2019 at 16:12, Adam Jackson <ajax@redhat.com> wrote:
-> On Wed, 2019-04-03 at 09:23 +0200, Gerd Hoffmann wrote:
-> >  - Only DRM_FORMAT_RGB565 (depth 16) is supported.  The old driver does
-> >    that too by default.  There was a module parameter which enables 24/32
-> >    bpp support and disables higher resolutions (due to cirrus hardware
-> >    constrains).  That parameter wasn't reimplemented.
->
-> One slightly annoying aspect of this (well, initially of the patch to
-> clamp the default to 16bpp, but this too) is that we only have a way to
-> ask the driver which format it prefers, not which ones it supports at
-> all. For X's modesetting driver (and yes some of this is because X is
-> awful) this creates the following failure mode:
->
-> 1: user sets up xorg.conf for depth 24
-> 2: user upgrades kernel, reboots
-> 3: X driver detects that depth 16 is preferred, but
-> 4: X core respects user's xorg.conf and tries depth 24, which
-> 5: throws -EINVAL and X won't start.
->
-> Possibly X should work around this by transparently setting up a shadow
-> framebuffer at the user's requested depth. The problem there is, if 565
-> is preferred but 8888 works, you're adding a format-conversion blit in
-> the middle for no reason. If I could ask the kernel for the entire list
-> of supported formats, I could only set up the shadow if it was
-> necessary.
+On Tue, 2 Apr 2019 22:22:18 -0700
+"Samudrala, Sridhar" <sridhar.samudrala@intel.com> wrote:
 
-There's already a list of supported formats for each DRM plane, which
-you can get via drmModeGetPlane (being careful to enable universal
-planes so you can discover the primary plane). The same information is
-present in the 'IN_FORMATS' property, which is more difficult to parse
-but also tells you about modifiers.
+> On 4/2/2019 8:14 PM, Stephen Hemminger wrote:
+> > On Tue, 2 Apr 2019 15:23:29 -0700
+> > si-wei liu <si-wei.liu@oracle.com> wrote:
+> >   
+> >> On 4/2/2019 2:53 PM, Stephen Hemminger wrote:  
+> >>> On Mon,  1 Apr 2019 19:04:53 -0400
+> >>> Si-Wei Liu <si-wei.liu@oracle.com> wrote:
+> >>>     
+> >>>> +	if (dev->flags & IFF_UP &&
+> >>>> +	    likely(!(dev->priv_flags & IFF_FAILOVER_SLAVE)))  
+> >>> Why is property limited to failover slave, it would make sense for netvsc
+> >>> as well. Why not make it a flag like live address change?  
+> >> Well, netvsc today is still taking the delayed approach meaning that it
+> >> is incompatible yet with this live name change flag if need be. ;-)
+> >>
+> >> I thought Sridhar did not like to introduce an additional
+> >> IFF_SLAVE_RENAME_OK flag given that failover slave is the only consumer
+> >> for the time being. Even though I can get it back, patch is needed for
+> >> netvsc to remove the VF takeover delay IMHO.
+> >>
+> >> Sridhar, what do you think we revive the IFF_SLAVE_RENAME_OK flag which
+> >> allows netvsc to be used later on? Or maybe, IFF_LIVE_RENAME_OK for a
+> >> better name?
+> >>
+> >> -Siwei  
+> > 
+> > I would name it IFF_LIVE_NAME_CHANGE to match IFF_LIVE_ADDR_CHANGE
+> > there is no reason its use should be restricted to SLAVE devices.
+> >  
+> Stephen,
+> May be you should consider moving netvsc to use the net_failover driver now?
+> 
 
-modesetting already pulls all this out (at least in the atomic path)
-so we can reason about acceptable modifiers.
+NO
 
-Cheers,
-Daniel
+Why would I waste time doing that when there is a working and cleaner solution
+that is working across 4 OS's and three versions of five major distributions?
