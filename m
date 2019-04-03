@@ -1,16 +1,11 @@
-From: Mukesh Ojha <mojha@codeaurora.org>
-Subject: Re: [PATCH 1/3] drm/virtio: add missing drm_atomic_helper_shutdown()
-	call.
-Date: Mon, 1 Apr 2019 20:38:23 +0530
-Message-ID: <1431a9d8-7a60-079d-57ba-33eea6d30ce2__9301.50112123869$1555717678$gmane$org@codeaurora.org>
-References: <20190401140306.28063-1-kraxel@redhat.com>
-	<20190401140306.28063-2-kraxel@redhat.com>
+From: Yuval Shaia <yuval.shaia@oracle.com>
+Subject: [PATCH] virtio-net: Remove inclusion of pci.h
+Date: Wed,  3 Apr 2019 11:20:45 +0300
+Message-ID: <20190403082045.16089-1-yuval.shaia__22977.9043862194$1555717697$gmane$org@oracle.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"; Format="flowed"
+Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <20190401140306.28063-2-kraxel@redhat.com>
-Content-Language: en-US
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -20,28 +15,28 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Gerd Hoffmann <kraxel@redhat.com>, dri-devel@lists.freedesktop.org
-Cc: David Airlie <airlied@linux.ie>, open list <linux-kernel@vger.kernel.org>, Daniel Vetter <daniel@ffwll.ch>, "open list:VIRTIO GPU DRIVER" <virtualization@lists.linux-foundation.org>
+To: mst@redhat.com, jasowang@redhat.com, davem@davemloft.net, virtualization@lists.linux-foundation.org, netdev@vger.kernel.org
+Cc: Yuval Shaia <yuval.shaia@oracle.com>
 List-Id: virtualization@lists.linuxfoundation.org
 
-Please atleast mention here why it is required?
+This header is not in use - remove it.
 
--Mukesh
+Signed-off-by: Yuval Shaia <yuval.shaia@oracle.com>
+---
+ drivers/net/virtio_net.c | 1 -
+ 1 file changed, 1 deletion(-)
 
-On 4/1/2019 7:33 PM, Gerd Hoffmann wrote:
-> Signed-off-by: Gerd Hoffmann <kraxel@redhat.com>
-> ---
->   drivers/gpu/drm/virtio/virtgpu_display.c | 1 +
->   1 file changed, 1 insertion(+)
->
-> diff --git a/drivers/gpu/drm/virtio/virtgpu_display.c b/drivers/gpu/drm/virtio/virtgpu_display.c
-> index 653ec7d0bf4d..86843a4d6102 100644
-> --- a/drivers/gpu/drm/virtio/virtgpu_display.c
-> +++ b/drivers/gpu/drm/virtio/virtgpu_display.c
-> @@ -385,5 +385,6 @@ void virtio_gpu_modeset_fini(struct virtio_gpu_device *vgdev)
->   
->   	for (i = 0 ; i < vgdev->num_scanouts; ++i)
->   		kfree(vgdev->outputs[i].edid);
-> +	drm_atomic_helper_shutdown(vgdev->ddev);
->   	drm_mode_config_cleanup(vgdev->ddev);
->   }
+diff --git a/drivers/net/virtio_net.c b/drivers/net/virtio_net.c
+index 7eb38ea9ba56..07c1e81087b2 100644
+--- a/drivers/net/virtio_net.c
++++ b/drivers/net/virtio_net.c
+@@ -31,7 +31,6 @@
+ #include <linux/average.h>
+ #include <linux/filter.h>
+ #include <linux/kernel.h>
+-#include <linux/pci.h>
+ #include <net/route.h>
+ #include <net/xdp.h>
+ #include <net/net_failover.h>
+-- 
+2.19.1
