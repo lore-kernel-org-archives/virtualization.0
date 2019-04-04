@@ -1,15 +1,15 @@
-From: Pankaj Gupta <pagupta@redhat.com>
-Subject: Re: [PATCH v4 5/5] xfs: disable map_sync for async flush
-Date: Thu, 4 Apr 2019 02:13:38 -0400 (EDT)
-Message-ID: <1508883801.17367965.1554358418550.JavaMail.zimbra__17644.5044622355$1554358432$gmane$org@redhat.com>
-References: <20190403104018.23947-1-pagupta@redhat.com>
-	<20190403104018.23947-6-pagupta@redhat.com>
-	<20190403220912.GB26298@dastard> <20190403223921.GM5147@magnolia>
+From: Daniel Vetter <daniel@ffwll.ch>
+Subject: Re: [PATCH] drm/cirrus: rewrite and modernize driver.
+Date: Thu, 4 Apr 2019 08:31:39 +0200
+Message-ID: <CAKMK7uFbLcziLXrwds9QZBBPFiBDC_O+X9fiuutNjsutaPW+sQ__30423.6379730114$1554359523$gmane$org@mail.gmail.com>
+References: <20190403072318.31507-1-kraxel@redhat.com>
+	<CAMwc25o=DZSVE5Qf5mow6es06Gk3=+6+8offXPY-JPgUkG_Shw@mail.gmail.com>
+	<20190404055056.ddc2bdgjbgjj7tby@sirius.home.kraxel.org>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <20190403223921.GM5147@magnolia>
+In-Reply-To: <20190404055056.ddc2bdgjbgjj7tby@sirius.home.kraxel.org>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -19,84 +19,75 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: "Darrick J. Wong" <darrick.wong@oracle.com>
-Cc: jack@suse.cz, kvm@vger.kernel.org, mst@redhat.com, Dave Chinner <david@fromorbit.com>, qemu-devel@nongnu.org, virtualization@lists.linux-foundation.org, adilger kernel <adilger.kernel@dilger.ca>, zwisler@kernel.org, aarcange@redhat.com, dave jiang <dave.jiang@intel.com>, linux-nvdimm@lists.01.org, vishal l verma <vishal.l.verma@intel.com>, willy@infradead.org, hch@infradead.org, linux-acpi@vger.kernel.org, jmoyer@redhat.com, linux-ext4@vger.kernel.org, lenb@kernel.org, riel@surriel.com, stefanha@redhat.com, dan j williams <dan.j.williams@intel.com>, lcapitulino@redhat.com, nilal@redhat.com, tytso@mit.edu, xiaoguangrong eric <xiaoguangrong.eric@gmail.com>, cohuck@redhat.com, rjw@rjwysocki.net, linux-kernel@vger.kernel.org, linux-xfs@vger.kernel.org, linux-fsdevel@vger.kernel.org, imammedo@redhat.com
+To: Gerd Hoffmann <kraxel@redhat.com>
+Cc: David Airlie <airlied@linux.ie>, David Airlie <airlied@redhat.com>, open list <linux-kernel@vger.kernel.org>, dri-devel <dri-devel@lists.freedesktop.org>, "open list:DRM DRIVER FOR QEMU'S CIRRUS DEVICE" <virtualization@lists.linux-foundation.org>
 List-Id: virtualization@lists.linuxfoundation.org
 
+On Thu, Apr 4, 2019 at 7:51 AM Gerd Hoffmann <kraxel@redhat.com> wrote:
+>
+> On Thu, Apr 04, 2019 at 12:58:09PM +1000, David Airlie wrote:
+> > On Wed, Apr 3, 2019 at 5:23 PM Gerd Hoffmann <kraxel@redhat.com> wrote:
+> > >
+> > > Time to kill some bad sample code people are copying from ;)
+> > >
+> > > This is a complete rewrite of the cirrus driver.  The cirrus_mode_set()
+> > > function is pretty much the only function which is carried over largely
+> > > unmodified.  Everything else is upside down.
+> > >
+> > > It is a single monster patch.  But given that it does some pretty
+> > > fundamental changes to the drivers workflow and also reduces the code
+> > > size by roughly 70% I think it'll still be alot easier to review than a
+> > > longish baby-step patch series.
+> > >
+> > > Changes summary:
+> > >  - Given the small amout of video memory (4 MB) the cirrus device has
+> > >    the rewritten driver doesn't try to manage buffers there.  Instead
+> > >    it will blit (memcpy) the active framebuffer to video memory.
+> >
+> > Does it get any slower, with TTM I just wrote it to migrate just the
+> > frontbuffer in/out of VRAM on modeset, won't we end up with more
+> > copies now?
+>
+> I didn't benchmark it, but if you care about performance you should not
+> be using cirrus anyway ...
+>
+> For fbcon it probably doesn't make much of a difference, fbcon used a
+> shadow framebuffer before (for fbdev mmap and dirty tracking).
+>
+> xorg probably ends up with more copying.
+>
+> Anything doing display updates with page flips (i.e wayland) should end
+> up with less copying, because you have one copy (blit) instead of two
+> copies (migrate old frontbuffer out of vram, migrate new frontbuffer
+> into vram) on pageflip.
+>
+> Speaking of wayland:  Seems at least gnome-shell insists on using XR24.
 
-> 
-> On Thu, Apr 04, 2019 at 09:09:12AM +1100, Dave Chinner wrote:
-> > On Wed, Apr 03, 2019 at 04:10:18PM +0530, Pankaj Gupta wrote:
-> > > Virtio pmem provides asynchronous host page cache flush
-> > > mechanism. we don't support 'MAP_SYNC' with virtio pmem
-> > > and xfs.
-> > > 
-> > > Signed-off-by: Pankaj Gupta <pagupta@redhat.com>
-> > > ---
-> > >  fs/xfs/xfs_file.c | 8 ++++++++
-> > >  1 file changed, 8 insertions(+)
-> > > 
-> > > diff --git a/fs/xfs/xfs_file.c b/fs/xfs/xfs_file.c
-> > > index 1f2e2845eb76..dced2eb8c91a 100644
-> > > --- a/fs/xfs/xfs_file.c
-> > > +++ b/fs/xfs/xfs_file.c
-> > > @@ -1203,6 +1203,14 @@ xfs_file_mmap(
-> > >  	if (!IS_DAX(file_inode(filp)) && (vma->vm_flags & VM_SYNC))
-> > >  		return -EOPNOTSUPP;
-> > >  
-> > > +	/* We don't support synchronous mappings with DAX files if
-> > > +	 * dax_device is not synchronous.
-> > > +	 */
-> > > +	if (IS_DAX(file_inode(filp)) && !dax_synchronous(
-> > > +		xfs_find_daxdev_for_inode(file_inode(filp))) &&
-> > > +					(vma->vm_flags & VM_SYNC))
-> > > +		return -EOPNOTSUPP;
-> > > +
-> > >  	file_accessed(filp);
-> > >  	vma->vm_ops = &xfs_file_vm_ops;
-> > >  	if (IS_DAX(file_inode(filp)))
-> > 
-> > All this ad hoc IS_DAX conditional logic is getting pretty nasty.
-> > 
-> > xfs_file_mmap(
-> > ....
-> > {
-> > 	struct inode	*inode = file_inode(filp);
-> > 
-> > 	if (vma->vm_flags & VM_SYNC) {
-> > 		if (!IS_DAX(inode))
-> > 			return -EOPNOTSUPP;
-> > 		if (!dax_synchronous(xfs_find_daxdev_for_inode(inode))
-> > 			return -EOPNOTSUPP;
-> > 	}
-> > 
-> > 	file_accessed(filp);
-> > 	vma->vm_ops = &xfs_file_vm_ops;
-> > 	if (IS_DAX(inode))
-> > 		vma->vm_flags |= VM_HUGEPAGE;
-> > 	return 0;
-> > }
-> > 
-> > 
-> > Even better, factor out all the "MAP_SYNC supported" checks into a
-> > helper so that the filesystem code just doesn't have to care about
-> > the details of checking for DAX+MAP_SYNC support....
-> 
-> Seconded, since ext4 has nearly the same flag validation logic.
+Yeah XR24 is pretty much mandatory. Noralf added a few helpers to
+convert XR24 to other formats, for display not supporting anything
+else. Because userspace.
 
-Agree.
+> > >  - Only DRM_FORMAT_RGB565 (depth 16) is supported.  The old driver does
+> > >    that too by default.  There was a module parameter which enables 24/32
+> > >    bpp support and disables higher resolutions (due to cirrus hardware
+> > >    constrains).  That parameter wasn't reimplemented.
+>
+> > This might be the big sticking point, this is a userspace regression
+> > for a feature that was explicitly added a few years ago, can we really
+> > get away without it?
+>
+> Well, I can reintroduce the module option.  I don't see any other
+> reasonable way to support 32bpp.  If the driver reports XR24 as
+> supported and also adds the higher resolutions (which work with RG16
+> only) to the mode list userspace will of course try the higher
+> resolutions with XR24 and struggle ...
 
-Thanks,
-Pankaj
-
-> 
-> --D
-> 
-> > 
-> > Cheers,
-> > 
-> > Dave.
-> > --
-> > Dave Chinner
-> > david@fromorbit.com
-> 
+Maybe atomic userspace is better (it should be, it can do TEST_ONLY),
+but I'm not so sure that exposing all modes for atomic clients would
+work. Also, currently not possible with our probe helpers (we don't
+refilter the list per client).
+-Daniel
+-- 
+Daniel Vetter
+Software Engineer, Intel Corporation
++41 (0) 79 365 57 48 - http://blog.ffwll.ch
