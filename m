@@ -1,17 +1,11 @@
-From: Adam Borowski <kilobyte@angband.pl>
-Subject: Re: [PATCH v4 5/5] xfs: disable map_sync for async flush
-Date: Thu, 4 Apr 2019 11:56:49 +0200
-Message-ID: <20190404095649.GB8738__13708.3332448796$1555717796$gmane$org@angband.pl>
-References: <20190403104018.23947-1-pagupta@redhat.com>
-	<20190403104018.23947-6-pagupta@redhat.com>
-	<20190403220912.GB26298@dastard>
-	<1518295599.17367903.1554358350929.JavaMail.zimbra@redhat.com>
+From: Stefano Garzarella <sgarzare@redhat.com>
+Subject: [PATCH RFC 0/4] vsock/virtio: optimizations to increase the throughput
+Date: Thu,  4 Apr 2019 12:58:34 +0200
+Message-ID: <20190404105838.101559-1-sgarzare__2445.60501757718$1555717807$gmane$org@redhat.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="utf-8"
-Content-Transfer-Encoding: base64
+Content-Type: text/plain; charset="us-ascii"
+Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-Content-Disposition: inline
-In-Reply-To: <1518295599.17367903.1554358350929.JavaMail.zimbra@redhat.com>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -21,33 +15,82 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Pankaj Gupta <pagupta@redhat.com>
-Cc: cohuck@redhat.com, jack@suse.cz, kvm@vger.kernel.org, mst@redhat.com, Dave Chinner <david@fromorbit.com>, qemu-devel@nongnu.org, virtualization@lists.linux-foundation.org, adilger kernel <adilger.kernel@dilger.ca>, zwisler@kernel.org, aarcange@redhat.com, dave jiang <dave.jiang@intel.com>, linux-nvdimm@lists.01.org, vishal l verma <vishal.l.verma@intel.com>, willy@infradead.org, hch@infradead.org, linux-acpi@vger.kernel.org, jmoyer@redhat.com, linux-ext4@vger.kernel.org, lenb@kernel.org, riel@surriel.com, stefanha@redhat.com, dan j williams <dan.j.williams@intel.com>, lcapitulino@redhat.com, nilal@redhat.com, tytso@mit.edu, xiaoguangrong eric <xiaoguangrong.eric@gmail.com>, darrick wong <darrick.wong@oracle.com>, rjw@rjwysocki.net, linux-kernel@vger.kernel.org, linux-xfs@vger.kernel.org, linux-fsdevel@vger.kernel.org, imammedo@redhat.com
+To: netdev@vger.kernel.org
+Cc: kvm@vger.kernel.org, "Michael S. Tsirkin" <mst@redhat.com>, linux-kernel@vger.kernel.org, virtualization@lists.linux-foundation.org, Stefan Hajnoczi <stefanha@redhat.com>, "David S. Miller" <davem@davemloft.net>
 List-Id: virtualization@lists.linuxfoundation.org
 
-T24gVGh1LCBBcHIgMDQsIDIwMTkgYXQgMDI6MTI6MzBBTSAtMDQwMCwgUGFua2FqIEd1cHRhIHdy
-b3RlOgo+ID4gQWxsIHRoaXMgYWQgaG9jIElTX0RBWCBjb25kaXRpb25hbCBsb2dpYyBpcyBnZXR0
-aW5nIHByZXR0eSBuYXN0eS4KPiA+IAo+ID4geGZzX2ZpbGVfbW1hcCgKPiA+IC4uLi4KPiA+IHsK
-PiA+IAlzdHJ1Y3QgaW5vZGUJKmlub2RlID0gZmlsZV9pbm9kZShmaWxwKTsKPiA+IAo+ID4gCWlm
-ICh2bWEtPnZtX2ZsYWdzICYgVk1fU1lOQykgewo+ID4gCQlpZiAoIUlTX0RBWChpbm9kZSkpCj4g
-PiAJCQlyZXR1cm4gLUVPUE5PVFNVUFA7Cj4gPiAJCWlmICghZGF4X3N5bmNocm9ub3VzKHhmc19m
-aW5kX2RheGRldl9mb3JfaW5vZGUoaW5vZGUpKQo+ID4gCQkJcmV0dXJuIC1FT1BOT1RTVVBQOwo+
-ID4gCX0KPiA+IAo+ID4gCWZpbGVfYWNjZXNzZWQoZmlscCk7Cj4gPiAJdm1hLT52bV9vcHMgPSAm
-eGZzX2ZpbGVfdm1fb3BzOwo+ID4gCWlmIChJU19EQVgoaW5vZGUpKQo+ID4gCQl2bWEtPnZtX2Zs
-YWdzIHw9IFZNX0hVR0VQQUdFOwo+ID4gCXJldHVybiAwOwo+ID4gfQo+IAo+IFN1cmUsIHRoaXMg
-aXMgYmV0dGVyLgoKPiA+IEV2ZW4gYmV0dGVyLCBmYWN0b3Igb3V0IGFsbCB0aGUgIk1BUF9TWU5D
-IHN1cHBvcnRlZCIgY2hlY2tzIGludG8gYQo+ID4gaGVscGVyIHNvIHRoYXQgdGhlIGZpbGVzeXN0
-ZW0gY29kZSBqdXN0IGRvZXNuJ3QgaGF2ZSB0byBjYXJlIGFib3V0Cj4gPiB0aGUgZGV0YWlscyBv
-ZiBjaGVja2luZyBmb3IgREFYK01BUF9TWU5DIHN1cHBvcnQuLi4uCj4gCj4gby5rLiBXaWxsIGFk
-ZCBvbmUgY29tbW9uIGhlbHBlciBmdW5jdGlvbiBmb3IgYm90aCBleHQ0ICYgeGZzIGZpbGVzeXN0
-ZW1zLgoKTm90ZSB0aGlzIHBlbmRpbmcgcGF0Y2ggZm9yIEdvbGR3eW4gUm9kcmlndWVzJyBwYXRj
-aHNldCBmb3IgYnRyZnM6CgpodHRwczovL2xvcmUua2VybmVsLm9yZy9saW51eC1idHJmcy8yMDE5
-MDMyODEwMjQxOC41NDY2LTEta2lsb2J5dGVAYW5nYmFuZC5wbC8KCldlIG1pZ2h0IHdhbnQgdG8g
-Y29vcmRpbmF0ZS4KCgpNZW93IQotLSAK4qKA4qO04qC+4qC74qK24qOm4qCACuKjvuKggeKioOKg
-kuKggOKjv+KhgSBEaWQgeWEga25vdyB0aGF0IHR5cGluZyAidGVzdCAtajgiIGluc3RlYWQgb2Yg
-ImN0ZXN0IC1qOCIK4qK/4qGE4qCY4qC34qCa4qCL4qCAIHdpbGwgbWFrZSB5b3VyIHRlc3RzdWl0
-ZSBwYXNzIG11Y2ggZmFzdGVyLCBhbmQgZml4IGJ1Z3M/CuKgiOKgs+KjhOKggOKggOKggOKggApf
-X19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fXwpWaXJ0dWFsaXph
-dGlvbiBtYWlsaW5nIGxpc3QKVmlydHVhbGl6YXRpb25AbGlzdHMubGludXgtZm91bmRhdGlvbi5v
-cmcKaHR0cHM6Ly9saXN0cy5saW51eGZvdW5kYXRpb24ub3JnL21haWxtYW4vbGlzdGluZm8vdmly
-dHVhbGl6YXRpb24=
+This series tries to increase the throughput of virtio-vsock with slight
+changes:
+ - patch 1/4: reduces the number of credit update messages sent to the
+              transmitter
+ - patch 2/4: allows the host to split packets on multiple buffers,
+              in this way, we can remove the packet size limit to
+              VIRTIO_VSOCK_DEFAULT_RX_BUF_SIZE
+ - patch 3/4: uses VIRTIO_VSOCK_MAX_PKT_BUF_SIZE as the max packet size
+              allowed
+ - patch 4/4: increases RX buffer size to 64 KiB (affects only host->guest)
+
+RFC:
+ - maybe patch 4 can be replaced with multiple queues with different
+   buffer sizes or using EWMA to adapt the buffer size to the traffic
+
+ - as Jason suggested in a previous thread [1] I'll evaluate to use
+   virtio-net as transport, but I need to understand better how to
+   interface with it, maybe introducing sk_buff in virtio-vsock.
+
+Any suggestions?
+
+Here some benchmarks step by step. I used iperf3 [2] modified with VSOCK
+support:
+
+                        host -> guest [Gbps]
+pkt_size    before opt.   patch 1   patches 2+3   patch 4
+  64            0.060       0.102       0.102       0.096
+  256           0.22        0.40        0.40        0.36
+  512           0.42        0.82        0.85        0.74
+  1K            0.7         1.6         1.6         1.5
+  2K            1.5         3.0         3.1         2.9
+  4K            2.5         5.2         5.3         5.3
+  8K            3.9         8.4         8.6         8.8
+  16K           6.6        11.1        11.3        12.8
+  32K           9.9        15.8        15.8        18.1
+  64K          13.5        17.4        17.7        21.4
+  128K         17.9        19.0        19.0        23.6
+  256K         18.0        19.4        19.8        24.4
+  512K         18.4        19.6        20.1        25.3
+
+                        guest -> host [Gbps]
+pkt_size    before opt.   patch 1   patches 2+3
+  64            0.088       0.100       0.101
+  256           0.35        0.36        0.41
+  512           0.70        0.74        0.73
+  1K            1.1         1.3         1.3
+  2K            2.4         2.4         2.6
+  4K            4.3         4.3         4.5
+  8K            7.3         7.4         7.6
+  16K           9.2         9.6        11.1
+  32K           8.3         8.9        18.1
+  64K           8.3         8.9        25.4
+  128K          7.2         8.7        26.7
+  256K          7.7         8.4        24.9
+  512K          7.7         8.5        25.0
+
+Thanks,
+Stefano
+
+[1] https://www.spinics.net/lists/netdev/msg531783.html
+[2] https://github.com/stefano-garzarella/iperf/
+
+Stefano Garzarella (4):
+  vsock/virtio: reduce credit update messages
+  vhost/vsock: split packets to send using multiple buffers
+  vsock/virtio: change the maximum packet size allowed
+  vsock/virtio: increase RX buffer size to 64 KiB
+
+ drivers/vhost/vsock.c                   | 35 ++++++++++++++++++++-----
+ include/linux/virtio_vsock.h            |  3 ++-
+ net/vmw_vsock/virtio_transport_common.c | 18 +++++++++----
+ 3 files changed, 44 insertions(+), 12 deletions(-)
+
+-- 
+2.20.1
