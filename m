@@ -1,17 +1,16 @@
-From: Daniel Vetter <daniel@ffwll.ch>
-Subject: Re: [PATCH] drm/cirrus: rewrite and modernize driver.
-Date: Thu, 4 Apr 2019 10:52:15 +0200
-Message-ID: <CAKMK7uHiWu-kOa6SP0ZRstnrwdYR0MHgtHdHZPLWLXxWaQVPrQ__17225.3168815345$1554367958$gmane$org@mail.gmail.com>
-References: <20190403072318.31507-1-kraxel@redhat.com>
-	<CAMwc25o=DZSVE5Qf5mow6es06Gk3=+6+8offXPY-JPgUkG_Shw@mail.gmail.com>
-	<20190404055056.ddc2bdgjbgjj7tby@sirius.home.kraxel.org>
-	<CAKMK7uFbLcziLXrwds9QZBBPFiBDC_O+X9fiuutNjsutaPW+sQ@mail.gmail.com>
-	<20190404083034.f7vrvukzqx5v7qju@sirius.home.kraxel.org>
+From: Pankaj Gupta <pagupta@redhat.com>
+Subject: Re: [PATCH v4 5/5] xfs: disable map_sync for async flush
+Date: Thu, 4 Apr 2019 05:09:10 -0400 (EDT)
+Message-ID: <651986267.17402634.1554368950178.JavaMail.zimbra__354.022316035696$1554368969$gmane$org@redhat.com>
+References: <20190403104018.23947-1-pagupta@redhat.com>
+	<20190403104018.23947-6-pagupta@redhat.com>
+	<20190403220912.GB26298@dastard> <20190403223921.GM5147@magnolia>
+	<1508883801.17367965.1554358418550.JavaMail.zimbra@redhat.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <20190404083034.f7vrvukzqx5v7qju@sirius.home.kraxel.org>
+In-Reply-To: <1508883801.17367965.1554358418550.JavaMail.zimbra@redhat.com>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -21,30 +20,131 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Gerd Hoffmann <kraxel@redhat.com>
-Cc: David Airlie <airlied@linux.ie>, David Airlie <airlied@redhat.com>, open list <linux-kernel@vger.kernel.org>, dri-devel <dri-devel@lists.freedesktop.org>, "open list:DRM DRIVER FOR QEMU'S CIRRUS DEVICE" <virtualization@lists.linux-foundation.org>
+To: "Darrick J. Wong" <darrick.wong@oracle.com>, Dave Chinner <david@fromorbit.com>
+Cc: jack@suse.cz, kvm@vger.kernel.org, mst@redhat.com, qemu-devel@nongnu.org, virtualization@lists.linux-foundation.org, adilger kernel <adilger.kernel@dilger.ca>, zwisler@kernel.org, aarcange@redhat.com, dave jiang <dave.jiang@intel.com>, linux-nvdimm@lists.01.org, vishal l verma <vishal.l.verma@intel.com>, willy@infradead.org, hch@infradead.org, linux-acpi@vger.kernel.org, jmoyer@redhat.com, linux-ext4@vger.kernel.org, lenb@kernel.org, riel@surriel.com, stefanha@redhat.com, dan j williams <dan.j.williams@intel.com>, lcapitulino@redhat.com, nilal@redhat.com, tytso@mit.edu, xiaoguangrong eric <xiaoguangrong.eric@gmail.com>, cohuck@redhat.com, rjw@rjwysocki.net, linux-kernel@vger.kernel.org, linux-xfs@vger.kernel.org, linux-fsdevel@vger.kernel.org, imammedo@redhat.com
 List-Id: virtualization@lists.linuxfoundation.org
 
-On Thu, Apr 4, 2019 at 10:30 AM Gerd Hoffmann <kraxel@redhat.com> wrote:
->
->   Hi,
->
-> > > Speaking of wayland:  Seems at least gnome-shell insists on using XR24.
-> >
-> > Yeah XR24 is pretty much mandatory. Noralf added a few helpers to
-> > convert XR24 to other formats, for display not supporting anything
-> > else. Because userspace.
->
-> Have a pointer to these helpers?  grepping around in drm didn't turn up
-> anything so far ...
 
-tinydrm_xrgb8888_to_*
+> > On Thu, Apr 04, 2019 at 09:09:12AM +1100, Dave Chinner wrote:
+> > > On Wed, Apr 03, 2019 at 04:10:18PM +0530, Pankaj Gupta wrote:
+> > > > Virtio pmem provides asynchronous host page cache flush
+> > > > mechanism. we don't support 'MAP_SYNC' with virtio pmem
+> > > > and xfs.
+> > > > 
+> > > > Signed-off-by: Pankaj Gupta <pagupta@redhat.com>
+> > > > ---
+> > > >  fs/xfs/xfs_file.c | 8 ++++++++
+> > > >  1 file changed, 8 insertions(+)
+> > > > 
+> > > > diff --git a/fs/xfs/xfs_file.c b/fs/xfs/xfs_file.c
+> > > > index 1f2e2845eb76..dced2eb8c91a 100644
+> > > > --- a/fs/xfs/xfs_file.c
+> > > > +++ b/fs/xfs/xfs_file.c
+> > > > @@ -1203,6 +1203,14 @@ xfs_file_mmap(
+> > > >  	if (!IS_DAX(file_inode(filp)) && (vma->vm_flags & VM_SYNC))
+> > > >  		return -EOPNOTSUPP;
+> > > >  
+> > > > +	/* We don't support synchronous mappings with DAX files if
+> > > > +	 * dax_device is not synchronous.
+> > > > +	 */
+> > > > +	if (IS_DAX(file_inode(filp)) && !dax_synchronous(
+> > > > +		xfs_find_daxdev_for_inode(file_inode(filp))) &&
+> > > > +					(vma->vm_flags & VM_SYNC))
+> > > > +		return -EOPNOTSUPP;
+> > > > +
+> > > >  	file_accessed(filp);
+> > > >  	vma->vm_ops = &xfs_file_vm_ops;
+> > > >  	if (IS_DAX(file_inode(filp)))
+> > > 
+> > > All this ad hoc IS_DAX conditional logic is getting pretty nasty.
+> > > 
+> > > xfs_file_mmap(
+> > > ....
+> > > {
+> > > 	struct inode	*inode = file_inode(filp);
+> > > 
+> > > 	if (vma->vm_flags & VM_SYNC) {
+> > > 		if (!IS_DAX(inode))
+> > > 			return -EOPNOTSUPP;
+> > > 		if (!dax_synchronous(xfs_find_daxdev_for_inode(inode))
+> > > 			return -EOPNOTSUPP;
+> > > 	}
+> > > 
+> > > 	file_accessed(filp);
+> > > 	vma->vm_ops = &xfs_file_vm_ops;
+> > > 	if (IS_DAX(inode))
+> > > 		vma->vm_flags |= VM_HUGEPAGE;
+> > > 	return 0;
+> > > }
+> > > 
+> > > 
+> > > Even better, factor out all the "MAP_SYNC supported" checks into a
+> > > helper so that the filesystem code just doesn't have to care about
+> > > the details of checking for DAX+MAP_SYNC support....
+> > 
+> > Seconded, since ext4 has nearly the same flag validation logic.
+> 
 
-imo these could be put into some drm_format_helpers.c to be shared.
-From a quick look the xrgb8888_to_rgb888 is missing, but for a quick
-hack you can just use rgb565 to get going.
--Daniel
--- 
-Daniel Vetter
-Software Engineer, Intel Corporation
-+41 (0) 79 365 57 48 - http://blog.ffwll.ch
+Only issue with this I see is we need the helper function only for supported
+filesystems ext4 & xfs (right now). If I create the function in "fs.h" it 
+will be compiled for every filesystem, even for those don't need it.  
+
+Sample patch below, does below patch is near to what you have in mind?
+
+=================
+
+diff --git a/fs/xfs/xfs_file.c b/fs/xfs/xfs_file.c
+index 1f2e2845eb76..614995170cac 100644
+--- a/fs/xfs/xfs_file.c
++++ b/fs/xfs/xfs_file.c
+@@ -1196,12 +1196,17 @@ xfs_file_mmap(
+        struct file     *filp,
+        struct vm_area_struct *vma)
+ {
++       struct dax_device *dax_dev = xfs_find_daxdev_for_inode(file_inode(filp));
++
+        /*
+-        * We don't support synchronous mappings for non-DAX files. At least
+-        * until someone comes with a sensible use case.
++        * We don't support synchronous mappings for non-DAX files and
++        * for DAX files if underneath dax_device is not synchronous.
+         */
+-       if (!IS_DAX(file_inode(filp)) && (vma->vm_flags & VM_SYNC))
+-               return -EOPNOTSUPP;
++       if (vma->vm_flags & VM_SYNC) {
++               int err = is_synchronous(filp, dax_dev);
++               if (err)
++                       return err;
++       }
+ 
+        file_accessed(filp);
+        vma->vm_ops = &xfs_file_vm_ops;
+diff --git a/include/linux/fs.h b/include/linux/fs.h
+index 8b42df09b04c..add017de3dd7 100644
+--- a/include/linux/fs.h
++++ b/include/linux/fs.h
+@@ -2162,6 +2162,20 @@ static inline void file_accessed(struct file *file)
+                touch_atime(&file->f_path);
+ }
+ 
++struct dax_device;
++extern bool dax_synchronous(struct dax_device *dax_dev);
++static inline int is_synchronous(struct file *filp, struct dax_device *dax_dev)
++{
++       struct inode *inode = file_inode(filp);
++
++       if (!IS_DAX(inode))
++               return -EOPNOTSUPP;
++       if (!dax_synchronous(dax_dev))
++               return -EOPNOTSUPP;
++
++       return 0;
++}
++
+ int sync_inode(struct inode *inode, struct writeback_control *wbc);
+ int sync_inode_metadata(struct inode *inode, int wait);
+ 
+---------
+
+Thanks,
+Pankaj
