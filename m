@@ -1,7 +1,8 @@
 From: Stefano Garzarella <sgarzare@redhat.com>
-Subject: [PATCH RFC 1/4] vsock/virtio: reduce credit update messages
-Date: Thu,  4 Apr 2019 12:58:35 +0200
-Message-ID: <20190404105838.101559-2-sgarzare__41989.9273825408$1555717821$gmane$org@redhat.com>
+Subject: [PATCH RFC 2/4] vhost/vsock: split packets to send using multiple
+	buffers
+Date: Thu,  4 Apr 2019 12:58:36 +0200
+Message-ID: <20190404105838.101559-3-sgarzare__8398.98544816009$1555717831$gmane$org@redhat.com>
 References: <20190404105838.101559-1-sgarzare@redhat.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
@@ -21,66 +22,82 @@ To: netdev@vger.kernel.org
 Cc: kvm@vger.kernel.org, "Michael S. Tsirkin" <mst@redhat.com>, linux-kernel@vger.kernel.org, virtualization@lists.linux-foundation.org, Stefan Hajnoczi <stefanha@redhat.com>, "David S. Miller" <davem@davemloft.net>
 List-Id: virtualization@lists.linuxfoundation.org
 
-In order to reduce the number of credit update messages,
-we send them only when the space available seen by the
-transmitter is less than VIRTIO_VSOCK_MAX_PKT_BUF_SIZE.
+If the packets to sent to the guest are bigger than the buffer
+available, we can split them, using multiple buffers and fixing
+the length in the packet header.
+This is safe since virtio-vsock supports only stream sockets.
 
 Signed-off-by: Stefano Garzarella <sgarzare@redhat.com>
 ---
- include/linux/virtio_vsock.h            |  1 +
- net/vmw_vsock/virtio_transport_common.c | 14 +++++++++++---
- 2 files changed, 12 insertions(+), 3 deletions(-)
+ drivers/vhost/vsock.c | 35 +++++++++++++++++++++++++++++------
+ 1 file changed, 29 insertions(+), 6 deletions(-)
 
-diff --git a/include/linux/virtio_vsock.h b/include/linux/virtio_vsock.h
-index e223e2632edd..6d7a22cc20bf 100644
---- a/include/linux/virtio_vsock.h
-+++ b/include/linux/virtio_vsock.h
-@@ -37,6 +37,7 @@ struct virtio_vsock_sock {
- 	u32 tx_cnt;
- 	u32 buf_alloc;
- 	u32 peer_fwd_cnt;
-+	u32 last_fwd_cnt;
- 	u32 peer_buf_alloc;
+diff --git a/drivers/vhost/vsock.c b/drivers/vhost/vsock.c
+index bb5fc0e9fbc2..9951b7e661f6 100644
+--- a/drivers/vhost/vsock.c
++++ b/drivers/vhost/vsock.c
+@@ -94,7 +94,7 @@ vhost_transport_do_send_pkt(struct vhost_vsock *vsock,
+ 		struct iov_iter iov_iter;
+ 		unsigned out, in;
+ 		size_t nbytes;
+-		size_t len;
++		size_t iov_len, payload_len;
+ 		int head;
  
- 	/* Protected by rx_lock */
-diff --git a/net/vmw_vsock/virtio_transport_common.c b/net/vmw_vsock/virtio_transport_common.c
-index 602715fc9a75..f32301d823f5 100644
---- a/net/vmw_vsock/virtio_transport_common.c
-+++ b/net/vmw_vsock/virtio_transport_common.c
-@@ -206,6 +206,7 @@ static void virtio_transport_dec_rx_pkt(struct virtio_vsock_sock *vvs,
- void virtio_transport_inc_tx_pkt(struct virtio_vsock_sock *vvs, struct virtio_vsock_pkt *pkt)
- {
- 	spin_lock_bh(&vvs->tx_lock);
-+	vvs->last_fwd_cnt = vvs->fwd_cnt;
- 	pkt->hdr.fwd_cnt = cpu_to_le32(vvs->fwd_cnt);
- 	pkt->hdr.buf_alloc = cpu_to_le32(vvs->buf_alloc);
- 	spin_unlock_bh(&vvs->tx_lock);
-@@ -256,6 +257,7 @@ virtio_transport_stream_do_dequeue(struct vsock_sock *vsk,
- 	struct virtio_vsock_sock *vvs = vsk->trans;
- 	struct virtio_vsock_pkt *pkt;
- 	size_t bytes, total = 0;
-+	s64 free_space;
- 	int err = -EFAULT;
+ 		spin_lock_bh(&vsock->send_pkt_list_lock);
+@@ -139,8 +139,18 @@ vhost_transport_do_send_pkt(struct vhost_vsock *vsock,
+ 			break;
+ 		}
  
- 	spin_lock_bh(&vvs->rx_lock);
-@@ -288,9 +290,15 @@ virtio_transport_stream_do_dequeue(struct vsock_sock *vsk,
- 	}
- 	spin_unlock_bh(&vvs->rx_lock);
+-		len = iov_length(&vq->iov[out], in);
+-		iov_iter_init(&iov_iter, READ, &vq->iov[out], in, len);
++		payload_len = pkt->len - pkt->off;
++		iov_len = iov_length(&vq->iov[out], in);
++		iov_iter_init(&iov_iter, READ, &vq->iov[out], in, iov_len);
++
++		/* If the packet is greater than the space available in the
++		 * buffer, we split it using multiple buffers.
++		 */
++		if (payload_len > iov_len - sizeof(pkt->hdr))
++			payload_len = iov_len - sizeof(pkt->hdr);
++
++		/* Set the correct length in the header */
++		pkt->hdr.len = cpu_to_le32(payload_len);
  
--	/* Send a credit pkt to peer */
--	virtio_transport_send_credit_update(vsk, VIRTIO_VSOCK_TYPE_STREAM,
--					    NULL);
-+	/* We send a credit update only when the space available seen
-+	 * by the transmitter is less than VIRTIO_VSOCK_MAX_PKT_BUF_SIZE
-+	 */
-+	free_space = vvs->buf_alloc - (vvs->fwd_cnt - vvs->last_fwd_cnt);
-+	if (free_space < VIRTIO_VSOCK_MAX_PKT_BUF_SIZE) {
-+		virtio_transport_send_credit_update(vsk,
-+						    VIRTIO_VSOCK_TYPE_STREAM,
-+						    NULL);
-+	}
+ 		nbytes = copy_to_iter(&pkt->hdr, sizeof(pkt->hdr), &iov_iter);
+ 		if (nbytes != sizeof(pkt->hdr)) {
+@@ -149,16 +159,29 @@ vhost_transport_do_send_pkt(struct vhost_vsock *vsock,
+ 			break;
+ 		}
  
- 	return total;
+-		nbytes = copy_to_iter(pkt->buf, pkt->len, &iov_iter);
+-		if (nbytes != pkt->len) {
++		nbytes = copy_to_iter(pkt->buf + pkt->off, payload_len,
++				      &iov_iter);
++		if (nbytes != payload_len) {
+ 			virtio_transport_free_pkt(pkt);
+ 			vq_err(vq, "Faulted on copying pkt buf\n");
+ 			break;
+ 		}
+ 
+-		vhost_add_used(vq, head, sizeof(pkt->hdr) + pkt->len);
++		vhost_add_used(vq, head, sizeof(pkt->hdr) + payload_len);
+ 		added = true;
+ 
++		pkt->off += payload_len;
++
++		/* If we didn't send all the payload we can requeue the packet
++		 * to send it with the next available buffer.
++		 */
++		if (pkt->off < pkt->len) {
++			spin_lock_bh(&vsock->send_pkt_list_lock);
++			list_add(&pkt->list, &vsock->send_pkt_list);
++			spin_unlock_bh(&vsock->send_pkt_list_lock);
++			continue;
++		}
++
+ 		if (pkt->reply) {
+ 			int val;
  
 -- 
 2.20.1
