@@ -1,20 +1,17 @@
-From: Gerd Hoffmann <kraxel@redhat.com>
-Subject: Re: [PATCH] drm/cirrus: rewrite and modernize driver.
-Date: Thu, 4 Apr 2019 12:27:22 +0200
-Message-ID: <20190404102722.w6c7aoxzcrhn5xhi__41377.877029457$1554373654$gmane$org@sirius.home.kraxel.org>
-References: <20190403072318.31507-1-kraxel@redhat.com>
-	<CAMwc25o=DZSVE5Qf5mow6es06Gk3=+6+8offXPY-JPgUkG_Shw@mail.gmail.com>
-	<20190404055056.ddc2bdgjbgjj7tby@sirius.home.kraxel.org>
-	<CAKMK7uFbLcziLXrwds9QZBBPFiBDC_O+X9fiuutNjsutaPW+sQ@mail.gmail.com>
-	<20190404083034.f7vrvukzqx5v7qju@sirius.home.kraxel.org>
-	<CAKMK7uHiWu-kOa6SP0ZRstnrwdYR0MHgtHdHZPLWLXxWaQVPrQ@mail.gmail.com>
-	<2866e37e-8563-1f1e-8f16-1119f70d52e1@tronnes.org>
+From: Pankaj Gupta <pagupta@redhat.com>
+Subject: Re: [PATCH v4 5/5] xfs: disable map_sync for async flush
+Date: Thu, 4 Apr 2019 06:52:16 -0400 (EDT)
+Message-ID: <511760533.17430856.1554375136102.JavaMail.zimbra__48980.6520681427$1554375153$gmane$org@redhat.com>
+References: <20190403104018.23947-1-pagupta@redhat.com>
+	<20190403104018.23947-6-pagupta@redhat.com>
+	<20190403220912.GB26298@dastard>
+	<1518295599.17367903.1554358350929.JavaMail.zimbra@redhat.com>
+	<20190404095649.GB8738@angband.pl>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset="utf-8"
+Content-Transfer-Encoding: base64
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-Content-Disposition: inline
-In-Reply-To: <2866e37e-8563-1f1e-8f16-1119f70d52e1@tronnes.org>
+In-Reply-To: <20190404095649.GB8738@angband.pl>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -24,32 +21,36 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Noralf =?utf-8?Q?Tr=C3=B8nnes?= <noralf@tronnes.org>
-Cc: David Airlie <airlied@linux.ie>, open list <linux-kernel@vger.kernel.org>, dri-devel <dri-devel@lists.freedesktop.org>, "open list:DRM DRIVER FOR QEMU'S CIRRUS DEVICE" <virtualization@lists.linux-foundation.org>, Daniel Vetter <daniel@ffwll.ch>, David Airlie <airlied@redhat.com>
+To: Adam Borowski <kilobyte@angband.pl>
+Cc: cohuck@redhat.com, jack@suse.cz, kvm@vger.kernel.org, mst@redhat.com, Dave Chinner <david@fromorbit.com>, qemu-devel@nongnu.org, virtualization@lists.linux-foundation.org, adilger kernel <adilger.kernel@dilger.ca>, zwisler@kernel.org, aarcange@redhat.com, dave jiang <dave.jiang@intel.com>, linux-nvdimm@lists.01.org, vishal l verma <vishal.l.verma@intel.com>, willy@infradead.org, hch@infradead.org, linux-acpi@vger.kernel.org, jmoyer@redhat.com, linux-ext4@vger.kernel.org, lenb@kernel.org, riel@surriel.com, stefanha@redhat.com, dan j williams <dan.j.williams@intel.com>, lcapitulino@redhat.com, nilal@redhat.com, tytso@mit.edu, xiaoguangrong eric <xiaoguangrong.eric@gmail.com>, darrick wong <darrick.wong@oracle.com>, rjw@rjwysocki.net, linux-kernel@vger.kernel.org, linux-xfs@vger.kernel.org, linux-fsdevel@vger.kernel.org, imammedo@redhat.com
 List-Id: virtualization@lists.linuxfoundation.org
 
-  Hi,
-
-> > tinydrm_xrgb8888_to_*
-> > 
-> > imo these could be put into some drm_format_helpers.c to be shared.
-> 
-> I agree, my long term goal is to get rid of tinydrm.ko. Just haven't got
-> there yet.
-> 
-> Gerd, if you end up using some of those functions, feel free to move
-> just those you need and I can do the rest later. But if you have time to
-> spare I wouldn't mind getting all of them moved ;-)
-
-For now I just promoted cirrus to be a tinydrm driver ;)
-
-Noticed that those helpers (including tinydrm_memcpy for the
-non-converting case) apply clipping on the source but not on
-the destination.  So, for fullscreen updates that works ok,
-but for updating sub-rectangles it doesn't ...
-
-So I guess I have to add a dest_clip bool parameter when moving them.
-/me looks for a good place.  drm_fb_helpers.c I think.
-
-cheers,
-  Gerd
+Cj4gCj4gT24gVGh1LCBBcHIgMDQsIDIwMTkgYXQgMDI6MTI6MzBBTSAtMDQwMCwgUGFua2FqIEd1
+cHRhIHdyb3RlOgo+ID4gPiBBbGwgdGhpcyBhZCBob2MgSVNfREFYIGNvbmRpdGlvbmFsIGxvZ2lj
+IGlzIGdldHRpbmcgcHJldHR5IG5hc3R5Lgo+ID4gPiAKPiA+ID4geGZzX2ZpbGVfbW1hcCgKPiA+
+ID4gLi4uLgo+ID4gPiB7Cj4gPiA+IAlzdHJ1Y3QgaW5vZGUJKmlub2RlID0gZmlsZV9pbm9kZShm
+aWxwKTsKPiA+ID4gCj4gPiA+IAlpZiAodm1hLT52bV9mbGFncyAmIFZNX1NZTkMpIHsKPiA+ID4g
+CQlpZiAoIUlTX0RBWChpbm9kZSkpCj4gPiA+IAkJCXJldHVybiAtRU9QTk9UU1VQUDsKPiA+ID4g
+CQlpZiAoIWRheF9zeW5jaHJvbm91cyh4ZnNfZmluZF9kYXhkZXZfZm9yX2lub2RlKGlub2RlKSkK
+PiA+ID4gCQkJcmV0dXJuIC1FT1BOT1RTVVBQOwo+ID4gPiAJfQo+ID4gPiAKPiA+ID4gCWZpbGVf
+YWNjZXNzZWQoZmlscCk7Cj4gPiA+IAl2bWEtPnZtX29wcyA9ICZ4ZnNfZmlsZV92bV9vcHM7Cj4g
+PiA+IAlpZiAoSVNfREFYKGlub2RlKSkKPiA+ID4gCQl2bWEtPnZtX2ZsYWdzIHw9IFZNX0hVR0VQ
+QUdFOwo+ID4gPiAJcmV0dXJuIDA7Cj4gPiA+IH0KPiA+IAo+ID4gU3VyZSwgdGhpcyBpcyBiZXR0
+ZXIuCj4gCj4gPiA+IEV2ZW4gYmV0dGVyLCBmYWN0b3Igb3V0IGFsbCB0aGUgIk1BUF9TWU5DIHN1
+cHBvcnRlZCIgY2hlY2tzIGludG8gYQo+ID4gPiBoZWxwZXIgc28gdGhhdCB0aGUgZmlsZXN5c3Rl
+bSBjb2RlIGp1c3QgZG9lc24ndCBoYXZlIHRvIGNhcmUgYWJvdXQKPiA+ID4gdGhlIGRldGFpbHMg
+b2YgY2hlY2tpbmcgZm9yIERBWCtNQVBfU1lOQyBzdXBwb3J0Li4uLgo+ID4gCj4gPiBvLmsuIFdp
+bGwgYWRkIG9uZSBjb21tb24gaGVscGVyIGZ1bmN0aW9uIGZvciBib3RoIGV4dDQgJiB4ZnMgZmls
+ZXN5c3RlbXMuCj4gCj4gTm90ZSB0aGlzIHBlbmRpbmcgcGF0Y2ggZm9yIEdvbGR3eW4gUm9kcmln
+dWVzJyBwYXRjaHNldCBmb3IgYnRyZnM6Cj4gCj4gaHR0cHM6Ly9sb3JlLmtlcm5lbC5vcmcvbGlu
+dXgtYnRyZnMvMjAxOTAzMjgxMDI0MTguNTQ2Ni0xLWtpbG9ieXRlQGFuZ2JhbmQucGwvCj4gCj4g
+V2UgbWlnaHQgd2FudCB0byBjb29yZGluYXRlLgoKU3VyZS4gR29vZCB0byBrbm93LgoKVGhhbmtz
+IGZvciB0aGUgcG9pbnRlci4gV2lsbCBoYXZlIGEgbG9vay4KCkJlc3QgcmVnYXJkcywKUGFua2Fq
+IAoKPiAKPiAKPiBNZW93IQo+IC0tCj4g4qKA4qO04qC+4qC74qK24qOm4qCACj4g4qO+4qCB4qKg
+4qCS4qCA4qO/4qGBIERpZCB5YSBrbm93IHRoYXQgdHlwaW5nICJ0ZXN0IC1qOCIgaW5zdGVhZCBv
+ZiAiY3Rlc3QgLWo4Igo+IOKiv+KhhOKgmOKgt+KgmuKgi+KggCB3aWxsIG1ha2UgeW91ciB0ZXN0
+c3VpdGUgcGFzcyBtdWNoIGZhc3RlciwgYW5kIGZpeCBidWdzPwo+IOKgiOKgs+KjhOKggOKggOKg
+gOKggAo+IApfX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fXwpW
+aXJ0dWFsaXphdGlvbiBtYWlsaW5nIGxpc3QKVmlydHVhbGl6YXRpb25AbGlzdHMubGludXgtZm91
+bmRhdGlvbi5vcmcKaHR0cHM6Ly9saXN0cy5saW51eGZvdW5kYXRpb24ub3JnL21haWxtYW4vbGlz
+dGluZm8vdmlydHVhbGl6YXRpb24=
