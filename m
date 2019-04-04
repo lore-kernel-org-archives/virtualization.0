@@ -1,13 +1,17 @@
-From: =?UTF-8?Q?St=C3=A9phane_Marchesin?= <stephane.marchesin@gmail.com>
-Subject: Re: [PATCH] drm/cirrus: rewrite and modernize driver.
-Date: Wed, 3 Apr 2019 20:15:34 -0700
-Message-ID: <CACP_E++MiVx1MSsvYkPKMePi5og4ZmbrPfRAm=Xf0CCet3u2vA__38342.1342748747$1555717767$gmane$org@mail.gmail.com>
-References: <20190403072318.31507-1-kraxel@redhat.com>
-	<CAMwc25o=DZSVE5Qf5mow6es06Gk3=+6+8offXPY-JPgUkG_Shw@mail.gmail.com>
+From: Yuval Shaia <yuval.shaia@oracle.com>
+Subject: Re: [Qemu-devel] [PATCH v4 2/5] virtio-pmem: Add virtio pmem driver
+Date: Thu, 4 Apr 2019 09:40:18 +0300
+Message-ID: <20190404064017.GA16459__48785.2813255572$1555717782$gmane$org@lap1>
+References: <20190403104018.23947-1-pagupta@redhat.com>
+	<20190403104018.23947-3-pagupta@redhat.com>
+	<20190403114328.GA17696@lap1>
+	<519445273.17181191.1554295213412.JavaMail.zimbra@redhat.com>
 Mime-Version: 1.0
-Content-Type: multipart/mixed; boundary="===============5913422303956153938=="
+Content-Type: text/plain; charset="us-ascii"
+Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <CAMwc25o=DZSVE5Qf5mow6es06Gk3=+6+8offXPY-JPgUkG_Shw@mail.gmail.com>
+Content-Disposition: inline
+In-Reply-To: <519445273.17181191.1554295213412.JavaMail.zimbra@redhat.com>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -17,160 +21,494 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: David Airlie <airlied@redhat.com>
-Cc: David Airlie <airlied@linux.ie>, open list <linux-kernel@vger.kernel.org>, dri-devel <dri-devel@lists.freedesktop.org>, "open list:DRM DRIVER FOR QEMU'S CIRRUS DEVICE" <virtualization@lists.linux-foundation.org>
+To: Pankaj Gupta <pagupta@redhat.com>
+Cc: jack@suse.cz, kvm@vger.kernel.org, mst@redhat.com, david@fromorbit.com, qemu-devel@nongnu.org, virtualization@lists.linux-foundation.org, adilger kernel <adilger.kernel@dilger.ca>, zwisler@kernel.org, aarcange@redhat.com, dave jiang <dave.jiang@intel.com>, linux-nvdimm@lists.01.org, vishal l verma <vishal.l.verma@intel.com>, willy@infradead.org, hch@infradead.org, linux-acpi@vger.kernel.org, jmoyer@redhat.com, linux-ext4@vger.kernel.org, lenb@kernel.org, riel@surriel.com, stefanha@redhat.com, dan j williams <dan.j.williams@intel.com>, lcapitulino@redhat.com, nilal@redhat.com, tytso@mit.edu, xiaoguangrong eric <xiaoguangrong.eric@gmail.com>, cohuck@redhat.com, rjw@rjwysocki.net, linux-kernel@vger.kernel.org, linux-xfs@vger.kernel.org, linux-fsdevel@vger.kernel.org, imammedo@redhat.com, darrick wong <darrick.wong@oracle.com>
 List-Id: virtualization@lists.linuxfoundation.org
 
---===============5913422303956153938==
-Content-Type: multipart/alternative; boundary="000000000000c4a5b20585abca5a"
+On Wed, Apr 03, 2019 at 08:40:13AM -0400, Pankaj Gupta wrote:
+> 
+> > Subject: Re: [Qemu-devel] [PATCH v4 2/5] virtio-pmem: Add virtio pmem driver
+> > 
+> > On Wed, Apr 03, 2019 at 04:10:15PM +0530, Pankaj Gupta wrote:
+> > > This patch adds virtio-pmem driver for KVM guest.
+> > > 
+> > > Guest reads the persistent memory range information from
+> > > Qemu over VIRTIO and registers it on nvdimm_bus. It also
+> > > creates a nd_region object with the persistent memory
+> > > range information so that existing 'nvdimm/pmem' driver
+> > > can reserve this into system memory map. This way
+> > > 'virtio-pmem' driver uses existing functionality of pmem
+> > > driver to register persistent memory compatible for DAX
+> > > capable filesystems.
+> > > 
+> > > This also provides function to perform guest flush over
+> > > VIRTIO from 'pmem' driver when userspace performs flush
+> > > on DAX memory range.
+> > > 
+> > > Signed-off-by: Pankaj Gupta <pagupta@redhat.com>
+> > > ---
+> > >  drivers/nvdimm/virtio_pmem.c     |  84 +++++++++++++++++++++
+> > >  drivers/virtio/Kconfig           |  10 +++
+> > >  drivers/virtio/Makefile          |   1 +
+> > >  drivers/virtio/pmem.c            | 125 +++++++++++++++++++++++++++++++
+> > >  include/linux/virtio_pmem.h      |  60 +++++++++++++++
+> > >  include/uapi/linux/virtio_ids.h  |   1 +
+> > >  include/uapi/linux/virtio_pmem.h |  10 +++
+> > >  7 files changed, 291 insertions(+)
+> > >  create mode 100644 drivers/nvdimm/virtio_pmem.c
+> > >  create mode 100644 drivers/virtio/pmem.c
+> > >  create mode 100644 include/linux/virtio_pmem.h
+> > >  create mode 100644 include/uapi/linux/virtio_pmem.h
+> > > 
+> > > diff --git a/drivers/nvdimm/virtio_pmem.c b/drivers/nvdimm/virtio_pmem.c
+> > > new file mode 100644
+> > > index 000000000000..2a1b1ba2c1ff
+> > > --- /dev/null
+> > > +++ b/drivers/nvdimm/virtio_pmem.c
+> > > @@ -0,0 +1,84 @@
+> > > +// SPDX-License-Identifier: GPL-2.0
+> > 
+> > Is this comment stile (//) acceptable?
+> 
+> In existing code, i can see same comment
+> pattern for license at some places.
 
---000000000000c4a5b20585abca5a
-Content-Type: text/plain; charset="UTF-8"
-Content-Transfer-Encoding: quoted-printable
+Is it preferred for new code?
 
-On Wed, Apr 3, 2019 at 7:58 PM David Airlie <airlied@redhat.com> wrote:
+> 
+> > 
+> > > +/*
+> > > + * virtio_pmem.c: Virtio pmem Driver
+> > > + *
+> > > + * Discovers persistent memory range information
+> > > + * from host and provides a virtio based flushing
+> > > + * interface.
+> > > + */
+> > > +#include <linux/virtio_pmem.h>
+> > > +#include "nd.h"
+> > > +
+> > > + /* The interrupt handler */
+> > > +void host_ack(struct virtqueue *vq)
+> > > +{
+> > > +	unsigned int len;
+> > > +	unsigned long flags;
+> > > +	struct virtio_pmem_request *req, *req_buf;
+> > > +	struct virtio_pmem *vpmem = vq->vdev->priv;
+> > > +
+> > > +	spin_lock_irqsave(&vpmem->pmem_lock, flags);
+> > > +	while ((req = virtqueue_get_buf(vq, &len)) != NULL) {
+> > > +		req->done = true;
+> > > +		wake_up(&req->host_acked);
+> > > +
+> > > +		if (!list_empty(&vpmem->req_list)) {
+> > > +			req_buf = list_first_entry(&vpmem->req_list,
+> > > +					struct virtio_pmem_request, list);
+> > > +			list_del(&vpmem->req_list);
+> > > +			req_buf->wq_buf_avail = true;
+> > > +			wake_up(&req_buf->wq_buf);
+> > > +		}
+> > > +	}
+> > > +	spin_unlock_irqrestore(&vpmem->pmem_lock, flags);
+> > > +}
+> > > +EXPORT_SYMBOL_GPL(host_ack);
+> > > +
+> > > + /* The request submission function */
+> > > +int virtio_pmem_flush(struct nd_region *nd_region)
+> > > +{
+> > > +	int err;
+> > > +	unsigned long flags;
+> > > +	struct scatterlist *sgs[2], sg, ret;
+> > > +	struct virtio_device *vdev = nd_region->provider_data;
+> > > +	struct virtio_pmem *vpmem = vdev->priv;
+> > > +	struct virtio_pmem_request *req;
+> > > +
+> > > +	might_sleep();
+> > 
+> > [1]
+> > 
+> > > +	req = kmalloc(sizeof(*req), GFP_KERNEL);
+> > > +	if (!req)
+> > > +		return -ENOMEM;
+> > > +
+> > > +	req->done = req->wq_buf_avail = false;
+> > > +	strcpy(req->name, "FLUSH");
+> > > +	init_waitqueue_head(&req->host_acked);
+> > > +	init_waitqueue_head(&req->wq_buf);
+> > > +	sg_init_one(&sg, req->name, strlen(req->name));
+> > > +	sgs[0] = &sg;
+> > > +	sg_init_one(&ret, &req->ret, sizeof(req->ret));
+> > > +	sgs[1] = &ret;
+> > > +
+> > > +	spin_lock_irqsave(&vpmem->pmem_lock, flags);
+> > > +	err = virtqueue_add_sgs(vpmem->req_vq, sgs, 1, 1, req, GFP_ATOMIC);
+> > 
+> > Is it okay to use GFP_ATOMIC in a might-sleep ([1]) function?
+> 
+> might sleep will give us a warning if we try to sleep from non-sleepable
+> context. 
+> 
+> We are doing it other way, i.e might_sleep is not inside GFP_ATOMIC. 
+> 
+> > 
+> > > +	if (err) {
+> > > +		dev_err(&vdev->dev, "failed to send command to virtio pmem device\n");
+> > > +
+> > > +		list_add_tail(&vpmem->req_list, &req->list);
+> > > +		spin_unlock_irqrestore(&vpmem->pmem_lock, flags);
+> > > +
+> > > +		/* When host has read buffer, this completes via host_ack */
+> > > +		wait_event(req->wq_buf, req->wq_buf_avail);
+> > > +		spin_lock_irqsave(&vpmem->pmem_lock, flags);
+> > > +	}
+> > > +	virtqueue_kick(vpmem->req_vq);
+> > 
+> > You probably want to check return value here.
+> 
+> Don't think it will matter in this case?
 
-> On Wed, Apr 3, 2019 at 5:23 PM Gerd Hoffmann <kraxel@redhat.com> wrote:
-> >
-> > Time to kill some bad sample code people are copying from ;)
-> >
-> > This is a complete rewrite of the cirrus driver.  The cirrus_mode_set()
-> > function is pretty much the only function which is carried over largely
-> > unmodified.  Everything else is upside down.
-> >
-> > It is a single monster patch.  But given that it does some pretty
-> > fundamental changes to the drivers workflow and also reduces the code
-> > size by roughly 70% I think it'll still be alot easier to review than a
-> > longish baby-step patch series.
-> >
-> > Changes summary:
-> >  - Given the small amout of video memory (4 MB) the cirrus device has
-> >    the rewritten driver doesn't try to manage buffers there.  Instead
-> >    it will blit (memcpy) the active framebuffer to video memory.
->
-> Does it get any slower, with TTM I just wrote it to migrate just the
-> frontbuffer in/out of VRAM on modeset, won't we end up with more
-> copies now?
->
-> >  - All gem objects are stored in main memory and are manged using the
-> >    new shmem helpers.  ttm is out.
-> >  - Only DRM_FORMAT_RGB565 (depth 16) is supported.  The old driver does
-> >    that too by default.  There was a module parameter which enables 24/=
-32
-> >    bpp support and disables higher resolutions (due to cirrus hardware
-> >    constrains).  That parameter wasn't reimplemented.
-> This might be the big sticking point, this is a userspace regression
-> for a feature that was explicitly added a few years ago, can we really
-> get away without it?
->
+Have no idea, if it fails maybe you will never get to host_acked.
 
-Chrome OS testing in VMs was one of the consumers of 32bpp on cirrus, and
-we have gotten rid of cirrus in favor of virtio gpu, so we'd be fine. Of
-course I can't speak for other consumers :)
+> 
+> > 
+> > > +	spin_unlock_irqrestore(&vpmem->pmem_lock, flags);
+> > > +
+> > > +	/* When host has read buffer, this completes via host_ack */
+> > > +	wait_event(req->host_acked, req->done);
+> > > +	err = req->ret;
+> > > +	kfree(req);
+> > > +
+> > > +	return err;
+> > > +};
+> > > +EXPORT_SYMBOL_GPL(virtio_pmem_flush);
+> > > +MODULE_LICENSE("GPL");
+> > > diff --git a/drivers/virtio/Kconfig b/drivers/virtio/Kconfig
+> > > index 35897649c24f..9f634a2ed638 100644
+> > > --- a/drivers/virtio/Kconfig
+> > > +++ b/drivers/virtio/Kconfig
+> > > @@ -42,6 +42,16 @@ config VIRTIO_PCI_LEGACY
+> > >  
+> > >  	  If unsure, say Y.
+> > >  
+> > > +config VIRTIO_PMEM
+> > > +	tristate "Support for virtio pmem driver"
+> > > +	depends on VIRTIO
+> > > +	depends on LIBNVDIMM
+> > > +	help
+> > > +	This driver provides support for virtio based flushing interface
+> > > +	for persistent memory range.
+> > > +
+> > > +	If unsure, say M.
+> > > +
+> > >  config VIRTIO_BALLOON
+> > >  	tristate "Virtio balloon driver"
+> > >  	depends on VIRTIO
+> > > diff --git a/drivers/virtio/Makefile b/drivers/virtio/Makefile
+> > > index 3a2b5c5dcf46..143ce91eabe9 100644
+> > > --- a/drivers/virtio/Makefile
+> > > +++ b/drivers/virtio/Makefile
+> > > @@ -6,3 +6,4 @@ virtio_pci-y := virtio_pci_modern.o virtio_pci_common.o
+> > >  virtio_pci-$(CONFIG_VIRTIO_PCI_LEGACY) += virtio_pci_legacy.o
+> > >  obj-$(CONFIG_VIRTIO_BALLOON) += virtio_balloon.o
+> > >  obj-$(CONFIG_VIRTIO_INPUT) += virtio_input.o
+> > > +obj-$(CONFIG_VIRTIO_PMEM) += pmem.o ../nvdimm/virtio_pmem.o
+> > > diff --git a/drivers/virtio/pmem.c b/drivers/virtio/pmem.c
+> > > new file mode 100644
+> > > index 000000000000..52f74064f67e
+> > > --- /dev/null
+> > > +++ b/drivers/virtio/pmem.c
+> > > @@ -0,0 +1,125 @@
+> > > +// SPDX-License-Identifier: GPL-2.0
+> > 
+> > Ditto
+> > 
+> > > +/*
+> > > + * virtio_pmem.c: Virtio pmem Driver
+> > > + *
+> > > + * Discovers persistent memory range information
+> > > + * from host and registers the virtual pmem device
+> > > + * with libnvdimm core.
+> > > + */
+> > > +#include <linux/virtio_pmem.h>
+> > > +#include <../../drivers/nvdimm/nd.h>
+> > 
+> > Should this file be moved to include/ directory?
+> 
+> We are not touching the directory structure of nd & nd_pmem
+> kernel driver.
 
-St=C3=A9phane
+But since this file becomes public it should be considered, right?
 
+> 
+> > 
+> > > +
+> > > +static struct virtio_device_id id_table[] = {
+> > > +	{ VIRTIO_ID_PMEM, VIRTIO_DEV_ANY_ID },
+> > > +	{ 0 },
+> > > +};
+> > > +
+> > > + /* Initialize virt queue */
+> > > +static int init_vq(struct virtio_pmem *vpmem)
+> > > +{
+> > > +	struct virtqueue *vq;
+> > > +
+> > > +	/* single vq */
+> > > +	vpmem->req_vq = vq = virtio_find_single_vq(vpmem->vdev,
+> > > +				host_ack, "flush_queue");
+> > > +	if (IS_ERR(vq))
+> > > +		return PTR_ERR(vq);
+> > > +
+> > > +	spin_lock_init(&vpmem->pmem_lock);
+> > > +	INIT_LIST_HEAD(&vpmem->req_list);
+> > > +
+> > > +	return 0;
+> > > +};
+> > > +
+> > > +static int virtio_pmem_probe(struct virtio_device *vdev)
+> > > +{
+> > > +	int err = 0;
+> > > +	struct resource res;
+> > > +	struct virtio_pmem *vpmem;
+> > > +	struct nvdimm_bus *nvdimm_bus;
+> > > +	struct nd_region_desc ndr_desc;
+> > > +	int nid = dev_to_node(&vdev->dev);
+> > > +	struct nd_region *nd_region;
+> > > +
+> > > +	if (!vdev->config->get) {
+> > > +		dev_err(&vdev->dev, "%s failure: config disabled\n",
+> > > +			__func__);
+> > > +		return -EINVAL;
+> > > +	}
+> > > +
+> > > +	vdev->priv = vpmem = devm_kzalloc(&vdev->dev, sizeof(*vpmem),
+> > > +			GFP_KERNEL);
+> > 
+> > Suggesting to indent it right so it will be under &vdev
+> 
+> o.k
+> 
+> > 
+> > > +	if (!vpmem) {
+> > > +		err = -ENOMEM;
+> > > +		goto out_err;
+> > > +	}
+> > > +
+> > > +	vpmem->vdev = vdev;
+> > > +	err = init_vq(vpmem);
+> > > +	if (err)
+> > > +		goto out_err;
+> > 
+> > No need to free vpmem here?
+> 
+> No. devm_kzalloc will take care of it.
 
+Nice.
 
->
-> The rest looks good though!
-> Dave.
->
-> >  - The simple display pipeline is used.
-> >  - The generic fbdev emulation is used.
-> >  - It's a atomic driver now.
-> >
-> _______________________________________________
-> dri-devel mailing list
-> dri-devel@lists.freedesktop.org
-> https://lists.freedesktop.org/mailman/listinfo/dri-devel
+> 
+> > 
+> > > +
+> > > +	virtio_cread(vpmem->vdev, struct virtio_pmem_config,
+> > > +			start, &vpmem->start);
+> > > +	virtio_cread(vpmem->vdev, struct virtio_pmem_config,
+> > > +			size, &vpmem->size);
+> > > +
+> > > +	res.start = vpmem->start;
+> > > +	res.end   = vpmem->start + vpmem->size-1;
+> > > +	vpmem->nd_desc.provider_name = "virtio-pmem";
+> > > +	vpmem->nd_desc.module = THIS_MODULE;
+> > > +
+> > > +	vpmem->nvdimm_bus = nvdimm_bus = nvdimm_bus_register(&vdev->dev,
+> > > +						&vpmem->nd_desc);
+> > > +	if (!nvdimm_bus)
+> > > +		goto out_vq;
+> > 
+> > Ditto (i'm probably missing something here)
+> > 
+> > > +
+> > > +	dev_set_drvdata(&vdev->dev, nvdimm_bus);
+> > > +	memset(&ndr_desc, 0, sizeof(ndr_desc));
+> > 
+> > Any reason not to use compiler initialization?
+> > i.e.
+> > 	struct nd_region_desc ndr_desc = {};
+> 
+> will change.
+> 
+> > 
+> > > +
+> > > +	ndr_desc.res = &res;
+> > > +	ndr_desc.numa_node = nid;
+> > > +	ndr_desc.flush = virtio_pmem_flush;
+> > > +	set_bit(ND_REGION_PAGEMAP, &ndr_desc.flags);
+> > > +	set_bit(ND_REGION_ASYNC, &ndr_desc.flags);
+> > > +	nd_region = nvdimm_pmem_region_create(nvdimm_bus, &ndr_desc);
+> > > +	nd_region->provider_data =  dev_to_virtio
+> > > +					(nd_region->dev.parent->parent);
+> > > +
+> > > +	if (!nd_region)
+> > > +		goto out_nd;
+> > > +
+> > > +	//virtio_device_ready(vdev);
+> > 
+> > Left over
+> 
+> o.k
+> 
+> > 
+> > > +	return 0;
+> > > +out_nd:
+> > > +	err = -ENXIO;
+> > > +	nvdimm_bus_unregister(nvdimm_bus);
+> > > +out_vq:
+> > > +	vdev->config->del_vqs(vdev);
+> > > +out_err:
+> > > +	dev_err(&vdev->dev, "failed to register virtio pmem memory\n");
+> > > +	return err;
+> > > +}
+> > > +
+> > > +static void virtio_pmem_remove(struct virtio_device *vdev)
+> > > +{
+> > > +	struct virtio_pmem *vpmem = vdev->priv;
+> > > +	struct nvdimm_bus *nvdimm_bus = dev_get_drvdata(&vdev->dev);
+> > > +
+> > > +	nvdimm_bus_unregister(nvdimm_bus);
+> > > +	vdev->config->del_vqs(vdev);
+> > 
+> > I think you should also call vdev->config->reset
+> 
+> o.k. Here device will be removed completely, still its required?
 
---000000000000c4a5b20585abca5a
-Content-Type: text/html; charset="UTF-8"
-Content-Transfer-Encoding: quoted-printable
+I had a bad experience with unloading virtio PCI driver and it gone after i
+added call to 'reset'.
+See the warning in function virtio_dev_remove.
 
-<div dir=3D"ltr"><div dir=3D"ltr"><br></div><br><div class=3D"gmail_quote">=
-<div dir=3D"ltr" class=3D"gmail_attr">On Wed, Apr 3, 2019 at 7:58 PM David =
-Airlie &lt;<a href=3D"mailto:airlied@redhat.com">airlied@redhat.com</a>&gt;=
- wrote:<br></div><blockquote class=3D"gmail_quote" style=3D"margin:0px 0px =
-0px 0.8ex;border-left:1px solid rgb(204,204,204);padding-left:1ex">On Wed, =
-Apr 3, 2019 at 5:23 PM Gerd Hoffmann &lt;<a href=3D"mailto:kraxel@redhat.co=
-m" target=3D"_blank">kraxel@redhat.com</a>&gt; wrote:<br>
-&gt;<br>
-&gt; Time to kill some bad sample code people are copying from ;)<br>
-&gt;<br>
-&gt; This is a complete rewrite of the cirrus driver.=C2=A0 The cirrus_mode=
-_set()<br>
-&gt; function is pretty much the only function which is carried over largel=
-y<br>
-&gt; unmodified.=C2=A0 Everything else is upside down.<br>
-&gt;<br>
-&gt; It is a single monster patch.=C2=A0 But given that it does some pretty=
-<br>
-&gt; fundamental changes to the drivers workflow and also reduces the code<=
-br>
-&gt; size by roughly 70% I think it&#39;ll still be alot easier to review t=
-han a<br>
-&gt; longish baby-step patch series.<br>
-&gt;<br>
-&gt; Changes summary:<br>
-&gt;=C2=A0 - Given the small amout of video memory (4 MB) the cirrus device=
- has<br>
-&gt;=C2=A0 =C2=A0 the rewritten driver doesn&#39;t try to manage buffers th=
-ere.=C2=A0 Instead<br>
-&gt;=C2=A0 =C2=A0 it will blit (memcpy) the active framebuffer to video mem=
-ory.<br>
-<br>
-Does it get any slower, with TTM I just wrote it to migrate just the<br>
-frontbuffer in/out of VRAM on modeset, won&#39;t we end up with more<br>
-copies now?<br>
-<br>
-&gt;=C2=A0 - All gem objects are stored in main memory and are manged using=
- the<br>
-&gt;=C2=A0 =C2=A0 new shmem helpers.=C2=A0 ttm is out.<br>
-&gt;=C2=A0 - Only DRM_FORMAT_RGB565 (depth 16) is supported.=C2=A0 The old =
-driver does<br>
-&gt;=C2=A0 =C2=A0 that too by default.=C2=A0 There was a module parameter w=
-hich enables 24/32<br>
-&gt;=C2=A0 =C2=A0 bpp support and disables higher resolutions (due to cirru=
-s hardware<br>
-&gt;=C2=A0 =C2=A0 constrains).=C2=A0 That parameter wasn&#39;t reimplemente=
-d.<br>
-This might be the big sticking point, this is a userspace regression<br>
-for a feature that was explicitly added a few years ago, can we really<br>
-get away without it?<br></blockquote><div><br></div><div>Chrome OS testing =
-in VMs was one of the consumers of 32bpp on cirrus, and we have gotten rid =
-of cirrus in favor of virtio gpu, so we&#39;d be fine. Of course I can&#39;=
-t speak for other consumers :)</div><div><br></div><div>St=C3=A9phane</div>=
-<div><br></div><div>=C2=A0</div><blockquote class=3D"gmail_quote" style=3D"=
-margin:0px 0px 0px 0.8ex;border-left:1px solid rgb(204,204,204);padding-lef=
-t:1ex">
-<br>
-The rest looks good though!<br>
-Dave.<br>
-<br>
-&gt;=C2=A0 - The simple display pipeline is used.<br>
-&gt;=C2=A0 - The generic fbdev emulation is used.<br>
-&gt;=C2=A0 - It&#39;s a atomic driver now.<br>
-&gt;<br>
-_______________________________________________<br>
-dri-devel mailing list<br>
-<a href=3D"mailto:dri-devel@lists.freedesktop.org" target=3D"_blank">dri-de=
-vel@lists.freedesktop.org</a><br>
-<a href=3D"https://lists.freedesktop.org/mailman/listinfo/dri-devel" rel=3D=
-"noreferrer" target=3D"_blank">https://lists.freedesktop.org/mailman/listin=
-fo/dri-devel</a></blockquote></div></div>
+> 
+> > 
+> > > +	kfree(vpmem);
+> > > +}
+> > > +
+> > > +static struct virtio_driver virtio_pmem_driver = {
+> > > +	.driver.name		= KBUILD_MODNAME,
+> > > +	.driver.owner		= THIS_MODULE,
+> > > +	.id_table		= id_table,
+> > > +	.probe			= virtio_pmem_probe,
+> > > +	.remove			= virtio_pmem_remove,
+> > > +};
+> > > +
+> > > +module_virtio_driver(virtio_pmem_driver);
+> > > +MODULE_DEVICE_TABLE(virtio, id_table);
+> > > +MODULE_DESCRIPTION("Virtio pmem driver");
+> > > +MODULE_LICENSE("GPL");
+> > > diff --git a/include/linux/virtio_pmem.h b/include/linux/virtio_pmem.h
+> > > new file mode 100644
+> > > index 000000000000..224f9d934be6
+> > > --- /dev/null
+> > > +++ b/include/linux/virtio_pmem.h
+> > > @@ -0,0 +1,60 @@
+> > > +/* SPDX-License-Identifier: GPL-2.0 */
+> > > +/*
+> > > + * virtio_pmem.h: virtio pmem Driver
+> > > + *
+> > > + * Discovers persistent memory range information
+> > > + * from host and provides a virtio based flushing
+> > > + * interface.
+> > > + **/
+> > > +
+> > > +#ifndef _LINUX_VIRTIO_PMEM_H
+> > > +#define _LINUX_VIRTIO_PMEM_H
+> > > +
+> > > +#include <linux/virtio_ids.h>
+> > > +#include <linux/module.h>
+> > > +#include <linux/virtio_config.h>
+> > > +#include <uapi/linux/virtio_pmem.h>
+> > > +#include <linux/libnvdimm.h>
+> > > +#include <linux/spinlock.h>
+> > > +
+> > > +struct virtio_pmem_request {
+> > > +	/* Host return status corresponding to flush request */
+> > > +	int ret;
+> > > +
+> > > +	/* command name*/
+> > > +	char name[16];
+> > > +
+> > > +	/* Wait queue to process deferred work after ack from host */
+> > > +	wait_queue_head_t host_acked;
+> > > +	bool done;
+> > > +
+> > > +	/* Wait queue to process deferred work after virt queue buffer avail */
+> > > +	wait_queue_head_t wq_buf;
+> > > +	bool wq_buf_avail;
+> > > +	struct list_head list;
+> > > +};
+> > > +
+> > > +struct virtio_pmem {
+> > > +	struct virtio_device *vdev;
+> > > +
+> > > +	/* Virtio pmem request queue */
+> > > +	struct virtqueue *req_vq;
+> > > +
+> > > +	/* nvdimm bus registers virtio pmem device */
+> > > +	struct nvdimm_bus *nvdimm_bus;
+> > > +	struct nvdimm_bus_descriptor nd_desc;
+> > > +
+> > > +	/* List to store deferred work if virtqueue is full */
+> > > +	struct list_head req_list;
+> > > +
+> > > +	/* Synchronize virtqueue data */
+> > > +	spinlock_t pmem_lock;
+> > > +
+> > > +	/* Memory region information */
+> > > +	uint64_t start;
+> > > +	uint64_t size;
+> > > +};
+> > > +
+> > > +void host_ack(struct virtqueue *vq);
+> > > +int virtio_pmem_flush(struct nd_region *nd_region);
+> > > +#endif
+> > > diff --git a/include/uapi/linux/virtio_ids.h
+> > > b/include/uapi/linux/virtio_ids.h
+> > > index 6d5c3b2d4f4d..346389565ac1 100644
+> > > --- a/include/uapi/linux/virtio_ids.h
+> > > +++ b/include/uapi/linux/virtio_ids.h
+> > > @@ -43,5 +43,6 @@
+> > >  #define VIRTIO_ID_INPUT        18 /* virtio input */
+> > >  #define VIRTIO_ID_VSOCK        19 /* virtio vsock transport */
+> > >  #define VIRTIO_ID_CRYPTO       20 /* virtio crypto */
+> > > +#define VIRTIO_ID_PMEM         25 /* virtio pmem */
+> > 
+> > Any reason for the jump here? are 21 to 24 already taken or you just
+> > want to be on the safe side?
+> 
+> They are already reserved.
 
---000000000000c4a5b20585abca5a--
+Can you direct me to how to find a free ID?
 
---===============5913422303956153938==
-Content-Type: text/plain; charset="us-ascii"
-MIME-Version: 1.0
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-
-_______________________________________________
-Virtualization mailing list
-Virtualization@lists.linux-foundation.org
-https://lists.linuxfoundation.org/mailman/listinfo/virtualization
---===============5913422303956153938==--
+> 
+> Thanks,
+> Pankaj
+> 
+> > 
+> > >  
+> > >  #endif /* _LINUX_VIRTIO_IDS_H */
+> > > diff --git a/include/uapi/linux/virtio_pmem.h
+> > > b/include/uapi/linux/virtio_pmem.h
+> > > new file mode 100644
+> > > index 000000000000..fa3f7d52717a
+> > > --- /dev/null
+> > > +++ b/include/uapi/linux/virtio_pmem.h
+> > > @@ -0,0 +1,10 @@
+> > > +/* SPDX-License-Identifier: GPL-2.0 */
+> > > +
+> > > +#ifndef _UAPI_LINUX_VIRTIO_PMEM_H
+> > > +#define _UAPI_LINUX_VIRTIO_PMEM_H
+> > > +
+> > > +struct virtio_pmem_config {
+> > > +	__le64 start;
+> > > +	__le64 size;
+> > > +};
+> > > +#endif
+> > > --
+> > > 2.20.1
+> > > 
+> > > 
+> > 
+> > 
