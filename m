@@ -1,21 +1,13 @@
-From: Gerd Hoffmann <kraxel@redhat.com>
-Subject: Re: [PATCH] drm/cirrus: rewrite and modernize driver.
-Date: Thu, 4 Apr 2019 13:45:35 +0200
-Message-ID: <20190404114535.i5wh2rqtno3n54fh__25365.275009402$1554378347$gmane$org@sirius.home.kraxel.org>
-References: <20190403072318.31507-1-kraxel@redhat.com>
-	<CAMwc25o=DZSVE5Qf5mow6es06Gk3=+6+8offXPY-JPgUkG_Shw@mail.gmail.com>
-	<20190404055056.ddc2bdgjbgjj7tby@sirius.home.kraxel.org>
-	<CAKMK7uFbLcziLXrwds9QZBBPFiBDC_O+X9fiuutNjsutaPW+sQ@mail.gmail.com>
-	<20190404083034.f7vrvukzqx5v7qju@sirius.home.kraxel.org>
-	<CAKMK7uHiWu-kOa6SP0ZRstnrwdYR0MHgtHdHZPLWLXxWaQVPrQ@mail.gmail.com>
-	<2866e37e-8563-1f1e-8f16-1119f70d52e1@tronnes.org>
-	<20190404102722.w6c7aoxzcrhn5xhi@sirius.home.kraxel.org>
+From: Stefan Hajnoczi <stefanha@gmail.com>
+Subject: Re: [PATCH RFC 0/4] vsock/virtio: optimizations to increase the
+	throughput
+Date: Thu, 4 Apr 2019 15:14:10 +0100
+Message-ID: <20190404141410.GA25152__20940.7154515915$1554387264$gmane$org@stefanha-x1.localdomain>
+References: <20190404105838.101559-1-sgarzare@redhat.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
-Content-Transfer-Encoding: 7bit
+Content-Type: multipart/mixed; boundary="===============0378591956654519726=="
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-Content-Disposition: inline
-In-Reply-To: <20190404102722.w6c7aoxzcrhn5xhi@sirius.home.kraxel.org>
+In-Reply-To: <20190404105838.101559-1-sgarzare@redhat.com>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -25,18 +17,75 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Noralf =?utf-8?Q?Tr=C3=B8nnes?= <noralf@tronnes.org>
-Cc: David Airlie <airlied@linux.ie>, David Airlie <airlied@redhat.com>, open list <linux-kernel@vger.kernel.org>, dri-devel <dri-devel@lists.freedesktop.org>, "open list:DRM DRIVER FOR QEMU'S CIRRUS DEVICE" <virtualization@lists.linux-foundation.org>
+To: Stefano Garzarella <sgarzare@redhat.com>
+Cc: kvm@vger.kernel.org, "Michael S. Tsirkin" <mst@redhat.com>, netdev@vger.kernel.org, linux-kernel@vger.kernel.org, virtualization@lists.linux-foundation.org, Stefan Hajnoczi <stefanha@redhat.com>, "David S. Miller" <davem@davemloft.net>
 List-Id: virtualization@lists.linuxfoundation.org
 
-  Hi,
 
-> So I guess I have to add a dest_clip bool parameter when moving them.
-> /me looks for a good place.  drm_fb_helpers.c I think.
+--===============0378591956654519726==
+Content-Type: multipart/signed; micalg=pgp-sha1;
+	protocol="application/pgp-signature"; boundary="FL5UXtIhxfXey3p5"
+Content-Disposition: inline
 
-https://git.kraxel.org/cgit/linux/log/?h=drm-rewrite-cirrus updated.
 
-v2 series will follow later today or tomorrow.
+--FL5UXtIhxfXey3p5
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+Content-Transfer-Encoding: quoted-printable
 
-cheers,
-  Gerd
+On Thu, Apr 04, 2019 at 12:58:34PM +0200, Stefano Garzarella wrote:
+> This series tries to increase the throughput of virtio-vsock with slight
+> changes:
+>  - patch 1/4: reduces the number of credit update messages sent to the
+>               transmitter
+>  - patch 2/4: allows the host to split packets on multiple buffers,
+>               in this way, we can remove the packet size limit to
+>               VIRTIO_VSOCK_DEFAULT_RX_BUF_SIZE
+>  - patch 3/4: uses VIRTIO_VSOCK_MAX_PKT_BUF_SIZE as the max packet size
+>               allowed
+>  - patch 4/4: increases RX buffer size to 64 KiB (affects only host->gues=
+t)
+>=20
+> RFC:
+>  - maybe patch 4 can be replaced with multiple queues with different
+>    buffer sizes or using EWMA to adapt the buffer size to the traffic
+>=20
+>  - as Jason suggested in a previous thread [1] I'll evaluate to use
+>    virtio-net as transport, but I need to understand better how to
+>    interface with it, maybe introducing sk_buff in virtio-vsock.
+>=20
+> Any suggestions?
+
+Great performance results, nice job!
+
+Please include efficiency numbers (bandwidth / CPU utilization) in the
+future.  Due to the nature of these optimizations it's unlikely that
+efficiency has decreased, so I'm not too worried about it this time.
+
+--FL5UXtIhxfXey3p5
+Content-Type: application/pgp-signature; name="signature.asc"
+
+-----BEGIN PGP SIGNATURE-----
+
+iQEcBAEBAgAGBQJcphEyAAoJEJykq7OBq3PI3fQH/iwehSG1C1HktNyFHXS6s/zt
+4G9rovQaFOnHHIa4i0DnqHRZKZ2SyrAZNy7BI8102ULb7aviSx9fK6dmxojv9tSp
+wvxg1Y5E/fF21gfYfIOR6DTXt+loSsCeBmCWVMPa2nfRqJVJJzMQfHx1xVE8chE5
+ESiA6QGGt3tj+P8F2YfDl3r3twJh1OcO6WZoKT4GxIpUfzNvlJMk99iXJz3e0E+C
+14XHoU1qhct6PWRP6R6cMEbRLmKZV6wxDERubCxPnmf+BR99z7ydDUdEZPRpjeot
+n8C4zFoJz3Fw/0q/C3XuhLpfLah+3hvF4CbJP/bjnLaZ7TwYP56RO63pakhEjjE=
+=zvVe
+-----END PGP SIGNATURE-----
+
+--FL5UXtIhxfXey3p5--
+
+--===============0378591956654519726==
+Content-Type: text/plain; charset="us-ascii"
+MIME-Version: 1.0
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+
+_______________________________________________
+Virtualization mailing list
+Virtualization@lists.linux-foundation.org
+https://lists.linuxfoundation.org/mailman/listinfo/virtualization
+--===============0378591956654519726==--
