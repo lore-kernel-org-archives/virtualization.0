@@ -1,15 +1,16 @@
-From: Stephen Hemminger <stephen@networkplumber.org>
+From: "Michael S. Tsirkin" <mst@redhat.com>
 Subject: Re: [PATCH net v6] failover: allow name change on IFF_UP slave
 	interfaces
-Date: Fri, 5 Apr 2019 14:47:50 -0700
-Message-ID: <20190405144750.441e396f__37484.4764520944$1554500922$gmane$org@shemminger-XPS-13-9360>
+Date: Fri, 5 Apr 2019 18:01:43 -0400
+Message-ID: <20190405175429-mutt-send-email-mst__41817.5248474412$1554501765$gmane$org@kernel.org>
 References: <1554267167-17561-1-git-send-email-si-wei.liu@oracle.com>
-	<20190405172835-mutt-send-email-mst@kernel.org>
+	<20190405144701.25a6b55b@shemminger-XPS-13-9360>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <20190405172835-mutt-send-email-mst@kernel.org>
+Content-Disposition: inline
+In-Reply-To: <20190405144701.25a6b55b@shemminger-XPS-13-9360>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -19,68 +20,30 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: "Michael S. Tsirkin" <mst@redhat.com>
+To: Stephen Hemminger <stephen@networkplumber.org>
 Cc: jiri@resnulli.us, kubakici@wp.pl, sridhar.samudrala@intel.com, alexander.duyck@gmail.com, virtualization@lists.linux-foundation.org, liran.alon@oracle.com, netdev@vger.kernel.org, Si-Wei Liu <si-wei.liu@oracle.com>, boris.ostrovsky@oracle.com, davem@davemloft.net
 List-Id: virtualization@lists.linuxfoundation.org
 
-On Fri, 5 Apr 2019 17:28:55 -0400
-"Michael S. Tsirkin" <mst@redhat.com> wrote:
-
-> On Wed, Apr 03, 2019 at 12:52:47AM -0400, Si-Wei Liu wrote:
-> > When a netdev appears through hot plug then gets enslaved by a failover
-> > master that is already up and running, the slave will be opened
-> > right away after getting enslaved. Today there's a race that userspace
-> > (udev) may fail to rename the slave if the kernel (net_failover)
-> > opens the slave earlier than when the userspace rename happens.
-> > Unlike bond or team, the primary slave of failover can't be renamed by
-> > userspace ahead of time, since the kernel initiated auto-enslavement is
-> > unable to, or rather, is never meant to be synchronized with the rename
-> > request from userspace.
-> > 
-> > As the failover slave interfaces are not designed to be operated
-> > directly by userspace apps: IP configuration, filter rules with
-> > regard to network traffic passing and etc., should all be done on master
-> > interface. In general, userspace apps only care about the
-> > name of master interface, while slave names are less important as long
-> > as admin users can see reliable names that may carry
-> > other information describing the netdev. For e.g., they can infer that
-> > "ens3nsby" is a standby slave of "ens3", while for a
-> > name like "eth0" they can't tell which master it belongs to.
-> > 
-> > Historically the name of IFF_UP interface can't be changed because
-> > there might be admin script or management software that is already
-> > relying on such behavior and assumes that the slave name can't be
-> > changed once UP. But failover is special: with the in-kernel
-> > auto-enslavement mechanism, the userspace expectation for device
-> > enumeration and bring-up order is already broken. Previously initramfs
-> > and various userspace config tools were modified to bypass failover
-> > slaves because of auto-enslavement and duplicate MAC address. Similarly,
-> > in case that users care about seeing reliable slave name, the new type
-> > of failover slaves needs to be taken care of specifically in userspace
-> > anyway.
-> > 
-> > It's less risky to lift up the rename restriction on failover slave
-> > which is already UP. Although it's possible this change may potentially
-> > break userspace component (most likely configuration scripts or
-> > management software) that assumes slave name can't be changed while
-> > UP, it's relatively a limited and controllable set among all userspace
-> > components, which can be fixed specifically to listen for the rename
-> > and/or link down/up events on failover slaves. Userspace component
-> > interacting with slaves is expected to be changed to operate on failover
-> > master interface instead, as the failover slave is dynamic in nature
-> > which may come and go at any point.  The goal is to make the role of
-> > failover slaves less relevant, and userspace components should only
-> > deal with failover master in the long run.
-> > 
-> > Fixes: 30c8bd5aa8b2 ("net: Introduce generic failover module")
-> > Signed-off-by: Si-Wei Liu <si-wei.liu@oracle.com>
-> > Reviewed-by: Liran Alon <liran.alon@oracle.com>  
+On Fri, Apr 05, 2019 at 02:47:01PM -0700, Stephen Hemminger wrote:
+> On Wed,  3 Apr 2019 00:52:47 -0400
+> Si-Wei Liu <si-wei.liu@oracle.com> wrote:
 > 
-> Acked-by: Michael S. Tsirkin <mst@redhat.com>
+> >  
+> > +	if (unlikely(dev->flags & IFF_UP)) {
+> > +		struct netdev_notifier_change_info change_info = {
+> > +			.info.dev = dev,
+> > +		};
+> > +
+> > +		call_netdevice_notifiers_info(NETDEV_CHANGE,
+> > +					      &change_info.info);
+> > +	}
 > 
-> Stephen are you happy with this approach?
+> This notifier is not really necessary, there already is a CHANGENAME
+> that gets sent.
+> NETDEV_CHANGE is used in other cases to mean that the state (flags)
+> have changed.
 
-I think it is the best solution for what you want to do. 
-
-Did you test with some things like Free Range Routing, VPP or other userspace
-control planes that consume netlink?
+The point is some existing scripts might not expect name
+change to happen without a status change afterwards (since it was
+impossible for so long). So this reports a change
+to make sure scripts do not miss it.
