@@ -1,16 +1,17 @@
 From: Stefano Garzarella <sgarzare@redhat.com>
-Subject: Re: [PATCH RFC 1/4] vsock/virtio: reduce credit update messages
-Date: Fri, 5 Apr 2019 10:16:48 +0200
-Message-ID: <20190405081648.2zflr7gxknk4q3a2__47078.1653116987$1555717940$gmane$org@steredhat>
+Subject: Re: [PATCH RFC 2/4] vhost/vsock: split packets to send using
+	multiple buffers
+Date: Fri, 5 Apr 2019 11:36:08 +0200
+Message-ID: <20190405093608.f2zsyxnjxcba5v6r__14338.673201722$1555717951$gmane$org@steredhat>
 References: <20190404105838.101559-1-sgarzare@redhat.com>
-	<20190404105838.101559-2-sgarzare@redhat.com>
-	<20190404191539.GB25152@stefanha-x1.localdomain>
+	<20190404105838.101559-3-sgarzare@redhat.com>
+	<20190405081356.GC25152@stefanha-x1.localdomain>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
 Content-Disposition: inline
-In-Reply-To: <20190404191539.GB25152@stefanha-x1.localdomain>
+In-Reply-To: <20190405081356.GC25152@stefanha-x1.localdomain>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -24,48 +25,54 @@ To: Stefan Hajnoczi <stefanha@gmail.com>
 Cc: kvm@vger.kernel.org, "Michael S. Tsirkin" <mst@redhat.com>, netdev@vger.kernel.org, linux-kernel@vger.kernel.org, virtualization@lists.linux-foundation.org, Stefan Hajnoczi <stefanha@redhat.com>, "David S. Miller" <davem@davemloft.net>
 List-Id: virtualization@lists.linuxfoundation.org
 
-On Thu, Apr 04, 2019 at 08:15:39PM +0100, Stefan Hajnoczi wrote:
-> On Thu, Apr 04, 2019 at 12:58:35PM +0200, Stefano Garzarella wrote:
-> > @@ -256,6 +257,7 @@ virtio_transport_stream_do_dequeue(struct vsock_sock *vsk,
-> >  	struct virtio_vsock_sock *vvs = vsk->trans;
-> >  	struct virtio_vsock_pkt *pkt;
-> >  	size_t bytes, total = 0;
-> > +	s64 free_space;
-> 
-> Why s64?  buf_alloc, fwd_cnt, and last_fwd_cnt are all u32.  fwd_cnt -
-> last_fwd_cnt <= buf_alloc is always true.
-> 
-
-Right, I'll use a u32 for free_space!
-Is is a leftover because initially I implemented something like
-virtio_transport_has_space().
-
-> >  	int err = -EFAULT;
+On Fri, Apr 05, 2019 at 09:13:56AM +0100, Stefan Hajnoczi wrote:
+> On Thu, Apr 04, 2019 at 12:58:36PM +0200, Stefano Garzarella wrote:
+> > @@ -139,8 +139,18 @@ vhost_transport_do_send_pkt(struct vhost_vsock *vsock,
+> >  			break;
+> >  		}
 > >  
-> >  	spin_lock_bh(&vvs->rx_lock);
-> > @@ -288,9 +290,15 @@ virtio_transport_stream_do_dequeue(struct vsock_sock *vsk,
-> >  	}
-> >  	spin_unlock_bh(&vvs->rx_lock);
+> > -		len = iov_length(&vq->iov[out], in);
+> > -		iov_iter_init(&iov_iter, READ, &vq->iov[out], in, len);
+> > +		payload_len = pkt->len - pkt->off;
+> > +		iov_len = iov_length(&vq->iov[out], in);
+> > +		iov_iter_init(&iov_iter, READ, &vq->iov[out], in, iov_len);
+> > +
+> > +		/* If the packet is greater than the space available in the
+> > +		 * buffer, we split it using multiple buffers.
+> > +		 */
+> > +		if (payload_len > iov_len - sizeof(pkt->hdr))
+> 
+> Integer underflow.  iov_len is controlled by the guest and therefore
+> untrusted.  Please validate iov_len before assuming it's larger than
+> sizeof(pkt->hdr).
+> 
+
+Okay, I'll do it!
+
+> > -		vhost_add_used(vq, head, sizeof(pkt->hdr) + pkt->len);
+> > +		vhost_add_used(vq, head, sizeof(pkt->hdr) + payload_len);
+> >  		added = true;
 > >  
-> > -	/* Send a credit pkt to peer */
-> > -	virtio_transport_send_credit_update(vsk, VIRTIO_VSOCK_TYPE_STREAM,
-> > -					    NULL);
-> > +	/* We send a credit update only when the space available seen
-> > +	 * by the transmitter is less than VIRTIO_VSOCK_MAX_PKT_BUF_SIZE
-> > +	 */
-> > +	free_space = vvs->buf_alloc - (vvs->fwd_cnt - vvs->last_fwd_cnt);
+> > +		pkt->off += payload_len;
+> > +
+> > +		/* If we didn't send all the payload we can requeue the packet
+> > +		 * to send it with the next available buffer.
+> > +		 */
+> > +		if (pkt->off < pkt->len) {
+> > +			spin_lock_bh(&vsock->send_pkt_list_lock);
+> > +			list_add(&pkt->list, &vsock->send_pkt_list);
+> > +			spin_unlock_bh(&vsock->send_pkt_list_lock);
+> > +			continue;
 > 
-> Locking?  These fields should be accessed under tx_lock.
-> 
+> The virtio_transport_deliver_tap_pkt() call is skipped.  Packet capture
+> should see the exact packets that are delivered.  I think this patch
+> will present one large packet instead of several smaller packets that
+> were actually delivered.
 
-Yes, we need a lock, but looking in the code, vvs->fwd_cnd is written
-taking rx_lock (virtio_transport_dec_rx_pkt) and it is read with the
-tx_lock (virtio_transport_inc_tx_pkt).
-
-Maybe we should use another spin_lock shared between RX and TX for those
-fields or use atomic variables.
-
-What do you suggest?
+I'll modify virtio_transport_build_skb() to take care of pkt->off
+and reading the payload size from the virtio_vsock_hdr.
+Otherwise, should I introduce another field in virtio_vsock_pkt to store
+the payload size?
 
 Thanks,
 Stefano
