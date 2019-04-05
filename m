@@ -1,14 +1,15 @@
-From: =?UTF-8?Q?Noralf_Tr=c3=b8nnes?= <noralf@tronnes.org>
-Subject: Re: [PATCH v3 5/5] drm/cirrus: rewrite and modernize driver.
-Date: Fri, 5 Apr 2019 16:43:04 +0200
-Message-ID: <b52ffab7-bc9d-9ce1-4c46-d6fd9b9aefe9__23220.503684$1554475440$gmane$org@tronnes.org>
-References: <20190405095219.9231-1-kraxel@redhat.com>
-	<20190405095219.9231-6-kraxel@redhat.com>
+From: "Michael S. Tsirkin" <mst@redhat.com>
+Subject: Re: [PATCH net v6] failover: allow name change on IFF_UP slave
+	interfaces
+Date: Fri, 5 Apr 2019 17:28:55 -0400
+Message-ID: <20190405172835-mutt-send-email-mst__47492.9287027166$1554499802$gmane$org@kernel.org>
+References: <1554267167-17561-1-git-send-email-si-wei.liu@oracle.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="utf-8"
-Content-Transfer-Encoding: base64
+Content-Type: text/plain; charset="us-ascii"
+Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <20190405095219.9231-6-kraxel@redhat.com>
+Content-Disposition: inline
+In-Reply-To: <1554267167-17561-1-git-send-email-si-wei.liu@oracle.com>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -18,34 +19,187 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Gerd Hoffmann <kraxel@redhat.com>, dri-devel@lists.freedesktop.org
-Cc: David Airlie <airlied@linux.ie>, open list <linux-kernel@vger.kernel.org>, "open list:DRM DRIVER FOR QEMU'S CIRRUS DEVICE" <virtualization@lists.linux-foundation.org>, Daniel Vetter <daniel@ffwll.ch>, Dave Airlie <airlied@redhat.com>, sam@ravnborg.org
+To: Si-Wei Liu <si-wei.liu@oracle.com>
+Cc: jiri@resnulli.us, kubakici@wp.pl, sridhar.samudrala@intel.com, alexander.duyck@gmail.com, virtualization@lists.linux-foundation.org, liran.alon@oracle.com, netdev@vger.kernel.org, boris.ostrovsky@oracle.com, davem@davemloft.net
 List-Id: virtualization@lists.linuxfoundation.org
 
-CgpEZW4gMDUuMDQuMjAxOSAxMS41Miwgc2tyZXYgR2VyZCBIb2ZmbWFubjoKPiBUaW1lIHRvIGtp
-bGwgc29tZSBiYWQgc2FtcGxlIGNvZGUgcGVvcGxlIGFyZSBjb3B5aW5nIGZyb20gOykKPiAKPiBU
-aGlzIGlzIGEgY29tcGxldGUgcmV3cml0ZSBvZiB0aGUgY2lycnVzIGRyaXZlci4gIFRoZSBjaXJy
-dXNfbW9kZV9zZXQoKQo+IGZ1bmN0aW9uIGlzIHByZXR0eSBtdWNoIHRoZSBvbmx5IGZ1bmN0aW9u
-IHdoaWNoIGlzIGNhcnJpZWQgb3ZlciBsYXJnZWx5Cj4gdW5tb2RpZmllZC4gIEV2ZXJ5dGhpbmcg
-ZWxzZSBpcyB1cHNpZGUgZG93bi4KPiAKPiBJdCBpcyBhIHNpbmdsZSBtb25zdGVyIHBhdGNoLiAg
-QnV0IGdpdmVuIHRoYXQgaXQgZG9lcyBzb21lIHByZXR0eQo+IGZ1bmRhbWVudGFsIGNoYW5nZXMg
-dG8gdGhlIGRyaXZlcnMgd29ya2Zsb3cgYW5kIGFsc28gcmVkdWNlcyB0aGUgY29kZQo+IHNpemUg
-Ynkgcm91Z2hseSA3MCUgSSB0aGluayBpdCdsbCBzdGlsbCBiZSBhbG90IGVhc2llciB0byByZXZp
-ZXcgdGhhbiBhCj4gbG9uZ2lzaCBiYWJ5LXN0ZXAgcGF0Y2ggc2VyaWVzLgo+IAo+IENoYW5nZXMg
-c3VtbWFyeToKPiAgLSBHaXZlbiB0aGUgc21hbGwgYW1vdXQgb2YgdmlkZW8gbWVtb3J5ICg0IE1C
-KSB0aGUgY2lycnVzIGRldmljZSBoYXMKPiAgICB0aGUgcmV3cml0dGVuIGRyaXZlciBkb2Vzbid0
-IHRyeSB0byBtYW5hZ2UgYnVmZmVycyB0aGVyZS4gIEluc3RlYWQKPiAgICBpdCB3aWxsIGJsaXQg
-KG1lbWNweSkgdGhlIGFjdGl2ZSBmcmFtZWJ1ZmZlciB0byB2aWRlbyBtZW1vcnkuCj4gIC0gQWxs
-IGdlbSBvYmplY3RzIGFyZSBzdG9yZWQgaW4gbWFpbiBtZW1vcnkgYW5kIGFyZSBtYW5nZWQgdXNp
-bmcgdGhlCj4gICAgbmV3IHNobWVtIGhlbHBlcnMuICB0dG0gaXMgb3V0Lgo+ICAtIEl0IHN1cHBv
-cnRzIFJHMTYsIFJHMjQgYW5kIFhSMjQgZm9ybWF0cy4gIFhSMjQgZ2V0cyBjb252ZXJ0ZWQgdG8g
-UkcyNAo+ICAgIG9yIFJHMTYgYXQgYmxpdCB0aW1lIGlmIG5lZWRlZCwgdG8gYXZvaWQgdGhlIHBp
-dGNoIGJlY29taW5nIGxhcmdlcgo+ICAgIHRoYW4gd2hhdCB0aGUgY2lycnVzIGhhcmR3YXJlIGNh
-biBoYW5kbGUuCj4gIC0gVGhlIHNpbXBsZSBkaXNwbGF5IHBpcGVsaW5lIGlzIHVzZWQuCj4gIC0g
-VGhlIGdlbmVyaWMgZmJkZXYgZW11bGF0aW9uIGlzIHVzZWQuCj4gIC0gSXQncyBhIGF0b21pYyBk
-cml2ZXIgbm93Lgo+ICAtIEl0IHJ1bnMgd2F5bGFuZC4KPiAKPiBTaWduZWQtb2ZmLWJ5OiBHZXJk
-IEhvZmZtYW5uIDxrcmF4ZWxAcmVkaGF0LmNvbT4KPiAtLS0KCkFja2VkLWJ5OiBOb3JhbGYgVHLD
-uG5uZXMgPG5vcmFsZkB0cm9ubmVzLm9yZz4KX19fX19fX19fX19fX19fX19fX19fX19fX19fX19f
-X19fX19fX19fX19fX19fX18KVmlydHVhbGl6YXRpb24gbWFpbGluZyBsaXN0ClZpcnR1YWxpemF0
-aW9uQGxpc3RzLmxpbnV4LWZvdW5kYXRpb24ub3JnCmh0dHBzOi8vbGlzdHMubGludXhmb3VuZGF0
-aW9uLm9yZy9tYWlsbWFuL2xpc3RpbmZvL3ZpcnR1YWxpemF0aW9u
+On Wed, Apr 03, 2019 at 12:52:47AM -0400, Si-Wei Liu wrote:
+> When a netdev appears through hot plug then gets enslaved by a failover
+> master that is already up and running, the slave will be opened
+> right away after getting enslaved. Today there's a race that userspace
+> (udev) may fail to rename the slave if the kernel (net_failover)
+> opens the slave earlier than when the userspace rename happens.
+> Unlike bond or team, the primary slave of failover can't be renamed by
+> userspace ahead of time, since the kernel initiated auto-enslavement is
+> unable to, or rather, is never meant to be synchronized with the rename
+> request from userspace.
+> 
+> As the failover slave interfaces are not designed to be operated
+> directly by userspace apps: IP configuration, filter rules with
+> regard to network traffic passing and etc., should all be done on master
+> interface. In general, userspace apps only care about the
+> name of master interface, while slave names are less important as long
+> as admin users can see reliable names that may carry
+> other information describing the netdev. For e.g., they can infer that
+> "ens3nsby" is a standby slave of "ens3", while for a
+> name like "eth0" they can't tell which master it belongs to.
+> 
+> Historically the name of IFF_UP interface can't be changed because
+> there might be admin script or management software that is already
+> relying on such behavior and assumes that the slave name can't be
+> changed once UP. But failover is special: with the in-kernel
+> auto-enslavement mechanism, the userspace expectation for device
+> enumeration and bring-up order is already broken. Previously initramfs
+> and various userspace config tools were modified to bypass failover
+> slaves because of auto-enslavement and duplicate MAC address. Similarly,
+> in case that users care about seeing reliable slave name, the new type
+> of failover slaves needs to be taken care of specifically in userspace
+> anyway.
+> 
+> It's less risky to lift up the rename restriction on failover slave
+> which is already UP. Although it's possible this change may potentially
+> break userspace component (most likely configuration scripts or
+> management software) that assumes slave name can't be changed while
+> UP, it's relatively a limited and controllable set among all userspace
+> components, which can be fixed specifically to listen for the rename
+> and/or link down/up events on failover slaves. Userspace component
+> interacting with slaves is expected to be changed to operate on failover
+> master interface instead, as the failover slave is dynamic in nature
+> which may come and go at any point.  The goal is to make the role of
+> failover slaves less relevant, and userspace components should only
+> deal with failover master in the long run.
+> 
+> Fixes: 30c8bd5aa8b2 ("net: Introduce generic failover module")
+> Signed-off-by: Si-Wei Liu <si-wei.liu@oracle.com>
+> Reviewed-by: Liran Alon <liran.alon@oracle.com>
+
+Acked-by: Michael S. Tsirkin <mst@redhat.com>
+
+Stephen are you happy with this approach?
+
+> --
+> v1 -> v2:
+> - Drop configurable module parameter (Sridhar)
+> 
+> v2 -> v3:
+> - Drop additional IFF_SLAVE_RENAME_OK flag (Sridhar)
+> - Send down and up events around rename (Michael S. Tsirkin)
+> 
+> v3 -> v4:
+> - Simplify notification to be sent (Stephen Hemminger)
+> 
+> v4 -> v5:
+> - Sync up code with latest net-next (Sridhar)
+> - Use proper structure initialization (Stephen, Jiri)
+> 
+> v5 -> v6:
+> - Make the property of live name change a generic flag (Stephen)
+> ---
+>  include/linux/netdevice.h |  3 +++
+>  net/core/dev.c            | 25 ++++++++++++++++++++++++-
+>  net/core/failover.c       |  6 +++---
+>  3 files changed, 30 insertions(+), 4 deletions(-)
+> 
+> diff --git a/include/linux/netdevice.h b/include/linux/netdevice.h
+> index 78f5ec4e..ea9a63f 100644
+> --- a/include/linux/netdevice.h
+> +++ b/include/linux/netdevice.h
+> @@ -1498,6 +1498,7 @@ struct net_device_ops {
+>   * @IFF_FAILOVER: device is a failover master device
+>   * @IFF_FAILOVER_SLAVE: device is lower dev of a failover master device
+>   * @IFF_L3MDEV_RX_HANDLER: only invoke the rx handler of L3 master device
+> + * @IFF_LIVE_NAME_CHANGE: rename is allowed while device is running
+>   */
+>  enum netdev_priv_flags {
+>  	IFF_802_1Q_VLAN			= 1<<0,
+> @@ -1530,6 +1531,7 @@ enum netdev_priv_flags {
+>  	IFF_FAILOVER			= 1<<27,
+>  	IFF_FAILOVER_SLAVE		= 1<<28,
+>  	IFF_L3MDEV_RX_HANDLER		= 1<<29,
+> +	IFF_LIVE_NAME_CHANGE		= 1<<30,
+>  };
+>  
+>  #define IFF_802_1Q_VLAN			IFF_802_1Q_VLAN
+> @@ -1561,6 +1563,7 @@ enum netdev_priv_flags {
+>  #define IFF_FAILOVER			IFF_FAILOVER
+>  #define IFF_FAILOVER_SLAVE		IFF_FAILOVER_SLAVE
+>  #define IFF_L3MDEV_RX_HANDLER		IFF_L3MDEV_RX_HANDLER
+> +#define IFF_LIVE_NAME_CHANGE		IFF_LIVE_NAME_CHANGE
+>  
+>  /**
+>   *	struct net_device - The DEVICE structure.
+> diff --git a/net/core/dev.c b/net/core/dev.c
+> index 9823b77..48341d5 100644
+> --- a/net/core/dev.c
+> +++ b/net/core/dev.c
+> @@ -1185,7 +1185,21 @@ int dev_change_name(struct net_device *dev, const char *newname)
+>  	BUG_ON(!dev_net(dev));
+>  
+>  	net = dev_net(dev);
+> -	if (dev->flags & IFF_UP)
+> +
+> +	/* Some auto-enslaved devices e.g. failover slaves are
+> +	 * special, as userspace might rename the device after
+> +	 * the interface had been brought up and running since
+> +	 * the point kernel initiated auto-enslavement. Allow
+> +	 * live name change even when these slave devices are
+> +	 * up and running.
+> +	 *
+> +	 * Typically, users of these auto-enslaving devices
+> +	 * don't actually care about slave name change, as
+> +	 * they are supposed to operate on master interface
+> +	 * directly.
+> +	 */
+> +	if (dev->flags & IFF_UP &&
+> +	    likely(!(dev->priv_flags & IFF_LIVE_NAME_CHANGE)))
+>  		return -EBUSY;
+>  
+>  	write_seqcount_begin(&devnet_rename_seq);
+> @@ -1232,6 +1246,15 @@ int dev_change_name(struct net_device *dev, const char *newname)
+>  	hlist_add_head_rcu(&dev->name_hlist, dev_name_hash(net, dev->name));
+>  	write_unlock_bh(&dev_base_lock);
+>  
+> +	if (unlikely(dev->flags & IFF_UP)) {
+> +		struct netdev_notifier_change_info change_info = {
+> +			.info.dev = dev,
+> +		};
+> +
+> +		call_netdevice_notifiers_info(NETDEV_CHANGE,
+> +					      &change_info.info);
+> +	}
+> +
+>  	ret = call_netdevice_notifiers(NETDEV_CHANGENAME, dev);
+>  	ret = notifier_to_errno(ret);
+>  
+> diff --git a/net/core/failover.c b/net/core/failover.c
+> index 4a92a98..b5cd3c7 100644
+> --- a/net/core/failover.c
+> +++ b/net/core/failover.c
+> @@ -80,14 +80,14 @@ static int failover_slave_register(struct net_device *slave_dev)
+>  		goto err_upper_link;
+>  	}
+>  
+> -	slave_dev->priv_flags |= IFF_FAILOVER_SLAVE;
+> +	slave_dev->priv_flags |= (IFF_FAILOVER_SLAVE | IFF_LIVE_NAME_CHANGE);
+>  
+>  	if (fops && fops->slave_register &&
+>  	    !fops->slave_register(slave_dev, failover_dev))
+>  		return NOTIFY_OK;
+>  
+>  	netdev_upper_dev_unlink(slave_dev, failover_dev);
+> -	slave_dev->priv_flags &= ~IFF_FAILOVER_SLAVE;
+> +	slave_dev->priv_flags &= ~(IFF_FAILOVER_SLAVE | IFF_LIVE_NAME_CHANGE);
+>  err_upper_link:
+>  	netdev_rx_handler_unregister(slave_dev);
+>  done:
+> @@ -121,7 +121,7 @@ int failover_slave_unregister(struct net_device *slave_dev)
+>  
+>  	netdev_rx_handler_unregister(slave_dev);
+>  	netdev_upper_dev_unlink(slave_dev, failover_dev);
+> -	slave_dev->priv_flags &= ~IFF_FAILOVER_SLAVE;
+> +	slave_dev->priv_flags &= ~(IFF_FAILOVER_SLAVE | IFF_LIVE_NAME_CHANGE);
+>  
+>  	if (fops && fops->slave_unregister &&
+>  	    !fops->slave_unregister(slave_dev, failover_dev))
+> -- 
+> 1.8.3.1
