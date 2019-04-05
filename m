@@ -1,14 +1,13 @@
 From: Stefan Hajnoczi <stefanha@gmail.com>
-Subject: Re: [PATCH RFC 3/4] vsock/virtio: change the maximum packet size
-	allowed
-Date: Fri, 5 Apr 2019 09:24:47 +0100
-Message-ID: <20190405082447.GD25152__17912.188817148$1554452730$gmane$org@stefanha-x1.localdomain>
+Subject: Re: [PATCH RFC 4/4] vsock/virtio: increase RX buffer size to 64 KiB
+Date: Fri, 5 Apr 2019 09:44:14 +0100
+Message-ID: <20190405084414.GE25152__3186.07459064282$1554453892$gmane$org@stefanha-x1.localdomain>
 References: <20190404105838.101559-1-sgarzare@redhat.com>
-	<20190404105838.101559-4-sgarzare@redhat.com>
+	<20190404105838.101559-5-sgarzare@redhat.com>
 Mime-Version: 1.0
-Content-Type: multipart/mixed; boundary="===============7208995834968267357=="
+Content-Type: multipart/mixed; boundary="===============1578847784214087880=="
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <20190404105838.101559-4-sgarzare@redhat.com>
+In-Reply-To: <20190404105838.101559-5-sgarzare@redhat.com>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -18,83 +17,70 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Stefano Garzarella <sgarzare@redhat.com>
-Cc: kvm@vger.kernel.org, "Michael S. Tsirkin" <mst@redhat.com>, netdev@vger.kernel.org, linux-kernel@vger.kernel.org, virtualization@lists.linux-foundation.org, Stefan Hajnoczi <stefanha@redhat.com>, "David S. Miller" <davem@davemloft.net>
+To: Jason Wang <jasowang@redhat.com>, "Michael S. Tsirkin" <mst@redhat.com>
+Cc: kvm@vger.kernel.org, netdev@vger.kernel.org, linux-kernel@vger.kernel.org, virtualization@lists.linux-foundation.org, Stefan Hajnoczi <stefanha@redhat.com>, "David S. Miller" <davem@davemloft.net>, Stefano Garzarella <sgarzare@redhat.com>
 List-Id: virtualization@lists.linuxfoundation.org
 
 
---===============7208995834968267357==
+--===============1578847784214087880==
 Content-Type: multipart/signed; micalg=pgp-sha1;
-	protocol="application/pgp-signature"; boundary="yudcn1FV7Hsu/q59"
+	protocol="application/pgp-signature"; boundary="h56sxpGKRmy85csR"
 Content-Disposition: inline
 
 
---yudcn1FV7Hsu/q59
+--h56sxpGKRmy85csR
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
 Content-Transfer-Encoding: quoted-printable
 
-On Thu, Apr 04, 2019 at 12:58:37PM +0200, Stefano Garzarella wrote:
-> Since now we are able to split packets, we can avoid limiting
-> their sizes to VIRTIO_VSOCK_DEFAULT_RX_BUF_SIZE.
-> Instead, we can use VIRTIO_VSOCK_MAX_PKT_BUF_SIZE as the max
-> packet size.
+On Thu, Apr 04, 2019 at 12:58:38PM +0200, Stefano Garzarella wrote:
+> In order to increase host -> guest throughput with large packets,
+> we can use 64 KiB RX buffers.
 >=20
 > Signed-off-by: Stefano Garzarella <sgarzare@redhat.com>
 > ---
->  net/vmw_vsock/virtio_transport_common.c | 4 ++--
->  1 file changed, 2 insertions(+), 2 deletions(-)
+>  include/linux/virtio_vsock.h | 2 +-
+>  1 file changed, 1 insertion(+), 1 deletion(-)
 >=20
-> diff --git a/net/vmw_vsock/virtio_transport_common.c b/net/vmw_vsock/virt=
-io_transport_common.c
-> index f32301d823f5..822e5d07a4ec 100644
-> --- a/net/vmw_vsock/virtio_transport_common.c
-> +++ b/net/vmw_vsock/virtio_transport_common.c
-> @@ -167,8 +167,8 @@ static int virtio_transport_send_pkt_info(struct vsoc=
-k_sock *vsk,
->  	vvs =3D vsk->trans;
-> =20
->  	/* we can send less than pkt_len bytes */
-> -	if (pkt_len > VIRTIO_VSOCK_DEFAULT_RX_BUF_SIZE)
-> -		pkt_len =3D VIRTIO_VSOCK_DEFAULT_RX_BUF_SIZE;
-> +	if (pkt_len > VIRTIO_VSOCK_MAX_PKT_BUF_SIZE)
-> +		pkt_len =3D VIRTIO_VSOCK_MAX_PKT_BUF_SIZE;
+> diff --git a/include/linux/virtio_vsock.h b/include/linux/virtio_vsock.h
+> index 6d7a22cc20bf..43cce304408e 100644
+> --- a/include/linux/virtio_vsock.h
+> +++ b/include/linux/virtio_vsock.h
+> @@ -10,7 +10,7 @@
+>  #define VIRTIO_VSOCK_DEFAULT_MIN_BUF_SIZE	128
+>  #define VIRTIO_VSOCK_DEFAULT_BUF_SIZE		(1024 * 256)
+>  #define VIRTIO_VSOCK_DEFAULT_MAX_BUF_SIZE	(1024 * 256)
+> -#define VIRTIO_VSOCK_DEFAULT_RX_BUF_SIZE	(1024 * 4)
+> +#define VIRTIO_VSOCK_DEFAULT_RX_BUF_SIZE	(1024 * 64)
 
-The next line limits pkt_len based on available credits:
+This patch raises rx ring memory consumption from 128 * 4KB =3D 512KB to
+128 * 64KB =3D 8MB.
 
-  /* virtio_transport_get_credit might return less than pkt_len credit */
-  pkt_len =3D virtio_transport_get_credit(vvs, pkt_len);
+Michael, Jason: Any advice regarding rx/tx ring sizes and buffer sizes?
 
-I think drivers/vhost/vsock.c:vhost_transport_do_send_pkt() now works
-correctly even with pkt_len > VIRTIO_VSOCK_MAX_PKT_BUF_SIZE.
+Depending on rx ring size and the workload's packet size, different
+values might be preferred.
 
-The other ->send_pkt() callback is
-net/vmw_vsock/virtio_transport.c:virtio_transport_send_pkt_work() and it
-can already send any size packet.
+This could become a tunable in the future.  It determines the size of
+the guest driver's rx buffers.
 
-Do you remember why VIRTIO_VSOCK_MAX_PKT_BUF_SIZE still needs to be the
-limit?  I'm wondering if we can get rid of it now and just limit packets
-to the available credits.
-
-Stefan
-
---yudcn1FV7Hsu/q59
+--h56sxpGKRmy85csR
 Content-Type: application/pgp-signature; name="signature.asc"
 
 -----BEGIN PGP SIGNATURE-----
 
-iQEcBAEBAgAGBQJcpxDPAAoJEJykq7OBq3PIkwEIAKUcFcpFXgBx1Gbs5mSd4ypd
-Yi7a6mc4wSbq/FLNhVo0xVjJA+7hSNxiUvsqbwr1ajpudAHbMoV9LEuVZqtRLBmM
-pj9GmjHssqWgFr83oW1zlti/BNcArOoYl0csKoqfWXMA8sBb4o0ENdjlXwPvy+rm
-aQE78BhRi0vHSpFlOs+Zc/KHaaeQuH0fufyjLSi4vFhWnOC4jpoXuPhCT2NAVCJA
-MEdGNJZ2ZxtPBD8cUJH/ZTziNOArXsnOc6a9YIW72JnUOywqokVvgvsBtimaKN95
-lbBsBCmPxd0rY4n3OTAssfnHbUVVNwYaVoysD39pWBwwd1ZL0J3kqpP2zPh/O7g=
-=xs/A
+iQEcBAEBAgAGBQJcpxVeAAoJEJykq7OBq3PIhtsIAIxorF0RmP5eAJziHtgy2yLQ
+MlHya7rpnvkF6xSqnCmYAATiZRsnWrPr2hCF/EvYsISlH2Tb+1obPERpSkfdgs0D
+LX1QekHhiGKo3fHeWRsKWFVXaFTCyVEQxgngBf0tiYAbYIxFuj54cyUm3tI0OwAi
+7JHueqlDJ9HyFVHT2Sdob3NhRyb67aHw/hNKH/ocAduD0NmTx/5V8/0gIxy91ojS
+sho3R/CPRJm1mNFUTgiwQWJH3TFrSa5KGu5t2fO8NcXDjAd/5hwgSMtgU3ypSYas
+bCTyFBsO7srrP1wzz5YLVLcc5VFQBGrakOLKtmL4GeoyMTl4VZCCWbtN2VQpwWE=
+=pBj5
 -----END PGP SIGNATURE-----
 
---yudcn1FV7Hsu/q59--
+--h56sxpGKRmy85csR--
 
---===============7208995834968267357==
+--===============1578847784214087880==
 Content-Type: text/plain; charset="us-ascii"
 MIME-Version: 1.0
 Content-Transfer-Encoding: 7bit
@@ -104,4 +90,4 @@ _______________________________________________
 Virtualization mailing list
 Virtualization@lists.linux-foundation.org
 https://lists.linuxfoundation.org/mailman/listinfo/virtualization
---===============7208995834968267357==--
+--===============1578847784214087880==--
