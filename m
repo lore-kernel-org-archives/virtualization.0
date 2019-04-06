@@ -1,16 +1,13 @@
-From: "Michael S. Tsirkin" <mst@redhat.com>
-Subject: Re: [PATCH net v6] failover: allow name change on IFF_UP slave
-	interfaces
-Date: Fri, 5 Apr 2019 18:01:43 -0400
-Message-ID: <20190405175429-mutt-send-email-mst__41817.5248474412$1554501765$gmane$org@kernel.org>
-References: <1554267167-17561-1-git-send-email-si-wei.liu@oracle.com>
-	<20190405144701.25a6b55b@shemminger-XPS-13-9360>
+From: Paolo Bonzini <pbonzini@redhat.com>
+Subject: CFP: KVM Forum 2019
+Date: Sat, 6 Apr 2019 11:02:22 +0200
+Message-ID: <a0b5ce3d-6f0f-2674-51a1-e3a6796d496f__26695.94199849$1554541421$gmane$org@redhat.com>
+Reply-To: kvm-forum-2019-pc@redhat.com
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-Content-Disposition: inline
-In-Reply-To: <20190405144701.25a6b55b@shemminger-XPS-13-9360>
+Content-Language: en-US
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -20,30 +17,164 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Stephen Hemminger <stephen@networkplumber.org>
-Cc: jiri@resnulli.us, kubakici@wp.pl, sridhar.samudrala@intel.com, alexander.duyck@gmail.com, virtualization@lists.linux-foundation.org, liran.alon@oracle.com, netdev@vger.kernel.org, Si-Wei Liu <si-wei.liu@oracle.com>, boris.ostrovsky@oracle.com, davem@davemloft.net
+To: qemu-devel <qemu-devel@nongnu.org>, KVM list <kvm@vger.kernel.org>, "seabios@seabios.org" <seabios@seabios.org>, libvir-list@redhat.com, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>, Linux Virtualization <virtualization@lists.linux-foundation.org>
+Cc: kvm-forum-2019-pc@redhat.com
 List-Id: virtualization@lists.linuxfoundation.org
 
-On Fri, Apr 05, 2019 at 02:47:01PM -0700, Stephen Hemminger wrote:
-> On Wed,  3 Apr 2019 00:52:47 -0400
-> Si-Wei Liu <si-wei.liu@oracle.com> wrote:
-> 
-> >  
-> > +	if (unlikely(dev->flags & IFF_UP)) {
-> > +		struct netdev_notifier_change_info change_info = {
-> > +			.info.dev = dev,
-> > +		};
-> > +
-> > +		call_netdevice_notifiers_info(NETDEV_CHANGE,
-> > +					      &change_info.info);
-> > +	}
-> 
-> This notifier is not really necessary, there already is a CHANGENAME
-> that gets sent.
-> NETDEV_CHANGE is used in other cases to mean that the state (flags)
-> have changed.
+================================================================
+KVM Forum 2019: Call For Participation
+October 30-November 1, 2019 - Lyon Convention Center - Lyon, France
 
-The point is some existing scripts might not expect name
-change to happen without a status change afterwards (since it was
-impossible for so long). So this reports a change
-to make sure scripts do not miss it.
+(All submissions must be received before June 15, 2019 at 23:59 PST)
+=================================================================
+
+KVM Forum is an annual event that presents a rare opportunity
+for developers and users to meet, discuss the state of Linux
+virtualization technology, and plan for the challenges ahead. 
+We invite you to lead part of the discussion by submitting a speaking
+proposal for KVM Forum 2019.
+
+At this highly technical conference, developers driving innovation
+in the KVM virtualization stack (Linux, KVM, QEMU, libvirt) can
+meet users who depend on KVM as part of their offerings, or to
+power their data centers and clouds.
+
+KVM Forum will include sessions on the state of the KVM
+virtualization stack, planning for the future, and many
+opportunities for attendees to collaborate. As we celebrate ten years
+of KVM development in the Linux kernel, KVM continues to be a
+critical part of the FOSS cloud infrastructure.
+
+This year, KVM Forum is joining Open Source Summit in Lyon,
+France. Selected talks from KVM Forum will be presented on
+Wednesday October 30 to the full audience of the Open Source Summit.
+Also, attendees of KVM Forum will have access to all of the talks from
+Open Source Summit on Wednesday.
+
+https://events.linuxfoundation.org/events/kvm-forum-2019/program/call-for-proposals/
+
+Suggested topics:
+* Scaling, latency optimizations, performance tuning, real-time guests
+* Hardening and security
+* New features
+* Testing
+
+KVM and the Linux kernel:
+* Nested virtualization
+* Resource management (CPU, I/O, memory) and scheduling
+* VFIO: IOMMU, SR-IOV, virtual GPU, etc.
+* Networking: Open vSwitch, XDP, etc.
+* virtio and vhost
+* Architecture ports and new processor features
+
+QEMU:
+* Management interfaces: QOM and QMP
+* New devices, new boards, new architectures
+* Graphics, desktop virtualization and virtual GPU
+* New storage features
+* High availability, live migration and fault tolerance
+* Emulation and TCG
+* Firmware: ACPI, UEFI, coreboot, U-Boot, etc.
+
+Management and infrastructure
+* Managing KVM: Libvirt, OpenStack, oVirt, etc.
+* Storage: Ceph, Gluster, SPDK, etc.r
+* Network Function Virtualization: DPDK, OPNFV, OVN, etc.
+* Provisioning
+
+
+========================
+SUBMITTING YOUR PROPOSAL
+========================
+
+Abstracts due: June 15, 2019
+
+Please submit a short abstract (~150 words) describing your presentation
+proposal. Slots vary in length up to 45 minutes.
+
+Submit your proposal here:
+https://events.linuxfoundation.org/events/kvm-forum-2019/program/call-for-proposals/
+Please only use the categories "presentation" and "panel discussion"
+
+You will receive a notification whether or not your presentation proposal
+was accepted by August 12, 2019.
+
+Speakers will receive a complimentary pass for the event. In case
+your submission has multiple presenters, only the primary speaker for a
+proposal will receive a complimentary event pass. For panel discussions, all
+panelists will receive a complimentary event pass.
+
+
+TECHNICAL TALKS
+
+A good technical talk should not just report on what has happened over
+the last year; it should present a concrete problem and how it impacts
+the user and/or developer community. Whenever applicable, focus on
+work that needs to be done, difficulties that haven't yet been solved,
+and on decisions that other developers should be aware of. Summarizing
+recent developments is okay but it should not be more than a small
+portion of the overall talk.
+
+
+END-USER TALKS
+
+One of the big challenges as developers is to know what, where and how
+people actually use our software. We will reserve a few slots for end
+users talking about their deployment challenges and achievements.
+
+If you are using KVM in production you are encouraged submit a speaking
+proposal. Simply mark it as an end-user talk. As an end user, this is a
+unique opportunity to get your input to developers.
+
+
+HANDS-ON / BOF SESSIONS
+
+We will reserve some time for people to get together and discuss
+strategic decisions as well as other topics that are best solved within
+smaller groups.
+
+These sessions will be announced during the event. If you are interested
+in organizing such a session, please add it to the list at
+
+  http://www.linux-kvm.org/page/KVM_Forum_2019_BOF
+
+Let people you think who might be interested know about your BOF, and
+encourage them to add their names to the wiki page as well. Please add
+your ideas to the list before KVM Forum starts.
+
+
+PANEL DISCUSSIONS
+
+If you are proposing a panel discussion, please make sure that you list
+all of your potential panelists in your the abstract. We will request full
+biographies if a panel is accepted.
+
+
+==============
+HOTEL / TRAVEL
+==============
+
+This year's event will take place at the Lyon Conference Center.
+For information on hotels close to the conference, please visit
+https://events.linuxfoundation.org/events/kvm-forum-2019/attend/venue-travel/.
+Information on conference hotel blocks will be available later in
+Spring 2019.
+
+
+=================
+DATES TO REMEMBER
+=================
+
+Submission deadline: Saturday, June 15 at 23:59 PST
+Notification: Monday, August 12
+Schedule announced: Friday, August 16
+Slides due date: Wednesday, October 23
+Event dates: Wednesday, October 30 - Friday, November 1
+
+Thank you for your interest in KVM. We're looking forward to your
+submissions and seeing you at the KVM Forum 2019 in October!
+
+-your KVM Forum 2019 Program Committee
+
+Please contact us with any questions or comments at
+kvm-forum-2019-pc@redhat.com
