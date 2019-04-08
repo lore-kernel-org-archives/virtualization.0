@@ -1,11 +1,16 @@
-From: Cornelia Huck <cohuck@redhat.com>
-Subject: [PATCH] virtio: Honour 'may_reduce_num' in vring_create_virtqueue
-Date: Mon,  8 Apr 2019 14:33:22 +0200
-Message-ID: <20190408123322.24086-1-cohuck__33180.7420401432$1554726816$gmane$org@redhat.com>
+From: "Michael S. Tsirkin" <mst@redhat.com>
+Subject: Re: [RFC PATCH 01/12] virtio/s390: use vring_create_virtqueue
+Date: Mon, 8 Apr 2019 08:37:41 -0400
+Message-ID: <20190408083707-mutt-send-email-mst@kernel.org>
+References: <20190404231622.52531-1-pasic@linux.ibm.com>
+	<20190404231622.52531-2-pasic@linux.ibm.com>
+	<20190408130128.7859febe.cohuck@redhat.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
+Content-Disposition: inline
+In-Reply-To: <20190408130128.7859febe.cohuck@redhat.com>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -15,59 +20,95 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: "Michael S . Tsirkin" <mst@redhat.com>, Jason Wang <jasowang@redhat.com>
-Cc: kvm@vger.kernel.org, Cornelia Huck <cohuck@redhat.com>, linux-kernel@vger.kernel.org, stable@vger.kernel.org, virtualization@lists.linux-foundation.org, Halil Pasic <pasic@linux.ibm.com>
+To: Cornelia Huck <cohuck@redhat.com>
+Cc: Vasily Gorbik <gor@linux.ibm.com>, linux-s390@vger.kernel.org, Eric Farman <farman@linux.ibm.com>, Claudio Imbrenda <imbrenda@linux.ibm.com>, kvm@vger.kernel.org, Sebastian Ott <sebott@linux.ibm.com>, Farhan Ali <alifm@linux.ibm.com>, virtualization@lists.linux-foundation.org, Halil Pasic <pasic@linux.ibm.com>, Martin Schwidefsky <schwidefsky@de.ibm.com>, Viktor Mihajlovski <mihajlov@linux.ibm.com>, Janosch Frank <frankja@linux.ibm.com>
 List-Id: virtualization@lists.linuxfoundation.org
 
-vring_create_virtqueue() allows the caller to specify via the
-may_reduce_num parameter whether the vring code is allowed to
-allocate a smaller ring than specified.
+On Mon, Apr 08, 2019 at 01:01:28PM +0200, Cornelia Huck wrote:
+> On Fri,  5 Apr 2019 01:16:11 +0200
+> Halil Pasic <pasic@linux.ibm.com> wrote:
+> 
+> > The commit 2a2d1382fe9d ("virtio: Add improved queue allocation API")
+> > establishes a new way of allocating virtqueues (as a part of the effort
+> > that taught DMA to virtio rings).
+> > 
+> > In the future we will want virtio-ccw to use the DMA API as well.
+> > 
+> > Let us switch from the legacy method of allocating virtqueues to
+> > vring_create_virtqueue() as the first step into that direction.
+> > 
+> > Signed-off-by: Halil Pasic <pasic@linux.ibm.com>
+> > ---
+> >  drivers/s390/virtio/virtio_ccw.c | 27 ++++++++-------------------
+> >  1 file changed, 8 insertions(+), 19 deletions(-)
+> > 
+> > diff --git a/drivers/s390/virtio/virtio_ccw.c b/drivers/s390/virtio/virtio_ccw.c
+> > index 74c328321889..edf4afe2d688 100644
+> > --- a/drivers/s390/virtio/virtio_ccw.c
+> > +++ b/drivers/s390/virtio/virtio_ccw.c
+> 
+> > @@ -516,17 +512,10 @@ static struct virtqueue *virtio_ccw_setup_vq(struct virtio_device *vdev,
+> >  		err = info->num;
+> >  		goto out_err;
+> >  	}
+> > -	size = PAGE_ALIGN(vring_size(info->num, KVM_VIRTIO_CCW_RING_ALIGN));
+> > -	info->queue = alloc_pages_exact(size, GFP_KERNEL | __GFP_ZERO);
+> > -	if (info->queue == NULL) {
+> > -		dev_warn(&vcdev->cdev->dev, "no queue\n");
+> > -		err = -ENOMEM;
+> > -		goto out_err;
+> > -	}
+> > +	vq = vring_create_virtqueue(i, info->num, KVM_VIRTIO_CCW_RING_ALIGN,
+> > +				    vdev, true, true, ctx,
+> 
+> This second true means 'may_reduce_num'. Looking at the vring code, it
+> seems that this parameter is never checked; the code will try to
+> allocate a smaller queue if it can't get the requested size in any
+> case... this will probably be a problem for legacy virtio-pci, which
+> explicitly sets may_reduce_num to false. (I can try to come up with a
+> patch to fix that.)
 
-However, the split ring allocation code tries to allocate a
-smaller ring on allocation failure regardless of what the
-caller specified. This may cause trouble for e.g. virtio-pci
-in legacy mode, which does not support ring resizing. (The
-packed ring code does not resize in any case.)
+Yes, pls do. Not too late for a bugfix to go into the current linux.
 
-Let's fix this by bailing out immediately in the split ring code
-if the requested size cannot be allocated and may_reduce_num has
-not been specified.
-
-While at it, fix a typo in the usage instructions.
-
-Fixes: 2a2d1382fe9d ("virtio: Add improved queue allocation API")
-Cc: stable@vger.kernel.org # v4.6+
-Signed-off-by: Cornelia Huck <cohuck@redhat.com>
----
- drivers/virtio/virtio_ring.c | 2 ++
- include/linux/virtio_ring.h  | 2 +-
- 2 files changed, 3 insertions(+), 1 deletion(-)
-
-diff --git a/drivers/virtio/virtio_ring.c b/drivers/virtio/virtio_ring.c
-index 18846afb39da..5df92c308286 100644
---- a/drivers/virtio/virtio_ring.c
-+++ b/drivers/virtio/virtio_ring.c
-@@ -882,6 +882,8 @@ static struct virtqueue *vring_create_virtqueue_split(
- 					  GFP_KERNEL|__GFP_NOWARN|__GFP_ZERO);
- 		if (queue)
- 			break;
-+		if (!may_reduce_num)
-+			return NULL;
- 	}
- 
- 	if (!num)
-diff --git a/include/linux/virtio_ring.h b/include/linux/virtio_ring.h
-index fab02133a919..3dc70adfe5f5 100644
---- a/include/linux/virtio_ring.h
-+++ b/include/linux/virtio_ring.h
-@@ -63,7 +63,7 @@ struct virtqueue;
- /*
-  * Creates a virtqueue and allocates the descriptor ring.  If
-  * may_reduce_num is set, then this may allocate a smaller ring than
-- * expected.  The caller should query virtqueue_get_ring_size to learn
-+ * expected.  The caller should query virtqueue_get_vring_size to learn
-  * the actual size of the ring.
-  */
- struct virtqueue *vring_create_virtqueue(unsigned int index,
--- 
-2.17.2
+> > +				    virtio_ccw_kvm_notify, callback, name);
+> >  
+> > -	vq = vring_new_virtqueue(i, info->num, KVM_VIRTIO_CCW_RING_ALIGN, vdev,
+> > -				 true, ctx, info->queue, virtio_ccw_kvm_notify,
+> > -				 callback, name);
+> >  	if (!vq) {
+> >  		/* For now, we fail if we can't get the requested size. */
+> >  		dev_warn(&vcdev->cdev->dev, "no vq\n");
+> > @@ -534,15 +523,17 @@ static struct virtqueue *virtio_ccw_setup_vq(struct virtio_device *vdev,
+> >  		goto out_err;
+> >  	}
+> >  
+> > +
+> 
+> Extra blank line :)
+> 
+> >  	/* Register it with the host. */
+> > +	queue = virtqueue_get_desc_addr(vq);
+> >  	if (vcdev->revision == 0) {
+> > -		info->info_block->l.queue = (__u64)info->queue;
+> > +		info->info_block->l.queue = queue;
+> >  		info->info_block->l.align = KVM_VIRTIO_CCW_RING_ALIGN;
+> >  		info->info_block->l.index = i;
+> >  		info->info_block->l.num = info->num;
+> 
+> You always fill in the size requested by the host, but the actual size
+> may be smaller (see above). I don't think that is allowed for revision
+> 0 (which implies !virtio-1). You probably need to call
+> vring_create_virtqueue with may_reduce_num=false for revision 0 (and
+> wait for the generic vring code to be fixed...)
+> 
+> >  		ccw->count = sizeof(info->info_block->l);
+> >  	} else {
+> > -		info->info_block->s.desc = (__u64)info->queue;
+> > +		info->info_block->s.desc = queue;
+> >  		info->info_block->s.index = i;
+> >  		info->info_block->s.num = info->num;
+> 
+> Here, you need to obtain the actual number via
+> virtqueue_get_vring_size().
+> 
+> >  		info->info_block->s.avail = (__u64)virtqueue_get_avail(vq);
