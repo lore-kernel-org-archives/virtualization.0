@@ -1,14 +1,14 @@
-From: Stefan Hajnoczi <stefanha@redhat.com>
-Subject: Re: [PATCH RFC 0/4] vsock/virtio: optimizations to increase the
-	throughput
-Date: Mon, 8 Apr 2019 10:44:16 +0100
-Message-ID: <20190408094416.GQ15001__14843.5359982372$1554716671$gmane$org@stefanha-x1.localdomain>
-References: <20190404105838.101559-1-sgarzare@redhat.com>
-	<a98d194d-e257-41ff-82e7-de2d16d2f4d4@redhat.com>
+From: Cornelia Huck <cohuck@redhat.com>
+Subject: Re: [RFC PATCH 01/12] virtio/s390: use vring_create_virtqueue
+Date: Mon, 8 Apr 2019 13:01:28 +0200
+Message-ID: <20190408130128.7859febe.cohuck@redhat.com>
+References: <20190404231622.52531-1-pasic@linux.ibm.com>
+	<20190404231622.52531-2-pasic@linux.ibm.com>
 Mime-Version: 1.0
-Content-Type: multipart/mixed; boundary="===============1261629279429843716=="
+Content-Type: text/plain; charset="us-ascii"
+Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <a98d194d-e257-41ff-82e7-de2d16d2f4d4@redhat.com>
+In-Reply-To: <20190404231622.52531-2-pasic@linux.ibm.com>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -18,55 +18,93 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Jason Wang <jasowang@redhat.com>
-Cc: kvm@vger.kernel.org, "Michael S. Tsirkin" <mst@redhat.com>, netdev@vger.kernel.org, linux-kernel@vger.kernel.org, virtualization@lists.linux-foundation.org, "David S. Miller" <davem@davemloft.net>, Stefano Garzarella <sgarzare@redhat.com>
+To: Halil Pasic <pasic@linux.ibm.com>
+Cc: Vasily Gorbik <gor@linux.ibm.com>, linux-s390@vger.kernel.org, Eric Farman <farman@linux.ibm.com>, Claudio Imbrenda <imbrenda@linux.ibm.com>, kvm@vger.kernel.org, Sebastian Ott <sebott@linux.ibm.com>, "Michael S .
+	Tsirkin" <mst@redhat.com>, Farhan Ali <alifm@linux.ibm.com>, virtualization@lists.linux-foundation.org, Martin Schwidefsky <schwidefsky@de.ibm.com>, Viktor Mihajlovski <mihajlov@linux.ibm.com>, Janosch Frank <frankja@linux.ibm.com>
 List-Id: virtualization@lists.linuxfoundation.org
 
+On Fri,  5 Apr 2019 01:16:11 +0200
+Halil Pasic <pasic@linux.ibm.com> wrote:
 
---===============1261629279429843716==
-Content-Type: multipart/signed; micalg=pgp-sha1;
-	protocol="application/pgp-signature"; boundary="sBcizk6cgRZY6rnJ"
-Content-Disposition: inline
+> The commit 2a2d1382fe9d ("virtio: Add improved queue allocation API")
+> establishes a new way of allocating virtqueues (as a part of the effort
+> that taught DMA to virtio rings).
+> 
+> In the future we will want virtio-ccw to use the DMA API as well.
+> 
+> Let us switch from the legacy method of allocating virtqueues to
+> vring_create_virtqueue() as the first step into that direction.
+> 
+> Signed-off-by: Halil Pasic <pasic@linux.ibm.com>
+> ---
+>  drivers/s390/virtio/virtio_ccw.c | 27 ++++++++-------------------
+>  1 file changed, 8 insertions(+), 19 deletions(-)
+> 
+> diff --git a/drivers/s390/virtio/virtio_ccw.c b/drivers/s390/virtio/virtio_ccw.c
+> index 74c328321889..edf4afe2d688 100644
+> --- a/drivers/s390/virtio/virtio_ccw.c
+> +++ b/drivers/s390/virtio/virtio_ccw.c
 
+> @@ -516,17 +512,10 @@ static struct virtqueue *virtio_ccw_setup_vq(struct virtio_device *vdev,
+>  		err = info->num;
+>  		goto out_err;
+>  	}
+> -	size = PAGE_ALIGN(vring_size(info->num, KVM_VIRTIO_CCW_RING_ALIGN));
+> -	info->queue = alloc_pages_exact(size, GFP_KERNEL | __GFP_ZERO);
+> -	if (info->queue == NULL) {
+> -		dev_warn(&vcdev->cdev->dev, "no queue\n");
+> -		err = -ENOMEM;
+> -		goto out_err;
+> -	}
+> +	vq = vring_create_virtqueue(i, info->num, KVM_VIRTIO_CCW_RING_ALIGN,
+> +				    vdev, true, true, ctx,
 
---sBcizk6cgRZY6rnJ
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
+This second true means 'may_reduce_num'. Looking at the vring code, it
+seems that this parameter is never checked; the code will try to
+allocate a smaller queue if it can't get the requested size in any
+case... this will probably be a problem for legacy virtio-pci, which
+explicitly sets may_reduce_num to false. (I can try to come up with a
+patch to fix that.)
 
-On Mon, Apr 08, 2019 at 02:43:28PM +0800, Jason Wang wrote:
-> Another thing that may help is to implement sendpage(), which will greatly
-> improve the performance.
+> +				    virtio_ccw_kvm_notify, callback, name);
+>  
+> -	vq = vring_new_virtqueue(i, info->num, KVM_VIRTIO_CCW_RING_ALIGN, vdev,
+> -				 true, ctx, info->queue, virtio_ccw_kvm_notify,
+> -				 callback, name);
+>  	if (!vq) {
+>  		/* For now, we fail if we can't get the requested size. */
+>  		dev_warn(&vcdev->cdev->dev, "no vq\n");
+> @@ -534,15 +523,17 @@ static struct virtqueue *virtio_ccw_setup_vq(struct virtio_device *vdev,
+>  		goto out_err;
+>  	}
+>  
+> +
 
-I can't find documentation for ->sendpage().  Is the idea that you get a
-struct page for the payload and can do zero-copy tx?  (And can userspace
-still write to the page, invalidating checksums in the header?)
+Extra blank line :)
 
-Stefan
+>  	/* Register it with the host. */
+> +	queue = virtqueue_get_desc_addr(vq);
+>  	if (vcdev->revision == 0) {
+> -		info->info_block->l.queue = (__u64)info->queue;
+> +		info->info_block->l.queue = queue;
+>  		info->info_block->l.align = KVM_VIRTIO_CCW_RING_ALIGN;
+>  		info->info_block->l.index = i;
+>  		info->info_block->l.num = info->num;
 
---sBcizk6cgRZY6rnJ
-Content-Type: application/pgp-signature; name="signature.asc"
+You always fill in the size requested by the host, but the actual size
+may be smaller (see above). I don't think that is allowed for revision
+0 (which implies !virtio-1). You probably need to call
+vring_create_virtqueue with may_reduce_num=false for revision 0 (and
+wait for the generic vring code to be fixed...)
 
------BEGIN PGP SIGNATURE-----
+>  		ccw->count = sizeof(info->info_block->l);
+>  	} else {
+> -		info->info_block->s.desc = (__u64)info->queue;
+> +		info->info_block->s.desc = queue;
+>  		info->info_block->s.index = i;
+>  		info->info_block->s.num = info->num;
 
-iQEcBAEBAgAGBQJcqxfvAAoJEJykq7OBq3PIpPEIAIPydRh9MmTxWJHiLCIdcVZB
-YTFjrwJFHuWU1MSyz9onJyJxcranVbekSDh+RaESeGRrg1xSyNZBqqwNUfzm23XP
-jQv1xTzq9qCC6ZB81lHgFclJjT5h1/KFVKzG3Wv2dMffDW+7/Y54wOdvPsYGIQdh
-ZaeT3vH1BIoIz9xA7Ajt1H3p4XjqCQyOc8LPXzHi11zpg+UgEV6AIbSNq2hjEOuK
-1n4tJ/tRaGVsrhfHcg65GzY3mA/z4X6xfpw+dgZ5ZlWRKqfqNbFr4q8Sxpwla3DF
-aGElG+Dsc/4SkbOLzD4WfN+JmM/pvsk1pH6RMb/OHlaD9K6fMDlL9cliH2ovmY8=
-=y3qN
------END PGP SIGNATURE-----
+Here, you need to obtain the actual number via
+virtqueue_get_vring_size().
 
---sBcizk6cgRZY6rnJ--
-
---===============1261629279429843716==
-Content-Type: text/plain; charset="us-ascii"
-MIME-Version: 1.0
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-
-_______________________________________________
-Virtualization mailing list
-Virtualization@lists.linux-foundation.org
-https://lists.linuxfoundation.org/mailman/listinfo/virtualization
---===============1261629279429843716==--
+>  		info->info_block->s.avail = (__u64)virtqueue_get_avail(vq);
