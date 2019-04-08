@@ -1,15 +1,17 @@
-From: Jason Wang <jasowang@redhat.com>
+From: Stefan Hajnoczi <stefanha@redhat.com>
 Subject: Re: [PATCH RFC 0/4] vsock/virtio: optimizations to increase the
 	throughput
-Date: Mon, 8 Apr 2019 14:43:28 +0800
-Message-ID: <a98d194d-e257-41ff-82e7-de2d16d2f4d4__39937.7679148287$1554705831$gmane$org@redhat.com>
+Date: Mon, 8 Apr 2019 10:23:18 +0100
+Message-ID: <20190408092318.GM15001__12016.5860907704$1554715417$gmane$org@stefanha-x1.localdomain>
 References: <20190404105838.101559-1-sgarzare@redhat.com>
+	<20190404114643-mutt-send-email-mst@kernel.org>
+	<20190404164715.sycigtccwq2rziuz@steredhat>
+	<20190404140345-mutt-send-email-mst@kernel.org>
+	<20190405074917.ooftpalmploq6x3b@steredhat>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="utf-8"; Format="flowed"
-Content-Transfer-Encoding: base64
+Content-Type: multipart/mixed; boundary="===============3752699334039785395=="
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <20190404105838.101559-1-sgarzare@redhat.com>
-Content-Language: en-US
+In-Reply-To: <20190405074917.ooftpalmploq6x3b@steredhat>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -19,74 +21,101 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Stefano Garzarella <sgarzare@redhat.com>, netdev@vger.kernel.org
-Cc: kvm@vger.kernel.org, "Michael S. Tsirkin" <mst@redhat.com>, linux-kernel@vger.kernel.org, virtualization@lists.linux-foundation.org, Stefan Hajnoczi <stefanha@redhat.com>, "David S. Miller" <davem@davemloft.net>
+To: Stefano Garzarella <sgarzare@redhat.com>
+Cc: kvm@vger.kernel.org, "Michael S. Tsirkin" <mst@redhat.com>, netdev@vger.kernel.org, linux-kernel@vger.kernel.org, virtualization@lists.linux-foundation.org, "David S. Miller" <davem@davemloft.net>
 List-Id: virtualization@lists.linuxfoundation.org
 
-Ck9uIDIwMTkvNC80IOS4i+WNiDY6NTgsIFN0ZWZhbm8gR2FyemFyZWxsYSB3cm90ZToKPiBUaGlz
-IHNlcmllcyB0cmllcyB0byBpbmNyZWFzZSB0aGUgdGhyb3VnaHB1dCBvZiB2aXJ0aW8tdnNvY2sg
-d2l0aCBzbGlnaHQKPiBjaGFuZ2VzOgo+ICAgLSBwYXRjaCAxLzQ6IHJlZHVjZXMgdGhlIG51bWJl
-ciBvZiBjcmVkaXQgdXBkYXRlIG1lc3NhZ2VzIHNlbnQgdG8gdGhlCj4gICAgICAgICAgICAgICAg
-dHJhbnNtaXR0ZXIKPiAgIC0gcGF0Y2ggMi80OiBhbGxvd3MgdGhlIGhvc3QgdG8gc3BsaXQgcGFj
-a2V0cyBvbiBtdWx0aXBsZSBidWZmZXJzLAo+ICAgICAgICAgICAgICAgIGluIHRoaXMgd2F5LCB3
-ZSBjYW4gcmVtb3ZlIHRoZSBwYWNrZXQgc2l6ZSBsaW1pdCB0bwo+ICAgICAgICAgICAgICAgIFZJ
-UlRJT19WU09DS19ERUZBVUxUX1JYX0JVRl9TSVpFCj4gICAtIHBhdGNoIDMvNDogdXNlcyBWSVJU
-SU9fVlNPQ0tfTUFYX1BLVF9CVUZfU0laRSBhcyB0aGUgbWF4IHBhY2tldCBzaXplCj4gICAgICAg
-ICAgICAgICAgYWxsb3dlZAo+ICAgLSBwYXRjaCA0LzQ6IGluY3JlYXNlcyBSWCBidWZmZXIgc2l6
-ZSB0byA2NCBLaUIgKGFmZmVjdHMgb25seSBob3N0LT5ndWVzdCkKPgo+IFJGQzoKPiAgIC0gbWF5
-YmUgcGF0Y2ggNCBjYW4gYmUgcmVwbGFjZWQgd2l0aCBtdWx0aXBsZSBxdWV1ZXMgd2l0aCBkaWZm
-ZXJlbnQKPiAgICAgYnVmZmVyIHNpemVzIG9yIHVzaW5nIEVXTUEgdG8gYWRhcHQgdGhlIGJ1ZmZl
-ciBzaXplIHRvIHRoZSB0cmFmZmljCgoKT3IgRVdNQSArIG1lcmdlYWJsZSByeCBidWZmZXIsIGJ1
-dCBpZiB3ZSBkZWNpZGUgdG8gdW5pZnkgdGhlIGRhdGFwYXRoIAp3aXRoIHZpcnRpby1uZXQsIHdl
-IGNhbiByZXVzZSB0aGVpciBjb2Rlcy4KCgo+Cj4gICAtIGFzIEphc29uIHN1Z2dlc3RlZCBpbiBh
-IHByZXZpb3VzIHRocmVhZCBbMV0gSSdsbCBldmFsdWF0ZSB0byB1c2UKPiAgICAgdmlydGlvLW5l
-dCBhcyB0cmFuc3BvcnQsIGJ1dCBJIG5lZWQgdG8gdW5kZXJzdGFuZCBiZXR0ZXIgaG93IHRvCj4g
-ICAgIGludGVyZmFjZSB3aXRoIGl0LCBtYXliZSBpbnRyb2R1Y2luZyBza19idWZmIGluIHZpcnRp
-by12c29jay4KPgo+IEFueSBzdWdnZXN0aW9ucz8KCgpNeSB1bmRlcnN0YW5kaW5nIGlzIHRoaXMg
-aXMgbm90IGEgbXVzdCwgYnV0IGlmIGl0IG1ha2VzIHRoaW5ncyBlYXNpZXIsIAp3ZSBjYW4gZG8g
-dGhpcy4KCkFub3RoZXIgdGhpbmcgdGhhdCBtYXkgaGVscCBpcyB0byBpbXBsZW1lbnQgc2VuZHBh
-Z2UoKSwgd2hpY2ggd2lsbCAKZ3JlYXRseSBpbXByb3ZlIHRoZSBwZXJmb3JtYW5jZS4KClRoYW5r
-cwoKCj4KPiBIZXJlIHNvbWUgYmVuY2htYXJrcyBzdGVwIGJ5IHN0ZXAuIEkgdXNlZCBpcGVyZjMg
-WzJdIG1vZGlmaWVkIHdpdGggVlNPQ0sKPiBzdXBwb3J0Ogo+Cj4gICAgICAgICAgICAgICAgICAg
-ICAgICAgIGhvc3QgLT4gZ3Vlc3QgW0dicHNdCj4gcGt0X3NpemUgICAgYmVmb3JlIG9wdC4gICBw
-YXRjaCAxICAgcGF0Y2hlcyAyKzMgICBwYXRjaCA0Cj4gICAgNjQgICAgICAgICAgICAwLjA2MCAg
-ICAgICAwLjEwMiAgICAgICAwLjEwMiAgICAgICAwLjA5Ngo+ICAgIDI1NiAgICAgICAgICAgMC4y
-MiAgICAgICAgMC40MCAgICAgICAgMC40MCAgICAgICAgMC4zNgo+ICAgIDUxMiAgICAgICAgICAg
-MC40MiAgICAgICAgMC44MiAgICAgICAgMC44NSAgICAgICAgMC43NAo+ICAgIDFLICAgICAgICAg
-ICAgMC43ICAgICAgICAgMS42ICAgICAgICAgMS42ICAgICAgICAgMS41Cj4gICAgMksgICAgICAg
-ICAgICAxLjUgICAgICAgICAzLjAgICAgICAgICAzLjEgICAgICAgICAyLjkKPiAgICA0SyAgICAg
-ICAgICAgIDIuNSAgICAgICAgIDUuMiAgICAgICAgIDUuMyAgICAgICAgIDUuMwo+ICAgIDhLICAg
-ICAgICAgICAgMy45ICAgICAgICAgOC40ICAgICAgICAgOC42ICAgICAgICAgOC44Cj4gICAgMTZL
-ICAgICAgICAgICA2LjYgICAgICAgIDExLjEgICAgICAgIDExLjMgICAgICAgIDEyLjgKPiAgICAz
-MksgICAgICAgICAgIDkuOSAgICAgICAgMTUuOCAgICAgICAgMTUuOCAgICAgICAgMTguMQo+ICAg
-IDY0SyAgICAgICAgICAxMy41ICAgICAgICAxNy40ICAgICAgICAxNy43ICAgICAgICAyMS40Cj4g
-ICAgMTI4SyAgICAgICAgIDE3LjkgICAgICAgIDE5LjAgICAgICAgIDE5LjAgICAgICAgIDIzLjYK
-PiAgICAyNTZLICAgICAgICAgMTguMCAgICAgICAgMTkuNCAgICAgICAgMTkuOCAgICAgICAgMjQu
-NAo+ICAgIDUxMksgICAgICAgICAxOC40ICAgICAgICAxOS42ICAgICAgICAyMC4xICAgICAgICAy
-NS4zCj4KPiAgICAgICAgICAgICAgICAgICAgICAgICAgZ3Vlc3QgLT4gaG9zdCBbR2Jwc10KPiBw
-a3Rfc2l6ZSAgICBiZWZvcmUgb3B0LiAgIHBhdGNoIDEgICBwYXRjaGVzIDIrMwo+ICAgIDY0ICAg
-ICAgICAgICAgMC4wODggICAgICAgMC4xMDAgICAgICAgMC4xMDEKPiAgICAyNTYgICAgICAgICAg
-IDAuMzUgICAgICAgIDAuMzYgICAgICAgIDAuNDEKPiAgICA1MTIgICAgICAgICAgIDAuNzAgICAg
-ICAgIDAuNzQgICAgICAgIDAuNzMKPiAgICAxSyAgICAgICAgICAgIDEuMSAgICAgICAgIDEuMyAg
-ICAgICAgIDEuMwo+ICAgIDJLICAgICAgICAgICAgMi40ICAgICAgICAgMi40ICAgICAgICAgMi42
-Cj4gICAgNEsgICAgICAgICAgICA0LjMgICAgICAgICA0LjMgICAgICAgICA0LjUKPiAgICA4SyAg
-ICAgICAgICAgIDcuMyAgICAgICAgIDcuNCAgICAgICAgIDcuNgo+ICAgIDE2SyAgICAgICAgICAg
-OS4yICAgICAgICAgOS42ICAgICAgICAxMS4xCj4gICAgMzJLICAgICAgICAgICA4LjMgICAgICAg
-ICA4LjkgICAgICAgIDE4LjEKPiAgICA2NEsgICAgICAgICAgIDguMyAgICAgICAgIDguOSAgICAg
-ICAgMjUuNAo+ICAgIDEyOEsgICAgICAgICAgNy4yICAgICAgICAgOC43ICAgICAgICAyNi43Cj4g
-ICAgMjU2SyAgICAgICAgICA3LjcgICAgICAgICA4LjQgICAgICAgIDI0LjkKPiAgICA1MTJLICAg
-ICAgICAgIDcuNyAgICAgICAgIDguNSAgICAgICAgMjUuMAo+Cj4gVGhhbmtzLAo+IFN0ZWZhbm8K
-Pgo+IFsxXSBodHRwczovL3d3dy5zcGluaWNzLm5ldC9saXN0cy9uZXRkZXYvbXNnNTMxNzgzLmh0
-bWwKPiBbMl0gaHR0cHM6Ly9naXRodWIuY29tL3N0ZWZhbm8tZ2FyemFyZWxsYS9pcGVyZi8KPgo+
-IFN0ZWZhbm8gR2FyemFyZWxsYSAoNCk6Cj4gICAgdnNvY2svdmlydGlvOiByZWR1Y2UgY3JlZGl0
-IHVwZGF0ZSBtZXNzYWdlcwo+ICAgIHZob3N0L3Zzb2NrOiBzcGxpdCBwYWNrZXRzIHRvIHNlbmQg
-dXNpbmcgbXVsdGlwbGUgYnVmZmVycwo+ICAgIHZzb2NrL3ZpcnRpbzogY2hhbmdlIHRoZSBtYXhp
-bXVtIHBhY2tldCBzaXplIGFsbG93ZWQKPiAgICB2c29jay92aXJ0aW86IGluY3JlYXNlIFJYIGJ1
-ZmZlciBzaXplIHRvIDY0IEtpQgo+Cj4gICBkcml2ZXJzL3Zob3N0L3Zzb2NrLmMgICAgICAgICAg
-ICAgICAgICAgfCAzNSArKysrKysrKysrKysrKysrKysrKy0tLS0tCj4gICBpbmNsdWRlL2xpbnV4
-L3ZpcnRpb192c29jay5oICAgICAgICAgICAgfCAgMyArKy0KPiAgIG5ldC92bXdfdnNvY2svdmly
-dGlvX3RyYW5zcG9ydF9jb21tb24uYyB8IDE4ICsrKysrKysrKy0tLS0KPiAgIDMgZmlsZXMgY2hh
-bmdlZCwgNDQgaW5zZXJ0aW9ucygrKSwgMTIgZGVsZXRpb25zKC0pCj4KX19fX19fX19fX19fX19f
-X19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX18KVmlydHVhbGl6YXRpb24gbWFpbGluZyBs
-aXN0ClZpcnR1YWxpemF0aW9uQGxpc3RzLmxpbnV4LWZvdW5kYXRpb24ub3JnCmh0dHBzOi8vbGlz
-dHMubGludXhmb3VuZGF0aW9uLm9yZy9tYWlsbWFuL2xpc3RpbmZvL3ZpcnR1YWxpemF0aW9u
+
+--===============3752699334039785395==
+Content-Type: multipart/signed; micalg=pgp-sha1;
+	protocol="application/pgp-signature"; boundary="yaap9KN+GmBP785v"
+Content-Disposition: inline
+
+
+--yaap9KN+GmBP785v
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+Content-Transfer-Encoding: quoted-printable
+
+On Fri, Apr 05, 2019 at 09:49:17AM +0200, Stefano Garzarella wrote:
+> On Thu, Apr 04, 2019 at 02:04:10PM -0400, Michael S. Tsirkin wrote:
+> > On Thu, Apr 04, 2019 at 06:47:15PM +0200, Stefano Garzarella wrote:
+> > > On Thu, Apr 04, 2019 at 11:52:46AM -0400, Michael S. Tsirkin wrote:
+> > > > I simply love it that you have analysed the individual impact of
+> > > > each patch! Great job!
+> > >=20
+> > > Thanks! I followed Stefan's suggestions!
+> > >=20
+> > > >=20
+> > > > For comparison's sake, it could be IMHO benefitial to add a column
+> > > > with virtio-net+vhost-net performance.
+> > > >=20
+> > > > This will both give us an idea about whether the vsock layer introd=
+uces
+> > > > inefficiencies, and whether the virtio-net idea has merit.
+> > > >=20
+> > >=20
+> > > Sure, I already did TCP tests on virtio-net + vhost, starting qemu in
+> > > this way:
+> > >   $ qemu-system-x86_64 ... \
+> > >       -netdev tap,id=3Dnet0,vhost=3Don,ifname=3Dtap0,script=3Dno,down=
+script=3Dno \
+> > >       -device virtio-net-pci,netdev=3Dnet0
+> > >=20
+> > > I did also a test using TCP_NODELAY, just to be fair, because VSOCK
+> > > doesn't implement something like this.
+> >=20
+> > Why not?
+> >=20
+>=20
+> I think because originally VSOCK was designed to be simple and
+> low-latency, but of course we can introduce something like that.
+>=20
+> Current implementation directly copy the buffer from the user-space in a
+> virtio_vsock_pkt and enqueue it to be transmitted.
+>=20
+> Maybe we can introduce a buffer per socket where accumulate bytes and
+> send it when it is full or when a timer is fired . We can also introduce
+> a VSOCK_NODELAY (maybe using the same value of TCP_NODELAY for
+> compatibility) to send the buffer immediately for low-latency use cases.
+>=20
+> What do you think?
+
+Today virtio-vsock implements a 1:1 sendmsg():packet relationship
+because it's simple.  But there's no need for the guest to enqueue
+multiple VIRTIO_VSOCK_OP_RW packets when a single large packet could
+combine all payloads for a connection.  This is not the same as
+TCP_NODELAY but related.
+
+I think it's worth exploring TCP_NODELAY and send_pkt_list merging.
+Hopefully it won't make the code much more complicated.
+
+Stefan
+
+--yaap9KN+GmBP785v
+Content-Type: application/pgp-signature; name="signature.asc"
+
+-----BEGIN PGP SIGNATURE-----
+
+iQEcBAEBAgAGBQJcqxMGAAoJEJykq7OBq3PITjwH/jr71No5QfyjmjTtKanTvBNm
+ETbLBSbD/NXtjcvBfF3HVkiPyv2dNjB/cpAc8/dAVlvnMskaQHdeKIxeTZ9k//jC
+dxUbXR6TYhYbQhwMQN8ra8GaxhlweNsjgjARXFw0Tl8ROSICLL881UhGJ7VseSkz
+FR43QCE+HTQgZmBhmNg9wODD4mXZGyAKSDCkDsAk6SrJALV5RTXOI8lhRwi7Ro+e
+ASS7b3XQXfbgn2gw37OIyehAY/vxo/PBQSFYAOOBIdNhQK4a+G/i2T0wOTN9yrxD
+09/8JSvXIj97UPAO786QIFaUMYFvYsZJ5usFzBvIGntSvZMPLkyeDlUAw/Y1CUA=
+=oVMF
+-----END PGP SIGNATURE-----
+
+--yaap9KN+GmBP785v--
+
+--===============3752699334039785395==
+Content-Type: text/plain; charset="us-ascii"
+MIME-Version: 1.0
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+
+_______________________________________________
+Virtualization mailing list
+Virtualization@lists.linux-foundation.org
+https://lists.linuxfoundation.org/mailman/listinfo/virtualization
+--===============3752699334039785395==--
