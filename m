@@ -1,15 +1,16 @@
 From: Stefan Hajnoczi <stefanha@redhat.com>
-Subject: Re: [PATCH RFC 1/4] vsock/virtio: reduce credit update messages
-Date: Mon, 8 Apr 2019 10:25:39 +0100
-Message-ID: <20190408092539.GN15001__34507.7757885278$1554715552$gmane$org@stefanha-x1.localdomain>
+Subject: Re: [PATCH RFC 2/4] vhost/vsock: split packets to send using
+	multiple buffers
+Date: Mon, 8 Apr 2019 10:28:11 +0100
+Message-ID: <20190408092811.GO15001__12659.2589121842$1554715705$gmane$org@stefanha-x1.localdomain>
 References: <20190404105838.101559-1-sgarzare@redhat.com>
-	<20190404105838.101559-2-sgarzare@redhat.com>
-	<20190404191539.GB25152@stefanha-x1.localdomain>
-	<20190405081648.2zflr7gxknk4q3a2@steredhat>
+	<20190404105838.101559-3-sgarzare@redhat.com>
+	<20190405081356.GC25152@stefanha-x1.localdomain>
+	<20190405093608.f2zsyxnjxcba5v6r@steredhat>
 Mime-Version: 1.0
-Content-Type: multipart/mixed; boundary="===============2926575475199819822=="
+Content-Type: multipart/mixed; boundary="===============0542218831567873165=="
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <20190405081648.2zflr7gxknk4q3a2@steredhat>
+In-Reply-To: <20190405093608.f2zsyxnjxcba5v6r@steredhat>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -24,70 +25,67 @@ Cc: kvm@vger.kernel.org, "Michael S. Tsirkin" <mst@redhat.com>, linux-kernel@vge
 List-Id: virtualization@lists.linuxfoundation.org
 
 
---===============2926575475199819822==
+--===============0542218831567873165==
 Content-Type: multipart/signed; micalg=pgp-sha1;
-	protocol="application/pgp-signature"; boundary="K4LMwn8CgX2KMboP"
+	protocol="application/pgp-signature"; boundary="Sr6hGnsCY8KeifOY"
 Content-Disposition: inline
 
 
---K4LMwn8CgX2KMboP
+--Sr6hGnsCY8KeifOY
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
 Content-Transfer-Encoding: quoted-printable
 
-On Fri, Apr 05, 2019 at 10:16:48AM +0200, Stefano Garzarella wrote:
-> On Thu, Apr 04, 2019 at 08:15:39PM +0100, Stefan Hajnoczi wrote:
-> > On Thu, Apr 04, 2019 at 12:58:35PM +0200, Stefano Garzarella wrote:
-> > >  	int err =3D -EFAULT;
+On Fri, Apr 05, 2019 at 11:36:08AM +0200, Stefano Garzarella wrote:
+> On Fri, Apr 05, 2019 at 09:13:56AM +0100, Stefan Hajnoczi wrote:
+> > On Thu, Apr 04, 2019 at 12:58:36PM +0200, Stefano Garzarella wrote:
+> > > -		vhost_add_used(vq, head, sizeof(pkt->hdr) + pkt->len);
+> > > +		vhost_add_used(vq, head, sizeof(pkt->hdr) + payload_len);
+> > >  		added =3D true;
 > > > =20
-> > >  	spin_lock_bh(&vvs->rx_lock);
-> > > @@ -288,9 +290,15 @@ virtio_transport_stream_do_dequeue(struct vsock_=
-sock *vsk,
-> > >  	}
-> > >  	spin_unlock_bh(&vvs->rx_lock);
-> > > =20
-> > > -	/* Send a credit pkt to peer */
-> > > -	virtio_transport_send_credit_update(vsk, VIRTIO_VSOCK_TYPE_STREAM,
-> > > -					    NULL);
-> > > +	/* We send a credit update only when the space available seen
-> > > +	 * by the transmitter is less than VIRTIO_VSOCK_MAX_PKT_BUF_SIZE
-> > > +	 */
-> > > +	free_space =3D vvs->buf_alloc - (vvs->fwd_cnt - vvs->last_fwd_cnt);
+> > > +		pkt->off +=3D payload_len;
+> > > +
+> > > +		/* If we didn't send all the payload we can requeue the packet
+> > > +		 * to send it with the next available buffer.
+> > > +		 */
+> > > +		if (pkt->off < pkt->len) {
+> > > +			spin_lock_bh(&vsock->send_pkt_list_lock);
+> > > +			list_add(&pkt->list, &vsock->send_pkt_list);
+> > > +			spin_unlock_bh(&vsock->send_pkt_list_lock);
+> > > +			continue;
 > >=20
-> > Locking?  These fields should be accessed under tx_lock.
-> >=20
+> > The virtio_transport_deliver_tap_pkt() call is skipped.  Packet capture
+> > should see the exact packets that are delivered.  I think this patch
+> > will present one large packet instead of several smaller packets that
+> > were actually delivered.
 >=20
-> Yes, we need a lock, but looking in the code, vvs->fwd_cnd is written
-> taking rx_lock (virtio_transport_dec_rx_pkt) and it is read with the
-> tx_lock (virtio_transport_inc_tx_pkt).
->=20
-> Maybe we should use another spin_lock shared between RX and TX for those
-> fields or use atomic variables.
->=20
-> What do you suggest?
+> I'll modify virtio_transport_build_skb() to take care of pkt->off
+> and reading the payload size from the virtio_vsock_hdr.
+> Otherwise, should I introduce another field in virtio_vsock_pkt to store
+> the payload size?
 
-Or make vvs->fwd_cnt atomic if it's the only field that needs to be
-accessed in this manner.
+I don't remember the details but I trust you'll pick a good way of doing
+it.
 
 Stefan
 
---K4LMwn8CgX2KMboP
+--Sr6hGnsCY8KeifOY
 Content-Type: application/pgp-signature; name="signature.asc"
 
 -----BEGIN PGP SIGNATURE-----
 
-iQEcBAEBAgAGBQJcqxOTAAoJEJykq7OBq3PIZMYH/1TEHAKZjxIg1G2ajVhnFTbZ
-OFodA0ipnYIhsKDvhulux8zPhKa/dHkxBcWAKyBmMHdQ7CuwGAGSmXl8+wvQJt91
-AGkSXajUCMjW7ZBL0BLGtapphp/Rjam/9udW9YjTPHiOfOgc55h7oAHmNatTSDFF
-o9vRzFlJnqvAOA+06XB4ss3hALFebZjF50+c+yk/2d6UiMLADwjjqDANmJ9e8Vbl
-W4nTbFwpdLRkMn+VU8MtdJqFk+rvgvPPBRARV9wHVWS8CET8wJseU3zgDfTlajK9
-/22u/jzh++RQiHJ4nExEj9o93xWEatPblEPOmhvgR633SOjouPAeAwkDQFi9gRA=
-=hXkx
+iQEcBAEBAgAGBQJcqxQrAAoJEJykq7OBq3PIRNMH/RSv7+scItA1bhLrAepGRG8C
+33Z8YoFCFwvbnEzOhreX/oBgQD2uKuXWeiuQvhnx2jEondkZcmspoTqAqA3YIr1C
+3ujY9MsIfEmKoM4XLYhEnZ5bf5gZeBuWzPIWhhZJTF8N7fyIOIIV2XmFeVEOnRk0
+U9PEDq3gGU50Z4Z2rmHDQIp9LswnDw2knzgQptXFRDhQh6GRql7n4d0GIMlLG1YI
+AyBmxasATjVa7TYish3o7+bS1m5xXzqx7kBar1DfwLwhmn3wy4zhJKvLcjJiL9Rb
+V1MiVGdVwhKcY7dlEhHd9cTpkuUQ2bXbY+WNlIX+9yByy7EMbb1Fk/Iqpdut190=
+=bSSE
 -----END PGP SIGNATURE-----
 
---K4LMwn8CgX2KMboP--
+--Sr6hGnsCY8KeifOY--
 
---===============2926575475199819822==
+--===============0542218831567873165==
 Content-Type: text/plain; charset="us-ascii"
 MIME-Version: 1.0
 Content-Transfer-Encoding: 7bit
@@ -97,4 +95,4 @@ _______________________________________________
 Virtualization mailing list
 Virtualization@lists.linux-foundation.org
 https://lists.linuxfoundation.org/mailman/listinfo/virtualization
---===============2926575475199819822==--
+--===============0542218831567873165==--
