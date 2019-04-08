@@ -1,14 +1,15 @@
-From: Cornelia Huck <cohuck@redhat.com>
-Subject: Re: [RFC PATCH 01/12] virtio/s390: use vring_create_virtqueue
-Date: Mon, 8 Apr 2019 13:01:28 +0200
-Message-ID: <20190408130128.7859febe.cohuck@redhat.com>
-References: <20190404231622.52531-1-pasic@linux.ibm.com>
-	<20190404231622.52531-2-pasic@linux.ibm.com>
+From: "Koenig, Christian" <Christian.Koenig@amd.com>
+Subject: Re: [PATCH 00/15] Share TTM code among framebuffer drivers
+Date: Mon, 8 Apr 2019 11:10:16 +0000
+Message-ID: <d69e0b34-c586-2338-b063-fb758b6465d8__48358.315885865$1554721831$gmane$org@amd.com>
+References: <20190408092144.4548-1-tzimmermann@suse.de>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset="utf-8"
+Content-Transfer-Encoding: base64
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <20190404231622.52531-2-pasic@linux.ibm.com>
+In-Reply-To: <20190408092144.4548-1-tzimmermann@suse.de>
+Content-Language: en-US
+Content-ID: <AD81DB53CDD76D44BBBFCC0A6CB3EFEE@namprd12.prod.outlook.com>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -18,93 +19,127 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Halil Pasic <pasic@linux.ibm.com>
-Cc: Vasily Gorbik <gor@linux.ibm.com>, linux-s390@vger.kernel.org, Eric Farman <farman@linux.ibm.com>, Claudio Imbrenda <imbrenda@linux.ibm.com>, kvm@vger.kernel.org, Sebastian Ott <sebott@linux.ibm.com>, "Michael S .
-	Tsirkin" <mst@redhat.com>, Farhan Ali <alifm@linux.ibm.com>, virtualization@lists.linux-foundation.org, Martin Schwidefsky <schwidefsky@de.ibm.com>, Viktor Mihajlovski <mihajlov@linux.ibm.com>, Janosch Frank <frankja@linux.ibm.com>
+To: Thomas Zimmermann <tzimmermann@suse.de>, "daniel@ffwll.ch" <daniel@ffwll.ch>, "airlied@linux.ie" <airlied@linux.ie>, "kraxel@redhat.com" <kraxel@redhat.com>, "Huang, Ray" <Ray.Huang@amd.com>, "Zhang, Jerry" <Jerry.Zhang@amd.com>, "hdegoede@redhat.com" <hdegoede@redhat.com>, "z.liuxinliang@hisilicon.com" <z.liuxinliang@hisilicon.com>, "zourongrong@gmail.com" <zourongrong@gmail.com>, "kong.kongxinwei@hisilicon.com" <kong.kongxinwei@hisilicon.com>, "puck.chen@hisilicon.com" <puck.chen@hisilicon.com>
+Cc: "dri-devel@lists.freedesktop.org" <dri-devel@lists.freedesktop.org>, "virtualization@lists.linux-foundation.org" <virtualization@lists.linux-foundation.org>
 List-Id: virtualization@lists.linuxfoundation.org
 
-On Fri,  5 Apr 2019 01:16:11 +0200
-Halil Pasic <pasic@linux.ibm.com> wrote:
-
-> The commit 2a2d1382fe9d ("virtio: Add improved queue allocation API")
-> establishes a new way of allocating virtqueues (as a part of the effort
-> that taught DMA to virtio rings).
-> 
-> In the future we will want virtio-ccw to use the DMA API as well.
-> 
-> Let us switch from the legacy method of allocating virtqueues to
-> vring_create_virtqueue() as the first step into that direction.
-> 
-> Signed-off-by: Halil Pasic <pasic@linux.ibm.com>
-> ---
->  drivers/s390/virtio/virtio_ccw.c | 27 ++++++++-------------------
->  1 file changed, 8 insertions(+), 19 deletions(-)
-> 
-> diff --git a/drivers/s390/virtio/virtio_ccw.c b/drivers/s390/virtio/virtio_ccw.c
-> index 74c328321889..edf4afe2d688 100644
-> --- a/drivers/s390/virtio/virtio_ccw.c
-> +++ b/drivers/s390/virtio/virtio_ccw.c
-
-> @@ -516,17 +512,10 @@ static struct virtqueue *virtio_ccw_setup_vq(struct virtio_device *vdev,
->  		err = info->num;
->  		goto out_err;
->  	}
-> -	size = PAGE_ALIGN(vring_size(info->num, KVM_VIRTIO_CCW_RING_ALIGN));
-> -	info->queue = alloc_pages_exact(size, GFP_KERNEL | __GFP_ZERO);
-> -	if (info->queue == NULL) {
-> -		dev_warn(&vcdev->cdev->dev, "no queue\n");
-> -		err = -ENOMEM;
-> -		goto out_err;
-> -	}
-> +	vq = vring_create_virtqueue(i, info->num, KVM_VIRTIO_CCW_RING_ALIGN,
-> +				    vdev, true, true, ctx,
-
-This second true means 'may_reduce_num'. Looking at the vring code, it
-seems that this parameter is never checked; the code will try to
-allocate a smaller queue if it can't get the requested size in any
-case... this will probably be a problem for legacy virtio-pci, which
-explicitly sets may_reduce_num to false. (I can try to come up with a
-patch to fix that.)
-
-> +				    virtio_ccw_kvm_notify, callback, name);
->  
-> -	vq = vring_new_virtqueue(i, info->num, KVM_VIRTIO_CCW_RING_ALIGN, vdev,
-> -				 true, ctx, info->queue, virtio_ccw_kvm_notify,
-> -				 callback, name);
->  	if (!vq) {
->  		/* For now, we fail if we can't get the requested size. */
->  		dev_warn(&vcdev->cdev->dev, "no vq\n");
-> @@ -534,15 +523,17 @@ static struct virtqueue *virtio_ccw_setup_vq(struct virtio_device *vdev,
->  		goto out_err;
->  	}
->  
-> +
-
-Extra blank line :)
-
->  	/* Register it with the host. */
-> +	queue = virtqueue_get_desc_addr(vq);
->  	if (vcdev->revision == 0) {
-> -		info->info_block->l.queue = (__u64)info->queue;
-> +		info->info_block->l.queue = queue;
->  		info->info_block->l.align = KVM_VIRTIO_CCW_RING_ALIGN;
->  		info->info_block->l.index = i;
->  		info->info_block->l.num = info->num;
-
-You always fill in the size requested by the host, but the actual size
-may be smaller (see above). I don't think that is allowed for revision
-0 (which implies !virtio-1). You probably need to call
-vring_create_virtqueue with may_reduce_num=false for revision 0 (and
-wait for the generic vring code to be fixed...)
-
->  		ccw->count = sizeof(info->info_block->l);
->  	} else {
-> -		info->info_block->s.desc = (__u64)info->queue;
-> +		info->info_block->s.desc = queue;
->  		info->info_block->s.index = i;
->  		info->info_block->s.num = info->num;
-
-Here, you need to obtain the actual number via
-virtqueue_get_vring_size().
-
->  		info->info_block->s.avail = (__u64)virtqueue_get_avail(vq);
+V2VsbCBmaXJzdCBwcm9ibGVtIGlzIEknbSBub3Qgc3VyZSBpZiB0aGF0IGlzIGEgZ29vZCBpZGVh
+LiBFc3NlbnRpYWxseSANCndlIHdhbnQgdG8gZ2V0IHJpZCBvZiBUVE0gaW4gdGhlIGxvbmcgcnVu
+Lg0KDQpPbiB0aGUgb3RoZXIgaGFuZCB0aGlzIHdvcmsgbWlnaHQgYWlkIHdpdGggdGhhdCBnb2Fs
+LCBzbyBpdCBtaWdodCBiZSANCndvcnRoIGEgdHJ5Lg0KDQpTZWNvbmQgaXMgdGhhdCB0aGlzIG1p
+Z2h0IGFjdHVhbGx5IG5vdCB3b3JrIG9mIGhhbmQuIFRoZSBwcm9ibGVtIGlzIGhlcmU6DQo+ICsJ
+LyogVE9ETzogVGhpcyB0ZXN0IHVzZWQgdG8gYmUgcGVyZm9ybWVkIGJ5IGRyaXZlcnMsIGJ1dCBj
+YW4NCj4gKwkgKiB0aGlzIGFjdHVhbGx5IGhhcHBlbj8gSWYgc28sIHNob3VsZCB3ZSBwdXQgdGhl
+IGNoZWNrIGludG8NCj4gKwkgKiBkcm1fZ2VtX3R0bV9vZl9nZW0oKT8gKi8NCj4gKwlpZiAoIWRy
+bV9pc19nZW1fdHRtKGJvKSkNCj4gKwkJcmV0dXJuOw0KDQpZZWFoLCB0aGlzIHRlc3QgaXMgbWFu
+ZGF0b3J5IGJlY2F1c2UgVFRNIG9uIGl0c2VsZiBjYW4gcHJlc2VudCBidWZmZXIgDQpvYmplY3Qg
+d2hpY2ggZG9lc24ndCBiZWxvbmcgdG8gdGhlIGRyaXZlciBjYWxsZWQuDQoNCkUuZy4gd2Ugc29t
+ZXRpbWVzIGhhdmUgQk9zIHdoaWNoIGRvbid0IGJlbG9uZyB0byB0aGUgY3VycmVudCBkcml2ZXJz
+IG9uIA0KYSBkcml2ZXIgc3BlY2lmaWMgTFJVLiBBIHRvdGFsbHkgYnJhaW4gZGVhZMKgIGRlc2ln
+biBpZiB5b3UgYXNrIG1lLCBidXQgDQp0aGF0J3MgaG93IGl0IGlzLg0KDQpOb3QgMTAwJSBzdXJl
+LCBidXQgYnkgY29udmVydGluZyBhbGwgZHJpdmVycyB0byB1c2UgYSBjb21tb24gR0VNX1RUTSAN
+CmJhY2tlbmQgeW91IG1pZ2h0IGFjdHVhbGx5IGJyZWFrIHRoYXQgdGVzdC4NCg0KSSdtIG5vdCBz
+dXJlIGlmIHRoYXQgaXMgYWN0dWFsbHkgYSBwcm9ibGVtIGluIHRoZSByZWFsIHdvcmxkLCBpdCBt
+b3N0IA0KbGlrZWx5IGlzbid0LiBCdXQgSSBzdGlsbCB3b24ndCBiZXQgb24gaXQgd2l0aG91dCBi
+ZWluZyBhYmxlIHRvIHRlc3QgdGhpcy4NCg0KUmVnYXJkcywNCkNocmlzdGlhbi4NCg0KQW0gMDgu
+MDQuMTkgdW0gMTE6MjEgc2NocmllYiBUaG9tYXMgWmltbWVybWFubjoNCj4gU2V2ZXJhbCBzaW1w
+bGUgZnJhbWVidWZmZXIgZHJpdmVycyBjb3B5IG1vc3Qgb2YgdGhlIFRUTSBjb2RlIGZyb20gZWFj
+aA0KPiBvdGhlci4gVGhlIGltcGxlbWVudGF0aW9uIGlzIGFsd2F5cyB0aGUgc2FtZTsgZXhjZXB0
+IGZvciB0aGUgbmFtZSBvZg0KPiBzb21lIGRhdGEgc3RydWN0dXJlcy4NCj4NCj4gQXMgcmVjZW50
+bHkgZGlzY3Vzc2VkLCB0aGlzIHBhdGNoIHNldCBwcm92aWRlcyBnZW5lcmljIFRUTSBtZW1vcnkt
+DQo+IG1hbmFnZW1lbnQgY29kZSBmb3IgZnJhbWVidWZmZXJzIHdpdGggZGVkaWNhdGVkIHZpZGVv
+IG1lbW9yeS4gSXQgZnVydGhlcg0KPiBjb252ZXJ0cyB0aGUgcmVzcGVjdGl2ZSBkcml2ZXJzIHRv
+IHRoZSBnZW5lcmljIGNvZGUuIFRoZSBzaGFyZWQgY29kZQ0KPiBpcyBiYXNpY2FsbHkgdGhlIHNh
+bWUgaW1wbGVtZW50YXRpb24gYXMgdGhlIG9uZSBjb3BpZWQgYW1vbmcgaW5kaXZpZHVhbA0KPiBk
+cml2ZXJzLg0KPg0KPiBUaGUgcGF0Y2ggc2V0IGNvbnRhaW5zIHR3byBtYWpvciBjaGFuZ2VzOiBm
+aXJzdCwgaXQgaW50cm9kdWNlcw0KPiB8c3RydWN0IGRybV9nZW1fdHRtX29iamVjdHwgYW5kIGhl
+bHBlcnMuIEl0J3MgYSBHRU0gb2JqZWN0IHRoYXQgaXMNCj4gYmFja2VkIGJ5IFRUTS1tYW5hZ2Vk
+IG1lbW9yeS4gVGhlIHR5cGUncyBwdXJwb3NlIGlzIHNvbWV3aGF0IHNpbWlsYXINCj4gdG8gfHN0
+cnVjdCBkcm1fZ2VtX3tjbWEsIHNobWVtfV9vYmplY3R8LiBTZWNvbmQsIHRoZSBwYXRjaCBzZXQN
+Cj4gaW50cm9kdWNlcyB8c3RydWN0IGRybV9zaW1wbGVfdHRtfCAoZm9yIHRoZSBsYWNrIG9mIGEg
+YmV0dGVyIG5hbWUpIGFuZA0KPiBoZWxwZXJzLiBJdCdzIGFuIGltcGxlbWVudGF0aW9uIG9mIGEg
+YmFzaWMgVFRNLWJhc2VkIG1lbW9yeSBtYW5hZ2VyLg0KPg0KPiBCb3RoLCBHRU0gVFRNIGFuZCBT
+aW1wbGUgVFRNLCBzdXBwb3J0IFZSQU0gYW5kIFNZU1RFTSBwbGFjZW1lbnRzLiBTdXBwb3J0DQo+
+IGZvciBUVCBjb3VsZCBwcm9iYWJseSBiZSBhZGRlZCBpZiBuZWNlc3NhcnkuIEJvdGggY2FuIGJl
+IHVzZWQgaW5kZXBlbmRlZGx5DQo+IGZyb20gZWFjaCBvdGhlciBpZiBkZXNpcmVkIGJ5IHRoZSBE
+Uk0gZHJpdmVyLg0KPg0KPiBDdXJyZW50bHkgYXN0LCBib2NocywgbWdhZzIwMCwgdmJveHZpZGVv
+IGFuZCBoaXNpbGljb24vaGlibWMgY2FuIHVzZQ0KPiB0aGVzZSBoZWxwZXJzLiBDaXJydXMgd291
+bGQgYWxzbyBiZSBhIGNhbmRpZGF0ZSwgYnV0IGFzIGl0J3MgYmVpbmcNCj4gcmV3cnR0ZW4gZnJv
+bSBzY3JhdGNoLCBJIGRpZG4ndCBib3RoZXIgZG9pbmcgdGhlIGNvbnZlcnNpb24uDQo+DQo+IEZ1
+dHVyZSBkaXJlY3Rpb25zOiB3aXRoIHRoZXNlIGNoYW5nZXMsIHRoZSByZXNwZWN0aXZlIGRyaXZl
+cnMgY2FuIGFsc28NCj4gc2hhcmUgc29tZSBvZiB0aGVpciBtb2RlLXNldHRpbmcgb3IgZmJkZXYg
+Y29kZS4gR0VNIFRUTSBjb3VsZCBpbXBsZW1lbnQNCj4gUFJJTUUgaGVscGVycywgd2hpY2ggd291
+bGQgYWxsb3cgZm9yIHVzaW5nIHRoZSBnZW5lcmljIGZiY29uLg0KPg0KPiBUaGUgcGF0Y2ggc2V0
+IGlzIGFnYWluc3QgYSByZWNlbnQgZHJtLXRpcC4NCj4NCj4gVGhvbWFzIFppbW1lcm1hbm4gKDE1
+KToNCj4gICAgZHJtOiBBZGQgfHN0cnVjdCBkcm1fZ2VtX3R0bV9vYmplY3R8IGFuZCBoZWxwZXJz
+DQo+ICAgIGRybTogQWRkIHxzdHJ1Y3QgZHJtX2dlbV90dG1fb2JqZWN0fCBjYWxsYmFja3MgZm9y
+IHxzdHJ1Y3QNCj4gICAgICB0dG1fYm9fZHJpdmVyfA0KPiAgICBkcm06IEFkZCB8c3RydWN0IGRy
+bV9nZW1fdHRtX29iamVjdHwgY2FsbGJhY2tzIGZvciB8c3RydWN0IGRybV9kcml2ZXJ8DQo+ICAg
+IGRybTogQWRkIGRybV9nZW1fdHRtX2ZpbGxfY3JlYXRlX2R1bWIoKSB0byBjcmVhdGUgZHVtYiBi
+dWZmZXJzDQo+ICAgIGRybTogQWRkIFNpbXBsZSBUVE0sIGEgbWVtb3J5IG1hbmFnZXIgZm9yIGRl
+ZGljYXRlZCBWUkFNDQo+ICAgIGRybS9hc3Q6IENvbnZlcnQgQVNUIGRyaXZlciB0byB8c3RydWN0
+IGRybV9nZW1fdHRtX29iamVjdHwNCj4gICAgZHJtL2FzdDogQ29udmVydCBBU1QgZHJpdmVyIHRv
+IFNpbXBsZSBUVE0NCj4gICAgZHJtL2JvY2hzOiBDb252ZXJ0IEJvY2hzIGRyaXZlciB0byB8c3Ry
+dWN0IGRybV9nZW1fdHRtX29iamVjdHwNCj4gICAgZHJtL2JvY2hzOiBDb252ZXJ0IEJvY2hzIGRy
+aXZlciB0byBTaW1wbGUgVFRNDQo+ICAgIGRybS9tZ2FnMjAwOiBDb252ZXJ0IG1nYWcyMDAgZHJp
+dmVyIHRvIHxzdHJ1Y3QgZHJtX2dlbV90dG1fb2JqZWN0fA0KPiAgICBkcm0vbWdhZzIwMDogQ29u
+dmVydCBtZ2FnMjAwIGRyaXZlciB0byBTaW1wbGUgVFRNDQo+ICAgIGRybS92Ym94dmlkZW86IENv
+bnZlcnQgdmJveHZpZGVvIGRyaXZlciB0byB8c3RydWN0IGRybV9nZW1fdHRtX29iamVjdHwNCj4g
+ICAgZHJtL3Zib3h2aWRlbzogQ29udmVydCB2Ym94dmlkZW8gZHJpdmVyIHRvIFNpbXBsZSBUVE0N
+Cj4gICAgZHJtL2hpc2lsaWNvbjogQ29udmVydCBoaWJtYy1kcm0gZHJpdmVyIHRvIHxzdHJ1Y3Qg
+ZHJtX2dlbV90dG1fb2JqZWN0fA0KPiAgICBkcm0vaGlzaWxpY29uOiBDb252ZXJ0IGhpYm1jLWRy
+bSBkcml2ZXIgdG8gU2ltcGxlIFRUTQ0KPg0KPiAgIERvY3VtZW50YXRpb24vZ3B1L2RybS1tbS5y
+c3QgICAgICAgICAgICAgICAgICB8ICAyMyArDQo+ICAgZHJpdmVycy9ncHUvZHJtL0tjb25maWcg
+ICAgICAgICAgICAgICAgICAgICAgIHwgIDIwICsNCj4gICBkcml2ZXJzL2dwdS9kcm0vTWFrZWZp
+bGUgICAgICAgICAgICAgICAgICAgICAgfCAgIDUgKw0KPiAgIGRyaXZlcnMvZ3B1L2RybS9hc3Qv
+S2NvbmZpZyAgICAgICAgICAgICAgICAgICB8ICAgMyArLQ0KPiAgIGRyaXZlcnMvZ3B1L2RybS9h
+c3QvYXN0X2Rydi5jICAgICAgICAgICAgICAgICB8ICAgNCArLQ0KPiAgIGRyaXZlcnMvZ3B1L2Ry
+bS9hc3QvYXN0X2Rydi5oICAgICAgICAgICAgICAgICB8ICA1OCArLQ0KPiAgIGRyaXZlcnMvZ3B1
+L2RybS9hc3QvYXN0X2ZiLmMgICAgICAgICAgICAgICAgICB8ICAxOCArLQ0KPiAgIGRyaXZlcnMv
+Z3B1L2RybS9hc3QvYXN0X21haW4uYyAgICAgICAgICAgICAgICB8ICA3NCArLS0NCj4gICBkcml2
+ZXJzL2dwdS9kcm0vYXN0L2FzdF9tb2RlLmMgICAgICAgICAgICAgICAgfCAgNzggKy0tDQo+ICAg
+ZHJpdmVycy9ncHUvZHJtL2FzdC9hc3RfdHRtLmMgICAgICAgICAgICAgICAgIHwgMjkwICstLS0t
+LS0tLS0NCj4gICBkcml2ZXJzL2dwdS9kcm0vYm9jaHMvS2NvbmZpZyAgICAgICAgICAgICAgICAg
+fCAgIDIgKw0KPiAgIGRyaXZlcnMvZ3B1L2RybS9ib2Nocy9ib2Nocy5oICAgICAgICAgICAgICAg
+ICB8ICA0MiArLQ0KPiAgIGRyaXZlcnMvZ3B1L2RybS9ib2Nocy9ib2Noc19kcnYuYyAgICAgICAg
+ICAgICB8ICAgNCArLQ0KPiAgIGRyaXZlcnMvZ3B1L2RybS9ib2Nocy9ib2Noc19rbXMuYyAgICAg
+ICAgICAgICB8ICAxOCArLQ0KPiAgIGRyaXZlcnMvZ3B1L2RybS9ib2Nocy9ib2Noc19tbS5jICAg
+ICAgICAgICAgICB8IDM5MiArLS0tLS0tLS0tLS0tLQ0KPiAgIGRyaXZlcnMvZ3B1L2RybS9kcm1f
+Z2VtX3R0bV9oZWxwZXIuYyAgICAgICAgICB8IDUwNyArKysrKysrKysrKysrKysrKysNCj4gICBk
+cml2ZXJzL2dwdS9kcm0vZHJtX3NpbXBsZV90dG1faGVscGVyLmMgICAgICAgfCAxOTEgKysrKysr
+Kw0KPiAgIGRyaXZlcnMvZ3B1L2RybS9kcm1fdHRtX2hlbHBlcl9jb21tb24uYyAgICAgICB8ICAg
+NiArDQo+ICAgZHJpdmVycy9ncHUvZHJtL2hpc2lsaWNvbi9oaWJtYy9LY29uZmlnICAgICAgIHwg
+ICAyICsNCj4gICAuLi4vZ3B1L2RybS9oaXNpbGljb24vaGlibWMvaGlibWNfZHJtX2RlLmMgICAg
+fCAgMTkgKy0NCj4gICAuLi4vZ3B1L2RybS9oaXNpbGljb24vaGlibWMvaGlibWNfZHJtX2Rydi5j
+ICAgfCAgIDQgKy0NCj4gICAuLi4vZ3B1L2RybS9oaXNpbGljb24vaGlibWMvaGlibWNfZHJtX2Ry
+di5oICAgfCAgMjggKy0NCj4gICAuLi4vZ3B1L2RybS9oaXNpbGljb24vaGlibWMvaGlibWNfZHJt
+X2ZiZGV2LmMgfCAgMzAgKy0NCj4gICBkcml2ZXJzL2dwdS9kcm0vaGlzaWxpY29uL2hpYm1jL2hp
+Ym1jX3R0bS5jICAgfCAzMjggKy0tLS0tLS0tLS0NCj4gICBkcml2ZXJzL2dwdS9kcm0vbWdhZzIw
+MC9LY29uZmlnICAgICAgICAgICAgICAgfCAgIDIgKw0KPiAgIGRyaXZlcnMvZ3B1L2RybS9tZ2Fn
+MjAwL21nYWcyMDBfY3Vyc29yLmMgICAgICB8ICA2MSArKy0NCj4gICBkcml2ZXJzL2dwdS9kcm0v
+bWdhZzIwMC9tZ2FnMjAwX2Rydi5jICAgICAgICAgfCAgIDQgKy0NCj4gICBkcml2ZXJzL2dwdS9k
+cm0vbWdhZzIwMC9tZ2FnMjAwX2Rydi5oICAgICAgICAgfCAgNjggKy0tDQo+ICAgZHJpdmVycy9n
+cHUvZHJtL21nYWcyMDAvbWdhZzIwMF9mYi5jICAgICAgICAgIHwgIDE4ICstDQo+ICAgZHJpdmVy
+cy9ncHUvZHJtL21nYWcyMDAvbWdhZzIwMF9tYWluLmMgICAgICAgIHwgIDg0ICstLQ0KPiAgIGRy
+aXZlcnMvZ3B1L2RybS9tZ2FnMjAwL21nYWcyMDBfbW9kZS5jICAgICAgICB8ICA0NSArLQ0KPiAg
+IGRyaXZlcnMvZ3B1L2RybS9tZ2FnMjAwL21nYWcyMDBfdHRtLmMgICAgICAgICB8IDI5MCArLS0t
+LS0tLS0tDQo+ICAgZHJpdmVycy9ncHUvZHJtL3Zib3h2aWRlby9LY29uZmlnICAgICAgICAgICAg
+IHwgICAyICsNCj4gICBkcml2ZXJzL2dwdS9kcm0vdmJveHZpZGVvL3Zib3hfZHJ2LmMgICAgICAg
+ICAgfCAgIDUgKy0NCj4gICBkcml2ZXJzL2dwdS9kcm0vdmJveHZpZGVvL3Zib3hfZHJ2LmggICAg
+ICAgICAgfCAgNjQgKy0tDQo+ICAgZHJpdmVycy9ncHUvZHJtL3Zib3h2aWRlby92Ym94X2ZiLmMg
+ICAgICAgICAgIHwgIDIyICstDQo+ICAgZHJpdmVycy9ncHUvZHJtL3Zib3h2aWRlby92Ym94X21h
+aW4uYyAgICAgICAgIHwgIDcwICstLQ0KPiAgIGRyaXZlcnMvZ3B1L2RybS92Ym94dmlkZW8vdmJv
+eF9tb2RlLmMgICAgICAgICB8ICAzNiArLQ0KPiAgIGRyaXZlcnMvZ3B1L2RybS92Ym94dmlkZW8v
+dmJveF90dG0uYyAgICAgICAgICB8IDM0NCArLS0tLS0tLS0tLS0NCj4gICBpbmNsdWRlL2RybS9k
+cm1fZ2VtX3R0bV9oZWxwZXIuaCAgICAgICAgICAgICAgfCAxMTkgKysrKw0KPiAgIGluY2x1ZGUv
+ZHJtL2RybV9zaW1wbGVfdHRtX2hlbHBlci5oICAgICAgICAgICB8ICA3NCArKysNCj4gICA0MSBm
+aWxlcyBjaGFuZ2VkLCAxMjkyIGluc2VydGlvbnMoKyksIDIxNjIgZGVsZXRpb25zKC0pDQo+ICAg
+Y3JlYXRlIG1vZGUgMTAwNjQ0IGRyaXZlcnMvZ3B1L2RybS9kcm1fZ2VtX3R0bV9oZWxwZXIuYw0K
+PiAgIGNyZWF0ZSBtb2RlIDEwMDY0NCBkcml2ZXJzL2dwdS9kcm0vZHJtX3NpbXBsZV90dG1faGVs
+cGVyLmMNCj4gICBjcmVhdGUgbW9kZSAxMDA2NDQgZHJpdmVycy9ncHUvZHJtL2RybV90dG1faGVs
+cGVyX2NvbW1vbi5jDQo+ICAgY3JlYXRlIG1vZGUgMTAwNjQ0IGluY2x1ZGUvZHJtL2RybV9nZW1f
+dHRtX2hlbHBlci5oDQo+ICAgY3JlYXRlIG1vZGUgMTAwNjQ0IGluY2x1ZGUvZHJtL2RybV9zaW1w
+bGVfdHRtX2hlbHBlci5oDQo+DQo+IC0tDQo+IDIuMjEuMA0KPg0KDQpfX19fX19fX19fX19fX19f
+X19fX19fX19fX19fX19fX19fX19fX19fX19fX19fXwpWaXJ0dWFsaXphdGlvbiBtYWlsaW5nIGxp
+c3QKVmlydHVhbGl6YXRpb25AbGlzdHMubGludXgtZm91bmRhdGlvbi5vcmcKaHR0cHM6Ly9saXN0
+cy5saW51eGZvdW5kYXRpb24ub3JnL21haWxtYW4vbGlzdGluZm8vdmlydHVhbGl6YXRpb24=
