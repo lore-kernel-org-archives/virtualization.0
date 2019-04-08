@@ -1,14 +1,14 @@
-From: Jens Freimann <jfreimann@redhat.com>
-Subject: Re: [PATCH] virtio: Honour 'may_reduce_num' in vring_create_virtqueue
-Date: Mon, 8 Apr 2019 15:32:38 +0200
-Message-ID: <20190408133238.2ahk6u3k7mv7nd5g__45026.3469874457$1554730375$gmane$org@jenstp.localdomain>
-References: <20190408123322.24086-1-cohuck@redhat.com>
+From: Dongli Zhang <dongli.zhang@oracle.com>
+Subject: Re: [PATCH 0/2] Limit number of hw queues by nr_cpu_ids for
+	virtio-blk and virtio-scsi
+Date: Mon, 8 Apr 2019 21:57:46 +0800
+Message-ID: <8ee49e44-a52c-0596-e18e-7d92da8cef8f@oracle.com>
+References: <1553682995-5682-1-git-send-email-dongli.zhang@oracle.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"; Format="flowed"
+Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-Content-Disposition: inline
-In-Reply-To: <20190408123322.24086-1-cohuck@redhat.com>
+In-Reply-To: <1553682995-5682-1-git-send-email-dongli.zhang@oracle.com>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -18,34 +18,108 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Cornelia Huck <cohuck@redhat.com>
-Cc: kvm@vger.kernel.org, "Michael S . Tsirkin" <mst@redhat.com>, linux-kernel@vger.kernel.org, stable@vger.kernel.org, virtualization@lists.linux-foundation.org, Halil Pasic <pasic@linux.ibm.com>
+To: linux-scsi@vger.kernel.org, virtualization@lists.linux-foundation.org, linux-block@vger.kernel.org
+Cc: axboe@kernel.dk, martin.petersen@oracle.com, mst@redhat.com, cohuck@redhat.com, linux-kernel@vger.kernel.org, jejb@linux.ibm.com
 List-Id: virtualization@lists.linuxfoundation.org
 
-On Mon, Apr 08, 2019 at 02:33:22PM +0200, Cornelia Huck wrote:
->vring_create_virtqueue() allows the caller to specify via the
->may_reduce_num parameter whether the vring code is allowed to
->allocate a smaller ring than specified.
->
->However, the split ring allocation code tries to allocate a
->smaller ring on allocation failure regardless of what the
->caller specified. This may cause trouble for e.g. virtio-pci
->in legacy mode, which does not support ring resizing. (The
->packed ring code does not resize in any case.)
->
->Let's fix this by bailing out immediately in the split ring code
->if the requested size cannot be allocated and may_reduce_num has
->not been specified.
->
->While at it, fix a typo in the usage instructions.
->
->Fixes: 2a2d1382fe9d ("virtio: Add improved queue allocation API")
->Cc: stable@vger.kernel.org # v4.6+
->Signed-off-by: Cornelia Huck <cohuck@redhat.com>
->---
-> drivers/virtio/virtio_ring.c | 2 ++
-> include/linux/virtio_ring.h  | 2 +-
-> 2 files changed, 3 insertions(+), 1 deletion(-)
->
+ping?
 
-Reviewed-by: Jens Freimann <jfreimann@redhat.com>
+Thank you very much!
+
+Dongli Zhang
+
+On 03/27/2019 06:36 PM, Dongli Zhang wrote:
+> When tag_set->nr_maps is 1, the block layer limits the number of hw queues
+> by nr_cpu_ids. No matter how many hw queues are use by
+> virtio-blk/virtio-scsi, as they both have (tag_set->nr_maps == 1), they
+> can use at most nr_cpu_ids hw queues.
+> 
+> In addition, specifically for pci scenario, when the 'num-queues' specified
+> by qemu is more than maxcpus, virtio-blk/virtio-scsi would not be able to
+> allocate more than maxcpus vectors in order to have a vector for each
+> queue. As a result, they fall back into MSI-X with one vector for config
+> and one shared for queues.
+> 
+> Considering above reasons, this patch set limits the number of hw queues
+> used by nr_cpu_ids for both virtio-blk and virtio-scsi.
+> 
+> -------------------------------------------------------------
+> 
+> Here is test result of virtio-scsi:
+> 
+> qemu cmdline:
+> 
+> -smp 2,maxcpus=4, \
+> -device virtio-scsi-pci,id=scsi0,num_queues=8, \
+> -device scsi-hd,drive=drive0,bus=scsi0.0,channel=0,scsi-id=0,lun=0, \
+> -drive file=test.img,if=none,id=drive0
+> 
+> Although maxcpus=4 and num_queues=8, 4 queues are used while 2 interrupts
+> are allocated.
+> 
+> # cat /proc/interrupts
+> ... ...
+>  24:          0          0   PCI-MSI 65536-edge      virtio0-config
+>  25:          0        369   PCI-MSI 65537-edge      virtio0-virtqueues
+> ... ...
+> 
+> # /sys/block/sda/mq/
+> 0  1  2  3   ------> 4 queues although qemu sets num_queues=8
+> 
+> 
+> With the patch set, there is per-queue interrupt.
+> 
+> # cat /proc/interrupts
+>  24:          0          0   PCI-MSI 65536-edge      virtio0-config
+>  25:          0          0   PCI-MSI 65537-edge      virtio0-control
+>  26:          0          0   PCI-MSI 65538-edge      virtio0-event
+>  27:        296          0   PCI-MSI 65539-edge      virtio0-request
+>  28:          0        139   PCI-MSI 65540-edge      virtio0-request
+>  29:          0          0   PCI-MSI 65541-edge      virtio0-request
+>  30:          0          0   PCI-MSI 65542-edge      virtio0-request
+> 
+> # ls /sys/block/sda/mq
+> 0  1  2  3
+> 
+> -------------------------------------------------------------
+> 
+> Here is test result of virtio-blk:
+> 
+> qemu cmdline:
+> 
+> -smp 2,maxcpus=4,
+> -device virtio-blk-pci,drive=drive-virtio-disk0,id=virtio-disk0,num-queues=8
+> -drive test.img,format=raw,if=none,id=drive-virtio-disk0
+> 
+> Although maxcpus=4 and num-queues=8, 4 queues are used while 2 interrupts
+> are allocated.
+> 
+> # cat /proc/interrupts
+> ... ...
+>  24:          0          0   PCI-MSI 65536-edge      virtio0-config
+>  25:          0         65   PCI-MSI 65537-edge      virtio0-virtqueues
+> ... ...
+> 
+> # ls /sys/block/vda/mq
+> 0  1  2  3    -------> 4 queues although qemu sets num_queues=8
+> 
+> 
+> With the patch set, there is per-queue interrupt.
+> 
+> # cat /proc/interrupts
+>  24:          0          0   PCI-MSI 65536-edge      virtio0-config
+>  25:         64          0   PCI-MSI 65537-edge      virtio0-req.0
+>  26:          0      10290   PCI-MSI 65538-edge      virtio0-req.1
+>  27:          0          0   PCI-MSI 65539-edge      virtio0-req.2
+>  28:          0          0   PCI-MSI 65540-edge      virtio0-req.3
+> 
+> # ls /sys/block/vda/mq/
+> 0  1  2  3
+> 
+> 
+> Reference: https://lore.kernel.org/lkml/e4afe4c5-0262-4500-aeec-60f30734b4fc@default/
+> 
+> Thank you very much!
+> 
+> Dongli Zhang
+> 
