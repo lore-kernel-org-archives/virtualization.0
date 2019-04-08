@@ -1,17 +1,15 @@
 From: Stefan Hajnoczi <stefanha@redhat.com>
-Subject: Re: [PATCH RFC 0/4] vsock/virtio: optimizations to increase the
-	throughput
-Date: Mon, 8 Apr 2019 10:23:18 +0100
-Message-ID: <20190408092318.GM15001__12016.5860907704$1554715417$gmane$org@stefanha-x1.localdomain>
+Subject: Re: [PATCH RFC 1/4] vsock/virtio: reduce credit update messages
+Date: Mon, 8 Apr 2019 10:25:39 +0100
+Message-ID: <20190408092539.GN15001__34507.7757885278$1554715552$gmane$org@stefanha-x1.localdomain>
 References: <20190404105838.101559-1-sgarzare@redhat.com>
-	<20190404114643-mutt-send-email-mst@kernel.org>
-	<20190404164715.sycigtccwq2rziuz@steredhat>
-	<20190404140345-mutt-send-email-mst@kernel.org>
-	<20190405074917.ooftpalmploq6x3b@steredhat>
+	<20190404105838.101559-2-sgarzare@redhat.com>
+	<20190404191539.GB25152@stefanha-x1.localdomain>
+	<20190405081648.2zflr7gxknk4q3a2@steredhat>
 Mime-Version: 1.0
-Content-Type: multipart/mixed; boundary="===============3752699334039785395=="
+Content-Type: multipart/mixed; boundary="===============2926575475199819822=="
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <20190405074917.ooftpalmploq6x3b@steredhat>
+In-Reply-To: <20190405081648.2zflr7gxknk4q3a2@steredhat>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -22,93 +20,74 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
 To: Stefano Garzarella <sgarzare@redhat.com>
-Cc: kvm@vger.kernel.org, "Michael S. Tsirkin" <mst@redhat.com>, netdev@vger.kernel.org, linux-kernel@vger.kernel.org, virtualization@lists.linux-foundation.org, "David S. Miller" <davem@davemloft.net>
+Cc: kvm@vger.kernel.org, "Michael S. Tsirkin" <mst@redhat.com>, linux-kernel@vger.kernel.org, virtualization@lists.linux-foundation.org, netdev@vger.kernel.org, "David S. Miller" <davem@davemloft.net>
 List-Id: virtualization@lists.linuxfoundation.org
 
 
---===============3752699334039785395==
+--===============2926575475199819822==
 Content-Type: multipart/signed; micalg=pgp-sha1;
-	protocol="application/pgp-signature"; boundary="yaap9KN+GmBP785v"
+	protocol="application/pgp-signature"; boundary="K4LMwn8CgX2KMboP"
 Content-Disposition: inline
 
 
---yaap9KN+GmBP785v
+--K4LMwn8CgX2KMboP
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
 Content-Transfer-Encoding: quoted-printable
 
-On Fri, Apr 05, 2019 at 09:49:17AM +0200, Stefano Garzarella wrote:
-> On Thu, Apr 04, 2019 at 02:04:10PM -0400, Michael S. Tsirkin wrote:
-> > On Thu, Apr 04, 2019 at 06:47:15PM +0200, Stefano Garzarella wrote:
-> > > On Thu, Apr 04, 2019 at 11:52:46AM -0400, Michael S. Tsirkin wrote:
-> > > > I simply love it that you have analysed the individual impact of
-> > > > each patch! Great job!
-> > >=20
-> > > Thanks! I followed Stefan's suggestions!
-> > >=20
-> > > >=20
-> > > > For comparison's sake, it could be IMHO benefitial to add a column
-> > > > with virtio-net+vhost-net performance.
-> > > >=20
-> > > > This will both give us an idea about whether the vsock layer introd=
-uces
-> > > > inefficiencies, and whether the virtio-net idea has merit.
-> > > >=20
-> > >=20
-> > > Sure, I already did TCP tests on virtio-net + vhost, starting qemu in
-> > > this way:
-> > >   $ qemu-system-x86_64 ... \
-> > >       -netdev tap,id=3Dnet0,vhost=3Don,ifname=3Dtap0,script=3Dno,down=
-script=3Dno \
-> > >       -device virtio-net-pci,netdev=3Dnet0
-> > >=20
-> > > I did also a test using TCP_NODELAY, just to be fair, because VSOCK
-> > > doesn't implement something like this.
+On Fri, Apr 05, 2019 at 10:16:48AM +0200, Stefano Garzarella wrote:
+> On Thu, Apr 04, 2019 at 08:15:39PM +0100, Stefan Hajnoczi wrote:
+> > On Thu, Apr 04, 2019 at 12:58:35PM +0200, Stefano Garzarella wrote:
+> > >  	int err =3D -EFAULT;
+> > > =20
+> > >  	spin_lock_bh(&vvs->rx_lock);
+> > > @@ -288,9 +290,15 @@ virtio_transport_stream_do_dequeue(struct vsock_=
+sock *vsk,
+> > >  	}
+> > >  	spin_unlock_bh(&vvs->rx_lock);
+> > > =20
+> > > -	/* Send a credit pkt to peer */
+> > > -	virtio_transport_send_credit_update(vsk, VIRTIO_VSOCK_TYPE_STREAM,
+> > > -					    NULL);
+> > > +	/* We send a credit update only when the space available seen
+> > > +	 * by the transmitter is less than VIRTIO_VSOCK_MAX_PKT_BUF_SIZE
+> > > +	 */
+> > > +	free_space =3D vvs->buf_alloc - (vvs->fwd_cnt - vvs->last_fwd_cnt);
 > >=20
-> > Why not?
+> > Locking?  These fields should be accessed under tx_lock.
 > >=20
 >=20
-> I think because originally VSOCK was designed to be simple and
-> low-latency, but of course we can introduce something like that.
+> Yes, we need a lock, but looking in the code, vvs->fwd_cnd is written
+> taking rx_lock (virtio_transport_dec_rx_pkt) and it is read with the
+> tx_lock (virtio_transport_inc_tx_pkt).
 >=20
-> Current implementation directly copy the buffer from the user-space in a
-> virtio_vsock_pkt and enqueue it to be transmitted.
+> Maybe we should use another spin_lock shared between RX and TX for those
+> fields or use atomic variables.
 >=20
-> Maybe we can introduce a buffer per socket where accumulate bytes and
-> send it when it is full or when a timer is fired . We can also introduce
-> a VSOCK_NODELAY (maybe using the same value of TCP_NODELAY for
-> compatibility) to send the buffer immediately for low-latency use cases.
->=20
-> What do you think?
+> What do you suggest?
 
-Today virtio-vsock implements a 1:1 sendmsg():packet relationship
-because it's simple.  But there's no need for the guest to enqueue
-multiple VIRTIO_VSOCK_OP_RW packets when a single large packet could
-combine all payloads for a connection.  This is not the same as
-TCP_NODELAY but related.
-
-I think it's worth exploring TCP_NODELAY and send_pkt_list merging.
-Hopefully it won't make the code much more complicated.
+Or make vvs->fwd_cnt atomic if it's the only field that needs to be
+accessed in this manner.
 
 Stefan
 
---yaap9KN+GmBP785v
+--K4LMwn8CgX2KMboP
 Content-Type: application/pgp-signature; name="signature.asc"
 
 -----BEGIN PGP SIGNATURE-----
 
-iQEcBAEBAgAGBQJcqxMGAAoJEJykq7OBq3PITjwH/jr71No5QfyjmjTtKanTvBNm
-ETbLBSbD/NXtjcvBfF3HVkiPyv2dNjB/cpAc8/dAVlvnMskaQHdeKIxeTZ9k//jC
-dxUbXR6TYhYbQhwMQN8ra8GaxhlweNsjgjARXFw0Tl8ROSICLL881UhGJ7VseSkz
-FR43QCE+HTQgZmBhmNg9wODD4mXZGyAKSDCkDsAk6SrJALV5RTXOI8lhRwi7Ro+e
-ASS7b3XQXfbgn2gw37OIyehAY/vxo/PBQSFYAOOBIdNhQK4a+G/i2T0wOTN9yrxD
-09/8JSvXIj97UPAO786QIFaUMYFvYsZJ5usFzBvIGntSvZMPLkyeDlUAw/Y1CUA=
-=oVMF
+iQEcBAEBAgAGBQJcqxOTAAoJEJykq7OBq3PIZMYH/1TEHAKZjxIg1G2ajVhnFTbZ
+OFodA0ipnYIhsKDvhulux8zPhKa/dHkxBcWAKyBmMHdQ7CuwGAGSmXl8+wvQJt91
+AGkSXajUCMjW7ZBL0BLGtapphp/Rjam/9udW9YjTPHiOfOgc55h7oAHmNatTSDFF
+o9vRzFlJnqvAOA+06XB4ss3hALFebZjF50+c+yk/2d6UiMLADwjjqDANmJ9e8Vbl
+W4nTbFwpdLRkMn+VU8MtdJqFk+rvgvPPBRARV9wHVWS8CET8wJseU3zgDfTlajK9
+/22u/jzh++RQiHJ4nExEj9o93xWEatPblEPOmhvgR633SOjouPAeAwkDQFi9gRA=
+=hXkx
 -----END PGP SIGNATURE-----
 
---yaap9KN+GmBP785v--
+--K4LMwn8CgX2KMboP--
 
---===============3752699334039785395==
+--===============2926575475199819822==
 Content-Type: text/plain; charset="us-ascii"
 MIME-Version: 1.0
 Content-Transfer-Encoding: 7bit
@@ -118,4 +97,4 @@ _______________________________________________
 Virtualization mailing list
 Virtualization@lists.linux-foundation.org
 https://lists.linuxfoundation.org/mailman/listinfo/virtualization
---===============3752699334039785395==--
+--===============2926575475199819822==--
