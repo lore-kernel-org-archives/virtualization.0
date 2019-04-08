@@ -1,16 +1,16 @@
-From: Stephen Hemminger <stephen@networkplumber.org>
-Subject: Re: [PATCH net v6] failover: allow name change on IFF_UP slave
-	interfaces
-Date: Sun, 7 Apr 2019 08:41:52 -0700
-Message-ID: <20190407084152.392955f9@shemminger-XPS-13-9360>
-References: <1554267167-17561-1-git-send-email-si-wei.liu@oracle.com>
-	<20190405144701.25a6b55b@shemminger-XPS-13-9360>
-	<20190405175429-mutt-send-email-mst@kernel.org>
+From: Jason Wang <jasowang@redhat.com>
+Subject: Re: [PATCH RFC 4/4] vsock/virtio: increase RX buffer size to 64 KiB
+Date: Mon, 8 Apr 2019 14:35:37 +0800
+Message-ID: <947d9806-f661-a739-5752-ca6cd6500bd2@redhat.com>
+References: <20190404105838.101559-1-sgarzare@redhat.com>
+	<20190404105838.101559-5-sgarzare@redhat.com>
+	<20190405084414.GE25152@stefanha-x1.localdomain>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset="utf-8"; Format="flowed"
+Content-Transfer-Encoding: base64
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <20190405175429-mutt-send-email-mst@kernel.org>
+In-Reply-To: <20190405084414.GE25152@stefanha-x1.localdomain>
+Content-Language: en-US
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -20,25 +20,36 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: "Michael S. Tsirkin" <mst@redhat.com>
-Cc: jiri@resnulli.us, kubakici@wp.pl, sridhar.samudrala@intel.com, alexander.duyck@gmail.com, virtualization@lists.linux-foundation.org, liran.alon@oracle.com, netdev@vger.kernel.org, Si-Wei Liu <si-wei.liu@oracle.com>, boris.ostrovsky@oracle.com, davem@davemloft.net
+To: Stefan Hajnoczi <stefanha@gmail.com>, "Michael S. Tsirkin" <mst@redhat.com>
+Cc: kvm@vger.kernel.org, netdev@vger.kernel.org, linux-kernel@vger.kernel.org, virtualization@lists.linux-foundation.org, Stefan Hajnoczi <stefanha@redhat.com>, "David S. Miller" <davem@davemloft.net>, Stefano Garzarella <sgarzare@redhat.com>
 List-Id: virtualization@lists.linuxfoundation.org
 
-On Fri, 5 Apr 2019 18:01:43 -0400
-"Michael S. Tsirkin" <mst@redhat.com> wrote:
-
-> > 
-> > This notifier is not really necessary, there already is a CHANGENAME
-> > that gets sent.
-> > NETDEV_CHANGE is used in other cases to mean that the state (flags)
-> > have changed.  
-> 
-> The point is some existing scripts might not expect name
-> change to happen without a status change afterwards (since it was
-> impossible for so long). So this reports a change
-> to make sure scripts do not miss it.
-
-
-I don't think it matters because if device named is changed and it
-is down (!IFF_UP) then only CHANGENAME is sent. The NETDEV_CHANGE is
-just noise to an application.
+Ck9uIDIwMTkvNC81IOS4i+WNiDQ6NDQsIFN0ZWZhbiBIYWpub2N6aSB3cm90ZToKPiBPbiBUaHUs
+IEFwciAwNCwgMjAxOSBhdCAxMjo1ODozOFBNICswMjAwLCBTdGVmYW5vIEdhcnphcmVsbGEgd3Jv
+dGU6Cj4+IEluIG9yZGVyIHRvIGluY3JlYXNlIGhvc3QgLT4gZ3Vlc3QgdGhyb3VnaHB1dCB3aXRo
+IGxhcmdlIHBhY2tldHMsCj4+IHdlIGNhbiB1c2UgNjQgS2lCIFJYIGJ1ZmZlcnMuCj4+Cj4+IFNp
+Z25lZC1vZmYtYnk6IFN0ZWZhbm8gR2FyemFyZWxsYSA8c2dhcnphcmVAcmVkaGF0LmNvbT4KPj4g
+LS0tCj4+ICAgaW5jbHVkZS9saW51eC92aXJ0aW9fdnNvY2suaCB8IDIgKy0KPj4gICAxIGZpbGUg
+Y2hhbmdlZCwgMSBpbnNlcnRpb24oKyksIDEgZGVsZXRpb24oLSkKPj4KPj4gZGlmZiAtLWdpdCBh
+L2luY2x1ZGUvbGludXgvdmlydGlvX3Zzb2NrLmggYi9pbmNsdWRlL2xpbnV4L3ZpcnRpb192c29j
+ay5oCj4+IGluZGV4IDZkN2EyMmNjMjBiZi4uNDNjY2UzMDQ0MDhlIDEwMDY0NAo+PiAtLS0gYS9p
+bmNsdWRlL2xpbnV4L3ZpcnRpb192c29jay5oCj4+ICsrKyBiL2luY2x1ZGUvbGludXgvdmlydGlv
+X3Zzb2NrLmgKPj4gQEAgLTEwLDcgKzEwLDcgQEAKPj4gICAjZGVmaW5lIFZJUlRJT19WU09DS19E
+RUZBVUxUX01JTl9CVUZfU0laRQkxMjgKPj4gICAjZGVmaW5lIFZJUlRJT19WU09DS19ERUZBVUxU
+X0JVRl9TSVpFCQkoMTAyNCAqIDI1NikKPj4gICAjZGVmaW5lIFZJUlRJT19WU09DS19ERUZBVUxU
+X01BWF9CVUZfU0laRQkoMTAyNCAqIDI1NikKPj4gLSNkZWZpbmUgVklSVElPX1ZTT0NLX0RFRkFV
+TFRfUlhfQlVGX1NJWkUJKDEwMjQgKiA0KQo+PiArI2RlZmluZSBWSVJUSU9fVlNPQ0tfREVGQVVM
+VF9SWF9CVUZfU0laRQkoMTAyNCAqIDY0KQo+IFRoaXMgcGF0Y2ggcmFpc2VzIHJ4IHJpbmcgbWVt
+b3J5IGNvbnN1bXB0aW9uIGZyb20gMTI4ICogNEtCID0gNTEyS0IgdG8KPiAxMjggKiA2NEtCID0g
+OE1CLgo+Cj4gTWljaGFlbCwgSmFzb246IEFueSBhZHZpY2UgcmVnYXJkaW5nIHJ4L3R4IHJpbmcg
+c2l6ZXMgYW5kIGJ1ZmZlciBzaXplcz8KPgo+IERlcGVuZGluZyBvbiByeCByaW5nIHNpemUgYW5k
+IHRoZSB3b3JrbG9hZCdzIHBhY2tldCBzaXplLCBkaWZmZXJlbnQKPiB2YWx1ZXMgbWlnaHQgYmUg
+cHJlZmVycmVkLgo+Cj4gVGhpcyBjb3VsZCBiZWNvbWUgYSB0dW5hYmxlIGluIHRoZSBmdXR1cmUu
+ICBJdCBkZXRlcm1pbmVzIHRoZSBzaXplIG9mCj4gdGhlIGd1ZXN0IGRyaXZlcidzIHJ4IGJ1ZmZl
+cnMuCgoKSW4gdmlydGlvLW5ldCwgd2UgaGF2ZSBtZXJnZWFibGUgcnggYnVmZmVyIGFuZCBlc3Rp
+bWF0ZSB0aGUgcnggYnVmZmVyIApzaXplIHRocm91Z2ggRVdNQS4KClRoYXQncyBhbm90aGVyIHJl
+YXNvbiBJIHN1Z2dlc3QgdG8gc3F1YXNoIHRoZSB2c29jayBjb2RlcyBpbnRvIHZpcnRpby1uZXQu
+CgpUaGFua3MKCl9fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19f
+ClZpcnR1YWxpemF0aW9uIG1haWxpbmcgbGlzdApWaXJ0dWFsaXphdGlvbkBsaXN0cy5saW51eC1m
+b3VuZGF0aW9uLm9yZwpodHRwczovL2xpc3RzLmxpbnV4Zm91bmRhdGlvbi5vcmcvbWFpbG1hbi9s
+aXN0aW5mby92aXJ0dWFsaXphdGlvbg==
