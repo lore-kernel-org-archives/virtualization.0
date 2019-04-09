@@ -1,16 +1,16 @@
-From: David Airlie <airlied@redhat.com>
-Subject: Re: [PATCH] drm/qxl: drop prime import/export callbacks
-Date: Tue, 9 Apr 2019 16:06:19 +1000
-Message-ID: <CAMwc25q-7rfR=31R=FEVC47z2HvDK5xN+aOKqq00yoXSpudusQ__36001.8970490032$1555717999$gmane$org@mail.gmail.com>
-References: <20190110081750.11358-1-kraxel@redhat.com>
-	<CAPM=9tx8N6jxVzsT-RqtQFrFb9qLK4qUUje+d=fpTYZ6+PnYpg@mail.gmail.com>
-	<CAPM=9tyEmn2LXhNmPSOi7JAgBc3QZwNtM+8FT8CWebz4GztaJA@mail.gmail.com>
-	<20190409060323.xrw3fwj3yvcxsx3t@sirius.home.kraxel.org>
+From: Stefano Garzarella <sgarzare@redhat.com>
+Subject: Re: [PATCH RFC 0/4] vsock/virtio: optimizations to increase the
+	throughput
+Date: Tue, 9 Apr 2019 11:13:00 +0200
+Message-ID: <20190409091300.uozhdyikycb5blmn__39578.4735026368$1555718010$gmane$org@steredhat>
+References: <20190404105838.101559-1-sgarzare@redhat.com>
+	<a98d194d-e257-41ff-82e7-de2d16d2f4d4@redhat.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset="utf-8"
+Content-Transfer-Encoding: base64
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <20190409060323.xrw3fwj3yvcxsx3t@sirius.home.kraxel.org>
+Content-Disposition: inline
+In-Reply-To: <a98d194d-e257-41ff-82e7-de2d16d2f4d4@redhat.com>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -20,58 +20,39 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Gerd Hoffmann <kraxel@redhat.com>
-Cc: David Airlie <airlied@linux.ie>, open list <linux-kernel@vger.kernel.org>, dri-devel <dri-devel@lists.freedesktop.org>, "open list:DRM DRIVER FOR QXL VIRTUAL GPU" <virtualization@lists.linux-foundation.org>, Dave Airlie <airlied@redhat.com>, "open list:DRM DRIVER FOR QXL VIRTUAL GPU" <spice-devel@lists.freedesktop.org>, Dave Airlie <airlied@gmail.com>
+To: Jason Wang <jasowang@redhat.com>
+Cc: kvm@vger.kernel.org, "Michael S. Tsirkin" <mst@redhat.com>, netdev@vger.kernel.org, linux-kernel@vger.kernel.org, virtualization@lists.linux-foundation.org, Stefan Hajnoczi <stefanha@redhat.com>, "David S. Miller" <davem@davemloft.net>
 List-Id: virtualization@lists.linuxfoundation.org
 
-On Tue, Apr 9, 2019 at 4:03 PM Gerd Hoffmann <kraxel@redhat.com> wrote:
->
-> On Tue, Apr 09, 2019 at 02:01:33PM +1000, Dave Airlie wrote:
-> > On Sat, 12 Jan 2019 at 07:13, Dave Airlie <airlied@gmail.com> wrote:
-> > >
-> > > On Thu, 10 Jan 2019 at 18:17, Gerd Hoffmann <kraxel@redhat.com> wrote:
-> > > >
-> > > > Also set prime_handle_to_fd and prime_fd_to_handle to NULL,
-> > > > so drm will not advertive DRM_PRIME_CAP_{IMPORT,EXPORT} to
-> > > > userspace.
-> >
-> > It's been pointed out to me that disables DRI3 for these devices, I'm
-> > not sure that is the solution we actually wanted.
-> >
-> > any ideas?
->
-> Well.  Lets have a look at where we stand:
->
->  * drm_gem_prime_export() works with qxl, you'll get a dma-buf handle.
->
->  * Other drivers trying to map that dma-buf (drm_gem_map_dma_buf()
->    callback) will not work, due to the ->gem_prime_get_sg_table()
->    callback not being there.
->
->  * drm_gem_prime_import() will work with buffers from the same qxl
->    device, there is a shortcut for this special case.  Otherwise it
->    will not work, due to the ->gem_prime_import_sg_table() callback
->    not being there.
->
-> Bottom line: you can use prime to pass qxl object handles from one
-> application to another.  But you can't actually export/import qxl
-> buffer objects from/to other devices.
->
-> Problem is that we have no way to signal to userspace that prime can
-> be used that way.
->
-> Setting DRM_PRIME_CAP_{IMPORT,EXPORT} even though the driver can't
-> do that leads to other problems.  Userspace thinks it can have other
-> devices (intel vgpu for example) handle the rendering, then import
-> the rendered buffer into qxl for scanout.
->
-> Should we add something like DRM_PRIME_CAP_SAME_DEVICE?
-
-Yeah I expect we need some sort of same device only capability, so
-that dri3 userspace can work.
-
-If we just fail importing in these cases what happens? userspace just
-gets confused, I know we used to print a backtrace if we hit the mmap
-path, but if we didn't do that what happens?
-
-Dave.
+T24gTW9uLCBBcHIgMDgsIDIwMTkgYXQgMDI6NDM6MjhQTSArMDgwMCwgSmFzb24gV2FuZyB3cm90
+ZToKPiAKPiBPbiAyMDE5LzQvNCDkuIvljYg2OjU4LCBTdGVmYW5vIEdhcnphcmVsbGEgd3JvdGU6
+Cj4gPiBUaGlzIHNlcmllcyB0cmllcyB0byBpbmNyZWFzZSB0aGUgdGhyb3VnaHB1dCBvZiB2aXJ0
+aW8tdnNvY2sgd2l0aCBzbGlnaHQKPiA+IGNoYW5nZXM6Cj4gPiAgIC0gcGF0Y2ggMS80OiByZWR1
+Y2VzIHRoZSBudW1iZXIgb2YgY3JlZGl0IHVwZGF0ZSBtZXNzYWdlcyBzZW50IHRvIHRoZQo+ID4g
+ICAgICAgICAgICAgICAgdHJhbnNtaXR0ZXIKPiA+ICAgLSBwYXRjaCAyLzQ6IGFsbG93cyB0aGUg
+aG9zdCB0byBzcGxpdCBwYWNrZXRzIG9uIG11bHRpcGxlIGJ1ZmZlcnMsCj4gPiAgICAgICAgICAg
+ICAgICBpbiB0aGlzIHdheSwgd2UgY2FuIHJlbW92ZSB0aGUgcGFja2V0IHNpemUgbGltaXQgdG8K
+PiA+ICAgICAgICAgICAgICAgIFZJUlRJT19WU09DS19ERUZBVUxUX1JYX0JVRl9TSVpFCj4gPiAg
+IC0gcGF0Y2ggMy80OiB1c2VzIFZJUlRJT19WU09DS19NQVhfUEtUX0JVRl9TSVpFIGFzIHRoZSBt
+YXggcGFja2V0IHNpemUKPiA+ICAgICAgICAgICAgICAgIGFsbG93ZWQKPiA+ICAgLSBwYXRjaCA0
+LzQ6IGluY3JlYXNlcyBSWCBidWZmZXIgc2l6ZSB0byA2NCBLaUIgKGFmZmVjdHMgb25seSBob3N0
+LT5ndWVzdCkKPiA+IAo+ID4gUkZDOgo+ID4gICAtIG1heWJlIHBhdGNoIDQgY2FuIGJlIHJlcGxh
+Y2VkIHdpdGggbXVsdGlwbGUgcXVldWVzIHdpdGggZGlmZmVyZW50Cj4gPiAgICAgYnVmZmVyIHNp
+emVzIG9yIHVzaW5nIEVXTUEgdG8gYWRhcHQgdGhlIGJ1ZmZlciBzaXplIHRvIHRoZSB0cmFmZmlj
+Cj4gCj4gCj4gT3IgRVdNQSArIG1lcmdlYWJsZSByeCBidWZmZXIsIGJ1dCBpZiB3ZSBkZWNpZGUg
+dG8gdW5pZnkgdGhlIGRhdGFwYXRoIHdpdGgKPiB2aXJ0aW8tbmV0LCB3ZSBjYW4gcmV1c2UgdGhl
+aXIgY29kZXMuCj4gCj4gCj4gPiAKPiA+ICAgLSBhcyBKYXNvbiBzdWdnZXN0ZWQgaW4gYSBwcmV2
+aW91cyB0aHJlYWQgWzFdIEknbGwgZXZhbHVhdGUgdG8gdXNlCj4gPiAgICAgdmlydGlvLW5ldCBh
+cyB0cmFuc3BvcnQsIGJ1dCBJIG5lZWQgdG8gdW5kZXJzdGFuZCBiZXR0ZXIgaG93IHRvCj4gPiAg
+ICAgaW50ZXJmYWNlIHdpdGggaXQsIG1heWJlIGludHJvZHVjaW5nIHNrX2J1ZmYgaW4gdmlydGlv
+LXZzb2NrLgo+ID4gCj4gPiBBbnkgc3VnZ2VzdGlvbnM/Cj4gCj4gCj4gTXkgdW5kZXJzdGFuZGlu
+ZyBpcyB0aGlzIGlzIG5vdCBhIG11c3QsIGJ1dCBpZiBpdCBtYWtlcyB0aGluZ3MgZWFzaWVyLCB3
+ZQo+IGNhbiBkbyB0aGlzLgoKSG9wZWZ1bGx5IGl0IHNob3VsZCBzaW1wbGlmeSB0aGUgbWFpbnRh
+aW5hYmlsaXR5IGFuZCBhdm9pZCBkdXBsaWNhdGVkIGNvZGUuCgo+IAo+IEFub3RoZXIgdGhpbmcg
+dGhhdCBtYXkgaGVscCBpcyB0byBpbXBsZW1lbnQgc2VuZHBhZ2UoKSwgd2hpY2ggd2lsbCBncmVh
+dGx5Cj4gaW1wcm92ZSB0aGUgcGVyZm9ybWFuY2UuCgpUaGFua3MgZm9yIHlvdXIgc3VnZ2VzdGlv
+bnMhCkknbGwgdHJ5IHRvIGltcGxlbWVudCBzZW5kcGFnZSgpIGluIFZTT0NLIHRvIG1lYXN1cmUg
+dGhlIGltcHJvdmVtZW50LgoKQ2hlZXJzLApTdGVmYW5vCl9fX19fX19fX19fX19fX19fX19fX19f
+X19fX19fX19fX19fX19fX19fX19fX19fClZpcnR1YWxpemF0aW9uIG1haWxpbmcgbGlzdApWaXJ0
+dWFsaXphdGlvbkBsaXN0cy5saW51eC1mb3VuZGF0aW9uLm9yZwpodHRwczovL2xpc3RzLmxpbnV4
+Zm91bmRhdGlvbi5vcmcvbWFpbG1hbi9saXN0aW5mby92aXJ0dWFsaXphdGlvbg==
