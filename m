@@ -1,7 +1,7 @@
 From: Jason Wang <jasowang@redhat.com>
-Subject: [PATCH net] vhost: reject zero size iova range
-Date: Tue,  9 Apr 2019 12:10:25 +0800
-Message-ID: <20190409041025.20922-1-jasowang__26950.1035612606$1554783043$gmane$org@redhat.com>
+Subject: [PATCH net] vhost: flush dcache page when logging dirty pages
+Date: Tue,  9 Apr 2019 12:16:47 +0800
+Message-ID: <20190409041647.21269-1-jasowang__24001.6514713474$1554783426$gmane$org@redhat.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
@@ -16,35 +16,33 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
 To: mst@redhat.com, jasowang@redhat.com, kvm@vger.kernel.org, virtualization@lists.linux-foundation.org, netdev@vger.kernel.org, linux-kernel@vger.kernel.org
+Cc: Christoph Hellwig <hch@infradead.org>, James Bottomley <James.Bottomley@HansenPartnership.com>, Andrea Arcangeli <aarcange@redhat.com>
 List-Id: virtualization@lists.linuxfoundation.org
 
-We used to accept zero size iova range which will lead a infinite loop
-in translate_desc(). Fixing this by failing the request in this case.
+We set dirty bit through setting up kmaps and access them through
+kernel virtual address, this may result alias in virtually tagged
+caches that require a dcache flush afterwards.
 
-Reported-by: syzbot+d21e6e297322a900c128@syzkaller.appspotmail.com
-Fixes: 6b1e6cc7 ("vhost: new device IOTLB API")
+Cc: Christoph Hellwig <hch@infradead.org>
+Cc: James Bottomley <James.Bottomley@HansenPartnership.com>
+Cc: Andrea Arcangeli <aarcange@redhat.com>
+Fixes: 3a4d5c94e9593 ("vhost_net: a kernel-level virtio server")
 Signed-off-by: Jason Wang <jasowang@redhat.com>
 ---
- drivers/vhost/vhost.c | 6 +++++-
- 1 file changed, 5 insertions(+), 1 deletion(-)
+ drivers/vhost/vhost.c | 1 +
+ 1 file changed, 1 insertion(+)
 
 diff --git a/drivers/vhost/vhost.c b/drivers/vhost/vhost.c
-index 5ace833de746..351af88231ad 100644
+index 351af88231ad..34a1cedbc5ba 100644
 --- a/drivers/vhost/vhost.c
 +++ b/drivers/vhost/vhost.c
-@@ -911,8 +911,12 @@ static int vhost_new_umem_range(struct vhost_umem *umem,
- 				u64 start, u64 size, u64 end,
- 				u64 userspace_addr, int perm)
- {
--	struct vhost_umem_node *tmp, *node = kmalloc(sizeof(*node), GFP_ATOMIC);
-+	struct vhost_umem_node *tmp, *node;
- 
-+	if (!size)
-+		return -EFAULT;
-+
-+	node = kmalloc(sizeof(*node), GFP_ATOMIC);
- 	if (!node)
- 		return -ENOMEM;
- 
+@@ -1711,6 +1711,7 @@ static int set_bit_to_user(int nr, void __user *addr)
+ 	base = kmap_atomic(page);
+ 	set_bit(bit, base);
+ 	kunmap_atomic(base);
++	flush_dcache_page(page);
+ 	set_page_dirty_lock(page);
+ 	put_page(page);
+ 	return 0;
 -- 
 2.19.1
