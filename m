@@ -1,15 +1,18 @@
-From: "Michael S. Tsirkin" <mst@redhat.com>
-Subject: Re: [PATCH net v7] failover: allow name change on IFF_UP slave
-	interfaces
-Date: Mon, 8 Apr 2019 17:00:49 -0400
-Message-ID: <20190408165058-mutt-send-email-mst__10258.7596442149$1554757264$gmane$org@kernel.org>
-References: <1554755085-29098-1-git-send-email-si-wei.liu@oracle.com>
+From: Jason Wang <jasowang@redhat.com>
+Subject: Re: INFO: task hung in vhost_net_stop_vq
+Date: Tue, 9 Apr 2019 11:31:44 +0800
+Message-ID: <858fcd87-071f-e484-7d2d-a7d9f8144f91__14433.8665575319$1554780724$gmane$org@redhat.com>
+References: <0000000000004f8499057be95e1d@google.com>
+	<0000000000008ee87005847fc985@google.com>
+	<20190325100223-mutt-send-email-mst@kernel.org>
+	<df4f2cf6-8469-f894-8f45-7c48a6a1801f@redhat.com>
+	<CACT4Y+Z1s-Lx1UXHKj88kQoOcbiD8gwyuRU3F_+cceP3pzbbrw@mail.gmail.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset="utf-8"; Format="flowed"
+Content-Transfer-Encoding: base64
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-Content-Disposition: inline
-In-Reply-To: <1554755085-29098-1-git-send-email-si-wei.liu@oracle.com>
+In-Reply-To: <CACT4Y+Z1s-Lx1UXHKj88kQoOcbiD8gwyuRU3F_+cceP3pzbbrw@mail.gmail.com>
+Content-Language: en-US
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -19,181 +22,41 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Si-Wei Liu <si-wei.liu@oracle.com>
-Cc: jiri@resnulli.us, kubakici@wp.pl, sridhar.samudrala@intel.com, alexander.duyck@gmail.com, virtualization@lists.linux-foundation.org, liran.alon@oracle.com, netdev@vger.kernel.org, boris.ostrovsky@oracle.com, davem@davemloft.net
+To: Dmitry Vyukov <dvyukov@google.com>
+Cc: syzbot <syzbot+d21e6e297322a900c128@syzkaller.appspotmail.com>, weiyj.lk@gmail.com, KVM list <kvm@vger.kernel.org>, "Michael S. Tsirkin" <mst@redhat.com>, netdev <netdev@vger.kernel.org>, syzkaller-bugs <syzkaller-bugs@googlegroups.com>, LKML <linux-kernel@vger.kernel.org>, virtualization@lists.linux-foundation.org
 List-Id: virtualization@lists.linuxfoundation.org
 
-On Mon, Apr 08, 2019 at 04:24:45PM -0400, Si-Wei Liu wrote:
-> When a netdev appears through hot plug then gets enslaved by a failover
-> master that is already up and running, the slave will be opened
-> right away after getting enslaved. Today there's a race that userspace
-> (udev) may fail to rename the slave if the kernel (net_failover)
-> opens the slave earlier than when the userspace rename happens.
-> Unlike bond or team, the primary slave of failover can't be renamed by
-> userspace ahead of time, since the kernel initiated auto-enslavement is
-> unable to, or rather, is never meant to be synchronized with the rename
-> request from userspace.
-> 
-> As the failover slave interfaces are not designed to be operated
-> directly by userspace apps: IP configuration, filter rules with
-> regard to network traffic passing and etc., should all be done on master
-> interface. In general, userspace apps only care about the
-> name of master interface, while slave names are less important as long
-> as admin users can see reliable names that may carry
-> other information describing the netdev. For e.g., they can infer that
-> "ens3nsby" is a standby slave of "ens3", while for a
-> name like "eth0" they can't tell which master it belongs to.
-> 
-> Historically the name of IFF_UP interface can't be changed because
-> there might be admin script or management software that is already
-> relying on such behavior and assumes that the slave name can't be
-> changed once UP. But failover is special: with the in-kernel
-> auto-enslavement mechanism, the userspace expectation for device
-> enumeration and bring-up order is already broken. Previously initramfs
-> and various userspace config tools were modified to bypass failover
-> slaves because of auto-enslavement and duplicate MAC address. Similarly,
-> in case that users care about seeing reliable slave name, the new type
-> of failover slaves needs to be taken care of specifically in userspace
-> anyway.
-> 
-> It's less risky to lift up the rename restriction on failover slave
-> which is already UP. Although it's possible this change may potentially
-> break userspace component (most likely configuration scripts or
-> management software) that assumes slave name can't be changed while
-> UP, it's relatively a limited and controllable set among all userspace
-> components, which can be fixed specifically to listen for the rename
-> and/or link down/up events on failover slaves.
-
-This was correct with v6. With v7 link down/up events are no longer
-emitted.
-
-> Userspace component
-> interacting with slaves is expected to be changed to operate on failover
-> master interface instead, as the failover slave is dynamic in nature
-> which may come and go at any point.  The goal is to make the role of
-> failover slaves less relevant, and userspace components should only
-> deal with failover master in the long run.
-> 
-> Fixes: 30c8bd5aa8b2 ("net: Introduce generic failover module")
-> Signed-off-by: Si-Wei Liu <si-wei.liu@oracle.com>
-> Reviewed-by: Liran Alon <liran.alon@oracle.com>
-> 
-> --
-> v1 -> v2:
-> - Drop configurable module parameter (Sridhar)
-> 
-> v2 -> v3:
-> - Drop additional IFF_SLAVE_RENAME_OK flag (Sridhar)
-> - Send down and up events around rename (Michael S. Tsirkin)
-> 
-> v3 -> v4:
-> - Simplify notification to be sent (Stephen Hemminger)
-> 
-> v4 -> v5:
-> - Sync up code with latest net-next (Sridhar)
-> - Use proper structure initialization (Stephen, Jiri)
-> 
-> v5 -> v6:
-> - Make the property of live name change a generic flag (Stephen)
-> 
-> v6 -> v7:
-> - Remove NETDEV_CHANGE notification that is deemed unnecessary
->   (Stephen)
-> ---
-
-I preferred v6 better. If we emit NETDEV_CHANGE then
-userspace that expects that name never changes for up
-interfaces will work since it will think state changed.
-
->  include/linux/netdevice.h |  3 +++
->  net/core/dev.c            | 16 +++++++++++++++-
->  net/core/failover.c       |  6 +++---
->  3 files changed, 21 insertions(+), 4 deletions(-)
-> 
-> diff --git a/include/linux/netdevice.h b/include/linux/netdevice.h
-> index 78f5ec4e..ea9a63f 100644
-> --- a/include/linux/netdevice.h
-> +++ b/include/linux/netdevice.h
-> @@ -1498,6 +1498,7 @@ struct net_device_ops {
->   * @IFF_FAILOVER: device is a failover master device
->   * @IFF_FAILOVER_SLAVE: device is lower dev of a failover master device
->   * @IFF_L3MDEV_RX_HANDLER: only invoke the rx handler of L3 master device
-> + * @IFF_LIVE_RENAME_OK: rename is allowed while device is up and running
->   */
->  enum netdev_priv_flags {
->  	IFF_802_1Q_VLAN			= 1<<0,
-> @@ -1530,6 +1531,7 @@ enum netdev_priv_flags {
->  	IFF_FAILOVER			= 1<<27,
->  	IFF_FAILOVER_SLAVE		= 1<<28,
->  	IFF_L3MDEV_RX_HANDLER		= 1<<29,
-> +	IFF_LIVE_RENAME_OK		= 1<<30,
->  };
->  
->  #define IFF_802_1Q_VLAN			IFF_802_1Q_VLAN
-> @@ -1561,6 +1563,7 @@ enum netdev_priv_flags {
->  #define IFF_FAILOVER			IFF_FAILOVER
->  #define IFF_FAILOVER_SLAVE		IFF_FAILOVER_SLAVE
->  #define IFF_L3MDEV_RX_HANDLER		IFF_L3MDEV_RX_HANDLER
-> +#define IFF_LIVE_RENAME_OK		IFF_LIVE_RENAME_OK
->  
->  /**
->   *	struct net_device - The DEVICE structure.
-> diff --git a/net/core/dev.c b/net/core/dev.c
-> index 9823b77..1622d88 100644
-> --- a/net/core/dev.c
-> +++ b/net/core/dev.c
-> @@ -1185,7 +1185,21 @@ int dev_change_name(struct net_device *dev, const char *newname)
->  	BUG_ON(!dev_net(dev));
->  
->  	net = dev_net(dev);
-> -	if (dev->flags & IFF_UP)
-> +
-> +	/* Some auto-enslaved devices e.g. failover slaves are
-> +	 * special, as userspace might rename the device after
-> +	 * the interface had been brought up and running since
-> +	 * the point kernel initiated auto-enslavement. Allow
-> +	 * live name change even when these slave devices are
-> +	 * up and running.
-> +	 *
-> +	 * Typically, users of these auto-enslaving devices
-> +	 * don't actually care about slave name change, as
-> +	 * they are supposed to operate on master interface
-> +	 * directly.
-> +	 */
-> +	if (dev->flags & IFF_UP &&
-> +	    likely(!(dev->priv_flags & IFF_LIVE_RENAME_OK)))
->  		return -EBUSY;
->  
->  	write_seqcount_begin(&devnet_rename_seq);
-> diff --git a/net/core/failover.c b/net/core/failover.c
-> index 4a92a98..b5cd3c7 100644
-> --- a/net/core/failover.c
-> +++ b/net/core/failover.c
-> @@ -80,14 +80,14 @@ static int failover_slave_register(struct net_device *slave_dev)
->  		goto err_upper_link;
->  	}
->  
-> -	slave_dev->priv_flags |= IFF_FAILOVER_SLAVE;
-> +	slave_dev->priv_flags |= (IFF_FAILOVER_SLAVE | IFF_LIVE_RENAME_OK);
->  
->  	if (fops && fops->slave_register &&
->  	    !fops->slave_register(slave_dev, failover_dev))
->  		return NOTIFY_OK;
->  
->  	netdev_upper_dev_unlink(slave_dev, failover_dev);
-> -	slave_dev->priv_flags &= ~IFF_FAILOVER_SLAVE;
-> +	slave_dev->priv_flags &= ~(IFF_FAILOVER_SLAVE | IFF_LIVE_RENAME_OK);
->  err_upper_link:
->  	netdev_rx_handler_unregister(slave_dev);
->  done:
-> @@ -121,7 +121,7 @@ int failover_slave_unregister(struct net_device *slave_dev)
->  
->  	netdev_rx_handler_unregister(slave_dev);
->  	netdev_upper_dev_unlink(slave_dev, failover_dev);
-> -	slave_dev->priv_flags &= ~IFF_FAILOVER_SLAVE;
-> +	slave_dev->priv_flags &= ~(IFF_FAILOVER_SLAVE | IFF_LIVE_RENAME_OK);
->  
->  	if (fops && fops->slave_unregister &&
->  	    !fops->slave_unregister(slave_dev, failover_dev))
-> -- 
-> 1.8.3.1
+Ck9uIDIwMTkvMy8yNiDkuIvljYg2OjI4LCBEbWl0cnkgVnl1a292IHdyb3RlOgo+IE9uIFR1ZSwg
+TWFyIDI2LCAyMDE5IGF0IDExOjE3IEFNIEphc29uIFdhbmc8amFzb3dhbmdAcmVkaGF0LmNvbT4g
+IHdyb3RlOgo+PiBPbiAyMDE5LzMvMjUg5LiL5Y2IMTA6MDIsIE1pY2hhZWwgUy4gVHNpcmtpbiB3
+cm90ZToKPj4+IExvb2tzIGxpa2UgbW9yZSBpb3RsYiBsb2NraW5nIG1lc3M/Cj4+IExvb2tpbmcg
+YXQgdGhlIGNhbGx0cmFjZToKPj4KPj4gWyAgMjIxLjc0MzY3NV0gPT09PT09PT09PT09PT09PT09
+PT09PT09PT09PT09PT09PT09PT09PT09PT09Cj4+IFsgIDIyMS43NDQyOTddIFsgSU5GTzogcG9z
+c2libGUgcmVjdXJzaXZlIGxvY2tpbmcgZGV0ZWN0ZWQgXQo+PiBbICAyMjEuNzQ0OTQ0XSA0Ljcu
+MCsgIzEgTm90IHRhaW50ZWQKPj4gWyAgMjIxLjc0NTMyNl0gLS0tLS0tLS0tLS0tLS0tLS0tLS0t
+LS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tCj4+IFsgIDIyMS43NDYxMjhdIHN5ei1leGVjdXRvcjEv
+NjgyMyBpcyB0cnlpbmcgdG8gYWNxdWlyZSBsb2NrOgo+PiBbICAyMjEuNzQ2NzM3XSAgKCZ2cS0+
+bXV0ZXgpeysuKy4uLn0sIGF0OiBbPGZmZmZmZmZmODQ0ODRiNzA+XSB2aG9zdF9wcm9jZXNzX2lv
+dGxiX21zZysweGUwLzB4OWUwCj4+IFsgIDIyMS43NDc3ODldCj4+IFsgIDIyMS43NDc3ODldIGJ1
+dCB0YXNrIGlzIGFscmVhZHkgaG9sZGluZyBsb2NrOgo+PiBbICAyMjEuNzQ4NDcwXSAgKCZ2cS0+
+bXV0ZXgpeysuKy4uLn0sIGF0OiBbPGZmZmZmZmZmODQ0ODRiNzA+XSB2aG9zdF9wcm9jZXNzX2lv
+dGxiX21zZysweGUwLzB4OWUwCj4+IFsgIDIyMS43NDk1MzVdCj4+IFsgIDIyMS43NDk1MzVdIG90
+aGVyIGluZm8gdGhhdCBtaWdodCBoZWxwIHVzIGRlYnVnIHRoaXM6Cj4+IFsgIDIyMS43NTAyODBd
+ICBQb3NzaWJsZSB1bnNhZmUgbG9ja2luZyBzY2VuYXJpbzoKPj4gWyAgMjIxLjc1MDI4MF0KPj4g
+WyAgMjIxLjc1MDk0Nl0gICAgICAgIENQVTAKPj4gWyAgMjIxLjc1MTIzMl0gICAgICAgIC0tLS0K
+Pj4gWyAgMjIxLjc1MTUyM10gICBsb2NrKCZ2cS0+bXV0ZXgpOwo+PiBbICAyMjEuNzUxOTIyXSAg
+IGxvY2soJnZxLT5tdXRleCk7Cj4+IFsgIDIyMS43NTIzMzldCj4+IFsgIDIyMS43NTIzMzldICAq
+KiogREVBRExPQ0sgKioqCj4+IFsgIDIyMS43NTIzMzldCj4+Cj4+IEkgY291bGQgbm90IHRoaW5r
+IG9mIGEgcGF0aCB0aGF0IGNhbiBoaXQgdGhpcy4gQW5kIEkgY291bGQgbm90IHJlcHJvZHVjZSB3
+aXRoIHRoZSByZXByb2R1Y2VyIGluIHRoZSBsaW5rIGluIG5ldC1uZXh0Lgo+IExvb2tpbmcgYXQg
+dGhlIGJpc2VjdGlvbiBsb2csIHN5emJvdCBpcyBhYmxlIHRvIHJlcHJvZHVjZSB0aGlzCj4gc3Vw
+ZXItcmVsaWFibHkgb24gbXVsdGlwbGUga2VybmVsIHJldmlzaW9ucy4gQXJlIHlvdSBzdXJlIHlv
+dSBhcmUKPiB1c2luZyB0aGUgcmlnaHQgY29uZmlnL3JldmlzaW9uPyBXaGF0IGVsc2UgY2FuIGJl
+IGluIHBsYXk/IHN5emJvdCB1c2VzCj4gVk1zLiBUaGUgaW1hZ2UgaXMgYXZhaWxhYmxlLgo+Cj4K
+ClllcywgbG9va3MgbGlrZSB0aGUgcmVhc29uIGlzIHZob3N0IGFjY2VwdCB6ZXJvIHNpemUgaW92
+YSByYW5nZSB3aGljaCAKbGVhZCBhIGluZmluaXRlIGxvb3Agd2hlbiB0cnlpbmcgdG8gdHJhbnNs
+YXRlIGlvdmEuIFdpbGwgcG9zdCBhIHBhdGNoIHRvIApmaXggdGhpcy4KClRoYW5rcwoKX19fX19f
+X19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX18KVmlydHVhbGl6YXRpb24g
+bWFpbGluZyBsaXN0ClZpcnR1YWxpemF0aW9uQGxpc3RzLmxpbnV4LWZvdW5kYXRpb24ub3JnCmh0
+dHBzOi8vbGlzdHMubGludXhmb3VuZGF0aW9uLm9yZy9tYWlsbWFuL2xpc3RpbmZvL3ZpcnR1YWxp
+emF0aW9u
