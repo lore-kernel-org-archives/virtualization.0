@@ -1,14 +1,14 @@
-From: Cornelia Huck <cohuck@redhat.com>
-Subject: Re: [RFC PATCH 04/12] s390/cio: introduce cio DMA pool
-Date: Tue, 9 Apr 2019 12:44:58 +0200
-Message-ID: <20190409124458.348d1ff5.cohuck@redhat.com>
-References: <20190404231622.52531-1-pasic@linux.ibm.com>
-	<20190404231622.52531-5-pasic@linux.ibm.com>
+From: Gerd Hoffmann <kraxel@redhat.com>
+Subject: [PATCH 4/4] drm: add convert_lines_toio() variant,
+	fix cirrus builds on powerpc.
+Date: Tue,  9 Apr 2019 13:59:13 +0200
+Message-ID: <20190409115913.3468-5-kraxel@redhat.com>
+References: <20190409115913.3468-1-kraxel@redhat.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <20190404231622.52531-5-pasic@linux.ibm.com>
+In-Reply-To: <20190409115913.3468-1-kraxel@redhat.com>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -18,174 +18,231 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Halil Pasic <pasic@linux.ibm.com>
-Cc: Vasily Gorbik <gor@linux.ibm.com>, linux-s390@vger.kernel.org, Eric Farman <farman@linux.ibm.com>, Claudio Imbrenda <imbrenda@linux.ibm.com>, kvm@vger.kernel.org, Sebastian Ott <sebott@linux.ibm.com>, Farhan Ali <alifm@linux.ibm.com>, virtualization@lists.linux-foundation.org, Martin Schwidefsky <schwidefsky@de.ibm.com>, Viktor Mihajlovski <mihajlov@linux.ibm.com>, Janosch Frank <frankja@linux.ibm.com>
+To: dri-devel@lists.freedesktop.org
+Cc: Stephen Rothwell <sfr@canb.auug.org.au>, David Airlie <airlied@linux.ie>, Sean Paul <sean@poorly.run>, Maarten Lankhorst <maarten.lankhorst@linux.intel.com>, open list <linux-kernel@vger.kernel.org>, "open list:DRM DRIVER FOR QEMU'S CIRRUS DEVICE" <virtualization@lists.linux-foundation.org>, Maxime Ripard <maxime.ripard@bootlin.com>, noralf@tronnes.org, Daniel Vetter <daniel@ffwll.ch>, Dave Airlie <airlied@redhat.com>, sam@ravnborg.org
 List-Id: virtualization@lists.linuxfoundation.org
 
-On Fri,  5 Apr 2019 01:16:14 +0200
-Halil Pasic <pasic@linux.ibm.com> wrote:
+The __io_virt() macro is not available on all architectures, so cirrus
+can't simply pass a pointer to io memory down to the format conversion
+helpers.  The format conversion helpers must use memcpy_toio() instead.
 
-> To support protected virtualization cio will need to make sure the
-> memory used for communication with the hypervisor is DMA memory.
-> 
-> Let us introduce a DMA pool to cio that will help us in allocating
+Add a convert_lines_toio() variant which does just that.  Switch the
+drm_fb_*_dstclip() functions used by cirrus to accept a __iomem pointer
+as destination and pass that down to convert_lines_toio().  Fix the
+calls in the cirrus driver to not use __io_virt() any more.
 
-missing 'and'
+Signed-off-by: Gerd Hoffmann <kraxel@redhat.com>
+---
+ include/drm/drm_format_helper.h     |  9 ++--
+ drivers/gpu/drm/cirrus/cirrus.c     |  6 +--
+ drivers/gpu/drm/drm_format_helper.c | 74 ++++++++++++++++++++++-------
+ 3 files changed, 67 insertions(+), 22 deletions(-)
 
-> deallocating those chunks of memory.
-> 
-> We use a gen_pool backed with DMA pages to avoid each allocation
-> effectively wasting a page, as we typically allocate much less
-> than PAGE_SIZE.
-> 
-> Signed-off-by: Halil Pasic <pasic@linux.ibm.com>
-> ---
->  arch/s390/Kconfig           |  1 +
->  arch/s390/include/asm/cio.h |  3 +++
->  drivers/s390/cio/css.c      | 57 +++++++++++++++++++++++++++++++++++++++++++++
->  3 files changed, 61 insertions(+)
-> 
-> diff --git a/arch/s390/Kconfig b/arch/s390/Kconfig
-> index 46c69283a67b..e8099ab47368 100644
-> --- a/arch/s390/Kconfig
-> +++ b/arch/s390/Kconfig
-> @@ -194,6 +194,7 @@ config S390
->  	select VIRT_TO_BUS
->  	select HAVE_NMI
->  	select SWIOTLB
-> +	select GENERIC_ALLOCATOR
->  
->  
->  config SCHED_OMIT_FRAME_POINTER
-> diff --git a/arch/s390/include/asm/cio.h b/arch/s390/include/asm/cio.h
-> index 1727180e8ca1..4510e418614a 100644
-> --- a/arch/s390/include/asm/cio.h
-> +++ b/arch/s390/include/asm/cio.h
-> @@ -328,6 +328,9 @@ static inline u8 pathmask_to_pos(u8 mask)
->  void channel_subsystem_reinit(void);
->  extern void css_schedule_reprobe(void);
->  
-> +extern void *cio_dma_zalloc(size_t size);
-> +extern void cio_dma_free(void *cpu_addr, size_t size);
-> +
->  /* Function from drivers/s390/cio/chsc.c */
->  int chsc_sstpc(void *page, unsigned int op, u16 ctrl, u64 *clock_delta);
->  int chsc_sstpi(void *page, void *result, size_t size);
-> diff --git a/drivers/s390/cio/css.c b/drivers/s390/cio/css.c
-> index aea502922646..72629d99d8e4 100644
-> --- a/drivers/s390/cio/css.c
-> +++ b/drivers/s390/cio/css.c
-> @@ -20,6 +20,8 @@
->  #include <linux/reboot.h>
->  #include <linux/suspend.h>
->  #include <linux/proc_fs.h>
-> +#include <linux/genalloc.h>
-> +#include <linux/dma-mapping.h>
->  #include <asm/isc.h>
->  #include <asm/crw.h>
->  
-> @@ -886,6 +888,8 @@ static const struct attribute_group *cssdev_attr_groups[] = {
->  	NULL,
->  };
->  
-> +static u64 css_dev_dma_mask = DMA_BIT_MASK(31);
-> +
->  static int __init setup_css(int nr)
->  {
->  	struct channel_subsystem *css;
-> @@ -899,6 +903,9 @@ static int __init setup_css(int nr)
->  	dev_set_name(&css->device, "css%x", nr);
->  	css->device.groups = cssdev_attr_groups;
->  	css->device.release = channel_subsystem_release;
-> +	/* some cio DMA memory needs to be 31 bit addressable */
-> +	css->device.coherent_dma_mask = DMA_BIT_MASK(31),
-> +	css->device.dma_mask = &css_dev_dma_mask;
-
-Question: Does this percolate down to the child devices eventually?
-E.g., you have a ccw_device getting the mask from its parent
-subchannel, which gets it from its parent css? If so, does that clash
-with the the mask you used for the virtio_ccw_device in a previous
-patch? Or are they two really different things?
-
->  
->  	mutex_init(&css->mutex);
->  	css->cssid = chsc_get_cssid(nr);
-> @@ -1018,6 +1025,55 @@ static struct notifier_block css_power_notifier = {
->  	.notifier_call = css_power_event,
->  };
->  
-> +#define POOL_INIT_PAGES 1
-> +static struct gen_pool *cio_dma_pool;
-> +/* Currently cio supports only a single css */
-> +static struct device *cio_dma_css;
-
-That global variable feels wrong, especially if you plan to support
-MCSS-E in the future. (Do you? :) If yes, should the dma pool be global
-or per-css? As css0 currently is the root device for the channel
-subsystem stuff, you'd either need a new parent to hang this off from
-or size this with the number of css images.)
-
-For now, just grab channel_subsystems[0]->device directly?
-
-> +static gfp_t  cio_dma_flags;
-> +
-> +static void __init cio_dma_pool_init(void)
-> +{
-> +	void *cpu_addr;
-> +	dma_addr_t dma_addr;
-> +	int i;
-> +
-> +	cio_dma_css = &channel_subsystems[0]->device;
-> +	cio_dma_flags = GFP_DMA | GFP_KERNEL | __GFP_ZERO;
-> +	cio_dma_pool = gen_pool_create(3, -1);
-> +	/* No need to free up the resources: compiled in */
-> +	for (i = 0; i < POOL_INIT_PAGES; ++i) {
-> +		cpu_addr = dma_alloc_coherent(cio_dma_css, PAGE_SIZE, &dma_addr,
-> +					      cio_dma_flags);
-> +		if (!cpu_addr)
-> +			return;
-> +		gen_pool_add_virt(cio_dma_pool, (unsigned long) cpu_addr,
-> +				  dma_addr, PAGE_SIZE, -1);
-> +	}
-> +
-> +}
-> +
-> +void *cio_dma_zalloc(size_t size)
-> +{
-> +	dma_addr_t dma_addr;
-> +	unsigned long addr = gen_pool_alloc(cio_dma_pool, size);
-> +
-> +	if (!addr) {
-> +		addr = (unsigned long) dma_alloc_coherent(cio_dma_css,
-> +					PAGE_SIZE, &dma_addr, cio_dma_flags);
-> +		if (!addr)
-> +			return NULL;
-> +		gen_pool_add_virt(cio_dma_pool, addr, dma_addr, PAGE_SIZE, -1);
-> +		addr = gen_pool_alloc(cio_dma_pool, size);
-> +	}
-> +	return (void *) addr;
-
-At this point, you're always going via the css0 device. I'm wondering
-whether you should pass in the cssid here and use css_by_id(cssid) to
-make this future proof. But then, I'm not quite clear from which
-context this will be called.
-
-> +}
-> +
-> +void cio_dma_free(void *cpu_addr, size_t size)
-> +{
-> +	memset(cpu_addr, 0, size);
-> +	gen_pool_free(cio_dma_pool, (unsigned long) cpu_addr, size);
-> +}
-> +
->  /*
->   * Now that the driver core is running, we can setup our channel subsystem.
->   * The struct subchannel's are created during probing.
-> @@ -1063,6 +1119,7 @@ static int __init css_bus_init(void)
->  		unregister_reboot_notifier(&css_reboot_notifier);
->  		goto out_unregister;
->  	}
-> +	cio_dma_pool_init();
->  	css_init_done = 1;
->  
->  	/* Enable default isc for I/O subchannels. */
+diff --git a/include/drm/drm_format_helper.h b/include/drm/drm_format_helper.h
+index 6f84380757ee..3532b76c2340 100644
+--- a/include/drm/drm_format_helper.h
++++ b/include/drm/drm_format_helper.h
+@@ -15,17 +15,20 @@ struct drm_rect;
+ 
+ void drm_fb_memcpy(void *dst, void *vaddr, struct drm_framebuffer *fb,
+ 		   struct drm_rect *clip);
+-void drm_fb_memcpy_dstclip(void *dst, void *vaddr, struct drm_framebuffer *fb,
++void drm_fb_memcpy_dstclip(void __iomem *dst, void *vaddr,
++			   struct drm_framebuffer *fb,
+ 			   struct drm_rect *clip);
+ void drm_fb_swab16(u16 *dst, void *vaddr, struct drm_framebuffer *fb,
+ 		   struct drm_rect *clip);
+ void drm_fb_xrgb8888_to_rgb565(void *dst, void *vaddr,
+ 			       struct drm_framebuffer *fb,
+ 			       struct drm_rect *clip, bool swap);
+-void drm_fb_xrgb8888_to_rgb565_dstclip(void *dst, unsigned int dst_pitch,
++void drm_fb_xrgb8888_to_rgb565_dstclip(void __iomem *dst,
++				       unsigned int dst_pitch,
+ 				       void *vaddr, struct drm_framebuffer *fb,
+ 				       struct drm_rect *clip, bool swap);
+-void drm_fb_xrgb8888_to_rgb888_dstclip(void *dst, unsigned int dst_pitch,
++void drm_fb_xrgb8888_to_rgb888_dstclip(void __iomem *dst,
++				       unsigned int dst_pitch,
+ 				       void *vaddr, struct drm_framebuffer *fb,
+ 				       struct drm_rect *clip);
+ void drm_fb_xrgb8888_to_gray8(u8 *dst, void *vaddr, struct drm_framebuffer *fb,
+diff --git a/drivers/gpu/drm/cirrus/cirrus.c b/drivers/gpu/drm/cirrus/cirrus.c
+index 5095b8ce52c2..be4ea370ba31 100644
+--- a/drivers/gpu/drm/cirrus/cirrus.c
++++ b/drivers/gpu/drm/cirrus/cirrus.c
+@@ -307,16 +307,16 @@ static int cirrus_fb_blit_rect(struct drm_framebuffer *fb,
+ 		return -ENOMEM;
+ 
+ 	if (cirrus->cpp == fb->format->cpp[0])
+-		drm_fb_memcpy_dstclip(__io_virt(cirrus->vram),
++		drm_fb_memcpy_dstclip(cirrus->vram,
+ 				      vmap, fb, rect);
+ 
+ 	else if (fb->format->cpp[0] == 4 && cirrus->cpp == 2)
+-		drm_fb_xrgb8888_to_rgb565_dstclip(__io_virt(cirrus->vram),
++		drm_fb_xrgb8888_to_rgb565_dstclip(cirrus->vram,
+ 						  cirrus->pitch,
+ 						  vmap, fb, rect, false);
+ 
+ 	else if (fb->format->cpp[0] == 4 && cirrus->cpp == 3)
+-		drm_fb_xrgb8888_to_rgb888_dstclip(__io_virt(cirrus->vram),
++		drm_fb_xrgb8888_to_rgb888_dstclip(cirrus->vram,
+ 						  cirrus->pitch,
+ 						  vmap, fb, rect);
+ 
+diff --git a/drivers/gpu/drm/drm_format_helper.c b/drivers/gpu/drm/drm_format_helper.c
+index 01d9ea134618..6a759cbaa263 100644
+--- a/drivers/gpu/drm/drm_format_helper.c
++++ b/drivers/gpu/drm/drm_format_helper.c
+@@ -11,6 +11,8 @@
+ #include <linux/module.h>
+ #include <linux/slab.h>
+ 
++#include <asm/io.h>
++
+ #include <drm/drm_format_helper.h>
+ #include <drm/drm_framebuffer.h>
+ #include <drm/drm_fourcc.h>
+@@ -125,6 +127,30 @@ static void convert_lines(void *dst, unsigned int dst_pitch,
+ 	kfree(sbuf);
+ }
+ 
++static void convert_lines_toio(void __iomem *dst, unsigned int dst_pitch,
++			       void *src, unsigned int src_pitch,
++			       unsigned int pixels,
++			       unsigned int lines,
++			       struct drm_format_convert *conv)
++{
++	u32 dst_linelength = pixels * conv->dst_cpp;
++	u32 y;
++	void *dbuf;
++
++	dbuf = kmalloc(dst_linelength, GFP_KERNEL);
++	if (!dbuf)
++		return;
++
++	for (y = 0; y < lines; y++) {
++		conv->func(dbuf, src, pixels);
++		memcpy_toio(dst, dbuf, dst_linelength);
++		src += src_pitch;
++		dst += dst_pitch;
++	}
++
++	kfree(dbuf);
++}
++
+ static u32 clip_offset(struct drm_rect *clip, u32 pitch, u32 cpp)
+ {
+ 	return (clip->y1 * pitch) + (clip->x1 * cpp);
+@@ -143,6 +169,19 @@ static void drm_fb_memcpy_lines(void *dst, unsigned int dst_pitch,
+ 	}
+ }
+ 
++static void drm_fb_memcpy_lines_toio(void __iomem *dst, unsigned int dst_pitch,
++				     void *src, unsigned int src_pitch,
++				     unsigned int linelength, unsigned int lines)
++{
++	int line;
++
++	for (line = 0; line < lines; line++) {
++		memcpy_toio(dst, src, linelength);
++		src += src_pitch;
++		dst += dst_pitch;
++	}
++}
++
+ /**
+  * drm_fb_memcpy - Copy clip buffer
+  * @dst: Destination buffer
+@@ -176,16 +215,17 @@ EXPORT_SYMBOL(drm_fb_memcpy);
+  * This function applies clipping on dst, i.e. the destination is a
+  * full framebuffer but only the clip rect content is copied over.
+  */
+-void drm_fb_memcpy_dstclip(void *dst, void *vaddr, struct drm_framebuffer *fb,
++void drm_fb_memcpy_dstclip(void __iomem *dst, void *vaddr,
++			   struct drm_framebuffer *fb,
+ 			   struct drm_rect *clip)
+ {
+ 	unsigned int cpp = drm_format_plane_cpp(fb->format->format, 0);
+ 	unsigned int offset = (clip->y1 * fb->pitches[0]) + (clip->x1 * cpp);
+ 	size_t len = (clip->x2 - clip->x1) * cpp;
+ 
+-	drm_fb_memcpy_lines(dst + offset, fb->pitches[0],
+-			    vaddr + offset, fb->pitches[0],
+-			    len, clip->y2 - clip->y1);
++	drm_fb_memcpy_lines_toio(dst + offset, fb->pitches[0],
++				 vaddr + offset, fb->pitches[0],
++				 len, clip->y2 - clip->y1);
+ }
+ EXPORT_SYMBOL(drm_fb_memcpy_dstclip);
+ 
+@@ -245,7 +285,7 @@ EXPORT_SYMBOL(drm_fb_xrgb8888_to_rgb565);
+ 
+ /**
+  * drm_fb_xrgb8888_to_rgb565_dstclip - Convert XRGB8888 to RGB565 clip buffer
+- * @dst: RGB565 destination buffer
++ * @dst: RGB565 destination buffer (__iomem)
+  * @dst_pitch: destination buffer pitch
+  * @vaddr: XRGB8888 source buffer
+  * @fb: DRM framebuffer
+@@ -256,9 +296,10 @@ EXPORT_SYMBOL(drm_fb_xrgb8888_to_rgb565);
+  * support XRGB8888.
+  *
+  * This function applies clipping on dst, i.e. the destination is a
+- * full framebuffer but only the clip rect content is copied over.
++ * full framebuffer, in iomem, but only the clip rect content is copied over.
+  */
+-void drm_fb_xrgb8888_to_rgb565_dstclip(void *dst, unsigned int dst_pitch,
++void drm_fb_xrgb8888_to_rgb565_dstclip(void __iomem *dst,
++				       unsigned int dst_pitch,
+ 				       void *vaddr, struct drm_framebuffer *fb,
+ 				       struct drm_rect *clip, bool swap)
+ {
+@@ -272,15 +313,15 @@ void drm_fb_xrgb8888_to_rgb565_dstclip(void *dst, unsigned int dst_pitch,
+ 	size_t pixels = (clip->x2 - clip->x1);
+ 	size_t lines = (clip->y2 - clip->y1);
+ 
+-	convert_lines(dst + dst_offset, dst_pitch,
+-		      vaddr + src_offset, fb->pitches[0],
+-		      pixels, lines, conv);
++	convert_lines_toio(dst + dst_offset, dst_pitch,
++			   vaddr + src_offset, fb->pitches[0],
++			   pixels, lines, conv);
+ }
+ EXPORT_SYMBOL(drm_fb_xrgb8888_to_rgb565_dstclip);
+ 
+ /**
+  * drm_fb_xrgb8888_to_rgb888_dstclip - Convert XRGB8888 to RGB888 clip buffer
+- * @dst: RGB565 destination buffer
++ * @dst: RGB888 destination buffer (__iomem)
+  * @dst_pitch: destination buffer pitch
+  * @vaddr: XRGB8888 source buffer
+  * @fb: DRM framebuffer
+@@ -291,9 +332,10 @@ EXPORT_SYMBOL(drm_fb_xrgb8888_to_rgb565_dstclip);
+  * support XRGB8888.
+  *
+  * This function applies clipping on dst, i.e. the destination is a
+- * full framebuffer but only the clip rect content is copied over.
++ * full framebuffer, in iomem, but only the clip rect content is copied over.
+  */
+-void drm_fb_xrgb8888_to_rgb888_dstclip(void *dst, unsigned int dst_pitch,
++void drm_fb_xrgb8888_to_rgb888_dstclip(void __iomem *dst,
++				       unsigned int dst_pitch,
+ 				       void *vaddr, struct drm_framebuffer *fb,
+ 				       struct drm_rect *clip)
+ {
+@@ -305,9 +347,9 @@ void drm_fb_xrgb8888_to_rgb888_dstclip(void *dst, unsigned int dst_pitch,
+ 	size_t pixels = (clip->x2 - clip->x1);
+ 	size_t lines = (clip->y2 - clip->y1);
+ 
+-	convert_lines(dst + dst_offset, dst_pitch,
+-		      vaddr + src_offset, fb->pitches[0],
+-		      pixels, lines, conv);
++	convert_lines_toio(dst + dst_offset, dst_pitch,
++			   vaddr + src_offset, fb->pitches[0],
++			   pixels, lines, conv);
+ }
+ EXPORT_SYMBOL(drm_fb_xrgb8888_to_rgb888_dstclip);
+ 
+-- 
+2.18.1
