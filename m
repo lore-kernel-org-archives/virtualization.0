@@ -1,14 +1,16 @@
-From: Gerd Hoffmann <kraxel@redhat.com>
-Subject: [PATCH 4/4] drm: add convert_lines_toio() variant,
-	fix cirrus builds on powerpc.
-Date: Tue,  9 Apr 2019 13:59:13 +0200
-Message-ID: <20190409115913.3468-5-kraxel@redhat.com>
-References: <20190409115913.3468-1-kraxel@redhat.com>
+From: Christoph Hellwig <hch@infradead.org>
+Subject: Re: [RFC PATCH 03/12] s390/mm: force swiotlb for protected
+	virtualization
+Date: Tue, 9 Apr 2019 05:22:41 -0700
+Message-ID: <20190409122241.GA9312@infradead.org>
+References: <20190404231622.52531-1-pasic@linux.ibm.com>
+	<20190404231622.52531-4-pasic@linux.ibm.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <20190409115913.3468-1-kraxel@redhat.com>
+Content-Disposition: inline
+In-Reply-To: <20190404231622.52531-4-pasic@linux.ibm.com>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -18,231 +20,25 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: dri-devel@lists.freedesktop.org
-Cc: Stephen Rothwell <sfr@canb.auug.org.au>, David Airlie <airlied@linux.ie>, Sean Paul <sean@poorly.run>, Maarten Lankhorst <maarten.lankhorst@linux.intel.com>, open list <linux-kernel@vger.kernel.org>, "open list:DRM DRIVER FOR QEMU'S CIRRUS DEVICE" <virtualization@lists.linux-foundation.org>, Maxime Ripard <maxime.ripard@bootlin.com>, noralf@tronnes.org, Daniel Vetter <daniel@ffwll.ch>, Dave Airlie <airlied@redhat.com>, sam@ravnborg.org
+To: Halil Pasic <pasic@linux.ibm.com>
+Cc: Vasily Gorbik <gor@linux.ibm.com>, linux-s390@vger.kernel.org, Eric Farman <farman@linux.ibm.com>, Claudio Imbrenda <imbrenda@linux.ibm.com>, kvm@vger.kernel.org, Sebastian Ott <sebott@linux.ibm.com>, Cornelia Huck <cohuck@redhat.com>, virtualization@lists.linux-foundation.org, Martin Schwidefsky <schwidefsky@de.ibm.com>, Farhan Ali <alifm@linux.ibm.com>, Viktor Mihajlovski <mihajlov@linux.ibm.com>, Janosch Frank <frankja@linux.ibm.com>
 List-Id: virtualization@lists.linuxfoundation.org
 
-The __io_virt() macro is not available on all architectures, so cirrus
-can't simply pass a pointer to io memory down to the format conversion
-helpers.  The format conversion helpers must use memcpy_toio() instead.
+> +++ b/arch/s390/include/asm/dma-mapping.h
+> @@ -0,0 +1,13 @@
+> +/* SPDX-License-Identifier: GPL-2.0 */
+> +#ifndef _ASM_S390_DMA_MAPPING_H
+> +#define _ASM_S390_DMA_MAPPING_H
+> +
+> +#include <linux/dma-contiguous.h>
+> +
+> +static inline const struct dma_map_ops *get_arch_dma_ops(struct bus_type *bus)
+> +{
+> +	return NULL;
+> +}
+> +
+> +#endif /* _ASM_S390_DMA_MAPPING_H */
+> +
 
-Add a convert_lines_toio() variant which does just that.  Switch the
-drm_fb_*_dstclip() functions used by cirrus to accept a __iomem pointer
-as destination and pass that down to convert_lines_toio().  Fix the
-calls in the cirrus driver to not use __io_virt() any more.
-
-Signed-off-by: Gerd Hoffmann <kraxel@redhat.com>
----
- include/drm/drm_format_helper.h     |  9 ++--
- drivers/gpu/drm/cirrus/cirrus.c     |  6 +--
- drivers/gpu/drm/drm_format_helper.c | 74 ++++++++++++++++++++++-------
- 3 files changed, 67 insertions(+), 22 deletions(-)
-
-diff --git a/include/drm/drm_format_helper.h b/include/drm/drm_format_helper.h
-index 6f84380757ee..3532b76c2340 100644
---- a/include/drm/drm_format_helper.h
-+++ b/include/drm/drm_format_helper.h
-@@ -15,17 +15,20 @@ struct drm_rect;
- 
- void drm_fb_memcpy(void *dst, void *vaddr, struct drm_framebuffer *fb,
- 		   struct drm_rect *clip);
--void drm_fb_memcpy_dstclip(void *dst, void *vaddr, struct drm_framebuffer *fb,
-+void drm_fb_memcpy_dstclip(void __iomem *dst, void *vaddr,
-+			   struct drm_framebuffer *fb,
- 			   struct drm_rect *clip);
- void drm_fb_swab16(u16 *dst, void *vaddr, struct drm_framebuffer *fb,
- 		   struct drm_rect *clip);
- void drm_fb_xrgb8888_to_rgb565(void *dst, void *vaddr,
- 			       struct drm_framebuffer *fb,
- 			       struct drm_rect *clip, bool swap);
--void drm_fb_xrgb8888_to_rgb565_dstclip(void *dst, unsigned int dst_pitch,
-+void drm_fb_xrgb8888_to_rgb565_dstclip(void __iomem *dst,
-+				       unsigned int dst_pitch,
- 				       void *vaddr, struct drm_framebuffer *fb,
- 				       struct drm_rect *clip, bool swap);
--void drm_fb_xrgb8888_to_rgb888_dstclip(void *dst, unsigned int dst_pitch,
-+void drm_fb_xrgb8888_to_rgb888_dstclip(void __iomem *dst,
-+				       unsigned int dst_pitch,
- 				       void *vaddr, struct drm_framebuffer *fb,
- 				       struct drm_rect *clip);
- void drm_fb_xrgb8888_to_gray8(u8 *dst, void *vaddr, struct drm_framebuffer *fb,
-diff --git a/drivers/gpu/drm/cirrus/cirrus.c b/drivers/gpu/drm/cirrus/cirrus.c
-index 5095b8ce52c2..be4ea370ba31 100644
---- a/drivers/gpu/drm/cirrus/cirrus.c
-+++ b/drivers/gpu/drm/cirrus/cirrus.c
-@@ -307,16 +307,16 @@ static int cirrus_fb_blit_rect(struct drm_framebuffer *fb,
- 		return -ENOMEM;
- 
- 	if (cirrus->cpp == fb->format->cpp[0])
--		drm_fb_memcpy_dstclip(__io_virt(cirrus->vram),
-+		drm_fb_memcpy_dstclip(cirrus->vram,
- 				      vmap, fb, rect);
- 
- 	else if (fb->format->cpp[0] == 4 && cirrus->cpp == 2)
--		drm_fb_xrgb8888_to_rgb565_dstclip(__io_virt(cirrus->vram),
-+		drm_fb_xrgb8888_to_rgb565_dstclip(cirrus->vram,
- 						  cirrus->pitch,
- 						  vmap, fb, rect, false);
- 
- 	else if (fb->format->cpp[0] == 4 && cirrus->cpp == 3)
--		drm_fb_xrgb8888_to_rgb888_dstclip(__io_virt(cirrus->vram),
-+		drm_fb_xrgb8888_to_rgb888_dstclip(cirrus->vram,
- 						  cirrus->pitch,
- 						  vmap, fb, rect);
- 
-diff --git a/drivers/gpu/drm/drm_format_helper.c b/drivers/gpu/drm/drm_format_helper.c
-index 01d9ea134618..6a759cbaa263 100644
---- a/drivers/gpu/drm/drm_format_helper.c
-+++ b/drivers/gpu/drm/drm_format_helper.c
-@@ -11,6 +11,8 @@
- #include <linux/module.h>
- #include <linux/slab.h>
- 
-+#include <asm/io.h>
-+
- #include <drm/drm_format_helper.h>
- #include <drm/drm_framebuffer.h>
- #include <drm/drm_fourcc.h>
-@@ -125,6 +127,30 @@ static void convert_lines(void *dst, unsigned int dst_pitch,
- 	kfree(sbuf);
- }
- 
-+static void convert_lines_toio(void __iomem *dst, unsigned int dst_pitch,
-+			       void *src, unsigned int src_pitch,
-+			       unsigned int pixels,
-+			       unsigned int lines,
-+			       struct drm_format_convert *conv)
-+{
-+	u32 dst_linelength = pixels * conv->dst_cpp;
-+	u32 y;
-+	void *dbuf;
-+
-+	dbuf = kmalloc(dst_linelength, GFP_KERNEL);
-+	if (!dbuf)
-+		return;
-+
-+	for (y = 0; y < lines; y++) {
-+		conv->func(dbuf, src, pixels);
-+		memcpy_toio(dst, dbuf, dst_linelength);
-+		src += src_pitch;
-+		dst += dst_pitch;
-+	}
-+
-+	kfree(dbuf);
-+}
-+
- static u32 clip_offset(struct drm_rect *clip, u32 pitch, u32 cpp)
- {
- 	return (clip->y1 * pitch) + (clip->x1 * cpp);
-@@ -143,6 +169,19 @@ static void drm_fb_memcpy_lines(void *dst, unsigned int dst_pitch,
- 	}
- }
- 
-+static void drm_fb_memcpy_lines_toio(void __iomem *dst, unsigned int dst_pitch,
-+				     void *src, unsigned int src_pitch,
-+				     unsigned int linelength, unsigned int lines)
-+{
-+	int line;
-+
-+	for (line = 0; line < lines; line++) {
-+		memcpy_toio(dst, src, linelength);
-+		src += src_pitch;
-+		dst += dst_pitch;
-+	}
-+}
-+
- /**
-  * drm_fb_memcpy - Copy clip buffer
-  * @dst: Destination buffer
-@@ -176,16 +215,17 @@ EXPORT_SYMBOL(drm_fb_memcpy);
-  * This function applies clipping on dst, i.e. the destination is a
-  * full framebuffer but only the clip rect content is copied over.
-  */
--void drm_fb_memcpy_dstclip(void *dst, void *vaddr, struct drm_framebuffer *fb,
-+void drm_fb_memcpy_dstclip(void __iomem *dst, void *vaddr,
-+			   struct drm_framebuffer *fb,
- 			   struct drm_rect *clip)
- {
- 	unsigned int cpp = drm_format_plane_cpp(fb->format->format, 0);
- 	unsigned int offset = (clip->y1 * fb->pitches[0]) + (clip->x1 * cpp);
- 	size_t len = (clip->x2 - clip->x1) * cpp;
- 
--	drm_fb_memcpy_lines(dst + offset, fb->pitches[0],
--			    vaddr + offset, fb->pitches[0],
--			    len, clip->y2 - clip->y1);
-+	drm_fb_memcpy_lines_toio(dst + offset, fb->pitches[0],
-+				 vaddr + offset, fb->pitches[0],
-+				 len, clip->y2 - clip->y1);
- }
- EXPORT_SYMBOL(drm_fb_memcpy_dstclip);
- 
-@@ -245,7 +285,7 @@ EXPORT_SYMBOL(drm_fb_xrgb8888_to_rgb565);
- 
- /**
-  * drm_fb_xrgb8888_to_rgb565_dstclip - Convert XRGB8888 to RGB565 clip buffer
-- * @dst: RGB565 destination buffer
-+ * @dst: RGB565 destination buffer (__iomem)
-  * @dst_pitch: destination buffer pitch
-  * @vaddr: XRGB8888 source buffer
-  * @fb: DRM framebuffer
-@@ -256,9 +296,10 @@ EXPORT_SYMBOL(drm_fb_xrgb8888_to_rgb565);
-  * support XRGB8888.
-  *
-  * This function applies clipping on dst, i.e. the destination is a
-- * full framebuffer but only the clip rect content is copied over.
-+ * full framebuffer, in iomem, but only the clip rect content is copied over.
-  */
--void drm_fb_xrgb8888_to_rgb565_dstclip(void *dst, unsigned int dst_pitch,
-+void drm_fb_xrgb8888_to_rgb565_dstclip(void __iomem *dst,
-+				       unsigned int dst_pitch,
- 				       void *vaddr, struct drm_framebuffer *fb,
- 				       struct drm_rect *clip, bool swap)
- {
-@@ -272,15 +313,15 @@ void drm_fb_xrgb8888_to_rgb565_dstclip(void *dst, unsigned int dst_pitch,
- 	size_t pixels = (clip->x2 - clip->x1);
- 	size_t lines = (clip->y2 - clip->y1);
- 
--	convert_lines(dst + dst_offset, dst_pitch,
--		      vaddr + src_offset, fb->pitches[0],
--		      pixels, lines, conv);
-+	convert_lines_toio(dst + dst_offset, dst_pitch,
-+			   vaddr + src_offset, fb->pitches[0],
-+			   pixels, lines, conv);
- }
- EXPORT_SYMBOL(drm_fb_xrgb8888_to_rgb565_dstclip);
- 
- /**
-  * drm_fb_xrgb8888_to_rgb888_dstclip - Convert XRGB8888 to RGB888 clip buffer
-- * @dst: RGB565 destination buffer
-+ * @dst: RGB888 destination buffer (__iomem)
-  * @dst_pitch: destination buffer pitch
-  * @vaddr: XRGB8888 source buffer
-  * @fb: DRM framebuffer
-@@ -291,9 +332,10 @@ EXPORT_SYMBOL(drm_fb_xrgb8888_to_rgb565_dstclip);
-  * support XRGB8888.
-  *
-  * This function applies clipping on dst, i.e. the destination is a
-- * full framebuffer but only the clip rect content is copied over.
-+ * full framebuffer, in iomem, but only the clip rect content is copied over.
-  */
--void drm_fb_xrgb8888_to_rgb888_dstclip(void *dst, unsigned int dst_pitch,
-+void drm_fb_xrgb8888_to_rgb888_dstclip(void __iomem *dst,
-+				       unsigned int dst_pitch,
- 				       void *vaddr, struct drm_framebuffer *fb,
- 				       struct drm_rect *clip)
- {
-@@ -305,9 +347,9 @@ void drm_fb_xrgb8888_to_rgb888_dstclip(void *dst, unsigned int dst_pitch,
- 	size_t pixels = (clip->x2 - clip->x1);
- 	size_t lines = (clip->y2 - clip->y1);
- 
--	convert_lines(dst + dst_offset, dst_pitch,
--		      vaddr + src_offset, fb->pitches[0],
--		      pixels, lines, conv);
-+	convert_lines_toio(dst + dst_offset, dst_pitch,
-+			   vaddr + src_offset, fb->pitches[0],
-+			   pixels, lines, conv);
- }
- EXPORT_SYMBOL(drm_fb_xrgb8888_to_rgb888_dstclip);
- 
--- 
-2.18.1
+Congratulations!  You ust create an entirely pointless duplicate of
+include/asm-generic/dma-mapping.h.
