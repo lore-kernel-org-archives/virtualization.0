@@ -1,18 +1,15 @@
-From: Cornelia Huck <cohuck@redhat.com>
-Subject: Re: [RFC PATCH 02/12] virtio/s390: DMA support for virtio-ccw
-Date: Tue, 9 Apr 2019 17:47:55 +0200
-Message-ID: <20190409174755.5f62d04e.cohuck@redhat.com>
-References: <20190404231622.52531-1-pasic@linux.ibm.com>
-	<20190404231622.52531-3-pasic@linux.ibm.com>
-	<20190409115743.26e51b81.cohuck@redhat.com>
-	<20190409132927.5df3bc50@oc2783563651>
-	<20190409150120.61abad60.cohuck@redhat.com>
-	<20190409152313.0296e8f1@oc2783563651>
+From: "Samudrala, Sridhar" <sridhar.samudrala@intel.com>
+Subject: Re: [PATCH net v8] failover: allow name change on IFF_UP slave
+	interfaces
+Date: Tue, 9 Apr 2019 09:02:30 -0700
+Message-ID: <78745edb-ec5d-baf1-06a5-78a191eec609@intel.com>
+References: <1554767127-32576-1-git-send-email-si-wei.liu@oracle.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
+Content-Type: text/plain; charset="us-ascii"; Format="flowed"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <20190409152313.0296e8f1@oc2783563651>
+In-Reply-To: <1554767127-32576-1-git-send-email-si-wei.liu@oracle.com>
+Content-Language: en-US
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -22,105 +19,58 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Halil Pasic <pasic@linux.ibm.com>
-Cc: Vasily Gorbik <gor@linux.ibm.com>, linux-s390@vger.kernel.org, Eric Farman <farman@linux.ibm.com>, Claudio Imbrenda <imbrenda@linux.ibm.com>, kvm@vger.kernel.org, Sebastian Ott <sebott@linux.ibm.com>, Farhan Ali <alifm@linux.ibm.com>, virtualization@lists.linux-foundation.org, Martin Schwidefsky <schwidefsky@de.ibm.com>, Viktor Mihajlovski <mihajlov@linux.ibm.com>, Janosch Frank <frankja@linux.ibm.com>
+To: Si-Wei Liu <si-wei.liu@oracle.com>, mst@redhat.com, stephen@networkplumber.org, davem@davemloft.net, kubakici@wp.pl, alexander.duyck@gmail.com, jiri@resnulli.us, netdev@vger.kernel.org, virtualization@lists.linux-foundation.org
+Cc: boris.ostrovsky@oracle.com, liran.alon@oracle.com
 List-Id: virtualization@lists.linuxfoundation.org
 
-On Tue, 9 Apr 2019 15:23:13 +0200
-Halil Pasic <pasic@linux.ibm.com> wrote:
-
-> On Tue, 9 Apr 2019 15:01:20 +0200
-> Cornelia Huck <cohuck@redhat.com> wrote:
+On 4/8/2019 4:45 PM, Si-Wei Liu wrote:
+> When a netdev appears through hot plug then gets enslaved by a failover
+> master that is already up and running, the slave will be opened
+> right away after getting enslaved. Today there's a race that userspace
+> (udev) may fail to rename the slave if the kernel (net_failover)
+> opens the slave earlier than when the userspace rename happens.
+> Unlike bond or team, the primary slave of failover can't be renamed by
+> userspace ahead of time, since the kernel initiated auto-enslavement is
+> unable to, or rather, is never meant to be synchronized with the rename
+> request from userspace.
 > 
-> > On Tue, 9 Apr 2019 13:29:27 +0200
-> > Halil Pasic <pasic@linux.ibm.com> wrote:
-> >   
-> > > On Tue, 9 Apr 2019 11:57:43 +0200
-> > > Cornelia Huck <cohuck@redhat.com> wrote:
-> > >   
-> > > > On Fri,  5 Apr 2019 01:16:12 +0200
-> > > > Halil Pasic <pasic@linux.ibm.com> wrote:
-
-> > > > > @@ -1255,6 +1254,18 @@ static int virtio_ccw_online(struct ccw_device *cdev)
-> > > > >  		ret = -ENOMEM;
-> > > > >  		goto out_free;
-> > > > >  	}
-> > > > > +	vcdev->vdev.dev.parent = &cdev->dev;    
-> > > > 
-> > > > That one makes sense, pci and mmio are doing that as well.
-> > > >     
-> > > > > +	cdev->dev.dma_mask = &vcdev->dma_mask;    
-> > > > 
-> > > > That one feels a bit weird. Will this change in one of the follow-on
-> > > > patches? (Have not yet looked at the whole series.)    
-> > > 
-> > > I don't thinks so. Do you mean this should happen within the cio code?
-> > > I think I started out with the idea to keep the scope as narrow as
-> > > possible. Do you have any suggestions?  
-> > 
-> > From what I see, you set the mask from the virtio-ccw side, then
-> > propagate it up to the general ccw_device, and then the generic virtio
-> > code will fetch it from the ccw_device.  
+> As the failover slave interfaces are not designed to be operated
+> directly by userspace apps: IP configuration, filter rules with
+> regard to network traffic passing and etc., should all be done on master
+> interface. In general, userspace apps only care about the
+> name of master interface, while slave names are less important as long
+> as admin users can see reliable names that may carry
+> other information describing the netdev. For e.g., they can infer that
+> "ens3nsby" is a standby slave of "ens3", while for a
+> name like "eth0" they can't tell which master it belongs to.
 > 
-> Right! For some reason dma_mask is a pointer. And I need virtio core to
-> use a sane value for virtio_ccw devices.
+> Historically the name of IFF_UP interface can't be changed because
+> there might be admin script or management software that is already
+> relying on such behavior and assumes that the slave name can't be
+> changed once UP. But failover is special: with the in-kernel
+> auto-enslavement mechanism, the userspace expectation for device
+> enumeration and bring-up order is already broken. Previously initramfs
+> and various userspace config tools were modified to bypass failover
+> slaves because of auto-enslavement and duplicate MAC address. Similarly,
+> in case that users care about seeing reliable slave name, the new type
+> of failover slaves needs to be taken care of specifically in userspace
+> anyway.
 > 
-> > Don't you potentially need
-> > something for other ccw_devices in that protected hipervisor case as
-> > well (e.g for 3270)?  
+> It's less risky to lift up the rename restriction on failover slave
+> which is already UP. Although it's possible this change may potentially
+> break userspace component (most likely configuration scripts or
+> management software) that assumes slave name can't be changed while
+> UP, it's relatively a limited and controllable set among all userspace
+> components, which can be fixed specifically to listen for the rename
+> events on failover slaves. Userspace component interacting with slaves
+> is expected to be changed to operate on failover master interface
+> instead, as the failover slave is dynamic in nature which may come and
+> go at any point.  The goal is to make the role of failover slaves less
+> relevant, and userspace components should only deal with failover master
+> in the long run.
 > 
-> 
-> Maybe, maybe not. The first stage is likely to be virito only. I would
-> prefer sorting out stuff like 3270 as the need arises. Also see my
-> response to patch 4 (Message-Id: <20190409141114.7dcce94a@oc2783563651>).
+> Fixes: 30c8bd5aa8b2 ("net: Introduce generic failover module")
+> Signed-off-by: Si-Wei Liu <si-wei.liu@oracle.com>
+> Reviewed-by: Liran Alon <liran.alon@oracle.com>
 
-As long as the infrastructure is flexible enough to be extended later,
-ok. I still need to read that mail.
-
-> 
-> >   
-> > >   
-> > > >     
-> > > > > +
-> > > > > +	ret = dma_set_mask_and_coherent(&cdev->dev,
-> > > > > DMA_BIT_MASK(64));
-> > > > > +	if (ret)
-> > > > > +		ret = dma_set_mask_and_coherent(&cdev->dev,
-> > > > > +
-> > > > > DMA_BIT_MASK(32));
-> > > > > +	if (ret) {
-> > > > > +		dev_warn(&cdev->dev, "Failed to enable 64-bit
-> > > > > or 32-bit DMA.  Trying to continue, but this might not
-> > > > > work.\n");    
-> > > > 
-> > > > This does not look like you'd try to continue?
-> > > >     
-> > > 
-> > > I remember now. First I did continue, then I changed this to fail
-> > > hard so I can not ignore any such problems while smoke testing ('I
-> > > don't always check the kernel messages'), but kept the old message.
-> > > This basically should not fail anyway, otherwise we have a problem
-> > > AFAIU.
-> > > 
-> > > By the way virtio-pci tries to continue indeed, and this is also
-> > > where the wording comes from ;).
-> > > 
-> > > What would you prefer? Try to continue or fail right away?  
-> > 
-> > If it does not have a chance of working properly in the general case,
-> > I'd fail.
-> >   
-> 
-> Agreed! I will make it so. Would dropping '  Trying to continue, but
-> this might not work.' from the warning message work for you?
-
-Sounds fine.
-
-> 
-> I could also drop the attempt to set a 32 bit mask if you agree. Do you?
-
-Only if you also drop it from the message as well ;)
-
-Not sure in what cases you'll fail to set a 64 bit mask, but succeed
-with a 32 bit mask. If there's no sensible situation where that might
-happen, I'd just go ahead and drop it.
+Acked-by: Sridhar Samudrala <sridhar.samudrala@intel.com>
