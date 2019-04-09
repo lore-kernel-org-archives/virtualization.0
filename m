@@ -1,18 +1,14 @@
-From: Jason Wang <jasowang@redhat.com>
-Subject: Re: INFO: task hung in vhost_net_stop_vq
-Date: Tue, 9 Apr 2019 11:31:44 +0800
-Message-ID: <858fcd87-071f-e484-7d2d-a7d9f8144f91__14433.8665575319$1554780724$gmane$org@redhat.com>
-References: <0000000000004f8499057be95e1d@google.com>
-	<0000000000008ee87005847fc985@google.com>
-	<20190325100223-mutt-send-email-mst@kernel.org>
-	<df4f2cf6-8469-f894-8f45-7c48a6a1801f@redhat.com>
-	<CACT4Y+Z1s-Lx1UXHKj88kQoOcbiD8gwyuRU3F_+cceP3pzbbrw@mail.gmail.com>
+From: Dave Airlie <airlied@gmail.com>
+Subject: Re: [PATCH] drm/qxl: drop prime import/export callbacks
+Date: Tue, 9 Apr 2019 14:01:33 +1000
+Message-ID: <CAPM=9tyEmn2LXhNmPSOi7JAgBc3QZwNtM+8FT8CWebz4GztaJA__5595.28425089724$1554782519$gmane$org@mail.gmail.com>
+References: <20190110081750.11358-1-kraxel@redhat.com>
+	<CAPM=9tx8N6jxVzsT-RqtQFrFb9qLK4qUUje+d=fpTYZ6+PnYpg@mail.gmail.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="utf-8"; Format="flowed"
-Content-Transfer-Encoding: base64
+Content-Type: text/plain; charset="us-ascii"
+Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <CACT4Y+Z1s-Lx1UXHKj88kQoOcbiD8gwyuRU3F_+cceP3pzbbrw@mail.gmail.com>
-Content-Language: en-US
+In-Reply-To: <CAPM=9tx8N6jxVzsT-RqtQFrFb9qLK4qUUje+d=fpTYZ6+PnYpg@mail.gmail.com>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -22,41 +18,81 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Dmitry Vyukov <dvyukov@google.com>
-Cc: syzbot <syzbot+d21e6e297322a900c128@syzkaller.appspotmail.com>, weiyj.lk@gmail.com, KVM list <kvm@vger.kernel.org>, "Michael S. Tsirkin" <mst@redhat.com>, netdev <netdev@vger.kernel.org>, syzkaller-bugs <syzkaller-bugs@googlegroups.com>, LKML <linux-kernel@vger.kernel.org>, virtualization@lists.linux-foundation.org
+To: Gerd Hoffmann <kraxel@redhat.com>
+Cc: David Airlie <airlied@linux.ie>, open list <linux-kernel@vger.kernel.org>, dri-devel <dri-devel@lists.freedesktop.org>, "open list:DRM DRIVER FOR QXL VIRTUAL GPU" <virtualization@lists.linux-foundation.org>, Dave Airlie <airlied@redhat.com>, "open list:DRM DRIVER FOR QXL VIRTUAL GPU" <spice-devel@lists.freedesktop.org>
 List-Id: virtualization@lists.linuxfoundation.org
 
-Ck9uIDIwMTkvMy8yNiDkuIvljYg2OjI4LCBEbWl0cnkgVnl1a292IHdyb3RlOgo+IE9uIFR1ZSwg
-TWFyIDI2LCAyMDE5IGF0IDExOjE3IEFNIEphc29uIFdhbmc8amFzb3dhbmdAcmVkaGF0LmNvbT4g
-IHdyb3RlOgo+PiBPbiAyMDE5LzMvMjUg5LiL5Y2IMTA6MDIsIE1pY2hhZWwgUy4gVHNpcmtpbiB3
-cm90ZToKPj4+IExvb2tzIGxpa2UgbW9yZSBpb3RsYiBsb2NraW5nIG1lc3M/Cj4+IExvb2tpbmcg
-YXQgdGhlIGNhbGx0cmFjZToKPj4KPj4gWyAgMjIxLjc0MzY3NV0gPT09PT09PT09PT09PT09PT09
-PT09PT09PT09PT09PT09PT09PT09PT09PT09Cj4+IFsgIDIyMS43NDQyOTddIFsgSU5GTzogcG9z
-c2libGUgcmVjdXJzaXZlIGxvY2tpbmcgZGV0ZWN0ZWQgXQo+PiBbICAyMjEuNzQ0OTQ0XSA0Ljcu
-MCsgIzEgTm90IHRhaW50ZWQKPj4gWyAgMjIxLjc0NTMyNl0gLS0tLS0tLS0tLS0tLS0tLS0tLS0t
-LS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tCj4+IFsgIDIyMS43NDYxMjhdIHN5ei1leGVjdXRvcjEv
-NjgyMyBpcyB0cnlpbmcgdG8gYWNxdWlyZSBsb2NrOgo+PiBbICAyMjEuNzQ2NzM3XSAgKCZ2cS0+
-bXV0ZXgpeysuKy4uLn0sIGF0OiBbPGZmZmZmZmZmODQ0ODRiNzA+XSB2aG9zdF9wcm9jZXNzX2lv
-dGxiX21zZysweGUwLzB4OWUwCj4+IFsgIDIyMS43NDc3ODldCj4+IFsgIDIyMS43NDc3ODldIGJ1
-dCB0YXNrIGlzIGFscmVhZHkgaG9sZGluZyBsb2NrOgo+PiBbICAyMjEuNzQ4NDcwXSAgKCZ2cS0+
-bXV0ZXgpeysuKy4uLn0sIGF0OiBbPGZmZmZmZmZmODQ0ODRiNzA+XSB2aG9zdF9wcm9jZXNzX2lv
-dGxiX21zZysweGUwLzB4OWUwCj4+IFsgIDIyMS43NDk1MzVdCj4+IFsgIDIyMS43NDk1MzVdIG90
-aGVyIGluZm8gdGhhdCBtaWdodCBoZWxwIHVzIGRlYnVnIHRoaXM6Cj4+IFsgIDIyMS43NTAyODBd
-ICBQb3NzaWJsZSB1bnNhZmUgbG9ja2luZyBzY2VuYXJpbzoKPj4gWyAgMjIxLjc1MDI4MF0KPj4g
-WyAgMjIxLjc1MDk0Nl0gICAgICAgIENQVTAKPj4gWyAgMjIxLjc1MTIzMl0gICAgICAgIC0tLS0K
-Pj4gWyAgMjIxLjc1MTUyM10gICBsb2NrKCZ2cS0+bXV0ZXgpOwo+PiBbICAyMjEuNzUxOTIyXSAg
-IGxvY2soJnZxLT5tdXRleCk7Cj4+IFsgIDIyMS43NTIzMzldCj4+IFsgIDIyMS43NTIzMzldICAq
-KiogREVBRExPQ0sgKioqCj4+IFsgIDIyMS43NTIzMzldCj4+Cj4+IEkgY291bGQgbm90IHRoaW5r
-IG9mIGEgcGF0aCB0aGF0IGNhbiBoaXQgdGhpcy4gQW5kIEkgY291bGQgbm90IHJlcHJvZHVjZSB3
-aXRoIHRoZSByZXByb2R1Y2VyIGluIHRoZSBsaW5rIGluIG5ldC1uZXh0Lgo+IExvb2tpbmcgYXQg
-dGhlIGJpc2VjdGlvbiBsb2csIHN5emJvdCBpcyBhYmxlIHRvIHJlcHJvZHVjZSB0aGlzCj4gc3Vw
-ZXItcmVsaWFibHkgb24gbXVsdGlwbGUga2VybmVsIHJldmlzaW9ucy4gQXJlIHlvdSBzdXJlIHlv
-dSBhcmUKPiB1c2luZyB0aGUgcmlnaHQgY29uZmlnL3JldmlzaW9uPyBXaGF0IGVsc2UgY2FuIGJl
-IGluIHBsYXk/IHN5emJvdCB1c2VzCj4gVk1zLiBUaGUgaW1hZ2UgaXMgYXZhaWxhYmxlLgo+Cj4K
-ClllcywgbG9va3MgbGlrZSB0aGUgcmVhc29uIGlzIHZob3N0IGFjY2VwdCB6ZXJvIHNpemUgaW92
-YSByYW5nZSB3aGljaCAKbGVhZCBhIGluZmluaXRlIGxvb3Agd2hlbiB0cnlpbmcgdG8gdHJhbnNs
-YXRlIGlvdmEuIFdpbGwgcG9zdCBhIHBhdGNoIHRvIApmaXggdGhpcy4KClRoYW5rcwoKX19fX19f
-X19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX18KVmlydHVhbGl6YXRpb24g
-bWFpbGluZyBsaXN0ClZpcnR1YWxpemF0aW9uQGxpc3RzLmxpbnV4LWZvdW5kYXRpb24ub3JnCmh0
-dHBzOi8vbGlzdHMubGludXhmb3VuZGF0aW9uLm9yZy9tYWlsbWFuL2xpc3RpbmZvL3ZpcnR1YWxp
-emF0aW9u
+On Sat, 12 Jan 2019 at 07:13, Dave Airlie <airlied@gmail.com> wrote:
+>
+> On Thu, 10 Jan 2019 at 18:17, Gerd Hoffmann <kraxel@redhat.com> wrote:
+> >
+> > Also set prime_handle_to_fd and prime_fd_to_handle to NULL,
+> > so drm will not advertive DRM_PRIME_CAP_{IMPORT,EXPORT} to
+> > userspace.
+
+It's been pointed out to me that disables DRI3 for these devices, I'm
+not sure that is the solution we actually wanted.
+
+any ideas?
+Dave.
+
+> >
+> > Signed-off-by: Gerd Hoffmann <kraxel@redhat.com>
+>
+> Reviewed-by: Dave Airlie <airlied@redhat.com>
+> > ---
+> >  drivers/gpu/drm/qxl/qxl_drv.c   |  4 ----
+> >  drivers/gpu/drm/qxl/qxl_prime.c | 14 --------------
+> >  2 files changed, 18 deletions(-)
+> >
+> > diff --git a/drivers/gpu/drm/qxl/qxl_drv.c b/drivers/gpu/drm/qxl/qxl_drv.c
+> > index 13c8a662f9..ccb090f3ab 100644
+> > --- a/drivers/gpu/drm/qxl/qxl_drv.c
+> > +++ b/drivers/gpu/drm/qxl/qxl_drv.c
+> > @@ -250,14 +250,10 @@ static struct drm_driver qxl_driver = {
+> >  #if defined(CONFIG_DEBUG_FS)
+> >         .debugfs_init = qxl_debugfs_init,
+> >  #endif
+> > -       .prime_handle_to_fd = drm_gem_prime_handle_to_fd,
+> > -       .prime_fd_to_handle = drm_gem_prime_fd_to_handle,
+> >         .gem_prime_export = drm_gem_prime_export,
+> >         .gem_prime_import = drm_gem_prime_import,
+> >         .gem_prime_pin = qxl_gem_prime_pin,
+> >         .gem_prime_unpin = qxl_gem_prime_unpin,
+> > -       .gem_prime_get_sg_table = qxl_gem_prime_get_sg_table,
+> > -       .gem_prime_import_sg_table = qxl_gem_prime_import_sg_table,
+> >         .gem_prime_vmap = qxl_gem_prime_vmap,
+> >         .gem_prime_vunmap = qxl_gem_prime_vunmap,
+> >         .gem_prime_mmap = qxl_gem_prime_mmap,
+> > diff --git a/drivers/gpu/drm/qxl/qxl_prime.c b/drivers/gpu/drm/qxl/qxl_prime.c
+> > index a55dece118..df65d3c1a7 100644
+> > --- a/drivers/gpu/drm/qxl/qxl_prime.c
+> > +++ b/drivers/gpu/drm/qxl/qxl_prime.c
+> > @@ -38,20 +38,6 @@ void qxl_gem_prime_unpin(struct drm_gem_object *obj)
+> >         WARN_ONCE(1, "not implemented");
+> >  }
+> >
+> > -struct sg_table *qxl_gem_prime_get_sg_table(struct drm_gem_object *obj)
+> > -{
+> > -       WARN_ONCE(1, "not implemented");
+> > -       return ERR_PTR(-ENOSYS);
+> > -}
+> > -
+> > -struct drm_gem_object *qxl_gem_prime_import_sg_table(
+> > -       struct drm_device *dev, struct dma_buf_attachment *attach,
+> > -       struct sg_table *table)
+> > -{
+> > -       WARN_ONCE(1, "not implemented");
+> > -       return ERR_PTR(-ENOSYS);
+> > -}
+> > -
+> >  void *qxl_gem_prime_vmap(struct drm_gem_object *obj)
+> >  {
+> >         WARN_ONCE(1, "not implemented");
+> > --
+> > 2.9.3
+> >
+> > _______________________________________________
+> > dri-devel mailing list
+> > dri-devel@lists.freedesktop.org
+> > https://lists.freedesktop.org/mailman/listinfo/dri-devel
