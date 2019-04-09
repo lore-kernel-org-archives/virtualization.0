@@ -1,18 +1,14 @@
-From: Gerd Hoffmann <kraxel@redhat.com>
-Subject: Re: [PATCH] drm/qxl: drop prime import/export callbacks
-Date: Tue, 9 Apr 2019 10:47:19 +0200
-Message-ID: <20190409084719.qaiq5pyigfezroni__30855.2845310018$1554799651$gmane$org@sirius.home.kraxel.org>
-References: <20190110081750.11358-1-kraxel@redhat.com>
-	<CAPM=9tx8N6jxVzsT-RqtQFrFb9qLK4qUUje+d=fpTYZ6+PnYpg@mail.gmail.com>
-	<CAPM=9tyEmn2LXhNmPSOi7JAgBc3QZwNtM+8FT8CWebz4GztaJA@mail.gmail.com>
-	<20190409060323.xrw3fwj3yvcxsx3t@sirius.home.kraxel.org>
-	<CAMwc25q-7rfR=31R=FEVC47z2HvDK5xN+aOKqq00yoXSpudusQ@mail.gmail.com>
+From: Jason Wang <jasowang@redhat.com>
+Subject: Re: [PATCH] virtio: Honour 'may_reduce_num' in vring_create_virtqueue
+Date: Tue, 9 Apr 2019 17:00:59 +0800
+Message-ID: <9b3d1789-33e1-3ad5-18cd-cacefec8bbb2__45382.8904124507$1554800477$gmane$org@redhat.com>
+References: <20190408123322.24086-1-cohuck@redhat.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset="utf-8"; Format="flowed"
+Content-Transfer-Encoding: base64
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-Content-Disposition: inline
-In-Reply-To: <CAMwc25q-7rfR=31R=FEVC47z2HvDK5xN+aOKqq00yoXSpudusQ@mail.gmail.com>
+In-Reply-To: <20190408123322.24086-1-cohuck@redhat.com>
+Content-Language: en-US
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -22,27 +18,48 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: David Airlie <airlied@redhat.com>
-Cc: David Airlie <airlied@linux.ie>, "open list:DRM DRIVER FOR QXL VIRTUAL GPU" <spice-devel@lists.freedesktop.org>, open list <linux-kernel@vger.kernel.org>, dri-devel <dri-devel@lists.freedesktop.org>, "open list:DRM DRIVER FOR QXL VIRTUAL GPU" <virtualization@lists.linux-foundation.org>
+To: Cornelia Huck <cohuck@redhat.com>, "Michael S . Tsirkin" <mst@redhat.com>
+Cc: Halil Pasic <pasic@linux.ibm.com>, stable@vger.kernel.org, linux-kernel@vger.kernel.org, kvm@vger.kernel.org, virtualization@lists.linux-foundation.org
 List-Id: virtualization@lists.linuxfoundation.org
 
-  Hi,
-
-> > Should we add something like DRM_PRIME_CAP_SAME_DEVICE?
-> 
-> Yeah I expect we need some sort of same device only capability, so
-> that dri3 userspace can work.
-> 
-> If we just fail importing in these cases what happens? userspace just
-> gets confused, I know we used to print a backtrace if we hit the mmap
-> path, but if we didn't do that what happens?
-
-Well, we printed a backtrace and returned -EINVAL.  So it looked a bit
-scary due to the backtrace which is usually printed for more serious
-problems.  But we also returned a proper error code.
-
-Userspace was not happy.  It was wayland (gnome-shell) which ran into it
-it, and it didn't came up with a working display.
-
-cheers,
-  Gerd
+Ck9uIDIwMTkvNC84IOS4i+WNiDg6MzMsIENvcm5lbGlhIEh1Y2sgd3JvdGU6Cj4gdnJpbmdfY3Jl
+YXRlX3ZpcnRxdWV1ZSgpIGFsbG93cyB0aGUgY2FsbGVyIHRvIHNwZWNpZnkgdmlhIHRoZQo+IG1h
+eV9yZWR1Y2VfbnVtIHBhcmFtZXRlciB3aGV0aGVyIHRoZSB2cmluZyBjb2RlIGlzIGFsbG93ZWQg
+dG8KPiBhbGxvY2F0ZSBhIHNtYWxsZXIgcmluZyB0aGFuIHNwZWNpZmllZC4KPgo+IEhvd2V2ZXIs
+IHRoZSBzcGxpdCByaW5nIGFsbG9jYXRpb24gY29kZSB0cmllcyB0byBhbGxvY2F0ZSBhCj4gc21h
+bGxlciByaW5nIG9uIGFsbG9jYXRpb24gZmFpbHVyZSByZWdhcmRsZXNzIG9mIHdoYXQgdGhlCj4g
+Y2FsbGVyIHNwZWNpZmllZC4gVGhpcyBtYXkgY2F1c2UgdHJvdWJsZSBmb3IgZS5nLiB2aXJ0aW8t
+cGNpCj4gaW4gbGVnYWN5IG1vZGUsIHdoaWNoIGRvZXMgbm90IHN1cHBvcnQgcmluZyByZXNpemlu
+Zy4gKFRoZQo+IHBhY2tlZCByaW5nIGNvZGUgZG9lcyBub3QgcmVzaXplIGluIGFueSBjYXNlLikK
+Pgo+IExldCdzIGZpeCB0aGlzIGJ5IGJhaWxpbmcgb3V0IGltbWVkaWF0ZWx5IGluIHRoZSBzcGxp
+dCByaW5nIGNvZGUKPiBpZiB0aGUgcmVxdWVzdGVkIHNpemUgY2Fubm90IGJlIGFsbG9jYXRlZCBh
+bmQgbWF5X3JlZHVjZV9udW0gaGFzCj4gbm90IGJlZW4gc3BlY2lmaWVkLgo+Cj4gV2hpbGUgYXQg
+aXQsIGZpeCBhIHR5cG8gaW4gdGhlIHVzYWdlIGluc3RydWN0aW9ucy4KPgo+IEZpeGVzOiAyYTJk
+MTM4MmZlOWQgKCJ2aXJ0aW86IEFkZCBpbXByb3ZlZCBxdWV1ZSBhbGxvY2F0aW9uIEFQSSIpCj4g
+Q2M6IHN0YWJsZUB2Z2VyLmtlcm5lbC5vcmcgIyB2NC42Kwo+IFNpZ25lZC1vZmYtYnk6IENvcm5l
+bGlhIEh1Y2sgPGNvaHVja0ByZWRoYXQuY29tPgo+IC0tLQo+ICAgZHJpdmVycy92aXJ0aW8vdmly
+dGlvX3JpbmcuYyB8IDIgKysKPiAgIGluY2x1ZGUvbGludXgvdmlydGlvX3JpbmcuaCAgfCAyICst
+Cj4gICAyIGZpbGVzIGNoYW5nZWQsIDMgaW5zZXJ0aW9ucygrKSwgMSBkZWxldGlvbigtKQo+Cj4g
+ZGlmZiAtLWdpdCBhL2RyaXZlcnMvdmlydGlvL3ZpcnRpb19yaW5nLmMgYi9kcml2ZXJzL3ZpcnRp
+by92aXJ0aW9fcmluZy5jCj4gaW5kZXggMTg4NDZhZmIzOWRhLi41ZGY5MmMzMDgyODYgMTAwNjQ0
+Cj4gLS0tIGEvZHJpdmVycy92aXJ0aW8vdmlydGlvX3JpbmcuYwo+ICsrKyBiL2RyaXZlcnMvdmly
+dGlvL3ZpcnRpb19yaW5nLmMKPiBAQCAtODgyLDYgKzg4Miw4IEBAIHN0YXRpYyBzdHJ1Y3Qgdmly
+dHF1ZXVlICp2cmluZ19jcmVhdGVfdmlydHF1ZXVlX3NwbGl0KAo+ICAgCQkJCQkgIEdGUF9LRVJO
+RUx8X19HRlBfTk9XQVJOfF9fR0ZQX1pFUk8pOwo+ICAgCQlpZiAocXVldWUpCj4gICAJCQlicmVh
+azsKPiArCQlpZiAoIW1heV9yZWR1Y2VfbnVtKQo+ICsJCQlyZXR1cm4gTlVMTDsKPiAgIAl9Cj4g
+ICAKPiAgIAlpZiAoIW51bSkKPiBkaWZmIC0tZ2l0IGEvaW5jbHVkZS9saW51eC92aXJ0aW9fcmlu
+Zy5oIGIvaW5jbHVkZS9saW51eC92aXJ0aW9fcmluZy5oCj4gaW5kZXggZmFiMDIxMzNhOTE5Li4z
+ZGM3MGFkZmU1ZjUgMTAwNjQ0Cj4gLS0tIGEvaW5jbHVkZS9saW51eC92aXJ0aW9fcmluZy5oCj4g
+KysrIGIvaW5jbHVkZS9saW51eC92aXJ0aW9fcmluZy5oCj4gQEAgLTYzLDcgKzYzLDcgQEAgc3Ry
+dWN0IHZpcnRxdWV1ZTsKPiAgIC8qCj4gICAgKiBDcmVhdGVzIGEgdmlydHF1ZXVlIGFuZCBhbGxv
+Y2F0ZXMgdGhlIGRlc2NyaXB0b3IgcmluZy4gIElmCj4gICAgKiBtYXlfcmVkdWNlX251bSBpcyBz
+ZXQsIHRoZW4gdGhpcyBtYXkgYWxsb2NhdGUgYSBzbWFsbGVyIHJpbmcgdGhhbgo+IC0gKiBleHBl
+Y3RlZC4gIFRoZSBjYWxsZXIgc2hvdWxkIHF1ZXJ5IHZpcnRxdWV1ZV9nZXRfcmluZ19zaXplIHRv
+IGxlYXJuCj4gKyAqIGV4cGVjdGVkLiAgVGhlIGNhbGxlciBzaG91bGQgcXVlcnkgdmlydHF1ZXVl
+X2dldF92cmluZ19zaXplIHRvIGxlYXJuCj4gICAgKiB0aGUgYWN0dWFsIHNpemUgb2YgdGhlIHJp
+bmcuCj4gICAgKi8KPiAgIHN0cnVjdCB2aXJ0cXVldWUgKnZyaW5nX2NyZWF0ZV92aXJ0cXVldWUo
+dW5zaWduZWQgaW50IGluZGV4LAoKCkFja2VkLWJ5OiBKYXNvbiBXYW5nIDxqYXNvd2FuZ0ByZWRo
+YXQuY29tPgoKCl9fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19f
+ClZpcnR1YWxpemF0aW9uIG1haWxpbmcgbGlzdApWaXJ0dWFsaXphdGlvbkBsaXN0cy5saW51eC1m
+b3VuZGF0aW9uLm9yZwpodHRwczovL2xpc3RzLmxpbnV4Zm91bmRhdGlvbi5vcmcvbWFpbG1hbi9s
+aXN0aW5mby92aXJ0dWFsaXphdGlvbg==
