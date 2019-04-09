@@ -1,14 +1,17 @@
-From: "Michael S. Tsirkin" <mst@redhat.com>
-Subject: Re: [PATCH net] vhost: flush dcache page when logging dirty pages
-Date: Tue, 9 Apr 2019 09:14:16 -0400
-Message-ID: <20190409085607-mutt-send-email-mst__2843.75176286034$1554815674$gmane$org@kernel.org>
-References: <20190409041647.21269-1-jasowang@redhat.com>
+From: "Koenig, Christian" <Christian.Koenig@amd.com>
+Subject: Re: [PATCH 00/15] Share TTM code among framebuffer drivers
+Date: Tue, 9 Apr 2019 13:39:23 +0000
+Message-ID: <dd7affb9-4aa0-8f39-8937-e89e7cc8283c@amd.com>
+References: <20190408092144.4548-1-tzimmermann@suse.de>
+	<d69e0b34-c586-2338-b063-fb758b6465d8@amd.com>
+	<096a70a7-ed24-2161-29e9-1907221b8a64@suse.de>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset="utf-8"
+Content-Transfer-Encoding: base64
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-Content-Disposition: inline
-In-Reply-To: <20190409041647.21269-1-jasowang@redhat.com>
+In-Reply-To: <096a70a7-ed24-2161-29e9-1907221b8a64@suse.de>
+Content-Language: en-US
+Content-ID: <045CC0F37DABE24D9530C57320448507@namprd12.prod.outlook.com>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -18,69 +21,43 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Jason Wang <jasowang@redhat.com>
-Cc: Andrea Arcangeli <aarcange@redhat.com>, James Bottomley <James.Bottomley@hansenpartnership.com>, kvm@vger.kernel.org, netdev@vger.kernel.org, linux-kernel@vger.kernel.org, virtualization@lists.linux-foundation.org, Christoph Hellwig <hch@infradead.org>
+To: Thomas Zimmermann <tzimmermann@suse.de>, "daniel@ffwll.ch" <daniel@ffwll.ch>, "airlied@linux.ie" <airlied@linux.ie>, "kraxel@redhat.com" <kraxel@redhat.com>, "Huang, Ray" <Ray.Huang@amd.com>, "Zhang, Jerry" <Jerry.Zhang@amd.com>, "hdegoede@redhat.com" <hdegoede@redhat.com>, "z.liuxinliang@hisilicon.com" <z.liuxinliang@hisilicon.com>, "zourongrong@gmail.com" <zourongrong@gmail.com>, "kong.kongxinwei@hisilicon.com" <kong.kongxinwei@hisilicon.com>, "puck.chen@hisilicon.com" <puck.chen@hisilicon.com>
+Cc: "dri-devel@lists.freedesktop.org" <dri-devel@lists.freedesktop.org>, "virtualization@lists.linux-foundation.org" <virtualization@lists.linux-foundation.org>
 List-Id: virtualization@lists.linuxfoundation.org
 
-On Tue, Apr 09, 2019 at 12:16:47PM +0800, Jason Wang wrote:
-> We set dirty bit through setting up kmaps and access them through
-> kernel virtual address, this may result alias in virtually tagged
-> caches that require a dcache flush afterwards.
-> 
-> Cc: Christoph Hellwig <hch@infradead.org>
-> Cc: James Bottomley <James.Bottomley@HansenPartnership.com>
-> Cc: Andrea Arcangeli <aarcange@redhat.com>
-> Fixes: 3a4d5c94e9593 ("vhost_net: a kernel-level virtio server")
-
-This is like saying "everyone with vhost needs this".
-In practice only might affect some architectures.
-Which ones? You want to Cc the relevant maintainers
-who understand this...
-
-> Signed-off-by: Jason Wang <jasowang@redhat.com>
-
-I am not sure this is a good idea.
-The region in question is supposed to be accessed
-by userspace at the same time, through atomic operations.
-
-How do we know userspace didn't access it just before?
-
-Is that an issue at all given we use
-atomics for access? Documentation/core-api/cachetlb.rst does
-not mention atomics.
-Which architectures are affected?
-Assuming atomics actually do need a flush, then don't we need
-a flush in the other direction too? How are atomics
-supposed to work at all?
-
-
-I really think we need new APIs along the lines of
-set_bit_to_user.
-
-> ---
->  drivers/vhost/vhost.c | 1 +
->  1 file changed, 1 insertion(+)
-> 
-> diff --git a/drivers/vhost/vhost.c b/drivers/vhost/vhost.c
-> index 351af88231ad..34a1cedbc5ba 100644
-> --- a/drivers/vhost/vhost.c
-> +++ b/drivers/vhost/vhost.c
-> @@ -1711,6 +1711,7 @@ static int set_bit_to_user(int nr, void __user *addr)
->  	base = kmap_atomic(page);
->  	set_bit(bit, base);
->  	kunmap_atomic(base);
-> +	flush_dcache_page(page);
->  	set_page_dirty_lock(page);
->  	put_page(page);
->  	return 0;
-
-Ignoring the question of whether this actually helps, I doubt
-flush_dcache_page is appropriate here.  Pls take a look at
-Documentation/core-api/cachetlb.rst as well as the actual
-implementation.
-
-I think you meant flush_kernel_dcache_page, and IIUC it must happen
-before kunmap, not after (which you still have the va locked).
-
-> -- 
-> 2.19.1
+QW0gMDguMDQuMTkgdW0gMTM6NTkgc2NocmllYiBUaG9tYXMgWmltbWVybWFubjoNCltTTklQXQ0K
+PiBJZiBub3QgZm9yIFRUTSwgd2hhdCB3b3VsZCBiZSB0aGUgYWx0ZXJuYXRpdmU/IE9uZSBWTUEg
+bWFuYWdlciBwZXINCj4gbWVtb3J5IHJlZ2lvbiBwZXIgZGV2aWNlPw0KDQpTaW5jZSBldmVyeWJv
+ZHkgdml0YWwgc2VlbXMgdG8gYmUgb24gdGhpcyBtYWlsIHRocmVhZCBhbnl3YXksIGxldCdzIHVz
+ZSANCml0IGEgYml0IGZvciBicmFpbiBzdG9ybWluZyB3aGF0IGEgcG9zc2libGUgcmVwbGFjZW1l
+bnQgZm9yIFRUTSBzaG91bGQgDQpsb29rIGxpa2UuDQoNCldlbGwgZm9yIHNpbXBsZSBkcml2ZXJz
+IGxpa2UgcWVtdS9ib2NocyBhbmQgY2lycnVzIHRoZSBhbnN3ZXIgaXMgdG8gbm90IA0KdXNlIGl0
+IGF0IGFsbC4gRS5nLiBWUkFNIGlzIG9ubHkgdXNlZCBmb3Igc2Nhbm91dCBhbmQgdW5wcml2aWxl
+Z2VkIA0KdXNlcnNwYWNlIHNob3VsZCBub3QgbWVzcyB3aXRoIGl0IGF0IGFsbC4gSW4gdGhpcyBj
+YXNlIHdlIGRvbid0IG5lZWQgDQpkeW5hbWljIGV2aWN0aW9uIGFuZCBzbyBhbHNvIGRvbid0IG5l
+ZWQgVFRNLg0KDQpUaGF0IGxlYXZlcyB1cyB3aXRoIHRoZSBtb3JlIGNvbXBsZXggZHJpdmVycywg
+bGlrZSByYWRlb24sIGFtZGdwdSwgDQpub3V2ZXUgYW5kIG1heWJlIHNvbWUgb2YgdGhlIEFSTSBi
+YXNlZCBzdHVmZiwgd2l0aCB2bXdnZnggYmVpbmcgYSBiaXQgDQpzcGVjaWFsIGhlcmUuDQoNCk5v
+dyBJIGNhbiBzdW1tYXJpemUgdGhlIHJlcXVpcmVtZW50cyBmb3IgYXQgbGVhc3QgdGhlIGFtZGdw
+dSBpbiB0aGUgDQpmb2xsb3dpbmcgd2F5Og0KMS4gV2UgbmVlZCB0byBiZSBhYmxlIHRvIGFsbG9j
+YXRlIG1lbW9yeSBvYmplY3RzIGluIGRpZmZlcmVudCBsb2NhdGlvbnMuDQoyLiBXZSBuZWVkIHRv
+IGJlIGFibGUgdG8gbW92ZSBhcm91bmQgbWVtb3J5IG9iamVjdHMgYmV0d2VlbiBkaWZmZXJlbnQg
+DQpsb2NhdGlvbnMuDQozLiBXZSBuZWVkIHNvbWUgTFJVIGNvbXBvbmVudCB3aGljaCB0ZWxscyB1
+cyB3aGF0IHRvIGV2aWN0IHdoZW4gbWVtb3J5IA0KaW4gYSBsb2NhdGlvbiBiZWNvbWVzIHRvIHRp
+Z2h0Lg0KDQpOb3cgZm9yIGxlc3NvbnMgbGVhcm5lZCB3ZSBzaG91bGQgYXQgbGVhc3QgYXZvaWQg
+dGhlIGZvbGxvd2luZyBkZXNpZ24gDQpwaXRmYWxsczoNCkEpIERPTidUIG1ha2UgaXQgYSBsYXll
+cmVkIGRlc2lnbiEgTGF5ZXJzIGFyZSBmb3IgbWFraW5nIGNha2UsIG5vdCBzb2Z0d2FyZS4NCg0K
+QikgRE9OJ1QgbWFrZSBpdCBhICJFaWVybGVnZW5kZSBXb2xsbWlsY2hzYXUiIChHZXJtYW4gc2F5
+aW5nKS4gRS5nLiANCmRvbid0IHRyeSB0byBzb2x2ZSBldmVyeSBzaW5nbGUgY29ybmVyIGNhc2Vz
+IGluIG9uZSBwaWVjZSBvZiBzb2Z0d2FyZS4NCiDCoMKgwqAgTGV0J3MgbWFrZSBjb21wb25lbnRz
+IHdoaWNoIHNvbHZlIG9uZSBzcGVjaWZpYyBwcm9ibGVtLg0KDQpDKSBQaXBlbGluZSBldmVyeXRo
+aW5nISBFLmcuIHRoZSBoYXJkd2FyZSB3ZSBkZWFsIHdpdGggaXMgYXN5bmNocm9ub3VzIA0KYnkg
+ZGVzaWduLiBCbG9ja2luZyBmb3IgdGhlIGhhcmR3YXJlIHRvIGZpbmlzaCBpbiB0aGUgY29tbW9u
+IGNvbXBvbmVudHMgDQppdHNlbGYgaXMgYW4gYWJzb2x1dGVseSBuby1nby4NCiDCoMKgwqAgSWYg
+YSBkcml2ZXIgd2FudHMgdG8gZG8gc29tZXRoaW5nIHN5bmNocm9ub3VzIGl0IHNob3VsZCB3YWl0
+IGl0c2VsZi4NCg0KVGhvc2UgY29tbWVudHMgd2hlcmUgbm90IHJlYWxseSBpbnRlbmRlZCBmb3Ig
+eW91IFRob21hcywgYnV0IEkgaGFkIHRvIA0Kd3JpdGUgdGhlbSBkb3duIHNvbWV3aGVyZSA6KQ0K
+DQpSZWdhcmRzLA0KQ2hyaXN0aWFuLg0KDQpfX19fX19fX19fX19fX19fX19fX19fX19fX19fX19f
+X19fX19fX19fX19fX19fXwpWaXJ0dWFsaXphdGlvbiBtYWlsaW5nIGxpc3QKVmlydHVhbGl6YXRp
+b25AbGlzdHMubGludXgtZm91bmRhdGlvbi5vcmcKaHR0cHM6Ly9saXN0cy5saW51eGZvdW5kYXRp
+b24ub3JnL21haWxtYW4vbGlzdGluZm8vdmlydHVhbGl6YXRpb24=
