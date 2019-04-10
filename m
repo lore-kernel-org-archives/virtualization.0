@@ -1,17 +1,15 @@
-From: Cornelia Huck <cohuck@redhat.com>
-Subject: Re: [RFC PATCH 05/12] s390/cio: add protected virtualization
-	support to cio
-Date: Wed, 10 Apr 2019 10:25:57 +0200
-Message-ID: <20190410102557.1ba89d96.cohuck@redhat.com>
-References: <20190404231622.52531-1-pasic@linux.ibm.com>
-	<20190404231622.52531-6-pasic@linux.ibm.com>
-	<20190409195548.6dea6e40.cohuck@redhat.com>
-	<20190410021044.4da3e847@oc2783563651>
+From: Jan Kara <jack@suse.cz>
+Subject: Re: [PATCH v5 3/6] libnvdimm: add dax_dev sync flag
+Date: Wed, 10 Apr 2019 10:28:04 +0200
+Message-ID: <20190410082804.GG1426__177.422624413737$1554884913$gmane$org@quack2.suse.cz>
+References: <20190410040826.24371-1-pagupta@redhat.com>
+	<20190410040826.24371-4-pagupta@redhat.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <20190410021044.4da3e847@oc2783563651>
+Content-Disposition: inline
+In-Reply-To: <20190410040826.24371-4-pagupta@redhat.com>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -21,64 +19,25 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Halil Pasic <pasic@linux.ibm.com>
-Cc: Vasily Gorbik <gor@linux.ibm.com>, linux-s390@vger.kernel.org, Eric Farman <farman@linux.ibm.com>, Claudio Imbrenda <imbrenda@linux.ibm.com>, kvm@vger.kernel.org, Sebastian Ott <sebott@linux.ibm.com>, Farhan Ali <alifm@linux.ibm.com>, virtualization@lists.linux-foundation.org, Martin Schwidefsky <schwidefsky@de.ibm.com>, Viktor Mihajlovski <mihajlov@linux.ibm.com>, Janosch Frank <frankja@linux.ibm.com>
+To: Pankaj Gupta <pagupta@redhat.com>
+Cc: cohuck@redhat.com, jack@suse.cz, kvm@vger.kernel.org, mst@redhat.com, david@fromorbit.com, qemu-devel@nongnu.org, virtualization@lists.linux-foundation.org, adilger.kernel@dilger.ca, zwisler@kernel.org, aarcange@redhat.com, dave.jiang@intel.com, linux-nvdimm@lists.01.org, vishal.l.verma@intel.com, willy@infradead.org, hch@infradead.org, linux-acpi@vger.kernel.org, jmoyer@redhat.com, linux-ext4@vger.kernel.org, lenb@kernel.org, kilobyte@angband.pl, riel@surriel.com, yuval.shaia@oracle.com, stefanha@redhat.com, pbonzini@redhat.com, dan.j.williams@intel.com, lcapitulino@redhat.com, nilal@redhat.com, tytso@mit.edu, xiaoguangrong.eric@gmail.com, darrick.wong@oracle.com, rjw@rjwysocki.net, linux-kernel@vger.kernel.org, linux-xfs@vger.kernel.org, linux-fsdevel@vger.kernel.org, imammedo@redhat.com
 List-Id: virtualization@lists.linuxfoundation.org
 
-On Wed, 10 Apr 2019 02:10:44 +0200
-Halil Pasic <pasic@linux.ibm.com> wrote:
+On Wed 10-04-19 09:38:23, Pankaj Gupta wrote:
+> @@ -64,6 +65,10 @@ static inline bool dax_write_cache_enabled(struct dax_device *dax_dev)
+>  {
+>  	return false;
+>  }
+> +static inline bool dax_synchronous(struct dax_device *dax_dev)
+> +{
+> +	return true;
+> +}
 
-> On Tue, 9 Apr 2019 19:55:48 +0200
-> Cornelia Huck <cohuck@redhat.com> wrote:
-> 
-> > On Fri,  5 Apr 2019 01:16:15 +0200
-> > Halil Pasic <pasic@linux.ibm.com> wrote:
+Is there a need to define dax_synchronous() for !CONFIG_DAX? Because that
+property of dax device is pretty much undefined and I don't see anything
+needing to call it for !CONFIG_DAX...
 
-> > > Thus we need to make sure any memory that is used for communication with
-> > > the hypervisor is shared.  
-> > 
-> > In this context, does 'hypervisor' always mean 'QEMU/KVM'? If Other
-> > Hypervisors implement protected virtualization, we probably need to
-> > make sure that all common I/O layer control blocks are in the dma area
-> > (including e.g. QDIO), not just what virtio-ccw devices use.
-> >   
-> 
-> Hypervisor could theoretically be something different than QEMU/KVM. Yet,
-> as stated before, this series is about getting virtio-ccw working
-> (modulo the TODOs). 
-
-Sure, just wanted to point it out. If this is "enable the common I/O
-layer, except for QDIO" or so, that would sound fine to me :)
-
-> 
-> [..]
-> 
-> > >    
-> > 
-> > So, this leaves some things I'm not sure about, especially as I do not
-> > know the architecture of this new feature.
-> > 
-> > - This applies only to asynchronously handled things, it seems? So
-> >   things like control blocks modified by stsch/msch/etc does not need
-> >   special treatment?  
-> 
-> I had a feeble attempt at explaining this in the cover letter:
-> 
-> * make sure that virtio-ccw specific stuff uses shared memory when
->   talking to the hypervisor (except communication blocks like ORB, these
->   are handled by the hypervisor)
-> 
-> Unfortunately the last 'hypervisor' was supposed to be 'ultravisor'.
-> 
-> I.e. the ultravisor will take care of exposing the control blocks
-> to the hypervisor (and of changes as well).
-
-Yeah, that "control blocks" or "communication blocks" leaves me a bit
-fuzzy :)
-
-So, what is a high-level summary of areas that need the treatment?
-What I get from looking at the patches so far, it's:
-- stuff that is written by the hypervisor's interrupt injection code:
-  IRB, indicators, etc.
-- buffers that are filled by a channel program: sense, sense id, etc.
-- ccws themselves (because of translation?)
+								Honza
+-- 
+Jan Kara <jack@suse.com>
+SUSE Labs, CR
