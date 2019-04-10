@@ -1,13 +1,15 @@
-From: Cornelia Huck <cohuck@redhat.com>
-Subject: Re: [RFC PATCH 00/12] s390: virtio: support protected virtualization
-Date: Wed, 10 Apr 2019 11:20:48 +0200
-Message-ID: <20190410112048.154c96fc.cohuck@redhat.com>
-References: <20190404231622.52531-1-pasic@linux.ibm.com>
+From: =?UTF-8?Q?Noralf_Tr=c3=b8nnes?= <noralf@tronnes.org>
+Subject: Re: [PATCH v2 1/3] drm: switch drm_fb_memcpy_dstclip to accept
+	__iomem dst
+Date: Wed, 10 Apr 2019 11:42:33 +0200
+Message-ID: <f73b4d2e-1767-3512-0a8a-d447a2f22639__36804.5873286732$1554889390$gmane$org@tronnes.org>
+References: <20190410063815.17062-1-kraxel@redhat.com>
+	<20190410063815.17062-2-kraxel@redhat.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset="utf-8"
+Content-Transfer-Encoding: base64
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <20190404231622.52531-1-pasic@linux.ibm.com>
+In-Reply-To: <20190410063815.17062-2-kraxel@redhat.com>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -17,78 +19,21 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Halil Pasic <pasic@linux.ibm.com>
-Cc: Vasily Gorbik <gor@linux.ibm.com>, linux-s390@vger.kernel.org, Eric Farman <farman@linux.ibm.com>, Claudio Imbrenda <imbrenda@linux.ibm.com>, kvm@vger.kernel.org, Sebastian Ott <sebott@linux.ibm.com>, Farhan Ali <alifm@linux.ibm.com>, virtualization@lists.linux-foundation.org, Martin Schwidefsky <schwidefsky@de.ibm.com>, Viktor Mihajlovski <mihajlov@linux.ibm.com>, Janosch Frank <frankja@linux.ibm.com>
+To: Gerd Hoffmann <kraxel@redhat.com>, dri-devel@lists.freedesktop.org
+Cc: David Airlie <airlied@linux.ie>, open list <linux-kernel@vger.kernel.org>, "open list:DRM DRIVER FOR QEMU'S CIRRUS DEVICE" <virtualization@lists.linux-foundation.org>, Maxime Ripard <maxime.ripard@bootlin.com>, Dave Airlie <airlied@redhat.com>, Sean Paul <sean@poorly.run>
 List-Id: virtualization@lists.linuxfoundation.org
 
-On Fri,  5 Apr 2019 01:16:10 +0200
-Halil Pasic <pasic@linux.ibm.com> wrote:
-
-> Enhanced virtualization protection technology may require the use of
-> bounce buffers for I/O. While support for this was built into the virtio
-> core,  virtio-ccw wasn't changed accordingly.
-> 
-> Thus what needs to be done to bring virtio-ccw up to speed with respect
-> to this is:
-> * use some 'new' common virtio stuff
-> * make sure that virtio-ccw specific stuff uses shared memory when
->   talking to the hypervisor (except communication blocks like ORB, these
->   are handled by the hypervisor)
-> * make sure the DMA API does what is necessary to talk through shared
->   memory if we are a protected virtualization guest.
-> * make sure the common IO layer plays along as well (airqs, sense).
-
-It would be good to have a summary somewhere in the code (or
-Documentation/) as to what needs the dma treatment and what doesn't,
-for later reference. We don't want people to accidentally break things
-(especially if they cannot refer to architecture documentation - or
-will at least some of that be published?)
-
-> 
-> The series is structured in incremental fashion: some of the changes are
-> overridden by following patches. The main reason why is that this is how I
-> developed. But I think it ain't bad for the didactic and we are a bit more
-> flexible with regards to throwing out some of the stuff in the end.
-
-FWIW, I think reshuffling the patches in the next iteration would ease
-review.
-
-> 
-> Important notes:
-> 
-> * This is an early (WIP) RFC that does not add any function to the
->   kernel at his stage, as the ultravisor interactions are left out.
->   The purpose is getting some early feedback ASAP.
-
-I would like some comments from people who have experience with the dma
-api.
-
-> 
-> * In future these patches will depend on some code interacting with the
->   ultravisor (WIP by Vasily and Janosch).
-> 
-> * The s390 names are by no means final, and are not properly explained. Should
->   not hamper understanding too much. If it does please ask.
-> 
-> * The existing naming in the common infrastructure (kernel internal
->   interfaces) is pretty much based on the AMD SEV terminology. Thus the
->   names aren't always perfect. There might be merit to changing these
->   names to more abstract ones. I did not put much thought into that at
->   the current stage.
-
-If we can find some generic names that work well for everyone,
-converting seems like a good idea. But following SEV is not that bad,
-either (you'll probably find more people who have heard about SEV than
-folks familiar with s390 ;)
-
-> 
-> 
-> Testing:
-> 
-> Please use iommu_platform=on for any virtio devices you are going
-> to test this code with (so virtio actually uses the DMA API).
-> 
-> Looking forward to your review or any other type of input.
-
-I have now read through the whole series and commented in some places.
-But I'd really like to see comments from others as well.
+CgpEZW4gMTAuMDQuMjAxOSAwOC4zOCwgc2tyZXYgR2VyZCBIb2ZmbWFubjoKPiBOb3QgYWxsIGFy
+Y2hzIGhhdmUgdGhlIF9faW9fdmlydCgpIG1hY3JvLCBzbyBjaXJydXMgY2FuJ3Qgc2ltcGx5IGNv
+bnZlcnQKPiBwb2ludGVycyB0aGF0IHdheS4gIFRoZSBkcm0gZm9ybWF0IGhlbHBlcnMgaGF2ZSB0
+byB1c2UgbWVtY3B5X3RvaW8oKQo+IGluc3RlYWQuCj4gCj4gVGhpcyBwYXRjaCBtYWtlcyBkcm1f
+ZmJfbWVtY3B5X2RzdGNsaXAoKSBhY2NlcHQgYSBfX2lvbWVtIGRzdCBwb2ludGVyCj4gYW5kIHVz
+ZSBtZW1jcHlfdG9pbygpIGluc3RlYWQgb2YgbWVtY3B5KCkuICBXaXRoIHRoYXQgc2VwYXJhdGlu
+ZyBvdXQgdGhlCj4gbWVtY3B5IGxvb3AgaW50byB0aGUgZHJtX2ZiX21lbWNweV9saW5lcygpIGhl
+bHBlciBpc24ndCB1c2VmdWwgYW55IG1vcmUsCj4gc28gbW92ZSB0aGUgY29kZSBiYWNrIGludG8g
+dGhlIGNhbGxpbmcgZnVuY3RpbnMuCj4gCj4gU2lnbmVkLW9mZi1ieTogR2VyZCBIb2ZmbWFubiA8
+a3JheGVsQHJlZGhhdC5jb20+Cj4gLS0tCgpSZXZpZXdlZC1ieTogTm9yYWxmIFRyw7hubmVzIDxu
+b3JhbGZAdHJvbm5lcy5vcmc+Cl9fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19f
+X19fX19fX19fClZpcnR1YWxpemF0aW9uIG1haWxpbmcgbGlzdApWaXJ0dWFsaXphdGlvbkBsaXN0
+cy5saW51eC1mb3VuZGF0aW9uLm9yZwpodHRwczovL2xpc3RzLmxpbnV4Zm91bmRhdGlvbi5vcmcv
+bWFpbG1hbi9saXN0aW5mby92aXJ0dWFsaXphdGlvbg==
