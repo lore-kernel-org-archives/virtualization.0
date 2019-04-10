@@ -1,16 +1,14 @@
-From: Stefano Garzarella <sgarzare@redhat.com>
-Subject: Re: [PATCH RFC 0/4] vsock/virtio: optimizations to increase the
-	throughput
-Date: Tue, 9 Apr 2019 11:13:00 +0200
-Message-ID: <20190409091300.uozhdyikycb5blmn__39578.4735026368$1555718010$gmane$org@steredhat>
-References: <20190404105838.101559-1-sgarzare@redhat.com>
-	<a98d194d-e257-41ff-82e7-de2d16d2f4d4@redhat.com>
+From: =?UTF-8?Q?Arkadiusz_Mi=c5=9bkiewicz?= <arekm@maven.pl>
+Subject: Re: [PATCH v5 0/6] virtio pmem driver
+Date: Wed, 10 Apr 2019 10:08:15 +0200
+Message-ID: <946ba5b9-62c1-aaec-9ca7-a71e154340db__319.046613161333$1555718021$gmane$org@maven.pl>
+References: <20190410040826.24371-1-pagupta@redhat.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="utf-8"
 Content-Transfer-Encoding: base64
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-Content-Disposition: inline
-In-Reply-To: <a98d194d-e257-41ff-82e7-de2d16d2f4d4@redhat.com>
+In-Reply-To: <20190410040826.24371-1-pagupta@redhat.com>
+Content-Language: pl
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -20,39 +18,17 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Jason Wang <jasowang@redhat.com>
-Cc: kvm@vger.kernel.org, "Michael S. Tsirkin" <mst@redhat.com>, netdev@vger.kernel.org, linux-kernel@vger.kernel.org, virtualization@lists.linux-foundation.org, Stefan Hajnoczi <stefanha@redhat.com>, "David S. Miller" <davem@davemloft.net>
+To: Pankaj Gupta <pagupta@redhat.com>, linux-nvdimm@lists.01.org, linux-kernel@vger.kernel.org, virtualization@lists.linux-foundation.org, kvm@vger.kernel.org, linux-fsdevel@vger.kernel.org, linux-acpi@vger.kernel.org, qemu-devel@nongnu.org, linux-ext4@vger.kernel.org, linux-xfs@vger.kernel.org
+Cc: jack@suse.cz, mst@redhat.com, david@fromorbit.com, lcapitulino@redhat.com, adilger.kernel@dilger.ca, zwisler@kernel.org, aarcange@redhat.com, dave.jiang@intel.com, darrick.wong@oracle.com, vishal.l.verma@intel.com, willy@infradead.org, hch@infradead.org, jmoyer@redhat.com, nilal@redhat.com, lenb@kernel.org, kilobyte@angband.pl, riel@surriel.com, yuval.shaia@oracle.com, stefanha@redhat.com, pbonzini@redhat.com, dan.j.williams@intel.com, tytso@mit.edu, xiaoguangrong.eric@gmail.com, cohuck@redhat.com, rjw@rjwysocki.net, imammedo@redhat.com
 List-Id: virtualization@lists.linuxfoundation.org
 
-T24gTW9uLCBBcHIgMDgsIDIwMTkgYXQgMDI6NDM6MjhQTSArMDgwMCwgSmFzb24gV2FuZyB3cm90
-ZToKPiAKPiBPbiAyMDE5LzQvNCDkuIvljYg2OjU4LCBTdGVmYW5vIEdhcnphcmVsbGEgd3JvdGU6
-Cj4gPiBUaGlzIHNlcmllcyB0cmllcyB0byBpbmNyZWFzZSB0aGUgdGhyb3VnaHB1dCBvZiB2aXJ0
-aW8tdnNvY2sgd2l0aCBzbGlnaHQKPiA+IGNoYW5nZXM6Cj4gPiAgIC0gcGF0Y2ggMS80OiByZWR1
-Y2VzIHRoZSBudW1iZXIgb2YgY3JlZGl0IHVwZGF0ZSBtZXNzYWdlcyBzZW50IHRvIHRoZQo+ID4g
-ICAgICAgICAgICAgICAgdHJhbnNtaXR0ZXIKPiA+ICAgLSBwYXRjaCAyLzQ6IGFsbG93cyB0aGUg
-aG9zdCB0byBzcGxpdCBwYWNrZXRzIG9uIG11bHRpcGxlIGJ1ZmZlcnMsCj4gPiAgICAgICAgICAg
-ICAgICBpbiB0aGlzIHdheSwgd2UgY2FuIHJlbW92ZSB0aGUgcGFja2V0IHNpemUgbGltaXQgdG8K
-PiA+ICAgICAgICAgICAgICAgIFZJUlRJT19WU09DS19ERUZBVUxUX1JYX0JVRl9TSVpFCj4gPiAg
-IC0gcGF0Y2ggMy80OiB1c2VzIFZJUlRJT19WU09DS19NQVhfUEtUX0JVRl9TSVpFIGFzIHRoZSBt
-YXggcGFja2V0IHNpemUKPiA+ICAgICAgICAgICAgICAgIGFsbG93ZWQKPiA+ICAgLSBwYXRjaCA0
-LzQ6IGluY3JlYXNlcyBSWCBidWZmZXIgc2l6ZSB0byA2NCBLaUIgKGFmZmVjdHMgb25seSBob3N0
-LT5ndWVzdCkKPiA+IAo+ID4gUkZDOgo+ID4gICAtIG1heWJlIHBhdGNoIDQgY2FuIGJlIHJlcGxh
-Y2VkIHdpdGggbXVsdGlwbGUgcXVldWVzIHdpdGggZGlmZmVyZW50Cj4gPiAgICAgYnVmZmVyIHNp
-emVzIG9yIHVzaW5nIEVXTUEgdG8gYWRhcHQgdGhlIGJ1ZmZlciBzaXplIHRvIHRoZSB0cmFmZmlj
-Cj4gCj4gCj4gT3IgRVdNQSArIG1lcmdlYWJsZSByeCBidWZmZXIsIGJ1dCBpZiB3ZSBkZWNpZGUg
-dG8gdW5pZnkgdGhlIGRhdGFwYXRoIHdpdGgKPiB2aXJ0aW8tbmV0LCB3ZSBjYW4gcmV1c2UgdGhl
-aXIgY29kZXMuCj4gCj4gCj4gPiAKPiA+ICAgLSBhcyBKYXNvbiBzdWdnZXN0ZWQgaW4gYSBwcmV2
-aW91cyB0aHJlYWQgWzFdIEknbGwgZXZhbHVhdGUgdG8gdXNlCj4gPiAgICAgdmlydGlvLW5ldCBh
-cyB0cmFuc3BvcnQsIGJ1dCBJIG5lZWQgdG8gdW5kZXJzdGFuZCBiZXR0ZXIgaG93IHRvCj4gPiAg
-ICAgaW50ZXJmYWNlIHdpdGggaXQsIG1heWJlIGludHJvZHVjaW5nIHNrX2J1ZmYgaW4gdmlydGlv
-LXZzb2NrLgo+ID4gCj4gPiBBbnkgc3VnZ2VzdGlvbnM/Cj4gCj4gCj4gTXkgdW5kZXJzdGFuZGlu
-ZyBpcyB0aGlzIGlzIG5vdCBhIG11c3QsIGJ1dCBpZiBpdCBtYWtlcyB0aGluZ3MgZWFzaWVyLCB3
-ZQo+IGNhbiBkbyB0aGlzLgoKSG9wZWZ1bGx5IGl0IHNob3VsZCBzaW1wbGlmeSB0aGUgbWFpbnRh
-aW5hYmlsaXR5IGFuZCBhdm9pZCBkdXBsaWNhdGVkIGNvZGUuCgo+IAo+IEFub3RoZXIgdGhpbmcg
-dGhhdCBtYXkgaGVscCBpcyB0byBpbXBsZW1lbnQgc2VuZHBhZ2UoKSwgd2hpY2ggd2lsbCBncmVh
-dGx5Cj4gaW1wcm92ZSB0aGUgcGVyZm9ybWFuY2UuCgpUaGFua3MgZm9yIHlvdXIgc3VnZ2VzdGlv
-bnMhCkknbGwgdHJ5IHRvIGltcGxlbWVudCBzZW5kcGFnZSgpIGluIFZTT0NLIHRvIG1lYXN1cmUg
-dGhlIGltcHJvdmVtZW50LgoKQ2hlZXJzLApTdGVmYW5vCl9fX19fX19fX19fX19fX19fX19fX19f
-X19fX19fX19fX19fX19fX19fX19fX19fClZpcnR1YWxpemF0aW9uIG1haWxpbmcgbGlzdApWaXJ0
-dWFsaXphdGlvbkBsaXN0cy5saW51eC1mb3VuZGF0aW9uLm9yZwpodHRwczovL2xpc3RzLmxpbnV4
-Zm91bmRhdGlvbi5vcmcvbWFpbG1hbi9saXN0aW5mby92aXJ0dWFsaXphdGlvbg==
+T24gMTAvMDQvMjAxOSAwNjowOCwgUGFua2FqIEd1cHRhIHdyb3RlOgo+ICBUaGlzIHBhdGNoIHNl
+cmllcyBoYXMgaW1wbGVtZW50YXRpb24gZm9yICJ2aXJ0aW8gcG1lbSIuIAo+ICAidmlydGlvIHBt
+ZW0iIGlzIGZha2UgcGVyc2lzdGVudCBtZW1vcnkobnZkaW1tKSBpbiBndWVzdCAKPiAgd2hpY2gg
+YWxsb3dzIHRvIGJ5cGFzcyB0aGUgZ3Vlc3QgcGFnZSBjYWNoZS4gVGhpcyBhbHNvCgpXaWxsIGtl
+cm5lbCBwc3RvcmUgYmUgYWJsZSB0byB1c2UgdGhpcyBwZXJzaXN0ZW50IG1lbW9yeSBmb3Igc3Rv
+cmluZwpjcmFzaCBkdW1wcz8KCi0tIApBcmthZGl1c3ogTWnFm2tpZXdpY3osIGFyZWttIC8gKCBt
+YXZlbi5wbCB8IHBsZC1saW51eC5vcmcgKQpfX19fX19fX19fX19fX19fX19fX19fX19fX19fX19f
+X19fX19fX19fX19fX19fXwpWaXJ0dWFsaXphdGlvbiBtYWlsaW5nIGxpc3QKVmlydHVhbGl6YXRp
+b25AbGlzdHMubGludXgtZm91bmRhdGlvbi5vcmcKaHR0cHM6Ly9saXN0cy5saW51eGZvdW5kYXRp
+b24ub3JnL21haWxtYW4vbGlzdGluZm8vdmlydHVhbGl6YXRpb24=
