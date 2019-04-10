@@ -1,15 +1,13 @@
-From: =?UTF-8?Q?Noralf_Tr=c3=b8nnes?= <noralf@tronnes.org>
-Subject: Re: [PATCH v2 3/3] drm: switch drm_fb_xrgb8888_to_rgb888_dstclip to
-	accept __iomem dst
-Date: Wed, 10 Apr 2019 11:45:00 +0200
-Message-ID: <cb9f6d26-b169-1872-7d52-584d3f1daf62__24635.1929892384$1554889537$gmane$org@tronnes.org>
-References: <20190410063815.17062-1-kraxel@redhat.com>
-	<20190410063815.17062-4-kraxel@redhat.com>
+From: Gerd Hoffmann <kraxel@redhat.com>
+Subject: [PATCH 1/3] virtio-gpu api: comment feature flags
+Date: Wed, 10 Apr 2019 13:42:25 +0200
+Message-ID: <20190410114227.25846-2-kraxel__38409.5550210745$1554896581$gmane$org@redhat.com>
+References: <20190410114227.25846-1-kraxel@redhat.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="utf-8"
-Content-Transfer-Encoding: base64
+Content-Type: text/plain; charset="us-ascii"
+Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <20190410063815.17062-4-kraxel@redhat.com>
+In-Reply-To: <20190410114227.25846-1-kraxel@redhat.com>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -19,20 +17,41 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Gerd Hoffmann <kraxel@redhat.com>, dri-devel@lists.freedesktop.org
-Cc: David Airlie <airlied@linux.ie>, open list <linux-kernel@vger.kernel.org>, "open list:DRM DRIVER FOR QEMU'S CIRRUS DEVICE" <virtualization@lists.linux-foundation.org>, Maxime Ripard <maxime.ripard@bootlin.com>, Dave Airlie <airlied@redhat.com>, Sean Paul <sean@poorly.run>
+To: dri-devel@lists.freedesktop.org, virtio@lists.oasis-open.org
+Cc: Tomeu Vizoso <tomeu.vizoso@collabora.com>, "Michael S. Tsirkin" <mst@redhat.com>, David Airlie <airlied@linux.ie>, open list <linux-kernel@vger.kernel.org>, Gurchetan Singh <gurchetansingh@chromium.org>, =?UTF-8?q?Marc-Andr=C3=A9=20Lureau?= <marcandre.lureau@gmail.com>, David Airlie <airlied@redhat.com>, "open list:VIRTIO CORE,
+	NET AND BLOCK DRIVERS" <virtualization@lists.linux-foundation.org>
 List-Id: virtualization@lists.linuxfoundation.org
 
-CgpEZW4gMTAuMDQuMjAxOSAwOC4zOCwgc2tyZXYgR2VyZCBIb2ZmbWFubjoKPiBOb3QgYWxsIGFy
-Y2hzIGhhdmUgdGhlIF9faW9fdmlydCgpIG1hY3JvLCBzbyBjaXJydXMgY2FuJ3Qgc2ltcGx5IGNv
-bnZlcnQKPiBwb2ludGVycyB0aGF0IHdheS4gIFRoZSBkcm0gZm9ybWF0IGhlbHBlcnMgaGF2ZSB0
-byB1c2UgbWVtY3B5X3RvaW8oKQo+IGluc3RlYWQuCj4gCj4gVGhpcyBwYXRjaCBtYWtlcyBkcm1f
-ZmJfeHJnYjg4ODhfdG9fcmdiODg4X2RzdGNsaXAoKSBhY2NlcHQgYSBfX2lvbWVtCj4gZHN0IHBv
-aW50ZXIgYW5kIHVzZSBtZW1jcHlfdG9pbygpIGluc3RlYWQgb2YgbWVtY3B5KCkuICBUaGUgaGVs
-cGVyCj4gZnVuY3Rpb24gKGRybV9mYl94cmdiODg4OF90b19yZ2I4ODhfbGluZSkgaGFzIGJlZW4g
-Y2hhbmdlZCB0byBwcm9jZXNzIGEKPiBzaW5nbGUgc2NhbmxpbmUuCj4gCj4gU2lnbmVkLW9mZi1i
-eTogR2VyZCBIb2ZmbWFubiA8a3JheGVsQHJlZGhhdC5jb20+Cj4gLS0tCgpSZXZpZXdlZC1ieTog
-Tm9yYWxmIFRyw7hubmVzIDxub3JhbGZAdHJvbm5lcy5vcmc+Cl9fX19fX19fX19fX19fX19fX19f
-X19fX19fX19fX19fX19fX19fX19fX19fX19fClZpcnR1YWxpemF0aW9uIG1haWxpbmcgbGlzdApW
-aXJ0dWFsaXphdGlvbkBsaXN0cy5saW51eC1mb3VuZGF0aW9uLm9yZwpodHRwczovL2xpc3RzLmxp
-bnV4Zm91bmRhdGlvbi5vcmcvbWFpbG1hbi9saXN0aW5mby92aXJ0dWFsaXphdGlvbg==
+Add comments to the existing feature flags,
+documenting which commands belong to them.
+
+Signed-off-by: Gerd Hoffmann <kraxel@redhat.com>
+---
+ include/uapi/linux/virtio_gpu.h | 12 ++++++++++--
+ 1 file changed, 10 insertions(+), 2 deletions(-)
+
+diff --git a/include/uapi/linux/virtio_gpu.h b/include/uapi/linux/virtio_gpu.h
+index 8e88eba1fa7a..0c85914d9369 100644
+--- a/include/uapi/linux/virtio_gpu.h
++++ b/include/uapi/linux/virtio_gpu.h
+@@ -40,8 +40,16 @@
+ 
+ #include <linux/types.h>
+ 
+-#define VIRTIO_GPU_F_VIRGL 0
+-#define VIRTIO_GPU_F_EDID  1
++/*
++ * VIRTIO_GPU_CMD_CTX_*
++ * VIRTIO_GPU_CMD_*_3D
++ */
++#define VIRTIO_GPU_F_VIRGL               0
++
++/*
++ * VIRTIO_GPU_CMD_GET_EDID
++ */
++#define VIRTIO_GPU_F_EDID                1
+ 
+ enum virtio_gpu_ctrl_type {
+ 	VIRTIO_GPU_UNDEFINED = 0,
+-- 
+2.18.1
