@@ -1,13 +1,14 @@
-From: Gerd Hoffmann <kraxel@redhat.com>
-Subject: [PATCH 2/3] virtio-gpu api: VIRTIO_GPU_F_MEMORY
-Date: Wed, 10 Apr 2019 13:42:26 +0200
-Message-ID: <20190410114227.25846-3-kraxel__11274.9062058114$1554896602$gmane$org@redhat.com>
-References: <20190410114227.25846-1-kraxel@redhat.com>
+From: Cornelia Huck <cohuck@redhat.com>
+Subject: Re: [PATCH v5 2/5] virtio-pmem: Add virtio pmem driver
+Date: Wed, 10 Apr 2019 14:24:26 +0200
+Message-ID: <20190410142426.5bf0d9a4.cohuck__24676.4136639953$1554899123$gmane$org@redhat.com>
+References: <20190410040826.24371-1-pagupta@redhat.com>
+	<20190410040826.24371-3-pagupta@redhat.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <20190410114227.25846-1-kraxel@redhat.com>
+In-Reply-To: <20190410040826.24371-3-pagupta@redhat.com>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -17,114 +18,211 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: dri-devel@lists.freedesktop.org, virtio@lists.oasis-open.org
-Cc: Tomeu Vizoso <tomeu.vizoso@collabora.com>, "Michael S. Tsirkin" <mst@redhat.com>, David Airlie <airlied@linux.ie>, open list <linux-kernel@vger.kernel.org>, Gurchetan Singh <gurchetansingh@chromium.org>, =?UTF-8?q?Marc-Andr=C3=A9=20Lureau?= <marcandre.lureau@gmail.com>, David Airlie <airlied@redhat.com>, "open list:VIRTIO CORE,
-	NET AND BLOCK DRIVERS" <virtualization@lists.linux-foundation.org>
+To: Pankaj Gupta <pagupta@redhat.com>
+Cc: jack@suse.cz, kvm@vger.kernel.org, mst@redhat.com, david@fromorbit.com, qemu-devel@nongnu.org, virtualization@lists.linux-foundation.org, adilger.kernel@dilger.ca, zwisler@kernel.org, aarcange@redhat.com, dave.jiang@intel.com, linux-nvdimm@lists.01.org, vishal.l.verma@intel.com, willy@infradead.org, hch@infradead.org, linux-acpi@vger.kernel.org, jmoyer@redhat.com, linux-ext4@vger.kernel.org, lenb@kernel.org, kilobyte@angband.pl, riel@surriel.com, yuval.shaia@oracle.com, stefanha@redhat.com, pbonzini@redhat.com, dan.j.williams@intel.com, lcapitulino@redhat.com, nilal@redhat.com, tytso@mit.edu, xiaoguangrong.eric@gmail.com, darrick.wong@oracle.com, rjw@rjwysocki.net, linux-kernel@vger.kernel.org, linux-xfs@vger.kernel.org, linux-fsdevel@vger.kernel.org, imammedo@redhat.com
 List-Id: virtualization@lists.linuxfoundation.org
 
-Introduce the concept of memory regions to virtio-gpu.  Initially only
-memory regions composed of guest pages are supported (pretty much like
-current backing storage for resources).  I expect support for other
-memory types will be added later on.
+On Wed, 10 Apr 2019 09:38:22 +0530
+Pankaj Gupta <pagupta@redhat.com> wrote:
 
-VIRTIO_GPU_CMD_MEMORY_CREATE:
-    creates a new memory region.
+> This patch adds virtio-pmem driver for KVM guest.
+> 
+> Guest reads the persistent memory range information from
+> Qemu over VIRTIO and registers it on nvdimm_bus. It also
+> creates a nd_region object with the persistent memory
+> range information so that existing 'nvdimm/pmem' driver
+> can reserve this into system memory map. This way
+> 'virtio-pmem' driver uses existing functionality of pmem
+> driver to register persistent memory compatible for DAX
+> capable filesystems.
+> 
+> This also provides function to perform guest flush over
+> VIRTIO from 'pmem' driver when userspace performs flush
+> on DAX memory range.
+> 
+> Signed-off-by: Pankaj Gupta <pagupta@redhat.com>
+> ---
+>  drivers/nvdimm/virtio_pmem.c     |  88 ++++++++++++++++++++++
+>  drivers/virtio/Kconfig           |  10 +++
+>  drivers/virtio/Makefile          |   1 +
+>  drivers/virtio/pmem.c            | 124 +++++++++++++++++++++++++++++++
+>  include/linux/virtio_pmem.h      |  60 +++++++++++++++
+>  include/uapi/linux/virtio_ids.h  |   1 +
+>  include/uapi/linux/virtio_pmem.h |  10 +++
+>  7 files changed, 294 insertions(+)
+>  create mode 100644 drivers/nvdimm/virtio_pmem.c
+>  create mode 100644 drivers/virtio/pmem.c
+>  create mode 100644 include/linux/virtio_pmem.h
+>  create mode 100644 include/uapi/linux/virtio_pmem.h
+> 
+(...)
+> diff --git a/drivers/virtio/pmem.c b/drivers/virtio/pmem.c
+> new file mode 100644
+> index 000000000000..cc9de9589d56
+> --- /dev/null
+> +++ b/drivers/virtio/pmem.c
+> @@ -0,0 +1,124 @@
+> +// SPDX-License-Identifier: GPL-2.0
+> +/*
+> + * virtio_pmem.c: Virtio pmem Driver
+> + *
+> + * Discovers persistent memory range information
+> + * from host and registers the virtual pmem device
+> + * with libnvdimm core.
+> + */
+> +#include <linux/virtio_pmem.h>
+> +#include <../../drivers/nvdimm/nd.h>
+> +
+> +static struct virtio_device_id id_table[] = {
+> +	{ VIRTIO_ID_PMEM, VIRTIO_DEV_ANY_ID },
+> +	{ 0 },
+> +};
+> +
+> + /* Initialize virt queue */
+> +static int init_vq(struct virtio_pmem *vpmem)
 
-VIRTIO_GPU_CMD_MEMORY_UNREF:
-    destroys a memory region.
+IMHO, you don't gain much by splitting off this function...
 
-VIRTIO_GPU_CMD_RESOURCE_ATTACH_MEMORY:
-    Use memory region as backing storage for the given resource.
-    The existing VIRTIO_GPU_CMD_RESOURCE_DETACH_BACKING command
-    can be used to detach.
+> +{
+> +	struct virtqueue *vq;
+> +
+> +	/* single vq */
+> +	vpmem->req_vq = vq = virtio_find_single_vq(vpmem->vdev,
+> +				host_ack, "flush_queue");
+> +	if (IS_ERR(vq))
+> +		return PTR_ERR(vq);
 
-Motivation: This separates storage management from resource management.
-It allows memory pooling (vulkan support will most likely need this).
-It makes things a bit more flexible in general, for example we can
-represent gem objects as memory regions even if we don't know the format
-yet (happens on dma-buf import for example).
+I'm personally not a fan of chained assignments... I think I'd just
+drop the 'vq' variable and operate on vpmem->req_vq directly.
 
-Signed-off-by: Gerd Hoffmann <kraxel@redhat.com>
----
- include/uapi/linux/virtio_gpu.h | 38 +++++++++++++++++++++++++++++++++
- 1 file changed, 38 insertions(+)
+> +
+> +	spin_lock_init(&vpmem->pmem_lock);
+> +	INIT_LIST_HEAD(&vpmem->req_list);
+> +
+> +	return 0;
+> +};
+> +
+> +static int virtio_pmem_probe(struct virtio_device *vdev)
+> +{
+> +	int err = 0;
+> +	struct resource res;
+> +	struct virtio_pmem *vpmem;
+> +	struct nvdimm_bus *nvdimm_bus;
+> +	struct nd_region_desc ndr_desc = {};
+> +	int nid = dev_to_node(&vdev->dev);
+> +	struct nd_region *nd_region;
+> +
+> +	if (!vdev->config->get) {
+> +		dev_err(&vdev->dev, "%s failure: config disabled\n",
 
-diff --git a/include/uapi/linux/virtio_gpu.h b/include/uapi/linux/virtio_gpu.h
-index 0c85914d9369..732bb16a39f8 100644
---- a/include/uapi/linux/virtio_gpu.h
-+++ b/include/uapi/linux/virtio_gpu.h
-@@ -51,6 +51,13 @@
-  */
- #define VIRTIO_GPU_F_EDID                1
- 
-+/*
-+ * VIRTIO_GPU_CMD_MEMORY_CREATE
-+ * VIRTIO_GPU_CMD_MEMORY_UNREF
-+ * VIRTIO_GPU_CMD_RESOURCE_ATTACH_MEMORY
-+ */
-+#define VIRTIO_GPU_F_MEMORY              2
-+
- enum virtio_gpu_ctrl_type {
- 	VIRTIO_GPU_UNDEFINED = 0,
- 
-@@ -66,6 +73,9 @@ enum virtio_gpu_ctrl_type {
- 	VIRTIO_GPU_CMD_GET_CAPSET_INFO,
- 	VIRTIO_GPU_CMD_GET_CAPSET,
- 	VIRTIO_GPU_CMD_GET_EDID,
-+	VIRTIO_GPU_CMD_MEMORY_CREATE,
-+	VIRTIO_GPU_CMD_MEMORY_UNREF,
-+	VIRTIO_GPU_CMD_RESOURCE_ATTACH_MEMORY,
- 
- 	/* 3d commands */
- 	VIRTIO_GPU_CMD_CTX_CREATE = 0x0200,
-@@ -95,6 +105,7 @@ enum virtio_gpu_ctrl_type {
- 	VIRTIO_GPU_RESP_ERR_INVALID_RESOURCE_ID,
- 	VIRTIO_GPU_RESP_ERR_INVALID_CONTEXT_ID,
- 	VIRTIO_GPU_RESP_ERR_INVALID_PARAMETER,
-+	VIRTIO_GPU_RESP_ERR_INVALID_MEMORY_ID,
- };
- 
- #define VIRTIO_GPU_FLAG_FENCE (1 << 0)
-@@ -187,6 +198,7 @@ struct virtio_gpu_resource_attach_backing {
- 	struct virtio_gpu_ctrl_hdr hdr;
- 	__le32 resource_id;
- 	__le32 nr_entries;
-+	/* struct virtio_gpu_mem_entry entries follow here */
- };
- 
- /* VIRTIO_GPU_CMD_RESOURCE_DETACH_BACKING */
-@@ -270,6 +282,32 @@ struct virtio_gpu_cmd_submit {
- 	__le32 padding;
- };
- 
-+/* VIRTIO_GPU_CMD_MEMORY_CREATE */
-+struct virtio_gpu_cmd_memory_create {
-+	struct virtio_gpu_ctrl_hdr hdr;
-+	__le64 size;
-+	__le32 memory_id;
-+	__le32 nr_entries;
-+	__le32 flags;
-+	__le32 padding;
-+	/* struct virtio_gpu_mem_entry entries follow here */
-+};
-+
-+/* VIRTIO_GPU_CMD_MEMORY_UNREF */
-+struct virtio_gpu_cmd_memory_unref {
-+	struct virtio_gpu_ctrl_hdr hdr;
-+	__le32 memory_id;
-+	__le32 padding;
-+};
-+
-+/* VIRTIO_GPU_CMD_RESOURCE_ATTACH_MEMORY */
-+struct virtio_gpu_cmd_resource_attach_memory {
-+	struct virtio_gpu_ctrl_hdr hdr;
-+	__le32 resource_id;
-+	__le32 memory_id;
-+	__le64 offset[4];
-+};
-+
- #define VIRTIO_GPU_CAPSET_VIRGL 1
- #define VIRTIO_GPU_CAPSET_VIRGL2 2
- 
--- 
-2.18.1
+Maybe s/config disabled/config access disabled/ ? That seems to be the
+more common message.
+
+> +			__func__);
+> +		return -EINVAL;
+> +	}
+> +
+> +	vdev->priv = vpmem = devm_kzalloc(&vdev->dev, sizeof(*vpmem),
+> +					GFP_KERNEL);
+
+Here, the vpmem variable makes sense for convenience, but I'm again not
+a fan of the chaining :)
+
+> +	if (!vpmem) {
+> +		err = -ENOMEM;
+> +		goto out_err;
+> +	}
+> +
+> +	vpmem->vdev = vdev;
+> +	err = init_vq(vpmem);
+> +	if (err)
+> +		goto out_err;
+> +
+> +	virtio_cread(vpmem->vdev, struct virtio_pmem_config,
+> +			start, &vpmem->start);
+> +	virtio_cread(vpmem->vdev, struct virtio_pmem_config,
+> +			size, &vpmem->size);
+> +
+> +	res.start = vpmem->start;
+> +	res.end   = vpmem->start + vpmem->size-1;
+> +	vpmem->nd_desc.provider_name = "virtio-pmem";
+> +	vpmem->nd_desc.module = THIS_MODULE;
+> +
+> +	vpmem->nvdimm_bus = nvdimm_bus = nvdimm_bus_register(&vdev->dev,
+> +						&vpmem->nd_desc);
+
+And here :)
+
+> +	if (!nvdimm_bus)
+> +		goto out_vq;
+> +
+> +	dev_set_drvdata(&vdev->dev, nvdimm_bus);
+> +
+> +	ndr_desc.res = &res;
+> +	ndr_desc.numa_node = nid;
+> +	ndr_desc.flush = virtio_pmem_flush;
+> +	set_bit(ND_REGION_PAGEMAP, &ndr_desc.flags);
+> +	set_bit(ND_REGION_ASYNC, &ndr_desc.flags);
+> +	nd_region = nvdimm_pmem_region_create(nvdimm_bus, &ndr_desc);
+> +	nd_region->provider_data =  dev_to_virtio
+> +					(nd_region->dev.parent->parent);
+
+Isn't it clear that this parent chain will always end up at &vdev->dev?
+Maybe simply set ->provider_data to vdev directly? (Does it need to
+grab a reference count of the device, BTW?)
+
+> +
+> +	if (!nd_region)
+> +		goto out_nd;
+
+Probably better to do this check before you access nd_region's
+members :)
+
+> +
+> +	return 0;
+> +out_nd:
+> +	err = -ENXIO;
+> +	nvdimm_bus_unregister(nvdimm_bus);
+> +out_vq:
+> +	vdev->config->del_vqs(vdev);
+> +out_err:
+> +	dev_err(&vdev->dev, "failed to register virtio pmem memory\n");
+> +	return err;
+> +}
+> +
+> +static void virtio_pmem_remove(struct virtio_device *vdev)
+> +{
+> +	struct virtio_pmem *vpmem = vdev->priv;
+> +	struct nvdimm_bus *nvdimm_bus = dev_get_drvdata(&vdev->dev);
+> +
+> +	nvdimm_bus_unregister(nvdimm_bus);
+
+I haven't followed this around the nvdimm code, but is the nd_region
+you created during probe cleaned up automatically, or would you need to
+do something here?
+
+> +	vdev->config->del_vqs(vdev);
+> +	vdev->config->reset(vdev);
+> +	kfree(vpmem);
+
+You allocated vpmem via devm_kzalloc; isn't it freed automatically on
+remove?
+
+> +}
+> +
+> +static struct virtio_driver virtio_pmem_driver = {
+> +	.driver.name		= KBUILD_MODNAME,
+> +	.driver.owner		= THIS_MODULE,
+> +	.id_table		= id_table,
+> +	.probe			= virtio_pmem_probe,
+> +	.remove			= virtio_pmem_remove,
+> +};
+> +
+> +module_virtio_driver(virtio_pmem_driver);
+> +MODULE_DEVICE_TABLE(virtio, id_table);
+> +MODULE_DESCRIPTION("Virtio pmem driver");
+> +MODULE_LICENSE("GPL");
+
+Only looked at this from the general virtio driver angle; seems fine
+apart from some easy-to-fix issues and some personal style preference
+things.
