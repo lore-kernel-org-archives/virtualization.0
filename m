@@ -1,15 +1,15 @@
-From: Jason Wang <jasowang@redhat.com>
-Subject: Re: [PATCH net] vhost: flush dcache page when logging dirty pages
-Date: Wed, 10 Apr 2019 15:53:52 +0800
-Message-ID: <b635592f-a2c5-5687-e634-6fcd4f5a1e36__33564.3430984177$1554882865$gmane$org@redhat.com>
-References: <20190409041647.21269-1-jasowang@redhat.com>
-	<20190409085607-mutt-send-email-mst@kernel.org>
+From: Jan Kara <jack@suse.cz>
+Subject: Re: [PATCH v5 4/6] dax: check synchronous mapping is supported
+Date: Wed, 10 Apr 2019 10:25:04 +0200
+Message-ID: <20190410082504.GF1426__36698.1485787377$1554884738$gmane$org@quack2.suse.cz>
+References: <20190410040826.24371-1-pagupta@redhat.com>
+	<20190410040826.24371-5-pagupta@redhat.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="utf-8"; Format="flowed"
-Content-Transfer-Encoding: base64
+Content-Type: text/plain; charset="us-ascii"
+Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <20190409085607-mutt-send-email-mst@kernel.org>
-Content-Language: en-US
+Content-Disposition: inline
+In-Reply-To: <20190410040826.24371-5-pagupta@redhat.com>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -19,67 +19,78 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: "Michael S. Tsirkin" <mst@redhat.com>
-Cc: Andrea Arcangeli <aarcange@redhat.com>, James Bottomley <James.Bottomley@hansenpartnership.com>, kvm@vger.kernel.org, netdev@vger.kernel.org, linux-kernel@vger.kernel.org, Ralf Baechle <ralf@linux-mips.org>, "open list:VIRTIO GPU DRIVER" <virtualization@lists.linux-foundation.org>, Christoph Hellwig <hch@infradead.org>, Linux-MM <linux-mm@kvack.org>, Paul Burton <paul.burton@mips.com>, Paul Mackerras <paulus@samba.org>, Michael Ellerman <mpe@ellerman.id.au>, Benjamin Herrenschmidt <benh@kernel.crashing.org>, James Hogan <jhogan@kernel.org>, linux@armlinux.org.uk, linux-mips@vger.kernel.org, linuxppc-dev@lists.ozlabs.org, linux-arm-kernel@lists.infradead.org
+To: Pankaj Gupta <pagupta@redhat.com>
+Cc: cohuck@redhat.com, jack@suse.cz, kvm@vger.kernel.org, mst@redhat.com, david@fromorbit.com, qemu-devel@nongnu.org, virtualization@lists.linux-foundation.org, adilger.kernel@dilger.ca, zwisler@kernel.org, aarcange@redhat.com, dave.jiang@intel.com, linux-nvdimm@lists.01.org, vishal.l.verma@intel.com, willy@infradead.org, hch@infradead.org, linux-acpi@vger.kernel.org, jmoyer@redhat.com, linux-ext4@vger.kernel.org, lenb@kernel.org, kilobyte@angband.pl, riel@surriel.com, yuval.shaia@oracle.com, stefanha@redhat.com, pbonzini@redhat.com, dan.j.williams@intel.com, lcapitulino@redhat.com, nilal@redhat.com, tytso@mit.edu, xiaoguangrong.eric@gmail.com, darrick.wong@oracle.com, rjw@rjwysocki.net, linux-kernel@vger.kernel.org, linux-xfs@vger.kernel.org, linux-fsdevel@vger.kernel.org, imammedo@redhat.com
 List-Id: virtualization@lists.linuxfoundation.org
 
-Ck9uIDIwMTkvNC85IOS4i+WNiDk6MTQsIE1pY2hhZWwgUy4gVHNpcmtpbiB3cm90ZToKPiBPbiBU
-dWUsIEFwciAwOSwgMjAxOSBhdCAxMjoxNjo0N1BNICswODAwLCBKYXNvbiBXYW5nIHdyb3RlOgo+
-PiBXZSBzZXQgZGlydHkgYml0IHRocm91Z2ggc2V0dGluZyB1cCBrbWFwcyBhbmQgYWNjZXNzIHRo
-ZW0gdGhyb3VnaAo+PiBrZXJuZWwgdmlydHVhbCBhZGRyZXNzLCB0aGlzIG1heSByZXN1bHQgYWxp
-YXMgaW4gdmlydHVhbGx5IHRhZ2dlZAo+PiBjYWNoZXMgdGhhdCByZXF1aXJlIGEgZGNhY2hlIGZs
-dXNoIGFmdGVyd2FyZHMuCj4+Cj4+IENjOiBDaHJpc3RvcGggSGVsbHdpZyA8aGNoQGluZnJhZGVh
-ZC5vcmc+Cj4+IENjOiBKYW1lcyBCb3R0b21sZXkgPEphbWVzLkJvdHRvbWxleUBIYW5zZW5QYXJ0
-bmVyc2hpcC5jb20+Cj4+IENjOiBBbmRyZWEgQXJjYW5nZWxpIDxhYXJjYW5nZUByZWRoYXQuY29t
-Pgo+PiBGaXhlczogM2E0ZDVjOTRlOTU5MyAoInZob3N0X25ldDogYSBrZXJuZWwtbGV2ZWwgdmly
-dGlvIHNlcnZlciIpCj4gVGhpcyBpcyBsaWtlIHNheWluZyAiZXZlcnlvbmUgd2l0aCB2aG9zdCBu
-ZWVkcyB0aGlzIi4KPiBJbiBwcmFjdGljZSBvbmx5IG1pZ2h0IGFmZmVjdCBzb21lIGFyY2hpdGVj
-dHVyZXMuCgoKRm9yIHRoZSBhcmNocyB0aGF0IGRvZXMgbmVlZCBkY2FjaGUgZmx1c2hpbmcsIHRo
-ZSBmdW5jdGlvbiBpcyBqdXN0IGEgbm9wLgoKCj4gV2hpY2ggb25lcz8KCgpUaGVyZSdyZSBtb3Jl
-IHRoYW4gMTAgYXJjaHMgdGhhdCBoYXZlIEFSQ0hfSU1QTEVNRU5UU19GTFVTSF9EQ0FDSEVfUEFH
-RSAKZGVmaW5lZCwganVzdCBjYyBzb21lIG1haW50YWluZXJzIG9mIHNvbWUgbW9yZSBpbmZsdWVu
-Y2VkIG9uZXMuCgoKPiBZb3Ugd2FudCB0byBDYyB0aGUgcmVsZXZhbnQgbWFpbnRhaW5lcnMKPiB3
-aG8gdW5kZXJzdGFuZCB0aGlzLi4uCj4KPj4gU2lnbmVkLW9mZi1ieTogSmFzb24gV2FuZyA8amFz
-b3dhbmdAcmVkaGF0LmNvbT4KPiBJIGFtIG5vdCBzdXJlIHRoaXMgaXMgYSBnb29kIGlkZWEuCj4g
-VGhlIHJlZ2lvbiBpbiBxdWVzdGlvbiBpcyBzdXBwb3NlZCB0byBiZSBhY2Nlc3NlZAo+IGJ5IHVz
-ZXJzcGFjZSBhdCB0aGUgc2FtZSB0aW1lLCB0aHJvdWdoIGF0b21pYyBvcGVyYXRpb25zLgo+Cj4g
-SG93IGRvIHdlIGtub3cgdXNlcnNwYWNlIGRpZG4ndCBhY2Nlc3MgaXQganVzdCBiZWZvcmU/CgoK
-Z2V0X3VzZXJfcGFnZXMoKSB3aWxsIGRvIGJvdGggZmx1c2hfYW5ub25fcGFnZSgpIHRvIG1ha2Ug
-c3VyZSB0aGUgCnVzZXJzcGFjZSB3cml0ZSBpcyB2aXNpYmxlIHRvIGtlcm5lbC4KCgo+Cj4gSXMg
-dGhhdCBhbiBpc3N1ZSBhdCBhbGwgZ2l2ZW4gd2UgdXNlCj4gYXRvbWljcyBmb3IgYWNjZXNzPyBE
-b2N1bWVudGF0aW9uL2NvcmUtYXBpL2NhY2hldGxiLnJzdCBkb2VzCj4gbm90IG1lbnRpb24gYXRv
-bWljcy4KPiBXaGljaCBhcmNoaXRlY3R1cmVzIGFyZSBhZmZlY3RlZD8KPiBBc3N1bWluZyBhdG9t
-aWNzIGFjdHVhbGx5IGRvIG5lZWQgYSBmbHVzaCwgdGhlbiBkb24ndCB3ZSBuZWVkCj4gYSBmbHVz
-aCBpbiB0aGUgb3RoZXIgZGlyZWN0aW9uIHRvbz8gSG93IGFyZSBhdG9taWNzCj4gc3VwcG9zZWQg
-dG8gd29yayBhdCBhbGw/CgoKSXQncyB0aGUgaXNzdWUgb2YgdmlzaWJpbGl0eSwgYXRvbWljIG9w
-ZXJhdGlvbiBpcyBqdXN0IG9uZSBvZiB0aGUgCnBvc3NpYmxlIG9wZXJhdGlvbnMuIElmIHdlIGNh
-biBmaW5hbGx5IG1ha2VzIHRoZSB3cml0ZSB2aXNpYmxlIHRvIGVhY2ggCm90aGVyLCB0aGVyZSB3
-aWxsIGJlIG5vIGlzc3VlLgoKSXQgbG9va3MgdG8gbWUgd2UgY291bGQgc3RpbGwgZW5kIHVwIGFs
-aWFzIGlmIHVzZXJzcGFjZSBpcyBhY2Nlc3NpbmcgdGhlIApkaXJ0eSBsb2cgYmV0d2VlbiBnZXRf
-dXNlcl9wYWdlc19mYXN0KCkgYW5kIGZsdXNoX2RjYWNoZV9wYWdlKCkuIEJ1dCB0aGUgCmZsdXNo
-X2RjYWNoZV9wYWdlKCkgY2FuIGd1YXJhbnRlZSB3aGF0IGtlcm5lbCB3cm90ZSBpcyB2aXNpYmxl
-IHRvIAp1c2Vyc3BhY2UgZmluYWxseSB0aG91Z2ggc29tZSBiaXRzIGNsZWFyZWQgYnkgdXNlcnNw
-YWNlIG1pZ2h0IHN0aWxsIAp0aGVyZS4gV2UgbWF5IGVuZCB1cCB3aXRoIG1vcmUgZGlydHkgcGFn
-ZXMgbm90aWNlZCBieSB1c2Vyc3BhY2Ugd2hpY2ggCnNob3VsZCBiZSBoYXJtbGVzcy4KCgo+Cj4K
-PiBJIHJlYWxseSB0aGluayB3ZSBuZWVkIG5ldyBBUElzIGFsb25nIHRoZSBsaW5lcyBvZgo+IHNl
-dF9iaXRfdG9fdXNlci4KCgpDYW4gd2Ugc2ltcGx5IGRvOgoKZ2V0X3VzZXIoKQoKc2V0IGJpdAoK
-cHV0X3VzZXIoKQoKaW5zdGVhZD8KCgo+Cj4+IC0tLQo+PiAgIGRyaXZlcnMvdmhvc3Qvdmhvc3Qu
-YyB8IDEgKwo+PiAgIDEgZmlsZSBjaGFuZ2VkLCAxIGluc2VydGlvbigrKQo+Pgo+PiBkaWZmIC0t
-Z2l0IGEvZHJpdmVycy92aG9zdC92aG9zdC5jIGIvZHJpdmVycy92aG9zdC92aG9zdC5jCj4+IGlu
-ZGV4IDM1MWFmODgyMzFhZC4uMzRhMWNlZGJjNWJhIDEwMDY0NAo+PiAtLS0gYS9kcml2ZXJzL3Zo
-b3N0L3Zob3N0LmMKPj4gKysrIGIvZHJpdmVycy92aG9zdC92aG9zdC5jCj4+IEBAIC0xNzExLDYg
-KzE3MTEsNyBAQCBzdGF0aWMgaW50IHNldF9iaXRfdG9fdXNlcihpbnQgbnIsIHZvaWQgX191c2Vy
-ICphZGRyKQo+PiAgIAliYXNlID0ga21hcF9hdG9taWMocGFnZSk7Cj4+ICAgCXNldF9iaXQoYml0
-LCBiYXNlKTsKPj4gICAJa3VubWFwX2F0b21pYyhiYXNlKTsKPj4gKwlmbHVzaF9kY2FjaGVfcGFn
-ZShwYWdlKTsKPj4gICAJc2V0X3BhZ2VfZGlydHlfbG9jayhwYWdlKTsKPj4gICAJcHV0X3BhZ2Uo
-cGFnZSk7Cj4+ICAgCXJldHVybiAwOwo+IElnbm9yaW5nIHRoZSBxdWVzdGlvbiBvZiB3aGV0aGVy
-IHRoaXMgYWN0dWFsbHkgaGVscHMsIEkgZG91YnQKPiBmbHVzaF9kY2FjaGVfcGFnZSBpcyBhcHBy
-b3ByaWF0ZSBoZXJlLiAgUGxzIHRha2UgYSBsb29rIGF0Cj4gRG9jdW1lbnRhdGlvbi9jb3JlLWFw
-aS9jYWNoZXRsYi5yc3QgYXMgd2VsbCBhcyB0aGUgYWN0dWFsCj4gaW1wbGVtZW50YXRpb24uCj4K
-PiBJIHRoaW5rIHlvdSBtZWFudCBmbHVzaF9rZXJuZWxfZGNhY2hlX3BhZ2UsIGFuZCBJSVVDIGl0
-IG11c3QgaGFwcGVuCj4gYmVmb3JlIGt1bm1hcCwgbm90IGFmdGVyICh3aGljaCB5b3Ugc3RpbGwg
-aGF2ZSB0aGUgdmEgbG9ja2VkKS4KCgpMb29rcyBsaWtlIHlvdSdyZSByaWdodC4KClRoYW5rcwoK
-Cj4KPj4gLS0gCj4+IDIuMTkuMQpfX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19f
-X19fX19fX19fXwpWaXJ0dWFsaXphdGlvbiBtYWlsaW5nIGxpc3QKVmlydHVhbGl6YXRpb25AbGlz
-dHMubGludXgtZm91bmRhdGlvbi5vcmcKaHR0cHM6Ly9saXN0cy5saW51eGZvdW5kYXRpb24ub3Jn
-L21haWxtYW4vbGlzdGluZm8vdmlydHVhbGl6YXRpb24=
+On Wed 10-04-19 09:38:24, Pankaj Gupta wrote:
+> This patch introduces 'daxdev_mapping_supported' helper
+> which checks if 'MAP_SYNC' is supported with filesystem
+> mapping. It also checks if corresponding dax_device is
+> synchronous. Virtio pmem device is asynchronous and
+> does not not support VM_SYNC. 
+> 
+> Suggested-by: Jan Kara <jack@suse.cz>
+> Signed-off-by: Pankaj Gupta <pagupta@redhat.com>
+> ---
+>  include/linux/dax.h | 23 +++++++++++++++++++++++
+>  1 file changed, 23 insertions(+)
+> 
+> diff --git a/include/linux/dax.h b/include/linux/dax.h
+> index b896706a5ee9..4a2a60ffec86 100644
+> --- a/include/linux/dax.h
+> +++ b/include/linux/dax.h
+> @@ -38,6 +38,24 @@ void kill_dax(struct dax_device *dax_dev);
+>  void dax_write_cache(struct dax_device *dax_dev, bool wc);
+>  bool dax_write_cache_enabled(struct dax_device *dax_dev);
+>  bool dax_synchronous(struct dax_device *dax_dev);
+> +
+> +/*
+> + * Callers check if synchronous mapping is enabled for DAX file
+> + * and attached dax device is also synchronous.
+> + *
+> + * dax_synchronous function verifies if dax device is synchronous.
+> + * Currently, only virtio pmem device supports asynchronous device
+> + * flush.
+> + */
+
+Thanks for the patch! I'd restructure this comment like:
+
+/*
+ * Check if given mapping is supported by the file / underlying device.
+ */
+> +static inline bool daxdev_mapping_supported(struct vm_area_struct *vma,
+> +				struct dax_device *dax_dev)
+> +{
+
+	/* Everyone supports non-sync mappings */
+> +	if (!(vma->vm_flags & VM_SYNC))
+> +		return true;
+	/* Sync mappings are supported only for files using DAX */
+> +	if (!IS_DAX(file_inode(vma->vm_file)))
+> +		return false;
+	/* Underlying device must support persisting through CPU instructions */
+> +	return dax_synchronous(dax_dev);
+> +}
+>  #else
+>  static inline struct dax_device *dax_get_by_host(const char *host)
+>  {
+> @@ -69,6 +87,11 @@ static inline bool dax_synchronous(struct dax_device *dax_dev)
+>  {
+>  	return true;
+>  }
+> +static inline bool daxdev_mapping_supported(struct vm_area_struct *vma,
+> +				struct dax_device *dax_dev)
+> +{
+> +	return true;
+
+This looks wrong. Shouldn't it rather be:
+
+	return !(vma->flags & VM_SYNC);
+
+?
+
+								Honza
+-- 
+Jan Kara <jack@suse.com>
+SUSE Labs, CR
