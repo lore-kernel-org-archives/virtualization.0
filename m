@@ -1,16 +1,18 @@
-From: Pankaj Gupta <pagupta@redhat.com>
-Subject: Re: [PATCH v5 2/5] virtio-pmem: Add virtio pmem driver
-Date: Wed, 10 Apr 2019 11:44:21 -0400 (EDT)
-Message-ID: <1051460502.20833720.1554911061402.JavaMail.zimbra__45719.6598219284$1554911094$gmane$org@redhat.com>
-References: <20190410040826.24371-1-pagupta@redhat.com>
-	<20190410040826.24371-3-pagupta@redhat.com>
-	<20190410142426.5bf0d9a4.cohuck@redhat.com>
-	<20190410143826.GA7856@lap1>
+From: Cornelia Huck <cohuck@redhat.com>
+Subject: Re: [RFC PATCH 04/12] s390/cio: introduce cio DMA pool
+Date: Wed, 10 Apr 2019 18:07:19 +0200
+Message-ID: <20190410180719.17c3469e.cohuck@redhat.com>
+References: <20190404231622.52531-1-pasic@linux.ibm.com>
+	<20190404231622.52531-5-pasic@linux.ibm.com>
+	<20190409124458.348d1ff5.cohuck@redhat.com>
+	<20190409141114.7dcce94a@oc2783563651>
+	<20190409191453.01444317.cohuck@redhat.com>
+	<20190410173148.067555dc@oc2783563651>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <20190410143826.GA7856@lap1>
+In-Reply-To: <20190410173148.067555dc@oc2783563651>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -20,234 +22,61 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Yuval Shaia <yuval.shaia@oracle.com>
-Cc: jack@suse.cz, kvm@vger.kernel.org, mst@redhat.com, david@fromorbit.com, qemu-devel@nongnu.org, virtualization@lists.linux-foundation.org, adilger kernel <adilger.kernel@dilger.ca>, zwisler@kernel.org, aarcange@redhat.com, dave jiang <dave.jiang@intel.com>, linux-nvdimm@lists.01.org, vishal l verma <vishal.l.verma@intel.com>, willy@infradead.org, hch@infradead.org, linux-acpi@vger.kernel.org, jmoyer@redhat.com, linux-ext4@vger.kernel.org, lenb@kernel.org, kilobyte@angband.pl, riel@surriel.com, stefanha@redhat.com, pbonzini@redhat.com, dan j williams <dan.j.williams@intel.com>, lcapitulino@redhat.com, nilal@redhat.com, tytso@mit.edu, xiaoguangrong eric <xiaoguangrong.eric@gmail.com>, Cornelia Huck <cohuck@redhat.com>, rjw@rjwysocki.net, linux-kernel@vger.kernel.org, linux-xfs@vger.kernel.org, linux-fsdevel@vger.kernel.org, imammedo@redhat.com, darrick wong <darrick.wong@>
+To: Halil Pasic <pasic@linux.ibm.com>
+Cc: Vasily Gorbik <gor@linux.ibm.com>, linux-s390@vger.kernel.org, Eric Farman <farman@linux.ibm.com>, Claudio Imbrenda <imbrenda@linux.ibm.com>, kvm@vger.kernel.org, Sebastian Ott <sebott@linux.ibm.com>, Farhan Ali <alifm@linux.ibm.com>, virtualization@lists.linux-foundation.org, Martin Schwidefsky <schwidefsky@de.ibm.com>, Viktor Mihajlovski <mihajlov@linux.ibm.com>, Janosch Frank <frankja@linux.ibm.com>
 List-Id: virtualization@lists.linuxfoundation.org
 
+On Wed, 10 Apr 2019 17:31:48 +0200
+Halil Pasic <pasic@linux.ibm.com> wrote:
 
-> > 
-> > > This patch adds virtio-pmem driver for KVM guest.
+> On Tue, 9 Apr 2019 19:14:53 +0200
+> Cornelia Huck <cohuck@redhat.com> wrote:
+> 
+> [..]
+> 
+> > > > At this point, you're always going via the css0 device. I'm
+> > > > wondering whether you should pass in the cssid here and use
+> > > > css_by_id(cssid) to make this future proof. But then, I'm not
+> > > > quite clear from which context this will be called.      
 > > > 
-> > > Guest reads the persistent memory range information from
-> > > Qemu over VIRTIO and registers it on nvdimm_bus. It also
-> > > creates a nd_region object with the persistent memory
-> > > range information so that existing 'nvdimm/pmem' driver
-> > > can reserve this into system memory map. This way
-> > > 'virtio-pmem' driver uses existing functionality of pmem
-> > > driver to register persistent memory compatible for DAX
-> > > capable filesystems.
+> > > As said before I don't see MCSS-E coming. Regarding the client code,
+> > > please check out the rest of the series. Especially patch 6. 
 > > > 
-> > > This also provides function to perform guest flush over
-> > > VIRTIO from 'pmem' driver when userspace performs flush
-> > > on DAX memory range.
-> > > 
-> > > Signed-off-by: Pankaj Gupta <pagupta@redhat.com>
-> > > ---
-> > >  drivers/nvdimm/virtio_pmem.c     |  88 ++++++++++++++++++++++
-> > >  drivers/virtio/Kconfig           |  10 +++
-> > >  drivers/virtio/Makefile          |   1 +
-> > >  drivers/virtio/pmem.c            | 124 +++++++++++++++++++++++++++++++
-> > >  include/linux/virtio_pmem.h      |  60 +++++++++++++++
-> > >  include/uapi/linux/virtio_ids.h  |   1 +
-> > >  include/uapi/linux/virtio_pmem.h |  10 +++
-> > >  7 files changed, 294 insertions(+)
-> > >  create mode 100644 drivers/nvdimm/virtio_pmem.c
-> > >  create mode 100644 drivers/virtio/pmem.c
-> > >  create mode 100644 include/linux/virtio_pmem.h
-> > >  create mode 100644 include/uapi/linux/virtio_pmem.h
-> > > 
-> > (...)
-> > > diff --git a/drivers/virtio/pmem.c b/drivers/virtio/pmem.c
-> > > new file mode 100644
-> > > index 000000000000..cc9de9589d56
-> > > --- /dev/null
-> > > +++ b/drivers/virtio/pmem.c
-> > > @@ -0,0 +1,124 @@
-> > > +// SPDX-License-Identifier: GPL-2.0
-> > > +/*
-> > > + * virtio_pmem.c: Virtio pmem Driver
-> > > + *
-> > > + * Discovers persistent memory range information
-> > > + * from host and registers the virtual pmem device
-> > > + * with libnvdimm core.
-> > > + */
-> > > +#include <linux/virtio_pmem.h>
-> > > +#include <../../drivers/nvdimm/nd.h>
-> > > +
-> > > +static struct virtio_device_id id_table[] = {
-> > > +	{ VIRTIO_ID_PMEM, VIRTIO_DEV_ANY_ID },
-> > > +	{ 0 },
-> > > +};
-> > > +
-> > > + /* Initialize virt queue */
-> > > +static int init_vq(struct virtio_pmem *vpmem)
+> > > From my perspective it would be at this stage saner to make it more
+> > > obvious that only one css is supported (at the moment), than to
+> > > implement MCSS-E, or to make this (kind of) MCSS-E ready.    
 > > 
-> > IMHO, you don't gain much by splitting off this function...
+> > I disagree. I think there's value in keeping the interfaces clean
+> > (within reasonable bounds, of course.) Even if there is no
+> > implementation of MCSS-E other than QEMU... it is probably a good idea
+> > to spend some brain cycles to make this conceptually clean.  
 > 
-> It make sense to have all the vq-init-related stuff in one function, so
-> here pmem_lock and req_list are used only for the vq.
-
-Yes.
-
-> Saying that - maybe it would be better to have the 3 in one struct.
+> AFAIU Linux currently does not support MCSS-E. I don't have the
+> bandwidth to implement MCSS-E support in the kernel.
 > 
-> > 
-> > > +{
-> > > +	struct virtqueue *vq;
-> > > +
-> > > +	/* single vq */
-> > > +	vpmem->req_vq = vq = virtio_find_single_vq(vpmem->vdev,
-> > > +				host_ack, "flush_queue");
-> > > +	if (IS_ERR(vq))
-> > > +		return PTR_ERR(vq);
-> > 
-> > I'm personally not a fan of chained assignments... I think I'd just
-> > drop the 'vq' variable and operate on vpmem->req_vq directly.
+> I fully agree for external interfaces should be MCSS-E conform, so
+> should we ever decide to implement we don't have to overcome self-made
+> obstacles.
 > 
-> +1
-
-Will drop extra vq.
-
+> Kernel internal stuff however, IMHO, should avoid carrying a ballast of
+> an 20%-30% implemented MCSS-E support. I see no benefit.
 > 
-> > 
-> > > +
-> > > +	spin_lock_init(&vpmem->pmem_lock);
-> > > +	INIT_LIST_HEAD(&vpmem->req_list);
-> > > +
-> > > +	return 0;
-> > > +};
-> > > +
-> > > +static int virtio_pmem_probe(struct virtio_device *vdev)
-> > > +{
-> > > +	int err = 0;
-> > > +	struct resource res;
-> > > +	struct virtio_pmem *vpmem;
-> > > +	struct nvdimm_bus *nvdimm_bus;
-> > > +	struct nd_region_desc ndr_desc = {};
-> > > +	int nid = dev_to_node(&vdev->dev);
-> > > +	struct nd_region *nd_region;
-> > > +
-> > > +	if (!vdev->config->get) {
-> > > +		dev_err(&vdev->dev, "%s failure: config disabled\n",
-> > 
-> > Maybe s/config disabled/config access disabled/ ? That seems to be the
-> > more common message.
-> > 
-> > > +			__func__);
-> > > +		return -EINVAL;
-> > > +	}
-> > > +
-> > > +	vdev->priv = vpmem = devm_kzalloc(&vdev->dev, sizeof(*vpmem),
-> > > +					GFP_KERNEL);
-> > 
-> > Here, the vpmem variable makes sense for convenience, but I'm again not
-> > a fan of the chaining :)
-> 
-> +1
+> But I don't insist. If you have a good idea how to make this more MCSS-E
+> conform, you are welcome. In think something like this is best done on
+> top of a series that provides a basic working solution. Especially if the
+> conceptually clean thing is conceptually or code-wise more complex than
+> the basic solution. If you have something in mind that is simpler and
+> more lightweight than what I did here, I would be more than happy to make
+> that happen.
 
-here as well.
+I haven't asked for adding complete support for MCSS-E, just to keep it
+in the back of our minds...
 
-> 
-> > 
-> > > +	if (!vpmem) {
-> > > +		err = -ENOMEM;
-> > > +		goto out_err;
-> > > +	}
-> > > +
-> > > +	vpmem->vdev = vdev;
-> > > +	err = init_vq(vpmem);
-> > > +	if (err)
-> > > +		goto out_err;
-> > > +
-> > > +	virtio_cread(vpmem->vdev, struct virtio_pmem_config,
-> > > +			start, &vpmem->start);
-> > > +	virtio_cread(vpmem->vdev, struct virtio_pmem_config,
-> > > +			size, &vpmem->size);
-> > > +
-> > > +	res.start = vpmem->start;
-> > > +	res.end   = vpmem->start + vpmem->size-1;
-> > > +	vpmem->nd_desc.provider_name = "virtio-pmem";
-> > > +	vpmem->nd_desc.module = THIS_MODULE;
-> > > +
-> > > +	vpmem->nvdimm_bus = nvdimm_bus = nvdimm_bus_register(&vdev->dev,
-> > > +						&vpmem->nd_desc);
-> > 
-> > And here :)
-> > 
-> > > +	if (!nvdimm_bus)
-> > > +		goto out_vq;
-> > > +
-> > > +	dev_set_drvdata(&vdev->dev, nvdimm_bus);
-> > > +
-> > > +	ndr_desc.res = &res;
-> > > +	ndr_desc.numa_node = nid;
-> > > +	ndr_desc.flush = virtio_pmem_flush;
-> > > +	set_bit(ND_REGION_PAGEMAP, &ndr_desc.flags);
-> > > +	set_bit(ND_REGION_ASYNC, &ndr_desc.flags);
-> > > +	nd_region = nvdimm_pmem_region_create(nvdimm_bus, &ndr_desc);
-> > > +	nd_region->provider_data =  dev_to_virtio
-> > > +					(nd_region->dev.parent->parent);
-> > 
-> > Isn't it clear that this parent chain will always end up at &vdev->dev?
-> > Maybe simply set ->provider_data to vdev directly? (Does it need to
-> > grab a reference count of the device, BTW?)
-> > 
-> > > +
-> > > +	if (!nd_region)
-> > > +		goto out_nd;
-> > 
-> > Probably better to do this check before you access nd_region's
-> > members :)
-> > 
-> > > +
-> > > +	return 0;
-> > > +out_nd:
-> > > +	err = -ENXIO;
-> > > +	nvdimm_bus_unregister(nvdimm_bus);
-> > > +out_vq:
-> > > +	vdev->config->del_vqs(vdev);
-> > > +out_err:
-> > > +	dev_err(&vdev->dev, "failed to register virtio pmem memory\n");
-> > > +	return err;
-> > > +}
-> > > +
-> > > +static void virtio_pmem_remove(struct virtio_device *vdev)
-> > > +{
-> > > +	struct virtio_pmem *vpmem = vdev->priv;
-> > > +	struct nvdimm_bus *nvdimm_bus = dev_get_drvdata(&vdev->dev);
-> > > +
-> > > +	nvdimm_bus_unregister(nvdimm_bus);
-> > 
-> > I haven't followed this around the nvdimm code, but is the nd_region
-> > you created during probe cleaned up automatically, or would you need to
-> > do something here?
-> > 
-> > > +	vdev->config->del_vqs(vdev);
-> > > +	vdev->config->reset(vdev);
-> > > +	kfree(vpmem);
-> > 
-> > You allocated vpmem via devm_kzalloc; isn't it freed automatically on
-> > remove?
-> > 
-> > > +}
-> > > +
-> > > +static struct virtio_driver virtio_pmem_driver = {
-> > > +	.driver.name		= KBUILD_MODNAME,
-> > > +	.driver.owner		= THIS_MODULE,
-> > > +	.id_table		= id_table,
-> > > +	.probe			= virtio_pmem_probe,
-> > > +	.remove			= virtio_pmem_remove,
-> > > +};
-> > > +
-> > > +module_virtio_driver(virtio_pmem_driver);
-> > > +MODULE_DEVICE_TABLE(virtio, id_table);
-> > > +MODULE_DESCRIPTION("Virtio pmem driver");
-> > > +MODULE_LICENSE("GPL");
-> > 
-> > Only looked at this from the general virtio driver angle; seems fine
-> > apart from some easy-to-fix issues and some personal style preference
-> > things.
-> 
-
-Best regards,
-Pankaj
+Back to the issue at hand. You're currently hard-wiring this to the
+css0 device. My question is: Does it make sense to have a per-css area?
+From my limited perspective, I think it does (more css images would
+mean more devices, and just adding smaller areas per-css is probably
+easier than adding one big area scaling with the number of css images).
+In that case, what about tacking the area to the actual css object,
+instead of having the global variable? Should be an easy change, and
+feels cleaner.
