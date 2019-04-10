@@ -1,13 +1,14 @@
-From: Pankaj Gupta <pagupta@redhat.com>
-Subject: [PATCH v5 6/6] xfs: disable map_sync for async flush
-Date: Wed, 10 Apr 2019 09:38:26 +0530
-Message-ID: <20190410040826.24371-7-pagupta__39776.5816001751$1554869499$gmane$org@redhat.com>
-References: <20190410040826.24371-1-pagupta@redhat.com>
+From: Gerd Hoffmann <kraxel@redhat.com>
+Subject: [PATCH v2 3/3] drm: switch drm_fb_xrgb8888_to_rgb888_dstclip to
+	accept __iomem dst
+Date: Wed, 10 Apr 2019 08:38:15 +0200
+Message-ID: <20190410063815.17062-4-kraxel__16923.7348179863$1554878327$gmane$org@redhat.com>
+References: <20190410063815.17062-1-kraxel@redhat.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <20190410040826.24371-1-pagupta@redhat.com>
+In-Reply-To: <20190410063815.17062-1-kraxel@redhat.com>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -17,41 +18,130 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: linux-nvdimm@lists.01.org, linux-kernel@vger.kernel.org, virtualization@lists.linux-foundation.org, kvm@vger.kernel.org, linux-fsdevel@vger.kernel.org, linux-acpi@vger.kernel.org, qemu-devel@nongnu.org, linux-ext4@vger.kernel.org, linux-xfs@vger.kernel.org
-Cc: pagupta@redhat.com, jack@suse.cz, mst@redhat.com, david@fromorbit.com, lcapitulino@redhat.com, adilger.kernel@dilger.ca, zwisler@kernel.org, aarcange@redhat.com, dave.jiang@intel.com, darrick.wong@oracle.com, vishal.l.verma@intel.com, willy@infradead.org, hch@infradead.org, jmoyer@redhat.com, nilal@redhat.com, lenb@kernel.org, kilobyte@angband.pl, riel@surriel.com, yuval.shaia@oracle.com, stefanha@redhat.com, pbonzini@redhat.com, dan.j.williams@intel.com, tytso@mit.edu, xiaoguangrong.eric@gmail.com, cohuck@redhat.com, rjw@rjwysocki.net, imammedo@redhat.com
+To: dri-devel@lists.freedesktop.org
+Cc: David Airlie <airlied@linux.ie>, Maarten Lankhorst <maarten.lankhorst@linux.intel.com>, open list <linux-kernel@vger.kernel.org>, "open list:DRM DRIVER FOR QEMU'S CIRRUS DEVICE" <virtualization@lists.linux-foundation.org>, Maxime Ripard <maxime.ripard@bootlin.com>, Daniel Vetter <daniel@ffwll.ch>, Dave Airlie <airlied@redhat.com>, Sean Paul <sean@poorly.run>
 List-Id: virtualization@lists.linuxfoundation.org
 
-Dont support 'MAP_SYNC' with non-DAX files and DAX files
-with asynchronous dax_device. Virtio pmem provides
-asynchronous host page cache flush mechanism. We don't
-support 'MAP_SYNC' with virtio pmem and xfs.
+Not all archs have the __io_virt() macro, so cirrus can't simply convert
+pointers that way.  The drm format helpers have to use memcpy_toio()
+instead.
 
-Signed-off-by: Pankaj Gupta <pagupta@redhat.com>
+This patch makes drm_fb_xrgb8888_to_rgb888_dstclip() accept a __iomem
+dst pointer and use memcpy_toio() instead of memcpy().  The helper
+function (drm_fb_xrgb8888_to_rgb888_line) has been changed to process a
+single scanline.
+
+Signed-off-by: Gerd Hoffmann <kraxel@redhat.com>
 ---
- fs/xfs/xfs_file.c | 10 ++++++----
- 1 file changed, 6 insertions(+), 4 deletions(-)
+ include/drm/drm_format_helper.h     |  2 +-
+ drivers/gpu/drm/cirrus/cirrus.c     |  2 +-
+ drivers/gpu/drm/drm_format_helper.c | 57 +++++++++++++----------------
+ 3 files changed, 27 insertions(+), 34 deletions(-)
 
-diff --git a/fs/xfs/xfs_file.c b/fs/xfs/xfs_file.c
-index 1f2e2845eb76..0e59be018511 100644
---- a/fs/xfs/xfs_file.c
-+++ b/fs/xfs/xfs_file.c
-@@ -1196,11 +1196,13 @@ xfs_file_mmap(
- 	struct file	*filp,
- 	struct vm_area_struct *vma)
- {
--	/*
--	 * We don't support synchronous mappings for non-DAX files. At least
--	 * until someone comes with a sensible use case.
-+	struct dax_device *dax_dev = xfs_find_daxdev_for_inode
-+						(file_inode(filp));
-+
-+	/* We don't support synchronous mappings for non-DAX files and
-+	 * for DAX files if underneath dax_device is not synchronous.
- 	 */
--	if (!IS_DAX(file_inode(filp)) && (vma->vm_flags & VM_SYNC))
-+	if (!daxdev_mapping_supported(vma, dax_dev))
- 		return -EOPNOTSUPP;
+diff --git a/include/drm/drm_format_helper.h b/include/drm/drm_format_helper.h
+index d1b8a9ea01b4..1594a1f967ad 100644
+--- a/include/drm/drm_format_helper.h
++++ b/include/drm/drm_format_helper.h
+@@ -26,7 +26,7 @@ void drm_fb_xrgb8888_to_rgb565(void *dst, void *vaddr,
+ void drm_fb_xrgb8888_to_rgb565_dstclip(void __iomem *dst, unsigned int dst_pitch,
+ 				       void *vaddr, struct drm_framebuffer *fb,
+ 				       struct drm_rect *clip, bool swap);
+-void drm_fb_xrgb8888_to_rgb888_dstclip(void *dst, unsigned int dst_pitch,
++void drm_fb_xrgb8888_to_rgb888_dstclip(void __iomem *dst, unsigned int dst_pitch,
+ 				       void *vaddr, struct drm_framebuffer *fb,
+ 				       struct drm_rect *clip);
+ void drm_fb_xrgb8888_to_gray8(u8 *dst, void *vaddr, struct drm_framebuffer *fb,
+diff --git a/drivers/gpu/drm/cirrus/cirrus.c b/drivers/gpu/drm/cirrus/cirrus.c
+index ed2f2d8cfb6f..be4ea370ba31 100644
+--- a/drivers/gpu/drm/cirrus/cirrus.c
++++ b/drivers/gpu/drm/cirrus/cirrus.c
+@@ -316,7 +316,7 @@ static int cirrus_fb_blit_rect(struct drm_framebuffer *fb,
+ 						  vmap, fb, rect, false);
  
- 	file_accessed(filp);
+ 	else if (fb->format->cpp[0] == 4 && cirrus->cpp == 3)
+-		drm_fb_xrgb8888_to_rgb888_dstclip(__io_virt(cirrus->vram),
++		drm_fb_xrgb8888_to_rgb888_dstclip(cirrus->vram,
+ 						  cirrus->pitch,
+ 						  vmap, fb, rect);
+ 
+diff --git a/drivers/gpu/drm/drm_format_helper.c b/drivers/gpu/drm/drm_format_helper.c
+index c9521af4e90b..dd9823e3a723 100644
+--- a/drivers/gpu/drm/drm_format_helper.c
++++ b/drivers/gpu/drm/drm_format_helper.c
+@@ -216,33 +216,16 @@ void drm_fb_xrgb8888_to_rgb565_dstclip(void __iomem *dst, unsigned int dst_pitch
+ }
+ EXPORT_SYMBOL(drm_fb_xrgb8888_to_rgb565_dstclip);
+ 
+-static void drm_fb_xrgb8888_to_rgb888_lines(void *dst, unsigned int dst_pitch,
+-					    void *src, unsigned int src_pitch,
+-					    unsigned int src_linelength,
+-					    unsigned int lines)
++static void drm_fb_xrgb8888_to_rgb888_line(u8 *dbuf, u32 *sbuf,
++					   unsigned int pixels)
+ {
+-	unsigned int linepixels = src_linelength / 3;
+-	unsigned int x, y;
+-	u32 *sbuf;
+-	u8 *dbuf;
++	unsigned int x;
+ 
+-	sbuf = kmalloc(src_linelength, GFP_KERNEL);
+-	if (!sbuf)
+-		return;
+-
+-	for (y = 0; y < lines; y++) {
+-		memcpy(sbuf, src, src_linelength);
+-		dbuf = dst;
+-		for (x = 0; x < linepixels; x++) {
+-			*dbuf++ = (sbuf[x] & 0x000000FF) >>  0;
+-			*dbuf++ = (sbuf[x] & 0x0000FF00) >>  8;
+-			*dbuf++ = (sbuf[x] & 0x00FF0000) >> 16;
+-		}
+-		src += src_pitch;
+-		dst += dst_pitch;
++	for (x = 0; x < pixels; x++) {
++		*dbuf++ = (sbuf[x] & 0x000000FF) >>  0;
++		*dbuf++ = (sbuf[x] & 0x0000FF00) >>  8;
++		*dbuf++ = (sbuf[x] & 0x00FF0000) >> 16;
+ 	}
+-
+-	kfree(sbuf);
+ }
+ 
+ /**
+@@ -264,15 +247,25 @@ void drm_fb_xrgb8888_to_rgb888_dstclip(void *dst, unsigned int dst_pitch,
+ 				       void *vaddr, struct drm_framebuffer *fb,
+ 				       struct drm_rect *clip)
+ {
+-	unsigned int src_offset = (clip->y1 * fb->pitches[0])
+-		+ (clip->x1 * sizeof(u32));
+-	unsigned int dst_offset = (clip->y1 * dst_pitch)
+-		+ (clip->x1 * 3);
+-	size_t src_len = (clip->x2 - clip->x1) * sizeof(u32);
++	size_t linepixels = clip->x2 - clip->x1;
++	size_t dst_len = linepixels * 3;
++	unsigned y, lines = clip->y2 - clip->y1;
++	void *dbuf;
+ 
+-	drm_fb_xrgb8888_to_rgb888_lines(dst + dst_offset, dst_pitch,
+-					vaddr + src_offset, fb->pitches[0],
+-					src_len, clip->y2 - clip->y1);
++	dbuf = kmalloc(dst_len, GFP_KERNEL);
++	if (!dbuf)
++		return;
++
++	vaddr += clip_offset(clip, fb->pitches[0], sizeof(u32));
++	dst += clip_offset(clip, dst_pitch, sizeof(u16));
++	for (y = 0; y < lines; y++) {
++		drm_fb_xrgb8888_to_rgb888_line(dbuf, vaddr, linepixels);
++		memcpy_toio(dst, dbuf, dst_len);
++		vaddr += fb->pitches[0];
++		dst += dst_len;
++	}
++
++	kfree(dbuf);
+ }
+ EXPORT_SYMBOL(drm_fb_xrgb8888_to_rgb888_dstclip);
+ 
 -- 
-2.20.1
+2.18.1
