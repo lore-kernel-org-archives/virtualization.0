@@ -1,11 +1,15 @@
-From: Gerd Hoffmann <kraxel@redhat.com>
-Subject: [PATCH] drm/bochs: use simple display pipe
-Date: Wed, 10 Apr 2019 09:48:28 +0200
-Message-ID: <20190410074828.10296-1-kraxel__770.880938374319$1554882539$gmane$org@redhat.com>
+From: Jason Wang <jasowang@redhat.com>
+Subject: Re: [PATCH net] vhost: flush dcache page when logging dirty pages
+Date: Wed, 10 Apr 2019 15:53:52 +0800
+Message-ID: <b635592f-a2c5-5687-e634-6fcd4f5a1e36__33564.3430984177$1554882865$gmane$org@redhat.com>
+References: <20190409041647.21269-1-jasowang@redhat.com>
+	<20190409085607-mutt-send-email-mst@kernel.org>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset="utf-8"; Format="flowed"
+Content-Transfer-Encoding: base64
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
+In-Reply-To: <20190409085607-mutt-send-email-mst@kernel.org>
+Content-Language: en-US
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -15,265 +19,67 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: dri-devel@lists.freedesktop.org
-Cc: David Airlie <airlied@linux.ie>, open list <linux-kernel@vger.kernel.org>, Daniel Vetter <daniel@ffwll.ch>, "open list:DRM DRIVER FOR BOCHS VIRTUAL GPU" <virtualization@lists.linux-foundation.org>
+To: "Michael S. Tsirkin" <mst@redhat.com>
+Cc: Andrea Arcangeli <aarcange@redhat.com>, James Bottomley <James.Bottomley@hansenpartnership.com>, kvm@vger.kernel.org, netdev@vger.kernel.org, linux-kernel@vger.kernel.org, Ralf Baechle <ralf@linux-mips.org>, "open list:VIRTIO GPU DRIVER" <virtualization@lists.linux-foundation.org>, Christoph Hellwig <hch@infradead.org>, Linux-MM <linux-mm@kvack.org>, Paul Burton <paul.burton@mips.com>, Paul Mackerras <paulus@samba.org>, Michael Ellerman <mpe@ellerman.id.au>, Benjamin Herrenschmidt <benh@kernel.crashing.org>, James Hogan <jhogan@kernel.org>, linux@armlinux.org.uk, linux-mips@vger.kernel.org, linuxppc-dev@lists.ozlabs.org, linux-arm-kernel@lists.infradead.org
 List-Id: virtualization@lists.linuxfoundation.org
 
-Signed-off-by: Gerd Hoffmann <kraxel@redhat.com>
----
- drivers/gpu/drm/bochs/bochs.h     |   6 +-
- drivers/gpu/drm/bochs/bochs_kms.c | 178 +++++++++---------------------
- 2 files changed, 53 insertions(+), 131 deletions(-)
-
-diff --git a/drivers/gpu/drm/bochs/bochs.h b/drivers/gpu/drm/bochs/bochs.h
-index a7f6723bebdd..36f6ee725d13 100644
---- a/drivers/gpu/drm/bochs/bochs.h
-+++ b/drivers/gpu/drm/bochs/bochs.h
-@@ -7,6 +7,7 @@
- #include <drm/drm_crtc_helper.h>
- #include <drm/drm_encoder.h>
- #include <drm/drm_fb_helper.h>
-+#include <drm/drm_simple_kms_helper.h>
- 
- #include <drm/drm_gem.h>
- 
-@@ -69,9 +70,8 @@ struct bochs_device {
- 	struct edid *edid;
- 
- 	/* drm */
--	struct drm_device  *dev;
--	struct drm_crtc crtc;
--	struct drm_encoder encoder;
-+	struct drm_device *dev;
-+	struct drm_simple_display_pipe pipe;
- 	struct drm_connector connector;
- 
- 	/* ttm */
-diff --git a/drivers/gpu/drm/bochs/bochs_kms.c b/drivers/gpu/drm/bochs/bochs_kms.c
-index 485f9cf05e8b..5e905f50449d 100644
---- a/drivers/gpu/drm/bochs/bochs_kms.c
-+++ b/drivers/gpu/drm/bochs/bochs_kms.c
-@@ -22,76 +22,55 @@ MODULE_PARM_DESC(defy, "default y resolution");
- 
- /* ---------------------------------------------------------------------- */
- 
--static void bochs_crtc_mode_set_nofb(struct drm_crtc *crtc)
--{
--	struct bochs_device *bochs =
--		container_of(crtc, struct bochs_device, crtc);
--
--	bochs_hw_setmode(bochs, &crtc->mode);
--}
--
--static void bochs_crtc_atomic_enable(struct drm_crtc *crtc,
--				     struct drm_crtc_state *old_crtc_state)
--{
--}
--
--static void bochs_crtc_atomic_flush(struct drm_crtc *crtc,
--				    struct drm_crtc_state *old_crtc_state)
--{
--	struct drm_device *dev = crtc->dev;
--	struct drm_pending_vblank_event *event;
--
--	if (crtc->state && crtc->state->event) {
--		unsigned long irqflags;
--
--		spin_lock_irqsave(&dev->event_lock, irqflags);
--		event = crtc->state->event;
--		crtc->state->event = NULL;
--		drm_crtc_send_vblank_event(crtc, event);
--		spin_unlock_irqrestore(&dev->event_lock, irqflags);
--	}
--}
--
--
--/* These provide the minimum set of functions required to handle a CRTC */
--static const struct drm_crtc_funcs bochs_crtc_funcs = {
--	.set_config = drm_atomic_helper_set_config,
--	.destroy = drm_crtc_cleanup,
--	.page_flip = drm_atomic_helper_page_flip,
--	.reset = drm_atomic_helper_crtc_reset,
--	.atomic_duplicate_state = drm_atomic_helper_crtc_duplicate_state,
--	.atomic_destroy_state = drm_atomic_helper_crtc_destroy_state,
--};
--
--static const struct drm_crtc_helper_funcs bochs_helper_funcs = {
--	.mode_set_nofb = bochs_crtc_mode_set_nofb,
--	.atomic_enable = bochs_crtc_atomic_enable,
--	.atomic_flush = bochs_crtc_atomic_flush,
--};
--
- static const uint32_t bochs_formats[] = {
- 	DRM_FORMAT_XRGB8888,
- 	DRM_FORMAT_BGRX8888,
- };
- 
--static void bochs_plane_atomic_update(struct drm_plane *plane,
--				      struct drm_plane_state *old_state)
-+static void bochs_plane_update(struct bochs_device *bochs,
-+			       struct drm_plane_state *state)
- {
--	struct bochs_device *bochs = plane->dev->dev_private;
- 	struct bochs_bo *bo;
- 
--	if (!plane->state->fb)
-+	if (!state->fb || !bochs->stride)
- 		return;
--	bo = gem_to_bochs_bo(plane->state->fb->obj[0]);
-+
-+	bo = gem_to_bochs_bo(state->fb->obj[0]);
- 	bochs_hw_setbase(bochs,
--			 plane->state->crtc_x,
--			 plane->state->crtc_y,
-+			 state->crtc_x,
-+			 state->crtc_y,
- 			 bo->bo.offset);
--	bochs_hw_setformat(bochs, plane->state->fb->format);
-+	bochs_hw_setformat(bochs, state->fb->format);
- }
- 
--static int bochs_plane_prepare_fb(struct drm_plane *plane,
--				struct drm_plane_state *new_state)
-+static void bochs_pipe_enable(struct drm_simple_display_pipe *pipe,
-+			      struct drm_crtc_state *crtc_state,
-+			      struct drm_plane_state *plane_state)
-+{
-+	struct bochs_device *bochs = pipe->crtc.dev->dev_private;
-+
-+	bochs_hw_setmode(bochs, &crtc_state->mode);
-+	bochs_plane_update(bochs, plane_state);
-+}
-+
-+static void bochs_pipe_update(struct drm_simple_display_pipe *pipe,
-+			      struct drm_plane_state *old_state)
-+{
-+	struct bochs_device *bochs = pipe->crtc.dev->dev_private;
-+	struct drm_crtc *crtc = &pipe->crtc;
-+
-+	bochs_plane_update(bochs, pipe->plane.state);
-+
-+	if (crtc->state->event) {
-+		spin_lock_irq(&crtc->dev->event_lock);
-+		drm_crtc_send_vblank_event(crtc, crtc->state->event);
-+		crtc->state->event = NULL;
-+		spin_unlock_irq(&crtc->dev->event_lock);
-+	}
-+}
-+
-+static int bochs_pipe_prepare_fb(struct drm_simple_display_pipe *pipe,
-+				 struct drm_plane_state *new_state)
- {
- 	struct bochs_bo *bo;
- 
-@@ -101,8 +80,8 @@ static int bochs_plane_prepare_fb(struct drm_plane *plane,
- 	return bochs_bo_pin(bo, TTM_PL_FLAG_VRAM);
- }
- 
--static void bochs_plane_cleanup_fb(struct drm_plane *plane,
--				   struct drm_plane_state *old_state)
-+static void bochs_pipe_cleanup_fb(struct drm_simple_display_pipe *pipe,
-+				  struct drm_plane_state *old_state)
- {
- 	struct bochs_bo *bo;
- 
-@@ -112,73 +91,13 @@ static void bochs_plane_cleanup_fb(struct drm_plane *plane,
- 	bochs_bo_unpin(bo);
- }
- 
--static const struct drm_plane_helper_funcs bochs_plane_helper_funcs = {
--	.atomic_update = bochs_plane_atomic_update,
--	.prepare_fb = bochs_plane_prepare_fb,
--	.cleanup_fb = bochs_plane_cleanup_fb,
-+static const struct drm_simple_display_pipe_funcs bochs_pipe_funcs = {
-+	.enable	    = bochs_pipe_enable,
-+	.update	    = bochs_pipe_update,
-+	.prepare_fb = bochs_pipe_prepare_fb,
-+	.cleanup_fb = bochs_pipe_cleanup_fb,
- };
- 
--static const struct drm_plane_funcs bochs_plane_funcs = {
--       .update_plane   = drm_atomic_helper_update_plane,
--       .disable_plane  = drm_atomic_helper_disable_plane,
--       .destroy        = drm_primary_helper_destroy,
--       .reset          = drm_atomic_helper_plane_reset,
--       .atomic_duplicate_state = drm_atomic_helper_plane_duplicate_state,
--       .atomic_destroy_state = drm_atomic_helper_plane_destroy_state,
--};
--
--static struct drm_plane *bochs_primary_plane(struct drm_device *dev)
--{
--	struct drm_plane *primary;
--	int ret;
--
--	primary = kzalloc(sizeof(*primary), GFP_KERNEL);
--	if (primary == NULL) {
--		DRM_DEBUG_KMS("Failed to allocate primary plane\n");
--		return NULL;
--	}
--
--	ret = drm_universal_plane_init(dev, primary, 0,
--				       &bochs_plane_funcs,
--				       bochs_formats,
--				       ARRAY_SIZE(bochs_formats),
--				       NULL,
--				       DRM_PLANE_TYPE_PRIMARY, NULL);
--	if (ret) {
--		kfree(primary);
--		return NULL;
--	}
--
--	drm_plane_helper_add(primary, &bochs_plane_helper_funcs);
--	return primary;
--}
--
--static void bochs_crtc_init(struct drm_device *dev)
--{
--	struct bochs_device *bochs = dev->dev_private;
--	struct drm_crtc *crtc = &bochs->crtc;
--	struct drm_plane *primary = bochs_primary_plane(dev);
--
--	drm_crtc_init_with_planes(dev, crtc, primary, NULL,
--				  &bochs_crtc_funcs, NULL);
--	drm_crtc_helper_add(crtc, &bochs_helper_funcs);
--}
--
--static const struct drm_encoder_funcs bochs_encoder_encoder_funcs = {
--	.destroy = drm_encoder_cleanup,
--};
--
--static void bochs_encoder_init(struct drm_device *dev)
--{
--	struct bochs_device *bochs = dev->dev_private;
--	struct drm_encoder *encoder = &bochs->encoder;
--
--	encoder->possible_crtcs = 0x1;
--	drm_encoder_init(dev, encoder, &bochs_encoder_encoder_funcs,
--			 DRM_MODE_ENCODER_DAC, NULL);
--}
--
--
- static int bochs_connector_get_modes(struct drm_connector *connector)
- {
- 	struct bochs_device *bochs =
-@@ -278,11 +197,14 @@ int bochs_kms_init(struct bochs_device *bochs)
- 
- 	bochs->dev->mode_config.funcs = &bochs_mode_funcs;
- 
--	bochs_crtc_init(bochs->dev);
--	bochs_encoder_init(bochs->dev);
- 	bochs_connector_init(bochs->dev);
--	drm_connector_attach_encoder(&bochs->connector,
--					  &bochs->encoder);
-+	drm_simple_display_pipe_init(bochs->dev,
-+				     &bochs->pipe,
-+				     &bochs_pipe_funcs,
-+				     bochs_formats,
-+				     ARRAY_SIZE(bochs_formats),
-+				     NULL,
-+				     &bochs->connector);
- 
- 	drm_mode_config_reset(bochs->dev);
- 
--- 
-2.18.1
+Ck9uIDIwMTkvNC85IOS4i+WNiDk6MTQsIE1pY2hhZWwgUy4gVHNpcmtpbiB3cm90ZToKPiBPbiBU
+dWUsIEFwciAwOSwgMjAxOSBhdCAxMjoxNjo0N1BNICswODAwLCBKYXNvbiBXYW5nIHdyb3RlOgo+
+PiBXZSBzZXQgZGlydHkgYml0IHRocm91Z2ggc2V0dGluZyB1cCBrbWFwcyBhbmQgYWNjZXNzIHRo
+ZW0gdGhyb3VnaAo+PiBrZXJuZWwgdmlydHVhbCBhZGRyZXNzLCB0aGlzIG1heSByZXN1bHQgYWxp
+YXMgaW4gdmlydHVhbGx5IHRhZ2dlZAo+PiBjYWNoZXMgdGhhdCByZXF1aXJlIGEgZGNhY2hlIGZs
+dXNoIGFmdGVyd2FyZHMuCj4+Cj4+IENjOiBDaHJpc3RvcGggSGVsbHdpZyA8aGNoQGluZnJhZGVh
+ZC5vcmc+Cj4+IENjOiBKYW1lcyBCb3R0b21sZXkgPEphbWVzLkJvdHRvbWxleUBIYW5zZW5QYXJ0
+bmVyc2hpcC5jb20+Cj4+IENjOiBBbmRyZWEgQXJjYW5nZWxpIDxhYXJjYW5nZUByZWRoYXQuY29t
+Pgo+PiBGaXhlczogM2E0ZDVjOTRlOTU5MyAoInZob3N0X25ldDogYSBrZXJuZWwtbGV2ZWwgdmly
+dGlvIHNlcnZlciIpCj4gVGhpcyBpcyBsaWtlIHNheWluZyAiZXZlcnlvbmUgd2l0aCB2aG9zdCBu
+ZWVkcyB0aGlzIi4KPiBJbiBwcmFjdGljZSBvbmx5IG1pZ2h0IGFmZmVjdCBzb21lIGFyY2hpdGVj
+dHVyZXMuCgoKRm9yIHRoZSBhcmNocyB0aGF0IGRvZXMgbmVlZCBkY2FjaGUgZmx1c2hpbmcsIHRo
+ZSBmdW5jdGlvbiBpcyBqdXN0IGEgbm9wLgoKCj4gV2hpY2ggb25lcz8KCgpUaGVyZSdyZSBtb3Jl
+IHRoYW4gMTAgYXJjaHMgdGhhdCBoYXZlIEFSQ0hfSU1QTEVNRU5UU19GTFVTSF9EQ0FDSEVfUEFH
+RSAKZGVmaW5lZCwganVzdCBjYyBzb21lIG1haW50YWluZXJzIG9mIHNvbWUgbW9yZSBpbmZsdWVu
+Y2VkIG9uZXMuCgoKPiBZb3Ugd2FudCB0byBDYyB0aGUgcmVsZXZhbnQgbWFpbnRhaW5lcnMKPiB3
+aG8gdW5kZXJzdGFuZCB0aGlzLi4uCj4KPj4gU2lnbmVkLW9mZi1ieTogSmFzb24gV2FuZyA8amFz
+b3dhbmdAcmVkaGF0LmNvbT4KPiBJIGFtIG5vdCBzdXJlIHRoaXMgaXMgYSBnb29kIGlkZWEuCj4g
+VGhlIHJlZ2lvbiBpbiBxdWVzdGlvbiBpcyBzdXBwb3NlZCB0byBiZSBhY2Nlc3NlZAo+IGJ5IHVz
+ZXJzcGFjZSBhdCB0aGUgc2FtZSB0aW1lLCB0aHJvdWdoIGF0b21pYyBvcGVyYXRpb25zLgo+Cj4g
+SG93IGRvIHdlIGtub3cgdXNlcnNwYWNlIGRpZG4ndCBhY2Nlc3MgaXQganVzdCBiZWZvcmU/CgoK
+Z2V0X3VzZXJfcGFnZXMoKSB3aWxsIGRvIGJvdGggZmx1c2hfYW5ub25fcGFnZSgpIHRvIG1ha2Ug
+c3VyZSB0aGUgCnVzZXJzcGFjZSB3cml0ZSBpcyB2aXNpYmxlIHRvIGtlcm5lbC4KCgo+Cj4gSXMg
+dGhhdCBhbiBpc3N1ZSBhdCBhbGwgZ2l2ZW4gd2UgdXNlCj4gYXRvbWljcyBmb3IgYWNjZXNzPyBE
+b2N1bWVudGF0aW9uL2NvcmUtYXBpL2NhY2hldGxiLnJzdCBkb2VzCj4gbm90IG1lbnRpb24gYXRv
+bWljcy4KPiBXaGljaCBhcmNoaXRlY3R1cmVzIGFyZSBhZmZlY3RlZD8KPiBBc3N1bWluZyBhdG9t
+aWNzIGFjdHVhbGx5IGRvIG5lZWQgYSBmbHVzaCwgdGhlbiBkb24ndCB3ZSBuZWVkCj4gYSBmbHVz
+aCBpbiB0aGUgb3RoZXIgZGlyZWN0aW9uIHRvbz8gSG93IGFyZSBhdG9taWNzCj4gc3VwcG9zZWQg
+dG8gd29yayBhdCBhbGw/CgoKSXQncyB0aGUgaXNzdWUgb2YgdmlzaWJpbGl0eSwgYXRvbWljIG9w
+ZXJhdGlvbiBpcyBqdXN0IG9uZSBvZiB0aGUgCnBvc3NpYmxlIG9wZXJhdGlvbnMuIElmIHdlIGNh
+biBmaW5hbGx5IG1ha2VzIHRoZSB3cml0ZSB2aXNpYmxlIHRvIGVhY2ggCm90aGVyLCB0aGVyZSB3
+aWxsIGJlIG5vIGlzc3VlLgoKSXQgbG9va3MgdG8gbWUgd2UgY291bGQgc3RpbGwgZW5kIHVwIGFs
+aWFzIGlmIHVzZXJzcGFjZSBpcyBhY2Nlc3NpbmcgdGhlIApkaXJ0eSBsb2cgYmV0d2VlbiBnZXRf
+dXNlcl9wYWdlc19mYXN0KCkgYW5kIGZsdXNoX2RjYWNoZV9wYWdlKCkuIEJ1dCB0aGUgCmZsdXNo
+X2RjYWNoZV9wYWdlKCkgY2FuIGd1YXJhbnRlZSB3aGF0IGtlcm5lbCB3cm90ZSBpcyB2aXNpYmxl
+IHRvIAp1c2Vyc3BhY2UgZmluYWxseSB0aG91Z2ggc29tZSBiaXRzIGNsZWFyZWQgYnkgdXNlcnNw
+YWNlIG1pZ2h0IHN0aWxsIAp0aGVyZS4gV2UgbWF5IGVuZCB1cCB3aXRoIG1vcmUgZGlydHkgcGFn
+ZXMgbm90aWNlZCBieSB1c2Vyc3BhY2Ugd2hpY2ggCnNob3VsZCBiZSBoYXJtbGVzcy4KCgo+Cj4K
+PiBJIHJlYWxseSB0aGluayB3ZSBuZWVkIG5ldyBBUElzIGFsb25nIHRoZSBsaW5lcyBvZgo+IHNl
+dF9iaXRfdG9fdXNlci4KCgpDYW4gd2Ugc2ltcGx5IGRvOgoKZ2V0X3VzZXIoKQoKc2V0IGJpdAoK
+cHV0X3VzZXIoKQoKaW5zdGVhZD8KCgo+Cj4+IC0tLQo+PiAgIGRyaXZlcnMvdmhvc3Qvdmhvc3Qu
+YyB8IDEgKwo+PiAgIDEgZmlsZSBjaGFuZ2VkLCAxIGluc2VydGlvbigrKQo+Pgo+PiBkaWZmIC0t
+Z2l0IGEvZHJpdmVycy92aG9zdC92aG9zdC5jIGIvZHJpdmVycy92aG9zdC92aG9zdC5jCj4+IGlu
+ZGV4IDM1MWFmODgyMzFhZC4uMzRhMWNlZGJjNWJhIDEwMDY0NAo+PiAtLS0gYS9kcml2ZXJzL3Zo
+b3N0L3Zob3N0LmMKPj4gKysrIGIvZHJpdmVycy92aG9zdC92aG9zdC5jCj4+IEBAIC0xNzExLDYg
+KzE3MTEsNyBAQCBzdGF0aWMgaW50IHNldF9iaXRfdG9fdXNlcihpbnQgbnIsIHZvaWQgX191c2Vy
+ICphZGRyKQo+PiAgIAliYXNlID0ga21hcF9hdG9taWMocGFnZSk7Cj4+ICAgCXNldF9iaXQoYml0
+LCBiYXNlKTsKPj4gICAJa3VubWFwX2F0b21pYyhiYXNlKTsKPj4gKwlmbHVzaF9kY2FjaGVfcGFn
+ZShwYWdlKTsKPj4gICAJc2V0X3BhZ2VfZGlydHlfbG9jayhwYWdlKTsKPj4gICAJcHV0X3BhZ2Uo
+cGFnZSk7Cj4+ICAgCXJldHVybiAwOwo+IElnbm9yaW5nIHRoZSBxdWVzdGlvbiBvZiB3aGV0aGVy
+IHRoaXMgYWN0dWFsbHkgaGVscHMsIEkgZG91YnQKPiBmbHVzaF9kY2FjaGVfcGFnZSBpcyBhcHBy
+b3ByaWF0ZSBoZXJlLiAgUGxzIHRha2UgYSBsb29rIGF0Cj4gRG9jdW1lbnRhdGlvbi9jb3JlLWFw
+aS9jYWNoZXRsYi5yc3QgYXMgd2VsbCBhcyB0aGUgYWN0dWFsCj4gaW1wbGVtZW50YXRpb24uCj4K
+PiBJIHRoaW5rIHlvdSBtZWFudCBmbHVzaF9rZXJuZWxfZGNhY2hlX3BhZ2UsIGFuZCBJSVVDIGl0
+IG11c3QgaGFwcGVuCj4gYmVmb3JlIGt1bm1hcCwgbm90IGFmdGVyICh3aGljaCB5b3Ugc3RpbGwg
+aGF2ZSB0aGUgdmEgbG9ja2VkKS4KCgpMb29rcyBsaWtlIHlvdSdyZSByaWdodC4KClRoYW5rcwoK
+Cj4KPj4gLS0gCj4+IDIuMTkuMQpfX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19f
+X19fX19fX19fXwpWaXJ0dWFsaXphdGlvbiBtYWlsaW5nIGxpc3QKVmlydHVhbGl6YXRpb25AbGlz
+dHMubGludXgtZm91bmRhdGlvbi5vcmcKaHR0cHM6Ly9saXN0cy5saW51eGZvdW5kYXRpb24ub3Jn
+L21haWxtYW4vbGlzdGluZm8vdmlydHVhbGl6YXRpb24=
