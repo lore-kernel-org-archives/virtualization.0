@@ -1,13 +1,13 @@
-From: =?UTF-8?Q?Noralf_Tr=c3=b8nnes?= <noralf@tronnes.org>
-Subject: Re: [PATCH] drm/bochs: use simple display pipe
-Date: Wed, 10 Apr 2019 14:55:12 +0200
-Message-ID: <56c866e1-0f86-1db7-b897-c487866c00f6__12323.3198582724$1554900940$gmane$org@tronnes.org>
-References: <20190410074828.10296-1-kraxel@redhat.com>
+From: Stefan Hajnoczi <stefanha@redhat.com>
+Subject: Re: [PATCH 1/2] virtio-blk: limit number of hw queues by nr_cpu_ids
+Date: Wed, 10 Apr 2019 14:12:25 +0100
+Message-ID: <20190410131225.GA8210__41808.8224296056$1554901999$gmane$org@stefanha-x1.localdomain>
+References: <1553682995-5682-1-git-send-email-dongli.zhang@oracle.com>
+	<1553682995-5682-2-git-send-email-dongli.zhang@oracle.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="utf-8"
-Content-Transfer-Encoding: base64
+Content-Type: multipart/mixed; boundary="===============0554172128245810000=="
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <20190410074828.10296-1-kraxel@redhat.com>
+In-Reply-To: <1553682995-5682-2-git-send-email-dongli.zhang@oracle.com>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -17,13 +17,70 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Gerd Hoffmann <kraxel@redhat.com>, dri-devel@lists.freedesktop.org
-Cc: David Airlie <airlied@linux.ie>, open list <linux-kernel@vger.kernel.org>, "open list:DRM DRIVER FOR BOCHS VIRTUAL GPU" <virtualization@lists.linux-foundation.org>
+To: Dongli Zhang <dongli.zhang@oracle.com>
+Cc: axboe@kernel.dk, martin.petersen@oracle.com, linux-scsi@vger.kernel.org, mst@redhat.com, cohuck@redhat.com, linux-kernel@vger.kernel.org, virtualization@lists.linux-foundation.org, linux-block@vger.kernel.org, jejb@linux.ibm.com
 List-Id: virtualization@lists.linuxfoundation.org
 
-CgpEZW4gMTAuMDQuMjAxOSAwOS40OCwgc2tyZXYgR2VyZCBIb2ZmbWFubjoKPiBTaWduZWQtb2Zm
-LWJ5OiBHZXJkIEhvZmZtYW5uIDxrcmF4ZWxAcmVkaGF0LmNvbT4KPiAtLS0KCkFja2VkLWJ5OiBO
-b3JhbGYgVHLDuG5uZXMgPG5vcmFsZkB0cm9ubmVzLm9yZz4KX19fX19fX19fX19fX19fX19fX19f
-X19fX19fX19fX19fX19fX19fX19fX19fX18KVmlydHVhbGl6YXRpb24gbWFpbGluZyBsaXN0ClZp
-cnR1YWxpemF0aW9uQGxpc3RzLmxpbnV4LWZvdW5kYXRpb24ub3JnCmh0dHBzOi8vbGlzdHMubGlu
-dXhmb3VuZGF0aW9uLm9yZy9tYWlsbWFuL2xpc3RpbmZvL3ZpcnR1YWxpemF0aW9u
+
+--===============0554172128245810000==
+Content-Type: multipart/signed; micalg=pgp-sha1;
+	protocol="application/pgp-signature"; boundary="LQksG6bCIzRHxTLp"
+Content-Disposition: inline
+
+
+--LQksG6bCIzRHxTLp
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+Content-Transfer-Encoding: quoted-printable
+
+On Wed, Mar 27, 2019 at 06:36:34PM +0800, Dongli Zhang wrote:
+> When tag_set->nr_maps is 1, the block layer limits the number of hw queues
+> by nr_cpu_ids. No matter how many hw queues are used by virtio-blk, as it
+> has (tag_set->nr_maps =3D=3D 1), it can use at most nr_cpu_ids hw queues.
+>=20
+> In addition, specifically for pci scenario, when the 'num-queues' specifi=
+ed
+> by qemu is more than maxcpus, virtio-blk would not be able to allocate mo=
+re
+> than maxcpus vectors in order to have a vector for each queue. As a resul=
+t,
+> it falls back into MSI-X with one vector for config and one shared for
+> queues.
+>=20
+> Considering above reasons, this patch limits the number of hw queues used
+> by virtio-blk by nr_cpu_ids.
+>=20
+> Signed-off-by: Dongli Zhang <dongli.zhang@oracle.com>
+> ---
+>  drivers/block/virtio_blk.c | 2 ++
+>  1 file changed, 2 insertions(+)
+
+Reviewed-by: Stefan Hajnoczi <stefanha@redhat.com>
+
+--LQksG6bCIzRHxTLp
+Content-Type: application/pgp-signature; name="signature.asc"
+
+-----BEGIN PGP SIGNATURE-----
+
+iQEcBAEBAgAGBQJcreu5AAoJEJykq7OBq3PIv1QH/3Xfhaaouf6EN6cUvjc1C8S5
+zptX9W26vBX9yhTbAcJTDQ8ETXOri7HIE0e6fGMPUPc5TQQlShnC74b7d8aUqFS2
+lxl08VctShlE+vB3YVP5K6FOZ82sHszI+uZde/rTt+2+wZqcOqNz0rzi5H+GwZRQ
+QwC3c/Juo/wdG48aWliZrQDApazeKf/2YY+LBqj43Wk7F+X5X65SEiuQkY2xzp0t
+VFLrAGxycRpiL0JBTnXf4VtmP+vox26KmLtccRVZktcgckHuexe05nMGFVhy30aB
+PkQCu7gUEV9AC6kNT4fO6GML6EPHNWnrGRg4qbgZ0htLuQpDTUYonrOR3q3cDkc=
+=TWiv
+-----END PGP SIGNATURE-----
+
+--LQksG6bCIzRHxTLp--
+
+--===============0554172128245810000==
+Content-Type: text/plain; charset="us-ascii"
+MIME-Version: 1.0
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+
+_______________________________________________
+Virtualization mailing list
+Virtualization@lists.linux-foundation.org
+https://lists.linuxfoundation.org/mailman/listinfo/virtualization
+--===============0554172128245810000==--
