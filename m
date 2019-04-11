@@ -1,7 +1,7 @@
-From: Jason Gunthorpe <jgg@mellanox.com>
-Subject: Re: [RFC 0/3] VirtIO RDMA
-Date: Thu, 11 Apr 2019 17:40:26 +0000
-Message-ID: <20190411174022.GA26227__14323.8755686738$1555718161$gmane$org@mellanox.com>
+From: Yuval Shaia <yuval.shaia@oracle.com>
+Subject: Re: [Qemu-devel] [RFC 0/3] VirtIO RDMA
+Date: Thu, 11 Apr 2019 20:41:25 +0300
+Message-ID: <20190411174124.GA6428__32991.4922871225$1555718175$gmane$org@lap1>
 References: <20190411110157.14252-1-yuval.shaia@oracle.com>
 	<20190411190215.2163572e.cohuck@redhat.com>
 	<20190411172402.GA14509@mellanox.com> <20190411173419.GB6259@lap1>
@@ -9,9 +9,8 @@ Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
+Content-Disposition: inline
 In-Reply-To: <20190411173419.GB6259@lap1>
-Content-Language: en-US
-Content-ID: <6242C05B658BD24198CF603E9E63C344@eurprd05.prod.outlook.com>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -21,8 +20,8 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Yuval Shaia <yuval.shaia@oracle.com>
-Cc: "mst@redhat.com" <mst@redhat.com>, "linux-rdma@vger.kernel.org" <linux-rdma@vger.kernel.org>, Cornelia Huck <cohuck@redhat.com>, "qemu-devel@nongnu.org" <qemu-devel@nongnu.org>, "virtualization@lists.linux-foundation.org" <virtualization@lists.linux-foundation.org>
+To: Jason Gunthorpe <jgg@mellanox.com>
+Cc: "linux-rdma@vger.kernel.org" <linux-rdma@vger.kernel.org>, Cornelia Huck <cohuck@redhat.com>, "virtualization@lists.linux-foundation.org" <virtualization@lists.linux-foundation.org>, "qemu-devel@nongnu.org" <qemu-devel@nongnu.org>, "mst@redhat.com" <mst@redhat.com>
 List-Id: virtualization@lists.linuxfoundation.org
 
 On Thu, Apr 11, 2019 at 08:34:20PM +0300, Yuval Shaia wrote:
@@ -69,11 +68,13 @@ On Thu, Apr 11, 2019 at 08:34:20PM +0300, Yuval Shaia wrote:
 > > I'm not sure a QP or CQ benefits from this??
 > 
 > Virtqueue is a standard mechanism to pass data from guest to host. By
+
+And vice versa (CQ?)
+
 > saying that - it really sounds like QP send and recv rings. So my thought
 > is to use a standard way for rings. As i've learned this is how it is used
 > by other virtio devices ex virtio-net.
-
-I doubt you can use virtio queues from userspace securely? Usually
-needs a dedicated page for each user space process
-
-Jason
+> 
+> > 
+> > Jason
+> 
