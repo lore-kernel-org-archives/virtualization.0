@@ -1,18 +1,13 @@
-From: Pankaj Gupta <pagupta@redhat.com>
-Subject: Re: [Qemu-devel] [PATCH v5 1/6] libnvdimm: nd_region flush callback
-	support
-Date: Thu, 11 Apr 2019 12:23:00 -0400 (EDT)
-Message-ID: <1150671088.21162726.1554999780030.JavaMail.zimbra__15923.9993010246$1554999856$gmane$org@redhat.com>
-References: <20190410040826.24371-1-pagupta@redhat.com>
-	<20190410040826.24371-2-pagupta@redhat.com>
-	<CAPcyv4i1FjBzfcWtzeCvj-giHa9xaX0dMQ==q4LZC_L8VEqkHg@mail.gmail.com>
-	<1463291806.21158433.1554998258746.JavaMail.zimbra@redhat.com>
-	<CAPcyv4gOPtgmVyk+zayRBtkbSivEvBNn1tyKL2ycT_q_nTHUUA@mail.gmail.com>
+From: Cornelia Huck <cohuck@redhat.com>
+Subject: Re: [RFC 0/3] VirtIO RDMA
+Date: Thu, 11 Apr 2019 19:02:15 +0200
+Message-ID: <20190411190215.2163572e.cohuck@redhat.com>
+References: <20190411110157.14252-1-yuval.shaia@oracle.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <CAPcyv4gOPtgmVyk+zayRBtkbSivEvBNn1tyKL2ycT_q_nTHUUA@mail.gmail.com>
+In-Reply-To: <20190411110157.14252-1-yuval.shaia@oracle.com>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -22,114 +17,71 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Dan Williams <dan.j.williams@intel.com>
-Cc: Jan Kara <jack@suse.cz>, KVM list <kvm@vger.kernel.org>, "Michael S. Tsirkin" <mst@redhat.com>, david <david@fromorbit.com>, Qemu Developers <qemu-devel@nongnu.org>, virtualization@lists.linux-foundation.org, Andreas Dilger <adilger.kernel@dilger.ca>, Ross Zwisler <zwisler@kernel.org>, Andrea Arcangeli <aarcange@redhat.com>, Dave Jiang <dave.jiang@intel.com>, linux-nvdimm <linux-nvdimm@lists.01.org>, Vishal L Verma <vishal.l.verma@intel.com>, Matthew Wilcox <willy@infradead.org>, Christoph Hellwig <hch@infradead.org>, Linux ACPI <linux-acpi@vger.kernel.org>, jmoyer <jmoyer@redhat.com>, linux-ext4 <linux-ext4@vger.kernel.org>, Len Brown <lenb@kernel.org>, kilobyte@angband.pl, Rik van Riel <riel@surriel.com>, yuval shaia <yuval.shaia@oracle.com>, Stefan Hajnoczi <stefanha@redhat.com>, Igor Mammedov <imammedo@redhat.com>, lcapitulino@redhat.com, Nitesh Narayan Lal <nila>
+To: Yuval Shaia <yuval.shaia@oracle.com>
+Cc: mst@redhat.com, linux-rdma@vger.kernel.org, qemu-devel@nongnu.org, virtualization@lists.linux-foundation.org, jgg@mellanox.com
 List-Id: virtualization@lists.linuxfoundation.org
 
+On Thu, 11 Apr 2019 14:01:54 +0300
+Yuval Shaia <yuval.shaia@oracle.com> wrote:
 
-> > > > This patch adds functionality to perform flush from guest
-> > > > to host over VIRTIO. We are registering a callback based
-> > > > on 'nd_region' type. virtio_pmem driver requires this special
-> > > > flush function. For rest of the region types we are registering
-> > > > existing flush function. Report error returned by host fsync
-> > > > failure to userspace.
-> > > >
-> > > > This also handles asynchronous flush requests from the block layer
-> > > > by creating a child bio and chaining it with parent bio.
-> > > >
-> > > > Signed-off-by: Pankaj Gupta <pagupta@redhat.com>
-> > > > ---bio_chain Dan williams
-> > > [..]
-> > > > diff --git a/drivers/nvdimm/region_devs.c
-> > > > b/drivers/nvdimm/region_devs.c
-> > > > index b4ef7d9ff22e..fb1041ab32a6 100644
-> > > > --- a/drivers/nvdimm/region_devs.c
-> > > > +++ b/drivers/nvdimm/region_devs.c
-> > > > @@ -295,7 +295,9 @@ static ssize_t deep_flush_store(struct device *dev,
-> > > > struct device_attribute *att
-> > > >                 return rc;
-> > > >         if (!flush)
-> > > >                 return -EINVAL;
-> > > > -       nvdimm_flush(nd_region);
-> > > > +       rc = nvdimm_flush(nd_region, NULL, false);
-> > > > +       if (rc)
-> > > > +               return rc;
-> > > >
-> > > >         return len;
-> > > >  }
-> > > > @@ -1085,6 +1087,11 @@ static struct nd_region *nd_region_create(struct
-> > > > nvdimm_bus *nvdimm_bus,
-> > > >         dev->of_node = ndr_desc->of_node;
-> > > >         nd_region->ndr_size = resource_size(ndr_desc->res);
-> > > >         nd_region->ndr_start = ndr_desc->res->start;
-> > > > +       if (ndr_desc->flush)
-> > > > +               nd_region->flush = ndr_desc->flush;
-> > > > +       else
-> > > > +               nd_region->flush = generic_nvdimm_flush;
-> > > > +
-> > > >         nd_device_register(dev);
-> > > >
-> > > >         return nd_region;
-> > > > @@ -1125,11 +1132,36 @@ struct nd_region
-> > > > *nvdimm_volatile_region_create(struct nvdimm_bus *nvdimm_bus,
-> > > >  }
-> > > >  EXPORT_SYMBOL_GPL(nvdimm_volatile_region_create);
-> > > >
-> > > > +int nvdimm_flush(struct nd_region *nd_region, struct bio *bio, bool
-> > > > async)
-> > > > +{
-> > >
-> > > I don't quite see the point of the 'async' argument. All the usages of
-> > > this routine are either
-> > >
-> > > nvdimm_flush(nd_region, bio, true)
-> > > ...or:
-> > > nvdimm_flush(nd_region, NULL, false)
-> >
-> > Agree.
-> >
-> > >
-> > > ...so why not gate async behavior on the presence of the 'bio' argument?
-> >
-> > Sure.
-> >
-> > >
-> > >
-> > > > +       int rc = 0;
-> > > > +
-> > > > +       /* Create child bio for asynchronous flush and chain with
-> > > > +        * parent bio. Otherwise directly call nd_region flush.
-> > > > +        */
-> > > > +       if (async && bio->bi_iter.bi_sector != -1) {
-> > > > +
-> > > > +               struct bio *child = bio_alloc(GFP_ATOMIC, 0);
-> > > > +
-> > > > +               if (!child)
-> > > > +                       return -ENOMEM;
-> > > > +               bio_copy_dev(child, bio);
-> > > > +               child->bi_opf = REQ_PREFLUSH;
-> > > > +               child->bi_iter.bi_sector = -1;
-> > > > +               bio_chain(child, bio);
-> > > > +               submit_bio(child);
-> > >
-> > > I understand how this works, but it's a bit too "magical" for my
-> > > taste. I would prefer that all flush implementations take an optional
-> > > 'bio' argument rather than rely on the make_request implementation to
-> > > stash the bio away on a driver specific list.
-> >
-> > I did this to make use of "bio_chain" for chaining child bio for async
-> > flush
-> > suggested [1]. Are you saying to remove this and just call "flush" based on
-> > bio argument? Or I implemented the 'bio_chain' request entirely wrong?
+> Data center backends use more and more RDMA or RoCE devices and more and
+> more software runs in virtualized environment.
+> There is a need for a standard to enable RDMA/RoCE on Virtual Machines.
 > 
-> No, I think you implemented it correctly. I'm just asking for the
-> chaining to be performed internal to the ->flush() callback rather
-> than in the common nvdimm_flush() front-end.
+> Virtio is the optimal solution since is the de-facto para-virtualizaton
+> technology and also because the Virtio specification
+> allows Hardware Vendors to support Virtio protocol natively in order to
+> achieve bare metal performance.
+> 
+> This RFC is an effort to addresses challenges in defining the RDMA/RoCE
+> Virtio Specification and a look forward on possible implementation
+> techniques.
+> 
+> Open issues/Todo list:
+> List is huge, this is only start point of the project.
+> Anyway, here is one example of item in the list:
+> - Multi VirtQ: Every QP has two rings and every CQ has one. This means that
+>   in order to support for example 32K QPs we will need 64K VirtQ. Not sure
+>   that this is reasonable so one option is to have one for all and
+>   multiplex the traffic on it. This is not good approach as by design it
+>   introducing an optional starvation. Another approach would be multi
+>   queues and round-robin (for example) between them.
+> 
+> Expectations from this posting:
+> In general, any comment is welcome, starting from hey, drop this as it is a
+> very bad idea, to yeah, go ahead, we really want it.
+> Idea here is that since it is not a minor effort i first want to know if
+> there is some sort interest in the community for such device.
 
-Sure. Perfect!
+My first reaction is: Sounds sensible, but it would be good to have a
+spec for this :)
 
-Thank you very much for all the suggestions. 
+You'll need a spec if you want this to go forward anyway, so at least a
+sketch would be good to answer questions such as how many virtqueues
+you use for which purpose, what is actually put on the virtqueues,
+whether there are negotiable features, and what the expectations for
+the device and the driver are. It also makes it easier to understand
+how this is supposed to work in practice.
 
-Best regards,
-Pankaj
+If folks agree that this sounds useful, the next step would be to
+reserve an id for the device type.
+
+> 
+> The scope of the implementation is limited to probing the device and doing
+> some basic ibverbs commands. Data-path is not yet implemented. So with this
+> one can expect only that driver is (partialy) loaded and basic queries and
+> resource allocation is done.
+> 
+> One note regarding the patchset.
+> I know it is not standard to collaps patches from several repos as i did
+> here (qemu and linux) but decided to do it anyway so the whole picture can
+> be seen.
+> 
+> patch 1: virtio-net: Move some virtio-net-pci decl to include/hw/virtio
+> 	This is a prelimenary patch just as a hack so i will not need to
+> 	impelement new netdev
+> patch 2: hw/virtio-rdma: VirtIO rdma device
+> 	The implementation of the device
+> patch 3: RDMA/virtio-rdma: VirtIO rdma driver
+> 	The device driver
 > 
