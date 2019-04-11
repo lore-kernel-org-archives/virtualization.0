@@ -1,18 +1,14 @@
-From: Cornelia Huck <cohuck@redhat.com>
-Subject: Re: [RFC PATCH 10/12] virtio/s390: consolidate DMA allocations
-Date: Thu, 11 Apr 2019 11:24:46 +0200
-Message-ID: <20190411112446.013cad09.cohuck@redhat.com>
-References: <20190404231622.52531-1-pasic@linux.ibm.com>
-	<20190404231622.52531-11-pasic@linux.ibm.com>
-	<20190410104649.12cdbcba.cohuck@redhat.com>
-	<20190410171254.71206015@oc2783563651>
-	<20190410183643.694ccb85.cohuck@redhat.com>
-	<20190410194849.511ecc46@oc2783563651>
+From: Dan Williams <dan.j.williams@intel.com>
+Subject: Re: [PATCH v5 1/6] libnvdimm: nd_region flush callback support
+Date: Thu, 11 Apr 2019 07:51:48 -0700
+Message-ID: <CAPcyv4i1FjBzfcWtzeCvj-giHa9xaX0dMQ==q4LZC_L8VEqkHg__30206.5432931826$1554994371$gmane$org@mail.gmail.com>
+References: <20190410040826.24371-1-pagupta@redhat.com>
+	<20190410040826.24371-2-pagupta@redhat.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <20190410194849.511ecc46@oc2783563651>
+In-Reply-To: <20190410040826.24371-2-pagupta@redhat.com>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -22,81 +18,98 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Halil Pasic <pasic@linux.ibm.com>
-Cc: Vasily Gorbik <gor@linux.ibm.com>, linux-s390@vger.kernel.org, Eric Farman <farman@linux.ibm.com>, Claudio Imbrenda <imbrenda@linux.ibm.com>, kvm@vger.kernel.org, Sebastian Ott <sebott@linux.ibm.com>, Farhan Ali <alifm@linux.ibm.com>, virtualization@lists.linux-foundation.org, Martin Schwidefsky <schwidefsky@de.ibm.com>, Viktor Mihajlovski <mihajlov@linux.ibm.com>, Janosch Frank <frankja@linux.ibm.com>
+To: Pankaj Gupta <pagupta@redhat.com>
+Cc: cohuck@redhat.com, Jan Kara <jack@suse.cz>, KVM list <kvm@vger.kernel.org>, "Michael S. Tsirkin" <mst@redhat.com>, david <david@fromorbit.com>, Qemu Developers <qemu-devel@nongnu.org>, virtualization@lists.linux-foundation.org, Andreas Dilger <adilger.kernel@dilger.ca>, Ross Zwisler <zwisler@kernel.org>, Andrea Arcangeli <aarcange@redhat.com>, Dave Jiang <dave.jiang@intel.com>, linux-nvdimm <linux-nvdimm@lists.01.org>, Vishal L Verma <vishal.l.verma@intel.com>, Matthew Wilcox <willy@infradead.org>, Christoph Hellwig <hch@infradead.org>, Linux ACPI <linux-acpi@vger.kernel.org>, jmoyer <jmoyer@redhat.com>, linux-ext4 <linux-ext4@vger.kernel.org>, Len Brown <lenb@kernel.org>, kilobyte@angband.pl, Rik van Riel <riel@surriel.com>, yuval.shaia@oracle.com, Stefan Hajnoczi <stefanha@redhat.com>, Paolo Bonzini <pbonzini@redhat.com>, lcapitulino@redhat.com, Nitesh
 List-Id: virtualization@lists.linuxfoundation.org
 
-On Wed, 10 Apr 2019 19:48:49 +0200
-Halil Pasic <pasic@linux.ibm.com> wrote:
+On Tue, Apr 9, 2019 at 9:09 PM Pankaj Gupta <pagupta@redhat.com> wrote:
+>
+> This patch adds functionality to perform flush from guest
+> to host over VIRTIO. We are registering a callback based
+> on 'nd_region' type. virtio_pmem driver requires this special
+> flush function. For rest of the region types we are registering
+> existing flush function. Report error returned by host fsync
+> failure to userspace.
+>
+> This also handles asynchronous flush requests from the block layer
+> by creating a child bio and chaining it with parent bio.
+>
+> Signed-off-by: Pankaj Gupta <pagupta@redhat.com>
+> ---
+[..]
+> diff --git a/drivers/nvdimm/region_devs.c b/drivers/nvdimm/region_devs.c
+> index b4ef7d9ff22e..fb1041ab32a6 100644
+> --- a/drivers/nvdimm/region_devs.c
+> +++ b/drivers/nvdimm/region_devs.c
+> @@ -295,7 +295,9 @@ static ssize_t deep_flush_store(struct device *dev, struct device_attribute *att
+>                 return rc;
+>         if (!flush)
+>                 return -EINVAL;
+> -       nvdimm_flush(nd_region);
+> +       rc = nvdimm_flush(nd_region, NULL, false);
+> +       if (rc)
+> +               return rc;
+>
+>         return len;
+>  }
+> @@ -1085,6 +1087,11 @@ static struct nd_region *nd_region_create(struct nvdimm_bus *nvdimm_bus,
+>         dev->of_node = ndr_desc->of_node;
+>         nd_region->ndr_size = resource_size(ndr_desc->res);
+>         nd_region->ndr_start = ndr_desc->res->start;
+> +       if (ndr_desc->flush)
+> +               nd_region->flush = ndr_desc->flush;
+> +       else
+> +               nd_region->flush = generic_nvdimm_flush;
+> +
+>         nd_device_register(dev);
+>
+>         return nd_region;
+> @@ -1125,11 +1132,36 @@ struct nd_region *nvdimm_volatile_region_create(struct nvdimm_bus *nvdimm_bus,
+>  }
+>  EXPORT_SYMBOL_GPL(nvdimm_volatile_region_create);
+>
+> +int nvdimm_flush(struct nd_region *nd_region, struct bio *bio, bool async)
+> +{
 
-> On Wed, 10 Apr 2019 18:36:43 +0200
-> Cornelia Huck <cohuck@redhat.com> wrote:
-> 
-> > On Wed, 10 Apr 2019 17:12:54 +0200
-> > Halil Pasic <pasic@linux.ibm.com> wrote:
-> >   
-> > > On Wed, 10 Apr 2019 10:46:49 +0200
-> > > Cornelia Huck <cohuck@redhat.com> wrote:
-> > >   
-> > > > On Fri,  5 Apr 2019 01:16:20 +0200
-> > > > Halil Pasic <pasic@linux.ibm.com> wrote:  
-> >   
-> > > > > diff --git a/drivers/s390/virtio/virtio_ccw.c b/drivers/s390/virtio/virtio_ccw.c
-> > > > > index aa45a6a027ae..7268149f2ee8 100644
-> > > > > --- a/drivers/s390/virtio/virtio_ccw.c
-> > > > > +++ b/drivers/s390/virtio/virtio_ccw.c
-> > > > > @@ -49,12 +49,12 @@ struct vq_config_block {
-> > > > >  struct vcdev_dma_area {
-> > > > >  	unsigned long indicators;
-> > > > >  	unsigned long indicators2;
-> > > > > +	struct vq_config_block config_block;
-> > > > > +	__u8 status; /* TODO check __aligned(8); */    
-> > > > 
-> > > > ...I think that needs attention.    
-> > > 
-> > > Yes I wanted to discuss this with you. I could not find anything
-> > > in the virtio spec that would put requirements on how this
-> > > status field needs to be aligned. But I did not look to hard.
-> > > 
-> > > The ccw.cda can hold an arbitrary data address AFAIR (for indirect,
-> > > of course we do have alignment requirements).  
-> > 
-> > I think it needs to be doubleword aligned.
-> >   
-> 
-> I've re-read the part of the PoP that describes the ccw formats. And
-> it reinforced my position: for IDA and MIDA we need proper alignment,
-> but if the CCW ain't an indirect one there is no alignment requirement.
-> 
-> QEMU also does not seem to check either.
-> 
-> Can you double-check and provide me with a reference that proves me
-> wrong if I'm wrong.
+I don't quite see the point of the 'async' argument. All the usages of
+this routine are either
 
-Ah, it was the ccw itself, not the cda. Indeed, there do not seem to be
-any requirements for direct addressing.
+nvdimm_flush(nd_region, bio, true)
+...or:
+nvdimm_flush(nd_region, NULL, false)
 
-> 
-> > > 
-> > > Apparently status used to be a normal field, and became a pointer with
-> > > 73fa21ea4fc6 "KVM: s390: Dynamic allocation of virtio-ccw I/O
-> > > data." (Cornelia Huck, 2013-01-07). I could not quite figure out why.  
-> > 
-> > In the beginning, the code used a below-2G-area for all commands.
-> > Rather than adding locking to avoid races there, that commit switches
-> > to allocating the needed structures individually. The status field
-> > needed to be below 2G, so it needed to be allocated separately.
-> >   
-> 
-> I get it now. The confusing part was that the field 'area' was about
-> holding the address of the also previously dynamically allocated
-> below 2G area that was used for talking to the hypervisor via CCW I/O.
-> 
-> > > 
-> > > So maybe dropping the TODO comment will do just fine. What do you think?  
-> >   
-> 
-> I still think we just need to drop the comment, as we don't have to
-> align it.
+...so why not gate async behavior on the presence of the 'bio' argument?
 
-Agreed.
+
+> +       int rc = 0;
+> +
+> +       /* Create child bio for asynchronous flush and chain with
+> +        * parent bio. Otherwise directly call nd_region flush.
+> +        */
+> +       if (async && bio->bi_iter.bi_sector != -1) {
+> +
+> +               struct bio *child = bio_alloc(GFP_ATOMIC, 0);
+> +
+> +               if (!child)
+> +                       return -ENOMEM;
+> +               bio_copy_dev(child, bio);
+> +               child->bi_opf = REQ_PREFLUSH;
+> +               child->bi_iter.bi_sector = -1;
+> +               bio_chain(child, bio);
+> +               submit_bio(child);
+
+I understand how this works, but it's a bit too "magical" for my
+taste. I would prefer that all flush implementations take an optional
+'bio' argument rather than rely on the make_request implementation to
+stash the bio away on a driver specific list.
+
+> +       } else {
+> +               if (nd_region->flush(nd_region))
+> +                       rc = -EIO;
+
+Given the common case wants to be fast and synchronous I think we
+should try to avoid retpoline overhead by default. So something like
+this:
+
+if (nd_region->flush == generic_nvdimm_flush)
+    rc = generic_nvdimm_flush(...);
