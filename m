@@ -1,17 +1,15 @@
-From: Chia-I Wu <olvaffe@gmail.com>
-Subject: Re: [PATCH 3/3] virtio-gpu api: VIRTIO_GPU_F_RESSOURCE_V2
-Date: Fri, 12 Apr 2019 16:34:20 -0700
-Message-ID: <CAPaKu7QsDp=kRsMzMf0YcvafsXBsr_m4bstuZiWAcmYiV_AxnQ__32493.0416930997$1555718213$gmane$org@mail.gmail.com>
-References: <20190410114227.25846-1-kraxel@redhat.com>
-	<20190410114227.25846-4-kraxel@redhat.com>
-	<CAAfnVBm5XZx8P7k5np823-uRr-kqf0ey9Y3GtoE2Geo4dCdQ=g@mail.gmail.com>
-	<20190411050322.mfxo5mrwwzajlz3h@sirius.home.kraxel.org>
-	<CAAfnVB=v+daY0Q+mtdK2Q=F7iS_Ra7jGYfic3twfnUVo=tz3Yg@mail.gmail.com>
-	<20190412054924.dvh6bfxfrbgvezxr@sirius.home.kraxel.org>
+From: Yanjun Zhu <yanjun.zhu@oracle.com>
+Subject: Re: [RFC 3/3] RDMA/virtio-rdma: VirtIO rdma driver
+Date: Sat, 13 Apr 2019 15:58:15 +0800
+Message-ID: <199a70a8-5926-66af-d2d7-b19a0a0f46a2__28095.5916083016$1555718222$gmane$org@oracle.com>
+References: <20190411110157.14252-1-yuval.shaia@oracle.com>
+	<20190411110157.14252-4-yuval.shaia@oracle.com>
 Mime-Version: 1.0
-Content-Type: multipart/mixed; boundary="===============3813039669284076910=="
+Content-Type: text/plain; charset="us-ascii"; Format="flowed"
+Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <20190412054924.dvh6bfxfrbgvezxr@sirius.home.kraxel.org>
+In-Reply-To: <20190411110157.14252-4-yuval.shaia@oracle.com>
+Content-Language: en-US
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -21,441 +19,1260 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Gerd Hoffmann <kraxel@redhat.com>
-Cc: virtio@lists.oasis-open.org, Tomeu Vizoso <tomeu.vizoso@collabora.com>, "Michael S. Tsirkin" <mst@redhat.com>, David Airlie <airlied@linux.ie>, open list <linux-kernel@vger.kernel.org>, ML dri-devel <dri-devel@lists.freedesktop.org>, Gurchetan Singh <gurchetansingh@chromium.org>, David Airlie <airlied@redhat.com>, "open list:VIRTIO CORE,
-	NET AND BLOCK DRIVERS" <virtualization@lists.linux-foundation.org>
+To: Yuval Shaia <yuval.shaia@oracle.com>, virtualization@lists.linux-foundation.org, qemu-devel@nongnu.org, mst@redhat.com, cohuck@redhat.com, marcel.apfelbaum@gmail.com, linux-rdma@vger.kernel.org, jgg@mellanox.com
 List-Id: virtualization@lists.linuxfoundation.org
 
---===============3813039669284076910==
-Content-Type: multipart/alternative; boundary="0000000000009b3b7405865dbe7a"
 
---0000000000009b3b7405865dbe7a
-Content-Type: text/plain; charset="UTF-8"
+On 2019/4/11 19:01, Yuval Shaia wrote:
+> Signed-off-by: Yuval Shaia <yuval.shaia@oracle.com>
+> ---
+>   drivers/infiniband/Kconfig                    |   1 +
+>   drivers/infiniband/hw/Makefile                |   1 +
+>   drivers/infiniband/hw/virtio/Kconfig          |   6 +
+>   drivers/infiniband/hw/virtio/Makefile         |   4 +
+>   drivers/infiniband/hw/virtio/virtio_rdma.h    |  40 +
+>   .../infiniband/hw/virtio/virtio_rdma_device.c |  59 ++
+>   .../infiniband/hw/virtio/virtio_rdma_device.h |  32 +
+>   drivers/infiniband/hw/virtio/virtio_rdma_ib.c | 711 ++++++++++++++++++
+>   drivers/infiniband/hw/virtio/virtio_rdma_ib.h |  48 ++
+>   .../infiniband/hw/virtio/virtio_rdma_main.c   | 149 ++++
+>   .../infiniband/hw/virtio/virtio_rdma_netdev.c |  44 ++
+>   .../infiniband/hw/virtio/virtio_rdma_netdev.h |  33 +
+>   include/uapi/linux/virtio_ids.h               |   1 +
+>   13 files changed, 1129 insertions(+)
+>   create mode 100644 drivers/infiniband/hw/virtio/Kconfig
+>   create mode 100644 drivers/infiniband/hw/virtio/Makefile
+>   create mode 100644 drivers/infiniband/hw/virtio/virtio_rdma.h
+>   create mode 100644 drivers/infiniband/hw/virtio/virtio_rdma_device.c
+>   create mode 100644 drivers/infiniband/hw/virtio/virtio_rdma_device.h
+>   create mode 100644 drivers/infiniband/hw/virtio/virtio_rdma_ib.c
+>   create mode 100644 drivers/infiniband/hw/virtio/virtio_rdma_ib.h
+>   create mode 100644 drivers/infiniband/hw/virtio/virtio_rdma_main.c
+>   create mode 100644 drivers/infiniband/hw/virtio/virtio_rdma_netdev.c
+>   create mode 100644 drivers/infiniband/hw/virtio/virtio_rdma_netdev.h
+>
+> diff --git a/drivers/infiniband/Kconfig b/drivers/infiniband/Kconfig
+> index a1fb840de45d..218a47d4cecf 100644
+> --- a/drivers/infiniband/Kconfig
+> +++ b/drivers/infiniband/Kconfig
+> @@ -107,6 +107,7 @@ source "drivers/infiniband/hw/hfi1/Kconfig"
+>   source "drivers/infiniband/hw/qedr/Kconfig"
+>   source "drivers/infiniband/sw/rdmavt/Kconfig"
+>   source "drivers/infiniband/sw/rxe/Kconfig"
+> +source "drivers/infiniband/hw/virtio/Kconfig"
+>   endif
+>   
+>   source "drivers/infiniband/ulp/ipoib/Kconfig"
+> diff --git a/drivers/infiniband/hw/Makefile b/drivers/infiniband/hw/Makefile
+> index e4f31c1be8f7..10ffb2c421e4 100644
+> --- a/drivers/infiniband/hw/Makefile
+> +++ b/drivers/infiniband/hw/Makefile
+> @@ -14,3 +14,4 @@ obj-$(CONFIG_INFINIBAND_HFI1)		+= hfi1/
+>   obj-$(CONFIG_INFINIBAND_HNS)		+= hns/
+>   obj-$(CONFIG_INFINIBAND_QEDR)		+= qedr/
+>   obj-$(CONFIG_INFINIBAND_BNXT_RE)	+= bnxt_re/
+> +obj-$(CONFIG_INFINIBAND_VIRTIO_RDMA)	+= virtio/
+> diff --git a/drivers/infiniband/hw/virtio/Kconfig b/drivers/infiniband/hw/virtio/Kconfig
+> new file mode 100644
+> index 000000000000..92e41691cf5d
+> --- /dev/null
+> +++ b/drivers/infiniband/hw/virtio/Kconfig
+> @@ -0,0 +1,6 @@
+> +config INFINIBAND_VIRTIO_RDMA
+> +	tristate "VirtIO Paravirtualized RDMA Driver"
+> +	depends on NETDEVICES && ETHERNET && PCI && INET
+> +	---help---
+> +	  This driver provides low-level support for VirtIO Paravirtual
+> +	  RDMA adapter.
+> diff --git a/drivers/infiniband/hw/virtio/Makefile b/drivers/infiniband/hw/virtio/Makefile
+> new file mode 100644
+> index 000000000000..fb637e467167
+> --- /dev/null
+> +++ b/drivers/infiniband/hw/virtio/Makefile
+> @@ -0,0 +1,4 @@
+> +obj-$(CONFIG_INFINIBAND_VIRTIO_RDMA) += virtio_rdma.o
+> +
+> +virtio_rdma-y := virtio_rdma_main.o virtio_rdma_device.o virtio_rdma_ib.o \
+> +		 virtio_rdma_netdev.o
+> diff --git a/drivers/infiniband/hw/virtio/virtio_rdma.h b/drivers/infiniband/hw/virtio/virtio_rdma.h
+> new file mode 100644
+> index 000000000000..7896a2dfb812
+> --- /dev/null
+> +++ b/drivers/infiniband/hw/virtio/virtio_rdma.h
+> @@ -0,0 +1,40 @@
+> +/*
+> + * Virtio RDMA device: Driver main data types
+> + *
+> + * Copyright (C) 2019 Yuval Shaia Oracle Corporation
+> + *
+> + * This program is free software; you can redistribute it and/or modify
+> + * it under the terms of the GNU General Public License as published by
+> + * the Free Software Foundation; either version 2 of the License, or
+> + * (at your option) any later version.
+> + *
+> + * This program is distributed in the hope that it will be useful,
+> + * but WITHOUT ANY WARRANTY; without even the implied warranty of
+> + * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+> + * GNU General Public License for more details.
+> + *
+> + * You should have received a copy of the GNU General Public License
+> + * along with this program; if not, write to the Free Software
+> + * Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301 USA
+> + */
+> +
+> +#ifndef __VIRTIO_RDMA__
+> +#define __VIRTIO_RDMA__
+> +
+> +#include <linux/virtio.h>
+> +#include <rdma/ib_verbs.h>
+> +
+> +struct virtio_rdma_info {
+> +	struct ib_device ib_dev;
+> +	struct virtio_device *vdev;
+> +	struct virtqueue *ctrl_vq;
+> +	wait_queue_head_t acked; /* arm on send to host, release on recv */
+> +	struct net_device *netdev;
+> +};
+> +
+> +static inline struct virtio_rdma_info *to_vdev(struct ib_device *ibdev)
+> +{
+> +	return container_of(ibdev, struct virtio_rdma_info, ib_dev);
+> +}
+> +
+> +#endif
+> diff --git a/drivers/infiniband/hw/virtio/virtio_rdma_device.c b/drivers/infiniband/hw/virtio/virtio_rdma_device.c
+> new file mode 100644
+> index 000000000000..ae41e530644f
+> --- /dev/null
+> +++ b/drivers/infiniband/hw/virtio/virtio_rdma_device.c
+> @@ -0,0 +1,59 @@
+> +/*
+> + * Virtio RDMA device: Device related functions and data
+> + *
+> + * Copyright (C) 2019 Yuval Shaia Oracle Corporation
+> + *
+> + * This program is free software; you can redistribute it and/or modify
+> + * it under the terms of the GNU General Public License as published by
+> + * the Free Software Foundation; either version 2 of the License, or
+> + * (at your option) any later version.
+> + *
+> + * This program is distributed in the hope that it will be useful,
+> + * but WITHOUT ANY WARRANTY; without even the implied warranty of
+> + * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+> + * GNU General Public License for more details.
+> + *
+> + * You should have received a copy of the GNU General Public License
+> + * along with this program; if not, write to the Free Software
+> + * Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301 USA
+> + */
+> +
+> +#include <linux/virtio_config.h>
+> +
+> +#include "virtio_rdma.h"
+> +
+> +static void rdma_ctrl_ack(struct virtqueue *vq)
+> +{
+> +	struct virtio_rdma_info *dev = vq->vdev->priv;
+> +
+> +	wake_up(&dev->acked);
+> +
+> +	printk("%s\n", __func__);
 
-Hi,
+Cool:-)
 
-I am still new to virgl, and missed the last round of discussion about
-resource_create_v2.
+this line should be for debug?
 
-From the discussion below, semantically resource_create_v2 creates a host
-resource object _without_ any storage; memory_create creates a host memory
-object which provides the storage.  Is that correct?
+Zhu Yanjun
 
-And this version of memory_create is probably the most special one among
-its other potential variants, because it is the only(?) one who imports the
-pre-allocated guest pages.
-
-Do we expect these new commands to be supported by OpenGL, which does not
-separate resources and memories?
-
-On Thu, Apr 11, 2019 at 10:49 PM Gerd Hoffmann <kraxel@redhat.com> wrote:
-
-> On Thu, Apr 11, 2019 at 06:36:15PM -0700, Gurchetan Singh wrote:
-> > On Wed, Apr 10, 2019 at 10:03 PM Gerd Hoffmann <kraxel@redhat.com>
-> wrote:
-> > >
-> > > > > +/* VIRTIO_GPU_CMD_RESOURCE_CREATE_V2 */
-> > > > > +struct virtio_gpu_cmd_resource_create_v2 {
-> > > > > +       struct virtio_gpu_ctrl_hdr hdr;
-> > > > > +       __le32 resource_id;
-> > > > > +       __le32 format;
-> > > > > +       __le32 width;
-> > > > > +       __le32 height;
-> > > > > +       /* 3d only */
-> > > > > +       __le32 target;
-> > > > > +       __le32 bind;
-> > > > > +       __le32 depth;
-> > > > > +       __le32 array_size;
-> > > > > +       __le32 last_level;
-> > > > > +       __le32 nr_samples;
-> > > > > +       __le32 flags;
-> > > > > +};
-> > > >
-> > > >
-> > > > I assume this is always backed by some host side allocation, without
-> any
-> > > > guest side pages associated with it?
-> > >
-> > > No.  It is not backed at all yet.  Workflow would be like this:
-> > >
-> > >   (1) VIRTIO_GPU_CMD_RESOURCE_CREATE_V2
-> > >   (2) VIRTIO_GPU_CMD_MEMORY_CREATE (see patch 2)
-> > >   (3) VIRTIO_GPU_CMD_RESOURCE_MEMORY_ATTACH (see patch 2)
-> >
-> > Thanks for the clarification.
-> >
-> > >
-> > > You could also create a larger pool with VIRTIO_GPU_CMD_MEMORY_CREATE,
-> > > then go attach multiple resources to it.
-> > >
-> > > > If so, do we want the option for the guest allocate?
-> > >
-> > > Allocation options are handled by VIRTIO_GPU_CMD_MEMORY_CREATE
-> > > (initially guest allocated only, i.e. what virtio-gpu supports today,
-> > > the plan is to add other allocation types later on).
-> >
-> > You want to cover Vulkan, host-allocated dma-bufs, and guest-allocated
-> > dma-bufs with this, correct?  Let me know if it's a non-goal :-)
->
-> Yes, even though it is not clear yet how we are going to handle
-> host-allocated buffers in the vhost-user case ...
-
-This might be another dumb question, but is this only an issue for
-vhost-user(-gpu) case?  What mechanisms are used to map host dma-buf into
-the guest address space?
-
-
-
->
-> > If so, we might want to distinguish between memory types (kind of like
-> > memoryTypeIndex in Vulkan). [Assuming memory_id is like resource_id]
->
-> For the host-allocated buffers we surely want that, yes.
-> For guest-allocated memory regions it isn't useful I think ...
->
-Guest-allocated memory regions can be just another memory type.
-
-But one needs to create the resource first to know which memory types can
-be attached to it.  I think the metadata needs to be returned with
-resource_create_v2.
-
->
-> > 1) Vulkan seems the most straightforward
-> >
-> > virtio_gpu_cmd_memory_create --> create kernel data structure,
-> > vkAllocateMemory on the host or import guest memory into Vulkan,
-> > depending on the memory type
-> > virtio_gpu_cmd_resource_create_v2 -->  vkCreateImage +
-> > vkGetImageMemoryRequirements on host
-> > virtio_gpu_cmd_resource_attach_memory -->  vkBindImageMemory on host
->
-> Yes.
->
-> Note 1: virtio_gpu_cmd_memory_create + virtio_gpu_cmd_resource_create_v2
-> ordering doesn't matter, so you can virtio_gpu_cmd_resource_create_v2
-> first to figure stride and size, then adjust memory size accordingly.
->
-> Note 2: The old virtio_gpu_cmd_resource_create variants can be used
-> too if you don't need the _v2 features.
->
-> Note 3: If I understand things correctly it would be valid to create a
-> memory pool (allocate one big chunk of memory) with vkAllocateMemory,
-> then bind multiple images at different offsets to it.
->
-> > 2) With a guest allocated dma-buf using some new allocation library,
-> >
-> > virtio_gpu_cmd_resource_create_v2 --> host returns metadata describing
-> > optimal allocation
-> > virtio_gpu_cmd_memory_create --> allocate guest memory pages since
-> > it's guest memory type
-> > virtio_gpu_cmd_resource_attach_memory --> associate guest pages with
-> > resource in kernel, send iovecs to host for bookkeeping
->
-> virtio_gpu_cmd_memory_create sends the iovecs.  Otherwise correct.
->
-> > 3) With gbm it's a little trickier,
-> >
-> > virtio_gpu_cmd_resource_create_v2 --> gbm_bo_create_with_modifiers,
-> > get metadata in return
->
-> Only get metadata in return.
->
-> > virtio_gpu_cmd_memory_create --> create kernel data structure, but
-> > don't allocate pages, nothing on the host
->
-> Memory allocation happens here.  Probably makes sense to have a
-> virtio_gpu_cmd_memory_create_host command here, because the parameters
-> we need are quite different from the guest-allocated case.
->
-If we follow Vulkan, we only need the size and the memory type in most
-cases.  The current version of memory_create is a special case because it
-is an import operation and needs the guest mem_entry.  Perhaps
-memory_create (for host) and memory_import_guest (to replace the current
-version)?
-
->
-> Maybe we even need a virtio_gpu_cmd_memory_create_host_for_resource
-> variant, given that gbm doesn't have raw memory buffers without any
-> format attached to it.
->
-And the memory will only be attachable to the given (or compatible)
-resource, right?
-
-Vulkan is much more explicit than any pre-existing API.  I guess we will
-have to add this to cover APIs beyond Vulkan.
-
-
->
-> > > > > +/* VIRTIO_GPU_RESP_OK_RESOURCE_INFO */
-> > > > > +struct virtio_gpu_resp_resource_info {
-> > > > > +       struct virtio_gpu_ctrl_hdr hdr;
-> > > > > +       __le32 stride[4];
-> > > > > +       __le32 size[4];
-> > > > > +};
-> > > >
-> > > > offsets[4] needed too
-> > >
-> > > That is in VIRTIO_GPU_CMD_RESOURCE_MEMORY_ATTACH ...
-> >
-> > I assume the offsets aren't returned by
-> > VIRTIO_GPU_CMD_RESOURCE_MEMORY_ATTACH.
->
-> Yes, they are send by the guest.
->
-Gurchetan probably means alignment[4].
-
->
-> > How does the guest know at which offsets in memory will be compatible
-> > to share with display, camera, etc?
->
-> Is is good enough to align offsets to page boundaries?
->
-That should be good enough.  But by returning alignments, we can minimize
-the gaps when attaching multiple resources, especially when the resources
-are only used by GPU.
-
-
->
-> > Also, do you want to cover the case where the resource is backed by
-> > three separate memory regions (VK_IMAGE_CREATE_DISJOINT_BIT)?
->
-> Good point.  I guess we should make memory_id in
-> virtio_gpu_cmd_resource_attach_memory an array then,
-> so you can specify a different memory region for each plane.
->
-> cheers,
->   Gerd
->
-> _______________________________________________
-> dri-devel mailing list
-> dri-devel@lists.freedesktop.org
-> https://lists.freedesktop.org/mailman/listinfo/dri-devel
-
---0000000000009b3b7405865dbe7a
-Content-Type: text/html; charset="UTF-8"
-Content-Transfer-Encoding: quoted-printable
-
-<div dir=3D"ltr"><div><div>Hi,</div><div><br></div><div>I am still new to v=
-irgl, and missed the last round of discussion about resource_create_v2.</di=
-v><div><br></div><div>From the discussion below, semantically resource_crea=
-te_v2 creates a host resource object _without_ any storage; memory_create c=
-reates a host memory object which provides the storage.=C2=A0 Is that corre=
-ct?</div><div><br></div><div>And this version of memory_create is probably =
-the most special one among its other potential variants, because it is the =
-only(?) one who imports the pre-allocated guest pages.<br></div></div><div>=
-<br></div><div>Do we expect these new commands to be supported by OpenGL, w=
-hich does not separate resources and memories?</div><div><br></div><div>On =
-Thu, Apr 11, 2019 at 10:49 PM Gerd Hoffmann &lt;<a href=3D"mailto:kraxel@re=
-dhat.com" target=3D"_blank">kraxel@redhat.com</a>&gt; wrote:<br></div><div =
-class=3D"gmail_quote"><blockquote class=3D"gmail_quote" style=3D"margin:0px=
- 0px 0px 0.8ex;border-left:1px solid rgb(204,204,204);padding-left:1ex">On =
-Thu, Apr 11, 2019 at 06:36:15PM -0700, Gurchetan Singh wrote:<br>
-&gt; On Wed, Apr 10, 2019 at 10:03 PM Gerd Hoffmann &lt;<a href=3D"mailto:k=
-raxel@redhat.com" target=3D"_blank">kraxel@redhat.com</a>&gt; wrote:<br>
-&gt; &gt;<br>
-&gt; &gt; &gt; &gt; +/* VIRTIO_GPU_CMD_RESOURCE_CREATE_V2 */<br>
-&gt; &gt; &gt; &gt; +struct virtio_gpu_cmd_resource_create_v2 {<br>
-&gt; &gt; &gt; &gt; +=C2=A0 =C2=A0 =C2=A0 =C2=A0struct virtio_gpu_ctrl_hdr =
-hdr;<br>
-&gt; &gt; &gt; &gt; +=C2=A0 =C2=A0 =C2=A0 =C2=A0__le32 resource_id;<br>
-&gt; &gt; &gt; &gt; +=C2=A0 =C2=A0 =C2=A0 =C2=A0__le32 format;<br>
-&gt; &gt; &gt; &gt; +=C2=A0 =C2=A0 =C2=A0 =C2=A0__le32 width;<br>
-&gt; &gt; &gt; &gt; +=C2=A0 =C2=A0 =C2=A0 =C2=A0__le32 height;<br>
-&gt; &gt; &gt; &gt; +=C2=A0 =C2=A0 =C2=A0 =C2=A0/* 3d only */<br>
-&gt; &gt; &gt; &gt; +=C2=A0 =C2=A0 =C2=A0 =C2=A0__le32 target;<br>
-&gt; &gt; &gt; &gt; +=C2=A0 =C2=A0 =C2=A0 =C2=A0__le32 bind;<br>
-&gt; &gt; &gt; &gt; +=C2=A0 =C2=A0 =C2=A0 =C2=A0__le32 depth;<br>
-&gt; &gt; &gt; &gt; +=C2=A0 =C2=A0 =C2=A0 =C2=A0__le32 array_size;<br>
-&gt; &gt; &gt; &gt; +=C2=A0 =C2=A0 =C2=A0 =C2=A0__le32 last_level;<br>
-&gt; &gt; &gt; &gt; +=C2=A0 =C2=A0 =C2=A0 =C2=A0__le32 nr_samples;<br>
-&gt; &gt; &gt; &gt; +=C2=A0 =C2=A0 =C2=A0 =C2=A0__le32 flags;<br>
-&gt; &gt; &gt; &gt; +};<br>
-&gt; &gt; &gt;<br>
-&gt; &gt; &gt;<br>
-&gt; &gt; &gt; I assume this is always backed by some host side allocation,=
- without any<br>
-&gt; &gt; &gt; guest side pages associated with it?<br>
-&gt; &gt;<br>
-&gt; &gt; No.=C2=A0 It is not backed at all yet.=C2=A0 Workflow would be li=
-ke this:<br>
-&gt; &gt;<br>
-&gt; &gt;=C2=A0 =C2=A0(1) VIRTIO_GPU_CMD_RESOURCE_CREATE_V2<br>
-&gt; &gt;=C2=A0 =C2=A0(2) VIRTIO_GPU_CMD_MEMORY_CREATE (see patch 2)<br>
-&gt; &gt;=C2=A0 =C2=A0(3) VIRTIO_GPU_CMD_RESOURCE_MEMORY_ATTACH (see patch =
-2)<br>
-&gt; <br>
-&gt; Thanks for the clarification.<br>
-&gt; <br>
-&gt; &gt;<br>
-&gt; &gt; You could also create a larger pool with VIRTIO_GPU_CMD_MEMORY_CR=
-EATE,<br>
-&gt; &gt; then go attach multiple resources to it.<br>
-&gt; &gt;<br>
-&gt; &gt; &gt; If so, do we want the option for the guest allocate?<br>
-&gt; &gt;<br>
-&gt; &gt; Allocation options are handled by VIRTIO_GPU_CMD_MEMORY_CREATE<br=
->
-&gt; &gt; (initially guest allocated only, i.e. what virtio-gpu supports to=
-day,<br>
-&gt; &gt; the plan is to add other allocation types later on).<br>
-&gt; <br>
-&gt; You want to cover Vulkan, host-allocated dma-bufs, and guest-allocated=
-<br>
-&gt; dma-bufs with this, correct?=C2=A0 Let me know if it&#39;s a non-goal =
-:-)<br>
-<br>
-Yes, even though it is not clear yet how we are going to handle<br>
-host-allocated buffers in the vhost-user case ...</blockquote><div>This mig=
-ht be another dumb question, but is this only an issue for vhost-user(-gpu)=
- case?=C2=A0 What mechanisms are used to map host dma-buf into the guest ad=
-dress space?</div><div><br></div><div>=C2=A0</div><blockquote class=3D"gmai=
-l_quote" style=3D"margin:0px 0px 0px 0.8ex;border-left:1px solid rgb(204,20=
-4,204);padding-left:1ex">
-<br>
-&gt; If so, we might want to distinguish between memory types (kind of like=
-<br>
-&gt; memoryTypeIndex in Vulkan). [Assuming memory_id is like resource_id]<b=
-r>
-<br>
-For the host-allocated buffers we surely want that, yes.<br>
-For guest-allocated memory regions it isn&#39;t useful I think ...<br></blo=
-ckquote><div>Guest-allocated memory regions can be just another memory type=
-.</div><div><br></div><div>But one needs to create the resource first to kn=
-ow which memory types can be attached to it.=C2=A0 I think the metadata nee=
-ds to be returned with resource_create_v2.</div><blockquote class=3D"gmail_=
-quote" style=3D"margin:0px 0px 0px 0.8ex;border-left:1px solid rgb(204,204,=
-204);padding-left:1ex">
-<br>
-&gt; 1) Vulkan seems the most straightforward<br>
-&gt; <br>
-&gt; virtio_gpu_cmd_memory_create --&gt; create kernel data structure,<br>
-&gt; vkAllocateMemory on the host or import guest memory into Vulkan,<br>
-&gt; depending on the memory type<br>
-&gt; virtio_gpu_cmd_resource_create_v2 --&gt;=C2=A0 vkCreateImage +<br>
-&gt; vkGetImageMemoryRequirements on host<br>
-&gt; virtio_gpu_cmd_resource_attach_memory --&gt;=C2=A0 vkBindImageMemory o=
-n host<br>
-<br>
-Yes.<br>
-<br>
-Note 1: virtio_gpu_cmd_memory_create + virtio_gpu_cmd_resource_create_v2<br=
->
-ordering doesn&#39;t matter, so you can virtio_gpu_cmd_resource_create_v2<b=
-r>
-first to figure stride and size, then adjust memory size accordingly.<br>
-<br>
-Note 2: The old virtio_gpu_cmd_resource_create variants can be used<br>
-too if you don&#39;t need the _v2 features.<br>
-<br>
-Note 3: If I understand things correctly it would be valid to create a<br>
-memory pool (allocate one big chunk of memory) with vkAllocateMemory,<br>
-then bind multiple images at different offsets to it.<br>
-<br>
-&gt; 2) With a guest allocated dma-buf using some new allocation library,<b=
-r>
-&gt; <br>
-&gt; virtio_gpu_cmd_resource_create_v2 --&gt; host returns metadata describ=
-ing<br>
-&gt; optimal allocation<br>
-&gt; virtio_gpu_cmd_memory_create --&gt; allocate guest memory pages since<=
-br>
-&gt; it&#39;s guest memory type<br>
-&gt; virtio_gpu_cmd_resource_attach_memory --&gt; associate guest pages wit=
-h<br>
-&gt; resource in kernel, send iovecs to host for bookkeeping<br>
-<br>
-virtio_gpu_cmd_memory_create sends the iovecs.=C2=A0 Otherwise correct.<br>
-<br>
-&gt; 3) With gbm it&#39;s a little trickier,<br>
-&gt; <br>
-&gt; virtio_gpu_cmd_resource_create_v2 --&gt; gbm_bo_create_with_modifiers,=
-<br>
-&gt; get metadata in return<br>
-<br>
-Only get metadata in return.<br>
-<br>
-&gt; virtio_gpu_cmd_memory_create --&gt; create kernel data structure, but<=
-br>
-&gt; don&#39;t allocate pages, nothing on the host<br>
-<br>
-Memory allocation happens here.=C2=A0 Probably makes sense to have a<br>
-virtio_gpu_cmd_memory_create_host command here, because the parameters<br>
-we need are quite different from the guest-allocated case.<br></blockquote>=
-<div>If we follow Vulkan, we only need the size and the memory type in most=
- cases.=C2=A0 The current version of memory_create is a special case becaus=
-e it is an import operation and needs the guest mem_entry.=C2=A0 Perhaps me=
-mory_create (for host) and memory_import_guest (to replace the current vers=
-ion)?</div><blockquote class=3D"gmail_quote" style=3D"margin:0px 0px 0px 0.=
-8ex;border-left:1px solid rgb(204,204,204);padding-left:1ex">
-<br>
-Maybe we even need a virtio_gpu_cmd_memory_create_host_for_resource<br>
-variant, given that gbm doesn&#39;t have raw memory buffers without any<br>
-format attached to it.<br></blockquote><div>And the memory will only be att=
-achable to the given (or compatible) resource, right?</div><div><br></div><=
-div>Vulkan is much more explicit than any pre-existing API.=C2=A0 I guess w=
-e will have to add this to cover APIs beyond Vulkan.</div><div>=C2=A0</div>=
-<blockquote class=3D"gmail_quote" style=3D"margin:0px 0px 0px 0.8ex;border-=
-left:1px solid rgb(204,204,204);padding-left:1ex">
-<br>
-&gt; &gt; &gt; &gt; +/* VIRTIO_GPU_RESP_OK_RESOURCE_INFO */<br>
-&gt; &gt; &gt; &gt; +struct virtio_gpu_resp_resource_info {<br>
-&gt; &gt; &gt; &gt; +=C2=A0 =C2=A0 =C2=A0 =C2=A0struct virtio_gpu_ctrl_hdr =
-hdr;<br>
-&gt; &gt; &gt; &gt; +=C2=A0 =C2=A0 =C2=A0 =C2=A0__le32 stride[4];<br>
-&gt; &gt; &gt; &gt; +=C2=A0 =C2=A0 =C2=A0 =C2=A0__le32 size[4];<br>
-&gt; &gt; &gt; &gt; +};<br>
-&gt; &gt; &gt;<br>
-&gt; &gt; &gt; offsets[4] needed too<br>
-&gt; &gt;<br>
-&gt; &gt; That is in VIRTIO_GPU_CMD_RESOURCE_MEMORY_ATTACH ...<br>
-&gt; <br>
-&gt; I assume the offsets aren&#39;t returned by<br>
-&gt; VIRTIO_GPU_CMD_RESOURCE_MEMORY_ATTACH.<br>
-<br>
-Yes, they are send by the guest.<br></blockquote><div>Gurchetan probably me=
-ans alignment[4].</div><blockquote class=3D"gmail_quote" style=3D"margin:0p=
-x 0px 0px 0.8ex;border-left:1px solid rgb(204,204,204);padding-left:1ex">
-<br>
-&gt; How does the guest know at which offsets in memory will be compatible<=
-br>
-&gt; to share with display, camera, etc?<br>
-<br>
-Is is good enough to align offsets to page boundaries?<br></blockquote><div=
->That should be good enough.=C2=A0 But by returning alignments, we can mini=
-mize the gaps when attaching multiple resources, especially when the resour=
-ces are only used by GPU.</div><div>=C2=A0<br></div><blockquote class=3D"gm=
-ail_quote" style=3D"margin:0px 0px 0px 0.8ex;border-left:1px solid rgb(204,=
-204,204);padding-left:1ex">
-<br>
-&gt; Also, do you want to cover the case where the resource is backed by<br=
->
-&gt; three separate memory regions (VK_IMAGE_CREATE_DISJOINT_BIT)?<br>
-<br>
-Good point.=C2=A0 I guess we should make memory_id in<br>
-virtio_gpu_cmd_resource_attach_memory an array then,<br>
-so you can specify a different memory region for each plane.<br>
-<br>
-cheers,<br>
-=C2=A0 Gerd<br>
-<br>
-_______________________________________________<br>
-dri-devel mailing list<br>
-<a href=3D"mailto:dri-devel@lists.freedesktop.org" target=3D"_blank">dri-de=
-vel@lists.freedesktop.org</a><br>
-<a href=3D"https://lists.freedesktop.org/mailman/listinfo/dri-devel" rel=3D=
-"noreferrer" target=3D"_blank">https://lists.freedesktop.org/mailman/listin=
-fo/dri-devel</a></blockquote></div></div>
-
---0000000000009b3b7405865dbe7a--
-
---===============3813039669284076910==
-Content-Type: text/plain; charset="us-ascii"
-MIME-Version: 1.0
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-
-_______________________________________________
-Virtualization mailing list
-Virtualization@lists.linux-foundation.org
-https://lists.linuxfoundation.org/mailman/listinfo/virtualization
---===============3813039669284076910==--
+> +}
+> +
+> +int init_device(struct virtio_rdma_info *dev)
+> +{
+> +#define TMP_MAX_VQ 1
+> +	int rc;
+> +	struct virtqueue *vqs[TMP_MAX_VQ];
+> +	vq_callback_t *cbs[TMP_MAX_VQ];
+> +	const char *names[TMP_MAX_VQ];
+> +
+> +	names[0] = "ctrl";
+> +	cbs[0] = rdma_ctrl_ack;
+> +	cbs[0] = NULL;
+> +
+> +	rc = virtio_find_vqs(dev->vdev, TMP_MAX_VQ, vqs, cbs, names, NULL);
+> +	if (rc)
+> +		return rc;
+> +
+> +	dev->ctrl_vq = vqs[0];
+> +
+> +	return 0;
+> +}
+> +
+> +void fini_device(struct virtio_rdma_info *dev)
+> +{
+> +	dev->vdev->config->reset(dev->vdev);
+> +	dev->vdev->config->del_vqs(dev->vdev);
+> +}
+> diff --git a/drivers/infiniband/hw/virtio/virtio_rdma_device.h b/drivers/infiniband/hw/virtio/virtio_rdma_device.h
+> new file mode 100644
+> index 000000000000..d9b1240daf92
+> --- /dev/null
+> +++ b/drivers/infiniband/hw/virtio/virtio_rdma_device.h
+> @@ -0,0 +1,32 @@
+> +/*
+> + * Virtio RDMA device: Device related functions and data
+> + *
+> + * Copyright (C) 2019 Yuval Shaia Oracle Corporation
+> + *
+> + * This program is free software; you can redistribute it and/or modify
+> + * it under the terms of the GNU General Public License as published by
+> + * the Free Software Foundation; either version 2 of the License, or
+> + * (at your option) any later version.
+> + *
+> + * This program is distributed in the hope that it will be useful,
+> + * but WITHOUT ANY WARRANTY; without even the implied warranty of
+> + * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+> + * GNU General Public License for more details.
+> + *
+> + * You should have received a copy of the GNU General Public License
+> + * along with this program; if not, write to the Free Software
+> + * Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301 USA
+> + */
+> +
+> +#ifndef __VIRTIO_RDMA_DEVICE__
+> +#define __VIRTIO_RDMA_DEVICE__
+> +
+> +#define VIRTIO_RDMA_BOARD_ID	1
+> +#define VIRTIO_RDMA_HW_NAME	"virtio-rdma"
+> +#define VIRTIO_RDMA_HW_REV	1
+> +#define VIRTIO_RDMA_DRIVER_VER	"1.0"
+> +
+> +int init_device(struct virtio_rdma_info *dev);
+> +void fini_device(struct virtio_rdma_info *dev);
+> +
+> +#endif
+> diff --git a/drivers/infiniband/hw/virtio/virtio_rdma_ib.c b/drivers/infiniband/hw/virtio/virtio_rdma_ib.c
+> new file mode 100644
+> index 000000000000..02bf4a332611
+> --- /dev/null
+> +++ b/drivers/infiniband/hw/virtio/virtio_rdma_ib.c
+> @@ -0,0 +1,711 @@
+> +/*
+> + * Virtio RDMA device: IB related functions and data
+> + *
+> + * Copyright (C) 2019 Yuval Shaia Oracle Corporation
+> + *
+> + * This program is free software; you can redistribute it and/or modify
+> + * it under the terms of the GNU General Public License as published by
+> + * the Free Software Foundation; either version 2 of the License, or
+> + * (at your option) any later version.
+> + *
+> + * This program is distributed in the hope that it will be useful,
+> + * but WITHOUT ANY WARRANTY; without even the implied warranty of
+> + * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+> + * GNU General Public License for more details.
+> + *
+> + * You should have received a copy of the GNU General Public License
+> + * along with this program; if not, write to the Free Software
+> + * Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301 USA
+> + */
+> +
+> +#include <linux/scatterlist.h>
+> +#include <linux/virtio.h>
+> +#include <rdma/ib_mad.h>
+> +
+> +#include "virtio_rdma.h"
+> +#include "virtio_rdma_device.h"
+> +#include "virtio_rdma_ib.h"
+> +
+> +/* TODO: Move to uapi header file */
+> +
+> +/*
+> + * Control virtqueue data structures
+> + *
+> + * The control virtqueue expects a header in the first sg entry
+> + * and an ack/status response in the last entry.  Data for the
+> + * command goes in between.
+> + */
+> +
+> +#define VIRTIO_RDMA_CTRL_OK	0
+> +#define VIRTIO_RDMA_CTRL_ERR	1
+> +
+> +struct control_buf {
+> +	__u8 cmd;
+> +	__u8 status;
+> +};
+> +
+> +enum {
+> +	VIRTIO_CMD_QUERY_DEVICE = 10,
+> +	VIRTIO_CMD_QUERY_PORT,
+> +	VIRTIO_CMD_CREATE_CQ,
+> +	VIRTIO_CMD_DESTROY_CQ,
+> +	VIRTIO_CMD_CREATE_PD,
+> +	VIRTIO_CMD_DESTROY_PD,
+> +	VIRTIO_CMD_GET_DMA_MR,
+> +};
+> +
+> +struct cmd_query_port {
+> +	__u8 port;
+> +};
+> +
+> +struct cmd_create_cq {
+> +	__u32 cqe;
+> +};
+> +
+> +struct rsp_create_cq {
+> +	__u32 cqn;
+> +};
+> +
+> +struct cmd_destroy_cq {
+> +	__u32 cqn;
+> +};
+> +
+> +struct rsp_create_pd {
+> +	__u32 pdn;
+> +};
+> +
+> +struct cmd_destroy_pd {
+> +	__u32 pdn;
+> +};
+> +
+> +struct cmd_get_dma_mr {
+> +	__u32 pdn;
+> +	__u32 access_flags;
+> +};
+> +
+> +struct rsp_get_dma_mr {
+> +	__u32 mrn;
+> +	__u32 lkey;
+> +	__u32 rkey;
+> +};
+> +
+> +/* TODO: Move to uapi header file */
+> +
+> +struct virtio_rdma_ib_cq {
+> +	struct ib_cq ibcq;
+> +	u32 cq_handle;
+> +};
+> +
+> +/* TODO: For the scope fof the RFC i'm utilizing ib*_*_attr structures */
+> +
+> +static int virtio_rdma_exec_cmd(struct virtio_rdma_info *di, int cmd,
+> +				struct scatterlist *in, struct scatterlist *out)
+> +{
+> +	struct scatterlist *sgs[4], hdr, status;
+> +	struct control_buf *ctrl;
+> +	unsigned tmp;
+> +	int rc;
+> +
+> +	ctrl = kmalloc(sizeof(*ctrl), GFP_ATOMIC);
+> +	ctrl->cmd = cmd;
+> +	ctrl->status = ~0;
+> +
+> +	sg_init_one(&hdr, &ctrl->cmd, sizeof(ctrl->cmd));
+> +	sgs[0] = &hdr;
+> +	sgs[1] = in;
+> +	sgs[2] = out;
+> +	sg_init_one(&status, &ctrl->status, sizeof(ctrl->status));
+> +	sgs[3] = &status;
+> +
+> +	rc = virtqueue_add_sgs(di->ctrl_vq, sgs, 2, 2, di, GFP_ATOMIC);
+> +	if (rc)
+> +		goto out;
+> +
+> +	if (unlikely(!virtqueue_kick(di->ctrl_vq))) {
+> +		goto out_with_status;
+> +	}
+> +
+> +	/* Spin for a response, the kick causes an ioport write, trapping
+> +	 * into the hypervisor, so the request should be handled
+> +	 * immediately */
+> +	while (!virtqueue_get_buf(di->ctrl_vq, &tmp) &&
+> +	       !virtqueue_is_broken(di->ctrl_vq))
+> +		cpu_relax();
+> +
+> +out_with_status:
+> +	printk("%s: cmd %d, status %d\n", __func__, ctrl->cmd, ctrl->status);
+> +	rc = ctrl->status == VIRTIO_RDMA_CTRL_OK ? 0 : 1;
+> +
+> +out:
+> +	kfree(ctrl);
+> +
+> +	return rc;
+> +}
+> +
+> +static int virtio_rdma_port_immutable(struct ib_device *ibdev, u8 port_num,
+> +				      struct ib_port_immutable *immutable)
+> +{
+> +	struct ib_port_attr attr;
+> +	int rc;
+> +
+> +	rc = ib_query_port(ibdev, port_num, &attr);
+> +	if (rc)
+> +		return rc;
+> +
+> +	immutable->core_cap_flags |= RDMA_CORE_PORT_IBA_ROCE_UDP_ENCAP;
+> +	immutable->pkey_tbl_len = attr.pkey_tbl_len;
+> +	immutable->gid_tbl_len = attr.gid_tbl_len;
+> +	immutable->max_mad_size = IB_MGMT_MAD_SIZE;
+> +
+> +	return 0;
+> +}
+> +
+> +static int virtio_rdma_query_device(struct ib_device *ibdev,
+> +				    struct ib_device_attr *props,
+> +				    struct ib_udata *uhw)
+> +{
+> +	struct scatterlist data;
+> +	int offs;
+> +	int rc;
+> +
+> +	if (uhw->inlen || uhw->outlen)
+> +		return -EINVAL;
+> +
+> +	/* We start with sys_image_guid because of inconsistency beween ib_
+> +	 * and ibv_ */
+> +	offs = offsetof(struct ib_device_attr, sys_image_guid);
+> +	sg_init_one(&data, (void *)props + offs, sizeof(*props) - offs);
+> +
+> +	rc = virtio_rdma_exec_cmd(to_vdev(ibdev), VIRTIO_CMD_QUERY_DEVICE, NULL,
+> +				  &data);
+> +
+> +	printk("%s: sys_image_guid 0x%llx\n", __func__,
+> +	       be64_to_cpu(props->sys_image_guid));
+> +
+> +	return rc;
+> +}
+> +
+> +static int virtio_rdma_query_port(struct ib_device *ibdev, u8 port,
+> +				  struct ib_port_attr *props)
+> +{
+> +	struct scatterlist in, out;
+> +	struct cmd_query_port *cmd;
+> +	int offs;
+> +	int rc;
+> +
+> +	cmd = kmalloc(sizeof(*cmd), GFP_ATOMIC);
+> +	if (!cmd)
+> +		return -ENOMEM;
+> +
+> +	/* We start with state because of inconsistency beween ib and ibv */
+> +	offs = offsetof(struct ib_port_attr, state);
+> +	sg_init_one(&out, (void *)props + offs, sizeof(*props) - offs);
+> +
+> +	cmd->port = port;
+> +	sg_init_one(&in, cmd, sizeof(*cmd));
+> +	printk("%s: port %d\n", __func__, cmd->port);
+> +
+> +	rc = virtio_rdma_exec_cmd(to_vdev(ibdev), VIRTIO_CMD_QUERY_PORT, &in,
+> +				  &out);
+> +
+> +	printk("%s: gid_tbl_len %d\n", __func__, props->gid_tbl_len);
+> +
+> +	kfree(cmd);
+> +
+> +	return rc;
+> +}
+> +
+> +static struct net_device *virtio_rdma_get_netdev(struct ib_device *ibdev,
+> +						 u8 port_num)
+> +{
+> +	struct virtio_rdma_info *ri = to_vdev(ibdev);
+> +
+> +	printk("%s:\n", __func__);
+> +
+> +	return ri->netdev;
+> +}
+> +
+> +struct ib_cq *virtio_rdma_create_cq(struct ib_device *ibdev,
+> +				    const struct ib_cq_init_attr *attr,
+> +				    struct ib_ucontext *context,
+> +				    struct ib_udata *udata)
+> +{
+> +	struct scatterlist in, out;
+> +	struct virtio_rdma_ib_cq *vcq;
+> +	struct cmd_create_cq *cmd;
+> +	struct rsp_create_cq *rsp;
+> +	struct ib_cq *cq = NULL;
+> +	int rc;
+> +
+> +	/* TODO: Check MAX_CQ */
+> +
+> +	cmd = kmalloc(sizeof(*cmd), GFP_ATOMIC);
+> +	if (!cmd)
+> +		return ERR_PTR(-ENOMEM);
+> +
+> +	rsp = kmalloc(sizeof(*rsp), GFP_ATOMIC);
+> +	if (!rsp) {
+> +		kfree(cmd);
+> +		return ERR_PTR(-ENOMEM);
+> +	}
+> +
+> +	vcq = kzalloc(sizeof(*vcq), GFP_KERNEL);
+> +	if (!vcq)
+> +		goto out;
+> +
+> +	cmd->cqe = attr->cqe;
+> +	sg_init_one(&in, cmd, sizeof(*cmd));
+> +	printk("%s: cqe %d\n", __func__, cmd->cqe);
+> +
+> +	sg_init_one(&out, rsp, sizeof(*rsp));
+> +
+> +	rc = virtio_rdma_exec_cmd(to_vdev(ibdev), VIRTIO_CMD_CREATE_CQ, &in,
+> +				  &out);
+> +	if (rc)
+> +		goto out_err;
+> +
+> +	printk("%s: cqn 0x%x\n", __func__, rsp->cqn);
+> +	vcq->cq_handle = rsp->cqn;
+> +	vcq->ibcq.cqe = attr->cqe;
+> +	cq = &vcq->ibcq;
+> +
+> +	goto out;
+> +
+> +out_err:
+> +	kfree(vcq);
+> +	return ERR_PTR(rc);
+> +
+> +out:
+> +	kfree(rsp);
+> +	kfree(cmd);
+> +	return cq;
+> +}
+> +
+> +int virtio_rdma_destroy_cq(struct ib_cq *cq)
+> +{
+> +	struct virtio_rdma_ib_cq *vcq;
+> +	struct scatterlist in;
+> +	struct cmd_destroy_cq *cmd;
+> +	int rc;
+> +
+> +	cmd = kmalloc(sizeof(*cmd), GFP_ATOMIC);
+> +	if (!cmd)
+> +		return -ENOMEM;
+> +
+> +	vcq = container_of(cq, struct virtio_rdma_ib_cq, ibcq);
+> +
+> +	cmd->cqn = vcq->cq_handle;
+> +	sg_init_one(&in, cmd, sizeof(*cmd));
+> +
+> +	rc = virtio_rdma_exec_cmd(to_vdev(cq->device), VIRTIO_CMD_DESTROY_CQ,
+> +				  &in, NULL);
+> +
+> +	kfree(cmd);
+> +
+> +	kfree(vcq);
+> +
+> +	return rc;
+> +}
+> +
+> +int virtio_rdma_alloc_pd(struct ib_pd *ibpd, struct ib_ucontext *context,
+> +			 struct ib_udata *udata)
+> +{
+> +	struct virtio_rdma_pd *pd = to_vpd(ibpd);
+> +	struct ib_device *ibdev = ibpd->device;
+> +	struct rsp_create_pd *rsp;
+> +	struct scatterlist out;
+> +	int rc;
+> +
+> +	/* TODO: Check MAX_PD */
+> +
+> +	rsp = kmalloc(sizeof(*rsp), GFP_ATOMIC);
+> +	if (!rsp)
+> +		return -ENOMEM;
+> +
+> +	sg_init_one(&out, rsp, sizeof(*rsp));
+> +
+> +	rc = virtio_rdma_exec_cmd(to_vdev(ibdev), VIRTIO_CMD_CREATE_PD, NULL,
+> +				  &out);
+> +	if (rc)
+> +		goto out;
+> +
+> +	pd->pd_handle = rsp->pdn;
+> +
+> +	printk("%s: pd_handle=%d\n", __func__, pd->pd_handle);
+> +
+> +out:
+> +	kfree(rsp);
+> +
+> +	printk("%s: rc=%d\n", __func__, rc);
+> +	return rc;
+> +}
+> +
+> +void virtio_rdma_dealloc_pd(struct ib_pd *pd)
+> +{
+> +	struct virtio_rdma_pd *vpd = to_vpd(pd);
+> +	struct ib_device *ibdev = pd->device;
+> +	struct cmd_destroy_pd *cmd;
+> +	struct scatterlist in;
+> +
+> +	printk("%s:\n", __func__);
+> +
+> +	cmd = kmalloc(sizeof(*cmd), GFP_ATOMIC);
+> +	if (!cmd)
+> +		return;
+> +
+> +	cmd->pdn = vpd->pd_handle;
+> +	sg_init_one(&in, cmd, sizeof(*cmd));
+> +
+> +	virtio_rdma_exec_cmd(to_vdev(ibdev), VIRTIO_CMD_DESTROY_PD, &in, NULL);
+> +
+> +	kfree(cmd);
+> +}
+> +
+> +struct ib_mr *virtio_rdma_get_dma_mr(struct ib_pd *pd, int acc)
+> +
+> +{
+> +	struct virtio_rdma_user_mr *mr;
+> +	struct scatterlist in, out;
+> +	struct cmd_get_dma_mr *cmd = NULL;
+> +	struct rsp_get_dma_mr *rsp = NULL;
+> +	int rc;
+> +
+> +	mr = kzalloc(sizeof(*mr), GFP_KERNEL);
+> +	if (!mr)
+> +		return ERR_PTR(-ENOMEM);
+> +
+> +	cmd = kmalloc(sizeof(*cmd), GFP_ATOMIC);
+> +	if (!cmd) {
+> +		kfree(mr);
+> +		return ERR_PTR(-ENOMEM);
+> +	}
+> +
+> +	rsp = kmalloc(sizeof(*rsp), GFP_ATOMIC);
+> +	if (!cmd) {
+> +		kfree(mr);
+> +		kfree(cmd);
+> +		return ERR_PTR(-ENOMEM);
+> +	}
+> +
+> +	cmd->pdn = to_vpd(pd)->pd_handle;
+> +	cmd->access_flags = acc;
+> +	sg_init_one(&in, cmd, sizeof(*cmd));
+> +
+> +	sg_init_one(&out, rsp, sizeof(*rsp));
+> +
+> +	rc = virtio_rdma_exec_cmd(to_vdev(pd->device), VIRTIO_CMD_GET_DMA_MR,
+> +				  &in, &out);
+> +	if (rc) {
+> +		kfree(mr);
+> +		kfree(cmd);
+> +		return ERR_PTR(rc);
+> +	}
+> +
+> +	mr->mr_handle = rsp->mrn;
+> +	mr->ibmr.lkey = rsp->lkey;
+> +	mr->ibmr.rkey = rsp->rkey;
+> +
+> +	printk("%s: mr_handle=0x%x\n", __func__, mr->mr_handle);
+> +
+> +	kfree(cmd);
+> +	kfree(rsp);
+> +
+> +	return &mr->ibmr;
+> +}
+> +
+> +struct ib_qp *virtio_rdma_create_qp(struct ib_pd *pd,
+> +				    struct ib_qp_init_attr *init_attr,
+> +				    struct ib_udata *udata)
+> +{
+> +	/* struct pvrdma_dev *dev = to_vdev(pd->device); */
+> +	struct virtio_rdma_qp *qp;
+> +
+> +	printk("%s:\n", __func__);
+> +
+> +	qp = kzalloc(sizeof(*qp), GFP_KERNEL);
+> +	if (!qp)
+> +		return ERR_PTR(-ENOMEM);
+> +
+> +	return &qp->ibqp;
+> +}
+> +
+> +int virtio_rdma_query_gid(struct ib_device *ibdev, u8 port, int index,
+> +			  union ib_gid *gid)
+> +{
+> +	memset(gid, 0, sizeof(union ib_gid));
+> +
+> +	printk("%s: port %d, index %d\n", __func__, port, index);
+> +
+> +	return 0;
+> +}
+> +
+> +static int virtio_rdma_add_gid(const struct ib_gid_attr *attr, void **context)
+> +{
+> +	printk("%s:\n", __func__);
+> +
+> +	return 0;
+> +}
+> +
+> +struct ib_mr *virtio_rdma_alloc_mr(struct ib_pd *pd, enum ib_mr_type mr_type,
+> +				   u32 max_num_sg)
+> +{
+> +	printk("%s: mr_type %d, max_num_sg %d\n", __func__, mr_type,
+> +	       max_num_sg);
+> +
+> +	return NULL;
+> +}
+> +
+> +int virtio_rdma_alloc_ucontext(struct ib_ucontext *uctx, struct ib_udata *udata)
+> +{
+> +	printk("%s:\n", __func__);
+> +
+> +	return 0;
+> +}
+> +
+> +struct ib_ah *virtio_rdma_create_ah(struct ib_pd *pd,
+> +				    struct rdma_ah_attr *ah_attr, u32 flags,
+> +				    struct ib_udata *udata)
+> +{
+> +	printk("%s:\n", __func__);
+> +
+> +	return NULL;
+> +}
+> +
+> +void virtio_rdma_dealloc_ucontext(struct ib_ucontext *ibcontext)
+> +
+> +{
+> +}
+> +
+> +static int virtio_rdma_del_gid(const struct ib_gid_attr *attr, void **context)
+> +{
+> +	printk("%s:\n", __func__);
+> +
+> +	return 0;
+> +}
+> +
+> +int virtio_rdma_dereg_mr(struct ib_mr *ibmr)
+> +{
+> +	printk("%s:\n", __func__);
+> +
+> +	return 0;
+> +}
+> +
+> +int virtio_rdma_destroy_ah(struct ib_ah *ah, u32 flags)
+> +{
+> +	printk("%s:\n", __func__);
+> +
+> +	return 0;
+> +}
+> +
+> +struct virtio_rdma_cq {
+> +	struct ib_cq ibcq;
+> +};
+> +
+> +int virtio_rdma_destroy_qp(struct ib_qp *qp)
+> +{
+> +	printk("%s:\n", __func__);
+> +
+> +	return 0;
+> +}
+> +
+> +static void virtio_rdma_get_fw_ver_str(struct ib_device *device, char *str)
+> +{
+> +	printk("%s:\n", __func__);
+> +}
+> +
+> +enum rdma_link_layer virtio_rdma_port_link_layer(struct ib_device *ibdev,
+> +						 u8 port)
+> +{
+> +	return IB_LINK_LAYER_ETHERNET;
+> +}
+> +
+> +int virtio_rdma_map_mr_sg(struct ib_mr *ibmr, struct scatterlist *sg,
+> +			  int sg_nents, unsigned int *sg_offset)
+> +{
+> +	printk("%s:\n", __func__);
+> +
+> +	return 0;
+> +}
+> +
+> +int virtio_rdma_mmap(struct ib_ucontext *ibcontext, struct vm_area_struct *vma)
+> +{
+> +	printk("%s:\n", __func__);
+> +
+> +	return 0;
+> +}
+> +
+> +int virtio_rdma_modify_port(struct ib_device *ibdev, u8 port, int mask,
+> +			    struct ib_port_modify *props)
+> +{
+> +	printk("%s:\n", __func__);
+> +
+> +	return 0;
+> +}
+> +
+> +int virtio_rdma_modify_qp(struct ib_qp *ibqp, struct ib_qp_attr *attr,
+> +			  int attr_mask, struct ib_udata *udata)
+> +{
+> +	printk("%s:\n", __func__);
+> +
+> +	return 0;
+> +}
+> +
+> +int virtio_rdma_poll_cq(struct ib_cq *ibcq, int num_entries, struct ib_wc *wc)
+> +{
+> +	printk("%s:\n", __func__);
+> +
+> +	return 0;
+> +}
+> +
+> +int virtio_rdma_post_recv(struct ib_qp *ibqp, const struct ib_recv_wr *wr,
+> +			  const struct ib_recv_wr **bad_wr)
+> +{
+> +	printk("%s:\n", __func__);
+> +
+> +	return 0;
+> +}
+> +
+> +int virtio_rdma_post_send(struct ib_qp *ibqp, const struct ib_send_wr *wr,
+> +			  const struct ib_send_wr **bad_wr)
+> +{
+> +	printk("%s:\n", __func__);
+> +
+> +	return 0;
+> +}
+> +
+> +int virtio_rdma_query_pkey(struct ib_device *ibdev, u8 port, u16 index,
+> +			   u16 *pkey)
+> +{
+> +	printk("%s:\n", __func__);
+> +
+> +	return 0;
+> +}
+> +
+> +int virtio_rdma_query_qp(struct ib_qp *ibqp, struct ib_qp_attr *attr,
+> +			 int attr_mask, struct ib_qp_init_attr *init_attr)
+> +{
+> +	printk("%s:\n", __func__);
+> +
+> +	return 0;
+> +}
+> +
+> +struct ib_mr *virtio_rdma_reg_user_mr(struct ib_pd *pd, u64 start, u64 length,
+> +				      u64 virt_addr, int access_flags,
+> +				      struct ib_udata *udata)
+> +{
+> +	printk("%s:\n", __func__);
+> +
+> +	return NULL;
+> +}
+> +
+> +int virtio_rdma_req_notify_cq(struct ib_cq *ibcq,
+> +			      enum ib_cq_notify_flags notify_flags)
+> +{
+> +	printk("%s:\n", __func__);
+> +
+> +	return 0;
+> +}
+> +
+> +static const struct ib_device_ops virtio_rdma_dev_ops = {
+> +	.get_port_immutable = virtio_rdma_port_immutable,
+> +	.query_device = virtio_rdma_query_device,
+> +	.query_port = virtio_rdma_query_port,
+> +	.get_netdev = virtio_rdma_get_netdev,
+> +	.create_cq = virtio_rdma_create_cq,
+> +	.destroy_cq = virtio_rdma_destroy_cq,
+> +	.alloc_pd = virtio_rdma_alloc_pd,
+> +	.dealloc_pd = virtio_rdma_dealloc_pd,
+> +	.get_dma_mr = virtio_rdma_get_dma_mr,
+> +	.create_qp = virtio_rdma_create_qp,
+> +	.query_gid = virtio_rdma_query_gid,
+> +	.add_gid = virtio_rdma_add_gid,
+> +	.alloc_mr = virtio_rdma_alloc_mr,
+> +	.alloc_ucontext = virtio_rdma_alloc_ucontext,
+> +	.create_ah = virtio_rdma_create_ah,
+> +	.dealloc_ucontext = virtio_rdma_dealloc_ucontext,
+> +	.del_gid = virtio_rdma_del_gid,
+> +	.dereg_mr = virtio_rdma_dereg_mr,
+> +	.destroy_ah = virtio_rdma_destroy_ah,
+> +	.destroy_qp = virtio_rdma_destroy_qp,
+> +	.get_dev_fw_str = virtio_rdma_get_fw_ver_str,
+> +	.get_link_layer = virtio_rdma_port_link_layer,
+> +	.get_port_immutable = virtio_rdma_port_immutable,
+> +	.map_mr_sg = virtio_rdma_map_mr_sg,
+> +	.mmap = virtio_rdma_mmap,
+> +	.modify_port = virtio_rdma_modify_port,
+> +	.modify_qp = virtio_rdma_modify_qp,
+> +	.poll_cq = virtio_rdma_poll_cq,
+> +	.post_recv = virtio_rdma_post_recv,
+> +	.post_send = virtio_rdma_post_send,
+> +	.query_device = virtio_rdma_query_device,
+> +	.query_pkey = virtio_rdma_query_pkey,
+> +	.query_port = virtio_rdma_query_port,
+> +	.query_qp = virtio_rdma_query_qp,
+> +	.reg_user_mr = virtio_rdma_reg_user_mr,
+> +	.req_notify_cq = virtio_rdma_req_notify_cq,
+> +	INIT_RDMA_OBJ_SIZE(ib_pd, virtio_rdma_pd, ibpd),
+> +};
+> +
+> +static ssize_t hca_type_show(struct device *device,
+> +			     struct device_attribute *attr, char *buf)
+> +{
+> +	return sprintf(buf, "%s-%s\n", VIRTIO_RDMA_HW_NAME,
+> +		       VIRTIO_RDMA_DRIVER_VER);
+> +}
+> +static DEVICE_ATTR_RO(hca_type);
+> +
+> +static ssize_t hw_rev_show(struct device *device,
+> +			   struct device_attribute *attr, char *buf)
+> +{
+> +	return sprintf(buf, "%d\n", VIRTIO_RDMA_HW_REV);
+> +}
+> +static DEVICE_ATTR_RO(hw_rev);
+> +
+> +static ssize_t board_id_show(struct device *device,
+> +			     struct device_attribute *attr, char *buf)
+> +{
+> +	return sprintf(buf, "%d\n", VIRTIO_RDMA_BOARD_ID);
+> +}
+> +static DEVICE_ATTR_RO(board_id);
+> +
+> +static struct attribute *virtio_rdmaa_class_attributes[] = {
+> +	&dev_attr_hw_rev.attr,
+> +	&dev_attr_hca_type.attr,
+> +	&dev_attr_board_id.attr,
+> +	NULL,
+> +};
+> +
+> +static const struct attribute_group virtio_rdmaa_attr_group = {
+> +	.attrs = virtio_rdmaa_class_attributes,
+> +};
+> +
+> +int init_ib(struct virtio_rdma_info *ri)
+> +{
+> +	int rc;
+> +
+> +	ri->ib_dev.owner = THIS_MODULE;
+> +	ri->ib_dev.num_comp_vectors = 1;
+> +	ri->ib_dev.dev.parent = &ri->vdev->dev;
+> +	ri->ib_dev.node_type = RDMA_NODE_IB_CA;
+> +	ri->ib_dev.phys_port_cnt = 1;
+> +	ri->ib_dev.uverbs_cmd_mask =
+> +		(1ull << IB_USER_VERBS_CMD_QUERY_DEVICE)	|
+> +		(1ull << IB_USER_VERBS_CMD_QUERY_PORT)		|
+> +		(1ull << IB_USER_VERBS_CMD_CREATE_CQ)		|
+> +		(1ull << IB_USER_VERBS_CMD_DESTROY_CQ)		|
+> +		(1ull << IB_USER_VERBS_CMD_ALLOC_PD)		|
+> +		(1ull << IB_USER_VERBS_CMD_DEALLOC_PD);
+> +
+> +	rdma_set_device_sysfs_group(&ri->ib_dev, &virtio_rdmaa_attr_group);
+> +
+> +	ib_set_device_ops(&ri->ib_dev, &virtio_rdma_dev_ops);
+> +
+> +	rc = ib_register_device(&ri->ib_dev, "virtio_rdma%d");
+> +
+> +	return rc;
+> +}
+> +
+> +void fini_ib(struct virtio_rdma_info *ri)
+> +{
+> +	ib_unregister_device(&ri->ib_dev);
+> +}
+> diff --git a/drivers/infiniband/hw/virtio/virtio_rdma_ib.h b/drivers/infiniband/hw/virtio/virtio_rdma_ib.h
+> new file mode 100644
+> index 000000000000..7b82a60581ff
+> --- /dev/null
+> +++ b/drivers/infiniband/hw/virtio/virtio_rdma_ib.h
+> @@ -0,0 +1,48 @@
+> +/*
+> + * Virtio RDMA device: IB related functions and data
+> + *
+> + * Copyright (C) 2019 Yuval Shaia Oracle Corporation
+> + *
+> + * This program is free software; you can redistribute it and/or modify
+> + * it under the terms of the GNU General Public License as published by
+> + * the Free Software Foundation; either version 2 of the License, or
+> + * (at your option) any later version.
+> + *
+> + * This program is distributed in the hope that it will be useful,
+> + * but WITHOUT ANY WARRANTY; without even the implied warranty of
+> + * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+> + * GNU General Public License for more details.
+> + *
+> + * You should have received a copy of the GNU General Public License
+> + * along with this program; if not, write to the Free Software
+> + * Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301 USA
+> + */
+> +
+> +#ifndef __VIRTIO_RDMA_IB__
+> +#define __VIRTIO_RDMA_IB__
+> +
+> +#include <rdma/ib_verbs.h>
+> +
+> +struct virtio_rdma_pd {
+> +	struct ib_pd ibpd;
+> +	u32 pd_handle;
+> +};
+> +
+> +struct virtio_rdma_user_mr {
+> +	struct ib_mr ibmr;
+> +	u32 mr_handle;
+> +};
+> +
+> +struct virtio_rdma_qp {
+> +	struct ib_qp ibqp;
+> +};
+> +
+> +static inline struct virtio_rdma_pd *to_vpd(struct ib_pd *ibpd)
+> +{
+> +	return container_of(ibpd, struct virtio_rdma_pd, ibpd);
+> +}
+> +
+> +int init_ib(struct virtio_rdma_info *ri);
+> +void fini_ib(struct virtio_rdma_info *ri);
+> +
+> +#endif
+> diff --git a/drivers/infiniband/hw/virtio/virtio_rdma_main.c b/drivers/infiniband/hw/virtio/virtio_rdma_main.c
+> new file mode 100644
+> index 000000000000..811533d63160
+> --- /dev/null
+> +++ b/drivers/infiniband/hw/virtio/virtio_rdma_main.c
+> @@ -0,0 +1,149 @@
+> +/*
+> + * Virtio RDMA device
+> + *
+> + * Copyright (C) 2019 Yuval Shaia Oracle Corporation
+> + *
+> + * This program is free software; you can redistribute it and/or modify
+> + * it under the terms of the GNU General Public License as published by
+> + * the Free Software Foundation; either version 2 of the License, or
+> + * (at your option) any later version.
+> + *
+> + * This program is distributed in the hope that it will be useful,
+> + * but WITHOUT ANY WARRANTY; without even the implied warranty of
+> + * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+> + * GNU General Public License for more details.
+> + *
+> + * You should have received a copy of the GNU General Public License
+> + * along with this program; if not, write to the Free Software
+> + * Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301 USA
+> + */
+> +
+> +#include <linux/err.h>
+> +#include <linux/scatterlist.h>
+> +#include <linux/spinlock.h>
+> +#include <linux/virtio.h>
+> +#include <linux/module.h>
+> +#include <uapi/linux/virtio_ids.h>
+> +
+> +#include "virtio_rdma.h"
+> +#include "virtio_rdma_device.h"
+> +#include "virtio_rdma_ib.h"
+> +#include "virtio_rdma_netdev.h"
+> +
+> +/* TODO:
+> + * - How to hook to unload driver, we need to undo all the stuff with did
+> + *   for all the devices that probed
+> + * -
+> + */
+> +
+> +static int virtio_rdma_probe(struct virtio_device *vdev)
+> +{
+> +	struct virtio_rdma_info *ri;
+> +	int rc = -EIO;
+> +
+> +	ri = ib_alloc_device(virtio_rdma_info, ib_dev);
+> +	if (!ri) {
+> +		pr_err("Fail to allocate IB device\n");
+> +		rc = -ENOMEM;
+> +		goto out;
+> +	}
+> +	vdev->priv = ri;
+> +
+> +	ri->vdev = vdev;
+> +
+> +	rc = init_device(ri);
+> +	if (rc) {
+> +		pr_err("Fail to connect to device\n");
+> +		goto out_dealloc_ib_device;
+> +	}
+> +
+> +	rc = init_netdev(ri);
+> +	if (rc) {
+> +		pr_err("Fail to connect to NetDev layer\n");
+> +		goto out_fini_device;
+> +	}
+> +
+> +	rc = init_ib(ri);
+> +	if (rc) {
+> +		pr_err("Fail to connect to IB layer\n");
+> +		goto out_fini_netdev;
+> +	}
+> +
+> +	pr_info("VirtIO RDMA device %d probed\n", vdev->index);
+> +
+> +	goto out;
+> +
+> +out_fini_netdev:
+> +	fini_netdev(ri);
+> +
+> +out_fini_device:
+> +	fini_device(ri);
+> +
+> +out_dealloc_ib_device:
+> +	ib_dealloc_device(&ri->ib_dev);
+> +
+> +	vdev->priv = NULL;
+> +
+> +out:
+> +	return rc;
+> +}
+> +
+> +static void virtio_rdma_remove(struct virtio_device *vdev)
+> +{
+> +	struct virtio_rdma_info *ri = vdev->priv;
+> +
+> +	if (!ri)
+> +		return;
+> +
+> +	vdev->priv = NULL;
+> +
+> +	fini_ib(ri);
+> +
+> +	fini_netdev(ri);
+> +
+> +	fini_device(ri);
+> +
+> +	ib_dealloc_device(&ri->ib_dev);
+> +
+> +	pr_info("VirtIO RDMA device %d removed\n", vdev->index);
+> +}
+> +
+> +static struct virtio_device_id id_table[] = {
+> +	{ VIRTIO_ID_RDMA, VIRTIO_DEV_ANY_ID },
+> +	{ 0 },
+> +};
+> +
+> +static struct virtio_driver virtio_rdma_driver = {
+> +	.driver.name	= KBUILD_MODNAME,
+> +	.driver.owner	= THIS_MODULE,
+> +	.id_table	= id_table,
+> +	.probe		= virtio_rdma_probe,
+> +	.remove		= virtio_rdma_remove,
+> +};
+> +
+> +static int __init virtio_rdma_init(void)
+> +{
+> +	int rc;
+> +
+> +	rc = register_virtio_driver(&virtio_rdma_driver);
+> +	if (rc) {
+> +		pr_err("%s: Fail to register virtio driver (%d)\n", __func__,
+> +		       rc);
+> +		return rc;
+> +	}
+> +
+> +	return 0;
+> +}
+> +
+> +static void __exit virtio_rdma_fini(void)
+> +{
+> +	unregister_virtio_driver(&virtio_rdma_driver);
+> +}
+> +
+> +module_init(virtio_rdma_init);
+> +module_exit(virtio_rdma_fini);
+> +
+> +MODULE_DEVICE_TABLE(virtio, id_table);
+> +MODULE_AUTHOR("Yuval Shaia");
+> +MODULE_DESCRIPTION("Virtio RDMA driver");
+> +MODULE_LICENSE("Dual BSD/GPL");
+> diff --git a/drivers/infiniband/hw/virtio/virtio_rdma_netdev.c b/drivers/infiniband/hw/virtio/virtio_rdma_netdev.c
+> new file mode 100644
+> index 000000000000..001f30b3e0b9
+> --- /dev/null
+> +++ b/drivers/infiniband/hw/virtio/virtio_rdma_netdev.c
+> @@ -0,0 +1,44 @@
+> +/*
+> + * Virtio RDMA device
+> + *
+> + * Copyright (C) 2019 Yuval Shaia Oracle Corporation
+> + *
+> + * This program is free software; you can redistribute it and/or modify
+> + * it under the terms of the GNU General Public License as published by
+> + * the Free Software Foundation; either version 2 of the License, or
+> + * (at your option) any later version.
+> + *
+> + * This program is distributed in the hope that it will be useful,
+> + * but WITHOUT ANY WARRANTY; without even the implied warranty of
+> + * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+> + * GNU General Public License for more details.
+> + *
+> + * You should have received a copy of the GNU General Public License
+> + * along with this program; if not, write to the Free Software
+> + * Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301 USA
+> + */
+> +
+> +#include "virtio_rdma_netdev.h"
+> +
+> +int init_netdev(struct virtio_rdma_info *ri)
+> +{
+> +	struct net_device *dev;
+> +	struct virtio_rdma_netdev_info *vrndi;
+> +
+> +	dev = alloc_etherdev(sizeof(struct virtio_rdma_netdev_info));
+> +	if (!dev) {
+> +		return -ENOMEM;
+> +	}
+> +
+> +	SET_NETDEV_DEV(dev, &ri->vdev->dev);
+> +	vrndi = netdev_priv(dev);
+> +	vrndi->ri = ri;
+> +	ri->netdev = dev;
+> +
+> +	return 0;
+> +}
+> +
+> +void fini_netdev(struct virtio_rdma_info *ri)
+> +{
+> +	unregister_netdev(ri->netdev);
+> +}
+> diff --git a/drivers/infiniband/hw/virtio/virtio_rdma_netdev.h b/drivers/infiniband/hw/virtio/virtio_rdma_netdev.h
+> new file mode 100644
+> index 000000000000..e7e5d276d8ec
+> --- /dev/null
+> +++ b/drivers/infiniband/hw/virtio/virtio_rdma_netdev.h
+> @@ -0,0 +1,33 @@
+> +/*
+> + * Virtio RDMA device: Netdev related functions and data
+> + *
+> + * Copyright (C) 2019 Yuval Shaia Oracle Corporation
+> + *
+> + * This program is free software; you can redistribute it and/or modify
+> + * it under the terms of the GNU General Public License as published by
+> + * the Free Software Foundation; either version 2 of the License, or
+> + * (at your option) any later version.
+> + *
+> + * This program is distributed in the hope that it will be useful,
+> + * but WITHOUT ANY WARRANTY; without even the implied warranty of
+> + * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+> + * GNU General Public License for more details.
+> + *
+> + * You should have received a copy of the GNU General Public License
+> + * along with this program; if not, write to the Free Software
+> + * Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301 USA
+> + */
+> +
+> +#ifndef __VIRTIO_RDMA_NETDEV__
+> +#define __VIRTIO_RDMA_NETDEV__
+> +
+> +#include "virtio_rdma.h"
+> +
+> +struct virtio_rdma_netdev_info {
+> +	struct virtio_rdma_info *ri;
+> +};
+> +
+> +int init_netdev(struct virtio_rdma_info *ri);
+> +void fini_netdev(struct virtio_rdma_info *ri);
+> +
+> +#endif
+> diff --git a/include/uapi/linux/virtio_ids.h b/include/uapi/linux/virtio_ids.h
+> index 6d5c3b2d4f4d..288ee6fec8d3 100644
+> --- a/include/uapi/linux/virtio_ids.h
+> +++ b/include/uapi/linux/virtio_ids.h
+> @@ -43,5 +43,6 @@
+>   #define VIRTIO_ID_INPUT        18 /* virtio input */
+>   #define VIRTIO_ID_VSOCK        19 /* virtio vsock transport */
+>   #define VIRTIO_ID_CRYPTO       20 /* virtio crypto */
+> +#define VIRTIO_ID_RDMA         26 /* RDMA */
+>   
+>   #endif /* _LINUX_VIRTIO_IDS_H */
