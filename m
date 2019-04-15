@@ -1,19 +1,19 @@
 From: Daniel Vetter <daniel@ffwll.ch>
 Subject: Re: [PATCH 00/15] Share TTM code among framebuffer drivers
-Date: Mon, 15 Apr 2019 17:57:34 +0200
-Message-ID: <20190415155734.GC2665__303.906777274676$1555343876$gmane$org@phenom.ffwll.local>
+Date: Mon, 15 Apr 2019 21:17:04 +0200
+Message-ID: <CAKMK7uG+E1uTwSifSu5TrXwQXqu0Cpr30B02_S9bf95HEyqY_g__32007.953773585$1555355849$gmane$org@mail.gmail.com>
 References: <20190408092144.4548-1-tzimmermann@suse.de>
 	<d69e0b34-c586-2338-b063-fb758b6465d8@amd.com>
 	<096a70a7-ed24-2161-29e9-1907221b8a64@suse.de>
 	<20190409071249.ngzarvjlztx4jwbh@sirius.home.kraxel.org>
 	<a2f778c3-904b-5ee2-215e-df534f14b928@suse.de>
 	<20190415155430.GB2665@phenom.ffwll.local>
+	<b9ba305f-8140-faf9-3954-464d9f38852a@suse.de>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="iso-8859-1"
-Content-Transfer-Encoding: quoted-printable
+Content-Type: text/plain; charset="utf-8"
+Content-Transfer-Encoding: base64
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-Content-Disposition: inline
-In-Reply-To: <20190415155430.GB2665@phenom.ffwll.local>
+In-Reply-To: <b9ba305f-8140-faf9-3954-464d9f38852a@suse.de>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -24,155 +24,102 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
 To: Thomas Zimmermann <tzimmermann@suse.de>
-Cc: "airlied@linux.ie" <airlied@linux.ie>, "puck.chen@hisilicon.com" <puck.chen@hisilicon.com>, "dri-devel@lists.freedesktop.org" <dri-devel@lists.freedesktop.org>, "virtualization@lists.linux-foundation.org" <virtualization@lists.linux-foundation.org>, "z.liuxinliang@hisilicon.com" <z.liuxinliang@hisilicon.com>, "hdegoede@redhat.com" <hdegoede@redhat.com>, "kong.kongxinwei@hisilicon.com" <kong.kongxinwei@hisilicon.com>, "Huang, Ray" <Ray.Huang@amd.com>, "daniel@ffwll.ch" <daniel@ffwll.ch>, "zourongrong@gmail.com" <zourongrong@gmail.com>, "Zhang,
-	Jerry" <Jerry.Zhang@amd.com>, "Koenig,
+Cc: "airlied@linux.ie" <airlied@linux.ie>, "puck.chen@hisilicon.com" <puck.chen@hisilicon.com>, "Zhang,
+	Jerry" <Jerry.Zhang@amd.com>, "dri-devel@lists.freedesktop.org" <dri-devel@lists.freedesktop.org>, "virtualization@lists.linux-foundation.org" <virtualization@lists.linux-foundation.org>, "z.liuxinliang@hisilicon.com" <z.liuxinliang@hisilicon.com>, "hdegoede@redhat.com" <hdegoede@redhat.com>, "kong.kongxinwei@hisilicon.com" <kong.kongxinwei@hisilicon.com>, "Huang, Ray" <Ray.Huang@amd.com>, "zourongrong@gmail.com" <zourongrong@gmail.com>, "Koenig,
 	Christian" <Christian.Koenig@amd.com>
 List-Id: virtualization@lists.linuxfoundation.org
 
-On Mon, Apr 15, 2019 at 05:54:30PM +0200, Daniel Vetter wrote:
-> On Tue, Apr 09, 2019 at 09:50:40AM +0200, Thomas Zimmermann wrote:
-> > Hi
-> > =
-
-> > Am 09.04.19 um 09:12 schrieb kraxel@redhat.com:
-> > >   Hi,
-> > > =
-
-> > >> If not for TTM, what would be the alternative? One VMA manager per
-> > >> memory region per device?
-> > > =
-
-> > > Depends pretty much on the device.
-> > > =
-
-> > > The cirrus is a display device with only 4 MB of vram.  You can't fit
-> > > much in there.  A single 1024x768 @ 24bpp framebuffer needs more 50%
-> > > of the video memory already.  Which is why the cirrus driver (before =
-the
-> > > rewrite) had to migrate buffers from/to vram on every page flip[1].  =
-Which
-> > > is one[2] of the reasons why cirrus (after rewrite) doesn't ttm-manag=
-e the
-> > > vram any more.  gem objects are managed with the shmem helpers instead
-> > > and the active framebuffer is blitted to vram.
-> > > =
-
-> > > The qemu stdvga (bochs driver) has 16 MB vram by default and can be
-> > > configured to have up to 256 MB.  Plenty of room even for multiple 4k
-> > > framebuffers if needed.  So for the bochs driver all the ttm bo
-> > > migration logic is not needed, it could just store everything in vram.
-> > > =
-
-> > > A set of drm_gem_vram_* helpers would do the job for bochs.
-> > =
-
-> > Thanks for clarifying. drm_gem_vram_* (and drm_vram_mm for Simple TTM)
-> > is probably a better name for the data structures.
-> =
-
-> +1 on drm_gem_vram_* naming convention - we want to describe what it's
-> for, not how it's implemented.
-> =
-
-> > > I'd expect the same applies to the vbox driver.
-> > > =
-
-> > > Dunno about the other drm drivers and the fbdev drivers you plan to
-> > > migrate over.
-> > =
-
-> > The AST HW can support up to 512 MiB, but 32-64 MiB seems more realistic
-> > for a server. It's similar with mgag200 HW. The old fbdev-supported
-> > device are all somewhere in the range between cirrus and bochs. Some
-> > drivers would probably benefit from the cirrus approach, some could use
-> > VRAM directly.
-> =
-
-> I think for dumb scanout with vram all we need is:
-> - pin framebuffers, which potentially moves the underlying bo into vram
-> - unpin framebuffers (which is just accounting, we don't want to move the
->   bo on every flip!)
-> - if a pin doesn't find enough space, move one of the unpinned bo still
->   resident in vram out
-> - no pipelining, no support for dma engines (it's all cpu copies anway)
-> - a simple drm_mm should be good enough to manage the vram, no need for
->   the ttm style abstraction over how memory is manged
-> - also just bake in the lru eviction list and algorithm
-> - probably good to have built-in support for redirecting the mmap between
->   shmem and iomem.
-> - anything that needs pipelining or copy engines would be out of scope for
->   these helpers
-
-One more:
-
-- Only bother supporting hw that needs contiguous scanout buffers in VRAM.
-  I think hw that has pagetables for scanout (and everything else really)
-  is sufficiently different that cramming them into the same helpers
-  doesn't make much sense: You want to manage your VRAM with a buddy
-  allocator at a page level, plus you need to manage your pagetables, and
-  all is likely very hw specific anyway. Plus I haven't seen such hw that
-  doesn't come with a real gpu attached :-)
-
--Daniel
-
-> =
-
-> I think for starting points we can go with a copypasted version of the
-> various ttm implementations we already have, and then simplify from there
-> as needed. Or just start fresh if that's too complicated, due to the issue
-> Christian highlighted.
-> -Daniel
-> =
-
-> > Best regards
-> > Thomas
-> > =
-
-> > > =
-
-> > > cheers,
-> > >   Gerd
-> > > =
-
-> > > [1] Note: The page-flip migration logic is present in some of the oth=
-er
-> > >     drivers too, not sure whenever they actually need that due to bei=
-ng low
-> > >     on vram too or whenever they just copied the old cirrus code ...
-> > > =
-
-> > > [2] The other reason is that this allow to convert formats at blit ti=
-me,
-> > >     which helps to deal with some cirrus hardware limitations.
-> > > =
-
-> > =
-
-> > -- =
-
-> > Thomas Zimmermann
-> > Graphics Driver Developer
-> > SUSE Linux GmbH, Maxfeldstrasse 5, 90409 Nuernberg, Germany
-> > GF: Felix Imend=F6rffer, Mary Higgins, Sri Rasiah
-> > HRB 21284 (AG N=FCrnberg)
-> > =
-
-> =
-
-> =
-
-> =
-
-> =
-
-> -- =
-
-> Daniel Vetter
-> Software Engineer, Intel Corporation
-> http://blog.ffwll.ch
-
--- =
-
-Daniel Vetter
-Software Engineer, Intel Corporation
-http://blog.ffwll.ch
+T24gTW9uLCBBcHIgMTUsIDIwMTkgYXQgNjoyMSBQTSBUaG9tYXMgWmltbWVybWFubiA8dHppbW1l
+cm1hbm5Ac3VzZS5kZT4gd3JvdGU6Cj4KPiBIaQo+Cj4gQW0gMTUuMDQuMTkgdW0gMTc6NTQgc2No
+cmllYiBEYW5pZWwgVmV0dGVyOgo+ID4gT24gVHVlLCBBcHIgMDksIDIwMTkgYXQgMDk6NTA6NDBB
+TSArMDIwMCwgVGhvbWFzIFppbW1lcm1hbm4gd3JvdGU6Cj4gPj4gSGkKPiA+Pgo+ID4+IEFtIDA5
+LjA0LjE5IHVtIDA5OjEyIHNjaHJpZWIga3JheGVsQHJlZGhhdC5jb206Cj4gPj4+ICAgSGksCj4g
+Pj4+Cj4gPj4+PiBJZiBub3QgZm9yIFRUTSwgd2hhdCB3b3VsZCBiZSB0aGUgYWx0ZXJuYXRpdmU/
+IE9uZSBWTUEgbWFuYWdlciBwZXIKPiA+Pj4+IG1lbW9yeSByZWdpb24gcGVyIGRldmljZT8KPiA+
+Pj4KPiA+Pj4gRGVwZW5kcyBwcmV0dHkgbXVjaCBvbiB0aGUgZGV2aWNlLgo+ID4+Pgo+ID4+PiBU
+aGUgY2lycnVzIGlzIGEgZGlzcGxheSBkZXZpY2Ugd2l0aCBvbmx5IDQgTUIgb2YgdnJhbS4gIFlv
+dSBjYW4ndCBmaXQKPiA+Pj4gbXVjaCBpbiB0aGVyZS4gIEEgc2luZ2xlIDEwMjR4NzY4IEAgMjRi
+cHAgZnJhbWVidWZmZXIgbmVlZHMgbW9yZSA1MCUKPiA+Pj4gb2YgdGhlIHZpZGVvIG1lbW9yeSBh
+bHJlYWR5LiAgV2hpY2ggaXMgd2h5IHRoZSBjaXJydXMgZHJpdmVyIChiZWZvcmUgdGhlCj4gPj4+
+IHJld3JpdGUpIGhhZCB0byBtaWdyYXRlIGJ1ZmZlcnMgZnJvbS90byB2cmFtIG9uIGV2ZXJ5IHBh
+Z2UgZmxpcFsxXS4gIFdoaWNoCj4gPj4+IGlzIG9uZVsyXSBvZiB0aGUgcmVhc29ucyB3aHkgY2ly
+cnVzIChhZnRlciByZXdyaXRlKSBkb2Vzbid0IHR0bS1tYW5hZ2UgdGhlCj4gPj4+IHZyYW0gYW55
+IG1vcmUuICBnZW0gb2JqZWN0cyBhcmUgbWFuYWdlZCB3aXRoIHRoZSBzaG1lbSBoZWxwZXJzIGlu
+c3RlYWQKPiA+Pj4gYW5kIHRoZSBhY3RpdmUgZnJhbWVidWZmZXIgaXMgYmxpdHRlZCB0byB2cmFt
+Lgo+ID4+Pgo+ID4+PiBUaGUgcWVtdSBzdGR2Z2EgKGJvY2hzIGRyaXZlcikgaGFzIDE2IE1CIHZy
+YW0gYnkgZGVmYXVsdCBhbmQgY2FuIGJlCj4gPj4+IGNvbmZpZ3VyZWQgdG8gaGF2ZSB1cCB0byAy
+NTYgTUIuICBQbGVudHkgb2Ygcm9vbSBldmVuIGZvciBtdWx0aXBsZSA0awo+ID4+PiBmcmFtZWJ1
+ZmZlcnMgaWYgbmVlZGVkLiAgU28gZm9yIHRoZSBib2NocyBkcml2ZXIgYWxsIHRoZSB0dG0gYm8K
+PiA+Pj4gbWlncmF0aW9uIGxvZ2ljIGlzIG5vdCBuZWVkZWQsIGl0IGNvdWxkIGp1c3Qgc3RvcmUg
+ZXZlcnl0aGluZyBpbiB2cmFtLgo+ID4+Pgo+ID4+PiBBIHNldCBvZiBkcm1fZ2VtX3ZyYW1fKiBo
+ZWxwZXJzIHdvdWxkIGRvIHRoZSBqb2IgZm9yIGJvY2hzLgo+ID4+Cj4gPj4gVGhhbmtzIGZvciBj
+bGFyaWZ5aW5nLiBkcm1fZ2VtX3ZyYW1fKiAoYW5kIGRybV92cmFtX21tIGZvciBTaW1wbGUgVFRN
+KQo+ID4+IGlzIHByb2JhYmx5IGEgYmV0dGVyIG5hbWUgZm9yIHRoZSBkYXRhIHN0cnVjdHVyZXMu
+Cj4gPgo+ID4gKzEgb24gZHJtX2dlbV92cmFtXyogbmFtaW5nIGNvbnZlbnRpb24gLSB3ZSB3YW50
+IHRvIGRlc2NyaWJlIHdoYXQgaXQncwo+ID4gZm9yLCBub3QgaG93IGl0J3MgaW1wbGVtZW50ZWQu
+Cj4KPiBPSywgZ3JlYXQuCj4KPiA+Pj4gSSdkIGV4cGVjdCB0aGUgc2FtZSBhcHBsaWVzIHRvIHRo
+ZSB2Ym94IGRyaXZlci4KPiA+Pj4KPiA+Pj4gRHVubm8gYWJvdXQgdGhlIG90aGVyIGRybSBkcml2
+ZXJzIGFuZCB0aGUgZmJkZXYgZHJpdmVycyB5b3UgcGxhbiB0bwo+ID4+PiBtaWdyYXRlIG92ZXIu
+Cj4gPj4KPiA+PiBUaGUgQVNUIEhXIGNhbiBzdXBwb3J0IHVwIHRvIDUxMiBNaUIsIGJ1dCAzMi02
+NCBNaUIgc2VlbXMgbW9yZSByZWFsaXN0aWMKPiA+PiBmb3IgYSBzZXJ2ZXIuIEl0J3Mgc2ltaWxh
+ciB3aXRoIG1nYWcyMDAgSFcuIFRoZSBvbGQgZmJkZXYtc3VwcG9ydGVkCj4gPj4gZGV2aWNlIGFy
+ZSBhbGwgc29tZXdoZXJlIGluIHRoZSByYW5nZSBiZXR3ZWVuIGNpcnJ1cyBhbmQgYm9jaHMuIFNv
+bWUKPiA+PiBkcml2ZXJzIHdvdWxkIHByb2JhYmx5IGJlbmVmaXQgZnJvbSB0aGUgY2lycnVzIGFw
+cHJvYWNoLCBzb21lIGNvdWxkIHVzZQo+ID4+IFZSQU0gZGlyZWN0bHkuCj4gPgo+ID4gSSB0aGlu
+ayBmb3IgZHVtYiBzY2Fub3V0IHdpdGggdnJhbSBhbGwgd2UgbmVlZCBpczoKPiA+IC0gcGluIGZy
+YW1lYnVmZmVycywgd2hpY2ggcG90ZW50aWFsbHkgbW92ZXMgdGhlIHVuZGVybHlpbmcgYm8gaW50
+byB2cmFtCj4gPiAtIHVucGluIGZyYW1lYnVmZmVycyAod2hpY2ggaXMganVzdCBhY2NvdW50aW5n
+LCB3ZSBkb24ndCB3YW50IHRvIG1vdmUgdGhlCj4gPiAgIGJvIG9uIGV2ZXJ5IGZsaXAhKQo+ID4g
+LSBpZiBhIHBpbiBkb2Vzbid0IGZpbmQgZW5vdWdoIHNwYWNlLCBtb3ZlIG9uZSBvZiB0aGUgdW5w
+aW5uZWQgYm8gc3RpbGwKPiA+ICAgcmVzaWRlbnQgaW4gdnJhbSBvdXQKPgo+IEZvciBkdW1iIGJ1
+ZmZlcnMsIEknZCBleHBlY3QgdXNlcnNwYWNlIHRvIGhhdmUgYSB3b3JraW5nIHNldCBvZiBvbmx5
+IGEKPiBmcm9udCBhbmQgYmFjayBidWZmZXIgKHBsdXMgbWF5YmUgYSB0aGlyZCBvbmUpLiBUaGlz
+IHdvcmtpbmcgc2V0IGhhcyB0bwo+IHJlc2lkZSBpbiBWUkFNIGZvciBwZXJmb3JtYW5jZSByZWFz
+b25zOyBub24tV1MgQk9zIGZyb20gb3RoZXIgdXNlcnNwYWNlCj4gcHJvZ3JhbXMgZG9uJ3QgaGF2
+ZSB0byBiZS4KPgo+IFNvIHdlIGNvdWxkIHNpbXBsaWZ5IGV2ZW4gbW9yZTogaWYgdGhlcmUncyBu
+b3QgZW5vdWdoIGZyZWUgc3BhY2UgaW4KPiB2cmFtLCByZW1vdmUgYWxsIHVucGlubmVkIEJPJ3Mu
+IFRoaXMgd291bGQgYXZvaWQgdGhlIG5lZWQgdG8gaW1wbGVtZW50Cj4gYW4gTFJVIGFsZ29yaXRo
+bSBvciBhbm90aGVyIGV2aWN0aW9uIHN0cmF0ZWd5LiBVc2Vyc3BhY2Ugd2l0aCBhIFdTCj4gbGFy
+Z2VyIHRoYW4gdGhlIGFic29sdXRlIFZSQU0gd291bGQgc2VlIGRlZ3JhZGVkIHBlcmZvcm1hbmNl
+IGJ1dAo+IG90aGVyd2lzZSBzdGlsbCB3b3JrLgoKWW91IHN0aWxsIG5lZWQgYSBsaXN0IG9mIHVu
+cGlubmVkIGJvLCBhbmQgdGhlIGxydSBzY2FuIGFsZ29yaXRobSBpcwpqdXN0IGEgZmV3IGxpbmVz
+IG9mIGNvZGUgbW9yZSB0aGFuIHVucGlubmluZyBldmVyeXRoaW5nLiBQbHVzIGl0J2QgYmUKYSBu
+ZWF0IGV4YW1wbGUgb2YgdGhlIGRybV9tbSBzY2FuIGxvZ2ljLiBHaXZlbiB0aGF0IHNvbWUgZm9s
+a3MgbWlnaHQKdGhpbmsgdGhhdCBub3QgaGF2aW5nIGxydSBldmljdCBzaSBhIHByb2JsZW0gYW5k
+IGdldCB0aGVtIHRvIHR5cGUKdGhlaXIgb3duLCBJJ2QganVzdCBhZGQgaXQuIEJ1dCB1cCB0byB5
+b3UuIFBsdXMgd2l0aCB0dG0geW91IGdldCBpdCBubwptYXR0ZXIgd2hhdC4KLURhbmllbAoKCj4g
+QmVzdCByZWdhcmRzCj4gVGhvbWFzCj4KPiA+IC0gbm8gcGlwZWxpbmluZywgbm8gc3VwcG9ydCBm
+b3IgZG1hIGVuZ2luZXMgKGl0J3MgYWxsIGNwdSBjb3BpZXMgYW53YXkpCj4gPiAtIGEgc2ltcGxl
+IGRybV9tbSBzaG91bGQgYmUgZ29vZCBlbm91Z2ggdG8gbWFuYWdlIHRoZSB2cmFtLCBubyBuZWVk
+IGZvcgo+ID4gICB0aGUgdHRtIHN0eWxlIGFic3RyYWN0aW9uIG92ZXIgaG93IG1lbW9yeSBpcyBt
+YW5nZWQKPiA+IC0gYWxzbyBqdXN0IGJha2UgaW4gdGhlIGxydSBldmljdGlvbiBsaXN0IGFuZCBh
+bGdvcml0aG0KPiA+IC0gcHJvYmFibHkgZ29vZCB0byBoYXZlIGJ1aWx0LWluIHN1cHBvcnQgZm9y
+IHJlZGlyZWN0aW5nIHRoZSBtbWFwIGJldHdlZW4KPiA+ICAgc2htZW0gYW5kIGlvbWVtLgo+ID4g
+LSBhbnl0aGluZyB0aGF0IG5lZWRzIHBpcGVsaW5pbmcgb3IgY29weSBlbmdpbmVzIHdvdWxkIGJl
+IG91dCBvZiBzY29wZSBmb3IKPiA+ICAgdGhlc2UgaGVscGVycwo+ID4KPiA+IEkgdGhpbmsgZm9y
+IHN0YXJ0aW5nIHBvaW50cyB3ZSBjYW4gZ28gd2l0aCBhIGNvcHlwYXN0ZWQgdmVyc2lvbiBvZiB0
+aGUKPiA+IHZhcmlvdXMgdHRtIGltcGxlbWVudGF0aW9ucyB3ZSBhbHJlYWR5IGhhdmUsIGFuZCB0
+aGVuIHNpbXBsaWZ5IGZyb20gdGhlcmUKPiA+IGFzIG5lZWRlZC4gT3IganVzdCBzdGFydCBmcmVz
+aCBpZiB0aGF0J3MgdG9vIGNvbXBsaWNhdGVkLCBkdWUgdG8gdGhlIGlzc3VlCj4gPiBDaHJpc3Rp
+YW4gaGlnaGxpZ2h0ZWQuCj4gPiAtRGFuaWVsCj4gPgo+ID4+IEJlc3QgcmVnYXJkcwo+ID4+IFRo
+b21hcwo+ID4+Cj4gPj4+Cj4gPj4+IGNoZWVycywKPiA+Pj4gICBHZXJkCj4gPj4+Cj4gPj4+IFsx
+XSBOb3RlOiBUaGUgcGFnZS1mbGlwIG1pZ3JhdGlvbiBsb2dpYyBpcyBwcmVzZW50IGluIHNvbWUg
+b2YgdGhlIG90aGVyCj4gPj4+ICAgICBkcml2ZXJzIHRvbywgbm90IHN1cmUgd2hlbmV2ZXIgdGhl
+eSBhY3R1YWxseSBuZWVkIHRoYXQgZHVlIHRvIGJlaW5nIGxvdwo+ID4+PiAgICAgb24gdnJhbSB0
+b28gb3Igd2hlbmV2ZXIgdGhleSBqdXN0IGNvcGllZCB0aGUgb2xkIGNpcnJ1cyBjb2RlIC4uLgo+
+ID4+Pgo+ID4+PiBbMl0gVGhlIG90aGVyIHJlYXNvbiBpcyB0aGF0IHRoaXMgYWxsb3cgdG8gY29u
+dmVydCBmb3JtYXRzIGF0IGJsaXQgdGltZSwKPiA+Pj4gICAgIHdoaWNoIGhlbHBzIHRvIGRlYWwg
+d2l0aCBzb21lIGNpcnJ1cyBoYXJkd2FyZSBsaW1pdGF0aW9ucy4KPiA+Pj4KPiA+Pgo+ID4+IC0t
+Cj4gPj4gVGhvbWFzIFppbW1lcm1hbm4KPiA+PiBHcmFwaGljcyBEcml2ZXIgRGV2ZWxvcGVyCj4g
+Pj4gU1VTRSBMaW51eCBHbWJILCBNYXhmZWxkc3RyYXNzZSA1LCA5MDQwOSBOdWVybmJlcmcsIEdl
+cm1hbnkKPiA+PiBHRjogRmVsaXggSW1lbmTDtnJmZmVyLCBNYXJ5IEhpZ2dpbnMsIFNyaSBSYXNp
+YWgKPiA+PiBIUkIgMjEyODQgKEFHIE7DvHJuYmVyZykKPiA+Pgo+ID4KPiA+Cj4gPgo+ID4KPgo+
+IC0tCj4gVGhvbWFzIFppbW1lcm1hbm4KPiBHcmFwaGljcyBEcml2ZXIgRGV2ZWxvcGVyCj4gU1VT
+RSBMaW51eCBHbWJILCBNYXhmZWxkc3RyYXNzZSA1LCA5MDQwOSBOdWVybmJlcmcsIEdlcm1hbnkK
+PiBHRjogRmVsaXggSW1lbmTDtnJmZmVyLCBNYXJ5IEhpZ2dpbnMsIFNyaSBSYXNpYWgKPiBIUkIg
+MjEyODQgKEFHIE7DvHJuYmVyZykKPgoKCi0tIApEYW5pZWwgVmV0dGVyClNvZnR3YXJlIEVuZ2lu
+ZWVyLCBJbnRlbCBDb3Jwb3JhdGlvbgorNDEgKDApIDc5IDM2NSA1NyA0OCAtIGh0dHA6Ly9ibG9n
+LmZmd2xsLmNoCl9fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19f
+ClZpcnR1YWxpemF0aW9uIG1haWxpbmcgbGlzdApWaXJ0dWFsaXphdGlvbkBsaXN0cy5saW51eC1m
+b3VuZGF0aW9uLm9yZwpodHRwczovL2xpc3RzLmxpbnV4Zm91bmRhdGlvbi5vcmcvbWFpbG1hbi9s
+aXN0aW5mby92aXJ0dWFsaXphdGlvbg==
