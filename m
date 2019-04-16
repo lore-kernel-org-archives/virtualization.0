@@ -1,15 +1,16 @@
 From: Yuval Shaia <yuval.shaia@oracle.com>
-Subject: Re: [RFC 0/3] VirtIO RDMA
-Date: Mon, 15 Apr 2019 13:35:47 +0300
-Message-ID: <20190415103546.GA6854__17816.1869685695$1555718263$gmane$org@lap1>
+Subject: Re: [Qemu-devel] [RFC 3/3] RDMA/virtio-rdma: VirtIO rdma driver
+Date: Tue, 16 Apr 2019 11:56:21 +0300
+Message-ID: <20190416085620.GA4493__19845.1317775593$1555718275$gmane$org@lap1>
 References: <20190411110157.14252-1-yuval.shaia@oracle.com>
-	<20190411190215.2163572e.cohuck@redhat.com>
+	<20190411110157.14252-4-yuval.shaia@oracle.com>
+	<f133d122-5b00-2e3b-f5cc-efc6d2cc3d3b@acm.org>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
 Content-Disposition: inline
-In-Reply-To: <20190411190215.2163572e.cohuck@redhat.com>
+In-Reply-To: <f133d122-5b00-2e3b-f5cc-efc6d2cc3d3b@acm.org>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -19,79 +20,102 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Cornelia Huck <cohuck@redhat.com>
-Cc: mst@redhat.com, linux-rdma@vger.kernel.org, qemu-devel@nongnu.org, virtualization@lists.linux-foundation.org, jgg@mellanox.com
+To: Bart Van Assche <bvanassche@acm.org>
+Cc: mst@redhat.com, linux-rdma@vger.kernel.org, cohuck@redhat.com, qemu-devel@nongnu.org, virtualization@lists.linux-foundation.org, jgg@mellanox.com
 List-Id: virtualization@lists.linuxfoundation.org
 
-On Thu, Apr 11, 2019 at 07:02:15PM +0200, Cornelia Huck wrote:
-> On Thu, 11 Apr 2019 14:01:54 +0300
-> Yuval Shaia <yuval.shaia@oracle.com> wrote:
+On Mon, Apr 15, 2019 at 06:07:52PM -0700, Bart Van Assche wrote:
+> On 4/11/19 4:01 AM, Yuval Shaia wrote:
+> > +++ b/drivers/infiniband/hw/virtio/Kconfig
+> > @@ -0,0 +1,6 @@
+> > +config INFINIBAND_VIRTIO_RDMA
+> > +	tristate "VirtIO Paravirtualized RDMA Driver"
+> > +	depends on NETDEVICES && ETHERNET && PCI && INET
+> > +	---help---
+> > +	  This driver provides low-level support for VirtIO Paravirtual
+> > +	  RDMA adapter.
 > 
-> > Data center backends use more and more RDMA or RoCE devices and more and
-> > more software runs in virtualized environment.
-> > There is a need for a standard to enable RDMA/RoCE on Virtual Machines.
-> > 
-> > Virtio is the optimal solution since is the de-facto para-virtualizaton
-> > technology and also because the Virtio specification
-> > allows Hardware Vendors to support Virtio protocol natively in order to
-> > achieve bare metal performance.
-> > 
-> > This RFC is an effort to addresses challenges in defining the RDMA/RoCE
-> > Virtio Specification and a look forward on possible implementation
-> > techniques.
-> > 
-> > Open issues/Todo list:
-> > List is huge, this is only start point of the project.
-> > Anyway, here is one example of item in the list:
-> > - Multi VirtQ: Every QP has two rings and every CQ has one. This means that
-> >   in order to support for example 32K QPs we will need 64K VirtQ. Not sure
-> >   that this is reasonable so one option is to have one for all and
-> >   multiplex the traffic on it. This is not good approach as by design it
-> >   introducing an optional starvation. Another approach would be multi
-> >   queues and round-robin (for example) between them.
-> > 
-> > Expectations from this posting:
-> > In general, any comment is welcome, starting from hey, drop this as it is a
-> > very bad idea, to yeah, go ahead, we really want it.
-> > Idea here is that since it is not a minor effort i first want to know if
-> > there is some sort interest in the community for such device.
-> 
-> My first reaction is: Sounds sensible, but it would be good to have a
-> spec for this :)
-> 
-> You'll need a spec if you want this to go forward anyway, so at least a
-> sketch would be good to answer questions such as how many virtqueues
-> you use for which purpose, what is actually put on the virtqueues,
-> whether there are negotiable features, and what the expectations for
-> the device and the driver are. It also makes it easier to understand
-> how this is supposed to work in practice.
-> 
-> If folks agree that this sounds useful, the next step would be to
-> reserve an id for the device type.
+> Does this driver really depend on Ethernet, or does it also work with
+> Ethernet support disabled?
 
-Thanks for the tips, will sure do that, it is that first i wanted to make
-sure there is a use case here.
-
-Waiting for any feedback from the community.
+The device should eventually expose Ethernet interface as well as IB.
 
 > 
-> > 
-> > The scope of the implementation is limited to probing the device and doing
-> > some basic ibverbs commands. Data-path is not yet implemented. So with this
-> > one can expect only that driver is (partialy) loaded and basic queries and
-> > resource allocation is done.
-> > 
-> > One note regarding the patchset.
-> > I know it is not standard to collaps patches from several repos as i did
-> > here (qemu and linux) but decided to do it anyway so the whole picture can
-> > be seen.
-> > 
-> > patch 1: virtio-net: Move some virtio-net-pci decl to include/hw/virtio
-> > 	This is a prelimenary patch just as a hack so i will not need to
-> > 	impelement new netdev
-> > patch 2: hw/virtio-rdma: VirtIO rdma device
-> > 	The implementation of the device
-> > patch 3: RDMA/virtio-rdma: VirtIO rdma driver
-> > 	The device driver
-> > 
+> > +static inline struct virtio_rdma_info *to_vdev(struct ib_device *ibdev)
+> > +{
+> > +	return container_of(ibdev, struct virtio_rdma_info, ib_dev);
+> > +}
+> 
+> Is it really worth to introduce this function? Have you considered to
+> use container_of(ibdev, struct virtio_rdma_info, ib_dev) directly instead
+> of to_vdev()?
+
+Agree, not sure really needed, just saw that some drivers uses this pattern.
+
+> 
+> > +static void rdma_ctrl_ack(struct virtqueue *vq)
+> > +{
+> > +	struct virtio_rdma_info *dev = vq->vdev->priv;
+> > +
+> > +	wake_up(&dev->acked);
+> > +
+> > +	printk("%s\n", __func__);
+> > +}
+> 
+> Should that printk() be changed into pr_debug()? The same comment holds for
+> all other printk() calls.
+
+All prints will be removed, this is still wip.
+
+> 
+> > +#define VIRTIO_RDMA_BOARD_ID	1
+> > +#define VIRTIO_RDMA_HW_NAME	"virtio-rdma"
+> > +#define VIRTIO_RDMA_HW_REV	1
+> > +#define VIRTIO_RDMA_DRIVER_VER	"1.0"
+> 
+> Is a driver version number useful in an upstream driver?
+
+I've noticed that other drivers exposes this in sysfs.
+
+> 
+> > +struct ib_cq *virtio_rdma_create_cq(struct ib_device *ibdev,
+> > +				    const struct ib_cq_init_attr *attr,
+> > +				    struct ib_ucontext *context,
+> > +				    struct ib_udata *udata)
+> > +{
+> > +	struct scatterlist in, out;
+> > +	struct virtio_rdma_ib_cq *vcq;
+> > +	struct cmd_create_cq *cmd;
+> > +	struct rsp_create_cq *rsp;
+> > +	struct ib_cq *cq = NULL;
+> > +	int rc;
+> > +
+> > +	/* TODO: Check MAX_CQ */
+> > +
+> > +	cmd = kmalloc(sizeof(*cmd), GFP_ATOMIC);
+> > +	if (!cmd)
+> > +		return ERR_PTR(-ENOMEM);
+> > +
+> > +	rsp = kmalloc(sizeof(*rsp), GFP_ATOMIC);
+> > +	if (!rsp) {
+> > +		kfree(cmd);
+> > +		return ERR_PTR(-ENOMEM);
+> > +	}
+> > +
+> > +	vcq = kzalloc(sizeof(*vcq), GFP_KERNEL);
+> > +	if (!vcq)
+> > +		goto out;
+> 
+> Are you sure that you want to mix GFP_ATOMIC and GFP_KERNEL in a single
+> function?
+
+Right, a mistake.
+
+> 
+> Thanks,
+> 
+> Bart.
+
+Thanks.
+
 > 
