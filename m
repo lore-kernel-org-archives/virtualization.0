@@ -1,19 +1,15 @@
-From: Daniel Vetter <daniel@ffwll.ch>
-Subject: Re: [PATCH 00/15] Share TTM code among framebuffer drivers
-Date: Mon, 15 Apr 2019 21:17:04 +0200
-Message-ID: <CAKMK7uG+E1uTwSifSu5TrXwQXqu0Cpr30B02_S9bf95HEyqY_g__32007.953773585$1555355849$gmane$org@mail.gmail.com>
-References: <20190408092144.4548-1-tzimmermann@suse.de>
-	<d69e0b34-c586-2338-b063-fb758b6465d8@amd.com>
-	<096a70a7-ed24-2161-29e9-1907221b8a64@suse.de>
-	<20190409071249.ngzarvjlztx4jwbh@sirius.home.kraxel.org>
-	<a2f778c3-904b-5ee2-215e-df534f14b928@suse.de>
-	<20190415155430.GB2665@phenom.ffwll.local>
-	<b9ba305f-8140-faf9-3954-464d9f38852a@suse.de>
+From: Bart Van Assche <bvanassche@acm.org>
+Subject: Re: [RFC 3/3] RDMA/virtio-rdma: VirtIO rdma driver
+Date: Mon, 15 Apr 2019 18:07:52 -0700
+Message-ID: <f133d122-5b00-2e3b-f5cc-efc6d2cc3d3b@acm.org>
+References: <20190411110157.14252-1-yuval.shaia@oracle.com>
+	<20190411110157.14252-4-yuval.shaia@oracle.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="utf-8"
-Content-Transfer-Encoding: base64
+Content-Type: text/plain; charset="us-ascii"
+Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <b9ba305f-8140-faf9-3954-464d9f38852a@suse.de>
+In-Reply-To: <20190411110157.14252-4-yuval.shaia@oracle.com>
+Content-Language: en-US
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -23,103 +19,81 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Thomas Zimmermann <tzimmermann@suse.de>
-Cc: "airlied@linux.ie" <airlied@linux.ie>, "puck.chen@hisilicon.com" <puck.chen@hisilicon.com>, "Zhang,
-	Jerry" <Jerry.Zhang@amd.com>, "dri-devel@lists.freedesktop.org" <dri-devel@lists.freedesktop.org>, "virtualization@lists.linux-foundation.org" <virtualization@lists.linux-foundation.org>, "z.liuxinliang@hisilicon.com" <z.liuxinliang@hisilicon.com>, "hdegoede@redhat.com" <hdegoede@redhat.com>, "kong.kongxinwei@hisilicon.com" <kong.kongxinwei@hisilicon.com>, "Huang, Ray" <Ray.Huang@amd.com>, "zourongrong@gmail.com" <zourongrong@gmail.com>, "Koenig,
-	Christian" <Christian.Koenig@amd.com>
+To: Yuval Shaia <yuval.shaia@oracle.com>, virtualization@lists.linux-foundation.org, qemu-devel@nongnu.org, mst@redhat.com, cohuck@redhat.com, marcel.apfelbaum@gmail.com, linux-rdma@vger.kernel.org, jgg@mellanox.com
 List-Id: virtualization@lists.linuxfoundation.org
 
-T24gTW9uLCBBcHIgMTUsIDIwMTkgYXQgNjoyMSBQTSBUaG9tYXMgWmltbWVybWFubiA8dHppbW1l
-cm1hbm5Ac3VzZS5kZT4gd3JvdGU6Cj4KPiBIaQo+Cj4gQW0gMTUuMDQuMTkgdW0gMTc6NTQgc2No
-cmllYiBEYW5pZWwgVmV0dGVyOgo+ID4gT24gVHVlLCBBcHIgMDksIDIwMTkgYXQgMDk6NTA6NDBB
-TSArMDIwMCwgVGhvbWFzIFppbW1lcm1hbm4gd3JvdGU6Cj4gPj4gSGkKPiA+Pgo+ID4+IEFtIDA5
-LjA0LjE5IHVtIDA5OjEyIHNjaHJpZWIga3JheGVsQHJlZGhhdC5jb206Cj4gPj4+ICAgSGksCj4g
-Pj4+Cj4gPj4+PiBJZiBub3QgZm9yIFRUTSwgd2hhdCB3b3VsZCBiZSB0aGUgYWx0ZXJuYXRpdmU/
-IE9uZSBWTUEgbWFuYWdlciBwZXIKPiA+Pj4+IG1lbW9yeSByZWdpb24gcGVyIGRldmljZT8KPiA+
-Pj4KPiA+Pj4gRGVwZW5kcyBwcmV0dHkgbXVjaCBvbiB0aGUgZGV2aWNlLgo+ID4+Pgo+ID4+PiBU
-aGUgY2lycnVzIGlzIGEgZGlzcGxheSBkZXZpY2Ugd2l0aCBvbmx5IDQgTUIgb2YgdnJhbS4gIFlv
-dSBjYW4ndCBmaXQKPiA+Pj4gbXVjaCBpbiB0aGVyZS4gIEEgc2luZ2xlIDEwMjR4NzY4IEAgMjRi
-cHAgZnJhbWVidWZmZXIgbmVlZHMgbW9yZSA1MCUKPiA+Pj4gb2YgdGhlIHZpZGVvIG1lbW9yeSBh
-bHJlYWR5LiAgV2hpY2ggaXMgd2h5IHRoZSBjaXJydXMgZHJpdmVyIChiZWZvcmUgdGhlCj4gPj4+
-IHJld3JpdGUpIGhhZCB0byBtaWdyYXRlIGJ1ZmZlcnMgZnJvbS90byB2cmFtIG9uIGV2ZXJ5IHBh
-Z2UgZmxpcFsxXS4gIFdoaWNoCj4gPj4+IGlzIG9uZVsyXSBvZiB0aGUgcmVhc29ucyB3aHkgY2ly
-cnVzIChhZnRlciByZXdyaXRlKSBkb2Vzbid0IHR0bS1tYW5hZ2UgdGhlCj4gPj4+IHZyYW0gYW55
-IG1vcmUuICBnZW0gb2JqZWN0cyBhcmUgbWFuYWdlZCB3aXRoIHRoZSBzaG1lbSBoZWxwZXJzIGlu
-c3RlYWQKPiA+Pj4gYW5kIHRoZSBhY3RpdmUgZnJhbWVidWZmZXIgaXMgYmxpdHRlZCB0byB2cmFt
-Lgo+ID4+Pgo+ID4+PiBUaGUgcWVtdSBzdGR2Z2EgKGJvY2hzIGRyaXZlcikgaGFzIDE2IE1CIHZy
-YW0gYnkgZGVmYXVsdCBhbmQgY2FuIGJlCj4gPj4+IGNvbmZpZ3VyZWQgdG8gaGF2ZSB1cCB0byAy
-NTYgTUIuICBQbGVudHkgb2Ygcm9vbSBldmVuIGZvciBtdWx0aXBsZSA0awo+ID4+PiBmcmFtZWJ1
-ZmZlcnMgaWYgbmVlZGVkLiAgU28gZm9yIHRoZSBib2NocyBkcml2ZXIgYWxsIHRoZSB0dG0gYm8K
-PiA+Pj4gbWlncmF0aW9uIGxvZ2ljIGlzIG5vdCBuZWVkZWQsIGl0IGNvdWxkIGp1c3Qgc3RvcmUg
-ZXZlcnl0aGluZyBpbiB2cmFtLgo+ID4+Pgo+ID4+PiBBIHNldCBvZiBkcm1fZ2VtX3ZyYW1fKiBo
-ZWxwZXJzIHdvdWxkIGRvIHRoZSBqb2IgZm9yIGJvY2hzLgo+ID4+Cj4gPj4gVGhhbmtzIGZvciBj
-bGFyaWZ5aW5nLiBkcm1fZ2VtX3ZyYW1fKiAoYW5kIGRybV92cmFtX21tIGZvciBTaW1wbGUgVFRN
-KQo+ID4+IGlzIHByb2JhYmx5IGEgYmV0dGVyIG5hbWUgZm9yIHRoZSBkYXRhIHN0cnVjdHVyZXMu
-Cj4gPgo+ID4gKzEgb24gZHJtX2dlbV92cmFtXyogbmFtaW5nIGNvbnZlbnRpb24gLSB3ZSB3YW50
-IHRvIGRlc2NyaWJlIHdoYXQgaXQncwo+ID4gZm9yLCBub3QgaG93IGl0J3MgaW1wbGVtZW50ZWQu
-Cj4KPiBPSywgZ3JlYXQuCj4KPiA+Pj4gSSdkIGV4cGVjdCB0aGUgc2FtZSBhcHBsaWVzIHRvIHRo
-ZSB2Ym94IGRyaXZlci4KPiA+Pj4KPiA+Pj4gRHVubm8gYWJvdXQgdGhlIG90aGVyIGRybSBkcml2
-ZXJzIGFuZCB0aGUgZmJkZXYgZHJpdmVycyB5b3UgcGxhbiB0bwo+ID4+PiBtaWdyYXRlIG92ZXIu
-Cj4gPj4KPiA+PiBUaGUgQVNUIEhXIGNhbiBzdXBwb3J0IHVwIHRvIDUxMiBNaUIsIGJ1dCAzMi02
-NCBNaUIgc2VlbXMgbW9yZSByZWFsaXN0aWMKPiA+PiBmb3IgYSBzZXJ2ZXIuIEl0J3Mgc2ltaWxh
-ciB3aXRoIG1nYWcyMDAgSFcuIFRoZSBvbGQgZmJkZXYtc3VwcG9ydGVkCj4gPj4gZGV2aWNlIGFy
-ZSBhbGwgc29tZXdoZXJlIGluIHRoZSByYW5nZSBiZXR3ZWVuIGNpcnJ1cyBhbmQgYm9jaHMuIFNv
-bWUKPiA+PiBkcml2ZXJzIHdvdWxkIHByb2JhYmx5IGJlbmVmaXQgZnJvbSB0aGUgY2lycnVzIGFw
-cHJvYWNoLCBzb21lIGNvdWxkIHVzZQo+ID4+IFZSQU0gZGlyZWN0bHkuCj4gPgo+ID4gSSB0aGlu
-ayBmb3IgZHVtYiBzY2Fub3V0IHdpdGggdnJhbSBhbGwgd2UgbmVlZCBpczoKPiA+IC0gcGluIGZy
-YW1lYnVmZmVycywgd2hpY2ggcG90ZW50aWFsbHkgbW92ZXMgdGhlIHVuZGVybHlpbmcgYm8gaW50
-byB2cmFtCj4gPiAtIHVucGluIGZyYW1lYnVmZmVycyAod2hpY2ggaXMganVzdCBhY2NvdW50aW5n
-LCB3ZSBkb24ndCB3YW50IHRvIG1vdmUgdGhlCj4gPiAgIGJvIG9uIGV2ZXJ5IGZsaXAhKQo+ID4g
-LSBpZiBhIHBpbiBkb2Vzbid0IGZpbmQgZW5vdWdoIHNwYWNlLCBtb3ZlIG9uZSBvZiB0aGUgdW5w
-aW5uZWQgYm8gc3RpbGwKPiA+ICAgcmVzaWRlbnQgaW4gdnJhbSBvdXQKPgo+IEZvciBkdW1iIGJ1
-ZmZlcnMsIEknZCBleHBlY3QgdXNlcnNwYWNlIHRvIGhhdmUgYSB3b3JraW5nIHNldCBvZiBvbmx5
-IGEKPiBmcm9udCBhbmQgYmFjayBidWZmZXIgKHBsdXMgbWF5YmUgYSB0aGlyZCBvbmUpLiBUaGlz
-IHdvcmtpbmcgc2V0IGhhcyB0bwo+IHJlc2lkZSBpbiBWUkFNIGZvciBwZXJmb3JtYW5jZSByZWFz
-b25zOyBub24tV1MgQk9zIGZyb20gb3RoZXIgdXNlcnNwYWNlCj4gcHJvZ3JhbXMgZG9uJ3QgaGF2
-ZSB0byBiZS4KPgo+IFNvIHdlIGNvdWxkIHNpbXBsaWZ5IGV2ZW4gbW9yZTogaWYgdGhlcmUncyBu
-b3QgZW5vdWdoIGZyZWUgc3BhY2UgaW4KPiB2cmFtLCByZW1vdmUgYWxsIHVucGlubmVkIEJPJ3Mu
-IFRoaXMgd291bGQgYXZvaWQgdGhlIG5lZWQgdG8gaW1wbGVtZW50Cj4gYW4gTFJVIGFsZ29yaXRo
-bSBvciBhbm90aGVyIGV2aWN0aW9uIHN0cmF0ZWd5LiBVc2Vyc3BhY2Ugd2l0aCBhIFdTCj4gbGFy
-Z2VyIHRoYW4gdGhlIGFic29sdXRlIFZSQU0gd291bGQgc2VlIGRlZ3JhZGVkIHBlcmZvcm1hbmNl
-IGJ1dAo+IG90aGVyd2lzZSBzdGlsbCB3b3JrLgoKWW91IHN0aWxsIG5lZWQgYSBsaXN0IG9mIHVu
-cGlubmVkIGJvLCBhbmQgdGhlIGxydSBzY2FuIGFsZ29yaXRobSBpcwpqdXN0IGEgZmV3IGxpbmVz
-IG9mIGNvZGUgbW9yZSB0aGFuIHVucGlubmluZyBldmVyeXRoaW5nLiBQbHVzIGl0J2QgYmUKYSBu
-ZWF0IGV4YW1wbGUgb2YgdGhlIGRybV9tbSBzY2FuIGxvZ2ljLiBHaXZlbiB0aGF0IHNvbWUgZm9s
-a3MgbWlnaHQKdGhpbmsgdGhhdCBub3QgaGF2aW5nIGxydSBldmljdCBzaSBhIHByb2JsZW0gYW5k
-IGdldCB0aGVtIHRvIHR5cGUKdGhlaXIgb3duLCBJJ2QganVzdCBhZGQgaXQuIEJ1dCB1cCB0byB5
-b3UuIFBsdXMgd2l0aCB0dG0geW91IGdldCBpdCBubwptYXR0ZXIgd2hhdC4KLURhbmllbAoKCj4g
-QmVzdCByZWdhcmRzCj4gVGhvbWFzCj4KPiA+IC0gbm8gcGlwZWxpbmluZywgbm8gc3VwcG9ydCBm
-b3IgZG1hIGVuZ2luZXMgKGl0J3MgYWxsIGNwdSBjb3BpZXMgYW53YXkpCj4gPiAtIGEgc2ltcGxl
-IGRybV9tbSBzaG91bGQgYmUgZ29vZCBlbm91Z2ggdG8gbWFuYWdlIHRoZSB2cmFtLCBubyBuZWVk
-IGZvcgo+ID4gICB0aGUgdHRtIHN0eWxlIGFic3RyYWN0aW9uIG92ZXIgaG93IG1lbW9yeSBpcyBt
-YW5nZWQKPiA+IC0gYWxzbyBqdXN0IGJha2UgaW4gdGhlIGxydSBldmljdGlvbiBsaXN0IGFuZCBh
-bGdvcml0aG0KPiA+IC0gcHJvYmFibHkgZ29vZCB0byBoYXZlIGJ1aWx0LWluIHN1cHBvcnQgZm9y
-IHJlZGlyZWN0aW5nIHRoZSBtbWFwIGJldHdlZW4KPiA+ICAgc2htZW0gYW5kIGlvbWVtLgo+ID4g
-LSBhbnl0aGluZyB0aGF0IG5lZWRzIHBpcGVsaW5pbmcgb3IgY29weSBlbmdpbmVzIHdvdWxkIGJl
-IG91dCBvZiBzY29wZSBmb3IKPiA+ICAgdGhlc2UgaGVscGVycwo+ID4KPiA+IEkgdGhpbmsgZm9y
-IHN0YXJ0aW5nIHBvaW50cyB3ZSBjYW4gZ28gd2l0aCBhIGNvcHlwYXN0ZWQgdmVyc2lvbiBvZiB0
-aGUKPiA+IHZhcmlvdXMgdHRtIGltcGxlbWVudGF0aW9ucyB3ZSBhbHJlYWR5IGhhdmUsIGFuZCB0
-aGVuIHNpbXBsaWZ5IGZyb20gdGhlcmUKPiA+IGFzIG5lZWRlZC4gT3IganVzdCBzdGFydCBmcmVz
-aCBpZiB0aGF0J3MgdG9vIGNvbXBsaWNhdGVkLCBkdWUgdG8gdGhlIGlzc3VlCj4gPiBDaHJpc3Rp
-YW4gaGlnaGxpZ2h0ZWQuCj4gPiAtRGFuaWVsCj4gPgo+ID4+IEJlc3QgcmVnYXJkcwo+ID4+IFRo
-b21hcwo+ID4+Cj4gPj4+Cj4gPj4+IGNoZWVycywKPiA+Pj4gICBHZXJkCj4gPj4+Cj4gPj4+IFsx
-XSBOb3RlOiBUaGUgcGFnZS1mbGlwIG1pZ3JhdGlvbiBsb2dpYyBpcyBwcmVzZW50IGluIHNvbWUg
-b2YgdGhlIG90aGVyCj4gPj4+ICAgICBkcml2ZXJzIHRvbywgbm90IHN1cmUgd2hlbmV2ZXIgdGhl
-eSBhY3R1YWxseSBuZWVkIHRoYXQgZHVlIHRvIGJlaW5nIGxvdwo+ID4+PiAgICAgb24gdnJhbSB0
-b28gb3Igd2hlbmV2ZXIgdGhleSBqdXN0IGNvcGllZCB0aGUgb2xkIGNpcnJ1cyBjb2RlIC4uLgo+
-ID4+Pgo+ID4+PiBbMl0gVGhlIG90aGVyIHJlYXNvbiBpcyB0aGF0IHRoaXMgYWxsb3cgdG8gY29u
-dmVydCBmb3JtYXRzIGF0IGJsaXQgdGltZSwKPiA+Pj4gICAgIHdoaWNoIGhlbHBzIHRvIGRlYWwg
-d2l0aCBzb21lIGNpcnJ1cyBoYXJkd2FyZSBsaW1pdGF0aW9ucy4KPiA+Pj4KPiA+Pgo+ID4+IC0t
-Cj4gPj4gVGhvbWFzIFppbW1lcm1hbm4KPiA+PiBHcmFwaGljcyBEcml2ZXIgRGV2ZWxvcGVyCj4g
-Pj4gU1VTRSBMaW51eCBHbWJILCBNYXhmZWxkc3RyYXNzZSA1LCA5MDQwOSBOdWVybmJlcmcsIEdl
-cm1hbnkKPiA+PiBHRjogRmVsaXggSW1lbmTDtnJmZmVyLCBNYXJ5IEhpZ2dpbnMsIFNyaSBSYXNp
-YWgKPiA+PiBIUkIgMjEyODQgKEFHIE7DvHJuYmVyZykKPiA+Pgo+ID4KPiA+Cj4gPgo+ID4KPgo+
-IC0tCj4gVGhvbWFzIFppbW1lcm1hbm4KPiBHcmFwaGljcyBEcml2ZXIgRGV2ZWxvcGVyCj4gU1VT
-RSBMaW51eCBHbWJILCBNYXhmZWxkc3RyYXNzZSA1LCA5MDQwOSBOdWVybmJlcmcsIEdlcm1hbnkK
-PiBHRjogRmVsaXggSW1lbmTDtnJmZmVyLCBNYXJ5IEhpZ2dpbnMsIFNyaSBSYXNpYWgKPiBIUkIg
-MjEyODQgKEFHIE7DvHJuYmVyZykKPgoKCi0tIApEYW5pZWwgVmV0dGVyClNvZnR3YXJlIEVuZ2lu
-ZWVyLCBJbnRlbCBDb3Jwb3JhdGlvbgorNDEgKDApIDc5IDM2NSA1NyA0OCAtIGh0dHA6Ly9ibG9n
-LmZmd2xsLmNoCl9fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19f
-ClZpcnR1YWxpemF0aW9uIG1haWxpbmcgbGlzdApWaXJ0dWFsaXphdGlvbkBsaXN0cy5saW51eC1m
-b3VuZGF0aW9uLm9yZwpodHRwczovL2xpc3RzLmxpbnV4Zm91bmRhdGlvbi5vcmcvbWFpbG1hbi9s
-aXN0aW5mby92aXJ0dWFsaXphdGlvbg==
+On 4/11/19 4:01 AM, Yuval Shaia wrote:
+> +++ b/drivers/infiniband/hw/virtio/Kconfig
+> @@ -0,0 +1,6 @@
+> +config INFINIBAND_VIRTIO_RDMA
+> +	tristate "VirtIO Paravirtualized RDMA Driver"
+> +	depends on NETDEVICES && ETHERNET && PCI && INET
+> +	---help---
+> +	  This driver provides low-level support for VirtIO Paravirtual
+> +	  RDMA adapter.
+
+Does this driver really depend on Ethernet, or does it also work with
+Ethernet support disabled?
+
+> +static inline struct virtio_rdma_info *to_vdev(struct ib_device *ibdev)
+> +{
+> +	return container_of(ibdev, struct virtio_rdma_info, ib_dev);
+> +}
+
+Is it really worth to introduce this function? Have you considered to
+use container_of(ibdev, struct virtio_rdma_info, ib_dev) directly instead
+of to_vdev()?
+
+> +static void rdma_ctrl_ack(struct virtqueue *vq)
+> +{
+> +	struct virtio_rdma_info *dev = vq->vdev->priv;
+> +
+> +	wake_up(&dev->acked);
+> +
+> +	printk("%s\n", __func__);
+> +}
+
+Should that printk() be changed into pr_debug()? The same comment holds for
+all other printk() calls.
+
+> +#define VIRTIO_RDMA_BOARD_ID	1
+> +#define VIRTIO_RDMA_HW_NAME	"virtio-rdma"
+> +#define VIRTIO_RDMA_HW_REV	1
+> +#define VIRTIO_RDMA_DRIVER_VER	"1.0"
+
+Is a driver version number useful in an upstream driver?
+
+> +struct ib_cq *virtio_rdma_create_cq(struct ib_device *ibdev,
+> +				    const struct ib_cq_init_attr *attr,
+> +				    struct ib_ucontext *context,
+> +				    struct ib_udata *udata)
+> +{
+> +	struct scatterlist in, out;
+> +	struct virtio_rdma_ib_cq *vcq;
+> +	struct cmd_create_cq *cmd;
+> +	struct rsp_create_cq *rsp;
+> +	struct ib_cq *cq = NULL;
+> +	int rc;
+> +
+> +	/* TODO: Check MAX_CQ */
+> +
+> +	cmd = kmalloc(sizeof(*cmd), GFP_ATOMIC);
+> +	if (!cmd)
+> +		return ERR_PTR(-ENOMEM);
+> +
+> +	rsp = kmalloc(sizeof(*rsp), GFP_ATOMIC);
+> +	if (!rsp) {
+> +		kfree(cmd);
+> +		return ERR_PTR(-ENOMEM);
+> +	}
+> +
+> +	vcq = kzalloc(sizeof(*vcq), GFP_KERNEL);
+> +	if (!vcq)
+> +		goto out;
+
+Are you sure that you want to mix GFP_ATOMIC and GFP_KERNEL in a single
+function?
+
+Thanks,
+
+Bart.
