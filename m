@@ -1,24 +1,16 @@
-From: "Koenig, Christian" <Christian.Koenig@amd.com>
-Subject: Re: [PATCH 00/15] Share TTM code among framebuffer drivers
-Date: Tue, 16 Apr 2019 11:10:18 +0000
-Message-ID: <0d45da9d-9354-58c8-e303-51e653d33503@amd.com>
-References: <20190408092144.4548-1-tzimmermann@suse.de>
-	<d69e0b34-c586-2338-b063-fb758b6465d8@amd.com>
-	<096a70a7-ed24-2161-29e9-1907221b8a64@suse.de>
-	<20190409071249.ngzarvjlztx4jwbh@sirius.home.kraxel.org>
-	<a2f778c3-904b-5ee2-215e-df534f14b928@suse.de>
-	<20190415155430.GB2665@phenom.ffwll.local>
-	<b9ba305f-8140-faf9-3954-464d9f38852a@suse.de>
-	<CAKMK7uG+E1uTwSifSu5TrXwQXqu0Cpr30B02_S9bf95HEyqY_g@mail.gmail.com>
-	<9a3af097-d907-30da-73db-bcf00223e70b@amd.com>
-	<CAKMK7uGKK2gP-1Oht7ARAqPs4ccUeAh9EPPke+wX1JWLeT_S7Q@mail.gmail.com>
+From: David Hildenbrand <david@redhat.com>
+Subject: Re: [RFC PATCH 00/12] s390: virtio: support protected virtualization
+Date: Tue, 16 Apr 2019 13:50:50 +0200
+Message-ID: <9fdf86ac-2498-e315-5ed8-317d40cedc5f@redhat.com>
+References: <20190404231622.52531-1-pasic@linux.ibm.com>
+	<ec7dd523-6277-7753-eb18-83d0896d8706@redhat.com>
+	<20190416131005.6f3e05eb@oc2783563651>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <CAKMK7uGKK2gP-1Oht7ARAqPs4ccUeAh9EPPke+wX1JWLeT_S7Q@mail.gmail.com>
+In-Reply-To: <20190416131005.6f3e05eb@oc2783563651>
 Content-Language: en-US
-Content-ID: <09FEA32BDB951846BA6128972D4AC45A@namprd12.prod.outlook.com>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -28,96 +20,53 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Daniel Vetter <daniel@ffwll.ch>
-Cc: "airlied@linux.ie" <airlied@linux.ie>, "puck.chen@hisilicon.com" <puck.chen@hisilicon.com>, "Zhang,
-	Jerry" <Jerry.Zhang@amd.com>, "dri-devel@lists.freedesktop.org" <dri-devel@lists.freedesktop.org>, "virtualization@lists.linux-foundation.org" <virtualization@lists.linux-foundation.org>, "z.liuxinliang@hisilicon.com" <z.liuxinliang@hisilicon.com>, "hdegoede@redhat.com" <hdegoede@redhat.com>, "kong.kongxinwei@hisilicon.com" <kong.kongxinwei@hisilicon.com>, "Huang, Ray" <Ray.Huang@amd.com>, Thomas Zimmermann <tzimmermann@suse.de>, "zourongrong@gmail.com" <zourongrong@gmail.com>
+To: Halil Pasic <pasic@linux.ibm.com>
+Cc: Vasily Gorbik <gor@linux.ibm.com>, linux-s390@vger.kernel.org, Eric Farman <farman@linux.ibm.com>, Claudio Imbrenda <imbrenda@linux.ibm.com>, kvm@vger.kernel.org, Sebastian Ott <sebott@linux.ibm.com>, Cornelia Huck <cohuck@redhat.com>, virtualization@lists.linux-foundation.org, Martin Schwidefsky <schwidefsky@de.ibm.com>, Farhan Ali <alifm@linux.ibm.com>, Viktor Mihajlovski <mihajlov@linux.ibm.com>, Janosch Frank <frankja@linux.ibm.com>
 List-Id: virtualization@lists.linuxfoundation.org
 
-Am 16.04.19 um 13:03 schrieb Daniel Vetter:
-> On Tue, Apr 16, 2019 at 12:05 PM Koenig, Christian
-> <Christian.Koenig@amd.com> wrote:
->> Am 15.04.19 um 21:17 schrieb Daniel Vetter:
->>> On Mon, Apr 15, 2019 at 6:21 PM Thomas Zimmermann <tzimmermann@suse.de> wrote:
->>>> Hi
->>>>
->>>> Am 15.04.19 um 17:54 schrieb Daniel Vetter:
->>>>> On Tue, Apr 09, 2019 at 09:50:40AM +0200, Thomas Zimmermann wrote:
->>>>>> Hi
->>>>>>
->>>>>> Am 09.04.19 um 09:12 schrieb kraxel@redhat.com:
->>>>>> [SNIP]
->>>>>>> I'd expect the same applies to the vbox driver.
->>>>>>>
->>>>>>> Dunno about the other drm drivers and the fbdev drivers you plan to
->>>>>>> migrate over.
->>>>>> The AST HW can support up to 512 MiB, but 32-64 MiB seems more realistic
->>>>>> for a server. It's similar with mgag200 HW. The old fbdev-supported
->>>>>> device are all somewhere in the range between cirrus and bochs. Some
->>>>>> drivers would probably benefit from the cirrus approach, some could use
->>>>>> VRAM directly.
->>>>> I think for dumb scanout with vram all we need is:
->>>>> - pin framebuffers, which potentially moves the underlying bo into vram
->>>>> - unpin framebuffers (which is just accounting, we don't want to move the
->>>>>     bo on every flip!)
->>>>> - if a pin doesn't find enough space, move one of the unpinned bo still
->>>>>     resident in vram out
->>>> For dumb buffers, I'd expect userspace to have a working set of only a
->>>> front and back buffer (plus maybe a third one). This working set has to
->>>> reside in VRAM for performance reasons; non-WS BOs from other userspace
->>>> programs don't have to be.
->>>>
->>>> So we could simplify even more: if there's not enough free space in
->>>> vram, remove all unpinned BO's. This would avoid the need to implement
->>>> an LRU algorithm or another eviction strategy. Userspace with a WS
->>>> larger than the absolute VRAM would see degraded performance but
->>>> otherwise still work.
->>> You still need a list of unpinned bo, and the lru scan algorithm is
->>> just a few lines of code more than unpinning everything. Plus it'd be
->>> a neat example of the drm_mm scan logic. Given that some folks might
->>> think that not having lru evict si a problem and get them to type
->>> their own, I'd just add it. But up to you. Plus with ttm you get it no
->>> matter what.
->> Well how about making an drm_lru component which just does the following
->> (and nothing else, please :):
+On 16.04.19 13:10, Halil Pasic wrote:
+> On Fri, 12 Apr 2019 15:47:50 +0200
+> David Hildenbrand <david@redhat.com> wrote:
+> 
+>> On 05.04.19 01:16, Halil Pasic wrote:
+>>> Enhanced virtualization protection technology may require the use of
+>>> bounce buffers for I/O. While support for this was built into the virtio
+>>> core,  virtio-ccw wasn't changed accordingly.
 >>
->> 1. Keep a list of objects and a spinlock protecting the list.
+>> Can you elaborate some more about the general approach (Enhanced
+>> virtualization protection technology, ultravisor, concept, issues, how
+>> to squeeze it into QEMU/KVM/kernel) etc =
 >>
->> 2. Offer helpers for adding/deleting/moving stuff from the list.
+>> For my taste, this cover letter misses some important context :)
 >>
->> 3. Offer a functionality to do the necessary dance of picking the first
->> entry where we can trylock it's reservation object.
->>
->> 4. Offer bulk move functionality similar to what TTM does at the moment
->> (can be implemented later on).
-> At a basic level, this is list_head of drm_gem_object. Not sure that's
-> all that useful (outside of the fairly simplistic vram helpers we're
-> discussing here). Reasons for that is that there's a lot of trickery
-> in selecting which is the best object to pick in any given case (e.g.
-> do you want to use drm_mm scanning, or is there a slab of objects you
-> prefer to throw out because that avoids. Given that I'm not sure
-> implementing the entire scanning/drm_lru logic is beneficial.
->
-> The magic trylock+kref_get_unless_zero otoh could be worth
-> implementing as a helper, together with a note about how to build your
-> own custom lru algorithm. Same for some bulk/nonblocking movement
-> helpers maybe. Both not really needed for the dumb scanout vram
-> helpers we're discussing here.
+> 
+> I'm aware. Unfortunately we don't have a decision yet about which parts
+> of the protected virtualization architecture are going to be PoP
+> material.
 
-Yeah, exactly that's what I wanted to get towards as well.
+Oh, okay.
 
-This magic trylock+kref_get is what needs to be handled correctly by all 
-drivers which implement an LRU.
+> 
+> You can get some more context immediately by having a look at Martin's
+> features branch and looking at the s390/protvirt  and s390/uv patches.
 
-LRU bulk move is something which is tricky to get right as well, but so 
-far only amdgpu uses it so it only make sense to share when somebody 
-else wants the same approach.
+As I don't have time to dig through random branches to
+discover/reverse-engineer the obvious, I won't be reviewing this patch
+series. But as I am not an I/O expert, this might not be bad at all :)
 
-Christian.
+Maybe other people can help.
 
-> -Daniel
->
-> -Daniel
-> --
-> Daniel Vetter
-> Software Engineer, Intel Corporation
-> +41 (0) 79 365 57 48 - http://blog.ffwll.ch
+> 
+> I will try to provide more background information for v1. But having
+> a remotely complete and reliable documentation will take some time. What
+> I can offer at the moment is answers to specific questions.
+
+Waiting for v1 then.
+
+Cheers!
+
+-- 
+
+Thanks,
+
+David / dhildenb
