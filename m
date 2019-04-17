@@ -1,15 +1,20 @@
-From: Jiri Kosina <jikos@kernel.org>
-Subject: Re: [PATCH v3 09/26] compat_ioctl: move drivers to
- compat_ptr_ioctl
-Date: Tue, 16 Apr 2019 22:31:24 +0200 (CEST)
-Message-ID: <nycvar.YFH.7.76.1904162230560.9803__42646.5694721387$1555718290$gmane$org@cbobk.fhfr.pm>
-References: <20190416202013.4034148-1-arnd@arndb.de>
-	<20190416202013.4034148-10-arnd@arndb.de>
+From: Chia-I Wu <olvaffe@gmail.com>
+Subject: Re: [PATCH 3/3] virtio-gpu api: VIRTIO_GPU_F_RESSOURCE_V2
+Date: Wed, 17 Apr 2019 11:06:17 -0700
+Message-ID: <CAPaKu7S+QarGDig8fsc1xDyg3z=22ntcCtVMxWh1H3bEzEwZ3A__22389.74515801$1555718296$gmane$org@mail.gmail.com>
+References: <20190410114227.25846-1-kraxel@redhat.com>
+	<20190410114227.25846-4-kraxel@redhat.com>
+	<CAAfnVBm5XZx8P7k5np823-uRr-kqf0ey9Y3GtoE2Geo4dCdQ=g@mail.gmail.com>
+	<20190411050322.mfxo5mrwwzajlz3h@sirius.home.kraxel.org>
+	<CAAfnVB=v+daY0Q+mtdK2Q=F7iS_Ra7jGYfic3twfnUVo=tz3Yg@mail.gmail.com>
+	<20190412054924.dvh6bfxfrbgvezxr@sirius.home.kraxel.org>
+	<CAPaKu7QsDp=kRsMzMf0YcvafsXBsr_m4bstuZiWAcmYiV_AxnQ@mail.gmail.com>
+	<20190417095750.lre3xrg4dlgskfjg@sirius.home.kraxel.org>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <20190416202013.4034148-10-arnd@arndb.de>
+In-Reply-To: <20190417095750.lre3xrg4dlgskfjg@sirius.home.kraxel.org>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -19,31 +24,92 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Arnd Bergmann <arnd@arndb.de>
-Cc: linux-usb@vger.kernel.org, kvm@vger.kernel.org, "Michael S. Tsirkin" <mst@redhat.com>, Alexander Shishkin <alexander.shishkin@linux.intel.com>, Jarkko Sakkinen <jarkko.sakkinen@linux.intel.com>, virtualization@lists.linux-foundation.org, Benjamin Tissoires <benjamin.tissoires@redhat.com>, linux-mtd@lists.infradead.org, Peter Huewe <peterhuewe@gmx.de>, linux1394-devel@lists.sourceforge.net, linux-stm32@st-md-mailman.stormreply.com, devel@driverdev.osuosl.org, Jason Gunthorpe <jgg@ziepe.ca>, y2038@lists.linaro.org, Richard Weinberger <richard@nod.at>, Marek Vasut <marek.vasut@gmail.com>, Jason Gunthorpe <jgg@mellanox.com>, linux-arm-kernel@lists.infradead.org, linux-input@vger.kernel.org, Tomas Winkler <tomas.winkler@intel.com>, Alexandre Torgue <alexandre.torgue@st.com>, Alexander Viro <viro@zeniv.linux.org.uk>, Stefan Hajnoczi <stefanha@redhat.com>, Willem
+To: Gerd Hoffmann <kraxel@redhat.com>
+Cc: virtio@lists.oasis-open.org, Tomeu Vizoso <tomeu.vizoso@collabora.com>, "Michael S. Tsirkin" <mst@redhat.com>, David Airlie <airlied@linux.ie>, open list <linux-kernel@vger.kernel.org>, ML dri-devel <dri-devel@lists.freedesktop.org>, Gurchetan Singh <gurchetansingh@chromium.org>, David Airlie <airlied@redhat.com>, "open list:VIRTIO CORE,
+	NET AND BLOCK DRIVERS" <virtualization@lists.linux-foundation.org>
 List-Id: virtualization@lists.linuxfoundation.org
 
-On Tue, 16 Apr 2019, Arnd Bergmann wrote:
+On Wed, Apr 17, 2019 at 2:57 AM Gerd Hoffmann <kraxel@redhat.com> wrote:
+>
+> On Fri, Apr 12, 2019 at 04:34:20PM -0700, Chia-I Wu wrote:
+> > Hi,
+> >
+> > I am still new to virgl, and missed the last round of discussion about
+> > resource_create_v2.
+> >
+> > From the discussion below, semantically resource_create_v2 creates a host
+> > resource object _without_ any storage; memory_create creates a host memory
+> > object which provides the storage.  Is that correct?
+>
+> Right now all resource_create_* variants create a resource object with
+> host storage.  memory_create creates guest storage, and
+> resource_attach_memory binds things together.  Then you have to transfer
+> the data.
+In Gurchetan's Vulkan example,  the host storage allocation happens in
+(some variant of) memory_create, not in resource_create_v2.  Maybe
+that's what got me confused.
 
-> Each of these drivers has a copy of the same trivial helper function to
-> convert the pointer argument and then call the native ioctl handler.
-> 
-> We now have a generic implementation of that, so use it.
-> 
-> Acked-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-> Reviewed-by: Jarkko Sakkinen <jarkko.sakkinen@linux.intel.com>
-> Reviewed-by: Jason Gunthorpe <jgg@mellanox.com>
-> Signed-off-by: Arnd Bergmann <arnd@arndb.de>
-> ---
->  drivers/char/ppdev.c              | 12 +---------
->  drivers/char/tpm/tpm_vtpm_proxy.c | 12 +---------
->  drivers/firewire/core-cdev.c      | 12 +---------
->  drivers/hid/usbhid/hiddev.c       | 11 +--------
+>
+> Hmm, maybe we need a flag indicating that host storage is not needed,
+> for resources where we want establish some kind of shared mapping later
+> on.
+This makes sense, to support both Vulkan and non-Vulkan models.
 
-For hiddev.c:
+This differs from this patch, but I think a full-fledged resource
+should logically have three components
 
-Reviewed-by: Jiri Kosina <jkosina@suse.cz> 
+ - a RESOURCE component that has not storage
+ - a MEMORY component that provides the storage
+ - a BACKING component that is for transfers
 
--- 
-Jiri Kosina
-SUSE Labs
+resource_attach_backing sets the BACKING component.  BACKING always
+uses guest pages and supports only transfers into or out of MEMORY.
+
+resource_attach_memory sets the MEMORY component.  MEMORY can use host
+or guest pages, and must always support GPU operations.  When a MEMORY
+is mappable in the guest, we can skip BACKING and achieve zero-copy.
+
+resource_create_* can then get a flag to indicate whether only
+RESOURCE is created or RESOURCE+MEMORY is created.
+
+
+>
+> > Do we expect these new commands to be supported by OpenGL, which does not
+> > separate resources and memories?
+>
+> Well, for opengl you need a 1:1 relationship between memory region and
+> resource.
+>
+> > > Yes, even though it is not clear yet how we are going to handle
+> > > host-allocated buffers in the vhost-user case ...
+> >
+> > This might be another dumb question, but is this only an issue for
+> > vhost-user(-gpu) case?  What mechanisms are used to map host dma-buf into
+> > the guest address space?
+>
+> qemu can change the address space, that includes mmap()ing stuff there.
+> An external vhost-user process can't do this, it can only read the
+> address space layout, and read/write from/to guest memory.
+I thought vhost-user process can work with the host-allocated dmabuf
+directly.  That is,
+
+  qemu: injects dmabuf pages into guest address space
+  vhost-user: work with the dmabuf
+  guest: can read/write those pages
+
+>
+> > But one needs to create the resource first to know which memory types can
+> > be attached to it.  I think the metadata needs to be returned with
+> > resource_create_v2.
+>
+> There is a resource_info reply for that.
+>
+> > That should be good enough.  But by returning alignments, we can minimize
+> > the gaps when attaching multiple resources, especially when the resources
+> > are only used by GPU.
+>
+> We can add alignments to the resource_info reply.
+>
+> cheers,
+>   Gerd
+>
