@@ -1,14 +1,20 @@
-From: Jason Wang <jasowang@redhat.com>
-Subject: Re: [PATCH] vhost/scsi: drop unnecessary smp_mb__after_atomic()
-Date: Wed, 17 Apr 2019 13:57:18 +0800
-Message-ID: <c18ed846-940b-0b10-3d40-639b1f8dc499__43180.8829352789$1555480656$gmane$org@redhat.com>
-References: <20190416104748.26942-1-stefanha@redhat.com>
+From: Gerd Hoffmann <kraxel@redhat.com>
+Subject: Re: [PATCH 3/3] virtio-gpu api: VIRTIO_GPU_F_RESSOURCE_V2
+Date: Wed, 17 Apr 2019 11:57:50 +0200
+Message-ID: <20190417095750.lre3xrg4dlgskfjg__26247.9792394274$1555495087$gmane$org@sirius.home.kraxel.org>
+References: <20190410114227.25846-1-kraxel@redhat.com>
+	<20190410114227.25846-4-kraxel@redhat.com>
+	<CAAfnVBm5XZx8P7k5np823-uRr-kqf0ey9Y3GtoE2Geo4dCdQ=g@mail.gmail.com>
+	<20190411050322.mfxo5mrwwzajlz3h@sirius.home.kraxel.org>
+	<CAAfnVB=v+daY0Q+mtdK2Q=F7iS_Ra7jGYfic3twfnUVo=tz3Yg@mail.gmail.com>
+	<20190412054924.dvh6bfxfrbgvezxr@sirius.home.kraxel.org>
+	<CAPaKu7QsDp=kRsMzMf0YcvafsXBsr_m4bstuZiWAcmYiV_AxnQ@mail.gmail.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="utf-8"; Format="flowed"
-Content-Transfer-Encoding: base64
+Content-Type: text/plain; charset="us-ascii"
+Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <20190416104748.26942-1-stefanha@redhat.com>
-Content-Language: en-US
+Content-Disposition: inline
+In-Reply-To: <CAPaKu7QsDp=kRsMzMf0YcvafsXBsr_m4bstuZiWAcmYiV_AxnQ@mail.gmail.com>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -18,33 +24,58 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Stefan Hajnoczi <stefanha@redhat.com>, kvm@vger.kernel.org
-Cc: Andrea Parri <andrea.parri@amarulasolutions.com>, "Michael S. Tsirkin" <mst@redhat.com>, linux-kernel@vger.kernel.org, virtualization@lists.linux-foundation.org
+To: Chia-I Wu <olvaffe@gmail.com>
+Cc: virtio@lists.oasis-open.org, Tomeu Vizoso <tomeu.vizoso@collabora.com>, "Michael S. Tsirkin" <mst@redhat.com>, David Airlie <airlied@linux.ie>, open list <linux-kernel@vger.kernel.org>, ML dri-devel <dri-devel@lists.freedesktop.org>, Gurchetan Singh <gurchetansingh@chromium.org>, David Airlie <airlied@redhat.com>, "open list:VIRTIO CORE,
+	NET AND BLOCK DRIVERS" <virtualization@lists.linux-foundation.org>
 List-Id: virtualization@lists.linuxfoundation.org
 
-Ck9uIDIwMTkvNC8xNiDkuIvljYg2OjQ3LCBTdGVmYW4gSGFqbm9jemkgd3JvdGU6Cj4gVGhlIHZo
-b3N0X3Njc2kua28gY29kZSB1c2VkIHNldmVyYWwgYXRvbWljIHZhcmlhYmxlcyBhdCBvbmUgcG9p
-bnQuCj4gTGF0ZXIgdGhleSB3ZXJlIGRyb3BwZWQgb3IgY29udmVydGVkIHRvIHJlZ3VsYXIgaW50
-cyBwcm90ZWN0ZWQgYnkgYQo+IG11dGV4Lgo+Cj4gVGhlIGNvbW1pdCB0aGF0IG1hZGUgdGhlc2Ug
-Y2hhbmdlcyBsZWZ0IGFuIHVudXNlZCBzbXBfbWJfX2FmdGVyX2F0b21pYygpCj4gaW4gdmhvc3Rf
-c2NzaV9zZXRfZW5kcG9pbnQoKS4gIEl0IHdhcyBwcmV2aW91c2x5IHVzZWQgYWZ0ZXIgaW5jcmVt
-ZW50aW5nCj4gdmhvc3Rfc2NzaS0+dmhvc3RfcmVmX2NudCBidXQgdGhpcyBmaWVsZCBoYXMgYmVl
-biBkcm9wcGVkOgo+Cj4gICAgLSAgICAgYXRvbWljX2luYygmdnMtPnZob3N0X3JlZl9jbnQpOwo+
-ICAgICAgICAgIHNtcF9tYl9fYWZ0ZXJfYXRvbWljX2luYygpOwo+Cj4gUmVwb3J0ZWQtYnk6IEFu
-ZHJlYSBQYXJyaSA8YW5kcmVhLnBhcnJpQGFtYXJ1bGFzb2x1dGlvbnMuY29tPgo+IEZpeGVzOiAx
-MDE5OThmNmZjZDY4MCAoInRjbV92aG9zdDogUG9zdC1tZXJnZSByZXZpZXcgY2hhbmdlcyByZXF1
-ZXN0ZWQgYnkgTVNUIikKPiBTaWduZWQtb2ZmLWJ5OiBTdGVmYW4gSGFqbm9jemkgPHN0ZWZhbmhh
-QHJlZGhhdC5jb20+Cj4gLS0tCj4gICBkcml2ZXJzL3Zob3N0L3Njc2kuYyB8IDEgLQo+ICAgMSBm
-aWxlIGNoYW5nZWQsIDEgZGVsZXRpb24oLSkKPgo+IGRpZmYgLS1naXQgYS9kcml2ZXJzL3Zob3N0
-L3Njc2kuYyBiL2RyaXZlcnMvdmhvc3Qvc2NzaS5jCj4gaW5kZXggNjE4ZmI2NDYxMDE3Li5jMDkw
-ZDE3N2JkNzUgMTAwNjQ0Cj4gLS0tIGEvZHJpdmVycy92aG9zdC9zY3NpLmMKPiArKysgYi9kcml2
-ZXJzL3Zob3N0L3Njc2kuYwo+IEBAIC0xNDQzLDcgKzE0NDMsNiBAQCB2aG9zdF9zY3NpX3NldF9l
-bmRwb2ludChzdHJ1Y3Qgdmhvc3Rfc2NzaSAqdnMsCj4gICAJCQl0cGctPnR2X3RwZ192aG9zdF9j
-b3VudCsrOwo+ICAgCQkJdHBnLT52aG9zdF9zY3NpID0gdnM7Cj4gICAJCQl2c190cGdbdHBnLT50
-cG9ydF90cGd0XSA9IHRwZzsKPiAtCQkJc21wX21iX19hZnRlcl9hdG9taWMoKTsKPiAgIAkJCW1h
-dGNoID0gdHJ1ZTsKPiAgIAkJfQo+ICAgCQltdXRleF91bmxvY2soJnRwZy0+dHZfdHBnX211dGV4
-KTsKCgpMb29rcyBsaWtlIFBhb2xvIGhhcyBzZW50IGFuIGlkZW50aWNhbCBwYXRjaCBiZWZvcmUg
-dGhpcyBvbmUuCgpUaGFua3MKCl9fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19f
-X19fX19fX19fClZpcnR1YWxpemF0aW9uIG1haWxpbmcgbGlzdApWaXJ0dWFsaXphdGlvbkBsaXN0
-cy5saW51eC1mb3VuZGF0aW9uLm9yZwpodHRwczovL2xpc3RzLmxpbnV4Zm91bmRhdGlvbi5vcmcv
-bWFpbG1hbi9saXN0aW5mby92aXJ0dWFsaXphdGlvbg==
+On Fri, Apr 12, 2019 at 04:34:20PM -0700, Chia-I Wu wrote:
+> Hi,
+> 
+> I am still new to virgl, and missed the last round of discussion about
+> resource_create_v2.
+> 
+> From the discussion below, semantically resource_create_v2 creates a host
+> resource object _without_ any storage; memory_create creates a host memory
+> object which provides the storage.  Is that correct?
+
+Right now all resource_create_* variants create a resource object with
+host storage.  memory_create creates guest storage, and
+resource_attach_memory binds things together.  Then you have to transfer
+the data.
+
+Hmm, maybe we need a flag indicating that host storage is not needed,
+for resources where we want establish some kind of shared mapping later
+on.
+
+> Do we expect these new commands to be supported by OpenGL, which does not
+> separate resources and memories?
+
+Well, for opengl you need a 1:1 relationship between memory region and
+resource.
+
+> > Yes, even though it is not clear yet how we are going to handle
+> > host-allocated buffers in the vhost-user case ...
+> 
+> This might be another dumb question, but is this only an issue for
+> vhost-user(-gpu) case?  What mechanisms are used to map host dma-buf into
+> the guest address space?
+
+qemu can change the address space, that includes mmap()ing stuff there.
+An external vhost-user process can't do this, it can only read the
+address space layout, and read/write from/to guest memory.
+
+> But one needs to create the resource first to know which memory types can
+> be attached to it.  I think the metadata needs to be returned with
+> resource_create_v2.
+
+There is a resource_info reply for that.
+
+> That should be good enough.  But by returning alignments, we can minimize
+> the gaps when attaching multiple resources, especially when the resources
+> are only used by GPU.
+
+We can add alignments to the resource_info reply.
+
+cheers,
+  Gerd
