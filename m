@@ -1,18 +1,14 @@
-From: Pankaj Gupta <pagupta@redhat.com>
-Subject: Re: [Qemu-devel] [PATCH v5 1/6] libnvdimm: nd_region flush callback
-	support
-Date: Thu, 18 Apr 2019 02:27:00 -0400 (EDT)
-Message-ID: <695036448.22376013.1555568820649.JavaMail.zimbra@redhat.com>
-References: <20190410040826.24371-1-pagupta@redhat.com>
-	<20190410040826.24371-2-pagupta@redhat.com>
-	<CAPcyv4i1FjBzfcWtzeCvj-giHa9xaX0dMQ==q4LZC_L8VEqkHg@mail.gmail.com>
-	<20190412083230.GA29850@quack2.suse.cz>
-	<x494l73z7th.fsf@segfault.boston.devel.redhat.com>
+From: Stefan Hajnoczi <stefanha@gmail.com>
+Subject: Re: [PATCH] vhost/scsi: drop unnecessary smp_mb__after_atomic()
+Date: Thu, 18 Apr 2019 09:56:17 +0100
+Message-ID: <CAJSP0QX_daRKAoXY2_w4Bmxv-fo5Kw1DgvYz7AUwJxGdEdw9Xg__9209.85721038363$1555577807$gmane$org@mail.gmail.com>
+References: <20190416104748.26942-1-stefanha@redhat.com>
+	<c18ed846-940b-0b10-3d40-639b1f8dc499@redhat.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset="utf-8"
+Content-Transfer-Encoding: base64
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <x494l73z7th.fsf@segfault.boston.devel.redhat.com>
+In-Reply-To: <c18ed846-940b-0b10-3d40-639b1f8dc499@redhat.com>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -22,42 +18,38 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Jeff Moyer <jmoyer@redhat.com>, Jan Kara <jack@suse.cz>, Dan Williams <dan.j.williams@intel.com>
-Cc: KVM list <kvm@vger.kernel.org>, "Michael S. Tsirkin" <mst@redhat.com>, david <david@fromorbit.com>, Qemu Developers <qemu-devel@nongnu.org>, virtualization@lists.linux-foundation.org, Andreas Dilger <adilger.kernel@dilger.ca>, Ross Zwisler <zwisler@kernel.org>, Andrea Arcangeli <aarcange@redhat.com>, Dave Jiang <dave.jiang@intel.com>, linux-nvdimm <linux-nvdimm@lists.01.org>, Vishal L Verma <vishal.l.verma@intel.com>, Matthew Wilcox <willy@infradead.org>, Christoph Hellwig <hch@infradead.org>, Linux ACPI <linux-acpi@vger.kernel.org>, linux-ext4 <linux-ext4@vger.kernel.org>, Len Brown <lenb@kernel.org>, kilobyte@angband.pl, Rik van Riel <riel@surriel.com>, yuval shaia <yuval.shaia@oracle.com>, Stefan Hajnoczi <stefanha@redhat.com>, Igor Mammedov <imammedo@redhat.com>, lcapitulino@redhat.com, Nitesh Narayan Lal <nilal@redhat.com>, Theodore Ts'o <tytso@mit.edu>, Xiao
+To: Jason Wang <jasowang@redhat.com>
+Cc: Andrea Parri <andrea.parri@amarulasolutions.com>, kvm <kvm@vger.kernel.org>, "Michael S. Tsirkin" <mst@redhat.com>, linux-kernel <linux-kernel@vger.kernel.org>, Linux Virtualization <virtualization@lists.linux-foundation.org>, Stefan Hajnoczi <stefanha@redhat.com>
 List-Id: virtualization@lists.linuxfoundation.org
 
-
-Hello,
-
-Thank you for the suggestions on this.
-
-> 
-> > On Thu 11-04-19 07:51:48, Dan Williams wrote:
-> >> On Tue, Apr 9, 2019 at 9:09 PM Pankaj Gupta <pagupta@redhat.com> wrote:
-> >> > +       } else {
-> >> > +               if (nd_region->flush(nd_region))
-> >> > +                       rc = -EIO;
-> >> 
-> >> Given the common case wants to be fast and synchronous I think we
-> >> should try to avoid retpoline overhead by default. So something like
-> >> this:
-> >> 
-> >> if (nd_region->flush == generic_nvdimm_flush)
-> >>     rc = generic_nvdimm_flush(...);
-> >
-> > I'd either add a comment about avoiding retpoline overhead here or just
-> > make ->flush == NULL mean generic_nvdimm_flush(). Just so that people don't
-> > get confused by the code.
-> 
-> Isn't this premature optimization?  I really don't like adding things
-> like this without some numbers to show it's worth it.
-
-Can we add the optimization after this version is merged.
-
-Best regards,
-Pankaj 
-
-> 
-> -Jeff
-> 
-> 
+T24gV2VkLCBBcHIgMTcsIDIwMTkgYXQgNjo1NyBBTSBKYXNvbiBXYW5nIDxqYXNvd2FuZ0ByZWRo
+YXQuY29tPiB3cm90ZToKPiBPbiAyMDE5LzQvMTYg5LiL5Y2INjo0NywgU3RlZmFuIEhham5vY3pp
+IHdyb3RlOgo+ID4gVGhlIHZob3N0X3Njc2kua28gY29kZSB1c2VkIHNldmVyYWwgYXRvbWljIHZh
+cmlhYmxlcyBhdCBvbmUgcG9pbnQuCj4gPiBMYXRlciB0aGV5IHdlcmUgZHJvcHBlZCBvciBjb252
+ZXJ0ZWQgdG8gcmVndWxhciBpbnRzIHByb3RlY3RlZCBieSBhCj4gPiBtdXRleC4KPiA+Cj4gPiBU
+aGUgY29tbWl0IHRoYXQgbWFkZSB0aGVzZSBjaGFuZ2VzIGxlZnQgYW4gdW51c2VkIHNtcF9tYl9f
+YWZ0ZXJfYXRvbWljKCkKPiA+IGluIHZob3N0X3Njc2lfc2V0X2VuZHBvaW50KCkuICBJdCB3YXMg
+cHJldmlvdXNseSB1c2VkIGFmdGVyIGluY3JlbWVudGluZwo+ID4gdmhvc3Rfc2NzaS0+dmhvc3Rf
+cmVmX2NudCBidXQgdGhpcyBmaWVsZCBoYXMgYmVlbiBkcm9wcGVkOgo+ID4KPiA+ICAgIC0gICAg
+IGF0b21pY19pbmMoJnZzLT52aG9zdF9yZWZfY250KTsKPiA+ICAgICAgICAgIHNtcF9tYl9fYWZ0
+ZXJfYXRvbWljX2luYygpOwo+ID4KPiA+IFJlcG9ydGVkLWJ5OiBBbmRyZWEgUGFycmkgPGFuZHJl
+YS5wYXJyaUBhbWFydWxhc29sdXRpb25zLmNvbT4KPiA+IEZpeGVzOiAxMDE5OThmNmZjZDY4MCAo
+InRjbV92aG9zdDogUG9zdC1tZXJnZSByZXZpZXcgY2hhbmdlcyByZXF1ZXN0ZWQgYnkgTVNUIikK
+PiA+IFNpZ25lZC1vZmYtYnk6IFN0ZWZhbiBIYWpub2N6aSA8c3RlZmFuaGFAcmVkaGF0LmNvbT4K
+PiA+IC0tLQo+ID4gICBkcml2ZXJzL3Zob3N0L3Njc2kuYyB8IDEgLQo+ID4gICAxIGZpbGUgY2hh
+bmdlZCwgMSBkZWxldGlvbigtKQo+ID4KPiA+IGRpZmYgLS1naXQgYS9kcml2ZXJzL3Zob3N0L3Nj
+c2kuYyBiL2RyaXZlcnMvdmhvc3Qvc2NzaS5jCj4gPiBpbmRleCA2MThmYjY0NjEwMTcuLmMwOTBk
+MTc3YmQ3NSAxMDA2NDQKPiA+IC0tLSBhL2RyaXZlcnMvdmhvc3Qvc2NzaS5jCj4gPiArKysgYi9k
+cml2ZXJzL3Zob3N0L3Njc2kuYwo+ID4gQEAgLTE0NDMsNyArMTQ0Myw2IEBAIHZob3N0X3Njc2lf
+c2V0X2VuZHBvaW50KHN0cnVjdCB2aG9zdF9zY3NpICp2cywKPiA+ICAgICAgICAgICAgICAgICAg
+ICAgICB0cGctPnR2X3RwZ192aG9zdF9jb3VudCsrOwo+ID4gICAgICAgICAgICAgICAgICAgICAg
+IHRwZy0+dmhvc3Rfc2NzaSA9IHZzOwo+ID4gICAgICAgICAgICAgICAgICAgICAgIHZzX3RwZ1t0
+cGctPnRwb3J0X3RwZ3RdID0gdHBnOwo+ID4gLSAgICAgICAgICAgICAgICAgICAgIHNtcF9tYl9f
+YWZ0ZXJfYXRvbWljKCk7Cj4gPiAgICAgICAgICAgICAgICAgICAgICAgbWF0Y2ggPSB0cnVlOwo+
+ID4gICAgICAgICAgICAgICB9Cj4gPiAgICAgICAgICAgICAgIG11dGV4X3VubG9jaygmdHBnLT50
+dl90cGdfbXV0ZXgpOwo+Cj4KPiBMb29rcyBsaWtlIFBhb2xvIGhhcyBzZW50IGFuIGlkZW50aWNh
+bCBwYXRjaCBiZWZvcmUgdGhpcyBvbmUuCgpZZXMsIFBhb2xvJ3MgcGF0Y2ggaXMgZmluZS4KClN0
+ZWZhbgpfX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fXwpWaXJ0
+dWFsaXphdGlvbiBtYWlsaW5nIGxpc3QKVmlydHVhbGl6YXRpb25AbGlzdHMubGludXgtZm91bmRh
+dGlvbi5vcmcKaHR0cHM6Ly9saXN0cy5saW51eGZvdW5kYXRpb24ub3JnL21haWxtYW4vbGlzdGlu
+Zm8vdmlydHVhbGl6YXRpb24=
