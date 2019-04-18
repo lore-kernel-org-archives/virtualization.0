@@ -1,13 +1,17 @@
-From: Stefan Hajnoczi <stefanha@redhat.com>
-Subject: Re: [PATCH v3 09/26] compat_ioctl: move drivers to compat_ptr_ioctl
-Date: Thu, 18 Apr 2019 12:10:17 +0100
-Message-ID: <20190418111017.GE23876__38932.4300734856$1555585860$gmane$org@stefanha-x1.localdomain>
-References: <20190416202013.4034148-1-arnd@arndb.de>
-	<20190416202013.4034148-10-arnd@arndb.de>
+From: Dan Williams <dan.j.williams@intel.com>
+Subject: Re: [PATCH v5 1/6] libnvdimm: nd_region flush callback support
+Date: Thu, 18 Apr 2019 09:05:05 -0700
+Message-ID: <CAPcyv4jrNHqW3FuGkeo==ZoJr7LKahCv4_esnokfy7enek8=2Q__30559.4290651911$1555603543$gmane$org@mail.gmail.com>
+References: <20190410040826.24371-1-pagupta@redhat.com>
+	<20190410040826.24371-2-pagupta@redhat.com>
+	<CAPcyv4i1FjBzfcWtzeCvj-giHa9xaX0dMQ==q4LZC_L8VEqkHg@mail.gmail.com>
+	<20190412083230.GA29850@quack2.suse.cz>
+	<x494l73z7th.fsf@segfault.boston.devel.redhat.com>
 Mime-Version: 1.0
-Content-Type: multipart/mixed; boundary="===============2139763860873017770=="
+Content-Type: text/plain; charset="us-ascii"
+Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <20190416202013.4034148-10-arnd@arndb.de>
+In-Reply-To: <x494l73z7th.fsf@segfault.boston.devel.redhat.com>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -17,79 +21,35 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Arnd Bergmann <arnd@arndb.de>
-Cc: linux-usb@vger.kernel.org, kvm@vger.kernel.org, "Michael S. Tsirkin" <mst@redhat.com>, Alexander Shishkin <alexander.shishkin@linux.intel.com>, Jarkko Sakkinen <jarkko.sakkinen@linux.intel.com>, virtualization@lists.linux-foundation.org, Benjamin Tissoires <benjamin.tissoires@redhat.com>, linux-mtd@lists.infradead.org, Peter Huewe <peterhuewe@gmx.de>, linux1394-devel@lists.sourceforge.net, linux-stm32@st-md-mailman.stormreply.com, devel@driverdev.osuosl.org, Marek Vasut <marek.vasut@gmail.com>, y2038@lists.linaro.org, Richard Weinberger <richard@nod.at>, Jason Gunthorpe <jgg@ziepe.ca>, Jason Gunthorpe <jgg@mellanox.com>, linux-arm-kernel@lists.infradead.org, linux-input@vger.kernel.org, Tomas Winkler <tomas.winkler@intel.com>, Alexandre Torgue <alexandre.torgue@st.com>, Jiri Kosina <jikos@kernel.org>, Alexander Viro <viro@zeniv.linux.org.uk>, Willem de Bruijn <willemb>
+To: Jeff Moyer <jmoyer@redhat.com>
+Cc: Pankaj Gupta <pagupta@redhat.com>, cohuck@redhat.com, Jan Kara <jack@suse.cz>, KVM list <kvm@vger.kernel.org>, "Michael S. Tsirkin" <mst@redhat.com>, david <david@fromorbit.com>, Qemu Developers <qemu-devel@nongnu.org>, virtualization@lists.linux-foundation.org, Andreas Dilger <adilger.kernel@dilger.ca>, Ross Zwisler <zwisler@kernel.org>, Andrea Arcangeli <aarcange@redhat.com>, Dave Jiang <dave.jiang@intel.com>, linux-nvdimm <linux-nvdimm@lists.01.org>, Vishal L Verma <vishal.l.verma@intel.com>, Matthew Wilcox <willy@infradead.org>, Christoph Hellwig <hch@infradead.org>, Linux ACPI <linux-acpi@vger.kernel.org>, linux-ext4 <linux-ext4@vger.kernel.org>, Len Brown <lenb@kernel.org>, kilobyte@angband.pl, Rik van Riel <riel@surriel.com>, yuval shaia <yuval.shaia@oracle.com>, Stefan Hajnoczi <stefanha@redhat.com>, Paolo Bonzini <pbonzini@redhat.com>, lcapitulino@redhat.com
 List-Id: virtualization@lists.linuxfoundation.org
 
+On Fri, Apr 12, 2019 at 6:12 AM Jeff Moyer <jmoyer@redhat.com> wrote:
+>
+> Jan Kara <jack@suse.cz> writes:
+>
+> > On Thu 11-04-19 07:51:48, Dan Williams wrote:
+> >> On Tue, Apr 9, 2019 at 9:09 PM Pankaj Gupta <pagupta@redhat.com> wrote:
+> >> > +       } else {
+> >> > +               if (nd_region->flush(nd_region))
+> >> > +                       rc = -EIO;
+> >>
+> >> Given the common case wants to be fast and synchronous I think we
+> >> should try to avoid retpoline overhead by default. So something like
+> >> this:
+> >>
+> >> if (nd_region->flush == generic_nvdimm_flush)
+> >>     rc = generic_nvdimm_flush(...);
+> >
+> > I'd either add a comment about avoiding retpoline overhead here or just
+> > make ->flush == NULL mean generic_nvdimm_flush(). Just so that people don't
+> > get confused by the code.
+>
+> Isn't this premature optimization?  I really don't like adding things
+> like this without some numbers to show it's worth it.
 
---===============2139763860873017770==
-Content-Type: multipart/signed; micalg=pgp-sha1;
-	protocol="application/pgp-signature"; boundary="KlAEzMkarCnErv5Q"
-Content-Disposition: inline
+I don't think it's premature given this optimization technique is
+already being deployed elsewhere, see:
 
-
---KlAEzMkarCnErv5Q
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
-
-On Tue, Apr 16, 2019 at 10:19:47PM +0200, Arnd Bergmann wrote:
-> Each of these drivers has a copy of the same trivial helper function to
-> convert the pointer argument and then call the native ioctl handler.
->=20
-> We now have a generic implementation of that, so use it.
->=20
-> Acked-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-> Reviewed-by: Jarkko Sakkinen <jarkko.sakkinen@linux.intel.com>
-> Reviewed-by: Jason Gunthorpe <jgg@mellanox.com>
-> Signed-off-by: Arnd Bergmann <arnd@arndb.de>
-> ---
->  drivers/char/ppdev.c              | 12 +---------
->  drivers/char/tpm/tpm_vtpm_proxy.c | 12 +---------
->  drivers/firewire/core-cdev.c      | 12 +---------
->  drivers/hid/usbhid/hiddev.c       | 11 +--------
->  drivers/hwtracing/stm/core.c      | 12 +---------
->  drivers/misc/mei/main.c           | 22 +----------------
->  drivers/mtd/ubi/cdev.c            | 36 +++-------------------------
->  drivers/net/tap.c                 | 12 +---------
->  drivers/staging/pi433/pi433_if.c  | 12 +---------
->  drivers/usb/core/devio.c          | 16 +------------
->  drivers/vfio/vfio.c               | 39 +++----------------------------
->  drivers/vhost/net.c               | 12 +---------
->  drivers/vhost/scsi.c              | 12 +---------
->  drivers/vhost/test.c              | 12 +---------
->  drivers/vhost/vsock.c             | 12 +---------
->  fs/fat/file.c                     | 13 +----------
->  16 files changed, 20 insertions(+), 237 deletions(-)
-
-The vhost parts look good:
-
-Reviewed-by: Stefan Hajnoczi <stefanha@redhat.com>
-
---KlAEzMkarCnErv5Q
-Content-Type: application/pgp-signature; name="signature.asc"
-
------BEGIN PGP SIGNATURE-----
-
-iQEcBAEBAgAGBQJcuFsZAAoJEJykq7OBq3PIjmUH/3YzT8r/nZGWhf+D9Jhao8p9
-N6eNCnBkQtsAj+s6IhmhZxdmPlkw0b8X0ws3iIw/zE3PNeLtIt2hG92evE9QSRzD
-dkSG0m+8KJ1fQK73GrmLousrFnSOagczYoTD/svPhC3WMptVGlPB4aqBZO4Eh79w
-SyUrD7cXe2NQXUFVRI9/QVj+yu59BtvUivzkDwGZxYa5Y8RvwDvelz+xTAkKP/cl
-CZ9Gnc2gCrzuK26f5odjmby93QWbAVkiMe5k22pzy/RRpuzsijL5ujr+Ayeti45g
-cDTLJ4YjNSzM07rYoa8nqHgZATbSokG/gvbNByeC//MoqtmpE23wNzmMwuFJdi8=
-=85Rm
------END PGP SIGNATURE-----
-
---KlAEzMkarCnErv5Q--
-
---===============2139763860873017770==
-Content-Type: text/plain; charset="us-ascii"
-MIME-Version: 1.0
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-
-_______________________________________________
-Virtualization mailing list
-Virtualization@lists.linux-foundation.org
-https://lists.linuxfoundation.org/mailman/listinfo/virtualization
---===============2139763860873017770==--
+https://lwn.net/Articles/774347/
