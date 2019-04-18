@@ -1,14 +1,13 @@
-From: Stefan Hajnoczi <stefanha@gmail.com>
-Subject: Re: [PATCH] vhost/scsi: drop unnecessary smp_mb__after_atomic()
-Date: Thu, 18 Apr 2019 09:56:17 +0100
-Message-ID: <CAJSP0QX_daRKAoXY2_w4Bmxv-fo5Kw1DgvYz7AUwJxGdEdw9Xg__9209.85721038363$1555577807$gmane$org@mail.gmail.com>
-References: <20190416104748.26942-1-stefanha@redhat.com>
-	<c18ed846-940b-0b10-3d40-639b1f8dc499@redhat.com>
+From: Stefan Hajnoczi <stefanha@redhat.com>
+Subject: Re: [PATCH v3 09/26] compat_ioctl: move drivers to compat_ptr_ioctl
+Date: Thu, 18 Apr 2019 12:10:17 +0100
+Message-ID: <20190418111017.GE23876__38932.4300734856$1555585860$gmane$org@stefanha-x1.localdomain>
+References: <20190416202013.4034148-1-arnd@arndb.de>
+	<20190416202013.4034148-10-arnd@arndb.de>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="utf-8"
-Content-Transfer-Encoding: base64
+Content-Type: multipart/mixed; boundary="===============2139763860873017770=="
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <c18ed846-940b-0b10-3d40-639b1f8dc499@redhat.com>
+In-Reply-To: <20190416202013.4034148-10-arnd@arndb.de>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -18,38 +17,79 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Jason Wang <jasowang@redhat.com>
-Cc: Andrea Parri <andrea.parri@amarulasolutions.com>, kvm <kvm@vger.kernel.org>, "Michael S. Tsirkin" <mst@redhat.com>, linux-kernel <linux-kernel@vger.kernel.org>, Linux Virtualization <virtualization@lists.linux-foundation.org>, Stefan Hajnoczi <stefanha@redhat.com>
+To: Arnd Bergmann <arnd@arndb.de>
+Cc: linux-usb@vger.kernel.org, kvm@vger.kernel.org, "Michael S. Tsirkin" <mst@redhat.com>, Alexander Shishkin <alexander.shishkin@linux.intel.com>, Jarkko Sakkinen <jarkko.sakkinen@linux.intel.com>, virtualization@lists.linux-foundation.org, Benjamin Tissoires <benjamin.tissoires@redhat.com>, linux-mtd@lists.infradead.org, Peter Huewe <peterhuewe@gmx.de>, linux1394-devel@lists.sourceforge.net, linux-stm32@st-md-mailman.stormreply.com, devel@driverdev.osuosl.org, Marek Vasut <marek.vasut@gmail.com>, y2038@lists.linaro.org, Richard Weinberger <richard@nod.at>, Jason Gunthorpe <jgg@ziepe.ca>, Jason Gunthorpe <jgg@mellanox.com>, linux-arm-kernel@lists.infradead.org, linux-input@vger.kernel.org, Tomas Winkler <tomas.winkler@intel.com>, Alexandre Torgue <alexandre.torgue@st.com>, Jiri Kosina <jikos@kernel.org>, Alexander Viro <viro@zeniv.linux.org.uk>, Willem de Bruijn <willemb>
 List-Id: virtualization@lists.linuxfoundation.org
 
-T24gV2VkLCBBcHIgMTcsIDIwMTkgYXQgNjo1NyBBTSBKYXNvbiBXYW5nIDxqYXNvd2FuZ0ByZWRo
-YXQuY29tPiB3cm90ZToKPiBPbiAyMDE5LzQvMTYg5LiL5Y2INjo0NywgU3RlZmFuIEhham5vY3pp
-IHdyb3RlOgo+ID4gVGhlIHZob3N0X3Njc2kua28gY29kZSB1c2VkIHNldmVyYWwgYXRvbWljIHZh
-cmlhYmxlcyBhdCBvbmUgcG9pbnQuCj4gPiBMYXRlciB0aGV5IHdlcmUgZHJvcHBlZCBvciBjb252
-ZXJ0ZWQgdG8gcmVndWxhciBpbnRzIHByb3RlY3RlZCBieSBhCj4gPiBtdXRleC4KPiA+Cj4gPiBU
-aGUgY29tbWl0IHRoYXQgbWFkZSB0aGVzZSBjaGFuZ2VzIGxlZnQgYW4gdW51c2VkIHNtcF9tYl9f
-YWZ0ZXJfYXRvbWljKCkKPiA+IGluIHZob3N0X3Njc2lfc2V0X2VuZHBvaW50KCkuICBJdCB3YXMg
-cHJldmlvdXNseSB1c2VkIGFmdGVyIGluY3JlbWVudGluZwo+ID4gdmhvc3Rfc2NzaS0+dmhvc3Rf
-cmVmX2NudCBidXQgdGhpcyBmaWVsZCBoYXMgYmVlbiBkcm9wcGVkOgo+ID4KPiA+ICAgIC0gICAg
-IGF0b21pY19pbmMoJnZzLT52aG9zdF9yZWZfY250KTsKPiA+ICAgICAgICAgIHNtcF9tYl9fYWZ0
-ZXJfYXRvbWljX2luYygpOwo+ID4KPiA+IFJlcG9ydGVkLWJ5OiBBbmRyZWEgUGFycmkgPGFuZHJl
-YS5wYXJyaUBhbWFydWxhc29sdXRpb25zLmNvbT4KPiA+IEZpeGVzOiAxMDE5OThmNmZjZDY4MCAo
-InRjbV92aG9zdDogUG9zdC1tZXJnZSByZXZpZXcgY2hhbmdlcyByZXF1ZXN0ZWQgYnkgTVNUIikK
-PiA+IFNpZ25lZC1vZmYtYnk6IFN0ZWZhbiBIYWpub2N6aSA8c3RlZmFuaGFAcmVkaGF0LmNvbT4K
-PiA+IC0tLQo+ID4gICBkcml2ZXJzL3Zob3N0L3Njc2kuYyB8IDEgLQo+ID4gICAxIGZpbGUgY2hh
-bmdlZCwgMSBkZWxldGlvbigtKQo+ID4KPiA+IGRpZmYgLS1naXQgYS9kcml2ZXJzL3Zob3N0L3Nj
-c2kuYyBiL2RyaXZlcnMvdmhvc3Qvc2NzaS5jCj4gPiBpbmRleCA2MThmYjY0NjEwMTcuLmMwOTBk
-MTc3YmQ3NSAxMDA2NDQKPiA+IC0tLSBhL2RyaXZlcnMvdmhvc3Qvc2NzaS5jCj4gPiArKysgYi9k
-cml2ZXJzL3Zob3N0L3Njc2kuYwo+ID4gQEAgLTE0NDMsNyArMTQ0Myw2IEBAIHZob3N0X3Njc2lf
-c2V0X2VuZHBvaW50KHN0cnVjdCB2aG9zdF9zY3NpICp2cywKPiA+ICAgICAgICAgICAgICAgICAg
-ICAgICB0cGctPnR2X3RwZ192aG9zdF9jb3VudCsrOwo+ID4gICAgICAgICAgICAgICAgICAgICAg
-IHRwZy0+dmhvc3Rfc2NzaSA9IHZzOwo+ID4gICAgICAgICAgICAgICAgICAgICAgIHZzX3RwZ1t0
-cGctPnRwb3J0X3RwZ3RdID0gdHBnOwo+ID4gLSAgICAgICAgICAgICAgICAgICAgIHNtcF9tYl9f
-YWZ0ZXJfYXRvbWljKCk7Cj4gPiAgICAgICAgICAgICAgICAgICAgICAgbWF0Y2ggPSB0cnVlOwo+
-ID4gICAgICAgICAgICAgICB9Cj4gPiAgICAgICAgICAgICAgIG11dGV4X3VubG9jaygmdHBnLT50
-dl90cGdfbXV0ZXgpOwo+Cj4KPiBMb29rcyBsaWtlIFBhb2xvIGhhcyBzZW50IGFuIGlkZW50aWNh
-bCBwYXRjaCBiZWZvcmUgdGhpcyBvbmUuCgpZZXMsIFBhb2xvJ3MgcGF0Y2ggaXMgZmluZS4KClN0
-ZWZhbgpfX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fXwpWaXJ0
-dWFsaXphdGlvbiBtYWlsaW5nIGxpc3QKVmlydHVhbGl6YXRpb25AbGlzdHMubGludXgtZm91bmRh
-dGlvbi5vcmcKaHR0cHM6Ly9saXN0cy5saW51eGZvdW5kYXRpb24ub3JnL21haWxtYW4vbGlzdGlu
-Zm8vdmlydHVhbGl6YXRpb24=
+
+--===============2139763860873017770==
+Content-Type: multipart/signed; micalg=pgp-sha1;
+	protocol="application/pgp-signature"; boundary="KlAEzMkarCnErv5Q"
+Content-Disposition: inline
+
+
+--KlAEzMkarCnErv5Q
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+Content-Transfer-Encoding: quoted-printable
+
+On Tue, Apr 16, 2019 at 10:19:47PM +0200, Arnd Bergmann wrote:
+> Each of these drivers has a copy of the same trivial helper function to
+> convert the pointer argument and then call the native ioctl handler.
+>=20
+> We now have a generic implementation of that, so use it.
+>=20
+> Acked-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+> Reviewed-by: Jarkko Sakkinen <jarkko.sakkinen@linux.intel.com>
+> Reviewed-by: Jason Gunthorpe <jgg@mellanox.com>
+> Signed-off-by: Arnd Bergmann <arnd@arndb.de>
+> ---
+>  drivers/char/ppdev.c              | 12 +---------
+>  drivers/char/tpm/tpm_vtpm_proxy.c | 12 +---------
+>  drivers/firewire/core-cdev.c      | 12 +---------
+>  drivers/hid/usbhid/hiddev.c       | 11 +--------
+>  drivers/hwtracing/stm/core.c      | 12 +---------
+>  drivers/misc/mei/main.c           | 22 +----------------
+>  drivers/mtd/ubi/cdev.c            | 36 +++-------------------------
+>  drivers/net/tap.c                 | 12 +---------
+>  drivers/staging/pi433/pi433_if.c  | 12 +---------
+>  drivers/usb/core/devio.c          | 16 +------------
+>  drivers/vfio/vfio.c               | 39 +++----------------------------
+>  drivers/vhost/net.c               | 12 +---------
+>  drivers/vhost/scsi.c              | 12 +---------
+>  drivers/vhost/test.c              | 12 +---------
+>  drivers/vhost/vsock.c             | 12 +---------
+>  fs/fat/file.c                     | 13 +----------
+>  16 files changed, 20 insertions(+), 237 deletions(-)
+
+The vhost parts look good:
+
+Reviewed-by: Stefan Hajnoczi <stefanha@redhat.com>
+
+--KlAEzMkarCnErv5Q
+Content-Type: application/pgp-signature; name="signature.asc"
+
+-----BEGIN PGP SIGNATURE-----
+
+iQEcBAEBAgAGBQJcuFsZAAoJEJykq7OBq3PIjmUH/3YzT8r/nZGWhf+D9Jhao8p9
+N6eNCnBkQtsAj+s6IhmhZxdmPlkw0b8X0ws3iIw/zE3PNeLtIt2hG92evE9QSRzD
+dkSG0m+8KJ1fQK73GrmLousrFnSOagczYoTD/svPhC3WMptVGlPB4aqBZO4Eh79w
+SyUrD7cXe2NQXUFVRI9/QVj+yu59BtvUivzkDwGZxYa5Y8RvwDvelz+xTAkKP/cl
+CZ9Gnc2gCrzuK26f5odjmby93QWbAVkiMe5k22pzy/RRpuzsijL5ujr+Ayeti45g
+cDTLJ4YjNSzM07rYoa8nqHgZATbSokG/gvbNByeC//MoqtmpE23wNzmMwuFJdi8=
+=85Rm
+-----END PGP SIGNATURE-----
+
+--KlAEzMkarCnErv5Q--
+
+--===============2139763860873017770==
+Content-Type: text/plain; charset="us-ascii"
+MIME-Version: 1.0
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+
+_______________________________________________
+Virtualization mailing list
+Virtualization@lists.linux-foundation.org
+https://lists.linuxfoundation.org/mailman/listinfo/virtualization
+--===============2139763860873017770==--
