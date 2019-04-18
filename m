@@ -1,22 +1,18 @@
-From: Thiago Jung Bauermann <bauerman@linux.ibm.com>
-Subject: Re: [RFC PATCH] virtio_ring: Use DMA API if guest memory is encrypted
-Date: Wed, 17 Apr 2019 18:42:44 -0300
-Message-ID: <878sw871gr.fsf@morokweng.localdomain>
-References: <87zhrj8kcp.fsf@morokweng.localdomain>
-	<87womn8inf.fsf@morokweng.localdomain>
-	<20190129134750-mutt-send-email-mst@kernel.org>
-	<877eefxvyb.fsf@morokweng.localdomain>
-	<20190204144048-mutt-send-email-mst@kernel.org>
-	<87ef71seve.fsf@morokweng.localdomain>
-	<20190320171027-mutt-send-email-mst@kernel.org>
-	<87tvfvbwpb.fsf@morokweng.localdomain>
-	<20190323165456-mutt-send-email-mst@kernel.org>
-	<20190325005710.GC29295@umbus>
+From: Pankaj Gupta <pagupta@redhat.com>
+Subject: Re: [Qemu-devel] [PATCH v5 1/6] libnvdimm: nd_region flush callback
+	support
+Date: Thu, 18 Apr 2019 02:27:00 -0400 (EDT)
+Message-ID: <695036448.22376013.1555568820649.JavaMail.zimbra@redhat.com>
+References: <20190410040826.24371-1-pagupta@redhat.com>
+	<20190410040826.24371-2-pagupta@redhat.com>
+	<CAPcyv4i1FjBzfcWtzeCvj-giHa9xaX0dMQ==q4LZC_L8VEqkHg@mail.gmail.com>
+	<20190412083230.GA29850@quack2.suse.cz>
+	<x494l73z7th.fsf@segfault.boston.devel.redhat.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-reply-to: <20190325005710.GC29295@umbus>
+In-Reply-To: <x494l73z7th.fsf@segfault.boston.devel.redhat.com>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -26,57 +22,42 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: David Gibson <david@gibson.dropbear.id.au>
-Cc: Mike Anderson <andmike@linux.ibm.com>, "Michael S. Tsirkin" <mst@redhat.com>, Jean-Philippe Brucker <jean-philippe.brucker@arm.com>, Benjamin Herrenschmidt <benh@kernel.crashing.org>, Alexey Kardashevskiy <aik@linux.ibm.com>, Ram Pai <linuxram@us.ibm.com>, linux-kernel@vger.kernel.org, virtualization@lists.linux-foundation.org, Paul Mackerras <paulus@ozlabs.org>, iommu@lists.linux-foundation.org, linuxppc-dev@lists.ozlabs.org, Christoph Hellwig <hch@lst.de>
+To: Jeff Moyer <jmoyer@redhat.com>, Jan Kara <jack@suse.cz>, Dan Williams <dan.j.williams@intel.com>
+Cc: KVM list <kvm@vger.kernel.org>, "Michael S. Tsirkin" <mst@redhat.com>, david <david@fromorbit.com>, Qemu Developers <qemu-devel@nongnu.org>, virtualization@lists.linux-foundation.org, Andreas Dilger <adilger.kernel@dilger.ca>, Ross Zwisler <zwisler@kernel.org>, Andrea Arcangeli <aarcange@redhat.com>, Dave Jiang <dave.jiang@intel.com>, linux-nvdimm <linux-nvdimm@lists.01.org>, Vishal L Verma <vishal.l.verma@intel.com>, Matthew Wilcox <willy@infradead.org>, Christoph Hellwig <hch@infradead.org>, Linux ACPI <linux-acpi@vger.kernel.org>, linux-ext4 <linux-ext4@vger.kernel.org>, Len Brown <lenb@kernel.org>, kilobyte@angband.pl, Rik van Riel <riel@surriel.com>, yuval shaia <yuval.shaia@oracle.com>, Stefan Hajnoczi <stefanha@redhat.com>, Igor Mammedov <imammedo@redhat.com>, lcapitulino@redhat.com, Nitesh Narayan Lal <nilal@redhat.com>, Theodore Ts'o <tytso@mit.edu>, Xiao
 List-Id: virtualization@lists.linuxfoundation.org
 
 
-David Gibson <david@gibson.dropbear.id.au> writes:
+Hello,
 
-> On Sat, Mar 23, 2019 at 05:01:35PM -0400, Michael S. Tsirkin wrote:
->> On Thu, Mar 21, 2019 at 09:05:04PM -0300, Thiago Jung Bauermann wrote:
->> > Michael S. Tsirkin <mst@redhat.com> writes:
-> [snip]
->> > >> > Is there any justification to doing that beyond someone putting
->> > >> > out slow code in the past?
->> > >>
->> > >> The definition of the ACCESS_PLATFORM flag is generic and captures the
->> > >> notion of memory access restrictions for the device. Unfortunately, on
->> > >> powerpc pSeries guests it also implies that the IOMMU is turned on
->> > >
->> > > IIUC that's really because on pSeries IOMMU is *always* turned on.
->> > > Platform has no way to say what you want it to say
->> > > which is bypass the iommu for the specific device.
->> >
->> > Yes, that's correct. pSeries guests running on KVM are in a gray area
->> > where theoretically they use an IOMMU but in practice KVM ignores it.
->> > It's unfortunate but it's the reality on the ground today. :-/
->
-> Um.. I'm not sure what you mean by this.  As far as I'm concerned
-> there is always a guest-visible (paravirtualized) IOMMU, and that will
-> be backed onto the host IOMMU when necessary.
+Thank you for the suggestions on this.
 
-There is, but vhost will ignore it and directly map the guest memory
-when ACCESS_PLATFORM (the flag previously known as IOMMU_PLATFORM) isn't
-set. From QEMU's hw/virtio/vhost.c:
+> 
+> > On Thu 11-04-19 07:51:48, Dan Williams wrote:
+> >> On Tue, Apr 9, 2019 at 9:09 PM Pankaj Gupta <pagupta@redhat.com> wrote:
+> >> > +       } else {
+> >> > +               if (nd_region->flush(nd_region))
+> >> > +                       rc = -EIO;
+> >> 
+> >> Given the common case wants to be fast and synchronous I think we
+> >> should try to avoid retpoline overhead by default. So something like
+> >> this:
+> >> 
+> >> if (nd_region->flush == generic_nvdimm_flush)
+> >>     rc = generic_nvdimm_flush(...);
+> >
+> > I'd either add a comment about avoiding retpoline overhead here or just
+> > make ->flush == NULL mean generic_nvdimm_flush(). Just so that people don't
+> > get confused by the code.
+> 
+> Isn't this premature optimization?  I really don't like adding things
+> like this without some numbers to show it's worth it.
 
-static int vhost_dev_has_iommu(struct vhost_dev *dev)
-{
-    VirtIODevice *vdev = dev->vdev;
+Can we add the optimization after this version is merged.
 
-    return virtio_host_has_feature(vdev, VIRTIO_F_IOMMU_PLATFORM);
-}
+Best regards,
+Pankaj 
 
-static void *vhost_memory_map(struct vhost_dev *dev, hwaddr addr,
-                              hwaddr *plen, int is_write)
-{
-    if (!vhost_dev_has_iommu(dev)) {
-        return cpu_physical_memory_map(addr, plen, is_write);
-    } else {
-        return (void *)(uintptr_t)addr;
-    }
-}
-
---
-Thiago Jung Bauermann
-IBM Linux Technology Center
+> 
+> -Jeff
+> 
+> 
