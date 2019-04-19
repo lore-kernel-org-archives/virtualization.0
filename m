@@ -1,17 +1,23 @@
 From: "Michael S. Tsirkin" <mst@redhat.com>
-Subject: Re: [PATCH v2 1/4] mm/balloon_compaction: list interfaces
-Date: Fri, 19 Apr 2019 18:47:42 -0400
-Message-ID: <20190419183802-mutt-send-email-mst__10898.7125613325$1555714113$gmane$org@kernel.org>
-References: <20190328010718.2248-1-namit@vmware.com>
-	<20190328010718.2248-2-namit@vmware.com>
-	<20190419174452-mutt-send-email-mst@kernel.org>
-	<B2DD0CC3-DA8D-408C-986F-130B4B00A892@vmware.com>
+Subject: Re: [RFC PATCH] virtio_ring: Use DMA API if guest memory is encrypted
+Date: Fri, 19 Apr 2019 19:09:14 -0400
+Message-ID: <20190419190258-mutt-send-email-mst__36786.666284182$1555715392$gmane$org@kernel.org>
+References: <87zhrj8kcp.fsf@morokweng.localdomain>
+	<87womn8inf.fsf@morokweng.localdomain>
+	<20190129134750-mutt-send-email-mst@kernel.org>
+	<877eefxvyb.fsf@morokweng.localdomain>
+	<20190204144048-mutt-send-email-mst@kernel.org>
+	<87ef71seve.fsf@morokweng.localdomain>
+	<20190320171027-mutt-send-email-mst@kernel.org>
+	<87tvfvbwpb.fsf@morokweng.localdomain>
+	<20190323165456-mutt-send-email-mst@kernel.org>
+	<87a7go71hz.fsf@morokweng.localdomain>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="utf-8"
-Content-Transfer-Encoding: base64
+Content-Type: text/plain; charset="us-ascii"
+Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
 Content-Disposition: inline
-In-Reply-To: <B2DD0CC3-DA8D-408C-986F-130B4B00A892@vmware.com>
+In-Reply-To: <87a7go71hz.fsf@morokweng.localdomain>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -21,169 +27,158 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Nadav Amit <namit@vmware.com>
-Cc: Arnd Bergmann <arnd@arndb.de>, Pv-drivers <Pv-drivers@vmware.com>, Greg Kroah-Hartman <gregkh@linuxfoundation.org>, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>, "virtualization@lists.linux-foundation.org" <virtualization@lists.linux-foundation.org>, "linux-mm@kvack.org" <linux-mm@kvack.org>, Julien Freche <jfreche@vmware.com>
+To: Thiago Jung Bauermann <bauerman@linux.ibm.com>
+Cc: Mike Anderson <andmike@linux.ibm.com>, Jean-Philippe Brucker <jean-philippe.brucker@arm.com>, Benjamin Herrenschmidt <benh@kernel.crashing.org>, Alexey Kardashevskiy <aik@linux.ibm.com>, Ram Pai <linuxram@us.ibm.com>, linux-kernel@vger.kernel.org, virtualization@lists.linux-foundation.org, Paul Mackerras <paulus@ozlabs.org>, iommu@lists.linux-foundation.org, linuxppc-dev@lists.ozlabs.org, Christoph Hellwig <hch@lst.de>, David Gibson <david@gibson.dropbear.id.au>
 List-Id: virtualization@lists.linuxfoundation.org
 
-T24gRnJpLCBBcHIgMTksIDIwMTkgYXQgMTA6MzQ6MDRQTSArMDAwMCwgTmFkYXYgQW1pdCB3cm90
-ZToKPiA+IE9uIEFwciAxOSwgMjAxOSwgYXQgMzowNyBQTSwgTWljaGFlbCBTLiBUc2lya2luIDxt
-c3RAcmVkaGF0LmNvbT4gd3JvdGU6Cj4gPiAKPiA+IE9uIFRodSwgTWFyIDI4LCAyMDE5IGF0IDAx
-OjA3OjE1QU0gKzAwMDAsIE5hZGF2IEFtaXQgd3JvdGU6Cj4gPj4gSW50cm9kdWNlIGludGVyZmFj
-ZXMgZm9yIGJhbGxvb25pbmcgZW5xdWV1ZWluZyBhbmQgZGVxdWV1ZWluZyBvZiBhIGxpc3QKPiA+
-PiBvZiBwYWdlcy4gVGhlc2UgaW50ZXJmYWNlcyByZWR1Y2UgdGhlIG92ZXJoZWFkIG9mIHN0b3Jp
-bmcgYW5kIHJlc3RvcmluZwo+ID4+IElSUXMgYnkgYmF0Y2hpbmcgdGhlIG9wZXJhdGlvbnMuIElu
-IGFkZGl0aW9uIHRoZXkgZG8gbm90IHBhbmljIGlmIHRoZQo+ID4+IGxpc3Qgb2YgcGFnZXMgaXMg
-ZW1wdHkuCj4gPj4gCj4gPj4gQ2M6ICJNaWNoYWVsIFMuIFRzaXJraW4iIDxtc3RAcmVkaGF0LmNv
-bT4KPiA+PiBDYzogSmFzb24gV2FuZyA8amFzb3dhbmdAcmVkaGF0LmNvbT4KPiA+PiBDYzogbGlu
-dXgtbW1Aa3ZhY2sub3JnCj4gPj4gQ2M6IHZpcnR1YWxpemF0aW9uQGxpc3RzLmxpbnV4LWZvdW5k
-YXRpb24ub3JnCj4gPj4gUmV2aWV3ZWQtYnk6IFhhdmllciBEZWd1aWxsYXJkIDx4ZGVndWlsbGFy
-ZEB2bXdhcmUuY29tPgo+ID4+IFNpZ25lZC1vZmYtYnk6IE5hZGF2IEFtaXQgPG5hbWl0QHZtd2Fy
-ZS5jb20+Cj4gPj4gLS0tCj4gPj4gaW5jbHVkZS9saW51eC9iYWxsb29uX2NvbXBhY3Rpb24uaCB8
-ICAgNCArCj4gPj4gbW0vYmFsbG9vbl9jb21wYWN0aW9uLmMgICAgICAgICAgICB8IDE0NSArKysr
-KysrKysrKysrKysrKysrKystLS0tLS0tLQo+ID4+IDIgZmlsZXMgY2hhbmdlZCwgMTExIGluc2Vy
-dGlvbnMoKyksIDM4IGRlbGV0aW9ucygtKQo+ID4+IAo+ID4+IGRpZmYgLS1naXQgYS9pbmNsdWRl
-L2xpbnV4L2JhbGxvb25fY29tcGFjdGlvbi5oIGIvaW5jbHVkZS9saW51eC9iYWxsb29uX2NvbXBh
-Y3Rpb24uaAo+ID4+IGluZGV4IGYxMTFjNzgwZWYxZC4uMWRhNzllZGFkYjY5IDEwMDY0NAo+ID4+
-IC0tLSBhL2luY2x1ZGUvbGludXgvYmFsbG9vbl9jb21wYWN0aW9uLmgKPiA+PiArKysgYi9pbmNs
-dWRlL2xpbnV4L2JhbGxvb25fY29tcGFjdGlvbi5oCj4gPj4gQEAgLTY0LDYgKzY0LDEwIEBAIGV4
-dGVybiBzdHJ1Y3QgcGFnZSAqYmFsbG9vbl9wYWdlX2FsbG9jKHZvaWQpOwo+ID4+IGV4dGVybiB2
-b2lkIGJhbGxvb25fcGFnZV9lbnF1ZXVlKHN0cnVjdCBiYWxsb29uX2Rldl9pbmZvICpiX2Rldl9p
-bmZvLAo+ID4+IAkJCQkgc3RydWN0IHBhZ2UgKnBhZ2UpOwo+ID4+IGV4dGVybiBzdHJ1Y3QgcGFn
-ZSAqYmFsbG9vbl9wYWdlX2RlcXVldWUoc3RydWN0IGJhbGxvb25fZGV2X2luZm8gKmJfZGV2X2lu
-Zm8pOwo+ID4+ICtleHRlcm4gc2l6ZV90IGJhbGxvb25fcGFnZV9saXN0X2VucXVldWUoc3RydWN0
-IGJhbGxvb25fZGV2X2luZm8gKmJfZGV2X2luZm8sCj4gPj4gKwkJCQkgICAgICBzdHJ1Y3QgbGlz
-dF9oZWFkICpwYWdlcyk7Cj4gPj4gK2V4dGVybiBzaXplX3QgYmFsbG9vbl9wYWdlX2xpc3RfZGVx
-dWV1ZShzdHJ1Y3QgYmFsbG9vbl9kZXZfaW5mbyAqYl9kZXZfaW5mbywKPiA+PiArCQkJCSAgICAg
-c3RydWN0IGxpc3RfaGVhZCAqcGFnZXMsIGludCBuX3JlcV9wYWdlcyk7Cj4gPiAKPiA+IFdoeSBz
-aXplX3QgSSB3b25kZXI/IEl0IGNhbiBuZXZlciBiZSA+IG5fcmVxX3BhZ2VzIHdoaWNoIGlzIGlu
-dC4KPiA+IENhbGxlcnMgYWxzbyBzZWVtIHRvIGFzc3VtZSBpbnQuCj4gCj4gT25seSBiZWNhdXNl
-IG9uIHRoZSBwcmV2aW91cyBpdGVyYXRpb24KPiAoIGh0dHBzOi8vbGttbC5vcmcvbGttbC8yMDE5
-LzIvNi85MTIgKSB5b3Ugc2FpZDoKPiAKPiA+IEFyZSB3ZSBzdXJlIHRoaXMgaW50IG5ldmVyIG92
-ZXJmbG93cz8gV2h5IG5vdCBqdXN0IHVzZSB1NjQKPiA+IG9yIHNpemVfdCBzdHJhaWdodCBhd2F5
-PwoKQW5kIHRoZSBhbnN3ZXIgaXMgYmVjYXVzZSBuX3JlcV9wYWdlcyBpcyBhbiBpbnQgdG9vPwoK
-PiAKPiBJIGFtIG9rIGVpdGhlciB3YXksIGJ1dCBwbGVhc2UgYmUgY29uc2lzdGVudC4KCkkgZ3Vl
-c3Mgbl9yZXFfcGFnZXMgc2hvdWxkIGJlIHNpemVfdCB0b28gdGhlbj8KCj4gPiAKPiA+PiBzdGF0
-aWMgaW5saW5lIHZvaWQgYmFsbG9vbl9kZXZpbmZvX2luaXQoc3RydWN0IGJhbGxvb25fZGV2X2lu
-Zm8gKmJhbGxvb24pCj4gPj4gewo+ID4gCj4gPiAKPiA+PiBkaWZmIC0tZ2l0IGEvbW0vYmFsbG9v
-bl9jb21wYWN0aW9uLmMgYi9tbS9iYWxsb29uX2NvbXBhY3Rpb24uYwo+ID4+IGluZGV4IGVmODU4
-ZDU0N2UyZC4uODhkNWQ5YTAxMDcyIDEwMDY0NAo+ID4+IC0tLSBhL21tL2JhbGxvb25fY29tcGFj
-dGlvbi5jCj4gPj4gKysrIGIvbW0vYmFsbG9vbl9jb21wYWN0aW9uLmMKPiA+PiBAQCAtMTAsNiAr
-MTAsMTA2IEBACj4gPj4gI2luY2x1ZGUgPGxpbnV4L2V4cG9ydC5oPgo+ID4+ICNpbmNsdWRlIDxs
-aW51eC9iYWxsb29uX2NvbXBhY3Rpb24uaD4KPiA+PiAKPiA+PiArc3RhdGljIGludCBiYWxsb29u
-X3BhZ2VfZW5xdWV1ZV9vbmUoc3RydWN0IGJhbGxvb25fZGV2X2luZm8gKmJfZGV2X2luZm8sCj4g
-Pj4gKwkJCQkgICAgIHN0cnVjdCBwYWdlICpwYWdlKQo+ID4+ICt7Cj4gPj4gKwkvKgo+ID4+ICsJ
-ICogQmxvY2sgb3RoZXJzIGZyb20gYWNjZXNzaW5nIHRoZSAncGFnZScgd2hlbiB3ZSBnZXQgYXJv
-dW5kIHRvCj4gPj4gKwkgKiBlc3RhYmxpc2hpbmcgYWRkaXRpb25hbCByZWZlcmVuY2VzLiBXZSBz
-aG91bGQgYmUgdGhlIG9ubHkgb25lCj4gPj4gKwkgKiBob2xkaW5nIGEgcmVmZXJlbmNlIHRvIHRo
-ZSAncGFnZScgYXQgdGhpcyBwb2ludC4KPiA+PiArCSAqLwo+ID4+ICsJaWYgKCF0cnlsb2NrX3Bh
-Z2UocGFnZSkpIHsKPiA+PiArCQlXQVJOX09OQ0UoMSwgImJhbGxvb24gaW5mbGF0aW9uIGZhaWxl
-ZCB0byBlbnF1ZXVlIHBhZ2VcbiIpOwo+ID4+ICsJCXJldHVybiAtRUZBVUxUOwo+ID4gCj4gPiBM
-b29rcyBsaWtlIGFsbCBjYWxsZXJzIGJ1ZyBvbiBhIGZhaWx1cmUuIFNvIGxldCdzIGp1c3QgZG8g
-aXQgaGVyZSwKPiA+IGFuZCB0aGVuIG1ha2UgdGhpcyB2b2lkPwo+IAo+IEFzIHlvdSBub3RlZCBi
-ZWxvdywgYWN0dWFsbHkgYmFsbG9vbl9wYWdlX2xpc3RfZW5xdWV1ZSgpIGRvZXMgbm90IGRvCj4g
-YW55dGhpbmcgd2hlbiBhbiBlcnJvciBvY2N1cnMuIEkgcmVhbGx5IHByZWZlciB0byBhdm9pZCBh
-ZGRpbmcgQlVHX09OKCkgLSAKPiBJIGFsd2F5cyBnZXQgcHVzaGVkIGJhY2sgb24gc3VjaCB0aGlu
-Z3MuIFllcywgdGhpcyBtaWdodCBsZWFkIHRvIG1lbW9yeQo+IGxlYWssIGJ1dCB0aGVyZSBpcyBu
-byByZWFzb24gdG8gY3Jhc2ggdGhlIHN5c3RlbS4KCk5lZWQgdG8gYXVkaXQgY2FsbGVycyB0byBt
-YWtlIHN1cmUgdGhleSBkb24ndCBtaXNiZWhhdmUgaW4gd29yc2Ugd2F5cy4KCkkgdGhpbmsgaW4g
-dGhpcyBjYXNlIHRoaXMgaW5kaWNhdGVzIHRoYXQgc29tZW9uZSBpcyB1c2luZyB0aGUgcGFnZSBz
-byBpZgpvbmUga2VlcHMgZ29pbmcgYW5kIGFkZHMgaXQgaW50byBiYWxsb29uIHRoaXMgd2lsbCBs
-ZWFkIHRvIGNvcnJ1cHRpb24gZG93biB0aGUgcm9hZC4KCklmIHlvdSBjYW4gY2hhbmdlIHRoZSBj
-YWxsZXIgY29kZSBzdWNoIHRoYXQgaXQncyBqdXN0IGEgbGVhaywKdGhlbiBhIHdhcm5pbmcgaXMg
-bW9yZSBhcHByb3ByaWF0ZS4gT3IgZXZlbiBkbyBub3Qgd2FybiBhdCBhbGwuCgoKPiA+PiArCX0K
-PiA+PiArCWxpc3RfZGVsKCZwYWdlLT5scnUpOwo+ID4+ICsJYmFsbG9vbl9wYWdlX2luc2VydChi
-X2Rldl9pbmZvLCBwYWdlKTsKPiA+PiArCXVubG9ja19wYWdlKHBhZ2UpOwo+ID4+ICsJX19jb3Vu
-dF92bV9ldmVudChCQUxMT09OX0lORkxBVEUpOwo+ID4+ICsJcmV0dXJuIDA7Cj4gPj4gK30KPiA+
-PiArCj4gPj4gKy8qKgo+ID4+ICsgKiBiYWxsb29uX3BhZ2VfbGlzdF9lbnF1ZXVlKCkgLSBpbnNl
-cnRzIGEgbGlzdCBvZiBwYWdlcyBpbnRvIHRoZSBiYWxsb29uIHBhZ2UKPiA+PiArICoJCQkJIGxp
-c3QuCj4gPj4gKyAqIEBiX2Rldl9pbmZvOiBiYWxsb29uIGRldmljZSBkZXNjcmlwdG9yIHdoZXJl
-IHdlIHdpbGwgaW5zZXJ0IGEgbmV3IHBhZ2UgdG8KPiA+PiArICogQHBhZ2VzOiBwYWdlcyB0byBl
-bnF1ZXVlIC0gYWxsb2NhdGVkIHVzaW5nIGJhbGxvb25fcGFnZV9hbGxvYy4KPiA+PiArICoKPiA+
-PiArICogRHJpdmVyIG11c3QgY2FsbCBpdCB0byBwcm9wZXJseSBlbnF1ZXVlIGEgYmFsbG9vbiBw
-YWdlcyBiZWZvcmUgZGVmaW5pdGl2ZWx5Cj4gPj4gKyAqIHJlbW92aW5nIGl0IGZyb20gdGhlIGd1
-ZXN0IHN5c3RlbS4KPiA+IAo+ID4gQSBidW5jaCBvZiBncmFtbWFyIGVycm9yIGhlcmUuIFBscyBm
-aXggZm9yIGNsYXJpZnkuCj4gPiBBbHNvIC0gZG9jdW1lbnQgdGhhdCBub3RoaW5nIG11c3QgbG9j
-ayB0aGUgcGFnZXM/IE1vcmUgYXNzdW1wdGlvbnM/Cj4gPiBXaGF0IGlzICJpdCIgaW4gdGhpcyBj
-b250ZXh0PyBBbGwgcGFnZXM/IEFuZCB3aGF0IGRvZXMgcmVtb3ZpbmcgZnJvbQo+ID4gZ3Vlc3Qg
-bWVhbj8gUmVhbGx5IGFkZGluZyB0byB0aGUgYmFsbG9vbj8KPiAKPiBJIHByZXR0eSBtdWNoIGNv
-cHktcGFzdGVkIHRoaXMgZGVzY3JpcHRpb24gZnJvbSBiYWxsb29uX3BhZ2VfZW5xdWV1ZSgpLiBJ
-Cj4gc2VlIHRoYXQgeW91IGVkaXRlZCB0aGlzIG1lc3NhZ2UgaW4gdGhlIHBhc3QgYXQgbGVhc3Qg
-Y291cGxlIG9mIHRpbWVzIChlLmcuLAo+IGM3Y2RmZjBlODY0NzEg4oCcdmlydGlvX2JhbGxvb246
-IGZpeCBkZWFkbG9jayBvbiBPT03igJ0pIGFuZCBsZWZ0IGl0IGFzIGlzLgo+IAo+IFNvIG1heWJl
-IGFsbCBvZiB0aGUgY29tbWVudHMgaW4gdGhpcyBmaWxlIG5lZWQgYSByZXdvcmssIGJ1dCBJIGRv
-buKAmXQgdGhpbmsKPiB0aGlzIHBhdGNoLXNldCBuZWVkcyB0byBkbyBpdC4KCkkgc2VlLgpUaGF0
-IG9uZSBkZWFsdCB3aXRoIG9uZSBwYWdlIHNvICJpdCIgd2FzIHRoZSBwYWdlLiBUaGlzIG9uZSBk
-ZWFscyB3aXRoCm1hbnkgcGFnZXMgc28geW91IGNhbid0IGp1c3QgY29weSBpdCBvdmVyIHdpdGhv
-dXQgY2hhbmdlcy4KTWFrZXMgaXQgbG9vayBsaWtlICJpdCIgcmVmZXJzIHRvIGRyaXZlciBvciBn
-dWVzdC4KCj4gPj4gKyAqCj4gPj4gKyAqIFJldHVybjogbnVtYmVyIG9mIHBhZ2VzIHRoYXQgd2Vy
-ZSBlbnF1ZXVlZC4KPiA+PiArICovCj4gPj4gK3NpemVfdCBiYWxsb29uX3BhZ2VfbGlzdF9lbnF1
-ZXVlKHN0cnVjdCBiYWxsb29uX2Rldl9pbmZvICpiX2Rldl9pbmZvLAo+ID4+ICsJCQkgICAgICAg
-c3RydWN0IGxpc3RfaGVhZCAqcGFnZXMpCj4gPj4gK3sKPiA+PiArCXN0cnVjdCBwYWdlICpwYWdl
-LCAqdG1wOwo+ID4+ICsJdW5zaWduZWQgbG9uZyBmbGFnczsKPiA+PiArCXNpemVfdCBuX3BhZ2Vz
-ID0gMDsKPiA+PiArCj4gPj4gKwlzcGluX2xvY2tfaXJxc2F2ZSgmYl9kZXZfaW5mby0+cGFnZXNf
-bG9jaywgZmxhZ3MpOwo+ID4+ICsJbGlzdF9mb3JfZWFjaF9lbnRyeV9zYWZlKHBhZ2UsIHRtcCwg
-cGFnZXMsIGxydSkgewo+ID4+ICsJCWJhbGxvb25fcGFnZV9lbnF1ZXVlX29uZShiX2Rldl9pbmZv
-LCBwYWdlKTsKPiA+IAo+ID4gRG8gd2Ugd2FudCB0byBkbyBzb21ldGhpbmcgYWJvdXQgYW4gZXJy
-b3IgaGVyZT8KPiAKPiBIbW3igKYgVGhpcyBpcyByZWFsbHkgc29tZXRoaW5nIHRoYXQgc2hvdWxk
-IG5ldmVyIGhhcHBlbiwgYnV0IEkgc3RpbGwgcHJlZmVyCj4gdG8gYXZvaWQgQlVHX09OKCksIGFz
-IEkgc2FpZCBiZWZvcmUuIEkgd2lsbCBqdXN0IG5vdCBjb3VudCB0aGUgcGFnZS4KCkNhbGxlcnMg
-Y2FuIEJVRyB0aGVuIGlmIHRoZXkgd2FudC4gVGhhdCBpcyBmaW5lIGJ1dCB5b3UgdGhlbgpuZWVk
-IHRvIGNoYW5nZSB0aGUgY2FsbGVycyB0byBkbyBpdC4KCj4gPiAKPiA+PiArCQluX3BhZ2VzKys7
-Cj4gPj4gKwl9Cj4gPj4gKwlzcGluX3VubG9ja19pcnFyZXN0b3JlKCZiX2Rldl9pbmZvLT5wYWdl
-c19sb2NrLCBmbGFncyk7Cj4gPj4gKwlyZXR1cm4gbl9wYWdlczsKPiA+PiArfQo+ID4+ICtFWFBP
-UlRfU1lNQk9MX0dQTChiYWxsb29uX3BhZ2VfbGlzdF9lbnF1ZXVlKTsKPiA+PiArCj4gPj4gKy8q
-Kgo+ID4+ICsgKiBiYWxsb29uX3BhZ2VfbGlzdF9kZXF1ZXVlKCkgLSByZW1vdmVzIHBhZ2VzIGZy
-b20gYmFsbG9vbidzIHBhZ2UgbGlzdCBhbmQKPiA+PiArICoJCQkJIHJldHVybnMgYSBsaXN0IG9m
-IHRoZSBwYWdlcy4KPiA+PiArICogQGJfZGV2X2luZm86IGJhbGxvb24gZGV2aWNlIGRlY3JpcHRv
-ciB3aGVyZSB3ZSB3aWxsIGdyYWIgYSBwYWdlIGZyb20uCj4gPj4gKyAqIEBwYWdlczogcG9pbnRl
-ciB0byB0aGUgbGlzdCBvZiBwYWdlcyB0aGF0IHdvdWxkIGJlIHJldHVybmVkIHRvIHRoZSBjYWxs
-ZXIuCj4gPj4gKyAqIEBuX3JlcV9wYWdlczogbnVtYmVyIG9mIHJlcXVlc3RlZCBwYWdlcy4KPiA+
-PiArICoKPiA+PiArICogRHJpdmVyIG11c3QgY2FsbCBpdCB0byBwcm9wZXJseSBkZS1hbGxvY2F0
-ZSBhIHByZXZpb3VzIGVubGlzdGVkIGJhbGxvb24gcGFnZXMKPiA+PiArICogYmVmb3JlIGRlZmlu
-ZXRpdmVseSByZWxlYXNpbmcgaXQgYmFjayB0byB0aGUgZ3Vlc3Qgc3lzdGVtLiBUaGlzIGZ1bmN0
-aW9uCj4gPj4gKyAqIHRyaWVzIHRvIHJlbW92ZSBAbl9yZXFfcGFnZXMgZnJvbSB0aGUgYmFsbG9v
-bmVkIHBhZ2VzIGFuZCByZXR1cm4gaXQgdG8gdGhlCj4gPj4gKyAqIGNhbGxlciBpbiB0aGUgQHBh
-Z2VzIGxpc3QuCj4gPj4gKyAqCj4gPj4gKyAqIE5vdGUgdGhhdCB0aGlzIGZ1bmN0aW9uIG1heSBm
-YWlsIHRvIGRlcXVldWUgc29tZSBwYWdlcyB0ZW1wb3JhcmlseSBlbXB0eSBkdWUKPiA+PiArICog
-dG8gY29tcGFjdGlvbiBpc29sYXRlZCBwYWdlcy4KPiA+PiArICoKPiA+PiArICogUmV0dXJuOiBu
-dW1iZXIgb2YgcGFnZXMgdGhhdCB3ZXJlIGFkZGVkIHRvIHRoZSBAcGFnZXMgbGlzdC4KPiA+PiAr
-ICovCj4gPj4gK3NpemVfdCBiYWxsb29uX3BhZ2VfbGlzdF9kZXF1ZXVlKHN0cnVjdCBiYWxsb29u
-X2Rldl9pbmZvICpiX2Rldl9pbmZvLAo+ID4+ICsJCQkJIHN0cnVjdCBsaXN0X2hlYWQgKnBhZ2Vz
-LCBpbnQgbl9yZXFfcGFnZXMpCj4gPj4gK3sKPiA+PiArCXN0cnVjdCBwYWdlICpwYWdlLCAqdG1w
-Owo+ID4+ICsJdW5zaWduZWQgbG9uZyBmbGFnczsKPiA+PiArCXNpemVfdCBuX3BhZ2VzID0gMDsK
-PiA+PiArCj4gPj4gKwlzcGluX2xvY2tfaXJxc2F2ZSgmYl9kZXZfaW5mby0+cGFnZXNfbG9jaywg
-ZmxhZ3MpOwo+ID4+ICsJbGlzdF9mb3JfZWFjaF9lbnRyeV9zYWZlKHBhZ2UsIHRtcCwgJmJfZGV2
-X2luZm8tPnBhZ2VzLCBscnUpIHsKPiA+PiArCQkvKgo+ID4+ICsJCSAqIEJsb2NrIG90aGVycyBm
-cm9tIGFjY2Vzc2luZyB0aGUgJ3BhZ2UnIHdoaWxlIHdlIGdldCBhcm91bmQKPiA+PiArCQkgKiBl
-c3RhYmxpc2hpbmcgYWRkaXRpb25hbCByZWZlcmVuY2VzIGFuZCBwcmVwYXJpbmcgdGhlICdwYWdl
-Jwo+ID4+ICsJCSAqIHRvIGJlIHJlbGVhc2VkIGJ5IHRoZSBiYWxsb29uIGRyaXZlci4KPiA+PiAr
-CQkgKi8KPiA+PiArCQlpZiAoIXRyeWxvY2tfcGFnZShwYWdlKSkKPiA+PiArCQkJY29udGludWU7
-Cj4gPj4gKwo+ID4+ICsJCWlmIChJU19FTkFCTEVEKENPTkZJR19CQUxMT09OX0NPTVBBQ1RJT04p
-ICYmCj4gPj4gKwkJICAgIFBhZ2VJc29sYXRlZChwYWdlKSkgewo+ID4+ICsJCQkvKiByYWNlZCB3
-aXRoIGlzb2xhdGlvbiAqLwo+ID4+ICsJCQl1bmxvY2tfcGFnZShwYWdlKTsKPiA+PiArCQkJY29u
-dGludWU7Cj4gPj4gKwkJfQo+ID4+ICsJCWJhbGxvb25fcGFnZV9kZWxldGUocGFnZSk7Cj4gPj4g
-KwkJX19jb3VudF92bV9ldmVudChCQUxMT09OX0RFRkxBVEUpOwo+ID4+ICsJCXVubG9ja19wYWdl
-KHBhZ2UpOwo+ID4+ICsJCWxpc3RfYWRkKCZwYWdlLT5scnUsIHBhZ2VzKTsKPiA+PiArCQlpZiAo
-KytuX3BhZ2VzID49IG5fcmVxX3BhZ2VzKQo+ID4+ICsJCQlicmVhazsKPiA+PiArCX0KPiA+PiAr
-CXNwaW5fdW5sb2NrX2lycXJlc3RvcmUoJmJfZGV2X2luZm8tPnBhZ2VzX2xvY2ssIGZsYWdzKTsK
-PiA+PiArCj4gPj4gKwlyZXR1cm4gbl9wYWdlczsKPiA+PiArfQo+ID4+ICtFWFBPUlRfU1lNQk9M
-X0dQTChiYWxsb29uX3BhZ2VfbGlzdF9kZXF1ZXVlKTsKPiA+PiArCj4gPj4gLyoKPiA+PiAgKiBi
-YWxsb29uX3BhZ2VfYWxsb2MgLSBhbGxvY2F0ZXMgYSBuZXcgcGFnZSBmb3IgaW5zZXJ0aW9uIGlu
-dG8gdGhlIGJhbGxvb24KPiA+PiAgKgkJCSAgcGFnZSBsaXN0Lgo+ID4+IEBAIC00MywxNyArMTQz
-LDkgQEAgdm9pZCBiYWxsb29uX3BhZ2VfZW5xdWV1ZShzdHJ1Y3QgYmFsbG9vbl9kZXZfaW5mbyAq
-Yl9kZXZfaW5mbywKPiA+PiB7Cj4gPj4gCXVuc2lnbmVkIGxvbmcgZmxhZ3M7Cj4gPj4gCj4gPj4g
-LQkvKgo+ID4+IC0JICogQmxvY2sgb3RoZXJzIGZyb20gYWNjZXNzaW5nIHRoZSAncGFnZScgd2hl
-biB3ZSBnZXQgYXJvdW5kIHRvCj4gPj4gLQkgKiBlc3RhYmxpc2hpbmcgYWRkaXRpb25hbCByZWZl
-cmVuY2VzLiBXZSBzaG91bGQgYmUgdGhlIG9ubHkgb25lCj4gPj4gLQkgKiBob2xkaW5nIGEgcmVm
-ZXJlbmNlIHRvIHRoZSAncGFnZScgYXQgdGhpcyBwb2ludC4KPiA+PiAtCSAqLwo+ID4+IC0JQlVH
-X09OKCF0cnlsb2NrX3BhZ2UocGFnZSkpOwo+ID4+IAlzcGluX2xvY2tfaXJxc2F2ZSgmYl9kZXZf
-aW5mby0+cGFnZXNfbG9jaywgZmxhZ3MpOwo+ID4+IC0JYmFsbG9vbl9wYWdlX2luc2VydChiX2Rl
-dl9pbmZvLCBwYWdlKTsKPiA+PiAtCV9fY291bnRfdm1fZXZlbnQoQkFMTE9PTl9JTkZMQVRFKTsK
-PiA+PiArCWJhbGxvb25fcGFnZV9lbnF1ZXVlX29uZShiX2Rldl9pbmZvLCBwYWdlKTsKPiA+IAo+
-ID4gV2UgdXNlZCB0byBidWcgb24gZmFpbHVyZSB0byBsb2NrIHBhZ2UsIG5vdyB3ZQo+ID4gc2ls
-ZW50bHkgaWdub3JlIHRoaXMgZXJyb3IuIFdoeT8KPiAKPiBUaGF04oCZcyBhIG1pc3Rha2UuIEni
-gJlsbCBhZGQgYSBCVUdfT04oKSBpZiBiYWxsb29uX3BhZ2VfZW5xdWV1ZV9vbmUoKSBmYWlscy4K
-PiAKPiAKX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX18KVmly
-dHVhbGl6YXRpb24gbWFpbGluZyBsaXN0ClZpcnR1YWxpemF0aW9uQGxpc3RzLmxpbnV4LWZvdW5k
-YXRpb24ub3JnCmh0dHBzOi8vbGlzdHMubGludXhmb3VuZGF0aW9uLm9yZy9tYWlsbWFuL2xpc3Rp
-bmZvL3ZpcnR1YWxpemF0aW9u
+On Wed, Apr 17, 2019 at 06:42:00PM -0300, Thiago Jung Bauermann wrote:
+> 
+> Michael S. Tsirkin <mst@redhat.com> writes:
+> 
+> > On Thu, Mar 21, 2019 at 09:05:04PM -0300, Thiago Jung Bauermann wrote:
+> >>
+> >> Michael S. Tsirkin <mst@redhat.com> writes:
+> >>
+> >> > On Wed, Mar 20, 2019 at 01:13:41PM -0300, Thiago Jung Bauermann wrote:
+> >> >> >From what I understand of the ACCESS_PLATFORM definition, the host will
+> >> >> only ever try to access memory addresses that are supplied to it by the
+> >> >> guest, so all of the secure guest memory that the host cares about is
+> >> >> accessible:
+> >> >>
+> >> >>     If this feature bit is set to 0, then the device has same access to
+> >> >>     memory addresses supplied to it as the driver has. In particular,
+> >> >>     the device will always use physical addresses matching addresses
+> >> >>     used by the driver (typically meaning physical addresses used by the
+> >> >>     CPU) and not translated further, and can access any address supplied
+> >> >>     to it by the driver. When clear, this overrides any
+> >> >>     platform-specific description of whether device access is limited or
+> >> >>     translated in any way, e.g. whether an IOMMU may be present.
+> >> >>
+> >> >> All of the above is true for POWER guests, whether they are secure
+> >> >> guests or not.
+> >> >>
+> >> >> Or are you saying that a virtio device may want to access memory
+> >> >> addresses that weren't supplied to it by the driver?
+> >> >
+> >> > Your logic would apply to IOMMUs as well.  For your mode, there are
+> >> > specific encrypted memory regions that driver has access to but device
+> >> > does not. that seems to violate the constraint.
+> >>
+> >> Right, if there's a pre-configured 1:1 mapping in the IOMMU such that
+> >> the device can ignore the IOMMU for all practical purposes I would
+> >> indeed say that the logic would apply to IOMMUs as well. :-)
+> >>
+> >> I guess I'm still struggling with the purpose of signalling to the
+> >> driver that the host may not have access to memory addresses that it
+> >> will never try to access.
+> >
+> > For example, one of the benefits is to signal to host that driver does
+> > not expect ability to access all memory. If it does, host can
+> > fail initialization gracefully.
+> 
+> But why would the ability to access all memory be necessary or even
+> useful? When would the host access memory that the driver didn't tell it
+> to access?
+
+When I say all memory I mean even memory not allowed by the IOMMU.
+
+
+> >> >> >> > But the name "sev_active" makes me scared because at least AMD guys who
+> >> >> >> > were doing the sensible thing and setting ACCESS_PLATFORM
+> >> >> >>
+> >> >> >> My understanding is, AMD guest-platform knows in advance that their
+> >> >> >> guest will run in secure mode and hence sets the flag at the time of VM
+> >> >> >> instantiation. Unfortunately we dont have that luxury on our platforms.
+> >> >> >
+> >> >> > Well you do have that luxury. It looks like that there are existing
+> >> >> > guests that already acknowledge ACCESS_PLATFORM and you are not happy
+> >> >> > with how that path is slow. So you are trying to optimize for
+> >> >> > them by clearing ACCESS_PLATFORM and then you have lost ability
+> >> >> > to invoke DMA API.
+> >> >> >
+> >> >> > For example if there was another flag just like ACCESS_PLATFORM
+> >> >> > just not yet used by anyone, you would be all fine using that right?
+> >> >>
+> >> >> Yes, a new flag sounds like a great idea. What about the definition
+> >> >> below?
+> >> >>
+> >> >> VIRTIO_F_ACCESS_PLATFORM_NO_IOMMU This feature has the same meaning as
+> >> >>     VIRTIO_F_ACCESS_PLATFORM both when set and when not set, with the
+> >> >>     exception that the IOMMU is explicitly defined to be off or bypassed
+> >> >>     when accessing memory addresses supplied to the device by the
+> >> >>     driver. This flag should be set by the guest if offered, but to
+> >> >>     allow for backward-compatibility device implementations allow for it
+> >> >>     to be left unset by the guest. It is an error to set both this flag
+> >> >>     and VIRTIO_F_ACCESS_PLATFORM.
+> >> >
+> >> > It looks kind of narrow but it's an option.
+> >>
+> >> Great!
+> >>
+> >> > I wonder how we'll define what's an iommu though.
+> >>
+> >> Hm, it didn't occur to me it could be an issue. I'll try.
+> 
+> I rephrased it in terms of address translation. What do you think of
+> this version? The flag name is slightly different too:
+> 
+> 
+> VIRTIO_F_ACCESS_PLATFORM_NO_TRANSLATION This feature has the same
+>     meaning as VIRTIO_F_ACCESS_PLATFORM both when set and when not set,
+>     with the exception that address translation is guaranteed to be
+>     unnecessary when accessing memory addresses supplied to the device
+>     by the driver. Which is to say, the device will always use physical
+>     addresses matching addresses used by the driver (typically meaning
+>     physical addresses used by the CPU) and not translated further. This
+>     flag should be set by the guest if offered, but to allow for
+>     backward-compatibility device implementations allow for it to be
+>     left unset by the guest. It is an error to set both this flag and
+>     VIRTIO_F_ACCESS_PLATFORM.
+
+Thanks, I'll think about this approach. Will respond next week.
+
+> >> > Another idea is maybe something like virtio-iommu?
+> >>
+> >> You mean, have legacy guests use virtio-iommu to request an IOMMU
+> >> bypass? If so, it's an interesting idea for new guests but it doesn't
+> >> help with guests that are out today in the field, which don't have A
+> >> virtio-iommu driver.
+> >
+> > I presume legacy guests don't use encrypted memory so why do we
+> > worry about them at all?
+> 
+> They don't use encrypted memory, but a host machine will run a mix of
+> secure and legacy guests. And since the hypervisor doesn't know whether
+> a guest will be secure or not at the time it is launched, legacy guests
+> will have to be launched with the same configuration as secure guests.
+
+OK and so I think the issue is that hosts generally fail if they set
+ACCESS_PLATFORM and guests do not negotiate it.
+So you can not just set ACCESS_PLATFORM for everyone.
+Is that the issue here?
+
+
+> >> >> > Is there any justification to doing that beyond someone putting
+> >> >> > out slow code in the past?
+> >> >>
+> >> >> The definition of the ACCESS_PLATFORM flag is generic and captures the
+> >> >> notion of memory access restrictions for the device. Unfortunately, on
+> >> >> powerpc pSeries guests it also implies that the IOMMU is turned on
+> >> >
+> >> > IIUC that's really because on pSeries IOMMU is *always* turned on.
+> >> > Platform has no way to say what you want it to say
+> >> > which is bypass the iommu for the specific device.
+> >>
+> >> Yes, that's correct. pSeries guests running on KVM are in a gray area
+> >> where theoretically they use an IOMMU but in practice KVM ignores it.
+> >> It's unfortunate but it's the reality on the ground today. :-/
+> >
+> > Well it's not just the reality, virt setups need something that
+> > emulated IOMMUs don't provide. That is not uncommon, e.g.
+> > intel's VTD has a "cache mode" field which AFAIK is only used for virt.
+> 
+> That's good to know. Thanks for this example.
+> 
+> --
+> Thiago Jung Bauermann
+> IBM Linux Technology Center
