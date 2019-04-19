@@ -1,15 +1,17 @@
 From: "Michael S. Tsirkin" <mst@redhat.com>
 Subject: Re: [PATCH v2 1/4] mm/balloon_compaction: list interfaces
-Date: Fri, 19 Apr 2019 18:07:26 -0400
-Message-ID: <20190419174452-mutt-send-email-mst__15128.8188806333$1555711686$gmane$org@kernel.org>
+Date: Fri, 19 Apr 2019 18:47:42 -0400
+Message-ID: <20190419183802-mutt-send-email-mst__10898.7125613325$1555714113$gmane$org@kernel.org>
 References: <20190328010718.2248-1-namit@vmware.com>
 	<20190328010718.2248-2-namit@vmware.com>
+	<20190419174452-mutt-send-email-mst@kernel.org>
+	<B2DD0CC3-DA8D-408C-986F-130B4B00A892@vmware.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset="utf-8"
+Content-Transfer-Encoding: base64
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
 Content-Disposition: inline
-In-Reply-To: <20190328010718.2248-2-namit@vmware.com>
+In-Reply-To: <B2DD0CC3-DA8D-408C-986F-130B4B00A892@vmware.com>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -20,247 +22,168 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
 To: Nadav Amit <namit@vmware.com>
-Cc: Arnd Bergmann <arnd@arndb.de>, "VMware, Inc." <pv-drivers@vmware.com>, Greg Kroah-Hartman <gregkh@linuxfoundation.org>, linux-kernel@vger.kernel.org, virtualization@lists.linux-foundation.org, linux-mm@kvack.org, Julien Freche <jfreche@vmware.com>, Nadav Amit <nadav.amit@gmail.com>
+Cc: Arnd Bergmann <arnd@arndb.de>, Pv-drivers <Pv-drivers@vmware.com>, Greg Kroah-Hartman <gregkh@linuxfoundation.org>, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>, "virtualization@lists.linux-foundation.org" <virtualization@lists.linux-foundation.org>, "linux-mm@kvack.org" <linux-mm@kvack.org>, Julien Freche <jfreche@vmware.com>
 List-Id: virtualization@lists.linuxfoundation.org
 
-On Thu, Mar 28, 2019 at 01:07:15AM +0000, Nadav Amit wrote:
-> Introduce interfaces for ballooning enqueueing and dequeueing of a list
-> of pages. These interfaces reduce the overhead of storing and restoring
-> IRQs by batching the operations. In addition they do not panic if the
-> list of pages is empty.
-> 
-> Cc: "Michael S. Tsirkin" <mst@redhat.com>
-> Cc: Jason Wang <jasowang@redhat.com>
-> Cc: linux-mm@kvack.org
-> Cc: virtualization@lists.linux-foundation.org
-> Reviewed-by: Xavier Deguillard <xdeguillard@vmware.com>
-> Signed-off-by: Nadav Amit <namit@vmware.com>
-> ---
->  include/linux/balloon_compaction.h |   4 +
->  mm/balloon_compaction.c            | 145 +++++++++++++++++++++--------
->  2 files changed, 111 insertions(+), 38 deletions(-)
-> 
-> diff --git a/include/linux/balloon_compaction.h b/include/linux/balloon_compaction.h
-> index f111c780ef1d..1da79edadb69 100644
-> --- a/include/linux/balloon_compaction.h
-> +++ b/include/linux/balloon_compaction.h
-> @@ -64,6 +64,10 @@ extern struct page *balloon_page_alloc(void);
->  extern void balloon_page_enqueue(struct balloon_dev_info *b_dev_info,
->  				 struct page *page);
->  extern struct page *balloon_page_dequeue(struct balloon_dev_info *b_dev_info);
-> +extern size_t balloon_page_list_enqueue(struct balloon_dev_info *b_dev_info,
-> +				      struct list_head *pages);
-> +extern size_t balloon_page_list_dequeue(struct balloon_dev_info *b_dev_info,
-> +				     struct list_head *pages, int n_req_pages);
->  
-
-Why size_t I wonder? It can never be > n_req_pages which is int.
-Callers also seem to assume int.
-
->  static inline void balloon_devinfo_init(struct balloon_dev_info *balloon)
->  {
-
-
-> diff --git a/mm/balloon_compaction.c b/mm/balloon_compaction.c
-> index ef858d547e2d..88d5d9a01072 100644
-> --- a/mm/balloon_compaction.c
-> +++ b/mm/balloon_compaction.c
-> @@ -10,6 +10,106 @@
->  #include <linux/export.h>
->  #include <linux/balloon_compaction.h>
->  
-> +static int balloon_page_enqueue_one(struct balloon_dev_info *b_dev_info,
-> +				     struct page *page)
-> +{
-> +	/*
-> +	 * Block others from accessing the 'page' when we get around to
-> +	 * establishing additional references. We should be the only one
-> +	 * holding a reference to the 'page' at this point.
-> +	 */
-> +	if (!trylock_page(page)) {
-> +		WARN_ONCE(1, "balloon inflation failed to enqueue page\n");
-> +		return -EFAULT;
-
-Looks like all callers bug on a failure. So let's just do it here,
-and then make this void?
-
-> +	}
-> +	list_del(&page->lru);
-> +	balloon_page_insert(b_dev_info, page);
-> +	unlock_page(page);
-> +	__count_vm_event(BALLOON_INFLATE);
-> +	return 0;
-> +}
-> +
-> +/**
-> + * balloon_page_list_enqueue() - inserts a list of pages into the balloon page
-> + *				 list.
-> + * @b_dev_info: balloon device descriptor where we will insert a new page to
-> + * @pages: pages to enqueue - allocated using balloon_page_alloc.
-> + *
-> + * Driver must call it to properly enqueue a balloon pages before definitively
-> + * removing it from the guest system.
-
-A bunch of grammar error here. Pls fix for clarify.
-Also - document that nothing must lock the pages? More assumptions?
-What is "it" in this context? All pages? And what does removing from
-guest mean? Really adding to the balloon?
-
-> + *
-> + * Return: number of pages that were enqueued.
-> + */
-> +size_t balloon_page_list_enqueue(struct balloon_dev_info *b_dev_info,
-> +			       struct list_head *pages)
-> +{
-> +	struct page *page, *tmp;
-> +	unsigned long flags;
-> +	size_t n_pages = 0;
-> +
-> +	spin_lock_irqsave(&b_dev_info->pages_lock, flags);
-> +	list_for_each_entry_safe(page, tmp, pages, lru) {
-> +		balloon_page_enqueue_one(b_dev_info, page);
-
-Do we want to do something about an error here?
-
-> +		n_pages++;
-> +	}
-> +	spin_unlock_irqrestore(&b_dev_info->pages_lock, flags);
-> +	return n_pages;
-> +}
-> +EXPORT_SYMBOL_GPL(balloon_page_list_enqueue);
-> +
-> +/**
-> + * balloon_page_list_dequeue() - removes pages from balloon's page list and
-> + *				 returns a list of the pages.
-> + * @b_dev_info: balloon device decriptor where we will grab a page from.
-> + * @pages: pointer to the list of pages that would be returned to the caller.
-> + * @n_req_pages: number of requested pages.
-> + *
-> + * Driver must call it to properly de-allocate a previous enlisted balloon pages
-> + * before definetively releasing it back to the guest system. This function
-> + * tries to remove @n_req_pages from the ballooned pages and return it to the
-> + * caller in the @pages list.
-> + *
-> + * Note that this function may fail to dequeue some pages temporarily empty due
-> + * to compaction isolated pages.
-> + *
-> + * Return: number of pages that were added to the @pages list.
-> + */
-> +size_t balloon_page_list_dequeue(struct balloon_dev_info *b_dev_info,
-> +				 struct list_head *pages, int n_req_pages)
-> +{
-> +	struct page *page, *tmp;
-> +	unsigned long flags;
-> +	size_t n_pages = 0;
-> +
-> +	spin_lock_irqsave(&b_dev_info->pages_lock, flags);
-> +	list_for_each_entry_safe(page, tmp, &b_dev_info->pages, lru) {
-> +		/*
-> +		 * Block others from accessing the 'page' while we get around
-> +		 * establishing additional references and preparing the 'page'
-> +		 * to be released by the balloon driver.
-> +		 */
-> +		if (!trylock_page(page))
-> +			continue;
-> +
-> +		if (IS_ENABLED(CONFIG_BALLOON_COMPACTION) &&
-> +		    PageIsolated(page)) {
-> +			/* raced with isolation */
-> +			unlock_page(page);
-> +			continue;
-> +		}
-> +		balloon_page_delete(page);
-> +		__count_vm_event(BALLOON_DEFLATE);
-> +		unlock_page(page);
-> +		list_add(&page->lru, pages);
-> +		if (++n_pages >= n_req_pages)
-> +			break;
-> +	}
-> +	spin_unlock_irqrestore(&b_dev_info->pages_lock, flags);
-> +
-> +	return n_pages;
-> +}
-> +EXPORT_SYMBOL_GPL(balloon_page_list_dequeue);
-> +
->  /*
->   * balloon_page_alloc - allocates a new page for insertion into the balloon
->   *			  page list.
-> @@ -43,17 +143,9 @@ void balloon_page_enqueue(struct balloon_dev_info *b_dev_info,
->  {
->  	unsigned long flags;
->  
-> -	/*
-> -	 * Block others from accessing the 'page' when we get around to
-> -	 * establishing additional references. We should be the only one
-> -	 * holding a reference to the 'page' at this point.
-> -	 */
-> -	BUG_ON(!trylock_page(page));
->  	spin_lock_irqsave(&b_dev_info->pages_lock, flags);
-> -	balloon_page_insert(b_dev_info, page);
-> -	__count_vm_event(BALLOON_INFLATE);
-> +	balloon_page_enqueue_one(b_dev_info, page);
-
-We used to bug on failure to lock page, now we
-silently ignore this error. Why?
-
-
->  	spin_unlock_irqrestore(&b_dev_info->pages_lock, flags);
-> -	unlock_page(page);
->  }
->  EXPORT_SYMBOL_GPL(balloon_page_enqueue);
->  
-> @@ -70,36 +162,13 @@ EXPORT_SYMBOL_GPL(balloon_page_enqueue);
->   */
->  struct page *balloon_page_dequeue(struct balloon_dev_info *b_dev_info)
->  {
-> -	struct page *page, *tmp;
->  	unsigned long flags;
-> -	bool dequeued_page;
-> +	LIST_HEAD(pages);
-> +	int n_pages;
->  
-> -	dequeued_page = false;
-> -	spin_lock_irqsave(&b_dev_info->pages_lock, flags);
-> -	list_for_each_entry_safe(page, tmp, &b_dev_info->pages, lru) {
-> -		/*
-> -		 * Block others from accessing the 'page' while we get around
-> -		 * establishing additional references and preparing the 'page'
-> -		 * to be released by the balloon driver.
-> -		 */
-> -		if (trylock_page(page)) {
-> -#ifdef CONFIG_BALLOON_COMPACTION
-> -			if (PageIsolated(page)) {
-> -				/* raced with isolation */
-> -				unlock_page(page);
-> -				continue;
-> -			}
-> -#endif
-> -			balloon_page_delete(page);
-> -			__count_vm_event(BALLOON_DEFLATE);
-> -			unlock_page(page);
-> -			dequeued_page = true;
-> -			break;
-> -		}
-> -	}
-> -	spin_unlock_irqrestore(&b_dev_info->pages_lock, flags);
-> +	n_pages = balloon_page_list_dequeue(b_dev_info, &pages, 1);
->  
-> -	if (!dequeued_page) {
-> +	if (n_pages != 1) {
->  		/*
->  		 * If we are unable to dequeue a balloon page because the page
->  		 * list is empty and there is no isolated pages, then something
-> @@ -112,9 +181,9 @@ struct page *balloon_page_dequeue(struct balloon_dev_info *b_dev_info)
->  			     !b_dev_info->isolated_pages))
->  			BUG();
->  		spin_unlock_irqrestore(&b_dev_info->pages_lock, flags);
-> -		page = NULL;
-> +		return NULL;
->  	}
-> -	return page;
-> +	return list_first_entry(&pages, struct page, lru);
->  }
->  EXPORT_SYMBOL_GPL(balloon_page_dequeue);
->  
-> -- 
-> 2.19.1
+T24gRnJpLCBBcHIgMTksIDIwMTkgYXQgMTA6MzQ6MDRQTSArMDAwMCwgTmFkYXYgQW1pdCB3cm90
+ZToKPiA+IE9uIEFwciAxOSwgMjAxOSwgYXQgMzowNyBQTSwgTWljaGFlbCBTLiBUc2lya2luIDxt
+c3RAcmVkaGF0LmNvbT4gd3JvdGU6Cj4gPiAKPiA+IE9uIFRodSwgTWFyIDI4LCAyMDE5IGF0IDAx
+OjA3OjE1QU0gKzAwMDAsIE5hZGF2IEFtaXQgd3JvdGU6Cj4gPj4gSW50cm9kdWNlIGludGVyZmFj
+ZXMgZm9yIGJhbGxvb25pbmcgZW5xdWV1ZWluZyBhbmQgZGVxdWV1ZWluZyBvZiBhIGxpc3QKPiA+
+PiBvZiBwYWdlcy4gVGhlc2UgaW50ZXJmYWNlcyByZWR1Y2UgdGhlIG92ZXJoZWFkIG9mIHN0b3Jp
+bmcgYW5kIHJlc3RvcmluZwo+ID4+IElSUXMgYnkgYmF0Y2hpbmcgdGhlIG9wZXJhdGlvbnMuIElu
+IGFkZGl0aW9uIHRoZXkgZG8gbm90IHBhbmljIGlmIHRoZQo+ID4+IGxpc3Qgb2YgcGFnZXMgaXMg
+ZW1wdHkuCj4gPj4gCj4gPj4gQ2M6ICJNaWNoYWVsIFMuIFRzaXJraW4iIDxtc3RAcmVkaGF0LmNv
+bT4KPiA+PiBDYzogSmFzb24gV2FuZyA8amFzb3dhbmdAcmVkaGF0LmNvbT4KPiA+PiBDYzogbGlu
+dXgtbW1Aa3ZhY2sub3JnCj4gPj4gQ2M6IHZpcnR1YWxpemF0aW9uQGxpc3RzLmxpbnV4LWZvdW5k
+YXRpb24ub3JnCj4gPj4gUmV2aWV3ZWQtYnk6IFhhdmllciBEZWd1aWxsYXJkIDx4ZGVndWlsbGFy
+ZEB2bXdhcmUuY29tPgo+ID4+IFNpZ25lZC1vZmYtYnk6IE5hZGF2IEFtaXQgPG5hbWl0QHZtd2Fy
+ZS5jb20+Cj4gPj4gLS0tCj4gPj4gaW5jbHVkZS9saW51eC9iYWxsb29uX2NvbXBhY3Rpb24uaCB8
+ICAgNCArCj4gPj4gbW0vYmFsbG9vbl9jb21wYWN0aW9uLmMgICAgICAgICAgICB8IDE0NSArKysr
+KysrKysrKysrKysrKysrKystLS0tLS0tLQo+ID4+IDIgZmlsZXMgY2hhbmdlZCwgMTExIGluc2Vy
+dGlvbnMoKyksIDM4IGRlbGV0aW9ucygtKQo+ID4+IAo+ID4+IGRpZmYgLS1naXQgYS9pbmNsdWRl
+L2xpbnV4L2JhbGxvb25fY29tcGFjdGlvbi5oIGIvaW5jbHVkZS9saW51eC9iYWxsb29uX2NvbXBh
+Y3Rpb24uaAo+ID4+IGluZGV4IGYxMTFjNzgwZWYxZC4uMWRhNzllZGFkYjY5IDEwMDY0NAo+ID4+
+IC0tLSBhL2luY2x1ZGUvbGludXgvYmFsbG9vbl9jb21wYWN0aW9uLmgKPiA+PiArKysgYi9pbmNs
+dWRlL2xpbnV4L2JhbGxvb25fY29tcGFjdGlvbi5oCj4gPj4gQEAgLTY0LDYgKzY0LDEwIEBAIGV4
+dGVybiBzdHJ1Y3QgcGFnZSAqYmFsbG9vbl9wYWdlX2FsbG9jKHZvaWQpOwo+ID4+IGV4dGVybiB2
+b2lkIGJhbGxvb25fcGFnZV9lbnF1ZXVlKHN0cnVjdCBiYWxsb29uX2Rldl9pbmZvICpiX2Rldl9p
+bmZvLAo+ID4+IAkJCQkgc3RydWN0IHBhZ2UgKnBhZ2UpOwo+ID4+IGV4dGVybiBzdHJ1Y3QgcGFn
+ZSAqYmFsbG9vbl9wYWdlX2RlcXVldWUoc3RydWN0IGJhbGxvb25fZGV2X2luZm8gKmJfZGV2X2lu
+Zm8pOwo+ID4+ICtleHRlcm4gc2l6ZV90IGJhbGxvb25fcGFnZV9saXN0X2VucXVldWUoc3RydWN0
+IGJhbGxvb25fZGV2X2luZm8gKmJfZGV2X2luZm8sCj4gPj4gKwkJCQkgICAgICBzdHJ1Y3QgbGlz
+dF9oZWFkICpwYWdlcyk7Cj4gPj4gK2V4dGVybiBzaXplX3QgYmFsbG9vbl9wYWdlX2xpc3RfZGVx
+dWV1ZShzdHJ1Y3QgYmFsbG9vbl9kZXZfaW5mbyAqYl9kZXZfaW5mbywKPiA+PiArCQkJCSAgICAg
+c3RydWN0IGxpc3RfaGVhZCAqcGFnZXMsIGludCBuX3JlcV9wYWdlcyk7Cj4gPiAKPiA+IFdoeSBz
+aXplX3QgSSB3b25kZXI/IEl0IGNhbiBuZXZlciBiZSA+IG5fcmVxX3BhZ2VzIHdoaWNoIGlzIGlu
+dC4KPiA+IENhbGxlcnMgYWxzbyBzZWVtIHRvIGFzc3VtZSBpbnQuCj4gCj4gT25seSBiZWNhdXNl
+IG9uIHRoZSBwcmV2aW91cyBpdGVyYXRpb24KPiAoIGh0dHBzOi8vbGttbC5vcmcvbGttbC8yMDE5
+LzIvNi85MTIgKSB5b3Ugc2FpZDoKPiAKPiA+IEFyZSB3ZSBzdXJlIHRoaXMgaW50IG5ldmVyIG92
+ZXJmbG93cz8gV2h5IG5vdCBqdXN0IHVzZSB1NjQKPiA+IG9yIHNpemVfdCBzdHJhaWdodCBhd2F5
+PwoKQW5kIHRoZSBhbnN3ZXIgaXMgYmVjYXVzZSBuX3JlcV9wYWdlcyBpcyBhbiBpbnQgdG9vPwoK
+PiAKPiBJIGFtIG9rIGVpdGhlciB3YXksIGJ1dCBwbGVhc2UgYmUgY29uc2lzdGVudC4KCkkgZ3Vl
+c3Mgbl9yZXFfcGFnZXMgc2hvdWxkIGJlIHNpemVfdCB0b28gdGhlbj8KCj4gPiAKPiA+PiBzdGF0
+aWMgaW5saW5lIHZvaWQgYmFsbG9vbl9kZXZpbmZvX2luaXQoc3RydWN0IGJhbGxvb25fZGV2X2lu
+Zm8gKmJhbGxvb24pCj4gPj4gewo+ID4gCj4gPiAKPiA+PiBkaWZmIC0tZ2l0IGEvbW0vYmFsbG9v
+bl9jb21wYWN0aW9uLmMgYi9tbS9iYWxsb29uX2NvbXBhY3Rpb24uYwo+ID4+IGluZGV4IGVmODU4
+ZDU0N2UyZC4uODhkNWQ5YTAxMDcyIDEwMDY0NAo+ID4+IC0tLSBhL21tL2JhbGxvb25fY29tcGFj
+dGlvbi5jCj4gPj4gKysrIGIvbW0vYmFsbG9vbl9jb21wYWN0aW9uLmMKPiA+PiBAQCAtMTAsNiAr
+MTAsMTA2IEBACj4gPj4gI2luY2x1ZGUgPGxpbnV4L2V4cG9ydC5oPgo+ID4+ICNpbmNsdWRlIDxs
+aW51eC9iYWxsb29uX2NvbXBhY3Rpb24uaD4KPiA+PiAKPiA+PiArc3RhdGljIGludCBiYWxsb29u
+X3BhZ2VfZW5xdWV1ZV9vbmUoc3RydWN0IGJhbGxvb25fZGV2X2luZm8gKmJfZGV2X2luZm8sCj4g
+Pj4gKwkJCQkgICAgIHN0cnVjdCBwYWdlICpwYWdlKQo+ID4+ICt7Cj4gPj4gKwkvKgo+ID4+ICsJ
+ICogQmxvY2sgb3RoZXJzIGZyb20gYWNjZXNzaW5nIHRoZSAncGFnZScgd2hlbiB3ZSBnZXQgYXJv
+dW5kIHRvCj4gPj4gKwkgKiBlc3RhYmxpc2hpbmcgYWRkaXRpb25hbCByZWZlcmVuY2VzLiBXZSBz
+aG91bGQgYmUgdGhlIG9ubHkgb25lCj4gPj4gKwkgKiBob2xkaW5nIGEgcmVmZXJlbmNlIHRvIHRo
+ZSAncGFnZScgYXQgdGhpcyBwb2ludC4KPiA+PiArCSAqLwo+ID4+ICsJaWYgKCF0cnlsb2NrX3Bh
+Z2UocGFnZSkpIHsKPiA+PiArCQlXQVJOX09OQ0UoMSwgImJhbGxvb24gaW5mbGF0aW9uIGZhaWxl
+ZCB0byBlbnF1ZXVlIHBhZ2VcbiIpOwo+ID4+ICsJCXJldHVybiAtRUZBVUxUOwo+ID4gCj4gPiBM
+b29rcyBsaWtlIGFsbCBjYWxsZXJzIGJ1ZyBvbiBhIGZhaWx1cmUuIFNvIGxldCdzIGp1c3QgZG8g
+aXQgaGVyZSwKPiA+IGFuZCB0aGVuIG1ha2UgdGhpcyB2b2lkPwo+IAo+IEFzIHlvdSBub3RlZCBi
+ZWxvdywgYWN0dWFsbHkgYmFsbG9vbl9wYWdlX2xpc3RfZW5xdWV1ZSgpIGRvZXMgbm90IGRvCj4g
+YW55dGhpbmcgd2hlbiBhbiBlcnJvciBvY2N1cnMuIEkgcmVhbGx5IHByZWZlciB0byBhdm9pZCBh
+ZGRpbmcgQlVHX09OKCkgLSAKPiBJIGFsd2F5cyBnZXQgcHVzaGVkIGJhY2sgb24gc3VjaCB0aGlu
+Z3MuIFllcywgdGhpcyBtaWdodCBsZWFkIHRvIG1lbW9yeQo+IGxlYWssIGJ1dCB0aGVyZSBpcyBu
+byByZWFzb24gdG8gY3Jhc2ggdGhlIHN5c3RlbS4KCk5lZWQgdG8gYXVkaXQgY2FsbGVycyB0byBt
+YWtlIHN1cmUgdGhleSBkb24ndCBtaXNiZWhhdmUgaW4gd29yc2Ugd2F5cy4KCkkgdGhpbmsgaW4g
+dGhpcyBjYXNlIHRoaXMgaW5kaWNhdGVzIHRoYXQgc29tZW9uZSBpcyB1c2luZyB0aGUgcGFnZSBz
+byBpZgpvbmUga2VlcHMgZ29pbmcgYW5kIGFkZHMgaXQgaW50byBiYWxsb29uIHRoaXMgd2lsbCBs
+ZWFkIHRvIGNvcnJ1cHRpb24gZG93biB0aGUgcm9hZC4KCklmIHlvdSBjYW4gY2hhbmdlIHRoZSBj
+YWxsZXIgY29kZSBzdWNoIHRoYXQgaXQncyBqdXN0IGEgbGVhaywKdGhlbiBhIHdhcm5pbmcgaXMg
+bW9yZSBhcHByb3ByaWF0ZS4gT3IgZXZlbiBkbyBub3Qgd2FybiBhdCBhbGwuCgoKPiA+PiArCX0K
+PiA+PiArCWxpc3RfZGVsKCZwYWdlLT5scnUpOwo+ID4+ICsJYmFsbG9vbl9wYWdlX2luc2VydChi
+X2Rldl9pbmZvLCBwYWdlKTsKPiA+PiArCXVubG9ja19wYWdlKHBhZ2UpOwo+ID4+ICsJX19jb3Vu
+dF92bV9ldmVudChCQUxMT09OX0lORkxBVEUpOwo+ID4+ICsJcmV0dXJuIDA7Cj4gPj4gK30KPiA+
+PiArCj4gPj4gKy8qKgo+ID4+ICsgKiBiYWxsb29uX3BhZ2VfbGlzdF9lbnF1ZXVlKCkgLSBpbnNl
+cnRzIGEgbGlzdCBvZiBwYWdlcyBpbnRvIHRoZSBiYWxsb29uIHBhZ2UKPiA+PiArICoJCQkJIGxp
+c3QuCj4gPj4gKyAqIEBiX2Rldl9pbmZvOiBiYWxsb29uIGRldmljZSBkZXNjcmlwdG9yIHdoZXJl
+IHdlIHdpbGwgaW5zZXJ0IGEgbmV3IHBhZ2UgdG8KPiA+PiArICogQHBhZ2VzOiBwYWdlcyB0byBl
+bnF1ZXVlIC0gYWxsb2NhdGVkIHVzaW5nIGJhbGxvb25fcGFnZV9hbGxvYy4KPiA+PiArICoKPiA+
+PiArICogRHJpdmVyIG11c3QgY2FsbCBpdCB0byBwcm9wZXJseSBlbnF1ZXVlIGEgYmFsbG9vbiBw
+YWdlcyBiZWZvcmUgZGVmaW5pdGl2ZWx5Cj4gPj4gKyAqIHJlbW92aW5nIGl0IGZyb20gdGhlIGd1
+ZXN0IHN5c3RlbS4KPiA+IAo+ID4gQSBidW5jaCBvZiBncmFtbWFyIGVycm9yIGhlcmUuIFBscyBm
+aXggZm9yIGNsYXJpZnkuCj4gPiBBbHNvIC0gZG9jdW1lbnQgdGhhdCBub3RoaW5nIG11c3QgbG9j
+ayB0aGUgcGFnZXM/IE1vcmUgYXNzdW1wdGlvbnM/Cj4gPiBXaGF0IGlzICJpdCIgaW4gdGhpcyBj
+b250ZXh0PyBBbGwgcGFnZXM/IEFuZCB3aGF0IGRvZXMgcmVtb3ZpbmcgZnJvbQo+ID4gZ3Vlc3Qg
+bWVhbj8gUmVhbGx5IGFkZGluZyB0byB0aGUgYmFsbG9vbj8KPiAKPiBJIHByZXR0eSBtdWNoIGNv
+cHktcGFzdGVkIHRoaXMgZGVzY3JpcHRpb24gZnJvbSBiYWxsb29uX3BhZ2VfZW5xdWV1ZSgpLiBJ
+Cj4gc2VlIHRoYXQgeW91IGVkaXRlZCB0aGlzIG1lc3NhZ2UgaW4gdGhlIHBhc3QgYXQgbGVhc3Qg
+Y291cGxlIG9mIHRpbWVzIChlLmcuLAo+IGM3Y2RmZjBlODY0NzEg4oCcdmlydGlvX2JhbGxvb246
+IGZpeCBkZWFkbG9jayBvbiBPT03igJ0pIGFuZCBsZWZ0IGl0IGFzIGlzLgo+IAo+IFNvIG1heWJl
+IGFsbCBvZiB0aGUgY29tbWVudHMgaW4gdGhpcyBmaWxlIG5lZWQgYSByZXdvcmssIGJ1dCBJIGRv
+buKAmXQgdGhpbmsKPiB0aGlzIHBhdGNoLXNldCBuZWVkcyB0byBkbyBpdC4KCkkgc2VlLgpUaGF0
+IG9uZSBkZWFsdCB3aXRoIG9uZSBwYWdlIHNvICJpdCIgd2FzIHRoZSBwYWdlLiBUaGlzIG9uZSBk
+ZWFscyB3aXRoCm1hbnkgcGFnZXMgc28geW91IGNhbid0IGp1c3QgY29weSBpdCBvdmVyIHdpdGhv
+dXQgY2hhbmdlcy4KTWFrZXMgaXQgbG9vayBsaWtlICJpdCIgcmVmZXJzIHRvIGRyaXZlciBvciBn
+dWVzdC4KCj4gPj4gKyAqCj4gPj4gKyAqIFJldHVybjogbnVtYmVyIG9mIHBhZ2VzIHRoYXQgd2Vy
+ZSBlbnF1ZXVlZC4KPiA+PiArICovCj4gPj4gK3NpemVfdCBiYWxsb29uX3BhZ2VfbGlzdF9lbnF1
+ZXVlKHN0cnVjdCBiYWxsb29uX2Rldl9pbmZvICpiX2Rldl9pbmZvLAo+ID4+ICsJCQkgICAgICAg
+c3RydWN0IGxpc3RfaGVhZCAqcGFnZXMpCj4gPj4gK3sKPiA+PiArCXN0cnVjdCBwYWdlICpwYWdl
+LCAqdG1wOwo+ID4+ICsJdW5zaWduZWQgbG9uZyBmbGFnczsKPiA+PiArCXNpemVfdCBuX3BhZ2Vz
+ID0gMDsKPiA+PiArCj4gPj4gKwlzcGluX2xvY2tfaXJxc2F2ZSgmYl9kZXZfaW5mby0+cGFnZXNf
+bG9jaywgZmxhZ3MpOwo+ID4+ICsJbGlzdF9mb3JfZWFjaF9lbnRyeV9zYWZlKHBhZ2UsIHRtcCwg
+cGFnZXMsIGxydSkgewo+ID4+ICsJCWJhbGxvb25fcGFnZV9lbnF1ZXVlX29uZShiX2Rldl9pbmZv
+LCBwYWdlKTsKPiA+IAo+ID4gRG8gd2Ugd2FudCB0byBkbyBzb21ldGhpbmcgYWJvdXQgYW4gZXJy
+b3IgaGVyZT8KPiAKPiBIbW3igKYgVGhpcyBpcyByZWFsbHkgc29tZXRoaW5nIHRoYXQgc2hvdWxk
+IG5ldmVyIGhhcHBlbiwgYnV0IEkgc3RpbGwgcHJlZmVyCj4gdG8gYXZvaWQgQlVHX09OKCksIGFz
+IEkgc2FpZCBiZWZvcmUuIEkgd2lsbCBqdXN0IG5vdCBjb3VudCB0aGUgcGFnZS4KCkNhbGxlcnMg
+Y2FuIEJVRyB0aGVuIGlmIHRoZXkgd2FudC4gVGhhdCBpcyBmaW5lIGJ1dCB5b3UgdGhlbgpuZWVk
+IHRvIGNoYW5nZSB0aGUgY2FsbGVycyB0byBkbyBpdC4KCj4gPiAKPiA+PiArCQluX3BhZ2VzKys7
+Cj4gPj4gKwl9Cj4gPj4gKwlzcGluX3VubG9ja19pcnFyZXN0b3JlKCZiX2Rldl9pbmZvLT5wYWdl
+c19sb2NrLCBmbGFncyk7Cj4gPj4gKwlyZXR1cm4gbl9wYWdlczsKPiA+PiArfQo+ID4+ICtFWFBP
+UlRfU1lNQk9MX0dQTChiYWxsb29uX3BhZ2VfbGlzdF9lbnF1ZXVlKTsKPiA+PiArCj4gPj4gKy8q
+Kgo+ID4+ICsgKiBiYWxsb29uX3BhZ2VfbGlzdF9kZXF1ZXVlKCkgLSByZW1vdmVzIHBhZ2VzIGZy
+b20gYmFsbG9vbidzIHBhZ2UgbGlzdCBhbmQKPiA+PiArICoJCQkJIHJldHVybnMgYSBsaXN0IG9m
+IHRoZSBwYWdlcy4KPiA+PiArICogQGJfZGV2X2luZm86IGJhbGxvb24gZGV2aWNlIGRlY3JpcHRv
+ciB3aGVyZSB3ZSB3aWxsIGdyYWIgYSBwYWdlIGZyb20uCj4gPj4gKyAqIEBwYWdlczogcG9pbnRl
+ciB0byB0aGUgbGlzdCBvZiBwYWdlcyB0aGF0IHdvdWxkIGJlIHJldHVybmVkIHRvIHRoZSBjYWxs
+ZXIuCj4gPj4gKyAqIEBuX3JlcV9wYWdlczogbnVtYmVyIG9mIHJlcXVlc3RlZCBwYWdlcy4KPiA+
+PiArICoKPiA+PiArICogRHJpdmVyIG11c3QgY2FsbCBpdCB0byBwcm9wZXJseSBkZS1hbGxvY2F0
+ZSBhIHByZXZpb3VzIGVubGlzdGVkIGJhbGxvb24gcGFnZXMKPiA+PiArICogYmVmb3JlIGRlZmlu
+ZXRpdmVseSByZWxlYXNpbmcgaXQgYmFjayB0byB0aGUgZ3Vlc3Qgc3lzdGVtLiBUaGlzIGZ1bmN0
+aW9uCj4gPj4gKyAqIHRyaWVzIHRvIHJlbW92ZSBAbl9yZXFfcGFnZXMgZnJvbSB0aGUgYmFsbG9v
+bmVkIHBhZ2VzIGFuZCByZXR1cm4gaXQgdG8gdGhlCj4gPj4gKyAqIGNhbGxlciBpbiB0aGUgQHBh
+Z2VzIGxpc3QuCj4gPj4gKyAqCj4gPj4gKyAqIE5vdGUgdGhhdCB0aGlzIGZ1bmN0aW9uIG1heSBm
+YWlsIHRvIGRlcXVldWUgc29tZSBwYWdlcyB0ZW1wb3JhcmlseSBlbXB0eSBkdWUKPiA+PiArICog
+dG8gY29tcGFjdGlvbiBpc29sYXRlZCBwYWdlcy4KPiA+PiArICoKPiA+PiArICogUmV0dXJuOiBu
+dW1iZXIgb2YgcGFnZXMgdGhhdCB3ZXJlIGFkZGVkIHRvIHRoZSBAcGFnZXMgbGlzdC4KPiA+PiAr
+ICovCj4gPj4gK3NpemVfdCBiYWxsb29uX3BhZ2VfbGlzdF9kZXF1ZXVlKHN0cnVjdCBiYWxsb29u
+X2Rldl9pbmZvICpiX2Rldl9pbmZvLAo+ID4+ICsJCQkJIHN0cnVjdCBsaXN0X2hlYWQgKnBhZ2Vz
+LCBpbnQgbl9yZXFfcGFnZXMpCj4gPj4gK3sKPiA+PiArCXN0cnVjdCBwYWdlICpwYWdlLCAqdG1w
+Owo+ID4+ICsJdW5zaWduZWQgbG9uZyBmbGFnczsKPiA+PiArCXNpemVfdCBuX3BhZ2VzID0gMDsK
+PiA+PiArCj4gPj4gKwlzcGluX2xvY2tfaXJxc2F2ZSgmYl9kZXZfaW5mby0+cGFnZXNfbG9jaywg
+ZmxhZ3MpOwo+ID4+ICsJbGlzdF9mb3JfZWFjaF9lbnRyeV9zYWZlKHBhZ2UsIHRtcCwgJmJfZGV2
+X2luZm8tPnBhZ2VzLCBscnUpIHsKPiA+PiArCQkvKgo+ID4+ICsJCSAqIEJsb2NrIG90aGVycyBm
+cm9tIGFjY2Vzc2luZyB0aGUgJ3BhZ2UnIHdoaWxlIHdlIGdldCBhcm91bmQKPiA+PiArCQkgKiBl
+c3RhYmxpc2hpbmcgYWRkaXRpb25hbCByZWZlcmVuY2VzIGFuZCBwcmVwYXJpbmcgdGhlICdwYWdl
+Jwo+ID4+ICsJCSAqIHRvIGJlIHJlbGVhc2VkIGJ5IHRoZSBiYWxsb29uIGRyaXZlci4KPiA+PiAr
+CQkgKi8KPiA+PiArCQlpZiAoIXRyeWxvY2tfcGFnZShwYWdlKSkKPiA+PiArCQkJY29udGludWU7
+Cj4gPj4gKwo+ID4+ICsJCWlmIChJU19FTkFCTEVEKENPTkZJR19CQUxMT09OX0NPTVBBQ1RJT04p
+ICYmCj4gPj4gKwkJICAgIFBhZ2VJc29sYXRlZChwYWdlKSkgewo+ID4+ICsJCQkvKiByYWNlZCB3
+aXRoIGlzb2xhdGlvbiAqLwo+ID4+ICsJCQl1bmxvY2tfcGFnZShwYWdlKTsKPiA+PiArCQkJY29u
+dGludWU7Cj4gPj4gKwkJfQo+ID4+ICsJCWJhbGxvb25fcGFnZV9kZWxldGUocGFnZSk7Cj4gPj4g
+KwkJX19jb3VudF92bV9ldmVudChCQUxMT09OX0RFRkxBVEUpOwo+ID4+ICsJCXVubG9ja19wYWdl
+KHBhZ2UpOwo+ID4+ICsJCWxpc3RfYWRkKCZwYWdlLT5scnUsIHBhZ2VzKTsKPiA+PiArCQlpZiAo
+KytuX3BhZ2VzID49IG5fcmVxX3BhZ2VzKQo+ID4+ICsJCQlicmVhazsKPiA+PiArCX0KPiA+PiAr
+CXNwaW5fdW5sb2NrX2lycXJlc3RvcmUoJmJfZGV2X2luZm8tPnBhZ2VzX2xvY2ssIGZsYWdzKTsK
+PiA+PiArCj4gPj4gKwlyZXR1cm4gbl9wYWdlczsKPiA+PiArfQo+ID4+ICtFWFBPUlRfU1lNQk9M
+X0dQTChiYWxsb29uX3BhZ2VfbGlzdF9kZXF1ZXVlKTsKPiA+PiArCj4gPj4gLyoKPiA+PiAgKiBi
+YWxsb29uX3BhZ2VfYWxsb2MgLSBhbGxvY2F0ZXMgYSBuZXcgcGFnZSBmb3IgaW5zZXJ0aW9uIGlu
+dG8gdGhlIGJhbGxvb24KPiA+PiAgKgkJCSAgcGFnZSBsaXN0Lgo+ID4+IEBAIC00MywxNyArMTQz
+LDkgQEAgdm9pZCBiYWxsb29uX3BhZ2VfZW5xdWV1ZShzdHJ1Y3QgYmFsbG9vbl9kZXZfaW5mbyAq
+Yl9kZXZfaW5mbywKPiA+PiB7Cj4gPj4gCXVuc2lnbmVkIGxvbmcgZmxhZ3M7Cj4gPj4gCj4gPj4g
+LQkvKgo+ID4+IC0JICogQmxvY2sgb3RoZXJzIGZyb20gYWNjZXNzaW5nIHRoZSAncGFnZScgd2hl
+biB3ZSBnZXQgYXJvdW5kIHRvCj4gPj4gLQkgKiBlc3RhYmxpc2hpbmcgYWRkaXRpb25hbCByZWZl
+cmVuY2VzLiBXZSBzaG91bGQgYmUgdGhlIG9ubHkgb25lCj4gPj4gLQkgKiBob2xkaW5nIGEgcmVm
+ZXJlbmNlIHRvIHRoZSAncGFnZScgYXQgdGhpcyBwb2ludC4KPiA+PiAtCSAqLwo+ID4+IC0JQlVH
+X09OKCF0cnlsb2NrX3BhZ2UocGFnZSkpOwo+ID4+IAlzcGluX2xvY2tfaXJxc2F2ZSgmYl9kZXZf
+aW5mby0+cGFnZXNfbG9jaywgZmxhZ3MpOwo+ID4+IC0JYmFsbG9vbl9wYWdlX2luc2VydChiX2Rl
+dl9pbmZvLCBwYWdlKTsKPiA+PiAtCV9fY291bnRfdm1fZXZlbnQoQkFMTE9PTl9JTkZMQVRFKTsK
+PiA+PiArCWJhbGxvb25fcGFnZV9lbnF1ZXVlX29uZShiX2Rldl9pbmZvLCBwYWdlKTsKPiA+IAo+
+ID4gV2UgdXNlZCB0byBidWcgb24gZmFpbHVyZSB0byBsb2NrIHBhZ2UsIG5vdyB3ZQo+ID4gc2ls
+ZW50bHkgaWdub3JlIHRoaXMgZXJyb3IuIFdoeT8KPiAKPiBUaGF04oCZcyBhIG1pc3Rha2UuIEni
+gJlsbCBhZGQgYSBCVUdfT04oKSBpZiBiYWxsb29uX3BhZ2VfZW5xdWV1ZV9vbmUoKSBmYWlscy4K
+PiAKPiAKX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX18KVmly
+dHVhbGl6YXRpb24gbWFpbGluZyBsaXN0ClZpcnR1YWxpemF0aW9uQGxpc3RzLmxpbnV4LWZvdW5k
+YXRpb24ub3JnCmh0dHBzOi8vbGlzdHMubGludXhmb3VuZGF0aW9uLm9yZy9tYWlsbWFuL2xpc3Rp
+bmZvL3ZpcnR1YWxpemF0aW9u
