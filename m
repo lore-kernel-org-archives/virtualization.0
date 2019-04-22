@@ -1,21 +1,17 @@
-From: Jeff Moyer <jmoyer@redhat.com>
-Subject: Re: [PATCH v5 1/6] libnvdimm: nd_region flush callback support
-Date: Mon, 22 Apr 2019 11:51:35 -0400
-Message-ID: <x497ebm82d4.fsf__11296.7774666444$1555948323$gmane$org@segfault.boston.devel.redhat.com>
-References: <20190410040826.24371-1-pagupta@redhat.com>
-	<20190410040826.24371-2-pagupta@redhat.com>
-	<CAPcyv4i1FjBzfcWtzeCvj-giHa9xaX0dMQ==q4LZC_L8VEqkHg@mail.gmail.com>
-	<20190412083230.GA29850@quack2.suse.cz>
-	<x494l73z7th.fsf@segfault.boston.devel.redhat.com>
-	<CAPcyv4jrNHqW3FuGkeo==ZoJr7LKahCv4_esnokfy7enek8=2Q@mail.gmail.com>
-	<20190418161833.GA22970@infradead.org>
-	<CAPcyv4jPOF_+R6U17J_+88+X8LC-LSPCugA6gbKxuphuuFB2gg@mail.gmail.com>
+From: Jason Gunthorpe <jgg@ziepe.ca>
+Subject: Re: [Qemu-devel] [RFC 0/3] VirtIO RDMA
+Date: Mon, 22 Apr 2019 13:45:27 -0300
+Message-ID: <20190422164527.GF21588@ziepe.ca>
+References: <20190411110157.14252-1-yuval.shaia@oracle.com>
+	<20190411190215.2163572e.cohuck@redhat.com>
+	<20190415103546.GA6854@lap1>
+	<e73e03c2-ea2b-6ffc-cd23-e8e44d42ce80@suse.de>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <CAPcyv4jPOF_+R6U17J_+88+X8LC-LSPCugA6gbKxuphuuFB2gg@mail.gmail.com>
-	(Dan Williams's message of "Thu, 18 Apr 2019 11:14:59 -0700")
+Content-Disposition: inline
+In-Reply-To: <e73e03c2-ea2b-6ffc-cd23-e8e44d42ce80@suse.de>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -25,43 +21,75 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Dan Williams <dan.j.williams@intel.com>
-Cc: Pankaj Gupta <pagupta@redhat.com>, cohuck@redhat.com, Jan Kara <jack@suse.cz>, KVM list <kvm@vger.kernel.org>, "Michael S. Tsirkin" <mst@redhat.com>, david <david@fromorbit.com>, Qemu Developers <qemu-devel@nongnu.org>, virtualization@lists.linux-foundation.org, Andreas Dilger <adilger.kernel@dilger.ca>, Ross Zwisler <zwisler@kernel.org>, Andrea Arcangeli <aarcange@redhat.com>, Dave Jiang <dave.jiang@intel.com>, linux-nvdimm <linux-nvdimm@lists.01.org>, Vishal L Verma <vishal.l.verma@intel.com>, Matthew Wilcox <willy@infradead.org>, Christoph Hellwig <hch@infradead.org>, Linux ACPI <linux-acpi@vger.kernel.org>, linux-ext4 <linux-ext4@vger.kernel.org>, Len Brown <lenb@kernel.org>, kilobyte@angband.pl, Rik van Riel <riel@surriel.com>, yuval shaia <yuval.shaia@oracle.com>, Stefan Hajnoczi <stefanha@redhat.com>, Paolo Bonzini <pbonzini@redhat.com>, lcapitulino@redhat.com
+To: Hannes Reinecke <hare@suse.de>
+Cc: mst@redhat.com, linux-rdma@vger.kernel.org, Cornelia Huck <cohuck@redhat.com>, qemu-devel@nongnu.org, Yuval Shaia <yuval.shaia@oracle.com>, virtualization@lists.linux-foundation.org
 List-Id: virtualization@lists.linuxfoundation.org
 
-Dan Williams <dan.j.williams@intel.com> writes:
+On Fri, Apr 19, 2019 at 01:16:06PM +0200, Hannes Reinecke wrote:
+> On 4/15/19 12:35 PM, Yuval Shaia wrote:
+> > On Thu, Apr 11, 2019 at 07:02:15PM +0200, Cornelia Huck wrote:
+> > > On Thu, 11 Apr 2019 14:01:54 +0300
+> > > Yuval Shaia <yuval.shaia@oracle.com> wrote:
+> > > 
+> > > > Data center backends use more and more RDMA or RoCE devices and more and
+> > > > more software runs in virtualized environment.
+> > > > There is a need for a standard to enable RDMA/RoCE on Virtual Machines.
+> > > > 
+> > > > Virtio is the optimal solution since is the de-facto para-virtualizaton
+> > > > technology and also because the Virtio specification
+> > > > allows Hardware Vendors to support Virtio protocol natively in order to
+> > > > achieve bare metal performance.
+> > > > 
+> > > > This RFC is an effort to addresses challenges in defining the RDMA/RoCE
+> > > > Virtio Specification and a look forward on possible implementation
+> > > > techniques.
+> > > > 
+> > > > Open issues/Todo list:
+> > > > List is huge, this is only start point of the project.
+> > > > Anyway, here is one example of item in the list:
+> > > > - Multi VirtQ: Every QP has two rings and every CQ has one. This means that
+> > > >    in order to support for example 32K QPs we will need 64K VirtQ. Not sure
+> > > >    that this is reasonable so one option is to have one for all and
+> > > >    multiplex the traffic on it. This is not good approach as by design it
+> > > >    introducing an optional starvation. Another approach would be multi
+> > > >    queues and round-robin (for example) between them.
+> > > > 
+> Typically there will be a one-to-one mapping between QPs and CPUs (on the
+> guest). 
 
-> On Thu, Apr 18, 2019 at 9:18 AM Christoph Hellwig <hch@infradead.org> wrote:
->>
->> On Thu, Apr 18, 2019 at 09:05:05AM -0700, Dan Williams wrote:
->> > > > I'd either add a comment about avoiding retpoline overhead here or just
->> > > > make ->flush == NULL mean generic_nvdimm_flush(). Just so that people don't
->> > > > get confused by the code.
->> > >
->> > > Isn't this premature optimization?  I really don't like adding things
->> > > like this without some numbers to show it's worth it.
->> >
->> > I don't think it's premature given this optimization technique is
->> > already being deployed elsewhere, see:
->> >
->> > https://lwn.net/Articles/774347/
->>
->> For one this one was backed by numbers, and second after feedback
->> from Linux we switched to the NULL pointer check instead.
->
-> Ok I should have noticed the switch to NULL pointer check. However,
-> the question still stands do we want everyone to run numbers to
-> justify this optimization, or make it a new common kernel coding
-> practice to do:
->
->     if (!object->op)
->         generic_op(object);
->     else
->         object->op(object);
->
-> ...in hot paths?
+Er we are really overloading words here.. The typical expectation is
+that a 'RDMA QP' will have thousands and thousands of instances on a
+system.
 
-I don't think nvdimm_flush is a hot path.  Numbers of some
-representative workload would prove one of us right.
+Most likely I think mapping 1:1 a virtio queue to a 'RDMA QP, CQ, SRQ,
+etc' is a bad idea...
 
--Jeff
+> However, I'm still curious about the overall intent of this driver. Where
+> would the I/O be routed _to_ ?
+> It's nice that we have a virtualized driver, but this driver is
+> intended to do I/O (even if it doesn't _do_ any I/O ATM :-)
+> And this I/O needs to be send to (and possibly received from)
+> something.
+
+As yet I have never heard of public RDMA HW that could be coupled to a
+virtio scheme. All HW defines their own queue ring buffer formats
+without standardization.
+
+> If so, wouldn't it be more efficient to use vfio, either by using SR-IOV or
+> by using virtio-mdev?
+
+Using PCI pass through means the guest has to have drivers for the
+device. A generic, perhaps slower, virtio path has some appeal in some
+cases.
+
+> If so, how would we route the I/O from one guest to the other?
+> Shared memory? Implementing a full-blown RDMA switch in qemu?
+
+RoCE rides over the existing ethernet switching layer quemu plugs
+into
+
+So if you built a shared memory, local host only, virtio-rdma then
+you'd probably run through the ethernet switch upon connection
+establishment to match the participating VMs.
+
+Jason
