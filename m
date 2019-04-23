@@ -1,12 +1,15 @@
-From: Stefan Hajnoczi <stefanha@gmail.com>
-Subject: Re: [PATCH] vhost: remove unneeded linux/miscdevice.h include
-Date: Tue, 23 Apr 2019 14:26:26 +0100
-Message-ID: <20190423132626.GJ32465@stefanha-x1.localdomain>
-References: <20170918165854.23408-1-clabbe.montjoie@gmail.com>
+From: Jan Kara <jack@suse.cz>
+Subject: Re: [PATCH v6 4/6]  dax: check synchronous mapping is supported
+Date: Tue, 23 Apr 2019 16:27:23 +0200
+Message-ID: <20190423142723.GD9910__13282.2606641398$1556029661$gmane$org@quack2.suse.cz>
+References: <20190423080612.15361-1-pagupta@redhat.com>
+	<20190423080612.15361-5-pagupta@redhat.com>
 Mime-Version: 1.0
-Content-Type: multipart/mixed; boundary="===============7041600379654838033=="
+Content-Type: text/plain; charset="us-ascii"
+Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <20170918165854.23408-1-clabbe.montjoie@gmail.com>
+Content-Disposition: inline
+In-Reply-To: <20190423080612.15361-5-pagupta@redhat.com>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -16,57 +19,69 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Corentin Labbe <clabbe.montjoie@gmail.com>
-Cc: kvm@vger.kernel.org, mst@redhat.com, netdev@vger.kernel.org, linux-kernel@vger.kernel.org, virtualization@lists.linux-foundation.org
+To: Pankaj Gupta <pagupta@redhat.com>
+Cc: cohuck@redhat.com, jack@suse.cz, kvm@vger.kernel.org, mst@redhat.com, david@fromorbit.com, qemu-devel@nongnu.org, virtualization@lists.linux-foundation.org, adilger.kernel@dilger.ca, zwisler@kernel.org, aarcange@redhat.com, dave.jiang@intel.com, linux-nvdimm@lists.01.org, vishal.l.verma@intel.com, willy@infradead.org, hch@infradead.org, linux-acpi@vger.kernel.org, jmoyer@redhat.com, linux-ext4@vger.kernel.org, lenb@kernel.org, kilobyte@angband.pl, riel@surriel.com, yuval.shaia@oracle.com, stefanha@redhat.com, pbonzini@redhat.com, dan.j.williams@intel.com, lcapitulino@redhat.com, nilal@redhat.com, tytso@mit.edu, xiaoguangrong.eric@gmail.com, darrick.wong@oracle.com, rjw@rjwysocki.net, linux-kernel@vger.kernel.org, linux-xfs@vger.kernel.org, linux-fsdevel@vger.kernel.org, imammedo@redhat.com
 List-Id: virtualization@lists.linuxfoundation.org
 
+On Tue 23-04-19 13:36:10, Pankaj Gupta wrote:
+> This patch introduces 'daxdev_mapping_supported' helper
+> which checks if 'MAP_SYNC' is supported with filesystem
+> mapping. It also checks if corresponding dax_device is
+> synchronous. Virtio pmem device is asynchronous and
+> does not not support VM_SYNC. 
+> 
+> Suggested-by: Jan Kara <jack@suse.cz>
+> Signed-off-by: Pankaj Gupta <pagupta@redhat.com>
 
---===============7041600379654838033==
-Content-Type: multipart/signed; micalg=pgp-sha1;
-	protocol="application/pgp-signature"; boundary="5me2qT3T17SWzdxI"
-Content-Disposition: inline
+The patch looks good to me. You can add:
+
+Reviewed-by: Jan Kara <jack@suse.cz>
+
+								Honza
 
 
---5me2qT3T17SWzdxI
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
-
-On Mon, Sep 18, 2017 at 06:58:54PM +0200, Corentin Labbe wrote:
-> drivers/vhost/vhost.c does not use any miscdevice, so this patch
-> remove this unnecessary inclusion.
->=20
-> Signed-off-by: Corentin Labbe <clabbe.montjoie@gmail.com>
 > ---
->  drivers/vhost/vhost.c | 1 -
->  1 file changed, 1 deletion(-)
-
-Reviewed-by: Stefan Hajnoczi <stefanha@redhat.com>
-
---5me2qT3T17SWzdxI
-Content-Type: application/pgp-signature; name="signature.asc"
-
------BEGIN PGP SIGNATURE-----
-
-iQEcBAEBAgAGBQJcvxKCAAoJEJykq7OBq3PIxakIAKxmFI7MYIQXPO2NrlHONe5T
-IoEK92iePJj7qb0xCK7O2yLLhnvzTgWJxpHCENRsAEFqY1ZGEbR+vnlkbKa+0ZCY
-zcZdH6Ndl2KPut8yfQqhY/LGXFCDNT2ZZY851nWoPUpJ6e95LhcO4Grk5VKUS1Cc
-v85zFOHJcWpHrmOVVg5DeYLZokXDGLYLHrR34kr3GwRM279muvjQovl67N73gO+P
-sGtS88e4g5ax7W3WrFo4vqd4Jam284pYqH/gGm1SWiMIdQNmp40tZF9HLYfG5pnc
-s4Rxf02nFEcsoC+F1FrPTHPYxtGoh61TzyCkYOk884j4E0q+Txrs8VpuOfwljkU=
-=nDd1
------END PGP SIGNATURE-----
-
---5me2qT3T17SWzdxI--
-
---===============7041600379654838033==
-Content-Type: text/plain; charset="us-ascii"
-MIME-Version: 1.0
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-
-_______________________________________________
-Virtualization mailing list
-Virtualization@lists.linux-foundation.org
-https://lists.linuxfoundation.org/mailman/listinfo/virtualization
---===============7041600379654838033==--
+>  include/linux/dax.h | 17 +++++++++++++++++
+>  1 file changed, 17 insertions(+)
+> 
+> diff --git a/include/linux/dax.h b/include/linux/dax.h
+> index c97fc0cc7167..41b4a5db6305 100644
+> --- a/include/linux/dax.h
+> +++ b/include/linux/dax.h
+> @@ -41,6 +41,18 @@ void kill_dax(struct dax_device *dax_dev);
+>  void dax_write_cache(struct dax_device *dax_dev, bool wc);
+>  bool dax_write_cache_enabled(struct dax_device *dax_dev);
+>  bool dax_synchronous(struct dax_device *dax_dev);
+> +/*
+> + * Check if given mapping is supported by the file / underlying device.
+> + */
+> +static inline bool daxdev_mapping_supported(struct vm_area_struct *vma,
+> +				struct dax_device *dax_dev)
+> +{
+> +	if (!(vma->vm_flags & VM_SYNC))
+> +		return true;
+> +	if (!IS_DAX(file_inode(vma->vm_file)))
+> +		return false;
+> +	return dax_synchronous(dax_dev);
+> +}
+>  #else
+>  static inline struct dax_device *dax_get_by_host(const char *host)
+>  {
+> @@ -68,6 +80,11 @@ static inline bool dax_write_cache_enabled(struct dax_device *dax_dev)
+>  {
+>  	return false;
+>  }
+> +static inline bool daxdev_mapping_supported(struct vm_area_struct *vma,
+> +				struct dax_device *dax_dev)
+> +{
+> +	return !(vma->flags & VM_SYNC);
+> +}
+>  #endif
+>  
+>  struct writeback_control;
+> -- 
+> 2.20.1
+> 
+-- 
+Jan Kara <jack@suse.com>
+SUSE Labs, CR
