@@ -1,20 +1,11 @@
-From: Pankaj Gupta <pagupta@redhat.com>
-Subject: Re: [PATCH v5 1/6] libnvdimm: nd_region flush callback support
-Date: Tue, 23 Apr 2019 00:07:03 -0400 (EDT)
-Message-ID: <1744824090.22901808.1555992423081.JavaMail.zimbra__16121.6404567071$1555992441$gmane$org@redhat.com>
-References: <20190410040826.24371-1-pagupta@redhat.com>
-	<x494l73z7th.fsf@segfault.boston.devel.redhat.com>
-	<CAPcyv4jrNHqW3FuGkeo==ZoJr7LKahCv4_esnokfy7enek8=2Q@mail.gmail.com>
-	<20190418161833.GA22970@infradead.org>
-	<CAPcyv4jPOF_+R6U17J_+88+X8LC-LSPCugA6gbKxuphuuFB2gg@mail.gmail.com>
-	<x497ebm82d4.fsf@segfault.boston.devel.redhat.com>
-	<CAPcyv4gGmN2LLMPy6BzWpYhRyV7fFNVgh=xAWSAdnnAWu5APtg@mail.gmail.com>
-	<x49ef5t7nwp.fsf@segfault.boston.devel.redhat.com>
+From: Jason Wang <jasowang@redhat.com>
+Subject: [RFC PATCH V3 0/6] vhost: accelerate metadata access
+Date: Tue, 23 Apr 2019 01:54:14 -0400
+Message-ID: <20190423055420.26408-1-jasowang@redhat.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <x49ef5t7nwp.fsf@segfault.boston.devel.redhat.com>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -24,72 +15,57 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Jeff Moyer <jmoyer@redhat.com>
-Cc: cohuck@redhat.com, Jan Kara <jack@suse.cz>, KVM list <kvm@vger.kernel.org>, "Michael S. Tsirkin" <mst@redhat.com>, david <david@fromorbit.com>, Qemu Developers <qemu-devel@nongnu.org>, virtualization@lists.linux-foundation.org, Andreas Dilger <adilger.kernel@dilger.ca>, Ross Zwisler <zwisler@kernel.org>, Andrea Arcangeli <aarcange@redhat.com>, Dave Jiang <dave.jiang@intel.com>, linux-nvdimm <linux-nvdimm@lists.01.org>, Vishal L Verma <vishal.l.verma@intel.com>, Matthew Wilcox <willy@infradead.org>, Christoph Hellwig <hch@infradead.org>, Linux ACPI <linux-acpi@vger.kernel.org>, linux-ext4 <linux-ext4@vger.kernel.org>, Len Brown <lenb@kernel.org>, kilobyte@angband.pl, Rik van Riel <riel@surriel.com>, yuval shaia <yuval.shaia@oracle.com>, Stefan Hajnoczi <stefanha@redhat.com>, Paolo Bonzini <pbonzini@redhat.com>, Dan Williams <dan.j.williams@intel.com>, lcapitulino@redha
+To: mst@redhat.com, jasowang@redhat.com, kvm@vger.kernel.org, virtualization@lists.linux-foundation.org, netdev@vger.kernel.org, linux-kernel@vger.kernel.org
+Cc: aarcange@redhat.com, hch@infradead.org, christophe.de.dinechin@gmail.com, linux-parisc@vger.kernel.org, James.Bottomley@hansenpartnership.com, linux-mm@kvack.org, jglisse@redhat.com, jrdr.linux@gmail.com, davem@davemloft.net, linux-arm-kernel@lists.infradead.org
 List-Id: virtualization@lists.linuxfoundation.org
 
+This series tries to access virtqueue metadata through kernel virtual
+address instead of copy_user() friends since they had too much
+overheads like checks, spec barriers or even hardware feature
+toggling. This is done through setup kernel address through direct
+mapping and co-opreate VM management with MMU notifiers.
 
-> 
-> Dan Williams <dan.j.williams@intel.com> writes:
-> 
-> > On Mon, Apr 22, 2019 at 8:59 AM Jeff Moyer <jmoyer@redhat.com> wrote:
-> >>
-> >> Dan Williams <dan.j.williams@intel.com> writes:
-> >>
-> >> > On Thu, Apr 18, 2019 at 9:18 AM Christoph Hellwig <hch@infradead.org>
-> >> > wrote:
-> >> >>
-> >> >> On Thu, Apr 18, 2019 at 09:05:05AM -0700, Dan Williams wrote:
-> >> >> > > > I'd either add a comment about avoiding retpoline overhead here
-> >> >> > > > or just
-> >> >> > > > make ->flush == NULL mean generic_nvdimm_flush(). Just so that
-> >> >> > > > people don't
-> >> >> > > > get confused by the code.
-> >> >> > >
-> >> >> > > Isn't this premature optimization?  I really don't like adding
-> >> >> > > things
-> >> >> > > like this without some numbers to show it's worth it.
-> >> >> >
-> >> >> > I don't think it's premature given this optimization technique is
-> >> >> > already being deployed elsewhere, see:
-> >> >> >
-> >> >> > https://lwn.net/Articles/774347/
-> >> >>
-> >> >> For one this one was backed by numbers, and second after feedback
-> >> >> from Linux we switched to the NULL pointer check instead.
-> >> >
-> >> > Ok I should have noticed the switch to NULL pointer check. However,
-> >> > the question still stands do we want everyone to run numbers to
-> >> > justify this optimization, or make it a new common kernel coding
-> >> > practice to do:
-> >> >
-> >> >     if (!object->op)
-> >> >         generic_op(object);
-> >> >     else
-> >> >         object->op(object);
-> >> >
-> >> > ...in hot paths?
-> >>
-> >> I don't think nvdimm_flush is a hot path.  Numbers of some
-> >> representative workload would prove one of us right.
-> >
-> > I'd rather say that the if "if (!op) do_generic()" pattern is more
-> > readable in the general case, saves grepping for who set the op in the
-> > common case. The fact that it has the potential to be faster is gravy
-> > at that point.
-> 
-> If the primary motivation is performance, then I'd expect performance
-> numbers to back it up.  If that isn't the primary motivation, then
-> choose whichever way you feel is appropriate.
+Test shows about 23% improvement on TX PPS. TCP_STREAM doesn't see
+obvious improvement.
 
-Agree. This change enhances the code readability. Will add this change in
-v6 with other changes.
+Thanks
 
-Thank you! 
+Changes from RFC V2:
+- switch to use direct mapping instead of vmap()
+- switch to use spinlock + RCU to synchronize MMU notifier and vhost
+  data/control path
+- set dirty pages in the invalidation callbacks
+- always use copy_to/from_users() friends for the archs that may need
+  flush_dcache_pages()
+- various minor fixes
+Changes from V4:
+- use invalidate_range() instead of invalidate_range_start()
+- track dirty pages
+Changes from V3:
+- don't try to use vmap for file backed pages
+- rebase to master
+Changes from V2:
+- fix buggy range overlapping check
+- tear down MMU notifier during vhost ioctl to make sure invalidation
+  request can read metadata userspace address and vq size without
+  holding vq mutex.
+Changes from V1:
+- instead of pinning pages, use MMU notifier to invalidate vmaps and
+  remap duing metadata prefetch
+- fix build warning on MIPS
 
-Pankaj
+Jason Wang (6):
+  vhost: generalize adding used elem
+  vhost: fine grain userspace memory accessors
+  vhost: rename vq_iotlb_prefetch() to vq_meta_prefetch()
+  vhost: introduce helpers to get the size of metadata area
+  vhost: factor out setting vring addr and num
+  vhost: access vq metadata through kernel virtual address
 
-> 
-> Cheers,
-> Jeff
-> 
+ drivers/vhost/net.c   |   4 +-
+ drivers/vhost/vhost.c | 852 ++++++++++++++++++++++++++++++++++++------
+ drivers/vhost/vhost.h |  34 +-
+ 3 files changed, 764 insertions(+), 126 deletions(-)
+
+-- 
+2.18.1
