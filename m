@@ -1,13 +1,12 @@
-From: Pankaj Gupta <pagupta@redhat.com>
-Subject: [PATCH v6 6/6] xfs: disable map_sync for async flush
-Date: Tue, 23 Apr 2019 13:36:12 +0530
-Message-ID: <20190423080612.15361-7-pagupta__49084.935749282$1556006922$gmane$org@redhat.com>
-References: <20190423080612.15361-1-pagupta@redhat.com>
+From: Stefan Hajnoczi <stefanha@gmail.com>
+Subject: Re: [PATCH] vhost: remove unneeded linux/miscdevice.h include
+Date: Tue, 23 Apr 2019 14:26:26 +0100
+Message-ID: <20190423132626.GJ32465@stefanha-x1.localdomain>
+References: <20170918165854.23408-1-clabbe.montjoie@gmail.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
-Content-Transfer-Encoding: 7bit
+Content-Type: multipart/mixed; boundary="===============7041600379654838033=="
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <20190423080612.15361-1-pagupta@redhat.com>
+In-Reply-To: <20170918165854.23408-1-clabbe.montjoie@gmail.com>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -17,41 +16,57 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: linux-nvdimm@lists.01.org, linux-kernel@vger.kernel.org, virtualization@lists.linux-foundation.org, kvm@vger.kernel.org, linux-fsdevel@vger.kernel.org, linux-acpi@vger.kernel.org, qemu-devel@nongnu.org, linux-ext4@vger.kernel.org, linux-xfs@vger.kernel.org
-Cc: pagupta@redhat.com, jack@suse.cz, mst@redhat.com, david@fromorbit.com, lcapitulino@redhat.com, adilger.kernel@dilger.ca, zwisler@kernel.org, aarcange@redhat.com, dave.jiang@intel.com, darrick.wong@oracle.com, vishal.l.verma@intel.com, willy@infradead.org, hch@infradead.org, jmoyer@redhat.com, nilal@redhat.com, lenb@kernel.org, kilobyte@angband.pl, riel@surriel.com, yuval.shaia@oracle.com, stefanha@redhat.com, pbonzini@redhat.com, dan.j.williams@intel.com, tytso@mit.edu, xiaoguangrong.eric@gmail.com, cohuck@redhat.com, rjw@rjwysocki.net, imammedo@redhat.com
+To: Corentin Labbe <clabbe.montjoie@gmail.com>
+Cc: kvm@vger.kernel.org, mst@redhat.com, netdev@vger.kernel.org, linux-kernel@vger.kernel.org, virtualization@lists.linux-foundation.org
 List-Id: virtualization@lists.linuxfoundation.org
 
-Dont support 'MAP_SYNC' with non-DAX files and DAX files
-with asynchronous dax_device. Virtio pmem provides
-asynchronous host page cache flush mechanism. We don't
-support 'MAP_SYNC' with virtio pmem and xfs.
 
-Signed-off-by: Pankaj Gupta <pagupta@redhat.com>
----
- fs/xfs/xfs_file.c | 10 ++++++----
- 1 file changed, 6 insertions(+), 4 deletions(-)
+--===============7041600379654838033==
+Content-Type: multipart/signed; micalg=pgp-sha1;
+	protocol="application/pgp-signature"; boundary="5me2qT3T17SWzdxI"
+Content-Disposition: inline
 
-diff --git a/fs/xfs/xfs_file.c b/fs/xfs/xfs_file.c
-index 1f2e2845eb76..0e59be018511 100644
---- a/fs/xfs/xfs_file.c
-+++ b/fs/xfs/xfs_file.c
-@@ -1196,11 +1196,13 @@ xfs_file_mmap(
- 	struct file	*filp,
- 	struct vm_area_struct *vma)
- {
--	/*
--	 * We don't support synchronous mappings for non-DAX files. At least
--	 * until someone comes with a sensible use case.
-+	struct dax_device *dax_dev = xfs_find_daxdev_for_inode
-+						(file_inode(filp));
-+
-+	/* We don't support synchronous mappings for non-DAX files and
-+	 * for DAX files if underneath dax_device is not synchronous.
- 	 */
--	if (!IS_DAX(file_inode(filp)) && (vma->vm_flags & VM_SYNC))
-+	if (!daxdev_mapping_supported(vma, dax_dev))
- 		return -EOPNOTSUPP;
- 
- 	file_accessed(filp);
--- 
-2.20.1
+
+--5me2qT3T17SWzdxI
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+Content-Transfer-Encoding: quoted-printable
+
+On Mon, Sep 18, 2017 at 06:58:54PM +0200, Corentin Labbe wrote:
+> drivers/vhost/vhost.c does not use any miscdevice, so this patch
+> remove this unnecessary inclusion.
+>=20
+> Signed-off-by: Corentin Labbe <clabbe.montjoie@gmail.com>
+> ---
+>  drivers/vhost/vhost.c | 1 -
+>  1 file changed, 1 deletion(-)
+
+Reviewed-by: Stefan Hajnoczi <stefanha@redhat.com>
+
+--5me2qT3T17SWzdxI
+Content-Type: application/pgp-signature; name="signature.asc"
+
+-----BEGIN PGP SIGNATURE-----
+
+iQEcBAEBAgAGBQJcvxKCAAoJEJykq7OBq3PIxakIAKxmFI7MYIQXPO2NrlHONe5T
+IoEK92iePJj7qb0xCK7O2yLLhnvzTgWJxpHCENRsAEFqY1ZGEbR+vnlkbKa+0ZCY
+zcZdH6Ndl2KPut8yfQqhY/LGXFCDNT2ZZY851nWoPUpJ6e95LhcO4Grk5VKUS1Cc
+v85zFOHJcWpHrmOVVg5DeYLZokXDGLYLHrR34kr3GwRM279muvjQovl67N73gO+P
+sGtS88e4g5ax7W3WrFo4vqd4Jam284pYqH/gGm1SWiMIdQNmp40tZF9HLYfG5pnc
+s4Rxf02nFEcsoC+F1FrPTHPYxtGoh61TzyCkYOk884j4E0q+Txrs8VpuOfwljkU=
+=nDd1
+-----END PGP SIGNATURE-----
+
+--5me2qT3T17SWzdxI--
+
+--===============7041600379654838033==
+Content-Type: text/plain; charset="us-ascii"
+MIME-Version: 1.0
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+
+_______________________________________________
+Virtualization mailing list
+Virtualization@lists.linux-foundation.org
+https://lists.linuxfoundation.org/mailman/listinfo/virtualization
+--===============7041600379654838033==--
