@@ -1,20 +1,20 @@
-From: Gurchetan Singh <gurchetansingh@chromium.org>
-Subject: Re: [PATCH 3/3] virtio-gpu api: VIRTIO_GPU_F_RESSOURCE_V2
-Date: Mon, 22 Apr 2019 17:12:26 -0700
-Message-ID: <CAAfnVBkmpQ5VcUtbiqsZQSv7bmejjOHj3MkG2Cjah9Q4DOTv-Q__26358.3741312445$1555978374$gmane$org@mail.gmail.com>
-References: <20190410114227.25846-1-kraxel@redhat.com>
-	<20190410114227.25846-4-kraxel@redhat.com>
-	<CAAfnVBm5XZx8P7k5np823-uRr-kqf0ey9Y3GtoE2Geo4dCdQ=g@mail.gmail.com>
-	<20190411050322.mfxo5mrwwzajlz3h@sirius.home.kraxel.org>
-	<CAAfnVB=v+daY0Q+mtdK2Q=F7iS_Ra7jGYfic3twfnUVo=tz3Yg@mail.gmail.com>
-	<20190412054924.dvh6bfxfrbgvezxr@sirius.home.kraxel.org>
-	<CAPaKu7QsDp=kRsMzMf0YcvafsXBsr_m4bstuZiWAcmYiV_AxnQ@mail.gmail.com>
-	<20190417095750.lre3xrg4dlgskfjg@sirius.home.kraxel.org>
+From: Pankaj Gupta <pagupta@redhat.com>
+Subject: Re: [PATCH v5 1/6] libnvdimm: nd_region flush callback support
+Date: Tue, 23 Apr 2019 00:07:03 -0400 (EDT)
+Message-ID: <1744824090.22901808.1555992423081.JavaMail.zimbra__16121.6404567071$1555992441$gmane$org@redhat.com>
+References: <20190410040826.24371-1-pagupta@redhat.com>
+	<x494l73z7th.fsf@segfault.boston.devel.redhat.com>
+	<CAPcyv4jrNHqW3FuGkeo==ZoJr7LKahCv4_esnokfy7enek8=2Q@mail.gmail.com>
+	<20190418161833.GA22970@infradead.org>
+	<CAPcyv4jPOF_+R6U17J_+88+X8LC-LSPCugA6gbKxuphuuFB2gg@mail.gmail.com>
+	<x497ebm82d4.fsf@segfault.boston.devel.redhat.com>
+	<CAPcyv4gGmN2LLMPy6BzWpYhRyV7fFNVgh=xAWSAdnnAWu5APtg@mail.gmail.com>
+	<x49ef5t7nwp.fsf@segfault.boston.devel.redhat.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <20190417095750.lre3xrg4dlgskfjg@sirius.home.kraxel.org>
+In-Reply-To: <x49ef5t7nwp.fsf@segfault.boston.devel.redhat.com>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -24,86 +24,72 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Gerd Hoffmann <kraxel@redhat.com>
-Cc: Tomeu Vizoso <tomeu.vizoso@collabora.com>, "Michael S. Tsirkin" <mst@redhat.com>, David Airlie <airlied@linux.ie>, open list <linux-kernel@vger.kernel.org>, ML dri-devel <dri-devel@lists.freedesktop.org>, "open list:VIRTIO CORE,
-	NET AND BLOCK DRIVERS" <virtualization@lists.linux-foundation.org>, David Airlie <airlied@redhat.com>, virtio@lists.oasis-open.org, Chia-I Wu <olvaffe@gmail.com>
+To: Jeff Moyer <jmoyer@redhat.com>
+Cc: cohuck@redhat.com, Jan Kara <jack@suse.cz>, KVM list <kvm@vger.kernel.org>, "Michael S. Tsirkin" <mst@redhat.com>, david <david@fromorbit.com>, Qemu Developers <qemu-devel@nongnu.org>, virtualization@lists.linux-foundation.org, Andreas Dilger <adilger.kernel@dilger.ca>, Ross Zwisler <zwisler@kernel.org>, Andrea Arcangeli <aarcange@redhat.com>, Dave Jiang <dave.jiang@intel.com>, linux-nvdimm <linux-nvdimm@lists.01.org>, Vishal L Verma <vishal.l.verma@intel.com>, Matthew Wilcox <willy@infradead.org>, Christoph Hellwig <hch@infradead.org>, Linux ACPI <linux-acpi@vger.kernel.org>, linux-ext4 <linux-ext4@vger.kernel.org>, Len Brown <lenb@kernel.org>, kilobyte@angband.pl, Rik van Riel <riel@surriel.com>, yuval shaia <yuval.shaia@oracle.com>, Stefan Hajnoczi <stefanha@redhat.com>, Paolo Bonzini <pbonzini@redhat.com>, Dan Williams <dan.j.williams@intel.com>, lcapitulino@redha
 List-Id: virtualization@lists.linuxfoundation.org
 
-On Wed, Apr 17, 2019 at 2:57 AM Gerd Hoffmann <kraxel@redhat.com> wrote:
->
-> On Fri, Apr 12, 2019 at 04:34:20PM -0700, Chia-I Wu wrote:
-> > Hi,
+
+> 
+> Dan Williams <dan.j.williams@intel.com> writes:
+> 
+> > On Mon, Apr 22, 2019 at 8:59 AM Jeff Moyer <jmoyer@redhat.com> wrote:
+> >>
+> >> Dan Williams <dan.j.williams@intel.com> writes:
+> >>
+> >> > On Thu, Apr 18, 2019 at 9:18 AM Christoph Hellwig <hch@infradead.org>
+> >> > wrote:
+> >> >>
+> >> >> On Thu, Apr 18, 2019 at 09:05:05AM -0700, Dan Williams wrote:
+> >> >> > > > I'd either add a comment about avoiding retpoline overhead here
+> >> >> > > > or just
+> >> >> > > > make ->flush == NULL mean generic_nvdimm_flush(). Just so that
+> >> >> > > > people don't
+> >> >> > > > get confused by the code.
+> >> >> > >
+> >> >> > > Isn't this premature optimization?  I really don't like adding
+> >> >> > > things
+> >> >> > > like this without some numbers to show it's worth it.
+> >> >> >
+> >> >> > I don't think it's premature given this optimization technique is
+> >> >> > already being deployed elsewhere, see:
+> >> >> >
+> >> >> > https://lwn.net/Articles/774347/
+> >> >>
+> >> >> For one this one was backed by numbers, and second after feedback
+> >> >> from Linux we switched to the NULL pointer check instead.
+> >> >
+> >> > Ok I should have noticed the switch to NULL pointer check. However,
+> >> > the question still stands do we want everyone to run numbers to
+> >> > justify this optimization, or make it a new common kernel coding
+> >> > practice to do:
+> >> >
+> >> >     if (!object->op)
+> >> >         generic_op(object);
+> >> >     else
+> >> >         object->op(object);
+> >> >
+> >> > ...in hot paths?
+> >>
+> >> I don't think nvdimm_flush is a hot path.  Numbers of some
+> >> representative workload would prove one of us right.
 > >
-> > I am still new to virgl, and missed the last round of discussion about
-> > resource_create_v2.
-> >
-> > From the discussion below, semantically resource_create_v2 creates a host
-> > resource object _without_ any storage; memory_create creates a host memory
-> > object which provides the storage.  Is that correct?
->
-> Right now all resource_create_* variants create a resource object with
-> host storage.  memory_create creates guest storage, and
-> resource_attach_memory binds things together.  Then you have to transfer
-> the data.
->
-> Hmm, maybe we need a flag indicating that host storage is not needed,
-> for resources where we want establish some kind of shared mapping later
-> on.
->
-> > Do we expect these new commands to be supported by OpenGL, which does not
-> > separate resources and memories?
->
-> Well, for opengl you need a 1:1 relationship between memory region and
-> resource.
->
-> > > Yes, even though it is not clear yet how we are going to handle
-> > > host-allocated buffers in the vhost-user case ...
-> >
-> > This might be another dumb question, but is this only an issue for
-> > vhost-user(-gpu) case?  What mechanisms are used to map host dma-buf into
-> > the guest address space?
->
-> qemu can change the address space, that includes mmap()ing stuff there.
-> An external vhost-user process can't do this, it can only read the
-> address space layout, and read/write from/to guest memory.
->
-> > But one needs to create the resource first to know which memory types can
-> > be attached to it.  I think the metadata needs to be returned with
-> > resource_create_v2.
->
-> There is a resource_info reply for that.
+> > I'd rather say that the if "if (!op) do_generic()" pattern is more
+> > readable in the general case, saves grepping for who set the op in the
+> > common case. The fact that it has the potential to be faster is gravy
+> > at that point.
+> 
+> If the primary motivation is performance, then I'd expect performance
+> numbers to back it up.  If that isn't the primary motivation, then
+> choose whichever way you feel is appropriate.
 
-The memory type should probably be in resource_create_v2, not in the
-reply.  The metadata will be different based on the memory heap it's
-allocated from.
+Agree. This change enhances the code readability. Will add this change in
+v6 with other changes.
 
-Also, not all heaps need to be exposed to the guest kernel.  For
-example, device local memory in Vulkan could be un-mappable.  In fact,
-for resources that are not host visible we might be better off
-sidestepping the kernel altogether and tracking allocation in guest
-userspace.
+Thank you! 
 
-Here is an example of memory types the guest kernel may be interested
-in (based on i965):
+Pankaj
 
-Type 0 --> DEVICE_LOCAL_BIT | HOST_VISIBLE_BIT | HOST_COHERENT_BIT |
-HOST_CACHED_BIT | RENDERER_ALLOCATED (Vulkan)
-Type 1 --> HOST_VISIBLE_BIT | HOST_COHERENT_BIT | EXTERNAL_ALLOCATED
-(gbm write combine)
-Type 2 --> HOST_VISIBLE_BIT | HOST_COHERENT_BIT | GUEST_ALLOCATED
-(guest allocated memory, which I assume is also write combine)
-Type 3 --> HOST_VISIBLE_BIT | HOST_CACHED | EXTERNAL_ALLOCATED (gbm
-cached memory)
-
-
-
->
-> > That should be good enough.  But by returning alignments, we can minimize
-> > the gaps when attaching multiple resources, especially when the resources
-> > are only used by GPU.
->
-> We can add alignments to the resource_info reply.
->
-> cheers,
->   Gerd
->
+> 
+> Cheers,
+> Jeff
+> 
