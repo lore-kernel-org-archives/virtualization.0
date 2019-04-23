@@ -1,15 +1,12 @@
-From: Pankaj Gupta <pagupta@redhat.com>
-Subject: Re: [Qemu-devel] [PATCH v6 5/6] ext4: disable map_sync for async flush
-Date: Wed, 24 Apr 2019 01:21:44 -0400 (EDT)
-Message-ID: <1325148804.23168491.1556083304080.JavaMail.zimbra@redhat.com>
-References: <20190423080612.15361-1-pagupta@redhat.com>
-	<20190423080612.15361-6-pagupta@redhat.com>
-	<20190423142748.GE9910@quack2.suse.cz>
+From: Nadav Amit via Virtualization <virtualization@lists.linux-foundation.org>
+Subject: [PATCH v3 0/4] vmw_balloon: compaction and shrinker support
+Date: Tue, 23 Apr 2019 16:45:27 -0700
+Message-ID: <20190423234531.29371-1-namit__12544.0583609574$1556089543$gmane$org@vmware.com>
+Reply-To: Nadav Amit <namit@vmware.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <20190423142748.GE9910@quack2.suse.cz>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -19,69 +16,38 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Jan Kara <jack@suse.cz>
-Cc: kvm@vger.kernel.org, mst@redhat.com, david@fromorbit.com, qemu-devel@nongnu.org, virtualization@lists.linux-foundation.org, adilger kernel <adilger.kernel@dilger.ca>, zwisler@kernel.org, aarcange@redhat.com, dave jiang <dave.jiang@intel.com>, linux-nvdimm@lists.01.org, vishal l verma <vishal.l.verma@intel.com>, willy@infradead.org, hch@infradead.org, linux-acpi@vger.kernel.org, jmoyer@redhat.com, linux-ext4@vger.kernel.org, lenb@kernel.org, kilobyte@angband.pl, riel@surriel.com, yuval shaia <yuval.shaia@oracle.com>, stefanha@redhat.com, imammedo@redhat.com, dan j williams <dan.j.williams@intel.com>, lcapitulino@redhat.com, nilal@redhat.com, tytso@mit.edu, xiaoguangrong eric <xiaoguangrong.eric@gmail.com>, cohuck@redhat.com, rjw@rjwysocki.net, linux-kernel@vger.kernel.org, linux-xfs@vger.kernel.org, linux-fsdevel@vger.kernel.org, pbonzini@redhat.com, darrick wong <darr>
+To: Greg Kroah-Hartman <gregkh@linuxfoundation.org>, "Michael S. Tsirkin" <mst@redhat.com>
+Cc: Arnd Bergmann <arnd@arndb.de>, "VMware, Inc." <pv-drivers@vmware.com>, linux-kernel@vger.kernel.org, virtualization@lists.linux-foundation.org, linux-mm@kvack.org, Julien Freche <jfreche@vmware.com>, Nadav Amit <namit@vmware.com>
 List-Id: virtualization@lists.linuxfoundation.org
 
+VMware balloon enhancements: adding support for memory compaction,
+memory shrinker (to prevent OOM) and splitting of refused pages to
+prevent recurring inflations.
 
-> 
-> On Tue 23-04-19 13:36:11, Pankaj Gupta wrote:
-> > Dont support 'MAP_SYNC' with non-DAX files and DAX files
-> > with asynchronous dax_device. Virtio pmem provides
-> > asynchronous host page cache flush mechanism. We don't
-> > support 'MAP_SYNC' with virtio pmem and ext4.
-> > 
-> > Signed-off-by: Pankaj Gupta <pagupta@redhat.com>
-> 
-> The patch looks good to me. You can add:
-> 
-> Reviewed-by: Jan Kara <jack@suse.cz>
+Patches 1-2: Support for compaction
+Patch 3: Support for memory shrinker - disabled by default
+Patch 4: Split refused pages to improve performance
 
-Thank you. Will add this.
+v2->v3:
+* Fixing wrong argument type (int->size_t) [Michael]
+* Fixing a comment (it) [Michael]
+* Reinstating the BUG_ON() when page is locked [Michael] 
 
-Best regards,
-Pankaj
+v1->v2:
+* Return number of pages in list enqueue/dequeue interfaces [Michael]
+* Removed first two patches which were already merged
 
-> 
-> 								Honza
-> 
-> 
-> > ---
-> >  fs/ext4/file.c | 11 ++++++-----
-> >  1 file changed, 6 insertions(+), 5 deletions(-)
-> > 
-> > diff --git a/fs/ext4/file.c b/fs/ext4/file.c
-> > index 69d65d49837b..4b2ccaf1932e 100644
-> > --- a/fs/ext4/file.c
-> > +++ b/fs/ext4/file.c
-> > @@ -360,15 +360,16 @@ static const struct vm_operations_struct
-> > ext4_file_vm_ops = {
-> >  static int ext4_file_mmap(struct file *file, struct vm_area_struct *vma)
-> >  {
-> >  	struct inode *inode = file->f_mapping->host;
-> > +	struct ext4_sb_info *sbi = EXT4_SB(inode->i_sb);
-> > +	struct dax_device *dax_dev = sbi->s_daxdev;
-> >  
-> > -	if (unlikely(ext4_forced_shutdown(EXT4_SB(inode->i_sb))))
-> > +	if (unlikely(ext4_forced_shutdown(sbi)))
-> >  		return -EIO;
-> >  
-> > -	/*
-> > -	 * We don't support synchronous mappings for non-DAX files. At least
-> > -	 * until someone comes with a sensible use case.
-> > +	/* We don't support synchronous mappings for non-DAX files and
-> > +	 * for DAX files if underneath dax_device is not synchronous.
-> >  	 */
-> > -	if (!IS_DAX(file_inode(file)) && (vma->vm_flags & VM_SYNC))
-> > +	if (!daxdev_mapping_supported(vma, dax_dev))
-> >  		return -EOPNOTSUPP;
-> >  
-> >  	file_accessed(file);
-> > --
-> > 2.20.1
-> > 
-> --
-> Jan Kara <jack@suse.com>
-> SUSE Labs, CR
-> 
-> 
+Nadav Amit (4):
+  mm/balloon_compaction: list interfaces
+  vmw_balloon: compaction support
+  vmw_balloon: add memory shrinker
+  vmw_balloon: split refused pages
+
+ drivers/misc/Kconfig               |   1 +
+ drivers/misc/vmw_balloon.c         | 489 ++++++++++++++++++++++++++---
+ include/linux/balloon_compaction.h |   4 +
+ mm/balloon_compaction.c            | 144 ++++++---
+ 4 files changed, 553 insertions(+), 85 deletions(-)
+
+-- 
+2.19.1
