@@ -1,16 +1,15 @@
 From: Pankaj Gupta <pagupta@redhat.com>
-Subject: Re: [Qemu-devel] [PATCH v6 6/6] xfs: disable map_sync for async flush
-Date: Wed, 24 Apr 2019 01:10:28 -0400 (EDT)
-Message-ID: <750624039.23167994.1556082628248.JavaMail.zimbra__3996.07696324296$1556082642$gmane$org@redhat.com>
+Subject: Re: [Qemu-devel] [PATCH v6 5/6] ext4: disable map_sync for async flush
+Date: Wed, 24 Apr 2019 01:21:44 -0400 (EDT)
+Message-ID: <1325148804.23168491.1556083304080.JavaMail.zimbra@redhat.com>
 References: <20190423080612.15361-1-pagupta@redhat.com>
-	<20190423080612.15361-7-pagupta@redhat.com>
-	<20190423220217.GA29573@dread.disaster.area>
-	<20190423221011.GD178290@magnolia>
+	<20190423080612.15361-6-pagupta@redhat.com>
+	<20190423142748.GE9910@quack2.suse.cz>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <20190423221011.GD178290@magnolia>
+In-Reply-To: <20190423142748.GE9910@quack2.suse.cz>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -20,72 +19,69 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: "Darrick J. Wong" <darrick.wong@oracle.com>
-Cc: jack@suse.cz, kvm@vger.kernel.org, mst@redhat.com, Dave Chinner <david@fromorbit.com>, qemu-devel@nongnu.org, virtualization@lists.linux-foundation.org, adilger kernel <adilger.kernel@dilger.ca>, zwisler@kernel.org, aarcange@redhat.com, dave jiang <dave.jiang@intel.com>, linux-nvdimm@lists.01.org, vishal l verma <vishal.l.verma@intel.com>, willy@infradead.org, hch@infradead.org, linux-acpi@vger.kernel.org, jmoyer@redhat.com, linux-ext4@vger.kernel.org, lenb@kernel.org, kilobyte@angband.pl, riel@surriel.com, yuval shaia <yuval.shaia@oracle.com>, stefanha@redhat.com, imammedo@redhat.com, dan j williams <dan.j.williams@intel.com>, lcapitulino@redhat.com, nilal@redhat.com, tytso@mit.edu, xiaoguangrong eric <xiaoguangrong.eric@gmail.com>, cohuck@redhat.com, rjw@rjwysocki.net, linux-kernel@vger.kernel.org, linux-xfs@vger.kernel.org, linux-fsdevel@vger.kernel.org, pbonzini@r
+To: Jan Kara <jack@suse.cz>
+Cc: kvm@vger.kernel.org, mst@redhat.com, david@fromorbit.com, qemu-devel@nongnu.org, virtualization@lists.linux-foundation.org, adilger kernel <adilger.kernel@dilger.ca>, zwisler@kernel.org, aarcange@redhat.com, dave jiang <dave.jiang@intel.com>, linux-nvdimm@lists.01.org, vishal l verma <vishal.l.verma@intel.com>, willy@infradead.org, hch@infradead.org, linux-acpi@vger.kernel.org, jmoyer@redhat.com, linux-ext4@vger.kernel.org, lenb@kernel.org, kilobyte@angband.pl, riel@surriel.com, yuval shaia <yuval.shaia@oracle.com>, stefanha@redhat.com, imammedo@redhat.com, dan j williams <dan.j.williams@intel.com>, lcapitulino@redhat.com, nilal@redhat.com, tytso@mit.edu, xiaoguangrong eric <xiaoguangrong.eric@gmail.com>, cohuck@redhat.com, rjw@rjwysocki.net, linux-kernel@vger.kernel.org, linux-xfs@vger.kernel.org, linux-fsdevel@vger.kernel.org, pbonzini@redhat.com, darrick wong <darr>
 List-Id: virtualization@lists.linuxfoundation.org
 
 
 > 
-> On Wed, Apr 24, 2019 at 08:02:17AM +1000, Dave Chinner wrote:
-> > On Tue, Apr 23, 2019 at 01:36:12PM +0530, Pankaj Gupta wrote:
-> > > Dont support 'MAP_SYNC' with non-DAX files and DAX files
-> > > with asynchronous dax_device. Virtio pmem provides
-> > > asynchronous host page cache flush mechanism. We don't
-> > > support 'MAP_SYNC' with virtio pmem and xfs.
-> > > 
-> > > Signed-off-by: Pankaj Gupta <pagupta@redhat.com>
-> > > ---
-> > >  fs/xfs/xfs_file.c | 10 ++++++----
-> > >  1 file changed, 6 insertions(+), 4 deletions(-)
-> > > 
-> > > diff --git a/fs/xfs/xfs_file.c b/fs/xfs/xfs_file.c
-> > > index 1f2e2845eb76..0e59be018511 100644
-> > > --- a/fs/xfs/xfs_file.c
-> > > +++ b/fs/xfs/xfs_file.c
-> > > @@ -1196,11 +1196,13 @@ xfs_file_mmap(
-> > >  	struct file	*filp,
-> > >  	struct vm_area_struct *vma)
-> > >  {
-> > > -	/*
-> > > -	 * We don't support synchronous mappings for non-DAX files. At least
-> > > -	 * until someone comes with a sensible use case.
-> > > +	struct dax_device *dax_dev = xfs_find_daxdev_for_inode
-> > > +						(file_inode(filp));
+> On Tue 23-04-19 13:36:11, Pankaj Gupta wrote:
+> > Dont support 'MAP_SYNC' with non-DAX files and DAX files
+> > with asynchronous dax_device. Virtio pmem provides
+> > asynchronous host page cache flush mechanism. We don't
+> > support 'MAP_SYNC' with virtio pmem and ext4.
+> > 
+> > Signed-off-by: Pankaj Gupta <pagupta@redhat.com>
 > 
->     tab separation here ^^^                   ^^^^ and cut
->                                                        down the indent
->                                              while you're at
-> 						    it, please:
+> The patch looks good to me. You can add:
 > 
-> 	struct dax_device	*dax_dev;
-> 
-> 	dax_dev = xfs_find_daxdev_for_inode(file_inode(filp));
-> 	if (!dax_is_frobbed(dax))
-> 		return -EMEWANTCOOKIE;
+> Reviewed-by: Jan Kara <jack@suse.cz>
 
-Done. 
+Thank you. Will add this.
 
-Thanks,
+Best regards,
 Pankaj
 
 > 
-> --D
+> 								Honza
 > 
-> > > +
-> > > +	/* We don't support synchronous mappings for non-DAX files and
-> > > +	 * for DAX files if underneath dax_device is not synchronous.
-> > >  	 */
+> 
+> > ---
+> >  fs/ext4/file.c | 11 ++++++-----
+> >  1 file changed, 6 insertions(+), 5 deletions(-)
 > > 
-> > 	/*
-> > 	 * This is the correct multi-line comment format. Please
-> > 	 * update the patch to maintain the existing comment format.
-> > 	 */
-> > 
-> > Cheers,
-> > 
-> > Dave.
+> > diff --git a/fs/ext4/file.c b/fs/ext4/file.c
+> > index 69d65d49837b..4b2ccaf1932e 100644
+> > --- a/fs/ext4/file.c
+> > +++ b/fs/ext4/file.c
+> > @@ -360,15 +360,16 @@ static const struct vm_operations_struct
+> > ext4_file_vm_ops = {
+> >  static int ext4_file_mmap(struct file *file, struct vm_area_struct *vma)
+> >  {
+> >  	struct inode *inode = file->f_mapping->host;
+> > +	struct ext4_sb_info *sbi = EXT4_SB(inode->i_sb);
+> > +	struct dax_device *dax_dev = sbi->s_daxdev;
+> >  
+> > -	if (unlikely(ext4_forced_shutdown(EXT4_SB(inode->i_sb))))
+> > +	if (unlikely(ext4_forced_shutdown(sbi)))
+> >  		return -EIO;
+> >  
+> > -	/*
+> > -	 * We don't support synchronous mappings for non-DAX files. At least
+> > -	 * until someone comes with a sensible use case.
+> > +	/* We don't support synchronous mappings for non-DAX files and
+> > +	 * for DAX files if underneath dax_device is not synchronous.
+> >  	 */
+> > -	if (!IS_DAX(file_inode(file)) && (vma->vm_flags & VM_SYNC))
+> > +	if (!daxdev_mapping_supported(vma, dax_dev))
+> >  		return -EOPNOTSUPP;
+> >  
+> >  	file_accessed(file);
 > > --
-> > Dave Chinner
-> > david@fromorbit.com
+> > 2.20.1
+> > 
+> --
+> Jan Kara <jack@suse.com>
+> SUSE Labs, CR
 > 
 > 
