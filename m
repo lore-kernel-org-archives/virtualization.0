@@ -1,8 +1,8 @@
 From: Thomas Zimmermann <tzimmermann@suse.de>
-Subject: [PATCH v2 11/17] drm/mgag200: Convert mgag200 driver to |struct
+Subject: [PATCH v2 14/17] drm/vboxvideo: Convert vboxvideo driver to |struct
 	drm_gem_vram_object|
-Date: Wed, 24 Apr 2019 13:48:36 +0200
-Message-ID: <20190424114842.4723-12-tzimmermann__39024.1146249295$1556106698$gmane$org@suse.de>
+Date: Wed, 24 Apr 2019 13:48:39 +0200
+Message-ID: <20190424114842.4723-15-tzimmermann__37820.8910625958$1556106711$gmane$org@suse.de>
 References: <20190424114842.4723-1-tzimmermann@suse.de>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
@@ -22,243 +22,69 @@ To: daniel@ffwll.ch, airlied@linux.ie, kraxel@redhat.com, christian.koenig@amd.c
 Cc: Thomas Zimmermann <tzimmermann@suse.de>, dri-devel@lists.freedesktop.org, virtualization@lists.linux-foundation.org
 List-Id: virtualization@lists.linuxfoundation.org
 
-The data structure |struct drm_gem_vram_object| and its helpers replace
-|struct mgag200_bo|. It's the same implementation; except for the type
-names.
+This patch replaces |struct vbox_bo| and its helpers with the generic
+implementation of |struct drm_gem_vram_object|. The only change in
+semantics is that &ttm_bo_driver.verify_access() now does the actual
+verification.
 
 Signed-off-by: Thomas Zimmermann <tzimmermann@suse.de>
+Reviewed-by: Hans de Goede <hdegoede@redhat.com>
 ---
- drivers/gpu/drm/mgag200/Kconfig          |   1 +
- drivers/gpu/drm/mgag200/mgag200_cursor.c |  63 +++++----
- drivers/gpu/drm/mgag200/mgag200_drv.c    |   4 +-
- drivers/gpu/drm/mgag200/mgag200_drv.h    |  62 ++------
- drivers/gpu/drm/mgag200/mgag200_fb.c     |  18 +--
- drivers/gpu/drm/mgag200/mgag200_main.c   |  84 +++--------
- drivers/gpu/drm/mgag200/mgag200_mode.c   |  45 +++---
- drivers/gpu/drm/mgag200/mgag200_ttm.c    | 172 +----------------------
- 8 files changed, 102 insertions(+), 347 deletions(-)
+ drivers/gpu/drm/vboxvideo/Kconfig     |   1 +
+ drivers/gpu/drm/vboxvideo/vbox_drv.c  |   5 +-
+ drivers/gpu/drm/vboxvideo/vbox_drv.h  |  58 +------
+ drivers/gpu/drm/vboxvideo/vbox_fb.c   |  22 +--
+ drivers/gpu/drm/vboxvideo/vbox_main.c |  70 +-------
+ drivers/gpu/drm/vboxvideo/vbox_mode.c |  36 +++--
+ drivers/gpu/drm/vboxvideo/vbox_ttm.c  | 223 +-------------------------
+ 7 files changed, 45 insertions(+), 370 deletions(-)
 
-diff --git a/drivers/gpu/drm/mgag200/Kconfig b/drivers/gpu/drm/mgag200/Kconfig
-index db58578719d2..52b7c3ee3064 100644
---- a/drivers/gpu/drm/mgag200/Kconfig
-+++ b/drivers/gpu/drm/mgag200/Kconfig
-@@ -3,6 +3,7 @@ config DRM_MGAG200
- 	depends on DRM && PCI && MMU
+diff --git a/drivers/gpu/drm/vboxvideo/Kconfig b/drivers/gpu/drm/vboxvideo/Kconfig
+index 1f4182e2e980..96c794a39c56 100644
+--- a/drivers/gpu/drm/vboxvideo/Kconfig
++++ b/drivers/gpu/drm/vboxvideo/Kconfig
+@@ -3,6 +3,7 @@ config DRM_VBOXVIDEO
+ 	depends on DRM && X86 && PCI
  	select DRM_KMS_HELPER
  	select DRM_TTM
 +	select DRM_GEM_VRAM_HELPER
+ 	select GENERIC_ALLOCATOR
  	help
- 	 This is a KMS driver for the MGA G200 server chips, it
-          does not support the original MGA G200 or any of the desktop
-diff --git a/drivers/gpu/drm/mgag200/mgag200_cursor.c b/drivers/gpu/drm/mgag200/mgag200_cursor.c
-index 968e20379d54..cca3922f9f67 100644
---- a/drivers/gpu/drm/mgag200/mgag200_cursor.c
-+++ b/drivers/gpu/drm/mgag200/mgag200_cursor.c
-@@ -23,9 +23,9 @@ static void mga_hide_cursor(struct mga_device *mdev)
- 	WREG8(MGA_CURPOSXL, 0);
- 	WREG8(MGA_CURPOSXH, 0);
- 	if (mdev->cursor.pixels_1->pin_count)
--		mgag200_bo_unpin(mdev->cursor.pixels_1);
-+		drm_gem_vram_unpin(mdev->cursor.pixels_1);
- 	if (mdev->cursor.pixels_2->pin_count)
--		mgag200_bo_unpin(mdev->cursor.pixels_2);
-+		drm_gem_vram_unpin(mdev->cursor.pixels_2);
- }
- 
- int mga_crtc_cursor_set(struct drm_crtc *crtc,
-@@ -36,12 +36,12 @@ int mga_crtc_cursor_set(struct drm_crtc *crtc,
- {
- 	struct drm_device *dev = crtc->dev;
- 	struct mga_device *mdev = (struct mga_device *)dev->dev_private;
--	struct mgag200_bo *pixels_1 = mdev->cursor.pixels_1;
--	struct mgag200_bo *pixels_2 = mdev->cursor.pixels_2;
--	struct mgag200_bo *pixels_current = mdev->cursor.pixels_current;
--	struct mgag200_bo *pixels_prev = mdev->cursor.pixels_prev;
-+	struct drm_gem_vram_object *pixels_1 = mdev->cursor.pixels_1;
-+	struct drm_gem_vram_object *pixels_2 = mdev->cursor.pixels_2;
-+	struct drm_gem_vram_object *pixels_current = mdev->cursor.pixels_current;
-+	struct drm_gem_vram_object *pixels_prev = mdev->cursor.pixels_prev;
- 	struct drm_gem_object *obj;
--	struct mgag200_bo *bo = NULL;
-+	struct drm_gem_vram_object *gbo = NULL;
- 	int ret = 0;
- 	unsigned int i, row, col;
- 	uint32_t colour_set[16];
-@@ -50,7 +50,7 @@ int mga_crtc_cursor_set(struct drm_crtc *crtc,
- 	uint32_t this_colour;
- 	bool found = false;
- 	int colour_count = 0;
--	u64 gpu_addr;
-+	s64 gpu_addr;
- 	u8 reg_index;
- 	u8 this_row[48];
- 
-@@ -79,44 +79,55 @@ int mga_crtc_cursor_set(struct drm_crtc *crtc,
- 	if (!obj)
- 		return -ENOENT;
- 
--	ret = mgag200_bo_reserve(pixels_1, true);
-+	ret = drm_gem_vram_reserve(pixels_1, true);
- 	if (ret) {
- 		WREG8(MGA_CURPOSXL, 0);
- 		WREG8(MGA_CURPOSXH, 0);
- 		goto out_unref;
- 	}
--	ret = mgag200_bo_reserve(pixels_2, true);
-+	ret = drm_gem_vram_reserve(pixels_2, true);
- 	if (ret) {
- 		WREG8(MGA_CURPOSXL, 0);
- 		WREG8(MGA_CURPOSXH, 0);
--		mgag200_bo_unreserve(pixels_1);
-+		drm_gem_vram_unreserve(pixels_1);
- 		goto out_unreserve1;
- 	}
- 
- 	/* Move cursor buffers into VRAM if they aren't already */
- 	if (!pixels_1->pin_count) {
--		ret = mgag200_bo_pin(pixels_1, TTM_PL_FLAG_VRAM,
--				     &mdev->cursor.pixels_1_gpu_addr);
-+		ret = drm_gem_vram_pin(pixels_1, DRM_GEM_VRAM_PL_FLAG_VRAM);
- 		if (ret)
- 			goto out1;
-+		gpu_addr = drm_gem_vram_offset(pixels_1);
-+		if (gpu_addr < 0) {
-+			drm_gem_vram_unpin(pixels_1);
-+			goto out1;
-+		}
-+		mdev->cursor.pixels_1_gpu_addr = gpu_addr;
- 	}
- 	if (!pixels_2->pin_count) {
--		ret = mgag200_bo_pin(pixels_2, TTM_PL_FLAG_VRAM,
--				     &mdev->cursor.pixels_2_gpu_addr);
-+		ret = drm_gem_vram_pin(pixels_2, DRM_GEM_VRAM_PL_FLAG_VRAM);
- 		if (ret) {
--			mgag200_bo_unpin(pixels_1);
-+			drm_gem_vram_unpin(pixels_1);
-+			goto out1;
-+		}
-+		gpu_addr = drm_gem_vram_offset(pixels_2);
-+		if (gpu_addr < 0) {
-+			drm_gem_vram_unpin(pixels_1);
-+			drm_gem_vram_unpin(pixels_2);
- 			goto out1;
- 		}
-+		mdev->cursor.pixels_2_gpu_addr = gpu_addr;
- 	}
- 
--	bo = gem_to_mga_bo(obj);
--	ret = mgag200_bo_reserve(bo, true);
-+	gbo = drm_gem_vram_of_gem(obj);
-+	ret = drm_gem_vram_reserve(gbo, true);
- 	if (ret) {
- 		dev_err(&dev->pdev->dev, "failed to reserve user bo\n");
- 		goto out1;
- 	}
--	if (!bo->kmap.virtual) {
--		ret = ttm_bo_kmap(&bo->bo, 0, bo->bo.num_pages, &bo->kmap);
-+	if (!gbo->kmap.virtual) {
-+		ret = ttm_bo_kmap(&gbo->bo, 0, gbo->bo.num_pages, &gbo->kmap);
- 		if (ret) {
- 			dev_err(&dev->pdev->dev, "failed to kmap user buffer updates\n");
- 			goto out2;
-@@ -126,7 +137,7 @@ int mga_crtc_cursor_set(struct drm_crtc *crtc,
- 	memset(&colour_set[0], 0, sizeof(uint32_t)*16);
- 	/* width*height*4 = 16384 */
- 	for (i = 0; i < 16384; i += 4) {
--		this_colour = ioread32(bo->kmap.virtual + i);
-+		this_colour = ioread32(gbo->kmap.virtual + i);
- 		/* No transparency */
- 		if (this_colour>>24 != 0xff &&
- 			this_colour>>24 != 0x0) {
-@@ -192,7 +203,7 @@ int mga_crtc_cursor_set(struct drm_crtc *crtc,
- 	for (row = 0; row < 64; row++) {
- 		memset(&this_row[0], 0, 48);
- 		for (col = 0; col < 64; col++) {
--			this_colour = ioread32(bo->kmap.virtual + 4*(col + 64*row));
-+			this_colour = ioread32(gbo->kmap.virtual + 4*(col + 64*row));
- 			/* write transparent pixels */
- 			if (this_colour>>24 == 0x0) {
- 				this_row[47 - col/8] |= 0x80>>(col%8);
-@@ -238,15 +249,15 @@ int mga_crtc_cursor_set(struct drm_crtc *crtc,
- 
- 	ttm_bo_kunmap(&pixels_prev->kmap);
-  out3:
--	ttm_bo_kunmap(&bo->kmap);
-+	ttm_bo_kunmap(&gbo->kmap);
-  out2:
--	mgag200_bo_unreserve(bo);
-+	drm_gem_vram_unreserve(gbo);
-  out1:
- 	if (ret)
- 		mga_hide_cursor(mdev);
--	mgag200_bo_unreserve(pixels_1);
-+	drm_gem_vram_unreserve(pixels_1);
- out_unreserve1:
--	mgag200_bo_unreserve(pixels_2);
-+	drm_gem_vram_unreserve(pixels_2);
- out_unref:
- 	drm_gem_object_put_unlocked(obj);
- 
-diff --git a/drivers/gpu/drm/mgag200/mgag200_drv.c b/drivers/gpu/drm/mgag200/mgag200_drv.c
-index ac6af4bd9df6..85c3ed7f0385 100644
---- a/drivers/gpu/drm/mgag200/mgag200_drv.c
-+++ b/drivers/gpu/drm/mgag200/mgag200_drv.c
-@@ -80,9 +80,9 @@ static struct drm_driver driver = {
+ 	  This is a KMS driver for the virtual Graphics Card used in
+diff --git a/drivers/gpu/drm/vboxvideo/vbox_drv.c b/drivers/gpu/drm/vboxvideo/vbox_drv.c
+index fb6a0f0b8167..336a8e03e151 100644
+--- a/drivers/gpu/drm/vboxvideo/vbox_drv.c
++++ b/drivers/gpu/drm/vboxvideo/vbox_drv.c
+@@ -215,9 +215,10 @@ static struct drm_driver driver = {
  	.minor = DRIVER_MINOR,
  	.patchlevel = DRIVER_PATCHLEVEL,
  
--	.gem_free_object_unlocked = mgag200_gem_free_object,
-+	.gem_free_object_unlocked = drm_gem_vram_driver_gem_free_object_unlocked,
- 	.dumb_create = mgag200_dumb_create,
--	.dumb_map_offset = mgag200_dumb_mmap_offset,
+-	.gem_free_object_unlocked = vbox_gem_free_object,
++	.gem_free_object_unlocked =
++		drm_gem_vram_driver_gem_free_object_unlocked,
+ 	.dumb_create = vbox_dumb_create,
+-	.dumb_map_offset = vbox_dumb_mmap_offset,
 +	.dumb_map_offset = drm_gem_vram_driver_dumb_mmap_offset,
- };
- 
- static struct pci_driver mgag200_pci_driver = {
-diff --git a/drivers/gpu/drm/mgag200/mgag200_drv.h b/drivers/gpu/drm/mgag200/mgag200_drv.h
-index 8c31e4422cae..86b33e23ab7f 100644
---- a/drivers/gpu/drm/mgag200/mgag200_drv.h
-+++ b/drivers/gpu/drm/mgag200/mgag200_drv.h
-@@ -1,6 +1,6 @@
- /*
-  * Copyright 2010 Matt Turner.
-- * Copyright 2012 Red Hat 
-+ * Copyright 2012 Red Hat
-  *
-  * This file is subject to the terms and conditions of the GNU General
-  * Public License version 2. See the file COPYING in the main
-@@ -24,6 +24,7 @@
- #include <drm/ttm/ttm_module.h>
- 
+ 	.prime_handle_to_fd = drm_gem_prime_handle_to_fd,
+ 	.prime_fd_to_handle = drm_gem_prime_fd_to_handle,
+ 	.gem_prime_export = drm_gem_prime_export,
+diff --git a/drivers/gpu/drm/vboxvideo/vbox_drv.h b/drivers/gpu/drm/vboxvideo/vbox_drv.h
+index ece31f395540..f91564440a8f 100644
+--- a/drivers/gpu/drm/vboxvideo/vbox_drv.h
++++ b/drivers/gpu/drm/vboxvideo/vbox_drv.h
+@@ -18,6 +18,7 @@
+ #include <drm/drm_encoder.h>
+ #include <drm/drm_fb_helper.h>
  #include <drm/drm_gem.h>
 +#include <drm/drm_gem_vram_helper.h>
  
- #include <linux/i2c.h>
- #include <linux/i2c-algo-bit.h>
-@@ -159,13 +160,13 @@ struct mga_cursor {
- 	   If either of these is NULL, then don't do hardware cursors, and
- 	   fall back to software.
- 	*/
--	struct mgag200_bo *pixels_1;
--	struct mgag200_bo *pixels_2;
-+	struct drm_gem_vram_object *pixels_1;
-+	struct drm_gem_vram_object *pixels_2;
- 	u64 pixels_1_gpu_addr, pixels_2_gpu_addr;
- 	/* The currently displayed icon, this points to one of pixels_1, or pixels_2 */
--	struct mgag200_bo *pixels_current;
-+	struct drm_gem_vram_object *pixels_current;
- 	/* The previously displayed icon */
--	struct mgag200_bo *pixels_prev;
-+	struct drm_gem_vram_object *pixels_prev;
- };
+ #include <drm/ttm/ttm_bo_api.h>
+ #include <drm/ttm/ttm_bo_driver.h>
+@@ -170,73 +171,16 @@ int vboxfb_create(struct drm_fb_helper *helper,
+ 		  struct drm_fb_helper_surface_size *sizes);
+ void vbox_fbdev_fini(struct vbox_private *vbox);
  
- struct mga_mc {
-@@ -219,23 +220,6 @@ struct mga_device {
- 	u32 unique_rev_id;
- };
- 
--
--struct mgag200_bo {
+-struct vbox_bo {
 -	struct ttm_buffer_object bo;
 -	struct ttm_placement placement;
 -	struct ttm_bo_kmap_obj kmap;
@@ -266,35 +92,43 @@ index 8c31e4422cae..86b33e23ab7f 100644
 -	struct ttm_place placements[3];
 -	int pin_count;
 -};
--#define gem_to_mga_bo(gobj) container_of((gobj), struct mgag200_bo, gem)
 -
--static inline struct mgag200_bo *
--mgag200_bo(struct ttm_buffer_object *bo)
+-#define gem_to_vbox_bo(gobj) container_of((gobj), struct vbox_bo, gem)
+-
+-static inline struct vbox_bo *vbox_bo(struct ttm_buffer_object *bo)
 -{
--	return container_of(bo, struct mgag200_bo, bo);
+-	return container_of(bo, struct vbox_bo, bo);
 -}
 -
- 				/* mgag200_mode.c */
- int mgag200_modeset_init(struct mga_device *mdev);
- void mgag200_modeset_fini(struct mga_device *mdev);
-@@ -259,45 +243,15 @@ int mgag200_gem_create(struct drm_device *dev,
- int mgag200_dumb_create(struct drm_file *file,
- 			struct drm_device *dev,
- 			struct drm_mode_create_dumb *args);
--void mgag200_gem_free_object(struct drm_gem_object *obj);
--int
--mgag200_dumb_mmap_offset(struct drm_file *file,
--			 struct drm_device *dev,
--			 uint32_t handle,
--			 uint64_t *offset);
-+
- 				/* mgag200_i2c.c */
- struct mga_i2c_chan *mgag200_i2c_create(struct drm_device *dev);
- void mgag200_i2c_destroy(struct mga_i2c_chan *i2c);
- 
--void mgag200_ttm_placement(struct mgag200_bo *bo, int domain);
+-#define to_vbox_obj(x) container_of(x, struct vbox_gem_object, base)
 -
--static inline int mgag200_bo_reserve(struct mgag200_bo *bo, bool no_wait)
+-static inline u64 vbox_bo_gpu_offset(struct vbox_bo *bo)
+-{
+-	return bo->bo.offset;
+-}
+-
+ int vbox_dumb_create(struct drm_file *file,
+ 		     struct drm_device *dev,
+ 		     struct drm_mode_create_dumb *args);
+ 
+-void vbox_gem_free_object(struct drm_gem_object *obj);
+-int vbox_dumb_mmap_offset(struct drm_file *file,
+-			  struct drm_device *dev,
+-			  u32 handle, u64 *offset);
+-
+ int vbox_mm_init(struct vbox_private *vbox);
+ void vbox_mm_fini(struct vbox_private *vbox);
+ 
+-int vbox_bo_create(struct vbox_private *vbox, int size, int align,
+-		   u32 flags, struct vbox_bo **pvboxbo);
+-
+ int vbox_gem_create(struct vbox_private *vbox,
+ 		    u32 size, bool iskernel, struct drm_gem_object **obj);
+-
+-int vbox_bo_pin(struct vbox_bo *bo, u32 pl_flag);
+-int vbox_bo_unpin(struct vbox_bo *bo);
+-
+-static inline int vbox_bo_reserve(struct vbox_bo *bo, bool no_wait)
 -{
 -	int ret;
 -
@@ -307,151 +141,129 @@ index 8c31e4422cae..86b33e23ab7f 100644
 -	return 0;
 -}
 -
--static inline void mgag200_bo_unreserve(struct mgag200_bo *bo)
+-static inline void vbox_bo_unreserve(struct vbox_bo *bo)
 -{
 -	ttm_bo_unreserve(&bo->bo);
 -}
 -
--int mgag200_bo_create(struct drm_device *dev, int size, int align,
--		      uint32_t flags, struct mgag200_bo **pastbo);
- int mgag200_mm_init(struct mga_device *mdev);
- void mgag200_mm_fini(struct mga_device *mdev);
- int mgag200_mmap(struct file *filp, struct vm_area_struct *vma);
--int mgag200_bo_pin(struct mgag200_bo *bo, u32 pl_flag, u64 *gpu_addr);
--int mgag200_bo_unpin(struct mgag200_bo *bo);
--int mgag200_bo_push_sysram(struct mgag200_bo *bo);
--			   /* mgag200_cursor.c */
-+
- int mga_crtc_cursor_set(struct drm_crtc *crtc, struct drm_file *file_priv,
- 						uint32_t handle, uint32_t width, uint32_t height);
- int mga_crtc_cursor_move(struct drm_crtc *crtc, int x, int y);
-diff --git a/drivers/gpu/drm/mgag200/mgag200_fb.c b/drivers/gpu/drm/mgag200/mgag200_fb.c
-index 5b7e64cac004..508ec2dddbba 100644
---- a/drivers/gpu/drm/mgag200/mgag200_fb.c
-+++ b/drivers/gpu/drm/mgag200/mgag200_fb.c
-@@ -23,7 +23,7 @@ static void mga_dirty_update(struct mga_fbdev *mfbdev,
- {
- 	int i;
- 	struct drm_gem_object *obj;
--	struct mgag200_bo *bo;
+-void vbox_ttm_placement(struct vbox_bo *bo, int domain);
+-int vbox_bo_push_sysram(struct vbox_bo *bo);
+ int vbox_mmap(struct file *filp, struct vm_area_struct *vma);
+-void *vbox_bo_kmap(struct vbox_bo *bo);
+-void vbox_bo_kunmap(struct vbox_bo *bo);
+ 
+ /* vbox_prime.c */
+ int vbox_gem_prime_pin(struct drm_gem_object *obj);
+diff --git a/drivers/gpu/drm/vboxvideo/vbox_fb.c b/drivers/gpu/drm/vboxvideo/vbox_fb.c
+index b724fe7c0c30..8f74bcffc034 100644
+--- a/drivers/gpu/drm/vboxvideo/vbox_fb.c
++++ b/drivers/gpu/drm/vboxvideo/vbox_fb.c
+@@ -51,9 +51,9 @@ int vboxfb_create(struct drm_fb_helper *helper,
+ 	struct drm_framebuffer *fb;
+ 	struct fb_info *info;
+ 	struct drm_gem_object *gobj;
+-	struct vbox_bo *bo;
 +	struct drm_gem_vram_object *gbo;
- 	int src_offset, dst_offset;
- 	int bpp = mfbdev->mfb.base.format->cpp[0];
- 	int ret = -EBUSY;
-@@ -33,7 +33,7 @@ static void mga_dirty_update(struct mga_fbdev *mfbdev,
- 	unsigned long flags;
+ 	int size, ret;
+-	u64 gpu_addr;
++	s64 gpu_addr;
+ 	u32 pitch;
  
- 	obj = mfbdev->mfb.obj;
--	bo = gem_to_mga_bo(obj);
-+	gbo = drm_gem_vram_of_gem(obj);
+ 	mode_cmd.width = sizes->surface_width;
+@@ -75,9 +75,9 @@ int vboxfb_create(struct drm_fb_helper *helper,
+ 	if (ret)
+ 		return ret;
  
- 	/*
- 	 * try and reserve the BO, if we fail with busy
-@@ -41,7 +41,7 @@ static void mga_dirty_update(struct mga_fbdev *mfbdev,
- 	 * store up the damage until later.
- 	 */
- 	if (drm_can_sleep())
--		ret = mgag200_bo_reserve(bo, true);
-+		ret = drm_gem_vram_reserve(gbo, true);
- 	if (ret) {
- 		if (ret != -EBUSY)
- 			return;
-@@ -75,11 +75,11 @@ static void mga_dirty_update(struct mga_fbdev *mfbdev,
- 	mfbdev->x2 = mfbdev->y2 = 0;
- 	spin_unlock_irqrestore(&mfbdev->dirty_lock, flags);
+-	bo = gem_to_vbox_bo(gobj);
++	gbo = drm_gem_vram_of_gem(gobj);
  
--	if (!bo->kmap.virtual) {
--		ret = ttm_bo_kmap(&bo->bo, 0, bo->bo.num_pages, &bo->kmap);
-+	if (!gbo->kmap.virtual) {
-+		ret = ttm_bo_kmap(&gbo->bo, 0, gbo->bo.num_pages, &gbo->kmap);
- 		if (ret) {
- 			DRM_ERROR("failed to kmap fb updates\n");
--			mgag200_bo_unreserve(bo);
-+			drm_gem_vram_unreserve(gbo);
- 			return;
- 		}
- 		unmap = true;
-@@ -87,13 +87,13 @@ static void mga_dirty_update(struct mga_fbdev *mfbdev,
- 	for (i = y; i <= y2; i++) {
- 		/* assume equal stride for now */
- 		src_offset = dst_offset = i * mfbdev->mfb.base.pitches[0] + (x * bpp);
--		memcpy_toio(bo->kmap.virtual + src_offset, mfbdev->sysram + src_offset, (x2 - x + 1) * bpp);
-+		memcpy_toio(gbo->kmap.virtual + src_offset, mfbdev->sysram + src_offset, (x2 - x + 1) * bpp);
+-	ret = vbox_bo_pin(bo, TTM_PL_FLAG_VRAM);
++	ret = drm_gem_vram_pin(gbo, DRM_GEM_VRAM_PL_FLAG_VRAM);
+ 	if (ret)
+ 		return ret;
  
- 	}
- 	if (unmap)
--		ttm_bo_kunmap(&bo->kmap);
-+		ttm_bo_kunmap(&gbo->kmap);
+@@ -86,7 +86,7 @@ int vboxfb_create(struct drm_fb_helper *helper,
+ 		return PTR_ERR(info);
  
--	mgag200_bo_unreserve(bo);
-+	drm_gem_vram_unreserve(gbo);
- }
+ 	info->screen_size = size;
+-	info->screen_base = (char __iomem *)vbox_bo_kmap(bo);
++	info->screen_base = (char __iomem *)drm_gem_vram_kmap(gbo, true, NULL);
+ 	if (IS_ERR(info->screen_base))
+ 		return PTR_ERR(info->screen_base);
  
- static void mga_fillrect(struct fb_info *info,
-diff --git a/drivers/gpu/drm/mgag200/mgag200_main.c b/drivers/gpu/drm/mgag200/mgag200_main.c
-index 163255099779..59a4028a5c6c 100644
---- a/drivers/gpu/drm/mgag200/mgag200_main.c
-+++ b/drivers/gpu/drm/mgag200/mgag200_main.c
-@@ -230,11 +230,13 @@ int mgag200_driver_load(struct drm_device *dev, unsigned long flags)
- 	}
+@@ -104,7 +104,9 @@ int vboxfb_create(struct drm_fb_helper *helper,
  
- 	/* Make small buffers to store a hardware cursor (double buffered icon updates) */
--	mgag200_bo_create(dev, roundup(48*64, PAGE_SIZE), 0, 0,
--					  &mdev->cursor.pixels_1);
--	mgag200_bo_create(dev, roundup(48*64, PAGE_SIZE), 0, 0,
--					  &mdev->cursor.pixels_2);
--	if (!mdev->cursor.pixels_2 || !mdev->cursor.pixels_1) {
-+	mdev->cursor.pixels_1 = drm_gem_vram_create(dev, &mdev->ttm.bdev,
-+						    roundup(48*64, PAGE_SIZE),
-+						    0, 0);
-+	mdev->cursor.pixels_2 = drm_gem_vram_create(dev, &mdev->ttm.bdev,
-+						    roundup(48*64, PAGE_SIZE),
-+						    0, 0);
-+	if (IS_ERR(mdev->cursor.pixels_2) || IS_ERR(mdev->cursor.pixels_1)) {
- 		mdev->cursor.pixels_1 = NULL;
- 		mdev->cursor.pixels_2 = NULL;
- 		dev_warn(&dev->pdev->dev,
-@@ -272,7 +274,8 @@ int mgag200_gem_create(struct drm_device *dev,
- 		   u32 size, bool iskernel,
- 		   struct drm_gem_object **obj)
+ 	drm_fb_helper_fill_info(info, helper, sizes);
+ 
+-	gpu_addr = vbox_bo_gpu_offset(bo);
++	gpu_addr = drm_gem_vram_offset(gbo);
++	if (gpu_addr < 0)
++		return (int)gpu_addr;
+ 	info->fix.smem_start = info->apertures->ranges[0].base + gpu_addr;
+ 	info->fix.smem_len = vbox->available_vram_size - gpu_addr;
+ 
+@@ -132,12 +134,10 @@ void vbox_fbdev_fini(struct vbox_private *vbox)
+ 	drm_fb_helper_unregister_fbi(&vbox->fb_helper);
+ 
+ 	if (afb->obj) {
+-		struct vbox_bo *bo = gem_to_vbox_bo(afb->obj);
++		struct drm_gem_vram_object *gbo = drm_gem_vram_of_gem(afb->obj);
+ 
+-		vbox_bo_kunmap(bo);
+-
+-		if (bo->pin_count)
+-			vbox_bo_unpin(bo);
++		drm_gem_vram_kunmap(gbo);
++		drm_gem_vram_unpin(gbo);
+ 
+ 		drm_gem_object_put_unlocked(afb->obj);
+ 		afb->obj = NULL;
+diff --git a/drivers/gpu/drm/vboxvideo/vbox_main.c b/drivers/gpu/drm/vboxvideo/vbox_main.c
+index f4d02de5518a..525e9fd63f4d 100644
+--- a/drivers/gpu/drm/vboxvideo/vbox_main.c
++++ b/drivers/gpu/drm/vboxvideo/vbox_main.c
+@@ -274,7 +274,7 @@ void vbox_hw_fini(struct vbox_private *vbox)
+ int vbox_gem_create(struct vbox_private *vbox,
+ 		    u32 size, bool iskernel, struct drm_gem_object **obj)
  {
--	struct mgag200_bo *astbo;
-+	struct mga_device *mdev = dev->dev_private;
+-	struct vbox_bo *vboxbo;
 +	struct drm_gem_vram_object *gbo;
  	int ret;
  
  	*obj = NULL;
-@@ -281,13 +284,14 @@ int mgag200_gem_create(struct drm_device *dev,
+@@ -283,14 +283,15 @@ int vbox_gem_create(struct vbox_private *vbox,
  	if (size == 0)
  		return -EINVAL;
  
--	ret = mgag200_bo_create(dev, size, 0, 0, &astbo);
+-	ret = vbox_bo_create(vbox, size, 0, 0, &vboxbo);
 -	if (ret) {
-+	gbo = drm_gem_vram_create(dev, &mdev->ttm.bdev, size, 0, false);
++	gbo = drm_gem_vram_create(&vbox->ddev, &vbox->ttm.bdev, size, 0, false);
 +	if (IS_ERR(gbo)) {
 +		ret = PTR_ERR(gbo);
  		if (ret != -ERESTARTSYS)
  			DRM_ERROR("failed to allocate GEM object\n");
  		return ret;
  	}
--	*obj = &astbo->gem;
+ 
+-	*obj = &vboxbo->gem;
 +	*obj = &gbo->gem;
+ 
  	return 0;
  }
- 
-@@ -295,64 +299,8 @@ int mgag200_dumb_create(struct drm_file *file,
- 		    struct drm_device *dev,
- 		    struct drm_mode_create_dumb *args)
+@@ -298,64 +299,9 @@ int vbox_gem_create(struct vbox_private *vbox,
+ int vbox_dumb_create(struct drm_file *file,
+ 		     struct drm_device *dev, struct drm_mode_create_dumb *args)
  {
--	int ret;
+-	struct vbox_private *vbox =
+-		container_of(dev, struct vbox_private, ddev);
 -	struct drm_gem_object *gobj;
 -	u32 handle;
+-	int ret;
 -
 -	args->pitch = args->width * ((args->bpp + 7) / 8);
 -	args->size = args->pitch * args->height;
 -
--	ret = mgag200_gem_create(dev, args->size, false,
--			     &gobj);
+-	ret = vbox_gem_create(vbox, args->size, false, &gobj);
 -	if (ret)
 -		return ret;
 -
@@ -459,326 +271,338 @@ index 163255099779..59a4028a5c6c 100644
 -	drm_gem_object_put_unlocked(gobj);
 -	if (ret)
 -		return ret;
--
++	struct vbox_private *vbox = dev->dev_private;
+ 
 -	args->handle = handle;
+-
 -	return 0;
 -}
 -
--static void mgag200_bo_unref(struct mgag200_bo **bo)
+-void vbox_gem_free_object(struct drm_gem_object *obj)
 -{
--	if ((*bo) == NULL)
--		return;
--	ttm_bo_put(&((*bo)->bo));
--	*bo = NULL;
+-	struct vbox_bo *vbox_bo = gem_to_vbox_bo(obj);
++	return drm_gem_vram_fill_create_dumb(file, dev, &vbox->ttm.bdev, 0,
++					    false, args);
+ 
+-	ttm_bo_put(&vbox_bo->bo);
 -}
 -
--void mgag200_gem_free_object(struct drm_gem_object *obj)
--{
--	struct mgag200_bo *mgag200_bo = gem_to_mga_bo(obj);
--
--	mgag200_bo_unref(&mgag200_bo);
--}
--
--
--static inline u64 mgag200_bo_mmap_offset(struct mgag200_bo *bo)
+-static inline u64 vbox_bo_mmap_offset(struct vbox_bo *bo)
 -{
 -	return drm_vma_node_offset_addr(&bo->bo.vma_node);
 -}
 -
 -int
--mgag200_dumb_mmap_offset(struct drm_file *file,
--		     struct drm_device *dev,
--		     uint32_t handle,
--		     uint64_t *offset)
+-vbox_dumb_mmap_offset(struct drm_file *file,
+-		      struct drm_device *dev,
+-		      u32 handle, u64 *offset)
 -{
 -	struct drm_gem_object *obj;
--	struct mgag200_bo *bo;
+-	int ret;
+-	struct vbox_bo *bo;
 -
+-	mutex_lock(&dev->struct_mutex);
 -	obj = drm_gem_object_lookup(file, handle);
--	if (obj == NULL)
--		return -ENOENT;
+-	if (!obj) {
+-		ret = -ENOENT;
+-		goto out_unlock;
+-	}
 -
--	bo = gem_to_mga_bo(obj);
--	*offset = mgag200_bo_mmap_offset(bo);
-+	struct mga_device *mdev = dev->dev_private;
- 
--	drm_gem_object_put_unlocked(obj);
--	return 0;
-+	return drm_gem_vram_fill_create_dumb(file, dev, &mdev->ttm.bdev, 0,
-+					    false, args);
+-	bo = gem_to_vbox_bo(obj);
+-	*offset = vbox_bo_mmap_offset(bo);
+-
+-	drm_gem_object_put(obj);
+-	ret = 0;
+-
+-out_unlock:
+-	mutex_unlock(&dev->struct_mutex);
+-	return ret;
  }
-diff --git a/drivers/gpu/drm/mgag200/mgag200_mode.c b/drivers/gpu/drm/mgag200/mgag200_mode.c
-index 7481a3d556ad..ddec2c485381 100644
---- a/drivers/gpu/drm/mgag200/mgag200_mode.c
-+++ b/drivers/gpu/drm/mgag200/mgag200_mode.c
-@@ -867,48 +867,57 @@ static int mga_crtc_do_set_base(struct drm_crtc *crtc,
- 	struct mga_device *mdev = crtc->dev->dev_private;
- 	struct drm_gem_object *obj;
- 	struct mga_framebuffer *mga_fb;
--	struct mgag200_bo *bo;
+diff --git a/drivers/gpu/drm/vboxvideo/vbox_mode.c b/drivers/gpu/drm/vboxvideo/vbox_mode.c
+index 620a6e38f71f..9432c3ceec7c 100644
+--- a/drivers/gpu/drm/vboxvideo/vbox_mode.c
++++ b/drivers/gpu/drm/vboxvideo/vbox_mode.c
+@@ -173,7 +173,8 @@ static void vbox_crtc_set_base_and_mode(struct drm_crtc *crtc,
+ 					struct drm_framebuffer *fb,
+ 					int x, int y)
+ {
+-	struct vbox_bo *bo = gem_to_vbox_bo(to_vbox_framebuffer(fb)->obj);
++	struct drm_gem_vram_object *gbo =
++		drm_gem_vram_of_gem(to_vbox_framebuffer(fb)->obj);
+ 	struct vbox_private *vbox = crtc->dev->dev_private;
+ 	struct vbox_crtc *vbox_crtc = to_vbox_crtc(crtc);
+ 	bool needs_modeset = drm_atomic_crtc_needs_modeset(crtc->state);
+@@ -187,7 +188,7 @@ static void vbox_crtc_set_base_and_mode(struct drm_crtc *crtc,
+ 
+ 	vbox_crtc->x = x;
+ 	vbox_crtc->y = y;
+-	vbox_crtc->fb_offset = vbox_bo_gpu_offset(bo);
++	vbox_crtc->fb_offset = drm_gem_vram_offset(gbo);
+ 
+ 	/* vbox_do_modeset() checks vbox->single_framebuffer so update it now */
+ 	if (needs_modeset && vbox_set_up_input_mapping(vbox)) {
+@@ -303,14 +304,14 @@ static void vbox_primary_atomic_disable(struct drm_plane *plane,
+ static int vbox_primary_prepare_fb(struct drm_plane *plane,
+ 				   struct drm_plane_state *new_state)
+ {
+-	struct vbox_bo *bo;
 +	struct drm_gem_vram_object *gbo;
  	int ret;
--	u64 gpu_addr;
-+	s64 gpu_addr;
  
- 	/* push the previous fb to system ram */
- 	if (!atomic && fb) {
- 		mga_fb = to_mga_framebuffer(fb);
- 		obj = mga_fb->obj;
--		bo = gem_to_mga_bo(obj);
--		ret = mgag200_bo_reserve(bo, false);
-+		gbo = drm_gem_vram_of_gem(obj);
-+		ret = drm_gem_vram_reserve(gbo, false);
- 		if (ret)
- 			return ret;
--		mgag200_bo_push_sysram(bo);
--		mgag200_bo_unreserve(bo);
-+		drm_gem_vram_push_to_system(gbo);
-+		drm_gem_vram_unreserve(gbo);
- 	}
+ 	if (!new_state->fb)
+ 		return 0;
  
- 	mga_fb = to_mga_framebuffer(crtc->primary->fb);
- 	obj = mga_fb->obj;
--	bo = gem_to_mga_bo(obj);
-+	gbo = drm_gem_vram_of_gem(obj);
- 
--	ret = mgag200_bo_reserve(bo, false);
-+	ret = drm_gem_vram_reserve(gbo, false);
- 	if (ret)
- 		return ret;
- 
--	ret = mgag200_bo_pin(bo, TTM_PL_FLAG_VRAM, &gpu_addr);
--	if (ret) {
--		mgag200_bo_unreserve(bo);
--		return ret;
+-	bo = gem_to_vbox_bo(to_vbox_framebuffer(new_state->fb)->obj);
+-	ret = vbox_bo_pin(bo, TTM_PL_FLAG_VRAM);
++	gbo = drm_gem_vram_of_gem(to_vbox_framebuffer(new_state->fb)->obj);
 +	ret = drm_gem_vram_pin(gbo, DRM_GEM_VRAM_PL_FLAG_VRAM);
-+	if (ret)
-+		goto err_drm_gem_vram_unreserve;
-+	gpu_addr = drm_gem_vram_offset(gbo);
-+	if (gpu_addr < 0) {
-+		ret = (int)gpu_addr;
-+		goto err_drm_gem_vram_unpin;
- 	}
+ 	if (ret)
+ 		DRM_WARN("Error %d pinning new fb, out of video mem?\n", ret);
  
- 	if (&mdev->mfbdev->mfb == mga_fb) {
- 		/* if pushing console in kmap it */
--		ret = ttm_bo_kmap(&bo->bo, 0, bo->bo.num_pages, &bo->kmap);
-+		ret = ttm_bo_kmap(&gbo->bo, 0, gbo->bo.num_pages, &gbo->kmap);
- 		if (ret)
- 			DRM_ERROR("failed to kmap fbcon\n");
+@@ -320,13 +321,13 @@ static int vbox_primary_prepare_fb(struct drm_plane *plane,
+ static void vbox_primary_cleanup_fb(struct drm_plane *plane,
+ 				    struct drm_plane_state *old_state)
+ {
+-	struct vbox_bo *bo;
++	struct drm_gem_vram_object *gbo;
  
- 	}
--	mgag200_bo_unreserve(bo);
-+	drm_gem_vram_unreserve(gbo);
+ 	if (!old_state->fb)
+ 		return;
  
- 	mga_set_start_address(crtc, (u32)gpu_addr);
- 
- 	return 0;
-+
-+err_drm_gem_vram_unpin:
+-	bo = gem_to_vbox_bo(to_vbox_framebuffer(old_state->fb)->obj);
+-	vbox_bo_unpin(bo);
++	gbo = drm_gem_vram_of_gem(to_vbox_framebuffer(old_state->fb)->obj);
 +	drm_gem_vram_unpin(gbo);
-+err_drm_gem_vram_unreserve:
-+	drm_gem_vram_unreserve(gbo);
-+	return ret;
  }
  
- static int mga_crtc_mode_set_base(struct drm_crtc *crtc, int x, int y,
-@@ -1428,12 +1437,12 @@ static void mga_crtc_disable(struct drm_crtc *crtc)
- 	if (crtc->primary->fb) {
- 		struct mga_framebuffer *mga_fb = to_mga_framebuffer(crtc->primary->fb);
- 		struct drm_gem_object *obj = mga_fb->obj;
--		struct mgag200_bo *bo = gem_to_mga_bo(obj);
--		ret = mgag200_bo_reserve(bo, false);
-+		struct drm_gem_vram_object *gbo = drm_gem_vram_of_gem(obj);
-+		ret = drm_gem_vram_reserve(gbo, false);
- 		if (ret)
- 			return;
--		mgag200_bo_push_sysram(bo);
--		mgag200_bo_unreserve(bo);
-+		drm_gem_vram_push_to_system(gbo);
-+		drm_gem_vram_unreserve(gbo);
- 	}
- 	crtc->primary->fb = NULL;
- }
-diff --git a/drivers/gpu/drm/mgag200/mgag200_ttm.c b/drivers/gpu/drm/mgag200/mgag200_ttm.c
-index bd42365a8aa8..2c0249086bf9 100644
---- a/drivers/gpu/drm/mgag200/mgag200_ttm.c
-+++ b/drivers/gpu/drm/mgag200/mgag200_ttm.c
-@@ -36,23 +36,6 @@ mgag200_bdev(struct ttm_bo_device *bd)
- 	return container_of(bd, struct mga_device, ttm.bdev);
+ static int vbox_cursor_atomic_check(struct drm_plane *plane,
+@@ -386,7 +387,8 @@ static void vbox_cursor_atomic_update(struct drm_plane *plane,
+ 		container_of(plane->dev, struct vbox_private, ddev);
+ 	struct vbox_crtc *vbox_crtc = to_vbox_crtc(plane->state->crtc);
+ 	struct drm_framebuffer *fb = plane->state->fb;
+-	struct vbox_bo *bo = gem_to_vbox_bo(to_vbox_framebuffer(fb)->obj);
++	struct drm_gem_vram_object *gbo =
++		drm_gem_vram_of_gem(to_vbox_framebuffer(fb)->obj);
+ 	u32 width = plane->state->crtc_w;
+ 	u32 height = plane->state->crtc_h;
+ 	size_t data_size, mask_size;
+@@ -405,7 +407,7 @@ static void vbox_cursor_atomic_update(struct drm_plane *plane,
+ 	vbox_crtc->cursor_enabled = true;
+ 
+ 	/* pinning is done in prepare/cleanup framebuffer */
+-	src = vbox_bo_kmap(bo);
++	src = drm_gem_vram_kmap(gbo, true, NULL);
+ 	if (IS_ERR(src)) {
+ 		mutex_unlock(&vbox->hw_mutex);
+ 		DRM_WARN("Could not kmap cursor bo, skipping update\n");
+@@ -421,7 +423,7 @@ static void vbox_cursor_atomic_update(struct drm_plane *plane,
+ 	data_size = width * height * 4 + mask_size;
+ 
+ 	copy_cursor_image(src, vbox->cursor_data, width, height, mask_size);
+-	vbox_bo_kunmap(bo);
++	drm_gem_vram_kunmap(gbo);
+ 
+ 	flags = VBOX_MOUSE_POINTER_VISIBLE | VBOX_MOUSE_POINTER_SHAPE |
+ 		VBOX_MOUSE_POINTER_ALPHA;
+@@ -461,25 +463,25 @@ static void vbox_cursor_atomic_disable(struct drm_plane *plane,
+ static int vbox_cursor_prepare_fb(struct drm_plane *plane,
+ 				  struct drm_plane_state *new_state)
+ {
+-	struct vbox_bo *bo;
++	struct drm_gem_vram_object *gbo;
+ 
+ 	if (!new_state->fb)
+ 		return 0;
+ 
+-	bo = gem_to_vbox_bo(to_vbox_framebuffer(new_state->fb)->obj);
+-	return vbox_bo_pin(bo, TTM_PL_FLAG_SYSTEM);
++	gbo = drm_gem_vram_of_gem(to_vbox_framebuffer(new_state->fb)->obj);
++	return drm_gem_vram_pin(gbo, DRM_GEM_VRAM_PL_FLAG_SYSTEM);
  }
  
--static void mgag200_bo_ttm_destroy(struct ttm_buffer_object *tbo)
+ static void vbox_cursor_cleanup_fb(struct drm_plane *plane,
+ 				   struct drm_plane_state *old_state)
+ {
+-	struct vbox_bo *bo;
++	struct drm_gem_vram_object *gbo;
+ 
+ 	if (!plane->state->fb)
+ 		return;
+ 
+-	bo = gem_to_vbox_bo(to_vbox_framebuffer(plane->state->fb)->obj);
+-	vbox_bo_unpin(bo);
++	gbo = drm_gem_vram_of_gem(to_vbox_framebuffer(plane->state->fb)->obj);
++	drm_gem_vram_unpin(gbo);
+ }
+ 
+ static const u32 vbox_cursor_plane_formats[] = {
+diff --git a/drivers/gpu/drm/vboxvideo/vbox_ttm.c b/drivers/gpu/drm/vboxvideo/vbox_ttm.c
+index 9d78438c2877..0989d656eed6 100644
+--- a/drivers/gpu/drm/vboxvideo/vbox_ttm.c
++++ b/drivers/gpu/drm/vboxvideo/vbox_ttm.c
+@@ -16,24 +16,6 @@ static inline struct vbox_private *vbox_bdev(struct ttm_bo_device *bd)
+ 	return container_of(bd, struct vbox_private, ttm.bdev);
+ }
+ 
+-static void vbox_bo_ttm_destroy(struct ttm_buffer_object *tbo)
 -{
--	struct mgag200_bo *bo;
+-	struct vbox_bo *bo;
 -
--	bo = container_of(tbo, struct mgag200_bo, bo);
+-	bo = container_of(tbo, struct vbox_bo, bo);
 -
 -	drm_gem_object_release(&bo->gem);
 -	kfree(bo);
 -}
 -
--static bool mgag200_ttm_bo_is_mgag200_bo(struct ttm_buffer_object *bo)
+-static bool vbox_ttm_bo_is_vbox_bo(struct ttm_buffer_object *bo)
 -{
--	if (bo->destroy == &mgag200_bo_ttm_destroy)
+-	if (bo->destroy == &vbox_bo_ttm_destroy)
 -		return true;
+-
 -	return false;
 -}
 -
  static int
- mgag200_bo_init_mem_type(struct ttm_bo_device *bdev, uint32_t type,
- 		     struct ttm_mem_type_manager *man)
-@@ -78,26 +61,6 @@ mgag200_bo_init_mem_type(struct ttm_bo_device *bdev, uint32_t type,
+ vbox_bo_init_mem_type(struct ttm_bo_device *bdev, u32 type,
+ 		      struct ttm_mem_type_manager *man)
+@@ -58,24 +40,6 @@ vbox_bo_init_mem_type(struct ttm_bo_device *bdev, u32 type,
  	return 0;
  }
  
 -static void
--mgag200_bo_evict_flags(struct ttm_buffer_object *bo, struct ttm_placement *pl)
+-vbox_bo_evict_flags(struct ttm_buffer_object *bo, struct ttm_placement *pl)
 -{
--	struct mgag200_bo *mgabo = mgag200_bo(bo);
+-	struct vbox_bo *vboxbo = vbox_bo(bo);
 -
--	if (!mgag200_ttm_bo_is_mgag200_bo(bo))
+-	if (!vbox_ttm_bo_is_vbox_bo(bo))
 -		return;
 -
--	mgag200_ttm_placement(mgabo, TTM_PL_FLAG_SYSTEM);
--	*pl = mgabo->placement;
+-	vbox_ttm_placement(vboxbo, TTM_PL_FLAG_SYSTEM);
+-	*pl = vboxbo->placement;
 -}
 -
--static int mgag200_bo_verify_access(struct ttm_buffer_object *bo, struct file *filp)
+-static int vbox_bo_verify_access(struct ttm_buffer_object *bo,
+-				 struct file *filp)
 -{
--	struct mgag200_bo *mgabo = mgag200_bo(bo);
--
--	return drm_vma_node_verify_access(&mgabo->gem.vma_node,
--					  filp->private_data);
+-	return 0;
 -}
 -
- static int mgag200_ttm_io_mem_reserve(struct ttm_bo_device *bdev,
- 				  struct ttm_mem_reg *mem)
+ static int vbox_ttm_io_mem_reserve(struct ttm_bo_device *bdev,
+ 				   struct ttm_mem_reg *mem)
  {
-@@ -162,9 +125,9 @@ struct ttm_bo_driver mgag200_bo_driver = {
- 	.ttm_tt_create = mgag200_ttm_tt_create,
- 	.init_mem_type = mgag200_bo_init_mem_type,
+@@ -141,8 +105,8 @@ static struct ttm_bo_driver vbox_bo_driver = {
+ 	.ttm_tt_create = vbox_ttm_tt_create,
+ 	.init_mem_type = vbox_bo_init_mem_type,
  	.eviction_valuable = ttm_bo_eviction_valuable,
--	.evict_flags = mgag200_bo_evict_flags,
+-	.evict_flags = vbox_bo_evict_flags,
+-	.verify_access = vbox_bo_verify_access,
 +	.evict_flags = drm_gem_vram_bo_driver_evict_flags,
- 	.move = NULL,
--	.verify_access = mgag200_bo_verify_access,
 +	.verify_access = drm_gem_vram_bo_driver_verify_access,
- 	.io_mem_reserve = &mgag200_ttm_io_mem_reserve,
- 	.io_mem_free = &mgag200_ttm_io_mem_free,
+ 	.io_mem_reserve = &vbox_ttm_io_mem_reserve,
+ 	.io_mem_free = &vbox_ttm_io_mem_free,
  };
-@@ -211,137 +174,6 @@ void mgag200_mm_fini(struct mga_device *mdev)
- 	mdev->fb_mtrr = 0;
+@@ -196,165 +160,6 @@ void vbox_mm_fini(struct vbox_private *vbox)
+ 	ttm_bo_device_release(&vbox->ttm.bdev);
  }
  
--void mgag200_ttm_placement(struct mgag200_bo *bo, int domain)
+-void vbox_ttm_placement(struct vbox_bo *bo, int domain)
 -{
+-	unsigned int i;
 -	u32 c = 0;
--	unsigned i;
 -
 -	bo->placement.placement = bo->placements;
 -	bo->placement.busy_placement = bo->placements;
+-
 -	if (domain & TTM_PL_FLAG_VRAM)
--		bo->placements[c++].flags = TTM_PL_FLAG_WC | TTM_PL_FLAG_UNCACHED | TTM_PL_FLAG_VRAM;
+-		bo->placements[c++].flags =
+-		    TTM_PL_FLAG_WC | TTM_PL_FLAG_UNCACHED | TTM_PL_FLAG_VRAM;
 -	if (domain & TTM_PL_FLAG_SYSTEM)
--		bo->placements[c++].flags = TTM_PL_MASK_CACHING | TTM_PL_FLAG_SYSTEM;
+-		bo->placements[c++].flags =
+-		    TTM_PL_MASK_CACHING | TTM_PL_FLAG_SYSTEM;
 -	if (!c)
--		bo->placements[c++].flags = TTM_PL_MASK_CACHING | TTM_PL_FLAG_SYSTEM;
+-		bo->placements[c++].flags =
+-		    TTM_PL_MASK_CACHING | TTM_PL_FLAG_SYSTEM;
+-
 -	bo->placement.num_placement = c;
 -	bo->placement.num_busy_placement = c;
+-
 -	for (i = 0; i < c; ++i) {
 -		bo->placements[i].fpfn = 0;
 -		bo->placements[i].lpfn = 0;
 -	}
 -}
 -
--int mgag200_bo_create(struct drm_device *dev, int size, int align,
--		  uint32_t flags, struct mgag200_bo **pmgabo)
+-int vbox_bo_create(struct vbox_private *vbox, int size, int align,
+-		   u32 flags, struct vbox_bo **pvboxbo)
 -{
--	struct mga_device *mdev = dev->dev_private;
--	struct mgag200_bo *mgabo;
+-	struct vbox_bo *vboxbo;
 -	size_t acc_size;
 -	int ret;
 -
--	mgabo = kzalloc(sizeof(struct mgag200_bo), GFP_KERNEL);
--	if (!mgabo)
+-	vboxbo = kzalloc(sizeof(*vboxbo), GFP_KERNEL);
+-	if (!vboxbo)
 -		return -ENOMEM;
 -
--	ret = drm_gem_object_init(dev, &mgabo->gem, size);
--	if (ret) {
--		kfree(mgabo);
--		return ret;
--	}
--
--	mgabo->bo.bdev = &mdev->ttm.bdev;
--
--	mgag200_ttm_placement(mgabo, TTM_PL_FLAG_VRAM | TTM_PL_FLAG_SYSTEM);
--
--	acc_size = ttm_bo_dma_acc_size(&mdev->ttm.bdev, size,
--				       sizeof(struct mgag200_bo));
--
--	ret = ttm_bo_init(&mdev->ttm.bdev, &mgabo->bo, size,
--			  ttm_bo_type_device, &mgabo->placement,
--			  align >> PAGE_SHIFT, false, acc_size,
--			  NULL, NULL, mgag200_bo_ttm_destroy);
+-	ret = drm_gem_object_init(&vbox->ddev, &vboxbo->gem, size);
 -	if (ret)
--		return ret;
+-		goto err_free_vboxbo;
 -
--	*pmgabo = mgabo;
+-	vboxbo->bo.bdev = &vbox->ttm.bdev;
+-
+-	vbox_ttm_placement(vboxbo, TTM_PL_FLAG_VRAM | TTM_PL_FLAG_SYSTEM);
+-
+-	acc_size = ttm_bo_dma_acc_size(&vbox->ttm.bdev, size,
+-				       sizeof(struct vbox_bo));
+-
+-	ret = ttm_bo_init(&vbox->ttm.bdev, &vboxbo->bo, size,
+-			  ttm_bo_type_device, &vboxbo->placement,
+-			  align >> PAGE_SHIFT, false, acc_size,
+-			  NULL, NULL, vbox_bo_ttm_destroy);
+-	if (ret)
+-		goto err_free_vboxbo;
+-
+-	*pvboxbo = vboxbo;
+-
 -	return 0;
+-
+-err_free_vboxbo:
+-	kfree(vboxbo);
+-	return ret;
 -}
 -
--static inline u64 mgag200_bo_gpu_offset(struct mgag200_bo *bo)
--{
--	return bo->bo.offset;
--}
--
--int mgag200_bo_pin(struct mgag200_bo *bo, u32 pl_flag, u64 *gpu_addr)
+-int vbox_bo_pin(struct vbox_bo *bo, u32 pl_flag)
 -{
 -	struct ttm_operation_ctx ctx = { false, false };
 -	int i, ret;
 -
 -	if (bo->pin_count) {
 -		bo->pin_count++;
--		if (gpu_addr)
--			*gpu_addr = mgag200_bo_gpu_offset(bo);
 -		return 0;
 -	}
 -
--	mgag200_ttm_placement(bo, pl_flag);
--	for (i = 0; i < bo->placement.num_placement; i++)
--		bo->placements[i].flags |= TTM_PL_FLAG_NO_EVICT;
--	ret = ttm_bo_validate(&bo->bo, &bo->placement, &ctx);
+-	ret = vbox_bo_reserve(bo, false);
 -	if (ret)
 -		return ret;
 -
--	bo->pin_count = 1;
--	if (gpu_addr)
--		*gpu_addr = mgag200_bo_gpu_offset(bo);
--	return 0;
+-	vbox_ttm_placement(bo, pl_flag);
+-
+-	for (i = 0; i < bo->placement.num_placement; i++)
+-		bo->placements[i].flags |= TTM_PL_FLAG_NO_EVICT;
+-
+-	ret = ttm_bo_validate(&bo->bo, &bo->placement, &ctx);
+-	if (ret == 0)
+-		bo->pin_count = 1;
+-
+-	vbox_bo_unreserve(bo);
+-
+-	return ret;
 -}
 -
--int mgag200_bo_unpin(struct mgag200_bo *bo)
--{
--	struct ttm_operation_ctx ctx = { false, false };
--	int i;
--	if (!bo->pin_count) {
--		DRM_ERROR("unpin bad %p\n", bo);
--		return 0;
--	}
--	bo->pin_count--;
--	if (bo->pin_count)
--		return 0;
--
--	for (i = 0; i < bo->placement.num_placement ; i++)
--		bo->placements[i].flags &= ~TTM_PL_FLAG_NO_EVICT;
--	return ttm_bo_validate(&bo->bo, &bo->placement, &ctx);
--}
--
--int mgag200_bo_push_sysram(struct mgag200_bo *bo)
+-int vbox_bo_unpin(struct vbox_bo *bo)
 -{
 -	struct ttm_operation_ctx ctx = { false, false };
 -	int i, ret;
+-
 -	if (!bo->pin_count) {
 -		DRM_ERROR("unpin bad %p\n", bo);
 -		return 0;
@@ -787,11 +611,48 @@ index bd42365a8aa8..2c0249086bf9 100644
 -	if (bo->pin_count)
 -		return 0;
 -
--	if (bo->kmap.virtual)
--		ttm_bo_kunmap(&bo->kmap);
+-	ret = vbox_bo_reserve(bo, false);
+-	if (ret) {
+-		DRM_ERROR("Error %d reserving bo, leaving it pinned\n", ret);
+-		return ret;
+-	}
 -
--	mgag200_ttm_placement(bo, TTM_PL_FLAG_SYSTEM);
--	for (i = 0; i < bo->placement.num_placement ; i++)
+-	for (i = 0; i < bo->placement.num_placement; i++)
+-		bo->placements[i].flags &= ~TTM_PL_FLAG_NO_EVICT;
+-
+-	ret = ttm_bo_validate(&bo->bo, &bo->placement, &ctx);
+-
+-	vbox_bo_unreserve(bo);
+-
+-	return ret;
+-}
+-
+-/*
+- * Move a vbox-owned buffer object to system memory if no one else has it
+- * pinned.  The caller must have pinned it previously, and this call will
+- * release the caller's pin.
+- */
+-int vbox_bo_push_sysram(struct vbox_bo *bo)
+-{
+-	struct ttm_operation_ctx ctx = { false, false };
+-	int i, ret;
+-
+-	if (!bo->pin_count) {
+-		DRM_ERROR("unpin bad %p\n", bo);
+-		return 0;
+-	}
+-	bo->pin_count--;
+-	if (bo->pin_count)
+-		return 0;
+-
+-	if (bo->kmap.virtual) {
+-		ttm_bo_kunmap(&bo->kmap);
+-		bo->kmap.virtual = NULL;
+-	}
+-
+-	vbox_ttm_placement(bo, TTM_PL_FLAG_SYSTEM);
+-
+-	for (i = 0; i < bo->placement.num_placement; i++)
 -		bo->placements[i].flags |= TTM_PL_FLAG_NO_EVICT;
 -
 -	ret = ttm_bo_validate(&bo->bo, &bo->placement, &ctx);
@@ -799,11 +660,40 @@ index bd42365a8aa8..2c0249086bf9 100644
 -		DRM_ERROR("pushing to VRAM failed\n");
 -		return ret;
 -	}
+-
 -	return 0;
 -}
 -
- int mgag200_mmap(struct file *filp, struct vm_area_struct *vma)
+ int vbox_mmap(struct file *filp, struct vm_area_struct *vma)
  {
  	struct drm_file *file_priv = filp->private_data;
+@@ -362,27 +167,3 @@ int vbox_mmap(struct file *filp, struct vm_area_struct *vma)
+ 
+ 	return ttm_bo_mmap(filp, vma, &vbox->ttm.bdev);
+ }
+-
+-void *vbox_bo_kmap(struct vbox_bo *bo)
+-{
+-	int ret;
+-
+-	if (bo->kmap.virtual)
+-		return bo->kmap.virtual;
+-
+-	ret = ttm_bo_kmap(&bo->bo, 0, bo->bo.num_pages, &bo->kmap);
+-	if (ret) {
+-		DRM_ERROR("Error kmapping bo: %d\n", ret);
+-		return NULL;
+-	}
+-
+-	return bo->kmap.virtual;
+-}
+-
+-void vbox_bo_kunmap(struct vbox_bo *bo)
+-{
+-	if (bo->kmap.virtual) {
+-		ttm_bo_kunmap(&bo->kmap);
+-		bo->kmap.virtual = NULL;
+-	}
+-}
 -- 
 2.21.0
