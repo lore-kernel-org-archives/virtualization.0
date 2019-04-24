@@ -1,8 +1,7 @@
 From: Thomas Zimmermann <tzimmermann@suse.de>
-Subject: [PATCH v2 13/17] drm/mgag200: Replace mapping code with
-	drm_gem_vram_{kmap/kunmap}()
-Date: Wed, 24 Apr 2019 13:48:38 +0200
-Message-ID: <20190424114842.4723-14-tzimmermann__31194.9038806901$1556106722$gmane$org@suse.de>
+Subject: [PATCH v2 17/17] drm/hisilicon: Convert hibmc-drm driver to VRAM MM
+Date: Wed, 24 Apr 2019 13:48:42 +0200
+Message-ID: <20190424114842.4723-18-tzimmermann__16039.5958855347$1556106738$gmane$org@suse.de>
 References: <20190424114842.4723-1-tzimmermann@suse.de>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
@@ -22,193 +21,224 @@ To: daniel@ffwll.ch, airlied@linux.ie, kraxel@redhat.com, christian.koenig@amd.c
 Cc: Thomas Zimmermann <tzimmermann@suse.de>, dri-devel@lists.freedesktop.org, virtualization@lists.linux-foundation.org
 List-Id: virtualization@lists.linuxfoundation.org
 
-The mgag200 driver establishes several memory mappings for frame buffers
-and cursors. This patch converts the driver to use the equivalent
-drm_gem_vram_kmap() functions. It removes the dependencies on TTM
-and cleans up the code.
----
- drivers/gpu/drm/mgag200/mgag200_cursor.c | 35 +++++++++++-------------
- drivers/gpu/drm/mgag200/mgag200_drv.h    |  1 -
- drivers/gpu/drm/mgag200/mgag200_fb.c     | 22 +++++++++------
- drivers/gpu/drm/mgag200/mgag200_mode.c   |  9 ++++--
- 4 files changed, 36 insertions(+), 31 deletions(-)
+The data structure |struct drm_vram_mm| and its helpers replace hibmc's
+TTM-based memory manager. It's the same implementation; except for the
+type names.
 
-diff --git a/drivers/gpu/drm/mgag200/mgag200_cursor.c b/drivers/gpu/drm/mgag200/mgag200_cursor.c
-index cca3922f9f67..6c1a9d724d85 100644
---- a/drivers/gpu/drm/mgag200/mgag200_cursor.c
-+++ b/drivers/gpu/drm/mgag200/mgag200_cursor.c
-@@ -43,6 +43,7 @@ int mga_crtc_cursor_set(struct drm_crtc *crtc,
- 	struct drm_gem_object *obj;
- 	struct drm_gem_vram_object *gbo = NULL;
- 	int ret = 0;
-+	u8 *src, *dst;
- 	unsigned int i, row, col;
- 	uint32_t colour_set[16];
- 	uint32_t *next_space = &colour_set[0];
-@@ -126,18 +127,17 @@ int mga_crtc_cursor_set(struct drm_crtc *crtc,
- 		dev_err(&dev->pdev->dev, "failed to reserve user bo\n");
- 		goto out1;
- 	}
--	if (!gbo->kmap.virtual) {
--		ret = ttm_bo_kmap(&gbo->bo, 0, gbo->bo.num_pages, &gbo->kmap);
--		if (ret) {
--			dev_err(&dev->pdev->dev, "failed to kmap user buffer updates\n");
--			goto out2;
--		}
-+	src = drm_gem_vram_kmap(gbo, true, NULL);
-+	if (IS_ERR(src)) {
-+		ret = PTR_ERR(src);
-+		dev_err(&dev->pdev->dev, "failed to kmap user buffer updates\n");
-+		goto out2;
- 	}
+v2:
+	* implement hibmc_mmap() with drm_vram_mm_mmap()
+
+Signed-off-by: Thomas Zimmermann <tzimmermann@suse.de>
+---
+ drivers/gpu/drm/hisilicon/hibmc/Kconfig       |   1 +
+ .../gpu/drm/hisilicon/hibmc/hibmc_drm_drv.h   |   7 +-
+ drivers/gpu/drm/hisilicon/hibmc/hibmc_ttm.c   | 125 ++----------------
+ 3 files changed, 14 insertions(+), 119 deletions(-)
+
+diff --git a/drivers/gpu/drm/hisilicon/hibmc/Kconfig b/drivers/gpu/drm/hisilicon/hibmc/Kconfig
+index 11720303ca40..7c63c2f7d249 100644
+--- a/drivers/gpu/drm/hisilicon/hibmc/Kconfig
++++ b/drivers/gpu/drm/hisilicon/hibmc/Kconfig
+@@ -4,6 +4,7 @@ config DRM_HISI_HIBMC
+ 	select DRM_KMS_HELPER
+ 	select DRM_TTM
+ 	select DRM_GEM_VRAM_HELPER
++	select DRM_VRAM_MM_HELPER
  
- 	memset(&colour_set[0], 0, sizeof(uint32_t)*16);
- 	/* width*height*4 = 16384 */
- 	for (i = 0; i < 16384; i += 4) {
--		this_colour = ioread32(gbo->kmap.virtual + i);
-+		this_colour = ioread32(src + i);
- 		/* No transparency */
- 		if (this_colour>>24 != 0xff &&
- 			this_colour>>24 != 0x0) {
-@@ -189,21 +189,18 @@ int mga_crtc_cursor_set(struct drm_crtc *crtc,
- 	}
+ 	help
+ 	  Choose this option if you have a Hisilicon Hibmc soc chipset.
+diff --git a/drivers/gpu/drm/hisilicon/hibmc/hibmc_drm_drv.h b/drivers/gpu/drm/hisilicon/hibmc/hibmc_drm_drv.h
+index 6b3430fc5148..b9924fb1eb93 100644
+--- a/drivers/gpu/drm/hisilicon/hibmc/hibmc_drm_drv.h
++++ b/drivers/gpu/drm/hisilicon/hibmc/hibmc_drm_drv.h
+@@ -24,7 +24,7 @@
+ #include <drm/drm_fb_helper.h>
+ #include <drm/drm_gem.h>
+ #include <drm/drm_gem_vram_helper.h>
+-#include <drm/ttm/ttm_bo_driver.h>
++#include <drm/drm_vram_mm_helper.h>
  
- 	/* Map up-coming buffer to write colour indices */
--	if (!pixels_prev->kmap.virtual) {
--		ret = ttm_bo_kmap(&pixels_prev->bo, 0,
--				  pixels_prev->bo.num_pages,
--				  &pixels_prev->kmap);
--		if (ret) {
--			dev_err(&dev->pdev->dev, "failed to kmap cursor updates\n");
--			goto out3;
--		}
-+	dst = drm_gem_vram_kmap(pixels_prev, true, NULL);
-+	if (IS_ERR(dst)) {
-+		ret = PTR_ERR(dst);
-+		dev_err(&dev->pdev->dev, "failed to kmap cursor updates\n");
-+		goto out3;
- 	}
+ struct hibmc_framebuffer {
+ 	struct drm_framebuffer fb;
+@@ -49,9 +49,8 @@ struct hibmc_drm_private {
+ 	struct drm_device  *dev;
+ 	bool mode_config_initialized;
  
- 	/* now write colour indices into hardware cursor buffer */
- 	for (row = 0; row < 64; row++) {
- 		memset(&this_row[0], 0, 48);
- 		for (col = 0; col < 64; col++) {
--			this_colour = ioread32(gbo->kmap.virtual + 4*(col + 64*row));
-+			this_colour = ioread32(src + 4*(col + 64*row));
- 			/* write transparent pixels */
- 			if (this_colour>>24 == 0x0) {
- 				this_row[47 - col/8] |= 0x80>>(col%8);
-@@ -221,7 +218,7 @@ int mga_crtc_cursor_set(struct drm_crtc *crtc,
- 				}
- 			}
- 		}
--		memcpy_toio(pixels_prev->kmap.virtual + row*48, &this_row[0], 48);
-+		memcpy_toio(dst + row*48, &this_row[0], 48);
- 	}
+-	/* ttm */
+-	struct ttm_bo_device bdev;
+-	bool initialized;
++	/* vram */
++	struct drm_vram_mm vmm;
  
- 	/* Program gpu address of cursor buffer */
-@@ -247,9 +244,9 @@ int mga_crtc_cursor_set(struct drm_crtc *crtc,
- 	}
- 	ret = 0;
+ 	/* fbdev */
+ 	struct hibmc_fbdev *fbdev;
+diff --git a/drivers/gpu/drm/hisilicon/hibmc/hibmc_ttm.c b/drivers/gpu/drm/hisilicon/hibmc/hibmc_ttm.c
+index fbf8eb048ebc..e901cf3437ed 100644
+--- a/drivers/gpu/drm/hisilicon/hibmc/hibmc_ttm.c
++++ b/drivers/gpu/drm/hisilicon/hibmc/hibmc_ttm.c
+@@ -17,129 +17,24 @@
+  */
  
--	ttm_bo_kunmap(&pixels_prev->kmap);
-+	drm_gem_vram_kunmap(pixels_prev);
-  out3:
--	ttm_bo_kunmap(&gbo->kmap);
-+	drm_gem_vram_kunmap(gbo);
-  out2:
- 	drm_gem_vram_unreserve(gbo);
-  out1:
-diff --git a/drivers/gpu/drm/mgag200/mgag200_drv.h b/drivers/gpu/drm/mgag200/mgag200_drv.h
-index 0d498b1312e1..1184e04bb555 100644
---- a/drivers/gpu/drm/mgag200/mgag200_drv.h
-+++ b/drivers/gpu/drm/mgag200/mgag200_drv.h
-@@ -115,7 +115,6 @@ struct mga_fbdev {
- 	struct mga_framebuffer mfb;
- 	void *sysram;
- 	int size;
--	struct ttm_bo_kmap_obj mapping;
- 	int x1, y1, x2, y2; /* dirty rect */
- 	spinlock_t dirty_lock;
- };
-diff --git a/drivers/gpu/drm/mgag200/mgag200_fb.c b/drivers/gpu/drm/mgag200/mgag200_fb.c
-index 508ec2dddbba..7c457dad5d9e 100644
---- a/drivers/gpu/drm/mgag200/mgag200_fb.c
-+++ b/drivers/gpu/drm/mgag200/mgag200_fb.c
-@@ -27,6 +27,7 @@ static void mga_dirty_update(struct mga_fbdev *mfbdev,
- 	int src_offset, dst_offset;
- 	int bpp = mfbdev->mfb.base.format->cpp[0];
- 	int ret = -EBUSY;
-+	u8 *dst;
- 	bool unmap = false;
- 	bool store_for_later = false;
- 	int x2, y2;
-@@ -75,24 +76,29 @@ static void mga_dirty_update(struct mga_fbdev *mfbdev,
- 	mfbdev->x2 = mfbdev->y2 = 0;
- 	spin_unlock_irqrestore(&mfbdev->dirty_lock, flags);
+ #include <drm/drm_atomic_helper.h>
+-#include <drm/ttm/ttm_page_alloc.h>
  
--	if (!gbo->kmap.virtual) {
--		ret = ttm_bo_kmap(&gbo->bo, 0, gbo->bo.num_pages, &gbo->kmap);
--		if (ret) {
-+	dst = drm_gem_vram_kmap(gbo, false, NULL);
-+	if (IS_ERR(dst)) {
-+		DRM_ERROR("failed to kmap fb updates\n");
-+		goto out;
-+	} else if (!dst) {
-+		dst = drm_gem_vram_kmap(gbo, true, NULL);
-+		if (IS_ERR(dst)) {
- 			DRM_ERROR("failed to kmap fb updates\n");
--			drm_gem_vram_unreserve(gbo);
--			return;
-+			goto out;
- 		}
- 		unmap = true;
- 	}
-+
- 	for (i = y; i <= y2; i++) {
- 		/* assume equal stride for now */
- 		src_offset = dst_offset = i * mfbdev->mfb.base.pitches[0] + (x * bpp);
--		memcpy_toio(gbo->kmap.virtual + src_offset, mfbdev->sysram + src_offset, (x2 - x + 1) * bpp);
+ #include "hibmc_drm_drv.h"
+ 
+-static inline struct hibmc_drm_private *
+-hibmc_bdev(struct ttm_bo_device *bd)
+-{
+-	return container_of(bd, struct hibmc_drm_private, bdev);
+-}
 -
-+		memcpy_toio(dst + dst_offset, mfbdev->sysram + src_offset, (x2 - x + 1) * bpp);
- 	}
-+
- 	if (unmap)
--		ttm_bo_kunmap(&gbo->kmap);
-+		drm_gem_vram_kunmap(gbo);
+-static int
+-hibmc_bo_init_mem_type(struct ttm_bo_device *bdev, u32 type,
+-		       struct ttm_mem_type_manager *man)
+-{
+-	switch (type) {
+-	case TTM_PL_SYSTEM:
+-		man->flags = TTM_MEMTYPE_FLAG_MAPPABLE;
+-		man->available_caching = TTM_PL_MASK_CACHING;
+-		man->default_caching = TTM_PL_FLAG_CACHED;
+-		break;
+-	case TTM_PL_VRAM:
+-		man->func = &ttm_bo_manager_func;
+-		man->flags = TTM_MEMTYPE_FLAG_FIXED |
+-			TTM_MEMTYPE_FLAG_MAPPABLE;
+-		man->available_caching = TTM_PL_FLAG_UNCACHED |
+-			TTM_PL_FLAG_WC;
+-		man->default_caching = TTM_PL_FLAG_WC;
+-		break;
+-	default:
+-		DRM_ERROR("unsupported memory type %u\n", type);
+-		return -EINVAL;
+-	}
+-	return 0;
+-}
+-
+-static int hibmc_ttm_io_mem_reserve(struct ttm_bo_device *bdev,
+-				    struct ttm_mem_reg *mem)
+-{
+-	struct ttm_mem_type_manager *man = &bdev->man[mem->mem_type];
+-	struct hibmc_drm_private *hibmc = hibmc_bdev(bdev);
+-
+-	mem->bus.addr = NULL;
+-	mem->bus.offset = 0;
+-	mem->bus.size = mem->num_pages << PAGE_SHIFT;
+-	mem->bus.base = 0;
+-	mem->bus.is_iomem = false;
+-	if (!(man->flags & TTM_MEMTYPE_FLAG_MAPPABLE))
+-		return -EINVAL;
+-	switch (mem->mem_type) {
+-	case TTM_PL_SYSTEM:
+-		/* system memory */
+-		return 0;
+-	case TTM_PL_VRAM:
+-		mem->bus.offset = mem->start << PAGE_SHIFT;
+-		mem->bus.base = pci_resource_start(hibmc->dev->pdev, 0);
+-		mem->bus.is_iomem = true;
+-		break;
+-	default:
+-		return -EINVAL;
+-	}
+-	return 0;
+-}
+-
+-static void hibmc_ttm_backend_destroy(struct ttm_tt *tt)
+-{
+-	ttm_tt_fini(tt);
+-	kfree(tt);
+-}
+-
+-static struct ttm_backend_func hibmc_tt_backend_func = {
+-	.destroy = &hibmc_ttm_backend_destroy,
+-};
+-
+-static struct ttm_tt *hibmc_ttm_tt_create(struct ttm_buffer_object *bo,
+-					  u32 page_flags)
+-{
+-	struct ttm_tt *tt;
+-	int ret;
+-
+-	tt = kzalloc(sizeof(*tt), GFP_KERNEL);
+-	if (!tt) {
+-		DRM_ERROR("failed to allocate ttm_tt\n");
+-		return NULL;
+-	}
+-	tt->func = &hibmc_tt_backend_func;
+-	ret = ttm_tt_init(tt, bo, page_flags);
+-	if (ret) {
+-		DRM_ERROR("failed to initialize ttm_tt: %d\n", ret);
+-		kfree(tt);
+-		return NULL;
+-	}
+-	return tt;
+-}
+-
+-struct ttm_bo_driver hibmc_bo_driver = {
+-	.ttm_tt_create		= hibmc_ttm_tt_create,
+-	.init_mem_type		= hibmc_bo_init_mem_type,
+-	.evict_flags		= drm_gem_vram_bo_driver_evict_flags,
+-	.move			= NULL,
+-	.verify_access		= drm_gem_vram_bo_driver_verify_access,
+-	.io_mem_reserve		= &hibmc_ttm_io_mem_reserve,
+-	.io_mem_free		= NULL,
++static const struct drm_vram_mm_funcs hibmc_vram_mm_funcs = {
++	.evict_flags = drm_gem_vram_bo_driver_evict_flags,
++	.verify_access = drm_gem_vram_bo_driver_verify_access
+ };
  
-+out:
- 	drm_gem_vram_unreserve(gbo);
+ int hibmc_mm_init(struct hibmc_drm_private *hibmc)
+ {
+ 	int ret;
+ 	struct drm_device *dev = hibmc->dev;
+-	struct ttm_bo_device *bdev = &hibmc->bdev;
+-
+-	ret = ttm_bo_device_init(&hibmc->bdev,
+-				 &hibmc_bo_driver,
+-				 dev->anon_inode->i_mapping,
+-				 true);
+-	if (ret) {
+-		DRM_ERROR("error initializing bo driver: %d\n", ret);
+-		return ret;
+-	}
+ 
+-	ret = ttm_bo_init_mm(bdev, TTM_PL_VRAM,
+-			     hibmc->fb_size >> PAGE_SHIFT);
++	ret = drm_vram_mm_init(&hibmc->vmm, dev,
++			       pci_resource_start(dev->pdev, 0),
++			       hibmc->fb_size, &hibmc_vram_mm_funcs);
+ 	if (ret) {
+-		DRM_ERROR("failed ttm VRAM init: %d\n", ret);
++		DRM_ERROR("Error initializing VRAM MM; %d\n", ret);
+ 		return ret;
+ 	}
+ 
+@@ -152,7 +47,7 @@ void hibmc_mm_fini(struct hibmc_drm_private *hibmc)
+ 	if (!hibmc->mm_inited)
+ 		return;
+ 
+-	ttm_bo_device_release(&hibmc->bdev);
++	drm_vram_mm_cleanup(&hibmc->vmm);
+ 	hibmc->mm_inited = false;
  }
  
-diff --git a/drivers/gpu/drm/mgag200/mgag200_mode.c b/drivers/gpu/drm/mgag200/mgag200_mode.c
-index ddec2c485381..769ace139377 100644
---- a/drivers/gpu/drm/mgag200/mgag200_mode.c
-+++ b/drivers/gpu/drm/mgag200/mgag200_mode.c
-@@ -870,6 +870,7 @@ static int mga_crtc_do_set_base(struct drm_crtc *crtc,
- 	struct drm_gem_vram_object *gbo;
- 	int ret;
- 	s64 gpu_addr;
-+	void* base;
+@@ -161,7 +56,7 @@ int hibmc_mmap(struct file *filp, struct vm_area_struct *vma)
+ 	struct drm_file *file_priv = filp->private_data;
+ 	struct hibmc_drm_private *hibmc = file_priv->minor->dev->dev_private;
  
- 	/* push the previous fb to system ram */
- 	if (!atomic && fb) {
-@@ -902,11 +903,13 @@ static int mga_crtc_do_set_base(struct drm_crtc *crtc,
+-	return ttm_bo_mmap(filp, vma, &hibmc->bdev);
++	return drm_vram_mm_mmap(filp, vma, &hibmc->vmm);
+ }
  
- 	if (&mdev->mfbdev->mfb == mga_fb) {
- 		/* if pushing console in kmap it */
--		ret = ttm_bo_kmap(&gbo->bo, 0, gbo->bo.num_pages, &gbo->kmap);
--		if (ret)
-+		base = drm_gem_vram_kmap(gbo, true, NULL);
-+		if (IS_ERR(base)) {
-+			ret = PTR_ERR(base);
- 			DRM_ERROR("failed to kmap fbcon\n");
--
-+		}
- 	}
-+
- 	drm_gem_vram_unreserve(gbo);
+ int hibmc_gem_create(struct drm_device *dev, u32 size, bool iskernel,
+@@ -177,7 +72,7 @@ int hibmc_gem_create(struct drm_device *dev, u32 size, bool iskernel,
+ 	if (size == 0)
+ 		return -EINVAL;
  
- 	mga_set_start_address(crtc, (u32)gpu_addr);
+-	gbo = drm_gem_vram_create(dev, &hibmc->bdev, size, 0, false);
++	gbo = drm_gem_vram_create(dev, &hibmc->vmm.bdev, size, 0, false);
+ 	if (IS_ERR(gbo)) {
+ 		ret = PTR_ERR(gbo);
+ 		if (ret != -ERESTARTSYS)
 -- 
 2.21.0
