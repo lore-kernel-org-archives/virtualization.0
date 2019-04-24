@@ -1,16 +1,14 @@
 From: Daniel Vetter <daniel@ffwll.ch>
-Subject: Re: [PATCH v2 05/17] drm: Add VRAM MM, a simple memory manager for
-	dedicated VRAM
-Date: Wed, 24 Apr 2019 15:07:18 +0200
-Message-ID: <20190424130718.GP9857__39690.9662800439$1556111261$gmane$org@phenom.ffwll.local>
+Subject: Re: [PATCH v2 00/17] Share TTM code among DRM framebuffer drivers
+Date: Wed, 24 Apr 2019 15:09:15 +0200
+Message-ID: <20190424130915.GQ9857__4770.36159006588$1556111376$gmane$org@phenom.ffwll.local>
 References: <20190424114842.4723-1-tzimmermann@suse.de>
-	<20190424114842.4723-6-tzimmermann@suse.de>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
 Content-Disposition: inline
-In-Reply-To: <20190424114842.4723-6-tzimmermann@suse.de>
+In-Reply-To: <20190424114842.4723-1-tzimmermann@suse.de>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -24,392 +22,130 @@ To: Thomas Zimmermann <tzimmermann@suse.de>
 Cc: airlied@linux.ie, puck.chen@hisilicon.com, dri-devel@lists.freedesktop.org, virtualization@lists.linux-foundation.org, z.liuxinliang@hisilicon.com, hdegoede@redhat.com, kong.kongxinwei@hisilicon.com, ray.huang@amd.com, daniel@ffwll.ch, zourongrong@gmail.com, Jerry.Zhang@amd.com, christian.koenig@amd.com
 List-Id: virtualization@lists.linuxfoundation.org
 
-On Wed, Apr 24, 2019 at 01:48:30PM +0200, Thomas Zimmermann wrote:
-> The VRAM MM memory manager is a helper library that manages dedicated video
-> memory of simple framebuffer devices. It is supported to be used with
-> struct drm_gem_vram_object, but does not depend on it.
-
-I'm not sure keeping these two helpers strictly separated helps us. If
-forces things like the verify_access callback, which everyone just
-implements the exact same way.
-
-I'd merge them, or at least make these callbacks call the gem_vram_object
-implementations by default.
--Daniel
-
+On Wed, Apr 24, 2019 at 01:48:25PM +0200, Thomas Zimmermann wrote:
+> Several simple framebuffer drivers copy most of the TTM code from each
+> other. The implementation is always the same; except for the name of
+> some data structures.
 > 
-> The implementation is based on the respective code from ast, bochs, and
-> mgag200. These drivers share the exact same implementation except for type
-> names. The helpers are currently build with TTM. This may change in future
-> revisions.
+> As recently discussed, this patch set provides generic memory-management
+> code for simple framebuffers with dedicated video memory. It further
+> converts the respective drivers to the generic code. The shared code
+> is basically the same implementation as the one copied among individual
+> drivers.
+> 
+> The patch set contains two major changes: first, it introduces
+> |struct drm_gem_vram_object| and helpers (GEM VRAM). It's a GEM object
+> that is backed by VRAM. The type's purpose is somewhat similar to
+> |struct drm_gem_{cma, shmem}_object|: it provides an commom implementation
+> that handles all the basic cases. Second, the patch set introduces
+> |struct drm_vram_mm| and helpers (VRAM MM). It's an implementation of a
+> basic memory manager for VRAM.
+> 
+> Both, GEM VRAM and VRAM MM, support buffer placement in VRAM and system
+> memory. Both can be used independedly from each other if desired by the
+> DRM driver.
+> 
+> Currently ast, bochs, mgag200, vboxvideo and hisilicon/hibmc can use
+> these helpers.
+> 
+> Future directions: with these changes, the respective drivers can also
+> share some of their mode-setting or fbdev code. GEM VRAM could implement
+> PRIME helpers, which would allow for using the generic fbcon.
+> 
+> The patch set is against a recent drm-tip.
 > 
 > v2:
-> 	* renamed to struct drm_vram_mm
+> 	* rename |struct drm_gem_ttm_object| to |struct drm_gem_vram_object|
+> 	* rename |struct drm_simple_ttm| to |struct drm_vram_mm|
+> 	* make drm_is_gem_ttm() an internal helper
+> 	* add drm_gem_vram_kmap_at()
+> 	* return is_iomem from kmap functions
+> 	* redefine TTM placement flags for public interface
 > 	* add drm_vram_mm_mmap() helper
+> 	* replace almost all of driver's TTM code with these helpers
 > 	* documentation fixes
+
+I think this looks greats. A bunch of small ideas as replies how to futher
+streamline/simplify the helper api. But since I'm not a vram/ttm/gem
+helper expert really I think I'll leave final review/merging to others. I
+think there's enough interest in your work to make that work smoothly, if
+not pls pipe up.
+
+Cheers, Daniel
+
 > 
-> Signed-off-by: Thomas Zimmermann <tzimmermann@suse.de>
-> ---
->  Documentation/gpu/drm-mm.rst         |  13 +-
->  drivers/gpu/drm/Kconfig              |   7 +
->  drivers/gpu/drm/Makefile             |   1 +
->  drivers/gpu/drm/drm_vram_mm_helper.c | 210 +++++++++++++++++++++++++++
->  include/drm/drm_vram_mm_helper.h     |  67 +++++++++
->  5 files changed, 297 insertions(+), 1 deletion(-)
+> Thomas Zimmermann (17):
+>   drm: Add |struct drm_gem_vram_object| and helpers
+>   drm: Add |struct drm_gem_vram_object| callbacks for |struct
+>     ttm_bo_driver|
+>   drm: Add |struct drm_gem_vram_object| callbacks for |struct
+>     drm_driver|
+>   drm: Add drm_gem_vram_fill_create_dumb() to create dumb buffers
+>   drm: Add VRAM MM, a simple memory manager for dedicated VRAM
+>   drm/ast: Convert AST driver to |struct drm_gem_vram_object|
+>   drm/ast: Convert AST driver to VRAM MM
+>   drm/ast: Replace mapping code with drm_gem_vram_{kmap/kunmap}()
+>   drm/bochs: Convert bochs driver to |struct drm_gem_vram_object|
+>   drm/bochs: Convert bochs driver to VRAM MM
+>   drm/mgag200: Convert mgag200 driver to |struct drm_gem_vram_object|
+>   drm/mgag200: Convert mgag200 driver to VRAM MM
+>   drm/mgag200: Replace mapping code with drm_gem_vram_{kmap/kunmap}()
+>   drm/vboxvideo: Convert vboxvideo driver to |struct
+>     drm_gem_vram_object|
+>   drm/vboxvideo: Convert vboxvideo driver to VRAM MM
+>   drm/hisilicon: Convert hibmc-drm driver to |struct
+>     drm_gem_vram_object|
+>   drm/hisilicon: Convert hibmc-drm driver to VRAM MM
+> 
+>  Documentation/gpu/drm-mm.rst                  |  25 +-
+>  drivers/gpu/drm/Kconfig                       |  20 +
+>  drivers/gpu/drm/Makefile                      |   5 +
+>  drivers/gpu/drm/ast/Kconfig                   |   3 +-
+>  drivers/gpu/drm/ast/ast_drv.c                 |   4 +-
+>  drivers/gpu/drm/ast/ast_drv.h                 |  65 +-
+>  drivers/gpu/drm/ast/ast_fb.c                  |  30 +-
+>  drivers/gpu/drm/ast/ast_main.c                |  74 +--
+>  drivers/gpu/drm/ast/ast_mode.c                | 124 ++--
+>  drivers/gpu/drm/ast/ast_ttm.c                 | 293 +--------
+>  drivers/gpu/drm/bochs/Kconfig                 |   2 +
+>  drivers/gpu/drm/bochs/bochs.h                 |  45 +-
+>  drivers/gpu/drm/bochs/bochs_drv.c             |   4 +-
+>  drivers/gpu/drm/bochs/bochs_kms.c             |  18 +-
+>  drivers/gpu/drm/bochs/bochs_mm.c              | 395 +-----------
+>  drivers/gpu/drm/drm_gem_vram_helper.c         | 570 ++++++++++++++++++
+>  drivers/gpu/drm/drm_vram_helper_common.c      |   6 +
+>  drivers/gpu/drm/drm_vram_mm_helper.c          | 210 +++++++
+>  drivers/gpu/drm/hisilicon/hibmc/Kconfig       |   2 +
+>  .../gpu/drm/hisilicon/hibmc/hibmc_drm_de.c    |  21 +-
+>  .../gpu/drm/hisilicon/hibmc/hibmc_drm_drv.c   |   5 +-
+>  .../gpu/drm/hisilicon/hibmc/hibmc_drm_drv.h   |  32 +-
+>  .../gpu/drm/hisilicon/hibmc/hibmc_drm_fbdev.c |  30 +-
+>  drivers/gpu/drm/hisilicon/hibmc/hibmc_ttm.c   | 329 +---------
+>  drivers/gpu/drm/mgag200/Kconfig               |   2 +
+>  drivers/gpu/drm/mgag200/mgag200_cursor.c      |  88 +--
+>  drivers/gpu/drm/mgag200/mgag200_drv.c         |   4 +-
+>  drivers/gpu/drm/mgag200/mgag200_drv.h         |  74 +--
+>  drivers/gpu/drm/mgag200/mgag200_fb.c          |  30 +-
+>  drivers/gpu/drm/mgag200/mgag200_main.c        |  84 +--
+>  drivers/gpu/drm/mgag200/mgag200_mode.c        |  52 +-
+>  drivers/gpu/drm/mgag200/mgag200_ttm.c         | 293 +--------
+>  drivers/gpu/drm/vboxvideo/Kconfig             |   2 +
+>  drivers/gpu/drm/vboxvideo/vbox_drv.c          |   5 +-
+>  drivers/gpu/drm/vboxvideo/vbox_drv.h          |  68 +--
+>  drivers/gpu/drm/vboxvideo/vbox_fb.c           |  22 +-
+>  drivers/gpu/drm/vboxvideo/vbox_main.c         |  70 +--
+>  drivers/gpu/drm/vboxvideo/vbox_mode.c         |  36 +-
+>  drivers/gpu/drm/vboxvideo/vbox_ttm.c          | 347 +----------
+>  include/drm/drm_gem_vram_helper.h             | 120 ++++
+>  include/drm/drm_vram_mm_helper.h              |  67 ++
+>  41 files changed, 1445 insertions(+), 2231 deletions(-)
+>  create mode 100644 drivers/gpu/drm/drm_gem_vram_helper.c
+>  create mode 100644 drivers/gpu/drm/drm_vram_helper_common.c
 >  create mode 100644 drivers/gpu/drm/drm_vram_mm_helper.c
+>  create mode 100644 include/drm/drm_gem_vram_helper.h
 >  create mode 100644 include/drm/drm_vram_mm_helper.h
 > 
-> diff --git a/Documentation/gpu/drm-mm.rst b/Documentation/gpu/drm-mm.rst
-> index d5327ed608d7..a6ce10675638 100644
-> --- a/Documentation/gpu/drm-mm.rst
-> +++ b/Documentation/gpu/drm-mm.rst
-> @@ -79,7 +79,6 @@ count for the TTM, which will call your initialization function.
->  
->  See the radeon_ttm.c file for an example of usage.
->  
-> -
->  The Graphics Execution Manager (GEM)
->  ====================================
->  
-> @@ -392,6 +391,18 @@ GEM VRAM Helper Functions Reference
->  .. kernel-doc:: drivers/gpu/drm/drm_gem_vram_helper.c
->     :export:
->  
-> +VRAM MM Helper Functions Reference
-> +-------------------------------------
-> +
-> +.. kernel-doc:: drivers/gpu/drm/drm_vram_mm_helper.c
-> +   :doc: overview
-> +
-> +.. kernel-doc:: include/drm/drm_vram_mm_helper.h
-> +   :internal:
-> +
-> +.. kernel-doc:: drivers/gpu/drm/drm_vram_mm_helper.c
-> +   :export:
-> +
->  VMA Offset Manager
->  ==================
->  
-> diff --git a/drivers/gpu/drm/Kconfig b/drivers/gpu/drm/Kconfig
-> index 9a1870f4dab6..fc8007de5d09 100644
-> --- a/drivers/gpu/drm/Kconfig
-> +++ b/drivers/gpu/drm/Kconfig
-> @@ -166,6 +166,13 @@ config DRM_VRAM_HELPER
->  	help
->  	  Helpers for VRAM memory management
->  
-> +config DRM_VRAM_MM_HELPER
-> +	tristate
-> +	depends on DRM && DRM_TTM
-> +	select DRM_VRAM_HELPER
-> +	help
-> +	  Choose this if you need the VRAM MM helper functions
-> +
->  config DRM_GEM_CMA_HELPER
->  	bool
->  	depends on DRM
-> diff --git a/drivers/gpu/drm/Makefile b/drivers/gpu/drm/Makefile
-> index bb2e8de8661b..61c7db6aac95 100644
-> --- a/drivers/gpu/drm/Makefile
-> +++ b/drivers/gpu/drm/Makefile
-> @@ -35,6 +35,7 @@ drm-$(CONFIG_DRM_LOAD_EDID_FIRMWARE) += drm_edid_load.o
->  
->  drm_vram_helper-y := drm_vram_helper_common.o
->  drm_vram_helper-$(CONFIG_DRM_GEM_VRAM_HELPER) += drm_gem_vram_helper.o
-> +drm_vram_helper-$(CONFIG_DRM_VRAM_MM_HELPER) += drm_vram_mm_helper.o
->  obj-$(CONFIG_DRM_VRAM_HELPER) += drm_vram_helper.o
->  
->  drm_kms_helper-y := drm_crtc_helper.o drm_dp_helper.o drm_dsc.o drm_probe_helper.o \
-> diff --git a/drivers/gpu/drm/drm_vram_mm_helper.c b/drivers/gpu/drm/drm_vram_mm_helper.c
-> new file mode 100644
-> index 000000000000..d19f46d7a4e7
-> --- /dev/null
-> +++ b/drivers/gpu/drm/drm_vram_mm_helper.c
-> @@ -0,0 +1,210 @@
-> +/* SPDX-License-Identifier: GPL-2.0-or-later */
-> +
-> +#include <drm/drm_vram_mm_helper.h>
-> +#include <drm/drmP.h>
-> +#include <drm/ttm/ttm_page_alloc.h>
-> +
-> +/**
-> + * DOC: overview
-> + *
-> + * The data structure &struct drm_vram_mm and its helpers implement a memory
-> + * manager for simple framebuffer devices with dedicated video memory. Buffer
-> + * object s are either placed in VRAM or evicted to system ram. The functions
-> + * work well with &struct drm_gem_vram_object.
-> + */
-> +
-> +/*
-> + * TTM TT
-> + */
-> +
-> +static void backend_func_destroy(struct ttm_tt *tt)
-> +{
-> +	ttm_tt_fini(tt);
-> +	kfree(tt);
-> +}
-> +
-> +static struct ttm_backend_func backend_func = {
-> +	.destroy = backend_func_destroy
-> +};
-> +
-> +/*
-> + * TTM BO device
-> + */
-> +
-> +static struct ttm_tt *bo_driver_ttm_tt_create(struct ttm_buffer_object *bo,
-> +					      uint32_t page_flags)
-> +{
-> +	struct ttm_tt *tt;
-> +	int ret;
-> +
-> +	tt = kzalloc(sizeof(*tt), GFP_KERNEL);
-> +	if (!tt)
-> +		return NULL;
-> +
-> +	tt->func = &backend_func;
-> +
-> +	ret = ttm_tt_init(tt, bo, page_flags);
-> +	if (ret < 0)
-> +		goto err_ttm_tt_init;
-> +
-> +	return tt;
-> +
-> +err_ttm_tt_init:
-> +	kfree(tt);
-> +	return NULL;
-> +}
-> +
-> +static int bo_driver_init_mem_type(struct ttm_bo_device *bdev, uint32_t type,
-> +				   struct ttm_mem_type_manager *man)
-> +{
-> +	switch (type) {
-> +	case TTM_PL_SYSTEM:
-> +		man->flags = TTM_MEMTYPE_FLAG_MAPPABLE;
-> +		man->available_caching = TTM_PL_MASK_CACHING;
-> +		man->default_caching = TTM_PL_FLAG_CACHED;
-> +		break;
-> +	case TTM_PL_VRAM:
-> +		man->func = &ttm_bo_manager_func;
-> +		man->flags = TTM_MEMTYPE_FLAG_FIXED |
-> +			     TTM_MEMTYPE_FLAG_MAPPABLE;
-> +		man->available_caching = TTM_PL_FLAG_UNCACHED |
-> +					 TTM_PL_FLAG_WC;
-> +		man->default_caching = TTM_PL_FLAG_WC;
-> +		break;
-> +	default:
-> +		return -EINVAL;
-> +	}
-> +	return 0;
-> +}
-> +
-> +static void bo_driver_evict_flags(struct ttm_buffer_object *bo,
-> +				  struct ttm_placement *placement)
-> +{
-> +	struct drm_vram_mm *vmm = drm_vram_mm_of_bdev(bo->bdev);
-> +
-> +	if (vmm->funcs && vmm->funcs->evict_flags)
-> +		vmm->funcs->evict_flags(bo, placement);
-> +}
-> +
-> +static int bo_driver_verify_access(struct ttm_buffer_object *bo,
-> +				   struct file *filp)
-> +{
-> +	struct drm_vram_mm *vmm = drm_vram_mm_of_bdev(bo->bdev);
-> +
-> +	if (!vmm->funcs || !vmm->funcs->verify_access)
-> +		return 0;
-> +	return vmm->funcs->verify_access(bo, filp);
-> +}
-> +
-> +static int bo_driver_io_mem_reserve(struct ttm_bo_device *bdev,
-> +				    struct ttm_mem_reg *mem)
-> +{
-> +	struct ttm_mem_type_manager *man = bdev->man + mem->mem_type;
-> +	struct drm_vram_mm *vmm = drm_vram_mm_of_bdev(bdev);
-> +
-> +	if (!(man->flags & TTM_MEMTYPE_FLAG_MAPPABLE))
-> +		return -EINVAL;
-> +
-> +	mem->bus.addr = NULL;
-> +	mem->bus.size = mem->num_pages << PAGE_SHIFT;
-> +
-> +	switch (mem->mem_type) {
-> +	case TTM_PL_SYSTEM:	/* nothing to do */
-> +		mem->bus.offset = 0;
-> +		mem->bus.base = 0;
-> +		mem->bus.is_iomem = false;
-> +		break;
-> +	case TTM_PL_VRAM:
-> +		mem->bus.offset = mem->start << PAGE_SHIFT;
-> +		mem->bus.base = vmm->vram_base;
-> +		mem->bus.is_iomem = true;
-> +		break;
-> +	default:
-> +		return -EINVAL;
-> +	}
-> +
-> +	return 0;
-> +}
-> +
-> +static void bo_driver_io_mem_free(struct ttm_bo_device *bdev,
-> +				  struct ttm_mem_reg *mem)
-> +{ }
-> +
-> +static struct ttm_bo_driver bo_driver = {
-> +	.ttm_tt_create = bo_driver_ttm_tt_create,
-> +	.ttm_tt_populate = ttm_pool_populate,
-> +	.ttm_tt_unpopulate = ttm_pool_unpopulate,
-> +	.init_mem_type = bo_driver_init_mem_type,
-> +	.eviction_valuable = ttm_bo_eviction_valuable,
-> +	.evict_flags = bo_driver_evict_flags,
-> +	.verify_access = bo_driver_verify_access,
-> +	.io_mem_reserve = bo_driver_io_mem_reserve,
-> +	.io_mem_free = bo_driver_io_mem_free,
-> +};
-> +
-> +/*
-> + * struct drm_vram_mm
-> + */
-> +
-> +/**
-> + * drm_vram_mm_init() - Initialize an instance of VRAM MM.
-> + * @vmm:	the VRAM MM instance to initialize
-> + * @dev:	the DRM device
-> + * @vram_base:	the base address of the video memory
-> + * @vram_size:	the size of the video memory in bytes
-> + * @funcs:	callback functions for buffer objects
-> + *
-> + * Returns:
-> + * 0 on success, or
-> + * a negative error code otherwise.
-> + */
-> +int drm_vram_mm_init(struct drm_vram_mm *vmm, struct drm_device *dev,
-> +		     u64 vram_base, unsigned long vram_size,
-> +		     const struct drm_vram_mm_funcs* funcs)
-> +{
-> +	int ret;
-> +
-> +	vmm->vram_base = vram_base;
-> +	vmm->vram_size = vram_size;
-> +	vmm->funcs = funcs;
-> +
-> +	ret = ttm_bo_device_init(&vmm->bdev, &bo_driver,
-> +				 dev->anon_inode->i_mapping,
-> +				 true);
-> +	if (ret)
-> +		return ret;
-> +
-> +	ret = ttm_bo_init_mm(&vmm->bdev, TTM_PL_VRAM, vram_size >> PAGE_SHIFT);
-> +	if (ret)
-> +		return ret;
-> +
-> +	return 0;
-> +}
-> +EXPORT_SYMBOL(drm_vram_mm_init);
-> +
-> +/**
-> + * drm_vram_mm_cleanup() - Cleans up an initialized instance of VRAM MM.
-> + * @vmm:	the VRAM MM instance to clean up
-> + */
-> +void drm_vram_mm_cleanup(struct drm_vram_mm *vmm)
-> +{
-> +	ttm_bo_device_release(&vmm->bdev);
-> +}
-> +EXPORT_SYMBOL(drm_vram_mm_cleanup);
-> +
-> +/**
-> + * drm_vram_mm_mmap() - Helper for implementing &struct file_operations.mmap()
-> + * @filp:	the mapping's file structure
-> + * @vma:	the mapping's memory area
-> + * @vmm:	the VRAM MM instance
-> + *
-> + * Returns:
-> + * 0 on success, or
-> + * a negative error code otherwise.
-> + */
-> +int drm_vram_mm_mmap(struct file *filp, struct vm_area_struct *vma,
-> +		     struct drm_vram_mm *vmm)
-> +{
-> +	return ttm_bo_mmap(filp, vma, &vmm->bdev);
-> +}
-> +EXPORT_SYMBOL(drm_vram_mm_mmap);
-> diff --git a/include/drm/drm_vram_mm_helper.h b/include/drm/drm_vram_mm_helper.h
-> new file mode 100644
-> index 000000000000..0ee060d271bd
-> --- /dev/null
-> +++ b/include/drm/drm_vram_mm_helper.h
-> @@ -0,0 +1,67 @@
-> +/* SPDX-License-Identifier: GPL-2.0-or-later */
-> +
-> +#ifndef DRM_VRAM_MM_HELPER_H
-> +#define DRM_VRAM_MM_HELPER_H
-> +
-> +#include <drm/ttm/ttm_bo_driver.h>
-> +
-> +struct drm_device;
-> +
-> +/**
-> + * struct drm_vram_mm_funcs - Callback functions for &struct drm_vram_mm
-> + * @evict_flags: 	Provides an implementation for struct &ttm_bo_driver.evict_flags
-> + * @verify_access:	Provides an implementation for struct &ttm_bo_driver.verify_access
-> + *
-> + * These callback function integrate VRAM MM with TTM buffer objects. New
-> + * functions can be added if necessary.
-> + */
-> +struct drm_vram_mm_funcs {
-> +        void (*evict_flags)(struct ttm_buffer_object *bo,
-> +                            struct ttm_placement *placement);
-> +	int (*verify_access)(struct ttm_buffer_object *bo, struct file *filp);
-> +};
-> +
-> +/**
-> + * struct drm_vram_mm - An instance of VRAM MM
-> + * @vram_base:	Base address of the managed video memory
-> + * @vram_size:	Size of the managed video memory in bytes
-> + * @bdev:	The TTM BO device.
-> + * @funcs:	TTM BO functions
-> + *
-> + * The fields &struct drm_vram_mm.vram_base and
-> + * &struct drm_vram_mm.vrm_size are managed by VRAM MM, but are
-> + * available for public read access. Use the field
-> + * &struct drm_vram_mm.bdev to access the TTM BO device.
-> + */
-> +struct drm_vram_mm {
-> +	u64 vram_base;
-> +	unsigned long vram_size;
-> +
-> +	struct ttm_bo_device bdev;
-> +
-> +	const struct drm_vram_mm_funcs *funcs;
-> +};
-> +
-> +/**
-> + * drm_vram_mm_of_bdev() - \
-> +	Returns the container of type &struct ttm_bo_device for field bdev.
-> + * @bdev:	the TTM BO device
-> + *
-> + * Returns:
-> + * The containing instance of &struct drm_vram_mm
-> + */
-> +static inline struct drm_vram_mm* drm_vram_mm_of_bdev(
-> +	struct ttm_bo_device *bdev)
-> +{
-> +	return container_of(bdev, struct drm_vram_mm, bdev);
-> +}
-> +
-> +int drm_vram_mm_init(struct drm_vram_mm *vmm, struct drm_device *dev,
-> +		     u64 vram_base, unsigned long vram_size,
-> +		     const struct drm_vram_mm_funcs* funcs);
-> +void drm_vram_mm_cleanup(struct drm_vram_mm *vmm);
-> +
-> +int drm_vram_mm_mmap(struct file *filp, struct vm_area_struct *vma,
-> +		     struct drm_vram_mm *vmm);
-> +
-> +#endif
-> -- 
+> --
 > 2.21.0
 > 
 
