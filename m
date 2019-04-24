@@ -1,7 +1,7 @@
-From: "Darrick J. Wong" <darrick.wong@oracle.com>
+From: Pankaj Gupta <pagupta@redhat.com>
 Subject: Re: [PATCH v6 6/6] xfs: disable map_sync for async flush
-Date: Tue, 23 Apr 2019 15:10:11 -0700
-Message-ID: <20190423221011.GD178290__30264.3267366633$1556057469$gmane$org@magnolia>
+Date: Wed, 24 Apr 2019 00:55:40 -0400 (EDT)
+Message-ID: <476344290.23160847.1556081740211.JavaMail.zimbra__8853.35952495865$1556081756$gmane$org@redhat.com>
 References: <20190423080612.15361-1-pagupta@redhat.com>
 	<20190423080612.15361-7-pagupta@redhat.com>
 	<20190423220217.GA29573@dread.disaster.area>
@@ -9,7 +9,6 @@ Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-Content-Disposition: inline
 In-Reply-To: <20190423220217.GA29573@dread.disaster.area>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
@@ -20,11 +19,12 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Pankaj Gupta <pagupta@redhat.com>
-Cc: jack@suse.cz, kvm@vger.kernel.org, mst@redhat.com, Dave Chinner <david@fromorbit.com>, qemu-devel@nongnu.org, virtualization@lists.linux-foundation.org, adilger.kernel@dilger.ca, zwisler@kernel.org, aarcange@redhat.com, dave.jiang@intel.com, linux-nvdimm@lists.01.org, vishal.l.verma@intel.com, willy@infradead.org, hch@infradead.org, linux-acpi@vger.kernel.org, jmoyer@redhat.com, linux-ext4@vger.kernel.org, lenb@kernel.org, kilobyte@angband.pl, riel@surriel.com, yuval.shaia@oracle.com, stefanha@redhat.com, pbonzini@redhat.com, dan.j.williams@intel.com, lcapitulino@redhat.com, nilal@redhat.com, tytso@mit.edu, xiaoguangrong.eric@gmail.com, cohuck@redhat.com, rjw@rjwysocki.net, linux-kernel@vger.kernel.org, linux-xfs@vger.kernel.org, linux-fsdevel@vger.kernel.org, imammedo@redhat.com
+To: Dave Chinner <david@fromorbit.com>
+Cc: cohuck@redhat.com, jack@suse.cz, kvm@vger.kernel.org, mst@redhat.com, qemu-devel@nongnu.org, virtualization@lists.linux-foundation.org, adilger kernel <adilger.kernel@dilger.ca>, zwisler@kernel.org, aarcange@redhat.com, dave jiang <dave.jiang@intel.com>, linux-nvdimm@lists.01.org, vishal l verma <vishal.l.verma@intel.com>, willy@infradead.org, hch@infradead.org, linux-acpi@vger.kernel.org, jmoyer@redhat.com, linux-ext4@vger.kernel.org, lenb@kernel.org, kilobyte@angband.pl, riel@surriel.com, yuval shaia <yuval.shaia@oracle.com>, stefanha@redhat.com, pbonzini@redhat.com, dan j williams <dan.j.williams@intel.com>, lcapitulino@redhat.com, nilal@redhat.com, tytso@mit.edu, xiaoguangrong eric <xiaoguangrong.eric@gmail.com>, darrick wong <darrick.wong@oracle.com>, rjw@rjwysocki.net, linux-kernel@vger.kernel.org, linux-xfs@vger.kernel.org, linux-fsdevel@vger.kernel.org, imammed
 List-Id: virtualization@lists.linuxfoundation.org
 
-On Wed, Apr 24, 2019 at 08:02:17AM +1000, Dave Chinner wrote:
+
+> 
 > On Tue, Apr 23, 2019 at 01:36:12PM +0530, Pankaj Gupta wrote:
 > > Dont support 'MAP_SYNC' with non-DAX files and DAX files
 > > with asynchronous dax_device. Virtio pmem provides
@@ -49,20 +49,6 @@ On Wed, Apr 24, 2019 at 08:02:17AM +1000, Dave Chinner wrote:
 > > -	 * until someone comes with a sensible use case.
 > > +	struct dax_device *dax_dev = xfs_find_daxdev_for_inode
 > > +						(file_inode(filp));
-
-    tab separation here ^^^                   ^^^^ and cut
-                                                       down the indent
-                                             while you're at
-						    it, please:
-
-	struct dax_device	*dax_dev;
-
-	dax_dev = xfs_find_daxdev_for_inode(file_inode(filp));
-	if (!dax_is_frobbed(dax))
-		return -EMEWANTCOOKIE;
-
---D
-
 > > +
 > > +	/* We don't support synchronous mappings for non-DAX files and
 > > +	 * for DAX files if underneath dax_device is not synchronous.
@@ -72,10 +58,17 @@ On Wed, Apr 24, 2019 at 08:02:17AM +1000, Dave Chinner wrote:
 > 	 * This is the correct multi-line comment format. Please
 > 	 * update the patch to maintain the existing comment format.
 > 	 */
+
+Sure. Will correct this for both xfs & ext4.
+
+Thanks,
+Pankaj
+
 > 
 > Cheers,
 > 
 > Dave.
-> -- 
+> --
 > Dave Chinner
 > david@fromorbit.com
+> 
