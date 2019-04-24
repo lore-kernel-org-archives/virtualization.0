@@ -1,14 +1,15 @@
-From: Daniel Vetter <daniel@ffwll.ch>
-Subject: Re: [PATCH v2 00/17] Share TTM code among DRM framebuffer drivers
-Date: Wed, 24 Apr 2019 15:09:15 +0200
-Message-ID: <20190424130915.GQ9857__4770.36159006588$1556111376$gmane$org@phenom.ffwll.local>
-References: <20190424114842.4723-1-tzimmermann@suse.de>
+From: "Michael S. Tsirkin" <mst@redhat.com>
+Subject: Re: [PATCH v3 1/4] mm/balloon_compaction: list interfaces
+Date: Wed, 24 Apr 2019 09:49:54 -0400
+Message-ID: <20190424092829-mutt-send-email-mst__28509.9627146096$1556113809$gmane$org@kernel.org>
+References: <20190423234531.29371-1-namit@vmware.com>
+	<20190423234531.29371-2-namit@vmware.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
 Content-Disposition: inline
-In-Reply-To: <20190424114842.4723-1-tzimmermann@suse.de>
+In-Reply-To: <20190423234531.29371-2-namit@vmware.com>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -18,138 +19,246 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Thomas Zimmermann <tzimmermann@suse.de>
-Cc: airlied@linux.ie, puck.chen@hisilicon.com, dri-devel@lists.freedesktop.org, virtualization@lists.linux-foundation.org, z.liuxinliang@hisilicon.com, hdegoede@redhat.com, kong.kongxinwei@hisilicon.com, ray.huang@amd.com, daniel@ffwll.ch, zourongrong@gmail.com, Jerry.Zhang@amd.com, christian.koenig@amd.com
+To: Nadav Amit <namit@vmware.com>
+Cc: Arnd Bergmann <arnd@arndb.de>, "VMware, Inc." <pv-drivers@vmware.com>, Greg Kroah-Hartman <gregkh@linuxfoundation.org>, linux-kernel@vger.kernel.org, virtualization@lists.linux-foundation.org, linux-mm@kvack.org, Julien Freche <jfreche@vmware.com>
 List-Id: virtualization@lists.linuxfoundation.org
 
-On Wed, Apr 24, 2019 at 01:48:25PM +0200, Thomas Zimmermann wrote:
-> Several simple framebuffer drivers copy most of the TTM code from each
-> other. The implementation is always the same; except for the name of
-> some data structures.
+On Tue, Apr 23, 2019 at 04:45:28PM -0700, Nadav Amit wrote:
+> Introduce interfaces for ballooning enqueueing and dequeueing of a list
+> of pages. These interfaces reduce the overhead of storing and restoring
+> IRQs by batching the operations. In addition they do not panic if the
+> list of pages is empty.
 > 
-> As recently discussed, this patch set provides generic memory-management
-> code for simple framebuffers with dedicated video memory. It further
-> converts the respective drivers to the generic code. The shared code
-> is basically the same implementation as the one copied among individual
-> drivers.
-> 
-> The patch set contains two major changes: first, it introduces
-> |struct drm_gem_vram_object| and helpers (GEM VRAM). It's a GEM object
-> that is backed by VRAM. The type's purpose is somewhat similar to
-> |struct drm_gem_{cma, shmem}_object|: it provides an commom implementation
-> that handles all the basic cases. Second, the patch set introduces
-> |struct drm_vram_mm| and helpers (VRAM MM). It's an implementation of a
-> basic memory manager for VRAM.
-> 
-> Both, GEM VRAM and VRAM MM, support buffer placement in VRAM and system
-> memory. Both can be used independedly from each other if desired by the
-> DRM driver.
-> 
-> Currently ast, bochs, mgag200, vboxvideo and hisilicon/hibmc can use
-> these helpers.
-> 
-> Future directions: with these changes, the respective drivers can also
-> share some of their mode-setting or fbdev code. GEM VRAM could implement
-> PRIME helpers, which would allow for using the generic fbcon.
-> 
-> The patch set is against a recent drm-tip.
-> 
-> v2:
-> 	* rename |struct drm_gem_ttm_object| to |struct drm_gem_vram_object|
-> 	* rename |struct drm_simple_ttm| to |struct drm_vram_mm|
-> 	* make drm_is_gem_ttm() an internal helper
-> 	* add drm_gem_vram_kmap_at()
-> 	* return is_iomem from kmap functions
-> 	* redefine TTM placement flags for public interface
-> 	* add drm_vram_mm_mmap() helper
-> 	* replace almost all of driver's TTM code with these helpers
-> 	* documentation fixes
+> Cc: "Michael S. Tsirkin" <mst@redhat.com>
+> Cc: Jason Wang <jasowang@redhat.com>
+> Cc: linux-mm@kvack.org
+> Cc: virtualization@lists.linux-foundation.org
+> Reviewed-by: Xavier Deguillard <xdeguillard@vmware.com>
+> Signed-off-by: Nadav Amit <namit@vmware.com>
 
-I think this looks greats. A bunch of small ideas as replies how to futher
-streamline/simplify the helper api. But since I'm not a vram/ttm/gem
-helper expert really I think I'll leave final review/merging to others. I
-think there's enough interest in your work to make that work smoothly, if
-not pls pipe up.
 
-Cheers, Daniel
+Looks good overall. Two minor comments below.
 
+
+> ---
+>  include/linux/balloon_compaction.h |   4 +
+>  mm/balloon_compaction.c            | 144 +++++++++++++++++++++--------
+>  2 files changed, 110 insertions(+), 38 deletions(-)
 > 
-> Thomas Zimmermann (17):
->   drm: Add |struct drm_gem_vram_object| and helpers
->   drm: Add |struct drm_gem_vram_object| callbacks for |struct
->     ttm_bo_driver|
->   drm: Add |struct drm_gem_vram_object| callbacks for |struct
->     drm_driver|
->   drm: Add drm_gem_vram_fill_create_dumb() to create dumb buffers
->   drm: Add VRAM MM, a simple memory manager for dedicated VRAM
->   drm/ast: Convert AST driver to |struct drm_gem_vram_object|
->   drm/ast: Convert AST driver to VRAM MM
->   drm/ast: Replace mapping code with drm_gem_vram_{kmap/kunmap}()
->   drm/bochs: Convert bochs driver to |struct drm_gem_vram_object|
->   drm/bochs: Convert bochs driver to VRAM MM
->   drm/mgag200: Convert mgag200 driver to |struct drm_gem_vram_object|
->   drm/mgag200: Convert mgag200 driver to VRAM MM
->   drm/mgag200: Replace mapping code with drm_gem_vram_{kmap/kunmap}()
->   drm/vboxvideo: Convert vboxvideo driver to |struct
->     drm_gem_vram_object|
->   drm/vboxvideo: Convert vboxvideo driver to VRAM MM
->   drm/hisilicon: Convert hibmc-drm driver to |struct
->     drm_gem_vram_object|
->   drm/hisilicon: Convert hibmc-drm driver to VRAM MM
-> 
->  Documentation/gpu/drm-mm.rst                  |  25 +-
->  drivers/gpu/drm/Kconfig                       |  20 +
->  drivers/gpu/drm/Makefile                      |   5 +
->  drivers/gpu/drm/ast/Kconfig                   |   3 +-
->  drivers/gpu/drm/ast/ast_drv.c                 |   4 +-
->  drivers/gpu/drm/ast/ast_drv.h                 |  65 +-
->  drivers/gpu/drm/ast/ast_fb.c                  |  30 +-
->  drivers/gpu/drm/ast/ast_main.c                |  74 +--
->  drivers/gpu/drm/ast/ast_mode.c                | 124 ++--
->  drivers/gpu/drm/ast/ast_ttm.c                 | 293 +--------
->  drivers/gpu/drm/bochs/Kconfig                 |   2 +
->  drivers/gpu/drm/bochs/bochs.h                 |  45 +-
->  drivers/gpu/drm/bochs/bochs_drv.c             |   4 +-
->  drivers/gpu/drm/bochs/bochs_kms.c             |  18 +-
->  drivers/gpu/drm/bochs/bochs_mm.c              | 395 +-----------
->  drivers/gpu/drm/drm_gem_vram_helper.c         | 570 ++++++++++++++++++
->  drivers/gpu/drm/drm_vram_helper_common.c      |   6 +
->  drivers/gpu/drm/drm_vram_mm_helper.c          | 210 +++++++
->  drivers/gpu/drm/hisilicon/hibmc/Kconfig       |   2 +
->  .../gpu/drm/hisilicon/hibmc/hibmc_drm_de.c    |  21 +-
->  .../gpu/drm/hisilicon/hibmc/hibmc_drm_drv.c   |   5 +-
->  .../gpu/drm/hisilicon/hibmc/hibmc_drm_drv.h   |  32 +-
->  .../gpu/drm/hisilicon/hibmc/hibmc_drm_fbdev.c |  30 +-
->  drivers/gpu/drm/hisilicon/hibmc/hibmc_ttm.c   | 329 +---------
->  drivers/gpu/drm/mgag200/Kconfig               |   2 +
->  drivers/gpu/drm/mgag200/mgag200_cursor.c      |  88 +--
->  drivers/gpu/drm/mgag200/mgag200_drv.c         |   4 +-
->  drivers/gpu/drm/mgag200/mgag200_drv.h         |  74 +--
->  drivers/gpu/drm/mgag200/mgag200_fb.c          |  30 +-
->  drivers/gpu/drm/mgag200/mgag200_main.c        |  84 +--
->  drivers/gpu/drm/mgag200/mgag200_mode.c        |  52 +-
->  drivers/gpu/drm/mgag200/mgag200_ttm.c         | 293 +--------
->  drivers/gpu/drm/vboxvideo/Kconfig             |   2 +
->  drivers/gpu/drm/vboxvideo/vbox_drv.c          |   5 +-
->  drivers/gpu/drm/vboxvideo/vbox_drv.h          |  68 +--
->  drivers/gpu/drm/vboxvideo/vbox_fb.c           |  22 +-
->  drivers/gpu/drm/vboxvideo/vbox_main.c         |  70 +--
->  drivers/gpu/drm/vboxvideo/vbox_mode.c         |  36 +-
->  drivers/gpu/drm/vboxvideo/vbox_ttm.c          | 347 +----------
->  include/drm/drm_gem_vram_helper.h             | 120 ++++
->  include/drm/drm_vram_mm_helper.h              |  67 ++
->  41 files changed, 1445 insertions(+), 2231 deletions(-)
->  create mode 100644 drivers/gpu/drm/drm_gem_vram_helper.c
->  create mode 100644 drivers/gpu/drm/drm_vram_helper_common.c
->  create mode 100644 drivers/gpu/drm/drm_vram_mm_helper.c
->  create mode 100644 include/drm/drm_gem_vram_helper.h
->  create mode 100644 include/drm/drm_vram_mm_helper.h
-> 
-> --
-> 2.21.0
-> 
+> diff --git a/include/linux/balloon_compaction.h b/include/linux/balloon_compaction.h
+> index f111c780ef1d..430b6047cef7 100644
+> --- a/include/linux/balloon_compaction.h
+> +++ b/include/linux/balloon_compaction.h
+> @@ -64,6 +64,10 @@ extern struct page *balloon_page_alloc(void);
+>  extern void balloon_page_enqueue(struct balloon_dev_info *b_dev_info,
+>  				 struct page *page);
+>  extern struct page *balloon_page_dequeue(struct balloon_dev_info *b_dev_info);
+> +extern size_t balloon_page_list_enqueue(struct balloon_dev_info *b_dev_info,
+> +				      struct list_head *pages);
+> +extern size_t balloon_page_list_dequeue(struct balloon_dev_info *b_dev_info,
+> +				     struct list_head *pages, size_t n_req_pages);
+>  
+>  static inline void balloon_devinfo_init(struct balloon_dev_info *balloon)
+>  {
+> diff --git a/mm/balloon_compaction.c b/mm/balloon_compaction.c
+> index ef858d547e2d..a2995002edc2 100644
+> --- a/mm/balloon_compaction.c
+> +++ b/mm/balloon_compaction.c
+> @@ -10,6 +10,105 @@
+>  #include <linux/export.h>
+>  #include <linux/balloon_compaction.h>
+>  
+> +static void balloon_page_enqueue_one(struct balloon_dev_info *b_dev_info,
+> +				     struct page *page)
+> +{
+> +	/*
+> +	 * Block others from accessing the 'page' when we get around to
+> +	 * establishing additional references. We should be the only one
+> +	 * holding a reference to the 'page' at this point. If we are not, then
+> +	 * memory corruption is possible and we should stop execution.
+> +	 */
+> +	BUG_ON(!trylock_page(page));
+> +	list_del(&page->lru);
+> +	balloon_page_insert(b_dev_info, page);
+> +	unlock_page(page);
+> +	__count_vm_event(BALLOON_INFLATE);
+> +}
+> +
+> +/**
+> + * balloon_page_list_enqueue() - inserts a list of pages into the balloon page
+> + *				 list.
+> + * @b_dev_info: balloon device descriptor where we will insert a new page to
+> + * @pages: pages to enqueue - allocated using balloon_page_alloc.
+> + *
+> + * Driver must call it to properly enqueue a balloon pages before definitively
+> + * removing it from the guest system.
+> + *
+> + * Return: number of pages that were enqueued.
+> + */
+> +size_t balloon_page_list_enqueue(struct balloon_dev_info *b_dev_info,
+> +				 struct list_head *pages)
+> +{
+> +	struct page *page, *tmp;
+> +	unsigned long flags;
+> +	size_t n_pages = 0;
+> +
+> +	spin_lock_irqsave(&b_dev_info->pages_lock, flags);
+> +	list_for_each_entry_safe(page, tmp, pages, lru) {
+> +		balloon_page_enqueue_one(b_dev_info, page);
+> +		n_pages++;
+> +	}
+> +	spin_unlock_irqrestore(&b_dev_info->pages_lock, flags);
+> +	return n_pages;
+> +}
+> +EXPORT_SYMBOL_GPL(balloon_page_list_enqueue);
+> +
+> +/**
+> + * balloon_page_list_dequeue() - removes pages from balloon's page list and
+> + *				 returns a list of the pages.
+> + * @b_dev_info: balloon device decriptor where we will grab a page from.
+> + * @pages: pointer to the list of pages that would be returned to the caller.
+> + * @n_req_pages: number of requested pages.
+> + *
+> + * Driver must call this function to properly de-allocate a previous enlisted
+> + * balloon pages before definetively releasing it back to the guest system.
+> + * This function tries to remove @n_req_pages from the ballooned pages and
+> + * return them to the caller in the @pages list.
+> + *
+> + * Note that this function may fail to dequeue some pages temporarily empty due
+> + * to compaction isolated pages.
+> + *
+> + * Return: number of pages that were added to the @pages list.
+> + */
+> +size_t balloon_page_list_dequeue(struct balloon_dev_info *b_dev_info,
+> +				 struct list_head *pages, size_t n_req_pages)
+> +{
+> +	struct page *page, *tmp;
+> +	unsigned long flags;
+> +	size_t n_pages = 0;
+> +
+> +	spin_lock_irqsave(&b_dev_info->pages_lock, flags);
+> +	list_for_each_entry_safe(page, tmp, &b_dev_info->pages, lru) {
+> +		if (n_pages == n_req_pages)
+> +			break;
+> +
+> +		/*
+> +		 * Block others from accessing the 'page' while we get around
+
+should be "get around to" - same as in other places
+
+
+> +		 * establishing additional references and preparing the 'page'
+> +		 * to be released by the balloon driver.
+> +		 */
+> +		if (!trylock_page(page))
+> +			continue;
+> +
+> +		if (IS_ENABLED(CONFIG_BALLOON_COMPACTION) &&
+> +		    PageIsolated(page)) {
+> +			/* raced with isolation */
+> +			unlock_page(page);
+> +			continue;
+> +		}
+> +		balloon_page_delete(page);
+> +		__count_vm_event(BALLOON_DEFLATE);
+> +		unlock_page(page);
+> +		list_add(&page->lru, pages);
+
+I'm not sure whether this list_add must be under the page lock,
+but enqueue does list_del under page lock, so I think it's
+a good idea to keep dequeue consistent, operating in the
+reverse order of enqueue.
+
+> +		++n_pages;
+> +	}
+> +	spin_unlock_irqrestore(&b_dev_info->pages_lock, flags);
+> +
+> +	return n_pages;
+> +}
+> +EXPORT_SYMBOL_GPL(balloon_page_list_dequeue);
+> +
+>  /*
+>   * balloon_page_alloc - allocates a new page for insertion into the balloon
+>   *			  page list.
+> @@ -43,17 +142,9 @@ void balloon_page_enqueue(struct balloon_dev_info *b_dev_info,
+>  {
+>  	unsigned long flags;
+>  
+> -	/*
+> -	 * Block others from accessing the 'page' when we get around to
+> -	 * establishing additional references. We should be the only one
+> -	 * holding a reference to the 'page' at this point.
+> -	 */
+> -	BUG_ON(!trylock_page(page));
+>  	spin_lock_irqsave(&b_dev_info->pages_lock, flags);
+> -	balloon_page_insert(b_dev_info, page);
+> -	__count_vm_event(BALLOON_INFLATE);
+> +	balloon_page_enqueue_one(b_dev_info, page);
+>  	spin_unlock_irqrestore(&b_dev_info->pages_lock, flags);
+> -	unlock_page(page);
+>  }
+>  EXPORT_SYMBOL_GPL(balloon_page_enqueue);
+>  
+> @@ -70,36 +161,13 @@ EXPORT_SYMBOL_GPL(balloon_page_enqueue);
+>   */
+>  struct page *balloon_page_dequeue(struct balloon_dev_info *b_dev_info)
+>  {
+> -	struct page *page, *tmp;
+>  	unsigned long flags;
+> -	bool dequeued_page;
+> +	LIST_HEAD(pages);
+> +	int n_pages;
+>  
+> -	dequeued_page = false;
+> -	spin_lock_irqsave(&b_dev_info->pages_lock, flags);
+> -	list_for_each_entry_safe(page, tmp, &b_dev_info->pages, lru) {
+> -		/*
+> -		 * Block others from accessing the 'page' while we get around
+> -		 * establishing additional references and preparing the 'page'
+> -		 * to be released by the balloon driver.
+> -		 */
+> -		if (trylock_page(page)) {
+> -#ifdef CONFIG_BALLOON_COMPACTION
+> -			if (PageIsolated(page)) {
+> -				/* raced with isolation */
+> -				unlock_page(page);
+> -				continue;
+> -			}
+> -#endif
+> -			balloon_page_delete(page);
+> -			__count_vm_event(BALLOON_DEFLATE);
+> -			unlock_page(page);
+> -			dequeued_page = true;
+> -			break;
+> -		}
+> -	}
+> -	spin_unlock_irqrestore(&b_dev_info->pages_lock, flags);
+> +	n_pages = balloon_page_list_dequeue(b_dev_info, &pages, 1);
+>  
+> -	if (!dequeued_page) {
+> +	if (n_pages != 1) {
+>  		/*
+>  		 * If we are unable to dequeue a balloon page because the page
+>  		 * list is empty and there is no isolated pages, then something
+> @@ -112,9 +180,9 @@ struct page *balloon_page_dequeue(struct balloon_dev_info *b_dev_info)
+>  			     !b_dev_info->isolated_pages))
+>  			BUG();
+>  		spin_unlock_irqrestore(&b_dev_info->pages_lock, flags);
+> -		page = NULL;
+> +		return NULL;
+>  	}
+> -	return page;
+> +	return list_first_entry(&pages, struct page, lru);
+>  }
+>  EXPORT_SYMBOL_GPL(balloon_page_dequeue);
+>  
+> -- 
+> 2.19.1
+
+
+With above addressed:
+
+Acked-by: Michael S. Tsirkin <mst@redhat.com>
 
 -- 
-Daniel Vetter
-Software Engineer, Intel Corporation
-http://blog.ffwll.ch
+MST
