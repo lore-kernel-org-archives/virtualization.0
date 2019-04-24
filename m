@@ -1,14 +1,11 @@
 From: Thomas Zimmermann <tzimmermann@suse.de>
-Subject: [PATCH v2 03/17] drm: Add |struct drm_gem_vram_object| callbacks for
-	|struct drm_driver|
-Date: Wed, 24 Apr 2019 13:48:28 +0200
-Message-ID: <20190424114842.4723-4-tzimmermann@suse.de>
-References: <20190424114842.4723-1-tzimmermann@suse.de>
+Subject: [PATCH v2 00/17] Share TTM code among DRM framebuffer drivers
+Date: Wed, 24 Apr 2019 13:48:25 +0200
+Message-ID: <20190424114842.4723-1-tzimmermann__2249.11398706666$1556106562$gmane$org@suse.de>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <20190424114842.4723-1-tzimmermann@suse.de>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -22,92 +19,118 @@ To: daniel@ffwll.ch, airlied@linux.ie, kraxel@redhat.com, christian.koenig@amd.c
 Cc: Thomas Zimmermann <tzimmermann@suse.de>, dri-devel@lists.freedesktop.org, virtualization@lists.linux-foundation.org
 List-Id: virtualization@lists.linuxfoundation.org
 
-The provided helpers can be used for the respective callback functions
-in |struct drm_driver|.
+Several simple framebuffer drivers copy most of the TTM code from each
+other. The implementation is always the same; except for the name of
+some data structures.
+
+As recently discussed, this patch set provides generic memory-management
+code for simple framebuffers with dedicated video memory. It further
+converts the respective drivers to the generic code. The shared code
+is basically the same implementation as the one copied among individual
+drivers.
+
+The patch set contains two major changes: first, it introduces
+|struct drm_gem_vram_object| and helpers (GEM VRAM). It's a GEM object
+that is backed by VRAM. The type's purpose is somewhat similar to
+|struct drm_gem_{cma, shmem}_object|: it provides an commom implementation
+that handles all the basic cases. Second, the patch set introduces
+|struct drm_vram_mm| and helpers (VRAM MM). It's an implementation of a
+basic memory manager for VRAM.
+
+Both, GEM VRAM and VRAM MM, support buffer placement in VRAM and system
+memory. Both can be used independedly from each other if desired by the
+DRM driver.
+
+Currently ast, bochs, mgag200, vboxvideo and hisilicon/hibmc can use
+these helpers.
+
+Future directions: with these changes, the respective drivers can also
+share some of their mode-setting or fbdev code. GEM VRAM could implement
+PRIME helpers, which would allow for using the generic fbcon.
+
+The patch set is against a recent drm-tip.
 
 v2:
+	* rename |struct drm_gem_ttm_object| to |struct drm_gem_vram_object|
+	* rename |struct drm_simple_ttm| to |struct drm_vram_mm|
+	* make drm_is_gem_ttm() an internal helper
+	* add drm_gem_vram_kmap_at()
+	* return is_iomem from kmap functions
+	* redefine TTM placement flags for public interface
+	* add drm_vram_mm_mmap() helper
+	* replace almost all of driver's TTM code with these helpers
 	* documentation fixes
 
-Signed-off-by: Thomas Zimmermann <tzimmermann@suse.de>
----
- drivers/gpu/drm/drm_gem_vram_helper.c | 48 +++++++++++++++++++++++++++
- include/drm/drm_gem_vram_helper.h     | 10 ++++++
- 2 files changed, 58 insertions(+)
+Thomas Zimmermann (17):
+  drm: Add |struct drm_gem_vram_object| and helpers
+  drm: Add |struct drm_gem_vram_object| callbacks for |struct
+    ttm_bo_driver|
+  drm: Add |struct drm_gem_vram_object| callbacks for |struct
+    drm_driver|
+  drm: Add drm_gem_vram_fill_create_dumb() to create dumb buffers
+  drm: Add VRAM MM, a simple memory manager for dedicated VRAM
+  drm/ast: Convert AST driver to |struct drm_gem_vram_object|
+  drm/ast: Convert AST driver to VRAM MM
+  drm/ast: Replace mapping code with drm_gem_vram_{kmap/kunmap}()
+  drm/bochs: Convert bochs driver to |struct drm_gem_vram_object|
+  drm/bochs: Convert bochs driver to VRAM MM
+  drm/mgag200: Convert mgag200 driver to |struct drm_gem_vram_object|
+  drm/mgag200: Convert mgag200 driver to VRAM MM
+  drm/mgag200: Replace mapping code with drm_gem_vram_{kmap/kunmap}()
+  drm/vboxvideo: Convert vboxvideo driver to |struct
+    drm_gem_vram_object|
+  drm/vboxvideo: Convert vboxvideo driver to VRAM MM
+  drm/hisilicon: Convert hibmc-drm driver to |struct
+    drm_gem_vram_object|
+  drm/hisilicon: Convert hibmc-drm driver to VRAM MM
 
-diff --git a/drivers/gpu/drm/drm_gem_vram_helper.c b/drivers/gpu/drm/drm_gem_vram_helper.c
-index fcf6e78d92f7..31bf6c1079b0 100644
---- a/drivers/gpu/drm/drm_gem_vram_helper.c
-+++ b/drivers/gpu/drm/drm_gem_vram_helper.c
-@@ -458,3 +458,51 @@ int drm_gem_vram_bo_driver_verify_access(struct ttm_buffer_object *bo,
- 					  filp->private_data);
- }
- EXPORT_SYMBOL(drm_gem_vram_bo_driver_verify_access);
-+
-+/*
-+ * Helpers for struct drm_driver
-+ */
-+
-+/**
-+ * drm_gem_vram_driver_gem_free_object_unlocked() - \
-+	Implements &struct drm_driver.gem_free_object_unlocked
-+ * @gem:	GEM object. Refers to &struct drm_gem_vram_object.gem
-+ */
-+void drm_gem_vram_driver_gem_free_object_unlocked(struct drm_gem_object *gem)
-+{
-+	struct drm_gem_vram_object *gbo = drm_gem_vram_of_gem(gem);
-+	drm_gem_vram_put(gbo);
-+}
-+EXPORT_SYMBOL(drm_gem_vram_driver_gem_free_object_unlocked);
-+
-+/**
-+ * drm_gem_vram_driver_dumb_mmap_offset() - \
-+	Implements &struct drm_driver.dumb_mmap_offset
-+ * @file:	DRM file pointer.
-+ * @dev:	DRM device.
-+ * @handle:	GEM handle
-+ * @offset:	Returns the mapping's memory offset on success
-+ *
-+ * Returns:
-+ * 0 on success, or
-+ * a negative errno code otherwise.
-+ */
-+int drm_gem_vram_driver_dumb_mmap_offset(struct drm_file *file,
-+					 struct drm_device *dev,
-+					 uint32_t handle, uint64_t *offset)
-+{
-+	struct drm_gem_object *gem;
-+	struct drm_gem_vram_object *gbo;
-+
-+	gem = drm_gem_object_lookup(file, handle);
-+	if (!gem)
-+		return -ENOENT;
-+
-+	gbo = drm_gem_vram_of_gem(gem);
-+	*offset = drm_gem_vram_mmap_offset(gbo);
-+
-+	drm_gem_object_put_unlocked(gem);
-+
-+	return 0;
-+}
-+EXPORT_SYMBOL(drm_gem_vram_driver_dumb_mmap_offset);
-diff --git a/include/drm/drm_gem_vram_helper.h b/include/drm/drm_gem_vram_helper.h
-index 4872edb09fe9..99982590e32a 100644
---- a/include/drm/drm_gem_vram_helper.h
-+++ b/include/drm/drm_gem_vram_helper.h
-@@ -99,4 +99,14 @@ void drm_gem_vram_bo_driver_evict_flags(struct ttm_buffer_object *bo,
- int drm_gem_vram_bo_driver_verify_access(struct ttm_buffer_object *bo,
- 					 struct file *filp);
- 
-+/*
-+ * Helpers for struct drm_driver
-+ */
-+
-+void drm_gem_vram_driver_gem_free_object_unlocked(struct drm_gem_object *gem);
-+
-+int drm_gem_vram_driver_dumb_mmap_offset(struct drm_file *file,
-+					 struct drm_device *dev,
-+					 uint32_t handle, uint64_t *offset);
-+
- #endif
--- 
+ Documentation/gpu/drm-mm.rst                  |  25 +-
+ drivers/gpu/drm/Kconfig                       |  20 +
+ drivers/gpu/drm/Makefile                      |   5 +
+ drivers/gpu/drm/ast/Kconfig                   |   3 +-
+ drivers/gpu/drm/ast/ast_drv.c                 |   4 +-
+ drivers/gpu/drm/ast/ast_drv.h                 |  65 +-
+ drivers/gpu/drm/ast/ast_fb.c                  |  30 +-
+ drivers/gpu/drm/ast/ast_main.c                |  74 +--
+ drivers/gpu/drm/ast/ast_mode.c                | 124 ++--
+ drivers/gpu/drm/ast/ast_ttm.c                 | 293 +--------
+ drivers/gpu/drm/bochs/Kconfig                 |   2 +
+ drivers/gpu/drm/bochs/bochs.h                 |  45 +-
+ drivers/gpu/drm/bochs/bochs_drv.c             |   4 +-
+ drivers/gpu/drm/bochs/bochs_kms.c             |  18 +-
+ drivers/gpu/drm/bochs/bochs_mm.c              | 395 +-----------
+ drivers/gpu/drm/drm_gem_vram_helper.c         | 570 ++++++++++++++++++
+ drivers/gpu/drm/drm_vram_helper_common.c      |   6 +
+ drivers/gpu/drm/drm_vram_mm_helper.c          | 210 +++++++
+ drivers/gpu/drm/hisilicon/hibmc/Kconfig       |   2 +
+ .../gpu/drm/hisilicon/hibmc/hibmc_drm_de.c    |  21 +-
+ .../gpu/drm/hisilicon/hibmc/hibmc_drm_drv.c   |   5 +-
+ .../gpu/drm/hisilicon/hibmc/hibmc_drm_drv.h   |  32 +-
+ .../gpu/drm/hisilicon/hibmc/hibmc_drm_fbdev.c |  30 +-
+ drivers/gpu/drm/hisilicon/hibmc/hibmc_ttm.c   | 329 +---------
+ drivers/gpu/drm/mgag200/Kconfig               |   2 +
+ drivers/gpu/drm/mgag200/mgag200_cursor.c      |  88 +--
+ drivers/gpu/drm/mgag200/mgag200_drv.c         |   4 +-
+ drivers/gpu/drm/mgag200/mgag200_drv.h         |  74 +--
+ drivers/gpu/drm/mgag200/mgag200_fb.c          |  30 +-
+ drivers/gpu/drm/mgag200/mgag200_main.c        |  84 +--
+ drivers/gpu/drm/mgag200/mgag200_mode.c        |  52 +-
+ drivers/gpu/drm/mgag200/mgag200_ttm.c         | 293 +--------
+ drivers/gpu/drm/vboxvideo/Kconfig             |   2 +
+ drivers/gpu/drm/vboxvideo/vbox_drv.c          |   5 +-
+ drivers/gpu/drm/vboxvideo/vbox_drv.h          |  68 +--
+ drivers/gpu/drm/vboxvideo/vbox_fb.c           |  22 +-
+ drivers/gpu/drm/vboxvideo/vbox_main.c         |  70 +--
+ drivers/gpu/drm/vboxvideo/vbox_mode.c         |  36 +-
+ drivers/gpu/drm/vboxvideo/vbox_ttm.c          | 347 +----------
+ include/drm/drm_gem_vram_helper.h             | 120 ++++
+ include/drm/drm_vram_mm_helper.h              |  67 ++
+ 41 files changed, 1445 insertions(+), 2231 deletions(-)
+ create mode 100644 drivers/gpu/drm/drm_gem_vram_helper.c
+ create mode 100644 drivers/gpu/drm/drm_vram_helper_common.c
+ create mode 100644 drivers/gpu/drm/drm_vram_mm_helper.c
+ create mode 100644 include/drm/drm_gem_vram_helper.h
+ create mode 100644 include/drm/drm_vram_mm_helper.h
+
+--
 2.21.0
