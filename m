@@ -1,12 +1,14 @@
 From: Nadav Amit via Virtualization <virtualization@lists.linux-foundation.org>
-Subject: [PATCH v4 0/4] vmw_balloon: Compaction and shrinker support
-Date: Thu, 25 Apr 2019 04:54:41 -0700
-Message-ID: <20190425115445.20815-1-namit__34439.0494910598$1556219738$gmane$org@vmware.com>
+Subject: [PATCH v4 3/4] vmw_balloon: Add memory shrinker
+Date: Thu, 25 Apr 2019 04:54:44 -0700
+Message-ID: <20190425115445.20815-4-namit__38261.5106691205$1556219762$gmane$org@vmware.com>
+References: <20190425115445.20815-1-namit@vmware.com>
 Reply-To: Nadav Amit <namit@vmware.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
+In-Reply-To: <20190425115445.20815-1-namit@vmware.com>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -20,38 +22,236 @@ To: Greg Kroah-Hartman <gregkh@linuxfoundation.org>, "Michael S. Tsirkin" <mst@r
 Cc: Arnd Bergmann <arnd@arndb.de>, "VMware, Inc." <pv-drivers@vmware.com>, linux-kernel@vger.kernel.org, virtualization@lists.linux-foundation.org, linux-mm@kvack.org, Julien Freche <jfreche@vmware.com>, Nadav Amit <namit@vmware.com>
 List-Id: virtualization@lists.linuxfoundation.org
 
-VMware balloon enhancements: adding support for memory compaction,
-memory shrinker (to prevent OOM) and splitting of refused pages to
-prevent recurring inflations.
+Add a shrinker to the VMware balloon to prevent out-of-memory events.
+We reuse the deflate logic for this matter. Deadlocks should not happen,
+as no memory allocation is performed while the locks of the
+communication (batch/page) and page-list are taken. In the unlikely
+event in which the configuration semaphore is taken for write we bail
+out and fail gracefully (causing processes to be killed).
 
-Patches 1-2: Support for compaction
-Patch 3: Support for memory shrinker - disabled by default
-Patch 4: Split refused pages to improve performance
+Once the shrinker is called, inflation is postponed for few seconds.
+The timeout is updated without any lock, but this should not cause any
+races, as it is written and read atomically.
 
-v3->v4:
-* "get around to" comment [Michael]
-* Put list_add under page lock [Michael]
+This feature is disabled by default, since it might cause performance
+degradation.
 
-v2->v3:
-* Fixing wrong argument type (int->size_t) [Michael]
-* Fixing a comment (it) [Michael]
-* Reinstating the BUG_ON() when page is locked [Michael] 
+Reviewed-by: Xavier Deguillard <xdeguillard@vmware.com>
+Signed-off-by: Nadav Amit <namit@vmware.com>
+---
+ drivers/misc/vmw_balloon.c | 133 ++++++++++++++++++++++++++++++++++++-
+ 1 file changed, 131 insertions(+), 2 deletions(-)
 
-v1->v2:
-* Return number of pages in list enqueue/dequeue interfaces [Michael]
-* Removed first two patches which were already merged
-
-Nadav Amit (4):
-  mm/balloon_compaction: List interfaces
-  vmw_balloon: Compaction support
-  vmw_balloon: Add memory shrinker
-  vmw_balloon: Split refused pages
-
- drivers/misc/Kconfig               |   1 +
- drivers/misc/vmw_balloon.c         | 489 ++++++++++++++++++++++++++---
- include/linux/balloon_compaction.h |   4 +
- mm/balloon_compaction.c            | 144 ++++++---
- 4 files changed, 553 insertions(+), 85 deletions(-)
-
+diff --git a/drivers/misc/vmw_balloon.c b/drivers/misc/vmw_balloon.c
+index 2136f6ad97d3..4b5e939ff4c8 100644
+--- a/drivers/misc/vmw_balloon.c
++++ b/drivers/misc/vmw_balloon.c
+@@ -40,6 +40,15 @@ MODULE_ALIAS("dmi:*:svnVMware*:*");
+ MODULE_ALIAS("vmware_vmmemctl");
+ MODULE_LICENSE("GPL");
+ 
++static bool __read_mostly vmwballoon_shrinker_enable;
++module_param(vmwballoon_shrinker_enable, bool, 0444);
++MODULE_PARM_DESC(vmwballoon_shrinker_enable,
++	"Enable non-cooperative out-of-memory protection. Disabled by default as it may degrade performance.");
++
++/* Delay in seconds after shrink before inflation. */
++#define VMBALLOON_SHRINK_DELAY		(5)
++
++/* Maximum number of refused pages we accumulate during inflation cycle */
+ #define VMW_BALLOON_MAX_REFUSED		16
+ 
+ /* Magic number for the balloon mount-point */
+@@ -217,12 +226,13 @@ enum vmballoon_stat_general {
+ 	VMW_BALLOON_STAT_TIMER,
+ 	VMW_BALLOON_STAT_DOORBELL,
+ 	VMW_BALLOON_STAT_RESET,
+-	VMW_BALLOON_STAT_LAST = VMW_BALLOON_STAT_RESET
++	VMW_BALLOON_STAT_SHRINK,
++	VMW_BALLOON_STAT_SHRINK_FREE,
++	VMW_BALLOON_STAT_LAST = VMW_BALLOON_STAT_SHRINK_FREE
+ };
+ 
+ #define VMW_BALLOON_STAT_NUM		(VMW_BALLOON_STAT_LAST + 1)
+ 
+-
+ static DEFINE_STATIC_KEY_TRUE(vmw_balloon_batching);
+ static DEFINE_STATIC_KEY_FALSE(balloon_stat_enabled);
+ 
+@@ -321,6 +331,15 @@ struct vmballoon {
+ 	 */
+ 	struct page *page;
+ 
++	/**
++	 * @shrink_timeout: timeout until the next inflation.
++	 *
++	 * After an shrink event, indicates the time in jiffies after which
++	 * inflation is allowed again. Can be written concurrently with reads,
++	 * so must use READ_ONCE/WRITE_ONCE when accessing.
++	 */
++	unsigned long shrink_timeout;
++
+ 	/* statistics */
+ 	struct vmballoon_stats *stats;
+ 
+@@ -361,6 +380,20 @@ struct vmballoon {
+ 	 * Lock ordering: @conf_sem -> @comm_lock .
+ 	 */
+ 	spinlock_t comm_lock;
++
++	/**
++	 * @shrinker: shrinker interface that is used to avoid over-inflation.
++	 */
++	struct shrinker shrinker;
++
++	/**
++	 * @shrinker_registered: whether the shrinker was registered.
++	 *
++	 * The shrinker interface does not handle gracefully the removal of
++	 * shrinker that was not registered before. This indication allows to
++	 * simplify the unregistration process.
++	 */
++	bool shrinker_registered;
+ };
+ 
+ static struct vmballoon balloon;
+@@ -935,6 +968,10 @@ static int64_t vmballoon_change(struct vmballoon *b)
+ 	    size - target < vmballoon_page_in_frames(VMW_BALLOON_2M_PAGE))
+ 		return 0;
+ 
++	/* If an out-of-memory recently occurred, inflation is disallowed. */
++	if (target > size && time_before(jiffies, READ_ONCE(b->shrink_timeout)))
++		return 0;
++
+ 	return target - size;
+ }
+ 
+@@ -1430,6 +1467,90 @@ static void vmballoon_work(struct work_struct *work)
+ 
+ }
+ 
++/**
++ * vmballoon_shrinker_scan() - deflate the balloon due to memory pressure.
++ * @shrinker: pointer to the balloon shrinker.
++ * @sc: page reclaim information.
++ *
++ * Returns: number of pages that were freed during deflation.
++ */
++static unsigned long vmballoon_shrinker_scan(struct shrinker *shrinker,
++					     struct shrink_control *sc)
++{
++	struct vmballoon *b = &balloon;
++	unsigned long deflated_frames;
++
++	pr_debug("%s - size: %llu", __func__, atomic64_read(&b->size));
++
++	vmballoon_stats_gen_inc(b, VMW_BALLOON_STAT_SHRINK);
++
++	/*
++	 * If the lock is also contended for read, we cannot easily reclaim and
++	 * we bail out.
++	 */
++	if (!down_read_trylock(&b->conf_sem))
++		return 0;
++
++	deflated_frames = vmballoon_deflate(b, sc->nr_to_scan, true);
++
++	vmballoon_stats_gen_add(b, VMW_BALLOON_STAT_SHRINK_FREE,
++				deflated_frames);
++
++	/*
++	 * Delay future inflation for some time to mitigate the situations in
++	 * which balloon continuously grows and shrinks. Use WRITE_ONCE() since
++	 * the access is asynchronous.
++	 */
++	WRITE_ONCE(b->shrink_timeout, jiffies + HZ * VMBALLOON_SHRINK_DELAY);
++
++	up_read(&b->conf_sem);
++
++	return deflated_frames;
++}
++
++/**
++ * vmballoon_shrinker_count() - return the number of ballooned pages.
++ * @shrinker: pointer to the balloon shrinker.
++ * @sc: page reclaim information.
++ *
++ * Returns: number of 4k pages that are allocated for the balloon and can
++ *	    therefore be reclaimed under pressure.
++ */
++static unsigned long vmballoon_shrinker_count(struct shrinker *shrinker,
++					      struct shrink_control *sc)
++{
++	struct vmballoon *b = &balloon;
++
++	return atomic64_read(&b->size);
++}
++
++static void vmballoon_unregister_shrinker(struct vmballoon *b)
++{
++	if (b->shrinker_registered)
++		unregister_shrinker(&b->shrinker);
++	b->shrinker_registered = false;
++}
++
++static int vmballoon_register_shrinker(struct vmballoon *b)
++{
++	int r;
++
++	/* Do nothing if the shrinker is not enabled */
++	if (!vmwballoon_shrinker_enable)
++		return 0;
++
++	b->shrinker.scan_objects = vmballoon_shrinker_scan;
++	b->shrinker.count_objects = vmballoon_shrinker_count;
++	b->shrinker.seeks = DEFAULT_SEEKS;
++
++	r = register_shrinker(&b->shrinker);
++
++	if (r == 0)
++		b->shrinker_registered = true;
++
++	return r;
++}
++
+ /*
+  * DEBUGFS Interface
+  */
+@@ -1447,6 +1568,8 @@ static const char * const vmballoon_stat_names[] = {
+ 	[VMW_BALLOON_STAT_TIMER]		= "timer",
+ 	[VMW_BALLOON_STAT_DOORBELL]		= "doorbell",
+ 	[VMW_BALLOON_STAT_RESET]		= "reset",
++	[VMW_BALLOON_STAT_SHRINK]		= "shrink",
++	[VMW_BALLOON_STAT_SHRINK_FREE]		= "shrinkFree"
+ };
+ 
+ static int vmballoon_enable_stats(struct vmballoon *b)
+@@ -1780,6 +1903,10 @@ static int __init vmballoon_init(void)
+ 
+ 	INIT_DELAYED_WORK(&balloon.dwork, vmballoon_work);
+ 
++	error = vmballoon_register_shrinker(&balloon);
++	if (error)
++		goto fail;
++
+ 	error = vmballoon_debugfs_init(&balloon);
+ 	if (error)
+ 		goto fail;
+@@ -1805,6 +1932,7 @@ static int __init vmballoon_init(void)
+ 
+ 	return 0;
+ fail:
++	vmballoon_unregister_shrinker(&balloon);
+ 	vmballoon_compaction_deinit(&balloon);
+ 	return error;
+ }
+@@ -1819,6 +1947,7 @@ late_initcall(vmballoon_init);
+ 
+ static void __exit vmballoon_exit(void)
+ {
++	vmballoon_unregister_shrinker(&balloon);
+ 	vmballoon_vmci_cleanup(&balloon);
+ 	cancel_delayed_work_sync(&balloon.dwork);
+ 
 -- 
 2.19.1
