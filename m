@@ -1,14 +1,11 @@
-From: Nadav Amit via Virtualization <virtualization@lists.linux-foundation.org>
-Subject: [PATCH v4 4/4] vmw_balloon: Split refused pages
-Date: Thu, 25 Apr 2019 04:54:45 -0700
-Message-ID: <20190425115445.20815-5-namit__16138.8609952823$1556219777$gmane$org@vmware.com>
-References: <20190425115445.20815-1-namit@vmware.com>
-Reply-To: Nadav Amit <namit@vmware.com>
+From: Pankaj Gupta <pagupta@redhat.com>
+Subject: [PATCH v7 0/6] virtio pmem driver
+Date: Fri, 26 Apr 2019 10:30:33 +0530
+Message-ID: <20190426050039.17460-1-pagupta__35165.0498037756$1556254910$gmane$org@redhat.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset="utf-8"
+Content-Transfer-Encoding: base64
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <20190425115445.20815-1-namit@vmware.com>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -18,144 +15,168 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Greg Kroah-Hartman <gregkh@linuxfoundation.org>, "Michael S. Tsirkin" <mst@redhat.com>
-Cc: Arnd Bergmann <arnd@arndb.de>, "VMware, Inc." <pv-drivers@vmware.com>, linux-kernel@vger.kernel.org, virtualization@lists.linux-foundation.org, linux-mm@kvack.org, Julien Freche <jfreche@vmware.com>, Nadav Amit <namit@vmware.com>
+To: linux-nvdimm@lists.01.org, linux-kernel@vger.kernel.org, virtualization@lists.linux-foundation.org, kvm@vger.kernel.org, linux-fsdevel@vger.kernel.org, linux-acpi@vger.kernel.org, qemu-devel@nongnu.org, linux-ext4@vger.kernel.org, linux-xfs@vger.kernel.org
+Cc: pagupta@redhat.com, jack@suse.cz, mst@redhat.com, david@fromorbit.com, lcapitulino@redhat.com, adilger.kernel@dilger.ca, zwisler@kernel.org, aarcange@redhat.com, dave.jiang@intel.com, darrick.wong@oracle.com, vishal.l.verma@intel.com, willy@infradead.org, hch@infradead.org, jmoyer@redhat.com, nilal@redhat.com, lenb@kernel.org, kilobyte@angband.pl, riel@surriel.com, yuval.shaia@oracle.com, stefanha@redhat.com, pbonzini@redhat.com, dan.j.williams@intel.com, tytso@mit.edu, xiaoguangrong.eric@gmail.com, cohuck@redhat.com, rjw@rjwysocki.net, imammedo@redhat.com
 List-Id: virtualization@lists.linuxfoundation.org
 
-The hypervisor might refuse to inflate pages. While the balloon driver
-handles this scenario correctly, a refusal to inflate a 2MB pages might
-cause the same page to be allocated again later just for its inflation
-to be refused again. This wastes energy and time.
-
-To avoid this situation, split the 2MB page to 4KB pages, and then try
-to inflate each one individually. Most of the 4KB pages out of the 2MB
-should be inflated successfully, and the balloon is likely to prevent
-the scenario of repeated refused inflation.
-
-Reviewed-by: Xavier Deguillard <xdeguillard@vmware.com>
-Signed-off-by: Nadav Amit <namit@vmware.com>
----
- drivers/misc/vmw_balloon.c | 63 +++++++++++++++++++++++++++++++-------
- 1 file changed, 52 insertions(+), 11 deletions(-)
-
-diff --git a/drivers/misc/vmw_balloon.c b/drivers/misc/vmw_balloon.c
-index 4b5e939ff4c8..043eed845246 100644
---- a/drivers/misc/vmw_balloon.c
-+++ b/drivers/misc/vmw_balloon.c
-@@ -239,6 +239,7 @@ static DEFINE_STATIC_KEY_FALSE(balloon_stat_enabled);
- struct vmballoon_ctl {
- 	struct list_head pages;
- 	struct list_head refused_pages;
-+	struct list_head prealloc_pages;
- 	unsigned int n_refused_pages;
- 	unsigned int n_pages;
- 	enum vmballoon_page_size_type page_size;
-@@ -668,15 +669,25 @@ static int vmballoon_alloc_page_list(struct vmballoon *b,
- 	unsigned int i;
- 
- 	for (i = 0; i < req_n_pages; i++) {
--		if (ctl->page_size == VMW_BALLOON_2M_PAGE)
--			page = alloc_pages(__GFP_HIGHMEM|__GFP_NOWARN|
-+		/*
-+		 * First check if we happen to have pages that were allocated
-+		 * before. This happens when 2MB page rejected during inflation
-+		 * by the hypervisor, and then split into 4KB pages.
-+		 */
-+		if (!list_empty(&ctl->prealloc_pages)) {
-+			page = list_first_entry(&ctl->prealloc_pages,
-+						struct page, lru);
-+			list_del(&page->lru);
-+		} else {
-+			if (ctl->page_size == VMW_BALLOON_2M_PAGE)
-+				page = alloc_pages(__GFP_HIGHMEM|__GFP_NOWARN|
- 					__GFP_NOMEMALLOC, VMW_BALLOON_2M_ORDER);
--		else
--			page = balloon_page_alloc();
-+			else
-+				page = balloon_page_alloc();
- 
--		/* Update statistics */
--		vmballoon_stats_page_inc(b, VMW_BALLOON_PAGE_STAT_ALLOC,
--					 ctl->page_size);
-+			vmballoon_stats_page_inc(b, VMW_BALLOON_PAGE_STAT_ALLOC,
-+						 ctl->page_size);
-+		}
- 
- 		if (page) {
- 			vmballoon_mark_page_offline(page, ctl->page_size);
-@@ -922,7 +933,8 @@ static void vmballoon_release_page_list(struct list_head *page_list,
- 		__free_pages(page, vmballoon_page_order(page_size));
- 	}
- 
--	*n_pages = 0;
-+	if (n_pages)
-+		*n_pages = 0;
- }
- 
- 
-@@ -1054,6 +1066,32 @@ static void vmballoon_dequeue_page_list(struct vmballoon *b,
- 	*n_pages = i;
- }
- 
-+/**
-+ * vmballoon_split_refused_pages() - Split the 2MB refused pages to 4k.
-+ *
-+ * If inflation of 2MB pages was denied by the hypervisor, it is likely to be
-+ * due to one or few 4KB pages. These 2MB pages may keep being allocated and
-+ * then being refused. To prevent this case, this function splits the refused
-+ * pages into 4KB pages and adds them into @prealloc_pages list.
-+ *
-+ * @ctl: pointer for the %struct vmballoon_ctl, which defines the operation.
-+ */
-+static void vmballoon_split_refused_pages(struct vmballoon_ctl *ctl)
-+{
-+	struct page *page, *tmp;
-+	unsigned int i, order;
-+
-+	order = vmballoon_page_order(ctl->page_size);
-+
-+	list_for_each_entry_safe(page, tmp, &ctl->refused_pages, lru) {
-+		list_del(&page->lru);
-+		split_page(page, order);
-+		for (i = 0; i < (1 << order); i++)
-+			list_add(&page[i].lru, &ctl->prealloc_pages);
-+	}
-+	ctl->n_refused_pages = 0;
-+}
-+
- /**
-  * vmballoon_inflate() - Inflate the balloon towards its target size.
-  *
-@@ -1065,6 +1103,7 @@ static void vmballoon_inflate(struct vmballoon *b)
- 	struct vmballoon_ctl ctl = {
- 		.pages = LIST_HEAD_INIT(ctl.pages),
- 		.refused_pages = LIST_HEAD_INIT(ctl.refused_pages),
-+		.prealloc_pages = LIST_HEAD_INIT(ctl.prealloc_pages),
- 		.page_size = b->max_page_size,
- 		.op = VMW_BALLOON_INFLATE
- 	};
-@@ -1112,10 +1151,10 @@ static void vmballoon_inflate(struct vmballoon *b)
- 				break;
- 
- 			/*
--			 * Ignore errors from locking as we now switch to 4k
--			 * pages and we might get different errors.
-+			 * Split the refused pages to 4k. This will also empty
-+			 * the refused pages list.
- 			 */
--			vmballoon_release_refused_pages(b, &ctl);
-+			vmballoon_split_refused_pages(&ctl);
- 			ctl.page_size--;
- 		}
- 
-@@ -1129,6 +1168,8 @@ static void vmballoon_inflate(struct vmballoon *b)
- 	 */
- 	if (ctl.n_refused_pages != 0)
- 		vmballoon_release_refused_pages(b, &ctl);
-+
-+	vmballoon_release_page_list(&ctl.prealloc_pages, NULL, ctl.page_size);
- }
- 
- /**
--- 
-2.19.1
+IFRoaXMgcGF0Y2ggc2VyaWVzIGhhcyBpbXBsZW1lbnRhdGlvbiBmb3IgInZpcnRpbyBwbWVtIi4g
+CiAidmlydGlvIHBtZW0iIGlzIGZha2UgcGVyc2lzdGVudCBtZW1vcnkobnZkaW1tKSBpbiBndWVz
+dCAKIHdoaWNoIGFsbG93cyB0byBieXBhc3MgdGhlIGd1ZXN0IHBhZ2UgY2FjaGUuIFRoaXMgYWxz
+bwogaW1wbGVtZW50cyBhIFZJUlRJTyBiYXNlZCBhc3luY2hyb25vdXMgZmx1c2ggbWVjaGFuaXNt
+LiAgCiAKIFNoYXJpbmcgZ3Vlc3Qga2VybmVsIGRyaXZlciBpbiB0aGlzIHBhdGNoc2V0IHdpdGgg
+dGhlIAogY2hhbmdlcyBzdWdnZXN0ZWQgaW4gdjQuIFRlc3RlZCB3aXRoIFFlbXUgc2lkZSBkZXZp
+Y2UgCiBlbXVsYXRpb24gWzZdIGZvciB2aXJ0aW8tcG1lbS4gRG9jdW1lbnRlZCB0aGUgaW1wYWN0
+IG9mCiBwb3NzaWJsZSBwYWdlIGNhY2hlIHNpZGUgY2hhbm5lbCBhdHRhY2tzIHdpdGggc3VnZ2Vz
+dGVkCiBjb3VudGVybWVhc3VyZXMuCgogSW5jb3Jwb3JhdGVkIGFsbCB0aGUgcmV2aWV3IHN1Z2dl
+c3Rpb25zLiAKIAogRGV0YWlscyBvZiBwcm9qZWN0IGlkZWEgZm9yICd2aXJ0aW8gcG1lbScgZmx1
+c2hpbmcgaW50ZXJmYWNlIAogaXMgc2hhcmVkIFszXSAmIFs0XS4KCiBJbXBsZW1lbnRhdGlvbiBp
+cyBkaXZpZGVkIGludG8gdHdvIHBhcnRzOgogTmV3IHZpcnRpbyBwbWVtIGd1ZXN0IGRyaXZlciBh
+bmQgcWVtdSBjb2RlIGNoYW5nZXMgZm9yIG5ldyAKIHZpcnRpbyBwbWVtIHBhcmF2aXJ0dWFsaXpl
+ZCBkZXZpY2UuCgoxLiBHdWVzdCB2aXJ0aW8tcG1lbSBrZXJuZWwgZHJpdmVyCi0tLS0tLS0tLS0t
+LS0tLS0tLS0tLS0tLS0tLS0tLS0tLQogICAtIFJlYWRzIHBlcnNpc3RlbnQgbWVtb3J5IHJhbmdl
+IGZyb20gcGFyYXZpcnQgZGV2aWNlIGFuZCAKICAgICByZWdpc3RlcnMgd2l0aCAnbnZkaW1tX2J1
+cycuICAKICAgLSAnbnZkaW1tL3BtZW0nIGRyaXZlciB1c2VzIHRoaXMgaW5mb3JtYXRpb24gdG8g
+YWxsb2NhdGUgCiAgICAgcGVyc2lzdGVudCBtZW1vcnkgcmVnaW9uIGFuZCBzZXR1cCBmaWxlc3lz
+dGVtIG9wZXJhdGlvbnMgCiAgICAgdG8gdGhlIGFsbG9jYXRlZCBtZW1vcnkuIAogICAtIHZpcnRp
+byBwbWVtIGRyaXZlciBpbXBsZW1lbnRzIGFzeW5jaHJvbm91cyBmbHVzaGluZyAKICAgICBpbnRl
+cmZhY2UgdG8gZmx1c2ggZnJvbSBndWVzdCB0byBob3N0LgoKMi4gUWVtdSB2aXJ0aW8tcG1lbSBk
+ZXZpY2UKLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tCiAgIC0gQ3JlYXRlcyB2aXJ0
+aW8gcG1lbSBkZXZpY2UgYW5kIGV4cG9zZXMgYSBtZW1vcnkgcmFuZ2UgdG8gCiAgICAgS1ZNIGd1
+ZXN0LiAKICAgLSBBdCBob3N0IHNpZGUgdGhpcyBpcyBmaWxlIGJhY2tlZCBtZW1vcnkgd2hpY2gg
+YWN0cyBhcyAKICAgICBwZXJzaXN0ZW50IG1lbW9yeS4gCiAgIC0gUWVtdSBzaWRlIGZsdXNoIHVz
+ZXMgYWlvIHRocmVhZCBwb29sIEFQSSdzIGFuZCB2aXJ0aW8gCiAgICAgZm9yIGFzeW5jaHJvbm91
+cyBndWVzdCBtdWx0aSByZXF1ZXN0IGhhbmRsaW5nLiAKCiAgIERhdmlkIEhpbGRlbmJyYW5kIEND
+ZWQgYWxzbyBwb3N0ZWQgYSBtb2RpZmllZCB2ZXJzaW9uWzddIG9mIAogICBxZW11IHZpcnRpby1w
+bWVtIGNvZGUgYmFzZWQgb24gdXBkYXRlZCBRZW11IG1lbW9yeSBkZXZpY2UgQVBJLiAKCiBWaXJ0
+aW8tcG1lbSBzZWN1cml0eSBpbXBsaWNhdGlvbnMgYW5kIGNvdW50ZXJtZWFzdXJlczoKIC0tLS0t
+LS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tCgogSW4gcHJl
+dmlvdXMgcG9zdGluZyBvZiBrZXJuZWwgZHJpdmVyLCB0aGVyZSB3YXMgZGlzY3Vzc2lvbiBbOV0K
+IG9uIHBvc3NpYmxlIGltcGxpY2F0aW9ucyBvZiBwYWdlIGNhY2hlIHNpZGUgY2hhbm5lbCBhdHRh
+Y2tzIHdpdGggCiB2aXJ0aW8gcG1lbS4gQWZ0ZXIgdGhvcm91Z2ggYW5hbHlzaXMgb2YgZGV0YWls
+cyBvZiBrbm93biBzaWRlIAogY2hhbm5lbCBhdHRhY2tzLCBiZWxvdyBhcmUgdGhlIHN1Z2dlc3Rp
+b25zOgoKIC0gRGVwZW5kcyBlbnRpcmVseSBvbiBob3cgaG9zdCBiYWNraW5nIGltYWdlIGZpbGUg
+aXMgbWFwcGVkIAogICBpbnRvIGd1ZXN0IGFkZHJlc3Mgc3BhY2UuIAoKIC0gdmlydGlvLXBtZW0g
+ZGV2aWNlIGVtdWxhdGlvbiwgYnkgZGVmYXVsdCBzaGFyZWQgbWFwcGluZyBpcyB1c2VkCiAgIHRv
+IG1hcCBob3N0IGJhY2tpbmcgZmlsZS4gSXQgaXMgcmVjb21tZW5kZWQgdG8gdXNlIHNlcGFyYXRl
+CiAgIGJhY2tpbmcgZmlsZSBhdCBob3N0IHNpZGUgZm9yIGV2ZXJ5IGd1ZXN0LiBUaGlzIHdpbGwg
+cHJldmVudAogICBhbnkgcG9zc2liaWxpdHkgb2YgZXhlY3V0aW5nIGNvbW1vbiBjb2RlIGZyb20g
+bXVsdGlwbGUgZ3Vlc3RzCiAgIGFuZCBhbnkgY2hhbmNlIG9mIGluZmVycmluZyBndWVzdCBsb2Nh
+bCBkYXRhIGJhc2VkIGJhc2VkIG9uIAogICBleGVjdXRpb24gdGltZS4KCiAtIElmIGJhY2tpbmcg
+ZmlsZSBpcyByZXF1aXJlZCB0byBiZSBzaGFyZWQgYW1vbmcgbXVsdGlwbGUgZ3Vlc3RzIAogICBp
+dCBpcyByZWNvbW1lbmRlZCB0byBkb24ndCBzdXBwb3J0IGhvc3QgcGFnZSBjYWNoZSBldmljdGlv
+biAKICAgY29tbWFuZHMgZnJvbSB0aGUgZ3Vlc3QgZHJpdmVyLiBUaGlzIHdpbGwgYXZvaWQgYW55
+IHBvc3NpYmlsaXR5CiAgIG9mIGluZmVycmluZyBndWVzdCBsb2NhbCBkYXRhIG9yIGhvc3QgZGF0
+YSBmcm9tIGFub3RoZXIgZ3Vlc3QuIAoKIC0gUHJvcG9zZWQgZGV2aWNlIHNwZWNpZmljYXRpb24g
+WzhdIGZvciB2aXJ0aW8tcG1lbSBkZXZpY2Ugd2l0aCAKICAgZGV0YWlscyBvZiBwb3NzaWJsZSBz
+ZWN1cml0eSBpbXBsaWNhdGlvbnMgYW5kIHN1Z2dlc3RlZCAKICAgY291bnRlcm1lYXN1cmVzIGZv
+ciBkZXZpY2UgZW11bGF0aW9uLgoKIFZpcnRpby1wbWVtIGVycm9ycyBoYW5kbGluZzoKIC0tLS0t
+LS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0KICBDaGVja2VkIGJlaGF2aW91ciBv
+ZiB2aXJ0aW8tcG1lbSBmb3IgYmVsb3cgdHlwZXMgb2YgZXJyb3JzCiAgTmVlZCBzdWdnZXN0aW9u
+cyBvbiBleHBlY3RlZCBiZWhhdmlvdXIgZm9yIGhhbmRsaW5nIHRoZXNlIGVycm9ycz8KCiAgLSBI
+YXJkd2FyZSBFcnJvcnM6IFVuY29ycmVjdGFibGUgcmVjb3ZlcmFibGUgRXJyb3JzOiAKICBhXSB2
+aXJ0aW8tcG1lbTogCiAgICAtIEFzIHBlciBjdXJyZW50IGxvZ2ljIGlmIGVycm9yIHBhZ2UgYmVs
+b25ncyB0byBRZW11IHByb2Nlc3MsIAogICAgICBob3N0IE1DRSBoYW5kbGVyIGlzb2xhdGVzKGh3
+cG9pc29uKSB0aGF0IHBhZ2UgYW5kIHNlbmQgU0lHQlVTLiAKICAgICAgUWVtdSBTSUdCVVMgaGFu
+ZGxlciBpbmplY3RzIGV4Y2VwdGlvbiB0byBLVk0gZ3Vlc3QuIAogICAgLSBLVk0gZ3Vlc3QgdGhl
+biBpc29sYXRlcyB0aGUgcGFnZSBhbmQgc2VuZCBTSUdCVVMgdG8gZ3Vlc3QgCiAgICAgIHVzZXJz
+cGFjZSBwcm9jZXNzIHdoaWNoIGhhcyBtYXBwZWQgdGhlIHBhZ2UuIAogIAogIGJdIEV4aXN0aW5n
+IGltcGxlbWVudGF0aW9uIGZvciBBQ1BJIHBtZW0gZHJpdmVyOiAKICAgIC0gSGFuZGxlcyBzdWNo
+IGVycm9ycyB3aXRoIE1DRSBub3RpZmllciBhbmQgY3JlYXRlcyBhIGxpc3QgCiAgICAgIG9mIGJh
+ZCBibG9ja3MuIFJlYWQvZGlyZWN0IGFjY2VzcyBEQVggb3BlcmF0aW9uIHJldHVybiBFSU8gCiAg
+ICAgIGlmIGFjY2Vzc2VkIG1lbW9yeSBwYWdlIGZhbGwgaW4gYmFkIGJsb2NrIGxpc3QuCiAgICAt
+IEl0IGFsc28gc3RhcnRzIGJhY2tnb3VuZCBzY3J1YmJpbmcuICAKICAgIC0gU2ltaWxhciBmdW5j
+dGlvbmFsaXR5IGNhbiBiZSByZXVzZWQgaW4gdmlydGlvLXBtZW0gd2l0aCBNQ0UgCiAgICAgIG5v
+dGlmaWVyIGJ1dCB3aXRob3V0IHNjcnViYmluZyhubyBBQ1BJL0FSUyk/IE5lZWQgaW5wdXRzIHRv
+IAogICAgICBjb25maXJtIGlmIHRoaXMgYmVoYXZpb3VyIGlzIG9rIG9yIG5lZWRzIGFueSBjaGFu
+Z2U/CgpDaGFuZ2VzIGZyb20gUEFUQ0ggdjY6IFsxXQogLSBDb3JyZWN0ZWQgY29tbWVudCBmb3Jt
+YXQgaW4gcGF0Y2ggNSAmIHBhdGNoIDYuIFtEYXZlXQogLSBDaGFuZ2VkIHZhcmlhYmxlIGRlY2xh
+cmF0aW9uIGluZGVudGF0aW9uIGluIHBhdGNoIDYgW0RhcnJpY2tdCiAtIEFkZCBSZXZpZXdlZC1i
+eSB0YWcgYnkgJ0phbiBLYXJhJyBpbiBwYXRjaCA0ICYgcGF0Y2ggNQoKQ2hhbmdlcyBmcm9tIFBB
+VENIIHY1OiBbMl0KICBDaGFuZ2VzIHN1Z2dlc3RlZCBpbiBieSAtIFtDb3JuZWxpYSwgWXV2YWxd
+Ci0gUmVtb3ZlIGFzc2lnbm1lbnQgY2hhaW5pbmcgaW4gdmlydGlvIGRyaXZlcgotIEJldHRlciBl
+cnJvciBtZXNzYWdlIGFuZCByZW1vdmUgbm90IHJlcXVpcmVkIGZyZWUKLSBDaGVjayBuZF9yZWdp
+b24gYmVmb3JlIHVzZQoKICBDaGFuZ2VzIHN1Z2dlc3RlZCBieSAtIFtKYW4gS2FyYV0KLSBkYXhf
+c3luY2hyb25vdXMoKSBmb3IgIUNPTkZJR19EQVgKLSBDb3JyZWN0ICdkYXhkZXZfbWFwcGluZ19z
+dXBwb3J0ZWQnIGNvbW1lbnQgYW5kIG5vbi1kYXggaW1wbGVtZW50YXRpb24KCiAgQ2hhbmdlcyBz
+dWdnZXN0ZWQgYnkgLSBbRGFuIFdpbGxpYW1zXQotIFBhc3MgbWVhbmluZ2Z1bCBmbGFnICdEQVhE
+RVZfRl9TWU5DJyB0byBhbGxvY19kYXgKLSBHYXRlIG52ZGltbV9mbHVzaCBpbnN0ZWFkIG9mIGFk
+ZGl0aW9uYWwgYXN5bmMgcGFyYW1ldGVyCi0gTW92ZSBibG9jayBjaGFpbmluZyBsb2dpYyB0byBm
+bHVzaCBjYWxsYmFjayB0aGFuIGNvbW1vbiBudmRpbW1fZmx1c2gKLSBVc2UgTlVMTCBmbHVzaCBj
+YWxsYmFjayBmb3IgZ2VuZXJpYyBmbHVzaCBmb3IgYmV0dGVyIHJlYWRhYmlsaXR5IFtEYW4sIEph
+bl0KCi0gVXNlIHZpcnRpbyBkZXZpY2UgaWQgMjcgZnJvbSAyNShhbHJlYWR5IHVzZWQpIC0gW01T
+VF0KCkNoYW5nZXMgZnJvbSBQQVRDSCB2NDoKLSBGYWN0b3Igb3V0IE1BUF9TWU5DIHN1cHBvcnRl
+ZCBmdW5jdGlvbmFsaXR5IHRvIGEgY29tbW9uIGhlbHBlcgoJCQkJW0RhdmUsIERhcnJpY2ssIEph
+bl0KLSBDb21tZW50LCBpbmRlbnRhdGlvbiBhbmQgdmlydHF1ZXVlX2tpY2sgZmFpbHVyZSBoYW5k
+bGUgLSBZdXZhbCBTaGFpYQoKQ2hhbmdlcyBmcm9tIFBBVENIIHYzOiAKLSBVc2UgZ2VuZXJpYyBk
+YXhfc3luY2hyb25vdXMoKSBoZWxwZXIgdG8gY2hlY2sgZm9yIERBWERFVl9TWU5DIAogIGZsYWcg
+LSBbRGFuLCBEYXJyaWNrLCBKYW5dCi0gQWRkICdpc19udmRpbW1fYXN5bmMnIGZ1bmN0aW9uCi0g
+RG9jdW1lbnQgcGFnZSBjYWNoZSBzaWRlIGNoYW5uZWwgYXR0YWNrcyBpbXBsaWNhdGlvbnMgJiAK
+ICBjb3VudGVybWVhc3VyZXMgLSBbRGF2ZSBDaGlubmVyLCBNaWNoYWVsXQoKQ2hhbmdlcyBmcm9t
+IFBBVENIIHYyOiAKLSBEaXNhYmxlIE1BUF9TWU5DIGZvciBleHQ0ICYgWEZTIGZpbGVzeXN0ZW1z
+IC0gW0Rhbl0gCi0gVXNlIG5hbWUgJ3ZpcnRpbyBwbWVtJyBpbiBwbGFjZSBvZiAnZmFrZSBkYXgn
+IAoKQ2hhbmdlcyBmcm9tIFBBVENIIHYxOiAKLSAwLWRheSBidWlsZCB0ZXN0IGZvciBidWlsZCBk
+ZXBlbmRlbmN5IG9uIGxpYm52ZGltbSAKCiBDaGFuZ2VzIHN1Z2dlc3RlZCBieSAtIFtEYW4gV2ls
+bGlhbXNdCi0gU3BsaXQgdGhlIGRyaXZlciBpbnRvIHR3byBwYXJ0cyB2aXJ0aW8gJiBwbWVtICAK
+LSBNb3ZlIHF1ZXVpbmcgb2YgYXN5bmMgYmxvY2sgcmVxdWVzdCB0byBibG9jayBsYXllcgotIEFk
+ZCAic3luYyIgcGFyYW1ldGVyIGluIG52ZGltbV9mbHVzaCBmdW5jdGlvbgotIFVzZSBpbmRpcmVj
+dCBjYWxsIGZvciBudmRpbW1fZmx1c2gKLSBEb27igJl0IG1vdmUgZGVjbGFyYXRpb25zIHRvIGNv
+bW1vbiBnbG9iYWwgaGVhZGVyIGUuZyBuZC5oCi0gbnZkaW1tX2ZsdXNoKCkgcmV0dXJuIDAgb3Ig
+LUVJTyBpZiBpdCBmYWlscwotIFRlYWNoIG5zaW9fcndfYnl0ZXMoKSB0aGF0IHRoZSBmbHVzaCBj
+YW4gZmFpbAotIFJlbmFtZSBudmRpbW1fZmx1c2goKSB0byBnZW5lcmljX252ZGltbV9mbHVzaCgp
+Ci0gVXNlICduZF9yZWdpb24tPnByb3ZpZGVyX2RhdGEnIGZvciBsb25nIGRlcmVmZXJlbmNpbmcK
+LSBSZW1vdmUgdmlydGlvX3BtZW1fZnJlZXplL3Jlc3RvcmUgZnVuY3Rpb25zCi0gUmVtb3ZlIEJT
+RCBsaWNlbnNlIHRleHQgd2l0aCBTUERYIGxpY2Vuc2UgdGV4dAoKLSBBZGQgbWlnaHRfc2xlZXAo
+KSBpbiB2aXJ0aW9fcG1lbV9mbHVzaCAtIFtMdWl6XQotIE1ha2Ugc3Bpbl9sb2NrX2lycXNhdmUo
+KSBuYXJyb3cKCkNoYW5nZXMgZnJvbSBSRkMgdjMKLSBSZWJhc2UgdG8gbGF0ZXN0IHVwc3RyZWFt
+IC0gTHVpegotIENhbGwgbmRyZWdpb24tPmZsdXNoIGluIHBsYWNlIG9mIG52ZGltbV9mbHVzaC0g
+THVpegotIGttYWxsb2MgcmV0dXJuIGNoZWNrIC0gTHVpegotIHZpcnRxdWV1ZSBmdWxsIGhhbmRs
+aW5nIC0gU3RlZmFuCi0gRG9uJ3QgbWFwIGVudGlyZSB2aXJ0aW9fcG1lbV9yZXEgdG8gZGV2aWNl
+IC0gU3RlZmFuCi0gcmVxdWVzdCBsZWFrLCBjb3JyZWN0IHNpemVvZiByZXEgLSBTdGVmYW4KLSBN
+b3ZlIGRlY2xhcmF0aW9uIHRvIHZpcnRpb19wbWVtLmMKCkNoYW5nZXMgZnJvbSBSRkMgdjI6Ci0g
+QWRkIGZsdXNoIGZ1bmN0aW9uIGluIHRoZSBuZF9yZWdpb24gaW4gcGxhY2Ugb2Ygc3dpdGNoaW5n
+CiAgb24gYSBmbGFnIC0gRGFuICYgU3RlZmFuCi0gQWRkIGZsdXNoIGNvbXBsZXRpb24gZnVuY3Rp
+b24gd2l0aCBwcm9wZXIgbG9ja2luZyBhbmQgd2FpdAogIGZvciBob3N0IHNpZGUgZmx1c2ggY29t
+cGxldGlvbiAtIFN0ZWZhbiAmIERhbgotIEtlZXAgdXNlcnNwYWNlIEFQSSBpbiB1YXBpIGhlYWRl
+ciBmaWxlIC0gU3RlZmFuLCBNU1QKLSBVc2UgTEUgZmllbGRzICYgTmV3IGRldmljZSBpZCAtIE1T
+VAotIEluZGVudGF0aW9uICYgc3BhY2luZyBzdWdnZXN0aW9ucyAtIE1TVCAmIEVyaWMKLSBSZW1v
+dmUgZXh0cmEgaGVhZGVyIGZpbGVzICYgYWRkIGxpY2Vuc2luZyAtIFN0ZWZhbgoKQ2hhbmdlcyBm
+cm9tIFJGQyB2MToKLSBSZXVzZSBleGlzdGluZyAncG1lbScgY29kZSBmb3IgcmVnaXN0ZXJpbmcg
+cGVyc2lzdGVudCAKICBtZW1vcnkgYW5kIG90aGVyIG9wZXJhdGlvbnMgaW5zdGVhZCBvZiBjcmVh
+dGluZyBhbiBlbnRpcmVseSAKICBuZXcgYmxvY2sgZHJpdmVyLgotIFVzZSBWSVJUSU8gZHJpdmVy
+IHRvIHJlZ2lzdGVyIG1lbW9yeSBpbmZvcm1hdGlvbiB3aXRoIAogIG52ZGltbV9idXMgYW5kIGNy
+ZWF0ZSByZWdpb25fdHlwZSBhY2NvcmRpbmdseS4gCi0gQ2FsbCBWSVJUSU8gZmx1c2ggZnJvbSBl
+eGlzdGluZyBwbWVtIGRyaXZlci4KClBhbmthaiBHdXB0YSAoNik6CiAgIGxpYm52ZGltbTogbmRf
+cmVnaW9uIGZsdXNoIGNhbGxiYWNrIHN1cHBvcnQKICAgdmlydGlvLXBtZW06IEFkZCB2aXJ0aW8t
+cG1lbSBndWVzdCBkcml2ZXIKICAgbGlibnZkaW1tOiBhZGQgbmRfcmVnaW9uIGJ1ZmZlcmVkIGRh
+eF9kZXYgZmxhZwogICBkYXg6IGNoZWNrIHN5bmNocm9ub3VzIG1hcHBpbmcgaXMgc3VwcG9ydGVk
+CiAgIGV4dDQ6IGRpc2FibGUgbWFwX3N5bmMgZm9yIHZpcnRpbyBwbWVtCiAgIHhmczogZGlzYWJs
+ZSBtYXBfc3luYyBmb3IgdmlydGlvIHBtZW0KClsxXSBodHRwczovL2xrbWwub3JnL2xrbWwvMjAx
+OS80LzIzLzEwOTIKWzJdIGh0dHBzOi8vbGttbC5vcmcvbGttbC8yMDE5LzQvMTAvMwpbM10gaHR0
+cHM6Ly93d3cuc3Bpbmljcy5uZXQvbGlzdHMva3ZtL21zZzE0OTc2MS5odG1sCls0XSBodHRwczov
+L3d3dy5zcGluaWNzLm5ldC9saXN0cy9rdm0vbXNnMTUzMDk1Lmh0bWwgIApbNV0gaHR0cHM6Ly9s
+a21sLm9yZy9sa21sLzIwMTgvOC8zMS80MTMKWzZdIGh0dHBzOi8vbWFyYy5pbmZvLz9sPWxpbnV4
+LWtlcm5lbCZtPTE1MzU3MjIyODcxOTIzNyZ3PTIgCls3XSBodHRwczovL21hcmMuaW5mby8/bD1x
+ZW11LWRldmVsJm09MTUzNTU1NzIxOTAxODI0Jnc9MgpbOF0gaHR0cHM6Ly9saXN0cy5vYXNpcy1v
+cGVuLm9yZy9hcmNoaXZlcy92aXJ0aW8tZGV2LzIwMTkwMy9tc2cwMDA4My5odG1sCls5XSBodHRw
+czovL2xrbWwub3JnL2xrbWwvMjAxOS8xLzkvMTE5MQoKIGRyaXZlcnMvYWNwaS9uZml0L2NvcmUu
+YyAgICAgICAgIHwgICAgNCAtCiBkcml2ZXJzL2RheC9idXMuYyAgICAgICAgICAgICAgICB8ICAg
+IDIgCiBkcml2ZXJzL2RheC9zdXBlci5jICAgICAgICAgICAgICB8ICAgMTMgKysrLQogZHJpdmVy
+cy9tZC9kbS5jICAgICAgICAgICAgICAgICAgfCAgICAzIAogZHJpdmVycy9udmRpbW0vY2xhaW0u
+YyAgICAgICAgICAgfCAgICA2ICsKIGRyaXZlcnMvbnZkaW1tL25kLmggICAgICAgICAgICAgIHwg
+ICAgMSAKIGRyaXZlcnMvbnZkaW1tL3BtZW0uYyAgICAgICAgICAgIHwgICAxNiArKystLQogZHJp
+dmVycy9udmRpbW0vcmVnaW9uX2RldnMuYyAgICAgfCAgIDMzICsrKysrKysrKysKIGRyaXZlcnMv
+bnZkaW1tL3ZpcnRpb19wbWVtLmMgICAgIHwgIDExNCArKysrKysrKysrKysrKysrKysrKysrKysr
+KysrKysrKysrKysrCiBkcml2ZXJzL3ZpcnRpby9LY29uZmlnICAgICAgICAgICB8ICAgMTAgKysr
+CiBkcml2ZXJzL3ZpcnRpby9NYWtlZmlsZSAgICAgICAgICB8ICAgIDEgCiBkcml2ZXJzL3ZpcnRp
+by9wbWVtLmMgICAgICAgICAgICB8ICAxMTggKysrKysrKysrKysrKysrKysrKysrKysrKysrKysr
+KysrKysrKysrCiBmcy9leHQ0L2ZpbGUuYyAgICAgICAgICAgICAgICAgICB8ICAgMTAgKy0tCiBm
+cy94ZnMveGZzX2ZpbGUuYyAgICAgICAgICAgICAgICB8ICAgIDkgKy0KIGluY2x1ZGUvbGludXgv
+ZGF4LmggICAgICAgICAgICAgIHwgICAyNSArKysrKysrLQogaW5jbHVkZS9saW51eC9saWJudmRp
+bW0uaCAgICAgICAgfCAgICA5ICsrCiBpbmNsdWRlL2xpbnV4L3ZpcnRpb19wbWVtLmggICAgICB8
+ICAgNjAgKysrKysrKysrKysrKysrKysrKwogaW5jbHVkZS91YXBpL2xpbnV4L3ZpcnRpb19pZHMu
+aCAgfCAgICAxIAogaW5jbHVkZS91YXBpL2xpbnV4L3ZpcnRpb19wbWVtLmggfCAgIDEwICsrKwog
+MTkgZmlsZXMgY2hhbmdlZCwgNDIwIGluc2VydGlvbnMoKyksIDI1IGRlbGV0aW9ucygtKQoKCl9f
+X19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fClZpcnR1YWxpemF0
+aW9uIG1haWxpbmcgbGlzdApWaXJ0dWFsaXphdGlvbkBsaXN0cy5saW51eC1mb3VuZGF0aW9uLm9y
+ZwpodHRwczovL2xpc3RzLmxpbnV4Zm91bmRhdGlvbi5vcmcvbWFpbG1hbi9saXN0aW5mby92aXJ0
+dWFsaXphdGlvbg==
