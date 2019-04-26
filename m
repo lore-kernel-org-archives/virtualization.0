@@ -1,11 +1,15 @@
-From: Jiang Biao <benbjiang@tencent.com>
-Subject: [PATCH] virtio/virtio_ring: do some comment fixes
-Date: Tue, 23 Apr 2019 18:25:12 +0800
-Message-ID: <20190423102512.72265-1-benbjiang__46739.1672240169$1558282666$gmane$org@tencent.com>
+From: Thomas Hellstrom <thomas@shipmail.org>
+Subject: Re: [PATCH] Revert "drm/qxl: drop prime import/export callbacks"
+Date: Fri, 26 Apr 2019 17:42:23 +0200
+Message-ID: <8ae152fe-7811-4de3-e26f-350650a8f992__40082.8830710211$1558282686$gmane$org@shipmail.org>
+References: <20190426053324.26443-1-kraxel@redhat.com>
+	<CAKMK7uG+vMU0hqqiKAswu=LqpkcXtLPqbYLRWgoAPpsQQV4qzA@mail.gmail.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
+Content-Type: text/plain; charset="us-ascii"; Format="flowed"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
+In-Reply-To: <CAKMK7uG+vMU0hqqiKAswu=LqpkcXtLPqbYLRWgoAPpsQQV4qzA@mail.gmail.com>
+Content-Language: en-US
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -15,127 +19,84 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: mst@redhat.com, jasowang@redhat.com
-Cc: benbjiang@tencent.com, linux-kernel@vger.kernel.org, virtualization@lists.linux-foundation.org
+To: Daniel Vetter <daniel@ffwll.ch>, Gerd Hoffmann <kraxel@redhat.com>
+Cc: David Airlie <airlied@linux.ie>, open list <linux-kernel@vger.kernel.org>, dri-devel <dri-devel@lists.freedesktop.org>, "open list:DRM DRIVER FOR QXL VIRTUAL GPU" <virtualization@lists.linux-foundation.org>, David Airlie <airlied@redhat.com>, "open list:DRM DRIVER FOR QXL VIRTUAL GPU" <spice-devel@lists.freedesktop.org>
 List-Id: virtualization@lists.linuxfoundation.org
 
-There are lots of mismatches between comments and codes, this
-patch do these comment fixes.
+On 4/26/19 4:21 PM, Daniel Vetter wrote:
+> On Fri, Apr 26, 2019 at 7:33 AM Gerd Hoffmann <kraxel@redhat.com> wrote:
+>> This reverts commit f4c34b1e2a37d5676180901fa6ff188bcb6371f8.
+>>
+>> Simliar to commit a0cecc23cfcb Revert "drm/virtio: drop prime
+>> import/export callbacks".  We have to do the same with qxl,
+>> for the same reasons (it breaks DRI3).
+>>
+>> Drop the WARN_ON_ONCE().
+>>
+>> Fixes: f4c34b1e2a37d5676180901fa6ff188bcb6371f8
+>> Signed-off-by: Gerd Hoffmann <kraxel@redhat.com>
+> Maybe we need some helpers for virtual drivers which only allow
+> self-reimport and nothing else at all? I think there's qxl, virgl,
+> vmwgfx and maybe also vbox one who could use this ... Just a quick
+> idea.
+> -Daniel
 
-Signed-off-by: Jiang Biao <benbjiang@tencent.com>
----
- drivers/virtio/virtio_ring.c | 27 ++++++++++++++-------------
- 1 file changed, 14 insertions(+), 13 deletions(-)
+I think vmwgfx could, in theory, support the full range of operations,
+at least for reasonably recent device versions. However, it wouldn't be 
+terribly efficient since the exported dma-buf sglist would basically be 
+a bounce-buffer.
 
-diff --git a/drivers/virtio/virtio_ring.c b/drivers/virtio/virtio_ring.c
-index 5df92c308286..3794c7666a99 100644
---- a/drivers/virtio/virtio_ring.c
-+++ b/drivers/virtio/virtio_ring.c
-@@ -1718,10 +1718,10 @@ static inline int virtqueue_add(struct virtqueue *_vq,
- 
- /**
-  * virtqueue_add_sgs - expose buffers to other end
-- * @vq: the struct virtqueue we're talking about.
-+ * @_vq: the struct virtqueue we're talking about.
-  * @sgs: array of terminated scatterlists.
-- * @out_num: the number of scatterlists readable by other side
-- * @in_num: the number of scatterlists which are writable (after readable ones)
-+ * @out_sgs: the number of scatterlists readable by other side
-+ * @in_sgs: the number of scatterlists which are writable (after readable ones)
-  * @data: the token identifying the buffer.
-  * @gfp: how to do memory allocations (if necessary).
-  *
-@@ -1821,7 +1821,7 @@ EXPORT_SYMBOL_GPL(virtqueue_add_inbuf_ctx);
- 
- /**
-  * virtqueue_kick_prepare - first half of split virtqueue_kick call.
-- * @vq: the struct virtqueue
-+ * @_vq: the struct virtqueue
-  *
-  * Instead of virtqueue_kick(), you can do:
-  *	if (virtqueue_kick_prepare(vq))
-@@ -1841,7 +1841,7 @@ EXPORT_SYMBOL_GPL(virtqueue_kick_prepare);
- 
- /**
-  * virtqueue_notify - second half of split virtqueue_kick call.
-- * @vq: the struct virtqueue
-+ * @_vq: the struct virtqueue
-  *
-  * This does not need to be serialized.
-  *
-@@ -1885,8 +1885,9 @@ EXPORT_SYMBOL_GPL(virtqueue_kick);
- 
- /**
-  * virtqueue_get_buf - get the next used buffer
-- * @vq: the struct virtqueue we're talking about.
-+ * @_vq: the struct virtqueue we're talking about.
-  * @len: the length written into the buffer
-+ * @ctx: extra context for the token
-  *
-  * If the device wrote data into the buffer, @len will be set to the
-  * amount written.  This means you don't need to clear the buffer
-@@ -1916,7 +1917,7 @@ void *virtqueue_get_buf(struct virtqueue *_vq, unsigned int *len)
- EXPORT_SYMBOL_GPL(virtqueue_get_buf);
- /**
-  * virtqueue_disable_cb - disable callbacks
-- * @vq: the struct virtqueue we're talking about.
-+ * @_vq: the struct virtqueue we're talking about.
-  *
-  * Note that this is not necessarily synchronous, hence unreliable and only
-  * useful as an optimization.
-@@ -1936,7 +1937,7 @@ EXPORT_SYMBOL_GPL(virtqueue_disable_cb);
- 
- /**
-  * virtqueue_enable_cb_prepare - restart callbacks after disable_cb
-- * @vq: the struct virtqueue we're talking about.
-+ * @_vq: the struct virtqueue we're talking about.
-  *
-  * This re-enables callbacks; it returns current queue state
-  * in an opaque unsigned value. This value should be later tested by
-@@ -1957,7 +1958,7 @@ EXPORT_SYMBOL_GPL(virtqueue_enable_cb_prepare);
- 
- /**
-  * virtqueue_poll - query pending used buffers
-- * @vq: the struct virtqueue we're talking about.
-+ * @_vq: the struct virtqueue we're talking about.
-  * @last_used_idx: virtqueue state (from call to virtqueue_enable_cb_prepare).
-  *
-  * Returns "true" if there are pending used buffers in the queue.
-@@ -1976,7 +1977,7 @@ EXPORT_SYMBOL_GPL(virtqueue_poll);
- 
- /**
-  * virtqueue_enable_cb - restart callbacks after disable_cb.
-- * @vq: the struct virtqueue we're talking about.
-+ * @_vq: the struct virtqueue we're talking about.
-  *
-  * This re-enables callbacks; it returns "false" if there are pending
-  * buffers in the queue, to detect a possible race between the driver
-@@ -1995,7 +1996,7 @@ EXPORT_SYMBOL_GPL(virtqueue_enable_cb);
- 
- /**
-  * virtqueue_enable_cb_delayed - restart callbacks after disable_cb.
-- * @vq: the struct virtqueue we're talking about.
-+ * @_vq: the struct virtqueue we're talking about.
-  *
-  * This re-enables callbacks but hints to the other side to delay
-  * interrupts until most of the available buffers have been processed;
-@@ -2017,7 +2018,7 @@ EXPORT_SYMBOL_GPL(virtqueue_enable_cb_delayed);
- 
- /**
-  * virtqueue_detach_unused_buf - detach first unused buffer
-- * @vq: the struct virtqueue we're talking about.
-+ * @_vq: the struct virtqueue we're talking about.
-  *
-  * Returns NULL or the "data" token handed to virtqueue_add_*().
-  * This is not valid on an active queue; it is useful only for device
-@@ -2249,7 +2250,7 @@ EXPORT_SYMBOL_GPL(vring_transport_features);
- 
- /**
-  * virtqueue_get_vring_size - return the size of the virtqueue's vring
-- * @vq: the struct virtqueue containing the vring of interest.
-+ * @_vq: the struct virtqueue containing the vring of interest.
-  *
-  * Returns the size of the vring.  This is mainly used for boasting to
-  * userspace.  Unlike other operations, this need not be serialized.
--- 
-2.17.2 (Apple Git-113)
+/Thomas
+
+
+>> ---
+>>   drivers/gpu/drm/qxl/qxl_drv.c   |  4 ++++
+>>   drivers/gpu/drm/qxl/qxl_prime.c | 12 ++++++++++++
+>>   2 files changed, 16 insertions(+)
+>>
+>> diff --git a/drivers/gpu/drm/qxl/qxl_drv.c b/drivers/gpu/drm/qxl/qxl_drv.c
+>> index 578d867a81d5..f33e349c4ec5 100644
+>> --- a/drivers/gpu/drm/qxl/qxl_drv.c
+>> +++ b/drivers/gpu/drm/qxl/qxl_drv.c
+>> @@ -255,10 +255,14 @@ static struct drm_driver qxl_driver = {
+>>   #if defined(CONFIG_DEBUG_FS)
+>>          .debugfs_init = qxl_debugfs_init,
+>>   #endif
+>> +       .prime_handle_to_fd = drm_gem_prime_handle_to_fd,
+>> +       .prime_fd_to_handle = drm_gem_prime_fd_to_handle,
+>>          .gem_prime_export = drm_gem_prime_export,
+>>          .gem_prime_import = drm_gem_prime_import,
+>>          .gem_prime_pin = qxl_gem_prime_pin,
+>>          .gem_prime_unpin = qxl_gem_prime_unpin,
+>> +       .gem_prime_get_sg_table = qxl_gem_prime_get_sg_table,
+>> +       .gem_prime_import_sg_table = qxl_gem_prime_import_sg_table,
+>>          .gem_prime_vmap = qxl_gem_prime_vmap,
+>>          .gem_prime_vunmap = qxl_gem_prime_vunmap,
+>>          .gem_prime_mmap = qxl_gem_prime_mmap,
+>> diff --git a/drivers/gpu/drm/qxl/qxl_prime.c b/drivers/gpu/drm/qxl/qxl_prime.c
+>> index 8b448eca1cd9..114653b471c6 100644
+>> --- a/drivers/gpu/drm/qxl/qxl_prime.c
+>> +++ b/drivers/gpu/drm/qxl/qxl_prime.c
+>> @@ -42,6 +42,18 @@ void qxl_gem_prime_unpin(struct drm_gem_object *obj)
+>>          qxl_bo_unpin(bo);
+>>   }
+>>
+>> +struct sg_table *qxl_gem_prime_get_sg_table(struct drm_gem_object *obj)
+>> +{
+>> +       return ERR_PTR(-ENOSYS);
+>> +}
+>> +
+>> +struct drm_gem_object *qxl_gem_prime_import_sg_table(
+>> +       struct drm_device *dev, struct dma_buf_attachment *attach,
+>> +       struct sg_table *table)
+>> +{
+>> +       return ERR_PTR(-ENOSYS);
+>> +}
+>> +
+>>   void *qxl_gem_prime_vmap(struct drm_gem_object *obj)
+>>   {
+>>          struct qxl_bo *bo = gem_to_qxl_bo(obj);
+>> --
+>> 2.18.1
+>>
+>
