@@ -1,8 +1,8 @@
 From: Sasha Levin <sashal@kernel.org>
-Subject: [PATCH AUTOSEL 4.19 37/53] virtio_pci: fix a NULL pointer reference
-	in vp_del_vqs
-Date: Fri, 26 Apr 2019 21:40:34 -0400
-Message-ID: <20190427014051.7522-37-sashal__10109.131322109$1556329506$gmane$org@kernel.org>
+Subject: [PATCH AUTOSEL 4.19 44/53] virtio-blk: limit number of hw queues by
+	nr_cpu_ids
+Date: Fri, 26 Apr 2019 21:40:41 -0400
+Message-ID: <20190427014051.7522-44-sashal__947.085085657307$1556329516$gmane$org@kernel.org>
 References: <20190427014051.7522-1-sashal@kernel.org>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
@@ -19,70 +19,46 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
 To: linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc: Sasha Levin <sashal@kernel.org>, Longpeng <longpeng2@huawei.com>, virtualization@lists.linux-foundation.org, "Michael S . Tsirkin" <mst@redhat.com>
+Cc: Jens Axboe <axboe@kernel.dk>, virtualization@lists.linux-foundation.org, linux-block@vger.kernel.org, Sasha Levin <sashal@kernel.org>
 List-Id: virtualization@lists.linuxfoundation.org
 
-From: Longpeng <longpeng2@huawei.com>
+From: Dongli Zhang <dongli.zhang@oracle.com>
 
-[ Upstream commit 6a8aae68c87349dbbcd46eac380bc43cdb98a13b ]
+[ Upstream commit bf348f9b78d413e75bb079462751a1d86b6de36c ]
 
-If the msix_affinity_masks is alloced failed, then we'll
-try to free some resources in vp_free_vectors() that may
-access it directly.
+When tag_set->nr_maps is 1, the block layer limits the number of hw queues
+by nr_cpu_ids. No matter how many hw queues are used by virtio-blk, as it
+has (tag_set->nr_maps == 1), it can use at most nr_cpu_ids hw queues.
 
-We met the following stack in our production:
-[   29.296767] BUG: unable to handle kernel NULL pointer dereference at  (null)
-[   29.311151] IP: [<ffffffffc04fe35a>] vp_free_vectors+0x6a/0x150 [virtio_pci]
-[   29.324787] PGD 0
-[   29.333224] Oops: 0000 [#1] SMP
-[...]
-[   29.425175] RIP: 0010:[<ffffffffc04fe35a>]  [<ffffffffc04fe35a>] vp_free_vectors+0x6a/0x150 [virtio_pci]
-[   29.441405] RSP: 0018:ffff9a55c2dcfa10  EFLAGS: 00010206
-[   29.453491] RAX: 0000000000000000 RBX: ffff9a55c322c400 RCX: 0000000000000000
-[   29.467488] RDX: 0000000000000000 RSI: 0000000000000000 RDI: ffff9a55c322c400
-[   29.481461] RBP: ffff9a55c2dcfa20 R08: 0000000000000000 R09: ffffc1b6806ff020
-[   29.495427] R10: 0000000000000e95 R11: 0000000000aaaaaa R12: 0000000000000000
-[   29.509414] R13: 0000000000010000 R14: ffff9a55bd2d9e98 R15: ffff9a55c322c400
-[   29.523407] FS:  00007fdcba69f8c0(0000) GS:ffff9a55c2840000(0000) knlGS:0000000000000000
-[   29.538472] CS:  0010 DS: 0000 ES: 0000 CR0: 0000000080050033
-[   29.551621] CR2: 0000000000000000 CR3: 000000003ce52000 CR4: 00000000003607a0
-[   29.565886] DR0: 0000000000000000 DR1: 0000000000000000 DR2: 0000000000000000
-[   29.580055] DR3: 0000000000000000 DR6: 00000000fffe0ff0 DR7: 0000000000000400
-[   29.594122] Call Trace:
-[   29.603446]  [<ffffffffc04fe8a2>] vp_request_msix_vectors+0xe2/0x260 [virtio_pci]
-[   29.618017]  [<ffffffffc04fedc5>] vp_try_to_find_vqs+0x95/0x3b0 [virtio_pci]
-[   29.632152]  [<ffffffffc04ff117>] vp_find_vqs+0x37/0xb0 [virtio_pci]
-[   29.645582]  [<ffffffffc057bf63>] init_vq+0x153/0x260 [virtio_blk]
-[   29.658831]  [<ffffffffc057c1e8>] virtblk_probe+0xe8/0x87f [virtio_blk]
-[...]
+In addition, specifically for pci scenario, when the 'num-queues' specified
+by qemu is more than maxcpus, virtio-blk would not be able to allocate more
+than maxcpus vectors in order to have a vector for each queue. As a result,
+it falls back into MSI-X with one vector for config and one shared for
+queues.
 
-Cc: Gonglei <arei.gonglei@huawei.com>
-Signed-off-by: Longpeng <longpeng2@huawei.com>
-Signed-off-by: Michael S. Tsirkin <mst@redhat.com>
-Reviewed-by: Gonglei <arei.gonglei@huawei.com>
+Considering above reasons, this patch limits the number of hw queues used
+by virtio-blk by nr_cpu_ids.
+
+Reviewed-by: Stefan Hajnoczi <stefanha@redhat.com>
+Signed-off-by: Dongli Zhang <dongli.zhang@oracle.com>
+Signed-off-by: Jens Axboe <axboe@kernel.dk>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/virtio/virtio_pci_common.c | 8 +++++---
- 1 file changed, 5 insertions(+), 3 deletions(-)
+ drivers/block/virtio_blk.c | 2 ++
+ 1 file changed, 2 insertions(+)
 
-diff --git a/drivers/virtio/virtio_pci_common.c b/drivers/virtio/virtio_pci_common.c
-index 465a6f5142cc..45b04bc91f24 100644
---- a/drivers/virtio/virtio_pci_common.c
-+++ b/drivers/virtio/virtio_pci_common.c
-@@ -255,9 +255,11 @@ void vp_del_vqs(struct virtio_device *vdev)
- 	for (i = 0; i < vp_dev->msix_used_vectors; ++i)
- 		free_irq(pci_irq_vector(vp_dev->pci_dev, i), vp_dev);
+diff --git a/drivers/block/virtio_blk.c b/drivers/block/virtio_blk.c
+index 23752dc99b00..dd64f586679e 100644
+--- a/drivers/block/virtio_blk.c
++++ b/drivers/block/virtio_blk.c
+@@ -446,6 +446,8 @@ static int init_vq(struct virtio_blk *vblk)
+ 	if (err)
+ 		num_vqs = 1;
  
--	for (i = 0; i < vp_dev->msix_vectors; i++)
--		if (vp_dev->msix_affinity_masks[i])
--			free_cpumask_var(vp_dev->msix_affinity_masks[i]);
-+	if (vp_dev->msix_affinity_masks) {
-+		for (i = 0; i < vp_dev->msix_vectors; i++)
-+			if (vp_dev->msix_affinity_masks[i])
-+				free_cpumask_var(vp_dev->msix_affinity_masks[i]);
-+	}
- 
- 	if (vp_dev->msix_enabled) {
- 		/* Disable the vector used for configuration */
++	num_vqs = min_t(unsigned int, nr_cpu_ids, num_vqs);
++
+ 	vblk->vqs = kmalloc_array(num_vqs, sizeof(*vblk->vqs), GFP_KERNEL);
+ 	if (!vblk->vqs)
+ 		return -ENOMEM;
 -- 
 2.19.1
