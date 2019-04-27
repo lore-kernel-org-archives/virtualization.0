@@ -1,14 +1,14 @@
 From: Sasha Levin <sashal@kernel.org>
-Subject: [PATCH AUTOSEL 4.14 26/32] virtio-blk: limit number of hw queues by
+Subject: [PATCH AUTOSEL 4.9 13/16] virtio-blk: limit number of hw queues by
 	nr_cpu_ids
-Date: Fri, 26 Apr 2019 21:42:17 -0400
-Message-ID: <20190427014224.8274-26-sashal__38895.9336372622$1556329559$gmane$org@kernel.org>
-References: <20190427014224.8274-1-sashal@kernel.org>
+Date: Fri, 26 Apr 2019 21:43:21 -0400
+Message-ID: <20190427014325.8704-13-sashal__41003.6771836289$1556329601$gmane$org@kernel.org>
+References: <20190427014325.8704-1-sashal@kernel.org>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <20190427014224.8274-1-sashal@kernel.org>
+In-Reply-To: <20190427014325.8704-1-sashal@kernel.org>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -48,10 +48,10 @@ Signed-off-by: Sasha Levin <sashal@kernel.org>
  1 file changed, 2 insertions(+)
 
 diff --git a/drivers/block/virtio_blk.c b/drivers/block/virtio_blk.c
-index 68846897d213..8767401f75e0 100644
+index 10332c24f961..44ef1d66caa6 100644
 --- a/drivers/block/virtio_blk.c
 +++ b/drivers/block/virtio_blk.c
-@@ -437,6 +437,8 @@ static int init_vq(struct virtio_blk *vblk)
+@@ -392,6 +392,8 @@ static int init_vq(struct virtio_blk *vblk)
  	if (err)
  		num_vqs = 1;
  
