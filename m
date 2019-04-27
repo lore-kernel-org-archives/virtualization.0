@@ -1,23 +1,14 @@
-From: Thiago Jung Bauermann <bauerman@linux.ibm.com>
-Subject: Re: [RFC PATCH] virtio_ring: Use DMA API if guest memory is encrypted
-Date: Fri, 26 Apr 2019 20:56:43 -0300
-Message-ID: <871s1o1ft0.fsf__41532.3881710478$1556323169$gmane$org@morokweng.localdomain>
-References: <20190129134750-mutt-send-email-mst@kernel.org>
-	<877eefxvyb.fsf@morokweng.localdomain>
-	<20190204144048-mutt-send-email-mst@kernel.org>
-	<87ef71seve.fsf@morokweng.localdomain>
-	<20190320171027-mutt-send-email-mst@kernel.org>
-	<87tvfvbwpb.fsf@morokweng.localdomain>
-	<20190323165456-mutt-send-email-mst@kernel.org>
-	<87a7go71hz.fsf@morokweng.localdomain>
-	<20190419190258-mutt-send-email-mst@kernel.org>
-	<875zr228zf.fsf@morokweng.localdomain>
-	<20190424210813-mutt-send-email-mst@kernel.org>
+From: Sasha Levin <sashal@kernel.org>
+Subject: [PATCH AUTOSEL 5.0 48/79] virtio_pci: fix a NULL pointer reference in
+	vp_del_vqs
+Date: Fri, 26 Apr 2019 21:38:07 -0400
+Message-ID: <20190427013838.6596-48-sashal@kernel.org>
+References: <20190427013838.6596-1-sashal@kernel.org>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-reply-to: <20190424210813-mutt-send-email-mst@kernel.org>
+In-Reply-To: <20190427013838.6596-1-sashal@kernel.org>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -27,135 +18,71 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: "Michael S. Tsirkin" <mst@redhat.com>
-Cc: Mike Anderson <andmike@linux.ibm.com>, Jean-Philippe Brucker <jean-philippe.brucker@arm.com>, Benjamin Herrenschmidt <benh@kernel.crashing.org>, Alexey Kardashevskiy <aik@linux.ibm.com>, Ram Pai <linuxram@us.ibm.com>, linux-kernel@vger.kernel.org, virtualization@lists.linux-foundation.org, Paul Mackerras <paulus@ozlabs.org>, iommu@lists.linux-foundation.org, linuxppc-dev@lists.ozlabs.org, Christoph Hellwig <hch@lst.de>, David Gibson <david@gibson.dropbear.id.au>
+To: linux-kernel@vger.kernel.org, stable@vger.kernel.org
+Cc: Sasha Levin <sashal@kernel.org>, Longpeng <longpeng2@huawei.com>, virtualization@lists.linux-foundation.org, "Michael S . Tsirkin" <mst@redhat.com>
 List-Id: virtualization@lists.linuxfoundation.org
 
+From: Longpeng <longpeng2@huawei.com>
 
-Michael S. Tsirkin <mst@redhat.com> writes:
+[ Upstream commit 6a8aae68c87349dbbcd46eac380bc43cdb98a13b ]
 
-> On Wed, Apr 24, 2019 at 10:01:56PM -0300, Thiago Jung Bauermann wrote:
->>
->> Michael S. Tsirkin <mst@redhat.com> writes:
->>
->> > On Wed, Apr 17, 2019 at 06:42:00PM -0300, Thiago Jung Bauermann wrote:
->> >>
->> >> Michael S. Tsirkin <mst@redhat.com> writes:
->> >>
->> >> > On Thu, Mar 21, 2019 at 09:05:04PM -0300, Thiago Jung Bauermann wrote:
->> >> >>
->> >> >> Michael S. Tsirkin <mst@redhat.com> writes:
->> >> >>
->> >> >> > On Wed, Mar 20, 2019 at 01:13:41PM -0300, Thiago Jung Bauermann wrote:
->> >> >> >> >From what I understand of the ACCESS_PLATFORM definition, the host will
->> >> >> >> only ever try to access memory addresses that are supplied to it by the
->> >> >> >> guest, so all of the secure guest memory that the host cares about is
->> >> >> >> accessible:
->> >> >> >>
->> >> >> >>     If this feature bit is set to 0, then the device has same access to
->> >> >> >>     memory addresses supplied to it as the driver has. In particular,
->> >> >> >>     the device will always use physical addresses matching addresses
->> >> >> >>     used by the driver (typically meaning physical addresses used by the
->> >> >> >>     CPU) and not translated further, and can access any address supplied
->> >> >> >>     to it by the driver. When clear, this overrides any
->> >> >> >>     platform-specific description of whether device access is limited or
->> >> >> >>     translated in any way, e.g. whether an IOMMU may be present.
->> >> >> >>
->> >> >> >> All of the above is true for POWER guests, whether they are secure
->> >> >> >> guests or not.
->> >> >> >>
->> >> >> >> Or are you saying that a virtio device may want to access memory
->> >> >> >> addresses that weren't supplied to it by the driver?
->> >> >> >
->> >> >> > Your logic would apply to IOMMUs as well.  For your mode, there are
->> >> >> > specific encrypted memory regions that driver has access to but device
->> >> >> > does not. that seems to violate the constraint.
->> >> >>
->> >> >> Right, if there's a pre-configured 1:1 mapping in the IOMMU such that
->> >> >> the device can ignore the IOMMU for all practical purposes I would
->> >> >> indeed say that the logic would apply to IOMMUs as well. :-)
->> >> >>
->> >> >> I guess I'm still struggling with the purpose of signalling to the
->> >> >> driver that the host may not have access to memory addresses that it
->> >> >> will never try to access.
->> >> >
->> >> > For example, one of the benefits is to signal to host that driver does
->> >> > not expect ability to access all memory. If it does, host can
->> >> > fail initialization gracefully.
->> >>
->> >> But why would the ability to access all memory be necessary or even
->> >> useful? When would the host access memory that the driver didn't tell it
->> >> to access?
->> >
->> > When I say all memory I mean even memory not allowed by the IOMMU.
->>
->> Yes, but why? How is that memory relevant?
->
-> It's relevant when driver is not trusted to only supply correct
-> addresses. The feature was originally designed to support userspace
-> drivers within guests.
+If the msix_affinity_masks is alloced failed, then we'll
+try to free some resources in vp_free_vectors() that may
+access it directly.
 
-Ah, thanks for clarifying. I don't think that's a problem in our case.
-If the guest provides an incorrect address, the hardware simply won't
-allow the host to access it.
+We met the following stack in our production:
+[   29.296767] BUG: unable to handle kernel NULL pointer dereference at  (null)
+[   29.311151] IP: [<ffffffffc04fe35a>] vp_free_vectors+0x6a/0x150 [virtio_pci]
+[   29.324787] PGD 0
+[   29.333224] Oops: 0000 [#1] SMP
+[...]
+[   29.425175] RIP: 0010:[<ffffffffc04fe35a>]  [<ffffffffc04fe35a>] vp_free_vectors+0x6a/0x150 [virtio_pci]
+[   29.441405] RSP: 0018:ffff9a55c2dcfa10  EFLAGS: 00010206
+[   29.453491] RAX: 0000000000000000 RBX: ffff9a55c322c400 RCX: 0000000000000000
+[   29.467488] RDX: 0000000000000000 RSI: 0000000000000000 RDI: ffff9a55c322c400
+[   29.481461] RBP: ffff9a55c2dcfa20 R08: 0000000000000000 R09: ffffc1b6806ff020
+[   29.495427] R10: 0000000000000e95 R11: 0000000000aaaaaa R12: 0000000000000000
+[   29.509414] R13: 0000000000010000 R14: ffff9a55bd2d9e98 R15: ffff9a55c322c400
+[   29.523407] FS:  00007fdcba69f8c0(0000) GS:ffff9a55c2840000(0000) knlGS:0000000000000000
+[   29.538472] CS:  0010 DS: 0000 ES: 0000 CR0: 0000000080050033
+[   29.551621] CR2: 0000000000000000 CR3: 000000003ce52000 CR4: 00000000003607a0
+[   29.565886] DR0: 0000000000000000 DR1: 0000000000000000 DR2: 0000000000000000
+[   29.580055] DR3: 0000000000000000 DR6: 00000000fffe0ff0 DR7: 0000000000000400
+[   29.594122] Call Trace:
+[   29.603446]  [<ffffffffc04fe8a2>] vp_request_msix_vectors+0xe2/0x260 [virtio_pci]
+[   29.618017]  [<ffffffffc04fedc5>] vp_try_to_find_vqs+0x95/0x3b0 [virtio_pci]
+[   29.632152]  [<ffffffffc04ff117>] vp_find_vqs+0x37/0xb0 [virtio_pci]
+[   29.645582]  [<ffffffffc057bf63>] init_vq+0x153/0x260 [virtio_blk]
+[   29.658831]  [<ffffffffc057c1e8>] virtblk_probe+0xe8/0x87f [virtio_blk]
+[...]
 
->> >> >> > Another idea is maybe something like virtio-iommu?
->> >> >>
->> >> >> You mean, have legacy guests use virtio-iommu to request an IOMMU
->> >> >> bypass? If so, it's an interesting idea for new guests but it doesn't
->> >> >> help with guests that are out today in the field, which don't have A
->> >> >> virtio-iommu driver.
->> >> >
->> >> > I presume legacy guests don't use encrypted memory so why do we
->> >> > worry about them at all?
->> >>
->> >> They don't use encrypted memory, but a host machine will run a mix of
->> >> secure and legacy guests. And since the hypervisor doesn't know whether
->> >> a guest will be secure or not at the time it is launched, legacy guests
->> >> will have to be launched with the same configuration as secure guests.
->> >
->> > OK and so I think the issue is that hosts generally fail if they set
->> > ACCESS_PLATFORM and guests do not negotiate it.
->> > So you can not just set ACCESS_PLATFORM for everyone.
->> > Is that the issue here?
->>
->> Yes, that is one half of the issue. The other is that even if hosts
->> didn't fail, existing legacy guests wouldn't "take the initiative" of
->> not negotiating ACCESS_PLATFORM to get the improved performance. They'd
->> have to be modified to do that.
->
-> So there's a non-encrypted guest, hypervisor wants to set
-> ACCESS_PLATFORM to allow encrypted guests but that will slow down legacy
-> guests since their vIOMMU emulation is very slow.
+Cc: Gonglei <arei.gonglei@huawei.com>
+Signed-off-by: Longpeng <longpeng2@huawei.com>
+Signed-off-by: Michael S. Tsirkin <mst@redhat.com>
+Reviewed-by: Gonglei <arei.gonglei@huawei.com>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
+---
+ drivers/virtio/virtio_pci_common.c | 8 +++++---
+ 1 file changed, 5 insertions(+), 3 deletions(-)
 
-Yes.
-
-> So enabling support for encryption slows down non-encrypted guests. Not
-> great but not the end of the world, considering even older guests that
-> don't support ACCESS_PLATFORM are completely broken and you do not seem
-> to be too worried by that.
-
-Well, I guess that would be the third half of the issue. :-)
-
-> For future non-encrypted guests, bypassing the emulated IOMMU for when
-> that emulated IOMMU is very slow might be solvable in some other way,
-> e.g. with virtio-iommu. Which reminds me, could you look at
-> virtio-iommu as a solution for some of the issues?
-> Review of that patchset from that POV would be appreciated.
-
-Yes, I will have a look. As you mentioned already, virtio-iommu doesn't
-define a way to request iommu bypass for a device so that would have to
-be added.
-
-Though to be honest in practice I don't think such a feature in
-virtio-iommu would make things easier for us, at least in the short
-term. It would take the same effort to define a powerpc-specific
-hypercall to accomplish the same thing (easier, in fact since we
-wouldn't have to implement the rest of virtio-iommu). In fact, there
-already is such hypercall, but it is only defined for VIO devices
-(RTAS_IBM_SET_TCE_BYPASS in QEMU). We would have to make it work on
-virtio devices as well.
-
---
-Thiago Jung Bauermann
-IBM Linux Technology Center
+diff --git a/drivers/virtio/virtio_pci_common.c b/drivers/virtio/virtio_pci_common.c
+index d0584c040c60..7a0398bb84f7 100644
+--- a/drivers/virtio/virtio_pci_common.c
++++ b/drivers/virtio/virtio_pci_common.c
+@@ -255,9 +255,11 @@ void vp_del_vqs(struct virtio_device *vdev)
+ 	for (i = 0; i < vp_dev->msix_used_vectors; ++i)
+ 		free_irq(pci_irq_vector(vp_dev->pci_dev, i), vp_dev);
+ 
+-	for (i = 0; i < vp_dev->msix_vectors; i++)
+-		if (vp_dev->msix_affinity_masks[i])
+-			free_cpumask_var(vp_dev->msix_affinity_masks[i]);
++	if (vp_dev->msix_affinity_masks) {
++		for (i = 0; i < vp_dev->msix_vectors; i++)
++			if (vp_dev->msix_affinity_masks[i])
++				free_cpumask_var(vp_dev->msix_affinity_masks[i]);
++	}
+ 
+ 	if (vp_dev->msix_enabled) {
+ 		/* Disable the vector used for configuration */
+-- 
+2.19.1
