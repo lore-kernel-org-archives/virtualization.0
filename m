@@ -1,15 +1,11 @@
-From: Thomas Hellstrom <thomas@shipmail.org>
-Subject: Re: [PATCH] Revert "drm/qxl: drop prime import/export callbacks"
-Date: Fri, 26 Apr 2019 17:42:23 +0200
-Message-ID: <8ae152fe-7811-4de3-e26f-350650a8f992__40082.8830710211$1558282686$gmane$org@shipmail.org>
-References: <20190426053324.26443-1-kraxel@redhat.com>
-	<CAKMK7uG+vMU0hqqiKAswu=LqpkcXtLPqbYLRWgoAPpsQQV4qzA@mail.gmail.com>
+From: zhenwei pi <pizhenwei@bytedance.com>
+Subject: [PATCH] virtio_console: remove vq buf while unpluging port
+Date: Sun, 28 Apr 2019 09:50:04 +0800
+Message-ID: <1556416204-30311-1-git-send-email-pizhenwei__11203.1624464848$1558282698$gmane$org@bytedance.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"; Format="flowed"
+Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <CAKMK7uG+vMU0hqqiKAswu=LqpkcXtLPqbYLRWgoAPpsQQV4qzA@mail.gmail.com>
-Content-Language: en-US
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -19,84 +15,82 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Daniel Vetter <daniel@ffwll.ch>, Gerd Hoffmann <kraxel@redhat.com>
-Cc: David Airlie <airlied@linux.ie>, open list <linux-kernel@vger.kernel.org>, dri-devel <dri-devel@lists.freedesktop.org>, "open list:DRM DRIVER FOR QXL VIRTUAL GPU" <virtualization@lists.linux-foundation.org>, David Airlie <airlied@redhat.com>, "open list:DRM DRIVER FOR QXL VIRTUAL GPU" <spice-devel@lists.freedesktop.org>
+To: amit@kernel.org, arnd@arndb.de, gregkh@linuxfoundation.org
+Cc: linux-kernel@vger.kernel.org, pizhenwei@bytedance.com, virtualization@lists.linux-foundation.org
 List-Id: virtualization@lists.linuxfoundation.org
 
-On 4/26/19 4:21 PM, Daniel Vetter wrote:
-> On Fri, Apr 26, 2019 at 7:33 AM Gerd Hoffmann <kraxel@redhat.com> wrote:
->> This reverts commit f4c34b1e2a37d5676180901fa6ff188bcb6371f8.
->>
->> Simliar to commit a0cecc23cfcb Revert "drm/virtio: drop prime
->> import/export callbacks".  We have to do the same with qxl,
->> for the same reasons (it breaks DRI3).
->>
->> Drop the WARN_ON_ONCE().
->>
->> Fixes: f4c34b1e2a37d5676180901fa6ff188bcb6371f8
->> Signed-off-by: Gerd Hoffmann <kraxel@redhat.com>
-> Maybe we need some helpers for virtual drivers which only allow
-> self-reimport and nothing else at all? I think there's qxl, virgl,
-> vmwgfx and maybe also vbox one who could use this ... Just a quick
-> idea.
-> -Daniel
+A bug can be easily reproduced:
+Host# cat guest-agent.xml
+<channel type="unix">
+  <source mode="bind" path="/var/lib/libvirt/qemu/stretch.agent"/>
+  <target type="virtio" name="org.qemu.guest_agent.0" state="connected"/>
+</channel>
+Host# virsh attach-device instance guest-agent.xml
+Host# virsh detach-device instance guest-agent.xml
+Host# virsh attach-device instance guest-agent.xml
 
-I think vmwgfx could, in theory, support the full range of operations,
-at least for reasonably recent device versions. However, it wouldn't be 
-terribly efficient since the exported dma-buf sglist would basically be 
-a bounce-buffer.
+and guest report: virtio-ports vport0p1: Error allocating inbufs
 
-/Thomas
+The reason is that the port is unplugged and the vq buf still remained.
+So, fix two cases in this patch:
+1, fix memory leak with attach-device/detach-device.
+2, fix logic bug with attach-device/detach-device/attach-device.
 
+Signed-off-by: zhenwei pi <pizhenwei@bytedance.com>
+---
+ drivers/char/virtio_console.c | 21 +++++++++++++++------
+ 1 file changed, 15 insertions(+), 6 deletions(-)
 
->> ---
->>   drivers/gpu/drm/qxl/qxl_drv.c   |  4 ++++
->>   drivers/gpu/drm/qxl/qxl_prime.c | 12 ++++++++++++
->>   2 files changed, 16 insertions(+)
->>
->> diff --git a/drivers/gpu/drm/qxl/qxl_drv.c b/drivers/gpu/drm/qxl/qxl_drv.c
->> index 578d867a81d5..f33e349c4ec5 100644
->> --- a/drivers/gpu/drm/qxl/qxl_drv.c
->> +++ b/drivers/gpu/drm/qxl/qxl_drv.c
->> @@ -255,10 +255,14 @@ static struct drm_driver qxl_driver = {
->>   #if defined(CONFIG_DEBUG_FS)
->>          .debugfs_init = qxl_debugfs_init,
->>   #endif
->> +       .prime_handle_to_fd = drm_gem_prime_handle_to_fd,
->> +       .prime_fd_to_handle = drm_gem_prime_fd_to_handle,
->>          .gem_prime_export = drm_gem_prime_export,
->>          .gem_prime_import = drm_gem_prime_import,
->>          .gem_prime_pin = qxl_gem_prime_pin,
->>          .gem_prime_unpin = qxl_gem_prime_unpin,
->> +       .gem_prime_get_sg_table = qxl_gem_prime_get_sg_table,
->> +       .gem_prime_import_sg_table = qxl_gem_prime_import_sg_table,
->>          .gem_prime_vmap = qxl_gem_prime_vmap,
->>          .gem_prime_vunmap = qxl_gem_prime_vunmap,
->>          .gem_prime_mmap = qxl_gem_prime_mmap,
->> diff --git a/drivers/gpu/drm/qxl/qxl_prime.c b/drivers/gpu/drm/qxl/qxl_prime.c
->> index 8b448eca1cd9..114653b471c6 100644
->> --- a/drivers/gpu/drm/qxl/qxl_prime.c
->> +++ b/drivers/gpu/drm/qxl/qxl_prime.c
->> @@ -42,6 +42,18 @@ void qxl_gem_prime_unpin(struct drm_gem_object *obj)
->>          qxl_bo_unpin(bo);
->>   }
->>
->> +struct sg_table *qxl_gem_prime_get_sg_table(struct drm_gem_object *obj)
->> +{
->> +       return ERR_PTR(-ENOSYS);
->> +}
->> +
->> +struct drm_gem_object *qxl_gem_prime_import_sg_table(
->> +       struct drm_device *dev, struct dma_buf_attachment *attach,
->> +       struct sg_table *table)
->> +{
->> +       return ERR_PTR(-ENOSYS);
->> +}
->> +
->>   void *qxl_gem_prime_vmap(struct drm_gem_object *obj)
->>   {
->>          struct qxl_bo *bo = gem_to_qxl_bo(obj);
->> --
->> 2.18.1
->>
->
+diff --git a/drivers/char/virtio_console.c b/drivers/char/virtio_console.c
+index fbeb719..f6e37f4 100644
+--- a/drivers/char/virtio_console.c
++++ b/drivers/char/virtio_console.c
+@@ -251,6 +251,7 @@ struct port {
+ 
+ /* This is the very early arch-specified put chars function. */
+ static int (*early_put_chars)(u32, const char *, int);
++static void remove_vq(struct virtqueue *vq);
+ 
+ static struct port *find_port_by_vtermno(u32 vtermno)
+ {
+@@ -1550,6 +1551,9 @@ static void unplug_port(struct port *port)
+ 	}
+ 
+ 	remove_port_data(port);
++	spin_lock_irq(&port->inbuf_lock);
++	remove_vq(port->in_vq);
++	spin_unlock_irq(&port->inbuf_lock);
+ 
+ 	/*
+ 	 * We should just assume the device itself has gone off --
+@@ -1945,17 +1949,22 @@ static const struct file_operations portdev_fops = {
+ 	.owner = THIS_MODULE,
+ };
+ 
++static void remove_vq(struct virtqueue *vq)
++{
++	struct port_buffer *buf;
++
++	flush_bufs(vq, true);
++	while ((buf = virtqueue_detach_unused_buf(vq)))
++		free_buf(buf, true);
++}
++
+ static void remove_vqs(struct ports_device *portdev)
+ {
+ 	struct virtqueue *vq;
+ 
+-	virtio_device_for_each_vq(portdev->vdev, vq) {
+-		struct port_buffer *buf;
++	virtio_device_for_each_vq(portdev->vdev, vq)
++		remove_vq(vq);
+ 
+-		flush_bufs(vq, true);
+-		while ((buf = virtqueue_detach_unused_buf(vq)))
+-			free_buf(buf, true);
+-	}
+ 	portdev->vdev->config->del_vqs(portdev->vdev);
+ 	kfree(portdev->in_vqs);
+ 	kfree(portdev->out_vqs);
+-- 
+2.7.4
