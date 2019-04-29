@@ -1,8 +1,8 @@
 From: Thomas Zimmermann <tzimmermann@suse.de>
-Subject: [PATCH v3 04/19] drm: Add drm_gem_vram_fill_create_dumb() to create
-	dumb buffers
-Date: Mon, 29 Apr 2019 16:43:26 +0200
-Message-ID: <20190429144341.12615-5-tzimmermann__37926.1045529105$1556549276$gmane$org@suse.de>
+Subject: [PATCH v3 06/19] drm: Add default instance for VRAM MM callback
+	functions
+Date: Mon, 29 Apr 2019 16:43:28 +0200
+Message-ID: <20190429144341.12615-7-tzimmermann__38016.780784686$1556549290$gmane$org@suse.de>
 References: <20190429144341.12615-1-tzimmermann@suse.de>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
@@ -22,125 +22,67 @@ To: daniel@ffwll.ch, airlied@linux.ie, kraxel@redhat.com, christian.koenig@amd.c
 Cc: Thomas Zimmermann <tzimmermann@suse.de>, dri-devel@lists.freedesktop.org, virtualization@lists.linux-foundation.org
 List-Id: virtualization@lists.linuxfoundation.org
 
-The helper function drm_gem_vram_fill_create_dumb() implements most of
-struct drm_driver.dumb_create() for GEM-VRAM buffer objects. It's not a
-full implemenation of the callback, as several driver-specific parameters
-are still required.
-
-v2:
-	* documentation fixes
+VRAM MM is most likely be used with GEM VRAM. The latter now provides the
+required instance of struct drm_vram_mm_funcs for drivers to use.
 
 Signed-off-by: Thomas Zimmermann <tzimmermann@suse.de>
 ---
- drivers/gpu/drm/drm_gem_vram_helper.c | 62 +++++++++++++++++++++++++++
- include/drm/drm_gem_vram_helper.h     |  8 ++++
- 2 files changed, 70 insertions(+)
+ drivers/gpu/drm/drm_gem_vram_helper.c | 14 ++++++++++++++
+ include/drm/drm_gem_vram_helper.h     |  3 +++
+ 2 files changed, 17 insertions(+)
 
 diff --git a/drivers/gpu/drm/drm_gem_vram_helper.c b/drivers/gpu/drm/drm_gem_vram_helper.c
-index 31bf6c1079b0..e5a0dcf97ba8 100644
+index e5a0dcf97ba8..37979fb3062b 100644
 --- a/drivers/gpu/drm/drm_gem_vram_helper.c
 +++ b/drivers/gpu/drm/drm_gem_vram_helper.c
-@@ -1,6 +1,7 @@
- /* SPDX-License-Identifier: GPL-2.0-or-later */
+@@ -2,6 +2,7 @@
  
  #include <drm/drm_gem_vram_helper.h>
-+#include <drm/drm_mode.h>
+ #include <drm/drm_mode.h>
++#include <drm/drm_vram_mm_helper.h>
  #include <drm/ttm/ttm_page_alloc.h>
  
  /**
-@@ -409,6 +410,67 @@ void drm_gem_vram_kunmap(struct drm_gem_vram_object *gbo)
+@@ -521,6 +522,19 @@ int drm_gem_vram_bo_driver_verify_access(struct ttm_buffer_object *bo,
  }
- EXPORT_SYMBOL(drm_gem_vram_kunmap);
+ EXPORT_SYMBOL(drm_gem_vram_bo_driver_verify_access);
  
 +/**
-+ * drm_gem_vram_fill_create_dumb() - \
-+	Helper for implementing &struct drm_driver.dumb_create
-+ * @file:		the DRM file
-+ * @dev:		the DRM device
-+ * @bdev:		the TTM BO device managing the buffer object
-+ * @pg_align:		the buffer's alignment in multiples of the page size
-+ * @interruptible:	sleep interruptible if waiting for memory
-+ * @args:		the arguments as provided to \
-+				&struct drm_driver.dumb_create
++ * drm_gem_vram_mm_funcs - Functions for &struct drm_vram_mm
 + *
-+ * This helper function fills &struct drm_mode_create_dumb, which is used
-+ * by &struct drm_driver.dumb_create. Implementations of this interface
-+ * should forwards their arguments to this helper, plus the driver-specific
-+ * parameters.
-+ *
-+ * Returns:
-+ * 0 on success, or
-+ * a negative error code otherwise.
++ * Most users of @struct drm_gem_vram_object will also use
++ * @struct drm_vram_mm. This instance of &struct drm_vram_mm_funcs
++ * can be used to connect both.
 + */
-+int drm_gem_vram_fill_create_dumb(struct drm_file *file,
-+				  struct drm_device *dev,
-+				  struct ttm_bo_device *bdev,
-+				  uint32_t pg_align,
-+				  bool interruptible,
-+				  struct drm_mode_create_dumb *args)
-+{
-+	size_t pitch, size;
-+	struct drm_gem_vram_object *gbo;
-+	int ret;
-+	u32 handle;
-+
-+	pitch = args->width * ((args->bpp + 7) / 8);
-+	size = pitch * args->height;
-+
-+	size = roundup(size, PAGE_SIZE);
-+	if (!size)
-+		return -EINVAL;
-+
-+	gbo = drm_gem_vram_create(dev, bdev, size, pg_align, interruptible);
-+	if (IS_ERR(gbo))
-+		return PTR_ERR(gbo);
-+
-+	ret = drm_gem_handle_create(file, &gbo->gem, &handle);
-+	if (ret)
-+		goto err_drm_gem_object_put_unlocked;
-+
-+	drm_gem_object_put_unlocked(&gbo->gem);
-+
-+	args->pitch = pitch;
-+	args->size = size;
-+	args->handle = handle;
-+
-+	return 0;
-+
-+err_drm_gem_object_put_unlocked:
-+	drm_gem_object_put_unlocked(&gbo->gem);
-+	return ret;
-+}
-+EXPORT_SYMBOL(drm_gem_vram_fill_create_dumb);
++const struct drm_vram_mm_funcs drm_gem_vram_mm_funcs = {
++	.evict_flags = drm_gem_vram_bo_driver_evict_flags,
++	.verify_access = drm_gem_vram_bo_driver_verify_access
++};
++EXPORT_SYMBOL(drm_gem_vram_mm_funcs);
 +
  /*
-  * Helpers for struct ttm_bo_driver
+  * Helpers for struct drm_driver
   */
 diff --git a/include/drm/drm_gem_vram_helper.h b/include/drm/drm_gem_vram_helper.h
-index 99982590e32a..1eb42919b9fb 100644
+index 1eb42919b9fb..3f250f59eaa5 100644
 --- a/include/drm/drm_gem_vram_helper.h
 +++ b/include/drm/drm_gem_vram_helper.h
-@@ -8,6 +8,7 @@
- #include <drm/ttm/ttm_placement.h>
+@@ -9,6 +9,7 @@
  #include <linux/kernel.h> /* for container_of() */
  
-+struct drm_mode_create_dumb;
+ struct drm_mode_create_dumb;
++struct drm_vram_mm_funcs;
  struct filp;
  
  #define DRM_GEM_VRAM_PL_FLAG_VRAM	TTM_PL_FLAG_VRAM
-@@ -89,6 +90,13 @@ void drm_gem_vram_kunmap_at(struct drm_gem_vram_object *gbo,
- 			    struct ttm_bo_kmap_obj *kmap);
- void drm_gem_vram_kunmap(struct drm_gem_vram_object *gbo);
+@@ -107,6 +108,8 @@ void drm_gem_vram_bo_driver_evict_flags(struct ttm_buffer_object *bo,
+ int drm_gem_vram_bo_driver_verify_access(struct ttm_buffer_object *bo,
+ 					 struct file *filp);
  
-+int drm_gem_vram_fill_create_dumb(struct drm_file *file,
-+				  struct drm_device *dev,
-+				  struct ttm_bo_device *bdev,
-+				  uint32_t pg_align,
-+				  bool interruptible,
-+				  struct drm_mode_create_dumb *args);
++extern const struct drm_vram_mm_funcs drm_gem_vram_mm_funcs;
 +
  /*
-  * Helpers for struct ttm_bo_driver
+  * Helpers for struct drm_driver
   */
 -- 
 2.21.0
