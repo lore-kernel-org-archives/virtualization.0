@@ -1,17 +1,18 @@
-From: Christian Borntraeger <borntraeger@de.ibm.com>
-Subject: Re: [PATCH 04/10] s390/mm: force swiotlb for protected virtualization
-Date: Mon, 29 Apr 2019 16:05:46 +0200
-Message-ID: <3b9956a5-d8da-65fa-a2f7-4f54087d91d6@de.ibm.com>
-References: <20190426183245.37939-1-pasic@linux.ibm.com>
-	<20190426183245.37939-5-pasic@linux.ibm.com>
-	<20190426192711.GA31463@infradead.org>
-	<20190429155951.3175fef5.pasic@linux.ibm.com>
+From: Gerd Hoffmann <kraxel@redhat.com>
+Subject: Re: [Spice-devel] [PATCH] Revert "drm/qxl: drop prime import/export
+	callbacks"
+Date: Mon, 29 Apr 2019 16:37:57 +0200
+Message-ID: <20190429143757.yljjfsgobhi23xnb__11627.6008704276$1556548893$gmane$org@sirius.home.kraxel.org>
+References: <20190426053324.26443-1-kraxel@redhat.com>
+	<CAKMK7uG+vMU0hqqiKAswu=LqpkcXtLPqbYLRWgoAPpsQQV4qzA@mail.gmail.com>
+	<20190429075413.smcocftjd2viznhv@sirius.home.kraxel.org>
+	<CAKMK7uFB8deXDMP9cT634p_dK5LsM37R1v_vGhAEY1ZLZ+WBVA@mail.gmail.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <20190429155951.3175fef5.pasic@linux.ibm.com>
-Content-Language: en-US
+Content-Disposition: inline
+In-Reply-To: <CAKMK7uFB8deXDMP9cT634p_dK5LsM37R1v_vGhAEY1ZLZ+WBVA@mail.gmail.com>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -21,45 +22,32 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Halil Pasic <pasic@linux.ibm.com>, Christoph Hellwig <hch@infradead.org>
-Cc: Vasily Gorbik <gor@linux.ibm.com>, linux-s390@vger.kernel.org, Thomas Huth <thuth@redhat.com>, Claudio Imbrenda <imbrenda@linux.ibm.com>, kvm@vger.kernel.org, Sebastian Ott <sebott@linux.ibm.com>, "Michael S. Tsirkin" <mst@redhat.com>, Cornelia Huck <cohuck@redhat.com>, Eric Farman <farman@linux.ibm.com>, virtualization@lists.linux-foundation.org, Martin Schwidefsky <schwidefsky@de.ibm.com>, Farhan Ali <alifm@linux.ibm.com>, Viktor Mihajlovski <mihajlov@linux.ibm.com>, Janosch Frank <frankja@linux.ibm.com>
+To: Daniel Vetter <daniel@ffwll.ch>
+Cc: David Airlie <airlied@linux.ie>, open list <linux-kernel@vger.kernel.org>, dri-devel <dri-devel@lists.freedesktop.org>, "open list:DRM DRIVER FOR QXL VIRTUAL GPU" <virtualization@lists.linux-foundation.org>, "open list:DRM DRIVER FOR QXL VIRTUAL GPU" <spice-devel@lists.freedesktop.org>, David Airlie <airlied@redhat.com>
 List-Id: virtualization@lists.linuxfoundation.org
 
+  Hi,
 
+> > More useful would be some way to signal this self-reimport capability
+> > to userspace somehow.  See DRM_PRIME_CAP_LOCAL patch.
+> 
+> Userspace is supposed to test whether import/export works for a
+> specific combo, not blindly assume it does and then keel over. I think
+> we need to fix that, not add more flags - there's lots of reasons why
+> a given pair of devices can't share buffers (e.g. all the contiguous
+> allocations stuff on socs).
 
-On 29.04.19 15:59, Halil Pasic wrote:
-> On Fri, 26 Apr 2019 12:27:11 -0700
-> Christoph Hellwig <hch@infradead.org> wrote:
-> 
->> On Fri, Apr 26, 2019 at 08:32:39PM +0200, Halil Pasic wrote:
->>> +EXPORT_SYMBOL_GPL(set_memory_encrypted);
->>
->>> +EXPORT_SYMBOL_GPL(set_memory_decrypted);
->>
->>> +EXPORT_SYMBOL_GPL(sev_active);
->>
->> Why do you export these?  I know x86 exports those as well, but
->> it shoudn't be needed there either.
->>
-> 
-> I export these to be in line with the x86 implementation (which
-> is the original and seems to be the only one at the moment). I assumed
-> that 'exported or not' is kind of a part of the interface definition.
-> Honestly, I did not give it too much thought.
-> 
-> For x86 set_memory(en|de)crypted got exported by 95cf9264d5f3 "x86, drm,
-> fbdev: Do not specify encrypted memory for video mappings" (Tom
-> Lendacky, 2017-07-17). With CONFIG_FB_VGA16=m seems to be necessary for x84.
-> 
-> If the consensus is don't export: I won't. I'm fine one way or the other.
-> @Christian, what is your take on this?
+Ok.  Lets scratch the DRM_PRIME_CAP_LOCAL idea then and blame userspace
+instead.
 
-If we do not need it today for anything (e.g. virtio-gpu) then we can get rid
-of the exports (and introduce them when necessary).
+> > Right now I have the choice to set DRM_PRIME_CAP_{IMPORT,EXPORT}, in
+> > which case some userspace assumes it can do cross-driver export/import
+> > and trips over that not working.  Or I do not set
+> > DRM_PRIME_CAP_{IMPORT,EXPORT}, which breaks DRI3 ...
 > 
-> Thank you very much!
-> 
-> Regards,
-> Halil
-> 
-> 
+> Yeah that's not an option.
+
+Good.  Can I get an ack for this patch then, as it unbreaks DRI3 with qxl?
+
+thanks,
+  Gerd
