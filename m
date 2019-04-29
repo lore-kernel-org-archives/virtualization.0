@@ -1,7 +1,7 @@
 From: Thomas Zimmermann <tzimmermann@suse.de>
-Subject: [PATCH v3 14/19] drm/mgag200: Convert mgag200 driver to VRAM MM
-Date: Mon, 29 Apr 2019 16:43:36 +0200
-Message-ID: <20190429144341.12615-15-tzimmermann__10604.8394039803$1556549380$gmane$org@suse.de>
+Subject: [PATCH v3 12/19] drm/bochs: Convert bochs driver to VRAM MM
+Date: Mon, 29 Apr 2019 16:43:34 +0200
+Message-ID: <20190429144341.12615-13-tzimmermann__563.462141302296$1556549395$gmane$org@suse.de>
 References: <20190429144341.12615-1-tzimmermann@suse.de>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
@@ -21,170 +21,121 @@ To: daniel@ffwll.ch, airlied@linux.ie, kraxel@redhat.com, christian.koenig@amd.c
 Cc: Thomas Zimmermann <tzimmermann@suse.de>, dri-devel@lists.freedesktop.org, virtualization@lists.linux-foundation.org
 List-Id: virtualization@lists.linuxfoundation.org
 
-The data structure |struct drm_vram_mm| and its helpers replace mgag200's
-TTM-based memory manager. It's the same implementation; except for the type
-names.
+The data structure |struct drm_vram_mm| and its helpers replace bochs'
+TTM-based memory manager. It's the same implementation; except for the
+type names.
 
 v3:
 	* use drm_gem_vram_mm_funcs
 	* convert driver to drm_device-based instance
 v2:
-	* implement mgag200_mmap() with drm_vram_mm_mmap()
+	* implement bochs_mmap() with drm_vram_mm_mmap()
 
 Signed-off-by: Thomas Zimmermann <tzimmermann@suse.de>
 ---
- drivers/gpu/drm/mgag200/Kconfig        |   1 +
- drivers/gpu/drm/mgag200/mgag200_drv.c  |  13 +--
- drivers/gpu/drm/mgag200/mgag200_drv.h  |  11 +-
- drivers/gpu/drm/mgag200/mgag200_main.c |  17 +---
- drivers/gpu/drm/mgag200/mgag200_ttm.c  | 133 ++-----------------------
- 5 files changed, 16 insertions(+), 159 deletions(-)
+ drivers/gpu/drm/bochs/Kconfig     |   1 +
+ drivers/gpu/drm/bochs/bochs.h     |  13 +--
+ drivers/gpu/drm/bochs/bochs_drv.c |  13 +--
+ drivers/gpu/drm/bochs/bochs_mm.c  | 148 ++----------------------------
+ 4 files changed, 13 insertions(+), 162 deletions(-)
 
-diff --git a/drivers/gpu/drm/mgag200/Kconfig b/drivers/gpu/drm/mgag200/Kconfig
-index 52b7c3ee3064..8368fc5f4ca9 100644
---- a/drivers/gpu/drm/mgag200/Kconfig
-+++ b/drivers/gpu/drm/mgag200/Kconfig
-@@ -4,6 +4,7 @@ config DRM_MGAG200
+diff --git a/drivers/gpu/drm/bochs/Kconfig b/drivers/gpu/drm/bochs/Kconfig
+index c04f8041a2b9..7ad1cfe47b38 100644
+--- a/drivers/gpu/drm/bochs/Kconfig
++++ b/drivers/gpu/drm/bochs/Kconfig
+@@ -4,6 +4,7 @@ config DRM_BOCHS
  	select DRM_KMS_HELPER
  	select DRM_TTM
  	select DRM_GEM_VRAM_HELPER
 +	select DRM_VRAM_MM_HELPER
  	help
- 	 This is a KMS driver for the MGA G200 server chips, it
-          does not support the original MGA G200 or any of the desktop
-diff --git a/drivers/gpu/drm/mgag200/mgag200_drv.c b/drivers/gpu/drm/mgag200/mgag200_drv.c
-index 85c3ed7f0385..93bd1589e50e 100644
---- a/drivers/gpu/drm/mgag200/mgag200_drv.c
-+++ b/drivers/gpu/drm/mgag200/mgag200_drv.c
-@@ -59,13 +59,7 @@ static void mga_pci_remove(struct pci_dev *pdev)
- 
- static const struct file_operations mgag200_driver_fops = {
- 	.owner = THIS_MODULE,
--	.open = drm_open,
--	.release = drm_release,
--	.unlocked_ioctl = drm_ioctl,
--	.mmap = mgag200_mmap,
--	.poll = drm_poll,
--	.compat_ioctl = drm_compat_ioctl,
--	.read = drm_read,
-+	DRM_VRAM_MM_FILE_OPERATIONS
- };
- 
- static struct drm_driver driver = {
-@@ -79,10 +73,7 @@ static struct drm_driver driver = {
- 	.major = DRIVER_MAJOR,
- 	.minor = DRIVER_MINOR,
- 	.patchlevel = DRIVER_PATCHLEVEL,
--
--	.gem_free_object_unlocked = drm_gem_vram_driver_gem_free_object_unlocked,
--	.dumb_create = mgag200_dumb_create,
--	.dumb_map_offset = drm_gem_vram_driver_dumb_mmap_offset,
-+	DRM_GEM_VRAM_DRIVER
- };
- 
- static struct pci_driver mgag200_pci_driver = {
-diff --git a/drivers/gpu/drm/mgag200/mgag200_drv.h b/drivers/gpu/drm/mgag200/mgag200_drv.h
-index 86b33e23ab7f..16ce6b338dce 100644
---- a/drivers/gpu/drm/mgag200/mgag200_drv.h
-+++ b/drivers/gpu/drm/mgag200/mgag200_drv.h
-@@ -17,15 +17,12 @@
- 
- #include <drm/drm_encoder.h>
- #include <drm/drm_fb_helper.h>
--#include <drm/ttm/ttm_bo_api.h>
--#include <drm/ttm/ttm_bo_driver.h>
--#include <drm/ttm/ttm_placement.h>
--#include <drm/ttm/ttm_memory.h>
--#include <drm/ttm/ttm_module.h>
- 
+ 	  Choose this option for qemu.
+ 	  If M is selected the module will be called bochs-drm.
+diff --git a/drivers/gpu/drm/bochs/bochs.h b/drivers/gpu/drm/bochs/bochs.h
+index 4ccf82e1ca68..323dcca256a3 100644
+--- a/drivers/gpu/drm/bochs/bochs.h
++++ b/drivers/gpu/drm/bochs/bochs.h
+@@ -12,8 +12,7 @@
  #include <drm/drm_gem.h>
  #include <drm/drm_gem_vram_helper.h>
  
+-#include <drm/ttm/ttm_bo_driver.h>
+-#include <drm/ttm/ttm_page_alloc.h>
 +#include <drm/drm_vram_mm_helper.h>
-+
- #include <linux/i2c.h>
- #include <linux/i2c-algo-bit.h>
  
-@@ -212,10 +209,6 @@ struct mga_device {
+ /* ---------------------------------------------------------------------- */
  
- 	int fb_mtrr;
- 
+@@ -74,12 +73,6 @@ struct bochs_device {
+ 	struct drm_device *dev;
+ 	struct drm_simple_display_pipe pipe;
+ 	struct drm_connector connector;
+-
+-	/* ttm */
 -	struct {
 -		struct ttm_bo_device bdev;
+-		bool initialized;
 -	} ttm;
--
- 	/* SE model number stored in reg 0x1e24 */
- 	u32 unique_rev_id;
  };
-diff --git a/drivers/gpu/drm/mgag200/mgag200_main.c b/drivers/gpu/drm/mgag200/mgag200_main.c
-index 59a4028a5c6c..f3687fed4075 100644
---- a/drivers/gpu/drm/mgag200/mgag200_main.c
-+++ b/drivers/gpu/drm/mgag200/mgag200_main.c
-@@ -230,10 +230,10 @@ int mgag200_driver_load(struct drm_device *dev, unsigned long flags)
- 	}
  
- 	/* Make small buffers to store a hardware cursor (double buffered icon updates) */
--	mdev->cursor.pixels_1 = drm_gem_vram_create(dev, &mdev->ttm.bdev,
-+	mdev->cursor.pixels_1 = drm_gem_vram_create(dev, &dev->vram_mm->bdev,
- 						    roundup(48*64, PAGE_SIZE),
- 						    0, 0);
--	mdev->cursor.pixels_2 = drm_gem_vram_create(dev, &mdev->ttm.bdev,
-+	mdev->cursor.pixels_2 = drm_gem_vram_create(dev, &dev->vram_mm->bdev,
- 						    roundup(48*64, PAGE_SIZE),
- 						    0, 0);
- 	if (IS_ERR(mdev->cursor.pixels_2) || IS_ERR(mdev->cursor.pixels_1)) {
-@@ -274,7 +274,6 @@ int mgag200_gem_create(struct drm_device *dev,
- 		   u32 size, bool iskernel,
- 		   struct drm_gem_object **obj)
- {
--	struct mga_device *mdev = dev->dev_private;
- 	struct drm_gem_vram_object *gbo;
- 	int ret;
- 
-@@ -284,7 +283,7 @@ int mgag200_gem_create(struct drm_device *dev,
- 	if (size == 0)
- 		return -EINVAL;
- 
--	gbo = drm_gem_vram_create(dev, &mdev->ttm.bdev, size, 0, false);
-+	gbo = drm_gem_vram_create(dev, &dev->vram_mm->bdev, size, 0, false);
- 	if (IS_ERR(gbo)) {
- 		ret = PTR_ERR(gbo);
- 		if (ret != -ERESTARTSYS)
-@@ -294,13 +293,3 @@ int mgag200_gem_create(struct drm_device *dev,
- 	*obj = &gbo->gem;
- 	return 0;
- }
+ /* ---------------------------------------------------------------------- */
+@@ -99,10 +92,6 @@ int bochs_hw_load_edid(struct bochs_device *bochs);
+ /* bochs_mm.c */
+ int bochs_mm_init(struct bochs_device *bochs);
+ void bochs_mm_fini(struct bochs_device *bochs);
+-int bochs_mmap(struct file *filp, struct vm_area_struct *vma);
 -
--int mgag200_dumb_create(struct drm_file *file,
--		    struct drm_device *dev,
--		    struct drm_mode_create_dumb *args)
--{
--	struct mga_device *mdev = dev->dev_private;
--
--	return drm_gem_vram_fill_create_dumb(file, dev, &mdev->ttm.bdev, 0,
--					    false, args);
--}
-diff --git a/drivers/gpu/drm/mgag200/mgag200_ttm.c b/drivers/gpu/drm/mgag200/mgag200_ttm.c
-index 2c0249086bf9..59294c0fd24a 100644
---- a/drivers/gpu/drm/mgag200/mgag200_ttm.c
-+++ b/drivers/gpu/drm/mgag200/mgag200_ttm.c
-@@ -26,130 +26,21 @@
-  * Authors: Dave Airlie <airlied@redhat.com>
-  */
- #include <drm/drmP.h>
--#include <drm/ttm/ttm_page_alloc.h>
+-int bochs_dumb_create(struct drm_file *file, struct drm_device *dev,
+-		      struct drm_mode_create_dumb *args);
  
- #include "mgag200_drv.h"
+ int bochs_gem_prime_pin(struct drm_gem_object *obj);
+ void bochs_gem_prime_unpin(struct drm_gem_object *obj);
+diff --git a/drivers/gpu/drm/bochs/bochs_drv.c b/drivers/gpu/drm/bochs/bochs_drv.c
+index 4f269f464e6d..f3bb5fba30bf 100644
+--- a/drivers/gpu/drm/bochs/bochs_drv.c
++++ b/drivers/gpu/drm/bochs/bochs_drv.c
+@@ -63,14 +63,8 @@ static int bochs_load(struct drm_device *dev)
  
--static inline struct mga_device *
--mgag200_bdev(struct ttm_bo_device *bd)
+ static const struct file_operations bochs_fops = {
+ 	.owner		= THIS_MODULE,
+-	.open		= drm_open,
+-	.release	= drm_release,
+-	.unlocked_ioctl	= drm_ioctl,
+-	.compat_ioctl	= drm_compat_ioctl,
+-	.poll		= drm_poll,
+-	.read		= drm_read,
+ 	.llseek		= no_llseek,
+-	.mmap           = bochs_mmap,
++	DRM_VRAM_MM_FILE_OPERATIONS
+ };
+ 
+ static struct drm_driver bochs_driver = {
+@@ -82,9 +76,8 @@ static struct drm_driver bochs_driver = {
+ 	.date			= "20130925",
+ 	.major			= 1,
+ 	.minor			= 0,
+-	.gem_free_object_unlocked = drm_gem_vram_driver_gem_free_object_unlocked,
+-	.dumb_create            = bochs_dumb_create,
+-	.dumb_map_offset        = drm_gem_vram_driver_dumb_mmap_offset,
++
++	DRM_GEM_VRAM_DRIVER,
+ 
+ 	.gem_prime_export = drm_gem_prime_export,
+ 	.gem_prime_import = drm_gem_prime_import,
+diff --git a/drivers/gpu/drm/bochs/bochs_mm.c b/drivers/gpu/drm/bochs/bochs_mm.c
+index 5837adc6ae17..9675d83fde37 100644
+--- a/drivers/gpu/drm/bochs/bochs_mm.c
++++ b/drivers/gpu/drm/bochs/bochs_mm.c
+@@ -9,157 +9,25 @@
+ 
+ /* ---------------------------------------------------------------------- */
+ 
+-static inline struct bochs_device *bochs_bdev(struct ttm_bo_device *bd)
 -{
--	return container_of(bd, struct mga_device, ttm.bdev);
+-	return container_of(bd, struct bochs_device, ttm.bdev);
 -}
 -
--static int
--mgag200_bo_init_mem_type(struct ttm_bo_device *bdev, uint32_t type,
--		     struct ttm_mem_type_manager *man)
+-static int bochs_bo_init_mem_type(struct ttm_bo_device *bdev, uint32_t type,
+-				  struct ttm_mem_type_manager *man)
 -{
 -	switch (type) {
 -	case TTM_PL_SYSTEM:
@@ -207,11 +158,11 @@ index 2c0249086bf9..59294c0fd24a 100644
 -	return 0;
 -}
 -
--static int mgag200_ttm_io_mem_reserve(struct ttm_bo_device *bdev,
--				  struct ttm_mem_reg *mem)
+-static int bochs_ttm_io_mem_reserve(struct ttm_bo_device *bdev,
+-				    struct ttm_mem_reg *mem)
 -{
 -	struct ttm_mem_type_manager *man = &bdev->man[mem->mem_type];
--	struct mga_device *mdev = mgag200_bdev(bdev);
+-	struct bochs_device *bochs = bochs_bdev(bdev);
 -
 -	mem->bus.addr = NULL;
 -	mem->bus.offset = 0;
@@ -226,7 +177,7 @@ index 2c0249086bf9..59294c0fd24a 100644
 -		return 0;
 -	case TTM_PL_VRAM:
 -		mem->bus.offset = mem->start << PAGE_SHIFT;
--		mem->bus.base = pci_resource_start(mdev->dev->pdev, 0);
+-		mem->bus.base = bochs->fb_base;
 -		mem->bus.is_iomem = true;
 -		break;
 -	default:
@@ -236,30 +187,30 @@ index 2c0249086bf9..59294c0fd24a 100644
 -	return 0;
 -}
 -
--static void mgag200_ttm_io_mem_free(struct ttm_bo_device *bdev, struct ttm_mem_reg *mem)
+-static void bochs_ttm_io_mem_free(struct ttm_bo_device *bdev,
+-				  struct ttm_mem_reg *mem)
 -{
 -}
 -
--static void mgag200_ttm_backend_destroy(struct ttm_tt *tt)
+-static void bochs_ttm_backend_destroy(struct ttm_tt *tt)
 -{
 -	ttm_tt_fini(tt);
 -	kfree(tt);
 -}
 -
--static struct ttm_backend_func mgag200_tt_backend_func = {
--	.destroy = &mgag200_ttm_backend_destroy,
+-static struct ttm_backend_func bochs_tt_backend_func = {
+-	.destroy = &bochs_ttm_backend_destroy,
 -};
 -
--
--static struct ttm_tt *mgag200_ttm_tt_create(struct ttm_buffer_object *bo,
--					    uint32_t page_flags)
+-static struct ttm_tt *bochs_ttm_tt_create(struct ttm_buffer_object *bo,
+-					  uint32_t page_flags)
 -{
 -	struct ttm_tt *tt;
 -
 -	tt = kzalloc(sizeof(struct ttm_tt), GFP_KERNEL);
 -	if (tt == NULL)
 -		return NULL;
--	tt->func = &mgag200_tt_backend_func;
+-	tt->func = &bochs_tt_backend_func;
 -	if (ttm_tt_init(tt, bo, page_flags)) {
 -		kfree(tt);
 -		return NULL;
@@ -267,64 +218,78 @@ index 2c0249086bf9..59294c0fd24a 100644
 -	return tt;
 -}
 -
--struct ttm_bo_driver mgag200_bo_driver = {
--	.ttm_tt_create = mgag200_ttm_tt_create,
--	.init_mem_type = mgag200_bo_init_mem_type,
+-static struct ttm_bo_driver bochs_bo_driver = {
+-	.ttm_tt_create = bochs_ttm_tt_create,
+-	.init_mem_type = bochs_bo_init_mem_type,
 -	.eviction_valuable = ttm_bo_eviction_valuable,
 -	.evict_flags = drm_gem_vram_bo_driver_evict_flags,
 -	.move = NULL,
 -	.verify_access = drm_gem_vram_bo_driver_verify_access,
--	.io_mem_reserve = &mgag200_ttm_io_mem_reserve,
--	.io_mem_free = &mgag200_ttm_io_mem_free,
+-	.io_mem_reserve = &bochs_ttm_io_mem_reserve,
+-	.io_mem_free = &bochs_ttm_io_mem_free,
 -};
 -
- int mgag200_mm_init(struct mga_device *mdev)
+ int bochs_mm_init(struct bochs_device *bochs)
  {
+-	struct ttm_bo_device *bdev = &bochs->ttm.bdev;
+-	int ret;
 +	struct drm_vram_mm *vmm;
- 	int ret;
- 	struct drm_device *dev = mdev->dev;
--	struct ttm_bo_device *bdev = &mdev->ttm.bdev;
--
--	ret = ttm_bo_device_init(&mdev->ttm.bdev,
--				 &mgag200_bo_driver,
--				 dev->anon_inode->i_mapping,
+ 
+-	ret = ttm_bo_device_init(&bochs->ttm.bdev,
+-				 &bochs_bo_driver,
+-				 bochs->dev->anon_inode->i_mapping,
 -				 true);
 -	if (ret) {
 -		DRM_ERROR("Error initialising bo driver; %d\n", ret);
 -		return ret;
 -	}
- 
--	ret = ttm_bo_init_mm(bdev, TTM_PL_VRAM, mdev->mc.vram_size >> PAGE_SHIFT);
+-
+-	ret = ttm_bo_init_mm(bdev, TTM_PL_VRAM,
+-			     bochs->fb_size >> PAGE_SHIFT);
 -	if (ret) {
 -		DRM_ERROR("Failed ttm VRAM init: %d\n", ret);
-+	vmm = drm_vram_helper_alloc_mm(dev, pci_resource_start(dev->pdev, 0),
-+				       mdev->mc.vram_size,
+-		return ret;
+-	}
++	vmm = drm_vram_helper_alloc_mm(bochs->dev, bochs->fb_base,
++				       bochs->fb_size,
 +				       &drm_gem_vram_mm_funcs);
-+	if (IS_ERR(vmm)) {
-+		ret = PTR_ERR(vmm);
-+		DRM_ERROR("Error initializing VRAM MM; %d\n", ret);
- 		return ret;
- 	}
++	if (IS_ERR(vmm))
++		return PTR_ERR(vmm);
  
-@@ -166,18 +57,10 @@ void mgag200_mm_fini(struct mga_device *mdev)
- {
- 	struct drm_device *dev = mdev->dev;
- 
--	ttm_bo_device_release(&mdev->ttm.bdev);
-+	drm_vram_helper_release_mm(dev);
- 
- 	arch_io_free_memtype_wc(pci_resource_start(dev->pdev, 0),
- 				pci_resource_len(dev->pdev, 0));
- 	arch_phys_wc_del(mdev->fb_mtrr);
- 	mdev->fb_mtrr = 0;
+-	bochs->ttm.initialized = true;
+ 	return 0;
  }
+ 
+ void bochs_mm_fini(struct bochs_device *bochs)
+ {
+-	if (!bochs->ttm.initialized)
++	if (!bochs->dev->vram_mm)
+ 		return;
+ 
+-	ttm_bo_device_release(&bochs->ttm.bdev);
+-	bochs->ttm.initialized = false;
+-}
 -
--int mgag200_mmap(struct file *filp, struct vm_area_struct *vma)
+-int bochs_mmap(struct file *filp, struct vm_area_struct *vma)
 -{
 -	struct drm_file *file_priv = filp->private_data;
--	struct mga_device *mdev = file_priv->minor->dev->dev_private;
+-	struct bochs_device *bochs = file_priv->minor->dev->dev_private;
 -
--	return ttm_bo_mmap(filp, vma, &mdev->ttm.bdev);
+-	return ttm_bo_mmap(filp, vma, &bochs->ttm.bdev);
 -}
+-
+-/* ---------------------------------------------------------------------- */
+-
+-int bochs_dumb_create(struct drm_file *file, struct drm_device *dev,
+-		      struct drm_mode_create_dumb *args)
+-{
+-	struct bochs_device *bochs = dev->dev_private;
+-
+-	return drm_gem_vram_fill_create_dumb(file, dev, &bochs->ttm.bdev, 0,
+-					     false, args);
++	drm_vram_helper_release_mm(bochs->dev);
+ }
+ 
+ /* ---------------------------------------------------------------------- */
 -- 
 2.21.0
