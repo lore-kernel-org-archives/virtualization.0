@@ -1,7 +1,7 @@
 From: Thomas Zimmermann <tzimmermann@suse.de>
-Subject: [PATCH v3 12/19] drm/bochs: Convert bochs driver to VRAM MM
-Date: Mon, 29 Apr 2019 16:43:34 +0200
-Message-ID: <20190429144341.12615-13-tzimmermann__563.462141302296$1556549395$gmane$org@suse.de>
+Subject: [PATCH v3 09/19] drm/ast: Convert AST driver to VRAM MM
+Date: Mon, 29 Apr 2019 16:43:31 +0200
+Message-ID: <20190429144341.12615-10-tzimmermann__19021.9648460456$1556549409$gmane$org@suse.de>
 References: <20190429144341.12615-1-tzimmermann@suse.de>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
@@ -21,7 +21,7 @@ To: daniel@ffwll.ch, airlied@linux.ie, kraxel@redhat.com, christian.koenig@amd.c
 Cc: Thomas Zimmermann <tzimmermann@suse.de>, dri-devel@lists.freedesktop.org, virtualization@lists.linux-foundation.org
 List-Id: virtualization@lists.linuxfoundation.org
 
-The data structure |struct drm_vram_mm| and its helpers replace bochs'
+The data structure |struct drm_vram_mm| and its helpers replace ast's
 TTM-based memory manager. It's the same implementation; except for the
 type names.
 
@@ -29,113 +29,169 @@ v3:
 	* use drm_gem_vram_mm_funcs
 	* convert driver to drm_device-based instance
 v2:
-	* implement bochs_mmap() with drm_vram_mm_mmap()
+	* implement ast_mmap() with drm_vram_mm_mmap()
 
 Signed-off-by: Thomas Zimmermann <tzimmermann@suse.de>
 ---
- drivers/gpu/drm/bochs/Kconfig     |   1 +
- drivers/gpu/drm/bochs/bochs.h     |  13 +--
- drivers/gpu/drm/bochs/bochs_drv.c |  13 +--
- drivers/gpu/drm/bochs/bochs_mm.c  | 148 ++----------------------------
- 4 files changed, 13 insertions(+), 162 deletions(-)
+ drivers/gpu/drm/ast/Kconfig    |   1 +
+ drivers/gpu/drm/ast/ast_drv.c  |  13 +---
+ drivers/gpu/drm/ast/ast_drv.h  |  18 +----
+ drivers/gpu/drm/ast/ast_main.c |  13 +---
+ drivers/gpu/drm/ast/ast_ttm.c  | 134 ++-------------------------------
+ 5 files changed, 14 insertions(+), 165 deletions(-)
 
-diff --git a/drivers/gpu/drm/bochs/Kconfig b/drivers/gpu/drm/bochs/Kconfig
-index c04f8041a2b9..7ad1cfe47b38 100644
---- a/drivers/gpu/drm/bochs/Kconfig
-+++ b/drivers/gpu/drm/bochs/Kconfig
-@@ -4,6 +4,7 @@ config DRM_BOCHS
- 	select DRM_KMS_HELPER
+diff --git a/drivers/gpu/drm/ast/Kconfig b/drivers/gpu/drm/ast/Kconfig
+index d1d90f8c7a8f..ecc9c905b81b 100644
+--- a/drivers/gpu/drm/ast/Kconfig
++++ b/drivers/gpu/drm/ast/Kconfig
+@@ -4,6 +4,7 @@ config DRM_AST
  	select DRM_TTM
+ 	select DRM_KMS_HELPER
  	select DRM_GEM_VRAM_HELPER
 +	select DRM_VRAM_MM_HELPER
  	help
- 	  Choose this option for qemu.
- 	  If M is selected the module will be called bochs-drm.
-diff --git a/drivers/gpu/drm/bochs/bochs.h b/drivers/gpu/drm/bochs/bochs.h
-index 4ccf82e1ca68..323dcca256a3 100644
---- a/drivers/gpu/drm/bochs/bochs.h
-+++ b/drivers/gpu/drm/bochs/bochs.h
-@@ -12,8 +12,7 @@
- #include <drm/drm_gem.h>
- #include <drm/drm_gem_vram_helper.h>
+ 	 Say yes for experimental AST GPU driver. Do not enable
+ 	 this driver without having a working -modesetting,
+diff --git a/drivers/gpu/drm/ast/ast_drv.c b/drivers/gpu/drm/ast/ast_drv.c
+index 69f05625fc2d..3811997e78c4 100644
+--- a/drivers/gpu/drm/ast/ast_drv.c
++++ b/drivers/gpu/drm/ast/ast_drv.c
+@@ -205,13 +205,7 @@ static struct pci_driver ast_pci_driver = {
  
--#include <drm/ttm/ttm_bo_driver.h>
--#include <drm/ttm/ttm_page_alloc.h>
-+#include <drm/drm_vram_mm_helper.h>
- 
- /* ---------------------------------------------------------------------- */
- 
-@@ -74,12 +73,6 @@ struct bochs_device {
- 	struct drm_device *dev;
- 	struct drm_simple_display_pipe pipe;
- 	struct drm_connector connector;
--
--	/* ttm */
--	struct {
--		struct ttm_bo_device bdev;
--		bool initialized;
--	} ttm;
- };
- 
- /* ---------------------------------------------------------------------- */
-@@ -99,10 +92,6 @@ int bochs_hw_load_edid(struct bochs_device *bochs);
- /* bochs_mm.c */
- int bochs_mm_init(struct bochs_device *bochs);
- void bochs_mm_fini(struct bochs_device *bochs);
--int bochs_mmap(struct file *filp, struct vm_area_struct *vma);
--
--int bochs_dumb_create(struct drm_file *file, struct drm_device *dev,
--		      struct drm_mode_create_dumb *args);
- 
- int bochs_gem_prime_pin(struct drm_gem_object *obj);
- void bochs_gem_prime_unpin(struct drm_gem_object *obj);
-diff --git a/drivers/gpu/drm/bochs/bochs_drv.c b/drivers/gpu/drm/bochs/bochs_drv.c
-index 4f269f464e6d..f3bb5fba30bf 100644
---- a/drivers/gpu/drm/bochs/bochs_drv.c
-+++ b/drivers/gpu/drm/bochs/bochs_drv.c
-@@ -63,14 +63,8 @@ static int bochs_load(struct drm_device *dev)
- 
- static const struct file_operations bochs_fops = {
- 	.owner		= THIS_MODULE,
--	.open		= drm_open,
--	.release	= drm_release,
--	.unlocked_ioctl	= drm_ioctl,
--	.compat_ioctl	= drm_compat_ioctl,
--	.poll		= drm_poll,
--	.read		= drm_read,
- 	.llseek		= no_llseek,
--	.mmap           = bochs_mmap,
+ static const struct file_operations ast_fops = {
+ 	.owner = THIS_MODULE,
+-	.open = drm_open,
+-	.release = drm_release,
+-	.unlocked_ioctl = drm_ioctl,
+-	.mmap = ast_mmap,
+-	.poll = drm_poll,
+-	.compat_ioctl = drm_compat_ioctl,
+-	.read = drm_read,
 +	DRM_VRAM_MM_FILE_OPERATIONS
  };
  
- static struct drm_driver bochs_driver = {
-@@ -82,9 +76,8 @@ static struct drm_driver bochs_driver = {
- 	.date			= "20130925",
- 	.major			= 1,
- 	.minor			= 0,
+ static struct drm_driver driver = {
+@@ -228,10 +222,7 @@ static struct drm_driver driver = {
+ 	.minor = DRIVER_MINOR,
+ 	.patchlevel = DRIVER_PATCHLEVEL,
+ 
 -	.gem_free_object_unlocked = drm_gem_vram_driver_gem_free_object_unlocked,
--	.dumb_create            = bochs_dumb_create,
--	.dumb_map_offset        = drm_gem_vram_driver_dumb_mmap_offset,
+-	.dumb_create = ast_dumb_create,
+-	.dumb_map_offset = drm_gem_vram_driver_dumb_mmap_offset,
+-
++	DRM_GEM_VRAM_DRIVER
+ };
+ 
+ static int __init ast_init(void)
+diff --git a/drivers/gpu/drm/ast/ast_drv.h b/drivers/gpu/drm/ast/ast_drv.h
+index 712838f725dc..32096a191aaf 100644
+--- a/drivers/gpu/drm/ast/ast_drv.h
++++ b/drivers/gpu/drm/ast/ast_drv.h
+@@ -31,15 +31,11 @@
+ #include <drm/drm_encoder.h>
+ #include <drm/drm_fb_helper.h>
+ 
+-#include <drm/ttm/ttm_bo_api.h>
+-#include <drm/ttm/ttm_bo_driver.h>
+-#include <drm/ttm/ttm_placement.h>
+-#include <drm/ttm/ttm_memory.h>
+-#include <drm/ttm/ttm_module.h>
+-
+ #include <drm/drm_gem.h>
+ #include <drm/drm_gem_vram_helper.h>
+ 
++#include <drm/drm_vram_mm_helper.h>
 +
-+	DRM_GEM_VRAM_DRIVER,
+ #include <linux/i2c.h>
+ #include <linux/i2c-algo-bit.h>
  
- 	.gem_prime_export = drm_gem_prime_export,
- 	.gem_prime_import = drm_gem_prime_import,
-diff --git a/drivers/gpu/drm/bochs/bochs_mm.c b/drivers/gpu/drm/bochs/bochs_mm.c
-index 5837adc6ae17..9675d83fde37 100644
---- a/drivers/gpu/drm/bochs/bochs_mm.c
-+++ b/drivers/gpu/drm/bochs/bochs_mm.c
-@@ -9,157 +9,25 @@
+@@ -104,10 +100,6 @@ struct ast_private {
  
- /* ---------------------------------------------------------------------- */
+ 	int fb_mtrr;
  
--static inline struct bochs_device *bochs_bdev(struct ttm_bo_device *bd)
+-	struct {
+-		struct ttm_bo_device bdev;
+-	} ttm;
+-
+ 	struct drm_gem_object *cursor_cache;
+ 	uint64_t cursor_cache_gpu_addr;
+ 	/* Acces to this cache is protected by the crtc->mutex of the only crtc
+@@ -325,10 +317,6 @@ void ast_fbdev_set_base(struct ast_private *ast, unsigned long gpu_addr);
+ #define AST_MM_ALIGN_SHIFT 4
+ #define AST_MM_ALIGN_MASK ((1 << AST_MM_ALIGN_SHIFT) - 1)
+ 
+-extern int ast_dumb_create(struct drm_file *file,
+-			   struct drm_device *dev,
+-			   struct drm_mode_create_dumb *args);
+-
+ int ast_mm_init(struct ast_private *ast);
+ void ast_mm_fini(struct ast_private *ast);
+ 
+@@ -336,8 +324,6 @@ int ast_gem_create(struct drm_device *dev,
+ 		   u32 size, bool iskernel,
+ 		   struct drm_gem_object **obj);
+ 
+-int ast_mmap(struct file *filp, struct vm_area_struct *vma);
+-
+ /* ast post */
+ void ast_enable_vga(struct drm_device *dev);
+ void ast_enable_mmio(struct drm_device *dev);
+diff --git a/drivers/gpu/drm/ast/ast_main.c b/drivers/gpu/drm/ast/ast_main.c
+index 61fc7b8ea470..4c7e31cb45ff 100644
+--- a/drivers/gpu/drm/ast/ast_main.c
++++ b/drivers/gpu/drm/ast/ast_main.c
+@@ -593,7 +593,6 @@ int ast_gem_create(struct drm_device *dev,
+ 		   u32 size, bool iskernel,
+ 		   struct drm_gem_object **obj)
+ {
+-	struct ast_private *ast = dev->dev_private;
+ 	struct drm_gem_vram_object *gbo;
+ 	int ret;
+ 
+@@ -603,7 +602,7 @@ int ast_gem_create(struct drm_device *dev,
+ 	if (size == 0)
+ 		return -EINVAL;
+ 
+-	gbo = drm_gem_vram_create(dev, &ast->ttm.bdev, size, 0, false);
++	gbo = drm_gem_vram_create(dev, &dev->vram_mm->bdev, size, 0, false);
+ 	if (IS_ERR(gbo)) {
+ 		ret = PTR_ERR(gbo);
+ 		if (ret != -ERESTARTSYS)
+@@ -613,13 +612,3 @@ int ast_gem_create(struct drm_device *dev,
+ 	*obj = &gbo->gem;
+ 	return 0;
+ }
+-
+-int ast_dumb_create(struct drm_file *file,
+-		    struct drm_device *dev,
+-		    struct drm_mode_create_dumb *args)
 -{
--	return container_of(bd, struct bochs_device, ttm.bdev);
+-	struct ast_private *ast = dev->dev_private;
+-
+-	return drm_gem_vram_fill_create_dumb(file, dev, &ast->ttm.bdev, 0,
+-					     false, args);
+-}
+diff --git a/drivers/gpu/drm/ast/ast_ttm.c b/drivers/gpu/drm/ast/ast_ttm.c
+index 794ebb755a5d..779c53efee8e 100644
+--- a/drivers/gpu/drm/ast/ast_ttm.c
++++ b/drivers/gpu/drm/ast/ast_ttm.c
+@@ -26,131 +26,21 @@
+  * Authors: Dave Airlie <airlied@redhat.com>
+  */
+ #include <drm/drmP.h>
+-#include <drm/ttm/ttm_page_alloc.h>
+ 
+ #include "ast_drv.h"
+ 
+-static inline struct ast_private *
+-ast_bdev(struct ttm_bo_device *bd)
+-{
+-	return container_of(bd, struct ast_private, ttm.bdev);
 -}
 -
--static int bochs_bo_init_mem_type(struct ttm_bo_device *bdev, uint32_t type,
--				  struct ttm_mem_type_manager *man)
+-static int
+-ast_bo_init_mem_type(struct ttm_bo_device *bdev, uint32_t type,
+-		     struct ttm_mem_type_manager *man)
 -{
 -	switch (type) {
 -	case TTM_PL_SYSTEM:
@@ -158,11 +214,11 @@ index 5837adc6ae17..9675d83fde37 100644
 -	return 0;
 -}
 -
--static int bochs_ttm_io_mem_reserve(struct ttm_bo_device *bdev,
--				    struct ttm_mem_reg *mem)
+-static int ast_ttm_io_mem_reserve(struct ttm_bo_device *bdev,
+-				  struct ttm_mem_reg *mem)
 -{
 -	struct ttm_mem_type_manager *man = &bdev->man[mem->mem_type];
--	struct bochs_device *bochs = bochs_bdev(bdev);
+-	struct ast_private *ast = ast_bdev(bdev);
 -
 -	mem->bus.addr = NULL;
 -	mem->bus.offset = 0;
@@ -177,7 +233,7 @@ index 5837adc6ae17..9675d83fde37 100644
 -		return 0;
 -	case TTM_PL_VRAM:
 -		mem->bus.offset = mem->start << PAGE_SHIFT;
--		mem->bus.base = bochs->fb_base;
+-		mem->bus.base = pci_resource_start(ast->dev->pdev, 0);
 -		mem->bus.is_iomem = true;
 -		break;
 -	default:
@@ -187,30 +243,30 @@ index 5837adc6ae17..9675d83fde37 100644
 -	return 0;
 -}
 -
--static void bochs_ttm_io_mem_free(struct ttm_bo_device *bdev,
--				  struct ttm_mem_reg *mem)
+-static void ast_ttm_io_mem_free(struct ttm_bo_device *bdev, struct ttm_mem_reg *mem)
 -{
 -}
 -
--static void bochs_ttm_backend_destroy(struct ttm_tt *tt)
+-static void ast_ttm_backend_destroy(struct ttm_tt *tt)
 -{
 -	ttm_tt_fini(tt);
 -	kfree(tt);
 -}
 -
--static struct ttm_backend_func bochs_tt_backend_func = {
--	.destroy = &bochs_ttm_backend_destroy,
+-static struct ttm_backend_func ast_tt_backend_func = {
+-	.destroy = &ast_ttm_backend_destroy,
 -};
 -
--static struct ttm_tt *bochs_ttm_tt_create(struct ttm_buffer_object *bo,
--					  uint32_t page_flags)
+-
+-static struct ttm_tt *ast_ttm_tt_create(struct ttm_buffer_object *bo,
+-					uint32_t page_flags)
 -{
 -	struct ttm_tt *tt;
 -
 -	tt = kzalloc(sizeof(struct ttm_tt), GFP_KERNEL);
 -	if (tt == NULL)
 -		return NULL;
--	tt->func = &bochs_tt_backend_func;
+-	tt->func = &ast_tt_backend_func;
 -	if (ttm_tt_init(tt, bo, page_flags)) {
 -		kfree(tt);
 -		return NULL;
@@ -218,78 +274,64 @@ index 5837adc6ae17..9675d83fde37 100644
 -	return tt;
 -}
 -
--static struct ttm_bo_driver bochs_bo_driver = {
--	.ttm_tt_create = bochs_ttm_tt_create,
--	.init_mem_type = bochs_bo_init_mem_type,
+-struct ttm_bo_driver ast_bo_driver = {
+-	.ttm_tt_create = ast_ttm_tt_create,
+-	.init_mem_type = ast_bo_init_mem_type,
 -	.eviction_valuable = ttm_bo_eviction_valuable,
 -	.evict_flags = drm_gem_vram_bo_driver_evict_flags,
 -	.move = NULL,
 -	.verify_access = drm_gem_vram_bo_driver_verify_access,
--	.io_mem_reserve = &bochs_ttm_io_mem_reserve,
--	.io_mem_free = &bochs_ttm_io_mem_free,
+-	.io_mem_reserve = &ast_ttm_io_mem_reserve,
+-	.io_mem_free = &ast_ttm_io_mem_free,
 -};
 -
- int bochs_mm_init(struct bochs_device *bochs)
+ int ast_mm_init(struct ast_private *ast)
  {
--	struct ttm_bo_device *bdev = &bochs->ttm.bdev;
--	int ret;
 +	struct drm_vram_mm *vmm;
- 
--	ret = ttm_bo_device_init(&bochs->ttm.bdev,
--				 &bochs_bo_driver,
--				 bochs->dev->anon_inode->i_mapping,
+ 	int ret;
+ 	struct drm_device *dev = ast->dev;
+-	struct ttm_bo_device *bdev = &ast->ttm.bdev;
+-
+-	ret = ttm_bo_device_init(&ast->ttm.bdev,
+-				 &ast_bo_driver,
+-				 dev->anon_inode->i_mapping,
 -				 true);
 -	if (ret) {
 -		DRM_ERROR("Error initialising bo driver; %d\n", ret);
 -		return ret;
 -	}
--
+ 
 -	ret = ttm_bo_init_mm(bdev, TTM_PL_VRAM,
--			     bochs->fb_size >> PAGE_SHIFT);
+-			     ast->vram_size >> PAGE_SHIFT);
 -	if (ret) {
 -		DRM_ERROR("Failed ttm VRAM init: %d\n", ret);
--		return ret;
--	}
-+	vmm = drm_vram_helper_alloc_mm(bochs->dev, bochs->fb_base,
-+				       bochs->fb_size,
-+				       &drm_gem_vram_mm_funcs);
-+	if (IS_ERR(vmm))
-+		return PTR_ERR(vmm);
++	vmm = drm_vram_helper_alloc_mm(
++		dev, pci_resource_start(dev->pdev, 0),
++		ast->vram_size, &drm_gem_vram_mm_funcs);
++	if (IS_ERR(vmm)) {
++		ret = PTR_ERR(vmm);
++		DRM_ERROR("Error initializing VRAM MM; %d\n", ret);
+ 		return ret;
+ 	}
  
--	bochs->ttm.initialized = true;
- 	return 0;
- }
- 
- void bochs_mm_fini(struct bochs_device *bochs)
+@@ -166,17 +56,9 @@ void ast_mm_fini(struct ast_private *ast)
  {
--	if (!bochs->ttm.initialized)
-+	if (!bochs->dev->vram_mm)
- 		return;
+ 	struct drm_device *dev = ast->dev;
  
--	ttm_bo_device_release(&bochs->ttm.bdev);
--	bochs->ttm.initialized = false;
--}
+-	ttm_bo_device_release(&ast->ttm.bdev);
++	drm_vram_helper_release_mm(dev);
+ 
+ 	arch_phys_wc_del(ast->fb_mtrr);
+ 	arch_io_free_memtype_wc(pci_resource_start(dev->pdev, 0),
+ 				pci_resource_len(dev->pdev, 0));
+ }
 -
--int bochs_mmap(struct file *filp, struct vm_area_struct *vma)
+-int ast_mmap(struct file *filp, struct vm_area_struct *vma)
 -{
 -	struct drm_file *file_priv = filp->private_data;
--	struct bochs_device *bochs = file_priv->minor->dev->dev_private;
+-	struct ast_private *ast = file_priv->minor->dev->dev_private;
 -
--	return ttm_bo_mmap(filp, vma, &bochs->ttm.bdev);
+-	return ttm_bo_mmap(filp, vma, &ast->ttm.bdev);
 -}
--
--/* ---------------------------------------------------------------------- */
--
--int bochs_dumb_create(struct drm_file *file, struct drm_device *dev,
--		      struct drm_mode_create_dumb *args)
--{
--	struct bochs_device *bochs = dev->dev_private;
--
--	return drm_gem_vram_fill_create_dumb(file, dev, &bochs->ttm.bdev, 0,
--					     false, args);
-+	drm_vram_helper_release_mm(bochs->dev);
- }
- 
- /* ---------------------------------------------------------------------- */
 -- 
 2.21.0
