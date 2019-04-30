@@ -1,14 +1,17 @@
-From: Jens Freimann <jfreimann@redhat.com>
-Subject: Re: [RFC-PATCH] Introducing virtio-example.
-Date: Tue, 30 Apr 2019 09:45:02 +0200
-Message-ID: <20190430074502.dyud47r6yyyc6ufm__23860.6467073382$1556610357$gmane$org@jenstp.localdomain>
-References: <20190429124004.49365-1-ybettan@redhat.com>
+From: Sam Ravnborg <sam@ravnborg.org>
+Subject: Re: [PATCH v3 01/19] drm: Add |struct drm_gem_vram_object| and helpers
+Date: Tue, 30 Apr 2019 11:23:27 +0200
+Message-ID: <20190430092327.GA13757__17639.1071568773$1556616254$gmane$org@ravnborg.org>
+References: <20190429144341.12615-1-tzimmermann@suse.de>
+	<20190429144341.12615-2-tzimmermann@suse.de>
+	<20190429195855.GA6610@ravnborg.org>
+	<1d14ef87-e1cd-4f4a-3632-bc045a1981c6@suse.de>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"; Format="flowed"
+Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
 Content-Disposition: inline
-In-Reply-To: <20190429124004.49365-1-ybettan@redhat.com>
+In-Reply-To: <1d14ef87-e1cd-4f4a-3632-bc045a1981c6@suse.de>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -18,241 +21,43 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Yoni Bettan <ybettan@redhat.com>
-Cc: open list <linux-kernel@vger.kernel.org>, ehabkost@redhat.com, virtualization@lists.linux-foundation.org
+To: Thomas Zimmermann <tzimmermann@suse.de>
+Cc: airlied@linux.ie, puck.chen@hisilicon.com, Jerry.Zhang@amd.com, dri-devel@lists.freedesktop.org, virtualization@lists.linux-foundation.org, z.liuxinliang@hisilicon.com, hdegoede@redhat.com, kong.kongxinwei@hisilicon.com, ray.huang@amd.com, zourongrong@gmail.com, christian.koenig@amd.com
 List-Id: virtualization@lists.linuxfoundation.org
 
-On Mon, Apr 29, 2019 at 03:40:03PM +0300, Yoni Bettan wrote:
->The main goal is to create an example to be used as template or
->guideline for contributors when they wish to create a new virtio
->device and to document "the right way" to do so.
->
->It consists of several parts:
+Hi Thomas.
 
-Thanks for doing this, I think it's a good idea. 
+> >> +
+> >> +/**
+> >> + * Returns the container of type &struct drm_gem_vram_object
+> >> + * for field bo.
+> >> + * @bo:		the VRAM buffer object
+> >> + * Returns:	The containing GEM VRAM object
+> >> + */
+> >> +static inline struct drm_gem_vram_object* drm_gem_vram_of_bo(
+> >> +	struct ttm_buffer_object *bo)
+> >> +{
+> >> +	return container_of(bo, struct drm_gem_vram_object, bo);
+> >> +}
+> > Indent funny. USe same indent as used in other parts of file for
+> > function arguments.
+> 
+> If I put the argument next to the function's name, it will exceed the
+> 80-character limit. From the coding-style document, I could not see what
+> to do in this case. One solution would move the return type to a
+> separate line before the function name. I've not seen that anywhere in
+> the source code, so moving the argument onto a separate line and
+> indenting by one tab appears to be the next best solution. Please let me
+> know if there's if there's a preferred style for cases like this one.
 
->    1. The device specification
->        * it can be found in the device header of the implementation
->        * it will hopefully be added to the official virtio specification
->
->    2. The device implementation for Qemu-KVM hypervisor
->        * it can be found at https://github.com/ybettan/qemu/blob/virtio\
->                /hw/virtio/virtio-example.c
->
->    3. The device driver for linux
->        * this patch content
->
->    4. A blog on virtio
->        * introducing the virtio concept
->        * gives some motivation for virtio-devices to be used
->        * bring extra documentation on "how to write":
->            - device specification
->            - device implementation
->            - device driver for linux
->        * it can be found at https://howtovms.wordpress.com
+Readability has IMO higher priority than some limit of 80 chars.
+And it hurts readability (at least my OCD) when style changes
+as you do with indent here. So my personal preference is to fix
+indent and accect longer lines.
 
-Maybe add a link to the blog in the example code? Or better put a
-text-only version of it into Documentation/ (Not sure it's a good
-idea, just thinking out loud...) 
->
->Signed-off-by: Yoni Bettan <ybettan@redhat.com>
->---
-> samples/virtio/Makefile                |   1 +
-> samples/virtio/virtio_example_driver.c | 239 +++++++++++++++++++++++++
-> 2 files changed, 240 insertions(+)
-> create mode 100644 samples/virtio/Makefile
-> create mode 100644 samples/virtio/virtio_example_driver.c
->
->diff --git a/samples/virtio/Makefile b/samples/virtio/Makefile
->new file mode 100644
->index 000000000000..6f3cc811ca89
->--- /dev/null
->+++ b/samples/virtio/Makefile
->@@ -0,0 +1 @@
->+obj-m := virtio_example_driver.o
->diff --git a/samples/virtio/virtio_example_driver.c b/samples/virtio/virtio_example_driver.c
->new file mode 100644
->index 000000000000..2f5a354009a1
->--- /dev/null
->+++ b/samples/virtio/virtio_example_driver.c
->@@ -0,0 +1,239 @@
->+/*
->+ * Virtio example implementation.
->+ *
->+ *  Copyright 2019 Yoni Bettan Red Hat Corporation
->+ *
->+ *  This program is free software; you can redistribute it and/or modify
->+ *  it under the terms of the GNU General Public License as published by
->+ *  the Free Software Foundation; either version 2 of the License, or
->+ *  (at your option) any later version.
->+ *
->+ *  This program is distributed in the hope that it will be useful,
->+ *  but WITHOUT ANY WARRANTY; without even the implied warranty of
->+ *  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
->+ *  GNU General Public License for more details.
->+ */
->+
->+#include <linux/virtio.h>
->+#include <linux/module.h>
->+#include <linux/device.h>
->+#include <linux/pci.h>
->+#include <linux/interrupt.h>
->+#include <linux/io.h>               /* io map */
->+#include <linux/dma-mapping.h>      /* DMA */
->+#include <linux/kernel.h>           /* kstrtoint() func */
->+#include <linux/virtio_config.h>    /* find_single_vq() func */
->+
->+
->+#define VIRTIO_ID_EXAMPLE 21
->+/* big enough to contain a string representing an integer */
->+#define MAX_DATA_SIZE 20
->+
->+struct virtexample_info {
->+	struct virtqueue *vq;
->+    /*
->+     * in - the data we get from the device
->+     * out - the data we send to the device
->+     */
->+    int in, out;
->+};
->+
->+
->+
->+//-----------------------------------------------------------------------------
->+//                  sysfs - give user access to driver
->+//-----------------------------------------------------------------------------
->+
->+static ssize_t
->+virtio_buf_store(struct device *dev, struct device_attribute *attr,
->+                    const char *buf, size_t count)
->+{
->+    char tmp_buf[MAX_DATA_SIZE];
->+    int retval;
->+	struct scatterlist sg_in, sg_out;
->+	struct scatterlist *request[2];
->+    /* cast dev into a virtio_device */
->+    struct virtio_device *vdev = dev_to_virtio(dev);
->+	struct virtexample_info *vi = vdev->priv;
+But you ask for a preferred style - which I do not think we have in this
+case. So it boils down to what you prefer.
 
-Indentation is off here and in many other places.
+Enough bikeshedding, thanks for the quick response.
 
->+
->+    /* copy the user buffer since it is a const buffer */
->+    sprintf(tmp_buf, "%s", buf);
->+
->+    /* convert the data into an integer */
->+    retval = kstrtoint(tmp_buf, 10, &vi->out);
->+    if (retval) {
->+        pr_alert("string converstion failed with error: %d\n", retval);
->+    }
->+
->+    /* initialize a single entry sg lists, one for input and one for output */
->+    sg_init_one(&sg_out, &vi->out, sizeof(int));
->+    sg_init_one(&sg_in, &vi->in, sizeof(int));
->+
->+    /* build the request */
->+    request[0] = &sg_out;
->+    request[1] = &sg_in;
->+
->+	/* add the request to the queue, in_buf is sent as the buffer idetifier */
->+    virtqueue_add_sgs(vi->vq, request, 1, 1, &vi->in, GFP_KERNEL);
->+
->+    /* notify the device */
->+	virtqueue_kick(vi->vq);
->+
->+    return count;
->+}
->+
->+static ssize_t
->+virtio_buf_show(struct device *dev, struct device_attribute *attr, char *buf)
->+{
->+    /* cast dev into a virtio_device */
->+    struct virtio_device *vdev = dev_to_virtio(dev);
->+	struct virtexample_info *vi = vdev->priv;
->+
->+    return sprintf(buf, "%d\n", vi->in);
->+}
->+
->+/*
->+ * struct device_attribute dev_attr_virtio_buf = {
->+ *     .attr = {
->+ *         .name = "virtio_buf",
->+ *         .mode = 0644
->+ *     },
->+ *     .show = virtio_buf_show,
->+ *     .store = virtio_buf_store
->+ * }
->+ */
->+static DEVICE_ATTR_RW(virtio_buf);
->+
->+
->+/*
->+ * The example_attr defined above is then grouped in the struct attribute group
->+ * as follows:
->+ */
->+struct attribute *example_attrs[] = {
->+    &dev_attr_virtio_buf.attr,
->+    NULL,
->+};
->+
->+static const struct attribute_group example_attr_group = {
->+    .name = "example", /* directory's name */
->+    .attrs = example_attrs,
->+};
->+
->+
->+
->+//-----------------------------------------------------------------------------
->+//                              IRQ functions
->+//-----------------------------------------------------------------------------
->+
->+static void example_irq_handler(struct virtqueue *vq)
->+{
->+
->+	struct virtexample_info *vi = vq->vdev->priv;
->+    unsigned int len;
->+    int *res = NULL;
->+
->+    /* get the buffer from virtqueue */
->+    res = virtqueue_get_buf(vi->vq, &len);
-
-check for res!=NULL?
-
->+
->+    vi->in = *res;
->+}
->+
->+
->+//-----------------------------------------------------------------------------
->+//                             driver functions
->+//-----------------------------------------------------------------------------
->+
->+
->+static int example_probe(struct virtio_device *vdev)
->+{
->+    int retval;
->+    struct virtexample_info *vi = NULL;
->+
->+    /* create sysfiles for UI */
->+    retval = sysfs_create_group(&vdev->dev.kobj, &example_attr_group);
->+    if (retval) {
->+        pr_alert("failed to create group in /sys/bus/virtio/devices/.../\n");
-
-Should an error value be returned here? 
-
->+    }
->+
->+    /* initialize driver data */
->+	vi = kzalloc(sizeof(struct virtexample_info), GFP_KERNEL);
->+	if (!vi)
->+		return -ENOMEM;
->+
->+	/* We expect a single virtqueue. */
->+	vi->vq = virtio_find_single_vq(vdev, example_irq_handler, "input");
->+	if (IS_ERR(vi->vq)) {
->+        pr_alert("failed to connect to the device virtqueue\n");
-
-same here
-
-regards,
-Jens 
+	Sam
