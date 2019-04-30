@@ -1,7 +1,7 @@
 From: Daniel Vetter <daniel@ffwll.ch>
 Subject: Re: [PATCH v3 01/19] drm: Add |struct drm_gem_vram_object| and helpers
-Date: Tue, 30 Apr 2019 16:27:06 +0200
-Message-ID: <20190430142706.GV3271__45072.1123883099$1556634487$gmane$org@phenom.ffwll.local>
+Date: Tue, 30 Apr 2019 16:40:20 +0200
+Message-ID: <20190430144020.GX3271__26113.9532247157$1556635283$gmane$org@phenom.ffwll.local>
 References: <20190429144341.12615-1-tzimmermann@suse.de>
 	<20190429144341.12615-2-tzimmermann@suse.de>
 	<20190429195855.GA6610@ravnborg.org>
@@ -125,9 +125,6 @@ On Mon, Apr 29, 2019 at 09:58:55PM +0200, Sam Ravnborg wrote:
 > > +
 > I cannot remember how select will deal with symbols whos has
 > a  "depends on".
-
-It doesn't, randomized builds will go kaboom.
-
 > But if I recall correct then the "depends on" will be ignored
 > or in best case trigger a warning.
 > In other words - when we have symbols we select they should not
@@ -151,15 +148,6 @@ It doesn't, randomized builds will go kaboom.
 > 
 > But maybe this rambling is irrelevant - maybe check what we do with
 > other selectable symbols in DRM.
-
-I'm not even clear on why you need 2 symbols here ... If the goal is to
-create a drm_gem_helper.ko module, then that's a bit more work. Plus
-anyone needed it would always need to select both Kconfig symbols (because
-select isn't recursive at all).
-
-I'd just ditch one of them for now and got with DRM_GEM_VRAM_HELPER.
--Daniel
-
 > 
 > 
 > > +/**
@@ -170,10 +158,19 @@ I'd just ditch one of them for now and got with DRM_GEM_VRAM_HELPER.
 > > + */
 > It is likely only me, but...
 > I could use a short explanation what is GEM and maybe also VRAM.
-> 
+
+It exists:
+
+https://dri.freedesktop.org/docs/drm/gpu/drm-mm.html#the-graphics-execution-manager-gem
+
+In the same chapter even where this will be added. I do agree that
+explaining a bit more what's meant with VRAM would be good though.
+-Daniel
+
 > VRAM as video RAM, but maybe there is more constraints?
 > (When I first looked at DRM I wondered what you used Virtual RAM for.
 > But thats a long time ago so it counts only as a funny story.
+
 > 
 > > + * Buffer-objects helpers
 > > + */
