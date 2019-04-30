@@ -1,15 +1,15 @@
-From: Sam Ravnborg <sam@ravnborg.org>
-Subject: Re: [PATCH v3 01/19] drm: Add |struct drm_gem_vram_object| and helpers
-Date: Mon, 29 Apr 2019 21:58:55 +0200
-Message-ID: <20190429195855.GA6610__12532.5934773841$1556567956$gmane$org@ravnborg.org>
-References: <20190429144341.12615-1-tzimmermann@suse.de>
-	<20190429144341.12615-2-tzimmermann@suse.de>
+From: Yuval Shaia <yuval.shaia@oracle.com>
+Subject: Re: [Qemu-devel] [PATCH v7 2/6] virtio-pmem: Add virtio pmem driver
+Date: Tue, 30 Apr 2019 08:53:19 +0300
+Message-ID: <20190430055318.GA5108__3446.84683238796$1556603685$gmane$org@lap1>
+References: <20190426050039.17460-1-pagupta@redhat.com>
+	<20190426050039.17460-3-pagupta@redhat.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
 Content-Disposition: inline
-In-Reply-To: <20190429144341.12615-2-tzimmermann@suse.de>
+In-Reply-To: <20190426050039.17460-3-pagupta@redhat.com>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -19,646 +19,420 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Thomas Zimmermann <tzimmermann@suse.de>
-Cc: airlied@linux.ie, puck.chen@hisilicon.com, dri-devel@lists.freedesktop.org, virtualization@lists.linux-foundation.org, z.liuxinliang@hisilicon.com, hdegoede@redhat.com, kong.kongxinwei@hisilicon.com, ray.huang@amd.com, daniel@ffwll.ch, zourongrong@gmail.com, Jerry.Zhang@amd.com, christian.koenig@amd.com
+To: Pankaj Gupta <pagupta@redhat.com>
+Cc: cohuck@redhat.com, jack@suse.cz, kvm@vger.kernel.org, mst@redhat.com, david@fromorbit.com, qemu-devel@nongnu.org, virtualization@lists.linux-foundation.org, adilger.kernel@dilger.ca, zwisler@kernel.org, aarcange@redhat.com, dave.jiang@intel.com, linux-nvdimm@lists.01.org, vishal.l.verma@intel.com, willy@infradead.org, hch@infradead.org, linux-acpi@vger.kernel.org, jmoyer@redhat.com, linux-ext4@vger.kernel.org, lenb@kernel.org, kilobyte@angband.pl, riel@surriel.com, stefanha@redhat.com, imammedo@redhat.com, dan.j.williams@intel.com, lcapitulino@redhat.com, nilal@redhat.com, tytso@mit.edu, xiaoguangrong.eric@gmail.com, darrick.wong@oracle.com, rjw@rjwysocki.net, linux-kernel@vger.kernel.org, linux-xfs@vger.kernel.org, linux-fsdevel@vger.kernel.org, pbonzini@redhat.com
 List-Id: virtualization@lists.linuxfoundation.org
 
-Hi Thomas.
-
-Some minor things and some bikeshedding too.
-
-One general^Wbikeshedding thing - unint32_t is used in many places.
-And then s64 in one place.
-Seems like two concepts are mixed.
-Maybe be consistent and use u32, s32 everywhere?
-
-I did not read the code carefully enough to understand it.
-I cannot give a r-b or a-b - as I feel I need to understand it to do
-so.
-
-	Sam
-
-On Mon, Apr 29, 2019 at 04:43:23PM +0200, Thomas Zimmermann wrote:
-> The type |struct drm_gem_vram_object| implements a GEM object for simple
-> framebuffer devices with dedicated video memory. The BO is either located
-> in VRAM or system memory.
+On Fri, Apr 26, 2019 at 10:30:35AM +0530, Pankaj Gupta wrote:
+> This patch adds virtio-pmem driver for KVM guest.
 > 
-> The implementation has been created from the respective code in ast,
-> bochs and mgag200. These drivers copy their implementation from each
-> other; except for the names of several data types. The helpers are
-> currently build with TTM, but this is considered an implementation
-> detail and may change in future updates.
+> Guest reads the persistent memory range information from
+> Qemu over VIRTIO and registers it on nvdimm_bus. It also
+> creates a nd_region object with the persistent memory
+> range information so that existing 'nvdimm/pmem' driver
+> can reserve this into system memory map. This way
+> 'virtio-pmem' driver uses existing functionality of pmem
+> driver to register persistent memory compatible for DAX
+> capable filesystems.
 > 
-> v2:
-> 	* rename to |struct drm_gem_vram_object|
-> 	* move drm_is_gem_ttm() to a later patch in the series
-> 	* add drm_gem_vram_kmap_at()
-> 	* return is_iomem from kmap functions
-> 	* redefine TTM placement flags for public interface
-> 	* documentation fixes
+> This also provides function to perform guest flush over
+> VIRTIO from 'pmem' driver when userspace performs flush
+> on DAX memory range.
 > 
-> Signed-off-by: Thomas Zimmermann <tzimmermann@suse.de>
+> Signed-off-by: Pankaj Gupta <pagupta@redhat.com>
 > ---
->  Documentation/gpu/drm-mm.rst             |  12 +
->  drivers/gpu/drm/Kconfig                  |  13 +
->  drivers/gpu/drm/Makefile                 |   4 +
->  drivers/gpu/drm/drm_gem_vram_helper.c    | 410 +++++++++++++++++++++++
->  drivers/gpu/drm/drm_vram_helper_common.c |   6 +
->  include/drm/drm_gem_vram_helper.h        |  92 +++++
->  6 files changed, 537 insertions(+)
->  create mode 100644 drivers/gpu/drm/drm_gem_vram_helper.c
->  create mode 100644 drivers/gpu/drm/drm_vram_helper_common.c
->  create mode 100644 include/drm/drm_gem_vram_helper.h
+>  drivers/nvdimm/virtio_pmem.c     | 114 +++++++++++++++++++++++++++++
+>  drivers/virtio/Kconfig           |  10 +++
+>  drivers/virtio/Makefile          |   1 +
+>  drivers/virtio/pmem.c            | 118 +++++++++++++++++++++++++++++++
+>  include/linux/virtio_pmem.h      |  60 ++++++++++++++++
+>  include/uapi/linux/virtio_ids.h  |   1 +
+>  include/uapi/linux/virtio_pmem.h |  10 +++
+>  7 files changed, 314 insertions(+)
+>  create mode 100644 drivers/nvdimm/virtio_pmem.c
+>  create mode 100644 drivers/virtio/pmem.c
+>  create mode 100644 include/linux/virtio_pmem.h
+>  create mode 100644 include/uapi/linux/virtio_pmem.h
 > 
-> diff --git a/Documentation/gpu/drm-mm.rst b/Documentation/gpu/drm-mm.rst
-> index 54a696d961a7..d5327ed608d7 100644
-> --- a/Documentation/gpu/drm-mm.rst
-> +++ b/Documentation/gpu/drm-mm.rst
-> @@ -380,6 +380,18 @@ GEM CMA Helper Functions Reference
->  .. kernel-doc:: drivers/gpu/drm/drm_gem_cma_helper.c
->     :export:
->  
-> +GEM VRAM Helper Functions Reference
-> +----------------------------------
-> +
-> +.. kernel-doc:: drivers/gpu/drm/drm_gem_vram_helper.c
-> +   :doc: overview
-> +
-> +.. kernel-doc:: include/drm/drm_gem_vram_helper.h
-> +   :internal:
-> +
-> +.. kernel-doc:: drivers/gpu/drm/drm_gem_vram_helper.c
-> +   :export:
-> +
->  VMA Offset Manager
->  ==================
->  
-> diff --git a/drivers/gpu/drm/Kconfig b/drivers/gpu/drm/Kconfig
-> index 2267e84d5cb4..c0d49a6c09d2 100644
-> --- a/drivers/gpu/drm/Kconfig
-> +++ b/drivers/gpu/drm/Kconfig
-> @@ -160,6 +160,12 @@ config DRM_TTM
->  	  GPU memory types. Will be enabled automatically if a device driver
->  	  uses it.
->  
-> +config DRM_VRAM_HELPER
-> +	tristate
-> +	depends on DRM && DRM_TTM
-> +	help
-> +	  Helpers for VRAM memory management
-> +
->  config DRM_GEM_CMA_HELPER
->  	bool
->  	depends on DRM
-> @@ -179,6 +185,13 @@ config DRM_GEM_SHMEM_HELPER
->  	help
->  	  Choose this if you need the GEM shmem helper functions
->  
-> +config DRM_GEM_VRAM_HELPER
-> +	bool
-> +	depends on DRM
-> +	select DRM_VRAM_HELPER
-> +	help
-> +	  Choose this if you need the GEM VRAM helper functions
-> +
-I cannot remember how select will deal with symbols whos has
-a  "depends on".
-But if I recall correct then the "depends on" will be ignored
-or in best case trigger a warning.
-In other words - when we have symbols we select they should not
-have a depends on.
-
-What can be done is something like:
-
-symbol foo
-	bool
-
-symbol bar
-	depends on foo
-
-
-symbol foobar
-	bool "This is what you need - select me"
-	select foo
-
-So when one chooses "foobar" then we will select "foo" and this will
-satisfy bar.
-
-But maybe this rambling is irrelevant - maybe check what we do with
-other selectable symbols in DRM.
-
-
-> +/**
-> + * DOC: overview
-> + *
-> + * This library provides a GEM object that is backed by VRAM. It
-> + * can be used for simple framebuffer devices with dedicated memory.
-> + */
-It is likely only me, but...
-I could use a short explanation what is GEM and maybe also VRAM.
-
-VRAM as video RAM, but maybe there is more constraints?
-(When I first looked at DRM I wondered what you used Virtual RAM for.
-But thats a long time ago so it counts only as a funny story.
-
-> + * Buffer-objects helpers
-> + */
-> +
-> +static void drm_gem_vram_cleanup(struct drm_gem_vram_object *gbo)
-> +{
-> +	/* We got here via ttm_bo_put(), which means that the
-> +	 * TTM buffer object in 'bo' has already been cleaned
-> +	 * up; only release the GEM object. */
-> +	drm_gem_object_release(&gbo->gem);
-> +}
-> +
-> +static void drm_gem_vram_destroy(struct drm_gem_vram_object *gbo)
-> +{
-> +	drm_gem_vram_cleanup(gbo);
-> +	kfree(gbo);
-> +}
-> +
-> +static void ttm_buffer_object_destroy(struct ttm_buffer_object *bo)
-> +{
-> +	struct drm_gem_vram_object *gbo = drm_gem_vram_of_bo(bo);
-> +	drm_gem_vram_destroy(gbo);
-> +}
-> +
-> +static void drm_gem_vram_placement(struct drm_gem_vram_object *gbo, int pl_flag)
-> +{
-> +	unsigned int i;
-> +	unsigned int c = 0;
-> +
-> +	gbo->placement.placement = gbo->placements;
-> +	gbo->placement.busy_placement = gbo->placements;
-> +
-> +	if (pl_flag & TTM_PL_FLAG_VRAM)
-> +		gbo->placements[c++].flags = TTM_PL_FLAG_WC |
-> +					     TTM_PL_FLAG_UNCACHED |
-> +					     TTM_PL_FLAG_VRAM;
-> +
-> +	if (pl_flag & TTM_PL_FLAG_SYSTEM)
-> +		gbo->placements[c++].flags = TTM_PL_MASK_CACHING |
-> +					     TTM_PL_FLAG_SYSTEM;
-> +
-> +	if (!c)
-> +		gbo->placements[c++].flags = TTM_PL_MASK_CACHING |
-> +					     TTM_PL_FLAG_SYSTEM;
-> +
-> +	gbo->placement.num_placement = c;
-> +	gbo->placement.num_busy_placement = c;
-> +
-> +	for (i = 0; i < c; ++i) {
-> +		gbo->placements[i].fpfn = 0;
-> +		gbo->placements[i].lpfn = 0;
-> +	}
-> +}
-> +
-> +static int drm_gem_vram_init(struct drm_device *dev,
-> +			     struct ttm_bo_device *bdev,
-> +			     struct drm_gem_vram_object *gbo,
-> +			     unsigned long size, uint32_t pg_align,
-> +			     bool interruptible)
-> +{
-> +	int ret;
-> +	size_t acc_size;
-> +
-> +	ret = drm_gem_object_init(dev, &gbo->gem, size);
-> +	if (ret)
-> +		return ret;
-> +
-> +	acc_size = ttm_bo_dma_acc_size(bdev, size, sizeof(*gbo));
-> +
-> +	gbo->bo.bdev = bdev;
-> +	drm_gem_vram_placement(gbo, TTM_PL_FLAG_VRAM | TTM_PL_FLAG_SYSTEM);
-> +
-> +	ret = ttm_bo_init(bdev, &gbo->bo, size, ttm_bo_type_device,
-> +			  &gbo->placement, pg_align, interruptible, acc_size,
-> +			  NULL, NULL, ttm_buffer_object_destroy);
-> +	if (ret)
-> +		goto err_drm_gem_object_release;
-> +
-> +	return 0;
-> +
-> +err_drm_gem_object_release:
-> +	drm_gem_object_release(&gbo->gem);
-> +	return ret;
-> +}
-> +
-> +/**
-> + * drm_gem_vram_create() - Creates a VRAM-backed GEM object
-> + * @dev:		the DRM device
-> + * @bdev:		the TTM BO device backing the object
-> + * @size:		the buffer size in bytes
-> + * @pg_align:		the buffer's alignment in multiples of the page size
-> + * @interruptible:	sleep interruptible if waiting for memory
-> + *
-> + * Returns:
-> + * A new instance of &struct drm_gem_vram_object on success, or
-> + * an ERR_PTR()-encoded error code otherwise.
-> + */
-> +struct drm_gem_vram_object* drm_gem_vram_create(struct drm_device *dev,
-> +						struct ttm_bo_device *bdev,
-> +						unsigned long size,
-> +						uint32_t pg_align,
-> +						bool interruptible)
-> +{
-> +	struct drm_gem_vram_object *gbo;
-> +	int ret;
-> +
-> +	gbo = kzalloc(sizeof(*gbo), GFP_KERNEL);
-> +	if (!gbo)
-> +		return ERR_PTR(-ENOMEM);
-> +
-> +	ret = drm_gem_vram_init(dev, bdev, gbo, size, pg_align, interruptible);
-> +	if (ret < 0)
-> +		goto err_kfree;
-> +
-> +	return gbo;
-> +
-> +err_kfree:
-> +	kfree(gbo);
-> +	return ERR_PTR(ret);
-> +}
-> +EXPORT_SYMBOL(drm_gem_vram_create);
-> +
-> +/**
-> + * drm_gem_vram_put() - Releases a reference to a VRAM-backed GEM object
-> + * @gbo:	the GEM VRAM object
-> + *
-> + * See ttm_bo_put() for more information.
-> + */
-> +void drm_gem_vram_put(struct drm_gem_vram_object *gbo)
-> +{
-> +	ttm_bo_put(&gbo->bo);
-> +}
-> +EXPORT_SYMBOL(drm_gem_vram_put);
-> +
-> +/**
-> + * drm_gem_vram_reserve() - Reserves a VRAM-backed GEM object
-> + * @gbo:	the GEM VRAM object
-> + * @no_wait:	don't wait for buffer object to become available
-> + *
-> + * See ttm_bo_reserve() for more information.
-> + *
-> + * Returns:
-> + * 0 on success, or
-> + * a negative error code otherwise
-> + */
-> +int drm_gem_vram_reserve(struct drm_gem_vram_object *gbo, bool no_wait)
-> +{
-> +	return ttm_bo_reserve(&gbo->bo, true, no_wait, NULL);
-> +}
-> +EXPORT_SYMBOL(drm_gem_vram_reserve);
-> +
-> +/**
-> + * drm_gem_vram_unreserve() - \
-> +	Release a reservation acquired by drm_gem_vram_reserve()
-> + * @gbo:	the GEM VRAM object
-> + *
-> + * See ttm_bo_unreserve() for more information.
-> + */
-> +void drm_gem_vram_unreserve(struct drm_gem_vram_object *gbo)
-> +{
-> +	ttm_bo_unreserve(&gbo->bo);
-> +}
-> +EXPORT_SYMBOL(drm_gem_vram_unreserve);
-> +
-> +/**
-> + * drm_gem_vram_mmap_offset() - Returns a GEM VRAM object's mmap offset
-> + * @gbo:	the GEM VRAM object
-> + *
-> + * See drm_vma_node_offset_addr() for more information.
-> + *
-> + * Returns:
-> + * The buffer object's offset for userspace mappings on success, or
-> + * 0 if no offset is allocated.
-> + */
-> +u64 drm_gem_vram_mmap_offset(struct drm_gem_vram_object *gbo)
-> +{
-> +	return drm_vma_node_offset_addr(&gbo->bo.vma_node);
-> +}
-> +EXPORT_SYMBOL(drm_gem_vram_mmap_offset);
-> +
-> +/**
-> + * drm_gem_vram_offset() - \
-> +	Returns a GEM VRAM object's offset in video memory
-> + * @gbo:	the GEM VRAM object
-> + *
-> + * This function returns the buffer object's offset in the device's video
-> + * memory. The buffer object has to be pinned to %TTM_PL_VRAM.
-> + *
-> + * Returns:
-> + * The buffer object's offset in video memory on success, or
-> + * a negative error code otherwise.
-> + */
-> +s64 drm_gem_vram_offset(struct drm_gem_vram_object *gbo)
-> +{
-> +	if (!gbo->pin_count)
-> +		return (s64)-ENODEV;
-> +	return gbo->bo.offset;
-> +}
-> +EXPORT_SYMBOL(drm_gem_vram_offset);
-> +
-> +/**
-> + * drm_gem_vram_pin() - Pins a GEM VRAM object in a region.
-> + * @gbo:	the GEM VRAM object
-> + * @pl_flag:	a bitmask of possible memory regions
-> + *
-> + * Pinning a buffer object ensures that it is not evicted from
-> + * a memory region. A pinned buffer object has to be unpinned before
-> + * it can be pinned to another region.
-> + *
-> + * Returns:
-> + * 0 on success, or
-> + * a negative error code otherwise.
-> + */
-> +int drm_gem_vram_pin(struct drm_gem_vram_object *gbo, u32 pl_flag)
-> +{
-> +	int i, ret;
-> +	struct ttm_operation_ctx ctx = { false, false };
-> +
-> +	if (gbo->pin_count) {
-> +		++gbo->pin_count;
-> +		return 0;
-> +	}
-> +
-> +	drm_gem_vram_placement(gbo, pl_flag);
-> +	for (i = 0; i < gbo->placement.num_placement; ++i)
-> +		gbo->placements[i].flags |= TTM_PL_FLAG_NO_EVICT;
-> +
-> +	ret = ttm_bo_validate(&gbo->bo, &gbo->placement, &ctx);
-> +	if (ret < 0)
-> +		return ret;
-> +
-> +	gbo->pin_count = 1;
-> +
-> +	return 0;
-> +}
-> +EXPORT_SYMBOL(drm_gem_vram_pin);
-> +
-> +/**
-> + * drm_gem_vram_unpin() - Unpins a GEM VRAM object
-> + * @gbo:	the GEM VRAM object
-> + *
-> + * Returns:
-> + * 0 on success, or
-> + * a negative error code otherwise.
-> + */
-> +int drm_gem_vram_unpin(struct drm_gem_vram_object *gbo)
-> +{
-> +	int i, ret;
-> +	struct ttm_operation_ctx ctx = { false, false };
-> +
-> +	if (!gbo->pin_count)
-> +		return 0;
-> +
-> +	--gbo->pin_count;
-> +	if (gbo->pin_count)
-> +		return 0;
-> +
-> +	for (i = 0; i < gbo->placement.num_placement ; ++i)
-> +		gbo->placements[i].flags &= ~TTM_PL_FLAG_NO_EVICT;
-> +
-> +	ret = ttm_bo_validate(&gbo->bo, &gbo->placement, &ctx);
-> +	if (ret < 0)
-> +		return ret;
-> +
-> +	return 0;
-> +}
-> +EXPORT_SYMBOL(drm_gem_vram_unpin);
-> +
-> +/**
-> + * drm_gem_vram_push_to_system() - \
-> +	Unpins a GEM VRAM object and moves it to system memory
-> + * @gbo:	the GEM VRAM object
-> + *
-> + * This operation only works if the caller holds the final pin on the
-> + * buffer object.
-> + *
-> + * Returns:
-> + * 0 on success, or
-> + * a negative error code otherwise.
-> + */
-> +int drm_gem_vram_push_to_system(struct drm_gem_vram_object *gbo)
-> +{
-> +	int i, ret;
-> +	struct ttm_operation_ctx ctx = { false, false };
-> +
-> +	if (!gbo->pin_count)
-> +		return 0;
-> +
-> +	--gbo->pin_count;
-> +	if (gbo->pin_count)
-> +		return 0;
-> +
-> +	if (gbo->kmap.virtual)
-> +		ttm_bo_kunmap(&gbo->kmap);
-> +
-> +	drm_gem_vram_placement(gbo, TTM_PL_FLAG_SYSTEM);
-> +	for (i = 0; i < gbo->placement.num_placement ; ++i)
-> +		gbo->placements[i].flags |= TTM_PL_FLAG_NO_EVICT;
-> +
-> +	ret = ttm_bo_validate(&gbo->bo, &gbo->placement, &ctx);
-> +	if (ret)
-> +		return ret;
-> +
-> +	return 0;
-> +}
-> +EXPORT_SYMBOL(drm_gem_vram_push_to_system);
-> +
-> +/**
-> + * drm_gem_vram_kmap_at() - Maps a GEM VRAM object into kernel address space
-> + * @gbo:	the GEM VRAM object
-> + * @map:	establish a mapping if necessary
-> + * @is_iomem:	returns true if the mapped memory is I/O memory, or false \
-> +	otherwise; can be NULL
-> + * @kmap:	the mapping's kmap object
-> + *
-> + * This function maps the buffer object into the kernel's address space
-> + * or returns the current mapping. If the parameter map is false, the
-> + * function only queries the current mapping, but does not establish a
-> + * new one.
-> + *
-> + * Returns:
-> + * The buffers virtual address if mapped, or
-> + * NULL if not mapped, or
-> + * an ERR_PTR()-encoded error code otherwise.
-> + */
-> +void* drm_gem_vram_kmap_at(struct drm_gem_vram_object *gbo, bool map,
-> +			   bool *is_iomem, struct ttm_bo_kmap_obj *kmap)
-> +{
-> +	int ret;
-> +
-> +	if (kmap->virtual || !map)
-> +		goto out;
-> +
-> +	ret = ttm_bo_kmap(&gbo->bo, 0, gbo->bo.num_pages, kmap);
-> +	if (ret)
-> +		return ERR_PTR(ret);
-> +
-> +out:
-> +	if (!is_iomem) {
-> +		return kmap->virtual;
-> +	}
-> +	if (!kmap->virtual) {
-> +		*is_iomem = false;
-> +		return NULL;
-> +	}
-> +	return ttm_kmap_obj_virtual(kmap, is_iomem);
-> +}
-> +EXPORT_SYMBOL(drm_gem_vram_kmap_at);
-> +
-> +/**
-> + * drm_gem_vram_kmap() - Maps a GEM VRAM object into kernel address space
-> + * @gbo:	the GEM VRAM object
-> + * @map:	establish a mapping if necessary
-> + * @is_iomem:	returns true if the mapped memory is I/O memory, or false \
-> +	otherwise; can be NULL
-> + *
-> + * This function maps the buffer object into the kernel's address space
-> + * or returns the current mapping. If the parameter map is false, the
-> + * function only queries the current mapping, but does not establish a
-> + * new one.
-> + *
-> + * Returns:
-> + * The buffers virtual address if mapped, or
-> + * NULL if not mapped, or
-> + * an ERR_PTR()-encoded error code otherwise.
-> + */
-> +void* drm_gem_vram_kmap(struct drm_gem_vram_object *gbo, bool map,
-> +			bool *is_iomem)
-> +{
-> +	return drm_gem_vram_kmap_at(gbo, map, is_iomem, &gbo->kmap);
-> +}
-> +EXPORT_SYMBOL(drm_gem_vram_kmap);
-> +
-> +/**
-> + * drm_gem_vram_kunmap_at() - Unmaps a GEM VRAM object
-> + * @gbo:	the GEM VRAM object
-> + * @kmap:	the mapping's kmap object
-> + */
-> +void drm_gem_vram_kunmap_at(struct drm_gem_vram_object *gbo,
-> +			    struct ttm_bo_kmap_obj *kmap)
-> +{
-> +	if (!kmap->virtual)
-> +		return;
-> +
-> +	ttm_bo_kunmap(kmap);
-> +	kmap->virtual = NULL;
-> +}
-> +EXPORT_SYMBOL(drm_gem_vram_kunmap_at);
-> +
-> +/**
-> + * drm_gem_vram_kunmap() - Unmaps a GEM VRAM object
-> + * @gbo:	the GEM VRAM object
-> + */
-> +void drm_gem_vram_kunmap(struct drm_gem_vram_object *gbo)
-> +{
-> +	drm_gem_vram_kunmap_at(gbo, &gbo->kmap);
-> +}
-> +EXPORT_SYMBOL(drm_gem_vram_kunmap);
-> diff --git a/drivers/gpu/drm/drm_vram_helper_common.c b/drivers/gpu/drm/drm_vram_helper_common.c
+> diff --git a/drivers/nvdimm/virtio_pmem.c b/drivers/nvdimm/virtio_pmem.c
 > new file mode 100644
-> index 000000000000..76b6569c9aad
+> index 000000000000..66b582f751a3
 > --- /dev/null
-> +++ b/drivers/gpu/drm/drm_vram_helper_common.c
-> @@ -0,0 +1,6 @@
-> +/* SPDX-License-Identifier: GPL-2.0-or-later */
-> +
-> +#include <linux/module.h>
-> +
-> +MODULE_DESCRIPTION("DRM VRAM memory-management helpers");
-> +MODULE_LICENSE("GPL");
-> diff --git a/include/drm/drm_gem_vram_helper.h b/include/drm/drm_gem_vram_helper.h
-> new file mode 100644
-> index 000000000000..167616f552e5
-> --- /dev/null
-> +++ b/include/drm/drm_gem_vram_helper.h
-> @@ -0,0 +1,92 @@
-> +/* SPDX-License-Identifier: GPL-2.0-or-later */
-> +
-> +#ifndef DRM_GEM_VRAM_HELPER_H
-> +#define DRM_GEM_VRAM_HELPER_H
-> +
-> +#include <drm/drm_gem.h>
-> +#include <drm/ttm/ttm_bo_api.h>
-> +#include <drm/ttm/ttm_placement.h>
-> +#include <linux/kernel.h> /* for container_of() */
-> +
-> +struct filp;
-> +
-> +#define DRM_GEM_VRAM_PL_FLAG_VRAM	TTM_PL_FLAG_VRAM
-> +#define DRM_GEM_VRAM_PL_FLAG_SYSTEM	TTM_PL_FLAG_SYSTEM
-> +
+> +++ b/drivers/nvdimm/virtio_pmem.c
+> @@ -0,0 +1,114 @@
+> +// SPDX-License-Identifier: GPL-2.0
 > +/*
-> + * Buffer-object helpers
-> + */
-> +
-> +/**
-> + * struct drm_gem_vram_object - GEM object backed by VRAM
-> + * @gem:	GEM object
-> + * @bo:		TTM buffer object
-> + * @kmap:	Mapping information for @bo
-> + * @placement:	TTM placement information. Supported placements are \
-> +	%TTM_PL_VRAM and %TTM_PL_SYSTEM
-> + * @placements:	TTM placement information.
-> + * @pin_count:	Pin counter
+> + * virtio_pmem.c: Virtio pmem Driver
 > + *
-> + * The type struct drm_gem_vram_object represents a GEM object that is
-> + * backed by VRAM. It can be used for simple frambuffer devices with
-> + * dedicated memory. The buffer object can be evicted to system memory if
-> + * video memory becomes scarce.
+> + * Discovers persistent memory range information
+> + * from host and provides a virtio based flushing
+> + * interface.
 > + */
-> +struct drm_gem_vram_object {
-> +        struct drm_gem_object gem;
-> +        struct ttm_buffer_object bo;
-> +        struct ttm_bo_kmap_obj kmap;
+> +#include <linux/virtio_pmem.h>
+> +#include "nd.h"
 > +
-> +	/* Supported placements are %TTM_PL_VRAM and %TTM_PL_SYSTEM */
-> +        struct ttm_placement placement;
-> +        struct ttm_place placements[3];
+> + /* The interrupt handler */
+> +void host_ack(struct virtqueue *vq)
+> +{
+> +	unsigned int len;
+> +	unsigned long flags;
+> +	struct virtio_pmem_request *req, *req_buf;
+> +	struct virtio_pmem *vpmem = vq->vdev->priv;
 > +
-> +        int pin_count;
+> +	spin_lock_irqsave(&vpmem->pmem_lock, flags);
+> +	while ((req = virtqueue_get_buf(vq, &len)) != NULL) {
+> +		req->done = true;
+> +		wake_up(&req->host_acked);
+> +
+> +		if (!list_empty(&vpmem->req_list)) {
+> +			req_buf = list_first_entry(&vpmem->req_list,
+> +					struct virtio_pmem_request, list);
+> +			list_del(&vpmem->req_list);
+> +			req_buf->wq_buf_avail = true;
+> +			wake_up(&req_buf->wq_buf);
+> +		}
+> +	}
+> +	spin_unlock_irqrestore(&vpmem->pmem_lock, flags);
+> +}
+> +EXPORT_SYMBOL_GPL(host_ack);
+> +
+> + /* The request submission function */
+> +int virtio_pmem_flush(struct nd_region *nd_region)
+> +{
+> +	int err;
+> +	unsigned long flags;
+> +	struct scatterlist *sgs[2], sg, ret;
+> +	struct virtio_device *vdev = nd_region->provider_data;
+> +	struct virtio_pmem *vpmem = vdev->priv;
+> +	struct virtio_pmem_request *req;
+> +
+> +	might_sleep();
+> +	req = kmalloc(sizeof(*req), GFP_KERNEL);
+> +	if (!req)
+> +		return -ENOMEM;
+> +
+> +	req->done = req->wq_buf_avail = false;
+> +	strcpy(req->name, "FLUSH");
+> +	init_waitqueue_head(&req->host_acked);
+> +	init_waitqueue_head(&req->wq_buf);
+> +	sg_init_one(&sg, req->name, strlen(req->name));
+> +	sgs[0] = &sg;
+> +	sg_init_one(&ret, &req->ret, sizeof(req->ret));
+> +	sgs[1] = &ret;
+> +
+> +	spin_lock_irqsave(&vpmem->pmem_lock, flags);
+> +	err = virtqueue_add_sgs(vpmem->req_vq, sgs, 1, 1, req, GFP_ATOMIC);
+> +	if (err) {
+> +		dev_err(&vdev->dev, "failed to send command to virtio pmem device\n");
+> +
+> +		list_add_tail(&vpmem->req_list, &req->list);
+> +		spin_unlock_irqrestore(&vpmem->pmem_lock, flags);
+> +
+> +		/* When host has read buffer, this completes via host_ack */
+> +		wait_event(req->wq_buf, req->wq_buf_avail);
+> +		spin_lock_irqsave(&vpmem->pmem_lock, flags);
+> +	}
+> +	err = virtqueue_kick(vpmem->req_vq);
+> +	spin_unlock_irqrestore(&vpmem->pmem_lock, flags);
+> +
+> +	if (!err) {
+> +		err = -EIO;
+> +		goto ret;
+> +	}
+> +	/* When host has read buffer, this completes via host_ack */
+> +	wait_event(req->host_acked, req->done);
+> +	err = req->ret;
+> +ret:
+> +	kfree(req);
+> +	return err;
 > +};
-Use tabs for indent - not spaces.
-Ask checkpatch if anything similar needs to be adjusted.
-
-
 > +
-> +/**
-> + * Returns the container of type &struct drm_gem_vram_object
-> + * for field bo.
-> + * @bo:		the VRAM buffer object
-> + * Returns:	The containing GEM VRAM object
-> + */
-> +static inline struct drm_gem_vram_object* drm_gem_vram_of_bo(
-> +	struct ttm_buffer_object *bo)
+> + /* The asynchronous flush callback function */
+> +int async_pmem_flush(struct nd_region *nd_region, struct bio *bio)
 > +{
-> +	return container_of(bo, struct drm_gem_vram_object, bo);
-> +}
-Indent funny. USe same indent as used in other parts of file for
-function arguments.
-
+> +	int rc = 0;
 > +
-> +/**
-> + * Returns the container of type &struct drm_gem_vram_object
-> + * for field gem.
-> + * @gem:	the GEM object
-> + * Returns:	The containing GEM VRAM object
+> +	/* Create child bio for asynchronous flush and chain with
+> +	 * parent bio. Otherwise directly call nd_region flush.
+> +	 */
+> +	if (bio && bio->bi_iter.bi_sector != -1) {
+> +		struct bio *child = bio_alloc(GFP_ATOMIC, 0);
+> +
+> +		if (!child)
+> +			return -ENOMEM;
+> +		bio_copy_dev(child, bio);
+> +		child->bi_opf = REQ_PREFLUSH;
+> +		child->bi_iter.bi_sector = -1;
+> +		bio_chain(child, bio);
+> +		submit_bio(child);
+> +	} else {
+> +		if (virtio_pmem_flush(nd_region))
+> +			rc = -EIO;
+> +	}
+> +
+> +	return rc;
+> +};
+> +EXPORT_SYMBOL_GPL(async_pmem_flush);
+> +MODULE_LICENSE("GPL");
+> diff --git a/drivers/virtio/Kconfig b/drivers/virtio/Kconfig
+> index 35897649c24f..9f634a2ed638 100644
+> --- a/drivers/virtio/Kconfig
+> +++ b/drivers/virtio/Kconfig
+> @@ -42,6 +42,16 @@ config VIRTIO_PCI_LEGACY
+>  
+>  	  If unsure, say Y.
+>  
+> +config VIRTIO_PMEM
+> +	tristate "Support for virtio pmem driver"
+> +	depends on VIRTIO
+> +	depends on LIBNVDIMM
+> +	help
+> +	This driver provides support for virtio based flushing interface
+> +	for persistent memory range.
+> +
+> +	If unsure, say M.
+> +
+>  config VIRTIO_BALLOON
+>  	tristate "Virtio balloon driver"
+>  	depends on VIRTIO
+> diff --git a/drivers/virtio/Makefile b/drivers/virtio/Makefile
+> index 3a2b5c5dcf46..143ce91eabe9 100644
+> --- a/drivers/virtio/Makefile
+> +++ b/drivers/virtio/Makefile
+> @@ -6,3 +6,4 @@ virtio_pci-y := virtio_pci_modern.o virtio_pci_common.o
+>  virtio_pci-$(CONFIG_VIRTIO_PCI_LEGACY) += virtio_pci_legacy.o
+>  obj-$(CONFIG_VIRTIO_BALLOON) += virtio_balloon.o
+>  obj-$(CONFIG_VIRTIO_INPUT) += virtio_input.o
+> +obj-$(CONFIG_VIRTIO_PMEM) += pmem.o ../nvdimm/virtio_pmem.o
+> diff --git a/drivers/virtio/pmem.c b/drivers/virtio/pmem.c
+> new file mode 100644
+> index 000000000000..309788628e41
+> --- /dev/null
+> +++ b/drivers/virtio/pmem.c
+> @@ -0,0 +1,118 @@
+> +// SPDX-License-Identifier: GPL-2.0
+> +/*
+> + * virtio_pmem.c: Virtio pmem Driver
+> + *
+> + * Discovers persistent memory range information
+> + * from host and registers the virtual pmem device
+> + * with libnvdimm core.
 > + */
-> +static inline struct drm_gem_vram_object* drm_gem_vram_of_gem(
-> +	struct drm_gem_object *gem)
-> +{
-> +	return container_of(gem, struct drm_gem_vram_object, gem);
-> +}
-ditto
-
+> +#include <linux/virtio_pmem.h>
+> +#include <../../drivers/nvdimm/nd.h>
 > +
-> +struct drm_gem_vram_object* drm_gem_vram_create(struct drm_device *dev,
-> +						struct ttm_bo_device* bdev,
-> +						unsigned long size,
-> +						uint32_t pg_align,
-> +						bool interruptible);
+> +static struct virtio_device_id id_table[] = {
+> +	{ VIRTIO_ID_PMEM, VIRTIO_DEV_ANY_ID },
+> +	{ 0 },
+> +};
+> +
+> + /* Initialize virt queue */
+> +static int init_vq(struct virtio_pmem *vpmem)
+> +{
+> +	/* single vq */
+> +	vpmem->req_vq = virtio_find_single_vq(vpmem->vdev,
+> +				host_ack, "flush_queue");
+> +	if (IS_ERR(vpmem->req_vq))
+> +		return PTR_ERR(vpmem->req_vq);
+> +
+> +	spin_lock_init(&vpmem->pmem_lock);
+> +	INIT_LIST_HEAD(&vpmem->req_list);
+> +
+> +	return 0;
+> +};
+> +
+> +static int virtio_pmem_probe(struct virtio_device *vdev)
+> +{
+> +	int err = 0;
+> +	struct resource res;
+> +	struct virtio_pmem *vpmem;
+> +	struct nd_region_desc ndr_desc = {};
+> +	int nid = dev_to_node(&vdev->dev);
+> +	struct nd_region *nd_region;
+> +
+> +	if (!vdev->config->get) {
+> +		dev_err(&vdev->dev, "%s failure: config access disabled\n",
+> +			__func__);
+> +		return -EINVAL;
+> +	}
+> +
+> +	vpmem = devm_kzalloc(&vdev->dev, sizeof(*vpmem), GFP_KERNEL);
+> +	if (!vpmem) {
+> +		err = -ENOMEM;
+> +		goto out_err;
+> +	}
+> +
+> +	vpmem->vdev = vdev;
+> +	vdev->priv = vpmem;
+> +	err = init_vq(vpmem);
+> +	if (err)
+> +		goto out_err;
+> +
+> +	virtio_cread(vpmem->vdev, struct virtio_pmem_config,
+> +			start, &vpmem->start);
+> +	virtio_cread(vpmem->vdev, struct virtio_pmem_config,
+> +			size, &vpmem->size);
+> +
+> +	res.start = vpmem->start;
+> +	res.end   = vpmem->start + vpmem->size-1;
+> +	vpmem->nd_desc.provider_name = "virtio-pmem";
+> +	vpmem->nd_desc.module = THIS_MODULE;
+> +
+> +	vpmem->nvdimm_bus = nvdimm_bus_register(&vdev->dev,
+> +						&vpmem->nd_desc);
+> +	if (!vpmem->nvdimm_bus)
+> +		goto out_vq;
+> +
+> +	dev_set_drvdata(&vdev->dev, vpmem->nvdimm_bus);
+> +
+> +	ndr_desc.res = &res;
+> +	ndr_desc.numa_node = nid;
+> +	ndr_desc.flush = async_pmem_flush;
+> +	set_bit(ND_REGION_PAGEMAP, &ndr_desc.flags);
+> +	set_bit(ND_REGION_ASYNC, &ndr_desc.flags);
+> +	nd_region = nvdimm_pmem_region_create(vpmem->nvdimm_bus, &ndr_desc);
+> +
+> +	if (!nd_region)
+> +		goto out_nd;
+> +	nd_region->provider_data =  dev_to_virtio
 
-Here is is "normal"
+Delete extra space here ----------^^
+I think this will let you join the two lines.
+
+> +					(nd_region->dev.parent->parent);
+> +	return 0;
+> +out_nd:
+> +	err = -ENXIO;
+> +	nvdimm_bus_unregister(vpmem->nvdimm_bus);
+> +out_vq:
+> +	vdev->config->del_vqs(vdev);
+> +out_err:
+> +	dev_err(&vdev->dev, "failed to register virtio pmem memory\n");
+> +	return err;
+> +}
+> +
+> +static void virtio_pmem_remove(struct virtio_device *vdev)
+> +{
+> +	struct nvdimm_bus *nvdimm_bus = dev_get_drvdata(&vdev->dev);
+> +
+> +	nvdimm_bus_unregister(nvdimm_bus);
+> +	vdev->config->del_vqs(vdev);
+> +	vdev->config->reset(vdev);
+> +}
+> +
+> +static struct virtio_driver virtio_pmem_driver = {
+> +	.driver.name		= KBUILD_MODNAME,
+> +	.driver.owner		= THIS_MODULE,
+> +	.id_table		= id_table,
+> +	.probe			= virtio_pmem_probe,
+> +	.remove			= virtio_pmem_remove,
+> +};
+> +
+> +module_virtio_driver(virtio_pmem_driver);
+> +MODULE_DEVICE_TABLE(virtio, id_table);
+> +MODULE_DESCRIPTION("Virtio pmem driver");
+> +MODULE_LICENSE("GPL");
+> diff --git a/include/linux/virtio_pmem.h b/include/linux/virtio_pmem.h
+> new file mode 100644
+> index 000000000000..ab1da877575d
+> --- /dev/null
+> +++ b/include/linux/virtio_pmem.h
+> @@ -0,0 +1,60 @@
+> +/* SPDX-License-Identifier: GPL-2.0 */
+> +/*
+> + * virtio_pmem.h: virtio pmem Driver
+> + *
+> + * Discovers persistent memory range information
+> + * from host and provides a virtio based flushing
+> + * interface.
+> + **/
+> +
+> +#ifndef _LINUX_VIRTIO_PMEM_H
+> +#define _LINUX_VIRTIO_PMEM_H
+> +
+> +#include <linux/virtio_ids.h>
+> +#include <linux/module.h>
+> +#include <linux/virtio_config.h>
+> +#include <uapi/linux/virtio_pmem.h>
+> +#include <linux/libnvdimm.h>
+> +#include <linux/spinlock.h>
+> +
+> +struct virtio_pmem_request {
+> +	/* Host return status corresponding to flush request */
+> +	int ret;
+> +
+> +	/* command name*/
+> +	char name[16];
+> +
+> +	/* Wait queue to process deferred work after ack from host */
+> +	wait_queue_head_t host_acked;
+> +	bool done;
+> +
+> +	/* Wait queue to process deferred work after virt queue buffer avail */
+> +	wait_queue_head_t wq_buf;
+> +	bool wq_buf_avail;
+> +	struct list_head list;
+> +};
+> +
+> +struct virtio_pmem {
+> +	struct virtio_device *vdev;
+> +
+> +	/* Virtio pmem request queue */
+> +	struct virtqueue *req_vq;
+> +
+> +	/* nvdimm bus registers virtio pmem device */
+> +	struct nvdimm_bus *nvdimm_bus;
+> +	struct nvdimm_bus_descriptor nd_desc;
+> +
+> +	/* List to store deferred work if virtqueue is full */
+> +	struct list_head req_list;
+> +
+> +	/* Synchronize virtqueue data */
+> +	spinlock_t pmem_lock;
+> +
+> +	/* Memory region information */
+> +	uint64_t start;
+> +	uint64_t size;
+> +};
+> +
+> +void host_ack(struct virtqueue *vq);
+> +int async_pmem_flush(struct nd_region *nd_region, struct bio *bio);
+> +#endif
+> diff --git a/include/uapi/linux/virtio_ids.h b/include/uapi/linux/virtio_ids.h
+> index 6d5c3b2d4f4d..32b2f94d1f58 100644
+> --- a/include/uapi/linux/virtio_ids.h
+> +++ b/include/uapi/linux/virtio_ids.h
+> @@ -43,5 +43,6 @@
+>  #define VIRTIO_ID_INPUT        18 /* virtio input */
+>  #define VIRTIO_ID_VSOCK        19 /* virtio vsock transport */
+>  #define VIRTIO_ID_CRYPTO       20 /* virtio crypto */
+> +#define VIRTIO_ID_PMEM         27 /* virtio pmem */
+>  
+>  #endif /* _LINUX_VIRTIO_IDS_H */
+> diff --git a/include/uapi/linux/virtio_pmem.h b/include/uapi/linux/virtio_pmem.h
+> new file mode 100644
+> index 000000000000..fa3f7d52717a
+> --- /dev/null
+> +++ b/include/uapi/linux/virtio_pmem.h
+> @@ -0,0 +1,10 @@
+> +/* SPDX-License-Identifier: GPL-2.0 */
+> +
+> +#ifndef _UAPI_LINUX_VIRTIO_PMEM_H
+> +#define _UAPI_LINUX_VIRTIO_PMEM_H
+> +
+> +struct virtio_pmem_config {
+> +	__le64 start;
+> +	__le64 size;
+> +};
+> +#endif
+
+Suggesting to fix the above minor formatting error.
+
+With this:
+
+Reviewed-by: Yuval Shaia <yuval.shaia@oracle.com>
+
+> -- 
+> 2.20.1
+> 
+> 
