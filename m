@@ -1,18 +1,13 @@
-From: Yuval Shaia <yuval.shaia@oracle.com>
-Subject: Re: [Qemu-devel] [RFC 0/3] VirtIO RDMA
-Date: Tue, 30 Apr 2019 20:16:37 +0300
-Message-ID: <20190430171635.GA2937@lap1>
-References: <20190411110157.14252-1-yuval.shaia@oracle.com>
-	<20190411190215.2163572e.cohuck@redhat.com>
-	<20190415103546.GA6854@lap1>
-	<e73e03c2-ea2b-6ffc-cd23-e8e44d42ce80@suse.de>
-	<20190422060034.GA27901@mtr-leonro.mtl.com>
+From: Stefan Hajnoczi <stefanha@redhat.com>
+Subject: Re: [PATCH] vsock/virtio: Initialize core virtio vsock before
+	registering the driver
+Date: Wed, 1 May 2019 15:08:31 -0400
+Message-ID: <20190501190831.GF22391__8851.22028864629$1556737769$gmane$org@stefanha-x1.localdomain>
+References: <20190501003001.186239-1-jemoreira@google.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
-Content-Transfer-Encoding: 7bit
+Content-Type: multipart/mixed; boundary="===============8219591520968240425=="
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-Content-Disposition: inline
-In-Reply-To: <20190422060034.GA27901@mtr-leonro.mtl.com>
+In-Reply-To: <20190501003001.186239-1-jemoreira@google.com>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -22,118 +17,189 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Leon Romanovsky <leon@kernel.org>
-Cc: mst@redhat.com, linux-rdma@vger.kernel.org, Cornelia Huck <cohuck@redhat.com>, qemu-devel@nongnu.org, virtualization@lists.linux-foundation.org, jgg@mellanox.com
+To: "Jorge E. Moreira" <jemoreira@google.com>
+Cc: kvm@vger.kernel.org, netdev@vger.kernel.org, linux-kernel@vger.kernel.org, stable@vger.kernel.org, virtualization@lists.linux-foundation.org, kernel-team@android.com, "David S. Miller" <davem@davemloft.net>, sgarzare@redhat.com
 List-Id: virtualization@lists.linuxfoundation.org
 
-On Mon, Apr 22, 2019 at 09:00:34AM +0300, Leon Romanovsky wrote:
-> On Fri, Apr 19, 2019 at 01:16:06PM +0200, Hannes Reinecke wrote:
-> > On 4/15/19 12:35 PM, Yuval Shaia wrote:
-> > > On Thu, Apr 11, 2019 at 07:02:15PM +0200, Cornelia Huck wrote:
-> > > > On Thu, 11 Apr 2019 14:01:54 +0300
-> > > > Yuval Shaia <yuval.shaia@oracle.com> wrote:
-> > > >
-> > > > > Data center backends use more and more RDMA or RoCE devices and more and
-> > > > > more software runs in virtualized environment.
-> > > > > There is a need for a standard to enable RDMA/RoCE on Virtual Machines.
-> > > > >
-> > > > > Virtio is the optimal solution since is the de-facto para-virtualizaton
-> > > > > technology and also because the Virtio specification
-> > > > > allows Hardware Vendors to support Virtio protocol natively in order to
-> > > > > achieve bare metal performance.
-> > > > >
-> > > > > This RFC is an effort to addresses challenges in defining the RDMA/RoCE
-> > > > > Virtio Specification and a look forward on possible implementation
-> > > > > techniques.
-> > > > >
-> > > > > Open issues/Todo list:
-> > > > > List is huge, this is only start point of the project.
-> > > > > Anyway, here is one example of item in the list:
-> > > > > - Multi VirtQ: Every QP has two rings and every CQ has one. This means that
-> > > > >    in order to support for example 32K QPs we will need 64K VirtQ. Not sure
-> > > > >    that this is reasonable so one option is to have one for all and
-> > > > >    multiplex the traffic on it. This is not good approach as by design it
-> > > > >    introducing an optional starvation. Another approach would be multi
-> > > > >    queues and round-robin (for example) between them.
-> > > > >
-> > Typically there will be a one-to-one mapping between QPs and CPUs (on the
-> > guest). So while one would need to be prepared to support quite some QPs,
-> > the expectation is that the actual number of QPs used will be rather low.
-> > In a similar vein, multiplexing QPs would be defeating the purpose, as the
-> > overall idea was to have _independent_ QPs to enhance parallelism.
-> >
-> > > > > Expectations from this posting:
-> > > > > In general, any comment is welcome, starting from hey, drop this as it is a
-> > > > > very bad idea, to yeah, go ahead, we really want it.
-> > > > > Idea here is that since it is not a minor effort i first want to know if
-> > > > > there is some sort interest in the community for such device.
-> > > >
-> > > > My first reaction is: Sounds sensible, but it would be good to have a
-> > > > spec for this :)
-> > > >
-> > > > You'll need a spec if you want this to go forward anyway, so at least a
-> > > > sketch would be good to answer questions such as how many virtqueues
-> > > > you use for which purpose, what is actually put on the virtqueues,
-> > > > whether there are negotiable features, and what the expectations for
-> > > > the device and the driver are. It also makes it easier to understand
-> > > > how this is supposed to work in practice.
-> > > >
-> > > > If folks agree that this sounds useful, the next step would be to
-> > > > reserve an id for the device type.
-> > >
-> > > Thanks for the tips, will sure do that, it is that first i wanted to make
-> > > sure there is a use case here.
-> > >
-> > > Waiting for any feedback from the community.
-> > >
-> > I really do like the ides; in fact, it saved me from coding a similar thing
-> > myself :-)
-> >
-> > However, I'm still curious about the overall intent of this driver. Where
-> > would the I/O be routed _to_ ?
-> > It's nice that we have a virtualized driver, but this driver is
-> > intended to do I/O (even if it doesn't _do_ any I/O ATM :-)
-> > And this I/O needs to be send to (and possibly received from)
-> > something.
-> >
-> > So what exactly is this something?
-> > An existing piece of HW on the host?
-> > If so, wouldn't it be more efficient to use vfio, either by using SR-IOV or
-> > by using virtio-mdev?
-> >
-> > Another guest?
-> > If so, how would we route the I/O from one guest to the other?
-> > Shared memory? Implementing a full-blown RDMA switch in qemu?
-> >
-> > Oh, and I would _love_ to have a discussion about this at KVM Forum.
-> > Maybe I'll manage to whip up guest-to-guest RDMA connection using ivshmem
-> > ... let's see.
-> 
-> Following success in previous years to transfer ideas into code,
-> we started to prepare RDMA miniconference in LPC 2019, which will
-> be co-located with Kernel Summit and networking track.
-> 
-> I'm confident that such broad audience of kernel developers
-> will be good fit for such discussion.
 
-Just posted a proposal for a talk at Linux Plumbers.
+--===============8219591520968240425==
+Content-Type: multipart/signed; micalg=pgp-sha256;
+	protocol="application/pgp-signature"; boundary="lIrNkN/7tmsD/ALM"
+Content-Disposition: inline
 
-> 
-> Previous years:
-> 2016: https://www.spinics.net/lists/linux-rdma/msg43074.html
-> 2017: https://lwn.net/Articles/734163/
-> 2018: It was so full in audience and intensive that I failed to
-> summarize it :(
-> 
-> Thanks
-> 
-> >
-> > Cheers,
-> >
-> > Hannes
-> > --
-> > Dr. Hannes Reinecke            Teamlead Storage & Networking
-> > hare@suse.de                              +49 911 74053 688
-> > SUSE LINUX GmbH, Maxfeldstr. 5, 90409 N??rnberg
-> > GF: Felix Imend??rffer, Mary Higgins, Sri Rasiah
-> > HRB 21284 (AG N??rnberg)
+
+--lIrNkN/7tmsD/ALM
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+Content-Transfer-Encoding: quoted-printable
+
+On Tue, Apr 30, 2019 at 05:30:01PM -0700, Jorge E. Moreira wrote:
+> Avoid a race in which static variables in net/vmw_vsock/af_vsock.c are
+> accessed (while handling interrupts) before they are initialized.
+>
+>=20
+> [    4.201410] BUG: unable to handle kernel paging request at fffffffffff=
+fffe8
+> [    4.207829] IP: vsock_addr_equals_addr+0x3/0x20
+> [    4.211379] PGD 28210067 P4D 28210067 PUD 28212067 PMD 0
+> [    4.211379] Oops: 0000 [#1] PREEMPT SMP PTI
+> [    4.211379] Modules linked in:
+> [    4.211379] CPU: 1 PID: 30 Comm: kworker/1:1 Not tainted 4.14.106-4192=
+97-gd7e28cc1f241 #1
+> [    4.211379] Hardware name: QEMU Standard PC (i440FX + PIIX, 1996), BIO=
+S 1.10.2-1 04/01/2014
+> [    4.211379] Workqueue: virtio_vsock virtio_transport_rx_work
+> [    4.211379] task: ffffa3273d175280 task.stack: ffffaea1800e8000
+> [    4.211379] RIP: 0010:vsock_addr_equals_addr+0x3/0x20
+> [    4.211379] RSP: 0000:ffffaea1800ebd28 EFLAGS: 00010286
+> [    4.211379] RAX: 0000000000000002 RBX: 0000000000000000 RCX: ffffffffb=
+94e42f0
+> [    4.211379] RDX: 0000000000000400 RSI: ffffffffffffffe0 RDI: ffffaea18=
+00ebdd0
+> [    4.211379] RBP: ffffaea1800ebd58 R08: 0000000000000001 R09: 000000000=
+0000001
+> [    4.211379] R10: 0000000000000000 R11: ffffffffb89d5d60 R12: ffffaea18=
+00ebdd0
+> [    4.211379] R13: 00000000828cbfbf R14: 0000000000000000 R15: ffffaea18=
+00ebdc0
+> [    4.211379] FS:  0000000000000000(0000) GS:ffffa3273fd00000(0000) knlG=
+S:0000000000000000
+> [    4.211379] CS:  0010 DS: 0000 ES: 0000 CR0: 0000000080050033
+> [    4.211379] CR2: ffffffffffffffe8 CR3: 000000002820e001 CR4: 000000000=
+01606e0
+> [    4.211379] DR0: 0000000000000000 DR1: 0000000000000000 DR2: 000000000=
+0000000
+> [    4.211379] DR3: 0000000000000000 DR6: 00000000fffe0ff0 DR7: 000000000=
+0000400
+> [    4.211379] Call Trace:
+> [    4.211379]  ? vsock_find_connected_socket+0x6c/0xe0
+> [    4.211379]  virtio_transport_recv_pkt+0x15f/0x740
+> [    4.211379]  ? detach_buf+0x1b5/0x210
+> [    4.211379]  virtio_transport_rx_work+0xb7/0x140
+> [    4.211379]  process_one_work+0x1ef/0x480
+> [    4.211379]  worker_thread+0x312/0x460
+> [    4.211379]  kthread+0x132/0x140
+> [    4.211379]  ? process_one_work+0x480/0x480
+> [    4.211379]  ? kthread_destroy_worker+0xd0/0xd0
+> [    4.211379]  ret_from_fork+0x35/0x40
+> [    4.211379] Code: c7 47 08 00 00 00 00 66 c7 07 28 00 c7 47 08 ff ff f=
+f ff c7 47 04 ff ff ff ff c3 0f 1f 00 66 2e 0f 1f 84 00 00 00 00 00 8b 47 0=
+8 <3b> 46 08 75 0a 8b 47 04 3b 46 04 0f 94 c0 c3 31 c0 c3 90 66 2e
+> [    4.211379] RIP: vsock_addr_equals_addr+0x3/0x20 RSP: ffffaea1800ebd28
+> [    4.211379] CR2: ffffffffffffffe8
+> [    4.211379] ---[ end trace f31cc4a2e6df3689 ]---
+> [    4.211379] Kernel panic - not syncing: Fatal exception in interrupt
+> [    4.211379] Kernel Offset: 0x37000000 from 0xffffffff81000000 (relocat=
+ion range: 0xffffffff80000000-0xffffffffbfffffff)
+> [    4.211379] Rebooting in 5 seconds..
+>=20
+> Fixes: 22b5c0b63f32 ("vsock/virtio: fix kernel panic after device hot-unp=
+lug")
+> Cc: Stefan Hajnoczi <stefanha@redhat.com>
+> Cc: "David S. Miller" <davem@davemloft.net>
+> Cc: kvm@vger.kernel.org
+> Cc: virtualization@lists.linux-foundation.org
+> Cc: netdev@vger.kernel.org
+> Cc: kernel-team@android.com
+> Cc: stable@vger.kernel.org [4.9+]
+> Signed-off-by: Jorge E. Moreira <jemoreira@google.com>
+> ---
+>  net/vmw_vsock/virtio_transport.c | 13 ++++++-------
+>  1 file changed, 6 insertions(+), 7 deletions(-)
+>=20
+> diff --git a/net/vmw_vsock/virtio_transport.c b/net/vmw_vsock/virtio_tran=
+sport.c
+> index 15eb5d3d4750..96ab344f17bb 100644
+> --- a/net/vmw_vsock/virtio_transport.c
+> +++ b/net/vmw_vsock/virtio_transport.c
+> @@ -702,28 +702,27 @@ static int __init virtio_vsock_init(void)
+>  	if (!virtio_vsock_workqueue)
+>  		return -ENOMEM;
+> =20
+> -	ret =3D register_virtio_driver(&virtio_vsock_driver);
+> +	ret =3D vsock_core_init(&virtio_transport.transport);
+
+Have you checked that all transport callbacks are safe even if another
+CPU calls them while virtio_vsock_probe() is executing on another CPU?
+
+>  	if (ret)
+>  		goto out_wq;
+> =20
+> -	ret =3D vsock_core_init(&virtio_transport.transport);
+> +	ret =3D register_virtio_driver(&virtio_vsock_driver);
+>  	if (ret)
+> -		goto out_vdr;
+> +		goto out_vci;
+> =20
+>  	return 0;
+> =20
+> -out_vdr:
+> -	unregister_virtio_driver(&virtio_vsock_driver);
+> +out_vci:
+> +	vsock_core_exit();
+>  out_wq:
+>  	destroy_workqueue(virtio_vsock_workqueue);
+>  	return ret;
+> -
+>  }
+> =20
+>  static void __exit virtio_vsock_exit(void)
+>  {
+> -	vsock_core_exit();
+>  	unregister_virtio_driver(&virtio_vsock_driver);
+> +	vsock_core_exit();
+>  	destroy_workqueue(virtio_vsock_workqueue);
+>  }
+
+The virtio_vsock_exit() order is intentional:
+
+  commit 22b5c0b63f32568e130fa2df4ba23efce3eb495b
+  Author: Stefano Garzarella <sgarzare@redhat.com>
+  Date:   Fri Feb 1 12:42:06 2019 +0100
+
+      vsock/virtio: fix kernel panic after device hot-unplug
+
+      virtio_vsock_remove() invokes the vsock_core_exit() also if there
+      are opened sockets for the AF_VSOCK protocol family. In this way
+      the vsock "transport" pointer is set to NULL, triggering the
+      kernel panic at the first socket activity.
+
+      This patch move the vsock_core_init()/vsock_core_exit() in the
+      virtio_vsock respectively in module_init and module_exit functions,
+      that cannot be invoked until there are open sockets.
+
+Calling vsock_core_exit() after unregister_virtio_driver() is likely to
+lead to the issue that Stefano tried to fix.
+
+Is it necessary to change virtio_vsock_exit()?
+
+Stefan
+
+--lIrNkN/7tmsD/ALM
+Content-Type: application/pgp-signature; name="signature.asc"
+
+-----BEGIN PGP SIGNATURE-----
+
+iQEzBAEBCAAdFiEEhpWov9P5fNqsNXdanKSrs4Grc8gFAlzJ7pQACgkQnKSrs4Gr
+c8jR1gf/cnFCrPkul6fp2xkobJXTTX2hwlN4Lg0ubx64+2nm0kboOAywf+Ci3qRb
+bVxc31iEJ0uDkNfrvYCMNAHRdo210mQwQOTgGlwb7NGW+MwadZG2bi7ESaLnC0Bq
+1qs6c4X/wHxjhyz3juLA50/20c0G0jtOdTmiltlgTyK+tsPKu0BQUN0tutokYmeV
+/Maojmx6cXozqPperoF3OZhoQXzKWc5qefOqJyJYIeVpI+XeWiC4DL7zua5Jorp0
+BLXio3tkGHge6idenbxSpzey/cv8l1BMoGt8TtCbpbK11sPcSJk73Ggg8EzqC27u
+uleMVbN1FWgzKvc46IErCJE1P/1S0A==
+=kAew
+-----END PGP SIGNATURE-----
+
+--lIrNkN/7tmsD/ALM--
+
+--===============8219591520968240425==
+Content-Type: text/plain; charset="us-ascii"
+MIME-Version: 1.0
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+
+_______________________________________________
+Virtualization mailing list
+Virtualization@lists.linux-foundation.org
+https://lists.linuxfoundation.org/mailman/listinfo/virtualization
+--===============8219591520968240425==--
