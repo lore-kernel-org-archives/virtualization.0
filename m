@@ -1,14 +1,12 @@
-From: Gerd Hoffmann <kraxel@redhat.com>
-Subject: Re: Xorg hangs in kernelspace with qxl
-Date: Thu, 2 May 2019 07:26:30 +0200
-Message-ID: <20190502052630.ombyxjhvx2hskxgv@sirius.home.kraxel.org>
-References: <20e78e41-ed6a-a8ea-07e5-f83f353b8eaa@ristioja.ee>
+From: "peccs@insticc.info" <peccs@insticc.info>
+Subject: CFP PECCS 2019 - 9th Int.l Conf. on Pervasive and Embedded
+	Computing and Communication Systems (Vienna/Austria)
+Date: 2 May 2019 08:13:50 +0100
+Message-ID: <20190502071345.1.6BC1B18F64A3ED86@insticc.info>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset="utf-8"
+Content-Transfer-Encoding: base64
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-Content-Disposition: inline
-In-Reply-To: <20e78e41-ed6a-a8ea-07e5-f83f353b8eaa@ristioja.ee>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -18,23 +16,36 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Jaak Ristioja <jaak@ristioja.ee>
-Cc: Dave Airlie <airlied@redhat.com>, virtualization@lists.linux-foundation.org
+To: virtualization@lists.linux-foundation.org
 List-Id: virtualization@lists.linuxfoundation.org
 
-On Wed, May 01, 2019 at 12:47:48AM +0300, Jaak Ristioja wrote:
-> Hello!
-> 
-> I'm experiencing the following task hangs at least 2-3 times a day when
-> using a Kubuntu desktop in KVM via a SPICE client. This has occurred
-> with the stock kernels in Kubuntu since Kubuntu 18.04. This makes the VM
-> unusable as a graphical remote desktop and the hung task prevents
-> Kubuntu from gracefully rebooting (e.g. "reboot" via SSH). Any ideas?
-> 
-> INFO: task Xorg:879 blocked for more than 120 seconds.
->       Not tainted 5.0.0-13-generic #14-Ubuntu
-
-Does it happen with 5.1-rc kernels too?
-
-cheers,
-  Gerd
+U1VCTUlTU0lPTiBERUFETElORSAKCjl0aCBJbnRlcm5hdGlvbmFsIENvbmZlcmVuY2Ugb24gUGVy
+dmFzaXZlIGFuZCBFbWJlZGRlZCBDb21wdXRpbmcgYW5kIENvbW11bmljYXRpb24gU3lzdGVtcwoK
+U3VibWlzc2lvbiBEZWFkbGluZTogTWF5IDIwLCAyMDE5CgpodHRwOi8vd3d3LnBlY2NzLm9yZy8K
+ClNlcHRlbWJlciAxOSAtIDIwLCAyMDE5ClZpZW5uYSwgQXVzdHJpYS4KCiBQRUNDUyBpcyBvcmdh
+bml6ZWQgaW4gNSBtYWpvciB0cmFja3M6CgogLSBXaXJlbGVzcyBhbmQgTW9iaWxlIFRlY2hub2xv
+Z2llcwogLSBTZW5zb3IgTmV0d29ya3M6IFNvZnR3YXJlLCBBcmNoaXRlY3R1cmVzIGFuZCBBcHBs
+aWNhdGlvbnPCoAogLSBJbnRlbGxpZ2VudCBEYXRhIEFuYWx5c2lzIGFuZCBQcm9jZXNzaW5nCiAt
+IE1vYmlsZSBDb21wdXRpbmcgU3lzdGVtcyBhbmQgU2VydmljZXMKIC0gTXVsdGltZWRpYSBTaWdu
+YWwgUHJvY2Vzc2luZ8KgCgoNCkluIENvb3BlcmF0aW9uIHdpdGg6IEFJKklBLCBBUFBJQSwgRVJD
+SU0gYW5kIEFQUlAuIA0KICAgICAgICAgICAgICAgICAgICANClByb2NlZWRpbmdzIHdpbGwgYmUg
+c3VibWl0dGVkIGZvciBpbmRleGF0aW9uIGJ5OiBEQkxQLCBUaG9tc29uIFJldXRlcnMsIEVJLCBT
+Q09QVVMsIFNlbWFudGljIFNjaG9sYXIgYW5kIEdvb2dsZSBTY2hvbGFyLiANCiAgICAgICAgICAg
+ICAgICAgICAgCiAKV2l0aCB0aGUgcHJlc2VuY2Ugb2YgaW50ZXJuYXRpb25hbGx5IGRpc3Rpbmd1
+aXNoZWQga2V5bm90ZSBzcGVha2VyczoKQW5kcmVhcyBIb2x6aW5nZXIsIE1lZGljYWwgVW5pdmVy
+c2l0eSBHcmF6LCBBdXN0cmlhCktheXlhbGkgTW9oYW1lZCwgSW50ZXJuYXRpb25hbCBGZWRlcmF0
+aW9uIG9mIEdsb2JhbCAmIEdyZWVuIEluZm9ybWF0aW9uIENvbW11bnVjYXRpb24gVGVjaG5vbG9n
+eSwgVW5pdGVkIFN0YXRlcwoKCkEgc2hvcnQgbGlzdCBvZiBwcmVzZW50ZWQgcGFwZXJzIHdpbGwg
+YmUgc2VsZWN0ZWQgc28gdGhhdCByZXZpc2VkIGFuZCBleHRlbmRlZCB2ZXJzaW9ucyBvZiB0aGVz
+ZSBwYXBlcnMgd2lsbCBiZSBwdWJsaXNoZWQgYnkgU3ByaW5nZXIuCiAKQWxsIHBhcGVycyBwcmVz
+ZW50ZWQgYXQgdGhlIGNvbmdyZXNzIHZlbnVlIHdpbGwgYWxzbyBiZSBhdmFpbGFibGUgYXQgdGhl
+IFNDSVRFUFJFU1MgRGlnaXRhbCBMaWJyYXJ5IChodHRwOi8vd3d3LnNjaXRlcHJlc3Mub3JnL0Rp
+Z2l0YWxMaWJyYXJ5LykuCiAgClNob3VsZCB5b3UgaGF2ZSBhbnkgcXVlc3Rpb24gcGxlYXNlIGRv
+bid0IGhlc2l0YXRlIGNvbnRhY3RpbmcgbWUuCiAKCktpbmQgcmVnYXJkcywKUEVDQ1MgU2VjcmV0
+YXJpYXQKCkFkZHJlc3M6IEF2ZW5pZGEgZGUgUy4gRnJhbmNpc2NvIFhhdmllciwgTG90ZSA3IEN2
+LiBMCjI5MTAtNTk1IFNldHViYWwsIFBvcnR1Z2FsClRlbDogKzM1MSAyNjUgNTIwIDE4NQpGYXg6
+ICszNTEgMjY1IDUyMCAxODYKV2ViOiBodHRwOi8vd3d3LnBlY2NzLm9yZy8KZS1tYWlsOiBwZWNj
+cy5zZWNyZXRhcmlhdEBpbnN0aWNjLm9yZwoKX19fX19fX19fX19fX19fX19fX19fX19fX19fX19f
+X19fX19fX19fX19fX19fX18KVmlydHVhbGl6YXRpb24gbWFpbGluZyBsaXN0ClZpcnR1YWxpemF0
+aW9uQGxpc3RzLmxpbnV4LWZvdW5kYXRpb24ub3JnCmh0dHBzOi8vbGlzdHMubGludXhmb3VuZGF0
+aW9uLm9yZy9tYWlsbWFuL2xpc3RpbmZvL3ZpcnR1YWxpemF0aW9u
