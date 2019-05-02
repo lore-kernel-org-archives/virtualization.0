@@ -1,12 +1,16 @@
-From: "webist@insticc.info" <webist@insticc.info>
-Subject: CFP WEBIST 2019 - 15th Int.l Conf. on Web Information Systems and
-	Technologies (Vienna/Austria)
-Date: 2 May 2019 08:13:39 +0100
-Message-ID: <20190502071333.1.0A90A50784350D47@insticc.info>
+From: Stefano Garzarella <sgarzare@redhat.com>
+Subject: Re: [PATCH] vsock/virtio: Initialize core virtio vsock before
+	registering the driver
+Date: Thu, 2 May 2019 10:20:45 +0200
+Message-ID: <20190502082045.u3xypjbac5npbhtc__29822.7721870475$1556785316$gmane$org@steredhat.homenet.telecomitalia.it>
+References: <20190501003001.186239-1-jemoreira@google.com>
+	<20190501190831.GF22391@stefanha-x1.localdomain>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
+Content-Disposition: inline
+In-Reply-To: <20190501190831.GF22391@stefanha-x1.localdomain>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -16,53 +20,91 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: virtualization@lists.linux-foundation.org
+To: Stefan Hajnoczi <stefanha@redhat.com>
+Cc: kvm@vger.kernel.org, netdev@vger.kernel.org, linux-kernel@vger.kernel.org, stable@vger.kernel.org, virtualization@lists.linux-foundation.org, "Jorge E. Moreira" <jemoreira@google.com>, kernel-team@android.com, "David S. Miller" <davem@davemloft.net>
 List-Id: virtualization@lists.linuxfoundation.org
 
-SUBMISSION DEADLINE 
+On Wed, May 01, 2019 at 03:08:31PM -0400, Stefan Hajnoczi wrote:
+> On Tue, Apr 30, 2019 at 05:30:01PM -0700, Jorge E. Moreira wrote:
+> > Avoid a race in which static variables in net/vmw_vsock/af_vsock.c are
+> > accessed (while handling interrupts) before they are initialized.
+> >
+> > 
+> > [    4.201410] BUG: unable to handle kernel paging request at ffffffffffffffe8
+> > [    4.207829] IP: vsock_addr_equals_addr+0x3/0x20
+> > [    4.211379] PGD 28210067 P4D 28210067 PUD 28212067 PMD 0
+> > [    4.211379] Oops: 0000 [#1] PREEMPT SMP PTI
+> > [    4.211379] Modules linked in:
+> > [    4.211379] CPU: 1 PID: 30 Comm: kworker/1:1 Not tainted 4.14.106-419297-gd7e28cc1f241 #1
+> > [    4.211379] Hardware name: QEMU Standard PC (i440FX + PIIX, 1996), BIOS 1.10.2-1 04/01/2014
+> > [    4.211379] Workqueue: virtio_vsock virtio_transport_rx_work
+> > [    4.211379] task: ffffa3273d175280 task.stack: ffffaea1800e8000
+> > [    4.211379] RIP: 0010:vsock_addr_equals_addr+0x3/0x20
+> > [    4.211379] RSP: 0000:ffffaea1800ebd28 EFLAGS: 00010286
+> > [    4.211379] RAX: 0000000000000002 RBX: 0000000000000000 RCX: ffffffffb94e42f0
+> > [    4.211379] RDX: 0000000000000400 RSI: ffffffffffffffe0 RDI: ffffaea1800ebdd0
+> > [    4.211379] RBP: ffffaea1800ebd58 R08: 0000000000000001 R09: 0000000000000001
+> > [    4.211379] R10: 0000000000000000 R11: ffffffffb89d5d60 R12: ffffaea1800ebdd0
+> > [    4.211379] R13: 00000000828cbfbf R14: 0000000000000000 R15: ffffaea1800ebdc0
+> > [    4.211379] FS:  0000000000000000(0000) GS:ffffa3273fd00000(0000) knlGS:0000000000000000
+> > [    4.211379] CS:  0010 DS: 0000 ES: 0000 CR0: 0000000080050033
+> > [    4.211379] CR2: ffffffffffffffe8 CR3: 000000002820e001 CR4: 00000000001606e0
+> > [    4.211379] DR0: 0000000000000000 DR1: 0000000000000000 DR2: 0000000000000000
+> > [    4.211379] DR3: 0000000000000000 DR6: 00000000fffe0ff0 DR7: 0000000000000400
+> > [    4.211379] Call Trace:
+> > [    4.211379]  ? vsock_find_connected_socket+0x6c/0xe0
+> > [    4.211379]  virtio_transport_recv_pkt+0x15f/0x740
+> > [    4.211379]  ? detach_buf+0x1b5/0x210
+> > [    4.211379]  virtio_transport_rx_work+0xb7/0x140
+> > [    4.211379]  process_one_work+0x1ef/0x480
+> > [    4.211379]  worker_thread+0x312/0x460
+> > [    4.211379]  kthread+0x132/0x140
+> > [    4.211379]  ? process_one_work+0x480/0x480
+> > [    4.211379]  ? kthread_destroy_worker+0xd0/0xd0
+> > [    4.211379]  ret_from_fork+0x35/0x40
+> > [    4.211379] Code: c7 47 08 00 00 00 00 66 c7 07 28 00 c7 47 08 ff ff ff ff c7 47 04 ff ff ff ff c3 0f 1f 00 66 2e 0f 1f 84 00 00 00 00 00 8b 47 08 <3b> 46 08 75 0a 8b 47 04 3b 46 04 0f 94 c0 c3 31 c0 c3 90 66 2e
+> > [    4.211379] RIP: vsock_addr_equals_addr+0x3/0x20 RSP: ffffaea1800ebd28
+> > [    4.211379] CR2: ffffffffffffffe8
+> > [    4.211379] ---[ end trace f31cc4a2e6df3689 ]---
+> > [    4.211379] Kernel panic - not syncing: Fatal exception in interrupt
+> > [    4.211379] Kernel Offset: 0x37000000 from 0xffffffff81000000 (relocation range: 0xffffffff80000000-0xffffffffbfffffff)
+> > [    4.211379] Rebooting in 5 seconds..
+> > 
+> > Fixes: 22b5c0b63f32 ("vsock/virtio: fix kernel panic after device hot-unplug")
+> > Cc: Stefan Hajnoczi <stefanha@redhat.com>
+> > Cc: "David S. Miller" <davem@davemloft.net>
+> > Cc: kvm@vger.kernel.org
+> > Cc: virtualization@lists.linux-foundation.org
+> > Cc: netdev@vger.kernel.org
+> > Cc: kernel-team@android.com
+> > Cc: stable@vger.kernel.org [4.9+]
+> > Signed-off-by: Jorge E. Moreira <jemoreira@google.com>
+> > ---
+> >  net/vmw_vsock/virtio_transport.c | 13 ++++++-------
+> >  1 file changed, 6 insertions(+), 7 deletions(-)
+> > 
+> > diff --git a/net/vmw_vsock/virtio_transport.c b/net/vmw_vsock/virtio_transport.c
+> > index 15eb5d3d4750..96ab344f17bb 100644
+> > --- a/net/vmw_vsock/virtio_transport.c
+> > +++ b/net/vmw_vsock/virtio_transport.c
+> > @@ -702,28 +702,27 @@ static int __init virtio_vsock_init(void)
+> >  	if (!virtio_vsock_workqueue)
+> >  		return -ENOMEM;
+> >  
+> > -	ret = register_virtio_driver(&virtio_vsock_driver);
+> > +	ret = vsock_core_init(&virtio_transport.transport);
+> 
+> Have you checked that all transport callbacks are safe even if another
+> CPU calls them while virtio_vsock_probe() is executing on another CPU?
+> 
 
-15th International Conference on Web Information Systems and Technologies
+I have the same doubt.
 
-Submission Deadline: May 20, 2019
+What do you think to take the 'the_virtio_vsock_mutex' in the
+virtio_vsock_init(), keeping the previous order?
 
-http://www.webist.org/
+This should prevent this issue because the virtio_vsock_probe() remains
+blocked in the mutex until the end of vsock_core_init().
 
-September 18 - 20, 2019
-Vienna, Austria.
-
- WEBIST is organized in 5 major tracks:
-
- - Internet Technology
- - Mobile and NLP Information Systems
- - Service Based Information Systems, Platforms and Eco-Systems
- - Web Intelligence
- - Web Interfaces
-
-
-In Cooperation with: AI*IA, APPIA, ERCIM and APRP. 
-                    
-Proceedings will be submitted for indexation by: DBLP, Thomson Reuters, EI, SCOPUS, Semantic Scholar and Google Scholar. 
-                    
- 
-With the presence of internationally distinguished keynote speakers:
-Steffen Staab, University of Koblenz-Landau, Germany
-Karl Aberer, EPFL, Switzerland
-Claus Pahl, Free University of Bozen-Bolzano, Italy
-
-
-A short list of presented papers will be selected so that revised and extended versions of these papers will be published by Springer.
- 
-All papers presented at the congress venue will also be available at the SCITEPRESS Digital Library (http://www.scitepress.org/DigitalLibrary/).
-  
-Should you have any question please don't hesitate contacting me.
- 
-
-Kind regards,
-WEBIST Secretariat
-
-Address: Avenida de S. Francisco Xavier, Lote 7 Cv. L
-2910-595 Setubal, Portugal
-Tel: +351 265 520 184
-Fax: +351 265 520 186
-Web: http://www.webist.org/
-e-mail: webist.secretariat@insticc.org
+Cheers,
+Stefano
