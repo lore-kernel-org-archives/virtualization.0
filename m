@@ -1,19 +1,11 @@
-From: Daniel Vetter <daniel@ffwll.ch>
-Subject: Re: [PATCH v3 01/19] drm: Add |struct drm_gem_vram_object| and helpers
-Date: Fri, 3 May 2019 14:01:53 +0200
-Message-ID: <CAKMK7uGnUeeK-UPHZC+P5TsQTaOWPQd=LLV_Rr+VvPgNEEHhyg@mail.gmail.com>
-References: <20190429144341.12615-1-tzimmermann@suse.de>
-	<20190429144341.12615-2-tzimmermann@suse.de>
-	<20190429195855.GA6610@ravnborg.org>
-	<1d14ef87-e1cd-4f4a-3632-bc045a1981c6@suse.de>
-	<20190430092327.GA13757@ravnborg.org>
-	<6e07e6c9-2ce7-c39f-8d55-46e811c61510@amd.com>
-	<a2398439-3bb5-d1ef-db94-82f252f461c2@suse.de>
+From: Robert Foss <robert.foss@collabora.com>
+Subject: [PATCH] drm/virtio: Remove redundant return type
+Date: Fri,  3 May 2019 18:38:04 +0200
+Message-ID: <20190503163804.31922-1-robert.foss__18832.1562645555$1556911481$gmane$org@collabora.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="utf-8"
-Content-Transfer-Encoding: base64
+Content-Type: text/plain; charset="us-ascii"
+Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <a2398439-3bb5-d1ef-db94-82f252f461c2@suse.de>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -23,62 +15,62 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Thomas Zimmermann <tzimmermann@suse.de>
-Cc: "airlied@linux.ie" <airlied@linux.ie>, "puck.chen@hisilicon.com" <puck.chen@hisilicon.com>, "dri-devel@lists.freedesktop.org" <dri-devel@lists.freedesktop.org>, "virtualization@lists.linux-foundation.org" <virtualization@lists.linux-foundation.org>, "z.liuxinliang@hisilicon.com" <z.liuxinliang@hisilicon.com>, "hdegoede@redhat.com" <hdegoede@redhat.com>, "kong.kongxinwei@hisilicon.com" <kong.kongxinwei@hisilicon.com>, "Huang, Ray" <Ray.Huang@amd.com>, "zourongrong@gmail.com" <zourongrong@gmail.com>, Sam Ravnborg <sam@ravnborg.org>, "Koenig,
-	Christian" <Christian.Koenig@amd.com>
+To: airlied@linux.ie, kraxel@redhat.com, daniel@ffwll.ch, dri-devel@lists.freedesktop.org, virtualization@lists.linux-foundation.org, linux-kernel@vger.kernel.org, Chia-I Wu <olvaffe@gmail.com>
+Cc: Robert Foss <robert.foss@collabora.com>, Emil Velikov <emil.velikov@collabora.com>
 List-Id: virtualization@lists.linuxfoundation.org
 
-T24gRnJpLCBNYXkgMywgMjAxOSBhdCAxMjoxNSBQTSBUaG9tYXMgWmltbWVybWFubiA8dHppbW1l
-cm1hbm5Ac3VzZS5kZT4gd3JvdGU6Cj4KPiBIaSBDaHJpc3RpYW4sCj4KPiB3b3VsZCB5b3UgcmV2
-aWV3IHRoZSB3aG9sZSBwYXRjaCBzZXQ/IERhbmllbCBtZW50aW9uZWQgdGhhdCBoZSdkIHByZWZl
-cgo+IHRvIGxlYXZlIHRoZSByZXZpZXcgdG8gbWVtb3J5LW1nbXQgZGV2ZWxvcGVycy4KCkkgdGhp
-bmsgTm9yYWxmIFRyb25uZXMgb3IgR2VyZCBIb2ZmbWFubiB3b3VsZCBhbHNvIG1ha2UgZ29vZCBy
-ZXZpZXdlcnMKZm9yIHRoaXMsIGZhaXJseSBjbG9zZSB0byB3aGF0IHRoZXkndmUgYmVlbiB3b3Jr
-aW5nIG9uIGluIHRoZSBwYXN0LgotRGFuaWVsCgo+Cj4gQmVzdCByZWdhcmRzCj4gVGhvbWFzCj4K
-PiBBbSAzMC4wNC4xOSB1bSAxMTozNSBzY2hyaWViIEtvZW5pZywgQ2hyaXN0aWFuOgo+ID4gQW0g
-MzAuMDQuMTkgdW0gMTE6MjMgc2NocmllYiBTYW0gUmF2bmJvcmc6Cj4gPj4gW0NBVVRJT046IEV4
-dGVybmFsIEVtYWlsXQo+ID4+Cj4gPj4gSGkgVGhvbWFzLgo+ID4+Cj4gPj4+Pj4gKwo+ID4+Pj4+
-ICsvKioKPiA+Pj4+PiArICogUmV0dXJucyB0aGUgY29udGFpbmVyIG9mIHR5cGUgJnN0cnVjdCBk
-cm1fZ2VtX3ZyYW1fb2JqZWN0Cj4gPj4+Pj4gKyAqIGZvciBmaWVsZCBiby4KPiA+Pj4+PiArICog
-QGJvOiAgICAgICAgICAgdGhlIFZSQU0gYnVmZmVyIG9iamVjdAo+ID4+Pj4+ICsgKiBSZXR1cm5z
-OiAgICAgICBUaGUgY29udGFpbmluZyBHRU0gVlJBTSBvYmplY3QKPiA+Pj4+PiArICovCj4gPj4+
-Pj4gK3N0YXRpYyBpbmxpbmUgc3RydWN0IGRybV9nZW1fdnJhbV9vYmplY3QqIGRybV9nZW1fdnJh
-bV9vZl9ibygKPiA+Pj4+PiArICBzdHJ1Y3QgdHRtX2J1ZmZlcl9vYmplY3QgKmJvKQo+ID4+Pj4+
-ICt7Cj4gPj4+Pj4gKyAgcmV0dXJuIGNvbnRhaW5lcl9vZihibywgc3RydWN0IGRybV9nZW1fdnJh
-bV9vYmplY3QsIGJvKTsKPiA+Pj4+PiArfQo+ID4+Pj4gSW5kZW50IGZ1bm55LiBVU2Ugc2FtZSBp
-bmRlbnQgYXMgdXNlZCBpbiBvdGhlciBwYXJ0cyBvZiBmaWxlIGZvcgo+ID4+Pj4gZnVuY3Rpb24g
-YXJndW1lbnRzLgo+ID4+PiBJZiBJIHB1dCB0aGUgYXJndW1lbnQgbmV4dCB0byB0aGUgZnVuY3Rp
-b24ncyBuYW1lLCBpdCB3aWxsIGV4Y2VlZCB0aGUKPiA+Pj4gODAtY2hhcmFjdGVyIGxpbWl0LiBG
-cm9tIHRoZSBjb2Rpbmctc3R5bGUgZG9jdW1lbnQsIEkgY291bGQgbm90IHNlZSB3aGF0Cj4gPj4+
-IHRvIGRvIGluIHRoaXMgY2FzZS4gT25lIHNvbHV0aW9uIHdvdWxkIG1vdmUgdGhlIHJldHVybiB0
-eXBlIHRvIGEKPiA+Pj4gc2VwYXJhdGUgbGluZSBiZWZvcmUgdGhlIGZ1bmN0aW9uIG5hbWUuIEkn
-dmUgbm90IHNlZW4gdGhhdCBhbnl3aGVyZSBpbgo+ID4+PiB0aGUgc291cmNlIGNvZGUsIHNvIG1v
-dmluZyB0aGUgYXJndW1lbnQgb250byBhIHNlcGFyYXRlIGxpbmUgYW5kCj4gPj4+IGluZGVudGlu
-ZyBieSBvbmUgdGFiIGFwcGVhcnMgdG8gYmUgdGhlIG5leHQgYmVzdCBzb2x1dGlvbi4gUGxlYXNl
-IGxldCBtZQo+ID4+PiBrbm93IGlmIHRoZXJlJ3MgaWYgdGhlcmUncyBhIHByZWZlcnJlZCBzdHls
-ZSBmb3IgY2FzZXMgbGlrZSB0aGlzIG9uZS4KPiA+PiBSZWFkYWJpbGl0eSBoYXMgSU1PIGhpZ2hl
-ciBwcmlvcml0eSB0aGFuIHNvbWUgbGltaXQgb2YgODAgY2hhcnMuCj4gPj4gQW5kIGl0IGh1cnRz
-IHJlYWRhYmlsaXR5IChhdCBsZWFzdCBteSBPQ0QpIHdoZW4gc3R5bGUgY2hhbmdlcwo+ID4+IGFz
-IHlvdSBkbyB3aXRoIGluZGVudCBoZXJlLiBTbyBteSBwZXJzb25hbCBwcmVmZXJlbmNlIGlzIHRv
-IGZpeAo+ID4+IGluZGVudCBhbmQgYWNjZWN0IGxvbmdlciBsaW5lcy4KPiA+Cj4gPiBJbiB0aGlz
-IGNhc2UgdGhlIGFuIG9mdGVuIHVzZWQgY29udmVudGlvbiAod2hpY2ggaXMgYWxzbyBraW5kIG9m
-Cj4gPiByZWFkYWJsZSkgaXMgdG8gYWRkIGEgbmV3bGluZSBhZnRlciB0aGUgcmV0dXJuIHZhbHVl
-cywgYnV0IGJlZm9yZSB0aGUKPiA+IGZ1bmN0aW9uIG5hbWUuIEUuZy4gc29tZXRoaW5nIGxpa2Ug
-dGhpczoKPiA+Cj4gPiBzdGF0aWMgaW5saW5lIHN0cnVjdCBkcm1fZ2VtX3ZyYW1fb2JqZWN0Kgo+
-ID4gZHJtX2dlbV92cmFtX29mX2JvKHN0cnVjdCB0dG1fYnVmZmVyX29iamVjdCAqYm8pCj4gPgo+
-ID4gUmVnYXJkcywKPiA+IENocmlzdGlhbi4KPiA+Cj4gPj4KPiA+PiBCdXQgeW91IGFzayBmb3Ig
-YSBwcmVmZXJyZWQgc3R5bGUgLSB3aGljaCBJIGRvIG5vdCB0aGluayB3ZSBoYXZlIGluIHRoaXMK
-PiA+PiBjYXNlLiBTbyBpdCBib2lscyBkb3duIHRvIHdoYXQgeW91IHByZWZlci4KPiA+Pgo+ID4+
-IEVub3VnaCBiaWtlc2hlZGRpbmcsIHRoYW5rcyBmb3IgdGhlIHF1aWNrIHJlc3BvbnNlLgo+ID4+
-Cj4gPj4gICAgICAgICAgU2FtCj4gPgo+Cj4gLS0KPiBUaG9tYXMgWmltbWVybWFubgo+IEdyYXBo
-aWNzIERyaXZlciBEZXZlbG9wZXIKPiBTVVNFIExpbnV4IEdtYkgsIE1heGZlbGRzdHJhc3NlIDUs
-IDkwNDA5IE51ZXJuYmVyZywgR2VybWFueQo+IEdGOiBGZWxpeCBJbWVuZMO2cmZmZXIsIE1hcnkg
-SGlnZ2lucywgU3JpIFJhc2lhaAo+IEhSQiAyMTI4NCAoQUcgTsO8cm5iZXJnKQo+Cj4gX19fX19f
-X19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX18KPiBkcmktZGV2ZWwgbWFp
-bGluZyBsaXN0Cj4gZHJpLWRldmVsQGxpc3RzLmZyZWVkZXNrdG9wLm9yZwo+IGh0dHBzOi8vbGlz
-dHMuZnJlZWRlc2t0b3Aub3JnL21haWxtYW4vbGlzdGluZm8vZHJpLWRldmVsCgoKCi0tIApEYW5p
-ZWwgVmV0dGVyClNvZnR3YXJlIEVuZ2luZWVyLCBJbnRlbCBDb3Jwb3JhdGlvbgorNDEgKDApIDc5
-IDM2NSA1NyA0OCAtIGh0dHA6Ly9ibG9nLmZmd2xsLmNoCl9fX19fX19fX19fX19fX19fX19fX19f
-X19fX19fX19fX19fX19fX19fX19fX19fClZpcnR1YWxpemF0aW9uIG1haWxpbmcgbGlzdApWaXJ0
-dWFsaXphdGlvbkBsaXN0cy5saW51eC1mb3VuZGF0aW9uLm9yZwpodHRwczovL2xpc3RzLmxpbnV4
-Zm91bmRhdGlvbi5vcmcvbWFpbG1hbi9saXN0aW5mby92aXJ0dWFsaXphdGlvbg==
+virtio_gpu_fence_emit() always returns 0, since it
+has no error paths.
+
+Consequently no calls for virtio_gpu_fence_emit()
+use the return value, and it can be removed.
+
+Signed-off-by: Robert Foss <robert.foss@collabora.com>
+Suggested-by: Emil Velikov <emil.velikov@collabora.com>
+---
+
+This patch was suggested in this email thread:
+
+[PATCH] drm/virtio: allocate fences with GFP_KERNEL
+https://www.spinics.net/lists/dri-devel/msg208536.html
+
+ drivers/gpu/drm/virtio/virtgpu_drv.h   | 2 +-
+ drivers/gpu/drm/virtio/virtgpu_fence.c | 3 +--
+ 2 files changed, 2 insertions(+), 3 deletions(-)
+
+diff --git a/drivers/gpu/drm/virtio/virtgpu_drv.h b/drivers/gpu/drm/virtio/virtgpu_drv.h
+index d577cb76f5ad..9bc56887fbdb 100644
+--- a/drivers/gpu/drm/virtio/virtgpu_drv.h
++++ b/drivers/gpu/drm/virtio/virtgpu_drv.h
+@@ -334,7 +334,7 @@ int virtio_gpu_mmap(struct file *filp, struct vm_area_struct *vma);
+ /* virtio_gpu_fence.c */
+ struct virtio_gpu_fence *virtio_gpu_fence_alloc(
+ 	struct virtio_gpu_device *vgdev);
+-int virtio_gpu_fence_emit(struct virtio_gpu_device *vgdev,
++void virtio_gpu_fence_emit(struct virtio_gpu_device *vgdev,
+ 			  struct virtio_gpu_ctrl_hdr *cmd_hdr,
+ 			  struct virtio_gpu_fence *fence);
+ void virtio_gpu_fence_event_process(struct virtio_gpu_device *vdev,
+diff --git a/drivers/gpu/drm/virtio/virtgpu_fence.c b/drivers/gpu/drm/virtio/virtgpu_fence.c
+index 21bd4c4a32d1..e0744ac768cc 100644
+--- a/drivers/gpu/drm/virtio/virtgpu_fence.c
++++ b/drivers/gpu/drm/virtio/virtgpu_fence.c
+@@ -81,7 +81,7 @@ struct virtio_gpu_fence *virtio_gpu_fence_alloc(struct virtio_gpu_device *vgdev)
+ 	return fence;
+ }
+ 
+-int virtio_gpu_fence_emit(struct virtio_gpu_device *vgdev,
++void virtio_gpu_fence_emit(struct virtio_gpu_device *vgdev,
+ 			  struct virtio_gpu_ctrl_hdr *cmd_hdr,
+ 			  struct virtio_gpu_fence *fence)
+ {
+@@ -96,7 +96,6 @@ int virtio_gpu_fence_emit(struct virtio_gpu_device *vgdev,
+ 
+ 	cmd_hdr->flags |= cpu_to_le32(VIRTIO_GPU_FLAG_FENCE);
+ 	cmd_hdr->fence_id = cpu_to_le64(fence->seq);
+-	return 0;
+ }
+ 
+ void virtio_gpu_fence_event_process(struct virtio_gpu_device *vgdev,
+-- 
+2.20.1
