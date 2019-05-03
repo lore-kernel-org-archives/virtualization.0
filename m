@@ -1,11 +1,21 @@
-From: Robert Foss <robert.foss@collabora.com>
-Subject: [PATCH] drm/virtio: Remove redundant return type
-Date: Fri,  3 May 2019 18:38:04 +0200
-Message-ID: <20190503163804.31922-1-robert.foss__18832.1562645555$1556911481$gmane$org@collabora.com>
+From: Thomas Zimmermann <tzimmermann@suse.de>
+Subject: Re: [PATCH v3 01/19] drm: Add |struct drm_gem_vram_object| and helpers
+Date: Fri, 3 May 2019 15:29:23 +0200
+Message-ID: <1d76d06a-7684-6e64-711e-93995ee71257@suse.de>
+References: <20190429144341.12615-1-tzimmermann@suse.de>
+	<20190429144341.12615-2-tzimmermann@suse.de>
+	<20190429195855.GA6610@ravnborg.org>
+	<1d14ef87-e1cd-4f4a-3632-bc045a1981c6@suse.de>
+	<20190430092327.GA13757@ravnborg.org>
+	<6e07e6c9-2ce7-c39f-8d55-46e811c61510@amd.com>
+	<a2398439-3bb5-d1ef-db94-82f252f461c2@suse.de>
+	<CAKMK7uGnUeeK-UPHZC+P5TsQTaOWPQd=LLV_Rr+VvPgNEEHhyg@mail.gmail.com>
+	<c74362eb-c43a-a7be-5b52-106d207e8a8d@amd.com>
+	<a96ad14d-698b-ca7b-cbdb-347801c70ce0@suse.de>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
-Content-Transfer-Encoding: 7bit
+Content-Type: multipart/mixed; boundary="===============0483129181197761603=="
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
+In-Reply-To: <a96ad14d-698b-ca7b-cbdb-347801c70ce0@suse.de>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -15,62 +25,204 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: airlied@linux.ie, kraxel@redhat.com, daniel@ffwll.ch, dri-devel@lists.freedesktop.org, virtualization@lists.linux-foundation.org, linux-kernel@vger.kernel.org, Chia-I Wu <olvaffe@gmail.com>
-Cc: Robert Foss <robert.foss@collabora.com>, Emil Velikov <emil.velikov@collabora.com>
+To: "Koenig, Christian" <Christian.Koenig@amd.com>, Daniel Vetter <daniel@ffwll.ch>
+Cc: =?UTF-8?Q?Noralf_Tr=c3=b8nnes?= <noralf@tronnes.org>, "airlied@linux.ie" <airlied@linux.ie>, "puck.chen@hisilicon.com" <puck.chen@hisilicon.com>, "dri-devel@lists.freedesktop.org" <dri-devel@lists.freedesktop.org>, "virtualization@lists.linux-foundation.org" <virtualization@lists.linux-foundation.org>, "z.liuxinliang@hisilicon.com" <z.liuxinliang@hisilicon.com>, "hdegoede@redhat.com" <hdegoede@redhat.com>, "kong.kongxinwei@hisilicon.com" <kong.kongxinwei@hisilicon.com>, "Huang, Ray" <Ray.Huang@amd.com>, "zourongrong@gmail.com" <zourongrong@gmail.com>, Sam Ravnborg <sam@ravnborg.org>
 List-Id: virtualization@lists.linuxfoundation.org
 
-virtio_gpu_fence_emit() always returns 0, since it
-has no error paths.
+This is an OpenPGP/MIME signed message (RFC 4880 and 3156)
+--===============0483129181197761603==
+Content-Type: multipart/signed; micalg=pgp-sha256;
+ protocol="application/pgp-signature";
+ boundary="5zEfUNNxMdTKyeDEcXN9rCyPuVeEcm6Pu"
 
-Consequently no calls for virtio_gpu_fence_emit()
-use the return value, and it can be removed.
+This is an OpenPGP/MIME signed message (RFC 4880 and 3156)
+--5zEfUNNxMdTKyeDEcXN9rCyPuVeEcm6Pu
+Content-Type: multipart/mixed; boundary="FDnYabggc0RiNpgvlJISQl5Gd4FxcN3Fa";
+ protected-headers="v1"
+From: Thomas Zimmermann <tzimmermann@suse.de>
+To: "Koenig, Christian" <Christian.Koenig@amd.com>,
+ Daniel Vetter <daniel@ffwll.ch>
+Cc: "airlied@linux.ie" <airlied@linux.ie>,
+ "puck.chen@hisilicon.com" <puck.chen@hisilicon.com>,
+ "dri-devel@lists.freedesktop.org" <dri-devel@lists.freedesktop.org>,
+ "virtualization@lists.linux-foundation.org"
+ <virtualization@lists.linux-foundation.org>,
+ "z.liuxinliang@hisilicon.com" <z.liuxinliang@hisilicon.com>,
+ "hdegoede@redhat.com" <hdegoede@redhat.com>,
+ "kong.kongxinwei@hisilicon.com" <kong.kongxinwei@hisilicon.com>,
+ "Huang, Ray" <Ray.Huang@amd.com>, "kraxel@redhat.com" <kraxel@redhat.com>,
+ "zourongrong@gmail.com" <zourongrong@gmail.com>,
+ Sam Ravnborg <sam@ravnborg.org>, =?UTF-8?Q?Noralf_Tr=c3=b8nnes?=
+ <noralf@tronnes.org>
+Message-ID: <1d76d06a-7684-6e64-711e-93995ee71257@suse.de>
+Subject: Re: [PATCH v3 01/19] drm: Add |struct drm_gem_vram_object| and
+ helpers
+References: <20190429144341.12615-1-tzimmermann@suse.de>
+ <20190429144341.12615-2-tzimmermann@suse.de>
+ <20190429195855.GA6610@ravnborg.org>
+ <1d14ef87-e1cd-4f4a-3632-bc045a1981c6@suse.de>
+ <20190430092327.GA13757@ravnborg.org>
+ <6e07e6c9-2ce7-c39f-8d55-46e811c61510@amd.com>
+ <a2398439-3bb5-d1ef-db94-82f252f461c2@suse.de>
+ <CAKMK7uGnUeeK-UPHZC+P5TsQTaOWPQd=LLV_Rr+VvPgNEEHhyg@mail.gmail.com>
+ <c74362eb-c43a-a7be-5b52-106d207e8a8d@amd.com>
+ <a96ad14d-698b-ca7b-cbdb-347801c70ce0@suse.de>
+In-Reply-To: <a96ad14d-698b-ca7b-cbdb-347801c70ce0@suse.de>
 
-Signed-off-by: Robert Foss <robert.foss@collabora.com>
-Suggested-by: Emil Velikov <emil.velikov@collabora.com>
----
+--FDnYabggc0RiNpgvlJISQl5Gd4FxcN3Fa
+Content-Type: text/plain; charset=utf-8
+Content-Language: en-US
+Content-Transfer-Encoding: quoted-printable
 
-This patch was suggested in this email thread:
+Am 03.05.19 um 14:27 schrieb Thomas Zimmermann:
+> cc: noralf@tronnes.org
 
-[PATCH] drm/virtio: allocate fences with GFP_KERNEL
-https://www.spinics.net/lists/dri-devel/msg208536.html
+Actually cc him
 
- drivers/gpu/drm/virtio/virtgpu_drv.h   | 2 +-
- drivers/gpu/drm/virtio/virtgpu_fence.c | 3 +--
- 2 files changed, 2 insertions(+), 3 deletions(-)
+> Am 03.05.19 um 14:07 schrieb Koenig, Christian:
+>> Am 03.05.19 um 14:01 schrieb Daniel Vetter:
+>>> [CAUTION: External Email]
+>>>
+>>> On Fri, May 3, 2019 at 12:15 PM Thomas Zimmermann <tzimmermann@suse.d=
+e> wrote:
+>>>> Hi Christian,
+>>>>
+>>>> would you review the whole patch set? Daniel mentioned that he'd pre=
+fer
+>>>> to leave the review to memory-mgmt developers.
+>>> I think Noralf Tronnes or Gerd Hoffmann would also make good reviewer=
+s
+>>> for this, fairly close to what they've been working on in the past.
+>>
+>> I will try to take another look next week. Busy as usual here.
+>=20
+> Thanks, I'll post v4 of the patches early next week.
+>=20
+>> Christian.
+>>
+>>> -Daniel
+>>>
+>>>> Best regards
+>>>> Thomas
+>>>>
+>>>> Am 30.04.19 um 11:35 schrieb Koenig, Christian:
+>>>>> Am 30.04.19 um 11:23 schrieb Sam Ravnborg:
+>>>>>> [CAUTION: External Email]
+>>>>>>
+>>>>>> Hi Thomas.
+>>>>>>
+>>>>>>>>> +
+>>>>>>>>> +/**
+>>>>>>>>> + * Returns the container of type &struct drm_gem_vram_object
+>>>>>>>>> + * for field bo.
+>>>>>>>>> + * @bo:           the VRAM buffer object
+>>>>>>>>> + * Returns:       The containing GEM VRAM object
+>>>>>>>>> + */
+>>>>>>>>> +static inline struct drm_gem_vram_object* drm_gem_vram_of_bo(
+>>>>>>>>> +  struct ttm_buffer_object *bo)
+>>>>>>>>> +{
+>>>>>>>>> +  return container_of(bo, struct drm_gem_vram_object, bo);
+>>>>>>>>> +}
+>>>>>>>> Indent funny. USe same indent as used in other parts of file for=
 
-diff --git a/drivers/gpu/drm/virtio/virtgpu_drv.h b/drivers/gpu/drm/virtio/virtgpu_drv.h
-index d577cb76f5ad..9bc56887fbdb 100644
---- a/drivers/gpu/drm/virtio/virtgpu_drv.h
-+++ b/drivers/gpu/drm/virtio/virtgpu_drv.h
-@@ -334,7 +334,7 @@ int virtio_gpu_mmap(struct file *filp, struct vm_area_struct *vma);
- /* virtio_gpu_fence.c */
- struct virtio_gpu_fence *virtio_gpu_fence_alloc(
- 	struct virtio_gpu_device *vgdev);
--int virtio_gpu_fence_emit(struct virtio_gpu_device *vgdev,
-+void virtio_gpu_fence_emit(struct virtio_gpu_device *vgdev,
- 			  struct virtio_gpu_ctrl_hdr *cmd_hdr,
- 			  struct virtio_gpu_fence *fence);
- void virtio_gpu_fence_event_process(struct virtio_gpu_device *vdev,
-diff --git a/drivers/gpu/drm/virtio/virtgpu_fence.c b/drivers/gpu/drm/virtio/virtgpu_fence.c
-index 21bd4c4a32d1..e0744ac768cc 100644
---- a/drivers/gpu/drm/virtio/virtgpu_fence.c
-+++ b/drivers/gpu/drm/virtio/virtgpu_fence.c
-@@ -81,7 +81,7 @@ struct virtio_gpu_fence *virtio_gpu_fence_alloc(struct virtio_gpu_device *vgdev)
- 	return fence;
- }
- 
--int virtio_gpu_fence_emit(struct virtio_gpu_device *vgdev,
-+void virtio_gpu_fence_emit(struct virtio_gpu_device *vgdev,
- 			  struct virtio_gpu_ctrl_hdr *cmd_hdr,
- 			  struct virtio_gpu_fence *fence)
- {
-@@ -96,7 +96,6 @@ int virtio_gpu_fence_emit(struct virtio_gpu_device *vgdev,
- 
- 	cmd_hdr->flags |= cpu_to_le32(VIRTIO_GPU_FLAG_FENCE);
- 	cmd_hdr->fence_id = cpu_to_le64(fence->seq);
--	return 0;
- }
- 
- void virtio_gpu_fence_event_process(struct virtio_gpu_device *vgdev,
--- 
-2.20.1
+>>>>>>>> function arguments.
+>>>>>>> If I put the argument next to the function's name, it will exceed=
+ the
+>>>>>>> 80-character limit. From the coding-style document, I could not s=
+ee what
+>>>>>>> to do in this case. One solution would move the return type to a
+>>>>>>> separate line before the function name. I've not seen that anywhe=
+re in
+>>>>>>> the source code, so moving the argument onto a separate line and
+>>>>>>> indenting by one tab appears to be the next best solution. Please=
+ let me
+>>>>>>> know if there's if there's a preferred style for cases like this =
+one.
+>>>>>> Readability has IMO higher priority than some limit of 80 chars.
+>>>>>> And it hurts readability (at least my OCD) when style changes
+>>>>>> as you do with indent here. So my personal preference is to fix
+>>>>>> indent and accect longer lines.
+>>>>> In this case the an often used convention (which is also kind of
+>>>>> readable) is to add a newline after the return values, but before t=
+he
+>>>>> function name. E.g. something like this:
+>>>>>
+>>>>> static inline struct drm_gem_vram_object*
+>>>>> drm_gem_vram_of_bo(struct ttm_buffer_object *bo)
+>>>>>
+>>>>> Regards,
+>>>>> Christian.
+>>>>>
+>>>>>> But you ask for a preferred style - which I do not think we have i=
+n this
+>>>>>> case. So it boils down to what you prefer.
+>>>>>>
+>>>>>> Enough bikeshedding, thanks for the quick response.
+>>>>>>
+>>>>>>           Sam
+>>>> --
+>>>> Thomas Zimmermann
+>>>> Graphics Driver Developer
+>>>> SUSE Linux GmbH, Maxfeldstrasse 5, 90409 Nuernberg, Germany
+>>>> GF: Felix Imend=C3=B6rffer, Mary Higgins, Sri Rasiah
+>>>> HRB 21284 (AG N=C3=BCrnberg)
+>>>>
+>>>> _______________________________________________
+>>>> dri-devel mailing list
+>>>> dri-devel@lists.freedesktop.org
+>>>> https://lists.freedesktop.org/mailman/listinfo/dri-devel
+>>>
+>>>
+>>> --
+>>> Daniel Vetter
+>>> Software Engineer, Intel Corporation
+>>> +41 (0) 79 365 57 48 - http://blog.ffwll.ch
+>>
+>=20
+>=20
+> _______________________________________________
+> dri-devel mailing list
+> dri-devel@lists.freedesktop.org
+> https://lists.freedesktop.org/mailman/listinfo/dri-devel
+>=20
+
+--=20
+Thomas Zimmermann
+Graphics Driver Developer
+SUSE Linux GmbH, Maxfeldstrasse 5, 90409 Nuernberg, Germany
+GF: Felix Imend=C3=B6rffer, Mary Higgins, Sri Rasiah
+HRB 21284 (AG N=C3=BCrnberg)
+
+
+--FDnYabggc0RiNpgvlJISQl5Gd4FxcN3Fa--
+
+--5zEfUNNxMdTKyeDEcXN9rCyPuVeEcm6Pu
+Content-Type: application/pgp-signature; name="signature.asc"
+Content-Description: OpenPGP digital signature
+Content-Disposition: attachment; filename="signature.asc"
+
+-----BEGIN PGP SIGNATURE-----
+
+iQEzBAEBCAAdFiEEchf7rIzpz2NEoWjlaA3BHVMLeiMFAlzMQjMACgkQaA3BHVML
+eiMAQQgAnDBGdjQKsmaEjqASPw85qSaomr5BCs9THb7rsyAUyMmEJe28FXXS3y2d
+uPqKI4ZZVezyvSdC3q2+9pHFF6vqYCsujOUl1SEoTXoTSKq6uD00DvbPvSWUzk/0
+fNmomyyiFnm7wtOwoWQY40fO8c0uGFN1R71L2M1i3bQjk9Hu4QWFjwAt1/HRdLyE
+Tifutac2H/H6kEqO1pQvBCQIZQfV2FsJHPNDk4JK12CRAkaEyGvXFt9D8Pi68+wK
+n4iTumrWv8H9ZiKwoudMduMAa2cmRGhpO8IkgHhWMaOpHOCDO7g8jIf1NowKaDaI
+ni1GT3XK4pNIVeKUTrUc69MNUoC6+A==
+=7kNI
+-----END PGP SIGNATURE-----
+
+--5zEfUNNxMdTKyeDEcXN9rCyPuVeEcm6Pu--
+
+--===============0483129181197761603==
+Content-Type: text/plain; charset="us-ascii"
+MIME-Version: 1.0
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+
+_______________________________________________
+Virtualization mailing list
+Virtualization@lists.linux-foundation.org
+https://lists.linuxfoundation.org/mailman/listinfo/virtualization
+--===============0483129181197761603==--
