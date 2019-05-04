@@ -1,16 +1,16 @@
-From: "Michael S. Tsirkin" <mst@redhat.com>
-Subject: Re: [PATCH 01/10] virtio/s390: use vring_create_virtqueue
-Date: Fri, 3 May 2019 16:04:48 -0400
-Message-ID: <20190503160421-mutt-send-email-mst@kernel.org>
-References: <20190426183245.37939-1-pasic@linux.ibm.com>
-	<20190426183245.37939-2-pasic@linux.ibm.com>
-	<20190503111724.70c6ec37.cohuck@redhat.com>
+From: Nadav Amit via Virtualization <virtualization@lists.linux-foundation.org>
+Subject: Re: [PATCH v4 0/4] vmw_balloon: Compaction and shrinker support
+Date: Sat, 4 May 2019 01:25:24 +0000
+Message-ID: <8A2D1D43-759A-4B09-B781-31E9002AE3DA__27964.0692215011$1556933200$gmane$org@vmware.com>
+References: <20190425115445.20815-1-namit@vmware.com>
+Reply-To: Nadav Amit <namit@vmware.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-Content-Disposition: inline
-In-Reply-To: <20190503111724.70c6ec37.cohuck@redhat.com>
+In-Reply-To: <20190425115445.20815-1-namit@vmware.com>
+Content-Language: en-US
+Content-ID: <88829AE5ABEA6941919308A6A9557F98@namprd05.prod.outlook.com>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -20,33 +20,46 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Cornelia Huck <cohuck@redhat.com>
-Cc: Vasily Gorbik <gor@linux.ibm.com>, linux-s390@vger.kernel.org, Thomas Huth <thuth@redhat.com>, Claudio Imbrenda <imbrenda@linux.ibm.com>, kvm@vger.kernel.org, Sebastian Ott <sebott@linux.ibm.com>, Christoph Hellwig <hch@infradead.org>, Farhan Ali <alifm@linux.ibm.com>, Eric Farman <farman@linux.ibm.com>, virtualization@lists.linux-foundation.org, Halil Pasic <pasic@linux.ibm.com>, Martin Schwidefsky <schwidefsky@de.ibm.com>, Viktor Mihajlovski <mihajlov@linux.ibm.com>, Janosch Frank <frankja@linux.ibm.com>
+To: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Cc: Arnd Bergmann <arnd@arndb.de>, "Michael S. Tsirkin" <mst@redhat.com>, Pv-drivers <Pv-drivers@vmware.com>, lkml <linux-kernel@vger.kernel.org>, "virtualization@lists.linux-foundation.org" <virtualization@lists.linux-foundation.org>, Linux-MM <linux-mm@kvack.org>, Julien Freche <jfreche@vmware.com>
 List-Id: virtualization@lists.linuxfoundation.org
 
-On Fri, May 03, 2019 at 11:17:24AM +0200, Cornelia Huck wrote:
-> On Fri, 26 Apr 2019 20:32:36 +0200
-> Halil Pasic <pasic@linux.ibm.com> wrote:
+> On Apr 25, 2019, at 4:54 AM, Nadav Amit <namit@vmware.com> wrote:
 > 
-> > The commit 2a2d1382fe9d ("virtio: Add improved queue allocation API")
-> > establishes a new way of allocating virtqueues (as a part of the effort
-> > that taught DMA to virtio rings).
-> > 
-> > In the future we will want virtio-ccw to use the DMA API as well.
-> > 
-> > Let us switch from the legacy method of allocating virtqueues to
-> > vring_create_virtqueue() as the first step into that direction.
-> > 
-> > Signed-off-by: Halil Pasic <pasic@linux.ibm.com>
-> > ---
-> >  drivers/s390/virtio/virtio_ccw.c | 30 +++++++++++-------------------
-> >  1 file changed, 11 insertions(+), 19 deletions(-)
+> VMware balloon enhancements: adding support for memory compaction,
+> memory shrinker (to prevent OOM) and splitting of refused pages to
+> prevent recurring inflations.
 > 
-> Reviewed-by: Cornelia Huck <cohuck@redhat.com>
+> Patches 1-2: Support for compaction
+> Patch 3: Support for memory shrinker - disabled by default
+> Patch 4: Split refused pages to improve performance
 > 
-> I'd vote for merging this patch right away for 5.2.
+> v3->v4:
+> * "get around to" comment [Michael]
+> * Put list_add under page lock [Michael]
+> 
+> v2->v3:
+> * Fixing wrong argument type (int->size_t) [Michael]
+> * Fixing a comment (it) [Michael]
+> * Reinstating the BUG_ON() when page is locked [Michael] 
+> 
+> v1->v2:
+> * Return number of pages in list enqueue/dequeue interfaces [Michael]
+> * Removed first two patches which were already merged
+> 
+> Nadav Amit (4):
+>  mm/balloon_compaction: List interfaces
+>  vmw_balloon: Compaction support
+>  vmw_balloon: Add memory shrinker
+>  vmw_balloon: Split refused pages
+> 
+> drivers/misc/Kconfig               |   1 +
+> drivers/misc/vmw_balloon.c         | 489 ++++++++++++++++++++++++++---
+> include/linux/balloon_compaction.h |   4 +
+> mm/balloon_compaction.c            | 144 ++++++---
+> 4 files changed, 553 insertions(+), 85 deletions(-)
+> 
+> -- 
+> 2.19.1
 
-So which tree is this going through? mine?
-
--- 
-MST
+Ping.
