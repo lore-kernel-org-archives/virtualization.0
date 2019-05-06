@@ -1,8 +1,8 @@
 From: Thomas Zimmermann <tzimmermann@suse.de>
-Subject: [PATCH v4 02/19] drm: Add |struct drm_gem_vram_object| callbacks for
-	|struct ttm_bo_driver|
-Date: Mon,  6 May 2019 10:26:32 +0200
-Message-ID: <20190506082649.942-3-tzimmermann__38084.8433984042$1557131273$gmane$org@suse.de>
+Subject: [PATCH v4 03/19] drm: Add |struct drm_gem_vram_object| callbacks for
+	|struct drm_driver|
+Date: Mon,  6 May 2019 10:26:33 +0200
+Message-ID: <20190506082649.942-4-tzimmermann__25758.2961743296$1557131284$gmane$org@suse.de>
 References: <20190506082649.942-1-tzimmermann@suse.de>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
@@ -23,93 +23,93 @@ Cc: Thomas Zimmermann <tzimmermann@suse.de>, dri-devel@lists.freedesktop.org, vi
 List-Id: virtualization@lists.linuxfoundation.org
 
 The provided helpers can be used for the respective callback functions
-in |struct ttm_bo_driver|.
+in |struct drm_driver|.
 
+v4:
+	* cleanups from checkpatch.pl
 v2:
-	* drm_is_gem_vram() is now a private function
 	* documentation fixes
 
 Signed-off-by: Thomas Zimmermann <tzimmermann@suse.de>
 ---
- drivers/gpu/drm/drm_gem_vram_helper.c | 50 +++++++++++++++++++++++++++
+ drivers/gpu/drm/drm_gem_vram_helper.c | 49 +++++++++++++++++++++++++++
  include/drm/drm_gem_vram_helper.h     | 10 ++++++
- 2 files changed, 60 insertions(+)
+ 2 files changed, 59 insertions(+)
 
 diff --git a/drivers/gpu/drm/drm_gem_vram_helper.c b/drivers/gpu/drm/drm_gem_vram_helper.c
-index cac5b70c7ffb..e929a18c03f3 100644
+index e929a18c03f3..41f971908b78 100644
 --- a/drivers/gpu/drm/drm_gem_vram_helper.c
 +++ b/drivers/gpu/drm/drm_gem_vram_helper.c
-@@ -410,3 +410,53 @@ void drm_gem_vram_kunmap(struct drm_gem_vram_object *gbo)
- 	drm_gem_vram_kunmap_at(gbo, &gbo->kmap);
+@@ -460,3 +460,52 @@ int drm_gem_vram_bo_driver_verify_access(struct ttm_buffer_object *bo,
+ 					  filp->private_data);
  }
- EXPORT_SYMBOL(drm_gem_vram_kunmap);
+ EXPORT_SYMBOL(drm_gem_vram_bo_driver_verify_access);
 +
 +/*
-+ * Helpers for struct ttm_bo_driver
++ * Helpers for struct drm_driver
 + */
 +
-+static bool drm_is_gem_vram(struct ttm_buffer_object *bo)
-+{
-+	return (bo->destroy == ttm_buffer_object_destroy);
-+}
-+
 +/**
-+ * drm_gem_vram_bo_driver_evict_flags() - \
-+	Implements &struct ttm_bo_driver.evict_flags
-+ * @bo:	TTM buffer object. Refers to &struct drm_gem_vram_object.bo
-+ * @pl:	TTM placement information.
++ * drm_gem_vram_driver_gem_free_object_unlocked() - \
++	Implements &struct drm_driver.gem_free_object_unlocked
++ * @gem:	GEM object. Refers to &struct drm_gem_vram_object.gem
 + */
-+void drm_gem_vram_bo_driver_evict_flags(struct ttm_buffer_object *bo,
-+					struct ttm_placement *pl)
++void drm_gem_vram_driver_gem_free_object_unlocked(struct drm_gem_object *gem)
 +{
-+	struct drm_gem_vram_object *gbo;
++	struct drm_gem_vram_object *gbo = drm_gem_vram_of_gem(gem);
 +
-+	/* TTM may pass BOs that are not GEM VRAM BOs. */
-+	if (!drm_is_gem_vram(bo))
-+		return;
-+
-+	gbo = drm_gem_vram_of_bo(bo);
-+	drm_gem_vram_placement(gbo, TTM_PL_FLAG_SYSTEM);
-+	*pl = gbo->placement;
++	drm_gem_vram_put(gbo);
 +}
-+EXPORT_SYMBOL(drm_gem_vram_bo_driver_evict_flags);
++EXPORT_SYMBOL(drm_gem_vram_driver_gem_free_object_unlocked);
 +
 +/**
-+ * drm_gem_vram_bo_driver_verify_access() - \
-+	Implements &struct ttm_bo_driver.verify_access
-+ * @bo:		TTM buffer object. Refers to &struct drm_gem_vram_object.bo
-+ * @filp:	File pointer.
++ * drm_gem_vram_driver_dumb_mmap_offset() - \
++	Implements &struct drm_driver.dumb_mmap_offset
++ * @file:	DRM file pointer.
++ * @dev:	DRM device.
++ * @handle:	GEM handle
++ * @offset:	Returns the mapping's memory offset on success
 + *
 + * Returns:
 + * 0 on success, or
 + * a negative errno code otherwise.
 + */
-+int drm_gem_vram_bo_driver_verify_access(struct ttm_buffer_object *bo,
-+					 struct file *filp)
++int drm_gem_vram_driver_dumb_mmap_offset(struct drm_file *file,
++					 struct drm_device *dev,
++					 uint32_t handle, uint64_t *offset)
 +{
-+	struct drm_gem_vram_object *gbo = drm_gem_vram_of_bo(bo);
++	struct drm_gem_object *gem;
++	struct drm_gem_vram_object *gbo;
 +
-+	return drm_vma_node_verify_access(&gbo->gem.vma_node,
-+					  filp->private_data);
++	gem = drm_gem_object_lookup(file, handle);
++	if (!gem)
++		return -ENOENT;
++
++	gbo = drm_gem_vram_of_gem(gem);
++	*offset = drm_gem_vram_mmap_offset(gbo);
++
++	drm_gem_object_put_unlocked(gem);
++
++	return 0;
 +}
-+EXPORT_SYMBOL(drm_gem_vram_bo_driver_verify_access);
++EXPORT_SYMBOL(drm_gem_vram_driver_dumb_mmap_offset);
 diff --git a/include/drm/drm_gem_vram_helper.h b/include/drm/drm_gem_vram_helper.h
-index a8fd580d434d..f92e0f531a68 100644
+index f92e0f531a68..d6a75d860f4e 100644
 --- a/include/drm/drm_gem_vram_helper.h
 +++ b/include/drm/drm_gem_vram_helper.h
-@@ -89,4 +89,14 @@ void drm_gem_vram_kunmap_at(struct drm_gem_vram_object *gbo,
- 			    struct ttm_bo_kmap_obj *kmap);
- void drm_gem_vram_kunmap(struct drm_gem_vram_object *gbo);
+@@ -99,4 +99,14 @@ void drm_gem_vram_bo_driver_evict_flags(struct ttm_buffer_object *bo,
+ int drm_gem_vram_bo_driver_verify_access(struct ttm_buffer_object *bo,
+ 					 struct file *filp);
  
 +/*
-+ * Helpers for struct ttm_bo_driver
++ * Helpers for struct drm_driver
 + */
 +
-+void drm_gem_vram_bo_driver_evict_flags(struct ttm_buffer_object *bo,
-+					struct ttm_placement *pl);
++void drm_gem_vram_driver_gem_free_object_unlocked(struct drm_gem_object *gem);
 +
-+int drm_gem_vram_bo_driver_verify_access(struct ttm_buffer_object *bo,
-+					 struct file *filp);
++int drm_gem_vram_driver_dumb_mmap_offset(struct drm_file *file,
++					 struct drm_device *dev,
++					 uint32_t handle, uint64_t *offset);
 +
  #endif
 -- 
