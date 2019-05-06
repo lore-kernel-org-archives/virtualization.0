@@ -1,8 +1,8 @@
 From: Thomas Zimmermann <tzimmermann@suse.de>
-Subject: [PATCH v4 10/19] drm/ast: Replace mapping code with
-	drm_gem_vram_{kmap/kunmap}()
-Date: Mon,  6 May 2019 10:26:40 +0200
-Message-ID: <20190506082649.942-11-tzimmermann__4295.25162778504$1557131408$gmane$org@suse.de>
+Subject: [PATCH v4 11/19] drm/bochs: Convert bochs driver to |struct
+	drm_gem_vram_object|
+Date: Mon,  6 May 2019 10:26:41 +0200
+Message-ID: <20190506082649.942-12-tzimmermann__23203.8373871305$1557131419$gmane$org@suse.de>
 References: <20190506082649.942-1-tzimmermann@suse.de>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
@@ -22,210 +22,519 @@ To: daniel@ffwll.ch, airlied@linux.ie, kraxel@redhat.com, christian.koenig@amd.c
 Cc: Thomas Zimmermann <tzimmermann@suse.de>, dri-devel@lists.freedesktop.org, virtualization@lists.linux-foundation.org
 List-Id: virtualization@lists.linuxfoundation.org
 
-The AST driver establishes several memory mappings for frame buffers
-and cursors. This patch converts the driver to use the equivalent
-drm_gem_vram_kmap() functions. It removes the dependencies on TTM
-and cleans up the code.
+The data structure |struct drm_gem_vram_object| and its helpers replace
+|struct bochs_bo|. It's the same implementation; except for the type
+names.
+
+v4:
+	* cleanups from checkpatch.pl
+	* select config option DRM_VRAM_HELPER
 
 Signed-off-by: Thomas Zimmermann <tzimmermann@suse.de>
 ---
- drivers/gpu/drm/ast/ast_drv.h  |  1 -
- drivers/gpu/drm/ast/ast_fb.c   | 23 +++++++++------
- drivers/gpu/drm/ast/ast_mode.c | 54 ++++++++++++++++++++++++----------
- 3 files changed, 53 insertions(+), 25 deletions(-)
+ drivers/gpu/drm/bochs/Kconfig     |   1 +
+ drivers/gpu/drm/bochs/bochs.h     |  34 +---
+ drivers/gpu/drm/bochs/bochs_drv.c |   5 +-
+ drivers/gpu/drm/bochs/bochs_kms.c |  18 +-
+ drivers/gpu/drm/bochs/bochs_mm.c  | 270 +++---------------------------
+ 5 files changed, 35 insertions(+), 293 deletions(-)
 
-diff --git a/drivers/gpu/drm/ast/ast_drv.h b/drivers/gpu/drm/ast/ast_drv.h
-index 32096a191aaf..b6cac9511796 100644
---- a/drivers/gpu/drm/ast/ast_drv.h
-+++ b/drivers/gpu/drm/ast/ast_drv.h
-@@ -256,7 +256,6 @@ struct ast_fbdev {
- 	struct ast_framebuffer afb;
- 	void *sysram;
- 	int size;
--	struct ttm_bo_kmap_obj mapping;
- 	int x1, y1, x2, y2; /* dirty rect */
- 	spinlock_t dirty_lock;
+diff --git a/drivers/gpu/drm/bochs/Kconfig b/drivers/gpu/drm/bochs/Kconfig
+index bd2718015cdb..4cbcff9e2eb8 100644
+--- a/drivers/gpu/drm/bochs/Kconfig
++++ b/drivers/gpu/drm/bochs/Kconfig
+@@ -3,6 +3,7 @@ config DRM_BOCHS
+ 	depends on DRM && PCI && MMU
+ 	select DRM_KMS_HELPER
+ 	select DRM_TTM
++	select DRM_VRAM_HELPER
+ 	help
+ 	  Choose this option for qemu.
+ 	  If M is selected the module will be called bochs-drm.
+diff --git a/drivers/gpu/drm/bochs/bochs.h b/drivers/gpu/drm/bochs/bochs.h
+index 341cc9d1bab4..4ccf82e1ca68 100644
+--- a/drivers/gpu/drm/bochs/bochs.h
++++ b/drivers/gpu/drm/bochs/bochs.h
+@@ -10,6 +10,7 @@
+ #include <drm/drm_simple_kms_helper.h>
+ 
+ #include <drm/drm_gem.h>
++#include <drm/drm_gem_vram_helper.h>
+ 
+ #include <drm/ttm/ttm_bo_driver.h>
+ #include <drm/ttm/ttm_page_alloc.h>
+@@ -81,30 +82,6 @@ struct bochs_device {
+ 	} ttm;
  };
-diff --git a/drivers/gpu/drm/ast/ast_fb.c b/drivers/gpu/drm/ast/ast_fb.c
-index 778423fcf352..505e602855c0 100644
---- a/drivers/gpu/drm/ast/ast_fb.c
-+++ b/drivers/gpu/drm/ast/ast_fb.c
-@@ -53,6 +53,7 @@ static void ast_dirty_update(struct ast_fbdev *afbdev,
- 	int src_offset, dst_offset;
- 	int bpp = afbdev->afb.base.format->cpp[0];
- 	int ret = -EBUSY;
-+	u8 *dst;
- 	bool unmap = false;
- 	bool store_for_later = false;
- 	int x2, y2;
-@@ -101,27 +102,31 @@ static void ast_dirty_update(struct ast_fbdev *afbdev,
- 	afbdev->x2 = afbdev->y2 = 0;
- 	spin_unlock_irqrestore(&afbdev->dirty_lock, flags);
  
--	if (!gbo->kmap.virtual) {
--		ret = ttm_bo_kmap(&gbo->bo, 0, gbo->bo.num_pages, &gbo->kmap);
--		if (ret) {
-+	dst = drm_gem_vram_kmap(gbo, false, NULL);
-+	if (IS_ERR(dst)) {
-+		DRM_ERROR("failed to kmap fb updates\n");
-+		goto out;
-+	} else if (!dst) {
-+		dst = drm_gem_vram_kmap(gbo, true, NULL);
-+		if (IS_ERR(dst)) {
- 			DRM_ERROR("failed to kmap fb updates\n");
--			drm_gem_vram_unreserve(gbo);
--			return;
-+			goto out;
- 		}
- 		unmap = true;
- 	}
-+
- 	for (i = y; i <= y2; i++) {
- 		/* assume equal stride for now */
- 		src_offset = dst_offset =
- 			i * afbdev->afb.base.pitches[0] + (x * bpp);
--		memcpy_toio(gbo->kmap.virtual + src_offset,
--			    afbdev->sysram + dst_offset,
-+		memcpy_toio(dst + dst_offset, afbdev->sysram + src_offset,
- 			    (x2 - x + 1) * bpp);
+-struct bochs_bo {
+-	struct ttm_buffer_object bo;
+-	struct ttm_placement placement;
+-	struct ttm_bo_kmap_obj kmap;
+-	struct drm_gem_object gem;
+-	struct ttm_place placements[3];
+-	int pin_count;
+-};
 -
- 	}
-+
- 	if (unmap)
--		ttm_bo_kunmap(&gbo->kmap);
-+		drm_gem_vram_kunmap(gbo);
+-static inline struct bochs_bo *bochs_bo(struct ttm_buffer_object *bo)
+-{
+-	return container_of(bo, struct bochs_bo, bo);
+-}
+-
+-static inline struct bochs_bo *gem_to_bochs_bo(struct drm_gem_object *gem)
+-{
+-	return container_of(gem, struct bochs_bo, gem);
+-}
+-
+-static inline u64 bochs_bo_mmap_offset(struct bochs_bo *bo)
+-{
+-	return drm_vma_node_offset_addr(&bo->bo.vma_node);
+-}
+-
+ /* ---------------------------------------------------------------------- */
  
-+out:
- 	drm_gem_vram_unreserve(gbo);
- }
+ /* bochs_hw.c */
+@@ -124,17 +101,8 @@ int bochs_mm_init(struct bochs_device *bochs);
+ void bochs_mm_fini(struct bochs_device *bochs);
+ int bochs_mmap(struct file *filp, struct vm_area_struct *vma);
  
-diff --git a/drivers/gpu/drm/ast/ast_mode.c b/drivers/gpu/drm/ast/ast_mode.c
-index b75ed3816642..3475591a22c3 100644
---- a/drivers/gpu/drm/ast/ast_mode.c
-+++ b/drivers/gpu/drm/ast/ast_mode.c
-@@ -532,6 +532,7 @@ static int ast_crtc_do_set_base(struct drm_crtc *crtc,
- 	struct drm_gem_vram_object *gbo;
- 	int ret;
- 	s64 gpu_addr;
-+	void *base;
+-int bochs_gem_create(struct drm_device *dev, u32 size, bool iskernel,
+-		     struct drm_gem_object **obj);
+-int bochs_gem_init_object(struct drm_gem_object *obj);
+-void bochs_gem_free_object(struct drm_gem_object *obj);
+ int bochs_dumb_create(struct drm_file *file, struct drm_device *dev,
+ 		      struct drm_mode_create_dumb *args);
+-int bochs_dumb_mmap_offset(struct drm_file *file, struct drm_device *dev,
+-			   uint32_t handle, uint64_t *offset);
+-
+-int bochs_bo_pin(struct bochs_bo *bo, u32 pl_flag);
+-int bochs_bo_unpin(struct bochs_bo *bo);
  
- 	/* push the previous fb to system ram */
- 	if (!atomic && fb) {
-@@ -564,11 +565,13 @@ static int ast_crtc_do_set_base(struct drm_crtc *crtc,
+ int bochs_gem_prime_pin(struct drm_gem_object *obj);
+ void bochs_gem_prime_unpin(struct drm_gem_object *obj);
+diff --git a/drivers/gpu/drm/bochs/bochs_drv.c b/drivers/gpu/drm/bochs/bochs_drv.c
+index 6b6e037258c3..04fed41d6c00 100644
+--- a/drivers/gpu/drm/bochs/bochs_drv.c
++++ b/drivers/gpu/drm/bochs/bochs_drv.c
+@@ -82,9 +82,10 @@ static struct drm_driver bochs_driver = {
+ 	.date			= "20130925",
+ 	.major			= 1,
+ 	.minor			= 0,
+-	.gem_free_object_unlocked = bochs_gem_free_object,
++	.gem_free_object_unlocked =
++		drm_gem_vram_driver_gem_free_object_unlocked,
+ 	.dumb_create            = bochs_dumb_create,
+-	.dumb_map_offset        = bochs_dumb_mmap_offset,
++	.dumb_map_offset        = drm_gem_vram_driver_dumb_mmap_offset,
  
- 	if (&ast->fbdev->afb == ast_fb) {
- 		/* if pushing console in kmap it */
--		ret = ttm_bo_kmap(&gbo->bo, 0, gbo->bo.num_pages, &gbo->kmap);
--		if (ret)
-+		base = drm_gem_vram_kmap(gbo, true, NULL);
-+		if (IS_ERR(base)) {
-+			ret = PTR_ERR(base);
- 			DRM_ERROR("failed to kmap fbcon\n");
--		else
-+		} else {
- 			ast_fbdev_set_base(ast, gpu_addr);
-+		}
- 	}
- 	drm_gem_vram_unreserve(gbo);
- 
-@@ -928,6 +931,7 @@ static int ast_cursor_init(struct drm_device *dev)
- 	struct drm_gem_object *obj;
- 	struct drm_gem_vram_object *gbo;
- 	s64 gpu_addr;
-+	void *base;
- 
- 	size = (AST_HWC_SIZE + AST_HWC_SIGNATURE_SIZE) * AST_DEFAULT_HWC_NUM;
- 
-@@ -951,9 +955,11 @@ static int ast_cursor_init(struct drm_device *dev)
- 	}
- 
- 	/* kmap the object */
--	ret = ttm_bo_kmap(&gbo->bo, 0, gbo->bo.num_pages, &ast->cache_kmap);
--	if (ret)
-+	base = drm_gem_vram_kmap_at(gbo, true, NULL, &ast->cache_kmap);
-+	if (IS_ERR(base)) {
-+		ret = PTR_ERR(base);
- 		goto fail;
-+	}
- 
- 	ast->cursor_cache = obj;
- 	ast->cursor_cache_gpu_addr = gpu_addr;
-@@ -966,7 +972,9 @@ static int ast_cursor_init(struct drm_device *dev)
- static void ast_cursor_fini(struct drm_device *dev)
+ 	.gem_prime_export = drm_gem_prime_export,
+ 	.gem_prime_import = drm_gem_prime_import,
+diff --git a/drivers/gpu/drm/bochs/bochs_kms.c b/drivers/gpu/drm/bochs/bochs_kms.c
+index 5e905f50449d..9e3ee7b511fb 100644
+--- a/drivers/gpu/drm/bochs/bochs_kms.c
++++ b/drivers/gpu/drm/bochs/bochs_kms.c
+@@ -30,16 +30,16 @@ static const uint32_t bochs_formats[] = {
+ static void bochs_plane_update(struct bochs_device *bochs,
+ 			       struct drm_plane_state *state)
  {
- 	struct ast_private *ast = dev->dev_private;
--	ttm_bo_kunmap(&ast->cache_kmap);
-+	struct drm_gem_vram_object *gbo =
-+		drm_gem_vram_of_gem(ast->cursor_cache);
-+	drm_gem_vram_kunmap_at(gbo, &ast->cache_kmap);
- 	drm_gem_object_put_unlocked(ast->cursor_cache);
+-	struct bochs_bo *bo;
++	struct drm_gem_vram_object *gbo;
+ 
+ 	if (!state->fb || !bochs->stride)
+ 		return;
+ 
+-	bo = gem_to_bochs_bo(state->fb->obj[0]);
++	gbo = drm_gem_vram_of_gem(state->fb->obj[0]);
+ 	bochs_hw_setbase(bochs,
+ 			 state->crtc_x,
+ 			 state->crtc_y,
+-			 bo->bo.offset);
++			 gbo->bo.offset);
+ 	bochs_hw_setformat(bochs, state->fb->format);
  }
  
-@@ -1213,13 +1221,21 @@ static int ast_cursor_set(struct drm_crtc *crtc,
- 	if (ret)
- 		goto fail;
+@@ -72,23 +72,23 @@ static void bochs_pipe_update(struct drm_simple_display_pipe *pipe,
+ static int bochs_pipe_prepare_fb(struct drm_simple_display_pipe *pipe,
+ 				 struct drm_plane_state *new_state)
+ {
+-	struct bochs_bo *bo;
++	struct drm_gem_vram_object *gbo;
  
--	ret = ttm_bo_kmap(&gbo->bo, 0, gbo->bo.num_pages, &uobj_map);
+ 	if (!new_state->fb)
+ 		return 0;
+-	bo = gem_to_bochs_bo(new_state->fb->obj[0]);
+-	return bochs_bo_pin(bo, TTM_PL_FLAG_VRAM);
++	gbo = drm_gem_vram_of_gem(new_state->fb->obj[0]);
++	return drm_gem_vram_pin(gbo, DRM_GEM_VRAM_PL_FLAG_VRAM);
+ }
+ 
+ static void bochs_pipe_cleanup_fb(struct drm_simple_display_pipe *pipe,
+ 				  struct drm_plane_state *old_state)
+ {
+-	struct bochs_bo *bo;
++	struct drm_gem_vram_object *gbo;
+ 
+ 	if (!old_state->fb)
+ 		return;
+-	bo = gem_to_bochs_bo(old_state->fb->obj[0]);
+-	bochs_bo_unpin(bo);
++	gbo = drm_gem_vram_of_gem(old_state->fb->obj[0]);
++	drm_gem_vram_unpin(gbo);
+ }
+ 
+ static const struct drm_simple_display_pipe_funcs bochs_pipe_funcs = {
+diff --git a/drivers/gpu/drm/bochs/bochs_mm.c b/drivers/gpu/drm/bochs/bochs_mm.c
+index 4a40308169c4..86062804e54f 100644
+--- a/drivers/gpu/drm/bochs/bochs_mm.c
++++ b/drivers/gpu/drm/bochs/bochs_mm.c
+@@ -7,8 +7,6 @@
+ 
+ #include "bochs.h"
+ 
+-static void bochs_ttm_placement(struct bochs_bo *bo, int domain);
 -
--	src = ttm_kmap_obj_virtual(&uobj_map, &src_isiomem);
--	dst = ttm_kmap_obj_virtual(&ast->cache_kmap, &dst_isiomem);
+ /* ---------------------------------------------------------------------- */
+ 
+ static inline struct bochs_device *bochs_bdev(struct ttm_bo_device *bd)
+@@ -16,22 +14,6 @@ static inline struct bochs_device *bochs_bdev(struct ttm_bo_device *bd)
+ 	return container_of(bd, struct bochs_device, ttm.bdev);
+ }
+ 
+-static void bochs_bo_ttm_destroy(struct ttm_buffer_object *tbo)
+-{
+-	struct bochs_bo *bo;
 -
-+	memset(&uobj_map, 0, sizeof(uobj_map));
-+	src = drm_gem_vram_kmap_at(gbo, true, &src_isiomem, &uobj_map);
-+	if (IS_ERR(src)) {
-+		ret = PTR_ERR(src);
-+		goto fail_unreserve;
-+	}
- 	if (src_isiomem == true)
- 		DRM_ERROR("src cursor bo should be in main memory\n");
-+
-+	dst = drm_gem_vram_kmap_at(drm_gem_vram_of_gem(ast->cursor_cache),
-+				   false, &dst_isiomem, &ast->cache_kmap);
-+	if (IS_ERR(dst)) {
-+		ret = PTR_ERR(dst);
-+		goto fail_unreserve;
-+	}
- 	if (dst_isiomem == false)
- 		DRM_ERROR("dst bo should be in VRAM\n");
- 
-@@ -1228,11 +1244,14 @@ static int ast_cursor_set(struct drm_crtc *crtc,
- 	/* do data transfer to cursor cache */
- 	csum = copy_cursor_image(src, dst, width, height);
- 
--	/* write checksum + signature */
--	ttm_bo_kunmap(&uobj_map);
-+	drm_gem_vram_kunmap_at(gbo, &uobj_map);
- 	drm_gem_vram_unreserve(gbo);
-+
-+	/* write checksum + signature */
- 	{
--		u8 *dst = (u8 *)ast->cache_kmap.virtual + (AST_HWC_SIZE + AST_HWC_SIGNATURE_SIZE)*ast->next_cursor + AST_HWC_SIZE;
-+		u8 *dst = drm_gem_vram_kmap_at(drm_gem_vram_of_gem(ast->cursor_cache),
-+					       false, NULL, &ast->cache_kmap);
-+		dst += (AST_HWC_SIZE + AST_HWC_SIGNATURE_SIZE)*ast->next_cursor + AST_HWC_SIZE;
- 		writel(csum, dst);
- 		writel(width, dst + AST_HWC_SIGNATURE_SizeX);
- 		writel(height, dst + AST_HWC_SIGNATURE_SizeY);
-@@ -1258,6 +1277,9 @@ static int ast_cursor_set(struct drm_crtc *crtc,
- 
- 	drm_gem_object_put_unlocked(obj);
+-	bo = container_of(tbo, struct bochs_bo, bo);
+-	drm_gem_object_release(&bo->gem);
+-	kfree(bo);
+-}
+-
+-static bool bochs_ttm_bo_is_bochs_bo(struct ttm_buffer_object *bo)
+-{
+-	if (bo->destroy == &bochs_bo_ttm_destroy)
+-		return true;
+-	return false;
+-}
+-
+ static int bochs_bo_init_mem_type(struct ttm_bo_device *bdev, uint32_t type,
+ 				  struct ttm_mem_type_manager *man)
+ {
+@@ -56,27 +38,6 @@ static int bochs_bo_init_mem_type(struct ttm_bo_device *bdev, uint32_t type,
  	return 0;
-+
-+fail_unreserve:
-+	drm_gem_vram_unreserve(gbo);
- fail:
- 	drm_gem_object_put_unlocked(obj);
- 	return ret;
-@@ -1271,7 +1293,9 @@ static int ast_cursor_move(struct drm_crtc *crtc,
- 	int x_offset, y_offset;
- 	u8 *sig;
+ }
  
--	sig = (u8 *)ast->cache_kmap.virtual + (AST_HWC_SIZE + AST_HWC_SIGNATURE_SIZE)*ast->next_cursor + AST_HWC_SIZE;
-+	sig = drm_gem_vram_kmap_at(drm_gem_vram_of_gem(ast->cursor_cache),
-+				   false, NULL, &ast->cache_kmap);
-+	sig += (AST_HWC_SIZE + AST_HWC_SIGNATURE_SIZE)*ast->next_cursor + AST_HWC_SIZE;
- 	writel(x, sig + AST_HWC_SIGNATURE_X);
- 	writel(y, sig + AST_HWC_SIGNATURE_Y);
+-static void
+-bochs_bo_evict_flags(struct ttm_buffer_object *bo, struct ttm_placement *pl)
+-{
+-	struct bochs_bo *bochsbo = bochs_bo(bo);
+-
+-	if (!bochs_ttm_bo_is_bochs_bo(bo))
+-		return;
+-
+-	bochs_ttm_placement(bochsbo, TTM_PL_FLAG_SYSTEM);
+-	*pl = bochsbo->placement;
+-}
+-
+-static int bochs_bo_verify_access(struct ttm_buffer_object *bo,
+-				  struct file *filp)
+-{
+-	struct bochs_bo *bochsbo = bochs_bo(bo);
+-
+-	return drm_vma_node_verify_access(&bochsbo->gem.vma_node,
+-					  filp->private_data);
+-}
+-
+ static int bochs_ttm_io_mem_reserve(struct ttm_bo_device *bdev,
+ 				    struct ttm_mem_reg *mem)
+ {
+@@ -141,9 +102,9 @@ static struct ttm_bo_driver bochs_bo_driver = {
+ 	.ttm_tt_create = bochs_ttm_tt_create,
+ 	.init_mem_type = bochs_bo_init_mem_type,
+ 	.eviction_valuable = ttm_bo_eviction_valuable,
+-	.evict_flags = bochs_bo_evict_flags,
++	.evict_flags = drm_gem_vram_bo_driver_evict_flags,
+ 	.move = NULL,
+-	.verify_access = bochs_bo_verify_access,
++	.verify_access = drm_gem_vram_bo_driver_verify_access,
+ 	.io_mem_reserve = &bochs_ttm_io_mem_reserve,
+ 	.io_mem_free = &bochs_ttm_io_mem_free,
+ };
+@@ -182,85 +143,6 @@ void bochs_mm_fini(struct bochs_device *bochs)
+ 	bochs->ttm.initialized = false;
+ }
  
+-static void bochs_ttm_placement(struct bochs_bo *bo, int domain)
+-{
+-	unsigned i;
+-	u32 c = 0;
+-	bo->placement.placement = bo->placements;
+-	bo->placement.busy_placement = bo->placements;
+-	if (domain & TTM_PL_FLAG_VRAM) {
+-		bo->placements[c++].flags = TTM_PL_FLAG_WC
+-			| TTM_PL_FLAG_UNCACHED
+-			| TTM_PL_FLAG_VRAM;
+-	}
+-	if (domain & TTM_PL_FLAG_SYSTEM) {
+-		bo->placements[c++].flags = TTM_PL_MASK_CACHING
+-			| TTM_PL_FLAG_SYSTEM;
+-	}
+-	if (!c) {
+-		bo->placements[c++].flags = TTM_PL_MASK_CACHING
+-			| TTM_PL_FLAG_SYSTEM;
+-	}
+-	for (i = 0; i < c; ++i) {
+-		bo->placements[i].fpfn = 0;
+-		bo->placements[i].lpfn = 0;
+-	}
+-	bo->placement.num_placement = c;
+-	bo->placement.num_busy_placement = c;
+-}
+-
+-int bochs_bo_pin(struct bochs_bo *bo, u32 pl_flag)
+-{
+-	struct ttm_operation_ctx ctx = { false, false };
+-	int i, ret;
+-
+-	if (bo->pin_count) {
+-		bo->pin_count++;
+-		return 0;
+-	}
+-
+-	bochs_ttm_placement(bo, pl_flag);
+-	for (i = 0; i < bo->placement.num_placement; i++)
+-		bo->placements[i].flags |= TTM_PL_FLAG_NO_EVICT;
+-	ret = ttm_bo_reserve(&bo->bo, true, false, NULL);
+-	if (ret)
+-		return ret;
+-	ret = ttm_bo_validate(&bo->bo, &bo->placement, &ctx);
+-	ttm_bo_unreserve(&bo->bo);
+-	if (ret)
+-		return ret;
+-
+-	bo->pin_count = 1;
+-	return 0;
+-}
+-
+-int bochs_bo_unpin(struct bochs_bo *bo)
+-{
+-	struct ttm_operation_ctx ctx = { false, false };
+-	int i, ret;
+-
+-	if (!bo->pin_count) {
+-		DRM_ERROR("unpin bad %p\n", bo);
+-		return 0;
+-	}
+-	bo->pin_count--;
+-
+-	if (bo->pin_count)
+-		return 0;
+-
+-	for (i = 0; i < bo->placement.num_placement; i++)
+-		bo->placements[i].flags &= ~TTM_PL_FLAG_NO_EVICT;
+-	ret = ttm_bo_reserve(&bo->bo, true, false, NULL);
+-	if (ret)
+-		return ret;
+-	ret = ttm_bo_validate(&bo->bo, &bo->placement, &ctx);
+-	ttm_bo_unreserve(&bo->bo);
+-	if (ret)
+-		return ret;
+-
+-	return 0;
+-}
+-
+ int bochs_mmap(struct file *filp, struct vm_area_struct *vma)
+ {
+ 	struct drm_file *file_priv = filp->private_data;
+@@ -271,171 +153,61 @@ int bochs_mmap(struct file *filp, struct vm_area_struct *vma)
+ 
+ /* ---------------------------------------------------------------------- */
+ 
+-static int bochs_bo_create(struct drm_device *dev, int size, int align,
+-			   uint32_t flags, struct bochs_bo **pbochsbo)
+-{
+-	struct bochs_device *bochs = dev->dev_private;
+-	struct bochs_bo *bochsbo;
+-	size_t acc_size;
+-	int ret;
+-
+-	bochsbo = kzalloc(sizeof(struct bochs_bo), GFP_KERNEL);
+-	if (!bochsbo)
+-		return -ENOMEM;
+-
+-	ret = drm_gem_object_init(dev, &bochsbo->gem, size);
+-	if (ret) {
+-		kfree(bochsbo);
+-		return ret;
+-	}
+-
+-	bochsbo->bo.bdev = &bochs->ttm.bdev;
+-	bochsbo->bo.bdev->dev_mapping = dev->anon_inode->i_mapping;
+-
+-	bochs_ttm_placement(bochsbo, TTM_PL_FLAG_VRAM | TTM_PL_FLAG_SYSTEM);
+-
+-	acc_size = ttm_bo_dma_acc_size(&bochs->ttm.bdev, size,
+-				       sizeof(struct bochs_bo));
+-
+-	ret = ttm_bo_init(&bochs->ttm.bdev, &bochsbo->bo, size,
+-			  ttm_bo_type_device, &bochsbo->placement,
+-			  align >> PAGE_SHIFT, false, acc_size,
+-			  NULL, NULL, bochs_bo_ttm_destroy);
+-	if (ret)
+-		return ret;
+-
+-	*pbochsbo = bochsbo;
+-	return 0;
+-}
+-
+-int bochs_gem_create(struct drm_device *dev, u32 size, bool iskernel,
+-		     struct drm_gem_object **obj)
+-{
+-	struct bochs_bo *bochsbo;
+-	int ret;
+-
+-	*obj = NULL;
+-
+-	size = PAGE_ALIGN(size);
+-	if (size == 0)
+-		return -EINVAL;
+-
+-	ret = bochs_bo_create(dev, size, 0, 0, &bochsbo);
+-	if (ret) {
+-		if (ret != -ERESTARTSYS)
+-			DRM_ERROR("failed to allocate GEM object\n");
+-		return ret;
+-	}
+-	*obj = &bochsbo->gem;
+-	return 0;
+-}
+-
+ int bochs_dumb_create(struct drm_file *file, struct drm_device *dev,
+ 		      struct drm_mode_create_dumb *args)
+ {
+-	struct drm_gem_object *gobj;
+-	u32 handle;
+-	int ret;
+-
+-	args->pitch = args->width * ((args->bpp + 7) / 8);
+-	args->size = args->pitch * args->height;
+-
+-	ret = bochs_gem_create(dev, args->size, false,
+-			       &gobj);
+-	if (ret)
+-		return ret;
+-
+-	ret = drm_gem_handle_create(file, gobj, &handle);
+-	drm_gem_object_put_unlocked(gobj);
+-	if (ret)
+-		return ret;
+-
+-	args->handle = handle;
+-	return 0;
+-}
+-
+-static void bochs_bo_unref(struct bochs_bo **bo)
+-{
+-	struct ttm_buffer_object *tbo;
+-
+-	if ((*bo) == NULL)
+-		return;
+-
+-	tbo = &((*bo)->bo);
+-	ttm_bo_put(tbo);
+-	*bo = NULL;
+-}
+-
+-void bochs_gem_free_object(struct drm_gem_object *obj)
+-{
+-	struct bochs_bo *bochs_bo = gem_to_bochs_bo(obj);
+-
+-	bochs_bo_unref(&bochs_bo);
+-}
+-
+-int bochs_dumb_mmap_offset(struct drm_file *file, struct drm_device *dev,
+-			   uint32_t handle, uint64_t *offset)
+-{
+-	struct drm_gem_object *obj;
+-	struct bochs_bo *bo;
+-
+-	obj = drm_gem_object_lookup(file, handle);
+-	if (obj == NULL)
+-		return -ENOENT;
+-
+-	bo = gem_to_bochs_bo(obj);
+-	*offset = bochs_bo_mmap_offset(bo);
++	struct bochs_device *bochs = dev->dev_private;
+ 
+-	drm_gem_object_put_unlocked(obj);
+-	return 0;
++	return drm_gem_vram_fill_create_dumb(file, dev, &bochs->ttm.bdev, 0,
++					     false, args);
+ }
+ 
+ /* ---------------------------------------------------------------------- */
+ 
+ int bochs_gem_prime_pin(struct drm_gem_object *obj)
+ {
+-	struct bochs_bo *bo = gem_to_bochs_bo(obj);
++	struct drm_gem_vram_object *gbo = drm_gem_vram_of_gem(obj);
+ 
+-	return bochs_bo_pin(bo, TTM_PL_FLAG_VRAM);
++	return drm_gem_vram_pin(gbo, DRM_GEM_VRAM_PL_FLAG_VRAM);
+ }
+ 
+ void bochs_gem_prime_unpin(struct drm_gem_object *obj)
+ {
+-	struct bochs_bo *bo = gem_to_bochs_bo(obj);
++	struct drm_gem_vram_object *gbo = drm_gem_vram_of_gem(obj);
+ 
+-	bochs_bo_unpin(bo);
++	drm_gem_vram_unpin(gbo);
+ }
+ 
+ void *bochs_gem_prime_vmap(struct drm_gem_object *obj)
+ {
+-	struct bochs_bo *bo = gem_to_bochs_bo(obj);
+-	bool is_iomem;
++	struct drm_gem_vram_object *gbo = drm_gem_vram_of_gem(obj);
+ 	int ret;
++	void *base;
+ 
+-	ret = bochs_bo_pin(bo, TTM_PL_FLAG_VRAM);
++	ret = drm_gem_vram_pin(gbo, DRM_GEM_VRAM_PL_FLAG_VRAM);
+ 	if (ret)
+ 		return NULL;
+-	ret = ttm_bo_kmap(&bo->bo, 0, bo->bo.num_pages, &bo->kmap);
+-	if (ret) {
+-		bochs_bo_unpin(bo);
++	base = drm_gem_vram_kmap(gbo, true, NULL);
++	if (IS_ERR(base)) {
++		drm_gem_vram_unpin(gbo);
+ 		return NULL;
+ 	}
+-	return ttm_kmap_obj_virtual(&bo->kmap, &is_iomem);
++	return base;
+ }
+ 
+ void bochs_gem_prime_vunmap(struct drm_gem_object *obj, void *vaddr)
+ {
+-	struct bochs_bo *bo = gem_to_bochs_bo(obj);
++	struct drm_gem_vram_object *gbo = drm_gem_vram_of_gem(obj);
+ 
+-	ttm_bo_kunmap(&bo->kmap);
+-	bochs_bo_unpin(bo);
++	drm_gem_vram_kunmap(gbo);
++	drm_gem_vram_unpin(gbo);
+ }
+ 
+ int bochs_gem_prime_mmap(struct drm_gem_object *obj,
+ 			 struct vm_area_struct *vma)
+ {
+-	struct bochs_bo *bo = gem_to_bochs_bo(obj);
++	struct drm_gem_vram_object *gbo = drm_gem_vram_of_gem(obj);
+ 
+-	bo->gem.vma_node.vm_node.start = bo->bo.vma_node.vm_node.start;
++	gbo->gem.vma_node.vm_node.start = gbo->bo.vma_node.vm_node.start;
+ 	return drm_gem_prime_mmap(obj, vma);
+ }
 -- 
 2.21.0
