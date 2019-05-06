@@ -1,7 +1,7 @@
 From: Thomas Zimmermann <tzimmermann@suse.de>
-Subject: [PATCH v4 14/19] drm/mgag200: Convert mgag200 driver to VRAM MM
-Date: Mon,  6 May 2019 10:26:44 +0200
-Message-ID: <20190506082649.942-15-tzimmermann__34893.0998983391$1557131513$gmane$org@suse.de>
+Subject: [PATCH v4 17/19] drm/vboxvideo: Convert vboxvideo driver to VRAM MM
+Date: Mon,  6 May 2019 10:26:47 +0200
+Message-ID: <20190506082649.942-18-tzimmermann__33504.256144964$1557131527$gmane$org@suse.de>
 References: <20190506082649.942-1-tzimmermann@suse.de>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
@@ -21,7 +21,7 @@ To: daniel@ffwll.ch, airlied@linux.ie, kraxel@redhat.com, christian.koenig@amd.c
 Cc: Thomas Zimmermann <tzimmermann@suse.de>, dri-devel@lists.freedesktop.org, virtualization@lists.linux-foundation.org
 List-Id: virtualization@lists.linuxfoundation.org
 
-The data structure |struct drm_vram_mm| and its helpers replace mgag200's
+The data structure |struct drm_vram_mm| and its helpers replace vboxvideo's
 TTM-based memory manager. It's the same implementation; except for the type
 names.
 
@@ -31,84 +31,79 @@ v3:
 	* use drm_gem_vram_mm_funcs
 	* convert driver to drm_device-based instance
 v2:
-	* implement mgag200_mmap() with drm_vram_mm_mmap()
+	* implement vbox_mmap() with drm_vram_mm_mmap()
 
 Signed-off-by: Thomas Zimmermann <tzimmermann@suse.de>
+Reviewed-by: Hans de Goede <hdegoede@redhat.com>
 ---
- drivers/gpu/drm/mgag200/Kconfig        |   1 -
- drivers/gpu/drm/mgag200/mgag200_drv.c  |  14 +--
- drivers/gpu/drm/mgag200/mgag200_drv.h  |  11 +-
- drivers/gpu/drm/mgag200/mgag200_main.c |  17 +---
- drivers/gpu/drm/mgag200/mgag200_ttm.c  | 133 ++-----------------------
- 5 files changed, 15 insertions(+), 161 deletions(-)
+ drivers/gpu/drm/vboxvideo/Kconfig     |   1 -
+ drivers/gpu/drm/vboxvideo/vbox_drv.c  |  13 +--
+ drivers/gpu/drm/vboxvideo/vbox_drv.h  |  15 +--
+ drivers/gpu/drm/vboxvideo/vbox_main.c |  13 +--
+ drivers/gpu/drm/vboxvideo/vbox_ttm.c  | 136 ++------------------------
+ 5 files changed, 13 insertions(+), 165 deletions(-)
 
-diff --git a/drivers/gpu/drm/mgag200/Kconfig b/drivers/gpu/drm/mgag200/Kconfig
-index 907bb2162228..738ed20163c7 100644
---- a/drivers/gpu/drm/mgag200/Kconfig
-+++ b/drivers/gpu/drm/mgag200/Kconfig
-@@ -2,7 +2,6 @@ config DRM_MGAG200
- 	tristate "Kernel modesetting driver for MGA G200 server engines"
- 	depends on DRM && PCI && MMU
+diff --git a/drivers/gpu/drm/vboxvideo/Kconfig b/drivers/gpu/drm/vboxvideo/Kconfig
+index f8f689c55e94..fc16a5589379 100644
+--- a/drivers/gpu/drm/vboxvideo/Kconfig
++++ b/drivers/gpu/drm/vboxvideo/Kconfig
+@@ -2,7 +2,6 @@ config DRM_VBOXVIDEO
+ 	tristate "Virtual Box Graphics Card"
+ 	depends on DRM && X86 && PCI
  	select DRM_KMS_HELPER
 -	select DRM_TTM
  	select DRM_VRAM_HELPER
+ 	select GENERIC_ALLOCATOR
  	help
- 	 This is a KMS driver for the MGA G200 server chips, it
-diff --git a/drivers/gpu/drm/mgag200/mgag200_drv.c b/drivers/gpu/drm/mgag200/mgag200_drv.c
-index 1f2a034d5a9b..93bd1589e50e 100644
---- a/drivers/gpu/drm/mgag200/mgag200_drv.c
-+++ b/drivers/gpu/drm/mgag200/mgag200_drv.c
-@@ -59,13 +59,7 @@ static void mga_pci_remove(struct pci_dev *pdev)
+diff --git a/drivers/gpu/drm/vboxvideo/vbox_drv.c b/drivers/gpu/drm/vboxvideo/vbox_drv.c
+index 336a8e03e151..02537ab9cc08 100644
+--- a/drivers/gpu/drm/vboxvideo/vbox_drv.c
++++ b/drivers/gpu/drm/vboxvideo/vbox_drv.c
+@@ -191,13 +191,7 @@ static struct pci_driver vbox_pci_driver = {
  
- static const struct file_operations mgag200_driver_fops = {
+ static const struct file_operations vbox_fops = {
  	.owner = THIS_MODULE,
 -	.open = drm_open,
 -	.release = drm_release,
 -	.unlocked_ioctl = drm_ioctl,
--	.mmap = mgag200_mmap,
--	.poll = drm_poll,
 -	.compat_ioctl = drm_compat_ioctl,
+-	.mmap = vbox_mmap,
+-	.poll = drm_poll,
 -	.read = drm_read,
 +	DRM_VRAM_MM_FILE_OPERATIONS
  };
  
  static struct drm_driver driver = {
-@@ -79,11 +73,7 @@ static struct drm_driver driver = {
- 	.major = DRIVER_MAJOR,
+@@ -215,10 +209,7 @@ static struct drm_driver driver = {
  	.minor = DRIVER_MINOR,
  	.patchlevel = DRIVER_PATCHLEVEL,
--
+ 
 -	.gem_free_object_unlocked =
 -		drm_gem_vram_driver_gem_free_object_unlocked,
--	.dumb_create = mgag200_dumb_create,
+-	.dumb_create = vbox_dumb_create,
 -	.dumb_map_offset = drm_gem_vram_driver_dumb_mmap_offset,
-+	DRM_GEM_VRAM_DRIVER
- };
++	DRM_GEM_VRAM_DRIVER,
+ 	.prime_handle_to_fd = drm_gem_prime_handle_to_fd,
+ 	.prime_fd_to_handle = drm_gem_prime_fd_to_handle,
+ 	.gem_prime_export = drm_gem_prime_export,
+diff --git a/drivers/gpu/drm/vboxvideo/vbox_drv.h b/drivers/gpu/drm/vboxvideo/vbox_drv.h
+index 12e47392b2f9..9028f946bc06 100644
+--- a/drivers/gpu/drm/vboxvideo/vbox_drv.h
++++ b/drivers/gpu/drm/vboxvideo/vbox_drv.h
+@@ -20,11 +20,7 @@
+ #include <drm/drm_gem.h>
+ #include <drm/drm_gem_vram_helper.h>
  
- static struct pci_driver mgag200_pci_driver = {
-diff --git a/drivers/gpu/drm/mgag200/mgag200_drv.h b/drivers/gpu/drm/mgag200/mgag200_drv.h
-index 86b33e23ab7f..16ce6b338dce 100644
---- a/drivers/gpu/drm/mgag200/mgag200_drv.h
-+++ b/drivers/gpu/drm/mgag200/mgag200_drv.h
-@@ -17,15 +17,12 @@
- 
- #include <drm/drm_encoder.h>
- #include <drm/drm_fb_helper.h>
 -#include <drm/ttm/ttm_bo_api.h>
 -#include <drm/ttm/ttm_bo_driver.h>
 -#include <drm/ttm/ttm_placement.h>
 -#include <drm/ttm/ttm_memory.h>
 -#include <drm/ttm/ttm_module.h>
- 
- #include <drm/drm_gem.h>
- #include <drm/drm_gem_vram_helper.h>
- 
 +#include <drm/drm_vram_mm_helper.h>
-+
- #include <linux/i2c.h>
- #include <linux/i2c-algo-bit.h>
  
-@@ -212,10 +209,6 @@ struct mga_device {
+ #include "vboxvideo_guest.h"
+ #include "vboxvideo_vbe.h"
+@@ -78,10 +74,6 @@ struct vbox_private {
  
  	int fb_mtrr;
  
@@ -116,78 +111,73 @@ index 86b33e23ab7f..16ce6b338dce 100644
 -		struct ttm_bo_device bdev;
 -	} ttm;
 -
- 	/* SE model number stored in reg 0x1e24 */
- 	u32 unique_rev_id;
- };
-diff --git a/drivers/gpu/drm/mgag200/mgag200_main.c b/drivers/gpu/drm/mgag200/mgag200_main.c
-index 59a4028a5c6c..f3687fed4075 100644
---- a/drivers/gpu/drm/mgag200/mgag200_main.c
-+++ b/drivers/gpu/drm/mgag200/mgag200_main.c
-@@ -230,10 +230,10 @@ int mgag200_driver_load(struct drm_device *dev, unsigned long flags)
- 	}
+ 	struct mutex hw_mutex; /* protects modeset and accel/vbva accesses */
+ 	struct work_struct hotplug_work;
+ 	u32 input_mapping_width;
+@@ -169,16 +161,11 @@ int vboxfb_create(struct drm_fb_helper *helper,
+ 		  struct drm_fb_helper_surface_size *sizes);
+ void vbox_fbdev_fini(struct vbox_private *vbox);
  
- 	/* Make small buffers to store a hardware cursor (double buffered icon updates) */
--	mdev->cursor.pixels_1 = drm_gem_vram_create(dev, &mdev->ttm.bdev,
-+	mdev->cursor.pixels_1 = drm_gem_vram_create(dev, &dev->vram_mm->bdev,
- 						    roundup(48*64, PAGE_SIZE),
- 						    0, 0);
--	mdev->cursor.pixels_2 = drm_gem_vram_create(dev, &mdev->ttm.bdev,
-+	mdev->cursor.pixels_2 = drm_gem_vram_create(dev, &dev->vram_mm->bdev,
- 						    roundup(48*64, PAGE_SIZE),
- 						    0, 0);
- 	if (IS_ERR(mdev->cursor.pixels_2) || IS_ERR(mdev->cursor.pixels_1)) {
-@@ -274,7 +274,6 @@ int mgag200_gem_create(struct drm_device *dev,
- 		   u32 size, bool iskernel,
- 		   struct drm_gem_object **obj)
- {
--	struct mga_device *mdev = dev->dev_private;
- 	struct drm_gem_vram_object *gbo;
- 	int ret;
+-int vbox_dumb_create(struct drm_file *file,
+-		     struct drm_device *dev,
+-		     struct drm_mode_create_dumb *args);
+-
+ int vbox_mm_init(struct vbox_private *vbox);
+ void vbox_mm_fini(struct vbox_private *vbox);
  
-@@ -284,7 +283,7 @@ int mgag200_gem_create(struct drm_device *dev,
+ int vbox_gem_create(struct vbox_private *vbox,
+ 		    u32 size, bool iskernel, struct drm_gem_object **obj);
+-int vbox_mmap(struct file *filp, struct vm_area_struct *vma);
+ 
+ /* vbox_prime.c */
+ int vbox_gem_prime_pin(struct drm_gem_object *obj);
+diff --git a/drivers/gpu/drm/vboxvideo/vbox_main.c b/drivers/gpu/drm/vboxvideo/vbox_main.c
+index 525e9fd63f4d..18693e2bf72a 100644
+--- a/drivers/gpu/drm/vboxvideo/vbox_main.c
++++ b/drivers/gpu/drm/vboxvideo/vbox_main.c
+@@ -283,7 +283,8 @@ int vbox_gem_create(struct vbox_private *vbox,
  	if (size == 0)
  		return -EINVAL;
  
--	gbo = drm_gem_vram_create(dev, &mdev->ttm.bdev, size, 0, false);
-+	gbo = drm_gem_vram_create(dev, &dev->vram_mm->bdev, size, 0, false);
+-	gbo = drm_gem_vram_create(&vbox->ddev, &vbox->ttm.bdev, size, 0, false);
++	gbo = drm_gem_vram_create(&vbox->ddev, &vbox->ddev.vram_mm->bdev,
++				  size, 0, false);
  	if (IS_ERR(gbo)) {
  		ret = PTR_ERR(gbo);
  		if (ret != -ERESTARTSYS)
-@@ -294,13 +293,3 @@ int mgag200_gem_create(struct drm_device *dev,
- 	*obj = &gbo->gem;
+@@ -295,13 +296,3 @@ int vbox_gem_create(struct vbox_private *vbox,
+ 
  	return 0;
  }
 -
--int mgag200_dumb_create(struct drm_file *file,
--		    struct drm_device *dev,
--		    struct drm_mode_create_dumb *args)
+-int vbox_dumb_create(struct drm_file *file,
+-		     struct drm_device *dev, struct drm_mode_create_dumb *args)
 -{
--	struct mga_device *mdev = dev->dev_private;
+-	struct vbox_private *vbox = dev->dev_private;
 -
--	return drm_gem_vram_fill_create_dumb(file, dev, &mdev->ttm.bdev, 0,
+-	return drm_gem_vram_fill_create_dumb(file, dev, &vbox->ttm.bdev, 0,
 -					    false, args);
+-
 -}
-diff --git a/drivers/gpu/drm/mgag200/mgag200_ttm.c b/drivers/gpu/drm/mgag200/mgag200_ttm.c
-index 2c0249086bf9..59294c0fd24a 100644
---- a/drivers/gpu/drm/mgag200/mgag200_ttm.c
-+++ b/drivers/gpu/drm/mgag200/mgag200_ttm.c
-@@ -26,130 +26,21 @@
-  * Authors: Dave Airlie <airlied@redhat.com>
+diff --git a/drivers/gpu/drm/vboxvideo/vbox_ttm.c b/drivers/gpu/drm/vboxvideo/vbox_ttm.c
+index 0989d656eed6..b82595a9ed0f 100644
+--- a/drivers/gpu/drm/vboxvideo/vbox_ttm.c
++++ b/drivers/gpu/drm/vboxvideo/vbox_ttm.c
+@@ -8,131 +8,23 @@
   */
- #include <drm/drmP.h>
+ #include <linux/pci.h>
+ #include <drm/drm_file.h>
 -#include <drm/ttm/ttm_page_alloc.h>
+ #include "vbox_drv.h"
  
- #include "mgag200_drv.h"
- 
--static inline struct mga_device *
--mgag200_bdev(struct ttm_bo_device *bd)
+-static inline struct vbox_private *vbox_bdev(struct ttm_bo_device *bd)
 -{
--	return container_of(bd, struct mga_device, ttm.bdev);
+-	return container_of(bd, struct vbox_private, ttm.bdev);
 -}
 -
 -static int
--mgag200_bo_init_mem_type(struct ttm_bo_device *bdev, uint32_t type,
--		     struct ttm_mem_type_manager *man)
+-vbox_bo_init_mem_type(struct ttm_bo_device *bdev, u32 type,
+-		      struct ttm_mem_type_manager *man)
 -{
 -	switch (type) {
 -	case TTM_PL_SYSTEM:
@@ -197,24 +187,23 @@ index 2c0249086bf9..59294c0fd24a 100644
 -		break;
 -	case TTM_PL_VRAM:
 -		man->func = &ttm_bo_manager_func;
--		man->flags = TTM_MEMTYPE_FLAG_FIXED |
--			TTM_MEMTYPE_FLAG_MAPPABLE;
--		man->available_caching = TTM_PL_FLAG_UNCACHED |
--			TTM_PL_FLAG_WC;
+-		man->flags = TTM_MEMTYPE_FLAG_FIXED | TTM_MEMTYPE_FLAG_MAPPABLE;
+-		man->available_caching = TTM_PL_FLAG_UNCACHED | TTM_PL_FLAG_WC;
 -		man->default_caching = TTM_PL_FLAG_WC;
 -		break;
 -	default:
--		DRM_ERROR("Unsupported memory type %u\n", (unsigned)type);
+-		DRM_ERROR("Unsupported memory type %u\n", (unsigned int)type);
 -		return -EINVAL;
 -	}
+-
 -	return 0;
 -}
 -
--static int mgag200_ttm_io_mem_reserve(struct ttm_bo_device *bdev,
--				  struct ttm_mem_reg *mem)
+-static int vbox_ttm_io_mem_reserve(struct ttm_bo_device *bdev,
+-				   struct ttm_mem_reg *mem)
 -{
 -	struct ttm_mem_type_manager *man = &bdev->man[mem->mem_type];
--	struct mga_device *mdev = mgag200_bdev(bdev);
+-	struct vbox_private *vbox = vbox_bdev(bdev);
 -
 -	mem->bus.addr = NULL;
 -	mem->bus.offset = 0;
@@ -229,79 +218,73 @@ index 2c0249086bf9..59294c0fd24a 100644
 -		return 0;
 -	case TTM_PL_VRAM:
 -		mem->bus.offset = mem->start << PAGE_SHIFT;
--		mem->bus.base = pci_resource_start(mdev->dev->pdev, 0);
+-		mem->bus.base = pci_resource_start(vbox->ddev.pdev, 0);
 -		mem->bus.is_iomem = true;
 -		break;
 -	default:
 -		return -EINVAL;
--		break;
 -	}
 -	return 0;
 -}
 -
--static void mgag200_ttm_io_mem_free(struct ttm_bo_device *bdev, struct ttm_mem_reg *mem)
+-static void vbox_ttm_io_mem_free(struct ttm_bo_device *bdev,
+-				 struct ttm_mem_reg *mem)
 -{
 -}
 -
--static void mgag200_ttm_backend_destroy(struct ttm_tt *tt)
+-static void vbox_ttm_backend_destroy(struct ttm_tt *tt)
 -{
 -	ttm_tt_fini(tt);
 -	kfree(tt);
 -}
 -
--static struct ttm_backend_func mgag200_tt_backend_func = {
--	.destroy = &mgag200_ttm_backend_destroy,
+-static struct ttm_backend_func vbox_tt_backend_func = {
+-	.destroy = &vbox_ttm_backend_destroy,
 -};
 -
--
--static struct ttm_tt *mgag200_ttm_tt_create(struct ttm_buffer_object *bo,
--					    uint32_t page_flags)
+-static struct ttm_tt *vbox_ttm_tt_create(struct ttm_buffer_object *bo,
+-					 u32 page_flags)
 -{
 -	struct ttm_tt *tt;
 -
--	tt = kzalloc(sizeof(struct ttm_tt), GFP_KERNEL);
--	if (tt == NULL)
+-	tt = kzalloc(sizeof(*tt), GFP_KERNEL);
+-	if (!tt)
 -		return NULL;
--	tt->func = &mgag200_tt_backend_func;
+-
+-	tt->func = &vbox_tt_backend_func;
 -	if (ttm_tt_init(tt, bo, page_flags)) {
 -		kfree(tt);
 -		return NULL;
 -	}
+-
 -	return tt;
 -}
 -
--struct ttm_bo_driver mgag200_bo_driver = {
--	.ttm_tt_create = mgag200_ttm_tt_create,
--	.init_mem_type = mgag200_bo_init_mem_type,
+-static struct ttm_bo_driver vbox_bo_driver = {
+-	.ttm_tt_create = vbox_ttm_tt_create,
+-	.init_mem_type = vbox_bo_init_mem_type,
 -	.eviction_valuable = ttm_bo_eviction_valuable,
 -	.evict_flags = drm_gem_vram_bo_driver_evict_flags,
--	.move = NULL,
 -	.verify_access = drm_gem_vram_bo_driver_verify_access,
--	.io_mem_reserve = &mgag200_ttm_io_mem_reserve,
--	.io_mem_free = &mgag200_ttm_io_mem_free,
+-	.io_mem_reserve = &vbox_ttm_io_mem_reserve,
+-	.io_mem_free = &vbox_ttm_io_mem_free,
 -};
 -
- int mgag200_mm_init(struct mga_device *mdev)
+ int vbox_mm_init(struct vbox_private *vbox)
  {
 +	struct drm_vram_mm *vmm;
  	int ret;
- 	struct drm_device *dev = mdev->dev;
--	struct ttm_bo_device *bdev = &mdev->ttm.bdev;
--
--	ret = ttm_bo_device_init(&mdev->ttm.bdev,
--				 &mgag200_bo_driver,
+ 	struct drm_device *dev = &vbox->ddev;
+-	struct ttm_bo_device *bdev = &vbox->ttm.bdev;
+ 
+-	ret = ttm_bo_device_init(&vbox->ttm.bdev,
+-				 &vbox_bo_driver,
 -				 dev->anon_inode->i_mapping,
 -				 true);
 -	if (ret) {
 -		DRM_ERROR("Error initialising bo driver; %d\n", ret);
--		return ret;
--	}
- 
--	ret = ttm_bo_init_mm(bdev, TTM_PL_VRAM, mdev->mc.vram_size >> PAGE_SHIFT);
--	if (ret) {
--		DRM_ERROR("Failed ttm VRAM init: %d\n", ret);
 +	vmm = drm_vram_helper_alloc_mm(dev, pci_resource_start(dev->pdev, 0),
-+				       mdev->mc.vram_size,
++				       vbox->available_vram_size,
 +				       &drm_gem_vram_mm_funcs);
 +	if (IS_ERR(vmm)) {
 +		ret = PTR_ERR(vmm);
@@ -309,25 +292,41 @@ index 2c0249086bf9..59294c0fd24a 100644
  		return ret;
  	}
  
-@@ -166,18 +57,10 @@ void mgag200_mm_fini(struct mga_device *mdev)
- {
- 	struct drm_device *dev = mdev->dev;
- 
--	ttm_bo_device_release(&mdev->ttm.bdev);
-+	drm_vram_helper_release_mm(dev);
- 
- 	arch_io_free_memtype_wc(pci_resource_start(dev->pdev, 0),
- 				pci_resource_len(dev->pdev, 0));
- 	arch_phys_wc_del(mdev->fb_mtrr);
- 	mdev->fb_mtrr = 0;
- }
+-	ret = ttm_bo_init_mm(bdev, TTM_PL_VRAM,
+-			     vbox->available_vram_size >> PAGE_SHIFT);
+-	if (ret) {
+-		DRM_ERROR("Failed ttm VRAM init: %d\n", ret);
+-		goto err_device_release;
+-	}
 -
--int mgag200_mmap(struct file *filp, struct vm_area_struct *vma)
+ #ifdef DRM_MTRR_WC
+ 	vbox->fb_mtrr = drm_mtrr_add(pci_resource_start(dev->pdev, 0),
+ 				     pci_resource_len(dev->pdev, 0),
+@@ -142,10 +34,6 @@ int vbox_mm_init(struct vbox_private *vbox)
+ 					 pci_resource_len(dev->pdev, 0));
+ #endif
+ 	return 0;
+-
+-err_device_release:
+-	ttm_bo_device_release(&vbox->ttm.bdev);
+-	return ret;
+ }
+ 
+ void vbox_mm_fini(struct vbox_private *vbox)
+@@ -157,13 +45,5 @@ void vbox_mm_fini(struct vbox_private *vbox)
+ #else
+ 	arch_phys_wc_del(vbox->fb_mtrr);
+ #endif
+-	ttm_bo_device_release(&vbox->ttm.bdev);
+-}
+-
+-int vbox_mmap(struct file *filp, struct vm_area_struct *vma)
 -{
 -	struct drm_file *file_priv = filp->private_data;
--	struct mga_device *mdev = file_priv->minor->dev->dev_private;
+-	struct vbox_private *vbox = file_priv->minor->dev->dev_private;
 -
--	return ttm_bo_mmap(filp, vma, &mdev->ttm.bdev);
--}
+-	return ttm_bo_mmap(filp, vma, &vbox->ttm.bdev);
++	drm_vram_helper_release_mm(&vbox->ddev);
+ }
 -- 
 2.21.0
