@@ -1,11 +1,14 @@
-From: Robert Foss <robert.foss@collabora.com>
-Subject: [PATCH v2] drm/virtio: Remove redundant return type
-Date: Mon,  6 May 2019 11:10:34 +0200
-Message-ID: <20190506091034.30289-1-robert.foss__16575.0207657524$1557133926$gmane$org@collabora.com>
+From: Gerd Hoffmann <kraxel@redhat.com>
+Subject: Re: [PATCH v4 00/19] Share TTM code among DRM framebuffer drivers
+Date: Mon, 6 May 2019 14:22:33 +0200
+Message-ID: <20190506122233.76pya5kpdfgp4f25__19018.3197659039$1557145442$gmane$org@sirius.home.kraxel.org>
+References: <20190506082649.942-1-tzimmermann@suse.de>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
+Content-Disposition: inline
+In-Reply-To: <20190506082649.942-1-tzimmermann@suse.de>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -15,68 +18,18 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: airlied@linux.ie, kraxel@redhat.com, daniel@ffwll.ch, dri-devel@lists.freedesktop.org, virtualization@lists.linux-foundation.org, linux-kernel@vger.kernel.org, Chia-I Wu <olvaffe@gmail.com>
-Cc: Robert Foss <robert.foss@collabora.com>, Emil Velikov <emil.velikov@collabora.com>
+To: Thomas Zimmermann <tzimmermann@suse.de>
+Cc: noralf@tronnes.org, airlied@linux.ie, puck.chen@hisilicon.com, dri-devel@lists.freedesktop.org, virtualization@lists.linux-foundation.org, z.liuxinliang@hisilicon.com, hdegoede@redhat.com, kong.kongxinwei@hisilicon.com, ray.huang@amd.com, daniel@ffwll.ch, zourongrong@gmail.com, sam@ravnborg.org, christian.koenig@amd.com
 List-Id: virtualization@lists.linuxfoundation.org
 
-virtio_gpu_fence_emit() always returns 0, since it
-has no error paths.
+> GEM VRAM could implement PRIME helpers, which would allow for using
+> the generic fbcon.
 
-Consequently no calls for virtio_gpu_fence_emit()
-use the return value, and it can be removed.
+bochs_gem_prime_*() functions with this series applied look like you can
+just rename them & move over to vram helpers.
 
-Signed-off-by: Robert Foss <robert.foss@collabora.com>
-Suggested-by: Emil Velikov <emil.velikov@collabora.com>
-Reviewed-by: Chia-I Wu <olvaffe@gmail.com>
----
+It's not a full prime implementation, specifically actual export/import
+isn't there.  But pin+vmap (needed by generic fbcon) is implemented.
 
-This patch was suggested in this email thread:
-
-[PATCH] drm/virtio: allocate fences with GFP_KERNEL
-https://www.spinics.net/lists/dri-devel/msg208536.html
-
-Changes since v1:
- - Rebased on drm-misc-next
- - Added r-b from Chia-I Wu
-
-
- drivers/gpu/drm/virtio/virtgpu_drv.h   | 2 +-
- drivers/gpu/drm/virtio/virtgpu_fence.c | 3 +--
- 2 files changed, 2 insertions(+), 3 deletions(-)
-
-diff --git a/drivers/gpu/drm/virtio/virtgpu_drv.h b/drivers/gpu/drm/virtio/virtgpu_drv.h
-index 90461feeafdb..2d3e5b1debb3 100644
---- a/drivers/gpu/drm/virtio/virtgpu_drv.h
-+++ b/drivers/gpu/drm/virtio/virtgpu_drv.h
-@@ -355,7 +355,7 @@ int virtio_gpu_mmap(struct file *filp, struct vm_area_struct *vma);
- bool virtio_fence_signaled(struct dma_fence *f);
- struct virtio_gpu_fence *virtio_gpu_fence_alloc(
- 	struct virtio_gpu_device *vgdev);
--int virtio_gpu_fence_emit(struct virtio_gpu_device *vgdev,
-+void virtio_gpu_fence_emit(struct virtio_gpu_device *vgdev,
- 			  struct virtio_gpu_ctrl_hdr *cmd_hdr,
- 			  struct virtio_gpu_fence *fence);
- void virtio_gpu_fence_event_process(struct virtio_gpu_device *vdev,
-diff --git a/drivers/gpu/drm/virtio/virtgpu_fence.c b/drivers/gpu/drm/virtio/virtgpu_fence.c
-index 8aecc36a0417..70d6c4329778 100644
---- a/drivers/gpu/drm/virtio/virtgpu_fence.c
-+++ b/drivers/gpu/drm/virtio/virtgpu_fence.c
-@@ -85,7 +85,7 @@ struct virtio_gpu_fence *virtio_gpu_fence_alloc(struct virtio_gpu_device *vgdev)
- 	return fence;
- }
- 
--int virtio_gpu_fence_emit(struct virtio_gpu_device *vgdev,
-+void virtio_gpu_fence_emit(struct virtio_gpu_device *vgdev,
- 			  struct virtio_gpu_ctrl_hdr *cmd_hdr,
- 			  struct virtio_gpu_fence *fence)
- {
-@@ -102,7 +102,6 @@ int virtio_gpu_fence_emit(struct virtio_gpu_device *vgdev,
- 
- 	cmd_hdr->flags |= cpu_to_le32(VIRTIO_GPU_FLAG_FENCE);
- 	cmd_hdr->fence_id = cpu_to_le64(fence->f.seqno);
--	return 0;
- }
- 
- void virtio_gpu_fence_event_process(struct virtio_gpu_device *vgdev,
--- 
-2.20.1
+cheers,
+  Gerd
