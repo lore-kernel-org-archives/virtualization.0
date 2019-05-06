@@ -1,16 +1,14 @@
-From: Thomas Huth <thuth@redhat.com>
-Subject: Re: [PATCH 03/10] virtio/s390: enable packed ring
-Date: Sun, 5 May 2019 17:13:21 +0200
-Message-ID: <6743e19d-9824-5533-03e9-b7aa4e0e2cc1@redhat.com>
-References: <20190426183245.37939-1-pasic@linux.ibm.com>
-	<20190426183245.37939-4-pasic@linux.ibm.com>
-	<20190503114450.2512b121.cohuck@redhat.com>
+From: Thomas Zimmermann <tzimmermann@suse.de>
+Subject: [PATCH v4 02/19] drm: Add |struct drm_gem_vram_object| callbacks for
+	|struct ttm_bo_driver|
+Date: Mon,  6 May 2019 10:26:32 +0200
+Message-ID: <20190506082649.942-3-tzimmermann__38084.8433984042$1557131273$gmane$org@suse.de>
+References: <20190506082649.942-1-tzimmermann@suse.de>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <20190503114450.2512b121.cohuck@redhat.com>
-Content-Language: en-US
+In-Reply-To: <20190506082649.942-1-tzimmermann@suse.de>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -20,49 +18,99 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Cornelia Huck <cohuck@redhat.com>, Halil Pasic <pasic@linux.ibm.com>
-Cc: Vasily Gorbik <gor@linux.ibm.com>, linux-s390@vger.kernel.org, Eric Farman <farman@linux.ibm.com>, Claudio Imbrenda <imbrenda@linux.ibm.com>, kvm@vger.kernel.org, Sebastian Ott <sebott@linux.ibm.com>, "Michael S. Tsirkin" <mst@redhat.com>, Farhan Ali <alifm@linux.ibm.com>, virtualization@lists.linux-foundation.org, Christoph Hellwig <hch@infradead.org>, Martin Schwidefsky <schwidefsky@de.ibm.com>, Viktor Mihajlovski <mihajlov@linux.ibm.com>, Janosch Frank <frankja@linux.ibm.com>
+To: daniel@ffwll.ch, airlied@linux.ie, kraxel@redhat.com, christian.koenig@amd.com, ray.huang@amd.com, hdegoede@redhat.com, noralf@tronnes.org, sam@ravnborg.org, z.liuxinliang@hisilicon.com, zourongrong@gmail.com, kong.kongxinwei@hisilicon.com, puck.chen@hisilicon.com
+Cc: Thomas Zimmermann <tzimmermann@suse.de>, dri-devel@lists.freedesktop.org, virtualization@lists.linux-foundation.org
 List-Id: virtualization@lists.linuxfoundation.org
 
-On 03/05/2019 11.44, Cornelia Huck wrote:
-> On Fri, 26 Apr 2019 20:32:38 +0200
-> Halil Pasic <pasic@linux.ibm.com> wrote:
-> 
->> Nothing precludes to accepting  VIRTIO_F_RING_PACKED any more.
-> 
-> "precludes us from accepting"
-> 
->>
->> Signed-off-by: Halil Pasic <pasic@linux.ibm.com>
->> ---
->>  drivers/s390/virtio/virtio_ccw.c | 4 +---
->>  1 file changed, 1 insertion(+), 3 deletions(-)
->>
->> diff --git a/drivers/s390/virtio/virtio_ccw.c b/drivers/s390/virtio/virtio_ccw.c
->> index 42832a164546..6d989c360f38 100644
->> --- a/drivers/s390/virtio/virtio_ccw.c
->> +++ b/drivers/s390/virtio/virtio_ccw.c
->> @@ -773,10 +773,8 @@ static u64 virtio_ccw_get_features(struct virtio_device *vdev)
->>  static void ccw_transport_features(struct virtio_device *vdev)
->>  {
->>  	/*
->> -	 * There shouldn't be anything that precludes supporting packed.
->> -	 * TODO: Remove the limitation after having another look into this.
->> +	 * Currently nothing to do here.
->>  	 */
->> -	__virtio_clear_bit(vdev, VIRTIO_F_RING_PACKED);
->>  }
->>  
->>  static int virtio_ccw_finalize_features(struct virtio_device *vdev)
-> 
-> Not sure whether we should merge this into the previous patch instead.
+The provided helpers can be used for the respective callback functions
+in |struct ttm_bo_driver|.
 
-In case you respin, I'd vote for squashing this into the previous patch
-instead, especially since you've just added the comment in that patch.
+v2:
+	* drm_is_gem_vram() is now a private function
+	* documentation fixes
 
-Also, what about removing that function now completely? It's a static
-function and only called once in this file, so IMHO it does not make
-much sense to keep an empty function around. Or do you plan to add new
-code here in the near future?
+Signed-off-by: Thomas Zimmermann <tzimmermann@suse.de>
+---
+ drivers/gpu/drm/drm_gem_vram_helper.c | 50 +++++++++++++++++++++++++++
+ include/drm/drm_gem_vram_helper.h     | 10 ++++++
+ 2 files changed, 60 insertions(+)
 
- Thomas
+diff --git a/drivers/gpu/drm/drm_gem_vram_helper.c b/drivers/gpu/drm/drm_gem_vram_helper.c
+index cac5b70c7ffb..e929a18c03f3 100644
+--- a/drivers/gpu/drm/drm_gem_vram_helper.c
++++ b/drivers/gpu/drm/drm_gem_vram_helper.c
+@@ -410,3 +410,53 @@ void drm_gem_vram_kunmap(struct drm_gem_vram_object *gbo)
+ 	drm_gem_vram_kunmap_at(gbo, &gbo->kmap);
+ }
+ EXPORT_SYMBOL(drm_gem_vram_kunmap);
++
++/*
++ * Helpers for struct ttm_bo_driver
++ */
++
++static bool drm_is_gem_vram(struct ttm_buffer_object *bo)
++{
++	return (bo->destroy == ttm_buffer_object_destroy);
++}
++
++/**
++ * drm_gem_vram_bo_driver_evict_flags() - \
++	Implements &struct ttm_bo_driver.evict_flags
++ * @bo:	TTM buffer object. Refers to &struct drm_gem_vram_object.bo
++ * @pl:	TTM placement information.
++ */
++void drm_gem_vram_bo_driver_evict_flags(struct ttm_buffer_object *bo,
++					struct ttm_placement *pl)
++{
++	struct drm_gem_vram_object *gbo;
++
++	/* TTM may pass BOs that are not GEM VRAM BOs. */
++	if (!drm_is_gem_vram(bo))
++		return;
++
++	gbo = drm_gem_vram_of_bo(bo);
++	drm_gem_vram_placement(gbo, TTM_PL_FLAG_SYSTEM);
++	*pl = gbo->placement;
++}
++EXPORT_SYMBOL(drm_gem_vram_bo_driver_evict_flags);
++
++/**
++ * drm_gem_vram_bo_driver_verify_access() - \
++	Implements &struct ttm_bo_driver.verify_access
++ * @bo:		TTM buffer object. Refers to &struct drm_gem_vram_object.bo
++ * @filp:	File pointer.
++ *
++ * Returns:
++ * 0 on success, or
++ * a negative errno code otherwise.
++ */
++int drm_gem_vram_bo_driver_verify_access(struct ttm_buffer_object *bo,
++					 struct file *filp)
++{
++	struct drm_gem_vram_object *gbo = drm_gem_vram_of_bo(bo);
++
++	return drm_vma_node_verify_access(&gbo->gem.vma_node,
++					  filp->private_data);
++}
++EXPORT_SYMBOL(drm_gem_vram_bo_driver_verify_access);
+diff --git a/include/drm/drm_gem_vram_helper.h b/include/drm/drm_gem_vram_helper.h
+index a8fd580d434d..f92e0f531a68 100644
+--- a/include/drm/drm_gem_vram_helper.h
++++ b/include/drm/drm_gem_vram_helper.h
+@@ -89,4 +89,14 @@ void drm_gem_vram_kunmap_at(struct drm_gem_vram_object *gbo,
+ 			    struct ttm_bo_kmap_obj *kmap);
+ void drm_gem_vram_kunmap(struct drm_gem_vram_object *gbo);
+ 
++/*
++ * Helpers for struct ttm_bo_driver
++ */
++
++void drm_gem_vram_bo_driver_evict_flags(struct ttm_buffer_object *bo,
++					struct ttm_placement *pl);
++
++int drm_gem_vram_bo_driver_verify_access(struct ttm_buffer_object *bo,
++					 struct file *filp);
++
+ #endif
+-- 
+2.21.0
