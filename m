@@ -1,14 +1,18 @@
-From: Sasha Levin <sashal@kernel.org>
-Subject: [PATCH AUTOSEL 5.0 85/99] Revert "drm/virtio: drop prime
-	import/export callbacks"
-Date: Tue,  7 May 2019 01:32:19 -0400
-Message-ID: <20190507053235.29900-85-sashal@kernel.org>
-References: <20190507053235.29900-1-sashal@kernel.org>
+From: Stefano Garzarella <sgarzare@redhat.com>
+Subject: Re: [PATCH] vsock/virtio: Initialize core virtio vsock before
+	registering the driver
+Date: Tue, 7 May 2019 14:25:43 +0200
+Message-ID: <20190507122543.kgh44rvaw7nwlhjn__41860.0567894586$1557231961$gmane$org@steredhat>
+References: <20190501003001.186239-1-jemoreira@google.com>
+	<20190501190831.GF22391@stefanha-x1.localdomain>
+	<20190502082045.u3xypjbac5npbhtc@steredhat.homenet.telecomitalia.it>
+	<CAJi--POaVsfprbp5na5BvR=VNONKGfFya_BnmTzzcWmOQ1DM2Q@mail.gmail.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="utf-8"
-Content-Transfer-Encoding: base64
+Content-Type: text/plain; charset="us-ascii"
+Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <20190507053235.29900-1-sashal@kernel.org>
+Content-Disposition: inline
+In-Reply-To: <CAJi--POaVsfprbp5na5BvR=VNONKGfFya_BnmTzzcWmOQ1DM2Q@mail.gmail.com>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -18,76 +22,137 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc: Sasha Levin <sashal@kernel.org>, Dave Airlie <airlied@redhat.com>, virtualization@lists.linux-foundation.org, dri-devel@lists.freedesktop.org, =?UTF-8?q?Marc-Andr=C3=A9=20Lureau?= <marcandre.lureau@redhat.com>
+To: Jorge Moreira Broche <jemoreira@google.com>
+Cc: kvm@vger.kernel.org, netdev@vger.kernel.org, linux-kernel@vger.kernel.org, stable@vger.kernel.org, virtualization@lists.linux-foundation.org, Stefan Hajnoczi <stefanha@redhat.com>, kernel-team@android.com, "David S. Miller" <davem@davemloft.net>
 List-Id: virtualization@lists.linuxfoundation.org
 
-RnJvbTogRGF2ZSBBaXJsaWUgPGFpcmxpZWRAcmVkaGF0LmNvbT4KClsgVXBzdHJlYW0gY29tbWl0
-IGEwY2VjYzIzY2ZjYmYyNjI2NDk3YThjODc3MDg1NmRkNTZiNjc5MTcgXQoKVGhpcyBwYXRjaCBk
-b2VzIG1vcmUgaGFybSB0aGFuIGdvb2QsIGFzIGl0IGJyZWFrcyBib3RoIFh3YXlsYW5kIGFuZApn
-bm9tZS1zaGVsbCB3aXRoIFgxMS4KClh3YXlsYW5kIHJlcXVpcmVzIERSSTMgJiBEUkkzIHJlcXVp
-cmVzIFBSSU1FLgoKWDExIGNyYXNoIGZvciBvYnNjdXJlIGRvdWJsZS1mcmVlIHJlYXNvbiB3aGlj
-aCBhcmUgaGFyZCB0byBkZWJ1Zwooc3RhcnRpbmcgWDExIGJ5IGhhbmQgZG9lc24ndCB0cmlnZ2Vy
-IHRoZSBjcmFzaCkuCgpJIGRvbid0IHNlZSBhbiBhcHBhcmVudCBwcm9ibGVtIGltcGxlbWVudGlu
-ZyB0aG9zZSBzdHViIHByaW1lCmZ1bmN0aW9ucywgdGhleSBtYXkgcmV0dXJuIGFuIGVycm9yIGF0
-IHJ1bi10aW1lLCBhbmQgaXQgc2VlbXMgdG8gYmUKaGFuZGxlZCBmaW5lIGJ5IEdOT01FIGF0IGxl
-YXN0LgoKVGhpcyByZXZlcnRzIGNvbW1pdCBiMzE4ZTNmZjdjYTA2NWQ2YjEwN2U0MjRjODVhNjNk
-N2E2Nzk4YTY5LgpbYWlybGllZDoKVGhpcyBicm9rZSB1c2Vyc3BhY2UgZm9yIHZpcnRpby1ncHVz
-LCBhbmQgcmVncmVzc2VkIHRoaW5ncyBmcm9tIERSSTMgdG8gRFJJMi4KClRoaXMgYnJpbmdzIGJh
-Y2sgdGhlIG9yaWdpbmFsIHByb2JsZW0sIGJ1dCBpdCdzIGJldHRlciB0aGFuIHJlZ3Jlc3Npb25z
-Ll0KCkZpeGVzOiBiMzE4ZTNmZjdjYTA2NWQ2YjEwN2U0MjRjODVhNjNkN2E2Nzk4YSAoImRybS92
-aXJ0aW86IGRyb3AgcHJpbWUgaW1wb3J0L2V4cG9ydCBjYWxsYmFja3MiKQpTaWduZWQtb2ZmLWJ5
-OiBNYXJjLUFuZHLDqSBMdXJlYXUgPG1hcmNhbmRyZS5sdXJlYXVAcmVkaGF0LmNvbT4KU2lnbmVk
-LW9mZi1ieTogRGF2ZSBBaXJsaWUgPGFpcmxpZWRAcmVkaGF0LmNvbT4KU2lnbmVkLW9mZi1ieTog
-U2FzaGEgTGV2aW4gPHNhc2hhbEBrZXJuZWwub3JnPgotLS0KIGRyaXZlcnMvZ3B1L2RybS92aXJ0
-aW8vdmlydGdwdV9kcnYuYyAgIHwgIDQgKysrKwogZHJpdmVycy9ncHUvZHJtL3ZpcnRpby92aXJ0
-Z3B1X2Rydi5oICAgfCAgNCArKysrCiBkcml2ZXJzL2dwdS9kcm0vdmlydGlvL3ZpcnRncHVfcHJp
-bWUuYyB8IDEyICsrKysrKysrKysrKwogMyBmaWxlcyBjaGFuZ2VkLCAyMCBpbnNlcnRpb25zKCsp
-CgpkaWZmIC0tZ2l0IGEvZHJpdmVycy9ncHUvZHJtL3ZpcnRpby92aXJ0Z3B1X2Rydi5jIGIvZHJp
-dmVycy9ncHUvZHJtL3ZpcnRpby92aXJ0Z3B1X2Rydi5jCmluZGV4IDJkMWFhY2E0OTEwNS4uZjdm
-MzJhODg1YWY3IDEwMDY0NAotLS0gYS9kcml2ZXJzL2dwdS9kcm0vdmlydGlvL3ZpcnRncHVfZHJ2
-LmMKKysrIGIvZHJpdmVycy9ncHUvZHJtL3ZpcnRpby92aXJ0Z3B1X2Rydi5jCkBAIC0xMjcsMTAg
-KzEyNywxNCBAQCBzdGF0aWMgc3RydWN0IGRybV9kcml2ZXIgZHJpdmVyID0gewogI2lmIGRlZmlu
-ZWQoQ09ORklHX0RFQlVHX0ZTKQogCS5kZWJ1Z2ZzX2luaXQgPSB2aXJ0aW9fZ3B1X2RlYnVnZnNf
-aW5pdCwKICNlbmRpZgorCS5wcmltZV9oYW5kbGVfdG9fZmQgPSBkcm1fZ2VtX3ByaW1lX2hhbmRs
-ZV90b19mZCwKKwkucHJpbWVfZmRfdG9faGFuZGxlID0gZHJtX2dlbV9wcmltZV9mZF90b19oYW5k
-bGUsCiAJLmdlbV9wcmltZV9leHBvcnQgPSBkcm1fZ2VtX3ByaW1lX2V4cG9ydCwKIAkuZ2VtX3By
-aW1lX2ltcG9ydCA9IGRybV9nZW1fcHJpbWVfaW1wb3J0LAogCS5nZW1fcHJpbWVfcGluID0gdmly
-dGdwdV9nZW1fcHJpbWVfcGluLAogCS5nZW1fcHJpbWVfdW5waW4gPSB2aXJ0Z3B1X2dlbV9wcmlt
-ZV91bnBpbiwKKwkuZ2VtX3ByaW1lX2dldF9zZ190YWJsZSA9IHZpcnRncHVfZ2VtX3ByaW1lX2dl
-dF9zZ190YWJsZSwKKwkuZ2VtX3ByaW1lX2ltcG9ydF9zZ190YWJsZSA9IHZpcnRncHVfZ2VtX3By
-aW1lX2ltcG9ydF9zZ190YWJsZSwKIAkuZ2VtX3ByaW1lX3ZtYXAgPSB2aXJ0Z3B1X2dlbV9wcmlt
-ZV92bWFwLAogCS5nZW1fcHJpbWVfdnVubWFwID0gdmlydGdwdV9nZW1fcHJpbWVfdnVubWFwLAog
-CS5nZW1fcHJpbWVfbW1hcCA9IHZpcnRncHVfZ2VtX3ByaW1lX21tYXAsCmRpZmYgLS1naXQgYS9k
-cml2ZXJzL2dwdS9kcm0vdmlydGlvL3ZpcnRncHVfZHJ2LmggYi9kcml2ZXJzL2dwdS9kcm0vdmly
-dGlvL3ZpcnRncHVfZHJ2LmgKaW5kZXggMGMxNTAwMGY5MjZlLi4xZGViNDFkNDJlYTQgMTAwNjQ0
-Ci0tLSBhL2RyaXZlcnMvZ3B1L2RybS92aXJ0aW8vdmlydGdwdV9kcnYuaAorKysgYi9kcml2ZXJz
-L2dwdS9kcm0vdmlydGlvL3ZpcnRncHVfZHJ2LmgKQEAgLTM3Miw2ICszNzIsMTAgQEAgaW50IHZp
-cnRpb19ncHVfb2JqZWN0X3dhaXQoc3RydWN0IHZpcnRpb19ncHVfb2JqZWN0ICpibywgYm9vbCBu
-b193YWl0KTsKIC8qIHZpcnRncHVfcHJpbWUuYyAqLwogaW50IHZpcnRncHVfZ2VtX3ByaW1lX3Bp
-bihzdHJ1Y3QgZHJtX2dlbV9vYmplY3QgKm9iaik7CiB2b2lkIHZpcnRncHVfZ2VtX3ByaW1lX3Vu
-cGluKHN0cnVjdCBkcm1fZ2VtX29iamVjdCAqb2JqKTsKK3N0cnVjdCBzZ190YWJsZSAqdmlydGdw
-dV9nZW1fcHJpbWVfZ2V0X3NnX3RhYmxlKHN0cnVjdCBkcm1fZ2VtX29iamVjdCAqb2JqKTsKK3N0
-cnVjdCBkcm1fZ2VtX29iamVjdCAqdmlydGdwdV9nZW1fcHJpbWVfaW1wb3J0X3NnX3RhYmxlKAor
-CXN0cnVjdCBkcm1fZGV2aWNlICpkZXYsIHN0cnVjdCBkbWFfYnVmX2F0dGFjaG1lbnQgKmF0dGFj
-aCwKKwlzdHJ1Y3Qgc2dfdGFibGUgKnNndCk7CiB2b2lkICp2aXJ0Z3B1X2dlbV9wcmltZV92bWFw
-KHN0cnVjdCBkcm1fZ2VtX29iamVjdCAqb2JqKTsKIHZvaWQgdmlydGdwdV9nZW1fcHJpbWVfdnVu
-bWFwKHN0cnVjdCBkcm1fZ2VtX29iamVjdCAqb2JqLCB2b2lkICp2YWRkcik7CiBpbnQgdmlydGdw
-dV9nZW1fcHJpbWVfbW1hcChzdHJ1Y3QgZHJtX2dlbV9vYmplY3QgKm9iaiwKZGlmZiAtLWdpdCBh
-L2RyaXZlcnMvZ3B1L2RybS92aXJ0aW8vdmlydGdwdV9wcmltZS5jIGIvZHJpdmVycy9ncHUvZHJt
-L3ZpcnRpby92aXJ0Z3B1X3ByaW1lLmMKaW5kZXggYzU5ZWMzNGM4MGE1Li5lYjUxYTc4ZTExOTkg
-MTAwNjQ0Ci0tLSBhL2RyaXZlcnMvZ3B1L2RybS92aXJ0aW8vdmlydGdwdV9wcmltZS5jCisrKyBi
-L2RyaXZlcnMvZ3B1L2RybS92aXJ0aW8vdmlydGdwdV9wcmltZS5jCkBAIC0zOSw2ICszOSwxOCBA
-QCB2b2lkIHZpcnRncHVfZ2VtX3ByaW1lX3VucGluKHN0cnVjdCBkcm1fZ2VtX29iamVjdCAqb2Jq
-KQogCVdBUk5fT05DRSgxLCAibm90IGltcGxlbWVudGVkIik7CiB9CiAKK3N0cnVjdCBzZ190YWJs
-ZSAqdmlydGdwdV9nZW1fcHJpbWVfZ2V0X3NnX3RhYmxlKHN0cnVjdCBkcm1fZ2VtX29iamVjdCAq
-b2JqKQoreworCXJldHVybiBFUlJfUFRSKC1FTk9ERVYpOworfQorCitzdHJ1Y3QgZHJtX2dlbV9v
-YmplY3QgKnZpcnRncHVfZ2VtX3ByaW1lX2ltcG9ydF9zZ190YWJsZSgKKwlzdHJ1Y3QgZHJtX2Rl
-dmljZSAqZGV2LCBzdHJ1Y3QgZG1hX2J1Zl9hdHRhY2htZW50ICphdHRhY2gsCisJc3RydWN0IHNn
-X3RhYmxlICp0YWJsZSkKK3sKKwlyZXR1cm4gRVJSX1BUUigtRU5PREVWKTsKK30KKwogdm9pZCAq
-dmlydGdwdV9nZW1fcHJpbWVfdm1hcChzdHJ1Y3QgZHJtX2dlbV9vYmplY3QgKm9iaikKIHsKIAlz
-dHJ1Y3QgdmlydGlvX2dwdV9vYmplY3QgKmJvID0gZ2VtX3RvX3ZpcnRpb19ncHVfb2JqKG9iaik7
-Ci0tIAoyLjIwLjEKCl9fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19f
-X19fClZpcnR1YWxpemF0aW9uIG1haWxpbmcgbGlzdApWaXJ0dWFsaXphdGlvbkBsaXN0cy5saW51
-eC1mb3VuZGF0aW9uLm9yZwpodHRwczovL2xpc3RzLmxpbnV4Zm91bmRhdGlvbi5vcmcvbWFpbG1h
-bi9saXN0aW5mby92aXJ0dWFsaXphdGlvbg==
+Hi Jorge,
+
+On Mon, May 06, 2019 at 01:19:55PM -0700, Jorge Moreira Broche wrote:
+> > On Wed, May 01, 2019 at 03:08:31PM -0400, Stefan Hajnoczi wrote:
+> > > On Tue, Apr 30, 2019 at 05:30:01PM -0700, Jorge E. Moreira wrote:
+> > > > Avoid a race in which static variables in net/vmw_vsock/af_vsock.c are
+> > > > accessed (while handling interrupts) before they are initialized.
+> > > >
+> > > >
+> > > > [    4.201410] BUG: unable to handle kernel paging request at ffffffffffffffe8
+> > > > [    4.207829] IP: vsock_addr_equals_addr+0x3/0x20
+> > > > [    4.211379] PGD 28210067 P4D 28210067 PUD 28212067 PMD 0
+> > > > [    4.211379] Oops: 0000 [#1] PREEMPT SMP PTI
+> > > > [    4.211379] Modules linked in:
+> > > > [    4.211379] CPU: 1 PID: 30 Comm: kworker/1:1 Not tainted 4.14.106-419297-gd7e28cc1f241 #1
+> > > > [    4.211379] Hardware name: QEMU Standard PC (i440FX + PIIX, 1996), BIOS 1.10.2-1 04/01/2014
+> > > > [    4.211379] Workqueue: virtio_vsock virtio_transport_rx_work
+> > > > [    4.211379] task: ffffa3273d175280 task.stack: ffffaea1800e8000
+> > > > [    4.211379] RIP: 0010:vsock_addr_equals_addr+0x3/0x20
+> > > > [    4.211379] RSP: 0000:ffffaea1800ebd28 EFLAGS: 00010286
+> > > > [    4.211379] RAX: 0000000000000002 RBX: 0000000000000000 RCX: ffffffffb94e42f0
+> > > > [    4.211379] RDX: 0000000000000400 RSI: ffffffffffffffe0 RDI: ffffaea1800ebdd0
+> > > > [    4.211379] RBP: ffffaea1800ebd58 R08: 0000000000000001 R09: 0000000000000001
+> > > > [    4.211379] R10: 0000000000000000 R11: ffffffffb89d5d60 R12: ffffaea1800ebdd0
+> > > > [    4.211379] R13: 00000000828cbfbf R14: 0000000000000000 R15: ffffaea1800ebdc0
+> > > > [    4.211379] FS:  0000000000000000(0000) GS:ffffa3273fd00000(0000) knlGS:0000000000000000
+> > > > [    4.211379] CS:  0010 DS: 0000 ES: 0000 CR0: 0000000080050033
+> > > > [    4.211379] CR2: ffffffffffffffe8 CR3: 000000002820e001 CR4: 00000000001606e0
+> > > > [    4.211379] DR0: 0000000000000000 DR1: 0000000000000000 DR2: 0000000000000000
+> > > > [    4.211379] DR3: 0000000000000000 DR6: 00000000fffe0ff0 DR7: 0000000000000400
+> > > > [    4.211379] Call Trace:
+> > > > [    4.211379]  ? vsock_find_connected_socket+0x6c/0xe0
+> > > > [    4.211379]  virtio_transport_recv_pkt+0x15f/0x740
+> > > > [    4.211379]  ? detach_buf+0x1b5/0x210
+> > > > [    4.211379]  virtio_transport_rx_work+0xb7/0x140
+> > > > [    4.211379]  process_one_work+0x1ef/0x480
+> > > > [    4.211379]  worker_thread+0x312/0x460
+> > > > [    4.211379]  kthread+0x132/0x140
+> > > > [    4.211379]  ? process_one_work+0x480/0x480
+> > > > [    4.211379]  ? kthread_destroy_worker+0xd0/0xd0
+> > > > [    4.211379]  ret_from_fork+0x35/0x40
+> > > > [    4.211379] Code: c7 47 08 00 00 00 00 66 c7 07 28 00 c7 47 08 ff ff ff ff c7 47 04 ff ff ff ff c3 0f 1f 00 66 2e 0f 1f 84 00 00 00 00 00 8b 47 08 <3b> 46 08 75 0a 8b 47 04 3b 46 04 0f 94 c0 c3 31 c0 c3 90 66 2e
+> > > > [    4.211379] RIP: vsock_addr_equals_addr+0x3/0x20 RSP: ffffaea1800ebd28
+> > > > [    4.211379] CR2: ffffffffffffffe8
+> > > > [    4.211379] ---[ end trace f31cc4a2e6df3689 ]---
+> > > > [    4.211379] Kernel panic - not syncing: Fatal exception in interrupt
+> > > > [    4.211379] Kernel Offset: 0x37000000 from 0xffffffff81000000 (relocation range: 0xffffffff80000000-0xffffffffbfffffff)
+> > > > [    4.211379] Rebooting in 5 seconds..
+> > > >
+> > > > Fixes: 22b5c0b63f32 ("vsock/virtio: fix kernel panic after device hot-unplug")
+> > > > Cc: Stefan Hajnoczi <stefanha@redhat.com>
+> > > > Cc: "David S. Miller" <davem@davemloft.net>
+> > > > Cc: kvm@vger.kernel.org
+> > > > Cc: virtualization@lists.linux-foundation.org
+> > > > Cc: netdev@vger.kernel.org
+> > > > Cc: kernel-team@android.com
+> > > > Cc: stable@vger.kernel.org [4.9+]
+> > > > Signed-off-by: Jorge E. Moreira <jemoreira@google.com>
+> > > > ---
+> > > >  net/vmw_vsock/virtio_transport.c | 13 ++++++-------
+> > > >  1 file changed, 6 insertions(+), 7 deletions(-)
+> > > >
+> > > > diff --git a/net/vmw_vsock/virtio_transport.c b/net/vmw_vsock/virtio_transport.c
+> > > > index 15eb5d3d4750..96ab344f17bb 100644
+> > > > --- a/net/vmw_vsock/virtio_transport.c
+> > > > +++ b/net/vmw_vsock/virtio_transport.c
+> > > > @@ -702,28 +702,27 @@ static int __init virtio_vsock_init(void)
+> > > >     if (!virtio_vsock_workqueue)
+> > > >             return -ENOMEM;
+> > > >
+> > > > -   ret = register_virtio_driver(&virtio_vsock_driver);
+> > > > +   ret = vsock_core_init(&virtio_transport.transport);
+> > >
+> > > Have you checked that all transport callbacks are safe even if another
+> > > CPU calls them while virtio_vsock_probe() is executing on another CPU?
+> > >
+> >
+> > I have the same doubt.
+> >
+> > What do you think to take the 'the_virtio_vsock_mutex' in the
+> > virtio_vsock_init(), keeping the previous order?
+> >
+> > This should prevent this issue because the virtio_vsock_probe() remains
+> > blocked in the mutex until the end of vsock_core_init().
+> >
+> > Cheers,
+> > Stefano
+> 
+> Hi Stefan, Stefano,
+> Sorry for the late reply.
+
+Don't worry :)
+
+> 
+> @Stefan
+> The order of vsock_core_exit() does not need to be changed to fix the
+> bug I found, but not changing it means the exit function is not
+> symmetric to the init function.
+> 
+> @Stefano
+> Taking the mutex from virtio_vsock_init() could work too (I haven't
+> tried it yet), but it's unnecessary, all that needs to be done is
+> properly initialize vsock_core before attempting to use it.
+> 
+> I would prefer to change the order in virtio_vsock_init, while leaving
+> virtio_vsock_exit unchanged, but I'll leave the final decision to you
+> since I am not very familiar with the inner workings of these modules.
+
+In order to fix your issue, IMO changing the order in virtio_vsock_init(),
+is enough.
+
+I think also that is correct to change the order in the virtio_vsock_exit(),
+otherwise, we should have the same issue if an interrupt comes while we
+are removing the module.
+This should not lead to the problem that I tried to solve in 22b5c0b63f32,
+because the vsock_core_exit() should not be called if there are open sockets,
+since the virtio-vsock driver become the owner of AF_VSOCK protocol
+family.
+
+Not related to this patch, maybe there are some issues in the
+virtio_vsock_probe(). I'd check better if it is correct to set
+'the_virtio_vsock' before the end of the initialization (e.g. spinlocks
+are initialized later).
+
+Accordingly,
+
+Reviewed-by: Stefano Garzarella <sgarzare@redhat.com>
+
+Thanks,
+Stefano
