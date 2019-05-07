@@ -1,14 +1,16 @@
-From: Christoph Hellwig <hch@infradead.org>
-Subject: Re: [PATCH RFC] vhost: don't use kmap() to log dirty pages
-Date: Tue, 7 May 2019 08:47:53 -0700
-Message-ID: <20190507154753.GA8809__48637.9355703079$1557244087$gmane$org@infradead.org>
-References: <1557195809-12373-1-git-send-email-jasowang@redhat.com>
+From: "Darrick J. Wong" <darrick.wong@oracle.com>
+Subject: Re: [PATCH v7 6/6] xfs: disable map_sync for async flush
+Date: Tue, 7 May 2019 09:17:36 -0700
+Message-ID: <20190507161736.GV5207@magnolia>
+References: <20190426050039.17460-1-pagupta@redhat.com>
+	<20190426050039.17460-7-pagupta@redhat.com>
+	<CAPcyv4hCP4E4xPkQx25tqhznon6ADwrYJB1yujkrO-A7LUnsmg@mail.gmail.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
 Content-Disposition: inline
-In-Reply-To: <1557195809-12373-1-git-send-email-jasowang@redhat.com>
+In-Reply-To: <CAPcyv4hCP4E4xPkQx25tqhznon6ADwrYJB1yujkrO-A7LUnsmg@mail.gmail.com>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -18,52 +20,58 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Jason Wang <jasowang@redhat.com>
-Cc: Andrea Arcangeli <aarcange@redhat.com>, kvm@vger.kernel.org, mst@redhat.com, Peter Zijlstra <peterz@infradead.org>, netdev@vger.kernel.org, linux-kernel@vger.kernel.org, virtualization@lists.linux-foundation.org, James Bottomley <James.Bottomley@HansenPartnership.com>, Ingo Molnar <mingo@redhat.com>, Darren Hart <dvhart@infradead.org>, Thomas Gleixner <tglx@linutronix.de>
+To: Dan Williams <dan.j.williams@intel.com>
+Cc: Pankaj Gupta <pagupta@redhat.com>, Jan Kara <jack@suse.cz>, KVM list <kvm@vger.kernel.org>, "Michael S. Tsirkin" <mst@redhat.com>, david <david@fromorbit.com>, Qemu Developers <qemu-devel@nongnu.org>, virtualization@lists.linux-foundation.org, Andreas Dilger <adilger.kernel@dilger.ca>, Ross Zwisler <zwisler@kernel.org>, Andrea Arcangeli <aarcange@redhat.com>, Dave Jiang <dave.jiang@intel.com>, linux-nvdimm <linux-nvdimm@lists.01.org>, Vishal L Verma <vishal.l.verma@intel.com>, Matthew Wilcox <willy@infradead.org>, Christoph Hellwig <hch@infradead.org>, Linux ACPI <linux-acpi@vger.kernel.org>, jmoyer <jmoyer@redhat.com>, linux-ext4 <linux-ext4@vger.kernel.org>, Len Brown <lenb@kernel.org>, kilobyte@angband.pl, Rik van Riel <riel@surriel.com>, yuval shaia <yuval.shaia@oracle.com>, Stefan Hajnoczi <stefanha@redhat.com>, Paolo Bonzini <pbonzini@redhat.com>, lcapitulino@re
 List-Id: virtualization@lists.linuxfoundation.org
 
-On Mon, May 06, 2019 at 10:23:29PM -0400, Jason Wang wrote:
-> Note: there're archs (few non popular ones) that don't implement
-> futex helper, we can't log dirty pages. We can fix them on top or
-> simply disable LOG_ALL features of vhost.
+On Tue, May 07, 2019 at 08:37:01AM -0700, Dan Williams wrote:
+> On Thu, Apr 25, 2019 at 10:03 PM Pankaj Gupta <pagupta@redhat.com> wrote:
+> >
+> > Dont support 'MAP_SYNC' with non-DAX files and DAX files
+> > with asynchronous dax_device. Virtio pmem provides
+> > asynchronous host page cache flush mechanism. We don't
+> > support 'MAP_SYNC' with virtio pmem and xfs.
+> >
+> > Signed-off-by: Pankaj Gupta <pagupta@redhat.com>
+> > ---
+> >  fs/xfs/xfs_file.c | 9 ++++++---
+> >  1 file changed, 6 insertions(+), 3 deletions(-)
+> 
+> Darrick, does this look ok to take through the nvdimm tree?
 
-That means vhost now has to depend on HAVE_FUTEX_CMPXCHG to make
-sure we have a working implementation.
+<urk> forgot about this, sorry. :/
 
+> >
+> > diff --git a/fs/xfs/xfs_file.c b/fs/xfs/xfs_file.c
+> > index a7ceae90110e..f17652cca5ff 100644
+> > --- a/fs/xfs/xfs_file.c
+> > +++ b/fs/xfs/xfs_file.c
+> > @@ -1203,11 +1203,14 @@ xfs_file_mmap(
+> >         struct file     *filp,
+> >         struct vm_area_struct *vma)
+> >  {
+> > +       struct dax_device       *dax_dev;
+> > +
+> > +       dax_dev = xfs_find_daxdev_for_inode(file_inode(filp));
+> >         /*
+> > -        * We don't support synchronous mappings for non-DAX files. At least
+> > -        * until someone comes with a sensible use case.
+> > +        * We don't support synchronous mappings for non-DAX files and
+> > +        * for DAX files if underneath dax_device is not synchronous.
+> >          */
+> > -       if (!IS_DAX(file_inode(filp)) && (vma->vm_flags & VM_SYNC))
+> > +       if (!daxdev_mapping_supported(vma, dax_dev))
+> >                 return -EOPNOTSUPP;
 
->  #include <linux/sched/signal.h>
->  #include <linux/interval_tree_generic.h>
->  #include <linux/nospec.h>
-> +#include <asm/futex.h>
+LGTM, and I'm fine with it going through nvdimm.  Nothing in
+xfs-5.2-merge touches that function so it should be clean.
 
-Also please include the futex maintainers to make sure they are fine
-with this first usage of <asm/futex.h> outside of kernel/futex.c.
+Reviewed-by: Darrick J. Wong <darrick.wong@oracle.com>
 
+--D
 
-> +static int set_bit_to_user(int nr, u32 __user *addr)
->  {
->  	unsigned long log = (unsigned long)addr;
->  	struct page *page;
-> +	u32 old_log;
->  	int r;
->  
->  	r = get_user_pages_fast(log, 1, 1, &page);
->  	if (r < 0)
->  		return r;
->  	BUG_ON(r != 1);
-> +
-> +	r = futex_atomic_cmpxchg_inatomic(&old_log, addr, 0, 0);
-> +	if (r < 0)
-> +		return r;
-> +
-> +	old_log |= 1 << nr;
-> +	r = put_user(old_log, addr);
-> +	if (r < 0)
-> +		return r;
-
-And this just looks odd to me.  Why do we need the futex call to
-replace a 0 value with 0?  Why does it still duplicate the
-put_user?  This doesn't look like actually working code to me.
-
-Also don't we need a pagefault_disable() around
-futex_atomic_cmpxchg_inatomic?
+> >
+> >         file_accessed(filp);
+> > --
+> > 2.20.1
+> >
