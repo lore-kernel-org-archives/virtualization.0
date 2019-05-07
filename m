@@ -1,11 +1,14 @@
-From: Jason Wang <jasowang@redhat.com>
-Subject: [PATCH RFC] vhost: don't use kmap() to log dirty pages
-Date: Mon,  6 May 2019 22:23:29 -0400
-Message-ID: <1557195809-12373-1-git-send-email-jasowang__32091.88190974$1557195828$gmane$org@redhat.com>
+From: Sasha Levin <sashal@kernel.org>
+Subject: [PATCH AUTOSEL 5.0 85/99] Revert "drm/virtio: drop prime
+	import/export callbacks"
+Date: Tue,  7 May 2019 01:32:19 -0400
+Message-ID: <20190507053235.29900-85-sashal@kernel.org>
+References: <20190507053235.29900-1-sashal@kernel.org>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset="utf-8"
+Content-Transfer-Encoding: base64
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
+In-Reply-To: <20190507053235.29900-1-sashal@kernel.org>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -15,93 +18,76 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: mst@redhat.com, jasowang@redhat.com, kvm@vger.kernel.org, virtualization@lists.linux-foundation.org, netdev@vger.kernel.org, linux-kernel@vger.kernel.org
-Cc: Christoph Hellwig <hch@infradead.org>, James Bottomley <James.Bottomley@HansenPartnership.com>, Andrea Arcangeli <aarcange@redhat.com>
+To: linux-kernel@vger.kernel.org, stable@vger.kernel.org
+Cc: Sasha Levin <sashal@kernel.org>, Dave Airlie <airlied@redhat.com>, virtualization@lists.linux-foundation.org, dri-devel@lists.freedesktop.org, =?UTF-8?q?Marc-Andr=C3=A9=20Lureau?= <marcandre.lureau@redhat.com>
 List-Id: virtualization@lists.linuxfoundation.org
 
-Vhost log dirty pages directly to a userspace bitmap through GUP and
-kmap_atomic() since kernel doesn't have a set_bit_to_user()
-helper. This will cause issues for the arch that has virtually tagged
-caches. The way to fix is to keep using userspace virtual address.
-
-Fortunately, futex has a cmpxchg to userspace memory helper
-futex_atomic_cmpxchg_inatomic(). So switch to use it to exchange the
-userspace bitmap with zero, set the bit and then write it back through
-put_user().
-
-Note: there're archs (few non popular ones) that don't implement
-futex helper, we can't log dirty pages. We can fix them on top or
-simply disable LOG_ALL features of vhost.
-
-Cc: Christoph Hellwig <hch@infradead.org>
-Cc: James Bottomley <James.Bottomley@HansenPartnership.com>
-Cc: Andrea Arcangeli <aarcange@redhat.com>
-Fixes: 3a4d5c94e9593 ("vhost_net: a kernel-level virtio server")
-Signed-off-by: Jason Wang <jasowang@redhat.com>
----
- drivers/vhost/vhost.c | 27 +++++++++++++++------------
- 1 file changed, 15 insertions(+), 12 deletions(-)
-
-diff --git a/drivers/vhost/vhost.c b/drivers/vhost/vhost.c
-index 351af88..9c94c41 100644
---- a/drivers/vhost/vhost.c
-+++ b/drivers/vhost/vhost.c
-@@ -31,6 +31,7 @@
- #include <linux/sched/signal.h>
- #include <linux/interval_tree_generic.h>
- #include <linux/nospec.h>
-+#include <asm/futex.h>
- 
- #include "vhost.h"
- 
-@@ -1692,25 +1693,27 @@ long vhost_dev_ioctl(struct vhost_dev *d, unsigned int ioctl, void __user *argp)
- }
- EXPORT_SYMBOL_GPL(vhost_dev_ioctl);
- 
--/* TODO: This is really inefficient.  We need something like get_user()
-- * (instruction directly accesses the data, with an exception table entry
-- * returning -EFAULT). See Documentation/x86/exception-tables.txt.
-- */
--static int set_bit_to_user(int nr, void __user *addr)
-+static int set_bit_to_user(int nr, u32 __user *addr)
- {
- 	unsigned long log = (unsigned long)addr;
- 	struct page *page;
--	void *base;
--	int bit = nr + (log % PAGE_SIZE) * 8;
-+	u32 old_log;
- 	int r;
- 
- 	r = get_user_pages_fast(log, 1, 1, &page);
- 	if (r < 0)
- 		return r;
- 	BUG_ON(r != 1);
--	base = kmap_atomic(page);
--	set_bit(bit, base);
--	kunmap_atomic(base);
-+
-+	r = futex_atomic_cmpxchg_inatomic(&old_log, addr, 0, 0);
-+	if (r < 0)
-+		return r;
-+
-+	old_log |= 1 << nr;
-+	r = put_user(old_log, addr);
-+	if (r < 0)
-+		return r;
-+
- 	set_page_dirty_lock(page);
- 	put_page(page);
- 	return 0;
-@@ -1727,8 +1730,8 @@ static int log_write(void __user *log_base,
- 	write_length += write_address % VHOST_PAGE_SIZE;
- 	for (;;) {
- 		u64 base = (u64)(unsigned long)log_base;
--		u64 log = base + write_page / 8;
--		int bit = write_page % 8;
-+		u64 log = base + write_page / 32;
-+		int bit = write_page % 32;
- 		if ((u64)(unsigned long)log != log)
- 			return -EFAULT;
- 		r = set_bit_to_user(bit, (void __user *)(unsigned long)log);
--- 
-1.8.3.1
+RnJvbTogRGF2ZSBBaXJsaWUgPGFpcmxpZWRAcmVkaGF0LmNvbT4KClsgVXBzdHJlYW0gY29tbWl0
+IGEwY2VjYzIzY2ZjYmYyNjI2NDk3YThjODc3MDg1NmRkNTZiNjc5MTcgXQoKVGhpcyBwYXRjaCBk
+b2VzIG1vcmUgaGFybSB0aGFuIGdvb2QsIGFzIGl0IGJyZWFrcyBib3RoIFh3YXlsYW5kIGFuZApn
+bm9tZS1zaGVsbCB3aXRoIFgxMS4KClh3YXlsYW5kIHJlcXVpcmVzIERSSTMgJiBEUkkzIHJlcXVp
+cmVzIFBSSU1FLgoKWDExIGNyYXNoIGZvciBvYnNjdXJlIGRvdWJsZS1mcmVlIHJlYXNvbiB3aGlj
+aCBhcmUgaGFyZCB0byBkZWJ1Zwooc3RhcnRpbmcgWDExIGJ5IGhhbmQgZG9lc24ndCB0cmlnZ2Vy
+IHRoZSBjcmFzaCkuCgpJIGRvbid0IHNlZSBhbiBhcHBhcmVudCBwcm9ibGVtIGltcGxlbWVudGlu
+ZyB0aG9zZSBzdHViIHByaW1lCmZ1bmN0aW9ucywgdGhleSBtYXkgcmV0dXJuIGFuIGVycm9yIGF0
+IHJ1bi10aW1lLCBhbmQgaXQgc2VlbXMgdG8gYmUKaGFuZGxlZCBmaW5lIGJ5IEdOT01FIGF0IGxl
+YXN0LgoKVGhpcyByZXZlcnRzIGNvbW1pdCBiMzE4ZTNmZjdjYTA2NWQ2YjEwN2U0MjRjODVhNjNk
+N2E2Nzk4YTY5LgpbYWlybGllZDoKVGhpcyBicm9rZSB1c2Vyc3BhY2UgZm9yIHZpcnRpby1ncHVz
+LCBhbmQgcmVncmVzc2VkIHRoaW5ncyBmcm9tIERSSTMgdG8gRFJJMi4KClRoaXMgYnJpbmdzIGJh
+Y2sgdGhlIG9yaWdpbmFsIHByb2JsZW0sIGJ1dCBpdCdzIGJldHRlciB0aGFuIHJlZ3Jlc3Npb25z
+Ll0KCkZpeGVzOiBiMzE4ZTNmZjdjYTA2NWQ2YjEwN2U0MjRjODVhNjNkN2E2Nzk4YSAoImRybS92
+aXJ0aW86IGRyb3AgcHJpbWUgaW1wb3J0L2V4cG9ydCBjYWxsYmFja3MiKQpTaWduZWQtb2ZmLWJ5
+OiBNYXJjLUFuZHLDqSBMdXJlYXUgPG1hcmNhbmRyZS5sdXJlYXVAcmVkaGF0LmNvbT4KU2lnbmVk
+LW9mZi1ieTogRGF2ZSBBaXJsaWUgPGFpcmxpZWRAcmVkaGF0LmNvbT4KU2lnbmVkLW9mZi1ieTog
+U2FzaGEgTGV2aW4gPHNhc2hhbEBrZXJuZWwub3JnPgotLS0KIGRyaXZlcnMvZ3B1L2RybS92aXJ0
+aW8vdmlydGdwdV9kcnYuYyAgIHwgIDQgKysrKwogZHJpdmVycy9ncHUvZHJtL3ZpcnRpby92aXJ0
+Z3B1X2Rydi5oICAgfCAgNCArKysrCiBkcml2ZXJzL2dwdS9kcm0vdmlydGlvL3ZpcnRncHVfcHJp
+bWUuYyB8IDEyICsrKysrKysrKysrKwogMyBmaWxlcyBjaGFuZ2VkLCAyMCBpbnNlcnRpb25zKCsp
+CgpkaWZmIC0tZ2l0IGEvZHJpdmVycy9ncHUvZHJtL3ZpcnRpby92aXJ0Z3B1X2Rydi5jIGIvZHJp
+dmVycy9ncHUvZHJtL3ZpcnRpby92aXJ0Z3B1X2Rydi5jCmluZGV4IDJkMWFhY2E0OTEwNS4uZjdm
+MzJhODg1YWY3IDEwMDY0NAotLS0gYS9kcml2ZXJzL2dwdS9kcm0vdmlydGlvL3ZpcnRncHVfZHJ2
+LmMKKysrIGIvZHJpdmVycy9ncHUvZHJtL3ZpcnRpby92aXJ0Z3B1X2Rydi5jCkBAIC0xMjcsMTAg
+KzEyNywxNCBAQCBzdGF0aWMgc3RydWN0IGRybV9kcml2ZXIgZHJpdmVyID0gewogI2lmIGRlZmlu
+ZWQoQ09ORklHX0RFQlVHX0ZTKQogCS5kZWJ1Z2ZzX2luaXQgPSB2aXJ0aW9fZ3B1X2RlYnVnZnNf
+aW5pdCwKICNlbmRpZgorCS5wcmltZV9oYW5kbGVfdG9fZmQgPSBkcm1fZ2VtX3ByaW1lX2hhbmRs
+ZV90b19mZCwKKwkucHJpbWVfZmRfdG9faGFuZGxlID0gZHJtX2dlbV9wcmltZV9mZF90b19oYW5k
+bGUsCiAJLmdlbV9wcmltZV9leHBvcnQgPSBkcm1fZ2VtX3ByaW1lX2V4cG9ydCwKIAkuZ2VtX3By
+aW1lX2ltcG9ydCA9IGRybV9nZW1fcHJpbWVfaW1wb3J0LAogCS5nZW1fcHJpbWVfcGluID0gdmly
+dGdwdV9nZW1fcHJpbWVfcGluLAogCS5nZW1fcHJpbWVfdW5waW4gPSB2aXJ0Z3B1X2dlbV9wcmlt
+ZV91bnBpbiwKKwkuZ2VtX3ByaW1lX2dldF9zZ190YWJsZSA9IHZpcnRncHVfZ2VtX3ByaW1lX2dl
+dF9zZ190YWJsZSwKKwkuZ2VtX3ByaW1lX2ltcG9ydF9zZ190YWJsZSA9IHZpcnRncHVfZ2VtX3By
+aW1lX2ltcG9ydF9zZ190YWJsZSwKIAkuZ2VtX3ByaW1lX3ZtYXAgPSB2aXJ0Z3B1X2dlbV9wcmlt
+ZV92bWFwLAogCS5nZW1fcHJpbWVfdnVubWFwID0gdmlydGdwdV9nZW1fcHJpbWVfdnVubWFwLAog
+CS5nZW1fcHJpbWVfbW1hcCA9IHZpcnRncHVfZ2VtX3ByaW1lX21tYXAsCmRpZmYgLS1naXQgYS9k
+cml2ZXJzL2dwdS9kcm0vdmlydGlvL3ZpcnRncHVfZHJ2LmggYi9kcml2ZXJzL2dwdS9kcm0vdmly
+dGlvL3ZpcnRncHVfZHJ2LmgKaW5kZXggMGMxNTAwMGY5MjZlLi4xZGViNDFkNDJlYTQgMTAwNjQ0
+Ci0tLSBhL2RyaXZlcnMvZ3B1L2RybS92aXJ0aW8vdmlydGdwdV9kcnYuaAorKysgYi9kcml2ZXJz
+L2dwdS9kcm0vdmlydGlvL3ZpcnRncHVfZHJ2LmgKQEAgLTM3Miw2ICszNzIsMTAgQEAgaW50IHZp
+cnRpb19ncHVfb2JqZWN0X3dhaXQoc3RydWN0IHZpcnRpb19ncHVfb2JqZWN0ICpibywgYm9vbCBu
+b193YWl0KTsKIC8qIHZpcnRncHVfcHJpbWUuYyAqLwogaW50IHZpcnRncHVfZ2VtX3ByaW1lX3Bp
+bihzdHJ1Y3QgZHJtX2dlbV9vYmplY3QgKm9iaik7CiB2b2lkIHZpcnRncHVfZ2VtX3ByaW1lX3Vu
+cGluKHN0cnVjdCBkcm1fZ2VtX29iamVjdCAqb2JqKTsKK3N0cnVjdCBzZ190YWJsZSAqdmlydGdw
+dV9nZW1fcHJpbWVfZ2V0X3NnX3RhYmxlKHN0cnVjdCBkcm1fZ2VtX29iamVjdCAqb2JqKTsKK3N0
+cnVjdCBkcm1fZ2VtX29iamVjdCAqdmlydGdwdV9nZW1fcHJpbWVfaW1wb3J0X3NnX3RhYmxlKAor
+CXN0cnVjdCBkcm1fZGV2aWNlICpkZXYsIHN0cnVjdCBkbWFfYnVmX2F0dGFjaG1lbnQgKmF0dGFj
+aCwKKwlzdHJ1Y3Qgc2dfdGFibGUgKnNndCk7CiB2b2lkICp2aXJ0Z3B1X2dlbV9wcmltZV92bWFw
+KHN0cnVjdCBkcm1fZ2VtX29iamVjdCAqb2JqKTsKIHZvaWQgdmlydGdwdV9nZW1fcHJpbWVfdnVu
+bWFwKHN0cnVjdCBkcm1fZ2VtX29iamVjdCAqb2JqLCB2b2lkICp2YWRkcik7CiBpbnQgdmlydGdw
+dV9nZW1fcHJpbWVfbW1hcChzdHJ1Y3QgZHJtX2dlbV9vYmplY3QgKm9iaiwKZGlmZiAtLWdpdCBh
+L2RyaXZlcnMvZ3B1L2RybS92aXJ0aW8vdmlydGdwdV9wcmltZS5jIGIvZHJpdmVycy9ncHUvZHJt
+L3ZpcnRpby92aXJ0Z3B1X3ByaW1lLmMKaW5kZXggYzU5ZWMzNGM4MGE1Li5lYjUxYTc4ZTExOTkg
+MTAwNjQ0Ci0tLSBhL2RyaXZlcnMvZ3B1L2RybS92aXJ0aW8vdmlydGdwdV9wcmltZS5jCisrKyBi
+L2RyaXZlcnMvZ3B1L2RybS92aXJ0aW8vdmlydGdwdV9wcmltZS5jCkBAIC0zOSw2ICszOSwxOCBA
+QCB2b2lkIHZpcnRncHVfZ2VtX3ByaW1lX3VucGluKHN0cnVjdCBkcm1fZ2VtX29iamVjdCAqb2Jq
+KQogCVdBUk5fT05DRSgxLCAibm90IGltcGxlbWVudGVkIik7CiB9CiAKK3N0cnVjdCBzZ190YWJs
+ZSAqdmlydGdwdV9nZW1fcHJpbWVfZ2V0X3NnX3RhYmxlKHN0cnVjdCBkcm1fZ2VtX29iamVjdCAq
+b2JqKQoreworCXJldHVybiBFUlJfUFRSKC1FTk9ERVYpOworfQorCitzdHJ1Y3QgZHJtX2dlbV9v
+YmplY3QgKnZpcnRncHVfZ2VtX3ByaW1lX2ltcG9ydF9zZ190YWJsZSgKKwlzdHJ1Y3QgZHJtX2Rl
+dmljZSAqZGV2LCBzdHJ1Y3QgZG1hX2J1Zl9hdHRhY2htZW50ICphdHRhY2gsCisJc3RydWN0IHNn
+X3RhYmxlICp0YWJsZSkKK3sKKwlyZXR1cm4gRVJSX1BUUigtRU5PREVWKTsKK30KKwogdm9pZCAq
+dmlydGdwdV9nZW1fcHJpbWVfdm1hcChzdHJ1Y3QgZHJtX2dlbV9vYmplY3QgKm9iaikKIHsKIAlz
+dHJ1Y3QgdmlydGlvX2dwdV9vYmplY3QgKmJvID0gZ2VtX3RvX3ZpcnRpb19ncHVfb2JqKG9iaik7
+Ci0tIAoyLjIwLjEKCl9fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19f
+X19fClZpcnR1YWxpemF0aW9uIG1haWxpbmcgbGlzdApWaXJ0dWFsaXphdGlvbkBsaXN0cy5saW51
+eC1mb3VuZGF0aW9uLm9yZwpodHRwczovL2xpc3RzLmxpbnV4Zm91bmRhdGlvbi5vcmcvbWFpbG1h
+bi9saXN0aW5mby92aXJ0dWFsaXphdGlvbg==
