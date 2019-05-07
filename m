@@ -1,14 +1,14 @@
-From: Dan Williams <dan.j.williams@intel.com>
-Subject: Re: [PATCH v7 3/6] libnvdimm: add dax_dev sync flag
-Date: Tue, 7 May 2019 08:40:30 -0700
-Message-ID: <CAPcyv4hRdvypEj4LBTMfUFm80BdpRYbOugrkkj-3Kk_LErXPqQ__18691.8434382946$1557243655$gmane$org@mail.gmail.com>
-References: <20190426050039.17460-1-pagupta@redhat.com>
-	<20190426050039.17460-4-pagupta@redhat.com>
+From: Christoph Hellwig <hch@infradead.org>
+Subject: Re: [PATCH RFC] vhost: don't use kmap() to log dirty pages
+Date: Tue, 7 May 2019 08:47:53 -0700
+Message-ID: <20190507154753.GA8809__48637.9355703079$1557244087$gmane$org@infradead.org>
+References: <1557195809-12373-1-git-send-email-jasowang@redhat.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <20190426050039.17460-4-pagupta@redhat.com>
+Content-Disposition: inline
+In-Reply-To: <1557195809-12373-1-git-send-email-jasowang@redhat.com>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -18,31 +18,52 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Pankaj Gupta <pagupta@redhat.com>
-Cc: cohuck@redhat.com, Jan Kara <jack@suse.cz>, KVM list <kvm@vger.kernel.org>, "Michael S. Tsirkin" <mst@redhat.com>, david <david@fromorbit.com>, Qemu Developers <qemu-devel@nongnu.org>, virtualization@lists.linux-foundation.org, Andreas Dilger <adilger.kernel@dilger.ca>, Ross Zwisler <zwisler@kernel.org>, Andrea Arcangeli <aarcange@redhat.com>, Dave Jiang <dave.jiang@intel.com>, linux-nvdimm <linux-nvdimm@lists.01.org>, Vishal L Verma <vishal.l.verma@intel.com>, Matthew Wilcox <willy@infradead.org>, Christoph Hellwig <hch@infradead.org>, Linux ACPI <linux-acpi@vger.kernel.org>, jmoyer <jmoyer@redhat.com>, linux-ext4 <linux-ext4@vger.kernel.org>, Len Brown <lenb@kernel.org>, kilobyte@angband.pl, Rik van Riel <riel@surriel.com>, yuval shaia <yuval.shaia@oracle.com>, Stefan Hajnoczi <stefanha@redhat.com>, Paolo Bonzini <pbonzini@redhat.com>, lcapitulino@redhat.com, Nites
+To: Jason Wang <jasowang@redhat.com>
+Cc: Andrea Arcangeli <aarcange@redhat.com>, kvm@vger.kernel.org, mst@redhat.com, Peter Zijlstra <peterz@infradead.org>, netdev@vger.kernel.org, linux-kernel@vger.kernel.org, virtualization@lists.linux-foundation.org, James Bottomley <James.Bottomley@HansenPartnership.com>, Ingo Molnar <mingo@redhat.com>, Darren Hart <dvhart@infradead.org>, Thomas Gleixner <tglx@linutronix.de>
 List-Id: virtualization@lists.linuxfoundation.org
 
-On Thu, Apr 25, 2019 at 10:02 PM Pankaj Gupta <pagupta@redhat.com> wrote:
->
-> This patch adds 'DAXDEV_SYNC' flag which is set
-> for nd_region doing synchronous flush. This later
-> is used to disable MAP_SYNC functionality for
-> ext4 & xfs filesystem for devices don't support
-> synchronous flush.
->
-> Signed-off-by: Pankaj Gupta <pagupta@redhat.com>
-[..]
-> diff --git a/include/linux/dax.h b/include/linux/dax.h
-> index 0dd316a74a29..c97fc0cc7167 100644
-> --- a/include/linux/dax.h
-> +++ b/include/linux/dax.h
-> @@ -7,6 +7,9 @@
->  #include <linux/radix-tree.h>
->  #include <asm/pgtable.h>
->
-> +/* Flag for synchronous flush */
-> +#define DAXDEV_F_SYNC true
+On Mon, May 06, 2019 at 10:23:29PM -0400, Jason Wang wrote:
+> Note: there're archs (few non popular ones) that don't implement
+> futex helper, we can't log dirty pages. We can fix them on top or
+> simply disable LOG_ALL features of vhost.
 
-I'd feel better, i.e. it reads more canonically, if this was defined
-as (1UL << 0) and the argument to alloc_dax() was changed to 'unsigned
-long flags' rather than a bool.
+That means vhost now has to depend on HAVE_FUTEX_CMPXCHG to make
+sure we have a working implementation.
+
+
+>  #include <linux/sched/signal.h>
+>  #include <linux/interval_tree_generic.h>
+>  #include <linux/nospec.h>
+> +#include <asm/futex.h>
+
+Also please include the futex maintainers to make sure they are fine
+with this first usage of <asm/futex.h> outside of kernel/futex.c.
+
+
+> +static int set_bit_to_user(int nr, u32 __user *addr)
+>  {
+>  	unsigned long log = (unsigned long)addr;
+>  	struct page *page;
+> +	u32 old_log;
+>  	int r;
+>  
+>  	r = get_user_pages_fast(log, 1, 1, &page);
+>  	if (r < 0)
+>  		return r;
+>  	BUG_ON(r != 1);
+> +
+> +	r = futex_atomic_cmpxchg_inatomic(&old_log, addr, 0, 0);
+> +	if (r < 0)
+> +		return r;
+> +
+> +	old_log |= 1 << nr;
+> +	r = put_user(old_log, addr);
+> +	if (r < 0)
+> +		return r;
+
+And this just looks odd to me.  Why do we need the futex call to
+replace a 0 value with 0?  Why does it still duplicate the
+put_user?  This doesn't look like actually working code to me.
+
+Also don't we need a pagefault_disable() around
+futex_atomic_cmpxchg_inatomic?
