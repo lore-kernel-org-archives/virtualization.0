@@ -1,8 +1,8 @@
 From: Thomas Zimmermann <tzimmermann@suse.de>
-Subject: [PATCH v5 02/20] drm: Add |struct drm_gem_vram_object| callbacks for
-	|struct ttm_bo_driver|
-Date: Wed,  8 May 2019 10:26:12 +0200
-Message-ID: <20190508082630.15116-3-tzimmermann__12733.6766499624$1557304069$gmane$org@suse.de>
+Subject: [PATCH v5 07/20] drm: Add default instance for VRAM MM callback
+	functions
+Date: Wed,  8 May 2019 10:26:17 +0200
+Message-ID: <20190508082630.15116-8-tzimmermann__20146.7360065848$1557304083$gmane$org@suse.de>
 References: <20190508082630.15116-1-tzimmermann@suse.de>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
@@ -22,95 +22,67 @@ To: daniel@ffwll.ch, airlied@linux.ie, kraxel@redhat.com, christian.koenig@amd.c
 Cc: Thomas Zimmermann <tzimmermann@suse.de>, dri-devel@lists.freedesktop.org, virtualization@lists.linux-foundation.org
 List-Id: virtualization@lists.linuxfoundation.org
 
-The provided helpers can be used for the respective callback functions
-in |struct ttm_bo_driver|.
-
-v2:
-	* drm_is_gem_vram() is now a private function
-	* documentation fixes
+VRAM MM is most likely be used with GEM VRAM. The latter now provides the
+required instance of struct drm_vram_mm_funcs for drivers to use.
 
 Signed-off-by: Thomas Zimmermann <tzimmermann@suse.de>
 ---
- drivers/gpu/drm/drm_gem_vram_helper.c | 50 +++++++++++++++++++++++++++
- include/drm/drm_gem_vram_helper.h     | 10 ++++++
- 2 files changed, 60 insertions(+)
+ drivers/gpu/drm/drm_gem_vram_helper.c | 14 ++++++++++++++
+ include/drm/drm_gem_vram_helper.h     |  3 +++
+ 2 files changed, 17 insertions(+)
 
 diff --git a/drivers/gpu/drm/drm_gem_vram_helper.c b/drivers/gpu/drm/drm_gem_vram_helper.c
-index 761a546412f8..d6c4e0d0a1c5 100644
+index 15c6193e4985..c21b1f920e0a 100644
 --- a/drivers/gpu/drm/drm_gem_vram_helper.c
 +++ b/drivers/gpu/drm/drm_gem_vram_helper.c
-@@ -410,3 +410,53 @@ void drm_gem_vram_kunmap(struct drm_gem_vram_object *gbo)
- 	drm_gem_vram_kunmap_at(gbo, &gbo->kmap);
+@@ -3,6 +3,7 @@
+ #include <drm/drm_gem_vram_helper.h>
+ #include <drm/drm_mode.h>
+ #include <drm/drm_prime.h>
++#include <drm/drm_vram_mm_helper.h>
+ #include <drm/ttm/ttm_page_alloc.h>
+ 
+ /**
+@@ -524,6 +525,19 @@ int drm_gem_vram_bo_driver_verify_access(struct ttm_buffer_object *bo,
  }
- EXPORT_SYMBOL(drm_gem_vram_kunmap);
-+
-+/*
-+ * Helpers for struct ttm_bo_driver
-+ */
-+
-+static bool drm_is_gem_vram(struct ttm_buffer_object *bo)
-+{
-+	return (bo->destroy == ttm_buffer_object_destroy);
-+}
-+
+ EXPORT_SYMBOL(drm_gem_vram_bo_driver_verify_access);
+ 
 +/**
-+ * drm_gem_vram_bo_driver_evict_flags() - \
-+	Implements &struct ttm_bo_driver.evict_flags
-+ * @bo:	TTM buffer object. Refers to &struct drm_gem_vram_object.bo
-+ * @pl:	TTM placement information.
-+ */
-+void drm_gem_vram_bo_driver_evict_flags(struct ttm_buffer_object *bo,
-+					struct ttm_placement *pl)
-+{
-+	struct drm_gem_vram_object *gbo;
-+
-+	/* TTM may pass BOs that are not GEM VRAM BOs. */
-+	if (!drm_is_gem_vram(bo))
-+		return;
-+
-+	gbo = drm_gem_vram_of_bo(bo);
-+	drm_gem_vram_placement(gbo, TTM_PL_FLAG_SYSTEM);
-+	*pl = gbo->placement;
-+}
-+EXPORT_SYMBOL(drm_gem_vram_bo_driver_evict_flags);
-+
-+/**
-+ * drm_gem_vram_bo_driver_verify_access() - \
-+	Implements &struct ttm_bo_driver.verify_access
-+ * @bo:		TTM buffer object. Refers to &struct drm_gem_vram_object.bo
-+ * @filp:	File pointer.
++ * drm_gem_vram_mm_funcs - Functions for &struct drm_vram_mm
 + *
-+ * Returns:
-+ * 0 on success, or
-+ * a negative errno code otherwise.
++ * Most users of @struct drm_gem_vram_object will also use
++ * @struct drm_vram_mm. This instance of &struct drm_vram_mm_funcs
++ * can be used to connect both.
 + */
-+int drm_gem_vram_bo_driver_verify_access(struct ttm_buffer_object *bo,
-+					 struct file *filp)
-+{
-+	struct drm_gem_vram_object *gbo = drm_gem_vram_of_bo(bo);
++const struct drm_vram_mm_funcs drm_gem_vram_mm_funcs = {
++	.evict_flags = drm_gem_vram_bo_driver_evict_flags,
++	.verify_access = drm_gem_vram_bo_driver_verify_access
++};
++EXPORT_SYMBOL(drm_gem_vram_mm_funcs);
 +
-+	return drm_vma_node_verify_access(&gbo->gem.vma_node,
-+					  filp->private_data);
-+}
-+EXPORT_SYMBOL(drm_gem_vram_bo_driver_verify_access);
+ /*
+  * Helpers for struct drm_driver
+  */
 diff --git a/include/drm/drm_gem_vram_helper.h b/include/drm/drm_gem_vram_helper.h
-index 5802dd694939..1915d3958304 100644
+index 9a8bd98b623f..7971656afe87 100644
 --- a/include/drm/drm_gem_vram_helper.h
 +++ b/include/drm/drm_gem_vram_helper.h
-@@ -89,4 +89,14 @@ void drm_gem_vram_kunmap_at(struct drm_gem_vram_object *gbo,
- 			    struct ttm_bo_kmap_obj *kmap);
- void drm_gem_vram_kunmap(struct drm_gem_vram_object *gbo);
+@@ -9,6 +9,7 @@
+ #include <linux/kernel.h> /* for container_of() */
  
-+/*
-+ * Helpers for struct ttm_bo_driver
-+ */
+ struct drm_mode_create_dumb;
++struct drm_vram_mm_funcs;
+ struct filp;
+ 
+ #define DRM_GEM_VRAM_PL_FLAG_VRAM	TTM_PL_FLAG_VRAM
+@@ -107,6 +108,8 @@ void drm_gem_vram_bo_driver_evict_flags(struct ttm_buffer_object *bo,
+ int drm_gem_vram_bo_driver_verify_access(struct ttm_buffer_object *bo,
+ 					 struct file *filp);
+ 
++extern const struct drm_vram_mm_funcs drm_gem_vram_mm_funcs;
 +
-+void drm_gem_vram_bo_driver_evict_flags(struct ttm_buffer_object *bo,
-+					struct ttm_placement *pl);
-+
-+int drm_gem_vram_bo_driver_verify_access(struct ttm_buffer_object *bo,
-+					 struct file *filp);
-+
- #endif
+ /*
+  * Helpers for struct drm_driver
+  */
 -- 
 2.21.0
