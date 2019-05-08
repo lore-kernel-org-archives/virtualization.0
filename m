@@ -1,15 +1,18 @@
-From: Pierre Morel <pmorel@linux.ibm.com>
-Subject: Re: [PATCH 10/10] virtio/s390: make airq summary indicators DMA
-Date: Wed, 8 May 2019 17:11:14 +0200
-Message-ID: <74ff9a63-891a-7e24-0865-8cc91a95cada@linux.ibm.com>
-References: <20190426183245.37939-1-pasic@linux.ibm.com>
-	<20190426183245.37939-11-pasic@linux.ibm.com>
-Reply-To: pmorel@linux.ibm.com
+From: =?UTF-8?Q?Jakub_Staro=c5=84?= via Virtualization
+	<virtualization@lists.linux-foundation.org>
+Subject: Re: [Qemu-devel] [PATCH v7 2/6] virtio-pmem: Add virtio pmem driver
+Date: Wed, 8 May 2019 12:05:39 -0700
+Message-ID: <3d643ac5-ea1b-efba-9f42-31b2ed3ab5b0__30344.2853315332$1558282873$gmane$org@google.com>
+References: <20190426050039.17460-1-pagupta@redhat.com>
+	<20190426050039.17460-3-pagupta@redhat.com>
+	<3d6479ae-6c39-d614-f1d9-aa1978e2e438@google.com>
+	<1555943483.27247564.1557313967518.JavaMail.zimbra@redhat.com>
+Reply-To: =?UTF-8?Q?Jakub_Staro=c5=84?= <jstaron@google.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="utf-8"; Format="flowed"
-Content-Transfer-Encoding: base64
+Content-Type: text/plain; charset="us-ascii"
+Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <20190426183245.37939-11-pasic@linux.ibm.com>
+In-Reply-To: <1555943483.27247564.1557313967518.JavaMail.zimbra@redhat.com>
 Content-Language: en-US
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
@@ -20,79 +23,66 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Halil Pasic <pasic@linux.ibm.com>, kvm@vger.kernel.org, linux-s390@vger.kernel.org, Cornelia Huck <cohuck@redhat.com>, Martin Schwidefsky <schwidefsky@de.ibm.com>, Sebastian Ott <sebott@linux.ibm.com>
-Cc: Thomas Huth <thuth@redhat.com>, Claudio Imbrenda <imbrenda@linux.ibm.com>, Janosch Frank <frankja@linux.ibm.com>, Vasily Gorbik <gor@linux.ibm.com>, "Michael S. Tsirkin" <mst@redhat.com>, Farhan Ali <alifm@linux.ibm.com>, Eric Farman <farman@linux.ibm.com>, virtualization@lists.linux-foundation.org, Christoph Hellwig <hch@infradead.org>, Viktor Mihajlovski <mihajlov@linux.ibm.com>
+To: Pankaj Gupta <pagupta@redhat.com>
+Cc: cohuck@redhat.com, jack@suse.cz, kvm@vger.kernel.org, mst@redhat.com, david@fromorbit.com, qemu-devel@nongnu.org, virtualization@lists.linux-foundation.org, adilger kernel <adilger.kernel@dilger.ca>, smbarber@google.com, zwisler@kernel.org, aarcange@redhat.com, dave jiang <dave.jiang@intel.com>, linux-nvdimm@lists.01.org, vishal l verma <vishal.l.verma@intel.com>, willy@infradead.org, hch@infradead.org, linux-acpi@vger.kernel.org, jmoyer@redhat.com, linux-ext4@vger.kernel.org, lenb@kernel.org, kilobyte@angband.pl, riel@surriel.com, yuval shaia <yuval.shaia@oracle.com>, stefanha@redhat.com, imammedo@redhat.com, dan j williams <dan.j.williams@intel.com>, lcapitulino@redhat.com, nilal@redhat.com, tytso@mit.edu, xiaoguangrong eric <xiaoguangrong.eric@gmail.com>, darrick wong <darrick.wong@oracle.com>, rjw@rjwysocki.net, linux-kernel@vger.kernel.org, linux-xfs@vger.kernel.o
 List-Id: virtualization@lists.linuxfoundation.org
 
-T24gMjYvMDQvMjAxOSAyMDozMiwgSGFsaWwgUGFzaWMgd3JvdGU6Cj4gSHlwZXJ2aXNvciBuZWVk
-cyB0byBpbnRlcmFjdCB3aXRoIHRoZSBzdW1tYXJ5IGluZGljYXRvcnMsIHNvIHRoZXNlCj4gbmVl
-ZCB0byBiZSBETUEgbWVtb3J5IGFzIHdlbGwgKGF0IGxlYXN0IGZvciBwcm90ZWN0ZWQgdmlydHVh
-bGl6YXRpb24KPiBndWVzdHMpLgo+IAo+IFNpZ25lZC1vZmYtYnk6IEhhbGlsIFBhc2ljIDxwYXNp
-Y0BsaW51eC5pYm0uY29tPgo+IC0tLQo+ICAgZHJpdmVycy9zMzkwL3ZpcnRpby92aXJ0aW9fY2N3
-LmMgfCAyNCArKysrKysrKysrKysrKysrKy0tLS0tLS0KPiAgIDEgZmlsZSBjaGFuZ2VkLCAxNyBp
-bnNlcnRpb25zKCspLCA3IGRlbGV0aW9ucygtKQo+IAo+IGRpZmYgLS1naXQgYS9kcml2ZXJzL3Mz
-OTAvdmlydGlvL3ZpcnRpb19jY3cuYyBiL2RyaXZlcnMvczM5MC92aXJ0aW8vdmlydGlvX2Njdy5j
-Cj4gaW5kZXggNjEzYjE4MDAxYTBjLi42MDU4YjA3ZmVhMDggMTAwNjQ0Cj4gLS0tIGEvZHJpdmVy
-cy9zMzkwL3ZpcnRpby92aXJ0aW9fY2N3LmMKPiArKysgYi9kcml2ZXJzL3MzOTAvdmlydGlvL3Zp
-cnRpb19jY3cuYwo+IEBAIC0xNDAsMTEgKzE0MCwxNyBAQCBzdGF0aWMgaW50IHZpcnRpb19jY3df
-dXNlX2FpcnEgPSAxOwo+ICAgCj4gICBzdHJ1Y3QgYWlycV9pbmZvIHsKPiAgIAlyd2xvY2tfdCBs
-b2NrOwo+IC0JdTggc3VtbWFyeV9pbmRpY2F0b3I7Cj4gKwl1OCBzdW1tYXJ5X2luZGljYXRvcl9p
-ZHg7Cj4gICAJc3RydWN0IGFpcnFfc3RydWN0IGFpcnE7Cj4gICAJc3RydWN0IGFpcnFfaXYgKmFp
-djsKPiAgIH07Cj4gICBzdGF0aWMgc3RydWN0IGFpcnFfaW5mbyAqYWlycV9hcmVhc1tNQVhfQUlS
-UV9BUkVBU107Cj4gK3N0YXRpYyB1OCAqc3VtbWFyeV9pbmRpY2F0b3JzOwo+ICsKPiArc3RhdGlj
-IGlubGluZSB1OCAqZ2V0X3N1bW1hcnlfaW5kaWNhdG9yKHN0cnVjdCBhaXJxX2luZm8gKmluZm8p
-Cj4gK3sKPiArCXJldHVybiBzdW1tYXJ5X2luZGljYXRvcnMgKyBpbmZvLT5zdW1tYXJ5X2luZGlj
-YXRvcl9pZHg7Cj4gK30KPiAgIAo+ICAgI2RlZmluZSBDQ1dfQ01EX1NFVF9WUSAweDEzCj4gICAj
-ZGVmaW5lIENDV19DTURfVkRFVl9SRVNFVCAweDMzCj4gQEAgLTIyNSw3ICsyMzEsNyBAQCBzdGF0
-aWMgdm9pZCB2aXJ0aW9fYWlycV9oYW5kbGVyKHN0cnVjdCBhaXJxX3N0cnVjdCAqYWlycSkKPiAg
-IAkJCWJyZWFrOwo+ICAgCQl2cmluZ19pbnRlcnJ1cHQoMCwgKHZvaWQgKilhaXJxX2l2X2dldF9w
-dHIoaW5mby0+YWl2LCBhaSkpOwo+ICAgCX0KPiAtCWluZm8tPnN1bW1hcnlfaW5kaWNhdG9yID0g
-MDsKPiArCSooZ2V0X3N1bW1hcnlfaW5kaWNhdG9yKGluZm8pKSA9IDA7Cj4gICAJc21wX3dtYigp
-Owo+ICAgCS8qIFdhbGsgdGhyb3VnaCBpbmRpY2F0b3JzIGZpZWxkLCBzdW1tYXJ5IGluZGljYXRv
-ciBub3QgYWN0aXZlLiAqLwo+ICAgCWZvciAoYWkgPSAwOzspIHsKPiBAQCAtMjM3LDcgKzI0Myw4
-IEBAIHN0YXRpYyB2b2lkIHZpcnRpb19haXJxX2hhbmRsZXIoc3RydWN0IGFpcnFfc3RydWN0ICph
-aXJxKQo+ICAgCXJlYWRfdW5sb2NrKCZpbmZvLT5sb2NrKTsKPiAgIH0KPiAgIAo+IC1zdGF0aWMg
-c3RydWN0IGFpcnFfaW5mbyAqbmV3X2FpcnFfaW5mbyh2b2lkKQo+ICsvKiBjYWxsIHdpdGggYWly
-cV9hcmVhc19sb2NrIGhlbGQgKi8KPiArc3RhdGljIHN0cnVjdCBhaXJxX2luZm8gKm5ld19haXJx
-X2luZm8oaW50IGluZGV4KQo+ICAgewo+ICAgCXN0cnVjdCBhaXJxX2luZm8gKmluZm87Cj4gICAJ
-aW50IHJjOwo+IEBAIC0yNTIsNyArMjU5LDggQEAgc3RhdGljIHN0cnVjdCBhaXJxX2luZm8gKm5l
-d19haXJxX2luZm8odm9pZCkKPiAgIAkJcmV0dXJuIE5VTEw7Cj4gICAJfQo+ICAgCWluZm8tPmFp
-cnEuaGFuZGxlciA9IHZpcnRpb19haXJxX2hhbmRsZXI7Cj4gLQlpbmZvLT5haXJxLmxzaV9wdHIg
-PSAmaW5mby0+c3VtbWFyeV9pbmRpY2F0b3I7Cj4gKwlpbmZvLT5zdW1tYXJ5X2luZGljYXRvcl9p
-ZHggPSBpbmRleDsKPiArCWluZm8tPmFpcnEubHNpX3B0ciA9IGdldF9zdW1tYXJ5X2luZGljYXRv
-cihpbmZvKTsKPiAgIAlpbmZvLT5haXJxLmxzaV9tYXNrID0gMHhmZjsKPiAgIAlpbmZvLT5haXJx
-LmlzYyA9IFZJUlRJT19BSVJRX0lTQzsKPiAgIAlyYyA9IHJlZ2lzdGVyX2FkYXB0ZXJfaW50ZXJy
-dXB0KCZpbmZvLT5haXJxKTsKPiBAQCAtMjczLDggKzI4MSw5IEBAIHN0YXRpYyB1bnNpZ25lZCBs
-b25nIGdldF9haXJxX2luZGljYXRvcihzdHJ1Y3QgdmlydHF1ZXVlICp2cXNbXSwgaW50IG52cXMs
-Cj4gICAJdW5zaWduZWQgbG9uZyBiaXQsIGZsYWdzOwo+ICAgCj4gICAJZm9yIChpID0gMDsgaSA8
-IE1BWF9BSVJRX0FSRUFTICYmICFpbmRpY2F0b3JfYWRkcjsgaSsrKSB7Cj4gKwkJLyogVE9ETzog
-dGhpcyBzZWVtcyB0byBiZSByYWN5ICovCgp5ZXMsIG15IG9waW5pb25zIHRvbywgd2FzIGFscmVh
-ZHkgcmFjeSwgaW4gbXkgb3Bpbmlvbiwgd2UgbmVlZCBhbm90aGVyIApwYXRjaCBpbiBhbm90aGVy
-IHNlcmllcyB0byBmaXggdGhpcy4KCkhvd2V2ZXIsIG5vdCBzdXJlIGFib3V0IHRoZSBjb21tZW50
-LgoKPiAgIAkJaWYgKCFhaXJxX2FyZWFzW2ldKQo+IC0JCQlhaXJxX2FyZWFzW2ldID0gbmV3X2Fp
-cnFfaW5mbygpOwo+ICsJCQlhaXJxX2FyZWFzW2ldID0gbmV3X2FpcnFfaW5mbyhpKTsKPiAgIAkJ
-aW5mbyA9IGFpcnFfYXJlYXNbaV07Cj4gICAJCWlmICghaW5mbykKPiAgIAkJCXJldHVybiAwOwo+
-IEBAIC0zNTksNyArMzY4LDcgQEAgc3RhdGljIHZvaWQgdmlydGlvX2Njd19kcm9wX2luZGljYXRv
-cihzdHJ1Y3QgdmlydGlvX2Njd19kZXZpY2UgKnZjZGV2LAo+ICAgCQlpZiAoIXRoaW5pbnRfYXJl
-YSkKPiAgIAkJCXJldHVybjsKPiAgIAkJdGhpbmludF9hcmVhLT5zdW1tYXJ5X2luZGljYXRvciA9
-Cj4gLQkJCSh1bnNpZ25lZCBsb25nKSAmYWlycV9pbmZvLT5zdW1tYXJ5X2luZGljYXRvcjsKPiAr
-CQkJKHVuc2lnbmVkIGxvbmcpIGdldF9zdW1tYXJ5X2luZGljYXRvcihhaXJxX2luZm8pOwo+ICAg
-CQl0aGluaW50X2FyZWEtPmlzYyA9IFZJUlRJT19BSVJRX0lTQzsKPiAgIAkJY2N3LT5jbWRfY29k
-ZSA9IENDV19DTURfU0VUX0lORF9BREFQVEVSOwo+ICAgCQljY3ctPmNvdW50ID0gc2l6ZW9mKCp0
-aGluaW50X2FyZWEpOwo+IEBAIC02MjQsNyArNjMzLDcgQEAgc3RhdGljIGludCB2aXJ0aW9fY2N3
-X3JlZ2lzdGVyX2FkYXB0ZXJfaW5kKHN0cnVjdCB2aXJ0aW9fY2N3X2RldmljZSAqdmNkZXYsCj4g
-ICAJfQo+ICAgCWluZm8gPSB2Y2Rldi0+YWlycV9pbmZvOwo+ICAgCXRoaW5pbnRfYXJlYS0+c3Vt
-bWFyeV9pbmRpY2F0b3IgPQo+IC0JCSh1bnNpZ25lZCBsb25nKSAmaW5mby0+c3VtbWFyeV9pbmRp
-Y2F0b3I7Cj4gKwkJKHVuc2lnbmVkIGxvbmcpIGdldF9zdW1tYXJ5X2luZGljYXRvcihpbmZvKTsK
-PiAgIAl0aGluaW50X2FyZWEtPmlzYyA9IFZJUlRJT19BSVJRX0lTQzsKPiAgIAljY3ctPmNtZF9j
-b2RlID0gQ0NXX0NNRF9TRVRfSU5EX0FEQVBURVI7Cj4gICAJY2N3LT5mbGFncyA9IENDV19GTEFH
-X1NMSTsKPiBAQCAtMTUwMCw2ICsxNTA5LDcgQEAgc3RhdGljIGludCBfX2luaXQgdmlydGlvX2Nj
-d19pbml0KHZvaWQpCj4gICB7Cj4gICAJLyogcGFyc2Ugbm9fYXV0byBzdHJpbmcgYmVmb3JlIHdl
-IGRvIGFueXRoaW5nIGZ1cnRoZXIgKi8KPiAgIAlub19hdXRvX3BhcnNlKCk7Cj4gKwlzdW1tYXJ5
-X2luZGljYXRvcnMgPSBjaW9fZG1hX3phbGxvYyhNQVhfQUlSUV9BUkVBUyk7Cj4gICAJcmV0dXJu
-IGNjd19kcml2ZXJfcmVnaXN0ZXIoJnZpcnRpb19jY3dfZHJpdmVyKTsKPiAgIH0KPiAgIGRldmlj
-ZV9pbml0Y2FsbCh2aXJ0aW9fY2N3X2luaXQpOwo+IAoKCgotLSAKUGllcnJlIE1vcmVsCkxpbnV4
-L0tWTS9RRU1VIGluIELDtmJsaW5nZW4gLSBHZXJtYW55CgpfX19fX19fX19fX19fX19fX19fX19f
-X19fX19fX19fX19fX19fX19fX19fX19fXwpWaXJ0dWFsaXphdGlvbiBtYWlsaW5nIGxpc3QKVmly
-dHVhbGl6YXRpb25AbGlzdHMubGludXgtZm91bmRhdGlvbi5vcmcKaHR0cHM6Ly9saXN0cy5saW51
-eGZvdW5kYXRpb24ub3JnL21haWxtYW4vbGlzdGluZm8vdmlydHVhbGl6YXRpb24=
+On 5/8/19 4:12 AM, Pankaj Gupta wrote:
+> 
+>>
+>> On 4/25/19 10:00 PM, Pankaj Gupta wrote:
+>>
+>>> +void host_ack(struct virtqueue *vq)
+>>> +{
+>>> +	unsigned int len;
+>>> +	unsigned long flags;
+>>> +	struct virtio_pmem_request *req, *req_buf;
+>>> +	struct virtio_pmem *vpmem = vq->vdev->priv;
+>>> +
+>>> +	spin_lock_irqsave(&vpmem->pmem_lock, flags);
+>>> +	while ((req = virtqueue_get_buf(vq, &len)) != NULL) {
+>>> +		req->done = true;
+>>> +		wake_up(&req->host_acked);
+>>> +
+>>> +		if (!list_empty(&vpmem->req_list)) {
+>>> +			req_buf = list_first_entry(&vpmem->req_list,
+>>> +					struct virtio_pmem_request, list);
+>>> +			list_del(&vpmem->req_list);
+>>
+>> Shouldn't it be rather `list_del(vpmem->req_list.next)`? We are trying to
+>> unlink
+>> first element of the list and `vpmem->req_list` is just the list head.
+> 
+> This looks correct. We are not deleting head but first entry in 'req_list'
+> which is device corresponding list of pending requests.
+> 
+> Please see below:
+> 
+> /**
+>  * Retrieve the first list entry for the given list pointer.
+>  *
+>  * Example:
+>  * struct foo *first;
+>  * first = list_first_entry(&bar->list_of_foos, struct foo, list_of_foos);
+>  *
+>  * @param ptr The list head
+>  * @param type Data type of the list element to retrieve
+>  * @param member Member name of the struct list_head field in the list element.
+>  * @return A pointer to the first list element.
+>  */
+> #define list_first_entry(ptr, type, member) \
+>     list_entry((ptr)->next, type, member)
+
+Please look at this StackOverflow question:
+https://stackoverflow.com/questions/19675419/deleting-first-element-of-a-list-h-list
+
+Author asks about deleting first element of the queue. In our case
+(and also in the question's author case), `vpmem->req_list` is not element
+of any request struct and not an element of the list. It's just a list head storing 
+`next` and `prev` pointers which are then pointing to respectively first and
+last element of the list. We want to unlink the first element of the list,
+so we need to pass pointer to the first element of the list to
+the `list_del` function - that is, the `vpmem->req_list.next`.
+
+Thank you,
+Jakub Staron
