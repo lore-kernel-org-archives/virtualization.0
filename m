@@ -1,8 +1,7 @@
 From: Thomas Zimmermann <tzimmermann@suse.de>
-Subject: [PATCH v5 07/20] drm: Add default instance for VRAM MM callback
-	functions
-Date: Wed,  8 May 2019 10:26:17 +0200
-Message-ID: <20190508082630.15116-8-tzimmermann__20146.7360065848$1557304083$gmane$org@suse.de>
+Subject: [PATCH v5 05/20] drm: Add simple PRIME helpers for GEM VRAM
+Date: Wed,  8 May 2019 10:26:15 +0200
+Message-ID: <20190508082630.15116-6-tzimmermann__48002.3255151295$1557304096$gmane$org@suse.de>
 References: <20190508082630.15116-1-tzimmermann@suse.de>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
@@ -22,67 +21,158 @@ To: daniel@ffwll.ch, airlied@linux.ie, kraxel@redhat.com, christian.koenig@amd.c
 Cc: Thomas Zimmermann <tzimmermann@suse.de>, dri-devel@lists.freedesktop.org, virtualization@lists.linux-foundation.org
 List-Id: virtualization@lists.linuxfoundation.org
 
-VRAM MM is most likely be used with GEM VRAM. The latter now provides the
-required instance of struct drm_vram_mm_funcs for drivers to use.
+These basic helper functions for GEM VRAM allow for pinning and mapping
+GEM VRAM objects via the PRIME interfaces. It's not a full implementation,
+but complete enough for generic fbcon.
 
 Signed-off-by: Thomas Zimmermann <tzimmermann@suse.de>
 ---
- drivers/gpu/drm/drm_gem_vram_helper.c | 14 ++++++++++++++
- include/drm/drm_gem_vram_helper.h     |  3 +++
- 2 files changed, 17 insertions(+)
+ drivers/gpu/drm/drm_gem_vram_helper.c | 98 +++++++++++++++++++++++++++
+ include/drm/drm_gem_vram_helper.h     | 20 ++++++
+ 2 files changed, 118 insertions(+)
 
 diff --git a/drivers/gpu/drm/drm_gem_vram_helper.c b/drivers/gpu/drm/drm_gem_vram_helper.c
-index 15c6193e4985..c21b1f920e0a 100644
+index aba073279ca2..15c6193e4985 100644
 --- a/drivers/gpu/drm/drm_gem_vram_helper.c
 +++ b/drivers/gpu/drm/drm_gem_vram_helper.c
-@@ -3,6 +3,7 @@
+@@ -2,6 +2,7 @@
+ 
  #include <drm/drm_gem_vram_helper.h>
  #include <drm/drm_mode.h>
- #include <drm/drm_prime.h>
-+#include <drm/drm_vram_mm_helper.h>
++#include <drm/drm_prime.h>
  #include <drm/ttm/ttm_page_alloc.h>
  
  /**
-@@ -524,6 +525,19 @@ int drm_gem_vram_bo_driver_verify_access(struct ttm_buffer_object *bo,
+@@ -571,3 +572,100 @@ int drm_gem_vram_driver_dumb_mmap_offset(struct drm_file *file,
+ 	return 0;
  }
- EXPORT_SYMBOL(drm_gem_vram_bo_driver_verify_access);
- 
-+/**
-+ * drm_gem_vram_mm_funcs - Functions for &struct drm_vram_mm
-+ *
-+ * Most users of @struct drm_gem_vram_object will also use
-+ * @struct drm_vram_mm. This instance of &struct drm_vram_mm_funcs
-+ * can be used to connect both.
-+ */
-+const struct drm_vram_mm_funcs drm_gem_vram_mm_funcs = {
-+	.evict_flags = drm_gem_vram_bo_driver_evict_flags,
-+	.verify_access = drm_gem_vram_bo_driver_verify_access
-+};
-+EXPORT_SYMBOL(drm_gem_vram_mm_funcs);
+ EXPORT_SYMBOL(drm_gem_vram_driver_dumb_mmap_offset);
 +
- /*
-  * Helpers for struct drm_driver
-  */
++/*
++ * PRIME helpers for struct drm_driver
++ */
++
++/**
++ * drm_gem_vram_driver_gem_prime_pin() - \
++	Implements &struct drm_driver.gem_prime_pin
++ * @gem:	The GEM object to pin
++ *
++ * Returns:
++ * 0 on success, or
++ * a negative errno code otherwise.
++ */
++int drm_gem_vram_driver_gem_prime_pin(struct drm_gem_object *gem)
++{
++	struct drm_gem_vram_object *gbo = drm_gem_vram_of_gem(gem);
++
++	return drm_gem_vram_pin(gbo, DRM_GEM_VRAM_PL_FLAG_VRAM);
++}
++EXPORT_SYMBOL(drm_gem_vram_driver_gem_prime_pin);
++
++/**
++ * drm_gem_vram_driver_gem_prime_unpin() - \
++	Implements &struct drm_driver.gem_prime_unpin
++ * @gem:	The GEM object to unpin
++ */
++void drm_gem_vram_driver_gem_prime_unpin(struct drm_gem_object *gem)
++{
++	struct drm_gem_vram_object *gbo = drm_gem_vram_of_gem(gem);
++
++	drm_gem_vram_unpin(gbo);
++}
++EXPORT_SYMBOL(drm_gem_vram_driver_gem_prime_unpin);
++
++/**
++ * drm_gem_vram_driver_gem_prime_vmap() - \
++	Implements &struct drm_driver.gem_prime_vmap
++ * @gem:	The GEM object to map
++ *
++ * Returns:
++ * The buffers virtual address on success, or
++ * NULL otherwise.
++ */
++void *drm_gem_vram_driver_gem_prime_vmap(struct drm_gem_object *gem)
++{
++	struct drm_gem_vram_object *gbo = drm_gem_vram_of_gem(gem);
++	int ret;
++	void *base;
++
++	ret = drm_gem_vram_pin(gbo, DRM_GEM_VRAM_PL_FLAG_VRAM);
++	if (ret)
++		return NULL;
++	base = drm_gem_vram_kmap(gbo, true, NULL);
++	if (IS_ERR(base)) {
++		drm_gem_vram_unpin(gbo);
++		return NULL;
++	}
++	return base;
++}
++EXPORT_SYMBOL(drm_gem_vram_driver_gem_prime_vmap);
++
++/**
++ * drm_gem_vram_driver_gem_prime_vunmap() - \
++	Implements &struct drm_driver.gem_prime_vunmap
++ * @gem:	The GEM object to unmap
++ * @vaddr:	The mapping's base address
++ */
++void drm_gem_vram_driver_gem_prime_vunmap(struct drm_gem_object *gem,
++					  void *vaddr)
++{
++	struct drm_gem_vram_object *gbo = drm_gem_vram_of_gem(gem);
++
++	drm_gem_vram_kunmap(gbo);
++	drm_gem_vram_unpin(gbo);
++}
++EXPORT_SYMBOL(drm_gem_vram_driver_gem_prime_vunmap);
++
++/**
++ * drm_gem_vram_driver_gem_prime_mmap() - \
++	Implements &struct drm_driver.gem_prime_mmap
++ * @gem:	The GEM object to map
++ * @vma:	The VMA describing the mapping
++ *
++ * Returns:
++ * 0 on success, or
++ * a negative errno code otherwise.
++ */
++int drm_gem_vram_driver_gem_prime_mmap(struct drm_gem_object *gem,
++				       struct vm_area_struct *vma)
++{
++	struct drm_gem_vram_object *gbo = drm_gem_vram_of_gem(gem);
++
++	gbo->gem.vma_node.vm_node.start = gbo->bo.vma_node.vm_node.start;
++	return drm_gem_prime_mmap(gem, vma);
++}
++EXPORT_SYMBOL(drm_gem_vram_driver_gem_prime_mmap);
 diff --git a/include/drm/drm_gem_vram_helper.h b/include/drm/drm_gem_vram_helper.h
-index 9a8bd98b623f..7971656afe87 100644
+index 8e54f721c9f8..9a8bd98b623f 100644
 --- a/include/drm/drm_gem_vram_helper.h
 +++ b/include/drm/drm_gem_vram_helper.h
-@@ -9,6 +9,7 @@
- #include <linux/kernel.h> /* for container_of() */
- 
- struct drm_mode_create_dumb;
-+struct drm_vram_mm_funcs;
- struct filp;
- 
- #define DRM_GEM_VRAM_PL_FLAG_VRAM	TTM_PL_FLAG_VRAM
-@@ -107,6 +108,8 @@ void drm_gem_vram_bo_driver_evict_flags(struct ttm_buffer_object *bo,
- int drm_gem_vram_bo_driver_verify_access(struct ttm_buffer_object *bo,
- 					 struct file *filp);
- 
-+extern const struct drm_vram_mm_funcs drm_gem_vram_mm_funcs;
+@@ -116,5 +116,25 @@ void drm_gem_vram_driver_gem_free_object_unlocked(struct drm_gem_object *gem);
+ int drm_gem_vram_driver_dumb_mmap_offset(struct drm_file *file,
+ 					 struct drm_device *dev,
+ 					 uint32_t handle, uint64_t *offset);
++/*
++ * PRIME helpers for struct drm_driver
++ */
 +
- /*
-  * Helpers for struct drm_driver
-  */
++int drm_gem_vram_driver_gem_prime_pin(struct drm_gem_object *obj);
++void drm_gem_vram_driver_gem_prime_unpin(struct drm_gem_object *obj);
++void *drm_gem_vram_driver_gem_prime_vmap(struct drm_gem_object *obj);
++void drm_gem_vram_driver_gem_prime_vunmap(struct drm_gem_object *obj,
++					  void *vaddr);
++int drm_gem_vram_driver_gem_prime_mmap(struct drm_gem_object *obj,
++				       struct vm_area_struct *vma);
++
++#define DRM_GEM_VRAM_DRIVER_PRIME \
++	.gem_prime_export = drm_gem_prime_export, \
++	.gem_prime_import = drm_gem_prime_import, \
++	.gem_prime_pin	  = drm_gem_vram_driver_gem_prime_pin, \
++	.gem_prime_unpin  = drm_gem_vram_driver_gem_prime_unpin, \
++	.gem_prime_vmap	  = drm_gem_vram_driver_gem_prime_vmap, \
++	.gem_prime_vunmap = drm_gem_vram_driver_gem_prime_vunmap, \
++	.gem_prime_mmap	  = drm_gem_vram_driver_gem_prime_mmap
+ 
+ #endif
 -- 
 2.21.0
