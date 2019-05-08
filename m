@@ -1,7 +1,8 @@
 From: Thomas Zimmermann <tzimmermann@suse.de>
-Subject: [PATCH v5 15/20] drm/mgag200: Convert mgag200 driver to VRAM MM
-Date: Wed,  8 May 2019 10:26:25 +0200
-Message-ID: <20190508082630.15116-16-tzimmermann__25448.4978200466$1557304194$gmane$org@suse.de>
+Subject: [PATCH v5 16/20] drm/mgag200: Replace mapping code with
+	drm_gem_vram_{kmap/kunmap}()
+Date: Wed,  8 May 2019 10:26:26 +0200
+Message-ID: <20190508082630.15116-17-tzimmermann__28319.3228927971$1557304206$gmane$org@suse.de>
 References: <20190508082630.15116-1-tzimmermann@suse.de>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
@@ -21,313 +22,201 @@ To: daniel@ffwll.ch, airlied@linux.ie, kraxel@redhat.com, christian.koenig@amd.c
 Cc: Thomas Zimmermann <tzimmermann@suse.de>, dri-devel@lists.freedesktop.org, virtualization@lists.linux-foundation.org
 List-Id: virtualization@lists.linuxfoundation.org
 
-The data structure |struct drm_vram_mm| and its helpers replace mgag200's
-TTM-based memory manager. It's the same implementation; except for the type
-names.
+The mgag200 driver establishes several memory mappings for frame buffers
+and cursors. This patch converts the driver to use the equivalent
+drm_gem_vram_kmap() functions. It removes the dependencies on TTM
+and cleans up the code.
 
 v4:
-	* don't select DRM_TTM or DRM_VRAM_MM_HELPER
-v3:
-	* use drm_gem_vram_mm_funcs
-	* convert driver to drm_device-based instance
-v2:
-	* implement mgag200_mmap() with drm_vram_mm_mmap()
+	* cleanups from checkpatch.pl
 
 Signed-off-by: Thomas Zimmermann <tzimmermann@suse.de>
 ---
- drivers/gpu/drm/mgag200/Kconfig        |   1 -
- drivers/gpu/drm/mgag200/mgag200_drv.c  |  14 +--
- drivers/gpu/drm/mgag200/mgag200_drv.h  |  11 +-
- drivers/gpu/drm/mgag200/mgag200_main.c |  17 +---
- drivers/gpu/drm/mgag200/mgag200_ttm.c  | 133 ++-----------------------
- 5 files changed, 15 insertions(+), 161 deletions(-)
+ drivers/gpu/drm/mgag200/mgag200_cursor.c | 35 +++++++++++-------------
+ drivers/gpu/drm/mgag200/mgag200_drv.h    |  1 -
+ drivers/gpu/drm/mgag200/mgag200_fb.c     | 24 ++++++++++------
+ drivers/gpu/drm/mgag200/mgag200_mode.c   |  9 ++++--
+ 4 files changed, 37 insertions(+), 32 deletions(-)
 
-diff --git a/drivers/gpu/drm/mgag200/Kconfig b/drivers/gpu/drm/mgag200/Kconfig
-index 907bb2162228..738ed20163c7 100644
---- a/drivers/gpu/drm/mgag200/Kconfig
-+++ b/drivers/gpu/drm/mgag200/Kconfig
-@@ -2,7 +2,6 @@ config DRM_MGAG200
- 	tristate "Kernel modesetting driver for MGA G200 server engines"
- 	depends on DRM && PCI && MMU
- 	select DRM_KMS_HELPER
--	select DRM_TTM
- 	select DRM_VRAM_HELPER
- 	help
- 	 This is a KMS driver for the MGA G200 server chips, it
-diff --git a/drivers/gpu/drm/mgag200/mgag200_drv.c b/drivers/gpu/drm/mgag200/mgag200_drv.c
-index 1f2a034d5a9b..93bd1589e50e 100644
---- a/drivers/gpu/drm/mgag200/mgag200_drv.c
-+++ b/drivers/gpu/drm/mgag200/mgag200_drv.c
-@@ -59,13 +59,7 @@ static void mga_pci_remove(struct pci_dev *pdev)
+diff --git a/drivers/gpu/drm/mgag200/mgag200_cursor.c b/drivers/gpu/drm/mgag200/mgag200_cursor.c
+index cca3922f9f67..6c1a9d724d85 100644
+--- a/drivers/gpu/drm/mgag200/mgag200_cursor.c
++++ b/drivers/gpu/drm/mgag200/mgag200_cursor.c
+@@ -43,6 +43,7 @@ int mga_crtc_cursor_set(struct drm_crtc *crtc,
+ 	struct drm_gem_object *obj;
+ 	struct drm_gem_vram_object *gbo = NULL;
+ 	int ret = 0;
++	u8 *src, *dst;
+ 	unsigned int i, row, col;
+ 	uint32_t colour_set[16];
+ 	uint32_t *next_space = &colour_set[0];
+@@ -126,18 +127,17 @@ int mga_crtc_cursor_set(struct drm_crtc *crtc,
+ 		dev_err(&dev->pdev->dev, "failed to reserve user bo\n");
+ 		goto out1;
+ 	}
+-	if (!gbo->kmap.virtual) {
+-		ret = ttm_bo_kmap(&gbo->bo, 0, gbo->bo.num_pages, &gbo->kmap);
+-		if (ret) {
+-			dev_err(&dev->pdev->dev, "failed to kmap user buffer updates\n");
+-			goto out2;
+-		}
++	src = drm_gem_vram_kmap(gbo, true, NULL);
++	if (IS_ERR(src)) {
++		ret = PTR_ERR(src);
++		dev_err(&dev->pdev->dev, "failed to kmap user buffer updates\n");
++		goto out2;
+ 	}
  
- static const struct file_operations mgag200_driver_fops = {
- 	.owner = THIS_MODULE,
--	.open = drm_open,
--	.release = drm_release,
--	.unlocked_ioctl = drm_ioctl,
--	.mmap = mgag200_mmap,
--	.poll = drm_poll,
--	.compat_ioctl = drm_compat_ioctl,
--	.read = drm_read,
-+	DRM_VRAM_MM_FILE_OPERATIONS
- };
+ 	memset(&colour_set[0], 0, sizeof(uint32_t)*16);
+ 	/* width*height*4 = 16384 */
+ 	for (i = 0; i < 16384; i += 4) {
+-		this_colour = ioread32(gbo->kmap.virtual + i);
++		this_colour = ioread32(src + i);
+ 		/* No transparency */
+ 		if (this_colour>>24 != 0xff &&
+ 			this_colour>>24 != 0x0) {
+@@ -189,21 +189,18 @@ int mga_crtc_cursor_set(struct drm_crtc *crtc,
+ 	}
  
- static struct drm_driver driver = {
-@@ -79,11 +73,7 @@ static struct drm_driver driver = {
- 	.major = DRIVER_MAJOR,
- 	.minor = DRIVER_MINOR,
- 	.patchlevel = DRIVER_PATCHLEVEL,
--
--	.gem_free_object_unlocked =
--		drm_gem_vram_driver_gem_free_object_unlocked,
--	.dumb_create = mgag200_dumb_create,
--	.dumb_map_offset = drm_gem_vram_driver_dumb_mmap_offset,
-+	DRM_GEM_VRAM_DRIVER
- };
+ 	/* Map up-coming buffer to write colour indices */
+-	if (!pixels_prev->kmap.virtual) {
+-		ret = ttm_bo_kmap(&pixels_prev->bo, 0,
+-				  pixels_prev->bo.num_pages,
+-				  &pixels_prev->kmap);
+-		if (ret) {
+-			dev_err(&dev->pdev->dev, "failed to kmap cursor updates\n");
+-			goto out3;
+-		}
++	dst = drm_gem_vram_kmap(pixels_prev, true, NULL);
++	if (IS_ERR(dst)) {
++		ret = PTR_ERR(dst);
++		dev_err(&dev->pdev->dev, "failed to kmap cursor updates\n");
++		goto out3;
+ 	}
  
- static struct pci_driver mgag200_pci_driver = {
+ 	/* now write colour indices into hardware cursor buffer */
+ 	for (row = 0; row < 64; row++) {
+ 		memset(&this_row[0], 0, 48);
+ 		for (col = 0; col < 64; col++) {
+-			this_colour = ioread32(gbo->kmap.virtual + 4*(col + 64*row));
++			this_colour = ioread32(src + 4*(col + 64*row));
+ 			/* write transparent pixels */
+ 			if (this_colour>>24 == 0x0) {
+ 				this_row[47 - col/8] |= 0x80>>(col%8);
+@@ -221,7 +218,7 @@ int mga_crtc_cursor_set(struct drm_crtc *crtc,
+ 				}
+ 			}
+ 		}
+-		memcpy_toio(pixels_prev->kmap.virtual + row*48, &this_row[0], 48);
++		memcpy_toio(dst + row*48, &this_row[0], 48);
+ 	}
+ 
+ 	/* Program gpu address of cursor buffer */
+@@ -247,9 +244,9 @@ int mga_crtc_cursor_set(struct drm_crtc *crtc,
+ 	}
+ 	ret = 0;
+ 
+-	ttm_bo_kunmap(&pixels_prev->kmap);
++	drm_gem_vram_kunmap(pixels_prev);
+  out3:
+-	ttm_bo_kunmap(&gbo->kmap);
++	drm_gem_vram_kunmap(gbo);
+  out2:
+ 	drm_gem_vram_unreserve(gbo);
+  out1:
 diff --git a/drivers/gpu/drm/mgag200/mgag200_drv.h b/drivers/gpu/drm/mgag200/mgag200_drv.h
-index 86b33e23ab7f..16ce6b338dce 100644
+index 16ce6b338dce..6180acbca7ca 100644
 --- a/drivers/gpu/drm/mgag200/mgag200_drv.h
 +++ b/drivers/gpu/drm/mgag200/mgag200_drv.h
-@@ -17,15 +17,12 @@
- 
- #include <drm/drm_encoder.h>
- #include <drm/drm_fb_helper.h>
--#include <drm/ttm/ttm_bo_api.h>
--#include <drm/ttm/ttm_bo_driver.h>
--#include <drm/ttm/ttm_placement.h>
--#include <drm/ttm/ttm_memory.h>
--#include <drm/ttm/ttm_module.h>
- 
- #include <drm/drm_gem.h>
- #include <drm/drm_gem_vram_helper.h>
- 
-+#include <drm/drm_vram_mm_helper.h>
-+
- #include <linux/i2c.h>
- #include <linux/i2c-algo-bit.h>
- 
-@@ -212,10 +209,6 @@ struct mga_device {
- 
- 	int fb_mtrr;
- 
--	struct {
--		struct ttm_bo_device bdev;
--	} ttm;
--
- 	/* SE model number stored in reg 0x1e24 */
- 	u32 unique_rev_id;
+@@ -115,7 +115,6 @@ struct mga_fbdev {
+ 	struct mga_framebuffer mfb;
+ 	void *sysram;
+ 	int size;
+-	struct ttm_bo_kmap_obj mapping;
+ 	int x1, y1, x2, y2; /* dirty rect */
+ 	spinlock_t dirty_lock;
  };
-diff --git a/drivers/gpu/drm/mgag200/mgag200_main.c b/drivers/gpu/drm/mgag200/mgag200_main.c
-index 59a4028a5c6c..f3687fed4075 100644
---- a/drivers/gpu/drm/mgag200/mgag200_main.c
-+++ b/drivers/gpu/drm/mgag200/mgag200_main.c
-@@ -230,10 +230,10 @@ int mgag200_driver_load(struct drm_device *dev, unsigned long flags)
- 	}
+diff --git a/drivers/gpu/drm/mgag200/mgag200_fb.c b/drivers/gpu/drm/mgag200/mgag200_fb.c
+index 1bcf0d65868d..87217bdce9f8 100644
+--- a/drivers/gpu/drm/mgag200/mgag200_fb.c
++++ b/drivers/gpu/drm/mgag200/mgag200_fb.c
+@@ -27,6 +27,7 @@ static void mga_dirty_update(struct mga_fbdev *mfbdev,
+ 	int src_offset, dst_offset;
+ 	int bpp = mfbdev->mfb.base.format->cpp[0];
+ 	int ret = -EBUSY;
++	u8 *dst;
+ 	bool unmap = false;
+ 	bool store_for_later = false;
+ 	int x2, y2;
+@@ -75,26 +76,31 @@ static void mga_dirty_update(struct mga_fbdev *mfbdev,
+ 	mfbdev->x2 = mfbdev->y2 = 0;
+ 	spin_unlock_irqrestore(&mfbdev->dirty_lock, flags);
  
- 	/* Make small buffers to store a hardware cursor (double buffered icon updates) */
--	mdev->cursor.pixels_1 = drm_gem_vram_create(dev, &mdev->ttm.bdev,
-+	mdev->cursor.pixels_1 = drm_gem_vram_create(dev, &dev->vram_mm->bdev,
- 						    roundup(48*64, PAGE_SIZE),
- 						    0, 0);
--	mdev->cursor.pixels_2 = drm_gem_vram_create(dev, &mdev->ttm.bdev,
-+	mdev->cursor.pixels_2 = drm_gem_vram_create(dev, &dev->vram_mm->bdev,
- 						    roundup(48*64, PAGE_SIZE),
- 						    0, 0);
- 	if (IS_ERR(mdev->cursor.pixels_2) || IS_ERR(mdev->cursor.pixels_1)) {
-@@ -274,7 +274,6 @@ int mgag200_gem_create(struct drm_device *dev,
- 		   u32 size, bool iskernel,
- 		   struct drm_gem_object **obj)
- {
--	struct mga_device *mdev = dev->dev_private;
+-	if (!gbo->kmap.virtual) {
+-		ret = ttm_bo_kmap(&gbo->bo, 0, gbo->bo.num_pages, &gbo->kmap);
+-		if (ret) {
++	dst = drm_gem_vram_kmap(gbo, false, NULL);
++	if (IS_ERR(dst)) {
++		DRM_ERROR("failed to kmap fb updates\n");
++		goto out;
++	} else if (!dst) {
++		dst = drm_gem_vram_kmap(gbo, true, NULL);
++		if (IS_ERR(dst)) {
+ 			DRM_ERROR("failed to kmap fb updates\n");
+-			drm_gem_vram_unreserve(gbo);
+-			return;
++			goto out;
+ 		}
+ 		unmap = true;
+ 	}
++
+ 	for (i = y; i <= y2; i++) {
+ 		/* assume equal stride for now */
+ 		src_offset = dst_offset =
+ 			i * mfbdev->mfb.base.pitches[0] + (x * bpp);
+-		memcpy_toio(gbo->kmap.virtual + src_offset,
+-			    mfbdev->sysram + dst_offset, (x2 - x + 1) * bpp);
+-
++		memcpy_toio(dst + dst_offset, mfbdev->sysram + src_offset,
++			    (x2 - x + 1) * bpp);
+ 	}
++
+ 	if (unmap)
+-		ttm_bo_kunmap(&gbo->kmap);
++		drm_gem_vram_kunmap(gbo);
+ 
++out:
+ 	drm_gem_vram_unreserve(gbo);
+ }
+ 
+diff --git a/drivers/gpu/drm/mgag200/mgag200_mode.c b/drivers/gpu/drm/mgag200/mgag200_mode.c
+index 26baae5eeb9b..3098bf5c1744 100644
+--- a/drivers/gpu/drm/mgag200/mgag200_mode.c
++++ b/drivers/gpu/drm/mgag200/mgag200_mode.c
+@@ -870,6 +870,7 @@ static int mga_crtc_do_set_base(struct drm_crtc *crtc,
  	struct drm_gem_vram_object *gbo;
  	int ret;
+ 	s64 gpu_addr;
++	void *base;
  
-@@ -284,7 +283,7 @@ int mgag200_gem_create(struct drm_device *dev,
- 	if (size == 0)
- 		return -EINVAL;
+ 	/* push the previous fb to system ram */
+ 	if (!atomic && fb) {
+@@ -902,11 +903,13 @@ static int mga_crtc_do_set_base(struct drm_crtc *crtc,
  
--	gbo = drm_gem_vram_create(dev, &mdev->ttm.bdev, size, 0, false);
-+	gbo = drm_gem_vram_create(dev, &dev->vram_mm->bdev, size, 0, false);
- 	if (IS_ERR(gbo)) {
- 		ret = PTR_ERR(gbo);
- 		if (ret != -ERESTARTSYS)
-@@ -294,13 +293,3 @@ int mgag200_gem_create(struct drm_device *dev,
- 	*obj = &gbo->gem;
- 	return 0;
- }
+ 	if (&mdev->mfbdev->mfb == mga_fb) {
+ 		/* if pushing console in kmap it */
+-		ret = ttm_bo_kmap(&gbo->bo, 0, gbo->bo.num_pages, &gbo->kmap);
+-		if (ret)
++		base = drm_gem_vram_kmap(gbo, true, NULL);
++		if (IS_ERR(base)) {
++			ret = PTR_ERR(base);
+ 			DRM_ERROR("failed to kmap fbcon\n");
 -
--int mgag200_dumb_create(struct drm_file *file,
--		    struct drm_device *dev,
--		    struct drm_mode_create_dumb *args)
--{
--	struct mga_device *mdev = dev->dev_private;
--
--	return drm_gem_vram_fill_create_dumb(file, dev, &mdev->ttm.bdev, 0,
--					    false, args);
--}
-diff --git a/drivers/gpu/drm/mgag200/mgag200_ttm.c b/drivers/gpu/drm/mgag200/mgag200_ttm.c
-index 2c0249086bf9..59294c0fd24a 100644
---- a/drivers/gpu/drm/mgag200/mgag200_ttm.c
-+++ b/drivers/gpu/drm/mgag200/mgag200_ttm.c
-@@ -26,130 +26,21 @@
-  * Authors: Dave Airlie <airlied@redhat.com>
-  */
- #include <drm/drmP.h>
--#include <drm/ttm/ttm_page_alloc.h>
- 
- #include "mgag200_drv.h"
- 
--static inline struct mga_device *
--mgag200_bdev(struct ttm_bo_device *bd)
--{
--	return container_of(bd, struct mga_device, ttm.bdev);
--}
--
--static int
--mgag200_bo_init_mem_type(struct ttm_bo_device *bdev, uint32_t type,
--		     struct ttm_mem_type_manager *man)
--{
--	switch (type) {
--	case TTM_PL_SYSTEM:
--		man->flags = TTM_MEMTYPE_FLAG_MAPPABLE;
--		man->available_caching = TTM_PL_MASK_CACHING;
--		man->default_caching = TTM_PL_FLAG_CACHED;
--		break;
--	case TTM_PL_VRAM:
--		man->func = &ttm_bo_manager_func;
--		man->flags = TTM_MEMTYPE_FLAG_FIXED |
--			TTM_MEMTYPE_FLAG_MAPPABLE;
--		man->available_caching = TTM_PL_FLAG_UNCACHED |
--			TTM_PL_FLAG_WC;
--		man->default_caching = TTM_PL_FLAG_WC;
--		break;
--	default:
--		DRM_ERROR("Unsupported memory type %u\n", (unsigned)type);
--		return -EINVAL;
--	}
--	return 0;
--}
--
--static int mgag200_ttm_io_mem_reserve(struct ttm_bo_device *bdev,
--				  struct ttm_mem_reg *mem)
--{
--	struct ttm_mem_type_manager *man = &bdev->man[mem->mem_type];
--	struct mga_device *mdev = mgag200_bdev(bdev);
--
--	mem->bus.addr = NULL;
--	mem->bus.offset = 0;
--	mem->bus.size = mem->num_pages << PAGE_SHIFT;
--	mem->bus.base = 0;
--	mem->bus.is_iomem = false;
--	if (!(man->flags & TTM_MEMTYPE_FLAG_MAPPABLE))
--		return -EINVAL;
--	switch (mem->mem_type) {
--	case TTM_PL_SYSTEM:
--		/* system memory */
--		return 0;
--	case TTM_PL_VRAM:
--		mem->bus.offset = mem->start << PAGE_SHIFT;
--		mem->bus.base = pci_resource_start(mdev->dev->pdev, 0);
--		mem->bus.is_iomem = true;
--		break;
--	default:
--		return -EINVAL;
--		break;
--	}
--	return 0;
--}
--
--static void mgag200_ttm_io_mem_free(struct ttm_bo_device *bdev, struct ttm_mem_reg *mem)
--{
--}
--
--static void mgag200_ttm_backend_destroy(struct ttm_tt *tt)
--{
--	ttm_tt_fini(tt);
--	kfree(tt);
--}
--
--static struct ttm_backend_func mgag200_tt_backend_func = {
--	.destroy = &mgag200_ttm_backend_destroy,
--};
--
--
--static struct ttm_tt *mgag200_ttm_tt_create(struct ttm_buffer_object *bo,
--					    uint32_t page_flags)
--{
--	struct ttm_tt *tt;
--
--	tt = kzalloc(sizeof(struct ttm_tt), GFP_KERNEL);
--	if (tt == NULL)
--		return NULL;
--	tt->func = &mgag200_tt_backend_func;
--	if (ttm_tt_init(tt, bo, page_flags)) {
--		kfree(tt);
--		return NULL;
--	}
--	return tt;
--}
--
--struct ttm_bo_driver mgag200_bo_driver = {
--	.ttm_tt_create = mgag200_ttm_tt_create,
--	.init_mem_type = mgag200_bo_init_mem_type,
--	.eviction_valuable = ttm_bo_eviction_valuable,
--	.evict_flags = drm_gem_vram_bo_driver_evict_flags,
--	.move = NULL,
--	.verify_access = drm_gem_vram_bo_driver_verify_access,
--	.io_mem_reserve = &mgag200_ttm_io_mem_reserve,
--	.io_mem_free = &mgag200_ttm_io_mem_free,
--};
--
- int mgag200_mm_init(struct mga_device *mdev)
- {
-+	struct drm_vram_mm *vmm;
- 	int ret;
- 	struct drm_device *dev = mdev->dev;
--	struct ttm_bo_device *bdev = &mdev->ttm.bdev;
--
--	ret = ttm_bo_device_init(&mdev->ttm.bdev,
--				 &mgag200_bo_driver,
--				 dev->anon_inode->i_mapping,
--				 true);
--	if (ret) {
--		DRM_ERROR("Error initialising bo driver; %d\n", ret);
--		return ret;
--	}
- 
--	ret = ttm_bo_init_mm(bdev, TTM_PL_VRAM, mdev->mc.vram_size >> PAGE_SHIFT);
--	if (ret) {
--		DRM_ERROR("Failed ttm VRAM init: %d\n", ret);
-+	vmm = drm_vram_helper_alloc_mm(dev, pci_resource_start(dev->pdev, 0),
-+				       mdev->mc.vram_size,
-+				       &drm_gem_vram_mm_funcs);
-+	if (IS_ERR(vmm)) {
-+		ret = PTR_ERR(vmm);
-+		DRM_ERROR("Error initializing VRAM MM; %d\n", ret);
- 		return ret;
++		}
  	}
++
+ 	drm_gem_vram_unreserve(gbo);
  
-@@ -166,18 +57,10 @@ void mgag200_mm_fini(struct mga_device *mdev)
- {
- 	struct drm_device *dev = mdev->dev;
- 
--	ttm_bo_device_release(&mdev->ttm.bdev);
-+	drm_vram_helper_release_mm(dev);
- 
- 	arch_io_free_memtype_wc(pci_resource_start(dev->pdev, 0),
- 				pci_resource_len(dev->pdev, 0));
- 	arch_phys_wc_del(mdev->fb_mtrr);
- 	mdev->fb_mtrr = 0;
- }
--
--int mgag200_mmap(struct file *filp, struct vm_area_struct *vma)
--{
--	struct drm_file *file_priv = filp->private_data;
--	struct mga_device *mdev = file_priv->minor->dev->dev_private;
--
--	return ttm_bo_mmap(filp, vma, &mdev->ttm.bdev);
--}
+ 	mga_set_start_address(crtc, (u32)gpu_addr);
 -- 
 2.21.0
