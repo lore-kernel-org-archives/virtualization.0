@@ -1,7 +1,8 @@
 From: Thomas Zimmermann <tzimmermann@suse.de>
-Subject: [PATCH v5 18/20] drm/vboxvideo: Convert vboxvideo driver to VRAM MM
-Date: Wed,  8 May 2019 10:26:28 +0200
-Message-ID: <20190508082630.15116-19-tzimmermann__34652.2781926737$1557304233$gmane$org@suse.de>
+Subject: [PATCH v5 19/20] drm/hisilicon: Convert hibmc-drm driver to |struct
+	drm_gem_vram_object|
+Date: Wed,  8 May 2019 10:26:29 +0200
+Message-ID: <20190508082630.15116-20-tzimmermann__28963.1451408908$1557304250$gmane$org@suse.de>
 References: <20190508082630.15116-1-tzimmermann@suse.de>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
@@ -21,312 +22,495 @@ To: daniel@ffwll.ch, airlied@linux.ie, kraxel@redhat.com, christian.koenig@amd.c
 Cc: Thomas Zimmermann <tzimmermann@suse.de>, dri-devel@lists.freedesktop.org, virtualization@lists.linux-foundation.org
 List-Id: virtualization@lists.linuxfoundation.org
 
-The data structure |struct drm_vram_mm| and its helpers replace vboxvideo's
-TTM-based memory manager. It's the same implementation; except for the type
+The data structure |struct drm_gem_vram_object| and its helpers replace
+|struct hibmc_bo|. It's the same implementation; except for the type
 names.
 
 v4:
-	* don't select DRM_TTM or DRM_VRAM_MM_HELPER
-v3:
-	* use drm_gem_vram_mm_funcs
-	* convert driver to drm_device-based instance
-v2:
-	* implement vbox_mmap() with drm_vram_mm_mmap()
+	* select config option DRM_VRAM_HELPER
 
 Signed-off-by: Thomas Zimmermann <tzimmermann@suse.de>
-Reviewed-by: Hans de Goede <hdegoede@redhat.com>
 ---
- drivers/gpu/drm/vboxvideo/Kconfig     |   1 -
- drivers/gpu/drm/vboxvideo/vbox_drv.c  |  13 +--
- drivers/gpu/drm/vboxvideo/vbox_drv.h  |  15 +--
- drivers/gpu/drm/vboxvideo/vbox_main.c |  13 +--
- drivers/gpu/drm/vboxvideo/vbox_ttm.c  | 136 ++------------------------
- 5 files changed, 13 insertions(+), 165 deletions(-)
+ drivers/gpu/drm/hisilicon/hibmc/Kconfig       |   1 +
+ .../gpu/drm/hisilicon/hibmc/hibmc_drm_de.c    |  21 +-
+ .../gpu/drm/hisilicon/hibmc/hibmc_drm_drv.c   |   5 +-
+ .../gpu/drm/hisilicon/hibmc/hibmc_drm_drv.h   |  25 +--
+ .../gpu/drm/hisilicon/hibmc/hibmc_drm_fbdev.c |  30 +--
+ drivers/gpu/drm/hisilicon/hibmc/hibmc_ttm.c   | 210 +-----------------
+ 6 files changed, 44 insertions(+), 248 deletions(-)
 
-diff --git a/drivers/gpu/drm/vboxvideo/Kconfig b/drivers/gpu/drm/vboxvideo/Kconfig
-index f8f689c55e94..fc16a5589379 100644
---- a/drivers/gpu/drm/vboxvideo/Kconfig
-+++ b/drivers/gpu/drm/vboxvideo/Kconfig
-@@ -2,7 +2,6 @@ config DRM_VBOXVIDEO
- 	tristate "Virtual Box Graphics Card"
- 	depends on DRM && X86 && PCI
+diff --git a/drivers/gpu/drm/hisilicon/hibmc/Kconfig b/drivers/gpu/drm/hisilicon/hibmc/Kconfig
+index c7129dc3bdfc..04d0bc685560 100644
+--- a/drivers/gpu/drm/hisilicon/hibmc/Kconfig
++++ b/drivers/gpu/drm/hisilicon/hibmc/Kconfig
+@@ -3,6 +3,7 @@ config DRM_HISI_HIBMC
+ 	depends on DRM && PCI && MMU
  	select DRM_KMS_HELPER
--	select DRM_TTM
- 	select DRM_VRAM_HELPER
- 	select GENERIC_ALLOCATOR
+ 	select DRM_TTM
++	select DRM_VRAM_HELPER
+ 
  	help
-diff --git a/drivers/gpu/drm/vboxvideo/vbox_drv.c b/drivers/gpu/drm/vboxvideo/vbox_drv.c
-index 336a8e03e151..02537ab9cc08 100644
---- a/drivers/gpu/drm/vboxvideo/vbox_drv.c
-+++ b/drivers/gpu/drm/vboxvideo/vbox_drv.c
-@@ -191,13 +191,7 @@ static struct pci_driver vbox_pci_driver = {
- 
- static const struct file_operations vbox_fops = {
- 	.owner = THIS_MODULE,
--	.open = drm_open,
--	.release = drm_release,
--	.unlocked_ioctl = drm_ioctl,
--	.compat_ioctl = drm_compat_ioctl,
--	.mmap = vbox_mmap,
--	.poll = drm_poll,
--	.read = drm_read,
-+	DRM_VRAM_MM_FILE_OPERATIONS
- };
- 
- static struct drm_driver driver = {
-@@ -215,10 +209,7 @@ static struct drm_driver driver = {
- 	.minor = DRIVER_MINOR,
- 	.patchlevel = DRIVER_PATCHLEVEL,
- 
--	.gem_free_object_unlocked =
--		drm_gem_vram_driver_gem_free_object_unlocked,
--	.dumb_create = vbox_dumb_create,
--	.dumb_map_offset = drm_gem_vram_driver_dumb_mmap_offset,
-+	DRM_GEM_VRAM_DRIVER,
- 	.prime_handle_to_fd = drm_gem_prime_handle_to_fd,
- 	.prime_fd_to_handle = drm_gem_prime_fd_to_handle,
- 	.gem_prime_export = drm_gem_prime_export,
-diff --git a/drivers/gpu/drm/vboxvideo/vbox_drv.h b/drivers/gpu/drm/vboxvideo/vbox_drv.h
-index 12e47392b2f9..9028f946bc06 100644
---- a/drivers/gpu/drm/vboxvideo/vbox_drv.h
-+++ b/drivers/gpu/drm/vboxvideo/vbox_drv.h
-@@ -20,11 +20,7 @@
- #include <drm/drm_gem.h>
- #include <drm/drm_gem_vram_helper.h>
- 
--#include <drm/ttm/ttm_bo_api.h>
--#include <drm/ttm/ttm_bo_driver.h>
--#include <drm/ttm/ttm_placement.h>
--#include <drm/ttm/ttm_memory.h>
--#include <drm/ttm/ttm_module.h>
-+#include <drm/drm_vram_mm_helper.h>
- 
- #include "vboxvideo_guest.h"
- #include "vboxvideo_vbe.h"
-@@ -78,10 +74,6 @@ struct vbox_private {
- 
- 	int fb_mtrr;
- 
--	struct {
--		struct ttm_bo_device bdev;
--	} ttm;
--
- 	struct mutex hw_mutex; /* protects modeset and accel/vbva accesses */
- 	struct work_struct hotplug_work;
- 	u32 input_mapping_width;
-@@ -169,16 +161,11 @@ int vboxfb_create(struct drm_fb_helper *helper,
- 		  struct drm_fb_helper_surface_size *sizes);
- void vbox_fbdev_fini(struct vbox_private *vbox);
- 
--int vbox_dumb_create(struct drm_file *file,
--		     struct drm_device *dev,
--		     struct drm_mode_create_dumb *args);
--
- int vbox_mm_init(struct vbox_private *vbox);
- void vbox_mm_fini(struct vbox_private *vbox);
- 
- int vbox_gem_create(struct vbox_private *vbox,
- 		    u32 size, bool iskernel, struct drm_gem_object **obj);
--int vbox_mmap(struct file *filp, struct vm_area_struct *vma);
- 
- /* vbox_prime.c */
- int vbox_gem_prime_pin(struct drm_gem_object *obj);
-diff --git a/drivers/gpu/drm/vboxvideo/vbox_main.c b/drivers/gpu/drm/vboxvideo/vbox_main.c
-index 525e9fd63f4d..18693e2bf72a 100644
---- a/drivers/gpu/drm/vboxvideo/vbox_main.c
-+++ b/drivers/gpu/drm/vboxvideo/vbox_main.c
-@@ -283,7 +283,8 @@ int vbox_gem_create(struct vbox_private *vbox,
- 	if (size == 0)
- 		return -EINVAL;
- 
--	gbo = drm_gem_vram_create(&vbox->ddev, &vbox->ttm.bdev, size, 0, false);
-+	gbo = drm_gem_vram_create(&vbox->ddev, &vbox->ddev.vram_mm->bdev,
-+				  size, 0, false);
- 	if (IS_ERR(gbo)) {
- 		ret = PTR_ERR(gbo);
- 		if (ret != -ERESTARTSYS)
-@@ -295,13 +296,3 @@ int vbox_gem_create(struct vbox_private *vbox,
- 
- 	return 0;
- }
--
--int vbox_dumb_create(struct drm_file *file,
--		     struct drm_device *dev, struct drm_mode_create_dumb *args)
--{
--	struct vbox_private *vbox = dev->dev_private;
--
--	return drm_gem_vram_fill_create_dumb(file, dev, &vbox->ttm.bdev, 0,
--					    false, args);
--
--}
-diff --git a/drivers/gpu/drm/vboxvideo/vbox_ttm.c b/drivers/gpu/drm/vboxvideo/vbox_ttm.c
-index 0989d656eed6..b82595a9ed0f 100644
---- a/drivers/gpu/drm/vboxvideo/vbox_ttm.c
-+++ b/drivers/gpu/drm/vboxvideo/vbox_ttm.c
-@@ -8,131 +8,23 @@
-  */
- #include <linux/pci.h>
- #include <drm/drm_file.h>
--#include <drm/ttm/ttm_page_alloc.h>
- #include "vbox_drv.h"
- 
--static inline struct vbox_private *vbox_bdev(struct ttm_bo_device *bd)
--{
--	return container_of(bd, struct vbox_private, ttm.bdev);
--}
--
--static int
--vbox_bo_init_mem_type(struct ttm_bo_device *bdev, u32 type,
--		      struct ttm_mem_type_manager *man)
--{
--	switch (type) {
--	case TTM_PL_SYSTEM:
--		man->flags = TTM_MEMTYPE_FLAG_MAPPABLE;
--		man->available_caching = TTM_PL_MASK_CACHING;
--		man->default_caching = TTM_PL_FLAG_CACHED;
--		break;
--	case TTM_PL_VRAM:
--		man->func = &ttm_bo_manager_func;
--		man->flags = TTM_MEMTYPE_FLAG_FIXED | TTM_MEMTYPE_FLAG_MAPPABLE;
--		man->available_caching = TTM_PL_FLAG_UNCACHED | TTM_PL_FLAG_WC;
--		man->default_caching = TTM_PL_FLAG_WC;
--		break;
--	default:
--		DRM_ERROR("Unsupported memory type %u\n", (unsigned int)type);
--		return -EINVAL;
--	}
--
--	return 0;
--}
--
--static int vbox_ttm_io_mem_reserve(struct ttm_bo_device *bdev,
--				   struct ttm_mem_reg *mem)
--{
--	struct ttm_mem_type_manager *man = &bdev->man[mem->mem_type];
--	struct vbox_private *vbox = vbox_bdev(bdev);
--
--	mem->bus.addr = NULL;
--	mem->bus.offset = 0;
--	mem->bus.size = mem->num_pages << PAGE_SHIFT;
--	mem->bus.base = 0;
--	mem->bus.is_iomem = false;
--	if (!(man->flags & TTM_MEMTYPE_FLAG_MAPPABLE))
--		return -EINVAL;
--	switch (mem->mem_type) {
--	case TTM_PL_SYSTEM:
--		/* system memory */
--		return 0;
--	case TTM_PL_VRAM:
--		mem->bus.offset = mem->start << PAGE_SHIFT;
--		mem->bus.base = pci_resource_start(vbox->ddev.pdev, 0);
--		mem->bus.is_iomem = true;
--		break;
--	default:
--		return -EINVAL;
--	}
--	return 0;
--}
--
--static void vbox_ttm_io_mem_free(struct ttm_bo_device *bdev,
--				 struct ttm_mem_reg *mem)
--{
--}
--
--static void vbox_ttm_backend_destroy(struct ttm_tt *tt)
--{
--	ttm_tt_fini(tt);
--	kfree(tt);
--}
--
--static struct ttm_backend_func vbox_tt_backend_func = {
--	.destroy = &vbox_ttm_backend_destroy,
--};
--
--static struct ttm_tt *vbox_ttm_tt_create(struct ttm_buffer_object *bo,
--					 u32 page_flags)
--{
--	struct ttm_tt *tt;
--
--	tt = kzalloc(sizeof(*tt), GFP_KERNEL);
--	if (!tt)
--		return NULL;
--
--	tt->func = &vbox_tt_backend_func;
--	if (ttm_tt_init(tt, bo, page_flags)) {
--		kfree(tt);
--		return NULL;
--	}
--
--	return tt;
--}
--
--static struct ttm_bo_driver vbox_bo_driver = {
--	.ttm_tt_create = vbox_ttm_tt_create,
--	.init_mem_type = vbox_bo_init_mem_type,
--	.eviction_valuable = ttm_bo_eviction_valuable,
--	.evict_flags = drm_gem_vram_bo_driver_evict_flags,
--	.verify_access = drm_gem_vram_bo_driver_verify_access,
--	.io_mem_reserve = &vbox_ttm_io_mem_reserve,
--	.io_mem_free = &vbox_ttm_io_mem_free,
--};
--
- int vbox_mm_init(struct vbox_private *vbox)
- {
-+	struct drm_vram_mm *vmm;
+ 	  Choose this option if you have a Hisilicon Hibmc soc chipset.
+diff --git a/drivers/gpu/drm/hisilicon/hibmc/hibmc_drm_de.c b/drivers/gpu/drm/hisilicon/hibmc/hibmc_drm_de.c
+index 9316b724e7a2..db0dfa57844e 100644
+--- a/drivers/gpu/drm/hisilicon/hibmc/hibmc_drm_de.c
++++ b/drivers/gpu/drm/hisilicon/hibmc/hibmc_drm_de.c
+@@ -96,27 +96,32 @@ static void hibmc_plane_atomic_update(struct drm_plane *plane,
+ 	struct drm_plane_state	*state	= plane->state;
+ 	u32 reg;
  	int ret;
- 	struct drm_device *dev = &vbox->ddev;
--	struct ttm_bo_device *bdev = &vbox->ttm.bdev;
+-	u64 gpu_addr = 0;
++	s64 gpu_addr = 0;
+ 	unsigned int line_l;
+ 	struct hibmc_drm_private *priv = plane->dev->dev_private;
+ 	struct hibmc_framebuffer *hibmc_fb;
+-	struct hibmc_bo *bo;
++	struct drm_gem_vram_object *gbo;
  
--	ret = ttm_bo_device_init(&vbox->ttm.bdev,
--				 &vbox_bo_driver,
--				 dev->anon_inode->i_mapping,
--				 true);
--	if (ret) {
--		DRM_ERROR("Error initialising bo driver; %d\n", ret);
-+	vmm = drm_vram_helper_alloc_mm(dev, pci_resource_start(dev->pdev, 0),
-+				       vbox->available_vram_size,
-+				       &drm_gem_vram_mm_funcs);
-+	if (IS_ERR(vmm)) {
-+		ret = PTR_ERR(vmm);
-+		DRM_ERROR("Error initializing VRAM MM; %d\n", ret);
- 		return ret;
+ 	if (!state->fb)
+ 		return;
+ 
+ 	hibmc_fb = to_hibmc_framebuffer(state->fb);
+-	bo = gem_to_hibmc_bo(hibmc_fb->obj);
+-	ret = ttm_bo_reserve(&bo->bo, true, false, NULL);
++	gbo = drm_gem_vram_of_gem(hibmc_fb->obj);
++	ret = drm_gem_vram_reserve(gbo, false);
+ 	if (ret) {
+-		DRM_ERROR("failed to reserve ttm_bo: %d", ret);
++		DRM_ERROR("failed to reserve BO: %d", ret);
+ 		return;
  	}
  
--	ret = ttm_bo_init_mm(bdev, TTM_PL_VRAM,
--			     vbox->available_vram_size >> PAGE_SHIFT);
--	if (ret) {
--		DRM_ERROR("Failed ttm VRAM init: %d\n", ret);
--		goto err_device_release;
--	}
--
- #ifdef DRM_MTRR_WC
- 	vbox->fb_mtrr = drm_mtrr_add(pci_resource_start(dev->pdev, 0),
- 				     pci_resource_len(dev->pdev, 0),
-@@ -142,10 +34,6 @@ int vbox_mm_init(struct vbox_private *vbox)
- 					 pci_resource_len(dev->pdev, 0));
- #endif
- 	return 0;
--
--err_device_release:
--	ttm_bo_device_release(&vbox->ttm.bdev);
--	return ret;
- }
+-	ret = hibmc_bo_pin(bo, TTM_PL_FLAG_VRAM, &gpu_addr);
+-	ttm_bo_unreserve(&bo->bo);
++	ret = drm_gem_vram_pin(gbo, DRM_GEM_VRAM_PL_FLAG_VRAM);
++	drm_gem_vram_unreserve(gbo);
+ 	if (ret) {
+-		DRM_ERROR("failed to pin hibmc_bo: %d", ret);
++		DRM_ERROR("failed to pin bo: %d", ret);
++		return;
++	}
++	gpu_addr = drm_gem_vram_offset(gbo);
++	if (gpu_addr < 0) {
++		drm_gem_vram_unpin(gbo);
+ 		return;
+ 	}
  
- void vbox_mm_fini(struct vbox_private *vbox)
-@@ -157,13 +45,5 @@ void vbox_mm_fini(struct vbox_private *vbox)
- #else
- 	arch_phys_wc_del(vbox->fb_mtrr);
- #endif
--	ttm_bo_device_release(&vbox->ttm.bdev);
+diff --git a/drivers/gpu/drm/hisilicon/hibmc/hibmc_drm_drv.c b/drivers/gpu/drm/hisilicon/hibmc/hibmc_drm_drv.c
+index 8ed94fcd42a7..7027a1a05768 100644
+--- a/drivers/gpu/drm/hisilicon/hibmc/hibmc_drm_drv.c
++++ b/drivers/gpu/drm/hisilicon/hibmc/hibmc_drm_drv.c
+@@ -63,9 +63,10 @@ static struct drm_driver hibmc_driver = {
+ 	.desc			= "hibmc drm driver",
+ 	.major			= 1,
+ 	.minor			= 0,
+-	.gem_free_object_unlocked = hibmc_gem_free_object,
++	.gem_free_object_unlocked =
++		drm_gem_vram_driver_gem_free_object_unlocked,
+ 	.dumb_create            = hibmc_dumb_create,
+-	.dumb_map_offset        = hibmc_dumb_mmap_offset,
++	.dumb_map_offset        = drm_gem_vram_driver_dumb_mmap_offset,
+ 	.irq_handler		= hibmc_drm_interrupt,
+ };
+ 
+diff --git a/drivers/gpu/drm/hisilicon/hibmc/hibmc_drm_drv.h b/drivers/gpu/drm/hisilicon/hibmc/hibmc_drm_drv.h
+index 0a381c22de26..6b3430fc5148 100644
+--- a/drivers/gpu/drm/hisilicon/hibmc/hibmc_drm_drv.h
++++ b/drivers/gpu/drm/hisilicon/hibmc/hibmc_drm_drv.h
+@@ -23,6 +23,7 @@
+ #include <drm/drm_atomic.h>
+ #include <drm/drm_fb_helper.h>
+ #include <drm/drm_gem.h>
++#include <drm/drm_gem_vram_helper.h>
+ #include <drm/ttm/ttm_bo_driver.h>
+ 
+ struct hibmc_framebuffer {
+@@ -59,25 +60,6 @@ struct hibmc_drm_private {
+ 
+ #define to_hibmc_framebuffer(x) container_of(x, struct hibmc_framebuffer, fb)
+ 
+-struct hibmc_bo {
+-	struct ttm_buffer_object bo;
+-	struct ttm_placement placement;
+-	struct ttm_bo_kmap_obj kmap;
+-	struct drm_gem_object gem;
+-	struct ttm_place placements[3];
+-	int pin_count;
+-};
+-
+-static inline struct hibmc_bo *hibmc_bo(struct ttm_buffer_object *bo)
+-{
+-	return container_of(bo, struct hibmc_bo, bo);
 -}
 -
--int vbox_mmap(struct file *filp, struct vm_area_struct *vma)
+-static inline struct hibmc_bo *gem_to_hibmc_bo(struct drm_gem_object *gem)
 -{
--	struct drm_file *file_priv = filp->private_data;
--	struct vbox_private *vbox = file_priv->minor->dev->dev_private;
+-	return container_of(gem, struct hibmc_bo, gem);
+-}
 -
--	return ttm_bo_mmap(filp, vma, &vbox->ttm.bdev);
-+	drm_vram_helper_release_mm(&vbox->ddev);
+ void hibmc_set_power_mode(struct hibmc_drm_private *priv,
+ 			  unsigned int power_mode);
+ void hibmc_set_current_gate(struct hibmc_drm_private *priv,
+@@ -97,13 +79,8 @@ hibmc_framebuffer_init(struct drm_device *dev,
+ 
+ int hibmc_mm_init(struct hibmc_drm_private *hibmc);
+ void hibmc_mm_fini(struct hibmc_drm_private *hibmc);
+-int hibmc_bo_pin(struct hibmc_bo *bo, u32 pl_flag, u64 *gpu_addr);
+-int hibmc_bo_unpin(struct hibmc_bo *bo);
+-void hibmc_gem_free_object(struct drm_gem_object *obj);
+ int hibmc_dumb_create(struct drm_file *file, struct drm_device *dev,
+ 		      struct drm_mode_create_dumb *args);
+-int hibmc_dumb_mmap_offset(struct drm_file *file, struct drm_device *dev,
+-			   u32 handle, u64 *offset);
+ int hibmc_mmap(struct file *filp, struct vm_area_struct *vma);
+ 
+ extern const struct drm_mode_config_funcs hibmc_mode_funcs;
+diff --git a/drivers/gpu/drm/hisilicon/hibmc/hibmc_drm_fbdev.c b/drivers/gpu/drm/hisilicon/hibmc/hibmc_drm_fbdev.c
+index 8026859aa07d..9d2025fa16f8 100644
+--- a/drivers/gpu/drm/hisilicon/hibmc/hibmc_drm_fbdev.c
++++ b/drivers/gpu/drm/hisilicon/hibmc/hibmc_drm_fbdev.c
+@@ -66,7 +66,8 @@ static int hibmc_drm_fb_create(struct drm_fb_helper *helper,
+ 	int ret1;
+ 	size_t size;
+ 	unsigned int bytes_per_pixel;
+-	struct hibmc_bo *bo = NULL;
++	struct drm_gem_vram_object *gbo = NULL;
++	void *base;
+ 
+ 	DRM_DEBUG_DRIVER("surface width(%d), height(%d) and bpp(%d)\n",
+ 			 sizes->surface_width, sizes->surface_height,
+@@ -88,26 +89,27 @@ static int hibmc_drm_fb_create(struct drm_fb_helper *helper,
+ 		return -ENOMEM;
+ 	}
+ 
+-	bo = gem_to_hibmc_bo(gobj);
++	gbo = drm_gem_vram_of_gem(gobj);
+ 
+-	ret = ttm_bo_reserve(&bo->bo, true, false, NULL);
++	ret = drm_gem_vram_reserve(gbo, false);
+ 	if (ret) {
+-		DRM_ERROR("failed to reserve ttm_bo: %d\n", ret);
++		DRM_ERROR("failed to reserve bo: %d\n", ret);
+ 		goto out_unref_gem;
+ 	}
+ 
+-	ret = hibmc_bo_pin(bo, TTM_PL_FLAG_VRAM, NULL);
++	ret = drm_gem_vram_pin(gbo, DRM_GEM_VRAM_PL_FLAG_VRAM);
+ 	if (ret) {
+ 		DRM_ERROR("failed to pin fbcon: %d\n", ret);
+ 		goto out_unreserve_ttm_bo;
+ 	}
+ 
+-	ret = ttm_bo_kmap(&bo->bo, 0, bo->bo.num_pages, &bo->kmap);
+-	if (ret) {
++	base = drm_gem_vram_kmap(gbo, true, NULL);
++	if (IS_ERR(base)) {
++		ret = PTR_ERR(base);
+ 		DRM_ERROR("failed to kmap fbcon: %d\n", ret);
+ 		goto out_unpin_bo;
+ 	}
+-	ttm_bo_unreserve(&bo->bo);
++	drm_gem_vram_unreserve(gbo);
+ 
+ 	info = drm_fb_helper_alloc_fbi(helper);
+ 	if (IS_ERR(info)) {
+@@ -131,24 +133,24 @@ static int hibmc_drm_fb_create(struct drm_fb_helper *helper,
+ 
+ 	drm_fb_helper_fill_info(info, &priv->fbdev->helper, sizes);
+ 
+-	info->screen_base = bo->kmap.virtual;
++	info->screen_base = base;
+ 	info->screen_size = size;
+ 
+-	info->fix.smem_start = bo->bo.mem.bus.offset + bo->bo.mem.bus.base;
++	info->fix.smem_start = gbo->bo.mem.bus.offset + gbo->bo.mem.bus.base;
+ 	info->fix.smem_len = size;
+ 	return 0;
+ 
+ out_release_fbi:
+-	ret1 = ttm_bo_reserve(&bo->bo, true, false, NULL);
++	ret1 = drm_gem_vram_reserve(gbo, false);
+ 	if (ret1) {
+ 		DRM_ERROR("failed to rsv ttm_bo when release fbi: %d\n", ret1);
+ 		goto out_unref_gem;
+ 	}
+-	ttm_bo_kunmap(&bo->kmap);
++	drm_gem_vram_kunmap(gbo);
+ out_unpin_bo:
+-	hibmc_bo_unpin(bo);
++	drm_gem_vram_unpin(gbo);
+ out_unreserve_ttm_bo:
+-	ttm_bo_unreserve(&bo->bo);
++	drm_gem_vram_unreserve(gbo);
+ out_unref_gem:
+ 	drm_gem_object_put_unlocked(gobj);
+ 
+diff --git a/drivers/gpu/drm/hisilicon/hibmc/hibmc_ttm.c b/drivers/gpu/drm/hisilicon/hibmc/hibmc_ttm.c
+index 6093c421daff..fbf8eb048ebc 100644
+--- a/drivers/gpu/drm/hisilicon/hibmc/hibmc_ttm.c
++++ b/drivers/gpu/drm/hisilicon/hibmc/hibmc_ttm.c
+@@ -27,19 +27,6 @@ hibmc_bdev(struct ttm_bo_device *bd)
+ 	return container_of(bd, struct hibmc_drm_private, bdev);
  }
+ 
+-static void hibmc_bo_ttm_destroy(struct ttm_buffer_object *tbo)
+-{
+-	struct hibmc_bo *bo = container_of(tbo, struct hibmc_bo, bo);
+-
+-	drm_gem_object_release(&bo->gem);
+-	kfree(bo);
+-}
+-
+-static bool hibmc_ttm_bo_is_hibmc_bo(struct ttm_buffer_object *bo)
+-{
+-	return bo->destroy == &hibmc_bo_ttm_destroy;
+-}
+-
+ static int
+ hibmc_bo_init_mem_type(struct ttm_bo_device *bdev, u32 type,
+ 		       struct ttm_mem_type_manager *man)
+@@ -65,52 +52,6 @@ hibmc_bo_init_mem_type(struct ttm_bo_device *bdev, u32 type,
+ 	return 0;
+ }
+ 
+-void hibmc_ttm_placement(struct hibmc_bo *bo, int domain)
+-{
+-	u32 count = 0;
+-	u32 i;
+-
+-	bo->placement.placement = bo->placements;
+-	bo->placement.busy_placement = bo->placements;
+-	if (domain & TTM_PL_FLAG_VRAM)
+-		bo->placements[count++].flags = TTM_PL_FLAG_WC |
+-			TTM_PL_FLAG_UNCACHED | TTM_PL_FLAG_VRAM;
+-	if (domain & TTM_PL_FLAG_SYSTEM)
+-		bo->placements[count++].flags = TTM_PL_MASK_CACHING |
+-			TTM_PL_FLAG_SYSTEM;
+-	if (!count)
+-		bo->placements[count++].flags = TTM_PL_MASK_CACHING |
+-			TTM_PL_FLAG_SYSTEM;
+-
+-	bo->placement.num_placement = count;
+-	bo->placement.num_busy_placement = count;
+-	for (i = 0; i < count; i++) {
+-		bo->placements[i].fpfn = 0;
+-		bo->placements[i].lpfn = 0;
+-	}
+-}
+-
+-static void
+-hibmc_bo_evict_flags(struct ttm_buffer_object *bo, struct ttm_placement *pl)
+-{
+-	struct hibmc_bo *hibmcbo = hibmc_bo(bo);
+-
+-	if (!hibmc_ttm_bo_is_hibmc_bo(bo))
+-		return;
+-
+-	hibmc_ttm_placement(hibmcbo, TTM_PL_FLAG_SYSTEM);
+-	*pl = hibmcbo->placement;
+-}
+-
+-static int hibmc_bo_verify_access(struct ttm_buffer_object *bo,
+-				  struct file *filp)
+-{
+-	struct hibmc_bo *hibmcbo = hibmc_bo(bo);
+-
+-	return drm_vma_node_verify_access(&hibmcbo->gem.vma_node,
+-					  filp->private_data);
+-}
+-
+ static int hibmc_ttm_io_mem_reserve(struct ttm_bo_device *bdev,
+ 				    struct ttm_mem_reg *mem)
+ {
+@@ -173,9 +114,9 @@ static struct ttm_tt *hibmc_ttm_tt_create(struct ttm_buffer_object *bo,
+ struct ttm_bo_driver hibmc_bo_driver = {
+ 	.ttm_tt_create		= hibmc_ttm_tt_create,
+ 	.init_mem_type		= hibmc_bo_init_mem_type,
+-	.evict_flags		= hibmc_bo_evict_flags,
++	.evict_flags		= drm_gem_vram_bo_driver_evict_flags,
+ 	.move			= NULL,
+-	.verify_access		= hibmc_bo_verify_access,
++	.verify_access		= drm_gem_vram_bo_driver_verify_access,
+ 	.io_mem_reserve		= &hibmc_ttm_io_mem_reserve,
+ 	.io_mem_free		= NULL,
+ };
+@@ -215,108 +156,6 @@ void hibmc_mm_fini(struct hibmc_drm_private *hibmc)
+ 	hibmc->mm_inited = false;
+ }
+ 
+-static void hibmc_bo_unref(struct hibmc_bo **bo)
+-{
+-	struct ttm_buffer_object *tbo;
+-
+-	if ((*bo) == NULL)
+-		return;
+-
+-	tbo = &((*bo)->bo);
+-	ttm_bo_put(tbo);
+-	*bo = NULL;
+-}
+-
+-int hibmc_bo_create(struct drm_device *dev, int size, int align,
+-		    u32 flags, struct hibmc_bo **phibmcbo)
+-{
+-	struct hibmc_drm_private *hibmc = dev->dev_private;
+-	struct hibmc_bo *hibmcbo;
+-	size_t acc_size;
+-	int ret;
+-
+-	hibmcbo = kzalloc(sizeof(*hibmcbo), GFP_KERNEL);
+-	if (!hibmcbo) {
+-		DRM_ERROR("failed to allocate hibmcbo\n");
+-		return -ENOMEM;
+-	}
+-	ret = drm_gem_object_init(dev, &hibmcbo->gem, size);
+-	if (ret) {
+-		DRM_ERROR("failed to initialize drm gem object: %d\n", ret);
+-		kfree(hibmcbo);
+-		return ret;
+-	}
+-
+-	hibmcbo->bo.bdev = &hibmc->bdev;
+-
+-	hibmc_ttm_placement(hibmcbo, TTM_PL_FLAG_VRAM | TTM_PL_FLAG_SYSTEM);
+-
+-	acc_size = ttm_bo_dma_acc_size(&hibmc->bdev, size,
+-				       sizeof(struct hibmc_bo));
+-
+-	ret = ttm_bo_init(&hibmc->bdev, &hibmcbo->bo, size,
+-			  ttm_bo_type_device, &hibmcbo->placement,
+-			  align >> PAGE_SHIFT, false, acc_size,
+-			  NULL, NULL, hibmc_bo_ttm_destroy);
+-	if (ret) {
+-		hibmc_bo_unref(&hibmcbo);
+-		DRM_ERROR("failed to initialize ttm_bo: %d\n", ret);
+-		return ret;
+-	}
+-
+-	*phibmcbo = hibmcbo;
+-	return 0;
+-}
+-
+-int hibmc_bo_pin(struct hibmc_bo *bo, u32 pl_flag, u64 *gpu_addr)
+-{
+-	struct ttm_operation_ctx ctx = { false, false };
+-	int i, ret;
+-
+-	if (bo->pin_count) {
+-		bo->pin_count++;
+-		if (gpu_addr)
+-			*gpu_addr = bo->bo.offset;
+-		return 0;
+-	}
+-
+-	hibmc_ttm_placement(bo, pl_flag);
+-	for (i = 0; i < bo->placement.num_placement; i++)
+-		bo->placements[i].flags |= TTM_PL_FLAG_NO_EVICT;
+-	ret = ttm_bo_validate(&bo->bo, &bo->placement, &ctx);
+-	if (ret)
+-		return ret;
+-
+-	bo->pin_count = 1;
+-	if (gpu_addr)
+-		*gpu_addr = bo->bo.offset;
+-	return 0;
+-}
+-
+-int hibmc_bo_unpin(struct hibmc_bo *bo)
+-{
+-	struct ttm_operation_ctx ctx = { false, false };
+-	int i, ret;
+-
+-	if (!bo->pin_count) {
+-		DRM_ERROR("unpin bad %p\n", bo);
+-		return 0;
+-	}
+-	bo->pin_count--;
+-	if (bo->pin_count)
+-		return 0;
+-
+-	for (i = 0; i < bo->placement.num_placement ; i++)
+-		bo->placements[i].flags &= ~TTM_PL_FLAG_NO_EVICT;
+-	ret = ttm_bo_validate(&bo->bo, &bo->placement, &ctx);
+-	if (ret) {
+-		DRM_ERROR("validate failed for unpin: %d\n", ret);
+-		return ret;
+-	}
+-
+-	return 0;
+-}
+-
+ int hibmc_mmap(struct file *filp, struct vm_area_struct *vma)
+ {
+ 	struct drm_file *file_priv = filp->private_data;
+@@ -328,24 +167,24 @@ int hibmc_mmap(struct file *filp, struct vm_area_struct *vma)
+ int hibmc_gem_create(struct drm_device *dev, u32 size, bool iskernel,
+ 		     struct drm_gem_object **obj)
+ {
+-	struct hibmc_bo *hibmcbo;
++	struct hibmc_drm_private *hibmc = dev->dev_private;
++	struct drm_gem_vram_object *gbo;
+ 	int ret;
+ 
+ 	*obj = NULL;
+ 
+-	size = PAGE_ALIGN(size);
+-	if (size == 0) {
+-		DRM_ERROR("error: zero size\n");
++	size = roundup(size, PAGE_SIZE);
++	if (size == 0)
+ 		return -EINVAL;
+-	}
+ 
+-	ret = hibmc_bo_create(dev, size, 0, 0, &hibmcbo);
+-	if (ret) {
++	gbo = drm_gem_vram_create(dev, &hibmc->bdev, size, 0, false);
++	if (IS_ERR(gbo)) {
++		ret = PTR_ERR(gbo);
+ 		if (ret != -ERESTARTSYS)
+ 			DRM_ERROR("failed to allocate GEM object: %d\n", ret);
+ 		return ret;
+ 	}
+-	*obj = &hibmcbo->gem;
++	*obj = &gbo->gem;
+ 	return 0;
+ }
+ 
+@@ -377,35 +216,6 @@ int hibmc_dumb_create(struct drm_file *file, struct drm_device *dev,
+ 	return 0;
+ }
+ 
+-void hibmc_gem_free_object(struct drm_gem_object *obj)
+-{
+-	struct hibmc_bo *hibmcbo = gem_to_hibmc_bo(obj);
+-
+-	hibmc_bo_unref(&hibmcbo);
+-}
+-
+-static u64 hibmc_bo_mmap_offset(struct hibmc_bo *bo)
+-{
+-	return drm_vma_node_offset_addr(&bo->bo.vma_node);
+-}
+-
+-int hibmc_dumb_mmap_offset(struct drm_file *file, struct drm_device *dev,
+-			   u32 handle, u64 *offset)
+-{
+-	struct drm_gem_object *obj;
+-	struct hibmc_bo *bo;
+-
+-	obj = drm_gem_object_lookup(file, handle);
+-	if (!obj)
+-		return -ENOENT;
+-
+-	bo = gem_to_hibmc_bo(obj);
+-	*offset = hibmc_bo_mmap_offset(bo);
+-
+-	drm_gem_object_put_unlocked(obj);
+-	return 0;
+-}
+-
+ static void hibmc_user_framebuffer_destroy(struct drm_framebuffer *fb)
+ {
+ 	struct hibmc_framebuffer *hibmc_fb = to_hibmc_framebuffer(fb);
 -- 
 2.21.0
