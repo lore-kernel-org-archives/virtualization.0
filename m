@@ -1,15 +1,16 @@
-From: Jason Wang <jasowang@redhat.com>
-Subject: Re: [PATCH RFC] vhost: don't use kmap() to log dirty pages
-Date: Wed, 8 May 2019 12:28:42 +0800
-Message-ID: <84a2237e-d8cf-922c-0d0b-90009e99e8ee__35559.5831688092$1557289745$gmane$org@redhat.com>
-References: <1557195809-12373-1-git-send-email-jasowang@redhat.com>
-	<20190507220526-mutt-send-email-mst@kernel.org>
+From: Pankaj Gupta <pagupta@redhat.com>
+Subject: Re: [Qemu-devel] [PATCH v7 4/6] dax: check synchronous mapping is
+	supported
+Date: Wed, 8 May 2019 01:31:18 -0400 (EDT)
+Message-ID: <1853101606.27182251.1557293478937.JavaMail.zimbra__26311.7261974671$1557293496$gmane$org@redhat.com>
+References: <20190426050039.17460-1-pagupta@redhat.com>
+	<20190426050039.17460-5-pagupta@redhat.com>
+	<CA+nGSuOgCAoS4MkbuSL2q5Gyi4jG2oyJqLu_sDgexm5fSBmPLQ@mail.gmail.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="utf-8"; Format="flowed"
-Content-Transfer-Encoding: base64
+Content-Type: text/plain; charset="us-ascii"
+Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <20190507220526-mutt-send-email-mst@kernel.org>
-Content-Language: en-US
+In-Reply-To: <CA+nGSuOgCAoS4MkbuSL2q5Gyi4jG2oyJqLu_sDgexm5fSBmPLQ@mail.gmail.com>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -19,74 +20,32 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: "Michael S. Tsirkin" <mst@redhat.com>
-Cc: Andrea Arcangeli <aarcange@redhat.com>, James Bottomley <James.Bottomley@hansenpartnership.com>, kvm@vger.kernel.org, Peter Zijlstra <peterz@infradead.org>, netdev@vger.kernel.org, linux-kernel@vger.kernel.org, virtualization@lists.linux-foundation.org, Christoph Hellwig <hch@infradead.org>, Ingo Molnar <mingo@redhat.com>, Darren Hart <dvhart@infradead.org>, Thomas Gleixner <tglx@linutronix.de>
+To: Jakub =?utf-8?Q?Staro=C5=84?= <jstaron@google.com>
+Cc: cohuck@redhat.com, jack@suse.cz, kvm@vger.kernel.org, mst@redhat.com, david@fromorbit.com, qemu-devel@nongnu.org, virtualization@lists.linux-foundation.org, adilger kernel <adilger.kernel@dilger.ca>, Stephen Barber <smbarber@google.com>, zwisler@kernel.org, aarcange@redhat.com, dave jiang <dave.jiang@intel.com>, linux-nvdimm@lists.01.org, vishal l verma <vishal.l.verma@intel.com>, willy@infradead.org, hch@infradead.org, linux-acpi@vger.kernel.org, jmoyer@redhat.com, linux-ext4@vger.kernel.org, lenb@kernel.org, kilobyte@angband.pl, riel@surriel.com, yuval shaia <yuval.shaia@oracle.com>, stefanha@redhat.com, imammedo@redhat.com, dan j williams <dan.j.williams@intel.com>, lcapitulino@redhat.com, nilal@redhat.com, tytso@mit.edu, xiaoguangrong eric <xiaoguangrong.eric@gmail.com>, darrick wong <darrick.wong@oracle.com>, rjw@rjwysocki.net, linux-kernel@vger.kernel.orglinux
 List-Id: virtualization@lists.linuxfoundation.org
 
-Ck9uIDIwMTkvNS84IOS4i+WNiDEyOjEyLCBNaWNoYWVsIFMuIFRzaXJraW4gd3JvdGU6Cj4gT24g
-TW9uLCBNYXkgMDYsIDIwMTkgYXQgMTA6MjM6MjlQTSAtMDQwMCwgSmFzb24gV2FuZyB3cm90ZToK
-Pj4gVmhvc3QgbG9nIGRpcnR5IHBhZ2VzIGRpcmVjdGx5IHRvIGEgdXNlcnNwYWNlIGJpdG1hcCB0
-aHJvdWdoIEdVUCBhbmQKPj4ga21hcF9hdG9taWMoKSBzaW5jZSBrZXJuZWwgZG9lc24ndCBoYXZl
-IGEgc2V0X2JpdF90b191c2VyKCkKPj4gaGVscGVyLiBUaGlzIHdpbGwgY2F1c2UgaXNzdWVzIGZv
-ciB0aGUgYXJjaCB0aGF0IGhhcyB2aXJ0dWFsbHkgdGFnZ2VkCj4+IGNhY2hlcy4gVGhlIHdheSB0
-byBmaXggaXMgdG8ga2VlcCB1c2luZyB1c2Vyc3BhY2UgdmlydHVhbCBhZGRyZXNzLgo+Pgo+PiBG
-b3J0dW5hdGVseSwgZnV0ZXggaGFzIGEgY21weGNoZyB0byB1c2Vyc3BhY2UgbWVtb3J5IGhlbHBl
-cgo+PiBmdXRleF9hdG9taWNfY21weGNoZ19pbmF0b21pYygpLiBTbyBzd2l0Y2ggdG8gdXNlIGl0
-IHRvIGV4Y2hhbmdlIHRoZQo+PiB1c2Vyc3BhY2UgYml0bWFwIHdpdGggemVybywgc2V0IHRoZSBi
-aXQgYW5kIHRoZW4gd3JpdGUgaXQgYmFjayB0aHJvdWdoCj4+IHB1dF91c2VyKCkuCj4+Cj4+IE5v
-dGU6IHRoZXJlJ3JlIGFyY2hzIChmZXcgbm9uIHBvcHVsYXIgb25lcykgdGhhdCBkb24ndCBpbXBs
-ZW1lbnQKPj4gZnV0ZXggaGVscGVyLCB3ZSBjYW4ndCBsb2cgZGlydHkgcGFnZXMuIFdlIGNhbiBm
-aXggdGhlbSBvbiB0b3Agb3IKPj4gc2ltcGx5IGRpc2FibGUgTE9HX0FMTCBmZWF0dXJlcyBvZiB2
-aG9zdC4KPiBPciBpbXBsZW1lbnQgZnV0ZXhfYXRvbWljX2NtcHhjaGcgdXNpbmcga21hcCBpZiB0
-aGV5IGRvbid0IGhhdmUKPiB2aXJ0dWFsbHkgdGFnZ2VkIGNhY2hlcy4KCgpZZXMsIHRoaXMgbWln
-aHQgd29yay4KCgo+Cj4+IENjOiBDaHJpc3RvcGggSGVsbHdpZyA8aGNoQGluZnJhZGVhZC5vcmc+
-Cj4+IENjOiBKYW1lcyBCb3R0b21sZXkgPEphbWVzLkJvdHRvbWxleUBIYW5zZW5QYXJ0bmVyc2hp
-cC5jb20+Cj4+IENjOiBBbmRyZWEgQXJjYW5nZWxpIDxhYXJjYW5nZUByZWRoYXQuY29tPgo+PiBG
-aXhlczogM2E0ZDVjOTRlOTU5MyAoInZob3N0X25ldDogYSBrZXJuZWwtbGV2ZWwgdmlydGlvIHNl
-cnZlciIpCj4+IFNpZ25lZC1vZmYtYnk6IEphc29uIFdhbmcgPGphc293YW5nQHJlZGhhdC5jb20+
-Cj4+IC0tLQo+PiAgIGRyaXZlcnMvdmhvc3Qvdmhvc3QuYyB8IDI3ICsrKysrKysrKysrKysrKy0t
-LS0tLS0tLS0tLQo+PiAgIDEgZmlsZSBjaGFuZ2VkLCAxNSBpbnNlcnRpb25zKCspLCAxMiBkZWxl
-dGlvbnMoLSkKPj4KPj4gZGlmZiAtLWdpdCBhL2RyaXZlcnMvdmhvc3Qvdmhvc3QuYyBiL2RyaXZl
-cnMvdmhvc3Qvdmhvc3QuYwo+PiBpbmRleCAzNTFhZjg4Li45Yzk0YzQxIDEwMDY0NAo+PiAtLS0g
-YS9kcml2ZXJzL3Zob3N0L3Zob3N0LmMKPj4gKysrIGIvZHJpdmVycy92aG9zdC92aG9zdC5jCj4+
-IEBAIC0zMSw2ICszMSw3IEBACj4+ICAgI2luY2x1ZGUgPGxpbnV4L3NjaGVkL3NpZ25hbC5oPgo+
-PiAgICNpbmNsdWRlIDxsaW51eC9pbnRlcnZhbF90cmVlX2dlbmVyaWMuaD4KPj4gICAjaW5jbHVk
-ZSA8bGludXgvbm9zcGVjLmg+Cj4+ICsjaW5jbHVkZSA8YXNtL2Z1dGV4Lmg+Cj4+ICAgCj4+ICAg
-I2luY2x1ZGUgInZob3N0LmgiCj4+ICAgCj4+IEBAIC0xNjkyLDI1ICsxNjkzLDI3IEBAIGxvbmcg
-dmhvc3RfZGV2X2lvY3RsKHN0cnVjdCB2aG9zdF9kZXYgKmQsIHVuc2lnbmVkIGludCBpb2N0bCwg
-dm9pZCBfX3VzZXIgKmFyZ3ApCj4+ICAgfQo+PiAgIEVYUE9SVF9TWU1CT0xfR1BMKHZob3N0X2Rl
-dl9pb2N0bCk7Cj4+ICAgCj4+IC0vKiBUT0RPOiBUaGlzIGlzIHJlYWxseSBpbmVmZmljaWVudC4g
-IFdlIG5lZWQgc29tZXRoaW5nIGxpa2UgZ2V0X3VzZXIoKQo+PiAtICogKGluc3RydWN0aW9uIGRp
-cmVjdGx5IGFjY2Vzc2VzIHRoZSBkYXRhLCB3aXRoIGFuIGV4Y2VwdGlvbiB0YWJsZSBlbnRyeQo+
-PiAtICogcmV0dXJuaW5nIC1FRkFVTFQpLiBTZWUgRG9jdW1lbnRhdGlvbi94ODYvZXhjZXB0aW9u
-LXRhYmxlcy50eHQuCj4+IC0gKi8KPj4gLXN0YXRpYyBpbnQgc2V0X2JpdF90b191c2VyKGludCBu
-ciwgdm9pZCBfX3VzZXIgKmFkZHIpCj4+ICtzdGF0aWMgaW50IHNldF9iaXRfdG9fdXNlcihpbnQg
-bnIsIHUzMiBfX3VzZXIgKmFkZHIpCj4+ICAgewo+PiAgIAl1bnNpZ25lZCBsb25nIGxvZyA9ICh1
-bnNpZ25lZCBsb25nKWFkZHI7Cj4+ICAgCXN0cnVjdCBwYWdlICpwYWdlOwo+PiAtCXZvaWQgKmJh
-c2U7Cj4+IC0JaW50IGJpdCA9IG5yICsgKGxvZyAlIFBBR0VfU0laRSkgKiA4Owo+PiArCXUzMiBv
-bGRfbG9nOwo+PiAgIAlpbnQgcjsKPj4gICAKPj4gICAJciA9IGdldF91c2VyX3BhZ2VzX2Zhc3Qo
-bG9nLCAxLCAxLCAmcGFnZSk7Cj4+ICAgCWlmIChyIDwgMCkKPj4gICAJCXJldHVybiByOwo+PiAg
-IAlCVUdfT04ociAhPSAxKTsKPj4gLQliYXNlID0ga21hcF9hdG9taWMocGFnZSk7Cj4+IC0Jc2V0
-X2JpdChiaXQsIGJhc2UpOwo+PiAtCWt1bm1hcF9hdG9taWMoYmFzZSk7Cj4+ICsKPj4gKwlyID0g
-ZnV0ZXhfYXRvbWljX2NtcHhjaGdfaW5hdG9taWMoJm9sZF9sb2csIGFkZHIsIDAsIDApOwo+PiAr
-CWlmIChyIDwgMCkKPj4gKwkJcmV0dXJuIHI7Cj4gU28gSSB0aGluayB0aGlzIGlzIGEgZ3JlYXQg
-aWRlYSEKPgo+IEhvd2V2ZXIgb25lIGlzc3VlIGhlcmUgaXMgdGhhdCBmdXRleF9hdG9taWNfY21w
-eGNoZ19pbmF0b21pYyB3aWxsIGZhaWwgaWYgdGhlCj4gcGFnZSBpcyBzd2FwcGVkIG91dC4gSSBz
-dXNwZWN0IHdlIG5lZWQgYSB2YXJpYW50IHRoYXQgYmxvY2tzIHRoZSB0aHJlYWQKPiBpbnN0ZWFk
-LgoKCkkgZ3Vlc3Mgbm90IHNpbmNlIHRoZSBwYXRjaCBzdGlsbCB0cnkgdG8gcGluIHRoZSBwYWdl
-IGJlZm9yZS4KClRoYW5rcwoKCj4KPj4gKwo+PiArCW9sZF9sb2cgfD0gMSA8PCBucjsKPj4gKwly
-ID0gcHV0X3VzZXIob2xkX2xvZywgYWRkcik7Cj4+ICsJaWYgKHIgPCAwKQo+PiArCQlyZXR1cm4g
-cjsKPj4gKwo+PiAgIAlzZXRfcGFnZV9kaXJ0eV9sb2NrKHBhZ2UpOwo+PiAgIAlwdXRfcGFnZShw
-YWdlKTsKPj4gICAJcmV0dXJuIDA7Cj4+IEBAIC0xNzI3LDggKzE3MzAsOCBAQCBzdGF0aWMgaW50
-IGxvZ193cml0ZSh2b2lkIF9fdXNlciAqbG9nX2Jhc2UsCj4+ICAgCXdyaXRlX2xlbmd0aCArPSB3
-cml0ZV9hZGRyZXNzICUgVkhPU1RfUEFHRV9TSVpFOwo+PiAgIAlmb3IgKDs7KSB7Cj4+ICAgCQl1
-NjQgYmFzZSA9ICh1NjQpKHVuc2lnbmVkIGxvbmcpbG9nX2Jhc2U7Cj4+IC0JCXU2NCBsb2cgPSBi
-YXNlICsgd3JpdGVfcGFnZSAvIDg7Cj4+IC0JCWludCBiaXQgPSB3cml0ZV9wYWdlICUgODsKPj4g
-KwkJdTY0IGxvZyA9IGJhc2UgKyB3cml0ZV9wYWdlIC8gMzI7Cj4+ICsJCWludCBiaXQgPSB3cml0
-ZV9wYWdlICUgMzI7Cj4+ICAgCQlpZiAoKHU2NCkodW5zaWduZWQgbG9uZylsb2cgIT0gbG9nKQo+
-PiAgIAkJCXJldHVybiAtRUZBVUxUOwo+PiAgIAkJciA9IHNldF9iaXRfdG9fdXNlcihiaXQsICh2
-b2lkIF9fdXNlciAqKSh1bnNpZ25lZCBsb25nKWxvZyk7Cj4+IC0tIAo+PiAxLjguMy4xCl9fX19f
-X19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fClZpcnR1YWxpemF0aW9u
-IG1haWxpbmcgbGlzdApWaXJ0dWFsaXphdGlvbkBsaXN0cy5saW51eC1mb3VuZGF0aW9uLm9yZwpo
-dHRwczovL2xpc3RzLmxpbnV4Zm91bmRhdGlvbi5vcmcvbWFpbG1hbi9saXN0aW5mby92aXJ0dWFs
-aXphdGlvbg==
+
+> 
+> From: Pankaj Gupta <pagupta@redhat.com>
+> Date: Thu, Apr 25, 2019 at 10:00 PM
+> 
+> > +static inline bool daxdev_mapping_supported(struct vm_area_struct *vma,
+> > +                               struct dax_device *dax_dev)
+> > +{
+> > +       return !(vma->flags & VM_SYNC);
+> > +}
+> 
+> Shouldn't it be rather `return !(vma->vm_flags & VM_SYNC);`? There is
+> no field named `flags` in `struct vm_area_struct`.
+
+Thanks for catching. Sorry! for this. 
+
+Will correct in v8.
+
+Thank you,
+Pankaj 
+
+> 
+> Thank you,
+> Jakub
+> 
