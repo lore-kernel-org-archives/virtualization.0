@@ -1,17 +1,14 @@
-From: =?UTF-8?Q?Jakub_Staro=c5=84?= via Virtualization
-	<virtualization@lists.linux-foundation.org>
-Subject: Re: [Qemu-devel] [PATCH v7 2/6] virtio-pmem: Add virtio pmem driver
-Date: Tue, 7 May 2019 13:25:54 -0700
-Message-ID: <3d6479ae-6c39-d614-f1d9-aa1978e2e438__34792.7122305677$1558282797$gmane$org@google.com>
-References: <20190426050039.17460-1-pagupta@redhat.com>
-	<20190426050039.17460-3-pagupta@redhat.com>
-Reply-To: =?UTF-8?Q?Jakub_Staro=c5=84?= <jstaron@google.com>
+From: Claudio Imbrenda <imbrenda@linux.ibm.com>
+Subject: Re: [PATCH 04/10] s390/mm: force swiotlb for protected virtualization
+Date: Wed, 8 May 2019 15:15:40 +0200
+Message-ID: <20190508151540.14ba1d90@p-imbrenda.boeblingen.de.ibm.com>
+References: <20190426183245.37939-1-pasic@linux.ibm.com>
+	<20190426183245.37939-5-pasic@linux.ibm.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <20190426050039.17460-3-pagupta@redhat.com>
-Content-Language: en-US
+In-Reply-To: <20190426183245.37939-5-pasic@linux.ibm.com>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -21,127 +18,179 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Pankaj Gupta <pagupta@redhat.com>, linux-nvdimm@lists.01.org, linux-kernel@vger.kernel.org, virtualization@lists.linux-foundation.org, kvm@vger.kernel.org, linux-fsdevel@vger.kernel.org, linux-acpi@vger.kernel.org, qemu-devel@nongnu.org, linux-ext4@vger.kernel.org, linux-xfs@vger.kernel.org
-Cc: jack@suse.cz, mst@redhat.com, david@fromorbit.com, lcapitulino@redhat.com, adilger.kernel@dilger.ca, smbarber@google.com, zwisler@kernel.org, aarcange@redhat.com, dave.jiang@intel.com, darrick.wong@oracle.com, vishal.l.verma@intel.com, willy@infradead.org, hch@infradead.org, jmoyer@redhat.com, nilal@redhat.com, lenb@kernel.org, kilobyte@angband.pl, riel@surriel.com, yuval.shaia@oracle.com, stefanha@redhat.com, imammedo@redhat.com, dan.j.williams@intel.com, tytso@mit.edu, xiaoguangrong.eric@gmail.com, cohuck@redhat.com, rjw@rjwysocki.net, pbonzini@redhat.com
+To: Halil Pasic <pasic@linux.ibm.com>
+Cc: Vasily Gorbik <gor@linux.ibm.com>, linux-s390@vger.kernel.org, Thomas Huth <thuth@redhat.com>, Farhan Ali <alifm@linux.ibm.com>, kvm@vger.kernel.org, Sebastian Ott <sebott@linux.ibm.com>, "Michael S. Tsirkin" <mst@redhat.com>, Cornelia Huck <cohuck@redhat.com>, Eric Farman <farman@linux.ibm.com>, virtualization@lists.linux-foundation.org, Christoph Hellwig <hch@infradead.org>, Martin Schwidefsky <schwidefsky@de.ibm.com>, Viktor Mihajlovski <mihajlov@linux.ibm.com>, Janosch Frank <frankja@linux.ibm.com>
 List-Id: virtualization@lists.linuxfoundation.org
 
-On 4/25/19 10:00 PM, Pankaj Gupta wrote:
+On Fri, 26 Apr 2019 20:32:39 +0200
+Halil Pasic <pasic@linux.ibm.com> wrote:
 
-> +void host_ack(struct virtqueue *vq)
+> On s390, protected virtualization guests have to use bounced I/O
+> buffers.  That requires some plumbing.
+> 
+> Let us make sure, any device that uses DMA API with direct ops
+> correctly is spared from the problems, that a hypervisor attempting
+> I/O to a non-shared page would bring.
+> 
+> Signed-off-by: Halil Pasic <pasic@linux.ibm.com>
+> ---
+>  arch/s390/Kconfig                   |  4 +++
+>  arch/s390/include/asm/mem_encrypt.h | 18 +++++++++++++
+>  arch/s390/mm/init.c                 | 50
+> +++++++++++++++++++++++++++++++++++++ 3 files changed, 72
+> insertions(+) create mode 100644 arch/s390/include/asm/mem_encrypt.h
+> 
+> diff --git a/arch/s390/Kconfig b/arch/s390/Kconfig
+> index 1c3fcf19c3af..5500d05d4d53 100644
+> --- a/arch/s390/Kconfig
+> +++ b/arch/s390/Kconfig
+> @@ -1,4 +1,7 @@
+>  # SPDX-License-Identifier: GPL-2.0
+> +config ARCH_HAS_MEM_ENCRYPT
+> +        def_bool y
+> +
+>  config MMU
+>  	def_bool y
+>  
+> @@ -191,6 +194,7 @@ config S390
+>  	select ARCH_HAS_SCALED_CPUTIME
+>  	select VIRT_TO_BUS
+>  	select HAVE_NMI
+> +	select SWIOTLB
+>  
+>  
+>  config SCHED_OMIT_FRAME_POINTER
+> diff --git a/arch/s390/include/asm/mem_encrypt.h
+> b/arch/s390/include/asm/mem_encrypt.h new file mode 100644
+> index 000000000000..0898c09a888c
+> --- /dev/null
+> +++ b/arch/s390/include/asm/mem_encrypt.h
+> @@ -0,0 +1,18 @@
+> +/* SPDX-License-Identifier: GPL-2.0 */
+> +#ifndef S390_MEM_ENCRYPT_H__
+> +#define S390_MEM_ENCRYPT_H__
+> +
+> +#ifndef __ASSEMBLY__
+> +
+> +#define sme_me_mask	0ULL
+
+This is rather ugly, but I understand why it's there
+
+> +
+> +static inline bool sme_active(void) { return false; }
+> +extern bool sev_active(void);
+> +
+> +int set_memory_encrypted(unsigned long addr, int numpages);
+> +int set_memory_decrypted(unsigned long addr, int numpages);
+> +
+> +#endif	/* __ASSEMBLY__ */
+> +
+> +#endif	/* S390_MEM_ENCRYPT_H__ */
+> +
+> diff --git a/arch/s390/mm/init.c b/arch/s390/mm/init.c
+> index 3e82f66d5c61..7e3cbd15dcfa 100644
+> --- a/arch/s390/mm/init.c
+> +++ b/arch/s390/mm/init.c
+> @@ -18,6 +18,7 @@
+>  #include <linux/mman.h>
+>  #include <linux/mm.h>
+>  #include <linux/swap.h>
+> +#include <linux/swiotlb.h>
+>  #include <linux/smp.h>
+>  #include <linux/init.h>
+>  #include <linux/pagemap.h>
+> @@ -29,6 +30,7 @@
+>  #include <linux/export.h>
+>  #include <linux/cma.h>
+>  #include <linux/gfp.h>
+> +#include <linux/dma-mapping.h>
+>  #include <asm/processor.h>
+>  #include <linux/uaccess.h>
+>  #include <asm/pgtable.h>
+> @@ -42,6 +44,8 @@
+>  #include <asm/sclp.h>
+>  #include <asm/set_memory.h>
+>  #include <asm/kasan.h>
+> +#include <asm/dma-mapping.h>
+> +#include <asm/uv.h>
+>  
+>  pgd_t swapper_pg_dir[PTRS_PER_PGD] __section(.bss..swapper_pg_dir);
+>  
+> @@ -126,6 +130,50 @@ void mark_rodata_ro(void)
+>  	pr_info("Write protected read-only-after-init data: %luk\n",
+> size >> 10); }
+>  
+> +int set_memory_encrypted(unsigned long addr, int numpages)
 > +{
-> +	unsigned int len;
-> +	unsigned long flags;
-> +	struct virtio_pmem_request *req, *req_buf;
-> +	struct virtio_pmem *vpmem = vq->vdev->priv;
+> +	int i;
 > +
-> +	spin_lock_irqsave(&vpmem->pmem_lock, flags);
-> +	while ((req = virtqueue_get_buf(vq, &len)) != NULL) {
-> +		req->done = true;
-> +		wake_up(&req->host_acked);
-> +
-> +		if (!list_empty(&vpmem->req_list)) {
-> +			req_buf = list_first_entry(&vpmem->req_list,
-> +					struct virtio_pmem_request, list);
-> +			list_del(&vpmem->req_list);
+> +	/* make all pages shared, (swiotlb, dma_free) */
 
-Shouldn't it be rather `list_del(vpmem->req_list.next)`? We are trying to unlink
-first element of the list and `vpmem->req_list` is just the list head.
+this is a copypaste typo, I think? (should be UNshared?)
+also, it doesn't make ALL pages unshared, but only those specified in
+the parameters
 
-> +int virtio_pmem_flush(struct nd_region *nd_region)
-> +{
-> +	int err;
-> +	unsigned long flags;
-> +	struct scatterlist *sgs[2], sg, ret;
-> +	struct virtio_device *vdev = nd_region->provider_data;
-> +	struct virtio_pmem *vpmem = vdev->priv;
-> +	struct virtio_pmem_request *req;
-> +
-> +	might_sleep();
-> +	req = kmalloc(sizeof(*req), GFP_KERNEL);
-> +	if (!req)
-> +		return -ENOMEM;
-> +
-> +	req->done = req->wq_buf_avail = false;
-> +	strcpy(req->name, "FLUSH");
-> +	init_waitqueue_head(&req->host_acked);
-> +	init_waitqueue_head(&req->wq_buf);
-> +	sg_init_one(&sg, req->name, strlen(req->name));
-> +	sgs[0] = &sg;
-> +	sg_init_one(&ret, &req->ret, sizeof(req->ret));
-> +	sgs[1] = &ret;
-> +
-> +	spin_lock_irqsave(&vpmem->pmem_lock, flags);
-> +	err = virtqueue_add_sgs(vpmem->req_vq, sgs, 1, 1, req, GFP_ATOMIC);
-> +	if (err) {
-> +		dev_err(&vdev->dev, "failed to send command to virtio pmem device\n");
-> +
-> +		list_add_tail(&vpmem->req_list, &req->list);
-> +		spin_unlock_irqrestore(&vpmem->pmem_lock, flags);
-> +
-> +		/* When host has read buffer, this completes via host_ack */
-> +		wait_event(req->wq_buf, req->wq_buf_avail);
-> +		spin_lock_irqsave(&vpmem->pmem_lock, flags);
+with this fixed:
+Reviewed-by: Claudio Imbrenda <imbrenda@linux.ibm.com>
+
+> +	for (i = 0; i < numpages; ++i) {
+> +		uv_remove_shared(addr);
+> +		addr += PAGE_SIZE;
 > +	}
+> +	return 0;
+> +}
+> +EXPORT_SYMBOL_GPL(set_memory_encrypted);
+> +
+> +int set_memory_decrypted(unsigned long addr, int numpages)
+> +{
+> +	int i;
+> +	/* make all pages shared (swiotlb, dma_alloca) */
 
-Aren't the arguments in `list_add_tail` swapped? The element we are adding should
-be first, the list should be second. Also, shouldn't we resubmit the request after
-waking up from `wait_event(req->wq_buf, req->wq_buf_avail)`?
+same here with ALL
 
-I propose rewriting it like that:
+> +	for (i = 0; i < numpages; ++i) {
+> +		uv_set_shared(addr);
+> +		addr += PAGE_SIZE;
+> +	}
+> +	return 0;
+> +}
+> +EXPORT_SYMBOL_GPL(set_memory_decrypted);
+> +
+> +/* are we a protected virtualization guest? */
+> +bool sev_active(void)
 
-diff --git a/drivers/nvdimm/virtio_pmem.c b/drivers/nvdimm/virtio_pmem.c
-index 66b582f751a3..ff0556b04e86 100644
---- a/drivers/nvdimm/virtio_pmem.c
-+++ b/drivers/nvdimm/virtio_pmem.c
-@@ -25,7 +25,7 @@ void host_ack(struct virtqueue *vq)
- 		if (!list_empty(&vpmem->req_list)) {
- 			req_buf = list_first_entry(&vpmem->req_list,
- 					struct virtio_pmem_request, list);
--			list_del(&vpmem->req_list);
-+			list_del(vpmem->req_list.next);
- 			req_buf->wq_buf_avail = true;
- 			wake_up(&req_buf->wq_buf);
- 		}
-@@ -59,17 +59,33 @@ int virtio_pmem_flush(struct nd_region *nd_region)
- 	sgs[1] = &ret;
- 
- 	spin_lock_irqsave(&vpmem->pmem_lock, flags);
--	err = virtqueue_add_sgs(vpmem->req_vq, sgs, 1, 1, req, GFP_ATOMIC);
--	if (err) {
--		dev_err(&vdev->dev, "failed to send command to virtio pmem device\n");
-+	/*
-+	 * If virtqueue_add_sgs returns -ENOSPC then req_vq virtual queue does not
-+	 * have free descriptor slots. We add the request to req_list and wait
-+	 * for host_ack to wake us up when free slots are available.
-+	 */
-+	while ((err = virtqueue_add_sgs(vpmem->req_vq, sgs, 1, 1, req, GFP_ATOMIC)) == -ENOSPC) {
-+		dev_err(&vdev->dev, "failed to send command to virtio pmem device, no free slots in the virtqueue, postponing request\n");
-+		req->wq_buf_avail = false;
- 
--		list_add_tail(&vpmem->req_list, &req->list);
-+		list_add_tail(&req->list, &vpmem->req_list);
- 		spin_unlock_irqrestore(&vpmem->pmem_lock, flags);
- 
- 		/* When host has read buffer, this completes via host_ack */
- 		wait_event(req->wq_buf, req->wq_buf_avail);
- 		spin_lock_irqsave(&vpmem->pmem_lock, flags);
- 	}
-+
-+	/*
-+	 * virtqueue_add_sgs failed with error different than -ENOSPC, we can't
-+	 * do anything about that.
-+	 */
-+	if (err) {
-+		dev_info(&vdev->dev, "failed to send command to virtio pmem device, error code %d\n", err);
-+		spin_unlock_irqrestore(&vpmem->pmem_lock, flags);
-+		err = -EIO;
-+		goto ret;
-+	}
- 	err = virtqueue_kick(vpmem->req_vq);
- 	spin_unlock_irqrestore(&vpmem->pmem_lock, flags);
+this is also ugly. the correct solution would be probably to refactor
+everything, including all the AMD SEV code.... let's not go there
 
+> +{
+> +	return is_prot_virt_guest();
+> +}
+> +EXPORT_SYMBOL_GPL(sev_active);
+> +
+> +/* protected virtualization */
+> +static void pv_init(void)
+> +{
+> +	if (!sev_active())
 
-Let me know if it looks reasonable to you.
+can't you just use is_prot_virt_guest here?
 
-Thank you,
-Jakub Staron
+> +		return;
+> +
+> +	/* make sure bounce buffers are shared */
+> +	swiotlb_init(1);
+> +	swiotlb_update_mem_attributes();
+> +	swiotlb_force = SWIOTLB_FORCE;
+> +}
+> +
+>  void __init mem_init(void)
+>  {
+>  	cpumask_set_cpu(0, &init_mm.context.cpu_attach_mask);
+> @@ -134,6 +182,8 @@ void __init mem_init(void)
+>  	set_max_mapnr(max_low_pfn);
+>          high_memory = (void *) __va(max_low_pfn * PAGE_SIZE);
+>  
+> +	pv_init();
+> +
+>  	/* Setup guest page hinting */
+>  	cmma_init();
+>  
