@@ -1,14 +1,15 @@
-From: "Michael S. Tsirkin" <mst@redhat.com>
+From: Jason Wang <jasowang@redhat.com>
 Subject: Re: [PATCH RFC] vhost: don't use kmap() to log dirty pages
-Date: Wed, 8 May 2019 00:12:49 -0400
-Message-ID: <20190507220526-mutt-send-email-mst__14831.561122422$1557288783$gmane$org@kernel.org>
+Date: Wed, 8 May 2019 12:28:42 +0800
+Message-ID: <84a2237e-d8cf-922c-0d0b-90009e99e8ee__35559.5831688092$1557289745$gmane$org@redhat.com>
 References: <1557195809-12373-1-git-send-email-jasowang@redhat.com>
+	<20190507220526-mutt-send-email-mst@kernel.org>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset="utf-8"; Format="flowed"
+Content-Transfer-Encoding: base64
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-Content-Disposition: inline
-In-Reply-To: <1557195809-12373-1-git-send-email-jasowang@redhat.com>
+In-Reply-To: <20190507220526-mutt-send-email-mst@kernel.org>
+Content-Language: en-US
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -18,105 +19,74 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Jason Wang <jasowang@redhat.com>
-Cc: Andrea Arcangeli <aarcange@redhat.com>, James Bottomley <James.Bottomley@hansenpartnership.com>, kvm@vger.kernel.org, netdev@vger.kernel.org, linux-kernel@vger.kernel.org, virtualization@lists.linux-foundation.org, Christoph Hellwig <hch@infradead.org>
+To: "Michael S. Tsirkin" <mst@redhat.com>
+Cc: Andrea Arcangeli <aarcange@redhat.com>, James Bottomley <James.Bottomley@hansenpartnership.com>, kvm@vger.kernel.org, Peter Zijlstra <peterz@infradead.org>, netdev@vger.kernel.org, linux-kernel@vger.kernel.org, virtualization@lists.linux-foundation.org, Christoph Hellwig <hch@infradead.org>, Ingo Molnar <mingo@redhat.com>, Darren Hart <dvhart@infradead.org>, Thomas Gleixner <tglx@linutronix.de>
 List-Id: virtualization@lists.linuxfoundation.org
 
-On Mon, May 06, 2019 at 10:23:29PM -0400, Jason Wang wrote:
-> Vhost log dirty pages directly to a userspace bitmap through GUP and
-> kmap_atomic() since kernel doesn't have a set_bit_to_user()
-> helper. This will cause issues for the arch that has virtually tagged
-> caches. The way to fix is to keep using userspace virtual address.
-> 
-> Fortunately, futex has a cmpxchg to userspace memory helper
-> futex_atomic_cmpxchg_inatomic(). So switch to use it to exchange the
-> userspace bitmap with zero, set the bit and then write it back through
-> put_user().
-> 
-> Note: there're archs (few non popular ones) that don't implement
-> futex helper, we can't log dirty pages. We can fix them on top or
-> simply disable LOG_ALL features of vhost.
-
-Or implement futex_atomic_cmpxchg using kmap if they don't have
-virtually tagged caches.
-
-> 
-> Cc: Christoph Hellwig <hch@infradead.org>
-> Cc: James Bottomley <James.Bottomley@HansenPartnership.com>
-> Cc: Andrea Arcangeli <aarcange@redhat.com>
-> Fixes: 3a4d5c94e9593 ("vhost_net: a kernel-level virtio server")
-> Signed-off-by: Jason Wang <jasowang@redhat.com>
-> ---
->  drivers/vhost/vhost.c | 27 +++++++++++++++------------
->  1 file changed, 15 insertions(+), 12 deletions(-)
-> 
-> diff --git a/drivers/vhost/vhost.c b/drivers/vhost/vhost.c
-> index 351af88..9c94c41 100644
-> --- a/drivers/vhost/vhost.c
-> +++ b/drivers/vhost/vhost.c
-> @@ -31,6 +31,7 @@
->  #include <linux/sched/signal.h>
->  #include <linux/interval_tree_generic.h>
->  #include <linux/nospec.h>
-> +#include <asm/futex.h>
->  
->  #include "vhost.h"
->  
-> @@ -1692,25 +1693,27 @@ long vhost_dev_ioctl(struct vhost_dev *d, unsigned int ioctl, void __user *argp)
->  }
->  EXPORT_SYMBOL_GPL(vhost_dev_ioctl);
->  
-> -/* TODO: This is really inefficient.  We need something like get_user()
-> - * (instruction directly accesses the data, with an exception table entry
-> - * returning -EFAULT). See Documentation/x86/exception-tables.txt.
-> - */
-> -static int set_bit_to_user(int nr, void __user *addr)
-> +static int set_bit_to_user(int nr, u32 __user *addr)
->  {
->  	unsigned long log = (unsigned long)addr;
->  	struct page *page;
-> -	void *base;
-> -	int bit = nr + (log % PAGE_SIZE) * 8;
-> +	u32 old_log;
->  	int r;
->  
->  	r = get_user_pages_fast(log, 1, 1, &page);
->  	if (r < 0)
->  		return r;
->  	BUG_ON(r != 1);
-> -	base = kmap_atomic(page);
-> -	set_bit(bit, base);
-> -	kunmap_atomic(base);
-> +
-> +	r = futex_atomic_cmpxchg_inatomic(&old_log, addr, 0, 0);
-> +	if (r < 0)
-> +		return r;
-
-So I think this is a great idea!
-
-However one issue here is that futex_atomic_cmpxchg_inatomic will fail if the
-page is swapped out. I suspect we need a variant that blocks the thread
-instead.
-
-> +
-> +	old_log |= 1 << nr;
-> +	r = put_user(old_log, addr);
-> +	if (r < 0)
-> +		return r;
-> +
->  	set_page_dirty_lock(page);
->  	put_page(page);
->  	return 0;
-> @@ -1727,8 +1730,8 @@ static int log_write(void __user *log_base,
->  	write_length += write_address % VHOST_PAGE_SIZE;
->  	for (;;) {
->  		u64 base = (u64)(unsigned long)log_base;
-> -		u64 log = base + write_page / 8;
-> -		int bit = write_page % 8;
-> +		u64 log = base + write_page / 32;
-> +		int bit = write_page % 32;
->  		if ((u64)(unsigned long)log != log)
->  			return -EFAULT;
->  		r = set_bit_to_user(bit, (void __user *)(unsigned long)log);
-> -- 
-> 1.8.3.1
+Ck9uIDIwMTkvNS84IOS4i+WNiDEyOjEyLCBNaWNoYWVsIFMuIFRzaXJraW4gd3JvdGU6Cj4gT24g
+TW9uLCBNYXkgMDYsIDIwMTkgYXQgMTA6MjM6MjlQTSAtMDQwMCwgSmFzb24gV2FuZyB3cm90ZToK
+Pj4gVmhvc3QgbG9nIGRpcnR5IHBhZ2VzIGRpcmVjdGx5IHRvIGEgdXNlcnNwYWNlIGJpdG1hcCB0
+aHJvdWdoIEdVUCBhbmQKPj4ga21hcF9hdG9taWMoKSBzaW5jZSBrZXJuZWwgZG9lc24ndCBoYXZl
+IGEgc2V0X2JpdF90b191c2VyKCkKPj4gaGVscGVyLiBUaGlzIHdpbGwgY2F1c2UgaXNzdWVzIGZv
+ciB0aGUgYXJjaCB0aGF0IGhhcyB2aXJ0dWFsbHkgdGFnZ2VkCj4+IGNhY2hlcy4gVGhlIHdheSB0
+byBmaXggaXMgdG8ga2VlcCB1c2luZyB1c2Vyc3BhY2UgdmlydHVhbCBhZGRyZXNzLgo+Pgo+PiBG
+b3J0dW5hdGVseSwgZnV0ZXggaGFzIGEgY21weGNoZyB0byB1c2Vyc3BhY2UgbWVtb3J5IGhlbHBl
+cgo+PiBmdXRleF9hdG9taWNfY21weGNoZ19pbmF0b21pYygpLiBTbyBzd2l0Y2ggdG8gdXNlIGl0
+IHRvIGV4Y2hhbmdlIHRoZQo+PiB1c2Vyc3BhY2UgYml0bWFwIHdpdGggemVybywgc2V0IHRoZSBi
+aXQgYW5kIHRoZW4gd3JpdGUgaXQgYmFjayB0aHJvdWdoCj4+IHB1dF91c2VyKCkuCj4+Cj4+IE5v
+dGU6IHRoZXJlJ3JlIGFyY2hzIChmZXcgbm9uIHBvcHVsYXIgb25lcykgdGhhdCBkb24ndCBpbXBs
+ZW1lbnQKPj4gZnV0ZXggaGVscGVyLCB3ZSBjYW4ndCBsb2cgZGlydHkgcGFnZXMuIFdlIGNhbiBm
+aXggdGhlbSBvbiB0b3Agb3IKPj4gc2ltcGx5IGRpc2FibGUgTE9HX0FMTCBmZWF0dXJlcyBvZiB2
+aG9zdC4KPiBPciBpbXBsZW1lbnQgZnV0ZXhfYXRvbWljX2NtcHhjaGcgdXNpbmcga21hcCBpZiB0
+aGV5IGRvbid0IGhhdmUKPiB2aXJ0dWFsbHkgdGFnZ2VkIGNhY2hlcy4KCgpZZXMsIHRoaXMgbWln
+aHQgd29yay4KCgo+Cj4+IENjOiBDaHJpc3RvcGggSGVsbHdpZyA8aGNoQGluZnJhZGVhZC5vcmc+
+Cj4+IENjOiBKYW1lcyBCb3R0b21sZXkgPEphbWVzLkJvdHRvbWxleUBIYW5zZW5QYXJ0bmVyc2hp
+cC5jb20+Cj4+IENjOiBBbmRyZWEgQXJjYW5nZWxpIDxhYXJjYW5nZUByZWRoYXQuY29tPgo+PiBG
+aXhlczogM2E0ZDVjOTRlOTU5MyAoInZob3N0X25ldDogYSBrZXJuZWwtbGV2ZWwgdmlydGlvIHNl
+cnZlciIpCj4+IFNpZ25lZC1vZmYtYnk6IEphc29uIFdhbmcgPGphc293YW5nQHJlZGhhdC5jb20+
+Cj4+IC0tLQo+PiAgIGRyaXZlcnMvdmhvc3Qvdmhvc3QuYyB8IDI3ICsrKysrKysrKysrKysrKy0t
+LS0tLS0tLS0tLQo+PiAgIDEgZmlsZSBjaGFuZ2VkLCAxNSBpbnNlcnRpb25zKCspLCAxMiBkZWxl
+dGlvbnMoLSkKPj4KPj4gZGlmZiAtLWdpdCBhL2RyaXZlcnMvdmhvc3Qvdmhvc3QuYyBiL2RyaXZl
+cnMvdmhvc3Qvdmhvc3QuYwo+PiBpbmRleCAzNTFhZjg4Li45Yzk0YzQxIDEwMDY0NAo+PiAtLS0g
+YS9kcml2ZXJzL3Zob3N0L3Zob3N0LmMKPj4gKysrIGIvZHJpdmVycy92aG9zdC92aG9zdC5jCj4+
+IEBAIC0zMSw2ICszMSw3IEBACj4+ICAgI2luY2x1ZGUgPGxpbnV4L3NjaGVkL3NpZ25hbC5oPgo+
+PiAgICNpbmNsdWRlIDxsaW51eC9pbnRlcnZhbF90cmVlX2dlbmVyaWMuaD4KPj4gICAjaW5jbHVk
+ZSA8bGludXgvbm9zcGVjLmg+Cj4+ICsjaW5jbHVkZSA8YXNtL2Z1dGV4Lmg+Cj4+ICAgCj4+ICAg
+I2luY2x1ZGUgInZob3N0LmgiCj4+ICAgCj4+IEBAIC0xNjkyLDI1ICsxNjkzLDI3IEBAIGxvbmcg
+dmhvc3RfZGV2X2lvY3RsKHN0cnVjdCB2aG9zdF9kZXYgKmQsIHVuc2lnbmVkIGludCBpb2N0bCwg
+dm9pZCBfX3VzZXIgKmFyZ3ApCj4+ICAgfQo+PiAgIEVYUE9SVF9TWU1CT0xfR1BMKHZob3N0X2Rl
+dl9pb2N0bCk7Cj4+ICAgCj4+IC0vKiBUT0RPOiBUaGlzIGlzIHJlYWxseSBpbmVmZmljaWVudC4g
+IFdlIG5lZWQgc29tZXRoaW5nIGxpa2UgZ2V0X3VzZXIoKQo+PiAtICogKGluc3RydWN0aW9uIGRp
+cmVjdGx5IGFjY2Vzc2VzIHRoZSBkYXRhLCB3aXRoIGFuIGV4Y2VwdGlvbiB0YWJsZSBlbnRyeQo+
+PiAtICogcmV0dXJuaW5nIC1FRkFVTFQpLiBTZWUgRG9jdW1lbnRhdGlvbi94ODYvZXhjZXB0aW9u
+LXRhYmxlcy50eHQuCj4+IC0gKi8KPj4gLXN0YXRpYyBpbnQgc2V0X2JpdF90b191c2VyKGludCBu
+ciwgdm9pZCBfX3VzZXIgKmFkZHIpCj4+ICtzdGF0aWMgaW50IHNldF9iaXRfdG9fdXNlcihpbnQg
+bnIsIHUzMiBfX3VzZXIgKmFkZHIpCj4+ICAgewo+PiAgIAl1bnNpZ25lZCBsb25nIGxvZyA9ICh1
+bnNpZ25lZCBsb25nKWFkZHI7Cj4+ICAgCXN0cnVjdCBwYWdlICpwYWdlOwo+PiAtCXZvaWQgKmJh
+c2U7Cj4+IC0JaW50IGJpdCA9IG5yICsgKGxvZyAlIFBBR0VfU0laRSkgKiA4Owo+PiArCXUzMiBv
+bGRfbG9nOwo+PiAgIAlpbnQgcjsKPj4gICAKPj4gICAJciA9IGdldF91c2VyX3BhZ2VzX2Zhc3Qo
+bG9nLCAxLCAxLCAmcGFnZSk7Cj4+ICAgCWlmIChyIDwgMCkKPj4gICAJCXJldHVybiByOwo+PiAg
+IAlCVUdfT04ociAhPSAxKTsKPj4gLQliYXNlID0ga21hcF9hdG9taWMocGFnZSk7Cj4+IC0Jc2V0
+X2JpdChiaXQsIGJhc2UpOwo+PiAtCWt1bm1hcF9hdG9taWMoYmFzZSk7Cj4+ICsKPj4gKwlyID0g
+ZnV0ZXhfYXRvbWljX2NtcHhjaGdfaW5hdG9taWMoJm9sZF9sb2csIGFkZHIsIDAsIDApOwo+PiAr
+CWlmIChyIDwgMCkKPj4gKwkJcmV0dXJuIHI7Cj4gU28gSSB0aGluayB0aGlzIGlzIGEgZ3JlYXQg
+aWRlYSEKPgo+IEhvd2V2ZXIgb25lIGlzc3VlIGhlcmUgaXMgdGhhdCBmdXRleF9hdG9taWNfY21w
+eGNoZ19pbmF0b21pYyB3aWxsIGZhaWwgaWYgdGhlCj4gcGFnZSBpcyBzd2FwcGVkIG91dC4gSSBz
+dXNwZWN0IHdlIG5lZWQgYSB2YXJpYW50IHRoYXQgYmxvY2tzIHRoZSB0aHJlYWQKPiBpbnN0ZWFk
+LgoKCkkgZ3Vlc3Mgbm90IHNpbmNlIHRoZSBwYXRjaCBzdGlsbCB0cnkgdG8gcGluIHRoZSBwYWdl
+IGJlZm9yZS4KClRoYW5rcwoKCj4KPj4gKwo+PiArCW9sZF9sb2cgfD0gMSA8PCBucjsKPj4gKwly
+ID0gcHV0X3VzZXIob2xkX2xvZywgYWRkcik7Cj4+ICsJaWYgKHIgPCAwKQo+PiArCQlyZXR1cm4g
+cjsKPj4gKwo+PiAgIAlzZXRfcGFnZV9kaXJ0eV9sb2NrKHBhZ2UpOwo+PiAgIAlwdXRfcGFnZShw
+YWdlKTsKPj4gICAJcmV0dXJuIDA7Cj4+IEBAIC0xNzI3LDggKzE3MzAsOCBAQCBzdGF0aWMgaW50
+IGxvZ193cml0ZSh2b2lkIF9fdXNlciAqbG9nX2Jhc2UsCj4+ICAgCXdyaXRlX2xlbmd0aCArPSB3
+cml0ZV9hZGRyZXNzICUgVkhPU1RfUEFHRV9TSVpFOwo+PiAgIAlmb3IgKDs7KSB7Cj4+ICAgCQl1
+NjQgYmFzZSA9ICh1NjQpKHVuc2lnbmVkIGxvbmcpbG9nX2Jhc2U7Cj4+IC0JCXU2NCBsb2cgPSBi
+YXNlICsgd3JpdGVfcGFnZSAvIDg7Cj4+IC0JCWludCBiaXQgPSB3cml0ZV9wYWdlICUgODsKPj4g
+KwkJdTY0IGxvZyA9IGJhc2UgKyB3cml0ZV9wYWdlIC8gMzI7Cj4+ICsJCWludCBiaXQgPSB3cml0
+ZV9wYWdlICUgMzI7Cj4+ICAgCQlpZiAoKHU2NCkodW5zaWduZWQgbG9uZylsb2cgIT0gbG9nKQo+
+PiAgIAkJCXJldHVybiAtRUZBVUxUOwo+PiAgIAkJciA9IHNldF9iaXRfdG9fdXNlcihiaXQsICh2
+b2lkIF9fdXNlciAqKSh1bnNpZ25lZCBsb25nKWxvZyk7Cj4+IC0tIAo+PiAxLjguMy4xCl9fX19f
+X19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fClZpcnR1YWxpemF0aW9u
+IG1haWxpbmcgbGlzdApWaXJ0dWFsaXphdGlvbkBsaXN0cy5saW51eC1mb3VuZGF0aW9uLm9yZwpo
+dHRwczovL2xpc3RzLmxpbnV4Zm91bmRhdGlvbi5vcmcvbWFpbG1hbi9saXN0aW5mby92aXJ0dWFs
+aXphdGlvbg==
