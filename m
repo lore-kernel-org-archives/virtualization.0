@@ -1,14 +1,16 @@
-From: Sebastian Ott <sebott@linux.ibm.com>
-Subject: Re: [PATCH 07/10] s390/airq: use DMA memory for adapter interrupts
-Date: Wed, 8 May 2019 15:58:48 +0200 (CEST)
-Message-ID: <alpine.LFD.2.21.1905081553580.1773@schleppi>
-References: <20190426183245.37939-1-pasic@linux.ibm.com>
-	<20190426183245.37939-8-pasic@linux.ibm.com>
+From: Pankaj Gupta <pagupta@redhat.com>
+Subject: Re: [Qemu-devel] [PATCH v7 2/6] virtio-pmem: Add virtio pmem driver
+Date: Wed, 8 May 2019 11:23:32 -0400 (EDT)
+Message-ID: <1482604497.27348783.1557329012320.JavaMail.zimbra__36728.6894282856$1557329031$gmane$org@redhat.com>
+References: <20190426050039.17460-1-pagupta@redhat.com>
+	<20190426050039.17460-3-pagupta@redhat.com>
+	<3d6479ae-6c39-d614-f1d9-aa1978e2e438@google.com>
+	<1555943483.27247564.1557313967518.JavaMail.zimbra@redhat.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <20190426183245.37939-8-pasic@linux.ibm.com>
+In-Reply-To: <1555943483.27247564.1557313967518.JavaMail.zimbra@redhat.com>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -18,25 +20,55 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Halil Pasic <pasic@linux.ibm.com>
-Cc: Farhan Ali <alifm@linux.ibm.com>, linux-s390@vger.kernel.org, Thomas Huth <thuth@redhat.com>, Claudio Imbrenda <imbrenda@linux.ibm.com>, Vasily Gorbik <gor@linux.ibm.com>, kvm@vger.kernel.org, "Michael S. Tsirkin" <mst@redhat.com>, Cornelia Huck <cohuck@redhat.com>, Eric Farman <farman@linux.ibm.com>, virtualization@lists.linux-foundation.org, Christoph Hellwig <hch@infradead.org>, Martin Schwidefsky <schwidefsky@de.ibm.com>, Viktor Mihajlovski <mihajlov@linux.ibm.com>, Janosch Frank <frankja@linux.ibm.com>
+To: Jakub =?utf-8?Q?Staro=C5=84?= <jstaron@google.com>
+Cc: cohuck@redhat.com, jack@suse.cz, kvm@vger.kernel.org, mst@redhat.com, david@fromorbit.com, qemu-devel@nongnu.org, virtualization@lists.linux-foundation.org, adilger kernel <adilger.kernel@dilger.ca>, smbarber@google.com, zwisler@kernel.org, aarcange@redhat.com, dave jiang <dave.jiang@intel.com>, linux-nvdimm@lists.01.org, vishal l verma <vishal.l.verma@intel.com>, willy@infradead.org, hch@infradead.org, linux-acpi@vger.kernel.org, jmoyer@redhat.com, linux-ext4@vger.kernel.org, lenb@kernel.org, kilobyte@angband.pl, riel@surriel.com, yuval shaia <yuval.shaia@oracle.com>, stefanha@redhat.com, imammedo@redhat.com, dan j williams <dan.j.williams@intel.com>, lcapitulino@redhat.com, nilal@redhat.com, tytso@mit.edu, xiaoguangrong eric <xiaoguangrong.eric@gmail.com>, darrick wong <darrick.wong@oracle.com>, rjw@rjwysocki.net, linux-kernel@vger.kernel.org, linux-xfs@vger.kernel.o
 List-Id: virtualization@lists.linuxfoundation.org
 
 
-On Fri, 26 Apr 2019, Halil Pasic wrote:
-> @@ -182,6 +190,8 @@ void airq_iv_release(struct airq_iv *iv)
->  	kfree(iv->ptr);
->  	kfree(iv->bitlock);
->  	kfree(iv->vector);
+> > 
+> > > +int virtio_pmem_flush(struct nd_region *nd_region)
+> > > +{
+> > > +        int err;
+> > > +        unsigned long flags;
+> > > +        struct scatterlist *sgs[2], sg, ret;
+> > > +        struct virtio_device *vdev = nd_region->provider_data;
+> > > +        struct virtio_pmem *vpmem = vdev->priv;
+> > > +        struct virtio_pmem_request *req;
+> > > +
+> > > +        might_sleep();
+> > > +        req = kmalloc(sizeof(*req), GFP_KERNEL);
+> > > +        if (!req)
+> > > +                return -ENOMEM;
+> > > +
+> > > +        req->done = req->wq_buf_avail = false;
+> > > +        strcpy(req->name, "FLUSH");
+> > > +        init_waitqueue_head(&req->host_acked);
+> > > +        init_waitqueue_head(&req->wq_buf);
+> > > +        sg_init_one(&sg, req->name, strlen(req->name));
+> > > +        sgs[0] = &sg;
+> > > +        sg_init_one(&ret, &req->ret, sizeof(req->ret));
+> > > +        sgs[1] = &ret;
+> > > +
+> > > +        spin_lock_irqsave(&vpmem->pmem_lock, flags);
+> > > +        err = virtqueue_add_sgs(vpmem->req_vq, sgs, 1, 1, req, GFP_ATOMIC);
+> > > +        if (err) {
+> > > +                dev_err(&vdev->dev, "failed to send command to virtio pmem device\n");
+> > > +
+> > > +                list_add_tail(&vpmem->req_list, &req->list);
+> > > +                spin_unlock_irqrestore(&vpmem->pmem_lock, flags);
+> > > +
+> > > +                /* When host has read buffer, this completes via host_ack */
+> > > +                wait_event(req->wq_buf, req->wq_buf_avail);
+> > > +                spin_lock_irqsave(&vpmem->pmem_lock, flags);
+> > > +        }
+> > 
+> > Aren't the arguments in `list_add_tail` swapped? The element we are adding
+> 
 
--  	kfree(iv->vector);
+Yes, arguments for 'list_add_tail' should be swapped.
 
-> +	dma_free_coherent(cio_get_dma_css_dev(), iv_size(iv->bits),
-> +			  iv->vector, iv->vector_dma);
->  	kfree(iv->avail);
->  	kfree(iv);
->  }
+list_add_tail(&req->list, &vpmem->req_list);
 
-Looks good to me but needs adaption to current code. Probably you can just
-revert my changes introducing cacheline aligned vectors since we now use
-a whole page.
+
+Thank you,
+Pankaj
