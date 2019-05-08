@@ -1,16 +1,14 @@
-From: Christoph Hellwig <hch@infradead.org>
-Subject: Re: [PATCH 06/10] s390/cio: add basic protected virtualization support
-Date: Wed, 8 May 2019 06:54:57 -0700
-Message-ID: <20190508135457.GA3530@infradead.org>
+From: Sebastian Ott <sebott@linux.ibm.com>
+Subject: Re: [PATCH 07/10] s390/airq: use DMA memory for adapter interrupts
+Date: Wed, 8 May 2019 15:58:48 +0200 (CEST)
+Message-ID: <alpine.LFD.2.21.1905081553580.1773@schleppi>
 References: <20190426183245.37939-1-pasic@linux.ibm.com>
-	<20190426183245.37939-7-pasic@linux.ibm.com>
-	<alpine.LFD.2.21.1905081522300.1773@schleppi>
+	<20190426183245.37939-8-pasic@linux.ibm.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-Content-Disposition: inline
-In-Reply-To: <alpine.LFD.2.21.1905081522300.1773@schleppi>
+In-Reply-To: <20190426183245.37939-8-pasic@linux.ibm.com>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -20,18 +18,25 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Sebastian Ott <sebott@linux.ibm.com>
-Cc: Farhan Ali <alifm@linux.ibm.com>, linux-s390@vger.kernel.org, Thomas Huth <thuth@redhat.com>, Claudio Imbrenda <imbrenda@linux.ibm.com>, Vasily Gorbik <gor@linux.ibm.com>, kvm@vger.kernel.org, "Michael S. Tsirkin" <mst@redhat.com>, Cornelia Huck <cohuck@redhat.com>, Eric Farman <farman@linux.ibm.com>, virtualization@lists.linux-foundation.org, Halil Pasic <pasic@linux.ibm.com>, Christoph Hellwig <hch@infradead.org>, Martin Schwidefsky <schwidefsky@de.ibm.com>, Viktor Mihajlovski <mihajlov@linux.ibm.com>, Janosch Frank <frankja@linux.ibm.com>
+To: Halil Pasic <pasic@linux.ibm.com>
+Cc: Farhan Ali <alifm@linux.ibm.com>, linux-s390@vger.kernel.org, Thomas Huth <thuth@redhat.com>, Claudio Imbrenda <imbrenda@linux.ibm.com>, Vasily Gorbik <gor@linux.ibm.com>, kvm@vger.kernel.org, "Michael S. Tsirkin" <mst@redhat.com>, Cornelia Huck <cohuck@redhat.com>, Eric Farman <farman@linux.ibm.com>, virtualization@lists.linux-foundation.org, Christoph Hellwig <hch@infradead.org>, Martin Schwidefsky <schwidefsky@de.ibm.com>, Viktor Mihajlovski <mihajlov@linux.ibm.com>, Janosch Frank <frankja@linux.ibm.com>
 List-Id: virtualization@lists.linuxfoundation.org
 
-On Wed, May 08, 2019 at 03:46:42PM +0200, Sebastian Ott wrote:
-> > +	io_priv->dma_area = dma_alloc_coherent(&sch->dev,
-> > +				sizeof(*io_priv->dma_area),
-> > +				&io_priv->dma_area_dma, GFP_KERNEL);
-> 
-> This needs GFP_DMA.
-> You use a genpool for ccw_private->dma and not for iopriv->dma - looks
-> kinda inconsistent.
 
-dma_alloc_* never needs GFP_DMA.  It selects the zone to allocate
-from based on the dma_coherent_mask of the device.
+On Fri, 26 Apr 2019, Halil Pasic wrote:
+> @@ -182,6 +190,8 @@ void airq_iv_release(struct airq_iv *iv)
+>  	kfree(iv->ptr);
+>  	kfree(iv->bitlock);
+>  	kfree(iv->vector);
+
+-  	kfree(iv->vector);
+
+> +	dma_free_coherent(cio_get_dma_css_dev(), iv_size(iv->bits),
+> +			  iv->vector, iv->vector_dma);
+>  	kfree(iv->avail);
+>  	kfree(iv);
+>  }
+
+Looks good to me but needs adaption to current code. Probably you can just
+revert my changes introducing cacheline aligned vectors since we now use
+a whole page.
