@@ -1,18 +1,13 @@
-From: Jason Gunthorpe <jgg@ziepe.ca>
-Subject: Re: [Qemu-devel] [RFC 0/3] VirtIO RDMA
-Date: Tue, 7 May 2019 16:43:08 -0300
-Message-ID: <20190507194308.GK6201@ziepe.ca>
-References: <20190411110157.14252-1-yuval.shaia@oracle.com>
-	<20190411190215.2163572e.cohuck@redhat.com>
-	<20190415103546.GA6854@lap1>
-	<e73e03c2-ea2b-6ffc-cd23-e8e44d42ce80@suse.de>
-	<20190422164527.GF21588@ziepe.ca> <20190430171350.GA2763@lap1>
+From: Jason Wang <jasowang@redhat.com>
+Subject: Re: [PATCH RFC] vhost: don't use kmap() to log dirty pages
+Date: Tue, 7 May 2019 23:43:24 -0400 (EDT)
+Message-ID: <1430527294.27174562.1557287004441.JavaMail.zimbra@redhat.com>
+References: <20190507154753.GA8809@infradead.org>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset="utf-8"
+Content-Transfer-Encoding: base64
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-Content-Disposition: inline
-In-Reply-To: <20190430171350.GA2763@lap1>
+In-Reply-To: <20190507154753.GA8809@infradead.org>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -22,60 +17,67 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Yuval Shaia <yuval.shaia@oracle.com>
-Cc: mst@redhat.com, linux-rdma@vger.kernel.org, Cornelia Huck <cohuck@redhat.com>, qemu-devel@nongnu.org, virtualization@lists.linux-foundation.org
+To: Christoph Hellwig <hch@infradead.org>
+Cc: Andrea Arcangeli <aarcange@redhat.com>, kvm@vger.kernel.org, mst@redhat.com, Peter Zijlstra <peterz@infradead.org>, netdev@vger.kernel.org, linux-kernel@vger.kernel.org, virtualization@lists.linux-foundation.org, James Bottomley <James.Bottomley@HansenPartnership.com>, Ingo Molnar <mingo@redhat.com>, Darren Hart <dvhart@infradead.org>, Thomas Gleixner <tglx@linutronix.de>
 List-Id: virtualization@lists.linuxfoundation.org
 
-On Tue, Apr 30, 2019 at 08:13:54PM +0300, Yuval Shaia wrote:
-> On Mon, Apr 22, 2019 at 01:45:27PM -0300, Jason Gunthorpe wrote:
-> > On Fri, Apr 19, 2019 at 01:16:06PM +0200, Hannes Reinecke wrote:
-> > > On 4/15/19 12:35 PM, Yuval Shaia wrote:
-> > > > On Thu, Apr 11, 2019 at 07:02:15PM +0200, Cornelia Huck wrote:
-> > > > > On Thu, 11 Apr 2019 14:01:54 +0300
-> > > > > Yuval Shaia <yuval.shaia@oracle.com> wrote:
-> > > > > 
-> > > > > > Data center backends use more and more RDMA or RoCE devices and more and
-> > > > > > more software runs in virtualized environment.
-> > > > > > There is a need for a standard to enable RDMA/RoCE on Virtual Machines.
-> > > > > > 
-> > > > > > Virtio is the optimal solution since is the de-facto para-virtualizaton
-> > > > > > technology and also because the Virtio specification
-> > > > > > allows Hardware Vendors to support Virtio protocol natively in order to
-> > > > > > achieve bare metal performance.
-> > > > > > 
-> > > > > > This RFC is an effort to addresses challenges in defining the RDMA/RoCE
-> > > > > > Virtio Specification and a look forward on possible implementation
-> > > > > > techniques.
-> > > > > > 
-> > > > > > Open issues/Todo list:
-> > > > > > List is huge, this is only start point of the project.
-> > > > > > Anyway, here is one example of item in the list:
-> > > > > > - Multi VirtQ: Every QP has two rings and every CQ has one. This means that
-> > > > > >    in order to support for example 32K QPs we will need 64K VirtQ. Not sure
-> > > > > >    that this is reasonable so one option is to have one for all and
-> > > > > >    multiplex the traffic on it. This is not good approach as by design it
-> > > > > >    introducing an optional starvation. Another approach would be multi
-> > > > > >    queues and round-robin (for example) between them.
-> > > > > > 
-> > > Typically there will be a one-to-one mapping between QPs and CPUs (on the
-> > > guest). 
-> > 
-> > Er we are really overloading words here.. The typical expectation is
-> > that a 'RDMA QP' will have thousands and thousands of instances on a
-> > system.
-> > 
-> > Most likely I think mapping 1:1 a virtio queue to a 'RDMA QP, CQ, SRQ,
-> > etc' is a bad idea...
-> 
-> We have three options, no virtqueue for QP, 1 to 1 or multiplexing. What
-> would be your vote on that?
-> I think you are for option #1, right? but in this case there is actually no
-> use of having a virtio-driver, isn't it?
-
-The virtio driver is supposed to be a standard, like a hardware
-standard, for doing the operation.
-
-It doesn't mean that every single element under the driver needs to
-use the virtio format QP.
-
-Jason
+T24gMjAxOS81Lzcg5LiL5Y2IMTE6NDcsIENocmlzdG9waCBIZWxsd2lnIHdyb3RlOgo+IE9uIE1v
+biwgTWF5IDA2LCAyMDE5IGF0IDEwOjIzOjI5UE0gLTA0MDAsIEphc29uIFdhbmcgd3JvdGU6Cj4+
+IE5vdGU6IHRoZXJlJ3JlIGFyY2hzIChmZXcgbm9uIHBvcHVsYXIgb25lcykgdGhhdCBkb24ndCBp
+bXBsZW1lbnQKPj4gZnV0ZXggaGVscGVyLCB3ZSBjYW4ndCBsb2cgZGlydHkgcGFnZXMuIFdlIGNh
+biBmaXggdGhlbSBvbiB0b3Agb3IKPj4gc2ltcGx5IGRpc2FibGUgTE9HX0FMTCBmZWF0dXJlcyBv
+ZiB2aG9zdC4KPgo+IFRoYXQgbWVhbnMgdmhvc3Qgbm93IGhhcyB0byBkZXBlbmQgb24gSEFWRV9G
+VVRFWF9DTVBYQ0hHIHRvIG1ha2UKPiBzdXJlIHdlIGhhdmUgYSB3b3JraW5nIGltcGxlbWVudGF0
+aW9uLgoKSSBmb3VuZCBIQVZFX0ZVVEVYX0NNUFhDSEcgaXMgbm90IGEgbXVzdCBmb3IgYXJjaCB0
+aGF0IGhhcyB0aGUKaW1wbGVtZW50YXRpb24gYW5kIGZ1dGV4IGRvZXMgc29tZSBraW5kIG9mIHJ1
+bnRpbWUgZGV0ZWN0aW9uIGxpa2U6CgpzdGF0aWMgdm9pZCBfX2luaXQgZnV0ZXhfZGV0ZWN0X2Nt
+cHhjaGcodm9pZCkKewojaWZuZGVmIENPTkZJR19IQVZFX0ZVVEVYX0NNUFhDSEcKCXUzMiBjdXJ2
+YWw7CgoJLyoKCSAqIFRoaXMgd2lsbCBmYWlsIGFuZCB3ZSB3YW50IGl0LiBTb21lIGFyY2ggaW1w
+bGVtZW50YXRpb25zIGRvCgkgKiBydW50aW1lIGRldGVjdGlvbiBvZiB0aGUgZnV0ZXhfYXRvbWlj
+X2NtcHhjaGdfaW5hdG9taWMoKQoJICogZnVuY3Rpb25hbGl0eS4gV2Ugd2FudCB0byBrbm93IHRo
+YXQgYmVmb3JlIHdlIGNhbGwgaW4gYW55CgkgKiBvZiB0aGUgY29tcGxleCBjb2RlIHBhdGhzLiBB
+bHNvIHdlIHdhbnQgdG8gcHJldmVudAoJICogcmVnaXN0cmF0aW9uIG9mIHJvYnVzdCBsaXN0cyBp
+biB0aGF0IGNhc2UuIE5VTEwgaXMKCSAqIGd1YXJhbnRlZWQgdG8gZmF1bHQgYW5kIHdlIGdldCAt
+RUZBVUxUIG9uIGZ1bmN0aW9uYWwKCSAqIGltcGxlbWVudGF0aW9uLCB0aGUgbm9uLWZ1bmN0aW9u
+YWwgb25lcyB3aWxsIHJldHVybgoJICogLUVOT1NZUy4KCSAqLwoJaWYgKGNtcHhjaGdfZnV0ZXhf
+dmFsdWVfbG9ja2VkKCZjdXJ2YWwsIE5VTEwsIDAsIDApID09IC1FRkFVTFQpCgkJZnV0ZXhfY21w
+eGNoZ19lbmFibGVkID0gMTsKI2VuZGlmCn0KCgo+Cj4KPj4gICNpbmNsdWRlIDxsaW51eC9zY2hl
+ZC9zaWduYWwuaD4KPj4gICNpbmNsdWRlIDxsaW51eC9pbnRlcnZhbF90cmVlX2dlbmVyaWMuaD4K
+Pj4gICNpbmNsdWRlIDxsaW51eC9ub3NwZWMuaD4KPj4gKyNpbmNsdWRlIDxhc20vZnV0ZXguaD4K
+Pgo+IEFsc28gcGxlYXNlIGluY2x1ZGUgdGhlIGZ1dGV4IG1haW50YWluZXJzIHRvIG1ha2Ugc3Vy
+ZSB0aGV5IGFyZSBmaW5lCj4gd2l0aCB0aGlzIGZpcnN0IHVzYWdlIG9mIDxhc20vZnV0ZXguaD4g
+b3V0c2lkZSBvZiBrZXJuZWwvZnV0ZXguYy4KPgoKVGhhbmtzIGZvciBjY2luZyB0aGVtLiBXaWxs
+IGRvIGZvciBuZXh0IHZlcnNpb24uCgpJZiB3ZSBkZWNpZGUgdG8gZ28gdGhpcyB3YXksIHdlIHBy
+b2JhYmx5IG5lZWQgdG8gbW92ZSBpdCB0byB1YWNjZXNzCmZvciBhIG1vcmUgZ2VuZXJpYyBoZWxw
+ZXIuCgo+Cj4+ICtzdGF0aWMgaW50IHNldF9iaXRfdG9fdXNlcihpbnQgbnIsIHUzMiBfX3VzZXIg
+KmFkZHIpCj4+ICB7Cj4+ICAJdW5zaWduZWQgbG9uZyBsb2cgPSAodW5zaWduZWQgbG9uZylhZGRy
+Owo+PiAgCXN0cnVjdCBwYWdlICpwYWdlOwo+PiArCXUzMiBvbGRfbG9nOwo+PiAgCWludCByOwo+
+PiAgCj4+ICAJciA9IGdldF91c2VyX3BhZ2VzX2Zhc3QobG9nLCAxLCAxLCAmcGFnZSk7Cj4+ICAJ
+aWYgKHIgPCAwKQo+PiAgCQlyZXR1cm4gcjsKPj4gIAlCVUdfT04ociAhPSAxKTsKPj4gKwo+PiAr
+CXIgPSBmdXRleF9hdG9taWNfY21weGNoZ19pbmF0b21pYygmb2xkX2xvZywgYWRkciwgMCwgMCk7
+Cj4+ICsJaWYgKHIgPCAwKQo+PiArCQlyZXR1cm4gcjsKPj4gKwo+PiArCW9sZF9sb2cgfD0gMSA8
+PCBucjsKPj4gKwlyID0gcHV0X3VzZXIob2xkX2xvZywgYWRkcik7Cj4+ICsJaWYgKHIgPCAwKQo+
+PiArCQlyZXR1cm4gcjsKPgo+IEFuZCB0aGlzIGp1c3QgbG9va3Mgb2RkIHRvIG1lLiAgV2h5IGRv
+IHdlIG5lZWQgdGhlIGZ1dGV4IGNhbGwgdG8KPiByZXBsYWNlIGEgMCB2YWx1ZSB3aXRoIDA/ICBX
+aHkgZG9lcyBpdCBzdGlsbCBkdXBsaWNhdGUgdGhlCj4gcHV0X3VzZXI/ICBUaGlzIGRvZXNuJ3Qg
+bG9vayBsaWtlIGFjdHVhbGx5IHdvcmtpbmcgY29kZSB0byBtZS4KClllcywgdGhpcyBpcyBhIGJ1
+Zy4gU2hvdWxkIGJlIHNvbWV0aGluZyBsaWtlOgoKc3RhdGljIGludCBzZXRfYml0X3RvX3VzZXIo
+aW50IG5yLCB1MzIgX191c2VyICphZGRyKQp7CiAgICAgICAgdW5zaWduZWQgbG9uZyBsb2cgPSAo
+dW5zaWduZWQgbG9uZylhZGRyOwogICAgICAgIHN0cnVjdCBwYWdlICpwYWdlOwogICAgICAgIHUz
+MiBvbGRfbG9nLCBuZXdfbG9nLCBsOwogICAgICAgIGludCByOwoKICAgICAgICByID0gZ2V0X3Vz
+ZXJfcGFnZXNfZmFzdChsb2csIDEsIDEsICZwYWdlKTsKICAgICAgICBpZiAociA8IDApCiAgICAg
+ICAgICAgICAgICByZXR1cm4gcjsKCUJVR19PTihyICE9IDEpOwoKICAgICAgICBkbyB7CiAgICAg
+ICAgICAgICAgICByID0gZ2V0X3VzZXIob2xkX2xvZywgYWRkcik7CiAgICAgICAgICAgICAgICBp
+ZiAociA8IDApCiAgICAgICAgICAgICAgICAgICAgICAgIHJldHVybiByOwogICAgICAgICAgICAg
+ICAgbmV3X2xvZyA9IG9sZF9sb2cgfCAoMSA8PCBucik7CgkJciA9IGZ1dGV4X2F0b21pY19jbXB4
+Y2hnX2luYXRvbWljKCZsLCBhZGRyLCBvbGRfbG9nLCBuZXdfbG9nKTsKICAgICAgICAgICAgICAg
+IGlmIChyIDwgMCkKICAgICAgICAgICAgICAgICAgICAgICAgcmV0dXJuIHI7CiAgICAgICAgfSB3
+aGlsZShsICE9IG5ld19sb2cpOwoKCXNldF9wYWdlX2RpcnR5X2xvY2socGFnZSk7CiAgICAgICAg
+cHV0X3BhZ2UocGFnZSk7CiAgICAgICAgcmV0dXJuIDA7Cn0KCj4KPiBBbHNvIGRvbid0IHdlIG5l
+ZWQgYSBwYWdlZmF1bHRfZGlzYWJsZSgpIGFyb3VuZAo+IGZ1dGV4X2F0b21pY19jbXB4Y2hnX2lu
+YXRvbWljPwoKU2luY2Ugd2UgZG9uJ3Qgd2FudCB0byBkZWFsIHdpdGggcGFnZWZhdWx0LCBzbyB0
+aGUgcGFnZSBoYXMgYmVlbgpwaW5uZWQgYmVmb3JlIGZ1dGV4X2F0b21pY19jbXB4Y2hnX2luYXRv
+bWljKCkuCgpUaGFua3MKX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19f
+X19fX18KVmlydHVhbGl6YXRpb24gbWFpbGluZyBsaXN0ClZpcnR1YWxpemF0aW9uQGxpc3RzLmxp
+bnV4LWZvdW5kYXRpb24ub3JnCmh0dHBzOi8vbGlzdHMubGludXhmb3VuZGF0aW9uLm9yZy9tYWls
+bWFuL2xpc3RpbmZvL3ZpcnR1YWxpemF0aW9u
