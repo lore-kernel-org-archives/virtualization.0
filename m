@@ -1,14 +1,15 @@
-From: Cornelia Huck <cohuck@redhat.com>
-Subject: Re: [PATCH 07/10] s390/airq: use DMA memory for adapter interrupts
-Date: Thu, 9 May 2019 13:37:01 +0200
-Message-ID: <20190509133701.3e93299b.cohuck@redhat.com>
-References: <20190426183245.37939-1-pasic@linux.ibm.com>
-	<20190426183245.37939-8-pasic@linux.ibm.com>
+From: Pankaj Gupta <pagupta@redhat.com>
+Subject: Re: [PATCH v7 3/6] libnvdimm: add dax_dev sync flag
+Date: Thu, 9 May 2019 08:24:24 -0400 (EDT)
+Message-ID: <511098535.27565704.1557404664499.JavaMail.zimbra__31766.1823284411$1557405624$gmane$org@redhat.com>
+References: <20190426050039.17460-1-pagupta@redhat.com>
+	<20190426050039.17460-4-pagupta@redhat.com>
+	<CAPcyv4hRdvypEj4LBTMfUFm80BdpRYbOugrkkj-3Kk_LErXPqQ@mail.gmail.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <20190426183245.37939-8-pasic@linux.ibm.com>
+In-Reply-To: <CAPcyv4hRdvypEj4LBTMfUFm80BdpRYbOugrkkj-3Kk_LErXPqQ@mail.gmail.com>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -18,34 +19,38 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Halil Pasic <pasic@linux.ibm.com>
-Cc: Vasily Gorbik <gor@linux.ibm.com>, linux-s390@vger.kernel.org, Thomas Huth <thuth@redhat.com>, Claudio Imbrenda <imbrenda@linux.ibm.com>, kvm@vger.kernel.org, Sebastian Ott <sebott@linux.ibm.com>, "Michael S. Tsirkin" <mst@redhat.com>, Farhan Ali <alifm@linux.ibm.com>, Eric Farman <farman@linux.ibm.com>, virtualization@lists.linux-foundation.org, Christoph Hellwig <hch@infradead.org>, Martin Schwidefsky <schwidefsky@de.ibm.com>, Viktor Mihajlovski <mihajlov@linux.ibm.com>, Janosch Frank <frankja@linux.ibm.com>
+To: Dan Williams <dan.j.williams@intel.com>
+Cc: cohuck@redhat.com, Jan Kara <jack@suse.cz>, KVM list <kvm@vger.kernel.org>, "Michael S. Tsirkin" <mst@redhat.com>, david <david@fromorbit.com>, Qemu Developers <qemu-devel@nongnu.org>, virtualization@lists.linux-foundation.org, Andreas Dilger <adilger.kernel@dilger.ca>, Ross Zwisler <zwisler@kernel.org>, Andrea Arcangeli <aarcange@redhat.com>, Dave Jiang <dave.jiang@intel.com>, linux-nvdimm <linux-nvdimm@lists.01.org>, Vishal L Verma <vishal.l.verma@intel.com>, Matthew Wilcox <willy@infradead.org>, Christoph Hellwig <hch@infradead.org>, Linux ACPI <linux-acpi@vger.kernel.org>, jmoyer <jmoyer@redhat.com>, linux-ext4 <linux-ext4@vger.kernel.org>, Len Brown <lenb@kernel.org>, kilobyte@angband.pl, Rik van Riel <riel@surriel.com>, yuval shaia <yuval.shaia@oracle.com>, Stefan Hajnoczi <stefanha@redhat.com>, Paolo Bonzini <pbonzini@redhat.com>, lcapitulino@redhat.com, Nites
 List-Id: virtualization@lists.linuxfoundation.org
 
-On Fri, 26 Apr 2019 20:32:42 +0200
-Halil Pasic <pasic@linux.ibm.com> wrote:
 
-> Protected virtualization guests have to use shared pages for airq
-> notifier bit vectors, because hypervisor needs to write these bits.
+> >
+> > This patch adds 'DAXDEV_SYNC' flag which is set
+> > for nd_region doing synchronous flush. This later
+> > is used to disable MAP_SYNC functionality for
+> > ext4 & xfs filesystem for devices don't support
+> > synchronous flush.
+> >
+> > Signed-off-by: Pankaj Gupta <pagupta@redhat.com>
+> [..]
+> > diff --git a/include/linux/dax.h b/include/linux/dax.h
+> > index 0dd316a74a29..c97fc0cc7167 100644
+> > --- a/include/linux/dax.h
+> > +++ b/include/linux/dax.h
+> > @@ -7,6 +7,9 @@
+> >  #include <linux/radix-tree.h>
+> >  #include <asm/pgtable.h>
+> >
+> > +/* Flag for synchronous flush */
+> > +#define DAXDEV_F_SYNC true
 > 
-> Let us make sure we allocate DMA memory for the notifier bit vectors.
+> I'd feel better, i.e. it reads more canonically, if this was defined
+> as (1UL << 0) and the argument to alloc_dax() was changed to 'unsigned
+> long flags' rather than a bool.
+
+Sure, Will send a v8 with suggested changes.
+
+Thank You,
+Pankaj
+
 > 
-> Signed-off-by: Halil Pasic <pasic@linux.ibm.com>
-> ---
->  arch/s390/include/asm/airq.h |  2 ++
->  drivers/s390/cio/airq.c      | 18 ++++++++++++++----
->  2 files changed, 16 insertions(+), 4 deletions(-)
-
-As an aside, there are some other devices that use adapter interrupts
-as well (pci, ap, qdio). How does that interact with their needs? Do
-they continue to work on non-protected virt guests (kvm or z/VM), and
-can they be accommodated if support for them on protected guests is
-added in the future?
-
-(For some of the indicator bit handling, I suspect millicode takes care
-of it anyway, but at least for pci, there's some hypervisor action to
-be aware of.)
-
-Also, as another aside, has this been tested with a regular guest under
-tcg as well? If not, can you provide a branch for quick verification
-somewhere?
