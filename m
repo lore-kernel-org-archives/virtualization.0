@@ -1,18 +1,16 @@
-From: =?UTF-8?Q?Jakub_Staro=c5=84?= via Virtualization
-	<virtualization@lists.linux-foundation.org>
-Subject: Re: [Qemu-devel] [PATCH v7 2/6] virtio-pmem: Add virtio pmem driver
-Date: Wed, 8 May 2019 12:05:39 -0700
-Message-ID: <3d643ac5-ea1b-efba-9f42-31b2ed3ab5b0__30344.2853315332$1558282873$gmane$org@google.com>
-References: <20190426050039.17460-1-pagupta@redhat.com>
-	<20190426050039.17460-3-pagupta@redhat.com>
-	<3d6479ae-6c39-d614-f1d9-aa1978e2e438@google.com>
-	<1555943483.27247564.1557313967518.JavaMail.zimbra@redhat.com>
-Reply-To: =?UTF-8?Q?Jakub_Staro=c5=84?= <jstaron@google.com>
+From: Pierre Morel <pmorel@linux.ibm.com>
+Subject: Re: [PATCH 08/10] virtio/s390: add indirection to indicators access
+Date: Thu, 9 May 2019 14:01:01 +0200
+Message-ID: <a4bf1976-8037-63bb-2cf6-c389edbd2e89@linux.ibm.com>
+References: <20190426183245.37939-1-pasic@linux.ibm.com>
+	<20190426183245.37939-9-pasic@linux.ibm.com>
+	<716d47ca-016f-e8f4-6d78-7746a7d9f6ba@linux.ibm.com>
+Reply-To: pmorel@linux.ibm.com
 Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset="utf-8"; Format="flowed"
+Content-Transfer-Encoding: base64
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <1555943483.27247564.1557313967518.JavaMail.zimbra@redhat.com>
+In-Reply-To: <716d47ca-016f-e8f4-6d78-7746a7d9f6ba@linux.ibm.com>
 Content-Language: en-US
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
@@ -23,66 +21,56 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Pankaj Gupta <pagupta@redhat.com>
-Cc: cohuck@redhat.com, jack@suse.cz, kvm@vger.kernel.org, mst@redhat.com, david@fromorbit.com, qemu-devel@nongnu.org, virtualization@lists.linux-foundation.org, adilger kernel <adilger.kernel@dilger.ca>, smbarber@google.com, zwisler@kernel.org, aarcange@redhat.com, dave jiang <dave.jiang@intel.com>, linux-nvdimm@lists.01.org, vishal l verma <vishal.l.verma@intel.com>, willy@infradead.org, hch@infradead.org, linux-acpi@vger.kernel.org, jmoyer@redhat.com, linux-ext4@vger.kernel.org, lenb@kernel.org, kilobyte@angband.pl, riel@surriel.com, yuval shaia <yuval.shaia@oracle.com>, stefanha@redhat.com, imammedo@redhat.com, dan j williams <dan.j.williams@intel.com>, lcapitulino@redhat.com, nilal@redhat.com, tytso@mit.edu, xiaoguangrong eric <xiaoguangrong.eric@gmail.com>, darrick wong <darrick.wong@oracle.com>, rjw@rjwysocki.net, linux-kernel@vger.kernel.org, linux-xfs@vger.kernel.o
+To: Halil Pasic <pasic@linux.ibm.com>, kvm@vger.kernel.org, linux-s390@vger.kernel.org, Cornelia Huck <cohuck@redhat.com>, Martin Schwidefsky <schwidefsky@de.ibm.com>, Sebastian Ott <sebott@linux.ibm.com>
+Cc: Thomas Huth <thuth@redhat.com>, Claudio Imbrenda <imbrenda@linux.ibm.com>, Janosch Frank <frankja@linux.ibm.com>, Vasily Gorbik <gor@linux.ibm.com>, "Michael S. Tsirkin" <mst@redhat.com>, Farhan Ali <alifm@linux.ibm.com>, Eric Farman <farman@linux.ibm.com>, virtualization@lists.linux-foundation.org, Christoph Hellwig <hch@infradead.org>, Viktor Mihajlovski <mihajlov@linux.ibm.com>
 List-Id: virtualization@lists.linuxfoundation.org
 
-On 5/8/19 4:12 AM, Pankaj Gupta wrote:
-> 
->>
->> On 4/25/19 10:00 PM, Pankaj Gupta wrote:
->>
->>> +void host_ack(struct virtqueue *vq)
->>> +{
->>> +	unsigned int len;
->>> +	unsigned long flags;
->>> +	struct virtio_pmem_request *req, *req_buf;
->>> +	struct virtio_pmem *vpmem = vq->vdev->priv;
->>> +
->>> +	spin_lock_irqsave(&vpmem->pmem_lock, flags);
->>> +	while ((req = virtqueue_get_buf(vq, &len)) != NULL) {
->>> +		req->done = true;
->>> +		wake_up(&req->host_acked);
->>> +
->>> +		if (!list_empty(&vpmem->req_list)) {
->>> +			req_buf = list_first_entry(&vpmem->req_list,
->>> +					struct virtio_pmem_request, list);
->>> +			list_del(&vpmem->req_list);
->>
->> Shouldn't it be rather `list_del(vpmem->req_list.next)`? We are trying to
->> unlink
->> first element of the list and `vpmem->req_list` is just the list head.
-> 
-> This looks correct. We are not deleting head but first entry in 'req_list'
-> which is device corresponding list of pending requests.
-> 
-> Please see below:
-> 
-> /**
->  * Retrieve the first list entry for the given list pointer.
->  *
->  * Example:
->  * struct foo *first;
->  * first = list_first_entry(&bar->list_of_foos, struct foo, list_of_foos);
->  *
->  * @param ptr The list head
->  * @param type Data type of the list element to retrieve
->  * @param member Member name of the struct list_head field in the list element.
->  * @return A pointer to the first list element.
->  */
-> #define list_first_entry(ptr, type, member) \
->     list_entry((ptr)->next, type, member)
-
-Please look at this StackOverflow question:
-https://stackoverflow.com/questions/19675419/deleting-first-element-of-a-list-h-list
-
-Author asks about deleting first element of the queue. In our case
-(and also in the question's author case), `vpmem->req_list` is not element
-of any request struct and not an element of the list. It's just a list head storing 
-`next` and `prev` pointers which are then pointing to respectively first and
-last element of the list. We want to unlink the first element of the list,
-so we need to pass pointer to the first element of the list to
-the `list_del` function - that is, the `vpmem->req_list.next`.
-
-Thank you,
-Jakub Staron
+T24gMDgvMDUvMjAxOSAxNjozMSwgUGllcnJlIE1vcmVsIHdyb3RlOgo+IE9uIDI2LzA0LzIwMTkg
+MjA6MzIsIEhhbGlsIFBhc2ljIHdyb3RlOgo+PiBUaGlzIHdpbGwgY29tZSBpbiBoYW5keSBzb29u
+IHdoZW4gd2UgcHVsbCBvdXQgdGhlIGluZGljYXRvcnMgZnJvbQo+PiB2aXJ0aW9fY2N3X2Rldmlj
+ZSB0byBhIG1lbW9yeSBhcmVhIHRoYXQgaXMgc2hhcmVkIHdpdGggdGhlIGh5cGVydmlzb3IKPj4g
+KGluIHBhcnRpY3VsYXIgZm9yIHByb3RlY3RlZCB2aXJ0dWFsaXphdGlvbiBndWVzdHMpLgo+Pgo+
+PiBTaWduZWQtb2ZmLWJ5OiBIYWxpbCBQYXNpYyA8cGFzaWNAbGludXguaWJtLmNvbT4KPj4gLS0t
+Cj4+IMKgIGRyaXZlcnMvczM5MC92aXJ0aW8vdmlydGlvX2Njdy5jIHwgNDAgCj4+ICsrKysrKysr
+KysrKysrKysrKysrKysrKystLS0tLS0tLS0tLS0tLS0KPj4gwqAgMSBmaWxlIGNoYW5nZWQsIDI1
+IGluc2VydGlvbnMoKyksIDE1IGRlbGV0aW9ucygtKQo+Pgo+PiBkaWZmIC0tZ2l0IGEvZHJpdmVy
+cy9zMzkwL3ZpcnRpby92aXJ0aW9fY2N3LmMgCj4+IGIvZHJpdmVycy9zMzkwL3ZpcnRpby92aXJ0
+aW9fY2N3LmMKPj4gaW5kZXggYmI3YTkyMzE2ZmM4Li4xZjNlN2Q1NjkyNGYgMTAwNjQ0Cj4+IC0t
+LSBhL2RyaXZlcnMvczM5MC92aXJ0aW8vdmlydGlvX2Njdy5jCj4+ICsrKyBiL2RyaXZlcnMvczM5
+MC92aXJ0aW8vdmlydGlvX2Njdy5jCj4+IEBAIC02OCw2ICs2OCwxNiBAQCBzdHJ1Y3QgdmlydGlv
+X2Njd19kZXZpY2Ugewo+PiDCoMKgwqDCoMKgIHZvaWQgKmFpcnFfaW5mbzsKPj4gwqAgfTsKPj4g
+K3N0YXRpYyBpbmxpbmUgdW5zaWduZWQgbG9uZyAqaW5kaWNhdG9ycyhzdHJ1Y3QgdmlydGlvX2Nj
+d19kZXZpY2UgKnZjZGV2KQo+PiArewo+PiArwqDCoMKgIHJldHVybiAmdmNkZXYtPmluZGljYXRv
+cnM7Cj4+ICt9Cj4+ICsKPj4gK3N0YXRpYyBpbmxpbmUgdW5zaWduZWQgbG9uZyAqaW5kaWNhdG9y
+czIoc3RydWN0IHZpcnRpb19jY3dfZGV2aWNlIAo+PiAqdmNkZXYpCj4+ICt7Cj4+ICvCoMKgwqAg
+cmV0dXJuICZ2Y2Rldi0+aW5kaWNhdG9yczI7Cj4+ICt9Cj4+ICsKPj4gwqAgc3RydWN0IHZxX2lu
+Zm9fYmxvY2tfbGVnYWN5IHsKPj4gwqDCoMKgwqDCoCBfX3U2NCBxdWV1ZTsKPj4gwqDCoMKgwqDC
+oCBfX3UzMiBhbGlnbjsKPj4gQEAgLTMzNywxNyArMzQ3LDE3IEBAIHN0YXRpYyB2b2lkIHZpcnRp
+b19jY3dfZHJvcF9pbmRpY2F0b3Ioc3RydWN0IAo+PiB2aXJ0aW9fY2N3X2RldmljZSAqdmNkZXYs
+Cj4+IMKgwqDCoMKgwqDCoMKgwqDCoCBjY3ctPmNkYSA9IChfX3UzMikodW5zaWduZWQgbG9uZykg
+dGhpbmludF9hcmVhOwo+PiDCoMKgwqDCoMKgIH0gZWxzZSB7Cj4+IMKgwqDCoMKgwqDCoMKgwqDC
+oCAvKiBwYXlsb2FkIGlzIHRoZSBhZGRyZXNzIG9mIHRoZSBpbmRpY2F0b3JzICovCj4+IC3CoMKg
+wqDCoMKgwqDCoCBpbmRpY2F0b3JwID0ga21hbGxvYyhzaXplb2YoJnZjZGV2LT5pbmRpY2F0b3Jz
+KSwKPj4gK8KgwqDCoMKgwqDCoMKgIGluZGljYXRvcnAgPSBrbWFsbG9jKHNpemVvZihpbmRpY2F0
+b3JzKHZjZGV2KSksCj4+IMKgwqDCoMKgwqDCoMKgwqDCoMKgwqDCoMKgwqDCoMKgwqDCoMKgwqDC
+oMKgIEdGUF9ETUEgfCBHRlBfS0VSTkVMKTsKPj4gwqDCoMKgwqDCoMKgwqDCoMKgIGlmICghaW5k
+aWNhdG9ycCkKPj4gwqDCoMKgwqDCoMKgwqDCoMKgwqDCoMKgwqAgcmV0dXJuOwo+PiDCoMKgwqDC
+oMKgwqDCoMKgwqAgKmluZGljYXRvcnAgPSAwOwo+PiDCoMKgwqDCoMKgwqDCoMKgwqAgY2N3LT5j
+bWRfY29kZSA9IENDV19DTURfU0VUX0lORDsKPj4gLcKgwqDCoMKgwqDCoMKgIGNjdy0+Y291bnQg
+PSBzaXplb2YoJnZjZGV2LT5pbmRpY2F0b3JzKTsKPj4gK8KgwqDCoMKgwqDCoMKgIGNjdy0+Y291
+bnQgPSBzaXplb2YoaW5kaWNhdG9ycyh2Y2RldikpOwo+IAo+IFRoaXMgbG9va3Mgc3RyYW5nZSB0
+byBtZS4gV2FzIGFscmVhZHkgd2VpcmQgYmVmb3JlLgo+IEx1Y2t5IHdlIGFyZSBpbmRpY2F0b3Jz
+IGFyZSBsb25nLi4uCj4gbWF5IGJlIGp1c3Qgc2l6ZW9mKGxvbmcpCgoKQUZBSUsgdGhlIHNpemUg
+b2YgdGhlIGluZGljYXRvcnMgKEFJVi9BSVMpIGlzIG5vdCByZXN0cmljdGVkIGJ5IHRoZSAKYXJj
+aGl0ZWN0dXJlLgpIb3dldmVyIHdlIG5ldmVyIHVzZSBtb3JlIHRoYW4gNjQgYml0cywgZG8gd2Ug
+ZXZlciBoYXZlIGFuIGFkYXB0ZXIgCmhhdmluZyBtb3JlIHRoYW4gNjQgZGlmZmVyZW50IGludGVy
+cnVwdHM/CgpNYXkgYmUgd2UgY2FuIHN0YXRlIHRoYW4gd2UgdXNlIGEgbWF4aW1hbCBudW1iZXIg
+b2YgQUlTQiBvZiA2NCBhbmQgCnRoZXJlZm9yIHVzZSBpbmRpY2F0b3JzIHdpdGggYSBzaXplIG9m
+IHVuc2lnbmVkIGxvbmcsIG9yIF9fdTY0IG9yIAp3aGF0ZXZlciBpcyBhcHByb3ByaWF0ZS4gUGxl
+YXNlIGNsZWFyIHRoaXMuCgpXaXRoIHRoaXMgY2xlYXJlZDoKUmV2aWV3ZWQtYnk6IFBpZXJyZSBN
+b3JlbDxwbW9yZWxAbGludXguaWJtLmNvbT4KCgpSZWdhcmRzLApQaWVycmUKCgotLSAKUGllcnJl
+IE1vcmVsCkxpbnV4L0tWTS9RRU1VIGluIELDtmJsaW5nZW4gLSBHZXJtYW55CgpfX19fX19fX19f
+X19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fXwpWaXJ0dWFsaXphdGlvbiBtYWls
+aW5nIGxpc3QKVmlydHVhbGl6YXRpb25AbGlzdHMubGludXgtZm91bmRhdGlvbi5vcmcKaHR0cHM6
+Ly9saXN0cy5saW51eGZvdW5kYXRpb24ub3JnL21haWxtYW4vbGlzdGluZm8vdmlydHVhbGl6YXRp
+b24=
