@@ -1,7 +1,7 @@
 From: Stefano Garzarella <sgarzare@redhat.com>
-Subject: [PATCH v2 6/8] vsock/virtio: change the maximum packet size allowed
-Date: Fri, 10 May 2019 14:58:41 +0200
-Message-ID: <20190510125843.95587-7-sgarzare__37478.6888527282$1557493233$gmane$org@redhat.com>
+Subject: [PATCH v2 7/8] vsock/virtio: increase RX buffer size to 64 KiB
+Date: Fri, 10 May 2019 14:58:42 +0200
+Message-ID: <20190510125843.95587-8-sgarzare__26390.3952365339$1557493249$gmane$org@redhat.com>
 References: <20190510125843.95587-1-sgarzare@redhat.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
@@ -21,30 +21,26 @@ To: netdev@vger.kernel.org
 Cc: kvm@vger.kernel.org, "Michael S. Tsirkin" <mst@redhat.com>, linux-kernel@vger.kernel.org, virtualization@lists.linux-foundation.org, Stefan Hajnoczi <stefanha@redhat.com>, "David S. Miller" <davem@davemloft.net>
 List-Id: virtualization@lists.linuxfoundation.org
 
-Since now we are able to split packets, we can avoid limiting
-their sizes to VIRTIO_VSOCK_DEFAULT_RX_BUF_SIZE.
-Instead, we can use VIRTIO_VSOCK_MAX_PKT_BUF_SIZE as the max
-packet size.
+In order to increase host -> guest throughput with large packets,
+we can use 64 KiB RX buffers.
 
 Signed-off-by: Stefano Garzarella <sgarzare@redhat.com>
 ---
- net/vmw_vsock/virtio_transport_common.c | 4 ++--
- 1 file changed, 2 insertions(+), 2 deletions(-)
+ include/linux/virtio_vsock.h | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/net/vmw_vsock/virtio_transport_common.c b/net/vmw_vsock/virtio_transport_common.c
-index 3f313bcd6a26..63606525755d 100644
---- a/net/vmw_vsock/virtio_transport_common.c
-+++ b/net/vmw_vsock/virtio_transport_common.c
-@@ -219,8 +219,8 @@ static int virtio_transport_send_pkt_info(struct vsock_sock *vsk,
- 	vvs = vsk->trans;
+diff --git a/include/linux/virtio_vsock.h b/include/linux/virtio_vsock.h
+index 84b72026d327..5a9d25be72df 100644
+--- a/include/linux/virtio_vsock.h
++++ b/include/linux/virtio_vsock.h
+@@ -10,7 +10,7 @@
+ #define VIRTIO_VSOCK_DEFAULT_MIN_BUF_SIZE	128
+ #define VIRTIO_VSOCK_DEFAULT_BUF_SIZE		(1024 * 256)
+ #define VIRTIO_VSOCK_DEFAULT_MAX_BUF_SIZE	(1024 * 256)
+-#define VIRTIO_VSOCK_DEFAULT_RX_BUF_SIZE	(1024 * 4)
++#define VIRTIO_VSOCK_DEFAULT_RX_BUF_SIZE	(1024 * 64)
+ #define VIRTIO_VSOCK_MAX_BUF_SIZE		0xFFFFFFFFUL
+ #define VIRTIO_VSOCK_MAX_PKT_BUF_SIZE		(1024 * 64)
  
- 	/* we can send less than pkt_len bytes */
--	if (pkt_len > VIRTIO_VSOCK_DEFAULT_RX_BUF_SIZE)
--		pkt_len = VIRTIO_VSOCK_DEFAULT_RX_BUF_SIZE;
-+	if (pkt_len > VIRTIO_VSOCK_MAX_PKT_BUF_SIZE)
-+		pkt_len = VIRTIO_VSOCK_MAX_PKT_BUF_SIZE;
- 
- 	/* virtio_transport_get_credit might return less than pkt_len credit */
- 	pkt_len = virtio_transport_get_credit(vvs, pkt_len);
 -- 
 2.20.1
