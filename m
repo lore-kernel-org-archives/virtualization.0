@@ -1,7 +1,7 @@
 From: Stefano Garzarella <sgarzare@redhat.com>
-Subject: [PATCH v2 2/8] vsock/virtio: free packets during the socket release
-Date: Fri, 10 May 2019 14:58:37 +0200
-Message-ID: <20190510125843.95587-3-sgarzare__3915.04043234221$1557493172$gmane$org@redhat.com>
+Subject: [PATCH v2 3/8] vsock/virtio: fix locking for fwd_cnt and buf_alloc
+Date: Fri, 10 May 2019 14:58:38 +0200
+Message-ID: <20190510125843.95587-4-sgarzare__14307.8634444223$1557493187$gmane$org@redhat.com>
 References: <20190510125843.95587-1-sgarzare@redhat.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
@@ -21,39 +21,61 @@ To: netdev@vger.kernel.org
 Cc: kvm@vger.kernel.org, "Michael S. Tsirkin" <mst@redhat.com>, linux-kernel@vger.kernel.org, virtualization@lists.linux-foundation.org, Stefan Hajnoczi <stefanha@redhat.com>, "David S. Miller" <davem@davemloft.net>
 List-Id: virtualization@lists.linuxfoundation.org
 
-When the socket is released, we should free all packets
-queued in the per-socket list in order to avoid a memory
-leak.
+fwd_cnt is written with rx_lock, so we should read it using
+the same spinlock also if we are in the TX path.
+
+Move also buf_alloc under rx_lock and add a missing locking
+when we modify it.
 
 Signed-off-by: Stefano Garzarella <sgarzare@redhat.com>
 ---
- net/vmw_vsock/virtio_transport_common.c | 8 ++++++++
- 1 file changed, 8 insertions(+)
+ include/linux/virtio_vsock.h            | 2 +-
+ net/vmw_vsock/virtio_transport_common.c | 6 ++++--
+ 2 files changed, 5 insertions(+), 3 deletions(-)
 
+diff --git a/include/linux/virtio_vsock.h b/include/linux/virtio_vsock.h
+index 345f04ee9193..fb5954fc85c8 100644
+--- a/include/linux/virtio_vsock.h
++++ b/include/linux/virtio_vsock.h
+@@ -35,11 +35,11 @@ struct virtio_vsock_sock {
+ 
+ 	/* Protected by tx_lock */
+ 	u32 tx_cnt;
+-	u32 buf_alloc;
+ 	u32 peer_fwd_cnt;
+ 	u32 peer_buf_alloc;
+ 
+ 	/* Protected by rx_lock */
++	u32 buf_alloc;
+ 	u32 fwd_cnt;
+ 	u32 rx_bytes;
+ 	struct list_head rx_queue;
 diff --git a/net/vmw_vsock/virtio_transport_common.c b/net/vmw_vsock/virtio_transport_common.c
-index 0248d6808755..65c8b4a23f2b 100644
+index 65c8b4a23f2b..f2e4e128bc86 100644
 --- a/net/vmw_vsock/virtio_transport_common.c
 +++ b/net/vmw_vsock/virtio_transport_common.c
-@@ -827,12 +827,20 @@ static bool virtio_transport_close(struct vsock_sock *vsk)
+@@ -246,10 +246,10 @@ static void virtio_transport_dec_rx_pkt(struct virtio_vsock_sock *vvs, u32 len)
  
- void virtio_transport_release(struct vsock_sock *vsk)
+ void virtio_transport_inc_tx_pkt(struct virtio_vsock_sock *vvs, struct virtio_vsock_pkt *pkt)
  {
-+	struct virtio_vsock_sock *vvs = vsk->trans;
-+	struct virtio_vsock_buf *buf;
- 	struct sock *sk = &vsk->sk;
- 	bool remove_sock = true;
+-	spin_lock_bh(&vvs->tx_lock);
++	spin_lock_bh(&vvs->rx_lock);
+ 	pkt->hdr.fwd_cnt = cpu_to_le32(vvs->fwd_cnt);
+ 	pkt->hdr.buf_alloc = cpu_to_le32(vvs->buf_alloc);
+-	spin_unlock_bh(&vvs->tx_lock);
++	spin_unlock_bh(&vvs->rx_lock);
+ }
+ EXPORT_SYMBOL_GPL(virtio_transport_inc_tx_pkt);
  
- 	lock_sock(sk);
- 	if (sk->sk_type == SOCK_STREAM)
- 		remove_sock = virtio_transport_close(vsk);
-+	while (!list_empty(&vvs->rx_queue)) {
-+		buf = list_first_entry(&vvs->rx_queue,
-+				       struct virtio_vsock_buf, list);
-+		list_del(&buf->list);
-+		virtio_transport_free_buf(buf);
-+	}
- 	release_sock(sk);
+@@ -469,7 +469,9 @@ void virtio_transport_set_buffer_size(struct vsock_sock *vsk, u64 val)
+ 	if (val > vvs->buf_size_max)
+ 		vvs->buf_size_max = val;
+ 	vvs->buf_size = val;
++	spin_lock_bh(&vvs->rx_lock);
+ 	vvs->buf_alloc = val;
++	spin_unlock_bh(&vvs->rx_lock);
+ }
+ EXPORT_SYMBOL_GPL(virtio_transport_set_buffer_size);
  
- 	if (remove_sock)
 -- 
 2.20.1
