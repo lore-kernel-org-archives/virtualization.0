@@ -1,18 +1,11 @@
-From: Halil Pasic <pasic@linux.ibm.com>
-Subject: Re: [PATCH 08/10] virtio/s390: add indirection to indicators access
-Date: Fri, 10 May 2019 13:54:21 +0200
-Message-ID: <20190510135421.5363f14a.pasic@linux.ibm.com>
-References: <20190426183245.37939-1-pasic@linux.ibm.com>
-	<20190426183245.37939-9-pasic@linux.ibm.com>
-	<716d47ca-016f-e8f4-6d78-7746a7d9f6ba@linux.ibm.com>
-	<a4bf1976-8037-63bb-2cf6-c389edbd2e89@linux.ibm.com>
-	<20190509202600.4fd6aebe.pasic@linux.ibm.com>
-	<c1e03cf0-3773-de00-10ae-d092ffe7ccc5@linux.ibm.com>
+From: Stefano Garzarella <sgarzare@redhat.com>
+Subject: [PATCH v2 0/8] vsock/virtio: optimizations to increase the throughput
+Date: Fri, 10 May 2019 14:58:35 +0200
+Message-ID: <20190510125843.95587-1-sgarzare__15518.5947822005$1557493146$gmane$org@redhat.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="utf-8"
-Content-Transfer-Encoding: base64
+Content-Type: text/plain; charset="us-ascii"
+Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <c1e03cf0-3773-de00-10ae-d092ffe7ccc5@linux.ibm.com>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -22,81 +15,135 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Pierre Morel <pmorel@linux.ibm.com>
-Cc: Vasily Gorbik <gor@linux.ibm.com>, linux-s390@vger.kernel.org, Thomas Huth <thuth@redhat.com>, Claudio Imbrenda <imbrenda@linux.ibm.com>, kvm@vger.kernel.org, Sebastian Ott <sebott@linux.ibm.com>, "Michael S. Tsirkin" <mst@redhat.com>, Cornelia Huck <cohuck@redhat.com>, Eric Farman <farman@linux.ibm.com>, virtualization@lists.linux-foundation.org, Christoph Hellwig <hch@infradead.org>, Martin Schwidefsky <schwidefsky@de.ibm.com>, Farhan Ali <alifm@linux.ibm.com>, Viktor Mihajlovski <mihajlov@linux.ibm.com>, Janosch Frank <frankja@linux.ibm.com>
+To: netdev@vger.kernel.org
+Cc: kvm@vger.kernel.org, "Michael S. Tsirkin" <mst@redhat.com>, linux-kernel@vger.kernel.org, virtualization@lists.linux-foundation.org, Stefan Hajnoczi <stefanha@redhat.com>, "David S. Miller" <davem@davemloft.net>
 List-Id: virtualization@lists.linuxfoundation.org
 
-T24gRnJpLCAxMCBNYXkgMjAxOSAwOTo0MzowOCArMDIwMApQaWVycmUgTW9yZWwgPHBtb3JlbEBs
-aW51eC5pYm0uY29tPiB3cm90ZToKCj4gT24gMDkvMDUvMjAxOSAyMDoyNiwgSGFsaWwgUGFzaWMg
-d3JvdGU6Cj4gPiBPbiBUaHUsIDkgTWF5IDIwMTkgMTQ6MDE6MDEgKzAyMDAKPiA+IFBpZXJyZSBN
-b3JlbCA8cG1vcmVsQGxpbnV4LmlibS5jb20+IHdyb3RlOgo+ID4gCj4gPj4gT24gMDgvMDUvMjAx
-OSAxNjozMSwgUGllcnJlIE1vcmVsIHdyb3RlOgo+ID4+PiBPbiAyNi8wNC8yMDE5IDIwOjMyLCBI
-YWxpbCBQYXNpYyB3cm90ZToKPiA+Pj4+IFRoaXMgd2lsbCBjb21lIGluIGhhbmR5IHNvb24gd2hl
-biB3ZSBwdWxsIG91dCB0aGUgaW5kaWNhdG9ycyBmcm9tCj4gPj4+PiB2aXJ0aW9fY2N3X2Rldmlj
-ZSB0byBhIG1lbW9yeSBhcmVhIHRoYXQgaXMgc2hhcmVkIHdpdGggdGhlIGh5cGVydmlzb3IKPiA+
-Pj4+IChpbiBwYXJ0aWN1bGFyIGZvciBwcm90ZWN0ZWQgdmlydHVhbGl6YXRpb24gZ3Vlc3RzKS4K
-PiA+Pj4+Cj4gPj4+PiBTaWduZWQtb2ZmLWJ5OiBIYWxpbCBQYXNpYyA8cGFzaWNAbGludXguaWJt
-LmNvbT4KPiA+Pj4+IC0tLQo+ID4+Pj4gIMKgIGRyaXZlcnMvczM5MC92aXJ0aW8vdmlydGlvX2Nj
-dy5jIHwgNDAKPiA+Pj4+ICsrKysrKysrKysrKysrKysrKysrKysrKystLS0tLS0tLS0tLS0tLS0K
-PiA+Pj4+ICDCoCAxIGZpbGUgY2hhbmdlZCwgMjUgaW5zZXJ0aW9ucygrKSwgMTUgZGVsZXRpb25z
-KC0pCj4gPj4+Pgo+ID4+Pj4gZGlmZiAtLWdpdCBhL2RyaXZlcnMvczM5MC92aXJ0aW8vdmlydGlv
-X2Njdy5jCj4gPj4+PiBiL2RyaXZlcnMvczM5MC92aXJ0aW8vdmlydGlvX2Njdy5jCj4gPj4+PiBp
-bmRleCBiYjdhOTIzMTZmYzguLjFmM2U3ZDU2OTI0ZiAxMDA2NDQKPiA+Pj4+IC0tLSBhL2RyaXZl
-cnMvczM5MC92aXJ0aW8vdmlydGlvX2Njdy5jCj4gPj4+PiArKysgYi9kcml2ZXJzL3MzOTAvdmly
-dGlvL3ZpcnRpb19jY3cuYwo+ID4+Pj4gQEAgLTY4LDYgKzY4LDE2IEBAIHN0cnVjdCB2aXJ0aW9f
-Y2N3X2RldmljZSB7Cj4gPj4+PiAgwqDCoMKgwqDCoCB2b2lkICphaXJxX2luZm87Cj4gPj4+PiAg
-wqAgfTsKPiA+Pj4+ICtzdGF0aWMgaW5saW5lIHVuc2lnbmVkIGxvbmcgKmluZGljYXRvcnMoc3Ry
-dWN0IHZpcnRpb19jY3dfZGV2aWNlICp2Y2RldikKPiA+Pj4+ICt7Cj4gPj4+PiArwqDCoMKgIHJl
-dHVybiAmdmNkZXYtPmluZGljYXRvcnM7Cj4gPj4+PiArfQo+ID4+Pj4gKwo+ID4+Pj4gK3N0YXRp
-YyBpbmxpbmUgdW5zaWduZWQgbG9uZyAqaW5kaWNhdG9yczIoc3RydWN0IHZpcnRpb19jY3dfZGV2
-aWNlCj4gPj4+PiAqdmNkZXYpCj4gPj4+PiArewo+ID4+Pj4gK8KgwqDCoCByZXR1cm4gJnZjZGV2
-LT5pbmRpY2F0b3JzMjsKPiA+Pj4+ICt9Cj4gPj4+PiArCj4gPj4+PiAgwqAgc3RydWN0IHZxX2lu
-Zm9fYmxvY2tfbGVnYWN5IHsKPiA+Pj4+ICDCoMKgwqDCoMKgIF9fdTY0IHF1ZXVlOwo+ID4+Pj4g
-IMKgwqDCoMKgwqAgX191MzIgYWxpZ247Cj4gPj4+PiBAQCAtMzM3LDE3ICszNDcsMTcgQEAgc3Rh
-dGljIHZvaWQgdmlydGlvX2Njd19kcm9wX2luZGljYXRvcihzdHJ1Y3QKPiA+Pj4+IHZpcnRpb19j
-Y3dfZGV2aWNlICp2Y2RldiwKPiA+Pj4+ICDCoMKgwqDCoMKgwqDCoMKgwqAgY2N3LT5jZGEgPSAo
-X191MzIpKHVuc2lnbmVkIGxvbmcpIHRoaW5pbnRfYXJlYTsKPiA+Pj4+ICDCoMKgwqDCoMKgIH0g
-ZWxzZSB7Cj4gPj4+PiAgwqDCoMKgwqDCoMKgwqDCoMKgIC8qIHBheWxvYWQgaXMgdGhlIGFkZHJl
-c3Mgb2YgdGhlIGluZGljYXRvcnMgKi8KPiA+Pj4+IC3CoMKgwqDCoMKgwqDCoCBpbmRpY2F0b3Jw
-ID0ga21hbGxvYyhzaXplb2YoJnZjZGV2LT5pbmRpY2F0b3JzKSwKPiA+Pj4+ICvCoMKgwqDCoMKg
-wqDCoCBpbmRpY2F0b3JwID0ga21hbGxvYyhzaXplb2YoaW5kaWNhdG9ycyh2Y2RldikpLAo+ID4+
-Pj4gIMKgwqDCoMKgwqDCoMKgwqDCoMKgwqDCoMKgwqDCoMKgwqDCoMKgwqDCoMKgIEdGUF9ETUEg
-fCBHRlBfS0VSTkVMKTsKPiA+Pj4+ICDCoMKgwqDCoMKgwqDCoMKgwqAgaWYgKCFpbmRpY2F0b3Jw
-KQo+ID4+Pj4gIMKgwqDCoMKgwqDCoMKgwqDCoMKgwqDCoMKgIHJldHVybjsKPiA+Pj4+ICDCoMKg
-wqDCoMKgwqDCoMKgwqAgKmluZGljYXRvcnAgPSAwOwo+ID4+Pj4gIMKgwqDCoMKgwqDCoMKgwqDC
-oCBjY3ctPmNtZF9jb2RlID0gQ0NXX0NNRF9TRVRfSU5EOwo+ID4+Pj4gLcKgwqDCoMKgwqDCoMKg
-IGNjdy0+Y291bnQgPSBzaXplb2YoJnZjZGV2LT5pbmRpY2F0b3JzKTsKPiA+Pj4+ICvCoMKgwqDC
-oMKgwqDCoCBjY3ctPmNvdW50ID0gc2l6ZW9mKGluZGljYXRvcnModmNkZXYpKTsKPiA+Pj4KPiA+
-Pj4gVGhpcyBsb29rcyBzdHJhbmdlIHRvIG1lLiBXYXMgYWxyZWFkeSB3ZWlyZCBiZWZvcmUuCj4g
-Pj4+IEx1Y2t5IHdlIGFyZSBpbmRpY2F0b3JzIGFyZSBsb25nLi4uCj4gPj4+IG1heSBiZSBqdXN0
-IHNpemVvZihsb25nKQo+ID4+Cj4gPiAKPiA+IEknbSBub3Qgc3VyZSBJIHVuZGVyc3RhbmQgd2hl
-cmUgYXJlIHlvdSBjb21pbmcgZnJvbS4uLgo+ID4gCj4gPiBXaXRoIENDV19DTURfU0VUX0lORCB3
-ZSB0ZWxsIHRoZSBoeXBlcnZpc29yIHRoZSBndWVzdCBwaHlzaWNhbCBhZGRyZXNzCj4gPiBhdCB3
-aGljaCB0aGUgc28gY2FsbGVkIGNsYXNzaWMgaW5kaWNhdG9ycy4gVGhlcmUgaXMgYSBjb21tZW50
-IHRoYXQKPiA+IG1ha2VzIHRoaXMgb2J2aW91cy4gVGhlIGFyZ3VtZW50IG9mIHRoZSBzaXplb2Yg
-d2FzIGFuZCByZW1haW5lZCBhCj4gPiBwb2ludGVyIHR5cGUuIEFGQUlVIHRoaXMgaXMgd2hhdCBi
-b3RoZXJzIHlvdS4KPiA+Pgo+ID4+IEFGQUlLIHRoZSBzaXplIG9mIHRoZSBpbmRpY2F0b3JzIChB
-SVYvQUlTKSBpcyBub3QgcmVzdHJpY3RlZCBieSB0aGUKPiA+PiBhcmNoaXRlY3R1cmUuCj4gPiAK
-PiA+IFRoZSBzaXplIG9mIHZjZGV2LT5pbmRpY2F0b3JzIGlzIHJlc3RyaWN0ZWQgb3IgZGVmaW5l
-ZCBieSB0aGUgdmlydGlvCj4gPiBzcGVjaWZpY2F0aW9uLiBQbGVhc2UgaGF2ZSBhIGxvb2sgYXQg
-JzQuMy4yLjYuMSBTZXR0aW5nIFVwIENsYXNzaWMgUXVldWUKPiA+IEluZGljYXRvcnMnIGhlcmU6
-Cj4gPiBodHRwczovL2RvY3Mub2FzaXMtb3Blbi5vcmcvdmlydGlvL3ZpcnRpby92MS4xL2NzMDEv
-dmlydGlvLXYxLjEtY3MwMS5odG1sI3gxLTE2MzAwMDIKPiA+IAo+ID4gU2luY2Ugd2l0aCBMaW51
-eCBvbiBzMzkwIG9ubHkgNjQgYml0IGlzIHN1cHBvcnRlZCwgYm90aCB0aGUgc2l6ZXMgYXJlIGlu
-Cj4gPiBsaW5lIHdpdGggdGhlIHNwZWNpZmljYXRpb24uIFVzaW5nIHU2NCB3b3VsZCBzZW1hbnRp
-Y2FsbHkgbWF0Y2ggdGhlIHNwZWMKPiA+IGJldHRlciwgbW9kdWxvIHByZSB2aXJ0aW8gMS4wIHdo
-aWNoIGFpbid0IHNwZWNpZmllZC4gSSBkaWQgbm90IHdhbnQgdG8KPiA+IGRvIGNoYW5nZXMgdGhh
-dCBhcmUgbm90IG5lY2Vzc2FyeSBmb3Igd2hhdCBJJ20gdHJ5aW5nIHRvIGFjY29tcGxpc2guIElm
-Cj4gPiB3ZSB3YW50IHdlIGNhbiBjaGFuZ2UgdGhlc2UgdG8gdTY0IHdpdGggYSBwYXRjaCBvbiB0
-b3AuCj4gCj4gSSBtZWFuIHlvdSBhcmUgY2hhbmdpbmcgdGhlc2UgbGluZSBhbHJlYWR5LCBzbyB3
-aHkgbm90IGRvaW5nIGl0IHJpZ2h0IAo+IHdoaWxlIGF0IGl0Pwo+IAoKVGhpcyBwYXRjaCBpcyBh
-Ym91dCBhZGRpbmcgdGhlIGluZGlyZWN0aW9uIHNvIHdlIGNhbiBtb3ZlIHRoZSBtZW1iZXIKcGFp
-bmxlc3NseS4gTWl4aW5nIGluIGRpZmZlcmVudCBzdHVmZiB3b3VsZCBiZSBhIGJhZCBwcmFjdGlj
-ZS4KCkJUVyBJIGp1c3QgZXhwbGFpbmVkIHRoYXQgaXQgYWluJ3Qgd3JvbmcsIHNvIEkgcmVhbGx5
-IGRvIG5vdCB1bmRlcnN0YW5kCndoYXQgZG8geW91IG1lYW4gYnkgICd3aHkgbm90IGRvaW5nIGl0
-IHJpZ2h0Jy4gQ2FuIHlvdSBwbGVhc2UgZXhwbGFpbj8KCkRpZCB5b3UgYWdyZWUgd2l0aCB0aGUg
-cmVzdCBvZiBteSBjb21tZW50PyBJIG1lYW4gdGhlcmUgd2FzIG1vcmUgdG8gaXQuCgpSZWdhcmRz
-LApIYWxpbAoKX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX18K
-VmlydHVhbGl6YXRpb24gbWFpbGluZyBsaXN0ClZpcnR1YWxpemF0aW9uQGxpc3RzLmxpbnV4LWZv
-dW5kYXRpb24ub3JnCmh0dHBzOi8vbGlzdHMubGludXhmb3VuZGF0aW9uLm9yZy9tYWlsbWFuL2xp
-c3RpbmZvL3ZpcnR1YWxpemF0aW9u
+While I was testing this new series (v2) I discovered an huge use of memory
+and a memory leak in the virtio-vsock driver in the guest when I sent
+1-byte packets to the guest.
+
+These issues are present since the introduction of the virtio-vsock
+driver. I added the patches 1 and 2 to fix them in this series in order
+to better track the performance trends.
+
+v1: https://patchwork.kernel.org/cover/10885431/
+
+v2:
+- Add patch 1 to limit the memory usage
+- Add patch 2 to avoid memory leak during the socket release
+- Add patch 3 to fix locking of fwd_cnt and buf_alloc
+- Patch 4: fix 'free_space' type (u32 instead of s64) [Stefan]
+- Patch 5: Avoid integer underflow of iov_len [Stefan]
+- Patch 5: Fix packet capture in order to see the exact packets that are
+           delivered. [Stefan]
+- Add patch 8 to make the RX buffer size tunable [Stefan]
+
+Below are the benchmarks step by step. I used iperf3 [1] modified with VSOCK
+support.
+As Micheal suggested in the v1, I booted host and guest with 'nosmap', and I
+added a column with virtio-net+vhost-net performance.
+
+A brief description of patches:
+- Patches 1+2: limit the memory usage with an extra copy and avoid memory leak
+- Patches 3+4: fix locking and reduce the number of credit update messages sent
+               to the transmitter
+- Patches 5+6: allow the host to split packets on multiple buffers and use
+               VIRTIO_VSOCK_MAX_PKT_BUF_SIZE as the max packet size allowed
+- Patches 7+8: increase RX buffer size to 64 KiB
+
+                    host -> guest [Gbps]
+pkt_size before opt  p 1+2    p 3+4    p 5+6    p 7+8       virtio-net + vhost
+                                                                     TCP_NODELAY
+64         0.068     0.063    0.130    0.131    0.128         0.188     0.187
+256        0.274     0.236    0.392    0.338    0.282         0.749     0.654
+512        0.531     0.457    0.862    0.725    0.602         1.419     1.414
+1K         0.954     0.827    1.591    1.598    1.548         2.599     2.640
+2K         1.783     1.543    3.731    3.637    3.469         4.530     4.754
+4K         3.332     3.436    7.164    7.124    6.494         7.738     7.696
+8K         5.792     5.530   11.653   11.787   11.444        12.307    11.850
+16K        8.405     8.462   16.372   16.855   17.562        16.936    16.954
+32K       14.208    13.669   18.945   20.009   23.128        21.980    23.015
+64K       21.082    18.893   20.266   20.903   30.622        27.290    27.383
+128K      20.696    20.148   20.112   21.746   32.152        30.446    30.990
+256K      20.801    20.589   20.725   22.685   34.721        33.151    32.745
+512K      21.220    20.465   20.432   22.106   34.496        36.847    31.096
+
+                    guest -> host [Gbps]
+pkt_size before opt  p 1+2    p 3+4    p 5+6    p 7+8       virtio-net + vhost
+                                                                     TCP_NODELAY
+64         0.089     0.091    0.120    0.115    0.117         0.274     0.272
+256        0.352     0.354    0.452    0.445    0.451         1.085     1.136
+512        0.705     0.704    0.893    0.858    0.898         2.131     1.882
+1K         1.394     1.433    1.721    1.669    1.691         3.984     3.576
+2K         2.818     2.874    3.316    3.249    3.303         6.719     6.359
+4K         5.293     5.397    6.129    5.933    6.082        10.105     9.860
+8K         8.890     9.151   10.990   10.545   10.519        15.239    14.868
+16K       11.444    11.018   12.074   15.255   15.577        20.551    20.848
+32K       11.229    10.875   10.857   24.401   25.227        26.294    26.380
+64K       10.832    10.545   10.816   39.487   39.616        34.996    32.041
+128K      10.435    10.241   10.500   39.813   40.012        38.379    35.055
+256K      10.263     9.866    9.845   34.971   35.143        36.559    37.232
+512K      10.224    10.060   10.092   35.469   34.627        34.963    33.401
+
+As Stefan suggested in the v1, this time I measured also the efficiency in this
+way:
+    efficiency = Mbps / (%CPU_Host + %CPU_Guest)
+
+The '%CPU_Guest' is taken inside the VM. I know that it is not the best way,
+but it's provided for free from iperf3 and could be an indication.
+
+        host -> guest efficiency [Mbps / (%CPU_Host + %CPU_Guest)]
+pkt_size before opt  p 1+2    p 3+4    p 5+6    p 7+8       virtio-net + vhost
+                                                                     TCP_NODELAY
+64          0.94      0.59     3.96     4.06     4.09          2.82      2.11
+256         2.62      2.50     6.45     6.09     5.81          9.64      8.73
+512         5.16      4.87    13.16    12.39    11.67         17.83     17.76
+1K          9.16      8.85    24.98    24.97    25.01         32.57     32.04
+2K         17.41     17.03    49.09    48.59    49.22         55.31     57.14
+4K         32.99     33.62    90.80    90.98    91.72         91.79     91.40
+8K         58.51     59.98   153.53   170.83   167.31        137.51    132.85
+16K        89.32     95.29   216.98   264.18   260.95        176.05    176.05
+32K       152.94    167.10   285.75   387.02   360.81        215.49    226.30
+64K       250.38    307.20   317.65   489.53   472.70        238.97    244.27
+128K      327.99    335.24   335.76   523.71   486.41        253.29    260.86
+256K      327.06    334.24   338.64   533.76   509.85        267.78    266.22
+512K      337.36    330.61   334.95   512.90   496.35        280.42    241.43
+
+        guest -> host efficiency [Mbps / (%CPU_Host + %CPU_Guest)]
+pkt_size before opt  p 1+2    p 3+4    p 5+6    p 7+8       virtio-net + vhost
+                                                                     TCP_NODELAY
+64          0.90      0.91     1.37     1.32     1.35          2.15      2.13
+256         3.59      3.55     5.23     5.19     5.29          8.50      8.89
+512         7.19      7.08    10.21     9.95    10.38         16.74     14.71
+1K         14.15     14.34    19.85    19.06    19.33         31.44     28.11
+2K         28.44     29.09    37.78    37.18    37.49         53.07     50.63
+4K         55.37     57.60    71.02    69.27    70.97         81.56     79.32
+8K        105.58    100.45   111.95   124.68   123.61        120.85    118.66
+16K       141.63    138.24   137.67   187.41   190.20        160.43    163.00
+32K       147.56    143.09   138.48   296.41   301.04        214.64    223.94
+64K       144.81    143.27   138.49   433.98   462.26        298.86    269.71
+128K      150.14    147.99   146.85   511.36   514.29        350.17    298.09
+256K      156.69    152.25   148.69   542.19   549.97        326.42    333.32
+512K      157.29    153.35   152.22   546.52   533.24        315.55    302.27
+
+[1] https://github.com/stefano-garzarella/iperf/
+
+Stefano Garzarella (8):
+  vsock/virtio: limit the memory used per-socket
+  vsock/virtio: free packets during the socket release
+  vsock/virtio: fix locking for fwd_cnt and buf_alloc
+  vsock/virtio: reduce credit update messages
+  vhost/vsock: split packets to send using multiple buffers
+  vsock/virtio: change the maximum packet size allowed
+  vsock/virtio: increase RX buffer size to 64 KiB
+  vsock/virtio: make the RX buffer size tunable
+
+ drivers/vhost/vsock.c                   |  53 +++++++--
+ include/linux/virtio_vsock.h            |  14 ++-
+ net/vmw_vsock/virtio_transport.c        |  28 ++++-
+ net/vmw_vsock/virtio_transport_common.c | 144 ++++++++++++++++++------
+ 4 files changed, 190 insertions(+), 49 deletions(-)
+
+-- 
+2.20.1
