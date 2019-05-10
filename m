@@ -1,15 +1,18 @@
-From: "Jason J. Herne" <jjherne@linux.ibm.com>
-Subject: Re: [PATCH 04/10] s390/mm: force swiotlb for protected virtualization
-Date: Thu, 9 May 2019 14:05:20 -0400
-Message-ID: <4c7a990a-7f11-17f3-2024-18acaf7ceb06@linux.ibm.com>
-References: <20190426183245.37939-5-pasic@linux.ibm.com>
-	<ad23f5e7-dc78-04af-c892-47bbc65134c6@linux.ibm.com>
-Reply-To: jjherne@linux.ibm.com
+From: Pierre Morel <pmorel@linux.ibm.com>
+Subject: Re: [PATCH 08/10] virtio/s390: add indirection to indicators access
+Date: Fri, 10 May 2019 09:43:08 +0200
+Message-ID: <c1e03cf0-3773-de00-10ae-d092ffe7ccc5@linux.ibm.com>
+References: <20190426183245.37939-1-pasic@linux.ibm.com>
+	<20190426183245.37939-9-pasic@linux.ibm.com>
+	<716d47ca-016f-e8f4-6d78-7746a7d9f6ba@linux.ibm.com>
+	<a4bf1976-8037-63bb-2cf6-c389edbd2e89@linux.ibm.com>
+	<20190509202600.4fd6aebe.pasic@linux.ibm.com>
+Reply-To: pmorel@linux.ibm.com
 Mime-Version: 1.0
-Content-Type: text/plain; charset="windows-1252"; Format="flowed"
-Content-Transfer-Encoding: quoted-printable
+Content-Type: text/plain; charset="utf-8"; Format="flowed"
+Content-Transfer-Encoding: base64
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <ad23f5e7-dc78-04af-c892-47bbc65134c6@linux.ibm.com>
+In-Reply-To: <20190509202600.4fd6aebe.pasic@linux.ibm.com>
 Content-Language: en-US
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
@@ -20,206 +23,71 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: kvm@vger.kernel.org, linux-s390@vger.kernel.org, "Cornelia Huck ," <cohuck@redhat.com>, Martin Schwidefsky <schwidefsky@de.ibm.com>, Sebastian Ott <sebott@linux.ibm.com>
-Cc: Christoph Hellwig <hch@infradead.org>, "Thomas Huth , " <thuth@redhat.com>, Claudio Imbrenda <imbrenda@linux.ibm.com>, Janosch Frank <frankja@linux.ibm.com>, "Vasily Gorbik ,
-	" <gor@linux.ibm.com>, "Michael S. Tsirkin , " <mst@redhat.com>, Farhan Ali <alifm@linux.ibm.com>, Eric Farman <farman@linux.ibm.com>, virtualization@lists.linux-foundation.org, Halil Pasic <pasic@linux.ibm.com>, Viktor Mihajlovski <mihajlov@linux.ibm.com>
+To: Halil Pasic <pasic@linux.ibm.com>
+Cc: Vasily Gorbik <gor@linux.ibm.com>, linux-s390@vger.kernel.org, Thomas Huth <thuth@redhat.com>, Claudio Imbrenda <imbrenda@linux.ibm.com>, kvm@vger.kernel.org, Sebastian Ott <sebott@linux.ibm.com>, "Michael S. Tsirkin" <mst@redhat.com>, Cornelia Huck <cohuck@redhat.com>, Eric Farman <farman@linux.ibm.com>, virtualization@lists.linux-foundation.org, Christoph Hellwig <hch@infradead.org>, Martin Schwidefsky <schwidefsky@de.ibm.com>, Farhan Ali <alifm@linux.ibm.com>, Viktor Mihajlovski <mihajlov@linux.ibm.com>, Janosch Frank <frankja@linux.ibm.com>
 List-Id: virtualization@lists.linuxfoundation.org
 
-> Subject: [PATCH 04/10] s390/mm: force swiotlb for protected virtualization
-> Date: Fri, 26 Apr 2019 20:32:39 +0200
-> From: Halil Pasic <pasic@linux.ibm.com>
-> To: kvm@vger.kernel.org, linux-s390@vger.kernel.org, Cornelia Huck <cohuc=
-k@redhat.com>, =
-
-> Martin Schwidefsky <schwidefsky@de.ibm.com>, Sebastian Ott <sebott@linux.=
-ibm.com>
-> CC: Halil Pasic <pasic@linux.ibm.com>, virtualization@lists.linux-foundat=
-ion.org, Michael =
-
-> S. Tsirkin <mst@redhat.com>, Christoph Hellwig <hch@infradead.org>, Thoma=
-s Huth =
-
-> <thuth@redhat.com>, Christian Borntraeger <borntraeger@de.ibm.com>, Vikto=
-r Mihajlovski =
-
-> <mihajlov@linux.ibm.com>, Vasily Gorbik <gor@linux.ibm.com>, Janosch Fran=
-k =
-
-> <frankja@linux.ibm.com>, Claudio Imbrenda <imbrenda@linux.ibm.com>, Farha=
-n Ali =
-
-> <alifm@linux.ibm.com>, Eric Farman <farman@linux.ibm.com>
-> =
-
-> On s390, protected virtualization guests have to use bounced I/O
-> buffers.=A0 That requires some plumbing.
-> =
-
-> Let us make sure, any device that uses DMA API with direct ops correctly
-> is spared from the problems, that a hypervisor attempting I/O to a
-> non-shared page would bring.
-> =
-
-> Signed-off-by: Halil Pasic <pasic@linux.ibm.com>
-> ---
->  =A0arch/s390/Kconfig=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=
-=A0 |=A0 4 +++
->  =A0arch/s390/include/asm/mem_encrypt.h | 18 +++++++++++++
->  =A0arch/s390/mm/init.c=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0 |=
- 50 +++++++++++++++++++++++++++++++++++++
->  =A03 files changed, 72 insertions(+)
->  =A0create mode 100644 arch/s390/include/asm/mem_encrypt.h
-> =
-
-> diff --git a/arch/s390/Kconfig b/arch/s390/Kconfig
-> index 1c3fcf19c3af..5500d05d4d53 100644
-> --- a/arch/s390/Kconfig
-> +++ b/arch/s390/Kconfig
-> @@ -1,4 +1,7 @@
->  =A0# SPDX-License-Identifier: GPL-2.0
-> +config ARCH_HAS_MEM_ENCRYPT
-> +=A0=A0=A0=A0=A0=A0=A0 def_bool y
-> +
->  =A0config MMU
->  =A0=A0=A0=A0 def_bool y
->  =A0@@ -191,6 +194,7 @@ config S390
->  =A0=A0=A0=A0 select ARCH_HAS_SCALED_CPUTIME
->  =A0=A0=A0=A0 select VIRT_TO_BUS
->  =A0=A0=A0=A0 select HAVE_NMI
-> +=A0=A0=A0 select SWIOTLB
->  =A0=A0 config SCHED_OMIT_FRAME_POINTER
-> diff --git a/arch/s390/include/asm/mem_encrypt.h b/arch/s390/include/asm/=
-mem_encrypt.h
-> new file mode 100644
-> index 000000000000..0898c09a888c
-> --- /dev/null
-> +++ b/arch/s390/include/asm/mem_encrypt.h
-> @@ -0,0 +1,18 @@
-> +/* SPDX-License-Identifier: GPL-2.0 */
-> +#ifndef S390_MEM_ENCRYPT_H__
-> +#define S390_MEM_ENCRYPT_H__
-> +
-> +#ifndef __ASSEMBLY__
-> +
-> +#define sme_me_mask=A0=A0=A0 0ULL
-> +
-> +static inline bool sme_active(void) { return false; }
-> +extern bool sev_active(void);
-> +
-
-I noticed this patch always returns false for sme_active. Is it safe to ass=
-ume that =
-
-whatever fixups are required on x86 to deal with sme do not apply to s390?
-
-> +int set_memory_encrypted(unsigned long addr, int numpages);
-> +int set_memory_decrypted(unsigned long addr, int numpages);
-> +
-> +#endif=A0=A0=A0 /* __ASSEMBLY__ */
-> +
-> +#endif=A0=A0=A0 /* S390_MEM_ENCRYPT_H__ */
-> +
-> diff --git a/arch/s390/mm/init.c b/arch/s390/mm/init.c
-> index 3e82f66d5c61..7e3cbd15dcfa 100644
-> --- a/arch/s390/mm/init.c
-> +++ b/arch/s390/mm/init.c
-> @@ -18,6 +18,7 @@
->  =A0#include <linux/mman.h>
->  =A0#include <linux/mm.h>
->  =A0#include <linux/swap.h>
-> +#include <linux/swiotlb.h>
->  =A0#include <linux/smp.h>
->  =A0#include <linux/init.h>
->  =A0#include <linux/pagemap.h>
-> @@ -29,6 +30,7 @@
->  =A0#include <linux/export.h>
->  =A0#include <linux/cma.h>
->  =A0#include <linux/gfp.h>
-> +#include <linux/dma-mapping.h>
->  =A0#include <asm/processor.h>
->  =A0#include <linux/uaccess.h>
->  =A0#include <asm/pgtable.h>
-> @@ -42,6 +44,8 @@
->  =A0#include <asm/sclp.h>
->  =A0#include <asm/set_memory.h>
->  =A0#include <asm/kasan.h>
-> +#include <asm/dma-mapping.h>
-> +#include <asm/uv.h>
->  =A0 pgd_t swapper_pg_dir[PTRS_PER_PGD] __section(.bss..swapper_pg_dir);
->  =A0@@ -126,6 +130,50 @@ void mark_rodata_ro(void)
->  =A0=A0=A0=A0 pr_info("Write protected read-only-after-init data: %luk\n"=
-, size >> 10);
->  =A0}
->  =A0+int set_memory_encrypted(unsigned long addr, int numpages)
-> +{
-> +=A0=A0=A0 int i;
-> +
-> +=A0=A0=A0 /* make all pages shared, (swiotlb, dma_free) */
-
-This comment should be "make all pages unshared"?
-
-> +=A0=A0=A0 for (i =3D 0; i < numpages; ++i) {
-> +=A0=A0=A0=A0=A0=A0=A0 uv_remove_shared(addr);
-> +=A0=A0=A0=A0=A0=A0=A0 addr +=3D PAGE_SIZE;
-> +=A0=A0=A0 }
-> +=A0=A0=A0 return 0;
-> +}
-> +EXPORT_SYMBOL_GPL(set_memory_encrypted);
-> +
-> +int set_memory_decrypted(unsigned long addr, int numpages)
-> +{
-> +=A0=A0=A0 int i;
-> +=A0=A0=A0 /* make all pages shared (swiotlb, dma_alloca) */
-> +=A0=A0=A0 for (i =3D 0; i < numpages; ++i) {
-> +=A0=A0=A0=A0=A0=A0=A0 uv_set_shared(addr);
-> +=A0=A0=A0=A0=A0=A0=A0 addr +=3D PAGE_SIZE;
-> +=A0=A0=A0 }
-> +=A0=A0=A0 return 0;
-> +}
-> +EXPORT_SYMBOL_GPL(set_memory_decrypted);
-
-The addr arguments for the above functions appear to be referring to virtua=
-l addresses. =
-
-Would vaddr be a better name?
-
-> +
-> +/* are we a protected virtualization guest? */
-> +bool sev_active(void)
-> +{
-> +=A0=A0=A0 return is_prot_virt_guest();
-> +}
-> +EXPORT_SYMBOL_GPL(sev_active);
-> +
-> +/* protected virtualization */
-> +static void pv_init(void)
-> +{
-> +=A0=A0=A0 if (!sev_active())
-> +=A0=A0=A0=A0=A0=A0=A0 return;
-> +
-> +=A0=A0=A0 /* make sure bounce buffers are shared */
-> +=A0=A0=A0 swiotlb_init(1);
-> +=A0=A0=A0 swiotlb_update_mem_attributes();
-> +=A0=A0=A0 swiotlb_force =3D SWIOTLB_FORCE;
-> +}
-> +
->  =A0void __init mem_init(void)
->  =A0{
->  =A0=A0=A0=A0 cpumask_set_cpu(0, &init_mm.context.cpu_attach_mask);
-> @@ -134,6 +182,8 @@ void __init mem_init(void)
->  =A0=A0=A0=A0 set_max_mapnr(max_low_pfn);
->  =A0=A0=A0=A0=A0=A0=A0=A0 high_memory =3D (void *) __va(max_low_pfn * PAG=
-E_SIZE);
->  =A0+=A0=A0=A0 pv_init();
-> +
->  =A0=A0=A0=A0 /* Setup guest page hinting */
->  =A0=A0=A0=A0 cmma_init();
->  =A0-- 2.16.4
-> =
-
-> =
-
-
--- =
-
--- Jason J. Herne (jjherne@linux.ibm.com)
+T24gMDkvMDUvMjAxOSAyMDoyNiwgSGFsaWwgUGFzaWMgd3JvdGU6Cj4gT24gVGh1LCA5IE1heSAy
+MDE5IDE0OjAxOjAxICswMjAwCj4gUGllcnJlIE1vcmVsIDxwbW9yZWxAbGludXguaWJtLmNvbT4g
+d3JvdGU6Cj4gCj4+IE9uIDA4LzA1LzIwMTkgMTY6MzEsIFBpZXJyZSBNb3JlbCB3cm90ZToKPj4+
+IE9uIDI2LzA0LzIwMTkgMjA6MzIsIEhhbGlsIFBhc2ljIHdyb3RlOgo+Pj4+IFRoaXMgd2lsbCBj
+b21lIGluIGhhbmR5IHNvb24gd2hlbiB3ZSBwdWxsIG91dCB0aGUgaW5kaWNhdG9ycyBmcm9tCj4+
+Pj4gdmlydGlvX2Njd19kZXZpY2UgdG8gYSBtZW1vcnkgYXJlYSB0aGF0IGlzIHNoYXJlZCB3aXRo
+IHRoZSBoeXBlcnZpc29yCj4+Pj4gKGluIHBhcnRpY3VsYXIgZm9yIHByb3RlY3RlZCB2aXJ0dWFs
+aXphdGlvbiBndWVzdHMpLgo+Pj4+Cj4+Pj4gU2lnbmVkLW9mZi1ieTogSGFsaWwgUGFzaWMgPHBh
+c2ljQGxpbnV4LmlibS5jb20+Cj4+Pj4gLS0tCj4+Pj4gIMKgIGRyaXZlcnMvczM5MC92aXJ0aW8v
+dmlydGlvX2Njdy5jIHwgNDAKPj4+PiArKysrKysrKysrKysrKysrKysrKysrKysrLS0tLS0tLS0t
+LS0tLS0tCj4+Pj4gIMKgIDEgZmlsZSBjaGFuZ2VkLCAyNSBpbnNlcnRpb25zKCspLCAxNSBkZWxl
+dGlvbnMoLSkKPj4+Pgo+Pj4+IGRpZmYgLS1naXQgYS9kcml2ZXJzL3MzOTAvdmlydGlvL3ZpcnRp
+b19jY3cuYwo+Pj4+IGIvZHJpdmVycy9zMzkwL3ZpcnRpby92aXJ0aW9fY2N3LmMKPj4+PiBpbmRl
+eCBiYjdhOTIzMTZmYzguLjFmM2U3ZDU2OTI0ZiAxMDA2NDQKPj4+PiAtLS0gYS9kcml2ZXJzL3Mz
+OTAvdmlydGlvL3ZpcnRpb19jY3cuYwo+Pj4+ICsrKyBiL2RyaXZlcnMvczM5MC92aXJ0aW8vdmly
+dGlvX2Njdy5jCj4+Pj4gQEAgLTY4LDYgKzY4LDE2IEBAIHN0cnVjdCB2aXJ0aW9fY2N3X2Rldmlj
+ZSB7Cj4+Pj4gIMKgwqDCoMKgwqAgdm9pZCAqYWlycV9pbmZvOwo+Pj4+ICDCoCB9Owo+Pj4+ICtz
+dGF0aWMgaW5saW5lIHVuc2lnbmVkIGxvbmcgKmluZGljYXRvcnMoc3RydWN0IHZpcnRpb19jY3df
+ZGV2aWNlICp2Y2RldikKPj4+PiArewo+Pj4+ICvCoMKgwqAgcmV0dXJuICZ2Y2Rldi0+aW5kaWNh
+dG9yczsKPj4+PiArfQo+Pj4+ICsKPj4+PiArc3RhdGljIGlubGluZSB1bnNpZ25lZCBsb25nICpp
+bmRpY2F0b3JzMihzdHJ1Y3QgdmlydGlvX2Njd19kZXZpY2UKPj4+PiAqdmNkZXYpCj4+Pj4gK3sK
+Pj4+PiArwqDCoMKgIHJldHVybiAmdmNkZXYtPmluZGljYXRvcnMyOwo+Pj4+ICt9Cj4+Pj4gKwo+
+Pj4+ICDCoCBzdHJ1Y3QgdnFfaW5mb19ibG9ja19sZWdhY3kgewo+Pj4+ICDCoMKgwqDCoMKgIF9f
+dTY0IHF1ZXVlOwo+Pj4+ICDCoMKgwqDCoMKgIF9fdTMyIGFsaWduOwo+Pj4+IEBAIC0zMzcsMTcg
+KzM0NywxNyBAQCBzdGF0aWMgdm9pZCB2aXJ0aW9fY2N3X2Ryb3BfaW5kaWNhdG9yKHN0cnVjdAo+
+Pj4+IHZpcnRpb19jY3dfZGV2aWNlICp2Y2RldiwKPj4+PiAgwqDCoMKgwqDCoMKgwqDCoMKgIGNj
+dy0+Y2RhID0gKF9fdTMyKSh1bnNpZ25lZCBsb25nKSB0aGluaW50X2FyZWE7Cj4+Pj4gIMKgwqDC
+oMKgwqAgfSBlbHNlIHsKPj4+PiAgwqDCoMKgwqDCoMKgwqDCoMKgIC8qIHBheWxvYWQgaXMgdGhl
+IGFkZHJlc3Mgb2YgdGhlIGluZGljYXRvcnMgKi8KPj4+PiAtwqDCoMKgwqDCoMKgwqAgaW5kaWNh
+dG9ycCA9IGttYWxsb2Moc2l6ZW9mKCZ2Y2Rldi0+aW5kaWNhdG9ycyksCj4+Pj4gK8KgwqDCoMKg
+wqDCoMKgIGluZGljYXRvcnAgPSBrbWFsbG9jKHNpemVvZihpbmRpY2F0b3JzKHZjZGV2KSksCj4+
+Pj4gIMKgwqDCoMKgwqDCoMKgwqDCoMKgwqDCoMKgwqDCoMKgwqDCoMKgwqDCoMKgIEdGUF9ETUEg
+fCBHRlBfS0VSTkVMKTsKPj4+PiAgwqDCoMKgwqDCoMKgwqDCoMKgIGlmICghaW5kaWNhdG9ycCkK
+Pj4+PiAgwqDCoMKgwqDCoMKgwqDCoMKgwqDCoMKgwqAgcmV0dXJuOwo+Pj4+ICDCoMKgwqDCoMKg
+wqDCoMKgwqAgKmluZGljYXRvcnAgPSAwOwo+Pj4+ICDCoMKgwqDCoMKgwqDCoMKgwqAgY2N3LT5j
+bWRfY29kZSA9IENDV19DTURfU0VUX0lORDsKPj4+PiAtwqDCoMKgwqDCoMKgwqAgY2N3LT5jb3Vu
+dCA9IHNpemVvZigmdmNkZXYtPmluZGljYXRvcnMpOwo+Pj4+ICvCoMKgwqDCoMKgwqDCoCBjY3ct
+PmNvdW50ID0gc2l6ZW9mKGluZGljYXRvcnModmNkZXYpKTsKPj4+Cj4+PiBUaGlzIGxvb2tzIHN0
+cmFuZ2UgdG8gbWUuIFdhcyBhbHJlYWR5IHdlaXJkIGJlZm9yZS4KPj4+IEx1Y2t5IHdlIGFyZSBp
+bmRpY2F0b3JzIGFyZSBsb25nLi4uCj4+PiBtYXkgYmUganVzdCBzaXplb2YobG9uZykKPj4KPiAK
+PiBJJ20gbm90IHN1cmUgSSB1bmRlcnN0YW5kIHdoZXJlIGFyZSB5b3UgY29taW5nIGZyb20uLi4K
+PiAKPiBXaXRoIENDV19DTURfU0VUX0lORCB3ZSB0ZWxsIHRoZSBoeXBlcnZpc29yIHRoZSBndWVz
+dCBwaHlzaWNhbCBhZGRyZXNzCj4gYXQgd2hpY2ggdGhlIHNvIGNhbGxlZCBjbGFzc2ljIGluZGlj
+YXRvcnMuIFRoZXJlIGlzIGEgY29tbWVudCB0aGF0Cj4gbWFrZXMgdGhpcyBvYnZpb3VzLiBUaGUg
+YXJndW1lbnQgb2YgdGhlIHNpemVvZiB3YXMgYW5kIHJlbWFpbmVkIGEKPiBwb2ludGVyIHR5cGUu
+IEFGQUlVIHRoaXMgaXMgd2hhdCBib3RoZXJzIHlvdS4KPj4KPj4gQUZBSUsgdGhlIHNpemUgb2Yg
+dGhlIGluZGljYXRvcnMgKEFJVi9BSVMpIGlzIG5vdCByZXN0cmljdGVkIGJ5IHRoZQo+PiBhcmNo
+aXRlY3R1cmUuCj4gCj4gVGhlIHNpemUgb2YgdmNkZXYtPmluZGljYXRvcnMgaXMgcmVzdHJpY3Rl
+ZCBvciBkZWZpbmVkIGJ5IHRoZSB2aXJ0aW8KPiBzcGVjaWZpY2F0aW9uLiBQbGVhc2UgaGF2ZSBh
+IGxvb2sgYXQgJzQuMy4yLjYuMSBTZXR0aW5nIFVwIENsYXNzaWMgUXVldWUKPiBJbmRpY2F0b3Jz
+JyBoZXJlOgo+IGh0dHBzOi8vZG9jcy5vYXNpcy1vcGVuLm9yZy92aXJ0aW8vdmlydGlvL3YxLjEv
+Y3MwMS92aXJ0aW8tdjEuMS1jczAxLmh0bWwjeDEtMTYzMDAwMgo+IAo+IFNpbmNlIHdpdGggTGlu
+dXggb24gczM5MCBvbmx5IDY0IGJpdCBpcyBzdXBwb3J0ZWQsIGJvdGggdGhlIHNpemVzIGFyZSBp
+bgo+IGxpbmUgd2l0aCB0aGUgc3BlY2lmaWNhdGlvbi4gVXNpbmcgdTY0IHdvdWxkIHNlbWFudGlj
+YWxseSBtYXRjaCB0aGUgc3BlYwo+IGJldHRlciwgbW9kdWxvIHByZSB2aXJ0aW8gMS4wIHdoaWNo
+IGFpbid0IHNwZWNpZmllZC4gSSBkaWQgbm90IHdhbnQgdG8KPiBkbyBjaGFuZ2VzIHRoYXQgYXJl
+IG5vdCBuZWNlc3NhcnkgZm9yIHdoYXQgSSdtIHRyeWluZyB0byBhY2NvbXBsaXNoLiBJZgo+IHdl
+IHdhbnQgd2UgY2FuIGNoYW5nZSB0aGVzZSB0byB1NjQgd2l0aCBhIHBhdGNoIG9uIHRvcC4KCkkg
+bWVhbiB5b3UgYXJlIGNoYW5naW5nIHRoZXNlIGxpbmUgYWxyZWFkeSwgc28gd2h5IG5vdCBkb2lu
+ZyBpdCByaWdodCAKd2hpbGUgYXQgaXQ/CgpQaWVycmUKCi0tIApQaWVycmUgTW9yZWwKTGludXgv
+S1ZNL1FFTVUgaW4gQsO2YmxpbmdlbiAtIEdlcm1hbnkKCl9fX19fX19fX19fX19fX19fX19fX19f
+X19fX19fX19fX19fX19fX19fX19fX19fClZpcnR1YWxpemF0aW9uIG1haWxpbmcgbGlzdApWaXJ0
+dWFsaXphdGlvbkBsaXN0cy5saW51eC1mb3VuZGF0aW9uLm9yZwpodHRwczovL2xpc3RzLmxpbnV4
+Zm91bmRhdGlvbi5vcmcvbWFpbG1hbi9saXN0aW5mby92aXJ0dWFsaXphdGlvbg==
