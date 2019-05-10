@@ -1,15 +1,14 @@
-From: David Miller <davem@davemloft.net>
-Subject: Re: [PATCH v2 2/8] vsock/virtio: free packets during the socket
-	release
-Date: Fri, 10 May 2019 15:20:08 -0700 (PDT)
-Message-ID: <20190510.152008.1902268386064871188.davem__12741.603334301$1557526820$gmane$org@davemloft.net>
-References: <20190510125843.95587-1-sgarzare@redhat.com>
-	<20190510125843.95587-3-sgarzare@redhat.com>
+From: Pankaj Gupta <pagupta@redhat.com>
+Subject: Re: [PATCH v8 0/6] virtio pmem driver
+Date: Fri, 10 May 2019 19:33:03 -0400 (EDT)
+Message-ID: <1909759746.28039539.1557531183427.JavaMail.zimbra@redhat.com>
+References: <20190510155202.14737-1-pagupta@redhat.com>
+	<CAPcyv4joEZaePvzc__N9Q3nozoHgQn7hNFPjBVo5BP6cc4rkEA@mail.gmail.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <20190510125843.95587-3-sgarzare@redhat.com>
+In-Reply-To: <CAPcyv4joEZaePvzc__N9Q3nozoHgQn7hNFPjBVo5BP6cc4rkEA@mail.gmail.com>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -19,27 +18,29 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: sgarzare@redhat.com
-Cc: kvm@vger.kernel.org, mst@redhat.com, netdev@vger.kernel.org, linux-kernel@vger.kernel.org, virtualization@lists.linux-foundation.org, stefanha@redhat.com
+To: Dan Williams <dan.j.williams@intel.com>
+Cc: cohuck@redhat.com, Jan Kara <jack@suse.cz>, KVM list <kvm@vger.kernel.org>, "Michael S. Tsirkin" <mst@redhat.com>, david <david@fromorbit.com>, Qemu Developers <qemu-devel@nongnu.org>, virtualization@lists.linux-foundation.org, Andreas Dilger <adilger.kernel@dilger.ca>, Ross Zwisler <zwisler@kernel.org>, Andrea Arcangeli <aarcange@redhat.com>, Dave Jiang <dave.jiang@intel.com>, jstaron@google.com, linux-nvdimm <linux-nvdimm@lists.01.org>, Vishal L Verma <vishal.l.verma@intel.com>, Matthew Wilcox <willy@infradead.org>, Christoph Hellwig <hch@infradead.org>, Linux ACPI <linux-acpi@vger.kernel.org>, jmoyer <jmoyer@redhat.com>, linux-ext4 <linux-ext4@vger.kernel.org>, Len Brown <lenb@kernel.org>, Adam Borowski <kilobyte@angband.pl>, Rik van Riel <riel@surriel.com>, yuval shaia <yuval.shaia@oracle.com>, Stefan Hajnoczi <stefanha@redhat.com>, Paolo Bonzini <pbonzini@redhat.>
 List-Id: virtualization@lists.linuxfoundation.org
 
-From: Stefano Garzarella <sgarzare@redhat.com>
-Date: Fri, 10 May 2019 14:58:37 +0200
 
-> @@ -827,12 +827,20 @@ static bool virtio_transport_close(struct vsock_sock *vsk)
->  
->  void virtio_transport_release(struct vsock_sock *vsk)
->  {
-> +	struct virtio_vsock_sock *vvs = vsk->trans;
-> +	struct virtio_vsock_buf *buf;
->  	struct sock *sk = &vsk->sk;
->  	bool remove_sock = true;
->  
->  	lock_sock(sk);
->  	if (sk->sk_type == SOCK_STREAM)
->  		remove_sock = virtio_transport_close(vsk);
-> +	while (!list_empty(&vvs->rx_queue)) {
-> +		buf = list_first_entry(&vvs->rx_queue,
-> +				       struct virtio_vsock_buf, list);
+> >
+> >  Hi Michael & Dan,
+> >
+> >  Please review/ack the patch series from LIBNVDIMM & VIRTIO side.
+> >  We have ack on ext4, xfs patches(4, 5 & 6) patch 2. Still need
+> >  your ack on nvdimm patches(1 & 3) & virtio patch 2.
+> 
+> I was planning to merge these via the nvdimm tree, not ack them. Did
+> you have another maintainer lined up to take these patches?
 
-Please use list_for_each_entry_safe().
+Sorry! for not being clear on this. I wanted to say same.
+
+Proposed the patch series to be merged via nvdimm tree as kindly agreed
+by you. We only need an ack on virtio patch 2 from Micahel.
+
+Thank you for all your help.
+
+Best regards,
+Pankaj Gupta
+
+> 
