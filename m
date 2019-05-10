@@ -1,7 +1,7 @@
 From: Stefano Garzarella <sgarzare@redhat.com>
-Subject: [PATCH v2 7/8] vsock/virtio: increase RX buffer size to 64 KiB
-Date: Fri, 10 May 2019 14:58:42 +0200
-Message-ID: <20190510125843.95587-8-sgarzare__26390.3952365339$1557493249$gmane$org@redhat.com>
+Subject: [PATCH v2 8/8] vsock/virtio: make the RX buffer size tunable
+Date: Fri, 10 May 2019 14:58:43 +0200
+Message-ID: <20190510125843.95587-9-sgarzare__15709.6703349211$1557493262$gmane$org@redhat.com>
 References: <20190510125843.95587-1-sgarzare@redhat.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
@@ -21,26 +21,76 @@ To: netdev@vger.kernel.org
 Cc: kvm@vger.kernel.org, "Michael S. Tsirkin" <mst@redhat.com>, linux-kernel@vger.kernel.org, virtualization@lists.linux-foundation.org, Stefan Hajnoczi <stefanha@redhat.com>, "David S. Miller" <davem@davemloft.net>
 List-Id: virtualization@lists.linuxfoundation.org
 
-In order to increase host -> guest throughput with large packets,
-we can use 64 KiB RX buffers.
+The RX buffer size determines the memory consumption of the
+vsock/virtio guest driver, so we make it tunable through
+a module parameter.
 
+The size allowed are between 4 KB and 64 KB in order to be
+compatible with old host drivers.
+
+Suggested-by: Stefan Hajnoczi <stefanha@redhat.com>
 Signed-off-by: Stefano Garzarella <sgarzare@redhat.com>
 ---
- include/linux/virtio_vsock.h | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ include/linux/virtio_vsock.h     |  1 +
+ net/vmw_vsock/virtio_transport.c | 27 ++++++++++++++++++++++++++-
+ 2 files changed, 27 insertions(+), 1 deletion(-)
 
 diff --git a/include/linux/virtio_vsock.h b/include/linux/virtio_vsock.h
-index 84b72026d327..5a9d25be72df 100644
+index 5a9d25be72df..b9f8c3d91f80 100644
 --- a/include/linux/virtio_vsock.h
 +++ b/include/linux/virtio_vsock.h
-@@ -10,7 +10,7 @@
- #define VIRTIO_VSOCK_DEFAULT_MIN_BUF_SIZE	128
- #define VIRTIO_VSOCK_DEFAULT_BUF_SIZE		(1024 * 256)
- #define VIRTIO_VSOCK_DEFAULT_MAX_BUF_SIZE	(1024 * 256)
--#define VIRTIO_VSOCK_DEFAULT_RX_BUF_SIZE	(1024 * 4)
-+#define VIRTIO_VSOCK_DEFAULT_RX_BUF_SIZE	(1024 * 64)
+@@ -13,6 +13,7 @@
+ #define VIRTIO_VSOCK_DEFAULT_RX_BUF_SIZE	(1024 * 64)
  #define VIRTIO_VSOCK_MAX_BUF_SIZE		0xFFFFFFFFUL
  #define VIRTIO_VSOCK_MAX_PKT_BUF_SIZE		(1024 * 64)
++#define VIRTIO_VSOCK_MIN_PKT_BUF_SIZE		(1024 * 4)
  
+ enum {
+ 	VSOCK_VQ_RX     = 0, /* for host to guest data */
+diff --git a/net/vmw_vsock/virtio_transport.c b/net/vmw_vsock/virtio_transport.c
+index af1d2ce12f54..732398b4e28f 100644
+--- a/net/vmw_vsock/virtio_transport.c
++++ b/net/vmw_vsock/virtio_transport.c
+@@ -66,6 +66,31 @@ struct virtio_vsock {
+ 	u32 guest_cid;
+ };
+ 
++static unsigned int rx_buf_size = VIRTIO_VSOCK_DEFAULT_RX_BUF_SIZE;
++
++static int param_set_rx_buf_size(const char *val, const struct kernel_param *kp)
++{
++	unsigned int size;
++	int ret;
++
++	ret = kstrtouint(val, 0, &size);
++	if (ret)
++		return ret;
++
++	if (size < VIRTIO_VSOCK_MIN_PKT_BUF_SIZE ||
++	    size > VIRTIO_VSOCK_MAX_PKT_BUF_SIZE)
++		return -EINVAL;
++
++	return param_set_uint(val, kp);
++};
++
++static const struct kernel_param_ops param_ops_rx_buf_size = {
++	.set = param_set_rx_buf_size,
++	.get = param_get_uint,
++};
++
++module_param_cb(rx_buf_size, &param_ops_rx_buf_size, &rx_buf_size, 0644);
++
+ static struct virtio_vsock *virtio_vsock_get(void)
+ {
+ 	return the_virtio_vsock;
+@@ -261,7 +286,7 @@ virtio_transport_cancel_pkt(struct vsock_sock *vsk)
+ 
+ static void virtio_vsock_rx_fill(struct virtio_vsock *vsock)
+ {
+-	int buf_len = VIRTIO_VSOCK_DEFAULT_RX_BUF_SIZE;
++	int buf_len = rx_buf_size;
+ 	struct virtio_vsock_pkt *pkt;
+ 	struct scatterlist hdr, buf, *sgs[2];
+ 	struct virtqueue *vq;
 -- 
 2.20.1
