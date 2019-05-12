@@ -1,14 +1,21 @@
 From: "Michael S. Tsirkin" <mst@redhat.com>
-Subject: Re: [PATCH v7 0/7] Add virtio-iommu driver
-Date: Sun, 12 May 2019 12:31:59 -0400
-Message-ID: <20190512123022-mutt-send-email-mst__9711.16523012228$1557678736$gmane$org@kernel.org>
-References: <20190115121959.23763-1-jean-philippe.brucker@arm.com>
+Subject: Re: [PATCH 01/10] virtio/s390: use vring_create_virtqueue
+Date: Sun, 12 May 2019 12:47:39 -0400
+Message-ID: <20190512124730-mutt-send-email-mst@kernel.org>
+References: <20190426183245.37939-1-pasic@linux.ibm.com>
+	<20190426183245.37939-2-pasic@linux.ibm.com>
+	<20190503111724.70c6ec37.cohuck@redhat.com>
+	<20190503160421-mutt-send-email-mst@kernel.org>
+	<20190504160340.29f17b98.pasic@linux.ibm.com>
+	<20190505131523.159bec7c.cohuck@redhat.com>
+	<ed6cbf63-f2ff-f259-ccb0-3b9ba60f2b35@de.ibm.com>
+	<20190510160744.00285367.cohuck@redhat.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
 Content-Disposition: inline
-In-Reply-To: <20190115121959.23763-1-jean-philippe.brucker@arm.com>
+In-Reply-To: <20190510160744.00285367.cohuck@redhat.com>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -18,78 +25,71 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Jean-Philippe Brucker <jean-philippe.brucker@arm.com>
-Cc: mark.rutland@arm.com, virtio-dev@lists.oasis-open.org, lorenzo.pieralisi@arm.com, tnowicki@caviumnetworks.com, devicetree@vger.kernel.org, marc.zyngier@arm.com, linux-pci@vger.kernel.org, joro@8bytes.org, will.deacon@arm.com, robin.murphy@arm.com, virtualization@lists.linux-foundation.org, eric.auger@redhat.com, iommu@lists.linux-foundation.org, robh+dt@kernel.org, kvmarm@lists.cs.columbia.edu, bhelgaas@google.com
+To: Cornelia Huck <cohuck@redhat.com>
+Cc: Vasily Gorbik <gor@linux.ibm.com>, linux-s390@vger.kernel.org, Thomas Huth <thuth@redhat.com>, Claudio Imbrenda <imbrenda@linux.ibm.com>, kvm@vger.kernel.org, Sebastian Ott <sebott@linux.ibm.com>, Christoph Hellwig <hch@infradead.org>, Farhan Ali <alifm@linux.ibm.com>, Eric Farman <farman@linux.ibm.com>, virtualization@lists.linux-foundation.org, Halil Pasic <pasic@linux.ibm.com>, Martin Schwidefsky <schwidefsky@de.ibm.com>, Viktor Mihajlovski <mihajlov@linux.ibm.com>, Janosch Frank <frankja@linux.ibm.com>
 List-Id: virtualization@lists.linuxfoundation.org
 
-On Tue, Jan 15, 2019 at 12:19:52PM +0000, Jean-Philippe Brucker wrote:
-> Implement the virtio-iommu driver, following specification v0.9 [1].
+On Fri, May 10, 2019 at 04:07:44PM +0200, Cornelia Huck wrote:
+> On Tue, 7 May 2019 15:58:12 +0200
+> Christian Borntraeger <borntraeger@de.ibm.com> wrote:
 > 
-> This is a simple rebase onto Linux v5.0-rc2. We now use the
-> dev_iommu_fwspec_get() helper introduced in v5.0 instead of accessing
-> dev->iommu_fwspec, but there aren't any functional change from v6 [2].
+> > On 05.05.19 13:15, Cornelia Huck wrote:
+> > > On Sat, 4 May 2019 16:03:40 +0200
+> > > Halil Pasic <pasic@linux.ibm.com> wrote:
+> > >   
+> > >> On Fri, 3 May 2019 16:04:48 -0400
+> > >> "Michael S. Tsirkin" <mst@redhat.com> wrote:
+> > >>  
+> > >>> On Fri, May 03, 2019 at 11:17:24AM +0200, Cornelia Huck wrote:    
+> > >>>> On Fri, 26 Apr 2019 20:32:36 +0200
+> > >>>> Halil Pasic <pasic@linux.ibm.com> wrote:
+> > >>>>     
+> > >>>>> The commit 2a2d1382fe9d ("virtio: Add improved queue allocation API")
+> > >>>>> establishes a new way of allocating virtqueues (as a part of the effort
+> > >>>>> that taught DMA to virtio rings).
+> > >>>>>
+> > >>>>> In the future we will want virtio-ccw to use the DMA API as well.
+> > >>>>>
+> > >>>>> Let us switch from the legacy method of allocating virtqueues to
+> > >>>>> vring_create_virtqueue() as the first step into that direction.
+> > >>>>>
+> > >>>>> Signed-off-by: Halil Pasic <pasic@linux.ibm.com>
+> > >>>>> ---
+> > >>>>>  drivers/s390/virtio/virtio_ccw.c | 30 +++++++++++-------------------
+> > >>>>>  1 file changed, 11 insertions(+), 19 deletions(-)    
+> > >>>>
+> > >>>> Reviewed-by: Cornelia Huck <cohuck@redhat.com>
+> > >>>>
+> > >>>> I'd vote for merging this patch right away for 5.2.    
+> > >>>
+> > >>> So which tree is this going through? mine?
+> > >>>     
+> > >>
+> > >> Christian, what do you think? If the whole series is supposed to go in
+> > >> in one go (which I hope it is), via Martin's tree could be the simplest
+> > >> route IMHO.  
+> > > 
+> > > 
+> > > The first three patches are virtio(-ccw) only and the those are the ones
+> > > that I think are ready to go.
+> > > 
+> > > I'm not feeling comfortable going forward with the remainder as it
+> > > stands now; waiting for some other folks to give feedback. (They are
+> > > touching/interacting with code parts I'm not so familiar with, and lack
+> > > of documentation, while not the developers' fault, does not make it
+> > > easier.)
+> > > 
+> > > Michael, would you like to pick up 1-3 for your tree directly? That
+> > > looks like the easiest way.  
+> > 
+> > Agreed. Michael please pick 1-3.
+> > We will continue to review 4- first and then see which tree is best.
 > 
-> Our current goal for virtio-iommu is to get a paravirtual IOMMU working
-> on Arm, and enable device assignment to guest userspace. In this
-> use-case the mappings are static, and don't require optimal performance,
-> so this series tries to keep things simple. However there is plenty more
-> to do for features and optimizations, and having this base in v5.1 would
-> be good. Given that most of the changes are to drivers/iommu, I believe
-> the driver and future changes should go via the IOMMU tree.
+> Michael, please let me know if you'll pick directly or whether I should
+> post a series.
 > 
-> You can find Linux driver and kvmtool device on v0.9.2 branches [3],
-> module and x86 support on virtio-iommu/devel. Also tested with Eric's
-> QEMU device [4]. Please note that the series depends on Robin's
-> probe-deferral fix [5], which will hopefully land in v5.0.
-> 
-> [1] Virtio-iommu specification v0.9, sources and pdf
->     git://linux-arm.org/virtio-iommu.git virtio-iommu/v0.9
->     http://jpbrucker.net/virtio-iommu/spec/v0.9/virtio-iommu-v0.9.pdf
-> 
-> [2] [PATCH v6 0/7] Add virtio-iommu driver
->     https://lists.linuxfoundation.org/pipermail/iommu/2018-December/032127.html
-> 
-> [3] git://linux-arm.org/linux-jpb.git virtio-iommu/v0.9.2
->     git://linux-arm.org/kvmtool-jpb.git virtio-iommu/v0.9.2
-> 
-> [4] [RFC v9 00/17] VIRTIO-IOMMU device
->     https://www.mail-archive.com/qemu-devel@nongnu.org/msg575578.html
-> 
-> [5] [PATCH] iommu/of: Fix probe-deferral
->     https://www.spinics.net/lists/arm-kernel/msg698371.html
+> [Given that the patches are from one virtio-ccw maintainer and reviewed
+> by the other, picking directly would eliminate an unnecessary
+> indirection :)]
 
-
-OK this has been in next for a while.
-
-Last time IOMMU maintainers objected. Are objections
-still in force?
-
-If not could we get acks please?
-
-
-> Jean-Philippe Brucker (7):
->   dt-bindings: virtio-mmio: Add IOMMU description
->   dt-bindings: virtio: Add virtio-pci-iommu node
->   of: Allow the iommu-map property to omit untranslated devices
->   PCI: OF: Initialize dev->fwnode appropriately
->   iommu: Add virtio-iommu driver
->   iommu/virtio: Add probe request
->   iommu/virtio: Add event queue
-> 
->  .../devicetree/bindings/virtio/iommu.txt      |   66 +
->  .../devicetree/bindings/virtio/mmio.txt       |   30 +
->  MAINTAINERS                                   |    7 +
->  drivers/iommu/Kconfig                         |   11 +
->  drivers/iommu/Makefile                        |    1 +
->  drivers/iommu/virtio-iommu.c                  | 1158 +++++++++++++++++
->  drivers/of/base.c                             |   10 +-
->  drivers/pci/of.c                              |    7 +
->  include/uapi/linux/virtio_ids.h               |    1 +
->  include/uapi/linux/virtio_iommu.h             |  161 +++
->  10 files changed, 1449 insertions(+), 3 deletions(-)
->  create mode 100644 Documentation/devicetree/bindings/virtio/iommu.txt
->  create mode 100644 drivers/iommu/virtio-iommu.c
->  create mode 100644 include/uapi/linux/virtio_iommu.h
-> 
-> -- 
-> 2.19.1
+picked them
