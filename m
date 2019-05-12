@@ -1,14 +1,19 @@
-From: "Michael S. Tsirkin" <mst@redhat.com>
-Subject: Re: [PATCH v7 0/7] Add virtio-iommu driver
-Date: Sun, 12 May 2019 13:15:16 -0400
-Message-ID: <20190512131500-mutt-send-email-mst__27415.5512380943$1557681331$gmane$org@kernel.org>
-References: <20190115121959.23763-1-jean-philippe.brucker@arm.com>
+From: Halil Pasic <pasic@linux.ibm.com>
+Subject: Re: [PATCH 05/10] s390/cio: introduce DMA pools to cio
+Date: Sun, 12 May 2019 20:22:56 +0200
+Message-ID: <20190512202256.5517592d.pasic@linux.ibm.com>
+References: <20190426183245.37939-1-pasic@linux.ibm.com>
+	<20190426183245.37939-6-pasic@linux.ibm.com>
+	<alpine.LFD.2.21.1905081447280.1773@schleppi>
+	<20190508232210.5a555caa.pasic@linux.ibm.com>
+	<20190509121106.48aa04db.cohuck@redhat.com>
+	<20190510001112.479b2fd7.pasic@linux.ibm.com>
+	<20190510161013.7e697337.cohuck@redhat.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-Content-Disposition: inline
-In-Reply-To: <20190115121959.23763-1-jean-philippe.brucker@arm.com>
+In-Reply-To: <20190510161013.7e697337.cohuck@redhat.com>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -18,75 +23,185 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Jean-Philippe Brucker <jean-philippe.brucker@arm.com>
-Cc: mark.rutland@arm.com, virtio-dev@lists.oasis-open.org, lorenzo.pieralisi@arm.com, tnowicki@caviumnetworks.com, devicetree@vger.kernel.org, marc.zyngier@arm.com, linux-pci@vger.kernel.org, joro@8bytes.org, will.deacon@arm.com, robin.murphy@arm.com, virtualization@lists.linux-foundation.org, eric.auger@redhat.com, iommu@lists.linux-foundation.org, robh+dt@kernel.org, kvmarm@lists.cs.columbia.edu, bhelgaas@google.com
+To: Cornelia Huck <cohuck@redhat.com>
+Cc: Vasily Gorbik <gor@linux.ibm.com>, linux-s390@vger.kernel.org, Thomas Huth <thuth@redhat.com>, Claudio Imbrenda <imbrenda@linux.ibm.com>, Sebastian Ott <sebott@linux.ibm.com>, kvm@vger.kernel.org, "Michael S. Tsirkin" <mst@redhat.com>, Farhan Ali <alifm@linux.ibm.com>, Eric Farman <farman@linux.ibm.com>, virtualization@lists.linux-foundation.org, Christoph Hellwig <hch@infradead.org>, Martin Schwidefsky <schwidefsky@de.ibm.com>, Michael Mueller <mimu@linux.ibm.com>, Viktor Mihajlovski <mihajlov@linux.ibm.com>, Janosch Frank <frankja@linux.ibm.com>
 List-Id: virtualization@lists.linuxfoundation.org
 
-On Tue, Jan 15, 2019 at 12:19:52PM +0000, Jean-Philippe Brucker wrote:
-> Implement the virtio-iommu driver, following specification v0.9 [1].
-> 
-> This is a simple rebase onto Linux v5.0-rc2. We now use the
-> dev_iommu_fwspec_get() helper introduced in v5.0 instead of accessing
-> dev->iommu_fwspec, but there aren't any functional change from v6 [2].
-> 
-> Our current goal for virtio-iommu is to get a paravirtual IOMMU working
-> on Arm, and enable device assignment to guest userspace. In this
-> use-case the mappings are static, and don't require optimal performance,
-> so this series tries to keep things simple. However there is plenty more
-> to do for features and optimizations, and having this base in v5.1 would
-> be good. Given that most of the changes are to drivers/iommu, I believe
-> the driver and future changes should go via the IOMMU tree.
-> 
-> You can find Linux driver and kvmtool device on v0.9.2 branches [3],
-> module and x86 support on virtio-iommu/devel. Also tested with Eric's
-> QEMU device [4]. Please note that the series depends on Robin's
-> probe-deferral fix [5], which will hopefully land in v5.0.
-> 
-> [1] Virtio-iommu specification v0.9, sources and pdf
->     git://linux-arm.org/virtio-iommu.git virtio-iommu/v0.9
->     http://jpbrucker.net/virtio-iommu/spec/v0.9/virtio-iommu-v0.9.pdf
-> 
-> [2] [PATCH v6 0/7] Add virtio-iommu driver
->     https://lists.linuxfoundation.org/pipermail/iommu/2018-December/032127.html
-> 
-> [3] git://linux-arm.org/linux-jpb.git virtio-iommu/v0.9.2
->     git://linux-arm.org/kvmtool-jpb.git virtio-iommu/v0.9.2
-> 
-> [4] [RFC v9 00/17] VIRTIO-IOMMU device
->     https://www.mail-archive.com/qemu-devel@nongnu.org/msg575578.html
-> 
-> [5] [PATCH] iommu/of: Fix probe-deferral
->     https://www.spinics.net/lists/arm-kernel/msg698371.html
+On Fri, 10 May 2019 16:10:13 +0200
+Cornelia Huck <cohuck@redhat.com> wrote:
 
-For virtio things:
-
-Acked-by: Michael S. Tsirkin <mst@redhat.com>
-
-
-
-> Jean-Philippe Brucker (7):
->   dt-bindings: virtio-mmio: Add IOMMU description
->   dt-bindings: virtio: Add virtio-pci-iommu node
->   of: Allow the iommu-map property to omit untranslated devices
->   PCI: OF: Initialize dev->fwnode appropriately
->   iommu: Add virtio-iommu driver
->   iommu/virtio: Add probe request
->   iommu/virtio: Add event queue
+> On Fri, 10 May 2019 00:11:12 +0200
+> Halil Pasic <pasic@linux.ibm.com> wrote:
 > 
->  .../devicetree/bindings/virtio/iommu.txt      |   66 +
->  .../devicetree/bindings/virtio/mmio.txt       |   30 +
->  MAINTAINERS                                   |    7 +
->  drivers/iommu/Kconfig                         |   11 +
->  drivers/iommu/Makefile                        |    1 +
->  drivers/iommu/virtio-iommu.c                  | 1158 +++++++++++++++++
->  drivers/of/base.c                             |   10 +-
->  drivers/pci/of.c                              |    7 +
->  include/uapi/linux/virtio_ids.h               |    1 +
->  include/uapi/linux/virtio_iommu.h             |  161 +++
->  10 files changed, 1449 insertions(+), 3 deletions(-)
->  create mode 100644 Documentation/devicetree/bindings/virtio/iommu.txt
->  create mode 100644 drivers/iommu/virtio-iommu.c
->  create mode 100644 include/uapi/linux/virtio_iommu.h
+> > On Thu, 9 May 2019 12:11:06 +0200
+> > Cornelia Huck <cohuck@redhat.com> wrote:
+> > 
+> > > On Wed, 8 May 2019 23:22:10 +0200
+> > > Halil Pasic <pasic@linux.ibm.com> wrote:
+> > >   
+> > > > On Wed, 8 May 2019 15:18:10 +0200 (CEST)
+> > > > Sebastian Ott <sebott@linux.ibm.com> wrote:  
+> > >   
+> > > > > > @@ -1063,6 +1163,7 @@ static int __init css_bus_init(void)
+> > > > > >  		unregister_reboot_notifier(&css_reboot_notifier);
+> > > > > >  		goto out_unregister;
+> > > > > >  	}
+> > > > > > +	cio_dma_pool_init();      
+> > > > > 
+> > > > > This is too late for early devices (ccw console!).    
+> > > > 
+> > > > You have already raised concern about this last time (thanks). I think,
+> > > > I've addressed this issue: the cio_dma_pool is only used by the airq
+> > > > stuff. I don't think the ccw console needs it. Please have an other look
+> > > > at patch #6, and explain your concern in more detail if it persists.  
+> > > 
+> > > What about changing the naming/adding comments here, so that (1) folks
+> > > aren't confused by the same thing in the future and (2) folks don't try
+> > > to use that pool for something needed for the early ccw consoles?
+> > >   
+> > 
+> > I'm all for clarity! Suggestions for better names?
 > 
-> -- 
-> 2.19.1
+> css_aiv_dma_pool, maybe? Or is there other cross-device stuff that may
+> need it?
+> 
+
+Ouch! I was considering to use cio_dma_zalloc() for the adapter
+interruption vectors but I ended up between the two chairs in the end.
+So with this series there are no uses for cio_dma pool.
+
+I don't feel strongly about this going one way the other.
+
+Against getting rid of the cio_dma_pool and sticking with the speaks
+dma_alloc_coherent() that we waste a DMA page per vector, which is a
+non obvious side effect.
+
+What speaks against cio_dma_pool is that it is slightly more code, and
+this currently can not be used for very early stuff, which I don't
+think is relevant. What also used to speak against it is that
+allocations asking for more than a page would just fail, but I addressed
+that in the patch I've hacked up on top of the series, and I'm going to
+paste below. While at it I addressed some other issues as well.
+
+I've also got code that deals with AIRQ_IV_CACHELINE by turning the
+kmem_cache into a dma_pool.
+
+Cornelia, Sebastian which approach do you prefer:
+1) get rid of cio_dma_pool and AIRQ_IV_CACHELINE, and waste a page per
+vector, or
+2) go with the approach taken by the patch below?
+
+
+Regards,
+Halil
+-----------------------8<---------------------------------------------
+From: Halil Pasic <pasic@linux.ibm.com>
+Date: Sun, 12 May 2019 18:08:05 +0200
+Subject: [PATCH] WIP: use cio dma pool for airqs
+
+Let's not waste a DMA page per adapter interrupt bit vector.
+---
+Lightly tested...
+---
+ arch/s390/include/asm/airq.h |  1 -
+ drivers/s390/cio/airq.c      | 10 +++-------
+ drivers/s390/cio/css.c       | 18 +++++++++++++++---
+ 3 files changed, 18 insertions(+), 11 deletions(-)
+
+diff --git a/arch/s390/include/asm/airq.h b/arch/s390/include/asm/airq.h
+index 1492d48..981a3eb 100644
+--- a/arch/s390/include/asm/airq.h
++++ b/arch/s390/include/asm/airq.h
+@@ -30,7 +30,6 @@ void unregister_adapter_interrupt(struct airq_struct *airq);
+ /* Adapter interrupt bit vector */
+ struct airq_iv {
+ 	unsigned long *vector;	/* Adapter interrupt bit vector */
+-	dma_addr_t vector_dma; /* Adapter interrupt bit vector dma */
+ 	unsigned long *avail;	/* Allocation bit mask for the bit vector */
+ 	unsigned long *bitlock;	/* Lock bit mask for the bit vector */
+ 	unsigned long *ptr;	/* Pointer associated with each bit */
+diff --git a/drivers/s390/cio/airq.c b/drivers/s390/cio/airq.c
+index 7a5c0a0..f11f437 100644
+--- a/drivers/s390/cio/airq.c
++++ b/drivers/s390/cio/airq.c
+@@ -136,8 +136,7 @@ struct airq_iv *airq_iv_create(unsigned long bits, unsigned long flags)
+ 		goto out;
+ 	iv->bits = bits;
+ 	size = iv_size(bits);
+-	iv->vector = dma_alloc_coherent(cio_get_dma_css_dev(), size,
+-						 &iv->vector_dma, GFP_KERNEL);
++	iv->vector = cio_dma_zalloc(size);
+ 	if (!iv->vector)
+ 		goto out_free;
+ 	if (flags & AIRQ_IV_ALLOC) {
+@@ -172,8 +171,7 @@ struct airq_iv *airq_iv_create(unsigned long bits, unsigned long flags)
+ 	kfree(iv->ptr);
+ 	kfree(iv->bitlock);
+ 	kfree(iv->avail);
+-	dma_free_coherent(cio_get_dma_css_dev(), size, iv->vector,
+-			  iv->vector_dma);
++	cio_dma_free(iv->vector, size);
+ 	kfree(iv);
+ out:
+ 	return NULL;
+@@ -189,9 +187,7 @@ void airq_iv_release(struct airq_iv *iv)
+ 	kfree(iv->data);
+ 	kfree(iv->ptr);
+ 	kfree(iv->bitlock);
+-	kfree(iv->vector);
+-	dma_free_coherent(cio_get_dma_css_dev(), iv_size(iv->bits),
+-			  iv->vector, iv->vector_dma);
++	cio_dma_free(iv->vector, iv_size(iv->bits));
+ 	kfree(iv->avail);
+ 	kfree(iv);
+ }
+diff --git a/drivers/s390/cio/css.c b/drivers/s390/cio/css.c
+index 7087cc3..88d9c92 100644
+--- a/drivers/s390/cio/css.c
++++ b/drivers/s390/cio/css.c
+@@ -1063,7 +1063,10 @@ struct gen_pool *cio_gp_dma_create(struct device *dma_dev, int nr_pages)
+ static void __gp_dma_free_dma(struct gen_pool *pool,
+ 			      struct gen_pool_chunk *chunk, void *data)
+ {
+-	dma_free_coherent((struct device *) data, PAGE_SIZE,
++
++	size_t chunk_size = chunk->end_addr - chunk->start_addr + 1;
++
++	dma_free_coherent((struct device *) data, chunk_size,
+ 			 (void *) chunk->start_addr,
+ 			 (dma_addr_t) chunk->phys_addr);
+ }
+@@ -1088,13 +1091,15 @@ void *cio_gp_dma_zalloc(struct gen_pool *gp_dma, struct device *dma_dev,
+ {
+ 	dma_addr_t dma_addr;
+ 	unsigned long addr = gen_pool_alloc(gp_dma, size);
++	size_t chunk_size;
+ 
+ 	if (!addr) {
++		chunk_size = round_up(size, PAGE_SIZE);
+ 		addr = (unsigned long) dma_alloc_coherent(dma_dev,
+-					PAGE_SIZE, &dma_addr, CIO_DMA_GFP);
++					 chunk_size, &dma_addr, CIO_DMA_GFP);
+ 		if (!addr)
+ 			return NULL;
+-		gen_pool_add_virt(gp_dma, addr, dma_addr, PAGE_SIZE, -1);
++		gen_pool_add_virt(gp_dma, addr, dma_addr, chunk_size, -1);
+ 		addr = gen_pool_alloc(gp_dma, size);
+ 	}
+ 	return (void *) addr;
+@@ -1108,6 +1113,13 @@ void cio_gp_dma_free(struct gen_pool *gp_dma, void *cpu_addr, size_t size)
+ 	gen_pool_free(gp_dma, (unsigned long) cpu_addr, size);
+ }
+ 
++/**
++ * Allocate dma memory from the css global pool. Intended for memory not
++ * specific to any single device within the css.
++ *
++ * Caution: Not suitable for early stuff like console.
++ *
++ */
+ void *cio_dma_zalloc(size_t size)
+ {
+ 	return cio_gp_dma_zalloc(cio_dma_pool, cio_get_dma_css_dev(), size);
+-- 
+2.5.5
