@@ -1,16 +1,19 @@
-From: Stefano Garzarella <sgarzare@redhat.com>
-Subject: Re: [PATCH v2 7/8] vsock/virtio: increase RX buffer size to 64 KiB
-Date: Mon, 13 May 2019 19:51:38 +0200
-Message-ID: <20190513175138.4yycad2xi65komw6__38461.9392849103$1557769914$gmane$org@steredhat>
-References: <20190510125843.95587-1-sgarzare@redhat.com>
-	<20190510125843.95587-8-sgarzare@redhat.com>
-	<bf0416f1-0e69-722d-75ce-3d101e6d7d71@redhat.com>
+From: Dan Williams <dan.j.williams@intel.com>
+Subject: Re: [Qemu-devel] [PATCH v8 3/6] libnvdimm: add dax_dev sync flag
+Date: Mon, 13 May 2019 10:52:39 -0700
+Message-ID: <CAPcyv4genJtCt6dp6N07_6RfPTwC6xXMhLp-dr0GWQy5q52YoA@mail.gmail.com>
+References: <20190510155202.14737-1-pagupta@redhat.com>
+	<20190510155202.14737-4-pagupta@redhat.com>
+	<CAPcyv4hbVNRFSyS2CTbmO88uhnbeH4eiukAng2cxgbDzLfizwg@mail.gmail.com>
+	<864186878.28040999.1557535549792.JavaMail.zimbra@redhat.com>
+	<CAPcyv4gL3ODfOr52Ztgq7BM4gVf1cih6cj0271gcpVvpi9aFSA@mail.gmail.com>
+	<2003480558.28042237.1557537797923.JavaMail.zimbra@redhat.com>
+	<116369545.28425569.1557768748009.JavaMail.zimbra@redhat.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="utf-8"
-Content-Transfer-Encoding: base64
+Content-Type: text/plain; charset="us-ascii"
+Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-Content-Disposition: inline
-In-Reply-To: <bf0416f1-0e69-722d-75ce-3d101e6d7d71@redhat.com>
+In-Reply-To: <116369545.28425569.1557768748009.JavaMail.zimbra@redhat.com>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -20,44 +23,45 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Jason Wang <jasowang@redhat.com>
-Cc: kvm@vger.kernel.org, "Michael S. Tsirkin" <mst@redhat.com>, netdev@vger.kernel.org, linux-kernel@vger.kernel.org, virtualization@lists.linux-foundation.org, Stefan Hajnoczi <stefanha@redhat.com>, "David S. Miller" <davem@davemloft.net>
+To: Pankaj Gupta <pagupta@redhat.com>
+Cc: Jan Kara <jack@suse.cz>, KVM list <kvm@vger.kernel.org>, "Michael S. Tsirkin" <mst@redhat.com>, david <david@fromorbit.com>, Qemu Developers <qemu-devel@nongnu.org>, virtualization@lists.linux-foundation.org, Andreas Dilger <adilger.kernel@dilger.ca>, Ross Zwisler <zwisler@kernel.org>, Andrea Arcangeli <aarcange@redhat.com>, Dave Jiang <dave.jiang@intel.com>, jstaron@google.com, linux-nvdimm <linux-nvdimm@lists.01.org>, Vishal L Verma <vishal.l.verma@intel.com>, Matthew Wilcox <willy@infradead.org>, Christoph Hellwig <hch@infradead.org>, Linux ACPI <linux-acpi@vger.kernel.org>, jmoyer <jmoyer@redhat.com>, linux-ext4 <linux-ext4@vger.kernel.org>, Len Brown <lenb@kernel.org>, Adam Borowski <kilobyte@angband.pl>, Rik van Riel <riel@surriel.com>, yuval shaia <yuval.shaia@oracle.com>, Stefan Hajnoczi <stefanha@redhat.com>, Igor Mammedov <imammedo@redhat.com>, lcapitulino@r
 List-Id: virtualization@lists.linuxfoundation.org
 
-T24gTW9uLCBNYXkgMTMsIDIwMTkgYXQgMDY6MDE6NTJQTSArMDgwMCwgSmFzb24gV2FuZyB3cm90
-ZToKPiAKPiBPbiAyMDE5LzUvMTAg5LiL5Y2IODo1OCwgU3RlZmFubyBHYXJ6YXJlbGxhIHdyb3Rl
-Ogo+ID4gSW4gb3JkZXIgdG8gaW5jcmVhc2UgaG9zdCAtPiBndWVzdCB0aHJvdWdocHV0IHdpdGgg
-bGFyZ2UgcGFja2V0cywKPiA+IHdlIGNhbiB1c2UgNjQgS2lCIFJYIGJ1ZmZlcnMuCj4gPiAKPiA+
-IFNpZ25lZC1vZmYtYnk6IFN0ZWZhbm8gR2FyemFyZWxsYSA8c2dhcnphcmVAcmVkaGF0LmNvbT4K
-PiA+IC0tLQo+ID4gICBpbmNsdWRlL2xpbnV4L3ZpcnRpb192c29jay5oIHwgMiArLQo+ID4gICAx
-IGZpbGUgY2hhbmdlZCwgMSBpbnNlcnRpb24oKyksIDEgZGVsZXRpb24oLSkKPiA+IAo+ID4gZGlm
-ZiAtLWdpdCBhL2luY2x1ZGUvbGludXgvdmlydGlvX3Zzb2NrLmggYi9pbmNsdWRlL2xpbnV4L3Zp
-cnRpb192c29jay5oCj4gPiBpbmRleCA4NGI3MjAyNmQzMjcuLjVhOWQyNWJlNzJkZiAxMDA2NDQK
-PiA+IC0tLSBhL2luY2x1ZGUvbGludXgvdmlydGlvX3Zzb2NrLmgKPiA+ICsrKyBiL2luY2x1ZGUv
-bGludXgvdmlydGlvX3Zzb2NrLmgKPiA+IEBAIC0xMCw3ICsxMCw3IEBACj4gPiAgICNkZWZpbmUg
-VklSVElPX1ZTT0NLX0RFRkFVTFRfTUlOX0JVRl9TSVpFCTEyOAo+ID4gICAjZGVmaW5lIFZJUlRJ
-T19WU09DS19ERUZBVUxUX0JVRl9TSVpFCQkoMTAyNCAqIDI1NikKPiA+ICAgI2RlZmluZSBWSVJU
-SU9fVlNPQ0tfREVGQVVMVF9NQVhfQlVGX1NJWkUJKDEwMjQgKiAyNTYpCj4gPiAtI2RlZmluZSBW
-SVJUSU9fVlNPQ0tfREVGQVVMVF9SWF9CVUZfU0laRQkoMTAyNCAqIDQpCj4gPiArI2RlZmluZSBW
-SVJUSU9fVlNPQ0tfREVGQVVMVF9SWF9CVUZfU0laRQkoMTAyNCAqIDY0KQo+ID4gICAjZGVmaW5l
-IFZJUlRJT19WU09DS19NQVhfQlVGX1NJWkUJCTB4RkZGRkZGRkZVTAo+ID4gICAjZGVmaW5lIFZJ
-UlRJT19WU09DS19NQVhfUEtUX0JVRl9TSVpFCQkoMTAyNCAqIDY0KQo+IAo+IAo+IFdlIHByb2Jh
-Ymx5IGRvbid0IHdhbnQgc3VjaCBoaWdoIG9yZGVyIGFsbG9jYXRpb24uIEl0J3MgYmV0dGVyIHRv
-IHN3aXRjaCB0bwo+IHVzZSBvcmRlciAwIHBhZ2VzIGluIHRoaXMgY2FzZS4gU2VlIGFkZF9yZWN2
-YnVmX2JpZygpIGZvciB2aXJ0aW8tbmV0LiBJZiB3ZQo+IGdldCBkYXRhcGF0aCB1bmlmaWVkLCB3
-ZSB3aWxsIGdldCBtb3JlIHN0dWZmcyBzZXQuCgpJSVVDLCB5b3UgYXJlIHN1Z2dlc3RpbmcgdG8g
-YWxsb2NhdGUgb25seSBwYWdlcyBhbmQgcHV0IHRoZW0gaW4gYQpzY2F0dGVybGlzdCwgdGhlbiBh
-ZGQgdGhlbSB0byB0aGUgdmlydHF1ZXVlLgoKSXMgaXQgY29ycmVjdD8KClRoZSBpc3N1ZSB0aGF0
-IEkgaGF2ZSBoZXJlLCBpcyB0aGF0IHRoZSB2aXJ0aW8tdnNvY2sgZ3Vlc3QgZHJpdmVyLCBzZWUK
-dmlydGlvX3Zzb2NrX3J4X2ZpbGwoKSwgYWxsb2NhdGVzIGEgc3RydWN0IHZpcnRpb192c29ja19w
-a3QgdGhhdApjb250YWlucyB0aGUgcm9vbSBmb3IgdGhlIGhlYWRlciwgdGhlbiBhbGxvY2F0ZXMg
-dGhlIGJ1ZmZlciBmb3IgdGhlIHBheWxvYWQuCkF0IHRoaXMgcG9pbnQgaXQgZmlsbHMgdGhlIHNj
-YXR0ZXJsaXN0IHdpdGggdGhlICZ2aXJ0aW9fdnNvY2tfcGt0LmhkciBhbmQgdGhlCmJ1ZmZlciBm
-b3IgdGhlIHBheWxvYWQuCgpDaGFuZ2luZyB0aGlzIHdpbGwgcmVxdWlyZSBzZXZlcmFsIG1vZGlm
-aWNhdGlvbnMsIGFuZCBpZiB3ZSBnZXQgZGF0YXBhdGgKdW5pZmllZCwgSSdtIG5vdCBzdXJlIGl0
-J3Mgd29ydGggaXQuCk9mIGNvdXJzZSwgaWYgd2UgbGVhdmUgdGhlIGRhdGFwYXRocyBzZXBhcmF0
-ZWQsIEknZCBsaWtlIHRvIGRvIHRoYXQgbGF0ZXIuCgpXaGF0IGRvIHlvdSB0aGluaz8KClRoYW5r
-cywKU3RlZmFubwpfX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19f
-XwpWaXJ0dWFsaXphdGlvbiBtYWlsaW5nIGxpc3QKVmlydHVhbGl6YXRpb25AbGlzdHMubGludXgt
-Zm91bmRhdGlvbi5vcmcKaHR0cHM6Ly9saXN0cy5saW51eGZvdW5kYXRpb24ub3JnL21haWxtYW4v
-bGlzdGluZm8vdmlydHVhbGl6YXRpb24=
+On Mon, May 13, 2019 at 10:32 AM Pankaj Gupta <pagupta@redhat.com> wrote:
+>
+>
+> Hi Dan,
+>
+> While testing device mapper with DAX, I faced a bug with the commit:
+>
+> commit ad428cdb525a97d15c0349fdc80f3d58befb50df
+> Author: Dan Williams <dan.j.williams@intel.com>
+> Date:   Wed Feb 20 21:12:50 2019 -0800
+>
+> When I reverted the condition to old code[1] it worked for me. I
+> am thinking when we map two different devices (e.g with device mapper), will
+> start & end pfn still point to same pgmap? Or there is something else which
+> I am missing here.
+>
+> Note: I tested only EXT4.
+>
+> [1]
+>
+> -               if (pgmap && pgmap->type == MEMORY_DEVICE_FS_DAX)
+> +               end_pgmap = get_dev_pagemap(pfn_t_to_pfn(end_pfn), NULL);
+> +               if (pgmap && pgmap == end_pgmap && pgmap->type == MEMORY_DEVICE_FS_DAX
+> +                               && pfn_t_to_page(pfn)->pgmap == pgmap
+> +                               && pfn_t_to_page(end_pfn)->pgmap == pgmap
+> +                               && pfn_t_to_pfn(pfn) == PHYS_PFN(__pa(kaddr))
+> +                               && pfn_t_to_pfn(end_pfn) == PHYS_PFN(__pa(end_kaddr)))
+
+Ugh, yes, device-mapper continues to be an awkward fit for dax (or
+vice versa). We would either need a way to have a multi-level pfn to
+pagemap lookup for composite devices, or a way to discern that even
+though the pagemap is different that the result is still valid / not
+an indication that we have leaked into an unassociated address range.
+Perhaps a per-daxdev callback for ->dax_supported() so that
+device-mapper internals can be used for this validation.
+
+We need to get that fixed up, but I don't see it as a blocker /
+pre-requisite for virtio-pmem.
