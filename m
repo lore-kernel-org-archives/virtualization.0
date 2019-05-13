@@ -1,20 +1,23 @@
-From: Pierre Morel <pmorel@linux.ibm.com>
-Subject: Re: [PATCH 08/10] virtio/s390: add indirection to indicators access
-Date: Fri, 10 May 2019 17:36:05 +0200
-Message-ID: <89074bc5-78ee-a2e3-0546-791a465f83bd@linux.ibm.com>
+From: Michael Mueller <mimu@linux.ibm.com>
+Subject: Re: [PATCH 01/10] virtio/s390: use vring_create_virtqueue
+Date: Mon, 13 May 2019 14:27:35 +0200
+Message-ID: <f2e52c29-ed4e-cf49-0fbf-e3bac97124e9@linux.ibm.com>
 References: <20190426183245.37939-1-pasic@linux.ibm.com>
-	<20190426183245.37939-9-pasic@linux.ibm.com>
-	<716d47ca-016f-e8f4-6d78-7746a7d9f6ba@linux.ibm.com>
-	<a4bf1976-8037-63bb-2cf6-c389edbd2e89@linux.ibm.com>
-	<20190509202600.4fd6aebe.pasic@linux.ibm.com>
-	<c1e03cf0-3773-de00-10ae-d092ffe7ccc5@linux.ibm.com>
-	<20190510135421.5363f14a.pasic@linux.ibm.com>
-Reply-To: pmorel@linux.ibm.com
+	<20190426183245.37939-2-pasic@linux.ibm.com>
+	<20190503111724.70c6ec37.cohuck@redhat.com>
+	<20190503160421-mutt-send-email-mst@kernel.org>
+	<20190504160340.29f17b98.pasic@linux.ibm.com>
+	<20190505131523.159bec7c.cohuck@redhat.com>
+	<ed6cbf63-f2ff-f259-ccb0-3b9ba60f2b35@de.ibm.com>
+	<20190510160744.00285367.cohuck@redhat.com>
+	<20190512124730-mutt-send-email-mst@kernel.org>
+	<20190513115227.1d316ec8.cohuck@redhat.com>
+Reply-To: mimu@linux.ibm.com
 Mime-Version: 1.0
-Content-Type: text/plain; charset="utf-8"; Format="flowed"
-Content-Transfer-Encoding: base64
+Content-Type: text/plain; charset="us-ascii"; Format="flowed"
+Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <20190510135421.5363f14a.pasic@linux.ibm.com>
+In-Reply-To: <20190513115227.1d316ec8.cohuck@redhat.com>
 Content-Language: en-US
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
@@ -25,96 +28,88 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Halil Pasic <pasic@linux.ibm.com>
-Cc: Vasily Gorbik <gor@linux.ibm.com>, linux-s390@vger.kernel.org, Thomas Huth <thuth@redhat.com>, Claudio Imbrenda <imbrenda@linux.ibm.com>, kvm@vger.kernel.org, Sebastian Ott <sebott@linux.ibm.com>, "Michael S. Tsirkin" <mst@redhat.com>, Cornelia Huck <cohuck@redhat.com>, Eric Farman <farman@linux.ibm.com>, virtualization@lists.linux-foundation.org, Christoph Hellwig <hch@infradead.org>, Martin Schwidefsky <schwidefsky@de.ibm.com>, Farhan Ali <alifm@linux.ibm.com>, Viktor Mihajlovski <mihajlov@linux.ibm.com>, Janosch Frank <frankja@linux.ibm.com>
+To: Cornelia Huck <cohuck@redhat.com>, "Michael S. Tsirkin" <mst@redhat.com>
+Cc: Vasily Gorbik <gor@linux.ibm.com>, linux-s390@vger.kernel.org, Thomas Huth <thuth@redhat.com>, Claudio Imbrenda <imbrenda@linux.ibm.com>, kvm@vger.kernel.org, Sebastian Ott <sebott@linux.ibm.com>, Christoph Hellwig <hch@infradead.org>, Farhan Ali <alifm@linux.ibm.com>, Eric Farman <farman@linux.ibm.com>, virtualization@lists.linux-foundation.org, Halil Pasic <pasic@linux.ibm.com>, Martin Schwidefsky <schwidefsky@de.ibm.com>, Viktor Mihajlovski <mihajlov@linux.ibm.com>, Janosch Frank <frankja@linux.ibm.com>
 List-Id: virtualization@lists.linuxfoundation.org
 
-T24gMTAvMDUvMjAxOSAxMzo1NCwgSGFsaWwgUGFzaWMgd3JvdGU6Cj4gT24gRnJpLCAxMCBNYXkg
-MjAxOSAwOTo0MzowOCArMDIwMAo+IFBpZXJyZSBNb3JlbCA8cG1vcmVsQGxpbnV4LmlibS5jb20+
-IHdyb3RlOgo+IAo+PiBPbiAwOS8wNS8yMDE5IDIwOjI2LCBIYWxpbCBQYXNpYyB3cm90ZToKPj4+
-IE9uIFRodSwgOSBNYXkgMjAxOSAxNDowMTowMSArMDIwMAo+Pj4gUGllcnJlIE1vcmVsIDxwbW9y
-ZWxAbGludXguaWJtLmNvbT4gd3JvdGU6Cj4+Pgo+Pj4+IE9uIDA4LzA1LzIwMTkgMTY6MzEsIFBp
-ZXJyZSBNb3JlbCB3cm90ZToKPj4+Pj4gT24gMjYvMDQvMjAxOSAyMDozMiwgSGFsaWwgUGFzaWMg
-d3JvdGU6Cj4+Pj4+PiBUaGlzIHdpbGwgY29tZSBpbiBoYW5keSBzb29uIHdoZW4gd2UgcHVsbCBv
-dXQgdGhlIGluZGljYXRvcnMgZnJvbQo+Pj4+Pj4gdmlydGlvX2Njd19kZXZpY2UgdG8gYSBtZW1v
-cnkgYXJlYSB0aGF0IGlzIHNoYXJlZCB3aXRoIHRoZSBoeXBlcnZpc29yCj4+Pj4+PiAoaW4gcGFy
-dGljdWxhciBmb3IgcHJvdGVjdGVkIHZpcnR1YWxpemF0aW9uIGd1ZXN0cykuCj4+Pj4+Pgo+Pj4+
-Pj4gU2lnbmVkLW9mZi1ieTogSGFsaWwgUGFzaWMgPHBhc2ljQGxpbnV4LmlibS5jb20+Cj4+Pj4+
-PiAtLS0KPj4+Pj4+ICAgwqAgZHJpdmVycy9zMzkwL3ZpcnRpby92aXJ0aW9fY2N3LmMgfCA0MAo+
-Pj4+Pj4gKysrKysrKysrKysrKysrKysrKysrKysrKy0tLS0tLS0tLS0tLS0tLQo+Pj4+Pj4gICDC
-oCAxIGZpbGUgY2hhbmdlZCwgMjUgaW5zZXJ0aW9ucygrKSwgMTUgZGVsZXRpb25zKC0pCj4+Pj4+
-Pgo+Pj4+Pj4gZGlmZiAtLWdpdCBhL2RyaXZlcnMvczM5MC92aXJ0aW8vdmlydGlvX2Njdy5jCj4+
-Pj4+PiBiL2RyaXZlcnMvczM5MC92aXJ0aW8vdmlydGlvX2Njdy5jCj4+Pj4+PiBpbmRleCBiYjdh
-OTIzMTZmYzguLjFmM2U3ZDU2OTI0ZiAxMDA2NDQKPj4+Pj4+IC0tLSBhL2RyaXZlcnMvczM5MC92
-aXJ0aW8vdmlydGlvX2Njdy5jCj4+Pj4+PiArKysgYi9kcml2ZXJzL3MzOTAvdmlydGlvL3ZpcnRp
-b19jY3cuYwo+Pj4+Pj4gQEAgLTY4LDYgKzY4LDE2IEBAIHN0cnVjdCB2aXJ0aW9fY2N3X2Rldmlj
-ZSB7Cj4+Pj4+PiAgIMKgwqDCoMKgwqAgdm9pZCAqYWlycV9pbmZvOwo+Pj4+Pj4gICDCoCB9Owo+
-Pj4+Pj4gK3N0YXRpYyBpbmxpbmUgdW5zaWduZWQgbG9uZyAqaW5kaWNhdG9ycyhzdHJ1Y3Qgdmly
-dGlvX2Njd19kZXZpY2UgKnZjZGV2KQo+Pj4+Pj4gK3sKPj4+Pj4+ICvCoMKgwqAgcmV0dXJuICZ2
-Y2Rldi0+aW5kaWNhdG9yczsKPj4+Pj4+ICt9Cj4+Pj4+PiArCj4+Pj4+PiArc3RhdGljIGlubGlu
-ZSB1bnNpZ25lZCBsb25nICppbmRpY2F0b3JzMihzdHJ1Y3QgdmlydGlvX2Njd19kZXZpY2UKPj4+
-Pj4+ICp2Y2RldikKPj4+Pj4+ICt7Cj4+Pj4+PiArwqDCoMKgIHJldHVybiAmdmNkZXYtPmluZGlj
-YXRvcnMyOwo+Pj4+Pj4gK30KPj4+Pj4+ICsKPj4+Pj4+ICAgwqAgc3RydWN0IHZxX2luZm9fYmxv
-Y2tfbGVnYWN5IHsKPj4+Pj4+ICAgwqDCoMKgwqDCoCBfX3U2NCBxdWV1ZTsKPj4+Pj4+ICAgwqDC
-oMKgwqDCoCBfX3UzMiBhbGlnbjsKPj4+Pj4+IEBAIC0zMzcsMTcgKzM0NywxNyBAQCBzdGF0aWMg
-dm9pZCB2aXJ0aW9fY2N3X2Ryb3BfaW5kaWNhdG9yKHN0cnVjdAo+Pj4+Pj4gdmlydGlvX2Njd19k
-ZXZpY2UgKnZjZGV2LAo+Pj4+Pj4gICDCoMKgwqDCoMKgwqDCoMKgwqAgY2N3LT5jZGEgPSAoX191
-MzIpKHVuc2lnbmVkIGxvbmcpIHRoaW5pbnRfYXJlYTsKPj4+Pj4+ICAgwqDCoMKgwqDCoCB9IGVs
-c2Ugewo+Pj4+Pj4gICDCoMKgwqDCoMKgwqDCoMKgwqAgLyogcGF5bG9hZCBpcyB0aGUgYWRkcmVz
-cyBvZiB0aGUgaW5kaWNhdG9ycyAqLwo+Pj4+Pj4gLcKgwqDCoMKgwqDCoMKgIGluZGljYXRvcnAg
-PSBrbWFsbG9jKHNpemVvZigmdmNkZXYtPmluZGljYXRvcnMpLAo+Pj4+Pj4gK8KgwqDCoMKgwqDC
-oMKgIGluZGljYXRvcnAgPSBrbWFsbG9jKHNpemVvZihpbmRpY2F0b3JzKHZjZGV2KSksCj4+Pj4+
-PiAgIMKgwqDCoMKgwqDCoMKgwqDCoMKgwqDCoMKgwqDCoMKgwqDCoMKgwqDCoMKgIEdGUF9ETUEg
-fCBHRlBfS0VSTkVMKTsKPj4+Pj4+ICAgwqDCoMKgwqDCoMKgwqDCoMKgIGlmICghaW5kaWNhdG9y
-cCkKPj4+Pj4+ICAgwqDCoMKgwqDCoMKgwqDCoMKgwqDCoMKgwqAgcmV0dXJuOwo+Pj4+Pj4gICDC
-oMKgwqDCoMKgwqDCoMKgwqAgKmluZGljYXRvcnAgPSAwOwo+Pj4+Pj4gICDCoMKgwqDCoMKgwqDC
-oMKgwqAgY2N3LT5jbWRfY29kZSA9IENDV19DTURfU0VUX0lORDsKPj4+Pj4+IC3CoMKgwqDCoMKg
-wqDCoCBjY3ctPmNvdW50ID0gc2l6ZW9mKCZ2Y2Rldi0+aW5kaWNhdG9ycyk7Cj4+Pj4+PiArwqDC
-oMKgwqDCoMKgwqAgY2N3LT5jb3VudCA9IHNpemVvZihpbmRpY2F0b3JzKHZjZGV2KSk7Cj4+Pj4+
-Cj4+Pj4+IFRoaXMgbG9va3Mgc3RyYW5nZSB0byBtZS4gV2FzIGFscmVhZHkgd2VpcmQgYmVmb3Jl
-Lgo+Pj4+PiBMdWNreSB3ZSBhcmUgaW5kaWNhdG9ycyBhcmUgbG9uZy4uLgo+Pj4+PiBtYXkgYmUg
-anVzdCBzaXplb2YobG9uZykKPj4+Pgo+Pj4KPj4+IEknbSBub3Qgc3VyZSBJIHVuZGVyc3RhbmQg
-d2hlcmUgYXJlIHlvdSBjb21pbmcgZnJvbS4uLgo+Pj4KPj4+IFdpdGggQ0NXX0NNRF9TRVRfSU5E
-IHdlIHRlbGwgdGhlIGh5cGVydmlzb3IgdGhlIGd1ZXN0IHBoeXNpY2FsIGFkZHJlc3MKPj4+IGF0
-IHdoaWNoIHRoZSBzbyBjYWxsZWQgY2xhc3NpYyBpbmRpY2F0b3JzLiBUaGVyZSBpcyBhIGNvbW1l
-bnQgdGhhdAo+Pj4gbWFrZXMgdGhpcyBvYnZpb3VzLiBUaGUgYXJndW1lbnQgb2YgdGhlIHNpemVv
-ZiB3YXMgYW5kIHJlbWFpbmVkIGEKPj4+IHBvaW50ZXIgdHlwZS4gQUZBSVUgdGhpcyBpcyB3aGF0
-IGJvdGhlcnMgeW91Lgo+Pj4+Cj4+Pj4gQUZBSUsgdGhlIHNpemUgb2YgdGhlIGluZGljYXRvcnMg
-KEFJVi9BSVMpIGlzIG5vdCByZXN0cmljdGVkIGJ5IHRoZQo+Pj4+IGFyY2hpdGVjdHVyZS4KPj4+
-Cj4+PiBUaGUgc2l6ZSBvZiB2Y2Rldi0+aW5kaWNhdG9ycyBpcyByZXN0cmljdGVkIG9yIGRlZmlu
-ZWQgYnkgdGhlIHZpcnRpbwo+Pj4gc3BlY2lmaWNhdGlvbi4gUGxlYXNlIGhhdmUgYSBsb29rIGF0
-ICc0LjMuMi42LjEgU2V0dGluZyBVcCBDbGFzc2ljIFF1ZXVlCj4+PiBJbmRpY2F0b3JzJyBoZXJl
-Ogo+Pj4gaHR0cHM6Ly9kb2NzLm9hc2lzLW9wZW4ub3JnL3ZpcnRpby92aXJ0aW8vdjEuMS9jczAx
-L3ZpcnRpby12MS4xLWNzMDEuaHRtbCN4MS0xNjMwMDAyCj4+Pgo+Pj4gU2luY2Ugd2l0aCBMaW51
-eCBvbiBzMzkwIG9ubHkgNjQgYml0IGlzIHN1cHBvcnRlZCwgYm90aCB0aGUgc2l6ZXMgYXJlIGlu
-Cj4+PiBsaW5lIHdpdGggdGhlIHNwZWNpZmljYXRpb24uIFVzaW5nIHU2NCB3b3VsZCBzZW1hbnRp
-Y2FsbHkgbWF0Y2ggdGhlIHNwZWMKPj4+IGJldHRlciwgbW9kdWxvIHByZSB2aXJ0aW8gMS4wIHdo
-aWNoIGFpbid0IHNwZWNpZmllZC4gSSBkaWQgbm90IHdhbnQgdG8KPj4+IGRvIGNoYW5nZXMgdGhh
-dCBhcmUgbm90IG5lY2Vzc2FyeSBmb3Igd2hhdCBJJ20gdHJ5aW5nIHRvIGFjY29tcGxpc2guIElm
-Cj4+PiB3ZSB3YW50IHdlIGNhbiBjaGFuZ2UgdGhlc2UgdG8gdTY0IHdpdGggYSBwYXRjaCBvbiB0
-b3AuCj4+Cj4+IEkgbWVhbiB5b3UgYXJlIGNoYW5naW5nIHRoZXNlIGxpbmUgYWxyZWFkeSwgc28g
-d2h5IG5vdCBkb2luZyBpdCByaWdodAo+PiB3aGlsZSBhdCBpdD8KPj4KPiAKPiBUaGlzIHBhdGNo
-IGlzIGFib3V0IGFkZGluZyB0aGUgaW5kaXJlY3Rpb24gc28gd2UgY2FuIG1vdmUgdGhlIG1lbWJl
-cgo+IHBhaW5sZXNzbHkuIE1peGluZyBpbiBkaWZmZXJlbnQgc3R1ZmYgd291bGQgYmUgYSBiYWQg
-cHJhY3RpY2UuCj4gCj4gQlRXIEkganVzdCBleHBsYWluZWQgdGhhdCBpdCBhaW4ndCB3cm9uZywg
-c28gSSByZWFsbHkgZG8gbm90IHVuZGVyc3RhbmQKPiB3aGF0IGRvIHlvdSBtZWFuIGJ5ICAnd2h5
-IG5vdCBkb2luZyBpdCByaWdodCcuIENhbiB5b3UgcGxlYXNlIGV4cGxhaW4/Cj4gCgpJIGRpZCBu
-b3Qgd2FudGVkIHRvIGRpc2N1c3MgYSBsb25nIHRpbWUgb24gdGhpcyBhbmQgZ2F2ZSBteSBSLUIs
-IHNvIAptZWFuaW5nIHRoYXQgSSBhbSBPSyB3aXRoIHRoaXMgcGF0Y2guCgpCdXQgaWYgeW91IGFz
-aywgeWVzIEkgY2FuLCBpdCBzZWVtcyBxdWl0ZSBvYnZpb3VzLgpXaGVuIHlvdSBidWlsZCBhIEND
-VyB5b3UgZ2l2ZSB0aGUgcG9pbnRlciB0byBDQ1ctPmNkYSBhbmQgeW91IGdpdmUgdGhlIApzaXpl
-IG9mIHRoZSB0cmFuc2ZlciBpbiBDQ1ctPmNvdW50LgoKSGVyZSB0aGUgY291bnQgaXMgaW5pdGlh
-bGl6ZWQgd2l0aCB0aGUgc2l6ZW9mIG9mIHRoZSBwb2ludGVyIHVzZWQgdG8gCmluaXRpYWxpemUg
-Q0NXLT5jZGEgd2l0aC4KTHVraWx5IHdlIHdvcmsgb24gYSA2NCBiaXRzIG1hY2hpbmUgd2l0aCA2
-NCBiaXRzIHBvaW50ZXJzIGFuZCB0aGUgc2l6ZSAKb2YgdGhlIHBvaW50ZWQgb2JqZWN0IGlzIDY0
-IGJpdHMgd2lkZSBzby4uLiB0aGUgcmVzdWx0aW5nIGNvdW50IGlzIHJpZ2h0LgpCdXQgaXQgaXMg
-bm90IHRoZSBjb3JyZWN0IHdheSB0byBkbyBpdC4KVGhhdCBpcyBhbGwuIE5vdCBhIGJpZyBjb25j
-ZXJuLCB5b3UgZG8gbm90IG5lZWQgdG8gY2hhbmdlIGl0LCBhcyB5b3UgCnNhaWQgaXQgY2FuIGJl
-IGRvbmUgaW4gYW5vdGhlciBwYXRjaC4KCj4gRGlkIHlvdSBhZ3JlZSB3aXRoIHRoZSByZXN0IG9m
-IG15IGNvbW1lbnQ/IEkgbWVhbiB0aGVyZSB3YXMgbW9yZSB0byBpdC4KPiAKCkkgdW5kZXJzdG9v
-ZCBmcm9tIHlvdXIgY29tbWVudHMgdGhhdCB0aGUgaW5kaWNhdG9ycyBpbiBMaW51eCBhcmUgNjRi
-aXRzIAp3aWRlIHNvIGFsbCBPSy4KClJlZ2FyZHMKUGllcnJlCgoKCgoKCi0tIApQaWVycmUgTW9y
-ZWwKTGludXgvS1ZNL1FFTVUgaW4gQsO2YmxpbmdlbiAtIEdlcm1hbnkKCl9fX19fX19fX19fX19f
-X19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fClZpcnR1YWxpemF0aW9uIG1haWxpbmcg
-bGlzdApWaXJ0dWFsaXphdGlvbkBsaXN0cy5saW51eC1mb3VuZGF0aW9uLm9yZwpodHRwczovL2xp
-c3RzLmxpbnV4Zm91bmRhdGlvbi5vcmcvbWFpbG1hbi9saXN0aW5mby92aXJ0dWFsaXphdGlvbg==
+
+
+On 13.05.19 11:52, Cornelia Huck wrote:
+> On Sun, 12 May 2019 12:47:39 -0400
+> "Michael S. Tsirkin" <mst@redhat.com> wrote:
+> 
+>> On Fri, May 10, 2019 at 04:07:44PM +0200, Cornelia Huck wrote:
+>>> On Tue, 7 May 2019 15:58:12 +0200
+>>> Christian Borntraeger <borntraeger@de.ibm.com> wrote:
+>>>    
+>>>> On 05.05.19 13:15, Cornelia Huck wrote:
+>>>>> On Sat, 4 May 2019 16:03:40 +0200
+>>>>> Halil Pasic <pasic@linux.ibm.com> wrote:
+>>>>>      
+>>>>>> On Fri, 3 May 2019 16:04:48 -0400
+>>>>>> "Michael S. Tsirkin" <mst@redhat.com> wrote:
+>>>>>>     
+>>>>>>> On Fri, May 03, 2019 at 11:17:24AM +0200, Cornelia Huck wrote:
+>>>>>>>> On Fri, 26 Apr 2019 20:32:36 +0200
+>>>>>>>> Halil Pasic <pasic@linux.ibm.com> wrote:
+>>>>>>>>        
+>>>>>>>>> The commit 2a2d1382fe9d ("virtio: Add improved queue allocation API")
+>>>>>>>>> establishes a new way of allocating virtqueues (as a part of the effort
+>>>>>>>>> that taught DMA to virtio rings).
+>>>>>>>>>
+>>>>>>>>> In the future we will want virtio-ccw to use the DMA API as well.
+>>>>>>>>>
+>>>>>>>>> Let us switch from the legacy method of allocating virtqueues to
+>>>>>>>>> vring_create_virtqueue() as the first step into that direction.
+>>>>>>>>>
+>>>>>>>>> Signed-off-by: Halil Pasic <pasic@linux.ibm.com>
+>>>>>>>>> ---
+>>>>>>>>>   drivers/s390/virtio/virtio_ccw.c | 30 +++++++++++-------------------
+>>>>>>>>>   1 file changed, 11 insertions(+), 19 deletions(-)
+>>>>>>>>
+>>>>>>>> Reviewed-by: Cornelia Huck <cohuck@redhat.com>
+>>>>>>>>
+>>>>>>>> I'd vote for merging this patch right away for 5.2.
+>>>>>>>
+>>>>>>> So which tree is this going through? mine?
+>>>>>>>        
+>>>>>>
+>>>>>> Christian, what do you think? If the whole series is supposed to go in
+>>>>>> in one go (which I hope it is), via Martin's tree could be the simplest
+>>>>>> route IMHO.
+>>>>>
+>>>>>
+>>>>> The first three patches are virtio(-ccw) only and the those are the ones
+>>>>> that I think are ready to go.
+>>>>>
+>>>>> I'm not feeling comfortable going forward with the remainder as it
+>>>>> stands now; waiting for some other folks to give feedback. (They are
+>>>>> touching/interacting with code parts I'm not so familiar with, and lack
+>>>>> of documentation, while not the developers' fault, does not make it
+>>>>> easier.)
+>>>>>
+>>>>> Michael, would you like to pick up 1-3 for your tree directly? That
+>>>>> looks like the easiest way.
+>>>>
+>>>> Agreed. Michael please pick 1-3.
+>>>> We will continue to review 4- first and then see which tree is best.
+>>>
+>>> Michael, please let me know if you'll pick directly or whether I should
+>>> post a series.
+>>>
+>>> [Given that the patches are from one virtio-ccw maintainer and reviewed
+>>> by the other, picking directly would eliminate an unnecessary
+>>> indirection :)]
+>>
+>> picked them
+> 
+> Thanks!
+> 
+
+Connie,
+
+if I get you right here, you don't need a v2 for the
+patches 1 through 3?
+
+Thanks,
+Michael
