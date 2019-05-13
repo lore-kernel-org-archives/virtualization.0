@@ -1,16 +1,18 @@
-From: Stefano Garzarella <sgarzare@redhat.com>
-Subject: Re: [PATCH v2 1/8] vsock/virtio: limit the memory used per-socket
-Date: Mon, 13 May 2019 19:23:22 +0200
-Message-ID: <20190513172322.vcgenx7xk4v6r2ay__48978.102165141$1557768222$gmane$org@steredhat>
-References: <20190510125843.95587-1-sgarzare@redhat.com>
-	<20190510125843.95587-2-sgarzare@redhat.com>
-	<3b275b52-63d9-d260-1652-8e8bf7dd679f@redhat.com>
+From: Pankaj Gupta <pagupta@redhat.com>
+Subject: Re: [Qemu-devel] [PATCH v8 3/6] libnvdimm: add dax_dev sync flag
+Date: Mon, 13 May 2019 13:32:28 -0400 (EDT)
+Message-ID: <116369545.28425569.1557768748009.JavaMail.zimbra__23462.6878331014$1557768772$gmane$org@redhat.com>
+References: <20190510155202.14737-1-pagupta@redhat.com>
+	<20190510155202.14737-4-pagupta@redhat.com>
+	<CAPcyv4hbVNRFSyS2CTbmO88uhnbeH4eiukAng2cxgbDzLfizwg@mail.gmail.com>
+	<864186878.28040999.1557535549792.JavaMail.zimbra@redhat.com>
+	<CAPcyv4gL3ODfOr52Ztgq7BM4gVf1cih6cj0271gcpVvpi9aFSA@mail.gmail.com>
+	<2003480558.28042237.1557537797923.JavaMail.zimbra@redhat.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="utf-8"
-Content-Transfer-Encoding: base64
+Content-Type: text/plain; charset="us-ascii"
+Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-Content-Disposition: inline
-In-Reply-To: <3b275b52-63d9-d260-1652-8e8bf7dd679f@redhat.com>
+In-Reply-To: <2003480558.28042237.1557537797923.JavaMail.zimbra@redhat.com>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -20,105 +22,37 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Jason Wang <jasowang@redhat.com>
-Cc: kvm@vger.kernel.org, "Michael S. Tsirkin" <mst@redhat.com>, netdev@vger.kernel.org, linux-kernel@vger.kernel.org, virtualization@lists.linux-foundation.org, Stefan Hajnoczi <stefanha@redhat.com>, "David S. Miller" <davem@davemloft.net>
+To: Dan Williams <dan.j.williams@intel.com>
+Cc: Jan Kara <jack@suse.cz>, KVM list <kvm@vger.kernel.org>, "Michael S. Tsirkin" <mst@redhat.com>, david <david@fromorbit.com>, Qemu Developers <qemu-devel@nongnu.org>, virtualization@lists.linux-foundation.org, Andreas Dilger <adilger.kernel@dilger.ca>, Ross Zwisler <zwisler@kernel.org>, Andrea Arcangeli <aarcange@redhat.com>, Dave Jiang <dave.jiang@intel.com>, jstaron@google.com, linux-nvdimm <linux-nvdimm@lists.01.org>, Vishal L Verma <vishal.l.verma@intel.com>, Matthew Wilcox <willy@infradead.org>, Christoph Hellwig <hch@infradead.org>, Linux ACPI <linux-acpi@vger.kernel.org>, jmoyer <jmoyer@redhat.com>, linux-ext4 <linux-ext4@vger.kernel.org>, Len Brown <lenb@kernel.org>, Adam Borowski <kilobyte@angband.pl>, Rik van Riel <riel@surriel.com>, yuval shaia <yuval.shaia@oracle.com>, Stefan Hajnoczi <stefanha@redhat.com>, Igor Mammedov <imammedo@redhat.com>, lcapitulino@r
 List-Id: virtualization@lists.linuxfoundation.org
 
-T24gTW9uLCBNYXkgMTMsIDIwMTkgYXQgMDU6NTg6NTNQTSArMDgwMCwgSmFzb24gV2FuZyB3cm90
-ZToKPiAKPiBPbiAyMDE5LzUvMTAg5LiL5Y2IODo1OCwgU3RlZmFubyBHYXJ6YXJlbGxhIHdyb3Rl
-Ogo+ID4gU2luY2UgdmlydGlvLXZzb2NrIHdhcyBpbnRyb2R1Y2VkLCB0aGUgYnVmZmVycyBmaWxs
-ZWQgYnkgdGhlIGhvc3QKPiA+IGFuZCBwdXNoZWQgdG8gdGhlIGd1ZXN0IHVzaW5nIHRoZSB2cmlu
-ZywgYXJlIGRpcmVjdGx5IHF1ZXVlZCBpbgo+ID4gYSBwZXItc29ja2V0IGxpc3QgYXZvaWRpbmcg
-dG8gY29weSBpdC4KPiA+IFRoZXNlIGJ1ZmZlcnMgYXJlIHByZWFsbG9jYXRlZCBieSB0aGUgZ3Vl
-c3Qgd2l0aCBhIGZpeGVkCj4gPiBzaXplICg0IEtCKS4KPiA+IAo+ID4gVGhlIG1heGltdW0gYW1v
-dW50IG9mIG1lbW9yeSB1c2VkIGJ5IGVhY2ggc29ja2V0IHNob3VsZCBiZQo+ID4gY29udHJvbGxl
-ZCBieSB0aGUgY3JlZGl0IG1lY2hhbmlzbS4KPiA+IFRoZSBkZWZhdWx0IGNyZWRpdCBhdmFpbGFi
-bGUgcGVyLXNvY2tldCBpcyAyNTYgS0IsIGJ1dCBpZiB3ZSB1c2UKPiA+IG9ubHkgMSBieXRlIHBl
-ciBwYWNrZXQsIHRoZSBndWVzdCBjYW4gcXVldWUgdXAgdG8gMjYyMTQ0IG9mIDQgS0IKPiA+IGJ1
-ZmZlcnMsIHVzaW5nIHVwIHRvIDEgR0Igb2YgbWVtb3J5IHBlci1zb2NrZXQuIEluIGFkZGl0aW9u
-LCB0aGUKPiA+IGd1ZXN0IHdpbGwgY29udGludWUgdG8gZmlsbCB0aGUgdnJpbmcgd2l0aCBuZXcg
-NCBLQiBmcmVlIGJ1ZmZlcnMKPiA+IHRvIGF2b2lkIHN0YXJ2YXRpb24gb2Ygb3RoZXIgc29ja2V0
-cy4KPiA+IAo+ID4gVGhpcyBwYXRjaCBzb2x2ZXMgdGhpcyBpc3N1ZSBjb3B5aW5nIHRoZSBwYXls
-b2FkIGluIGEgbmV3IGJ1ZmZlci4KPiA+IFRoZW4gaXQgaXMgcXVldWVkIGluIHRoZSBwZXItc29j
-a2V0IGxpc3QsIGFuZCB0aGUgNEtCIGJ1ZmZlciB1c2VkCj4gPiBieSB0aGUgaG9zdCBpcyBmcmVl
-ZC4KPiA+IAo+ID4gSW4gdGhpcyB3YXksIHRoZSBtZW1vcnkgdXNlZCBieSBlYWNoIHNvY2tldCBy
-ZXNwZWN0cyB0aGUgY3JlZGl0Cj4gPiBhdmFpbGFibGUsIGFuZCB3ZSBzdGlsbCBhdm9pZCBzdGFy
-dmF0aW9uLCBwYXlpbmcgdGhlIGNvc3Qgb2YgYW4KPiA+IGV4dHJhIG1lbW9yeSBjb3B5LiBXaGVu
-IHRoZSBidWZmZXIgaXMgY29tcGxldGVseSBmdWxsIHdlIGRvIGEKPiA+ICJ6ZXJvLWNvcHkiLCBt
-b3ZpbmcgdGhlIGJ1ZmZlciBkaXJlY3RseSBpbiB0aGUgcGVyLXNvY2tldCBsaXN0Lgo+IAo+IAo+
-IEkgd29uZGVyIGluIHRoZSBsb25nIHJ1biB3ZSBzaG91bGQgdXNlIGdlbmVyaWMgc29ja2V0IGFj
-Y291dGluZyBtZWNoYW5pc20KPiBwcm92aWRlZCBieSBrZXJuZWwgKGUuZyBzb2NrZXQsIHNrYiwg
-c25kYnVmLCByZWN2YnVnLCB0cnVlc2l6ZSkgaW5zdGVhZCBvZgo+IHZzb2NrIHNwZWNpZmljIHRo
-aW5nIHRvIGF2b2lkIGR1cGxpY2F0aW5nIGVmZm9ydHMuCgpJIGFncmVlLCB0aGUgaWRlYSBpcyB0
-byBzd2l0Y2ggdG8gc2tfYnVmZiBidXQgdGhpcyBzaG91bGQgcmVxdWlyZSBhbiBodWdlCmNoYW5n
-ZS4gSWYgd2Ugd2lsbCB1c2UgdGhlIHZpcnRpby1uZXQgZGF0YXBhdGgsIGl0IHdpbGwgYmVjb21l
-IHNpbXBsZXIuCgo+IAo+IAo+ID4gCj4gPiBTaWduZWQtb2ZmLWJ5OiBTdGVmYW5vIEdhcnphcmVs
-bGEgPHNnYXJ6YXJlQHJlZGhhdC5jb20+Cj4gPiAtLS0KPiA+ICAgZHJpdmVycy92aG9zdC92c29j
-ay5jICAgICAgICAgICAgICAgICAgIHwgIDIgKwo+ID4gICBpbmNsdWRlL2xpbnV4L3ZpcnRpb192
-c29jay5oICAgICAgICAgICAgfCAgOCArKysKPiA+ICAgbmV0L3Ztd192c29jay92aXJ0aW9fdHJh
-bnNwb3J0LmMgICAgICAgIHwgIDEgKwo+ID4gICBuZXQvdm13X3Zzb2NrL3ZpcnRpb190cmFuc3Bv
-cnRfY29tbW9uLmMgfCA5NSArKysrKysrKysrKysrKysrKystLS0tLS0tCj4gPiAgIDQgZmlsZXMg
-Y2hhbmdlZCwgODEgaW5zZXJ0aW9ucygrKSwgMjUgZGVsZXRpb25zKC0pCj4gPiAKPiA+IGRpZmYg
-LS1naXQgYS9kcml2ZXJzL3Zob3N0L3Zzb2NrLmMgYi9kcml2ZXJzL3Zob3N0L3Zzb2NrLmMKPiA+
-IGluZGV4IGJiNWZjMGU5ZmJjMi4uNzk2NGUyZGFlZTA5IDEwMDY0NAo+ID4gLS0tIGEvZHJpdmVy
-cy92aG9zdC92c29jay5jCj4gPiArKysgYi9kcml2ZXJzL3Zob3N0L3Zzb2NrLmMKPiA+IEBAIC0z
-MjAsNiArMzIwLDggQEAgdmhvc3RfdnNvY2tfYWxsb2NfcGt0KHN0cnVjdCB2aG9zdF92aXJ0cXVl
-dWUgKnZxLAo+ID4gICAJCXJldHVybiBOVUxMOwo+ID4gICAJfQo+ID4gKwlwa3QtPmJ1Zl9sZW4g
-PSBwa3QtPmxlbjsKPiA+ICsKPiA+ICAgCW5ieXRlcyA9IGNvcHlfZnJvbV9pdGVyKHBrdC0+YnVm
-LCBwa3QtPmxlbiwgJmlvdl9pdGVyKTsKPiA+ICAgCWlmIChuYnl0ZXMgIT0gcGt0LT5sZW4pIHsK
-PiA+ICAgCQl2cV9lcnIodnEsICJFeHBlY3RlZCAldSBieXRlIHBheWxvYWQsIGdvdCAlenUgYnl0
-ZXNcbiIsCj4gPiBkaWZmIC0tZ2l0IGEvaW5jbHVkZS9saW51eC92aXJ0aW9fdnNvY2suaCBiL2lu
-Y2x1ZGUvbGludXgvdmlydGlvX3Zzb2NrLmgKPiA+IGluZGV4IGUyMjNlMjYzMmVkZC4uMzQ1ZjA0
-ZWU5MTkzIDEwMDY0NAo+ID4gLS0tIGEvaW5jbHVkZS9saW51eC92aXJ0aW9fdnNvY2suaAo+ID4g
-KysrIGIvaW5jbHVkZS9saW51eC92aXJ0aW9fdnNvY2suaAo+ID4gQEAgLTU0LDkgKzU0LDE3IEBA
-IHN0cnVjdCB2aXJ0aW9fdnNvY2tfcGt0IHsKPiA+ICAgCXZvaWQgKmJ1ZjsKPiA+ICAgCXUzMiBs
-ZW47Cj4gPiAgIAl1MzIgb2ZmOwo+ID4gKwl1MzIgYnVmX2xlbjsKPiA+ICAgCWJvb2wgcmVwbHk7
-Cj4gPiAgIH07Cj4gPiArc3RydWN0IHZpcnRpb192c29ja19idWYgewo+ID4gKwlzdHJ1Y3QgbGlz
-dF9oZWFkIGxpc3Q7Cj4gPiArCXZvaWQgKmFkZHI7Cj4gPiArCXUzMiBsZW47Cj4gPiArCXUzMiBv
-ZmY7Cj4gPiArfTsKPiA+ICsKPiA+ICAgc3RydWN0IHZpcnRpb192c29ja19wa3RfaW5mbyB7Cj4g
-PiAgIAl1MzIgcmVtb3RlX2NpZCwgcmVtb3RlX3BvcnQ7Cj4gPiAgIAlzdHJ1Y3QgdnNvY2tfc29j
-ayAqdnNrOwo+ID4gZGlmZiAtLWdpdCBhL25ldC92bXdfdnNvY2svdmlydGlvX3RyYW5zcG9ydC5j
-IGIvbmV0L3Ztd192c29jay92aXJ0aW9fdHJhbnNwb3J0LmMKPiA+IGluZGV4IDE1ZWI1ZDNkNDc1
-MC4uYWYxZDJjZTEyZjU0IDEwMDY0NAo+ID4gLS0tIGEvbmV0L3Ztd192c29jay92aXJ0aW9fdHJh
-bnNwb3J0LmMKPiA+ICsrKyBiL25ldC92bXdfdnNvY2svdmlydGlvX3RyYW5zcG9ydC5jCj4gPiBA
-QCAtMjgwLDYgKzI4MCw3IEBAIHN0YXRpYyB2b2lkIHZpcnRpb192c29ja19yeF9maWxsKHN0cnVj
-dCB2aXJ0aW9fdnNvY2sgKnZzb2NrKQo+ID4gICAJCQlicmVhazsKPiA+ICAgCQl9Cj4gPiArCQlw
-a3QtPmJ1Zl9sZW4gPSBidWZfbGVuOwo+ID4gICAJCXBrdC0+bGVuID0gYnVmX2xlbjsKPiA+ICAg
-CQlzZ19pbml0X29uZSgmaGRyLCAmcGt0LT5oZHIsIHNpemVvZihwa3QtPmhkcikpOwo+ID4gZGlm
-ZiAtLWdpdCBhL25ldC92bXdfdnNvY2svdmlydGlvX3RyYW5zcG9ydF9jb21tb24uYyBiL25ldC92
-bXdfdnNvY2svdmlydGlvX3RyYW5zcG9ydF9jb21tb24uYwo+ID4gaW5kZXggNjAyNzE1ZmM5YTc1
-Li4wMjQ4ZDY4MDg3NTUgMTAwNjQ0Cj4gPiAtLS0gYS9uZXQvdm13X3Zzb2NrL3ZpcnRpb190cmFu
-c3BvcnRfY29tbW9uLmMKPiA+ICsrKyBiL25ldC92bXdfdnNvY2svdmlydGlvX3RyYW5zcG9ydF9j
-b21tb24uYwo+ID4gQEAgLTY1LDYgKzY1LDkgQEAgdmlydGlvX3RyYW5zcG9ydF9hbGxvY19wa3Qo
-c3RydWN0IHZpcnRpb192c29ja19wa3RfaW5mbyAqaW5mbywKPiA+ICAgCQlwa3QtPmJ1ZiA9IGtt
-YWxsb2MobGVuLCBHRlBfS0VSTkVMKTsKPiA+ICAgCQlpZiAoIXBrdC0+YnVmKQo+ID4gICAJCQln
-b3RvIG91dF9wa3Q7Cj4gPiArCj4gPiArCQlwa3QtPmJ1Zl9sZW4gPSBsZW47Cj4gPiArCj4gPiAg
-IAkJZXJyID0gbWVtY3B5X2Zyb21fbXNnKHBrdC0+YnVmLCBpbmZvLT5tc2csIGxlbik7Cj4gPiAg
-IAkJaWYgKGVycikKPiA+ICAgCQkJZ290byBvdXQ7Cj4gPiBAQCAtODYsNiArODksNDYgQEAgdmly
-dGlvX3RyYW5zcG9ydF9hbGxvY19wa3Qoc3RydWN0IHZpcnRpb192c29ja19wa3RfaW5mbyAqaW5m
-bywKPiA+ICAgCXJldHVybiBOVUxMOwo+ID4gICB9Cj4gPiArc3RhdGljIHN0cnVjdCB2aXJ0aW9f
-dnNvY2tfYnVmICoKPiA+ICt2aXJ0aW9fdHJhbnNwb3J0X2FsbG9jX2J1ZihzdHJ1Y3QgdmlydGlv
-X3Zzb2NrX3BrdCAqcGt0LCBib29sIHplcm9fY29weSkKPiA+ICt7Cj4gPiArCXN0cnVjdCB2aXJ0
-aW9fdnNvY2tfYnVmICpidWY7Cj4gPiArCj4gPiArCWlmIChwa3QtPmxlbiA9PSAwKQo+ID4gKwkJ
-cmV0dXJuIE5VTEw7Cj4gPiArCj4gPiArCWJ1ZiA9IGt6YWxsb2Moc2l6ZW9mKCpidWYpLCBHRlBf
-S0VSTkVMKTsKPiA+ICsJaWYgKCFidWYpCj4gPiArCQlyZXR1cm4gTlVMTDsKPiA+ICsKPiA+ICsJ
-LyogSWYgdGhlIGJ1ZmZlciBpbiB0aGUgdmlydGlvX3Zzb2NrX3BrdCBpcyBmdWxsLCB3ZSBjYW4g
-bW92ZSBpdCB0bwo+ID4gKwkgKiB0aGUgbmV3IHZpcnRpb192c29ja19idWYgYXZvaWRpbmcgdGhl
-IGNvcHksIGJlY2F1c2Ugd2UgYXJlIHN1cmUgdGhhdAo+ID4gKwkgKiB3ZSBhcmUgbm90IHVzZSBt
-b3JlIG1lbW9yeSB0aGFuIHRoYXQgY291bnRlZCBieSB0aGUgY3JlZGl0IG1lY2hhbmlzbS4KPiA+
-ICsJICovCj4gPiArCWlmICh6ZXJvX2NvcHkgJiYgcGt0LT5sZW4gPT0gcGt0LT5idWZfbGVuKSB7
-Cj4gPiArCQlidWYtPmFkZHIgPSBwa3QtPmJ1ZjsKPiA+ICsJCXBrdC0+YnVmID0gTlVMTDsKPiA+
-ICsJfSBlbHNlIHsKPiAKPiAKPiBJcyB0aGUgY29weSBzdGlsbCBuZWVkZWQgaWYgd2UncmUganVz
-dCBmZXcgYnl0ZXMgbGVzcz8gV2UgbWVldCBzaW1pbGFyIGlzc3VlCj4gZm9yIHZpcml0by1uZXQs
-IGFuZCB2aXJ0aW8tbmV0IHNvbHZlIHRoaXMgYnkgYWx3YXlzIGNvcHkgZmlyc3QgMTI4Ynl0ZXMg
-Zm9yCj4gYmlnIHBhY2tldHMuCj4gCj4gU2VlIHJlY2VpdmVfYmlnKCkKCkknbSBzZWVpbmcsIEl0
-IGlzIG1vcmUgc29waGlzdGljYXRlZC4KSUlVQywgdmlydGlvLW5ldCBhbGxvY2F0ZXMgYSBza19i
-dWZmIHdpdGggMTI4IGJ5dGVzIG9mIGJ1ZmZlciwgdGhlbiBjb3BpZXMgdGhlCmZpcnN0IDEyOCBi
-eXRlcywgdGhlbiBhZGRzIHRoZSBidWZmZXIgdXNlZCB0byByZWNlaXZlIHRoZSBwYWNrZXQgYXMg
-YSBmcmFnIHRvCnRoZSBza2IuCgpEbyB5b3Ugc3VnZ2VzdCB0byBpbXBsZW1lbnQgc29tZXRoaW5n
-IHNpbWlsYXIsIG9yIGZvciBub3cgd2UgY2FuIHVzZSBteQphcHByb2FjaCBhbmQgaWYgd2Ugd2ls
-bCBtZXJnZSB0aGUgZGF0YXBhdGggd2UgY2FuIHJldXNlIHRoZSB2aXJ0aW8tbmV0CmFwcHJvYWNo
-PwoKVGhhbmtzLApTdGVmYW5vCl9fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19f
-X19fX19fX19fClZpcnR1YWxpemF0aW9uIG1haWxpbmcgbGlzdApWaXJ0dWFsaXphdGlvbkBsaXN0
-cy5saW51eC1mb3VuZGF0aW9uLm9yZwpodHRwczovL2xpc3RzLmxpbnV4Zm91bmRhdGlvbi5vcmcv
-bWFpbG1hbi9saXN0aW5mby92aXJ0dWFsaXphdGlvbg==
+
+Hi Dan,
+
+While testing device mapper with DAX, I faced a bug with the commit:
+
+commit ad428cdb525a97d15c0349fdc80f3d58befb50df
+Author: Dan Williams <dan.j.williams@intel.com>
+Date:   Wed Feb 20 21:12:50 2019 -0800
+
+When I reverted the condition to old code[1] it worked for me. I 
+am thinking when we map two different devices (e.g with device mapper), will 
+start & end pfn still point to same pgmap? Or there is something else which
+I am missing here. 
+
+Note: I tested only EXT4.
+
+[1]
+
+-               if (pgmap && pgmap->type == MEMORY_DEVICE_FS_DAX)
++               end_pgmap = get_dev_pagemap(pfn_t_to_pfn(end_pfn), NULL);
++               if (pgmap && pgmap == end_pgmap && pgmap->type == MEMORY_DEVICE_FS_DAX
++                               && pfn_t_to_page(pfn)->pgmap == pgmap
++                               && pfn_t_to_page(end_pfn)->pgmap == pgmap
++                               && pfn_t_to_pfn(pfn) == PHYS_PFN(__pa(kaddr))
++                               && pfn_t_to_pfn(end_pfn) == PHYS_PFN(__pa(end_kaddr)))
+                        dax_enabled = true;
+                put_dev_pagemap(pgmap);
+
+Thanks,
+Pankaj
