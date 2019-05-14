@@ -1,12 +1,13 @@
-From: "Michael S. Tsirkin" <mst@redhat.com>
-Subject: [PULL] vhost: cleanups and fixes
-Date: Tue, 14 May 2019 17:11:47 -0400
-Message-ID: <20190514171147-mutt-send-email-mst__47928.0927496561$1557868330$gmane$org@kernel.org>
+From: pr-tracker-bot@kernel.org
+Subject: Re: [PULL] vhost: cleanups and fixes
+Date: Tue, 14 May 2019 21:20:14 +0000
+Message-ID: <155786881470.21399.17909669772085382895.pr-tracker-bot__34468.9008359396$1557868829$gmane$org@kernel.org>
+References: <20190514171147-mutt-send-email-mst@kernel.org>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="utf-8"
-Content-Transfer-Encoding: base64
+Content-Type: text/plain; charset="us-ascii"
+Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-Content-Disposition: inline
+In-Reply-To: <20190514171147-mutt-send-email-mst@kernel.org>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -16,36 +17,18 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Linus Torvalds <torvalds@linux-foundation.org>
-Cc: andrea.parri@amarulasolutions.com, kvm@vger.kernel.org, mst@redhat.com, netdev@vger.kernel.org, yuehaibing@huawei.com, linux-kernel@vger.kernel.org, virtualization@lists.linux-foundation.org, pasic@linux.ibm.com, j.neuschaefer@gmx.net, pbonzini@redhat.com, benbjiang@tencent.com
+Cc: andrea.parri@amarulasolutions.com, kvm@vger.kernel.org, mst@redhat.com, netdev@vger.kernel.org, yuehaibing@huawei.com, linux-kernel@vger.kernel.org, virtualization@lists.linux-foundation.org, pasic@linux.ibm.com, j.neuschaefer@gmx.net, pbonzini@redhat.com, benbjiang@tencent.com, Linus Torvalds <torvalds@linux-foundation.org>
 List-Id: virtualization@lists.linuxfoundation.org
 
-VGhlIGZvbGxvd2luZyBjaGFuZ2VzIHNpbmNlIGNvbW1pdCBlOTNjOWM5OWE2MjljNjE4MzdkNWE3
-ZmMyMTIwY2QyYjZjNzBkYmRkOgoKICBMaW51eCA1LjEgKDIwMTktMDUtMDUgMTc6NDI6NTggLTA3
-MDApCgphcmUgYXZhaWxhYmxlIGluIHRoZSBHaXQgcmVwb3NpdG9yeSBhdDoKCiAgZ2l0Oi8vZ2l0
-Lmtlcm5lbC5vcmcvcHViL3NjbS9saW51eC9rZXJuZWwvZ2l0L21zdC92aG9zdC5naXQgdGFncy9m
-b3JfbGludXMKCmZvciB5b3UgdG8gZmV0Y2ggY2hhbmdlcyB1cCB0byAwNTBmNGM0ZDJmYmJkODIx
-N2Q5NGRjMjEwNTFjYzU5N2QyYTY4NDhiOgoKICB2aXJ0aW8vczM5MDogZW5hYmxlIHBhY2tlZCBy
-aW5nICgyMDE5LTA1LTEyIDEzOjExOjM2IC0wNDAwKQoKLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0t
-LS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLQp2aXJ0aW86IGZpeGVzLCBm
-ZWF0dXJlcwoKczM5MCBoYXMgcGFja2VkIHJpbmcgc3VwcG9ydC4Kc2V2ZXJhbCBmaXhlcy4KClNp
-Z25lZC1vZmYtYnk6IE1pY2hhZWwgUy4gVHNpcmtpbiA8bXN0QHJlZGhhdC5jb20+CgotLS0tLS0t
-LS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0t
-CkhhbGlsIFBhc2ljICgzKToKICAgICAgdmlydGlvL3MzOTA6IHVzZSB2cmluZ19jcmVhdGVfdmly
-dHF1ZXVlCiAgICAgIHZpcnRpby9zMzkwOiBETUEgc3VwcG9ydCBmb3IgdmlydGlvLWNjdwogICAg
-ICB2aXJ0aW8vczM5MDogZW5hYmxlIHBhY2tlZCByaW5nCgpKaWFuZyBCaWFvICgxKToKICAgICAg
-dmlydGlvL3ZpcnRpb19yaW5nOiBkbyBzb21lIGNvbW1lbnQgZml4ZXMKCkpvbmF0aGFuIE5ldXNj
-aMOkZmVyICgxKToKICAgICAgdG9vbHMvdmlydGlvL3Jpbmd0ZXN0OiBSZW1vdmUgYm9ndXMgZGVm
-aW5pdGlvbiBvZiBCVUdfT04oKQoKUGFvbG8gQm9uemluaSAoMSk6CiAgICAgIHZob3N0LXNjc2k6
-IHJlbW92ZSBpbmNvcnJlY3QgbWVtb3J5IGJhcnJpZXIKCll1ZUhhaWJpbmcgKDEpOgogICAgICB2
-aXJ0aW9fcmluZzogRml4IHBvdGVudGlhbCBtZW0gbGVhayBpbiB2aXJ0cXVldWVfYWRkX2luZGly
-ZWN0X3BhY2tlZAoKIGRyaXZlcnMvczM5MC92aXJ0aW8vdmlydGlvX2Njdy5jIHwgNTIgKysrKysr
-KysrKysrKysrKysrKy0tLS0tLS0tLS0tLS0tLS0tLS0tLQogZHJpdmVycy92aG9zdC9zY3NpLmMg
-ICAgICAgICAgICAgfCAgMSAtCiBkcml2ZXJzL3ZpcnRpby92aXJ0aW9fcmluZy5jICAgICB8IDI4
-ICsrKysrKysrKysrKy0tLS0tLS0tLS0KIGluY2x1ZGUvbGludXgvdmlydGlvLmggICAgICAgICAg
-IHwgMTcgLS0tLS0tLS0tLS0tLQogdG9vbHMvdmlydGlvL3Jpbmd0ZXN0L3B0cl9yaW5nLmMgfCAg
-MSAtCiA1IGZpbGVzIGNoYW5nZWQsIDQwIGluc2VydGlvbnMoKyksIDU5IGRlbGV0aW9ucygtKQpf
-X19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fXwpWaXJ0dWFsaXph
-dGlvbiBtYWlsaW5nIGxpc3QKVmlydHVhbGl6YXRpb25AbGlzdHMubGludXgtZm91bmRhdGlvbi5v
-cmcKaHR0cHM6Ly9saXN0cy5saW51eGZvdW5kYXRpb24ub3JnL21haWxtYW4vbGlzdGluZm8vdmly
-dHVhbGl6YXRpb24=
+The pull request you sent on Tue, 14 May 2019 17:11:47 -0400:
+
+> git://git.kernel.org/pub/scm/linux/kernel/git/mst/vhost.git tags/for_linus
+
+has been merged into torvalds/linux.git:
+https://git.kernel.org/torvalds/c/35c99ffa20edd3c24be352d28a63cd3a23121282
+
+Thank you!
+
+-- 
+Deet-doot-dot, I am a bot.
+https://korg.wiki.kernel.org/userdoc/prtracker
