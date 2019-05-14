@@ -1,15 +1,20 @@
-From: Jason Wang <jasowang@redhat.com>
-Subject: Re: [PATCH net] vhost: don't use kmap() to log dirty pages
-Date: Tue, 14 May 2019 11:42:11 +0800
-Message-ID: <c8369a44-f4e0-4132-b470-cca7a044bb02__48131.395904214$1557805354$gmane$org@redhat.com>
-References: <1557725265-63525-1-git-send-email-jasowang@redhat.com>
-	<20190513.094218.1962516460150696760.davem@davemloft.net>
+From: Pankaj Gupta <pagupta@redhat.com>
+Subject: Re: [Qemu-devel] [PATCH v8 3/6] libnvdimm: add dax_dev sync flag
+Date: Tue, 14 May 2019 01:27:17 -0400 (EDT)
+Message-ID: <676644679.28490825.1557811637861.JavaMail.zimbra@redhat.com>
+References: <20190510155202.14737-1-pagupta@redhat.com>
+	<20190510155202.14737-4-pagupta@redhat.com>
+	<CAPcyv4hbVNRFSyS2CTbmO88uhnbeH4eiukAng2cxgbDzLfizwg@mail.gmail.com>
+	<864186878.28040999.1557535549792.JavaMail.zimbra@redhat.com>
+	<CAPcyv4gL3ODfOr52Ztgq7BM4gVf1cih6cj0271gcpVvpi9aFSA@mail.gmail.com>
+	<2003480558.28042237.1557537797923.JavaMail.zimbra@redhat.com>
+	<116369545.28425569.1557768748009.JavaMail.zimbra@redhat.com>
+	<CAPcyv4genJtCt6dp6N07_6RfPTwC6xXMhLp-dr0GWQy5q52YoA@mail.gmail.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="utf-8"; Format="flowed"
-Content-Transfer-Encoding: base64
+Content-Type: text/plain; charset="us-ascii"
+Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <20190513.094218.1962516460150696760.davem@davemloft.net>
-Content-Language: en-US
+In-Reply-To: <CAPcyv4genJtCt6dp6N07_6RfPTwC6xXMhLp-dr0GWQy5q52YoA@mail.gmail.com>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -19,36 +24,59 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: David Miller <davem@davemloft.net>
-Cc: aarcange@redhat.com, James.Bottomley@HansenPartnership.com, kvm@vger.kernel.org, mst@redhat.com, peterz@infradead.org, netdev@vger.kernel.org, linux-kernel@vger.kernel.org, virtualization@lists.linux-foundation.org, hch@infradead.org, mingo@redhat.com, dvhart@infradead.org, tglx@linutronix.de
+To: Dan Williams <dan.j.williams@intel.com>
+Cc: Jan Kara <jack@suse.cz>, KVM list <kvm@vger.kernel.org>, "Michael S. Tsirkin" <mst@redhat.com>, david <david@fromorbit.com>, Qemu Developers <qemu-devel@nongnu.org>, virtualization@lists.linux-foundation.org, Andreas Dilger <adilger.kernel@dilger.ca>, Ross Zwisler <zwisler@kernel.org>, Andrea Arcangeli <aarcange@redhat.com>, Dave Jiang <dave.jiang@intel.com>, jstaron@google.com, linux-nvdimm <linux-nvdimm@lists.01.org>, Vishal L Verma <vishal.l.verma@intel.com>, Matthew Wilcox <willy@infradead.org>, Christoph Hellwig <hch@infradead.org>, Linux ACPI <linux-acpi@vger.kernel.org>, jmoyer <jmoyer@redhat.com>, linux-ext4 <linux-ext4@vger.kernel.org>, Len Brown <lenb@kernel.org>, Adam Borowski <kilobyte@angband.pl>, Rik van Riel <riel@surriel.com>, yuval shaia <yuval.shaia@oracle.com>, Stefan Hajnoczi <stefanha@redhat.com>, Paolo Bonzini <pbonzini@redhat.com>, lcapitulino@r
 List-Id: virtualization@lists.linuxfoundation.org
 
-Ck9uIDIwMTkvNS8xNCDkuIrljYgxMjo0MiwgRGF2aWQgTWlsbGVyIHdyb3RlOgo+IEZyb206IEph
-c29uIFdhbmcgPGphc293YW5nQHJlZGhhdC5jb20+Cj4gRGF0ZTogTW9uLCAxMyBNYXkgMjAxOSAw
-MToyNzo0NSAtMDQwMAo+Cj4+IFZob3N0IGxvZyBkaXJ0eSBwYWdlcyBkaXJlY3RseSB0byBhIHVz
-ZXJzcGFjZSBiaXRtYXAgdGhyb3VnaCBHVVAgYW5kCj4+IGttYXBfYXRvbWljKCkgc2luY2Uga2Vy
-bmVsIGRvZXNuJ3QgaGF2ZSBhIHNldF9iaXRfdG9fdXNlcigpCj4+IGhlbHBlci4gVGhpcyB3aWxs
-IGNhdXNlIGlzc3VlcyBmb3IgdGhlIGFyY2ggdGhhdCBoYXMgdmlydHVhbGx5IHRhZ2dlZAo+PiBj
-YWNoZXMuIFRoZSB3YXkgdG8gZml4IGlzIHRvIGtlZXAgdXNpbmcgdXNlcnNwYWNlIHZpcnR1YWwK
-Pj4gYWRkcmVzcy4gRm9ydHVuYXRlbHksIGZ1dGV4IGhhcyBhcmNoX2Z1dGV4X2F0b21pY19vcF9p
-bnVzZXIoKSB3aGljaAo+PiBjb3VsZCBiZSB1c2VkIGZvciBzZXR0aW5nIGEgYml0IHRvIHVzZXIu
-Cj4+Cj4+IE5vdGUgdGhlcmUncmUgc2V2ZXJhbCBjYXNlcyB0aGF0IGZ1dGV4IGhlbHBlciBjYW4g
-ZmFpbCBlLmcgYSBwYWdlCj4+IGZhdWx0IG9yIHRoZSBhcmNoIHRoYXQgZG9lc24ndCBoYXZlIHRo
-ZSBzdXBwb3J0LiBGb3IgdGhvc2UgY2FzZXMsIGEKPj4gc2ltcGxpZmllZCBnZXRfdXNlcigpL3B1
-dF91c2VyKCkgcGFpciBwcm90ZWN0ZWQgYnkgYSBnbG9iYWwgbXV0ZXggaXMKPj4gcHJvdmlkZWQg
-YXMgYSBmYWxsYmFjay4gVGhlIGZhbGxiYWNrIG1heSBsZWFkIGZhbHNlIHBvc2l0aXZlIHRoYXQK
-Pj4gdXNlcnNwYWNlIG1heSBzZWUgbW9yZSBkaXJ0eSBwYWdlcy4KPj4KPj4gQ2M6IENocmlzdG9w
-aCBIZWxsd2lnIDxoY2hAaW5mcmFkZWFkLm9yZz4KPj4gQ2M6IEphbWVzIEJvdHRvbWxleSA8SmFt
-ZXMuQm90dG9tbGV5QEhhbnNlblBhcnRuZXJzaGlwLmNvbT4KPj4gQ2M6IEFuZHJlYSBBcmNhbmdl
-bGkgPGFhcmNhbmdlQHJlZGhhdC5jb20+Cj4+IENjOiBUaG9tYXMgR2xlaXhuZXIgPHRnbHhAbGlu
-dXRyb25peC5kZT4KPj4gQ2M6IEluZ28gTW9sbmFyIDxtaW5nb0ByZWRoYXQuY29tPgo+PiBDYzog
-UGV0ZXIgWmlqbHN0cmEgPHBldGVyekBpbmZyYWRlYWQub3JnPgo+PiBDYzogRGFycmVuIEhhcnQg
-PGR2aGFydEBpbmZyYWRlYWQub3JnPgo+PiBGaXhlczogM2E0ZDVjOTRlOTU5MyAoInZob3N0X25l
-dDogYSBrZXJuZWwtbGV2ZWwgdmlydGlvIHNlcnZlciIpCj4+IFNpZ25lZC1vZmYtYnk6IEphc29u
-IFdhbmcgPGphc293YW5nQHJlZGhhdC5jb20+Cj4gSSB3YW50IHRvIHNlZSBhIHJldmlldyBmcm9t
-IE1pY2hhZWwgZm9yIHRoaXMgY2hhbmdlIGJlZm9yZSBhcHBseWluZy4KCgpObyBwcm9ibGVtLCBz
-aW5jZSBrYnVpbGQgc3BvdHRlZCBhbiBpc3N1ZS4gTGV0IG1lIHBvc3QgVjIuCgpUaGFua3MKCl9f
-X19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fClZpcnR1YWxpemF0
-aW9uIG1haWxpbmcgbGlzdApWaXJ0dWFsaXphdGlvbkBsaXN0cy5saW51eC1mb3VuZGF0aW9uLm9y
-ZwpodHRwczovL2xpc3RzLmxpbnV4Zm91bmRhdGlvbi5vcmcvbWFpbG1hbi9saXN0aW5mby92aXJ0
-dWFsaXphdGlvbg==
+
+> >
+> >
+> > Hi Dan,
+> >
+> > While testing device mapper with DAX, I faced a bug with the commit:
+> >
+> > commit ad428cdb525a97d15c0349fdc80f3d58befb50df
+> > Author: Dan Williams <dan.j.williams@intel.com>
+> > Date:   Wed Feb 20 21:12:50 2019 -0800
+> >
+> > When I reverted the condition to old code[1] it worked for me. I
+> > am thinking when we map two different devices (e.g with device mapper),
+> > will
+> > start & end pfn still point to same pgmap? Or there is something else which
+> > I am missing here.
+> >
+> > Note: I tested only EXT4.
+> >
+> > [1]
+> >
+> > -               if (pgmap && pgmap->type == MEMORY_DEVICE_FS_DAX)
+> > +               end_pgmap = get_dev_pagemap(pfn_t_to_pfn(end_pfn), NULL);
+> > +               if (pgmap && pgmap == end_pgmap && pgmap->type ==
+> > MEMORY_DEVICE_FS_DAX
+> > +                               && pfn_t_to_page(pfn)->pgmap == pgmap
+> > +                               && pfn_t_to_page(end_pfn)->pgmap == pgmap
+> > +                               && pfn_t_to_pfn(pfn) ==
+> > PHYS_PFN(__pa(kaddr))
+> > +                               && pfn_t_to_pfn(end_pfn) ==
+> > PHYS_PFN(__pa(end_kaddr)))
+> 
+> Ugh, yes, device-mapper continues to be an awkward fit for dax (or
+> vice versa). We would either need a way to have a multi-level pfn to
+> pagemap lookup for composite devices, or a way to discern that even
+> though the pagemap is different that the result is still valid / not
+> an indication that we have leaked into an unassociated address range.
+> Perhaps a per-daxdev callback for ->dax_supported() so that
+> device-mapper internals can be used for this validation.
+
+Yes, Will look at it.
+
+> 
+> We need to get that fixed up, but I don't see it as a blocker /
+> pre-requisite for virtio-pmem.
+
+Agree. Will send virtio-pmem patch series.
+
+Thank you,
+Pankaj
+> 
+> 
