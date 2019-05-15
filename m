@@ -1,16 +1,16 @@
-From: "Jason J. Herne" <jjherne@linux.ibm.com>
-Subject: Re: [PATCH 06/10] s390/cio: add basic protected virtualization support
-Date: Tue, 14 May 2019 10:47:34 -0400
-Message-ID: <d0ffefec-a14e-ee83-0aae-df288c3ffda4@linux.ibm.com>
+From: Michael Mueller <mimu@linux.ibm.com>
+Subject: Re: [PATCH 10/10] virtio/s390: make airq summary indicators DMA
+Date: Wed, 15 May 2019 15:33:02 +0200
+Message-ID: <7c21b646-df27-88b6-6b06-3aab7887ff0a@linux.ibm.com>
 References: <20190426183245.37939-1-pasic@linux.ibm.com>
-	<20190426183245.37939-7-pasic@linux.ibm.com>
-	<20190513114136.783c851c.cohuck@redhat.com>
-Reply-To: jjherne@linux.ibm.com
+	<20190426183245.37939-11-pasic@linux.ibm.com>
+	<74ff9a63-891a-7e24-0865-8cc91a95cada@linux.ibm.com>
+Reply-To: mimu@linux.ibm.com
 Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"; Format="flowed"
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset="utf-8"; Format="flowed"
+Content-Transfer-Encoding: base64
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <20190513114136.783c851c.cohuck@redhat.com>
+In-Reply-To: <74ff9a63-891a-7e24-0865-8cc91a95cada@linux.ibm.com>
 Content-Language: en-US
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
@@ -21,89 +21,99 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Cornelia Huck <cohuck@redhat.com>, Halil Pasic <pasic@linux.ibm.com>
-Cc: Vasily Gorbik <gor@linux.ibm.com>, linux-s390@vger.kernel.org, Thomas Huth <thuth@redhat.com>, Claudio Imbrenda <imbrenda@linux.ibm.com>, kvm@vger.kernel.org, Sebastian Ott <sebott@linux.ibm.com>, "Michael S. Tsirkin" <mst@redhat.com>, Farhan Ali <alifm@linux.ibm.com>, Eric Farman <farman@linux.ibm.com>, virtualization@lists.linux-foundation.org, Christoph Hellwig <hch@infradead.org>, Martin Schwidefsky <schwidefsky@de.ibm.com>, Viktor Mihajlovski <mihajlov@linux.ibm.com>, Janosch Frank <frankja@linux.ibm.com>
+To: pmorel@linux.ibm.com, Halil Pasic <pasic@linux.ibm.com>, kvm@vger.kernel.org, linux-s390@vger.kernel.org, Cornelia Huck <cohuck@redhat.com>, Martin Schwidefsky <schwidefsky@de.ibm.com>, Sebastian Ott <sebott@linux.ibm.com>
+Cc: Thomas Huth <thuth@redhat.com>, Claudio Imbrenda <imbrenda@linux.ibm.com>, Janosch Frank <frankja@linux.ibm.com>, Vasily Gorbik <gor@linux.ibm.com>, "Michael S. Tsirkin" <mst@redhat.com>, Farhan Ali <alifm@linux.ibm.com>, Eric Farman <farman@linux.ibm.com>, virtualization@lists.linux-foundation.org, Christoph Hellwig <hch@infradead.org>, Viktor Mihajlovski <mihajlov@linux.ibm.com>
 List-Id: virtualization@lists.linuxfoundation.org
 
-On 5/13/19 5:41 AM, Cornelia Huck wrote:
-> On Fri, 26 Apr 2019 20:32:41 +0200
-> Halil Pasic <pasic@linux.ibm.com> wrote:
-> 
->> As virtio-ccw devices are channel devices, we need to use the dma area
->> for any communication with the hypervisor.
->>
->> This patch addresses the most basic stuff (mostly what is required for
->> virtio-ccw), and does take care of QDIO or any devices.
-> 
-> "does not take care of QDIO", surely? (Also, what does "any devices"
-> mean? Do you mean "every arbitrary device", perhaps?)
-> 
->>
->> An interesting side effect is that virtio structures are now going to
->> get allocated in 31 bit addressable storage.
-> 
-> Hm...
-> 
->>
->> Signed-off-by: Halil Pasic <pasic@linux.ibm.com>
->> ---
->>   arch/s390/include/asm/ccwdev.h   |  4 +++
->>   drivers/s390/cio/ccwreq.c        |  8 ++---
->>   drivers/s390/cio/device.c        | 65 +++++++++++++++++++++++++++++++++-------
->>   drivers/s390/cio/device_fsm.c    | 40 ++++++++++++-------------
->>   drivers/s390/cio/device_id.c     | 18 +++++------
->>   drivers/s390/cio/device_ops.c    | 21 +++++++++++--
->>   drivers/s390/cio/device_pgid.c   | 20 ++++++-------
->>   drivers/s390/cio/device_status.c | 24 +++++++--------
->>   drivers/s390/cio/io_sch.h        | 21 +++++++++----
->>   drivers/s390/virtio/virtio_ccw.c | 10 -------
->>   10 files changed, 148 insertions(+), 83 deletions(-)
-> 
-> (...)
-> 
->> diff --git a/drivers/s390/virtio/virtio_ccw.c b/drivers/s390/virtio/virtio_ccw.c
->> index 6d989c360f38..bb7a92316fc8 100644
->> --- a/drivers/s390/virtio/virtio_ccw.c
->> +++ b/drivers/s390/virtio/virtio_ccw.c
->> @@ -66,7 +66,6 @@ struct virtio_ccw_device {
->>   	bool device_lost;
->>   	unsigned int config_ready;
->>   	void *airq_info;
->> -	u64 dma_mask;
->>   };
->>   
->>   struct vq_info_block_legacy {
->> @@ -1255,16 +1254,7 @@ static int virtio_ccw_online(struct ccw_device *cdev)
->>   		ret = -ENOMEM;
->>   		goto out_free;
->>   	}
->> -
->>   	vcdev->vdev.dev.parent = &cdev->dev;
->> -	cdev->dev.dma_mask = &vcdev->dma_mask;
->> -	/* we are fine with common virtio infrastructure using 64 bit DMA */
->> -	ret = dma_set_mask_and_coherent(&cdev->dev, DMA_BIT_MASK(64));
->> -	if (ret) {
->> -		dev_warn(&cdev->dev, "Failed to enable 64-bit DMA.\n");
->> -		goto out_free;
->> -	}
-> 
-> This means that vring structures now need to fit into 31 bits as well,
-> I think? Is there any way to reserve the 31 bit restriction for channel
-> subsystem structures and keep vring in the full 64 bit range? (Or am I
-> fundamentally misunderstanding something?)
-> 
-
-I hope I've understood everything... I'm new to virtio. But from what I'm understanding, 
-the vring structure (a.k.a. the VirtQueue) needs to be accessed and modified by both host 
-and guest. Therefore the page(s) holding that data need to be marked shared if using 
-protected virtualization. This patch set makes use of DMA pages by way of swiotlb (always 
-below 32-bit line right?) for shared memory. Therefore, a side effect is that all shared 
-memory, including VirtQueue data will be in the DMA zone and in 32-bit memory.
-
-I don't see any restrictions on sharing pages above the 32-bit line. So it seems possible. 
-I'm not sure how much more work it would be. I wonder if Halil has considered this? Are we 
-worried that virtio data structures are going to be a burden on the 31-bit address space?
-
-
--- 
--- Jason J. Herne (jjherne@linux.ibm.com)
+CgpPbiAwOC4wNS4xOSAxNzoxMSwgUGllcnJlIE1vcmVsIHdyb3RlOgo+IE9uIDI2LzA0LzIwMTkg
+MjA6MzIsIEhhbGlsIFBhc2ljIHdyb3RlOgo+PiBIeXBlcnZpc29yIG5lZWRzIHRvIGludGVyYWN0
+IHdpdGggdGhlIHN1bW1hcnkgaW5kaWNhdG9ycywgc28gdGhlc2UKPj4gbmVlZCB0byBiZSBETUEg
+bWVtb3J5IGFzIHdlbGwgKGF0IGxlYXN0IGZvciBwcm90ZWN0ZWQgdmlydHVhbGl6YXRpb24KPj4g
+Z3Vlc3RzKS4KPj4KPj4gU2lnbmVkLW9mZi1ieTogSGFsaWwgUGFzaWMgPHBhc2ljQGxpbnV4Lmli
+bS5jb20+Cj4+IC0tLQo+PiDCoCBkcml2ZXJzL3MzOTAvdmlydGlvL3ZpcnRpb19jY3cuYyB8IDI0
+ICsrKysrKysrKysrKysrKysrLS0tLS0tLQo+PiDCoCAxIGZpbGUgY2hhbmdlZCwgMTcgaW5zZXJ0
+aW9ucygrKSwgNyBkZWxldGlvbnMoLSkKPj4KPj4gZGlmZiAtLWdpdCBhL2RyaXZlcnMvczM5MC92
+aXJ0aW8vdmlydGlvX2Njdy5jIAo+PiBiL2RyaXZlcnMvczM5MC92aXJ0aW8vdmlydGlvX2Njdy5j
+Cj4+IGluZGV4IDYxM2IxODAwMWEwYy4uNjA1OGIwN2ZlYTA4IDEwMDY0NAo+PiAtLS0gYS9kcml2
+ZXJzL3MzOTAvdmlydGlvL3ZpcnRpb19jY3cuYwo+PiArKysgYi9kcml2ZXJzL3MzOTAvdmlydGlv
+L3ZpcnRpb19jY3cuYwo+PiBAQCAtMTQwLDExICsxNDAsMTcgQEAgc3RhdGljIGludCB2aXJ0aW9f
+Y2N3X3VzZV9haXJxID0gMTsKPj4gwqAgc3RydWN0IGFpcnFfaW5mbyB7Cj4+IMKgwqDCoMKgwqAg
+cndsb2NrX3QgbG9jazsKPj4gLcKgwqDCoCB1OCBzdW1tYXJ5X2luZGljYXRvcjsKPj4gK8KgwqDC
+oCB1OCBzdW1tYXJ5X2luZGljYXRvcl9pZHg7Cj4+IMKgwqDCoMKgwqAgc3RydWN0IGFpcnFfc3Ry
+dWN0IGFpcnE7Cj4+IMKgwqDCoMKgwqAgc3RydWN0IGFpcnFfaXYgKmFpdjsKPj4gwqAgfTsKPj4g
+wqAgc3RhdGljIHN0cnVjdCBhaXJxX2luZm8gKmFpcnFfYXJlYXNbTUFYX0FJUlFfQVJFQVNdOwo+
+PiArc3RhdGljIHU4ICpzdW1tYXJ5X2luZGljYXRvcnM7Cj4+ICsKPj4gK3N0YXRpYyBpbmxpbmUg
+dTggKmdldF9zdW1tYXJ5X2luZGljYXRvcihzdHJ1Y3QgYWlycV9pbmZvICppbmZvKQo+PiArewo+
+PiArwqDCoMKgIHJldHVybiBzdW1tYXJ5X2luZGljYXRvcnMgKyBpbmZvLT5zdW1tYXJ5X2luZGlj
+YXRvcl9pZHg7Cj4+ICt9Cj4+IMKgICNkZWZpbmUgQ0NXX0NNRF9TRVRfVlEgMHgxMwo+PiDCoCAj
+ZGVmaW5lIENDV19DTURfVkRFVl9SRVNFVCAweDMzCj4+IEBAIC0yMjUsNyArMjMxLDcgQEAgc3Rh
+dGljIHZvaWQgdmlydGlvX2FpcnFfaGFuZGxlcihzdHJ1Y3QgYWlycV9zdHJ1Y3QgCj4+ICphaXJx
+KQo+PiDCoMKgwqDCoMKgwqDCoMKgwqDCoMKgwqDCoCBicmVhazsKPj4gwqDCoMKgwqDCoMKgwqDC
+oMKgIHZyaW5nX2ludGVycnVwdCgwLCAodm9pZCAqKWFpcnFfaXZfZ2V0X3B0cihpbmZvLT5haXYs
+IGFpKSk7Cj4+IMKgwqDCoMKgwqAgfQo+PiAtwqDCoMKgIGluZm8tPnN1bW1hcnlfaW5kaWNhdG9y
+ID0gMDsKPj4gK8KgwqDCoCAqKGdldF9zdW1tYXJ5X2luZGljYXRvcihpbmZvKSkgPSAwOwo+PiDC
+oMKgwqDCoMKgIHNtcF93bWIoKTsKPj4gwqDCoMKgwqDCoCAvKiBXYWxrIHRocm91Z2ggaW5kaWNh
+dG9ycyBmaWVsZCwgc3VtbWFyeSBpbmRpY2F0b3Igbm90IGFjdGl2ZS4gKi8KPj4gwqDCoMKgwqDC
+oCBmb3IgKGFpID0gMDs7KSB7Cj4+IEBAIC0yMzcsNyArMjQzLDggQEAgc3RhdGljIHZvaWQgdmly
+dGlvX2FpcnFfaGFuZGxlcihzdHJ1Y3QgYWlycV9zdHJ1Y3QgCj4+ICphaXJxKQo+PiDCoMKgwqDC
+oMKgIHJlYWRfdW5sb2NrKCZpbmZvLT5sb2NrKTsKPj4gwqAgfQo+PiAtc3RhdGljIHN0cnVjdCBh
+aXJxX2luZm8gKm5ld19haXJxX2luZm8odm9pZCkKPj4gKy8qIGNhbGwgd2l0aCBhaXJxX2FyZWFz
+X2xvY2sgaGVsZCAqLwo+PiArc3RhdGljIHN0cnVjdCBhaXJxX2luZm8gKm5ld19haXJxX2luZm8o
+aW50IGluZGV4KQo+PiDCoCB7Cj4+IMKgwqDCoMKgwqAgc3RydWN0IGFpcnFfaW5mbyAqaW5mbzsK
+Pj4gwqDCoMKgwqDCoCBpbnQgcmM7Cj4+IEBAIC0yNTIsNyArMjU5LDggQEAgc3RhdGljIHN0cnVj
+dCBhaXJxX2luZm8gKm5ld19haXJxX2luZm8odm9pZCkKPj4gwqDCoMKgwqDCoMKgwqDCoMKgIHJl
+dHVybiBOVUxMOwo+PiDCoMKgwqDCoMKgIH0KPj4gwqDCoMKgwqDCoCBpbmZvLT5haXJxLmhhbmRs
+ZXIgPSB2aXJ0aW9fYWlycV9oYW5kbGVyOwo+PiAtwqDCoMKgIGluZm8tPmFpcnEubHNpX3B0ciA9
+ICZpbmZvLT5zdW1tYXJ5X2luZGljYXRvcjsKPj4gK8KgwqDCoCBpbmZvLT5zdW1tYXJ5X2luZGlj
+YXRvcl9pZHggPSBpbmRleDsKPj4gK8KgwqDCoCBpbmZvLT5haXJxLmxzaV9wdHIgPSBnZXRfc3Vt
+bWFyeV9pbmRpY2F0b3IoaW5mbyk7Cj4+IMKgwqDCoMKgwqAgaW5mby0+YWlycS5sc2lfbWFzayA9
+IDB4ZmY7Cj4+IMKgwqDCoMKgwqAgaW5mby0+YWlycS5pc2MgPSBWSVJUSU9fQUlSUV9JU0M7Cj4+
+IMKgwqDCoMKgwqAgcmMgPSByZWdpc3Rlcl9hZGFwdGVyX2ludGVycnVwdCgmaW5mby0+YWlycSk7
+Cj4+IEBAIC0yNzMsOCArMjgxLDkgQEAgc3RhdGljIHVuc2lnbmVkIGxvbmcgZ2V0X2FpcnFfaW5k
+aWNhdG9yKHN0cnVjdCAKPj4gdmlydHF1ZXVlICp2cXNbXSwgaW50IG52cXMsCj4+IMKgwqDCoMKg
+wqAgdW5zaWduZWQgbG9uZyBiaXQsIGZsYWdzOwo+PiDCoMKgwqDCoMKgIGZvciAoaSA9IDA7IGkg
+PCBNQVhfQUlSUV9BUkVBUyAmJiAhaW5kaWNhdG9yX2FkZHI7IGkrKykgewo+PiArwqDCoMKgwqDC
+oMKgwqAgLyogVE9ETzogdGhpcyBzZWVtcyB0byBiZSByYWN5ICovCj4gCj4geWVzLCBteSBvcGlu
+aW9ucyB0b28sIHdhcyBhbHJlYWR5IHJhY3ksIGluIG15IG9waW5pb24sIHdlIG5lZWQgYW5vdGhl
+ciAKPiBwYXRjaCBpbiBhbm90aGVyIHNlcmllcyB0byBmaXggdGhpcy4KPiAKPiBIb3dldmVyLCBu
+b3Qgc3VyZSBhYm91dCB0aGUgY29tbWVudC4KCkkgd2lsbCBkcm9wIHRoaXMgY29tbWVudCBmb3Ig
+djIgb2YgdGhpcyBwYXRjaCBzZXJpZXMuCldlIHNoYWxsIGZpeCB0aGUgcmFjZSB3aXRoIGEgc2Vw
+YXJhdGUgcGF0Y2guCgpNaWNoYWVsCgo+IAo+PiDCoMKgwqDCoMKgwqDCoMKgwqAgaWYgKCFhaXJx
+X2FyZWFzW2ldKQo+PiAtwqDCoMKgwqDCoMKgwqDCoMKgwqDCoCBhaXJxX2FyZWFzW2ldID0gbmV3
+X2FpcnFfaW5mbygpOwo+PiArwqDCoMKgwqDCoMKgwqDCoMKgwqDCoCBhaXJxX2FyZWFzW2ldID0g
+bmV3X2FpcnFfaW5mbyhpKTsKPj4gwqDCoMKgwqDCoMKgwqDCoMKgIGluZm8gPSBhaXJxX2FyZWFz
+W2ldOwo+PiDCoMKgwqDCoMKgwqDCoMKgwqAgaWYgKCFpbmZvKQo+PiDCoMKgwqDCoMKgwqDCoMKg
+wqDCoMKgwqDCoCByZXR1cm4gMDsKPj4gQEAgLTM1OSw3ICszNjgsNyBAQCBzdGF0aWMgdm9pZCB2
+aXJ0aW9fY2N3X2Ryb3BfaW5kaWNhdG9yKHN0cnVjdCAKPj4gdmlydGlvX2Njd19kZXZpY2UgKnZj
+ZGV2LAo+PiDCoMKgwqDCoMKgwqDCoMKgwqAgaWYgKCF0aGluaW50X2FyZWEpCj4+IMKgwqDCoMKg
+wqDCoMKgwqDCoMKgwqDCoMKgIHJldHVybjsKPj4gwqDCoMKgwqDCoMKgwqDCoMKgIHRoaW5pbnRf
+YXJlYS0+c3VtbWFyeV9pbmRpY2F0b3IgPQo+PiAtwqDCoMKgwqDCoMKgwqDCoMKgwqDCoCAodW5z
+aWduZWQgbG9uZykgJmFpcnFfaW5mby0+c3VtbWFyeV9pbmRpY2F0b3I7Cj4+ICvCoMKgwqDCoMKg
+wqDCoMKgwqDCoMKgICh1bnNpZ25lZCBsb25nKSBnZXRfc3VtbWFyeV9pbmRpY2F0b3IoYWlycV9p
+bmZvKTsKPj4gwqDCoMKgwqDCoMKgwqDCoMKgIHRoaW5pbnRfYXJlYS0+aXNjID0gVklSVElPX0FJ
+UlFfSVNDOwo+PiDCoMKgwqDCoMKgwqDCoMKgwqAgY2N3LT5jbWRfY29kZSA9IENDV19DTURfU0VU
+X0lORF9BREFQVEVSOwo+PiDCoMKgwqDCoMKgwqDCoMKgwqAgY2N3LT5jb3VudCA9IHNpemVvZigq
+dGhpbmludF9hcmVhKTsKPj4gQEAgLTYyNCw3ICs2MzMsNyBAQCBzdGF0aWMgaW50IHZpcnRpb19j
+Y3dfcmVnaXN0ZXJfYWRhcHRlcl9pbmQoc3RydWN0IAo+PiB2aXJ0aW9fY2N3X2RldmljZSAqdmNk
+ZXYsCj4+IMKgwqDCoMKgwqAgfQo+PiDCoMKgwqDCoMKgIGluZm8gPSB2Y2Rldi0+YWlycV9pbmZv
+Owo+PiDCoMKgwqDCoMKgIHRoaW5pbnRfYXJlYS0+c3VtbWFyeV9pbmRpY2F0b3IgPQo+PiAtwqDC
+oMKgwqDCoMKgwqAgKHVuc2lnbmVkIGxvbmcpICZpbmZvLT5zdW1tYXJ5X2luZGljYXRvcjsKPj4g
+K8KgwqDCoMKgwqDCoMKgICh1bnNpZ25lZCBsb25nKSBnZXRfc3VtbWFyeV9pbmRpY2F0b3IoaW5m
+byk7Cj4+IMKgwqDCoMKgwqAgdGhpbmludF9hcmVhLT5pc2MgPSBWSVJUSU9fQUlSUV9JU0M7Cj4+
+IMKgwqDCoMKgwqAgY2N3LT5jbWRfY29kZSA9IENDV19DTURfU0VUX0lORF9BREFQVEVSOwo+PiDC
+oMKgwqDCoMKgIGNjdy0+ZmxhZ3MgPSBDQ1dfRkxBR19TTEk7Cj4+IEBAIC0xNTAwLDYgKzE1MDks
+NyBAQCBzdGF0aWMgaW50IF9faW5pdCB2aXJ0aW9fY2N3X2luaXQodm9pZCkKPj4gwqAgewo+PiDC
+oMKgwqDCoMKgIC8qIHBhcnNlIG5vX2F1dG8gc3RyaW5nIGJlZm9yZSB3ZSBkbyBhbnl0aGluZyBm
+dXJ0aGVyICovCj4+IMKgwqDCoMKgwqAgbm9fYXV0b19wYXJzZSgpOwo+PiArwqDCoMKgIHN1bW1h
+cnlfaW5kaWNhdG9ycyA9IGNpb19kbWFfemFsbG9jKE1BWF9BSVJRX0FSRUFTKTsKPj4gwqDCoMKg
+wqDCoCByZXR1cm4gY2N3X2RyaXZlcl9yZWdpc3RlcigmdmlydGlvX2Njd19kcml2ZXIpOwo+PiDC
+oCB9Cj4+IMKgIGRldmljZV9pbml0Y2FsbCh2aXJ0aW9fY2N3X2luaXQpOwo+Pgo+IAo+IAo+IAoK
+LS0gCk1pdCBmcmV1bmRsaWNoZW4gR3LDvMOfZW4gLyBLaW5kIHJlZ2FyZHMKTWljaGFlbCBNw7xs
+bGVyCgpJQk0gRGV1dHNjaGxhbmQgUmVzZWFyY2ggJiBEZXZlbG9wbWVudCBHbWJIClZvcnNpdHpl
+bmRlciBkZXMgQXVmc2ljaHRzcmF0czogTWF0dGhpYXMgSGFydG1hbm4KR2VzY2jDpGZ0c2bDvGhy
+dW5nOiBEaXJrIFdpdHRrb3BwClNpdHogZGVyIEdlc2VsbHNjaGFmdDogQsO2YmxpbmdlbgpSZWdp
+c3RlcmdlcmljaHQ6IEFtdHNnZXJpY2h0IFN0dXR0Z2FydCwgSFJCIDI0MzI5NAoKX19fX19fX19f
+X19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX18KVmlydHVhbGl6YXRpb24gbWFp
+bGluZyBsaXN0ClZpcnR1YWxpemF0aW9uQGxpc3RzLmxpbnV4LWZvdW5kYXRpb24ub3JnCmh0dHBz
+Oi8vbGlzdHMubGludXhmb3VuZGF0aW9uLm9yZy9tYWlsbWFuL2xpc3RpbmZvL3ZpcnR1YWxpemF0
+aW9u
