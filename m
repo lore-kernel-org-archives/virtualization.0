@@ -1,20 +1,16 @@
-From: Stefano Garzarella <sgarzare@redhat.com>
-Subject: Re: [PATCH v2 7/8] vsock/virtio: increase RX buffer size to 64 KiB
-Date: Wed, 15 May 2019 10:22:33 +0200
-Message-ID: <20190515082233.iqaibtfdoblijb5z__10011.7334559158$1557908568$gmane$org@steredhat>
-References: <20190510125843.95587-1-sgarzare@redhat.com>
-	<20190510125843.95587-8-sgarzare@redhat.com>
-	<bf0416f1-0e69-722d-75ce-3d101e6d7d71@redhat.com>
-	<20190513175138.4yycad2xi65komw6@steredhat>
-	<fd934a4c-f7d2-8a04-ed93-a3b690ed0d79@redhat.com>
-	<20190514162056.5aotcuzsi6e6wya7@steredhat>
-	<646275c5-3530-f428-98da-56da99d72fe1@redhat.com>
+From: Cornelia Huck <cohuck@redhat.com>
+Subject: Re: [PATCH 10/10] virtio/s390: make airq summary indicators DMA
+Date: Wed, 15 May 2019 15:50:17 +0200
+Message-ID: <20190515155017.0d3e2543.cohuck@redhat.com>
+References: <20190426183245.37939-1-pasic@linux.ibm.com>
+	<20190426183245.37939-11-pasic@linux.ibm.com>
+	<20190513142010.36c8478f.cohuck@redhat.com>
+	<3a8353e2-97e3-778e-ab2e-ef285ac7027d@linux.ibm.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="utf-8"
-Content-Transfer-Encoding: base64
+Content-Type: text/plain; charset="us-ascii"
+Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-Content-Disposition: inline
-In-Reply-To: <646275c5-3530-f428-98da-56da99d72fe1@redhat.com>
+In-Reply-To: <3a8353e2-97e3-778e-ab2e-ef285ac7027d@linux.ibm.com>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -24,77 +20,54 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Jason Wang <jasowang@redhat.com>
-Cc: kvm@vger.kernel.org, "Michael S. Tsirkin" <mst@redhat.com>, netdev@vger.kernel.org, linux-kernel@vger.kernel.org, virtualization@lists.linux-foundation.org, Stefan Hajnoczi <stefanha@redhat.com>, "David S. Miller" <davem@davemloft.net>
+To: Michael Mueller <mimu@linux.ibm.com>
+Cc: Vasily Gorbik <gor@linux.ibm.com>, linux-s390@vger.kernel.org, Thomas Huth <thuth@redhat.com>, Claudio Imbrenda <imbrenda@linux.ibm.com>, kvm@vger.kernel.org, Sebastian Ott <sebott@linux.ibm.com>, "Michael S. Tsirkin" <mst@redhat.com>, Farhan Ali <alifm@linux.ibm.com>, Eric Farman <farman@linux.ibm.com>, virtualization@lists.linux-foundation.org, Halil Pasic <pasic@linux.ibm.com>, Christoph Hellwig <hch@infradead.org>, Martin Schwidefsky <schwidefsky@de.ibm.com>, Viktor Mihajlovski <mihajlov@linux.ibm.com>, Janosch Frank <frankja@linux.ibm.com>
 List-Id: virtualization@lists.linuxfoundation.org
 
-T24gV2VkLCBNYXkgMTUsIDIwMTkgYXQgMTA6NTA6NDNBTSArMDgwMCwgSmFzb24gV2FuZyB3cm90
-ZToKPiAKPiBPbiAyMDE5LzUvMTUg5LiK5Y2IMTI6MjAsIFN0ZWZhbm8gR2FyemFyZWxsYSB3cm90
-ZToKPiA+IE9uIFR1ZSwgTWF5IDE0LCAyMDE5IGF0IDExOjM4OjA1QU0gKzA4MDAsIEphc29uIFdh
-bmcgd3JvdGU6Cj4gPiA+IE9uIDIwMTkvNS8xNCDkuIrljYgxOjUxLCBTdGVmYW5vIEdhcnphcmVs
-bGEgd3JvdGU6Cj4gPiA+ID4gT24gTW9uLCBNYXkgMTMsIDIwMTkgYXQgMDY6MDE6NTJQTSArMDgw
-MCwgSmFzb24gV2FuZyB3cm90ZToKPiA+ID4gPiA+IE9uIDIwMTkvNS8xMCDkuIvljYg4OjU4LCBT
-dGVmYW5vIEdhcnphcmVsbGEgd3JvdGU6Cj4gPiA+ID4gPiA+IEluIG9yZGVyIHRvIGluY3JlYXNl
-IGhvc3QgLT4gZ3Vlc3QgdGhyb3VnaHB1dCB3aXRoIGxhcmdlIHBhY2tldHMsCj4gPiA+ID4gPiA+
-IHdlIGNhbiB1c2UgNjQgS2lCIFJYIGJ1ZmZlcnMuCj4gPiA+ID4gPiA+IAo+ID4gPiA+ID4gPiBT
-aWduZWQtb2ZmLWJ5OiBTdGVmYW5vIEdhcnphcmVsbGEgPHNnYXJ6YXJlQHJlZGhhdC5jb20+Cj4g
-PiA+ID4gPiA+IC0tLQo+ID4gPiA+ID4gPiAgICAgaW5jbHVkZS9saW51eC92aXJ0aW9fdnNvY2su
-aCB8IDIgKy0KPiA+ID4gPiA+ID4gICAgIDEgZmlsZSBjaGFuZ2VkLCAxIGluc2VydGlvbigrKSwg
-MSBkZWxldGlvbigtKQo+ID4gPiA+ID4gPiAKPiA+ID4gPiA+ID4gZGlmZiAtLWdpdCBhL2luY2x1
-ZGUvbGludXgvdmlydGlvX3Zzb2NrLmggYi9pbmNsdWRlL2xpbnV4L3ZpcnRpb192c29jay5oCj4g
-PiA+ID4gPiA+IGluZGV4IDg0YjcyMDI2ZDMyNy4uNWE5ZDI1YmU3MmRmIDEwMDY0NAo+ID4gPiA+
-ID4gPiAtLS0gYS9pbmNsdWRlL2xpbnV4L3ZpcnRpb192c29jay5oCj4gPiA+ID4gPiA+ICsrKyBi
-L2luY2x1ZGUvbGludXgvdmlydGlvX3Zzb2NrLmgKPiA+ID4gPiA+ID4gQEAgLTEwLDcgKzEwLDcg
-QEAKPiA+ID4gPiA+ID4gICAgICNkZWZpbmUgVklSVElPX1ZTT0NLX0RFRkFVTFRfTUlOX0JVRl9T
-SVpFCTEyOAo+ID4gPiA+ID4gPiAgICAgI2RlZmluZSBWSVJUSU9fVlNPQ0tfREVGQVVMVF9CVUZf
-U0laRQkJKDEwMjQgKiAyNTYpCj4gPiA+ID4gPiA+ICAgICAjZGVmaW5lIFZJUlRJT19WU09DS19E
-RUZBVUxUX01BWF9CVUZfU0laRQkoMTAyNCAqIDI1NikKPiA+ID4gPiA+ID4gLSNkZWZpbmUgVklS
-VElPX1ZTT0NLX0RFRkFVTFRfUlhfQlVGX1NJWkUJKDEwMjQgKiA0KQo+ID4gPiA+ID4gPiArI2Rl
-ZmluZSBWSVJUSU9fVlNPQ0tfREVGQVVMVF9SWF9CVUZfU0laRQkoMTAyNCAqIDY0KQo+ID4gPiA+
-ID4gPiAgICAgI2RlZmluZSBWSVJUSU9fVlNPQ0tfTUFYX0JVRl9TSVpFCQkweEZGRkZGRkZGVUwK
-PiA+ID4gPiA+ID4gICAgICNkZWZpbmUgVklSVElPX1ZTT0NLX01BWF9QS1RfQlVGX1NJWkUJCSgx
-MDI0ICogNjQpCj4gPiA+ID4gPiBXZSBwcm9iYWJseSBkb24ndCB3YW50IHN1Y2ggaGlnaCBvcmRl
-ciBhbGxvY2F0aW9uLiBJdCdzIGJldHRlciB0byBzd2l0Y2ggdG8KPiA+ID4gPiA+IHVzZSBvcmRl
-ciAwIHBhZ2VzIGluIHRoaXMgY2FzZS4gU2VlIGFkZF9yZWN2YnVmX2JpZygpIGZvciB2aXJ0aW8t
-bmV0LiBJZiB3ZQo+ID4gPiA+ID4gZ2V0IGRhdGFwYXRoIHVuaWZpZWQsIHdlIHdpbGwgZ2V0IG1v
-cmUgc3R1ZmZzIHNldC4KPiA+ID4gPiBJSVVDLCB5b3UgYXJlIHN1Z2dlc3RpbmcgdG8gYWxsb2Nh
-dGUgb25seSBwYWdlcyBhbmQgcHV0IHRoZW0gaW4gYQo+ID4gPiA+IHNjYXR0ZXJsaXN0LCB0aGVu
-IGFkZCB0aGVtIHRvIHRoZSB2aXJ0cXVldWUuCj4gPiA+ID4gCj4gPiA+ID4gSXMgaXQgY29ycmVj
-dD8KPiA+ID4gCj4gPiA+IFllcyBzaW5jZSB5b3UgYXJlIHVzaW5nOgo+ID4gPiAKPiA+ID4gIMKg
-wqDCoMKgwqDCoMKgwqDCoMKgwqDCoMKgwqDCoCBwa3QtPmJ1ZiA9IGttYWxsb2MoYnVmX2xlbiwg
-R0ZQX0tFUk5FTCk7Cj4gPiA+ICDCoMKgwqDCoMKgwqDCoMKgwqDCoMKgwqDCoMKgwqAgaWYgKCFw
-a3QtPmJ1Zikgewo+ID4gPiAgwqDCoMKgwqDCoMKgwqDCoMKgwqDCoMKgwqDCoMKgwqDCoMKgwqDC
-oMKgwqDCoCB2aXJ0aW9fdHJhbnNwb3J0X2ZyZWVfcGt0KHBrdCk7Cj4gPiA+ICDCoMKgwqDCoMKg
-wqDCoMKgwqDCoMKgwqDCoMKgwqDCoMKgwqDCoMKgwqDCoMKgIGJyZWFrOwo+ID4gPiAgwqDCoMKg
-wqDCoMKgwqDCoMKgwqDCoMKgwqDCoMKgIH0KPiA+ID4gCj4gPiA+IFRoaXMgaXMgbGlrZWx5IHRv
-IGZhaWwgd2hlbiB0aGUgbWVtb3J5IGlzIGZyYWdtZW50ZWQgd2hpY2ggaXMga2luZCBvZgo+ID4g
-PiBmcmFnaWxlLgo+ID4gPiAKPiA+ID4gCj4gPiBUaGFua3MgZm9yIHBvaW50aW5nIHRoYXQgb3V0
-Lgo+ID4gCj4gPiA+ID4gVGhlIGlzc3VlIHRoYXQgSSBoYXZlIGhlcmUsIGlzIHRoYXQgdGhlIHZp
-cnRpby12c29jayBndWVzdCBkcml2ZXIsIHNlZQo+ID4gPiA+IHZpcnRpb192c29ja19yeF9maWxs
-KCksIGFsbG9jYXRlcyBhIHN0cnVjdCB2aXJ0aW9fdnNvY2tfcGt0IHRoYXQKPiA+ID4gPiBjb250
-YWlucyB0aGUgcm9vbSBmb3IgdGhlIGhlYWRlciwgdGhlbiBhbGxvY2F0ZXMgdGhlIGJ1ZmZlciBm
-b3IgdGhlIHBheWxvYWQuCj4gPiA+ID4gQXQgdGhpcyBwb2ludCBpdCBmaWxscyB0aGUgc2NhdHRl
-cmxpc3Qgd2l0aCB0aGUgJnZpcnRpb192c29ja19wa3QuaGRyIGFuZCB0aGUKPiA+ID4gPiBidWZm
-ZXIgZm9yIHRoZSBwYXlsb2FkLgo+ID4gPiAKPiA+ID4gVGhpcyBwYXJ0IHNob3VsZCBiZSBmaW5l
-IHNpbmNlIHdoYXQgaXMgbmVlZGVkIGlzIGp1c3QgYWRkaW5nIG1vcmUgcGFnZXMgdG8KPiA+ID4g
-c2dbXSBhbmQgY2FsbCB2aXJ0dXFldWV1X2FkZF9zZygpLgo+ID4gPiAKPiA+ID4gCj4gPiBZZXMs
-IEkgYWdyZWUuCj4gPiAKPiA+ID4gPiBDaGFuZ2luZyB0aGlzIHdpbGwgcmVxdWlyZSBzZXZlcmFs
-IG1vZGlmaWNhdGlvbnMsIGFuZCBpZiB3ZSBnZXQgZGF0YXBhdGgKPiA+ID4gPiB1bmlmaWVkLCBJ
-J20gbm90IHN1cmUgaXQncyB3b3J0aCBpdC4KPiA+ID4gPiBPZiBjb3Vyc2UsIGlmIHdlIGxlYXZl
-IHRoZSBkYXRhcGF0aHMgc2VwYXJhdGVkLCBJJ2QgbGlrZSB0byBkbyB0aGF0IGxhdGVyLgo+ID4g
-PiA+IAo+ID4gPiA+IFdoYXQgZG8geW91IHRoaW5rPwo+ID4gPiAKPiA+ID4gRm9yIHRoZSBkcml2
-ZXIgaXQgc2VsZiwgaXQgc2hvdWxkIG5vdCBiZSBoYXJkLiBCdXQgSSB0aGluayB5b3UgbWVhbiB0
-aGUKPiA+ID4gaXNzdWUgb2YgZS5nIHZpcnRpb192c29ja19wa3QgaXRzZWxmIHdoaWNoIGRvZXNu
-J3Qgc3VwcG9ydCBzZy4gRm9yIHNob3J0Cj4gPiA+IHRpbWUsIG1heWJlIHdlIGNhbiB1c2Uga3Zl
-YyBpbnN0ZWFkLgo+ID4gSSdsbCB0cnkgdG8gdXNlIGt2ZWMgaW4gdGhlIHZpcnRpb192c29ja19w
-a3QuCj4gPiAKPiA+IFNpbmNlIHRoaXMgc3RydWN0IGlzIHNoYXJlZCBhbHNvIHdpdGggdGhlIGhv
-c3QgZHJpdmVyICh2aG9zdC12c29jayksCj4gPiBJIGhvcGUgdGhlIGNoYW5nZXMgY291bGQgYmUg
-bGltaXRlZCwgb3RoZXJ3aXNlIHdlIGNhbiByZW1vdmUgdGhlIGxhc3QgMgo+ID4gcGF0Y2hlcyBv
-ZiB0aGUgc2VyaWVzIGZvciBub3csIGxlYXZpbmcgdGhlIFJYIGJ1ZmZlciBzaXplIHRvIDRLQi4K
-PiAKPiAKPiBZZXMgYW5kIGlmIGl0IGludHJvZHVjZXMgdG9vIG11Y2ggY2hhbmdlcywgbWF5YmUg
-d2UgY2FuIGRvIHRoZSA2NEtCIGJ1ZmZlcgo+IGluIHRoZSBmdXR1cmUgd2l0aCB0aGUgY29udmVy
-c2lvbiBvZiB1c2luZyBza2Igd2hlcmUgc3VwcG9ydHMgcGFnZSBmcmFnCj4gbmF0aXZlbHkuCgpZ
-ZXMsIEkgY29tcGxldGVseSBhZ3JlZSEKClRoYW5rcywKU3RlZmFubwpfX19fX19fX19fX19fX19f
-X19fX19fX19fX19fX19fX19fX19fX19fX19fX19fXwpWaXJ0dWFsaXphdGlvbiBtYWlsaW5nIGxp
-c3QKVmlydHVhbGl6YXRpb25AbGlzdHMubGludXgtZm91bmRhdGlvbi5vcmcKaHR0cHM6Ly9saXN0
-cy5saW51eGZvdW5kYXRpb24ub3JnL21haWxtYW4vbGlzdGluZm8vdmlydHVhbGl6YXRpb24=
+On Wed, 15 May 2019 15:43:23 +0200
+Michael Mueller <mimu@linux.ibm.com> wrote:
+
+> On 13.05.19 14:20, Cornelia Huck wrote:
+> > On Fri, 26 Apr 2019 20:32:45 +0200
+> > Halil Pasic <pasic@linux.ibm.com> wrote:
+> >   
+> >> Hypervisor needs to interact with the summary indicators, so these
+> >> need to be DMA memory as well (at least for protected virtualization
+> >> guests).
+> >>
+> >> Signed-off-by: Halil Pasic <pasic@linux.ibm.com>
+> >> ---
+> >>   drivers/s390/virtio/virtio_ccw.c | 24 +++++++++++++++++-------
+> >>   1 file changed, 17 insertions(+), 7 deletions(-)  
+> > 
+> > (...)
+> >   
+> >> @@ -237,7 +243,8 @@ static void virtio_airq_handler(struct airq_struct *airq)
+> >>   	read_unlock(&info->lock);
+> >>   }
+> >>   
+> >> -static struct airq_info *new_airq_info(void)
+> >> +/* call with drivers/s390/virtio/virtio_ccw.cheld */  
+> > 
+> > Hm, where is airq_areas_lock defined? If it was introduced in one of
+> > the previous patches, I have missed it.  
+> 
+> There is no airq_areas_lock defined currently. My assumption is that
+> this will be used in context with the likely race condition this
+> part of the patch is talking about.
+> 
+> @@ -273,8 +281,9 @@ static unsigned long get_airq_indicator(struct 
+> virtqueue *vqs[], int nvqs,
+>   	unsigned long bit, flags;
+> 
+>   	for (i = 0; i < MAX_AIRQ_AREAS && !indicator_addr; i++) {
+> +		/* TODO: this seems to be racy */
+>   		if (!airq_areas[i])
+> -			airq_areas[i] = new_airq_info();
+> +			airq_areas[i] = new_airq_info(i);
+> 
+> 
+> As this shall be handled by a separate patch I will drop the comment
+> in regard to airq_areas_lock from this patch as well for v2.
+
+Ok, that makes sense.
