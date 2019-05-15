@@ -1,16 +1,14 @@
-From: David Hildenbrand <david@redhat.com>
-Subject: Re: [PATCH v9 2/7] virtio-pmem: Add virtio pmem driver
-Date: Wed, 15 May 2019 22:52:53 +0200
-Message-ID: <1d6f6964-4653-ebf3-554f-666fda3779f1__22484.0913362399$1557953599$gmane$org@redhat.com>
+From: Dan Williams <dan.j.williams@intel.com>
+Subject: Re: [PATCH v9 1/7] libnvdimm: nd_region flush callback support
+Date: Wed, 15 May 2019 14:07:23 -0700
+Message-ID: <CAPcyv4gEr_zPJEQp3k89v2UXfHp9PQwnJXY+W99HwXfxpvua_w__44377.0724743203$1557954469$gmane$org@mail.gmail.com>
 References: <20190514145422.16923-1-pagupta@redhat.com>
-	<20190514145422.16923-3-pagupta@redhat.com>
-	<9f6b1d8e-ef90-7d8b-56da-61a426953ba3@redhat.com>
+	<20190514145422.16923-2-pagupta@redhat.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset="utf-8"
+Content-Transfer-Encoding: base64
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <9f6b1d8e-ef90-7d8b-56da-61a426953ba3@redhat.com>
-Content-Language: en-US
+In-Reply-To: <20190514145422.16923-2-pagupta@redhat.com>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -20,148 +18,77 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Pankaj Gupta <pagupta@redhat.com>, linux-nvdimm@lists.01.org, linux-kernel@vger.kernel.org, virtualization@lists.linux-foundation.org, kvm@vger.kernel.org, linux-fsdevel@vger.kernel.org, linux-acpi@vger.kernel.org, qemu-devel@nongnu.org, linux-ext4@vger.kernel.org, linux-xfs@vger.kernel.org, mst@redhat.com
-Cc: jack@suse.cz, david@fromorbit.com, lcapitulino@redhat.com, adilger.kernel@dilger.ca, zwisler@kernel.org, aarcange@redhat.com, dave.jiang@intel.com, jstaron@google.com, darrick.wong@oracle.com, vishal.l.verma@intel.com, willy@infradead.org, hch@infradead.org, jmoyer@redhat.com, nilal@redhat.com, lenb@kernel.org, kilobyte@angband.pl, riel@surriel.com, yuval.shaia@oracle.com, stefanha@redhat.com, pbonzini@redhat.com, dan.j.williams@intel.com, tytso@mit.edu, xiaoguangrong.eric@gmail.com, cohuck@redhat.com, rjw@rjwysocki.net, imammedo@redhat.com
+To: Pankaj Gupta <pagupta@redhat.com>
+Cc: cohuck@redhat.com, Jan Kara <jack@suse.cz>, KVM list <kvm@vger.kernel.org>, "Michael S. Tsirkin" <mst@redhat.com>, david <david@fromorbit.com>, Qemu Developers <qemu-devel@nongnu.org>, virtualization@lists.linux-foundation.org, Andreas Dilger <adilger.kernel@dilger.ca>, Ross Zwisler <zwisler@kernel.org>, Andrea Arcangeli <aarcange@redhat.com>, Dave Jiang <dave.jiang@intel.com>, jstaron@google.com, linux-nvdimm <linux-nvdimm@lists.01.org>, Vishal L Verma <vishal.l.verma@intel.com>, Matthew Wilcox <willy@infradead.org>, Christoph Hellwig <hch@infradead.org>, Linux ACPI <linux-acpi@vger.kernel.org>, jmoyer <jmoyer@redhat.com>, linux-ext4 <linux-ext4@vger.kernel.org>, Len Brown <lenb@kernel.org>, Adam Borowski <kilobyte@angband.pl>, Rik van Riel <riel@surriel.com>, yuval shaia <yuval.shaia@oracle.com>, Stefan Hajnoczi <stefanha@redhat.com>, Paolo Bonzini <pbonzini@redhat.>
 List-Id: virtualization@lists.linuxfoundation.org
 
-On 15.05.19 22:46, David Hildenbrand wrote:
->> +	vpmem->vdev = vdev;
->> +	vdev->priv = vpmem;
->> +	err = init_vq(vpmem);
->> +	if (err) {
->> +		dev_err(&vdev->dev, "failed to initialize virtio pmem vq's\n");
->> +		goto out_err;
->> +	}
->> +
->> +	virtio_cread(vpmem->vdev, struct virtio_pmem_config,
->> +			start, &vpmem->start);
->> +	virtio_cread(vpmem->vdev, struct virtio_pmem_config,
->> +			size, &vpmem->size);
->> +
->> +	res.start = vpmem->start;
->> +	res.end   = vpmem->start + vpmem->size-1;
-> 
-> nit: " - 1;"
-> 
->> +	vpmem->nd_desc.provider_name = "virtio-pmem";
->> +	vpmem->nd_desc.module = THIS_MODULE;
->> +
->> +	vpmem->nvdimm_bus = nvdimm_bus_register(&vdev->dev,
->> +						&vpmem->nd_desc);
->> +	if (!vpmem->nvdimm_bus) {
->> +		dev_err(&vdev->dev, "failed to register device with nvdimm_bus\n");
->> +		err = -ENXIO;
->> +		goto out_vq;
->> +	}
->> +
->> +	dev_set_drvdata(&vdev->dev, vpmem->nvdimm_bus);
->> +
->> +	ndr_desc.res = &res;
->> +	ndr_desc.numa_node = nid;
->> +	ndr_desc.flush = async_pmem_flush;
->> +	set_bit(ND_REGION_PAGEMAP, &ndr_desc.flags);
->> +	set_bit(ND_REGION_ASYNC, &ndr_desc.flags);
->> +	nd_region = nvdimm_pmem_region_create(vpmem->nvdimm_bus, &ndr_desc);
->> +	if (!nd_region) {
->> +		dev_err(&vdev->dev, "failed to create nvdimm region\n");
->> +		err = -ENXIO;
->> +		goto out_nd;
->> +	}
->> +	nd_region->provider_data = dev_to_virtio(nd_region->dev.parent->parent);
->> +	return 0;
->> +out_nd:
->> +	nvdimm_bus_unregister(vpmem->nvdimm_bus);
->> +out_vq:
->> +	vdev->config->del_vqs(vdev);
->> +out_err:
->> +	return err;
->> +}
->> +
->> +static void virtio_pmem_remove(struct virtio_device *vdev)
->> +{
->> +	struct nvdimm_bus *nvdimm_bus = dev_get_drvdata(&vdev->dev);
->> +
->> +	nvdimm_bus_unregister(nvdimm_bus);
->> +	vdev->config->del_vqs(vdev);
->> +	vdev->config->reset(vdev);
->> +}
->> +
->> +static struct virtio_driver virtio_pmem_driver = {
->> +	.driver.name		= KBUILD_MODNAME,
->> +	.driver.owner		= THIS_MODULE,
->> +	.id_table		= id_table,
->> +	.probe			= virtio_pmem_probe,
->> +	.remove			= virtio_pmem_remove,
->> +};
->> +
->> +module_virtio_driver(virtio_pmem_driver);
->> +MODULE_DEVICE_TABLE(virtio, id_table);
->> +MODULE_DESCRIPTION("Virtio pmem driver");
->> +MODULE_LICENSE("GPL");
->> diff --git a/drivers/nvdimm/virtio_pmem.h b/drivers/nvdimm/virtio_pmem.h
->> new file mode 100644
->> index 000000000000..ab1da877575d
->> --- /dev/null
->> +++ b/drivers/nvdimm/virtio_pmem.h
->> @@ -0,0 +1,60 @@
->> +/* SPDX-License-Identifier: GPL-2.0 */
->> +/*
->> + * virtio_pmem.h: virtio pmem Driver
->> + *
->> + * Discovers persistent memory range information
->> + * from host and provides a virtio based flushing
->> + * interface.
->> + **/
->> +
->> +#ifndef _LINUX_VIRTIO_PMEM_H
->> +#define _LINUX_VIRTIO_PMEM_H
->> +
->> +#include <linux/virtio_ids.h>
->> +#include <linux/module.h>
->> +#include <linux/virtio_config.h>
->> +#include <uapi/linux/virtio_pmem.h>
->> +#include <linux/libnvdimm.h>
->> +#include <linux/spinlock.h>
->> +
->> +struct virtio_pmem_request {
->> +	/* Host return status corresponding to flush request */
->> +	int ret;
->> +
->> +	/* command name*/
->> +	char name[16];
-> 
-> So ... why are we sending string commands and expect native-endianess
-> integers and don't define a proper request/response structure + request
-> types in include/uapi/linux/virtio_pmem.h like
-> 
-> struct virtio_pmem_resp {
-> 	__virtio32 ret;
-> }
-
-FWIW, I wonder if we should even properly translate return values and
-define types like
-
-VIRTIO_PMEM_RESP_TYPE_OK	0
-VIRTIO_PMEM_RESP_TYPE_EIO	1
-
-..
-
-> 
-> #define VIRTIO_PMEM_REQ_TYPE_FLUSH	1
-> struct virtio_pmem_req {
-> 	__virtio16 type;
-> }
-> 
-> ... and this way we also define a proper endianess format for exchange
-> and keep it extensible
-> 
-> @MST, what's your take on this?
-> 
-> 
-
-
--- 
-
-Thanks,
-
-David / dhildenb
+T24gVHVlLCBNYXkgMTQsIDIwMTkgYXQgNzo1NSBBTSBQYW5rYWogR3VwdGEgPHBhZ3VwdGFAcmVk
+aGF0LmNvbT4gd3JvdGU6Cj4KPiBUaGlzIHBhdGNoIGFkZHMgZnVuY3Rpb25hbGl0eSB0byBwZXJm
+b3JtIGZsdXNoIGZyb20gZ3Vlc3QKPiB0byBob3N0IG92ZXIgVklSVElPLiBXZSBhcmUgcmVnaXN0
+ZXJpbmcgYSBjYWxsYmFjayBiYXNlZAo+IG9uICduZF9yZWdpb24nIHR5cGUuIHZpcnRpb19wbWVt
+IGRyaXZlciByZXF1aXJlcyB0aGlzIHNwZWNpYWwKPiBmbHVzaCBmdW5jdGlvbi4gRm9yIHJlc3Qg
+b2YgdGhlIHJlZ2lvbiB0eXBlcyB3ZSBhcmUgcmVnaXN0ZXJpbmcKPiBleGlzdGluZyBmbHVzaCBm
+dW5jdGlvbi4gUmVwb3J0IGVycm9yIHJldHVybmVkIGJ5IGhvc3QgZnN5bmMKPiBmYWlsdXJlIHRv
+IHVzZXJzcGFjZS4KPgo+IFNpZ25lZC1vZmYtYnk6IFBhbmthaiBHdXB0YSA8cGFndXB0YUByZWRo
+YXQuY29tPgo+IC0tLQo+ICBkcml2ZXJzL2FjcGkvbmZpdC9jb3JlLmMgICAgIHwgIDQgKystLQo+
+ICBkcml2ZXJzL252ZGltbS9jbGFpbS5jICAgICAgIHwgIDYgKysrKy0tCj4gIGRyaXZlcnMvbnZk
+aW1tL25kLmggICAgICAgICAgfCAgMSArCj4gIGRyaXZlcnMvbnZkaW1tL3BtZW0uYyAgICAgICAg
+fCAxMyArKysrKysrKy0tLS0tCj4gIGRyaXZlcnMvbnZkaW1tL3JlZ2lvbl9kZXZzLmMgfCAyNiAr
+KysrKysrKysrKysrKysrKysrKysrKystLQo+ICBpbmNsdWRlL2xpbnV4L2xpYm52ZGltbS5oICAg
+IHwgIDggKysrKysrKy0KPiAgNiBmaWxlcyBjaGFuZ2VkLCA0NiBpbnNlcnRpb25zKCspLCAxMiBk
+ZWxldGlvbnMoLSkKPgo+IGRpZmYgLS1naXQgYS9kcml2ZXJzL2FjcGkvbmZpdC9jb3JlLmMgYi9k
+cml2ZXJzL2FjcGkvbmZpdC9jb3JlLmMKPiBpbmRleCA1YTM4OWE0ZjRmNjUuLjA4ZGRlNzZjZjQ1
+OSAxMDA2NDQKPiAtLS0gYS9kcml2ZXJzL2FjcGkvbmZpdC9jb3JlLmMKPiArKysgYi9kcml2ZXJz
+L2FjcGkvbmZpdC9jb3JlLmMKPiBAQCAtMjQzNCw3ICsyNDM0LDcgQEAgc3RhdGljIHZvaWQgd3Jp
+dGVfYmxrX2N0bChzdHJ1Y3QgbmZpdF9ibGsgKm5maXRfYmxrLCB1bnNpZ25lZCBpbnQgYncsCj4g
+ICAgICAgICAgICAgICAgIG9mZnNldCA9IHRvX2ludGVybGVhdmVfb2Zmc2V0KG9mZnNldCwgbW1p
+byk7Cj4KPiAgICAgICAgIHdyaXRlcShjbWQsIG1taW8tPmFkZHIuYmFzZSArIG9mZnNldCk7Cj4g
+LSAgICAgICBudmRpbW1fZmx1c2gobmZpdF9ibGstPm5kX3JlZ2lvbik7Cj4gKyAgICAgICBudmRp
+bW1fZmx1c2gobmZpdF9ibGstPm5kX3JlZ2lvbiwgTlVMTCk7Cj4KPiAgICAgICAgIGlmIChuZml0
+X2Jsay0+ZGltbV9mbGFncyAmIE5GSVRfQkxLX0RDUl9MQVRDSCkKPiAgICAgICAgICAgICAgICAg
+cmVhZHEobW1pby0+YWRkci5iYXNlICsgb2Zmc2V0KTsKPiBAQCAtMjQ4Myw3ICsyNDgzLDcgQEAg
+c3RhdGljIGludCBhY3BpX25maXRfYmxrX3NpbmdsZV9pbyhzdHJ1Y3QgbmZpdF9ibGsgKm5maXRf
+YmxrLAo+ICAgICAgICAgfQo+Cj4gICAgICAgICBpZiAocncpCj4gLSAgICAgICAgICAgICAgIG52
+ZGltbV9mbHVzaChuZml0X2Jsay0+bmRfcmVnaW9uKTsKPiArICAgICAgICAgICAgICAgbnZkaW1t
+X2ZsdXNoKG5maXRfYmxrLT5uZF9yZWdpb24sIE5VTEwpOwo+Cj4gICAgICAgICByYyA9IHJlYWRf
+YmxrX3N0YXQobmZpdF9ibGssIGxhbmUpID8gLUVJTyA6IDA7Cj4gICAgICAgICByZXR1cm4gcmM7
+Cj4gZGlmZiAtLWdpdCBhL2RyaXZlcnMvbnZkaW1tL2NsYWltLmMgYi9kcml2ZXJzL252ZGltbS9j
+bGFpbS5jCj4gaW5kZXggZmI2NjdiZjQ2OWM3Li4xMzUxMGJhZTFlNmYgMTAwNjQ0Cj4gLS0tIGEv
+ZHJpdmVycy9udmRpbW0vY2xhaW0uYwo+ICsrKyBiL2RyaXZlcnMvbnZkaW1tL2NsYWltLmMKPiBA
+QCAtMjYzLDcgKzI2Myw3IEBAIHN0YXRpYyBpbnQgbnNpb19yd19ieXRlcyhzdHJ1Y3QgbmRfbmFt
+ZXNwYWNlX2NvbW1vbiAqbmRucywKPiAgICAgICAgIHN0cnVjdCBuZF9uYW1lc3BhY2VfaW8gKm5z
+aW8gPSB0b19uZF9uYW1lc3BhY2VfaW8oJm5kbnMtPmRldik7Cj4gICAgICAgICB1bnNpZ25lZCBp
+bnQgc3pfYWxpZ24gPSBBTElHTihzaXplICsgKG9mZnNldCAmICg1MTIgLSAxKSksIDUxMik7Cj4g
+ICAgICAgICBzZWN0b3JfdCBzZWN0b3IgPSBvZmZzZXQgPj4gOTsKPiAtICAgICAgIGludCByYyA9
+IDA7Cj4gKyAgICAgICBpbnQgcmMgPSAwLCByZXQgPSAwOwo+Cj4gICAgICAgICBpZiAodW5saWtl
+bHkoIXNpemUpKQo+ICAgICAgICAgICAgICAgICByZXR1cm4gMDsKPiBAQCAtMzAxLDcgKzMwMSw5
+IEBAIHN0YXRpYyBpbnQgbnNpb19yd19ieXRlcyhzdHJ1Y3QgbmRfbmFtZXNwYWNlX2NvbW1vbiAq
+bmRucywKPiAgICAgICAgIH0KPgo+ICAgICAgICAgbWVtY3B5X2ZsdXNoY2FjaGUobnNpby0+YWRk
+ciArIG9mZnNldCwgYnVmLCBzaXplKTsKPiAtICAgICAgIG52ZGltbV9mbHVzaCh0b19uZF9yZWdp
+b24obmRucy0+ZGV2LnBhcmVudCkpOwo+ICsgICAgICAgcmV0ID0gbnZkaW1tX2ZsdXNoKHRvX25k
+X3JlZ2lvbihuZG5zLT5kZXYucGFyZW50KSwgTlVMTCk7Cj4gKyAgICAgICBpZiAocmV0KQo+ICsg
+ICAgICAgICAgICAgICByYyA9IHJldDsKPgo+ICAgICAgICAgcmV0dXJuIHJjOwo+ICB9Cj4gZGlm
+ZiAtLWdpdCBhL2RyaXZlcnMvbnZkaW1tL25kLmggYi9kcml2ZXJzL252ZGltbS9uZC5oCj4gaW5k
+ZXggYTVhYzNiMjQwMjkzLi4wYzc0ZDI0MjhiZDcgMTAwNjQ0Cj4gLS0tIGEvZHJpdmVycy9udmRp
+bW0vbmQuaAo+ICsrKyBiL2RyaXZlcnMvbnZkaW1tL25kLmgKPiBAQCAtMTU5LDYgKzE1OSw3IEBA
+IHN0cnVjdCBuZF9yZWdpb24gewo+ICAgICAgICAgc3RydWN0IGJhZGJsb2NrcyBiYjsKPiAgICAg
+ICAgIHN0cnVjdCBuZF9pbnRlcmxlYXZlX3NldCAqbmRfc2V0Owo+ICAgICAgICAgc3RydWN0IG5k
+X3BlcmNwdV9sYW5lIF9fcGVyY3B1ICpsYW5lOwo+ICsgICAgICAgaW50ICgqZmx1c2gpKHN0cnVj
+dCBuZF9yZWdpb24gKm5kX3JlZ2lvbiwgc3RydWN0IGJpbyAqYmlvKTsKClNvIHRoaXMgdHJpZ2dl
+cnM6CgpJbiBmaWxlIGluY2x1ZGVkIGZyb20gZHJpdmVycy9udmRpbW0vZTgyMC5jOjc6Ci4vaW5j
+bHVkZS9saW51eC9saWJudmRpbW0uaDoxNDA6NTE6IHdhcm5pbmc6IOKAmHN0cnVjdCBiaW/igJkg
+ZGVjbGFyZWQKaW5zaWRlIHBhcmFtZXRlciBsaXN0IHdpbGwgbm90IGJlIHZpc2libGUgb3V0c2lk
+ZSBvZiB0aGlzIGRlZmluaXRpb24Kb3IgZGVjbGFyYXRpb24KICBpbnQgKCpmbHVzaCkoc3RydWN0
+IG5kX3JlZ2lvbiAqbmRfcmVnaW9uLCBzdHJ1Y3QgYmlvICpiaW8pOwogICAgICAgICAgICAgICAg
+ICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICBefn4KSSB3YXMgYWxyZWFkeSBmZWVs
+aW5nIHVuZWFzeSBhYm91dCB0cnlpbmcgdG8gc3F1ZWV6ZSB0aGlzIGludG8gdjUuMiwKYnV0IHRo
+aXMgd2FybmluZyBhbmQgdGhlIGNvbnRpbnVlZCBkcmlwIG9mIGNvbW1lbnRzIGxlYWRzIG1lIHRv
+CmNvbmNsdWRlIHRoYXQgdGhpcyBkcml2ZXIgd291bGQgZG8gd2VsbCB0byB3YWl0IG9uZSBtb3Jl
+IGRldmVsb3BtZW50CmN5Y2xlLiBMZXRzIGNsb3NlIG91dCB0aGUgZmluYWwgZml4dXBzIGFuZCBs
+ZXQgdGhpcyBkcml2ZXIgc29hayBpbgotbmV4dC4gVGhlbiBmb3IgdGhlIHY1LjMgY3ljbGUgSSds
+bCByZWRvdWJsZSBteSBlZmZvcnRzIHRvd2FyZHMgdGhlCmdvYWwgb2YgY2xvc2luZyBwYXRjaCBh
+Y2NlcHRhbmNlIGF0IHRoZSAtcmM2IC8gLXJjNyBkZXZlbG9wbWVudAptaWxlc3RvbmUuCl9fX19f
+X19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fClZpcnR1YWxpemF0aW9u
+IG1haWxpbmcgbGlzdApWaXJ0dWFsaXphdGlvbkBsaXN0cy5saW51eC1mb3VuZGF0aW9uLm9yZwpo
+dHRwczovL2xpc3RzLmxpbnV4Zm91bmRhdGlvbi5vcmcvbWFpbG1hbi9saXN0aW5mby92aXJ0dWFs
+aXphdGlvbg==
