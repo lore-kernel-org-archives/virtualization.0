@@ -1,16 +1,15 @@
-From: Cornelia Huck <cohuck@redhat.com>
-Subject: Re: [PATCH 10/10] virtio/s390: make airq summary indicators DMA
-Date: Wed, 15 May 2019 15:50:17 +0200
-Message-ID: <20190515155017.0d3e2543.cohuck@redhat.com>
-References: <20190426183245.37939-1-pasic@linux.ibm.com>
-	<20190426183245.37939-11-pasic@linux.ibm.com>
-	<20190513142010.36c8478f.cohuck@redhat.com>
-	<3a8353e2-97e3-778e-ab2e-ef285ac7027d@linux.ibm.com>
+From: Gerd Hoffmann <kraxel@redhat.com>
+Subject: Re: [PATCH v5 00/20] Share TTM code among DRM framebuffer drivers
+Date: Wed, 15 May 2019 16:22:35 +0200
+Message-ID: <20190515142235.qfwnvsrhnogj67hz@sirius.home.kraxel.org>
+References: <20190508082630.15116-1-tzimmermann@suse.de>
+	<05884df3-207a-6c2f-226e-d01266f17b77@suse.de>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <3a8353e2-97e3-778e-ab2e-ef285ac7027d@linux.ibm.com>
+Content-Disposition: inline
+In-Reply-To: <05884df3-207a-6c2f-226e-d01266f17b77@suse.de>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -20,54 +19,31 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Michael Mueller <mimu@linux.ibm.com>
-Cc: Vasily Gorbik <gor@linux.ibm.com>, linux-s390@vger.kernel.org, Thomas Huth <thuth@redhat.com>, Claudio Imbrenda <imbrenda@linux.ibm.com>, kvm@vger.kernel.org, Sebastian Ott <sebott@linux.ibm.com>, "Michael S. Tsirkin" <mst@redhat.com>, Farhan Ali <alifm@linux.ibm.com>, Eric Farman <farman@linux.ibm.com>, virtualization@lists.linux-foundation.org, Halil Pasic <pasic@linux.ibm.com>, Christoph Hellwig <hch@infradead.org>, Martin Schwidefsky <schwidefsky@de.ibm.com>, Viktor Mihajlovski <mihajlov@linux.ibm.com>, Janosch Frank <frankja@linux.ibm.com>
+To: Thomas Zimmermann <tzimmermann@suse.de>
+Cc: noralf@tronnes.org, airlied@linux.ie, puck.chen@hisilicon.com, dri-devel@lists.freedesktop.org, virtualization@lists.linux-foundation.org, z.liuxinliang@hisilicon.com, hdegoede@redhat.com, kong.kongxinwei@hisilicon.com, ray.huang@amd.com, daniel@ffwll.ch, zourongrong@gmail.com, sam@ravnborg.org, christian.koenig@amd.com
 List-Id: virtualization@lists.linuxfoundation.org
 
-On Wed, 15 May 2019 15:43:23 +0200
-Michael Mueller <mimu@linux.ibm.com> wrote:
+On Wed, May 15, 2019 at 09:05:54AM +0200, Thomas Zimmermann wrote:
+> Hi,
+> 
+> most of this patch set still needs reviews.
+> 
+> If it's too large for merging or reviewing at once, I could move the
+> driver changes into separate patch sets. The vbox driver's changes have
+> been accepted by Hans already. So only keeping the core changes plus
+> vbox would be an option.
 
-> On 13.05.19 14:20, Cornelia Huck wrote:
-> > On Fri, 26 Apr 2019 20:32:45 +0200
-> > Halil Pasic <pasic@linux.ibm.com> wrote:
-> >   
-> >> Hypervisor needs to interact with the summary indicators, so these
-> >> need to be DMA memory as well (at least for protected virtualization
-> >> guests).
-> >>
-> >> Signed-off-by: Halil Pasic <pasic@linux.ibm.com>
-> >> ---
-> >>   drivers/s390/virtio/virtio_ccw.c | 24 +++++++++++++++++-------
-> >>   1 file changed, 17 insertions(+), 7 deletions(-)  
-> > 
-> > (...)
-> >   
-> >> @@ -237,7 +243,8 @@ static void virtio_airq_handler(struct airq_struct *airq)
-> >>   	read_unlock(&info->lock);
-> >>   }
-> >>   
-> >> -static struct airq_info *new_airq_info(void)
-> >> +/* call with drivers/s390/virtio/virtio_ccw.cheld */  
-> > 
-> > Hm, where is airq_areas_lock defined? If it was introduced in one of
-> > the previous patches, I have missed it.  
-> 
-> There is no airq_areas_lock defined currently. My assumption is that
-> this will be used in context with the likely race condition this
-> part of the patch is talking about.
-> 
-> @@ -273,8 +281,9 @@ static unsigned long get_airq_indicator(struct 
-> virtqueue *vqs[], int nvqs,
->   	unsigned long bit, flags;
-> 
->   	for (i = 0; i < MAX_AIRQ_AREAS && !indicator_addr; i++) {
-> +		/* TODO: this seems to be racy */
->   		if (!airq_areas[i])
-> -			airq_areas[i] = new_airq_info();
-> +			airq_areas[i] = new_airq_info(i);
-> 
-> 
-> As this shall be handled by a separate patch I will drop the comment
-> in regard to airq_areas_lock from this patch as well for v2.
+Looks all good to me.  bochs survived my testing, vbox is reviewed and
+IIRC you've tested two of the other three drivers.  So all but one
+driver is covered.
 
-Ok, that makes sense.
+I'll go push this to drm-misc-next in a moment.
+
+> > Future directions: with these changes, the respective drivers can also
+> > share some of their mode-setting or fbdev code. GEM VRAM's PRIME helpers
+> > allow for using the generic fbcon emulation.
+
+Using generic fbcon should be easy now.
+
+cheers,
+  Gerd
