@@ -1,14 +1,19 @@
-From: "Michael S. Tsirkin" <mst@redhat.com>
-Subject: Re: [PATCH net] vhost: don't use kmap() to log dirty pages
-Date: Tue, 14 May 2019 18:16:28 -0400
-Message-ID: <20190514181150-mutt-send-email-mst__48551.5166352101$1557872218$gmane$org@kernel.org>
-References: <1557725265-63525-1-git-send-email-jasowang@redhat.com>
+From: Jason Wang <jasowang@redhat.com>
+Subject: Re: [PATCH v2 1/8] vsock/virtio: limit the memory used per-socket
+Date: Wed, 15 May 2019 10:48:44 +0800
+Message-ID: <034a5081-b4fb-011f-b5b7-fbf293c13b23@redhat.com>
+References: <20190510125843.95587-1-sgarzare@redhat.com>
+	<20190510125843.95587-2-sgarzare@redhat.com>
+	<3b275b52-63d9-d260-1652-8e8bf7dd679f@redhat.com>
+	<20190513172322.vcgenx7xk4v6r2ay@steredhat>
+	<f834c9e9-5d0e-8ebb-44e0-6d99b6284e5c@redhat.com>
+	<20190514163500.a7moalixvpn5mkcr@steredhat>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset="utf-8"; Format="flowed"
+Content-Transfer-Encoding: base64
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-Content-Disposition: inline
-In-Reply-To: <1557725265-63525-1-git-send-email-jasowang@redhat.com>
+In-Reply-To: <20190514163500.a7moalixvpn5mkcr@steredhat>
+Content-Language: en-US
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -18,144 +23,133 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Jason Wang <jasowang@redhat.com>
-Cc: Andrea Arcangeli <aarcange@redhat.com>, James Bottomley <James.Bottomley@hansenpartnership.com>, kvm@vger.kernel.org, Peter Zijlstra <peterz@infradead.org>, netdev@vger.kernel.org, linux-kernel@vger.kernel.org, virtualization@lists.linux-foundation.org, Christoph Hellwig <hch@infradead.org>, Ingo Molnar <mingo@redhat.com>, Darren Hart <dvhart@infradead.org>, Thomas Gleixner <tglx@linutronix.de>
+To: Stefano Garzarella <sgarzare@redhat.com>
+Cc: kvm@vger.kernel.org, "Michael S. Tsirkin" <mst@redhat.com>, netdev@vger.kernel.org, linux-kernel@vger.kernel.org, virtualization@lists.linux-foundation.org, Stefan Hajnoczi <stefanha@redhat.com>, "David S. Miller" <davem@davemloft.net>
 List-Id: virtualization@lists.linuxfoundation.org
 
-On Mon, May 13, 2019 at 01:27:45AM -0400, Jason Wang wrote:
-> Vhost log dirty pages directly to a userspace bitmap through GUP and
-> kmap_atomic() since kernel doesn't have a set_bit_to_user()
-> helper. This will cause issues for the arch that has virtually tagged
-> caches. The way to fix is to keep using userspace virtual
-> address. Fortunately, futex has arch_futex_atomic_op_inuser() which
-> could be used for setting a bit to user.
-> 
-> Note there're several cases that futex helper can fail e.g a page
-> fault or the arch that doesn't have the support. For those cases, a
-> simplified get_user()/put_user() pair protected by a global mutex is
-> provided as a fallback. The fallback may lead false positive that
-> userspace may see more dirty pages.
-> 
-> Cc: Christoph Hellwig <hch@infradead.org>
-> Cc: James Bottomley <James.Bottomley@HansenPartnership.com>
-> Cc: Andrea Arcangeli <aarcange@redhat.com>
-> Cc: Thomas Gleixner <tglx@linutronix.de>
-> Cc: Ingo Molnar <mingo@redhat.com>
-> Cc: Peter Zijlstra <peterz@infradead.org>
-> Cc: Darren Hart <dvhart@infradead.org>
-> Fixes: 3a4d5c94e9593 ("vhost_net: a kernel-level virtio server")
-> Signed-off-by: Jason Wang <jasowang@redhat.com>
-> ---
-> Changes from RFC V2:
-> - drop GUP and provide get_user()/put_user() fallbacks
-> - round down log_base
-> Changes from RFC V1:
-> - switch to use arch_futex_atomic_op_inuser()
-> ---
->  drivers/vhost/vhost.c | 54 ++++++++++++++++++++++++++++-----------------------
->  1 file changed, 30 insertions(+), 24 deletions(-)
-> 
-> diff --git a/drivers/vhost/vhost.c b/drivers/vhost/vhost.c
-> index 351af88..7fa05ba 100644
-> --- a/drivers/vhost/vhost.c
-> +++ b/drivers/vhost/vhost.c
-> @@ -31,6 +31,7 @@
->  #include <linux/sched/signal.h>
->  #include <linux/interval_tree_generic.h>
->  #include <linux/nospec.h>
-> +#include <asm/futex.h>
->  
->  #include "vhost.h"
->  
-> @@ -43,6 +44,8 @@
->  MODULE_PARM_DESC(max_iotlb_entries,
->  	"Maximum number of iotlb entries. (default: 2048)");
->  
-> +static DEFINE_MUTEX(vhost_log_lock);
-> +
->  enum {
->  	VHOST_MEMORY_F_LOG = 0x1,
->  };
-> @@ -1692,28 +1695,31 @@ long vhost_dev_ioctl(struct vhost_dev *d, unsigned int ioctl, void __user *argp)
->  }
->  EXPORT_SYMBOL_GPL(vhost_dev_ioctl);
->  
-> -/* TODO: This is really inefficient.  We need something like get_user()
-> - * (instruction directly accesses the data, with an exception table entry
-> - * returning -EFAULT). See Documentation/x86/exception-tables.txt.
-> - */
-> -static int set_bit_to_user(int nr, void __user *addr)
-> +static int set_bit_to_user(int nr, u32 __user *addr)
->  {
-> -	unsigned long log = (unsigned long)addr;
-> -	struct page *page;
-> -	void *base;
-> -	int bit = nr + (log % PAGE_SIZE) * 8;
-> +	u32 old;
->  	int r;
->  
-> -	r = get_user_pages_fast(log, 1, 1, &page);
-> -	if (r < 0)
-> -		return r;
-> -	BUG_ON(r != 1);
-> -	base = kmap_atomic(page);
-> -	set_bit(bit, base);
-> -	kunmap_atomic(base);
-> -	set_page_dirty_lock(page);
-> -	put_page(page);
-> +	r = arch_futex_atomic_op_inuser(FUTEX_OP_OR, 1 << nr, &old, addr);
-> +	if (r) {
-> +		/* Fallback through get_user()/put_user(), this may
-> +		 * lead false positive that userspace may see more
-> +		 * dirty pages. A mutex is used to synchronize log
-> +		 * access between vhost threads.
-> +		 */
-> +		mutex_lock(&vhost_log_lock);
-> +		r = get_user(old, addr);
-> +		if (r)
-> +			goto err;
-> +		r = put_user(old | 1 << nr, addr);
-> +		if (r)
-> +			goto err;
-> +		mutex_unlock(&vhost_log_lock);
-> +	}
-
-Problem is, we always said it's atomic.
-
-This trick will work if userspace only clears bits
-in the log, but won't if it sets bits in the log.
-E.g. reusing the log structure for vhost-user
-will have exactly this effect.
-
-
-
-
->  	return 0;
-> +err:
-> +	mutex_unlock(&vhost_log_lock);
-> +	return r;
->  }
->  
->  static int log_write(void __user *log_base,
-> @@ -1725,13 +1731,13 @@ static int log_write(void __user *log_base,
->  	if (!write_length)
->  		return 0;
->  	write_length += write_address % VHOST_PAGE_SIZE;
-> +	log_base = (void __user *)((u64)log_base & ~0x3ULL);
-> +	write_page += ((u64)log_base & 0x3ULL) * 8;
->  	for (;;) {
-> -		u64 base = (u64)(unsigned long)log_base;
-> -		u64 log = base + write_page / 8;
-> -		int bit = write_page % 8;
-> -		if ((u64)(unsigned long)log != log)
-> -			return -EFAULT;
-> -		r = set_bit_to_user(bit, (void __user *)(unsigned long)log);
-> +		u32 __user *log = (u32 __user *)log_base + write_page / 32;
-> +		int bit = write_page % 32;
-> +
-> +		r = set_bit_to_user(bit, log);
->  		if (r < 0)
->  			return r;
->  		if (write_length <= VHOST_PAGE_SIZE)
-> -- 
-> 1.8.3.1
+Ck9uIDIwMTkvNS8xNSDkuIrljYgxMjozNSwgU3RlZmFubyBHYXJ6YXJlbGxhIHdyb3RlOgo+IE9u
+IFR1ZSwgTWF5IDE0LCAyMDE5IGF0IDExOjI1OjM0QU0gKzA4MDAsIEphc29uIFdhbmcgd3JvdGU6
+Cj4+IE9uIDIwMTkvNS8xNCDkuIrljYgxOjIzLCBTdGVmYW5vIEdhcnphcmVsbGEgd3JvdGU6Cj4+
+PiBPbiBNb24sIE1heSAxMywgMjAxOSBhdCAwNTo1ODo1M1BNICswODAwLCBKYXNvbiBXYW5nIHdy
+b3RlOgo+Pj4+IE9uIDIwMTkvNS8xMCDkuIvljYg4OjU4LCBTdGVmYW5vIEdhcnphcmVsbGEgd3Jv
+dGU6Cj4+Pj4+IFNpbmNlIHZpcnRpby12c29jayB3YXMgaW50cm9kdWNlZCwgdGhlIGJ1ZmZlcnMg
+ZmlsbGVkIGJ5IHRoZSBob3N0Cj4+Pj4+IGFuZCBwdXNoZWQgdG8gdGhlIGd1ZXN0IHVzaW5nIHRo
+ZSB2cmluZywgYXJlIGRpcmVjdGx5IHF1ZXVlZCBpbgo+Pj4+PiBhIHBlci1zb2NrZXQgbGlzdCBh
+dm9pZGluZyB0byBjb3B5IGl0Lgo+Pj4+PiBUaGVzZSBidWZmZXJzIGFyZSBwcmVhbGxvY2F0ZWQg
+YnkgdGhlIGd1ZXN0IHdpdGggYSBmaXhlZAo+Pj4+PiBzaXplICg0IEtCKS4KPj4+Pj4KPj4+Pj4g
+VGhlIG1heGltdW0gYW1vdW50IG9mIG1lbW9yeSB1c2VkIGJ5IGVhY2ggc29ja2V0IHNob3VsZCBi
+ZQo+Pj4+PiBjb250cm9sbGVkIGJ5IHRoZSBjcmVkaXQgbWVjaGFuaXNtLgo+Pj4+PiBUaGUgZGVm
+YXVsdCBjcmVkaXQgYXZhaWxhYmxlIHBlci1zb2NrZXQgaXMgMjU2IEtCLCBidXQgaWYgd2UgdXNl
+Cj4+Pj4+IG9ubHkgMSBieXRlIHBlciBwYWNrZXQsIHRoZSBndWVzdCBjYW4gcXVldWUgdXAgdG8g
+MjYyMTQ0IG9mIDQgS0IKPj4+Pj4gYnVmZmVycywgdXNpbmcgdXAgdG8gMSBHQiBvZiBtZW1vcnkg
+cGVyLXNvY2tldC4gSW4gYWRkaXRpb24sIHRoZQo+Pj4+PiBndWVzdCB3aWxsIGNvbnRpbnVlIHRv
+IGZpbGwgdGhlIHZyaW5nIHdpdGggbmV3IDQgS0IgZnJlZSBidWZmZXJzCj4+Pj4+IHRvIGF2b2lk
+IHN0YXJ2YXRpb24gb2YgaGVyIHNvY2tldHMuCj4+Pj4+Cj4+Pj4+IFRoaXMgcGF0Y2ggc29sdmVz
+IHRoaXMgaXNzdWUgY29weWluZyB0aGUgcGF5bG9hZCBpbiBhIG5ldyBidWZmZXIuCj4+Pj4+IFRo
+ZW4gaXQgaXMgcXVldWVkIGluIHRoZSBwZXItc29ja2V0IGxpc3QsIGFuZCB0aGUgNEtCIGJ1ZmZl
+ciB1c2VkCj4+Pj4+IGJ5IHRoZSBob3N0IGlzIGZyZWVkLgo+Pj4+Pgo+Pj4+PiBJbiB0aGlzIHdh
+eSwgdGhlIG1lbW9yeSB1c2VkIGJ5IGVhY2ggc29ja2V0IHJlc3BlY3RzIHRoZSBjcmVkaXQKPj4+
+Pj4gYXZhaWxhYmxlLCBhbmQgd2Ugc3RpbGwgYXZvaWQgc3RhcnZhdGlvbiwgcGF5aW5nIHRoZSBj
+b3N0IG9mIGFuCj4+Pj4+IGV4dHJhIG1lbW9yeSBjb3B5LiBXaGVuIHRoZSBidWZmZXIgaXMgY29t
+cGxldGVseSBmdWxsIHdlIGRvIGEKPj4+Pj4gInplcm8tY29weSIsIG1vdmluZyB0aGUgYnVmZmVy
+IGRpcmVjdGx5IGluIHRoZSBwZXItc29ja2V0IGxpc3QuCj4+Pj4gSSB3b25kZXIgaW4gdGhlIGxv
+bmcgcnVuIHdlIHNob3VsZCB1c2UgZ2VuZXJpYyBzb2NrZXQgYWNjb3V0aW5nIG1lY2hhbmlzbQo+
+Pj4+IHByb3ZpZGVkIGJ5IGtlcm5lbCAoZS5nIHNvY2tldCwgc2tiLCBzbmRidWYsIHJlY3ZidWcs
+IHRydWVzaXplKSBpbnN0ZWFkIG9mCj4+Pj4gdnNvY2sgc3BlY2lmaWMgdGhpbmcgdG8gYXZvaWQg
+ZHVwbGljYXRpbmcgZWZmb3J0cy4KPj4+IEkgYWdyZWUsIHRoZSBpZGVhIGlzIHRvIHN3aXRjaCB0
+byBza19idWZmIGJ1dCB0aGlzIHNob3VsZCByZXF1aXJlIGFuIGh1Z2UKPj4+IGNoYW5nZS4gSWYg
+d2Ugd2lsbCB1c2UgdGhlIHZpcnRpby1uZXQgZGF0YXBhdGgsIGl0IHdpbGwgYmVjb21lIHNpbXBs
+ZXIuCj4+Cj4+IFllcywgdW5peCBkb21haW4gc29ja2V0IGlzIG9uZSBleGFtcGxlIHRoYXQgdXNl
+cyBnZW5lcmFsIHNrYiBhbmQgc29ja2V0Cj4+IHN0cnVjdHVyZS4gQW5kIHdlIHByb2JhYmx5IG5l
+ZWQgc29tZSBraW5kIG9mIHNvY2tldCBwYWlyIG9uIGhvc3QuIFVzaW5nCj4+IHNvY2tldCBjYW4g
+YWxzbyBzaW1wbGlmeSB0aGUgdW5pZmljYXRpb24gd2l0aCB2aG9zdC1uZXQgd2hpY2ggZGVwZW5k
+cyBvbiB0aGUKPj4gc29ja2V0IHByb3RvX29wcyB0byB3b3JrLiBJIGFkbWl0IGl0J3MgYSBodWdl
+IGNoYW5nZSBwcm9iYWJseSwgd2UgY2FuIGRvIGl0Cj4+IGdyYWR1YWxseS4KPj4KPiBZZXMsIEkg
+YWxzbyBwcmVmZXIgdG8gZG8gdGhpcyBjaGFuZ2UgZ3JhZHVhbGx5IDopCj4KPj4+Pj4gU2lnbmVk
+LW9mZi1ieTogU3RlZmFubyBHYXJ6YXJlbGxhIDxzZ2FyemFyZUByZWRoYXQuY29tPgo+Pj4+PiAt
+LS0KPj4+Pj4gICAgIGRyaXZlcnMvdmhvc3QvdnNvY2suYyAgICAgICAgICAgICAgICAgICB8ICAy
+ICsKPj4+Pj4gICAgIGluY2x1ZGUvbGludXgvdmlydGlvX3Zzb2NrLmggICAgICAgICAgICB8ICA4
+ICsrKwo+Pj4+PiAgICAgbmV0L3Ztd192c29jay92aXJ0aW9fdHJhbnNwb3J0LmMgICAgICAgIHwg
+IDEgKwo+Pj4+PiAgICAgbmV0L3Ztd192c29jay92aXJ0aW9fdHJhbnNwb3J0X2NvbW1vbi5jIHwg
+OTUgKysrKysrKysrKysrKysrKysrLS0tLS0tLQo+Pj4+PiAgICAgNCBmaWxlcyBjaGFuZ2VkLCA4
+MSBpbnNlcnRpb25zKCspLCAyNSBkZWxldGlvbnMoLSkKPj4+Pj4KPj4+Pj4gZGlmZiAtLWdpdCBh
+L2RyaXZlcnMvdmhvc3QvdnNvY2suYyBiL2RyaXZlcnMvdmhvc3QvdnNvY2suYwo+Pj4+PiBpbmRl
+eCBiYjVmYzBlOWZiYzIuLjc5NjRlMmRhZWUwOSAxMDA2NDQKPj4+Pj4gLS0tIGEvZHJpdmVycy92
+aG9zdC92c29jay5jCj4+Pj4+ICsrKyBiL2RyaXZlcnMvdmhvc3QvdnNvY2suYwo+Pj4+PiBAQCAt
+MzIwLDYgKzMyMCw4IEBAIHZob3N0X3Zzb2NrX2FsbG9jX3BrdChzdHJ1Y3Qgdmhvc3RfdmlydHF1
+ZXVlICp2cSwKPj4+Pj4gICAgIAkJcmV0dXJuIE5VTEw7Cj4+Pj4+ICAgICAJfQo+Pj4+PiArCXBr
+dC0+YnVmX2xlbiA9IHBrdC0+bGVuOwo+Pj4+PiArCj4+Pj4+ICAgICAJbmJ5dGVzID0gY29weV9m
+cm9tX2l0ZXIocGt0LT5idWYsIHBrdC0+bGVuLCAmaW92X2l0ZXIpOwo+Pj4+PiAgICAgCWlmIChu
+Ynl0ZXMgIT0gcGt0LT5sZW4pIHsKPj4+Pj4gICAgIAkJdnFfZXJyKHZxLCAiRXhwZWN0ZWQgJXUg
+Ynl0ZSBwYXlsb2FkLCBnb3QgJXp1IGJ5dGVzXG4iLAo+Pj4+PiBkaWZmIC0tZ2l0IGEvaW5jbHVk
+ZS9saW51eC92aXJ0aW9fdnNvY2suaCBiL2luY2x1ZGUvbGludXgvdmlydGlvX3Zzb2NrLmgKPj4+
+Pj4gaW5kZXggZTIyM2UyNjMyZWRkLi4zNDVmMDRlZTkxOTMgMTAwNjQ0Cj4+Pj4+IC0tLSBhL2lu
+Y2x1ZGUvbGludXgvdmlydGlvX3Zzb2NrLmgKPj4+Pj4gKysrIGIvaW5jbHVkZS9saW51eC92aXJ0
+aW9fdnNvY2suaAo+Pj4+PiBAQCAtNTQsOSArNTQsMTcgQEAgc3RydWN0IHZpcnRpb192c29ja19w
+a3Qgewo+Pj4+PiAgICAgCXZvaWQgKmJ1ZjsKPj4+Pj4gICAgIAl1MzIgbGVuOwo+Pj4+PiAgICAg
+CXUzMiBvZmY7Cj4+Pj4+ICsJdTMyIGJ1Zl9sZW47Cj4+Pj4+ICAgICAJYm9vbCByZXBseTsKPj4+
+Pj4gICAgIH07Cj4+Pj4+ICtzdHJ1Y3QgdmlydGlvX3Zzb2NrX2J1ZiB7Cj4+Pj4+ICsJc3RydWN0
+IGxpc3RfaGVhZCBsaXN0Owo+Pj4+PiArCXZvaWQgKmFkZHI7Cj4+Pj4+ICsJdTMyIGxlbjsKPj4+
+Pj4gKwl1MzIgb2ZmOwo+Pj4+PiArfTsKPj4+Pj4gKwo+Pj4+PiAgICAgc3RydWN0IHZpcnRpb192
+c29ja19wa3RfaW5mbyB7Cj4+Pj4+ICAgICAJdTMyIHJlbW90ZV9jaWQsIHJlbW90ZV9wb3J0Owo+
+Pj4+PiAgICAgCXN0cnVjdCB2c29ja19zb2NrICp2c2s7Cj4+Pj4+IGRpZmYgLS1naXQgYS9uZXQv
+dm13X3Zzb2NrL3ZpcnRpb190cmFuc3BvcnQuYyBiL25ldC92bXdfdnNvY2svdmlydGlvX3RyYW5z
+cG9ydC5jCj4+Pj4+IGluZGV4IDE1ZWI1ZDNkNDc1MC4uYWYxZDJjZTEyZjU0IDEwMDY0NAo+Pj4+
+PiAtLS0gYS9uZXQvdm13X3Zzb2NrL3ZpcnRpb190cmFuc3BvcnQuYwo+Pj4+PiArKysgYi9uZXQv
+dm13X3Zzb2NrL3ZpcnRpb190cmFuc3BvcnQuYwo+Pj4+PiBAQCAtMjgwLDYgKzI4MCw3IEBAIHN0
+YXRpYyB2b2lkIHZpcnRpb192c29ja19yeF9maWxsKHN0cnVjdCB2aXJ0aW9fdnNvY2sgKnZzb2Nr
+KQo+Pj4+PiAgICAgCQkJYnJlYWs7Cj4+Pj4+ICAgICAJCX0KPj4+Pj4gKwkJcGt0LT5idWZfbGVu
+ID0gYnVmX2xlbjsKPj4+Pj4gICAgIAkJcGt0LT5sZW4gPSBidWZfbGVuOwo+Pj4+PiAgICAgCQlz
+Z19pbml0X29uZSgmaGRyLCAmcGt0LT5oZHIsIHNpemVvZihwa3QtPmhkcikpOwo+Pj4+PiBkaWZm
+IC0tZ2l0IGEvbmV0L3Ztd192c29jay92aXJ0aW9fdHJhbnNwb3J0X2NvbW1vbi5jIGIvbmV0L3Zt
+d192c29jay92aXJ0aW9fdHJhbnNwb3J0X2NvbW1vbi5jCj4+Pj4+IGluZGV4IDYwMjcxNWZjOWE3
+NS4uMDI0OGQ2ODA4NzU1IDEwMDY0NAo+Pj4+PiAtLS0gYS9uZXQvdm13X3Zzb2NrL3ZpcnRpb190
+cmFuc3BvcnRfY29tbW9uLmMKPj4+Pj4gKysrIGIvbmV0L3Ztd192c29jay92aXJ0aW9fdHJhbnNw
+b3J0X2NvbW1vbi5jCj4+Pj4+IEBAIC02NSw2ICs2NSw5IEBAIHZpcnRpb190cmFuc3BvcnRfYWxs
+b2NfcGt0KHN0cnVjdCB2aXJ0aW9fdnNvY2tfcGt0X2luZm8gKmluZm8sCj4+Pj4+ICAgICAJCXBr
+dC0+YnVmID0ga21hbGxvYyhsZW4sIEdGUF9LRVJORUwpOwo+Pj4+PiAgICAgCQlpZiAoIXBrdC0+
+YnVmKQo+Pj4+PiAgICAgCQkJZ290byBvdXRfcGt0Owo+Pj4+PiArCj4+Pj4+ICsJCXBrdC0+YnVm
+X2xlbiA9IGxlbjsKPj4+Pj4gKwo+Pj4+PiAgICAgCQllcnIgPSBtZW1jcHlfZnJvbV9tc2cocGt0
+LT5idWYsIGluZm8tPm1zZywgbGVuKTsKPj4+Pj4gICAgIAkJaWYgKGVycikKPj4+Pj4gICAgIAkJ
+CWdvdG8gb3V0Owo+Pj4+PiBAQCAtODYsNiArODksNDYgQEAgdmlydGlvX3RyYW5zcG9ydF9hbGxv
+Y19wa3Qoc3RydWN0IHZpcnRpb192c29ja19wa3RfaW5mbyAqaW5mbywKPj4+Pj4gICAgIAlyZXR1
+cm4gTlVMTDsKPj4+Pj4gICAgIH0KPj4+Pj4gK3N0YXRpYyBzdHJ1Y3QgdmlydGlvX3Zzb2NrX2J1
+ZiAqCj4+Pj4+ICt2aXJ0aW9fdHJhbnNwb3J0X2FsbG9jX2J1ZihzdHJ1Y3QgdmlydGlvX3Zzb2Nr
+X3BrdCAqcGt0LCBib29sIHplcm9fY29weSkKPj4+Pj4gK3sKPj4+Pj4gKwlzdHJ1Y3QgdmlydGlv
+X3Zzb2NrX2J1ZiAqYnVmOwo+Pj4+PiArCj4+Pj4+ICsJaWYgKHBrdC0+bGVuID09IDApCj4+Pj4+
+ICsJCXJldHVybiBOVUxMOwo+Pj4+PiArCj4+Pj4+ICsJYnVmID0ga3phbGxvYyhzaXplb2YoKmJ1
+ZiksIEdGUF9LRVJORUwpOwo+Pj4+PiArCWlmICghYnVmKQo+Pj4+PiArCQlyZXR1cm4gTlVMTDsK
+Pj4+Pj4gKwo+Pj4+PiArCS8qIElmIHRoZSBidWZmZXIgaW4gdGhlIHZpcnRpb192c29ja19wa3Qg
+aXMgZnVsbCwgd2UgY2FuIG1vdmUgaXQgdG8KPj4+Pj4gKwkgKiB0aGUgbmV3IHZpcnRpb192c29j
+a19idWYgYXZvaWRpbmcgdGhlIGNvcHksIGJlY2F1c2Ugd2UgYXJlIHN1cmUgdGhhdAo+Pj4+PiAr
+CSAqIHdlIGFyZSBub3QgdXNlIG1vcmUgbWVtb3J5IHRoYW4gdGhhdCBjb3VudGVkIGJ5IHRoZSBj
+cmVkaXQgbWVjaGFuaXNtLgo+Pj4+PiArCSAqLwo+Pj4+PiArCWlmICh6ZXJvX2NvcHkgJiYgcGt0
+LT5sZW4gPT0gcGt0LT5idWZfbGVuKSB7Cj4+Pj4+ICsJCWJ1Zi0+YWRkciA9IHBrdC0+YnVmOwo+
+Pj4+PiArCQlwa3QtPmJ1ZiA9IE5VTEw7Cj4+Pj4+ICsJfSBlbHNlIHsKPj4+PiBJcyB0aGUgY29w
+eSBzdGlsbCBuZWVkZWQgaWYgd2UncmUganVzdCBmZXcgYnl0ZXMgbGVzcz8gV2UgbWVldCBzaW1p
+bGFyIGlzc3VlCj4+Pj4gZm9yIHZpcml0by1uZXQsIGFuZCB2aXJ0aW8tbmV0IHNvbHZlIHRoaXMg
+YnkgYWx3YXlzIGNvcHkgZmlyc3QgMTI4Ynl0ZXMgZm9yCj4+Pj4gYmlnIHBhY2tldHMuCj4+Pj4K
+Pj4+PiBTZWUgcmVjZWl2ZV9iaWcoKQo+Pj4gSSdtIHNlZWluZywgSXQgaXMgbW9yZSBzb3BoaXN0
+aWNhdGVkLgo+Pj4gSUlVQywgdmlydGlvLW5ldCBhbGxvY2F0ZXMgYSBza19idWZmIHdpdGggMTI4
+IGJ5dGVzIG9mIGJ1ZmZlciwgdGhlbiBjb3BpZXMgdGhlCj4+PiBmaXJzdCAxMjggYnl0ZXMsIHRo
+ZW4gYWRkcyB0aGUgYnVmZmVyIHVzZWQgdG8gcmVjZWl2ZSB0aGUgcGFja2V0IGFzIGEgZnJhZyB0
+bwo+Pj4gdGhlIHNrYi4KPj4KPj4gWWVzIGFuZCB0aGUgcG9pbnQgaXMgaWYgdGhlIHBhY2tldCBp
+cyBzbWFsbGVyIHRoYW4gMTI4IGJ5dGVzIHRoZSBwYWdlcyB3aWxsCj4+IGJlIHJlY3ljbGVkLgo+
+Pgo+Pgo+IFNvIGl0J3MgYXZvaWQgdGhlIG92ZXJoZWFkIG9mIGFsbG9jYXRpb24gb2YgYSBsYXJn
+ZSBidWZmZXIuIEkgZ290IGl0Lgo+Cj4gSnVzdCBhIGN1cmlvc2l0eSwgd2h5IHRoZSB0aHJlc2hv
+bGQgaXMgMTI4IGJ5dGVzPwoKCiBGcm9tIGl0cyBuYW1lIChHT09EX0NPUFlfTEVOKSwgSSB0aGlu
+ayBpdCBqdXN0IGEgdmFsdWUgdGhhdCB3b24ndCBsb3NlIAptdWNoIHBlcmZvcm1hbmNlLCBlLmcg
+dGhlIHNpemUgdHdvIGNhY2hlbGluZXMuCgpUaGFua3MKCgo+Cj4+PiBEbyB5b3Ugc3VnZ2VzdCB0
+byBpbXBsZW1lbnQgc29tZXRoaW5nIHNpbWlsYXIsIG9yIGZvciBub3cgd2UgY2FuIHVzZSBteQo+
+Pj4gYXBwcm9hY2ggYW5kIGlmIHdlIHdpbGwgbWVyZ2UgdGhlIGRhdGFwYXRoIHdlIGNhbiByZXVz
+ZSB0aGUgdmlydGlvLW5ldAo+Pj4gYXBwcm9hY2g/Cj4+Cj4+IEkgdGhpbmsgd2UgbmVlZCBhIGJl
+dHRlciB0aHJlc2hvbGQuIElmIEkgdW5kZXJzdGFuZCB0aGUgcGF0Y2ggY29ycmVjdGx5LCB3ZQo+
+PiB3aWxsIGRvIGNvcHkgdW5sZXNzIHRoZSBwYWNrZXQgaXMgNjRLIHdoZW4gZ3Vlc3QgaXMgZG9p
+bmcgcmVjZWl2aW5nLiAxIGJ5dGUKPj4gcGFja2V0IGlzIGluZGVlZCBhIHByb2JsZW0sIGJ1dCB3
+ZSBuZWVkIHRvIHNvbHZlIGl0IHdpdGhvdXQgbG9zaW5nIHRvbyBtdWNoCj4+IHBlcmZvcm1hbmNl
+Lgo+IEl0IGlzIGNvcnJlY3QuIEknbGwgdHJ5IHRvIGZpZ3VyZSBvdXQgYSBiZXR0ZXIgdGhyZXNo
+b2xkIGFuZCB0aGUgdXNhZ2Ugb2YKPiBvcmRlciAwIHBhZ2UuCj4KPiBUaGFua3MgYWdhaW4gZm9y
+IHlvdXIgYWR2aWNlcywKPiBTdGVmYW5vCl9fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19f
+X19fX19fX19fX19fX19fClZpcnR1YWxpemF0aW9uIG1haWxpbmcgbGlzdApWaXJ0dWFsaXphdGlv
+bkBsaXN0cy5saW51eC1mb3VuZGF0aW9uLm9yZwpodHRwczovL2xpc3RzLmxpbnV4Zm91bmRhdGlv
+bi5vcmcvbWFpbG1hbi9saXN0aW5mby92aXJ0dWFsaXphdGlvbg==
