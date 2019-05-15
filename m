@@ -1,17 +1,21 @@
-From: Stefan Hajnoczi <stefanha@redhat.com>
-Subject: Re: [PATCH] vsock/virtio: Initialize core virtio vsock before
-	registering the driver
-Date: Wed, 15 May 2019 16:24:00 +0100
-Message-ID: <20190515152400.GJ29507__42769.1904407524$1557933853$gmane$org@stefanha-x1.localdomain>
-References: <20190501003001.186239-1-jemoreira@google.com>
-	<20190501190831.GF22391@stefanha-x1.localdomain>
-	<20190502082045.u3xypjbac5npbhtc@steredhat.homenet.telecomitalia.it>
-	<CAJi--POaVsfprbp5na5BvR=VNONKGfFya_BnmTzzcWmOQ1DM2Q@mail.gmail.com>
-	<20190507122543.kgh44rvaw7nwlhjn@steredhat>
+From: Halil Pasic <pasic@linux.ibm.com>
+Subject: Re: [PATCH 05/10] s390/cio: introduce DMA pools to cio
+Date: Wed, 15 May 2019 19:12:57 +0200
+Message-ID: <20190515191257.31bdc583.pasic@linux.ibm.com>
+References: <20190426183245.37939-1-pasic@linux.ibm.com>
+	<20190426183245.37939-6-pasic@linux.ibm.com>
+	<alpine.LFD.2.21.1905081447280.1773@schleppi>
+	<20190508232210.5a555caa.pasic@linux.ibm.com>
+	<20190509121106.48aa04db.cohuck@redhat.com>
+	<20190510001112.479b2fd7.pasic@linux.ibm.com>
+	<20190510161013.7e697337.cohuck@redhat.com>
+	<20190512202256.5517592d.pasic@linux.ibm.com>
+	<20190513152924.1e8e8f5a.cohuck@redhat.com>
 Mime-Version: 1.0
-Content-Type: multipart/mixed; boundary="===============0645213810377176699=="
+Content-Type: text/plain; charset="us-ascii"
+Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <20190507122543.kgh44rvaw7nwlhjn@steredhat>
+In-Reply-To: <20190513152924.1e8e8f5a.cohuck@redhat.com>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -21,211 +25,282 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Stefano Garzarella <sgarzare@redhat.com>
-Cc: kvm@vger.kernel.org, netdev@vger.kernel.org, linux-kernel@vger.kernel.org, stable@vger.kernel.org, virtualization@lists.linux-foundation.org, Jorge Moreira Broche <jemoreira@google.com>, kernel-team@android.com, "David S. Miller" <davem@davemloft.net>
+To: Cornelia Huck <cohuck@redhat.com>
+Cc: Vasily Gorbik <gor@linux.ibm.com>, linux-s390@vger.kernel.org, Thomas Huth <thuth@redhat.com>, Claudio Imbrenda <imbrenda@linux.ibm.com>, Sebastian Ott <sebott@linux.ibm.com>, kvm@vger.kernel.org, "Michael S. Tsirkin" <mst@redhat.com>, Farhan Ali <alifm@linux.ibm.com>, Eric Farman <farman@linux.ibm.com>, virtualization@lists.linux-foundation.org, Christoph Hellwig <hch@infradead.org>, Martin Schwidefsky <schwidefsky@de.ibm.com>, Michael Mueller <mimu@linux.ibm.com>, Viktor Mihajlovski <mihajlov@linux.ibm.com>, Janosch Frank <frankja@linux.ibm.com>
 List-Id: virtualization@lists.linuxfoundation.org
 
+On Mon, 13 May 2019 15:29:24 +0200
+Cornelia Huck <cohuck@redhat.com> wrote:
 
---===============0645213810377176699==
-Content-Type: multipart/signed; micalg=pgp-sha256;
-	protocol="application/pgp-signature"; boundary="72k7VsmfIboquFwl"
-Content-Disposition: inline
+> On Sun, 12 May 2019 20:22:56 +0200
+> Halil Pasic <pasic@linux.ibm.com> wrote:
+> 
+> > On Fri, 10 May 2019 16:10:13 +0200
+> > Cornelia Huck <cohuck@redhat.com> wrote:
+> > 
+> > > On Fri, 10 May 2019 00:11:12 +0200
+> > > Halil Pasic <pasic@linux.ibm.com> wrote:
+> > >   
+> > > > On Thu, 9 May 2019 12:11:06 +0200
+> > > > Cornelia Huck <cohuck@redhat.com> wrote:
+> > > >   
+> > > > > On Wed, 8 May 2019 23:22:10 +0200
+> > > > > Halil Pasic <pasic@linux.ibm.com> wrote:
+> > > > >     
+> > > > > > On Wed, 8 May 2019 15:18:10 +0200 (CEST)
+> > > > > > Sebastian Ott <sebott@linux.ibm.com> wrote:    
+> > > > >     
+> > > > > > > > @@ -1063,6 +1163,7 @@ static int __init css_bus_init(void)
+> > > > > > > >  		unregister_reboot_notifier(&css_reboot_notifier);
+> > > > > > > >  		goto out_unregister;
+> > > > > > > >  	}
+> > > > > > > > +	cio_dma_pool_init();        
+> > > > > > > 
+> > > > > > > This is too late for early devices (ccw console!).      
+> > > > > > 
+> > > > > > You have already raised concern about this last time (thanks). I think,
+> > > > > > I've addressed this issue: the cio_dma_pool is only used by the airq
+> > > > > > stuff. I don't think the ccw console needs it. Please have an other look
+> > > > > > at patch #6, and explain your concern in more detail if it persists.    
+> > > > > 
+> > > > > What about changing the naming/adding comments here, so that (1) folks
+> > > > > aren't confused by the same thing in the future and (2) folks don't try
+> > > > > to use that pool for something needed for the early ccw consoles?
+> > > > >     
+> > > > 
+> > > > I'm all for clarity! Suggestions for better names?  
+> > > 
+> > > css_aiv_dma_pool, maybe? Or is there other cross-device stuff that may
+> > > need it?
+> > >   
+> > 
+> > Ouch! I was considering to use cio_dma_zalloc() for the adapter
+> > interruption vectors but I ended up between the two chairs in the end.
+> > So with this series there are no uses for cio_dma pool.
+> > 
+> > I don't feel strongly about this going one way the other.
+> > 
+> > Against getting rid of the cio_dma_pool and sticking with the speaks
+> > dma_alloc_coherent() that we waste a DMA page per vector, which is a
+> > non obvious side effect.
+> 
+> That would basically mean one DMA page per virtio-ccw device, right?
+
+Not quite: virtio-ccw shares airq vectors among multiple devices. We
+alloc 64 bytes a time and use that as long as we don't run out of bits.
+ 
+> For single queue devices, this seems like quite a bit of overhead.
+>
+
+Nod.
+ 
+> Are we expecting many devices in use per guest?
+
+This is affect linux in general, not only guest 2 stuff (i.e. we
+also waste in vanilla lpar mode). And zpci seems to do at least one
+airq_iv_create() per pci function.
+
+> 
+> > 
+> > What speaks against cio_dma_pool is that it is slightly more code, and
+> > this currently can not be used for very early stuff, which I don't
+> > think is relevant. 
+> 
+> Unless properly documented, it feels like something you can easily trip
+> over, however.
+> 
+> I assume that the "very early stuff" is basically only ccw consoles.
+> Not sure if we can use virtio-serial as an early ccw console -- IIRC
+> that was only about 3215/3270? While QEMU guests are able to use a 3270
+> console, this is experimental and I would not count that as a use case.
+> Anyway, 3215/3270 don't use adapter interrupts, and probably not
+> anything cross-device, either; so unless early virtio-serial is a
+> thing, this restriction is fine if properly documented.
+> 
+
+Mimu can you dig into this a bit?
+
+We could also aim for getting rid of this limitation. One idea would be
+some sort of lazy initialization (i.e. triggered by first usage).
+Another idea would be simply doing the initialization earlier.
+Unfortunately I'm not all that familiar with the early stuff. Is there
+some doc you can recommend?
+
+Anyway before investing much more into this, I think we should have a
+fair idea which option do we prefer...
+
+> > What also used to speak against it is that
+> > allocations asking for more than a page would just fail, but I addressed
+> > that in the patch I've hacked up on top of the series, and I'm going to
+> > paste below. While at it I addressed some other issues as well.
+> 
+> Hm, which "other issues"?
+> 
+
+The kfree() I've forgotten to get rid of, and this 'document does not
+work early' (pun intended) business.
+
+> > 
+> > I've also got code that deals with AIRQ_IV_CACHELINE by turning the
+> > kmem_cache into a dma_pool.
+> 
+> Isn't that percolating to other airq users again? Or maybe I just don't
+> understand what you're proposing here...
+
+Absolutely.
+
+> 
+> > 
+> > Cornelia, Sebastian which approach do you prefer:
+> > 1) get rid of cio_dma_pool and AIRQ_IV_CACHELINE, and waste a page per
+> > vector, or
+> > 2) go with the approach taken by the patch below?
+> 
+> I'm not sure that I properly understand this (yeah, you probably
+> guessed); so I'm not sure I can make a good call here.
+> 
+
+I hope you, I managed to clarify some of the questions. Please keep
+asking if stuff remains unclear. I'm not a great communicator, but a
+quite tenacious one.
+
+I hope Sebastian will chime in as well.
+
+> > 
+> > 
+> > Regards,
+> > Halil
+> > -----------------------8<---------------------------------------------
+> > From: Halil Pasic <pasic@linux.ibm.com>
+> > Date: Sun, 12 May 2019 18:08:05 +0200
+> > Subject: [PATCH] WIP: use cio dma pool for airqs
+> > 
+> > Let's not waste a DMA page per adapter interrupt bit vector.
+> > ---
+> > Lightly tested...
+> > ---
+> >  arch/s390/include/asm/airq.h |  1 -
+> >  drivers/s390/cio/airq.c      | 10 +++-------
+> >  drivers/s390/cio/css.c       | 18 +++++++++++++++---
+> >  3 files changed, 18 insertions(+), 11 deletions(-)
+> > 
+> > diff --git a/arch/s390/include/asm/airq.h b/arch/s390/include/asm/airq.h
+> > index 1492d48..981a3eb 100644
+> > --- a/arch/s390/include/asm/airq.h
+> > +++ b/arch/s390/include/asm/airq.h
+> > @@ -30,7 +30,6 @@ void unregister_adapter_interrupt(struct airq_struct *airq);
+> >  /* Adapter interrupt bit vector */
+> >  struct airq_iv {
+> >  	unsigned long *vector;	/* Adapter interrupt bit vector */
+> > -	dma_addr_t vector_dma; /* Adapter interrupt bit vector dma */
+> >  	unsigned long *avail;	/* Allocation bit mask for the bit vector */
+> >  	unsigned long *bitlock;	/* Lock bit mask for the bit vector */
+> >  	unsigned long *ptr;	/* Pointer associated with each bit */
+> > diff --git a/drivers/s390/cio/airq.c b/drivers/s390/cio/airq.c
+> > index 7a5c0a0..f11f437 100644
+> > --- a/drivers/s390/cio/airq.c
+> > +++ b/drivers/s390/cio/airq.c
+> > @@ -136,8 +136,7 @@ struct airq_iv *airq_iv_create(unsigned long bits, unsigned long flags)
+> >  		goto out;
+> >  	iv->bits = bits;
+> >  	size = iv_size(bits);
+> > -	iv->vector = dma_alloc_coherent(cio_get_dma_css_dev(), size,
+> > -						 &iv->vector_dma, GFP_KERNEL);
+> > +	iv->vector = cio_dma_zalloc(size);
+> >  	if (!iv->vector)
+> >  		goto out_free;
+> >  	if (flags & AIRQ_IV_ALLOC) {
+> > @@ -172,8 +171,7 @@ struct airq_iv *airq_iv_create(unsigned long bits, unsigned long flags)
+> >  	kfree(iv->ptr);
+> >  	kfree(iv->bitlock);
+> >  	kfree(iv->avail);
+> > -	dma_free_coherent(cio_get_dma_css_dev(), size, iv->vector,
+> > -			  iv->vector_dma);
+> > +	cio_dma_free(iv->vector, size);
+> >  	kfree(iv);
+> >  out:
+> >  	return NULL;
+> > @@ -189,9 +187,7 @@ void airq_iv_release(struct airq_iv *iv)
+> >  	kfree(iv->data);
+> >  	kfree(iv->ptr);
+> >  	kfree(iv->bitlock);
+> > -	kfree(iv->vector);
+> > -	dma_free_coherent(cio_get_dma_css_dev(), iv_size(iv->bits),
+> > -			  iv->vector, iv->vector_dma);
+> > +	cio_dma_free(iv->vector, iv_size(iv->bits));
+> >  	kfree(iv->avail);
+> >  	kfree(iv);
+> >  }
+> > diff --git a/drivers/s390/cio/css.c b/drivers/s390/cio/css.c
+> > index 7087cc3..88d9c92 100644
+> > --- a/drivers/s390/cio/css.c
+> > +++ b/drivers/s390/cio/css.c
+> > @@ -1063,7 +1063,10 @@ struct gen_pool *cio_gp_dma_create(struct device *dma_dev, int nr_pages)
+> >  static void __gp_dma_free_dma(struct gen_pool *pool,
+> >  			      struct gen_pool_chunk *chunk, void *data)
+> >  {
+> > -	dma_free_coherent((struct device *) data, PAGE_SIZE,
+> > +
+> > +	size_t chunk_size = chunk->end_addr - chunk->start_addr + 1;
+> > +
+> > +	dma_free_coherent((struct device *) data, chunk_size,
+> >  			 (void *) chunk->start_addr,
+> >  			 (dma_addr_t) chunk->phys_addr);
+> >  }
+> > @@ -1088,13 +1091,15 @@ void *cio_gp_dma_zalloc(struct gen_pool *gp_dma, struct device *dma_dev,
+> >  {
+> >  	dma_addr_t dma_addr;
+> >  	unsigned long addr = gen_pool_alloc(gp_dma, size);
+> > +	size_t chunk_size;
+> >  
+> >  	if (!addr) {
+> > +		chunk_size = round_up(size, PAGE_SIZE);
+> 
+> Doesn't that mean that we still go up to chunks of at least PAGE_SIZE?
+> Or can vectors now share the same chunk?
+
+Exactly! We put the allocated dma mem into the genpool. So if the next
+request can be served from what is already in the genpool we don't end
+up in this fallback path where we grow the pool. 
+
+> 
+> >  		addr = (unsigned long) dma_alloc_coherent(dma_dev,
+> > -					PAGE_SIZE, &dma_addr, CIO_DMA_GFP);
+> > +					 chunk_size, &dma_addr, CIO_DMA_GFP);
+> >  		if (!addr)
+> >  			return NULL;
+> > -		gen_pool_add_virt(gp_dma, addr, dma_addr, PAGE_SIZE, -1);
+> > +		gen_pool_add_virt(gp_dma, addr, dma_addr, chunk_size, -1);
+> >  		addr = gen_pool_alloc(gp_dma, size);
+
+BTW I think it would be good to recover from this alloc failing due to a
+race (qute unlikely with small allocations thogh...).
+
+> >  	}
+> >  	return (void *) addr;
+> > @@ -1108,6 +1113,13 @@ void cio_gp_dma_free(struct gen_pool *gp_dma, void *cpu_addr, size_t size)
+> >  	gen_pool_free(gp_dma, (unsigned long) cpu_addr, size);
+> >  }
+> >  
+> > +/**
+> > + * Allocate dma memory from the css global pool. Intended for memory not
+> > + * specific to any single device within the css.
+> > + *
+> > + * Caution: Not suitable for early stuff like console.
+> 
+> Maybe add "Do not use prior to <point in startup>"?
+> 
+
+I'm not awfully familiar with the well known 'points in startup'. Can
+you recommend me some documentation on this topic?
 
 
---72k7VsmfIboquFwl
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
+Regards,
+Halil
 
-On Tue, May 07, 2019 at 02:25:43PM +0200, Stefano Garzarella wrote:
-> Hi Jorge,
->=20
-> On Mon, May 06, 2019 at 01:19:55PM -0700, Jorge Moreira Broche wrote:
-> > > On Wed, May 01, 2019 at 03:08:31PM -0400, Stefan Hajnoczi wrote:
-> > > > On Tue, Apr 30, 2019 at 05:30:01PM -0700, Jorge E. Moreira wrote:
-> > > > > Avoid a race in which static variables in net/vmw_vsock/af_vsock.=
-c are
-> > > > > accessed (while handling interrupts) before they are initialized.
-> > > > >
-> > > > >
-> > > > > [    4.201410] BUG: unable to handle kernel paging request at fff=
-fffffffffffe8
-> > > > > [    4.207829] IP: vsock_addr_equals_addr+0x3/0x20
-> > > > > [    4.211379] PGD 28210067 P4D 28210067 PUD 28212067 PMD 0
-> > > > > [    4.211379] Oops: 0000 [#1] PREEMPT SMP PTI
-> > > > > [    4.211379] Modules linked in:
-> > > > > [    4.211379] CPU: 1 PID: 30 Comm: kworker/1:1 Not tainted 4.14.=
-106-419297-gd7e28cc1f241 #1
-> > > > > [    4.211379] Hardware name: QEMU Standard PC (i440FX + PIIX, 19=
-96), BIOS 1.10.2-1 04/01/2014
-> > > > > [    4.211379] Workqueue: virtio_vsock virtio_transport_rx_work
-> > > > > [    4.211379] task: ffffa3273d175280 task.stack: ffffaea1800e8000
-> > > > > [    4.211379] RIP: 0010:vsock_addr_equals_addr+0x3/0x20
-> > > > > [    4.211379] RSP: 0000:ffffaea1800ebd28 EFLAGS: 00010286
-> > > > > [    4.211379] RAX: 0000000000000002 RBX: 0000000000000000 RCX: f=
-fffffffb94e42f0
-> > > > > [    4.211379] RDX: 0000000000000400 RSI: ffffffffffffffe0 RDI: f=
-fffaea1800ebdd0
-> > > > > [    4.211379] RBP: ffffaea1800ebd58 R08: 0000000000000001 R09: 0=
-000000000000001
-> > > > > [    4.211379] R10: 0000000000000000 R11: ffffffffb89d5d60 R12: f=
-fffaea1800ebdd0
-> > > > > [    4.211379] R13: 00000000828cbfbf R14: 0000000000000000 R15: f=
-fffaea1800ebdc0
-> > > > > [    4.211379] FS:  0000000000000000(0000) GS:ffffa3273fd00000(00=
-00) knlGS:0000000000000000
-> > > > > [    4.211379] CS:  0010 DS: 0000 ES: 0000 CR0: 0000000080050033
-> > > > > [    4.211379] CR2: ffffffffffffffe8 CR3: 000000002820e001 CR4: 0=
-0000000001606e0
-> > > > > [    4.211379] DR0: 0000000000000000 DR1: 0000000000000000 DR2: 0=
-000000000000000
-> > > > > [    4.211379] DR3: 0000000000000000 DR6: 00000000fffe0ff0 DR7: 0=
-000000000000400
-> > > > > [    4.211379] Call Trace:
-> > > > > [    4.211379]  ? vsock_find_connected_socket+0x6c/0xe0
-> > > > > [    4.211379]  virtio_transport_recv_pkt+0x15f/0x740
-> > > > > [    4.211379]  ? detach_buf+0x1b5/0x210
-> > > > > [    4.211379]  virtio_transport_rx_work+0xb7/0x140
-> > > > > [    4.211379]  process_one_work+0x1ef/0x480
-> > > > > [    4.211379]  worker_thread+0x312/0x460
-> > > > > [    4.211379]  kthread+0x132/0x140
-> > > > > [    4.211379]  ? process_one_work+0x480/0x480
-> > > > > [    4.211379]  ? kthread_destroy_worker+0xd0/0xd0
-> > > > > [    4.211379]  ret_from_fork+0x35/0x40
-> > > > > [    4.211379] Code: c7 47 08 00 00 00 00 66 c7 07 28 00 c7 47 08=
- ff ff ff ff c7 47 04 ff ff ff ff c3 0f 1f 00 66 2e 0f 1f 84 00 00 00 00 00=
- 8b 47 08 <3b> 46 08 75 0a 8b 47 04 3b 46 04 0f 94 c0 c3 31 c0 c3 90 66 2e
-> > > > > [    4.211379] RIP: vsock_addr_equals_addr+0x3/0x20 RSP: ffffaea1=
-800ebd28
-> > > > > [    4.211379] CR2: ffffffffffffffe8
-> > > > > [    4.211379] ---[ end trace f31cc4a2e6df3689 ]---
-> > > > > [    4.211379] Kernel panic - not syncing: Fatal exception in int=
-errupt
-> > > > > [    4.211379] Kernel Offset: 0x37000000 from 0xffffffff81000000 =
-(relocation range: 0xffffffff80000000-0xffffffffbfffffff)
-> > > > > [    4.211379] Rebooting in 5 seconds..
-> > > > >
-> > > > > Fixes: 22b5c0b63f32 ("vsock/virtio: fix kernel panic after device=
- hot-unplug")
-> > > > > Cc: Stefan Hajnoczi <stefanha@redhat.com>
-> > > > > Cc: "David S. Miller" <davem@davemloft.net>
-> > > > > Cc: kvm@vger.kernel.org
-> > > > > Cc: virtualization@lists.linux-foundation.org
-> > > > > Cc: netdev@vger.kernel.org
-> > > > > Cc: kernel-team@android.com
-> > > > > Cc: stable@vger.kernel.org [4.9+]
-> > > > > Signed-off-by: Jorge E. Moreira <jemoreira@google.com>
-> > > > > ---
-> > > > >  net/vmw_vsock/virtio_transport.c | 13 ++++++-------
-> > > > >  1 file changed, 6 insertions(+), 7 deletions(-)
-> > > > >
-> > > > > diff --git a/net/vmw_vsock/virtio_transport.c b/net/vmw_vsock/vir=
-tio_transport.c
-> > > > > index 15eb5d3d4750..96ab344f17bb 100644
-> > > > > --- a/net/vmw_vsock/virtio_transport.c
-> > > > > +++ b/net/vmw_vsock/virtio_transport.c
-> > > > > @@ -702,28 +702,27 @@ static int __init virtio_vsock_init(void)
-> > > > >     if (!virtio_vsock_workqueue)
-> > > > >             return -ENOMEM;
-> > > > >
-> > > > > -   ret =3D register_virtio_driver(&virtio_vsock_driver);
-> > > > > +   ret =3D vsock_core_init(&virtio_transport.transport);
-> > > >
-> > > > Have you checked that all transport callbacks are safe even if anot=
-her
-> > > > CPU calls them while virtio_vsock_probe() is executing on another C=
-PU?
-> > > >
-> > >
-> > > I have the same doubt.
-> > >
-> > > What do you think to take the 'the_virtio_vsock_mutex' in the
-> > > virtio_vsock_init(), keeping the previous order?
-> > >
-> > > This should prevent this issue because the virtio_vsock_probe() remai=
-ns
-> > > blocked in the mutex until the end of vsock_core_init().
-> > >
-> > > Cheers,
-> > > Stefano
-> >=20
-> > Hi Stefan, Stefano,
-> > Sorry for the late reply.
->=20
-> Don't worry :)
->=20
-> >=20
-> > @Stefan
-> > The order of vsock_core_exit() does not need to be changed to fix the
-> > bug I found, but not changing it means the exit function is not
-> > symmetric to the init function.
-> >=20
-> > @Stefano
-> > Taking the mutex from virtio_vsock_init() could work too (I haven't
-> > tried it yet), but it's unnecessary, all that needs to be done is
-> > properly initialize vsock_core before attempting to use it.
-> >=20
-> > I would prefer to change the order in virtio_vsock_init, while leaving
-> > virtio_vsock_exit unchanged, but I'll leave the final decision to you
-> > since I am not very familiar with the inner workings of these modules.
->=20
-> In order to fix your issue, IMO changing the order in virtio_vsock_init(),
-> is enough.
->=20
-> I think also that is correct to change the order in the virtio_vsock_exit=
-(),
-> otherwise, we should have the same issue if an interrupt comes while we
-> are removing the module.
-> This should not lead to the problem that I tried to solve in 22b5c0b63f32,
-> because the vsock_core_exit() should not be called if there are open sock=
-ets,
-> since the virtio-vsock driver become the owner of AF_VSOCK protocol
-> family.
->=20
-> Not related to this patch, maybe there are some issues in the
-> virtio_vsock_probe(). I'd check better if it is correct to set
-> 'the_virtio_vsock' before the end of the initialization (e.g. spinlocks
-> are initialized later).
->=20
-> Accordingly,
->=20
-> Reviewed-by: Stefano Garzarella <sgarzare@redhat.com>
-
-I'm going to review this once more tomorrow and investigate the
-thread-safety issues during init and exit.
-
-The core problem is that we have two sides (the virtio device and the
-network stack) that can both induce activity as soon as they are
-registered.  We need to be sure that one cannot begin activity before
-the other has been fully initialized.
-
-Stefan
-
---72k7VsmfIboquFwl
-Content-Type: application/pgp-signature; name="signature.asc"
-
------BEGIN PGP SIGNATURE-----
-
-iQEzBAEBCAAdFiEEhpWov9P5fNqsNXdanKSrs4Grc8gFAlzcLxAACgkQnKSrs4Gr
-c8iYSAgAmbtD+6eRtbINzN37DaHpUOVR19LIZjydvy7EPvFqjuLyewBrEPbQW4hU
-wDrZBNhgTX9QrF/tNijNC1YfxkTWxynmRbjEjP49CWYxTbbdhIW8uVl8QCe0qKcv
-KMGa0MhBh09bfK2BfzGX0qs49nZyuyRYMEYzi2F09EsJWL3AFkHIAOtUDfoI6C8p
-Fq2rB6htIpf6rj5RI9o1n/YmGTEyfqGtOZLDPTqDn6viNim1AEN2d6mPNvJ2tMpX
-g44HXYggw5QKvgphSvfJ2zYeLSnEls56BQCPLCkUXi+eWfs7QEC7SM9/EVOwaVwM
-M1SAJJ6JViK2XNbv+Nw7WdiIkpuo+Q==
-=/Q7G
------END PGP SIGNATURE-----
-
---72k7VsmfIboquFwl--
-
---===============0645213810377176699==
-Content-Type: text/plain; charset="us-ascii"
-MIME-Version: 1.0
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-
-_______________________________________________
-Virtualization mailing list
-Virtualization@lists.linux-foundation.org
-https://lists.linuxfoundation.org/mailman/listinfo/virtualization
---===============0645213810377176699==--
+> > + *
+> > + */
+> >  void *cio_dma_zalloc(size_t size)
+> >  {
+> >  	return cio_gp_dma_zalloc(cio_dma_pool, cio_get_dma_css_dev(), size);
+> 
