@@ -1,15 +1,16 @@
-From: Halil Pasic <pasic@linux.ibm.com>
-Subject: Re: [PATCH 06/10] s390/cio: add basic protected virtualization support
-Date: Wed, 15 May 2019 22:51:58 +0200
-Message-ID: <20190515225158.301af387.pasic@linux.ibm.com>
-References: <20190426183245.37939-1-pasic@linux.ibm.com>
-	<20190426183245.37939-7-pasic@linux.ibm.com>
-	<20190513114136.783c851c.cohuck@redhat.com>
+From: David Hildenbrand <david@redhat.com>
+Subject: Re: [PATCH v9 2/7] virtio-pmem: Add virtio pmem driver
+Date: Wed, 15 May 2019 22:52:53 +0200
+Message-ID: <1d6f6964-4653-ebf3-554f-666fda3779f1__22484.0913362399$1557953599$gmane$org@redhat.com>
+References: <20190514145422.16923-1-pagupta@redhat.com>
+	<20190514145422.16923-3-pagupta@redhat.com>
+	<9f6b1d8e-ef90-7d8b-56da-61a426953ba3@redhat.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <20190513114136.783c851c.cohuck@redhat.com>
+In-Reply-To: <9f6b1d8e-ef90-7d8b-56da-61a426953ba3@redhat.com>
+Content-Language: en-US
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -19,160 +20,148 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Cornelia Huck <cohuck@redhat.com>
-Cc: Vasily Gorbik <gor@linux.ibm.com>, linux-s390@vger.kernel.org, Thomas Huth <thuth@redhat.com>, Claudio Imbrenda <imbrenda@linux.ibm.com>, kvm@vger.kernel.org, Sebastian Ott <sebott@linux.ibm.com>, "Michael S. Tsirkin" <mst@redhat.com>, Farhan Ali <alifm@linux.ibm.com>, Eric Farman <farman@linux.ibm.com>, virtualization@lists.linux-foundation.org, Christoph Hellwig <hch@infradead.org>, Martin Schwidefsky <schwidefsky@de.ibm.com>, Viktor Mihajlovski <mihajlov@linux.ibm.com>, Janosch Frank <frankja@linux.ibm.com>
+To: Pankaj Gupta <pagupta@redhat.com>, linux-nvdimm@lists.01.org, linux-kernel@vger.kernel.org, virtualization@lists.linux-foundation.org, kvm@vger.kernel.org, linux-fsdevel@vger.kernel.org, linux-acpi@vger.kernel.org, qemu-devel@nongnu.org, linux-ext4@vger.kernel.org, linux-xfs@vger.kernel.org, mst@redhat.com
+Cc: jack@suse.cz, david@fromorbit.com, lcapitulino@redhat.com, adilger.kernel@dilger.ca, zwisler@kernel.org, aarcange@redhat.com, dave.jiang@intel.com, jstaron@google.com, darrick.wong@oracle.com, vishal.l.verma@intel.com, willy@infradead.org, hch@infradead.org, jmoyer@redhat.com, nilal@redhat.com, lenb@kernel.org, kilobyte@angband.pl, riel@surriel.com, yuval.shaia@oracle.com, stefanha@redhat.com, pbonzini@redhat.com, dan.j.williams@intel.com, tytso@mit.edu, xiaoguangrong.eric@gmail.com, cohuck@redhat.com, rjw@rjwysocki.net, imammedo@redhat.com
 List-Id: virtualization@lists.linuxfoundation.org
 
-On Mon, 13 May 2019 11:41:36 +0200
-Cornelia Huck <cohuck@redhat.com> wrote:
-
-> On Fri, 26 Apr 2019 20:32:41 +0200
-> Halil Pasic <pasic@linux.ibm.com> wrote:
+On 15.05.19 22:46, David Hildenbrand wrote:
+>> +	vpmem->vdev = vdev;
+>> +	vdev->priv = vpmem;
+>> +	err = init_vq(vpmem);
+>> +	if (err) {
+>> +		dev_err(&vdev->dev, "failed to initialize virtio pmem vq's\n");
+>> +		goto out_err;
+>> +	}
+>> +
+>> +	virtio_cread(vpmem->vdev, struct virtio_pmem_config,
+>> +			start, &vpmem->start);
+>> +	virtio_cread(vpmem->vdev, struct virtio_pmem_config,
+>> +			size, &vpmem->size);
+>> +
+>> +	res.start = vpmem->start;
+>> +	res.end   = vpmem->start + vpmem->size-1;
 > 
-> > As virtio-ccw devices are channel devices, we need to use the dma area
-> > for any communication with the hypervisor.
-> > 
-> > This patch addresses the most basic stuff (mostly what is required for
-> > virtio-ccw), and does take care of QDIO or any devices.
+> nit: " - 1;"
 > 
-> "does not take care of QDIO", surely? 
+>> +	vpmem->nd_desc.provider_name = "virtio-pmem";
+>> +	vpmem->nd_desc.module = THIS_MODULE;
+>> +
+>> +	vpmem->nvdimm_bus = nvdimm_bus_register(&vdev->dev,
+>> +						&vpmem->nd_desc);
+>> +	if (!vpmem->nvdimm_bus) {
+>> +		dev_err(&vdev->dev, "failed to register device with nvdimm_bus\n");
+>> +		err = -ENXIO;
+>> +		goto out_vq;
+>> +	}
+>> +
+>> +	dev_set_drvdata(&vdev->dev, vpmem->nvdimm_bus);
+>> +
+>> +	ndr_desc.res = &res;
+>> +	ndr_desc.numa_node = nid;
+>> +	ndr_desc.flush = async_pmem_flush;
+>> +	set_bit(ND_REGION_PAGEMAP, &ndr_desc.flags);
+>> +	set_bit(ND_REGION_ASYNC, &ndr_desc.flags);
+>> +	nd_region = nvdimm_pmem_region_create(vpmem->nvdimm_bus, &ndr_desc);
+>> +	if (!nd_region) {
+>> +		dev_err(&vdev->dev, "failed to create nvdimm region\n");
+>> +		err = -ENXIO;
+>> +		goto out_nd;
+>> +	}
+>> +	nd_region->provider_data = dev_to_virtio(nd_region->dev.parent->parent);
+>> +	return 0;
+>> +out_nd:
+>> +	nvdimm_bus_unregister(vpmem->nvdimm_bus);
+>> +out_vq:
+>> +	vdev->config->del_vqs(vdev);
+>> +out_err:
+>> +	return err;
+>> +}
+>> +
+>> +static void virtio_pmem_remove(struct virtio_device *vdev)
+>> +{
+>> +	struct nvdimm_bus *nvdimm_bus = dev_get_drvdata(&vdev->dev);
+>> +
+>> +	nvdimm_bus_unregister(nvdimm_bus);
+>> +	vdev->config->del_vqs(vdev);
+>> +	vdev->config->reset(vdev);
+>> +}
+>> +
+>> +static struct virtio_driver virtio_pmem_driver = {
+>> +	.driver.name		= KBUILD_MODNAME,
+>> +	.driver.owner		= THIS_MODULE,
+>> +	.id_table		= id_table,
+>> +	.probe			= virtio_pmem_probe,
+>> +	.remove			= virtio_pmem_remove,
+>> +};
+>> +
+>> +module_virtio_driver(virtio_pmem_driver);
+>> +MODULE_DEVICE_TABLE(virtio, id_table);
+>> +MODULE_DESCRIPTION("Virtio pmem driver");
+>> +MODULE_LICENSE("GPL");
+>> diff --git a/drivers/nvdimm/virtio_pmem.h b/drivers/nvdimm/virtio_pmem.h
+>> new file mode 100644
+>> index 000000000000..ab1da877575d
+>> --- /dev/null
+>> +++ b/drivers/nvdimm/virtio_pmem.h
+>> @@ -0,0 +1,60 @@
+>> +/* SPDX-License-Identifier: GPL-2.0 */
+>> +/*
+>> + * virtio_pmem.h: virtio pmem Driver
+>> + *
+>> + * Discovers persistent memory range information
+>> + * from host and provides a virtio based flushing
+>> + * interface.
+>> + **/
+>> +
+>> +#ifndef _LINUX_VIRTIO_PMEM_H
+>> +#define _LINUX_VIRTIO_PMEM_H
+>> +
+>> +#include <linux/virtio_ids.h>
+>> +#include <linux/module.h>
+>> +#include <linux/virtio_config.h>
+>> +#include <uapi/linux/virtio_pmem.h>
+>> +#include <linux/libnvdimm.h>
+>> +#include <linux/spinlock.h>
+>> +
+>> +struct virtio_pmem_request {
+>> +	/* Host return status corresponding to flush request */
+>> +	int ret;
+>> +
+>> +	/* command name*/
+>> +	char name[16];
+> 
+> So ... why are we sending string commands and expect native-endianess
+> integers and don't define a proper request/response structure + request
+> types in include/uapi/linux/virtio_pmem.h like
+> 
+> struct virtio_pmem_resp {
+> 	__virtio32 ret;
+> }
 
-I did not bother making the QDIO library code use dma memory for
-anything that is conceptually dma memory. AFAIK QDIO is out of scope for
-prot virt for now. If one were to do some emulated qdio with prot virt
-guests, one wound need to make a bunch of things shared.
+FWIW, I wonder if we should even properly translate return values and
+define types like
 
-> (Also, what does "any devices"
-> mean? Do you mean "every arbitrary device", perhaps?)
+VIRTIO_PMEM_RESP_TYPE_OK	0
+VIRTIO_PMEM_RESP_TYPE_EIO	1
 
-What I mean is: this patch takes care of the core stuff, but any
-particular device is likely to have to do more -- that is it ain't all
-the cio devices support prot virt with this patch. For example
-virtio-ccw needs to make sure that the ccws constituting the channel
-programs, as well as the data pointed by the ccws is shared. If one
-would want to make vfio-ccw DASD pass-through work under prot virt, one
-would need to make sure, that everything that needs to be shared is
-shared (data buffers, channel programs).
-
-Does is clarify things?
+..
 
 > 
-> > 
-> > An interesting side effect is that virtio structures are now going to
-> > get allocated in 31 bit addressable storage.
+> #define VIRTIO_PMEM_REQ_TYPE_FLUSH	1
+> struct virtio_pmem_req {
+> 	__virtio16 type;
+> }
 > 
-> Hm...
+> ... and this way we also define a proper endianess format for exchange
+> and keep it extensible
 > 
-> > 
-> > Signed-off-by: Halil Pasic <pasic@linux.ibm.com>
-> > ---
-> >  arch/s390/include/asm/ccwdev.h   |  4 +++
-> >  drivers/s390/cio/ccwreq.c        |  8 ++---
-> >  drivers/s390/cio/device.c        | 65 +++++++++++++++++++++++++++++++++-------
-> >  drivers/s390/cio/device_fsm.c    | 40 ++++++++++++-------------
-> >  drivers/s390/cio/device_id.c     | 18 +++++------
-> >  drivers/s390/cio/device_ops.c    | 21 +++++++++++--
-> >  drivers/s390/cio/device_pgid.c   | 20 ++++++-------
-> >  drivers/s390/cio/device_status.c | 24 +++++++--------
-> >  drivers/s390/cio/io_sch.h        | 21 +++++++++----
-> >  drivers/s390/virtio/virtio_ccw.c | 10 -------
-> >  10 files changed, 148 insertions(+), 83 deletions(-)
+> @MST, what's your take on this?
 > 
-> (...)
-> 
-> > diff --git a/drivers/s390/virtio/virtio_ccw.c b/drivers/s390/virtio/virtio_ccw.c
-> > index 6d989c360f38..bb7a92316fc8 100644
-> > --- a/drivers/s390/virtio/virtio_ccw.c
-> > +++ b/drivers/s390/virtio/virtio_ccw.c
-> > @@ -66,7 +66,6 @@ struct virtio_ccw_device {
-> >  	bool device_lost;
-> >  	unsigned int config_ready;
-> >  	void *airq_info;
-> > -	u64 dma_mask;
-> >  };
-> >  
-> >  struct vq_info_block_legacy {
-> > @@ -1255,16 +1254,7 @@ static int virtio_ccw_online(struct ccw_device *cdev)
-> >  		ret = -ENOMEM;
-> >  		goto out_free;
-> >  	}
-> > -
-> >  	vcdev->vdev.dev.parent = &cdev->dev;
-> > -	cdev->dev.dma_mask = &vcdev->dma_mask;
-> > -	/* we are fine with common virtio infrastructure using 64 bit DMA */
-> > -	ret = dma_set_mask_and_coherent(&cdev->dev, DMA_BIT_MASK(64));
-> > -	if (ret) {
-> > -		dev_warn(&cdev->dev, "Failed to enable 64-bit DMA.\n");
-> > -		goto out_free;
-> > -	}
-> 
-> This means that vring structures now need to fit into 31 bits as well,
-> I think?
-
-Nod.
-
-> Is there any way to reserve the 31 bit restriction for channel
-> subsystem structures and keep vring in the full 64 bit range? (Or am I
-> fundamentally misunderstanding something?)
 > 
 
-At the root of this problem is that the DMA API basically says devices
-may have addressing limitations expressed by the dma_mask, while our
-addressing limitations are not coming from the device but from the IO
-arch: e.g. orb.cpa and ccw.cda are 31 bit addresses. In our case it
-depends on how and for what is the device going to use the memory (e.g.
-buffers addressed by MIDA vs IDA vs direct).
 
-Virtio uses the DMA properties of the parent, that is in our case the
-struct device embedded in struct ccw_device.
+-- 
 
-The previous version (RFC) used to allocate all the cio DMA stuff from
-this global cio_dma_pool using the css0.dev for the DMA API
-interactions. And we set *css0.dev.dma_mask == DMA_BIT_MASK(31) so
-e.g. the allocated ccws are 31 bit addressable.
+Thanks,
 
-But I was asked to change this so that when I allocate DMA memory for a
-channel program of particular ccw device, a struct device of that ccw
-device is used as the first argument of dma_alloc_coherent().
-
-Considering
-
-void *dma_alloc_attrs(struct device *dev, size_t size, dma_addr_t *dma_handle,
-                gfp_t flag, unsigned long attrs)
-{
-        const struct dma_map_ops *ops = get_dma_ops(dev);
-        void *cpu_addr;
-
-        WARN_ON_ONCE(dev && !dev->coherent_dma_mask);
-
-        if (dma_alloc_from_dev_coherent(dev, size, dma_handle, &cpu_addr))
-                return cpu_addr;
-
-        /* let the implementation decide on the zone to allocate from: */
-        flag &= ~(__GFP_DMA | __GFP_DMA32 | __GFP_HIGHMEM);
-
-that is the GFP flags dropped that implies that we really want
-cdev->dev restricted to 31 bit addressable memory because we can't tell
-(with the current common DMA code) hey but this piece of DMA mem you
-are abot to allocate for me must be 31 bit addressable (using GFP_DMA
-as we usually do).
-
-So, as described in the commit message, the vring stuff being forced
-into ZONE_DMA is an unfortunate consequence of this all.
-
-A side note: making the subchannel device 'own' the DMA stuff of a ccw
-device (something that was discussed in the RFC thread) is tricky
-because the ccw device may outlive the subchannel (all that orphan
-stuff).
-
-So the answer is: it is technically possible (e.g. see RFC) but it comes
-at a price, and I see no obviously brilliant solution.
-
-Regards,
-Halil
-
-> > -
-> >  	vcdev->config_block = kzalloc(sizeof(*vcdev->config_block),
-> >  				   GFP_DMA | GFP_KERNEL);
-> >  	if (!vcdev->config_block) {
-> 
+David / dhildenb
