@@ -1,20 +1,13 @@
-From: Sebastian Ott <sebott@linux.ibm.com>
-Subject: Re: [PATCH 05/10] s390/cio: introduce DMA pools to cio
-Date: Thu, 16 May 2019 15:59:22 +0200 (CEST)
-Message-ID: <alpine.LFD.2.21.1905161517570.1767@schleppi>
-References: <20190426183245.37939-1-pasic@linux.ibm.com>
-	<20190426183245.37939-6-pasic@linux.ibm.com>
-	<alpine.LFD.2.21.1905081447280.1773@schleppi>
-	<20190508232210.5a555caa.pasic@linux.ibm.com>
-	<20190509121106.48aa04db.cohuck@redhat.com>
-	<20190510001112.479b2fd7.pasic@linux.ibm.com>
-	<20190510161013.7e697337.cohuck@redhat.com>
-	<20190512202256.5517592d.pasic@linux.ibm.com>
+From: Stefan Hajnoczi <stefanha@redhat.com>
+Subject: Re: [PATCH v2 1/8] vsock/virtio: limit the memory used per-socket
+Date: Thu, 16 May 2019 16:25:33 +0100
+Message-ID: <20190516152533.GB29808__24964.4731100247$1558020349$gmane$org@stefanha-x1.localdomain>
+References: <20190510125843.95587-1-sgarzare@redhat.com>
+	<20190510125843.95587-2-sgarzare@redhat.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
-Content-Transfer-Encoding: 7bit
+Content-Type: multipart/mixed; boundary="===============3391420627472694929=="
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <20190512202256.5517592d.pasic@linux.ibm.com>
+In-Reply-To: <20190510125843.95587-2-sgarzare@redhat.com>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -24,37 +17,112 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Halil Pasic <pasic@linux.ibm.com>
-Cc: Farhan Ali <alifm@linux.ibm.com>, linux-s390@vger.kernel.org, Thomas Huth <thuth@redhat.com>, Claudio Imbrenda <imbrenda@linux.ibm.com>, Vasily Gorbik <gor@linux.ibm.com>, kvm@vger.kernel.org, "Michael S. Tsirkin" <mst@redhat.com>, Cornelia Huck <cohuck@redhat.com>, Eric Farman <farman@linux.ibm.com>, virtualization@lists.linux-foundation.org, Christoph Hellwig <hch@infradead.org>, Martin Schwidefsky <schwidefsky@de.ibm.com>, Michael Mueller <mimu@linux.ibm.com>, Viktor Mihajlovski <mihajlov@linux.ibm.com>, Janosch Frank <frankja@linux.ibm.com>
+To: Stefano Garzarella <sgarzare@redhat.com>
+Cc: kvm@vger.kernel.org, "Michael S. Tsirkin" <mst@redhat.com>, netdev@vger.kernel.org, linux-kernel@vger.kernel.org, virtualization@lists.linux-foundation.org, "David S. Miller" <davem@davemloft.net>
 List-Id: virtualization@lists.linuxfoundation.org
 
-On Sun, 12 May 2019, Halil Pasic wrote:
-> I've also got code that deals with AIRQ_IV_CACHELINE by turning the
-> kmem_cache into a dma_pool.
-> 
-> Cornelia, Sebastian which approach do you prefer:
-> 1) get rid of cio_dma_pool and AIRQ_IV_CACHELINE, and waste a page per
-> vector, or
-> 2) go with the approach taken by the patch below?
 
-We only have a couple of users for airq_iv:
-
-virtio_ccw.c: 2K bits
-
-pci with floating IRQs: <= 2K (for the per-function bit vectors)
-                        1..4K (for the summary bit vector)
-
-pci with CPU directed IRQs: 2K (for the per-CPU bit vectors)
-                            1..nr_cpu (for the summary bit vector)
+--===============3391420627472694929==
+Content-Type: multipart/signed; micalg=pgp-sha256;
+	protocol="application/pgp-signature"; boundary="qcHopEYAB45HaUaB"
+Content-Disposition: inline
 
 
-The options are:
-* page allocations for everything
-* dma_pool for AIRQ_IV_CACHELINE ,gen_pool for others
-* dma_pool for everything
+--qcHopEYAB45HaUaB
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+Content-Transfer-Encoding: quoted-printable
 
-I think we should do option 3 and use a dma_pool with cachesize
-alignment for everything (as a prerequisite we have to limit
-config PCI_NR_FUNCTIONS to 2K - but that is not a real constraint).
+On Fri, May 10, 2019 at 02:58:36PM +0200, Stefano Garzarella wrote:
+> +struct virtio_vsock_buf {
 
-Sebastian
+Please add a comment describing the purpose of this struct and to
+differentiate its use from struct virtio_vsock_pkt.
+
+> +static struct virtio_vsock_buf *
+> +virtio_transport_alloc_buf(struct virtio_vsock_pkt *pkt, bool zero_copy)
+> +{
+> +	struct virtio_vsock_buf *buf;
+> +
+> +	if (pkt->len =3D=3D 0)
+> +		return NULL;
+> +
+> +	buf =3D kzalloc(sizeof(*buf), GFP_KERNEL);
+> +	if (!buf)
+> +		return NULL;
+> +
+> +	/* If the buffer in the virtio_vsock_pkt is full, we can move it to
+> +	 * the new virtio_vsock_buf avoiding the copy, because we are sure that
+> +	 * we are not use more memory than that counted by the credit mechanism.
+> +	 */
+> +	if (zero_copy && pkt->len =3D=3D pkt->buf_len) {
+> +		buf->addr =3D pkt->buf;
+> +		pkt->buf =3D NULL;
+> +	} else {
+> +		buf->addr =3D kmalloc(pkt->len, GFP_KERNEL);
+
+buf and buf->addr could be allocated in a single call, though I'm not
+sure how big an optimization this is.
+
+> @@ -841,20 +882,24 @@ virtio_transport_recv_connected(struct sock *sk,
+>  {
+>  	struct vsock_sock *vsk =3D vsock_sk(sk);
+>  	struct virtio_vsock_sock *vvs =3D vsk->trans;
+> +	struct virtio_vsock_buf *buf;
+>  	int err =3D 0;
+> =20
+>  	switch (le16_to_cpu(pkt->hdr.op)) {
+>  	case VIRTIO_VSOCK_OP_RW:
+>  		pkt->len =3D le32_to_cpu(pkt->hdr.len);
+> -		pkt->off =3D 0;
+> +		buf =3D virtio_transport_alloc_buf(pkt, true);
+> =20
+> -		spin_lock_bh(&vvs->rx_lock);
+> -		virtio_transport_inc_rx_pkt(vvs, pkt);
+> -		list_add_tail(&pkt->list, &vvs->rx_queue);
+> -		spin_unlock_bh(&vvs->rx_lock);
+> +		if (buf) {
+> +			spin_lock_bh(&vvs->rx_lock);
+> +			virtio_transport_inc_rx_pkt(vvs, pkt->len);
+> +			list_add_tail(&buf->list, &vvs->rx_queue);
+> +			spin_unlock_bh(&vvs->rx_lock);
+> =20
+> -		sk->sk_data_ready(sk);
+> -		return err;
+> +			sk->sk_data_ready(sk);
+> +		}
+
+The return value of this function isn't used but the code still makes an
+effort to return errors.  Please return -ENOMEM when buf =3D=3D NULL.
+
+If you'd like to remove the return value that's fine too, but please do
+it for the whole function to be consistent.
+
+--qcHopEYAB45HaUaB
+Content-Type: application/pgp-signature; name="signature.asc"
+
+-----BEGIN PGP SIGNATURE-----
+
+iQEzBAEBCAAdFiEEhpWov9P5fNqsNXdanKSrs4Grc8gFAlzdgO0ACgkQnKSrs4Gr
+c8i2BQf/SKch1qy6NDC+HDYgEJxI8sLacx7MgcaTqQGmvc29mZInkaMMDj88G6T/
+LGW/vJZ1x1ZPrLx+fKiNOs82ZIiiHhLy8HGEjuu8eMW+YYk0y8QPu7QPsxRV2IaG
+u7gSGPxdUKUvGVejNWyqo5/mW2kZOLaMg0Z5zTghUhZ9hLyBQAU5UwvdqVICnedh
+1IYkF86rZrfKQFZCv/X5Q7IwRvg1lHZyYjTyqUBomc2z1tAk4t1NrMT3LDhLD1XZ
+dnUdBc5bBVspwArnAl9P4Uag0Gjh8yjEp0S7ITrZI58G6tilDb3cncv9w+nRvQks
+EY4F99igT+SAp97NrMrIW0E/MZjnOw==
+=gdG0
+-----END PGP SIGNATURE-----
+
+--qcHopEYAB45HaUaB--
+
+--===============3391420627472694929==
+Content-Type: text/plain; charset="us-ascii"
+MIME-Version: 1.0
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+
+_______________________________________________
+Virtualization mailing list
+Virtualization@lists.linux-foundation.org
+https://lists.linuxfoundation.org/mailman/listinfo/virtualization
+--===============3391420627472694929==--
