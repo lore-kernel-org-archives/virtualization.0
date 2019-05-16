@@ -1,12 +1,18 @@
-From: Stefan Hajnoczi <stefanha@redhat.com>
-Subject: Re: [PATCH net 0/4] Prevent vhost kthread from hogging CPU
-Date: Thu, 16 May 2019 10:34:50 +0100
-Message-ID: <20190516093450.GR29507__38652.7636599325$1557999305$gmane$org@stefanha-x1.localdomain>
-References: <1557992862-27320-1-git-send-email-jasowang@redhat.com>
+From: Halil Pasic <pasic@linux.ibm.com>
+Subject: Re: [PATCH 06/10] s390/cio: add basic protected virtualization support
+Date: Thu, 16 May 2019 15:42:45 +0200
+Message-ID: <20190516154245.4a0a84f7.pasic@linux.ibm.com>
+References: <20190426183245.37939-1-pasic@linux.ibm.com>
+	<20190426183245.37939-7-pasic@linux.ibm.com>
+	<20190513114136.783c851c.cohuck@redhat.com>
+	<d0ffefec-a14e-ee83-0aae-df288c3ffda4@linux.ibm.com>
+	<20190515230817.2f8a8a5d.pasic@linux.ibm.com>
+	<20190516083228.0cc5b489.cohuck@redhat.com>
 Mime-Version: 1.0
-Content-Type: multipart/mixed; boundary="===============4962261527034497245=="
+Content-Type: text/plain; charset="us-ascii"
+Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <1557992862-27320-1-git-send-email-jasowang@redhat.com>
+In-Reply-To: <20190516083228.0cc5b489.cohuck@redhat.com>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -16,78 +22,47 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Jason Wang <jasowang@redhat.com>
-Cc: kvm@vger.kernel.org, mst@redhat.com, netdev@vger.kernel.org, linux-kernel@vger.kernel.org, virtualization@lists.linux-foundation.org, pbonzini@redhat.com
+To: Cornelia Huck <cohuck@redhat.com>
+Cc: "Jason J. Herne" <jjherne@linux.ibm.com>, linux-s390@vger.kernel.org, Thomas Huth <thuth@redhat.com>, Claudio Imbrenda <imbrenda@linux.ibm.com>, kvm@vger.kernel.org, Sebastian Ott <sebott@linux.ibm.com>, "Michael S. Tsirkin" <mst@redhat.com>, Farhan Ali <alifm@linux.ibm.com>, Eric Farman <farman@linux.ibm.com>, virtualization@lists.linux-foundation.org, Christoph Hellwig <hch@infradead.org>, Martin Schwidefsky <schwidefsky@de.ibm.com>, Michael Mueller <mimu@linux.ibm.com>, Viktor Mihajlovski <mihajlov@linux.ibm.com>, Vasily Gorbik <gor@linux.ibm.com>, Janosch Frank <frankja@linux.ibm.com>
 List-Id: virtualization@lists.linuxfoundation.org
 
+On Thu, 16 May 2019 08:32:28 +0200
+Cornelia Huck <cohuck@redhat.com> wrote:
 
---===============4962261527034497245==
-Content-Type: multipart/signed; micalg=pgp-sha256;
-	protocol="application/pgp-signature"; boundary="+S4DbcR7QPeSsP0V"
-Content-Disposition: inline
+> On Wed, 15 May 2019 23:08:17 +0200
+> Halil Pasic <pasic@linux.ibm.com> wrote:
+> 
+> > On Tue, 14 May 2019 10:47:34 -0400
+> > "Jason J. Herne" <jjherne@linux.ibm.com> wrote:
+> 
+> > > Are we 
+> > > worried that virtio data structures are going to be a burden on the 31-bit address space?
+> > > 
+> > >   
+> > 
+> > That is a good question I can not answer. Since it is currently at least
+> > a page per queue (because we use dma direct, right Mimu?), I am concerned
+> > about this.
+> > 
+> > Connie, what is your opinion?
+> 
+> Yes, running into problems there was one of my motivations for my
+> question. I guess it depends on the number of devices and how many
+> queues they use. The problem is that it affects not only protected virt
+> guests, but all guests.
+> 
 
+Unless things are about to change only devices that have
+VIRTIO_F_IOMMU_PLATFORM are affected. So it does not necessarily affect
+not protected virt guests. (With prot virt we have to use
+VIRTIO_F_IOMMU_PLATFORM.)
 
---+S4DbcR7QPeSsP0V
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
+If it were not like this, I would be much more worried.
 
-On Thu, May 16, 2019 at 03:47:38AM -0400, Jason Wang wrote:
-> Hi:
->=20
-> This series try to prvernt a guest triggerable CPU hogging through
-> vhost kthread. This is done by introducing and checking the weight
-> after each requrest. The patch has been tested with reproducer of
-> vsock and virtio-net. Only compile test is done for vhost-scsi.
->=20
-> Please review.
->=20
-> This addresses CVE-2019-3900.
->=20
-> Jason Wang (4):
->   vhost: introduce vhost_exceeds_weight()
->   vhost_net: fix possible infinite loop
->   vhost: vsock: add weight support
->   vhost: scsi: add weight support
->=20
->  drivers/vhost/net.c   | 41 ++++++++++++++---------------------------
->  drivers/vhost/scsi.c  | 21 ++++++++++++++-------
->  drivers/vhost/vhost.c | 20 +++++++++++++++++++-
->  drivers/vhost/vhost.h |  5 ++++-
->  drivers/vhost/vsock.c | 28 +++++++++++++++++++++-------
->  5 files changed, 72 insertions(+), 43 deletions(-)
->=20
-> --=20
-> 1.8.3.1
->=20
+@Mimu: Could you please discuss this problem with the team? It might be
+worth considering to go back to the design of the RFC (i.e. cio/ccw stuff
+allocated from a common cio dma pool which gives you 31 bit addressable
+memory, and 64 bit dma mask for a ccw device of a virtio device).
 
-Looks good aside from the use-after-free in the vsock patch.
-
---+S4DbcR7QPeSsP0V
-Content-Type: application/pgp-signature; name="signature.asc"
-
------BEGIN PGP SIGNATURE-----
-
-iQEzBAEBCAAdFiEEhpWov9P5fNqsNXdanKSrs4Grc8gFAlzdLroACgkQnKSrs4Gr
-c8hOGgf/TuvPxOE1Wzw+hWbX63+OyCIjKxtdlJzH3ahFiBAY+mlbhloiyLFxwFwm
-Her1G3erNlR7kYao/4RMryOx0Bvz6l8iPocrRdkCimdgGuue3RN2fh1lL2kkKQny
-33nIZNeWyzfD1igdQ/3Oab0o98s0Nl6orEdx6Ap3cKgBjrdRLhl72qnssF4etlve
-G4k/1V8OyAQchWGqLBr4/xr0bnnA7Blx4sl18NgJn251MfZazuCk8SxffpfnZ3ni
-yx6HxtZmQS3fRMCWioBVkforSNUlxURBvCnZYgWpHTP5CnQxzBPyT2NNBEpgXDvi
-kYJIkiL2SbXqRNh87QZIQAu/WEyUGQ==
-=JvSa
------END PGP SIGNATURE-----
-
---+S4DbcR7QPeSsP0V--
-
---===============4962261527034497245==
-Content-Type: text/plain; charset="us-ascii"
-MIME-Version: 1.0
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-
-_______________________________________________
-Virtualization mailing list
-Virtualization@lists.linux-foundation.org
-https://lists.linuxfoundation.org/mailman/listinfo/virtualization
---===============4962261527034497245==--
+Regards,
+Halil
