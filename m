@@ -1,11 +1,14 @@
 From: Thomas Zimmermann <tzimmermann@suse.de>
-Subject: [PATCH 0/2] Add BO reservation to GEM VRAM pin/unpin/push_to_system
-Date: Thu, 16 May 2019 18:27:44 +0200
-Message-ID: <20190516162746.11636-1-tzimmermann@suse.de>
+Subject: [PATCH 1/2] drm: Add drm_gem_vram_{pin/unpin}_reserved() and convert
+	mgag200
+Date: Thu, 16 May 2019 18:27:45 +0200
+Message-ID: <20190516162746.11636-2-tzimmermann__38713.9403073647$1558024100$gmane$org@suse.de>
+References: <20190516162746.11636-1-tzimmermann@suse.de>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
+In-Reply-To: <20190516162746.11636-1-tzimmermann@suse.de>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -19,56 +22,176 @@ To: daniel@ffwll.ch, airlied@linux.ie, kraxel@redhat.com, christian.koenig@amd.c
 Cc: Thomas Zimmermann <tzimmermann@suse.de>, dri-devel@lists.freedesktop.org, virtualization@lists.linux-foundation.org
 List-Id: virtualization@lists.linuxfoundation.org
 
-A kernel test bot reported a problem with the locktorture testcase that
-was triggered by the GEM VRAM helpers.
+The new interfaces drm_gem_vram_{pin/unpin}_reserved() are variants of the
+GEM VRAM pin/unpin functions that do not reserve the BO during validation.
+The mgag200 driver requires this behavior for its cursor handling. The
+patch also converts the driver to use the new interfaces.
 
-  ...
-  [   10.004734] RIP: 0010:ttm_bo_validate+0x41/0x141 [ttm]
-  ...
-  [   10.015669]  ? kvm_sched_clock_read+0x5/0xd
-  [   10.016157]  ? get_lock_stats+0x11/0x3f
-  [   10.016607]  drm_gem_vram_pin+0x77/0xa2 [drm_vram_helper]
-  [   10.017229]  drm_gem_vram_driver_gem_prime_vmap+0xe/0x39 [drm_vram_helper]
-  [   10.018015]  drm_gem_vmap+0x36/0x43 [drm]
-  [   10.018491]  drm_client_framebuffer_create+0xc6/0x1ca [drm]
-  [   10.019143]  drm_fb_helper_generic_probe+0x4c/0x157 [drm_kms_helper]
-  [   10.019864]  __drm_fb_helper_initial_config_and_unlock+0x307/0x442 [drm_kms_helper]
-  [   10.020739]  drm_fbdev_client_hotplug+0xc8/0x115 [drm_kms_helper]
-  [   10.021442]  drm_fbdev_generic_setup+0xc4/0xf1 [drm_kms_helper]
-  [   10.022120]  bochs_pci_probe+0x123/0x143 [bochs_drm]
-  [   10.022688]  local_pci_probe+0x34/0x75
-  [   10.023127]  pci_device_probe+0xf8/0x150A
-  ...
+Signed-off-by: Thomas Zimmermann <tzimmermann@suse.de>
+---
+ drivers/gpu/drm/drm_gem_vram_helper.c    | 75 ++++++++++++++++++++++++
+ drivers/gpu/drm/mgag200/mgag200_cursor.c | 18 +++---
+ include/drm/drm_gem_vram_helper.h        |  3 +
+ 3 files changed, 88 insertions(+), 8 deletions(-)
 
-It turns out that the bochs and vbox drivers automatically reserved and
-unreserved the BO from within their pin and unpin functions. The other
-drivers; ast, hibmc and mgag200; performed reservation explicitly. With the
-GEM VRAM conversion, automatic BO reservation within pin and unpin functions
-accidentally got lost. So for bochs and vbox, ttm_bo_validate() worked on
-unlocked BOs.
-
-This patch set fixes the problem by adding automatic reservation to the
-implementation of drm_gem_vram_{pin,unpin,push_to_system}() to fix bochs
-and vbox. It removes explicit BO reservation around the pin, unpin and
-push-to-system calls in the ast, hibmc and mgag200 drivers.
-
-The only exception is the cursor handling of mgag200. In this case, the
-mgag200 driver now calls drm_gem_vram_{pin,unpin}_reserved(), which works
-with reserved BOs. The respective code should be refactored in a future
-patch to work with the regular pin and unpin functions.
-
-Thomas Zimmermann (2):
-  drm: Add drm_gem_vram_{pin/unpin}_reserved() and convert mgag200
-  drm: Reserve/unreserve GEM VRAM BOs from within pin/unpin functions
-
- drivers/gpu/drm/ast/ast_mode.c                |  24 +---
- drivers/gpu/drm/drm_gem_vram_helper.c         | 115 +++++++++++++++++-
- .../gpu/drm/hisilicon/hibmc/hibmc_drm_de.c    |   6 -
- .../gpu/drm/hisilicon/hibmc/hibmc_drm_fbdev.c |  17 +--
- drivers/gpu/drm/mgag200/mgag200_cursor.c      |  18 +--
- drivers/gpu/drm/mgag200/mgag200_mode.c        |  19 +--
- include/drm/drm_gem_vram_helper.h             |   3 +
- 7 files changed, 126 insertions(+), 76 deletions(-)
-
---
+diff --git a/drivers/gpu/drm/drm_gem_vram_helper.c b/drivers/gpu/drm/drm_gem_vram_helper.c
+index 8f142b810eb4..a002c03eaf4c 100644
+--- a/drivers/gpu/drm/drm_gem_vram_helper.c
++++ b/drivers/gpu/drm/drm_gem_vram_helper.c
+@@ -254,6 +254,47 @@ int drm_gem_vram_pin(struct drm_gem_vram_object *gbo, unsigned long pl_flag)
+ }
+ EXPORT_SYMBOL(drm_gem_vram_pin);
+ 
++/**
++ * drm_gem_vram_pin_reserved() - Pins a GEM VRAM object in a region.
++ * @gbo:	the GEM VRAM object
++ * @pl_flag:	a bitmask of possible memory regions
++ *
++ * Pinning a buffer object ensures that it is not evicted from
++ * a memory region. A pinned buffer object has to be unpinned before
++ * it can be pinned to another region.
++ *
++ * This function pins a GEM VRAM object that has already been
++ * reserved. Use drm_gem_vram_pin() if possible.
++ *
++ * Returns:
++ * 0 on success, or
++ * a negative error code otherwise.
++ */
++int drm_gem_vram_pin_reserved(struct drm_gem_vram_object *gbo,
++			      unsigned long pl_flag)
++{
++	int i, ret;
++	struct ttm_operation_ctx ctx = { false, false };
++
++	if (gbo->pin_count) {
++		++gbo->pin_count;
++		return 0;
++	}
++
++	drm_gem_vram_placement(gbo, pl_flag);
++	for (i = 0; i < gbo->placement.num_placement; ++i)
++		gbo->placements[i].flags |= TTM_PL_FLAG_NO_EVICT;
++
++	ret = ttm_bo_validate(&gbo->bo, &gbo->placement, &ctx);
++	if (ret < 0)
++		return ret;
++
++	gbo->pin_count = 1;
++
++	return 0;
++}
++EXPORT_SYMBOL(drm_gem_vram_pin_reserved);
++
+ /**
+  * drm_gem_vram_unpin() - Unpins a GEM VRAM object
+  * @gbo:	the GEM VRAM object
+@@ -285,6 +326,40 @@ int drm_gem_vram_unpin(struct drm_gem_vram_object *gbo)
+ }
+ EXPORT_SYMBOL(drm_gem_vram_unpin);
+ 
++/**
++ * drm_gem_vram_unpin_reserved() - Unpins a GEM VRAM object
++ * @gbo:	the GEM VRAM object
++ *
++ * This function unpins a GEM VRAM object that has already been
++ * reserved. Use drm_gem_vram_unpin() if possible.
++ *
++ * Returns:
++ * 0 on success, or
++ * a negative error code otherwise.
++ */
++int drm_gem_vram_unpin_reserved(struct drm_gem_vram_object *gbo)
++{
++	int i, ret;
++	struct ttm_operation_ctx ctx = { false, false };
++
++	if (WARN_ON_ONCE(!gbo->pin_count))
++		return 0;
++
++	--gbo->pin_count;
++	if (gbo->pin_count)
++		return 0;
++
++	for (i = 0; i < gbo->placement.num_placement ; ++i)
++		gbo->placements[i].flags &= ~TTM_PL_FLAG_NO_EVICT;
++
++	ret = ttm_bo_validate(&gbo->bo, &gbo->placement, &ctx);
++	if (ret < 0)
++		return ret;
++
++	return 0;
++}
++EXPORT_SYMBOL(drm_gem_vram_unpin_reserved);
++
+ /**
+  * drm_gem_vram_push_to_system() - \
+ 	Unpins a GEM VRAM object and moves it to system memory
+diff --git a/drivers/gpu/drm/mgag200/mgag200_cursor.c b/drivers/gpu/drm/mgag200/mgag200_cursor.c
+index 6c1a9d724d85..1c4fc85315a0 100644
+--- a/drivers/gpu/drm/mgag200/mgag200_cursor.c
++++ b/drivers/gpu/drm/mgag200/mgag200_cursor.c
+@@ -23,9 +23,9 @@ static void mga_hide_cursor(struct mga_device *mdev)
+ 	WREG8(MGA_CURPOSXL, 0);
+ 	WREG8(MGA_CURPOSXH, 0);
+ 	if (mdev->cursor.pixels_1->pin_count)
+-		drm_gem_vram_unpin(mdev->cursor.pixels_1);
++		drm_gem_vram_unpin_reserved(mdev->cursor.pixels_1);
+ 	if (mdev->cursor.pixels_2->pin_count)
+-		drm_gem_vram_unpin(mdev->cursor.pixels_2);
++		drm_gem_vram_unpin_reserved(mdev->cursor.pixels_2);
+ }
+ 
+ int mga_crtc_cursor_set(struct drm_crtc *crtc,
+@@ -96,26 +96,28 @@ int mga_crtc_cursor_set(struct drm_crtc *crtc,
+ 
+ 	/* Move cursor buffers into VRAM if they aren't already */
+ 	if (!pixels_1->pin_count) {
+-		ret = drm_gem_vram_pin(pixels_1, DRM_GEM_VRAM_PL_FLAG_VRAM);
++		ret = drm_gem_vram_pin_reserved(pixels_1,
++						DRM_GEM_VRAM_PL_FLAG_VRAM);
+ 		if (ret)
+ 			goto out1;
+ 		gpu_addr = drm_gem_vram_offset(pixels_1);
+ 		if (gpu_addr < 0) {
+-			drm_gem_vram_unpin(pixels_1);
++			drm_gem_vram_unpin_reserved(pixels_1);
+ 			goto out1;
+ 		}
+ 		mdev->cursor.pixels_1_gpu_addr = gpu_addr;
+ 	}
+ 	if (!pixels_2->pin_count) {
+-		ret = drm_gem_vram_pin(pixels_2, DRM_GEM_VRAM_PL_FLAG_VRAM);
++		ret = drm_gem_vram_pin_reserved(pixels_2,
++						DRM_GEM_VRAM_PL_FLAG_VRAM);
+ 		if (ret) {
+-			drm_gem_vram_unpin(pixels_1);
++			drm_gem_vram_unpin_reserved(pixels_1);
+ 			goto out1;
+ 		}
+ 		gpu_addr = drm_gem_vram_offset(pixels_2);
+ 		if (gpu_addr < 0) {
+-			drm_gem_vram_unpin(pixels_1);
+-			drm_gem_vram_unpin(pixels_2);
++			drm_gem_vram_unpin_reserved(pixels_1);
++			drm_gem_vram_unpin_reserved(pixels_2);
+ 			goto out1;
+ 		}
+ 		mdev->cursor.pixels_2_gpu_addr = gpu_addr;
+diff --git a/include/drm/drm_gem_vram_helper.h b/include/drm/drm_gem_vram_helper.h
+index b056f189ba62..ff1a81761543 100644
+--- a/include/drm/drm_gem_vram_helper.h
++++ b/include/drm/drm_gem_vram_helper.h
+@@ -82,7 +82,10 @@ void drm_gem_vram_unreserve(struct drm_gem_vram_object *gbo);
+ u64 drm_gem_vram_mmap_offset(struct drm_gem_vram_object *gbo);
+ s64 drm_gem_vram_offset(struct drm_gem_vram_object *gbo);
+ int drm_gem_vram_pin(struct drm_gem_vram_object *gbo, unsigned long pl_flag);
++int drm_gem_vram_pin_reserved(struct drm_gem_vram_object *gbo,
++			      unsigned long pl_flag);
+ int drm_gem_vram_unpin(struct drm_gem_vram_object *gbo);
++int drm_gem_vram_unpin_reserved(struct drm_gem_vram_object *gbo);
+ int drm_gem_vram_push_to_system(struct drm_gem_vram_object *gbo);
+ void *drm_gem_vram_kmap_at(struct drm_gem_vram_object *gbo, bool map,
+ 			   bool *is_iomem, struct ttm_bo_kmap_obj *kmap);
+-- 
 2.21.0
