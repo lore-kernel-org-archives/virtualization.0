@@ -1,15 +1,16 @@
-From: Pankaj Gupta <pagupta@redhat.com>
-Subject: Re: [PATCH v9 1/7] libnvdimm: nd_region flush callback support
-Date: Thu, 16 May 2019 02:28:20 -0400 (EDT)
-Message-ID: <1906905099.29162562.1557988100975.JavaMail.zimbra@redhat.com>
-References: <20190514145422.16923-1-pagupta@redhat.com>
-	<20190514145422.16923-2-pagupta@redhat.com>
-	<CAPcyv4gEr_zPJEQp3k89v2UXfHp9PQwnJXY+W99HwXfxpvua_w@mail.gmail.com>
+From: Cornelia Huck <cohuck@redhat.com>
+Subject: Re: [PATCH 06/10] s390/cio: add basic protected virtualization support
+Date: Thu, 16 May 2019 08:29:28 +0200
+Message-ID: <20190516082928.1371696b.cohuck@redhat.com>
+References: <20190426183245.37939-1-pasic@linux.ibm.com>
+	<20190426183245.37939-7-pasic@linux.ibm.com>
+	<20190513114136.783c851c.cohuck@redhat.com>
+	<20190515225158.301af387.pasic@linux.ibm.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="utf-8"
-Content-Transfer-Encoding: base64
+Content-Type: text/plain; charset="us-ascii"
+Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <CAPcyv4gEr_zPJEQp3k89v2UXfHp9PQwnJXY+W99HwXfxpvua_w@mail.gmail.com>
+In-Reply-To: <20190515225158.301af387.pasic@linux.ibm.com>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -19,82 +20,183 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Dan Williams <dan.j.williams@intel.com>
-Cc: cohuck@redhat.com, Jan Kara <jack@suse.cz>, KVM list <kvm@vger.kernel.org>, "Michael S. Tsirkin" <mst@redhat.com>, david <david@fromorbit.com>, Qemu Developers <qemu-devel@nongnu.org>, virtualization@lists.linux-foundation.org, Andreas Dilger <adilger.kernel@dilger.ca>, Ross Zwisler <zwisler@kernel.org>, Andrea Arcangeli <aarcange@redhat.com>, Dave Jiang <dave.jiang@intel.com>, jstaron@google.com, linux-nvdimm <linux-nvdimm@lists.01.org>, Vishal L Verma <vishal.l.verma@intel.com>, Matthew Wilcox <willy@infradead.org>, Christoph Hellwig <hch@infradead.org>, Linux ACPI <linux-acpi@vger.kernel.org>, jmoyer <jmoyer@redhat.com>, linux-ext4 <linux-ext4@vger.kernel.org>, Len Brown <lenb@kernel.org>, Adam Borowski <kilobyte@angband.pl>, Rik van Riel <riel@surriel.com>, yuval shaia <yuval.shaia@oracle.com>, Stefan Hajnoczi <stefanha@redhat.com>, Paolo Bonzini <pbonzini@redhat.>
+To: Halil Pasic <pasic@linux.ibm.com>
+Cc: Vasily Gorbik <gor@linux.ibm.com>, linux-s390@vger.kernel.org, Thomas Huth <thuth@redhat.com>, Claudio Imbrenda <imbrenda@linux.ibm.com>, kvm@vger.kernel.org, Sebastian Ott <sebott@linux.ibm.com>, "Michael S. Tsirkin" <mst@redhat.com>, Farhan Ali <alifm@linux.ibm.com>, Eric Farman <farman@linux.ibm.com>, virtualization@lists.linux-foundation.org, Christoph Hellwig <hch@infradead.org>, Martin Schwidefsky <schwidefsky@de.ibm.com>, Viktor Mihajlovski <mihajlov@linux.ibm.com>, Janosch Frank <frankja@linux.ibm.com>
 List-Id: virtualization@lists.linuxfoundation.org
 
-Cj4gPgo+ID4gVGhpcyBwYXRjaCBhZGRzIGZ1bmN0aW9uYWxpdHkgdG8gcGVyZm9ybSBmbHVzaCBm
-cm9tIGd1ZXN0Cj4gPiB0byBob3N0IG92ZXIgVklSVElPLiBXZSBhcmUgcmVnaXN0ZXJpbmcgYSBj
-YWxsYmFjayBiYXNlZAo+ID4gb24gJ25kX3JlZ2lvbicgdHlwZS4gdmlydGlvX3BtZW0gZHJpdmVy
-IHJlcXVpcmVzIHRoaXMgc3BlY2lhbAo+ID4gZmx1c2ggZnVuY3Rpb24uIEZvciByZXN0IG9mIHRo
-ZSByZWdpb24gdHlwZXMgd2UgYXJlIHJlZ2lzdGVyaW5nCj4gPiBleGlzdGluZyBmbHVzaCBmdW5j
-dGlvbi4gUmVwb3J0IGVycm9yIHJldHVybmVkIGJ5IGhvc3QgZnN5bmMKPiA+IGZhaWx1cmUgdG8g
-dXNlcnNwYWNlLgo+ID4KPiA+IFNpZ25lZC1vZmYtYnk6IFBhbmthaiBHdXB0YSA8cGFndXB0YUBy
-ZWRoYXQuY29tPgo+ID4gLS0tCj4gPiAgZHJpdmVycy9hY3BpL25maXQvY29yZS5jICAgICB8ICA0
-ICsrLS0KPiA+ICBkcml2ZXJzL252ZGltbS9jbGFpbS5jICAgICAgIHwgIDYgKysrKy0tCj4gPiAg
-ZHJpdmVycy9udmRpbW0vbmQuaCAgICAgICAgICB8ICAxICsKPiA+ICBkcml2ZXJzL252ZGltbS9w
-bWVtLmMgICAgICAgIHwgMTMgKysrKysrKystLS0tLQo+ID4gIGRyaXZlcnMvbnZkaW1tL3JlZ2lv
-bl9kZXZzLmMgfCAyNiArKysrKysrKysrKysrKysrKysrKysrKystLQo+ID4gIGluY2x1ZGUvbGlu
-dXgvbGlibnZkaW1tLmggICAgfCAgOCArKysrKysrLQo+ID4gIDYgZmlsZXMgY2hhbmdlZCwgNDYg
-aW5zZXJ0aW9ucygrKSwgMTIgZGVsZXRpb25zKC0pCj4gPgo+ID4gZGlmZiAtLWdpdCBhL2RyaXZl
-cnMvYWNwaS9uZml0L2NvcmUuYyBiL2RyaXZlcnMvYWNwaS9uZml0L2NvcmUuYwo+ID4gaW5kZXgg
-NWEzODlhNGY0ZjY1Li4wOGRkZTc2Y2Y0NTkgMTAwNjQ0Cj4gPiAtLS0gYS9kcml2ZXJzL2FjcGkv
-bmZpdC9jb3JlLmMKPiA+ICsrKyBiL2RyaXZlcnMvYWNwaS9uZml0L2NvcmUuYwo+ID4gQEAgLTI0
-MzQsNyArMjQzNCw3IEBAIHN0YXRpYyB2b2lkIHdyaXRlX2Jsa19jdGwoc3RydWN0IG5maXRfYmxr
-ICpuZml0X2JsaywKPiA+IHVuc2lnbmVkIGludCBidywKPiA+ICAgICAgICAgICAgICAgICBvZmZz
-ZXQgPSB0b19pbnRlcmxlYXZlX29mZnNldChvZmZzZXQsIG1taW8pOwo+ID4KPiA+ICAgICAgICAg
-d3JpdGVxKGNtZCwgbW1pby0+YWRkci5iYXNlICsgb2Zmc2V0KTsKPiA+IC0gICAgICAgbnZkaW1t
-X2ZsdXNoKG5maXRfYmxrLT5uZF9yZWdpb24pOwo+ID4gKyAgICAgICBudmRpbW1fZmx1c2gobmZp
-dF9ibGstPm5kX3JlZ2lvbiwgTlVMTCk7Cj4gPgo+ID4gICAgICAgICBpZiAobmZpdF9ibGstPmRp
-bW1fZmxhZ3MgJiBORklUX0JMS19EQ1JfTEFUQ0gpCj4gPiAgICAgICAgICAgICAgICAgcmVhZHEo
-bW1pby0+YWRkci5iYXNlICsgb2Zmc2V0KTsKPiA+IEBAIC0yNDgzLDcgKzI0ODMsNyBAQCBzdGF0
-aWMgaW50IGFjcGlfbmZpdF9ibGtfc2luZ2xlX2lvKHN0cnVjdCBuZml0X2Jsawo+ID4gKm5maXRf
-YmxrLAo+ID4gICAgICAgICB9Cj4gPgo+ID4gICAgICAgICBpZiAocncpCj4gPiAtICAgICAgICAg
-ICAgICAgbnZkaW1tX2ZsdXNoKG5maXRfYmxrLT5uZF9yZWdpb24pOwo+ID4gKyAgICAgICAgICAg
-ICAgIG52ZGltbV9mbHVzaChuZml0X2Jsay0+bmRfcmVnaW9uLCBOVUxMKTsKPiA+Cj4gPiAgICAg
-ICAgIHJjID0gcmVhZF9ibGtfc3RhdChuZml0X2JsaywgbGFuZSkgPyAtRUlPIDogMDsKPiA+ICAg
-ICAgICAgcmV0dXJuIHJjOwo+ID4gZGlmZiAtLWdpdCBhL2RyaXZlcnMvbnZkaW1tL2NsYWltLmMg
-Yi9kcml2ZXJzL252ZGltbS9jbGFpbS5jCj4gPiBpbmRleCBmYjY2N2JmNDY5YzcuLjEzNTEwYmFl
-MWU2ZiAxMDA2NDQKPiA+IC0tLSBhL2RyaXZlcnMvbnZkaW1tL2NsYWltLmMKPiA+ICsrKyBiL2Ry
-aXZlcnMvbnZkaW1tL2NsYWltLmMKPiA+IEBAIC0yNjMsNyArMjYzLDcgQEAgc3RhdGljIGludCBu
-c2lvX3J3X2J5dGVzKHN0cnVjdCBuZF9uYW1lc3BhY2VfY29tbW9uCj4gPiAqbmRucywKPiA+ICAg
-ICAgICAgc3RydWN0IG5kX25hbWVzcGFjZV9pbyAqbnNpbyA9IHRvX25kX25hbWVzcGFjZV9pbygm
-bmRucy0+ZGV2KTsKPiA+ICAgICAgICAgdW5zaWduZWQgaW50IHN6X2FsaWduID0gQUxJR04oc2l6
-ZSArIChvZmZzZXQgJiAoNTEyIC0gMSkpLCA1MTIpOwo+ID4gICAgICAgICBzZWN0b3JfdCBzZWN0
-b3IgPSBvZmZzZXQgPj4gOTsKPiA+IC0gICAgICAgaW50IHJjID0gMDsKPiA+ICsgICAgICAgaW50
-IHJjID0gMCwgcmV0ID0gMDsKPiA+Cj4gPiAgICAgICAgIGlmICh1bmxpa2VseSghc2l6ZSkpCj4g
-PiAgICAgICAgICAgICAgICAgcmV0dXJuIDA7Cj4gPiBAQCAtMzAxLDcgKzMwMSw5IEBAIHN0YXRp
-YyBpbnQgbnNpb19yd19ieXRlcyhzdHJ1Y3QgbmRfbmFtZXNwYWNlX2NvbW1vbgo+ID4gKm5kbnMs
-Cj4gPiAgICAgICAgIH0KPiA+Cj4gPiAgICAgICAgIG1lbWNweV9mbHVzaGNhY2hlKG5zaW8tPmFk
-ZHIgKyBvZmZzZXQsIGJ1Ziwgc2l6ZSk7Cj4gPiAtICAgICAgIG52ZGltbV9mbHVzaCh0b19uZF9y
-ZWdpb24obmRucy0+ZGV2LnBhcmVudCkpOwo+ID4gKyAgICAgICByZXQgPSBudmRpbW1fZmx1c2go
-dG9fbmRfcmVnaW9uKG5kbnMtPmRldi5wYXJlbnQpLCBOVUxMKTsKPiA+ICsgICAgICAgaWYgKHJl
-dCkKPiA+ICsgICAgICAgICAgICAgICByYyA9IHJldDsKPiA+Cj4gPiAgICAgICAgIHJldHVybiBy
-YzsKPiA+ICB9Cj4gPiBkaWZmIC0tZ2l0IGEvZHJpdmVycy9udmRpbW0vbmQuaCBiL2RyaXZlcnMv
-bnZkaW1tL25kLmgKPiA+IGluZGV4IGE1YWMzYjI0MDI5My4uMGM3NGQyNDI4YmQ3IDEwMDY0NAo+
-ID4gLS0tIGEvZHJpdmVycy9udmRpbW0vbmQuaAo+ID4gKysrIGIvZHJpdmVycy9udmRpbW0vbmQu
-aAo+ID4gQEAgLTE1OSw2ICsxNTksNyBAQCBzdHJ1Y3QgbmRfcmVnaW9uIHsKPiA+ICAgICAgICAg
-c3RydWN0IGJhZGJsb2NrcyBiYjsKPiA+ICAgICAgICAgc3RydWN0IG5kX2ludGVybGVhdmVfc2V0
-ICpuZF9zZXQ7Cj4gPiAgICAgICAgIHN0cnVjdCBuZF9wZXJjcHVfbGFuZSBfX3BlcmNwdSAqbGFu
-ZTsKPiA+ICsgICAgICAgaW50ICgqZmx1c2gpKHN0cnVjdCBuZF9yZWdpb24gKm5kX3JlZ2lvbiwg
-c3RydWN0IGJpbyAqYmlvKTsKPiAKPiBTbyB0aGlzIHRyaWdnZXJzOgo+IAo+IEluIGZpbGUgaW5j
-bHVkZWQgZnJvbSBkcml2ZXJzL252ZGltbS9lODIwLmM6NzoKPiAuL2luY2x1ZGUvbGludXgvbGli
-bnZkaW1tLmg6MTQwOjUxOiB3YXJuaW5nOiDigJhzdHJ1Y3QgYmlv4oCZIGRlY2xhcmVkCj4gaW5z
-aWRlIHBhcmFtZXRlciBsaXN0IHdpbGwgbm90IGJlIHZpc2libGUgb3V0c2lkZSBvZiB0aGlzIGRl
-ZmluaXRpb24KPiBvciBkZWNsYXJhdGlvbgo+ICAgaW50ICgqZmx1c2gpKHN0cnVjdCBuZF9yZWdp
-b24gKm5kX3JlZ2lvbiwgc3RydWN0IGJpbyAqYmlvKTsKPiAgICAgICAgICAgICAgICAgICAgICAg
-ICAgICAgICAgICAgICAgICAgICAgICAgICAgICBefn4KClNvcnJ5ISBmb3IgdGhpcy4gRml4ZWQg
-bm93LgoKPiBJIHdhcyBhbHJlYWR5IGZlZWxpbmcgdW5lYXN5IGFib3V0IHRyeWluZyB0byBzcXVl
-ZXplIHRoaXMgaW50byB2NS4yLAo+IGJ1dCB0aGlzIHdhcm5pbmcgYW5kIHRoZSBjb250aW51ZWQg
-ZHJpcCBvZiBjb21tZW50cyBsZWFkcyBtZSB0bwo+IGNvbmNsdWRlIHRoYXQgdGhpcyBkcml2ZXIg
-d291bGQgZG8gd2VsbCB0byB3YWl0IG9uZSBtb3JlIGRldmVsb3BtZW50Cj4gY3ljbGUuIExldHMg
-Y2xvc2Ugb3V0IHRoZSBmaW5hbCBmaXh1cHMgYW5kIGxldCB0aGlzIGRyaXZlciBzb2FrIGluCj4g
-LW5leHQuIFRoZW4gZm9yIHRoZSB2NS4zIGN5Y2xlIEknbGwgcmVkb3VibGUgbXkgZWZmb3J0cyB0
-b3dhcmRzIHRoZQo+IGdvYWwgb2YgY2xvc2luZyBwYXRjaCBhY2NlcHRhbmNlIGF0IHRoZSAtcmM2
-IC8gLXJjNyBkZXZlbG9wbWVudAo+IG1pbGVzdG9uZS4KCm8uay4gV2lsbCB3YWl0IGZvciBNaWtl
-J3MgQUNLIG9uIGRldmljZSBtYXBwZXIgcGF0Y2ggYW5kIHNlbmQgdGhlIHYxMAp3aXRoIGZpbmFs
-IGZpeC11cHMuIFRoYW5rIHlvdSBmb3IgeW91ciBoZWxwLgoKQmVzdCByZWdhcmRzLApQYW5rYWoK
-CgoKPiAKX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX18KVmly
-dHVhbGl6YXRpb24gbWFpbGluZyBsaXN0ClZpcnR1YWxpemF0aW9uQGxpc3RzLmxpbnV4LWZvdW5k
-YXRpb24ub3JnCmh0dHBzOi8vbGlzdHMubGludXhmb3VuZGF0aW9uLm9yZy9tYWlsbWFuL2xpc3Rp
-bmZvL3ZpcnR1YWxpemF0aW9u
+On Wed, 15 May 2019 22:51:58 +0200
+Halil Pasic <pasic@linux.ibm.com> wrote:
+
+> On Mon, 13 May 2019 11:41:36 +0200
+> Cornelia Huck <cohuck@redhat.com> wrote:
+> 
+> > On Fri, 26 Apr 2019 20:32:41 +0200
+> > Halil Pasic <pasic@linux.ibm.com> wrote:
+> >   
+> > > As virtio-ccw devices are channel devices, we need to use the dma area
+> > > for any communication with the hypervisor.
+> > > 
+> > > This patch addresses the most basic stuff (mostly what is required for
+> > > virtio-ccw), and does take care of QDIO or any devices.  
+> > 
+> > "does not take care of QDIO", surely?   
+> 
+> I did not bother making the QDIO library code use dma memory for
+> anything that is conceptually dma memory. AFAIK QDIO is out of scope for
+> prot virt for now. If one were to do some emulated qdio with prot virt
+> guests, one wound need to make a bunch of things shared.
+
+And unless you wanted to support protected virt under z/VM as well, it
+would be wasted effort :)
+
+> 
+> > (Also, what does "any devices"
+> > mean? Do you mean "every arbitrary device", perhaps?)  
+> 
+> What I mean is: this patch takes care of the core stuff, but any
+> particular device is likely to have to do more -- that is it ain't all
+> the cio devices support prot virt with this patch. For example
+> virtio-ccw needs to make sure that the ccws constituting the channel
+> programs, as well as the data pointed by the ccws is shared. If one
+> would want to make vfio-ccw DASD pass-through work under prot virt, one
+> would need to make sure, that everything that needs to be shared is
+> shared (data buffers, channel programs).
+> 
+> Does is clarify things?
+
+That's what I thought, but the sentence was confusing :) What about
+
+"This patch addresses the most basic stuff (mostly what is required to
+support virtio-ccw devices). It handles neither QDIO devices, nor
+arbitrary non-virtio-ccw devices." ?
+
+> 
+> >   
+> > > 
+> > > An interesting side effect is that virtio structures are now going to
+> > > get allocated in 31 bit addressable storage.  
+> > 
+> > Hm...
+> >   
+> > > 
+> > > Signed-off-by: Halil Pasic <pasic@linux.ibm.com>
+> > > ---
+> > >  arch/s390/include/asm/ccwdev.h   |  4 +++
+> > >  drivers/s390/cio/ccwreq.c        |  8 ++---
+> > >  drivers/s390/cio/device.c        | 65 +++++++++++++++++++++++++++++++++-------
+> > >  drivers/s390/cio/device_fsm.c    | 40 ++++++++++++-------------
+> > >  drivers/s390/cio/device_id.c     | 18 +++++------
+> > >  drivers/s390/cio/device_ops.c    | 21 +++++++++++--
+> > >  drivers/s390/cio/device_pgid.c   | 20 ++++++-------
+> > >  drivers/s390/cio/device_status.c | 24 +++++++--------
+> > >  drivers/s390/cio/io_sch.h        | 21 +++++++++----
+> > >  drivers/s390/virtio/virtio_ccw.c | 10 -------
+> > >  10 files changed, 148 insertions(+), 83 deletions(-)  
+> > 
+> > (...)
+> >   
+> > > diff --git a/drivers/s390/virtio/virtio_ccw.c b/drivers/s390/virtio/virtio_ccw.c
+> > > index 6d989c360f38..bb7a92316fc8 100644
+> > > --- a/drivers/s390/virtio/virtio_ccw.c
+> > > +++ b/drivers/s390/virtio/virtio_ccw.c
+> > > @@ -66,7 +66,6 @@ struct virtio_ccw_device {
+> > >  	bool device_lost;
+> > >  	unsigned int config_ready;
+> > >  	void *airq_info;
+> > > -	u64 dma_mask;
+> > >  };
+> > >  
+> > >  struct vq_info_block_legacy {
+> > > @@ -1255,16 +1254,7 @@ static int virtio_ccw_online(struct ccw_device *cdev)
+> > >  		ret = -ENOMEM;
+> > >  		goto out_free;
+> > >  	}
+> > > -
+> > >  	vcdev->vdev.dev.parent = &cdev->dev;
+> > > -	cdev->dev.dma_mask = &vcdev->dma_mask;
+> > > -	/* we are fine with common virtio infrastructure using 64 bit DMA */
+> > > -	ret = dma_set_mask_and_coherent(&cdev->dev, DMA_BIT_MASK(64));
+> > > -	if (ret) {
+> > > -		dev_warn(&cdev->dev, "Failed to enable 64-bit DMA.\n");
+> > > -		goto out_free;
+> > > -	}  
+> > 
+> > This means that vring structures now need to fit into 31 bits as well,
+> > I think?  
+> 
+> Nod.
+> 
+> > Is there any way to reserve the 31 bit restriction for channel
+> > subsystem structures and keep vring in the full 64 bit range? (Or am I
+> > fundamentally misunderstanding something?)
+> >   
+> 
+> At the root of this problem is that the DMA API basically says devices
+> may have addressing limitations expressed by the dma_mask, while our
+> addressing limitations are not coming from the device but from the IO
+> arch: e.g. orb.cpa and ccw.cda are 31 bit addresses. In our case it
+> depends on how and for what is the device going to use the memory (e.g.
+> buffers addressed by MIDA vs IDA vs direct).
+> 
+> Virtio uses the DMA properties of the parent, that is in our case the
+> struct device embedded in struct ccw_device.
+> 
+> The previous version (RFC) used to allocate all the cio DMA stuff from
+> this global cio_dma_pool using the css0.dev for the DMA API
+> interactions. And we set *css0.dev.dma_mask == DMA_BIT_MASK(31) so
+> e.g. the allocated ccws are 31 bit addressable.
+> 
+> But I was asked to change this so that when I allocate DMA memory for a
+> channel program of particular ccw device, a struct device of that ccw
+> device is used as the first argument of dma_alloc_coherent().
+> 
+> Considering
+> 
+> void *dma_alloc_attrs(struct device *dev, size_t size, dma_addr_t *dma_handle,
+>                 gfp_t flag, unsigned long attrs)
+> {
+>         const struct dma_map_ops *ops = get_dma_ops(dev);
+>         void *cpu_addr;
+> 
+>         WARN_ON_ONCE(dev && !dev->coherent_dma_mask);
+> 
+>         if (dma_alloc_from_dev_coherent(dev, size, dma_handle, &cpu_addr))
+>                 return cpu_addr;
+> 
+>         /* let the implementation decide on the zone to allocate from: */
+>         flag &= ~(__GFP_DMA | __GFP_DMA32 | __GFP_HIGHMEM);
+> 
+> that is the GFP flags dropped that implies that we really want
+> cdev->dev restricted to 31 bit addressable memory because we can't tell
+> (with the current common DMA code) hey but this piece of DMA mem you
+> are abot to allocate for me must be 31 bit addressable (using GFP_DMA
+> as we usually do).
+> 
+> So, as described in the commit message, the vring stuff being forced
+> into ZONE_DMA is an unfortunate consequence of this all.
+
+Yeah. I hope 31 bits are enough for that as well.
+
+> 
+> A side note: making the subchannel device 'own' the DMA stuff of a ccw
+> device (something that was discussed in the RFC thread) is tricky
+> because the ccw device may outlive the subchannel (all that orphan
+> stuff).
+
+Yes, that's... eww. Not really a problem for virtio-ccw devices (which
+do not support the disconnected state), but can we make DMA and the
+subchannel moving play nice with each other at all?
+
+> 
+> So the answer is: it is technically possible (e.g. see RFC) but it comes
+> at a price, and I see no obviously brilliant solution.
+> 
+> Regards,
+> Halil
+> 
+> > > -
+> > >  	vcdev->config_block = kzalloc(sizeof(*vcdev->config_block),
+> > >  				   GFP_DMA | GFP_KERNEL);
+> > >  	if (!vcdev->config_block) {  
+> >   
+> 
