@@ -1,16 +1,19 @@
-From: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+From: Nadav Amit via Virtualization <virtualization@lists.linux-foundation.org>
 Subject: Re: [PATCH v4 0/4] vmw_balloon: Compaction and shrinker support
-Date: Fri, 17 May 2019 19:24:29 +0200
-Message-ID: <20190517172429.GA21509__32853.5932859936$1558113882$gmane$org@kroah.com>
+Date: Fri, 17 May 2019 17:57:22 +0000
+Message-ID: <26FEBE86-AF49-428F-9C9F-1FA435ADCB54@vmware.com>
 References: <20190425115445.20815-1-namit@vmware.com>
 	<8A2D1D43-759A-4B09-B781-31E9002AE3DA@vmware.com>
 	<9AD9FE33-1825-4D1A-914F-9C29DF93DC8D@vmware.com>
+	<20190517172429.GA21509@kroah.com>
+Reply-To: Nadav Amit <namit@vmware.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset="utf-8"
+Content-Transfer-Encoding: base64
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-Content-Disposition: inline
-In-Reply-To: <9AD9FE33-1825-4D1A-914F-9C29DF93DC8D@vmware.com>
+In-Reply-To: <20190517172429.GA21509@kroah.com>
+Content-Language: en-US
+Content-ID: <BF90EFC62CAD0944AB47C0512DCC17F0@namprd05.prod.outlook.com>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -20,57 +23,43 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Nadav Amit <namit@vmware.com>
+To: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 Cc: Arnd Bergmann <arnd@arndb.de>, "Michael S. Tsirkin" <mst@redhat.com>, Pv-drivers <Pv-drivers@vmware.com>, lkml <linux-kernel@vger.kernel.org>, "virtualization@lists.linux-foundation.org" <virtualization@lists.linux-foundation.org>, Linux-MM <linux-mm@kvack.org>, Julien Freche <jfreche@vmware.com>
 List-Id: virtualization@lists.linuxfoundation.org
 
-On Fri, May 17, 2019 at 05:10:23PM +0000, Nadav Amit wrote:
-> > On May 3, 2019, at 6:25 PM, Nadav Amit <namit@vmware.com> wrote:
-> > 
-> >> On Apr 25, 2019, at 4:54 AM, Nadav Amit <namit@vmware.com> wrote:
-> >> 
-> >> VMware balloon enhancements: adding support for memory compaction,
-> >> memory shrinker (to prevent OOM) and splitting of refused pages to
-> >> prevent recurring inflations.
-> >> 
-> >> Patches 1-2: Support for compaction
-> >> Patch 3: Support for memory shrinker - disabled by default
-> >> Patch 4: Split refused pages to improve performance
-> >> 
-> >> v3->v4:
-> >> * "get around to" comment [Michael]
-> >> * Put list_add under page lock [Michael]
-> >> 
-> >> v2->v3:
-> >> * Fixing wrong argument type (int->size_t) [Michael]
-> >> * Fixing a comment (it) [Michael]
-> >> * Reinstating the BUG_ON() when page is locked [Michael] 
-> >> 
-> >> v1->v2:
-> >> * Return number of pages in list enqueue/dequeue interfaces [Michael]
-> >> * Removed first two patches which were already merged
-> >> 
-> >> Nadav Amit (4):
-> >> mm/balloon_compaction: List interfaces
-> >> vmw_balloon: Compaction support
-> >> vmw_balloon: Add memory shrinker
-> >> vmw_balloon: Split refused pages
-> >> 
-> >> drivers/misc/Kconfig               |   1 +
-> >> drivers/misc/vmw_balloon.c         | 489 ++++++++++++++++++++++++++---
-> >> include/linux/balloon_compaction.h |   4 +
-> >> mm/balloon_compaction.c            | 144 ++++++---
-> >> 4 files changed, 553 insertions(+), 85 deletions(-)
-> >> 
-> >> -- 
-> >> 2.19.1
-> > 
-> > Ping.
-> 
-> Ping.
-> 
-> Greg, did it got lost again?
-
-
-I thought you needed the mm developers to ack the first patch, did that
-ever happen?
+PiBPbiBNYXkgMTcsIDIwMTksIGF0IDEwOjI0IEFNLCBHcmVnIEtyb2FoLUhhcnRtYW4gPGdyZWdr
+aEBsaW51eGZvdW5kYXRpb24ub3JnPiB3cm90ZToNCj4gDQo+IE9uIEZyaSwgTWF5IDE3LCAyMDE5
+IGF0IDA1OjEwOjIzUE0gKzAwMDAsIE5hZGF2IEFtaXQgd3JvdGU6DQo+Pj4gT24gTWF5IDMsIDIw
+MTksIGF0IDY6MjUgUE0sIE5hZGF2IEFtaXQgPG5hbWl0QHZtd2FyZS5jb20+IHdyb3RlOg0KPj4+
+IA0KPj4+PiBPbiBBcHIgMjUsIDIwMTksIGF0IDQ6NTQgQU0sIE5hZGF2IEFtaXQgPG5hbWl0QHZt
+d2FyZS5jb20+IHdyb3RlOg0KPj4+PiANCj4+Pj4gVk13YXJlIGJhbGxvb24gZW5oYW5jZW1lbnRz
+OiBhZGRpbmcgc3VwcG9ydCBmb3IgbWVtb3J5IGNvbXBhY3Rpb24sDQo+Pj4+IG1lbW9yeSBzaHJp
+bmtlciAodG8gcHJldmVudCBPT00pIGFuZCBzcGxpdHRpbmcgb2YgcmVmdXNlZCBwYWdlcyB0bw0K
+Pj4+PiBwcmV2ZW50IHJlY3VycmluZyBpbmZsYXRpb25zLg0KPj4+PiANCj4+Pj4gUGF0Y2hlcyAx
+LTI6IFN1cHBvcnQgZm9yIGNvbXBhY3Rpb24NCj4+Pj4gUGF0Y2ggMzogU3VwcG9ydCBmb3IgbWVt
+b3J5IHNocmlua2VyIC0gZGlzYWJsZWQgYnkgZGVmYXVsdA0KPj4+PiBQYXRjaCA0OiBTcGxpdCBy
+ZWZ1c2VkIHBhZ2VzIHRvIGltcHJvdmUgcGVyZm9ybWFuY2UNCj4+Pj4gDQo+Pj4+IHYzLT52NDoN
+Cj4+Pj4gKiAiZ2V0IGFyb3VuZCB0byIgY29tbWVudCBbTWljaGFlbF0NCj4+Pj4gKiBQdXQgbGlz
+dF9hZGQgdW5kZXIgcGFnZSBsb2NrIFtNaWNoYWVsXQ0KPj4+PiANCj4+Pj4gdjItPnYzOg0KPj4+
+PiAqIEZpeGluZyB3cm9uZyBhcmd1bWVudCB0eXBlIChpbnQtPnNpemVfdCkgW01pY2hhZWxdDQo+
+Pj4+ICogRml4aW5nIGEgY29tbWVudCAoaXQpIFtNaWNoYWVsXQ0KPj4+PiAqIFJlaW5zdGF0aW5n
+IHRoZSBCVUdfT04oKSB3aGVuIHBhZ2UgaXMgbG9ja2VkIFtNaWNoYWVsXSANCj4+Pj4gDQo+Pj4+
+IHYxLT52MjoNCj4+Pj4gKiBSZXR1cm4gbnVtYmVyIG9mIHBhZ2VzIGluIGxpc3QgZW5xdWV1ZS9k
+ZXF1ZXVlIGludGVyZmFjZXMgW01pY2hhZWxdDQo+Pj4+ICogUmVtb3ZlZCBmaXJzdCB0d28gcGF0
+Y2hlcyB3aGljaCB3ZXJlIGFscmVhZHkgbWVyZ2VkDQo+Pj4+IA0KPj4+PiBOYWRhdiBBbWl0ICg0
+KToNCj4+Pj4gbW0vYmFsbG9vbl9jb21wYWN0aW9uOiBMaXN0IGludGVyZmFjZXMNCj4+Pj4gdm13
+X2JhbGxvb246IENvbXBhY3Rpb24gc3VwcG9ydA0KPj4+PiB2bXdfYmFsbG9vbjogQWRkIG1lbW9y
+eSBzaHJpbmtlcg0KPj4+PiB2bXdfYmFsbG9vbjogU3BsaXQgcmVmdXNlZCBwYWdlcw0KPj4+PiAN
+Cj4+Pj4gZHJpdmVycy9taXNjL0tjb25maWcgICAgICAgICAgICAgICB8ICAgMSArDQo+Pj4+IGRy
+aXZlcnMvbWlzYy92bXdfYmFsbG9vbi5jICAgICAgICAgfCA0ODkgKysrKysrKysrKysrKysrKysr
+KysrKysrKystLS0NCj4+Pj4gaW5jbHVkZS9saW51eC9iYWxsb29uX2NvbXBhY3Rpb24uaCB8ICAg
+NCArDQo+Pj4+IG1tL2JhbGxvb25fY29tcGFjdGlvbi5jICAgICAgICAgICAgfCAxNDQgKysrKysr
+LS0tDQo+Pj4+IDQgZmlsZXMgY2hhbmdlZCwgNTUzIGluc2VydGlvbnMoKyksIDg1IGRlbGV0aW9u
+cygtKQ0KPj4+PiANCj4+Pj4gLS0gDQo+Pj4+IDIuMTkuMQ0KPj4+IA0KPj4+IFBpbmcuDQo+PiAN
+Cj4+IFBpbmcuDQo+PiANCj4+IEdyZWcsIGRpZCBpdCBnb3QgbG9zdCBhZ2Fpbj8NCj4gDQo+IA0K
+PiBJIHRob3VnaHQgeW91IG5lZWRlZCB0aGUgbW0gZGV2ZWxvcGVycyB0byBhY2sgdGhlIGZpcnN0
+IHBhdGNoLCBkaWQgdGhhdA0KPiBldmVyIGhhcHBlbj8NCg0KWWVzLiBZb3Ugd2lsbCBzZWUgTWlj
+aGFlbCBUc2lya2lu4oCZcyDigJxBY2tlZC1ieSIgb24gaXQuDQoNCl9fX19fX19fX19fX19fX19f
+X19fX19fX19fX19fX19fX19fX19fX19fX19fX19fClZpcnR1YWxpemF0aW9uIG1haWxpbmcgbGlz
+dApWaXJ0dWFsaXphdGlvbkBsaXN0cy5saW51eC1mb3VuZGF0aW9uLm9yZwpodHRwczovL2xpc3Rz
+LmxpbnV4Zm91bmRhdGlvbi5vcmcvbWFpbG1hbi9saXN0aW5mby92aXJ0dWFsaXphdGlvbg==
