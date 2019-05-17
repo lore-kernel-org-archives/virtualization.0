@@ -1,14 +1,17 @@
-From: "Jorge E. Moreira via Virtualization"
+From: =?UTF-8?Q?Jakub_Staro=c5=84?= via Virtualization
 	<virtualization@lists.linux-foundation.org>
-Subject: [PATCH RESEND] vsock/virtio: Initialize core virtio vsock before
-	registering the driver
-Date: Thu, 16 May 2019 13:51:07 -0700
-Message-ID: <20190516205107.222003-1-jemoreira__2862.45430340699$1558283050$gmane$org@google.com>
-Reply-To: "Jorge E. Moreira" <jemoreira@google.com>
+Subject: Re: [PATCH v9 2/7] virtio-pmem: Add virtio pmem driver
+Date: Thu, 16 May 2019 17:12:36 -0700
+Message-ID: <c06514fd-8675-ba74-4b7b-ff0eb4a91605__42347.4378346995$1558283064$gmane$org@google.com>
+References: <20190514145422.16923-1-pagupta@redhat.com>
+	<20190514145422.16923-3-pagupta@redhat.com>
+Reply-To: =?UTF-8?Q?Jakub_Staro=c5=84?= <jstaron@google.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
+In-Reply-To: <20190514145422.16923-3-pagupta@redhat.com>
+Content-Language: en-US
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -18,107 +21,53 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: linux-kernel@vger.kernel.org
-Cc: kvm@vger.kernel.org, netdev@vger.kernel.org, stable@vger.kernel.org, virtualization@lists.linux-foundation.org, Stefan Hajnoczi <stefanha@redhat.com>, kernel-team@android.com, "David S. Miller" <davem@davemloft.net>, Stefano Garzarella <sgarzare@redhat.com>
+To: Pankaj Gupta <pagupta@redhat.com>, linux-nvdimm@lists.01.org, linux-kernel@vger.kernel.org, virtualization@lists.linux-foundation.org, kvm@vger.kernel.org, linux-fsdevel@vger.kernel.org, linux-acpi@vger.kernel.org, qemu-devel@nongnu.org, linux-ext4@vger.kernel.org, linux-xfs@vger.kernel.org
+Cc: jack@suse.cz, mst@redhat.com, david@fromorbit.com, lcapitulino@redhat.com, adilger.kernel@dilger.ca, smbarber@google.com, zwisler@kernel.org, aarcange@redhat.com, dave.jiang@intel.com, darrick.wong@oracle.com, vishal.l.verma@intel.com, willy@infradead.org, hch@infradead.org, jmoyer@redhat.com, nilal@redhat.com, lenb@kernel.org, kilobyte@angband.pl, riel@surriel.com, yuval.shaia@oracle.com, stefanha@redhat.com, pbonzini@redhat.com, dan.j.williams@intel.com, tytso@mit.edu, xiaoguangrong.eric@gmail.com, cohuck@redhat.com, rjw@rjwysocki.net, imammedo@redhat.com
 List-Id: virtualization@lists.linuxfoundation.org
 
-Avoid a race in which static variables in net/vmw_vsock/af_vsock.c are
-accessed (while handling interrupts) before they are initialized.
+On 5/14/19 7:54 AM, Pankaj Gupta wrote:
+> +		if (!list_empty(&vpmem->req_list)) {
+> +			req_buf = list_first_entry(&vpmem->req_list,
+> +					struct virtio_pmem_request, list);
+> +			req_buf->wq_buf_avail = true;
+> +			wake_up(&req_buf->wq_buf);
+> +			list_del(&req_buf->list);
+Yes, this change is the right one, thank you!
 
-[    4.201410] BUG: unable to handle kernel paging request at ffffffffffffffe8
-[    4.207829] IP: vsock_addr_equals_addr+0x3/0x20
-[    4.211379] PGD 28210067 P4D 28210067 PUD 28212067 PMD 0
-[    4.211379] Oops: 0000 [#1] PREEMPT SMP PTI
-[    4.211379] Modules linked in:
-[    4.211379] CPU: 1 PID: 30 Comm: kworker/1:1 Not tainted 4.14.106-419297-gd7e28cc1f241 #1
-[    4.211379] Hardware name: QEMU Standard PC (i440FX + PIIX, 1996), BIOS 1.10.2-1 04/01/2014
-[    4.211379] Workqueue: virtio_vsock virtio_transport_rx_work
-[    4.211379] task: ffffa3273d175280 task.stack: ffffaea1800e8000
-[    4.211379] RIP: 0010:vsock_addr_equals_addr+0x3/0x20
-[    4.211379] RSP: 0000:ffffaea1800ebd28 EFLAGS: 00010286
-[    4.211379] RAX: 0000000000000002 RBX: 0000000000000000 RCX: ffffffffb94e42f0
-[    4.211379] RDX: 0000000000000400 RSI: ffffffffffffffe0 RDI: ffffaea1800ebdd0
-[    4.211379] RBP: ffffaea1800ebd58 R08: 0000000000000001 R09: 0000000000000001
-[    4.211379] R10: 0000000000000000 R11: ffffffffb89d5d60 R12: ffffaea1800ebdd0
-[    4.211379] R13: 00000000828cbfbf R14: 0000000000000000 R15: ffffaea1800ebdc0
-[    4.211379] FS:  0000000000000000(0000) GS:ffffa3273fd00000(0000) knlGS:0000000000000000
-[    4.211379] CS:  0010 DS: 0000 ES: 0000 CR0: 0000000080050033
-[    4.211379] CR2: ffffffffffffffe8 CR3: 000000002820e001 CR4: 00000000001606e0
-[    4.211379] DR0: 0000000000000000 DR1: 0000000000000000 DR2: 0000000000000000
-[    4.211379] DR3: 0000000000000000 DR6: 00000000fffe0ff0 DR7: 0000000000000400
-[    4.211379] Call Trace:
-[    4.211379]  ? vsock_find_connected_socket+0x6c/0xe0
-[    4.211379]  virtio_transport_recv_pkt+0x15f/0x740
-[    4.211379]  ? detach_buf+0x1b5/0x210
-[    4.211379]  virtio_transport_rx_work+0xb7/0x140
-[    4.211379]  process_one_work+0x1ef/0x480
-[    4.211379]  worker_thread+0x312/0x460
-[    4.211379]  kthread+0x132/0x140
-[    4.211379]  ? process_one_work+0x480/0x480
-[    4.211379]  ? kthread_destroy_worker+0xd0/0xd0
-[    4.211379]  ret_from_fork+0x35/0x40
-[    4.211379] Code: c7 47 08 00 00 00 00 66 c7 07 28 00 c7 47 08 ff ff ff ff c7 47 04 ff ff ff ff c3 0f 1f 00 66 2e 0f 1f 84 00 00 00 00 00 8b 47 08 <3b> 46 08 75 0a 8b 47 04 3b 46 04 0f 94 c0 c3 31 c0 c3 90 66 2e
-[    4.211379] RIP: vsock_addr_equals_addr+0x3/0x20 RSP: ffffaea1800ebd28
-[    4.211379] CR2: ffffffffffffffe8
-[    4.211379] ---[ end trace f31cc4a2e6df3689 ]---
-[    4.211379] Kernel panic - not syncing: Fatal exception in interrupt
-[    4.211379] Kernel Offset: 0x37000000 from 0xffffffff81000000 (relocation range: 0xffffffff80000000-0xffffffffbfffffff)
-[    4.211379] Rebooting in 5 seconds..
+> +	 /*
+> +	  * If virtqueue_add_sgs returns -ENOSPC then req_vq virtual
+> +	  * queue does not have free descriptor. We add the request
+> +	  * to req_list and wait for host_ack to wake us up when free
+> +	  * slots are available.
+> +	  */
+> +	while ((err = virtqueue_add_sgs(vpmem->req_vq, sgs, 1, 1, req,
+> +					GFP_ATOMIC)) == -ENOSPC) {
+> +
+> +		dev_err(&vdev->dev, "failed to send command to virtio pmem" \
+> +			"device, no free slots in the virtqueue\n");
+> +		req->wq_buf_avail = false;
+> +		list_add_tail(&req->list, &vpmem->req_list);
+> +		spin_unlock_irqrestore(&vpmem->pmem_lock, flags);
+> +
+> +		/* A host response results in "host_ack" getting called */
+> +		wait_event(req->wq_buf, req->wq_buf_avail);
+> +		spin_lock_irqsave(&vpmem->pmem_lock, flags);
+> +	}
+> +	err1 = virtqueue_kick(vpmem->req_vq);
+> +	spin_unlock_irqrestore(&vpmem->pmem_lock, flags);
+> +
+> +	/*
+> +	 * virtqueue_add_sgs failed with error different than -ENOSPC, we can't
+> +	 * do anything about that.
+> +	 */
+> +	if (err || !err1) {
+> +		dev_info(&vdev->dev, "failed to send command to virtio pmem device\n");
+> +		err = -EIO;
+> +	} else {
+> +		/* A host repsonse results in "host_ack" getting called */
+> +		wait_event(req->host_acked, req->done);
+> +		err = req->ret;
+> +I confirm that the failures I was facing with the `-ENOSPC` error path are not present in v9.
 
-Fixes: 22b5c0b63f32 ("vsock/virtio: fix kernel panic after device hot-unplug")
-Cc: Stefan Hajnoczi <stefanha@redhat.com>
-Cc: Stefano Garzarella <sgarzare@redhat.com>
-Cc: "David S. Miller" <davem@davemloft.net>
-Cc: kvm@vger.kernel.org
-Cc: virtualization@lists.linux-foundation.org
-Cc: netdev@vger.kernel.org
-Cc: kernel-team@android.com
-Cc: stable@vger.kernel.org [4.9+]
-Signed-off-by: Jorge E. Moreira <jemoreira@google.com>
-Reviewed-by: Stefano Garzarella <sgarzare@redhat.com>
-Reviewed-by: Stefan Hajnoczi <stefanha@redhat.com>
----
- net/vmw_vsock/virtio_transport.c | 13 ++++++-------
- 1 file changed, 6 insertions(+), 7 deletions(-)
-
-diff --git a/net/vmw_vsock/virtio_transport.c b/net/vmw_vsock/virtio_transport.c
-index 15eb5d3d4750..96ab344f17bb 100644
---- a/net/vmw_vsock/virtio_transport.c
-+++ b/net/vmw_vsock/virtio_transport.c
-@@ -702,28 +702,27 @@ static int __init virtio_vsock_init(void)
- 	if (!virtio_vsock_workqueue)
- 		return -ENOMEM;
- 
--	ret = register_virtio_driver(&virtio_vsock_driver);
-+	ret = vsock_core_init(&virtio_transport.transport);
- 	if (ret)
- 		goto out_wq;
- 
--	ret = vsock_core_init(&virtio_transport.transport);
-+	ret = register_virtio_driver(&virtio_vsock_driver);
- 	if (ret)
--		goto out_vdr;
-+		goto out_vci;
- 
- 	return 0;
- 
--out_vdr:
--	unregister_virtio_driver(&virtio_vsock_driver);
-+out_vci:
-+	vsock_core_exit();
- out_wq:
- 	destroy_workqueue(virtio_vsock_workqueue);
- 	return ret;
--
- }
- 
- static void __exit virtio_vsock_exit(void)
- {
--	vsock_core_exit();
- 	unregister_virtio_driver(&virtio_vsock_driver);
-+	vsock_core_exit();
- 	destroy_workqueue(virtio_vsock_workqueue);
- }
- 
--- 
-2.21.0.1020.gf2820cf01a-goog
+Best,
+Jakub Staron
