@@ -1,15 +1,16 @@
-From: Pankaj Gupta <pagupta@redhat.com>
-Subject: Re: [Qemu-devel] [PATCH v9 2/7] virtio-pmem: Add virtio pmem driver
-Date: Fri, 17 May 2019 01:35:58 -0400 (EDT)
-Message-ID: <1954162775.29408078.1558071358974.JavaMail.zimbra__24444.3303252169$1558071374$gmane$org@redhat.com>
-References: <20190514145422.16923-1-pagupta@redhat.com>
-	<20190514145422.16923-3-pagupta@redhat.com>
-	<c06514fd-8675-ba74-4b7b-ff0eb4a91605@google.com>
+From: Stefano Garzarella <sgarzare@redhat.com>
+Subject: Re: [PATCH v2 1/8] vsock/virtio: limit the memory used per-socket
+Date: Fri, 17 May 2019 10:25:05 +0200
+Message-ID: <20190517082505.ibjkuh7zibumen77__9602.5323540502$1558081524$gmane$org@steredhat>
+References: <20190510125843.95587-1-sgarzare@redhat.com>
+	<20190510125843.95587-2-sgarzare@redhat.com>
+	<20190516152533.GB29808@stefanha-x1.localdomain>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <c06514fd-8675-ba74-4b7b-ff0eb4a91605@google.com>
+Content-Disposition: inline
+In-Reply-To: <20190516152533.GB29808@stefanha-x1.localdomain>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -19,70 +20,87 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Jakub =?utf-8?Q?Staro=C5=84?= <jstaron@google.com>
-Cc: cohuck@redhat.com, jack@suse.cz, kvm@vger.kernel.org, mst@redhat.com, david@fromorbit.com, qemu-devel@nongnu.org, virtualization@lists.linux-foundation.org, adilger kernel <adilger.kernel@dilger.ca>, smbarber@google.com, zwisler@kernel.org, aarcange@redhat.com, dave jiang <dave.jiang@intel.com>, linux-nvdimm@lists.01.org, vishal l verma <vishal.l.verma@intel.com>, willy@infradead.org, hch@infradead.org, linux-acpi@vger.kernel.org, jmoyer@redhat.com, linux-ext4@vger.kernel.org, lenb@kernel.org, kilobyte@angband.pl, riel@surriel.com, yuval shaia <yuval.shaia@oracle.com>, stefanha@redhat.com, imammedo@redhat.com, dan j williams <dan.j.williams@intel.com>, lcapitulino@redhat.com, nilal@redhat.com, tytso@mit.edu, xiaoguangrong eric <xiaoguangrong.eric@gmail.com>, darrick wong <darrick.wong@oracle.com>, rjw@rjwysocki.net, linux-kernel@vger.kernel.org, linux-xfs@vger.kernel.o
+To: Stefan Hajnoczi <stefanha@redhat.com>
+Cc: kvm@vger.kernel.org, "Michael S. Tsirkin" <mst@redhat.com>, netdev@vger.kernel.org, linux-kernel@vger.kernel.org, virtualization@lists.linux-foundation.org, "David S. Miller" <davem@davemloft.net>
 List-Id: virtualization@lists.linuxfoundation.org
 
-
-
-Hi Jakub,
-
+On Thu, May 16, 2019 at 04:25:33PM +0100, Stefan Hajnoczi wrote:
+> On Fri, May 10, 2019 at 02:58:36PM +0200, Stefano Garzarella wrote:
+> > +struct virtio_vsock_buf {
 > 
-> On 5/14/19 7:54 AM, Pankaj Gupta wrote:
-> > +		if (!list_empty(&vpmem->req_list)) {
-> > +			req_buf = list_first_entry(&vpmem->req_list,
-> > +					struct virtio_pmem_request, list);
-> > +			req_buf->wq_buf_avail = true;
-> > +			wake_up(&req_buf->wq_buf);
-> > +			list_del(&req_buf->list);
-> Yes, this change is the right one, thank you!
-
-Thank you for the confirmation.
-
+> Please add a comment describing the purpose of this struct and to
+> differentiate its use from struct virtio_vsock_pkt.
 > 
-> > +	 /*
-> > +	  * If virtqueue_add_sgs returns -ENOSPC then req_vq virtual
-> > +	  * queue does not have free descriptor. We add the request
-> > +	  * to req_list and wait for host_ack to wake us up when free
-> > +	  * slots are available.
-> > +	  */
-> > +	while ((err = virtqueue_add_sgs(vpmem->req_vq, sgs, 1, 1, req,
-> > +					GFP_ATOMIC)) == -ENOSPC) {
+
+Sure, I'll fix it.
+
+> > +static struct virtio_vsock_buf *
+> > +virtio_transport_alloc_buf(struct virtio_vsock_pkt *pkt, bool zero_copy)
+> > +{
+> > +	struct virtio_vsock_buf *buf;
 > > +
-> > +		dev_err(&vdev->dev, "failed to send command to virtio pmem" \
-> > +			"device, no free slots in the virtqueue\n");
-> > +		req->wq_buf_avail = false;
-> > +		list_add_tail(&req->list, &vpmem->req_list);
-> > +		spin_unlock_irqrestore(&vpmem->pmem_lock, flags);
+> > +	if (pkt->len == 0)
+> > +		return NULL;
 > > +
-> > +		/* A host response results in "host_ack" getting called */
-> > +		wait_event(req->wq_buf, req->wq_buf_avail);
-> > +		spin_lock_irqsave(&vpmem->pmem_lock, flags);
-> > +	}
-> > +	err1 = virtqueue_kick(vpmem->req_vq);
-> > +	spin_unlock_irqrestore(&vpmem->pmem_lock, flags);
+> > +	buf = kzalloc(sizeof(*buf), GFP_KERNEL);
+> > +	if (!buf)
+> > +		return NULL;
 > > +
-> > +	/*
-> > +	 * virtqueue_add_sgs failed with error different than -ENOSPC, we can't
-> > +	 * do anything about that.
+> > +	/* If the buffer in the virtio_vsock_pkt is full, we can move it to
+> > +	 * the new virtio_vsock_buf avoiding the copy, because we are sure that
+> > +	 * we are not use more memory than that counted by the credit mechanism.
 > > +	 */
-> > +	if (err || !err1) {
-> > +		dev_info(&vdev->dev, "failed to send command to virtio pmem device\n");
-> > +		err = -EIO;
+> > +	if (zero_copy && pkt->len == pkt->buf_len) {
+> > +		buf->addr = pkt->buf;
+> > +		pkt->buf = NULL;
 > > +	} else {
-> > +		/* A host repsonse results in "host_ack" getting called */
-> > +		wait_event(req->host_acked, req->done);
-> > +		err = req->ret;
-> > +I confirm that the failures I was facing with the `-ENOSPC` error path are
-> > not present in v9.
-
-Can I take it your reviewed/acked-by? or tested-by tag? for the virtio patch :)
-
-Thank you,
-Pankaj
-
+> > +		buf->addr = kmalloc(pkt->len, GFP_KERNEL);
 > 
-> Best,
-> Jakub Staron
+> buf and buf->addr could be allocated in a single call, though I'm not
+> sure how big an optimization this is.
 > 
+
+IIUC, in the case of zero-copy I should allocate only the buf,
+otherwise I should allocate both buf and buf->addr in a single call
+when I'm doing a full-copy.
+
+Is it correct?
+
+> > @@ -841,20 +882,24 @@ virtio_transport_recv_connected(struct sock *sk,
+> >  {
+> >  	struct vsock_sock *vsk = vsock_sk(sk);
+> >  	struct virtio_vsock_sock *vvs = vsk->trans;
+> > +	struct virtio_vsock_buf *buf;
+> >  	int err = 0;
+> >  
+> >  	switch (le16_to_cpu(pkt->hdr.op)) {
+> >  	case VIRTIO_VSOCK_OP_RW:
+> >  		pkt->len = le32_to_cpu(pkt->hdr.len);
+> > -		pkt->off = 0;
+> > +		buf = virtio_transport_alloc_buf(pkt, true);
+> >  
+> > -		spin_lock_bh(&vvs->rx_lock);
+> > -		virtio_transport_inc_rx_pkt(vvs, pkt);
+> > -		list_add_tail(&pkt->list, &vvs->rx_queue);
+> > -		spin_unlock_bh(&vvs->rx_lock);
+> > +		if (buf) {
+> > +			spin_lock_bh(&vvs->rx_lock);
+> > +			virtio_transport_inc_rx_pkt(vvs, pkt->len);
+> > +			list_add_tail(&buf->list, &vvs->rx_queue);
+> > +			spin_unlock_bh(&vvs->rx_lock);
+> >  
+> > -		sk->sk_data_ready(sk);
+> > -		return err;
+> > +			sk->sk_data_ready(sk);
+> > +		}
 > 
+> The return value of this function isn't used but the code still makes an
+> effort to return errors.  Please return -ENOMEM when buf == NULL.
+> 
+> If you'd like to remove the return value that's fine too, but please do
+> it for the whole function to be consistent.
+
+I'll return -ENOMEM when the allocation fails.
+
+Thanks,
+Stefano
