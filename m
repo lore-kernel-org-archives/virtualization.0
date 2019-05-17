@@ -1,11 +1,17 @@
-From: Stefano Garzarella <sgarzare@redhat.com>
-Subject: [PATCH v3] vsock/virtio: free packets during the socket release
-Date: Fri, 17 May 2019 16:45:43 +0200
-Message-ID: <20190517144543.362935-1-sgarzare__26082.7542095043$1558104390$gmane$org@redhat.com>
+From: Nadav Amit via Virtualization <virtualization@lists.linux-foundation.org>
+Subject: Re: [PATCH v4 0/4] vmw_balloon: Compaction and shrinker support
+Date: Fri, 17 May 2019 17:10:23 +0000
+Message-ID: <9AD9FE33-1825-4D1A-914F-9C29DF93DC8D__33725.3161052772$1558113044$gmane$org@vmware.com>
+References: <20190425115445.20815-1-namit@vmware.com>
+	<8A2D1D43-759A-4B09-B781-31E9002AE3DA@vmware.com>
+Reply-To: Nadav Amit <namit@vmware.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
+In-Reply-To: <8A2D1D43-759A-4B09-B781-31E9002AE3DA@vmware.com>
+Content-Language: en-US
+Content-ID: <D489544212C01046B2B5533DCF95669B@namprd05.prod.outlook.com>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -15,51 +21,52 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: netdev@vger.kernel.org
-Cc: kvm@vger.kernel.org, linux-kernel@vger.kernel.org, stable@vger.kernel.org, virtualization@lists.linux-foundation.org, Stefan Hajnoczi <stefanha@redhat.com>, "David S. Miller" <davem@davemloft.net>
+To: Greg Kroah-Hartman <gregkh@linuxfoundation.org>, Arnd Bergmann <arnd@arndb.de>
+Cc: "Michael S. Tsirkin" <mst@redhat.com>, Pv-drivers <Pv-drivers@vmware.com>, lkml <linux-kernel@vger.kernel.org>, "virtualization@lists.linux-foundation.org" <virtualization@lists.linux-foundation.org>, Linux-MM <linux-mm@kvack.org>, Julien Freche <jfreche@vmware.com>
 List-Id: virtualization@lists.linuxfoundation.org
 
-When the socket is released, we should free all packets
-queued in the per-socket list in order to avoid a memory
-leak.
+> On May 3, 2019, at 6:25 PM, Nadav Amit <namit@vmware.com> wrote:
+> 
+>> On Apr 25, 2019, at 4:54 AM, Nadav Amit <namit@vmware.com> wrote:
+>> 
+>> VMware balloon enhancements: adding support for memory compaction,
+>> memory shrinker (to prevent OOM) and splitting of refused pages to
+>> prevent recurring inflations.
+>> 
+>> Patches 1-2: Support for compaction
+>> Patch 3: Support for memory shrinker - disabled by default
+>> Patch 4: Split refused pages to improve performance
+>> 
+>> v3->v4:
+>> * "get around to" comment [Michael]
+>> * Put list_add under page lock [Michael]
+>> 
+>> v2->v3:
+>> * Fixing wrong argument type (int->size_t) [Michael]
+>> * Fixing a comment (it) [Michael]
+>> * Reinstating the BUG_ON() when page is locked [Michael] 
+>> 
+>> v1->v2:
+>> * Return number of pages in list enqueue/dequeue interfaces [Michael]
+>> * Removed first two patches which were already merged
+>> 
+>> Nadav Amit (4):
+>> mm/balloon_compaction: List interfaces
+>> vmw_balloon: Compaction support
+>> vmw_balloon: Add memory shrinker
+>> vmw_balloon: Split refused pages
+>> 
+>> drivers/misc/Kconfig               |   1 +
+>> drivers/misc/vmw_balloon.c         | 489 ++++++++++++++++++++++++++---
+>> include/linux/balloon_compaction.h |   4 +
+>> mm/balloon_compaction.c            | 144 ++++++---
+>> 4 files changed, 553 insertions(+), 85 deletions(-)
+>> 
+>> -- 
+>> 2.19.1
+> 
+> Ping.
 
-Signed-off-by: Stefano Garzarella <sgarzare@redhat.com>
----
-This patch was in the series "[PATCH v2 0/8] vsock/virtio: optimizations
-to increase the throughput" [1]. As Stefan suggested, I'm sending it as
-a separated patch.
+Ping.
 
-v3:
-  - use list_for_each_entry_safe() [David]
-
-[1] https://patchwork.kernel.org/cover/10938743/
----
- net/vmw_vsock/virtio_transport_common.c | 7 +++++++
- 1 file changed, 7 insertions(+)
-
-diff --git a/net/vmw_vsock/virtio_transport_common.c b/net/vmw_vsock/virtio_transport_common.c
-index 602715fc9a75..f3f3d06cb6d8 100644
---- a/net/vmw_vsock/virtio_transport_common.c
-+++ b/net/vmw_vsock/virtio_transport_common.c
-@@ -786,12 +786,19 @@ static bool virtio_transport_close(struct vsock_sock *vsk)
- 
- void virtio_transport_release(struct vsock_sock *vsk)
- {
-+	struct virtio_vsock_sock *vvs = vsk->trans;
-+	struct virtio_vsock_pkt *pkt, *tmp;
- 	struct sock *sk = &vsk->sk;
- 	bool remove_sock = true;
- 
- 	lock_sock(sk);
- 	if (sk->sk_type == SOCK_STREAM)
- 		remove_sock = virtio_transport_close(vsk);
-+
-+	list_for_each_entry_safe(pkt, tmp, &vvs->rx_queue, list) {
-+		list_del(&pkt->list);
-+		virtio_transport_free_pkt(pkt);
-+	}
- 	release_sock(sk);
- 
- 	if (remove_sock)
--- 
-2.20.1
+Greg, did it got lost again?
