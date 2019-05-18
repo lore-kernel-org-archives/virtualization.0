@@ -1,17 +1,13 @@
-From: Halil Pasic <pasic@linux.ibm.com>
-Subject: Re: [PATCH 06/10] s390/cio: add basic protected virtualization support
-Date: Sat, 18 May 2019 20:11:00 +0200
-Message-ID: <20190518201100.0fd07d7f.pasic@linux.ibm.com>
-References: <20190426183245.37939-1-pasic@linux.ibm.com>
-	<20190426183245.37939-7-pasic@linux.ibm.com>
-	<20190513114136.783c851c.cohuck@redhat.com>
-	<20190515225158.301af387.pasic@linux.ibm.com>
-	<20190516082928.1371696b.cohuck@redhat.com>
+From: David Miller <davem@davemloft.net>
+Subject: Re: [PATCH V2 0/4] Prevent vhost kthread from hogging CPU
+Date: Sat, 18 May 2019 13:27:12 -0700 (PDT)
+Message-ID: <20190518.132712.1971625204431294331.davem@davemloft.net>
+References: <1558067392-11740-1-git-send-email-jasowang@redhat.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <20190516082928.1371696b.cohuck@redhat.com>
+In-Reply-To: <1558067392-11740-1-git-send-email-jasowang@redhat.com>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -21,138 +17,28 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Cornelia Huck <cohuck@redhat.com>
-Cc: Vasily Gorbik <gor@linux.ibm.com>, linux-s390@vger.kernel.org, Thomas Huth <thuth@redhat.com>, Claudio Imbrenda <imbrenda@linux.ibm.com>, kvm@vger.kernel.org, Sebastian Ott <sebott@linux.ibm.com>, "Michael S. Tsirkin" <mst@redhat.com>, Farhan Ali <alifm@linux.ibm.com>, Eric Farman <farman@linux.ibm.com>, virtualization@lists.linux-foundation.org, Christoph Hellwig <hch@infradead.org>, Martin Schwidefsky <schwidefsky@de.ibm.com>, Viktor Mihajlovski <mihajlov@linux.ibm.com>, Janosch Frank <frankja@linux.ibm.com>
+To: jasowang@redhat.com
+Cc: kvm@vger.kernel.org, mst@redhat.com, netdev@vger.kernel.org, linux-kernel@vger.kernel.org, virtualization@lists.linux-foundation.org, stefanha@redhat.com, pbonzini@redhat.com
 List-Id: virtualization@lists.linuxfoundation.org
 
-On Thu, 16 May 2019 08:29:28 +0200
-Cornelia Huck <cohuck@redhat.com> wrote:
+From: Jason Wang <jasowang@redhat.com>
+Date: Fri, 17 May 2019 00:29:48 -0400
 
-> On Wed, 15 May 2019 22:51:58 +0200
-> Halil Pasic <pasic@linux.ibm.com> wrote:
+> Hi:
 > 
-> > On Mon, 13 May 2019 11:41:36 +0200
-> > Cornelia Huck <cohuck@redhat.com> wrote:
-> > 
-> > > On Fri, 26 Apr 2019 20:32:41 +0200
-> > > Halil Pasic <pasic@linux.ibm.com> wrote:
-> > >   
-> > > > As virtio-ccw devices are channel devices, we need to use the dma area
-> > > > for any communication with the hypervisor.
-> > > > 
-> > > > This patch addresses the most basic stuff (mostly what is required for
-> > > > virtio-ccw), and does take care of QDIO or any devices.  
-> > > 
-> > > "does not take care of QDIO", surely?   
-> > 
-> > I did not bother making the QDIO library code use dma memory for
-> > anything that is conceptually dma memory. AFAIK QDIO is out of scope for
-> > prot virt for now. If one were to do some emulated qdio with prot virt
-> > guests, one wound need to make a bunch of things shared.
+> This series try to prevent a guest triggerable CPU hogging through
+> vhost kthread. This is done by introducing and checking the weight
+> after each requrest. The patch has been tested with reproducer of
+> vsock and virtio-net. Only compile test is done for vhost-scsi.
 > 
-> And unless you wanted to support protected virt under z/VM as well, it
-> would be wasted effort :)
+> Please review.
 > 
+> This addresses CVE-2019-3900.
+> 
+> Changs from V1:
+> - fix user-ater-free in vosck patch
 
-:)
+I am assuming that not only will mst review this, it will also go via
+his tree rather than mine.
 
-> > 
-> > > (Also, what does "any devices"
-> > > mean? Do you mean "every arbitrary device", perhaps?)  
-> > 
-> > What I mean is: this patch takes care of the core stuff, but any
-> > particular device is likely to have to do more -- that is it ain't all
-> > the cio devices support prot virt with this patch. For example
-> > virtio-ccw needs to make sure that the ccws constituting the channel
-> > programs, as well as the data pointed by the ccws is shared. If one
-> > would want to make vfio-ccw DASD pass-through work under prot virt, one
-> > would need to make sure, that everything that needs to be shared is
-> > shared (data buffers, channel programs).
-> > 
-> > Does is clarify things?
-> 
-> That's what I thought, but the sentence was confusing :) What about
-> 
-> "This patch addresses the most basic stuff (mostly what is required to
-> support virtio-ccw devices). It handles neither QDIO devices, nor
-> arbitrary non-virtio-ccw devices." ?
->
-
-Don't like the second sentence. How about "It handles neither QDIO
-in the common code, nor any device type specific stuff (like channel
-programs constructed by the DADS driver)."
-
-My problem is that this patch is about the common infrastructure code,
-and virtio-ccw specific stuff is handled by subsequent patches of this
-series.
-
-[..]
-
-> > > Is there any way to reserve the 31 bit restriction for channel
-> > > subsystem structures and keep vring in the full 64 bit range? (Or
-> > > am I fundamentally misunderstanding something?)
-> > >   
-> > 
-> > At the root of this problem is that the DMA API basically says
-> > devices may have addressing limitations expressed by the dma_mask,
-> > while our addressing limitations are not coming from the device but
-> > from the IO arch: e.g. orb.cpa and ccw.cda are 31 bit addresses. In
-> > our case it depends on how and for what is the device going to use
-> > the memory (e.g. buffers addressed by MIDA vs IDA vs direct).
-> > 
-> > Virtio uses the DMA properties of the parent, that is in our case the
-> > struct device embedded in struct ccw_device.
-> > 
-> > The previous version (RFC) used to allocate all the cio DMA stuff
-> > from this global cio_dma_pool using the css0.dev for the DMA API
-> > interactions. And we set *css0.dev.dma_mask == DMA_BIT_MASK(31) so
-> > e.g. the allocated ccws are 31 bit addressable.
-> > 
-> > But I was asked to change this so that when I allocate DMA memory
-> > for a channel program of particular ccw device, a struct device of
-> > that ccw device is used as the first argument of
-> > dma_alloc_coherent().
-> > 
-> > Considering
-> > 
-> > void *dma_alloc_attrs(struct device *dev, size_t size, dma_addr_t
-> > *dma_handle, gfp_t flag, unsigned long attrs)
-> > {
-> >         const struct dma_map_ops *ops = get_dma_ops(dev);
-> >         void *cpu_addr;
-> > 
-> >         WARN_ON_ONCE(dev && !dev->coherent_dma_mask);
-> > 
-> >         if (dma_alloc_from_dev_coherent(dev, size, dma_handle,
-> > &cpu_addr)) return cpu_addr;
-> > 
-> >         /* let the implementation decide on the zone to allocate
-> > from: */ flag &= ~(__GFP_DMA | __GFP_DMA32 | __GFP_HIGHMEM);
-> > 
-> > that is the GFP flags dropped that implies that we really want
-> > cdev->dev restricted to 31 bit addressable memory because we can't
-> > tell (with the current common DMA code) hey but this piece of DMA
-> > mem you are abot to allocate for me must be 31 bit addressable
-> > (using GFP_DMA as we usually do).
-> > 
-> > So, as described in the commit message, the vring stuff being forced
-> > into ZONE_DMA is an unfortunate consequence of this all.
-> 
-> Yeah. I hope 31 bits are enough for that as well.
-> 
-> > 
-> > A side note: making the subchannel device 'own' the DMA stuff of a
-> > ccw device (something that was discussed in the RFC thread) is tricky
-> > because the ccw device may outlive the subchannel (all that orphan
-> > stuff).
-> 
-> Yes, that's... eww. Not really a problem for virtio-ccw devices (which
-> do not support the disconnected state), but can we make DMA and the
-> subchannel moving play nice with each other at all?
-> 
-
-I don't quite understand the question. This series does not have any
-problems with that AFAIU. Can you please clarify?
-
-Regards,
-Halil
+Thanks.
