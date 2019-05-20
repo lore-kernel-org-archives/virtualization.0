@@ -1,18 +1,11 @@
-From: Daniel Vetter <daniel@ffwll.ch>
-Subject: Re: [PATCH 1/2] drm: Add drm_gem_vram_{pin/unpin}_reserved() and
-	convert mgag200
-Date: Mon, 20 May 2019 21:26:24 +0200
-Message-ID: <CAKMK7uF51rBURbo=9OtVSP4XQkh5mw9F7oSdjs6=RH1UZb2jzA@mail.gmail.com>
-References: <20190516162746.11636-1-tzimmermann@suse.de>
-	<20190516162746.11636-2-tzimmermann@suse.de>
-	<20190520161900.GB21222@phenom.ffwll.local>
-	<20190520162615.GD21222@phenom.ffwll.local>
-	<2192d545-47ef-ccd8-d0b9-44f42b55e8d2@amd.com>
+From: Thomas Garnier <thgarnie@chromium.org>
+Subject: [PATCH v7 00/12] x86: PIE support to extend KASLR randomization
+Date: Mon, 20 May 2019 16:19:25 -0700
+Message-ID: <20190520231948.49693-1-thgarnie@chromium.org>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <2192d545-47ef-ccd8-d0b9-44f42b55e8d2@amd.com>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -22,245 +15,100 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: "Koenig, Christian" <Christian.Koenig@amd.com>
-Cc: "noralf@tronnes.org" <noralf@tronnes.org>, "airlied@linux.ie" <airlied@linux.ie>, "puck.chen@hisilicon.com" <puck.chen@hisilicon.com>, "dri-devel@lists.freedesktop.org" <dri-devel@lists.freedesktop.org>, "virtualization@lists.linux-foundation.org" <virtualization@lists.linux-foundation.org>, "z.liuxinliang@hisilicon.com" <z.liuxinliang@hisilicon.com>, "hdegoede@redhat.com" <hdegoede@redhat.com>, "kong.kongxinwei@hisilicon.com" <kong.kongxinwei@hisilicon.com>, "Huang, Ray" <Ray.Huang@amd.com>, Thomas Zimmermann <tzimmermann@suse.de>, "zourongrong@gmail.com" <zourongrong@gmail.com>, "sam@ravnborg.org" <sam@ravnborg.org>
+To: kernel-hardening@lists.openwall.com
+Cc: Feng Tang <feng.tang@intel.com>, kristen@linux.intel.com, Peter Zijlstra <peterz@infradead.org>, virtualization@lists.linux-foundation.org, Masahiro Yamada <yamada.masahiro@socionext.com>, Jan Beulich <JBeulich@suse.com>, Nadav Amit <namit@vmware.com>, Pavel Machek <pavel@ucw.cz>, "H. Peter Anvin" <hpa@zytor.com>, Thomas Gleixner <tglx@linutronix.de>, Andi Kleen <ak@linux.intel.com>, Herbert Xu <herbert@gondor.apana.org.au>, x86@kernel.org, Ingo Molnar <mingo@redhat.com>, Len Brown <len.brown@intel.com>, Jann Horn <jannh@google.com>, Borislav Petkov <bp@alien8.de>, Andy Lutomirski <luto@kernel.org>, Alok Kataria <akataria@vmware.com>, Juergen Gross <jgross@suse.com>, Ard Biesheuvel <ard.biesheuvel@linaro.org>, linux-pm@vger.kernel.org, Maran Wilson <maran.wilson@oracle.com>, "Rafael J. Wysocki" <rjw@rjwysocki.net>, linux-kernel@vger.kernel.org, "David S. Miller" <davem>
 List-Id: virtualization@lists.linuxfoundation.org
 
-On Mon, May 20, 2019 at 9:24 PM Koenig, Christian
-<Christian.Koenig@amd.com> wrote:
->
-> Am 20.05.19 um 18:26 schrieb Daniel Vetter:
-> > [CAUTION: External Email]
-> >
-> > On Mon, May 20, 2019 at 06:19:00PM +0200, Daniel Vetter wrote:
-> >> On Thu, May 16, 2019 at 06:27:45PM +0200, Thomas Zimmermann wrote:
-> >>> The new interfaces drm_gem_vram_{pin/unpin}_reserved() are variants of the
-> >>> GEM VRAM pin/unpin functions that do not reserve the BO during validation.
-> >>> The mgag200 driver requires this behavior for its cursor handling. The
-> >>> patch also converts the driver to use the new interfaces.
-> >>>
-> >>> Signed-off-by: Thomas Zimmermann <tzimmermann@suse.de>
-> >>> ---
-> >>>   drivers/gpu/drm/drm_gem_vram_helper.c    | 75 ++++++++++++++++++++++++
-> >>>   drivers/gpu/drm/mgag200/mgag200_cursor.c | 18 +++---
-> >>>   include/drm/drm_gem_vram_helper.h        |  3 +
-> >>>   3 files changed, 88 insertions(+), 8 deletions(-)
-> >>>
-> >>> diff --git a/drivers/gpu/drm/drm_gem_vram_helper.c b/drivers/gpu/drm/drm_gem_vram_helper.c
-> >>> index 8f142b810eb4..a002c03eaf4c 100644
-> >>> --- a/drivers/gpu/drm/drm_gem_vram_helper.c
-> >>> +++ b/drivers/gpu/drm/drm_gem_vram_helper.c
-> >>> @@ -254,6 +254,47 @@ int drm_gem_vram_pin(struct drm_gem_vram_object *gbo, unsigned long pl_flag)
-> >>>   }
-> >>>   EXPORT_SYMBOL(drm_gem_vram_pin);
-> >>>
-> >>> +/**
-> >>> + * drm_gem_vram_pin_reserved() - Pins a GEM VRAM object in a region.
-> >>> + * @gbo:   the GEM VRAM object
-> >>> + * @pl_flag:       a bitmask of possible memory regions
-> >>> + *
-> >>> + * Pinning a buffer object ensures that it is not evicted from
-> >>> + * a memory region. A pinned buffer object has to be unpinned before
-> >>> + * it can be pinned to another region.
-> >>> + *
-> >>> + * This function pins a GEM VRAM object that has already been
-> >>> + * reserved. Use drm_gem_vram_pin() if possible.
-> >>> + *
-> >>> + * Returns:
-> >>> + * 0 on success, or
-> >>> + * a negative error code otherwise.
-> >>> + */
-> >>> +int drm_gem_vram_pin_reserved(struct drm_gem_vram_object *gbo,
-> >>> +                         unsigned long pl_flag)
-> >>> +{
-> >>> +   int i, ret;
-> >>> +   struct ttm_operation_ctx ctx = { false, false };
-> >> I think would be good to have a lockdep_assert_held here for the ww_mutex.
-> >>
-> >> Also general thing: _reserved is kinda ttm lingo, for dma-buf reservations
-> >> we call the structure tracking the fences+lock the "reservation", but the
-> >> naming scheme used is _lock/_unlock.
-> >>
-> >> I think would be good to be consistent with that, and use _locked here.
-> >> Especially for a very simplified vram helper like this one I expect that's
-> >> going to lead to less wtf moments by driver writers :-)
-> >>
-> >> Maybe we should also do a large-scale s/reserve/lock/ within ttm, to align
-> >> more with what we now have in dma-buf.
-> > More aside:
-> >
-> > Could be a good move to demidlayer this an essentially remove
-> > ttm_bo_reserve as a wrapper around the linux/reservation.h functions. Not
-> > sure whether that aligns with Christian's plans. TODO.rst patch might be a
-> > good step to get that discussion started.
->
-> Well what ttm_bo_reserve()/_unreserve() does is a) lock/unlock the
-> reservation object and b) remove the BO from the LRU.
->
-> Since I'm desperately trying to get rid of the LRU removal right now we
-> sooner or later should be able to remove ttmo_bo_reserve()/_unreserve()
-> as well (or at least replace them with tiny ttm_bo_lock() wrappers.
+Splitting the previous serie in two. This part contains assembly code
+changes required for PIE but without any direct dependencies with the
+rest of the patchset.
 
-Yeah that's what I meant, would be nice to ditch that bit of
-midlayering, at least from drivers.
+Changes:
+ - patch v7 (assembly):
+   - Split patchset and reorder changes.
+ - patch v6:
+   - Rebase on latest changes in jump tables and crypto.
+   - Fix wording on couple commits.
+   - Revisit checkpatch warnings.
+   - Moving to @chromium.org.
+ - patch v5:
+   - Adapt new crypto modules for PIE.
+   - Improve per-cpu commit message.
+   - Fix xen 32-bit build error with .quad.
+   - Remove extra code for ftrace.
+ - patch v4:
+   - Simplify early boot by removing global variables.
+   - Modify the mcount location script for __mcount_loc intead of the address
+     read in the ftrace implementation.
+   - Edit commit description to explain better where the kernel can be located.
+   - Streamlined the testing done on each patch proposal. Always testing
+     hibernation, suspend, ftrace and kprobe to ensure no regressions.
+ - patch v3:
+   - Update on message to describe longer term PIE goal.
+   - Minor change on ftrace if condition.
+   - Changed code using xchgq.
+ - patch v2:
+   - Adapt patch to work post KPTI and compiler changes
+   - Redo all performance testing with latest configs and compilers
+   - Simplify mov macro on PIE (MOVABS now)
+   - Reduce GOT footprint
+ - patch v1:
+   - Simplify ftrace implementation.
+   - Use gcc mstack-protector-guard-reg=%gs with PIE when possible.
+ - rfc v3:
+   - Use --emit-relocs instead of -pie to reduce dynamic relocation space on
+     mapped memory. It also simplifies the relocation process.
+   - Move the start the module section next to the kernel. Remove the need for
+     -mcmodel=large on modules. Extends module space from 1 to 2G maximum.
+   - Support for XEN PVH as 32-bit relocations can be ignored with
+     --emit-relocs.
+   - Support for GOT relocations previously done automatically with -pie.
+   - Remove need for dynamic PLT in modules.
+   - Support dymamic GOT for modules.
+ - rfc v2:
+   - Add support for global stack cookie while compiler default to fs without
+     mcmodel=kernel
+   - Change patch 7 to correctly jump out of the identity mapping on kexec load
+     preserve.
 
-I guess within ttm we'd still need ttm_bo_lock/unlock, since
-interrupteble/timedout/lock modes in general is passed around
-throughout the entire stack as parameters.
--Daniel
+These patches make some of the changes necessary to build the kernel as
+Position Independent Executable (PIE) on x86_64. Another patchset will
+add the PIE option and larger architecture changes.
 
->
-> Christian.
->
-> > -Daniel
-> >
-> >> Cheers, Daniel
-> >>
-> >>> +
-> >>> +   if (gbo->pin_count) {
-> >>> +           ++gbo->pin_count;
-> >>> +           return 0;
-> >>> +   }
-> >>> +
-> >>> +   drm_gem_vram_placement(gbo, pl_flag);
-> >>> +   for (i = 0; i < gbo->placement.num_placement; ++i)
-> >>> +           gbo->placements[i].flags |= TTM_PL_FLAG_NO_EVICT;
-> >>> +
-> >>> +   ret = ttm_bo_validate(&gbo->bo, &gbo->placement, &ctx);
-> >>> +   if (ret < 0)
-> >>> +           return ret;
-> >>> +
-> >>> +   gbo->pin_count = 1;
-> >>> +
-> >>> +   return 0;
-> >>> +}
-> >>> +EXPORT_SYMBOL(drm_gem_vram_pin_reserved);
-> >>> +
-> >>>   /**
-> >>>    * drm_gem_vram_unpin() - Unpins a GEM VRAM object
-> >>>    * @gbo:   the GEM VRAM object
-> >>> @@ -285,6 +326,40 @@ int drm_gem_vram_unpin(struct drm_gem_vram_object *gbo)
-> >>>   }
-> >>>   EXPORT_SYMBOL(drm_gem_vram_unpin);
-> >>>
-> >>> +/**
-> >>> + * drm_gem_vram_unpin_reserved() - Unpins a GEM VRAM object
-> >>> + * @gbo:   the GEM VRAM object
-> >>> + *
-> >>> + * This function unpins a GEM VRAM object that has already been
-> >>> + * reserved. Use drm_gem_vram_unpin() if possible.
-> >>> + *
-> >>> + * Returns:
-> >>> + * 0 on success, or
-> >>> + * a negative error code otherwise.
-> >>> + */
-> >>> +int drm_gem_vram_unpin_reserved(struct drm_gem_vram_object *gbo)
-> >>> +{
-> >>> +   int i, ret;
-> >>> +   struct ttm_operation_ctx ctx = { false, false };
-> >>> +
-> >>> +   if (WARN_ON_ONCE(!gbo->pin_count))
-> >>> +           return 0;
-> >>> +
-> >>> +   --gbo->pin_count;
-> >>> +   if (gbo->pin_count)
-> >>> +           return 0;
-> >>> +
-> >>> +   for (i = 0; i < gbo->placement.num_placement ; ++i)
-> >>> +           gbo->placements[i].flags &= ~TTM_PL_FLAG_NO_EVICT;
-> >>> +
-> >>> +   ret = ttm_bo_validate(&gbo->bo, &gbo->placement, &ctx);
-> >>> +   if (ret < 0)
-> >>> +           return ret;
-> >>> +
-> >>> +   return 0;
-> >>> +}
-> >>> +EXPORT_SYMBOL(drm_gem_vram_unpin_reserved);
-> >>> +
-> >>>   /**
-> >>>    * drm_gem_vram_push_to_system() - \
-> >>>      Unpins a GEM VRAM object and moves it to system memory
-> >>> diff --git a/drivers/gpu/drm/mgag200/mgag200_cursor.c b/drivers/gpu/drm/mgag200/mgag200_cursor.c
-> >>> index 6c1a9d724d85..1c4fc85315a0 100644
-> >>> --- a/drivers/gpu/drm/mgag200/mgag200_cursor.c
-> >>> +++ b/drivers/gpu/drm/mgag200/mgag200_cursor.c
-> >>> @@ -23,9 +23,9 @@ static void mga_hide_cursor(struct mga_device *mdev)
-> >>>      WREG8(MGA_CURPOSXL, 0);
-> >>>      WREG8(MGA_CURPOSXH, 0);
-> >>>      if (mdev->cursor.pixels_1->pin_count)
-> >>> -           drm_gem_vram_unpin(mdev->cursor.pixels_1);
-> >>> +           drm_gem_vram_unpin_reserved(mdev->cursor.pixels_1);
-> >>>      if (mdev->cursor.pixels_2->pin_count)
-> >>> -           drm_gem_vram_unpin(mdev->cursor.pixels_2);
-> >>> +           drm_gem_vram_unpin_reserved(mdev->cursor.pixels_2);
-> >>>   }
-> >>>
-> >>>   int mga_crtc_cursor_set(struct drm_crtc *crtc,
-> >>> @@ -96,26 +96,28 @@ int mga_crtc_cursor_set(struct drm_crtc *crtc,
-> >>>
-> >>>      /* Move cursor buffers into VRAM if they aren't already */
-> >>>      if (!pixels_1->pin_count) {
-> >>> -           ret = drm_gem_vram_pin(pixels_1, DRM_GEM_VRAM_PL_FLAG_VRAM);
-> >>> +           ret = drm_gem_vram_pin_reserved(pixels_1,
-> >>> +                                           DRM_GEM_VRAM_PL_FLAG_VRAM);
-> >>>              if (ret)
-> >>>                      goto out1;
-> >>>              gpu_addr = drm_gem_vram_offset(pixels_1);
-> >>>              if (gpu_addr < 0) {
-> >>> -                   drm_gem_vram_unpin(pixels_1);
-> >>> +                   drm_gem_vram_unpin_reserved(pixels_1);
-> >>>                      goto out1;
-> >>>              }
-> >>>              mdev->cursor.pixels_1_gpu_addr = gpu_addr;
-> >>>      }
-> >>>      if (!pixels_2->pin_count) {
-> >>> -           ret = drm_gem_vram_pin(pixels_2, DRM_GEM_VRAM_PL_FLAG_VRAM);
-> >>> +           ret = drm_gem_vram_pin_reserved(pixels_2,
-> >>> +                                           DRM_GEM_VRAM_PL_FLAG_VRAM);
-> >>>              if (ret) {
-> >>> -                   drm_gem_vram_unpin(pixels_1);
-> >>> +                   drm_gem_vram_unpin_reserved(pixels_1);
-> >>>                      goto out1;
-> >>>              }
-> >>>              gpu_addr = drm_gem_vram_offset(pixels_2);
-> >>>              if (gpu_addr < 0) {
-> >>> -                   drm_gem_vram_unpin(pixels_1);
-> >>> -                   drm_gem_vram_unpin(pixels_2);
-> >>> +                   drm_gem_vram_unpin_reserved(pixels_1);
-> >>> +                   drm_gem_vram_unpin_reserved(pixels_2);
-> >>>                      goto out1;
-> >>>              }
-> >>>              mdev->cursor.pixels_2_gpu_addr = gpu_addr;
-> >>> diff --git a/include/drm/drm_gem_vram_helper.h b/include/drm/drm_gem_vram_helper.h
-> >>> index b056f189ba62..ff1a81761543 100644
-> >>> --- a/include/drm/drm_gem_vram_helper.h
-> >>> +++ b/include/drm/drm_gem_vram_helper.h
-> >>> @@ -82,7 +82,10 @@ void drm_gem_vram_unreserve(struct drm_gem_vram_object *gbo);
-> >>>   u64 drm_gem_vram_mmap_offset(struct drm_gem_vram_object *gbo);
-> >>>   s64 drm_gem_vram_offset(struct drm_gem_vram_object *gbo);
-> >>>   int drm_gem_vram_pin(struct drm_gem_vram_object *gbo, unsigned long pl_flag);
-> >>> +int drm_gem_vram_pin_reserved(struct drm_gem_vram_object *gbo,
-> >>> +                         unsigned long pl_flag);
-> >>>   int drm_gem_vram_unpin(struct drm_gem_vram_object *gbo);
-> >>> +int drm_gem_vram_unpin_reserved(struct drm_gem_vram_object *gbo);
-> >>>   int drm_gem_vram_push_to_system(struct drm_gem_vram_object *gbo);
-> >>>   void *drm_gem_vram_kmap_at(struct drm_gem_vram_object *gbo, bool map,
-> >>>                         bool *is_iomem, struct ttm_bo_kmap_obj *kmap);
-> >>> --
-> >>> 2.21.0
-> >>>
-> >> --
-> >> Daniel Vetter
-> >> Software Engineer, Intel Corporation
-> >> http://blog.ffwll.ch
-> > --
-> > Daniel Vetter
-> > Software Engineer, Intel Corporation
-> > http://blog.ffwll.ch
->
+The patches:
+ - 1-2, 4-12: Change in assembly code to be PIE compliant.
+ - 3: Add a new _ASM_MOVABS macro to fetch a symbol address generically.
 
+diffstat:
+ crypto/aegis128-aesni-asm.S         |    6 +-
+ crypto/aegis128l-aesni-asm.S        |    8 +--
+ crypto/aegis256-aesni-asm.S         |    6 +-
+ crypto/aes-x86_64-asm_64.S          |   45 ++++++++++------
+ crypto/aesni-intel_asm.S            |    8 +--
+ crypto/camellia-aesni-avx-asm_64.S  |   42 +++++++--------
+ crypto/camellia-aesni-avx2-asm_64.S |   44 ++++++++--------
+ crypto/camellia-x86_64-asm_64.S     |    8 +--
+ crypto/cast5-avx-x86_64-asm_64.S    |   50 ++++++++++--------
+ crypto/cast6-avx-x86_64-asm_64.S    |   44 +++++++++-------
+ crypto/des3_ede-asm_64.S            |   96 ++++++++++++++++++++++++------------
+ crypto/ghash-clmulni-intel_asm.S    |    4 -
+ crypto/glue_helper-asm-avx.S        |    4 -
+ crypto/glue_helper-asm-avx2.S       |    6 +-
+ crypto/morus1280-avx2-asm.S         |    4 -
+ crypto/morus1280-sse2-asm.S         |    8 +--
+ crypto/morus640-sse2-asm.S          |    6 +-
+ crypto/sha256-avx2-asm.S            |   23 +++++---
+ entry/entry_64.S                    |   16 ++++--
+ include/asm/alternative.h           |    6 +-
+ include/asm/asm.h                   |    1 
+ include/asm/jump_label.h            |    8 +--
+ include/asm/paravirt_types.h        |   12 +++-
+ include/asm/pm-trace.h              |    2 
+ include/asm/processor.h             |    6 +-
+ kernel/acpi/wakeup_64.S             |   31 ++++++-----
+ kernel/head_64.S                    |   16 +++---
+ kernel/relocate_kernel_64.S         |    2 
+ power/hibernate_asm_64.S            |    4 -
+ 29 files changed, 299 insertions(+), 217 deletions(-)
 
--- 
-Daniel Vetter
-Software Engineer, Intel Corporation
-+41 (0) 79 365 57 48 - http://blog.ffwll.ch
+Patchset is based on next-20190515.
