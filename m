@@ -1,23 +1,20 @@
-From: "Michael S. Tsirkin" <mst@redhat.com>
-Subject: Re: [RFC PATCH] virtio_ring: Use DMA API if guest memory is encrypted
-Date: Mon, 20 May 2019 09:16:57 -0400
-Message-ID: <20190520090939-mutt-send-email-mst__22003.1254737236$1558358244$gmane$org@kernel.org>
-References: <87zhrj8kcp.fsf@morokweng.localdomain>
-	<87womn8inf.fsf@morokweng.localdomain>
-	<20190129134750-mutt-send-email-mst@kernel.org>
-	<877eefxvyb.fsf@morokweng.localdomain>
-	<20190204144048-mutt-send-email-mst@kernel.org>
-	<87ef71seve.fsf@morokweng.localdomain>
-	<20190320171027-mutt-send-email-mst@kernel.org>
-	<87tvfvbwpb.fsf@morokweng.localdomain>
-	<20190323165456-mutt-send-email-mst@kernel.org>
-	<87a7go71hz.fsf@morokweng.localdomain>
+From: Cornelia Huck <cohuck@redhat.com>
+Subject: Re: [PATCH 06/10] s390/cio: add basic protected virtualization support
+Date: Mon, 20 May 2019 15:43:46 +0200
+Message-ID: <20190520154346.4f95ab3a.cohuck@redhat.com>
+References: <20190426183245.37939-1-pasic@linux.ibm.com>
+	<20190426183245.37939-7-pasic@linux.ibm.com>
+	<20190513114136.783c851c.cohuck@redhat.com>
+	<20190515225158.301af387.pasic@linux.ibm.com>
+	<20190516082928.1371696b.cohuck@redhat.com>
+	<20190518201100.0fd07d7f.pasic@linux.ibm.com>
+	<20190520122143.259ff8df.cohuck@redhat.com>
+	<20190520143411.15130af3.pasic@linux.ibm.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-Content-Disposition: inline
-In-Reply-To: <87a7go71hz.fsf@morokweng.localdomain>
+In-Reply-To: <20190520143411.15130af3.pasic@linux.ibm.com>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -27,35 +24,99 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Thiago Jung Bauermann <bauerman@linux.ibm.com>
-Cc: Mike Anderson <andmike@linux.ibm.com>, Jean-Philippe Brucker <jean-philippe.brucker@arm.com>, Benjamin Herrenschmidt <benh@kernel.crashing.org>, Alexey Kardashevskiy <aik@linux.ibm.com>, Ram Pai <linuxram@us.ibm.com>, linux-kernel@vger.kernel.org, virtualization@lists.linux-foundation.org, Paul Mackerras <paulus@ozlabs.org>, iommu@lists.linux-foundation.org, linuxppc-dev@lists.ozlabs.org, Christoph Hellwig <hch@lst.de>, David Gibson <david@gibson.dropbear.id.au>
+To: Halil Pasic <pasic@linux.ibm.com>
+Cc: Vasily Gorbik <gor@linux.ibm.com>, linux-s390@vger.kernel.org, Thomas Huth <thuth@redhat.com>, Claudio Imbrenda <imbrenda@linux.ibm.com>, kvm@vger.kernel.org, Sebastian Ott <sebott@linux.ibm.com>, "Michael S. Tsirkin" <mst@redhat.com>, Farhan Ali <alifm@linux.ibm.com>, Eric Farman <farman@linux.ibm.com>, virtualization@lists.linux-foundation.org, Christoph Hellwig <hch@infradead.org>, Martin Schwidefsky <schwidefsky@de.ibm.com>, Viktor Mihajlovski <mihajlov@linux.ibm.com>, Janosch Frank <frankja@linux.ibm.com>
 List-Id: virtualization@lists.linuxfoundation.org
 
-On Wed, Apr 17, 2019 at 06:42:00PM -0300, Thiago Jung Bauermann wrote:
-> I rephrased it in terms of address translation. What do you think of
-> this version? The flag name is slightly different too:
+On Mon, 20 May 2019 14:34:11 +0200
+Halil Pasic <pasic@linux.ibm.com> wrote:
+
+> On Mon, 20 May 2019 12:21:43 +0200
+> Cornelia Huck <cohuck@redhat.com> wrote:
 > 
+> > On Sat, 18 May 2019 20:11:00 +0200
+> > Halil Pasic <pasic@linux.ibm.com> wrote:
+> >   
+> > > On Thu, 16 May 2019 08:29:28 +0200
+> > > Cornelia Huck <cohuck@redhat.com> wrote:
+> > >   
+> > > > On Wed, 15 May 2019 22:51:58 +0200
+> > > > Halil Pasic <pasic@linux.ibm.com> wrote:  
+
+> > > > > A side note: making the subchannel device 'own' the DMA stuff of a
+> > > > > ccw device (something that was discussed in the RFC thread) is tricky
+> > > > > because the ccw device may outlive the subchannel (all that orphan
+> > > > > stuff).    
+> > > > 
+> > > > Yes, that's... eww. Not really a problem for virtio-ccw devices (which
+> > > > do not support the disconnected state), but can we make DMA and the
+> > > > subchannel moving play nice with each other at all?
+> > > >     
+> > > 
+> > > I don't quite understand the question. This series does not have any
+> > > problems with that AFAIU. Can you please clarify?  
+> > 
+> > Wait, weren't you saying that there actually is a problem?
+> >  
 > 
-> VIRTIO_F_ACCESS_PLATFORM_NO_TRANSLATION This feature has the same
->     meaning as VIRTIO_F_ACCESS_PLATFORM both when set and when not set,
->     with the exception that address translation is guaranteed to be
->     unnecessary when accessing memory addresses supplied to the device
->     by the driver. Which is to say, the device will always use physical
->     addresses matching addresses used by the driver (typically meaning
->     physical addresses used by the CPU) and not translated further. This
->     flag should be set by the guest if offered, but to allow for
->     backward-compatibility device implementations allow for it to be
->     left unset by the guest. It is an error to set both this flag and
->     VIRTIO_F_ACCESS_PLATFORM.
+> No, what I tried to say is: if we tried to make all the dma mem belong to
+> the subchannel device, we would have a problem. It appeared as a
+> tempting opportunity for consolidation, but I decided to not do it.
 
+Ok, that makes sense.
 
-OK so VIRTIO_F_ACCESS_PLATFORM is designed to allow unpriveledged
-drivers. This is why devices fail when it's not negotiated.
+> 
+> > We seem to have the following situation:
+> > - the device per se is represented by the ccw device
+> > - the subchannel is the means of communication, and dma is tied to the
+> >   (I/O ?) subchannel  
+> 
+> It is not. When for example a virtio-ccw device talks to the device
+> using a channel program, the dma mem hosting the channel program belongs
+> to the ccw device and not to the subchannel.
+> 
+> In fact everything but the stuff in io_priv->dma_area belongs to the ccw
+> device.
 
-This confuses me.
-If driver is unpriveledged then what happens with this flag?
-It can supply any address it wants. Will that corrupt kernel
-memory?
+Normal machine check handling hopefully should cover this one, then.
 
--- 
-MST
+> 
+> > - the machine check handling code may move a ccw device to a different
+> >   subchannel, or even to a fake subchannel (orphanage handling)
+> >   
+> 
+> Right!
+> 
+> > The moving won't happen with virtio-ccw devices (as they do not support
+> > the disconnected state, which is a prereq for being moved around), but
+> > at a glance, this looks like it is worth some more thought.
+> > 
+> > - Are all (I/O) subchannels using e.g. the same dma size? (TBH, that
+> >   question sounds a bit silly: that should be a property belonging to
+> >   the ccw device, shouldn't it?)
+> > - What dma properties does the fake subchannel have? (Probably none, as
+> >   its only purpose is to serve as a parent for otherwise parentless
+> >   disconnected ccw devices, and is therefore not involved in any I/O.)
+> > - There needs to be some kind of handling in the machine check code, I
+> >   guess? We would probably need a different allocation if we end up at
+> >   a different subchannel?
+> >   
+> 
+> Basically nothing changes with mem ownership, except that some bits are
+> dma memory now. Should I provide a more detailed answer to the
+> questions above?
+
+No real need, I simply did not understand your initial remark correctly.
+
+> 
+> > I think we can assume that the dma size is at most 31 bits (since that
+> > is what the common I/O layer needs); but can we also assume that it
+> > will always be at least 31 bits?
+> >   
+> 
+> You mean dma_mas by dma size?
+
+Whatever it is called :) IIUC, we need to go with 31 bit for any
+channel I/O related structures; I was mainly wondering whether any
+devices need a lower limit for some of the memory they use. I would be
+surprised if they did, but you never know :)
