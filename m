@@ -1,18 +1,15 @@
-From: Pankaj Gupta <pagupta@redhat.com>
-Subject: Re: [Qemu-devel] [PATCH v9 2/7] virtio-pmem: Add virtio pmem driver
-Date: Sun, 19 May 2019 23:47:42 -0400 (EDT)
-Message-ID: <68418388.29774907.1558324062441.JavaMail.zimbra__34638.2614503213$1558324075$gmane$org@redhat.com>
-References: <20190514145422.16923-1-pagupta@redhat.com>
-	<20190514145422.16923-3-pagupta@redhat.com>
-	<c06514fd-8675-ba74-4b7b-ff0eb4a91605@google.com>
-	<1954162775.29408078.1558071358974.JavaMail.zimbra@redhat.com>
-	<5e27fa73-53f5-007a-e0c1-f32f83e5764f@google.com>
-	<1902045958.29774859.1558323977950.JavaMail.zimbra@redhat.com>
+From: Stefan Hajnoczi <stefanha@redhat.com>
+Subject: Re: [PATCH v2 1/8] vsock/virtio: limit the memory used per-socket
+Date: Mon, 20 May 2019 09:57:31 +0100
+Message-ID: <20190520085731.GA22546__37793.6276536033$1558342680$gmane$org@stefanha-x1.localdomain>
+References: <20190510125843.95587-1-sgarzare@redhat.com>
+	<20190510125843.95587-2-sgarzare@redhat.com>
+	<20190516152533.GB29808@stefanha-x1.localdomain>
+	<20190517082505.ibjkuh7zibumen77@steredhat>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
-Content-Transfer-Encoding: 7bit
+Content-Type: multipart/mixed; boundary="===============7835411519441482548=="
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <1902045958.29774859.1558323977950.JavaMail.zimbra@redhat.com>
+In-Reply-To: <20190517082505.ibjkuh7zibumen77@steredhat>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -22,38 +19,91 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Jakub =?utf-8?Q?Staro=C5=84?= <jstaron@google.com>
-Cc: jack@suse.cz, kvm@vger.kernel.org, mst@redhat.com, david@fromorbit.com, qemu-devel@nongnu.org, virtualization@lists.linux-foundation.org, adilger kernel <adilger.kernel@dilger.ca>, smbarber@google.com, zwisler@kernel.org, aarcange@redhat.com, dave jiang <dave.jiang@intel.com>, linux-nvdimm@lists.01.org, vishal l verma <vishal.l.verma@intel.com>, willy@infradead.org, hch@infradead.org, linux-acpi@vger.kernel.org, jmoyer@redhat.com, linux-ext4@vger.kernel.org, lenb@kernel.org, kilobyte@angband.pl, riel@surriel.com, yuval shaia <yuval.shaia@oracle.com>, stefanha@redhat.com, pbonzini@redhat.com, dan j williams <dan.j.williams@intel.com>, lcapitulino@redhat.com, nilal@redhat.com, tytso@mit.edu, xiaoguangrong eric <xiaoguangrong.eric@gmail.com>, cohuck@redhat.com, rjw@rjwysocki.net, linux-kernel@vger.kernel.org, linux-xfs@vger.kernel.org, linux-fsdevel@vger.kernel.org, imamm
+To: Stefano Garzarella <sgarzare@redhat.com>
+Cc: kvm@vger.kernel.org, "Michael S. Tsirkin" <mst@redhat.com>, netdev@vger.kernel.org, linux-kernel@vger.kernel.org, virtualization@lists.linux-foundation.org, "David S. Miller" <davem@davemloft.net>
 List-Id: virtualization@lists.linuxfoundation.org
 
 
-> 
-> 
-> > On 5/16/19 10:35 PM, Pankaj Gupta wrote:
-> > > Can I take it your reviewed/acked-by? or tested-by tag? for the virtio
-> > > patch :)I don't feel that I have enough expertise to give the reviewed-by
-> > > tag, but you can
-> > take my acked-by + tested-by.
-> > 
-> > Acked-by: Jakub Staron <jstaron@google.com>
-> > Tested-by: Jakub Staron <jstaron@google.com>
-> > 
-> > No kernel panics/stalls encountered during testing this patches (v9) with
-> > QEMU + xfstests.
-> 
-> Thank you for testing and confirming the results. I will add your tested &
-> acked-by in v10.
-> 
-> > Some CPU stalls encountered while testing with crosvm instead of QEMU with
-> > xfstests
-> > (test generic/464) but no repro for QEMU, so the fault may be on the side
-> > of
-> > crosvm.
-> 
-> yes, looks like crosvm related as we did not see any of this in my and your
-> testing with Qemu.
+--===============7835411519441482548==
+Content-Type: multipart/signed; micalg=pgp-sha256;
+	protocol="application/pgp-signature"; boundary="wRRV7LY7NUeQGEoC"
+Content-Disposition: inline
 
-Also, they don't seem to be related with virtio-pmem.
 
-Thanks,
-Pankaj
+--wRRV7LY7NUeQGEoC
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+Content-Transfer-Encoding: quoted-printable
+
+On Fri, May 17, 2019 at 10:25:05AM +0200, Stefano Garzarella wrote:
+> On Thu, May 16, 2019 at 04:25:33PM +0100, Stefan Hajnoczi wrote:
+> > On Fri, May 10, 2019 at 02:58:36PM +0200, Stefano Garzarella wrote:
+> > > +static struct virtio_vsock_buf *
+> > > +virtio_transport_alloc_buf(struct virtio_vsock_pkt *pkt, bool zero_c=
+opy)
+> > > +{
+> > > +	struct virtio_vsock_buf *buf;
+> > > +
+> > > +	if (pkt->len =3D=3D 0)
+> > > +		return NULL;
+> > > +
+> > > +	buf =3D kzalloc(sizeof(*buf), GFP_KERNEL);
+> > > +	if (!buf)
+> > > +		return NULL;
+> > > +
+> > > +	/* If the buffer in the virtio_vsock_pkt is full, we can move it to
+> > > +	 * the new virtio_vsock_buf avoiding the copy, because we are sure =
+that
+> > > +	 * we are not use more memory than that counted by the credit mecha=
+nism.
+> > > +	 */
+> > > +	if (zero_copy && pkt->len =3D=3D pkt->buf_len) {
+> > > +		buf->addr =3D pkt->buf;
+> > > +		pkt->buf =3D NULL;
+> > > +	} else {
+> > > +		buf->addr =3D kmalloc(pkt->len, GFP_KERNEL);
+> >=20
+> > buf and buf->addr could be allocated in a single call, though I'm not
+> > sure how big an optimization this is.
+> >=20
+>=20
+> IIUC, in the case of zero-copy I should allocate only the buf,
+> otherwise I should allocate both buf and buf->addr in a single call
+> when I'm doing a full-copy.
+>=20
+> Is it correct?
+
+Yes, but it's your choice whether optimization is worthwhile.  If it
+increases the complexity of the code and doesn't result in a measurable
+improvement, then it's not worth it.
+
+Stefan
+
+--wRRV7LY7NUeQGEoC
+Content-Type: application/pgp-signature; name="signature.asc"
+
+-----BEGIN PGP SIGNATURE-----
+
+iQEzBAEBCAAdFiEEhpWov9P5fNqsNXdanKSrs4Grc8gFAlzia/sACgkQnKSrs4Gr
+c8j8/Qf+NOeZJ2tO8MN+lVvjuwE3gShPAFPc2joqHrqQkZPrfOMHyxNPWBjmd06G
+mJaov5ZMGAQQdvkkJatcCbnrnV2IuYLbZyGpfQAGrjVZ4S5RtU8/2VpksfxRJNDV
+KrRPS/HoPQrDfJcMnsRxXSpf0dFcG/WptgKFMOlzLPAKiwWZ62dpc/m8ghrHXbzz
+/x/TaT4NA9m4S3NwFqZYq/kTQwiXtrSU40sPo/QGk6Wn5o4sTcgNDEveJK3KsLI+
+p8KQrt7muGMn9FbRrLjwq2VytiLXksXrdFAeWugUon0qEkmxaKiUSNvbgof0/qi3
+4DwGQi4FYh6hvSyjckKOVP/y/F8jSg==
+=1IhX
+-----END PGP SIGNATURE-----
+
+--wRRV7LY7NUeQGEoC--
+
+--===============7835411519441482548==
+Content-Type: text/plain; charset="us-ascii"
+MIME-Version: 1.0
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+
+_______________________________________________
+Virtualization mailing list
+Virtualization@lists.linux-foundation.org
+https://lists.linuxfoundation.org/mailman/listinfo/virtualization
+--===============7835411519441482548==--
