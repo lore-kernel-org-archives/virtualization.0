@@ -1,20 +1,16 @@
-From: Cornelia Huck <cohuck@redhat.com>
-Subject: Re: [PATCH 06/10] s390/cio: add basic protected virtualization support
-Date: Mon, 20 May 2019 15:43:46 +0200
-Message-ID: <20190520154346.4f95ab3a.cohuck@redhat.com>
-References: <20190426183245.37939-1-pasic@linux.ibm.com>
-	<20190426183245.37939-7-pasic@linux.ibm.com>
-	<20190513114136.783c851c.cohuck@redhat.com>
-	<20190515225158.301af387.pasic@linux.ibm.com>
-	<20190516082928.1371696b.cohuck@redhat.com>
-	<20190518201100.0fd07d7f.pasic@linux.ibm.com>
-	<20190520122143.259ff8df.cohuck@redhat.com>
-	<20190520143411.15130af3.pasic@linux.ibm.com>
+From: Stefano Garzarella <sgarzare@redhat.com>
+Subject: Re: [PATCH v2 0/8] vsock/virtio: optimizations to increase the
+	throughput
+Date: Mon, 20 May 2019 16:09:38 +0200
+Message-ID: <20190520140938.f26g6jsepfpwspsy__1558.30114833719$1558361396$gmane$org@steredhat>
+References: <20190510125843.95587-1-sgarzare@redhat.com>
+	<08c7e0aa-d90d-e0ff-a68c-0e182d077ab2@redhat.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset="utf-8"
+Content-Transfer-Encoding: base64
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <20190520143411.15130af3.pasic@linux.ibm.com>
+Content-Disposition: inline
+In-Reply-To: <08c7e0aa-d90d-e0ff-a68c-0e182d077ab2@redhat.com>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -24,99 +20,145 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Halil Pasic <pasic@linux.ibm.com>
-Cc: Vasily Gorbik <gor@linux.ibm.com>, linux-s390@vger.kernel.org, Thomas Huth <thuth@redhat.com>, Claudio Imbrenda <imbrenda@linux.ibm.com>, kvm@vger.kernel.org, Sebastian Ott <sebott@linux.ibm.com>, "Michael S. Tsirkin" <mst@redhat.com>, Farhan Ali <alifm@linux.ibm.com>, Eric Farman <farman@linux.ibm.com>, virtualization@lists.linux-foundation.org, Christoph Hellwig <hch@infradead.org>, Martin Schwidefsky <schwidefsky@de.ibm.com>, Viktor Mihajlovski <mihajlov@linux.ibm.com>, Janosch Frank <frankja@linux.ibm.com>
+To: Jason Wang <jasowang@redhat.com>
+Cc: kvm@vger.kernel.org, "Michael S. Tsirkin" <mst@redhat.com>, netdev@vger.kernel.org, linux-kernel@vger.kernel.org, virtualization@lists.linux-foundation.org, Stefan Hajnoczi <stefanha@redhat.com>, "David S. Miller" <davem@davemloft.net>
 List-Id: virtualization@lists.linuxfoundation.org
 
-On Mon, 20 May 2019 14:34:11 +0200
-Halil Pasic <pasic@linux.ibm.com> wrote:
-
-> On Mon, 20 May 2019 12:21:43 +0200
-> Cornelia Huck <cohuck@redhat.com> wrote:
-> 
-> > On Sat, 18 May 2019 20:11:00 +0200
-> > Halil Pasic <pasic@linux.ibm.com> wrote:
-> >   
-> > > On Thu, 16 May 2019 08:29:28 +0200
-> > > Cornelia Huck <cohuck@redhat.com> wrote:
-> > >   
-> > > > On Wed, 15 May 2019 22:51:58 +0200
-> > > > Halil Pasic <pasic@linux.ibm.com> wrote:  
-
-> > > > > A side note: making the subchannel device 'own' the DMA stuff of a
-> > > > > ccw device (something that was discussed in the RFC thread) is tricky
-> > > > > because the ccw device may outlive the subchannel (all that orphan
-> > > > > stuff).    
-> > > > 
-> > > > Yes, that's... eww. Not really a problem for virtio-ccw devices (which
-> > > > do not support the disconnected state), but can we make DMA and the
-> > > > subchannel moving play nice with each other at all?
-> > > >     
-> > > 
-> > > I don't quite understand the question. This series does not have any
-> > > problems with that AFAIU. Can you please clarify?  
-> > 
-> > Wait, weren't you saying that there actually is a problem?
-> >  
-> 
-> No, what I tried to say is: if we tried to make all the dma mem belong to
-> the subchannel device, we would have a problem. It appeared as a
-> tempting opportunity for consolidation, but I decided to not do it.
-
-Ok, that makes sense.
-
-> 
-> > We seem to have the following situation:
-> > - the device per se is represented by the ccw device
-> > - the subchannel is the means of communication, and dma is tied to the
-> >   (I/O ?) subchannel  
-> 
-> It is not. When for example a virtio-ccw device talks to the device
-> using a channel program, the dma mem hosting the channel program belongs
-> to the ccw device and not to the subchannel.
-> 
-> In fact everything but the stuff in io_priv->dma_area belongs to the ccw
-> device.
-
-Normal machine check handling hopefully should cover this one, then.
-
-> 
-> > - the machine check handling code may move a ccw device to a different
-> >   subchannel, or even to a fake subchannel (orphanage handling)
-> >   
-> 
-> Right!
-> 
-> > The moving won't happen with virtio-ccw devices (as they do not support
-> > the disconnected state, which is a prereq for being moved around), but
-> > at a glance, this looks like it is worth some more thought.
-> > 
-> > - Are all (I/O) subchannels using e.g. the same dma size? (TBH, that
-> >   question sounds a bit silly: that should be a property belonging to
-> >   the ccw device, shouldn't it?)
-> > - What dma properties does the fake subchannel have? (Probably none, as
-> >   its only purpose is to serve as a parent for otherwise parentless
-> >   disconnected ccw devices, and is therefore not involved in any I/O.)
-> > - There needs to be some kind of handling in the machine check code, I
-> >   guess? We would probably need a different allocation if we end up at
-> >   a different subchannel?
-> >   
-> 
-> Basically nothing changes with mem ownership, except that some bits are
-> dma memory now. Should I provide a more detailed answer to the
-> questions above?
-
-No real need, I simply did not understand your initial remark correctly.
-
-> 
-> > I think we can assume that the dma size is at most 31 bits (since that
-> > is what the common I/O layer needs); but can we also assume that it
-> > will always be at least 31 bits?
-> >   
-> 
-> You mean dma_mas by dma size?
-
-Whatever it is called :) IIUC, we need to go with 31 bit for any
-channel I/O related structures; I was mainly wondering whether any
-devices need a lower limit for some of the memory they use. I would be
-surprised if they did, but you never know :)
+T24gTW9uLCBNYXkgMTMsIDIwMTkgYXQgMDU6MzM6NDBQTSArMDgwMCwgSmFzb24gV2FuZyB3cm90
+ZToKPiAKPiBPbiAyMDE5LzUvMTAg5LiL5Y2IODo1OCwgU3RlZmFubyBHYXJ6YXJlbGxhIHdyb3Rl
+Ogo+ID4gV2hpbGUgSSB3YXMgdGVzdGluZyB0aGlzIG5ldyBzZXJpZXMgKHYyKSBJIGRpc2NvdmVy
+ZWQgYW4gaHVnZSB1c2Ugb2YgbWVtb3J5Cj4gPiBhbmQgYSBtZW1vcnkgbGVhayBpbiB0aGUgdmly
+dGlvLXZzb2NrIGRyaXZlciBpbiB0aGUgZ3Vlc3Qgd2hlbiBJIHNlbnQKPiA+IDEtYnl0ZSBwYWNr
+ZXRzIHRvIHRoZSBndWVzdC4KPiA+IAo+ID4gVGhlc2UgaXNzdWVzIGFyZSBwcmVzZW50IHNpbmNl
+IHRoZSBpbnRyb2R1Y3Rpb24gb2YgdGhlIHZpcnRpby12c29jawo+ID4gZHJpdmVyLiBJIGFkZGVk
+IHRoZSBwYXRjaGVzIDEgYW5kIDIgdG8gZml4IHRoZW0gaW4gdGhpcyBzZXJpZXMgaW4gb3JkZXIK
+PiA+IHRvIGJldHRlciB0cmFjayB0aGUgcGVyZm9ybWFuY2UgdHJlbmRzLgo+ID4gCj4gPiB2MTog
+aHR0cHM6Ly9wYXRjaHdvcmsua2VybmVsLm9yZy9jb3Zlci8xMDg4NTQzMS8KPiA+IAo+ID4gdjI6
+Cj4gPiAtIEFkZCBwYXRjaCAxIHRvIGxpbWl0IHRoZSBtZW1vcnkgdXNhZ2UKPiA+IC0gQWRkIHBh
+dGNoIDIgdG8gYXZvaWQgbWVtb3J5IGxlYWsgZHVyaW5nIHRoZSBzb2NrZXQgcmVsZWFzZQo+ID4g
+LSBBZGQgcGF0Y2ggMyB0byBmaXggbG9ja2luZyBvZiBmd2RfY250IGFuZCBidWZfYWxsb2MKPiA+
+IC0gUGF0Y2ggNDogZml4ICdmcmVlX3NwYWNlJyB0eXBlICh1MzIgaW5zdGVhZCBvZiBzNjQpIFtT
+dGVmYW5dCj4gPiAtIFBhdGNoIDU6IEF2b2lkIGludGVnZXIgdW5kZXJmbG93IG9mIGlvdl9sZW4g
+W1N0ZWZhbl0KPiA+IC0gUGF0Y2ggNTogRml4IHBhY2tldCBjYXB0dXJlIGluIG9yZGVyIHRvIHNl
+ZSB0aGUgZXhhY3QgcGFja2V0cyB0aGF0IGFyZQo+ID4gICAgICAgICAgICAgZGVsaXZlcmVkLiBb
+U3RlZmFuXQo+ID4gLSBBZGQgcGF0Y2ggOCB0byBtYWtlIHRoZSBSWCBidWZmZXIgc2l6ZSB0dW5h
+YmxlIFtTdGVmYW5dCj4gPiAKPiA+IEJlbG93IGFyZSB0aGUgYmVuY2htYXJrcyBzdGVwIGJ5IHN0
+ZXAuIEkgdXNlZCBpcGVyZjMgWzFdIG1vZGlmaWVkIHdpdGggVlNPQ0sKPiA+IHN1cHBvcnQuCj4g
+PiBBcyBNaWNoZWFsIHN1Z2dlc3RlZCBpbiB0aGUgdjEsIEkgYm9vdGVkIGhvc3QgYW5kIGd1ZXN0
+IHdpdGggJ25vc21hcCcsIGFuZCBJCj4gPiBhZGRlZCBhIGNvbHVtbiB3aXRoIHZpcnRpby1uZXQr
+dmhvc3QtbmV0IHBlcmZvcm1hbmNlLgo+ID4gCj4gPiBBIGJyaWVmIGRlc2NyaXB0aW9uIG9mIHBh
+dGNoZXM6Cj4gPiAtIFBhdGNoZXMgMSsyOiBsaW1pdCB0aGUgbWVtb3J5IHVzYWdlIHdpdGggYW4g
+ZXh0cmEgY29weSBhbmQgYXZvaWQgbWVtb3J5IGxlYWsKPiA+IC0gUGF0Y2hlcyAzKzQ6IGZpeCBs
+b2NraW5nIGFuZCByZWR1Y2UgdGhlIG51bWJlciBvZiBjcmVkaXQgdXBkYXRlIG1lc3NhZ2VzIHNl
+bnQKPiA+ICAgICAgICAgICAgICAgICB0byB0aGUgdHJhbnNtaXR0ZXIKPiA+IC0gUGF0Y2hlcyA1
+KzY6IGFsbG93IHRoZSBob3N0IHRvIHNwbGl0IHBhY2tldHMgb24gbXVsdGlwbGUgYnVmZmVycyBh
+bmQgdXNlCj4gPiAgICAgICAgICAgICAgICAgVklSVElPX1ZTT0NLX01BWF9QS1RfQlVGX1NJWkUg
+YXMgdGhlIG1heCBwYWNrZXQgc2l6ZSBhbGxvd2VkCj4gPiAtIFBhdGNoZXMgNys4OiBpbmNyZWFz
+ZSBSWCBidWZmZXIgc2l6ZSB0byA2NCBLaUIKPiA+IAo+ID4gICAgICAgICAgICAgICAgICAgICAg
+aG9zdCAtPiBndWVzdCBbR2Jwc10KPiA+IHBrdF9zaXplIGJlZm9yZSBvcHQgIHAgMSsyICAgIHAg
+Mys0ICAgIHAgNSs2ICAgIHAgNys4ICAgICAgIHZpcnRpby1uZXQgKyB2aG9zdAo+ID4gICAgICAg
+ICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAg
+ICAgICAgIFRDUF9OT0RFTEFZCj4gPiA2NCAgICAgICAgIDAuMDY4ICAgICAwLjA2MyAgICAwLjEz
+MCAgICAwLjEzMSAgICAwLjEyOCAgICAgICAgIDAuMTg4ICAgICAwLjE4Nwo+ID4gMjU2ICAgICAg
+ICAwLjI3NCAgICAgMC4yMzYgICAgMC4zOTIgICAgMC4zMzggICAgMC4yODIgICAgICAgICAwLjc0
+OSAgICAgMC42NTQKPiA+IDUxMiAgICAgICAgMC41MzEgICAgIDAuNDU3ICAgIDAuODYyICAgIDAu
+NzI1ICAgIDAuNjAyICAgICAgICAgMS40MTkgICAgIDEuNDE0Cj4gPiAxSyAgICAgICAgIDAuOTU0
+ICAgICAwLjgyNyAgICAxLjU5MSAgICAxLjU5OCAgICAxLjU0OCAgICAgICAgIDIuNTk5ICAgICAy
+LjY0MAo+ID4gMksgICAgICAgICAxLjc4MyAgICAgMS41NDMgICAgMy43MzEgICAgMy42MzcgICAg
+My40NjkgICAgICAgICA0LjUzMCAgICAgNC43NTQKPiA+IDRLICAgICAgICAgMy4zMzIgICAgIDMu
+NDM2ICAgIDcuMTY0ICAgIDcuMTI0ICAgIDYuNDk0ICAgICAgICAgNy43MzggICAgIDcuNjk2Cj4g
+PiA4SyAgICAgICAgIDUuNzkyICAgICA1LjUzMCAgIDExLjY1MyAgIDExLjc4NyAgIDExLjQ0NCAg
+ICAgICAgMTIuMzA3ICAgIDExLjg1MAo+ID4gMTZLICAgICAgICA4LjQwNSAgICAgOC40NjIgICAx
+Ni4zNzIgICAxNi44NTUgICAxNy41NjIgICAgICAgIDE2LjkzNiAgICAxNi45NTQKPiA+IDMySyAg
+ICAgICAxNC4yMDggICAgMTMuNjY5ICAgMTguOTQ1ICAgMjAuMDA5ICAgMjMuMTI4ICAgICAgICAy
+MS45ODAgICAgMjMuMDE1Cj4gPiA2NEsgICAgICAgMjEuMDgyICAgIDE4Ljg5MyAgIDIwLjI2NiAg
+IDIwLjkwMyAgIDMwLjYyMiAgICAgICAgMjcuMjkwICAgIDI3LjM4Mwo+ID4gMTI4SyAgICAgIDIw
+LjY5NiAgICAyMC4xNDggICAyMC4xMTIgICAyMS43NDYgICAzMi4xNTIgICAgICAgIDMwLjQ0NiAg
+ICAzMC45OTAKPiA+IDI1NksgICAgICAyMC44MDEgICAgMjAuNTg5ICAgMjAuNzI1ICAgMjIuNjg1
+ICAgMzQuNzIxICAgICAgICAzMy4xNTEgICAgMzIuNzQ1Cj4gPiA1MTJLICAgICAgMjEuMjIwICAg
+IDIwLjQ2NSAgIDIwLjQzMiAgIDIyLjEwNiAgIDM0LjQ5NiAgICAgICAgMzYuODQ3ICAgIDMxLjA5
+Ngo+ID4gCj4gPiAgICAgICAgICAgICAgICAgICAgICBndWVzdCAtPiBob3N0IFtHYnBzXQo+ID4g
+cGt0X3NpemUgYmVmb3JlIG9wdCAgcCAxKzIgICAgcCAzKzQgICAgcCA1KzYgICAgcCA3KzggICAg
+ICAgdmlydGlvLW5ldCArIHZob3N0Cj4gPiAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAg
+ICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgVENQX05PREVMQVkKPiA+IDY0
+ICAgICAgICAgMC4wODkgICAgIDAuMDkxICAgIDAuMTIwICAgIDAuMTE1ICAgIDAuMTE3ICAgICAg
+ICAgMC4yNzQgICAgIDAuMjcyCj4gPiAyNTYgICAgICAgIDAuMzUyICAgICAwLjM1NCAgICAwLjQ1
+MiAgICAwLjQ0NSAgICAwLjQ1MSAgICAgICAgIDEuMDg1ICAgICAxLjEzNgo+ID4gNTEyICAgICAg
+ICAwLjcwNSAgICAgMC43MDQgICAgMC44OTMgICAgMC44NTggICAgMC44OTggICAgICAgICAyLjEz
+MSAgICAgMS44ODIKPiA+IDFLICAgICAgICAgMS4zOTQgICAgIDEuNDMzICAgIDEuNzIxICAgIDEu
+NjY5ICAgIDEuNjkxICAgICAgICAgMy45ODQgICAgIDMuNTc2Cj4gPiAySyAgICAgICAgIDIuODE4
+ICAgICAyLjg3NCAgICAzLjMxNiAgICAzLjI0OSAgICAzLjMwMyAgICAgICAgIDYuNzE5ICAgICA2
+LjM1OQo+ID4gNEsgICAgICAgICA1LjI5MyAgICAgNS4zOTcgICAgNi4xMjkgICAgNS45MzMgICAg
+Ni4wODIgICAgICAgIDEwLjEwNSAgICAgOS44NjAKPiA+IDhLICAgICAgICAgOC44OTAgICAgIDku
+MTUxICAgMTAuOTkwICAgMTAuNTQ1ICAgMTAuNTE5ICAgICAgICAxNS4yMzkgICAgMTQuODY4Cj4g
+PiAxNksgICAgICAgMTEuNDQ0ICAgIDExLjAxOCAgIDEyLjA3NCAgIDE1LjI1NSAgIDE1LjU3NyAg
+ICAgICAgMjAuNTUxICAgIDIwLjg0OAo+ID4gMzJLICAgICAgIDExLjIyOSAgICAxMC44NzUgICAx
+MC44NTcgICAyNC40MDEgICAyNS4yMjcgICAgICAgIDI2LjI5NCAgICAyNi4zODAKPiA+IDY0SyAg
+ICAgICAxMC44MzIgICAgMTAuNTQ1ICAgMTAuODE2ICAgMzkuNDg3ICAgMzkuNjE2ICAgICAgICAz
+NC45OTYgICAgMzIuMDQxCj4gPiAxMjhLICAgICAgMTAuNDM1ICAgIDEwLjI0MSAgIDEwLjUwMCAg
+IDM5LjgxMyAgIDQwLjAxMiAgICAgICAgMzguMzc5ICAgIDM1LjA1NQo+ID4gMjU2SyAgICAgIDEw
+LjI2MyAgICAgOS44NjYgICAgOS44NDUgICAzNC45NzEgICAzNS4xNDMgICAgICAgIDM2LjU1OSAg
+ICAzNy4yMzIKPiA+IDUxMksgICAgICAxMC4yMjQgICAgMTAuMDYwICAgMTAuMDkyICAgMzUuNDY5
+ICAgMzQuNjI3ICAgICAgICAzNC45NjMgICAgMzMuNDAxCj4gPiAKPiA+IEFzIFN0ZWZhbiBzdWdn
+ZXN0ZWQgaW4gdGhlIHYxLCB0aGlzIHRpbWUgSSBtZWFzdXJlZCBhbHNvIHRoZSBlZmZpY2llbmN5
+IGluIHRoaXMKPiA+IHdheToKPiA+ICAgICAgZWZmaWNpZW5jeSA9IE1icHMgLyAoJUNQVV9Ib3N0
+ICsgJUNQVV9HdWVzdCkKPiA+IAo+ID4gVGhlICclQ1BVX0d1ZXN0JyBpcyB0YWtlbiBpbnNpZGUg
+dGhlIFZNLiBJIGtub3cgdGhhdCBpdCBpcyBub3QgdGhlIGJlc3Qgd2F5LAo+ID4gYnV0IGl0J3Mg
+cHJvdmlkZWQgZm9yIGZyZWUgZnJvbSBpcGVyZjMgYW5kIGNvdWxkIGJlIGFuIGluZGljYXRpb24u
+Cj4gPiAKPiA+ICAgICAgICAgIGhvc3QgLT4gZ3Vlc3QgZWZmaWNpZW5jeSBbTWJwcyAvICglQ1BV
+X0hvc3QgKyAlQ1BVX0d1ZXN0KV0KPiA+IHBrdF9zaXplIGJlZm9yZSBvcHQgIHAgMSsyICAgIHAg
+Mys0ICAgIHAgNSs2ICAgIHAgNys4ICAgICAgIHZpcnRpby1uZXQgKyB2aG9zdAo+ID4gICAgICAg
+ICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAg
+ICAgICAgIFRDUF9OT0RFTEFZCj4gPiA2NCAgICAgICAgICAwLjk0ICAgICAgMC41OSAgICAgMy45
+NiAgICAgNC4wNiAgICAgNC4wOSAgICAgICAgICAyLjgyICAgICAgMi4xMQo+ID4gMjU2ICAgICAg
+ICAgMi42MiAgICAgIDIuNTAgICAgIDYuNDUgICAgIDYuMDkgICAgIDUuODEgICAgICAgICAgOS42
+NCAgICAgIDguNzMKPiA+IDUxMiAgICAgICAgIDUuMTYgICAgICA0Ljg3ICAgIDEzLjE2ICAgIDEy
+LjM5ICAgIDExLjY3ICAgICAgICAgMTcuODMgICAgIDE3Ljc2Cj4gPiAxSyAgICAgICAgICA5LjE2
+ICAgICAgOC44NSAgICAyNC45OCAgICAyNC45NyAgICAyNS4wMSAgICAgICAgIDMyLjU3ICAgICAz
+Mi4wNAo+ID4gMksgICAgICAgICAxNy40MSAgICAgMTcuMDMgICAgNDkuMDkgICAgNDguNTkgICAg
+NDkuMjIgICAgICAgICA1NS4zMSAgICAgNTcuMTQKPiA+IDRLICAgICAgICAgMzIuOTkgICAgIDMz
+LjYyICAgIDkwLjgwICAgIDkwLjk4ICAgIDkxLjcyICAgICAgICAgOTEuNzkgICAgIDkxLjQwCj4g
+PiA4SyAgICAgICAgIDU4LjUxICAgICA1OS45OCAgIDE1My41MyAgIDE3MC44MyAgIDE2Ny4zMSAg
+ICAgICAgMTM3LjUxICAgIDEzMi44NQo+ID4gMTZLICAgICAgICA4OS4zMiAgICAgOTUuMjkgICAy
+MTYuOTggICAyNjQuMTggICAyNjAuOTUgICAgICAgIDE3Ni4wNSAgICAxNzYuMDUKPiA+IDMySyAg
+ICAgICAxNTIuOTQgICAgMTY3LjEwICAgMjg1Ljc1ICAgMzg3LjAyICAgMzYwLjgxICAgICAgICAy
+MTUuNDkgICAgMjI2LjMwCj4gPiA2NEsgICAgICAgMjUwLjM4ICAgIDMwNy4yMCAgIDMxNy42NSAg
+IDQ4OS41MyAgIDQ3Mi43MCAgICAgICAgMjM4Ljk3ICAgIDI0NC4yNwo+ID4gMTI4SyAgICAgIDMy
+Ny45OSAgICAzMzUuMjQgICAzMzUuNzYgICA1MjMuNzEgICA0ODYuNDEgICAgICAgIDI1My4yOSAg
+ICAyNjAuODYKPiA+IDI1NksgICAgICAzMjcuMDYgICAgMzM0LjI0ICAgMzM4LjY0ICAgNTMzLjc2
+ICAgNTA5Ljg1ICAgICAgICAyNjcuNzggICAgMjY2LjIyCj4gPiA1MTJLICAgICAgMzM3LjM2ICAg
+IDMzMC42MSAgIDMzNC45NSAgIDUxMi45MCAgIDQ5Ni4zNSAgICAgICAgMjgwLjQyICAgIDI0MS40
+Mwo+ID4gCj4gPiAgICAgICAgICBndWVzdCAtPiBob3N0IGVmZmljaWVuY3kgW01icHMgLyAoJUNQ
+VV9Ib3N0ICsgJUNQVV9HdWVzdCldCj4gPiBwa3Rfc2l6ZSBiZWZvcmUgb3B0ICBwIDErMiAgICBw
+IDMrNCAgICBwIDUrNiAgICBwIDcrOCAgICAgICB2aXJ0aW8tbmV0ICsgdmhvc3QKPiA+ICAgICAg
+ICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAg
+ICAgICAgICBUQ1BfTk9ERUxBWQo+ID4gNjQgICAgICAgICAgMC45MCAgICAgIDAuOTEgICAgIDEu
+MzcgICAgIDEuMzIgICAgIDEuMzUgICAgICAgICAgMi4xNSAgICAgIDIuMTMKPiA+IDI1NiAgICAg
+ICAgIDMuNTkgICAgICAzLjU1ICAgICA1LjIzICAgICA1LjE5ICAgICA1LjI5ICAgICAgICAgIDgu
+NTAgICAgICA4Ljg5Cj4gPiA1MTIgICAgICAgICA3LjE5ICAgICAgNy4wOCAgICAxMC4yMSAgICAg
+OS45NSAgICAxMC4zOCAgICAgICAgIDE2Ljc0ICAgICAxNC43MQo+ID4gMUsgICAgICAgICAxNC4x
+NSAgICAgMTQuMzQgICAgMTkuODUgICAgMTkuMDYgICAgMTkuMzMgICAgICAgICAzMS40NCAgICAg
+MjguMTEKPiA+IDJLICAgICAgICAgMjguNDQgICAgIDI5LjA5ICAgIDM3Ljc4ICAgIDM3LjE4ICAg
+IDM3LjQ5ICAgICAgICAgNTMuMDcgICAgIDUwLjYzCj4gPiA0SyAgICAgICAgIDU1LjM3ICAgICA1
+Ny42MCAgICA3MS4wMiAgICA2OS4yNyAgICA3MC45NyAgICAgICAgIDgxLjU2ICAgICA3OS4zMgo+
+ID4gOEsgICAgICAgIDEwNS41OCAgICAxMDAuNDUgICAxMTEuOTUgICAxMjQuNjggICAxMjMuNjEg
+ICAgICAgIDEyMC44NSAgICAxMTguNjYKPiA+IDE2SyAgICAgICAxNDEuNjMgICAgMTM4LjI0ICAg
+MTM3LjY3ICAgMTg3LjQxICAgMTkwLjIwICAgICAgICAxNjAuNDMgICAgMTYzLjAwCj4gPiAzMksg
+ICAgICAgMTQ3LjU2ICAgIDE0My4wOSAgIDEzOC40OCAgIDI5Ni40MSAgIDMwMS4wNCAgICAgICAg
+MjE0LjY0ICAgIDIyMy45NAo+ID4gNjRLICAgICAgIDE0NC44MSAgICAxNDMuMjcgICAxMzguNDkg
+ICA0MzMuOTggICA0NjIuMjYgICAgICAgIDI5OC44NiAgICAyNjkuNzEKPiA+IDEyOEsgICAgICAx
+NTAuMTQgICAgMTQ3Ljk5ICAgMTQ2Ljg1ICAgNTExLjM2ICAgNTE0LjI5ICAgICAgICAzNTAuMTcg
+ICAgMjk4LjA5Cj4gPiAyNTZLICAgICAgMTU2LjY5ICAgIDE1Mi4yNSAgIDE0OC42OSAgIDU0Mi4x
+OSAgIDU0OS45NyAgICAgICAgMzI2LjQyICAgIDMzMy4zMgo+ID4gNTEySyAgICAgIDE1Ny4yOSAg
+ICAxNTMuMzUgICAxNTIuMjIgICA1NDYuNTIgICA1MzMuMjQgICAgICAgIDMxNS41NSAgICAzMDIu
+MjcKPiA+IAo+ID4gWzFdIGh0dHBzOi8vZ2l0aHViLmNvbS9zdGVmYW5vLWdhcnphcmVsbGEvaXBl
+cmYvCj4gCj4gCj4gSGk6Cj4gCj4gRG8geW91IGhhdmUgYW55IGV4cGxhbmF0aW9uIHRoYXQgdnNv
+Y2sgaXMgYmV0dGVyIGhlcmU/IElzIHRoaXMgYmVjYXVzZSBvZgo+IHRoZSBtZXJnZWFibGUgYnVm
+ZmVyPyBJZiB5b3UsIHdlIG5lZWQgdGVzdCB3aXRoIG1yZ19yeGJ1Zj1vZmYuCj4gCgpIaSBKYXNv
+biwKSSB0cmllZCB0byBkaXNhYmxlIHRoZSBtZXJnZWFibGUgYnVmZmVyIGJ1dCBJIGhhZCBldmVu
+IHdvcnN0IHBlcmZvcm1hbmNlCndpdGggdmlydGlvLW5ldC4KCkRvIHlvdSB0aGluayB0aGUgZGlm
+ZmVyZW5jZXMgY291bGQgYmUgcmVsYXRlZCB0byB0aGUgVENQL0lQIHN0YWNrPwoKVGhhbmtzLApT
+dGVmYW5vCl9fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fClZp
+cnR1YWxpemF0aW9uIG1haWxpbmcgbGlzdApWaXJ0dWFsaXphdGlvbkBsaXN0cy5saW51eC1mb3Vu
+ZGF0aW9uLm9yZwpodHRwczovL2xpc3RzLmxpbnV4Zm91bmRhdGlvbi5vcmcvbWFpbG1hbi9saXN0
+aW5mby92aXJ0dWFsaXphdGlvbg==
