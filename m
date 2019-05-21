@@ -1,11 +1,24 @@
-From: Sam Bobroff <sbobroff@linux.ibm.com>
-Subject: [PATCH 1/1] drm/bochs: Fix connector leak during driver unload
-Date: Tue, 21 May 2019 15:28:39 +1000
-Message-ID: <93b363ad62f4938d9ddf3e05b2a61e3f66b2dcd3.1558416473.git.sbobroff__20494.8428481416$1558426869$gmane$org@linux.ibm.com>
+From: Michael Mueller <mimu@linux.ibm.com>
+Subject: Re: [PATCH 05/10] s390/cio: introduce DMA pools to cio
+Date: Tue, 21 May 2019 10:46:50 +0200
+Message-ID: <af3479db-691c-ddd3-0253-f379cc528f57@linux.ibm.com>
+References: <20190426183245.37939-1-pasic@linux.ibm.com>
+	<20190426183245.37939-6-pasic@linux.ibm.com>
+	<alpine.LFD.2.21.1905081447280.1773@schleppi>
+	<20190508232210.5a555caa.pasic@linux.ibm.com>
+	<20190509121106.48aa04db.cohuck@redhat.com>
+	<20190510001112.479b2fd7.pasic@linux.ibm.com>
+	<20190510161013.7e697337.cohuck@redhat.com>
+	<20190512202256.5517592d.pasic@linux.ibm.com>
+	<alpine.LFD.2.21.1905161517570.1767@schleppi>
+	<20190520141312.4e3a2d36.pasic@linux.ibm.com>
+Reply-To: mimu@linux.ibm.com
 Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
+Content-Type: text/plain; charset="us-ascii"; Format="flowed"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
+In-Reply-To: <20190520141312.4e3a2d36.pasic@linux.ibm.com>
+Content-Language: en-US
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -15,72 +28,114 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: kraxel@redhat.com, airlied@linux.ie, daniel@ffwll.ch, virtualization@lists.linux-foundation.org, dri-devel@lists.freedesktop.org, linux-kernel@vger.kernel.org
+To: Halil Pasic <pasic@linux.ibm.com>, Sebastian Ott <sebott@linux.ibm.com>, Christian Borntraeger <borntraeger@de.ibm.com>, Viktor Mihajlovski <mihajlov@linux.ibm.com>
+Cc: linux-s390@vger.kernel.org, Thomas Huth <thuth@redhat.com>, Farhan Ali <alifm@linux.ibm.com>, Vasily Gorbik <gor@linux.ibm.com>, kvm@vger.kernel.org, "Michael S. Tsirkin" <mst@redhat.com>, Cornelia Huck <cohuck@redhat.com>, Eric Farman <farman@linux.ibm.com>, virtualization@lists.linux-foundation.org, Christoph Hellwig <hch@infradead.org>, Martin Schwidefsky <schwidefsky@de.ibm.com>, Claudio Imbrenda <imbrenda@linux.ibm.com>, Janosch Frank <frankja@linux.ibm.com>
 List-Id: virtualization@lists.linuxfoundation.org
 
-When unloading the bochs-drm driver, a warning message is printed by
-drm_mode_config_cleanup() because a reference is still held to one of
-the drm_connector structs.
 
-Correct this by calling drm_atomic_helper_shutdown() in
-bochs_pci_remove().
 
-The issue is caused by the interaction of two previous commits. Both
-together are required to cause it:
-Fixes: 846c7dfc1193 ("drm/atomic: Try to preserve the crtc enabled state in drm_atomic_remove_fb, v2.")
-Fixes: 6579c39594ae ("drm/bochs: atomic: switch planes to atomic, wire up helpers.")
+On 20.05.19 14:13, Halil Pasic wrote:
+> On Thu, 16 May 2019 15:59:22 +0200 (CEST)
+> Sebastian Ott <sebott@linux.ibm.com> wrote:
+> 
+>> On Sun, 12 May 2019, Halil Pasic wrote:
+>>> I've also got code that deals with AIRQ_IV_CACHELINE by turning the
+>>> kmem_cache into a dma_pool.
+>>>
+>>> Cornelia, Sebastian which approach do you prefer:
+>>> 1) get rid of cio_dma_pool and AIRQ_IV_CACHELINE, and waste a page per
+>>> vector, or
+>>> 2) go with the approach taken by the patch below?
+>>
+>> We only have a couple of users for airq_iv:
+>>
+>> virtio_ccw.c: 2K bits
+> 
+> 
+> You mean a single allocation is 2k bits (VIRTIO_IV_BITS = 256 * 8)? My
+> understanding is that the upper bound is more like:
+> MAX_AIRQ_AREAS * VIRTIO_IV_BITS = 20 * 256 * 8 = 40960 bits.
+> 
+> In practice it is most likely just 2k.
+> 
+>>
+>> pci with floating IRQs: <= 2K (for the per-function bit vectors)
+>>                          1..4K (for the summary bit vector)
+>>
+> 
+> As far as I can tell with virtio_pci arch_setup_msi_irqs() gets called
+> once per device and allocates a small number of bits (2 and 3 in my
+> test, it may depend on #virtqueues, but I did not check).
+> 
+> So for an upper bound we would have to multiply with the upper bound of
+> pci devices/functions. What is the upper bound on the number of
+> functions?
+> 
+>> pci with CPU directed IRQs: 2K (for the per-CPU bit vectors)
+>>                              1..nr_cpu (for the summary bit vector)
+>>
+> 
+> I guess this is the same.
+> 
+>>
+>> The options are:
+>> * page allocations for everything
+> 
+> Worst case we need 20 + #max_pci_dev pages. At the moment we allocate
+> from ZONE_DMA (!) and waste a lot.
+> 
+>> * dma_pool for AIRQ_IV_CACHELINE ,gen_pool for others
+> 
+> I prefer this. Explanation follows.
+> 
+>> * dma_pool for everything
+>>
+> 
+> Less waste by factor factor 16.
+> 
+>> I think we should do option 3 and use a dma_pool with cachesize
+>> alignment for everything (as a prerequisite we have to limit
+>> config PCI_NR_FUNCTIONS to 2K - but that is not a real constraint).
+>>
+> 
+> I prefer option 3 because it is conceptually the smallest change, and
+> provides the behavior which is closest to the current one.
+> 
+> Commit  414cbd1e3d14 "s390/airq: provide cacheline aligned
+> ivs" (Sebastian Ott, 2019-02-27) could have been smaller had you implemented
+> 'kmem_cache for everything' (and I would have had just to replace kmem_cache with
+> dma_cache to achieve option 3). For some reason you decided to keep the
+> iv->vector = kzalloc(size, GFP_KERNEL) code-path and make the client code request
+> iv->vector = kmem_cache_zalloc(airq_iv_cache, GFP_KERNEL) explicitly, using a flag
+> which you only decided to use for directed pci irqs AFAICT.
+> 
+> My understanding of these decisions, and especially of the rationale
+> behind commit 414cbd1e3d14 is limited. Thus if option 3 is the way to
+> go, and the choices made by 414cbd1e3d14 were sub-optimal, I would feel
+> much more comfortable if you provided a patch that revises  and switches
+> everything to kmem_chache. I would then just swap kmem_cache out with a
+> dma_cache and my change would end up a straightforward and relatively
+> clean one.
+> 
+> So Sebastian, what shall we do?
+> 
+> Regards,
+> Halil
+> 
+> 
+> 
+> 
+>> Sebastian
+>>
+> 
 
-Signed-off-by: Sam Bobroff <sbobroff@linux.ibm.com>
----
-Hello,
+Folks, I had a version running with slight changes to the initial
+v1 patch set together with a revert of 414cbd1e3d14 "s390/airq: provide 
+cacheline aligned ivs". That of course has the deficit of the memory
+usage pattern.
 
-This seems to be similar to an issue I recently fixed for the AST driver:
-1e613f3c630c ("drm/ast: Fix connector leak during driver unload")
-Which is similar to at least one other recent fix:
-192b4af6cd28 ("drm/tegra: Shutdown on driver unbind")
+Now you are discussing same substantial changes. The exercise was to
+get an initial working code through the door. We really need a decision!
 
-The fix seems to be the same, but this time I've tried to dig a little deeper
-and use an appropriate Fixes tag to assist backporting.
 
-Bisecting the issue for commits to drivers/gpu/drm/bochs/ points to:
-6579c39594ae ("drm/bochs: atomic: switch planes to atomic, wire up helpers.")
-... but the issue also seems to be due to a change in the generic drm code
-(reverting it separately fixes the issue):
-846c7dfc1193 ("drm/atomic: Try to preserve the crtc enabled state in drm_atomic_remove_fb, v2.")
-... so I've included both in the commit.  Is that the right thing to do?
-
-I couldn't help wondering if we should also update the comment for
-drm_fbdev_generic_setup(), because it says:
-"The fbdev is destroyed by drm_dev_unregister()"
-... which implies to me that cleanup only requires that call, but actually
-since 846c7dfc1193 you will always(?) need to use drm_atomic_helper_shutdown()
-as well. (Is it actually always the case?)
-
-Cheers,
-Sam.
-
- drivers/gpu/drm/bochs/bochs_drv.c | 2 ++
- 1 file changed, 2 insertions(+)
-
-diff --git a/drivers/gpu/drm/bochs/bochs_drv.c b/drivers/gpu/drm/bochs/bochs_drv.c
-index 6b6e037258c3..7031f0168795 100644
---- a/drivers/gpu/drm/bochs/bochs_drv.c
-+++ b/drivers/gpu/drm/bochs/bochs_drv.c
-@@ -10,6 +10,7 @@
- #include <linux/slab.h>
- #include <drm/drm_fb_helper.h>
- #include <drm/drm_probe_helper.h>
-+#include <drm/drm_atomic_helper.h>
- 
- #include "bochs.h"
- 
-@@ -174,6 +175,7 @@ static void bochs_pci_remove(struct pci_dev *pdev)
- {
- 	struct drm_device *dev = pci_get_drvdata(pdev);
- 
-+	drm_atomic_helper_shutdown(dev);
- 	drm_dev_unregister(dev);
- 	bochs_unload(dev);
- 	drm_dev_put(dev);
--- 
-2.19.0.2.gcad72f5712
+Michael
