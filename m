@@ -1,7 +1,7 @@
 From: Pankaj Gupta <pagupta@redhat.com>
-Subject: [PATCH v10 4/7] dm: enable synchronous dax
-Date: Tue, 21 May 2019 19:07:10 +0530
-Message-ID: <20190521133713.31653-5-pagupta__27971.2606499501$1558446174$gmane$org@redhat.com>
+Subject: [PATCH v10 5/7] dax: check synchronous mapping is supported
+Date: Tue, 21 May 2019 19:07:11 +0530
+Message-ID: <20190521133713.31653-6-pagupta__26497.168447689$1558446189$gmane$org@redhat.com>
 References: <20190521133713.31653-1-pagupta@redhat.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
@@ -21,52 +21,53 @@ To: linux-nvdimm@lists.01.org, linux-kernel@vger.kernel.org, virtualization@list
 Cc: pagupta@redhat.com, rdunlap@infradead.org, jack@suse.cz, snitzer@redhat.com, mst@redhat.com, david@fromorbit.com, lcapitulino@redhat.com, adilger.kernel@dilger.ca, zwisler@kernel.org, aarcange@redhat.com, dave.jiang@intel.com, jstaron@google.com, darrick.wong@oracle.com, vishal.l.verma@intel.com, willy@infradead.org, hch@infradead.org, jmoyer@redhat.com, nilal@redhat.com, lenb@kernel.org, kilobyte@angband.pl, riel@surriel.com, yuval.shaia@oracle.com, stefanha@redhat.com, pbonzini@redhat.com, dan.j.williams@intel.com, tytso@mit.edu, xiaoguangrong.eric@gmail.com, cohuck@redhat.com, rjw@rjwysocki.net, imammedo@redhat.com
 List-Id: virtualization@lists.linuxfoundation.org
 
- This patch sets dax device 'DAXDEV_SYNC' flag if all the target
- devices of device mapper support synchrononous DAX. If device
- mapper consists of both synchronous and asynchronous dax devices,
- we don't set 'DAXDEV_SYNC' flag. 
+This patch introduces 'daxdev_mapping_supported' helper
+which checks if 'MAP_SYNC' is supported with filesystem
+mapping. It also checks if corresponding dax_device is
+synchronous. Virtio pmem device is asynchronous and
+does not not support VM_SYNC.
 
+Suggested-by: Jan Kara <jack@suse.cz>
 Signed-off-by: Pankaj Gupta <pagupta@redhat.com>
+Reviewed-by: Jan Kara <jack@suse.cz>
 ---
- drivers/md/dm-table.c | 14 ++++++++++++++
- 1 file changed, 14 insertions(+)
+ include/linux/dax.h | 17 +++++++++++++++++
+ 1 file changed, 17 insertions(+)
 
-diff --git a/drivers/md/dm-table.c b/drivers/md/dm-table.c
-index cde3b49b2a91..1cce626ff576 100644
---- a/drivers/md/dm-table.c
-+++ b/drivers/md/dm-table.c
-@@ -886,10 +886,17 @@ static int device_supports_dax(struct dm_target *ti, struct dm_dev *dev,
- 	return bdev_dax_supported(dev->bdev, PAGE_SIZE);
- }
- 
-+static int device_synchronous(struct dm_target *ti, struct dm_dev *dev,
-+			       sector_t start, sector_t len, void *data)
+diff --git a/include/linux/dax.h b/include/linux/dax.h
+index 2b106752b1b8..267251a394fa 100644
+--- a/include/linux/dax.h
++++ b/include/linux/dax.h
+@@ -42,6 +42,18 @@ void dax_write_cache(struct dax_device *dax_dev, bool wc);
+ bool dax_write_cache_enabled(struct dax_device *dax_dev);
+ bool dax_synchronous(struct dax_device *dax_dev);
+ void set_dax_synchronous(struct dax_device *dax_dev);
++/*
++ * Check if given mapping is supported by the file / underlying device.
++ */
++static inline bool daxdev_mapping_supported(struct vm_area_struct *vma,
++					    struct dax_device *dax_dev)
 +{
-+	return dax_synchronous(dev->dax_dev);
++	if (!(vma->vm_flags & VM_SYNC))
++		return true;
++	if (!IS_DAX(file_inode(vma->vm_file)))
++		return false;
++	return dax_synchronous(dax_dev);
 +}
-+
- static bool dm_table_supports_dax(struct dm_table *t)
+ #else
+ static inline struct dax_device *dax_get_by_host(const char *host)
  {
- 	struct dm_target *ti;
- 	unsigned i;
-+	bool dax_sync = true;
- 
- 	/* Ensure that all targets support DAX. */
- 	for (i = 0; i < dm_table_get_num_targets(t); i++) {
-@@ -901,7 +908,14 @@ static bool dm_table_supports_dax(struct dm_table *t)
- 		if (!ti->type->iterate_devices ||
- 		    !ti->type->iterate_devices(ti, device_supports_dax, NULL))
- 			return false;
-+
-+		/* Check devices support synchronous DAX */
-+		if (dax_sync &&
-+		    !ti->type->iterate_devices(ti, device_synchronous, NULL))
-+			dax_sync = false;
- 	}
-+	if (dax_sync)
-+		set_dax_synchronous(t->md->dax_dev);
- 
- 	return true;
+@@ -69,6 +81,11 @@ static inline bool dax_write_cache_enabled(struct dax_device *dax_dev)
+ {
+ 	return false;
  }
++static inline bool daxdev_mapping_supported(struct vm_area_struct *vma,
++				struct dax_device *dax_dev)
++{
++	return !(vma->vm_flags & VM_SYNC);
++}
+ #endif
+ 
+ struct writeback_control;
 -- 
 2.20.1
