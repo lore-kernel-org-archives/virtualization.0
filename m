@@ -1,24 +1,17 @@
-From: Michael Mueller <mimu@linux.ibm.com>
-Subject: Re: [PATCH 05/10] s390/cio: introduce DMA pools to cio
-Date: Tue, 21 May 2019 10:46:50 +0200
-Message-ID: <af3479db-691c-ddd3-0253-f379cc528f57@linux.ibm.com>
-References: <20190426183245.37939-1-pasic@linux.ibm.com>
-	<20190426183245.37939-6-pasic@linux.ibm.com>
-	<alpine.LFD.2.21.1905081447280.1773@schleppi>
-	<20190508232210.5a555caa.pasic@linux.ibm.com>
-	<20190509121106.48aa04db.cohuck@redhat.com>
-	<20190510001112.479b2fd7.pasic@linux.ibm.com>
-	<20190510161013.7e697337.cohuck@redhat.com>
-	<20190512202256.5517592d.pasic@linux.ibm.com>
-	<alpine.LFD.2.21.1905161517570.1767@schleppi>
-	<20190520141312.4e3a2d36.pasic@linux.ibm.com>
-Reply-To: mimu@linux.ibm.com
+From: Gerd Hoffmann <kraxel@redhat.com>
+Subject: Re: [PATCH 1/2] drm: Add drm_gem_vram_{pin/unpin}_reserved() and
+	convert mgag200
+Date: Tue, 21 May 2019 12:35:46 +0200
+Message-ID: <20190521103546.ehrrboraeoe2e6fh__43524.8928306223$1558434969$gmane$org@sirius.home.kraxel.org>
+References: <20190516162746.11636-1-tzimmermann@suse.de>
+	<20190516162746.11636-2-tzimmermann@suse.de>
+	<20190520161900.GB21222@phenom.ffwll.local>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"; Format="flowed"
+Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <20190520141312.4e3a2d36.pasic@linux.ibm.com>
-Content-Language: en-US
+Content-Disposition: inline
+In-Reply-To: <20190520161900.GB21222@phenom.ffwll.local>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -28,114 +21,34 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Halil Pasic <pasic@linux.ibm.com>, Sebastian Ott <sebott@linux.ibm.com>, Christian Borntraeger <borntraeger@de.ibm.com>, Viktor Mihajlovski <mihajlov@linux.ibm.com>
-Cc: linux-s390@vger.kernel.org, Thomas Huth <thuth@redhat.com>, Farhan Ali <alifm@linux.ibm.com>, Vasily Gorbik <gor@linux.ibm.com>, kvm@vger.kernel.org, "Michael S. Tsirkin" <mst@redhat.com>, Cornelia Huck <cohuck@redhat.com>, Eric Farman <farman@linux.ibm.com>, virtualization@lists.linux-foundation.org, Christoph Hellwig <hch@infradead.org>, Martin Schwidefsky <schwidefsky@de.ibm.com>, Claudio Imbrenda <imbrenda@linux.ibm.com>, Janosch Frank <frankja@linux.ibm.com>
+To: Daniel Vetter <daniel@ffwll.ch>
+Cc: noralf@tronnes.org, airlied@linux.ie, puck.chen@hisilicon.com, dri-devel@lists.freedesktop.org, virtualization@lists.linux-foundation.org, z.liuxinliang@hisilicon.com, hdegoede@redhat.com, kong.kongxinwei@hisilicon.com, ray.huang@amd.com, Thomas Zimmermann <tzimmermann@suse.de>, zourongrong@gmail.com, sam@ravnborg.org, christian.koenig@amd.com
 List-Id: virtualization@lists.linuxfoundation.org
 
+  Hi,
 
+> I think would be good to have a lockdep_assert_held here for the ww_mutex.
+> 
+> Also general thing: _reserved is kinda ttm lingo, for dma-buf reservations
+> we call the structure tracking the fences+lock the "reservation", but the
+> naming scheme used is _lock/_unlock.
+> 
+> I think would be good to be consistent with that, and use _locked here.
+> Especially for a very simplified vram helper like this one I expect that's
+> going to lead to less wtf moments by driver writers :-)
+> 
+> Maybe we should also do a large-scale s/reserve/lock/ within ttm, to align
+> more with what we now have in dma-buf.
 
-On 20.05.19 14:13, Halil Pasic wrote:
-> On Thu, 16 May 2019 15:59:22 +0200 (CEST)
-> Sebastian Ott <sebott@linux.ibm.com> wrote:
-> 
->> On Sun, 12 May 2019, Halil Pasic wrote:
->>> I've also got code that deals with AIRQ_IV_CACHELINE by turning the
->>> kmem_cache into a dma_pool.
->>>
->>> Cornelia, Sebastian which approach do you prefer:
->>> 1) get rid of cio_dma_pool and AIRQ_IV_CACHELINE, and waste a page per
->>> vector, or
->>> 2) go with the approach taken by the patch below?
->>
->> We only have a couple of users for airq_iv:
->>
->> virtio_ccw.c: 2K bits
-> 
-> 
-> You mean a single allocation is 2k bits (VIRTIO_IV_BITS = 256 * 8)? My
-> understanding is that the upper bound is more like:
-> MAX_AIRQ_AREAS * VIRTIO_IV_BITS = 20 * 256 * 8 = 40960 bits.
-> 
-> In practice it is most likely just 2k.
-> 
->>
->> pci with floating IRQs: <= 2K (for the per-function bit vectors)
->>                          1..4K (for the summary bit vector)
->>
-> 
-> As far as I can tell with virtio_pci arch_setup_msi_irqs() gets called
-> once per device and allocates a small number of bits (2 and 3 in my
-> test, it may depend on #virtqueues, but I did not check).
-> 
-> So for an upper bound we would have to multiply with the upper bound of
-> pci devices/functions. What is the upper bound on the number of
-> functions?
-> 
->> pci with CPU directed IRQs: 2K (for the per-CPU bit vectors)
->>                              1..nr_cpu (for the summary bit vector)
->>
-> 
-> I guess this is the same.
-> 
->>
->> The options are:
->> * page allocations for everything
-> 
-> Worst case we need 20 + #max_pci_dev pages. At the moment we allocate
-> from ZONE_DMA (!) and waste a lot.
-> 
->> * dma_pool for AIRQ_IV_CACHELINE ,gen_pool for others
-> 
-> I prefer this. Explanation follows.
-> 
->> * dma_pool for everything
->>
-> 
-> Less waste by factor factor 16.
-> 
->> I think we should do option 3 and use a dma_pool with cachesize
->> alignment for everything (as a prerequisite we have to limit
->> config PCI_NR_FUNCTIONS to 2K - but that is not a real constraint).
->>
-> 
-> I prefer option 3 because it is conceptually the smallest change, and
-> provides the behavior which is closest to the current one.
-> 
-> Commit  414cbd1e3d14 "s390/airq: provide cacheline aligned
-> ivs" (Sebastian Ott, 2019-02-27) could have been smaller had you implemented
-> 'kmem_cache for everything' (and I would have had just to replace kmem_cache with
-> dma_cache to achieve option 3). For some reason you decided to keep the
-> iv->vector = kzalloc(size, GFP_KERNEL) code-path and make the client code request
-> iv->vector = kmem_cache_zalloc(airq_iv_cache, GFP_KERNEL) explicitly, using a flag
-> which you only decided to use for directed pci irqs AFAICT.
-> 
-> My understanding of these decisions, and especially of the rationale
-> behind commit 414cbd1e3d14 is limited. Thus if option 3 is the way to
-> go, and the choices made by 414cbd1e3d14 were sub-optimal, I would feel
-> much more comfortable if you provided a patch that revises  and switches
-> everything to kmem_chache. I would then just swap kmem_cache out with a
-> dma_cache and my change would end up a straightforward and relatively
-> clean one.
-> 
-> So Sebastian, what shall we do?
-> 
-> Regards,
-> Halil
-> 
-> 
-> 
-> 
->> Sebastian
->>
-> 
+Given that mgag200 is the only user I think the best way forward is to
+improve the mgag200 cursor handling so we can just drop the _reserved
+variants ...
 
-Folks, I had a version running with slight changes to the initial
-v1 patch set together with a revert of 414cbd1e3d14 "s390/airq: provide 
-cacheline aligned ivs". That of course has the deficit of the memory
-usage pattern.
+When looking at mga_crtc_cursor_set() I suspect the easierst way to do
+that would be to simply pin the cursor bo's at driver_load time, then we
+don't have to bother with pinning in mga_crtc_cursor_set() at all.
 
-Now you are discussing same substantial changes. The exercise was to
-get an initial working code through the door. We really need a decision!
+Thomas, as you have test hardware, can you look into this?
 
-
-Michael
+thanks,
+  Gerd
