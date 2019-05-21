@@ -1,14 +1,14 @@
 From: Thomas Zimmermann <tzimmermann@suse.de>
 Subject: Re: [PATCH 1/2] drm: Add drm_gem_vram_{pin/unpin}_reserved() and
 	convert mgag200
-Date: Tue, 21 May 2019 12:57:02 +0200
-Message-ID: <e9841344-ea79-0904-4ca7-638687cdb66d__7316.90912959806$1558436241$gmane$org@suse.de>
+Date: Tue, 21 May 2019 13:35:36 +0200
+Message-ID: <0063a3e4-612c-99fc-9c3d-331b50f4a3dc__32953.8614417956$1558438556$gmane$org@suse.de>
 References: <20190516162746.11636-1-tzimmermann@suse.de>
 	<20190516162746.11636-2-tzimmermann@suse.de>
 	<20190520161900.GB21222@phenom.ffwll.local>
 	<20190521103546.ehrrboraeoe2e6fh@sirius.home.kraxel.org>
 Mime-Version: 1.0
-Content-Type: multipart/mixed; boundary="===============0519219179240233126=="
+Content-Type: multipart/mixed; boundary="===============0175929504897437416=="
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
 In-Reply-To: <20190521103546.ehrrboraeoe2e6fh@sirius.home.kraxel.org>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
@@ -25,14 +25,14 @@ Cc: airlied@linux.ie, puck.chen@hisilicon.com, dri-devel@lists.freedesktop.org, 
 List-Id: virtualization@lists.linuxfoundation.org
 
 This is an OpenPGP/MIME signed message (RFC 4880 and 3156)
---===============0519219179240233126==
+--===============0175929504897437416==
 Content-Type: multipart/signed; micalg=pgp-sha256;
  protocol="application/pgp-signature";
- boundary="LOVgZkxeRXm1NywhZnbn1v1ODCOH08eP6"
+ boundary="3xhGnAaM4AvxSzHzVvs3UqlPwWoQOErBw"
 
 This is an OpenPGP/MIME signed message (RFC 4880 and 3156)
---LOVgZkxeRXm1NywhZnbn1v1ODCOH08eP6
-Content-Type: multipart/mixed; boundary="TwDUteRU3iGUYjdEukaAwY6zTh9zjwGc6";
+--3xhGnAaM4AvxSzHzVvs3UqlPwWoQOErBw
+Content-Type: multipart/mixed; boundary="8axksfutt2h3XBOiLYx79LisoRB0ZYfWZ";
  protected-headers="v1"
 From: Thomas Zimmermann <tzimmermann@suse.de>
 To: Gerd Hoffmann <kraxel@redhat.com>, Daniel Vetter <daniel@ffwll.ch>
@@ -41,7 +41,7 @@ Cc: airlied@linux.ie, puck.chen@hisilicon.com,
  z.liuxinliang@hisilicon.com, hdegoede@redhat.com,
  kong.kongxinwei@hisilicon.com, ray.huang@amd.com, zourongrong@gmail.com,
  sam@ravnborg.org, christian.koenig@amd.com
-Message-ID: <e9841344-ea79-0904-4ca7-638687cdb66d@suse.de>
+Message-ID: <0063a3e4-612c-99fc-9c3d-331b50f4a3dc@suse.de>
 Subject: Re: [PATCH 1/2] drm: Add drm_gem_vram_{pin/unpin}_reserved() and
  convert mgag200
 References: <20190516162746.11636-1-tzimmermann@suse.de>
@@ -50,7 +50,7 @@ References: <20190516162746.11636-1-tzimmermann@suse.de>
  <20190521103546.ehrrboraeoe2e6fh@sirius.home.kraxel.org>
 In-Reply-To: <20190521103546.ehrrboraeoe2e6fh@sirius.home.kraxel.org>
 
---TwDUteRU3iGUYjdEukaAwY6zTh9zjwGc6
+--8axksfutt2h3XBOiLYx79LisoRB0ZYfWZ
 Content-Type: text/plain; charset=utf-8
 Content-Language: en-US
 Content-Transfer-Encoding: quoted-printable
@@ -87,20 +87,26 @@ lign
 > that would be to simply pin the cursor bo's at driver_load time, then w=
 e
 > don't have to bother with pinning in mga_crtc_cursor_set() at all.
->=20
-> Thomas, as you have test hardware, can you look into this?
 
-Sure, that's the plan. May take a few days, though.
+I've been thinking about converting ast and mgag200 to atomic mode
+setting. For that, universal planes would be required. But this seems
+incompatible with HW cursors.
 
-I'd like to see all of the locking/reservation gone from the helper API.
-By using bochs' PRIME helpers, the generic console could probably be
-used in mgag200 and ast. That would remove the remaining calls from
-mgag200 and ast.
+With universal planes, cursor planes would probably have to be exported
+as RGBA8 framebuffer, but the HW uses MMIO region and 16-color palette.
+So there's got to be a translation step and a way of notifying userspace
+if the palette overflows. In the current driver code,
+drm_crtc_funcs.set_cursor() does this.
+
+How is this done with universal planes? I know that there's
+drm_framebuffer_funcs.dirty(), but it doesn't seem to be used much.
 
 Best regards
 Thomas
 
 
+> Thomas, as you have test hardware, can you look into this?
+>=20
 > thanks,
 >   Gerd
 >=20
@@ -118,28 +124,28 @@ GF: Felix Imend=C3=B6rffer, Mary Higgins, Sri Rasiah
 HRB 21284 (AG N=C3=BCrnberg)
 
 
---TwDUteRU3iGUYjdEukaAwY6zTh9zjwGc6--
+--8axksfutt2h3XBOiLYx79LisoRB0ZYfWZ--
 
---LOVgZkxeRXm1NywhZnbn1v1ODCOH08eP6
+--3xhGnAaM4AvxSzHzVvs3UqlPwWoQOErBw
 Content-Type: application/pgp-signature; name="signature.asc"
 Content-Description: OpenPGP digital signature
 Content-Disposition: attachment; filename="signature.asc"
 
 -----BEGIN PGP SIGNATURE-----
 
-iQEzBAEBCAAdFiEEchf7rIzpz2NEoWjlaA3BHVMLeiMFAlzj2YMACgkQaA3BHVML
-eiMqDAf+P2T7mSIcjVDpy3js0U41mhx7KjNP2XifM+KfQIHfuXVMsGtqJ6JSdrGz
-G+LGf5UepbCT790PpUhJXuqD3JlTEWFTYBKH5C+0jAxUkvaoK2liXfbuCZzU00aN
-1yrwqVZjdVs7gS5+8FkLCCDCfAtzcwSQ8Py0uuyHrbTHu/M+nogvZw+sYWxG1Vmm
-yTcG9e+dYHkBz5aA7D+naX91fq9+sHxzOuDGFTCqmcQsztwPoFbt/racQgKg7Kuk
-D9LzOcSPZ09mVA+N2VM+2O8ykflV1ojvARmZ5wL3x0MzrbTFKE05hRSX3s2QK/9o
-pbj3qalt5qFXEm/2ujqSYvKgtzrAqQ==
-=s8r4
+iQEzBAEBCAAdFiEEchf7rIzpz2NEoWjlaA3BHVMLeiMFAlzj4ogACgkQaA3BHVML
+eiOUhwf8D+9COr5Ywx4A95XDifL+gCkJ2uMJtlmE5jWfXVoRi5bL+23URXoP5wWa
+MbGUXIwo/4qYfTnGgcBFSPUgsb4mxibn2M78QDxnqbRTs9bCt7SLbbslGx2LpGth
+kyAKwG7SdGOMVkt0KppjRlFWSwfLcMPI/DivfVZVC9IctFphPd5Anatu/uN411G8
+ojHfFLTOsUXZSy1MuwM32jc1BCjBo/XoR6TOdAJSJdUbItV/j0WLRAviLqzwOXoH
+V0GukfZSRS6dsxNLvn2V64wR0S/s9fnnQw2ziuXQbqZ2uHsxmXa0iPccqRgJLHhK
+XZ4CgGJLwU0knEfNSdX4ob1DmcEmGw==
+=SUcO
 -----END PGP SIGNATURE-----
 
---LOVgZkxeRXm1NywhZnbn1v1ODCOH08eP6--
+--3xhGnAaM4AvxSzHzVvs3UqlPwWoQOErBw--
 
---===============0519219179240233126==
+--===============0175929504897437416==
 Content-Type: text/plain; charset="us-ascii"
 MIME-Version: 1.0
 Content-Transfer-Encoding: 7bit
@@ -149,4 +155,4 @@ _______________________________________________
 Virtualization mailing list
 Virtualization@lists.linux-foundation.org
 https://lists.linuxfoundation.org/mailman/listinfo/virtualization
---===============0519219179240233126==--
+--===============0175929504897437416==--
