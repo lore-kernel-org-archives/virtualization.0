@@ -1,22 +1,11 @@
-From: Sebastian Ott <sebott@linux.ibm.com>
-Subject: Re: [PATCH 05/10] s390/cio: introduce DMA pools to cio
-Date: Wed, 22 May 2019 14:07:05 +0200 (CEST)
-Message-ID: <alpine.LFD.2.21.1905221344180.1782@schleppi>
-References: <20190426183245.37939-1-pasic@linux.ibm.com>
-	<20190426183245.37939-6-pasic@linux.ibm.com>
-	<alpine.LFD.2.21.1905081447280.1773@schleppi>
-	<20190508232210.5a555caa.pasic@linux.ibm.com>
-	<20190509121106.48aa04db.cohuck@redhat.com>
-	<20190510001112.479b2fd7.pasic@linux.ibm.com>
-	<20190510161013.7e697337.cohuck@redhat.com>
-	<20190512202256.5517592d.pasic@linux.ibm.com>
-	<alpine.LFD.2.21.1905161517570.1767@schleppi>
-	<20190520141312.4e3a2d36.pasic@linux.ibm.com>
+From: Johannes Berg <johannes@sipsolutions.net>
+Subject: custom virt-io support (in user-mode-linux)
+Date: Wed, 22 May 2019 15:02:38 +0200
+Message-ID: <0952696452f5ff4e38d2417029243fc60efa33d6.camel__24638.3580424421$1558532386$gmane$org@sipsolutions.net>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <20190520141312.4e3a2d36.pasic@linux.ibm.com>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -26,84 +15,53 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Halil Pasic <pasic@linux.ibm.com>
-Cc: Farhan Ali <alifm@linux.ibm.com>, linux-s390@vger.kernel.org, Thomas Huth <thuth@redhat.com>, Claudio Imbrenda <imbrenda@linux.ibm.com>, Vasily Gorbik <gor@linux.ibm.com>, kvm@vger.kernel.org, "Michael S. Tsirkin" <mst@redhat.com>, Cornelia Huck <cohuck@redhat.com>, Eric Farman <farman@linux.ibm.com>, virtualization@lists.linux-foundation.org, Christoph Hellwig <hch@infradead.org>, Christian Borntraeger <borntraeger@de.ibm.com>, Martin Schwidefsky <schwidefsky@de.ibm.com>, Michael Mueller <mimu@linux.ibm.com>, Viktor Mihajlovski <mihajlov@linux.ibm.com>, Janosch Frank <frankja@linux.ibm.com>
+To: linux-um@lists.infradead.org, virtualization@lists.linux-foundation.org, qemu-devel@nongnu.org
 List-Id: virtualization@lists.linuxfoundation.org
 
-On Mon, 20 May 2019, Halil Pasic wrote:
-> On Thu, 16 May 2019 15:59:22 +0200 (CEST)
-> Sebastian Ott <sebott@linux.ibm.com> wrote:
-> > We only have a couple of users for airq_iv:
-> > 
-> > virtio_ccw.c: 2K bits
-> 
-> You mean a single allocation is 2k bits (VIRTIO_IV_BITS = 256 * 8)? My
-> understanding is that the upper bound is more like:
-> MAX_AIRQ_AREAS * VIRTIO_IV_BITS = 20 * 256 * 8 = 40960 bits.
-> 
-> In practice it is most likely just 2k.
-> 
-> > 
-> > pci with floating IRQs: <= 2K (for the per-function bit vectors)
-> >                         1..4K (for the summary bit vector)
-> >
-> 
-> As far as I can tell with virtio_pci arch_setup_msi_irqs() gets called
-> once per device and allocates a small number of bits (2 and 3 in my
-> test, it may depend on #virtqueues, but I did not check).
-> 
-> So for an upper bound we would have to multiply with the upper bound of
-> pci devices/functions. What is the upper bound on the number of
-> functions?
-> 
-> > pci with CPU directed IRQs: 2K (for the per-CPU bit vectors)
-> >                             1..nr_cpu (for the summary bit vector)
-> > 
-> 
-> I guess this is the same.
-> 
-> > 
-> > The options are:
-> > * page allocations for everything
-> 
-> Worst case we need 20 + #max_pci_dev pages. At the moment we allocate
-> from ZONE_DMA (!) and waste a lot.
-> 
-> > * dma_pool for AIRQ_IV_CACHELINE ,gen_pool for others
-> 
-> I prefer this. Explanation follows.
-> 
-> > * dma_pool for everything
-> > 
-> 
-> Less waste by factor factor 16.
-> 
-> > I think we should do option 3 and use a dma_pool with cachesize
-> > alignment for everything (as a prerequisite we have to limit
-> > config PCI_NR_FUNCTIONS to 2K - but that is not a real constraint).
-> 
-> I prefer option 3 because it is conceptually the smallest change, and
-                  ^
-                  2
-> provides the behavior which is closest to the current one.
+Hi,
 
-I can see that this is the smallest change on top of the current
-implementation. I'm good with doing that and looking for further
-simplification/unification later.
+While my main interest is mostly in UML right now [1] I've CC'ed the
+qemu and virtualization lists because something similar might actually
+apply to other types of virtualization.
 
+I'm thinking about adding virt-io support to UML, but the tricky part is
+that while I want to use the virt-io basics (because it's a nice
+interface from the 'inside'), I don't actually want the stock drivers
+that are part of the kernel now (like virtio-net etc.) but rather
+something that integrates with wifi (probably building on hwsim).
 
-> Commit  414cbd1e3d14 "s390/airq: provide cacheline aligned
-> ivs" (Sebastian Ott, 2019-02-27) could have been smaller had you implemented
-> 'kmem_cache for everything' (and I would have had just to replace kmem_cache with
-> dma_cache to achieve option 3). For some reason you decided to keep the
-> iv->vector = kzalloc(size, GFP_KERNEL) code-path and make the client code request
-> iv->vector = kmem_cache_zalloc(airq_iv_cache, GFP_KERNEL) explicitly, using a flag
-> which you only decided to use for directed pci irqs AFAICT.
-> 
-> My understanding of these decisions, and especially of the rationale
-> behind commit 414cbd1e3d14 is limited.
+The 'inside' interfaces aren't really a problem - just have a specific
+device ID for this, and then write a normal virtio kernel driver for it.
 
-I introduced per cpu interrupt vectors and wanted to prevent 2 CPUs from
-sharing data from the same cacheline. No other user of the airq stuff had
-this need. If I had been aware of the additional complexity we would add
-on top of that maybe I would have made a different decision.
+The 'outside' interfaces are where my thinking breaks down right now.
+
+Looking at lkl, the outside is just all implemented in lkl as code that
+gets linked to the library, so in UML terms it'd just be extra 'outside'
+code like the timer handling or other netdev stuff we have today.
+Looking at qemu, it's of course also implemented there, and then
+interfaces with the real network, console abstraction, etc.
+
+However, like I said above, I really need something very custom and not
+likely to make it upstream to any project (because what point is that if
+you cannot connect to the rest of the environment I'm building), so I'm
+thinking that perhaps it should be possible to write an abstract
+'outside' that lets you interact with it really from out-of-process?
+Perhaps through some kind of shared memory segment? I think that gets
+tricky with virt-io doing DMA (I think it does?) though, so that part
+would have to be implemented directly and not out-of-process?
+
+But really that's why I'm asking - is there a better way than to just
+link the device-side virt-io code into the same binary (be it lkl lib,
+uml binary, qemu binary)?
+
+Thanks,
+johannes
+
+[1] Actually, I've considered using qemu, but it doesn't have
+virtualized time and doesn't seem to support TSC virtualization. I guess
+I could remove TSC from the guest CPU and add a virtualized HPET, but
+I've yet to convince myself this works - on UML I made virtual time as a
+prototype already:
+https://patchwork.ozlabs.org/patch/1095814/
+(though my real goal isn't to just skip time forward when the host goes
+idle, it's to sync with other simulated components)
