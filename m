@@ -1,14 +1,13 @@
-From: Sam Ravnborg <sam@ravnborg.org>
-Subject: Re: [PATCH] drm/cirrus: remove leftover files
-Date: Wed, 22 May 2019 17:06:34 +0200
-Message-ID: <20190522150634.GA26677__5647.72463855974$1558537610$gmane$org@ravnborg.org>
-References: <20190522103307.12711-1-kraxel@redhat.com>
+From: Emil Velikov <emil.l.velikov@gmail.com>
+Subject: [PATCH 2/4] drm/virtio: remove irrelevant DRM_UNLOCKED flag
+Date: Wed, 22 May 2019 16:47:00 +0100
+Message-ID: <20190522154702.16269-2-emil.l.velikov@gmail.com>
+References: <20190522154702.16269-1-emil.l.velikov@gmail.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-Content-Disposition: inline
-In-Reply-To: <20190522103307.12711-1-kraxel@redhat.com>
+In-Reply-To: <20190522154702.16269-1-emil.l.velikov@gmail.com>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -18,19 +17,70 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Gerd Hoffmann <kraxel@redhat.com>
-Cc: David Airlie <airlied@linux.ie>, Dave Airlie <airlied@redhat.com>, open list <linux-kernel@vger.kernel.org>, dri-devel@lists.freedesktop.org, "open list:DRM DRIVER FOR QEMU'S CIRRUS DEVICE" <virtualization@lists.linux-foundation.org>
+To: dri-devel@lists.freedesktop.org
+Cc: David Airlie <airlied@linux.ie>, kernel@collabora.com, Daniel Vetter <daniel@ffwll.ch>, virtualization@lists.linux-foundation.org
 List-Id: virtualization@lists.linuxfoundation.org
 
-On Wed, May 22, 2019 at 12:33:07PM +0200, Gerd Hoffmann wrote:
-> cirrus_drv.h and cirrus_ttm.c are unused since commit ab3e023b1b4c
-> ("drm/cirrus: rewrite and modernize driver"), apparently I ran "rm"
-> instead of "git rm" on them so they are still in present the tree.
-> 
-> Signed-off-by: Gerd Hoffmann <kraxel@redhat.com>
-Reviewed-by: Sam Ravnborg <sam@ravnborg.org>
+From: Emil Velikov <emil.velikov@collabora.com>
 
-Always nice with the code removal patches.
-Will you apply yourself?
+DRM_UNLOCKED doesn't do anything for non-legacy drivers. Remove it.
 
-	Sam
+Cc: David Airlie <airlied@linux.ie>
+Cc: Gerd Hoffmann <kraxel@redhat.com>
+Cc: virtualization@lists.linux-foundation.org
+Cc: Daniel Vetter <daniel@ffwll.ch>
+Signed-off-by: Emil Velikov <emil.velikov@collabora.com>
+---
+ drivers/gpu/drm/virtio/virtgpu_ioctl.c | 18 +++++++++---------
+ 1 file changed, 9 insertions(+), 9 deletions(-)
+
+diff --git a/drivers/gpu/drm/virtio/virtgpu_ioctl.c b/drivers/gpu/drm/virtio/virtgpu_ioctl.c
+index 949a264985fc..b7f9dfe61d1c 100644
+--- a/drivers/gpu/drm/virtio/virtgpu_ioctl.c
++++ b/drivers/gpu/drm/virtio/virtgpu_ioctl.c
+@@ -553,34 +553,34 @@ static int virtio_gpu_get_caps_ioctl(struct drm_device *dev,
+ 
+ struct drm_ioctl_desc virtio_gpu_ioctls[DRM_VIRTIO_NUM_IOCTLS] = {
+ 	DRM_IOCTL_DEF_DRV(VIRTGPU_MAP, virtio_gpu_map_ioctl,
+-			  DRM_AUTH | DRM_UNLOCKED | DRM_RENDER_ALLOW),
++			  DRM_AUTH | DRM_RENDER_ALLOW),
+ 
+ 	DRM_IOCTL_DEF_DRV(VIRTGPU_EXECBUFFER, virtio_gpu_execbuffer_ioctl,
+-			  DRM_AUTH | DRM_UNLOCKED | DRM_RENDER_ALLOW),
++			  DRM_AUTH | DRM_RENDER_ALLOW),
+ 
+ 	DRM_IOCTL_DEF_DRV(VIRTGPU_GETPARAM, virtio_gpu_getparam_ioctl,
+-			  DRM_AUTH | DRM_UNLOCKED | DRM_RENDER_ALLOW),
++			  DRM_AUTH | DRM_RENDER_ALLOW),
+ 
+ 	DRM_IOCTL_DEF_DRV(VIRTGPU_RESOURCE_CREATE,
+ 			  virtio_gpu_resource_create_ioctl,
+-			  DRM_AUTH | DRM_UNLOCKED | DRM_RENDER_ALLOW),
++			  DRM_AUTH | DRM_RENDER_ALLOW),
+ 
+ 	DRM_IOCTL_DEF_DRV(VIRTGPU_RESOURCE_INFO, virtio_gpu_resource_info_ioctl,
+-			  DRM_AUTH | DRM_UNLOCKED | DRM_RENDER_ALLOW),
++			  DRM_AUTH | DRM_RENDER_ALLOW),
+ 
+ 	/* make transfer async to the main ring? - no sure, can we
+ 	 * thread these in the underlying GL
+ 	 */
+ 	DRM_IOCTL_DEF_DRV(VIRTGPU_TRANSFER_FROM_HOST,
+ 			  virtio_gpu_transfer_from_host_ioctl,
+-			  DRM_AUTH | DRM_UNLOCKED | DRM_RENDER_ALLOW),
++			  DRM_AUTH | DRM_RENDER_ALLOW),
+ 	DRM_IOCTL_DEF_DRV(VIRTGPU_TRANSFER_TO_HOST,
+ 			  virtio_gpu_transfer_to_host_ioctl,
+-			  DRM_AUTH | DRM_UNLOCKED | DRM_RENDER_ALLOW),
++			  DRM_AUTH | DRM_RENDER_ALLOW),
+ 
+ 	DRM_IOCTL_DEF_DRV(VIRTGPU_WAIT, virtio_gpu_wait_ioctl,
+-			  DRM_AUTH | DRM_UNLOCKED | DRM_RENDER_ALLOW),
++			  DRM_AUTH | DRM_RENDER_ALLOW),
+ 
+ 	DRM_IOCTL_DEF_DRV(VIRTGPU_GET_CAPS, virtio_gpu_get_caps_ioctl,
+-			  DRM_AUTH | DRM_UNLOCKED | DRM_RENDER_ALLOW),
++			  DRM_AUTH | DRM_RENDER_ALLOW),
+ };
+-- 
+2.21.0
