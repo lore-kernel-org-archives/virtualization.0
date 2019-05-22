@@ -1,12 +1,23 @@
-From: <gregkh@linuxfoundation.org>
-Subject: Patch "vsock/virtio: Initialize core virtio vsock before registering
-	the driver" has been added to the 4.9-stable tree
-Date: Wed, 22 May 2019 19:32:16 +0200
-Message-ID: <15585463369583@kroah.com>
+From: Halil Pasic <pasic@linux.ibm.com>
+Subject: Re: [PATCH 05/10] s390/cio: introduce DMA pools to cio
+Date: Thu, 23 May 2019 00:12:46 +0200
+Message-ID: <20190523001246.449154aa.pasic@linux.ibm.com>
+References: <20190426183245.37939-1-pasic@linux.ibm.com>
+	<20190426183245.37939-6-pasic@linux.ibm.com>
+	<alpine.LFD.2.21.1905081447280.1773@schleppi>
+	<20190508232210.5a555caa.pasic@linux.ibm.com>
+	<20190509121106.48aa04db.cohuck@redhat.com>
+	<20190510001112.479b2fd7.pasic@linux.ibm.com>
+	<20190510161013.7e697337.cohuck@redhat.com>
+	<20190512202256.5517592d.pasic@linux.ibm.com>
+	<alpine.LFD.2.21.1905161517570.1767@schleppi>
+	<20190520141312.4e3a2d36.pasic@linux.ibm.com>
+	<alpine.LFD.2.21.1905221344180.1782@schleppi>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
+In-Reply-To: <alpine.LFD.2.21.1905221344180.1782@schleppi>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -16,136 +27,95 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: davem@davemloft.net, gregkh@linuxfoundation.org, jemoreira@google.com, kernel-team@android.com, sgarzare@redhat.com, stefanha@redhat.com, virtualization@lists.linux-foundation.org
-Cc: stable-commits@vger.kernel.org
+To: Sebastian Ott <sebott@linux.ibm.com>
+Cc: Farhan Ali <alifm@linux.ibm.com>, linux-s390@vger.kernel.org, Thomas Huth <thuth@redhat.com>, Claudio Imbrenda <imbrenda@linux.ibm.com>, Vasily Gorbik <gor@linux.ibm.com>, kvm@vger.kernel.org, "Michael S. Tsirkin" <mst@redhat.com>, Cornelia Huck <cohuck@redhat.com>, Eric Farman <farman@linux.ibm.com>, virtualization@lists.linux-foundation.org, Christoph Hellwig <hch@infradead.org>, Christian Borntraeger <borntraeger@de.ibm.com>, Martin Schwidefsky <schwidefsky@de.ibm.com>, Michael Mueller <mimu@linux.ibm.com>, Viktor Mihajlovski <mihajlov@linux.ibm.com>, Janosch Frank <frankja@linux.ibm.com>
 List-Id: virtualization@lists.linuxfoundation.org
 
+On Wed, 22 May 2019 14:07:05 +0200 (CEST)
+Sebastian Ott <sebott@linux.ibm.com> wrote:
 
-This is a note to let you know that I've just added the patch titled
+> On Mon, 20 May 2019, Halil Pasic wrote:
+> > On Thu, 16 May 2019 15:59:22 +0200 (CEST)
+> > Sebastian Ott <sebott@linux.ibm.com> wrote:
+> > > We only have a couple of users for airq_iv:
+> > > 
+> > > virtio_ccw.c: 2K bits
+> > 
+> > You mean a single allocation is 2k bits (VIRTIO_IV_BITS = 256 * 8)? My
+> > understanding is that the upper bound is more like:
+> > MAX_AIRQ_AREAS * VIRTIO_IV_BITS = 20 * 256 * 8 = 40960 bits.
+> > 
+> > In practice it is most likely just 2k.
+> > 
+> > > 
+> > > pci with floating IRQs: <= 2K (for the per-function bit vectors)
+> > >                         1..4K (for the summary bit vector)
+> > >
+> > 
+> > As far as I can tell with virtio_pci arch_setup_msi_irqs() gets called
+> > once per device and allocates a small number of bits (2 and 3 in my
+> > test, it may depend on #virtqueues, but I did not check).
+> > 
+> > So for an upper bound we would have to multiply with the upper bound of
+> > pci devices/functions. What is the upper bound on the number of
+> > functions?
+> > 
+> > > pci with CPU directed IRQs: 2K (for the per-CPU bit vectors)
+> > >                             1..nr_cpu (for the summary bit vector)
+> > > 
+> > 
+> > I guess this is the same.
+> > 
+> > > 
+> > > The options are:
+> > > * page allocations for everything
+> > 
+> > Worst case we need 20 + #max_pci_dev pages. At the moment we allocate
+> > from ZONE_DMA (!) and waste a lot.
+> > 
+> > > * dma_pool for AIRQ_IV_CACHELINE ,gen_pool for others
+> > 
+> > I prefer this. Explanation follows.
+> > 
+> > > * dma_pool for everything
+> > > 
+> > 
+> > Less waste by factor factor 16.
+> > 
+> > > I think we should do option 3 and use a dma_pool with cachesize
+> > > alignment for everything (as a prerequisite we have to limit
+> > > config PCI_NR_FUNCTIONS to 2K - but that is not a real constraint).
+> > 
+> > I prefer option 3 because it is conceptually the smallest change, and
+>                   ^
+>                   2
+> > provides the behavior which is closest to the current one.
+> 
+> I can see that this is the smallest change on top of the current
+> implementation. I'm good with doing that and looking for further
+> simplification/unification later.
+> 
 
-    vsock/virtio: Initialize core virtio vsock before registering the driver
+Nod. I will go with that for v2.
 
-to the 4.9-stable tree which can be found at:
-    http://www.kernel.org/git/?p=linux/kernel/git/stable/stable-queue.git;a=summary
+> 
+> > Commit  414cbd1e3d14 "s390/airq: provide cacheline aligned
+> > ivs" (Sebastian Ott, 2019-02-27) could have been smaller had you implemented
+> > 'kmem_cache for everything' (and I would have had just to replace kmem_cache with
+> > dma_cache to achieve option 3). For some reason you decided to keep the
+> > iv->vector = kzalloc(size, GFP_KERNEL) code-path and make the client code request
+> > iv->vector = kmem_cache_zalloc(airq_iv_cache, GFP_KERNEL) explicitly, using a flag
+> > which you only decided to use for directed pci irqs AFAICT.
+> > 
+> > My understanding of these decisions, and especially of the rationale
+> > behind commit 414cbd1e3d14 is limited.
+> 
+> I introduced per cpu interrupt vectors and wanted to prevent 2 CPUs from
+> sharing data from the same cacheline. No other user of the airq stuff had
+> this need. If I had been aware of the additional complexity we would add
+> on top of that maybe I would have made a different decision.
 
-The filename of the patch is:
-     vsock-virtio-initialize-core-virtio-vsock-before-registering-the-driver.patch
-and it can be found in the queue-4.9 subdirectory.
+I understand. Thanks for the explanation!
 
-If you, or anyone else, feels it should not be added to the stable tree,
-please let <stable@vger.kernel.org> know about it.
-
-
-From foo@baz Wed 22 May 2019 06:53:31 PM CEST
-From: "Jorge E. Moreira" <jemoreira@google.com>
-Date: Thu, 16 May 2019 13:51:07 -0700
-Subject: vsock/virtio: Initialize core virtio vsock before registering the driver
-
-From: "Jorge E. Moreira" <jemoreira@google.com>
-
-[ Upstream commit ba95e5dfd36647622d8897a2a0470dde60e59ffd ]
-
-Avoid a race in which static variables in net/vmw_vsock/af_vsock.c are
-accessed (while handling interrupts) before they are initialized.
-
-[    4.201410] BUG: unable to handle kernel paging request at ffffffffffffffe8
-[    4.207829] IP: vsock_addr_equals_addr+0x3/0x20
-[    4.211379] PGD 28210067 P4D 28210067 PUD 28212067 PMD 0
-[    4.211379] Oops: 0000 [#1] PREEMPT SMP PTI
-[    4.211379] Modules linked in:
-[    4.211379] CPU: 1 PID: 30 Comm: kworker/1:1 Not tainted 4.14.106-419297-gd7e28cc1f241 #1
-[    4.211379] Hardware name: QEMU Standard PC (i440FX + PIIX, 1996), BIOS 1.10.2-1 04/01/2014
-[    4.211379] Workqueue: virtio_vsock virtio_transport_rx_work
-[    4.211379] task: ffffa3273d175280 task.stack: ffffaea1800e8000
-[    4.211379] RIP: 0010:vsock_addr_equals_addr+0x3/0x20
-[    4.211379] RSP: 0000:ffffaea1800ebd28 EFLAGS: 00010286
-[    4.211379] RAX: 0000000000000002 RBX: 0000000000000000 RCX: ffffffffb94e42f0
-[    4.211379] RDX: 0000000000000400 RSI: ffffffffffffffe0 RDI: ffffaea1800ebdd0
-[    4.211379] RBP: ffffaea1800ebd58 R08: 0000000000000001 R09: 0000000000000001
-[    4.211379] R10: 0000000000000000 R11: ffffffffb89d5d60 R12: ffffaea1800ebdd0
-[    4.211379] R13: 00000000828cbfbf R14: 0000000000000000 R15: ffffaea1800ebdc0
-[    4.211379] FS:  0000000000000000(0000) GS:ffffa3273fd00000(0000) knlGS:0000000000000000
-[    4.211379] CS:  0010 DS: 0000 ES: 0000 CR0: 0000000080050033
-[    4.211379] CR2: ffffffffffffffe8 CR3: 000000002820e001 CR4: 00000000001606e0
-[    4.211379] DR0: 0000000000000000 DR1: 0000000000000000 DR2: 0000000000000000
-[    4.211379] DR3: 0000000000000000 DR6: 00000000fffe0ff0 DR7: 0000000000000400
-[    4.211379] Call Trace:
-[    4.211379]  ? vsock_find_connected_socket+0x6c/0xe0
-[    4.211379]  virtio_transport_recv_pkt+0x15f/0x740
-[    4.211379]  ? detach_buf+0x1b5/0x210
-[    4.211379]  virtio_transport_rx_work+0xb7/0x140
-[    4.211379]  process_one_work+0x1ef/0x480
-[    4.211379]  worker_thread+0x312/0x460
-[    4.211379]  kthread+0x132/0x140
-[    4.211379]  ? process_one_work+0x480/0x480
-[    4.211379]  ? kthread_destroy_worker+0xd0/0xd0
-[    4.211379]  ret_from_fork+0x35/0x40
-[    4.211379] Code: c7 47 08 00 00 00 00 66 c7 07 28 00 c7 47 08 ff ff ff ff c7 47 04 ff ff ff ff c3 0f 1f 00 66 2e 0f 1f 84 00 00 00 00 00 8b 47 08 <3b> 46 08 75 0a 8b 47 04 3b 46 04 0f 94 c0 c3 31 c0 c3 90 66 2e
-[    4.211379] RIP: vsock_addr_equals_addr+0x3/0x20 RSP: ffffaea1800ebd28
-[    4.211379] CR2: ffffffffffffffe8
-[    4.211379] ---[ end trace f31cc4a2e6df3689 ]---
-[    4.211379] Kernel panic - not syncing: Fatal exception in interrupt
-[    4.211379] Kernel Offset: 0x37000000 from 0xffffffff81000000 (relocation range: 0xffffffff80000000-0xffffffffbfffffff)
-[    4.211379] Rebooting in 5 seconds..
-
-Fixes: 22b5c0b63f32 ("vsock/virtio: fix kernel panic after device hot-unplug")
-Cc: Stefan Hajnoczi <stefanha@redhat.com>
-Cc: Stefano Garzarella <sgarzare@redhat.com>
-Cc: "David S. Miller" <davem@davemloft.net>
-Cc: kvm@vger.kernel.org
-Cc: virtualization@lists.linux-foundation.org
-Cc: netdev@vger.kernel.org
-Cc: kernel-team@android.com
-Cc: stable@vger.kernel.org [4.9+]
-Signed-off-by: Jorge E. Moreira <jemoreira@google.com>
-Reviewed-by: Stefano Garzarella <sgarzare@redhat.com>
-Reviewed-by: Stefan Hajnoczi <stefanha@redhat.com>
-Acked-by: Stefan Hajnoczi <stefanha@redhat.com>
-Signed-off-by: David S. Miller <davem@davemloft.net>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
----
- net/vmw_vsock/virtio_transport.c |   13 ++++++-------
- 1 file changed, 6 insertions(+), 7 deletions(-)
-
---- a/net/vmw_vsock/virtio_transport.c
-+++ b/net/vmw_vsock/virtio_transport.c
-@@ -600,28 +600,27 @@ static int __init virtio_vsock_init(void
- 	if (!virtio_vsock_workqueue)
- 		return -ENOMEM;
- 
--	ret = register_virtio_driver(&virtio_vsock_driver);
-+	ret = vsock_core_init(&virtio_transport.transport);
- 	if (ret)
- 		goto out_wq;
- 
--	ret = vsock_core_init(&virtio_transport.transport);
-+	ret = register_virtio_driver(&virtio_vsock_driver);
- 	if (ret)
--		goto out_vdr;
-+		goto out_vci;
- 
- 	return 0;
- 
--out_vdr:
--	unregister_virtio_driver(&virtio_vsock_driver);
-+out_vci:
-+	vsock_core_exit();
- out_wq:
- 	destroy_workqueue(virtio_vsock_workqueue);
- 	return ret;
--
- }
- 
- static void __exit virtio_vsock_exit(void)
- {
--	vsock_core_exit();
- 	unregister_virtio_driver(&virtio_vsock_driver);
-+	vsock_core_exit();
- 	destroy_workqueue(virtio_vsock_workqueue);
- }
- 
-
-
-Patches currently in stable-queue which might be from jemoreira@google.com are
-
-queue-4.9/vsock-virtio-initialize-core-virtio-vsock-before-registering-the-driver.patch
+Regards,
+Halil
