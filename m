@@ -1,8 +1,7 @@
-From: <gregkh@linuxfoundation.org>
-Subject: Patch "vsock/virtio: Initialize core virtio vsock before registering
-	the driver" has been added to the 4.19-stable tree
-Date: Wed, 22 May 2019 08:38:36 +0200
-Message-ID: <15585071163451@kroah.com>
+From: Gerd Hoffmann <kraxel@redhat.com>
+Subject: [PATCH] drm/cirrus: remove leftover files
+Date: Wed, 22 May 2019 12:33:07 +0200
+Message-ID: <20190522103307.12711-1-kraxel__26421.1886956886$1558521216$gmane$org@redhat.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
@@ -16,136 +15,620 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: davem@davemloft.net, gregkh@linuxfoundation.org, jemoreira@google.com, kernel-team@android.com, sgarzare@redhat.com, stefanha@redhat.com, virtualization@lists.linux-foundation.org
-Cc: stable-commits@vger.kernel.org
+To: dri-devel@lists.freedesktop.org
+Cc: David Airlie <airlied@linux.ie>, open list <linux-kernel@vger.kernel.org>, "open list:DRM DRIVER FOR QEMU'S CIRRUS DEVICE" <virtualization@lists.linux-foundation.org>, Daniel Vetter <daniel@ffwll.ch>, Dave Airlie <airlied@redhat.com>
 List-Id: virtualization@lists.linuxfoundation.org
 
+cirrus_drv.h and cirrus_ttm.c are unused since commit ab3e023b1b4c
+("drm/cirrus: rewrite and modernize driver"), apparently I ran "rm"
+instead of "git rm" on them so they are still in present the tree.
 
-This is a note to let you know that I've just added the patch titled
-
-    vsock/virtio: Initialize core virtio vsock before registering the driver
-
-to the 4.19-stable tree which can be found at:
-    http://www.kernel.org/git/?p=linux/kernel/git/stable/stable-queue.git;a=summary
-
-The filename of the patch is:
-     vsock-virtio-initialize-core-virtio-vsock-before-registering-the-driver.patch
-and it can be found in the queue-4.19 subdirectory.
-
-If you, or anyone else, feels it should not be added to the stable tree,
-please let <stable@vger.kernel.org> know about it.
-
-
-From foo@baz Wed 22 May 2019 08:37:51 AM CEST
-From: "Jorge E. Moreira" <jemoreira@google.com>
-Date: Thu, 16 May 2019 13:51:07 -0700
-Subject: vsock/virtio: Initialize core virtio vsock before registering the driver
-
-From: "Jorge E. Moreira" <jemoreira@google.com>
-
-[ Upstream commit ba95e5dfd36647622d8897a2a0470dde60e59ffd ]
-
-Avoid a race in which static variables in net/vmw_vsock/af_vsock.c are
-accessed (while handling interrupts) before they are initialized.
-
-[    4.201410] BUG: unable to handle kernel paging request at ffffffffffffffe8
-[    4.207829] IP: vsock_addr_equals_addr+0x3/0x20
-[    4.211379] PGD 28210067 P4D 28210067 PUD 28212067 PMD 0
-[    4.211379] Oops: 0000 [#1] PREEMPT SMP PTI
-[    4.211379] Modules linked in:
-[    4.211379] CPU: 1 PID: 30 Comm: kworker/1:1 Not tainted 4.14.106-419297-gd7e28cc1f241 #1
-[    4.211379] Hardware name: QEMU Standard PC (i440FX + PIIX, 1996), BIOS 1.10.2-1 04/01/2014
-[    4.211379] Workqueue: virtio_vsock virtio_transport_rx_work
-[    4.211379] task: ffffa3273d175280 task.stack: ffffaea1800e8000
-[    4.211379] RIP: 0010:vsock_addr_equals_addr+0x3/0x20
-[    4.211379] RSP: 0000:ffffaea1800ebd28 EFLAGS: 00010286
-[    4.211379] RAX: 0000000000000002 RBX: 0000000000000000 RCX: ffffffffb94e42f0
-[    4.211379] RDX: 0000000000000400 RSI: ffffffffffffffe0 RDI: ffffaea1800ebdd0
-[    4.211379] RBP: ffffaea1800ebd58 R08: 0000000000000001 R09: 0000000000000001
-[    4.211379] R10: 0000000000000000 R11: ffffffffb89d5d60 R12: ffffaea1800ebdd0
-[    4.211379] R13: 00000000828cbfbf R14: 0000000000000000 R15: ffffaea1800ebdc0
-[    4.211379] FS:  0000000000000000(0000) GS:ffffa3273fd00000(0000) knlGS:0000000000000000
-[    4.211379] CS:  0010 DS: 0000 ES: 0000 CR0: 0000000080050033
-[    4.211379] CR2: ffffffffffffffe8 CR3: 000000002820e001 CR4: 00000000001606e0
-[    4.211379] DR0: 0000000000000000 DR1: 0000000000000000 DR2: 0000000000000000
-[    4.211379] DR3: 0000000000000000 DR6: 00000000fffe0ff0 DR7: 0000000000000400
-[    4.211379] Call Trace:
-[    4.211379]  ? vsock_find_connected_socket+0x6c/0xe0
-[    4.211379]  virtio_transport_recv_pkt+0x15f/0x740
-[    4.211379]  ? detach_buf+0x1b5/0x210
-[    4.211379]  virtio_transport_rx_work+0xb7/0x140
-[    4.211379]  process_one_work+0x1ef/0x480
-[    4.211379]  worker_thread+0x312/0x460
-[    4.211379]  kthread+0x132/0x140
-[    4.211379]  ? process_one_work+0x480/0x480
-[    4.211379]  ? kthread_destroy_worker+0xd0/0xd0
-[    4.211379]  ret_from_fork+0x35/0x40
-[    4.211379] Code: c7 47 08 00 00 00 00 66 c7 07 28 00 c7 47 08 ff ff ff ff c7 47 04 ff ff ff ff c3 0f 1f 00 66 2e 0f 1f 84 00 00 00 00 00 8b 47 08 <3b> 46 08 75 0a 8b 47 04 3b 46 04 0f 94 c0 c3 31 c0 c3 90 66 2e
-[    4.211379] RIP: vsock_addr_equals_addr+0x3/0x20 RSP: ffffaea1800ebd28
-[    4.211379] CR2: ffffffffffffffe8
-[    4.211379] ---[ end trace f31cc4a2e6df3689 ]---
-[    4.211379] Kernel panic - not syncing: Fatal exception in interrupt
-[    4.211379] Kernel Offset: 0x37000000 from 0xffffffff81000000 (relocation range: 0xffffffff80000000-0xffffffffbfffffff)
-[    4.211379] Rebooting in 5 seconds..
-
-Fixes: 22b5c0b63f32 ("vsock/virtio: fix kernel panic after device hot-unplug")
-Cc: Stefan Hajnoczi <stefanha@redhat.com>
-Cc: Stefano Garzarella <sgarzare@redhat.com>
-Cc: "David S. Miller" <davem@davemloft.net>
-Cc: kvm@vger.kernel.org
-Cc: virtualization@lists.linux-foundation.org
-Cc: netdev@vger.kernel.org
-Cc: kernel-team@android.com
-Cc: stable@vger.kernel.org [4.9+]
-Signed-off-by: Jorge E. Moreira <jemoreira@google.com>
-Reviewed-by: Stefano Garzarella <sgarzare@redhat.com>
-Reviewed-by: Stefan Hajnoczi <stefanha@redhat.com>
-Acked-by: Stefan Hajnoczi <stefanha@redhat.com>
-Signed-off-by: David S. Miller <davem@davemloft.net>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Signed-off-by: Gerd Hoffmann <kraxel@redhat.com>
 ---
- net/vmw_vsock/virtio_transport.c |   13 ++++++-------
- 1 file changed, 6 insertions(+), 7 deletions(-)
+ drivers/gpu/drm/cirrus/cirrus_drv.h | 250 ---------------------
+ drivers/gpu/drm/cirrus/cirrus_ttm.c | 337 ----------------------------
+ 2 files changed, 587 deletions(-)
+ delete mode 100644 drivers/gpu/drm/cirrus/cirrus_drv.h
+ delete mode 100644 drivers/gpu/drm/cirrus/cirrus_ttm.c
 
---- a/net/vmw_vsock/virtio_transport.c
-+++ b/net/vmw_vsock/virtio_transport.c
-@@ -702,28 +702,27 @@ static int __init virtio_vsock_init(void
- 	if (!virtio_vsock_workqueue)
- 		return -ENOMEM;
- 
--	ret = register_virtio_driver(&virtio_vsock_driver);
-+	ret = vsock_core_init(&virtio_transport.transport);
- 	if (ret)
- 		goto out_wq;
- 
--	ret = vsock_core_init(&virtio_transport.transport);
-+	ret = register_virtio_driver(&virtio_vsock_driver);
- 	if (ret)
--		goto out_vdr;
-+		goto out_vci;
- 
- 	return 0;
- 
--out_vdr:
--	unregister_virtio_driver(&virtio_vsock_driver);
-+out_vci:
-+	vsock_core_exit();
- out_wq:
- 	destroy_workqueue(virtio_vsock_workqueue);
- 	return ret;
+diff --git a/drivers/gpu/drm/cirrus/cirrus_drv.h b/drivers/gpu/drm/cirrus/cirrus_drv.h
+deleted file mode 100644
+index 1bd816be3aae..000000000000
+--- a/drivers/gpu/drm/cirrus/cirrus_drv.h
++++ /dev/null
+@@ -1,250 +0,0 @@
+-/*
+- * Copyright 2012 Red Hat
+- *
+- * This file is subject to the terms and conditions of the GNU General
+- * Public License version 2. See the file COPYING in the main
+- * directory of this archive for more details.
+- *
+- * Authors: Matthew Garrett
+- *          Dave Airlie
+- */
+-#ifndef __CIRRUS_DRV_H__
+-#define __CIRRUS_DRV_H__
 -
- }
- 
- static void __exit virtio_vsock_exit(void)
- {
--	vsock_core_exit();
- 	unregister_virtio_driver(&virtio_vsock_driver);
-+	vsock_core_exit();
- 	destroy_workqueue(virtio_vsock_workqueue);
- }
- 
-
-
-Patches currently in stable-queue which might be from jemoreira@google.com are
-
-queue-4.19/vsock-virtio-initialize-core-virtio-vsock-before-registering-the-driver.patch
+-#include <video/vga.h>
+-
+-#include <drm/drm_encoder.h>
+-#include <drm/drm_fb_helper.h>
+-
+-#include <drm/ttm/ttm_bo_api.h>
+-#include <drm/ttm/ttm_bo_driver.h>
+-#include <drm/ttm/ttm_placement.h>
+-#include <drm/ttm/ttm_memory.h>
+-#include <drm/ttm/ttm_module.h>
+-
+-#include <drm/drm_gem.h>
+-
+-#define DRIVER_AUTHOR		"Matthew Garrett"
+-
+-#define DRIVER_NAME		"cirrus"
+-#define DRIVER_DESC		"qemu Cirrus emulation"
+-#define DRIVER_DATE		"20110418"
+-
+-#define DRIVER_MAJOR		1
+-#define DRIVER_MINOR		0
+-#define DRIVER_PATCHLEVEL	0
+-
+-#define CIRRUSFB_CONN_LIMIT 1
+-
+-#define RREG8(reg) ioread8(((void __iomem *)cdev->rmmio) + (reg))
+-#define WREG8(reg, v) iowrite8(v, ((void __iomem *)cdev->rmmio) + (reg))
+-#define RREG32(reg) ioread32(((void __iomem *)cdev->rmmio) + (reg))
+-#define WREG32(reg, v) iowrite32(v, ((void __iomem *)cdev->rmmio) + (reg))
+-
+-#define SEQ_INDEX 4
+-#define SEQ_DATA 5
+-
+-#define WREG_SEQ(reg, v)					\
+-	do {							\
+-		WREG8(SEQ_INDEX, reg);				\
+-		WREG8(SEQ_DATA, v);				\
+-	} while (0)						\
+-
+-#define CRT_INDEX 0x14
+-#define CRT_DATA 0x15
+-
+-#define WREG_CRT(reg, v)					\
+-	do {							\
+-		WREG8(CRT_INDEX, reg);				\
+-		WREG8(CRT_DATA, v);				\
+-	} while (0)						\
+-
+-#define GFX_INDEX 0xe
+-#define GFX_DATA 0xf
+-
+-#define WREG_GFX(reg, v)					\
+-	do {							\
+-		WREG8(GFX_INDEX, reg);				\
+-		WREG8(GFX_DATA, v);				\
+-	} while (0)						\
+-
+-/*
+- * Cirrus has a "hidden" DAC register that can be accessed by writing to
+- * the pixel mask register to reset the state, then reading from the register
+- * four times. The next write will then pass to the DAC
+- */
+-#define VGA_DAC_MASK 0x6
+-
+-#define WREG_HDR(v)						\
+-	do {							\
+-		RREG8(VGA_DAC_MASK);					\
+-		RREG8(VGA_DAC_MASK);					\
+-		RREG8(VGA_DAC_MASK);					\
+-		RREG8(VGA_DAC_MASK);					\
+-		WREG8(VGA_DAC_MASK, v);					\
+-	} while (0)						\
+-
+-
+-#define CIRRUS_MAX_FB_HEIGHT 4096
+-#define CIRRUS_MAX_FB_WIDTH 4096
+-
+-#define CIRRUS_DPMS_CLEARED (-1)
+-
+-#define to_cirrus_crtc(x) container_of(x, struct cirrus_crtc, base)
+-#define to_cirrus_encoder(x) container_of(x, struct cirrus_encoder, base)
+-
+-struct cirrus_crtc {
+-	struct drm_crtc			base;
+-	int				last_dpms;
+-	bool				enabled;
+-};
+-
+-struct cirrus_fbdev;
+-struct cirrus_mode_info {
+-	struct cirrus_crtc		*crtc;
+-	/* pointer to fbdev info structure */
+-	struct cirrus_fbdev		*gfbdev;
+-};
+-
+-struct cirrus_encoder {
+-	struct drm_encoder		base;
+-	int				last_dpms;
+-};
+-
+-struct cirrus_connector {
+-	struct drm_connector		base;
+-};
+-
+-struct cirrus_mc {
+-	resource_size_t			vram_size;
+-	resource_size_t			vram_base;
+-};
+-
+-struct cirrus_device {
+-	struct drm_device		*dev;
+-	unsigned long			flags;
+-
+-	resource_size_t			rmmio_base;
+-	resource_size_t			rmmio_size;
+-	void __iomem			*rmmio;
+-
+-	struct cirrus_mc			mc;
+-	struct cirrus_mode_info		mode_info;
+-
+-	int				num_crtc;
+-	int fb_mtrr;
+-
+-	struct {
+-		struct ttm_bo_device bdev;
+-	} ttm;
+-	bool mm_inited;
+-};
+-
+-
+-struct cirrus_fbdev {
+-	struct drm_fb_helper helper; /* must be first */
+-	struct drm_framebuffer *gfb;
+-	void *sysram;
+-	int size;
+-	int x1, y1, x2, y2; /* dirty rect */
+-	spinlock_t dirty_lock;
+-};
+-
+-struct cirrus_bo {
+-	struct ttm_buffer_object bo;
+-	struct ttm_placement placement;
+-	struct ttm_bo_kmap_obj kmap;
+-	struct drm_gem_object gem;
+-	struct ttm_place placements[3];
+-	int pin_count;
+-};
+-#define gem_to_cirrus_bo(gobj) container_of((gobj), struct cirrus_bo, gem)
+-
+-static inline struct cirrus_bo *
+-cirrus_bo(struct ttm_buffer_object *bo)
+-{
+-	return container_of(bo, struct cirrus_bo, bo);
+-}
+-
+-
+-#define to_cirrus_obj(x) container_of(x, struct cirrus_gem_object, base)
+-
+-				/* cirrus_main.c */
+-int cirrus_device_init(struct cirrus_device *cdev,
+-		      struct drm_device *ddev,
+-		      struct pci_dev *pdev,
+-		      uint32_t flags);
+-void cirrus_device_fini(struct cirrus_device *cdev);
+-void cirrus_gem_free_object(struct drm_gem_object *obj);
+-int cirrus_dumb_mmap_offset(struct drm_file *file,
+-			    struct drm_device *dev,
+-			    uint32_t handle,
+-			    uint64_t *offset);
+-int cirrus_gem_create(struct drm_device *dev,
+-		   u32 size, bool iskernel,
+-		      struct drm_gem_object **obj);
+-int cirrus_dumb_create(struct drm_file *file,
+-		    struct drm_device *dev,
+-		       struct drm_mode_create_dumb *args);
+-
+-int cirrus_framebuffer_init(struct drm_device *dev,
+-			    struct drm_framebuffer *gfb,
+-			    const struct drm_mode_fb_cmd2 *mode_cmd,
+-			    struct drm_gem_object *obj);
+-
+-bool cirrus_check_framebuffer(struct cirrus_device *cdev, int width, int height,
+-			      int bpp, int pitch);
+-
+-				/* cirrus_display.c */
+-int cirrus_modeset_init(struct cirrus_device *cdev);
+-void cirrus_modeset_fini(struct cirrus_device *cdev);
+-
+-				/* cirrus_fbdev.c */
+-int cirrus_fbdev_init(struct cirrus_device *cdev);
+-void cirrus_fbdev_fini(struct cirrus_device *cdev);
+-
+-
+-
+-				/* cirrus_irq.c */
+-void cirrus_driver_irq_preinstall(struct drm_device *dev);
+-int cirrus_driver_irq_postinstall(struct drm_device *dev);
+-void cirrus_driver_irq_uninstall(struct drm_device *dev);
+-irqreturn_t cirrus_driver_irq_handler(int irq, void *arg);
+-
+-				/* cirrus_kms.c */
+-int cirrus_driver_load(struct drm_device *dev, unsigned long flags);
+-void cirrus_driver_unload(struct drm_device *dev);
+-extern struct drm_ioctl_desc cirrus_ioctls[];
+-extern int cirrus_max_ioctl;
+-
+-int cirrus_mm_init(struct cirrus_device *cirrus);
+-void cirrus_mm_fini(struct cirrus_device *cirrus);
+-void cirrus_ttm_placement(struct cirrus_bo *bo, int domain);
+-int cirrus_bo_create(struct drm_device *dev, int size, int align,
+-		     uint32_t flags, struct cirrus_bo **pcirrusbo);
+-int cirrus_mmap(struct file *filp, struct vm_area_struct *vma);
+-
+-static inline int cirrus_bo_reserve(struct cirrus_bo *bo, bool no_wait)
+-{
+-	int ret;
+-
+-	ret = ttm_bo_reserve(&bo->bo, true, no_wait, NULL);
+-	if (ret) {
+-		if (ret != -ERESTARTSYS && ret != -EBUSY)
+-			DRM_ERROR("reserve failed %p\n", bo);
+-		return ret;
+-	}
+-	return 0;
+-}
+-
+-static inline void cirrus_bo_unreserve(struct cirrus_bo *bo)
+-{
+-	ttm_bo_unreserve(&bo->bo);
+-}
+-
+-int cirrus_bo_push_sysram(struct cirrus_bo *bo);
+-int cirrus_bo_pin(struct cirrus_bo *bo, u32 pl_flag, u64 *gpu_addr);
+-
+-extern int cirrus_bpp;
+-
+-#endif				/* __CIRRUS_DRV_H__ */
+diff --git a/drivers/gpu/drm/cirrus/cirrus_ttm.c b/drivers/gpu/drm/cirrus/cirrus_ttm.c
+deleted file mode 100644
+index e6b98467a428..000000000000
+--- a/drivers/gpu/drm/cirrus/cirrus_ttm.c
++++ /dev/null
+@@ -1,337 +0,0 @@
+-/*
+- * Copyright 2012 Red Hat Inc.
+- *
+- * Permission is hereby granted, free of charge, to any person obtaining a
+- * copy of this software and associated documentation files (the
+- * "Software"), to deal in the Software without restriction, including
+- * without limitation the rights to use, copy, modify, merge, publish,
+- * distribute, sub license, and/or sell copies of the Software, and to
+- * permit persons to whom the Software is furnished to do so, subject to
+- * the following conditions:
+- *
+- * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+- * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+- * FITNESS FOR A PARTICULAR PURPOSE AND NON-INFRINGEMENT. IN NO EVENT SHALL
+- * THE COPYRIGHT HOLDERS, AUTHORS AND/OR ITS SUPPLIERS BE LIABLE FOR ANY CLAIM,
+- * DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR
+- * OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE
+- * USE OR OTHER DEALINGS IN THE SOFTWARE.
+- *
+- * The above copyright notice and this permission notice (including the
+- * next paragraph) shall be included in all copies or substantial portions
+- * of the Software.
+- *
+- */
+-/*
+- * Authors: Dave Airlie <airlied@redhat.com>
+- */
+-#include <drm/drmP.h>
+-#include <drm/ttm/ttm_page_alloc.h>
+-
+-#include "cirrus_drv.h"
+-
+-static inline struct cirrus_device *
+-cirrus_bdev(struct ttm_bo_device *bd)
+-{
+-	return container_of(bd, struct cirrus_device, ttm.bdev);
+-}
+-
+-static void cirrus_bo_ttm_destroy(struct ttm_buffer_object *tbo)
+-{
+-	struct cirrus_bo *bo;
+-
+-	bo = container_of(tbo, struct cirrus_bo, bo);
+-
+-	drm_gem_object_release(&bo->gem);
+-	kfree(bo);
+-}
+-
+-static bool cirrus_ttm_bo_is_cirrus_bo(struct ttm_buffer_object *bo)
+-{
+-	if (bo->destroy == &cirrus_bo_ttm_destroy)
+-		return true;
+-	return false;
+-}
+-
+-static int
+-cirrus_bo_init_mem_type(struct ttm_bo_device *bdev, uint32_t type,
+-		     struct ttm_mem_type_manager *man)
+-{
+-	switch (type) {
+-	case TTM_PL_SYSTEM:
+-		man->flags = TTM_MEMTYPE_FLAG_MAPPABLE;
+-		man->available_caching = TTM_PL_MASK_CACHING;
+-		man->default_caching = TTM_PL_FLAG_CACHED;
+-		break;
+-	case TTM_PL_VRAM:
+-		man->func = &ttm_bo_manager_func;
+-		man->flags = TTM_MEMTYPE_FLAG_FIXED |
+-			TTM_MEMTYPE_FLAG_MAPPABLE;
+-		man->available_caching = TTM_PL_FLAG_UNCACHED |
+-			TTM_PL_FLAG_WC;
+-		man->default_caching = TTM_PL_FLAG_WC;
+-		break;
+-	default:
+-		DRM_ERROR("Unsupported memory type %u\n", (unsigned)type);
+-		return -EINVAL;
+-	}
+-	return 0;
+-}
+-
+-static void
+-cirrus_bo_evict_flags(struct ttm_buffer_object *bo, struct ttm_placement *pl)
+-{
+-	struct cirrus_bo *cirrusbo = cirrus_bo(bo);
+-
+-	if (!cirrus_ttm_bo_is_cirrus_bo(bo))
+-		return;
+-
+-	cirrus_ttm_placement(cirrusbo, TTM_PL_FLAG_SYSTEM);
+-	*pl = cirrusbo->placement;
+-}
+-
+-static int cirrus_bo_verify_access(struct ttm_buffer_object *bo, struct file *filp)
+-{
+-	struct cirrus_bo *cirrusbo = cirrus_bo(bo);
+-
+-	return drm_vma_node_verify_access(&cirrusbo->gem.vma_node,
+-					  filp->private_data);
+-}
+-
+-static int cirrus_ttm_io_mem_reserve(struct ttm_bo_device *bdev,
+-				  struct ttm_mem_reg *mem)
+-{
+-	struct ttm_mem_type_manager *man = &bdev->man[mem->mem_type];
+-	struct cirrus_device *cirrus = cirrus_bdev(bdev);
+-
+-	mem->bus.addr = NULL;
+-	mem->bus.offset = 0;
+-	mem->bus.size = mem->num_pages << PAGE_SHIFT;
+-	mem->bus.base = 0;
+-	mem->bus.is_iomem = false;
+-	if (!(man->flags & TTM_MEMTYPE_FLAG_MAPPABLE))
+-		return -EINVAL;
+-	switch (mem->mem_type) {
+-	case TTM_PL_SYSTEM:
+-		/* system memory */
+-		return 0;
+-	case TTM_PL_VRAM:
+-		mem->bus.offset = mem->start << PAGE_SHIFT;
+-		mem->bus.base = pci_resource_start(cirrus->dev->pdev, 0);
+-		mem->bus.is_iomem = true;
+-		break;
+-	default:
+-		return -EINVAL;
+-		break;
+-	}
+-	return 0;
+-}
+-
+-static void cirrus_ttm_io_mem_free(struct ttm_bo_device *bdev, struct ttm_mem_reg *mem)
+-{
+-}
+-
+-static void cirrus_ttm_backend_destroy(struct ttm_tt *tt)
+-{
+-	ttm_tt_fini(tt);
+-	kfree(tt);
+-}
+-
+-static struct ttm_backend_func cirrus_tt_backend_func = {
+-	.destroy = &cirrus_ttm_backend_destroy,
+-};
+-
+-
+-static struct ttm_tt *cirrus_ttm_tt_create(struct ttm_buffer_object *bo,
+-					   uint32_t page_flags)
+-{
+-	struct ttm_tt *tt;
+-
+-	tt = kzalloc(sizeof(struct ttm_tt), GFP_KERNEL);
+-	if (tt == NULL)
+-		return NULL;
+-	tt->func = &cirrus_tt_backend_func;
+-	if (ttm_tt_init(tt, bo, page_flags)) {
+-		kfree(tt);
+-		return NULL;
+-	}
+-	return tt;
+-}
+-
+-struct ttm_bo_driver cirrus_bo_driver = {
+-	.ttm_tt_create = cirrus_ttm_tt_create,
+-	.init_mem_type = cirrus_bo_init_mem_type,
+-	.eviction_valuable = ttm_bo_eviction_valuable,
+-	.evict_flags = cirrus_bo_evict_flags,
+-	.move = NULL,
+-	.verify_access = cirrus_bo_verify_access,
+-	.io_mem_reserve = &cirrus_ttm_io_mem_reserve,
+-	.io_mem_free = &cirrus_ttm_io_mem_free,
+-};
+-
+-int cirrus_mm_init(struct cirrus_device *cirrus)
+-{
+-	int ret;
+-	struct drm_device *dev = cirrus->dev;
+-	struct ttm_bo_device *bdev = &cirrus->ttm.bdev;
+-
+-	ret = ttm_bo_device_init(&cirrus->ttm.bdev,
+-				 &cirrus_bo_driver,
+-				 dev->anon_inode->i_mapping,
+-				 true);
+-	if (ret) {
+-		DRM_ERROR("Error initialising bo driver; %d\n", ret);
+-		return ret;
+-	}
+-
+-	ret = ttm_bo_init_mm(bdev, TTM_PL_VRAM,
+-			     cirrus->mc.vram_size >> PAGE_SHIFT);
+-	if (ret) {
+-		DRM_ERROR("Failed ttm VRAM init: %d\n", ret);
+-		return ret;
+-	}
+-
+-	arch_io_reserve_memtype_wc(pci_resource_start(dev->pdev, 0),
+-				   pci_resource_len(dev->pdev, 0));
+-
+-	cirrus->fb_mtrr = arch_phys_wc_add(pci_resource_start(dev->pdev, 0),
+-					   pci_resource_len(dev->pdev, 0));
+-
+-	cirrus->mm_inited = true;
+-	return 0;
+-}
+-
+-void cirrus_mm_fini(struct cirrus_device *cirrus)
+-{
+-	struct drm_device *dev = cirrus->dev;
+-
+-	if (!cirrus->mm_inited)
+-		return;
+-
+-	ttm_bo_device_release(&cirrus->ttm.bdev);
+-
+-	arch_phys_wc_del(cirrus->fb_mtrr);
+-	cirrus->fb_mtrr = 0;
+-	arch_io_free_memtype_wc(pci_resource_start(dev->pdev, 0),
+-				pci_resource_len(dev->pdev, 0));
+-}
+-
+-void cirrus_ttm_placement(struct cirrus_bo *bo, int domain)
+-{
+-	u32 c = 0;
+-	unsigned i;
+-	bo->placement.placement = bo->placements;
+-	bo->placement.busy_placement = bo->placements;
+-	if (domain & TTM_PL_FLAG_VRAM)
+-		bo->placements[c++].flags = TTM_PL_FLAG_WC | TTM_PL_FLAG_UNCACHED | TTM_PL_FLAG_VRAM;
+-	if (domain & TTM_PL_FLAG_SYSTEM)
+-		bo->placements[c++].flags = TTM_PL_MASK_CACHING | TTM_PL_FLAG_SYSTEM;
+-	if (!c)
+-		bo->placements[c++].flags = TTM_PL_MASK_CACHING | TTM_PL_FLAG_SYSTEM;
+-	bo->placement.num_placement = c;
+-	bo->placement.num_busy_placement = c;
+-	for (i = 0; i < c; ++i) {
+-		bo->placements[i].fpfn = 0;
+-		bo->placements[i].lpfn = 0;
+-	}
+-}
+-
+-int cirrus_bo_create(struct drm_device *dev, int size, int align,
+-		  uint32_t flags, struct cirrus_bo **pcirrusbo)
+-{
+-	struct cirrus_device *cirrus = dev->dev_private;
+-	struct cirrus_bo *cirrusbo;
+-	size_t acc_size;
+-	int ret;
+-
+-	cirrusbo = kzalloc(sizeof(struct cirrus_bo), GFP_KERNEL);
+-	if (!cirrusbo)
+-		return -ENOMEM;
+-
+-	ret = drm_gem_object_init(dev, &cirrusbo->gem, size);
+-	if (ret) {
+-		kfree(cirrusbo);
+-		return ret;
+-	}
+-
+-	cirrusbo->bo.bdev = &cirrus->ttm.bdev;
+-
+-	cirrus_ttm_placement(cirrusbo, TTM_PL_FLAG_VRAM | TTM_PL_FLAG_SYSTEM);
+-
+-	acc_size = ttm_bo_dma_acc_size(&cirrus->ttm.bdev, size,
+-				       sizeof(struct cirrus_bo));
+-
+-	ret = ttm_bo_init(&cirrus->ttm.bdev, &cirrusbo->bo, size,
+-			  ttm_bo_type_device, &cirrusbo->placement,
+-			  align >> PAGE_SHIFT, false, acc_size,
+-			  NULL, NULL, cirrus_bo_ttm_destroy);
+-	if (ret)
+-		return ret;
+-
+-	*pcirrusbo = cirrusbo;
+-	return 0;
+-}
+-
+-static inline u64 cirrus_bo_gpu_offset(struct cirrus_bo *bo)
+-{
+-	return bo->bo.offset;
+-}
+-
+-int cirrus_bo_pin(struct cirrus_bo *bo, u32 pl_flag, u64 *gpu_addr)
+-{
+-	struct ttm_operation_ctx ctx = { false, false };
+-	int i, ret;
+-
+-	if (bo->pin_count) {
+-		bo->pin_count++;
+-		if (gpu_addr)
+-			*gpu_addr = cirrus_bo_gpu_offset(bo);
+-	}
+-
+-	cirrus_ttm_placement(bo, pl_flag);
+-	for (i = 0; i < bo->placement.num_placement; i++)
+-		bo->placements[i].flags |= TTM_PL_FLAG_NO_EVICT;
+-	ret = ttm_bo_validate(&bo->bo, &bo->placement, &ctx);
+-	if (ret)
+-		return ret;
+-
+-	bo->pin_count = 1;
+-	if (gpu_addr)
+-		*gpu_addr = cirrus_bo_gpu_offset(bo);
+-	return 0;
+-}
+-
+-int cirrus_bo_push_sysram(struct cirrus_bo *bo)
+-{
+-	struct ttm_operation_ctx ctx = { false, false };
+-	int i, ret;
+-	if (!bo->pin_count) {
+-		DRM_ERROR("unpin bad %p\n", bo);
+-		return 0;
+-	}
+-	bo->pin_count--;
+-	if (bo->pin_count)
+-		return 0;
+-
+-	if (bo->kmap.virtual)
+-		ttm_bo_kunmap(&bo->kmap);
+-
+-	cirrus_ttm_placement(bo, TTM_PL_FLAG_SYSTEM);
+-	for (i = 0; i < bo->placement.num_placement ; i++)
+-		bo->placements[i].flags |= TTM_PL_FLAG_NO_EVICT;
+-
+-	ret = ttm_bo_validate(&bo->bo, &bo->placement, &ctx);
+-	if (ret) {
+-		DRM_ERROR("pushing to VRAM failed\n");
+-		return ret;
+-	}
+-	return 0;
+-}
+-
+-int cirrus_mmap(struct file *filp, struct vm_area_struct *vma)
+-{
+-	struct drm_file *file_priv = filp->private_data;
+-	struct cirrus_device *cirrus = file_priv->minor->dev->dev_private;
+-
+-	return ttm_bo_mmap(filp, vma, &cirrus->ttm.bdev);
+-}
+-- 
+2.18.1
