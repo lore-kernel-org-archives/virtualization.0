@@ -1,8 +1,8 @@
 From: <gregkh@linuxfoundation.org>
 Subject: Patch "vsock/virtio: Initialize core virtio vsock before registering
-	the driver" has been added to the 5.1-stable tree
-Date: Wed, 22 May 2019 08:36:28 +0200
-Message-ID: <1558506988510@kroah.com>
+	the driver" has been added to the 4.19-stable tree
+Date: Wed, 22 May 2019 08:38:36 +0200
+Message-ID: <15585071163451@kroah.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
@@ -25,18 +25,18 @@ This is a note to let you know that I've just added the patch titled
 
     vsock/virtio: Initialize core virtio vsock before registering the driver
 
-to the 5.1-stable tree which can be found at:
+to the 4.19-stable tree which can be found at:
     http://www.kernel.org/git/?p=linux/kernel/git/stable/stable-queue.git;a=summary
 
 The filename of the patch is:
      vsock-virtio-initialize-core-virtio-vsock-before-registering-the-driver.patch
-and it can be found in the queue-5.1 subdirectory.
+and it can be found in the queue-4.19 subdirectory.
 
 If you, or anyone else, feels it should not be added to the stable tree,
 please let <stable@vger.kernel.org> know about it.
 
 
-From foo@baz Wed 22 May 2019 08:34:59 AM CEST
+From foo@baz Wed 22 May 2019 08:37:51 AM CEST
 From: "Jorge E. Moreira" <jemoreira@google.com>
 Date: Thu, 16 May 2019 13:51:07 -0700
 Subject: vsock/virtio: Initialize core virtio vsock before registering the driver
@@ -148,4 +148,4 @@ Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 Patches currently in stable-queue which might be from jemoreira@google.com are
 
-queue-5.1/vsock-virtio-initialize-core-virtio-vsock-before-registering-the-driver.patch
+queue-4.19/vsock-virtio-initialize-core-virtio-vsock-before-registering-the-driver.patch
