@@ -1,8 +1,8 @@
 From: <gregkh@linuxfoundation.org>
 Subject: Patch "vsock/virtio: Initialize core virtio vsock before registering
-	the driver" has been added to the 4.14-stable tree
-Date: Wed, 22 May 2019 18:52:22 +0200
-Message-ID: <15585439422738@kroah.com>
+	the driver" has been added to the 4.9-stable tree
+Date: Wed, 22 May 2019 19:32:16 +0200
+Message-ID: <15585463369583@kroah.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
@@ -25,18 +25,18 @@ This is a note to let you know that I've just added the patch titled
 
     vsock/virtio: Initialize core virtio vsock before registering the driver
 
-to the 4.14-stable tree which can be found at:
+to the 4.9-stable tree which can be found at:
     http://www.kernel.org/git/?p=linux/kernel/git/stable/stable-queue.git;a=summary
 
 The filename of the patch is:
      vsock-virtio-initialize-core-virtio-vsock-before-registering-the-driver.patch
-and it can be found in the queue-4.14 subdirectory.
+and it can be found in the queue-4.9 subdirectory.
 
 If you, or anyone else, feels it should not be added to the stable tree,
 please let <stable@vger.kernel.org> know about it.
 
 
-From foo@baz Wed 22 May 2019 06:44:44 PM CEST
+From foo@baz Wed 22 May 2019 06:53:31 PM CEST
 From: "Jorge E. Moreira" <jemoreira@google.com>
 Date: Thu, 16 May 2019 13:51:07 -0700
 Subject: vsock/virtio: Initialize core virtio vsock before registering the driver
@@ -109,7 +109,7 @@ Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 --- a/net/vmw_vsock/virtio_transport.c
 +++ b/net/vmw_vsock/virtio_transport.c
-@@ -702,28 +702,27 @@ static int __init virtio_vsock_init(void
+@@ -600,28 +600,27 @@ static int __init virtio_vsock_init(void
  	if (!virtio_vsock_workqueue)
  		return -ENOMEM;
  
@@ -148,4 +148,4 @@ Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 Patches currently in stable-queue which might be from jemoreira@google.com are
 
-queue-4.14/vsock-virtio-initialize-core-virtio-vsock-before-registering-the-driver.patch
+queue-4.9/vsock-virtio-initialize-core-virtio-vsock-before-registering-the-driver.patch
