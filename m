@@ -1,14 +1,14 @@
 From: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-Subject: [PATCH 4.19 014/114] vsock/virtio: Initialize core virtio vsock
-	before registering the driver
-Date: Thu, 23 May 2019 21:05:13 +0200
-Message-ID: <20190523181733.037694312__30539.3533127912$1558638936$gmane$org@linuxfoundation.org>
-References: <20190523181731.372074275@linuxfoundation.org>
+Subject: [PATCH 5.0 014/139] vsock/virtio: Initialize core virtio vsock before
+	registering the driver
+Date: Thu, 23 May 2019 21:05:02 +0200
+Message-ID: <20190523181722.326937126__5375.17086356587$1558639317$gmane$org@linuxfoundation.org>
+References: <20190523181720.120897565@linuxfoundation.org>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <20190523181731.372074275@linuxfoundation.org>
+In-Reply-To: <20190523181720.120897565@linuxfoundation.org>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
