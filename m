@@ -1,15 +1,15 @@
 From: Gerd Hoffmann <kraxel@redhat.com>
-Subject: Re: [PATCH] drm/cirrus: remove leftover files
-Date: Thu, 23 May 2019 12:13:36 +0200
-Message-ID: <20190523101336.thknzetzyx3j6sa7__17993.4640925907$1558606443$gmane$org@sirius.home.kraxel.org>
-References: <20190522103307.12711-1-kraxel@redhat.com>
-	<20190522150634.GA26677@ravnborg.org>
+Subject: Re: [PATCH 2/4] drm/virtio: remove irrelevant DRM_UNLOCKED flag
+Date: Thu, 23 May 2019 12:19:41 +0200
+Message-ID: <20190523101941.dadeepnc3ynms5of@sirius.home.kraxel.org>
+References: <20190522154702.16269-1-emil.l.velikov@gmail.com>
+	<20190522154702.16269-2-emil.l.velikov@gmail.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
 Content-Disposition: inline
-In-Reply-To: <20190522150634.GA26677@ravnborg.org>
+In-Reply-To: <20190522154702.16269-2-emil.l.velikov@gmail.com>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -19,23 +19,16 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Sam Ravnborg <sam@ravnborg.org>
-Cc: David Airlie <airlied@linux.ie>, Dave Airlie <airlied@redhat.com>, open list <linux-kernel@vger.kernel.org>, dri-devel@lists.freedesktop.org, "open list:DRM DRIVER FOR QEMU'S CIRRUS DEVICE" <virtualization@lists.linux-foundation.org>
+To: Emil Velikov <emil.l.velikov@gmail.com>
+Cc: David Airlie <airlied@linux.ie>, kernel@collabora.com, Daniel Vetter <daniel@ffwll.ch>, dri-devel@lists.freedesktop.org, virtualization@lists.linux-foundation.org
 List-Id: virtualization@lists.linuxfoundation.org
 
-On Wed, May 22, 2019 at 05:06:34PM +0200, Sam Ravnborg wrote:
-> On Wed, May 22, 2019 at 12:33:07PM +0200, Gerd Hoffmann wrote:
-> > cirrus_drv.h and cirrus_ttm.c are unused since commit ab3e023b1b4c
-> > ("drm/cirrus: rewrite and modernize driver"), apparently I ran "rm"
-> > instead of "git rm" on them so they are still in present the tree.
-> > 
-> > Signed-off-by: Gerd Hoffmann <kraxel@redhat.com>
-> Reviewed-by: Sam Ravnborg <sam@ravnborg.org>
+On Wed, May 22, 2019 at 04:47:00PM +0100, Emil Velikov wrote:
+> From: Emil Velikov <emil.velikov@collabora.com>
 > 
-> Always nice with the code removal patches.
-> Will you apply yourself?
+> DRM_UNLOCKED doesn't do anything for non-legacy drivers. Remove it.
 
-Yes.
+Patch applied to drm-misc-next.
 
 thanks,
   Gerd
