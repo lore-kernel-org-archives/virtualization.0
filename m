@@ -1,7 +1,7 @@
 From: Michael Mueller <mimu@linux.ibm.com>
-Subject: [PATCH v2 2/8] s390/cio: introduce DMA pools to cio
-Date: Thu, 23 May 2019 18:22:03 +0200
-Message-ID: <20190523162209.9543-3-mimu@linux.ibm.com>
+Subject: [PATCH v2 1/8] s390/mm: force swiotlb for protected virtualization
+Date: Thu, 23 May 2019 18:22:02 +0200
+Message-ID: <20190523162209.9543-2-mimu@linux.ibm.com>
 References: <20190523162209.9543-1-mimu@linux.ibm.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
@@ -23,205 +23,151 @@ List-Id: virtualization@lists.linuxfoundation.org
 
 From: Halil Pasic <pasic@linux.ibm.com>
 
-To support protected virtualization cio will need to make sure the
-memory used for communication with the hypervisor is DMA memory.
+On s390, protected virtualization guests have to use bounced I/O
+buffers.  That requires some plumbing.
 
-Let us introduce one global cio, and some tools for pools seated
-at individual devices.
-
-Our DMA pools are implemented as a gen_pool backed with DMA pages. The
-idea is to avoid each allocation effectively wasting a page, as we
-typically allocate much less than PAGE_SIZE.
+Let us make sure, any device that uses DMA API with direct ops correctly
+is spared from the problems, that a hypervisor attempting I/O to a
+non-shared page would bring.
 
 Signed-off-by: Halil Pasic <pasic@linux.ibm.com>
+Reviewed-by: Claudio Imbrenda <imbrenda@linux.ibm.com>
 ---
- arch/s390/Kconfig           |   1 +
- arch/s390/include/asm/cio.h |  11 +++++
- drivers/s390/cio/css.c      | 110 ++++++++++++++++++++++++++++++++++++++++++++
- 3 files changed, 122 insertions(+)
+ arch/s390/Kconfig                   |  4 ++++
+ arch/s390/include/asm/mem_encrypt.h | 18 ++++++++++++++
+ arch/s390/mm/init.c                 | 47 +++++++++++++++++++++++++++++++++++++
+ 3 files changed, 69 insertions(+)
+ create mode 100644 arch/s390/include/asm/mem_encrypt.h
 
 diff --git a/arch/s390/Kconfig b/arch/s390/Kconfig
-index 88d8355b7bf7..2a245b56db8b 100644
+index 109243fdb6ec..88d8355b7bf7 100644
 --- a/arch/s390/Kconfig
 +++ b/arch/s390/Kconfig
-@@ -191,6 +191,7 @@ config S390
+@@ -1,4 +1,7 @@
+ # SPDX-License-Identifier: GPL-2.0
++config ARCH_HAS_MEM_ENCRYPT
++        def_bool y
++
+ config MMU
+ 	def_bool y
+ 
+@@ -187,6 +190,7 @@ config S390
+ 	select VIRT_CPU_ACCOUNTING
  	select ARCH_HAS_SCALED_CPUTIME
  	select HAVE_NMI
- 	select SWIOTLB
-+	select GENERIC_ALLOCATOR
++	select SWIOTLB
  
  
  config SCHED_OMIT_FRAME_POINTER
-diff --git a/arch/s390/include/asm/cio.h b/arch/s390/include/asm/cio.h
-index 1727180e8ca1..43c007d2775a 100644
---- a/arch/s390/include/asm/cio.h
-+++ b/arch/s390/include/asm/cio.h
-@@ -328,6 +328,17 @@ static inline u8 pathmask_to_pos(u8 mask)
- void channel_subsystem_reinit(void);
- extern void css_schedule_reprobe(void);
- 
-+extern void *cio_dma_zalloc(size_t size);
-+extern void cio_dma_free(void *cpu_addr, size_t size);
-+extern struct device *cio_get_dma_css_dev(void);
+diff --git a/arch/s390/include/asm/mem_encrypt.h b/arch/s390/include/asm/mem_encrypt.h
+new file mode 100644
+index 000000000000..0898c09a888c
+--- /dev/null
++++ b/arch/s390/include/asm/mem_encrypt.h
+@@ -0,0 +1,18 @@
++/* SPDX-License-Identifier: GPL-2.0 */
++#ifndef S390_MEM_ENCRYPT_H__
++#define S390_MEM_ENCRYPT_H__
 +
-+struct gen_pool;
-+void *cio_gp_dma_zalloc(struct gen_pool *gp_dma, struct device *dma_dev,
-+			size_t size);
-+void cio_gp_dma_free(struct gen_pool *gp_dma, void *cpu_addr, size_t size);
-+void cio_gp_dma_destroy(struct gen_pool *gp_dma, struct device *dma_dev);
-+struct gen_pool *cio_gp_dma_create(struct device *dma_dev, int nr_pages);
++#ifndef __ASSEMBLY__
 +
- /* Function from drivers/s390/cio/chsc.c */
- int chsc_sstpc(void *page, unsigned int op, u16 ctrl, u64 *clock_delta);
- int chsc_sstpi(void *page, void *result, size_t size);
-diff --git a/drivers/s390/cio/css.c b/drivers/s390/cio/css.c
-index aea502922646..789f6ecdbbcc 100644
---- a/drivers/s390/cio/css.c
-+++ b/drivers/s390/cio/css.c
-@@ -20,6 +20,8 @@
- #include <linux/reboot.h>
- #include <linux/suspend.h>
- #include <linux/proc_fs.h>
-+#include <linux/genalloc.h>
++#define sme_me_mask	0ULL
++
++static inline bool sme_active(void) { return false; }
++extern bool sev_active(void);
++
++int set_memory_encrypted(unsigned long addr, int numpages);
++int set_memory_decrypted(unsigned long addr, int numpages);
++
++#endif	/* __ASSEMBLY__ */
++
++#endif	/* S390_MEM_ENCRYPT_H__ */
++
+diff --git a/arch/s390/mm/init.c b/arch/s390/mm/init.c
+index 14d1eae9fe43..f0bee6af3960 100644
+--- a/arch/s390/mm/init.c
++++ b/arch/s390/mm/init.c
+@@ -18,6 +18,7 @@
+ #include <linux/mman.h>
+ #include <linux/mm.h>
+ #include <linux/swap.h>
++#include <linux/swiotlb.h>
+ #include <linux/smp.h>
+ #include <linux/init.h>
+ #include <linux/pagemap.h>
+@@ -29,6 +30,7 @@
+ #include <linux/export.h>
+ #include <linux/cma.h>
+ #include <linux/gfp.h>
 +#include <linux/dma-mapping.h>
- #include <asm/isc.h>
- #include <asm/crw.h>
+ #include <asm/processor.h>
+ #include <linux/uaccess.h>
+ #include <asm/pgtable.h>
+@@ -42,6 +44,8 @@
+ #include <asm/sclp.h>
+ #include <asm/set_memory.h>
+ #include <asm/kasan.h>
++#include <asm/dma-mapping.h>
++#include <asm/uv.h>
  
-@@ -224,6 +226,8 @@ struct subchannel *css_alloc_subchannel(struct subchannel_id schid,
- 	INIT_WORK(&sch->todo_work, css_sch_todo);
- 	sch->dev.release = &css_subchannel_release;
- 	device_initialize(&sch->dev);
-+	sch->dev.coherent_dma_mask = DMA_BIT_MASK(31);
-+	sch->dev.dma_mask = &sch->dev.coherent_dma_mask;
- 	return sch;
+ pgd_t swapper_pg_dir[PTRS_PER_PGD] __section(.bss..swapper_pg_dir);
  
- err:
-@@ -899,6 +903,8 @@ static int __init setup_css(int nr)
- 	dev_set_name(&css->device, "css%x", nr);
- 	css->device.groups = cssdev_attr_groups;
- 	css->device.release = channel_subsystem_release;
-+	css->device.coherent_dma_mask = DMA_BIT_MASK(64);
-+	css->device.dma_mask = &css->device.coherent_dma_mask;
+@@ -128,6 +132,47 @@ void mark_rodata_ro(void)
+ 	pr_info("Write protected read-only-after-init data: %luk\n", size >> 10);
+ }
  
- 	mutex_init(&css->mutex);
- 	css->cssid = chsc_get_cssid(nr);
-@@ -1018,6 +1024,109 @@ static struct notifier_block css_power_notifier = {
- 	.notifier_call = css_power_event,
- };
- 
-+#define POOL_INIT_PAGES 1
-+static struct gen_pool *cio_dma_pool;
-+/* Currently cio supports only a single css */
-+#define  CIO_DMA_GFP (GFP_KERNEL | __GFP_ZERO)
-+
-+
-+struct device *cio_get_dma_css_dev(void)
++int set_memory_encrypted(unsigned long addr, int numpages)
 +{
-+	return &channel_subsystems[0]->device;
-+}
-+
-+struct gen_pool *cio_gp_dma_create(struct device *dma_dev, int nr_pages)
-+{
-+	struct gen_pool *gp_dma;
-+	void *cpu_addr;
-+	dma_addr_t dma_addr;
 +	int i;
 +
-+	gp_dma = gen_pool_create(3, -1);
-+	if (!gp_dma)
-+		return NULL;
-+	for (i = 0; i < nr_pages; ++i) {
-+		cpu_addr = dma_alloc_coherent(dma_dev, PAGE_SIZE, &dma_addr,
-+					      CIO_DMA_GFP);
-+		if (!cpu_addr)
-+			return gp_dma;
-+		gen_pool_add_virt(gp_dma, (unsigned long) cpu_addr,
-+				  dma_addr, PAGE_SIZE, -1);
++	/* make specified pages unshared, (swiotlb, dma_free) */
++	for (i = 0; i < numpages; ++i) {
++		uv_remove_shared(addr);
++		addr += PAGE_SIZE;
 +	}
-+	return gp_dma;
++	return 0;
 +}
 +
-+static void __gp_dma_free_dma(struct gen_pool *pool,
-+			      struct gen_pool_chunk *chunk, void *data)
++int set_memory_decrypted(unsigned long addr, int numpages)
 +{
-+	size_t chunk_size = chunk->end_addr - chunk->start_addr + 1;
-+
-+	dma_free_coherent((struct device *) data, chunk_size,
-+			 (void *) chunk->start_addr,
-+			 (dma_addr_t) chunk->phys_addr);
-+}
-+
-+void cio_gp_dma_destroy(struct gen_pool *gp_dma, struct device *dma_dev)
-+{
-+	if (!gp_dma)
-+		return;
-+	/* this is qite ugly but no better idea */
-+	gen_pool_for_each_chunk(gp_dma, __gp_dma_free_dma, dma_dev);
-+	gen_pool_destroy(gp_dma);
-+}
-+
-+static void __init cio_dma_pool_init(void)
-+{
-+	/* No need to free up the resources: compiled in */
-+	cio_dma_pool = cio_gp_dma_create(cio_get_dma_css_dev(), 1);
-+}
-+
-+void *cio_gp_dma_zalloc(struct gen_pool *gp_dma, struct device *dma_dev,
-+			size_t size)
-+{
-+	dma_addr_t dma_addr;
-+	unsigned long addr;
-+	size_t chunk_size;
-+
-+	addr = gen_pool_alloc(gp_dma, size);
-+	while (!addr) {
-+		chunk_size = round_up(size, PAGE_SIZE);
-+		addr = (unsigned long) dma_alloc_coherent(dma_dev,
-+					 chunk_size, &dma_addr, CIO_DMA_GFP);
-+		if (!addr)
-+			return NULL;
-+		gen_pool_add_virt(gp_dma, addr, dma_addr, chunk_size, -1);
-+		addr = gen_pool_alloc(gp_dma, size);
++	int i;
++	/* make specified pages shared (swiotlb, dma_alloca) */
++	for (i = 0; i < numpages; ++i) {
++		uv_set_shared(addr);
++		addr += PAGE_SIZE;
 +	}
-+	return (void *) addr;
++	return 0;
 +}
 +
-+void cio_gp_dma_free(struct gen_pool *gp_dma, void *cpu_addr, size_t size)
++/* are we a protected virtualization guest? */
++bool sev_active(void)
 +{
-+	if (!cpu_addr)
++	return is_prot_virt_guest();
++}
++
++/* protected virtualization */
++static void pv_init(void)
++{
++	if (!is_prot_virt_guest())
 +		return;
-+	memset(cpu_addr, 0, size);
-+	gen_pool_free(gp_dma, (unsigned long) cpu_addr, size);
++
++	/* make sure bounce buffers are shared */
++	swiotlb_init(1);
++	swiotlb_update_mem_attributes();
++	swiotlb_force = SWIOTLB_FORCE;
 +}
 +
-+/**
-+ * Allocate dma memory from the css global pool. Intended for memory not
-+ * specific to any single device within the css. The allocated memory
-+ * is not guaranteed to be 31-bit addressable.
-+ *
-+ * Caution: Not suitable for early stuff like console.
-+ *
-+ */
-+void *cio_dma_zalloc(size_t size)
-+{
-+	return cio_gp_dma_zalloc(cio_dma_pool, cio_get_dma_css_dev(), size);
-+}
-+
-+void cio_dma_free(void *cpu_addr, size_t size)
-+{
-+	cio_gp_dma_free(cio_dma_pool, cpu_addr, size);
-+}
-+
- /*
-  * Now that the driver core is running, we can setup our channel subsystem.
-  * The struct subchannel's are created during probing.
-@@ -1063,6 +1172,7 @@ static int __init css_bus_init(void)
- 		unregister_reboot_notifier(&css_reboot_notifier);
- 		goto out_unregister;
- 	}
-+	cio_dma_pool_init();
- 	css_init_done = 1;
+ void __init mem_init(void)
+ {
+ 	cpumask_set_cpu(0, &init_mm.context.cpu_attach_mask);
+@@ -136,6 +181,8 @@ void __init mem_init(void)
+ 	set_max_mapnr(max_low_pfn);
+         high_memory = (void *) __va(max_low_pfn * PAGE_SIZE);
  
- 	/* Enable default isc for I/O subchannels. */
++	pv_init();
++
+ 	/* Setup guest page hinting */
+ 	cmma_init();
+ 
 -- 
 2.13.4
