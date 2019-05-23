@@ -1,14 +1,14 @@
 From: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-Subject: [PATCH 4.9 07/53] vsock/virtio: Initialize core virtio vsock before
+Subject: [PATCH 4.14 09/77] vsock/virtio: Initialize core virtio vsock before
 	registering the driver
-Date: Thu, 23 May 2019 21:05:31 +0200
-Message-ID: <20190523181712.037112440__23574.7635759012$1558638644$gmane$org@linuxfoundation.org>
-References: <20190523181710.981455400@linuxfoundation.org>
+Date: Thu, 23 May 2019 21:05:27 +0200
+Message-ID: <20190523181721.382827485__21681.2867949315$1558638687$gmane$org@linuxfoundation.org>
+References: <20190523181719.982121681@linuxfoundation.org>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <20190523181710.981455400@linuxfoundation.org>
+In-Reply-To: <20190523181719.982121681@linuxfoundation.org>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -90,7 +90,7 @@ Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 --- a/net/vmw_vsock/virtio_transport.c
 +++ b/net/vmw_vsock/virtio_transport.c
-@@ -600,28 +600,27 @@ static int __init virtio_vsock_init(void
+@@ -702,28 +702,27 @@ static int __init virtio_vsock_init(void
  	if (!virtio_vsock_workqueue)
  		return -ENOMEM;
  
