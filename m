@@ -1,14 +1,14 @@
-From: Daniel Vetter <daniel@ffwll.ch>
-Subject: Re: [PATCH] drm/qxl: drop WARN_ONCE()
-Date: Fri, 24 May 2019 18:20:03 +0200
-Message-ID: <20190524162003.GC21222__26461.0222702444$1558714820$gmane$org@phenom.ffwll.local>
-References: <20190524104251.22761-1-kraxel@redhat.com>
+From: Greg KH <gregkh@linuxfoundation.org>
+Subject: Re: [PATCH] virtio_console: remove vq buf while unpluging port
+Date: Fri, 24 May 2019 20:51:32 +0200
+Message-ID: <20190524185132.GA10695__7984.80607788719$1558723906$gmane$org@kroah.com>
+References: <1556416204-30311-1-git-send-email-pizhenwei@bytedance.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
 Content-Disposition: inline
-In-Reply-To: <20190524104251.22761-1-kraxel@redhat.com>
+In-Reply-To: <1556416204-30311-1-git-send-email-pizhenwei@bytedance.com>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -18,39 +18,90 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Gerd Hoffmann <kraxel@redhat.com>
-Cc: David Airlie <airlied@linux.ie>, open list <linux-kernel@vger.kernel.org>, dri-devel@lists.freedesktop.org, "open list:DRM DRIVER FOR QXL VIRTUAL GPU" <virtualization@lists.linux-foundation.org>, Daniel Vetter <daniel@ffwll.ch>, "open list:DRM DRIVER FOR QXL VIRTUAL GPU" <spice-devel@lists.freedesktop.org>, Dave Airlie <airlied@redhat.com>
+To: zhenwei pi <pizhenwei@bytedance.com>
+Cc: virtualization@lists.linux-foundation.org, linux-kernel@vger.kernel.org, arnd@arndb.de, amit@kernel.org
 List-Id: virtualization@lists.linuxfoundation.org
 
-On Fri, May 24, 2019 at 12:42:50PM +0200, Gerd Hoffmann wrote:
-> There is no good reason to flood the kernel log with a WARN
-> stacktrace just because someone tried to mmap a prime buffer.
-
-Yeah no userspace triggerable dmesg noise above debug level.
+On Sun, Apr 28, 2019 at 09:50:04AM +0800, zhenwei pi wrote:
+> A bug can be easily reproduced:
+> Host# cat guest-agent.xml
+> <channel type="unix">
+>   <source mode="bind" path="/var/lib/libvirt/qemu/stretch.agent"/>
+>   <target type="virtio" name="org.qemu.guest_agent.0" state="connected"/>
+> </channel>
+> Host# virsh attach-device instance guest-agent.xml
+> Host# virsh detach-device instance guest-agent.xml
+> Host# virsh attach-device instance guest-agent.xml
 > 
-> Signed-off-by: Gerd Hoffmann <kraxel@redhat.com>
-
-Reviewed-by: Daniel Vetter <daniel.vetter@ffwll.ch>
+> and guest report: virtio-ports vport0p1: Error allocating inbufs
+> 
+> The reason is that the port is unplugged and the vq buf still remained.
+> So, fix two cases in this patch:
+> 1, fix memory leak with attach-device/detach-device.
+> 2, fix logic bug with attach-device/detach-device/attach-device.
+> 
+> Signed-off-by: zhenwei pi <pizhenwei@bytedance.com>
 > ---
->  drivers/gpu/drm/qxl/qxl_prime.c | 1 -
->  1 file changed, 1 deletion(-)
+>  drivers/char/virtio_console.c | 21 +++++++++++++++------
+>  1 file changed, 15 insertions(+), 6 deletions(-)
 > 
-> diff --git a/drivers/gpu/drm/qxl/qxl_prime.c b/drivers/gpu/drm/qxl/qxl_prime.c
-> index 114653b471c6..7d3816fca5a8 100644
-> --- a/drivers/gpu/drm/qxl/qxl_prime.c
-> +++ b/drivers/gpu/drm/qxl/qxl_prime.c
-> @@ -77,6 +77,5 @@ void qxl_gem_prime_vunmap(struct drm_gem_object *obj, void *vaddr)
->  int qxl_gem_prime_mmap(struct drm_gem_object *obj,
->  		       struct vm_area_struct *area)
+> diff --git a/drivers/char/virtio_console.c b/drivers/char/virtio_console.c
+> index fbeb719..f6e37f4 100644
+> --- a/drivers/char/virtio_console.c
+> +++ b/drivers/char/virtio_console.c
+> @@ -251,6 +251,7 @@ struct port {
+>  
+>  /* This is the very early arch-specified put chars function. */
+>  static int (*early_put_chars)(u32, const char *, int);
+> +static void remove_vq(struct virtqueue *vq);
+>  
+>  static struct port *find_port_by_vtermno(u32 vtermno)
 >  {
-> -	WARN_ONCE(1, "not implemented");
->  	return -ENOSYS;
->  }
+> @@ -1550,6 +1551,9 @@ static void unplug_port(struct port *port)
+>  	}
+>  
+>  	remove_port_data(port);
+> +	spin_lock_irq(&port->inbuf_lock);
+> +	remove_vq(port->in_vq);
+> +	spin_unlock_irq(&port->inbuf_lock);
+>  
+>  	/*
+>  	 * We should just assume the device itself has gone off --
+> @@ -1945,17 +1949,22 @@ static const struct file_operations portdev_fops = {
+>  	.owner = THIS_MODULE,
+>  };
+>  
+> +static void remove_vq(struct virtqueue *vq)
+> +{
+> +	struct port_buffer *buf;
+> +
+> +	flush_bufs(vq, true);
+> +	while ((buf = virtqueue_detach_unused_buf(vq)))
+> +		free_buf(buf, true);
+> +}
+> +
+>  static void remove_vqs(struct ports_device *portdev)
+>  {
+>  	struct virtqueue *vq;
+>  
+> -	virtio_device_for_each_vq(portdev->vdev, vq) {
+> -		struct port_buffer *buf;
+> +	virtio_device_for_each_vq(portdev->vdev, vq)
+> +		remove_vq(vq);
+>  
+> -		flush_bufs(vq, true);
+> -		while ((buf = virtqueue_detach_unused_buf(vq)))
+> -			free_buf(buf, true);
+> -	}
+>  	portdev->vdev->config->del_vqs(portdev->vdev);
+>  	kfree(portdev->in_vqs);
+>  	kfree(portdev->out_vqs);
 > -- 
-> 2.18.1
-> 
+> 2.7.4
 
--- 
-Daniel Vetter
-Software Engineer, Intel Corporation
-http://blog.ffwll.ch
+
+Amit, any ideas if this is valid or not and if this should be applied?
+
+thanks,
+
+greg k-h
