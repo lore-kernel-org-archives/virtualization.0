@@ -1,14 +1,11 @@
-From: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-Subject: [PATCH 5.1 019/122] vsock/virtio: Initialize core virtio vsock before
-	registering the driver
-Date: Thu, 23 May 2019 21:05:41 +0200
-Message-ID: <20190523181707.367273069@linuxfoundation.org>
-References: <20190523181705.091418060@linuxfoundation.org>
+From: Jason Wang <jasowang@redhat.com>
+Subject: [PATCH net-next 0/6] vhost: accelerate metadata access
+Date: Fri, 24 May 2019 04:12:12 -0400
+Message-ID: <20190524081218.2502-1-jasowang__5949.54916029877$1558685579$gmane$org@redhat.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <20190523181705.091418060@linuxfoundation.org>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -18,109 +15,62 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: linux-kernel@vger.kernel.org
-Cc: kvm@vger.kernel.org, Greg Kroah-Hartman <gregkh@linuxfoundation.org>, stable@vger.kernel.org, virtualization@lists.linux-foundation.org, "Jorge E. Moreira" <jemoreira@google.com>, Stefan Hajnoczi <stefanha@redhat.com>, netdev@vger.kernel.org, kernel-team@android.com, "David S. Miller" <davem@davemloft.net>, Stefano Garzarella <sgarzare@redhat.com>
+To: mst@redhat.com, jasowang@redhat.com, kvm@vger.kernel.org, virtualization@lists.linux-foundation.org, netdev@vger.kernel.org
+Cc: hch@infradead.org, christophe.de.dinechin@gmail.com, linux-parisc@vger.kernel.org, linux-kernel@vger.kernel.org, James.Bottomley@hansenpartnership.com, linux-mm@kvack.org, jglisse@redhat.com, jrdr.linux@gmail.com, davem@davemloft.net, linux-arm-kernel@lists.infradead.org
 List-Id: virtualization@lists.linuxfoundation.org
 
-From: "Jorge E. Moreira" <jemoreira@google.com>
+Hi:
 
-[ Upstream commit ba95e5dfd36647622d8897a2a0470dde60e59ffd ]
+This series tries to access virtqueue metadata through kernel virtual
+address instead of copy_user() friends since they had too much
+overheads like checks, spec barriers or even hardware feature
+toggling like SMAP. This is done through setup kernel address through
+direct mapping and co-opreate VM management with MMU notifiers.
 
-Avoid a race in which static variables in net/vmw_vsock/af_vsock.c are
-accessed (while handling interrupts) before they are initialized.
+Test shows about 23% improvement on TX PPS. TCP_STREAM doesn't see
+obvious improvement.
 
-[    4.201410] BUG: unable to handle kernel paging request at ffffffffffffffe8
-[    4.207829] IP: vsock_addr_equals_addr+0x3/0x20
-[    4.211379] PGD 28210067 P4D 28210067 PUD 28212067 PMD 0
-[    4.211379] Oops: 0000 [#1] PREEMPT SMP PTI
-[    4.211379] Modules linked in:
-[    4.211379] CPU: 1 PID: 30 Comm: kworker/1:1 Not tainted 4.14.106-419297-gd7e28cc1f241 #1
-[    4.211379] Hardware name: QEMU Standard PC (i440FX + PIIX, 1996), BIOS 1.10.2-1 04/01/2014
-[    4.211379] Workqueue: virtio_vsock virtio_transport_rx_work
-[    4.211379] task: ffffa3273d175280 task.stack: ffffaea1800e8000
-[    4.211379] RIP: 0010:vsock_addr_equals_addr+0x3/0x20
-[    4.211379] RSP: 0000:ffffaea1800ebd28 EFLAGS: 00010286
-[    4.211379] RAX: 0000000000000002 RBX: 0000000000000000 RCX: ffffffffb94e42f0
-[    4.211379] RDX: 0000000000000400 RSI: ffffffffffffffe0 RDI: ffffaea1800ebdd0
-[    4.211379] RBP: ffffaea1800ebd58 R08: 0000000000000001 R09: 0000000000000001
-[    4.211379] R10: 0000000000000000 R11: ffffffffb89d5d60 R12: ffffaea1800ebdd0
-[    4.211379] R13: 00000000828cbfbf R14: 0000000000000000 R15: ffffaea1800ebdc0
-[    4.211379] FS:  0000000000000000(0000) GS:ffffa3273fd00000(0000) knlGS:0000000000000000
-[    4.211379] CS:  0010 DS: 0000 ES: 0000 CR0: 0000000080050033
-[    4.211379] CR2: ffffffffffffffe8 CR3: 000000002820e001 CR4: 00000000001606e0
-[    4.211379] DR0: 0000000000000000 DR1: 0000000000000000 DR2: 0000000000000000
-[    4.211379] DR3: 0000000000000000 DR6: 00000000fffe0ff0 DR7: 0000000000000400
-[    4.211379] Call Trace:
-[    4.211379]  ? vsock_find_connected_socket+0x6c/0xe0
-[    4.211379]  virtio_transport_recv_pkt+0x15f/0x740
-[    4.211379]  ? detach_buf+0x1b5/0x210
-[    4.211379]  virtio_transport_rx_work+0xb7/0x140
-[    4.211379]  process_one_work+0x1ef/0x480
-[    4.211379]  worker_thread+0x312/0x460
-[    4.211379]  kthread+0x132/0x140
-[    4.211379]  ? process_one_work+0x480/0x480
-[    4.211379]  ? kthread_destroy_worker+0xd0/0xd0
-[    4.211379]  ret_from_fork+0x35/0x40
-[    4.211379] Code: c7 47 08 00 00 00 00 66 c7 07 28 00 c7 47 08 ff ff ff ff c7 47 04 ff ff ff ff c3 0f 1f 00 66 2e 0f 1f 84 00 00 00 00 00 8b 47 08 <3b> 46 08 75 0a 8b 47 04 3b 46 04 0f 94 c0 c3 31 c0 c3 90 66 2e
-[    4.211379] RIP: vsock_addr_equals_addr+0x3/0x20 RSP: ffffaea1800ebd28
-[    4.211379] CR2: ffffffffffffffe8
-[    4.211379] ---[ end trace f31cc4a2e6df3689 ]---
-[    4.211379] Kernel panic - not syncing: Fatal exception in interrupt
-[    4.211379] Kernel Offset: 0x37000000 from 0xffffffff81000000 (relocation range: 0xffffffff80000000-0xffffffffbfffffff)
-[    4.211379] Rebooting in 5 seconds..
+Thanks
 
-Fixes: 22b5c0b63f32 ("vsock/virtio: fix kernel panic after device hot-unplug")
-Cc: Stefan Hajnoczi <stefanha@redhat.com>
-Cc: Stefano Garzarella <sgarzare@redhat.com>
-Cc: "David S. Miller" <davem@davemloft.net>
-Cc: kvm@vger.kernel.org
-Cc: virtualization@lists.linux-foundation.org
-Cc: netdev@vger.kernel.org
-Cc: kernel-team@android.com
-Cc: stable@vger.kernel.org [4.9+]
-Signed-off-by: Jorge E. Moreira <jemoreira@google.com>
-Reviewed-by: Stefano Garzarella <sgarzare@redhat.com>
-Reviewed-by: Stefan Hajnoczi <stefanha@redhat.com>
-Acked-by: Stefan Hajnoczi <stefanha@redhat.com>
-Signed-off-by: David S. Miller <davem@davemloft.net>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
----
- net/vmw_vsock/virtio_transport.c |   13 ++++++-------
- 1 file changed, 6 insertions(+), 7 deletions(-)
+Changes from RFC V3:
+- rebase to net-next
+- Tweak on the comments
+Changes from RFC V2:
+- switch to use direct mapping instead of vmap()
+- switch to use spinlock + RCU to synchronize MMU notifier and vhost
+  data/control path
+- set dirty pages in the invalidation callbacks
+- always use copy_to/from_users() friends for the archs that may need
+  flush_dcache_pages()
+- various minor fixes
+Changes from V4:
+- use invalidate_range() instead of invalidate_range_start()
+- track dirty pages
+Changes from V3:
+- don't try to use vmap for file backed pages
+- rebase to master
+Changes from V2:
+- fix buggy range overlapping check
+- tear down MMU notifier during vhost ioctl to make sure
+  invalidation request can read metadata userspace address and vq size
+  without holding vq mutex.
+Changes from V1:
+- instead of pinning pages, use MMU notifier to invalidate vmaps
+  and remap duing metadata prefetch
+- fix build warning on MIPS
 
---- a/net/vmw_vsock/virtio_transport.c
-+++ b/net/vmw_vsock/virtio_transport.c
-@@ -702,28 +702,27 @@ static int __init virtio_vsock_init(void
- 	if (!virtio_vsock_workqueue)
- 		return -ENOMEM;
- 
--	ret = register_virtio_driver(&virtio_vsock_driver);
-+	ret = vsock_core_init(&virtio_transport.transport);
- 	if (ret)
- 		goto out_wq;
- 
--	ret = vsock_core_init(&virtio_transport.transport);
-+	ret = register_virtio_driver(&virtio_vsock_driver);
- 	if (ret)
--		goto out_vdr;
-+		goto out_vci;
- 
- 	return 0;
- 
--out_vdr:
--	unregister_virtio_driver(&virtio_vsock_driver);
-+out_vci:
-+	vsock_core_exit();
- out_wq:
- 	destroy_workqueue(virtio_vsock_workqueue);
- 	return ret;
--
- }
- 
- static void __exit virtio_vsock_exit(void)
- {
--	vsock_core_exit();
- 	unregister_virtio_driver(&virtio_vsock_driver);
-+	vsock_core_exit();
- 	destroy_workqueue(virtio_vsock_workqueue);
- }
+Jason Wang (6):
+  vhost: generalize adding used elem
+  vhost: fine grain userspace memory accessors
+  vhost: rename vq_iotlb_prefetch() to vq_meta_prefetch()
+  vhost: introduce helpers to get the size of metadata area
+  vhost: factor out setting vring addr and num
+  vhost: access vq metadata through kernel virtual address
+
+ drivers/vhost/net.c   |   4 +-
+ drivers/vhost/vhost.c | 850 ++++++++++++++++++++++++++++++++++++------
+ drivers/vhost/vhost.h |  38 +-
+ 3 files changed, 766 insertions(+), 126 deletions(-)
+
+-- 
+2.18.1
