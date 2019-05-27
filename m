@@ -1,15 +1,14 @@
-From: Gerd Hoffmann <kraxel@redhat.com>
-Subject: Re: PROBLEM: VirtIO DRM driver crashes when setting specific 16.16
-	fixed-point property values
-Date: Mon, 27 May 2019 08:47:43 +0200
-Message-ID: <20190527064743.kooeycqfj7t22iwt__3700.9395704203$1558939691$gmane$org@sirius.home.kraxel.org>
-References: <CAOoxD-tWknshQLXFzyv2t1CVhfK0SCNec=6MVij9q6kQAVzY=g@mail.gmail.com>
+From: Cornelia Huck <cohuck@redhat.com>
+Subject: Re: [PATCH v2 2/8] s390/cio: introduce DMA pools to cio
+Date: Mon, 27 May 2019 08:57:18 +0200
+Message-ID: <20190527085718.10494ee2.cohuck@redhat.com>
+References: <20190523162209.9543-1-mimu@linux.ibm.com>
+	<20190523162209.9543-3-mimu@linux.ibm.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-Content-Disposition: inline
-In-Reply-To: <CAOoxD-tWknshQLXFzyv2t1CVhfK0SCNec=6MVij9q6kQAVzY=g@mail.gmail.com>
+In-Reply-To: <20190523162209.9543-3-mimu@linux.ibm.com>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -19,21 +18,136 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Tyler Slabinski <tslabinski@slabity.net>
-Cc: airlied@linux.ie, dri-devel@lists.freedesktop.org, daniel@ffwll.ch, virtualization@lists.linux-foundation.org
+To: Michael Mueller <mimu@linux.ibm.com>
+Cc: Vasily Gorbik <gor@linux.ibm.com>, Linux-S390 Mailing List <linux-s390@vger.kernel.org>, Thomas Huth <thuth@redhat.com>, Claudio Imbrenda <imbrenda@linux.ibm.com>, KVM Mailing List <kvm@vger.kernel.org>, Sebastian Ott <sebott@linux.ibm.com>, "Michael S . Tsirkin" <mst@redhat.com>, Pierre Morel <pmorel@linux.ibm.com>, Farhan Ali <alifm@linux.ibm.com>, Heiko Carstens <heiko.carstens@de.ibm.com>, Eric Farman <farman@linux.ibm.com>, virtualization@lists.linux-foundation.org, Halil Pasic <pasic@linux.ibm.com>, Christian Borntraeger <borntraeger@de.ibm.com>, Christoph Hellwig <hch@infradead.org>, Viktor Mihajlovski <mihajlov@linux.ibm.com>, Janosch Frank <frankja@linux.ibm.com>
 List-Id: virtualization@lists.linuxfoundation.org
 
-On Fri, May 24, 2019 at 02:46:50PM -0400, Tyler Slabinski wrote:
-> VirtIO DRM driver crashes when setting specific 16.16 fixed-point
-> property values
+On Thu, 23 May 2019 18:22:03 +0200
+Michael Mueller <mimu@linux.ibm.com> wrote:
+
+> From: Halil Pasic <pasic@linux.ibm.com>
 > 
-> When running a virtual machine with a VirtIO GPU, it's possible to
-> crash the entire VM by setting the value of a 16.16 fixed-point
-> property to any value below 65536 (1.0 in 16.16 format or 0x00010000).
-> As a specific example, setting the SRC_W property on a plane DRM
-> object to a value of 30000 will cause the VM to hard-shutdown.
+> To support protected virtualization cio will need to make sure the
+> memory used for communication with the hypervisor is DMA memory.
+> 
+> Let us introduce one global cio, and some tools for pools seated
 
-Do you have a qemu stacktrace?
+"one global pool for cio"?
 
-thanks,
-  Gerd
+> at individual devices.
+> 
+> Our DMA pools are implemented as a gen_pool backed with DMA pages. The
+> idea is to avoid each allocation effectively wasting a page, as we
+> typically allocate much less than PAGE_SIZE.
+> 
+> Signed-off-by: Halil Pasic <pasic@linux.ibm.com>
+> ---
+>  arch/s390/Kconfig           |   1 +
+>  arch/s390/include/asm/cio.h |  11 +++++
+>  drivers/s390/cio/css.c      | 110 ++++++++++++++++++++++++++++++++++++++++++++
+>  3 files changed, 122 insertions(+)
+> 
+
+(...)
+
+> @@ -1018,6 +1024,109 @@ static struct notifier_block css_power_notifier = {
+>  	.notifier_call = css_power_event,
+>  };
+>  
+> +#define POOL_INIT_PAGES 1
+> +static struct gen_pool *cio_dma_pool;
+> +/* Currently cio supports only a single css */
+
+This comment looks misplaced.
+
+> +#define  CIO_DMA_GFP (GFP_KERNEL | __GFP_ZERO)
+> +
+> +
+> +struct device *cio_get_dma_css_dev(void)
+> +{
+> +	return &channel_subsystems[0]->device;
+> +}
+> +
+> +struct gen_pool *cio_gp_dma_create(struct device *dma_dev, int nr_pages)
+> +{
+> +	struct gen_pool *gp_dma;
+> +	void *cpu_addr;
+> +	dma_addr_t dma_addr;
+> +	int i;
+> +
+> +	gp_dma = gen_pool_create(3, -1);
+> +	if (!gp_dma)
+> +		return NULL;
+> +	for (i = 0; i < nr_pages; ++i) {
+> +		cpu_addr = dma_alloc_coherent(dma_dev, PAGE_SIZE, &dma_addr,
+> +					      CIO_DMA_GFP);
+> +		if (!cpu_addr)
+> +			return gp_dma;
+
+So, you may return here with no memory added to the pool at all (or
+less than requested), but for the caller that is indistinguishable from
+an allocation that went all right. May that be a problem?
+
+> +		gen_pool_add_virt(gp_dma, (unsigned long) cpu_addr,
+> +				  dma_addr, PAGE_SIZE, -1);
+> +	}
+> +	return gp_dma;
+> +}
+> +
+
+(...)
+
+> +static void __init cio_dma_pool_init(void)
+> +{
+> +	/* No need to free up the resources: compiled in */
+> +	cio_dma_pool = cio_gp_dma_create(cio_get_dma_css_dev(), 1);
+
+Does it make sense to continue if you did not get a pool here? I don't
+think that should happen unless things were really bad already?
+
+> +}
+> +
+> +void *cio_gp_dma_zalloc(struct gen_pool *gp_dma, struct device *dma_dev,
+> +			size_t size)
+> +{
+> +	dma_addr_t dma_addr;
+> +	unsigned long addr;
+> +	size_t chunk_size;
+> +
+> +	addr = gen_pool_alloc(gp_dma, size);
+> +	while (!addr) {
+> +		chunk_size = round_up(size, PAGE_SIZE);
+> +		addr = (unsigned long) dma_alloc_coherent(dma_dev,
+> +					 chunk_size, &dma_addr, CIO_DMA_GFP);
+> +		if (!addr)
+> +			return NULL;
+> +		gen_pool_add_virt(gp_dma, addr, dma_addr, chunk_size, -1);
+> +		addr = gen_pool_alloc(gp_dma, size);
+> +	}
+> +	return (void *) addr;
+> +}
+> +
+> +void cio_gp_dma_free(struct gen_pool *gp_dma, void *cpu_addr, size_t size)
+> +{
+> +	if (!cpu_addr)
+> +		return;
+> +	memset(cpu_addr, 0, size);
+> +	gen_pool_free(gp_dma, (unsigned long) cpu_addr, size);
+> +}
+> +
+> +/**
+> + * Allocate dma memory from the css global pool. Intended for memory not
+> + * specific to any single device within the css. The allocated memory
+> + * is not guaranteed to be 31-bit addressable.
+> + *
+> + * Caution: Not suitable for early stuff like console.
+> + *
+> + */
+> +void *cio_dma_zalloc(size_t size)
+> +{
+> +	return cio_gp_dma_zalloc(cio_dma_pool, cio_get_dma_css_dev(), size);
+
+Ok, that looks like the failure I mentioned above should be
+accommodated by the code. Still, I think it's a bit odd.
+
+> +}
