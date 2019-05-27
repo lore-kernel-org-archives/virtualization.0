@@ -1,14 +1,15 @@
-From: "Rafael J. Wysocki" <rafael@kernel.org>
-Subject: Re: [PATCH 10/10] docs: fix broken documentation links
-Date: Mon, 27 May 2019 10:43:39 +0200
-Message-ID: <CAJZ5v0iiSo=yoyZTt6ddf5fBRGy1wSvzmA-ZaHH33nivkSp22Q__1379.04545278928$1558946657$gmane$org@mail.gmail.com>
-References: <cover.1558362030.git.mchehab+samsung@kernel.org>
-	<4fd1182b4a41feb2447c7ccde4d7f0a6b3c92686.1558362030.git.mchehab+samsung@kernel.org>
+From: Joerg Roedel <joro@8bytes.org>
+Subject: Re: [PATCH v7 0/7] Add virtio-iommu driver
+Date: Mon, 27 May 2019 11:26:04 +0200
+Message-ID: <20190527092604.GB21613__24662.1189800621$1558949193$gmane$org@8bytes.org>
+References: <20190115121959.23763-1-jean-philippe.brucker@arm.com>
+	<20190512123022-mutt-send-email-mst@kernel.org>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <4fd1182b4a41feb2447c7ccde4d7f0a6b3c92686.1558362030.git.mchehab+samsung@kernel.org>
+Content-Disposition: inline
+In-Reply-To: <20190512123022-mutt-send-email-mst@kernel.org>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -18,18 +19,21 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Mauro Carvalho Chehab <mchehab+samsung@kernel.org>
-Cc: kvm@vger.kernel.org, Linux Doc Mailing List <linux-doc@vger.kernel.org>, Linux PCI <linux-pci@vger.kernel.org>, Platform Driver <platform-driver-x86@vger.kernel.org>, Linux Memory Management List <linux-mm@kvack.org>, linux-i2c <linux-i2c@vger.kernel.org>, linux-kselftest@vger.kernel.org, devel@driverdev.osuosl.org, Jonathan Corbet <corbet@lwn.net>, the arch/x86 maintainers <x86@kernel.org>, ACPI Devel Maling List <linux-acpi@vger.kernel.org>, xen-devel@lists.xenproject.org, "open list:EDAC-CORE" <linux-edac@vger.kernel.org>, "devicetree@vger.kernel.org" <devicetree@vger.kernel.org>, linux-arm-msm <linux-arm-msm@vger.kernel.org>, Mauro Carvalho Chehab <mchehab@infradead.org>, linux-gpio@vger.kernel.org, linux-amlogic@lists.infradead.org, virtualization@lists.linux-foundation.org, Linux ARM <linux-arm-kernel@lists.infradead.org>, open list:ACPI COMPONENT ARCHITECTURE
+To: "Michael S. Tsirkin" <mst@redhat.com>
+Cc: mark.rutland@arm.com, virtio-dev@lists.oasis-open.org, lorenzo.pieralisi@arm.com, tnowicki@caviumnetworks.com, devicetree@vger.kernel.org, Jean-Philippe Brucker <jean-philippe.brucker@arm.com>, linux-pci@vger.kernel.org, will.deacon@arm.com, robin.murphy@arm.com, virtualization@lists.linux-foundation.org, eric.auger@redhat.com, iommu@lists.linux-foundation.org, robh+dt@kernel.org, marc.zyngier@arm.com, bhelgaas@google.com, kvmarm@lists.cs.columbia.edu
 List-Id: virtualization@lists.linuxfoundation.org
 
-On Mon, May 20, 2019 at 4:48 PM Mauro Carvalho Chehab
-<mchehab+samsung@kernel.org> wrote:
->
-> Mostly due to x86 and acpi conversion, several documentation
-> links are still pointing to the old file. Fix them.
->
-> Signed-off-by: Mauro Carvalho Chehab <mchehab+samsung@kernel.org>
+On Sun, May 12, 2019 at 12:31:59PM -0400, Michael S. Tsirkin wrote:
+> OK this has been in next for a while.
+> 
+> Last time IOMMU maintainers objected. Are objections
+> still in force?
+> 
+> If not could we get acks please?
 
-For the ACPI part:
+No objections against the code, I only hesitated because the Spec was
+not yet official.
 
-Acked-by: Rafael J. Wysocki <rafael.j.wysocki@intel.com>
+So for the code:
+
+	Acked-by: Joerg Roedel <jroedel@suse.de>
