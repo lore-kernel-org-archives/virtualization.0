@@ -1,18 +1,16 @@
-From: Michael Mueller <mimu@linux.ibm.com>
-Subject: Re: [PATCH v2 3/8] s390/cio: add basic protected virtualization
-	support
-Date: Mon, 27 May 2019 17:01:12 +0200
-Message-ID: <f2b8d5c3-a39b-8632-c463-cde47bf38c91@linux.ibm.com>
-References: <20190523162209.9543-1-mimu@linux.ibm.com>
-	<20190523162209.9543-4-mimu@linux.ibm.com>
-	<alpine.LFD.2.21.1905251124230.3359@schleppi>
-Reply-To: mimu@linux.ibm.com
+From: "Michael S. Tsirkin" <mst@redhat.com>
+Subject: Re: [PATCH v7 0/7] Add virtio-iommu driver
+Date: Mon, 27 May 2019 11:15:32 -0400
+Message-ID: <20190527111345-mutt-send-email-mst__2304.06013304076$1558970212$gmane$org@kernel.org>
+References: <20190115121959.23763-1-jean-philippe.brucker@arm.com>
+	<20190512123022-mutt-send-email-mst@kernel.org>
+	<20190527092604.GB21613@8bytes.org>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"; Format="flowed"
+Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <alpine.LFD.2.21.1905251124230.3359@schleppi>
-Content-Language: en-US
+Content-Disposition: inline
+In-Reply-To: <20190527092604.GB21613@8bytes.org>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -22,93 +20,30 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Sebastian Ott <sebott@linux.ibm.com>
-Cc: Farhan Ali <alifm@linux.ibm.com>, Linux-S390 Mailing List <linux-s390@vger.kernel.org>, Thomas Huth <thuth@redhat.com>, Claudio Imbrenda <imbrenda@linux.ibm.com>, Vasily Gorbik <gor@linux.ibm.com>, KVM Mailing List <kvm@vger.kernel.org>, "Michael S . Tsirkin" <mst@redhat.com>, Pierre Morel <pmorel@linux.ibm.com>, Cornelia Huck <cohuck@redhat.com>, Heiko Carstens <heiko.carstens@de.ibm.com>, Eric Farman <farman@linux.ibm.com>, virtualization@lists.linux-foundation.org, Halil Pasic <pasic@linux.ibm.com>, Christian Borntraeger <borntraeger@de.ibm.com>, Christoph Hellwig <hch@infradead.org>, Viktor Mihajlovski <mihajlov@linux.ibm.com>, Janosch Frank <frankja@linux.ibm.com>
+To: Joerg Roedel <joro@8bytes.org>
+Cc: mark.rutland@arm.com, virtio-dev@lists.oasis-open.org, lorenzo.pieralisi@arm.com, tnowicki@caviumnetworks.com, devicetree@vger.kernel.org, Jean-Philippe Brucker <jean-philippe.brucker@arm.com>, linux-pci@vger.kernel.org, will.deacon@arm.com, robin.murphy@arm.com, virtualization@lists.linux-foundation.org, eric.auger@redhat.com, iommu@lists.linux-foundation.org, robh+dt@kernel.org, marc.zyngier@arm.com, bhelgaas@google.com, kvmarm@lists.cs.columbia.edu
 List-Id: virtualization@lists.linuxfoundation.org
 
-
-
-On 25.05.19 11:44, Sebastian Ott wrote:
+On Mon, May 27, 2019 at 11:26:04AM +0200, Joerg Roedel wrote:
+> On Sun, May 12, 2019 at 12:31:59PM -0400, Michael S. Tsirkin wrote:
+> > OK this has been in next for a while.
+> > 
+> > Last time IOMMU maintainers objected. Are objections
+> > still in force?
+> > 
+> > If not could we get acks please?
 > 
-> On Thu, 23 May 2019, Michael Mueller wrote:
->>   static struct ccw_device * io_subchannel_allocate_dev(struct subchannel *sch)
->>   {
->>   	struct ccw_device *cdev;
->> +	struct gen_pool *dma_pool;
->>   
->>   	cdev  = kzalloc(sizeof(*cdev), GFP_KERNEL);
->> -	if (cdev) {
->> -		cdev->private = kzalloc(sizeof(struct ccw_device_private),
->> -					GFP_KERNEL | GFP_DMA);
->> -		if (cdev->private)
->> -			return cdev;
->> -	}
->> +	if (!cdev)
->> +		goto err_cdev;
->> +	cdev->private = kzalloc(sizeof(struct ccw_device_private),
->> +				GFP_KERNEL | GFP_DMA);
->> +	if (!cdev->private)
->> +		goto err_priv;
->> +	cdev->dev.coherent_dma_mask = sch->dev.coherent_dma_mask;
->> +	cdev->dev.dma_mask = &cdev->dev.coherent_dma_mask;
->> +	dma_pool = cio_gp_dma_create(&cdev->dev, 1);
+> No objections against the code, I only hesitated because the Spec was
+> not yet official.
 > 
-> This can return NULL. gen_pool_alloc will panic in this case.
-> [...]
-
-yep, will handled in next version
-
+> So for the code:
 > 
->> +err_dma_area:
->> +		kfree(io_priv);
+> 	Acked-by: Joerg Roedel <jroedel@suse.de>
 
-one tab gone
+Last spec patch had a bunch of comments not yet addressed.
+But I do not remember whether comments are just about wording
+or about the host/guest interface as well.
+Jean-Philippe could you remind me please?
 
-> 
-> Indentation.
-> 
->> +err_priv:
->> +	put_device(&sch->dev);
->> +	return ERR_PTR(-ENOMEM);
->>   }
-> [...]
->>   void ccw_device_update_sense_data(struct ccw_device *cdev)
->>   {
->>   	memset(&cdev->id, 0, sizeof(cdev->id));
->> -	cdev->id.cu_type   = cdev->private->senseid.cu_type;
->> -	cdev->id.cu_model  = cdev->private->senseid.cu_model;
->> -	cdev->id.dev_type  = cdev->private->senseid.dev_type;
->> -	cdev->id.dev_model = cdev->private->senseid.dev_model;
->> +	cdev->id.cu_type   =
->> +		cdev->private->dma_area->senseid.cu_type;
->> +	cdev->id.cu_model  =
->> +		cdev->private->dma_area->senseid.cu_model;
->> +	cdev->id.dev_type  =
->> +		cdev->private->dma_area->senseid.dev_type;
->> +	cdev->id.dev_model =
->> +		cdev->private->dma_area->senseid.dev_model;
-> 
-> These fit into one line.
-
-yep, surprisingly below 80 characters
-
-> 
->> +/**
->> + * Allocate zeroed dma coherent 31 bit addressable memory using
->> + * the subchannels dma pool. Maximal size of allocation supported
->> + * is PAGE_SIZE.
->> + */
-> drivers/s390/cio/device_ops.c:708: warning: Function parameter or member 'cdev' not described in 'ccw_device_dma_zalloc'
-> drivers/s390/cio/device_ops.c:708: warning: Function parameter or member 'size' not described in 'ccw_device_dma_zalloc'
-
-changing comment open token
-
-> 
-> 
-> Reviewed-by: Sebastian Ott <sebott@linux.ibm.com>
-> 
-
-Thanks!
-
-
-Michael
+-- 
+MST
