@@ -1,18 +1,15 @@
-From: Paolo Bonzini <pbonzini@redhat.com>
-Subject: Re: [RFC PATCH 5/6] x86/mm/tlb: Flush remote and local TLBs
-	concurrently
-Date: Mon, 27 May 2019 12:21:59 +0200
-Message-ID: <e9c0dc1f-799a-b6e3-8d41-58f0a6b693cd__47482.5618950248$1558952545$gmane$org@redhat.com>
-References: <20190525082203.6531-1-namit@vmware.com>
-	<20190525082203.6531-6-namit@vmware.com>
-	<08b21fb5-2226-7924-30e3-31e4adcfc0a3@suse.com>
-	<20190527094710.GU2623@hirez.programming.kicks-ass.net>
+From: Cornelia Huck <cohuck@redhat.com>
+Subject: Re: [PATCH v2 3/8] s390/cio: add basic protected virtualization
+	support
+Date: Mon, 27 May 2019 12:38:02 +0200
+Message-ID: <20190527123802.54cd3589.cohuck@redhat.com>
+References: <20190523162209.9543-1-mimu@linux.ibm.com>
+	<20190523162209.9543-4-mimu@linux.ibm.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <20190527094710.GU2623@hirez.programming.kicks-ass.net>
-Content-Language: en-US
+In-Reply-To: <20190523162209.9543-4-mimu@linux.ibm.com>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -22,81 +19,100 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Peter Zijlstra <peterz@infradead.org>, Juergen Gross <jgross@suse.com>
-Cc: Sasha Levin <sashal@kernel.org>, linux-hyperv@vger.kernel.org, Dave Hansen <dave.hansen@linux.intel.com>, Stephen Hemminger <sthemmin@microsoft.com>, kvm@vger.kernel.org, Haiyang Zhang <haiyangz@microsoft.com>, x86@kernel.org, linux-kernel@vger.kernel.org, virtualization@lists.linux-foundation.org, Ingo Molnar <mingo@redhat.com>, Borislav Petkov <bp@alien8.de>, Andy Lutomirski <luto@kernel.org>, xen-devel@lists.xenproject.org, Nadav Amit <namit@vmware.com>, Thomas Gleixner <tglx@linutronix.de>, Boris Ostrovsky <boris.ostrovsky@oracle.com>
+To: Michael Mueller <mimu@linux.ibm.com>
+Cc: Vasily Gorbik <gor@linux.ibm.com>, Linux-S390 Mailing List <linux-s390@vger.kernel.org>, Thomas Huth <thuth@redhat.com>, Claudio Imbrenda <imbrenda@linux.ibm.com>, KVM Mailing List <kvm@vger.kernel.org>, Sebastian Ott <sebott@linux.ibm.com>, "Michael S . Tsirkin" <mst@redhat.com>, Pierre Morel <pmorel@linux.ibm.com>, Farhan Ali <alifm@linux.ibm.com>, Heiko Carstens <heiko.carstens@de.ibm.com>, Eric Farman <farman@linux.ibm.com>, virtualization@lists.linux-foundation.org, Halil Pasic <pasic@linux.ibm.com>, Christian Borntraeger <borntraeger@de.ibm.com>, Christoph Hellwig <hch@infradead.org>, Viktor Mihajlovski <mihajlov@linux.ibm.com>, Janosch Frank <frankja@linux.ibm.com>
 List-Id: virtualization@lists.linuxfoundation.org
 
-On 27/05/19 11:47, Peter Zijlstra wrote:
-> On Sat, May 25, 2019 at 10:54:50AM +0200, Juergen Gross wrote:
->> On 25/05/2019 10:22, Nadav Amit wrote:
+On Thu, 23 May 2019 18:22:04 +0200
+Michael Mueller <mimu@linux.ibm.com> wrote:
+
+> From: Halil Pasic <pasic@linux.ibm.com>
 > 
->>> diff --git a/arch/x86/include/asm/paravirt_types.h b/arch/x86/include/asm/paravirt_types.h
->>> index 946f8f1f1efc..3a156e63c57d 100644
->>> --- a/arch/x86/include/asm/paravirt_types.h
->>> +++ b/arch/x86/include/asm/paravirt_types.h
->>> @@ -211,6 +211,12 @@ struct pv_mmu_ops {
->>>  	void (*flush_tlb_user)(void);
->>>  	void (*flush_tlb_kernel)(void);
->>>  	void (*flush_tlb_one_user)(unsigned long addr);
->>> +	/*
->>> +	 * flush_tlb_multi() is the preferred interface. When it is used,
->>> +	 * flush_tlb_others() should return false.
->>
->> This comment does not make sense. flush_tlb_others() return type is
->> void.
+> As virtio-ccw devices are channel devices, we need to use the dma area
+> for any communication with the hypervisor.
 > 
-> I suspect that is an artifact from before the static_key; an attempt to
-> make the pv interface less awkward.
+> It handles neither QDIO in the common code, nor any device type specific
+> stuff (like channel programs constructed by the DASD driver).
 > 
-> Something like the below would work for KVM I suspect, the others
-> (Hyper-V and Xen are more 'interesting').
+> An interesting side effect is that virtio structures are now going to
+> get allocated in 31 bit addressable storage.
 > 
+> Signed-off-by: Halil Pasic <pasic@linux.ibm.com>
+
+[Side note: you really should add your s-o-b if you send someone else's
+patches... if Halil ends up committing them, it's fine, though.]
+
 > ---
-> --- a/arch/x86/kernel/kvm.c
-> +++ b/arch/x86/kernel/kvm.c
-> @@ -580,7 +580,7 @@ static void __init kvm_apf_trap_init(voi
+>  arch/s390/include/asm/ccwdev.h   |  4 +++
+>  drivers/s390/cio/ccwreq.c        |  9 +++---
+>  drivers/s390/cio/device.c        | 64 +++++++++++++++++++++++++++++++++-------
+>  drivers/s390/cio/device_fsm.c    | 53 ++++++++++++++++++++-------------
+>  drivers/s390/cio/device_id.c     | 20 +++++++------
+>  drivers/s390/cio/device_ops.c    | 21 +++++++++++--
+>  drivers/s390/cio/device_pgid.c   | 22 +++++++-------
+>  drivers/s390/cio/device_status.c | 24 +++++++--------
+>  drivers/s390/cio/io_sch.h        | 20 +++++++++----
+>  drivers/s390/virtio/virtio_ccw.c | 10 -------
+>  10 files changed, 164 insertions(+), 83 deletions(-)
+> 
+
+(...)
+
+> @@ -1593,20 +1622,31 @@ struct ccw_device * __init ccw_device_create_console(struct ccw_driver *drv)
+>  		return ERR_CAST(sch);
 >  
->  static DEFINE_PER_CPU(cpumask_var_t, __pv_tlb_mask);
->  
-> -static void kvm_flush_tlb_others(const struct cpumask *cpumask,
-> +static void kvm_flush_tlb_multi(const struct cpumask *cpumask,
->  			const struct flush_tlb_info *info)
->  {
->  	u8 state;
-> @@ -594,6 +594,9 @@ static void kvm_flush_tlb_others(const s
->  	 * queue flush_on_enter for pre-empted vCPUs
->  	 */
->  	for_each_cpu(cpu, flushmask) {
-> +		if (cpu == smp_processor_id())
-> +			continue;
-> +
+>  	io_priv = kzalloc(sizeof(*io_priv), GFP_KERNEL | GFP_DMA);
+> -	if (!io_priv) {
+> -		put_device(&sch->dev);
+> -		return ERR_PTR(-ENOMEM);
+> -	}
+> +	if (!io_priv)
+> +		goto err_priv;
+> +	io_priv->dma_area = dma_alloc_coherent(&sch->dev,
+> +				sizeof(*io_priv->dma_area),
+> +				&io_priv->dma_area_dma, GFP_KERNEL);
 
-Even this would be just an optimization; the vCPU you're running on
-cannot be preempted.  You can just change others to multi.
+Even though we'll only end up here for 3215 or 3270 consoles, this sent
+me looking.
 
-Paolo
+This code is invoked via console_init(). A few lines down in
+start_kernel(), we have
 
->  		src = &per_cpu(steal_time, cpu);
->  		state = READ_ONCE(src->preempted);
->  		if ((state & KVM_VCPU_PREEMPTED)) {
-> @@ -603,7 +606,7 @@ static void kvm_flush_tlb_others(const s
->  		}
+        /*                                                                       
+         * This needs to be called before any devices perform DMA                
+         * operations that might use the SWIOTLB bounce buffers. It will         
+         * mark the bounce buffers as decrypted so that their usage will         
+         * not cause "plain-text" data to be decrypted when accessed.            
+         */
+        mem_encrypt_init();
+
+So, I'm wondering if creating the console device interacts in any way
+with the memory encryption interface?
+
+[Does basic recognition work if you start a protected virt guest with a
+3270 console? I realize that the console is unlikely to work, but that
+should at least exercise this code path.]
+
+> +	if (!io_priv->dma_area)
+> +		goto err_dma_area;
+>  	set_io_private(sch, io_priv);
+>  	cdev = io_subchannel_create_ccwdev(sch);
+>  	if (IS_ERR(cdev)) {
+>  		put_device(&sch->dev);
+> +		dma_free_coherent(&sch->dev, sizeof(*io_priv->dma_area),
+> +				  io_priv->dma_area, io_priv->dma_area_dma);
+>  		kfree(io_priv);
+>  		return cdev;
 >  	}
->  
-> -	native_flush_tlb_others(flushmask, info);
-> +	native_flush_tlb_multi(flushmask, info);
+>  	cdev->drv = drv;
+>  	ccw_device_set_int_class(cdev);
+>  	return cdev;
+> +
+> +err_dma_area:
+> +		kfree(io_priv);
+> +err_priv:
+> +	put_device(&sch->dev);
+> +	return ERR_PTR(-ENOMEM);
 >  }
 >  
->  static void __init kvm_guest_init(void)
-> @@ -628,9 +631,8 @@ static void __init kvm_guest_init(void)
->  	if (kvm_para_has_feature(KVM_FEATURE_PV_TLB_FLUSH) &&
->  	    !kvm_para_has_hint(KVM_HINTS_REALTIME) &&
->  	    kvm_para_has_feature(KVM_FEATURE_STEAL_TIME)) {
-> -		pv_ops.mmu.flush_tlb_others = kvm_flush_tlb_others;
-> +		pv_ops.mmu.flush_tlb_multi = kvm_flush_tlb_multi;
->  		pv_ops.mmu.tlb_remove_table = tlb_remove_table;
-> -		static_key_disable(&flush_tlb_multi_enabled.key);
->  	}
->  
->  	if (kvm_para_has_feature(KVM_FEATURE_PV_EOI))
-> 
+>  void __init ccw_device_destroy_console(struct ccw_device *cdev)
