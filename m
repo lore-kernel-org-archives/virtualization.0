@@ -1,15 +1,16 @@
-From: Halil Pasic <pasic@linux.ibm.com>
+From: Cornelia Huck <cohuck@redhat.com>
 Subject: Re: [PATCH v2 8/8] virtio/s390: make airq summary indicators DMA
-Date: Tue, 28 May 2019 16:33:42 +0200
-Message-ID: <20190528163342.335eea0b.pasic@linux.ibm.com>
+Date: Tue, 28 May 2019 16:56:27 +0200
+Message-ID: <20190528165627.76da557a.cohuck@redhat.com>
 References: <20190523162209.9543-1-mimu@linux.ibm.com>
 	<20190523162209.9543-9-mimu@linux.ibm.com>
 	<20190527140018.7c2d34ff.cohuck@redhat.com>
+	<20190528163342.335eea0b.pasic@linux.ibm.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <20190527140018.7c2d34ff.cohuck@redhat.com>
+In-Reply-To: <20190528163342.335eea0b.pasic@linux.ibm.com>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -19,55 +20,51 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Cornelia Huck <cohuck@redhat.com>
+To: Halil Pasic <pasic@linux.ibm.com>
 Cc: Vasily Gorbik <gor@linux.ibm.com>, Linux-S390 Mailing List <linux-s390@vger.kernel.org>, Thomas Huth <thuth@redhat.com>, Claudio Imbrenda <imbrenda@linux.ibm.com>, KVM Mailing List <kvm@vger.kernel.org>, Sebastian Ott <sebott@linux.ibm.com>, "Michael S . Tsirkin" <mst@redhat.com>, Pierre Morel <pmorel@linux.ibm.com>, Farhan Ali <alifm@linux.ibm.com>, Heiko Carstens <heiko.carstens@de.ibm.com>, Eric Farman <farman@linux.ibm.com>, virtualization@lists.linux-foundation.org, Christoph Hellwig <hch@infradead.org>, Christian Borntraeger <borntraeger@de.ibm.com>, Michael Mueller <mimu@linux.ibm.com>, Viktor Mihajlovski <mihajlov@linux.ibm.com>, Janosch Frank <frankja@linux.ibm.com>
 List-Id: virtualization@lists.linuxfoundation.org
 
-On Mon, 27 May 2019 14:00:18 +0200
-Cornelia Huck <cohuck@redhat.com> wrote:
+On Tue, 28 May 2019 16:33:42 +0200
+Halil Pasic <pasic@linux.ibm.com> wrote:
 
-> On Thu, 23 May 2019 18:22:09 +0200
-> Michael Mueller <mimu@linux.ibm.com> wrote:
+> On Mon, 27 May 2019 14:00:18 +0200
+> Cornelia Huck <cohuck@redhat.com> wrote:
 > 
-> > From: Halil Pasic <pasic@linux.ibm.com>
+> > On Thu, 23 May 2019 18:22:09 +0200
+> > Michael Mueller <mimu@linux.ibm.com> wrote:
+> >   
+> > > From: Halil Pasic <pasic@linux.ibm.com>
+> > > 
+> > > Hypervisor needs to interact with the summary indicators, so these
+> > > need to be DMA memory as well (at least for protected virtualization
+> > > guests).
+> > > 
+> > > Signed-off-by: Halil Pasic <pasic@linux.ibm.com>
+> > > ---
+> > >  drivers/s390/virtio/virtio_ccw.c | 22 +++++++++++++++-------
+> > >  1 file changed, 15 insertions(+), 7 deletions(-)  
 > > 
-> > Hypervisor needs to interact with the summary indicators, so these
-> > need to be DMA memory as well (at least for protected virtualization
-> > guests).
+> > (...)
+> >   
+> > > @@ -1501,6 +1508,7 @@ static int __init virtio_ccw_init(void)
+> > >  {
+> > >  	/* parse no_auto string before we do anything further */
+> > >  	no_auto_parse();
+> > > +	summary_indicators = cio_dma_zalloc(MAX_AIRQ_AREAS);  
 > > 
-> > Signed-off-by: Halil Pasic <pasic@linux.ibm.com>
-> > ---
-> >  drivers/s390/virtio/virtio_ccw.c | 22 +++++++++++++++-------
-> >  1 file changed, 15 insertions(+), 7 deletions(-)
+> > What happens if this fails?  
 > 
-> (...)
+> Bad things could happen!
 > 
-> > @@ -1501,6 +1508,7 @@ static int __init virtio_ccw_init(void)
-> >  {
-> >  	/* parse no_auto string before we do anything further */
-> >  	no_auto_parse();
-> > +	summary_indicators = cio_dma_zalloc(MAX_AIRQ_AREAS);
+> How about adding
 > 
-> What happens if this fails?
-
-Bad things could happen!
-
-How about adding
-
-if (!summary_indicators)
-	virtio_ccw_use_airq = 0; /* fall back to classic */
-
-?
-
-Since it ain't very likely to happen, we could also just fail
-virtio_ccw_init() with -ENOMEM.
-
-Regards,
-Halil
-
-
+> if (!summary_indicators)
+> 	virtio_ccw_use_airq = 0; /* fall back to classic */
 > 
-> >  	return ccw_driver_register(&virtio_ccw_driver);
-> >  }
-> >  device_initcall(virtio_ccw_init);
+> ?
 > 
+> Since it ain't very likely to happen, we could also just fail
+> virtio_ccw_init() with -ENOMEM.
+
+How high are the chances of things working if we fail to allocate here?
+Returning with -ENOMEM is probably the more reasonable approach here.
