@@ -1,7 +1,7 @@
 From: Stefano Garzarella <sgarzare@redhat.com>
-Subject: [PATCH 3/4] vsock/virtio: fix flush of works during the .remove()
-Date: Tue, 28 May 2019 12:56:22 +0200
-Message-ID: <20190528105623.27983-4-sgarzare__14075.7496048295$1559041113$gmane$org@redhat.com>
+Subject: [PATCH 4/4] vsock/virtio: free used buffers during the .remove()
+Date: Tue, 28 May 2019 12:56:23 +0200
+Message-ID: <20190528105623.27983-5-sgarzare__20441.2932785758$1559041127$gmane$org@redhat.com>
 References: <20190528105623.27983-1-sgarzare@redhat.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
@@ -21,70 +21,52 @@ To: netdev@vger.kernel.org
 Cc: kvm@vger.kernel.org, "Michael S . Tsirkin" <mst@redhat.com>, linux-kernel@vger.kernel.org, virtualization@lists.linux-foundation.org, Stefan Hajnoczi <stefanha@redhat.com>, "David S. Miller" <davem@davemloft.net>
 List-Id: virtualization@lists.linuxfoundation.org
 
-We flush all pending works before to call vdev->config->reset(vdev),
-but other works can be queued before the vdev->config->del_vqs(vdev),
-so we add another flush after it, to avoid use after free.
+Before this patch, we only freed unused buffers, but there may
+still be used buffers to be freed.
 
-Suggested-by: Michael S. Tsirkin <mst@redhat.com>
 Signed-off-by: Stefano Garzarella <sgarzare@redhat.com>
 ---
- net/vmw_vsock/virtio_transport.c | 23 +++++++++++++++++------
- 1 file changed, 17 insertions(+), 6 deletions(-)
+ net/vmw_vsock/virtio_transport.c | 18 ++++++++++++++----
+ 1 file changed, 14 insertions(+), 4 deletions(-)
 
 diff --git a/net/vmw_vsock/virtio_transport.c b/net/vmw_vsock/virtio_transport.c
-index e694df10ab61..ad093ce96693 100644
+index ad093ce96693..6a2afb989562 100644
 --- a/net/vmw_vsock/virtio_transport.c
 +++ b/net/vmw_vsock/virtio_transport.c
-@@ -660,6 +660,15 @@ static int virtio_vsock_probe(struct virtio_device *vdev)
- 	return ret;
+@@ -669,6 +669,18 @@ static void virtio_vsock_flush_works(struct virtio_vsock *vsock)
+ 	flush_work(&vsock->send_pkt_work);
  }
  
-+static void virtio_vsock_flush_works(struct virtio_vsock *vsock)
++static void virtio_vsock_free_buf(struct virtqueue *vq)
 +{
-+	flush_work(&vsock->loopback_work);
-+	flush_work(&vsock->rx_work);
-+	flush_work(&vsock->tx_work);
-+	flush_work(&vsock->event_work);
-+	flush_work(&vsock->send_pkt_work);
++	struct virtio_vsock_pkt *pkt;
++	unsigned int len;
++
++	while ((pkt = virtqueue_detach_unused_buf(vq)))
++		virtio_transport_free_pkt(pkt);
++
++	while ((pkt = virtqueue_get_buf(vq, &len)))
++		virtio_transport_free_pkt(pkt);
 +}
 +
  static void virtio_vsock_remove(struct virtio_device *vdev)
  {
  	struct virtio_vsock *vsock = vdev->priv;
-@@ -668,12 +677,6 @@ static void virtio_vsock_remove(struct virtio_device *vdev)
- 	mutex_lock(&the_virtio_vsock_mutex);
- 	the_virtio_vsock = NULL;
+@@ -702,13 +714,11 @@ static void virtio_vsock_remove(struct virtio_device *vdev)
+ 	vdev->config->reset(vdev);
  
--	flush_work(&vsock->loopback_work);
--	flush_work(&vsock->rx_work);
--	flush_work(&vsock->tx_work);
--	flush_work(&vsock->event_work);
--	flush_work(&vsock->send_pkt_work);
--
- 	/* Reset all connected sockets when the device disappear */
- 	vsock_for_each_connected_socket(virtio_vsock_reset_sock);
+ 	mutex_lock(&vsock->rx_lock);
+-	while ((pkt = virtqueue_detach_unused_buf(vsock->vqs[VSOCK_VQ_RX])))
+-		virtio_transport_free_pkt(pkt);
++	virtio_vsock_free_buf(vsock->vqs[VSOCK_VQ_RX]);
+ 	mutex_unlock(&vsock->rx_lock);
  
-@@ -690,6 +693,9 @@ static void virtio_vsock_remove(struct virtio_device *vdev)
- 	vsock->event_run = false;
- 	mutex_unlock(&vsock->event_lock);
+ 	mutex_lock(&vsock->tx_lock);
+-	while ((pkt = virtqueue_detach_unused_buf(vsock->vqs[VSOCK_VQ_TX])))
+-		virtio_transport_free_pkt(pkt);
++	virtio_vsock_free_buf(vsock->vqs[VSOCK_VQ_TX]);
+ 	mutex_unlock(&vsock->tx_lock);
  
-+	/* Flush all pending works */
-+	virtio_vsock_flush_works(vsock);
-+
- 	/* Flush all device writes and interrupts, device will not use any
- 	 * more buffers.
- 	 */
-@@ -726,6 +732,11 @@ static void virtio_vsock_remove(struct virtio_device *vdev)
- 	/* Delete virtqueues and flush outstanding callbacks if any */
- 	vdev->config->del_vqs(vdev);
- 
-+	/* Other works can be queued before 'config->del_vqs()', so we flush
-+	 * all works before to free the vsock object to avoid use after free.
-+	 */
-+	virtio_vsock_flush_works(vsock);
-+
- 	kfree(vsock);
- 	mutex_unlock(&the_virtio_vsock_mutex);
- }
+ 	spin_lock_bh(&vsock->send_pkt_list_lock);
 -- 
 2.20.1
