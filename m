@@ -1,14 +1,15 @@
-From: Amit Shah <amit@infradead.org>
-Subject: Re: [PATCH] virtio_console: remove vq buf while unpluging port
-Date: Tue, 28 May 2019 14:59:46 +0200
-Message-ID: <f8fccc5745755e92077306189577da2fe591f586.camel__25142.2641494841$1559048483$gmane$org@infradead.org>
-References: <1556416204-30311-1-git-send-email-pizhenwei@bytedance.com>
-	<20190524185132.GA10695@kroah.com>
+From: Halil Pasic <pasic@linux.ibm.com>
+Subject: Re: [PATCH v2 8/8] virtio/s390: make airq summary indicators DMA
+Date: Tue, 28 May 2019 16:33:42 +0200
+Message-ID: <20190528163342.335eea0b.pasic@linux.ibm.com>
+References: <20190523162209.9543-1-mimu@linux.ibm.com>
+	<20190523162209.9543-9-mimu@linux.ibm.com>
+	<20190527140018.7c2d34ff.cohuck@redhat.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <20190524185132.GA10695@kroah.com>
+In-Reply-To: <20190527140018.7c2d34ff.cohuck@redhat.com>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -18,43 +19,55 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Greg KH <gregkh@linuxfoundation.org>, amit@kernel.org, zhenwei pi <pizhenwei@bytedance.com>
-Cc: linux-kernel@vger.kernel.org, arnd@arndb.de, virtualization@lists.linux-foundation.org
+To: Cornelia Huck <cohuck@redhat.com>
+Cc: Vasily Gorbik <gor@linux.ibm.com>, Linux-S390 Mailing List <linux-s390@vger.kernel.org>, Thomas Huth <thuth@redhat.com>, Claudio Imbrenda <imbrenda@linux.ibm.com>, KVM Mailing List <kvm@vger.kernel.org>, Sebastian Ott <sebott@linux.ibm.com>, "Michael S . Tsirkin" <mst@redhat.com>, Pierre Morel <pmorel@linux.ibm.com>, Farhan Ali <alifm@linux.ibm.com>, Heiko Carstens <heiko.carstens@de.ibm.com>, Eric Farman <farman@linux.ibm.com>, virtualization@lists.linux-foundation.org, Christoph Hellwig <hch@infradead.org>, Christian Borntraeger <borntraeger@de.ibm.com>, Michael Mueller <mimu@linux.ibm.com>, Viktor Mihajlovski <mihajlov@linux.ibm.com>, Janosch Frank <frankja@linux.ibm.com>
 List-Id: virtualization@lists.linuxfoundation.org
 
-On Fri, 2019-05-24 at 20:51 +0200, Greg KH wrote:
-> On Sun, Apr 28, 2019 at 09:50:04AM +0800, zhenwei pi wrote:
-> > A bug can be easily reproduced:
-> > Host# cat guest-agent.xml
-> > <channel type="unix">
-> >   <source mode="bind" path="/var/lib/libvirt/qemu/stretch.agent"/>
-> >   <target type="virtio" name="org.qemu.guest_agent.0"
-> > state="connected"/>
-> > </channel>
-> > Host# virsh attach-device instance guest-agent.xml
-> > Host# virsh detach-device instance guest-agent.xml
-> > Host# virsh attach-device instance guest-agent.xml
+On Mon, 27 May 2019 14:00:18 +0200
+Cornelia Huck <cohuck@redhat.com> wrote:
+
+> On Thu, 23 May 2019 18:22:09 +0200
+> Michael Mueller <mimu@linux.ibm.com> wrote:
+> 
+> > From: Halil Pasic <pasic@linux.ibm.com>
 > > 
-> > and guest report: virtio-ports vport0p1: Error allocating inbufs
+> > Hypervisor needs to interact with the summary indicators, so these
+> > need to be DMA memory as well (at least for protected virtualization
+> > guests).
 > > 
-> > The reason is that the port is unplugged and the vq buf still
-> > remained.
-> > So, fix two cases in this patch:
-> > 1, fix memory leak with attach-device/detach-device.
-> > 2, fix logic bug with attach-device/detach-device/attach-device.
+> > Signed-off-by: Halil Pasic <pasic@linux.ibm.com>
+> > ---
+> >  drivers/s390/virtio/virtio_ccw.c | 22 +++++++++++++++-------
+> >  1 file changed, 15 insertions(+), 7 deletions(-)
+> 
+> (...)
+> 
+> > @@ -1501,6 +1508,7 @@ static int __init virtio_ccw_init(void)
+> >  {
+> >  	/* parse no_auto string before we do anything further */
+> >  	no_auto_parse();
+> > +	summary_indicators = cio_dma_zalloc(MAX_AIRQ_AREAS);
+> 
+> What happens if this fails?
 
-The "leak" happens because the host-side of the connection is still
-connected.  This is by design -- if a guest has written data before
-being unplugged, the port isn't released till the host connection goes
-down to ensure a host process reads all the data out of the port.
+Bad things could happen!
 
-Can you try similar, but also disconnecting the host side and see if
-that fixes things?
+How about adding
 
-> Amit, any ideas if this is valid or not and if this should be
-> applied?
+if (!summary_indicators)
+	virtio_ccw_use_airq = 0; /* fall back to classic */
 
-This had indeed been missed, thanks!
+?
+
+Since it ain't very likely to happen, we could also just fail
+virtio_ccw_init() with -ENOMEM.
+
+Regards,
+Halil
 
 
-			Amit
+> 
+> >  	return ccw_driver_register(&virtio_ccw_driver);
+> >  }
+> >  device_initcall(virtio_ccw_init);
+> 
