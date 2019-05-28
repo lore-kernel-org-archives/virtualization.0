@@ -1,7 +1,7 @@
 From: Stefano Garzarella <sgarzare@redhat.com>
-Subject: [PATCH 2/4] vsock/virtio: stop workers during the .remove()
-Date: Tue, 28 May 2019 12:56:21 +0200
-Message-ID: <20190528105623.27983-3-sgarzare__22667.8976485104$1559041102$gmane$org@redhat.com>
+Subject: [PATCH 3/4] vsock/virtio: fix flush of works during the .remove()
+Date: Tue, 28 May 2019 12:56:22 +0200
+Message-ID: <20190528105623.27983-4-sgarzare__14075.7496048295$1559041113$gmane$org@redhat.com>
 References: <20190528105623.27983-1-sgarzare@redhat.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
@@ -21,183 +21,70 @@ To: netdev@vger.kernel.org
 Cc: kvm@vger.kernel.org, "Michael S . Tsirkin" <mst@redhat.com>, linux-kernel@vger.kernel.org, virtualization@lists.linux-foundation.org, Stefan Hajnoczi <stefanha@redhat.com>, "David S. Miller" <davem@davemloft.net>
 List-Id: virtualization@lists.linuxfoundation.org
 
-Before to call vdev->config->reset(vdev) we need to be sure that
-no one is accessing the device, for this reason, we add new variables
-in the struct virtio_vsock to stop the workers during the .remove().
+We flush all pending works before to call vdev->config->reset(vdev),
+but other works can be queued before the vdev->config->del_vqs(vdev),
+so we add another flush after it, to avoid use after free.
 
-This patch also add few comments before vdev->config->reset(vdev)
-and vdev->config->del_vqs(vdev).
-
-Suggested-by: Stefan Hajnoczi <stefanha@redhat.com>
 Suggested-by: Michael S. Tsirkin <mst@redhat.com>
 Signed-off-by: Stefano Garzarella <sgarzare@redhat.com>
 ---
- net/vmw_vsock/virtio_transport.c | 49 +++++++++++++++++++++++++++++++-
- 1 file changed, 48 insertions(+), 1 deletion(-)
+ net/vmw_vsock/virtio_transport.c | 23 +++++++++++++++++------
+ 1 file changed, 17 insertions(+), 6 deletions(-)
 
 diff --git a/net/vmw_vsock/virtio_transport.c b/net/vmw_vsock/virtio_transport.c
-index d3ba7747aa73..e694df10ab61 100644
+index e694df10ab61..ad093ce96693 100644
 --- a/net/vmw_vsock/virtio_transport.c
 +++ b/net/vmw_vsock/virtio_transport.c
-@@ -39,6 +39,7 @@ struct virtio_vsock {
- 	 * must be accessed with tx_lock held.
- 	 */
- 	struct mutex tx_lock;
-+	bool tx_run;
- 
- 	struct work_struct send_pkt_work;
- 	spinlock_t send_pkt_list_lock;
-@@ -54,6 +55,7 @@ struct virtio_vsock {
- 	 * must be accessed with rx_lock held.
- 	 */
- 	struct mutex rx_lock;
-+	bool rx_run;
- 	int rx_buf_nr;
- 	int rx_buf_max_nr;
- 
-@@ -61,6 +63,7 @@ struct virtio_vsock {
- 	 * vqs[VSOCK_VQ_EVENT] must be accessed with event_lock held.
- 	 */
- 	struct mutex event_lock;
-+	bool event_run;
- 	struct virtio_vsock_event event_list[8];
- 
- 	u32 guest_cid;
-@@ -98,6 +101,10 @@ static void virtio_transport_loopback_work(struct work_struct *work)
- 	spin_unlock_bh(&vsock->loopback_list_lock);
- 
- 	mutex_lock(&vsock->rx_lock);
-+
-+	if (!vsock->rx_run)
-+		goto out;
-+
- 	while (!list_empty(&pkts)) {
- 		struct virtio_vsock_pkt *pkt;
- 
-@@ -106,6 +113,7 @@ static void virtio_transport_loopback_work(struct work_struct *work)
- 
- 		virtio_transport_recv_pkt(pkt);
- 	}
-+out:
- 	mutex_unlock(&vsock->rx_lock);
+@@ -660,6 +660,15 @@ static int virtio_vsock_probe(struct virtio_device *vdev)
+ 	return ret;
  }
  
-@@ -134,6 +142,9 @@ virtio_transport_send_pkt_work(struct work_struct *work)
- 
- 	mutex_lock(&vsock->tx_lock);
- 
-+	if (!vsock->tx_run)
-+		goto out;
++static void virtio_vsock_flush_works(struct virtio_vsock *vsock)
++{
++	flush_work(&vsock->loopback_work);
++	flush_work(&vsock->rx_work);
++	flush_work(&vsock->tx_work);
++	flush_work(&vsock->event_work);
++	flush_work(&vsock->send_pkt_work);
++}
 +
- 	vq = vsock->vqs[VSOCK_VQ_TX];
+ static void virtio_vsock_remove(struct virtio_device *vdev)
+ {
+ 	struct virtio_vsock *vsock = vdev->priv;
+@@ -668,12 +677,6 @@ static void virtio_vsock_remove(struct virtio_device *vdev)
+ 	mutex_lock(&the_virtio_vsock_mutex);
+ 	the_virtio_vsock = NULL;
  
- 	for (;;) {
-@@ -192,6 +203,7 @@ virtio_transport_send_pkt_work(struct work_struct *work)
- 	if (added)
- 		virtqueue_kick(vq);
- 
-+out:
- 	mutex_unlock(&vsock->tx_lock);
- 
- 	if (restart_rx)
-@@ -314,6 +326,10 @@ static void virtio_transport_tx_work(struct work_struct *work)
- 
- 	vq = vsock->vqs[VSOCK_VQ_TX];
- 	mutex_lock(&vsock->tx_lock);
-+
-+	if (!vsock->tx_run)
-+		goto out;
-+
- 	do {
- 		struct virtio_vsock_pkt *pkt;
- 		unsigned int len;
-@@ -324,6 +340,8 @@ static void virtio_transport_tx_work(struct work_struct *work)
- 			added = true;
- 		}
- 	} while (!virtqueue_enable_cb(vq));
-+
-+out:
- 	mutex_unlock(&vsock->tx_lock);
- 
- 	if (added)
-@@ -352,6 +370,9 @@ static void virtio_transport_rx_work(struct work_struct *work)
- 
- 	mutex_lock(&vsock->rx_lock);
- 
-+	if (!vsock->rx_run)
-+		goto out;
-+
- 	do {
- 		virtqueue_disable_cb(vq);
- 		for (;;) {
-@@ -461,6 +482,9 @@ static void virtio_transport_event_work(struct work_struct *work)
- 
- 	mutex_lock(&vsock->event_lock);
- 
-+	if (!vsock->event_run)
-+		goto out;
-+
- 	do {
- 		struct virtio_vsock_event *event;
- 		unsigned int len;
-@@ -475,7 +499,7 @@ static void virtio_transport_event_work(struct work_struct *work)
- 	} while (!virtqueue_enable_cb(vq));
- 
- 	virtqueue_kick(vsock->vqs[VSOCK_VQ_EVENT]);
+-	flush_work(&vsock->loopback_work);
+-	flush_work(&vsock->rx_work);
+-	flush_work(&vsock->tx_work);
+-	flush_work(&vsock->event_work);
+-	flush_work(&vsock->send_pkt_work);
 -
-+out:
- 	mutex_unlock(&vsock->event_lock);
- }
- 
-@@ -611,12 +635,18 @@ static int virtio_vsock_probe(struct virtio_device *vdev)
- 	INIT_WORK(&vsock->send_pkt_work, virtio_transport_send_pkt_work);
- 	INIT_WORK(&vsock->loopback_work, virtio_transport_loopback_work);
- 
-+	mutex_lock(&vsock->tx_lock);
-+	vsock->tx_run = true;
-+	mutex_unlock(&vsock->tx_lock);
-+
- 	mutex_lock(&vsock->rx_lock);
- 	virtio_vsock_rx_fill(vsock);
-+	vsock->rx_run = true;
- 	mutex_unlock(&vsock->rx_lock);
- 
- 	mutex_lock(&vsock->event_lock);
- 	virtio_vsock_event_fill(vsock);
-+	vsock->event_run = true;
- 	mutex_unlock(&vsock->event_lock);
- 
- 	the_virtio_vsock = vsock;
-@@ -647,6 +677,22 @@ static void virtio_vsock_remove(struct virtio_device *vdev)
  	/* Reset all connected sockets when the device disappear */
  	vsock_for_each_connected_socket(virtio_vsock_reset_sock);
  
-+	/* Stop all work handlers to make sure no one is accessing the device */
-+	mutex_lock(&vsock->rx_lock);
-+	vsock->rx_run = false;
-+	mutex_unlock(&vsock->rx_lock);
-+
-+	mutex_lock(&vsock->tx_lock);
-+	vsock->tx_run = false;
-+	mutex_unlock(&vsock->tx_lock);
-+
-+	mutex_lock(&vsock->event_lock);
-+	vsock->event_run = false;
-+	mutex_unlock(&vsock->event_lock);
-+
-+	/* Flush all device writes and interrupts, device will not use any
-+	 * more buffers.
-+	 */
- 	vdev->config->reset(vdev);
+@@ -690,6 +693,9 @@ static void virtio_vsock_remove(struct virtio_device *vdev)
+ 	vsock->event_run = false;
+ 	mutex_unlock(&vsock->event_lock);
  
- 	mutex_lock(&vsock->rx_lock);
-@@ -677,6 +723,7 @@ static void virtio_vsock_remove(struct virtio_device *vdev)
- 	}
- 	spin_unlock_bh(&vsock->loopback_list_lock);
- 
-+	/* Delete virtqueues and flush outstanding callbacks if any */
++	/* Flush all pending works */
++	virtio_vsock_flush_works(vsock);
++
+ 	/* Flush all device writes and interrupts, device will not use any
+ 	 * more buffers.
+ 	 */
+@@ -726,6 +732,11 @@ static void virtio_vsock_remove(struct virtio_device *vdev)
+ 	/* Delete virtqueues and flush outstanding callbacks if any */
  	vdev->config->del_vqs(vdev);
  
++	/* Other works can be queued before 'config->del_vqs()', so we flush
++	 * all works before to free the vsock object to avoid use after free.
++	 */
++	virtio_vsock_flush_works(vsock);
++
  	kfree(vsock);
+ 	mutex_unlock(&the_virtio_vsock_mutex);
+ }
 -- 
 2.20.1
