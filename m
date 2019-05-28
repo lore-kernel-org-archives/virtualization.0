@@ -1,20 +1,17 @@
-From: Nadav Amit via Virtualization <virtualization@lists.linux-foundation.org>
-Subject: Re: [RFC PATCH 5/6] x86/mm/tlb: Flush remote and local TLBs
-	concurrently
-Date: Mon, 27 May 2019 17:49:03 +0000
-Message-ID: <AA36DE0F-04DB-47E1-B5D8-2E4522E9D6B3__18260.2499191248$1558979409$gmane$org@vmware.com>
-References: <20190525082203.6531-1-namit@vmware.com>
-	<20190525082203.6531-6-namit@vmware.com>
-	<08b21fb5-2226-7924-30e3-31e4adcfc0a3@suse.com>
-	<20190527094710.GU2623@hirez.programming.kicks-ass.net>
-Reply-To: Nadav Amit <namit@vmware.com>
+From: Jean-Philippe Brucker <jean-philippe.brucker@arm.com>
+Subject: Re: [PATCH v7 0/7] Add virtio-iommu driver
+Date: Tue, 28 May 2019 10:18:21 +0100
+Message-ID: <99ff5494-bfdf-f4ef-b2d2-c177add385c6__22632.5298471906$1559035219$gmane$org@arm.com>
+References: <20190115121959.23763-1-jean-philippe.brucker@arm.com>
+	<20190512123022-mutt-send-email-mst@kernel.org>
+	<20190527092604.GB21613@8bytes.org>
+	<20190527111345-mutt-send-email-mst@kernel.org>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="utf-8"
-Content-Transfer-Encoding: base64
+Content-Type: text/plain; charset="us-ascii"
+Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <20190527094710.GU2623@hirez.programming.kicks-ass.net>
+In-Reply-To: <20190527111345-mutt-send-email-mst@kernel.org>
 Content-Language: en-US
-Content-ID: <A4055DEB35687B479CB0588C414C980D@namprd05.prod.outlook.com>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -24,61 +21,35 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Peter Zijlstra <peterz@infradead.org>
-Cc: Juergen Gross <jgross@suse.com>, Sasha Levin <sashal@kernel.org>, "linux-hyperv@vger.kernel.org" <linux-hyperv@vger.kernel.org>, Dave Hansen <dave.hansen@linux.intel.com>, Stephen Hemminger <sthemmin@microsoft.com>, "kvm@vger.kernel.org" <kvm@vger.kernel.org>, Haiyang Zhang <haiyangz@microsoft.com>, "x86@kernel.org" <x86@kernel.org>, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>, "virtualization@lists.linux-foundation.org" <virtualization@lists.linux-foundation.org>, Ingo Molnar <mingo@redhat.com>, Borislav Petkov <bp@alien8.de>, Andy Lutomirski <luto@kernel.org>, "xen-devel@lists.xenproject.org" <xen-devel@lists.xenproject.org>, Paolo Bonzini <pbonzini@redhat.com>, Thomas Gleixner <tglx@linutronix.de>, Boris Ostrovsky <boris.ostrovsky@oracle.com>
+To: "Michael S. Tsirkin" <mst@redhat.com>, Joerg Roedel <joro@8bytes.org>
+Cc: Mark Rutland <Mark.Rutland@arm.com>, "virtio-dev@lists.oasis-open.org" <virtio-dev@lists.oasis-open.org>, Lorenzo Pieralisi <Lorenzo.Pieralisi@arm.com>, "tnowicki@caviumnetworks.com" <tnowicki@caviumnetworks.com>, "devicetree@vger.kernel.org" <devicetree@vger.kernel.org>, Marc Zyngier <Marc.Zyngier@arm.com>, "linux-pci@vger.kernel.org" <linux-pci@vger.kernel.org>, Will Deacon <Will.Deacon@arm.com>, Robin Murphy <Robin.Murphy@arm.com>, "virtualization@lists.linux-foundation.org" <virtualization@lists.linux-foundation.org>, "eric.auger@redhat.com" <eric.auger@redhat.com>, "iommu@lists.linux-foundation.org" <iommu@lists.linux-foundation.org>, "robh+dt@kernel.org" <robh+dt@kernel.org>, "bhelgaas@google.com" <bhelgaas@google.com>, "kvmarm@lists.cs.columbia.edu" <kvmarm@lists.cs.columbia.edu>
 List-Id: virtualization@lists.linuxfoundation.org
 
-PiBPbiBNYXkgMjcsIDIwMTksIGF0IDI6NDcgQU0sIFBldGVyIFppamxzdHJhIDxwZXRlcnpAaW5m
-cmFkZWFkLm9yZz4gd3JvdGU6DQo+IA0KPiBPbiBTYXQsIE1heSAyNSwgMjAxOSBhdCAxMDo1NDo1
-MEFNICswMjAwLCBKdWVyZ2VuIEdyb3NzIHdyb3RlOg0KPj4gT24gMjUvMDUvMjAxOSAxMDoyMiwg
-TmFkYXYgQW1pdCB3cm90ZToNCj4gDQo+Pj4gZGlmZiAtLWdpdCBhL2FyY2gveDg2L2luY2x1ZGUv
-YXNtL3BhcmF2aXJ0X3R5cGVzLmggYi9hcmNoL3g4Ni9pbmNsdWRlL2FzbS9wYXJhdmlydF90eXBl
-cy5oDQo+Pj4gaW5kZXggOTQ2ZjhmMWYxZWZjLi4zYTE1NmU2M2M1N2QgMTAwNjQ0DQo+Pj4gLS0t
-IGEvYXJjaC94ODYvaW5jbHVkZS9hc20vcGFyYXZpcnRfdHlwZXMuaA0KPj4+ICsrKyBiL2FyY2gv
-eDg2L2luY2x1ZGUvYXNtL3BhcmF2aXJ0X3R5cGVzLmgNCj4+PiBAQCAtMjExLDYgKzIxMSwxMiBA
-QCBzdHJ1Y3QgcHZfbW11X29wcyB7DQo+Pj4gCXZvaWQgKCpmbHVzaF90bGJfdXNlcikodm9pZCk7
-DQo+Pj4gCXZvaWQgKCpmbHVzaF90bGJfa2VybmVsKSh2b2lkKTsNCj4+PiAJdm9pZCAoKmZsdXNo
-X3RsYl9vbmVfdXNlcikodW5zaWduZWQgbG9uZyBhZGRyKTsNCj4+PiArCS8qDQo+Pj4gKwkgKiBm
-bHVzaF90bGJfbXVsdGkoKSBpcyB0aGUgcHJlZmVycmVkIGludGVyZmFjZS4gV2hlbiBpdCBpcyB1
-c2VkLA0KPj4+ICsJICogZmx1c2hfdGxiX290aGVycygpIHNob3VsZCByZXR1cm4gZmFsc2UuDQo+
-PiANCj4+IFRoaXMgY29tbWVudCBkb2VzIG5vdCBtYWtlIHNlbnNlLiBmbHVzaF90bGJfb3RoZXJz
-KCkgcmV0dXJuIHR5cGUgaXMNCj4+IHZvaWQuDQo+IA0KPiBJIHN1c3BlY3QgdGhhdCBpcyBhbiBh
-cnRpZmFjdCBmcm9tIGJlZm9yZSB0aGUgc3RhdGljX2tleTsgYW4gYXR0ZW1wdCB0bw0KPiBtYWtl
-IHRoZSBwdiBpbnRlcmZhY2UgbGVzcyBhd2t3YXJkLg0KDQpZZXMsIHJlbWFpbmRlcnMgdGhhdCBz
-aG91bGQgaGF2ZSBiZWVuIHJlbW92ZWQgLSBJIHdpbGwgcmVtb3ZlIHRoZW0gZm9yIHRoZQ0KbmV4
-dCB2ZXJzaW9uLg0KDQo+IFNvbWV0aGluZyBsaWtlIHRoZSBiZWxvdyB3b3VsZCB3b3JrIGZvciBL
-Vk0gSSBzdXNwZWN0LCB0aGUgb3RoZXJzDQo+IChIeXBlci1WIGFuZCBYZW4gYXJlIG1vcmUgJ2lu
-dGVyZXN0aW5nJykuDQo+IA0KPiAtLS0NCj4gLS0tIGEvYXJjaC94ODYva2VybmVsL2t2bS5jDQo+
-ICsrKyBiL2FyY2gveDg2L2tlcm5lbC9rdm0uYw0KPiBAQCAtNTgwLDcgKzU4MCw3IEBAIHN0YXRp
-YyB2b2lkIF9faW5pdCBrdm1fYXBmX3RyYXBfaW5pdCh2b2kNCj4gDQo+IHN0YXRpYyBERUZJTkVf
-UEVSX0NQVShjcHVtYXNrX3Zhcl90LCBfX3B2X3RsYl9tYXNrKTsNCj4gDQo+IC1zdGF0aWMgdm9p
-ZCBrdm1fZmx1c2hfdGxiX290aGVycyhjb25zdCBzdHJ1Y3QgY3B1bWFzayAqY3B1bWFzaywNCj4g
-K3N0YXRpYyB2b2lkIGt2bV9mbHVzaF90bGJfbXVsdGkoY29uc3Qgc3RydWN0IGNwdW1hc2sgKmNw
-dW1hc2ssDQo+IAkJCWNvbnN0IHN0cnVjdCBmbHVzaF90bGJfaW5mbyAqaW5mbykNCj4gew0KPiAJ
-dTggc3RhdGU7DQo+IEBAIC01OTQsNiArNTk0LDkgQEAgc3RhdGljIHZvaWQga3ZtX2ZsdXNoX3Rs
-Yl9vdGhlcnMoY29uc3Qgcw0KPiAJICogcXVldWUgZmx1c2hfb25fZW50ZXIgZm9yIHByZS1lbXB0
-ZWQgdkNQVXMNCj4gCSAqLw0KPiAJZm9yX2VhY2hfY3B1KGNwdSwgZmx1c2htYXNrKSB7DQo+ICsJ
-CWlmIChjcHUgPT0gc21wX3Byb2Nlc3Nvcl9pZCgpKQ0KPiArCQkJY29udGludWU7DQo+ICsNCj4g
-CQlzcmMgPSAmcGVyX2NwdShzdGVhbF90aW1lLCBjcHUpOw0KPiAJCXN0YXRlID0gUkVBRF9PTkNF
-KHNyYy0+cHJlZW1wdGVkKTsNCj4gCQlpZiAoKHN0YXRlICYgS1ZNX1ZDUFVfUFJFRU1QVEVEKSkg
-ew0KPiBAQCAtNjAzLDcgKzYwNiw3IEBAIHN0YXRpYyB2b2lkIGt2bV9mbHVzaF90bGJfb3RoZXJz
-KGNvbnN0IHMNCj4gCQl9DQo+IAl9DQo+IA0KPiAtCW5hdGl2ZV9mbHVzaF90bGJfb3RoZXJzKGZs
-dXNobWFzaywgaW5mbyk7DQo+ICsJbmF0aXZlX2ZsdXNoX3RsYl9tdWx0aShmbHVzaG1hc2ssIGlu
-Zm8pOw0KPiB9DQo+IA0KPiBzdGF0aWMgdm9pZCBfX2luaXQga3ZtX2d1ZXN0X2luaXQodm9pZCkN
-Cj4gQEAgLTYyOCw5ICs2MzEsOCBAQCBzdGF0aWMgdm9pZCBfX2luaXQga3ZtX2d1ZXN0X2luaXQo
-dm9pZCkNCj4gCWlmIChrdm1fcGFyYV9oYXNfZmVhdHVyZShLVk1fRkVBVFVSRV9QVl9UTEJfRkxV
-U0gpICYmDQo+IAkgICAgIWt2bV9wYXJhX2hhc19oaW50KEtWTV9ISU5UU19SRUFMVElNRSkgJiYN
-Cj4gCSAgICBrdm1fcGFyYV9oYXNfZmVhdHVyZShLVk1fRkVBVFVSRV9TVEVBTF9USU1FKSkgew0K
-PiAtCQlwdl9vcHMubW11LmZsdXNoX3RsYl9vdGhlcnMgPSBrdm1fZmx1c2hfdGxiX290aGVyczsN
-Cj4gKwkJcHZfb3BzLm1tdS5mbHVzaF90bGJfbXVsdGkgPSBrdm1fZmx1c2hfdGxiX211bHRpOw0K
-PiAJCXB2X29wcy5tbXUudGxiX3JlbW92ZV90YWJsZSA9IHRsYl9yZW1vdmVfdGFibGU7DQo+IC0J
-CXN0YXRpY19rZXlfZGlzYWJsZSgmZmx1c2hfdGxiX211bHRpX2VuYWJsZWQua2V5KTsNCj4gCX0N
-Cj4gDQo+IAlpZiAoa3ZtX3BhcmFfaGFzX2ZlYXR1cmUoS1ZNX0ZFQVRVUkVfUFZfRU9JKSkNCg0K
-VGhhdOKAmXMgd2hhdCBJIGhhdmUgYXMgd2VsbCA7LSkuDQoNCkFzIHlvdSBtZW50aW9uZWQgKGlu
-IGFub3RoZXIgZW1haWwpLCBzcGVjaWZpY2FsbHkgaHlwZXItdiBjb2RlIHNlZW1zDQpjb252b2x1
-dGVkIHRvIG1lLiBJbiBnZW5lcmFsLCBJIHByZWZlciBub3QgdG8gdG91Y2ggS1ZNL1hlbi9oeXBl
-ci12LCBidXQgeW91DQp0d2lzdCBteSBhcm0sIEkgd2lsbCBzZW5kIGEgY29tcGlsZS10ZXN0ZWQg
-dmVyc2lvbiBmb3IgWGVuIGFuZCBoeXBlci12Lg0KDQpfX19fX19fX19fX19fX19fX19fX19fX19f
-X19fX19fX19fX19fX19fX19fX19fXwpWaXJ0dWFsaXphdGlvbiBtYWlsaW5nIGxpc3QKVmlydHVh
-bGl6YXRpb25AbGlzdHMubGludXgtZm91bmRhdGlvbi5vcmcKaHR0cHM6Ly9saXN0cy5saW51eGZv
-dW5kYXRpb24ub3JnL21haWxtYW4vbGlzdGluZm8vdmlydHVhbGl6YXRpb24=
+On 27/05/2019 16:15, Michael S. Tsirkin wrote:
+> On Mon, May 27, 2019 at 11:26:04AM +0200, Joerg Roedel wrote:
+>> On Sun, May 12, 2019 at 12:31:59PM -0400, Michael S. Tsirkin wrote:
+>>> OK this has been in next for a while.
+>>>
+>>> Last time IOMMU maintainers objected. Are objections
+>>> still in force?
+>>>
+>>> If not could we get acks please?
+>>
+>> No objections against the code, I only hesitated because the Spec was
+>> not yet official.
+>>
+>> So for the code:
+>>
+>> 	Acked-by: Joerg Roedel <jroedel@suse.de>
+> 
+> Last spec patch had a bunch of comments not yet addressed.
+> But I do not remember whether comments are just about wording
+> or about the host/guest interface as well.
+> Jean-Philippe could you remind me please?
+
+It's mostly wording, but there is a small change in the config space
+layout and two new feature bits. I'll send a new version of the driver
+when possible.
+
+Thanks,
+Jean
