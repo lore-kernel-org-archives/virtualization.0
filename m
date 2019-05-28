@@ -1,13 +1,14 @@
-From: Stefano Garzarella <sgarzare@redhat.com>
-Subject: [PATCH 4/4] vsock/virtio: free used buffers during the .remove()
-Date: Tue, 28 May 2019 12:56:23 +0200
-Message-ID: <20190528105623.27983-5-sgarzare__20441.2932785758$1559041127$gmane$org@redhat.com>
-References: <20190528105623.27983-1-sgarzare@redhat.com>
+From: Amit Shah <amit@infradead.org>
+Subject: Re: [PATCH] virtio_console: remove vq buf while unpluging port
+Date: Tue, 28 May 2019 14:59:46 +0200
+Message-ID: <f8fccc5745755e92077306189577da2fe591f586.camel__25142.2641494841$1559048483$gmane$org@infradead.org>
+References: <1556416204-30311-1-git-send-email-pizhenwei@bytedance.com>
+	<20190524185132.GA10695@kroah.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <20190528105623.27983-1-sgarzare@redhat.com>
+In-Reply-To: <20190524185132.GA10695@kroah.com>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -17,56 +18,43 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: netdev@vger.kernel.org
-Cc: kvm@vger.kernel.org, "Michael S . Tsirkin" <mst@redhat.com>, linux-kernel@vger.kernel.org, virtualization@lists.linux-foundation.org, Stefan Hajnoczi <stefanha@redhat.com>, "David S. Miller" <davem@davemloft.net>
+To: Greg KH <gregkh@linuxfoundation.org>, amit@kernel.org, zhenwei pi <pizhenwei@bytedance.com>
+Cc: linux-kernel@vger.kernel.org, arnd@arndb.de, virtualization@lists.linux-foundation.org
 List-Id: virtualization@lists.linuxfoundation.org
 
-Before this patch, we only freed unused buffers, but there may
-still be used buffers to be freed.
+On Fri, 2019-05-24 at 20:51 +0200, Greg KH wrote:
+> On Sun, Apr 28, 2019 at 09:50:04AM +0800, zhenwei pi wrote:
+> > A bug can be easily reproduced:
+> > Host# cat guest-agent.xml
+> > <channel type="unix">
+> >   <source mode="bind" path="/var/lib/libvirt/qemu/stretch.agent"/>
+> >   <target type="virtio" name="org.qemu.guest_agent.0"
+> > state="connected"/>
+> > </channel>
+> > Host# virsh attach-device instance guest-agent.xml
+> > Host# virsh detach-device instance guest-agent.xml
+> > Host# virsh attach-device instance guest-agent.xml
+> > 
+> > and guest report: virtio-ports vport0p1: Error allocating inbufs
+> > 
+> > The reason is that the port is unplugged and the vq buf still
+> > remained.
+> > So, fix two cases in this patch:
+> > 1, fix memory leak with attach-device/detach-device.
+> > 2, fix logic bug with attach-device/detach-device/attach-device.
 
-Signed-off-by: Stefano Garzarella <sgarzare@redhat.com>
----
- net/vmw_vsock/virtio_transport.c | 18 ++++++++++++++----
- 1 file changed, 14 insertions(+), 4 deletions(-)
+The "leak" happens because the host-side of the connection is still
+connected.  This is by design -- if a guest has written data before
+being unplugged, the port isn't released till the host connection goes
+down to ensure a host process reads all the data out of the port.
 
-diff --git a/net/vmw_vsock/virtio_transport.c b/net/vmw_vsock/virtio_transport.c
-index ad093ce96693..6a2afb989562 100644
---- a/net/vmw_vsock/virtio_transport.c
-+++ b/net/vmw_vsock/virtio_transport.c
-@@ -669,6 +669,18 @@ static void virtio_vsock_flush_works(struct virtio_vsock *vsock)
- 	flush_work(&vsock->send_pkt_work);
- }
- 
-+static void virtio_vsock_free_buf(struct virtqueue *vq)
-+{
-+	struct virtio_vsock_pkt *pkt;
-+	unsigned int len;
-+
-+	while ((pkt = virtqueue_detach_unused_buf(vq)))
-+		virtio_transport_free_pkt(pkt);
-+
-+	while ((pkt = virtqueue_get_buf(vq, &len)))
-+		virtio_transport_free_pkt(pkt);
-+}
-+
- static void virtio_vsock_remove(struct virtio_device *vdev)
- {
- 	struct virtio_vsock *vsock = vdev->priv;
-@@ -702,13 +714,11 @@ static void virtio_vsock_remove(struct virtio_device *vdev)
- 	vdev->config->reset(vdev);
- 
- 	mutex_lock(&vsock->rx_lock);
--	while ((pkt = virtqueue_detach_unused_buf(vsock->vqs[VSOCK_VQ_RX])))
--		virtio_transport_free_pkt(pkt);
-+	virtio_vsock_free_buf(vsock->vqs[VSOCK_VQ_RX]);
- 	mutex_unlock(&vsock->rx_lock);
- 
- 	mutex_lock(&vsock->tx_lock);
--	while ((pkt = virtqueue_detach_unused_buf(vsock->vqs[VSOCK_VQ_TX])))
--		virtio_transport_free_pkt(pkt);
-+	virtio_vsock_free_buf(vsock->vqs[VSOCK_VQ_TX]);
- 	mutex_unlock(&vsock->tx_lock);
- 
- 	spin_lock_bh(&vsock->send_pkt_list_lock);
--- 
-2.20.1
+Can you try similar, but also disconnecting the host side and see if
+that fixes things?
+
+> Amit, any ideas if this is valid or not and if this should be
+> applied?
+
+This had indeed been missed, thanks!
+
+
+			Amit
