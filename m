@@ -1,16 +1,19 @@
-From: Stefano Garzarella <sgarzare@redhat.com>
-Subject: Re: [PATCH 3/4] vsock/virtio: fix flush of works during the .remove()
-Date: Wed, 29 May 2019 12:58:32 +0200
-Message-ID: <20190529105832.oz3sagbne5teq3nt__5615.38878116465$1559127663$gmane$org@steredhat>
-References: <20190528105623.27983-1-sgarzare@redhat.com>
-	<20190528105623.27983-4-sgarzare@redhat.com>
-	<9ac9fc4b-5c39-2503-dfbb-660a7bdcfbfd@redhat.com>
+From: Michael Mueller <mimu@linux.ibm.com>
+Subject: Re: [PATCH v2 6/8] virtio/s390: add indirection to indicators access
+Date: Wed, 29 May 2019 13:05:41 +0200
+Message-ID: <08e56ae6-28ed-52ae-62ec-fde786949500@linux.ibm.com>
+References: <20190523162209.9543-1-mimu@linux.ibm.com>
+	<20190523162209.9543-7-mimu@linux.ibm.com>
+	<20190527130028.62e1f7d7.cohuck@redhat.com>
+	<20190527135706.34837062.pasic@linux.ibm.com>
+	<20190527141029.102f838a.cohuck@redhat.com>
+Reply-To: mimu@linux.ibm.com
 Mime-Version: 1.0
-Content-Type: text/plain; charset="utf-8"
-Content-Transfer-Encoding: base64
+Content-Type: text/plain; charset="us-ascii"; Format="flowed"
+Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-Content-Disposition: inline
-In-Reply-To: <9ac9fc4b-5c39-2503-dfbb-660a7bdcfbfd@redhat.com>
+In-Reply-To: <20190527141029.102f838a.cohuck@redhat.com>
+Content-Language: en-US
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -20,85 +23,79 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Jason Wang <jasowang@redhat.com>
-Cc: kvm@vger.kernel.org, "Michael S . Tsirkin" <mst@redhat.com>, netdev@vger.kernel.org, linux-kernel@vger.kernel.org, virtualization@lists.linux-foundation.org, Stefan Hajnoczi <stefanha@redhat.com>, "David S. Miller" <davem@davemloft.net>
+To: Cornelia Huck <cohuck@redhat.com>, Halil Pasic <pasic@linux.ibm.com>
+Cc: Vasily Gorbik <gor@linux.ibm.com>, Linux-S390 Mailing List <linux-s390@vger.kernel.org>, Thomas Huth <thuth@redhat.com>, Claudio Imbrenda <imbrenda@linux.ibm.com>, KVM Mailing List <kvm@vger.kernel.org>, Sebastian Ott <sebott@linux.ibm.com>, "Michael S . Tsirkin" <mst@redhat.com>, Pierre Morel <pmorel@linux.ibm.com>, Farhan Ali <alifm@linux.ibm.com>, Heiko Carstens <heiko.carstens@de.ibm.com>, Eric Farman <farman@linux.ibm.com>, virtualization@lists.linux-foundation.org, Christoph Hellwig <hch@infradead.org>, Christian Borntraeger <borntraeger@de.ibm.com>, Viktor Mihajlovski <mihajlov@linux.ibm.com>, Janosch Frank <frankja@linux.ibm.com>
 List-Id: virtualization@lists.linuxfoundation.org
 
-T24gV2VkLCBNYXkgMjksIDIwMTkgYXQgMTE6MjI6NDBBTSArMDgwMCwgSmFzb24gV2FuZyB3cm90
-ZToKPiAKPiBPbiAyMDE5LzUvMjgg5LiL5Y2INjo1NiwgU3RlZmFubyBHYXJ6YXJlbGxhIHdyb3Rl
-Ogo+ID4gV2UgZmx1c2ggYWxsIHBlbmRpbmcgd29ya3MgYmVmb3JlIHRvIGNhbGwgdmRldi0+Y29u
-ZmlnLT5yZXNldCh2ZGV2KSwKPiA+IGJ1dCBvdGhlciB3b3JrcyBjYW4gYmUgcXVldWVkIGJlZm9y
-ZSB0aGUgdmRldi0+Y29uZmlnLT5kZWxfdnFzKHZkZXYpLAo+ID4gc28gd2UgYWRkIGFub3RoZXIg
-Zmx1c2ggYWZ0ZXIgaXQsIHRvIGF2b2lkIHVzZSBhZnRlciBmcmVlLgo+ID4gCj4gPiBTdWdnZXN0
-ZWQtYnk6IE1pY2hhZWwgUy4gVHNpcmtpbiA8bXN0QHJlZGhhdC5jb20+Cj4gPiBTaWduZWQtb2Zm
-LWJ5OiBTdGVmYW5vIEdhcnphcmVsbGEgPHNnYXJ6YXJlQHJlZGhhdC5jb20+Cj4gPiAtLS0KPiA+
-ICAgbmV0L3Ztd192c29jay92aXJ0aW9fdHJhbnNwb3J0LmMgfCAyMyArKysrKysrKysrKysrKysr
-Ky0tLS0tLQo+ID4gICAxIGZpbGUgY2hhbmdlZCwgMTcgaW5zZXJ0aW9ucygrKSwgNiBkZWxldGlv
-bnMoLSkKPiA+IAo+ID4gZGlmZiAtLWdpdCBhL25ldC92bXdfdnNvY2svdmlydGlvX3RyYW5zcG9y
-dC5jIGIvbmV0L3Ztd192c29jay92aXJ0aW9fdHJhbnNwb3J0LmMKPiA+IGluZGV4IGU2OTRkZjEw
-YWI2MS4uYWQwOTNjZTk2NjkzIDEwMDY0NAo+ID4gLS0tIGEvbmV0L3Ztd192c29jay92aXJ0aW9f
-dHJhbnNwb3J0LmMKPiA+ICsrKyBiL25ldC92bXdfdnNvY2svdmlydGlvX3RyYW5zcG9ydC5jCj4g
-PiBAQCAtNjYwLDYgKzY2MCwxNSBAQCBzdGF0aWMgaW50IHZpcnRpb192c29ja19wcm9iZShzdHJ1
-Y3QgdmlydGlvX2RldmljZSAqdmRldikKPiA+ICAgCXJldHVybiByZXQ7Cj4gPiAgIH0KPiA+ICtz
-dGF0aWMgdm9pZCB2aXJ0aW9fdnNvY2tfZmx1c2hfd29ya3Moc3RydWN0IHZpcnRpb192c29jayAq
-dnNvY2spCj4gPiArewo+ID4gKwlmbHVzaF93b3JrKCZ2c29jay0+bG9vcGJhY2tfd29yayk7Cj4g
-PiArCWZsdXNoX3dvcmsoJnZzb2NrLT5yeF93b3JrKTsKPiA+ICsJZmx1c2hfd29yaygmdnNvY2st
-PnR4X3dvcmspOwo+ID4gKwlmbHVzaF93b3JrKCZ2c29jay0+ZXZlbnRfd29yayk7Cj4gPiArCWZs
-dXNoX3dvcmsoJnZzb2NrLT5zZW5kX3BrdF93b3JrKTsKPiA+ICt9Cj4gPiArCj4gPiAgIHN0YXRp
-YyB2b2lkIHZpcnRpb192c29ja19yZW1vdmUoc3RydWN0IHZpcnRpb19kZXZpY2UgKnZkZXYpCj4g
-PiAgIHsKPiA+ICAgCXN0cnVjdCB2aXJ0aW9fdnNvY2sgKnZzb2NrID0gdmRldi0+cHJpdjsKPiA+
-IEBAIC02NjgsMTIgKzY3Nyw2IEBAIHN0YXRpYyB2b2lkIHZpcnRpb192c29ja19yZW1vdmUoc3Ry
-dWN0IHZpcnRpb19kZXZpY2UgKnZkZXYpCj4gPiAgIAltdXRleF9sb2NrKCZ0aGVfdmlydGlvX3Zz
-b2NrX211dGV4KTsKPiA+ICAgCXRoZV92aXJ0aW9fdnNvY2sgPSBOVUxMOwo+ID4gLQlmbHVzaF93
-b3JrKCZ2c29jay0+bG9vcGJhY2tfd29yayk7Cj4gPiAtCWZsdXNoX3dvcmsoJnZzb2NrLT5yeF93
-b3JrKTsKPiA+IC0JZmx1c2hfd29yaygmdnNvY2stPnR4X3dvcmspOwo+ID4gLQlmbHVzaF93b3Jr
-KCZ2c29jay0+ZXZlbnRfd29yayk7Cj4gPiAtCWZsdXNoX3dvcmsoJnZzb2NrLT5zZW5kX3BrdF93
-b3JrKTsKPiA+IC0KPiA+ICAgCS8qIFJlc2V0IGFsbCBjb25uZWN0ZWQgc29ja2V0cyB3aGVuIHRo
-ZSBkZXZpY2UgZGlzYXBwZWFyICovCj4gPiAgIAl2c29ja19mb3JfZWFjaF9jb25uZWN0ZWRfc29j
-a2V0KHZpcnRpb192c29ja19yZXNldF9zb2NrKTsKPiA+IEBAIC02OTAsNiArNjkzLDkgQEAgc3Rh
-dGljIHZvaWQgdmlydGlvX3Zzb2NrX3JlbW92ZShzdHJ1Y3QgdmlydGlvX2RldmljZSAqdmRldikK
-PiA+ICAgCXZzb2NrLT5ldmVudF9ydW4gPSBmYWxzZTsKPiA+ICAgCW11dGV4X3VubG9jaygmdnNv
-Y2stPmV2ZW50X2xvY2spOwo+ID4gKwkvKiBGbHVzaCBhbGwgcGVuZGluZyB3b3JrcyAqLwo+ID4g
-Kwl2aXJ0aW9fdnNvY2tfZmx1c2hfd29ya3ModnNvY2spOwo+ID4gKwo+ID4gICAJLyogRmx1c2gg
-YWxsIGRldmljZSB3cml0ZXMgYW5kIGludGVycnVwdHMsIGRldmljZSB3aWxsIG5vdCB1c2UgYW55
-Cj4gPiAgIAkgKiBtb3JlIGJ1ZmZlcnMuCj4gPiAgIAkgKi8KPiA+IEBAIC03MjYsNiArNzMyLDEx
-IEBAIHN0YXRpYyB2b2lkIHZpcnRpb192c29ja19yZW1vdmUoc3RydWN0IHZpcnRpb19kZXZpY2Ug
-KnZkZXYpCj4gPiAgIAkvKiBEZWxldGUgdmlydHF1ZXVlcyBhbmQgZmx1c2ggb3V0c3RhbmRpbmcg
-Y2FsbGJhY2tzIGlmIGFueSAqLwo+ID4gICAJdmRldi0+Y29uZmlnLT5kZWxfdnFzKHZkZXYpOwo+
-ID4gKwkvKiBPdGhlciB3b3JrcyBjYW4gYmUgcXVldWVkIGJlZm9yZSAnY29uZmlnLT5kZWxfdnFz
-KCknLCBzbyB3ZSBmbHVzaAo+ID4gKwkgKiBhbGwgd29ya3MgYmVmb3JlIHRvIGZyZWUgdGhlIHZz
-b2NrIG9iamVjdCB0byBhdm9pZCB1c2UgYWZ0ZXIgZnJlZS4KPiA+ICsJICovCj4gPiArCXZpcnRp
-b192c29ja19mbHVzaF93b3Jrcyh2c29jayk7Cj4gCj4gCj4gU29tZSBxdWVzdGlvbnMgYWZ0ZXIg
-YSBxdWljayBnbGFuY2U6Cj4gCj4gMSkgSXQgbG9va3MgdG8gbWUgdGhhdCB0aGUgd29yayBjb3Vs
-ZCBiZSBxdWV1ZWQgZnJvbSB0aGUgcGF0aCBvZgo+IHZzb2NrX3RyYW5zcG9ydF9jYW5jZWxfcGt0
-KCkgLiBJcyB0aGF0IHN5bmNocm9uaXplZCBoZXJlPwo+CgpCb3RoIHZpcnRpb190cmFuc3BvcnRf
-c2VuZF9wa3QoKSBhbmQgdnNvY2tfdHJhbnNwb3J0X2NhbmNlbF9wa3QoKSBjYW4KcXVldWUgd29y
-ayBmcm9tIHRoZSB1cHBlciBsYXllciAoc29ja2V0KS4KClNldHRpbmcgdGhlX3ZpcnRpb192c29j
-ayB0byBOVUxMLCBzaG91bGQgc3luY2hyb25pemUsIGJ1dCBhZnRlciBhIGNhcmVmdWwgbG9vawph
-IHJhcmUgaXNzdWUgY291bGQgaGFwcGVuOgp3ZSBhcmUgc2V0dGluZyB0aGVfdmlydGlvX3Zzb2Nr
-IHRvIE5VTEwgYXQgdGhlIHN0YXJ0IG9mIC5yZW1vdmUoKSBhbmQgd2UKYXJlIGZyZWVpbmcgdGhl
-IG9iamVjdCBwb2ludGVkIGJ5IGl0IGF0IHRoZSBlbmQgb2YgLnJlbW92ZSgpLCBzbwp2aXJ0aW9f
-dHJhbnNwb3J0X3NlbmRfcGt0KCkgb3IgdnNvY2tfdHJhbnNwb3J0X2NhbmNlbF9wa3QoKSBtYXkg
-c3RpbGwgYmUKcnVubmluZywgYWNjZXNzaW5nIHRoZSBvYmplY3QgdGhhdCB3ZSBhcmUgZnJlZWQu
-CgpTaG91bGQgSSB1c2Ugc29tZXRoaW5nIGxpa2UgUkNVIHRvIHByZXZlbnQgdGhpcyBpc3N1ZT8K
-CiAgICB2aXJ0aW9fdHJhbnNwb3J0X3NlbmRfcGt0KCkgYW5kIHZzb2NrX3RyYW5zcG9ydF9jYW5j
-ZWxfcGt0KCkKICAgIHsKICAgICAgICByY3VfcmVhZF9sb2NrKCk7CiAgICAgICAgdnNvY2sgPSBy
-Y3VfZGVyZWZlcmVuY2UodGhlX3ZpcnRpb192c29ja19tdXRleCk7CiAgICAgICAgLi4uCiAgICAg
-ICAgcmN1X3JlYWRfdW5sb2NrKCk7CiAgICB9CgogICAgdmlydGlvX3Zzb2NrX3JlbW92ZSgpCiAg
-ICB7CiAgICAgICAgcmN1X2Fzc2lnbl9wb2ludGVyKHRoZV92aXJ0aW9fdnNvY2tfbXV0ZXgsIE5V
-TEwpOwogICAgICAgIHN5bmNocm9uaXplX3JjdSgpOwoKICAgICAgICAuLi4KCiAgICAgICAgZnJl
-ZSh2c29jayk7CiAgICB9CgpDb3VsZCB0aGVyZSBiZSBhIGJldHRlciBhcHByb2FjaD8KCgo+IDIp
-IElmIHdlIGRlY2lkZSB0byBmbHVzaCBhZnRlciBkZXZfdnFzKCksIGlzIHR4X3J1bi9yeF9ydW4v
-ZXZlbnRfcnVuIHN0aWxsCj4gbmVlZGVkPyBJdCBsb29rcyB0byBtZSB3ZSd2ZSBhbHJlYWR5IGRv
-bmUgZXhjZXB0IHRoYXQgd2UgbmVlZCBmbHVzaCByeF93b3JrCj4gaW4gdGhlIGVuZCBzaW5jZSBz
-ZW5kX3BrdF93b3JrIGNhbiByZXF1ZXVlIHJ4X3dvcmsuCgpUaGUgbWFpbiByZWFzb24gb2YgdHhf
-cnVuL3J4X3J1bi9ldmVudF9ydW4gaXMgdG8gcHJldmVudCB0aGF0IGEgd29ya2VyCmZ1bmN0aW9u
-IGlzIHJ1bm5pbmcgd2hpbGUgd2UgYXJlIGNhbGxpbmcgY29uZmlnLT5yZXNldCgpLgoKRS5nLiBp
-ZiBhbiBpbnRlcnJ1cHQgY29tZXMgYmV0d2VlbiB2aXJ0aW9fdnNvY2tfZmx1c2hfd29ya3MoKSBh
-bmQKY29uZmlnLT5yZXNldCgpLCBpdCBjYW4gcXVldWUgbmV3IHdvcmtzIHRoYXQgY2FuIGFjY2Vz
-cyB0aGUgZGV2aWNlIHdoaWxlCndlIGFyZSBpbiBjb25maWctPnJlc2V0KCkuCgpJTUhPIHRoZXkg
-YXJlIHN0aWxsIG5lZWRlZC4KCldoYXQgZG8geW91IHRoaW5rPwoKClRoYW5rcyBmb3IgeW91ciBx
-dWVzdGlvbnMsClN0ZWZhbm8KX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19f
-X19fX19fX18KVmlydHVhbGl6YXRpb24gbWFpbGluZyBsaXN0ClZpcnR1YWxpemF0aW9uQGxpc3Rz
-LmxpbnV4LWZvdW5kYXRpb24ub3JnCmh0dHBzOi8vbGlzdHMubGludXhmb3VuZGF0aW9uLm9yZy9t
-YWlsbWFuL2xpc3RpbmZvL3ZpcnR1YWxpemF0aW9u
+
+
+On 27.05.19 14:10, Cornelia Huck wrote:
+> On Mon, 27 May 2019 13:57:06 +0200
+> Halil Pasic <pasic@linux.ibm.com> wrote:
+> 
+>> On Mon, 27 May 2019 13:00:28 +0200
+>> Cornelia Huck <cohuck@redhat.com> wrote:
+>>
+>>> On Thu, 23 May 2019 18:22:07 +0200
+>>> Michael Mueller <mimu@linux.ibm.com> wrote:
+>>>    
+>>>> From: Halil Pasic <pasic@linux.ibm.com>
+>>>>
+>>>> This will come in handy soon when we pull out the indicators from
+>>>> virtio_ccw_device to a memory area that is shared with the hypervisor
+>>>> (in particular for protected virtualization guests).
+>>>>
+>>>> Signed-off-by: Halil Pasic <pasic@linux.ibm.com>
+>>>> Reviewed-by: Pierre Morel <pmorel@linux.ibm.com>
+>>>> ---
+>>>>   drivers/s390/virtio/virtio_ccw.c | 40 +++++++++++++++++++++++++---------------
+>>>>   1 file changed, 25 insertions(+), 15 deletions(-)
+>>>>    
+>>>    
+>>>> @@ -338,17 +348,17 @@ static void virtio_ccw_drop_indicator(struct virtio_ccw_device *vcdev,
+>>>>   		ccw->cda = (__u32)(unsigned long) thinint_area;
+>>>>   	} else {
+>>>>   		/* payload is the address of the indicators */
+>>>> -		indicatorp = kmalloc(sizeof(&vcdev->indicators),
+>>>> +		indicatorp = kmalloc(sizeof(indicators(vcdev)),
+>>>>   				     GFP_DMA | GFP_KERNEL);
+>>>>   		if (!indicatorp)
+>>>>   			return;
+>>>>   		*indicatorp = 0;
+>>>>   		ccw->cmd_code = CCW_CMD_SET_IND;
+>>>> -		ccw->count = sizeof(&vcdev->indicators);
+>>>> +		ccw->count = sizeof(indicators(vcdev));
+>>>>   		ccw->cda = (__u32)(unsigned long) indicatorp;
+>>>>   	}
+>>>>   	/* Deregister indicators from host. */
+>>>> -	vcdev->indicators = 0;
+>>>> +	*indicators(vcdev) = 0;
+>>>
+>>> I'm not too hot about this notation, but it's not wrong and a minor
+>>> thing :)
+>>
+>> I don't have any better ideas :/
+>>
+>>>    
+>>>>   	ccw->flags = 0;
+>>>>   	ret = ccw_io_helper(vcdev, ccw,
+>>>>   			    vcdev->is_thinint ?
+>>>
+>>> Patch looks reasonable and not dependent on the other patches here.
+>>>    
+>>
+>> looks reasonable == r-b?
+>>
+>> Not dependent in a sense that this patch could be made a first patch in
+>> the series. A subsequent patch depends on it.
+> 
+> What is the plan with these patches? I can either pick patch 5+6 and
+> let them go through the virtio tree, or give my r-b and let them go
+> through the s390 tree. The former is probably the quicker route, but
+> the latter has less potential for dependency issues.
+
+please give your r-b then for these.
+
+> 
+
+Michael
