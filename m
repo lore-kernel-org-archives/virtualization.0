@@ -1,20 +1,13 @@
 From: Michael Mueller <mimu@linux.ibm.com>
-Subject: Re: [PATCH v2 3/8] s390/cio: add basic protected virtualization
-	support
-Date: Wed, 29 May 2019 14:24:39 +0200
-Message-ID: <e794bad2-5fc2-b30c-972e-b586770a0065@linux.ibm.com>
-References: <20190523162209.9543-1-mimu@linux.ibm.com>
-	<20190523162209.9543-4-mimu@linux.ibm.com>
-	<20190527123802.54cd3589.cohuck@redhat.com>
-	<20190527143014.3b48a0d2.pasic@linux.ibm.com>
-	<20190527153130.0f473ffd.cohuck@redhat.com>
-Reply-To: mimu@linux.ibm.com
+Subject: [PATCH v3 1/8] s390/mm: force swiotlb for protected virtualization
+Date: Wed, 29 May 2019 14:26:50 +0200
+Message-ID: <20190529122657.166148-2-mimu@linux.ibm.com>
+References: <20190529122657.166148-1-mimu@linux.ibm.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"; Format="flowed"
+Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <20190527153130.0f473ffd.cohuck@redhat.com>
-Content-Language: en-US
+In-Reply-To: <20190529122657.166148-1-mimu@linux.ibm.com>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -24,136 +17,158 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Cornelia Huck <cohuck@redhat.com>, Halil Pasic <pasic@linux.ibm.com>
-Cc: Vasily Gorbik <gor@linux.ibm.com>, Linux-S390 Mailing List <linux-s390@vger.kernel.org>, Thomas Huth <thuth@redhat.com>, Claudio Imbrenda <imbrenda@linux.ibm.com>, KVM Mailing List <kvm@vger.kernel.org>, Sebastian Ott <sebott@linux.ibm.com>, "Michael S . Tsirkin" <mst@redhat.com>, Pierre Morel <pmorel@linux.ibm.com>, Farhan Ali <alifm@linux.ibm.com>, Heiko Carstens <heiko.carstens@de.ibm.com>, Eric Farman <farman@linux.ibm.com>, virtualization@lists.linux-foundation.org, Christoph Hellwig <hch@infradead.org>, Christian Borntraeger <borntraeger@de.ibm.com>, Viktor Mihajlovski <mihajlov@linux.ibm.com>, Janosch Frank <frankja@linux.ibm.com>
+To: KVM Mailing List <kvm@vger.kernel.org>, Linux-S390 Mailing List <linux-s390@vger.kernel.org>, Cornelia Huck <cohuck@redhat.com>, Sebastian Ott <sebott@linux.ibm.com>, Heiko Carstens <heiko.carstens@de.ibm.com>
+Cc: Christoph Hellwig <hch@infradead.org>, Thomas Huth <thuth@redhat.com>, Claudio Imbrenda <imbrenda@linux.ibm.com>, Janosch Frank <frankja@linux.ibm.com>, Vasily Gorbik <gor@linux.ibm.com>, "Michael S . Tsirkin" <mst@redhat.com>, Pierre Morel <pmorel@linux.ibm.com>, Farhan Ali <alifm@linux.ibm.com>, Eric Farman <farman@linux.ibm.com>, virtualization@lists.linux-foundation.org, Halil Pasic <pasic@linux.ibm.com>, Christian Borntraeger <borntraeger@de.ibm.com>, Michael Mueller <mimu@linux.ibm.com>, Viktor Mihajlovski <mihajlov@linux.ibm.com>
 List-Id: virtualization@lists.linuxfoundation.org
 
+From: Halil Pasic <pasic@linux.ibm.com>
 
+On s390, protected virtualization guests have to use bounced I/O
+buffers.  That requires some plumbing.
 
-On 27.05.19 15:31, Cornelia Huck wrote:
-> On Mon, 27 May 2019 14:30:14 +0200
-> Halil Pasic <pasic@linux.ibm.com> wrote:
-> 
->> On Mon, 27 May 2019 12:38:02 +0200
->> Cornelia Huck <cohuck@redhat.com> wrote:
->>
->>> On Thu, 23 May 2019 18:22:04 +0200
->>> Michael Mueller <mimu@linux.ibm.com> wrote:
->>>    
->>>> From: Halil Pasic <pasic@linux.ibm.com>
->>>>
->>>> As virtio-ccw devices are channel devices, we need to use the dma area
->>>> for any communication with the hypervisor.
->>>>
->>>> It handles neither QDIO in the common code, nor any device type specific
->>>> stuff (like channel programs constructed by the DASD driver).
->>>>
->>>> An interesting side effect is that virtio structures are now going to
->>>> get allocated in 31 bit addressable storage.
->>>>
->>>> Signed-off-by: Halil Pasic <pasic@linux.ibm.com>
->>>
->>> [Side note: you really should add your s-o-b if you send someone else's
->>> patches... if Halil ends up committing them, it's fine, though.]
->>>    
->>>> ---
->>>>   arch/s390/include/asm/ccwdev.h   |  4 +++
->>>>   drivers/s390/cio/ccwreq.c        |  9 +++---
->>>>   drivers/s390/cio/device.c        | 64 +++++++++++++++++++++++++++++++++-------
->>>>   drivers/s390/cio/device_fsm.c    | 53 ++++++++++++++++++++-------------
->>>>   drivers/s390/cio/device_id.c     | 20 +++++++------
->>>>   drivers/s390/cio/device_ops.c    | 21 +++++++++++--
->>>>   drivers/s390/cio/device_pgid.c   | 22 +++++++-------
->>>>   drivers/s390/cio/device_status.c | 24 +++++++--------
->>>>   drivers/s390/cio/io_sch.h        | 20 +++++++++----
->>>>   drivers/s390/virtio/virtio_ccw.c | 10 -------
->>>>   10 files changed, 164 insertions(+), 83 deletions(-)
->>>>    
->>>
->>> (...)
->>>    
->>>> @@ -1593,20 +1622,31 @@ struct ccw_device * __init ccw_device_create_console(struct ccw_driver *drv)
->>>>   		return ERR_CAST(sch);
->>>>   
->>>>   	io_priv = kzalloc(sizeof(*io_priv), GFP_KERNEL | GFP_DMA);
->>>> -	if (!io_priv) {
->>>> -		put_device(&sch->dev);
->>>> -		return ERR_PTR(-ENOMEM);
->>>> -	}
->>>> +	if (!io_priv)
->>>> +		goto err_priv;
->>>> +	io_priv->dma_area = dma_alloc_coherent(&sch->dev,
->>>> +				sizeof(*io_priv->dma_area),
->>>> +				&io_priv->dma_area_dma, GFP_KERNEL);
->>>
->>> Even though we'll only end up here for 3215 or 3270 consoles, this sent
->>> me looking.
->>>
->>> This code is invoked via console_init(). A few lines down in
->>> start_kernel(), we have
->>>
->>>          /*
->>>           * This needs to be called before any devices perform DMA
->>>           * operations that might use the SWIOTLB bounce buffers. It will
->>>           * mark the bounce buffers as decrypted so that their usage will
->>>           * not cause "plain-text" data to be decrypted when accessed.
->>>           */
->>>          mem_encrypt_init();
->>>
->>> So, I'm wondering if creating the console device interacts in any way
->>> with the memory encryption interface?
->>
->> I do things a bit different than x86: the SWIOTLB stuff is set up in
->> mem_init(). So I think we should be fine. If there is a down-side to
->> calling swiotlb_update_mem_attributes() earlier, honestly I'm
->> not sure.
-> 
-> Neither am I; do any of the folks who looked at the swiotlb patch have
-> an idea?
-> 
->>
->>>
->>> [Does basic recognition work if you start a protected virt guest with a
->>> 3270 console? I realize that the console is unlikely to work, but that
->>> should at least exercise this code path.]
->>
->> I've already had some thoughts along these lines and slapped
->> -device x-terminal3270,chardev=char_0,devno=fe.0.000a,id=terminal_0 \
->> on my qemu command line. The ccw device does show up in the guest...
->>
->> Device   Subchan.  DevType CU Type Use  PIM PAM POM  CHPIDs
->> ----------------------------------------------------------------------
->> 0.0.0000 0.0.0000  0000/00 3832/01 yes  80  80  ff   00000000 00000000
->> 0.0.000a 0.0.0001  0000/00 3270/00      80  80  ff   01000000 00000000
->> 0.0.0002 0.0.0002  0000/00 3832/09 yes  80  80  ff   00000000 00000000
->> 0.0.0300 0.0.0003  0000/00 3832/02 yes  80  80  ff   00000000 00000000
->> 0.0.0301 0.0.0004  0000/00 3832/02 yes  80  80  ff   00000000 00000000
->>
->> But I would not call it a comprehensive test...
-> 
-> If you only add the device, it will show up as a normal ccw device in
-> the guest; i.e. device recognition is done at the same time as for the
-> other ccw devices. Still good to see that nothing breaks there :)
-> 
-> To actually make the guest use the 3270 as its console, I guess you
-> need to explicitly force it (see
-> https://wiki.qemu.org/Features/3270#Using_3270_as_the_console)...
-> actually starting the console will almost certainly fail; but you can
-> at least check whether device recognition in the console path works.
-> 
->>
->> Mimu, do we have something more elaborate with regards to this?
+Let us make sure, any device that uses DMA API with direct ops correctly
+is spared from the problems, that a hypervisor attempting I/O to a
+non-shared page would bring.
 
-I ran that with success
+Signed-off-by: Halil Pasic <pasic@linux.ibm.com>
+Reviewed-by: Claudio Imbrenda <imbrenda@linux.ibm.com>
+Signed-off-by: Michael Mueller <mimu@linux.ibm.com>
+---
+ arch/s390/Kconfig                   |  4 ++++
+ arch/s390/include/asm/mem_encrypt.h | 18 ++++++++++++++
+ arch/s390/mm/init.c                 | 47 +++++++++++++++++++++++++++++++++++++
+ 3 files changed, 69 insertions(+)
+ create mode 100644 arch/s390/include/asm/mem_encrypt.h
 
-[root@ap01 ~]# lscss | grep 3270
-0.0.002a 0.0.0008  0000/00 3270/00 yes  80  80  ff   01000000 00000000
-
-and was able to connect and login.
-
-Michael
-
-> 
-> I don't think we need extensive testing here; just checking that the
-> sequence is not fundamentally broken.
-> 
+diff --git a/arch/s390/Kconfig b/arch/s390/Kconfig
+index 109243fdb6ec..88d8355b7bf7 100644
+--- a/arch/s390/Kconfig
++++ b/arch/s390/Kconfig
+@@ -1,4 +1,7 @@
+ # SPDX-License-Identifier: GPL-2.0
++config ARCH_HAS_MEM_ENCRYPT
++        def_bool y
++
+ config MMU
+ 	def_bool y
+ 
+@@ -187,6 +190,7 @@ config S390
+ 	select VIRT_CPU_ACCOUNTING
+ 	select ARCH_HAS_SCALED_CPUTIME
+ 	select HAVE_NMI
++	select SWIOTLB
+ 
+ 
+ config SCHED_OMIT_FRAME_POINTER
+diff --git a/arch/s390/include/asm/mem_encrypt.h b/arch/s390/include/asm/mem_encrypt.h
+new file mode 100644
+index 000000000000..0898c09a888c
+--- /dev/null
++++ b/arch/s390/include/asm/mem_encrypt.h
+@@ -0,0 +1,18 @@
++/* SPDX-License-Identifier: GPL-2.0 */
++#ifndef S390_MEM_ENCRYPT_H__
++#define S390_MEM_ENCRYPT_H__
++
++#ifndef __ASSEMBLY__
++
++#define sme_me_mask	0ULL
++
++static inline bool sme_active(void) { return false; }
++extern bool sev_active(void);
++
++int set_memory_encrypted(unsigned long addr, int numpages);
++int set_memory_decrypted(unsigned long addr, int numpages);
++
++#endif	/* __ASSEMBLY__ */
++
++#endif	/* S390_MEM_ENCRYPT_H__ */
++
+diff --git a/arch/s390/mm/init.c b/arch/s390/mm/init.c
+index 14d1eae9fe43..f0bee6af3960 100644
+--- a/arch/s390/mm/init.c
++++ b/arch/s390/mm/init.c
+@@ -18,6 +18,7 @@
+ #include <linux/mman.h>
+ #include <linux/mm.h>
+ #include <linux/swap.h>
++#include <linux/swiotlb.h>
+ #include <linux/smp.h>
+ #include <linux/init.h>
+ #include <linux/pagemap.h>
+@@ -29,6 +30,7 @@
+ #include <linux/export.h>
+ #include <linux/cma.h>
+ #include <linux/gfp.h>
++#include <linux/dma-mapping.h>
+ #include <asm/processor.h>
+ #include <linux/uaccess.h>
+ #include <asm/pgtable.h>
+@@ -42,6 +44,8 @@
+ #include <asm/sclp.h>
+ #include <asm/set_memory.h>
+ #include <asm/kasan.h>
++#include <asm/dma-mapping.h>
++#include <asm/uv.h>
+ 
+ pgd_t swapper_pg_dir[PTRS_PER_PGD] __section(.bss..swapper_pg_dir);
+ 
+@@ -128,6 +132,47 @@ void mark_rodata_ro(void)
+ 	pr_info("Write protected read-only-after-init data: %luk\n", size >> 10);
+ }
+ 
++int set_memory_encrypted(unsigned long addr, int numpages)
++{
++	int i;
++
++	/* make specified pages unshared, (swiotlb, dma_free) */
++	for (i = 0; i < numpages; ++i) {
++		uv_remove_shared(addr);
++		addr += PAGE_SIZE;
++	}
++	return 0;
++}
++
++int set_memory_decrypted(unsigned long addr, int numpages)
++{
++	int i;
++	/* make specified pages shared (swiotlb, dma_alloca) */
++	for (i = 0; i < numpages; ++i) {
++		uv_set_shared(addr);
++		addr += PAGE_SIZE;
++	}
++	return 0;
++}
++
++/* are we a protected virtualization guest? */
++bool sev_active(void)
++{
++	return is_prot_virt_guest();
++}
++
++/* protected virtualization */
++static void pv_init(void)
++{
++	if (!is_prot_virt_guest())
++		return;
++
++	/* make sure bounce buffers are shared */
++	swiotlb_init(1);
++	swiotlb_update_mem_attributes();
++	swiotlb_force = SWIOTLB_FORCE;
++}
++
+ void __init mem_init(void)
+ {
+ 	cpumask_set_cpu(0, &init_mm.context.cpu_attach_mask);
+@@ -136,6 +181,8 @@ void __init mem_init(void)
+ 	set_max_mapnr(max_low_pfn);
+         high_memory = (void *) __va(max_low_pfn * PAGE_SIZE);
+ 
++	pv_init();
++
+ 	/* Setup guest page hinting */
+ 	cmma_init();
+ 
+-- 
+2.13.4
