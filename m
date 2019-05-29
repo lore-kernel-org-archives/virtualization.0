@@ -1,7 +1,7 @@
 From: Michael Mueller <mimu@linux.ibm.com>
-Subject: [PATCH v3 8/8] virtio/s390: make airq summary indicators DMA
-Date: Wed, 29 May 2019 14:26:57 +0200
-Message-ID: <20190529122657.166148-9-mimu@linux.ibm.com>
+Subject: [PATCH v3 2/8] s390/cio: introduce DMA pools to cio
+Date: Wed, 29 May 2019 14:26:51 +0200
+Message-ID: <20190529122657.166148-3-mimu@linux.ibm.com>
 References: <20190529122657.166148-1-mimu@linux.ibm.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
@@ -23,105 +23,222 @@ List-Id: virtualization@lists.linuxfoundation.org
 
 From: Halil Pasic <pasic@linux.ibm.com>
 
-Hypervisor needs to interact with the summary indicators, so these
-need to be DMA memory as well (at least for protected virtualization
-guests).
+To support protected virtualization cio will need to make sure the
+memory used for communication with the hypervisor is DMA memory.
+
+Let us introduce one global pool for cio.
+
+Our DMA pools are implemented as a gen_pool backed with DMA pages. The
+idea is to avoid each allocation effectively wasting a page, as we
+typically allocate much less than PAGE_SIZE.
 
 Signed-off-by: Halil Pasic <pasic@linux.ibm.com>
+Reviewed-by: Sebastian Ott <sebott@linux.ibm.com>
 Signed-off-by: Michael Mueller <mimu@linux.ibm.com>
 ---
- drivers/s390/virtio/virtio_ccw.c | 26 +++++++++++++++++++-------
- 1 file changed, 19 insertions(+), 7 deletions(-)
+ arch/s390/Kconfig           |   1 +
+ arch/s390/include/asm/cio.h |  11 ++++
+ drivers/s390/cio/css.c      | 120 ++++++++++++++++++++++++++++++++++++++++++--
+ 3 files changed, 128 insertions(+), 4 deletions(-)
 
-diff --git a/drivers/s390/virtio/virtio_ccw.c b/drivers/s390/virtio/virtio_ccw.c
-index 03c9f7001fb1..efebd6dcd124 100644
---- a/drivers/s390/virtio/virtio_ccw.c
-+++ b/drivers/s390/virtio/virtio_ccw.c
-@@ -140,11 +140,17 @@ static int virtio_ccw_use_airq = 1;
+diff --git a/arch/s390/Kconfig b/arch/s390/Kconfig
+index 88d8355b7bf7..2a245b56db8b 100644
+--- a/arch/s390/Kconfig
++++ b/arch/s390/Kconfig
+@@ -191,6 +191,7 @@ config S390
+ 	select ARCH_HAS_SCALED_CPUTIME
+ 	select HAVE_NMI
+ 	select SWIOTLB
++	select GENERIC_ALLOCATOR
  
- struct airq_info {
- 	rwlock_t lock;
--	u8 summary_indicator;
-+	u8 summary_indicator_idx;
- 	struct airq_struct airq;
- 	struct airq_iv *aiv;
+ 
+ config SCHED_OMIT_FRAME_POINTER
+diff --git a/arch/s390/include/asm/cio.h b/arch/s390/include/asm/cio.h
+index 1727180e8ca1..43c007d2775a 100644
+--- a/arch/s390/include/asm/cio.h
++++ b/arch/s390/include/asm/cio.h
+@@ -328,6 +328,17 @@ static inline u8 pathmask_to_pos(u8 mask)
+ void channel_subsystem_reinit(void);
+ extern void css_schedule_reprobe(void);
+ 
++extern void *cio_dma_zalloc(size_t size);
++extern void cio_dma_free(void *cpu_addr, size_t size);
++extern struct device *cio_get_dma_css_dev(void);
++
++struct gen_pool;
++void *cio_gp_dma_zalloc(struct gen_pool *gp_dma, struct device *dma_dev,
++			size_t size);
++void cio_gp_dma_free(struct gen_pool *gp_dma, void *cpu_addr, size_t size);
++void cio_gp_dma_destroy(struct gen_pool *gp_dma, struct device *dma_dev);
++struct gen_pool *cio_gp_dma_create(struct device *dma_dev, int nr_pages);
++
+ /* Function from drivers/s390/cio/chsc.c */
+ int chsc_sstpc(void *page, unsigned int op, u16 ctrl, u64 *clock_delta);
+ int chsc_sstpi(void *page, void *result, size_t size);
+diff --git a/drivers/s390/cio/css.c b/drivers/s390/cio/css.c
+index aea502922646..b97618497848 100644
+--- a/drivers/s390/cio/css.c
++++ b/drivers/s390/cio/css.c
+@@ -20,6 +20,8 @@
+ #include <linux/reboot.h>
+ #include <linux/suspend.h>
+ #include <linux/proc_fs.h>
++#include <linux/genalloc.h>
++#include <linux/dma-mapping.h>
+ #include <asm/isc.h>
+ #include <asm/crw.h>
+ 
+@@ -224,6 +226,8 @@ struct subchannel *css_alloc_subchannel(struct subchannel_id schid,
+ 	INIT_WORK(&sch->todo_work, css_sch_todo);
+ 	sch->dev.release = &css_subchannel_release;
+ 	device_initialize(&sch->dev);
++	sch->dev.coherent_dma_mask = DMA_BIT_MASK(31);
++	sch->dev.dma_mask = &sch->dev.coherent_dma_mask;
+ 	return sch;
+ 
+ err:
+@@ -899,6 +903,8 @@ static int __init setup_css(int nr)
+ 	dev_set_name(&css->device, "css%x", nr);
+ 	css->device.groups = cssdev_attr_groups;
+ 	css->device.release = channel_subsystem_release;
++	css->device.coherent_dma_mask = DMA_BIT_MASK(64);
++	css->device.dma_mask = &css->device.coherent_dma_mask;
+ 
+ 	mutex_init(&css->mutex);
+ 	css->cssid = chsc_get_cssid(nr);
+@@ -1018,6 +1024,109 @@ static struct notifier_block css_power_notifier = {
+ 	.notifier_call = css_power_event,
  };
- static struct airq_info *airq_areas[MAX_AIRQ_AREAS];
-+static u8 *summary_indicators;
+ 
++#define  CIO_DMA_GFP (GFP_KERNEL | __GFP_ZERO)
++static struct gen_pool *cio_dma_pool;
 +
-+static inline u8 *get_summary_indicator(struct airq_info *info)
++/* Currently cio supports only a single css */
++struct device *cio_get_dma_css_dev(void)
 +{
-+	return summary_indicators + info->summary_indicator_idx;
++	return &channel_subsystems[0]->device;
 +}
- 
- #define CCW_CMD_SET_VQ 0x13
- #define CCW_CMD_VDEV_RESET 0x33
-@@ -225,7 +231,7 @@ static void virtio_airq_handler(struct airq_struct *airq, bool floating)
- 			break;
- 		vring_interrupt(0, (void *)airq_iv_get_ptr(info->aiv, ai));
- 	}
--	info->summary_indicator = 0;
-+	*(get_summary_indicator(info)) = 0;
- 	smp_wmb();
- 	/* Walk through indicators field, summary indicator not active. */
- 	for (ai = 0;;) {
-@@ -237,7 +243,7 @@ static void virtio_airq_handler(struct airq_struct *airq, bool floating)
- 	read_unlock(&info->lock);
- }
- 
--static struct airq_info *new_airq_info(void)
-+static struct airq_info *new_airq_info(int index)
- {
- 	struct airq_info *info;
- 	int rc;
-@@ -253,7 +259,8 @@ static struct airq_info *new_airq_info(void)
- 		return NULL;
- 	}
- 	info->airq.handler = virtio_airq_handler;
--	info->airq.lsi_ptr = &info->summary_indicator;
-+	info->summary_indicator_idx = index;
-+	info->airq.lsi_ptr = get_summary_indicator(info);
- 	info->airq.lsi_mask = 0xff;
- 	info->airq.isc = VIRTIO_AIRQ_ISC;
- 	rc = register_adapter_interrupt(&info->airq);
-@@ -275,7 +282,7 @@ static unsigned long get_airq_indicator(struct virtqueue *vqs[], int nvqs,
- 
- 	for (i = 0; i < MAX_AIRQ_AREAS && !indicator_addr; i++) {
- 		if (!airq_areas[i])
--			airq_areas[i] = new_airq_info();
-+			airq_areas[i] = new_airq_info(i);
- 		info = airq_areas[i];
- 		if (!info)
- 			return 0;
-@@ -360,7 +367,7 @@ static void virtio_ccw_drop_indicator(struct virtio_ccw_device *vcdev,
- 		if (!thinint_area)
- 			return;
- 		thinint_area->summary_indicator =
--			(unsigned long) &airq_info->summary_indicator;
-+			(unsigned long) get_summary_indicator(airq_info);
- 		thinint_area->isc = VIRTIO_AIRQ_ISC;
- 		ccw->cmd_code = CCW_CMD_SET_IND_ADAPTER;
- 		ccw->count = sizeof(*thinint_area);
-@@ -625,7 +632,7 @@ static int virtio_ccw_register_adapter_ind(struct virtio_ccw_device *vcdev,
- 	}
- 	info = vcdev->airq_info;
- 	thinint_area->summary_indicator =
--		(unsigned long) &info->summary_indicator;
-+		(unsigned long) get_summary_indicator(info);
- 	thinint_area->isc = VIRTIO_AIRQ_ISC;
- 	ccw->cmd_code = CCW_CMD_SET_IND_ADAPTER;
- 	ccw->flags = CCW_FLAG_SLI;
-@@ -1501,6 +1508,11 @@ static int __init virtio_ccw_init(void)
- {
- 	/* parse no_auto string before we do anything further */
- 	no_auto_parse();
 +
-+	summary_indicators = cio_dma_zalloc(MAX_AIRQ_AREAS);
-+	if (!summary_indicators)
++struct gen_pool *cio_gp_dma_create(struct device *dma_dev, int nr_pages)
++{
++	struct gen_pool *gp_dma;
++	void *cpu_addr;
++	dma_addr_t dma_addr;
++	int i;
++
++	gp_dma = gen_pool_create(3, -1);
++	if (!gp_dma)
++		return NULL;
++	for (i = 0; i < nr_pages; ++i) {
++		cpu_addr = dma_alloc_coherent(dma_dev, PAGE_SIZE, &dma_addr,
++					      CIO_DMA_GFP);
++		if (!cpu_addr)
++			return gp_dma;
++		gen_pool_add_virt(gp_dma, (unsigned long) cpu_addr,
++				  dma_addr, PAGE_SIZE, -1);
++	}
++	return gp_dma;
++}
++
++static void __gp_dma_free_dma(struct gen_pool *pool,
++			      struct gen_pool_chunk *chunk, void *data)
++{
++	size_t chunk_size = chunk->end_addr - chunk->start_addr + 1;
++
++	dma_free_coherent((struct device *) data, chunk_size,
++			 (void *) chunk->start_addr,
++			 (dma_addr_t) chunk->phys_addr);
++}
++
++void cio_gp_dma_destroy(struct gen_pool *gp_dma, struct device *dma_dev)
++{
++	if (!gp_dma)
++		return;
++	/* this is qite ugly but no better idea */
++	gen_pool_for_each_chunk(gp_dma, __gp_dma_free_dma, dma_dev);
++	gen_pool_destroy(gp_dma);
++}
++
++static int cio_dma_pool_init(void)
++{
++	/* No need to free up the resources: compiled in */
++	cio_dma_pool = cio_gp_dma_create(cio_get_dma_css_dev(), 1);
++	if (!cio_dma_pool)
 +		return -ENOMEM;
++	return 0;
++}
 +
- 	return ccw_driver_register(&virtio_ccw_driver);
- }
- device_initcall(virtio_ccw_init);
++void *cio_gp_dma_zalloc(struct gen_pool *gp_dma, struct device *dma_dev,
++			size_t size)
++{
++	dma_addr_t dma_addr;
++	unsigned long addr;
++	size_t chunk_size;
++
++	addr = gen_pool_alloc(gp_dma, size);
++	while (!addr) {
++		chunk_size = round_up(size, PAGE_SIZE);
++		addr = (unsigned long) dma_alloc_coherent(dma_dev,
++					 chunk_size, &dma_addr, CIO_DMA_GFP);
++		if (!addr)
++			return NULL;
++		gen_pool_add_virt(gp_dma, addr, dma_addr, chunk_size, -1);
++		addr = gen_pool_alloc(gp_dma, size);
++	}
++	return (void *) addr;
++}
++
++void cio_gp_dma_free(struct gen_pool *gp_dma, void *cpu_addr, size_t size)
++{
++	if (!cpu_addr)
++		return;
++	memset(cpu_addr, 0, size);
++	gen_pool_free(gp_dma, (unsigned long) cpu_addr, size);
++}
++
++/*
++ * Allocate dma memory from the css global pool. Intended for memory not
++ * specific to any single device within the css. The allocated memory
++ * is not guaranteed to be 31-bit addressable.
++ *
++ * Caution: Not suitable for early stuff like console.
++ */
++void *cio_dma_zalloc(size_t size)
++{
++	return cio_gp_dma_zalloc(cio_dma_pool, cio_get_dma_css_dev(), size);
++}
++
++void cio_dma_free(void *cpu_addr, size_t size)
++{
++	cio_gp_dma_free(cio_dma_pool, cpu_addr, size);
++}
++
+ /*
+  * Now that the driver core is running, we can setup our channel subsystem.
+  * The struct subchannel's are created during probing.
+@@ -1059,16 +1168,19 @@ static int __init css_bus_init(void)
+ 	if (ret)
+ 		goto out_unregister;
+ 	ret = register_pm_notifier(&css_power_notifier);
+-	if (ret) {
+-		unregister_reboot_notifier(&css_reboot_notifier);
+-		goto out_unregister;
+-	}
++	if (ret)
++		goto out_unregister_rn;
++	ret = cio_dma_pool_init();
++	if (ret)
++		goto out_unregister_rn;
+ 	css_init_done = 1;
+ 
+ 	/* Enable default isc for I/O subchannels. */
+ 	isc_register(IO_SCH_ISC);
+ 
+ 	return 0;
++out_unregister_rn:
++	unregister_reboot_notifier(&css_reboot_notifier);
+ out_unregister:
+ 	while (i-- > 0) {
+ 		struct channel_subsystem *css = channel_subsystems[i];
 -- 
 2.13.4
