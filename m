@@ -1,15 +1,20 @@
-From: Nadav Amit via Virtualization <virtualization@lists.linux-foundation.org>
-Subject: [RFC PATCH v2 04/12] x86/mm/tlb: Flush remote and local TLBs
-	concurrently
-Date: Thu, 30 May 2019 23:36:37 -0700
-Message-ID: <20190531063645.4697-5-namit__8.29449142969452$1559284689$gmane$org@vmware.com>
-References: <20190531063645.4697-1-namit@vmware.com>
-Reply-To: Nadav Amit <namit@vmware.com>
+From: Stefano Garzarella <sgarzare@redhat.com>
+Subject: Re: [PATCH 3/4] vsock/virtio: fix flush of works during the .remove()
+Date: Fri, 31 May 2019 10:18:24 +0200
+Message-ID: <20190531081824.p6ylsgvkrbckhqpx__12325.4924824991$1559290781$gmane$org@steredhat>
+References: <20190528105623.27983-1-sgarzare@redhat.com>
+	<20190528105623.27983-4-sgarzare@redhat.com>
+	<9ac9fc4b-5c39-2503-dfbb-660a7bdcfbfd@redhat.com>
+	<20190529105832.oz3sagbne5teq3nt@steredhat>
+	<8c9998c8-1b9c-aac6-42eb-135fcb966187@redhat.com>
+	<20190530101036.wnjphmajrz6nz6zc@steredhat.homenet.telecomitalia.it>
+	<4c881585-8fee-0a53-865c-05d41ffb8ed1@redhat.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset="utf-8"
+Content-Transfer-Encoding: base64
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <20190531063645.4697-1-namit@vmware.com>
+Content-Disposition: inline
+In-Reply-To: <4c881585-8fee-0a53-865c-05d41ffb8ed1@redhat.com>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -19,312 +24,91 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Peter Zijlstra <peterz@infradead.org>, Andy Lutomirski <luto@kernel.org>
-Cc: Sasha Levin <sashal@kernel.org>, Juergen Gross <jgross@suse.com>, linux-hyperv@vger.kernel.org, Dave Hansen <dave.hansen@linux.intel.com>, Stephen Hemminger <sthemmin@microsoft.com>, xen-devel@lists.xenproject.org, kvm@vger.kernel.org, Haiyang Zhang <haiyangz@microsoft.com>, x86@kernel.org, linux-kernel@vger.kernel.org, virtualization@lists.linux-foundation.org, Dave Hansen <dave.hansen@intel.com>, Ingo Molnar <mingo@redhat.com>, Borislav Petkov <bp@alien8.de>, Paolo Bonzini <pbonzini@redhat.com>, Nadav Amit <namit@vmware.com>, Thomas Gleixner <tglx@linutronix.de>, Boris Ostrovsky <boris.ostrovsky@oracle.com>
+To: Jason Wang <jasowang@redhat.com>
+Cc: kvm@vger.kernel.org, "Michael S . Tsirkin" <mst@redhat.com>, netdev@vger.kernel.org, linux-kernel@vger.kernel.org, virtualization@lists.linux-foundation.org, Stefan Hajnoczi <stefanha@redhat.com>, "David S. Miller" <davem@davemloft.net>
 List-Id: virtualization@lists.linuxfoundation.org
 
-To improve TLB shootdown performance, flush the remote and local TLBs
-concurrently. Introduce flush_tlb_multi() that does so. The current
-flush_tlb_others() interface is kept, since paravirtual interfaces need
-to be adapted first before it can be removed. This is left for future
-work. In such PV environments, TLB flushes are not performed, at this
-time, concurrently.
-
-Add a static key to tell whether this new interface is supported.
-
-Cc: "K. Y. Srinivasan" <kys@microsoft.com>
-Cc: Haiyang Zhang <haiyangz@microsoft.com>
-Cc: Stephen Hemminger <sthemmin@microsoft.com>
-Cc: Sasha Levin <sashal@kernel.org>
-Cc: Thomas Gleixner <tglx@linutronix.de>
-Cc: Ingo Molnar <mingo@redhat.com>
-Cc: Borislav Petkov <bp@alien8.de>
-Cc: x86@kernel.org
-Cc: Juergen Gross <jgross@suse.com>
-Cc: Paolo Bonzini <pbonzini@redhat.com>
-Cc: Dave Hansen <dave.hansen@linux.intel.com>
-Cc: Andy Lutomirski <luto@kernel.org>
-Cc: Peter Zijlstra <peterz@infradead.org>
-Cc: Boris Ostrovsky <boris.ostrovsky@oracle.com>
-Cc: linux-hyperv@vger.kernel.org
-Cc: linux-kernel@vger.kernel.org
-Cc: virtualization@lists.linux-foundation.org
-Cc: kvm@vger.kernel.org
-Cc: xen-devel@lists.xenproject.org
-Signed-off-by: Nadav Amit <namit@vmware.com>
----
- arch/x86/hyperv/mmu.c                 |  2 +
- arch/x86/include/asm/paravirt.h       |  8 +++
- arch/x86/include/asm/paravirt_types.h |  6 ++
- arch/x86/include/asm/tlbflush.h       |  6 ++
- arch/x86/kernel/kvm.c                 |  1 +
- arch/x86/kernel/paravirt.c            |  3 +
- arch/x86/mm/tlb.c                     | 80 +++++++++++++++++++++++----
- arch/x86/xen/mmu_pv.c                 |  2 +
- 8 files changed, 96 insertions(+), 12 deletions(-)
-
-diff --git a/arch/x86/hyperv/mmu.c b/arch/x86/hyperv/mmu.c
-index e65d7fe6489f..ca28b400c87c 100644
---- a/arch/x86/hyperv/mmu.c
-+++ b/arch/x86/hyperv/mmu.c
-@@ -233,4 +233,6 @@ void hyperv_setup_mmu_ops(void)
- 	pr_info("Using hypercall for remote TLB flush\n");
- 	pv_ops.mmu.flush_tlb_others = hyperv_flush_tlb_others;
- 	pv_ops.mmu.tlb_remove_table = tlb_remove_table;
-+
-+	static_key_disable(&flush_tlb_multi_enabled.key);
- }
-diff --git a/arch/x86/include/asm/paravirt.h b/arch/x86/include/asm/paravirt.h
-index c25c38a05c1c..192be7254457 100644
---- a/arch/x86/include/asm/paravirt.h
-+++ b/arch/x86/include/asm/paravirt.h
-@@ -47,6 +47,8 @@ static inline void slow_down_io(void)
- #endif
- }
- 
-+DECLARE_STATIC_KEY_TRUE(flush_tlb_multi_enabled);
-+
- static inline void __flush_tlb(void)
- {
- 	PVOP_VCALL0(mmu.flush_tlb_user);
-@@ -62,6 +64,12 @@ static inline void __flush_tlb_one_user(unsigned long addr)
- 	PVOP_VCALL1(mmu.flush_tlb_one_user, addr);
- }
- 
-+static inline void flush_tlb_multi(const struct cpumask *cpumask,
-+				   const struct flush_tlb_info *info)
-+{
-+	PVOP_VCALL2(mmu.flush_tlb_multi, cpumask, info);
-+}
-+
- static inline void flush_tlb_others(const struct cpumask *cpumask,
- 				    const struct flush_tlb_info *info)
- {
-diff --git a/arch/x86/include/asm/paravirt_types.h b/arch/x86/include/asm/paravirt_types.h
-index 946f8f1f1efc..3a156e63c57d 100644
---- a/arch/x86/include/asm/paravirt_types.h
-+++ b/arch/x86/include/asm/paravirt_types.h
-@@ -211,6 +211,12 @@ struct pv_mmu_ops {
- 	void (*flush_tlb_user)(void);
- 	void (*flush_tlb_kernel)(void);
- 	void (*flush_tlb_one_user)(unsigned long addr);
-+	/*
-+	 * flush_tlb_multi() is the preferred interface. When it is used,
-+	 * flush_tlb_others() should return false.
-+	 */
-+	void (*flush_tlb_multi)(const struct cpumask *cpus,
-+				const struct flush_tlb_info *info);
- 	void (*flush_tlb_others)(const struct cpumask *cpus,
- 				 const struct flush_tlb_info *info);
- 
-diff --git a/arch/x86/include/asm/tlbflush.h b/arch/x86/include/asm/tlbflush.h
-index dee375831962..79272938cf79 100644
---- a/arch/x86/include/asm/tlbflush.h
-+++ b/arch/x86/include/asm/tlbflush.h
-@@ -569,6 +569,9 @@ static inline void flush_tlb_page(struct vm_area_struct *vma, unsigned long a)
- 	flush_tlb_mm_range(vma->vm_mm, a, a + PAGE_SIZE, PAGE_SHIFT, false);
- }
- 
-+void native_flush_tlb_multi(const struct cpumask *cpumask,
-+			     const struct flush_tlb_info *info);
-+
- void native_flush_tlb_others(const struct cpumask *cpumask,
- 			     const struct flush_tlb_info *info);
- 
-@@ -593,6 +596,9 @@ static inline void arch_tlbbatch_add_mm(struct arch_tlbflush_unmap_batch *batch,
- extern void arch_tlbbatch_flush(struct arch_tlbflush_unmap_batch *batch);
- 
- #ifndef CONFIG_PARAVIRT
-+#define flush_tlb_multi(mask, info)	\
-+	native_flush_tlb_multi(mask, info)
-+
- #define flush_tlb_others(mask, info)	\
- 	native_flush_tlb_others(mask, info)
- 
-diff --git a/arch/x86/kernel/kvm.c b/arch/x86/kernel/kvm.c
-index 3f0cc828cc36..c1c2b88ea3f1 100644
---- a/arch/x86/kernel/kvm.c
-+++ b/arch/x86/kernel/kvm.c
-@@ -643,6 +643,7 @@ static void __init kvm_guest_init(void)
- 	    kvm_para_has_feature(KVM_FEATURE_STEAL_TIME)) {
- 		pv_ops.mmu.flush_tlb_others = kvm_flush_tlb_others;
- 		pv_ops.mmu.tlb_remove_table = tlb_remove_table;
-+		static_key_disable(&flush_tlb_multi_enabled.key);
- 	}
- 
- 	if (kvm_para_has_feature(KVM_FEATURE_PV_EOI))
-diff --git a/arch/x86/kernel/paravirt.c b/arch/x86/kernel/paravirt.c
-index 5492a669f658..1314f89304a8 100644
---- a/arch/x86/kernel/paravirt.c
-+++ b/arch/x86/kernel/paravirt.c
-@@ -171,6 +171,8 @@ unsigned paravirt_patch_insns(void *insn_buff, unsigned len,
- 	return insn_len;
- }
- 
-+DEFINE_STATIC_KEY_TRUE(flush_tlb_multi_enabled);
-+
- static void native_flush_tlb(void)
- {
- 	__native_flush_tlb();
-@@ -375,6 +377,7 @@ struct paravirt_patch_template pv_ops = {
- 	.mmu.flush_tlb_user	= native_flush_tlb,
- 	.mmu.flush_tlb_kernel	= native_flush_tlb_global,
- 	.mmu.flush_tlb_one_user	= native_flush_tlb_one_user,
-+	.mmu.flush_tlb_multi	= native_flush_tlb_multi,
- 	.mmu.flush_tlb_others	= native_flush_tlb_others,
- 	.mmu.tlb_remove_table	=
- 			(void (*)(struct mmu_gather *, void *))tlb_remove_page,
-diff --git a/arch/x86/mm/tlb.c b/arch/x86/mm/tlb.c
-index ac98ad76f695..73d0d51b0f61 100644
---- a/arch/x86/mm/tlb.c
-+++ b/arch/x86/mm/tlb.c
-@@ -550,7 +550,7 @@ static void flush_tlb_func_common(const struct flush_tlb_info *f,
- 		 * garbage into our TLB.  Since switching to init_mm is barely
- 		 * slower than a minimal flush, just switch to init_mm.
- 		 *
--		 * This should be rare, with native_flush_tlb_others skipping
-+		 * This should be rare, with native_flush_tlb_multi skipping
- 		 * IPIs to lazy TLB mode CPUs.
- 		 */
- 		switch_mm_irqs_off(NULL, &init_mm, NULL);
-@@ -634,9 +634,12 @@ static void flush_tlb_func_common(const struct flush_tlb_info *f,
- 	this_cpu_write(cpu_tlbstate.ctxs[loaded_mm_asid].tlb_gen, mm_tlb_gen);
- }
- 
--static void flush_tlb_func_local(const void *info, enum tlb_flush_reason reason)
-+static void flush_tlb_func_local(void *info)
- {
- 	const struct flush_tlb_info *f = info;
-+	enum tlb_flush_reason reason;
-+
-+	reason = (f->mm == NULL) ? TLB_LOCAL_SHOOTDOWN : TLB_LOCAL_MM_SHOOTDOWN;
- 
- 	flush_tlb_func_common(f, true, reason);
- }
-@@ -654,14 +657,30 @@ static void flush_tlb_func_remote(void *info)
- 	flush_tlb_func_common(f, false, TLB_REMOTE_SHOOTDOWN);
- }
- 
--static bool tlb_is_not_lazy(int cpu, void *data)
-+static inline bool tlb_is_not_lazy(int cpu)
- {
- 	return !per_cpu(cpu_tlbstate.is_lazy, cpu);
- }
- 
--void native_flush_tlb_others(const struct cpumask *cpumask,
--			     const struct flush_tlb_info *info)
-+static DEFINE_PER_CPU(cpumask_t, flush_tlb_mask);
-+
-+void native_flush_tlb_multi(const struct cpumask *cpumask,
-+			    const struct flush_tlb_info *info)
- {
-+	/*
-+	 * native_flush_tlb_multi() can handle a single CPU, but it is
-+	 * suboptimal if the local TLB should be flushed, and therefore should
-+	 * not be used in such case. Check that it is not used in such case,
-+	 * and use this assumption for tracing and accounting of remote TLB
-+	 * flushes.
-+	 */
-+	VM_WARN_ON(!cpumask_any_but(cpumask, smp_processor_id()));
-+
-+	/*
-+	 * Do accounting and tracing. Note that there are (and have always been)
-+	 * cases in which a remote TLB flush will be traced, but eventually
-+	 * would not happen.
-+	 */
- 	count_vm_tlb_event(NR_TLB_REMOTE_FLUSH);
- 	if (info->end == TLB_FLUSH_ALL)
- 		trace_tlb_flush(TLB_REMOTE_SEND_IPI, TLB_FLUSH_ALL);
-@@ -681,10 +700,14 @@ void native_flush_tlb_others(const struct cpumask *cpumask,
- 		 * means that the percpu tlb_gen variables won't be updated
- 		 * and we'll do pointless flushes on future context switches.
- 		 *
--		 * Rather than hooking native_flush_tlb_others() here, I think
-+		 * Rather than hooking native_flush_tlb_multi() here, I think
- 		 * that UV should be updated so that smp_call_function_many(),
- 		 * etc, are optimal on UV.
- 		 */
-+		local_irq_disable();
-+		flush_tlb_func_local((__force void *)info);
-+		local_irq_enable();
-+
- 		cpumask = uv_flush_tlb_others(cpumask, info);
- 		if (cpumask)
- 			smp_call_function_many(cpumask, flush_tlb_func_remote,
-@@ -703,11 +726,39 @@ void native_flush_tlb_others(const struct cpumask *cpumask,
- 	 * doing a speculative memory access.
- 	 */
- 	if (info->freed_tables)
--		smp_call_function_many(cpumask, flush_tlb_func_remote,
--			       (void *)info, 1);
--	else
--		on_each_cpu_cond_mask(tlb_is_not_lazy, flush_tlb_func_remote,
--				(void *)info, 1, GFP_ATOMIC, cpumask);
-+		__smp_call_function_many(cpumask, flush_tlb_func_remote,
-+					 flush_tlb_func_local, (void *)info, 1);
-+	else {
-+		/*
-+		 * Although we could have used on_each_cpu_cond_mask(),
-+		 * open-coding it has several performance advantages: (1) we can
-+		 * use specialized functions for remote and local flushes; (2)
-+		 * no need for indirect branch to test if TLB is lazy; (3) we
-+		 * can use a designated cpumask for evaluating the condition
-+		 * instead of allocating a new one.
-+		 *
-+		 * This works under the assumption that there are no nested TLB
-+		 * flushes, an assumption that is already made in
-+		 * flush_tlb_mm_range().
-+		 */
-+		struct cpumask *cond_cpumask = this_cpu_ptr(&flush_tlb_mask);
-+		int cpu;
-+
-+		cpumask_clear(cond_cpumask);
-+
-+		for_each_cpu(cpu, cpumask) {
-+			if (tlb_is_not_lazy(cpu))
-+				__cpumask_set_cpu(cpu, cond_cpumask);
-+		}
-+		__smp_call_function_many(cond_cpumask, flush_tlb_func_remote,
-+					 flush_tlb_func_local, (void *)info, 1);
-+	}
-+}
-+
-+void native_flush_tlb_others(const struct cpumask *cpumask,
-+			     const struct flush_tlb_info *info)
-+{
-+	native_flush_tlb_multi(cpumask, info);
- }
- 
- /*
-@@ -773,10 +824,15 @@ static void flush_tlb_on_cpus(const cpumask_t *cpumask,
- {
- 	int this_cpu = smp_processor_id();
- 
-+	if (static_branch_likely(&flush_tlb_multi_enabled)) {
-+		flush_tlb_multi(cpumask, info);
-+		return;
-+	}
-+
- 	if (cpumask_test_cpu(this_cpu, cpumask)) {
- 		lockdep_assert_irqs_enabled();
- 		local_irq_disable();
--		flush_tlb_func_local(info, TLB_LOCAL_MM_SHOOTDOWN);
-+		flush_tlb_func_local((__force void *)info);
- 		local_irq_enable();
- 	}
- 
-diff --git a/arch/x86/xen/mmu_pv.c b/arch/x86/xen/mmu_pv.c
-index beb44e22afdf..0cb277848cb4 100644
---- a/arch/x86/xen/mmu_pv.c
-+++ b/arch/x86/xen/mmu_pv.c
-@@ -2474,6 +2474,8 @@ void __init xen_init_mmu_ops(void)
- 
- 	pv_ops.mmu = xen_mmu_ops;
- 
-+	static_key_disable(&flush_tlb_multi_enabled.key);
-+
- 	memset(dummy_mapping, 0xff, PAGE_SIZE);
- }
- 
--- 
-2.20.1
+T24gVGh1LCBNYXkgMzAsIDIwMTkgYXQgMDc6NTk6MTRQTSArMDgwMCwgSmFzb24gV2FuZyB3cm90
+ZToKPiAKPiBPbiAyMDE5LzUvMzAg5LiL5Y2INjoxMCwgU3RlZmFubyBHYXJ6YXJlbGxhIHdyb3Rl
+Ogo+ID4gT24gVGh1LCBNYXkgMzAsIDIwMTkgYXQgMDU6NDY6MThQTSArMDgwMCwgSmFzb24gV2Fu
+ZyB3cm90ZToKPiA+ID4gT24gMjAxOS81LzI5IOS4i+WNiDY6NTgsIFN0ZWZhbm8gR2FyemFyZWxs
+YSB3cm90ZToKPiA+ID4gPiBPbiBXZWQsIE1heSAyOSwgMjAxOSBhdCAxMToyMjo0MEFNICswODAw
+LCBKYXNvbiBXYW5nIHdyb3RlOgo+ID4gPiA+ID4gT24gMjAxOS81LzI4IOS4i+WNiDY6NTYsIFN0
+ZWZhbm8gR2FyemFyZWxsYSB3cm90ZToKPiA+ID4gPiA+ID4gQEAgLTY5MCw2ICs2OTMsOSBAQCBz
+dGF0aWMgdm9pZCB2aXJ0aW9fdnNvY2tfcmVtb3ZlKHN0cnVjdCB2aXJ0aW9fZGV2aWNlICp2ZGV2
+KQo+ID4gPiA+ID4gPiAgICAgCXZzb2NrLT5ldmVudF9ydW4gPSBmYWxzZTsKPiA+ID4gPiA+ID4g
+ICAgIAltdXRleF91bmxvY2soJnZzb2NrLT5ldmVudF9sb2NrKTsKPiA+ID4gPiA+ID4gKwkvKiBG
+bHVzaCBhbGwgcGVuZGluZyB3b3JrcyAqLwo+ID4gPiA+ID4gPiArCXZpcnRpb192c29ja19mbHVz
+aF93b3Jrcyh2c29jayk7Cj4gPiA+ID4gPiA+ICsKPiA+ID4gPiA+ID4gICAgIAkvKiBGbHVzaCBh
+bGwgZGV2aWNlIHdyaXRlcyBhbmQgaW50ZXJydXB0cywgZGV2aWNlIHdpbGwgbm90IHVzZSBhbnkK
+PiA+ID4gPiA+ID4gICAgIAkgKiBtb3JlIGJ1ZmZlcnMuCj4gPiA+ID4gPiA+ICAgICAJICovCj4g
+PiA+ID4gPiA+IEBAIC03MjYsNiArNzMyLDExIEBAIHN0YXRpYyB2b2lkIHZpcnRpb192c29ja19y
+ZW1vdmUoc3RydWN0IHZpcnRpb19kZXZpY2UgKnZkZXYpCj4gPiA+ID4gPiA+ICAgICAJLyogRGVs
+ZXRlIHZpcnRxdWV1ZXMgYW5kIGZsdXNoIG91dHN0YW5kaW5nIGNhbGxiYWNrcyBpZiBhbnkgKi8K
+PiA+ID4gPiA+ID4gICAgIAl2ZGV2LT5jb25maWctPmRlbF92cXModmRldik7Cj4gPiA+ID4gPiA+
+ICsJLyogT3RoZXIgd29ya3MgY2FuIGJlIHF1ZXVlZCBiZWZvcmUgJ2NvbmZpZy0+ZGVsX3Zxcygp
+Jywgc28gd2UgZmx1c2gKPiA+ID4gPiA+ID4gKwkgKiBhbGwgd29ya3MgYmVmb3JlIHRvIGZyZWUg
+dGhlIHZzb2NrIG9iamVjdCB0byBhdm9pZCB1c2UgYWZ0ZXIgZnJlZS4KPiA+ID4gPiA+ID4gKwkg
+Ki8KPiA+ID4gPiA+ID4gKwl2aXJ0aW9fdnNvY2tfZmx1c2hfd29ya3ModnNvY2spOwo+ID4gPiA+
+ID4gU29tZSBxdWVzdGlvbnMgYWZ0ZXIgYSBxdWljayBnbGFuY2U6Cj4gPiA+ID4gPiAKPiA+ID4g
+PiA+IDEpIEl0IGxvb2tzIHRvIG1lIHRoYXQgdGhlIHdvcmsgY291bGQgYmUgcXVldWVkIGZyb20g
+dGhlIHBhdGggb2YKPiA+ID4gPiA+IHZzb2NrX3RyYW5zcG9ydF9jYW5jZWxfcGt0KCkgLiBJcyB0
+aGF0IHN5bmNocm9uaXplZCBoZXJlPwo+ID4gPiA+ID4gCj4gPiA+ID4gQm90aCB2aXJ0aW9fdHJh
+bnNwb3J0X3NlbmRfcGt0KCkgYW5kIHZzb2NrX3RyYW5zcG9ydF9jYW5jZWxfcGt0KCkgY2FuCj4g
+PiA+ID4gcXVldWUgd29yayBmcm9tIHRoZSB1cHBlciBsYXllciAoc29ja2V0KS4KPiA+ID4gPiAK
+PiA+ID4gPiBTZXR0aW5nIHRoZV92aXJ0aW9fdnNvY2sgdG8gTlVMTCwgc2hvdWxkIHN5bmNocm9u
+aXplLCBidXQgYWZ0ZXIgYSBjYXJlZnVsIGxvb2sKPiA+ID4gPiBhIHJhcmUgaXNzdWUgY291bGQg
+aGFwcGVuOgo+ID4gPiA+IHdlIGFyZSBzZXR0aW5nIHRoZV92aXJ0aW9fdnNvY2sgdG8gTlVMTCBh
+dCB0aGUgc3RhcnQgb2YgLnJlbW92ZSgpIGFuZCB3ZQo+ID4gPiA+IGFyZSBmcmVlaW5nIHRoZSBv
+YmplY3QgcG9pbnRlZCBieSBpdCBhdCB0aGUgZW5kIG9mIC5yZW1vdmUoKSwgc28KPiA+ID4gPiB2
+aXJ0aW9fdHJhbnNwb3J0X3NlbmRfcGt0KCkgb3IgdnNvY2tfdHJhbnNwb3J0X2NhbmNlbF9wa3Qo
+KSBtYXkgc3RpbGwgYmUKPiA+ID4gPiBydW5uaW5nLCBhY2Nlc3NpbmcgdGhlIG9iamVjdCB0aGF0
+IHdlIGFyZSBmcmVlZC4KPiA+ID4gCj4gPiA+IFllcywgdGhhdCdzIG15IHBvaW50Lgo+ID4gPiAK
+PiA+ID4gCj4gPiA+ID4gU2hvdWxkIEkgdXNlIHNvbWV0aGluZyBsaWtlIFJDVSB0byBwcmV2ZW50
+IHRoaXMgaXNzdWU/Cj4gPiA+ID4gCj4gPiA+ID4gICAgICAgdmlydGlvX3RyYW5zcG9ydF9zZW5k
+X3BrdCgpIGFuZCB2c29ja190cmFuc3BvcnRfY2FuY2VsX3BrdCgpCj4gPiA+ID4gICAgICAgewo+
+ID4gPiA+ICAgICAgICAgICByY3VfcmVhZF9sb2NrKCk7Cj4gPiA+ID4gICAgICAgICAgIHZzb2Nr
+ID0gcmN1X2RlcmVmZXJlbmNlKHRoZV92aXJ0aW9fdnNvY2tfbXV0ZXgpOwo+ID4gPiAKPiA+ID4g
+UkNVIGlzIHByb2JhYmx5IGEgd2F5IHRvIGdvLiAoTGlrZSB3aGF0IHZob3N0X3RyYW5zcG9ydF9z
+ZW5kX3BrdCgpIGRpZCkuCj4gPiA+IAo+ID4gT2theSwgSSdtIGdvaW5nIHRoaXMgd2F5Lgo+ID4g
+Cj4gPiA+ID4gICAgICAgICAgIC4uLgo+ID4gPiA+ICAgICAgICAgICByY3VfcmVhZF91bmxvY2so
+KTsKPiA+ID4gPiAgICAgICB9Cj4gPiA+ID4gCj4gPiA+ID4gICAgICAgdmlydGlvX3Zzb2NrX3Jl
+bW92ZSgpCj4gPiA+ID4gICAgICAgewo+ID4gPiA+ICAgICAgICAgICByY3VfYXNzaWduX3BvaW50
+ZXIodGhlX3ZpcnRpb192c29ja19tdXRleCwgTlVMTCk7Cj4gPiA+ID4gICAgICAgICAgIHN5bmNo
+cm9uaXplX3JjdSgpOwo+ID4gPiA+IAo+ID4gPiA+ICAgICAgICAgICAuLi4KPiA+ID4gPiAKPiA+
+ID4gPiAgICAgICAgICAgZnJlZSh2c29jayk7Cj4gPiA+ID4gICAgICAgfQo+ID4gPiA+IAo+ID4g
+PiA+IENvdWxkIHRoZXJlIGJlIGEgYmV0dGVyIGFwcHJvYWNoPwo+ID4gPiA+IAo+ID4gPiA+IAo+
+ID4gPiA+ID4gMikgSWYgd2UgZGVjaWRlIHRvIGZsdXNoIGFmdGVyIGRldl92cXMoKSwgaXMgdHhf
+cnVuL3J4X3J1bi9ldmVudF9ydW4gc3RpbGwKPiA+ID4gPiA+IG5lZWRlZD8gSXQgbG9va3MgdG8g
+bWUgd2UndmUgYWxyZWFkeSBkb25lIGV4Y2VwdCB0aGF0IHdlIG5lZWQgZmx1c2ggcnhfd29yawo+
+ID4gPiA+ID4gaW4gdGhlIGVuZCBzaW5jZSBzZW5kX3BrdF93b3JrIGNhbiByZXF1ZXVlIHJ4X3dv
+cmsuCj4gPiA+ID4gVGhlIG1haW4gcmVhc29uIG9mIHR4X3J1bi9yeF9ydW4vZXZlbnRfcnVuIGlz
+IHRvIHByZXZlbnQgdGhhdCBhIHdvcmtlcgo+ID4gPiA+IGZ1bmN0aW9uIGlzIHJ1bm5pbmcgd2hp
+bGUgd2UgYXJlIGNhbGxpbmcgY29uZmlnLT5yZXNldCgpLgo+ID4gPiA+IAo+ID4gPiA+IEUuZy4g
+aWYgYW4gaW50ZXJydXB0IGNvbWVzIGJldHdlZW4gdmlydGlvX3Zzb2NrX2ZsdXNoX3dvcmtzKCkg
+YW5kCj4gPiA+ID4gY29uZmlnLT5yZXNldCgpLCBpdCBjYW4gcXVldWUgbmV3IHdvcmtzIHRoYXQg
+Y2FuIGFjY2VzcyB0aGUgZGV2aWNlIHdoaWxlCj4gPiA+ID4gd2UgYXJlIGluIGNvbmZpZy0+cmVz
+ZXQoKS4KPiA+ID4gPiAKPiA+ID4gPiBJTUhPIHRoZXkgYXJlIHN0aWxsIG5lZWRlZC4KPiA+ID4g
+PiAKPiA+ID4gPiBXaGF0IGRvIHlvdSB0aGluaz8KPiA+ID4gCj4gPiA+IEkgbWVhbiBjb3VsZCB3
+ZSBzaW1wbHkgZG8gZmx1c2ggYWZ0ZXIgcmVzZXQgb25jZSBhbmQgd2l0aG91dCB0eF9yeC9yeF9y
+dW4KPiA+ID4gdHJpY2tzPwo+ID4gPiAKPiA+ID4gcmVzdCgpOwo+ID4gPiAKPiA+ID4gdmlydGlv
+X3Zzb2NrX2ZsdXNoX3dvcmsoKTsKPiA+ID4gCj4gPiA+IHZpcnRpb192c29ja19mcmVlX2J1Zigp
+Owo+ID4gTXkgb25seSBkb3VidCBpczoKPiA+IGlzIGl0IHNhZmUgdG8gY2FsbCBjb25maWctPnJl
+c2V0KCkgd2hpbGUgYSB3b3JrZXIgZnVuY3Rpb24gY291bGQgYWNjZXNzCj4gPiB0aGUgZGV2aWNl
+Pwo+ID4gCj4gPiBJIGhhZCB0aGlzIGRvdWJ0IHJlYWRpbmcgdGhlIE1pY2hhZWwncyBhZHZpY2Vb
+MV0gYW5kIGxvb2tpbmcgYXQKPiA+IHZpcnRuZXRfcmVtb3ZlKCkgd2hlcmUgdGhlcmUgYXJlIHRo
+ZXNlIGxpbmVzIGJlZm9yZSB0aGUgY29uZmlnLT5yZXNldCgpOgo+ID4gCj4gPiAJLyogTWFrZSBz
+dXJlIG5vIHdvcmsgaGFuZGxlciBpcyBhY2Nlc3NpbmcgdGhlIGRldmljZS4gKi8KPiA+IAlmbHVz
+aF93b3JrKCZ2aS0+Y29uZmlnX3dvcmspOwo+ID4gCj4gPiBUaGFua3MsCj4gPiBTdGVmYW5vCj4g
+PiAKPiA+IFsxXSBodHRwczovL2xvcmUua2VybmVsLm9yZy9uZXRkZXYvMjAxOTA1MjEwNTU2NTAt
+bXV0dC1zZW5kLWVtYWlsLW1zdEBrZXJuZWwub3JnCj4gCj4gCj4gR29vZCBwb2ludC4gVGhlbiBJ
+IGFncmVlIHdpdGggeW91LiBCdXQgaWYgd2UgY2FuIHVzZSB0aGUgUkNVIHRvIGRldGVjdCB0aGUK
+PiBkZXRhY2ggb2YgZGV2aWNlIGZyb20gc29ja2V0IGZvciB0aGVzZSwgaXQgd291bGQgYmUgZXZl
+biBiZXR0ZXIuCj4gCgpXaGF0IGFib3V0IGNoZWNraW5nICd0aGVfdmlydGlvX3Zzb2NrJyBpbiB0
+aGUgd29ya2VyIGZ1bmN0aW9ucyBpbiBhIFJDVQpjcml0aWNhbCBzZWN0aW9uPwpJbiB0aGlzIHdh
+eSwgSSBjYW4gcmVtb3ZlIHRoZSByeF9ydW4vdHhfcnVuL2V2ZW50X3J1bi4KCkRvIHlvdSB0aGlu
+ayBpdCdzIGNsZWFuZXI/CgpUaGFuayB5b3UgdmVyeSBtdWNoLApTdGVmYW5vCl9fX19fX19fX19f
+X19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fClZpcnR1YWxpemF0aW9uIG1haWxp
+bmcgbGlzdApWaXJ0dWFsaXphdGlvbkBsaXN0cy5saW51eC1mb3VuZGF0aW9uLm9yZwpodHRwczov
+L2xpc3RzLmxpbnV4Zm91bmRhdGlvbi5vcmcvbWFpbG1hbi9saXN0aW5mby92aXJ0dWFsaXphdGlv
+bg==
