@@ -1,16 +1,11 @@
-From: Juergen Gross <jgross@suse.com>
-Subject: Re: [RFC PATCH v2 04/12] x86/mm/tlb: Flush remote and local TLBs
-	concurrently
-Date: Fri, 31 May 2019 13:48:50 +0200
-Message-ID: <a847ee9c-4faf-c8b4-43bb-cc30e0980796__1985.94176197133$1559303382$gmane$org@suse.com>
-References: <20190531063645.4697-1-namit@vmware.com>
-	<20190531063645.4697-5-namit@vmware.com>
+From: Stefano Garzarella <sgarzare@redhat.com>
+Subject: [PATCH v3 0/5] vsock/virtio: optimizations to increase the throughput
+Date: Fri, 31 May 2019 15:39:49 +0200
+Message-ID: <20190531133954.122567-1-sgarzare__29615.6087237009$1559310060$gmane$org@redhat.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <20190531063645.4697-5-namit@vmware.com>
-Content-Language: de-DE
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -20,101 +15,145 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Nadav Amit <namit@vmware.com>, Peter Zijlstra <peterz@infradead.org>, Andy Lutomirski <luto@kernel.org>
-Cc: Sasha Levin <sashal@kernel.org>, linux-hyperv@vger.kernel.org, Dave Hansen <dave.hansen@linux.intel.com>, Stephen Hemminger <sthemmin@microsoft.com>, kvm@vger.kernel.org, Haiyang Zhang <haiyangz@microsoft.com>, x86@kernel.org, linux-kernel@vger.kernel.org, virtualization@lists.linux-foundation.org, Dave Hansen <dave.hansen@intel.com>, Ingo Molnar <mingo@redhat.com>, Borislav Petkov <bp@alien8.de>, xen-devel@lists.xenproject.org, Paolo Bonzini <pbonzini@redhat.com>, Thomas Gleixner <tglx@linutronix.de>, Boris Ostrovsky <boris.ostrovsky@oracle.com>
+To: netdev@vger.kernel.org
+Cc: kvm@vger.kernel.org, "Michael S. Tsirkin" <mst@redhat.com>, linux-kernel@vger.kernel.org, virtualization@lists.linux-foundation.org, Stefan Hajnoczi <stefanha@redhat.com>, "David S. Miller" <davem@davemloft.net>
 List-Id: virtualization@lists.linuxfoundation.org
 
-On 31/05/2019 08:36, Nadav Amit wrote:
-> To improve TLB shootdown performance, flush the remote and local TLBs
-> concurrently. Introduce flush_tlb_multi() that does so. The current
-> flush_tlb_others() interface is kept, since paravirtual interfaces need
-> to be adapted first before it can be removed. This is left for future
-> work. In such PV environments, TLB flushes are not performed, at this
-> time, concurrently.
-> 
-> Add a static key to tell whether this new interface is supported.
-> 
-> Cc: "K. Y. Srinivasan" <kys@microsoft.com>
-> Cc: Haiyang Zhang <haiyangz@microsoft.com>
-> Cc: Stephen Hemminger <sthemmin@microsoft.com>
-> Cc: Sasha Levin <sashal@kernel.org>
-> Cc: Thomas Gleixner <tglx@linutronix.de>
-> Cc: Ingo Molnar <mingo@redhat.com>
-> Cc: Borislav Petkov <bp@alien8.de>
-> Cc: x86@kernel.org
-> Cc: Juergen Gross <jgross@suse.com>
-> Cc: Paolo Bonzini <pbonzini@redhat.com>
-> Cc: Dave Hansen <dave.hansen@linux.intel.com>
-> Cc: Andy Lutomirski <luto@kernel.org>
-> Cc: Peter Zijlstra <peterz@infradead.org>
-> Cc: Boris Ostrovsky <boris.ostrovsky@oracle.com>
-> Cc: linux-hyperv@vger.kernel.org
-> Cc: linux-kernel@vger.kernel.org
-> Cc: virtualization@lists.linux-foundation.org
-> Cc: kvm@vger.kernel.org
-> Cc: xen-devel@lists.xenproject.org
-> Signed-off-by: Nadav Amit <namit@vmware.com>
-> ---
->  arch/x86/hyperv/mmu.c                 |  2 +
->  arch/x86/include/asm/paravirt.h       |  8 +++
->  arch/x86/include/asm/paravirt_types.h |  6 ++
->  arch/x86/include/asm/tlbflush.h       |  6 ++
->  arch/x86/kernel/kvm.c                 |  1 +
->  arch/x86/kernel/paravirt.c            |  3 +
->  arch/x86/mm/tlb.c                     | 80 +++++++++++++++++++++++----
->  arch/x86/xen/mmu_pv.c                 |  2 +
->  8 files changed, 96 insertions(+), 12 deletions(-)
-> 
-> diff --git a/arch/x86/hyperv/mmu.c b/arch/x86/hyperv/mmu.c
-> index e65d7fe6489f..ca28b400c87c 100644
-> --- a/arch/x86/hyperv/mmu.c
-> +++ b/arch/x86/hyperv/mmu.c
-> @@ -233,4 +233,6 @@ void hyperv_setup_mmu_ops(void)
->  	pr_info("Using hypercall for remote TLB flush\n");
->  	pv_ops.mmu.flush_tlb_others = hyperv_flush_tlb_others;
->  	pv_ops.mmu.tlb_remove_table = tlb_remove_table;
-> +
-> +	static_key_disable(&flush_tlb_multi_enabled.key);
->  }
-> diff --git a/arch/x86/include/asm/paravirt.h b/arch/x86/include/asm/paravirt.h
-> index c25c38a05c1c..192be7254457 100644
-> --- a/arch/x86/include/asm/paravirt.h
-> +++ b/arch/x86/include/asm/paravirt.h
-> @@ -47,6 +47,8 @@ static inline void slow_down_io(void)
->  #endif
->  }
->  
-> +DECLARE_STATIC_KEY_TRUE(flush_tlb_multi_enabled);
-> +
->  static inline void __flush_tlb(void)
->  {
->  	PVOP_VCALL0(mmu.flush_tlb_user);
-> @@ -62,6 +64,12 @@ static inline void __flush_tlb_one_user(unsigned long addr)
->  	PVOP_VCALL1(mmu.flush_tlb_one_user, addr);
->  }
->  
-> +static inline void flush_tlb_multi(const struct cpumask *cpumask,
-> +				   const struct flush_tlb_info *info)
-> +{
-> +	PVOP_VCALL2(mmu.flush_tlb_multi, cpumask, info);
-> +}
-> +
->  static inline void flush_tlb_others(const struct cpumask *cpumask,
->  				    const struct flush_tlb_info *info)
->  {
-> diff --git a/arch/x86/include/asm/paravirt_types.h b/arch/x86/include/asm/paravirt_types.h
-> index 946f8f1f1efc..3a156e63c57d 100644
-> --- a/arch/x86/include/asm/paravirt_types.h
-> +++ b/arch/x86/include/asm/paravirt_types.h
-> @@ -211,6 +211,12 @@ struct pv_mmu_ops {
->  	void (*flush_tlb_user)(void);
->  	void (*flush_tlb_kernel)(void);
->  	void (*flush_tlb_one_user)(unsigned long addr);
-> +	/*
-> +	 * flush_tlb_multi() is the preferred interface. When it is used,
-> +	 * flush_tlb_others() should return false.
+This series tries to increase the throughput of virtio-vsock with slight
+changes.
+While I was testing the v2 of this series I discovered an huge use of memory,
+so I added patch 1 to mitigate this issue. I put it in this series in order
+to better track the performance trends.
 
-Didn't you want to remove/change this comment?
+v3:
+- Patch 1: added a threshold to copy only small packets [Jason]
 
+- Patch 1: replaced the allocation of a new buffer with a copy of small packets
+           into the buffer of last packed queued. [Jason, Stefan]
 
-Juergen
+- Removed 3 patches from the series:
+  - "[PATCH v2 2/8] vsock/virtio: free packets during the socket release"
+    Sent as a separate patch. It is already upstream.
+
+  - "[PATCH v2 7/8] vsock/virtio: increase RX buffer size to 64 KiB" and
+    "[PATCH v2 8/8] vsock/virtio: make the RX buffer size tunable"
+    As Jason suggested, we can do the 64KB buffer in the future with the
+    conversion of using skb.
+
+- Patches 2, 3, 4, 5 are the same of v2 (change only the index since 2/8 was
+  sent as a separated patch)
+
+v2: https://patchwork.kernel.org/cover/10938743
+
+v1: https://patchwork.kernel.org/cover/10885431
+
+Below are the benchmarks step by step. I used iperf3 [1] modified with VSOCK
+support. As Micheal suggested in the v1, I booted host and guest with 'nosmap'.
+I added two new rows with 32 and 128 bytes, to test small packets.
+
+A brief description of patches:
+- Patches 1: limit the memory usage with an extra copy for small packets
+- Patches 2+3: fix locking and reduce the number of credit update messages
+               sent to the transmitter
+- Patches 4+5: allow the host to split packets on multiple buffers and use
+               VIRTIO_VSOCK_MAX_PKT_BUF_SIZE as the max packet size allowed
+
+                    host -> guest [Gbps]
+pkt_size before opt   p 1     p 2+3    p 4+5
+
+32         0.035     0.032    0.049    0.051
+64         0.069     0.061    0.123    0.126
+128        0.138     0.116    0.256    0.252
+256        0.247     0.254    0.434    0.444
+512        0.498     0.482    0.940    0.931
+1K         0.951     0.975    1.878    1.887
+2K         1.882     1.872    3.735    3.720
+4K         3.603     3.583    6.843    6.842
+8K         5.881     5.761   11.841   12.057
+16K        8.414     8.352   17.163   17.456
+32K       14.020    13.926   19.156   20.883
+64K       21.147    20.921   20.601   21.799
+128K      21.098    21.027   21.145   23.596
+256K      21.617    21.354   21.123   23.464
+512K      20.967    21.056   21.236   23.775
+
+                    guest -> host [Gbps]
+pkt_size before opt   p 1     p 2+3    p 4+5
+
+32         0.044     0.043    0.059    0.058
+64         0.090     0.086    0.110    0.109
+128        0.176     0.166    0.217    0.219
+256        0.342     0.335    0.431    0.435
+512        0.674     0.664    0.843    0.883
+1K         1.336     1.315    1.672    1.648
+2K         2.613     2.615    3.163    3.173
+4K         5.162     5.128    5.638    5.873
+8K         8.479     8.913   10.787   10.236
+16K       11.617    12.027   12.871   15.840
+32K       11.234    11.074   11.643   24.385
+64K       10.252    10.655   11.223   37.201
+128K      10.101    10.219   10.346   39.340
+256K       9.403     9.820   10.040   34.888
+512K       8.822     9.911   10.410   34.562
+
+As Stefan suggested in the v1, I measured also the efficiency in this way:
+    efficiency = Mbps / (%CPU_Host + %CPU_Guest)
+
+The '%CPU_Guest' is taken inside the VM. I know that it is not the best way,
+but it's provided for free from iperf3 and could be an indication.
+
+        host -> guest efficiency [Mbps / (%CPU_Host + %CPU_Guest)]
+pkt_size before opt   p 1     p 2+3    p 4+5
+
+32          0.42      0.54     0.92     2.10
+64          0.62      0.83     3.55     3.90
+128         1.24      1.59     4.30     4.22
+256         2.25      2.32     5.81     5.97
+512         4.51      4.45    12.04    11.94
+1K          8.70      8.93    23.10    23.33
+2K         17.24     17.30    44.52    44.13
+4K         33.01     32.97    82.45    81.65
+8K         57.57     56.57   147.46   157.81
+16K        82.36     81.97   214.60   253.35
+32K       153.00    151.78   278.84   367.66
+64K       236.54    246.02   301.18   454.15
+128K      327.02    328.36   331.43   505.09
+256K      336.23    331.09   330.05   515.09
+512K      323.10    322.61   327.21   513.90
+
+        guest -> host efficiency [Mbps / (%CPU_Host + %CPU_Guest)]
+pkt_size before opt   p 1     p 2+3     p 4+5
+
+32          0.42      0.42     0.60     0.606
+64          0.86      0.84     1.20     1.187
+128         1.69      1.64     2.38     2.393
+256         3.31      3.31     4.67     4.723
+512         6.50      6.56     9.19     9.454
+1K         12.90     12.89    18.04    17.778
+2K         25.45     25.92    34.31    34.028
+4K         51.13     50.59    62.64    64.609
+8K         95.81    100.98   112.95   113.105
+16K       139.85    142.83   142.54   181.651
+32K       147.43    146.66   146.86   286.545
+64K       141.64    145.75   140.82   432.570
+128K      148.30    148.87   143.89   490.037
+256K      148.90    152.77   149.37   528.606
+512K      140.68    153.65   152.64   516.622
+
+[1] https://github.com/stefano-garzarella/iperf/
+
+Stefano Garzarella (5):
+  vsock/virtio: limit the memory used per-socket
+  vsock/virtio: fix locking for fwd_cnt and buf_alloc
+  vsock/virtio: reduce credit update messages
+  vhost/vsock: split packets to send using multiple buffers
+  vsock/virtio: change the maximum packet size allowed
+
+ drivers/vhost/vsock.c                   |  53 ++++++++++---
+ include/linux/virtio_vsock.h            |   4 +-
+ net/vmw_vsock/virtio_transport.c        |   1 +
+ net/vmw_vsock/virtio_transport_common.c | 101 +++++++++++++++++++-----
+ 4 files changed, 128 insertions(+), 31 deletions(-)
+
+-- 
+2.20.1
