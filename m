@@ -1,17 +1,16 @@
-From: Jean-Philippe Brucker <jean-philippe.brucker@arm.com>
-Subject: Re: [virtio-dev] Re: [PATCH v8 2/7] dt-bindings: virtio: Add
-	virtio-pci-iommu node
-Date: Fri, 31 May 2019 12:13:47 +0100
-Message-ID: <c3cd5dba-123d-e808-98b1-731ac2d4b950__35594.2993819312$1559301302$gmane$org@arm.com>
-References: <20190530170929.19366-1-jean-philippe.brucker@arm.com>
-	<20190530170929.19366-3-jean-philippe.brucker@arm.com>
-	<20190530133523-mutt-send-email-mst@kernel.org>
+From: Juergen Gross <jgross@suse.com>
+Subject: Re: [RFC PATCH v2 04/12] x86/mm/tlb: Flush remote and local TLBs
+	concurrently
+Date: Fri, 31 May 2019 13:48:50 +0200
+Message-ID: <a847ee9c-4faf-c8b4-43bb-cc30e0980796__1985.94176197133$1559303382$gmane$org@suse.com>
+References: <20190531063645.4697-1-namit@vmware.com>
+	<20190531063645.4697-5-namit@vmware.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <20190530133523-mutt-send-email-mst@kernel.org>
-Content-Language: en-US
+In-Reply-To: <20190531063645.4697-5-namit@vmware.com>
+Content-Language: de-DE
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -21,44 +20,101 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: "Michael S. Tsirkin" <mst@redhat.com>
-Cc: Mark Rutland <Mark.Rutland@arm.com>, "virtio-dev@lists.oasis-open.org" <virtio-dev@lists.oasis-open.org>, Lorenzo Pieralisi <Lorenzo.Pieralisi@arm.com>, "tnowicki@caviumnetworks.com" <tnowicki@caviumnetworks.com>, "devicetree@vger.kernel.org" <devicetree@vger.kernel.org>, "linux-pci@vger.kernel.org" <linux-pci@vger.kernel.org>, "joro@8bytes.org" <joro@8bytes.org>, "virtualization@lists.linux-foundation.org" <virtualization@lists.linux-foundation.org>, "eric.auger@redhat.com" <eric.auger@redhat.com>, "iommu@lists.linux-foundation.org" <iommu@lists.linux-foundation.org>, "robh+dt@kernel.org" <robh+dt@kernel.org>, "kvmarm@lists.cs.columbia.edu" <kvmarm@lists.cs.columbia.edu>, "bhelgaas@google.com" <bhelgaas@google.com>, Robin Murphy <Robin.Murphy@arm.com>
+To: Nadav Amit <namit@vmware.com>, Peter Zijlstra <peterz@infradead.org>, Andy Lutomirski <luto@kernel.org>
+Cc: Sasha Levin <sashal@kernel.org>, linux-hyperv@vger.kernel.org, Dave Hansen <dave.hansen@linux.intel.com>, Stephen Hemminger <sthemmin@microsoft.com>, kvm@vger.kernel.org, Haiyang Zhang <haiyangz@microsoft.com>, x86@kernel.org, linux-kernel@vger.kernel.org, virtualization@lists.linux-foundation.org, Dave Hansen <dave.hansen@intel.com>, Ingo Molnar <mingo@redhat.com>, Borislav Petkov <bp@alien8.de>, xen-devel@lists.xenproject.org, Paolo Bonzini <pbonzini@redhat.com>, Thomas Gleixner <tglx@linutronix.de>, Boris Ostrovsky <boris.ostrovsky@oracle.com>
 List-Id: virtualization@lists.linuxfoundation.org
 
-On 30/05/2019 18:45, Michael S. Tsirkin wrote:
-> On Thu, May 30, 2019 at 06:09:24PM +0100, Jean-Philippe Brucker wrote:
->> Some systems implement virtio-iommu as a PCI endpoint. The operating
->> system needs to discover the relationship between IOMMU and masters long
->> before the PCI endpoint gets probed. Add a PCI child node to describe the
->> virtio-iommu device.
->>
->> The virtio-pci-iommu is conceptually split between a PCI programming
->> interface and a translation component on the parent bus. The latter
->> doesn't have a node in the device tree. The virtio-pci-iommu node
->> describes both, by linking the PCI endpoint to "iommus" property of DMA
->> master nodes and to "iommu-map" properties of bus nodes.
->>
->> Reviewed-by: Rob Herring <robh@kernel.org>
->> Reviewed-by: Eric Auger <eric.auger@redhat.com>
->> Signed-off-by: Jean-Philippe Brucker <jean-philippe.brucker@arm.com>
+On 31/05/2019 08:36, Nadav Amit wrote:
+> To improve TLB shootdown performance, flush the remote and local TLBs
+> concurrently. Introduce flush_tlb_multi() that does so. The current
+> flush_tlb_others() interface is kept, since paravirtual interfaces need
+> to be adapted first before it can be removed. This is left for future
+> work. In such PV environments, TLB flushes are not performed, at this
+> time, concurrently.
 > 
-> So this is just an example right?
-> We are not defining any new properties or anything like that.
+> Add a static key to tell whether this new interface is supported.
+> 
+> Cc: "K. Y. Srinivasan" <kys@microsoft.com>
+> Cc: Haiyang Zhang <haiyangz@microsoft.com>
+> Cc: Stephen Hemminger <sthemmin@microsoft.com>
+> Cc: Sasha Levin <sashal@kernel.org>
+> Cc: Thomas Gleixner <tglx@linutronix.de>
+> Cc: Ingo Molnar <mingo@redhat.com>
+> Cc: Borislav Petkov <bp@alien8.de>
+> Cc: x86@kernel.org
+> Cc: Juergen Gross <jgross@suse.com>
+> Cc: Paolo Bonzini <pbonzini@redhat.com>
+> Cc: Dave Hansen <dave.hansen@linux.intel.com>
+> Cc: Andy Lutomirski <luto@kernel.org>
+> Cc: Peter Zijlstra <peterz@infradead.org>
+> Cc: Boris Ostrovsky <boris.ostrovsky@oracle.com>
+> Cc: linux-hyperv@vger.kernel.org
+> Cc: linux-kernel@vger.kernel.org
+> Cc: virtualization@lists.linux-foundation.org
+> Cc: kvm@vger.kernel.org
+> Cc: xen-devel@lists.xenproject.org
+> Signed-off-by: Nadav Amit <namit@vmware.com>
+> ---
+>  arch/x86/hyperv/mmu.c                 |  2 +
+>  arch/x86/include/asm/paravirt.h       |  8 +++
+>  arch/x86/include/asm/paravirt_types.h |  6 ++
+>  arch/x86/include/asm/tlbflush.h       |  6 ++
+>  arch/x86/kernel/kvm.c                 |  1 +
+>  arch/x86/kernel/paravirt.c            |  3 +
+>  arch/x86/mm/tlb.c                     | 80 +++++++++++++++++++++++----
+>  arch/x86/xen/mmu_pv.c                 |  2 +
+>  8 files changed, 96 insertions(+), 12 deletions(-)
+> 
+> diff --git a/arch/x86/hyperv/mmu.c b/arch/x86/hyperv/mmu.c
+> index e65d7fe6489f..ca28b400c87c 100644
+> --- a/arch/x86/hyperv/mmu.c
+> +++ b/arch/x86/hyperv/mmu.c
+> @@ -233,4 +233,6 @@ void hyperv_setup_mmu_ops(void)
+>  	pr_info("Using hypercall for remote TLB flush\n");
+>  	pv_ops.mmu.flush_tlb_others = hyperv_flush_tlb_others;
+>  	pv_ops.mmu.tlb_remove_table = tlb_remove_table;
+> +
+> +	static_key_disable(&flush_tlb_multi_enabled.key);
+>  }
+> diff --git a/arch/x86/include/asm/paravirt.h b/arch/x86/include/asm/paravirt.h
+> index c25c38a05c1c..192be7254457 100644
+> --- a/arch/x86/include/asm/paravirt.h
+> +++ b/arch/x86/include/asm/paravirt.h
+> @@ -47,6 +47,8 @@ static inline void slow_down_io(void)
+>  #endif
+>  }
+>  
+> +DECLARE_STATIC_KEY_TRUE(flush_tlb_multi_enabled);
+> +
+>  static inline void __flush_tlb(void)
+>  {
+>  	PVOP_VCALL0(mmu.flush_tlb_user);
+> @@ -62,6 +64,12 @@ static inline void __flush_tlb_one_user(unsigned long addr)
+>  	PVOP_VCALL1(mmu.flush_tlb_one_user, addr);
+>  }
+>  
+> +static inline void flush_tlb_multi(const struct cpumask *cpumask,
+> +				   const struct flush_tlb_info *info)
+> +{
+> +	PVOP_VCALL2(mmu.flush_tlb_multi, cpumask, info);
+> +}
+> +
+>  static inline void flush_tlb_others(const struct cpumask *cpumask,
+>  				    const struct flush_tlb_info *info)
+>  {
+> diff --git a/arch/x86/include/asm/paravirt_types.h b/arch/x86/include/asm/paravirt_types.h
+> index 946f8f1f1efc..3a156e63c57d 100644
+> --- a/arch/x86/include/asm/paravirt_types.h
+> +++ b/arch/x86/include/asm/paravirt_types.h
+> @@ -211,6 +211,12 @@ struct pv_mmu_ops {
+>  	void (*flush_tlb_user)(void);
+>  	void (*flush_tlb_kernel)(void);
+>  	void (*flush_tlb_one_user)(unsigned long addr);
+> +	/*
+> +	 * flush_tlb_multi() is the preferred interface. When it is used,
+> +	 * flush_tlb_others() should return false.
 
-Yes it's just an example. The properties already exist but it's good to
-describe how to put them together for this particular case, because
-there isn't a precedent describing the topology for an IOMMU that
-appears on the PCI bus.
+Didn't you want to remove/change this comment?
 
-> I think down the road for non dt platforms we want to put this
-> info in the config space of the device. I do not think ACPI
-> is the best option for this since not all systems have it.
-> But that can wait.
 
-There is the probe order problem - PCI needs this info before starting
-to probe devices on the bus. Maybe we could store the info in a separate
-memory region, that is referenced on the command-line and that the guest
-can read early.
-
-Thanks,
-Jean
+Juergen
