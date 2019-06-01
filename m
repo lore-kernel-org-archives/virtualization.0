@@ -1,19 +1,14 @@
-From: Nadav Amit via Virtualization <virtualization@lists.linux-foundation.org>
-Subject: Re: [RFC PATCH v2 04/12] x86/mm/tlb: Flush remote and local TLBs
-	concurrently
-Date: Fri, 31 May 2019 19:44:41 +0000
-Message-ID: <1DEA29A7-D033-4816-876C-05E7D77F0437__14101.9104443089$1559331947$gmane$org@vmware.com>
-References: <20190531063645.4697-1-namit@vmware.com>
-	<20190531063645.4697-5-namit@vmware.com>
-	<a847ee9c-4faf-c8b4-43bb-cc30e0980796@suse.com>
-Reply-To: Nadav Amit <namit@vmware.com>
+From: Dan Williams <dan.j.williams@intel.com>
+Subject: Re: [PATCH v10 4/7] dm: enable synchronous dax
+Date: Fri, 31 May 2019 23:28:56 -0700
+Message-ID: <CAPcyv4iW-UeHBs+qSii2Pk7Q2Nki6imGBTEORuxEAWgEMMp=nA__40013.9158287615$1559370625$gmane$org@mail.gmail.com>
+References: <20190521133713.31653-1-pagupta@redhat.com>
+	<20190521133713.31653-5-pagupta@redhat.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <a847ee9c-4faf-c8b4-43bb-cc30e0980796@suse.com>
-Content-Language: en-US
-Content-ID: <498DEB6111D0B64C9D5657F78CFDD0EF@namprd05.prod.outlook.com>
+In-Reply-To: <20190521133713.31653-5-pagupta@redhat.com>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -23,24 +18,53 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Juergen Gross <jgross@suse.com>
-Cc: Sasha Levin <sashal@kernel.org>, "linux-hyperv@vger.kernel.org" <linux-hyperv@vger.kernel.org>, Dave Hansen <dave.hansen@linux.intel.com>, Stephen Hemminger <sthemmin@microsoft.com>, "kvm@vger.kernel.org" <kvm@vger.kernel.org>, Peter Zijlstra <peterz@infradead.org>, Haiyang Zhang <haiyangz@microsoft.com>, the arch/x86 maintainers <x86@kernel.org>, LKML <linux-kernel@vger.kernel.org>, "virtualization@lists.linux-foundation.org" <virtualization@lists.linux-foundation.org>, Dave Hansen <dave.hansen@intel.com>, Ingo Molnar <mingo@redhat.com>, Borislav Petkov <bp@alien8.de>, Andy Lutomirski <luto@kernel.org>, "xen-devel@lists.xenproject.org" <xen-devel@lists.xenproject.org>, Paolo Bonzini <pbonzini@redhat.com>, Thomas Gleixner <tglx@linutronix.de>, Boris Ostrovsky <boris.ostrovsky@oracle.com>
+To: Pankaj Gupta <pagupta@redhat.com>
+Cc: cohuck@redhat.com, Jan Kara <jack@suse.cz>, KVM list <kvm@vger.kernel.org>, "Michael S. Tsirkin" <mst@redhat.com>, david <david@fromorbit.com>, Qemu Developers <qemu-devel@nongnu.org>, virtualization@lists.linux-foundation.org, device-mapper development <dm-devel@redhat.com>, Andreas Dilger <adilger.kernel@dilger.ca>, Ross Zwisler <zwisler@kernel.org>, Andrea Arcangeli <aarcange@redhat.com>, Dave Jiang <dave.jiang@intel.com>, jstaron@google.com, linux-nvdimm <linux-nvdimm@lists.01.org>, Vishal L Verma <vishal.l.verma@intel.com>, Matthew Wilcox <willy@infradead.org>, Christoph Hellwig <hch@infradead.org>, Linux ACPI <linux-acpi@vger.kernel.org>, jmoyer <jmoyer@redhat.com>, linux-ext4 <linux-ext4@vger.kernel.org>, Len Brown <lenb@kernel.org>, Adam Borowski <kilobyte@angband.pl>, Randy Dunlap <rdunlap@infradead.org>, Rik van Riel <riel@surriel.com>, yuval shaia <yuval.sh>
 List-Id: virtualization@lists.linuxfoundation.org
 
-> On May 31, 2019, at 4:48 AM, Juergen Gross <jgross@suse.com> wrote:
-> 
-> On 31/05/2019 08:36, Nadav Amit wrote:
->> 
->> --- a/arch/x86/include/asm/paravirt_types.h
->> +++ b/arch/x86/include/asm/paravirt_types.h
->> @@ -211,6 +211,12 @@ struct pv_mmu_ops {
->> 	void (*flush_tlb_user)(void);
->> 	void (*flush_tlb_kernel)(void);
->> 	void (*flush_tlb_one_user)(unsigned long addr);
->> +	/*
->> +	 * flush_tlb_multi() is the preferred interface. When it is used,
->> +	 * flush_tlb_others() should return false.
-> 
-> Didn't you want to remove/change this comment?
+On Tue, May 21, 2019 at 6:43 AM Pankaj Gupta <pagupta@redhat.com> wrote:
+>
+>  This patch sets dax device 'DAXDEV_SYNC' flag if all the target
+>  devices of device mapper support synchrononous DAX. If device
+>  mapper consists of both synchronous and asynchronous dax devices,
+>  we don't set 'DAXDEV_SYNC' flag.
+>
+> Signed-off-by: Pankaj Gupta <pagupta@redhat.com>
+> ---
+>  drivers/md/dm-table.c | 14 ++++++++++++++
+>  1 file changed, 14 insertions(+)
+>
+> diff --git a/drivers/md/dm-table.c b/drivers/md/dm-table.c
+> index cde3b49b2a91..1cce626ff576 100644
+> --- a/drivers/md/dm-table.c
+> +++ b/drivers/md/dm-table.c
+> @@ -886,10 +886,17 @@ static int device_supports_dax(struct dm_target *ti, struct dm_dev *dev,
+>         return bdev_dax_supported(dev->bdev, PAGE_SIZE);
+>  }
+>
+> +static int device_synchronous(struct dm_target *ti, struct dm_dev *dev,
+> +                              sector_t start, sector_t len, void *data)
+> +{
+> +       return dax_synchronous(dev->dax_dev);
+> +}
+> +
+>  static bool dm_table_supports_dax(struct dm_table *t)
+>  {
+>         struct dm_target *ti;
+>         unsigned i;
+> +       bool dax_sync = true;
+>
+>         /* Ensure that all targets support DAX. */
+>         for (i = 0; i < dm_table_get_num_targets(t); i++) {
+> @@ -901,7 +908,14 @@ static bool dm_table_supports_dax(struct dm_table *t)
+>                 if (!ti->type->iterate_devices ||
+>                     !ti->type->iterate_devices(ti, device_supports_dax, NULL))
+>                         return false;
+> +
+> +               /* Check devices support synchronous DAX */
+> +               if (dax_sync &&
+> +                   !ti->type->iterate_devices(ti, device_synchronous, NULL))
+> +                       dax_sync = false;
 
-Yes! Sorry for that. Fixed now.
+Looks like this needs to be rebased on the current state of v5.2-rc,
+and then we can nudge Mike for an ack.
