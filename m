@@ -1,17 +1,12 @@
-From: Halil Pasic <pasic@linux.ibm.com>
-Subject: Re: [PATCH v3 2/8] s390/cio: introduce DMA pools to cio
-Date: Mon, 3 Jun 2019 16:22:19 +0200
-Message-ID: <20190603162219.31de2df9.pasic@linux.ibm.com>
-References: <20190529122657.166148-1-mimu@linux.ibm.com>
-	<20190529122657.166148-3-mimu@linux.ibm.com>
-	<20190603133745.240c00a7.cohuck@redhat.com>
-	<035b4bd3-5856-e8e5-91bf-ba0b5c7c3736@linux.ibm.com>
-	<20190603160428.2112077a.pasic@linux.ibm.com>
+From: "Michael S. Tsirkin" <mst@redhat.com>
+Subject: [PULL] vhost: cleanups and fixes
+Date: Mon, 3 Jun 2019 10:30:27 -0400
+Message-ID: <20190603103027-mutt-send-email-mst@kernel.org>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <20190603160428.2112077a.pasic@linux.ibm.com>
+Content-Disposition: inline
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -21,40 +16,47 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Michael Mueller <mimu@linux.ibm.com>
-Cc: Vasily Gorbik <gor@linux.ibm.com>, Linux-S390 Mailing List <linux-s390@vger.kernel.org>, Thomas Huth <thuth@redhat.com>, Claudio Imbrenda <imbrenda@linux.ibm.com>, KVM Mailing List <kvm@vger.kernel.org>, Sebastian Ott <sebott@linux.ibm.com>, "Michael S . Tsirkin" <mst@redhat.com>, Pierre Morel <pmorel@linux.ibm.com>, Cornelia Huck <cohuck@redhat.com>, Heiko Carstens <heiko.carstens@de.ibm.com>, Eric Farman <farman@linux.ibm.com>, virtualization@lists.linux-foundation.org, Christoph Hellwig <hch@infradead.org>, Christian Borntraeger <borntraeger@de.ibm.com>, Farhan Ali <alifm@linux.ibm.com>, Viktor Mihajlovski <mihajlov@linux.ibm.com>, Janosch Frank <frankja@linux.ibm.com>
+To: Linus Torvalds <torvalds@linux-foundation.org>
+Cc: fabrizio.castro@bp.renesas.com, igor.stoppa@huawei.com, kvm@vger.kernel.org, mst@redhat.com, netdev@vger.kernel.org, linux-kernel@vger.kernel.org, virtualization@lists.linux-foundation.org, stefanha@redhat.com, pbonzini@redhat.com
 List-Id: virtualization@lists.linuxfoundation.org
 
-On Mon, 3 Jun 2019 16:04:28 +0200
-Halil Pasic <pasic@linux.ibm.com> wrote:
+The following changes since commit cd6c84d8f0cdc911df435bb075ba22ce3c605b07:
 
-> On Mon, 3 Jun 2019 14:09:02 +0200
-> Michael Mueller <mimu@linux.ibm.com> wrote:
-> 
-> > >> @@ -1059,16 +1168,19 @@ static int __init css_bus_init(void)
-> > >>   	if (ret)
-> > >>   		goto out_unregister;
-> > >>   	ret = register_pm_notifier(&css_power_notifier);
-> > >> -	if (ret) {
-> > >> -		unregister_reboot_notifier(&css_reboot_notifier);
-> > >> -		goto out_unregister;
-> > >> -	}
-> > >> +	if (ret)
-> > >> +		goto out_unregister_rn;
-> > >> +	ret = cio_dma_pool_init();
-> > >> +	if (ret)
-> > >> +		goto out_unregister_rn;  
-> > > 
-> > > Don't you also need to unregister the pm notifier on failure here?  
-> > 
-> > Mmh, that was the original intention. Thanks!
-> 
-> I suppose we could also move cio_dma_pool_init() right before the
-> register_reboot_notifier() call and goto out_unregister on error.
-> 
+  Linux 5.2-rc2 (2019-05-26 16:49:19 -0700)
 
-Forget it, then we have to rollback the pool creation if the register
-stuff fails... Sorry for the noise.
+are available in the Git repository at:
 
-Regards,
-Halil
+  git://git.kernel.org/pub/scm/linux/kernel/git/mst/vhost.git tags/for_linus
+
+for you to fetch changes up to c1ea02f15ab5efb3e93fc3144d895410bf79fcf2:
+
+  vhost: scsi: add weight support (2019-05-27 11:08:23 -0400)
+
+----------------------------------------------------------------
+virtio: fixes
+
+several fixes, some of them for CVEs.
+
+Signed-off-by: Michael S. Tsirkin <mst@redhat.com>
+
+----------------------------------------------------------------
+Fabrizio Castro (1):
+      virtio: Fix indentation of VIRTIO_MMIO
+
+Igor Stoppa (1):
+      virtio: add unlikely() to WARN_ON_ONCE()
+
+Jason Wang (4):
+      vhost: introduce vhost_exceeds_weight()
+      vhost_net: fix possible infinite loop
+      vhost: vsock: add weight support
+      vhost: scsi: add weight support
+
+ drivers/vhost/net.c         | 41 ++++++++++++++---------------------------
+ drivers/vhost/scsi.c        | 21 ++++++++++++++-------
+ drivers/vhost/vhost.c       | 20 +++++++++++++++++++-
+ drivers/vhost/vhost.h       |  5 ++++-
+ drivers/vhost/vsock.c       | 28 +++++++++++++++++++++-------
+ drivers/virtio/Kconfig      |  8 ++++----
+ tools/virtio/linux/kernel.h |  2 +-
+ 7 files changed, 77 insertions(+), 48 deletions(-)
