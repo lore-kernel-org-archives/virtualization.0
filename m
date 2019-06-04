@@ -1,23 +1,15 @@
-From: "Michael S. Tsirkin" <mst@redhat.com>
-Subject: Re: [RFC PATCH] virtio_ring: Use DMA API if guest memory is encrypted
-Date: Mon, 3 Jun 2019 21:42:58 -0400
-Message-ID: <20190603211528-mutt-send-email-mst@kernel.org>
-References: <20190129134750-mutt-send-email-mst@kernel.org>
-	<877eefxvyb.fsf@morokweng.localdomain>
-	<20190204144048-mutt-send-email-mst@kernel.org>
-	<87ef71seve.fsf@morokweng.localdomain>
-	<20190320171027-mutt-send-email-mst@kernel.org>
-	<87tvfvbwpb.fsf@morokweng.localdomain>
-	<20190323165456-mutt-send-email-mst@kernel.org>
-	<87a7go71hz.fsf@morokweng.localdomain>
-	<20190520090939-mutt-send-email-mst@kernel.org>
-	<877ea26tk8.fsf@morokweng.localdomain>
+From: Mauro Carvalho Chehab <mchehab+samsung@kernel.org>
+Subject: Re: [PATCH 22/22] docs: fix broken documentation links
+Date: Tue, 4 Jun 2019 06:46:14 -0300
+Message-ID: <20190604064614.67cde821@coco.lan>
+References: <cover.1559171394.git.mchehab+samsung@kernel.org>
+	<f9fecacbe4ce0b2b3aed38d71ae3753f2daf3ce3.1559171394.git.mchehab+samsung@kernel.org>
+	<64e136de-1a7b-3436-9675-44ea9fa7b64a@c-s.fr>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset="utf-8"
+Content-Transfer-Encoding: base64
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-Content-Disposition: inline
-In-Reply-To: <877ea26tk8.fsf@morokweng.localdomain>
+In-Reply-To: <64e136de-1a7b-3436-9675-44ea9fa7b64a@c-s.fr>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -27,78 +19,105 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Thiago Jung Bauermann <bauerman@linux.ibm.com>
-Cc: Mike Anderson <andmike@linux.ibm.com>, Jean-Philippe Brucker <jean-philippe.brucker@arm.com>, Benjamin Herrenschmidt <benh@kernel.crashing.org>, Alexey Kardashevskiy <aik@linux.ibm.com>, Ram Pai <linuxram@us.ibm.com>, linux-kernel@vger.kernel.org, virtualization@lists.linux-foundation.org, Paul Mackerras <paulus@ozlabs.org>, iommu@lists.linux-foundation.org, linuxppc-dev@lists.ozlabs.org, Christoph Hellwig <hch@lst.de>, David Gibson <david@gibson.dropbear.id.au>
+To: Christophe Leroy <christophe.leroy@c-s.fr>
+Cc: Andrew Lunn <andrew@lunn.ch>, Thomas Preston <thomas.preston@codethink.co.uk>, Wolfram Sang <wsa@the-dreams.de>, Catalin Marinas <catalin.marinas@arm.com>, Linus Walleij <linus.walleij@linaro.org>, Will Deacon <will.deacon@arm.com>, Russell King <linux@armlinux.org.uk>, Paul Mackerras <paulus@samba.org>, Alessia Mantegazza <amantegazza@vaga.pv.it>, Jakub Wilk <jwilk@jwilk.net>, AKASHI Takahiro <takahiro.akashi@linaro.org>, Kevin Hilman <khilman@baylibre.com>, James Morris <jmorris@namei.org>, linux-acpi@vger.kernel.org, Andy Gross <agross@kernel.org>, xen-devel@lists.xenproject.org, Alexander Popov <alex.popov@linux.com>, Qian Cai <cai@lca.pw>, Al Viro <viro@zeniv.linux.org.uk>, Andy Lutomirski <luto@kernel.org>, Thomas Gleixner <tglx@linutronix.de>, Kairui Song <kasong@redhat.com>, Quentin Perret <quentin.perret@arm.com>, Greg Kroah-Hartman <gregkh@linuxfoundation.or>
 List-Id: virtualization@lists.linuxfoundation.org
 
-On Mon, Jun 03, 2019 at 10:13:59PM -0300, Thiago Jung Bauermann wrote:
-> 
-> 
-> Michael S. Tsirkin <mst@redhat.com> writes:
-> 
-> > On Wed, Apr 17, 2019 at 06:42:00PM -0300, Thiago Jung Bauermann wrote:
-> >> I rephrased it in terms of address translation. What do you think of
-> >> this version? The flag name is slightly different too:
-> >>
-> >>
-> >> VIRTIO_F_ACCESS_PLATFORM_NO_TRANSLATION This feature has the same
-> >>     meaning as VIRTIO_F_ACCESS_PLATFORM both when set and when not set,
-> >>     with the exception that address translation is guaranteed to be
-> >>     unnecessary when accessing memory addresses supplied to the device
-> >>     by the driver. Which is to say, the device will always use physical
-> >>     addresses matching addresses used by the driver (typically meaning
-> >>     physical addresses used by the CPU) and not translated further. This
-> >>     flag should be set by the guest if offered, but to allow for
-> >>     backward-compatibility device implementations allow for it to be
-> >>     left unset by the guest. It is an error to set both this flag and
-> >>     VIRTIO_F_ACCESS_PLATFORM.
-> >
-> >
-> > OK so VIRTIO_F_ACCESS_PLATFORM is designed to allow unpriveledged
-> > drivers. This is why devices fail when it's not negotiated.
-> 
-> Just to clarify, what do you mean by unprivileged drivers? Is it drivers
-> implemented in guest userspace such as with VFIO? Or unprivileged in
-> some other sense such as needing to use bounce buffers for some reason?
-
-I had drivers in guest userspace in mind.
-
-> > This confuses me.
-> > If driver is unpriveledged then what happens with this flag?
-> > It can supply any address it wants. Will that corrupt kernel
-> > memory?
-> 
-> Not needing address translation doesn't necessarily mean that there's no
-> IOMMU. On powerpc we don't use VIRTIO_F_ACCESS_PLATFORM but there's
-> always an IOMMU present. And we also support VFIO drivers. The VFIO API
-> for pseries (sPAPR section in Documentation/vfio.txt) has extra ioctls
-> to program the IOMMU.
-> 
-> For our use case, we don't need address translation because we set up an
-> identity mapping in the IOMMU so that the device can use guest physical
-> addresses.
-
-And can it access any guest physical address?
-
-> If the guest kernel is concerned that an unprivileged driver could
-> jeopardize its integrity it should not negotiate this feature flag.
-
-Unfortunately flag negotiation is done through config space
-and so can be overwritten by the driver.
-
-> Perhaps there should be a note about this in the flag definition? This
-> concern is platform-dependant though. I don't believe it's an issue in
-> pseries.
-
-Again ACCESS_PLATFORM has a pretty open definition. It does actually
-say it's all up to the platform.
-
-Specifically how will VIRTIO_F_ACCESS_PLATFORM_NO_TRANSLATION be
-implemented portably? virtio has no portable way to know
-whether DMA API bypasses translation.
-
-
-
-> --
-> Thiago Jung Bauermann
-> IBM Linux Technology Center
+RW0gTW9uLCAzIEp1biAyMDE5IDA5OjM0OjE1ICswMjAwCkNocmlzdG9waGUgTGVyb3kgPGNocmlz
+dG9waGUubGVyb3lAYy1zLmZyPiBlc2NyZXZldToKCj4gTGUgMzAvMDUvMjAxOSDDoCAwMToyMywg
+TWF1cm8gQ2FydmFsaG8gQ2hlaGFiIGEgw6ljcml0wqA6Cj4gPiBNb3N0bHkgZHVlIHRvIHg4NiBh
+bmQgYWNwaSBjb252ZXJzaW9uLCBzZXZlcmFsIGRvY3VtZW50YXRpb24KPiA+IGxpbmtzIGFyZSBz
+dGlsbCBwb2ludGluZyB0byB0aGUgb2xkIGZpbGUuIEZpeCB0aGVtLgo+ID4gCj4gPiBTaWduZWQt
+b2ZmLWJ5OiBNYXVybyBDYXJ2YWxobyBDaGVoYWIgPG1jaGVoYWIrc2Ftc3VuZ0BrZXJuZWwub3Jn
+Pgo+ID4gLS0tCj4gPiAgIERvY3VtZW50YXRpb24vYWNwaS9kc2QvbGVkcy50eHQgICAgICAgICAg
+ICAgICAgICB8ICAyICstCj4gPiAgIERvY3VtZW50YXRpb24vYWRtaW4tZ3VpZGUva2VybmVsLXBh
+cmFtZXRlcnMucnN0ICB8ICA2ICsrKy0tLQo+ID4gICBEb2N1bWVudGF0aW9uL2FkbWluLWd1aWRl
+L2tlcm5lbC1wYXJhbWV0ZXJzLnR4dCAgfCAxNiArKysrKysrKy0tLS0tLS0tCj4gPiAgIERvY3Vt
+ZW50YXRpb24vYWRtaW4tZ3VpZGUvcmFzLnJzdCAgICAgICAgICAgICAgICB8ICAyICstCj4gPiAg
+IC4uLi9kZXZpY2V0cmVlL2JpbmRpbmdzL25ldC9mc2wtZW5ldGMudHh0ICAgICAgICB8ICA3ICsr
+Ky0tLS0KPiA+ICAgLi4uL2JpbmRpbmdzL3BjaS9hbWxvZ2ljLG1lc29uLXBjaWUudHh0ICAgICAg
+ICAgIHwgIDIgKy0KPiA+ICAgLi4uL2JpbmRpbmdzL3JlZ3VsYXRvci9xY29tLHJwbWgtcmVndWxh
+dG9yLnR4dCAgIHwgIDIgKy0KPiA+ICAgRG9jdW1lbnRhdGlvbi9kZXZpY2V0cmVlL2Jvb3Rpbmct
+d2l0aG91dC1vZi50eHQgIHwgIDIgKy0KPiA+ICAgRG9jdW1lbnRhdGlvbi9kcml2ZXItYXBpL2dw
+aW8vYm9hcmQucnN0ICAgICAgICAgIHwgIDIgKy0KPiA+ICAgRG9jdW1lbnRhdGlvbi9kcml2ZXIt
+YXBpL2dwaW8vY29uc3VtZXIucnN0ICAgICAgIHwgIDIgKy0KPiA+ICAgLi4uL2Zpcm13YXJlLWd1
+aWRlL2FjcGkvZW51bWVyYXRpb24ucnN0ICAgICAgICAgIHwgIDIgKy0KPiA+ICAgLi4uL2Zpcm13
+YXJlLWd1aWRlL2FjcGkvbWV0aG9kLXRyYWNpbmcucnN0ICAgICAgIHwgIDIgKy0KPiA+ICAgRG9j
+dW1lbnRhdGlvbi9pMmMvaW5zdGFudGlhdGluZy1kZXZpY2VzICAgICAgICAgIHwgIDIgKy0KPiA+
+ICAgRG9jdW1lbnRhdGlvbi9zeXNjdGwva2VybmVsLnR4dCAgICAgICAgICAgICAgICAgIHwgIDQg
+KystLQo+ID4gICAuLi4vdHJhbnNsYXRpb25zL2l0X0lUL3Byb2Nlc3MvaG93dG8ucnN0ICAgICAg
+ICAgfCAgMiArLQo+ID4gICAuLi4vaXRfSVQvcHJvY2Vzcy9zdGFibGUta2VybmVsLXJ1bGVzLnJz
+dCAgICAgICAgfCAgNCArKy0tCj4gPiAgIC4uLi90cmFuc2xhdGlvbnMvemhfQ04vcHJvY2Vzcy80
+LkNvZGluZy5yc3QgICAgICB8ICAyICstCj4gPiAgIERvY3VtZW50YXRpb24veDg2L3g4Nl82NC81
+bGV2ZWwtcGFnaW5nLnJzdCAgICAgICB8ICAyICstCj4gPiAgIERvY3VtZW50YXRpb24veDg2L3g4
+Nl82NC9ib290LW9wdGlvbnMucnN0ICAgICAgICB8ICA0ICsrLS0KPiA+ICAgLi4uL3g4Ni94ODZf
+NjQvZmFrZS1udW1hLWZvci1jcHVzZXRzLnJzdCAgICAgICAgIHwgIDIgKy0KPiA+ICAgTUFJTlRB
+SU5FUlMgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgIHwgIDYgKysrLS0tCj4g
+PiAgIGFyY2gvYXJtL0tjb25maWcgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICB8ICAy
+ICstCj4gPiAgIGFyY2gvYXJtNjQva2VybmVsL2tleGVjX2ltYWdlLmMgICAgICAgICAgICAgICAg
+ICB8ICAyICstCj4gPiAgIGFyY2gvcG93ZXJwYy9LY29uZmlnICAgICAgICAgICAgICAgICAgICAg
+ICAgICAgICB8ICAyICstCj4gPiAgIGFyY2gveDg2L0tjb25maWcgICAgICAgICAgICAgICAgICAg
+ICAgICAgICAgICAgICB8IDE2ICsrKysrKysrLS0tLS0tLS0KPiA+ICAgYXJjaC94ODYvS2NvbmZp
+Zy5kZWJ1ZyAgICAgICAgICAgICAgICAgICAgICAgICAgIHwgIDIgKy0KPiA+ICAgYXJjaC94ODYv
+Ym9vdC9oZWFkZXIuUyAgICAgICAgICAgICAgICAgICAgICAgICAgIHwgIDIgKy0KPiA+ICAgYXJj
+aC94ODYvZW50cnkvZW50cnlfNjQuUyAgICAgICAgICAgICAgICAgICAgICAgIHwgIDIgKy0KPiA+
+ICAgYXJjaC94ODYvaW5jbHVkZS9hc20vYm9vdHBhcmFtX3V0aWxzLmggICAgICAgICAgIHwgIDIg
+Ky0KPiA+ICAgYXJjaC94ODYvaW5jbHVkZS9hc20vcGFnZV82NF90eXBlcy5oICAgICAgICAgICAg
+IHwgIDIgKy0KPiA+ICAgYXJjaC94ODYvaW5jbHVkZS9hc20vcGd0YWJsZV82NF90eXBlcy5oICAg
+ICAgICAgIHwgIDIgKy0KPiA+ICAgYXJjaC94ODYva2VybmVsL2NwdS9taWNyb2NvZGUvYW1kLmMg
+ICAgICAgICAgICAgIHwgIDIgKy0KPiA+ICAgYXJjaC94ODYva2VybmVsL2tleGVjLWJ6aW1hZ2U2
+NC5jICAgICAgICAgICAgICAgIHwgIDIgKy0KPiA+ICAgYXJjaC94ODYva2VybmVsL3BjaS1kbWEu
+YyAgICAgICAgICAgICAgICAgICAgICAgIHwgIDIgKy0KPiA+ICAgYXJjaC94ODYvbW0vdGxiLmMg
+ICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgIHwgIDIgKy0KPiA+ICAgYXJjaC94ODYvcGxh
+dGZvcm0vcHZoL2VubGlnaHRlbi5jICAgICAgICAgICAgICAgIHwgIDIgKy0KPiA+ICAgZHJpdmVy
+cy9hY3BpL0tjb25maWcgICAgICAgICAgICAgICAgICAgICAgICAgICAgIHwgMTAgKysrKystLS0t
+LQo+ID4gICBkcml2ZXJzL25ldC9ldGhlcm5ldC9mYXJhZGF5L2Z0Z21hYzEwMC5jICAgICAgICAg
+fCAgMiArLQo+ID4gICAuLi4vZmllbGRidXMvRG9jdW1lbnRhdGlvbi9maWVsZGJ1c19kZXYudHh0
+ICAgICAgfCAgNCArKy0tCj4gPiAgIGRyaXZlcnMvdmhvc3Qvdmhvc3QuYyAgICAgICAgICAgICAg
+ICAgICAgICAgICAgICB8ICAyICstCj4gPiAgIGluY2x1ZGUvYWNwaS9hY3BpX2RyaXZlcnMuaCAg
+ICAgICAgICAgICAgICAgICAgICB8ICAyICstCj4gPiAgIGluY2x1ZGUvbGludXgvZnNfY29udGV4
+dC5oICAgICAgICAgICAgICAgICAgICAgICB8ICAyICstCj4gPiAgIGluY2x1ZGUvbGludXgvbHNt
+X2hvb2tzLmggICAgICAgICAgICAgICAgICAgICAgICB8ICAyICstCj4gPiAgIG1tL0tjb25maWcg
+ICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICB8ICAyICstCj4gPiAgIHNlY3Vy
+aXR5L0tjb25maWcgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICB8ICAyICstCj4gPiAg
+IHRvb2xzL2luY2x1ZGUvbGludXgvZXJyLmggICAgICAgICAgICAgICAgICAgICAgICB8ICAyICst
+Cj4gPiAgIHRvb2xzL29ianRvb2wvRG9jdW1lbnRhdGlvbi9zdGFjay12YWxpZGF0aW9uLnR4dCB8
+ICA0ICsrLS0KPiA+ICAgdG9vbHMvdGVzdGluZy9zZWxmdGVzdHMveDg2L3Byb3RlY3Rpb25fa2V5
+cy5jICAgIHwgIDIgKy0KPiA+ICAgNDggZmlsZXMgY2hhbmdlZCwgNzcgaW5zZXJ0aW9ucygrKSwg
+NzggZGVsZXRpb25zKC0pICAKPiAKPiBbLi4uXQo+IAo+ID4gZGlmZiAtLWdpdCBhL2FyY2gvcG93
+ZXJwYy9LY29uZmlnIGIvYXJjaC9wb3dlcnBjL0tjb25maWcKPiA+IGluZGV4IDhjMWM2MzYzMDhj
+OC4uZTg2OGQyYmQ0OGI4IDEwMDY0NAo+ID4gLS0tIGEvYXJjaC9wb3dlcnBjL0tjb25maWcKPiA+
+ICsrKyBiL2FyY2gvcG93ZXJwYy9LY29uZmlnCj4gPiBAQCAtODk4LDcgKzg5OCw3IEBAIGNvbmZp
+ZyBQUENfTUVNX0tFWVMKPiA+ICAgCSAgcGFnZS1iYXNlZCBwcm90ZWN0aW9ucywgYnV0IHdpdGhv
+dXQgcmVxdWlyaW5nIG1vZGlmaWNhdGlvbiBvZiB0aGUKPiA+ICAgCSAgcGFnZSB0YWJsZXMgd2hl
+biBhbiBhcHBsaWNhdGlvbiBjaGFuZ2VzIHByb3RlY3Rpb24gZG9tYWlucy4KPiA+ICAgCj4gPiAt
+CSAgRm9yIGRldGFpbHMsIHNlZSBEb2N1bWVudGF0aW9uL3ZtL3Byb3RlY3Rpb24ta2V5cy5yc3QK
+PiA+ICsJICBGb3IgZGV0YWlscywgc2VlIERvY3VtZW50YXRpb24veDg2L3Byb3RlY3Rpb24ta2V5
+cy5yc3QgIAo+IAo+IEl0IGxvb2tzIHN0cmFuZ2UgdG8gcmVmZXJlbmNlIGFuIHg4NiBmaWxlLCBm
+b3IgcG93ZXJwYyBhcmNoLgoKSW5kZWVkLiBZZXQsIHNlZWtpbmcgZm9yIHRoZSBBUEkgZG9jdW1l
+bnRlZCB0aGVyZToKCiAkIGdpdCBncmVwIC1sIHBrZXlfbXByb3RlY3QKRG9jdW1lbnRhdGlvbi94
+ODYvcHJvdGVjdGlvbi1rZXlzLnJzdAphcmNoL2FscGhhL2tlcm5lbC9zeXNjYWxscy9zeXNjYWxs
+LnRibAphcmNoL2FybS90b29scy9zeXNjYWxsLnRibAphcmNoL2FybTY0L2luY2x1ZGUvYXNtL3Vu
+aXN0ZDMyLmgKYXJjaC9pYTY0L2tlcm5lbC9zeXNjYWxscy9zeXNjYWxsLnRibAphcmNoL202OGsv
+a2VybmVsL3N5c2NhbGxzL3N5c2NhbGwudGJsCmFyY2gvbWljcm9ibGF6ZS9rZXJuZWwvc3lzY2Fs
+bHMvc3lzY2FsbC50YmwKYXJjaC9taXBzL2tlcm5lbC9zeXNjYWxscy9zeXNjYWxsX24zMi50YmwK
+YXJjaC9taXBzL2tlcm5lbC9zeXNjYWxscy9zeXNjYWxsX242NC50YmwKYXJjaC9taXBzL2tlcm5l
+bC9zeXNjYWxscy9zeXNjYWxsX28zMi50YmwKYXJjaC9wYXJpc2Mva2VybmVsL3N5c2NhbGxzL3N5
+c2NhbGwudGJsCmFyY2gvcG93ZXJwYy9rZXJuZWwvc3lzY2FsbHMvc3lzY2FsbC50YmwKYXJjaC9z
+MzkwL2tlcm5lbC9zeXNjYWxscy9zeXNjYWxsLnRibAphcmNoL3NoL2tlcm5lbC9zeXNjYWxscy9z
+eXNjYWxsLnRibAphcmNoL3NwYXJjL2tlcm5lbC9zeXNjYWxscy9zeXNjYWxsLnRibAphcmNoL3g4
+Ni9lbnRyeS9zeXNjYWxscy9zeXNjYWxsXzMyLnRibAphcmNoL3g4Ni9lbnRyeS9zeXNjYWxscy9z
+eXNjYWxsXzY0LnRibAphcmNoL3h0ZW5zYS9rZXJuZWwvc3lzY2FsbHMvc3lzY2FsbC50YmwKaW5j
+bHVkZS9saW51eC9zeXNjYWxscy5oCmluY2x1ZGUvdWFwaS9hc20tZ2VuZXJpYy91bmlzdGQuaApr
+ZXJuZWwvc3lzX25pLmMKbW0vbXByb3RlY3QuYwp0b29scy9pbmNsdWRlL3VhcGkvYXNtLWdlbmVy
+aWMvdW5pc3RkLmgKdG9vbHMvcGVyZi9hcmNoL3Bvd2VycGMvZW50cnkvc3lzY2FsbHMvc3lzY2Fs
+bC50YmwKdG9vbHMvcGVyZi9hcmNoL3g4Ni9lbnRyeS9zeXNjYWxscy9zeXNjYWxsXzY0LnRibAp0
+b29scy9wZXJmL2J1aWx0aW4tdHJhY2UuYwp0b29scy90ZXN0aW5nL3NlbGZ0ZXN0cy94ODYvcHJv
+dGVjdGlvbl9rZXlzLmMKCkRlc3BpdGUgYmVpbmcgdXNlZCBvbiBzZXZlcmFsIGFyY2hzLCB0aGUg
+b25seSBkb2N1bWVudGF0aW9uIGZvciBpdAppcyBpbnNpZGUgdGhlIHg4NiBkaXJlY3RvcnksIGFz
+IGl0IHNlZW1zIHRoYXQgdGhpcyBpcyBub3QKYXJjaC1zcGVjaWZpYy4KClBlcmhhcHMgdGhlIGZp
+bGUgc2hvdWxkLCBpbnN0ZWFkLCBiZSBtb3ZlZCB0byBhbm90aGVyIGJvb2suCgpUaGFua3MsCk1h
+dXJvCl9fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fClZpcnR1
+YWxpemF0aW9uIG1haWxpbmcgbGlzdApWaXJ0dWFsaXphdGlvbkBsaXN0cy5saW51eC1mb3VuZGF0
+aW9uLm9yZwpodHRwczovL2xpc3RzLmxpbnV4Zm91bmRhdGlvbi5vcmcvbWFpbG1hbi9saXN0aW5m
+by92aXJ0dWFsaXphdGlvbg==
