@@ -1,8 +1,7 @@
 From: davidriley@chromium.org
-Subject: [PATCH 2/4] drm/virtio: Wake up all waiters when capset response
-	comes in.
-Date: Wed,  5 Jun 2019 16:44:21 -0700
-Message-ID: <20190605234423.11348-2-davidriley__17050.9917590365$1559778302$gmane$org@chromium.org>
+Subject: [PATCH 3/4] drm/virtio: Fix cache entry creation race.
+Date: Wed,  5 Jun 2019 16:44:22 -0700
+Message-ID: <20190605234423.11348-3-davidriley__12410.2804971457$1559778315$gmane$org@chromium.org>
 References: <20190605234423.11348-1-davidriley@chromium.org>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
@@ -24,25 +23,67 @@ List-Id: virtualization@lists.linuxfoundation.org
 
 From: David Riley <davidriley@chromium.org>
 
-If multiple callers occur simultaneously, wake them all up.
+virtio_gpu_cmd_get_capset would check for the existence of an entry
+under lock.  If it was not found, it would unlock and call
+virtio_gpu_cmd_get_capset to create a new entry.  The new entry would
+be added it to the list without checking if it was added by another
+task during the period where the lock was not held resulting in
+duplicate entries.
+
+Compounding this issue, virtio_gpu_cmd_capset_cb would stop iterating
+after find the first matching entry.  Multiple callbacks would modify
+the first entry, but any subsequent entries and their associated waiters
+would eventually timeout since they don't become valid, also wasting
+memory along the way.
 
 Signed-off-by: David Riley <davidriley@chromium.org>
 ---
- drivers/gpu/drm/virtio/virtgpu_vq.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ drivers/gpu/drm/virtio/virtgpu_vq.c | 22 +++++++++++++++++++++-
+ 1 file changed, 21 insertions(+), 1 deletion(-)
 
 diff --git a/drivers/gpu/drm/virtio/virtgpu_vq.c b/drivers/gpu/drm/virtio/virtgpu_vq.c
-index e62fe24b1a2e..da71568adb9a 100644
+index da71568adb9a..dd5ead2541c2 100644
 --- a/drivers/gpu/drm/virtio/virtgpu_vq.c
 +++ b/drivers/gpu/drm/virtio/virtgpu_vq.c
-@@ -588,7 +588,7 @@ static void virtio_gpu_cmd_capset_cb(struct virtio_gpu_device *vgdev,
- 		}
- 	}
- 	spin_unlock(&vgdev->display_info_lock);
--	wake_up(&vgdev->resp_wq);
-+	wake_up_all(&vgdev->resp_wq);
- }
+@@ -684,8 +684,11 @@ int virtio_gpu_cmd_get_capset(struct virtio_gpu_device *vgdev,
+ 	struct virtio_gpu_vbuffer *vbuf;
+ 	int max_size;
+ 	struct virtio_gpu_drv_cap_cache *cache_ent;
++	struct virtio_gpu_drv_cap_cache *search_ent;
+ 	void *resp_buf;
  
- static int virtio_get_edid_block(void *data, u8 *buf,
++	*cache_p = NULL;
++
+ 	if (idx >= vgdev->num_capsets)
+ 		return -EINVAL;
+ 
+@@ -716,9 +719,26 @@ int virtio_gpu_cmd_get_capset(struct virtio_gpu_device *vgdev,
+ 	atomic_set(&cache_ent->is_valid, 0);
+ 	cache_ent->size = max_size;
+ 	spin_lock(&vgdev->display_info_lock);
+-	list_add_tail(&cache_ent->head, &vgdev->cap_cache);
++	/* Search while under lock in case it was added by another task. */
++	list_for_each_entry(search_ent, &vgdev->cap_cache, head) {
++		if (search_ent->id == vgdev->capsets[idx].id &&
++		    search_ent->version == version) {
++			*cache_p = search_ent;
++			break;
++		}
++	}
++	if (!*cache_p)
++		list_add_tail(&cache_ent->head, &vgdev->cap_cache);
+ 	spin_unlock(&vgdev->display_info_lock);
+ 
++	if (*cache_p) {
++		/* Entry was found, so free everything that was just created. */
++		kfree(resp_buf);
++		kfree(cache_ent->caps_cache);
++		kfree(cache_ent);
++		return 0;
++	}
++
+ 	cmd_p = virtio_gpu_alloc_cmd_resp
+ 		(vgdev, &virtio_gpu_cmd_capset_cb, &vbuf, sizeof(*cmd_p),
+ 		 sizeof(struct virtio_gpu_resp_capset) + max_size,
 -- 
 2.22.0.rc1.311.g5d7573a151-goog
