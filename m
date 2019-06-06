@@ -1,7 +1,7 @@
 From: Halil Pasic <pasic@linux.ibm.com>
-Subject: [PATCH v4 4/8] s390/airq: use DMA memory for adapter interrupts
-Date: Thu,  6 Jun 2019 13:51:23 +0200
-Message-ID: <20190606115127.55519-5-pasic@linux.ibm.com>
+Subject: [PATCH v4 2/8] s390/cio: introduce DMA pools to cio
+Date: Thu,  6 Jun 2019 13:51:21 +0200
+Message-ID: <20190606115127.55519-3-pasic@linux.ibm.com>
 References: <20190606115127.55519-1-pasic@linux.ibm.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
@@ -21,166 +21,239 @@ To: kvm@vger.kernel.org, linux-s390@vger.kernel.org, Cornelia Huck <cohuck@redha
 Cc: "Jason J. Herne" <jjherne@linux.ibm.com>, Christoph Hellwig <hch@infradead.org>, Thomas Huth <thuth@redhat.com>, Claudio Imbrenda <imbrenda@linux.ibm.com>, Janosch Frank <frankja@linux.ibm.com>, Vasily Gorbik <gor@linux.ibm.com>, "Michael S. Tsirkin" <mst@redhat.com>, Farhan Ali <alifm@linux.ibm.com>, Eric Farman <farman@linux.ibm.com>, virtualization@lists.linux-foundation.org, Halil Pasic <pasic@linux.ibm.com>, Christian Borntraeger <borntraeger@de.ibm.com>, Michael Mueller <mimu@linux.ibm.com>, Viktor Mihajlovski <mihajlov@linux.ibm.com>
 List-Id: virtualization@lists.linuxfoundation.org
 
-Protected virtualization guests have to use shared pages for airq
-notifier bit vectors, because hypervisor needs to write these bits.
+To support protected virtualization cio will need to make sure the
+memory used for communication with the hypervisor is DMA memory.
 
-Let us make sure we allocate DMA memory for the notifier bit vectors by
-replacing the kmem_cache with a dma_cache and kalloc() with
-cio_dma_zalloc().
+Let us introduce one global pool for cio.
+
+Our DMA pools are implemented as a gen_pool backed with DMA pages. The
+idea is to avoid each allocation effectively wasting a page, as we
+typically allocate much less than PAGE_SIZE.
 
 Signed-off-by: Halil Pasic <pasic@linux.ibm.com>
 Reviewed-by: Sebastian Ott <sebott@linux.ibm.com>
 ---
- arch/s390/include/asm/airq.h |  2 ++
- drivers/s390/cio/airq.c      | 32 ++++++++++++++++++++------------
- drivers/s390/cio/cio.h       |  2 ++
- drivers/s390/cio/css.c       |  1 +
- 4 files changed, 25 insertions(+), 12 deletions(-)
+ arch/s390/Kconfig           |   1 +
+ arch/s390/include/asm/cio.h |  11 +++
+ drivers/s390/cio/css.c      | 131 ++++++++++++++++++++++++++++++++++--
+ 3 files changed, 139 insertions(+), 4 deletions(-)
 
-diff --git a/arch/s390/include/asm/airq.h b/arch/s390/include/asm/airq.h
-index c10d2ee2dfda..01936fdfaddb 100644
---- a/arch/s390/include/asm/airq.h
-+++ b/arch/s390/include/asm/airq.h
-@@ -11,6 +11,7 @@
- #define _ASM_S390_AIRQ_H
+diff --git a/arch/s390/Kconfig b/arch/s390/Kconfig
+index 88d8355b7bf7..2a245b56db8b 100644
+--- a/arch/s390/Kconfig
++++ b/arch/s390/Kconfig
+@@ -191,6 +191,7 @@ config S390
+ 	select ARCH_HAS_SCALED_CPUTIME
+ 	select HAVE_NMI
+ 	select SWIOTLB
++	select GENERIC_ALLOCATOR
  
- #include <linux/bit_spinlock.h>
-+#include <linux/dma-mapping.h>
  
- struct airq_struct {
- 	struct hlist_node list;		/* Handler queueing. */
-@@ -29,6 +30,7 @@ void unregister_adapter_interrupt(struct airq_struct *airq);
- /* Adapter interrupt bit vector */
- struct airq_iv {
- 	unsigned long *vector;	/* Adapter interrupt bit vector */
-+	dma_addr_t vector_dma; /* Adapter interrupt bit vector dma */
- 	unsigned long *avail;	/* Allocation bit mask for the bit vector */
- 	unsigned long *bitlock;	/* Lock bit mask for the bit vector */
- 	unsigned long *ptr;	/* Pointer associated with each bit */
-diff --git a/drivers/s390/cio/airq.c b/drivers/s390/cio/airq.c
-index 4534afc63591..89d26e43004d 100644
---- a/drivers/s390/cio/airq.c
-+++ b/drivers/s390/cio/airq.c
-@@ -16,9 +16,11 @@
- #include <linux/mutex.h>
- #include <linux/rculist.h>
- #include <linux/slab.h>
-+#include <linux/dmapool.h>
+ config SCHED_OMIT_FRAME_POINTER
+diff --git a/arch/s390/include/asm/cio.h b/arch/s390/include/asm/cio.h
+index 1727180e8ca1..58e7db912c30 100644
+--- a/arch/s390/include/asm/cio.h
++++ b/arch/s390/include/asm/cio.h
+@@ -7,6 +7,7 @@
  
- #include <asm/airq.h>
- #include <asm/isc.h>
-+#include <asm/cio.h>
+ #include <linux/spinlock.h>
+ #include <linux/bitops.h>
++#include <linux/genalloc.h>
+ #include <asm/types.h>
  
- #include "cio.h"
- #include "cio_debug.h"
-@@ -27,7 +29,7 @@
- static DEFINE_SPINLOCK(airq_lists_lock);
- static struct hlist_head airq_lists[MAX_ISC+1];
+ #define LPM_ANYPATH 0xff
+@@ -328,6 +329,16 @@ static inline u8 pathmask_to_pos(u8 mask)
+ void channel_subsystem_reinit(void);
+ extern void css_schedule_reprobe(void);
  
--static struct kmem_cache *airq_iv_cache;
-+static struct dma_pool *airq_iv_cache;
- 
- /**
-  * register_adapter_interrupt() - register adapter interrupt handler
-@@ -115,6 +117,11 @@ void __init init_airq_interrupts(void)
- 	setup_irq(THIN_INTERRUPT, &airq_interrupt);
- }
- 
-+static inline unsigned long iv_size(unsigned long bits)
-+{
-+	return BITS_TO_LONGS(bits) * sizeof(unsigned long);
-+}
++extern void *cio_dma_zalloc(size_t size);
++extern void cio_dma_free(void *cpu_addr, size_t size);
++extern struct device *cio_get_dma_css_dev(void);
 +
- /**
-  * airq_iv_create - create an interrupt vector
-  * @bits: number of bits in the interrupt vector
-@@ -132,17 +139,18 @@ struct airq_iv *airq_iv_create(unsigned long bits, unsigned long flags)
- 		goto out;
- 	iv->bits = bits;
- 	iv->flags = flags;
--	size = BITS_TO_LONGS(bits) * sizeof(unsigned long);
-+	size = iv_size(bits);
- 
- 	if (flags & AIRQ_IV_CACHELINE) {
- 		if ((cache_line_size() * BITS_PER_BYTE) < bits)
- 			goto out_free;
- 
--		iv->vector = kmem_cache_zalloc(airq_iv_cache, GFP_KERNEL);
-+		iv->vector = dma_pool_zalloc(airq_iv_cache, GFP_KERNEL,
-+					     &iv->vector_dma);
- 		if (!iv->vector)
- 			goto out_free;
- 	} else {
--		iv->vector = kzalloc(size, GFP_KERNEL);
-+		iv->vector = cio_dma_zalloc(size);
- 		if (!iv->vector)
- 			goto out_free;
- 	}
-@@ -179,9 +187,9 @@ struct airq_iv *airq_iv_create(unsigned long bits, unsigned long flags)
- 	kfree(iv->bitlock);
- 	kfree(iv->avail);
- 	if (iv->flags & AIRQ_IV_CACHELINE)
--		kmem_cache_free(airq_iv_cache, iv->vector);
-+		dma_pool_free(airq_iv_cache, iv->vector, iv->vector_dma);
- 	else
--		kfree(iv->vector);
-+		cio_dma_free(iv->vector, size);
- 	kfree(iv);
- out:
- 	return NULL;
-@@ -198,9 +206,9 @@ void airq_iv_release(struct airq_iv *iv)
- 	kfree(iv->ptr);
- 	kfree(iv->bitlock);
- 	if (iv->flags & AIRQ_IV_CACHELINE)
--		kmem_cache_free(airq_iv_cache, iv->vector);
-+		dma_pool_free(airq_iv_cache, iv->vector, iv->vector_dma);
- 	else
--		kfree(iv->vector);
-+		cio_dma_free(iv->vector, iv_size(iv->bits));
- 	kfree(iv->avail);
- 	kfree(iv);
- }
-@@ -295,12 +303,12 @@ unsigned long airq_iv_scan(struct airq_iv *iv, unsigned long start,
- }
- EXPORT_SYMBOL(airq_iv_scan);
- 
--static int __init airq_init(void)
-+int __init airq_init(void)
- {
--	airq_iv_cache = kmem_cache_create("airq_iv_cache", cache_line_size(),
--					  cache_line_size(), 0, NULL);
-+	airq_iv_cache = dma_pool_create("airq_iv_cache", cio_get_dma_css_dev(),
-+					cache_line_size(),
-+					cache_line_size(), PAGE_SIZE);
- 	if (!airq_iv_cache)
- 		return -ENOMEM;
- 	return 0;
- }
--subsys_initcall(airq_init);
-diff --git a/drivers/s390/cio/cio.h b/drivers/s390/cio/cio.h
-index 06a91743335a..4d6c7d16416e 100644
---- a/drivers/s390/cio/cio.h
-+++ b/drivers/s390/cio/cio.h
-@@ -135,6 +135,8 @@ extern int cio_commit_config(struct subchannel *sch);
- int cio_tm_start_key(struct subchannel *sch, struct tcw *tcw, u8 lpm, u8 key);
- int cio_tm_intrg(struct subchannel *sch);
- 
-+extern int __init airq_init(void);
++void *cio_gp_dma_zalloc(struct gen_pool *gp_dma, struct device *dma_dev,
++			size_t size);
++void cio_gp_dma_free(struct gen_pool *gp_dma, void *cpu_addr, size_t size);
++void cio_gp_dma_destroy(struct gen_pool *gp_dma, struct device *dma_dev);
++struct gen_pool *cio_gp_dma_create(struct device *dma_dev, int nr_pages);
 +
- /* Use with care. */
- #ifdef CONFIG_CCW_CONSOLE
- extern struct subchannel *cio_probe_console(void);
+ /* Function from drivers/s390/cio/chsc.c */
+ int chsc_sstpc(void *page, unsigned int op, u16 ctrl, u64 *clock_delta);
+ int chsc_sstpi(void *page, void *result, size_t size);
 diff --git a/drivers/s390/cio/css.c b/drivers/s390/cio/css.c
-index 6fc91d534af1..7901c8ed3597 100644
+index aea502922646..6fc91d534af1 100644
 --- a/drivers/s390/cio/css.c
 +++ b/drivers/s390/cio/css.c
-@@ -1182,6 +1182,7 @@ static int __init css_bus_init(void)
- 	ret = cio_dma_pool_init();
+@@ -20,6 +20,8 @@
+ #include <linux/reboot.h>
+ #include <linux/suspend.h>
+ #include <linux/proc_fs.h>
++#include <linux/genalloc.h>
++#include <linux/dma-mapping.h>
+ #include <asm/isc.h>
+ #include <asm/crw.h>
+ 
+@@ -224,6 +226,12 @@ struct subchannel *css_alloc_subchannel(struct subchannel_id schid,
+ 	INIT_WORK(&sch->todo_work, css_sch_todo);
+ 	sch->dev.release = &css_subchannel_release;
+ 	device_initialize(&sch->dev);
++	/*
++	 * The physical addresses of some the dma structures that can
++	 * belong to a subchannel need to fit 31 bit width (e.g. ccw).
++	 */
++	sch->dev.coherent_dma_mask = DMA_BIT_MASK(31);
++	sch->dev.dma_mask = &sch->dev.coherent_dma_mask;
+ 	return sch;
+ 
+ err:
+@@ -899,6 +907,13 @@ static int __init setup_css(int nr)
+ 	dev_set_name(&css->device, "css%x", nr);
+ 	css->device.groups = cssdev_attr_groups;
+ 	css->device.release = channel_subsystem_release;
++	/*
++	 * We currently allocate notifier bits with this (using
++	 * css->device as the device argument with the DMA API)
++	 * and are fine with 64 bit addresses.
++	 */
++	css->device.coherent_dma_mask = DMA_BIT_MASK(64);
++	css->device.dma_mask = &css->device.coherent_dma_mask;
+ 
+ 	mutex_init(&css->mutex);
+ 	css->cssid = chsc_get_cssid(nr);
+@@ -1018,6 +1033,109 @@ static struct notifier_block css_power_notifier = {
+ 	.notifier_call = css_power_event,
+ };
+ 
++#define  CIO_DMA_GFP (GFP_KERNEL | __GFP_ZERO)
++static struct gen_pool *cio_dma_pool;
++
++/* Currently cio supports only a single css */
++struct device *cio_get_dma_css_dev(void)
++{
++	return &channel_subsystems[0]->device;
++}
++
++struct gen_pool *cio_gp_dma_create(struct device *dma_dev, int nr_pages)
++{
++	struct gen_pool *gp_dma;
++	void *cpu_addr;
++	dma_addr_t dma_addr;
++	int i;
++
++	gp_dma = gen_pool_create(3, -1);
++	if (!gp_dma)
++		return NULL;
++	for (i = 0; i < nr_pages; ++i) {
++		cpu_addr = dma_alloc_coherent(dma_dev, PAGE_SIZE, &dma_addr,
++					      CIO_DMA_GFP);
++		if (!cpu_addr)
++			return gp_dma;
++		gen_pool_add_virt(gp_dma, (unsigned long) cpu_addr,
++				  dma_addr, PAGE_SIZE, -1);
++	}
++	return gp_dma;
++}
++
++static void __gp_dma_free_dma(struct gen_pool *pool,
++			      struct gen_pool_chunk *chunk, void *data)
++{
++	size_t chunk_size = chunk->end_addr - chunk->start_addr + 1;
++
++	dma_free_coherent((struct device *) data, chunk_size,
++			 (void *) chunk->start_addr,
++			 (dma_addr_t) chunk->phys_addr);
++}
++
++void cio_gp_dma_destroy(struct gen_pool *gp_dma, struct device *dma_dev)
++{
++	if (!gp_dma)
++		return;
++	/* this is qite ugly but no better idea */
++	gen_pool_for_each_chunk(gp_dma, __gp_dma_free_dma, dma_dev);
++	gen_pool_destroy(gp_dma);
++}
++
++static int cio_dma_pool_init(void)
++{
++	/* No need to free up the resources: compiled in */
++	cio_dma_pool = cio_gp_dma_create(cio_get_dma_css_dev(), 1);
++	if (!cio_dma_pool)
++		return -ENOMEM;
++	return 0;
++}
++
++void *cio_gp_dma_zalloc(struct gen_pool *gp_dma, struct device *dma_dev,
++			size_t size)
++{
++	dma_addr_t dma_addr;
++	unsigned long addr;
++	size_t chunk_size;
++
++	addr = gen_pool_alloc(gp_dma, size);
++	while (!addr) {
++		chunk_size = round_up(size, PAGE_SIZE);
++		addr = (unsigned long) dma_alloc_coherent(dma_dev,
++					 chunk_size, &dma_addr, CIO_DMA_GFP);
++		if (!addr)
++			return NULL;
++		gen_pool_add_virt(gp_dma, addr, dma_addr, chunk_size, -1);
++		addr = gen_pool_alloc(gp_dma, size);
++	}
++	return (void *) addr;
++}
++
++void cio_gp_dma_free(struct gen_pool *gp_dma, void *cpu_addr, size_t size)
++{
++	if (!cpu_addr)
++		return;
++	memset(cpu_addr, 0, size);
++	gen_pool_free(gp_dma, (unsigned long) cpu_addr, size);
++}
++
++/*
++ * Allocate dma memory from the css global pool. Intended for memory not
++ * specific to any single device within the css. The allocated memory
++ * is not guaranteed to be 31-bit addressable.
++ *
++ * Caution: Not suitable for early stuff like console.
++ */
++void *cio_dma_zalloc(size_t size)
++{
++	return cio_gp_dma_zalloc(cio_dma_pool, cio_get_dma_css_dev(), size);
++}
++
++void cio_dma_free(void *cpu_addr, size_t size)
++{
++	cio_gp_dma_free(cio_dma_pool, cpu_addr, size);
++}
++
+ /*
+  * Now that the driver core is running, we can setup our channel subsystem.
+  * The struct subchannel's are created during probing.
+@@ -1059,16 +1177,21 @@ static int __init css_bus_init(void)
  	if (ret)
- 		goto out_unregister_pmn;
-+	airq_init();
+ 		goto out_unregister;
+ 	ret = register_pm_notifier(&css_power_notifier);
+-	if (ret) {
+-		unregister_reboot_notifier(&css_reboot_notifier);
+-		goto out_unregister;
+-	}
++	if (ret)
++		goto out_unregister_rn;
++	ret = cio_dma_pool_init();
++	if (ret)
++		goto out_unregister_pmn;
  	css_init_done = 1;
  
  	/* Enable default isc for I/O subchannels. */
+ 	isc_register(IO_SCH_ISC);
+ 
+ 	return 0;
++out_unregister_pmn:
++	unregister_pm_notifier(&css_power_notifier);
++out_unregister_rn:
++	unregister_reboot_notifier(&css_reboot_notifier);
+ out_unregister:
+ 	while (i-- > 0) {
+ 		struct channel_subsystem *css = channel_subsystems[i];
 -- 
 2.17.1
