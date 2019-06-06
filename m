@@ -1,15 +1,11 @@
-From: Christophe Leroy <christophe.leroy@c-s.fr>
-Subject: Re: [PATCH 22/22] docs: fix broken documentation links
-Date: Mon, 3 Jun 2019 09:34:15 +0200
-Message-ID: <64e136de-1a7b-3436-9675-44ea9fa7b64a__7778.98435933224$1563994837$gmane$org@c-s.fr>
-References: <cover.1559171394.git.mchehab+samsung@kernel.org>
-	<f9fecacbe4ce0b2b3aed38d71ae3753f2daf3ce3.1559171394.git.mchehab+samsung@kernel.org>
+From: Hillf Danton <hdanton@sina.com>
+Subject: Re: memory leak in vhost_net_ioctl
+Date: Thu,  6 Jun 2019 22:40:13 +0800
+Message-ID: <20190606144013.9884-1-hdanton@sina.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="utf-8"; Format="flowed"
-Content-Transfer-Encoding: base64
+Content-Type: text/plain; charset="us-ascii"; Format="flowed"; DelSp="yes"
+Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <f9fecacbe4ce0b2b3aed38d71ae3753f2daf3ce3.1559171394.git.mchehab+samsung@kernel.org>
-Content-Language: fr
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -19,78 +15,149 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Mauro Carvalho Chehab <mchehab+samsung@kernel.org>, Linux Doc Mailing List <linux-doc@vger.kernel.org>
-Cc: Andrew Lunn <andrew@lunn.ch>, Thomas Preston <thomas.preston@codethink.co.uk>, Wolfram Sang <wsa@the-dreams.de>, Catalin Marinas <catalin.marinas@arm.com>, Linus Walleij <linus.walleij@linaro.org>, Will Deacon <will.deacon@arm.com>, Russell King <linux@armlinux.org.uk>, Paul Mackerras <paulus@samba.org>, Alessia Mantegazza <amantegazza@vaga.pv.it>, Jakub Wilk <jwilk@jwilk.net>, AKASHI Takahiro <takahiro.akashi@linaro.org>, Kevin Hilman <khilman@baylibre.com>, James Morris <jmorris@namei.org>, linux-acpi@vger.kernel.org, Andy Gross <agross@kernel.org>, xen-devel@lists.xenproject.org, Alexander Popov <alex.popov@linux.com>, Qian Cai <cai@lca.pw>, Al Viro <viro@zeniv.linux.org.uk>, Andy Lutomirski <luto@kernel.org>, Thomas Gleixner <tglx@linutronix.de>, Kairui Song <kasong@redhat.com>, Quentin Perret <quentin.perret@arm.com>, Greg Kroah-Hartman <gregkh@linuxfoundation.or>
+To: syzbot <syzbot+0789f0c7e45efd7bb643@syzkaller.appspotmail.com>
+Cc: xdp-newbies@vger.kernel.org, jakub.kicinski@netronome.com, hawk@kernel.org, daniel@iogearbox.net, mst@redhat.com, netdev@vger.kernel.org, john.fastabend@gmail.com, ast@kernel.org, linux-kernel@vger.kernel.org, syzkaller-bugs@googlegroups.com, kvm@vger.kernel.org, bpf@vger.kernel.org, virtualization@lists.linux-foundation.org, davem@davemloft.net
 List-Id: virtualization@lists.linuxfoundation.org
 
-CgpMZSAzMC8wNS8yMDE5IMOgIDAxOjIzLCBNYXVybyBDYXJ2YWxobyBDaGVoYWIgYSDDqWNyaXTC
-oDoKPiBNb3N0bHkgZHVlIHRvIHg4NiBhbmQgYWNwaSBjb252ZXJzaW9uLCBzZXZlcmFsIGRvY3Vt
-ZW50YXRpb24KPiBsaW5rcyBhcmUgc3RpbGwgcG9pbnRpbmcgdG8gdGhlIG9sZCBmaWxlLiBGaXgg
-dGhlbS4KPiAKPiBTaWduZWQtb2ZmLWJ5OiBNYXVybyBDYXJ2YWxobyBDaGVoYWIgPG1jaGVoYWIr
-c2Ftc3VuZ0BrZXJuZWwub3JnPgo+IC0tLQo+ICAgRG9jdW1lbnRhdGlvbi9hY3BpL2RzZC9sZWRz
-LnR4dCAgICAgICAgICAgICAgICAgIHwgIDIgKy0KPiAgIERvY3VtZW50YXRpb24vYWRtaW4tZ3Vp
-ZGUva2VybmVsLXBhcmFtZXRlcnMucnN0ICB8ICA2ICsrKy0tLQo+ICAgRG9jdW1lbnRhdGlvbi9h
-ZG1pbi1ndWlkZS9rZXJuZWwtcGFyYW1ldGVycy50eHQgIHwgMTYgKysrKysrKystLS0tLS0tLQo+
-ICAgRG9jdW1lbnRhdGlvbi9hZG1pbi1ndWlkZS9yYXMucnN0ICAgICAgICAgICAgICAgIHwgIDIg
-Ky0KPiAgIC4uLi9kZXZpY2V0cmVlL2JpbmRpbmdzL25ldC9mc2wtZW5ldGMudHh0ICAgICAgICB8
-ICA3ICsrKy0tLS0KPiAgIC4uLi9iaW5kaW5ncy9wY2kvYW1sb2dpYyxtZXNvbi1wY2llLnR4dCAg
-ICAgICAgICB8ICAyICstCj4gICAuLi4vYmluZGluZ3MvcmVndWxhdG9yL3Fjb20scnBtaC1yZWd1
-bGF0b3IudHh0ICAgfCAgMiArLQo+ICAgRG9jdW1lbnRhdGlvbi9kZXZpY2V0cmVlL2Jvb3Rpbmct
-d2l0aG91dC1vZi50eHQgIHwgIDIgKy0KPiAgIERvY3VtZW50YXRpb24vZHJpdmVyLWFwaS9ncGlv
-L2JvYXJkLnJzdCAgICAgICAgICB8ICAyICstCj4gICBEb2N1bWVudGF0aW9uL2RyaXZlci1hcGkv
-Z3Bpby9jb25zdW1lci5yc3QgICAgICAgfCAgMiArLQo+ICAgLi4uL2Zpcm13YXJlLWd1aWRlL2Fj
-cGkvZW51bWVyYXRpb24ucnN0ICAgICAgICAgIHwgIDIgKy0KPiAgIC4uLi9maXJtd2FyZS1ndWlk
-ZS9hY3BpL21ldGhvZC10cmFjaW5nLnJzdCAgICAgICB8ICAyICstCj4gICBEb2N1bWVudGF0aW9u
-L2kyYy9pbnN0YW50aWF0aW5nLWRldmljZXMgICAgICAgICAgfCAgMiArLQo+ICAgRG9jdW1lbnRh
-dGlvbi9zeXNjdGwva2VybmVsLnR4dCAgICAgICAgICAgICAgICAgIHwgIDQgKystLQo+ICAgLi4u
-L3RyYW5zbGF0aW9ucy9pdF9JVC9wcm9jZXNzL2hvd3RvLnJzdCAgICAgICAgIHwgIDIgKy0KPiAg
-IC4uLi9pdF9JVC9wcm9jZXNzL3N0YWJsZS1rZXJuZWwtcnVsZXMucnN0ICAgICAgICB8ICA0ICsr
-LS0KPiAgIC4uLi90cmFuc2xhdGlvbnMvemhfQ04vcHJvY2Vzcy80LkNvZGluZy5yc3QgICAgICB8
-ICAyICstCj4gICBEb2N1bWVudGF0aW9uL3g4Ni94ODZfNjQvNWxldmVsLXBhZ2luZy5yc3QgICAg
-ICAgfCAgMiArLQo+ICAgRG9jdW1lbnRhdGlvbi94ODYveDg2XzY0L2Jvb3Qtb3B0aW9ucy5yc3Qg
-ICAgICAgIHwgIDQgKystLQo+ICAgLi4uL3g4Ni94ODZfNjQvZmFrZS1udW1hLWZvci1jcHVzZXRz
-LnJzdCAgICAgICAgIHwgIDIgKy0KPiAgIE1BSU5UQUlORVJTICAgICAgICAgICAgICAgICAgICAg
-ICAgICAgICAgICAgICAgICB8ICA2ICsrKy0tLQo+ICAgYXJjaC9hcm0vS2NvbmZpZyAgICAgICAg
-ICAgICAgICAgICAgICAgICAgICAgICAgIHwgIDIgKy0KPiAgIGFyY2gvYXJtNjQva2VybmVsL2tl
-eGVjX2ltYWdlLmMgICAgICAgICAgICAgICAgICB8ICAyICstCj4gICBhcmNoL3Bvd2VycGMvS2Nv
-bmZpZyAgICAgICAgICAgICAgICAgICAgICAgICAgICAgfCAgMiArLQo+ICAgYXJjaC94ODYvS2Nv
-bmZpZyAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgIHwgMTYgKysrKysrKystLS0tLS0t
-LQo+ICAgYXJjaC94ODYvS2NvbmZpZy5kZWJ1ZyAgICAgICAgICAgICAgICAgICAgICAgICAgIHwg
-IDIgKy0KPiAgIGFyY2gveDg2L2Jvb3QvaGVhZGVyLlMgICAgICAgICAgICAgICAgICAgICAgICAg
-ICB8ICAyICstCj4gICBhcmNoL3g4Ni9lbnRyeS9lbnRyeV82NC5TICAgICAgICAgICAgICAgICAg
-ICAgICAgfCAgMiArLQo+ICAgYXJjaC94ODYvaW5jbHVkZS9hc20vYm9vdHBhcmFtX3V0aWxzLmgg
-ICAgICAgICAgIHwgIDIgKy0KPiAgIGFyY2gveDg2L2luY2x1ZGUvYXNtL3BhZ2VfNjRfdHlwZXMu
-aCAgICAgICAgICAgICB8ICAyICstCj4gICBhcmNoL3g4Ni9pbmNsdWRlL2FzbS9wZ3RhYmxlXzY0
-X3R5cGVzLmggICAgICAgICAgfCAgMiArLQo+ICAgYXJjaC94ODYva2VybmVsL2NwdS9taWNyb2Nv
-ZGUvYW1kLmMgICAgICAgICAgICAgIHwgIDIgKy0KPiAgIGFyY2gveDg2L2tlcm5lbC9rZXhlYy1i
-emltYWdlNjQuYyAgICAgICAgICAgICAgICB8ICAyICstCj4gICBhcmNoL3g4Ni9rZXJuZWwvcGNp
-LWRtYS5jICAgICAgICAgICAgICAgICAgICAgICAgfCAgMiArLQo+ICAgYXJjaC94ODYvbW0vdGxi
-LmMgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgIHwgIDIgKy0KPiAgIGFyY2gveDg2L3Bs
-YXRmb3JtL3B2aC9lbmxpZ2h0ZW4uYyAgICAgICAgICAgICAgICB8ICAyICstCj4gICBkcml2ZXJz
-L2FjcGkvS2NvbmZpZyAgICAgICAgICAgICAgICAgICAgICAgICAgICAgfCAxMCArKysrKy0tLS0t
-Cj4gICBkcml2ZXJzL25ldC9ldGhlcm5ldC9mYXJhZGF5L2Z0Z21hYzEwMC5jICAgICAgICAgfCAg
-MiArLQo+ICAgLi4uL2ZpZWxkYnVzL0RvY3VtZW50YXRpb24vZmllbGRidXNfZGV2LnR4dCAgICAg
-IHwgIDQgKystLQo+ICAgZHJpdmVycy92aG9zdC92aG9zdC5jICAgICAgICAgICAgICAgICAgICAg
-ICAgICAgIHwgIDIgKy0KPiAgIGluY2x1ZGUvYWNwaS9hY3BpX2RyaXZlcnMuaCAgICAgICAgICAg
-ICAgICAgICAgICB8ICAyICstCj4gICBpbmNsdWRlL2xpbnV4L2ZzX2NvbnRleHQuaCAgICAgICAg
-ICAgICAgICAgICAgICAgfCAgMiArLQo+ICAgaW5jbHVkZS9saW51eC9sc21faG9va3MuaCAgICAg
-ICAgICAgICAgICAgICAgICAgIHwgIDIgKy0KPiAgIG1tL0tjb25maWcgICAgICAgICAgICAgICAg
-ICAgICAgICAgICAgICAgICAgICAgICB8ICAyICstCj4gICBzZWN1cml0eS9LY29uZmlnICAgICAg
-ICAgICAgICAgICAgICAgICAgICAgICAgICAgfCAgMiArLQo+ICAgdG9vbHMvaW5jbHVkZS9saW51
-eC9lcnIuaCAgICAgICAgICAgICAgICAgICAgICAgIHwgIDIgKy0KPiAgIHRvb2xzL29ianRvb2wv
-RG9jdW1lbnRhdGlvbi9zdGFjay12YWxpZGF0aW9uLnR4dCB8ICA0ICsrLS0KPiAgIHRvb2xzL3Rl
-c3Rpbmcvc2VsZnRlc3RzL3g4Ni9wcm90ZWN0aW9uX2tleXMuYyAgICB8ICAyICstCj4gICA0OCBm
-aWxlcyBjaGFuZ2VkLCA3NyBpbnNlcnRpb25zKCspLCA3OCBkZWxldGlvbnMoLSkKClsuLi5dCgo+
-IGRpZmYgLS1naXQgYS9hcmNoL3Bvd2VycGMvS2NvbmZpZyBiL2FyY2gvcG93ZXJwYy9LY29uZmln
-Cj4gaW5kZXggOGMxYzYzNjMwOGM4Li5lODY4ZDJiZDQ4YjggMTAwNjQ0Cj4gLS0tIGEvYXJjaC9w
-b3dlcnBjL0tjb25maWcKPiArKysgYi9hcmNoL3Bvd2VycGMvS2NvbmZpZwo+IEBAIC04OTgsNyAr
-ODk4LDcgQEAgY29uZmlnIFBQQ19NRU1fS0VZUwo+ICAgCSAgcGFnZS1iYXNlZCBwcm90ZWN0aW9u
-cywgYnV0IHdpdGhvdXQgcmVxdWlyaW5nIG1vZGlmaWNhdGlvbiBvZiB0aGUKPiAgIAkgIHBhZ2Ug
-dGFibGVzIHdoZW4gYW4gYXBwbGljYXRpb24gY2hhbmdlcyBwcm90ZWN0aW9uIGRvbWFpbnMuCj4g
-ICAKPiAtCSAgRm9yIGRldGFpbHMsIHNlZSBEb2N1bWVudGF0aW9uL3ZtL3Byb3RlY3Rpb24ta2V5
-cy5yc3QKPiArCSAgRm9yIGRldGFpbHMsIHNlZSBEb2N1bWVudGF0aW9uL3g4Ni9wcm90ZWN0aW9u
-LWtleXMucnN0CgpJdCBsb29rcyBzdHJhbmdlIHRvIHJlZmVyZW5jZSBhbiB4ODYgZmlsZSwgZm9y
-IHBvd2VycGMgYXJjaC4KCkNocmlzdG9waGUKCl9fX19fX19fX19fX19fX19fX19fX19fX19fX19f
-X19fX19fX19fX19fX19fX19fClZpcnR1YWxpemF0aW9uIG1haWxpbmcgbGlzdApWaXJ0dWFsaXph
-dGlvbkBsaXN0cy5saW51eC1mb3VuZGF0aW9uLm9yZwpodHRwczovL2xpc3RzLmxpbnV4Zm91bmRh
-dGlvbi5vcmcvbWFpbG1hbi9saXN0aW5mby92aXJ0dWFsaXphdGlvbg==
+
+On Wed, 05 Jun 2019 16:42:05 -0700 (PDT) syzbot wrote:
+> Hello,
+> 
+> syzbot found the following crash on:
+> 
+> HEAD commit:    788a0249 Merge tag 'arc-5.2-rc4' of git://git.kernel.org/p..
+> git tree:       upstream
+> console output: https://syzkaller.appspot.com/x/log.txt?x=15dc9ea6a00000
+> kernel config:  https://syzkaller.appspot.com/x/.config?x=d5c73825cbdc7326
+> dashboard link: https://syzkaller.appspot.com/bug?extid=0789f0c7e45efd7bb643
+> compiler:       gcc (GCC) 9.0.0 20181231 (experimental)
+> syz repro:      https://syzkaller.appspot.com/x/repro.syz?x=10b31761a00000
+> C reproducer:   https://syzkaller.appspot.com/x/repro.c?x=124892c1a00000
+> 
+> IMPORTANT: if you fix the bug, please add the following tag to the commit:
+> Reported-by: syzbot+0789f0c7e45efd7bb643@syzkaller.appspotmail.com
+> 
+> udit: type=1400 audit(1559768703.229:36): avc:  denied  { map } for   
+> pid=7116 comm="syz-executor330" path="/root/syz-executor330334897"  
+> dev="sda1" ino=16461 scontext=unconfined_u:system_r:insmod_t:s0-s0:c0.c1023  
+> tcontext=unconfined_u:object_r:user_home_t:s0 tclass=file permissive=1
+> executing program
+> executing program
+> BUG: memory leak
+> unreferenced object 0xffff88812421fe40 (size 64):
+>    comm "syz-executor330", pid 7117, jiffies 4294949245 (age 13.030s)
+>    hex dump (first 32 bytes):
+>      01 00 00 00 20 69 6f 63 00 00 00 00 64 65 76 2f  .... ioc....dev/
+>      50 fe 21 24 81 88 ff ff 50 fe 21 24 81 88 ff ff  P.!$....P.!$....
+>    backtrace:
+>      [<00000000ae0c4ae0>] kmemleak_alloc_recursive include/linux/kmemleak.h:55 [inline]
+>      [<00000000ae0c4ae0>] slab_post_alloc_hook mm/slab.h:439 [inline]
+>      [<00000000ae0c4ae0>] slab_alloc mm/slab.c:3326 [inline]
+>      [<00000000ae0c4ae0>] kmem_cache_alloc_trace+0x13d/0x280 mm/slab.c:3553
+>      [<0000000079ebab38>] kmalloc include/linux/slab.h:547 [inline]
+>      [<0000000079ebab38>] vhost_net_ubuf_alloc drivers/vhost/net.c:241 [inline]
+>      [<0000000079ebab38>] vhost_net_set_backend drivers/vhost/net.c:1534 [inline]
+>      [<0000000079ebab38>] vhost_net_ioctl+0xb43/0xc10 drivers/vhost/net.c:1716
+>      [<000000009f6204a2>] vfs_ioctl fs/ioctl.c:46 [inline]
+>      [<000000009f6204a2>] file_ioctl fs/ioctl.c:509 [inline]
+>      [<000000009f6204a2>] do_vfs_ioctl+0x62a/0x810 fs/ioctl.c:696
+>      [<00000000b45866de>] ksys_ioctl+0x86/0xb0 fs/ioctl.c:713
+>      [<00000000dfb41eb8>] __do_sys_ioctl fs/ioctl.c:720 [inline]
+>      [<00000000dfb41eb8>] __se_sys_ioctl fs/ioctl.c:718 [inline]
+>      [<00000000dfb41eb8>] __x64_sys_ioctl+0x1e/0x30 fs/ioctl.c:718
+>      [<0000000049c1f547>] do_syscall_64+0x76/0x1a0 arch/x86/entry/common.c:301
+>      [<0000000029cc8ca7>] entry_SYSCALL_64_after_hwframe+0x44/0xa9
+> 
+> BUG: memory leak
+> unreferenced object 0xffff88812421fa80 (size 64):
+>    comm "syz-executor330", pid 7130, jiffies 4294949755 (age 7.930s)
+>    hex dump (first 32 bytes):
+>      01 00 00 00 01 00 00 00 00 00 00 00 2f 76 69 72  ............/vir
+>      90 fa 21 24 81 88 ff ff 90 fa 21 24 81 88 ff ff  ..!$......!$....
+>    backtrace:
+>      [<00000000ae0c4ae0>] kmemleak_alloc_recursive include/linux/kmemleak.h:55 [inline]
+>      [<00000000ae0c4ae0>] slab_post_alloc_hook mm/slab.h:439 [inline]
+>      [<00000000ae0c4ae0>] slab_alloc mm/slab.c:3326 [inline]
+>      [<00000000ae0c4ae0>] kmem_cache_alloc_trace+0x13d/0x280 mm/slab.c:3553
+>      [<0000000079ebab38>] kmalloc include/linux/slab.h:547 [inline]
+>      [<0000000079ebab38>] vhost_net_ubuf_alloc drivers/vhost/net.c:241 [inline]
+>      [<0000000079ebab38>] vhost_net_set_backend drivers/vhost/net.c:1534 [inline]
+>      [<0000000079ebab38>] vhost_net_ioctl+0xb43/0xc10 drivers/vhost/net.c:1716
+>      [<000000009f6204a2>] vfs_ioctl fs/ioctl.c:46 [inline]
+>      [<000000009f6204a2>] file_ioctl fs/ioctl.c:509 [inline]
+>      [<000000009f6204a2>] do_vfs_ioctl+0x62a/0x810 fs/ioctl.c:696
+>      [<00000000b45866de>] ksys_ioctl+0x86/0xb0 fs/ioctl.c:713
+>      [<00000000dfb41eb8>] __do_sys_ioctl fs/ioctl.c:720 [inline]
+>      [<00000000dfb41eb8>] __se_sys_ioctl fs/ioctl.c:718 [inline]
+>      [<00000000dfb41eb8>] __x64_sys_ioctl+0x1e/0x30 fs/ioctl.c:718
+>      [<0000000049c1f547>] do_syscall_64+0x76/0x1a0 arch/x86/entry/common.c:301
+>      [<0000000029cc8ca7>] entry_SYSCALL_64_after_hwframe+0x44/0xa9
+> 
+> 
+> 
+> ---
+> This bug is generated by a bot. It may contain errors.
+> See https://goo.gl/tpsmEJ for more information about syzbot.
+> syzbot engineers can be reached at syzkaller@googlegroups.com.
+> 
+> syzbot will keep track of this bug report. See:
+> https://goo.gl/tpsmEJ#status for how to communicate with syzbot.
+> syzbot can test patches for this bug, for details see:
+> https://goo.gl/tpsmEJ#testing-patches
+> 
+Ignore my noise if you have no interest seeing the syzbot report.
+
+After commit c38e39c378f46f ("vhost-net: fix use-after-free in
+vhost_net_flush") flush would no longer free ubuf, just wait until ubuf users
+disappear instead.
+
+The following diff, in hope that may perhaps help you handle the memory leak,
+makes flush able to free ubuf in the path of file release.
+
+Thanks
+Hillf
+---
+ drivers/vhost/net.c | 8 +++++++-
+ 1 file changed, 7 insertions(+), 1 deletion(-)
+
+diff --git a/drivers/vhost/net.c b/drivers/vhost/net.c
+index 3beb401..dcf20b6 100644
+--- a/drivers/vhost/net.c
++++ b/drivers/vhost/net.c
+@@ -141,6 +141,7 @@ struct vhost_net {
+ 	unsigned tx_zcopy_err;
+ 	/* Flush in progress. Protected by tx vq lock. */
+ 	bool tx_flush;
++	bool ld;	/* Last dinner */
+ 	/* Private page frag */
+ 	struct page_frag page_frag;
+ 	/* Refcount bias of page frag */
+@@ -1283,6 +1284,7 @@ static int vhost_net_open(struct inode *inode, struct file *f)
+ 	n = kvmalloc(sizeof *n, GFP_KERNEL | __GFP_RETRY_MAYFAIL);
+ 	if (!n)
+ 		return -ENOMEM;
++	n->ld = false;
+ 	vqs = kmalloc_array(VHOST_NET_VQ_MAX, sizeof(*vqs), GFP_KERNEL);
+ 	if (!vqs) {
+ 		kvfree(n);
+@@ -1376,7 +1378,10 @@ static void vhost_net_flush(struct vhost_net *n)
+ 		n->tx_flush = true;
+ 		mutex_unlock(&n->vqs[VHOST_NET_VQ_TX].vq.mutex);
+ 		/* Wait for all lower device DMAs done. */
+-		vhost_net_ubuf_put_and_wait(n->vqs[VHOST_NET_VQ_TX].ubufs);
++		if (n->ld)
++			vhost_net_ubuf_put_wait_and_free(n->vqs[VHOST_NET_VQ_TX].ubufs);
++		else
++			vhost_net_ubuf_put_and_wait(n->vqs[VHOST_NET_VQ_TX].ubufs);
+ 		mutex_lock(&n->vqs[VHOST_NET_VQ_TX].vq.mutex);
+ 		n->tx_flush = false;
+ 		atomic_set(&n->vqs[VHOST_NET_VQ_TX].ubufs->refcount, 1);
+@@ -1403,6 +1408,7 @@ static int vhost_net_release(struct inode *inode, struct file *f)
+ 	synchronize_rcu();
+ 	/* We do an extra flush before freeing memory,
+ 	 * since jobs can re-queue themselves. */
++	n->ld = true;
+ 	vhost_net_flush(n);
+ 	kfree(n->vqs[VHOST_NET_VQ_RX].rxq.queue);
+ 	kfree(n->vqs[VHOST_NET_VQ_TX].xdp);
+--
