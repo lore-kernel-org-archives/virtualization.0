@@ -1,16 +1,11 @@
-From: Nathan Chancellor <natechancellor@gmail.com>
-Subject: Re: [PATCH] vhost: Don't use defined in VHOST_ARCH_CAN_ACCEL_UACCESS
-	definition
-Date: Thu, 6 Jun 2019 13:06:23 -0700
-Message-ID: <20190606200623.GA12580__43756.2157794432$1563994880$gmane$org@archlinux-epyc>
-References: <20190606161223.67979-1-natechancellor@gmail.com>
-	<20190606142606-mutt-send-email-mst@kernel.org>
+From: Geert Uytterhoeven <geert+renesas@glider.be>
+Subject: [PATCH trivial] mm/balloon_compaction: Grammar s/the its/its/
+Date: Fri,  7 Jun 2019 13:35:59 +0200
+Message-ID: <20190607113559.15115-1-geert+renesas__18635.745711957$1563994884$gmane$org@glider.be>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-Content-Disposition: inline
-In-Reply-To: <20190606142606-mutt-send-email-mst@kernel.org>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -20,41 +15,27 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: "Michael S. Tsirkin" <mst@redhat.com>
-Cc: kvm@vger.kernel.org, netdev@vger.kernel.org, Nick Desaulniers <ndesaulniers@google.com>, linux-kernel@vger.kernel.org, virtualization@lists.linux-foundation.org, clang-built-linux@googlegroups.com
+To: "Michael S . Tsirkin" <mst@redhat.com>, Jason Wang <jasowang@redhat.com>, Jiri Kosina <trivial@kernel.org>
+Cc: linux-mm@kvack.org, linux-kernel@vger.kernel.org, Geert Uytterhoeven <geert+renesas@glider.be>, virtualization@lists.linux-foundation.org
 List-Id: virtualization@lists.linuxfoundation.org
 
-On Thu, Jun 06, 2019 at 02:28:55PM -0400, Michael S. Tsirkin wrote:
-> I'd prefer just changing the definition.
-> ifdefs have a disadvantage that it's easy to get
-> wrong code if you forget to include a header.
-> 
-> I queued the below - pls confirm it works for you.
+Signed-off-by: Geert Uytterhoeven <geert+renesas@glider.be>
+---
+ mm/balloon_compaction.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-Fine by me, I figured that might be preferred (since clang will warn if
-VHOST_ARCH_CAN_ACCEL_UACCESS is not defined so you'd know if the header
-was forgotten). Thank you for the fix :)
-
-Reviewed-by: Nathan Chancellor <natechancellor@gmail.com>
-Tested-by: Nathan Chancellor <natechancellor@gmail.com>
-
-> 
-> 
-> diff --git a/drivers/vhost/vhost.h b/drivers/vhost/vhost.h
-> index c5d950cf7627..819296332913 100644
-> --- a/drivers/vhost/vhost.h
-> +++ b/drivers/vhost/vhost.h
-> @@ -95,8 +95,11 @@ struct vhost_uaddr {
->  	bool write;
->  };
->  
-> -#define VHOST_ARCH_CAN_ACCEL_UACCESS defined(CONFIG_MMU_NOTIFIER) && \
-> -	ARCH_IMPLEMENTS_FLUSH_DCACHE_PAGE == 0
-> +#if defined(CONFIG_MMU_NOTIFIER) && ARCH_IMPLEMENTS_FLUSH_DCACHE_PAGE == 0
-> +#define VHOST_ARCH_CAN_ACCEL_UACCESS 1
-> +#else
-> +#define VHOST_ARCH_CAN_ACCEL_UACCESS 0
-> +#endif
->  
->  /* The virtqueue structure describes a queue attached to a device. */
->  struct vhost_virtqueue {
+diff --git a/mm/balloon_compaction.c b/mm/balloon_compaction.c
+index ba739b76e6c52e55..17ac81d8d26bcb50 100644
+--- a/mm/balloon_compaction.c
++++ b/mm/balloon_compaction.c
+@@ -60,7 +60,7 @@ EXPORT_SYMBOL_GPL(balloon_page_enqueue);
+ 
+ /*
+  * balloon_page_dequeue - removes a page from balloon's page list and returns
+- *			  the its address to allow the driver release the page.
++ *			  its address to allow the driver to release the page.
+  * @b_dev_info: balloon device decriptor where we will grab a page from.
+  *
+  * Driver must call it to properly de-allocate a previous enlisted balloon page
+-- 
+2.17.1
