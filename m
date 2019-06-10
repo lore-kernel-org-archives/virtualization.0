@@ -1,13 +1,15 @@
-From: Stefan Hajnoczi <stefanha@gmail.com>
-Subject: Re: [PATCH v3 1/5] vsock/virtio: limit the memory used per-socket
-Date: Mon, 10 Jun 2019 14:44:07 +0100
-Message-ID: <20190610134407.GM14257__46540.6979479425$1560174262$gmane$org@stefanha-x1.localdomain>
-References: <20190531133954.122567-1-sgarzare@redhat.com>
-	<20190531133954.122567-2-sgarzare@redhat.com>
+From: Mike Snitzer <snitzer@redhat.com>
+Subject: Re: [PATCH v11 4/7] dm: enable synchronous dax
+Date: Mon, 10 Jun 2019 15:28:03 -0400
+Message-ID: <20190610192803.GA29002__14601.8939137988$1560194949$gmane$org@redhat.com>
+References: <20190610090730.8589-1-pagupta@redhat.com>
+	<20190610090730.8589-5-pagupta@redhat.com>
 Mime-Version: 1.0
-Content-Type: multipart/mixed; boundary="===============8446837325855411614=="
+Content-Type: text/plain; charset="us-ascii"
+Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <20190531133954.122567-2-sgarzare@redhat.com>
+Content-Disposition: inline
+In-Reply-To: <20190610090730.8589-5-pagupta@redhat.com>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -17,75 +19,79 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Stefano Garzarella <sgarzare@redhat.com>
-Cc: kvm@vger.kernel.org, "Michael S. Tsirkin" <mst@redhat.com>, netdev@vger.kernel.org, linux-kernel@vger.kernel.org, virtualization@lists.linux-foundation.org, Stefan Hajnoczi <stefanha@redhat.com>, "David S. Miller" <davem@davemloft.net>
+To: Pankaj Gupta <pagupta@redhat.com>
+Cc: cohuck@redhat.com, jack@suse.cz, kvm@vger.kernel.org, mst@redhat.com, david@fromorbit.com, qemu-devel@nongnu.org, virtualization@lists.linux-foundation.org, dm-devel@redhat.com, adilger.kernel@dilger.ca, zwisler@kernel.org, aarcange@redhat.com, dave.jiang@intel.com, jstaron@google.com, linux-nvdimm@lists.01.org, vishal.l.verma@intel.com, willy@infradead.org, hch@infradead.org, linux-acpi@vger.kernel.org, jmoyer@redhat.com, linux-ext4@vger.kernel.org, lenb@kernel.org, kilobyte@angband.pl, rdunlap@infradead.org, riel@surriel.com, yuval.shaia@oracle.com, stefanha@redhat.com, pbonzini@redhat.com, dan.j.williams@intel.com, lcapitulino@redhat.com, nilal@redhat.com, tytso@mit.edu, xiaoguangrong.eric@gmail.com, darrick.wong@oracle.com, rjw@rjwysocki.net, linux-kernel@vger.kernel.org, linux-xfs@vger.kernel.org, linux-fsdevel@vger.kernel.org, imammedo@redhat.com
 List-Id: virtualization@lists.linuxfoundation.org
 
+On Mon, Jun 10 2019 at  5:07am -0400,
+Pankaj Gupta <pagupta@redhat.com> wrote:
 
---===============8446837325855411614==
-Content-Type: multipart/signed; micalg=pgp-sha256;
-	protocol="application/pgp-signature"; boundary="hdhkc9EpVJoq6PQ6"
-Content-Disposition: inline
-
-
---hdhkc9EpVJoq6PQ6
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
-
-On Fri, May 31, 2019 at 03:39:50PM +0200, Stefano Garzarella wrote:
-> Since virtio-vsock was introduced, the buffers filled by the host
-> and pushed to the guest using the vring, are directly queued in
-> a per-socket list. These buffers are preallocated by the guest
-> with a fixed size (4 KB).
->=20
-> The maximum amount of memory used by each socket should be
-> controlled by the credit mechanism.
-> The default credit available per-socket is 256 KB, but if we use
-> only 1 byte per packet, the guest can queue up to 262144 of 4 KB
-> buffers, using up to 1 GB of memory per-socket. In addition, the
-> guest will continue to fill the vring with new 4 KB free buffers
-> to avoid starvation of other sockets.
->=20
-> This patch mitigates this issue copying the payload of small
-> packets (< 128 bytes) into the buffer of last packet queued, in
-> order to avoid wasting memory.
->=20
-> Signed-off-by: Stefano Garzarella <sgarzare@redhat.com>
+>  This patch sets dax device 'DAXDEV_SYNC' flag if all the target
+>  devices of device mapper support synchrononous DAX. If device
+>  mapper consists of both synchronous and asynchronous dax devices,
+>  we don't set 'DAXDEV_SYNC' flag.
+> 
+> Signed-off-by: Pankaj Gupta <pagupta@redhat.com>
 > ---
->  drivers/vhost/vsock.c                   |  2 +
->  include/linux/virtio_vsock.h            |  1 +
->  net/vmw_vsock/virtio_transport.c        |  1 +
->  net/vmw_vsock/virtio_transport_common.c | 60 +++++++++++++++++++++----
->  4 files changed, 55 insertions(+), 9 deletions(-)
+>  drivers/md/dm-table.c | 14 ++++++++++++++
+>  1 file changed, 14 insertions(+)
+> 
+> diff --git a/drivers/md/dm-table.c b/drivers/md/dm-table.c
+> index 350cf0451456..c5160d846fe6 100644
+> --- a/drivers/md/dm-table.c
+> +++ b/drivers/md/dm-table.c
+> @@ -890,10 +890,17 @@ static int device_supports_dax(struct dm_target *ti, struct dm_dev *dev,
+>  			start, len);
+>  }
+>  
+> +static int device_synchronous(struct dm_target *ti, struct dm_dev *dev,
+> +				       sector_t start, sector_t len, void *data)
+> +{
+> +	return dax_synchronous(dev->dax_dev);
+> +}
+> +
+>  bool dm_table_supports_dax(struct dm_table *t, int blocksize)
+>  {
+>  	struct dm_target *ti;
+>  	unsigned i;
+> +	bool dax_sync = true;
+>  
+>  	/* Ensure that all targets support DAX. */
+>  	for (i = 0; i < dm_table_get_num_targets(t); i++) {
+> @@ -906,7 +913,14 @@ bool dm_table_supports_dax(struct dm_table *t, int blocksize)
+>  		    !ti->type->iterate_devices(ti, device_supports_dax,
+>  			    &blocksize))
+>  			return false;
+> +
+> +		/* Check devices support synchronous DAX */
+> +		if (dax_sync &&
+> +		    !ti->type->iterate_devices(ti, device_synchronous, NULL))
+> +			dax_sync = false;
+>  	}
+> +	if (dax_sync)
+> +		set_dax_synchronous(t->md->dax_dev);
+>  
+>  	return true;
+>  }
+> -- 
+> 2.20.1
+> 
 
-Reviewed-by: Stefan Hajnoczi <stefanha@redhat.com>
+dm_table_supports_dax() is called multiple times (from
+dm_table_set_restrictions and dm_table_determine_type).  It is strange
+to have a getter have a side-effect of being a setter too.  Overloading
+like this could get you in trouble in the future.
 
---hdhkc9EpVJoq6PQ6
-Content-Type: application/pgp-signature; name="signature.asc"
+Are you certain this is what you want?
 
------BEGIN PGP SIGNATURE-----
+Or would it be better to refactor dm_table_supports_dax() to take an
+iterate_devices_fn arg and have callers pass the appropriate function?
+Then have dm_table_set_restrictions() caller do:
 
-iQEzBAEBCAAdFiEEhpWov9P5fNqsNXdanKSrs4Grc8gFAlz+XqcACgkQnKSrs4Gr
-c8i67gf+IaHwIE70u0NAFbNbt2B8lH5vRZt1H3I0PmFUqoxPIhZ6wFj4rL1mPDD8
-W6mT6mla/sDPZQpeYKNJKg1tZ0N4rsl1hH/bW3huwjAGBlk7x9mP0LWUWailXE5P
-efL35fpqoiaVvqMDFCwwZFkoba7gB1jcYzzQJfbMz9k1UNRkypvhJyVD4Hs3JI+O
-C23eoQb5zO+9Z6aeFnsEj29zR4Abyw+f4kRVKPaJIETKUiMhK3x7fTaEXAkyW4R+
-bl1D7xPH+VCInPAbSdkGKp7xbWTAzASEfEPrq14jRNwt6mDAKY3Q51l3Ia0l19NY
-DMP6ErcemmdNksPZvxl0YWYTOD9pCg==
-=Jzyw
------END PGP SIGNATURE-----
+     if (dm_table_supports_dax(t, device_synchronous, NULL))
+     	  set_dax_synchronous(t->md->dax_dev);
 
---hdhkc9EpVJoq6PQ6--
+(NULL arg implies dm_table_supports_dax() refactoring would take a int
+*data pointer rather than int type).
 
---===============8446837325855411614==
-Content-Type: text/plain; charset="us-ascii"
-MIME-Version: 1.0
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-
-_______________________________________________
-Virtualization mailing list
-Virtualization@lists.linux-foundation.org
-https://lists.linuxfoundation.org/mailman/listinfo/virtualization
---===============8446837325855411614==--
+Mike
