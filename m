@@ -1,13 +1,14 @@
-From: davidriley@chromium.org
-Subject: [PATCH v2 4/4] drm/virtio: Add memory barriers for capset cache.
-Date: Mon, 10 Jun 2019 14:18:10 -0700
-Message-ID: <20190610211810.253227-5-davidriley__37242.5915252947$1560201554$gmane$org@chromium.org>
-References: <20190605234423.11348-1-davidriley@chromium.org>
+From: Kees Cook <keescook@chromium.org>
+Subject: Re: [PATCH v7 00/12] x86: PIE support to extend KASLR randomization
+Date: Mon, 10 Jun 2019 14:32:47 -0700
+Message-ID: <201906101432.B642E297F__28074.5264770061$1560202382$gmane$org@keescook>
+References: <20190520231948.49693-1-thgarnie@chromium.org>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <20190605234423.11348-1-davidriley@chromium.org>
+Content-Disposition: inline
+In-Reply-To: <20190520231948.49693-1-thgarnie@chromium.org>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -17,48 +18,17 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Gerd Hoffmann <kraxel@redhat.com>, dri-devel@lists.freedesktop.org, virtualization@lists.linux-foundation.org
-Cc: David Airlie <airlied@linux.ie>, linux-kernel@vger.kernel.org, Daniel Vetter <daniel@ffwll.ch>
+To: Thomas Garnier <thgarnie@chromium.org>
+Cc: Feng Tang <feng.tang@intel.com>, kristen@linux.intel.com, kernel-hardening@lists.openwall.com, Peter Zijlstra <peterz@infradead.org>, virtualization@lists.linux-foundation.org, Masahiro Yamada <yamada.masahiro@socionext.com>, Jan Beulich <JBeulich@suse.com>, Nadav Amit <namit@vmware.com>, Pavel Machek <pavel@ucw.cz>, "H. Peter Anvin" <hpa@zytor.com>, Thomas Gleixner <tglx@linutronix.de>, Andi Kleen <ak@linux.intel.com>, Herbert Xu <herbert@gondor.apana.org.au>, x86@kernel.org, Ingo Molnar <mingo@redhat.com>, Len Brown <len.brown@intel.com>, Jann Horn <jannh@google.com>, Borislav Petkov <bp@alien8.de>, Andy Lutomirski <luto@kernel.org>, Alok Kataria <akataria@vmware.com>, Juergen Gross <jgross@suse.com>, Ard Biesheuvel <ard.biesheuvel@linaro.org>, linux-pm@vger.kernel.org, Maran Wilson <maran.wilson@oracle.com>, "Rafael J. Wysocki" <rjw@rjwysocki.net>, linux-kernel@vger.
 List-Id: virtualization@lists.linuxfoundation.org
 
-From: David Riley <davidriley@chromium.org>
+On Mon, May 20, 2019 at 04:19:25PM -0700, Thomas Garnier wrote:
+> Splitting the previous serie in two. This part contains assembly code
+> changes required for PIE but without any direct dependencies with the
+> rest of the patchset.
 
-After data is copied to the cache entry, atomic_set is used indicate
-that the data is the entry is valid without appropriate memory barriers.
-Similarly the read side was missing the corresponding memory barriers.
+Thanks for doing this! It should be easier to land the "little" fixes so
+there's less to review for the big PIE changes down the road.
 
-Signed-off-by: David Riley <davidriley@chromium.org>
----
- drivers/gpu/drm/virtio/virtgpu_ioctl.c | 3 +++
- drivers/gpu/drm/virtio/virtgpu_vq.c    | 2 ++
- 2 files changed, 5 insertions(+)
-
-diff --git a/drivers/gpu/drm/virtio/virtgpu_ioctl.c b/drivers/gpu/drm/virtio/virtgpu_ioctl.c
-index 88c1ed57a3c5..a50495083d6f 100644
---- a/drivers/gpu/drm/virtio/virtgpu_ioctl.c
-+++ b/drivers/gpu/drm/virtio/virtgpu_ioctl.c
-@@ -542,6 +542,9 @@ static int virtio_gpu_get_caps_ioctl(struct drm_device *dev,
- 	if (!ret)
- 		return -EBUSY;
- 
-+	/* is_valid check must proceed before copy of the cache entry. */
-+	smp_rmb();
-+
- 	ptr = cache_ent->caps_cache;
- 
- 	if (copy_to_user((void __user *)(unsigned long)args->addr, ptr, size))
-diff --git a/drivers/gpu/drm/virtio/virtgpu_vq.c b/drivers/gpu/drm/virtio/virtgpu_vq.c
-index dd5ead2541c2..c7a5ca027245 100644
---- a/drivers/gpu/drm/virtio/virtgpu_vq.c
-+++ b/drivers/gpu/drm/virtio/virtgpu_vq.c
-@@ -583,6 +583,8 @@ static void virtio_gpu_cmd_capset_cb(struct virtio_gpu_device *vgdev,
- 		    cache_ent->id == le32_to_cpu(cmd->capset_id)) {
- 			memcpy(cache_ent->caps_cache, resp->capset_data,
- 			       cache_ent->size);
-+			/* Copy must occur before is_valid is signalled. */
-+			smp_wmb();
- 			atomic_set(&cache_ent->is_valid, 1);
- 			break;
- 		}
 -- 
-2.22.0.rc2.383.gf4fbbf30c2-goog
+Kees Cook
