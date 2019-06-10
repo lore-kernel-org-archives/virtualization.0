@@ -1,13 +1,13 @@
 From: Stefan Hajnoczi <stefanha@gmail.com>
-Subject: Re: [PATCH 0/4] vsock/virtio: several fixes in the .probe() and
-	.remove()
-Date: Mon, 10 Jun 2019 14:09:45 +0100
-Message-ID: <20190610130945.GL14257@stefanha-x1.localdomain>
-References: <20190528105623.27983-1-sgarzare@redhat.com>
+Subject: Re: [PATCH v3 1/5] vsock/virtio: limit the memory used per-socket
+Date: Mon, 10 Jun 2019 14:44:07 +0100
+Message-ID: <20190610134407.GM14257__46540.6979479425$1560174262$gmane$org@stefanha-x1.localdomain>
+References: <20190531133954.122567-1-sgarzare@redhat.com>
+	<20190531133954.122567-2-sgarzare@redhat.com>
 Mime-Version: 1.0
-Content-Type: multipart/mixed; boundary="===============2271529800197618317=="
+Content-Type: multipart/mixed; boundary="===============8446837325855411614=="
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <20190528105623.27983-1-sgarzare@redhat.com>
+In-Reply-To: <20190531133954.122567-2-sgarzare@redhat.com>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -18,70 +18,67 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
 To: Stefano Garzarella <sgarzare@redhat.com>
-Cc: kvm@vger.kernel.org, "Michael S . Tsirkin" <mst@redhat.com>, netdev@vger.kernel.org, linux-kernel@vger.kernel.org, virtualization@lists.linux-foundation.org, Stefan Hajnoczi <stefanha@redhat.com>, "David S. Miller" <davem@davemloft.net>
+Cc: kvm@vger.kernel.org, "Michael S. Tsirkin" <mst@redhat.com>, netdev@vger.kernel.org, linux-kernel@vger.kernel.org, virtualization@lists.linux-foundation.org, Stefan Hajnoczi <stefanha@redhat.com>, "David S. Miller" <davem@davemloft.net>
 List-Id: virtualization@lists.linuxfoundation.org
 
 
---===============2271529800197618317==
+--===============8446837325855411614==
 Content-Type: multipart/signed; micalg=pgp-sha256;
-	protocol="application/pgp-signature"; boundary="Swj79WlilW4BQYVz"
+	protocol="application/pgp-signature"; boundary="hdhkc9EpVJoq6PQ6"
 Content-Disposition: inline
 
 
---Swj79WlilW4BQYVz
+--hdhkc9EpVJoq6PQ6
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
 Content-Transfer-Encoding: quoted-printable
 
-On Tue, May 28, 2019 at 12:56:19PM +0200, Stefano Garzarella wrote:
-> During the review of "[PATCH] vsock/virtio: Initialize core virtio vsock
-> before registering the driver", Stefan pointed out some possible issues
-> in the .probe() and .remove() callbacks of the virtio-vsock driver.
+On Fri, May 31, 2019 at 03:39:50PM +0200, Stefano Garzarella wrote:
+> Since virtio-vsock was introduced, the buffers filled by the host
+> and pushed to the guest using the vring, are directly queued in
+> a per-socket list. These buffers are preallocated by the guest
+> with a fixed size (4 KB).
 >=20
-> This series tries to solve these issues:
-> - Patch 1 postpones the 'the_virtio_vsock' assignment at the end of the
->   .probe() to avoid that some sockets queue works when the initialization
->   is not finished.
-> - Patches 2 and 3 stop workers before to call vdev->config->reset(vdev) to
->   be sure that no one is accessing the device, and adds another flush at =
-the
->   end of the .remove() to avoid use after free.
-> - Patch 4 free also used buffers in the virtqueues during the .remove().
+> The maximum amount of memory used by each socket should be
+> controlled by the credit mechanism.
+> The default credit available per-socket is 256 KB, but if we use
+> only 1 byte per packet, the guest can queue up to 262144 of 4 KB
+> buffers, using up to 1 GB of memory per-socket. In addition, the
+> guest will continue to fill the vring with new 4 KB free buffers
+> to avoid starvation of other sockets.
 >=20
-> Stefano Garzarella (4):
->   vsock/virtio: fix locking around 'the_virtio_vsock'
->   vsock/virtio: stop workers during the .remove()
->   vsock/virtio: fix flush of works during the .remove()
->   vsock/virtio: free used buffers during the .remove()
+> This patch mitigates this issue copying the payload of small
+> packets (< 128 bytes) into the buffer of last packet queued, in
+> order to avoid wasting memory.
 >=20
->  net/vmw_vsock/virtio_transport.c | 105 ++++++++++++++++++++++++++-----
->  1 file changed, 90 insertions(+), 15 deletions(-)
+> Signed-off-by: Stefano Garzarella <sgarzare@redhat.com>
+> ---
+>  drivers/vhost/vsock.c                   |  2 +
+>  include/linux/virtio_vsock.h            |  1 +
+>  net/vmw_vsock/virtio_transport.c        |  1 +
+>  net/vmw_vsock/virtio_transport_common.c | 60 +++++++++++++++++++++----
+>  4 files changed, 55 insertions(+), 9 deletions(-)
 
-Looking forward to v2.  I took a look at the discussion and I'll review
-v2 from scratch.  Just keep in mind that the mutex is used more for
-mutual exclusion of the init/exit code than to protect the_virtio_vsock,
-so we'll still need protection of init/exit code even with RCU.
+Reviewed-by: Stefan Hajnoczi <stefanha@redhat.com>
 
-Stefan
-
---Swj79WlilW4BQYVz
+--hdhkc9EpVJoq6PQ6
 Content-Type: application/pgp-signature; name="signature.asc"
 
 -----BEGIN PGP SIGNATURE-----
 
-iQEzBAEBCAAdFiEEhpWov9P5fNqsNXdanKSrs4Grc8gFAlz+VpkACgkQnKSrs4Gr
-c8gjIAf5AWLeKzDJN89IePr9aSiIQg5UqFqV3MQyrKA4CEklt/RqqcNc5/56tDEy
-bvy+2q8wvJ7/OiMV5W11mpCpeLFDR9h4pggfExa/lWg5l+XYFVYD5Zelym/k5KPk
-6M0hgDooBw4fm9rL2LalhQTTseflHIlXEdZK29E1lwX2em55BofBt5gRnk943uFm
-Su0p8R1u9Jjqe8cypBWNMEIdfJtGhi8Mcs4RYfm/YDmYpyYyOWp5T47VTth0h6Mw
-sJdCIlTi4tHHZSH53bZyjPJ8Hl7+kSh2afiMRgzNvuLPyNVhQEGzVWZd5svlNim/
-u1Px/8wo39dQECN0sS0MNY07nG327w==
-=Jv/l
+iQEzBAEBCAAdFiEEhpWov9P5fNqsNXdanKSrs4Grc8gFAlz+XqcACgkQnKSrs4Gr
+c8i67gf+IaHwIE70u0NAFbNbt2B8lH5vRZt1H3I0PmFUqoxPIhZ6wFj4rL1mPDD8
+W6mT6mla/sDPZQpeYKNJKg1tZ0N4rsl1hH/bW3huwjAGBlk7x9mP0LWUWailXE5P
+efL35fpqoiaVvqMDFCwwZFkoba7gB1jcYzzQJfbMz9k1UNRkypvhJyVD4Hs3JI+O
+C23eoQb5zO+9Z6aeFnsEj29zR4Abyw+f4kRVKPaJIETKUiMhK3x7fTaEXAkyW4R+
+bl1D7xPH+VCInPAbSdkGKp7xbWTAzASEfEPrq14jRNwt6mDAKY3Q51l3Ia0l19NY
+DMP6ErcemmdNksPZvxl0YWYTOD9pCg==
+=Jzyw
 -----END PGP SIGNATURE-----
 
---Swj79WlilW4BQYVz--
+--hdhkc9EpVJoq6PQ6--
 
---===============2271529800197618317==
+--===============8446837325855411614==
 Content-Type: text/plain; charset="us-ascii"
 MIME-Version: 1.0
 Content-Transfer-Encoding: 7bit
@@ -91,4 +88,4 @@ _______________________________________________
 Virtualization mailing list
 Virtualization@lists.linux-foundation.org
 https://lists.linuxfoundation.org/mailman/listinfo/virtualization
---===============2271529800197618317==--
+--===============8446837325855411614==--
