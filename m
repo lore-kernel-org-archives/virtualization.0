@@ -1,11 +1,15 @@
-From: Gerd Hoffmann <kraxel@redhat.com>
-Subject: [PATCH] drm/virtio: drop framebuffer dirty tracking code
-Date: Tue, 11 Jun 2019 14:54:07 +0200
-Message-ID: <20190611125408.29421-1-kraxel__21821.0703738563$1560257671$gmane$org@redhat.com>
+From: Pankaj Gupta <pagupta@redhat.com>
+Subject: Re: [Qemu-devel] [PATCH v11 4/7] dm: enable synchronous dax
+Date: Tue, 11 Jun 2019 09:10:58 -0400 (EDT)
+Message-ID: <1206355816.34396746.1560258658768.JavaMail.zimbra__35850.4646735796$1560258708$gmane$org@redhat.com>
+References: <20190610090730.8589-1-pagupta@redhat.com>
+	<20190610090730.8589-5-pagupta@redhat.com>
+	<20190610192803.GA29002@redhat.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
+In-Reply-To: <20190610192803.GA29002@redhat.com>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -15,263 +19,153 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: dri-devel@lists.freedesktop.org
-Cc: David Airlie <airlied@linux.ie>, "open list:VIRTIO GPU DRIVER" <virtualization@lists.linux-foundation.org>, Daniel Vetter <daniel@ffwll.ch>, open list <linux-kernel@vger.kernel.org>
+To: Mike Snitzer <snitzer@redhat.com>
+Cc: rdunlap@infradead.org, jack@suse.cz, kvm@vger.kernel.org, mst@redhat.com, david@fromorbit.com, qemu-devel@nongnu.org, virtualization@lists.linux-foundation.org, dm-devel@redhat.com, adilger kernel <adilger.kernel@dilger.ca>, zwisler@kernel.org, aarcange@redhat.com, dave jiang <dave.jiang@intel.com>, jstaron@google.com, linux-nvdimm@lists.01.org, vishal l verma <vishal.l.verma@intel.com>, willy@infradead.org, hch@infradead.org, linux-acpi@vger.kernel.org, jmoyer@redhat.com, linux-ext4@vger.kernel.org, lenb@kernel.org, kilobyte@angband.pl, riel@surriel.com, yuval shaia <yuval.shaia@oracle.com>, stefanha@redhat.com, imammedo@redhat.com, dan j williams <dan.j.williams@intel.com>, lcapitulino@redhat.com, nilal@redhat.com, tytso@mit.edu, xiaoguangrong eric <xiaoguangrong.eric@gmail.com>, cohuck@redhat.com, rjw@rjwysocki.net, linux-kernel@vger.kernel.org, linux-xfs@vger.kerne
 List-Id: virtualization@lists.linuxfoundation.org
 
-No need to have our own implementation,
-atomic helpers can do it for us.
+Hi Mike,
 
-Signed-off-by: Gerd Hoffmann <kraxel@redhat.com>
----
- drivers/gpu/drm/virtio/virtgpu_drv.h     |   7 --
- drivers/gpu/drm/virtio/virtgpu_display.c |  20 +--
- drivers/gpu/drm/virtio/virtgpu_fb.c      | 150 -----------------------
- drivers/gpu/drm/virtio/Makefile          |   2 +-
- 4 files changed, 3 insertions(+), 176 deletions(-)
- delete mode 100644 drivers/gpu/drm/virtio/virtgpu_fb.c
+Thanks for the review Please find my reply inline.
 
-diff --git a/drivers/gpu/drm/virtio/virtgpu_drv.h b/drivers/gpu/drm/virtio/virtgpu_drv.h
-index 5faccf92aa15..9e2d3062b01d 100644
---- a/drivers/gpu/drm/virtio/virtgpu_drv.h
-+++ b/drivers/gpu/drm/virtio/virtgpu_drv.h
-@@ -142,9 +142,6 @@ struct virtio_gpu_output {
- 
- struct virtio_gpu_framebuffer {
- 	struct drm_framebuffer base;
--	int x1, y1, x2, y2; /* dirty rect */
--	spinlock_t dirty_lock;
--	uint32_t hw_res_handle;
- 	struct virtio_gpu_fence *fence;
- };
- #define to_virtio_gpu_framebuffer(x) \
-@@ -254,10 +251,6 @@ int virtio_gpu_mode_dumb_mmap(struct drm_file *file_priv,
- 			      struct drm_device *dev,
- 			      uint32_t handle, uint64_t *offset_p);
- 
--/* virtio_fb */
--int virtio_gpu_surface_dirty(struct virtio_gpu_framebuffer *qfb,
--			     struct drm_clip_rect *clips,
--			     unsigned int num_clips);
- /* virtio vg */
- int virtio_gpu_alloc_vbufs(struct virtio_gpu_device *vgdev);
- void virtio_gpu_free_vbufs(struct virtio_gpu_device *vgdev);
-diff --git a/drivers/gpu/drm/virtio/virtgpu_display.c b/drivers/gpu/drm/virtio/virtgpu_display.c
-index 86843a4d6102..ba16e8cb7124 100644
---- a/drivers/gpu/drm/virtio/virtgpu_display.c
-+++ b/drivers/gpu/drm/virtio/virtgpu_display.c
-@@ -29,6 +29,7 @@
- #include <drm/drm_atomic_helper.h>
- #include <drm/drm_gem_framebuffer_helper.h>
- #include <drm/drm_probe_helper.h>
-+#include <drm/drm_damage_helper.h>
- 
- #define XRES_MIN    32
- #define YRES_MIN    32
-@@ -49,23 +50,10 @@ static const struct drm_crtc_funcs virtio_gpu_crtc_funcs = {
- 	.atomic_destroy_state   = drm_atomic_helper_crtc_destroy_state,
- };
- 
--static int
--virtio_gpu_framebuffer_surface_dirty(struct drm_framebuffer *fb,
--				     struct drm_file *file_priv,
--				     unsigned int flags, unsigned int color,
--				     struct drm_clip_rect *clips,
--				     unsigned int num_clips)
--{
--	struct virtio_gpu_framebuffer *virtio_gpu_fb
--		= to_virtio_gpu_framebuffer(fb);
--
--	return virtio_gpu_surface_dirty(virtio_gpu_fb, clips, num_clips);
--}
--
- static const struct drm_framebuffer_funcs virtio_gpu_fb_funcs = {
- 	.create_handle = drm_gem_fb_create_handle,
- 	.destroy = drm_gem_fb_destroy,
--	.dirty = virtio_gpu_framebuffer_surface_dirty,
-+	.dirty = drm_atomic_helper_dirtyfb,
- };
- 
- int
-@@ -85,10 +73,6 @@ virtio_gpu_framebuffer_init(struct drm_device *dev,
- 		vgfb->base.obj[0] = NULL;
- 		return ret;
- 	}
--
--	spin_lock_init(&vgfb->dirty_lock);
--	vgfb->x1 = vgfb->y1 = INT_MAX;
--	vgfb->x2 = vgfb->y2 = 0;
- 	return 0;
+> 
+> dm_table_supports_dax() is called multiple times (from
+> dm_table_set_restrictions and dm_table_determine_type).  It is strange
+> to have a getter have a side-effect of being a setter too.  Overloading
+> like this could get you in trouble in the future.
+> 
+> Are you certain this is what you want?
+
+I agree with you.
+
+> 
+> Or would it be better to refactor dm_table_supports_dax() to take an
+> iterate_devices_fn arg and have callers pass the appropriate function?
+> Then have dm_table_set_restrictions() caller do:
+> 
+>      if (dm_table_supports_dax(t, device_synchronous, NULL))
+>                set_dax_synchronous(t->md->dax_dev);
+> 
+> (NULL arg implies dm_table_supports_dax() refactoring would take a int
+> *data pointer rather than int type).
+> 
+> Mike
+> 
+
+I am sending below patch as per your suggestion. Does it look
+near to what you have in mind?
+
+Thank you,
+Pankaj
+
+===============
+
+diff --git a/drivers/md/dm-table.c b/drivers/md/dm-table.c
+index 350cf0451456..8d89acc8b8c2 100644
+--- a/drivers/md/dm-table.c
++++ b/drivers/md/dm-table.c
+@@ -881,7 +881,7 @@ void dm_table_set_type(struct dm_table *t, enum dm_queue_mode type)
+ EXPORT_SYMBOL_GPL(dm_table_set_type);
+
+ /* validate the dax capability of the target device span */
+-static int device_supports_dax(struct dm_target *ti, struct dm_dev *dev,
++int device_supports_dax(struct dm_target *ti, struct dm_dev *dev,
+                                       sector_t start, sector_t len, void *data)
+ {
+        int blocksize = *(int *) data;
+@@ -890,7 +890,15 @@ static int device_supports_dax(struct dm_target *ti, struct dm_dev *dev,
+                        start, len);
  }
- 
-diff --git a/drivers/gpu/drm/virtio/virtgpu_fb.c b/drivers/gpu/drm/virtio/virtgpu_fb.c
-deleted file mode 100644
-index b07584b1c2bf..000000000000
---- a/drivers/gpu/drm/virtio/virtgpu_fb.c
-+++ /dev/null
-@@ -1,150 +0,0 @@
--/*
-- * Copyright (C) 2015 Red Hat, Inc.
-- * All Rights Reserved.
-- *
-- * Permission is hereby granted, free of charge, to any person obtaining
-- * a copy of this software and associated documentation files (the
-- * "Software"), to deal in the Software without restriction, including
-- * without limitation the rights to use, copy, modify, merge, publish,
-- * distribute, sublicense, and/or sell copies of the Software, and to
-- * permit persons to whom the Software is furnished to do so, subject to
-- * the following conditions:
-- *
-- * The above copyright notice and this permission notice (including the
-- * next paragraph) shall be included in all copies or substantial
-- * portions of the Software.
-- *
-- * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND,
-- * EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF
-- * MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT.
-- * IN NO EVENT SHALL THE COPYRIGHT OWNER(S) AND/OR ITS SUPPLIERS BE
-- * LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION
-- * OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION
-- * WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
-- */
--
--#include <drm/drmP.h>
--#include <drm/drm_fb_helper.h>
--#include "virtgpu_drv.h"
--
--static int virtio_gpu_dirty_update(struct virtio_gpu_framebuffer *fb,
--				   bool store, int x, int y,
--				   int width, int height)
--{
--	struct drm_device *dev = fb->base.dev;
--	struct virtio_gpu_device *vgdev = dev->dev_private;
--	bool store_for_later = false;
--	int bpp = fb->base.format->cpp[0];
--	int x2, y2;
--	unsigned long flags;
--	struct virtio_gpu_object *obj = gem_to_virtio_gpu_obj(fb->base.obj[0]);
--
--	if ((width <= 0) ||
--	    (x + width > fb->base.width) ||
--	    (y + height > fb->base.height)) {
--		DRM_DEBUG("values out of range %dx%d+%d+%d, fb %dx%d\n",
--			  width, height, x, y,
--			  fb->base.width, fb->base.height);
--		return -EINVAL;
--	}
--
--	/*
--	 * Can be called with pretty much any context (console output
--	 * path).  If we are in atomic just store the dirty rect info
--	 * to send out the update later.
--	 *
--	 * Can't test inside spin lock.
--	 */
--	if (in_atomic() || store)
--		store_for_later = true;
--
--	x2 = x + width - 1;
--	y2 = y + height - 1;
--
--	spin_lock_irqsave(&fb->dirty_lock, flags);
--
--	if (fb->y1 < y)
--		y = fb->y1;
--	if (fb->y2 > y2)
--		y2 = fb->y2;
--	if (fb->x1 < x)
--		x = fb->x1;
--	if (fb->x2 > x2)
--		x2 = fb->x2;
--
--	if (store_for_later) {
--		fb->x1 = x;
--		fb->x2 = x2;
--		fb->y1 = y;
--		fb->y2 = y2;
--		spin_unlock_irqrestore(&fb->dirty_lock, flags);
--		return 0;
--	}
--
--	fb->x1 = fb->y1 = INT_MAX;
--	fb->x2 = fb->y2 = 0;
--
--	spin_unlock_irqrestore(&fb->dirty_lock, flags);
--
--	{
--		uint32_t offset;
--		uint32_t w = x2 - x + 1;
--		uint32_t h = y2 - y + 1;
--
--		offset = (y * fb->base.pitches[0]) + x * bpp;
--
--		virtio_gpu_cmd_transfer_to_host_2d(vgdev, obj,
--						   offset,
--						   cpu_to_le32(w),
--						   cpu_to_le32(h),
--						   cpu_to_le32(x),
--						   cpu_to_le32(y),
--						   NULL);
--
--	}
--	virtio_gpu_cmd_resource_flush(vgdev, obj->hw_res_handle,
--				      x, y, x2 - x + 1, y2 - y + 1);
--	return 0;
--}
--
--int virtio_gpu_surface_dirty(struct virtio_gpu_framebuffer *vgfb,
--			     struct drm_clip_rect *clips,
--			     unsigned int num_clips)
--{
--	struct virtio_gpu_device *vgdev = vgfb->base.dev->dev_private;
--	struct virtio_gpu_object *obj = gem_to_virtio_gpu_obj(vgfb->base.obj[0]);
--	struct drm_clip_rect norect;
--	struct drm_clip_rect *clips_ptr;
--	int left, right, top, bottom;
--	int i;
--	int inc = 1;
--
--	if (!num_clips) {
--		num_clips = 1;
--		clips = &norect;
--		norect.x1 = norect.y1 = 0;
--		norect.x2 = vgfb->base.width;
--		norect.y2 = vgfb->base.height;
--	}
--	left = clips->x1;
--	right = clips->x2;
--	top = clips->y1;
--	bottom = clips->y2;
--
--	/* skip the first clip rect */
--	for (i = 1, clips_ptr = clips + inc;
--	     i < num_clips; i++, clips_ptr += inc) {
--		left = min_t(int, left, (int)clips_ptr->x1);
--		right = max_t(int, right, (int)clips_ptr->x2);
--		top = min_t(int, top, (int)clips_ptr->y1);
--		bottom = max_t(int, bottom, (int)clips_ptr->y2);
--	}
--
--	if (obj->dumb)
--		return virtio_gpu_dirty_update(vgfb, false, left, top,
--					       right - left, bottom - top);
--
--	virtio_gpu_cmd_resource_flush(vgdev, obj->hw_res_handle,
--				      left, top, right - left, bottom - top);
--	return 0;
--}
-diff --git a/drivers/gpu/drm/virtio/Makefile b/drivers/gpu/drm/virtio/Makefile
-index 42949a17ff70..458e606a936f 100644
---- a/drivers/gpu/drm/virtio/Makefile
-+++ b/drivers/gpu/drm/virtio/Makefile
-@@ -4,7 +4,7 @@
- # Direct Rendering Infrastructure (DRI) in XFree86 4.1.0 and higher.
- 
- virtio-gpu-y := virtgpu_drv.o virtgpu_kms.o virtgpu_gem.o \
--	virtgpu_fb.o virtgpu_display.o virtgpu_vq.o virtgpu_ttm.o \
-+	virtgpu_display.o virtgpu_vq.o virtgpu_ttm.o \
- 	virtgpu_fence.o virtgpu_object.o virtgpu_debugfs.o virtgpu_plane.o \
- 	virtgpu_ioctl.o virtgpu_prime.o virtgpu_trace_points.o
- 
--- 
-2.18.1
+
+-bool dm_table_supports_dax(struct dm_table *t, int blocksize)
++/* Check devices support synchronous DAX */
++static int device_synchronous(struct dm_target *ti, struct dm_dev *dev,
++                                      sector_t start, sector_t len, void *data)
++{
++       return dax_synchronous(dev->dax_dev);
++}
++
++bool dm_table_supports_dax(struct dm_table *t,
++                         iterate_devices_callout_fn iterate_fn, int *blocksize)
+ {
+        struct dm_target *ti;
+        unsigned i;
+@@ -903,8 +911,7 @@ bool dm_table_supports_dax(struct dm_table *t, int blocksize)
+                        return false;
+
+                if (!ti->type->iterate_devices ||
+-                   !ti->type->iterate_devices(ti, device_supports_dax,
+-                           &blocksize))
++                       !ti->type->iterate_devices(ti, iterate_fn, blocksize))
+                        return false;
+        }
+
+@@ -940,6 +947,7 @@ static int dm_table_determine_type(struct dm_table *t)
+        struct dm_target *tgt;
+        struct list_head *devices = dm_table_get_devices(t);
+        enum dm_queue_mode live_md_type = dm_get_md_type(t->md);
++       int page_size = PAGE_SIZE;
+
+        if (t->type != DM_TYPE_NONE) {
+                /* target already set the table's type */
+@@ -984,7 +992,7 @@ static int dm_table_determine_type(struct dm_table *t)
+ verify_bio_based:
+                /* We must use this table as bio-based */
+                t->type = DM_TYPE_BIO_BASED;
+-               if (dm_table_supports_dax(t, PAGE_SIZE) ||
++               if (dm_table_supports_dax(t, device_supports_dax, &page_size) ||
+                    (list_empty(devices) && live_md_type == DM_TYPE_DAX_BIO_BASED)) {
+                        t->type = DM_TYPE_DAX_BIO_BASED;
+                } else {
+@@ -1883,6 +1891,7 @@ void dm_table_set_restrictions(struct dm_table *t, struct request_queue *q,
+                               struct queue_limits *limits)
+ {
+        bool wc = false, fua = false;
++       int page_size = PAGE_SIZE;
+
+        /*
+         * Copy table's limits to the DM device's request_queue
+@@ -1910,8 +1919,13 @@ void dm_table_set_restrictions(struct dm_table *t, struct request_queue *q,
+        }
+        blk_queue_write_cache(q, wc, fua);
+
+-       if (dm_table_supports_dax(t, PAGE_SIZE))
++       if (dm_table_supports_dax(t, device_supports_dax, &page_size)) {
++
+                blk_queue_flag_set(QUEUE_FLAG_DAX, q);
++               if (dm_table_supports_dax(t, device_synchronous, NULL))
++                       set_dax_synchronous(t->md->dax_dev);
++       }
+        else
+                blk_queue_flag_clear(QUEUE_FLAG_DAX, q);
+
+diff --git a/drivers/md/dm.c b/drivers/md/dm.c
+index b1caa7188209..b92c42a72ad4 100644
+--- a/drivers/md/dm.c
++++ b/drivers/md/dm.c
+@@ -1119,7 +1119,7 @@ static bool dm_dax_supported(struct dax_device *dax_dev, struct block_device *bd
+        if (!map)
+                return false;
+
+-       ret = dm_table_supports_dax(map, blocksize);
++       ret = dm_table_supports_dax(map, device_supports_dax, &blocksize);
+
+        dm_put_live_table(md, srcu_idx);
+
+diff --git a/drivers/md/dm.h b/drivers/md/dm.h
+index 17e3db54404c..0475673337f3 100644
+--- a/drivers/md/dm.h
++++ b/drivers/md/dm.h
+@@ -72,7 +72,10 @@ bool dm_table_bio_based(struct dm_table *t);
+ bool dm_table_request_based(struct dm_table *t);
+ void dm_table_free_md_mempools(struct dm_table *t);
+ struct dm_md_mempools *dm_table_get_md_mempools(struct dm_table *t);
+-bool dm_table_supports_dax(struct dm_table *t, int blocksize);
++bool dm_table_supports_dax(struct dm_table *t, iterate_devices_callout_fn fn,
++                          int *blocksize);
++int device_supports_dax(struct dm_target *ti, struct dm_dev *dev,
++                          sector_t start, sector_t len, void *data);
+
+ void dm_lock_md_type(struct mapped_device *md);
+ void dm_unlock_md_type(struct mapped_device *md);
+--
+2.20.1
