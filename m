@@ -1,16 +1,11 @@
-From: Cornelia Huck <cohuck@redhat.com>
-Subject: Re: [PATCH v4 4/8] s390/airq: use DMA memory for adapter interrupts
-Date: Tue, 11 Jun 2019 18:19:44 +0200
-Message-ID: <20190611181944.5bf2b953.cohuck@redhat.com>
-References: <20190606115127.55519-1-pasic@linux.ibm.com>
-	<20190606115127.55519-5-pasic@linux.ibm.com>
-	<20190611121721.61bf09b4.cohuck@redhat.com>
-	<20190611162721.67ca8932.pasic@linux.ibm.com>
+From: Pankaj Gupta <pagupta@redhat.com>
+Subject: [PATCH v12 0/7] virtio pmem driver
+Date: Tue, 11 Jun 2019 22:07:55 +0530
+Message-ID: <20190611163802.25352-1-pagupta__7169.35227844573$1560271160$gmane$org@redhat.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset="utf-8"
+Content-Transfer-Encoding: base64
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <20190611162721.67ca8932.pasic@linux.ibm.com>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -20,124 +15,172 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Halil Pasic <pasic@linux.ibm.com>
-Cc: Vasily Gorbik <gor@linux.ibm.com>, linux-s390@vger.kernel.org, Thomas Huth <thuth@redhat.com>, Claudio Imbrenda <imbrenda@linux.ibm.com>, kvm@vger.kernel.org, Sebastian Ott <sebott@linux.ibm.com>, "Michael S. Tsirkin" <mst@redhat.com>, Farhan Ali <alifm@linux.ibm.com>, Heiko Carstens <heiko.carstens@de.ibm.com>, Eric Farman <farman@linux.ibm.com>, virtualization@lists.linux-foundation.org, Christoph Hellwig <hch@infradead.org>, Christian Borntraeger <borntraeger@de.ibm.com>, "Jason J. Herne" <jjherne@linux.ibm.com>, Michael Mueller <mimu@linux.ibm.com>, Viktor Mihajlovski <mihajlov@linux.ibm.com>, Janosch Frank <frankja@linux.ibm.com>
+To: dm-devel@redhat.com, linux-nvdimm@lists.01.org, linux-kernel@vger.kernel.org, virtualization@lists.linux-foundation.org, kvm@vger.kernel.org, linux-fsdevel@vger.kernel.org, linux-acpi@vger.kernel.org, qemu-devel@nongnu.org, linux-ext4@vger.kernel.org, linux-xfs@vger.kernel.org
+Cc: pagupta@redhat.com, rdunlap@infradead.org, jack@suse.cz, snitzer@redhat.com, mst@redhat.com, david@fromorbit.com, lcapitulino@redhat.com, adilger.kernel@dilger.ca, zwisler@kernel.org, aarcange@redhat.com, dave.jiang@intel.com, jstaron@google.com, darrick.wong@oracle.com, vishal.l.verma@intel.com, willy@infradead.org, hch@infradead.org, jmoyer@redhat.com, nilal@redhat.com, lenb@kernel.org, kilobyte@angband.pl, riel@surriel.com, yuval.shaia@oracle.com, stefanha@redhat.com, pbonzini@redhat.com, dan.j.williams@intel.com, tytso@mit.edu, xiaoguangrong.eric@gmail.com, cohuck@redhat.com, rjw@rjwysocki.net, imammedo@redhat.com
 List-Id: virtualization@lists.linuxfoundation.org
 
-On Tue, 11 Jun 2019 16:27:21 +0200
-Halil Pasic <pasic@linux.ibm.com> wrote:
-
-> On Tue, 11 Jun 2019 12:17:21 +0200
-> Cornelia Huck <cohuck@redhat.com> wrote:
-> 
-> > On Thu,  6 Jun 2019 13:51:23 +0200
-> > Halil Pasic <pasic@linux.ibm.com> wrote:
-> >   
-> > > Protected virtualization guests have to use shared pages for airq
-> > > notifier bit vectors, because hypervisor needs to write these bits.
-> > > 
-> > > Let us make sure we allocate DMA memory for the notifier bit vectors by
-> > > replacing the kmem_cache with a dma_cache and kalloc() with
-> > > cio_dma_zalloc().
-> > > 
-> > > Signed-off-by: Halil Pasic <pasic@linux.ibm.com>
-> > > Reviewed-by: Sebastian Ott <sebott@linux.ibm.com>
-> > > ---
-> > >  arch/s390/include/asm/airq.h |  2 ++
-> > >  drivers/s390/cio/airq.c      | 32 ++++++++++++++++++++------------
-> > >  drivers/s390/cio/cio.h       |  2 ++
-> > >  drivers/s390/cio/css.c       |  1 +
-> > >  4 files changed, 25 insertions(+), 12 deletions(-)
-> > >   
-> > 
-> > (...)
-> >   
-> > > @@ -295,12 +303,12 @@ unsigned long airq_iv_scan(struct airq_iv *iv, unsigned long start,
-> > >  }
-> > >  EXPORT_SYMBOL(airq_iv_scan);
-> > >  
-> > > -static int __init airq_init(void)
-> > > +int __init airq_init(void)
-> > >  {
-> > > -	airq_iv_cache = ) "airq_iv_cache", cache_line_size(),
-> > > -					  cache_line_size(), 0, NULL);
-> > > +	airq_iv_cache = dma_pool_create("airq_iv_cache", cio_get_dma_css_dev(),
-> > > +					cache_line_size(),
-> > > +					cache_line_size(), PAGE_SIZE);
-> > >  	if (!airq_iv_cache)
-> > >  		return -ENOMEM;  
-> > 
-> > Sorry about not noticing that in the last iteration; but you may return
-> > an error here if airq_iv_cache could not be allocated...
-> >   
-> > >  	return 0;
-> > >  }
-> > > -subsys_initcall(airq_init);  
-> > 
-> > (...)
-> >   
-> > > diff --git a/drivers/s390/cio/css.c b/drivers/s390/cio/css.c
-> > > index 6fc91d534af1..7901c8ed3597 100644
-> > > --- a/drivers/s390/cio/css.c
-> > > +++ b/drivers/s390/cio/css.c
-> > > @@ -1182,6 +1182,7 @@ static int __init css_bus_init(void)
-> > >  	ret = cio_dma_pool_init();
-> > >  	if (ret)
-> > >  		goto out_unregister_pmn;
-> > > +	airq_init();  
-> > 
-> > ...but don't check the return code here. Probably a pathological case,
-> > but shouldn't you handle that error as well?
-> >   
-> 
-> Tricky business... The problem is that the airq stuff ain't 'private' to
-> the CIO subsystem (e.g. zPCI). I'm afraid failing to init css won't
-> really prevent all usages.
-
-Architecture-wise, there's an unfortunate tie-in of some things like
-zPCI with the channel subsystem (most of that seems to come in via chsc
-and machine checks; but as you say, airq as well). I'd basically
-consider css to be a base system for virtually any I/O on s390...
-
-> 
-> My first thought was, that this is more or less analogous to what we
-> had before. Namely kmem_cache_create() and dma_pool_create() should fail
-> under similar circumstances, and the return value of airq_init() was
-> ignored in do_initcall_level(). So I was like ignoring it seems to be
-> consistent with previous state.
-> 
-> But, ouch, there is a big difference! While kmem_cache_zalloc() seems
-> to tolerate the first argument (pointer to kmem_cache) being NULL the
-> dma_pool_zalloc() does not.
-
-Yeah. While previously continuing with a failed allocation simply was
-not very workable, now we actually would end up with crashes :(
-
-> 
-> IMHO the cleanest thing to do at this stage is to check if the
-> airq_iv_cache is NULL and fail the allocation if it is (to preserve
-> previous behavior).
-
-That's probably the least invasive fix for now. Did you check whether
-any of the other dma pools this series introduces have a similar
-problem due to init not failing?
-
-> 
-> I would prefer having a separate discussion on eventually changing
-> the behavior (e.g. fail css initialization).
-
-I did a quick check of the common I/O layer code and one place that
-looks dangerous is the chsc initialization (where we get two pages that
-are later accessed unconditionally by the code).
-
-All of this is related to not being able to fulfill some basic memory
-availability requirements early during boot and then discovering that
-pulling the emergency break did not actually stop the train. I'd vote
-for calling panic() if the common I/O layer cannot perform its setup;
-but as this is really a pathological case I also think we should solve
-that independently of this patch series.
-
-> 
-> Connie, would that work with you? Thanks for spotting this!
-
-Yeah, let's give your approach a try.
+IFRoaXMgcGF0Y2ggc2VyaWVzIGlzIHJlYWR5IHRvIGJlIG1lcmdlZCB2aWEgbnZkaW1tIHRyZWUK
+IGFzIGRpc2N1c3NlZCB3aXRoIERhbi4gV2UgaGF2ZSBhY2svcmV2aWV3IG9uIFhGUywgRVhUNAog
+JiBWSVJUSU8gcGF0Y2hlcy4gRGV2aWNlIG1hcHBlciBjaGFuZ2UgaXMgYWxzbyByZXZpZXdlZC4g
+CgogTWlrZSwgQ2FuIHlvdSBwbGVhc2UgcHJvdmlkZSBhY2sgZm9yIGRldmljZSBtYXBwZXIgY2hh
+bmdlCiBpLmUgcGF0Y2g0LiAKCiBUaGlzIHZlcnNpb24gaGFzIGNoYW5nZWQgaW1wbGVtZW50YXRp
+b24gZm9yIHBhdGNoIDQgYXMKIHN1Z2dlc3RlZCBieSAnTWlrZScuIEtlZXBpbmcgYWxsIHRoZSBl
+eGlzdGluZyByLW8tYnMuIEpha29iCiBDQ2VkIGFsc28gdGVzdGVkIHRoZSBwYXRjaCBzZXJpZXMg
+YW5kIGNvbmZpcm1lZCB0aGUgd29ya2luZwogb2YgdjkuCiAtLS0KCiBUaGlzIHBhdGNoIHNlcmll
+cyBoYXMgaW1wbGVtZW50YXRpb24gZm9yICJ2aXJ0aW8gcG1lbSIuIAogInZpcnRpbyBwbWVtIiBp
+cyBmYWtlIHBlcnNpc3RlbnQgbWVtb3J5KG52ZGltbSkgaW4gZ3Vlc3QgCiB3aGljaCBhbGxvd3Mg
+dG8gYnlwYXNzIHRoZSBndWVzdCBwYWdlIGNhY2hlLiBUaGlzIGFsc28KIGltcGxlbWVudHMgYSBW
+SVJUSU8gYmFzZWQgYXN5bmNocm9ub3VzIGZsdXNoIG1lY2hhbmlzbS4gIAogCiBTaGFyaW5nIGd1
+ZXN0IGtlcm5lbCBkcml2ZXIgaW4gdGhpcyBwYXRjaHNldCB3aXRoIHRoZSAKIGNoYW5nZXMgc3Vn
+Z2VzdGVkIGluIHY0LiBUZXN0ZWQgd2l0aCBRZW11IHNpZGUgZGV2aWNlIAogZW11bGF0aW9uIFs1
+XSBmb3IgdmlydGlvLXBtZW0uIERvY3VtZW50ZWQgdGhlIGltcGFjdCBvZgogcG9zc2libGUgcGFn
+ZSBjYWNoZSBzaWRlIGNoYW5uZWwgYXR0YWNrcyB3aXRoIHN1Z2dlc3RlZAogY291bnRlcm1lYXN1
+cmVzLgoKIERldGFpbHMgb2YgcHJvamVjdCBpZGVhIGZvciAndmlydGlvIHBtZW0nIGZsdXNoaW5n
+IGludGVyZmFjZSAKIGlzIHNoYXJlZCBbM10gJiBbNF0uCgogSW1wbGVtZW50YXRpb24gaXMgZGl2
+aWRlZCBpbnRvIHR3byBwYXJ0czoKIE5ldyB2aXJ0aW8gcG1lbSBndWVzdCBkcml2ZXIgYW5kIHFl
+bXUgY29kZSBjaGFuZ2VzIGZvciBuZXcgCiB2aXJ0aW8gcG1lbSBwYXJhdmlydHVhbGl6ZWQgZGV2
+aWNlLgoKMS4gR3Vlc3QgdmlydGlvLXBtZW0ga2VybmVsIGRyaXZlcgotLS0tLS0tLS0tLS0tLS0t
+LS0tLS0tLS0tLS0tLS0tLS0KICAgLSBSZWFkcyBwZXJzaXN0ZW50IG1lbW9yeSByYW5nZSBmcm9t
+IHBhcmF2aXJ0IGRldmljZSBhbmQgCiAgICAgcmVnaXN0ZXJzIHdpdGggJ252ZGltbV9idXMnLiAg
+CiAgIC0gJ252ZGltbS9wbWVtJyBkcml2ZXIgdXNlcyB0aGlzIGluZm9ybWF0aW9uIHRvIGFsbG9j
+YXRlIAogICAgIHBlcnNpc3RlbnQgbWVtb3J5IHJlZ2lvbiBhbmQgc2V0dXAgZmlsZXN5c3RlbSBv
+cGVyYXRpb25zIAogICAgIHRvIHRoZSBhbGxvY2F0ZWQgbWVtb3J5LiAKICAgLSB2aXJ0aW8gcG1l
+bSBkcml2ZXIgaW1wbGVtZW50cyBhc3luY2hyb25vdXMgZmx1c2hpbmcgCiAgICAgaW50ZXJmYWNl
+IHRvIGZsdXNoIGZyb20gZ3Vlc3QgdG8gaG9zdC4KCjIuIFFlbXUgdmlydGlvLXBtZW0gZGV2aWNl
+Ci0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLQogICAtIENyZWF0ZXMgdmlydGlvIHBt
+ZW0gZGV2aWNlIGFuZCBleHBvc2VzIGEgbWVtb3J5IHJhbmdlIHRvIAogICAgIEtWTSBndWVzdC4g
+CiAgIC0gQXQgaG9zdCBzaWRlIHRoaXMgaXMgZmlsZSBiYWNrZWQgbWVtb3J5IHdoaWNoIGFjdHMg
+YXMgCiAgICAgcGVyc2lzdGVudCBtZW1vcnkuIAogICAtIFFlbXUgc2lkZSBmbHVzaCB1c2VzIGFp
+byB0aHJlYWQgcG9vbCBBUEkncyBhbmQgdmlydGlvIAogICAgIGZvciBhc3luY2hyb25vdXMgZ3Vl
+c3QgbXVsdGkgcmVxdWVzdCBoYW5kbGluZy4gCgogVmlydGlvLXBtZW0gc2VjdXJpdHkgaW1wbGlj
+YXRpb25zIGFuZCBjb3VudGVybWVhc3VyZXM6CiAtLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0t
+LS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLQoKIEluIHByZXZpb3VzIHBvc3Rpbmcgb2Yga2VybmVs
+IGRyaXZlciwgdGhlcmUgd2FzIGRpc2N1c3Npb24gWzddCiBvbiBwb3NzaWJsZSBpbXBsaWNhdGlv
+bnMgb2YgcGFnZSBjYWNoZSBzaWRlIGNoYW5uZWwgYXR0YWNrcyB3aXRoIAogdmlydGlvIHBtZW0u
+IEFmdGVyIHRob3JvdWdoIGFuYWx5c2lzIG9mIGRldGFpbHMgb2Yga25vd24gc2lkZSAKIGNoYW5u
+ZWwgYXR0YWNrcywgYmVsb3cgYXJlIHRoZSBzdWdnZXN0aW9uczoKCiAtIERlcGVuZHMgZW50aXJl
+bHkgb24gaG93IGhvc3QgYmFja2luZyBpbWFnZSBmaWxlIGlzIG1hcHBlZCAKICAgaW50byBndWVz
+dCBhZGRyZXNzIHNwYWNlLiAKCiAtIHZpcnRpby1wbWVtIGRldmljZSBlbXVsYXRpb24sIGJ5IGRl
+ZmF1bHQgc2hhcmVkIG1hcHBpbmcgaXMgdXNlZAogICB0byBtYXAgaG9zdCBiYWNraW5nIGZpbGUu
+IEl0IGlzIHJlY29tbWVuZGVkIHRvIHVzZSBzZXBhcmF0ZQogICBiYWNraW5nIGZpbGUgYXQgaG9z
+dCBzaWRlIGZvciBldmVyeSBndWVzdC4gVGhpcyB3aWxsIHByZXZlbnQKICAgYW55IHBvc3NpYmls
+aXR5IG9mIGV4ZWN1dGluZyBjb21tb24gY29kZSBmcm9tIG11bHRpcGxlIGd1ZXN0cwogICBhbmQg
+YW55IGNoYW5jZSBvZiBpbmZlcnJpbmcgZ3Vlc3QgbG9jYWwgZGF0YSBiYXNlZCBiYXNlZCBvbiAK
+ICAgZXhlY3V0aW9uIHRpbWUuCgogLSBJZiBiYWNraW5nIGZpbGUgaXMgcmVxdWlyZWQgdG8gYmUg
+c2hhcmVkIGFtb25nIG11bHRpcGxlIGd1ZXN0cyAKICAgaXQgaXMgcmVjb21tZW5kZWQgdG8gZG9u
+J3Qgc3VwcG9ydCBob3N0IHBhZ2UgY2FjaGUgZXZpY3Rpb24gCiAgIGNvbW1hbmRzIGZyb20gdGhl
+IGd1ZXN0IGRyaXZlci4gVGhpcyB3aWxsIGF2b2lkIGFueSBwb3NzaWJpbGl0eQogICBvZiBpbmZl
+cnJpbmcgZ3Vlc3QgbG9jYWwgZGF0YSBvciBob3N0IGRhdGEgZnJvbSBhbm90aGVyIGd1ZXN0LiAK
+CiAtIFByb3Bvc2VkIGRldmljZSBzcGVjaWZpY2F0aW9uIFs2XSBmb3IgdmlydGlvLXBtZW0gZGV2
+aWNlIHdpdGggCiAgIGRldGFpbHMgb2YgcG9zc2libGUgc2VjdXJpdHkgaW1wbGljYXRpb25zIGFu
+ZCBzdWdnZXN0ZWQgCiAgIGNvdW50ZXJtZWFzdXJlcyBmb3IgZGV2aWNlIGVtdWxhdGlvbi4KCiBW
+aXJ0aW8tcG1lbSBlcnJvcnMgaGFuZGxpbmc6CiAtLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0t
+LS0tLS0tLS0tLS0tCiAgQ2hlY2tlZCBiZWhhdmlvdXIgb2YgdmlydGlvLXBtZW0gZm9yIGJlbG93
+IHR5cGVzIG9mIGVycm9ycwogIE5lZWQgc3VnZ2VzdGlvbnMgb24gZXhwZWN0ZWQgYmVoYXZpb3Vy
+IGZvciBoYW5kbGluZyB0aGVzZSBlcnJvcnM/CgogIC0gSGFyZHdhcmUgRXJyb3JzOiBVbmNvcnJl
+Y3RhYmxlIHJlY292ZXJhYmxlIEVycm9yczogCiAgYV0gdmlydGlvLXBtZW06IAogICAgLSBBcyBw
+ZXIgY3VycmVudCBsb2dpYyBpZiBlcnJvciBwYWdlIGJlbG9uZ3MgdG8gUWVtdSBwcm9jZXNzLCAK
+ICAgICAgaG9zdCBNQ0UgaGFuZGxlciBpc29sYXRlcyhod3BvaXNvbikgdGhhdCBwYWdlIGFuZCBz
+ZW5kIFNJR0JVUy4gCiAgICAgIFFlbXUgU0lHQlVTIGhhbmRsZXIgaW5qZWN0cyBleGNlcHRpb24g
+dG8gS1ZNIGd1ZXN0LiAKICAgIC0gS1ZNIGd1ZXN0IHRoZW4gaXNvbGF0ZXMgdGhlIHBhZ2UgYW5k
+IHNlbmQgU0lHQlVTIHRvIGd1ZXN0IAogICAgICB1c2Vyc3BhY2UgcHJvY2VzcyB3aGljaCBoYXMg
+bWFwcGVkIHRoZSBwYWdlLiAKICAKICBiXSBFeGlzdGluZyBpbXBsZW1lbnRhdGlvbiBmb3IgQUNQ
+SSBwbWVtIGRyaXZlcjogCiAgICAtIEhhbmRsZXMgc3VjaCBlcnJvcnMgd2l0aCBNQ0Ugbm90aWZp
+ZXIgYW5kIGNyZWF0ZXMgYSBsaXN0IAogICAgICBvZiBiYWQgYmxvY2tzLiBSZWFkL2RpcmVjdCBh
+Y2Nlc3MgREFYIG9wZXJhdGlvbiByZXR1cm4gRUlPIAogICAgICBpZiBhY2Nlc3NlZCBtZW1vcnkg
+cGFnZSBmYWxsIGluIGJhZCBibG9jayBsaXN0LgogICAgLSBJdCBhbHNvIHN0YXJ0cyBiYWNrZ291
+bmQgc2NydWJiaW5nLiAgCiAgICAtIFNpbWlsYXIgZnVuY3Rpb25hbGl0eSBjYW4gYmUgcmV1c2Vk
+IGluIHZpcnRpby1wbWVtIHdpdGggTUNFIAogICAgICBub3RpZmllciBidXQgd2l0aG91dCBzY3J1
+YmJpbmcobm8gQUNQSS9BUlMpPyBOZWVkIGlucHV0cyB0byAKICAgICAgY29uZmlybSBpZiB0aGlz
+IGJlaGF2aW91ciBpcyBvayBvciBuZWVkcyBhbnkgY2hhbmdlPwoKQ2hhbmdlcyBmcm9tIFBBVENI
+IHYxMTogWzFdIAogLSBDaGFuZ2UgaW1wbG1lbnRhdGlvbiBmb3Igc2V0dGluZyBvZiBzeW5jaHJv
+bm91cyBEQVggdHlwZQogICBmb3IgZGV2aWNlIG1hcHBlciAtIE1pa2UgCgpDaGFuZ2VzIGZyb20g
+UEFUQ0ggdjEwOiBbMl0gCiAtIFJlYmFzZWQgb24gTGludXgtNS4yLXJjNAoKQ2hhbmdlcyBmcm9t
+IFBBVENIIHY5OgogLSBLY29uZmlnIGhlbHAgdGV4dCBhZGQgdHdvIHNwYWNlcyAtIFJhbmR5CiAt
+IEZpeGVkIGxpYm52ZGltbSAnYmlvJyBpbmNsdWRlIHdhcm5pbmcgLSBEYW4KIC0gdmlydGlvLXBt
+ZW0sIHNlcGFyYXRlIHJlcXVlc3QvcmVzcCBzdHJ1Y3QgYW5kIAogICBtb3ZlIHRvIHVhcGkgZmls
+ZSB3aXRoIHVwZGF0ZWQgbGljZW5zZSAtIERhdmlkSAogLSBVc2UgdmlydGlvMzIqIHR5cGUgZm9y
+IHJlcS9yZXNwIGVuZGlhbmVzcyAtIERhdmlkSAogLSBBZGRlZCB0ZXN0ZWQtYnkgJiBhY2stYnkg
+b2YgSmFrb2IKIC0gUmViYXNlZCB0byA1LjItcmMxCgpDaGFuZ2VzIGZyb20gUEFUQ0ggdjg6CiAt
+IFNldCBkZXZpY2UgbWFwcGVyIHN5bmNocm9ub3VzIGlmIGFsbCB0YXJnZXQgZGV2aWNlcyBzdXBw
+b3J0IC0gRGFuCiAtIE1vdmUgdmlydGlvX3BtZW0uaCB0byBudmRpbW0gZGlyZWN0b3J5ICAtIERh
+bgogLSBTdHlsZSwgaW5kZW50YXRpb24gJiBiZXR0ZXIgZXJyb3IgbWVzc2FnZXMgaW4gcGF0Y2gg
+MiAtIERhdmlkSAogLSBBZGRlZCBNU1QncyBhY2sgaW4gcGF0Y2ggMi4KCkNoYW5nZXMgZnJvbSBQ
+QVRDSCB2NzoKIC0gQ29ycmVjdGVkIHBlbmRpbmcgcmVxdWVzdCBxdWV1ZSBsb2dpYyAocGF0Y2gg
+MikgLSBKYWt1YiBTdGFyb8WECiAtIFVzZWQgdW5zaWduZWQgbG9uZyBmbGFncyBmb3IgcGFzc2lu
+ZyBEQVhERVZfRl9TWU5DIChwYXRjaCAzKSAtIERhbgogLSBGaXhlZCB0eXBvID0+ICB2bWEgJ2Zs
+YWcnIHRvICd2bV9mbGFnJyAocGF0Y2ggNCkKIC0gQWRkZWQgcm9iIGluIHBhdGNoIDYgJiBwYXRj
+aCAyCgpDaGFuZ2VzIGZyb20gUEFUQ0ggdjY6IAogLSBDb3JyZWN0ZWQgY29tbWVudCBmb3JtYXQg
+aW4gcGF0Y2ggNSAmIHBhdGNoIDYuIFtEYXZlXQogLSBDaGFuZ2VkIHZhcmlhYmxlIGRlY2xhcmF0
+aW9uIGluZGVudGF0aW9uIGluIHBhdGNoIDYgW0RhcnJpY2tdCiAtIEFkZCBSZXZpZXdlZC1ieSB0
+YWcgYnkgJ0phbiBLYXJhJyBpbiBwYXRjaCA0ICYgcGF0Y2ggNQoKQ2hhbmdlcyBmcm9tIFBBVENI
+IHY1OiAKICBDaGFuZ2VzIHN1Z2dlc3RlZCBpbiBieSAtIFtDb3JuZWxpYSwgWXV2YWxdCi0gUmVt
+b3ZlIGFzc2lnbm1lbnQgY2hhaW5pbmcgaW4gdmlydGlvIGRyaXZlcgotIEJldHRlciBlcnJvciBt
+ZXNzYWdlIGFuZCByZW1vdmUgbm90IHJlcXVpcmVkIGZyZWUKLSBDaGVjayBuZF9yZWdpb24gYmVm
+b3JlIHVzZQoKICBDaGFuZ2VzIHN1Z2dlc3RlZCBieSAtIFtKYW4gS2FyYV0KLSBkYXhfc3luY2hy
+b25vdXMoKSBmb3IgIUNPTkZJR19EQVgKLSBDb3JyZWN0ICdkYXhkZXZfbWFwcGluZ19zdXBwb3J0
+ZWQnIGNvbW1lbnQgYW5kIG5vbi1kYXggaW1wbGVtZW50YXRpb24KCiAgQ2hhbmdlcyBzdWdnZXN0
+ZWQgYnkgLSBbRGFuIFdpbGxpYW1zXQotIFBhc3MgbWVhbmluZ2Z1bCBmbGFnICdEQVhERVZfRl9T
+WU5DJyB0byBhbGxvY19kYXgKLSBHYXRlIG52ZGltbV9mbHVzaCBpbnN0ZWFkIG9mIGFkZGl0aW9u
+YWwgYXN5bmMgcGFyYW1ldGVyCi0gTW92ZSBibG9jayBjaGFpbmluZyBsb2dpYyB0byBmbHVzaCBj
+YWxsYmFjayB0aGFuIGNvbW1vbiBudmRpbW1fZmx1c2gKLSBVc2UgTlVMTCBmbHVzaCBjYWxsYmFj
+ayBmb3IgZ2VuZXJpYyBmbHVzaCBmb3IgYmV0dGVyIHJlYWRhYmlsaXR5IFtEYW4sIEphbl0KCi0g
+VXNlIHZpcnRpbyBkZXZpY2UgaWQgMjcgZnJvbSAyNShhbHJlYWR5IHVzZWQpIC0gW01TVF0KCkNo
+YW5nZXMgZnJvbSBQQVRDSCB2NDoKLSBGYWN0b3Igb3V0IE1BUF9TWU5DIHN1cHBvcnRlZCBmdW5j
+dGlvbmFsaXR5IHRvIGEgY29tbW9uIGhlbHBlcgoJCQkJW0RhdmUsIERhcnJpY2ssIEphbl0KLSBD
+b21tZW50LCBpbmRlbnRhdGlvbiBhbmQgdmlydHF1ZXVlX2tpY2sgZmFpbHVyZSBoYW5kbGUgLSBZ
+dXZhbCBTaGFpYQoKQ2hhbmdlcyBmcm9tIFBBVENIIHYzOiAKLSBVc2UgZ2VuZXJpYyBkYXhfc3lu
+Y2hyb25vdXMoKSBoZWxwZXIgdG8gY2hlY2sgZm9yIERBWERFVl9TWU5DIAogIGZsYWcgLSBbRGFu
+LCBEYXJyaWNrLCBKYW5dCi0gQWRkICdpc19udmRpbW1fYXN5bmMnIGZ1bmN0aW9uCi0gRG9jdW1l
+bnQgcGFnZSBjYWNoZSBzaWRlIGNoYW5uZWwgYXR0YWNrcyBpbXBsaWNhdGlvbnMgJiAKICBjb3Vu
+dGVybWVhc3VyZXMgLSBbRGF2ZSBDaGlubmVyLCBNaWNoYWVsXQoKQ2hhbmdlcyBmcm9tIFBBVENI
+IHYyOiAKLSBEaXNhYmxlIE1BUF9TWU5DIGZvciBleHQ0ICYgWEZTIGZpbGVzeXN0ZW1zIC0gW0Rh
+bl0gCi0gVXNlIG5hbWUgJ3ZpcnRpbyBwbWVtJyBpbiBwbGFjZSBvZiAnZmFrZSBkYXgnIAoKQ2hh
+bmdlcyBmcm9tIFBBVENIIHYxOiAKLSAwLWRheSBidWlsZCB0ZXN0IGZvciBidWlsZCBkZXBlbmRl
+bmN5IG9uIGxpYm52ZGltbSAKCiBDaGFuZ2VzIHN1Z2dlc3RlZCBieSAtIFtEYW4gV2lsbGlhbXNd
+Ci0gU3BsaXQgdGhlIGRyaXZlciBpbnRvIHR3byBwYXJ0cyB2aXJ0aW8gJiBwbWVtICAKLSBNb3Zl
+IHF1ZXVpbmcgb2YgYXN5bmMgYmxvY2sgcmVxdWVzdCB0byBibG9jayBsYXllcgotIEFkZCAic3lu
+YyIgcGFyYW1ldGVyIGluIG52ZGltbV9mbHVzaCBmdW5jdGlvbgotIFVzZSBpbmRpcmVjdCBjYWxs
+IGZvciBudmRpbW1fZmx1c2gKLSBEb27igJl0IG1vdmUgZGVjbGFyYXRpb25zIHRvIGNvbW1vbiBn
+bG9iYWwgaGVhZGVyIGUuZyBuZC5oCi0gbnZkaW1tX2ZsdXNoKCkgcmV0dXJuIDAgb3IgLUVJTyBp
+ZiBpdCBmYWlscwotIFRlYWNoIG5zaW9fcndfYnl0ZXMoKSB0aGF0IHRoZSBmbHVzaCBjYW4gZmFp
+bAotIFJlbmFtZSBudmRpbW1fZmx1c2goKSB0byBnZW5lcmljX252ZGltbV9mbHVzaCgpCi0gVXNl
+ICduZF9yZWdpb24tPnByb3ZpZGVyX2RhdGEnIGZvciBsb25nIGRlcmVmZXJlbmNpbmcKLSBSZW1v
+dmUgdmlydGlvX3BtZW1fZnJlZXplL3Jlc3RvcmUgZnVuY3Rpb25zCi0gUmVtb3ZlIEJTRCBsaWNl
+bnNlIHRleHQgd2l0aCBTUERYIGxpY2Vuc2UgdGV4dAoKLSBBZGQgbWlnaHRfc2xlZXAoKSBpbiB2
+aXJ0aW9fcG1lbV9mbHVzaCAtIFtMdWl6XQotIE1ha2Ugc3Bpbl9sb2NrX2lycXNhdmUoKSBuYXJy
+b3cKClBhbmthaiBHdXB0YSAoNyk6CiAgIGxpYm52ZGltbTogbmRfcmVnaW9uIGZsdXNoIGNhbGxi
+YWNrIHN1cHBvcnQKICAgdmlydGlvLXBtZW06IEFkZCB2aXJ0aW8tcG1lbSBndWVzdCBkcml2ZXIK
+ICAgbGlibnZkaW1tOiBhZGQgbmRfcmVnaW9uIGJ1ZmZlcmVkIGRheF9kZXYgZmxhZwogICBkYXg6
+IGNoZWNrIHN5bmNocm9ub3VzIG1hcHBpbmcgaXMgc3VwcG9ydGVkCiAgIGRtOiBkbTogRW5hYmxl
+IHN5bmNocm9ub3VzIGRheAogICBleHQ0OiBkaXNhYmxlIG1hcF9zeW5jIGZvciB2aXJ0aW8gcG1l
+bQogICB4ZnM6IGRpc2FibGUgbWFwX3N5bmMgZm9yIHZpcnRpbyBwbWVtCgpbMV0gaHR0cHM6Ly9s
+a21sLm9yZy9sa21sLzIwMTkvNi8xMC8yMDkKWzJdIGh0dHBzOi8vbGttbC5vcmcvbGttbC8yMDE5
+LzUvMjEvNTY5ClszXSBodHRwczovL3d3dy5zcGluaWNzLm5ldC9saXN0cy9rdm0vbXNnMTQ5NzYx
+Lmh0bWwKWzRdIGh0dHBzOi8vd3d3LnNwaW5pY3MubmV0L2xpc3RzL2t2bS9tc2cxNTMwOTUuaHRt
+bCAgCls1XSBodHRwczovL21hcmMuaW5mby8/bD1xZW11LWRldmVsJm09MTU1ODYwNzUxMjAyMjAy
+Jnc9MgpbNl0gaHR0cHM6Ly9saXN0cy5vYXNpcy1vcGVuLm9yZy9hcmNoaXZlcy92aXJ0aW8tZGV2
+LzIwMTkwMy9tc2cwMDA4My5odG1sCls3XSBodHRwczovL2xrbWwub3JnL2xrbWwvMjAxOS8xLzkv
+MTE5MQoKIGRyaXZlcnMvYWNwaS9uZml0L2NvcmUuYyAgICAgICAgIHwgICAgNCAtCiBkcml2ZXJz
+L2RheC9idXMuYyAgICAgICAgICAgICAgICB8ICAgIDIgCiBkcml2ZXJzL2RheC9zdXBlci5jICAg
+ICAgICAgICAgICB8ICAgMTkgKysrKysKIGRyaXZlcnMvbWQvZG0tdGFibGUuYyAgICAgICAgICAg
+IHwgICAyNCArKysrKy0tCiBkcml2ZXJzL21kL2RtLmMgICAgICAgICAgICAgICAgICB8ICAgIDUg
+LQogZHJpdmVycy9tZC9kbS5oICAgICAgICAgICAgICAgICAgfCAgICA1ICsKIGRyaXZlcnMvbnZk
+aW1tL01ha2VmaWxlICAgICAgICAgIHwgICAgMSAKIGRyaXZlcnMvbnZkaW1tL2NsYWltLmMgICAg
+ICAgICAgIHwgICAgNiArCiBkcml2ZXJzL252ZGltbS9uZC5oICAgICAgICAgICAgICB8ICAgIDEg
+CiBkcml2ZXJzL252ZGltbS9uZF92aXJ0aW8uYyAgICAgICB8ICAxMjQgKysrKysrKysrKysrKysr
+KysrKysrKysrKysrKysrKysrKysrKysrCiBkcml2ZXJzL252ZGltbS9wbWVtLmMgICAgICAgICAg
+ICB8ICAgMTggKysrLS0KIGRyaXZlcnMvbnZkaW1tL3JlZ2lvbl9kZXZzLmMgICAgIHwgICAzMyAr
+KysrKysrKystCiBkcml2ZXJzL252ZGltbS92aXJ0aW9fcG1lbS5jICAgICB8ICAxMjIgKysrKysr
+KysrKysrKysrKysrKysrKysrKysrKysrKysrKysrKysKIGRyaXZlcnMvbnZkaW1tL3ZpcnRpb19w
+bWVtLmggICAgIHwgICA1NSArKysrKysrKysrKysrKysrKwogZHJpdmVycy92aXJ0aW8vS2NvbmZp
+ZyAgICAgICAgICAgfCAgIDExICsrKwogZnMvZXh0NC9maWxlLmMgICAgICAgICAgICAgICAgICAg
+fCAgIDEwICstLQogZnMveGZzL3hmc19maWxlLmMgICAgICAgICAgICAgICAgfCAgICA5ICstCiBp
+bmNsdWRlL2xpbnV4L2RheC5oICAgICAgICAgICAgICB8ICAgMjYgKysrKysrKy0KIGluY2x1ZGUv
+bGludXgvbGlibnZkaW1tLmggICAgICAgIHwgICAxMCArKy0KIGluY2x1ZGUvdWFwaS9saW51eC92
+aXJ0aW9faWRzLmggIHwgICAgMSAKIGluY2x1ZGUvdWFwaS9saW51eC92aXJ0aW9fcG1lbS5oIHwg
+ICAzNSArKysrKysrKysrKwogMjEgZmlsZXMgY2hhbmdlZCwgNDg4IGluc2VydGlvbnMoKyksIDMz
+IGRlbGV0aW9ucygtKQoKCl9fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19f
+X19fX19fClZpcnR1YWxpemF0aW9uIG1haWxpbmcgbGlzdApWaXJ0dWFsaXphdGlvbkBsaXN0cy5s
+aW51eC1mb3VuZGF0aW9uLm9yZwpodHRwczovL2xpc3RzLmxpbnV4Zm91bmRhdGlvbi5vcmcvbWFp
+bG1hbi9saXN0aW5mby92aXJ0dWFsaXphdGlvbg==
