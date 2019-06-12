@@ -1,15 +1,18 @@
-From: Pankaj Gupta <pagupta@redhat.com>
-Subject: Re: [PATCH v12 2/7] virtio-pmem: Add virtio pmem driver
-Date: Tue, 11 Jun 2019 23:34:50 -0400 (EDT)
-Message-ID: <1003601865.34513553.1560310490030.JavaMail.zimbra__5824.98742021329$1560310623$gmane$org@redhat.com>
-References: <20190611163802.25352-1-pagupta@redhat.com>
-	<20190611163802.25352-3-pagupta@redhat.com>
-	<20190611190209.0b25033e.cohuck@redhat.com>
+From: Cornelia Huck <cohuck@redhat.com>
+Subject: Re: [PATCH v4 4/8] s390/airq: use DMA memory for adapter interrupts
+Date: Wed, 12 Jun 2019 08:21:27 +0200
+Message-ID: <20190612082127.3fd63091.cohuck@redhat.com>
+References: <20190606115127.55519-1-pasic@linux.ibm.com>
+	<20190606115127.55519-5-pasic@linux.ibm.com>
+	<20190611121721.61bf09b4.cohuck@redhat.com>
+	<20190611162721.67ca8932.pasic@linux.ibm.com>
+	<20190611181944.5bf2b953.cohuck@redhat.com>
+	<20190612023231.7da4908c.pasic@linux.ibm.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <20190611190209.0b25033e.cohuck@redhat.com>
+In-Reply-To: <20190612023231.7da4908c.pasic@linux.ibm.com>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -19,321 +22,118 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Cornelia Huck <cohuck@redhat.com>
-Cc: rdunlap@infradead.org, jack@suse.cz, kvm@vger.kernel.org, mst@redhat.com, david@fromorbit.com, qemu-devel@nongnu.org, virtualization@lists.linux-foundation.org, dm-devel@redhat.com, adilger kernel <adilger.kernel@dilger.ca>, zwisler@kernel.org, aarcange@redhat.com, dave jiang <dave.jiang@intel.com>, jstaron@google.com, linux-nvdimm@lists.01.org, vishal l verma <vishal.l.verma@intel.com>, willy@infradead.org, hch@infradead.org, linux-acpi@vger.kernel.org, jmoyer@redhat.com, linux-ext4@vger.kernel.org, lenb@kernel.org, kilobyte@angband.pl, riel@surriel.com, yuval shaia <yuval.shaia@oracle.com>, stefanha@redhat.com, pbonzini@redhat.com, dan j williams <dan.j.williams@intel.com>, lcapitulino@redhat.com, nilal@redhat.com, tytso@mit.edu, xiaoguangrong eric <xiaoguangrong.eric@gmail.com>, snitzer@redhat.com, darrick wong <darrick.wong@oracle.com>, rjw@rjwysocki.net, linux-ker
+To: Halil Pasic <pasic@linux.ibm.com>
+Cc: Vasily Gorbik <gor@linux.ibm.com>, linux-s390@vger.kernel.org, Thomas Huth <thuth@redhat.com>, Claudio Imbrenda <imbrenda@linux.ibm.com>, kvm@vger.kernel.org, Sebastian Ott <sebott@linux.ibm.com>, "Michael S. Tsirkin" <mst@redhat.com>, Farhan Ali <alifm@linux.ibm.com>, Heiko Carstens <heiko.carstens@de.ibm.com>, Eric Farman <farman@linux.ibm.com>, virtualization@lists.linux-foundation.org, Christoph Hellwig <hch@infradead.org>, Christian Borntraeger <borntraeger@de.ibm.com>, "Jason J. Herne" <jjherne@linux.ibm.com>, Michael Mueller <mimu@linux.ibm.com>, Viktor Mihajlovski <mihajlov@linux.ibm.com>, Janosch Frank <frankja@linux.ibm.com>
 List-Id: virtualization@lists.linuxfoundation.org
 
+On Wed, 12 Jun 2019 02:32:31 +0200
+Halil Pasic <pasic@linux.ibm.com> wrote:
 
-Hi Cornelia,
-
-> On Tue, 11 Jun 2019 22:07:57 +0530
-> Pankaj Gupta <pagupta@redhat.com> wrote:
+> On Tue, 11 Jun 2019 18:19:44 +0200
+> Cornelia Huck <cohuck@redhat.com> wrote:
 > 
-> > This patch adds virtio-pmem driver for KVM guest.
+> > On Tue, 11 Jun 2019 16:27:21 +0200
+> > Halil Pasic <pasic@linux.ibm.com> wrote:
+
+> > > IMHO the cleanest thing to do at this stage is to check if the
+> > > airq_iv_cache is NULL and fail the allocation if it is (to preserve
+> > > previous behavior).  
 > > 
-> > Guest reads the persistent memory range information from
-> > Qemu over VIRTIO and registers it on nvdimm_bus. It also
-> > creates a nd_region object with the persistent memory
-> > range information so that existing 'nvdimm/pmem' driver
-> > can reserve this into system memory map. This way
-> > 'virtio-pmem' driver uses existing functionality of pmem
-> > driver to register persistent memory compatible for DAX
-> > capable filesystems.
+> > That's probably the least invasive fix for now. Did you check whether
+> > any of the other dma pools this series introduces have a similar
+> > problem due to init not failing?
+> >  
+> 
+> Good question!
+> 
+> I did a quick check. virtio_ccw_init() should be OK, because we don't
+> register the driver if allocation fails, so the thing is going to end
+> up dysfunctional as expected.
+> 
+> If however cio_dma_pool_init() fails, then we end up with the same
+> problem with airqs, just on the !AIRQ_IV_CACHELINE code path. It can be
+> fixed analogously: make cio_dma_zalloc() fail all allocation if
+> cio_dma_pool_init() failed before.
+
+Ok, makes sense.
+
+> 
+> The rest should be OK.
+> 
+> > > 
+> > > I would prefer having a separate discussion on eventually changing
+> > > the behavior (e.g. fail css initialization).  
 > > 
-> > This also provides function to perform guest flush over
-> > VIRTIO from 'pmem' driver when userspace performs flush
-> > on DAX memory range.
+> > I did a quick check of the common I/O layer code and one place that
+> > looks dangerous is the chsc initialization (where we get two pages that
+> > are later accessed unconditionally by the code).
 > > 
-> > Signed-off-by: Pankaj Gupta <pagupta@redhat.com>
-> > Reviewed-by: Yuval Shaia <yuval.shaia@oracle.com>
-> > Acked-by: Michael S. Tsirkin <mst@redhat.com>
-> > Acked-by: Jakub Staron <jstaron@google.com>
-> > Tested-by: Jakub Staron <jstaron@google.com>
-> > ---
-> >  drivers/nvdimm/Makefile          |   1 +
-> >  drivers/nvdimm/nd_virtio.c       | 124 +++++++++++++++++++++++++++++++
-> >  drivers/nvdimm/virtio_pmem.c     | 122 ++++++++++++++++++++++++++++++
-> >  drivers/nvdimm/virtio_pmem.h     |  55 ++++++++++++++
-> >  drivers/virtio/Kconfig           |  11 +++
-> >  include/uapi/linux/virtio_ids.h  |   1 +
-> >  include/uapi/linux/virtio_pmem.h |  35 +++++++++
-> >  7 files changed, 349 insertions(+)
-> >  create mode 100644 drivers/nvdimm/nd_virtio.c
-> >  create mode 100644 drivers/nvdimm/virtio_pmem.c
-> >  create mode 100644 drivers/nvdimm/virtio_pmem.h
-> >  create mode 100644 include/uapi/linux/virtio_pmem.h
+> > All of this is related to not being able to fulfill some basic memory
+> > availability requirements early during boot and then discovering that
+> > pulling the emergency break did not actually stop the train. I'd vote
+> > for calling panic() if the common I/O layer cannot perform its setup;
+> > but as this is really a pathological case I also think we should solve
+> > that independently of this patch series.
+> >  
 > 
-> Sorry about being late to the party; this one has been sitting in my
-> 'to review' queue for far too long :(
-> 
-> (...)
-> 
-> > diff --git a/drivers/nvdimm/nd_virtio.c b/drivers/nvdimm/nd_virtio.c
-> > new file mode 100644
-> > index 000000000000..efc535723517
-> > --- /dev/null
-> > +++ b/drivers/nvdimm/nd_virtio.c
-> > @@ -0,0 +1,124 @@
-> > +// SPDX-License-Identifier: GPL-2.0
-> > +/*
-> > + * virtio_pmem.c: Virtio pmem Driver
-> > + *
-> > + * Discovers persistent memory range information
-> > + * from host and provides a virtio based flushing
-> > + * interface.
-> > + */
-> > +#include "virtio_pmem.h"
-> > +#include "nd.h"
-> > +
-> > + /* The interrupt handler */
-> > +void host_ack(struct virtqueue *vq)
-> > +{
-> > +	struct virtio_pmem *vpmem = vq->vdev->priv;
-> > +	struct virtio_pmem_request *req_data, *req_buf;
-> > +	unsigned long flags;
-> > +	unsigned int len;
-> > +
-> > +	spin_lock_irqsave(&vpmem->pmem_lock, flags);
-> > +	while ((req_data = virtqueue_get_buf(vq, &len)) != NULL) {
-> > +		req_data->done = true;
-> > +		wake_up(&req_data->host_acked);
-> > +
-> > +		if (!list_empty(&vpmem->req_list)) {
-> > +			req_buf = list_first_entry(&vpmem->req_list,
-> > +					struct virtio_pmem_request, list);
-> > +			req_buf->wq_buf_avail = true;
-> > +			wake_up(&req_buf->wq_buf);
-> > +			list_del(&req_buf->list);
-> > +		}
-> > +	}
-> > +	spin_unlock_irqrestore(&vpmem->pmem_lock, flags);
-> > +}
-> > +EXPORT_SYMBOL_GPL(host_ack);
-> 
-> Nit: 'host_ack' looks a bit generic for an exported function... would
-> 'virtio_pmem_host_ack' maybe be better?
+> panic() sounds very reasonable to me. As an user I would like to see a
+> message that tells me, I'm trying to boot with insufficient RAM. Is there
+> such a message somewhere?
 
-Yes, this looks better. Changed.
+You could add it in the panic() message :) I would not spend overly
+much time on this, though, as this really sounds like someone is trying
+to run on a system that is way too tiny memory-wise for doing anything
+useful.
 
+>  
+> > > 
+> > > Connie, would that work with you? Thanks for spotting this!  
+> > 
+> > Yeah, let's give your approach a try.
+> >   
 > 
-> > +
-> > + /* The request submission function */
-> > +int virtio_pmem_flush(struct nd_region *nd_region)
+> OK. I intend to send out v5 with these changes tomorrow in the
+> afternoon:
+>  
+> diff --git a/drivers/s390/cio/airq.c b/drivers/s390/cio/airq.c
+> index 89d26e43004d..427b2e24a8ce 100644
+> --- a/drivers/s390/cio/airq.c
+> +++ b/drivers/s390/cio/airq.c
+> @@ -142,7 +142,8 @@ struct airq_iv *airq_iv_create(unsigned long bits, unsigned long flags)
+>         size = iv_size(bits);
+>  
+>         if (flags & AIRQ_IV_CACHELINE) {
+> -               if ((cache_line_size() * BITS_PER_BYTE) < bits)
+> +               if ((cache_line_size() * BITS_PER_BYTE) < bits
+> +                               || !airq_iv_cache)
+
+It's perhaps a bit more readable if you keep checking for airq_iv_cache
+on a separate if statement, but that's a matter of taste, I guess.
+
+>                         goto out_free;
+>  
+>                 iv->vector = dma_pool_zalloc(airq_iv_cache, GFP_KERNEL,
+> @@ -186,7 +187,7 @@ struct airq_iv *airq_iv_create(unsigned long bits, unsigned long flags)
+>         kfree(iv->ptr);
+>         kfree(iv->bitlock);
+>         kfree(iv->avail);
+> -       if (iv->flags & AIRQ_IV_CACHELINE)
+> +       if (iv->flags & AIRQ_IV_CACHELINE && iv->vector)
+>                 dma_pool_free(airq_iv_cache, iv->vector, iv->vector_dma);
+>         else
+>                 cio_dma_free(iv->vector, size);
+> diff --git a/drivers/s390/cio/css.c b/drivers/s390/cio/css.c
+> index 7901c8ed3597..d709bd8545f2 100644
+> --- a/drivers/s390/cio/css.c
+> +++ b/drivers/s390/cio/css.c
+> @@ -1128,6 +1128,8 @@ void cio_gp_dma_free(struct gen_pool *gp_dma, void *cpu_addr, size_t size)
+>   */
+>  void *cio_dma_zalloc(size_t size)
+>  {
+> +       if (!cio_dma_pool)
+> +               return NULL;
+>         return cio_gp_dma_zalloc(cio_dma_pool, cio_get_dma_css_dev(), size);
+>  }
 > 
-> I don't see an EXPORT_SYMBOL_GPL() for this function... should it get
-> one, or should it be made static?
 
-Made static. Leftover from last refactor of 'asyc_pmem_flush'.
-
-> 
-> > +{
-> > +	struct virtio_device *vdev = nd_region->provider_data;
-> > +	struct virtio_pmem *vpmem  = vdev->priv;
-> > +	struct virtio_pmem_request *req_data;
-> > +	struct scatterlist *sgs[2], sg, ret;
-> > +	unsigned long flags;
-> > +	int err, err1;
-> > +
-> > +	might_sleep();
-> > +	req_data = kmalloc(sizeof(*req_data), GFP_KERNEL);
-> > +	if (!req_data)
-> > +		return -ENOMEM;
-> > +
-> > +	req_data->done = false;
-> > +	init_waitqueue_head(&req_data->host_acked);
-> > +	init_waitqueue_head(&req_data->wq_buf);
-> > +	INIT_LIST_HEAD(&req_data->list);
-> > +	req_data->req.type = cpu_to_virtio32(vdev, VIRTIO_PMEM_REQ_TYPE_FLUSH);
-> > +	sg_init_one(&sg, &req_data->req, sizeof(req_data->req));
-> > +	sgs[0] = &sg;
-> > +	sg_init_one(&ret, &req_data->resp.ret, sizeof(req_data->resp));
-> > +	sgs[1] = &ret;
-> > +
-> > +	spin_lock_irqsave(&vpmem->pmem_lock, flags);
-> > +	 /*
-> > +	  * If virtqueue_add_sgs returns -ENOSPC then req_vq virtual
-> > +	  * queue does not have free descriptor. We add the request
-> > +	  * to req_list and wait for host_ack to wake us up when free
-> > +	  * slots are available.
-> > +	  */
-> > +	while ((err = virtqueue_add_sgs(vpmem->req_vq, sgs, 1, 1, req_data,
-> > +					GFP_ATOMIC)) == -ENOSPC) {
-> > +
-> > +		dev_err(&vdev->dev, "failed to send command to virtio pmem device, no
-> > free slots in the virtqueue\n");
-> 
-> Hm... by the comment above I would have thought that this is not really
-> an error, but rather a temporary condition? Maybe downgrade this to
-> dev_info()?
-
-o.k.
-
-> 
-> > +		req_data->wq_buf_avail = false;
-> > +		list_add_tail(&req_data->list, &vpmem->req_list);
-> > +		spin_unlock_irqrestore(&vpmem->pmem_lock, flags);
-> > +
-> > +		/* A host response results in "host_ack" getting called */
-> > +		wait_event(req_data->wq_buf, req_data->wq_buf_avail);
-> > +		spin_lock_irqsave(&vpmem->pmem_lock, flags);
-> > +	}
-> > +	err1 = virtqueue_kick(vpmem->req_vq);
-> > +	spin_unlock_irqrestore(&vpmem->pmem_lock, flags);
-> > +	/*
-> > +	 * virtqueue_add_sgs failed with error different than -ENOSPC, we can't
-> > +	 * do anything about that.
-> > +	 */
-> 
-> Does it make sense to kick if you couldn't add at all?
-
-When we could not add because of -ENOSPC we are waiting and when buffer is added
-then only we do a kick. For any other error which might be a rare occurrence, I think
-kick is harmless here and keeps the code clean?
-
-> 
-> > +	if (err || !err1) {
-> > +		dev_info(&vdev->dev, "failed to send command to virtio pmem device\n");
-> 
-> If this is dev_info, I think the error above really should be dev_info
-> as well (and maybe also log the error value)?
-
-o.k. 
-
-> 
-> > +		err = -EIO;
-> > +	} else {
-> > +		/* A host repsonse results in "host_ack" getting called */
-> > +		wait_event(req_data->host_acked, req_data->done);
-> > +		err = virtio32_to_cpu(vdev, req_data->resp.ret);
-> > +	}
-> > +
-> > +	kfree(req_data);
-> > +	return err;
-> > +};
-> > +
-> > +/* The asynchronous flush callback function */
-> > +int async_pmem_flush(struct nd_region *nd_region, struct bio *bio)
-> > +{
-> > +	/* Create child bio for asynchronous flush and chain with
-> > +	 * parent bio. Otherwise directly call nd_region flush.
-> > +	 */
-> 
-> Nit: The comment should start with an otherwise empty /* line.
-
-yes.
-
-> 
-> > +	if (bio && bio->bi_iter.bi_sector != -1) {
-> > +		struct bio *child = bio_alloc(GFP_ATOMIC, 0);
-> > +
-> > +		if (!child)
-> > +			return -ENOMEM;
-> > +		bio_copy_dev(child, bio);
-> > +		child->bi_opf = REQ_PREFLUSH;
-> > +		child->bi_iter.bi_sector = -1;
-> > +		bio_chain(child, bio);
-> > +		submit_bio(child);
-> > +		return 0;
-> > +	}
-> > +	if (virtio_pmem_flush(nd_region))
-> > +		return -EIO;
-> > +
-> > +	return 0;
-> > +};
-> > +EXPORT_SYMBOL_GPL(async_pmem_flush);
-> > +MODULE_LICENSE("GPL");
-> 
-> (...)
-> 
-> I have only some more minor comments; on the whole, this looks good to
-> me.
-
-Sure, Thank you. Attaching below on top changes on current patch2 based on
-your suggestions. Let me know if these are okay and then will send official
-v13 to for upstream merging.
-
-Thanks,
-Pankaj
-
-===============
-
-diff --git a/drivers/nvdimm/nd_virtio.c b/drivers/nvdimm/nd_virtio.c
-index efc535723517..5b8d2367da0b 100644
---- a/drivers/nvdimm/nd_virtio.c
-+++ b/drivers/nvdimm/nd_virtio.c
-@@ -10,7 +10,7 @@
- #include "nd.h"
- 
-  /* The interrupt handler */
--void host_ack(struct virtqueue *vq)
-+void virtio_pmem_host_ack(struct virtqueue *vq)
- {
-        struct virtio_pmem *vpmem = vq->vdev->priv;
-        struct virtio_pmem_request *req_data, *req_buf;
-@@ -32,10 +32,10 @@ void host_ack(struct virtqueue *vq)
-        }
-        spin_unlock_irqrestore(&vpmem->pmem_lock, flags);
- }
--EXPORT_SYMBOL_GPL(host_ack);
-+EXPORT_SYMBOL_GPL(virtio_pmem_host_ack);
- 
-  /* The request submission function */
--int virtio_pmem_flush(struct nd_region *nd_region)
-+static int virtio_pmem_flush(struct nd_region *nd_region)
- {
-        struct virtio_device *vdev = nd_region->provider_data;
-        struct virtio_pmem *vpmem  = vdev->priv;
-@@ -69,7 +69,7 @@ int virtio_pmem_flush(struct nd_region *nd_region)
-        while ((err = virtqueue_add_sgs(vpmem->req_vq, sgs, 1, 1, req_data,
-                                        GFP_ATOMIC)) == -ENOSPC) {
- 
--               dev_err(&vdev->dev, "failed to send command to virtio pmem device, no free slots in the virtqueue\n");
-+               dev_info(&vdev->dev, "failed to send command to virtio pmem device, no free slots in the virtqueue\n");
-                req_data->wq_buf_avail = false;
-                list_add_tail(&req_data->list, &vpmem->req_list);
-                spin_unlock_irqrestore(&vpmem->pmem_lock, flags);
-@@ -90,7 +90,8 @@ int virtio_pmem_flush(struct nd_region *nd_region)
-        } else {
-                /* A host repsonse results in "host_ack" getting called */
-                wait_event(req_data->host_acked, req_data->done);
--               err = virtio32_to_cpu(vdev, req_data->resp.ret);
-+               if ((err = virtio32_to_cpu(vdev, req_data->resp.ret)))
-+                       err = -EIO;
-        }
- 
-        kfree(req_data);
-@@ -100,7 +101,8 @@ int virtio_pmem_flush(struct nd_region *nd_region)
- /* The asynchronous flush callback function */
- int async_pmem_flush(struct nd_region *nd_region, struct bio *bio)
- {
--       /* Create child bio for asynchronous flush and chain with
-+       /*
-+        * Create child bio for asynchronous flush and chain with
-         * parent bio. Otherwise directly call nd_region flush.
-         */
-        if (bio && bio->bi_iter.bi_sector != -1) {
-diff --git a/drivers/nvdimm/virtio_pmem.c b/drivers/nvdimm/virtio_pmem.c
-index b60ebd8cd2fd..5e3d07b47e0c 100644
---- a/drivers/nvdimm/virtio_pmem.c
-+++ b/drivers/nvdimm/virtio_pmem.c
-@@ -19,7 +19,7 @@ static int init_vq(struct virtio_pmem *vpmem)
- {
-        /* single vq */
-        vpmem->req_vq = virtio_find_single_vq(vpmem->vdev,
--                                               host_ack, "flush_queue");
-+                                       virtio_pmem_host_ack, "flush_queue");
-        if (IS_ERR(vpmem->req_vq))
-                return PTR_ERR(vpmem->req_vq);
- 
-diff --git a/drivers/nvdimm/virtio_pmem.h b/drivers/nvdimm/virtio_pmem.h
-index 6e47521be158..998efbc7660c 100644
---- a/drivers/nvdimm/virtio_pmem.h
-+++ b/drivers/nvdimm/virtio_pmem.h
-@@ -50,6 +50,6 @@ struct virtio_pmem {
-        uint64_t size;
- };
- 
--void host_ack(struct virtqueue *vq);
-+void virtio_pmem_host_ack(struct virtqueue *vq);
- int async_pmem_flush(struct nd_region *nd_region, struct bio *bio);
- #endif
+Just looked at patch 2 again, will comment there.
