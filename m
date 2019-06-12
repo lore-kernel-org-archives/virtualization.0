@@ -1,13 +1,19 @@
-From: Pankaj Gupta <pagupta@redhat.com>
-Subject: [PATCH v13 7/7] xfs: disable map_sync for async flush
-Date: Wed, 12 Jun 2019 18:15:27 +0530
-Message-ID: <20190612124527.3763-8-pagupta__35009.744360444$1560344009$gmane$org@redhat.com>
-References: <20190612124527.3763-1-pagupta@redhat.com>
+From: Halil Pasic <pasic@linux.ibm.com>
+Subject: Re: [PATCH v4 4/8] s390/airq: use DMA memory for adapter interrupts
+Date: Wed, 12 Jun 2019 15:33:24 +0200
+Message-ID: <20190612153324.3dc6632c.pasic@linux.ibm.com>
+References: <20190606115127.55519-1-pasic@linux.ibm.com>
+	<20190606115127.55519-5-pasic@linux.ibm.com>
+	<20190611121721.61bf09b4.cohuck@redhat.com>
+	<20190611162721.67ca8932.pasic@linux.ibm.com>
+	<20190611181944.5bf2b953.cohuck@redhat.com>
+	<20190612023231.7da4908c.pasic@linux.ibm.com>
+	<20190612082127.3fd63091.cohuck@redhat.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <20190612124527.3763-1-pagupta@redhat.com>
+In-Reply-To: <20190612082127.3fd63091.cohuck@redhat.com>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -17,42 +23,46 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: dm-devel@redhat.com, linux-nvdimm@lists.01.org, linux-kernel@vger.kernel.org, virtualization@lists.linux-foundation.org, kvm@vger.kernel.org, linux-fsdevel@vger.kernel.org, linux-acpi@vger.kernel.org, qemu-devel@nongnu.org, linux-ext4@vger.kernel.org, linux-xfs@vger.kernel.org
-Cc: pagupta@redhat.com, rdunlap@infradead.org, jack@suse.cz, snitzer@redhat.com, mst@redhat.com, david@fromorbit.com, lcapitulino@redhat.com, adilger.kernel@dilger.ca, zwisler@kernel.org, aarcange@redhat.com, dave.jiang@intel.com, jstaron@google.com, darrick.wong@oracle.com, vishal.l.verma@intel.com, willy@infradead.org, hch@infradead.org, jmoyer@redhat.com, nilal@redhat.com, lenb@kernel.org, kilobyte@angband.pl, riel@surriel.com, yuval.shaia@oracle.com, stefanha@redhat.com, pbonzini@redhat.com, dan.j.williams@intel.com, tytso@mit.edu, xiaoguangrong.eric@gmail.com, cohuck@redhat.com, rjw@rjwysocki.net, imammedo@redhat.com
+To: Cornelia Huck <cohuck@redhat.com>
+Cc: Vasily Gorbik <gor@linux.ibm.com>, linux-s390@vger.kernel.org, Thomas Huth <thuth@redhat.com>, Claudio Imbrenda <imbrenda@linux.ibm.com>, kvm@vger.kernel.org, Sebastian Ott <sebott@linux.ibm.com>, "Michael S. Tsirkin" <mst@redhat.com>, Farhan Ali <alifm@linux.ibm.com>, Heiko Carstens <heiko.carstens@de.ibm.com>, Eric Farman <farman@linux.ibm.com>, virtualization@lists.linux-foundation.org, Christoph Hellwig <hch@infradead.org>, Christian Borntraeger <borntraeger@de.ibm.com>, "Jason J. Herne" <jjherne@linux.ibm.com>, Michael Mueller <mimu@linux.ibm.com>, Viktor Mihajlovski <mihajlov@linux.ibm.com>, Janosch Frank <frankja@linux.ibm.com>
 List-Id: virtualization@lists.linuxfoundation.org
 
-Dont support 'MAP_SYNC' with non-DAX files and DAX files
-with asynchronous dax_device. Virtio pmem provides
-asynchronous host page cache flush mechanism. We don't
-support 'MAP_SYNC' with virtio pmem and xfs.
+On Wed, 12 Jun 2019 08:21:27 +0200
+Cornelia Huck <cohuck@redhat.com> wrote:
 
-Signed-off-by: Pankaj Gupta <pagupta@redhat.com>
-Reviewed-by: Darrick J. Wong <darrick.wong@oracle.com>
----
- fs/xfs/xfs_file.c | 9 ++++++---
- 1 file changed, 6 insertions(+), 3 deletions(-)
+> On Wed, 12 Jun 2019 02:32:31 +0200
+> Halil Pasic <pasic@linux.ibm.com> wrote:
+> 
+> > On Tue, 11 Jun 2019 18:19:44 +0200
+> > Cornelia Huck <cohuck@redhat.com> wrote:
+> >   
+> > > On Tue, 11 Jun 2019 16:27:21 +0200
+> > > Halil Pasic <pasic@linux.ibm.com> wrote:  
+> 
+> > > > IMHO the cleanest thing to do at this stage is to check if the
+> > > > airq_iv_cache is NULL and fail the allocation if it is (to preserve
+> > > > previous behavior).    
+> > > 
+> > > That's probably the least invasive fix for now. Did you check whether
+> > > any of the other dma pools this series introduces have a similar
+> > > problem due to init not failing?
+> > >    
+> > 
+> > Good question!
+> > 
+> > I did a quick check. virtio_ccw_init() should be OK, because we don't
+> > register the driver if allocation fails, so the thing is going to end
+> > up dysfunctional as expected.
+> > 
+> > If however cio_dma_pool_init() fails, then we end up with the same
+> > problem with airqs, just on the !AIRQ_IV_CACHELINE code path. It can be
+> > fixed analogously: make cio_dma_zalloc() fail all allocation if
+> > cio_dma_pool_init() failed before.  
+> 
+> Ok, makes sense.
 
-diff --git a/fs/xfs/xfs_file.c b/fs/xfs/xfs_file.c
-index a7ceae90110e..f17652cca5ff 100644
---- a/fs/xfs/xfs_file.c
-+++ b/fs/xfs/xfs_file.c
-@@ -1203,11 +1203,14 @@ xfs_file_mmap(
- 	struct file	*filp,
- 	struct vm_area_struct *vma)
- {
-+	struct dax_device 	*dax_dev;
-+
-+	dax_dev = xfs_find_daxdev_for_inode(file_inode(filp));
- 	/*
--	 * We don't support synchronous mappings for non-DAX files. At least
--	 * until someone comes with a sensible use case.
-+	 * We don't support synchronous mappings for non-DAX files and
-+	 * for DAX files if underneath dax_device is not synchronous.
- 	 */
--	if (!IS_DAX(file_inode(filp)) && (vma->vm_flags & VM_SYNC))
-+	if (!daxdev_mapping_supported(vma, dax_dev))
- 		return -EOPNOTSUPP;
- 
- 	file_accessed(filp);
--- 
-2.20.1
+v5 is out with the fixes. I have no ack/r-b from you for patch 4. Would
+you like to give some, or should I proceed without?
+
+Regards,
+Halil
