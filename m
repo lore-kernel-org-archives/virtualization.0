@@ -1,14 +1,17 @@
-From: Halil Pasic <pasic@linux.ibm.com>
+From: Michael Mueller <mimu@linux.ibm.com>
 Subject: Re: [PATCH v5 0/8] s390: virtio: support protected virtualization
-Date: Thu, 13 Jun 2019 13:14:33 +0200
-Message-ID: <20190613131433.014f2380.pasic@linux.ibm.com>
+Date: Thu, 13 Jun 2019 13:17:22 +0200
+Message-ID: <625592e2-cdfa-0449-b946-bc6c55118f6c@linux.ibm.com>
 References: <20190612111236.99538-1-pasic@linux.ibm.com>
 	<4d10d4f8-aeb0-a5bc-6900-ab7901c01cf2@linux.ibm.com>
+	<20190613131433.014f2380.pasic@linux.ibm.com>
+Reply-To: mimu@linux.ibm.com
 Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset="utf-8"; Format="flowed"
+Content-Transfer-Encoding: base64
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <4d10d4f8-aeb0-a5bc-6900-ab7901c01cf2@linux.ibm.com>
+In-Reply-To: <20190613131433.014f2380.pasic@linux.ibm.com>
+Content-Language: en-US
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -18,189 +21,157 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Michael Mueller <mimu@linux.ibm.com>
+To: Halil Pasic <pasic@linux.ibm.com>
 Cc: Vasily Gorbik <gor@linux.ibm.com>, linux-s390@vger.kernel.org, Thomas Huth <thuth@redhat.com>, Claudio Imbrenda <imbrenda@linux.ibm.com>, kvm@vger.kernel.org, Sebastian Ott <sebott@linux.ibm.com>, "Michael S. Tsirkin" <mst@redhat.com>, Cornelia Huck <cohuck@redhat.com>, Heiko Carstens <heiko.carstens@de.ibm.com>, Eric Farman <farman@linux.ibm.com>, virtualization@lists.linux-foundation.org, Christoph Hellwig <hch@infradead.org>, Christian Borntraeger <borntraeger@de.ibm.com>, "Jason J. Herne" <jjherne@linux.ibm.com>, Farhan Ali <alifm@linux.ibm.com>, Viktor Mihajlovski <mihajlov@linux.ibm.com>, Janosch Frank <frankja@linux.ibm.com>
 List-Id: virtualization@lists.linuxfoundation.org
 
-On Thu, 13 Jun 2019 11:11:13 +0200
-Michael Mueller <mimu@linux.ibm.com> wrote:
-
-> Halil,
-> 
-> I just ran my toleration tests successfully on current HW for
-> this series.
-> 
-> Michael
-
-Thanks Michael! May I add a
-Tested-by: Michael Mueller <mimu@linux.ibm.com>
-for each patch?
-
-> 
-> On 12.06.19 13:12, Halil Pasic wrote:
-> > Enhanced virtualization protection technology may require the use of
-> > bounce buffers for I/O. While support for this was built into the virtio
-> > core, virtio-ccw wasn't changed accordingly.
-> > 
-> > Some background on technology (not part of this series) and the
-> > terminology used.
-> > 
-> > * Protected Virtualization (PV):
-> > 
-> > Protected Virtualization guarantees, that non-shared memory of a  guest
-> > that operates in PV mode private to that guest. I.e. any attempts by the
-> > hypervisor or other guests to access it will result in an exception. If
-> > supported by the environment (machine, KVM, guest VM) a guest can decide
-> > to change into PV mode by doing the appropriate ultravisor calls.
-> > 
-> > * Ultravisor:
-> > 
-> > A hardware/firmware entity that manages PV guests, and polices access to
-> > their memory. A PV guest prospect needs to interact with the ultravisor,
-> > to enter PV mode, and potentially to share pages (for I/O which should
-> > be encrypted by the guest). A guest interacts with the ultravisor via so
-> > called ultravisor calls. A hypervisor needs to interact with the
-> > ultravisor to facilitate interpretation, emulation and swapping. A
-> > hypervisor  interacts with the ultravisor via ultravisor calls and via
-> > the SIE state description. Generally the ultravisor sanitizes hypervisor
-> > inputs so that the guest can not be corrupted (except for denial of
-> > service.
-> > 
-> > 
-> > What needs to be done
-> > =====================
-> > 
-> > Thus what needs to be done to bring virtio-ccw up to speed with respect
-> > to protected virtualization is:
-> > * use some 'new' common virtio stuff
-> > * make sure that virtio-ccw specific stuff uses shared memory when
-> >    talking to the hypervisor (except control/communication blocks like ORB,
-> >    these are handled by the ultravisor)
-> > * make sure the DMA API does what is necessary to talk through shared
-> >    memory if we are a protected virtualization guest.
-> > * make sure the common IO layer plays along as well (airqs, sense).
-> > 
-> > 
-> > Important notes
-> > ================
-> > 
-> > * This patch set is based on Martins features branch
-> >   (git://git.kernel.org/pub/scm/linux/kernel/git/s390/linux.git branch
-> >   'features').
-> > 
-> > * Documentation is still very sketchy. I'm committed to improving this,
-> >    but I'm currently hampered by some dependencies currently.
-> > 
-> > * The existing naming in the common infrastructure (kernel internal
-> >    interfaces) is pretty much based on the AMD SEV terminology. Thus the
-> >    names aren't always perfect. There might be merit to changing these
-> >    names to more abstract ones. I did not put much thought into that at
-> >    the current stage.
-> > 
-> > * Testing: Please use iommu_platform=on for any virtio devices you are
-> >    going to test this code with (so virtio actually uses the DMA API).
-> > 
-> > @Sebastian: I kept your r-b on patch 2 "s390/cio: introduce DMA pools to
-> > cio" despite the small changes pointed out below. Please do complain if
-> > it ain't OK for you!
-> > 
-> > Change log
-> > ==========
-> > 
-> > v4 --> v5:
-> > * work around dma_pool API not tolerating NULL dma pool (patch 4)
-> > * make the genpool based dma pools API  tolerate NULL genpool (patch 2)
-> > * fix typo (patch 2)
-> > * fix unintended code move (patch 7)
-> > * add more r-b's
-> > 
-> > 
-> > 
-> > v3 --> v4
-> > * fixed cleanup in css_bus_init() (Connie)
-> > * made cio.h include genalloc.h instead of a forward declaration
-> >    (Connie)
-> > * added comments about dma_mask/coherent_dma_mask values (Connie)
-> > * fixed error handling in virtio_ccw_init() (Connie)
-> > * got rid of the *vc_dma* wrappers (Connie)
-> > * added some Reviewed-bys
-> > * rebased on top of current master, no changes were necessary
-> > 
-> > v2 --> v3:
-> > * patch 2/8
-> >      potential cio_dma_pool_init() returning NULL issue fixed
-> >      potential cio_gp_dma_create() returning NULL issue fixed
-> >      warning issues with doc type comments fixed
-> >      unused define statement removed
-> > * patch 3/8
-> >      potential cio_gp_dma_create() returning NULL issue fixed
-> >      whitespace issue fixed
-> >      warning issues with doc type comments fixed
-> > * patch 8/8
-> >      potential cio_dma_zalloc() returning NULL issue fixed
-> > 
-> > v1 --> v2:
-> > * patch "virtio/s390: use vring_create_virtqueue" went already upstream
-> > * patch "virtio/s390: DMA support for virtio-ccw" went already upstream
-> > * patch "virtio/s390: enable packed ring" went already upstream
-> > * Made dev.dma_mask point to dev.coherent_dma_mask for css, subchannel
-> >    and ccw devices.
-> > * While rebasing 's390/airq: use DMA memory for adapter interrupts' the
-> >    newly introduced kmem_cache  was replaced with an equivalent dma_pool;
-> >    the kalloc() allocations are now replaced with cio_dma_zalloc()
-> >    allocations to avoid wasting almost a full page.
-> > * Made virtio-ccw use the new AIRQ_IV_CACHELINE flag.
-> > * fixed all remaining checkpatch issues
-> > 
-> > RFC --> v1:
-> > * Fixed bugs found by Connie (may_reduce and handling reduced,  warning,
-> >    split move -- thanks Connie!).
-> > * Fixed console bug found by Sebastian (thanks Sebastian!).
-> > * Removed the completely useless duplicate of dma-mapping.h spotted by
-> >    Christoph (thanks Christoph!).
-> > * Don't use the global DMA pool for subchannel and ccw device
-> >    owned memory as requested by Sebastian. Consequences:
-> > 	* Both subchannel and ccw devices have their dma masks
-> > 	now (both specifying 31 bit addressable)
-> > 	* We require at least 2 DMA pages per ccw device now, most of
-> > 	this memory is wasted though.
-> > 	* DMA memory allocated by virtio is also 31 bit addressable now
-> >          as virtio uses the parent (which is the ccw device).
-> > * Enabled packed ring.
-> > * Rebased onto Martins feature branch; using the actual uv (ultravisor)
-> >    interface instead of TODO comments.
-> > * Added some explanations to the cover letter (Connie, David).
-> > * Squashed a couple of patches together and fixed some text stuff.
-> > 
-> > Halil Pasic (8):
-> >    s390/mm: force swiotlb for protected virtualization
-> >    s390/cio: introduce DMA pools to cio
-> >    s390/cio: add basic protected virtualization support
-> >    s390/airq: use DMA memory for adapter interrupts
-> >    virtio/s390: use cacheline aligned airq bit vectors
-> >    virtio/s390: add indirection to indicators access
-> >    virtio/s390: use DMA memory for ccw I/O and classic notifiers
-> >    virtio/s390: make airq summary indicators DMA
-> > 
-> >   arch/s390/Kconfig                   |   5 +
-> >   arch/s390/include/asm/airq.h        |   2 +
-> >   arch/s390/include/asm/ccwdev.h      |   4 +
-> >   arch/s390/include/asm/cio.h         |  11 ++
-> >   arch/s390/include/asm/mem_encrypt.h |  18 ++
-> >   arch/s390/mm/init.c                 |  47 ++++++
-> >   drivers/s390/cio/airq.c             |  37 +++--
-> >   drivers/s390/cio/ccwreq.c           |   9 +-
-> >   drivers/s390/cio/cio.h              |   2 +
-> >   drivers/s390/cio/css.c              | 134 ++++++++++++++-
-> >   drivers/s390/cio/device.c           |  68 ++++++--
-> >   drivers/s390/cio/device_fsm.c       |  49 +++---
-> >   drivers/s390/cio/device_id.c        |  20 ++-
-> >   drivers/s390/cio/device_ops.c       |  21 ++-
-> >   drivers/s390/cio/device_pgid.c      |  22 +--
-> >   drivers/s390/cio/device_status.c    |  24 +--
-> >   drivers/s390/cio/io_sch.h           |  20 ++-
-> >   drivers/s390/virtio/virtio_ccw.c    | 246 +++++++++++++++-------------
-> >   18 files changed, 538 insertions(+), 201 deletions(-)
-> >   create mode 100644 arch/s390/include/asm/mem_encrypt.h
-> > 
-> 
+U3VyZS4KCk9uIDEzLjA2LjE5IDEzOjE0LCBIYWxpbCBQYXNpYyB3cm90ZToKPiBPbiBUaHUsIDEz
+IEp1biAyMDE5IDExOjExOjEzICswMjAwCj4gTWljaGFlbCBNdWVsbGVyIDxtaW11QGxpbnV4Lmli
+bS5jb20+IHdyb3RlOgo+Cj4+IEhhbGlsLAo+Pgo+PiBJIGp1c3QgcmFuIG15IHRvbGVyYXRpb24g
+dGVzdHMgc3VjY2Vzc2Z1bGx5IG9uIGN1cnJlbnQgSFcgZm9yCj4+IHRoaXMgc2VyaWVzLgo+Pgo+
+PiBNaWNoYWVsCj4gVGhhbmtzIE1pY2hhZWwhIE1heSBJIGFkZCBhCj4gVGVzdGVkLWJ5OiBNaWNo
+YWVsIE11ZWxsZXIgPG1pbXVAbGludXguaWJtLmNvbT4KPiBmb3IgZWFjaCBwYXRjaD8KPgo+PiBP
+biAxMi4wNi4xOSAxMzoxMiwgSGFsaWwgUGFzaWMgd3JvdGU6Cj4+PiBFbmhhbmNlZCB2aXJ0dWFs
+aXphdGlvbiBwcm90ZWN0aW9uIHRlY2hub2xvZ3kgbWF5IHJlcXVpcmUgdGhlIHVzZSBvZgo+Pj4g
+Ym91bmNlIGJ1ZmZlcnMgZm9yIEkvTy4gV2hpbGUgc3VwcG9ydCBmb3IgdGhpcyB3YXMgYnVpbHQg
+aW50byB0aGUgdmlydGlvCj4+PiBjb3JlLCB2aXJ0aW8tY2N3IHdhc24ndCBjaGFuZ2VkIGFjY29y
+ZGluZ2x5Lgo+Pj4KPj4+IFNvbWUgYmFja2dyb3VuZCBvbiB0ZWNobm9sb2d5IChub3QgcGFydCBv
+ZiB0aGlzIHNlcmllcykgYW5kIHRoZQo+Pj4gdGVybWlub2xvZ3kgdXNlZC4KPj4+Cj4+PiAqIFBy
+b3RlY3RlZCBWaXJ0dWFsaXphdGlvbiAoUFYpOgo+Pj4KPj4+IFByb3RlY3RlZCBWaXJ0dWFsaXph
+dGlvbiBndWFyYW50ZWVzLCB0aGF0IG5vbi1zaGFyZWQgbWVtb3J5IG9mIGEgIGd1ZXN0Cj4+PiB0
+aGF0IG9wZXJhdGVzIGluIFBWIG1vZGUgcHJpdmF0ZSB0byB0aGF0IGd1ZXN0LiBJLmUuIGFueSBh
+dHRlbXB0cyBieSB0aGUKPj4+IGh5cGVydmlzb3Igb3Igb3RoZXIgZ3Vlc3RzIHRvIGFjY2VzcyBp
+dCB3aWxsIHJlc3VsdCBpbiBhbiBleGNlcHRpb24uIElmCj4+PiBzdXBwb3J0ZWQgYnkgdGhlIGVu
+dmlyb25tZW50IChtYWNoaW5lLCBLVk0sIGd1ZXN0IFZNKSBhIGd1ZXN0IGNhbiBkZWNpZGUKPj4+
+IHRvIGNoYW5nZSBpbnRvIFBWIG1vZGUgYnkgZG9pbmcgdGhlIGFwcHJvcHJpYXRlIHVsdHJhdmlz
+b3IgY2FsbHMuCj4+Pgo+Pj4gKiBVbHRyYXZpc29yOgo+Pj4KPj4+IEEgaGFyZHdhcmUvZmlybXdh
+cmUgZW50aXR5IHRoYXQgbWFuYWdlcyBQViBndWVzdHMsIGFuZCBwb2xpY2VzIGFjY2VzcyB0bwo+
+Pj4gdGhlaXIgbWVtb3J5LiBBIFBWIGd1ZXN0IHByb3NwZWN0IG5lZWRzIHRvIGludGVyYWN0IHdp
+dGggdGhlIHVsdHJhdmlzb3IsCj4+PiB0byBlbnRlciBQViBtb2RlLCBhbmQgcG90ZW50aWFsbHkg
+dG8gc2hhcmUgcGFnZXMgKGZvciBJL08gd2hpY2ggc2hvdWxkCj4+PiBiZSBlbmNyeXB0ZWQgYnkg
+dGhlIGd1ZXN0KS4gQSBndWVzdCBpbnRlcmFjdHMgd2l0aCB0aGUgdWx0cmF2aXNvciB2aWEgc28K
+Pj4+IGNhbGxlZCB1bHRyYXZpc29yIGNhbGxzLiBBIGh5cGVydmlzb3IgbmVlZHMgdG8gaW50ZXJh
+Y3Qgd2l0aCB0aGUKPj4+IHVsdHJhdmlzb3IgdG8gZmFjaWxpdGF0ZSBpbnRlcnByZXRhdGlvbiwg
+ZW11bGF0aW9uIGFuZCBzd2FwcGluZy4gQQo+Pj4gaHlwZXJ2aXNvciAgaW50ZXJhY3RzIHdpdGgg
+dGhlIHVsdHJhdmlzb3IgdmlhIHVsdHJhdmlzb3IgY2FsbHMgYW5kIHZpYQo+Pj4gdGhlIFNJRSBz
+dGF0ZSBkZXNjcmlwdGlvbi4gR2VuZXJhbGx5IHRoZSB1bHRyYXZpc29yIHNhbml0aXplcyBoeXBl
+cnZpc29yCj4+PiBpbnB1dHMgc28gdGhhdCB0aGUgZ3Vlc3QgY2FuIG5vdCBiZSBjb3JydXB0ZWQg
+KGV4Y2VwdCBmb3IgZGVuaWFsIG9mCj4+PiBzZXJ2aWNlLgo+Pj4KPj4+Cj4+PiBXaGF0IG5lZWRz
+IHRvIGJlIGRvbmUKPj4+ID09PT09PT09PT09PT09PT09PT09PQo+Pj4KPj4+IFRodXMgd2hhdCBu
+ZWVkcyB0byBiZSBkb25lIHRvIGJyaW5nIHZpcnRpby1jY3cgdXAgdG8gc3BlZWQgd2l0aCByZXNw
+ZWN0Cj4+PiB0byBwcm90ZWN0ZWQgdmlydHVhbGl6YXRpb24gaXM6Cj4+PiAqIHVzZSBzb21lICdu
+ZXcnIGNvbW1vbiB2aXJ0aW8gc3R1ZmYKPj4+ICogbWFrZSBzdXJlIHRoYXQgdmlydGlvLWNjdyBz
+cGVjaWZpYyBzdHVmZiB1c2VzIHNoYXJlZCBtZW1vcnkgd2hlbgo+Pj4gICAgIHRhbGtpbmcgdG8g
+dGhlIGh5cGVydmlzb3IgKGV4Y2VwdCBjb250cm9sL2NvbW11bmljYXRpb24gYmxvY2tzIGxpa2Ug
+T1JCLAo+Pj4gICAgIHRoZXNlIGFyZSBoYW5kbGVkIGJ5IHRoZSB1bHRyYXZpc29yKQo+Pj4gKiBt
+YWtlIHN1cmUgdGhlIERNQSBBUEkgZG9lcyB3aGF0IGlzIG5lY2Vzc2FyeSB0byB0YWxrIHRocm91
+Z2ggc2hhcmVkCj4+PiAgICAgbWVtb3J5IGlmIHdlIGFyZSBhIHByb3RlY3RlZCB2aXJ0dWFsaXph
+dGlvbiBndWVzdC4KPj4+ICogbWFrZSBzdXJlIHRoZSBjb21tb24gSU8gbGF5ZXIgcGxheXMgYWxv
+bmcgYXMgd2VsbCAoYWlycXMsIHNlbnNlKS4KPj4+Cj4+Pgo+Pj4gSW1wb3J0YW50IG5vdGVzCj4+
+PiA9PT09PT09PT09PT09PT09Cj4+Pgo+Pj4gKiBUaGlzIHBhdGNoIHNldCBpcyBiYXNlZCBvbiBN
+YXJ0aW5zIGZlYXR1cmVzIGJyYW5jaAo+Pj4gICAgKGdpdDovL2dpdC5rZXJuZWwub3JnL3B1Yi9z
+Y20vbGludXgva2VybmVsL2dpdC9zMzkwL2xpbnV4LmdpdCBicmFuY2gKPj4+ICAgICdmZWF0dXJl
+cycpLgo+Pj4KPj4+ICogRG9jdW1lbnRhdGlvbiBpcyBzdGlsbCB2ZXJ5IHNrZXRjaHkuIEknbSBj
+b21taXR0ZWQgdG8gaW1wcm92aW5nIHRoaXMsCj4+PiAgICAgYnV0IEknbSBjdXJyZW50bHkgaGFt
+cGVyZWQgYnkgc29tZSBkZXBlbmRlbmNpZXMgY3VycmVudGx5Lgo+Pj4KPj4+ICogVGhlIGV4aXN0
+aW5nIG5hbWluZyBpbiB0aGUgY29tbW9uIGluZnJhc3RydWN0dXJlIChrZXJuZWwgaW50ZXJuYWwK
+Pj4+ICAgICBpbnRlcmZhY2VzKSBpcyBwcmV0dHkgbXVjaCBiYXNlZCBvbiB0aGUgQU1EIFNFViB0
+ZXJtaW5vbG9neS4gVGh1cyB0aGUKPj4+ICAgICBuYW1lcyBhcmVuJ3QgYWx3YXlzIHBlcmZlY3Qu
+IFRoZXJlIG1pZ2h0IGJlIG1lcml0IHRvIGNoYW5naW5nIHRoZXNlCj4+PiAgICAgbmFtZXMgdG8g
+bW9yZSBhYnN0cmFjdCBvbmVzLiBJIGRpZCBub3QgcHV0IG11Y2ggdGhvdWdodCBpbnRvIHRoYXQg
+YXQKPj4+ICAgICB0aGUgY3VycmVudCBzdGFnZS4KPj4+Cj4+PiAqIFRlc3Rpbmc6IFBsZWFzZSB1
+c2UgaW9tbXVfcGxhdGZvcm09b24gZm9yIGFueSB2aXJ0aW8gZGV2aWNlcyB5b3UgYXJlCj4+PiAg
+ICAgZ29pbmcgdG8gdGVzdCB0aGlzIGNvZGUgd2l0aCAoc28gdmlydGlvIGFjdHVhbGx5IHVzZXMg
+dGhlIERNQSBBUEkpLgo+Pj4KPj4+IEBTZWJhc3RpYW46IEkga2VwdCB5b3VyIHItYiBvbiBwYXRj
+aCAyICJzMzkwL2NpbzogaW50cm9kdWNlIERNQSBwb29scyB0bwo+Pj4gY2lvIiBkZXNwaXRlIHRo
+ZSBzbWFsbCBjaGFuZ2VzIHBvaW50ZWQgb3V0IGJlbG93LiBQbGVhc2UgZG8gY29tcGxhaW4gaWYK
+Pj4+IGl0IGFpbid0IE9LIGZvciB5b3UhCj4+Pgo+Pj4gQ2hhbmdlIGxvZwo+Pj4gPT09PT09PT09
+PQo+Pj4KPj4+IHY0IC0tPiB2NToKPj4+ICogd29yayBhcm91bmQgZG1hX3Bvb2wgQVBJIG5vdCB0
+b2xlcmF0aW5nIE5VTEwgZG1hIHBvb2wgKHBhdGNoIDQpCj4+PiAqIG1ha2UgdGhlIGdlbnBvb2wg
+YmFzZWQgZG1hIHBvb2xzIEFQSSAgdG9sZXJhdGUgTlVMTCBnZW5wb29sIChwYXRjaCAyKQo+Pj4g
+KiBmaXggdHlwbyAocGF0Y2ggMikKPj4+ICogZml4IHVuaW50ZW5kZWQgY29kZSBtb3ZlIChwYXRj
+aCA3KQo+Pj4gKiBhZGQgbW9yZSByLWIncwo+Pj4KPj4+Cj4+Pgo+Pj4gdjMgLS0+IHY0Cj4+PiAq
+IGZpeGVkIGNsZWFudXAgaW4gY3NzX2J1c19pbml0KCkgKENvbm5pZSkKPj4+ICogbWFkZSBjaW8u
+aCBpbmNsdWRlIGdlbmFsbG9jLmggaW5zdGVhZCBvZiBhIGZvcndhcmQgZGVjbGFyYXRpb24KPj4+
+ICAgICAoQ29ubmllKQo+Pj4gKiBhZGRlZCBjb21tZW50cyBhYm91dCBkbWFfbWFzay9jb2hlcmVu
+dF9kbWFfbWFzayB2YWx1ZXMgKENvbm5pZSkKPj4+ICogZml4ZWQgZXJyb3IgaGFuZGxpbmcgaW4g
+dmlydGlvX2Njd19pbml0KCkgKENvbm5pZSkKPj4+ICogZ290IHJpZCBvZiB0aGUgKnZjX2RtYSog
+d3JhcHBlcnMgKENvbm5pZSkKPj4+ICogYWRkZWQgc29tZSBSZXZpZXdlZC1ieXMKPj4+ICogcmVi
+YXNlZCBvbiB0b3Agb2YgY3VycmVudCBtYXN0ZXIsIG5vIGNoYW5nZXMgd2VyZSBuZWNlc3NhcnkK
+Pj4+Cj4+PiB2MiAtLT4gdjM6Cj4+PiAqIHBhdGNoIDIvOAo+Pj4gICAgICAgcG90ZW50aWFsIGNp
+b19kbWFfcG9vbF9pbml0KCkgcmV0dXJuaW5nIE5VTEwgaXNzdWUgZml4ZWQKPj4+ICAgICAgIHBv
+dGVudGlhbCBjaW9fZ3BfZG1hX2NyZWF0ZSgpIHJldHVybmluZyBOVUxMIGlzc3VlIGZpeGVkCj4+
+PiAgICAgICB3YXJuaW5nIGlzc3VlcyB3aXRoIGRvYyB0eXBlIGNvbW1lbnRzIGZpeGVkCj4+PiAg
+ICAgICB1bnVzZWQgZGVmaW5lIHN0YXRlbWVudCByZW1vdmVkCj4+PiAqIHBhdGNoIDMvOAo+Pj4g
+ICAgICAgcG90ZW50aWFsIGNpb19ncF9kbWFfY3JlYXRlKCkgcmV0dXJuaW5nIE5VTEwgaXNzdWUg
+Zml4ZWQKPj4+ICAgICAgIHdoaXRlc3BhY2UgaXNzdWUgZml4ZWQKPj4+ICAgICAgIHdhcm5pbmcg
+aXNzdWVzIHdpdGggZG9jIHR5cGUgY29tbWVudHMgZml4ZWQKPj4+ICogcGF0Y2ggOC84Cj4+PiAg
+ICAgICBwb3RlbnRpYWwgY2lvX2RtYV96YWxsb2MoKSByZXR1cm5pbmcgTlVMTCBpc3N1ZSBmaXhl
+ZAo+Pj4KPj4+IHYxIC0tPiB2MjoKPj4+ICogcGF0Y2ggInZpcnRpby9zMzkwOiB1c2UgdnJpbmdf
+Y3JlYXRlX3ZpcnRxdWV1ZSIgd2VudCBhbHJlYWR5IHVwc3RyZWFtCj4+PiAqIHBhdGNoICJ2aXJ0
+aW8vczM5MDogRE1BIHN1cHBvcnQgZm9yIHZpcnRpby1jY3ciIHdlbnQgYWxyZWFkeSB1cHN0cmVh
+bQo+Pj4gKiBwYXRjaCAidmlydGlvL3MzOTA6IGVuYWJsZSBwYWNrZWQgcmluZyIgd2VudCBhbHJl
+YWR5IHVwc3RyZWFtCj4+PiAqIE1hZGUgZGV2LmRtYV9tYXNrIHBvaW50IHRvIGRldi5jb2hlcmVu
+dF9kbWFfbWFzayBmb3IgY3NzLCBzdWJjaGFubmVsCj4+PiAgICAgYW5kIGNjdyBkZXZpY2VzLgo+
+Pj4gKiBXaGlsZSByZWJhc2luZyAnczM5MC9haXJxOiB1c2UgRE1BIG1lbW9yeSBmb3IgYWRhcHRl
+ciBpbnRlcnJ1cHRzJyB0aGUKPj4+ICAgICBuZXdseSBpbnRyb2R1Y2VkIGttZW1fY2FjaGUgIHdh
+cyByZXBsYWNlZCB3aXRoIGFuIGVxdWl2YWxlbnQgZG1hX3Bvb2w7Cj4+PiAgICAgdGhlIGthbGxv
+YygpIGFsbG9jYXRpb25zIGFyZSBub3cgcmVwbGFjZWQgd2l0aCBjaW9fZG1hX3phbGxvYygpCj4+
+PiAgICAgYWxsb2NhdGlvbnMgdG8gYXZvaWQgd2FzdGluZyBhbG1vc3QgYSBmdWxsIHBhZ2UuCj4+
+PiAqIE1hZGUgdmlydGlvLWNjdyB1c2UgdGhlIG5ldyBBSVJRX0lWX0NBQ0hFTElORSBmbGFnLgo+
+Pj4gKiBmaXhlZCBhbGwgcmVtYWluaW5nIGNoZWNrcGF0Y2ggaXNzdWVzCj4+Pgo+Pj4gUkZDIC0t
+PiB2MToKPj4+ICogRml4ZWQgYnVncyBmb3VuZCBieSBDb25uaWUgKG1heV9yZWR1Y2UgYW5kIGhh
+bmRsaW5nIHJlZHVjZWQsICB3YXJuaW5nLAo+Pj4gICAgIHNwbGl0IG1vdmUgLS0gdGhhbmtzIENv
+bm5pZSEpLgo+Pj4gKiBGaXhlZCBjb25zb2xlIGJ1ZyBmb3VuZCBieSBTZWJhc3RpYW4gKHRoYW5r
+cyBTZWJhc3RpYW4hKS4KPj4+ICogUmVtb3ZlZCB0aGUgY29tcGxldGVseSB1c2VsZXNzIGR1cGxp
+Y2F0ZSBvZiBkbWEtbWFwcGluZy5oIHNwb3R0ZWQgYnkKPj4+ICAgICBDaHJpc3RvcGggKHRoYW5r
+cyBDaHJpc3RvcGghKS4KPj4+ICogRG9uJ3QgdXNlIHRoZSBnbG9iYWwgRE1BIHBvb2wgZm9yIHN1
+YmNoYW5uZWwgYW5kIGNjdyBkZXZpY2UKPj4+ICAgICBvd25lZCBtZW1vcnkgYXMgcmVxdWVzdGVk
+IGJ5IFNlYmFzdGlhbi4gQ29uc2VxdWVuY2VzOgo+Pj4gCSogQm90aCBzdWJjaGFubmVsIGFuZCBj
+Y3cgZGV2aWNlcyBoYXZlIHRoZWlyIGRtYSBtYXNrcwo+Pj4gCW5vdyAoYm90aCBzcGVjaWZ5aW5n
+IDMxIGJpdCBhZGRyZXNzYWJsZSkKPj4+IAkqIFdlIHJlcXVpcmUgYXQgbGVhc3QgMiBETUEgcGFn
+ZXMgcGVyIGNjdyBkZXZpY2Ugbm93LCBtb3N0IG9mCj4+PiAJdGhpcyBtZW1vcnkgaXMgd2FzdGVk
+IHRob3VnaC4KPj4+IAkqIERNQSBtZW1vcnkgYWxsb2NhdGVkIGJ5IHZpcnRpbyBpcyBhbHNvIDMx
+IGJpdCBhZGRyZXNzYWJsZSBub3cKPj4+ICAgICAgICAgICBhcyB2aXJ0aW8gdXNlcyB0aGUgcGFy
+ZW50ICh3aGljaCBpcyB0aGUgY2N3IGRldmljZSkuCj4+PiAqIEVuYWJsZWQgcGFja2VkIHJpbmcu
+Cj4+PiAqIFJlYmFzZWQgb250byBNYXJ0aW5zIGZlYXR1cmUgYnJhbmNoOyB1c2luZyB0aGUgYWN0
+dWFsIHV2ICh1bHRyYXZpc29yKQo+Pj4gICAgIGludGVyZmFjZSBpbnN0ZWFkIG9mIFRPRE8gY29t
+bWVudHMuCj4+PiAqIEFkZGVkIHNvbWUgZXhwbGFuYXRpb25zIHRvIHRoZSBjb3ZlciBsZXR0ZXIg
+KENvbm5pZSwgRGF2aWQpLgo+Pj4gKiBTcXVhc2hlZCBhIGNvdXBsZSBvZiBwYXRjaGVzIHRvZ2V0
+aGVyIGFuZCBmaXhlZCBzb21lIHRleHQgc3R1ZmYuCj4+Pgo+Pj4gSGFsaWwgUGFzaWMgKDgpOgo+
+Pj4gICAgIHMzOTAvbW06IGZvcmNlIHN3aW90bGIgZm9yIHByb3RlY3RlZCB2aXJ0dWFsaXphdGlv
+bgo+Pj4gICAgIHMzOTAvY2lvOiBpbnRyb2R1Y2UgRE1BIHBvb2xzIHRvIGNpbwo+Pj4gICAgIHMz
+OTAvY2lvOiBhZGQgYmFzaWMgcHJvdGVjdGVkIHZpcnR1YWxpemF0aW9uIHN1cHBvcnQKPj4+ICAg
+ICBzMzkwL2FpcnE6IHVzZSBETUEgbWVtb3J5IGZvciBhZGFwdGVyIGludGVycnVwdHMKPj4+ICAg
+ICB2aXJ0aW8vczM5MDogdXNlIGNhY2hlbGluZSBhbGlnbmVkIGFpcnEgYml0IHZlY3RvcnMKPj4+
+ICAgICB2aXJ0aW8vczM5MDogYWRkIGluZGlyZWN0aW9uIHRvIGluZGljYXRvcnMgYWNjZXNzCj4+
+PiAgICAgdmlydGlvL3MzOTA6IHVzZSBETUEgbWVtb3J5IGZvciBjY3cgSS9PIGFuZCBjbGFzc2lj
+IG5vdGlmaWVycwo+Pj4gICAgIHZpcnRpby9zMzkwOiBtYWtlIGFpcnEgc3VtbWFyeSBpbmRpY2F0
+b3JzIERNQQo+Pj4KPj4+ICAgIGFyY2gvczM5MC9LY29uZmlnICAgICAgICAgICAgICAgICAgIHwg
+ICA1ICsKPj4+ICAgIGFyY2gvczM5MC9pbmNsdWRlL2FzbS9haXJxLmggICAgICAgIHwgICAyICsK
+Pj4+ICAgIGFyY2gvczM5MC9pbmNsdWRlL2FzbS9jY3dkZXYuaCAgICAgIHwgICA0ICsKPj4+ICAg
+IGFyY2gvczM5MC9pbmNsdWRlL2FzbS9jaW8uaCAgICAgICAgIHwgIDExICsrCj4+PiAgICBhcmNo
+L3MzOTAvaW5jbHVkZS9hc20vbWVtX2VuY3J5cHQuaCB8ICAxOCArKwo+Pj4gICAgYXJjaC9zMzkw
+L21tL2luaXQuYyAgICAgICAgICAgICAgICAgfCAgNDcgKysrKysrCj4+PiAgICBkcml2ZXJzL3Mz
+OTAvY2lvL2FpcnEuYyAgICAgICAgICAgICB8ICAzNyArKystLQo+Pj4gICAgZHJpdmVycy9zMzkw
+L2Npby9jY3dyZXEuYyAgICAgICAgICAgfCAgIDkgKy0KPj4+ICAgIGRyaXZlcnMvczM5MC9jaW8v
+Y2lvLmggICAgICAgICAgICAgIHwgICAyICsKPj4+ICAgIGRyaXZlcnMvczM5MC9jaW8vY3NzLmMg
+ICAgICAgICAgICAgIHwgMTM0ICsrKysrKysrKysrKysrLQo+Pj4gICAgZHJpdmVycy9zMzkwL2Np
+by9kZXZpY2UuYyAgICAgICAgICAgfCAgNjggKysrKysrLS0KPj4+ICAgIGRyaXZlcnMvczM5MC9j
+aW8vZGV2aWNlX2ZzbS5jICAgICAgIHwgIDQ5ICsrKy0tLQo+Pj4gICAgZHJpdmVycy9zMzkwL2Np
+by9kZXZpY2VfaWQuYyAgICAgICAgfCAgMjAgKystCj4+PiAgICBkcml2ZXJzL3MzOTAvY2lvL2Rl
+dmljZV9vcHMuYyAgICAgICB8ICAyMSArKy0KPj4+ICAgIGRyaXZlcnMvczM5MC9jaW8vZGV2aWNl
+X3BnaWQuYyAgICAgIHwgIDIyICstLQo+Pj4gICAgZHJpdmVycy9zMzkwL2Npby9kZXZpY2Vfc3Rh
+dHVzLmMgICAgfCAgMjQgKy0tCj4+PiAgICBkcml2ZXJzL3MzOTAvY2lvL2lvX3NjaC5oICAgICAg
+ICAgICB8ICAyMCArKy0KPj4+ICAgIGRyaXZlcnMvczM5MC92aXJ0aW8vdmlydGlvX2Njdy5jICAg
+IHwgMjQ2ICsrKysrKysrKysrKysrKy0tLS0tLS0tLS0tLS0KPj4+ICAgIDE4IGZpbGVzIGNoYW5n
+ZWQsIDUzOCBpbnNlcnRpb25zKCspLCAyMDEgZGVsZXRpb25zKC0pCj4+PiAgICBjcmVhdGUgbW9k
+ZSAxMDA2NDQgYXJjaC9zMzkwL2luY2x1ZGUvYXNtL21lbV9lbmNyeXB0LmgKPj4+Ci0tIApNaXQg
+ZnJldW5kbGljaGVuIEdyw7zDn2VuIC8gS2luZCByZWdhcmRzCk1pY2hhZWwgTcO8bGxlcgoKSUJN
+IERldXRzY2hsYW5kIFJlc2VhcmNoICYgRGV2ZWxvcG1lbnQgR21iSApWb3JzaXR6ZW5kZXIgZGVz
+IEF1ZnNpY2h0c3JhdHM6IE1hdHRoaWFzIEhhcnRtYW5uCkdlc2Now6RmdHNmw7xocnVuZzogRGly
+ayBXaXR0a29wcApTaXR6IGRlciBHZXNlbGxzY2hhZnQ6IELDtmJsaW5nZW4KUmVnaXN0ZXJnZXJp
+Y2h0OiBBbXRzZ2VyaWNodCBTdHV0dGdhcnQsIEhSQiAyNDMyOTQKCl9fX19fX19fX19fX19fX19f
+X19fX19fX19fX19fX19fX19fX19fX19fX19fX19fClZpcnR1YWxpemF0aW9uIG1haWxpbmcgbGlz
+dApWaXJ0dWFsaXphdGlvbkBsaXN0cy5saW51eC1mb3VuZGF0aW9uLm9yZwpodHRwczovL2xpc3Rz
+LmxpbnV4Zm91bmRhdGlvbi5vcmcvbWFpbG1hbi9saXN0aW5mby92aXJ0dWFsaXphdGlvbg==
