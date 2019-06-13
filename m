@@ -1,12 +1,14 @@
-From: Stefan Hajnoczi <stefanha@redhat.com>
-Subject: Re: [PATCH net-next] vsock: correct removal of socket from the list
-Date: Thu, 13 Jun 2019 15:47:50 +0100
-Message-ID: <20190613144750.GA10708@stefanha-x1.localdomain>
-References: <MW2PR2101MB11162BBAEC52B232A7B1EFAFC0EF0@MW2PR2101MB1116.namprd21.prod.outlook.com>
+From: Dmitry Vyukov via Virtualization
+	<virtualization@lists.linux-foundation.org>
+Subject: Re: memory leak in vhost_net_ioctl
+Date: Thu, 13 Jun 2019 16:55:28 +0200
+Message-ID: <CACT4Y+bAuAiApr9CxSH5CoDnZ5hYmU+K4kJqrSo5yBZLyrzONA@mail.gmail.com>
+References: <20190613141521.424-1-hdanton@sina.com>
+Reply-To: Dmitry Vyukov <dvyukov@google.com>
 Mime-Version: 1.0
-Content-Type: multipart/mixed; boundary="===============5374647294567990292=="
+Content-Type: multipart/mixed; boundary="000000000000355591058b35b99c"
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <MW2PR2101MB11162BBAEC52B232A7B1EFAFC0EF0@MW2PR2101MB1116.namprd21.prod.outlook.com>
+In-Reply-To: <20190613141521.424-1-hdanton@sina.com>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -16,56 +18,208 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Sunil Muthuswamy <sunilmut@microsoft.com>
-Cc: "netdev@vger.kernel.org" <netdev@vger.kernel.org>, Dexuan Cui <decui@microsoft.com>, "David S. Miller" <davem@davemloft.net>, "kvm@vger.kernel.org" <kvm@vger.kernel.org>, "virtualization@lists.linux-foundation.org" <virtualization@lists.linux-foundation.org>
+To: Hillf Danton <hdanton@sina.com>
+Cc: "xdp-newbies@vger.kernel.org" <xdp-newbies@vger.kernel.org>, "jakub.kicinski@netronome.com" <jakub.kicinski@netronome.com>, "hawk@kernel.org" <hawk@kernel.org>, "daniel@iogearbox.net" <daniel@iogearbox.net>, "Michael S. Tsirkin" <mst@redhat.com>, syzbot <syzbot+0789f0c7e45efd7bb643@syzkaller.appspotmail.com>, "netdev@vger.kernel.org" <netdev@vger.kernel.org>, "john.fastabend@gmail.com" <john.fastabend@gmail.com>, "ast@kernel.org" <ast@kernel.org>, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>, "syzkaller-bugs@googlegroups.com" <syzkaller-bugs@googlegroups.com>, Asias He <asias@redhat.com>, "kvm@vger.kernel.org" <kvm@vger.kernel.org>, "bpf@vger.kernel.org" <bpf@vger.kernel.org>, "virtualization@lists.linux-foundation.org" <virtualization@lists.linux-foundation.org>, "davem@davemloft.net" <davem@davemloft.net>
 List-Id: virtualization@lists.linuxfoundation.org
 
-
---===============5374647294567990292==
-Content-Type: multipart/signed; micalg=pgp-sha256;
-	protocol="application/pgp-signature"; boundary="IJpNTDwzlM2Ie8A6"
-Content-Disposition: inline
-
-
---IJpNTDwzlM2Ie8A6
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
+--000000000000355591058b35b99c
+Content-Type: text/plain; charset="UTF-8"
 Content-Transfer-Encoding: quoted-printable
 
-On Thu, Jun 13, 2019 at 03:52:27AM +0000, Sunil Muthuswamy wrote:
-> The current vsock code for removal of socket from the list is both
-> subject to race and inefficient. It takes the lock, checks whether
-> the socket is in the list, drops the lock and if the socket was on the
-> list, deletes it from the list. This is subject to race because as soon
-> as the lock is dropped once it is checked for presence, that condition
-> cannot be relied upon for any decision. It is also inefficient because
-> if the socket is present in the list, it takes the lock twice.
->=20
-> Signed-off-by: Sunil Muthuswamy <sunilmut@microsoft.com>
+On Thu, Jun 13, 2019 at 4:15 PM Hillf Danton <hdanton@sina.com> wrote:
+>
+>
+> Hello Dmitry
+>
+> On Thu, 13 Jun 2019 20:12:06 +0800 Dmitry Vyukov wrote:
+> > On Thu, Jun 13, 2019 at 2:07 PM Hillf Danton <hdanton@sina.com> wrote:
+> > >
+> > > Hello Jason
+> > >
+> > > On Thu, 13 Jun 2019 17:10:39 +0800 Jason Wang wrote:
+> > > >
+> > > > This is basically a kfree(ubuf) after the second vhost_net_flush() =
+in
+> > > > vhost_net_release().
+> > > >
+> > > Fairly good catch.
+> > >
+> > > > Could you please post a formal patch?
+> > > >
+> > > I'd like very much to do that; but I wont, I am afraid, until I colle=
+ct a
+> > > Tested-by because of reproducer without a cutting edge.
+> >
+> > You can easily collect Tested-by from syzbot for any bug with a reprodu=
+cer;)
+> > https://github.com/google/syzkaller/blob/master/docs/syzbot.md#testing-=
+patches
+> >
+> Thank you for the light you are casting.
+
+:)
+
+But you did not ask syzbot to test. That would be something like this
+(keeping syzbot email in CC):
+
+#syz test: git://git.kernel.org/pub/scm/linux/kernel/git/torvalds/linux.git
+master
+
+(I've attached the patch because my email client is incapable of
+sending non-corrupted patches inline, but otherwise inline patches
+should work too).
+
+
+> Here it goes.
+> --->8--------
+> From: Hillf Danton <hdanton@sina.com>
+> Subject: [PATCH] vhost: fix memory leak in vhost_net_release
+>
+> syzbot found the following crash on:
+>
+> HEAD commit:    788a0249 Merge tag 'arc-5.2-rc4' of git://git.kernel.org/=
+p..
+> git tree:       upstream
+> console output: https://syzkaller.appspot.com/x/log.txt?x dc9ea6a00000
+> kernel config:  https://syzkaller.appspot.com/x/.config?x=C3=95c73825cbdc=
+7326
+> dashboard link: https://syzkaller.appspot.com/bug?extid 89f0c7e45efd7bb64=
+3
+> compiler:       gcc (GCC) 9.0.0 20181231 (experimental)
+> syz repro:      https://syzkaller.appspot.com/x/repro.syz?x b31761a00000
+> C reproducer:   https://syzkaller.appspot.com/x/repro.c?x 4892c1a00000
+>
+>
+> udit: type 00 audit(1559768703.229:36): avc:  denied  { map } for
+> pidq16 comm=3D"syz-executor330" path=3D"/root/syz-executor330334897"
+> dev=3D"sda1" ino 461 scontext=3Dunconfined_u:system_r:insmod_t:s0-s0:c0.c=
+1023
+> tcontext=3Dunconfined_u:object_r:user_home_t:s0 tclass=3Dfile permissive=
+=3D1
+> executing program
+> executing program
+>
+> BUG: memory leak
+> unreferenced object 0xffff88812421fe40 (size 64):
+>    comm "syz-executor330", pid 7117, jiffies 4294949245 (age 13.030s)
+>    hex dump (first 32 bytes):
+>      01 00 00 00 20 69 6f 63 00 00 00 00 64 65 76 2f  .... ioc....dev/
+>      50 fe 21 24 81 88 ff ff 50 fe 21 24 81 88 ff ff  P.!$....P.!$....
+>    backtrace:
+>      [<00000000ae0c4ae0>] kmemleak_alloc_recursive include/linux/kmemleak=
+.h:55 [inline]
+>      [<00000000ae0c4ae0>] slab_post_alloc_hook mm/slab.h:439 [inline]
+>      [<00000000ae0c4ae0>] slab_alloc mm/slab.c:3326 [inline]
+>      [<00000000ae0c4ae0>] kmem_cache_alloc_trace+0x13d/0x280 mm/slab.c:35=
+53
+>      [<0000000079ebab38>] kmalloc include/linux/slab.h:547 [inline]
+>      [<0000000079ebab38>] vhost_net_ubuf_alloc drivers/vhost/net.c:241 [i=
+nline]
+>      [<0000000079ebab38>] vhost_net_set_backend drivers/vhost/net.c:1534 =
+[inline]
+>      [<0000000079ebab38>] vhost_net_ioctl+0xb43/0xc10 drivers/vhost/net.c=
+:1716
+>      [<000000009f6204a2>] vfs_ioctl fs/ioctl.c:46 [inline]
+>      [<000000009f6204a2>] file_ioctl fs/ioctl.c:509 [inline]
+>      [<000000009f6204a2>] do_vfs_ioctl+0x62a/0x810 fs/ioctl.c:696
+>      [<00000000b45866de>] ksys_ioctl+0x86/0xb0 fs/ioctl.c:713
+>      [<00000000dfb41eb8>] __do_sys_ioctl fs/ioctl.c:720 [inline]
+>      [<00000000dfb41eb8>] __se_sys_ioctl fs/ioctl.c:718 [inline]
+>      [<00000000dfb41eb8>] __x64_sys_ioctl+0x1e/0x30 fs/ioctl.c:718
+>      [<0000000049c1f547>] do_syscall_64+0x76/0x1a0 arch/x86/entry/common.=
+c:301
+>      [<0000000029cc8ca7>] entry_SYSCALL_64_after_hwframe+0x44/0xa9
+>
+> BUG: memory leak
+> unreferenced object 0xffff88812421fa80 (size 64):
+>    comm "syz-executor330", pid 7130, jiffies 4294949755 (age 7.930s)
+>    hex dump (first 32 bytes):
+>      01 00 00 00 01 00 00 00 00 00 00 00 2f 76 69 72  ............/vir
+>      90 fa 21 24 81 88 ff ff 90 fa 21 24 81 88 ff ff  ..!$......!$....
+>    backtrace:
+>      [<00000000ae0c4ae0>] kmemleak_alloc_recursive  include/linux/kmemlea=
+k.h:55 [inline]
+>      [<00000000ae0c4ae0>] slab_post_alloc_hook mm/slab.h:439 [inline]
+>      [<00000000ae0c4ae0>] slab_alloc mm/slab.c:3326 [inline]
+>      [<00000000ae0c4ae0>] kmem_cache_alloc_trace+0x13d/0x280 mm/slab.c:35=
+53
+>      [<0000000079ebab38>] kmalloc include/linux/slab.h:547 [inline]
+>      [<0000000079ebab38>] vhost_net_ubuf_alloc drivers/vhost/net.c:241  [=
+inline]
+>      [<0000000079ebab38>] vhost_net_set_backend drivers/vhost/net.c:1534 =
+ [inline]
+>      [<0000000079ebab38>] vhost_net_ioctl+0xb43/0xc10  drivers/vhost/net.=
+c:1716
+>      [<000000009f6204a2>] vfs_ioctl fs/ioctl.c:46 [inline]
+>      [<000000009f6204a2>] file_ioctl fs/ioctl.c:509 [inline]
+>      [<000000009f6204a2>] do_vfs_ioctl+0x62a/0x810 fs/ioctl.c:696
+>      [<00000000b45866de>] ksys_ioctl+0x86/0xb0 fs/ioctl.c:713
+>      [<00000000dfb41eb8>] __do_sys_ioctl fs/ioctl.c:720 [inline]
+>      [<00000000dfb41eb8>] __se_sys_ioctl fs/ioctl.c:718 [inline]
+>      [<00000000dfb41eb8>] __x64_sys_ioctl+0x1e/0x30 fs/ioctl.c:718
+>      [<0000000049c1f547>] do_syscall_64+0x76/0x1a0  arch/x86/entry/common=
+.c:301
+>      [<0000000029cc8ca7>] entry_SYSCALL_64_after_hwframe+0x44/0xa9
+>
+> End of syzbot report.
+>
+> The function vhost_net_ubuf_alloc() appears in the two cases of dump info=
+, for
+> pid 7130 and 7117, suggesting that it is ubuf leak.
+>
+> Since commit c38e39c378f4 ("vhost-net: fix use-after-free in vhost_net_fl=
+ush")
+> the function vhost_net_flush() had been no longer releasing ubuf.
+>
+> Freeing the slab after the last flush in the release path fixes it.
+>
+>
+> Fixes: c38e39c378f4 ("vhost-net: fix use-after-free in vhost_net_flush")
+> Reported-by: Syzbot <syzbot+0789f0c7e45efd7bb643@syzkaller.appspotmail.co=
+m>
+> Suggested-by: Jason Wang <jasowang@redhat.com>
+> Cc: Dmitry Vyukov <dvyukov@google.com>
+> Cc: Asias He <asias@redhat.com>
+> Signed-off-by: Hillf Danton <hdanton@sina.com>
 > ---
->  net/vmw_vsock/af_vsock.c | 38 +++++++-------------------------------
->  1 file changed, 7 insertions(+), 31 deletions(-)
+> This is sent only for collecting Tested-by.
+>
+>  drivers/vhost/net.c | 1 +
+>  1 file changed, 1 insertion(+)
+>
+> diff --git a/drivers/vhost/net.c b/drivers/vhost/net.c
+> index 3beb401..22fae0a 100644
+> --- a/drivers/vhost/net.c
+> +++ b/drivers/vhost/net.c
+> @@ -1404,6 +1404,7 @@ static int vhost_net_release(struct inode *inode, s=
+truct file *f)
+>         /* We do an extra flush before freeing memory,
+>          * since jobs can re-queue themselves. */
+>         vhost_net_flush(n);
+> +       kfree(n->vqs[VHOST_NET_VQ_TX].ubufs);
+>         kfree(n->vqs[VHOST_NET_VQ_RX].rxq.queue);
+>         kfree(n->vqs[VHOST_NET_VQ_TX].xdp);
+>         kfree(n->dev.vqs);
+> --
+>
 
-Reviewed-by: Stefan Hajnoczi <stefanha@redhat.com>
+--000000000000355591058b35b99c
+Content-Type: application/octet-stream; name=patch
+Content-Disposition: attachment; filename=patch
+Content-Transfer-Encoding: base64
+Content-ID: <f_jwus9oj40>
+X-Attachment-Id: f_jwus9oj40
 
---IJpNTDwzlM2Ie8A6
-Content-Type: application/pgp-signature; name="signature.asc"
-
------BEGIN PGP SIGNATURE-----
-
-iQEzBAEBCAAdFiEEhpWov9P5fNqsNXdanKSrs4Grc8gFAl0CYhYACgkQnKSrs4Gr
-c8iFswgAkhny+CmJw7mow5IOVXXncE2TxFf99EHKsOr8iDtwufjIL8hwWvTaUe6P
-RTvfmyV/gNWaNTeDS59vx2PjBj6lqFvNcSkHgxk2TedBTjYZuT9zVpxgaR35z8/+
-ijwiQDEUItPe/QTgLtGCe7cWonERvH8isScXPkJeRQwy6AM4VUgUA0BAp4UJ8d1C
-wSPJN9FCoxq23VteUc5K64rfZx/HJ9nQHSgXpaGs1HZUP4ZCt+d+IdnHQqwnMqcO
-StHv/E1Hw52VWDsuwnxBnabAj8upxLAAwz3fczAIBBv8Gzgcsm4mJ27kz1canPlv
-TYXCHiC/JJ9sj1U5f6ggZhXBCsY9+g==
-=426n
------END PGP SIGNATURE-----
-
---IJpNTDwzlM2Ie8A6--
-
---===============5374647294567990292==
+ZGlmZiAtLWdpdCBhL2RyaXZlcnMvdmhvc3QvbmV0LmMgYi9kcml2ZXJzL3Zob3N0L25ldC5jCmlu
+ZGV4IDNiZWI0MDEuLjIyZmFlMGEgMTAwNjQ0Ci0tLSBhL2RyaXZlcnMvdmhvc3QvbmV0LmMKKysr
+IGIvZHJpdmVycy92aG9zdC9uZXQuYwpAQCAtMTQwNCw2ICsxNDA0LDcgQEAgc3RhdGljIGludCB2
+aG9zdF9uZXRfcmVsZWFzZShzdHJ1Y3QgaW5vZGUgKmlub2RlLCBzdHJ1Y3QgZmlsZSAqZikKIAkv
+KiBXZSBkbyBhbiBleHRyYSBmbHVzaCBiZWZvcmUgZnJlZWluZyBtZW1vcnksCiAJICogc2luY2Ug
+am9icyBjYW4gcmUtcXVldWUgdGhlbXNlbHZlcy4gKi8KIAl2aG9zdF9uZXRfZmx1c2gobik7CisJ
+a2ZyZWUobi0+dnFzW1ZIT1NUX05FVF9WUV9UWF0udWJ1ZnMpOwogCWtmcmVlKG4tPnZxc1tWSE9T
+VF9ORVRfVlFfUlhdLnJ4cS5xdWV1ZSk7CiAJa2ZyZWUobi0+dnFzW1ZIT1NUX05FVF9WUV9UWF0u
+eGRwKTsKIAlrZnJlZShuLT5kZXYudnFzKTsKLS0K
+--000000000000355591058b35b99c
 Content-Type: text/plain; charset="us-ascii"
 MIME-Version: 1.0
 Content-Transfer-Encoding: 7bit
@@ -75,4 +229,4 @@ _______________________________________________
 Virtualization mailing list
 Virtualization@lists.linux-foundation.org
 https://lists.linuxfoundation.org/mailman/listinfo/virtualization
---===============5374647294567990292==--
+--000000000000355591058b35b99c--
