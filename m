@@ -1,14 +1,13 @@
-From: Sunil Muthuswamy via Virtualization
-	<virtualization@lists.linux-foundation.org>
-Subject: [PATCH net-next] vsock: correct removal of socket from the list
-Date: Thu, 13 Jun 2019 03:52:27 +0000
-Message-ID: <MW2PR2101MB11162BBAEC52B232A7B1EFAFC0EF0__11226.048103866$1563995139$gmane$org@MW2PR2101MB1116.namprd21.prod.outlook.com>
-Reply-To: Sunil Muthuswamy <sunilmut@microsoft.com>
+From: syzbot <syzbot+0789f0c7e45efd7bb643@syzkaller.appspotmail.com>
+Subject: Re: memory leak in vhost_net_ioctl
+Date: Thu, 13 Jun 2019 11:26:00 -0700
+Message-ID: <0000000000007042a8058b38a946__12192.399408535$1563995155$gmane$org@google.com>
+References: <CACT4Y+bAuAiApr9CxSH5CoDnZ5hYmU+K4kJqrSo5yBZLyrzONA@mail.gmail.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
+Content-Type: text/plain; charset="us-ascii"; Format="flowed"; DelSp="yes"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-Content-Language: en-US
+In-Reply-To: <CACT4Y+bAuAiApr9CxSH5CoDnZ5hYmU+K4kJqrSo5yBZLyrzONA@mail.gmail.com>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -18,94 +17,204 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: "David S. Miller" <davem@davemloft.net>, Stefan Hajnoczi <stefanha@redhat.com>, "kvm@vger.kernel.org" <kvm@vger.kernel.org>, "virtualization@lists.linux-foundation.org" <virtualization@lists.linux-foundation.org>
-Cc: "netdev@vger.kernel.org" <netdev@vger.kernel.org>, Dexuan Cui <decui@microsoft.com>
+To: asias@redhat.com, ast@kernel.org, bpf@vger.kernel.org, daniel@iogearbox.net, davem@davemloft.net, dvyukov@google.com, hawk@kernel.org, hdanton@sina.com, jakub.kicinski@netronome.com, jasowang@redhat.com, john.fastabend@gmail.com, kvm@vger.kernel.org, linux-kernel@vger.kernel.org, mst@redhat.com, netdev@vger.kernel.org, syzkaller-bugs@googlegroups.com, virtualization@lists.linux-foundation.org, xdp-newbies@vger.kernel.org
 List-Id: virtualization@lists.linuxfoundation.org
 
-The current vsock code for removal of socket from the list is both
-subject to race and inefficient. It takes the lock, checks whether
-the socket is in the list, drops the lock and if the socket was on the
-list, deletes it from the list. This is subject to race because as soon
-as the lock is dropped once it is checked for presence, that condition
-cannot be relied upon for any decision. It is also inefficient because
-if the socket is present in the list, it takes the lock twice.
+Hello,
 
-Signed-off-by: Sunil Muthuswamy <sunilmut@microsoft.com>
----
- net/vmw_vsock/af_vsock.c | 38 +++++++-------------------------------
- 1 file changed, 7 insertions(+), 31 deletions(-)
+syzbot has tested the proposed patch but the reproducer still triggered  
+crash:
+memory leak in vhost_net_ioctl
 
-diff --git a/net/vmw_vsock/af_vsock.c b/net/vmw_vsock/af_vsock.c
-index d892000..6f063ed 100644
---- a/net/vmw_vsock/af_vsock.c
-+++ b/net/vmw_vsock/af_vsock.c
-@@ -282,7 +282,8 @@ EXPORT_SYMBOL_GPL(vsock_insert_connected);
- void vsock_remove_bound(struct vsock_sock *vsk)
- {
- 	spin_lock_bh(&vsock_table_lock);
--	__vsock_remove_bound(vsk);
-+	if (__vsock_in_bound_table(vsk))
-+		__vsock_remove_bound(vsk);
- 	spin_unlock_bh(&vsock_table_lock);
- }
- EXPORT_SYMBOL_GPL(vsock_remove_bound);
-@@ -290,7 +291,8 @@ EXPORT_SYMBOL_GPL(vsock_remove_bound);
- void vsock_remove_connected(struct vsock_sock *vsk)
- {
- 	spin_lock_bh(&vsock_table_lock);
--	__vsock_remove_connected(vsk);
-+	if (__vsock_in_connected_table(vsk))
-+		__vsock_remove_connected(vsk);
- 	spin_unlock_bh(&vsock_table_lock);
- }
- EXPORT_SYMBOL_GPL(vsock_remove_connected);
-@@ -326,35 +328,10 @@ struct sock *vsock_find_connected_socket(struct sockaddr_vm *src,
- }
- EXPORT_SYMBOL_GPL(vsock_find_connected_socket);
- 
--static bool vsock_in_bound_table(struct vsock_sock *vsk)
--{
--	bool ret;
--
--	spin_lock_bh(&vsock_table_lock);
--	ret = __vsock_in_bound_table(vsk);
--	spin_unlock_bh(&vsock_table_lock);
--
--	return ret;
--}
--
--static bool vsock_in_connected_table(struct vsock_sock *vsk)
--{
--	bool ret;
--
--	spin_lock_bh(&vsock_table_lock);
--	ret = __vsock_in_connected_table(vsk);
--	spin_unlock_bh(&vsock_table_lock);
--
--	return ret;
--}
--
- void vsock_remove_sock(struct vsock_sock *vsk)
- {
--	if (vsock_in_bound_table(vsk))
--		vsock_remove_bound(vsk);
--
--	if (vsock_in_connected_table(vsk))
--		vsock_remove_connected(vsk);
-+	vsock_remove_bound(vsk);
-+	vsock_remove_connected(vsk);
- }
- EXPORT_SYMBOL_GPL(vsock_remove_sock);
- 
-@@ -485,8 +462,7 @@ static void vsock_pending_work(struct work_struct *work)
- 	 * incoming packets can't find this socket, and to reduce the reference
- 	 * count.
- 	 */
--	if (vsock_in_connected_table(vsk))
--		vsock_remove_connected(vsk);
-+	vsock_remove_connected(vsk);
- 
- 	sk->sk_state = TCP_CLOSE;
- 
--- 
-2.7.4
+ANGE): hsr_slave_1: link becomes ready
+2019/06/13 18:24:57 executed programs: 18
+BUG: memory leak
+unreferenced object 0xffff88811cbc6ac0 (size 64):
+   comm "syz-executor.0", pid 7196, jiffies 4294943804 (age 14.770s)
+   hex dump (first 32 bytes):
+     01 00 00 00 81 88 ff ff 00 00 00 00 82 88 ff ff  ................
+     d0 6a bc 1c 81 88 ff ff d0 6a bc 1c 81 88 ff ff  .j.......j......
+   backtrace:
+     [<000000006c752978>] kmemleak_alloc_recursive  
+include/linux/kmemleak.h:43 [inline]
+     [<000000006c752978>] slab_post_alloc_hook mm/slab.h:439 [inline]
+     [<000000006c752978>] slab_alloc mm/slab.c:3326 [inline]
+     [<000000006c752978>] kmem_cache_alloc_trace+0x13d/0x280 mm/slab.c:3553
+     [<00000000b3825d52>] kmalloc include/linux/slab.h:547 [inline]
+     [<00000000b3825d52>] vhost_net_ubuf_alloc drivers/vhost/net.c:241  
+[inline]
+     [<00000000b3825d52>] vhost_net_set_backend drivers/vhost/net.c:1535  
+[inline]
+     [<00000000b3825d52>] vhost_net_ioctl+0xb43/0xc10  
+drivers/vhost/net.c:1717
+     [<00000000700f02d7>] vfs_ioctl fs/ioctl.c:46 [inline]
+     [<00000000700f02d7>] file_ioctl fs/ioctl.c:509 [inline]
+     [<00000000700f02d7>] do_vfs_ioctl+0x62a/0x810 fs/ioctl.c:696
+     [<000000009a0ec0a7>] ksys_ioctl+0x86/0xb0 fs/ioctl.c:713
+     [<00000000d9416323>] __do_sys_ioctl fs/ioctl.c:720 [inline]
+     [<00000000d9416323>] __se_sys_ioctl fs/ioctl.c:718 [inline]
+     [<00000000d9416323>] __x64_sys_ioctl+0x1e/0x30 fs/ioctl.c:718
+     [<00000000e4407a23>] do_syscall_64+0x76/0x1a0  
+arch/x86/entry/common.c:301
+     [<000000008715c149>] entry_SYSCALL_64_after_hwframe+0x44/0xa9
+
+BUG: memory leak
+unreferenced object 0xffff88810b1365c0 (size 64):
+   comm "syz-executor.2", pid 7193, jiffies 4294943823 (age 14.580s)
+   hex dump (first 32 bytes):
+     01 00 00 00 81 88 ff ff 00 00 00 00 81 88 ff ff  ................
+     d0 65 13 0b 81 88 ff ff d0 65 13 0b 81 88 ff ff  .e.......e......
+   backtrace:
+     [<000000006c752978>] kmemleak_alloc_recursive  
+include/linux/kmemleak.h:43 [inline]
+     [<000000006c752978>] slab_post_alloc_hook mm/slab.h:439 [inline]
+     [<000000006c752978>] slab_alloc mm/slab.c:3326 [inline]
+     [<000000006c752978>] kmem_cache_alloc_trace+0x13d/0x280 mm/slab.c:3553
+     [<00000000b3825d52>] kmalloc include/linux/slab.h:547 [inline]
+     [<00000000b3825d52>] vhost_net_ubuf_alloc drivers/vhost/net.c:241  
+[inline]
+     [<00000000b3825d52>] vhost_net_set_backend drivers/vhost/net.c:1535  
+[inline]
+     [<00000000b3825d52>] vhost_net_ioctl+0xb43/0xc10  
+drivers/vhost/net.c:1717
+     [<00000000700f02d7>] vfs_ioctl fs/ioctl.c:46 [inline]
+     [<00000000700f02d7>] file_ioctl fs/ioctl.c:509 [inline]
+     [<00000000700f02d7>] do_vfs_ioctl+0x62a/0x810 fs/ioctl.c:696
+     [<000000009a0ec0a7>] ksys_ioctl+0x86/0xb0 fs/ioctl.c:713
+     [<00000000d9416323>] __do_sys_ioctl fs/ioctl.c:720 [inline]
+     [<00000000d9416323>] __se_sys_ioctl fs/ioctl.c:718 [inline]
+     [<00000000d9416323>] __x64_sys_ioctl+0x1e/0x30 fs/ioctl.c:718
+     [<00000000e4407a23>] do_syscall_64+0x76/0x1a0  
+arch/x86/entry/common.c:301
+     [<000000008715c149>] entry_SYSCALL_64_after_hwframe+0x44/0xa9
+
+BUG: memory leak
+unreferenced object 0xffff88810be23700 (size 64):
+   comm "syz-executor.3", pid 7194, jiffies 4294943823 (age 14.580s)
+   hex dump (first 32 bytes):
+     01 00 00 00 00 00 00 00 00 00 00 00 00 c9 ff ff  ................
+     10 37 e2 0b 81 88 ff ff 10 37 e2 0b 81 88 ff ff  .7.......7......
+   backtrace:
+     [<000000006c752978>] kmemleak_alloc_recursive  
+include/linux/kmemleak.h:43 [inline]
+     [<000000006c752978>] slab_post_alloc_hook mm/slab.h:439 [inline]
+     [<000000006c752978>] slab_alloc mm/slab.c:3326 [inline]
+     [<000000006c752978>] kmem_cache_alloc_trace+0x13d/0x280 mm/slab.c:3553
+     [<00000000b3825d52>] kmalloc include/linux/slab.h:547 [inline]
+     [<00000000b3825d52>] vhost_net_ubuf_alloc drivers/vhost/net.c:241  
+[inline]
+     [<00000000b3825d52>] vhost_net_set_backend drivers/vhost/net.c:1535  
+[inline]
+     [<00000000b3825d52>] vhost_net_ioctl+0xb43/0xc10  
+drivers/vhost/net.c:1717
+     [<00000000700f02d7>] vfs_ioctl fs/ioctl.c:46 [inline]
+     [<00000000700f02d7>] file_ioctl fs/ioctl.c:509 [inline]
+     [<00000000700f02d7>] do_vfs_ioctl+0x62a/0x810 fs/ioctl.c:696
+     [<000000009a0ec0a7>] ksys_ioctl+0x86/0xb0 fs/ioctl.c:713
+     [<00000000d9416323>] __do_sys_ioctl fs/ioctl.c:720 [inline]
+     [<00000000d9416323>] __se_sys_ioctl fs/ioctl.c:718 [inline]
+     [<00000000d9416323>] __x64_sys_ioctl+0x1e/0x30 fs/ioctl.c:718
+     [<00000000e4407a23>] do_syscall_64+0x76/0x1a0  
+arch/x86/entry/common.c:301
+     [<000000008715c149>] entry_SYSCALL_64_after_hwframe+0x44/0xa9
+
+BUG: memory leak
+unreferenced object 0xffff88810b136500 (size 64):
+   comm "syz-executor.6", pid 7228, jiffies 4294943827 (age 14.540s)
+   hex dump (first 32 bytes):
+     01 00 00 00 20 69 6f 63 00 00 00 00 64 65 76 2f  .... ioc....dev/
+     10 65 13 0b 81 88 ff ff 10 65 13 0b 81 88 ff ff  .e.......e......
+   backtrace:
+     [<000000006c752978>] kmemleak_alloc_recursive  
+include/linux/kmemleak.h:43 [inline]
+     [<000000006c752978>] slab_post_alloc_hook mm/slab.h:439 [inline]
+     [<000000006c752978>] slab_alloc mm/slab.c:3326 [inline]
+     [<000000006c752978>] kmem_cache_alloc_trace+0x13d/0x280 mm/slab.c:3553
+     [<00000000b3825d52>] kmalloc include/linux/slab.h:547 [inline]
+     [<00000000b3825d52>] vhost_net_ubuf_alloc drivers/vhost/net.c:241  
+[inline]
+     [<00000000b3825d52>] vhost_net_set_backend drivers/vhost/net.c:1535  
+[inline]
+     [<00000000b3825d52>] vhost_net_ioctl+0xb43/0xc10  
+drivers/vhost/net.c:1717
+     [<00000000700f02d7>] vfs_ioctl fs/ioctl.c:46 [inline]
+     [<00000000700f02d7>] file_ioctl fs/ioctl.c:509 [inline]
+     [<00000000700f02d7>] do_vfs_ioctl+0x62a/0x810 fs/ioctl.c:696
+     [<000000009a0ec0a7>] ksys_ioctl+0x86/0xb0 fs/ioctl.c:713
+     [<00000000d9416323>] __do_sys_ioctl fs/ioctl.c:720 [inline]
+     [<00000000d9416323>] __se_sys_ioctl fs/ioctl.c:718 [inline]
+     [<00000000d9416323>] __x64_sys_ioctl+0x1e/0x30 fs/ioctl.c:718
+     [<00000000e4407a23>] do_syscall_64+0x76/0x1a0  
+arch/x86/entry/common.c:301
+     [<000000008715c149>] entry_SYSCALL_64_after_hwframe+0x44/0xa9
+
+BUG: memory leak
+unreferenced object 0xffff88810b9cfec0 (size 64):
+   comm "syz-executor.7", pid 7236, jiffies 4294943829 (age 14.520s)
+   hex dump (first 32 bytes):
+     01 00 00 00 20 69 6f 63 00 00 00 00 64 65 76 2f  .... ioc....dev/
+     d0 fe 9c 0b 81 88 ff ff d0 fe 9c 0b 81 88 ff ff  ................
+   backtrace:
+     [<000000006c752978>] kmemleak_alloc_recursive  
+include/linux/kmemleak.h:43 [inline]
+     [<000000006c752978>] slab_post_alloc_hook mm/slab.h:439 [inline]
+     [<000000006c752978>] slab_alloc mm/slab.c:3326 [inline]
+     [<000000006c752978>] kmem_cache_alloc_trace+0x13d/0x280 mm/slab.c:3553
+     [<00000000b3825d52>] kmalloc include/linux/slab.h:547 [inline]
+     [<00000000b3825d52>] vhost_net_ubuf_alloc drivers/vhost/net.c:241  
+[inline]
+     [<00000000b3825d52>] vhost_net_set_backend drivers/vhost/net.c:1535  
+[inline]
+     [<00000000b3825d52>] vhost_net_ioctl+0xb43/0xc10  
+drivers/vhost/net.c:1717
+     [<00000000700f02d7>] vfs_ioctl fs/ioctl.c:46 [inline]
+     [<00000000700f02d7>] file_ioctl fs/ioctl.c:509 [inline]
+     [<00000000700f02d7>] do_vfs_ioctl+0x62a/0x810 fs/ioctl.c:696
+     [<000000009a0ec0a7>] ksys_ioctl+0x86/0xb0 fs/ioctl.c:713
+     [<00000000d9416323>] __do_sys_ioctl fs/ioctl.c:720 [inline]
+     [<00000000d9416323>] __se_sys_ioctl fs/ioctl.c:718 [inline]
+     [<00000000d9416323>] __x64_sys_ioctl+0x1e/0x30 fs/ioctl.c:718
+     [<00000000e4407a23>] do_syscall_64+0x76/0x1a0  
+arch/x86/entry/common.c:301
+     [<000000008715c149>] entry_SYSCALL_64_after_hwframe+0x44/0xa9
+
+BUG: memory leak
+unreferenced object 0xffff88810b9cd380 (size 64):
+   comm "syz-executor.4", pid 7218, jiffies 4294943834 (age 14.470s)
+   hex dump (first 32 bytes):
+     01 00 00 00 81 88 ff ff 00 00 00 00 81 88 ff ff  ................
+     90 d3 9c 0b 81 88 ff ff 90 d3 9c 0b 81 88 ff ff  ................
+   backtrace:
+     [<000000006c752978>] kmemleak_alloc_recursive  
+include/linux/kmemleak.h:43 [inline]
+     [<000000006c752978>] slab_post_alloc_hook mm/slab.h:439 [inline]
+     [<000000006c752978>] slab_alloc mm/slab.c:3326 [inline]
+     [<000000006c752978>] kmem_cache_alloc_trace+0x13d/0x280 mm/slab.c:3553
+     [<00000000b3825d52>] kmalloc include/linux/slab.h:547 [inline]
+     [<00000000b3825d52>] vhost_net_ubuf_alloc drivers/vhost/net.c:241  
+[inline]
+     [<00000000b3825d52>] vhost_net_set_backend drivers/vhost/net.c:1535  
+[inline]
+     [<00000000b3825d52>] vhost_net_ioctl+0xb43/0xc10  
+drivers/vhost/net.c:1717
+     [<00000000700f02d7>] vfs_ioctl fs/ioctl.c:46 [inline]
+     [<00000000700f02d7>] file_ioctl fs/ioctl.c:509 [inline]
+     [<00000000700f02d7>] do_vfs_ioctl+0x62a/0x810 fs/ioctl.c:696
+     [<000000009a0ec0a7>] ksys_ioctl+0x86/0xb0 fs/ioctl.c:713
+     [<00000000d9416323>] __do_sys_ioctl fs/ioctl.c:720 [inline]
+     [<00000000d9416323>] __se_sys_ioctl fs/ioctl.c:718 [inline]
+     [<00000000d9416323>] __x64_sys_ioctl+0x1e/0x30 fs/ioctl.c:718
+     [<00000000e4407a23>] do_syscall_64+0x76/0x1a0  
+arch/x86/entry/common.c:301
+     [<000000008715c149>] entry_SYSCALL_64_after_hwframe+0x44/0xa9
+
+
+
+Tested on:
+
+commit:         c11fb13a Merge branch 'for-linus' of git://git.kernel.org/..
+git tree:       upstream
+console output: https://syzkaller.appspot.com/x/log.txt?x=11c6b666a00000
+kernel config:  https://syzkaller.appspot.com/x/.config?x=cb38d33cd06d8d48
+compiler:       gcc (GCC) 9.0.0 20181231 (experimental)
+patch:          https://syzkaller.appspot.com/x/patch.diff?x=11ff0de1a00000
