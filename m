@@ -1,7 +1,7 @@
-From: Geert Uytterhoeven <geert+renesas@glider.be>
-Subject: [PATCH trivial] mm/balloon_compaction: Grammar s/the its/its/
-Date: Fri,  7 Jun 2019 13:35:59 +0200
-Message-ID: <20190607113559.15115-1-geert+renesas__18635.745711957$1563994884$gmane$org@glider.be>
+From: Hillf Danton <hdanton@sina.com>
+Subject: Re: memory leak in vhost_net_ioctl
+Date: Thu, 13 Jun 2019 20:06:59 +0800
+Message-ID: <20190613120659.10680-1-hdanton@sina.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
@@ -15,27 +15,24 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: "Michael S . Tsirkin" <mst@redhat.com>, Jason Wang <jasowang@redhat.com>, Jiri Kosina <trivial@kernel.org>
-Cc: linux-mm@kvack.org, linux-kernel@vger.kernel.org, Geert Uytterhoeven <geert+renesas@glider.be>, virtualization@lists.linux-foundation.org
+To: Jason Wang <jasowang@redhat.com>
+Cc: "xdp-newbies@vger.kernel.org" <xdp-newbies@vger.kernel.org>, "jakub.kicinski@netronome.com" <jakub.kicinski@netronome.com>, "hawk@kernel.org" <hawk@kernel.org>, "daniel@iogearbox.net" <daniel@iogearbox.net>, "mst@redhat.com" <mst@redhat.com>, syzbot <syzbot+0789f0c7e45efd7bb643@syzkaller.appspotmail.com>, "netdev@vger.kernel.org" <netdev@vger.kernel.org>, "john.fastabend@gmail.com" <john.fastabend@gmail.com>, "ast@kernel.org" <ast@kernel.org>, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>, "syzkaller-bugs@googlegroups.com" <syzkaller-bugs@googlegroups.com>, "kvm@vger.kernel.org" <kvm@vger.kernel.org>, "bpf@vger.kernel.org" <bpf@vger.kernel.org>, "virtualization@lists.linux-foundation.org" <virtualization@lists.linux-foundation.org>, "davem@davemloft.net" <davem@davemloft.net>
 List-Id: virtualization@lists.linuxfoundation.org
 
-Signed-off-by: Geert Uytterhoeven <geert+renesas@glider.be>
----
- mm/balloon_compaction.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/mm/balloon_compaction.c b/mm/balloon_compaction.c
-index ba739b76e6c52e55..17ac81d8d26bcb50 100644
---- a/mm/balloon_compaction.c
-+++ b/mm/balloon_compaction.c
-@@ -60,7 +60,7 @@ EXPORT_SYMBOL_GPL(balloon_page_enqueue);
- 
- /*
-  * balloon_page_dequeue - removes a page from balloon's page list and returns
-- *			  the its address to allow the driver release the page.
-+ *			  its address to allow the driver to release the page.
-  * @b_dev_info: balloon device decriptor where we will grab a page from.
-  *
-  * Driver must call it to properly de-allocate a previous enlisted balloon page
--- 
-2.17.1
+Hello Jason
+
+On Thu, 13 Jun 2019 17:10:39 +0800 Jason Wang wrote:
+> 
+> This is basically a kfree(ubuf) after the second vhost_net_flush() in
+> vhost_net_release().
+> 
+Fairly good catch.
+
+> Could you please post a formal patch?
+> 
+I'd like very much to do that; but I wont, I am afraid, until I collect a
+Tested-by because of reproducer without a cutting edge.
+
+Thanks
+Hillf
