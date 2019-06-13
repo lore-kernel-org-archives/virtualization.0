@@ -1,16 +1,22 @@
-From: Michael Mueller <mimu@linux.ibm.com>
-Subject: Re: [PATCH v5 7/8] virtio/s390: use DMA memory for ccw I/O and
-	classic notifiers
-Date: Thu, 13 Jun 2019 10:32:49 +0200
-Message-ID: <902dbdb0-96c3-821c-6793-d7fb98e1f1e7@linux.ibm.com>
-References: <20190612111236.99538-1-pasic@linux.ibm.com>
-	<20190612111236.99538-8-pasic@linux.ibm.com>
-Reply-To: mimu@linux.ibm.com
+From: Jason Wang <jasowang@redhat.com>
+Subject: Re: [PATCH 3/4] vsock/virtio: fix flush of works during the .remove()
+Date: Thu, 13 Jun 2019 16:57:15 +0800
+Message-ID: <b1fa0b2f-f7d0-8117-0bde-0cb78d1a3d07@redhat.com>
+References: <20190528105623.27983-1-sgarzare@redhat.com>
+	<20190528105623.27983-4-sgarzare@redhat.com>
+	<9ac9fc4b-5c39-2503-dfbb-660a7bdcfbfd@redhat.com>
+	<20190529105832.oz3sagbne5teq3nt@steredhat>
+	<8c9998c8-1b9c-aac6-42eb-135fcb966187@redhat.com>
+	<20190530101036.wnjphmajrz6nz6zc@steredhat.homenet.telecomitalia.it>
+	<4c881585-8fee-0a53-865c-05d41ffb8ed1@redhat.com>
+	<20190531081824.p6ylsgvkrbckhqpx@steredhat>
+	<dbc9964c-65b1-0993-488b-cb44aea55e90@redhat.com>
+	<20190606081109.gdx4rsly5i6gtg57@steredhat>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"; Format="flowed"
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset="utf-8"; Format="flowed"
+Content-Transfer-Encoding: base64
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <20190612111236.99538-8-pasic@linux.ibm.com>
+In-Reply-To: <20190606081109.gdx4rsly5i6gtg57@steredhat>
 Content-Language: en-US
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
@@ -21,516 +27,106 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Halil Pasic <pasic@linux.ibm.com>, kvm@vger.kernel.org, linux-s390@vger.kernel.org, Cornelia Huck <cohuck@redhat.com>, Sebastian Ott <sebott@linux.ibm.com>, Heiko Carstens <heiko.carstens@de.ibm.com>
-Cc: "Jason J. Herne" <jjherne@linux.ibm.com>, Thomas Huth <thuth@redhat.com>, Claudio Imbrenda <imbrenda@linux.ibm.com>, Janosch Frank <frankja@linux.ibm.com>, Vasily Gorbik <gor@linux.ibm.com>, "Michael S. Tsirkin" <mst@redhat.com>, Farhan Ali <alifm@linux.ibm.com>, Eric Farman <farman@linux.ibm.com>, virtualization@lists.linux-foundation.org, Christoph Hellwig <hch@infradead.org>, Christian Borntraeger <borntraeger@de.ibm.com>, Viktor Mihajlovski <mihajlov@linux.ibm.com>
+To: Stefano Garzarella <sgarzare@redhat.com>
+Cc: kvm@vger.kernel.org, "Michael S . Tsirkin" <mst@redhat.com>, netdev@vger.kernel.org, linux-kernel@vger.kernel.org, virtualization@lists.linux-foundation.org, Stefan Hajnoczi <stefanha@redhat.com>, "David S. Miller" <davem@davemloft.net>
 List-Id: virtualization@lists.linuxfoundation.org
 
-
-
-On 12.06.19 13:12, Halil Pasic wrote:
-> Before virtio-ccw could get away with not using DMA API for the pieces of
-> memory it does ccw I/O with. With protected virtualization this has to
-> change, since the hypervisor needs to read and sometimes also write these
-> pieces of memory.
-> 
-> The hypervisor is supposed to poke the classic notifiers, if these are
-> used, out of band with regards to ccw I/O. So these need to be allocated
-> as DMA memory (which is shared memory for protected virtualization
-> guests).
-> 
-> Let us factor out everything from struct virtio_ccw_device that needs to
-> be DMA memory in a satellite that is allocated as such.
-> 
-> Note: The control blocks of I/O instructions do not need to be shared.
-> These are marshalled by the ultravisor.
-> 
-> Signed-off-by: Halil Pasic <pasic@linux.ibm.com>
-> Reviewed-by: Pierre Morel <pmorel@linux.ibm.com>
-> Reviewed-by: Cornelia Huck <cohuck@redhat.com>
-> ---
->   drivers/s390/virtio/virtio_ccw.c | 169 ++++++++++++++++---------------
->   1 file changed, 89 insertions(+), 80 deletions(-)
-> 
-> diff --git a/drivers/s390/virtio/virtio_ccw.c b/drivers/s390/virtio/virtio_ccw.c
-> index e96a8cc56ec2..800252955a2f 100644
-> --- a/drivers/s390/virtio/virtio_ccw.c
-> +++ b/drivers/s390/virtio/virtio_ccw.c
-> @@ -46,9 +46,15 @@ struct vq_config_block {
->   #define VIRTIO_CCW_CONFIG_SIZE 0x100
->   /* same as PCI config space size, should be enough for all drivers */
->   
-> +struct vcdev_dma_area {
-> +	unsigned long indicators;
-> +	unsigned long indicators2;
-> +	struct vq_config_block config_block;
-> +	__u8 status;
-> +};
-> +
->   struct virtio_ccw_device {
->   	struct virtio_device vdev;
-> -	__u8 *status;
->   	__u8 config[VIRTIO_CCW_CONFIG_SIZE];
->   	struct ccw_device *cdev;
->   	__u32 curr_io;
-> @@ -58,24 +64,22 @@ struct virtio_ccw_device {
->   	spinlock_t lock;
->   	struct mutex io_lock; /* Serializes I/O requests */
->   	struct list_head virtqueues;
-> -	unsigned long indicators;
-> -	unsigned long indicators2;
-> -	struct vq_config_block *config_block;
->   	bool is_thinint;
->   	bool going_away;
->   	bool device_lost;
->   	unsigned int config_ready;
->   	void *airq_info;
-> +	struct vcdev_dma_area *dma_area;
->   };
->   
->   static inline unsigned long *indicators(struct virtio_ccw_device *vcdev)
->   {
-> -	return &vcdev->indicators;
-> +	return &vcdev->dma_area->indicators;
->   }
->   
->   static inline unsigned long *indicators2(struct virtio_ccw_device *vcdev)
->   {
-> -	return &vcdev->indicators2;
-> +	return &vcdev->dma_area->indicators2;
->   }
->   
->   struct vq_info_block_legacy {
-> @@ -336,8 +340,8 @@ static void virtio_ccw_drop_indicator(struct virtio_ccw_device *vcdev,
->   	struct airq_info *airq_info = vcdev->airq_info;
->   
->   	if (vcdev->is_thinint) {
-> -		thinint_area = kzalloc(sizeof(*thinint_area),
-> -				       GFP_DMA | GFP_KERNEL);
-> +		thinint_area = ccw_device_dma_zalloc(vcdev->cdev,
-> +						     sizeof(*thinint_area));
->   		if (!thinint_area)
->   			return;
->   		thinint_area->summary_indicator =
-> @@ -348,8 +352,8 @@ static void virtio_ccw_drop_indicator(struct virtio_ccw_device *vcdev,
->   		ccw->cda = (__u32)(unsigned long) thinint_area;
->   	} else {
->   		/* payload is the address of the indicators */
-> -		indicatorp = kmalloc(sizeof(indicators(vcdev)),
-> -				     GFP_DMA | GFP_KERNEL);
-> +		indicatorp = ccw_device_dma_zalloc(vcdev->cdev,
-> +						   sizeof(indicators(vcdev)));
->   		if (!indicatorp)
->   			return;
->   		*indicatorp = 0;
-> @@ -369,8 +373,8 @@ static void virtio_ccw_drop_indicator(struct virtio_ccw_device *vcdev,
->   			 "Failed to deregister indicators (%d)\n", ret);
->   	else if (vcdev->is_thinint)
->   		virtio_ccw_drop_indicators(vcdev);
-> -	kfree(indicatorp);
-> -	kfree(thinint_area);
-> +	ccw_device_dma_free(vcdev->cdev, indicatorp, sizeof(indicators(vcdev)));
-> +	ccw_device_dma_free(vcdev->cdev, thinint_area, sizeof(*thinint_area));
->   }
->   
->   static inline long __do_kvm_notify(struct subchannel_id schid,
-> @@ -417,15 +421,15 @@ static int virtio_ccw_read_vq_conf(struct virtio_ccw_device *vcdev,
->   {
->   	int ret;
->   
-> -	vcdev->config_block->index = index;
-> +	vcdev->dma_area->config_block.index = index;
->   	ccw->cmd_code = CCW_CMD_READ_VQ_CONF;
->   	ccw->flags = 0;
->   	ccw->count = sizeof(struct vq_config_block);
-> -	ccw->cda = (__u32)(unsigned long)(vcdev->config_block);
-> +	ccw->cda = (__u32)(unsigned long)(&vcdev->dma_area->config_block);
->   	ret = ccw_io_helper(vcdev, ccw, VIRTIO_CCW_DOING_READ_VQ_CONF);
->   	if (ret)
->   		return ret;
-> -	return vcdev->config_block->num ?: -ENOENT;
-> +	return vcdev->dma_area->config_block.num ?: -ENOENT;
->   }
->   
->   static void virtio_ccw_del_vq(struct virtqueue *vq, struct ccw1 *ccw)
-> @@ -470,7 +474,8 @@ static void virtio_ccw_del_vq(struct virtqueue *vq, struct ccw1 *ccw)
->   			 ret, index);
->   
->   	vring_del_virtqueue(vq);
-> -	kfree(info->info_block);
-> +	ccw_device_dma_free(vcdev->cdev, info->info_block,
-> +			    sizeof(*info->info_block));
->   	kfree(info);
->   }
->   
-> @@ -480,7 +485,7 @@ static void virtio_ccw_del_vqs(struct virtio_device *vdev)
->   	struct ccw1 *ccw;
->   	struct virtio_ccw_device *vcdev = to_vc_device(vdev);
->   
-> -	ccw = kzalloc(sizeof(*ccw), GFP_DMA | GFP_KERNEL);
-> +	ccw = ccw_device_dma_zalloc(vcdev->cdev, sizeof(*ccw));
->   	if (!ccw)
->   		return;
->   
-> @@ -489,7 +494,7 @@ static void virtio_ccw_del_vqs(struct virtio_device *vdev)
->   	list_for_each_entry_safe(vq, n, &vdev->vqs, list)
->   		virtio_ccw_del_vq(vq, ccw);
->   
-> -	kfree(ccw);
-> +	ccw_device_dma_free(vcdev->cdev, ccw, sizeof(*ccw));
->   }
->   
->   static struct virtqueue *virtio_ccw_setup_vq(struct virtio_device *vdev,
-> @@ -512,8 +517,8 @@ static struct virtqueue *virtio_ccw_setup_vq(struct virtio_device *vdev,
->   		err = -ENOMEM;
->   		goto out_err;
->   	}
-> -	info->info_block = kzalloc(sizeof(*info->info_block),
-> -				   GFP_DMA | GFP_KERNEL);
-> +	info->info_block = ccw_device_dma_zalloc(vcdev->cdev,
-> +						 sizeof(*info->info_block));
->   	if (!info->info_block) {
->   		dev_warn(&vcdev->cdev->dev, "no info block\n");
->   		err = -ENOMEM;
-> @@ -577,7 +582,8 @@ static struct virtqueue *virtio_ccw_setup_vq(struct virtio_device *vdev,
->   	if (vq)
->   		vring_del_virtqueue(vq);
->   	if (info) {
-> -		kfree(info->info_block);
-> +		ccw_device_dma_free(vcdev->cdev, info->info_block,
-> +				    sizeof(*info->info_block));
->   	}
->   	kfree(info);
->   	return ERR_PTR(err);
-> @@ -591,7 +597,8 @@ static int virtio_ccw_register_adapter_ind(struct virtio_ccw_device *vcdev,
->   	struct virtio_thinint_area *thinint_area = NULL;
->   	struct airq_info *info;
->   
-> -	thinint_area = kzalloc(sizeof(*thinint_area), GFP_DMA | GFP_KERNEL);
-> +	thinint_area = ccw_device_dma_zalloc(vcdev->cdev,
-> +					     sizeof(*thinint_area));
->   	if (!thinint_area) {
->   		ret = -ENOMEM;
->   		goto out;
-> @@ -627,7 +634,7 @@ static int virtio_ccw_register_adapter_ind(struct virtio_ccw_device *vcdev,
->   		virtio_ccw_drop_indicators(vcdev);
->   	}
->   out:
-> -	kfree(thinint_area);
-> +	ccw_device_dma_free(vcdev->cdev, thinint_area, sizeof(*thinint_area));
->   	return ret;
->   }
->   
-> @@ -643,7 +650,7 @@ static int virtio_ccw_find_vqs(struct virtio_device *vdev, unsigned nvqs,
->   	int ret, i, queue_idx = 0;
->   	struct ccw1 *ccw;
->   
-> -	ccw = kzalloc(sizeof(*ccw), GFP_DMA | GFP_KERNEL);
-> +	ccw = ccw_device_dma_zalloc(vcdev->cdev, sizeof(*ccw));
->   	if (!ccw)
->   		return -ENOMEM;
->   
-> @@ -667,7 +674,8 @@ static int virtio_ccw_find_vqs(struct virtio_device *vdev, unsigned nvqs,
->   	 * We need a data area under 2G to communicate. Our payload is
->   	 * the address of the indicators.
->   	*/
-> -	indicatorp = kmalloc(sizeof(indicators(vcdev)), GFP_DMA | GFP_KERNEL);
-> +	indicatorp = ccw_device_dma_zalloc(vcdev->cdev,
-> +					   sizeof(indicators(vcdev)));
->   	if (!indicatorp)
->   		goto out;
->   	*indicatorp = (unsigned long) indicators(vcdev);
-> @@ -699,12 +707,16 @@ static int virtio_ccw_find_vqs(struct virtio_device *vdev, unsigned nvqs,
->   	if (ret)
->   		goto out;
->   
-> -	kfree(indicatorp);
-> -	kfree(ccw);
-> +	if (indicatorp)
-> +		ccw_device_dma_free(vcdev->cdev, indicatorp,
-> +				    sizeof(indicators(vcdev)));
-> +	ccw_device_dma_free(vcdev->cdev, ccw, sizeof(*ccw));
->   	return 0;
->   out:
-> -	kfree(indicatorp);
-> -	kfree(ccw);
-> +	if (indicatorp)
-> +		ccw_device_dma_free(vcdev->cdev, indicatorp,
-> +				    sizeof(indicators(vcdev)));
-> +	ccw_device_dma_free(vcdev->cdev, ccw, sizeof(*ccw));
->   	virtio_ccw_del_vqs(vdev);
->   	return ret;
->   }
-> @@ -714,12 +726,12 @@ static void virtio_ccw_reset(struct virtio_device *vdev)
->   	struct virtio_ccw_device *vcdev = to_vc_device(vdev);
->   	struct ccw1 *ccw;
->   
-> -	ccw = kzalloc(sizeof(*ccw), GFP_DMA | GFP_KERNEL);
-> +	ccw = ccw_device_dma_zalloc(vcdev->cdev, sizeof(*ccw));
->   	if (!ccw)
->   		return;
->   
->   	/* Zero status bits. */
-> -	*vcdev->status = 0;
-> +	vcdev->dma_area->status = 0;
->   
->   	/* Send a reset ccw on device. */
->   	ccw->cmd_code = CCW_CMD_VDEV_RESET;
-> @@ -727,7 +739,7 @@ static void virtio_ccw_reset(struct virtio_device *vdev)
->   	ccw->count = 0;
->   	ccw->cda = 0;
->   	ccw_io_helper(vcdev, ccw, VIRTIO_CCW_DOING_RESET);
-> -	kfree(ccw);
-> +	ccw_device_dma_free(vcdev->cdev, ccw, sizeof(*ccw));
->   }
->   
->   static u64 virtio_ccw_get_features(struct virtio_device *vdev)
-> @@ -738,11 +750,11 @@ static u64 virtio_ccw_get_features(struct virtio_device *vdev)
->   	u64 rc;
->   	struct ccw1 *ccw;
->   
-> -	ccw = kzalloc(sizeof(*ccw), GFP_DMA | GFP_KERNEL);
-> +	ccw = ccw_device_dma_zalloc(vcdev->cdev, sizeof(*ccw));
->   	if (!ccw)
->   		return 0;
->   
-> -	features = kzalloc(sizeof(*features), GFP_DMA | GFP_KERNEL);
-> +	features = ccw_device_dma_zalloc(vcdev->cdev, sizeof(*features));
->   	if (!features) {
->   		rc = 0;
->   		goto out_free;
-> @@ -775,8 +787,8 @@ static u64 virtio_ccw_get_features(struct virtio_device *vdev)
->   		rc |= (u64)le32_to_cpu(features->features) << 32;
->   
->   out_free:
-> -	kfree(features);
-> -	kfree(ccw);
-> +	ccw_device_dma_free(vcdev->cdev, features, sizeof(*features));
-> +	ccw_device_dma_free(vcdev->cdev, ccw, sizeof(*ccw));
->   	return rc;
->   }
->   
-> @@ -801,11 +813,11 @@ static int virtio_ccw_finalize_features(struct virtio_device *vdev)
->   		return -EINVAL;
->   	}
->   
-> -	ccw = kzalloc(sizeof(*ccw), GFP_DMA | GFP_KERNEL);
-> +	ccw = ccw_device_dma_zalloc(vcdev->cdev, sizeof(*ccw));
->   	if (!ccw)
->   		return -ENOMEM;
->   
-> -	features = kzalloc(sizeof(*features), GFP_DMA | GFP_KERNEL);
-> +	features = ccw_device_dma_zalloc(vcdev->cdev, sizeof(*features));
->   	if (!features) {
->   		ret = -ENOMEM;
->   		goto out_free;
-> @@ -840,8 +852,8 @@ static int virtio_ccw_finalize_features(struct virtio_device *vdev)
->   	ret = ccw_io_helper(vcdev, ccw, VIRTIO_CCW_DOING_WRITE_FEAT);
->   
->   out_free:
-> -	kfree(features);
-> -	kfree(ccw);
-> +	ccw_device_dma_free(vcdev->cdev, features, sizeof(*features));
-> +	ccw_device_dma_free(vcdev->cdev, ccw, sizeof(*ccw));
->   
->   	return ret;
->   }
-> @@ -855,11 +867,12 @@ static void virtio_ccw_get_config(struct virtio_device *vdev,
->   	void *config_area;
->   	unsigned long flags;
->   
-> -	ccw = kzalloc(sizeof(*ccw), GFP_DMA | GFP_KERNEL);
-> +	ccw = ccw_device_dma_zalloc(vcdev->cdev, sizeof(*ccw));
->   	if (!ccw)
->   		return;
->   
-> -	config_area = kzalloc(VIRTIO_CCW_CONFIG_SIZE, GFP_DMA | GFP_KERNEL);
-> +	config_area = ccw_device_dma_zalloc(vcdev->cdev,
-> +					    VIRTIO_CCW_CONFIG_SIZE);
->   	if (!config_area)
->   		goto out_free;
->   
-> @@ -881,8 +894,8 @@ static void virtio_ccw_get_config(struct virtio_device *vdev,
->   		memcpy(buf, config_area + offset, len);
->   
->   out_free:
-> -	kfree(config_area);
-> -	kfree(ccw);
-> +	ccw_device_dma_free(vcdev->cdev, config_area, VIRTIO_CCW_CONFIG_SIZE);
-> +	ccw_device_dma_free(vcdev->cdev, ccw, sizeof(*ccw));
->   }
->   
->   static void virtio_ccw_set_config(struct virtio_device *vdev,
-> @@ -894,11 +907,12 @@ static void virtio_ccw_set_config(struct virtio_device *vdev,
->   	void *config_area;
->   	unsigned long flags;
->   
-> -	ccw = kzalloc(sizeof(*ccw), GFP_DMA | GFP_KERNEL);
-> +	ccw = ccw_device_dma_zalloc(vcdev->cdev, sizeof(*ccw));
->   	if (!ccw)
->   		return;
->   
-> -	config_area = kzalloc(VIRTIO_CCW_CONFIG_SIZE, GFP_DMA | GFP_KERNEL);
-> +	config_area = ccw_device_dma_zalloc(vcdev->cdev,
-> +					    VIRTIO_CCW_CONFIG_SIZE);
->   	if (!config_area)
->   		goto out_free;
->   
-> @@ -917,61 +931,61 @@ static void virtio_ccw_set_config(struct virtio_device *vdev,
->   	ccw_io_helper(vcdev, ccw, VIRTIO_CCW_DOING_WRITE_CONFIG);
->   
->   out_free:
-> -	kfree(config_area);
-> -	kfree(ccw);
-> +	ccw_device_dma_free(vcdev->cdev, config_area, VIRTIO_CCW_CONFIG_SIZE);
-> +	ccw_device_dma_free(vcdev->cdev, ccw, sizeof(*ccw));
->   }
->   
->   static u8 virtio_ccw_get_status(struct virtio_device *vdev)
->   {
->   	struct virtio_ccw_device *vcdev = to_vc_device(vdev);
-> -	u8 old_status = *vcdev->status;
-> +	u8 old_status = vcdev->dma_area->status;
->   	struct ccw1 *ccw;
->   
->   	if (vcdev->revision < 1)
-> -		return *vcdev->status;
-> +		return vcdev->dma_area->status;
->   
-> -	ccw = kzalloc(sizeof(*ccw), GFP_DMA | GFP_KERNEL);
-> +	ccw = ccw_device_dma_zalloc(vcdev->cdev, sizeof(*ccw));
->   	if (!ccw)
->   		return old_status;
->   
->   	ccw->cmd_code = CCW_CMD_READ_STATUS;
->   	ccw->flags = 0;
-> -	ccw->count = sizeof(*vcdev->status);
-> -	ccw->cda = (__u32)(unsigned long)vcdev->status;
-> +	ccw->count = sizeof(vcdev->dma_area->status);
-> +	ccw->cda = (__u32)(unsigned long)&vcdev->dma_area->status;
->   	ccw_io_helper(vcdev, ccw, VIRTIO_CCW_DOING_READ_STATUS);
->   /*
->    * If the channel program failed (should only happen if the device
->    * was hotunplugged, and then we clean up via the machine check
-> - * handler anyway), vcdev->status was not overwritten and we just
-> + * handler anyway), vcdev->dma_area->status was not overwritten and we just
->    * return the old status, which is fine.
->   */
-> -	kfree(ccw);
-> +	ccw_device_dma_free(vcdev->cdev, ccw, sizeof(*ccw));
->   
-> -	return *vcdev->status;
-> +	return vcdev->dma_area->status;
->   }
->   
->   static void virtio_ccw_set_status(struct virtio_device *vdev, u8 status)
->   {
->   	struct virtio_ccw_device *vcdev = to_vc_device(vdev);
-> -	u8 old_status = *vcdev->status;
-> +	u8 old_status = vcdev->dma_area->status;
->   	struct ccw1 *ccw;
->   	int ret;
->   
-> -	ccw = kzalloc(sizeof(*ccw), GFP_DMA | GFP_KERNEL);
-> +	ccw = ccw_device_dma_zalloc(vcdev->cdev, sizeof(*ccw));
->   	if (!ccw)
->   		return;
->   
->   	/* Write the status to the host. */
-> -	*vcdev->status = status;
-> +	vcdev->dma_area->status = status;
->   	ccw->cmd_code = CCW_CMD_WRITE_STATUS;
->   	ccw->flags = 0;
->   	ccw->count = sizeof(status);
-> -	ccw->cda = (__u32)(unsigned long)vcdev->status;
-> +	ccw->cda = (__u32)(unsigned long)&vcdev->dma_area->status;
->   	ret = ccw_io_helper(vcdev, ccw, VIRTIO_CCW_DOING_WRITE_STATUS);
->   	/* Write failed? We assume status is unchanged. */
->   	if (ret)
-> -		*vcdev->status = old_status;
-> -	kfree(ccw);
-> +		vcdev->dma_area->status = old_status;
-> +	ccw_device_dma_free(vcdev->cdev, ccw, sizeof(*ccw));
->   }
->   
->   static const char *virtio_ccw_bus_name(struct virtio_device *vdev)
-> @@ -1004,8 +1018,8 @@ static void virtio_ccw_release_dev(struct device *_d)
->   	struct virtio_device *dev = dev_to_virtio(_d);
->   	struct virtio_ccw_device *vcdev = to_vc_device(dev);
->   
-> -	kfree(vcdev->status);
-> -	kfree(vcdev->config_block);
-> +	ccw_device_dma_free(vcdev->cdev, vcdev->dma_area,
-> +			    sizeof(*vcdev->dma_area));
->   	kfree(vcdev);
->   }
->   
-> @@ -1213,12 +1227,12 @@ static int virtio_ccw_set_transport_rev(struct virtio_ccw_device *vcdev)
->   	struct ccw1 *ccw;
->   	int ret;
->   
-> -	ccw = kzalloc(sizeof(*ccw), GFP_DMA | GFP_KERNEL);
-> +	ccw = ccw_device_dma_zalloc(vcdev->cdev, sizeof(*ccw));
->   	if (!ccw)
->   		return -ENOMEM;
-> -	rev = kzalloc(sizeof(*rev), GFP_DMA | GFP_KERNEL);
-> +	rev = ccw_device_dma_zalloc(vcdev->cdev, sizeof(*rev));
->   	if (!rev) {
-> -		kfree(ccw);
-> +		ccw_device_dma_free(vcdev->cdev, ccw, sizeof(*ccw));
->   		return -ENOMEM;
->   	}
->   
-> @@ -1248,8 +1262,8 @@ static int virtio_ccw_set_transport_rev(struct virtio_ccw_device *vcdev)
->   		}
->   	} while (ret == -EOPNOTSUPP);
->   
-> -	kfree(ccw);
-> -	kfree(rev);
-> +	ccw_device_dma_free(vcdev->cdev, ccw, sizeof(*ccw));
-> +	ccw_device_dma_free(vcdev->cdev, rev, sizeof(*rev));
->   	return ret;
->   }
->   
-> @@ -1266,14 +1280,10 @@ static int virtio_ccw_online(struct ccw_device *cdev)
->   		goto out_free;
->   	}
->   	vcdev->vdev.dev.parent = &cdev->dev;
-> -	vcdev->config_block = kzalloc(sizeof(*vcdev->config_block),
-> -				   GFP_DMA | GFP_KERNEL);
-> -	if (!vcdev->config_block) {
-> -		ret = -ENOMEM;
-> -		goto out_free;
-> -	}
-> -	vcdev->status = kzalloc(sizeof(*vcdev->status), GFP_DMA | GFP_KERNEL);
-> -	if (!vcdev->status) {
-> +	vcdev->cdev = cdev;
-> +	vcdev->dma_area = ccw_device_dma_zalloc(vcdev->cdev,
-> +						sizeof(*vcdev->dma_area));
-> +	if (!vcdev->dma_area) {
->   		ret = -ENOMEM;
->   		goto out_free;
->   	}
-> @@ -1282,7 +1292,6 @@ static int virtio_ccw_online(struct ccw_device *cdev)
->   
->   	vcdev->vdev.dev.release = virtio_ccw_release_dev;
->   	vcdev->vdev.config = &virtio_ccw_config_ops;
-> -	vcdev->cdev = cdev;
->   	init_waitqueue_head(&vcdev->wait_q);
->   	INIT_LIST_HEAD(&vcdev->virtqueues);
->   	spin_lock_init(&vcdev->lock);
-> @@ -1313,8 +1322,8 @@ static int virtio_ccw_online(struct ccw_device *cdev)
->   	return ret;
->   out_free:
->   	if (vcdev) {
-> -		kfree(vcdev->status);
-> -		kfree(vcdev->config_block);
-> +		ccw_device_dma_free(vcdev->cdev, vcdev->dma_area,
-> +				    sizeof(*vcdev->dma_area));
->   	}
->   	kfree(vcdev);
->   	return ret;
-> 
-
-Reviewed-by: Michael Mueller <mimu@linux.ibm.com>
-
-Michael
+Ck9uIDIwMTkvNi82IOS4i+WNiDQ6MTEsIFN0ZWZhbm8gR2FyemFyZWxsYSB3cm90ZToKPiBPbiBG
+cmksIE1heSAzMSwgMjAxOSBhdCAwNTo1NjozOVBNICswODAwLCBKYXNvbiBXYW5nIHdyb3RlOgo+
+PiBPbiAyMDE5LzUvMzEg5LiL5Y2INDoxOCwgU3RlZmFubyBHYXJ6YXJlbGxhIHdyb3RlOgo+Pj4g
+T24gVGh1LCBNYXkgMzAsIDIwMTkgYXQgMDc6NTk6MTRQTSArMDgwMCwgSmFzb24gV2FuZyB3cm90
+ZToKPj4+PiBPbiAyMDE5LzUvMzAg5LiL5Y2INjoxMCwgU3RlZmFubyBHYXJ6YXJlbGxhIHdyb3Rl
+Ogo+Pj4+PiBPbiBUaHUsIE1heSAzMCwgMjAxOSBhdCAwNTo0NjoxOFBNICswODAwLCBKYXNvbiBX
+YW5nIHdyb3RlOgo+Pj4+Pj4gT24gMjAxOS81LzI5IOS4i+WNiDY6NTgsIFN0ZWZhbm8gR2FyemFy
+ZWxsYSB3cm90ZToKPj4+Pj4+PiBPbiBXZWQsIE1heSAyOSwgMjAxOSBhdCAxMToyMjo0MEFNICsw
+ODAwLCBKYXNvbiBXYW5nIHdyb3RlOgo+Pj4+Pj4+PiBPbiAyMDE5LzUvMjgg5LiL5Y2INjo1Niwg
+U3RlZmFubyBHYXJ6YXJlbGxhIHdyb3RlOgo+Pj4+Pj4+Pj4gQEAgLTY5MCw2ICs2OTMsOSBAQCBz
+dGF0aWMgdm9pZCB2aXJ0aW9fdnNvY2tfcmVtb3ZlKHN0cnVjdCB2aXJ0aW9fZGV2aWNlICp2ZGV2
+KQo+Pj4+Pj4+Pj4gICAgICAgCXZzb2NrLT5ldmVudF9ydW4gPSBmYWxzZTsKPj4+Pj4+Pj4+ICAg
+ICAgIAltdXRleF91bmxvY2soJnZzb2NrLT5ldmVudF9sb2NrKTsKPj4+Pj4+Pj4+ICsJLyogRmx1
+c2ggYWxsIHBlbmRpbmcgd29ya3MgKi8KPj4+Pj4+Pj4+ICsJdmlydGlvX3Zzb2NrX2ZsdXNoX3dv
+cmtzKHZzb2NrKTsKPj4+Pj4+Pj4+ICsKPj4+Pj4+Pj4+ICAgICAgIAkvKiBGbHVzaCBhbGwgZGV2
+aWNlIHdyaXRlcyBhbmQgaW50ZXJydXB0cywgZGV2aWNlIHdpbGwgbm90IHVzZSBhbnkKPj4+Pj4+
+Pj4+ICAgICAgIAkgKiBtb3JlIGJ1ZmZlcnMuCj4+Pj4+Pj4+PiAgICAgICAJICovCj4+Pj4+Pj4+
+PiBAQCAtNzI2LDYgKzczMiwxMSBAQCBzdGF0aWMgdm9pZCB2aXJ0aW9fdnNvY2tfcmVtb3ZlKHN0
+cnVjdCB2aXJ0aW9fZGV2aWNlICp2ZGV2KQo+Pj4+Pj4+Pj4gICAgICAgCS8qIERlbGV0ZSB2aXJ0
+cXVldWVzIGFuZCBmbHVzaCBvdXRzdGFuZGluZyBjYWxsYmFja3MgaWYgYW55ICovCj4+Pj4+Pj4+
+PiAgICAgICAJdmRldi0+Y29uZmlnLT5kZWxfdnFzKHZkZXYpOwo+Pj4+Pj4+Pj4gKwkvKiBPdGhl
+ciB3b3JrcyBjYW4gYmUgcXVldWVkIGJlZm9yZSAnY29uZmlnLT5kZWxfdnFzKCknLCBzbyB3ZSBm
+bHVzaAo+Pj4+Pj4+Pj4gKwkgKiBhbGwgd29ya3MgYmVmb3JlIHRvIGZyZWUgdGhlIHZzb2NrIG9i
+amVjdCB0byBhdm9pZCB1c2UgYWZ0ZXIgZnJlZS4KPj4+Pj4+Pj4+ICsJICovCj4+Pj4+Pj4+PiAr
+CXZpcnRpb192c29ja19mbHVzaF93b3Jrcyh2c29jayk7Cj4+Pj4+Pj4+IFNvbWUgcXVlc3Rpb25z
+IGFmdGVyIGEgcXVpY2sgZ2xhbmNlOgo+Pj4+Pj4+Pgo+Pj4+Pj4+PiAxKSBJdCBsb29rcyB0byBt
+ZSB0aGF0IHRoZSB3b3JrIGNvdWxkIGJlIHF1ZXVlZCBmcm9tIHRoZSBwYXRoIG9mCj4+Pj4+Pj4+
+IHZzb2NrX3RyYW5zcG9ydF9jYW5jZWxfcGt0KCkgLiBJcyB0aGF0IHN5bmNocm9uaXplZCBoZXJl
+Pwo+Pj4+Pj4+Pgo+Pj4+Pj4+IEJvdGggdmlydGlvX3RyYW5zcG9ydF9zZW5kX3BrdCgpIGFuZCB2
+c29ja190cmFuc3BvcnRfY2FuY2VsX3BrdCgpIGNhbgo+Pj4+Pj4+IHF1ZXVlIHdvcmsgZnJvbSB0
+aGUgdXBwZXIgbGF5ZXIgKHNvY2tldCkuCj4+Pj4+Pj4KPj4+Pj4+PiBTZXR0aW5nIHRoZV92aXJ0
+aW9fdnNvY2sgdG8gTlVMTCwgc2hvdWxkIHN5bmNocm9uaXplLCBidXQgYWZ0ZXIgYSBjYXJlZnVs
+IGxvb2sKPj4+Pj4+PiBhIHJhcmUgaXNzdWUgY291bGQgaGFwcGVuOgo+Pj4+Pj4+IHdlIGFyZSBz
+ZXR0aW5nIHRoZV92aXJ0aW9fdnNvY2sgdG8gTlVMTCBhdCB0aGUgc3RhcnQgb2YgLnJlbW92ZSgp
+IGFuZCB3ZQo+Pj4+Pj4+IGFyZSBmcmVlaW5nIHRoZSBvYmplY3QgcG9pbnRlZCBieSBpdCBhdCB0
+aGUgZW5kIG9mIC5yZW1vdmUoKSwgc28KPj4+Pj4+PiB2aXJ0aW9fdHJhbnNwb3J0X3NlbmRfcGt0
+KCkgb3IgdnNvY2tfdHJhbnNwb3J0X2NhbmNlbF9wa3QoKSBtYXkgc3RpbGwgYmUKPj4+Pj4+PiBy
+dW5uaW5nLCBhY2Nlc3NpbmcgdGhlIG9iamVjdCB0aGF0IHdlIGFyZSBmcmVlZC4KPj4+Pj4+IFll
+cywgdGhhdCdzIG15IHBvaW50Lgo+Pj4+Pj4KPj4+Pj4+Cj4+Pj4+Pj4gU2hvdWxkIEkgdXNlIHNv
+bWV0aGluZyBsaWtlIFJDVSB0byBwcmV2ZW50IHRoaXMgaXNzdWU/Cj4+Pj4+Pj4KPj4+Pj4+PiAg
+ICAgICAgIHZpcnRpb190cmFuc3BvcnRfc2VuZF9wa3QoKSBhbmQgdnNvY2tfdHJhbnNwb3J0X2Nh
+bmNlbF9wa3QoKQo+Pj4+Pj4+ICAgICAgICAgewo+Pj4+Pj4+ICAgICAgICAgICAgIHJjdV9yZWFk
+X2xvY2soKTsKPj4+Pj4+PiAgICAgICAgICAgICB2c29jayA9IHJjdV9kZXJlZmVyZW5jZSh0aGVf
+dmlydGlvX3Zzb2NrX211dGV4KTsKPj4+Pj4+IFJDVSBpcyBwcm9iYWJseSBhIHdheSB0byBnby4g
+KExpa2Ugd2hhdCB2aG9zdF90cmFuc3BvcnRfc2VuZF9wa3QoKSBkaWQpLgo+Pj4+Pj4KPj4+Pj4g
+T2theSwgSSdtIGdvaW5nIHRoaXMgd2F5Lgo+Pj4+Pgo+Pj4+Pj4+ICAgICAgICAgICAgIC4uLgo+
+Pj4+Pj4+ICAgICAgICAgICAgIHJjdV9yZWFkX3VubG9jaygpOwo+Pj4+Pj4+ICAgICAgICAgfQo+
+Pj4+Pj4+Cj4+Pj4+Pj4gICAgICAgICB2aXJ0aW9fdnNvY2tfcmVtb3ZlKCkKPj4+Pj4+PiAgICAg
+ICAgIHsKPj4+Pj4+PiAgICAgICAgICAgICByY3VfYXNzaWduX3BvaW50ZXIodGhlX3ZpcnRpb192
+c29ja19tdXRleCwgTlVMTCk7Cj4+Pj4+Pj4gICAgICAgICAgICAgc3luY2hyb25pemVfcmN1KCk7
+Cj4+Pj4+Pj4KPj4+Pj4+PiAgICAgICAgICAgICAuLi4KPj4+Pj4+Pgo+Pj4+Pj4+ICAgICAgICAg
+ICAgIGZyZWUodnNvY2spOwo+Pj4+Pj4+ICAgICAgICAgfQo+Pj4+Pj4+Cj4+Pj4+Pj4gQ291bGQg
+dGhlcmUgYmUgYSBiZXR0ZXIgYXBwcm9hY2g/Cj4+Pj4+Pj4KPj4+Pj4+Pgo+Pj4+Pj4+PiAyKSBJ
+ZiB3ZSBkZWNpZGUgdG8gZmx1c2ggYWZ0ZXIgZGV2X3ZxcygpLCBpcyB0eF9ydW4vcnhfcnVuL2V2
+ZW50X3J1biBzdGlsbAo+Pj4+Pj4+PiBuZWVkZWQ/IEl0IGxvb2tzIHRvIG1lIHdlJ3ZlIGFscmVh
+ZHkgZG9uZSBleGNlcHQgdGhhdCB3ZSBuZWVkIGZsdXNoIHJ4X3dvcmsKPj4+Pj4+Pj4gaW4gdGhl
+IGVuZCBzaW5jZSBzZW5kX3BrdF93b3JrIGNhbiByZXF1ZXVlIHJ4X3dvcmsuCj4+Pj4+Pj4gVGhl
+IG1haW4gcmVhc29uIG9mIHR4X3J1bi9yeF9ydW4vZXZlbnRfcnVuIGlzIHRvIHByZXZlbnQgdGhh
+dCBhIHdvcmtlcgo+Pj4+Pj4+IGZ1bmN0aW9uIGlzIHJ1bm5pbmcgd2hpbGUgd2UgYXJlIGNhbGxp
+bmcgY29uZmlnLT5yZXNldCgpLgo+Pj4+Pj4+Cj4+Pj4+Pj4gRS5nLiBpZiBhbiBpbnRlcnJ1cHQg
+Y29tZXMgYmV0d2VlbiB2aXJ0aW9fdnNvY2tfZmx1c2hfd29ya3MoKSBhbmQKPj4+Pj4+PiBjb25m
+aWctPnJlc2V0KCksIGl0IGNhbiBxdWV1ZSBuZXcgd29ya3MgdGhhdCBjYW4gYWNjZXNzIHRoZSBk
+ZXZpY2Ugd2hpbGUKPj4+Pj4+PiB3ZSBhcmUgaW4gY29uZmlnLT5yZXNldCgpLgo+Pj4+Pj4+Cj4+
+Pj4+Pj4gSU1ITyB0aGV5IGFyZSBzdGlsbCBuZWVkZWQuCj4+Pj4+Pj4KPj4+Pj4+PiBXaGF0IGRv
+IHlvdSB0aGluaz8KPj4+Pj4+IEkgbWVhbiBjb3VsZCB3ZSBzaW1wbHkgZG8gZmx1c2ggYWZ0ZXIg
+cmVzZXQgb25jZSBhbmQgd2l0aG91dCB0eF9yeC9yeF9ydW4KPj4+Pj4+IHRyaWNrcz8KPj4+Pj4+
+Cj4+Pj4+PiByZXN0KCk7Cj4+Pj4+Pgo+Pj4+Pj4gdmlydGlvX3Zzb2NrX2ZsdXNoX3dvcmsoKTsK
+Pj4+Pj4+Cj4+Pj4+PiB2aXJ0aW9fdnNvY2tfZnJlZV9idWYoKTsKPj4+Pj4gTXkgb25seSBkb3Vi
+dCBpczoKPj4+Pj4gaXMgaXQgc2FmZSB0byBjYWxsIGNvbmZpZy0+cmVzZXQoKSB3aGlsZSBhIHdv
+cmtlciBmdW5jdGlvbiBjb3VsZCBhY2Nlc3MKPj4+Pj4gdGhlIGRldmljZT8KPj4+Pj4KPj4+Pj4g
+SSBoYWQgdGhpcyBkb3VidCByZWFkaW5nIHRoZSBNaWNoYWVsJ3MgYWR2aWNlWzFdIGFuZCBsb29r
+aW5nIGF0Cj4+Pj4+IHZpcnRuZXRfcmVtb3ZlKCkgd2hlcmUgdGhlcmUgYXJlIHRoZXNlIGxpbmVz
+IGJlZm9yZSB0aGUgY29uZmlnLT5yZXNldCgpOgo+Pj4+Pgo+Pj4+PiAJLyogTWFrZSBzdXJlIG5v
+IHdvcmsgaGFuZGxlciBpcyBhY2Nlc3NpbmcgdGhlIGRldmljZS4gKi8KPj4+Pj4gCWZsdXNoX3dv
+cmsoJnZpLT5jb25maWdfd29yayk7Cj4+Pj4+Cj4+Pj4+IFRoYW5rcywKPj4+Pj4gU3RlZmFubwo+
+Pj4+Pgo+Pj4+PiBbMV0gaHR0cHM6Ly9sb3JlLmtlcm5lbC5vcmcvbmV0ZGV2LzIwMTkwNTIxMDU1
+NjUwLW11dHQtc2VuZC1lbWFpbC1tc3RAa2VybmVsLm9yZwo+Pj4+IEdvb2QgcG9pbnQuIFRoZW4g
+SSBhZ3JlZSB3aXRoIHlvdS4gQnV0IGlmIHdlIGNhbiB1c2UgdGhlIFJDVSB0byBkZXRlY3QgdGhl
+Cj4+Pj4gZGV0YWNoIG9mIGRldmljZSBmcm9tIHNvY2tldCBmb3IgdGhlc2UsIGl0IHdvdWxkIGJl
+IGV2ZW4gYmV0dGVyLgo+Pj4+Cj4+PiBXaGF0IGFib3V0IGNoZWNraW5nICd0aGVfdmlydGlvX3Zz
+b2NrJyBpbiB0aGUgd29ya2VyIGZ1bmN0aW9ucyBpbiBhIFJDVQo+Pj4gY3JpdGljYWwgc2VjdGlv
+bj8KPj4+IEluIHRoaXMgd2F5LCBJIGNhbiByZW1vdmUgdGhlIHJ4X3J1bi90eF9ydW4vZXZlbnRf
+cnVuLgo+Pj4KPj4+IERvIHlvdSB0aGluayBpdCdzIGNsZWFuZXI/Cj4+Cj4+IFllcywgSSB0aGlu
+ayBzby4KPj4KPiBIaSBKYXNvbiwKPiB3aGlsZSBJIHdhcyB0cnlpbmcgdG8gdXNlIFJDVSBhbHNv
+IGZvciB3b3JrZXJzLCBJIGRpc2NvdmVyZWQgdGhhdCBpdCBjYW4KPiBub3QgYmUgdXNlZCBpZiB3
+ZSBjYW4gc2xlZXAuIChXb3JrZXJzIGhhdmUgbXV0ZXgsIG1lbW9yeSBhbGxvY2F0aW9uLCBldGMu
+KS4KPiBUaGVyZSBpcyBTUkNVLCBidXQgSSB0aGluayB0aGUgcnhfcnVuL3R4X3J1bi9ldmVudF9y
+dW4gaXMgY2xlYW5lci4KPgo+IFNvLCBpZiB5b3UgYWdyZWUgSSdkIHNlbmQgYSB2MiB1c2luZyBS
+Q1Ugb25seSBmb3IgdGhlCj4gdmlydGlvX3RyYW5zcG9ydF9zZW5kX3BrdCgpIG9yIHZzb2NrX3Ry
+YW5zcG9ydF9jYW5jZWxfcGt0KCksIGFuZCBsZWF2ZQo+IHRoaXMgcGF0Y2ggYXMgaXMgdG8gYmUg
+c3VyZSB0aGF0IG5vIG9uZSBpcyBhY2Nlc3NpbmcgdGhlIGRldmljZSB3aGlsZSB3ZQo+IGNhbGwg
+Y29uZmlnLT5yZXNldCgpLgo+Cj4gVGhhbmtzLAo+IFN0ZWZhbm8KCgpJZiBpdCB3b3JrLCBJIGRv
+bid0IG9iamVjdCB0byB1c2UgdGhhdCBjb25zaWRlciBpdCB3YXMgc3VnZ2VzdGVkIGJ5IApNaWNo
+YWVsLiBZb3UgY2FuIGdvIHRoaXMgd2F5IGFuZCBsZXQncyBzZWUuCgpQZXJzb25hbGx5IEkgd291
+bGQgbGlrZSBzb21ldGhpbmcgbW9yZSBjbGVhbmVyLiBFLmcgUkNVICsgc29tZSBraW5kIG9mIApy
+ZWZlcmVuY2UgY291bnQgKGtyZWY/KS4KClRoYW5rcwoKX19fX19fX19fX19fX19fX19fX19fX19f
+X19fX19fX19fX19fX19fX19fX19fX18KVmlydHVhbGl6YXRpb24gbWFpbGluZyBsaXN0ClZpcnR1
+YWxpemF0aW9uQGxpc3RzLmxpbnV4LWZvdW5kYXRpb24ub3JnCmh0dHBzOi8vbGlzdHMubGludXhm
+b3VuZGF0aW9uLm9yZy9tYWlsbWFuL2xpc3RpbmZvL3ZpcnR1YWxpemF0aW9u
