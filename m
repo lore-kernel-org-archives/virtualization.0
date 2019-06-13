@@ -1,14 +1,15 @@
-From: Nadav Amit via Virtualization <virtualization@lists.linux-foundation.org>
-Subject: [PATCH 4/9] x86/mm/tlb: Flush remote and local TLBs concurrently
-Date: Wed, 12 Jun 2019 23:48:08 -0700
-Message-ID: <20190613064813.8102-5-namit@vmware.com>
-References: <20190613064813.8102-1-namit@vmware.com>
-Reply-To: Nadav Amit <namit@vmware.com>
+From: Gerd Hoffmann <kraxel@redhat.com>
+Subject: Re: [PATCH v2 4/4] drm/virtio: Add memory barriers for capset cache.
+Date: Thu, 13 Jun 2019 08:59:25 +0200
+Message-ID: <20190613065925.c6c546uyp3n3nqk5__31110.2322697238$1560409178$gmane$org@sirius.home.kraxel.org>
+References: <20190605234423.11348-1-davidriley@chromium.org>
+	<20190610211810.253227-5-davidriley@chromium.org>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <20190613064813.8102-1-namit@vmware.com>
+Content-Disposition: inline
+In-Reply-To: <20190610211810.253227-5-davidriley@chromium.org>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -18,303 +19,18 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Peter Zijlstra <peterz@infradead.org>, Andy Lutomirski <luto@kernel.org>
-Cc: Sasha Levin <sashal@kernel.org>, Juergen Gross <jgross@suse.com>, linux-hyperv@vger.kernel.org, Dave Hansen <dave.hansen@linux.intel.com>, Stephen Hemminger <sthemmin@microsoft.com>, xen-devel@lists.xenproject.org, kvm@vger.kernel.org, Haiyang Zhang <haiyangz@microsoft.com>, x86@kernel.org, linux-kernel@vger.kernel.org, virtualization@lists.linux-foundation.org, Ingo Molnar <mingo@redhat.com>, Borislav Petkov <bp@alien8.de>, Paolo Bonzini <pbonzini@redhat.com>, Nadav Amit <namit@vmware.com>, Thomas Gleixner <tglx@linutronix.de>, Boris Ostrovsky <boris.ostrovsky@oracle.com>
+To: davidriley@chromium.org
+Cc: David Airlie <airlied@linux.ie>, linux-kernel@vger.kernel.org, Daniel Vetter <daniel@ffwll.ch>, dri-devel@lists.freedesktop.org, virtualization@lists.linux-foundation.org
 List-Id: virtualization@lists.linuxfoundation.org
 
-To improve TLB shootdown performance, flush the remote and local TLBs
-concurrently. Introduce flush_tlb_multi() that does so. The current
-flush_tlb_others() interface is kept, since paravirtual interfaces need
-to be adapted first before it can be removed. This is left for future
-work. In such PV environments, TLB flushes are not performed, at this
-time, concurrently.
+On Mon, Jun 10, 2019 at 02:18:10PM -0700, davidriley@chromium.org wrote:
+> From: David Riley <davidriley@chromium.org>
+> 
+> After data is copied to the cache entry, atomic_set is used indicate
+> that the data is the entry is valid without appropriate memory barriers.
+> Similarly the read side was missing the corresponding memory barriers.
 
-Add a static key to tell whether this new interface is supported.
+All pushed to drm-misc-next
 
-Cc: "K. Y. Srinivasan" <kys@microsoft.com>
-Cc: Haiyang Zhang <haiyangz@microsoft.com>
-Cc: Stephen Hemminger <sthemmin@microsoft.com>
-Cc: Sasha Levin <sashal@kernel.org>
-Cc: Thomas Gleixner <tglx@linutronix.de>
-Cc: Ingo Molnar <mingo@redhat.com>
-Cc: Borislav Petkov <bp@alien8.de>
-Cc: x86@kernel.org
-Cc: Juergen Gross <jgross@suse.com>
-Cc: Paolo Bonzini <pbonzini@redhat.com>
-Cc: Dave Hansen <dave.hansen@linux.intel.com>
-Cc: Andy Lutomirski <luto@kernel.org>
-Cc: Peter Zijlstra <peterz@infradead.org>
-Cc: Boris Ostrovsky <boris.ostrovsky@oracle.com>
-Cc: linux-hyperv@vger.kernel.org
-Cc: linux-kernel@vger.kernel.org
-Cc: virtualization@lists.linux-foundation.org
-Cc: kvm@vger.kernel.org
-Cc: xen-devel@lists.xenproject.org
-Signed-off-by: Nadav Amit <namit@vmware.com>
----
- arch/x86/hyperv/mmu.c                 |  2 +
- arch/x86/include/asm/paravirt.h       |  8 +++
- arch/x86/include/asm/paravirt_types.h |  6 +++
- arch/x86/include/asm/tlbflush.h       |  6 +++
- arch/x86/kernel/kvm.c                 |  1 +
- arch/x86/kernel/paravirt.c            |  3 ++
- arch/x86/mm/tlb.c                     | 71 ++++++++++++++++++++++-----
- arch/x86/xen/mmu_pv.c                 |  2 +
- 8 files changed, 87 insertions(+), 12 deletions(-)
-
-diff --git a/arch/x86/hyperv/mmu.c b/arch/x86/hyperv/mmu.c
-index e65d7fe6489f..ca28b400c87c 100644
---- a/arch/x86/hyperv/mmu.c
-+++ b/arch/x86/hyperv/mmu.c
-@@ -233,4 +233,6 @@ void hyperv_setup_mmu_ops(void)
- 	pr_info("Using hypercall for remote TLB flush\n");
- 	pv_ops.mmu.flush_tlb_others = hyperv_flush_tlb_others;
- 	pv_ops.mmu.tlb_remove_table = tlb_remove_table;
-+
-+	static_key_disable(&flush_tlb_multi_enabled.key);
- }
-diff --git a/arch/x86/include/asm/paravirt.h b/arch/x86/include/asm/paravirt.h
-index c25c38a05c1c..192be7254457 100644
---- a/arch/x86/include/asm/paravirt.h
-+++ b/arch/x86/include/asm/paravirt.h
-@@ -47,6 +47,8 @@ static inline void slow_down_io(void)
- #endif
- }
- 
-+DECLARE_STATIC_KEY_TRUE(flush_tlb_multi_enabled);
-+
- static inline void __flush_tlb(void)
- {
- 	PVOP_VCALL0(mmu.flush_tlb_user);
-@@ -62,6 +64,12 @@ static inline void __flush_tlb_one_user(unsigned long addr)
- 	PVOP_VCALL1(mmu.flush_tlb_one_user, addr);
- }
- 
-+static inline void flush_tlb_multi(const struct cpumask *cpumask,
-+				   const struct flush_tlb_info *info)
-+{
-+	PVOP_VCALL2(mmu.flush_tlb_multi, cpumask, info);
-+}
-+
- static inline void flush_tlb_others(const struct cpumask *cpumask,
- 				    const struct flush_tlb_info *info)
- {
-diff --git a/arch/x86/include/asm/paravirt_types.h b/arch/x86/include/asm/paravirt_types.h
-index 946f8f1f1efc..b93b3d90729a 100644
---- a/arch/x86/include/asm/paravirt_types.h
-+++ b/arch/x86/include/asm/paravirt_types.h
-@@ -211,6 +211,12 @@ struct pv_mmu_ops {
- 	void (*flush_tlb_user)(void);
- 	void (*flush_tlb_kernel)(void);
- 	void (*flush_tlb_one_user)(unsigned long addr);
-+	/*
-+	 * flush_tlb_multi() is the preferred interface, which is capable to
-+	 * flush both local and remote CPUs.
-+	 */
-+	void (*flush_tlb_multi)(const struct cpumask *cpus,
-+				const struct flush_tlb_info *info);
- 	void (*flush_tlb_others)(const struct cpumask *cpus,
- 				 const struct flush_tlb_info *info);
- 
-diff --git a/arch/x86/include/asm/tlbflush.h b/arch/x86/include/asm/tlbflush.h
-index dee375831962..79272938cf79 100644
---- a/arch/x86/include/asm/tlbflush.h
-+++ b/arch/x86/include/asm/tlbflush.h
-@@ -569,6 +569,9 @@ static inline void flush_tlb_page(struct vm_area_struct *vma, unsigned long a)
- 	flush_tlb_mm_range(vma->vm_mm, a, a + PAGE_SIZE, PAGE_SHIFT, false);
- }
- 
-+void native_flush_tlb_multi(const struct cpumask *cpumask,
-+			     const struct flush_tlb_info *info);
-+
- void native_flush_tlb_others(const struct cpumask *cpumask,
- 			     const struct flush_tlb_info *info);
- 
-@@ -593,6 +596,9 @@ static inline void arch_tlbbatch_add_mm(struct arch_tlbflush_unmap_batch *batch,
- extern void arch_tlbbatch_flush(struct arch_tlbflush_unmap_batch *batch);
- 
- #ifndef CONFIG_PARAVIRT
-+#define flush_tlb_multi(mask, info)	\
-+	native_flush_tlb_multi(mask, info)
-+
- #define flush_tlb_others(mask, info)	\
- 	native_flush_tlb_others(mask, info)
- 
-diff --git a/arch/x86/kernel/kvm.c b/arch/x86/kernel/kvm.c
-index 5169b8cc35bb..00d81e898717 100644
---- a/arch/x86/kernel/kvm.c
-+++ b/arch/x86/kernel/kvm.c
-@@ -630,6 +630,7 @@ static void __init kvm_guest_init(void)
- 	    kvm_para_has_feature(KVM_FEATURE_STEAL_TIME)) {
- 		pv_ops.mmu.flush_tlb_others = kvm_flush_tlb_others;
- 		pv_ops.mmu.tlb_remove_table = tlb_remove_table;
-+		static_key_disable(&flush_tlb_multi_enabled.key);
- 	}
- 
- 	if (kvm_para_has_feature(KVM_FEATURE_PV_EOI))
-diff --git a/arch/x86/kernel/paravirt.c b/arch/x86/kernel/paravirt.c
-index 98039d7fb998..ac00afed5570 100644
---- a/arch/x86/kernel/paravirt.c
-+++ b/arch/x86/kernel/paravirt.c
-@@ -159,6 +159,8 @@ unsigned paravirt_patch_insns(void *insn_buff, unsigned len,
- 	return insn_len;
- }
- 
-+DEFINE_STATIC_KEY_TRUE(flush_tlb_multi_enabled);
-+
- static void native_flush_tlb(void)
- {
- 	__native_flush_tlb();
-@@ -363,6 +365,7 @@ struct paravirt_patch_template pv_ops = {
- 	.mmu.flush_tlb_user	= native_flush_tlb,
- 	.mmu.flush_tlb_kernel	= native_flush_tlb_global,
- 	.mmu.flush_tlb_one_user	= native_flush_tlb_one_user,
-+	.mmu.flush_tlb_multi	= native_flush_tlb_multi,
- 	.mmu.flush_tlb_others	= native_flush_tlb_others,
- 	.mmu.tlb_remove_table	=
- 			(void (*)(struct mmu_gather *, void *))tlb_remove_page,
-diff --git a/arch/x86/mm/tlb.c b/arch/x86/mm/tlb.c
-index c34bcf03f06f..db73d5f1dd43 100644
---- a/arch/x86/mm/tlb.c
-+++ b/arch/x86/mm/tlb.c
-@@ -551,7 +551,7 @@ static void flush_tlb_func_common(const struct flush_tlb_info *f,
- 		 * garbage into our TLB.  Since switching to init_mm is barely
- 		 * slower than a minimal flush, just switch to init_mm.
- 		 *
--		 * This should be rare, with native_flush_tlb_others skipping
-+		 * This should be rare, with native_flush_tlb_multi skipping
- 		 * IPIs to lazy TLB mode CPUs.
- 		 */
- 		switch_mm_irqs_off(NULL, &init_mm, NULL);
-@@ -635,9 +635,12 @@ static void flush_tlb_func_common(const struct flush_tlb_info *f,
- 	this_cpu_write(cpu_tlbstate.ctxs[loaded_mm_asid].tlb_gen, mm_tlb_gen);
- }
- 
--static void flush_tlb_func_local(const void *info, enum tlb_flush_reason reason)
-+static void flush_tlb_func_local(void *info)
- {
- 	const struct flush_tlb_info *f = info;
-+	enum tlb_flush_reason reason;
-+
-+	reason = (f->mm == NULL) ? TLB_LOCAL_SHOOTDOWN : TLB_LOCAL_MM_SHOOTDOWN;
- 
- 	flush_tlb_func_common(f, true, reason);
- }
-@@ -655,14 +658,21 @@ static void flush_tlb_func_remote(void *info)
- 	flush_tlb_func_common(f, false, TLB_REMOTE_SHOOTDOWN);
- }
- 
--static bool tlb_is_not_lazy(int cpu, void *data)
-+static inline bool tlb_is_not_lazy(int cpu)
- {
- 	return !per_cpu(cpu_tlbstate.is_lazy, cpu);
- }
- 
--void native_flush_tlb_others(const struct cpumask *cpumask,
--			     const struct flush_tlb_info *info)
-+static DEFINE_PER_CPU(cpumask_t, flush_tlb_mask);
-+
-+void native_flush_tlb_multi(const struct cpumask *cpumask,
-+			    const struct flush_tlb_info *info)
- {
-+	/*
-+	 * Do accounting and tracing. Note that there are (and have always been)
-+	 * cases in which a remote TLB flush will be traced, but eventually
-+	 * would not happen.
-+	 */
- 	count_vm_tlb_event(NR_TLB_REMOTE_FLUSH);
- 	if (info->end == TLB_FLUSH_ALL)
- 		trace_tlb_flush(TLB_REMOTE_SEND_IPI, TLB_FLUSH_ALL);
-@@ -682,10 +692,14 @@ void native_flush_tlb_others(const struct cpumask *cpumask,
- 		 * means that the percpu tlb_gen variables won't be updated
- 		 * and we'll do pointless flushes on future context switches.
- 		 *
--		 * Rather than hooking native_flush_tlb_others() here, I think
-+		 * Rather than hooking native_flush_tlb_multi() here, I think
- 		 * that UV should be updated so that smp_call_function_many(),
- 		 * etc, are optimal on UV.
- 		 */
-+		local_irq_disable();
-+		flush_tlb_func_local((__force void *)info);
-+		local_irq_enable();
-+
- 		cpumask = uv_flush_tlb_others(cpumask, info);
- 		if (cpumask)
- 			smp_call_function_many(cpumask, flush_tlb_func_remote,
-@@ -704,11 +718,39 @@ void native_flush_tlb_others(const struct cpumask *cpumask,
- 	 * doing a speculative memory access.
- 	 */
- 	if (info->freed_tables)
--		smp_call_function_many(cpumask, flush_tlb_func_remote,
--			       (void *)info, 1);
--	else
--		on_each_cpu_cond_mask(tlb_is_not_lazy, flush_tlb_func_remote,
--				(void *)info, 1, GFP_ATOMIC, cpumask);
-+		__smp_call_function_many(cpumask, flush_tlb_func_remote,
-+					 flush_tlb_func_local, (void *)info, 1);
-+	else {
-+		/*
-+		 * Although we could have used on_each_cpu_cond_mask(),
-+		 * open-coding it has several performance advantages: (1) we can
-+		 * use specialized functions for remote and local flushes; (2)
-+		 * no need for indirect branch to test if TLB is lazy; (3) we
-+		 * can use a designated cpumask for evaluating the condition
-+		 * instead of allocating a new one.
-+		 *
-+		 * This works under the assumption that there are no nested TLB
-+		 * flushes, an assumption that is already made in
-+		 * flush_tlb_mm_range().
-+		 */
-+		struct cpumask *cond_cpumask = this_cpu_ptr(&flush_tlb_mask);
-+		int cpu;
-+
-+		cpumask_clear(cond_cpumask);
-+
-+		for_each_cpu(cpu, cpumask) {
-+			if (tlb_is_not_lazy(cpu))
-+				__cpumask_set_cpu(cpu, cond_cpumask);
-+		}
-+		__smp_call_function_many(cond_cpumask, flush_tlb_func_remote,
-+					 flush_tlb_func_local, (void *)info, 1);
-+	}
-+}
-+
-+void native_flush_tlb_others(const struct cpumask *cpumask,
-+			     const struct flush_tlb_info *info)
-+{
-+	native_flush_tlb_multi(cpumask, info);
- }
- 
- /*
-@@ -774,10 +816,15 @@ static void flush_tlb_on_cpus(const cpumask_t *cpumask,
- {
- 	int this_cpu = smp_processor_id();
- 
-+	if (static_branch_likely(&flush_tlb_multi_enabled)) {
-+		flush_tlb_multi(cpumask, info);
-+		return;
-+	}
-+
- 	if (cpumask_test_cpu(this_cpu, cpumask)) {
- 		lockdep_assert_irqs_enabled();
- 		local_irq_disable();
--		flush_tlb_func_local(info, TLB_LOCAL_MM_SHOOTDOWN);
-+		flush_tlb_func_local((__force void *)info);
- 		local_irq_enable();
- 	}
- 
-diff --git a/arch/x86/xen/mmu_pv.c b/arch/x86/xen/mmu_pv.c
-index beb44e22afdf..0cb277848cb4 100644
---- a/arch/x86/xen/mmu_pv.c
-+++ b/arch/x86/xen/mmu_pv.c
-@@ -2474,6 +2474,8 @@ void __init xen_init_mmu_ops(void)
- 
- 	pv_ops.mmu = xen_mmu_ops;
- 
-+	static_key_disable(&flush_tlb_multi_enabled.key);
-+
- 	memset(dummy_mapping, 0xff, PAGE_SIZE);
- }
- 
--- 
-2.20.1
+thanks,
+  Gerd
