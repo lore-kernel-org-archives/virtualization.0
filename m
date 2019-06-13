@@ -1,11 +1,14 @@
-From: syzbot <syzbot+0789f0c7e45efd7bb643@syzkaller.appspotmail.com>
-Subject: memory leak in vhost_net_ioctl
-Date: Wed, 05 Jun 2019 16:42:05 -0700
-Message-ID: <000000000000188da1058a9c25e3__3292.90440292738$1563995126$gmane$org@google.com>
+From: Sunil Muthuswamy via Virtualization
+	<virtualization@lists.linux-foundation.org>
+Subject: [PATCH net-next] vsock: correct removal of socket from the list
+Date: Thu, 13 Jun 2019 03:52:27 +0000
+Message-ID: <MW2PR2101MB11162BBAEC52B232A7B1EFAFC0EF0__11226.048103866$1563995139$gmane$org@MW2PR2101MB1116.namprd21.prod.outlook.com>
+Reply-To: Sunil Muthuswamy <sunilmut@microsoft.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"; Format="flowed"; DelSp="yes"
+Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
+Content-Language: en-US
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -15,99 +18,94 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: ast@kernel.org, bpf@vger.kernel.org, daniel@iogearbox.net, davem@davemloft.net, hawk@kernel.org, jakub.kicinski@netronome.com, jasowang@redhat.com, john.fastabend@gmail.com, kvm@vger.kernel.org, linux-kernel@vger.kernel.org, mst@redhat.com, netdev@vger.kernel.org, syzkaller-bugs@googlegroups.com, virtualization@lists.linux-foundation.org, xdp-newbies@vger.kernel.org
+To: "David S. Miller" <davem@davemloft.net>, Stefan Hajnoczi <stefanha@redhat.com>, "kvm@vger.kernel.org" <kvm@vger.kernel.org>, "virtualization@lists.linux-foundation.org" <virtualization@lists.linux-foundation.org>
+Cc: "netdev@vger.kernel.org" <netdev@vger.kernel.org>, Dexuan Cui <decui@microsoft.com>
 List-Id: virtualization@lists.linuxfoundation.org
 
-Hello,
+The current vsock code for removal of socket from the list is both
+subject to race and inefficient. It takes the lock, checks whether
+the socket is in the list, drops the lock and if the socket was on the
+list, deletes it from the list. This is subject to race because as soon
+as the lock is dropped once it is checked for presence, that condition
+cannot be relied upon for any decision. It is also inefficient because
+if the socket is present in the list, it takes the lock twice.
 
-syzbot found the following crash on:
-
-HEAD commit:    788a0249 Merge tag 'arc-5.2-rc4' of git://git.kernel.org/p..
-git tree:       upstream
-console output: https://syzkaller.appspot.com/x/log.txt?x=15dc9ea6a00000
-kernel config:  https://syzkaller.appspot.com/x/.config?x=d5c73825cbdc7326
-dashboard link: https://syzkaller.appspot.com/bug?extid=0789f0c7e45efd7bb643
-compiler:       gcc (GCC) 9.0.0 20181231 (experimental)
-syz repro:      https://syzkaller.appspot.com/x/repro.syz?x=10b31761a00000
-C reproducer:   https://syzkaller.appspot.com/x/repro.c?x=124892c1a00000
-
-IMPORTANT: if you fix the bug, please add the following tag to the commit:
-Reported-by: syzbot+0789f0c7e45efd7bb643@syzkaller.appspotmail.com
-
-udit: type=1400 audit(1559768703.229:36): avc:  denied  { map } for   
-pid=7116 comm="syz-executor330" path="/root/syz-executor330334897"  
-dev="sda1" ino=16461 scontext=unconfined_u:system_r:insmod_t:s0-s0:c0.c1023  
-tcontext=unconfined_u:object_r:user_home_t:s0 tclass=file permissive=1
-executing program
-executing program
-BUG: memory leak
-unreferenced object 0xffff88812421fe40 (size 64):
-   comm "syz-executor330", pid 7117, jiffies 4294949245 (age 13.030s)
-   hex dump (first 32 bytes):
-     01 00 00 00 20 69 6f 63 00 00 00 00 64 65 76 2f  .... ioc....dev/
-     50 fe 21 24 81 88 ff ff 50 fe 21 24 81 88 ff ff  P.!$....P.!$....
-   backtrace:
-     [<00000000ae0c4ae0>] kmemleak_alloc_recursive  
-include/linux/kmemleak.h:55 [inline]
-     [<00000000ae0c4ae0>] slab_post_alloc_hook mm/slab.h:439 [inline]
-     [<00000000ae0c4ae0>] slab_alloc mm/slab.c:3326 [inline]
-     [<00000000ae0c4ae0>] kmem_cache_alloc_trace+0x13d/0x280 mm/slab.c:3553
-     [<0000000079ebab38>] kmalloc include/linux/slab.h:547 [inline]
-     [<0000000079ebab38>] vhost_net_ubuf_alloc drivers/vhost/net.c:241  
-[inline]
-     [<0000000079ebab38>] vhost_net_set_backend drivers/vhost/net.c:1534  
-[inline]
-     [<0000000079ebab38>] vhost_net_ioctl+0xb43/0xc10  
-drivers/vhost/net.c:1716
-     [<000000009f6204a2>] vfs_ioctl fs/ioctl.c:46 [inline]
-     [<000000009f6204a2>] file_ioctl fs/ioctl.c:509 [inline]
-     [<000000009f6204a2>] do_vfs_ioctl+0x62a/0x810 fs/ioctl.c:696
-     [<00000000b45866de>] ksys_ioctl+0x86/0xb0 fs/ioctl.c:713
-     [<00000000dfb41eb8>] __do_sys_ioctl fs/ioctl.c:720 [inline]
-     [<00000000dfb41eb8>] __se_sys_ioctl fs/ioctl.c:718 [inline]
-     [<00000000dfb41eb8>] __x64_sys_ioctl+0x1e/0x30 fs/ioctl.c:718
-     [<0000000049c1f547>] do_syscall_64+0x76/0x1a0  
-arch/x86/entry/common.c:301
-     [<0000000029cc8ca7>] entry_SYSCALL_64_after_hwframe+0x44/0xa9
-
-BUG: memory leak
-unreferenced object 0xffff88812421fa80 (size 64):
-   comm "syz-executor330", pid 7130, jiffies 4294949755 (age 7.930s)
-   hex dump (first 32 bytes):
-     01 00 00 00 01 00 00 00 00 00 00 00 2f 76 69 72  ............/vir
-     90 fa 21 24 81 88 ff ff 90 fa 21 24 81 88 ff ff  ..!$......!$....
-   backtrace:
-     [<00000000ae0c4ae0>] kmemleak_alloc_recursive  
-include/linux/kmemleak.h:55 [inline]
-     [<00000000ae0c4ae0>] slab_post_alloc_hook mm/slab.h:439 [inline]
-     [<00000000ae0c4ae0>] slab_alloc mm/slab.c:3326 [inline]
-     [<00000000ae0c4ae0>] kmem_cache_alloc_trace+0x13d/0x280 mm/slab.c:3553
-     [<0000000079ebab38>] kmalloc include/linux/slab.h:547 [inline]
-     [<0000000079ebab38>] vhost_net_ubuf_alloc drivers/vhost/net.c:241  
-[inline]
-     [<0000000079ebab38>] vhost_net_set_backend drivers/vhost/net.c:1534  
-[inline]
-     [<0000000079ebab38>] vhost_net_ioctl+0xb43/0xc10  
-drivers/vhost/net.c:1716
-     [<000000009f6204a2>] vfs_ioctl fs/ioctl.c:46 [inline]
-     [<000000009f6204a2>] file_ioctl fs/ioctl.c:509 [inline]
-     [<000000009f6204a2>] do_vfs_ioctl+0x62a/0x810 fs/ioctl.c:696
-     [<00000000b45866de>] ksys_ioctl+0x86/0xb0 fs/ioctl.c:713
-     [<00000000dfb41eb8>] __do_sys_ioctl fs/ioctl.c:720 [inline]
-     [<00000000dfb41eb8>] __se_sys_ioctl fs/ioctl.c:718 [inline]
-     [<00000000dfb41eb8>] __x64_sys_ioctl+0x1e/0x30 fs/ioctl.c:718
-     [<0000000049c1f547>] do_syscall_64+0x76/0x1a0  
-arch/x86/entry/common.c:301
-     [<0000000029cc8ca7>] entry_SYSCALL_64_after_hwframe+0x44/0xa9
-
-
-
+Signed-off-by: Sunil Muthuswamy <sunilmut@microsoft.com>
 ---
-This bug is generated by a bot. It may contain errors.
-See https://goo.gl/tpsmEJ for more information about syzbot.
-syzbot engineers can be reached at syzkaller@googlegroups.com.
+ net/vmw_vsock/af_vsock.c | 38 +++++++-------------------------------
+ 1 file changed, 7 insertions(+), 31 deletions(-)
 
-syzbot will keep track of this bug report. See:
-https://goo.gl/tpsmEJ#status for how to communicate with syzbot.
-syzbot can test patches for this bug, for details see:
-https://goo.gl/tpsmEJ#testing-patches
+diff --git a/net/vmw_vsock/af_vsock.c b/net/vmw_vsock/af_vsock.c
+index d892000..6f063ed 100644
+--- a/net/vmw_vsock/af_vsock.c
++++ b/net/vmw_vsock/af_vsock.c
+@@ -282,7 +282,8 @@ EXPORT_SYMBOL_GPL(vsock_insert_connected);
+ void vsock_remove_bound(struct vsock_sock *vsk)
+ {
+ 	spin_lock_bh(&vsock_table_lock);
+-	__vsock_remove_bound(vsk);
++	if (__vsock_in_bound_table(vsk))
++		__vsock_remove_bound(vsk);
+ 	spin_unlock_bh(&vsock_table_lock);
+ }
+ EXPORT_SYMBOL_GPL(vsock_remove_bound);
+@@ -290,7 +291,8 @@ EXPORT_SYMBOL_GPL(vsock_remove_bound);
+ void vsock_remove_connected(struct vsock_sock *vsk)
+ {
+ 	spin_lock_bh(&vsock_table_lock);
+-	__vsock_remove_connected(vsk);
++	if (__vsock_in_connected_table(vsk))
++		__vsock_remove_connected(vsk);
+ 	spin_unlock_bh(&vsock_table_lock);
+ }
+ EXPORT_SYMBOL_GPL(vsock_remove_connected);
+@@ -326,35 +328,10 @@ struct sock *vsock_find_connected_socket(struct sockaddr_vm *src,
+ }
+ EXPORT_SYMBOL_GPL(vsock_find_connected_socket);
+ 
+-static bool vsock_in_bound_table(struct vsock_sock *vsk)
+-{
+-	bool ret;
+-
+-	spin_lock_bh(&vsock_table_lock);
+-	ret = __vsock_in_bound_table(vsk);
+-	spin_unlock_bh(&vsock_table_lock);
+-
+-	return ret;
+-}
+-
+-static bool vsock_in_connected_table(struct vsock_sock *vsk)
+-{
+-	bool ret;
+-
+-	spin_lock_bh(&vsock_table_lock);
+-	ret = __vsock_in_connected_table(vsk);
+-	spin_unlock_bh(&vsock_table_lock);
+-
+-	return ret;
+-}
+-
+ void vsock_remove_sock(struct vsock_sock *vsk)
+ {
+-	if (vsock_in_bound_table(vsk))
+-		vsock_remove_bound(vsk);
+-
+-	if (vsock_in_connected_table(vsk))
+-		vsock_remove_connected(vsk);
++	vsock_remove_bound(vsk);
++	vsock_remove_connected(vsk);
+ }
+ EXPORT_SYMBOL_GPL(vsock_remove_sock);
+ 
+@@ -485,8 +462,7 @@ static void vsock_pending_work(struct work_struct *work)
+ 	 * incoming packets can't find this socket, and to reduce the reference
+ 	 * count.
+ 	 */
+-	if (vsock_in_connected_table(vsk))
+-		vsock_remove_connected(vsk);
++	vsock_remove_connected(vsk);
+ 
+ 	sk->sk_state = TCP_CLOSE;
+ 
+-- 
+2.7.4
