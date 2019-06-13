@@ -1,16 +1,16 @@
-From: Gerd Hoffmann <kraxel@redhat.com>
-Subject: Re: [PATCH 12/13] drm/virtio: drop DRM_AUTH usage from the driver
-Date: Thu, 13 Jun 2019 09:00:16 +0200
-Message-ID: <20190613070016.sllkspqodporxtvp__14700.0204467744$1560409231$gmane$org@sirius.home.kraxel.org>
-References: <20190527081741.14235-1-emil.l.velikov@gmail.com>
-	<20190527081741.14235-12-emil.l.velikov@gmail.com>
-	<CACvgo51+WknrTjzEhc6EitJV5EA0f9SXznQMkw3Y_ixPHSOLPQ@mail.gmail.com>
+From: Michael Mueller <mimu@linux.ibm.com>
+Subject: Re: [PATCH v5 1/8] s390/mm: force swiotlb for protected virtualization
+Date: Thu, 13 Jun 2019 10:09:01 +0200
+Message-ID: <38e3b7bf-1882-a12d-073c-04d888ed2432@linux.ibm.com>
+References: <20190612111236.99538-1-pasic@linux.ibm.com>
+	<20190612111236.99538-2-pasic@linux.ibm.com>
+Reply-To: mimu@linux.ibm.com
 Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
+Content-Type: text/plain; charset="us-ascii"; Format="flowed"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-Content-Disposition: inline
-In-Reply-To: <CACvgo51+WknrTjzEhc6EitJV5EA0f9SXznQMkw3Y_ixPHSOLPQ@mail.gmail.com>
+In-Reply-To: <20190612111236.99538-2-pasic@linux.ibm.com>
+Content-Language: en-US
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -20,25 +20,166 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Emil Velikov <emil.l.velikov@gmail.com>
-Cc: David Airlie <airlied@linux.ie>, Daniel Vetter <daniel@ffwll.ch>, ML dri-devel <dri-devel@lists.freedesktop.org>, "open list:VIRTIO GPU DRIVER" <virtualization@lists.linux-foundation.org>
+To: Halil Pasic <pasic@linux.ibm.com>, kvm@vger.kernel.org, linux-s390@vger.kernel.org, Cornelia Huck <cohuck@redhat.com>, Sebastian Ott <sebott@linux.ibm.com>, Heiko Carstens <heiko.carstens@de.ibm.com>
+Cc: "Jason J. Herne" <jjherne@linux.ibm.com>, Thomas Huth <thuth@redhat.com>, Claudio Imbrenda <imbrenda@linux.ibm.com>, Janosch Frank <frankja@linux.ibm.com>, Vasily Gorbik <gor@linux.ibm.com>, "Michael S. Tsirkin" <mst@redhat.com>, Farhan Ali <alifm@linux.ibm.com>, Eric Farman <farman@linux.ibm.com>, virtualization@lists.linux-foundation.org, Christoph Hellwig <hch@infradead.org>, Christian Borntraeger <borntraeger@de.ibm.com>, Viktor Mihajlovski <mihajlov@linux.ibm.com>
 List-Id: virtualization@lists.linuxfoundation.org
 
-On Thu, Jun 06, 2019 at 11:59:15AM +0100, Emil Velikov wrote:
-> On Mon, 27 May 2019 at 09:19, Emil Velikov <emil.l.velikov@gmail.com> wrote:
-> >
-> > From: Emil Velikov <emil.velikov@collabora.com>
-> >
-> > The authentication can be circumvented, by design, by using the render
-> > node.
-> >
-> > From the driver POV there is no distinction between primary and render
-> > nodes, thus we can drop the token.
-> >
-> > Cc: Gerd Hoffmann <kraxel@redhat.com>
-> > Cc: virtualization@lists.linux-foundation.org
-> > Cc: David Airlie <airlied@linux.ie>
-> > Cc: Daniel Vetter <daniel@ffwll.ch>
-> > Signed-off-by: Emil Velikov <emil.velikov@collabora.com>
 
-Acked-by: Gerd Hoffmann <kraxel@redhat.com>
+
+On 12.06.19 13:12, Halil Pasic wrote:
+> On s390, protected virtualization guests have to use bounced I/O
+> buffers.  That requires some plumbing.
+sed 's/  / /'
+
+> 
+> Let us make sure, any device that uses DMA API with direct ops correctly
+> is spared from the problems, that a hypervisor attempting I/O to a
+> non-shared page would bring.
+
+That sentence reads pretty cumbersome.
+
+> 
+> Signed-off-by: Halil Pasic <pasic@linux.ibm.com>
+> Reviewed-by: Claudio Imbrenda <imbrenda@linux.ibm.com>
+> ---
+>   arch/s390/Kconfig                   |  4 +++
+>   arch/s390/include/asm/mem_encrypt.h | 18 +++++++++++
+>   arch/s390/mm/init.c                 | 47 +++++++++++++++++++++++++++++
+>   3 files changed, 69 insertions(+)
+>   create mode 100644 arch/s390/include/asm/mem_encrypt.h
+> 
+> diff --git a/arch/s390/Kconfig b/arch/s390/Kconfig
+> index 109243fdb6ec..88d8355b7bf7 100644
+> --- a/arch/s390/Kconfig
+> +++ b/arch/s390/Kconfig
+> @@ -1,4 +1,7 @@
+>   # SPDX-License-Identifier: GPL-2.0
+> +config ARCH_HAS_MEM_ENCRYPT
+> +        def_bool y
+> +
+>   config MMU
+>   	def_bool y
+>   
+> @@ -187,6 +190,7 @@ config S390
+>   	select VIRT_CPU_ACCOUNTING
+>   	select ARCH_HAS_SCALED_CPUTIME
+>   	select HAVE_NMI
+> +	select SWIOTLB
+>   
+>   
+>   config SCHED_OMIT_FRAME_POINTER
+> diff --git a/arch/s390/include/asm/mem_encrypt.h b/arch/s390/include/asm/mem_encrypt.h
+> new file mode 100644
+> index 000000000000..0898c09a888c
+> --- /dev/null
+> +++ b/arch/s390/include/asm/mem_encrypt.h
+> @@ -0,0 +1,18 @@
+> +/* SPDX-License-Identifier: GPL-2.0 */
+> +#ifndef S390_MEM_ENCRYPT_H__
+> +#define S390_MEM_ENCRYPT_H__
+> +
+> +#ifndef __ASSEMBLY__
+> +
+> +#define sme_me_mask	0ULL
+> +
+> +static inline bool sme_active(void) { return false; }
+> +extern bool sev_active(void);
+> +
+> +int set_memory_encrypted(unsigned long addr, int numpages);
+> +int set_memory_decrypted(unsigned long addr, int numpages);
+> +
+> +#endif	/* __ASSEMBLY__ */
+> +
+> +#endif	/* S390_MEM_ENCRYPT_H__ */
+> +
+> diff --git a/arch/s390/mm/init.c b/arch/s390/mm/init.c
+> index 14d1eae9fe43..f0bee6af3960 100644
+> --- a/arch/s390/mm/init.c
+> +++ b/arch/s390/mm/init.c
+> @@ -18,6 +18,7 @@
+>   #include <linux/mman.h>
+>   #include <linux/mm.h>
+>   #include <linux/swap.h>
+> +#include <linux/swiotlb.h>
+>   #include <linux/smp.h>
+>   #include <linux/init.h>
+>   #include <linux/pagemap.h>
+> @@ -29,6 +30,7 @@
+>   #include <linux/export.h>
+>   #include <linux/cma.h>
+>   #include <linux/gfp.h>
+> +#include <linux/dma-mapping.h>
+>   #include <asm/processor.h>
+>   #include <linux/uaccess.h>
+>   #include <asm/pgtable.h>
+> @@ -42,6 +44,8 @@
+>   #include <asm/sclp.h>
+>   #include <asm/set_memory.h>
+>   #include <asm/kasan.h>
+> +#include <asm/dma-mapping.h>
+> +#include <asm/uv.h>
+>   
+>   pgd_t swapper_pg_dir[PTRS_PER_PGD] __section(.bss..swapper_pg_dir);
+>   
+> @@ -128,6 +132,47 @@ void mark_rodata_ro(void)
+>   	pr_info("Write protected read-only-after-init data: %luk\n", size >> 10);
+>   }
+>   
+> +int set_memory_encrypted(unsigned long addr, int numpages)
+> +{
+> +	int i;
+> +
+> +	/* make specified pages unshared, (swiotlb, dma_free) */
+> +	for (i = 0; i < numpages; ++i) {
+> +		uv_remove_shared(addr);
+> +		addr += PAGE_SIZE;
+> +	}
+> +	return 0;
+> +}
+> +
+> +int set_memory_decrypted(unsigned long addr, int numpages)
+> +{
+> +	int i;
+> +	/* make specified pages shared (swiotlb, dma_alloca) */
+> +	for (i = 0; i < numpages; ++i) {
+> +		uv_set_shared(addr);
+> +		addr += PAGE_SIZE;
+> +	}
+> +	return 0;
+> +}
+> +
+> +/* are we a protected virtualization guest? */
+> +bool sev_active(void)
+> +{
+> +	return is_prot_virt_guest();
+> +}
+> +
+> +/* protected virtualization */
+> +static void pv_init(void)
+> +{
+> +	if (!is_prot_virt_guest())
+> +		return;
+> +
+> +	/* make sure bounce buffers are shared */
+> +	swiotlb_init(1);
+> +	swiotlb_update_mem_attributes();
+> +	swiotlb_force = SWIOTLB_FORCE;
+> +}
+> +
+>   void __init mem_init(void)
+>   {
+>   	cpumask_set_cpu(0, &init_mm.context.cpu_attach_mask);
+> @@ -136,6 +181,8 @@ void __init mem_init(void)
+>   	set_max_mapnr(max_low_pfn);
+>           high_memory = (void *) __va(max_low_pfn * PAGE_SIZE);
+>   
+> +	pv_init();
+> +
+>   	/* Setup guest page hinting */
+>   	cmma_init();
+>   
+> 
+
+Reviewed-by: Michael Mueller <mimu@linux.ibm.com>
+
+Michael
