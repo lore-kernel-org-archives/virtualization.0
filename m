@@ -1,7 +1,7 @@
 From: Hillf Danton <hdanton@sina.com>
 Subject: Re: memory leak in vhost_net_ioctl
-Date: Fri, 14 Jun 2019 14:31:41 +0800
-Message-ID: <20190614063141.1536-1-hdanton@sina.com>
+Date: Fri, 14 Jun 2019 20:17:50 +0800
+Message-ID: <20190614121750.8924-1-hdanton@sina.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
@@ -29,9 +29,6 @@ On Fri, 14 Jun 2019 11:04:03 +0800 syzbot wrote:
 >syzbot has tested the proposed patch but the reproducer still triggered crash:
 >memory leak in batadv_tvlv_handler_register
 >
-It is not ubuf leak which is addressed in this thread. Good news.
-I will see this new leak soon.
-
 >   484.626788][  T156] bond0 (unregistering): Releasing backup interface bond_slave_1
 >Warning: Permanently added '10.128.0.87' (ECDSA) to the list of known hosts.
 >BUG: memory leak
@@ -113,9 +110,6 @@ I will see this new leak soon.
 >     [<000000000045bc9d>] kmem_cache_alloc_trace+0x13d/0x280 mm/slab.c:3553
 >     [<00000000cc6863ae>] kmalloc include/linux/slab.h:547 [inline]
 >     [<00000000cc6863ae>] hsr_create_self_node+0x42/0x150 net/hsr/hsr_framereg.c:84
-
-Oh another one.
-
 >     [<000000000e2bb6b0>] hsr_dev_finalize+0xa4/0x233 net/hsr/hsr_device.c:441
 >     [<000000003b100a4a>] hsr_newlink+0xf3/0x140 net/hsr/hsr_netlink.c:69
 >     [<00000000b5efb0eb>] __rtnl_newlink+0x892/0xb30 net/core/rtnetlink.c:3187
@@ -141,11 +135,37 @@ Oh another one.
 >
 >commit:         c11fb13a Merge branch 'for-linus' of git://git.kernel.org/..
 >git tree:       upstream
->console output: https://syzkaller.appspot.com/x/log.txt?x=3D15c8f3b6a00000
->kernel config:  https://syzkaller.appspot.com/x/.config?x=3Dcb38d33cd06d8d48
+>console output: https://syzkaller.appspot.com/x/log.txt?x=15c8f3b6a00000
+>kernel config:  https://syzkaller.appspot.com/x/.config?x=cb38d33cd06d8d48
 >compiler:       gcc (GCC) 9.0.0 20181231 (experimental)
->patch:          https://syzkaller.appspot.com/x/patch.diff?x=3D12477101a00000
+>patch:          https://syzkaller.appspot.com/x/patch.diff?x=12477101a00000
 >
+The following diff, made against the mainline master tree, purges both the
+node_db and the self_node_db lists in the destroy path, to free any dangling
+hsr node.
 
-Thanks
+Thanks and good weekend
 Hillf
+------>8---
+---
+ net/hsr/hsr_device.c | 6 ++++++
+ 1 file changed, 6 insertions(+)
+
+diff --git a/net/hsr/hsr_device.c b/net/hsr/hsr_device.c
+index 15c7206..c98ae6f 100644
+--- a/net/hsr/hsr_device.c
++++ b/net/hsr/hsr_device.c
+@@ -364,6 +364,12 @@ static void hsr_dev_destroy(struct net_device *hsr_dev)
+ 	del_timer_sync(&hsr->prune_timer);
+ 	del_timer_sync(&hsr->announce_timer);
+
++	while (!list_empty(&hsr->self_node_db))
++		hsr_del_node(&hsr->self_node_db);
++
++	while (!list_empty(&hsr->node_db))
++		hsr_del_node(&hsr->node_db);
++
+ 	synchronize_rcu();
+ }
+
+--
