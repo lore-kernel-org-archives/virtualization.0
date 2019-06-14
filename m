@@ -1,15 +1,13 @@
-From: Auger Eric <eric.auger@redhat.com>
-Subject: Re: [PATCH v8 5/7] iommu: Add virtio-iommu driver
-Date: Fri, 14 Jun 2019 09:33:22 +0200
-Message-ID: <5056ddfd-2f8f-39e9-2358-e5f040c890c6__25925.9010710352$1560497648$gmane$org@redhat.com>
-References: <20190530170929.19366-1-jean-philippe.brucker@arm.com>
-	<20190530170929.19366-6-jean-philippe.brucker@arm.com>
+From: Daniel Vetter <daniel.vetter@ffwll.ch>
+Subject: [PATCH 06/59] drm/prime: Actually remove DRIVER_PRIME everywhere
+Date: Fri, 14 Jun 2019 22:35:22 +0200
+Message-ID: <20190614203615.12639-7-daniel.vetter__8976.08881802938$1560544610$gmane$org@ffwll.ch>
+References: <20190614203615.12639-1-daniel.vetter@ffwll.ch>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <20190530170929.19366-6-jean-philippe.brucker@arm.com>
-Content-Language: en-US
+In-Reply-To: <20190614203615.12639-1-daniel.vetter@ffwll.ch>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -19,1155 +17,831 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Jean-Philippe Brucker <jean-philippe.brucker@arm.com>, joro@8bytes.org, mst@redhat.com
-Cc: mark.rutland@arm.com, virtio-dev@lists.oasis-open.org, Lorenzo.Pieralisi@arm.com, devicetree@vger.kernel.org, linux-pci@vger.kernel.org, virtualization@lists.linux-foundation.org, iommu@lists.linux-foundation.org, robh+dt@kernel.org, Tomasz Nowicki <tn@semihalf.com>, bhelgaas@google.com, robin.murphy@arm.com, kvmarm@lists.cs.columbia.edu
+To: DRI Development <dri-devel@lists.freedesktop.org>
+Cc: linux-aspeed@lists.ozlabs.org, nouveau@lists.freedesktop.org, virtualization@lists.linux-foundation.org, Daniel Vetter <daniel.vetter@intel.com>, linux-stm32@st-md-mailman.stormreply.com, linux-samsung-soc@vger.kernel.org, lima@lists.freedesktop.org, amd-gfx@lists.freedesktop.org, linux-rockchip@lists.infradead.org, VMware Graphics <linux-graphics-maintainer@vmware.com>, NXP Linux Team <linux-imx@nxp.com>, Daniel Vetter <daniel.vetter@ffwll.ch>, spice-devel@lists.freedesktop.org, linux-arm-msm@vger.kernel.org, Intel Graphics Development <intel-gfx@lists.freedesktop.org>, etnaviv@lists.freedesktop.org, xen-devel@lists.xenproject.org, linux-tegra@vger.kernel.org, linux-amlogic@lists.infradead.org, linux-arm-kernel@lists.infradead.org, linux-renesas-soc@vger.kernel.org, freedreno@lists.freedesktop.org
 List-Id: virtualization@lists.linuxfoundation.org
 
-Hi jean,
+Split out to make the functional changes stick out more.
 
-On 5/30/19 7:09 PM, Jean-Philippe Brucker wrote:
-> The virtio IOMMU is a para-virtualized device, allowing to send IOMMU
-> requests such as map/unmap over virtio transport without emulating page
-> tables. This implementation handles ATTACH, DETACH, MAP and UNMAP
-> requests.
-> 
-> The bulk of the code transforms calls coming from the IOMMU API into
-> corresponding virtio requests. Mappings are kept in an interval tree
-> instead of page tables. A little more work is required for modular and x86
-> support, so for the moment the driver depends on CONFIG_VIRTIO=y and
-> CONFIG_ARM64.
-> 
-> Acked-by: Joerg Roedel <jroedel@suse.de>
-> Signed-off-by: Jean-Philippe Brucker <jean-philippe.brucker@arm.com>
-Reviewed-by: Eric Auger <eric.auger@redhat.com>
+v2: amdgpu gained DRIVER_SYNCOBJ_TIMELINE.
 
-Thanks
+v3: amdgpu lost DRIVER_SYNCOBJ_TIMELINE.
 
-Eric
+Signed-off-by: Daniel Vetter <daniel.vetter@intel.com>
+Cc: amd-gfx@lists.freedesktop.org
+Cc: etnaviv@lists.freedesktop.org
+Cc: freedreno@lists.freedesktop.org
+Cc: intel-gfx@lists.freedesktop.org
+Cc: lima@lists.freedesktop.org
+Cc: linux-amlogic@lists.infradead.org
+Cc: linux-arm-kernel@lists.infradead.org
+Cc: linux-arm-msm@vger.kernel.org
+Cc: linux-aspeed@lists.ozlabs.org
+Cc: linux-renesas-soc@vger.kernel.org
+Cc: linux-rockchip@lists.infradead.org
+Cc: linux-samsung-soc@vger.kernel.org
+Cc: linux-stm32@st-md-mailman.stormreply.com
+Cc: linux-tegra@vger.kernel.org
+Cc: nouveau@lists.freedesktop.org
+Cc: NXP Linux Team <linux-imx@nxp.com>
+Cc: spice-devel@lists.freedesktop.org
+Cc: virtualization@lists.linux-foundation.org
+Cc: VMware Graphics <linux-graphics-maintainer@vmware.com>
+Cc: xen-devel@lists.xenproject.org
+---
+ drivers/gpu/drm/amd/amdgpu/amdgpu_drv.c         | 2 +-
+ drivers/gpu/drm/arc/arcpgu_drv.c                | 3 +--
+ drivers/gpu/drm/arm/display/komeda/komeda_kms.c | 2 +-
+ drivers/gpu/drm/arm/hdlcd_drv.c                 | 4 +---
+ drivers/gpu/drm/arm/malidp_drv.c                | 3 +--
+ drivers/gpu/drm/armada/armada_drv.c             | 3 +--
+ drivers/gpu/drm/aspeed/aspeed_gfx_drv.c         | 3 +--
+ drivers/gpu/drm/atmel-hlcdc/atmel_hlcdc_dc.c    | 4 +---
+ drivers/gpu/drm/bochs/bochs_drv.c               | 3 +--
+ drivers/gpu/drm/cirrus/cirrus.c                 | 2 +-
+ drivers/gpu/drm/etnaviv/etnaviv_drv.c           | 4 +---
+ drivers/gpu/drm/exynos/exynos_drm_drv.c         | 2 +-
+ drivers/gpu/drm/fsl-dcu/fsl_dcu_drm_drv.c       | 3 +--
+ drivers/gpu/drm/hisilicon/kirin/kirin_drm_drv.c | 3 +--
+ drivers/gpu/drm/i915/i915_drv.c                 | 2 +-
+ drivers/gpu/drm/imx/imx-drm-core.c              | 3 +--
+ drivers/gpu/drm/lima/lima_drv.c                 | 2 +-
+ drivers/gpu/drm/mcde/mcde_drv.c                 | 2 +-
+ drivers/gpu/drm/mediatek/mtk_drm_drv.c          | 3 +--
+ drivers/gpu/drm/meson/meson_drv.c               | 4 +---
+ drivers/gpu/drm/msm/msm_drv.c                   | 1 -
+ drivers/gpu/drm/mxsfb/mxsfb_drv.c               | 3 +--
+ drivers/gpu/drm/nouveau/nouveau_drm.c           | 2 +-
+ drivers/gpu/drm/omapdrm/omap_drv.c              | 2 +-
+ drivers/gpu/drm/panfrost/panfrost_drv.c         | 3 +--
+ drivers/gpu/drm/pl111/pl111_drv.c               | 2 +-
+ drivers/gpu/drm/qxl/qxl_drv.c                   | 3 +--
+ drivers/gpu/drm/radeon/radeon_drv.c             | 2 +-
+ drivers/gpu/drm/rcar-du/rcar_du_drv.c           | 3 +--
+ drivers/gpu/drm/rockchip/rockchip_drm_drv.c     | 3 +--
+ drivers/gpu/drm/shmobile/shmob_drm_drv.c        | 3 +--
+ drivers/gpu/drm/sti/sti_drv.c                   | 3 +--
+ drivers/gpu/drm/stm/drv.c                       | 3 +--
+ drivers/gpu/drm/sun4i/sun4i_drv.c               | 2 +-
+ drivers/gpu/drm/tegra/drm.c                     | 2 +-
+ drivers/gpu/drm/tilcdc/tilcdc_drv.c             | 3 +--
+ drivers/gpu/drm/tinydrm/hx8357d.c               | 2 +-
+ drivers/gpu/drm/tinydrm/ili9225.c               | 3 +--
+ drivers/gpu/drm/tinydrm/ili9341.c               | 2 +-
+ drivers/gpu/drm/tinydrm/mi0283qt.c              | 3 +--
+ drivers/gpu/drm/tinydrm/repaper.c               | 3 +--
+ drivers/gpu/drm/tinydrm/st7586.c                | 3 +--
+ drivers/gpu/drm/tinydrm/st7735r.c               | 3 +--
+ drivers/gpu/drm/tve200/tve200_drv.c             | 3 +--
+ drivers/gpu/drm/udl/udl_drv.c                   | 2 +-
+ drivers/gpu/drm/v3d/v3d_drv.c                   | 1 -
+ drivers/gpu/drm/vboxvideo/vbox_drv.c            | 2 +-
+ drivers/gpu/drm/vc4/vc4_drv.c                   | 1 -
+ drivers/gpu/drm/vgem/vgem_drv.c                 | 3 +--
+ drivers/gpu/drm/virtio/virtgpu_drv.c            | 2 +-
+ drivers/gpu/drm/vmwgfx/vmwgfx_drv.c             | 2 +-
+ drivers/gpu/drm/xen/xen_drm_front.c             | 3 +--
+ drivers/gpu/drm/zte/zx_drm_drv.c                | 3 +--
+ include/drm/drm_drv.h                           | 6 ------
+ 54 files changed, 50 insertions(+), 94 deletions(-)
 
-> ---
->  MAINTAINERS                       |   7 +
->  drivers/iommu/Kconfig             |  11 +
->  drivers/iommu/Makefile            |   1 +
->  drivers/iommu/virtio-iommu.c      | 934 ++++++++++++++++++++++++++++++
->  include/uapi/linux/virtio_ids.h   |   1 +
->  include/uapi/linux/virtio_iommu.h | 110 ++++
->  6 files changed, 1064 insertions(+)
->  create mode 100644 drivers/iommu/virtio-iommu.c
->  create mode 100644 include/uapi/linux/virtio_iommu.h
-> 
-> diff --git a/MAINTAINERS b/MAINTAINERS
-> index 429c6c624861..62bd1834d95a 100644
-> --- a/MAINTAINERS
-> +++ b/MAINTAINERS
-> @@ -16807,6 +16807,13 @@ S:	Maintained
->  F:	drivers/virtio/virtio_input.c
->  F:	include/uapi/linux/virtio_input.h
->  
-> +VIRTIO IOMMU DRIVER
-> +M:	Jean-Philippe Brucker <jean-philippe.brucker@arm.com>
-> +L:	virtualization@lists.linux-foundation.org
-> +S:	Maintained
-> +F:	drivers/iommu/virtio-iommu.c
-> +F:	include/uapi/linux/virtio_iommu.h
-> +
->  VIRTUAL BOX GUEST DEVICE DRIVER
->  M:	Hans de Goede <hdegoede@redhat.com>
->  M:	Arnd Bergmann <arnd@arndb.de>
-> diff --git a/drivers/iommu/Kconfig b/drivers/iommu/Kconfig
-> index 83664db5221d..e15cdcd8cb3c 100644
-> --- a/drivers/iommu/Kconfig
-> +++ b/drivers/iommu/Kconfig
-> @@ -473,4 +473,15 @@ config HYPERV_IOMMU
->  	  Stub IOMMU driver to handle IRQs as to allow Hyper-V Linux
->  	  guests to run with x2APIC mode enabled.
->  
-> +config VIRTIO_IOMMU
-> +	bool "Virtio IOMMU driver"
-> +	depends on VIRTIO=y
-> +	depends on ARM64
-> +	select IOMMU_API
-> +	select INTERVAL_TREE
-> +	help
-> +	  Para-virtualised IOMMU driver with virtio.
-> +
-> +	  Say Y here if you intend to run this kernel as a guest.
-> +
->  endif # IOMMU_SUPPORT
-> diff --git a/drivers/iommu/Makefile b/drivers/iommu/Makefile
-> index 8c71a15e986b..f13f36ae1af6 100644
-> --- a/drivers/iommu/Makefile
-> +++ b/drivers/iommu/Makefile
-> @@ -33,3 +33,4 @@ obj-$(CONFIG_FSL_PAMU) += fsl_pamu.o fsl_pamu_domain.o
->  obj-$(CONFIG_S390_IOMMU) += s390-iommu.o
->  obj-$(CONFIG_QCOM_IOMMU) += qcom_iommu.o
->  obj-$(CONFIG_HYPERV_IOMMU) += hyperv-iommu.o
-> +obj-$(CONFIG_VIRTIO_IOMMU) += virtio-iommu.o
-> diff --git a/drivers/iommu/virtio-iommu.c b/drivers/iommu/virtio-iommu.c
-> new file mode 100644
-> index 000000000000..b2719a87c3c5
-> --- /dev/null
-> +++ b/drivers/iommu/virtio-iommu.c
-> @@ -0,0 +1,934 @@
-> +// SPDX-License-Identifier: GPL-2.0
-> +/*
-> + * Virtio driver for the paravirtualized IOMMU
-> + *
-> + * Copyright (C) 2019 Arm Limited
-> + */
-> +
-> +#define pr_fmt(fmt) KBUILD_MODNAME ": " fmt
-> +
-> +#include <linux/amba/bus.h>
-> +#include <linux/delay.h>
-> +#include <linux/dma-iommu.h>
-> +#include <linux/freezer.h>
-> +#include <linux/interval_tree.h>
-> +#include <linux/iommu.h>
-> +#include <linux/module.h>
-> +#include <linux/of_iommu.h>
-> +#include <linux/of_platform.h>
-> +#include <linux/pci.h>
-> +#include <linux/platform_device.h>
-> +#include <linux/virtio.h>
-> +#include <linux/virtio_config.h>
-> +#include <linux/virtio_ids.h>
-> +#include <linux/wait.h>
-> +
-> +#include <uapi/linux/virtio_iommu.h>
-> +
-> +#define MSI_IOVA_BASE			0x8000000
-> +#define MSI_IOVA_LENGTH			0x100000
-> +
-> +#define VIOMMU_REQUEST_VQ		0
-> +#define VIOMMU_NR_VQS			1
-> +
-> +struct viommu_dev {
-> +	struct iommu_device		iommu;
-> +	struct device			*dev;
-> +	struct virtio_device		*vdev;
-> +
-> +	struct ida			domain_ids;
-> +
-> +	struct virtqueue		*vqs[VIOMMU_NR_VQS];
-> +	spinlock_t			request_lock;
-> +	struct list_head		requests;
-> +
-> +	/* Device configuration */
-> +	struct iommu_domain_geometry	geometry;
-> +	u64				pgsize_bitmap;
-> +	u32				first_domain;
-> +	u32				last_domain;
-> +	/* Supported MAP flags */
-> +	u32				map_flags;
-> +};
-> +
-> +struct viommu_mapping {
-> +	phys_addr_t			paddr;
-> +	struct interval_tree_node	iova;
-> +	u32				flags;
-> +};
-> +
-> +struct viommu_domain {
-> +	struct iommu_domain		domain;
-> +	struct viommu_dev		*viommu;
-> +	struct mutex			mutex; /* protects viommu pointer */
-> +	unsigned int			id;
-> +	u32				map_flags;
-> +
-> +	spinlock_t			mappings_lock;
-> +	struct rb_root_cached		mappings;
-> +
-> +	unsigned long			nr_endpoints;
-> +};
-> +
-> +struct viommu_endpoint {
-> +	struct viommu_dev		*viommu;
-> +	struct viommu_domain		*vdomain;
-> +};
-> +
-> +struct viommu_request {
-> +	struct list_head		list;
-> +	void				*writeback;
-> +	unsigned int			write_offset;
-> +	unsigned int			len;
-> +	char				buf[];
-> +};
-> +
-> +#define to_viommu_domain(domain)	\
-> +	container_of(domain, struct viommu_domain, domain)
-> +
-> +static int viommu_get_req_errno(void *buf, size_t len)
-> +{
-> +	struct virtio_iommu_req_tail *tail = buf + len - sizeof(*tail);
-> +
-> +	switch (tail->status) {
-> +	case VIRTIO_IOMMU_S_OK:
-> +		return 0;
-> +	case VIRTIO_IOMMU_S_UNSUPP:
-> +		return -ENOSYS;
-> +	case VIRTIO_IOMMU_S_INVAL:
-> +		return -EINVAL;
-> +	case VIRTIO_IOMMU_S_RANGE:
-> +		return -ERANGE;
-> +	case VIRTIO_IOMMU_S_NOENT:
-> +		return -ENOENT;
-> +	case VIRTIO_IOMMU_S_FAULT:
-> +		return -EFAULT;
-> +	case VIRTIO_IOMMU_S_NOMEM:
-> +		return -ENOMEM;
-> +	case VIRTIO_IOMMU_S_IOERR:
-> +	case VIRTIO_IOMMU_S_DEVERR:
-> +	default:
-> +		return -EIO;
-> +	}
-> +}
-> +
-> +static void viommu_set_req_status(void *buf, size_t len, int status)
-> +{
-> +	struct virtio_iommu_req_tail *tail = buf + len - sizeof(*tail);
-> +
-> +	tail->status = status;
-> +}
-> +
-> +static off_t viommu_get_write_desc_offset(struct viommu_dev *viommu,
-> +					  struct virtio_iommu_req_head *req,
-> +					  size_t len)
-> +{
-> +	size_t tail_size = sizeof(struct virtio_iommu_req_tail);
-> +
-> +	return len - tail_size;
-> +}
-> +
-> +/*
-> + * __viommu_sync_req - Complete all in-flight requests
-> + *
-> + * Wait for all added requests to complete. When this function returns, all
-> + * requests that were in-flight at the time of the call have completed.
-> + */
-> +static int __viommu_sync_req(struct viommu_dev *viommu)
-> +{
-> +	int ret = 0;
-> +	unsigned int len;
-> +	size_t write_len;
-> +	struct viommu_request *req;
-> +	struct virtqueue *vq = viommu->vqs[VIOMMU_REQUEST_VQ];
-> +
-> +	assert_spin_locked(&viommu->request_lock);
-> +
-> +	virtqueue_kick(vq);
-> +
-> +	while (!list_empty(&viommu->requests)) {
-> +		len = 0;
-> +		req = virtqueue_get_buf(vq, &len);
-> +		if (!req)
-> +			continue;
-> +
-> +		if (!len)
-> +			viommu_set_req_status(req->buf, req->len,
-> +					      VIRTIO_IOMMU_S_IOERR);
-> +
-> +		write_len = req->len - req->write_offset;
-> +		if (req->writeback && len == write_len)
-> +			memcpy(req->writeback, req->buf + req->write_offset,
-> +			       write_len);
-> +
-> +		list_del(&req->list);
-> +		kfree(req);
-> +	}
-> +
-> +	return ret;
-> +}
-> +
-> +static int viommu_sync_req(struct viommu_dev *viommu)
-> +{
-> +	int ret;
-> +	unsigned long flags;
-> +
-> +	spin_lock_irqsave(&viommu->request_lock, flags);
-> +	ret = __viommu_sync_req(viommu);
-> +	if (ret)
-> +		dev_dbg(viommu->dev, "could not sync requests (%d)\n", ret);
-> +	spin_unlock_irqrestore(&viommu->request_lock, flags);
-> +
-> +	return ret;
-> +}
-> +
-> +/*
-> + * __viommu_add_request - Add one request to the queue
-> + * @buf: pointer to the request buffer
-> + * @len: length of the request buffer
-> + * @writeback: copy data back to the buffer when the request completes.
-> + *
-> + * Add a request to the queue. Only synchronize the queue if it's already full.
-> + * Otherwise don't kick the queue nor wait for requests to complete.
-> + *
-> + * When @writeback is true, data written by the device, including the request
-> + * status, is copied into @buf after the request completes. This is unsafe if
-> + * the caller allocates @buf on stack and drops the lock between add_req() and
-> + * sync_req().
-> + *
-> + * Return 0 if the request was successfully added to the queue.
-> + */
-> +static int __viommu_add_req(struct viommu_dev *viommu, void *buf, size_t len,
-> +			    bool writeback)
-> +{
-> +	int ret;
-> +	off_t write_offset;
-> +	struct viommu_request *req;
-> +	struct scatterlist top_sg, bottom_sg;
-> +	struct scatterlist *sg[2] = { &top_sg, &bottom_sg };
-> +	struct virtqueue *vq = viommu->vqs[VIOMMU_REQUEST_VQ];
-> +
-> +	assert_spin_locked(&viommu->request_lock);
-> +
-> +	write_offset = viommu_get_write_desc_offset(viommu, buf, len);
-> +	if (write_offset <= 0)
-> +		return -EINVAL;
-> +
-> +	req = kzalloc(sizeof(*req) + len, GFP_ATOMIC);
-> +	if (!req)
-> +		return -ENOMEM;
-> +
-> +	req->len = len;
-> +	if (writeback) {
-> +		req->writeback = buf + write_offset;
-> +		req->write_offset = write_offset;
-> +	}
-> +	memcpy(&req->buf, buf, write_offset);
-> +
-> +	sg_init_one(&top_sg, req->buf, write_offset);
-> +	sg_init_one(&bottom_sg, req->buf + write_offset, len - write_offset);
-> +
-> +	ret = virtqueue_add_sgs(vq, sg, 1, 1, req, GFP_ATOMIC);
-> +	if (ret == -ENOSPC) {
-> +		/* If the queue is full, sync and retry */
-> +		if (!__viommu_sync_req(viommu))
-> +			ret = virtqueue_add_sgs(vq, sg, 1, 1, req, GFP_ATOMIC);
-> +	}
-> +	if (ret)
-> +		goto err_free;
-> +
-> +	list_add_tail(&req->list, &viommu->requests);
-> +	return 0;
-> +
-> +err_free:
-> +	kfree(req);
-> +	return ret;
-> +}
-> +
-> +static int viommu_add_req(struct viommu_dev *viommu, void *buf, size_t len)
-> +{
-> +	int ret;
-> +	unsigned long flags;
-> +
-> +	spin_lock_irqsave(&viommu->request_lock, flags);
-> +	ret = __viommu_add_req(viommu, buf, len, false);
-> +	if (ret)
-> +		dev_dbg(viommu->dev, "could not add request: %d\n", ret);
-> +	spin_unlock_irqrestore(&viommu->request_lock, flags);
-> +
-> +	return ret;
-> +}
-> +
-> +/*
-> + * Send a request and wait for it to complete. Return the request status (as an
-> + * errno)
-> + */
-> +static int viommu_send_req_sync(struct viommu_dev *viommu, void *buf,
-> +				size_t len)
-> +{
-> +	int ret;
-> +	unsigned long flags;
-> +
-> +	spin_lock_irqsave(&viommu->request_lock, flags);
-> +
-> +	ret = __viommu_add_req(viommu, buf, len, true);
-> +	if (ret) {
-> +		dev_dbg(viommu->dev, "could not add request (%d)\n", ret);
-> +		goto out_unlock;
-> +	}
-> +
-> +	ret = __viommu_sync_req(viommu);
-> +	if (ret) {
-> +		dev_dbg(viommu->dev, "could not sync requests (%d)\n", ret);
-> +		/* Fall-through (get the actual request status) */
-> +	}
-> +
-> +	ret = viommu_get_req_errno(buf, len);
-> +out_unlock:
-> +	spin_unlock_irqrestore(&viommu->request_lock, flags);
-> +	return ret;
-> +}
-> +
-> +/*
-> + * viommu_add_mapping - add a mapping to the internal tree
-> + *
-> + * On success, return the new mapping. Otherwise return NULL.
-> + */
-> +static int viommu_add_mapping(struct viommu_domain *vdomain, unsigned long iova,
-> +			      phys_addr_t paddr, size_t size, u32 flags)
-> +{
-> +	unsigned long irqflags;
-> +	struct viommu_mapping *mapping;
-> +
-> +	mapping = kzalloc(sizeof(*mapping), GFP_ATOMIC);
-> +	if (!mapping)
-> +		return -ENOMEM;
-> +
-> +	mapping->paddr		= paddr;
-> +	mapping->iova.start	= iova;
-> +	mapping->iova.last	= iova + size - 1;
-> +	mapping->flags		= flags;
-> +
-> +	spin_lock_irqsave(&vdomain->mappings_lock, irqflags);
-> +	interval_tree_insert(&mapping->iova, &vdomain->mappings);
-> +	spin_unlock_irqrestore(&vdomain->mappings_lock, irqflags);
-> +
-> +	return 0;
-> +}
-> +
-> +/*
-> + * viommu_del_mappings - remove mappings from the internal tree
-> + *
-> + * @vdomain: the domain
-> + * @iova: start of the range
-> + * @size: size of the range. A size of 0 corresponds to the entire address
-> + *	space.
-> + *
-> + * On success, returns the number of unmapped bytes (>= size)
-> + */
-> +static size_t viommu_del_mappings(struct viommu_domain *vdomain,
-> +				  unsigned long iova, size_t size)
-> +{
-> +	size_t unmapped = 0;
-> +	unsigned long flags;
-> +	unsigned long last = iova + size - 1;
-> +	struct viommu_mapping *mapping = NULL;
-> +	struct interval_tree_node *node, *next;
-> +
-> +	spin_lock_irqsave(&vdomain->mappings_lock, flags);
-> +	next = interval_tree_iter_first(&vdomain->mappings, iova, last);
-> +	while (next) {
-> +		node = next;
-> +		mapping = container_of(node, struct viommu_mapping, iova);
-> +		next = interval_tree_iter_next(node, iova, last);
-> +
-> +		/* Trying to split a mapping? */
-> +		if (mapping->iova.start < iova)
-> +			break;
-> +
-> +		/*
-> +		 * Virtio-iommu doesn't allow UNMAP to split a mapping created
-> +		 * with a single MAP request, so remove the full mapping.
-> +		 */
-> +		unmapped += mapping->iova.last - mapping->iova.start + 1;
-> +
-> +		interval_tree_remove(node, &vdomain->mappings);
-> +		kfree(mapping);
-> +	}
-> +	spin_unlock_irqrestore(&vdomain->mappings_lock, flags);
-> +
-> +	return unmapped;
-> +}
-> +
-> +/*
-> + * viommu_replay_mappings - re-send MAP requests
-> + *
-> + * When reattaching a domain that was previously detached from all endpoints,
-> + * mappings were deleted from the device. Re-create the mappings available in
-> + * the internal tree.
-> + */
-> +static int viommu_replay_mappings(struct viommu_domain *vdomain)
-> +{
-> +	int ret = 0;
-> +	unsigned long flags;
-> +	struct viommu_mapping *mapping;
-> +	struct interval_tree_node *node;
-> +	struct virtio_iommu_req_map map;
-> +
-> +	spin_lock_irqsave(&vdomain->mappings_lock, flags);
-> +	node = interval_tree_iter_first(&vdomain->mappings, 0, -1UL);
-> +	while (node) {
-> +		mapping = container_of(node, struct viommu_mapping, iova);
-> +		map = (struct virtio_iommu_req_map) {
-> +			.head.type	= VIRTIO_IOMMU_T_MAP,
-> +			.domain		= cpu_to_le32(vdomain->id),
-> +			.virt_start	= cpu_to_le64(mapping->iova.start),
-> +			.virt_end	= cpu_to_le64(mapping->iova.last),
-> +			.phys_start	= cpu_to_le64(mapping->paddr),
-> +			.flags		= cpu_to_le32(mapping->flags),
-> +		};
-> +
-> +		ret = viommu_send_req_sync(vdomain->viommu, &map, sizeof(map));
-> +		if (ret)
-> +			break;
-> +
-> +		node = interval_tree_iter_next(node, 0, -1UL);
-> +	}
-> +	spin_unlock_irqrestore(&vdomain->mappings_lock, flags);
-> +
-> +	return ret;
-> +}
-> +
-> +/* IOMMU API */
-> +
-> +static struct iommu_domain *viommu_domain_alloc(unsigned type)
-> +{
-> +	struct viommu_domain *vdomain;
-> +
-> +	if (type != IOMMU_DOMAIN_UNMANAGED && type != IOMMU_DOMAIN_DMA)
-> +		return NULL;
-> +
-> +	vdomain = kzalloc(sizeof(*vdomain), GFP_KERNEL);
-> +	if (!vdomain)
-> +		return NULL;
-> +
-> +	mutex_init(&vdomain->mutex);
-> +	spin_lock_init(&vdomain->mappings_lock);
-> +	vdomain->mappings = RB_ROOT_CACHED;
-> +
-> +	if (type == IOMMU_DOMAIN_DMA &&
-> +	    iommu_get_dma_cookie(&vdomain->domain)) {
-> +		kfree(vdomain);
-> +		return NULL;
-> +	}
-> +
-> +	return &vdomain->domain;
-> +}
-> +
-> +static int viommu_domain_finalise(struct viommu_dev *viommu,
-> +				  struct iommu_domain *domain)
-> +{
-> +	int ret;
-> +	struct viommu_domain *vdomain = to_viommu_domain(domain);
-> +
-> +	vdomain->viommu		= viommu;
-> +	vdomain->map_flags	= viommu->map_flags;
-> +
-> +	domain->pgsize_bitmap	= viommu->pgsize_bitmap;
-> +	domain->geometry	= viommu->geometry;
-> +
-> +	ret = ida_alloc_range(&viommu->domain_ids, viommu->first_domain,
-> +			      viommu->last_domain, GFP_KERNEL);
-> +	if (ret >= 0)
-> +		vdomain->id = (unsigned int)ret;
-> +
-> +	return ret > 0 ? 0 : ret;
-> +}
-> +
-> +static void viommu_domain_free(struct iommu_domain *domain)
-> +{
-> +	struct viommu_domain *vdomain = to_viommu_domain(domain);
-> +
-> +	iommu_put_dma_cookie(domain);
-> +
-> +	/* Free all remaining mappings (size 2^64) */
-> +	viommu_del_mappings(vdomain, 0, 0);
-> +
-> +	if (vdomain->viommu)
-> +		ida_free(&vdomain->viommu->domain_ids, vdomain->id);
-> +
-> +	kfree(vdomain);
-> +}
-> +
-> +static int viommu_attach_dev(struct iommu_domain *domain, struct device *dev)
-> +{
-> +	int i;
-> +	int ret = 0;
-> +	struct virtio_iommu_req_attach req;
-> +	struct iommu_fwspec *fwspec = dev_iommu_fwspec_get(dev);
-> +	struct viommu_endpoint *vdev = fwspec->iommu_priv;
-> +	struct viommu_domain *vdomain = to_viommu_domain(domain);
-> +
-> +	mutex_lock(&vdomain->mutex);
-> +	if (!vdomain->viommu) {
-> +		/*
-> +		 * Properly initialize the domain now that we know which viommu
-> +		 * owns it.
-> +		 */
-> +		ret = viommu_domain_finalise(vdev->viommu, domain);
-> +	} else if (vdomain->viommu != vdev->viommu) {
-> +		dev_err(dev, "cannot attach to foreign vIOMMU\n");
-> +		ret = -EXDEV;
-> +	}
-> +	mutex_unlock(&vdomain->mutex);
-> +
-> +	if (ret)
-> +		return ret;
-> +
-> +	/*
-> +	 * In the virtio-iommu device, when attaching the endpoint to a new
-> +	 * domain, it is detached from the old one and, if as as a result the
-> +	 * old domain isn't attached to any endpoint, all mappings are removed
-> +	 * from the old domain and it is freed.
-> +	 *
-> +	 * In the driver the old domain still exists, and its mappings will be
-> +	 * recreated if it gets reattached to an endpoint. Otherwise it will be
-> +	 * freed explicitly.
-> +	 *
-> +	 * vdev->vdomain is protected by group->mutex
-> +	 */
-> +	if (vdev->vdomain)
-> +		vdev->vdomain->nr_endpoints--;
-> +
-> +	req = (struct virtio_iommu_req_attach) {
-> +		.head.type	= VIRTIO_IOMMU_T_ATTACH,
-> +		.domain		= cpu_to_le32(vdomain->id),
-> +	};
-> +
-> +	for (i = 0; i < fwspec->num_ids; i++) {
-> +		req.endpoint = cpu_to_le32(fwspec->ids[i]);
-> +
-> +		ret = viommu_send_req_sync(vdomain->viommu, &req, sizeof(req));
-> +		if (ret)
-> +			return ret;
-> +	}
-> +
-> +	if (!vdomain->nr_endpoints) {
-> +		/*
-> +		 * This endpoint is the first to be attached to the domain.
-> +		 * Replay existing mappings (e.g. SW MSI).
-> +		 */
-> +		ret = viommu_replay_mappings(vdomain);
-> +		if (ret)
-> +			return ret;
-> +	}
-> +
-> +	vdomain->nr_endpoints++;
-> +	vdev->vdomain = vdomain;
-> +
-> +	return 0;
-> +}
-> +
-> +static int viommu_map(struct iommu_domain *domain, unsigned long iova,
-> +		      phys_addr_t paddr, size_t size, int prot)
-> +{
-> +	int ret;
-> +	u32 flags;
-> +	struct virtio_iommu_req_map map;
-> +	struct viommu_domain *vdomain = to_viommu_domain(domain);
-> +
-> +	flags = (prot & IOMMU_READ ? VIRTIO_IOMMU_MAP_F_READ : 0) |
-> +		(prot & IOMMU_WRITE ? VIRTIO_IOMMU_MAP_F_WRITE : 0) |
-> +		(prot & IOMMU_MMIO ? VIRTIO_IOMMU_MAP_F_MMIO : 0);
-> +
-> +	if (flags & ~vdomain->map_flags)
-> +		return -EINVAL;
-> +
-> +	ret = viommu_add_mapping(vdomain, iova, paddr, size, flags);
-> +	if (ret)
-> +		return ret;
-> +
-> +	map = (struct virtio_iommu_req_map) {
-> +		.head.type	= VIRTIO_IOMMU_T_MAP,
-> +		.domain		= cpu_to_le32(vdomain->id),
-> +		.virt_start	= cpu_to_le64(iova),
-> +		.phys_start	= cpu_to_le64(paddr),
-> +		.virt_end	= cpu_to_le64(iova + size - 1),
-> +		.flags		= cpu_to_le32(flags),
-> +	};
-> +
-> +	if (!vdomain->nr_endpoints)
-> +		return 0;
-> +
-> +	ret = viommu_send_req_sync(vdomain->viommu, &map, sizeof(map));
-> +	if (ret)
-> +		viommu_del_mappings(vdomain, iova, size);
-> +
-> +	return ret;
-> +}
-> +
-> +static size_t viommu_unmap(struct iommu_domain *domain, unsigned long iova,
-> +			   size_t size)
-> +{
-> +	int ret = 0;
-> +	size_t unmapped;
-> +	struct virtio_iommu_req_unmap unmap;
-> +	struct viommu_domain *vdomain = to_viommu_domain(domain);
-> +
-> +	unmapped = viommu_del_mappings(vdomain, iova, size);
-> +	if (unmapped < size)
-> +		return 0;
-> +
-> +	/* Device already removed all mappings after detach. */
-> +	if (!vdomain->nr_endpoints)
-> +		return unmapped;
-> +
-> +	unmap = (struct virtio_iommu_req_unmap) {
-> +		.head.type	= VIRTIO_IOMMU_T_UNMAP,
-> +		.domain		= cpu_to_le32(vdomain->id),
-> +		.virt_start	= cpu_to_le64(iova),
-> +		.virt_end	= cpu_to_le64(iova + unmapped - 1),
-> +	};
-> +
-> +	ret = viommu_add_req(vdomain->viommu, &unmap, sizeof(unmap));
-> +	return ret ? 0 : unmapped;
-> +}
-> +
-> +static phys_addr_t viommu_iova_to_phys(struct iommu_domain *domain,
-> +				       dma_addr_t iova)
-> +{
-> +	u64 paddr = 0;
-> +	unsigned long flags;
-> +	struct viommu_mapping *mapping;
-> +	struct interval_tree_node *node;
-> +	struct viommu_domain *vdomain = to_viommu_domain(domain);
-> +
-> +	spin_lock_irqsave(&vdomain->mappings_lock, flags);
-> +	node = interval_tree_iter_first(&vdomain->mappings, iova, iova);
-> +	if (node) {
-> +		mapping = container_of(node, struct viommu_mapping, iova);
-> +		paddr = mapping->paddr + (iova - mapping->iova.start);
-> +	}
-> +	spin_unlock_irqrestore(&vdomain->mappings_lock, flags);
-> +
-> +	return paddr;
-> +}
-> +
-> +static void viommu_iotlb_sync(struct iommu_domain *domain)
-> +{
-> +	struct viommu_domain *vdomain = to_viommu_domain(domain);
-> +
-> +	viommu_sync_req(vdomain->viommu);
-> +}
-> +
-> +static void viommu_get_resv_regions(struct device *dev, struct list_head *head)
-> +{
-> +	struct iommu_resv_region *region;
-> +	int prot = IOMMU_WRITE | IOMMU_NOEXEC | IOMMU_MMIO;
-> +
-> +	region = iommu_alloc_resv_region(MSI_IOVA_BASE, MSI_IOVA_LENGTH, prot,
-> +					 IOMMU_RESV_SW_MSI);
-> +	if (!region)
-> +		return;
-> +
-> +	list_add_tail(&region->list, head);
-> +	iommu_dma_get_resv_regions(dev, head);
-> +}
-> +
-> +static void viommu_put_resv_regions(struct device *dev, struct list_head *head)
-> +{
-> +	struct iommu_resv_region *entry, *next;
-> +
-> +	list_for_each_entry_safe(entry, next, head, list)
-> +		kfree(entry);
-> +}
-> +
-> +static struct iommu_ops viommu_ops;
-> +static struct virtio_driver virtio_iommu_drv;
-> +
-> +static int viommu_match_node(struct device *dev, void *data)
-> +{
-> +	return dev->parent->fwnode == data;
-> +}
-> +
-> +static struct viommu_dev *viommu_get_by_fwnode(struct fwnode_handle *fwnode)
-> +{
-> +	struct device *dev = driver_find_device(&virtio_iommu_drv.driver, NULL,
-> +						fwnode, viommu_match_node);
-> +	put_device(dev);
-> +
-> +	return dev ? dev_to_virtio(dev)->priv : NULL;
-> +}
-> +
-> +static int viommu_add_device(struct device *dev)
-> +{
-> +	int ret;
-> +	struct iommu_group *group;
-> +	struct viommu_endpoint *vdev;
-> +	struct viommu_dev *viommu = NULL;
-> +	struct iommu_fwspec *fwspec = dev_iommu_fwspec_get(dev);
-> +
-> +	if (!fwspec || fwspec->ops != &viommu_ops)
-> +		return -ENODEV;
-> +
-> +	viommu = viommu_get_by_fwnode(fwspec->iommu_fwnode);
-> +	if (!viommu)
-> +		return -ENODEV;
-> +
-> +	vdev = kzalloc(sizeof(*vdev), GFP_KERNEL);
-> +	if (!vdev)
-> +		return -ENOMEM;
-> +
-> +	vdev->viommu = viommu;
-> +	fwspec->iommu_priv = vdev;
-> +
-> +	ret = iommu_device_link(&viommu->iommu, dev);
-> +	if (ret)
-> +		goto err_free_dev;
-> +
-> +	/*
-> +	 * Last step creates a default domain and attaches to it. Everything
-> +	 * must be ready.
-> +	 */
-> +	group = iommu_group_get_for_dev(dev);
-> +	if (IS_ERR(group)) {
-> +		ret = PTR_ERR(group);
-> +		goto err_unlink_dev;
-> +	}
-> +
-> +	iommu_group_put(group);
-> +
-> +	return PTR_ERR_OR_ZERO(group);
-> +
-> +err_unlink_dev:
-> +	iommu_device_unlink(&viommu->iommu, dev);
-> +err_free_dev:
-> +	kfree(vdev);
-> +
-> +	return ret;
-> +}
-> +
-> +static void viommu_remove_device(struct device *dev)
-> +{
-> +	struct viommu_endpoint *vdev;
-> +	struct iommu_fwspec *fwspec = dev_iommu_fwspec_get(dev);
-> +
-> +	if (!fwspec || fwspec->ops != &viommu_ops)
-> +		return;
-> +
-> +	vdev = fwspec->iommu_priv;
-> +
-> +	iommu_group_remove_device(dev);
-> +	iommu_device_unlink(&vdev->viommu->iommu, dev);
-> +	kfree(vdev);
-> +}
-> +
-> +static struct iommu_group *viommu_device_group(struct device *dev)
-> +{
-> +	if (dev_is_pci(dev))
-> +		return pci_device_group(dev);
-> +	else
-> +		return generic_device_group(dev);
-> +}
-> +
-> +static int viommu_of_xlate(struct device *dev, struct of_phandle_args *args)
-> +{
-> +	return iommu_fwspec_add_ids(dev, args->args, 1);
-> +}
-> +
-> +static struct iommu_ops viommu_ops = {
-> +	.domain_alloc		= viommu_domain_alloc,
-> +	.domain_free		= viommu_domain_free,
-> +	.attach_dev		= viommu_attach_dev,
-> +	.map			= viommu_map,
-> +	.unmap			= viommu_unmap,
-> +	.iova_to_phys		= viommu_iova_to_phys,
-> +	.iotlb_sync		= viommu_iotlb_sync,
-> +	.add_device		= viommu_add_device,
-> +	.remove_device		= viommu_remove_device,
-> +	.device_group		= viommu_device_group,
-> +	.get_resv_regions	= viommu_get_resv_regions,
-> +	.put_resv_regions	= viommu_put_resv_regions,
-> +	.of_xlate		= viommu_of_xlate,
-> +};
-> +
-> +static int viommu_init_vqs(struct viommu_dev *viommu)
-> +{
-> +	struct virtio_device *vdev = dev_to_virtio(viommu->dev);
-> +	const char *name = "request";
-> +	void *ret;
-> +
-> +	ret = virtio_find_single_vq(vdev, NULL, name);
-> +	if (IS_ERR(ret)) {
-> +		dev_err(viommu->dev, "cannot find VQ\n");
-> +		return PTR_ERR(ret);
-> +	}
-> +
-> +	viommu->vqs[VIOMMU_REQUEST_VQ] = ret;
-> +
-> +	return 0;
-> +}
-> +
-> +static int viommu_probe(struct virtio_device *vdev)
-> +{
-> +	struct device *parent_dev = vdev->dev.parent;
-> +	struct viommu_dev *viommu = NULL;
-> +	struct device *dev = &vdev->dev;
-> +	u64 input_start = 0;
-> +	u64 input_end = -1UL;
-> +	int ret;
-> +
-> +	if (!virtio_has_feature(vdev, VIRTIO_F_VERSION_1) ||
-> +	    !virtio_has_feature(vdev, VIRTIO_IOMMU_F_MAP_UNMAP))
-> +		return -ENODEV;
-> +
-> +	viommu = devm_kzalloc(dev, sizeof(*viommu), GFP_KERNEL);
-> +	if (!viommu)
-> +		return -ENOMEM;
-> +
-> +	spin_lock_init(&viommu->request_lock);
-> +	ida_init(&viommu->domain_ids);
-> +	viommu->dev = dev;
-> +	viommu->vdev = vdev;
-> +	INIT_LIST_HEAD(&viommu->requests);
-> +
-> +	ret = viommu_init_vqs(viommu);
-> +	if (ret)
-> +		return ret;
-> +
-> +	virtio_cread(vdev, struct virtio_iommu_config, page_size_mask,
-> +		     &viommu->pgsize_bitmap);
-> +
-> +	if (!viommu->pgsize_bitmap) {
-> +		ret = -EINVAL;
-> +		goto err_free_vqs;
-> +	}
-> +
-> +	viommu->map_flags = VIRTIO_IOMMU_MAP_F_READ | VIRTIO_IOMMU_MAP_F_WRITE;
-> +	viommu->last_domain = ~0U;
-> +
-> +	/* Optional features */
-> +	virtio_cread_feature(vdev, VIRTIO_IOMMU_F_INPUT_RANGE,
-> +			     struct virtio_iommu_config, input_range.start,
-> +			     &input_start);
-> +
-> +	virtio_cread_feature(vdev, VIRTIO_IOMMU_F_INPUT_RANGE,
-> +			     struct virtio_iommu_config, input_range.end,
-> +			     &input_end);
-> +
-> +	virtio_cread_feature(vdev, VIRTIO_IOMMU_F_DOMAIN_RANGE,
-> +			     struct virtio_iommu_config, domain_range.start,
-> +			     &viommu->first_domain);
-> +
-> +	virtio_cread_feature(vdev, VIRTIO_IOMMU_F_DOMAIN_RANGE,
-> +			     struct virtio_iommu_config, domain_range.end,
-> +			     &viommu->last_domain);
-> +
-> +	viommu->geometry = (struct iommu_domain_geometry) {
-> +		.aperture_start	= input_start,
-> +		.aperture_end	= input_end,
-> +		.force_aperture	= true,
-> +	};
-> +
-> +	if (virtio_has_feature(vdev, VIRTIO_IOMMU_F_MMIO))
-> +		viommu->map_flags |= VIRTIO_IOMMU_MAP_F_MMIO;
-> +
-> +	viommu_ops.pgsize_bitmap = viommu->pgsize_bitmap;
-> +
-> +	virtio_device_ready(vdev);
-> +
-> +	ret = iommu_device_sysfs_add(&viommu->iommu, dev, NULL, "%s",
-> +				     virtio_bus_name(vdev));
-> +	if (ret)
-> +		goto err_free_vqs;
-> +
-> +	iommu_device_set_ops(&viommu->iommu, &viommu_ops);
-> +	iommu_device_set_fwnode(&viommu->iommu, parent_dev->fwnode);
-> +
-> +	iommu_device_register(&viommu->iommu);
-> +
-> +#ifdef CONFIG_PCI
-> +	if (pci_bus_type.iommu_ops != &viommu_ops) {
-> +		pci_request_acs();
-> +		ret = bus_set_iommu(&pci_bus_type, &viommu_ops);
-> +		if (ret)
-> +			goto err_unregister;
-> +	}
-> +#endif
-> +#ifdef CONFIG_ARM_AMBA
-> +	if (amba_bustype.iommu_ops != &viommu_ops) {
-> +		ret = bus_set_iommu(&amba_bustype, &viommu_ops);
-> +		if (ret)
-> +			goto err_unregister;
-> +	}
-> +#endif
-> +	if (platform_bus_type.iommu_ops != &viommu_ops) {
-> +		ret = bus_set_iommu(&platform_bus_type, &viommu_ops);
-> +		if (ret)
-> +			goto err_unregister;
-> +	}
-> +
-> +	vdev->priv = viommu;
-> +
-> +	dev_info(dev, "input address: %u bits\n",
-> +		 order_base_2(viommu->geometry.aperture_end));
-> +	dev_info(dev, "page mask: %#llx\n", viommu->pgsize_bitmap);
-> +
-> +	return 0;
-> +
-> +err_unregister:
-> +	iommu_device_sysfs_remove(&viommu->iommu);
-> +	iommu_device_unregister(&viommu->iommu);
-> +err_free_vqs:
-> +	vdev->config->del_vqs(vdev);
-> +
-> +	return ret;
-> +}
-> +
-> +static void viommu_remove(struct virtio_device *vdev)
-> +{
-> +	struct viommu_dev *viommu = vdev->priv;
-> +
-> +	iommu_device_sysfs_remove(&viommu->iommu);
-> +	iommu_device_unregister(&viommu->iommu);
-> +
-> +	/* Stop all virtqueues */
-> +	vdev->config->reset(vdev);
-> +	vdev->config->del_vqs(vdev);
-> +
-> +	dev_info(&vdev->dev, "device removed\n");
-> +}
-> +
-> +static void viommu_config_changed(struct virtio_device *vdev)
-> +{
-> +	dev_warn(&vdev->dev, "config changed\n");
-> +}
-> +
-> +static unsigned int features[] = {
-> +	VIRTIO_IOMMU_F_MAP_UNMAP,
-> +	VIRTIO_IOMMU_F_INPUT_RANGE,
-> +	VIRTIO_IOMMU_F_DOMAIN_RANGE,
-> +	VIRTIO_IOMMU_F_MMIO,
-> +};
-> +
-> +static struct virtio_device_id id_table[] = {
-> +	{ VIRTIO_ID_IOMMU, VIRTIO_DEV_ANY_ID },
-> +	{ 0 },
-> +};
-> +
-> +static struct virtio_driver virtio_iommu_drv = {
-> +	.driver.name		= KBUILD_MODNAME,
-> +	.driver.owner		= THIS_MODULE,
-> +	.id_table		= id_table,
-> +	.feature_table		= features,
-> +	.feature_table_size	= ARRAY_SIZE(features),
-> +	.probe			= viommu_probe,
-> +	.remove			= viommu_remove,
-> +	.config_changed		= viommu_config_changed,
-> +};
-> +
-> +module_virtio_driver(virtio_iommu_drv);
-> +
-> +MODULE_DESCRIPTION("Virtio IOMMU driver");
-> +MODULE_AUTHOR("Jean-Philippe Brucker <jean-philippe.brucker@arm.com>");
-> +MODULE_LICENSE("GPL v2");
-> diff --git a/include/uapi/linux/virtio_ids.h b/include/uapi/linux/virtio_ids.h
-> index 6d5c3b2d4f4d..cfe47c5d9a56 100644
-> --- a/include/uapi/linux/virtio_ids.h
-> +++ b/include/uapi/linux/virtio_ids.h
-> @@ -43,5 +43,6 @@
->  #define VIRTIO_ID_INPUT        18 /* virtio input */
->  #define VIRTIO_ID_VSOCK        19 /* virtio vsock transport */
->  #define VIRTIO_ID_CRYPTO       20 /* virtio crypto */
-> +#define VIRTIO_ID_IOMMU        23 /* virtio IOMMU */
->  
->  #endif /* _LINUX_VIRTIO_IDS_H */
-> diff --git a/include/uapi/linux/virtio_iommu.h b/include/uapi/linux/virtio_iommu.h
-> new file mode 100644
-> index 000000000000..5da1818080de
-> --- /dev/null
-> +++ b/include/uapi/linux/virtio_iommu.h
-> @@ -0,0 +1,110 @@
-> +/* SPDX-License-Identifier: BSD-3-Clause */
-> +/*
-> + * Virtio-iommu definition v0.12
-> + *
-> + * Copyright (C) 2019 Arm Ltd.
-> + */
-> +#ifndef _UAPI_LINUX_VIRTIO_IOMMU_H
-> +#define _UAPI_LINUX_VIRTIO_IOMMU_H
-> +
-> +#include <linux/types.h>
-> +
-> +/* Feature bits */
-> +#define VIRTIO_IOMMU_F_INPUT_RANGE		0
-> +#define VIRTIO_IOMMU_F_DOMAIN_RANGE		1
-> +#define VIRTIO_IOMMU_F_MAP_UNMAP		2
-> +#define VIRTIO_IOMMU_F_BYPASS			3
-> +#define VIRTIO_IOMMU_F_MMIO			5
-> +
-> +struct virtio_iommu_range_64 {
-> +	__le64					start;
-> +	__le64					end;
-> +};
-> +
-> +struct virtio_iommu_range_32 {
-> +	__le32					start;
-> +	__le32					end;
-> +};
-> +
-> +struct virtio_iommu_config {
-> +	/* Supported page sizes */
-> +	__le64					page_size_mask;
-> +	/* Supported IOVA range */
-> +	struct virtio_iommu_range_64		input_range;
-> +	/* Max domain ID size */
-> +	struct virtio_iommu_range_32		domain_range;
-> +	/* Probe buffer size */
-> +	__le32					probe_size;
-> +};
-> +
-> +/* Request types */
-> +#define VIRTIO_IOMMU_T_ATTACH			0x01
-> +#define VIRTIO_IOMMU_T_DETACH			0x02
-> +#define VIRTIO_IOMMU_T_MAP			0x03
-> +#define VIRTIO_IOMMU_T_UNMAP			0x04
-> +
-> +/* Status types */
-> +#define VIRTIO_IOMMU_S_OK			0x00
-> +#define VIRTIO_IOMMU_S_IOERR			0x01
-> +#define VIRTIO_IOMMU_S_UNSUPP			0x02
-> +#define VIRTIO_IOMMU_S_DEVERR			0x03
-> +#define VIRTIO_IOMMU_S_INVAL			0x04
-> +#define VIRTIO_IOMMU_S_RANGE			0x05
-> +#define VIRTIO_IOMMU_S_NOENT			0x06
-> +#define VIRTIO_IOMMU_S_FAULT			0x07
-> +#define VIRTIO_IOMMU_S_NOMEM			0x08
-> +
-> +struct virtio_iommu_req_head {
-> +	__u8					type;
-> +	__u8					reserved[3];
-> +};
-> +
-> +struct virtio_iommu_req_tail {
-> +	__u8					status;
-> +	__u8					reserved[3];
-> +};
-> +
-> +struct virtio_iommu_req_attach {
-> +	struct virtio_iommu_req_head		head;
-> +	__le32					domain;
-> +	__le32					endpoint;
-> +	__u8					reserved[8];
-> +	struct virtio_iommu_req_tail		tail;
-> +};
-> +
-> +struct virtio_iommu_req_detach {
-> +	struct virtio_iommu_req_head		head;
-> +	__le32					domain;
-> +	__le32					endpoint;
-> +	__u8					reserved[8];
-> +	struct virtio_iommu_req_tail		tail;
-> +};
-> +
-> +#define VIRTIO_IOMMU_MAP_F_READ			(1 << 0)
-> +#define VIRTIO_IOMMU_MAP_F_WRITE		(1 << 1)
-> +#define VIRTIO_IOMMU_MAP_F_MMIO			(1 << 2)
-> +
-> +#define VIRTIO_IOMMU_MAP_F_MASK			(VIRTIO_IOMMU_MAP_F_READ |	\
-> +						 VIRTIO_IOMMU_MAP_F_WRITE |	\
-> +						 VIRTIO_IOMMU_MAP_F_MMIO)
-> +
-> +struct virtio_iommu_req_map {
-> +	struct virtio_iommu_req_head		head;
-> +	__le32					domain;
-> +	__le64					virt_start;
-> +	__le64					virt_end;
-> +	__le64					phys_start;
-> +	__le32					flags;
-> +	struct virtio_iommu_req_tail		tail;
-> +};
-> +
-> +struct virtio_iommu_req_unmap {
-> +	struct virtio_iommu_req_head		head;
-> +	__le32					domain;
-> +	__le64					virt_start;
-> +	__le64					virt_end;
-> +	__u8					reserved[4];
-> +	struct virtio_iommu_req_tail		tail;
-> +};
-> +
-> +#endif
-> 
+diff --git a/drivers/gpu/drm/amd/amdgpu/amdgpu_drv.c b/drivers/gpu/drm/amd/amdgpu/amdgpu_drv.c
+index 0a577a389024..8e1b269351e8 100644
+--- a/drivers/gpu/drm/amd/amdgpu/amdgpu_drv.c
++++ b/drivers/gpu/drm/amd/amdgpu/amdgpu_drv.c
+@@ -1309,7 +1309,7 @@ static struct drm_driver kms_driver = {
+ 	.driver_features =
+ 	    DRIVER_USE_AGP | DRIVER_ATOMIC |
+ 	    DRIVER_GEM |
+-	    DRIVER_PRIME | DRIVER_RENDER | DRIVER_MODESET | DRIVER_SYNCOBJ,
++	    DRIVER_RENDER | DRIVER_MODESET | DRIVER_SYNCOBJ,
+ 	.load = amdgpu_driver_load_kms,
+ 	.open = amdgpu_driver_open_kms,
+ 	.postclose = amdgpu_driver_postclose_kms,
+diff --git a/drivers/gpu/drm/arc/arcpgu_drv.c b/drivers/gpu/drm/arc/arcpgu_drv.c
+index af60c6d7a5f4..74240cc1c300 100644
+--- a/drivers/gpu/drm/arc/arcpgu_drv.c
++++ b/drivers/gpu/drm/arc/arcpgu_drv.c
+@@ -135,8 +135,7 @@ static int arcpgu_debugfs_init(struct drm_minor *minor)
+ #endif
+ 
+ static struct drm_driver arcpgu_drm_driver = {
+-	.driver_features = DRIVER_MODESET | DRIVER_GEM | DRIVER_PRIME |
+-			   DRIVER_ATOMIC,
++	.driver_features = DRIVER_MODESET | DRIVER_GEM | DRIVER_ATOMIC,
+ 	.name = "arcpgu",
+ 	.desc = "ARC PGU Controller",
+ 	.date = "20160219",
+diff --git a/drivers/gpu/drm/arm/display/komeda/komeda_kms.c b/drivers/gpu/drm/arm/display/komeda/komeda_kms.c
+index 86f6542afb40..0c6396dc323f 100644
+--- a/drivers/gpu/drm/arm/display/komeda/komeda_kms.c
++++ b/drivers/gpu/drm/arm/display/komeda/komeda_kms.c
+@@ -56,7 +56,7 @@ static irqreturn_t komeda_kms_irq_handler(int irq, void *data)
+ 
+ static struct drm_driver komeda_kms_driver = {
+ 	.driver_features = DRIVER_GEM | DRIVER_MODESET | DRIVER_ATOMIC |
+-			   DRIVER_PRIME | DRIVER_HAVE_IRQ,
++			   DRIVER_HAVE_IRQ,
+ 	.lastclose			= drm_fb_helper_lastclose,
+ 	.irq_handler			= komeda_kms_irq_handler,
+ 	.gem_free_object_unlocked	= drm_gem_cma_free_object,
+diff --git a/drivers/gpu/drm/arm/hdlcd_drv.c b/drivers/gpu/drm/arm/hdlcd_drv.c
+index 8fc0b884c428..b126555895d8 100644
+--- a/drivers/gpu/drm/arm/hdlcd_drv.c
++++ b/drivers/gpu/drm/arm/hdlcd_drv.c
+@@ -229,9 +229,7 @@ static int hdlcd_debugfs_init(struct drm_minor *minor)
+ DEFINE_DRM_GEM_CMA_FOPS(fops);
+ 
+ static struct drm_driver hdlcd_driver = {
+-	.driver_features = DRIVER_GEM |
+-			   DRIVER_MODESET | DRIVER_PRIME |
+-			   DRIVER_ATOMIC,
++	.driver_features = DRIVER_GEM | DRIVER_MODESET | DRIVER_ATOMIC,
+ 	.irq_handler = hdlcd_irq,
+ 	.irq_preinstall = hdlcd_irq_preinstall,
+ 	.irq_postinstall = hdlcd_irq_postinstall,
+diff --git a/drivers/gpu/drm/arm/malidp_drv.c b/drivers/gpu/drm/arm/malidp_drv.c
+index af1992f06a1d..5dccc7130739 100644
+--- a/drivers/gpu/drm/arm/malidp_drv.c
++++ b/drivers/gpu/drm/arm/malidp_drv.c
+@@ -568,8 +568,7 @@ static int malidp_debugfs_init(struct drm_minor *minor)
+ #endif //CONFIG_DEBUG_FS
+ 
+ static struct drm_driver malidp_driver = {
+-	.driver_features = DRIVER_GEM | DRIVER_MODESET | DRIVER_ATOMIC |
+-			   DRIVER_PRIME,
++	.driver_features = DRIVER_GEM | DRIVER_MODESET | DRIVER_ATOMIC,
+ 	.gem_free_object_unlocked = drm_gem_cma_free_object,
+ 	.gem_vm_ops = &drm_gem_cma_vm_ops,
+ 	.dumb_create = malidp_dumb_create,
+diff --git a/drivers/gpu/drm/armada/armada_drv.c b/drivers/gpu/drm/armada/armada_drv.c
+index e660c5ca52ae..78c8ad73ae1e 100644
+--- a/drivers/gpu/drm/armada/armada_drv.c
++++ b/drivers/gpu/drm/armada/armada_drv.c
+@@ -43,8 +43,7 @@ static struct drm_driver armada_drm_driver = {
+ 	.name			= "armada-drm",
+ 	.desc			= "Armada SoC DRM",
+ 	.date			= "20120730",
+-	.driver_features	= DRIVER_GEM | DRIVER_MODESET |
+-				  DRIVER_PRIME | DRIVER_ATOMIC,
++	.driver_features	= DRIVER_GEM | DRIVER_MODESET | DRIVER_ATOMIC,
+ 	.ioctls			= armada_ioctls,
+ 	.fops			= &armada_drm_fops,
+ };
+diff --git a/drivers/gpu/drm/aspeed/aspeed_gfx_drv.c b/drivers/gpu/drm/aspeed/aspeed_gfx_drv.c
+index eeb22eccd1fc..ada2f6aca906 100644
+--- a/drivers/gpu/drm/aspeed/aspeed_gfx_drv.c
++++ b/drivers/gpu/drm/aspeed/aspeed_gfx_drv.c
+@@ -194,8 +194,7 @@ static void aspeed_gfx_unload(struct drm_device *drm)
+ DEFINE_DRM_GEM_CMA_FOPS(fops);
+ 
+ static struct drm_driver aspeed_gfx_driver = {
+-	.driver_features        = DRIVER_GEM | DRIVER_MODESET |
+-				DRIVER_PRIME | DRIVER_ATOMIC,
++	.driver_features        = DRIVER_GEM | DRIVER_MODESET | DRIVER_ATOMIC,
+ 	.gem_create_object	= drm_cma_gem_create_object_default_funcs,
+ 	.dumb_create		= drm_gem_cma_dumb_create,
+ 	.prime_handle_to_fd	= drm_gem_prime_handle_to_fd,
+diff --git a/drivers/gpu/drm/atmel-hlcdc/atmel_hlcdc_dc.c b/drivers/gpu/drm/atmel-hlcdc/atmel_hlcdc_dc.c
+index fb2e7646daeb..274fdf18cde8 100644
+--- a/drivers/gpu/drm/atmel-hlcdc/atmel_hlcdc_dc.c
++++ b/drivers/gpu/drm/atmel-hlcdc/atmel_hlcdc_dc.c
+@@ -834,9 +834,7 @@ static void atmel_hlcdc_dc_irq_uninstall(struct drm_device *dev)
+ DEFINE_DRM_GEM_CMA_FOPS(fops);
+ 
+ static struct drm_driver atmel_hlcdc_dc_driver = {
+-	.driver_features = DRIVER_GEM |
+-			   DRIVER_MODESET | DRIVER_PRIME |
+-			   DRIVER_ATOMIC,
++	.driver_features = DRIVER_GEM | DRIVER_MODESET | DRIVER_ATOMIC,
+ 	.irq_handler = atmel_hlcdc_dc_irq_handler,
+ 	.irq_preinstall = atmel_hlcdc_dc_irq_uninstall,
+ 	.irq_postinstall = atmel_hlcdc_dc_irq_postinstall,
+diff --git a/drivers/gpu/drm/bochs/bochs_drv.c b/drivers/gpu/drm/bochs/bochs_drv.c
+index 8f3a5bda9d03..78ad6c98861d 100644
+--- a/drivers/gpu/drm/bochs/bochs_drv.c
++++ b/drivers/gpu/drm/bochs/bochs_drv.c
+@@ -65,8 +65,7 @@ static const struct file_operations bochs_fops = {
+ };
+ 
+ static struct drm_driver bochs_driver = {
+-	.driver_features	= DRIVER_GEM | DRIVER_MODESET | DRIVER_ATOMIC |
+-				  DRIVER_PRIME,
++	.driver_features	= DRIVER_GEM | DRIVER_MODESET | DRIVER_ATOMIC,
+ 	.fops			= &bochs_fops,
+ 	.name			= "bochs-drm",
+ 	.desc			= "bochs dispi vga interface (qemu stdvga)",
+diff --git a/drivers/gpu/drm/cirrus/cirrus.c b/drivers/gpu/drm/cirrus/cirrus.c
+index be4ea370ba31..36a69aec8a4b 100644
+--- a/drivers/gpu/drm/cirrus/cirrus.c
++++ b/drivers/gpu/drm/cirrus/cirrus.c
+@@ -513,7 +513,7 @@ static void cirrus_mode_config_init(struct cirrus_device *cirrus)
+ DEFINE_DRM_GEM_SHMEM_FOPS(cirrus_fops);
+ 
+ static struct drm_driver cirrus_driver = {
+-	.driver_features = DRIVER_MODESET | DRIVER_GEM | DRIVER_ATOMIC | DRIVER_PRIME,
++	.driver_features = DRIVER_MODESET | DRIVER_GEM | DRIVER_ATOMIC,
+ 
+ 	.name		 = DRIVER_NAME,
+ 	.desc		 = DRIVER_DESC,
+diff --git a/drivers/gpu/drm/etnaviv/etnaviv_drv.c b/drivers/gpu/drm/etnaviv/etnaviv_drv.c
+index 7eb7cf9c3fa8..db3b00031fcf 100644
+--- a/drivers/gpu/drm/etnaviv/etnaviv_drv.c
++++ b/drivers/gpu/drm/etnaviv/etnaviv_drv.c
+@@ -462,9 +462,7 @@ static const struct file_operations fops = {
+ };
+ 
+ static struct drm_driver etnaviv_drm_driver = {
+-	.driver_features    = DRIVER_GEM |
+-				DRIVER_PRIME |
+-				DRIVER_RENDER,
++	.driver_features    = DRIVER_GEM | DRIVER_RENDER,
+ 	.open               = etnaviv_open,
+ 	.postclose           = etnaviv_postclose,
+ 	.gem_free_object_unlocked = etnaviv_gem_free_object,
+diff --git a/drivers/gpu/drm/exynos/exynos_drm_drv.c b/drivers/gpu/drm/exynos/exynos_drm_drv.c
+index ba8932af9b43..e43640fc42d3 100644
+--- a/drivers/gpu/drm/exynos/exynos_drm_drv.c
++++ b/drivers/gpu/drm/exynos/exynos_drm_drv.c
+@@ -114,7 +114,7 @@ static const struct file_operations exynos_drm_driver_fops = {
+ };
+ 
+ static struct drm_driver exynos_drm_driver = {
+-	.driver_features	= DRIVER_MODESET | DRIVER_GEM | DRIVER_PRIME
++	.driver_features	= DRIVER_MODESET | DRIVER_GEM
+ 				  | DRIVER_ATOMIC | DRIVER_RENDER,
+ 	.open			= exynos_drm_open,
+ 	.lastclose		= drm_fb_helper_lastclose,
+diff --git a/drivers/gpu/drm/fsl-dcu/fsl_dcu_drm_drv.c b/drivers/gpu/drm/fsl-dcu/fsl_dcu_drm_drv.c
+index e81daaaa5965..d18ff729d7f6 100644
+--- a/drivers/gpu/drm/fsl-dcu/fsl_dcu_drm_drv.c
++++ b/drivers/gpu/drm/fsl-dcu/fsl_dcu_drm_drv.c
+@@ -133,8 +133,7 @@ static irqreturn_t fsl_dcu_drm_irq(int irq, void *arg)
+ DEFINE_DRM_GEM_CMA_FOPS(fsl_dcu_drm_fops);
+ 
+ static struct drm_driver fsl_dcu_drm_driver = {
+-	.driver_features	= DRIVER_GEM | DRIVER_MODESET
+-				| DRIVER_PRIME | DRIVER_ATOMIC,
++	.driver_features	= DRIVER_GEM | DRIVER_MODESET | DRIVER_ATOMIC,
+ 	.load			= fsl_dcu_load,
+ 	.unload			= fsl_dcu_unload,
+ 	.irq_handler		= fsl_dcu_drm_irq,
+diff --git a/drivers/gpu/drm/hisilicon/kirin/kirin_drm_drv.c b/drivers/gpu/drm/hisilicon/kirin/kirin_drm_drv.c
+index 7cb7c042b93f..73f2b53f32cc 100644
+--- a/drivers/gpu/drm/hisilicon/kirin/kirin_drm_drv.c
++++ b/drivers/gpu/drm/hisilicon/kirin/kirin_drm_drv.c
+@@ -117,8 +117,7 @@ static int kirin_gem_cma_dumb_create(struct drm_file *file,
+ }
+ 
+ static struct drm_driver kirin_drm_driver = {
+-	.driver_features	= DRIVER_GEM | DRIVER_MODESET | DRIVER_PRIME |
+-				  DRIVER_ATOMIC,
++	.driver_features	= DRIVER_GEM | DRIVER_MODESET | DRIVER_ATOMIC,
+ 	.fops			= &kirin_drm_fops,
+ 
+ 	.gem_free_object_unlocked = drm_gem_cma_free_object,
+diff --git a/drivers/gpu/drm/i915/i915_drv.c b/drivers/gpu/drm/i915/i915_drv.c
+index 65d599065709..4fd09a9ad67a 100644
+--- a/drivers/gpu/drm/i915/i915_drv.c
++++ b/drivers/gpu/drm/i915/i915_drv.c
+@@ -3193,7 +3193,7 @@ static struct drm_driver driver = {
+ 	 * deal with them for Intel hardware.
+ 	 */
+ 	.driver_features =
+-	    DRIVER_GEM | DRIVER_PRIME |
++	    DRIVER_GEM | 
+ 	    DRIVER_RENDER | DRIVER_MODESET | DRIVER_ATOMIC | DRIVER_SYNCOBJ,
+ 	.release = i915_driver_release,
+ 	.open = i915_driver_open,
+diff --git a/drivers/gpu/drm/imx/imx-drm-core.c b/drivers/gpu/drm/imx/imx-drm-core.c
+index 3e8bece620df..384db6d86da0 100644
+--- a/drivers/gpu/drm/imx/imx-drm-core.c
++++ b/drivers/gpu/drm/imx/imx-drm-core.c
+@@ -147,8 +147,7 @@ static const struct drm_ioctl_desc imx_drm_ioctls[] = {
+ };
+ 
+ static struct drm_driver imx_drm_driver = {
+-	.driver_features	= DRIVER_MODESET | DRIVER_GEM | DRIVER_PRIME |
+-				  DRIVER_ATOMIC,
++	.driver_features	= DRIVER_MODESET | DRIVER_GEM | DRIVER_ATOMIC,
+ 	.gem_free_object_unlocked = drm_gem_cma_free_object,
+ 	.gem_vm_ops		= &drm_gem_cma_vm_ops,
+ 	.dumb_create		= drm_gem_cma_dumb_create,
+diff --git a/drivers/gpu/drm/lima/lima_drv.c b/drivers/gpu/drm/lima/lima_drv.c
+index b29c26cd13b2..beb10bc1a7f3 100644
+--- a/drivers/gpu/drm/lima/lima_drv.c
++++ b/drivers/gpu/drm/lima/lima_drv.c
+@@ -252,7 +252,7 @@ static const struct file_operations lima_drm_driver_fops = {
+ };
+ 
+ static struct drm_driver lima_drm_driver = {
+-	.driver_features    = DRIVER_RENDER | DRIVER_GEM | DRIVER_PRIME | DRIVER_SYNCOBJ,
++	.driver_features    = DRIVER_RENDER | DRIVER_GEM | DRIVER_SYNCOBJ,
+ 	.open               = lima_drm_driver_open,
+ 	.postclose          = lima_drm_driver_postclose,
+ 	.ioctls             = lima_drm_driver_ioctls,
+diff --git a/drivers/gpu/drm/mcde/mcde_drv.c b/drivers/gpu/drm/mcde/mcde_drv.c
+index baf63fb6850a..f731d689d52f 100644
+--- a/drivers/gpu/drm/mcde/mcde_drv.c
++++ b/drivers/gpu/drm/mcde/mcde_drv.c
+@@ -237,7 +237,7 @@ DEFINE_DRM_GEM_CMA_FOPS(drm_fops);
+ 
+ static struct drm_driver mcde_drm_driver = {
+ 	.driver_features =
+-		DRIVER_MODESET | DRIVER_GEM | DRIVER_PRIME | DRIVER_ATOMIC,
++		DRIVER_MODESET | DRIVER_GEM | DRIVER_ATOMIC,
+ 	.release = mcde_release,
+ 	.lastclose = drm_fb_helper_lastclose,
+ 	.ioctls = NULL,
+diff --git a/drivers/gpu/drm/mediatek/mtk_drm_drv.c b/drivers/gpu/drm/mediatek/mtk_drm_drv.c
+index 95fdbd0fbcac..1f8b8943b0c6 100644
+--- a/drivers/gpu/drm/mediatek/mtk_drm_drv.c
++++ b/drivers/gpu/drm/mediatek/mtk_drm_drv.c
+@@ -321,8 +321,7 @@ static const struct file_operations mtk_drm_fops = {
+ };
+ 
+ static struct drm_driver mtk_drm_driver = {
+-	.driver_features = DRIVER_MODESET | DRIVER_GEM | DRIVER_PRIME |
+-			   DRIVER_ATOMIC,
++	.driver_features = DRIVER_MODESET | DRIVER_GEM | DRIVER_ATOMIC,
+ 
+ 	.gem_free_object_unlocked = mtk_drm_gem_free_object,
+ 	.gem_vm_ops = &drm_gem_cma_vm_ops,
+diff --git a/drivers/gpu/drm/meson/meson_drv.c b/drivers/gpu/drm/meson/meson_drv.c
+index 2310c96fff46..140363f93575 100644
+--- a/drivers/gpu/drm/meson/meson_drv.c
++++ b/drivers/gpu/drm/meson/meson_drv.c
+@@ -93,9 +93,7 @@ static int meson_dumb_create(struct drm_file *file, struct drm_device *dev,
+ DEFINE_DRM_GEM_CMA_FOPS(fops);
+ 
+ static struct drm_driver meson_driver = {
+-	.driver_features	= DRIVER_GEM |
+-				  DRIVER_MODESET | DRIVER_PRIME |
+-				  DRIVER_ATOMIC,
++	.driver_features	= DRIVER_GEM | DRIVER_MODESET | DRIVER_ATOMIC,
+ 
+ 	/* IRQ */
+ 	.irq_handler		= meson_irq,
+diff --git a/drivers/gpu/drm/msm/msm_drv.c b/drivers/gpu/drm/msm/msm_drv.c
+index 31deb87abfc6..87f92d3906ab 100644
+--- a/drivers/gpu/drm/msm/msm_drv.c
++++ b/drivers/gpu/drm/msm/msm_drv.c
+@@ -1016,7 +1016,6 @@ static const struct file_operations fops = {
+ 
+ static struct drm_driver msm_driver = {
+ 	.driver_features    = DRIVER_GEM |
+-				DRIVER_PRIME |
+ 				DRIVER_RENDER |
+ 				DRIVER_ATOMIC |
+ 				DRIVER_MODESET,
+diff --git a/drivers/gpu/drm/mxsfb/mxsfb_drv.c b/drivers/gpu/drm/mxsfb/mxsfb_drv.c
+index 6fafc90da4ec..b5bcaf4036bd 100644
+--- a/drivers/gpu/drm/mxsfb/mxsfb_drv.c
++++ b/drivers/gpu/drm/mxsfb/mxsfb_drv.c
+@@ -313,8 +313,7 @@ static irqreturn_t mxsfb_irq_handler(int irq, void *data)
+ DEFINE_DRM_GEM_CMA_FOPS(fops);
+ 
+ static struct drm_driver mxsfb_driver = {
+-	.driver_features	= DRIVER_GEM | DRIVER_MODESET |
+-				  DRIVER_PRIME | DRIVER_ATOMIC,
++	.driver_features	= DRIVER_GEM | DRIVER_MODESET | DRIVER_ATOMIC,
+ 	.irq_handler		= mxsfb_irq_handler,
+ 	.irq_preinstall		= mxsfb_irq_preinstall,
+ 	.irq_uninstall		= mxsfb_irq_preinstall,
+diff --git a/drivers/gpu/drm/nouveau/nouveau_drm.c b/drivers/gpu/drm/nouveau/nouveau_drm.c
+index 7c2fcaba42d6..8cb174f95448 100644
+--- a/drivers/gpu/drm/nouveau/nouveau_drm.c
++++ b/drivers/gpu/drm/nouveau/nouveau_drm.c
+@@ -1105,7 +1105,7 @@ nouveau_driver_fops = {
+ static struct drm_driver
+ driver_stub = {
+ 	.driver_features =
+-		DRIVER_GEM | DRIVER_MODESET | DRIVER_PRIME | DRIVER_RENDER
++		DRIVER_GEM | DRIVER_MODESET | DRIVER_RENDER
+ #if defined(CONFIG_NOUVEAU_LEGACY_CTX_SUPPORT)
+ 		| DRIVER_KMS_LEGACY_CONTEXT
+ #endif
+diff --git a/drivers/gpu/drm/omapdrm/omap_drv.c b/drivers/gpu/drm/omapdrm/omap_drv.c
+index 672e0f8ad11c..5929f8688e5a 100644
+--- a/drivers/gpu/drm/omapdrm/omap_drv.c
++++ b/drivers/gpu/drm/omapdrm/omap_drv.c
+@@ -524,7 +524,7 @@ static const struct file_operations omapdriver_fops = {
+ };
+ 
+ static struct drm_driver omap_drm_driver = {
+-	.driver_features = DRIVER_MODESET | DRIVER_GEM  | DRIVER_PRIME |
++	.driver_features = DRIVER_MODESET | DRIVER_GEM  |
+ 		DRIVER_ATOMIC | DRIVER_RENDER,
+ 	.open = dev_open,
+ 	.lastclose = drm_fb_helper_lastclose,
+diff --git a/drivers/gpu/drm/panfrost/panfrost_drv.c b/drivers/gpu/drm/panfrost/panfrost_drv.c
+index d11e2281dde6..ed2e29826f62 100644
+--- a/drivers/gpu/drm/panfrost/panfrost_drv.c
++++ b/drivers/gpu/drm/panfrost/panfrost_drv.c
+@@ -342,8 +342,7 @@ static const struct drm_ioctl_desc panfrost_drm_driver_ioctls[] = {
+ DEFINE_DRM_GEM_SHMEM_FOPS(panfrost_drm_driver_fops);
+ 
+ static struct drm_driver panfrost_drm_driver = {
+-	.driver_features	= DRIVER_RENDER | DRIVER_GEM | DRIVER_PRIME |
+-				  DRIVER_SYNCOBJ,
++	.driver_features	= DRIVER_RENDER | DRIVER_GEM | DRIVER_SYNCOBJ,
+ 	.open			= panfrost_open,
+ 	.postclose		= panfrost_postclose,
+ 	.ioctls			= panfrost_drm_driver_ioctls,
+diff --git a/drivers/gpu/drm/pl111/pl111_drv.c b/drivers/gpu/drm/pl111/pl111_drv.c
+index 01f8462aa2db..dd4aaa380250 100644
+--- a/drivers/gpu/drm/pl111/pl111_drv.c
++++ b/drivers/gpu/drm/pl111/pl111_drv.c
+@@ -224,7 +224,7 @@ DEFINE_DRM_GEM_CMA_FOPS(drm_fops);
+ 
+ static struct drm_driver pl111_drm_driver = {
+ 	.driver_features =
+-		DRIVER_MODESET | DRIVER_GEM | DRIVER_PRIME | DRIVER_ATOMIC,
++		DRIVER_MODESET | DRIVER_GEM | DRIVER_ATOMIC,
+ 	.ioctls = NULL,
+ 	.fops = &drm_fops,
+ 	.name = "pl111",
+diff --git a/drivers/gpu/drm/qxl/qxl_drv.c b/drivers/gpu/drm/qxl/qxl_drv.c
+index f33e349c4ec5..61e1ce16fc25 100644
+--- a/drivers/gpu/drm/qxl/qxl_drv.c
++++ b/drivers/gpu/drm/qxl/qxl_drv.c
+@@ -247,8 +247,7 @@ static struct pci_driver qxl_pci_driver = {
+ };
+ 
+ static struct drm_driver qxl_driver = {
+-	.driver_features = DRIVER_GEM | DRIVER_MODESET | DRIVER_PRIME |
+-			   DRIVER_ATOMIC,
++	.driver_features = DRIVER_GEM | DRIVER_MODESET | DRIVER_ATOMIC,
+ 
+ 	.dumb_create = qxl_mode_dumb_create,
+ 	.dumb_map_offset = qxl_mode_dumb_mmap,
+diff --git a/drivers/gpu/drm/radeon/radeon_drv.c b/drivers/gpu/drm/radeon/radeon_drv.c
+index a6cbe11f79c6..3b07aa6e551d 100644
+--- a/drivers/gpu/drm/radeon/radeon_drv.c
++++ b/drivers/gpu/drm/radeon/radeon_drv.c
+@@ -539,7 +539,7 @@ radeon_get_crtc_scanout_position(struct drm_device *dev, unsigned int pipe,
+ 
+ static struct drm_driver kms_driver = {
+ 	.driver_features =
+-	    DRIVER_USE_AGP | DRIVER_GEM | DRIVER_PRIME | DRIVER_RENDER,
++	    DRIVER_USE_AGP | DRIVER_GEM | DRIVER_RENDER,
+ 	.load = radeon_driver_load_kms,
+ 	.open = radeon_driver_open_kms,
+ 	.postclose = radeon_driver_postclose_kms,
+diff --git a/drivers/gpu/drm/rcar-du/rcar_du_drv.c b/drivers/gpu/drm/rcar-du/rcar_du_drv.c
+index 6df37c2a9678..83685250319d 100644
+--- a/drivers/gpu/drm/rcar-du/rcar_du_drv.c
++++ b/drivers/gpu/drm/rcar-du/rcar_du_drv.c
+@@ -441,8 +441,7 @@ MODULE_DEVICE_TABLE(of, rcar_du_of_table);
+ DEFINE_DRM_GEM_CMA_FOPS(rcar_du_fops);
+ 
+ static struct drm_driver rcar_du_driver = {
+-	.driver_features	= DRIVER_GEM | DRIVER_MODESET | DRIVER_PRIME
+-				| DRIVER_ATOMIC,
++	.driver_features	= DRIVER_GEM | DRIVER_MODESET | DRIVER_ATOMIC,
+ 	.gem_free_object_unlocked = drm_gem_cma_free_object,
+ 	.gem_vm_ops		= &drm_gem_cma_vm_ops,
+ 	.prime_handle_to_fd	= drm_gem_prime_handle_to_fd,
+diff --git a/drivers/gpu/drm/rockchip/rockchip_drm_drv.c b/drivers/gpu/drm/rockchip/rockchip_drm_drv.c
+index 53d2c5bd61dc..59091b6241ec 100644
+--- a/drivers/gpu/drm/rockchip/rockchip_drm_drv.c
++++ b/drivers/gpu/drm/rockchip/rockchip_drm_drv.c
+@@ -212,8 +212,7 @@ static const struct file_operations rockchip_drm_driver_fops = {
+ };
+ 
+ static struct drm_driver rockchip_drm_driver = {
+-	.driver_features	= DRIVER_MODESET | DRIVER_GEM |
+-				  DRIVER_PRIME | DRIVER_ATOMIC,
++	.driver_features	= DRIVER_MODESET | DRIVER_GEM | DRIVER_ATOMIC,
+ 	.lastclose		= drm_fb_helper_lastclose,
+ 	.gem_vm_ops		= &drm_gem_cma_vm_ops,
+ 	.gem_free_object_unlocked = rockchip_gem_free_object,
+diff --git a/drivers/gpu/drm/shmobile/shmob_drm_drv.c b/drivers/gpu/drm/shmobile/shmob_drm_drv.c
+index cb821adfc321..9047a49ff35e 100644
+--- a/drivers/gpu/drm/shmobile/shmob_drm_drv.c
++++ b/drivers/gpu/drm/shmobile/shmob_drm_drv.c
+@@ -127,8 +127,7 @@ static irqreturn_t shmob_drm_irq(int irq, void *arg)
+ DEFINE_DRM_GEM_CMA_FOPS(shmob_drm_fops);
+ 
+ static struct drm_driver shmob_drm_driver = {
+-	.driver_features	= DRIVER_GEM | DRIVER_MODESET
+-				| DRIVER_PRIME,
++	.driver_features	= DRIVER_GEM | DRIVER_MODESET,
+ 	.irq_handler		= shmob_drm_irq,
+ 	.gem_free_object_unlocked = drm_gem_cma_free_object,
+ 	.gem_vm_ops		= &drm_gem_cma_vm_ops,
+diff --git a/drivers/gpu/drm/sti/sti_drv.c b/drivers/gpu/drm/sti/sti_drv.c
+index bb6ae6dd66c9..d9f63c9f287b 100644
+--- a/drivers/gpu/drm/sti/sti_drv.c
++++ b/drivers/gpu/drm/sti/sti_drv.c
+@@ -141,8 +141,7 @@ static void sti_mode_config_init(struct drm_device *dev)
+ DEFINE_DRM_GEM_CMA_FOPS(sti_driver_fops);
+ 
+ static struct drm_driver sti_driver = {
+-	.driver_features = DRIVER_MODESET |
+-	    DRIVER_GEM | DRIVER_PRIME | DRIVER_ATOMIC,
++	.driver_features = DRIVER_MODESET | DRIVER_GEM | DRIVER_ATOMIC,
+ 	.gem_free_object_unlocked = drm_gem_cma_free_object,
+ 	.gem_vm_ops = &drm_gem_cma_vm_ops,
+ 	.dumb_create = drm_gem_cma_dumb_create,
+diff --git a/drivers/gpu/drm/stm/drv.c b/drivers/gpu/drm/stm/drv.c
+index 5659572151a8..4026c33ccc39 100644
+--- a/drivers/gpu/drm/stm/drv.c
++++ b/drivers/gpu/drm/stm/drv.c
+@@ -54,8 +54,7 @@ static int stm_gem_cma_dumb_create(struct drm_file *file,
+ DEFINE_DRM_GEM_CMA_FOPS(drv_driver_fops);
+ 
+ static struct drm_driver drv_driver = {
+-	.driver_features = DRIVER_MODESET | DRIVER_GEM | DRIVER_PRIME |
+-			   DRIVER_ATOMIC,
++	.driver_features = DRIVER_MODESET | DRIVER_GEM | DRIVER_ATOMIC,
+ 	.name = "stm",
+ 	.desc = "STMicroelectronics SoC DRM",
+ 	.date = "20170330",
+diff --git a/drivers/gpu/drm/sun4i/sun4i_drv.c b/drivers/gpu/drm/sun4i/sun4i_drv.c
+index 1a1b52e6f73e..d0fda2bf8224 100644
+--- a/drivers/gpu/drm/sun4i/sun4i_drv.c
++++ b/drivers/gpu/drm/sun4i/sun4i_drv.c
+@@ -38,7 +38,7 @@ static int drm_sun4i_gem_dumb_create(struct drm_file *file_priv,
+ DEFINE_DRM_GEM_CMA_FOPS(sun4i_drv_fops);
+ 
+ static struct drm_driver sun4i_drv_driver = {
+-	.driver_features	= DRIVER_GEM | DRIVER_MODESET | DRIVER_PRIME | DRIVER_ATOMIC,
++	.driver_features	= DRIVER_GEM | DRIVER_MODESET | DRIVER_ATOMIC,
+ 
+ 	/* Generic Operations */
+ 	.fops			= &sun4i_drv_fops,
+diff --git a/drivers/gpu/drm/tegra/drm.c b/drivers/gpu/drm/tegra/drm.c
+index 0c5f1e6a0446..87a1443406ab 100644
+--- a/drivers/gpu/drm/tegra/drm.c
++++ b/drivers/gpu/drm/tegra/drm.c
+@@ -1007,7 +1007,7 @@ static int tegra_debugfs_init(struct drm_minor *minor)
+ #endif
+ 
+ static struct drm_driver tegra_drm_driver = {
+-	.driver_features = DRIVER_MODESET | DRIVER_GEM | DRIVER_PRIME |
++	.driver_features = DRIVER_MODESET | DRIVER_GEM |
+ 			   DRIVER_ATOMIC | DRIVER_RENDER,
+ 	.load = tegra_drm_load,
+ 	.unload = tegra_drm_unload,
+diff --git a/drivers/gpu/drm/tilcdc/tilcdc_drv.c b/drivers/gpu/drm/tilcdc/tilcdc_drv.c
+index 3030af9e7b35..92307959435a 100644
+--- a/drivers/gpu/drm/tilcdc/tilcdc_drv.c
++++ b/drivers/gpu/drm/tilcdc/tilcdc_drv.c
+@@ -512,8 +512,7 @@ static int tilcdc_debugfs_init(struct drm_minor *minor)
+ DEFINE_DRM_GEM_CMA_FOPS(fops);
+ 
+ static struct drm_driver tilcdc_driver = {
+-	.driver_features    = (DRIVER_GEM | DRIVER_MODESET |
+-			       DRIVER_PRIME | DRIVER_ATOMIC),
++	.driver_features    = DRIVER_GEM | DRIVER_MODESET | DRIVER_ATOMIC,
+ 	.irq_handler        = tilcdc_irq,
+ 	.gem_free_object_unlocked = drm_gem_cma_free_object,
+ 	.gem_print_info     = drm_gem_cma_print_info,
+diff --git a/drivers/gpu/drm/tinydrm/hx8357d.c b/drivers/gpu/drm/tinydrm/hx8357d.c
+index 5773d0fb6ca1..be197c5c3211 100644
+--- a/drivers/gpu/drm/tinydrm/hx8357d.c
++++ b/drivers/gpu/drm/tinydrm/hx8357d.c
+@@ -193,7 +193,7 @@ static const struct drm_display_mode yx350hv15_mode = {
+ DEFINE_DRM_GEM_CMA_FOPS(hx8357d_fops);
+ 
+ static struct drm_driver hx8357d_driver = {
+-	.driver_features	= DRIVER_GEM | DRIVER_MODESET | DRIVER_PRIME | DRIVER_ATOMIC,
++	.driver_features	= DRIVER_GEM | DRIVER_MODESET | DRIVER_ATOMIC,
+ 	.fops			= &hx8357d_fops,
+ 	.release		= mipi_dbi_release,
+ 	DRM_GEM_CMA_VMAP_DRIVER_OPS,
+diff --git a/drivers/gpu/drm/tinydrm/ili9225.c b/drivers/gpu/drm/tinydrm/ili9225.c
+index ea69019f2f33..7a8e1b4a37ee 100644
+--- a/drivers/gpu/drm/tinydrm/ili9225.c
++++ b/drivers/gpu/drm/tinydrm/ili9225.c
+@@ -350,8 +350,7 @@ static const struct drm_display_mode ili9225_mode = {
+ DEFINE_DRM_GEM_CMA_FOPS(ili9225_fops);
+ 
+ static struct drm_driver ili9225_driver = {
+-	.driver_features	= DRIVER_GEM | DRIVER_MODESET | DRIVER_PRIME |
+-				  DRIVER_ATOMIC,
++	.driver_features	= DRIVER_GEM | DRIVER_MODESET | DRIVER_ATOMIC,
+ 	.fops			= &ili9225_fops,
+ 	.release		= mipi_dbi_release,
+ 	DRM_GEM_CMA_VMAP_DRIVER_OPS,
+diff --git a/drivers/gpu/drm/tinydrm/ili9341.c b/drivers/gpu/drm/tinydrm/ili9341.c
+index 4ade9e4b924f..00f28b8e4345 100644
+--- a/drivers/gpu/drm/tinydrm/ili9341.c
++++ b/drivers/gpu/drm/tinydrm/ili9341.c
+@@ -149,7 +149,7 @@ static const struct drm_display_mode yx240qv29_mode = {
+ DEFINE_DRM_GEM_CMA_FOPS(ili9341_fops);
+ 
+ static struct drm_driver ili9341_driver = {
+-	.driver_features	= DRIVER_GEM | DRIVER_MODESET | DRIVER_PRIME | DRIVER_ATOMIC,
++	.driver_features	= DRIVER_GEM | DRIVER_MODESET | DRIVER_ATOMIC,
+ 	.fops			= &ili9341_fops,
+ 	.release		= mipi_dbi_release,
+ 	DRM_GEM_CMA_VMAP_DRIVER_OPS,
+diff --git a/drivers/gpu/drm/tinydrm/mi0283qt.c b/drivers/gpu/drm/tinydrm/mi0283qt.c
+index fdefa53455d4..7a14d6b355f2 100644
+--- a/drivers/gpu/drm/tinydrm/mi0283qt.c
++++ b/drivers/gpu/drm/tinydrm/mi0283qt.c
+@@ -153,8 +153,7 @@ static const struct drm_display_mode mi0283qt_mode = {
+ DEFINE_DRM_GEM_CMA_FOPS(mi0283qt_fops);
+ 
+ static struct drm_driver mi0283qt_driver = {
+-	.driver_features	= DRIVER_GEM | DRIVER_MODESET | DRIVER_PRIME |
+-				  DRIVER_ATOMIC,
++	.driver_features	= DRIVER_GEM | DRIVER_MODESET | DRIVER_ATOMIC,
+ 	.fops			= &mi0283qt_fops,
+ 	.release		= mipi_dbi_release,
+ 	DRM_GEM_CMA_VMAP_DRIVER_OPS,
+diff --git a/drivers/gpu/drm/tinydrm/repaper.c b/drivers/gpu/drm/tinydrm/repaper.c
+index 97a874b40394..85acfccefcdb 100644
+--- a/drivers/gpu/drm/tinydrm/repaper.c
++++ b/drivers/gpu/drm/tinydrm/repaper.c
+@@ -925,8 +925,7 @@ static const u8 repaper_e2271cs021_cs[] = { 0x00, 0x00, 0x00, 0x7f,
+ DEFINE_DRM_GEM_CMA_FOPS(repaper_fops);
+ 
+ static struct drm_driver repaper_driver = {
+-	.driver_features	= DRIVER_GEM | DRIVER_MODESET | DRIVER_PRIME |
+-				  DRIVER_ATOMIC,
++	.driver_features	= DRIVER_GEM | DRIVER_MODESET | DRIVER_ATOMIC,
+ 	.fops			= &repaper_fops,
+ 	.release		= repaper_release,
+ 	DRM_GEM_CMA_VMAP_DRIVER_OPS,
+diff --git a/drivers/gpu/drm/tinydrm/st7586.c b/drivers/gpu/drm/tinydrm/st7586.c
+index 9ac626265152..204face7b311 100644
+--- a/drivers/gpu/drm/tinydrm/st7586.c
++++ b/drivers/gpu/drm/tinydrm/st7586.c
+@@ -296,8 +296,7 @@ static const struct drm_display_mode st7586_mode = {
+ DEFINE_DRM_GEM_CMA_FOPS(st7586_fops);
+ 
+ static struct drm_driver st7586_driver = {
+-	.driver_features	= DRIVER_GEM | DRIVER_MODESET | DRIVER_PRIME |
+-				  DRIVER_ATOMIC,
++	.driver_features	= DRIVER_GEM | DRIVER_MODESET | DRIVER_ATOMIC,
+ 	.fops			= &st7586_fops,
+ 	.release		= mipi_dbi_release,
+ 	DRM_GEM_CMA_VMAP_DRIVER_OPS,
+diff --git a/drivers/gpu/drm/tinydrm/st7735r.c b/drivers/gpu/drm/tinydrm/st7735r.c
+index ce9109e613e0..b23899788f5b 100644
+--- a/drivers/gpu/drm/tinydrm/st7735r.c
++++ b/drivers/gpu/drm/tinydrm/st7735r.c
+@@ -123,8 +123,7 @@ static const struct drm_display_mode jd_t18003_t01_mode = {
+ DEFINE_DRM_GEM_CMA_FOPS(st7735r_fops);
+ 
+ static struct drm_driver st7735r_driver = {
+-	.driver_features	= DRIVER_GEM | DRIVER_MODESET | DRIVER_PRIME |
+-				  DRIVER_ATOMIC,
++	.driver_features	= DRIVER_GEM | DRIVER_MODESET | DRIVER_ATOMIC,
+ 	.fops			= &st7735r_fops,
+ 	.release		= mipi_dbi_release,
+ 	DRM_GEM_CMA_VMAP_DRIVER_OPS,
+diff --git a/drivers/gpu/drm/tve200/tve200_drv.c b/drivers/gpu/drm/tve200/tve200_drv.c
+index 6e695fbeb6bc..a1f614e21fcc 100644
+--- a/drivers/gpu/drm/tve200/tve200_drv.c
++++ b/drivers/gpu/drm/tve200/tve200_drv.c
+@@ -137,8 +137,7 @@ static int tve200_modeset_init(struct drm_device *dev)
+ DEFINE_DRM_GEM_CMA_FOPS(drm_fops);
+ 
+ static struct drm_driver tve200_drm_driver = {
+-	.driver_features =
+-		DRIVER_MODESET | DRIVER_GEM | DRIVER_PRIME | DRIVER_ATOMIC,
++	.driver_features = DRIVER_MODESET | DRIVER_GEM | DRIVER_ATOMIC,
+ 	.ioctls = NULL,
+ 	.fops = &drm_fops,
+ 	.name = "tve200",
+diff --git a/drivers/gpu/drm/udl/udl_drv.c b/drivers/gpu/drm/udl/udl_drv.c
+index 4a49facb608d..ae53bf75c1d6 100644
+--- a/drivers/gpu/drm/udl/udl_drv.c
++++ b/drivers/gpu/drm/udl/udl_drv.c
+@@ -54,7 +54,7 @@ static void udl_driver_release(struct drm_device *dev)
+ }
+ 
+ static struct drm_driver driver = {
+-	.driver_features = DRIVER_MODESET | DRIVER_GEM | DRIVER_PRIME,
++	.driver_features = DRIVER_MODESET | DRIVER_GEM,
+ 	.release = udl_driver_release,
+ 
+ 	/* gem hooks */
+diff --git a/drivers/gpu/drm/v3d/v3d_drv.c b/drivers/gpu/drm/v3d/v3d_drv.c
+index fea597f4db8a..a1604705faee 100644
+--- a/drivers/gpu/drm/v3d/v3d_drv.c
++++ b/drivers/gpu/drm/v3d/v3d_drv.c
+@@ -188,7 +188,6 @@ static const struct drm_ioctl_desc v3d_drm_ioctls[] = {
+ static struct drm_driver v3d_drm_driver = {
+ 	.driver_features = (DRIVER_GEM |
+ 			    DRIVER_RENDER |
+-			    DRIVER_PRIME |
+ 			    DRIVER_SYNCOBJ),
+ 
+ 	.open = v3d_open,
+diff --git a/drivers/gpu/drm/vboxvideo/vbox_drv.c b/drivers/gpu/drm/vboxvideo/vbox_drv.c
+index 02537ab9cc08..a7fd194c81a9 100644
+--- a/drivers/gpu/drm/vboxvideo/vbox_drv.c
++++ b/drivers/gpu/drm/vboxvideo/vbox_drv.c
+@@ -196,7 +196,7 @@ static const struct file_operations vbox_fops = {
+ 
+ static struct drm_driver driver = {
+ 	.driver_features =
+-	    DRIVER_MODESET | DRIVER_GEM | DRIVER_PRIME | DRIVER_ATOMIC,
++	    DRIVER_MODESET | DRIVER_GEM | DRIVER_ATOMIC,
+ 
+ 	.lastclose = drm_fb_helper_lastclose,
+ 
+diff --git a/drivers/gpu/drm/vc4/vc4_drv.c b/drivers/gpu/drm/vc4/vc4_drv.c
+index 0f99ad03614e..ed4fe7ed9e64 100644
+--- a/drivers/gpu/drm/vc4/vc4_drv.c
++++ b/drivers/gpu/drm/vc4/vc4_drv.c
+@@ -180,7 +180,6 @@ static struct drm_driver vc4_drm_driver = {
+ 			    DRIVER_ATOMIC |
+ 			    DRIVER_GEM |
+ 			    DRIVER_RENDER |
+-			    DRIVER_PRIME |
+ 			    DRIVER_SYNCOBJ),
+ 	.open = vc4_open,
+ 	.postclose = vc4_close,
+diff --git a/drivers/gpu/drm/vgem/vgem_drv.c b/drivers/gpu/drm/vgem/vgem_drv.c
+index 11a8f99ba18c..68c340cfde51 100644
+--- a/drivers/gpu/drm/vgem/vgem_drv.c
++++ b/drivers/gpu/drm/vgem/vgem_drv.c
+@@ -427,8 +427,7 @@ static void vgem_release(struct drm_device *dev)
+ }
+ 
+ static struct drm_driver vgem_driver = {
+-	.driver_features		= DRIVER_GEM | DRIVER_PRIME |
+-					  DRIVER_RENDER,
++	.driver_features		= DRIVER_GEM | DRIVER_RENDER,
+ 	.release			= vgem_release,
+ 	.open				= vgem_open,
+ 	.postclose			= vgem_postclose,
+diff --git a/drivers/gpu/drm/virtio/virtgpu_drv.c b/drivers/gpu/drm/virtio/virtgpu_drv.c
+index c50868753132..0afdf51fdcfd 100644
+--- a/drivers/gpu/drm/virtio/virtgpu_drv.c
++++ b/drivers/gpu/drm/virtio/virtgpu_drv.c
+@@ -195,7 +195,7 @@ static const struct file_operations virtio_gpu_driver_fops = {
+ };
+ 
+ static struct drm_driver driver = {
+-	.driver_features = DRIVER_MODESET | DRIVER_GEM | DRIVER_PRIME | DRIVER_RENDER | DRIVER_ATOMIC,
++	.driver_features = DRIVER_MODESET | DRIVER_GEM | DRIVER_RENDER | DRIVER_ATOMIC,
+ 	.open = virtio_gpu_driver_open,
+ 	.postclose = virtio_gpu_driver_postclose,
+ 
+diff --git a/drivers/gpu/drm/vmwgfx/vmwgfx_drv.c b/drivers/gpu/drm/vmwgfx/vmwgfx_drv.c
+index 4ff11a0077e1..89b8eb047583 100644
+--- a/drivers/gpu/drm/vmwgfx/vmwgfx_drv.c
++++ b/drivers/gpu/drm/vmwgfx/vmwgfx_drv.c
+@@ -1548,7 +1548,7 @@ static const struct file_operations vmwgfx_driver_fops = {
+ 
+ static struct drm_driver driver = {
+ 	.driver_features =
+-	DRIVER_MODESET | DRIVER_PRIME | DRIVER_RENDER | DRIVER_ATOMIC,
++	DRIVER_MODESET | DRIVER_RENDER | DRIVER_ATOMIC,
+ 	.load = vmw_driver_load,
+ 	.unload = vmw_driver_unload,
+ 	.lastclose = vmw_lastclose,
+diff --git a/drivers/gpu/drm/xen/xen_drm_front.c b/drivers/gpu/drm/xen/xen_drm_front.c
+index 84aa4d61dc42..aeffec82a5ce 100644
+--- a/drivers/gpu/drm/xen/xen_drm_front.c
++++ b/drivers/gpu/drm/xen/xen_drm_front.c
+@@ -485,8 +485,7 @@ static const struct vm_operations_struct xen_drm_drv_vm_ops = {
+ };
+ 
+ static struct drm_driver xen_drm_driver = {
+-	.driver_features           = DRIVER_GEM | DRIVER_MODESET |
+-				     DRIVER_PRIME | DRIVER_ATOMIC,
++	.driver_features           = DRIVER_GEM | DRIVER_MODESET | DRIVER_ATOMIC,
+ 	.release                   = xen_drm_drv_release,
+ 	.gem_vm_ops                = &xen_drm_drv_vm_ops,
+ 	.gem_free_object_unlocked  = xen_drm_drv_free_object_unlocked,
+diff --git a/drivers/gpu/drm/zte/zx_drm_drv.c b/drivers/gpu/drm/zte/zx_drm_drv.c
+index 28e8d6072910..060ad5266bc7 100644
+--- a/drivers/gpu/drm/zte/zx_drm_drv.c
++++ b/drivers/gpu/drm/zte/zx_drm_drv.c
+@@ -38,8 +38,7 @@ static const struct drm_mode_config_funcs zx_drm_mode_config_funcs = {
+ DEFINE_DRM_GEM_CMA_FOPS(zx_drm_fops);
+ 
+ static struct drm_driver zx_drm_driver = {
+-	.driver_features = DRIVER_GEM | DRIVER_MODESET | DRIVER_PRIME |
+-			   DRIVER_ATOMIC,
++	.driver_features = DRIVER_GEM | DRIVER_MODESET | DRIVER_ATOMIC,
+ 	.gem_free_object_unlocked = drm_gem_cma_free_object,
+ 	.gem_vm_ops = &drm_gem_cma_vm_ops,
+ 	.dumb_create = drm_gem_cma_dumb_create,
+diff --git a/include/drm/drm_drv.h b/include/drm/drm_drv.h
+index 5e1ba16d19c6..7bc4795319c4 100644
+--- a/include/drm/drm_drv.h
++++ b/include/drm/drm_drv.h
+@@ -61,12 +61,6 @@ enum drm_driver_feature {
+ 	 * Driver supports mode setting interfaces (KMS).
+ 	 */
+ 	DRIVER_MODESET			= BIT(1),
+-	/**
+-	 * @DRIVER_PRIME:
+-	 *
+-	 * Driver implements DRM PRIME buffer sharing.
+-	 */
+-	DRIVER_PRIME			= BIT(2),
+ 	/**
+ 	 * @DRIVER_RENDER:
+ 	 *
+-- 
+2.20.1
