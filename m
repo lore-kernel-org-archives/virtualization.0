@@ -1,15 +1,15 @@
 From: Daniel Vetter <daniel@ffwll.ch>
-Subject: Re: [PATCH 3/4] drm/virtio: simplify cursor updates
-Date: Mon, 17 Jun 2019 16:18:06 +0200
-Message-ID: <20190617141806.GG12905__18314.8047000699$1560781100$gmane$org@phenom.ffwll.local>
+Subject: Re: [PATCH 4/4] drm/virtio: remove virtio_gpu_object_wait
+Date: Mon, 17 Jun 2019 16:18:19 +0200
+Message-ID: <20190617141819.GH12905@phenom.ffwll.local>
 References: <20190617111406.14765-1-kraxel@redhat.com>
-	<20190617111406.14765-4-kraxel@redhat.com>
+	<20190617111406.14765-5-kraxel@redhat.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
 Content-Disposition: inline
-In-Reply-To: <20190617111406.14765-4-kraxel@redhat.com>
+In-Reply-To: <20190617111406.14765-5-kraxel@redhat.com>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -23,56 +23,51 @@ To: Gerd Hoffmann <kraxel@redhat.com>
 Cc: David Airlie <airlied@linux.ie>, open list <linux-kernel@vger.kernel.org>, Daniel Vetter <daniel@ffwll.ch>, dri-devel@lists.freedesktop.org, "open list:VIRTIO GPU DRIVER" <virtualization@lists.linux-foundation.org>
 List-Id: virtualization@lists.linuxfoundation.org
 
-On Mon, Jun 17, 2019 at 01:14:05PM +0200, Gerd Hoffmann wrote:
-> No need to do the reservation dance,
-> we can just wait on the fence directly.
+On Mon, Jun 17, 2019 at 01:14:06PM +0200, Gerd Hoffmann wrote:
+> No users left.
 > 
 > Signed-off-by: Gerd Hoffmann <kraxel@redhat.com>
-> ---
->  drivers/gpu/drm/virtio/virtgpu_plane.c | 13 +++----------
->  1 file changed, 3 insertions(+), 10 deletions(-)
-> 
-> diff --git a/drivers/gpu/drm/virtio/virtgpu_plane.c b/drivers/gpu/drm/virtio/virtgpu_plane.c
-> index 024c2aa0c929..4b805bf466d3 100644
-> --- a/drivers/gpu/drm/virtio/virtgpu_plane.c
-> +++ b/drivers/gpu/drm/virtio/virtgpu_plane.c
-> @@ -184,7 +184,6 @@ static void virtio_gpu_cursor_plane_update(struct drm_plane *plane,
->  	struct virtio_gpu_framebuffer *vgfb;
->  	struct virtio_gpu_object *bo = NULL;
->  	uint32_t handle;
-> -	int ret = 0;
->  
->  	if (plane->state->crtc)
->  		output = drm_crtc_to_virtio_gpu_output(plane->state->crtc);
-> @@ -208,15 +207,9 @@ static void virtio_gpu_cursor_plane_update(struct drm_plane *plane,
->  			 cpu_to_le32(plane->state->crtc_w),
->  			 cpu_to_le32(plane->state->crtc_h),
->  			 0, 0, vgfb->fence);
-> -		ret = virtio_gpu_object_reserve(bo, false);
-> -		if (!ret) {
-> -			reservation_object_add_excl_fence(bo->tbo.resv,
-> -							  &vgfb->fence->f);
-> -			dma_fence_put(&vgfb->fence->f);
-> -			vgfb->fence = NULL;
-> -			virtio_gpu_object_unreserve(bo);
-> -			virtio_gpu_object_wait(bo, false);
-> -		}
-> +		dma_fence_wait(&vgfb->fence->f, true);
-> +		dma_fence_put(&vgfb->fence->f);
-> +		vgfb->fence = NULL;
-
-Even nicer would be to add the fence using
-drm_atomic_set_fence_for_plane() in the prepare_fb hook. Assuming this
-isn't necessary for correctness (but then I kinda have questions about
-races and stuff).
-
-But this gets the job done too I think, so:
 
 Reviewed-by: Daniel Vetter <daniel.vetter@ffwll.ch>
 
->  	}
+> ---
+>  drivers/gpu/drm/virtio/virtgpu_drv.h    |  1 -
+>  drivers/gpu/drm/virtio/virtgpu_object.c | 13 -------------
+>  2 files changed, 14 deletions(-)
+> 
+> diff --git a/drivers/gpu/drm/virtio/virtgpu_drv.h b/drivers/gpu/drm/virtio/virtgpu_drv.h
+> index 9e2d3062b01d..2cd96256ba37 100644
+> --- a/drivers/gpu/drm/virtio/virtgpu_drv.h
+> +++ b/drivers/gpu/drm/virtio/virtgpu_drv.h
+> @@ -364,7 +364,6 @@ int virtio_gpu_object_kmap(struct virtio_gpu_object *bo);
+>  int virtio_gpu_object_get_sg_table(struct virtio_gpu_device *qdev,
+>  				   struct virtio_gpu_object *bo);
+>  void virtio_gpu_object_free_sg_table(struct virtio_gpu_object *bo);
+> -int virtio_gpu_object_wait(struct virtio_gpu_object *bo, bool no_wait);
 >  
->  	if (plane->state->fb != old_state->fb) {
+>  /* virtgpu_prime.c */
+>  struct sg_table *virtgpu_gem_prime_get_sg_table(struct drm_gem_object *obj);
+> diff --git a/drivers/gpu/drm/virtio/virtgpu_object.c b/drivers/gpu/drm/virtio/virtgpu_object.c
+> index 242766d644a7..82bfbf983fd2 100644
+> --- a/drivers/gpu/drm/virtio/virtgpu_object.c
+> +++ b/drivers/gpu/drm/virtio/virtgpu_object.c
+> @@ -233,16 +233,3 @@ void virtio_gpu_object_free_sg_table(struct virtio_gpu_object *bo)
+>  	kfree(bo->pages);
+>  	bo->pages = NULL;
+>  }
+> -
+> -int virtio_gpu_object_wait(struct virtio_gpu_object *bo, bool no_wait)
+> -{
+> -	int r;
+> -
+> -	r = ttm_bo_reserve(&bo->tbo, true, no_wait, NULL);
+> -	if (unlikely(r != 0))
+> -		return r;
+> -	r = ttm_bo_wait(&bo->tbo, true, no_wait);
+> -	ttm_bo_unreserve(&bo->tbo);
+> -	return r;
+> -}
+> -
 > -- 
 > 2.18.1
 > 
