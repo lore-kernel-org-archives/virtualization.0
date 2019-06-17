@@ -1,15 +1,11 @@
-From: Gerd Hoffmann <kraxel@redhat.com>
-Subject: Re: [PATCH 37/59] drm/virtio: Drop drm_gem_prime_export/import
-Date: Mon, 17 Jun 2019 08:03:21 +0200
-Message-ID: <20190617060321.pbuqy5adup2ypti2__22774.2929406062$1560751416$gmane$org@sirius.home.kraxel.org>
-References: <20190614203615.12639-1-daniel.vetter@ffwll.ch>
-	<20190614203615.12639-38-daniel.vetter@ffwll.ch>
+From: Jason Wang <jasowang@redhat.com>
+Subject: [PATCH net-next] vhost_net: disable zerocopy by default
+Date: Mon, 17 Jun 2019 05:20:54 -0400
+Message-ID: <20190617092054.12299-1-jasowang__5042.09165680862$1560763282$gmane$org@redhat.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-Content-Disposition: inline
-In-Reply-To: <20190614203615.12639-38-daniel.vetter@ffwll.ch>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -19,22 +15,39 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Daniel Vetter <daniel.vetter@ffwll.ch>
-Cc: David Airlie <airlied@linux.ie>, Daniel Vetter <daniel.vetter@intel.com>, Intel Graphics Development <intel-gfx@lists.freedesktop.org>, DRI Development <dri-devel@lists.freedesktop.org>, virtualization@lists.linux-foundation.org
+To: jasowang@redhat.com, mst@redhat.com, kvm@vger.kernel.org, virtualization@lists.linux-foundation.org, netdev@vger.kernel.org, linux-kernel@vger.kernel.org
+Cc: huhai@kylinos.cn
 List-Id: virtualization@lists.linuxfoundation.org
 
-On Fri, Jun 14, 2019 at 10:35:53PM +0200, Daniel Vetter wrote:
-> They're the default.
-> 
-> Aside: Would be really nice to switch the others over to
-> drm_gem_object_funcs.
-> 
-> Signed-off-by: Daniel Vetter <daniel.vetter@intel.com>
-> Cc: David Airlie <airlied@linux.ie>
-> Cc: Gerd Hoffmann <kraxel@redhat.com>
-> Cc: virtualization@lists.linux-foundation.org
-> ---
->  drivers/gpu/drm/virtio/virtgpu_drv.c | 2 --
->  1 file changed, 2 deletions(-)
+Vhost_net was known to suffer from HOL[1] issues which is not easy to
+fix. Several downstream disable the feature by default. What's more,
+the datapath was split and datacopy path got the support of batching
+and XDP support recently which makes it faster than zerocopy part for
+small packets transmission.
 
-Acked-by: Gerd Hoffmann <kraxel@redhat.com>
+It looks to me that disable zerocopy by default is more
+appropriate. It cold be enabled by default again in the future if we
+fix the above issues.
+
+[1] https://patchwork.kernel.org/patch/3787671/
+
+Signed-off-by: Jason Wang <jasowang@redhat.com>
+---
+ drivers/vhost/net.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
+
+diff --git a/drivers/vhost/net.c b/drivers/vhost/net.c
+index 2d9df786a9d3..21e0805e5e60 100644
+--- a/drivers/vhost/net.c
++++ b/drivers/vhost/net.c
+@@ -36,7 +36,7 @@
+ 
+ #include "vhost.h"
+ 
+-static int experimental_zcopytx = 1;
++static int experimental_zcopytx = 0;
+ module_param(experimental_zcopytx, int, 0444);
+ MODULE_PARM_DESC(experimental_zcopytx, "Enable Zero Copy TX;"
+ 		                       " 1 -Enable; 0 - Disable");
+-- 
+2.18.1
