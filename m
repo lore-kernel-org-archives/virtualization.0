@@ -1,17 +1,15 @@
 From: Gerd Hoffmann <kraxel@redhat.com>
-Subject: Re: [EXTERNAL] Re: [PATCH 1/1] drm/bochs: Fix connector leak during
-	driver unload
-Date: Mon, 17 Jun 2019 07:45:00 +0200
-Message-ID: <20190617054500.73am3e5yv5uzpga7@sirius.home.kraxel.org>
-References: <93b363ad62f4938d9ddf3e05b2a61e3f66b2dcd3.1558416473.git.sbobroff@linux.ibm.com>
-	<20190521081029.dexgf7e7d3b7wxdw@sirius.home.kraxel.org>
-	<20190617012033.GA1151@tungsten.ozlabs.ibm.com>
+Subject: Re: [PATCH 25/59] drm/qxl: Drop drm_gem_prime_export/import
+Date: Mon, 17 Jun 2019 08:03:10 +0200
+Message-ID: <20190617060310.ety5cxi7amqaupki__12079.2243325681$1560751406$gmane$org@sirius.home.kraxel.org>
+References: <20190614203615.12639-1-daniel.vetter@ffwll.ch>
+	<20190614203615.12639-26-daniel.vetter@ffwll.ch>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
 Content-Disposition: inline
-In-Reply-To: <20190617012033.GA1151@tungsten.ozlabs.ibm.com>
+In-Reply-To: <20190614203615.12639-26-daniel.vetter@ffwll.ch>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -21,35 +19,20 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Sam Bobroff <sbobroff@linux.ibm.com>
-Cc: airlied@linux.ie, daniel@ffwll.ch, linux-kernel@vger.kernel.org, dri-devel@lists.freedesktop.org, virtualization@lists.linux-foundation.org
+To: Daniel Vetter <daniel.vetter@ffwll.ch>
+Cc: Dave Airlie <airlied@redhat.com>, Intel Graphics Development <intel-gfx@lists.freedesktop.org>, DRI Development <dri-devel@lists.freedesktop.org>, virtualization@lists.linux-foundation.org, spice-devel@lists.freedesktop.org, Daniel Vetter <daniel.vetter@intel.com>
 List-Id: virtualization@lists.linuxfoundation.org
 
-On Mon, Jun 17, 2019 at 11:20:34AM +1000, Sam Bobroff wrote:
-> On Tue, May 21, 2019 at 10:10:29AM +0200, Gerd Hoffmann wrote:
-> >   Hi,
-> > 
-> > The bug is in the driver, so ...
-> > 
-> > > Bisecting the issue for commits to drivers/gpu/drm/bochs/ points to:
-> > > 6579c39594ae ("drm/bochs: atomic: switch planes to atomic, wire up helpers.")
-> > > ... but the issue also seems to be due to a change in the generic drm code
-> > 
-> > ... this one is the culprit and should be listed.
-> > 
-> > > (reverting it separately fixes the issue):
-> > > 846c7dfc1193 ("drm/atomic: Try to preserve the crtc enabled state in drm_atomic_remove_fb, v2.")
-> > > ... so I've included both in the commit.  Is that the right thing to do?
-> > 
-> > That only triggers the driver bug.
-> > 
-> > I'll fix it up on commit,
-> >   Gerd
+On Fri, Jun 14, 2019 at 10:35:41PM +0200, Daniel Vetter wrote:
+> They're the default.
 > 
-> Sorry if I misunderstood, but were you going to take the patch and fix
-> it up or would you like me to post a v2?
+> Aside: Would be really nice to switch the others over to
+> drm_gem_object_funcs.
+> 
+> Signed-off-by: Daniel Vetter <daniel.vetter@intel.com>
+> Cc: Dave Airlie <airlied@redhat.com>
+> Cc: Gerd Hoffmann <kraxel@redhat.com>
+> Cc: virtualization@lists.linux-foundation.org
+> Cc: spice-devel@lists.freedesktop.org
 
-Patch is in drm-misc-next, I fixed it on commit.
-
-cheers,
-  Gerd
+Acked-by: Gerd Hoffmann <kraxel@redhat.com>
