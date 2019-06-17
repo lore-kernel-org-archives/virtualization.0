@@ -1,16 +1,15 @@
 From: Daniel Vetter <daniel@ffwll.ch>
-Subject: Re: [PATCH 2/4] drm/virtio: switch virtio_gpu_wait_ioctl() to gem
-	helper.
-Date: Mon, 17 Jun 2019 16:15:16 +0200
-Message-ID: <20190617141516.GF12905__736.200616096028$1560780934$gmane$org@phenom.ffwll.local>
+Subject: Re: [PATCH 3/4] drm/virtio: simplify cursor updates
+Date: Mon, 17 Jun 2019 16:18:06 +0200
+Message-ID: <20190617141806.GG12905__18314.8047000699$1560781100$gmane$org@phenom.ffwll.local>
 References: <20190617111406.14765-1-kraxel@redhat.com>
-	<20190617111406.14765-3-kraxel@redhat.com>
+	<20190617111406.14765-4-kraxel@redhat.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
 Content-Disposition: inline
-In-Reply-To: <20190617111406.14765-3-kraxel@redhat.com>
+In-Reply-To: <20190617111406.14765-4-kraxel@redhat.com>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -24,56 +23,56 @@ To: Gerd Hoffmann <kraxel@redhat.com>
 Cc: David Airlie <airlied@linux.ie>, open list <linux-kernel@vger.kernel.org>, Daniel Vetter <daniel@ffwll.ch>, dri-devel@lists.freedesktop.org, "open list:VIRTIO GPU DRIVER" <virtualization@lists.linux-foundation.org>
 List-Id: virtualization@lists.linuxfoundation.org
 
-On Mon, Jun 17, 2019 at 01:14:04PM +0200, Gerd Hoffmann wrote:
-> Use drm_gem_reservation_object_wait() in virtio_gpu_wait_ioctl().
-
-Would be good to mention here that with this the wait becomes lockless, we
-don't call ttm_bo_reserve/unreserve anymore.
-
+On Mon, Jun 17, 2019 at 01:14:05PM +0200, Gerd Hoffmann wrote:
+> No need to do the reservation dance,
+> we can just wait on the fence directly.
+> 
 > Signed-off-by: Gerd Hoffmann <kraxel@redhat.com>
 > ---
->  drivers/gpu/drm/virtio/virtgpu_ioctl.c | 18 ++++--------------
->  1 file changed, 4 insertions(+), 14 deletions(-)
+>  drivers/gpu/drm/virtio/virtgpu_plane.c | 13 +++----------
+>  1 file changed, 3 insertions(+), 10 deletions(-)
 > 
-> diff --git a/drivers/gpu/drm/virtio/virtgpu_ioctl.c b/drivers/gpu/drm/virtio/virtgpu_ioctl.c
-> index c0ba1ead740f..e38a6bb46cc7 100644
-> --- a/drivers/gpu/drm/virtio/virtgpu_ioctl.c
-> +++ b/drivers/gpu/drm/virtio/virtgpu_ioctl.c
-> @@ -464,23 +464,13 @@ static int virtio_gpu_wait_ioctl(struct drm_device *dev, void *data,
->  			    struct drm_file *file)
->  {
->  	struct drm_virtgpu_3d_wait *args = data;
-> -	struct drm_gem_object *gobj = NULL;
-> -	struct virtio_gpu_object *qobj = NULL;
-> -	int ret;
-> -	bool nowait = false;
-> -
-> -	gobj = drm_gem_object_lookup(file, args->handle);
-> -	if (gobj == NULL)
-> -		return -ENOENT;
-> -
-> -	qobj = gem_to_virtio_gpu_obj(gobj);
-> +	long timeout = 15 * HZ;
+> diff --git a/drivers/gpu/drm/virtio/virtgpu_plane.c b/drivers/gpu/drm/virtio/virtgpu_plane.c
+> index 024c2aa0c929..4b805bf466d3 100644
+> --- a/drivers/gpu/drm/virtio/virtgpu_plane.c
+> +++ b/drivers/gpu/drm/virtio/virtgpu_plane.c
+> @@ -184,7 +184,6 @@ static void virtio_gpu_cursor_plane_update(struct drm_plane *plane,
+>  	struct virtio_gpu_framebuffer *vgfb;
+>  	struct virtio_gpu_object *bo = NULL;
+>  	uint32_t handle;
+> -	int ret = 0;
 >  
->  	if (args->flags & VIRTGPU_WAIT_NOWAIT)
-> -		nowait = true;
-> -	ret = virtio_gpu_object_wait(qobj, nowait);
-> +		timeout = 0;
+>  	if (plane->state->crtc)
+>  		output = drm_crtc_to_virtio_gpu_output(plane->state->crtc);
+> @@ -208,15 +207,9 @@ static void virtio_gpu_cursor_plane_update(struct drm_plane *plane,
+>  			 cpu_to_le32(plane->state->crtc_w),
+>  			 cpu_to_le32(plane->state->crtc_h),
+>  			 0, 0, vgfb->fence);
+> -		ret = virtio_gpu_object_reserve(bo, false);
+> -		if (!ret) {
+> -			reservation_object_add_excl_fence(bo->tbo.resv,
+> -							  &vgfb->fence->f);
+> -			dma_fence_put(&vgfb->fence->f);
+> -			vgfb->fence = NULL;
+> -			virtio_gpu_object_unreserve(bo);
+> -			virtio_gpu_object_wait(bo, false);
+> -		}
+> +		dma_fence_wait(&vgfb->fence->f, true);
+> +		dma_fence_put(&vgfb->fence->f);
+> +		vgfb->fence = NULL;
 
-timeout of 0 gets upgrade to a 1 jiffy wait, which is probably not what
-you want here. You need to open-code ttm_bo_wait here and call
-reservation_object_test_signaled_rcu() for this case.
+Even nicer would be to add the fence using
+drm_atomic_set_fence_for_plane() in the prepare_fb hook. Assuming this
+isn't necessary for correctness (but then I kinda have questions about
+races and stuff).
 
-With that fixed Reviewed-by: Daniel Vetter <daniel.vetter@ffwll.ch>
+But this gets the job done too I think, so:
 
+Reviewed-by: Daniel Vetter <daniel.vetter@ffwll.ch>
+
+>  	}
 >  
-> -	drm_gem_object_put_unlocked(gobj);
-> -	return ret;
-> +	return drm_gem_reservation_object_wait(file, args->handle,
-> +					       true, timeout);
->  }
->  
->  static int virtio_gpu_get_caps_ioctl(struct drm_device *dev,
+>  	if (plane->state->fb != old_state->fb) {
 > -- 
 > 2.18.1
 > 
