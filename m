@@ -1,7 +1,7 @@
 From: Gerd Hoffmann <kraxel@redhat.com>
-Subject: [PATCH 1/4] drm/virtio: pass gem reservation object to ttm init
-Date: Mon, 17 Jun 2019 13:14:03 +0200
-Message-ID: <20190617111406.14765-2-kraxel__37554.6322947898$1560770059$gmane$org@redhat.com>
+Subject: [PATCH 3/4] drm/virtio: simplify cursor updates
+Date: Mon, 17 Jun 2019 13:14:05 +0200
+Message-ID: <20190617111406.14765-4-kraxel__4330.10005378804$1560770071$gmane$org@redhat.com>
 References: <20190617111406.14765-1-kraxel@redhat.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
@@ -21,28 +21,44 @@ To: dri-devel@lists.freedesktop.org
 Cc: David Airlie <airlied@linux.ie>, open list <linux-kernel@vger.kernel.org>, Daniel Vetter <daniel@ffwll.ch>, "open list:VIRTIO GPU DRIVER" <virtualization@lists.linux-foundation.org>
 List-Id: virtualization@lists.linuxfoundation.org
 
-With this gem and ttm will use the same reservation object,
-so mixing and matching ttm / gem reservation helpers should
-work fine.
+No need to do the reservation dance,
+we can just wait on the fence directly.
 
 Signed-off-by: Gerd Hoffmann <kraxel@redhat.com>
 ---
- drivers/gpu/drm/virtio/virtgpu_object.c | 3 ++-
- 1 file changed, 2 insertions(+), 1 deletion(-)
+ drivers/gpu/drm/virtio/virtgpu_plane.c | 13 +++----------
+ 1 file changed, 3 insertions(+), 10 deletions(-)
 
-diff --git a/drivers/gpu/drm/virtio/virtgpu_object.c b/drivers/gpu/drm/virtio/virtgpu_object.c
-index b2da31310d24..242766d644a7 100644
---- a/drivers/gpu/drm/virtio/virtgpu_object.c
-+++ b/drivers/gpu/drm/virtio/virtgpu_object.c
-@@ -132,7 +132,8 @@ int virtio_gpu_object_create(struct virtio_gpu_device *vgdev,
- 	virtio_gpu_init_ttm_placement(bo);
- 	ret = ttm_bo_init(&vgdev->mman.bdev, &bo->tbo, params->size,
- 			  ttm_bo_type_device, &bo->placement, 0,
--			  true, acc_size, NULL, NULL,
-+			  true, acc_size, NULL,
-+			  bo->gem_base.resv,
- 			  &virtio_gpu_ttm_bo_destroy);
- 	/* ttm_bo_init failure will call the destroy */
- 	if (ret != 0)
+diff --git a/drivers/gpu/drm/virtio/virtgpu_plane.c b/drivers/gpu/drm/virtio/virtgpu_plane.c
+index 024c2aa0c929..4b805bf466d3 100644
+--- a/drivers/gpu/drm/virtio/virtgpu_plane.c
++++ b/drivers/gpu/drm/virtio/virtgpu_plane.c
+@@ -184,7 +184,6 @@ static void virtio_gpu_cursor_plane_update(struct drm_plane *plane,
+ 	struct virtio_gpu_framebuffer *vgfb;
+ 	struct virtio_gpu_object *bo = NULL;
+ 	uint32_t handle;
+-	int ret = 0;
+ 
+ 	if (plane->state->crtc)
+ 		output = drm_crtc_to_virtio_gpu_output(plane->state->crtc);
+@@ -208,15 +207,9 @@ static void virtio_gpu_cursor_plane_update(struct drm_plane *plane,
+ 			 cpu_to_le32(plane->state->crtc_w),
+ 			 cpu_to_le32(plane->state->crtc_h),
+ 			 0, 0, vgfb->fence);
+-		ret = virtio_gpu_object_reserve(bo, false);
+-		if (!ret) {
+-			reservation_object_add_excl_fence(bo->tbo.resv,
+-							  &vgfb->fence->f);
+-			dma_fence_put(&vgfb->fence->f);
+-			vgfb->fence = NULL;
+-			virtio_gpu_object_unreserve(bo);
+-			virtio_gpu_object_wait(bo, false);
+-		}
++		dma_fence_wait(&vgfb->fence->f, true);
++		dma_fence_put(&vgfb->fence->f);
++		vgfb->fence = NULL;
+ 	}
+ 
+ 	if (plane->state->fb != old_state->fb) {
 -- 
 2.18.1
