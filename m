@@ -1,15 +1,13 @@
-From: Emil Velikov <emil.l.velikov@gmail.com>
-Subject: Re: [PATCH 06/59] drm/prime: Actually remove DRIVER_PRIME everywhere
-Date: Mon, 17 Jun 2019 18:56:06 +0100
-Message-ID: <20190617175606.GE26766@arch-x1c3>
-References: <20190614203615.12639-1-daniel.vetter@ffwll.ch>
-	<20190614203615.12639-7-daniel.vetter@ffwll.ch>
+From: David Miller <davem@davemloft.net>
+Subject: Re: [PATCH net-next] vhost_net: disable zerocopy by default
+Date: Mon, 17 Jun 2019 13:58:21 -0700 (PDT)
+Message-ID: <20190617.135821.1970853531857836652.davem__24479.7872657486$1560805118$gmane$org@davemloft.net>
+References: <20190617092054.12299-1-jasowang@redhat.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-Content-Disposition: inline
-In-Reply-To: <20190614203615.12639-7-daniel.vetter@ffwll.ch>
+In-Reply-To: <20190617092054.12299-1-jasowang@redhat.com>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -19,17 +17,25 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Daniel Vetter <daniel.vetter@ffwll.ch>
-Cc: linux-aspeed@lists.ozlabs.org, nouveau@lists.freedesktop.org, DRI Development <dri-devel@lists.freedesktop.org>, virtualization@lists.linux-foundation.org, Daniel Vetter <daniel.vetter@intel.com>, linux-stm32@st-md-mailman.stormreply.com, linux-samsung-soc@vger.kernel.org, lima@lists.freedesktop.org, amd-gfx@lists.freedesktop.org, linux-rockchip@lists.infradead.org, VMware Graphics <linux-graphics-maintainer@vmware.com>, NXP Linux Team <linux-imx@nxp.com>, spice-devel@lists.freedesktop.org, linux-arm-msm@vger.kernel.org, Intel Graphics Development <intel-gfx@lists.freedesktop.org>, etnaviv@lists.freedesktop.org, xen-devel@lists.xenproject.org, linux-tegra@vger.kernel.org, linux-amlogic@lists.infradead.org, linux-arm-kernel@lists.infradead.org, linux-renesas-soc@vger.kernel.org, freedreno@lists.freedesktop.org
+To: jasowang@redhat.com
+Cc: kvm@vger.kernel.org, mst@redhat.com, netdev@vger.kernel.org, linux-kernel@vger.kernel.org, virtualization@lists.linux-foundation.org, huhai@kylinos.cn
 List-Id: virtualization@lists.linuxfoundation.org
 
-On 2019/06/14, Daniel Vetter wrote:
-> Split out to make the functional changes stick out more.
+From: Jason Wang <jasowang@redhat.com>
+Date: Mon, 17 Jun 2019 05:20:54 -0400
+
+> Vhost_net was known to suffer from HOL[1] issues which is not easy to
+> fix. Several downstream disable the feature by default. What's more,
+> the datapath was split and datacopy path got the support of batching
+> and XDP support recently which makes it faster than zerocopy part for
+> small packets transmission.
 > 
-Since this patch flew-by, as standalone one (intentionally or not) I'd
-add, anything vaguely like:
+> It looks to me that disable zerocopy by default is more
+> appropriate. It cold be enabled by default again in the future if we
+> fix the above issues.
+> 
+> [1] https://patchwork.kernel.org/patch/3787671/
+> 
+> Signed-off-by: Jason Wang <jasowang@redhat.com>
 
-"Core users of DRIVER_PRIME were removed from core with prior patches."
-
-HTH
-Emil
+Applied, thanks Jason.
