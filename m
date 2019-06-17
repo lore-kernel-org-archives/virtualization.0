@@ -1,18 +1,14 @@
-From: "Michael S. Tsirkin" <mst@redhat.com>
-Subject: Re: [virtio-dev] Re: [PATCH v8 2/7] dt-bindings: virtio: Add
-	virtio-pci-iommu node
-Date: Sun, 16 Jun 2019 16:04:49 -0400
-Message-ID: <20190616154841-mutt-send-email-mst__16497.388637957$1560715506$gmane$org@kernel.org>
-References: <20190530170929.19366-1-jean-philippe.brucker@arm.com>
-	<20190530170929.19366-3-jean-philippe.brucker@arm.com>
-	<20190530133523-mutt-send-email-mst@kernel.org>
-	<c3cd5dba-123d-e808-98b1-731ac2d4b950@arm.com>
+From: Sam Bobroff <sbobroff@linux.ibm.com>
+Subject: Re: [EXTERNAL] Re: [PATCH 1/1] drm/bochs: Fix connector leak during
+	driver unload
+Date: Mon, 17 Jun 2019 11:20:34 +1000
+Message-ID: <20190617012033.GA1151@tungsten.ozlabs.ibm.com>
+References: <93b363ad62f4938d9ddf3e05b2a61e3f66b2dcd3.1558416473.git.sbobroff@linux.ibm.com>
+	<20190521081029.dexgf7e7d3b7wxdw@sirius.home.kraxel.org>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
-Content-Transfer-Encoding: 7bit
+Content-Type: multipart/mixed; boundary="===============0329040397705768519=="
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-Content-Disposition: inline
-In-Reply-To: <c3cd5dba-123d-e808-98b1-731ac2d4b950@arm.com>
+In-Reply-To: <20190521081029.dexgf7e7d3b7wxdw@sirius.home.kraxel.org>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -22,71 +18,78 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Jean-Philippe Brucker <jean-philippe.brucker@arm.com>
-Cc: Mark Rutland <Mark.Rutland@arm.com>, "virtio-dev@lists.oasis-open.org" <virtio-dev@lists.oasis-open.org>, Lorenzo Pieralisi <Lorenzo.Pieralisi@arm.com>, "tnowicki@caviumnetworks.com" <tnowicki@caviumnetworks.com>, "devicetree@vger.kernel.org" <devicetree@vger.kernel.org>, "linux-pci@vger.kernel.org" <linux-pci@vger.kernel.org>, "joro@8bytes.org" <joro@8bytes.org>, "virtualization@lists.linux-foundation.org" <virtualization@lists.linux-foundation.org>, "eric.auger@redhat.com" <eric.auger@redhat.com>, "iommu@lists.linux-foundation.org" <iommu@lists.linux-foundation.org>, "robh+dt@kernel.org" <robh+dt@kernel.org>, "kvmarm@lists.cs.columbia.edu" <kvmarm@lists.cs.columbia.edu>, "bhelgaas@google.com" <bhelgaas@google.com>, Robin Murphy <Robin.Murphy@arm.com>
+To: Gerd Hoffmann <kraxel@redhat.com>
+Cc: airlied@linux.ie, daniel@ffwll.ch, linux-kernel@vger.kernel.org, dri-devel@lists.freedesktop.org, virtualization@lists.linux-foundation.org
 List-Id: virtualization@lists.linuxfoundation.org
 
-On Fri, May 31, 2019 at 12:13:47PM +0100, Jean-Philippe Brucker wrote:
-> On 30/05/2019 18:45, Michael S. Tsirkin wrote:
-> > On Thu, May 30, 2019 at 06:09:24PM +0100, Jean-Philippe Brucker wrote:
-> >> Some systems implement virtio-iommu as a PCI endpoint. The operating
-> >> system needs to discover the relationship between IOMMU and masters long
-> >> before the PCI endpoint gets probed. Add a PCI child node to describe the
-> >> virtio-iommu device.
-> >>
-> >> The virtio-pci-iommu is conceptually split between a PCI programming
-> >> interface and a translation component on the parent bus. The latter
-> >> doesn't have a node in the device tree. The virtio-pci-iommu node
-> >> describes both, by linking the PCI endpoint to "iommus" property of DMA
-> >> master nodes and to "iommu-map" properties of bus nodes.
-> >>
-> >> Reviewed-by: Rob Herring <robh@kernel.org>
-> >> Reviewed-by: Eric Auger <eric.auger@redhat.com>
-> >> Signed-off-by: Jean-Philippe Brucker <jean-philippe.brucker@arm.com>
-> > 
-> > So this is just an example right?
-> > We are not defining any new properties or anything like that.
-> 
-> Yes it's just an example. The properties already exist but it's good to
-> describe how to put them together for this particular case, because
-> there isn't a precedent describing the topology for an IOMMU that
-> appears on the PCI bus.
-> 
-> > I think down the road for non dt platforms we want to put this
-> > info in the config space of the device. I do not think ACPI
-> > is the best option for this since not all systems have it.
-> > But that can wait.
-> 
-> There is the probe order problem - PCI needs this info before starting
-> to probe devices on the bus.
+
+--===============0329040397705768519==
+Content-Type: multipart/signed; micalg=pgp-sha256;
+	protocol="application/pgp-signature"; boundary="yrj/dFKFPuw6o+aM"
+Content-Disposition: inline
 
 
-This isn't all that special - it's pretty common for
-IOMMUs to be pci devices. The solution is to have the device on
-bus 0. For example, add it with
+--yrj/dFKFPuw6o+aM
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+Content-Transfer-Encoding: quoted-printable
 
-DECLARE_PCI_FIXUP_EARLY
-or
-DECLARE_PCI_FIXUP_CLASS_EARLY
+On Tue, May 21, 2019 at 10:10:29AM +0200, Gerd Hoffmann wrote:
+>   Hi,
+>=20
+> The bug is in the driver, so ...
+>=20
+> > Bisecting the issue for commits to drivers/gpu/drm/bochs/ points to:
+> > 6579c39594ae ("drm/bochs: atomic: switch planes to atomic, wire up help=
+ers.")
+> > ... but the issue also seems to be due to a change in the generic drm c=
+ode
+>=20
+> ... this one is the culprit and should be listed.
+>=20
+> > (reverting it separately fixes the issue):
+> > 846c7dfc1193 ("drm/atomic: Try to preserve the crtc enabled state in dr=
+m_atomic_remove_fb, v2.")
+> > ... so I've included both in the commit.  Is that the right thing to do?
+>=20
+> That only triggers the driver bug.
+>=20
+> I'll fix it up on commit,
+>   Gerd
 
-in e.g.
-arch/x86/kernel/quirks.c
-or
-drivers/pci/quirks.c
+Sorry if I misunderstood, but were you going to take the patch and fix
+it up or would you like me to post a v2?
 
-You can also use the configuration access capability
-if there's need to access the device before its memory is
-enabled.
+Cheers,
+Sam.
 
-> Maybe we could store the info in a separate
-> memory region, that is referenced on the command-line and that the guest
-> can read early.
-> 
-> Thanks,
-> Jean
 
-The point is to avoid command line hacks. Devices should be
-self describing.
+--yrj/dFKFPuw6o+aM
+Content-Type: application/pgp-signature; name="signature.asc"
 
--- 
-MST
+-----BEGIN PGP SIGNATURE-----
+
+iQEzBAABCAAdFiEELWWF8pdtWK5YQRohMX8w6AQl/iIFAl0G6tMACgkQMX8w6AQl
+/iJjVgf/T6KF8XcN9Z/Yppy+tUW0hD9031/YPdlJJ7slrFUkPrEcVSxARY1J32SO
+f7Vdc6de427aF9P33QULxkg/rqAbdVYTuim6s3BQUPax7JYmkfviHOKUNPVdDlN/
+BUBpEPqkanHxn8KKBSd4OdKWpek/20RTAgM+Vg5jwhN8jtLNHbrqXQf+z3ll1SS/
+9iHxA/KH8/lBv1RH2AfbChumNz/dNioxMoZizPOxEZbu9G8tfDb40q2HBfLD8lXk
+aCdFb8P6d37bkR1xn51HKqGgChbL6orlfiVuT1goYLB/MLxDvHn+9G5yywcwLjvp
+zWJH22IKznWBtuRpaaoTunVc4UPd+Q==
+=snbg
+-----END PGP SIGNATURE-----
+
+--yrj/dFKFPuw6o+aM--
+
+
+--===============0329040397705768519==
+Content-Type: text/plain; charset="us-ascii"
+MIME-Version: 1.0
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+
+_______________________________________________
+Virtualization mailing list
+Virtualization@lists.linux-foundation.org
+https://lists.linuxfoundation.org/mailman/listinfo/virtualization
+--===============0329040397705768519==--
