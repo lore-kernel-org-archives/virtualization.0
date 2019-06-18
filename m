@@ -1,13 +1,16 @@
-From: David Miller <davem@davemloft.net>
-Subject: Re: [PATCH net-next] vhost_net: disable zerocopy by default
-Date: Mon, 17 Jun 2019 13:58:21 -0700 (PDT)
-Message-ID: <20190617.135821.1970853531857836652.davem__24479.7872657486$1560805118$gmane$org@davemloft.net>
-References: <20190617092054.12299-1-jasowang@redhat.com>
+From: Gerd Hoffmann <kraxel@redhat.com>
+Subject: Re: [PATCH 3/4] drm/virtio: simplify cursor updates
+Date: Tue, 18 Jun 2019 09:41:53 +0200
+Message-ID: <20190618074153.355np63i76ee24c7__10185.7686460548$1560843727$gmane$org@sirius.home.kraxel.org>
+References: <20190617111406.14765-1-kraxel@redhat.com>
+	<20190617111406.14765-4-kraxel@redhat.com>
+	<20190617141806.GG12905@phenom.ffwll.local>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <20190617092054.12299-1-jasowang@redhat.com>
+Content-Disposition: inline
+In-Reply-To: <20190617141806.GG12905@phenom.ffwll.local>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -17,25 +20,17 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: jasowang@redhat.com
-Cc: kvm@vger.kernel.org, mst@redhat.com, netdev@vger.kernel.org, linux-kernel@vger.kernel.org, virtualization@lists.linux-foundation.org, huhai@kylinos.cn
+To: dri-devel@lists.freedesktop.org, David Airlie <airlied@linux.ie>, "open list:VIRTIO GPU DRIVER" <virtualization@lists.linux-foundation.org>, open list <linux-kernel@vger.kernel.org>
 List-Id: virtualization@lists.linuxfoundation.org
 
-From: Jason Wang <jasowang@redhat.com>
-Date: Mon, 17 Jun 2019 05:20:54 -0400
+> Even nicer would be to add the fence using
+> drm_atomic_set_fence_for_plane() in the prepare_fb hook. Assuming this
+> isn't necessary for correctness (but then I kinda have questions about
+> races and stuff).
 
-> Vhost_net was known to suffer from HOL[1] issues which is not easy to
-> fix. Several downstream disable the feature by default. What's more,
-> the datapath was split and datacopy path got the support of batching
-> and XDP support recently which makes it faster than zerocopy part for
-> small packets transmission.
-> 
-> It looks to me that disable zerocopy by default is more
-> appropriate. It cold be enabled by default again in the future if we
-> fix the above issues.
-> 
-> [1] https://patchwork.kernel.org/patch/3787671/
-> 
-> Signed-off-by: Jason Wang <jasowang@redhat.com>
+I'll have a look.  Maybe this way I can drop struct
+virtio_gpu_framebuffer (where the fence is the only
+thing beside struct drm_framebuffer).
 
-Applied, thanks Jason.
+cheers,
+  Gerd
