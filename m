@@ -1,7 +1,8 @@
 From: Gerd Hoffmann <kraxel@redhat.com>
-Subject: [PATCH v2 08/12] drm/virtio: rework virtio_gpu_object_create fencing
-Date: Tue, 18 Jun 2019 15:58:16 +0200
-Message-ID: <20190618135821.8644-9-kraxel__34839.2348199681$1560866358$gmane$org@redhat.com>
+Subject: [PATCH v2 06/12] drm/virtio: remove ttm calls from in
+	virtio_gpu_object_{reserve, unreserve}
+Date: Tue, 18 Jun 2019 15:58:14 +0200
+Message-ID: <20190618135821.8644-7-kraxel__8296.18263976357$1560866368$gmane$org@redhat.com>
 References: <20190618135821.8644-1-kraxel@redhat.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
@@ -21,60 +22,35 @@ To: dri-devel@lists.freedesktop.org
 Cc: David Airlie <airlied@linux.ie>, open list <linux-kernel@vger.kernel.org>, Daniel Vetter <daniel@ffwll.ch>, "open list:VIRTIO GPU DRIVER" <virtualization@lists.linux-foundation.org>
 List-Id: virtualization@lists.linuxfoundation.org
 
-Use gem reservation helpers and direct reservation_object_* calls
-instead of ttm.
+Call reservation_object_* directly instead
+of using ttm_bo_{reserve,unreserve}.
 
 Signed-off-by: Gerd Hoffmann <kraxel@redhat.com>
 ---
- drivers/gpu/drm/virtio/virtgpu_object.c | 28 +++++++------------------
- 1 file changed, 8 insertions(+), 20 deletions(-)
+ drivers/gpu/drm/virtio/virtgpu_drv.h | 4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
 
-diff --git a/drivers/gpu/drm/virtio/virtgpu_object.c b/drivers/gpu/drm/virtio/virtgpu_object.c
-index 82bfbf983fd2..461f15f26517 100644
---- a/drivers/gpu/drm/virtio/virtgpu_object.c
-+++ b/drivers/gpu/drm/virtio/virtgpu_object.c
-@@ -141,34 +141,22 @@ int virtio_gpu_object_create(struct virtio_gpu_device *vgdev,
+diff --git a/drivers/gpu/drm/virtio/virtgpu_drv.h b/drivers/gpu/drm/virtio/virtgpu_drv.h
+index 06cc0e961df6..91c320819a8c 100644
+--- a/drivers/gpu/drm/virtio/virtgpu_drv.h
++++ b/drivers/gpu/drm/virtio/virtgpu_drv.h
+@@ -402,7 +402,7 @@ static inline int virtio_gpu_object_reserve(struct virtio_gpu_object *bo)
+ {
+ 	int r;
  
- 	if (fence) {
- 		struct virtio_gpu_fence_driver *drv = &vgdev->fence_drv;
--		struct list_head validate_list;
--		struct ttm_validate_buffer mainbuf;
-+		struct drm_gem_object *obj = &bo->gem_base;
- 		struct ww_acquire_ctx ticket;
- 		unsigned long irq_flags;
--		bool signaled;
+-	r = ttm_bo_reserve(&bo->tbo, true, false, NULL);
++	r = reservation_object_lock_interruptible(bo->gem_base.resv, NULL);
+ 	if (unlikely(r != 0)) {
+ 		if (r != -ERESTARTSYS) {
+ 			struct virtio_gpu_device *qdev =
+@@ -416,7 +416,7 @@ static inline int virtio_gpu_object_reserve(struct virtio_gpu_object *bo)
  
--		INIT_LIST_HEAD(&validate_list);
--		memset(&mainbuf, 0, sizeof(struct ttm_validate_buffer));
--
--		/* use a gem reference since unref list undoes them */
--		drm_gem_object_get(&bo->gem_base);
--		mainbuf.bo = &bo->tbo;
--		list_add(&mainbuf.head, &validate_list);
--
--		ret = virtio_gpu_object_list_validate(&ticket, &validate_list);
-+		drm_gem_object_get(obj);
-+		ret = drm_gem_lock_reservations(&obj, 1, &ticket);
- 		if (ret == 0) {
- 			spin_lock_irqsave(&drv->lock, irq_flags);
--			signaled = virtio_fence_signaled(&fence->f);
--			if (!signaled)
-+			if (!virtio_fence_signaled(&fence->f))
- 				/* virtio create command still in flight */
--				ttm_eu_fence_buffer_objects(&ticket, &validate_list,
--							    &fence->f);
-+				reservation_object_add_excl_fence(obj->resv,
-+								  &fence->f);
- 			spin_unlock_irqrestore(&drv->lock, irq_flags);
--			if (signaled)
--				/* virtio create command finished */
--				ttm_eu_backoff_reservation(&ticket, &validate_list);
- 		}
--		virtio_gpu_unref_list(&validate_list);
-+		drm_gem_unlock_reservations(&obj, 1, &ticket);
-+		drm_gem_object_put_unlocked(obj);
- 	}
+ static inline void virtio_gpu_object_unreserve(struct virtio_gpu_object *bo)
+ {
+-	ttm_bo_unreserve(&bo->tbo);
++	reservation_object_unlock(bo->gem_base.resv);
+ }
  
- 	*bo_ptr = bo;
+ /* virgl debufs */
 -- 
 2.18.1
