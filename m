@@ -1,7 +1,7 @@
 From: Gerd Hoffmann <kraxel@redhat.com>
-Subject: [PATCH v2 01/12] drm/virtio: pass gem reservation object to ttm init
-Date: Tue, 18 Jun 2019 15:58:09 +0200
-Message-ID: <20190618135821.8644-2-kraxel__27130.9112476715$1560866346$gmane$org@redhat.com>
+Subject: [PATCH v2 08/12] drm/virtio: rework virtio_gpu_object_create fencing
+Date: Tue, 18 Jun 2019 15:58:16 +0200
+Message-ID: <20190618135821.8644-9-kraxel__34839.2348199681$1560866358$gmane$org@redhat.com>
 References: <20190618135821.8644-1-kraxel@redhat.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
@@ -21,29 +21,60 @@ To: dri-devel@lists.freedesktop.org
 Cc: David Airlie <airlied@linux.ie>, open list <linux-kernel@vger.kernel.org>, Daniel Vetter <daniel@ffwll.ch>, "open list:VIRTIO GPU DRIVER" <virtualization@lists.linux-foundation.org>
 List-Id: virtualization@lists.linuxfoundation.org
 
-With this gem and ttm will use the same reservation object,
-so mixing and matching ttm / gem reservation helpers should
-work fine.
+Use gem reservation helpers and direct reservation_object_* calls
+instead of ttm.
 
 Signed-off-by: Gerd Hoffmann <kraxel@redhat.com>
-Reviewed-by: Daniel Vetter <daniel.vetter@ffwll.ch>
 ---
- drivers/gpu/drm/virtio/virtgpu_object.c | 3 ++-
- 1 file changed, 2 insertions(+), 1 deletion(-)
+ drivers/gpu/drm/virtio/virtgpu_object.c | 28 +++++++------------------
+ 1 file changed, 8 insertions(+), 20 deletions(-)
 
 diff --git a/drivers/gpu/drm/virtio/virtgpu_object.c b/drivers/gpu/drm/virtio/virtgpu_object.c
-index b2da31310d24..242766d644a7 100644
+index 82bfbf983fd2..461f15f26517 100644
 --- a/drivers/gpu/drm/virtio/virtgpu_object.c
 +++ b/drivers/gpu/drm/virtio/virtgpu_object.c
-@@ -132,7 +132,8 @@ int virtio_gpu_object_create(struct virtio_gpu_device *vgdev,
- 	virtio_gpu_init_ttm_placement(bo);
- 	ret = ttm_bo_init(&vgdev->mman.bdev, &bo->tbo, params->size,
- 			  ttm_bo_type_device, &bo->placement, 0,
--			  true, acc_size, NULL, NULL,
-+			  true, acc_size, NULL,
-+			  bo->gem_base.resv,
- 			  &virtio_gpu_ttm_bo_destroy);
- 	/* ttm_bo_init failure will call the destroy */
- 	if (ret != 0)
+@@ -141,34 +141,22 @@ int virtio_gpu_object_create(struct virtio_gpu_device *vgdev,
+ 
+ 	if (fence) {
+ 		struct virtio_gpu_fence_driver *drv = &vgdev->fence_drv;
+-		struct list_head validate_list;
+-		struct ttm_validate_buffer mainbuf;
++		struct drm_gem_object *obj = &bo->gem_base;
+ 		struct ww_acquire_ctx ticket;
+ 		unsigned long irq_flags;
+-		bool signaled;
+ 
+-		INIT_LIST_HEAD(&validate_list);
+-		memset(&mainbuf, 0, sizeof(struct ttm_validate_buffer));
+-
+-		/* use a gem reference since unref list undoes them */
+-		drm_gem_object_get(&bo->gem_base);
+-		mainbuf.bo = &bo->tbo;
+-		list_add(&mainbuf.head, &validate_list);
+-
+-		ret = virtio_gpu_object_list_validate(&ticket, &validate_list);
++		drm_gem_object_get(obj);
++		ret = drm_gem_lock_reservations(&obj, 1, &ticket);
+ 		if (ret == 0) {
+ 			spin_lock_irqsave(&drv->lock, irq_flags);
+-			signaled = virtio_fence_signaled(&fence->f);
+-			if (!signaled)
++			if (!virtio_fence_signaled(&fence->f))
+ 				/* virtio create command still in flight */
+-				ttm_eu_fence_buffer_objects(&ticket, &validate_list,
+-							    &fence->f);
++				reservation_object_add_excl_fence(obj->resv,
++								  &fence->f);
+ 			spin_unlock_irqrestore(&drv->lock, irq_flags);
+-			if (signaled)
+-				/* virtio create command finished */
+-				ttm_eu_backoff_reservation(&ticket, &validate_list);
+ 		}
+-		virtio_gpu_unref_list(&validate_list);
++		drm_gem_unlock_reservations(&obj, 1, &ticket);
++		drm_gem_object_put_unlocked(obj);
+ 	}
+ 
+ 	*bo_ptr = bo;
 -- 
 2.18.1
