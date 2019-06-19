@@ -1,7 +1,8 @@
 From: Gerd Hoffmann <kraxel@redhat.com>
-Subject: [PATCH v3 12/12] drm/virtio: remove virtio_gpu_alloc_object
-Date: Wed, 19 Jun 2019 11:04:20 +0200
-Message-ID: <20190619090420.6667-13-kraxel__14537.8742295847$1560935164$gmane$org@redhat.com>
+Subject: [PATCH v3 06/12] drm/virtio: drop no_wait argument from
+	virtio_gpu_object_reserve
+Date: Wed, 19 Jun 2019 11:04:14 +0200
+Message-ID: <20190619090420.6667-7-kraxel__15464.6010299743$1560935173$gmane$org@redhat.com>
 References: <20190619090420.6667-1-kraxel@redhat.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
@@ -21,92 +22,77 @@ To: dri-devel@lists.freedesktop.org
 Cc: David Airlie <airlied@linux.ie>, open list <linux-kernel@vger.kernel.org>, Daniel Vetter <daniel@ffwll.ch>, "open list:VIRTIO GPU DRIVER" <virtualization@lists.linux-foundation.org>
 List-Id: virtualization@lists.linuxfoundation.org
 
-Thin wrapper around virtio_gpu_object_create(),
-but calling that directly works equally well.
+All callers pass no_wait = false.
 
 Signed-off-by: Gerd Hoffmann <kraxel@redhat.com>
 ---
- drivers/gpu/drm/virtio/virtgpu_drv.h   |  4 ----
- drivers/gpu/drm/virtio/virtgpu_gem.c   | 23 ++++-------------------
- drivers/gpu/drm/virtio/virtgpu_ioctl.c |  6 +++---
- 3 files changed, 7 insertions(+), 26 deletions(-)
+ drivers/gpu/drm/virtio/virtgpu_drv.h   | 5 ++---
+ drivers/gpu/drm/virtio/virtgpu_gem.c   | 4 ++--
+ drivers/gpu/drm/virtio/virtgpu_ioctl.c | 4 ++--
+ 3 files changed, 6 insertions(+), 7 deletions(-)
 
 diff --git a/drivers/gpu/drm/virtio/virtgpu_drv.h b/drivers/gpu/drm/virtio/virtgpu_drv.h
-index 0087a0fc7020..ae4a9c21d9c1 100644
+index 2cd96256ba37..06cc0e961df6 100644
 --- a/drivers/gpu/drm/virtio/virtgpu_drv.h
 +++ b/drivers/gpu/drm/virtio/virtgpu_drv.h
-@@ -224,10 +224,6 @@ int virtio_gpu_gem_object_open(struct drm_gem_object *obj,
- 			       struct drm_file *file);
- void virtio_gpu_gem_object_close(struct drm_gem_object *obj,
- 				 struct drm_file *file);
--struct virtio_gpu_object*
--virtio_gpu_alloc_object(struct drm_device *dev,
--			struct virtio_gpu_object_params *params,
--			struct virtio_gpu_fence *fence);
- int virtio_gpu_mode_dumb_create(struct drm_file *file_priv,
- 				struct drm_device *dev,
- 				struct drm_mode_create_dumb *args);
+@@ -398,12 +398,11 @@ static inline u64 virtio_gpu_object_mmap_offset(struct virtio_gpu_object *bo)
+ 	return drm_vma_node_offset_addr(&bo->tbo.vma_node);
+ }
+ 
+-static inline int virtio_gpu_object_reserve(struct virtio_gpu_object *bo,
+-					 bool no_wait)
++static inline int virtio_gpu_object_reserve(struct virtio_gpu_object *bo)
+ {
+ 	int r;
+ 
+-	r = ttm_bo_reserve(&bo->tbo, true, no_wait, NULL);
++	r = ttm_bo_reserve(&bo->tbo, true, false, NULL);
+ 	if (unlikely(r != 0)) {
+ 		if (r != -ERESTARTSYS) {
+ 			struct virtio_gpu_device *qdev =
 diff --git a/drivers/gpu/drm/virtio/virtgpu_gem.c b/drivers/gpu/drm/virtio/virtgpu_gem.c
-index 762d98587d3a..cebc2e10b286 100644
+index 1e49e08dd545..9c9ad3b14080 100644
 --- a/drivers/gpu/drm/virtio/virtgpu_gem.c
 +++ b/drivers/gpu/drm/virtio/virtgpu_gem.c
-@@ -26,35 +26,20 @@
- #include <drm/drmP.h>
- #include "virtgpu_drv.h"
+@@ -140,7 +140,7 @@ int virtio_gpu_gem_object_open(struct drm_gem_object *obj,
+ 	if (!vgdev->has_virgl_3d)
+ 		return 0;
  
--struct virtio_gpu_object*
--virtio_gpu_alloc_object(struct drm_device *dev,
--			struct virtio_gpu_object_params *params,
--			struct virtio_gpu_fence *fence)
--{
--	struct virtio_gpu_device *vgdev = dev->dev_private;
--	struct virtio_gpu_object *obj;
--	int ret;
--
--	ret = virtio_gpu_object_create(vgdev, params, &obj, fence);
--	if (ret)
--		return ERR_PTR(ret);
--
--	return obj;
--}
--
- int virtio_gpu_gem_create(struct drm_file *file,
- 			  struct drm_device *dev,
- 			  struct virtio_gpu_object_params *params,
- 			  struct drm_gem_object **obj_p,
- 			  uint32_t *handle_p)
- {
-+	struct virtio_gpu_device *vgdev = dev->dev_private;
- 	struct virtio_gpu_object *obj;
- 	int ret;
- 	u32 handle;
+-	r = virtio_gpu_object_reserve(qobj, false);
++	r = virtio_gpu_object_reserve(qobj);
+ 	if (r)
+ 		return r;
  
--	obj = virtio_gpu_alloc_object(dev, params, NULL);
--	if (IS_ERR(obj))
--		return PTR_ERR(obj);
-+	ret = virtio_gpu_object_create(vgdev, params, &obj, NULL);
-+	if (ret < 0)
-+		return ret;
+@@ -161,7 +161,7 @@ void virtio_gpu_gem_object_close(struct drm_gem_object *obj,
+ 	if (!vgdev->has_virgl_3d)
+ 		return;
  
- 	ret = drm_gem_handle_create(file, &obj->base.base, &handle);
- 	if (ret) {
+-	r = virtio_gpu_object_reserve(qobj, false);
++	r = virtio_gpu_object_reserve(qobj);
+ 	if (r)
+ 		return;
+ 
 diff --git a/drivers/gpu/drm/virtio/virtgpu_ioctl.c b/drivers/gpu/drm/virtio/virtgpu_ioctl.c
-index 98fb9955097e..da2a5b486774 100644
+index 313c770ea2c5..5cffd2e54c04 100644
 --- a/drivers/gpu/drm/virtio/virtgpu_ioctl.c
 +++ b/drivers/gpu/drm/virtio/virtgpu_ioctl.c
-@@ -264,10 +264,10 @@ static int virtio_gpu_resource_create_ioctl(struct drm_device *dev, void *data,
- 	fence = virtio_gpu_fence_alloc(vgdev);
- 	if (!fence)
- 		return -ENOMEM;
--	qobj = virtio_gpu_alloc_object(dev, &params, fence);
-+	ret = virtio_gpu_object_create(vgdev, &params, &qobj, fence);
- 	dma_fence_put(&fence->f);
--	if (IS_ERR(qobj))
--		return PTR_ERR(qobj);
-+	if (ret < 0)
-+		return ret;
- 	obj = &qobj->base.base;
+@@ -375,7 +375,7 @@ static int virtio_gpu_transfer_from_host_ioctl(struct drm_device *dev,
  
- 	ret = drm_gem_handle_create(file_priv, obj, &handle);
+ 	qobj = gem_to_virtio_gpu_obj(gobj);
+ 
+-	ret = virtio_gpu_object_reserve(qobj, false);
++	ret = virtio_gpu_object_reserve(qobj);
+ 	if (ret)
+ 		goto out;
+ 
+@@ -425,7 +425,7 @@ static int virtio_gpu_transfer_to_host_ioctl(struct drm_device *dev, void *data,
+ 
+ 	qobj = gem_to_virtio_gpu_obj(gobj);
+ 
+-	ret = virtio_gpu_object_reserve(qobj, false);
++	ret = virtio_gpu_object_reserve(qobj);
+ 	if (ret)
+ 		goto out;
+ 
 -- 
 2.18.1
