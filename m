@@ -1,12 +1,17 @@
-From: "Gustavo A. R. Silva" <gustavo@embeddedor.com>
-Subject: [PATCH] scsi: virtio_scsi: Use struct_size() helper
-Date: Wed, 19 Jun 2019 14:28:33 -0500
-Message-ID: <20190619192833.GA825__31391.6031083622$1560974016$gmane$org@embeddedor>
+From: Gerd Hoffmann <kraxel@redhat.com>
+Subject: Re: [PATCH v3 08/12] drm/virtio: rework virtio_gpu_execbuffer_ioctl
+	fencing
+Date: Thu, 20 Jun 2019 08:01:07 +0200
+Message-ID: <20190620060107.tdz3nrnsczkkv2a6__46127.9305209004$1561010498$gmane$org@sirius.home.kraxel.org>
+References: <20190619090420.6667-1-kraxel@redhat.com>
+	<20190619090420.6667-9-kraxel@redhat.com>
+	<20190619110902.GO12905@phenom.ffwll.local>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
 Content-Disposition: inline
+In-Reply-To: <20190619110902.GO12905@phenom.ffwll.local>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -16,49 +21,21 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: "Michael S. Tsirkin" <mst@redhat.com>, Jason Wang <jasowang@redhat.com>, Paolo Bonzini <pbonzini@redhat.com>, Stefan Hajnoczi <stefanha@redhat.com>, "James E.J. Bottomley" <jejb@linux.ibm.com>, "Martin K. Petersen" <martin.petersen@oracle.com>
-Cc: "Gustavo A. R. Silva" <gustavo@embeddedor.com>, linux-kernel@vger.kernel.org, linux-scsi@vger.kernel.org, virtualization@lists.linux-foundation.org
+To: dri-devel@lists.freedesktop.org, Maarten Lankhorst <maarten.lankhorst@linux.intel.com>, Maxime Ripard <maxime.ripard@bootlin.com>, Sean Paul <sean@poorly.run>, David Airlie <airlied@linux.ie>, open list <linux-kernel@vger.kernel.org>, "open list:VIRTIO GPU DRIVER" <virtualization@lists.linux-foundation.org>
 List-Id: virtualization@lists.linuxfoundation.org
 
-One of the more common cases of allocation size calculations is finding
-the size of a structure that has a zero-sized array at the end, along
-with memory for some number of elements for that array. For example:
+  Hi,
 
-struct virtio_scsi {
-	...
-        struct virtio_scsi_vq req_vqs[];
-};
+> Also, I strongly recommend you do a very basic igt to exercise this, i.e.
+> allocate some buffers, submit them in a dummby op, then close the entire
+> drmfd. The old version should at least have tripped over kasan, maybe even
+> oopses somewhere.
 
-Make use of the struct_size() helper instead of an open-coded version
-in order to avoid any potential type mistakes.
+Hmm, I suspect I have to extend igt for that (adding support for
+virtio ioctls), right?
 
-So, replace the following form:
+A quick and dirty test (run webgl demo in firefox, then kill -9 both
+firefox and Xorg) didn't show any nasty surprises.
 
-sizeof(*vscsi) + sizeof(vscsi->req_vqs[0]) * num_queues
-
-with:
-
-struct_size(vscsi, req_vqs, num_queues)
-
-This code was detected with the help of Coccinelle.
-
-Signed-off-by: Gustavo A. R. Silva <gustavo@embeddedor.com>
----
- drivers/scsi/virtio_scsi.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
-
-diff --git a/drivers/scsi/virtio_scsi.c b/drivers/scsi/virtio_scsi.c
-index 13f1b3b9923a..ed4f79bffc73 100644
---- a/drivers/scsi/virtio_scsi.c
-+++ b/drivers/scsi/virtio_scsi.c
-@@ -795,7 +795,7 @@ static int virtscsi_probe(struct virtio_device *vdev)
- 	num_targets = virtscsi_config_get(vdev, max_target) + 1;
- 
- 	shost = scsi_host_alloc(&virtscsi_host_template,
--		sizeof(*vscsi) + sizeof(vscsi->req_vqs[0]) * num_queues);
-+				struct_size(vscsi, req_vqs, num_queues));
- 	if (!shost)
- 		return -ENOMEM;
- 
--- 
-2.21.0
+cheers,
+  Gerd
