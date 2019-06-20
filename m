@@ -1,14 +1,13 @@
 From: Gerd Hoffmann <kraxel@redhat.com>
-Subject: [PATCH v4 08/12] drm/virtio: rework virtio_gpu_execbuffer_ioctl
-	fencing
-Date: Thu, 20 Jun 2019 08:07:22 +0200
-Message-ID: <20190620060726.926-9-kraxel__39769.9802809925$1561011022$gmane$org@redhat.com>
-References: <20190620060726.926-1-kraxel@redhat.com>
+Subject: [PATCH 3/3] drm: drop DEFINE_DRM_GEM_SHMEM_FOPS
+Date: Thu, 20 Jun 2019 08:15:47 +0200
+Message-ID: <20190620061547.8664-4-kraxel__22356.9507290208$1561011366$gmane$org@redhat.com>
+References: <20190620061547.8664-1-kraxel@redhat.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <20190620060726.926-1-kraxel@redhat.com>
+In-Reply-To: <20190620061547.8664-1-kraxel@redhat.com>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -19,215 +18,95 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
 To: dri-devel@lists.freedesktop.org
-Cc: David Airlie <airlied@linux.ie>, open list <linux-kernel@vger.kernel.org>, Daniel Vetter <daniel@ffwll.ch>, "open list:VIRTIO GPU DRIVER" <virtualization@lists.linux-foundation.org>
+Cc: Rob Herring <robh@kernel.org>, Maxime Ripard <maxime.ripard@bootlin.com>, Tomeu Vizoso <tomeu.vizoso@collabora.com>, David Airlie <airlied@linux.ie>, Maarten Lankhorst <maarten.lankhorst@linux.intel.com>, open list <linux-kernel@vger.kernel.org>, "open list:DRM DRIVER FOR QEMU'S CIRRUS DEVICE" <virtualization@lists.linux-foundation.org>, Eric Anholt <eric@anholt.net>, Daniel Vetter <daniel@ffwll.ch>, Dave Airlie <airlied@redhat.com>, Sean Paul <sean@poorly.run>
 List-Id: virtualization@lists.linuxfoundation.org
 
-Use gem reservation helpers and direct reservation_object_* calls
-instead of ttm.
-
-v3: Also attach the array of gem objects to the virtio command buffer,
-so we can drop the object references in the completion callback.  Needed
-because ttm fence helpers grab a reference for us, but gem helpers
-don't.
+DEFINE_DRM_GEM_SHMEM_FOPS is identical to DEFINE_DRM_GEM_FOPS now,
+drop it.
 
 Signed-off-by: Gerd Hoffmann <kraxel@redhat.com>
-Acked-by: Daniel Vetter <daniel.vetter@ffwll.ch>
 ---
- drivers/gpu/drm/virtio/virtgpu_drv.h   |  5 ++-
- drivers/gpu/drm/virtio/virtgpu_ioctl.c | 62 +++++++++++---------------
- drivers/gpu/drm/virtio/virtgpu_vq.c    | 16 ++++---
- 3 files changed, 40 insertions(+), 43 deletions(-)
+ include/drm/drm_gem_shmem_helper.h      | 26 -------------------------
+ drivers/gpu/drm/cirrus/cirrus.c         |  2 +-
+ drivers/gpu/drm/panfrost/panfrost_drv.c |  2 +-
+ drivers/gpu/drm/v3d/v3d_drv.c           |  2 +-
+ 4 files changed, 3 insertions(+), 29 deletions(-)
 
-diff --git a/drivers/gpu/drm/virtio/virtgpu_drv.h b/drivers/gpu/drm/virtio/virtgpu_drv.h
-index 98d646789d23..65f5ce41c341 100644
---- a/drivers/gpu/drm/virtio/virtgpu_drv.h
-+++ b/drivers/gpu/drm/virtio/virtgpu_drv.h
-@@ -120,9 +120,9 @@ struct virtio_gpu_vbuffer {
+diff --git a/include/drm/drm_gem_shmem_helper.h b/include/drm/drm_gem_shmem_helper.h
+index 0f7b77cdc26b..813240dcfe17 100644
+--- a/include/drm/drm_gem_shmem_helper.h
++++ b/include/drm/drm_gem_shmem_helper.h
+@@ -85,32 +85,6 @@ struct drm_gem_shmem_object {
+ #define to_drm_gem_shmem_obj(obj) \
+ 	container_of(obj, struct drm_gem_shmem_object, base)
  
- 	char *resp_buf;
- 	int resp_size;
+-/**
+- * DEFINE_DRM_GEM_SHMEM_FOPS() - Macro to generate file operations for shmem drivers
+- * @name: name for the generated structure
+- *
+- * This macro autogenerates a suitable &struct file_operations for shmem based
+- * drivers, which can be assigned to &drm_driver.fops. Note that this structure
+- * cannot be shared between drivers, because it contains a reference to the
+- * current module using THIS_MODULE.
+- *
+- * Note that the declaration is already marked as static - if you need a
+- * non-static version of this you're probably doing it wrong and will break the
+- * THIS_MODULE reference by accident.
+- */
+-#define DEFINE_DRM_GEM_SHMEM_FOPS(name) \
+-	static const struct file_operations name = {\
+-		.owner		= THIS_MODULE,\
+-		.open		= drm_open,\
+-		.release	= drm_release,\
+-		.unlocked_ioctl	= drm_ioctl,\
+-		.compat_ioctl	= drm_compat_ioctl,\
+-		.poll		= drm_poll,\
+-		.read		= drm_read,\
+-		.llseek		= noop_llseek,\
+-		.mmap		= drm_gem_mmap, \
+-	}
 -
- 	virtio_gpu_resp_cb resp_cb;
+ struct drm_gem_shmem_object *drm_gem_shmem_create(struct drm_device *dev, size_t size);
+ void drm_gem_shmem_free_object(struct drm_gem_object *obj);
  
-+	struct virtio_gpu_object_array *objs;
- 	struct list_head list;
+diff --git a/drivers/gpu/drm/cirrus/cirrus.c b/drivers/gpu/drm/cirrus/cirrus.c
+index be4ea370ba31..600a3fa7783f 100644
+--- a/drivers/gpu/drm/cirrus/cirrus.c
++++ b/drivers/gpu/drm/cirrus/cirrus.c
+@@ -510,7 +510,7 @@ static void cirrus_mode_config_init(struct cirrus_device *cirrus)
+ 
+ /* ------------------------------------------------------------------ */
+ 
+-DEFINE_DRM_GEM_SHMEM_FOPS(cirrus_fops);
++DEFINE_DRM_GEM_FOPS(cirrus_fops);
+ 
+ static struct drm_driver cirrus_driver = {
+ 	.driver_features = DRIVER_MODESET | DRIVER_GEM | DRIVER_ATOMIC | DRIVER_PRIME,
+diff --git a/drivers/gpu/drm/panfrost/panfrost_drv.c b/drivers/gpu/drm/panfrost/panfrost_drv.c
+index d11e2281dde6..0b32e5028c33 100644
+--- a/drivers/gpu/drm/panfrost/panfrost_drv.c
++++ b/drivers/gpu/drm/panfrost/panfrost_drv.c
+@@ -339,7 +339,7 @@ static const struct drm_ioctl_desc panfrost_drm_driver_ioctls[] = {
+ 	PANFROST_IOCTL(GET_BO_OFFSET,	get_bo_offset,	DRM_RENDER_ALLOW),
  };
  
-@@ -311,7 +311,8 @@ void virtio_gpu_cmd_context_detach_resource(struct virtio_gpu_device *vgdev,
- 					    uint32_t resource_id);
- void virtio_gpu_cmd_submit(struct virtio_gpu_device *vgdev,
- 			   void *data, uint32_t data_size,
--			   uint32_t ctx_id, struct virtio_gpu_fence *fence);
-+			   uint32_t ctx_id, struct virtio_gpu_fence *fence,
-+			   struct virtio_gpu_object_array *objs);
- void virtio_gpu_cmd_transfer_from_host_3d(struct virtio_gpu_device *vgdev,
- 					  uint32_t resource_id, uint32_t ctx_id,
- 					  uint64_t offset, uint32_t level,
-diff --git a/drivers/gpu/drm/virtio/virtgpu_ioctl.c b/drivers/gpu/drm/virtio/virtgpu_ioctl.c
-index 5cffd2e54c04..c3901c397b8a 100644
---- a/drivers/gpu/drm/virtio/virtgpu_ioctl.c
-+++ b/drivers/gpu/drm/virtio/virtgpu_ioctl.c
-@@ -105,14 +105,11 @@ static int virtio_gpu_execbuffer_ioctl(struct drm_device *dev, void *data,
- 	struct drm_virtgpu_execbuffer *exbuf = data;
- 	struct virtio_gpu_device *vgdev = dev->dev_private;
- 	struct virtio_gpu_fpriv *vfpriv = drm_file->driver_priv;
--	struct drm_gem_object *gobj;
- 	struct virtio_gpu_fence *out_fence;
--	struct virtio_gpu_object *qobj;
- 	int ret;
- 	uint32_t *bo_handles = NULL;
- 	void __user *user_bo_handles = NULL;
--	struct list_head validate_list;
--	struct ttm_validate_buffer *buflist = NULL;
-+	struct virtio_gpu_object_array *buflist = NULL;
- 	int i;
- 	struct ww_acquire_ctx ticket;
- 	struct sync_file *sync_file;
-@@ -155,15 +152,10 @@ static int virtio_gpu_execbuffer_ioctl(struct drm_device *dev, void *data,
- 			return out_fence_fd;
- 	}
+-DEFINE_DRM_GEM_SHMEM_FOPS(panfrost_drm_driver_fops);
++DEFINE_DRM_GEM_FOPS(panfrost_drm_driver_fops);
  
--	INIT_LIST_HEAD(&validate_list);
- 	if (exbuf->num_bo_handles) {
--
- 		bo_handles = kvmalloc_array(exbuf->num_bo_handles,
--					   sizeof(uint32_t), GFP_KERNEL);
--		buflist = kvmalloc_array(exbuf->num_bo_handles,
--					   sizeof(struct ttm_validate_buffer),
--					   GFP_KERNEL | __GFP_ZERO);
--		if (!bo_handles || !buflist) {
-+					    sizeof(uint32_t), GFP_KERNEL);
-+		if (!bo_handles) {
- 			ret = -ENOMEM;
- 			goto out_unused_fd;
- 		}
-@@ -175,25 +167,22 @@ static int virtio_gpu_execbuffer_ioctl(struct drm_device *dev, void *data,
- 			goto out_unused_fd;
- 		}
- 
--		for (i = 0; i < exbuf->num_bo_handles; i++) {
--			gobj = drm_gem_object_lookup(drm_file, bo_handles[i]);
--			if (!gobj) {
--				ret = -ENOENT;
--				goto out_unused_fd;
--			}
--
--			qobj = gem_to_virtio_gpu_obj(gobj);
--			buflist[i].bo = &qobj->tbo;
--
--			list_add(&buflist[i].head, &validate_list);
-+		buflist = virtio_gpu_array_from_handles(drm_file, bo_handles,
-+							exbuf->num_bo_handles);
-+		if (!buflist) {
-+			ret = -ENOENT;
-+			goto out_unused_fd;
- 		}
- 		kvfree(bo_handles);
- 		bo_handles = NULL;
- 	}
- 
--	ret = virtio_gpu_object_list_validate(&ticket, &validate_list);
--	if (ret)
--		goto out_free;
-+	if (buflist) {
-+		ret = drm_gem_lock_reservations(buflist->objs, buflist->nents,
-+						&ticket);
-+		if (ret)
-+			goto out_unused_fd;
-+	}
- 
- 	buf = memdup_user(u64_to_user_ptr(exbuf->command), exbuf->size);
- 	if (IS_ERR(buf)) {
-@@ -219,25 +208,26 @@ static int virtio_gpu_execbuffer_ioctl(struct drm_device *dev, void *data,
- 		fd_install(out_fence_fd, sync_file->file);
- 	}
- 
-+	if (buflist) {
-+		for (i = 0; i < exbuf->num_bo_handles; i++)
-+			reservation_object_add_excl_fence(buflist->objs[i]->resv,
-+							  &out_fence->f);
-+		drm_gem_unlock_reservations(buflist->objs, buflist->nents,
-+					    &ticket);
-+	}
-+
- 	virtio_gpu_cmd_submit(vgdev, buf, exbuf->size,
--			      vfpriv->ctx_id, out_fence);
--
--	ttm_eu_fence_buffer_objects(&ticket, &validate_list, &out_fence->f);
--
--	/* fence the command bo */
--	virtio_gpu_unref_list(&validate_list);
--	kvfree(buflist);
-+			      vfpriv->ctx_id, out_fence, buflist);
- 	return 0;
- 
- out_memdup:
- 	kfree(buf);
- out_unresv:
--	ttm_eu_backoff_reservation(&ticket, &validate_list);
--out_free:
--	virtio_gpu_unref_list(&validate_list);
-+	drm_gem_unlock_reservations(buflist->objs, buflist->nents, &ticket);
- out_unused_fd:
- 	kvfree(bo_handles);
--	kvfree(buflist);
-+	if (buflist)
-+		virtio_gpu_array_put_free(buflist);
- 
- 	if (out_fence_fd >= 0)
- 		put_unused_fd(out_fence_fd);
-diff --git a/drivers/gpu/drm/virtio/virtgpu_vq.c b/drivers/gpu/drm/virtio/virtgpu_vq.c
-index 6c1a90717535..dc2c2c003200 100644
---- a/drivers/gpu/drm/virtio/virtgpu_vq.c
-+++ b/drivers/gpu/drm/virtio/virtgpu_vq.c
-@@ -191,7 +191,7 @@ void virtio_gpu_dequeue_ctrl_func(struct work_struct *work)
- 	} while (!virtqueue_enable_cb(vgdev->ctrlq.vq));
- 	spin_unlock(&vgdev->ctrlq.qlock);
- 
--	list_for_each_entry_safe(entry, tmp, &reclaim_list, list) {
-+	list_for_each_entry(entry, &reclaim_list, list) {
- 		resp = (struct virtio_gpu_ctrl_hdr *)entry->resp_buf;
- 
- 		trace_virtio_gpu_cmd_response(vgdev->ctrlq.vq, resp);
-@@ -218,14 +218,18 @@ void virtio_gpu_dequeue_ctrl_func(struct work_struct *work)
- 		}
- 		if (entry->resp_cb)
- 			entry->resp_cb(vgdev, entry);
--
--		list_del(&entry->list);
--		free_vbuf(vgdev, entry);
- 	}
- 	wake_up(&vgdev->ctrlq.ack_queue);
- 
- 	if (fence_id)
- 		virtio_gpu_fence_event_process(vgdev, fence_id);
-+
-+	list_for_each_entry_safe(entry, tmp, &reclaim_list, list) {
-+		if (entry->objs)
-+			virtio_gpu_array_put_free(entry->objs);
-+		list_del(&entry->list);
-+		free_vbuf(vgdev, entry);
-+	}
+ static struct drm_driver panfrost_drm_driver = {
+ 	.driver_features	= DRIVER_RENDER | DRIVER_GEM | DRIVER_PRIME |
+diff --git a/drivers/gpu/drm/v3d/v3d_drv.c b/drivers/gpu/drm/v3d/v3d_drv.c
+index fea597f4db8a..2ca9ffa1c4c1 100644
+--- a/drivers/gpu/drm/v3d/v3d_drv.c
++++ b/drivers/gpu/drm/v3d/v3d_drv.c
+@@ -166,7 +166,7 @@ v3d_postclose(struct drm_device *dev, struct drm_file *file)
+ 	kfree(v3d_priv);
  }
  
- void virtio_gpu_dequeue_cursor_func(struct work_struct *work)
-@@ -939,7 +943,8 @@ void virtio_gpu_cmd_transfer_from_host_3d(struct virtio_gpu_device *vgdev,
+-DEFINE_DRM_GEM_SHMEM_FOPS(v3d_drm_fops);
++DEFINE_DRM_GEM_FOPS(v3d_drm_fops);
  
- void virtio_gpu_cmd_submit(struct virtio_gpu_device *vgdev,
- 			   void *data, uint32_t data_size,
--			   uint32_t ctx_id, struct virtio_gpu_fence *fence)
-+			   uint32_t ctx_id, struct virtio_gpu_fence *fence,
-+			   struct virtio_gpu_object_array *objs)
- {
- 	struct virtio_gpu_cmd_submit *cmd_p;
- 	struct virtio_gpu_vbuffer *vbuf;
-@@ -949,6 +954,7 @@ void virtio_gpu_cmd_submit(struct virtio_gpu_device *vgdev,
- 
- 	vbuf->data_buf = data;
- 	vbuf->data_size = data_size;
-+	vbuf->objs = objs;
- 
- 	cmd_p->hdr.type = cpu_to_le32(VIRTIO_GPU_CMD_SUBMIT_3D);
- 	cmd_p->hdr.ctx_id = cpu_to_le32(ctx_id);
+ /* DRM_AUTH is required on SUBMIT_CL for now, while we don't have GMP
+  * protection between clients.  Note that render nodes would be be
 -- 
 2.18.1
