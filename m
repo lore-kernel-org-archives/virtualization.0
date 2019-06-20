@@ -1,13 +1,13 @@
 From: Gerd Hoffmann <kraxel@redhat.com>
-Subject: [PATCH 3/3] drm: drop DEFINE_DRM_GEM_SHMEM_FOPS
-Date: Thu, 20 Jun 2019 08:15:47 +0200
-Message-ID: <20190620061547.8664-4-kraxel__22356.9507290208$1561011366$gmane$org@redhat.com>
-References: <20190620061547.8664-1-kraxel@redhat.com>
+Subject: [PATCH 5/6] drm/ttm: use gem vma_node
+Date: Thu, 20 Jun 2019 09:44:23 +0200
+Message-ID: <20190620074424.1677-6-kraxel@redhat.com>
+References: <20190620074424.1677-1-kraxel@redhat.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <20190620061547.8664-1-kraxel@redhat.com>
+In-Reply-To: <20190620074424.1677-1-kraxel@redhat.com>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -18,95 +18,226 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
 To: dri-devel@lists.freedesktop.org
-Cc: Rob Herring <robh@kernel.org>, Maxime Ripard <maxime.ripard@bootlin.com>, Tomeu Vizoso <tomeu.vizoso@collabora.com>, David Airlie <airlied@linux.ie>, Maarten Lankhorst <maarten.lankhorst@linux.intel.com>, open list <linux-kernel@vger.kernel.org>, "open list:DRM DRIVER FOR QEMU'S CIRRUS DEVICE" <virtualization@lists.linux-foundation.org>, Eric Anholt <eric@anholt.net>, Daniel Vetter <daniel@ffwll.ch>, Dave Airlie <airlied@redhat.com>, Sean Paul <sean@poorly.run>
+Cc: "David (ChunMing) Zhou" <David1.Zhou@amd.com>, David Airlie <airlied@linux.ie>, Maarten Lankhorst <maarten.lankhorst@linux.intel.com>, open list <linux-kernel@vger.kernel.org>, "open list:RADEON and AMDGPU DRM DRIVERS" <amd-gfx@lists.freedesktop.org>, "open list:DRM DRIVER FOR QXL VIRTUAL GPU" <virtualization@lists.linux-foundation.org>, Maxime Ripard <maxime.ripard@bootlin.com>, Huang Rui <ray.huang@amd.com>, Daniel Vetter <daniel@ffwll.ch>, "open list:DRM DRIVER FOR QXL VIRTUAL GPU" <spice-devel@lists.freedesktop.org>, Alex Deucher <alexander.deucher@amd.com>, Dave Airlie <airlied@redhat.com>, Sean Paul <sean@poorly.run>, =?UTF-8?q?Christian=20K=C3=B6nig?= <christian.koenig@amd.com>
 List-Id: virtualization@lists.linuxfoundation.org
 
-DEFINE_DRM_GEM_SHMEM_FOPS is identical to DEFINE_DRM_GEM_FOPS now,
-drop it.
+Drop vma_node from ttm_buffer_object, use the gem struct
+(base.vma_node) instead.
 
 Signed-off-by: Gerd Hoffmann <kraxel@redhat.com>
 ---
- include/drm/drm_gem_shmem_helper.h      | 26 -------------------------
- drivers/gpu/drm/cirrus/cirrus.c         |  2 +-
- drivers/gpu/drm/panfrost/panfrost_drv.c |  2 +-
- drivers/gpu/drm/v3d/v3d_drv.c           |  2 +-
- 4 files changed, 3 insertions(+), 29 deletions(-)
+ drivers/gpu/drm/amd/amdgpu/amdgpu_object.h | 2 +-
+ drivers/gpu/drm/qxl/qxl_object.h           | 2 +-
+ drivers/gpu/drm/radeon/radeon_object.h     | 2 +-
+ drivers/gpu/drm/virtio/virtgpu_drv.h       | 2 +-
+ include/drm/ttm/ttm_bo_api.h               | 5 +----
+ drivers/gpu/drm/drm_gem_vram_helper.c      | 5 +----
+ drivers/gpu/drm/ttm/ttm_bo.c               | 8 ++++----
+ drivers/gpu/drm/ttm/ttm_bo_util.c          | 2 +-
+ drivers/gpu/drm/ttm/ttm_bo_vm.c            | 9 +++++----
+ drivers/gpu/drm/virtio/virtgpu_prime.c     | 3 ---
+ 10 files changed, 16 insertions(+), 24 deletions(-)
 
-diff --git a/include/drm/drm_gem_shmem_helper.h b/include/drm/drm_gem_shmem_helper.h
-index 0f7b77cdc26b..813240dcfe17 100644
---- a/include/drm/drm_gem_shmem_helper.h
-+++ b/include/drm/drm_gem_shmem_helper.h
-@@ -85,32 +85,6 @@ struct drm_gem_shmem_object {
- #define to_drm_gem_shmem_obj(obj) \
- 	container_of(obj, struct drm_gem_shmem_object, base)
- 
--/**
-- * DEFINE_DRM_GEM_SHMEM_FOPS() - Macro to generate file operations for shmem drivers
-- * @name: name for the generated structure
-- *
-- * This macro autogenerates a suitable &struct file_operations for shmem based
-- * drivers, which can be assigned to &drm_driver.fops. Note that this structure
-- * cannot be shared between drivers, because it contains a reference to the
-- * current module using THIS_MODULE.
-- *
-- * Note that the declaration is already marked as static - if you need a
-- * non-static version of this you're probably doing it wrong and will break the
-- * THIS_MODULE reference by accident.
-- */
--#define DEFINE_DRM_GEM_SHMEM_FOPS(name) \
--	static const struct file_operations name = {\
--		.owner		= THIS_MODULE,\
--		.open		= drm_open,\
--		.release	= drm_release,\
--		.unlocked_ioctl	= drm_ioctl,\
--		.compat_ioctl	= drm_compat_ioctl,\
--		.poll		= drm_poll,\
--		.read		= drm_read,\
--		.llseek		= noop_llseek,\
--		.mmap		= drm_gem_mmap, \
--	}
--
- struct drm_gem_shmem_object *drm_gem_shmem_create(struct drm_device *dev, size_t size);
- void drm_gem_shmem_free_object(struct drm_gem_object *obj);
- 
-diff --git a/drivers/gpu/drm/cirrus/cirrus.c b/drivers/gpu/drm/cirrus/cirrus.c
-index be4ea370ba31..600a3fa7783f 100644
---- a/drivers/gpu/drm/cirrus/cirrus.c
-+++ b/drivers/gpu/drm/cirrus/cirrus.c
-@@ -510,7 +510,7 @@ static void cirrus_mode_config_init(struct cirrus_device *cirrus)
- 
- /* ------------------------------------------------------------------ */
- 
--DEFINE_DRM_GEM_SHMEM_FOPS(cirrus_fops);
-+DEFINE_DRM_GEM_FOPS(cirrus_fops);
- 
- static struct drm_driver cirrus_driver = {
- 	.driver_features = DRIVER_MODESET | DRIVER_GEM | DRIVER_ATOMIC | DRIVER_PRIME,
-diff --git a/drivers/gpu/drm/panfrost/panfrost_drv.c b/drivers/gpu/drm/panfrost/panfrost_drv.c
-index d11e2281dde6..0b32e5028c33 100644
---- a/drivers/gpu/drm/panfrost/panfrost_drv.c
-+++ b/drivers/gpu/drm/panfrost/panfrost_drv.c
-@@ -339,7 +339,7 @@ static const struct drm_ioctl_desc panfrost_drm_driver_ioctls[] = {
- 	PANFROST_IOCTL(GET_BO_OFFSET,	get_bo_offset,	DRM_RENDER_ALLOW),
- };
- 
--DEFINE_DRM_GEM_SHMEM_FOPS(panfrost_drm_driver_fops);
-+DEFINE_DRM_GEM_FOPS(panfrost_drm_driver_fops);
- 
- static struct drm_driver panfrost_drm_driver = {
- 	.driver_features	= DRIVER_RENDER | DRIVER_GEM | DRIVER_PRIME |
-diff --git a/drivers/gpu/drm/v3d/v3d_drv.c b/drivers/gpu/drm/v3d/v3d_drv.c
-index fea597f4db8a..2ca9ffa1c4c1 100644
---- a/drivers/gpu/drm/v3d/v3d_drv.c
-+++ b/drivers/gpu/drm/v3d/v3d_drv.c
-@@ -166,7 +166,7 @@ v3d_postclose(struct drm_device *dev, struct drm_file *file)
- 	kfree(v3d_priv);
+diff --git a/drivers/gpu/drm/amd/amdgpu/amdgpu_object.h b/drivers/gpu/drm/amd/amdgpu/amdgpu_object.h
+index c430e8259038..002fd1450ec7 100644
+--- a/drivers/gpu/drm/amd/amdgpu/amdgpu_object.h
++++ b/drivers/gpu/drm/amd/amdgpu/amdgpu_object.h
+@@ -192,7 +192,7 @@ static inline unsigned amdgpu_bo_gpu_page_alignment(struct amdgpu_bo *bo)
+  */
+ static inline u64 amdgpu_bo_mmap_offset(struct amdgpu_bo *bo)
+ {
+-	return drm_vma_node_offset_addr(&bo->tbo.vma_node);
++	return drm_vma_node_offset_addr(&bo->tbo.base.vma_node);
  }
  
--DEFINE_DRM_GEM_SHMEM_FOPS(v3d_drm_fops);
-+DEFINE_DRM_GEM_FOPS(v3d_drm_fops);
+ /**
+diff --git a/drivers/gpu/drm/qxl/qxl_object.h b/drivers/gpu/drm/qxl/qxl_object.h
+index b812d4ae9d0d..8ae54ba7857c 100644
+--- a/drivers/gpu/drm/qxl/qxl_object.h
++++ b/drivers/gpu/drm/qxl/qxl_object.h
+@@ -60,7 +60,7 @@ static inline unsigned long qxl_bo_size(struct qxl_bo *bo)
  
- /* DRM_AUTH is required on SUBMIT_CL for now, while we don't have GMP
-  * protection between clients.  Note that render nodes would be be
+ static inline u64 qxl_bo_mmap_offset(struct qxl_bo *bo)
+ {
+-	return drm_vma_node_offset_addr(&bo->tbo.vma_node);
++	return drm_vma_node_offset_addr(&bo->tbo.base.vma_node);
+ }
+ 
+ static inline int qxl_bo_wait(struct qxl_bo *bo, u32 *mem_type,
+diff --git a/drivers/gpu/drm/radeon/radeon_object.h b/drivers/gpu/drm/radeon/radeon_object.h
+index 9ffd8215d38a..e5554bf9140e 100644
+--- a/drivers/gpu/drm/radeon/radeon_object.h
++++ b/drivers/gpu/drm/radeon/radeon_object.h
+@@ -116,7 +116,7 @@ static inline unsigned radeon_bo_gpu_page_alignment(struct radeon_bo *bo)
+  */
+ static inline u64 radeon_bo_mmap_offset(struct radeon_bo *bo)
+ {
+-	return drm_vma_node_offset_addr(&bo->tbo.vma_node);
++	return drm_vma_node_offset_addr(&bo->tbo.base.vma_node);
+ }
+ 
+ extern int radeon_bo_wait(struct radeon_bo *bo, u32 *mem_type,
+diff --git a/drivers/gpu/drm/virtio/virtgpu_drv.h b/drivers/gpu/drm/virtio/virtgpu_drv.h
+index 9e2d3062b01d..7146ba00fd5b 100644
+--- a/drivers/gpu/drm/virtio/virtgpu_drv.h
++++ b/drivers/gpu/drm/virtio/virtgpu_drv.h
+@@ -396,7 +396,7 @@ static inline void virtio_gpu_object_unref(struct virtio_gpu_object **bo)
+ 
+ static inline u64 virtio_gpu_object_mmap_offset(struct virtio_gpu_object *bo)
+ {
+-	return drm_vma_node_offset_addr(&bo->tbo.vma_node);
++	return drm_vma_node_offset_addr(&bo->tbo.base.vma_node);
+ }
+ 
+ static inline int virtio_gpu_object_reserve(struct virtio_gpu_object *bo,
+diff --git a/include/drm/ttm/ttm_bo_api.h b/include/drm/ttm/ttm_bo_api.h
+index 88aa7bf1b18a..77bd420a147a 100644
+--- a/include/drm/ttm/ttm_bo_api.h
++++ b/include/drm/ttm/ttm_bo_api.h
+@@ -152,7 +152,6 @@ struct ttm_tt;
+  * @ddestroy: List head for the delayed destroy list.
+  * @swap: List head for swap LRU list.
+  * @moving: Fence set when BO is moving
+- * @vma_node: Address space manager node.
+  * @offset: The current GPU offset, which can have different meanings
+  * depending on the memory type. For SYSTEM type memory, it should be 0.
+  * @cur_placement: Hint of current placement.
+@@ -219,9 +218,7 @@ struct ttm_buffer_object {
+ 	 */
+ 
+ 	struct dma_fence *moving;
+-
+-	struct drm_vma_offset_node vma_node;
+-
++	/* base.vma_node */
+ 	unsigned priority;
+ 
+ 	/**
+diff --git a/drivers/gpu/drm/drm_gem_vram_helper.c b/drivers/gpu/drm/drm_gem_vram_helper.c
+index 61d9520cc15f..2e474dee30df 100644
+--- a/drivers/gpu/drm/drm_gem_vram_helper.c
++++ b/drivers/gpu/drm/drm_gem_vram_helper.c
+@@ -163,7 +163,7 @@ EXPORT_SYMBOL(drm_gem_vram_put);
+  */
+ u64 drm_gem_vram_mmap_offset(struct drm_gem_vram_object *gbo)
+ {
+-	return drm_vma_node_offset_addr(&gbo->bo.vma_node);
++	return drm_vma_node_offset_addr(&gbo->bo.base.vma_node);
+ }
+ EXPORT_SYMBOL(drm_gem_vram_mmap_offset);
+ 
+@@ -633,9 +633,6 @@ EXPORT_SYMBOL(drm_gem_vram_driver_gem_prime_vunmap);
+ int drm_gem_vram_driver_gem_prime_mmap(struct drm_gem_object *gem,
+ 				       struct vm_area_struct *vma)
+ {
+-	struct drm_gem_vram_object *gbo = drm_gem_vram_of_gem(gem);
+-
+-	gbo->bo.base.vma_node.vm_node.start = gbo->bo.vma_node.vm_node.start;
+ 	return drm_gem_prime_mmap(gem, vma);
+ }
+ EXPORT_SYMBOL(drm_gem_vram_driver_gem_prime_mmap);
+diff --git a/drivers/gpu/drm/ttm/ttm_bo.c b/drivers/gpu/drm/ttm/ttm_bo.c
+index 516eef3b76d5..1d91da85f399 100644
+--- a/drivers/gpu/drm/ttm/ttm_bo.c
++++ b/drivers/gpu/drm/ttm/ttm_bo.c
+@@ -672,7 +672,7 @@ static void ttm_bo_release(struct kref *kref)
+ 	struct ttm_bo_device *bdev = bo->bdev;
+ 	struct ttm_mem_type_manager *man = &bdev->man[bo->mem.mem_type];
+ 
+-	drm_vma_offset_remove(&bdev->vma_manager, &bo->vma_node);
++	drm_vma_offset_remove(&bdev->vma_manager, &bo->base.vma_node);
+ 	ttm_mem_io_lock(man, false);
+ 	ttm_mem_io_free_vm(bo);
+ 	ttm_mem_io_unlock(man);
+@@ -1342,9 +1342,9 @@ int ttm_bo_init_reserved(struct ttm_bo_device *bdev,
+ 		 * away once all users are switched over.
+ 		 */
+ 		reservation_object_init(&bo->base._resv);
++		drm_vma_node_reset(&bo->base.vma_node);
+ 	}
+ 	atomic_inc(&bo->bdev->glob->bo_count);
+-	drm_vma_node_reset(&bo->vma_node);
+ 
+ 	/*
+ 	 * For ttm_bo_type_device buffers, allocate
+@@ -1352,7 +1352,7 @@ int ttm_bo_init_reserved(struct ttm_bo_device *bdev,
+ 	 */
+ 	if (bo->type == ttm_bo_type_device ||
+ 	    bo->type == ttm_bo_type_sg)
+-		ret = drm_vma_offset_add(&bdev->vma_manager, &bo->vma_node,
++		ret = drm_vma_offset_add(&bdev->vma_manager, &bo->base.vma_node,
+ 					 bo->mem.num_pages);
+ 
+ 	/* passed reservation objects should already be locked,
+@@ -1780,7 +1780,7 @@ void ttm_bo_unmap_virtual_locked(struct ttm_buffer_object *bo)
+ {
+ 	struct ttm_bo_device *bdev = bo->bdev;
+ 
+-	drm_vma_node_unmap(&bo->vma_node, bdev->dev_mapping);
++	drm_vma_node_unmap(&bo->base.vma_node, bdev->dev_mapping);
+ 	ttm_mem_io_free_vm(bo);
+ }
+ 
+diff --git a/drivers/gpu/drm/ttm/ttm_bo_util.c b/drivers/gpu/drm/ttm/ttm_bo_util.c
+index 3d2617dd63e3..59f1b979b0da 100644
+--- a/drivers/gpu/drm/ttm/ttm_bo_util.c
++++ b/drivers/gpu/drm/ttm/ttm_bo_util.c
+@@ -510,7 +510,7 @@ static int ttm_buffer_object_transfer(struct ttm_buffer_object *bo,
+ 	INIT_LIST_HEAD(&fbo->base.io_reserve_lru);
+ 	mutex_init(&fbo->base.wu_mutex);
+ 	fbo->base.moving = NULL;
+-	drm_vma_node_reset(&fbo->base.vma_node);
++	drm_vma_node_reset(&fbo->base.base.vma_node);
+ 	atomic_set(&fbo->base.cpu_writers, 0);
+ 
+ 	kref_init(&fbo->base.list_kref);
+diff --git a/drivers/gpu/drm/ttm/ttm_bo_vm.c b/drivers/gpu/drm/ttm/ttm_bo_vm.c
+index 6dacff49c1cc..fb6875a789b7 100644
+--- a/drivers/gpu/drm/ttm/ttm_bo_vm.c
++++ b/drivers/gpu/drm/ttm/ttm_bo_vm.c
+@@ -211,9 +211,9 @@ static vm_fault_t ttm_bo_vm_fault(struct vm_fault *vmf)
+ 	}
+ 
+ 	page_offset = ((address - vma->vm_start) >> PAGE_SHIFT) +
+-		vma->vm_pgoff - drm_vma_node_start(&bo->vma_node);
++		vma->vm_pgoff - drm_vma_node_start(&bo->base.vma_node);
+ 	page_last = vma_pages(vma) + vma->vm_pgoff -
+-		drm_vma_node_start(&bo->vma_node);
++		drm_vma_node_start(&bo->base.vma_node);
+ 
+ 	if (unlikely(page_offset >= bo->num_pages)) {
+ 		ret = VM_FAULT_SIGBUS;
+@@ -267,7 +267,7 @@ static vm_fault_t ttm_bo_vm_fault(struct vm_fault *vmf)
+ 			} else if (unlikely(!page)) {
+ 				break;
+ 			}
+-			page->index = drm_vma_node_start(&bo->vma_node) +
++			page->index = drm_vma_node_start(&bo->base.vma_node) +
+ 				page_offset;
+ 			pfn = page_to_pfn(page);
+ 		}
+@@ -413,7 +413,8 @@ static struct ttm_buffer_object *ttm_bo_vm_lookup(struct ttm_bo_device *bdev,
+ 
+ 	node = drm_vma_offset_lookup_locked(&bdev->vma_manager, offset, pages);
+ 	if (likely(node)) {
+-		bo = container_of(node, struct ttm_buffer_object, vma_node);
++		bo = container_of(node, struct ttm_buffer_object,
++				  base.vma_node);
+ 		bo = ttm_bo_get_unless_zero(bo);
+ 	}
+ 
+diff --git a/drivers/gpu/drm/virtio/virtgpu_prime.c b/drivers/gpu/drm/virtio/virtgpu_prime.c
+index 8fbf71bd0c5e..fed86f3b099e 100644
+--- a/drivers/gpu/drm/virtio/virtgpu_prime.c
++++ b/drivers/gpu/drm/virtio/virtgpu_prime.c
+@@ -66,8 +66,5 @@ void virtgpu_gem_prime_vunmap(struct drm_gem_object *obj, void *vaddr)
+ int virtgpu_gem_prime_mmap(struct drm_gem_object *obj,
+ 			   struct vm_area_struct *vma)
+ {
+-	struct virtio_gpu_object *bo = gem_to_virtio_gpu_obj(obj);
+-
+-	bo->gem_base.vma_node.vm_node.start = bo->tbo.vma_node.vm_node.start;
+ 	return drm_gem_prime_mmap(obj, vma);
+ }
 -- 
 2.18.1
