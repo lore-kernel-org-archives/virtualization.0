@@ -1,8 +1,7 @@
 From: Gerd Hoffmann <kraxel@redhat.com>
-Subject: [PATCH v4 02/12] drm/virtio: switch virtio_gpu_wait_ioctl() to gem
-	helper.
-Date: Thu, 20 Jun 2019 08:07:16 +0200
-Message-ID: <20190620060726.926-3-kraxel__25309.4807545253$1561010943$gmane$org@redhat.com>
+Subject: [PATCH v4 01/12] drm/virtio: pass gem reservation object to ttm init
+Date: Thu, 20 Jun 2019 08:07:15 +0200
+Message-ID: <20190620060726.926-2-kraxel__2998.14077313698$1561010960$gmane$org@redhat.com>
 References: <20190620060726.926-1-kraxel@redhat.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
@@ -22,54 +21,29 @@ To: dri-devel@lists.freedesktop.org
 Cc: David Airlie <airlied@linux.ie>, open list <linux-kernel@vger.kernel.org>, Daniel Vetter <daniel@ffwll.ch>, "open list:VIRTIO GPU DRIVER" <virtualization@lists.linux-foundation.org>
 List-Id: virtualization@lists.linuxfoundation.org
 
-Use drm_gem_reservation_object_wait() in virtio_gpu_wait_ioctl().
-This also makes the ioctl run lockless.
-
-v2: use reservation_object_test_signaled_rcu for VIRTGPU_WAIT_NOWAIT.
+With this gem and ttm will use the same reservation object,
+so mixing and matching ttm / gem reservation helpers should
+work fine.
 
 Signed-off-by: Gerd Hoffmann <kraxel@redhat.com>
 Reviewed-by: Daniel Vetter <daniel.vetter@ffwll.ch>
 ---
- drivers/gpu/drm/virtio/virtgpu_ioctl.c | 24 ++++++++++--------------
- 1 file changed, 10 insertions(+), 14 deletions(-)
+ drivers/gpu/drm/virtio/virtgpu_object.c | 3 ++-
+ 1 file changed, 2 insertions(+), 1 deletion(-)
 
-diff --git a/drivers/gpu/drm/virtio/virtgpu_ioctl.c b/drivers/gpu/drm/virtio/virtgpu_ioctl.c
-index ac60be9b5c19..313c770ea2c5 100644
---- a/drivers/gpu/drm/virtio/virtgpu_ioctl.c
-+++ b/drivers/gpu/drm/virtio/virtgpu_ioctl.c
-@@ -464,23 +464,19 @@ static int virtio_gpu_wait_ioctl(struct drm_device *dev, void *data,
- 			    struct drm_file *file)
- {
- 	struct drm_virtgpu_3d_wait *args = data;
--	struct drm_gem_object *gobj = NULL;
--	struct virtio_gpu_object *qobj = NULL;
-+	struct drm_gem_object *obj;
-+	long timeout = 15 * HZ;
- 	int ret;
--	bool nowait = false;
- 
--	gobj = drm_gem_object_lookup(file, args->handle);
--	if (gobj == NULL)
--		return -ENOENT;
-+	if (args->flags & VIRTGPU_WAIT_NOWAIT) {
-+		obj = drm_gem_object_lookup(file, args->handle);
-+		ret = reservation_object_test_signaled_rcu(obj->resv, true);
-+		drm_gem_object_put_unlocked(obj);
-+		return ret ? 0 : -EBUSY;
-+	}
- 
--	qobj = gem_to_virtio_gpu_obj(gobj);
--
--	if (args->flags & VIRTGPU_WAIT_NOWAIT)
--		nowait = true;
--	ret = virtio_gpu_object_wait(qobj, nowait);
--
--	drm_gem_object_put_unlocked(gobj);
--	return ret;
-+	return drm_gem_reservation_object_wait(file, args->handle,
-+					       true, timeout);
- }
- 
- static int virtio_gpu_get_caps_ioctl(struct drm_device *dev,
+diff --git a/drivers/gpu/drm/virtio/virtgpu_object.c b/drivers/gpu/drm/virtio/virtgpu_object.c
+index b2da31310d24..242766d644a7 100644
+--- a/drivers/gpu/drm/virtio/virtgpu_object.c
++++ b/drivers/gpu/drm/virtio/virtgpu_object.c
+@@ -132,7 +132,8 @@ int virtio_gpu_object_create(struct virtio_gpu_device *vgdev,
+ 	virtio_gpu_init_ttm_placement(bo);
+ 	ret = ttm_bo_init(&vgdev->mman.bdev, &bo->tbo, params->size,
+ 			  ttm_bo_type_device, &bo->placement, 0,
+-			  true, acc_size, NULL, NULL,
++			  true, acc_size, NULL,
++			  bo->gem_base.resv,
+ 			  &virtio_gpu_ttm_bo_destroy);
+ 	/* ttm_bo_init failure will call the destroy */
+ 	if (ret != 0)
 -- 
 2.18.1
