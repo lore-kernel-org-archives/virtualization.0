@@ -1,17 +1,13 @@
 From: Gerd Hoffmann <kraxel@redhat.com>
-Subject: Re: [PATCH v3 08/12] drm/virtio: rework virtio_gpu_execbuffer_ioctl
-	fencing
-Date: Thu, 20 Jun 2019 08:01:07 +0200
-Message-ID: <20190620060107.tdz3nrnsczkkv2a6__46127.9305209004$1561010498$gmane$org@sirius.home.kraxel.org>
-References: <20190619090420.6667-1-kraxel@redhat.com>
-	<20190619090420.6667-9-kraxel@redhat.com>
-	<20190619110902.GO12905@phenom.ffwll.local>
+Subject: [PATCH v4 04/12] drm/virtio: remove virtio_gpu_object_wait
+Date: Thu, 20 Jun 2019 08:07:18 +0200
+Message-ID: <20190620060726.926-5-kraxel__2399.48053365282$1561010872$gmane$org@redhat.com>
+References: <20190620060726.926-1-kraxel@redhat.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-Content-Disposition: inline
-In-Reply-To: <20190619110902.GO12905@phenom.ffwll.local>
+In-Reply-To: <20190620060726.926-1-kraxel@redhat.com>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -21,21 +17,51 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: dri-devel@lists.freedesktop.org, Maarten Lankhorst <maarten.lankhorst@linux.intel.com>, Maxime Ripard <maxime.ripard@bootlin.com>, Sean Paul <sean@poorly.run>, David Airlie <airlied@linux.ie>, open list <linux-kernel@vger.kernel.org>, "open list:VIRTIO GPU DRIVER" <virtualization@lists.linux-foundation.org>
+To: dri-devel@lists.freedesktop.org
+Cc: David Airlie <airlied@linux.ie>, open list <linux-kernel@vger.kernel.org>, Daniel Vetter <daniel@ffwll.ch>, "open list:VIRTIO GPU DRIVER" <virtualization@lists.linux-foundation.org>
 List-Id: virtualization@lists.linuxfoundation.org
 
-  Hi,
+No users left.
 
-> Also, I strongly recommend you do a very basic igt to exercise this, i.e.
-> allocate some buffers, submit them in a dummby op, then close the entire
-> drmfd. The old version should at least have tripped over kasan, maybe even
-> oopses somewhere.
+Signed-off-by: Gerd Hoffmann <kraxel@redhat.com>
+Reviewed-by: Daniel Vetter <daniel.vetter@ffwll.ch>
+---
+ drivers/gpu/drm/virtio/virtgpu_drv.h    |  1 -
+ drivers/gpu/drm/virtio/virtgpu_object.c | 13 -------------
+ 2 files changed, 14 deletions(-)
 
-Hmm, I suspect I have to extend igt for that (adding support for
-virtio ioctls), right?
-
-A quick and dirty test (run webgl demo in firefox, then kill -9 both
-firefox and Xorg) didn't show any nasty surprises.
-
-cheers,
-  Gerd
+diff --git a/drivers/gpu/drm/virtio/virtgpu_drv.h b/drivers/gpu/drm/virtio/virtgpu_drv.h
+index 9e2d3062b01d..2cd96256ba37 100644
+--- a/drivers/gpu/drm/virtio/virtgpu_drv.h
++++ b/drivers/gpu/drm/virtio/virtgpu_drv.h
+@@ -364,7 +364,6 @@ int virtio_gpu_object_kmap(struct virtio_gpu_object *bo);
+ int virtio_gpu_object_get_sg_table(struct virtio_gpu_device *qdev,
+ 				   struct virtio_gpu_object *bo);
+ void virtio_gpu_object_free_sg_table(struct virtio_gpu_object *bo);
+-int virtio_gpu_object_wait(struct virtio_gpu_object *bo, bool no_wait);
+ 
+ /* virtgpu_prime.c */
+ struct sg_table *virtgpu_gem_prime_get_sg_table(struct drm_gem_object *obj);
+diff --git a/drivers/gpu/drm/virtio/virtgpu_object.c b/drivers/gpu/drm/virtio/virtgpu_object.c
+index 242766d644a7..82bfbf983fd2 100644
+--- a/drivers/gpu/drm/virtio/virtgpu_object.c
++++ b/drivers/gpu/drm/virtio/virtgpu_object.c
+@@ -233,16 +233,3 @@ void virtio_gpu_object_free_sg_table(struct virtio_gpu_object *bo)
+ 	kfree(bo->pages);
+ 	bo->pages = NULL;
+ }
+-
+-int virtio_gpu_object_wait(struct virtio_gpu_object *bo, bool no_wait)
+-{
+-	int r;
+-
+-	r = ttm_bo_reserve(&bo->tbo, true, no_wait, NULL);
+-	if (unlikely(r != 0))
+-		return r;
+-	r = ttm_bo_wait(&bo->tbo, true, no_wait);
+-	ttm_bo_unreserve(&bo->tbo);
+-	return r;
+-}
+-
+-- 
+2.18.1
