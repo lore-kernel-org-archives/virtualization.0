@@ -1,23 +1,15 @@
-From: Toke =?utf-8?Q?H=C3=B8iland-J=C3=B8rgensen?= <toke@redhat.com>
-Subject: Re: Stats for XDP actions
-Date: Fri, 21 Jun 2019 09:57:48 -0400
-Message-ID: <87k1df6nxf.fsf__10423.7306209811$1561125482$gmane$org@toke.dk>
-References: <1548934830-2389-1-git-send-email-makita.toshiaki@lab.ntt.co.jp>
-	<20190131101516-mutt-send-email-mst@kernel.org>
-	<20190131.094523.2248120325911339180.davem@davemloft.net>
-	<20190131211555.3b15c81f@carbon>
-	<b8c97120-851f-450f-dc71-59350236329e@gmail.com>
-	<20190204125307.08492005@redhat.com>
-	<bdcfedd6-465d-4485-e268-25c4ce6b9fcf@gmail.com>
-	<87tvevpf0y.fsf@toke.dk>
-	<44ae964a-d3dd-6b7f-4bcc-21e07525bf41@gmail.com>
-	<87sgs46la6.fsf@toke.dk>
-	<cd9136ff-4127-72a5-0857-2e5641ba5252@gmail.com>
+From: Christoph Hellwig <hch@infradead.org>
+Subject: Re: [PATCH v4 0/5] iommu/amd: Convert the AMD iommu driver to the
+	dma-iommu api
+Date: Sun, 23 Jun 2019 23:19:45 -0700
+Message-ID: <20190624061945.GA4912__12670.375818719$1561357207$gmane$org@infradead.org>
+References: <20190613223901.9523-1-murphyt7@tcd.ie>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="utf-8"
-Content-Transfer-Encoding: base64
+Content-Type: text/plain; charset="us-ascii"
+Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <cd9136ff-4127-72a5-0857-2e5641ba5252@gmail.com>
+Content-Disposition: inline
+In-Reply-To: <20190613223901.9523-1-murphyt7@tcd.ie>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -27,19 +19,15 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: David Ahern <dsahern@gmail.com>, Jesper Dangaard Brouer <brouer@redhat.com>
-Cc: Jakub Kicinski <jakub.kicinski@netronome.com>, hawk@kernel.org, mst@redhat.com, netdev@vger.kernel.org, John Fastabend <john.fastabend@gmail.com>, virtualization@lists.linux-foundation.org, Saeed Mahameed <saeedm@mellanox.com>, makita.toshiaki@lab.ntt.co.jp, Daniel Borkmann <borkmann@iogearbox.net>, David Miller <davem@davemloft.net>, Tariq Toukan <tariqt@mellanox.com>
+To: Tom Murphy <murphyt7@tcd.ie>, Joerg Roedel <joro@8bytes.org>
+Cc: Heiko Stuebner <heiko@sntech.de>, Will Deacon <will.deacon@arm.com>, virtualization@lists.linux-foundation.org, David Brown <david.brown@linaro.org>, Thierry Reding <thierry.reding@gmail.com>, linux-s390@vger.kernel.org, linux-samsung-soc@vger.kernel.org, Jean-Philippe Brucker <jean-philippe.brucker@arm.com>, Krzysztof Kozlowski <krzk@kernel.org>, Jonathan Hunter <jonathanh@nvidia.com>, linux-rockchip@lists.infradead.org, Kukjin Kim <kgene@kernel.org>, Matthias Brugger <matthias.bgg@gmail.com>, Andy Gross <agross@kernel.org>, Gerald Schaefer <gerald.schaefer@de.ibm.com>, linux-arm-msm@vger.kernel.org, linux-mediatek@lists.infradead.org, linux-tegra@vger.kernel.org, linux-arm-kernel@lists.infradead.org, David Woodhouse <dwmw2@infradead.org>, linux-kernel@vger.kernel.org, iommu@lists.linux-foundation.org, Robin Murphy <robin.murphy@arm.com>
 List-Id: virtualization@lists.linuxfoundation.org
 
-RGF2aWQgQWhlcm4gPGRzYWhlcm5AZ21haWwuY29tPiB3cml0ZXM6Cgo+IE9uIDYvMjAvMTkgMjo0
-MiBQTSwgVG9rZSBIw7hpbGFuZC1Kw7hyZ2Vuc2VuIHdyb3RlOgo+Pj4+IEkgZG9uJ3QgcmVjYWxs
-IHNlZWluZyBhbnkgZm9sbG93LXVwIG9uIHRoaXMuIERpZCB5b3UgaGF2ZSBhIGNoYW5jZSB0bwo+
-Pj4+IGZvcm11bGF0ZSB5b3VyIGlkZWFzPyA6KQo+Pj4+Cj4+Pgo+Pj4gTm90IHlldC4gQWxtb3N0
-IGRvbmUgd2l0aCB0aGUgbmV4dGhvcCBjaGFuZ2VzLiBPbmNlIHRoYXQgaXMgb3V0IG9mIHRoZQo+
-Pj4gd2F5IEkgY2FuIGNvbWUgYmFjayB0byB0aGlzLgo+PiAKPj4gUGluZz8gOikKPj4gCj4KPiBE
-ZWZpbml0ZWx5IGJhY2sgdG8gdGhpcyBhZnRlciB0aGUgSnVseSA0dGggaG9saWRheS4KCkF3ZXNv
-bWUhIEknbGwgd2FpdCB1bnRpbCB0aGVuIGJlZm9yZSBidWdnaW5nIHlvdSBhZ2Fpbi4uLiA7KQoK
-LVRva2UKX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX18KVmly
-dHVhbGl6YXRpb24gbWFpbGluZyBsaXN0ClZpcnR1YWxpemF0aW9uQGxpc3RzLmxpbnV4LWZvdW5k
-YXRpb24ub3JnCmh0dHBzOi8vbGlzdHMubGludXhmb3VuZGF0aW9uLm9yZy9tYWlsbWFuL2xpc3Rp
-bmZvL3ZpcnR1YWxpemF0aW9u
+Tom,
+
+next time please cc Jerg as the AMD IOMMU maintainer.
+
+Joerg, any chance you could review this?  Toms patches to convert the
+AMD and Intel IOMMU drivers to the dma-iommu code are going to make my
+life in DMA land significantly easier, so I have a vested interest
+in this series moving forward :)
