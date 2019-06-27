@@ -1,14 +1,16 @@
-From: Daniel Vetter <daniel@ffwll.ch>
-Subject: Re: [PATCH v2] drm/bochs: fix framebuffer setup.
-Date: Thu, 27 Jun 2019 10:59:00 +0200
-Message-ID: <20190627085900.GI12905@phenom.ffwll.local>
-References: <20190627081206.23135-1-kraxel@redhat.com>
+From: Stefano Garzarella <sgarzare@redhat.com>
+Subject: Re: [PATCH 0/4] vsock/virtio: several fixes in the .probe() and
+	.remove()
+Date: Thu, 27 Jun 2019 12:05:55 +0200
+Message-ID: <20190627100555.pmnecffewzsopxyw__5898.61777132086$1561629970$gmane$org@steredhat.homenet.telecomitalia.it>
+References: <20190528105623.27983-1-sgarzare@redhat.com>
+	<20190610130945.GL14257@stefanha-x1.localdomain>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
 Content-Disposition: inline
-In-Reply-To: <20190627081206.23135-1-kraxel@redhat.com>
+In-Reply-To: <20190610130945.GL14257@stefanha-x1.localdomain>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -18,94 +20,40 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Gerd Hoffmann <kraxel@redhat.com>
-Cc: tzimmermann@suse.de, David Airlie <airlied@linux.ie>, open list <linux-kernel@vger.kernel.org>, dri-devel@lists.freedesktop.org, "open list:DRM DRIVER FOR BOCHS VIRTUAL GPU" <virtualization@lists.linux-foundation.org>, Daniel Vetter <daniel@ffwll.ch>
+To: Stefan Hajnoczi <stefanha@gmail.com>
+Cc: kvm@vger.kernel.org, "Michael S . Tsirkin" <mst@redhat.com>, netdev@vger.kernel.org, linux-kernel@vger.kernel.org, virtualization@lists.linux-foundation.org, Stefan Hajnoczi <stefanha@redhat.com>, "David S. Miller" <davem@davemloft.net>
 List-Id: virtualization@lists.linuxfoundation.org
 
-On Thu, Jun 27, 2019 at 10:12:06AM +0200, Gerd Hoffmann wrote:
-> The driver doesn't consider framebuffer pitch and offset, leading to a
-> wrong display in case offset != 0 or pitch != width * bpp.  Fix it.
+On Mon, Jun 10, 2019 at 02:09:45PM +0100, Stefan Hajnoczi wrote:
+> On Tue, May 28, 2019 at 12:56:19PM +0200, Stefano Garzarella wrote:
+> > During the review of "[PATCH] vsock/virtio: Initialize core virtio vsock
+> > before registering the driver", Stefan pointed out some possible issues
+> > in the .probe() and .remove() callbacks of the virtio-vsock driver.
+> > 
+> > This series tries to solve these issues:
+> > - Patch 1 postpones the 'the_virtio_vsock' assignment at the end of the
+> >   .probe() to avoid that some sockets queue works when the initialization
+> >   is not finished.
+> > - Patches 2 and 3 stop workers before to call vdev->config->reset(vdev) to
+> >   be sure that no one is accessing the device, and adds another flush at the
+> >   end of the .remove() to avoid use after free.
+> > - Patch 4 free also used buffers in the virtqueues during the .remove().
+> > 
+> > Stefano Garzarella (4):
+> >   vsock/virtio: fix locking around 'the_virtio_vsock'
+> >   vsock/virtio: stop workers during the .remove()
+> >   vsock/virtio: fix flush of works during the .remove()
+> >   vsock/virtio: free used buffers during the .remove()
+> > 
+> >  net/vmw_vsock/virtio_transport.c | 105 ++++++++++++++++++++++++++-----
+> >  1 file changed, 90 insertions(+), 15 deletions(-)
 > 
-> Signed-off-by: Gerd Hoffmann <kraxel@redhat.com>
+> Looking forward to v2.  I took a look at the discussion and I'll review
+> v2 from scratch.  Just keep in mind that the mutex is used more for
+> mutual exclusion of the init/exit code than to protect the_virtio_vsock,
+> so we'll still need protection of init/exit code even with RCU.
 
-Yeah this looks more like it.
+Thanks for the advice! I'll send the v2 ASAP.
 
-Reviewed-by: Daniel Vetter <daniel.vetter@ffwll.ch>
-
-> ---
->  drivers/gpu/drm/bochs/bochs.h     |  2 +-
->  drivers/gpu/drm/bochs/bochs_hw.c  | 14 ++++++++++----
->  drivers/gpu/drm/bochs/bochs_kms.c |  3 ++-
->  3 files changed, 13 insertions(+), 6 deletions(-)
-> 
-> diff --git a/drivers/gpu/drm/bochs/bochs.h b/drivers/gpu/drm/bochs/bochs.h
-> index cc35d492142c..2a65434500ee 100644
-> --- a/drivers/gpu/drm/bochs/bochs.h
-> +++ b/drivers/gpu/drm/bochs/bochs.h
-> @@ -86,7 +86,7 @@ void bochs_hw_setmode(struct bochs_device *bochs,
->  void bochs_hw_setformat(struct bochs_device *bochs,
->  			const struct drm_format_info *format);
->  void bochs_hw_setbase(struct bochs_device *bochs,
-> -		      int x, int y, u64 addr);
-> +		      int x, int y, int stride, u64 addr);
->  int bochs_hw_load_edid(struct bochs_device *bochs);
->  
->  /* bochs_mm.c */
-> diff --git a/drivers/gpu/drm/bochs/bochs_hw.c b/drivers/gpu/drm/bochs/bochs_hw.c
-> index 791ab2f79947..ebfea8744fe6 100644
-> --- a/drivers/gpu/drm/bochs/bochs_hw.c
-> +++ b/drivers/gpu/drm/bochs/bochs_hw.c
-> @@ -255,16 +255,22 @@ void bochs_hw_setformat(struct bochs_device *bochs,
->  }
->  
->  void bochs_hw_setbase(struct bochs_device *bochs,
-> -		      int x, int y, u64 addr)
-> +		      int x, int y, int stride, u64 addr)
->  {
-> -	unsigned long offset = (unsigned long)addr +
-> +	unsigned long offset;
-> +	unsigned int vx, vy, vwidth;
-> +
-> +	bochs->stride = stride;
-
-Might be nice to ditch these global/not-so-atomic things like
-bochs->stride/bpp eventually.
--Daniel
-
-> +	offset = (unsigned long)addr +
->  		y * bochs->stride +
->  		x * (bochs->bpp / 8);
-> -	int vy = offset / bochs->stride;
-> -	int vx = (offset % bochs->stride) * 8 / bochs->bpp;
-> +	vy = offset / bochs->stride;
-> +	vx = (offset % bochs->stride) * 8 / bochs->bpp;
-> +	vwidth = stride * 8 / bochs->bpp;
->  
->  	DRM_DEBUG_DRIVER("x %d, y %d, addr %llx -> offset %lx, vx %d, vy %d\n",
->  			 x, y, addr, offset, vx, vy);
-> +	bochs_dispi_write(bochs, VBE_DISPI_INDEX_VIRT_WIDTH, vwidth);
->  	bochs_dispi_write(bochs, VBE_DISPI_INDEX_X_OFFSET, vx);
->  	bochs_dispi_write(bochs, VBE_DISPI_INDEX_Y_OFFSET, vy);
->  }
-> diff --git a/drivers/gpu/drm/bochs/bochs_kms.c b/drivers/gpu/drm/bochs/bochs_kms.c
-> index 5904eddc83a5..bc19dbd531ef 100644
-> --- a/drivers/gpu/drm/bochs/bochs_kms.c
-> +++ b/drivers/gpu/drm/bochs/bochs_kms.c
-> @@ -36,7 +36,8 @@ static void bochs_plane_update(struct bochs_device *bochs,
->  	bochs_hw_setbase(bochs,
->  			 state->crtc_x,
->  			 state->crtc_y,
-> -			 gbo->bo.offset);
-> +			 state->fb->pitches[0],
-> +			 state->fb->offsets[0] + gbo->bo.offset);
->  	bochs_hw_setformat(bochs, state->fb->format);
->  }
->  
-> -- 
-> 2.18.1
-> 
-
--- 
-Daniel Vetter
-Software Engineer, Intel Corporation
-http://blog.ffwll.ch
+Thanks,
+Stefano
