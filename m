@@ -1,17 +1,16 @@
 From: Gerd Hoffmann <kraxel@redhat.com>
-Subject: Re: [PATCH v4 08/12] drm/virtio: rework virtio_gpu_execbuffer_ioctl
-	fencing
-Date: Fri, 28 Jun 2019 12:34:12 +0200
-Message-ID: <20190628103412.f2n7ybp3qtxbhdk4__43792.926361651$1561718072$gmane$org@sirius.home.kraxel.org>
+Subject: Re: [PATCH v4 11/12] drm/virtio: switch from ttm to gem shmem helpers
+Date: Fri, 28 Jun 2019 12:49:07 +0200
+Message-ID: <20190628104907.vign7lmgftrwfisv__3603.52608129091$1561718972$gmane$org@sirius.home.kraxel.org>
 References: <20190620060726.926-1-kraxel@redhat.com>
-	<20190620060726.926-9-kraxel@redhat.com>
-	<CAPaKu7QjuKMJfhTVOzBsUb8cT9cGgesG_-skQeBO8hL8UqcAzw@mail.gmail.com>
+	<20190620060726.926-12-kraxel@redhat.com>
+	<CAPaKu7QXCMMKR50Oiv=CefUA4S+S3KgpJ2FKTd1WA1H2_ORqXg@mail.gmail.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
 Content-Disposition: inline
-In-Reply-To: <CAPaKu7QjuKMJfhTVOzBsUb8cT9cGgesG_-skQeBO8hL8UqcAzw@mail.gmail.com>
+In-Reply-To: <CAPaKu7QXCMMKR50Oiv=CefUA4S+S3KgpJ2FKTd1WA1H2_ORqXg@mail.gmail.com>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -25,88 +24,26 @@ To: Chia-I Wu <olvaffe@gmail.com>
 Cc: David Airlie <airlied@linux.ie>, open list <linux-kernel@vger.kernel.org>, ML dri-devel <dri-devel@lists.freedesktop.org>, "open list:VIRTIO GPU DRIVER" <virtualization@lists.linux-foundation.org>
 List-Id: virtualization@lists.linuxfoundation.org
 
-  Hi,
+> >  static inline struct virtio_gpu_object*
+> >  virtio_gpu_object_ref(struct virtio_gpu_object *bo)
 
-> > --- a/drivers/gpu/drm/virtio/virtgpu_drv.h
-> > +++ b/drivers/gpu/drm/virtio/virtgpu_drv.h
-> > @@ -120,9 +120,9 @@ struct virtio_gpu_vbuffer {
-> >
-> >         char *resp_buf;
-> >         int resp_size;
-> > -
-> >         virtio_gpu_resp_cb resp_cb;
-> >
-> > +       struct virtio_gpu_object_array *objs;
-> This can use a comment (e.g., objects referenced by the vbuffer)
+> The last users of these two helpers are removed with this patch.  We
+> can remove them.
 
-IMHO this is obvious ...
+patch 12/12 does that.
 
-> >  void virtio_gpu_cmd_submit(struct virtio_gpu_device *vgdev,
-> >                            void *data, uint32_t data_size,
-> > -                          uint32_t ctx_id, struct virtio_gpu_fence *fence);
-> > +                          uint32_t ctx_id, struct virtio_gpu_fence *fence,
-> > +                          struct virtio_gpu_object_array *objs);
-> Can we keep fence, which is updated, as the last parameter?
+> > +       bo = gem_to_virtio_gpu_obj(&shmem_obj->base);
+> > +       bo->base.base.funcs = &virtio_gpu_gem_funcs;
+> Move this to virtio_gpu_create_object.
 
 Fixed.
 
-> > +       if (buflist) {
-> > +               for (i = 0; i < exbuf->num_bo_handles; i++)
-> > +                       reservation_object_add_excl_fence(buflist->objs[i]->resv,
-> > +                                                         &out_fence->f);
-> > +               drm_gem_unlock_reservations(buflist->objs, buflist->nents,
-> > +                                           &ticket);
-> > +       }
-> We used to unlock after virtio_gpu_cmd_submit.
-> 
-> I guess, the fence is considered signaled (because its seqno is still
-> 0) until after virtio_gpu_cmd_submit.  We probably don't want other
-> processes to see the semi-initialized fence.
+> > +       ret = drm_gem_shmem_pin(&obj->base.base);
+> The bo is attached for its entire lifetime, at least currently.  Maybe
+> we can use drm_gem_shmem_get_pages_sgt (and get rid of obj->pages).
 
-Good point.  Fixed.
-
-> >  out_memdup:
-> >         kfree(buf);
-> >  out_unresv:
-> > -       ttm_eu_backoff_reservation(&ticket, &validate_list);
-> > -out_free:
-> > -       virtio_gpu_unref_list(&validate_list);
-> Keeping out_free to free buflist seems just fine.
-
-We don't need the separate label though ...
-
-> > +       drm_gem_unlock_reservations(buflist->objs, buflist->nents, &ticket);
-> >  out_unused_fd:
-> >         kvfree(bo_handles);
-> > -       kvfree(buflist);
-> > +       if (buflist)
-> > +               virtio_gpu_array_put_free(buflist);
-
-... and the buflist is released here if needed.
-
-But we need if (buflist) for drm_gem_unlock_reservations too.  Fixed.
-
-> > -
-> > -               list_del(&entry->list);
-> > -               free_vbuf(vgdev, entry);
-> >         }
-> >         wake_up(&vgdev->ctrlq.ack_queue);
-> >
-> >         if (fence_id)
-> >                 virtio_gpu_fence_event_process(vgdev, fence_id);
-> > +
-> > +       list_for_each_entry_safe(entry, tmp, &reclaim_list, list) {
-> > +               if (entry->objs)
-> > +                       virtio_gpu_array_put_free(entry->objs);
-> > +               list_del(&entry->list);
-> We are clearing the list.  I guess list_del is not needed.
-> > +               free_vbuf(vgdev, entry);
-
-This just shuffles around the code.  Dropping list_del() is unrelated
-and should be a separate patch.
-
-Beside that I'm not sure it actually can be dropped.  free_vbuf() will
-not kfree() the vbuf but keep it cached in a freelist instead.
+Already checked this.
+We can't due to the iommu quirks.
 
 cheers,
   Gerd
