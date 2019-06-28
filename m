@@ -1,8 +1,8 @@
 From: Gerd Hoffmann <kraxel@redhat.com>
-Subject: [PATCH v5 02/12] drm/virtio: switch virtio_gpu_wait_ioctl() to gem
-	helper.
-Date: Fri, 28 Jun 2019 14:13:28 +0200
-Message-ID: <20190628121338.24398-3-kraxel__16302.8171913297$1561724039$gmane$org@redhat.com>
+Subject: [PATCH v5 10/12] drm/virtio: drop
+	virtio_gpu_object_list_validate/virtio_gpu_unref_list
+Date: Fri, 28 Jun 2019 14:13:36 +0200
+Message-ID: <20190628121338.24398-11-kraxel@redhat.com>
 References: <20190628121338.24398-1-kraxel@redhat.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
@@ -22,58 +22,78 @@ To: dri-devel@lists.freedesktop.org
 Cc: David Airlie <airlied@linux.ie>, open list <linux-kernel@vger.kernel.org>, "open list:VIRTIO GPU DRIVER" <virtualization@lists.linux-foundation.org>, Daniel Vetter <daniel@ffwll.ch>, Chia-I Wu <olvaffe@gmail.com>
 List-Id: virtualization@lists.linuxfoundation.org
 
-Use drm_gem_reservation_object_wait() in virtio_gpu_wait_ioctl().
-This also makes the ioctl run lockless.
-
-v5: handle lookup failure.
-v2: use reservation_object_test_signaled_rcu for VIRTGPU_WAIT_NOWAIT.
+No users left.
 
 Signed-off-by: Gerd Hoffmann <kraxel@redhat.com>
-Reviewed-by: Daniel Vetter <daniel.vetter@ffwll.ch>
+Acked-by: Daniel Vetter <daniel.vetter@ffwll.ch>
 ---
- drivers/gpu/drm/virtio/virtgpu_ioctl.c | 28 ++++++++++++--------------
- 1 file changed, 13 insertions(+), 15 deletions(-)
+ drivers/gpu/drm/virtio/virtgpu_drv.h   |  3 --
+ drivers/gpu/drm/virtio/virtgpu_ioctl.c | 39 --------------------------
+ 2 files changed, 42 deletions(-)
 
+diff --git a/drivers/gpu/drm/virtio/virtgpu_drv.h b/drivers/gpu/drm/virtio/virtgpu_drv.h
+index c4b266b6f731..c6c0a66ccf6b 100644
+--- a/drivers/gpu/drm/virtio/virtgpu_drv.h
++++ b/drivers/gpu/drm/virtio/virtgpu_drv.h
+@@ -222,9 +222,6 @@ struct virtio_gpu_fpriv {
+ /* virtio_ioctl.c */
+ #define DRM_VIRTIO_NUM_IOCTLS 10
+ extern struct drm_ioctl_desc virtio_gpu_ioctls[DRM_VIRTIO_NUM_IOCTLS];
+-int virtio_gpu_object_list_validate(struct ww_acquire_ctx *ticket,
+-				    struct list_head *head);
+-void virtio_gpu_unref_list(struct list_head *head);
+ 
+ /* virtio_kms.c */
+ int virtio_gpu_init(struct drm_device *dev);
 diff --git a/drivers/gpu/drm/virtio/virtgpu_ioctl.c b/drivers/gpu/drm/virtio/virtgpu_ioctl.c
-index 1b50c34a29dc..c06dde541491 100644
+index ae6830aa38c9..688b0b70d3d3 100644
 --- a/drivers/gpu/drm/virtio/virtgpu_ioctl.c
 +++ b/drivers/gpu/drm/virtio/virtgpu_ioctl.c
-@@ -464,23 +464,21 @@ static int virtio_gpu_wait_ioctl(struct drm_device *dev, void *data,
- 			    struct drm_file *file)
- {
- 	struct drm_virtgpu_3d_wait *args = data;
--	struct drm_gem_object *gobj = NULL;
--	struct virtio_gpu_object *qobj = NULL;
-+	struct drm_gem_object *obj;
-+	long timeout = 15 * HZ;
- 	int ret;
--	bool nowait = false;
- 
--	gobj = drm_gem_object_lookup(file, args->handle);
--	if (gobj == NULL)
--		return -ENOENT;
--
--	qobj = gem_to_virtio_gpu_obj(gobj);
--
--	if (args->flags & VIRTGPU_WAIT_NOWAIT)
--		nowait = true;
--	ret = virtio_gpu_object_wait(qobj, nowait);
--
--	drm_gem_object_put_unlocked(gobj);
--	return ret;
-+	if (args->flags & VIRTGPU_WAIT_NOWAIT) {
-+		obj = drm_gem_object_lookup(file, args->handle);
-+		if (obj == NULL)
-+			return -ENOENT;
-+		ret = reservation_object_test_signaled_rcu(obj->resv, true);
-+		drm_gem_object_put_unlocked(obj);
-+		return ret ? 0 : -EBUSY;
-+	}
-+
-+	return drm_gem_reservation_object_wait(file, args->handle,
-+					       true, timeout);
+@@ -54,45 +54,6 @@ static int virtio_gpu_map_ioctl(struct drm_device *dev, void *data,
+ 					 &virtio_gpu_map->offset);
  }
  
- static int virtio_gpu_get_caps_ioctl(struct drm_device *dev,
+-int virtio_gpu_object_list_validate(struct ww_acquire_ctx *ticket,
+-				    struct list_head *head)
+-{
+-	struct ttm_operation_ctx ctx = { false, false };
+-	struct ttm_validate_buffer *buf;
+-	struct ttm_buffer_object *bo;
+-	struct virtio_gpu_object *qobj;
+-	int ret;
+-
+-	ret = ttm_eu_reserve_buffers(ticket, head, true, NULL, true);
+-	if (ret != 0)
+-		return ret;
+-
+-	list_for_each_entry(buf, head, head) {
+-		bo = buf->bo;
+-		qobj = container_of(bo, struct virtio_gpu_object, tbo);
+-		ret = ttm_bo_validate(bo, &qobj->placement, &ctx);
+-		if (ret) {
+-			ttm_eu_backoff_reservation(ticket, head);
+-			return ret;
+-		}
+-	}
+-	return 0;
+-}
+-
+-void virtio_gpu_unref_list(struct list_head *head)
+-{
+-	struct ttm_validate_buffer *buf;
+-	struct ttm_buffer_object *bo;
+-	struct virtio_gpu_object *qobj;
+-
+-	list_for_each_entry(buf, head, head) {
+-		bo = buf->bo;
+-		qobj = container_of(bo, struct virtio_gpu_object, tbo);
+-
+-		drm_gem_object_put_unlocked(&qobj->gem_base);
+-	}
+-}
+-
+ /*
+  * Usage of execbuffer:
+  * Relocations need to take into account the full VIRTIO_GPUDrawable size.
 -- 
 2.18.1
