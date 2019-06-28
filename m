@@ -1,14 +1,14 @@
-From: Gerd Hoffmann <kraxel@redhat.com>
-Subject: [PATCH v5 08/12] drm/virtio: rework virtio_gpu_execbuffer_ioctl
-	fencing
-Date: Fri, 28 Jun 2019 14:13:34 +0200
-Message-ID: <20190628121338.24398-9-kraxel__47231.6984481708$1561724603$gmane$org@redhat.com>
-References: <20190628121338.24398-1-kraxel@redhat.com>
+From: Stefano Garzarella <sgarzare@redhat.com>
+Subject: [PATCH v2 1/3] vsock/virtio: use RCU to avoid use-after-free on
+	the_virtio_vsock
+Date: Fri, 28 Jun 2019 14:36:57 +0200
+Message-ID: <20190628123659.139576-2-sgarzare__40541.6786017426$1561725449$gmane$org@redhat.com>
+References: <20190628123659.139576-1-sgarzare@redhat.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <20190628121338.24398-1-kraxel@redhat.com>
+In-Reply-To: <20190628123659.139576-1-sgarzare@redhat.com>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -18,220 +18,178 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: dri-devel@lists.freedesktop.org
-Cc: David Airlie <airlied@linux.ie>, open list <linux-kernel@vger.kernel.org>, "open list:VIRTIO GPU DRIVER" <virtualization@lists.linux-foundation.org>, Daniel Vetter <daniel@ffwll.ch>, Chia-I Wu <olvaffe@gmail.com>
+To: netdev@vger.kernel.org
+Cc: kvm@vger.kernel.org, "Michael S. Tsirkin" <mst@redhat.com>, linux-kernel@vger.kernel.org, virtualization@lists.linux-foundation.org, Stefan Hajnoczi <stefanha@redhat.com>, "David S. Miller" <davem@davemloft.net>
 List-Id: virtualization@lists.linuxfoundation.org
 
-Use gem reservation helpers and direct reservation_object_* calls
-instead of ttm.
+Some callbacks used by the upper layers can run while we are in the
+.remove(). A potential use-after-free can happen, because we free
+the_virtio_vsock without knowing if the callbacks are over or not.
 
-v5: fix fencing (Chia-I Wu).
-v3: Also attach the array of gem objects to the virtio command buffer,
-so we can drop the object references in the completion callback.  Needed
-because ttm fence helpers grab a reference for us, but gem helpers
-don't.
+To solve this issue we move the assignment of the_virtio_vsock at the
+end of .probe(), when we finished all the initialization, and at the
+beginning of .remove(), before to release resources.
+For the same reason, we do the same also for the vdev->priv.
 
-Signed-off-by: Gerd Hoffmann <kraxel@redhat.com>
-Acked-by: Daniel Vetter <daniel.vetter@ffwll.ch>
+We use RCU to be sure that all callbacks that use the_virtio_vsock
+ended before freeing it. This is not required for callbacks that
+use vdev->priv, because after the vdev->config->del_vqs() we are sure
+that they are ended and will no longer be invoked.
+
+We also take the mutex during the .remove() to avoid that .probe() can
+run while we are resetting the device.
+
+Signed-off-by: Stefano Garzarella <sgarzare@redhat.com>
 ---
- drivers/gpu/drm/virtio/virtgpu_drv.h   |  6 ++-
- drivers/gpu/drm/virtio/virtgpu_ioctl.c | 62 +++++++++++---------------
- drivers/gpu/drm/virtio/virtgpu_vq.c    | 17 ++++---
- 3 files changed, 43 insertions(+), 42 deletions(-)
+ net/vmw_vsock/virtio_transport.c | 67 +++++++++++++++++++++-----------
+ 1 file changed, 44 insertions(+), 23 deletions(-)
 
-diff --git a/drivers/gpu/drm/virtio/virtgpu_drv.h b/drivers/gpu/drm/virtio/virtgpu_drv.h
-index 98d646789d23..356d27132388 100644
---- a/drivers/gpu/drm/virtio/virtgpu_drv.h
-+++ b/drivers/gpu/drm/virtio/virtgpu_drv.h
-@@ -120,9 +120,9 @@ struct virtio_gpu_vbuffer {
- 
- 	char *resp_buf;
- 	int resp_size;
--
- 	virtio_gpu_resp_cb resp_cb;
- 
-+	struct virtio_gpu_object_array *objs;
- 	struct list_head list;
+diff --git a/net/vmw_vsock/virtio_transport.c b/net/vmw_vsock/virtio_transport.c
+index 9c287e3e393c..7ad510ec12e0 100644
+--- a/net/vmw_vsock/virtio_transport.c
++++ b/net/vmw_vsock/virtio_transport.c
+@@ -65,19 +65,22 @@ struct virtio_vsock {
+ 	u32 guest_cid;
  };
  
-@@ -311,7 +311,9 @@ void virtio_gpu_cmd_context_detach_resource(struct virtio_gpu_device *vgdev,
- 					    uint32_t resource_id);
- void virtio_gpu_cmd_submit(struct virtio_gpu_device *vgdev,
- 			   void *data, uint32_t data_size,
--			   uint32_t ctx_id, struct virtio_gpu_fence *fence);
-+			   uint32_t ctx_id,
-+			   struct virtio_gpu_object_array *objs,
-+			   struct virtio_gpu_fence *fence);
- void virtio_gpu_cmd_transfer_from_host_3d(struct virtio_gpu_device *vgdev,
- 					  uint32_t resource_id, uint32_t ctx_id,
- 					  uint64_t offset, uint32_t level,
-diff --git a/drivers/gpu/drm/virtio/virtgpu_ioctl.c b/drivers/gpu/drm/virtio/virtgpu_ioctl.c
-index 0caff3fa623e..ae6830aa38c9 100644
---- a/drivers/gpu/drm/virtio/virtgpu_ioctl.c
-+++ b/drivers/gpu/drm/virtio/virtgpu_ioctl.c
-@@ -105,14 +105,11 @@ static int virtio_gpu_execbuffer_ioctl(struct drm_device *dev, void *data,
- 	struct drm_virtgpu_execbuffer *exbuf = data;
- 	struct virtio_gpu_device *vgdev = dev->dev_private;
- 	struct virtio_gpu_fpriv *vfpriv = drm_file->driver_priv;
--	struct drm_gem_object *gobj;
- 	struct virtio_gpu_fence *out_fence;
--	struct virtio_gpu_object *qobj;
- 	int ret;
- 	uint32_t *bo_handles = NULL;
- 	void __user *user_bo_handles = NULL;
--	struct list_head validate_list;
--	struct ttm_validate_buffer *buflist = NULL;
-+	struct virtio_gpu_object_array *buflist = NULL;
- 	int i;
- 	struct ww_acquire_ctx ticket;
- 	struct sync_file *sync_file;
-@@ -155,15 +152,10 @@ static int virtio_gpu_execbuffer_ioctl(struct drm_device *dev, void *data,
- 			return out_fence_fd;
- 	}
- 
--	INIT_LIST_HEAD(&validate_list);
- 	if (exbuf->num_bo_handles) {
+-static struct virtio_vsock *virtio_vsock_get(void)
+-{
+-	return the_virtio_vsock;
+-}
 -
- 		bo_handles = kvmalloc_array(exbuf->num_bo_handles,
--					   sizeof(uint32_t), GFP_KERNEL);
--		buflist = kvmalloc_array(exbuf->num_bo_handles,
--					   sizeof(struct ttm_validate_buffer),
--					   GFP_KERNEL | __GFP_ZERO);
--		if (!bo_handles || !buflist) {
-+					    sizeof(uint32_t), GFP_KERNEL);
-+		if (!bo_handles) {
- 			ret = -ENOMEM;
- 			goto out_unused_fd;
- 		}
-@@ -175,25 +167,22 @@ static int virtio_gpu_execbuffer_ioctl(struct drm_device *dev, void *data,
- 			goto out_unused_fd;
- 		}
+ static u32 virtio_transport_get_local_cid(void)
+ {
+-	struct virtio_vsock *vsock = virtio_vsock_get();
++	struct virtio_vsock *vsock;
++	u32 ret;
  
--		for (i = 0; i < exbuf->num_bo_handles; i++) {
--			gobj = drm_gem_object_lookup(drm_file, bo_handles[i]);
--			if (!gobj) {
--				ret = -ENOENT;
--				goto out_unused_fd;
--			}
--
--			qobj = gem_to_virtio_gpu_obj(gobj);
--			buflist[i].bo = &qobj->tbo;
--
--			list_add(&buflist[i].head, &validate_list);
-+		buflist = virtio_gpu_array_from_handles(drm_file, bo_handles,
-+							exbuf->num_bo_handles);
-+		if (!buflist) {
-+			ret = -ENOENT;
-+			goto out_unused_fd;
- 		}
- 		kvfree(bo_handles);
- 		bo_handles = NULL;
- 	}
- 
--	ret = virtio_gpu_object_list_validate(&ticket, &validate_list);
--	if (ret)
--		goto out_free;
-+	if (buflist) {
-+		ret = drm_gem_lock_reservations(buflist->objs, buflist->nents,
-+						&ticket);
-+		if (ret)
-+			goto out_unused_fd;
+-	if (!vsock)
+-		return VMADDR_CID_ANY;
++	rcu_read_lock();
++	vsock = rcu_dereference(the_virtio_vsock);
++	if (!vsock) {
++		ret = VMADDR_CID_ANY;
++		goto out_rcu;
 +	}
  
- 	buf = memdup_user(u64_to_user_ptr(exbuf->command), exbuf->size);
- 	if (IS_ERR(buf)) {
-@@ -219,25 +208,28 @@ static int virtio_gpu_execbuffer_ioctl(struct drm_device *dev, void *data,
- 		fd_install(out_fence_fd, sync_file->file);
- 	}
- 
-+	if (buflist)
-+		for (i = 0; i < exbuf->num_bo_handles; i++)
-+			reservation_object_add_excl_fence(buflist->objs[i]->resv,
-+							  &out_fence->f);
-+
- 	virtio_gpu_cmd_submit(vgdev, buf, exbuf->size,
--			      vfpriv->ctx_id, out_fence);
-+			      vfpriv->ctx_id, buflist, out_fence);
- 
--	ttm_eu_fence_buffer_objects(&ticket, &validate_list, &out_fence->f);
--
--	/* fence the command bo */
--	virtio_gpu_unref_list(&validate_list);
--	kvfree(buflist);
-+	if (buflist)
-+		drm_gem_unlock_reservations(buflist->objs, buflist->nents,
-+					    &ticket);
- 	return 0;
- 
- out_memdup:
- 	kfree(buf);
- out_unresv:
--	ttm_eu_backoff_reservation(&ticket, &validate_list);
--out_free:
--	virtio_gpu_unref_list(&validate_list);
-+	if (buflist)
-+		drm_gem_unlock_reservations(buflist->objs, buflist->nents, &ticket);
- out_unused_fd:
- 	kvfree(bo_handles);
--	kvfree(buflist);
-+	if (buflist)
-+		virtio_gpu_array_put_free(buflist);
- 
- 	if (out_fence_fd >= 0)
- 		put_unused_fd(out_fence_fd);
-diff --git a/drivers/gpu/drm/virtio/virtgpu_vq.c b/drivers/gpu/drm/virtio/virtgpu_vq.c
-index 6c1a90717535..0c87c3e086f8 100644
---- a/drivers/gpu/drm/virtio/virtgpu_vq.c
-+++ b/drivers/gpu/drm/virtio/virtgpu_vq.c
-@@ -191,7 +191,7 @@ void virtio_gpu_dequeue_ctrl_func(struct work_struct *work)
- 	} while (!virtqueue_enable_cb(vgdev->ctrlq.vq));
- 	spin_unlock(&vgdev->ctrlq.qlock);
- 
--	list_for_each_entry_safe(entry, tmp, &reclaim_list, list) {
-+	list_for_each_entry(entry, &reclaim_list, list) {
- 		resp = (struct virtio_gpu_ctrl_hdr *)entry->resp_buf;
- 
- 		trace_virtio_gpu_cmd_response(vgdev->ctrlq.vq, resp);
-@@ -218,14 +218,18 @@ void virtio_gpu_dequeue_ctrl_func(struct work_struct *work)
- 		}
- 		if (entry->resp_cb)
- 			entry->resp_cb(vgdev, entry);
--
--		list_del(&entry->list);
--		free_vbuf(vgdev, entry);
- 	}
- 	wake_up(&vgdev->ctrlq.ack_queue);
- 
- 	if (fence_id)
- 		virtio_gpu_fence_event_process(vgdev, fence_id);
-+
-+	list_for_each_entry_safe(entry, tmp, &reclaim_list, list) {
-+		if (entry->objs)
-+			virtio_gpu_array_put_free(entry->objs);
-+		list_del(&entry->list);
-+		free_vbuf(vgdev, entry);
-+	}
+-	return vsock->guest_cid;
++	ret = vsock->guest_cid;
++out_rcu:
++	rcu_read_unlock();
++	return ret;
  }
  
- void virtio_gpu_dequeue_cursor_func(struct work_struct *work)
-@@ -939,7 +943,9 @@ void virtio_gpu_cmd_transfer_from_host_3d(struct virtio_gpu_device *vgdev,
+ static void virtio_transport_loopback_work(struct work_struct *work)
+@@ -197,14 +200,18 @@ virtio_transport_send_pkt(struct virtio_vsock_pkt *pkt)
+ 	struct virtio_vsock *vsock;
+ 	int len = pkt->len;
  
- void virtio_gpu_cmd_submit(struct virtio_gpu_device *vgdev,
- 			   void *data, uint32_t data_size,
--			   uint32_t ctx_id, struct virtio_gpu_fence *fence)
-+			   uint32_t ctx_id,
-+			   struct virtio_gpu_object_array *objs,
-+			   struct virtio_gpu_fence *fence)
+-	vsock = virtio_vsock_get();
++	rcu_read_lock();
++	vsock = rcu_dereference(the_virtio_vsock);
+ 	if (!vsock) {
+ 		virtio_transport_free_pkt(pkt);
+-		return -ENODEV;
++		len = -ENODEV;
++		goto out_rcu;
+ 	}
+ 
+-	if (le64_to_cpu(pkt->hdr.dst_cid) == vsock->guest_cid)
+-		return virtio_transport_send_pkt_loopback(vsock, pkt);
++	if (le64_to_cpu(pkt->hdr.dst_cid) == vsock->guest_cid) {
++		len = virtio_transport_send_pkt_loopback(vsock, pkt);
++		goto out_rcu;
++	}
+ 
+ 	if (pkt->reply)
+ 		atomic_inc(&vsock->queued_replies);
+@@ -214,6 +221,9 @@ virtio_transport_send_pkt(struct virtio_vsock_pkt *pkt)
+ 	spin_unlock_bh(&vsock->send_pkt_list_lock);
+ 
+ 	queue_work(virtio_vsock_workqueue, &vsock->send_pkt_work);
++
++out_rcu:
++	rcu_read_unlock();
+ 	return len;
+ }
+ 
+@@ -222,12 +232,14 @@ virtio_transport_cancel_pkt(struct vsock_sock *vsk)
  {
- 	struct virtio_gpu_cmd_submit *cmd_p;
- 	struct virtio_gpu_vbuffer *vbuf;
-@@ -949,6 +955,7 @@ void virtio_gpu_cmd_submit(struct virtio_gpu_device *vgdev,
+ 	struct virtio_vsock *vsock;
+ 	struct virtio_vsock_pkt *pkt, *n;
+-	int cnt = 0;
++	int cnt = 0, ret;
+ 	LIST_HEAD(freeme);
  
- 	vbuf->data_buf = data;
- 	vbuf->data_size = data_size;
-+	vbuf->objs = objs;
+-	vsock = virtio_vsock_get();
++	rcu_read_lock();
++	vsock = rcu_dereference(the_virtio_vsock);
+ 	if (!vsock) {
+-		return -ENODEV;
++		ret = -ENODEV;
++		goto out_rcu;
+ 	}
  
- 	cmd_p->hdr.type = cpu_to_le32(VIRTIO_GPU_CMD_SUBMIT_3D);
- 	cmd_p->hdr.ctx_id = cpu_to_le32(ctx_id);
+ 	spin_lock_bh(&vsock->send_pkt_list_lock);
+@@ -255,7 +267,11 @@ virtio_transport_cancel_pkt(struct vsock_sock *vsk)
+ 			queue_work(virtio_vsock_workqueue, &vsock->rx_work);
+ 	}
+ 
+-	return 0;
++	ret = 0;
++
++out_rcu:
++	rcu_read_unlock();
++	return ret;
+ }
+ 
+ static void virtio_vsock_rx_fill(struct virtio_vsock *vsock)
+@@ -590,8 +606,6 @@ static int virtio_vsock_probe(struct virtio_device *vdev)
+ 	vsock->rx_buf_max_nr = 0;
+ 	atomic_set(&vsock->queued_replies, 0);
+ 
+-	vdev->priv = vsock;
+-	the_virtio_vsock = vsock;
+ 	mutex_init(&vsock->tx_lock);
+ 	mutex_init(&vsock->rx_lock);
+ 	mutex_init(&vsock->event_lock);
+@@ -613,6 +627,9 @@ static int virtio_vsock_probe(struct virtio_device *vdev)
+ 	virtio_vsock_event_fill(vsock);
+ 	mutex_unlock(&vsock->event_lock);
+ 
++	vdev->priv = vsock;
++	rcu_assign_pointer(the_virtio_vsock, vsock);
++
+ 	mutex_unlock(&the_virtio_vsock_mutex);
+ 	return 0;
+ 
+@@ -627,6 +644,12 @@ static void virtio_vsock_remove(struct virtio_device *vdev)
+ 	struct virtio_vsock *vsock = vdev->priv;
+ 	struct virtio_vsock_pkt *pkt;
+ 
++	mutex_lock(&the_virtio_vsock_mutex);
++
++	vdev->priv = NULL;
++	rcu_assign_pointer(the_virtio_vsock, NULL);
++	synchronize_rcu();
++
+ 	flush_work(&vsock->loopback_work);
+ 	flush_work(&vsock->rx_work);
+ 	flush_work(&vsock->tx_work);
+@@ -666,12 +689,10 @@ static void virtio_vsock_remove(struct virtio_device *vdev)
+ 	}
+ 	spin_unlock_bh(&vsock->loopback_list_lock);
+ 
+-	mutex_lock(&the_virtio_vsock_mutex);
+-	the_virtio_vsock = NULL;
+-	mutex_unlock(&the_virtio_vsock_mutex);
+-
+ 	vdev->config->del_vqs(vdev);
+ 
++	mutex_unlock(&the_virtio_vsock_mutex);
++
+ 	kfree(vsock);
+ }
+ 
 -- 
-2.18.1
+2.20.1
