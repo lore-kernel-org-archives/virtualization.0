@@ -1,15 +1,16 @@
-From: Gerd Hoffmann <kraxel@redhat.com>
-Subject: Re: [PATCH v1 31/33] drm/bochs: drop use of drmP.h
-Date: Mon, 1 Jul 2019 08:39:08 +0200
-Message-ID: <20190701063908.5mufonj45bgitzyt__31473.0907020689$1561963165$gmane$org@sirius.home.kraxel.org>
-References: <20190630061922.7254-1-sam@ravnborg.org>
-	<20190630061922.7254-32-sam@ravnborg.org>
+From: Joerg Roedel <joro@8bytes.org>
+Subject: Re: [PATCH v4 0/5] iommu/amd: Convert the AMD iommu driver to the
+	dma-iommu api
+Date: Mon, 1 Jul 2019 14:19:14 +0200
+Message-ID: <20190701121914.GD8166__8632.6440026582$1561983567$gmane$org@8bytes.org>
+References: <20190613223901.9523-1-murphyt7@tcd.ie>
+	<20190624061945.GA4912@infradead.org>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
 Content-Disposition: inline
-In-Reply-To: <20190630061922.7254-32-sam@ravnborg.org>
+In-Reply-To: <20190624061945.GA4912@infradead.org>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -19,20 +20,23 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Sam Ravnborg <sam@ravnborg.org>
-Cc: David Airlie <airlied@linux.ie>, Daniel Vetter <daniel@ffwll.ch>, dri-devel@lists.freedesktop.org, virtualization@lists.linux-foundation.org
+To: Christoph Hellwig <hch@infradead.org>
+Cc: Heiko Stuebner <heiko@sntech.de>, Will Deacon <will.deacon@arm.com>, virtualization@lists.linux-foundation.org, David Brown <david.brown@linaro.org>, Thierry Reding <thierry.reding@gmail.com>, linux-s390@vger.kernel.org, linux-samsung-soc@vger.kernel.org, Jean-Philippe Brucker <jean-philippe.brucker@arm.com>, Krzysztof Kozlowski <krzk@kernel.org>, Jonathan Hunter <jonathanh@nvidia.com>, linux-rockchip@lists.infradead.org, Andy Gross <agross@kernel.org>, Matthias Brugger <matthias.bgg@gmail.com>, Gerald Schaefer <gerald.schaefer@de.ibm.com>, linux-arm-msm@vger.kernel.org, linux-mediatek@lists.infradead.org, linux-tegra@vger.kernel.org, linux-arm-kernel@lists.infradead.org, David Woodhouse <dwmw2@infradead.org>, linux-kernel@vger.kernel.org, Tom Murphy <murphyt7@tcd.ie>, iommu@lists.linux-foundation.org, Kukjin Kim <kgene@kernel.org>, Robin Murphy <robin.murphy@arm.com>
 List-Id: virtualization@lists.linuxfoundation.org
 
-On Sun, Jun 30, 2019 at 08:19:20AM +0200, Sam Ravnborg wrote:
-> Drop use of the deprecated drmP.h header file.
-> Made bochs.h self-contained and then fixed
-> fallout in remaining files.
-> Several unused includes was dropped in the process.
-> 
-> Signed-off-by: Sam Ravnborg <sam@ravnborg.org>
-> Cc: Gerd Hoffmann <kraxel@redhat.com>
-> Cc: David Airlie <airlied@linux.ie>
-> Cc: Daniel Vetter <daniel@ffwll.ch>
-> Cc: virtualization@lists.linux-foundation.org
+Hi,
+	
+On Sun, Jun 23, 2019 at 11:19:45PM -0700, Christoph Hellwig wrote:
+> Joerg, any chance you could review this?  Toms patches to convert the
+> AMD and Intel IOMMU drivers to the dma-iommu code are going to make my
+> life in DMA land significantly easier, so I have a vested interest
+> in this series moving forward :)
 
-Acked-by: Gerd Hoffmann <kraxel@redhat.com>
+I really appreciate Toms work on this. Tom, please rebase and resubmit
+this series after the next merge window and I will do more performance
+testing on it. If all goes well I and no other issues show up I can
+apply it for v5.4.
+
+Regards,
+
+	Joerg
