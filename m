@@ -1,14 +1,13 @@
 From: Stefan Hajnoczi <stefanha@gmail.com>
-Subject: Re: [PATCH v2 1/3] vsock/virtio: use RCU to avoid use-after-free on
-	the_virtio_vsock
-Date: Mon, 1 Jul 2019 16:10:08 +0100
-Message-ID: <20190701151008.GD11900__38630.0405998313$1561993824$gmane$org@stefanha-x1.localdomain>
+Subject: Re: [PATCH v2 0/3] vsock/virtio: several fixes in the .probe() and
+	.remove()
+Date: Mon, 1 Jul 2019 16:11:13 +0100
+Message-ID: <20190701151113.GE11900@stefanha-x1.localdomain>
 References: <20190628123659.139576-1-sgarzare@redhat.com>
-	<20190628123659.139576-2-sgarzare@redhat.com>
 Mime-Version: 1.0
-Content-Type: multipart/mixed; boundary="===============7758578093657282467=="
+Content-Type: multipart/mixed; boundary="===============4222670797951173493=="
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <20190628123659.139576-2-sgarzare@redhat.com>
+In-Reply-To: <20190628123659.139576-1-sgarzare@redhat.com>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -23,52 +22,66 @@ Cc: kvm@vger.kernel.org, "Michael S. Tsirkin" <mst@redhat.com>, netdev@vger.kern
 List-Id: virtualization@lists.linuxfoundation.org
 
 
---===============7758578093657282467==
+--===============4222670797951173493==
 Content-Type: multipart/signed; micalg=pgp-sha256;
-	protocol="application/pgp-signature"; boundary="MAH+hnPXVZWQ5cD/"
+	protocol="application/pgp-signature"; boundary="7LkOrbQMr4cezO2T"
 Content-Disposition: inline
 
 
---MAH+hnPXVZWQ5cD/
+--7LkOrbQMr4cezO2T
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
 Content-Transfer-Encoding: quoted-printable
 
-On Fri, Jun 28, 2019 at 02:36:57PM +0200, Stefano Garzarella wrote:
-> Some callbacks used by the upper layers can run while we are in the
-> .remove(). A potential use-after-free can happen, because we free
-> the_virtio_vsock without knowing if the callbacks are over or not.
+On Fri, Jun 28, 2019 at 02:36:56PM +0200, Stefano Garzarella wrote:
+> During the review of "[PATCH] vsock/virtio: Initialize core virtio vsock
+> before registering the driver", Stefan pointed out some possible issues
+> in the .probe() and .remove() callbacks of the virtio-vsock driver.
 >=20
-> To solve this issue we move the assignment of the_virtio_vsock at the
-> end of .probe(), when we finished all the initialization, and at the
-> beginning of .remove(), before to release resources.
-> For the same reason, we do the same also for the vdev->priv.
+> This series tries to solve these issues:
+> - Patch 1 adds RCU critical sections to avoid use-after-free of
+>   'the_virtio_vsock' pointer.
+> - Patch 2 stops workers before to call vdev->config->reset(vdev) to
+>   be sure that no one is accessing the device.
+> - Patch 3 moves the works flush at the end of the .remove() to avoid
+>   use-after-free of 'vsock' object.
 >=20
-> We use RCU to be sure that all callbacks that use the_virtio_vsock
-> ended before freeing it. This is not required for callbacks that
-> use vdev->priv, because after the vdev->config->del_vqs() we are sure
-> that they are ended and will no longer be invoked.
+> v2:
+> - Patch 1: use RCU to protect 'the_virtio_vsock' pointer
+> - Patch 2: no changes
+> - Patch 3: flush works only at the end of .remove()
+> - Removed patch 4 because virtqueue_detach_unused_buf() returns all the b=
+uffers
+>   allocated.
+>=20
+> v1: https://patchwork.kernel.org/cover/10964733/
 
-My question is answered in Patch 3.
+This looks good to me.
 
---MAH+hnPXVZWQ5cD/
+Did you run any stress tests?  For example an SMP guest constantly
+connecting and sending packets together with a script that
+hotplug/unplugs vhost-vsock-pci from the host side.
+
+Stefan
+
+--7LkOrbQMr4cezO2T
 Content-Type: application/pgp-signature; name="signature.asc"
 
 -----BEGIN PGP SIGNATURE-----
 
-iQEzBAEBCAAdFiEEhpWov9P5fNqsNXdanKSrs4Grc8gFAl0aIlAACgkQnKSrs4Gr
-c8iPgwf9H+ImGI64a81fQKFhYTfBN6jeHcQ+jv0hTEUzxX5RL3sSbhlj2Xy8dW3I
-2aoAQdGC6fFfVNN8oQjZ/uW3rQCm6wB6zf2rSNgChnnHl3mkm8whnUwbJJosQOCC
-7y1ZIL70zcpqOlpTD7k4sNZs7/isLXyKR41ptEkzWSm/rfDXHLBfIvglUpWhBM3q
-gsA2ytSw1/8t74Cm7K+bovYuRJH/A4B9DcoYz6cx1jGlPbIUaNRph/zY1AapqFcT
-oWnj+9Pi5ajzg+JUoRtJwgPxCY3CO9V3Xj0w0H36wnoWW16fN1D0l3DTN+vzjUJ2
-oSqYzBWzeohwx7QGeHxC26mvLpUnBw==
-=jGKr
+iQEzBAEBCAAdFiEEhpWov9P5fNqsNXdanKSrs4Grc8gFAl0aIpEACgkQnKSrs4Gr
+c8g5Jgf9G47hJtpF3hJgsnc8qwgARpo4Lohr/kRFkPTC8LuzDXag2AES8zYJIA9E
+R/ceQTEan3skEuPHBJEaRxTq0jpx9nKUL+LET20Z9HjmaCZFAMk/WnpYTAI/AZJj
+89qIba5WlL9ba+ykkaW1rTBFKSRucoIdmN1sdE0cPR8S9zHSxLQN3C3WmFORXVMQ
+nac3hTkbAr3g2twfAT3mcwKpmoODk2T1E0kyWHVXdTuTCr0KajxlZ/kWLRarbbYH
+VucypkcnmbBnJ8rc6UXajx+C25ijyqJteBbBjMD8Z3RdeK43TIpNp7uFCyGDUipS
+wwhzu5J3xB8hbhp3YtvK/+BTqfIAHg==
+=Dzpp
 -----END PGP SIGNATURE-----
 
---MAH+hnPXVZWQ5cD/--
+--7LkOrbQMr4cezO2T--
 
---===============7758578093657282467==
+--===============4222670797951173493==
 Content-Type: text/plain; charset="us-ascii"
 MIME-Version: 1.0
 Content-Transfer-Encoding: 7bit
@@ -78,4 +91,4 @@ _______________________________________________
 Virtualization mailing list
 Virtualization@lists.linux-foundation.org
 https://lists.linuxfoundation.org/mailman/listinfo/virtualization
---===============7758578093657282467==--
+--===============4222670797951173493==--
