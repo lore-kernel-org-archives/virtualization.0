@@ -1,12 +1,16 @@
-From: Stefan Hajnoczi <stefanha@redhat.com>
-Subject: Re: [PATCH] scsi: virtio_scsi: Use struct_size() helper
-Date: Mon, 1 Jul 2019 16:21:48 +0100
-Message-ID: <20190701152148.GG11900__14476.9406806276$1561994541$gmane$org@stefanha-x1.localdomain>
-References: <20190619192833.GA825@embeddedor>
+From: Stefano Garzarella <sgarzare@redhat.com>
+Subject: Re: [PATCH v2 0/3] vsock/virtio: several fixes in the .probe() and
+	.remove()
+Date: Mon, 1 Jul 2019 19:03:57 +0200
+Message-ID: <20190701170357.jtuhy3ank7mv6izb__29060.0855065108$1562000669$gmane$org@steredhat>
+References: <20190628123659.139576-1-sgarzare@redhat.com>
+	<20190701151113.GE11900@stefanha-x1.localdomain>
 Mime-Version: 1.0
-Content-Type: multipart/mixed; boundary="===============4279123424929837694=="
+Content-Type: text/plain; charset="us-ascii"
+Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <20190619192833.GA825@embeddedor>
+Content-Disposition: inline
+In-Reply-To: <20190701151113.GE11900@stefanha-x1.localdomain>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -16,77 +20,68 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: "Gustavo A. R. Silva" <gustavo@embeddedor.com>
-Cc: linux-scsi@vger.kernel.org, "Martin K. Petersen" <martin.petersen@oracle.com>, "Michael S. Tsirkin" <mst@redhat.com>, linux-kernel@vger.kernel.org, virtualization@lists.linux-foundation.org, Paolo Bonzini <pbonzini@redhat.com>, "James E.J. Bottomley" <jejb@linux.ibm.com>
+To: Stefan Hajnoczi <stefanha@gmail.com>
+Cc: kvm@vger.kernel.org, "Michael S. Tsirkin" <mst@redhat.com>, netdev@vger.kernel.org, linux-kernel@vger.kernel.org, virtualization@lists.linux-foundation.org, Stefan Hajnoczi <stefanha@redhat.com>, "David S. Miller" <davem@davemloft.net>
 List-Id: virtualization@lists.linuxfoundation.org
 
+On Mon, Jul 01, 2019 at 04:11:13PM +0100, Stefan Hajnoczi wrote:
+> On Fri, Jun 28, 2019 at 02:36:56PM +0200, Stefano Garzarella wrote:
+> > During the review of "[PATCH] vsock/virtio: Initialize core virtio vsock
+> > before registering the driver", Stefan pointed out some possible issues
+> > in the .probe() and .remove() callbacks of the virtio-vsock driver.
+> > 
+> > This series tries to solve these issues:
+> > - Patch 1 adds RCU critical sections to avoid use-after-free of
+> >   'the_virtio_vsock' pointer.
+> > - Patch 2 stops workers before to call vdev->config->reset(vdev) to
+> >   be sure that no one is accessing the device.
+> > - Patch 3 moves the works flush at the end of the .remove() to avoid
+> >   use-after-free of 'vsock' object.
+> > 
+> > v2:
+> > - Patch 1: use RCU to protect 'the_virtio_vsock' pointer
+> > - Patch 2: no changes
+> > - Patch 3: flush works only at the end of .remove()
+> > - Removed patch 4 because virtqueue_detach_unused_buf() returns all the buffers
+> >   allocated.
+> > 
+> > v1: https://patchwork.kernel.org/cover/10964733/
+> 
+> This looks good to me.
 
---===============4279123424929837694==
-Content-Type: multipart/signed; micalg=pgp-sha256;
-	protocol="application/pgp-signature"; boundary="+sHJum3is6Tsg7/J"
-Content-Disposition: inline
+Thanks for the review!
 
+> 
+> Did you run any stress tests?  For example an SMP guest constantly
+> connecting and sending packets together with a script that
+> hotplug/unplugs vhost-vsock-pci from the host side.
 
---+sHJum3is6Tsg7/J
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
+Yes, I started an SMP guest (-smp 4 -monitor tcp:127.0.0.1:1234,server,nowait)
+and I run these scripts to stress the .probe()/.remove() path:
 
-On Wed, Jun 19, 2019 at 02:28:33PM -0500, Gustavo A. R. Silva wrote:
-> One of the more common cases of allocation size calculations is finding
-> the size of a structure that has a zero-sized array at the end, along
-> with memory for some number of elements for that array. For example:
->=20
-> struct virtio_scsi {
-> 	...
->         struct virtio_scsi_vq req_vqs[];
-> };
->=20
-> Make use of the struct_size() helper instead of an open-coded version
-> in order to avoid any potential type mistakes.
->=20
-> So, replace the following form:
->=20
-> sizeof(*vscsi) + sizeof(vscsi->req_vqs[0]) * num_queues
->=20
-> with:
->=20
-> struct_size(vscsi, req_vqs, num_queues)
->=20
-> This code was detected with the help of Coccinelle.
->=20
-> Signed-off-by: Gustavo A. R. Silva <gustavo@embeddedor.com>
-> ---
->  drivers/scsi/virtio_scsi.c | 2 +-
->  1 file changed, 1 insertion(+), 1 deletion(-)
+- guest
+  while true; do
+      cat /dev/urandom | nc-vsock -l 4321 > /dev/null &
+      cat /dev/urandom | nc-vsock -l 5321 > /dev/null &
+      cat /dev/urandom | nc-vsock -l 6321 > /dev/null &
+      cat /dev/urandom | nc-vsock -l 7321 > /dev/null &
+      wait
+  done
 
-Reviewed-by: Stefan Hajnoczi <stefanha@redhat.com>
+- host
+  while true; do
+      cat /dev/urandom | nc-vsock 3 4321 > /dev/null &
+      cat /dev/urandom | nc-vsock 3 5321 > /dev/null &
+      cat /dev/urandom | nc-vsock 3 6321 > /dev/null &
+      cat /dev/urandom | nc-vsock 3 7321 > /dev/null &
+      sleep 2
+      echo "device_del v1" | nc 127.0.0.1 1234
+      sleep 1
+      echo "device_add vhost-vsock-pci,id=v1,guest-cid=3" | nc 127.0.0.1 1234
+      sleep 1
+  done
 
---+sHJum3is6Tsg7/J
-Content-Type: application/pgp-signature; name="signature.asc"
+Do you think is enough or is better to have a test more accurate?
 
------BEGIN PGP SIGNATURE-----
-
-iQEzBAEBCAAdFiEEhpWov9P5fNqsNXdanKSrs4Grc8gFAl0aJQwACgkQnKSrs4Gr
-c8hU0wf/SEM8YCmD62jJAJNbhuuxbgPPdSmJV/Oh3RzqiM/ujaeDjX1Msi+8fFbR
-NlE7Cr9xEkGuEacjWbl+MNio761nAUo5Ibln9uws3BTpnHClVohmaat2RfuRyoB5
-0O1FC55L1Gj8+/RaRoZAO3gld6TM5+KFuptuYN4kOl9/DJDSbjoGX11dFtyL6Jut
-mSdjs07Koh+Uxt+2/gIEoflBy6tr8nbOIpIb0qI9Y+4iYXUFPvRqDhqnZ1TezcWE
-T4lWINqg4FuT+MMmCAyk8KLhj9FVKLMG7mCRT/R+emhi2yTwyMwvKLYeMW0uikUQ
-2NfsNT8OZBYFNEdUzjeCiw4Mg8f99A==
-=FseJ
------END PGP SIGNATURE-----
-
---+sHJum3is6Tsg7/J--
-
---===============4279123424929837694==
-Content-Type: text/plain; charset="us-ascii"
-MIME-Version: 1.0
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-
-_______________________________________________
-Virtualization mailing list
-Virtualization@lists.linux-foundation.org
-https://lists.linuxfoundation.org/mailman/listinfo/virtualization
---===============4279123424929837694==--
+Thanks,
+Stefano
