@@ -1,14 +1,14 @@
 From: Stefan Hajnoczi <stefanha@gmail.com>
-Subject: Re: [PATCH v2 1/3] vsock/virtio: use RCU to avoid use-after-free on
-	the_virtio_vsock
-Date: Mon, 1 Jul 2019 15:54:12 +0100
-Message-ID: <20190701145412.GA11900__30050.0440805749$1561992867$gmane$org@stefanha-x1.localdomain>
+Subject: Re: [PATCH v2 3/3] vsock/virtio: fix flush of works during the
+	.remove()
+Date: Mon, 1 Jul 2019 16:08:34 +0100
+Message-ID: <20190701150834.GB11900@stefanha-x1.localdomain>
 References: <20190628123659.139576-1-sgarzare@redhat.com>
-	<20190628123659.139576-2-sgarzare@redhat.com>
+	<20190628123659.139576-4-sgarzare@redhat.com>
 Mime-Version: 1.0
-Content-Type: multipart/mixed; boundary="===============4216647553637226525=="
+Content-Type: multipart/mixed; boundary="===============5623369206675976036=="
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <20190628123659.139576-2-sgarzare@redhat.com>
+In-Reply-To: <20190628123659.139576-4-sgarzare@redhat.com>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -23,64 +23,49 @@ Cc: kvm@vger.kernel.org, "Michael S. Tsirkin" <mst@redhat.com>, netdev@vger.kern
 List-Id: virtualization@lists.linuxfoundation.org
 
 
---===============4216647553637226525==
+--===============5623369206675976036==
 Content-Type: multipart/signed; micalg=pgp-sha256;
-	protocol="application/pgp-signature"; boundary="fdj2RfSjLxBAspz7"
+	protocol="application/pgp-signature"; boundary="0eh6TmSyL6TZE2Uz"
 Content-Disposition: inline
 
 
---fdj2RfSjLxBAspz7
+--0eh6TmSyL6TZE2Uz
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
 Content-Transfer-Encoding: quoted-printable
 
-On Fri, Jun 28, 2019 at 02:36:57PM +0200, Stefano Garzarella wrote:
-> Some callbacks used by the upper layers can run while we are in the
-> .remove(). A potential use-after-free can happen, because we free
-> the_virtio_vsock without knowing if the callbacks are over or not.
+On Fri, Jun 28, 2019 at 02:36:59PM +0200, Stefano Garzarella wrote:
+> This patch moves the flush of works after vdev->config->del_vqs(vdev),
+> because we need to be sure that no workers run before to free the
+> 'vsock' object.
 >=20
-> To solve this issue we move the assignment of the_virtio_vsock at the
-> end of .probe(), when we finished all the initialization, and at the
-> beginning of .remove(), before to release resources.
-> For the same reason, we do the same also for the vdev->priv.
->=20
-> We use RCU to be sure that all callbacks that use the_virtio_vsock
-> ended before freeing it. This is not required for callbacks that
-> use vdev->priv, because after the vdev->config->del_vqs() we are sure
-> that they are ended and will no longer be invoked.
+> Since we stopped the workers using the [tx|rx|event]_run flags,
+> we are sure no one is accessing the device while we are calling
+> vdev->config->reset(vdev), so we can safely move the workers' flush.
 
-->del_vqs() is only called at the very end, did you forget to move it
-earlier?
+What about send_pkt and loopback work?  How were they stopped safely?
 
-In particular, the virtqueue handler callbacks schedule a workqueue.
-The work functions use container_of() to get vsock.  We need to be sure
-that the work item isn't freed along with vsock while the work item is
-still pending.
+For example, if send_pkt work executes then we're in trouble since it
+accesses the tx virtqueue which is deleted by ->del_vqs().
 
-How do we know that the virtqueue handler is never called in such a way
-that it sees vsock !=3D NULL (there is no explicit memory barrier on the
-read side) and then schedules a work item after flush_work() has run?
-
-Stefan
-
---fdj2RfSjLxBAspz7
+--0eh6TmSyL6TZE2Uz
 Content-Type: application/pgp-signature; name="signature.asc"
 
 -----BEGIN PGP SIGNATURE-----
 
-iQEzBAEBCAAdFiEEhpWov9P5fNqsNXdanKSrs4Grc8gFAl0aHpQACgkQnKSrs4Gr
-c8h3iggAyuubhQSWc2lhNVpR8Iy+q+vzwq6cn2HkKAJfd12b4HEHPiQthM2torlj
-Bv8w164J+O/rOon9ZrilyvFEgF2NuQbHiyd7REvtp4tKyZow9wVqj4VT2s0CIxAM
-5w3ijDBYRXnC2YmnnjJLJb/xhmkrjboxZcX7BuPjNbsNtkxcVer9KlOZOp9tjL7N
-OYm4hhy/aHydI1SwBIbVYNvyWGvjhpZqYixHr2uOB/Xd/kisVztQoJE77oRPD6IS
-3kScisIJxoNurY1izyyJfSI0OJ+chyeGNLeR/NzvMGiPRUeEIZCC/Z2jGGBGD7WU
-re2dtf93pyrxquVVa7nd39azFSXO3w==
-=NQ6E
+iQEzBAEBCAAdFiEEhpWov9P5fNqsNXdanKSrs4Grc8gFAl0aIfIACgkQnKSrs4Gr
+c8iHxwf/f/ztZPmFyV30cfT2/l/WmLT+ofdX6M4X2Z7eEb3qolhp0sYuGZjAXdAP
+FrEZY0n5LGLBskjM4s3HThB2uyV/ByLZPDBKuA7SszFKZWGbB/VgR7Z2BzDCaaz2
+7HnJPZoeE7KzeCygCEQ7dneriR+/HgqEW6VZFlaOYX31Nv4X7hUYerrqwmcP9qS+
+tMXxWcsEMjZi9bQFxr+MCZqEJoK/Xct0Yt0ssNUxNz6Uv/KAG7XIaRXP/f+GjHXy
+Uyw/MJKpC4T3N+YwpR9xfGWvLK7NZqvuorr4JGqB8R49AODaYBJepjdxnd6OD8bY
+qmeew3QFothoW6phvjI3A4uKJVsYvw==
+=KE3u
 -----END PGP SIGNATURE-----
 
---fdj2RfSjLxBAspz7--
+--0eh6TmSyL6TZE2Uz--
 
---===============4216647553637226525==
+--===============5623369206675976036==
 Content-Type: text/plain; charset="us-ascii"
 MIME-Version: 1.0
 Content-Transfer-Encoding: 7bit
@@ -90,4 +75,4 @@ _______________________________________________
 Virtualization mailing list
 Virtualization@lists.linux-foundation.org
 https://lists.linuxfoundation.org/mailman/listinfo/virtualization
---===============4216647553637226525==--
+--===============5623369206675976036==--
