@@ -1,12 +1,12 @@
 From: Stefan Hajnoczi <stefanha@gmail.com>
 Subject: Re: [PATCH v2 3/3] vsock/virtio: fix flush of works during the
 	.remove()
-Date: Mon, 1 Jul 2019 16:08:34 +0100
-Message-ID: <20190701150834.GB11900@stefanha-x1.localdomain>
+Date: Mon, 1 Jul 2019 16:09:30 +0100
+Message-ID: <20190701150930.GC11900@stefanha-x1.localdomain>
 References: <20190628123659.139576-1-sgarzare@redhat.com>
 	<20190628123659.139576-4-sgarzare@redhat.com>
 Mime-Version: 1.0
-Content-Type: multipart/mixed; boundary="===============5623369206675976036=="
+Content-Type: multipart/mixed; boundary="===============8536416661845978402=="
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
 In-Reply-To: <20190628123659.139576-4-sgarzare@redhat.com>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
@@ -23,13 +23,13 @@ Cc: kvm@vger.kernel.org, "Michael S. Tsirkin" <mst@redhat.com>, netdev@vger.kern
 List-Id: virtualization@lists.linuxfoundation.org
 
 
---===============5623369206675976036==
+--===============8536416661845978402==
 Content-Type: multipart/signed; micalg=pgp-sha256;
-	protocol="application/pgp-signature"; boundary="0eh6TmSyL6TZE2Uz"
+	protocol="application/pgp-signature"; boundary="s9fJI615cBHmzTOP"
 Content-Disposition: inline
 
 
---0eh6TmSyL6TZE2Uz
+--s9fJI615cBHmzTOP
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
 Content-Transfer-Encoding: quoted-printable
@@ -42,30 +42,34 @@ On Fri, Jun 28, 2019 at 02:36:59PM +0200, Stefano Garzarella wrote:
 > Since we stopped the workers using the [tx|rx|event]_run flags,
 > we are sure no one is accessing the device while we are calling
 > vdev->config->reset(vdev), so we can safely move the workers' flush.
+>=20
+> Before the vdev->config->del_vqs(vdev), workers can be scheduled
+> by VQ callbacks, so we must flush them after del_vqs(), to avoid
+> use-after-free of 'vsock' object.
 
-What about send_pkt and loopback work?  How were they stopped safely?
+Nevermind, I looked back at Patch 2 and saw the send_pkt and loopback
+work functions were also updated.  Thanks!
 
-For example, if send_pkt work executes then we're in trouble since it
-accesses the tx virtqueue which is deleted by ->del_vqs().
+Stefan
 
---0eh6TmSyL6TZE2Uz
+--s9fJI615cBHmzTOP
 Content-Type: application/pgp-signature; name="signature.asc"
 
 -----BEGIN PGP SIGNATURE-----
 
-iQEzBAEBCAAdFiEEhpWov9P5fNqsNXdanKSrs4Grc8gFAl0aIfIACgkQnKSrs4Gr
-c8iHxwf/f/ztZPmFyV30cfT2/l/WmLT+ofdX6M4X2Z7eEb3qolhp0sYuGZjAXdAP
-FrEZY0n5LGLBskjM4s3HThB2uyV/ByLZPDBKuA7SszFKZWGbB/VgR7Z2BzDCaaz2
-7HnJPZoeE7KzeCygCEQ7dneriR+/HgqEW6VZFlaOYX31Nv4X7hUYerrqwmcP9qS+
-tMXxWcsEMjZi9bQFxr+MCZqEJoK/Xct0Yt0ssNUxNz6Uv/KAG7XIaRXP/f+GjHXy
-Uyw/MJKpC4T3N+YwpR9xfGWvLK7NZqvuorr4JGqB8R49AODaYBJepjdxnd6OD8bY
-qmeew3QFothoW6phvjI3A4uKJVsYvw==
-=KE3u
+iQEzBAEBCAAdFiEEhpWov9P5fNqsNXdanKSrs4Grc8gFAl0aIioACgkQnKSrs4Gr
+c8gVvwgAlt7pHdcde/naMvD5PfdMiGprB/OgOkcK9tf8VKz5xBE7qoJwvBTlAhve
+22I66Q75nW7fhsMkGMn6g1wkNQDxc0aG/jPhVy1JHx/Y3NDmXvqHF0joilOYNSsm
+ryxStJrhsY+0+Jpff3uPnmNKgbBJzWdzGnmn3fXIl+E3PrkvLy672DebqpaoXOr0
+ISdOZG+VUuVtoVkUl90lc2uzXMY6j4s986/zPdAwnGZsI4N+GGx6Sbnb03C8h6xP
+3ovvhQMqwltt+5w6qDXKpowK7L62a7EkaSPrF4Zt+y9sJudpQ6ZXMQ+J1EsbdMx/
+rzsxB4KWcyBsQm2kzgSa2FmwBOPiow==
+=w4hz
 -----END PGP SIGNATURE-----
 
---0eh6TmSyL6TZE2Uz--
+--s9fJI615cBHmzTOP--
 
---===============5623369206675976036==
+--===============8536416661845978402==
 Content-Type: text/plain; charset="us-ascii"
 MIME-Version: 1.0
 Content-Transfer-Encoding: 7bit
@@ -75,4 +79,4 @@ _______________________________________________
 Virtualization mailing list
 Virtualization@lists.linux-foundation.org
 https://lists.linuxfoundation.org/mailman/listinfo/virtualization
---===============5623369206675976036==--
+--===============8536416661845978402==--
