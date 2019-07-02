@@ -1,7 +1,7 @@
 From: Gerd Hoffmann <kraxel@redhat.com>
-Subject: [PATCH v6 13/18] drm/virtio: drop virtio_gpu_object_{ref,unref}
-Date: Tue,  2 Jul 2019 16:18:58 +0200
-Message-ID: <20190702141903.1131-14-kraxel__10427.4177736201$1562077386$gmane$org@redhat.com>
+Subject: [PATCH v6 01/18] drm/virtio: pass gem reservation object to ttm init
+Date: Tue,  2 Jul 2019 16:18:46 +0200
+Message-ID: <20190702141903.1131-2-kraxel__23997.3150471755$1562077390$gmane$org@redhat.com>
 References: <20190702141903.1131-1-kraxel@redhat.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
@@ -21,38 +21,29 @@ To: dri-devel@lists.freedesktop.org
 Cc: David Airlie <airlied@linux.ie>, open list <linux-kernel@vger.kernel.org>, "open list:VIRTIO GPU DRIVER" <virtualization@lists.linux-foundation.org>, Daniel Vetter <daniel@ffwll.ch>, gurchetansingh@chromium.org, olvaffe@gmail.com
 List-Id: virtualization@lists.linuxfoundation.org
 
-No users left.
+With this gem and ttm will use the same reservation object,
+so mixing and matching ttm / gem reservation helpers should
+work fine.
 
 Signed-off-by: Gerd Hoffmann <kraxel@redhat.com>
+Reviewed-by: Daniel Vetter <daniel.vetter@ffwll.ch>
 ---
- drivers/gpu/drm/virtio/virtgpu_drv.h | 15 ---------------
- 1 file changed, 15 deletions(-)
+ drivers/gpu/drm/virtio/virtgpu_object.c | 3 ++-
+ 1 file changed, 2 insertions(+), 1 deletion(-)
 
-diff --git a/drivers/gpu/drm/virtio/virtgpu_drv.h b/drivers/gpu/drm/virtio/virtgpu_drv.h
-index 577a8103670e..78dc5a19a358 100644
---- a/drivers/gpu/drm/virtio/virtgpu_drv.h
-+++ b/drivers/gpu/drm/virtio/virtgpu_drv.h
-@@ -362,21 +362,6 @@ struct drm_gem_object *virtgpu_gem_prime_import_sg_table(
- 	struct drm_device *dev, struct dma_buf_attachment *attach,
- 	struct sg_table *sgt);
- 
--static inline struct virtio_gpu_object*
--virtio_gpu_object_ref(struct virtio_gpu_object *bo)
--{
--	drm_gem_object_get(&bo->base.base);
--	return bo;
--}
--
--static inline void virtio_gpu_object_unref(struct virtio_gpu_object **bo)
--{
--	if ((*bo) == NULL)
--		return;
--	drm_gem_object_put(&(*bo)->base.base);
--	*bo = NULL;
--}
--
- static inline u64 virtio_gpu_object_mmap_offset(struct virtio_gpu_object *bo)
- {
- 	return drm_vma_node_offset_addr(&bo->base.base.vma_node);
+diff --git a/drivers/gpu/drm/virtio/virtgpu_object.c b/drivers/gpu/drm/virtio/virtgpu_object.c
+index b2da31310d24..242766d644a7 100644
+--- a/drivers/gpu/drm/virtio/virtgpu_object.c
++++ b/drivers/gpu/drm/virtio/virtgpu_object.c
+@@ -132,7 +132,8 @@ int virtio_gpu_object_create(struct virtio_gpu_device *vgdev,
+ 	virtio_gpu_init_ttm_placement(bo);
+ 	ret = ttm_bo_init(&vgdev->mman.bdev, &bo->tbo, params->size,
+ 			  ttm_bo_type_device, &bo->placement, 0,
+-			  true, acc_size, NULL, NULL,
++			  true, acc_size, NULL,
++			  bo->gem_base.resv,
+ 			  &virtio_gpu_ttm_bo_destroy);
+ 	/* ttm_bo_init failure will call the destroy */
+ 	if (ret != 0)
 -- 
 2.18.1
