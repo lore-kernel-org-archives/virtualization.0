@@ -1,8 +1,7 @@
 From: Gerd Hoffmann <kraxel@redhat.com>
-Subject: [PATCH v6 10/18] drm/virtio: drop
-	virtio_gpu_object_list_validate/virtio_gpu_unref_list
-Date: Tue,  2 Jul 2019 16:18:55 +0200
-Message-ID: <20190702141903.1131-11-kraxel__15797.314692621$1562077369$gmane$org@redhat.com>
+Subject: [PATCH v6 13/18] drm/virtio: drop virtio_gpu_object_{ref,unref}
+Date: Tue,  2 Jul 2019 16:18:58 +0200
+Message-ID: <20190702141903.1131-14-kraxel__10427.4177736201$1562077386$gmane$org@redhat.com>
 References: <20190702141903.1131-1-kraxel@redhat.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
@@ -25,75 +24,35 @@ List-Id: virtualization@lists.linuxfoundation.org
 No users left.
 
 Signed-off-by: Gerd Hoffmann <kraxel@redhat.com>
-Acked-by: Daniel Vetter <daniel.vetter@ffwll.ch>
 ---
- drivers/gpu/drm/virtio/virtgpu_drv.h   |  3 --
- drivers/gpu/drm/virtio/virtgpu_ioctl.c | 39 --------------------------
- 2 files changed, 42 deletions(-)
+ drivers/gpu/drm/virtio/virtgpu_drv.h | 15 ---------------
+ 1 file changed, 15 deletions(-)
 
 diff --git a/drivers/gpu/drm/virtio/virtgpu_drv.h b/drivers/gpu/drm/virtio/virtgpu_drv.h
-index bc8cb9218732..12168067a874 100644
+index 577a8103670e..78dc5a19a358 100644
 --- a/drivers/gpu/drm/virtio/virtgpu_drv.h
 +++ b/drivers/gpu/drm/virtio/virtgpu_drv.h
-@@ -223,9 +223,6 @@ struct virtio_gpu_fpriv {
- /* virtio_ioctl.c */
- #define DRM_VIRTIO_NUM_IOCTLS 10
- extern struct drm_ioctl_desc virtio_gpu_ioctls[DRM_VIRTIO_NUM_IOCTLS];
--int virtio_gpu_object_list_validate(struct ww_acquire_ctx *ticket,
--				    struct list_head *head);
--void virtio_gpu_unref_list(struct list_head *head);
+@@ -362,21 +362,6 @@ struct drm_gem_object *virtgpu_gem_prime_import_sg_table(
+ 	struct drm_device *dev, struct dma_buf_attachment *attach,
+ 	struct sg_table *sgt);
  
- /* virtio_kms.c */
- int virtio_gpu_init(struct drm_device *dev);
-diff --git a/drivers/gpu/drm/virtio/virtgpu_ioctl.c b/drivers/gpu/drm/virtio/virtgpu_ioctl.c
-index 9735d7e5899b..1fa8aa91d590 100644
---- a/drivers/gpu/drm/virtio/virtgpu_ioctl.c
-+++ b/drivers/gpu/drm/virtio/virtgpu_ioctl.c
-@@ -54,45 +54,6 @@ static int virtio_gpu_map_ioctl(struct drm_device *dev, void *data,
- 					 &virtio_gpu_map->offset);
- }
- 
--int virtio_gpu_object_list_validate(struct ww_acquire_ctx *ticket,
--				    struct list_head *head)
+-static inline struct virtio_gpu_object*
+-virtio_gpu_object_ref(struct virtio_gpu_object *bo)
 -{
--	struct ttm_operation_ctx ctx = { false, false };
--	struct ttm_validate_buffer *buf;
--	struct ttm_buffer_object *bo;
--	struct virtio_gpu_object *qobj;
--	int ret;
--
--	ret = ttm_eu_reserve_buffers(ticket, head, true, NULL, true);
--	if (ret != 0)
--		return ret;
--
--	list_for_each_entry(buf, head, head) {
--		bo = buf->bo;
--		qobj = container_of(bo, struct virtio_gpu_object, tbo);
--		ret = ttm_bo_validate(bo, &qobj->placement, &ctx);
--		if (ret) {
--			ttm_eu_backoff_reservation(ticket, head);
--			return ret;
--		}
--	}
--	return 0;
+-	drm_gem_object_get(&bo->base.base);
+-	return bo;
 -}
 -
--void virtio_gpu_unref_list(struct list_head *head)
+-static inline void virtio_gpu_object_unref(struct virtio_gpu_object **bo)
 -{
--	struct ttm_validate_buffer *buf;
--	struct ttm_buffer_object *bo;
--	struct virtio_gpu_object *qobj;
--
--	list_for_each_entry(buf, head, head) {
--		bo = buf->bo;
--		qobj = container_of(bo, struct virtio_gpu_object, tbo);
--
--		drm_gem_object_put_unlocked(&qobj->gem_base);
--	}
+-	if ((*bo) == NULL)
+-		return;
+-	drm_gem_object_put(&(*bo)->base.base);
+-	*bo = NULL;
 -}
 -
- /*
-  * Usage of execbuffer:
-  * Relocations need to take into account the full VIRTIO_GPUDrawable size.
+ static inline u64 virtio_gpu_object_mmap_offset(struct virtio_gpu_object *bo)
+ {
+ 	return drm_vma_node_offset_addr(&bo->base.base.vma_node);
 -- 
 2.18.1
