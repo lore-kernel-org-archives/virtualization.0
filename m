@@ -1,13 +1,15 @@
-From: Gerd Hoffmann <kraxel@redhat.com>
-Subject: [PATCH v6 04/18] drm/virtio: remove virtio_gpu_object_wait
-Date: Tue,  2 Jul 2019 16:18:49 +0200
-Message-ID: <20190702141903.1131-5-kraxel__8749.45994453213$1562077747$gmane$org@redhat.com>
-References: <20190702141903.1131-1-kraxel@redhat.com>
+From: "Michael S. Tsirkin" <mst@redhat.com>
+Subject: Re: [PATCH v2] virtio-mmio: add error check for platform_get_irq
+Date: Tue, 2 Jul 2019 14:23:49 -0400
+Message-ID: <20190702142329-mutt-send-email-mst__22844.4034744584$1562091996$gmane$org@kernel.org>
+References: <156207429000.5051.5975712347598980745@silver>
+	<20190702144818.32648-1-ihor.matushchak@foobox.net>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <20190702141903.1131-1-kraxel@redhat.com>
+Content-Disposition: inline
+In-Reply-To: <20190702144818.32648-1-ihor.matushchak@foobox.net>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -17,51 +19,46 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: dri-devel@lists.freedesktop.org
-Cc: David Airlie <airlied@linux.ie>, open list <linux-kernel@vger.kernel.org>, "open list:VIRTIO GPU DRIVER" <virtualization@lists.linux-foundation.org>, Daniel Vetter <daniel@ffwll.ch>, gurchetansingh@chromium.org, olvaffe@gmail.com
+To: Ihor Matushchak <ihor.matushchak@foobox.net>
+Cc: iivanov.xz@gmail.com, linux-kernel@vger.kernel.org, virtualization@lists.linux-foundation.org
 List-Id: virtualization@lists.linuxfoundation.org
 
-No users left.
+On Tue, Jul 02, 2019 at 05:48:18PM +0300, Ihor Matushchak wrote:
+> in vm_find_vqs() irq has a wrong type
+> so, in case of no IRQ resource defined,
+> wrong parameter will be passed to request_irq()
+> 
+> Signed-off-by: Ihor Matushchak <ihor.matushchak@foobox.net>
 
-Signed-off-by: Gerd Hoffmann <kraxel@redhat.com>
-Reviewed-by: Daniel Vetter <daniel.vetter@ffwll.ch>
----
- drivers/gpu/drm/virtio/virtgpu_drv.h    |  1 -
- drivers/gpu/drm/virtio/virtgpu_object.c | 13 -------------
- 2 files changed, 14 deletions(-)
+Thanks!
+pls don't make v2 a response to v1 in the future though.
 
-diff --git a/drivers/gpu/drm/virtio/virtgpu_drv.h b/drivers/gpu/drm/virtio/virtgpu_drv.h
-index 9e2d3062b01d..2cd96256ba37 100644
---- a/drivers/gpu/drm/virtio/virtgpu_drv.h
-+++ b/drivers/gpu/drm/virtio/virtgpu_drv.h
-@@ -364,7 +364,6 @@ int virtio_gpu_object_kmap(struct virtio_gpu_object *bo);
- int virtio_gpu_object_get_sg_table(struct virtio_gpu_device *qdev,
- 				   struct virtio_gpu_object *bo);
- void virtio_gpu_object_free_sg_table(struct virtio_gpu_object *bo);
--int virtio_gpu_object_wait(struct virtio_gpu_object *bo, bool no_wait);
- 
- /* virtgpu_prime.c */
- struct sg_table *virtgpu_gem_prime_get_sg_table(struct drm_gem_object *obj);
-diff --git a/drivers/gpu/drm/virtio/virtgpu_object.c b/drivers/gpu/drm/virtio/virtgpu_object.c
-index 242766d644a7..82bfbf983fd2 100644
---- a/drivers/gpu/drm/virtio/virtgpu_object.c
-+++ b/drivers/gpu/drm/virtio/virtgpu_object.c
-@@ -233,16 +233,3 @@ void virtio_gpu_object_free_sg_table(struct virtio_gpu_object *bo)
- 	kfree(bo->pages);
- 	bo->pages = NULL;
- }
--
--int virtio_gpu_object_wait(struct virtio_gpu_object *bo, bool no_wait)
--{
--	int r;
--
--	r = ttm_bo_reserve(&bo->tbo, true, no_wait, NULL);
--	if (unlikely(r != 0))
--		return r;
--	r = ttm_bo_wait(&bo->tbo, true, no_wait);
--	ttm_bo_unreserve(&bo->tbo);
--	return r;
--}
--
--- 
-2.18.1
+> ---
+> Changes in v2:
+> Don't overwrite error code value.
+> 
+>  drivers/virtio/virtio_mmio.c | 7 ++++++-
+>  1 file changed, 6 insertions(+), 1 deletion(-)
+> 
+> diff --git a/drivers/virtio/virtio_mmio.c b/drivers/virtio/virtio_mmio.c
+> index f363fbeb5ab0..e09edb5c5e06 100644
+> --- a/drivers/virtio/virtio_mmio.c
+> +++ b/drivers/virtio/virtio_mmio.c
+> @@ -463,9 +463,14 @@ static int vm_find_vqs(struct virtio_device *vdev, unsigned nvqs,
+>  		       struct irq_affinity *desc)
+>  {
+>  	struct virtio_mmio_device *vm_dev = to_virtio_mmio_device(vdev);
+> -	unsigned int irq = platform_get_irq(vm_dev->pdev, 0);
+> +	int irq = platform_get_irq(vm_dev->pdev, 0);
+>  	int i, err, queue_idx = 0;
+>  
+> +	if (irq < 0) {
+> +		dev_err(&vdev->dev, "Cannot get IRQ resource\n");
+> +		return irq;
+> +	}
+> +
+>  	err = request_irq(irq, vm_interrupt, IRQF_SHARED,
+>  			dev_name(&vdev->dev), vm_dev);
+>  	if (err)
+> -- 
+> 2.17.1
