@@ -1,7 +1,8 @@
 From: Gerd Hoffmann <kraxel@redhat.com>
-Subject: [PATCH v6 18/18] drm/virtio: add fence sanity check
-Date: Tue,  2 Jul 2019 16:19:03 +0200
-Message-ID: <20190702141903.1131-19-kraxel__6250.15644343279$1562077481$gmane$org@redhat.com>
+Subject: [PATCH v6 17/18] drm/virtio: drop virtio_gpu_object_{reserve,
+	unreserve}
+Date: Tue,  2 Jul 2019 16:19:02 +0200
+Message-ID: <20190702141903.1131-18-kraxel__42853.5941334971$1562077491$gmane$org@redhat.com>
 References: <20190702141903.1131-1-kraxel@redhat.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
@@ -21,27 +22,44 @@ To: dri-devel@lists.freedesktop.org
 Cc: David Airlie <airlied@linux.ie>, open list <linux-kernel@vger.kernel.org>, "open list:VIRTIO GPU DRIVER" <virtualization@lists.linux-foundation.org>, Daniel Vetter <daniel@ffwll.ch>, gurchetansingh@chromium.org, olvaffe@gmail.com
 List-Id: virtualization@lists.linuxfoundation.org
 
-Make sure we don't leak half-initialized fences outside the driver.
+No users left.
 
 Signed-off-by: Gerd Hoffmann <kraxel@redhat.com>
 ---
- drivers/gpu/drm/virtio/virtgpu_fence.c | 4 ++++
- 1 file changed, 4 insertions(+)
+ drivers/gpu/drm/virtio/virtgpu_drv.h | 21 ---------------------
+ 1 file changed, 21 deletions(-)
 
-diff --git a/drivers/gpu/drm/virtio/virtgpu_fence.c b/drivers/gpu/drm/virtio/virtgpu_fence.c
-index 70d6c4329778..98358ff9996c 100644
---- a/drivers/gpu/drm/virtio/virtgpu_fence.c
-+++ b/drivers/gpu/drm/virtio/virtgpu_fence.c
-@@ -41,6 +41,10 @@ bool virtio_fence_signaled(struct dma_fence *f)
- {
- 	struct virtio_gpu_fence *fence = to_virtio_fence(f);
+diff --git a/drivers/gpu/drm/virtio/virtgpu_drv.h b/drivers/gpu/drm/virtio/virtgpu_drv.h
+index d99c54abd090..23670109d167 100644
+--- a/drivers/gpu/drm/virtio/virtgpu_drv.h
++++ b/drivers/gpu/drm/virtio/virtgpu_drv.h
+@@ -368,27 +368,6 @@ static inline u64 virtio_gpu_object_mmap_offset(struct virtio_gpu_object *bo)
+ 	return drm_vma_node_offset_addr(&bo->base.base.vma_node);
+ }
  
-+	if (WARN_ON_ONCE(fence->f.seqno == 0))
-+		/* leaked fence outside driver before completing
-+		 * initialization with virtio_gpu_fence_emit */
-+		return false;
- 	if (atomic64_read(&fence->drv->last_seq) >= fence->f.seqno)
- 		return true;
- 	return false;
+-static inline int virtio_gpu_object_reserve(struct virtio_gpu_object *bo)
+-{
+-	int r;
+-
+-	r = reservation_object_lock_interruptible(bo->base.base.resv, NULL);
+-	if (unlikely(r != 0)) {
+-		if (r != -EINTR) {
+-			struct virtio_gpu_device *qdev =
+-				bo->base.base.dev->dev_private;
+-			dev_err(qdev->dev, "%p reserve failed\n", bo);
+-		}
+-		return r;
+-	}
+-	return 0;
+-}
+-
+-static inline void virtio_gpu_object_unreserve(struct virtio_gpu_object *bo)
+-{
+-	reservation_object_unlock(bo->base.base.resv);
+-}
+-
+ /* virgl debufs */
+ int virtio_gpu_debugfs_init(struct drm_minor *minor);
+ 
 -- 
 2.18.1
