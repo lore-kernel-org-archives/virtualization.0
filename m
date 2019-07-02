@@ -1,8 +1,7 @@
 From: Gerd Hoffmann <kraxel@redhat.com>
-Subject: [PATCH v6 06/18] drm/virtio: remove ttm calls from in
-	virtio_gpu_object_{reserve, unreserve}
-Date: Tue,  2 Jul 2019 16:18:51 +0200
-Message-ID: <20190702141903.1131-7-kraxel__18386.8730485969$1562077471$gmane$org@redhat.com>
+Subject: [PATCH v6 18/18] drm/virtio: add fence sanity check
+Date: Tue,  2 Jul 2019 16:19:03 +0200
+Message-ID: <20190702141903.1131-19-kraxel__6250.15644343279$1562077481$gmane$org@redhat.com>
 References: <20190702141903.1131-1-kraxel@redhat.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
@@ -22,42 +21,27 @@ To: dri-devel@lists.freedesktop.org
 Cc: David Airlie <airlied@linux.ie>, open list <linux-kernel@vger.kernel.org>, "open list:VIRTIO GPU DRIVER" <virtualization@lists.linux-foundation.org>, Daniel Vetter <daniel@ffwll.ch>, gurchetansingh@chromium.org, olvaffe@gmail.com
 List-Id: virtualization@lists.linuxfoundation.org
 
-Call reservation_object_* directly instead
-of using ttm_bo_{reserve,unreserve}.
-
-v4: check for EINTR only.
-v3: check for EINTR too.
+Make sure we don't leak half-initialized fences outside the driver.
 
 Signed-off-by: Gerd Hoffmann <kraxel@redhat.com>
-Reviewed-by: Daniel Vetter <daniel.vetter@ffwll.ch>
 ---
- drivers/gpu/drm/virtio/virtgpu_drv.h | 6 +++---
- 1 file changed, 3 insertions(+), 3 deletions(-)
+ drivers/gpu/drm/virtio/virtgpu_fence.c | 4 ++++
+ 1 file changed, 4 insertions(+)
 
-diff --git a/drivers/gpu/drm/virtio/virtgpu_drv.h b/drivers/gpu/drm/virtio/virtgpu_drv.h
-index 06cc0e961df6..07f6001ea91e 100644
---- a/drivers/gpu/drm/virtio/virtgpu_drv.h
-+++ b/drivers/gpu/drm/virtio/virtgpu_drv.h
-@@ -402,9 +402,9 @@ static inline int virtio_gpu_object_reserve(struct virtio_gpu_object *bo)
+diff --git a/drivers/gpu/drm/virtio/virtgpu_fence.c b/drivers/gpu/drm/virtio/virtgpu_fence.c
+index 70d6c4329778..98358ff9996c 100644
+--- a/drivers/gpu/drm/virtio/virtgpu_fence.c
++++ b/drivers/gpu/drm/virtio/virtgpu_fence.c
+@@ -41,6 +41,10 @@ bool virtio_fence_signaled(struct dma_fence *f)
  {
- 	int r;
+ 	struct virtio_gpu_fence *fence = to_virtio_fence(f);
  
--	r = ttm_bo_reserve(&bo->tbo, true, false, NULL);
-+	r = reservation_object_lock_interruptible(bo->gem_base.resv, NULL);
- 	if (unlikely(r != 0)) {
--		if (r != -ERESTARTSYS) {
-+		if (r != -EINTR) {
- 			struct virtio_gpu_device *qdev =
- 				bo->gem_base.dev->dev_private;
- 			dev_err(qdev->dev, "%p reserve failed\n", bo);
-@@ -416,7 +416,7 @@ static inline int virtio_gpu_object_reserve(struct virtio_gpu_object *bo)
- 
- static inline void virtio_gpu_object_unreserve(struct virtio_gpu_object *bo)
- {
--	ttm_bo_unreserve(&bo->tbo);
-+	reservation_object_unlock(bo->gem_base.resv);
- }
- 
- /* virgl debufs */
++	if (WARN_ON_ONCE(fence->f.seqno == 0))
++		/* leaked fence outside driver before completing
++		 * initialization with virtio_gpu_fence_emit */
++		return false;
+ 	if (atomic64_read(&fence->drv->last_seq) >= fence->f.seqno)
+ 		return true;
+ 	return false;
 -- 
 2.18.1
