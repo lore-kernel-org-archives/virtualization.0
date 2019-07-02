@@ -1,8 +1,8 @@
 From: Gerd Hoffmann <kraxel@redhat.com>
-Subject: [PATCH v6 17/18] drm/virtio: drop virtio_gpu_object_{reserve,
-	unreserve}
-Date: Tue,  2 Jul 2019 16:19:02 +0200
-Message-ID: <20190702141903.1131-18-kraxel__42853.5941334971$1562077491$gmane$org@redhat.com>
+Subject: [PATCH v6 14/18] drm/virtio: rework
+	virtio_gpu_transfer_from_host_ioctl fencing
+Date: Tue,  2 Jul 2019 16:18:59 +0200
+Message-ID: <20190702141903.1131-15-kraxel__44922.6443817437$1562077503$gmane$org@redhat.com>
 References: <20190702141903.1131-1-kraxel@redhat.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
@@ -22,44 +22,125 @@ To: dri-devel@lists.freedesktop.org
 Cc: David Airlie <airlied@linux.ie>, open list <linux-kernel@vger.kernel.org>, "open list:VIRTIO GPU DRIVER" <virtualization@lists.linux-foundation.org>, Daniel Vetter <daniel@ffwll.ch>, gurchetansingh@chromium.org, olvaffe@gmail.com
 List-Id: virtualization@lists.linuxfoundation.org
 
-No users left.
+Switch to the virtio_gpu_array_* helper workflow.
 
 Signed-off-by: Gerd Hoffmann <kraxel@redhat.com>
 ---
- drivers/gpu/drm/virtio/virtgpu_drv.h | 21 ---------------------
- 1 file changed, 21 deletions(-)
+ drivers/gpu/drm/virtio/virtgpu_drv.h   |  3 ++-
+ drivers/gpu/drm/virtio/virtgpu_ioctl.c | 35 +++++++++++---------------
+ drivers/gpu/drm/virtio/virtgpu_vq.c    |  8 ++++--
+ 3 files changed, 23 insertions(+), 23 deletions(-)
 
 diff --git a/drivers/gpu/drm/virtio/virtgpu_drv.h b/drivers/gpu/drm/virtio/virtgpu_drv.h
-index d99c54abd090..23670109d167 100644
+index 78dc5a19a358..4df760ba018e 100644
 --- a/drivers/gpu/drm/virtio/virtgpu_drv.h
 +++ b/drivers/gpu/drm/virtio/virtgpu_drv.h
-@@ -368,27 +368,6 @@ static inline u64 virtio_gpu_object_mmap_offset(struct virtio_gpu_object *bo)
- 	return drm_vma_node_offset_addr(&bo->base.base.vma_node);
+@@ -302,9 +302,10 @@ void virtio_gpu_cmd_submit(struct virtio_gpu_device *vgdev,
+ 			   struct virtio_gpu_object_array *objs,
+ 			   struct virtio_gpu_fence *fence);
+ void virtio_gpu_cmd_transfer_from_host_3d(struct virtio_gpu_device *vgdev,
+-					  uint32_t resource_id, uint32_t ctx_id,
++					  uint32_t ctx_id,
+ 					  uint64_t offset, uint32_t level,
+ 					  struct virtio_gpu_box *box,
++					  struct virtio_gpu_object_array *objs,
+ 					  struct virtio_gpu_fence *fence);
+ void virtio_gpu_cmd_transfer_to_host_3d(struct virtio_gpu_device *vgdev,
+ 					struct virtio_gpu_object *bo,
+diff --git a/drivers/gpu/drm/virtio/virtgpu_ioctl.c b/drivers/gpu/drm/virtio/virtgpu_ioctl.c
+index 0d0acf0b85ed..56182abdbf36 100644
+--- a/drivers/gpu/drm/virtio/virtgpu_ioctl.c
++++ b/drivers/gpu/drm/virtio/virtgpu_ioctl.c
+@@ -298,8 +298,7 @@ static int virtio_gpu_transfer_from_host_ioctl(struct drm_device *dev,
+ 	struct virtio_gpu_device *vgdev = dev->dev_private;
+ 	struct virtio_gpu_fpriv *vfpriv = file->driver_priv;
+ 	struct drm_virtgpu_3d_transfer_from_host *args = data;
+-	struct drm_gem_object *gobj = NULL;
+-	struct virtio_gpu_object *qobj = NULL;
++	struct virtio_gpu_object_array *objs;
+ 	struct virtio_gpu_fence *fence;
+ 	int ret;
+ 	u32 offset = args->offset;
+@@ -308,35 +307,31 @@ static int virtio_gpu_transfer_from_host_ioctl(struct drm_device *dev,
+ 	if (vgdev->has_virgl_3d == false)
+ 		return -ENOSYS;
+ 
+-	gobj = drm_gem_object_lookup(file, args->bo_handle);
+-	if (gobj == NULL)
++	objs = virtio_gpu_array_from_handles(file, &args->bo_handle, 1);
++	if (objs == NULL)
+ 		return -ENOENT;
+ 
+-	qobj = gem_to_virtio_gpu_obj(gobj);
+-
+-	ret = virtio_gpu_object_reserve(qobj);
+-	if (ret)
+-		goto out;
++	ret = virtio_gpu_array_lock_resv(objs);
++	if (ret != 0)
++		goto err_put_free;
+ 
+ 	convert_to_hw_box(&box, &args->box);
+ 
+ 	fence = virtio_gpu_fence_alloc(vgdev);
+ 	if (!fence) {
+ 		ret = -ENOMEM;
+-		goto out_unres;
++		goto err_unlock;
+ 	}
+ 	virtio_gpu_cmd_transfer_from_host_3d
+-		(vgdev, qobj->hw_res_handle,
+-		 vfpriv->ctx_id, offset, args->level,
+-		 &box, fence);
+-	reservation_object_add_excl_fence(qobj->base.base.resv,
+-					  &fence->f);
+-
++		(vgdev, vfpriv->ctx_id, offset, args->level,
++		 &box, objs, fence);
+ 	dma_fence_put(&fence->f);
+-out_unres:
+-	virtio_gpu_object_unreserve(qobj);
+-out:
+-	drm_gem_object_put_unlocked(gobj);
++	return 0;
++
++err_unlock:
++	virtio_gpu_array_unlock_resv(objs);
++err_put_free:
++	virtio_gpu_array_put_free(objs);
+ 	return ret;
  }
  
--static inline int virtio_gpu_object_reserve(struct virtio_gpu_object *bo)
--{
--	int r;
--
--	r = reservation_object_lock_interruptible(bo->base.base.resv, NULL);
--	if (unlikely(r != 0)) {
--		if (r != -EINTR) {
--			struct virtio_gpu_device *qdev =
--				bo->base.base.dev->dev_private;
--			dev_err(qdev->dev, "%p reserve failed\n", bo);
--		}
--		return r;
--	}
--	return 0;
--}
--
--static inline void virtio_gpu_object_unreserve(struct virtio_gpu_object *bo)
--{
--	reservation_object_unlock(bo->base.base.resv);
--}
--
- /* virgl debufs */
- int virtio_gpu_debugfs_init(struct drm_minor *minor);
+diff --git a/drivers/gpu/drm/virtio/virtgpu_vq.c b/drivers/gpu/drm/virtio/virtgpu_vq.c
+index fc908d5cb217..bef7036f4508 100644
+--- a/drivers/gpu/drm/virtio/virtgpu_vq.c
++++ b/drivers/gpu/drm/virtio/virtgpu_vq.c
+@@ -928,20 +928,24 @@ void virtio_gpu_cmd_transfer_to_host_3d(struct virtio_gpu_device *vgdev,
+ }
  
+ void virtio_gpu_cmd_transfer_from_host_3d(struct virtio_gpu_device *vgdev,
+-					  uint32_t resource_id, uint32_t ctx_id,
++					  uint32_t ctx_id,
+ 					  uint64_t offset, uint32_t level,
+ 					  struct virtio_gpu_box *box,
++					  struct virtio_gpu_object_array *objs,
+ 					  struct virtio_gpu_fence *fence)
+ {
++	struct virtio_gpu_object *bo = gem_to_virtio_gpu_obj(objs->objs[0]);
+ 	struct virtio_gpu_transfer_host_3d *cmd_p;
+ 	struct virtio_gpu_vbuffer *vbuf;
+ 
+ 	cmd_p = virtio_gpu_alloc_cmd(vgdev, &vbuf, sizeof(*cmd_p));
+ 	memset(cmd_p, 0, sizeof(*cmd_p));
+ 
++	vbuf->objs = objs;
++
+ 	cmd_p->hdr.type = cpu_to_le32(VIRTIO_GPU_CMD_TRANSFER_FROM_HOST_3D);
+ 	cmd_p->hdr.ctx_id = cpu_to_le32(ctx_id);
+-	cmd_p->resource_id = cpu_to_le32(resource_id);
++	cmd_p->resource_id = cpu_to_le32(bo->hw_res_handle);
+ 	cmd_p->box = *box;
+ 	cmd_p->offset = cpu_to_le64(offset);
+ 	cmd_p->level = cpu_to_le32(level);
 -- 
 2.18.1
