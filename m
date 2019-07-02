@@ -1,16 +1,14 @@
-From: Stefano Garzarella <sgarzare@redhat.com>
-Subject: Re: [PATCH v2 0/3] vsock/virtio: several fixes in the .probe() and
-	.remove()
-Date: Mon, 1 Jul 2019 19:03:57 +0200
-Message-ID: <20190701170357.jtuhy3ank7mv6izb__29060.0855065108$1562000669$gmane$org@steredhat>
-References: <20190628123659.139576-1-sgarzare@redhat.com>
-	<20190701151113.GE11900@stefanha-x1.localdomain>
+From: Jason Wang <jasowang@redhat.com>
+Subject: Re: Reminder: 2 open syzbot bugs in vhost subsystem
+Date: Tue, 2 Jul 2019 13:24:43 +0800
+Message-ID: <e2da1124-52c3-84ff-77ce-deb017711138__5007.04423045448$1562045144$gmane$org@redhat.com>
+References: <20190702051707.GF23743@sol.localdomain>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset="utf-8"; Format="flowed"
+Content-Transfer-Encoding: base64
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-Content-Disposition: inline
-In-Reply-To: <20190701151113.GE11900@stefanha-x1.localdomain>
+In-Reply-To: <20190702051707.GF23743@sol.localdomain>
+Content-Language: en-US
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -20,68 +18,67 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Stefan Hajnoczi <stefanha@gmail.com>
-Cc: kvm@vger.kernel.org, "Michael S. Tsirkin" <mst@redhat.com>, netdev@vger.kernel.org, linux-kernel@vger.kernel.org, virtualization@lists.linux-foundation.org, Stefan Hajnoczi <stefanha@redhat.com>, "David S. Miller" <davem@davemloft.net>
+To: Eric Biggers <ebiggers@kernel.org>, kvm@vger.kernel.org, virtualization@lists.linux-foundation.org, netdev@vger.kernel.org, "Michael S. Tsirkin" <mst@redhat.com>, Hillf Danton <hdanton@sina.com>
+Cc: syzkaller-bugs@googlegroups.com, linux-kernel@vger.kernel.org
 List-Id: virtualization@lists.linuxfoundation.org
 
-On Mon, Jul 01, 2019 at 04:11:13PM +0100, Stefan Hajnoczi wrote:
-> On Fri, Jun 28, 2019 at 02:36:56PM +0200, Stefano Garzarella wrote:
-> > During the review of "[PATCH] vsock/virtio: Initialize core virtio vsock
-> > before registering the driver", Stefan pointed out some possible issues
-> > in the .probe() and .remove() callbacks of the virtio-vsock driver.
-> > 
-> > This series tries to solve these issues:
-> > - Patch 1 adds RCU critical sections to avoid use-after-free of
-> >   'the_virtio_vsock' pointer.
-> > - Patch 2 stops workers before to call vdev->config->reset(vdev) to
-> >   be sure that no one is accessing the device.
-> > - Patch 3 moves the works flush at the end of the .remove() to avoid
-> >   use-after-free of 'vsock' object.
-> > 
-> > v2:
-> > - Patch 1: use RCU to protect 'the_virtio_vsock' pointer
-> > - Patch 2: no changes
-> > - Patch 3: flush works only at the end of .remove()
-> > - Removed patch 4 because virtqueue_detach_unused_buf() returns all the buffers
-> >   allocated.
-> > 
-> > v1: https://patchwork.kernel.org/cover/10964733/
-> 
-> This looks good to me.
-
-Thanks for the review!
-
-> 
-> Did you run any stress tests?  For example an SMP guest constantly
-> connecting and sending packets together with a script that
-> hotplug/unplugs vhost-vsock-pci from the host side.
-
-Yes, I started an SMP guest (-smp 4 -monitor tcp:127.0.0.1:1234,server,nowait)
-and I run these scripts to stress the .probe()/.remove() path:
-
-- guest
-  while true; do
-      cat /dev/urandom | nc-vsock -l 4321 > /dev/null &
-      cat /dev/urandom | nc-vsock -l 5321 > /dev/null &
-      cat /dev/urandom | nc-vsock -l 6321 > /dev/null &
-      cat /dev/urandom | nc-vsock -l 7321 > /dev/null &
-      wait
-  done
-
-- host
-  while true; do
-      cat /dev/urandom | nc-vsock 3 4321 > /dev/null &
-      cat /dev/urandom | nc-vsock 3 5321 > /dev/null &
-      cat /dev/urandom | nc-vsock 3 6321 > /dev/null &
-      cat /dev/urandom | nc-vsock 3 7321 > /dev/null &
-      sleep 2
-      echo "device_del v1" | nc 127.0.0.1 1234
-      sleep 1
-      echo "device_add vhost-vsock-pci,id=v1,guest-cid=3" | nc 127.0.0.1 1234
-      sleep 1
-  done
-
-Do you think is enough or is better to have a test more accurate?
-
-Thanks,
-Stefano
+Ck9uIDIwMTkvNy8yIOS4i+WNiDE6MTcsIEVyaWMgQmlnZ2VycyB3cm90ZToKPiBbVGhpcyBlbWFp
+bCB3YXMgZ2VuZXJhdGVkIGJ5IGEgc2NyaXB0LiAgTGV0IG1lIGtub3cgaWYgeW91IGhhdmUgYW55
+IHN1Z2dlc3Rpb25zCj4gdG8gbWFrZSBpdCBiZXR0ZXIsIG9yIGlmIHlvdSB3YW50IGl0IHJlLWdl
+bmVyYXRlZCB3aXRoIHRoZSBsYXRlc3Qgc3RhdHVzLl0KPgo+IE9mIHRoZSBjdXJyZW50bHkgb3Bl
+biBzeXpib3QgcmVwb3J0cyBhZ2FpbnN0IHRoZSB1cHN0cmVhbSBrZXJuZWwsIEkndmUgbWFudWFs
+bHkKPiBtYXJrZWQgMiBvZiB0aGVtIGFzIHBvc3NpYmx5IGJlaW5nIGJ1Z3MgaW4gdGhlIHZob3N0
+IHN1YnN5c3RlbS4gIEkndmUgbGlzdGVkCj4gdGhlc2UgcmVwb3J0cyBiZWxvdywgc29ydGVkIGJ5
+IGFuIGFsZ29yaXRobSB0aGF0IHRyaWVzIHRvIGxpc3QgZmlyc3QgdGhlIHJlcG9ydHMKPiBtb3N0
+IGxpa2VseSB0byBiZSBzdGlsbCB2YWxpZCwgaW1wb3J0YW50LCBhbmQgYWN0aW9uYWJsZS4KPgo+
+IE9mIHRoZXNlIDIgYnVncywgMSB3YXMgc2VlbiBpbiBtYWlubGluZSBpbiB0aGUgbGFzdCB3ZWVr
+Lgo+Cj4gSWYgeW91IGJlbGlldmUgYSBidWcgaXMgbm8gbG9uZ2VyIHZhbGlkLCBwbGVhc2UgY2xv
+c2UgdGhlIHN5emJvdCByZXBvcnQgYnkKPiBzZW5kaW5nIGEgJyNzeXogZml4JywgJyNzeXogZHVw
+Jywgb3IgJyNzeXogaW52YWxpZCcgY29tbWFuZCBpbiByZXBseSB0byB0aGUKPiBvcmlnaW5hbCB0
+aHJlYWQsIGFzIGV4cGxhaW5lZCBhdCBodHRwczovL2dvby5nbC90cHNtRUojc3RhdHVzCj4KPiBJ
+ZiB5b3UgYmVsaWV2ZSBJIG1pc2F0dHJpYnV0ZWQgYSBidWcgdG8gdGhlIHZob3N0IHN1YnN5c3Rl
+bSwgcGxlYXNlIGxldCBtZSBrbm93LAo+IGFuZCBpZiBwb3NzaWJsZSBmb3J3YXJkIHRoZSByZXBv
+cnQgdG8gdGhlIGNvcnJlY3QgcGVvcGxlIG9yIG1haWxpbmcgbGlzdC4KPgo+IEhlcmUgYXJlIHRo
+ZSBidWdzOgo+Cj4gLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0t
+LS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0KPiBUaXRsZTogICAgICAgICAgICAg
+IG1lbW9yeSBsZWFrIGluIHZob3N0X25ldF9pb2N0bAo+IExhc3Qgb2NjdXJyZWQ6ICAgICAgMCBk
+YXlzIGFnbwo+IFJlcG9ydGVkOiAgICAgICAgICAgMjYgZGF5cyBhZ28KPiBCcmFuY2hlczogICAg
+ICAgICAgIE1haW5saW5lCj4gRGFzaGJvYXJkIGxpbms6ICAgICBodHRwczovL3N5emthbGxlci5h
+cHBzcG90LmNvbS9idWc/aWQ9MTJiYTM0OWQ3ZTI2Y2NmZTk1MzE3YmMzNzZlODEyZWJiYWUyZWUw
+Zgo+IE9yaWdpbmFsIHRocmVhZDogICAgaHR0cHM6Ly9sa21sLmtlcm5lbC5vcmcvbGttbC8wMDAw
+MDAwMDAwMDAxODhkYTEwNThhOWMyNWUzQGdvb2dsZS5jb20vVC8jdQo+Cj4gVGhpcyBidWcgaGFz
+IGEgQyByZXByb2R1Y2VyLgo+Cj4gVGhlIG9yaWdpbmFsIHRocmVhZCBmb3IgdGhpcyBidWcgaGFz
+IHJlY2VpdmVkIDQgcmVwbGllczsgdGhlIGxhc3Qgd2FzIDE3IGRheXMKPiBhZ28uCj4KPiBJZiB5
+b3UgZml4IHRoaXMgYnVnLCBwbGVhc2UgYWRkIHRoZSBmb2xsb3dpbmcgdGFnIHRvIHRoZSBjb21t
+aXQ6Cj4gICAgICBSZXBvcnRlZC1ieTogc3l6Ym90KzA3ODlmMGM3ZTQ1ZWZkN2JiNjQzQHN5emth
+bGxlci5hcHBzcG90bWFpbC5jb20KPgo+IElmIHlvdSBzZW5kIGFueSBlbWFpbCBvciBwYXRjaCBm
+b3IgdGhpcyBidWcsIHBsZWFzZSBjb25zaWRlciByZXBseWluZyB0byB0aGUKPiBvcmlnaW5hbCB0
+aHJlYWQuICBGb3IgdGhlIGdpdCBzZW5kLWVtYWlsIGNvbW1hbmQgdG8gdXNlLCBvciB0aXBzIG9u
+IGhvdyB0byByZXBseQo+IGlmIHRoZSB0aHJlYWQgaXNuJ3QgaW4geW91ciBtYWlsYm94LCBzZWUg
+dGhlICJSZXBseSBpbnN0cnVjdGlvbnMiIGF0Cj4gaHR0cHM6Ly9sa21sLmtlcm5lbC5vcmcvci8w
+MDAwMDAwMDAwMDAxODhkYTEwNThhOWMyNWUzQGdvb2dsZS5jb20KCgpDYyBIaWxsZiB3aG8gc2hv
+dWxkIGhhZCBhIGZpeCBmb3IgdGhpcy4KCkhpbGxmLCB3b3VsZCB5b3UgcGxlYXNlIHBvc3QgYSBm
+b3JtYWwgcGF0Y2ggZm9yIHRoaXM/IChmb3IgLW5ldCkKCgo+Cj4gLS0tLS0tLS0tLS0tLS0tLS0t
+LS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0t
+LS0tLS0KPiBUaXRsZTogICAgICAgICAgICAgIElORk86IHRhc2sgaHVuZyBpbiB2aG9zdF9pbml0
+X2RldmljZV9pb3RsYgo+IExhc3Qgb2NjdXJyZWQ6ICAgICAgMTI1IGRheXMgYWdvCj4gUmVwb3J0
+ZWQ6ICAgICAgICAgICAxNTMgZGF5cyBhZ28KPiBCcmFuY2hlczogICAgICAgICAgIE1haW5saW5l
+IGFuZCBvdGhlcnMKPiBEYXNoYm9hcmQgbGluazogICAgIGh0dHBzOi8vc3l6a2FsbGVyLmFwcHNw
+b3QuY29tL2J1Zz9pZD1jYjFlYThkYWYwM2E1OTQyYzJhYjMxNDY3OTE0OGNmNmUxMjhlZjU4Cj4g
+T3JpZ2luYWwgdGhyZWFkOiAgICBodHRwczovL2xrbWwua2VybmVsLm9yZy9sa21sLzAwMDAwMDAw
+MDAwMDdlODZmZDA1ODA5NTUzM2ZAZ29vZ2xlLmNvbS9ULyN1Cj4KPiBVbmZvcnR1bmF0ZWx5LCB0
+aGlzIGJ1ZyBkb2VzIG5vdCBoYXZlIGEgcmVwcm9kdWNlci4KPgo+IFRoZSBvcmlnaW5hbCB0aHJl
+YWQgZm9yIHRoaXMgYnVnIHJlY2VpdmVkIDIgcmVwbGllczsgdGhlIGxhc3Qgd2FzIDE1MiBkYXlz
+IGFnby4KPgo+IElmIHlvdSBmaXggdGhpcyBidWcsIHBsZWFzZSBhZGQgdGhlIGZvbGxvd2luZyB0
+YWcgdG8gdGhlIGNvbW1pdDoKPiAgICAgIFJlcG9ydGVkLWJ5OiBzeXpib3QrNDBlMjhhOGJkNTlk
+MTBlZDBjNDJAc3l6a2FsbGVyLmFwcHNwb3RtYWlsLmNvbQo+Cj4gSWYgeW91IHNlbmQgYW55IGVt
+YWlsIG9yIHBhdGNoIGZvciB0aGlzIGJ1ZywgcGxlYXNlIGNvbnNpZGVyIHJlcGx5aW5nIHRvIHRo
+ZQo+IG9yaWdpbmFsIHRocmVhZC4gIEZvciB0aGUgZ2l0IHNlbmQtZW1haWwgY29tbWFuZCB0byB1
+c2UsIG9yIHRpcHMgb24gaG93IHRvIHJlcGx5Cj4gaWYgdGhlIHRocmVhZCBpc24ndCBpbiB5b3Vy
+IG1haWxib3gsIHNlZSB0aGUgIlJlcGx5IGluc3RydWN0aW9ucyIgYXQKPiBodHRwczovL2xrbWwu
+a2VybmVsLm9yZy9yLzAwMDAwMDAwMDAwMDdlODZmZDA1ODA5NTUzM2ZAZ29vZ2xlLmNvbQo+CgpD
+YW4gc3l6Ym90IHN0aWxsIHJlcHJvZHVjZSB0aGlzIGlzc3VlPwoKVGhhbmtzCgpfX19fX19fX19f
+X19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fXwpWaXJ0dWFsaXphdGlvbiBtYWls
+aW5nIGxpc3QKVmlydHVhbGl6YXRpb25AbGlzdHMubGludXgtZm91bmRhdGlvbi5vcmcKaHR0cHM6
+Ly9saXN0cy5saW51eGZvdW5kYXRpb24ub3JnL21haWxtYW4vbGlzdGluZm8vdmlydHVhbGl6YXRp
+b24=
