@@ -1,15 +1,13 @@
-From: "Michael S. Tsirkin" <mst@redhat.com>
-Subject: Re: [PATCH v2 06/35] crypto: Use kmemdup rather than duplicating its
-	implementation
-Date: Wed, 3 Jul 2019 14:51:41 -0400
-Message-ID: <20190703145109-mutt-send-email-mst__41561.76997801$1562179924$gmane$org@kernel.org>
-References: <20190703162708.32137-1-huangfq.daxian@gmail.com>
+From: =?UTF-8?Q?Noralf_Tr=c3=b8nnes?= <noralf@tronnes.org>
+Subject: Re: [PATCH 0/5] Unmappable DRM client buffers for fbdev emulation
+Date: Wed, 3 Jul 2019 21:27:34 +0200
+Message-ID: <a2e3baa8-f8e8-4628-e18f-cb3119194afb__8610.98315087787$1562182073$gmane$org@tronnes.org>
+References: <20190703083302.2609-1-tzimmermann@suse.de>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-Content-Disposition: inline
-In-Reply-To: <20190703162708.32137-1-huangfq.daxian@gmail.com>
+In-Reply-To: <20190703083302.2609-1-tzimmermann@suse.de>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -19,96 +17,75 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Fuqian Huang <huangfq.daxian@gmail.com>
-Cc: Aymen Sghaier <aymen.sghaier@nxp.com>, Herbert Xu <herbert@gondor.apana.org.au>, Horia =?utf-8?Q?Geant=C4=83?= <horia.geanta@nxp.com>, linux-kernel@vger.kernel.org, virtualization@lists.linux-foundation.org, linux-crypto@vger.kernel.org, "David S . Miller" <davem@davemloft.net>
+To: Thomas Zimmermann <tzimmermann@suse.de>, airlied@redhat.com, daniel@ffwll.ch, kraxel@redhat.com, maarten.lankhorst@linux.intel.com, maxime.ripard@bootlin.com, sean@poorly.run, sam@ravnborg.org, yc_chen@aspeedtech.com
+Cc: dri-devel@lists.freedesktop.org, virtualization@lists.linux-foundation.org
 List-Id: virtualization@lists.linuxfoundation.org
 
-On Thu, Jul 04, 2019 at 12:27:08AM +0800, Fuqian Huang wrote:
-> kmemdup is introduced to duplicate a region of memory in a neat way.
-> Rather than kmalloc/kzalloc + memcpy, which the programmer needs to
-> write the size twice (sometimes lead to mistakes), kmemdup improves
-> readability, leads to smaller code and also reduce the chances of mistakes.
-> Suggestion to use kmemdup rather than using kmalloc/kzalloc + memcpy.
+
+
+Den 03.07.2019 10.32, skrev Thomas Zimmermann:
+> DRM client buffers are permanently mapped throughout their lifetime. This
+> prevents us from using generic framebuffer emulation for devices with
+> small dedicated video memory, such as ast or mgag200. With fb buffers
+> permanently mapped, such devices often won't have enougth space left to
+> display other content (e.g., X11).
 > 
-> Signed-off-by: Fuqian Huang <huangfq.daxian@gmail.com>
-
-virtio part:
-
-Acked-by: Michael S. Tsirkin <mst@redhat.com>
-
-
-> ---
-> Changes in v2:
->   - Fix a typo in commit message (memset -> memcpy)
+> This patch set introduces unmappable DRM client buffers for framebuffer
+> emulation with shadow buffers. While the shadow buffer remains in system
+> memory permanently, the respective buffer object will only be mapped briefly
+> during updates from the shadow buffer. Hence, the driver can relocate he
+> buffer object among memory regions as needed.
 > 
->  drivers/crypto/caam/caampkc.c              | 11 +++--------
->  drivers/crypto/virtio/virtio_crypto_algs.c |  4 +---
->  2 files changed, 4 insertions(+), 11 deletions(-)
+> The default behoviour for DRM client buffers is still to be permanently
+> mapped.
 > 
-> diff --git a/drivers/crypto/caam/caampkc.c b/drivers/crypto/caam/caampkc.c
-> index fe24485274e1..a03464b4c019 100644
-> --- a/drivers/crypto/caam/caampkc.c
-> +++ b/drivers/crypto/caam/caampkc.c
-> @@ -816,7 +816,7 @@ static int caam_rsa_set_pub_key(struct crypto_akcipher *tfm, const void *key,
->  		return ret;
->  
->  	/* Copy key in DMA zone */
-> -	rsa_key->e = kzalloc(raw_key.e_sz, GFP_DMA | GFP_KERNEL);
-> +	rsa_key->e = kmemdup(raw_key.e, raw_key.e_sz, GFP_DMA | GFP_KERNEL);
->  	if (!rsa_key->e)
->  		goto err;
->  
-> @@ -838,8 +838,6 @@ static int caam_rsa_set_pub_key(struct crypto_akcipher *tfm, const void *key,
->  	rsa_key->e_sz = raw_key.e_sz;
->  	rsa_key->n_sz = raw_key.n_sz;
->  
-> -	memcpy(rsa_key->e, raw_key.e, raw_key.e_sz);
-> -
->  	return 0;
->  err:
->  	caam_rsa_free_key(rsa_key);
-> @@ -920,11 +918,11 @@ static int caam_rsa_set_priv_key(struct crypto_akcipher *tfm, const void *key,
->  		return ret;
->  
->  	/* Copy key in DMA zone */
-> -	rsa_key->d = kzalloc(raw_key.d_sz, GFP_DMA | GFP_KERNEL);
-> +	rsa_key->d = kmemdup(raw_key.d, raw_key.d_sz, GFP_DMA | GFP_KERNEL);
->  	if (!rsa_key->d)
->  		goto err;
->  
-> -	rsa_key->e = kzalloc(raw_key.e_sz, GFP_DMA | GFP_KERNEL);
-> +	rsa_key->e = kmemdup(raw_key.e, raw_key.e_sz, GFP_DMA | GFP_KERNEL);
->  	if (!rsa_key->e)
->  		goto err;
->  
-> @@ -947,9 +945,6 @@ static int caam_rsa_set_priv_key(struct crypto_akcipher *tfm, const void *key,
->  	rsa_key->e_sz = raw_key.e_sz;
->  	rsa_key->n_sz = raw_key.n_sz;
->  
-> -	memcpy(rsa_key->d, raw_key.d, raw_key.d_sz);
-> -	memcpy(rsa_key->e, raw_key.e, raw_key.e_sz);
-> -
->  	caam_rsa_set_priv_key_form(ctx, &raw_key);
->  
->  	return 0;
-> diff --git a/drivers/crypto/virtio/virtio_crypto_algs.c b/drivers/crypto/virtio/virtio_crypto_algs.c
-> index 10f266d462d6..42d19205166b 100644
-> --- a/drivers/crypto/virtio/virtio_crypto_algs.c
-> +++ b/drivers/crypto/virtio/virtio_crypto_algs.c
-> @@ -129,13 +129,11 @@ static int virtio_crypto_alg_ablkcipher_init_session(
->  	 * Avoid to do DMA from the stack, switch to using
->  	 * dynamically-allocated for the key
->  	 */
-> -	uint8_t *cipher_key = kmalloc(keylen, GFP_ATOMIC);
-> +	uint8_t *cipher_key = kmemdup(key, keylen, GFP_ATOMIC);
->  
->  	if (!cipher_key)
->  		return -ENOMEM;
->  
-> -	memcpy(cipher_key, key, keylen);
-> -
->  	spin_lock(&vcrypto->ctrl_lock);
->  	/* Pad ctrl header */
->  	vcrypto->ctrl.header.opcode =
-> -- 
-> 2.11.0
+> The patch set converts ast and mgag200 to generic framebuffer emulation
+> and removes a large amount of framebuffer code from these drivers. For
+> bochs, a problem was reported where the driver could not display the console
+> because it was pinned in system memory. [1] The patch set fixes this bug
+> by converting bochs to use the shadow fb.
+> 
+> The patch set has been tested on ast and mga200 HW.
+> 
+
+I've been thinking, this enables dirty tracking in DRM userspace for
+these drivers since the dirty callback is now set on all framebuffers.
+Is this OK? Should we add a drm_fbdev_generic_shadow_setup() that sets a
+flag enabling the shadow buffer instead?
+
+Really nice diffstat by the way :-)
+
+Noralf.
+
+> [1] https://lists.freedesktop.org/archives/dri-devel/2019-June/224423.html
+> 
+> Thomas Zimmermann (5):
+>   drm/client: Support unmapping of DRM client buffers
+>   drm/fb-helper: Unmap BO for shadow-buffered framebuffer console
+>   drm/ast: Replace struct ast_fbdev with generic framebuffer emulation
+>   drm/bochs: Use shadow buffer for bochs framebuffer console
+>   drm/mgag200: Replace struct mga_fbdev with generic framebuffer
+>     emulation
+> 
+>  drivers/gpu/drm/ast/Makefile           |   2 +-
+>  drivers/gpu/drm/ast/ast_drv.c          |  22 +-
+>  drivers/gpu/drm/ast/ast_drv.h          |  17 --
+>  drivers/gpu/drm/ast/ast_fb.c           | 341 -------------------------
+>  drivers/gpu/drm/ast/ast_main.c         |  30 ++-
+>  drivers/gpu/drm/ast/ast_mode.c         |  21 --
+>  drivers/gpu/drm/bochs/bochs_kms.c      |   2 +-
+>  drivers/gpu/drm/drm_client.c           |  71 ++++-
+>  drivers/gpu/drm/drm_fb_helper.c        |  14 +-
+>  drivers/gpu/drm/mgag200/Makefile       |   2 +-
+>  drivers/gpu/drm/mgag200/mgag200_drv.h  |  19 --
+>  drivers/gpu/drm/mgag200/mgag200_fb.c   | 309 ----------------------
+>  drivers/gpu/drm/mgag200/mgag200_main.c |  61 +++--
+>  drivers/gpu/drm/mgag200/mgag200_mode.c |  27 --
+>  include/drm/drm_client.h               |   3 +
+>  15 files changed, 154 insertions(+), 787 deletions(-)
+>  delete mode 100644 drivers/gpu/drm/ast/ast_fb.c
+>  delete mode 100644 drivers/gpu/drm/mgag200/mgag200_fb.c
+> 
+> --
+> 2.21.0
+> 
