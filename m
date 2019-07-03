@@ -1,14 +1,13 @@
-From: Chia-I Wu <olvaffe@gmail.com>
-Subject: Re: [PATCH v6 07/18] drm/virtio: add virtio_gpu_object_array & helpers
-Date: Wed, 3 Jul 2019 11:31:24 -0700
-Message-ID: <CAPaKu7TJ1RgL_CjGnieE1hOOXnT-ECRk67ntRCPTFiv+EmrX4Q__34409.2398927145$1562178708$gmane$org@mail.gmail.com>
-References: <20190702141903.1131-1-kraxel@redhat.com>
-	<20190702141903.1131-8-kraxel@redhat.com>
+From: Alex Williamson <alex.williamson@redhat.com>
+Subject: Re: [RFC v2] vhost: introduce mdev based hardware vhost backend
+Date: Wed, 3 Jul 2019 12:31:57 -0600
+Message-ID: <20190703123157.2452bf95__37049.2345116631$1562178745$gmane$org@x1.home>
+References: <20190703091339.1847-1-tiwei.bie@intel.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <20190702141903.1131-8-kraxel@redhat.com>
+In-Reply-To: <20190703091339.1847-1-tiwei.bie@intel.com>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -18,154 +17,62 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Gerd Hoffmann <kraxel@redhat.com>
-Cc: David Airlie <airlied@linux.ie>, open list <linux-kernel@vger.kernel.org>, ML dri-devel <dri-devel@lists.freedesktop.org>, "open list:VIRTIO GPU DRIVER" <virtualization@lists.linux-foundation.org>, Daniel Vetter <daniel@ffwll.ch>, Gurchetan Singh <gurchetansingh@chromium.org>
+To: Tiwei Bie <tiwei.bie@intel.com>
+Cc: kvm@vger.kernel.org, mst@redhat.com, netdev@vger.kernel.org, linux-kernel@vger.kernel.org, virtualization@lists.linux-foundation.org, maxime.coquelin@redhat.com, zhihong.wang@intel.com
 List-Id: virtualization@lists.linuxfoundation.org
 
-On Tue, Jul 2, 2019 at 7:19 AM Gerd Hoffmann <kraxel@redhat.com> wrote:
->
-> Some helper functions to manage an array of gem objects.
->
-> v6:
->  - add ticket to struct virtio_gpu_object_array.
->  - add virtio_gpu_array_{lock,unlock}_resv helpers.
->  - add virtio_gpu_array_add_fence helper.
-> v5: some small optimizations (Chia-I Wu).
-> v4: make them virtio-private instead of generic helpers.
->
-> Signed-off-by: Gerd Hoffmann <kraxel@redhat.com>
-> ---
->  drivers/gpu/drm/virtio/virtgpu_drv.h | 17 ++++++
->  drivers/gpu/drm/virtio/virtgpu_gem.c | 83 ++++++++++++++++++++++++++++
->  2 files changed, 100 insertions(+)
->
-> diff --git a/drivers/gpu/drm/virtio/virtgpu_drv.h b/drivers/gpu/drm/virtio/virtgpu_drv.h
-> index 07f6001ea91e..abb078a5dedf 100644
-> --- a/drivers/gpu/drm/virtio/virtgpu_drv.h
-> +++ b/drivers/gpu/drm/virtio/virtgpu_drv.h
-> @@ -84,6 +84,12 @@ struct virtio_gpu_object {
->  #define gem_to_virtio_gpu_obj(gobj) \
->         container_of((gobj), struct virtio_gpu_object, gem_base)
->
-> +struct virtio_gpu_object_array {
-> +       struct ww_acquire_ctx ticket;
-> +       u32 nents, total;
-> +       struct drm_gem_object *objs[];
+On Wed,  3 Jul 2019 17:13:39 +0800
+Tiwei Bie <tiwei.bie@intel.com> wrote:
+> diff --git a/include/uapi/linux/vfio.h b/include/uapi/linux/vfio.h
+> index 8f10748dac79..6c5718ab7eeb 100644
+> --- a/include/uapi/linux/vfio.h
+> +++ b/include/uapi/linux/vfio.h
+> @@ -201,6 +201,7 @@ struct vfio_device_info {
+>  #define VFIO_DEVICE_FLAGS_AMBA  (1 << 3)	/* vfio-amba device */
+>  #define VFIO_DEVICE_FLAGS_CCW	(1 << 4)	/* vfio-ccw device */
+>  #define VFIO_DEVICE_FLAGS_AP	(1 << 5)	/* vfio-ap device */
+> +#define VFIO_DEVICE_FLAGS_VHOST	(1 << 6)	/* vfio-vhost device */
+>  	__u32	num_regions;	/* Max region index + 1 */
+>  	__u32	num_irqs;	/* Max IRQ index + 1 */
+>  };
+> @@ -217,6 +218,7 @@ struct vfio_device_info {
+>  #define VFIO_DEVICE_API_AMBA_STRING		"vfio-amba"
+>  #define VFIO_DEVICE_API_CCW_STRING		"vfio-ccw"
+>  #define VFIO_DEVICE_API_AP_STRING		"vfio-ap"
+> +#define VFIO_DEVICE_API_VHOST_STRING		"vfio-vhost"
+>  
+>  /**
+>   * VFIO_DEVICE_GET_REGION_INFO - _IOWR(VFIO_TYPE, VFIO_BASE + 8,
+> @@ -573,6 +575,23 @@ enum {
+>  	VFIO_CCW_NUM_IRQS
+>  };
+>  
+> +/*
+> + * The vfio-vhost bus driver makes use of the following fixed region and
+> + * IRQ index mapping. Unimplemented regions return a size of zero.
+> + * Unimplemented IRQ types return a count of zero.
+> + */
+> +
+> +enum {
+> +	VFIO_VHOST_CONFIG_REGION_INDEX,
+> +	VFIO_VHOST_NOTIFY_REGION_INDEX,
+> +	VFIO_VHOST_NUM_REGIONS
 > +};
 > +
->  struct virtio_gpu_vbuffer;
->  struct virtio_gpu_device;
->
-> @@ -251,6 +257,17 @@ int virtio_gpu_mode_dumb_mmap(struct drm_file *file_priv,
->                               struct drm_device *dev,
->                               uint32_t handle, uint64_t *offset_p);
->
-> +struct virtio_gpu_object_array *virtio_gpu_array_alloc(u32 nents);
-> +struct virtio_gpu_object_array*
-> +virtio_gpu_array_from_handles(struct drm_file *drm_file, u32 *handles, u32 nents);
-> +void virtio_gpu_array_add_obj(struct virtio_gpu_object_array *objs,
-> +                             struct drm_gem_object *obj);
-> +int virtio_gpu_array_lock_resv(struct virtio_gpu_object_array *objs);
-> +void virtio_gpu_array_unlock_resv(struct virtio_gpu_object_array *objs);
-> +void virtio_gpu_array_add_fence(struct virtio_gpu_object_array *objs,
-> +                               struct dma_fence *fence);
-> +void virtio_gpu_array_put_free(struct virtio_gpu_object_array *objs);
+> +enum {
+> +	VFIO_VHOST_VQ_IRQ_INDEX,
+> +	VFIO_VHOST_NUM_IRQS
+> +};
 > +
->  /* virtio vg */
->  int virtio_gpu_alloc_vbufs(struct virtio_gpu_device *vgdev);
->  void virtio_gpu_free_vbufs(struct virtio_gpu_device *vgdev);
-> diff --git a/drivers/gpu/drm/virtio/virtgpu_gem.c b/drivers/gpu/drm/virtio/virtgpu_gem.c
-> index 9c9ad3b14080..e88df5e06d06 100644
-> --- a/drivers/gpu/drm/virtio/virtgpu_gem.c
-> +++ b/drivers/gpu/drm/virtio/virtgpu_gem.c
-> @@ -169,3 +169,86 @@ void virtio_gpu_gem_object_close(struct drm_gem_object *obj,
->                                                 qobj->hw_res_handle);
->         virtio_gpu_object_unreserve(qobj);
->  }
-> +
-> +struct virtio_gpu_object_array *virtio_gpu_array_alloc(u32 nents)
-> +{
-> +       struct virtio_gpu_object_array *objs;
-> +       size_t size = sizeof(*objs) + sizeof(objs->objs[0]) * nents;
-> +
-> +       objs = kmalloc(size, GFP_KERNEL);
-> +       if (!objs)
-> +               return NULL;
-> +
-> +       objs->nents = 0;
-> +       objs->total = nents;
-> +       return objs;
-> +}
-> +
-> +static void virtio_gpu_array_free(struct virtio_gpu_object_array *objs)
-> +{
-> +       kfree(objs);
-> +}
-> +
-> +struct virtio_gpu_object_array*
-> +virtio_gpu_array_from_handles(struct drm_file *drm_file, u32 *handles, u32 nents)
-> +{
-> +       struct virtio_gpu_object_array *objs;
-> +       u32 i;
-> +
-> +       objs = virtio_gpu_array_alloc(nents);
-> +       if (!objs)
-> +               return NULL;
-> +
-> +       for (i = 0; i < nents; i++) {
-> +               objs->nents = i;
-This line can be moved into the if-block just below.
-> +               objs->objs[i] = drm_gem_object_lookup(drm_file, handles[i]);
-> +               if (!objs->objs[i]) {
-> +                       virtio_gpu_array_put_free(objs);
-> +                       return NULL;
-> +               }
-> +       }
-> +       objs->nents = i;
-> +       return objs;
-> +}
-> +
-> +void virtio_gpu_array_add_obj(struct virtio_gpu_object_array *objs,
-> +                             struct drm_gem_object *obj)
-> +{
-> +       if (WARN_ON_ONCE(objs->nents == objs->total))
-> +               return;
-> +
-> +       drm_gem_object_get(obj);
-> +       objs->objs[objs->nents] = obj;
-> +       objs->nents++;
-> +}
-> +
-> +int virtio_gpu_array_lock_resv(struct virtio_gpu_object_array *objs)
-> +{
-> +       return drm_gem_lock_reservations(objs->objs, objs->nents,
-> +                                        &objs->ticket);
-> +}
-> +
-> +void virtio_gpu_array_unlock_resv(struct virtio_gpu_object_array *objs)
-> +{
-> +       drm_gem_unlock_reservations(objs->objs, objs->nents,
-> +                                   &objs->ticket);
-> +}
-> +
-> +void virtio_gpu_array_add_fence(struct virtio_gpu_object_array *objs,
-> +                               struct dma_fence *fence)
-> +{
-> +       int i;
-> +
-> +       for (i = 0; i < objs->nents; i++)
-> +               reservation_object_add_excl_fence(objs->objs[i]->resv,
-> +                                                 fence);
-> +}
-> +
-> +void virtio_gpu_array_put_free(struct virtio_gpu_object_array *objs)
-> +{
-> +       u32 i;
-> +
-> +       for (i = 0; i < objs->nents; i++)
-> +               drm_gem_object_put_unlocked(objs->objs[i]);
-> +       virtio_gpu_array_free(objs);
-> +}
-> --
-> 2.18.1
->
+
+Note that the vfio API has evolved a bit since vfio-pci started this
+way, with fixed indexes for pre-defined region types.  We now support
+device specific regions which can be identified by a capability within
+the REGION_INFO ioctl return data.  This allows a bit more flexibility,
+at the cost of complexity, but the infrastructure already exists in
+kernel and QEMU to make it relatively easy.  I think we'll have the
+same support for interrupts soon too.  If you continue to pursue the
+vfio-vhost direction you might want to consider these before committing
+to fixed indexes.  Thanks,
+
+Alex
