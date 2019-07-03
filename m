@@ -1,16 +1,14 @@
-From: Juergen Gross <jgross@suse.com>
-Subject: Re: [PATCH v2 4/9] x86/mm/tlb: Flush remote and local TLBs
-	concurrently
-Date: Wed, 3 Jul 2019 16:04:21 +0200
-Message-ID: <d89e2b57-8682-153e-33d8-98084e9983d6__8517.28811846755$1562162791$gmane$org@suse.com>
-References: <20190702235151.4377-1-namit@vmware.com>
-	<20190702235151.4377-5-namit@vmware.com>
+From: =?UTF-8?Q?Noralf_Tr=c3=b8nnes?= <noralf@tronnes.org>
+Subject: Re: [PATCH 1/5] drm/client: Support unmapping of DRM client buffers
+Date: Wed, 3 Jul 2019 16:07:57 +0200
+Message-ID: <458e7d7d-3aa5-5d45-6c5c-62fadd9e4e91__49154.4709469721$1562163445$gmane$org@tronnes.org>
+References: <20190703083302.2609-1-tzimmermann@suse.de>
+	<20190703083302.2609-2-tzimmermann@suse.de>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"; Format="flowed"
+Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <20190702235151.4377-5-namit@vmware.com>
-Content-Language: de-DE
+In-Reply-To: <20190703083302.2609-2-tzimmermann@suse.de>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -20,101 +18,163 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Nadav Amit <namit@vmware.com>, Andy Lutomirski <luto@kernel.org>, Dave Hansen <dave.hansen@linux.intel.com>
-Cc: Sasha Levin <sashal@kernel.org>, linux-hyperv@vger.kernel.org, Stephen Hemminger <sthemmin@microsoft.com>, kvm@vger.kernel.org, Peter Zijlstra <peterz@infradead.org>, Haiyang Zhang <haiyangz@microsoft.com>, x86@kernel.org, linux-kernel@vger.kernel.org, virtualization@lists.linux-foundation.org, Ingo Molnar <mingo@redhat.com>, Borislav Petkov <bp@alien8.de>, Paolo Bonzini <pbonzini@redhat.com>, xen-devel@lists.xenproject.org, Thomas Gleixner <tglx@linutronix.de>, Boris Ostrovsky <boris.ostrovsky@oracle.com>
+To: Thomas Zimmermann <tzimmermann@suse.de>, airlied@redhat.com, daniel@ffwll.ch, kraxel@redhat.com, maarten.lankhorst@linux.intel.com, maxime.ripard@bootlin.com, sean@poorly.run, sam@ravnborg.org, yc_chen@aspeedtech.com
+Cc: dri-devel@lists.freedesktop.org, virtualization@lists.linux-foundation.org
 List-Id: virtualization@lists.linuxfoundation.org
 
-On 03.07.19 01:51, Nadav Amit wrote:
-> To improve TLB shootdown performance, flush the remote and local TLBs
-> concurrently. Introduce flush_tlb_multi() that does so. Introduce
-> paravirtual versions of flush_tlb_multi() for KVM, Xen and hyper-v (Xen
-> and hyper-v are only compile-tested).
+
+
+Den 03.07.2019 10.32, skrev Thomas Zimmermann:
+> DRM clients, such as the fbdev emulation, have their buffer objects
+> mapped by default. Mapping a buffer implicitly prevents its relocation.
+> Hence, the buffer may permanently consume video memory while it's
+> allocated. This is a problem for drivers of low-memory devices, such as
+> ast, mgag200 or older framebuffer hardware, which will then not have
+> enough memory to display other content (e.g., X11).
 > 
-> While the updated smp infrastructure is capable of running a function on
-> a single local core, it is not optimized for this case. The multiple
-> function calls and the indirect branch introduce some overhead, and
-> might make local TLB flushes slower than they were before the recent
-> changes.
+> This patch introduces drm_client_buffer_vmap() and _vunmap(). Internal
+> DRM clients can use these functions to unmap and remap buffer objects
+> as needed.
 > 
-> Before calling the SMP infrastructure, check if only a local TLB flush
-> is needed to restore the lost performance in this common case. This
-> requires to check mm_cpumask() one more time, but unless this mask is
-> updated very frequently, this should impact performance negatively.
+> There's no reference counting for vmap operations. Callers are expected
+> to either keep buffers mapped (as it is now), or call vmap and vunmap
+> in pairs around code that accesses the mapped memory.
 > 
-> Cc: "K. Y. Srinivasan" <kys@microsoft.com>
-> Cc: Haiyang Zhang <haiyangz@microsoft.com>
-> Cc: Stephen Hemminger <sthemmin@microsoft.com>
-> Cc: Sasha Levin <sashal@kernel.org>
-> Cc: Thomas Gleixner <tglx@linutronix.de>
-> Cc: Ingo Molnar <mingo@redhat.com>
-> Cc: Borislav Petkov <bp@alien8.de>
-> Cc: x86@kernel.org
-> Cc: Juergen Gross <jgross@suse.com>
-> Cc: Paolo Bonzini <pbonzini@redhat.com>
-> Cc: Dave Hansen <dave.hansen@linux.intel.com>
-> Cc: Andy Lutomirski <luto@kernel.org>
-> Cc: Peter Zijlstra <peterz@infradead.org>
-> Cc: Boris Ostrovsky <boris.ostrovsky@oracle.com>
-> Cc: linux-hyperv@vger.kernel.org
-> Cc: linux-kernel@vger.kernel.org
-> Cc: virtualization@lists.linux-foundation.org
-> Cc: kvm@vger.kernel.org
-> Cc: xen-devel@lists.xenproject.org
-> Signed-off-by: Nadav Amit <namit@vmware.com>
+> Signed-off-by: Thomas Zimmermann <tzimmermann@suse.de>
 > ---
->   arch/x86/hyperv/mmu.c                 | 13 +++---
->   arch/x86/include/asm/paravirt.h       |  6 +--
->   arch/x86/include/asm/paravirt_types.h |  4 +-
->   arch/x86/include/asm/tlbflush.h       |  9 ++--
->   arch/x86/include/asm/trace/hyperv.h   |  2 +-
->   arch/x86/kernel/kvm.c                 | 11 +++--
->   arch/x86/kernel/paravirt.c            |  2 +-
->   arch/x86/mm/tlb.c                     | 65 ++++++++++++++++++++-------
->   arch/x86/xen/mmu_pv.c                 | 20 ++++++---
->   include/trace/events/xen.h            |  2 +-
->   10 files changed, 91 insertions(+), 43 deletions(-)
+>  drivers/gpu/drm/drm_client.c | 71 +++++++++++++++++++++++++++++++-----
+>  include/drm/drm_client.h     |  3 ++
+>  2 files changed, 64 insertions(+), 10 deletions(-)
+> 
+> diff --git a/drivers/gpu/drm/drm_client.c b/drivers/gpu/drm/drm_client.c
+> index 410572f14257..d04660c4470a 100644
+> --- a/drivers/gpu/drm/drm_client.c
+> +++ b/drivers/gpu/drm/drm_client.c
+> @@ -235,7 +235,8 @@ static void drm_client_buffer_delete(struct drm_client_buffer *buffer)
+>  {
+>  	struct drm_device *dev = buffer->client->dev;
+>  
+> -	drm_gem_vunmap(buffer->gem, buffer->vaddr);
+> +	if (buffer->vaddr)
 
-...
+No need for this, drm_gem_vunmap() has a NULL check.
 
-> diff --git a/arch/x86/xen/mmu_pv.c b/arch/x86/xen/mmu_pv.c
-> index beb44e22afdf..19e481e6e904 100644
-> --- a/arch/x86/xen/mmu_pv.c
-> +++ b/arch/x86/xen/mmu_pv.c
-> @@ -1355,8 +1355,8 @@ static void xen_flush_tlb_one_user(unsigned long addr)
->   	preempt_enable();
->   }
->   
-> -static void xen_flush_tlb_others(const struct cpumask *cpus,
-> -				 const struct flush_tlb_info *info)
-> +static void xen_flush_tlb_multi(const struct cpumask *cpus,
-> +				const struct flush_tlb_info *info)
->   {
->   	struct {
->   		struct mmuext_op op;
-> @@ -1366,7 +1366,7 @@ static void xen_flush_tlb_others(const struct cpumask *cpus,
->   	const size_t mc_entry_size = sizeof(args->op) +
->   		sizeof(args->mask[0]) * BITS_TO_LONGS(num_possible_cpus());
->   
-> -	trace_xen_mmu_flush_tlb_others(cpus, info->mm, info->start, info->end);
-> +	trace_xen_mmu_flush_tlb_multi(cpus, info->mm, info->start, info->end);
->   
->   	if (cpumask_empty(cpus))
->   		return;		/* nothing to do */
-> @@ -1375,9 +1375,17 @@ static void xen_flush_tlb_others(const struct cpumask *cpus,
->   	args = mcs.args;
->   	args->op.arg2.vcpumask = to_cpumask(args->mask);
->   
-> -	/* Remove us, and any offline CPUS. */
-> +	/* Flush locally if needed and remove us */
-> +	if (cpumask_test_cpu(smp_processor_id(), to_cpumask(args->mask))) {
-> +		local_irq_disable();
-> +		flush_tlb_func_local(info);
+> +		drm_gem_vunmap(buffer->gem, buffer->vaddr);
+>  
+>  	if (buffer->gem)
+>  		drm_gem_object_put_unlocked(buffer->gem);
+> @@ -281,6 +282,43 @@ drm_client_buffer_create(struct drm_client_dev *client, u32 width, u32 height, u
+>  
+>  	buffer->gem = obj;
+>  
+> +	vaddr = drm_client_buffer_vmap(buffer);
 
-I think this isn't the correct function for PV guests.
+I think we should change this and _not_ vmap on buffer creation.
+Eventually we'll get bootsplash and console clients and they will also
+have to deal with these low memory devices. AFAICS the only client that
+will need a virtual address at all times is the fbdev client when it
+doesn't use a shadow buffer.
 
-In fact it should be much easier: just don't clear the own cpu from the
-mask, that's all what's needed. The hypervisor is just fine having the
-current cpu in the mask and it will do the right thing.
+> +	if (IS_ERR(vaddr)) {
+> +		ret = PTR_ERR(vaddr);
+> +		goto err_delete;
+> +	}
+> +
+> +	return buffer;
+> +
+> +err_delete:
+> +	drm_client_buffer_delete(buffer);
+> +
+> +	return ERR_PTR(ret);
+> +}
+> +
+> +/**
+> + * drm_client_buffer_vmap - Map DRM client buffer into address space
+> + * @buffer: DRM client buffer
+> + *
+> + * This function maps a client buffer into kernel address space. If the
+> + * buffer is already mapped, it returns the mapping's address.
+> + *
+> + * Client buffer mappings are not ref'counted. Each call to
+> + * drm_client_buffer_vmap() should be followed by a call to
+> + * drm_client_buffer_vunmap(); or the client buffer should be mapped
+> + * throughout its lifetime. The latter is the default.
+> + *
+> + * Returns:
+> + *	The mapped memory's address
+> + */
+> +void *
+> +drm_client_buffer_vmap(struct drm_client_buffer *buffer)
+> +{
+> +	void *vaddr;
+> +
+> +	if (buffer->vaddr)
+> +		return buffer->vaddr;
+> +
+>  	/*
+>  	 * FIXME: The dependency on GEM here isn't required, we could
+>  	 * convert the driver handle to a dma-buf instead and use the
+> @@ -289,21 +327,34 @@ drm_client_buffer_create(struct drm_client_dev *client, u32 width, u32 height, u
+>  	 * fd_install step out of the driver backend hooks, to make that
+>  	 * final step optional for internal users.
+>  	 */
+> -	vaddr = drm_gem_vmap(obj);
+> -	if (IS_ERR(vaddr)) {
+> -		ret = PTR_ERR(vaddr);
+> -		goto err_delete;
+> -	}
+> +	vaddr = drm_gem_vmap(buffer->gem);
+> +	if (IS_ERR(vaddr))
+> +		return vaddr;
+>  
+>  	buffer->vaddr = vaddr;
+>  
+> -	return buffer;
+> +	return vaddr;
+> +}
+> +EXPORT_SYMBOL(drm_client_buffer_vmap);
+>  
+> -err_delete:
+> -	drm_client_buffer_delete(buffer);
+> +/**
+> + * drm_client_buffer_vunmap - Unmap DRM client buffer
+> + * @buffer: DRM client buffer
+> + *
+> + * This function removes a client buffer's memory mmapping. This
+> + * function is only required by clients that manage their buffers
+> + * by themselves. By default, DRM client buffers are mapped throughout
+> + * their entire lifetime.
+> + */
+> +void drm_client_buffer_vunmap(struct drm_client_buffer *buffer)
+> +{
+> +	if (!buffer->vaddr)
 
+No need for a NULL check here either.
 
-Juergen
+Noralf.
+
+> +		return;
+>  
+> -	return ERR_PTR(ret);
+> +	drm_gem_vunmap(buffer->gem, buffer->vaddr);
+> +	buffer->vaddr = NULL;
+>  }
+> +EXPORT_SYMBOL(drm_client_buffer_vunmap);
+>  
+>  static void drm_client_buffer_rmfb(struct drm_client_buffer *buffer)
+>  {
+> diff --git a/include/drm/drm_client.h b/include/drm/drm_client.h
+> index 72d51d1e9dd9..e1db1d9da0bf 100644
+> --- a/include/drm/drm_client.h
+> +++ b/include/drm/drm_client.h
+> @@ -149,6 +149,9 @@ struct drm_client_buffer {
+>  struct drm_client_buffer *
+>  drm_client_framebuffer_create(struct drm_client_dev *client, u32 width, u32 height, u32 format);
+>  void drm_client_framebuffer_delete(struct drm_client_buffer *buffer);
+> +void *
+> +drm_client_buffer_vmap(struct drm_client_buffer *buffer);
+> +void drm_client_buffer_vunmap(struct drm_client_buffer *buffer);
+>  
+>  int drm_client_modeset_create(struct drm_client_dev *client);
+>  void drm_client_modeset_free(struct drm_client_dev *client);
+> 
