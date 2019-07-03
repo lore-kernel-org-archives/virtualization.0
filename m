@@ -1,21 +1,14 @@
-From: Nadav Amit via Virtualization <virtualization@lists.linux-foundation.org>
-Subject: Re: [Xen-devel] [PATCH v2 4/9] x86/mm/tlb: Flush remote and local
-	TLBs concurrently
-Date: Wed, 3 Jul 2019 18:09:30 +0000
-Message-ID: <650C2A6A-F663-497C-9637-277219536DE4__6979.49487236969$1562177418$gmane$org@vmware.com>
-References: <20190702235151.4377-1-namit@vmware.com>
-	<20190702235151.4377-5-namit@vmware.com>
-	<d89e2b57-8682-153e-33d8-98084e9983d6@suse.com>
-	<A4BC0EDE-71F0-455D-964A-7250D005FB56@vmware.com>
-	<6038042c-917f-d361-5d79-f0205152fe00@citrix.com>
-Reply-To: Nadav Amit <namit@vmware.com>
+From: Chia-I Wu <olvaffe@gmail.com>
+Subject: Re: [PATCH v6 07/18] drm/virtio: add virtio_gpu_object_array & helpers
+Date: Wed, 3 Jul 2019 11:31:24 -0700
+Message-ID: <CAPaKu7TJ1RgL_CjGnieE1hOOXnT-ECRk67ntRCPTFiv+EmrX4Q__34409.2398927145$1562178708$gmane$org@mail.gmail.com>
+References: <20190702141903.1131-1-kraxel@redhat.com>
+	<20190702141903.1131-8-kraxel@redhat.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="utf-8"
-Content-Transfer-Encoding: base64
+Content-Type: text/plain; charset="us-ascii"
+Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <6038042c-917f-d361-5d79-f0205152fe00@citrix.com>
-Content-Language: en-US
-Content-ID: <15EE35CEB468C14C81A624C3722A5E35@namprd05.prod.outlook.com>
+In-Reply-To: <20190702141903.1131-8-kraxel@redhat.com>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -25,102 +18,154 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Andrew Cooper <andrew.cooper3@citrix.com>
-Cc: Juergen Gross <jgross@suse.com>, Sasha Levin <sashal@kernel.org>, "linux-hyperv@vger.kernel.org" <linux-hyperv@vger.kernel.org>, Dave Hansen <dave.hansen@linux.intel.com>, Stephen Hemminger <sthemmin@microsoft.com>, kvm list <kvm@vger.kernel.org>, Peter Zijlstra <peterz@infradead.org>, Haiyang Zhang <haiyangz@microsoft.com>, the arch/x86 maintainers <x86@kernel.org>, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>, "virtualization@lists.linux-foundation.org" <virtualization@lists.linux-foundation.org>, Ingo Molnar <mingo@redhat.com>, Borislav Petkov <bp@alien8.de>, Andy Lutomirski <luto@kernel.org>, xen-devel <xen-devel@lists.xenproject.org>, Paolo Bonzini <pbonzini@redhat.com>, Thomas Gleixner <tglx@linutronix.de>, Boris Ostrovsky <boris.ostrovsky@oracle.com>
+To: Gerd Hoffmann <kraxel@redhat.com>
+Cc: David Airlie <airlied@linux.ie>, open list <linux-kernel@vger.kernel.org>, ML dri-devel <dri-devel@lists.freedesktop.org>, "open list:VIRTIO GPU DRIVER" <virtualization@lists.linux-foundation.org>, Daniel Vetter <daniel@ffwll.ch>, Gurchetan Singh <gurchetansingh@chromium.org>
 List-Id: virtualization@lists.linuxfoundation.org
 
-PiBPbiBKdWwgMywgMjAxOSwgYXQgMTA6NDMgQU0sIEFuZHJldyBDb29wZXIgPGFuZHJldy5jb29w
-ZXIzQGNpdHJpeC5jb20+IHdyb3RlOg0KPiANCj4gT24gMDMvMDcvMjAxOSAxODowMiwgTmFkYXYg
-QW1pdCB3cm90ZToNCj4+PiBPbiBKdWwgMywgMjAxOSwgYXQgNzowNCBBTSwgSnVlcmdlbiBHcm9z
-cyA8amdyb3NzQHN1c2UuY29tPiB3cm90ZToNCj4+PiANCj4+PiBPbiAwMy4wNy4xOSAwMTo1MSwg
-TmFkYXYgQW1pdCB3cm90ZToNCj4+Pj4gVG8gaW1wcm92ZSBUTEIgc2hvb3Rkb3duIHBlcmZvcm1h
-bmNlLCBmbHVzaCB0aGUgcmVtb3RlIGFuZCBsb2NhbCBUTEJzDQo+Pj4+IGNvbmN1cnJlbnRseS4g
-SW50cm9kdWNlIGZsdXNoX3RsYl9tdWx0aSgpIHRoYXQgZG9lcyBzby4gSW50cm9kdWNlDQo+Pj4+
-IHBhcmF2aXJ0dWFsIHZlcnNpb25zIG9mIGZsdXNoX3RsYl9tdWx0aSgpIGZvciBLVk0sIFhlbiBh
-bmQgaHlwZXItdiAoWGVuDQo+Pj4+IGFuZCBoeXBlci12IGFyZSBvbmx5IGNvbXBpbGUtdGVzdGVk
-KS4NCj4+Pj4gV2hpbGUgdGhlIHVwZGF0ZWQgc21wIGluZnJhc3RydWN0dXJlIGlzIGNhcGFibGUg
-b2YgcnVubmluZyBhIGZ1bmN0aW9uIG9uDQo+Pj4+IGEgc2luZ2xlIGxvY2FsIGNvcmUsIGl0IGlz
-IG5vdCBvcHRpbWl6ZWQgZm9yIHRoaXMgY2FzZS4gVGhlIG11bHRpcGxlDQo+Pj4+IGZ1bmN0aW9u
-IGNhbGxzIGFuZCB0aGUgaW5kaXJlY3QgYnJhbmNoIGludHJvZHVjZSBzb21lIG92ZXJoZWFkLCBh
-bmQNCj4+Pj4gbWlnaHQgbWFrZSBsb2NhbCBUTEIgZmx1c2hlcyBzbG93ZXIgdGhhbiB0aGV5IHdl
-cmUgYmVmb3JlIHRoZSByZWNlbnQNCj4+Pj4gY2hhbmdlcy4NCj4+Pj4gQmVmb3JlIGNhbGxpbmcg
-dGhlIFNNUCBpbmZyYXN0cnVjdHVyZSwgY2hlY2sgaWYgb25seSBhIGxvY2FsIFRMQiBmbHVzaA0K
-Pj4+PiBpcyBuZWVkZWQgdG8gcmVzdG9yZSB0aGUgbG9zdCBwZXJmb3JtYW5jZSBpbiB0aGlzIGNv
-bW1vbiBjYXNlLiBUaGlzDQo+Pj4+IHJlcXVpcmVzIHRvIGNoZWNrIG1tX2NwdW1hc2soKSBvbmUg
-bW9yZSB0aW1lLCBidXQgdW5sZXNzIHRoaXMgbWFzayBpcw0KPj4+PiB1cGRhdGVkIHZlcnkgZnJl
-cXVlbnRseSwgdGhpcyBzaG91bGQgaW1wYWN0IHBlcmZvcm1hbmNlIG5lZ2F0aXZlbHkuDQo+Pj4+
-IENjOiAiSy4gWS4gU3Jpbml2YXNhbiIgPGt5c0BtaWNyb3NvZnQuY29tPg0KPj4+PiBDYzogSGFp
-eWFuZyBaaGFuZyA8aGFpeWFuZ3pAbWljcm9zb2Z0LmNvbT4NCj4+Pj4gQ2M6IFN0ZXBoZW4gSGVt
-bWluZ2VyIDxzdGhlbW1pbkBtaWNyb3NvZnQuY29tPg0KPj4+PiBDYzogU2FzaGEgTGV2aW4gPHNh
-c2hhbEBrZXJuZWwub3JnPg0KPj4+PiBDYzogVGhvbWFzIEdsZWl4bmVyIDx0Z2x4QGxpbnV0cm9u
-aXguZGU+DQo+Pj4+IENjOiBJbmdvIE1vbG5hciA8bWluZ29AcmVkaGF0LmNvbT4NCj4+Pj4gQ2M6
-IEJvcmlzbGF2IFBldGtvdiA8YnBAYWxpZW44LmRlPg0KPj4+PiBDYzogeDg2QGtlcm5lbC5vcmcN
-Cj4+Pj4gQ2M6IEp1ZXJnZW4gR3Jvc3MgPGpncm9zc0BzdXNlLmNvbT4NCj4+Pj4gQ2M6IFBhb2xv
-IEJvbnppbmkgPHBib256aW5pQHJlZGhhdC5jb20+DQo+Pj4+IENjOiBEYXZlIEhhbnNlbiA8ZGF2
-ZS5oYW5zZW5AbGludXguaW50ZWwuY29tPg0KPj4+PiBDYzogQW5keSBMdXRvbWlyc2tpIDxsdXRv
-QGtlcm5lbC5vcmc+DQo+Pj4+IENjOiBQZXRlciBaaWpsc3RyYSA8cGV0ZXJ6QGluZnJhZGVhZC5v
-cmc+DQo+Pj4+IENjOiBCb3JpcyBPc3Ryb3Zza3kgPGJvcmlzLm9zdHJvdnNreUBvcmFjbGUuY29t
-Pg0KPj4+PiBDYzogbGludXgtaHlwZXJ2QHZnZXIua2VybmVsLm9yZw0KPj4+PiBDYzogbGludXgt
-a2VybmVsQHZnZXIua2VybmVsLm9yZw0KPj4+PiBDYzogdmlydHVhbGl6YXRpb25AbGlzdHMubGlu
-dXgtZm91bmRhdGlvbi5vcmcNCj4+Pj4gQ2M6IGt2bUB2Z2VyLmtlcm5lbC5vcmcNCj4+Pj4gQ2M6
-IHhlbi1kZXZlbEBsaXN0cy54ZW5wcm9qZWN0Lm9yZw0KPj4+PiBTaWduZWQtb2ZmLWJ5OiBOYWRh
-diBBbWl0IDxuYW1pdEB2bXdhcmUuY29tPg0KPj4+PiAtLS0NCj4+Pj4gYXJjaC94ODYvaHlwZXJ2
-L21tdS5jICAgICAgICAgICAgICAgICB8IDEzICsrKy0tLQ0KPj4+PiBhcmNoL3g4Ni9pbmNsdWRl
-L2FzbS9wYXJhdmlydC5oICAgICAgIHwgIDYgKy0tDQo+Pj4+IGFyY2gveDg2L2luY2x1ZGUvYXNt
-L3BhcmF2aXJ0X3R5cGVzLmggfCAgNCArLQ0KPj4+PiBhcmNoL3g4Ni9pbmNsdWRlL2FzbS90bGJm
-bHVzaC5oICAgICAgIHwgIDkgKystLQ0KPj4+PiBhcmNoL3g4Ni9pbmNsdWRlL2FzbS90cmFjZS9o
-eXBlcnYuaCAgIHwgIDIgKy0NCj4+Pj4gYXJjaC94ODYva2VybmVsL2t2bS5jICAgICAgICAgICAg
-ICAgICB8IDExICsrKy0tDQo+Pj4+IGFyY2gveDg2L2tlcm5lbC9wYXJhdmlydC5jICAgICAgICAg
-ICAgfCAgMiArLQ0KPj4+PiBhcmNoL3g4Ni9tbS90bGIuYyAgICAgICAgICAgICAgICAgICAgIHwg
-NjUgKysrKysrKysrKysrKysrKysrKystLS0tLS0tDQo+Pj4+IGFyY2gveDg2L3hlbi9tbXVfcHYu
-YyAgICAgICAgICAgICAgICAgfCAyMCArKysrKystLS0NCj4+Pj4gaW5jbHVkZS90cmFjZS9ldmVu
-dHMveGVuLmggICAgICAgICAgICB8ICAyICstDQo+Pj4+IDEwIGZpbGVzIGNoYW5nZWQsIDkxIGlu
-c2VydGlvbnMoKyksIDQzIGRlbGV0aW9ucygtKQ0KPj4+IC4uLg0KPj4+IA0KPj4+PiBkaWZmIC0t
-Z2l0IGEvYXJjaC94ODYveGVuL21tdV9wdi5jIGIvYXJjaC94ODYveGVuL21tdV9wdi5jDQo+Pj4+
-IGluZGV4IGJlYjQ0ZTIyYWZkZi4uMTllNDgxZTZlOTA0IDEwMDY0NA0KPj4+PiAtLS0gYS9hcmNo
-L3g4Ni94ZW4vbW11X3B2LmMNCj4+Pj4gKysrIGIvYXJjaC94ODYveGVuL21tdV9wdi5jDQo+Pj4+
-IEBAIC0xMzU1LDggKzEzNTUsOCBAQCBzdGF0aWMgdm9pZCB4ZW5fZmx1c2hfdGxiX29uZV91c2Vy
-KHVuc2lnbmVkIGxvbmcgYWRkcikNCj4+Pj4gCXByZWVtcHRfZW5hYmxlKCk7DQo+Pj4+IH0NCj4+
-Pj4gLXN0YXRpYyB2b2lkIHhlbl9mbHVzaF90bGJfb3RoZXJzKGNvbnN0IHN0cnVjdCBjcHVtYXNr
-ICpjcHVzLA0KPj4+PiAtCQkJCSBjb25zdCBzdHJ1Y3QgZmx1c2hfdGxiX2luZm8gKmluZm8pDQo+
-Pj4+ICtzdGF0aWMgdm9pZCB4ZW5fZmx1c2hfdGxiX211bHRpKGNvbnN0IHN0cnVjdCBjcHVtYXNr
-ICpjcHVzLA0KPj4+PiArCQkJCWNvbnN0IHN0cnVjdCBmbHVzaF90bGJfaW5mbyAqaW5mbykNCj4+
-Pj4gew0KPj4+PiAJc3RydWN0IHsNCj4+Pj4gCQlzdHJ1Y3QgbW11ZXh0X29wIG9wOw0KPj4+PiBA
-QCAtMTM2Niw3ICsxMzY2LDcgQEAgc3RhdGljIHZvaWQgeGVuX2ZsdXNoX3RsYl9vdGhlcnMoY29u
-c3Qgc3RydWN0IGNwdW1hc2sgKmNwdXMsDQo+Pj4+IAljb25zdCBzaXplX3QgbWNfZW50cnlfc2l6
-ZSA9IHNpemVvZihhcmdzLT5vcCkgKw0KPj4+PiAJCXNpemVvZihhcmdzLT5tYXNrWzBdKSAqIEJJ
-VFNfVE9fTE9OR1MobnVtX3Bvc3NpYmxlX2NwdXMoKSk7DQo+Pj4+IC0JdHJhY2VfeGVuX21tdV9m
-bHVzaF90bGJfb3RoZXJzKGNwdXMsIGluZm8tPm1tLCBpbmZvLT5zdGFydCwgaW5mby0+ZW5kKTsN
-Cj4+Pj4gKwl0cmFjZV94ZW5fbW11X2ZsdXNoX3RsYl9tdWx0aShjcHVzLCBpbmZvLT5tbSwgaW5m
-by0+c3RhcnQsIGluZm8tPmVuZCk7DQo+Pj4+ICAgCWlmIChjcHVtYXNrX2VtcHR5KGNwdXMpKQ0K
-Pj4+PiAJCXJldHVybjsJCS8qIG5vdGhpbmcgdG8gZG8gKi8NCj4+Pj4gQEAgLTEzNzUsOSArMTM3
-NSwxNyBAQCBzdGF0aWMgdm9pZCB4ZW5fZmx1c2hfdGxiX290aGVycyhjb25zdCBzdHJ1Y3QgY3B1
-bWFzayAqY3B1cywNCj4+Pj4gCWFyZ3MgPSBtY3MuYXJnczsNCj4+Pj4gCWFyZ3MtPm9wLmFyZzIu
-dmNwdW1hc2sgPSB0b19jcHVtYXNrKGFyZ3MtPm1hc2spOw0KPj4+PiAtCS8qIFJlbW92ZSB1cywg
-YW5kIGFueSBvZmZsaW5lIENQVVMuICovDQo+Pj4+ICsJLyogRmx1c2ggbG9jYWxseSBpZiBuZWVk
-ZWQgYW5kIHJlbW92ZSB1cyAqLw0KPj4+PiArCWlmIChjcHVtYXNrX3Rlc3RfY3B1KHNtcF9wcm9j
-ZXNzb3JfaWQoKSwgdG9fY3B1bWFzayhhcmdzLT5tYXNrKSkpIHsNCj4+Pj4gKwkJbG9jYWxfaXJx
-X2Rpc2FibGUoKTsNCj4+Pj4gKwkJZmx1c2hfdGxiX2Z1bmNfbG9jYWwoaW5mbyk7DQo+Pj4gSSB0
-aGluayB0aGlzIGlzbid0IHRoZSBjb3JyZWN0IGZ1bmN0aW9uIGZvciBQViBndWVzdHMuDQo+Pj4g
-DQo+Pj4gSW4gZmFjdCBpdCBzaG91bGQgYmUgbXVjaCBlYXNpZXI6IGp1c3QgZG9uJ3QgY2xlYXIg
-dGhlIG93biBjcHUgZnJvbSB0aGUNCj4+PiBtYXNrLCB0aGF0J3MgYWxsIHdoYXQncyBuZWVkZWQu
-IFRoZSBoeXBlcnZpc29yIGlzIGp1c3QgZmluZSBoYXZpbmcgdGhlDQo+Pj4gY3VycmVudCBjcHUg
-aW4gdGhlIG1hc2sgYW5kIGl0IHdpbGwgZG8gdGhlIHJpZ2h0IHRoaW5nLg0KPj4gVGhhbmtzLiBJ
-IHdpbGwgZG8gc28gaW4gdjMuIEkgZG9u4oCZdCB0aGluayBIeXBlci1WIHBlb3BsZSB3b3VsZCB3
-YW50IHRvIGRvDQo+PiB0aGUgc2FtZSwgdW5mb3J0dW5hdGVseSwgc2luY2UgaXQgd291bGQgaW5k
-dWNlIFZNLWV4aXQgb24gVExCIGZsdXNoZXMuDQo+IA0KPiBXaHkgZG8geW91IGJlbGlldmUgdGhl
-IHZtZXhpdCBtYXR0ZXJzPyAgWW91J3JlIHRhbGtpbmcgb25lIGFueXdheSBmb3INCj4gdGhlIElQ
-SS4NCj4gDQo+IEludGVsIG9ubHkgaGF2ZSB2aXJ0dWFsaXNlZCBzZWxmLUlQSSwgYW5kIHdoaWxl
-IEFNRCBkbyBoYXZlIHdvcmtpbmcNCj4gbm9uLXNlbGYgSVBJcywgeW91IHN0aWxsIHRha2UgYSB2
-bWV4aXQgYW55d2F5IGlmIGFueSBkZXN0aW5hdGlvbiB2Y3B1DQo+IGlzbid0IGN1cnJlbnRseSBy
-dW5uaW5nIGluIG5vbi1yb290IG1vZGUgKElJUkMpLg0KPiANCj4gQXQgdGhhdCBwb2ludCwgeW91
-IG1pZ2h0IGFzIHdlbGwgaGF2ZSB0aGUgaHlwZXJ2aXNvciBkbyBhbGwgdGhlIGhhcmQNCj4gd29y
-ayB2aWEgYSBtdWx0aS1jcHUgc2hvb3Rkb3duL2ZsdXNoIGh5cGVyY2FsbCwgcmF0aGVyIHRoYW4g
-dHJ5aW5nIHRvDQo+IGFycmFuZ2UgaXQgbG9jYWxseS4NCg0KSSBmb3Jnb3QgdGhhdCB4ZW5fZmx1
-c2hfdGxiX211bHRpKCkgc2hvdWxkIGFjdHVhbGx5IG9ubHkgYmUgY2FsbGVkIHdoZW4NCnRoZXJl
-IGFyZSBzb21lIHJlbW90ZSBDUFVzIChhcyBJIG9wdGltaXplZCB0aGUgY2FzZSBpbiB3aGljaCB0
-aGVyZSBpcyBvbmx5IGENCnNpbmdsZSBsb2NhbCBDUFUgdGhhdCBuZWVkcyB0byBiZSBmbHVzaGVk
-KSwgc28geW91IGFyZSByaWdodC4NCg0KX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19f
-X19fX19fX19fX19fX18KVmlydHVhbGl6YXRpb24gbWFpbGluZyBsaXN0ClZpcnR1YWxpemF0aW9u
-QGxpc3RzLmxpbnV4LWZvdW5kYXRpb24ub3JnCmh0dHBzOi8vbGlzdHMubGludXhmb3VuZGF0aW9u
-Lm9yZy9tYWlsbWFuL2xpc3RpbmZvL3ZpcnR1YWxpemF0aW9u
+On Tue, Jul 2, 2019 at 7:19 AM Gerd Hoffmann <kraxel@redhat.com> wrote:
+>
+> Some helper functions to manage an array of gem objects.
+>
+> v6:
+>  - add ticket to struct virtio_gpu_object_array.
+>  - add virtio_gpu_array_{lock,unlock}_resv helpers.
+>  - add virtio_gpu_array_add_fence helper.
+> v5: some small optimizations (Chia-I Wu).
+> v4: make them virtio-private instead of generic helpers.
+>
+> Signed-off-by: Gerd Hoffmann <kraxel@redhat.com>
+> ---
+>  drivers/gpu/drm/virtio/virtgpu_drv.h | 17 ++++++
+>  drivers/gpu/drm/virtio/virtgpu_gem.c | 83 ++++++++++++++++++++++++++++
+>  2 files changed, 100 insertions(+)
+>
+> diff --git a/drivers/gpu/drm/virtio/virtgpu_drv.h b/drivers/gpu/drm/virtio/virtgpu_drv.h
+> index 07f6001ea91e..abb078a5dedf 100644
+> --- a/drivers/gpu/drm/virtio/virtgpu_drv.h
+> +++ b/drivers/gpu/drm/virtio/virtgpu_drv.h
+> @@ -84,6 +84,12 @@ struct virtio_gpu_object {
+>  #define gem_to_virtio_gpu_obj(gobj) \
+>         container_of((gobj), struct virtio_gpu_object, gem_base)
+>
+> +struct virtio_gpu_object_array {
+> +       struct ww_acquire_ctx ticket;
+> +       u32 nents, total;
+> +       struct drm_gem_object *objs[];
+> +};
+> +
+>  struct virtio_gpu_vbuffer;
+>  struct virtio_gpu_device;
+>
+> @@ -251,6 +257,17 @@ int virtio_gpu_mode_dumb_mmap(struct drm_file *file_priv,
+>                               struct drm_device *dev,
+>                               uint32_t handle, uint64_t *offset_p);
+>
+> +struct virtio_gpu_object_array *virtio_gpu_array_alloc(u32 nents);
+> +struct virtio_gpu_object_array*
+> +virtio_gpu_array_from_handles(struct drm_file *drm_file, u32 *handles, u32 nents);
+> +void virtio_gpu_array_add_obj(struct virtio_gpu_object_array *objs,
+> +                             struct drm_gem_object *obj);
+> +int virtio_gpu_array_lock_resv(struct virtio_gpu_object_array *objs);
+> +void virtio_gpu_array_unlock_resv(struct virtio_gpu_object_array *objs);
+> +void virtio_gpu_array_add_fence(struct virtio_gpu_object_array *objs,
+> +                               struct dma_fence *fence);
+> +void virtio_gpu_array_put_free(struct virtio_gpu_object_array *objs);
+> +
+>  /* virtio vg */
+>  int virtio_gpu_alloc_vbufs(struct virtio_gpu_device *vgdev);
+>  void virtio_gpu_free_vbufs(struct virtio_gpu_device *vgdev);
+> diff --git a/drivers/gpu/drm/virtio/virtgpu_gem.c b/drivers/gpu/drm/virtio/virtgpu_gem.c
+> index 9c9ad3b14080..e88df5e06d06 100644
+> --- a/drivers/gpu/drm/virtio/virtgpu_gem.c
+> +++ b/drivers/gpu/drm/virtio/virtgpu_gem.c
+> @@ -169,3 +169,86 @@ void virtio_gpu_gem_object_close(struct drm_gem_object *obj,
+>                                                 qobj->hw_res_handle);
+>         virtio_gpu_object_unreserve(qobj);
+>  }
+> +
+> +struct virtio_gpu_object_array *virtio_gpu_array_alloc(u32 nents)
+> +{
+> +       struct virtio_gpu_object_array *objs;
+> +       size_t size = sizeof(*objs) + sizeof(objs->objs[0]) * nents;
+> +
+> +       objs = kmalloc(size, GFP_KERNEL);
+> +       if (!objs)
+> +               return NULL;
+> +
+> +       objs->nents = 0;
+> +       objs->total = nents;
+> +       return objs;
+> +}
+> +
+> +static void virtio_gpu_array_free(struct virtio_gpu_object_array *objs)
+> +{
+> +       kfree(objs);
+> +}
+> +
+> +struct virtio_gpu_object_array*
+> +virtio_gpu_array_from_handles(struct drm_file *drm_file, u32 *handles, u32 nents)
+> +{
+> +       struct virtio_gpu_object_array *objs;
+> +       u32 i;
+> +
+> +       objs = virtio_gpu_array_alloc(nents);
+> +       if (!objs)
+> +               return NULL;
+> +
+> +       for (i = 0; i < nents; i++) {
+> +               objs->nents = i;
+This line can be moved into the if-block just below.
+> +               objs->objs[i] = drm_gem_object_lookup(drm_file, handles[i]);
+> +               if (!objs->objs[i]) {
+> +                       virtio_gpu_array_put_free(objs);
+> +                       return NULL;
+> +               }
+> +       }
+> +       objs->nents = i;
+> +       return objs;
+> +}
+> +
+> +void virtio_gpu_array_add_obj(struct virtio_gpu_object_array *objs,
+> +                             struct drm_gem_object *obj)
+> +{
+> +       if (WARN_ON_ONCE(objs->nents == objs->total))
+> +               return;
+> +
+> +       drm_gem_object_get(obj);
+> +       objs->objs[objs->nents] = obj;
+> +       objs->nents++;
+> +}
+> +
+> +int virtio_gpu_array_lock_resv(struct virtio_gpu_object_array *objs)
+> +{
+> +       return drm_gem_lock_reservations(objs->objs, objs->nents,
+> +                                        &objs->ticket);
+> +}
+> +
+> +void virtio_gpu_array_unlock_resv(struct virtio_gpu_object_array *objs)
+> +{
+> +       drm_gem_unlock_reservations(objs->objs, objs->nents,
+> +                                   &objs->ticket);
+> +}
+> +
+> +void virtio_gpu_array_add_fence(struct virtio_gpu_object_array *objs,
+> +                               struct dma_fence *fence)
+> +{
+> +       int i;
+> +
+> +       for (i = 0; i < objs->nents; i++)
+> +               reservation_object_add_excl_fence(objs->objs[i]->resv,
+> +                                                 fence);
+> +}
+> +
+> +void virtio_gpu_array_put_free(struct virtio_gpu_object_array *objs)
+> +{
+> +       u32 i;
+> +
+> +       for (i = 0; i < objs->nents; i++)
+> +               drm_gem_object_put_unlocked(objs->objs[i]);
+> +       virtio_gpu_array_free(objs);
+> +}
+> --
+> 2.18.1
+>
