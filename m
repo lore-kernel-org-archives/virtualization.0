@@ -1,13 +1,12 @@
-From: iggy@kws1.com
-Subject: Re: What are all the different virtualization solutions for Linux?
-Date: Tue, 2 Jul 2019 15:56:57 -0700
-Message-ID: <E762A459-99D7-44F2-AEDD-B74CD94EB4E3@theiggy.com>
-References: <SG2PR01MB21414F5E77B7E49670E8444A87F80@SG2PR01MB2141.apcprd01.prod.exchangelabs.com>
-Mime-Version: 1.0 (Mac OS X Mail 12.4 \(3445.104.11\))
+From: Fuqian Huang <huangfq.daxian@gmail.com>
+Subject: [PATCH 05/30] crypto: Use kmemdup rather than duplicating its
+	implementation
+Date: Wed,  3 Jul 2019 21:13:58 +0800
+Message-ID: <20190703131358.24901-1-huangfq.daxian__39811.0530617245$1563995284$gmane$org@gmail.com>
+Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <SG2PR01MB21414F5E77B7E49670E8444A87F80@SG2PR01MB2141.apcprd01.prod.exchangelabs.com>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -17,56 +16,85 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Turritopsis Dohrnii Teo En Ming <ceo@teo-en-ming-corp.com>
-Cc: "virtualization@lists.linux-foundation.org" <virtualization@lists.linux-foundation.org>
+Cc: Aymen Sghaier <aymen.sghaier@nxp.com>, Herbert Xu <herbert@gondor.apana.org.au>, =?UTF-8?q?Horia=20Geant=C4=83?= <horia.geanta@nxp.com>, "Michael S . Tsirkin" <mst@redhat.com>, linux-kernel@vger.kernel.org, virtualization@lists.linux-foundation.org, linux-crypto@vger.kernel.org, Fuqian Huang <huangfq.daxian@gmail.com>, "David S . Miller" <davem@davemloft.net>
 List-Id: virtualization@lists.linuxfoundation.org
 
-Saying `kvm` is a pretty loaded term. There are at least 5 frontends for it that I know of (qemu, firecracker, nemu, cloud-hypervisor, crosvm, etc).
+kmemdup is introduced to duplicate a region of memory in a neat way.
+Rather than kmalloc/kzalloc + memset, which the programmer needs to
+write the size twice (sometimes lead to mistakes), kmemdup improves
+readability, leads to smaller code and also reduce the chances of mistakes.
+Suggestion to use kmemdup rather than using kmalloc/kzalloc + memset.
 
-Are you looking for strictly open source options?
+Signed-off-by: Fuqian Huang <huangfq.daxian@gmail.com>
+---
+ drivers/crypto/caam/caampkc.c              | 11 +++--------
+ drivers/crypto/virtio/virtio_crypto_algs.c |  4 +---
+ 2 files changed, 4 insertions(+), 11 deletions(-)
 
-
-
-> On Jul 2, 2019, at 5:56 AM, Turritopsis Dohrnii Teo En Ming <ceo@teo-en-ming-corp.com> wrote:
-> 
-> Good evening from Singapore,
-> 
-> What are all the different virtualization solutions for Linux? I can think of:
-> 
-> 1. open source Xen project
-> 
-> 2. linux-kvm
-> 
-> Are there any others? Is there a comprehensive list of all virtualization solutions for Linux?
-> 
-> Thank you.
-> 
-> 
-> 
-> 
-> -----BEGIN EMAIL SIGNATURE-----
-> 
-> The Gospel for all Targeted Individuals (TIs):
-> 
-> [The New York Times] Microwave Weapons Are Prime Suspect in Ills of
-> U.S. Embassy Workers
-> 
-> Link: https://www.nytimes.com/2018/09/01/science/sonic-attack-cuba-microwave.html
-> 
-> ********************************************************************************************
-> 
-> Singaporean Mr. Turritopsis Dohrnii Teo En Ming's Academic
-> Qualifications as at 14 Feb 2019
-> 
-> [1] https://tdtemcerts.wordpress.com/
-> 
-> [2] https://tdtemcerts.blogspot.sg/
-> 
-> [3] https://www.scribd.com/user/270125049/Teo-En-Ming
-> 
-> -----END EMAIL SIGNATURE-----
-> 
-> _______________________________________________
-> Virtualization mailing list
-> Virtualization@lists.linux-foundation.org
-> https://lists.linuxfoundation.org/mailman/listinfo/virtualization
+diff --git a/drivers/crypto/caam/caampkc.c b/drivers/crypto/caam/caampkc.c
+index fe24485274e1..a03464b4c019 100644
+--- a/drivers/crypto/caam/caampkc.c
++++ b/drivers/crypto/caam/caampkc.c
+@@ -816,7 +816,7 @@ static int caam_rsa_set_pub_key(struct crypto_akcipher *tfm, const void *key,
+ 		return ret;
+ 
+ 	/* Copy key in DMA zone */
+-	rsa_key->e = kzalloc(raw_key.e_sz, GFP_DMA | GFP_KERNEL);
++	rsa_key->e = kmemdup(raw_key.e, raw_key.e_sz, GFP_DMA | GFP_KERNEL);
+ 	if (!rsa_key->e)
+ 		goto err;
+ 
+@@ -838,8 +838,6 @@ static int caam_rsa_set_pub_key(struct crypto_akcipher *tfm, const void *key,
+ 	rsa_key->e_sz = raw_key.e_sz;
+ 	rsa_key->n_sz = raw_key.n_sz;
+ 
+-	memcpy(rsa_key->e, raw_key.e, raw_key.e_sz);
+-
+ 	return 0;
+ err:
+ 	caam_rsa_free_key(rsa_key);
+@@ -920,11 +918,11 @@ static int caam_rsa_set_priv_key(struct crypto_akcipher *tfm, const void *key,
+ 		return ret;
+ 
+ 	/* Copy key in DMA zone */
+-	rsa_key->d = kzalloc(raw_key.d_sz, GFP_DMA | GFP_KERNEL);
++	rsa_key->d = kmemdup(raw_key.d, raw_key.d_sz, GFP_DMA | GFP_KERNEL);
+ 	if (!rsa_key->d)
+ 		goto err;
+ 
+-	rsa_key->e = kzalloc(raw_key.e_sz, GFP_DMA | GFP_KERNEL);
++	rsa_key->e = kmemdup(raw_key.e, raw_key.e_sz, GFP_DMA | GFP_KERNEL);
+ 	if (!rsa_key->e)
+ 		goto err;
+ 
+@@ -947,9 +945,6 @@ static int caam_rsa_set_priv_key(struct crypto_akcipher *tfm, const void *key,
+ 	rsa_key->e_sz = raw_key.e_sz;
+ 	rsa_key->n_sz = raw_key.n_sz;
+ 
+-	memcpy(rsa_key->d, raw_key.d, raw_key.d_sz);
+-	memcpy(rsa_key->e, raw_key.e, raw_key.e_sz);
+-
+ 	caam_rsa_set_priv_key_form(ctx, &raw_key);
+ 
+ 	return 0;
+diff --git a/drivers/crypto/virtio/virtio_crypto_algs.c b/drivers/crypto/virtio/virtio_crypto_algs.c
+index 10f266d462d6..42d19205166b 100644
+--- a/drivers/crypto/virtio/virtio_crypto_algs.c
++++ b/drivers/crypto/virtio/virtio_crypto_algs.c
+@@ -129,13 +129,11 @@ static int virtio_crypto_alg_ablkcipher_init_session(
+ 	 * Avoid to do DMA from the stack, switch to using
+ 	 * dynamically-allocated for the key
+ 	 */
+-	uint8_t *cipher_key = kmalloc(keylen, GFP_ATOMIC);
++	uint8_t *cipher_key = kmemdup(key, keylen, GFP_ATOMIC);
+ 
+ 	if (!cipher_key)
+ 		return -ENOMEM;
+ 
+-	memcpy(cipher_key, key, keylen);
+-
+ 	spin_lock(&vcrypto->ctrl_lock);
+ 	/* Pad ctrl header */
+ 	vcrypto->ctrl.header.opcode =
+-- 
+2.11.0
