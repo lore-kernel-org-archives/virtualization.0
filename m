@@ -1,15 +1,16 @@
-From: Stefan Hajnoczi <stefanha@gmail.com>
-Subject: Re: [PATCH v2 0/3] vsock/virtio: several fixes in the .probe() and
-	.remove()
-Date: Wed, 3 Jul 2019 10:14:53 +0100
-Message-ID: <20190703091453.GA11844__553.881788958677$1562145847$gmane$org@stefanha-x1.localdomain>
+From: Jason Wang <jasowang@redhat.com>
+Subject: Re: [PATCH v2 1/3] vsock/virtio: use RCU to avoid use-after-free on
+	the_virtio_vsock
+Date: Wed, 3 Jul 2019 17:53:58 +0800
+Message-ID: <05311244-ed23-d061-a620-7b83d83c11f5__22654.2022240878$1562147673$gmane$org@redhat.com>
 References: <20190628123659.139576-1-sgarzare@redhat.com>
-	<20190701151113.GE11900@stefanha-x1.localdomain>
-	<20190701170357.jtuhy3ank7mv6izb@steredhat>
+	<20190628123659.139576-2-sgarzare@redhat.com>
 Mime-Version: 1.0
-Content-Type: multipart/mixed; boundary="===============4343557009544201301=="
+Content-Type: text/plain; charset="utf-8"; Format="flowed"
+Content-Transfer-Encoding: base64
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <20190701170357.jtuhy3ank7mv6izb@steredhat>
+In-Reply-To: <20190628123659.139576-2-sgarzare@redhat.com>
+Content-Language: en-US
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -19,117 +20,111 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Stefano Garzarella <sgarzare@redhat.com>
-Cc: kvm@vger.kernel.org, "Michael S. Tsirkin" <mst@redhat.com>, netdev@vger.kernel.org, linux-kernel@vger.kernel.org, virtualization@lists.linux-foundation.org, Stefan Hajnoczi <stefanha@redhat.com>, "David S. Miller" <davem@davemloft.net>
+To: Stefano Garzarella <sgarzare@redhat.com>, netdev@vger.kernel.org
+Cc: kvm@vger.kernel.org, "Michael S. Tsirkin" <mst@redhat.com>, linux-kernel@vger.kernel.org, virtualization@lists.linux-foundation.org, Stefan Hajnoczi <stefanha@redhat.com>, "David S. Miller" <davem@davemloft.net>
 List-Id: virtualization@lists.linuxfoundation.org
 
-
---===============4343557009544201301==
-Content-Type: multipart/signed; micalg=pgp-sha256;
-	protocol="application/pgp-signature"; boundary="6TrnltStXW4iwmi0"
-Content-Disposition: inline
-
-
---6TrnltStXW4iwmi0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
-
-On Mon, Jul 01, 2019 at 07:03:57PM +0200, Stefano Garzarella wrote:
-> On Mon, Jul 01, 2019 at 04:11:13PM +0100, Stefan Hajnoczi wrote:
-> > On Fri, Jun 28, 2019 at 02:36:56PM +0200, Stefano Garzarella wrote:
-> > > During the review of "[PATCH] vsock/virtio: Initialize core virtio vs=
-ock
-> > > before registering the driver", Stefan pointed out some possible issu=
-es
-> > > in the .probe() and .remove() callbacks of the virtio-vsock driver.
-> > >=20
-> > > This series tries to solve these issues:
-> > > - Patch 1 adds RCU critical sections to avoid use-after-free of
-> > >   'the_virtio_vsock' pointer.
-> > > - Patch 2 stops workers before to call vdev->config->reset(vdev) to
-> > >   be sure that no one is accessing the device.
-> > > - Patch 3 moves the works flush at the end of the .remove() to avoid
-> > >   use-after-free of 'vsock' object.
-> > >=20
-> > > v2:
-> > > - Patch 1: use RCU to protect 'the_virtio_vsock' pointer
-> > > - Patch 2: no changes
-> > > - Patch 3: flush works only at the end of .remove()
-> > > - Removed patch 4 because virtqueue_detach_unused_buf() returns all t=
-he buffers
-> > >   allocated.
-> > >=20
-> > > v1: https://patchwork.kernel.org/cover/10964733/
-> >=20
-> > This looks good to me.
->=20
-> Thanks for the review!
->=20
-> >=20
-> > Did you run any stress tests?  For example an SMP guest constantly
-> > connecting and sending packets together with a script that
-> > hotplug/unplugs vhost-vsock-pci from the host side.
->=20
-> Yes, I started an SMP guest (-smp 4 -monitor tcp:127.0.0.1:1234,server,no=
-wait)
-> and I run these scripts to stress the .probe()/.remove() path:
->=20
-> - guest
->   while true; do
->       cat /dev/urandom | nc-vsock -l 4321 > /dev/null &
->       cat /dev/urandom | nc-vsock -l 5321 > /dev/null &
->       cat /dev/urandom | nc-vsock -l 6321 > /dev/null &
->       cat /dev/urandom | nc-vsock -l 7321 > /dev/null &
->       wait
->   done
->=20
-> - host
->   while true; do
->       cat /dev/urandom | nc-vsock 3 4321 > /dev/null &
->       cat /dev/urandom | nc-vsock 3 5321 > /dev/null &
->       cat /dev/urandom | nc-vsock 3 6321 > /dev/null &
->       cat /dev/urandom | nc-vsock 3 7321 > /dev/null &
->       sleep 2
->       echo "device_del v1" | nc 127.0.0.1 1234
->       sleep 1
->       echo "device_add vhost-vsock-pci,id=3Dv1,guest-cid=3D3" | nc 127.0.=
-0.1 1234
->       sleep 1
->   done
->=20
-> Do you think is enough or is better to have a test more accurate?
-
-That's good when left running overnight so that thousands of hotplug
-events are tested.
-
-Stefan
-
---6TrnltStXW4iwmi0
-Content-Type: application/pgp-signature; name="signature.asc"
-
------BEGIN PGP SIGNATURE-----
-
-iQEzBAEBCAAdFiEEhpWov9P5fNqsNXdanKSrs4Grc8gFAl0ccg0ACgkQnKSrs4Gr
-c8hyTQgAmrtuLTRHUWq+SnSxTw9xESj0gUVZd4sbTh6S0V4rPGdVbra3YbPfZfkH
-IaakopaoNOkTWrPnhYmwgU30HpR8IAq/y7clSCsRIfPUYDSZok/iyag75Cy5oKno
-lVANXMQYQ4Kgkq07R+BER41HW3MELCrSAX57rIat1F1OD3KouG6YicgmP7wetWcU
-HVXVfjP7u1a2lUmuBdlcgPKX05STySKyNEQ3QdtLI6bgM6rGkx8OYn38Qe9cQuyi
-zVG7+8JLFoJav87vvcIIB0IT8ifWocctQY//efyVVnrfHN6T5/35TPcM4bBW8HrK
-Zs+bh7qyccexuuow4DrBHexFCIdtCw==
-=jl/1
------END PGP SIGNATURE-----
-
---6TrnltStXW4iwmi0--
-
---===============4343557009544201301==
-Content-Type: text/plain; charset="us-ascii"
-MIME-Version: 1.0
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-
-_______________________________________________
-Virtualization mailing list
-Virtualization@lists.linux-foundation.org
-https://lists.linuxfoundation.org/mailman/listinfo/virtualization
---===============4343557009544201301==--
+Ck9uIDIwMTkvNi8yOCDkuIvljYg4OjM2LCBTdGVmYW5vIEdhcnphcmVsbGEgd3JvdGU6Cj4gU29t
+ZSBjYWxsYmFja3MgdXNlZCBieSB0aGUgdXBwZXIgbGF5ZXJzIGNhbiBydW4gd2hpbGUgd2UgYXJl
+IGluIHRoZQo+IC5yZW1vdmUoKS4gQSBwb3RlbnRpYWwgdXNlLWFmdGVyLWZyZWUgY2FuIGhhcHBl
+biwgYmVjYXVzZSB3ZSBmcmVlCj4gdGhlX3ZpcnRpb192c29jayB3aXRob3V0IGtub3dpbmcgaWYg
+dGhlIGNhbGxiYWNrcyBhcmUgb3ZlciBvciBub3QuCj4KPiBUbyBzb2x2ZSB0aGlzIGlzc3VlIHdl
+IG1vdmUgdGhlIGFzc2lnbm1lbnQgb2YgdGhlX3ZpcnRpb192c29jayBhdCB0aGUKPiBlbmQgb2Yg
+LnByb2JlKCksIHdoZW4gd2UgZmluaXNoZWQgYWxsIHRoZSBpbml0aWFsaXphdGlvbiwgYW5kIGF0
+IHRoZQo+IGJlZ2lubmluZyBvZiAucmVtb3ZlKCksIGJlZm9yZSB0byByZWxlYXNlIHJlc291cmNl
+cy4KPiBGb3IgdGhlIHNhbWUgcmVhc29uLCB3ZSBkbyB0aGUgc2FtZSBhbHNvIGZvciB0aGUgdmRl
+di0+cHJpdi4KPgo+IFdlIHVzZSBSQ1UgdG8gYmUgc3VyZSB0aGF0IGFsbCBjYWxsYmFja3MgdGhh
+dCB1c2UgdGhlX3ZpcnRpb192c29jawo+IGVuZGVkIGJlZm9yZSBmcmVlaW5nIGl0LiBUaGlzIGlz
+IG5vdCByZXF1aXJlZCBmb3IgY2FsbGJhY2tzIHRoYXQKPiB1c2UgdmRldi0+cHJpdiwgYmVjYXVz
+ZSBhZnRlciB0aGUgdmRldi0+Y29uZmlnLT5kZWxfdnFzKCkgd2UgYXJlIHN1cmUKPiB0aGF0IHRo
+ZXkgYXJlIGVuZGVkIGFuZCB3aWxsIG5vIGxvbmdlciBiZSBpbnZva2VkLgo+Cj4gV2UgYWxzbyB0
+YWtlIHRoZSBtdXRleCBkdXJpbmcgdGhlIC5yZW1vdmUoKSB0byBhdm9pZCB0aGF0IC5wcm9iZSgp
+IGNhbgo+IHJ1biB3aGlsZSB3ZSBhcmUgcmVzZXR0aW5nIHRoZSBkZXZpY2UuCj4KPiBTaWduZWQt
+b2ZmLWJ5OiBTdGVmYW5vIEdhcnphcmVsbGEgPHNnYXJ6YXJlQHJlZGhhdC5jb20+Cj4gLS0tCj4g
+ICBuZXQvdm13X3Zzb2NrL3ZpcnRpb190cmFuc3BvcnQuYyB8IDY3ICsrKysrKysrKysrKysrKysr
+KysrKy0tLS0tLS0tLS0tCj4gICAxIGZpbGUgY2hhbmdlZCwgNDQgaW5zZXJ0aW9ucygrKSwgMjMg
+ZGVsZXRpb25zKC0pCj4KPiBkaWZmIC0tZ2l0IGEvbmV0L3Ztd192c29jay92aXJ0aW9fdHJhbnNw
+b3J0LmMgYi9uZXQvdm13X3Zzb2NrL3ZpcnRpb190cmFuc3BvcnQuYwo+IGluZGV4IDljMjg3ZTNl
+MzkzYy4uN2FkNTEwZWMxMmUwIDEwMDY0NAo+IC0tLSBhL25ldC92bXdfdnNvY2svdmlydGlvX3Ry
+YW5zcG9ydC5jCj4gKysrIGIvbmV0L3Ztd192c29jay92aXJ0aW9fdHJhbnNwb3J0LmMKPiBAQCAt
+NjUsMTkgKzY1LDIyIEBAIHN0cnVjdCB2aXJ0aW9fdnNvY2sgewo+ICAgCXUzMiBndWVzdF9jaWQ7
+Cj4gICB9Owo+ICAgCj4gLXN0YXRpYyBzdHJ1Y3QgdmlydGlvX3Zzb2NrICp2aXJ0aW9fdnNvY2tf
+Z2V0KHZvaWQpCj4gLXsKPiAtCXJldHVybiB0aGVfdmlydGlvX3Zzb2NrOwo+IC19Cj4gLQo+ICAg
+c3RhdGljIHUzMiB2aXJ0aW9fdHJhbnNwb3J0X2dldF9sb2NhbF9jaWQodm9pZCkKPiAgIHsKPiAt
+CXN0cnVjdCB2aXJ0aW9fdnNvY2sgKnZzb2NrID0gdmlydGlvX3Zzb2NrX2dldCgpOwo+ICsJc3Ry
+dWN0IHZpcnRpb192c29jayAqdnNvY2s7Cj4gKwl1MzIgcmV0Owo+ICAgCj4gLQlpZiAoIXZzb2Nr
+KQo+IC0JCXJldHVybiBWTUFERFJfQ0lEX0FOWTsKPiArCXJjdV9yZWFkX2xvY2soKTsKPiArCXZz
+b2NrID0gcmN1X2RlcmVmZXJlbmNlKHRoZV92aXJ0aW9fdnNvY2spOwo+ICsJaWYgKCF2c29jaykg
+ewo+ICsJCXJldCA9IFZNQUREUl9DSURfQU5ZOwo+ICsJCWdvdG8gb3V0X3JjdTsKPiArCX0KPiAg
+IAo+IC0JcmV0dXJuIHZzb2NrLT5ndWVzdF9jaWQ7Cj4gKwlyZXQgPSB2c29jay0+Z3Vlc3RfY2lk
+Owo+ICtvdXRfcmN1Ogo+ICsJcmN1X3JlYWRfdW5sb2NrKCk7Cj4gKwlyZXR1cm4gcmV0Owo+ICAg
+fQo+ICAgCj4gICBzdGF0aWMgdm9pZCB2aXJ0aW9fdHJhbnNwb3J0X2xvb3BiYWNrX3dvcmsoc3Ry
+dWN0IHdvcmtfc3RydWN0ICp3b3JrKQo+IEBAIC0xOTcsMTQgKzIwMCwxOCBAQCB2aXJ0aW9fdHJh
+bnNwb3J0X3NlbmRfcGt0KHN0cnVjdCB2aXJ0aW9fdnNvY2tfcGt0ICpwa3QpCj4gICAJc3RydWN0
+IHZpcnRpb192c29jayAqdnNvY2s7Cj4gICAJaW50IGxlbiA9IHBrdC0+bGVuOwo+ICAgCj4gLQl2
+c29jayA9IHZpcnRpb192c29ja19nZXQoKTsKPiArCXJjdV9yZWFkX2xvY2soKTsKPiArCXZzb2Nr
+ID0gcmN1X2RlcmVmZXJlbmNlKHRoZV92aXJ0aW9fdnNvY2spOwo+ICAgCWlmICghdnNvY2spIHsK
+PiAgIAkJdmlydGlvX3RyYW5zcG9ydF9mcmVlX3BrdChwa3QpOwo+IC0JCXJldHVybiAtRU5PREVW
+Owo+ICsJCWxlbiA9IC1FTk9ERVY7Cj4gKwkJZ290byBvdXRfcmN1Owo+ICAgCX0KPiAgIAo+IC0J
+aWYgKGxlNjRfdG9fY3B1KHBrdC0+aGRyLmRzdF9jaWQpID09IHZzb2NrLT5ndWVzdF9jaWQpCj4g
+LQkJcmV0dXJuIHZpcnRpb190cmFuc3BvcnRfc2VuZF9wa3RfbG9vcGJhY2sodnNvY2ssIHBrdCk7
+Cj4gKwlpZiAobGU2NF90b19jcHUocGt0LT5oZHIuZHN0X2NpZCkgPT0gdnNvY2stPmd1ZXN0X2Np
+ZCkgewo+ICsJCWxlbiA9IHZpcnRpb190cmFuc3BvcnRfc2VuZF9wa3RfbG9vcGJhY2sodnNvY2ss
+IHBrdCk7Cj4gKwkJZ290byBvdXRfcmN1Owo+ICsJfQo+ICAgCj4gICAJaWYgKHBrdC0+cmVwbHkp
+Cj4gICAJCWF0b21pY19pbmMoJnZzb2NrLT5xdWV1ZWRfcmVwbGllcyk7Cj4gQEAgLTIxNCw2ICsy
+MjEsOSBAQCB2aXJ0aW9fdHJhbnNwb3J0X3NlbmRfcGt0KHN0cnVjdCB2aXJ0aW9fdnNvY2tfcGt0
+ICpwa3QpCj4gICAJc3Bpbl91bmxvY2tfYmgoJnZzb2NrLT5zZW5kX3BrdF9saXN0X2xvY2spOwo+
+ICAgCj4gICAJcXVldWVfd29yayh2aXJ0aW9fdnNvY2tfd29ya3F1ZXVlLCAmdnNvY2stPnNlbmRf
+cGt0X3dvcmspOwo+ICsKPiArb3V0X3JjdToKPiArCXJjdV9yZWFkX3VubG9jaygpOwo+ICAgCXJl
+dHVybiBsZW47Cj4gICB9Cj4gICAKPiBAQCAtMjIyLDEyICsyMzIsMTQgQEAgdmlydGlvX3RyYW5z
+cG9ydF9jYW5jZWxfcGt0KHN0cnVjdCB2c29ja19zb2NrICp2c2spCj4gICB7Cj4gICAJc3RydWN0
+IHZpcnRpb192c29jayAqdnNvY2s7Cj4gICAJc3RydWN0IHZpcnRpb192c29ja19wa3QgKnBrdCwg
+Km47Cj4gLQlpbnQgY250ID0gMDsKPiArCWludCBjbnQgPSAwLCByZXQ7Cj4gICAJTElTVF9IRUFE
+KGZyZWVtZSk7Cj4gICAKPiAtCXZzb2NrID0gdmlydGlvX3Zzb2NrX2dldCgpOwo+ICsJcmN1X3Jl
+YWRfbG9jaygpOwo+ICsJdnNvY2sgPSByY3VfZGVyZWZlcmVuY2UodGhlX3ZpcnRpb192c29jayk7
+Cj4gICAJaWYgKCF2c29jaykgewo+IC0JCXJldHVybiAtRU5PREVWOwo+ICsJCXJldCA9IC1FTk9E
+RVY7Cj4gKwkJZ290byBvdXRfcmN1Owo+ICAgCX0KPiAgIAo+ICAgCXNwaW5fbG9ja19iaCgmdnNv
+Y2stPnNlbmRfcGt0X2xpc3RfbG9jayk7Cj4gQEAgLTI1NSw3ICsyNjcsMTEgQEAgdmlydGlvX3Ry
+YW5zcG9ydF9jYW5jZWxfcGt0KHN0cnVjdCB2c29ja19zb2NrICp2c2spCj4gICAJCQlxdWV1ZV93
+b3JrKHZpcnRpb192c29ja193b3JrcXVldWUsICZ2c29jay0+cnhfd29yayk7Cj4gICAJfQo+ICAg
+Cj4gLQlyZXR1cm4gMDsKPiArCXJldCA9IDA7Cj4gKwo+ICtvdXRfcmN1Ogo+ICsJcmN1X3JlYWRf
+dW5sb2NrKCk7Cj4gKwlyZXR1cm4gcmV0Owo+ICAgfQo+ICAgCj4gICBzdGF0aWMgdm9pZCB2aXJ0
+aW9fdnNvY2tfcnhfZmlsbChzdHJ1Y3QgdmlydGlvX3Zzb2NrICp2c29jaykKPiBAQCAtNTkwLDgg
+KzYwNiw2IEBAIHN0YXRpYyBpbnQgdmlydGlvX3Zzb2NrX3Byb2JlKHN0cnVjdCB2aXJ0aW9fZGV2
+aWNlICp2ZGV2KQo+ICAgCXZzb2NrLT5yeF9idWZfbWF4X25yID0gMDsKPiAgIAlhdG9taWNfc2V0
+KCZ2c29jay0+cXVldWVkX3JlcGxpZXMsIDApOwo+ICAgCj4gLQl2ZGV2LT5wcml2ID0gdnNvY2s7
+Cj4gLQl0aGVfdmlydGlvX3Zzb2NrID0gdnNvY2s7Cj4gICAJbXV0ZXhfaW5pdCgmdnNvY2stPnR4
+X2xvY2spOwo+ICAgCW11dGV4X2luaXQoJnZzb2NrLT5yeF9sb2NrKTsKPiAgIAltdXRleF9pbml0
+KCZ2c29jay0+ZXZlbnRfbG9jayk7Cj4gQEAgLTYxMyw2ICs2MjcsOSBAQCBzdGF0aWMgaW50IHZp
+cnRpb192c29ja19wcm9iZShzdHJ1Y3QgdmlydGlvX2RldmljZSAqdmRldikKPiAgIAl2aXJ0aW9f
+dnNvY2tfZXZlbnRfZmlsbCh2c29jayk7Cj4gICAJbXV0ZXhfdW5sb2NrKCZ2c29jay0+ZXZlbnRf
+bG9jayk7Cj4gICAKPiArCXZkZXYtPnByaXYgPSB2c29jazsKPiArCXJjdV9hc3NpZ25fcG9pbnRl
+cih0aGVfdmlydGlvX3Zzb2NrLCB2c29jayk7CgoKWW91IHByb2JhYmx5IG5lZWQgdG8gdXNlIHJj
+dV9kZXJlZmVyZW5jZV9wcm90ZWN0ZWQoKSB0byBhY2Nlc3MgCnRoZV92aXJ0aW9fdnNvY2sgaW4g
+dGhlIGZ1bmN0aW9uIGluIG9yZGVyIHRvIHN1cnZpdmUgZnJvbSBzcGFyc2UuCgoKPiArCj4gICAJ
+bXV0ZXhfdW5sb2NrKCZ0aGVfdmlydGlvX3Zzb2NrX211dGV4KTsKPiAgIAlyZXR1cm4gMDsKPiAg
+IAo+IEBAIC02MjcsNiArNjQ0LDEyIEBAIHN0YXRpYyB2b2lkIHZpcnRpb192c29ja19yZW1vdmUo
+c3RydWN0IHZpcnRpb19kZXZpY2UgKnZkZXYpCj4gICAJc3RydWN0IHZpcnRpb192c29jayAqdnNv
+Y2sgPSB2ZGV2LT5wcml2Owo+ICAgCXN0cnVjdCB2aXJ0aW9fdnNvY2tfcGt0ICpwa3Q7Cj4gICAK
+PiArCW11dGV4X2xvY2soJnRoZV92aXJ0aW9fdnNvY2tfbXV0ZXgpOwo+ICsKPiArCXZkZXYtPnBy
+aXYgPSBOVUxMOwo+ICsJcmN1X2Fzc2lnbl9wb2ludGVyKHRoZV92aXJ0aW9fdnNvY2ssIE5VTEwp
+OwoKClRoaXMgaXMgc3RpbGwgc3VzcGljaW91cywgY2FuIHdlIGFjY2VzcyB0aGVfdmlydGlvX3Zz
+b2NrIHRocm91Z2ggCnZkZXYtPnByaXY/IElmIHllcywgd2UgbWF5IHN0aWxsIGdldCB1c2UtYWZ0
+ZXItZnJlZSBzaW5jZSBpdCB3YXMgbm90IApwcm90ZWN0ZWQgYnkgUkNVLgoKQW5vdGhlciBtb3Jl
+IGludGVyZXN0aW5nIHF1ZXN0aW9uLCBJIGJlbGlldmUgd2Ugd2lsbCBkbyBzaW5nbGV0b24gZm9y
+IAp2aXJ0aW9fdnNvY2sgc3RydWN0dXJlLiBUaGVuIHdoYXQncyB0aGUgcG9pbnQgb2YgdXNpbmcg
+dmRldi0+cHJpdiB0byAKYWNjZXNzIHRoZV92aXJ0aW9fdnNvY2s/IEl0IGxvb2tzIHRvIG1lIHdl
+IGNhbiBpdCBicmluZ3MgZXh0cmEgdHJvdWJsZXMgCmZvciBkb2luZyBzeW5jaHJvbml6YXRpb24u
+CgpUaGFua3MKCgo+ICsJc3luY2hyb25pemVfcmN1KCk7Cj4gKwo+ICAgCWZsdXNoX3dvcmsoJnZz
+b2NrLT5sb29wYmFja193b3JrKTsKPiAgIAlmbHVzaF93b3JrKCZ2c29jay0+cnhfd29yayk7Cj4g
+ICAJZmx1c2hfd29yaygmdnNvY2stPnR4X3dvcmspOwo+IEBAIC02NjYsMTIgKzY4OSwxMCBAQCBz
+dGF0aWMgdm9pZCB2aXJ0aW9fdnNvY2tfcmVtb3ZlKHN0cnVjdCB2aXJ0aW9fZGV2aWNlICp2ZGV2
+KQo+ICAgCX0KPiAgIAlzcGluX3VubG9ja19iaCgmdnNvY2stPmxvb3BiYWNrX2xpc3RfbG9jayk7
+Cj4gICAKPiAtCW11dGV4X2xvY2soJnRoZV92aXJ0aW9fdnNvY2tfbXV0ZXgpOwo+IC0JdGhlX3Zp
+cnRpb192c29jayA9IE5VTEw7Cj4gLQltdXRleF91bmxvY2soJnRoZV92aXJ0aW9fdnNvY2tfbXV0
+ZXgpOwo+IC0KPiAgIAl2ZGV2LT5jb25maWctPmRlbF92cXModmRldik7Cj4gICAKPiArCW11dGV4
+X3VubG9jaygmdGhlX3ZpcnRpb192c29ja19tdXRleCk7Cj4gKwo+ICAgCWtmcmVlKHZzb2NrKTsK
+PiAgIH0KPiAgIApfX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19f
+XwpWaXJ0dWFsaXphdGlvbiBtYWlsaW5nIGxpc3QKVmlydHVhbGl6YXRpb25AbGlzdHMubGludXgt
+Zm91bmRhdGlvbi5vcmcKaHR0cHM6Ly9saXN0cy5saW51eGZvdW5kYXRpb24ub3JnL21haWxtYW4v
+bGlzdGluZm8vdmlydHVhbGl6YXRpb24=
