@@ -1,8 +1,8 @@
 From: Fuqian Huang <huangfq.daxian@gmail.com>
-Subject: [PATCH 05/30] crypto: Use kmemdup rather than duplicating its
+Subject: [PATCH v2 06/35] crypto: Use kmemdup rather than duplicating its
 	implementation
-Date: Wed,  3 Jul 2019 21:13:58 +0800
-Message-ID: <20190703131358.24901-1-huangfq.daxian__39811.0530617245$1563995284$gmane$org@gmail.com>
+Date: Thu,  4 Jul 2019 00:27:08 +0800
+Message-ID: <20190703162708.32137-1-huangfq.daxian__17173.2454140269$1563995295$gmane$org@gmail.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
@@ -20,13 +20,16 @@ Cc: Aymen Sghaier <aymen.sghaier@nxp.com>, Herbert Xu <herbert@gondor.apana.org.
 List-Id: virtualization@lists.linuxfoundation.org
 
 kmemdup is introduced to duplicate a region of memory in a neat way.
-Rather than kmalloc/kzalloc + memset, which the programmer needs to
+Rather than kmalloc/kzalloc + memcpy, which the programmer needs to
 write the size twice (sometimes lead to mistakes), kmemdup improves
 readability, leads to smaller code and also reduce the chances of mistakes.
-Suggestion to use kmemdup rather than using kmalloc/kzalloc + memset.
+Suggestion to use kmemdup rather than using kmalloc/kzalloc + memcpy.
 
 Signed-off-by: Fuqian Huang <huangfq.daxian@gmail.com>
 ---
+Changes in v2:
+  - Fix a typo in commit message (memset -> memcpy)
+
  drivers/crypto/caam/caampkc.c              | 11 +++--------
  drivers/crypto/virtio/virtio_crypto_algs.c |  4 +---
  2 files changed, 4 insertions(+), 11 deletions(-)
