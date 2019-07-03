@@ -1,8 +1,7 @@
 From: Thomas Zimmermann <tzimmermann@suse.de>
-Subject: [PATCH 2/5] drm/fb-helper: Unmap BO for shadow-buffered framebuffer
-	console
-Date: Wed,  3 Jul 2019 10:32:59 +0200
-Message-ID: <20190703083302.2609-3-tzimmermann__5558.77968888439$1562142866$gmane$org@suse.de>
+Subject: [PATCH 4/5] drm/bochs: Use shadow buffer for bochs framebuffer console
+Date: Wed,  3 Jul 2019 10:33:01 +0200
+Message-ID: <20190703083302.2609-5-tzimmermann__46842.2000574478$1562143446$gmane$org@suse.de>
 References: <20190703083302.2609-1-tzimmermann@suse.de>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
@@ -22,60 +21,33 @@ To: airlied@redhat.com, daniel@ffwll.ch, kraxel@redhat.com, maarten.lankhorst@li
 Cc: Thomas Zimmermann <tzimmermann@suse.de>, dri-devel@lists.freedesktop.org, virtualization@lists.linux-foundation.org
 List-Id: virtualization@lists.linuxfoundation.org
 
-The shadow-buffered framebuffer console only needs the buffer object
-to be mapped during updates. While not being updated from the shadow
-buffer, the buffer object can remain unmapped.
+The bochs driver (and virtual hardware) requires buffer objects to
+reside in video ram to display them to the screen. So it can not
+display the framebuffer console because the respective buffer object
+is permanently pinned in system memory.
 
-An unmapped buffer object can be evicted to system memory and does
-not consume video ram until displayed. This allows to use generic fbdev
-emulation with drivers for low-memory devices, such as ast and mgag200.
+Using a shadow buffer for the console solves this problem. The console
+emulation will pin the buffer object only during updates from the shadow
+buffer. Otherwise, the bochs driver can freely relocated the buffer
+between system memory and video ram.
 
 Signed-off-by: Thomas Zimmermann <tzimmermann@suse.de>
 ---
- drivers/gpu/drm/drm_fb_helper.c | 14 +++++++++++++-
- 1 file changed, 13 insertions(+), 1 deletion(-)
+ drivers/gpu/drm/bochs/bochs_kms.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/drivers/gpu/drm/drm_fb_helper.c b/drivers/gpu/drm/drm_fb_helper.c
-index 1984e5c54d58..2a6538f229e3 100644
---- a/drivers/gpu/drm/drm_fb_helper.c
-+++ b/drivers/gpu/drm/drm_fb_helper.c
-@@ -403,6 +403,7 @@ static void drm_fb_helper_dirty_work(struct work_struct *work)
- 	struct drm_clip_rect *clip = &helper->dirty_clip;
- 	struct drm_clip_rect clip_copy;
- 	unsigned long flags;
-+	void *vaddr;
+diff --git a/drivers/gpu/drm/bochs/bochs_kms.c b/drivers/gpu/drm/bochs/bochs_kms.c
+index bc19dbd531ef..47fab4852483 100644
+--- a/drivers/gpu/drm/bochs/bochs_kms.c
++++ b/drivers/gpu/drm/bochs/bochs_kms.c
+@@ -172,7 +172,7 @@ bochs_gem_fb_create(struct drm_device *dev, struct drm_file *file,
+ 	    mode_cmd->pixel_format != DRM_FORMAT_BGRX8888)
+ 		return ERR_PTR(-EINVAL);
  
- 	spin_lock_irqsave(&helper->dirty_lock, flags);
- 	clip_copy = *clip;
-@@ -412,10 +413,18 @@ static void drm_fb_helper_dirty_work(struct work_struct *work)
- 
- 	/* call dirty callback only when it has been really touched */
- 	if (clip_copy.x1 < clip_copy.x2 && clip_copy.y1 < clip_copy.y2) {
-+
- 		/* Generic fbdev uses a shadow buffer */
--		if (helper->buffer)
-+		if (helper->buffer) {
-+			vaddr = drm_client_buffer_vmap(helper->buffer);
-+			if (IS_ERR(vaddr))
-+				return;
- 			drm_fb_helper_dirty_blit_real(helper, &clip_copy);
-+		}
- 		helper->fb->funcs->dirty(helper->fb, NULL, 0, 0, &clip_copy, 1);
-+
-+		if (helper->buffer)
-+			drm_client_buffer_vunmap(helper->buffer);
- 	}
+-	return drm_gem_fb_create(dev, file, mode_cmd);
++	return drm_gem_fb_create_with_dirty(dev, file, mode_cmd);
  }
  
-@@ -2231,6 +2240,9 @@ int drm_fb_helper_generic_probe(struct drm_fb_helper *fb_helper,
- 		fbi->fbdefio = &drm_fbdev_defio;
- 
- 		fb_deferred_io_init(fbi);
-+
-+		/* unmapped by default */
-+		drm_client_buffer_vunmap(fb_helper->buffer);
- 	}
- 
- 	return 0;
+ const struct drm_mode_config_funcs bochs_mode_funcs = {
 -- 
 2.21.0
