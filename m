@@ -1,17 +1,17 @@
 From: Chia-I Wu <olvaffe@gmail.com>
-Subject: Re: [PATCH v6 15/18] drm/virtio: rework
-	virtio_gpu_transfer_to_host_ioctl fencing
-Date: Thu, 4 Jul 2019 12:08:14 -0700
-Message-ID: <CAPaKu7SDwR1TgFQK2XGEbRqSkCO0XZYxGhcjzsAwOH42aOHEEw__38745.4284167447$1562267317$gmane$org@mail.gmail.com>
+Subject: Re: [PATCH v6 06/18] drm/virtio: remove ttm calls from in
+	virtio_gpu_object_{reserve, unreserve}
+Date: Thu, 4 Jul 2019 12:17:48 -0700
+Message-ID: <CAPaKu7S4Og7kda2ZjFtuRv=_W8gpFbD5y7s==0JB5Z34S4Hsjw__629.842006468095$1562267893$gmane$org@mail.gmail.com>
 References: <20190702141903.1131-1-kraxel@redhat.com>
-	<20190702141903.1131-16-kraxel@redhat.com>
-	<CAPaKu7S0n=E7g0o2e6fEk1YjP+u=tsoV8upw7J=noSx88PgP+A@mail.gmail.com>
-	<20190704115138.ou77sb3rlrex67tj@sirius.home.kraxel.org>
+	<20190702141903.1131-7-kraxel@redhat.com>
+	<CAPaKu7RfLoB=K__wQd92=S20Mt0uqsfyU9oigr8CQ-=gH6OUuA@mail.gmail.com>
+	<20190704111043.5ubc2yjrjphj2iec@sirius.home.kraxel.org>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <20190704115138.ou77sb3rlrex67tj@sirius.home.kraxel.org>
+In-Reply-To: <20190704111043.5ubc2yjrjphj2iec@sirius.home.kraxel.org>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -25,37 +25,27 @@ To: Gerd Hoffmann <kraxel@redhat.com>
 Cc: David Airlie <airlied@linux.ie>, open list <linux-kernel@vger.kernel.org>, ML dri-devel <dri-devel@lists.freedesktop.org>, "open list:VIRTIO GPU DRIVER" <virtualization@lists.linux-foundation.org>, Daniel Vetter <daniel@ffwll.ch>, Gurchetan Singh <gurchetansingh@chromium.org>
 List-Id: virtualization@lists.linuxfoundation.org
 
-On Thu, Jul 4, 2019 at 4:51 AM Gerd Hoffmann <kraxel@redhat.com> wrote:
+On Thu, Jul 4, 2019 at 4:10 AM Gerd Hoffmann <kraxel@redhat.com> wrote:
 >
 >   Hi,
 >
-> > >         convert_to_hw_box(&box, &args->box);
-> > >         if (!vgdev->has_virgl_3d) {
-> > >                 virtio_gpu_cmd_transfer_to_host_2d
-> > > -                       (vgdev, qobj, offset,
-> > > +                       (vgdev, gem_to_virtio_gpu_obj(objs->objs[0]), offset,
-> > >                          box.w, box.h, box.x, box.y, NULL);
-> > > +               virtio_gpu_array_put_free(objs);
-> > Don't we need this in non-3D case as well?
+> > > -       r = ttm_bo_reserve(&bo->tbo, true, false, NULL);
+> > > +       r = reservation_object_lock_interruptible(bo->gem_base.resv, NULL);
+> > Can you elaborate a bit about how TTM keeps the BOs alive in, for
+> > example, virtio_gpu_transfer_from_host_ioctl?  In that function, only
+> > three TTM functions are called: ttm_bo_reserve, ttm_bo_validate, and
+> > ttm_bo_unreserve.  I am curious how they keep the BO alive.
 >
-> No, ...
->
-> > >                 virtio_gpu_cmd_transfer_to_host_3d
-> > > -                       (vgdev, qobj,
-> > > +                       (vgdev,
-> > >                          vfpriv ? vfpriv->ctx_id : 0, offset,
-> > > -                        args->level, &box, fence);
-> > > -               reservation_object_add_excl_fence(qobj->base.base.resv,
-> > > -                                                 &fence->f);
-> > > +                        args->level, &box, objs, fence);
->
-> ... 3d case passes the objs list to virtio_gpu_cmd_transfer_to_host_3d,
-> so it gets added to the vbuf and released when the command is finished.
-Why doesn't this apply to virtio_gpu_cmd_transfer_to_host_2d?
+> It can't go away between reserve and unreserve, and I think it also
+> can't be evicted then.  Havn't checked how ttm implements that.
+Hm, but the vbuf using the BO outlives the reserve/unreserve section.
+The NO_EVICT flag applies only when the BO is still alive.  Someone
+needs to hold a reference to the BO to keep it alive, otherwise the BO
+can go away before the vbuf is retired.
 
-When object array was introduced, it was said that the object array
-was to keep the objects alive until the vbuf using the objects is
-retired..  That sounded applicable to any vbuf that uses objects.
+I can be wrong, but on the other hand, it seems fine for a BO to go
+away before the vbuf using it is retired.  When that happens, the
+driver emits a RESOURCE_UNREF vbuf which is *after* the original vbuf.
 
 
 >
