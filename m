@@ -1,21 +1,14 @@
-From: Tiwei Bie <tiwei.bie@intel.com>
-Subject: Re: [RFC v2] vhost: introduce mdev based hardware vhost backend
-Date: Thu, 4 Jul 2019 15:02:42 +0800
-Message-ID: <20190704070242.GA27369__27505.5100371659$1562223862$gmane$org@___>
-References: <20190703091339.1847-1-tiwei.bie@intel.com>
-	<7b8279b2-aa7e-7adc-eeff-20dfaf4400d0@redhat.com>
-	<20190703115245.GA22374@___>
-	<64833f91-02cd-7143-f12e-56ab93b2418d@redhat.com>
-	<20190703130817.GA1978@___>
-	<b01b8e28-8d96-31dd-56f4-ca7793498c55@redhat.com>
-	<20190704062134.GA21116@___>
-	<c67f628f-e0c1-9a41-6c5d-b6bbda31467d@redhat.com>
+From: Thomas Zimmermann <tzimmermann@suse.de>
+Subject: Re: [PATCH 1/5] drm/client: Support unmapping of DRM client buffers
+Date: Thu, 4 Jul 2019 09:31:07 +0200
+Message-ID: <db996d99-61a2-7529-63c1-226123cf0baa__18314.1758943506$1562225489$gmane$org@suse.de>
+References: <20190703083302.2609-1-tzimmermann@suse.de>
+	<20190703083302.2609-2-tzimmermann@suse.de>
+	<458e7d7d-3aa5-5d45-6c5c-62fadd9e4e91@tronnes.org>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="utf-8"
-Content-Transfer-Encoding: base64
+Content-Type: multipart/mixed; boundary="===============0188877506155098093=="
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-Content-Disposition: inline
-In-Reply-To: <c67f628f-e0c1-9a41-6c5d-b6bbda31467d@redhat.com>
+In-Reply-To: <458e7d7d-3aa5-5d45-6c5c-62fadd9e4e91@tronnes.org>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -25,100 +18,257 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Jason Wang <jasowang@redhat.com>
-Cc: kvm@vger.kernel.org, mst@redhat.com, netdev@vger.kernel.org, linux-kernel@vger.kernel.org, virtualization@lists.linux-foundation.org, zhihong.wang@intel.com, maxime.coquelin@redhat.com
+To: =?UTF-8?Q?Noralf_Tr=c3=b8nnes?= <noralf@tronnes.org>, airlied@redhat.com, daniel@ffwll.ch, kraxel@redhat.com, maarten.lankhorst@linux.intel.com, maxime.ripard@bootlin.com, sean@poorly.run, sam@ravnborg.org, yc_chen@aspeedtech.com
+Cc: dri-devel@lists.freedesktop.org, virtualization@lists.linux-foundation.org
 List-Id: virtualization@lists.linuxfoundation.org
 
-T24gVGh1LCBKdWwgMDQsIDIwMTkgYXQgMDI6MzU6MjBQTSArMDgwMCwgSmFzb24gV2FuZyB3cm90
-ZToKPiBPbiAyMDE5LzcvNCDkuIvljYgyOjIxLCBUaXdlaSBCaWUgd3JvdGU6Cj4gPiBPbiBUaHUs
-IEp1bCAwNCwgMjAxOSBhdCAxMjozMTo0OFBNICswODAwLCBKYXNvbiBXYW5nIHdyb3RlOgo+ID4g
-PiBPbiAyMDE5LzcvMyDkuIvljYg5OjA4LCBUaXdlaSBCaWUgd3JvdGU6Cj4gPiA+ID4gT24gV2Vk
-LCBKdWwgMDMsIDIwMTkgYXQgMDg6MTY6MjNQTSArMDgwMCwgSmFzb24gV2FuZyB3cm90ZToKPiA+
-ID4gPiA+IE9uIDIwMTkvNy8zIOS4i+WNiDc6NTIsIFRpd2VpIEJpZSB3cm90ZToKPiA+ID4gPiA+
-ID4gT24gV2VkLCBKdWwgMDMsIDIwMTkgYXQgMDY6MDk6NTFQTSArMDgwMCwgSmFzb24gV2FuZyB3
-cm90ZToKPiA+ID4gPiA+ID4gPiBPbiAyMDE5LzcvMyDkuIvljYg1OjEzLCBUaXdlaSBCaWUgd3Jv
-dGU6Cj4gPiA+ID4gPiA+ID4gPiBEZXRhaWxzIGFib3V0IHRoaXMgY2FuIGJlIGZvdW5kIGhlcmU6
-Cj4gPiA+ID4gPiA+ID4gPiAKPiA+ID4gPiA+ID4gPiA+IGh0dHBzOi8vbHduLm5ldC9BcnRpY2xl
-cy83NTA3NzAvCj4gPiA+ID4gPiA+ID4gPiAKPiA+ID4gPiA+ID4gPiA+IFdoYXQncyBuZXcgaW4g
-dGhpcyB2ZXJzaW9uCj4gPiA+ID4gPiA+ID4gPiA9PT09PT09PT09PT09PT09PT09PT09PT09PQo+
-ID4gPiA+ID4gPiA+ID4gCj4gPiA+ID4gPiA+ID4gPiBBIG5ldyBWRklPIGRldmljZSB0eXBlIGlz
-IGludHJvZHVjZWQgLSB2ZmlvLXZob3N0LiBUaGlzIGFkZHJlc3NlZAo+ID4gPiA+ID4gPiA+ID4g
-c29tZSBjb21tZW50cyBmcm9tIGhlcmU6aHR0cHM6Ly9wYXRjaHdvcmsub3psYWJzLm9yZy9jb3Zl
-ci85ODQ3NjMvCj4gPiA+ID4gPiA+ID4gPiAKPiA+ID4gPiA+ID4gPiA+IEJlbG93IGlzIHRoZSB1
-cGRhdGVkIGRldmljZSBpbnRlcmZhY2U6Cj4gPiA+ID4gPiA+ID4gPiAKPiA+ID4gPiA+ID4gPiA+
-IEN1cnJlbnRseSwgdGhlcmUgYXJlIHR3byByZWdpb25zIG9mIHRoaXMgZGV2aWNlOiAxKSBDT05G
-SUdfUkVHSU9OCj4gPiA+ID4gPiA+ID4gPiAoVkZJT19WSE9TVF9DT05GSUdfUkVHSU9OX0lOREVY
-KSwgd2hpY2ggY2FuIGJlIHVzZWQgdG8gc2V0dXAgdGhlCj4gPiA+ID4gPiA+ID4gPiBkZXZpY2U7
-IDIpIE5PVElGWV9SRUdJT04gKFZGSU9fVkhPU1RfTk9USUZZX1JFR0lPTl9JTkRFWCksIHdoaWNo
-Cj4gPiA+ID4gPiA+ID4gPiBjYW4gYmUgdXNlZCB0byBub3RpZnkgdGhlIGRldmljZS4KPiA+ID4g
-PiA+ID4gPiA+IAo+ID4gPiA+ID4gPiA+ID4gMS4gQ09ORklHX1JFR0lPTgo+ID4gPiA+ID4gPiA+
-ID4gCj4gPiA+ID4gPiA+ID4gPiBUaGUgcmVnaW9uIGRlc2NyaWJlZCBieSBDT05GSUdfUkVHSU9O
-IGlzIHRoZSBtYWluIGNvbnRyb2wgaW50ZXJmYWNlLgo+ID4gPiA+ID4gPiA+ID4gTWVzc2FnZXMg
-d2lsbCBiZSB3cml0dGVuIHRvIG9yIHJlYWQgZnJvbSB0aGlzIHJlZ2lvbi4KPiA+ID4gPiA+ID4g
-PiA+IAo+ID4gPiA+ID4gPiA+ID4gVGhlIG1lc3NhZ2UgdHlwZSBpcyBkZXRlcm1pbmVkIGJ5IHRo
-ZSBgcmVxdWVzdGAgZmllbGQgaW4gbWVzc2FnZQo+ID4gPiA+ID4gPiA+ID4gaGVhZGVyLiBUaGUg
-bWVzc2FnZSBzaXplIGlzIGVuY29kZWQgaW4gdGhlIG1lc3NhZ2UgaGVhZGVyIHRvby4KPiA+ID4g
-PiA+ID4gPiA+IFRoZSBtZXNzYWdlIGZvcm1hdCBsb29rcyBsaWtlIHRoaXM6Cj4gPiA+ID4gPiA+
-ID4gPiAKPiA+ID4gPiA+ID4gPiA+IHN0cnVjdCB2aG9zdF92ZmlvX29wIHsKPiA+ID4gPiA+ID4g
-PiA+IAlfX3U2NCByZXF1ZXN0Owo+ID4gPiA+ID4gPiA+ID4gCV9fdTMyIGZsYWdzOwo+ID4gPiA+
-ID4gPiA+ID4gCS8qIEZsYWcgdmFsdWVzOiAqLwo+ID4gPiA+ID4gPiA+ID4gICAgICAjZGVmaW5l
-IFZIT1NUX1ZGSU9fTkVFRF9SRVBMWSAweDEgLyogV2hldGhlciBuZWVkIHJlcGx5ICovCj4gPiA+
-ID4gPiA+ID4gPiAJX191MzIgc2l6ZTsKPiA+ID4gPiA+ID4gPiA+IAl1bmlvbiB7Cj4gPiA+ID4g
-PiA+ID4gPiAJCV9fdTY0IHU2NDsKPiA+ID4gPiA+ID4gPiA+IAkJc3RydWN0IHZob3N0X3ZyaW5n
-X3N0YXRlIHN0YXRlOwo+ID4gPiA+ID4gPiA+ID4gCQlzdHJ1Y3Qgdmhvc3RfdnJpbmdfYWRkciBh
-ZGRyOwo+ID4gPiA+ID4gPiA+ID4gCX0gcGF5bG9hZDsKPiA+ID4gPiA+ID4gPiA+IH07Cj4gPiA+
-ID4gPiA+ID4gPiAKPiA+ID4gPiA+ID4gPiA+IFRoZSBleGlzdGluZyB2aG9zdC1rZXJuZWwgaW9j
-dGwgY21kcyBhcmUgcmV1c2VkIGFzIHRoZSBtZXNzYWdlCj4gPiA+ID4gPiA+ID4gPiByZXF1ZXN0
-cyBpbiBhYm92ZSBzdHJ1Y3R1cmUuCj4gPiA+ID4gPiA+ID4gU3RpbGwgYSBjb21tZW50cyBsaWtl
-IFYxLiBXaGF0J3MgdGhlIGFkdmFudGFnZSBvZiBpbnZlbnRpbmcgYSBuZXcgcHJvdG9jb2w/Cj4g
-PiA+ID4gPiA+IEknbSB0cnlpbmcgdG8gbWFrZSBpdCB3b3JrIGluIFZGSU8ncyB3YXkuLgo+ID4g
-PiA+ID4gPiAKPiA+ID4gPiA+ID4gPiBJIGJlbGlldmUgZWl0aGVyIG9mIHRoZSBmb2xsb3dpbmcg
-c2hvdWxkIGJlIGJldHRlcjoKPiA+ID4gPiA+ID4gPiAKPiA+ID4gPiA+ID4gPiAtIHVzaW5nIHZo
-b3N0IGlvY3RsLMKgIHdlIGNhbiBzdGFydCBmcm9tIFNFVF9WUklOR19LSUNLL1NFVF9WUklOR19D
-QUxMIGFuZAo+ID4gPiA+ID4gPiA+IGV4dGVuZCBpdCB3aXRoIGUuZyBub3RpZnkgcmVnaW9uLiBU
-aGUgYWR2YW50YWdlcyBpcyB0aGF0IGFsbCBleGlzdCB1c2Vyc3BhY2UKPiA+ID4gPiA+ID4gPiBw
-cm9ncmFtIGNvdWxkIGJlIHJldXNlZCB3aXRob3V0IG1vZGlmaWNhdGlvbiAob3IgbWluaW1hbCBt
-b2RpZmljYXRpb24pLiBBbmQKPiA+ID4gPiA+ID4gPiB2aG9zdCBBUEkgaGlkZXMgbG90cyBvZiBk
-ZXRhaWxzIHRoYXQgaXMgbm90IG5lY2Vzc2FyeSB0byBiZSB1bmRlcnN0b29kIGJ5Cj4gPiA+ID4g
-PiA+ID4gYXBwbGljYXRpb24gKGUuZyBpbiB0aGUgY2FzZSBvZiBjb250YWluZXIpLgo+ID4gPiA+
-ID4gPiBEbyB5b3UgbWVhbiByZXVzaW5nIHZob3N0J3MgaW9jdGwgb24gVkZJTyBkZXZpY2UgZmQg
-ZGlyZWN0bHksCj4gPiA+ID4gPiA+IG9yIGludHJvZHVjaW5nIGFub3RoZXIgbWRldiBkcml2ZXIg
-KGkuZS4gdmhvc3RfbWRldiBpbnN0ZWFkIG9mCj4gPiA+ID4gPiA+IHVzaW5nIHRoZSBleGlzdGlu
-ZyB2ZmlvX21kZXYpIGZvciBtZGV2IGRldmljZT8KPiA+ID4gPiA+IENhbiB3ZSBzaW1wbHkgYWRk
-IHRoZW0gaW50byBpb2N0bCBvZiBtZGV2X3BhcmVudF9vcHM/Cj4gPiA+ID4gUmlnaHQsIGVpdGhl
-ciB3YXksIHRoZXNlIGlvY3RscyBoYXZlIHRvIGJlIGFuZCBqdXN0IG5lZWQgdG8gYmUKPiA+ID4g
-PiBhZGRlZCBpbiB0aGUgaW9jdGwgb2YgdGhlIG1kZXZfcGFyZW50X29wcy4gQnV0IGFub3RoZXIg
-dGhpbmcgd2UKPiA+ID4gPiBhbHNvIG5lZWQgdG8gY29uc2lkZXIgaXMgdGhhdCB3aGljaCBmaWxl
-IGRlc2NyaXB0b3IgdGhlIHVzZXJzcGFjZQo+ID4gPiA+IHdpbGwgZG8gdGhlIGlvY3RsKCkgb24u
-IFNvIEknbSB3b25kZXJpbmcgZG8geW91IG1lYW4gbGV0IHRoZQo+ID4gPiA+IHVzZXJzcGFjZSBk
-byB0aGUgaW9jdGwoKSBvbiB0aGUgVkZJTyBkZXZpY2UgZmQgb2YgdGhlIG1kZXYKPiA+ID4gPiBk
-ZXZpY2U/Cj4gPiA+ID4gCj4gPiA+IFllcy4KPiA+IEdvdCBpdCEgSSdtIG5vdCBzdXJlIHdoYXQn
-cyBBbGV4IG9waW5pb24gb24gdGhpcy4gSWYgd2UgYWxsCj4gPiBhZ3JlZSB3aXRoIHRoaXMsIEkg
-Y2FuIGRvIGl0IGluIHRoaXMgd2F5Lgo+ID4gCj4gPiA+IElzIHRoZXJlIGFueSBvdGhlciB3YXkg
-YnR3Pwo+ID4gSnVzdCBhIHF1aWNrIHRob3VnaHQuLiBNYXliZSB0b3RhbGx5IGEgYmFkIGlkZWEu
-Cj4gCj4gCj4gSXQncyBub3QgZm9yIHN1cmUgOikKClRoYW5rcyEKCj4gCj4gCj4gPiAgIEkgd2Fz
-IHRoaW5raW5nCj4gPiB3aGV0aGVyIGl0IHdvdWxkIGJlIG9kZCB0byBkbyBub24tVkZJTydzIGlv
-Y3RscyBvbiBWRklPJ3MgZGV2aWNlCj4gPiBmZC4gU28gSSB3YXMgd29uZGVyaW5nIHdoZXRoZXIg
-aXQncyBwb3NzaWJsZSB0byBhbGxvdyBiaW5kaW5nCj4gPiBhbm90aGVyIG1kZXYgZHJpdmVyIChl
-LmcuIHZob3N0X21kZXYpIHRvIHRoZSBzdXBwb3J0ZWQgbWRldgo+ID4gZGV2aWNlcy4gVGhlIG5l
-dyBtZGV2IGRyaXZlciwgdmhvc3RfbWRldiwgY2FuIHByb3ZpZGUgc2ltaWxhcgo+ID4gd2F5cyB0
-byBsZXQgdXNlcnNwYWNlIG9wZW4gdGhlIG1kZXYgZGV2aWNlIGFuZCBkbyB0aGUgdmhvc3QgaW9j
-dGxzCj4gPiBvbiBpdC4gVG8gZGlzdGluZ3Vpc2ggd2l0aCB0aGUgdmZpb19tZGV2IGNvbXBhdGli
-bGUgbWRldiBkZXZpY2VzLAo+ID4gdGhlIGRldmljZSBBUEkgb2YgdGhlIG5ldyB2aG9zdF9tZGV2
-IGNvbXBhdGlibGUgbWRldiBkZXZpY2VzCj4gPiBtaWdodCBiZSBlLmcuICJ2aG9zdC1uZXQiIGZv
-ciBuZXQ/Cj4gPiAKPiA+IFNvIGluIFZGSU8gY2FzZSwgdGhlIGRldmljZSB3aWxsIGJlIGZvciBw
-YXNzdGhydSBkaXJlY3RseS4gQW5kCj4gPiBpbiBWSE9TVCBjYXNlLCB0aGUgZGV2aWNlIGNhbiBi
-ZSB1c2VkIHRvIGFjY2VsZXJhdGUgdGhlIGV4aXN0aW5nCj4gPiB2aXJ0dWFsaXplZCBkZXZpY2Vz
-Lgo+ID4gCj4gPiBIb3cgZG8geW91IHRoaW5rPwo+IAo+IAo+IElmIG15IHVuZGVyc3RhbmRpbmcg
-aXMgY29ycmVjdCwgdGhlcmUgd2lsbCBiZSBubyBWRklPIGlvY3RsIGlmIHdlIGdvIGZvcgo+IHZo
-b3N0X21kZXY/CgpZZWFoLCBleGFjdGx5LiBJZiB3ZSBnbyBmb3Igdmhvc3RfbWRldiwgd2UgbWF5
-IGhhdmUgc29tZSB2aG9zdCBub2RlcwppbiAvZGV2IHNpbWlsYXIgdG8gd2hhdCAvZGV2L3ZmaW8v
-KiBkb2VzIHRvIGhhbmRsZSB0aGUgJFVVSUQgYW5kIG9wZW4KdGhlIGRldmljZSAoZS5nLiBzaW1p
-bGFyIHRvIFZGSU9fR1JPVVBfR0VUX0RFVklDRV9GRCBpbiBWRklPKS4gQW5kCnRvIHNldHVwIHRo
-ZSBkZXZpY2UsIHdlIGNhbiB0cnkgdG8gcmV1c2UgdGhlIGlvY3RscyBvZiB0aGUgZXhpc3RpbmcK
-a2VybmVsIHZob3N0IGFzIG11Y2ggYXMgcG9zc2libGUuCgpUaGFua3MsClRpd2VpCgo+IAo+IFRo
-YW5rcwo+IAo+IAo+ID4gCj4gPiBUaGFua3MsCj4gPiBUaXdlaQo+ID4gPiBUaGFua3MKPiA+ID4g
-Cl9fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fClZpcnR1YWxp
-emF0aW9uIG1haWxpbmcgbGlzdApWaXJ0dWFsaXphdGlvbkBsaXN0cy5saW51eC1mb3VuZGF0aW9u
-Lm9yZwpodHRwczovL2xpc3RzLmxpbnV4Zm91bmRhdGlvbi5vcmcvbWFpbG1hbi9saXN0aW5mby92
-aXJ0dWFsaXphdGlvbg==
+This is an OpenPGP/MIME signed message (RFC 4880 and 3156)
+--===============0188877506155098093==
+Content-Type: multipart/signed; micalg=pgp-sha256;
+ protocol="application/pgp-signature";
+ boundary="sly6dSTEO1ExB8Z4ZvqDMnjcoDJc0GjoW"
+
+This is an OpenPGP/MIME signed message (RFC 4880 and 3156)
+--sly6dSTEO1ExB8Z4ZvqDMnjcoDJc0GjoW
+Content-Type: multipart/mixed; boundary="AAYT1TAsgQuJrqGpwA1VD3lmeJVFLLECD";
+ protected-headers="v1"
+From: Thomas Zimmermann <tzimmermann@suse.de>
+To: =?UTF-8?Q?Noralf_Tr=c3=b8nnes?= <noralf@tronnes.org>, airlied@redhat.com,
+ daniel@ffwll.ch, kraxel@redhat.com, maarten.lankhorst@linux.intel.com,
+ maxime.ripard@bootlin.com, sean@poorly.run, sam@ravnborg.org,
+ yc_chen@aspeedtech.com
+Cc: dri-devel@lists.freedesktop.org, virtualization@lists.linux-foundation.org
+Message-ID: <db996d99-61a2-7529-63c1-226123cf0baa@suse.de>
+Subject: Re: [PATCH 1/5] drm/client: Support unmapping of DRM client buffers
+References: <20190703083302.2609-1-tzimmermann@suse.de>
+ <20190703083302.2609-2-tzimmermann@suse.de>
+ <458e7d7d-3aa5-5d45-6c5c-62fadd9e4e91@tronnes.org>
+In-Reply-To: <458e7d7d-3aa5-5d45-6c5c-62fadd9e4e91@tronnes.org>
+
+--AAYT1TAsgQuJrqGpwA1VD3lmeJVFLLECD
+Content-Type: text/plain; charset=utf-8
+Content-Language: en-US
+Content-Transfer-Encoding: quoted-printable
+
+Hi
+
+Am 03.07.19 um 16:07 schrieb Noralf Tr=C3=B8nnes:
+>=20
+>=20
+> Den 03.07.2019 10.32, skrev Thomas Zimmermann:
+>> DRM clients, such as the fbdev emulation, have their buffer objects
+>> mapped by default. Mapping a buffer implicitly prevents its relocation=
+=2E
+>> Hence, the buffer may permanently consume video memory while it's
+>> allocated. This is a problem for drivers of low-memory devices, such a=
+s
+>> ast, mgag200 or older framebuffer hardware, which will then not have
+>> enough memory to display other content (e.g., X11).
+>>
+>> This patch introduces drm_client_buffer_vmap() and _vunmap(). Internal=
+
+>> DRM clients can use these functions to unmap and remap buffer objects
+>> as needed.
+>>
+>> There's no reference counting for vmap operations. Callers are expecte=
+d
+>> to either keep buffers mapped (as it is now), or call vmap and vunmap
+>> in pairs around code that accesses the mapped memory.
+>>
+>> Signed-off-by: Thomas Zimmermann <tzimmermann@suse.de>
+>> ---
+>>  drivers/gpu/drm/drm_client.c | 71 +++++++++++++++++++++++++++++++----=
+-
+>>  include/drm/drm_client.h     |  3 ++
+>>  2 files changed, 64 insertions(+), 10 deletions(-)
+>>
+>> diff --git a/drivers/gpu/drm/drm_client.c b/drivers/gpu/drm/drm_client=
+=2Ec
+>> index 410572f14257..d04660c4470a 100644
+>> --- a/drivers/gpu/drm/drm_client.c
+>> +++ b/drivers/gpu/drm/drm_client.c
+>> @@ -235,7 +235,8 @@ static void drm_client_buffer_delete(struct drm_cl=
+ient_buffer *buffer)
+>>  {
+>>  	struct drm_device *dev =3D buffer->client->dev;
+>> =20
+>> -	drm_gem_vunmap(buffer->gem, buffer->vaddr);
+>> +	if (buffer->vaddr)
+>=20
+> No need for this, drm_gem_vunmap() has a NULL check.
+>=20
+>> +		drm_gem_vunmap(buffer->gem, buffer->vaddr);
+>> =20
+>>  	if (buffer->gem)
+>>  		drm_gem_object_put_unlocked(buffer->gem);
+>> @@ -281,6 +282,43 @@ drm_client_buffer_create(struct drm_client_dev *c=
+lient, u32 width, u32 height, u
+>> =20
+>>  	buffer->gem =3D obj;
+>> =20
+>> +	vaddr =3D drm_client_buffer_vmap(buffer);
+>=20
+> I think we should change this and _not_ vmap on buffer creation.
+> Eventually we'll get bootsplash and console clients and they will also
+> have to deal with these low memory devices. AFAICS the only client that=
+
+> will need a virtual address at all times is the fbdev client when it
+> doesn't use a shadow buffer.
+
+Exactly my thoughts. I didn't want to overload the patch set with
+changing clients to not map the buffer by default. But since you mention
+it...
+
+Best regards
+Thomas
+
+>=20
+>> +	if (IS_ERR(vaddr)) {
+>> +		ret =3D PTR_ERR(vaddr);
+>> +		goto err_delete;
+>> +	}
+>> +
+>> +	return buffer;
+>> +
+>> +err_delete:
+>> +	drm_client_buffer_delete(buffer);
+>> +
+>> +	return ERR_PTR(ret);
+>> +}
+>> +
+>> +/**
+>> + * drm_client_buffer_vmap - Map DRM client buffer into address space
+>> + * @buffer: DRM client buffer
+>> + *
+>> + * This function maps a client buffer into kernel address space. If t=
+he
+>> + * buffer is already mapped, it returns the mapping's address.
+>> + *
+>> + * Client buffer mappings are not ref'counted. Each call to
+>> + * drm_client_buffer_vmap() should be followed by a call to
+>> + * drm_client_buffer_vunmap(); or the client buffer should be mapped
+>> + * throughout its lifetime. The latter is the default.
+>> + *
+>> + * Returns:
+>> + *	The mapped memory's address
+>> + */
+>> +void *
+>> +drm_client_buffer_vmap(struct drm_client_buffer *buffer)
+>> +{
+>> +	void *vaddr;
+>> +
+>> +	if (buffer->vaddr)
+>> +		return buffer->vaddr;
+>> +
+>>  	/*
+>>  	 * FIXME: The dependency on GEM here isn't required, we could
+>>  	 * convert the driver handle to a dma-buf instead and use the
+>> @@ -289,21 +327,34 @@ drm_client_buffer_create(struct drm_client_dev *=
+client, u32 width, u32 height, u
+>>  	 * fd_install step out of the driver backend hooks, to make that
+>>  	 * final step optional for internal users.
+>>  	 */
+>> -	vaddr =3D drm_gem_vmap(obj);
+>> -	if (IS_ERR(vaddr)) {
+>> -		ret =3D PTR_ERR(vaddr);
+>> -		goto err_delete;
+>> -	}
+>> +	vaddr =3D drm_gem_vmap(buffer->gem);
+>> +	if (IS_ERR(vaddr))
+>> +		return vaddr;
+>> =20
+>>  	buffer->vaddr =3D vaddr;
+>> =20
+>> -	return buffer;
+>> +	return vaddr;
+>> +}
+>> +EXPORT_SYMBOL(drm_client_buffer_vmap);
+>> =20
+>> -err_delete:
+>> -	drm_client_buffer_delete(buffer);
+>> +/**
+>> + * drm_client_buffer_vunmap - Unmap DRM client buffer
+>> + * @buffer: DRM client buffer
+>> + *
+>> + * This function removes a client buffer's memory mmapping. This
+>> + * function is only required by clients that manage their buffers
+>> + * by themselves. By default, DRM client buffers are mapped throughou=
+t
+>> + * their entire lifetime.
+>> + */
+>> +void drm_client_buffer_vunmap(struct drm_client_buffer *buffer)
+>> +{
+>> +	if (!buffer->vaddr)
+>=20
+> No need for a NULL check here either.
+>=20
+> Noralf.
+>=20
+>> +		return;
+>> =20
+>> -	return ERR_PTR(ret);
+>> +	drm_gem_vunmap(buffer->gem, buffer->vaddr);
+>> +	buffer->vaddr =3D NULL;
+>>  }
+>> +EXPORT_SYMBOL(drm_client_buffer_vunmap);
+>> =20
+>>  static void drm_client_buffer_rmfb(struct drm_client_buffer *buffer)
+>>  {
+>> diff --git a/include/drm/drm_client.h b/include/drm/drm_client.h
+>> index 72d51d1e9dd9..e1db1d9da0bf 100644
+>> --- a/include/drm/drm_client.h
+>> +++ b/include/drm/drm_client.h
+>> @@ -149,6 +149,9 @@ struct drm_client_buffer {
+>>  struct drm_client_buffer *
+>>  drm_client_framebuffer_create(struct drm_client_dev *client, u32 widt=
+h, u32 height, u32 format);
+>>  void drm_client_framebuffer_delete(struct drm_client_buffer *buffer);=
+
+>> +void *
+>> +drm_client_buffer_vmap(struct drm_client_buffer *buffer);
+>> +void drm_client_buffer_vunmap(struct drm_client_buffer *buffer);
+>> =20
+>>  int drm_client_modeset_create(struct drm_client_dev *client);
+>>  void drm_client_modeset_free(struct drm_client_dev *client);
+>>
+
+--=20
+Thomas Zimmermann
+Graphics Driver Developer
+SUSE Linux GmbH, Maxfeldstrasse 5, 90409 Nuernberg, Germany
+GF: Felix Imend=C3=B6rffer, Mary Higgins, Sri Rasiah
+HRB 21284 (AG N=C3=BCrnberg)
+
+
+--AAYT1TAsgQuJrqGpwA1VD3lmeJVFLLECD--
+
+--sly6dSTEO1ExB8Z4ZvqDMnjcoDJc0GjoW
+Content-Type: application/pgp-signature; name="signature.asc"
+Content-Description: OpenPGP digital signature
+Content-Disposition: attachment; filename="signature.asc"
+
+-----BEGIN PGP SIGNATURE-----
+
+iQEzBAEBCAAdFiEEchf7rIzpz2NEoWjlaA3BHVMLeiMFAl0dqz4ACgkQaA3BHVML
+eiOYgwf6AwcYz+ep3XjNFog7hjm3Bwmd6cDE1rNQRdwC6rQFf3z7Jgl1xTImbrxT
+BfYlMEHF+YxouKqj30dB0GxFs7gjwt0bum+N/IygFumjvJ0hVCjvyKOPZAc1t1Aq
+/QrgNnczDAiY8E4ao7tDXpdXFFaqYmwu/Kj6wXaKOgJNnV5EAmlmj8tVMKGnN3c6
+KOZQ2eG4U4DDp1nFjenXCsm1WOPUilFFIKp04D8nX5VEHBnqvvz47QXyPfCujAEt
+qASJ4rOzcC+ecNNW4q6rYmT8cCvsN6XMLKVXAJ7DEUxtmu18Np1LYZOBC6RlakRH
+qRok0/cyReOEUW103F+yjF9Pe3eUHA==
+=XpJR
+-----END PGP SIGNATURE-----
+
+--sly6dSTEO1ExB8Z4ZvqDMnjcoDJc0GjoW--
+
+--===============0188877506155098093==
+Content-Type: text/plain; charset="us-ascii"
+MIME-Version: 1.0
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+
+_______________________________________________
+Virtualization mailing list
+Virtualization@lists.linux-foundation.org
+https://lists.linuxfoundation.org/mailman/listinfo/virtualization
+--===============0188877506155098093==--
