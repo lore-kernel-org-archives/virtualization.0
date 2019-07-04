@@ -1,15 +1,15 @@
-From: Chia-I Wu <olvaffe@gmail.com>
-Subject: Re: [PATCH v6 14/18] drm/virtio: rework
-	virtio_gpu_transfer_from_host_ioctl fencing
-Date: Wed, 3 Jul 2019 13:05:12 -0700
-Message-ID: <CAPaKu7T3GvYVMueYgJFhADFSFEVbHEdaupw8=mq_+i150a1mLA@mail.gmail.com>
-References: <20190702141903.1131-1-kraxel@redhat.com>
-	<20190702141903.1131-15-kraxel@redhat.com>
+From: Tiwei Bie <tiwei.bie@intel.com>
+Subject: Re: [RFC v2] vhost: introduce mdev based hardware vhost backend
+Date: Thu, 4 Jul 2019 09:36:36 +0800
+Message-ID: <20190704013636.GA26992__18056.0366877884$1562204303$gmane$org@___>
+References: <20190703091339.1847-1-tiwei.bie@intel.com>
+	<20190703123157.2452bf95@x1.home>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <20190702141903.1131-15-kraxel@redhat.com>
+Content-Disposition: inline
+In-Reply-To: <20190703123157.2452bf95@x1.home>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -19,136 +19,66 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Gerd Hoffmann <kraxel@redhat.com>
-Cc: David Airlie <airlied@linux.ie>, open list <linux-kernel@vger.kernel.org>, ML dri-devel <dri-devel@lists.freedesktop.org>, "open list:VIRTIO GPU DRIVER" <virtualization@lists.linux-foundation.org>, Daniel Vetter <daniel@ffwll.ch>, Gurchetan Singh <gurchetansingh@chromium.org>
+To: Alex Williamson <alex.williamson@redhat.com>
+Cc: kvm@vger.kernel.org, mst@redhat.com, netdev@vger.kernel.org, linux-kernel@vger.kernel.org, virtualization@lists.linux-foundation.org, maxime.coquelin@redhat.com, zhihong.wang@intel.com
 List-Id: virtualization@lists.linuxfoundation.org
 
-On Tue, Jul 2, 2019 at 7:19 AM Gerd Hoffmann <kraxel@redhat.com> wrote:
->
-> Switch to the virtio_gpu_array_* helper workflow.
-(just repeating my question on patch 6)
+On Wed, Jul 03, 2019 at 12:31:57PM -0600, Alex Williamson wrote:
+> On Wed,  3 Jul 2019 17:13:39 +0800
+> Tiwei Bie <tiwei.bie@intel.com> wrote:
+> > diff --git a/include/uapi/linux/vfio.h b/include/uapi/linux/vfio.h
+> > index 8f10748dac79..6c5718ab7eeb 100644
+> > --- a/include/uapi/linux/vfio.h
+> > +++ b/include/uapi/linux/vfio.h
+> > @@ -201,6 +201,7 @@ struct vfio_device_info {
+> >  #define VFIO_DEVICE_FLAGS_AMBA  (1 << 3)	/* vfio-amba device */
+> >  #define VFIO_DEVICE_FLAGS_CCW	(1 << 4)	/* vfio-ccw device */
+> >  #define VFIO_DEVICE_FLAGS_AP	(1 << 5)	/* vfio-ap device */
+> > +#define VFIO_DEVICE_FLAGS_VHOST	(1 << 6)	/* vfio-vhost device */
+> >  	__u32	num_regions;	/* Max region index + 1 */
+> >  	__u32	num_irqs;	/* Max IRQ index + 1 */
+> >  };
+> > @@ -217,6 +218,7 @@ struct vfio_device_info {
+> >  #define VFIO_DEVICE_API_AMBA_STRING		"vfio-amba"
+> >  #define VFIO_DEVICE_API_CCW_STRING		"vfio-ccw"
+> >  #define VFIO_DEVICE_API_AP_STRING		"vfio-ap"
+> > +#define VFIO_DEVICE_API_VHOST_STRING		"vfio-vhost"
+> >  
+> >  /**
+> >   * VFIO_DEVICE_GET_REGION_INFO - _IOWR(VFIO_TYPE, VFIO_BASE + 8,
+> > @@ -573,6 +575,23 @@ enum {
+> >  	VFIO_CCW_NUM_IRQS
+> >  };
+> >  
+> > +/*
+> > + * The vfio-vhost bus driver makes use of the following fixed region and
+> > + * IRQ index mapping. Unimplemented regions return a size of zero.
+> > + * Unimplemented IRQ types return a count of zero.
+> > + */
+> > +
+> > +enum {
+> > +	VFIO_VHOST_CONFIG_REGION_INDEX,
+> > +	VFIO_VHOST_NOTIFY_REGION_INDEX,
+> > +	VFIO_VHOST_NUM_REGIONS
+> > +};
+> > +
+> > +enum {
+> > +	VFIO_VHOST_VQ_IRQ_INDEX,
+> > +	VFIO_VHOST_NUM_IRQS
+> > +};
+> > +
+> 
+> Note that the vfio API has evolved a bit since vfio-pci started this
+> way, with fixed indexes for pre-defined region types.  We now support
+> device specific regions which can be identified by a capability within
+> the REGION_INFO ioctl return data.  This allows a bit more flexibility,
+> at the cost of complexity, but the infrastructure already exists in
+> kernel and QEMU to make it relatively easy.  I think we'll have the
+> same support for interrupts soon too.  If you continue to pursue the
+> vfio-vhost direction you might want to consider these before committing
+> to fixed indexes.  Thanks,
 
-Does this fix the obj refcount issue?  When was the issue introduced?
+Thanks for the details! Will give it a try!
 
->
-> Signed-off-by: Gerd Hoffmann <kraxel@redhat.com>
-> ---
->  drivers/gpu/drm/virtio/virtgpu_drv.h   |  3 ++-
->  drivers/gpu/drm/virtio/virtgpu_ioctl.c | 35 +++++++++++---------------
->  drivers/gpu/drm/virtio/virtgpu_vq.c    |  8 ++++--
->  3 files changed, 23 insertions(+), 23 deletions(-)
->
-> diff --git a/drivers/gpu/drm/virtio/virtgpu_drv.h b/drivers/gpu/drm/virtio/virtgpu_drv.h
-> index 78dc5a19a358..4df760ba018e 100644
-> --- a/drivers/gpu/drm/virtio/virtgpu_drv.h
-> +++ b/drivers/gpu/drm/virtio/virtgpu_drv.h
-> @@ -302,9 +302,10 @@ void virtio_gpu_cmd_submit(struct virtio_gpu_device *vgdev,
->                            struct virtio_gpu_object_array *objs,
->                            struct virtio_gpu_fence *fence);
->  void virtio_gpu_cmd_transfer_from_host_3d(struct virtio_gpu_device *vgdev,
-> -                                         uint32_t resource_id, uint32_t ctx_id,
-> +                                         uint32_t ctx_id,
->                                           uint64_t offset, uint32_t level,
->                                           struct virtio_gpu_box *box,
-> +                                         struct virtio_gpu_object_array *objs,
->                                           struct virtio_gpu_fence *fence);
->  void virtio_gpu_cmd_transfer_to_host_3d(struct virtio_gpu_device *vgdev,
->                                         struct virtio_gpu_object *bo,
-> diff --git a/drivers/gpu/drm/virtio/virtgpu_ioctl.c b/drivers/gpu/drm/virtio/virtgpu_ioctl.c
-> index 0d0acf0b85ed..56182abdbf36 100644
-> --- a/drivers/gpu/drm/virtio/virtgpu_ioctl.c
-> +++ b/drivers/gpu/drm/virtio/virtgpu_ioctl.c
-> @@ -298,8 +298,7 @@ static int virtio_gpu_transfer_from_host_ioctl(struct drm_device *dev,
->         struct virtio_gpu_device *vgdev = dev->dev_private;
->         struct virtio_gpu_fpriv *vfpriv = file->driver_priv;
->         struct drm_virtgpu_3d_transfer_from_host *args = data;
-> -       struct drm_gem_object *gobj = NULL;
-> -       struct virtio_gpu_object *qobj = NULL;
-> +       struct virtio_gpu_object_array *objs;
->         struct virtio_gpu_fence *fence;
->         int ret;
->         u32 offset = args->offset;
-> @@ -308,35 +307,31 @@ static int virtio_gpu_transfer_from_host_ioctl(struct drm_device *dev,
->         if (vgdev->has_virgl_3d == false)
->                 return -ENOSYS;
->
-> -       gobj = drm_gem_object_lookup(file, args->bo_handle);
-> -       if (gobj == NULL)
-> +       objs = virtio_gpu_array_from_handles(file, &args->bo_handle, 1);
-> +       if (objs == NULL)
->                 return -ENOENT;
->
-> -       qobj = gem_to_virtio_gpu_obj(gobj);
-> -
-> -       ret = virtio_gpu_object_reserve(qobj);
-> -       if (ret)
-> -               goto out;
-> +       ret = virtio_gpu_array_lock_resv(objs);
-> +       if (ret != 0)
-> +               goto err_put_free;
->
->         convert_to_hw_box(&box, &args->box);
->
->         fence = virtio_gpu_fence_alloc(vgdev);
->         if (!fence) {
->                 ret = -ENOMEM;
-> -               goto out_unres;
-> +               goto err_unlock;
->         }
->         virtio_gpu_cmd_transfer_from_host_3d
-> -               (vgdev, qobj->hw_res_handle,
-> -                vfpriv->ctx_id, offset, args->level,
-> -                &box, fence);
-> -       reservation_object_add_excl_fence(qobj->base.base.resv,
-> -                                         &fence->f);
-> -
-> +               (vgdev, vfpriv->ctx_id, offset, args->level,
-> +                &box, objs, fence);
->         dma_fence_put(&fence->f);
-> -out_unres:
-> -       virtio_gpu_object_unreserve(qobj);
-> -out:
-> -       drm_gem_object_put_unlocked(gobj);
-> +       return 0;
-> +
-> +err_unlock:
-> +       virtio_gpu_array_unlock_resv(objs);
-> +err_put_free:
-> +       virtio_gpu_array_put_free(objs);
->         return ret;
->  }
->
-> diff --git a/drivers/gpu/drm/virtio/virtgpu_vq.c b/drivers/gpu/drm/virtio/virtgpu_vq.c
-> index fc908d5cb217..bef7036f4508 100644
-> --- a/drivers/gpu/drm/virtio/virtgpu_vq.c
-> +++ b/drivers/gpu/drm/virtio/virtgpu_vq.c
-> @@ -928,20 +928,24 @@ void virtio_gpu_cmd_transfer_to_host_3d(struct virtio_gpu_device *vgdev,
->  }
->
->  void virtio_gpu_cmd_transfer_from_host_3d(struct virtio_gpu_device *vgdev,
-> -                                         uint32_t resource_id, uint32_t ctx_id,
-> +                                         uint32_t ctx_id,
->                                           uint64_t offset, uint32_t level,
->                                           struct virtio_gpu_box *box,
-> +                                         struct virtio_gpu_object_array *objs,
->                                           struct virtio_gpu_fence *fence)
->  {
-> +       struct virtio_gpu_object *bo = gem_to_virtio_gpu_obj(objs->objs[0]);
->         struct virtio_gpu_transfer_host_3d *cmd_p;
->         struct virtio_gpu_vbuffer *vbuf;
->
->         cmd_p = virtio_gpu_alloc_cmd(vgdev, &vbuf, sizeof(*cmd_p));
->         memset(cmd_p, 0, sizeof(*cmd_p));
->
-> +       vbuf->objs = objs;
-> +
->         cmd_p->hdr.type = cpu_to_le32(VIRTIO_GPU_CMD_TRANSFER_FROM_HOST_3D);
->         cmd_p->hdr.ctx_id = cpu_to_le32(ctx_id);
-> -       cmd_p->resource_id = cpu_to_le32(resource_id);
-> +       cmd_p->resource_id = cpu_to_le32(bo->hw_res_handle);
->         cmd_p->box = *box;
->         cmd_p->offset = cpu_to_le64(offset);
->         cmd_p->level = cpu_to_le32(level);
-> --
-> 2.18.1
->
+Thanks,
+Tiwei
