@@ -1,17 +1,17 @@
 From: Gerd Hoffmann <kraxel@redhat.com>
-Subject: Re: [PATCH v6 14/18] drm/virtio: rework
-	virtio_gpu_transfer_from_host_ioctl fencing
-Date: Thu, 4 Jul 2019 13:47:56 +0200
-Message-ID: <20190704114756.eavkszsgsyymns3m__25119.4116006204$1562240905$gmane$org@sirius.home.kraxel.org>
+Subject: Re: [PATCH v6 15/18] drm/virtio: rework
+	virtio_gpu_transfer_to_host_ioctl fencing
+Date: Thu, 4 Jul 2019 13:51:38 +0200
+Message-ID: <20190704115138.ou77sb3rlrex67tj__33510.1153281116$1562241114$gmane$org@sirius.home.kraxel.org>
 References: <20190702141903.1131-1-kraxel@redhat.com>
-	<20190702141903.1131-15-kraxel@redhat.com>
-	<CAPaKu7T3GvYVMueYgJFhADFSFEVbHEdaupw8=mq_+i150a1mLA@mail.gmail.com>
+	<20190702141903.1131-16-kraxel@redhat.com>
+	<CAPaKu7S0n=E7g0o2e6fEk1YjP+u=tsoV8upw7J=noSx88PgP+A@mail.gmail.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
 Content-Disposition: inline
-In-Reply-To: <CAPaKu7T3GvYVMueYgJFhADFSFEVbHEdaupw8=mq_+i150a1mLA@mail.gmail.com>
+In-Reply-To: <CAPaKu7S0n=E7g0o2e6fEk1YjP+u=tsoV8upw7J=noSx88PgP+A@mail.gmail.com>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -25,25 +25,30 @@ To: Chia-I Wu <olvaffe@gmail.com>
 Cc: David Airlie <airlied@linux.ie>, open list <linux-kernel@vger.kernel.org>, ML dri-devel <dri-devel@lists.freedesktop.org>, "open list:VIRTIO GPU DRIVER" <virtualization@lists.linux-foundation.org>, Daniel Vetter <daniel@ffwll.ch>, Gurchetan Singh <gurchetansingh@chromium.org>
 List-Id: virtualization@lists.linuxfoundation.org
 
-On Wed, Jul 03, 2019 at 01:05:12PM -0700, Chia-I Wu wrote:
-> On Tue, Jul 2, 2019 at 7:19 AM Gerd Hoffmann <kraxel@redhat.com> wrote:
-> >
-> > Switch to the virtio_gpu_array_* helper workflow.
-> (just repeating my question on patch 6)
-> 
-> Does this fix the obj refcount issue?  When was the issue introduced?
+  Hi,
 
-obj refcount should be fine in both old and new code.
+> >         convert_to_hw_box(&box, &args->box);
+> >         if (!vgdev->has_virgl_3d) {
+> >                 virtio_gpu_cmd_transfer_to_host_2d
+> > -                       (vgdev, qobj, offset,
+> > +                       (vgdev, gem_to_virtio_gpu_obj(objs->objs[0]), offset,
+> >                          box.w, box.h, box.x, box.y, NULL);
+> > +               virtio_gpu_array_put_free(objs);
+> Don't we need this in non-3D case as well?
 
-old code:
-  drm_gem_object_lookup
-  drm_gem_object_put_unlocked
+No, ...
 
-new code:
-  virtio_gpu_array_from_handles
-  virtio_gpu_array_put_free (in virtio_gpu_dequeue_ctrl_func).
+> >                 virtio_gpu_cmd_transfer_to_host_3d
+> > -                       (vgdev, qobj,
+> > +                       (vgdev,
+> >                          vfpriv ? vfpriv->ctx_id : 0, offset,
+> > -                        args->level, &box, fence);
+> > -               reservation_object_add_excl_fence(qobj->base.base.resv,
+> > -                                                 &fence->f);
+> > +                        args->level, &box, objs, fence);
 
-Or did I miss something?
+... 3d case passes the objs list to virtio_gpu_cmd_transfer_to_host_3d,
+so it gets added to the vbuf and released when the command is finished.
 
 cheers,
   Gerd
