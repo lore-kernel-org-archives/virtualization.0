@@ -1,11 +1,13 @@
 From: Thomas Zimmermann <tzimmermann@suse.de>
-Subject: [PATCH v2 0/6] Unmappable DRM client buffers for fbdev emulation
-Date: Fri,  5 Jul 2019 11:26:07 +0200
-Message-ID: <20190705092613.7621-1-tzimmermann@suse.de>
+Subject: [PATCH v2 1/6] drm/client: Support unmapping of DRM client buffers
+Date: Fri,  5 Jul 2019 11:26:08 +0200
+Message-ID: <20190705092613.7621-2-tzimmermann__14223.2305648335$1562318798$gmane$org@suse.de>
+References: <20190705092613.7621-1-tzimmermann@suse.de>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
+In-Reply-To: <20190705092613.7621-1-tzimmermann@suse.de>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -19,63 +21,133 @@ To: airlied@redhat.com, daniel@ffwll.ch, kraxel@redhat.com, maarten.lankhorst@li
 Cc: Thomas Zimmermann <tzimmermann@suse.de>, dri-devel@lists.freedesktop.org, virtualization@lists.linux-foundation.org
 List-Id: virtualization@lists.linuxfoundation.org
 
-DRM client buffers are permanently mapped throughout their lifetime. This
-prevents us from using generic framebuffer emulation for devices with
-small dedicated video memory, such as ast or mgag200. With fb buffers
-permanently mapped, such devices often won't have enough space left to
-display other content (e.g., X11).
+DRM clients, such as the fbdev emulation, have their buffer objects
+mapped by default. Mapping a buffer implicitly prevents its relocation.
+Hence, the buffer may permanently consume video memory while it's
+allocated. This is a problem for drivers of low-memory devices, such as
+ast, mgag200 or older framebuffer hardware, which will then not have
+enough memory to display other content (e.g., X11).
 
-This patch set introduces unmappable DRM client buffers for framebuffer
-emulation with shadow buffers. While the shadow buffer remains in system
-memory permanently, the respective buffer object will only be mapped briefly
-during updates from the shadow buffer. Hence, the driver can relocate he
-buffer object among memory regions as needed.
+This patch introduces drm_client_buffer_vmap() and _vunmap(). Internal
+DRM clients can use these functions to unmap and remap buffer objects
+as needed.
 
-HW-based framebuffer consoles will still map the buffer permanently. This
-is a special case required by the fbdev interface, which allows for mmaping
-video memory to userspace. Some userspace clients rely on this
-functionality. Hence, the patch set also changes DRM clients to not map the
-buffer by default. Future DRM clients are expected to map buffers as needed.
+There's no reference counting for vmap operations. Callers are expected
+to either keep buffers mapped (as it is now), or call vmap and vunmap
+in pairs around code that accesses the mapped memory.
 
-The patch set converts ast and mgag200 to generic framebuffer emulation
-and removes a large amount of framebuffer code from these drivers. For
-bochs, a problem was reported where the driver could not display the console
-because it was pinned in system memory. [1] The patch set fixes this bug
-by converting bochs to use the shadow fb.
+v2:
+	* remove several duplicated NULL-pointer checks
 
-The patch set has been tested on ast and mga200 HW.
+Signed-off-by: Thomas Zimmermann <tzimmermann@suse.de>
+---
+ drivers/gpu/drm/drm_client.c | 67 ++++++++++++++++++++++++++++++------
+ include/drm/drm_client.h     |  3 ++
+ 2 files changed, 60 insertions(+), 10 deletions(-)
 
-[1] https://lists.freedesktop.org/archives/dri-devel/2019-June/224423.html
-
-Thomas Zimmermann (6):
-  drm/client: Support unmapping of DRM client buffers
-  drm/fb-helper: Map DRM client buffer only when required
-  drm/fb-helper: Instanciate shadow FB if configured in device's
-    mode_config
-  drm/ast: Replace struct ast_fbdev with generic framebuffer emulation
-  drm/bochs: Use shadow buffer for bochs framebuffer console
-  drm/mgag200: Replace struct mga_fbdev with generic framebuffer
-    emulation
-
- drivers/gpu/drm/ast/Makefile           |   2 +-
- drivers/gpu/drm/ast/ast_drv.c          |  13 +-
- drivers/gpu/drm/ast/ast_drv.h          |  17 --
- drivers/gpu/drm/ast/ast_fb.c           | 341 -------------------------
- drivers/gpu/drm/ast/ast_main.c         |   3 +-
- drivers/gpu/drm/ast/ast_mode.c         |  21 --
- drivers/gpu/drm/bochs/bochs_kms.c      |   1 +
- drivers/gpu/drm/drm_client.c           |  61 ++++-
- drivers/gpu/drm/drm_fb_helper.c        |  52 +++-
- drivers/gpu/drm/mgag200/Makefile       |   2 +-
- drivers/gpu/drm/mgag200/mgag200_drv.h  |  19 --
- drivers/gpu/drm/mgag200/mgag200_fb.c   | 309 ----------------------
- drivers/gpu/drm/mgag200/mgag200_main.c |  31 +--
- drivers/gpu/drm/mgag200/mgag200_mode.c |  27 --
- include/drm/drm_client.h               |   3 +
- include/drm/drm_mode_config.h          |   5 +
- 16 files changed, 109 insertions(+), 798 deletions(-)
- delete mode 100644 drivers/gpu/drm/ast/ast_fb.c
- delete mode 100644 drivers/gpu/drm/mgag200/mgag200_fb.c
-
---
+diff --git a/drivers/gpu/drm/drm_client.c b/drivers/gpu/drm/drm_client.c
+index 410572f14257..66d8d645ac79 100644
+--- a/drivers/gpu/drm/drm_client.c
++++ b/drivers/gpu/drm/drm_client.c
+@@ -281,6 +281,43 @@ drm_client_buffer_create(struct drm_client_dev *client, u32 width, u32 height, u
+ 
+ 	buffer->gem = obj;
+ 
++	vaddr = drm_client_buffer_vmap(buffer);
++	if (IS_ERR(vaddr)) {
++		ret = PTR_ERR(vaddr);
++		goto err_delete;
++	}
++
++	return buffer;
++
++err_delete:
++	drm_client_buffer_delete(buffer);
++
++	return ERR_PTR(ret);
++}
++
++/**
++ * drm_client_buffer_vmap - Map DRM client buffer into address space
++ * @buffer: DRM client buffer
++ *
++ * This function maps a client buffer into kernel address space. If the
++ * buffer is already mapped, it returns the mapping's address.
++ *
++ * Client buffer mappings are not ref'counted. Each call to
++ * drm_client_buffer_vmap() should be followed by a call to
++ * drm_client_buffer_vunmap(); or the client buffer should be mapped
++ * throughout its lifetime. The latter is the default.
++ *
++ * Returns:
++ *	The mapped memory's address
++ */
++void *
++drm_client_buffer_vmap(struct drm_client_buffer *buffer)
++{
++	void *vaddr;
++
++	if (buffer->vaddr)
++		return buffer->vaddr;
++
+ 	/*
+ 	 * FIXME: The dependency on GEM here isn't required, we could
+ 	 * convert the driver handle to a dma-buf instead and use the
+@@ -289,21 +326,31 @@ drm_client_buffer_create(struct drm_client_dev *client, u32 width, u32 height, u
+ 	 * fd_install step out of the driver backend hooks, to make that
+ 	 * final step optional for internal users.
+ 	 */
+-	vaddr = drm_gem_vmap(obj);
+-	if (IS_ERR(vaddr)) {
+-		ret = PTR_ERR(vaddr);
+-		goto err_delete;
+-	}
++	vaddr = drm_gem_vmap(buffer->gem);
++	if (IS_ERR(vaddr))
++		return vaddr;
+ 
+ 	buffer->vaddr = vaddr;
+ 
+-	return buffer;
+-
+-err_delete:
+-	drm_client_buffer_delete(buffer);
++	return vaddr;
++}
++EXPORT_SYMBOL(drm_client_buffer_vmap);
+ 
+-	return ERR_PTR(ret);
++/**
++ * drm_client_buffer_vunmap - Unmap DRM client buffer
++ * @buffer: DRM client buffer
++ *
++ * This function removes a client buffer's memory mmapping. This
++ * function is only required by clients that manage their buffers
++ * by themselves. By default, DRM client buffers are mapped throughout
++ * their entire lifetime.
++ */
++void drm_client_buffer_vunmap(struct drm_client_buffer *buffer)
++{
++	drm_gem_vunmap(buffer->gem, buffer->vaddr);
++	buffer->vaddr = NULL;
+ }
++EXPORT_SYMBOL(drm_client_buffer_vunmap);
+ 
+ static void drm_client_buffer_rmfb(struct drm_client_buffer *buffer)
+ {
+diff --git a/include/drm/drm_client.h b/include/drm/drm_client.h
+index 72d51d1e9dd9..e1db1d9da0bf 100644
+--- a/include/drm/drm_client.h
++++ b/include/drm/drm_client.h
+@@ -149,6 +149,9 @@ struct drm_client_buffer {
+ struct drm_client_buffer *
+ drm_client_framebuffer_create(struct drm_client_dev *client, u32 width, u32 height, u32 format);
+ void drm_client_framebuffer_delete(struct drm_client_buffer *buffer);
++void *
++drm_client_buffer_vmap(struct drm_client_buffer *buffer);
++void drm_client_buffer_vunmap(struct drm_client_buffer *buffer);
+ 
+ int drm_client_modeset_create(struct drm_client_dev *client);
+ void drm_client_modeset_free(struct drm_client_dev *client);
+-- 
 2.21.0
