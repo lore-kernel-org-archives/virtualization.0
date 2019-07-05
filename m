@@ -1,19 +1,11 @@
-From: Gerd Hoffmann <kraxel@redhat.com>
-Subject: Re: [PATCH v6 15/18] drm/virtio: rework
-	virtio_gpu_transfer_to_host_ioctl fencing
-Date: Fri, 5 Jul 2019 11:05:53 +0200
-Message-ID: <20190705090553.jx5zcdoxeimojq2i__42944.6725336433$1562317570$gmane$org@sirius.home.kraxel.org>
-References: <20190702141903.1131-1-kraxel@redhat.com>
-	<20190702141903.1131-16-kraxel@redhat.com>
-	<CAPaKu7S0n=E7g0o2e6fEk1YjP+u=tsoV8upw7J=noSx88PgP+A@mail.gmail.com>
-	<20190704115138.ou77sb3rlrex67tj@sirius.home.kraxel.org>
-	<CAPaKu7SDwR1TgFQK2XGEbRqSkCO0XZYxGhcjzsAwOH42aOHEEw@mail.gmail.com>
+From: Thomas Zimmermann <tzimmermann@suse.de>
+Subject: [PATCH v2 0/6] Unmappable DRM client buffers for fbdev emulation
+Date: Fri,  5 Jul 2019 11:26:07 +0200
+Message-ID: <20190705092613.7621-1-tzimmermann@suse.de>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-Content-Disposition: inline
-In-Reply-To: <CAPaKu7SDwR1TgFQK2XGEbRqSkCO0XZYxGhcjzsAwOH42aOHEEw@mail.gmail.com>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -23,46 +15,67 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Chia-I Wu <olvaffe@gmail.com>
-Cc: David Airlie <airlied@linux.ie>, open list <linux-kernel@vger.kernel.org>, ML dri-devel <dri-devel@lists.freedesktop.org>, "open list:VIRTIO GPU DRIVER" <virtualization@lists.linux-foundation.org>, Daniel Vetter <daniel@ffwll.ch>, Gurchetan Singh <gurchetansingh@chromium.org>
+To: airlied@redhat.com, daniel@ffwll.ch, kraxel@redhat.com, maarten.lankhorst@linux.intel.com, maxime.ripard@bootlin.com, sean@poorly.run, noralf@tronnes.org, sam@ravnborg.org, yc_chen@aspeedtech.com
+Cc: Thomas Zimmermann <tzimmermann@suse.de>, dri-devel@lists.freedesktop.org, virtualization@lists.linux-foundation.org
 List-Id: virtualization@lists.linuxfoundation.org
 
-On Thu, Jul 04, 2019 at 12:08:14PM -0700, Chia-I Wu wrote:
-> On Thu, Jul 4, 2019 at 4:51 AM Gerd Hoffmann <kraxel@redhat.com> wrote:
-> >
-> >   Hi,
-> >
-> > > >         convert_to_hw_box(&box, &args->box);
-> > > >         if (!vgdev->has_virgl_3d) {
-> > > >                 virtio_gpu_cmd_transfer_to_host_2d
-> > > > -                       (vgdev, qobj, offset,
-> > > > +                       (vgdev, gem_to_virtio_gpu_obj(objs->objs[0]), offset,
-> > > >                          box.w, box.h, box.x, box.y, NULL);
-> > > > +               virtio_gpu_array_put_free(objs);
-> > > Don't we need this in non-3D case as well?
-> >
-> > No, ...
-> >
-> > > >                 virtio_gpu_cmd_transfer_to_host_3d
-> > > > -                       (vgdev, qobj,
-> > > > +                       (vgdev,
-> > > >                          vfpriv ? vfpriv->ctx_id : 0, offset,
-> > > > -                        args->level, &box, fence);
-> > > > -               reservation_object_add_excl_fence(qobj->base.base.resv,
-> > > > -                                                 &fence->f);
-> > > > +                        args->level, &box, objs, fence);
-> >
-> > ... 3d case passes the objs list to virtio_gpu_cmd_transfer_to_host_3d,
-> > so it gets added to the vbuf and released when the command is finished.
-> Why doesn't this apply to virtio_gpu_cmd_transfer_to_host_2d?
+DRM client buffers are permanently mapped throughout their lifetime. This
+prevents us from using generic framebuffer emulation for devices with
+small dedicated video memory, such as ast or mgag200. With fb buffers
+permanently mapped, such devices often won't have enough space left to
+display other content (e.g., X11).
 
-Hmm, yes, makes sense to handle both the same way.
+This patch set introduces unmappable DRM client buffers for framebuffer
+emulation with shadow buffers. While the shadow buffer remains in system
+memory permanently, the respective buffer object will only be mapped briefly
+during updates from the shadow buffer. Hence, the driver can relocate he
+buffer object among memory regions as needed.
 
-With virgl=off qemu processes the commands from the guest
-synchronously, so it'll work fine as-is.  So you can't hit
-the theoretical race window in practice.  But depending
-on that host-side implementation detail isn't a good idea
-indeed.
+HW-based framebuffer consoles will still map the buffer permanently. This
+is a special case required by the fbdev interface, which allows for mmaping
+video memory to userspace. Some userspace clients rely on this
+functionality. Hence, the patch set also changes DRM clients to not map the
+buffer by default. Future DRM clients are expected to map buffers as needed.
 
-cheers,
-  Gerd
+The patch set converts ast and mgag200 to generic framebuffer emulation
+and removes a large amount of framebuffer code from these drivers. For
+bochs, a problem was reported where the driver could not display the console
+because it was pinned in system memory. [1] The patch set fixes this bug
+by converting bochs to use the shadow fb.
+
+The patch set has been tested on ast and mga200 HW.
+
+[1] https://lists.freedesktop.org/archives/dri-devel/2019-June/224423.html
+
+Thomas Zimmermann (6):
+  drm/client: Support unmapping of DRM client buffers
+  drm/fb-helper: Map DRM client buffer only when required
+  drm/fb-helper: Instanciate shadow FB if configured in device's
+    mode_config
+  drm/ast: Replace struct ast_fbdev with generic framebuffer emulation
+  drm/bochs: Use shadow buffer for bochs framebuffer console
+  drm/mgag200: Replace struct mga_fbdev with generic framebuffer
+    emulation
+
+ drivers/gpu/drm/ast/Makefile           |   2 +-
+ drivers/gpu/drm/ast/ast_drv.c          |  13 +-
+ drivers/gpu/drm/ast/ast_drv.h          |  17 --
+ drivers/gpu/drm/ast/ast_fb.c           | 341 -------------------------
+ drivers/gpu/drm/ast/ast_main.c         |   3 +-
+ drivers/gpu/drm/ast/ast_mode.c         |  21 --
+ drivers/gpu/drm/bochs/bochs_kms.c      |   1 +
+ drivers/gpu/drm/drm_client.c           |  61 ++++-
+ drivers/gpu/drm/drm_fb_helper.c        |  52 +++-
+ drivers/gpu/drm/mgag200/Makefile       |   2 +-
+ drivers/gpu/drm/mgag200/mgag200_drv.h  |  19 --
+ drivers/gpu/drm/mgag200/mgag200_fb.c   | 309 ----------------------
+ drivers/gpu/drm/mgag200/mgag200_main.c |  31 +--
+ drivers/gpu/drm/mgag200/mgag200_mode.c |  27 --
+ include/drm/drm_client.h               |   3 +
+ include/drm/drm_mode_config.h          |   5 +
+ 16 files changed, 109 insertions(+), 798 deletions(-)
+ delete mode 100644 drivers/gpu/drm/ast/ast_fb.c
+ delete mode 100644 drivers/gpu/drm/mgag200/mgag200_fb.c
+
+--
+2.21.0
