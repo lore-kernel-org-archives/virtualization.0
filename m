@@ -1,7 +1,8 @@
 From: Thomas Zimmermann <tzimmermann@suse.de>
-Subject: [PATCH v2 1/6] drm/client: Support unmapping of DRM client buffers
-Date: Fri,  5 Jul 2019 11:26:08 +0200
-Message-ID: <20190705092613.7621-2-tzimmermann__14223.2305648335$1562318798$gmane$org@suse.de>
+Subject: [PATCH v2 3/6] drm/fb-helper: Instanciate shadow FB if configured in
+	device's mode_config
+Date: Fri,  5 Jul 2019 11:26:10 +0200
+Message-ID: <20190705092613.7621-4-tzimmermann__10564.2203752481$1562318805$gmane$org@suse.de>
 References: <20190705092613.7621-1-tzimmermann@suse.de>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
@@ -21,133 +22,91 @@ To: airlied@redhat.com, daniel@ffwll.ch, kraxel@redhat.com, maarten.lankhorst@li
 Cc: Thomas Zimmermann <tzimmermann@suse.de>, dri-devel@lists.freedesktop.org, virtualization@lists.linux-foundation.org
 List-Id: virtualization@lists.linuxfoundation.org
 
-DRM clients, such as the fbdev emulation, have their buffer objects
-mapped by default. Mapping a buffer implicitly prevents its relocation.
-Hence, the buffer may permanently consume video memory while it's
-allocated. This is a problem for drivers of low-memory devices, such as
-ast, mgag200 or older framebuffer hardware, which will then not have
-enough memory to display other content (e.g., X11).
-
-This patch introduces drm_client_buffer_vmap() and _vunmap(). Internal
-DRM clients can use these functions to unmap and remap buffer objects
-as needed.
-
-There's no reference counting for vmap operations. Callers are expected
-to either keep buffers mapped (as it is now), or call vmap and vunmap
-in pairs around code that accesses the mapped memory.
-
-v2:
-	* remove several duplicated NULL-pointer checks
+Generic framebuffer emulation uses a shadow buffer for framebuffers with
+dirty() function. If drivers want to use the shadow FB without such a
+function, they can now set prefer_shadow or prefer_shadow_fbdev in their
+mode_config structures. The former flag is exported to userspace, the latter
+flag is fbdev-only.
 
 Signed-off-by: Thomas Zimmermann <tzimmermann@suse.de>
 ---
- drivers/gpu/drm/drm_client.c | 67 ++++++++++++++++++++++++++++++------
- include/drm/drm_client.h     |  3 ++
- 2 files changed, 60 insertions(+), 10 deletions(-)
+ drivers/gpu/drm/drm_fb_helper.c | 19 ++++++++++++++-----
+ include/drm/drm_mode_config.h   |  5 +++++
+ 2 files changed, 19 insertions(+), 5 deletions(-)
 
-diff --git a/drivers/gpu/drm/drm_client.c b/drivers/gpu/drm/drm_client.c
-index 410572f14257..66d8d645ac79 100644
---- a/drivers/gpu/drm/drm_client.c
-+++ b/drivers/gpu/drm/drm_client.c
-@@ -281,6 +281,43 @@ drm_client_buffer_create(struct drm_client_dev *client, u32 width, u32 height, u
+diff --git a/drivers/gpu/drm/drm_fb_helper.c b/drivers/gpu/drm/drm_fb_helper.c
+index 7ba6a0255821..56ef169e1814 100644
+--- a/drivers/gpu/drm/drm_fb_helper.c
++++ b/drivers/gpu/drm/drm_fb_helper.c
+@@ -421,7 +421,9 @@ static void drm_fb_helper_dirty_work(struct work_struct *work)
+ 				return;
+ 			drm_fb_helper_dirty_blit_real(helper, &clip_copy);
+ 		}
+-		helper->fb->funcs->dirty(helper->fb, NULL, 0, 0, &clip_copy, 1);
++		if (helper->fb->funcs->dirty)
++			helper->fb->funcs->dirty(helper->fb, NULL, 0, 0,
++						 &clip_copy, 1);
  
- 	buffer->gem = obj;
+ 		if (helper->buffer)
+ 			drm_client_buffer_vunmap(helper->buffer);
+@@ -620,9 +622,6 @@ static void drm_fb_helper_dirty(struct fb_info *info, u32 x, u32 y,
+ 	struct drm_clip_rect *clip = &helper->dirty_clip;
+ 	unsigned long flags;
  
-+	vaddr = drm_client_buffer_vmap(buffer);
-+	if (IS_ERR(vaddr)) {
-+		ret = PTR_ERR(vaddr);
-+		goto err_delete;
-+	}
-+
-+	return buffer;
-+
-+err_delete:
-+	drm_client_buffer_delete(buffer);
-+
-+	return ERR_PTR(ret);
-+}
-+
-+/**
-+ * drm_client_buffer_vmap - Map DRM client buffer into address space
-+ * @buffer: DRM client buffer
-+ *
-+ * This function maps a client buffer into kernel address space. If the
-+ * buffer is already mapped, it returns the mapping's address.
-+ *
-+ * Client buffer mappings are not ref'counted. Each call to
-+ * drm_client_buffer_vmap() should be followed by a call to
-+ * drm_client_buffer_vunmap(); or the client buffer should be mapped
-+ * throughout its lifetime. The latter is the default.
-+ *
-+ * Returns:
-+ *	The mapped memory's address
-+ */
-+void *
-+drm_client_buffer_vmap(struct drm_client_buffer *buffer)
-+{
-+	void *vaddr;
-+
-+	if (buffer->vaddr)
-+		return buffer->vaddr;
-+
- 	/*
- 	 * FIXME: The dependency on GEM here isn't required, we could
- 	 * convert the driver handle to a dma-buf instead and use the
-@@ -289,21 +326,31 @@ drm_client_buffer_create(struct drm_client_dev *client, u32 width, u32 height, u
- 	 * fd_install step out of the driver backend hooks, to make that
- 	 * final step optional for internal users.
- 	 */
--	vaddr = drm_gem_vmap(obj);
--	if (IS_ERR(vaddr)) {
--		ret = PTR_ERR(vaddr);
--		goto err_delete;
--	}
-+	vaddr = drm_gem_vmap(buffer->gem);
-+	if (IS_ERR(vaddr))
-+		return vaddr;
- 
- 	buffer->vaddr = vaddr;
- 
--	return buffer;
+-	if (!helper->fb->funcs->dirty)
+-		return;
 -
--err_delete:
--	drm_client_buffer_delete(buffer);
-+	return vaddr;
-+}
-+EXPORT_SYMBOL(drm_client_buffer_vmap);
+ 	spin_lock_irqsave(&helper->dirty_lock, flags);
+ 	clip->x1 = min_t(u32, clip->x1, x);
+ 	clip->y1 = min_t(u32, clip->y1, y);
+@@ -2166,6 +2165,16 @@ static struct fb_deferred_io drm_fbdev_defio = {
+ 	.deferred_io	= drm_fb_helper_deferred_io,
+ };
  
--	return ERR_PTR(ret);
-+/**
-+ * drm_client_buffer_vunmap - Unmap DRM client buffer
-+ * @buffer: DRM client buffer
-+ *
-+ * This function removes a client buffer's memory mmapping. This
-+ * function is only required by clients that manage their buffers
-+ * by themselves. By default, DRM client buffers are mapped throughout
-+ * their entire lifetime.
-+ */
-+void drm_client_buffer_vunmap(struct drm_client_buffer *buffer)
++static bool drm_fbdev_use_shadow_fb(struct drm_fb_helper *fb_helper)
 +{
-+	drm_gem_vunmap(buffer->gem, buffer->vaddr);
-+	buffer->vaddr = NULL;
- }
-+EXPORT_SYMBOL(drm_client_buffer_vunmap);
++	struct drm_device *dev = fb_helper->dev;
++	struct drm_framebuffer *fb = fb_helper->fb;
++
++	return dev->mode_config.prefer_shadow_fbdev |
++	       dev->mode_config.prefer_shadow |
++	       !!fb->funcs->dirty;
++}
++
+ /**
+  * drm_fb_helper_generic_probe - Generic fbdev emulation probe helper
+  * @fb_helper: fbdev helper structure
+@@ -2213,7 +2222,7 @@ int drm_fb_helper_generic_probe(struct drm_fb_helper *fb_helper,
  
- static void drm_client_buffer_rmfb(struct drm_client_buffer *buffer)
- {
-diff --git a/include/drm/drm_client.h b/include/drm/drm_client.h
-index 72d51d1e9dd9..e1db1d9da0bf 100644
---- a/include/drm/drm_client.h
-+++ b/include/drm/drm_client.h
-@@ -149,6 +149,9 @@ struct drm_client_buffer {
- struct drm_client_buffer *
- drm_client_framebuffer_create(struct drm_client_dev *client, u32 width, u32 height, u32 format);
- void drm_client_framebuffer_delete(struct drm_client_buffer *buffer);
-+void *
-+drm_client_buffer_vmap(struct drm_client_buffer *buffer);
-+void drm_client_buffer_vunmap(struct drm_client_buffer *buffer);
+ 	drm_fb_helper_fill_info(fbi, fb_helper, sizes);
  
- int drm_client_modeset_create(struct drm_client_dev *client);
- void drm_client_modeset_free(struct drm_client_dev *client);
+-	if (fb->funcs->dirty) {
++	if (drm_fbdev_use_shadow_fb(fb_helper)) {
+ 		struct fb_ops *fbops;
+ 		void *shadow;
+ 
+diff --git a/include/drm/drm_mode_config.h b/include/drm/drm_mode_config.h
+index 759d462d028b..e1c751aca353 100644
+--- a/include/drm/drm_mode_config.h
++++ b/include/drm/drm_mode_config.h
+@@ -347,6 +347,8 @@ struct drm_mode_config_funcs {
+  * @output_poll_work: delayed work for polling in process context
+  * @preferred_depth: preferred RBG pixel depth, used by fb helpers
+  * @prefer_shadow: hint to userspace to prefer shadow-fb rendering
++ * @prefer_shadow_fbdev: hint to framebuffer emulation to prefer shadow-fb \
++	rendering
+  * @cursor_width: hint to userspace for max cursor width
+  * @cursor_height: hint to userspace for max cursor height
+  * @helper_private: mid-layer private data
+@@ -852,6 +854,9 @@ struct drm_mode_config {
+ 	/* dumb ioctl parameters */
+ 	uint32_t preferred_depth, prefer_shadow;
+ 
++	/* fbdev parameters */
++	uint32_t prefer_shadow_fbdev;
++
+ 	/**
+ 	 * @quirk_addfb_prefer_xbgr_30bpp:
+ 	 *
 -- 
 2.21.0
