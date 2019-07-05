@@ -1,19 +1,19 @@
 From: Gerd Hoffmann <kraxel@redhat.com>
-Subject: Re: [PATCH v6 06/18] drm/virtio: remove ttm calls from in
-	virtio_gpu_object_{reserve,unreserve}
-Date: Fri, 5 Jul 2019 10:53:25 +0200
-Message-ID: <20190705085325.am2reucblvxc6qpg__26748.7195947737$1562316835$gmane$org@sirius.home.kraxel.org>
+Subject: Re: [PATCH v6 14/18] drm/virtio: rework
+	virtio_gpu_transfer_from_host_ioctl fencing
+Date: Fri, 5 Jul 2019 11:01:05 +0200
+Message-ID: <20190705090105.5ivc4gqgbyczwtpo__37218.1357628264$1562317291$gmane$org@sirius.home.kraxel.org>
 References: <20190702141903.1131-1-kraxel@redhat.com>
-	<20190702141903.1131-7-kraxel@redhat.com>
-	<CAPaKu7RfLoB=K__wQd92=S20Mt0uqsfyU9oigr8CQ-=gH6OUuA@mail.gmail.com>
-	<20190704111043.5ubc2yjrjphj2iec@sirius.home.kraxel.org>
-	<CAPaKu7S4Og7kda2ZjFtuRv=_W8gpFbD5y7s==0JB5Z34S4Hsjw@mail.gmail.com>
+	<20190702141903.1131-15-kraxel@redhat.com>
+	<CAPaKu7T3GvYVMueYgJFhADFSFEVbHEdaupw8=mq_+i150a1mLA@mail.gmail.com>
+	<20190704114756.eavkszsgsyymns3m@sirius.home.kraxel.org>
+	<CAPaKu7SXJwDg1uE0qDOYNS6J44UuQUh6m5rpJ3hBtW2tqYmMKA@mail.gmail.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
 Content-Disposition: inline
-In-Reply-To: <CAPaKu7S4Og7kda2ZjFtuRv=_W8gpFbD5y7s==0JB5Z34S4Hsjw@mail.gmail.com>
+In-Reply-To: <CAPaKu7SXJwDg1uE0qDOYNS6J44UuQUh6m5rpJ3hBtW2tqYmMKA@mail.gmail.com>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -27,31 +27,33 @@ To: Chia-I Wu <olvaffe@gmail.com>
 Cc: David Airlie <airlied@linux.ie>, open list <linux-kernel@vger.kernel.org>, ML dri-devel <dri-devel@lists.freedesktop.org>, "open list:VIRTIO GPU DRIVER" <virtualization@lists.linux-foundation.org>, Daniel Vetter <daniel@ffwll.ch>, Gurchetan Singh <gurchetansingh@chromium.org>
 List-Id: virtualization@lists.linuxfoundation.org
 
-On Thu, Jul 04, 2019 at 12:17:48PM -0700, Chia-I Wu wrote:
-> On Thu, Jul 4, 2019 at 4:10 AM Gerd Hoffmann <kraxel@redhat.com> wrote:
+On Thu, Jul 04, 2019 at 11:55:59AM -0700, Chia-I Wu wrote:
+> On Thu, Jul 4, 2019 at 4:48 AM Gerd Hoffmann <kraxel@redhat.com> wrote:
 > >
-> >   Hi,
+> > On Wed, Jul 03, 2019 at 01:05:12PM -0700, Chia-I Wu wrote:
+> > > On Tue, Jul 2, 2019 at 7:19 AM Gerd Hoffmann <kraxel@redhat.com> wrote:
+> > > >
+> > > > Switch to the virtio_gpu_array_* helper workflow.
+> > > (just repeating my question on patch 6)
+> > >
+> > > Does this fix the obj refcount issue?  When was the issue introduced?
 > >
-> > > > -       r = ttm_bo_reserve(&bo->tbo, true, false, NULL);
-> > > > +       r = reservation_object_lock_interruptible(bo->gem_base.resv, NULL);
-> > > Can you elaborate a bit about how TTM keeps the BOs alive in, for
-> > > example, virtio_gpu_transfer_from_host_ioctl?  In that function, only
-> > > three TTM functions are called: ttm_bo_reserve, ttm_bo_validate, and
-> > > ttm_bo_unreserve.  I am curious how they keep the BO alive.
+> > obj refcount should be fine in both old and new code.
 > >
-> > It can't go away between reserve and unreserve, and I think it also
-> > can't be evicted then.  Havn't checked how ttm implements that.
-> Hm, but the vbuf using the BO outlives the reserve/unreserve section.
-> The NO_EVICT flag applies only when the BO is still alive.  Someone
-> needs to hold a reference to the BO to keep it alive, otherwise the BO
-> can go away before the vbuf is retired.
+> > old code:
+> >   drm_gem_object_lookup
+> >   drm_gem_object_put_unlocked
+> >
+> > new code:
+> >   virtio_gpu_array_from_handles
+> >   virtio_gpu_array_put_free (in virtio_gpu_dequeue_ctrl_func).
+> >
+> > Or did I miss something?
+> In the old code, drm_gem_object_put_unlocked is called before the vbuf
+> using the object is retired.  Isn't that what object array wants to
+> fix?
 
-Note that patches 14+15 rework virtio_gpu_transfer_*_ioctl to keep
-gem reference until the command is finished and patch 17 drops
-virtio_gpu_object_{reserve,unreserve} altogether.
-
-Maybe I should try to reorder the series, then squash 6+17 to reduce
-confusion.  I suspect that'll cause quite a few conflicts though ...
+I think the fence keeps the bo alive.
 
 cheers,
   Gerd
