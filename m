@@ -1,18 +1,14 @@
-From: Chia-I Wu <olvaffe@gmail.com>
-Subject: Re: [PATCH v6 06/18] drm/virtio: remove ttm calls from in
-	virtio_gpu_object_{reserve, unreserve}
-Date: Sat, 6 Jul 2019 22:30:25 -0700
-Message-ID: <CAPaKu7Q1_2-_HNr8Fkh7K61UGUfuAdPHWckH5g4fWt9s2YWiRA__26446.4579567843$1562477895$gmane$org@mail.gmail.com>
-References: <20190702141903.1131-1-kraxel@redhat.com>
-	<20190702141903.1131-7-kraxel@redhat.com>
-	<CAPaKu7RfLoB=K__wQd92=S20Mt0uqsfyU9oigr8CQ-=gH6OUuA@mail.gmail.com>
-	<20190704111043.5ubc2yjrjphj2iec@sirius.home.kraxel.org>
-	<CAPaKu7S4Og7kda2ZjFtuRv=_W8gpFbD5y7s==0JB5Z34S4Hsjw@mail.gmail.com>
-	<20190705085325.am2reucblvxc6qpg@sirius.home.kraxel.org>
+From: =?UTF-8?Q?Noralf_Tr=c3=b8nnes?= <noralf@tronnes.org>
+Subject: Re: [PATCH v2 1/6] drm/client: Support unmapping of DRM client buffers
+Date: Sun, 7 Jul 2019 16:22:43 +0200
+Message-ID: <9fceb4af-082c-9451-c005-38ee4e4db32c__24160.1651928917$1562509811$gmane$org@tronnes.org>
+References: <20190705092613.7621-1-tzimmermann@suse.de>
+	<20190705092613.7621-2-tzimmermann@suse.de>
 Mime-Version: 1.0
-Content-Type: multipart/mixed; boundary="0000000000009d22d3058d10a0cb"
+Content-Type: text/plain; charset="utf-8"
+Content-Transfer-Encoding: base64
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <20190705085325.am2reucblvxc6qpg@sirius.home.kraxel.org>
+In-Reply-To: <20190705092613.7621-2-tzimmermann@suse.de>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -22,131 +18,92 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Gerd Hoffmann <kraxel@redhat.com>
-Cc: David Airlie <airlied@linux.ie>, open list <linux-kernel@vger.kernel.org>, ML dri-devel <dri-devel@lists.freedesktop.org>, "open list:VIRTIO GPU DRIVER" <virtualization@lists.linux-foundation.org>, Daniel Vetter <daniel@ffwll.ch>, Gurchetan Singh <gurchetansingh@chromium.org>
+To: Thomas Zimmermann <tzimmermann@suse.de>, airlied@redhat.com, daniel@ffwll.ch, kraxel@redhat.com, maarten.lankhorst@linux.intel.com, maxime.ripard@bootlin.com, sean@poorly.run, sam@ravnborg.org, yc_chen@aspeedtech.com
+Cc: dri-devel@lists.freedesktop.org, virtualization@lists.linux-foundation.org
 List-Id: virtualization@lists.linuxfoundation.org
 
---0000000000009d22d3058d10a0cb
-Content-Type: text/plain; charset="UTF-8"
-
-On Fri, Jul 5, 2019 at 1:53 AM Gerd Hoffmann <kraxel@redhat.com> wrote:
->
-> On Thu, Jul 04, 2019 at 12:17:48PM -0700, Chia-I Wu wrote:
-> > On Thu, Jul 4, 2019 at 4:10 AM Gerd Hoffmann <kraxel@redhat.com> wrote:
-> > >
-> > >   Hi,
-> > >
-> > > > > -       r = ttm_bo_reserve(&bo->tbo, true, false, NULL);
-> > > > > +       r = reservation_object_lock_interruptible(bo->gem_base.resv, NULL);
-> > > > Can you elaborate a bit about how TTM keeps the BOs alive in, for
-> > > > example, virtio_gpu_transfer_from_host_ioctl?  In that function, only
-> > > > three TTM functions are called: ttm_bo_reserve, ttm_bo_validate, and
-> > > > ttm_bo_unreserve.  I am curious how they keep the BO alive.
-> > >
-> > > It can't go away between reserve and unreserve, and I think it also
-> > > can't be evicted then.  Havn't checked how ttm implements that.
-> > Hm, but the vbuf using the BO outlives the reserve/unreserve section.
-> > The NO_EVICT flag applies only when the BO is still alive.  Someone
-> > needs to hold a reference to the BO to keep it alive, otherwise the BO
-> > can go away before the vbuf is retired.
->
-> Note that patches 14+15 rework virtio_gpu_transfer_*_ioctl to keep
-> gem reference until the command is finished and patch 17 drops
-> virtio_gpu_object_{reserve,unreserve} altogether.
->
-> Maybe I should try to reorder the series, then squash 6+17 to reduce
-> confusion.  I suspect that'll cause quite a few conflicts though ...
-This may be well-known and is what you meant by "the fence keeps the
-bo alive", but I finally realize that ttm_bo_put delays the deletion
-of a BO when it is busy.
-
-In the current design, vbuf does not hold references to its BOs.  Nor
-do fences.  It is possible for a BO to lose all its references and
-gets virtio_gpu_gem_free_object()ed  while it is still busy.  The key
-is ttm_bo_put.
-
-ttm_bo_put calls ttm_bo_cleanup_refs_or_queue to decide whether to
-delete the BO immediately (when the BO is already idle) or to queue
-the BO to a delayed delete list (when the BO is still busy).  If a BO
-is queued to the delayed delete list, ttm_bo_delayed_delete is called
-every 10ms (HZ/100 to be exact) to scan through the list and delete
-idled BOs.
-
-I wrote a simple test (attached) and added a bunch of printk's to confirm this.
-
-Anyway, I believe the culprit is patch 11, when we switch from
-ttm_bo_put to drm_gem_shmem_free_object to free a BO whose last
-reference is gone.  The deletion becomes immediately after the switch.
-We need to fix vbuf to refcount its BOs before we can do the switch.
-
-
->
-> cheers,
->   Gerd
->
-
---0000000000009d22d3058d10a0cb
-Content-Type: text/x-c-code; charset="US-ASCII"; name="virtio-gpu-bo.c"
-Content-Disposition: attachment; filename="virtio-gpu-bo.c"
-Content-Transfer-Encoding: base64
-Content-ID: <f_jxshstmh0>
-X-Attachment-Id: f_jxshstmh0
-
-LyogZ2NjIC1zdGQ9YzExIC1EX0dOVV9TT1VSQ0UgLW8gdmlydGlvLWdwdS1ibyB2aXJ0aW8tZ3B1
-LWJvLmMgKi8KCiNpbmNsdWRlIDxhc3NlcnQuaD4KI2luY2x1ZGUgPHN0ZGludC5oPgojaW5jbHVk
-ZSA8c3RkaW8uaD4KCiNpbmNsdWRlIDxmY250bC5oPgojaW5jbHVkZSA8bGliZHJtL2RybS5oPgoj
-aW5jbHVkZSA8c3lzL2lvY3RsLmg+CiNpbmNsdWRlIDxzeXMvc3RhdC5oPgojaW5jbHVkZSA8c3lz
-L3R5cGVzLmg+CiNpbmNsdWRlIDx1bmlzdGQuaD4KCiNkZWZpbmUgUElQRV9CVUZGRVIgMAojZGVm
-aW5lIFZJUkdMX0ZPUk1BVF9SOF9VTk9STSA2NAojZGVmaW5lIFZJUkdMX0JJTkRfQ09OU1RBTlRf
-QlVGRkVSICgxIDw8IDYpCiNkZWZpbmUgRFJNX1ZJUlRHUFVfUkVTT1VSQ0VfQ1JFQVRFIDB4MDQK
-I2RlZmluZSBEUk1fSU9DVExfVklSVEdQVV9SRVNPVVJDRV9DUkVBVEUgXAogICAgRFJNX0lPV1Io
-RFJNX0NPTU1BTkRfQkFTRSArIERSTV9WSVJUR1BVX1JFU09VUkNFX0NSRUFURSwgXAogICAgICAg
-ICAgICBzdHJ1Y3QgZHJtX3ZpcnRncHVfcmVzb3VyY2VfY3JlYXRlKQpzdHJ1Y3QgZHJtX3ZpcnRn
-cHVfcmVzb3VyY2VfY3JlYXRlIHsKICAgIHVpbnQzMl90IHRhcmdldDsKICAgIHVpbnQzMl90IGZv
-cm1hdDsKICAgIHVpbnQzMl90IGJpbmQ7CiAgICB1aW50MzJfdCB3aWR0aDsKICAgIHVpbnQzMl90
-IGhlaWdodDsKICAgIHVpbnQzMl90IGRlcHRoOwogICAgdWludDMyX3QgYXJyYXlfc2l6ZTsKICAg
-IHVpbnQzMl90IGxhc3RfbGV2ZWw7CiAgICB1aW50MzJfdCBucl9zYW1wbGVzOwogICAgdWludDMy
-X3QgZmxhZ3M7CiAgICB1aW50MzJfdCBib19oYW5kbGU7CiAgICB1aW50MzJfdCByZXNfaGFuZGxl
-OwogICAgdWludDMyX3Qgc2l6ZTsKICAgIHVpbnQzMl90IHN0cmlkZTsKfTsKCnN0cnVjdCBkcm1f
-dmlydGdwdV8zZF9ib3ggeyAKICAgIHVpbnQzMl90IHgsIHksIHo7CiAgICB1aW50MzJfdCB3LCBo
-LCBkOwp9OwoKI2RlZmluZSBEUk1fVklSVEdQVV9UUkFOU0ZFUl9UT19IT1NUIDB4MDcKI2RlZmlu
-ZSBEUk1fSU9DVExfVklSVEdQVV9UUkFOU0ZFUl9UT19IT1NUIFwKICAgIERSTV9JT1dSKERSTV9D
-T01NQU5EX0JBU0UgKyBEUk1fVklSVEdQVV9UUkFOU0ZFUl9UT19IT1NULCBcCiAgICAgICAgICAg
-IHN0cnVjdCBkcm1fdmlydGdwdV8zZF90cmFuc2Zlcl90b19ob3N0KQpzdHJ1Y3QgZHJtX3ZpcnRn
-cHVfM2RfdHJhbnNmZXJfdG9faG9zdCB7CiAgICB1aW50MzJfdCBib19oYW5kbGU7CiAgICBzdHJ1
-Y3QgZHJtX3ZpcnRncHVfM2RfYm94IGJveDsKICAgIHVpbnQzMl90IGxldmVsOwogICAgdWludDMy
-X3Qgb2Zmc2V0OyAKfTsgCgpzdGF0aWMgdWludDMyX3QgYnVmZmVyX2NyZWF0ZShpbnQgZmQsIHVp
-bnQzMl90IHNpemUpCnsKICAgIHN0cnVjdCBkcm1fdmlydGdwdV9yZXNvdXJjZV9jcmVhdGUgYXJn
-cyA9IHsKICAgICAgICAudGFyZ2V0ID0gUElQRV9CVUZGRVIsCiAgICAgICAgLmZvcm1hdCA9IFZJ
-UkdMX0ZPUk1BVF9SOF9VTk9STSwKICAgICAgICAuYmluZCA9IFZJUkdMX0JJTkRfQ09OU1RBTlRf
-QlVGRkVSLAogICAgICAgIC53aWR0aCA9IHNpemUsCiAgICAgICAgLmhlaWdodCA9IDEsCiAgICAg
-ICAgLmRlcHRoID0gMSwKICAgICAgICAuYXJyYXlfc2l6ZSA9IDEsCiAgICAgICAgLm5yX3NhbXBs
-ZXMgPSAxLAogICAgfTsKICAgIGludCByZXQgPSBpb2N0bChmZCwgRFJNX0lPQ1RMX1ZJUlRHUFVf
-UkVTT1VSQ0VfQ1JFQVRFLCAmYXJncyk7CiAgICBhc3NlcnQoIXJldCk7CiAgICByZXR1cm4gYXJn
-cy5ib19oYW5kbGU7Cn0KCnN0YXRpYyB2b2lkIGJ1ZmZlcl9jbG9zZShpbnQgZmQsIHVpbnQzMl90
-IGJvKQp7CiAgICBzdHJ1Y3QgZHJtX2dlbV9jbG9zZSBhcmdzID0gewogICAgICAgIC5oYW5kbGUg
-PSBibywKICAgIH07CiAgICBpbnQgcmV0ID0gaW9jdGwoZmQsIERSTV9JT0NUTF9HRU1fQ0xPU0Us
-ICZhcmdzKTsKICAgIGFzc2VydCghcmV0KTsKfQpzdGF0aWMgdm9pZCB0cmFuc2Zlcl90b19ob3N0
-KGludCBmZCwgdWludDMyX3QgYm8sIHVpbnQzMl90IHNpemUpCnsKICAgIHN0cnVjdCBkcm1fdmly
-dGdwdV8zZF90cmFuc2Zlcl90b19ob3N0IGFyZ3MgPSB7CiAgICAgICAgLmJvX2hhbmRsZSA9IGJv
-LAogICAgICAgIC5ib3gudyA9IHNpemUsCiAgICAgICAgLmJveC5oID0gMSwKICAgICAgICAuYm94
-LmQgPSAxLAogICAgfTsKICAgIGludCByZXQgPSBpb2N0bChmZCwgRFJNX0lPQ1RMX1ZJUlRHUFVf
-VFJBTlNGRVJfVE9fSE9TVCwgJmFyZ3MpOwogICAgYXNzZXJ0KCFyZXQpOwp9CgppbnQgbWFpbigp
-CnsKICAgIGNvbnN0IHVpbnQzMl90IHNpemUgPSAxICogMTAyNCAqIDEwMjQ7CgogICAgaW50IGZk
-ID0gb3BlbigiL2Rldi9kcmkvcmVuZGVyRDEyOCIsIE9fUkRXUik7CiAgICBhc3NlcnQoZmQgPj0g
-MCk7CgogICAgdWludDMyX3QgYm8gPSBidWZmZXJfY3JlYXRlKGZkLCBzaXplKTsKICAgIHByaW50
-ZigidHJhbnNmZXIgYW5kIGNsb3NlIHRoZSBCTyBpbW1lZGlhdGVseS4uLlxuIik7CiAgICB0cmFu
-c2Zlcl90b19ob3N0KGZkLCBibywgc2l6ZSk7CiAgICBidWZmZXJfY2xvc2UoZmQsIGJvKTsKCiAg
-ICBwcmludGYoIndhaXQgZm9yIDEgc2Vjb25kLi4uXG4iKTsKICAgIHVzbGVlcCgxMDAwICogMTAw
-MCk7CgogICAgY2xvc2UoZmQpOwoKICAgIHJldHVybiAwOwp9Cg==
---0000000000009d22d3058d10a0cb
-Content-Type: text/plain; charset="us-ascii"
-MIME-Version: 1.0
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-
-_______________________________________________
-Virtualization mailing list
-Virtualization@lists.linux-foundation.org
-https://lists.linuxfoundation.org/mailman/listinfo/virtualization
---0000000000009d22d3058d10a0cb--
+CgpEZW4gMDUuMDcuMjAxOSAxMS4yNiwgc2tyZXYgVGhvbWFzIFppbW1lcm1hbm46Cj4gRFJNIGNs
+aWVudHMsIHN1Y2ggYXMgdGhlIGZiZGV2IGVtdWxhdGlvbiwgaGF2ZSB0aGVpciBidWZmZXIgb2Jq
+ZWN0cwo+IG1hcHBlZCBieSBkZWZhdWx0LiBNYXBwaW5nIGEgYnVmZmVyIGltcGxpY2l0bHkgcHJl
+dmVudHMgaXRzIHJlbG9jYXRpb24uCj4gSGVuY2UsIHRoZSBidWZmZXIgbWF5IHBlcm1hbmVudGx5
+IGNvbnN1bWUgdmlkZW8gbWVtb3J5IHdoaWxlIGl0J3MKPiBhbGxvY2F0ZWQuIFRoaXMgaXMgYSBw
+cm9ibGVtIGZvciBkcml2ZXJzIG9mIGxvdy1tZW1vcnkgZGV2aWNlcywgc3VjaCBhcwo+IGFzdCwg
+bWdhZzIwMCBvciBvbGRlciBmcmFtZWJ1ZmZlciBoYXJkd2FyZSwgd2hpY2ggd2lsbCB0aGVuIG5v
+dCBoYXZlCj4gZW5vdWdoIG1lbW9yeSB0byBkaXNwbGF5IG90aGVyIGNvbnRlbnQgKGUuZy4sIFgx
+MSkuCj4gCj4gVGhpcyBwYXRjaCBpbnRyb2R1Y2VzIGRybV9jbGllbnRfYnVmZmVyX3ZtYXAoKSBh
+bmQgX3Z1bm1hcCgpLiBJbnRlcm5hbAo+IERSTSBjbGllbnRzIGNhbiB1c2UgdGhlc2UgZnVuY3Rp
+b25zIHRvIHVubWFwIGFuZCByZW1hcCBidWZmZXIgb2JqZWN0cwo+IGFzIG5lZWRlZC4KPiAKPiBU
+aGVyZSdzIG5vIHJlZmVyZW5jZSBjb3VudGluZyBmb3Igdm1hcCBvcGVyYXRpb25zLiBDYWxsZXJz
+IGFyZSBleHBlY3RlZAo+IHRvIGVpdGhlciBrZWVwIGJ1ZmZlcnMgbWFwcGVkIChhcyBpdCBpcyBu
+b3cpLCBvciBjYWxsIHZtYXAgYW5kIHZ1bm1hcAo+IGluIHBhaXJzIGFyb3VuZCBjb2RlIHRoYXQg
+YWNjZXNzZXMgdGhlIG1hcHBlZCBtZW1vcnkuCj4gCj4gdjI6Cj4gCSogcmVtb3ZlIHNldmVyYWwg
+ZHVwbGljYXRlZCBOVUxMLXBvaW50ZXIgY2hlY2tzCj4gCj4gU2lnbmVkLW9mZi1ieTogVGhvbWFz
+IFppbW1lcm1hbm4gPHR6aW1tZXJtYW5uQHN1c2UuZGU+Cj4gLS0tCj4gIGRyaXZlcnMvZ3B1L2Ry
+bS9kcm1fY2xpZW50LmMgfCA2NyArKysrKysrKysrKysrKysrKysrKysrKysrKysrKystLS0tLS0K
+PiAgaW5jbHVkZS9kcm0vZHJtX2NsaWVudC5oICAgICB8ICAzICsrCj4gIDIgZmlsZXMgY2hhbmdl
+ZCwgNjAgaW5zZXJ0aW9ucygrKSwgMTAgZGVsZXRpb25zKC0pCj4gCj4gZGlmZiAtLWdpdCBhL2Ry
+aXZlcnMvZ3B1L2RybS9kcm1fY2xpZW50LmMgYi9kcml2ZXJzL2dwdS9kcm0vZHJtX2NsaWVudC5j
+Cj4gaW5kZXggNDEwNTcyZjE0MjU3Li42NmQ4ZDY0NWFjNzkgMTAwNjQ0Cj4gLS0tIGEvZHJpdmVy
+cy9ncHUvZHJtL2RybV9jbGllbnQuYwo+ICsrKyBiL2RyaXZlcnMvZ3B1L2RybS9kcm1fY2xpZW50
+LmMKPiBAQCAtMjgxLDYgKzI4MSw0MyBAQCBkcm1fY2xpZW50X2J1ZmZlcl9jcmVhdGUoc3RydWN0
+IGRybV9jbGllbnRfZGV2ICpjbGllbnQsIHUzMiB3aWR0aCwgdTMyIGhlaWdodCwgdQo+ICAKPiAg
+CWJ1ZmZlci0+Z2VtID0gb2JqOwo+ICAKPiArCXZhZGRyID0gZHJtX2NsaWVudF9idWZmZXJfdm1h
+cChidWZmZXIpOwo+ICsJaWYgKElTX0VSUih2YWRkcikpIHsKPiArCQlyZXQgPSBQVFJfRVJSKHZh
+ZGRyKTsKPiArCQlnb3RvIGVycl9kZWxldGU7Cj4gKwl9Cj4gKwo+ICsJcmV0dXJuIGJ1ZmZlcjsK
+PiArCj4gK2Vycl9kZWxldGU6Cj4gKwlkcm1fY2xpZW50X2J1ZmZlcl9kZWxldGUoYnVmZmVyKTsK
+PiArCj4gKwlyZXR1cm4gRVJSX1BUUihyZXQpOwo+ICt9Cj4gKwo+ICsvKioKPiArICogZHJtX2Ns
+aWVudF9idWZmZXJfdm1hcCAtIE1hcCBEUk0gY2xpZW50IGJ1ZmZlciBpbnRvIGFkZHJlc3Mgc3Bh
+Y2UKPiArICogQGJ1ZmZlcjogRFJNIGNsaWVudCBidWZmZXIKPiArICoKPiArICogVGhpcyBmdW5j
+dGlvbiBtYXBzIGEgY2xpZW50IGJ1ZmZlciBpbnRvIGtlcm5lbCBhZGRyZXNzIHNwYWNlLiBJZiB0
+aGUKPiArICogYnVmZmVyIGlzIGFscmVhZHkgbWFwcGVkLCBpdCByZXR1cm5zIHRoZSBtYXBwaW5n
+J3MgYWRkcmVzcy4KPiArICoKPiArICogQ2xpZW50IGJ1ZmZlciBtYXBwaW5ncyBhcmUgbm90IHJl
+Zidjb3VudGVkLiBFYWNoIGNhbGwgdG8KPiArICogZHJtX2NsaWVudF9idWZmZXJfdm1hcCgpIHNo
+b3VsZCBiZSBmb2xsb3dlZCBieSBhIGNhbGwgdG8KPiArICogZHJtX2NsaWVudF9idWZmZXJfdnVu
+bWFwKCk7IG9yIHRoZSBjbGllbnQgYnVmZmVyIHNob3VsZCBiZSBtYXBwZWQKPiArICogdGhyb3Vn
+aG91dCBpdHMgbGlmZXRpbWUuIFRoZSBsYXR0ZXIgaXMgdGhlIGRlZmF1bHQuCj4gKyAqCj4gKyAq
+IFJldHVybnM6Cj4gKyAqCVRoZSBtYXBwZWQgbWVtb3J5J3MgYWRkcmVzcwo+ICsgKi8KPiArdm9p
+ZCAqCj4gK2RybV9jbGllbnRfYnVmZmVyX3ZtYXAoc3RydWN0IGRybV9jbGllbnRfYnVmZmVyICpi
+dWZmZXIpCgpJIHByZWZlciB0byBoYXZlIHRoaXMgb24gb25lIGxpbmUuCgo+ICt7Cj4gKwl2b2lk
+ICp2YWRkcjsKPiArCj4gKwlpZiAoYnVmZmVyLT52YWRkcikKPiArCQlyZXR1cm4gYnVmZmVyLT52
+YWRkcjsKPiArCj4gIAkvKgo+ICAJICogRklYTUU6IFRoZSBkZXBlbmRlbmN5IG9uIEdFTSBoZXJl
+IGlzbid0IHJlcXVpcmVkLCB3ZSBjb3VsZAo+ICAJICogY29udmVydCB0aGUgZHJpdmVyIGhhbmRs
+ZSB0byBhIGRtYS1idWYgaW5zdGVhZCBhbmQgdXNlIHRoZQo+IEBAIC0yODksMjEgKzMyNiwzMSBA
+QCBkcm1fY2xpZW50X2J1ZmZlcl9jcmVhdGUoc3RydWN0IGRybV9jbGllbnRfZGV2ICpjbGllbnQs
+IHUzMiB3aWR0aCwgdTMyIGhlaWdodCwgdQo+ICAJICogZmRfaW5zdGFsbCBzdGVwIG91dCBvZiB0
+aGUgZHJpdmVyIGJhY2tlbmQgaG9va3MsIHRvIG1ha2UgdGhhdAo+ICAJICogZmluYWwgc3RlcCBv
+cHRpb25hbCBmb3IgaW50ZXJuYWwgdXNlcnMuCj4gIAkgKi8KPiAtCXZhZGRyID0gZHJtX2dlbV92
+bWFwKG9iaik7Cj4gLQlpZiAoSVNfRVJSKHZhZGRyKSkgewo+IC0JCXJldCA9IFBUUl9FUlIodmFk
+ZHIpOwo+IC0JCWdvdG8gZXJyX2RlbGV0ZTsKPiAtCX0KPiArCXZhZGRyID0gZHJtX2dlbV92bWFw
+KGJ1ZmZlci0+Z2VtKTsKPiArCWlmIChJU19FUlIodmFkZHIpKQo+ICsJCXJldHVybiB2YWRkcjsK
+PiAgCj4gIAlidWZmZXItPnZhZGRyID0gdmFkZHI7Cj4gIAo+IC0JcmV0dXJuIGJ1ZmZlcjsKPiAt
+Cj4gLWVycl9kZWxldGU6Cj4gLQlkcm1fY2xpZW50X2J1ZmZlcl9kZWxldGUoYnVmZmVyKTsKPiAr
+CXJldHVybiB2YWRkcjsKPiArfQo+ICtFWFBPUlRfU1lNQk9MKGRybV9jbGllbnRfYnVmZmVyX3Zt
+YXApOwo+ICAKPiAtCXJldHVybiBFUlJfUFRSKHJldCk7Cj4gKy8qKgo+ICsgKiBkcm1fY2xpZW50
+X2J1ZmZlcl92dW5tYXAgLSBVbm1hcCBEUk0gY2xpZW50IGJ1ZmZlcgo+ICsgKiBAYnVmZmVyOiBE
+Uk0gY2xpZW50IGJ1ZmZlcgo+ICsgKgo+ICsgKiBUaGlzIGZ1bmN0aW9uIHJlbW92ZXMgYSBjbGll
+bnQgYnVmZmVyJ3MgbWVtb3J5IG1tYXBwaW5nLiBUaGlzCgpzL21tYXBwaW5nL21hcHBpbmcvCgo+
+ICsgKiBmdW5jdGlvbiBpcyBvbmx5IHJlcXVpcmVkIGJ5IGNsaWVudHMgdGhhdCBtYW5hZ2UgdGhl
+aXIgYnVmZmVycwo+ICsgKiBieSB0aGVtc2VsdmVzLiBCeSBkZWZhdWx0LCBEUk0gY2xpZW50IGJ1
+ZmZlcnMgYXJlIG1hcHBlZCB0aHJvdWdob3V0Cj4gKyAqIHRoZWlyIGVudGlyZSBsaWZldGltZS4K
+PiArICovCj4gK3ZvaWQgZHJtX2NsaWVudF9idWZmZXJfdnVubWFwKHN0cnVjdCBkcm1fY2xpZW50
+X2J1ZmZlciAqYnVmZmVyKQo+ICt7Cj4gKwlkcm1fZ2VtX3Z1bm1hcChidWZmZXItPmdlbSwgYnVm
+ZmVyLT52YWRkcik7Cj4gKwlidWZmZXItPnZhZGRyID0gTlVMTDsKPiAgfQo+ICtFWFBPUlRfU1lN
+Qk9MKGRybV9jbGllbnRfYnVmZmVyX3Z1bm1hcCk7Cj4gIAo+ICBzdGF0aWMgdm9pZCBkcm1fY2xp
+ZW50X2J1ZmZlcl9ybWZiKHN0cnVjdCBkcm1fY2xpZW50X2J1ZmZlciAqYnVmZmVyKQo+ICB7Cj4g
+ZGlmZiAtLWdpdCBhL2luY2x1ZGUvZHJtL2RybV9jbGllbnQuaCBiL2luY2x1ZGUvZHJtL2RybV9j
+bGllbnQuaAo+IGluZGV4IDcyZDUxZDFlOWRkOS4uZTFkYjFkOWRhMGJmIDEwMDY0NAo+IC0tLSBh
+L2luY2x1ZGUvZHJtL2RybV9jbGllbnQuaAo+ICsrKyBiL2luY2x1ZGUvZHJtL2RybV9jbGllbnQu
+aAo+IEBAIC0xNDksNiArMTQ5LDkgQEAgc3RydWN0IGRybV9jbGllbnRfYnVmZmVyIHsKPiAgc3Ry
+dWN0IGRybV9jbGllbnRfYnVmZmVyICoKPiAgZHJtX2NsaWVudF9mcmFtZWJ1ZmZlcl9jcmVhdGUo
+c3RydWN0IGRybV9jbGllbnRfZGV2ICpjbGllbnQsIHUzMiB3aWR0aCwgdTMyIGhlaWdodCwgdTMy
+IGZvcm1hdCk7Cj4gIHZvaWQgZHJtX2NsaWVudF9mcmFtZWJ1ZmZlcl9kZWxldGUoc3RydWN0IGRy
+bV9jbGllbnRfYnVmZmVyICpidWZmZXIpOwo+ICt2b2lkICoKPiArZHJtX2NsaWVudF9idWZmZXJf
+dm1hcChzdHJ1Y3QgZHJtX2NsaWVudF9idWZmZXIgKmJ1ZmZlcik7CgpQcmVmZXIgdG8gaGF2ZSB0
+aGlzIG9uIG9uZSBsaW5lLgoKUmV2aWV3ZWQtYnk6IE5vcmFsZiBUcsO4bm5lcyA8bm9yYWxmQHRy
+b25uZXMub3JnPgoKPiArdm9pZCBkcm1fY2xpZW50X2J1ZmZlcl92dW5tYXAoc3RydWN0IGRybV9j
+bGllbnRfYnVmZmVyICpidWZmZXIpOwo+ICAKPiAgaW50IGRybV9jbGllbnRfbW9kZXNldF9jcmVh
+dGUoc3RydWN0IGRybV9jbGllbnRfZGV2ICpjbGllbnQpOwo+ICB2b2lkIGRybV9jbGllbnRfbW9k
+ZXNldF9mcmVlKHN0cnVjdCBkcm1fY2xpZW50X2RldiAqY2xpZW50KTsKPiAKX19fX19fX19fX19f
+X19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX18KVmlydHVhbGl6YXRpb24gbWFpbGlu
+ZyBsaXN0ClZpcnR1YWxpemF0aW9uQGxpc3RzLmxpbnV4LWZvdW5kYXRpb24ub3JnCmh0dHBzOi8v
+bGlzdHMubGludXhmb3VuZGF0aW9uLm9yZy9tYWlsbWFuL2xpc3RpbmZvL3ZpcnR1YWxpemF0aW9u
