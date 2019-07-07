@@ -1,19 +1,18 @@
-From: Alex Williamson <alex.williamson@redhat.com>
-Subject: Re: [RFC v2] vhost: introduce mdev based hardware vhost backend
-Date: Fri, 5 Jul 2019 08:49:46 -0600
-Message-ID: <20190705084946.67b8f9f5__31736.5948854544$1562338222$gmane$org@x1.home>
-References: <20190703091339.1847-1-tiwei.bie@intel.com>
-	<7b8279b2-aa7e-7adc-eeff-20dfaf4400d0@redhat.com>
-	<20190703115245.GA22374@___>
-	<64833f91-02cd-7143-f12e-56ab93b2418d@redhat.com>
-	<20190703130817.GA1978@___>
-	<b01b8e28-8d96-31dd-56f4-ca7793498c55@redhat.com>
-	<20190704062134.GA21116@___>
+From: Chia-I Wu <olvaffe@gmail.com>
+Subject: Re: [PATCH v6 06/18] drm/virtio: remove ttm calls from in
+	virtio_gpu_object_{reserve, unreserve}
+Date: Sat, 6 Jul 2019 22:30:25 -0700
+Message-ID: <CAPaKu7Q1_2-_HNr8Fkh7K61UGUfuAdPHWckH5g4fWt9s2YWiRA__26446.4579567843$1562477895$gmane$org@mail.gmail.com>
+References: <20190702141903.1131-1-kraxel@redhat.com>
+	<20190702141903.1131-7-kraxel@redhat.com>
+	<CAPaKu7RfLoB=K__wQd92=S20Mt0uqsfyU9oigr8CQ-=gH6OUuA@mail.gmail.com>
+	<20190704111043.5ubc2yjrjphj2iec@sirius.home.kraxel.org>
+	<CAPaKu7S4Og7kda2ZjFtuRv=_W8gpFbD5y7s==0JB5Z34S4Hsjw@mail.gmail.com>
+	<20190705085325.am2reucblvxc6qpg@sirius.home.kraxel.org>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="utf-8"
-Content-Transfer-Encoding: base64
+Content-Type: multipart/mixed; boundary="0000000000009d22d3058d10a0cb"
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <20190704062134.GA21116@___>
+In-Reply-To: <20190705085325.am2reucblvxc6qpg@sirius.home.kraxel.org>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -23,105 +22,131 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Tiwei Bie <tiwei.bie@intel.com>
-Cc: kvm@vger.kernel.org, mst@redhat.com, netdev@vger.kernel.org, linux-kernel@vger.kernel.org, virtualization@lists.linux-foundation.org, maxime.coquelin@redhat.com, zhihong.wang@intel.com
+To: Gerd Hoffmann <kraxel@redhat.com>
+Cc: David Airlie <airlied@linux.ie>, open list <linux-kernel@vger.kernel.org>, ML dri-devel <dri-devel@lists.freedesktop.org>, "open list:VIRTIO GPU DRIVER" <virtualization@lists.linux-foundation.org>, Daniel Vetter <daniel@ffwll.ch>, Gurchetan Singh <gurchetansingh@chromium.org>
 List-Id: virtualization@lists.linuxfoundation.org
 
-T24gVGh1LCA0IEp1bCAyMDE5IDE0OjIxOjM0ICswODAwClRpd2VpIEJpZSA8dGl3ZWkuYmllQGlu
-dGVsLmNvbT4gd3JvdGU6Cgo+IE9uIFRodSwgSnVsIDA0LCAyMDE5IGF0IDEyOjMxOjQ4UE0gKzA4
-MDAsIEphc29uIFdhbmcgd3JvdGU6Cj4gPiBPbiAyMDE5LzcvMyDkuIvljYg5OjA4LCBUaXdlaSBC
-aWUgd3JvdGU6ICAKPiA+ID4gT24gV2VkLCBKdWwgMDMsIDIwMTkgYXQgMDg6MTY6MjNQTSArMDgw
-MCwgSmFzb24gV2FuZyB3cm90ZTogIAo+ID4gPiA+IE9uIDIwMTkvNy8zIOS4i+WNiDc6NTIsIFRp
-d2VpIEJpZSB3cm90ZTogIAo+ID4gPiA+ID4gT24gV2VkLCBKdWwgMDMsIDIwMTkgYXQgMDY6MDk6
-NTFQTSArMDgwMCwgSmFzb24gV2FuZyB3cm90ZTogIAo+ID4gPiA+ID4gPiBPbiAyMDE5LzcvMyDk
-uIvljYg1OjEzLCBUaXdlaSBCaWUgd3JvdGU6ICAKPiA+ID4gPiA+ID4gPiBEZXRhaWxzIGFib3V0
-IHRoaXMgY2FuIGJlIGZvdW5kIGhlcmU6Cj4gPiA+ID4gPiA+ID4gCj4gPiA+ID4gPiA+ID4gaHR0
-cHM6Ly9sd24ubmV0L0FydGljbGVzLzc1MDc3MC8KPiA+ID4gPiA+ID4gPiAKPiA+ID4gPiA+ID4g
-PiBXaGF0J3MgbmV3IGluIHRoaXMgdmVyc2lvbgo+ID4gPiA+ID4gPiA+ID09PT09PT09PT09PT09
-PT09PT09PT09PT09Cj4gPiA+ID4gPiA+ID4gCj4gPiA+ID4gPiA+ID4gQSBuZXcgVkZJTyBkZXZp
-Y2UgdHlwZSBpcyBpbnRyb2R1Y2VkIC0gdmZpby12aG9zdC4gVGhpcyBhZGRyZXNzZWQKPiA+ID4g
-PiA+ID4gPiBzb21lIGNvbW1lbnRzIGZyb20gaGVyZTpodHRwczovL3BhdGNod29yay5vemxhYnMu
-b3JnL2NvdmVyLzk4NDc2My8KPiA+ID4gPiA+ID4gPiAKPiA+ID4gPiA+ID4gPiBCZWxvdyBpcyB0
-aGUgdXBkYXRlZCBkZXZpY2UgaW50ZXJmYWNlOgo+ID4gPiA+ID4gPiA+IAo+ID4gPiA+ID4gPiA+
-IEN1cnJlbnRseSwgdGhlcmUgYXJlIHR3byByZWdpb25zIG9mIHRoaXMgZGV2aWNlOiAxKSBDT05G
-SUdfUkVHSU9OCj4gPiA+ID4gPiA+ID4gKFZGSU9fVkhPU1RfQ09ORklHX1JFR0lPTl9JTkRFWCks
-IHdoaWNoIGNhbiBiZSB1c2VkIHRvIHNldHVwIHRoZQo+ID4gPiA+ID4gPiA+IGRldmljZTsgMikg
-Tk9USUZZX1JFR0lPTiAoVkZJT19WSE9TVF9OT1RJRllfUkVHSU9OX0lOREVYKSwgd2hpY2gKPiA+
-ID4gPiA+ID4gPiBjYW4gYmUgdXNlZCB0byBub3RpZnkgdGhlIGRldmljZS4KPiA+ID4gPiA+ID4g
-PiAKPiA+ID4gPiA+ID4gPiAxLiBDT05GSUdfUkVHSU9OCj4gPiA+ID4gPiA+ID4gCj4gPiA+ID4g
-PiA+ID4gVGhlIHJlZ2lvbiBkZXNjcmliZWQgYnkgQ09ORklHX1JFR0lPTiBpcyB0aGUgbWFpbiBj
-b250cm9sIGludGVyZmFjZS4KPiA+ID4gPiA+ID4gPiBNZXNzYWdlcyB3aWxsIGJlIHdyaXR0ZW4g
-dG8gb3IgcmVhZCBmcm9tIHRoaXMgcmVnaW9uLgo+ID4gPiA+ID4gPiA+IAo+ID4gPiA+ID4gPiA+
-IFRoZSBtZXNzYWdlIHR5cGUgaXMgZGV0ZXJtaW5lZCBieSB0aGUgYHJlcXVlc3RgIGZpZWxkIGlu
-IG1lc3NhZ2UKPiA+ID4gPiA+ID4gPiBoZWFkZXIuIFRoZSBtZXNzYWdlIHNpemUgaXMgZW5jb2Rl
-ZCBpbiB0aGUgbWVzc2FnZSBoZWFkZXIgdG9vLgo+ID4gPiA+ID4gPiA+IFRoZSBtZXNzYWdlIGZv
-cm1hdCBsb29rcyBsaWtlIHRoaXM6Cj4gPiA+ID4gPiA+ID4gCj4gPiA+ID4gPiA+ID4gc3RydWN0
-IHZob3N0X3ZmaW9fb3Agewo+ID4gPiA+ID4gPiA+IAlfX3U2NCByZXF1ZXN0Owo+ID4gPiA+ID4g
-PiA+IAlfX3UzMiBmbGFnczsKPiA+ID4gPiA+ID4gPiAJLyogRmxhZyB2YWx1ZXM6ICovCj4gPiA+
-ID4gPiA+ID4gICAgICNkZWZpbmUgVkhPU1RfVkZJT19ORUVEX1JFUExZIDB4MSAvKiBXaGV0aGVy
-IG5lZWQgcmVwbHkgKi8KPiA+ID4gPiA+ID4gPiAJX191MzIgc2l6ZTsKPiA+ID4gPiA+ID4gPiAJ
-dW5pb24gewo+ID4gPiA+ID4gPiA+IAkJX191NjQgdTY0Owo+ID4gPiA+ID4gPiA+IAkJc3RydWN0
-IHZob3N0X3ZyaW5nX3N0YXRlIHN0YXRlOwo+ID4gPiA+ID4gPiA+IAkJc3RydWN0IHZob3N0X3Zy
-aW5nX2FkZHIgYWRkcjsKPiA+ID4gPiA+ID4gPiAJfSBwYXlsb2FkOwo+ID4gPiA+ID4gPiA+IH07
-Cj4gPiA+ID4gPiA+ID4gCj4gPiA+ID4gPiA+ID4gVGhlIGV4aXN0aW5nIHZob3N0LWtlcm5lbCBp
-b2N0bCBjbWRzIGFyZSByZXVzZWQgYXMgdGhlIG1lc3NhZ2UKPiA+ID4gPiA+ID4gPiByZXF1ZXN0
-cyBpbiBhYm92ZSBzdHJ1Y3R1cmUuICAKPiA+ID4gPiA+ID4gU3RpbGwgYSBjb21tZW50cyBsaWtl
-IFYxLiBXaGF0J3MgdGhlIGFkdmFudGFnZSBvZiBpbnZlbnRpbmcgYSBuZXcgcHJvdG9jb2w/ICAK
-PiA+ID4gPiA+IEknbSB0cnlpbmcgdG8gbWFrZSBpdCB3b3JrIGluIFZGSU8ncyB3YXkuLgo+ID4g
-PiA+ID4gICAKPiA+ID4gPiA+ID4gSSBiZWxpZXZlIGVpdGhlciBvZiB0aGUgZm9sbG93aW5nIHNo
-b3VsZCBiZSBiZXR0ZXI6Cj4gPiA+ID4gPiA+IAo+ID4gPiA+ID4gPiAtIHVzaW5nIHZob3N0IGlv
-Y3RsLMKgIHdlIGNhbiBzdGFydCBmcm9tIFNFVF9WUklOR19LSUNLL1NFVF9WUklOR19DQUxMIGFu
-ZAo+ID4gPiA+ID4gPiBleHRlbmQgaXQgd2l0aCBlLmcgbm90aWZ5IHJlZ2lvbi4gVGhlIGFkdmFu
-dGFnZXMgaXMgdGhhdCBhbGwgZXhpc3QgdXNlcnNwYWNlCj4gPiA+ID4gPiA+IHByb2dyYW0gY291
-bGQgYmUgcmV1c2VkIHdpdGhvdXQgbW9kaWZpY2F0aW9uIChvciBtaW5pbWFsIG1vZGlmaWNhdGlv
-bikuIEFuZAo+ID4gPiA+ID4gPiB2aG9zdCBBUEkgaGlkZXMgbG90cyBvZiBkZXRhaWxzIHRoYXQg
-aXMgbm90IG5lY2Vzc2FyeSB0byBiZSB1bmRlcnN0b29kIGJ5Cj4gPiA+ID4gPiA+IGFwcGxpY2F0
-aW9uIChlLmcgaW4gdGhlIGNhc2Ugb2YgY29udGFpbmVyKS4gIAo+ID4gPiA+ID4gRG8geW91IG1l
-YW4gcmV1c2luZyB2aG9zdCdzIGlvY3RsIG9uIFZGSU8gZGV2aWNlIGZkIGRpcmVjdGx5LAo+ID4g
-PiA+ID4gb3IgaW50cm9kdWNpbmcgYW5vdGhlciBtZGV2IGRyaXZlciAoaS5lLiB2aG9zdF9tZGV2
-IGluc3RlYWQgb2YKPiA+ID4gPiA+IHVzaW5nIHRoZSBleGlzdGluZyB2ZmlvX21kZXYpIGZvciBt
-ZGV2IGRldmljZT8gIAo+ID4gPiA+IENhbiB3ZSBzaW1wbHkgYWRkIHRoZW0gaW50byBpb2N0bCBv
-ZiBtZGV2X3BhcmVudF9vcHM/ICAKPiA+ID4gUmlnaHQsIGVpdGhlciB3YXksIHRoZXNlIGlvY3Rs
-cyBoYXZlIHRvIGJlIGFuZCBqdXN0IG5lZWQgdG8gYmUKPiA+ID4gYWRkZWQgaW4gdGhlIGlvY3Rs
-IG9mIHRoZSBtZGV2X3BhcmVudF9vcHMuIEJ1dCBhbm90aGVyIHRoaW5nIHdlCj4gPiA+IGFsc28g
-bmVlZCB0byBjb25zaWRlciBpcyB0aGF0IHdoaWNoIGZpbGUgZGVzY3JpcHRvciB0aGUgdXNlcnNw
-YWNlCj4gPiA+IHdpbGwgZG8gdGhlIGlvY3RsKCkgb24uIFNvIEknbSB3b25kZXJpbmcgZG8geW91
-IG1lYW4gbGV0IHRoZQo+ID4gPiB1c2Vyc3BhY2UgZG8gdGhlIGlvY3RsKCkgb24gdGhlIFZGSU8g
-ZGV2aWNlIGZkIG9mIHRoZSBtZGV2Cj4gPiA+IGRldmljZT8KPiA+ID4gICAKPiA+IAo+ID4gWWVz
-LiAgCj4gCj4gR290IGl0ISBJJ20gbm90IHN1cmUgd2hhdCdzIEFsZXggb3BpbmlvbiBvbiB0aGlz
-LiBJZiB3ZSBhbGwKPiBhZ3JlZSB3aXRoIHRoaXMsIEkgY2FuIGRvIGl0IGluIHRoaXMgd2F5Lgo+
-IAo+ID4gSXMgdGhlcmUgYW55IG90aGVyIHdheSBidHc/ICAKPiAKPiBKdXN0IGEgcXVpY2sgdGhv
-dWdodC4uIE1heWJlIHRvdGFsbHkgYSBiYWQgaWRlYS4gSSB3YXMgdGhpbmtpbmcKPiB3aGV0aGVy
-IGl0IHdvdWxkIGJlIG9kZCB0byBkbyBub24tVkZJTydzIGlvY3RscyBvbiBWRklPJ3MgZGV2aWNl
-Cj4gZmQuIFNvIEkgd2FzIHdvbmRlcmluZyB3aGV0aGVyIGl0J3MgcG9zc2libGUgdG8gYWxsb3cg
-YmluZGluZwo+IGFub3RoZXIgbWRldiBkcml2ZXIgKGUuZy4gdmhvc3RfbWRldikgdG8gdGhlIHN1
-cHBvcnRlZCBtZGV2Cj4gZGV2aWNlcy4gVGhlIG5ldyBtZGV2IGRyaXZlciwgdmhvc3RfbWRldiwg
-Y2FuIHByb3ZpZGUgc2ltaWxhcgo+IHdheXMgdG8gbGV0IHVzZXJzcGFjZSBvcGVuIHRoZSBtZGV2
-IGRldmljZSBhbmQgZG8gdGhlIHZob3N0IGlvY3Rscwo+IG9uIGl0LiBUbyBkaXN0aW5ndWlzaCB3
-aXRoIHRoZSB2ZmlvX21kZXYgY29tcGF0aWJsZSBtZGV2IGRldmljZXMsCj4gdGhlIGRldmljZSBB
-UEkgb2YgdGhlIG5ldyB2aG9zdF9tZGV2IGNvbXBhdGlibGUgbWRldiBkZXZpY2VzCj4gbWlnaHQg
-YmUgZS5nLiAidmhvc3QtbmV0IiBmb3IgbmV0Pwo+IAo+IFNvIGluIFZGSU8gY2FzZSwgdGhlIGRl
-dmljZSB3aWxsIGJlIGZvciBwYXNzdGhydSBkaXJlY3RseS4gQW5kCj4gaW4gVkhPU1QgY2FzZSwg
-dGhlIGRldmljZSBjYW4gYmUgdXNlZCB0byBhY2NlbGVyYXRlIHRoZSBleGlzdGluZwo+IHZpcnR1
-YWxpemVkIGRldmljZXMuCj4gCj4gSG93IGRvIHlvdSB0aGluaz8KClZGSU8gcmVhbGx5IGNhbid0
-IHByZXZlbnQgdmVuZG9yIHNwZWNpZmljIGlvY3RscyBvbiB0aGUgZGV2aWNlIGZpbGUKZGVzY3Jp
-cHRvciBmb3IgbWRldnMsIGJ1dCBhKSB3ZSdkIHdhbnQgdG8gYmUgc3VyZSB0aGUgaW9jdGwgYWRk
-cmVzcwpzcGFjZSBjYW4ndCBjb2xsaWRlIHdpdGggaW9jdGxzIHdlJ2QgdXNlIGZvciB2ZmlvIGRl
-ZmluZWQgcHVycG9zZXMgYW5kCmIpIG1heWJlIHRoZSBWRklPIHVzZXIgQVBJIGlzbid0IHdoYXQg
-eW91IHdhbnQgaW4gdGhlIGZpcnN0IHBsYWNlIGlmCnlvdSBpbnRlbmQgdG8gbW9zdGx5L2VudGly
-ZWx5IGlnbm9yZSB0aGUgZGVmaW5lZCBpb2N0bCBzZXQgYW5kIHJlcGxhY2UKdGhlbSB3aXRoIHlv
-dXIgb3duLiAgSW4gdGhlIGNhc2Ugb2YgdGhlIGxhdHRlciwgeW91J3JlIGFsc28gbm90IGdldHRp
-bmcKdGhlIGFkdmFudGFnZXMgb2YgdGhlIGV4aXN0aW5nIFZGSU8gdXNlcnNwYWNlIGNvZGUsIHNv
-IHdoeSBleHBvc2UgYQpWRklPIGRldmljZSBhdCBhbGwuCgpUaGUgbWRldiBpbnRlcmZhY2UgZG9l
-cyBwcm92aWRlIGEgZ2VuZXJhbCBpbnRlcmZhY2UgZm9yIGNyZWF0aW5nIGFuZAptYW5hZ2luZyB2
-aXJ0dWFsIGRldmljZXMsIHZmaW8tbWRldiBpcyBqdXN0IG9uZSBkcml2ZXIgb24gdGhlIG1kZXYK
-YnVzLiAgUGFyYXYgKE1lbGxhbm94KSBoYXMgYmVlbiBkb2luZyB3b3JrIG9uIG1kZXYtY29yZSB0
-byBoZWxwIGNsZWFuCm91dCB2ZmlvLWlzbXMgZnJvbSB0aGUgaW50ZXJmYWNlLCBhaXVpLCB3aXRo
-IHRoZSBpbnRlbnQgb2YgaW1wbGVtZW50aW5nCmFub3RoZXIgbWRldiBidXMgZHJpdmVyIGZvciB1
-c2luZyB0aGUgZGV2aWNlcyB3aXRoaW4gdGhlIGtlcm5lbC4gIEl0CnNlZW1zIGxpa2UgdGhpcyB2
-aG9zdC1tZGV2IGRyaXZlciBtaWdodCBiZSBzaW1pbGFyLCB1c2luZyBtZGV2IGJ1dCBub3QKbmVj
-ZXNzYXJpbHkgdmZpby1tZGV2IHRvIGV4cG9zZSBkZXZpY2VzLiAgVGhhbmtzLAoKQWxleApfX19f
-X19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fXwpWaXJ0dWFsaXphdGlv
-biBtYWlsaW5nIGxpc3QKVmlydHVhbGl6YXRpb25AbGlzdHMubGludXgtZm91bmRhdGlvbi5vcmcK
-aHR0cHM6Ly9saXN0cy5saW51eGZvdW5kYXRpb24ub3JnL21haWxtYW4vbGlzdGluZm8vdmlydHVh
-bGl6YXRpb24=
+--0000000000009d22d3058d10a0cb
+Content-Type: text/plain; charset="UTF-8"
+
+On Fri, Jul 5, 2019 at 1:53 AM Gerd Hoffmann <kraxel@redhat.com> wrote:
+>
+> On Thu, Jul 04, 2019 at 12:17:48PM -0700, Chia-I Wu wrote:
+> > On Thu, Jul 4, 2019 at 4:10 AM Gerd Hoffmann <kraxel@redhat.com> wrote:
+> > >
+> > >   Hi,
+> > >
+> > > > > -       r = ttm_bo_reserve(&bo->tbo, true, false, NULL);
+> > > > > +       r = reservation_object_lock_interruptible(bo->gem_base.resv, NULL);
+> > > > Can you elaborate a bit about how TTM keeps the BOs alive in, for
+> > > > example, virtio_gpu_transfer_from_host_ioctl?  In that function, only
+> > > > three TTM functions are called: ttm_bo_reserve, ttm_bo_validate, and
+> > > > ttm_bo_unreserve.  I am curious how they keep the BO alive.
+> > >
+> > > It can't go away between reserve and unreserve, and I think it also
+> > > can't be evicted then.  Havn't checked how ttm implements that.
+> > Hm, but the vbuf using the BO outlives the reserve/unreserve section.
+> > The NO_EVICT flag applies only when the BO is still alive.  Someone
+> > needs to hold a reference to the BO to keep it alive, otherwise the BO
+> > can go away before the vbuf is retired.
+>
+> Note that patches 14+15 rework virtio_gpu_transfer_*_ioctl to keep
+> gem reference until the command is finished and patch 17 drops
+> virtio_gpu_object_{reserve,unreserve} altogether.
+>
+> Maybe I should try to reorder the series, then squash 6+17 to reduce
+> confusion.  I suspect that'll cause quite a few conflicts though ...
+This may be well-known and is what you meant by "the fence keeps the
+bo alive", but I finally realize that ttm_bo_put delays the deletion
+of a BO when it is busy.
+
+In the current design, vbuf does not hold references to its BOs.  Nor
+do fences.  It is possible for a BO to lose all its references and
+gets virtio_gpu_gem_free_object()ed  while it is still busy.  The key
+is ttm_bo_put.
+
+ttm_bo_put calls ttm_bo_cleanup_refs_or_queue to decide whether to
+delete the BO immediately (when the BO is already idle) or to queue
+the BO to a delayed delete list (when the BO is still busy).  If a BO
+is queued to the delayed delete list, ttm_bo_delayed_delete is called
+every 10ms (HZ/100 to be exact) to scan through the list and delete
+idled BOs.
+
+I wrote a simple test (attached) and added a bunch of printk's to confirm this.
+
+Anyway, I believe the culprit is patch 11, when we switch from
+ttm_bo_put to drm_gem_shmem_free_object to free a BO whose last
+reference is gone.  The deletion becomes immediately after the switch.
+We need to fix vbuf to refcount its BOs before we can do the switch.
+
+
+>
+> cheers,
+>   Gerd
+>
+
+--0000000000009d22d3058d10a0cb
+Content-Type: text/x-c-code; charset="US-ASCII"; name="virtio-gpu-bo.c"
+Content-Disposition: attachment; filename="virtio-gpu-bo.c"
+Content-Transfer-Encoding: base64
+Content-ID: <f_jxshstmh0>
+X-Attachment-Id: f_jxshstmh0
+
+LyogZ2NjIC1zdGQ9YzExIC1EX0dOVV9TT1VSQ0UgLW8gdmlydGlvLWdwdS1ibyB2aXJ0aW8tZ3B1
+LWJvLmMgKi8KCiNpbmNsdWRlIDxhc3NlcnQuaD4KI2luY2x1ZGUgPHN0ZGludC5oPgojaW5jbHVk
+ZSA8c3RkaW8uaD4KCiNpbmNsdWRlIDxmY250bC5oPgojaW5jbHVkZSA8bGliZHJtL2RybS5oPgoj
+aW5jbHVkZSA8c3lzL2lvY3RsLmg+CiNpbmNsdWRlIDxzeXMvc3RhdC5oPgojaW5jbHVkZSA8c3lz
+L3R5cGVzLmg+CiNpbmNsdWRlIDx1bmlzdGQuaD4KCiNkZWZpbmUgUElQRV9CVUZGRVIgMAojZGVm
+aW5lIFZJUkdMX0ZPUk1BVF9SOF9VTk9STSA2NAojZGVmaW5lIFZJUkdMX0JJTkRfQ09OU1RBTlRf
+QlVGRkVSICgxIDw8IDYpCiNkZWZpbmUgRFJNX1ZJUlRHUFVfUkVTT1VSQ0VfQ1JFQVRFIDB4MDQK
+I2RlZmluZSBEUk1fSU9DVExfVklSVEdQVV9SRVNPVVJDRV9DUkVBVEUgXAogICAgRFJNX0lPV1Io
+RFJNX0NPTU1BTkRfQkFTRSArIERSTV9WSVJUR1BVX1JFU09VUkNFX0NSRUFURSwgXAogICAgICAg
+ICAgICBzdHJ1Y3QgZHJtX3ZpcnRncHVfcmVzb3VyY2VfY3JlYXRlKQpzdHJ1Y3QgZHJtX3ZpcnRn
+cHVfcmVzb3VyY2VfY3JlYXRlIHsKICAgIHVpbnQzMl90IHRhcmdldDsKICAgIHVpbnQzMl90IGZv
+cm1hdDsKICAgIHVpbnQzMl90IGJpbmQ7CiAgICB1aW50MzJfdCB3aWR0aDsKICAgIHVpbnQzMl90
+IGhlaWdodDsKICAgIHVpbnQzMl90IGRlcHRoOwogICAgdWludDMyX3QgYXJyYXlfc2l6ZTsKICAg
+IHVpbnQzMl90IGxhc3RfbGV2ZWw7CiAgICB1aW50MzJfdCBucl9zYW1wbGVzOwogICAgdWludDMy
+X3QgZmxhZ3M7CiAgICB1aW50MzJfdCBib19oYW5kbGU7CiAgICB1aW50MzJfdCByZXNfaGFuZGxl
+OwogICAgdWludDMyX3Qgc2l6ZTsKICAgIHVpbnQzMl90IHN0cmlkZTsKfTsKCnN0cnVjdCBkcm1f
+dmlydGdwdV8zZF9ib3ggeyAKICAgIHVpbnQzMl90IHgsIHksIHo7CiAgICB1aW50MzJfdCB3LCBo
+LCBkOwp9OwoKI2RlZmluZSBEUk1fVklSVEdQVV9UUkFOU0ZFUl9UT19IT1NUIDB4MDcKI2RlZmlu
+ZSBEUk1fSU9DVExfVklSVEdQVV9UUkFOU0ZFUl9UT19IT1NUIFwKICAgIERSTV9JT1dSKERSTV9D
+T01NQU5EX0JBU0UgKyBEUk1fVklSVEdQVV9UUkFOU0ZFUl9UT19IT1NULCBcCiAgICAgICAgICAg
+IHN0cnVjdCBkcm1fdmlydGdwdV8zZF90cmFuc2Zlcl90b19ob3N0KQpzdHJ1Y3QgZHJtX3ZpcnRn
+cHVfM2RfdHJhbnNmZXJfdG9faG9zdCB7CiAgICB1aW50MzJfdCBib19oYW5kbGU7CiAgICBzdHJ1
+Y3QgZHJtX3ZpcnRncHVfM2RfYm94IGJveDsKICAgIHVpbnQzMl90IGxldmVsOwogICAgdWludDMy
+X3Qgb2Zmc2V0OyAKfTsgCgpzdGF0aWMgdWludDMyX3QgYnVmZmVyX2NyZWF0ZShpbnQgZmQsIHVp
+bnQzMl90IHNpemUpCnsKICAgIHN0cnVjdCBkcm1fdmlydGdwdV9yZXNvdXJjZV9jcmVhdGUgYXJn
+cyA9IHsKICAgICAgICAudGFyZ2V0ID0gUElQRV9CVUZGRVIsCiAgICAgICAgLmZvcm1hdCA9IFZJ
+UkdMX0ZPUk1BVF9SOF9VTk9STSwKICAgICAgICAuYmluZCA9IFZJUkdMX0JJTkRfQ09OU1RBTlRf
+QlVGRkVSLAogICAgICAgIC53aWR0aCA9IHNpemUsCiAgICAgICAgLmhlaWdodCA9IDEsCiAgICAg
+ICAgLmRlcHRoID0gMSwKICAgICAgICAuYXJyYXlfc2l6ZSA9IDEsCiAgICAgICAgLm5yX3NhbXBs
+ZXMgPSAxLAogICAgfTsKICAgIGludCByZXQgPSBpb2N0bChmZCwgRFJNX0lPQ1RMX1ZJUlRHUFVf
+UkVTT1VSQ0VfQ1JFQVRFLCAmYXJncyk7CiAgICBhc3NlcnQoIXJldCk7CiAgICByZXR1cm4gYXJn
+cy5ib19oYW5kbGU7Cn0KCnN0YXRpYyB2b2lkIGJ1ZmZlcl9jbG9zZShpbnQgZmQsIHVpbnQzMl90
+IGJvKQp7CiAgICBzdHJ1Y3QgZHJtX2dlbV9jbG9zZSBhcmdzID0gewogICAgICAgIC5oYW5kbGUg
+PSBibywKICAgIH07CiAgICBpbnQgcmV0ID0gaW9jdGwoZmQsIERSTV9JT0NUTF9HRU1fQ0xPU0Us
+ICZhcmdzKTsKICAgIGFzc2VydCghcmV0KTsKfQpzdGF0aWMgdm9pZCB0cmFuc2Zlcl90b19ob3N0
+KGludCBmZCwgdWludDMyX3QgYm8sIHVpbnQzMl90IHNpemUpCnsKICAgIHN0cnVjdCBkcm1fdmly
+dGdwdV8zZF90cmFuc2Zlcl90b19ob3N0IGFyZ3MgPSB7CiAgICAgICAgLmJvX2hhbmRsZSA9IGJv
+LAogICAgICAgIC5ib3gudyA9IHNpemUsCiAgICAgICAgLmJveC5oID0gMSwKICAgICAgICAuYm94
+LmQgPSAxLAogICAgfTsKICAgIGludCByZXQgPSBpb2N0bChmZCwgRFJNX0lPQ1RMX1ZJUlRHUFVf
+VFJBTlNGRVJfVE9fSE9TVCwgJmFyZ3MpOwogICAgYXNzZXJ0KCFyZXQpOwp9CgppbnQgbWFpbigp
+CnsKICAgIGNvbnN0IHVpbnQzMl90IHNpemUgPSAxICogMTAyNCAqIDEwMjQ7CgogICAgaW50IGZk
+ID0gb3BlbigiL2Rldi9kcmkvcmVuZGVyRDEyOCIsIE9fUkRXUik7CiAgICBhc3NlcnQoZmQgPj0g
+MCk7CgogICAgdWludDMyX3QgYm8gPSBidWZmZXJfY3JlYXRlKGZkLCBzaXplKTsKICAgIHByaW50
+ZigidHJhbnNmZXIgYW5kIGNsb3NlIHRoZSBCTyBpbW1lZGlhdGVseS4uLlxuIik7CiAgICB0cmFu
+c2Zlcl90b19ob3N0KGZkLCBibywgc2l6ZSk7CiAgICBidWZmZXJfY2xvc2UoZmQsIGJvKTsKCiAg
+ICBwcmludGYoIndhaXQgZm9yIDEgc2Vjb25kLi4uXG4iKTsKICAgIHVzbGVlcCgxMDAwICogMTAw
+MCk7CgogICAgY2xvc2UoZmQpOwoKICAgIHJldHVybiAwOwp9Cg==
+--0000000000009d22d3058d10a0cb
+Content-Type: text/plain; charset="us-ascii"
+MIME-Version: 1.0
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+
+_______________________________________________
+Virtualization mailing list
+Virtualization@lists.linux-foundation.org
+https://lists.linuxfoundation.org/mailman/listinfo/virtualization
+--0000000000009d22d3058d10a0cb--
