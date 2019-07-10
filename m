@@ -1,11 +1,14 @@
-From: Pankaj Gupta <pagupta@redhat.com>
-Subject: [PATCH] virtio_pmem: fix sparse warning
-Date: Wed, 10 Jul 2019 19:57:00 +0530
-Message-ID: <20190710142700.10215-1-pagupta__20066.2350443721$1562769369$gmane$org@redhat.com>
+From: Sasha Levin <sashal@kernel.org>
+Subject: [PATCH AUTOSEL 5.1 03/11] drm/virtio: move
+	drm_connector_update_edid_property() call
+Date: Wed, 10 Jul 2019 11:02:30 -0400
+Message-ID: <20190710150240.6984-3-sashal__41590.8251468622$1562771551$gmane$org@kernel.org>
+References: <20190710150240.6984-1-sashal@kernel.org>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
+In-Reply-To: <20190710150240.6984-1-sashal@kernel.org>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -15,49 +18,45 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: virtualization@lists.linux-foundation.org, dan.j.williams@intel.com
-Cc: pagupta@redhat.com, mst@redhat.com, cohuck@redhat.com, linux-kernel@vger.kernel.org, yuval.shaia@oracle.com, lcapitulino@redhat.com, linux-nvdimm@lists.01.org
+To: linux-kernel@vger.kernel.org, stable@vger.kernel.org
+Cc: Sasha Levin <sashal@kernel.org>, Cornelia Huck <cohuck@redhat.com>, dri-devel@lists.freedesktop.org, virtualization@lists.linux-foundation.org, Max Filippov <jcmvbkbc@gmail.com>
 List-Id: virtualization@lists.linuxfoundation.org
 
-This patch fixes below sparse warning related to __virtio 
-type in virtio pmem driver. This is reported by Intel test
-bot on linux-next tree.
+From: Gerd Hoffmann <kraxel@redhat.com>
 
-nd_virtio.c:56:28: warning: incorrect type in assignment (different base types)
-nd_virtio.c:56:28:    expected unsigned int [unsigned] [usertype] type
-nd_virtio.c:56:28:    got restricted __virtio32
-nd_virtio.c:93:59: warning: incorrect type in argument 2 (different base types)
-nd_virtio.c:93:59:    expected restricted __virtio32 [usertype] val
-nd_virtio.c:93:59:    got unsigned int [unsigned] [usertype] ret
+[ Upstream commit 41de4be6f6efa4132b29af51158cd672d93f2543 ]
 
-Signed-off-by: Pankaj Gupta <pagupta@redhat.com>
-Reported-by: kbuild test robot <lkp@intel.com>
+drm_connector_update_edid_property can sleep, we must not
+call it while holding a spinlock.  Move the callsite.
+
+Fixes: b4b01b4995fb ("drm/virtio: add edid support")
+Reported-by: Max Filippov <jcmvbkbc@gmail.com>
+Signed-off-by: Gerd Hoffmann <kraxel@redhat.com>
+Tested-by: Max Filippov <jcmvbkbc@gmail.com>
+Tested-by: Cornelia Huck <cohuck@redhat.com>
+Acked-by: Cornelia Huck <cohuck@redhat.com>
+Link: http://patchwork.freedesktop.org/patch/msgid/20190405044602.2334-1-kraxel@redhat.com
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
+ drivers/gpu/drm/virtio/virtgpu_vq.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-This fixes a warning, so submitting it as a separate
-patch on top of virtio pmem series. 
+diff --git a/drivers/gpu/drm/virtio/virtgpu_vq.c b/drivers/gpu/drm/virtio/virtgpu_vq.c
+index 6bc2008b0d0d..3ef24f89ef93 100644
+--- a/drivers/gpu/drm/virtio/virtgpu_vq.c
++++ b/drivers/gpu/drm/virtio/virtgpu_vq.c
+@@ -620,11 +620,11 @@ static void virtio_gpu_cmd_get_edid_cb(struct virtio_gpu_device *vgdev,
+ 	output = vgdev->outputs + scanout;
  
- include/uapi/linux/virtio_pmem.h | 4 ++--
- 1 file changed, 2 insertions(+), 2 deletions(-)
-
-diff --git a/include/uapi/linux/virtio_pmem.h b/include/uapi/linux/virtio_pmem.h
-index efcd72f2d20d..f89129bf1f84 100644
---- a/include/uapi/linux/virtio_pmem.h
-+++ b/include/uapi/linux/virtio_pmem.h
-@@ -23,12 +23,12 @@ struct virtio_pmem_config {
+ 	new_edid = drm_do_get_edid(&output->conn, virtio_get_edid_block, resp);
++	drm_connector_update_edid_property(&output->conn, new_edid);
  
- struct virtio_pmem_resp {
- 	/* Host return status corresponding to flush request */
--	__u32 ret;
-+	__virtio32 ret;
- };
+ 	spin_lock(&vgdev->display_info_lock);
+ 	old_edid = output->edid;
+ 	output->edid = new_edid;
+-	drm_connector_update_edid_property(&output->conn, output->edid);
+ 	spin_unlock(&vgdev->display_info_lock);
  
- struct virtio_pmem_req {
- 	/* command type */
--	__u32 type;
-+	__virtio32 type;
- };
- 
- #endif
+ 	kfree(old_edid);
 -- 
 2.20.1
