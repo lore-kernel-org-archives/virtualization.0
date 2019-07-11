@@ -1,13 +1,15 @@
-From: Chia-I Wu <olvaffe@gmail.com>
-Subject: [PATCH] drm/virtio: kick vq outside of the vq lock
-Date: Wed, 10 Jul 2019 19:39:59 -0700
-Message-ID: <20190711023959.170158-1-olvaffe__1954.3979711429$1562813328$gmane$org@gmail.com>
-References: <20190711022937.166015-1-olvaffe@gmail.com>
+From: Jason Wang <jasowang@redhat.com>
+Subject: Re: [RFC] virtio-net: share receive_*() and add_recvbuf_*() with
+	virtio-vsock
+Date: Thu, 11 Jul 2019 15:37:00 +0800
+Message-ID: <9574bc38-4c5c-2325-986b-430e4a2b6661__28299.9519653217$1562831257$gmane$org@redhat.com>
+References: <20190710153707.twmzgmwqqw3pstos@steredhat>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset="utf-8"; Format="flowed"
+Content-Transfer-Encoding: base64
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <20190711022937.166015-1-olvaffe@gmail.com>
+In-Reply-To: <20190710153707.twmzgmwqqw3pstos@steredhat>
+Content-Language: en-US
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -17,87 +19,62 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: dri-devel@lists.freedesktop.org
-Cc: David Airlie <airlied@linux.ie>, linux-kernel@vger.kernel.org, Daniel Vetter <daniel@ffwll.ch>, virtualization@lists.linux-foundation.org
+To: Stefano Garzarella <sgarzare@redhat.com>, "Michael S. Tsirkin" <mst@redhat.com>, Stefan Hajnoczi <stefanha@redhat.com>
+Cc: netdev@vger.kernel.org, virtualization@lists.linux-foundation.org
 List-Id: virtualization@lists.linuxfoundation.org
 
-Replace virtqueue_kick by virtqueue_kick_prepare, which requires
-serialization, and virtqueue_notify, which does not.  Repurpose the
-return values to indicate whether the vq should be notified.
-
-This fixes a bad spinlock contention when the host is qemu.  When
-the guest calls virtqueue_notify, the qemu vcpu thread exits the
-guest and waits for the qemu iothread to perform the MMIO.  If the
-qemu iothread is still processing the prior buffer, and if the prior
-buffer is cheap to GPU, the iothread will go ahead and generate an
-IRQ.  A worker thread in the guest might start running
-virtio_gpu_dequeue_ctrl_func.  If virtqueue_notify was called with
-the vq lock held, the worker thread would have to busy wait inside
-virtio_gpu_dequeue_ctrl_func.
-
-v2: fix scrambled commit message
-
-Signed-off-by: Chia-I Wu <olvaffe@gmail.com>
----
- drivers/gpu/drm/virtio/virtgpu_vq.c | 19 +++++++++++++------
- 1 file changed, 13 insertions(+), 6 deletions(-)
-
-diff --git a/drivers/gpu/drm/virtio/virtgpu_vq.c b/drivers/gpu/drm/virtio/virtgpu_vq.c
-index 6c1a90717535..e96f88fe5c83 100644
---- a/drivers/gpu/drm/virtio/virtgpu_vq.c
-+++ b/drivers/gpu/drm/virtio/virtgpu_vq.c
-@@ -291,11 +291,9 @@ static int virtio_gpu_queue_ctrl_buffer_locked(struct virtio_gpu_device *vgdev,
- 		trace_virtio_gpu_cmd_queue(vq,
- 			(struct virtio_gpu_ctrl_hdr *)vbuf->buf);
- 
--		virtqueue_kick(vq);
-+		ret = virtqueue_kick_prepare(vq);
- 	}
- 
--	if (!ret)
--		ret = vq->num_free;
- 	return ret;
- }
- 
-@@ -307,6 +305,10 @@ static int virtio_gpu_queue_ctrl_buffer(struct virtio_gpu_device *vgdev,
- 	spin_lock(&vgdev->ctrlq.qlock);
- 	rc = virtio_gpu_queue_ctrl_buffer_locked(vgdev, vbuf);
- 	spin_unlock(&vgdev->ctrlq.qlock);
-+
-+	if (rc > 0)
-+		virtqueue_notify(vgdev->ctrlq.vq);
-+
- 	return rc;
- }
- 
-@@ -339,6 +341,10 @@ static int virtio_gpu_queue_fenced_ctrl_buffer(struct virtio_gpu_device *vgdev,
- 		virtio_gpu_fence_emit(vgdev, hdr, fence);
- 	rc = virtio_gpu_queue_ctrl_buffer_locked(vgdev, vbuf);
- 	spin_unlock(&vgdev->ctrlq.qlock);
-+
-+	if (rc > 0)
-+		virtqueue_notify(vgdev->ctrlq.vq);
-+
- 	return rc;
- }
- 
-@@ -369,13 +375,14 @@ static int virtio_gpu_queue_cursor(struct virtio_gpu_device *vgdev,
- 		trace_virtio_gpu_cmd_queue(vq,
- 			(struct virtio_gpu_ctrl_hdr *)vbuf->buf);
- 
--		virtqueue_kick(vq);
-+		ret = virtqueue_kick_prepare(vq);
- 	}
- 
- 	spin_unlock(&vgdev->cursorq.qlock);
- 
--	if (!ret)
--		ret = vq->num_free;
-+	if (ret > 0)
-+		virtqueue_notify(vq);
-+
- 	return ret;
- }
- 
--- 
-2.22.0.410.gd8fdbe21b5-goog
+Ck9uIDIwMTkvNy8xMCDkuIvljYgxMTozNywgU3RlZmFubyBHYXJ6YXJlbGxhIHdyb3RlOgo+IEhp
+LAo+IGFzIEphc29uIHN1Z2dlc3RlZCBzb21lIG1vbnRocyBhZ28sIEkgbG9va2VkIGJldHRlciBh
+dCB0aGUgdmlydGlvLW5ldCBkcml2ZXIgdG8KPiB1bmRlcnN0YW5kIGlmIHdlIGNhbiByZXVzZSBz
+b21lIHBhcnRzIGFsc28gaW4gdGhlIHZpcnRpby12c29jayBkcml2ZXIsIHNpbmNlIHdlCj4gaGF2
+ZSBzaW1pbGFyIGNoYWxsZW5nZXMgKG1lcmdlYWJsZSBidWZmZXJzLCBwYWdlIGFsbG9jYXRpb24s
+IHNtYWxsCj4gcGFja2V0cywgZXRjLikuCj4KPiBJbml0aWFsbHksIEkgd291bGQgYWRkIHRoZSBz
+a2J1ZmYgaW4gdGhlIHZpcnRpby12c29jayBpbiBvcmRlciB0byByZS11c2UKPiByZWNlaXZlXyoo
+KSBmdW5jdGlvbnMuCgoKWWVzLCB0aGF0IHdpbGwgYmUgYSBnb29kIHN0ZXAuCgoKPiBUaGVuIEkg
+d291bGQgbW92ZSByZWNlaXZlX1tzbWFsbCwgYmlnLCBtZXJnZWFibGVdKCkgYW5kCj4gYWRkX3Jl
+Y3ZidWZfW3NtYWxsLCBiaWcsIG1lcmdlYWJsZV0oKSBvdXRzaWRlIG9mIHZpcnRpby1uZXQgZHJp
+dmVyLCBpbiBvcmRlciB0bwo+IGNhbGwgdGhlbSBhbHNvIGZyb20gdmlydGlvLXZzb2NrLiBJIG5l
+ZWQgdG8gZG8gc29tZSByZWZhY3RvcmluZyAoZS5nLiBsZWF2ZSB0aGUKPiBYRFAgcGFydCBvbiB0
+aGUgdmlydGlvLW5ldCBkcml2ZXIpLCBidXQgSSB0aGluayBpdCBpcyBmZWFzaWJsZS4KPgo+IFRo
+ZSBpZGVhIGlzIHRvIGNyZWF0ZSBhIHZpcnRpby1za2IuW2gsY10gd2hlcmUgcHV0IHRoZXNlIGZ1
+bmN0aW9ucyBhbmQgYSBuZXcKPiBvYmplY3Qgd2hlcmUgc3RvcmVzIHNvbWUgYXR0cmlidXRlcyBu
+ZWVkZWQgKGUuZy4gaGRyX2xlbiApIGFuZCBzdGF0dXMgKGUuZy4KPiBzb21lIGZpZWxkcyBvZiBz
+dHJ1Y3QgcmVjZWl2ZV9xdWV1ZSkuCgoKTXkgdW5kZXJzdGFuZGluZyBpcyB3ZSBjb3VsZCBiZSBt
+b3JlIGFtYml0aW91cyBoZXJlLiBEbyB5b3Ugc2VlIGFueSAKYmxvY2tlciBmb3IgcmV1c2luZyB2
+aXJ0aW8tbmV0IGRpcmVjdGx5PyBJdCdzIGJldHRlciB0byByZXVzZSBub3Qgb25seSAKdGhlIGZ1
+bmN0aW9ucyBidXQgYWxzbyB0aGUgbG9naWMgbGlrZSBOQVBJIHRvIGF2b2lkIHJlLWludmVudGlu
+ZyAKc29tZXRoaW5nIGJ1Z2d5IGFuZCBkdXBsaWNhdGVkLgoKCj4gVGhpcyBpcyBhbiBpZGVhIG9m
+IHZpcnRpby1za2IuaCB0aGF0Cj4gSSBoYXZlIGluIG1pbmQ6Cj4gICAgICBzdHJ1Y3QgdmlydHNr
+YjsKCgpXaGF0IGZpZWxkcyBkbyB5b3Ugd2FudCB0byBzdG9yZSBpbiB2aXJ0c2tiPyBJdCBsb29r
+cyB0byBiZSBleGlzdCAKc2tfYnVmZiBpcyBmbGV4aWJsZSBlbm91Z2ggdG8gdXM/CgoKPgo+ICAg
+ICAgc3RydWN0IHNrX2J1ZmYgKnZpcnRza2JfcmVjZWl2ZV9zbWFsbChzdHJ1Y3QgdmlydHNrYiAq
+dnMsIC4uLik7Cj4gICAgICBzdHJ1Y3Qgc2tfYnVmZiAqdmlydHNrYl9yZWNlaXZlX2JpZyhzdHJ1
+Y3QgdmlydHNrYiAqdnMsIC4uLik7Cj4gICAgICBzdHJ1Y3Qgc2tfYnVmZiAqdmlydHNrYl9yZWNl
+aXZlX21lcmdlYWJsZShzdHJ1Y3QgdmlydHNrYiAqdnMsIC4uLik7Cj4KPiAgICAgIGludCB2aXJ0
+c2tiX2FkZF9yZWN2YnVmX3NtYWxsKHN0cnVjdCB2aXJ0c2tiKnZzLCAuLi4pOwo+ICAgICAgaW50
+IHZpcnRza2JfYWRkX3JlY3ZidWZfYmlnKHN0cnVjdCB2aXJ0c2tiICp2cywgLi4uKTsKPiAgICAg
+IGludCB2aXJ0c2tiX2FkZF9yZWN2YnVmX21lcmdlYWJsZShzdHJ1Y3QgdmlydHNrYiAqdnMsIC4u
+Lik7Cj4KPiBGb3IgdGhlIEd1ZXN0LT5Ib3N0IHBhdGggaXQgc2hvdWxkIGJlIGVhc2llciwgc28g
+bWF5YmUgSSBjYW4gYWRkIGEKPiAidmlydHNrYl9zZW5kKHN0cnVjdCB2aXJ0c2tiICp2cywgc3Ry
+dWN0IHNrX2J1ZmYgKnNrYikiIHdpdGggYSBwYXJ0IG9mIHRoZSBjb2RlCj4gb2YgeG1pdF9za2Io
+KS4KCgpJIG1heSBtaXNzIHNvbWV0aGluZywgYnV0IEkgZG9uJ3Qgc2VlIGFueSB0aGluZyB0aGF0
+IHByZXZlbnRzIHVzIGZyb20gCnVzaW5nIHhtaXRfc2tiKCkgZGlyZWN0bHkuCgoKPgo+IExldCBt
+ZSBrbm93IGlmIHlvdSBoYXZlIGluIG1pbmQgYmV0dGVyIG5hbWVzIG9yIGlmIEkgc2hvdWxkIHB1
+dCB0aGVzZSBmdW5jdGlvbgo+IGluIGFub3RoZXIgcGxhY2UuCj4KPiBJIHdvdWxkIGxpa2UgdG8g
+bGVhdmUgdGhlIGNvbnRyb2wgcGFydCBjb21wbGV0ZWx5IHNlcGFyYXRlLCBzbywgZm9yIGV4YW1w
+bGUsCj4gdGhlIHR3byBkcml2ZXJzIHdpbGwgbmVnb3RpYXRlIHRoZSBmZWF0dXJlcyBpbmRlcGVu
+ZGVudGx5IGFuZCB0aGV5IHdpbGwgY2FsbAo+IHRoZSByaWdodCB2aXJ0c2tiX3JlY2VpdmVfKigp
+IGZ1bmN0aW9uIGJhc2VkIG9uIHRoZSBuZWdvdGlhdGlvbi4KCgpJZiBpdCdzIG9uZSB0aGUgaXNz
+dWUgb2YgbmVnb3RpYXRpb24sIHdlIGNhbiBzaW1wbHkgY2hhbmdlIHRoZSAKdmlydG5ldF9wcm9i
+ZSgpIHRvIGRlYWwgd2l0aCBkaWZmZXJlbnQgZGV2aWNlcy4KCgo+Cj4gSSBhbHJlYWR5IHN0YXJ0
+ZWQgdG8gd29yayBvbiBpdCwgYnV0IGJlZm9yZSB0byBkbyBtb3JlIHN0ZXBzIGFuZCBzZW5kIGFu
+IFJGQwo+IHBhdGNoLCBJIHdvdWxkIGxpa2UgdG8gaGVhciB5b3VyIG9waW5pb24uCj4gRG8geW91
+IHRoaW5rIHRoYXQgbWFrZXMgc2Vuc2U/Cj4gRG8geW91IHNlZSBhbnkgaXNzdWUgb3IgYSBiZXR0
+ZXIgc29sdXRpb24/CgoKSSBzdGlsbCB0aGluayB3ZSBuZWVkIHRvIHNlZWsgYSB3YXkgb2YgYWRk
+aW5nIHNvbWUgY29kZXMgb24gdmlydGlvLW5ldC5jIApkaXJlY3RseSBpZiB0aGVyZSdzIG5vIGh1
+Z2UgZGlmZmVyZW50IGluIHRoZSBwcm9jZXNzaW5nIG9mIFRYL1JYLiBUaGF0IAp3b3VsZCBzYXZl
+IHVzIGEgbG90IHRpbWUuCgpUaGFua3MKCgo+Cj4gVGhhbmtzIGluIGFkdmFuY2UsCj4gU3RlZmFu
+bwpfX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fXwpWaXJ0dWFs
+aXphdGlvbiBtYWlsaW5nIGxpc3QKVmlydHVhbGl6YXRpb25AbGlzdHMubGludXgtZm91bmRhdGlv
+bi5vcmcKaHR0cHM6Ly9saXN0cy5saW51eGZvdW5kYXRpb24ub3JnL21haWxtYW4vbGlzdGluZm8v
+dmlydHVhbGl6YXRpb24=
