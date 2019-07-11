@@ -1,7 +1,7 @@
-From: Pankaj Gupta <pagupta@redhat.com>
-Subject: [PATCH v2] virtio_pmem: fix sparse warning
-Date: Wed, 10 Jul 2019 23:28:32 +0530
-Message-ID: <20190710175832.17252-1-pagupta__25598.0842675612$1562782516$gmane$org@redhat.com>
+From: Chia-I Wu <olvaffe@gmail.com>
+Subject: [PATCH] drm/virtio: kick vq outside of the vq lock
+Date: Wed, 10 Jul 2019 19:29:37 -0700
+Message-ID: <20190711022937.166015-1-olvaffe__40216.4605840639$1562812710$gmane$org@gmail.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
@@ -15,60 +15,85 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: virtualization@lists.linux-foundation.org, dan.j.williams@intel.com
-Cc: pagupta@redhat.com, mst@redhat.com, cohuck@redhat.com, linux-kernel@vger.kernel.org, yuval.shaia@oracle.com, lcapitulino@redhat.com, linux-nvdimm@lists.01.org
+To: dri-devel@lists.freedesktop.org
+Cc: David Airlie <airlied@linux.ie>, linux-kernel@vger.kernel.org, Daniel Vetter <daniel@ffwll.ch>, virtualization@lists.linux-foundation.org
 List-Id: virtualization@lists.linuxfoundation.org
 
-This patch fixes below sparse warning related to __virtio
-type in virtio pmem driver. This is reported by Intel test
-bot on linux-next tree.
+Replace virtqueue_kick by virtqueue_kick_prepare, which requires
+serialization, and virtqueue_notify, which does not.  Repurpose the
+return values to indicate whether the vq should be notified.
 
-nd_virtio.c:56:28: warning: incorrect type in assignment 
-				(different base types)
-nd_virtio.c:56:28:    expected unsigned int [unsigned] [usertype] type
-nd_virtio.c:56:28:    got restricted __virtio32
-nd_virtio.c:93:59: warning: incorrect type in argument 2 
-				(different base types)
-nd_virtio.c:93:59:    expected restricted __virtio32 [usertype] val
-nd_virtio.c:93:59:    got unsigned int [unsigned] [usertype] ret
+This fixes a lock contention with qemu host.  When the guest calls
+vibad rtqueue_notify, the qemu vcpu thread exits the guest and waits
+for the qemu iothread to perform the MMIO.  If the qemu iothread is
+still processing the prior buffer, and if the prior buffer is cheap
+to GPU, the iothread will go ahead and generate an IRQ for the
+guest.  A worker thread in the guest will call
+virtio_gpu_dequeue_ctrl_func.  If virtqueue_notify was called with
+the vq lock held, the worker thread would busy wait inside
+virtio_gpu_dequeue_ctrl_func.
 
-Reported-by: kbuild test robot <lkp@intel.com>
-Signed-off-by: Pankaj Gupta <pagupta@redhat.com>
+Signed-off-by: Chia-I Wu <olvaffe@gmail.com>
 ---
+ drivers/gpu/drm/virtio/virtgpu_vq.c | 19 +++++++++++++------
+ 1 file changed, 13 insertions(+), 6 deletions(-)
 
-This fixes a warning, so submitting it as a separate
-patch on top of virtio pmem series.
-
- include/uapi/linux/virtio_pmem.h | 6 +++---
- 1 file changed, 3 insertions(+), 3 deletions(-)
-
-diff --git a/include/uapi/linux/virtio_pmem.h b/include/uapi/linux/virtio_pmem.h
-index efcd72f2d20d..7a7435281362 100644
---- a/include/uapi/linux/virtio_pmem.h
-+++ b/include/uapi/linux/virtio_pmem.h
-@@ -10,7 +10,7 @@
- #ifndef _UAPI_LINUX_VIRTIO_PMEM_H
- #define _UAPI_LINUX_VIRTIO_PMEM_H
+diff --git a/drivers/gpu/drm/virtio/virtgpu_vq.c b/drivers/gpu/drm/virtio/virtgpu_vq.c
+index 6c1a90717535..e96f88fe5c83 100644
+--- a/drivers/gpu/drm/virtio/virtgpu_vq.c
++++ b/drivers/gpu/drm/virtio/virtgpu_vq.c
+@@ -291,11 +291,9 @@ static int virtio_gpu_queue_ctrl_buffer_locked(struct virtio_gpu_device *vgdev,
+ 		trace_virtio_gpu_cmd_queue(vq,
+ 			(struct virtio_gpu_ctrl_hdr *)vbuf->buf);
  
--#include <linux/types.h>
-+#include <linux/virtio_types.h>
- #include <linux/virtio_ids.h>
- #include <linux/virtio_config.h>
+-		virtqueue_kick(vq);
++		ret = virtqueue_kick_prepare(vq);
+ 	}
  
-@@ -23,12 +23,12 @@ struct virtio_pmem_config {
+-	if (!ret)
+-		ret = vq->num_free;
+ 	return ret;
+ }
  
- struct virtio_pmem_resp {
- 	/* Host return status corresponding to flush request */
--	__u32 ret;
-+	__virtio32 ret;
- };
+@@ -307,6 +305,10 @@ static int virtio_gpu_queue_ctrl_buffer(struct virtio_gpu_device *vgdev,
+ 	spin_lock(&vgdev->ctrlq.qlock);
+ 	rc = virtio_gpu_queue_ctrl_buffer_locked(vgdev, vbuf);
+ 	spin_unlock(&vgdev->ctrlq.qlock);
++
++	if (rc > 0)
++		virtqueue_notify(vgdev->ctrlq.vq);
++
+ 	return rc;
+ }
  
- struct virtio_pmem_req {
- 	/* command type */
--	__u32 type;
-+	__virtio32 type;
- };
+@@ -339,6 +341,10 @@ static int virtio_gpu_queue_fenced_ctrl_buffer(struct virtio_gpu_device *vgdev,
+ 		virtio_gpu_fence_emit(vgdev, hdr, fence);
+ 	rc = virtio_gpu_queue_ctrl_buffer_locked(vgdev, vbuf);
+ 	spin_unlock(&vgdev->ctrlq.qlock);
++
++	if (rc > 0)
++		virtqueue_notify(vgdev->ctrlq.vq);
++
+ 	return rc;
+ }
  
- #endif
+@@ -369,13 +375,14 @@ static int virtio_gpu_queue_cursor(struct virtio_gpu_device *vgdev,
+ 		trace_virtio_gpu_cmd_queue(vq,
+ 			(struct virtio_gpu_ctrl_hdr *)vbuf->buf);
+ 
+-		virtqueue_kick(vq);
++		ret = virtqueue_kick_prepare(vq);
+ 	}
+ 
+ 	spin_unlock(&vgdev->cursorq.qlock);
+ 
+-	if (!ret)
+-		ret = vq->num_free;
++	if (ret > 0)
++		virtqueue_notify(vq);
++
+ 	return ret;
+ }
+ 
 -- 
-2.20.1
+2.22.0.410.gd8fdbe21b5-goog
