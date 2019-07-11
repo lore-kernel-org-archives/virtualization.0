@@ -1,11 +1,18 @@
 From: Chia-I Wu <olvaffe@gmail.com>
-Subject: [PATCH] drm/virtio: kick vq outside of the vq lock
-Date: Wed, 10 Jul 2019 19:29:37 -0700
-Message-ID: <20190711022937.166015-1-olvaffe__40216.4605840639$1562812710$gmane$org@gmail.com>
+Subject: Re: [PATCH v6 08/18] drm/virtio: rework virtio_gpu_execbuffer_ioctl
+	fencing
+Date: Wed, 10 Jul 2019 19:35:41 -0700
+Message-ID: <CAPaKu7RQo8T81iGtPbtgmv7WtV-uDO9+BsT3vMd=iggZ0Q_Yew__9558.05934952281$1562813019$gmane$org@mail.gmail.com>
+References: <20190702141903.1131-1-kraxel@redhat.com>
+	<20190702141903.1131-9-kraxel@redhat.com>
+	<CAPaKu7QP=A2kV_kqcT20Pmc831HviaBJN1RpOFoa=V1g6SmE_g@mail.gmail.com>
+	<20190704112534.v7icsuverf7wrbjq@sirius.home.kraxel.org>
+	<CAPaKu7SQS5USJf0Y+K41tuRA=4qZJf5CnTu9EqAPZvz+GJCP2w@mail.gmail.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
+In-Reply-To: <CAPaKu7SQS5USJf0Y+K41tuRA=4qZJf5CnTu9EqAPZvz+GJCP2w@mail.gmail.com>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -15,85 +22,53 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: dri-devel@lists.freedesktop.org
-Cc: David Airlie <airlied@linux.ie>, linux-kernel@vger.kernel.org, Daniel Vetter <daniel@ffwll.ch>, virtualization@lists.linux-foundation.org
+To: Gerd Hoffmann <kraxel@redhat.com>
+Cc: David Airlie <airlied@linux.ie>, open list <linux-kernel@vger.kernel.org>, ML dri-devel <dri-devel@lists.freedesktop.org>, "open list:VIRTIO GPU DRIVER" <virtualization@lists.linux-foundation.org>, Daniel Vetter <daniel@ffwll.ch>, Gurchetan Singh <gurchetansingh@chromium.org>
 List-Id: virtualization@lists.linuxfoundation.org
 
-Replace virtqueue_kick by virtqueue_kick_prepare, which requires
-serialization, and virtqueue_notify, which does not.  Repurpose the
-return values to indicate whether the vq should be notified.
+On Thu, Jul 4, 2019 at 11:46 AM Chia-I Wu <olvaffe@gmail.com> wrote:
+>
+> On Thu, Jul 4, 2019 at 4:25 AM Gerd Hoffmann <kraxel@redhat.com> wrote:
+> >
+> >   Hi,
+> >
+> > > >         if (fence)
+> > > >                 virtio_gpu_fence_emit(vgdev, hdr, fence);
+> > > > +       if (vbuf->objs) {
+> > > > +               virtio_gpu_array_add_fence(vbuf->objs, &fence->f);
+> > > > +               virtio_gpu_array_unlock_resv(vbuf->objs);
+> > > > +       }
+> > > This is with the spinlock held.  Maybe we should move the
+> > > virtio_gpu_array_unlock_resv call out of the critical section.
+> >
+> > That would bring back the race ...
+> Right...
+> >
+> > > I am actually more concerned about virtio_gpu_array_add_fence, but it
+> > > is also harder to move.  Should we add a kref to the object array?
+> >
+> > Yep, refcounting would be the other way to fix the race.
+> >
+> > > This bothers me because I recently ran into a CPU-bound game with very
+> > > bad lock contention here.
+> >
+> > Hmm.  Any clue where this comes from?  Multiple threads competing for
+> > virtio buffers I guess?  Maybe we should have larger virtqueues?
+> The game was single-threaded.  I guess it was the game and Xorg
+> competing for virtio buffers.  That was also on an older kernel
+> without explicit fences.  The userspace had to create dummy resources
+> frequently to do VIRTIO_IOCTL_RESOURCE_WAIT.
+>
+> I think this is fine for now as far as I am concerned.  I can look
+> into this more closely after this series lands.
+It was virtio_gpu_dequeue_ctrl_func who wanted to grab the lock to
+handle the responses.  I sent a patch for it
 
-This fixes a lock contention with qemu host.  When the guest calls
-vibad rtqueue_notify, the qemu vcpu thread exits the guest and waits
-for the qemu iothread to perform the MMIO.  If the qemu iothread is
-still processing the prior buffer, and if the prior buffer is cheap
-to GPU, the iothread will go ahead and generate an IRQ for the
-guest.  A worker thread in the guest will call
-virtio_gpu_dequeue_ctrl_func.  If virtqueue_notify was called with
-the vq lock held, the worker thread would busy wait inside
-virtio_gpu_dequeue_ctrl_func.
+  https://patchwork.freedesktop.org/series/63529/
 
-Signed-off-by: Chia-I Wu <olvaffe@gmail.com>
----
- drivers/gpu/drm/virtio/virtgpu_vq.c | 19 +++++++++++++------
- 1 file changed, 13 insertions(+), 6 deletions(-)
-
-diff --git a/drivers/gpu/drm/virtio/virtgpu_vq.c b/drivers/gpu/drm/virtio/virtgpu_vq.c
-index 6c1a90717535..e96f88fe5c83 100644
---- a/drivers/gpu/drm/virtio/virtgpu_vq.c
-+++ b/drivers/gpu/drm/virtio/virtgpu_vq.c
-@@ -291,11 +291,9 @@ static int virtio_gpu_queue_ctrl_buffer_locked(struct virtio_gpu_device *vgdev,
- 		trace_virtio_gpu_cmd_queue(vq,
- 			(struct virtio_gpu_ctrl_hdr *)vbuf->buf);
- 
--		virtqueue_kick(vq);
-+		ret = virtqueue_kick_prepare(vq);
- 	}
- 
--	if (!ret)
--		ret = vq->num_free;
- 	return ret;
- }
- 
-@@ -307,6 +305,10 @@ static int virtio_gpu_queue_ctrl_buffer(struct virtio_gpu_device *vgdev,
- 	spin_lock(&vgdev->ctrlq.qlock);
- 	rc = virtio_gpu_queue_ctrl_buffer_locked(vgdev, vbuf);
- 	spin_unlock(&vgdev->ctrlq.qlock);
-+
-+	if (rc > 0)
-+		virtqueue_notify(vgdev->ctrlq.vq);
-+
- 	return rc;
- }
- 
-@@ -339,6 +341,10 @@ static int virtio_gpu_queue_fenced_ctrl_buffer(struct virtio_gpu_device *vgdev,
- 		virtio_gpu_fence_emit(vgdev, hdr, fence);
- 	rc = virtio_gpu_queue_ctrl_buffer_locked(vgdev, vbuf);
- 	spin_unlock(&vgdev->ctrlq.qlock);
-+
-+	if (rc > 0)
-+		virtqueue_notify(vgdev->ctrlq.vq);
-+
- 	return rc;
- }
- 
-@@ -369,13 +375,14 @@ static int virtio_gpu_queue_cursor(struct virtio_gpu_device *vgdev,
- 		trace_virtio_gpu_cmd_queue(vq,
- 			(struct virtio_gpu_ctrl_hdr *)vbuf->buf);
- 
--		virtqueue_kick(vq);
-+		ret = virtqueue_kick_prepare(vq);
- 	}
- 
- 	spin_unlock(&vgdev->cursorq.qlock);
- 
--	if (!ret)
--		ret = vq->num_free;
-+	if (ret > 0)
-+		virtqueue_notify(vq);
-+
- 	return ret;
- }
- 
--- 
-2.22.0.410.gd8fdbe21b5-goog
+>
+>
+> >
+> > cheers,
+> >   Gerd
+> >
