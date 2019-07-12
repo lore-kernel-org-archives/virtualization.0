@@ -1,14 +1,11 @@
-From: "Martin K. Petersen" <martin.petersen@oracle.com>
-Subject: Re: [PATCH] scsi: virtio_scsi: Use struct_size() helper
-Date: Thu, 11 Jul 2019 20:18:54 -0400
-Message-ID: <yq1a7dk9kb5.fsf__29357.8310798452$1562891716$gmane$org@oracle.com>
-References: <20190619192833.GA825@embeddedor>
+From: Pankaj Gupta <pagupta@redhat.com>
+Subject: [PATCH v3] virtio_pmem: fix sparse warning
+Date: Fri, 12 Jul 2019 10:46:10 +0530
+Message-ID: <20190712051610.15478-1-pagupta__42653.8443238073$1562909095$gmane$org@redhat.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <20190619192833.GA825@embeddedor> (Gustavo A. R. Silva's message
-	of "Wed, 19 Jun 2019 14:28:33 -0500")
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -18,18 +15,76 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: "Gustavo A. R. Silva" <gustavo@embeddedor.com>
-Cc: linux-scsi@vger.kernel.org, "Martin K. Petersen" <martin.petersen@oracle.com>, "Michael S. Tsirkin" <mst@redhat.com>, linux-kernel@vger.kernel.org, virtualization@lists.linux-foundation.org, Stefan Hajnoczi <stefanha@redhat.com>, Paolo Bonzini <pbonzini@redhat.com>, "James E.J. Bottomley" <jejb@linux.ibm.com>
+To: dan.j.williams@intel.com
+Cc: pagupta@redhat.com, linux-nvdimm@lists.01.org, cohuck@redhat.com, linux-kernel@vger.kernel.org, yuval.shaia@oracle.com, lcapitulino@redhat.com, mst@redhat.com, virtualization@lists.linux-foundation.org
 List-Id: virtualization@lists.linuxfoundation.org
 
+This patch fixes below sparse warning related to __virtio
+type in virtio pmem driver. This is reported by Intel test
+bot on linux-next tree.
 
-Gustavo,
+nd_virtio.c:56:28: warning: incorrect type in assignment
+                                (different base types)
+nd_virtio.c:56:28:    expected unsigned int [unsigned] [usertype] type
+nd_virtio.c:56:28:    got restricted __virtio32
+nd_virtio.c:93:59: warning: incorrect type in argument 2
+                                (different base types)
+nd_virtio.c:93:59:    expected restricted __virtio32 [usertype] val
+nd_virtio.c:93:59:    got unsigned int [unsigned] [usertype] ret
 
-> One of the more common cases of allocation size calculations is finding
-> the size of a structure that has a zero-sized array at the end, along
-> with memory for some number of elements for that array. For example:
+Reported-by: kbuild test robot <lkp@intel.com>
+Signed-off-by: Pankaj Gupta <pagupta@redhat.com>
+---
+This fixes a warning, so submitting it as a separate
+patch on top of virtio pmem series.
 
-Applied to 5.4/scsi-queue, thanks!
+v2-> v3
+ Use __le for req/resp fields - Michael
 
+ drivers/nvdimm/nd_virtio.c       | 4 ++--
+ include/uapi/linux/virtio_pmem.h | 4 ++--
+ 2 files changed, 4 insertions(+), 4 deletions(-)
+
+diff --git a/drivers/nvdimm/nd_virtio.c b/drivers/nvdimm/nd_virtio.c
+index 8645275c08c2..10351d5b49fa 100644
+--- a/drivers/nvdimm/nd_virtio.c
++++ b/drivers/nvdimm/nd_virtio.c
+@@ -53,7 +53,7 @@ static int virtio_pmem_flush(struct nd_region *nd_region)
+ 	init_waitqueue_head(&req_data->host_acked);
+ 	init_waitqueue_head(&req_data->wq_buf);
+ 	INIT_LIST_HEAD(&req_data->list);
+-	req_data->req.type = cpu_to_virtio32(vdev, VIRTIO_PMEM_REQ_TYPE_FLUSH);
++	req_data->req.type = cpu_to_le32(VIRTIO_PMEM_REQ_TYPE_FLUSH);
+ 	sg_init_one(&sg, &req_data->req, sizeof(req_data->req));
+ 	sgs[0] = &sg;
+ 	sg_init_one(&ret, &req_data->resp.ret, sizeof(req_data->resp));
+@@ -90,7 +90,7 @@ static int virtio_pmem_flush(struct nd_region *nd_region)
+ 	} else {
+ 		/* A host repsonse results in "host_ack" getting called */
+ 		wait_event(req_data->host_acked, req_data->done);
+-		err = virtio32_to_cpu(vdev, req_data->resp.ret);
++		err = le32_to_cpu(req_data->resp.ret);
+ 	}
+ 
+ 	kfree(req_data);
+diff --git a/include/uapi/linux/virtio_pmem.h b/include/uapi/linux/virtio_pmem.h
+index efcd72f2d20d..9a63ed6d062f 100644
+--- a/include/uapi/linux/virtio_pmem.h
++++ b/include/uapi/linux/virtio_pmem.h
+@@ -23,12 +23,12 @@ struct virtio_pmem_config {
+ 
+ struct virtio_pmem_resp {
+ 	/* Host return status corresponding to flush request */
+-	__u32 ret;
++	__le32 ret;
+ };
+ 
+ struct virtio_pmem_req {
+ 	/* command type */
+-	__u32 type;
++	__le32 type;
+ };
+ 
+ #endif
 -- 
-Martin K. Petersen	Oracle Linux Engineering
+2.14.5
