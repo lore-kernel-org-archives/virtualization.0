@@ -1,19 +1,14 @@
-From: Jason Wang <jasowang@redhat.com>
-Subject: Re: [RFC] virtio-net: share receive_*() and add_recvbuf_*() with
-	virtio-vsock
-Date: Fri, 12 Jul 2019 18:14:39 +0800
-Message-ID: <a514d8a4-3a12-feeb-4467-af7a9fbf5183__9266.7283768364$1562927050$gmane$org@redhat.com>
-References: <20190710153707.twmzgmwqqw3pstos@steredhat>
-	<9574bc38-4c5c-2325-986b-430e4a2b6661@redhat.com>
-	<20190711114134.xhmpciyglb2angl6@steredhat>
-	<20190711152855-mutt-send-email-mst@kernel.org>
-	<20190712100033.xs3xesz2plfwj3ag@steredhat>
+From: "Michael S. Tsirkin" <mst@redhat.com>
+Subject: Re: [PATCH v3] virtio_pmem: fix sparse warning
+Date: Fri, 12 Jul 2019 10:10:51 -0400
+Message-ID: <20190712101021-mutt-send-email-mst__44709.9790837214$1562941136$gmane$org@kernel.org>
+References: <20190712051610.15478-1-pagupta@redhat.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="utf-8"; Format="flowed"
-Content-Transfer-Encoding: base64
+Content-Type: text/plain; charset="us-ascii"
+Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <20190712100033.xs3xesz2plfwj3ag@steredhat>
-Content-Language: en-US
+Content-Disposition: inline
+In-Reply-To: <20190712051610.15478-1-pagupta@redhat.com>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -23,154 +18,82 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Stefano Garzarella <sgarzare@redhat.com>, "Michael S. Tsirkin" <mst@redhat.com>
-Cc: netdev@vger.kernel.org, Stefan Hajnoczi <stefanha@redhat.com>, virtualization@lists.linux-foundation.org
+To: Pankaj Gupta <pagupta@redhat.com>
+Cc: linux-nvdimm@lists.01.org, cohuck@redhat.com, linux-kernel@vger.kernel.org, yuval.shaia@oracle.com, virtualization@lists.linux-foundation.org, dan.j.williams@intel.com, lcapitulino@redhat.com
 List-Id: virtualization@lists.linuxfoundation.org
 
-Ck9uIDIwMTkvNy8xMiDkuIvljYg2OjAwLCBTdGVmYW5vIEdhcnphcmVsbGEgd3JvdGU6Cj4gT24g
-VGh1LCBKdWwgMTEsIDIwMTkgYXQgMDM6NTI6MjFQTSAtMDQwMCwgTWljaGFlbCBTLiBUc2lya2lu
-IHdyb3RlOgo+PiBPbiBUaHUsIEp1bCAxMSwgMjAxOSBhdCAwMTo0MTozNFBNICswMjAwLCBTdGVm
-YW5vIEdhcnphcmVsbGEgd3JvdGU6Cj4+PiBPbiBUaHUsIEp1bCAxMSwgMjAxOSBhdCAwMzozNzow
-MFBNICswODAwLCBKYXNvbiBXYW5nIHdyb3RlOgo+Pj4+IE9uIDIwMTkvNy8xMCDkuIvljYgxMToz
-NywgU3RlZmFubyBHYXJ6YXJlbGxhIHdyb3RlOgo+Pj4+PiBIaSwKPj4+Pj4gYXMgSmFzb24gc3Vn
-Z2VzdGVkIHNvbWUgbW9udGhzIGFnbywgSSBsb29rZWQgYmV0dGVyIGF0IHRoZSB2aXJ0aW8tbmV0
-IGRyaXZlciB0bwo+Pj4+PiB1bmRlcnN0YW5kIGlmIHdlIGNhbiByZXVzZSBzb21lIHBhcnRzIGFs
-c28gaW4gdGhlIHZpcnRpby12c29jayBkcml2ZXIsIHNpbmNlIHdlCj4+Pj4+IGhhdmUgc2ltaWxh
-ciBjaGFsbGVuZ2VzIChtZXJnZWFibGUgYnVmZmVycywgcGFnZSBhbGxvY2F0aW9uLCBzbWFsbAo+
-Pj4+PiBwYWNrZXRzLCBldGMuKS4KPj4+Pj4KPj4+Pj4gSW5pdGlhbGx5LCBJIHdvdWxkIGFkZCB0
-aGUgc2tidWZmIGluIHRoZSB2aXJ0aW8tdnNvY2sgaW4gb3JkZXIgdG8gcmUtdXNlCj4+Pj4+IHJl
-Y2VpdmVfKigpIGZ1bmN0aW9ucy4KPj4+Pgo+Pj4+IFllcywgdGhhdCB3aWxsIGJlIGEgZ29vZCBz
-dGVwLgo+Pj4+Cj4+PiBPa2F5LCBJJ2xsIGdvIG9uIHRoaXMgd2F5Lgo+Pj4KPj4+Pj4gVGhlbiBJ
-IHdvdWxkIG1vdmUgcmVjZWl2ZV9bc21hbGwsIGJpZywgbWVyZ2VhYmxlXSgpIGFuZAo+Pj4+PiBh
-ZGRfcmVjdmJ1Zl9bc21hbGwsIGJpZywgbWVyZ2VhYmxlXSgpIG91dHNpZGUgb2YgdmlydGlvLW5l
-dCBkcml2ZXIsIGluIG9yZGVyIHRvCj4+Pj4+IGNhbGwgdGhlbSBhbHNvIGZyb20gdmlydGlvLXZz
-b2NrLiBJIG5lZWQgdG8gZG8gc29tZSByZWZhY3RvcmluZyAoZS5nLiBsZWF2ZSB0aGUKPj4+Pj4g
-WERQIHBhcnQgb24gdGhlIHZpcnRpby1uZXQgZHJpdmVyKSwgYnV0IEkgdGhpbmsgaXQgaXMgZmVh
-c2libGUuCj4+Pj4+Cj4+Pj4+IFRoZSBpZGVhIGlzIHRvIGNyZWF0ZSBhIHZpcnRpby1za2IuW2gs
-Y10gd2hlcmUgcHV0IHRoZXNlIGZ1bmN0aW9ucyBhbmQgYSBuZXcKPj4+Pj4gb2JqZWN0IHdoZXJl
-IHN0b3JlcyBzb21lIGF0dHJpYnV0ZXMgbmVlZGVkIChlLmcuIGhkcl9sZW4gKSBhbmQgc3RhdHVz
-IChlLmcuCj4+Pj4+IHNvbWUgZmllbGRzIG9mIHN0cnVjdCByZWNlaXZlX3F1ZXVlKS4KPj4+Pgo+
-Pj4+IE15IHVuZGVyc3RhbmRpbmcgaXMgd2UgY291bGQgYmUgbW9yZSBhbWJpdGlvdXMgaGVyZS4g
-RG8geW91IHNlZSBhbnkgYmxvY2tlcgo+Pj4+IGZvciByZXVzaW5nIHZpcnRpby1uZXQgZGlyZWN0
-bHk/IEl0J3MgYmV0dGVyIHRvIHJldXNlIG5vdCBvbmx5IHRoZSBmdW5jdGlvbnMKPj4+PiBidXQg
-YWxzbyB0aGUgbG9naWMgbGlrZSBOQVBJIHRvIGF2b2lkIHJlLWludmVudGluZyBzb21ldGhpbmcg
-YnVnZ3kgYW5kCj4+Pj4gZHVwbGljYXRlZC4KPj4+Pgo+Pj4gVGhlc2UgYXJlIG15IGNvbmNlcm5z
-Ogo+Pj4gLSB2aXJ0aW8tdnNvY2sgaXMgbm90IGEgIm5ldF9kZXZpY2UiLCBzbyBhIGxvdCBvZiBj
-b2RlIHJlbGF0ZWQgdG8KPj4+ICAgIGV0aHRvb2wsIG5ldCBkZXZpY2VzIChNQUMgYWRkcmVzcywg
-TVRVLCBzcGVlZCwgVkxBTiwgWERQLCBvZmZsb2FkaW5nKSB3aWxsIGJlCj4+PiAgICBub3QgdXNl
-ZCBieSB2aXJ0aW8tdnNvY2suCgoKTGludXggc3VwcG9ydCBkZXZpY2Ugb3RoZXIgdGhhbiBldGhl
-cm5ldCwgc28gaXQgc2hvdWxkIG5vdCBiZSBhIHByb2JsZW0uCgoKPj4+Cj4+PiAtIHZpcnRpby12
-c29jayBoYXMgYSBkaWZmZXJlbnQgaGVhZGVyLiBXZSBjYW4gY29uc2lkZXIgaXQgYXMgcGFydCBv
-Zgo+Pj4gICAgdmlydGlvX25ldCBwYXlsb2FkLCBidXQgaXQgcHJlY2x1ZGVzIHRoZSBjb21wYXRp
-YmlsaXR5IHdpdGggb2xkIGhvc3RzLiBUaGlzCj4+PiAgICB3YXMgb25lIG9mIHRoZSBtYWpvciBk
-b3VidHMgdGhhdCBtYWRlIG1lIHRoaW5rIGFib3V0IHVzaW5nIG9ubHkgdGhlCj4+PiAgICBzZW5k
-L3JlY3Ygc2tidWZmIGZ1bmN0aW9ucywgdGhhdCBpdCBzaG91bGRuJ3QgYnJlYWsgdGhlIGNvbXBh
-dGliaWxpdHkuCgoKV2UgY2FuIGV4dGVuZCB0aGUgY3VycmVudCB2bmV0IGhlYWRlciBoZWxwZXIg
-Zm9yIGl0IHRvIHdvcmsgZm9yIHZzb2NrLgoKCj4+Pgo+Pj4+PiBUaGlzIGlzIGFuIGlkZWEgb2Yg
-dmlydGlvLXNrYi5oIHRoYXQKPj4+Pj4gSSBoYXZlIGluIG1pbmQ6Cj4+Pj4+ICAgICAgIHN0cnVj
-dCB2aXJ0c2tiOwo+Pj4+Cj4+Pj4gV2hhdCBmaWVsZHMgZG8geW91IHdhbnQgdG8gc3RvcmUgaW4g
-dmlydHNrYj8gSXQgbG9va3MgdG8gYmUgZXhpc3Qgc2tfYnVmZiBpcwo+Pj4+IGZsZXhpYmxlIGVu
-b3VnaCB0byB1cz8KPj4+IE15IGlkZWEgaXMgdG8gc3RvcmUgcXVldWVzIGluZm9ybWF0aW9uLCBs
-aWtlIHN0cnVjdCByZWNlaXZlX3F1ZXVlIG9yCj4+PiBzdHJ1Y3Qgc2VuZF9xdWV1ZSwgYW5kIHNv
-bWUgZGV2aWNlIGF0dHJpYnV0ZXMgKGUuZy4gaGRyX2xlbiApLgoKCklmIHlvdSByZXVzZSBza2Ig
-b3IgdmlydG5ldF9pbmZvLCB0aGVyZSBpcyBub3QgbmVjZXNzYXJ5LgoKCj4+Pgo+Pj4+Cj4+Pj4+
-ICAgICAgIHN0cnVjdCBza19idWZmICp2aXJ0c2tiX3JlY2VpdmVfc21hbGwoc3RydWN0IHZpcnRz
-a2IgKnZzLCAuLi4pOwo+Pj4+PiAgICAgICBzdHJ1Y3Qgc2tfYnVmZiAqdmlydHNrYl9yZWNlaXZl
-X2JpZyhzdHJ1Y3QgdmlydHNrYiAqdnMsIC4uLik7Cj4+Pj4+ICAgICAgIHN0cnVjdCBza19idWZm
-ICp2aXJ0c2tiX3JlY2VpdmVfbWVyZ2VhYmxlKHN0cnVjdCB2aXJ0c2tiICp2cywgLi4uKTsKPj4+
-Pj4KPj4+Pj4gICAgICAgaW50IHZpcnRza2JfYWRkX3JlY3ZidWZfc21hbGwoc3RydWN0IHZpcnRz
-a2IqdnMsIC4uLik7Cj4+Pj4+ICAgICAgIGludCB2aXJ0c2tiX2FkZF9yZWN2YnVmX2JpZyhzdHJ1
-Y3QgdmlydHNrYiAqdnMsIC4uLik7Cj4+Pj4+ICAgICAgIGludCB2aXJ0c2tiX2FkZF9yZWN2YnVm
-X21lcmdlYWJsZShzdHJ1Y3QgdmlydHNrYiAqdnMsIC4uLik7Cj4+Pj4+Cj4+Pj4+IEZvciB0aGUg
-R3Vlc3QtPkhvc3QgcGF0aCBpdCBzaG91bGQgYmUgZWFzaWVyLCBzbyBtYXliZSBJIGNhbiBhZGQg
-YQo+Pj4+PiAidmlydHNrYl9zZW5kKHN0cnVjdCB2aXJ0c2tiICp2cywgc3RydWN0IHNrX2J1ZmYg
-KnNrYikiIHdpdGggYSBwYXJ0IG9mIHRoZSBjb2RlCj4+Pj4+IG9mIHhtaXRfc2tiKCkuCj4+Pj4K
-Pj4+PiBJIG1heSBtaXNzIHNvbWV0aGluZywgYnV0IEkgZG9uJ3Qgc2VlIGFueSB0aGluZyB0aGF0
-IHByZXZlbnRzIHVzIGZyb20gdXNpbmcKPj4+PiB4bWl0X3NrYigpIGRpcmVjdGx5Lgo+Pj4+Cj4+
-PiBZZXMsIGJ1dCBteSBpbml0aWFsIGlkZWEgd2FzIHRvIG1ha2UgaXQgbW9yZSBwYXJhbWV0cmlj
-IGFuZCBub3QgcmVsYXRlZCB0byB0aGUKPj4+IHZpcnRpb19uZXRfaGRyLCBzbyB0aGUgJ2hkcl9s
-ZW4nIGNvdWxkIGJlIGEgcGFyYW1ldGVyIGFuZCB0aGUKPj4+ICdudW1fYnVmZmVycycgc2hvdWxk
-IGJlIGhhbmRsZWQgYnkgdGhlIGNhbGxlci4KPj4+Cj4+Pj4+IExldCBtZSBrbm93IGlmIHlvdSBo
-YXZlIGluIG1pbmQgYmV0dGVyIG5hbWVzIG9yIGlmIEkgc2hvdWxkIHB1dCB0aGVzZSBmdW5jdGlv
-bgo+Pj4+PiBpbiBhbm90aGVyIHBsYWNlLgo+Pj4+Pgo+Pj4+PiBJIHdvdWxkIGxpa2UgdG8gbGVh
-dmUgdGhlIGNvbnRyb2wgcGFydCBjb21wbGV0ZWx5IHNlcGFyYXRlLCBzbywgZm9yIGV4YW1wbGUs
-Cj4+Pj4+IHRoZSB0d28gZHJpdmVycyB3aWxsIG5lZ290aWF0ZSB0aGUgZmVhdHVyZXMgaW5kZXBl
-bmRlbnRseSBhbmQgdGhleSB3aWxsIGNhbGwKPj4+Pj4gdGhlIHJpZ2h0IHZpcnRza2JfcmVjZWl2
-ZV8qKCkgZnVuY3Rpb24gYmFzZWQgb24gdGhlIG5lZ290aWF0aW9uLgo+Pj4+Cj4+Pj4gSWYgaXQn
-cyBvbmUgdGhlIGlzc3VlIG9mIG5lZ290aWF0aW9uLCB3ZSBjYW4gc2ltcGx5IGNoYW5nZSB0aGUK
-Pj4+PiB2aXJ0bmV0X3Byb2JlKCkgdG8gZGVhbCB3aXRoIGRpZmZlcmVudCBkZXZpY2VzLgo+Pj4+
-Cj4+Pj4KPj4+Pj4gSSBhbHJlYWR5IHN0YXJ0ZWQgdG8gd29yayBvbiBpdCwgYnV0IGJlZm9yZSB0
-byBkbyBtb3JlIHN0ZXBzIGFuZCBzZW5kIGFuIFJGQwo+Pj4+PiBwYXRjaCwgSSB3b3VsZCBsaWtl
-IHRvIGhlYXIgeW91ciBvcGluaW9uLgo+Pj4+PiBEbyB5b3UgdGhpbmsgdGhhdCBtYWtlcyBzZW5z
-ZT8KPj4+Pj4gRG8geW91IHNlZSBhbnkgaXNzdWUgb3IgYSBiZXR0ZXIgc29sdXRpb24/Cj4+Pj4K
-Pj4+PiBJIHN0aWxsIHRoaW5rIHdlIG5lZWQgdG8gc2VlayBhIHdheSBvZiBhZGRpbmcgc29tZSBj
-b2RlcyBvbiB2aXJ0aW8tbmV0LmMKPj4+PiBkaXJlY3RseSBpZiB0aGVyZSdzIG5vIGh1Z2UgZGlm
-ZmVyZW50IGluIHRoZSBwcm9jZXNzaW5nIG9mIFRYL1JYLiBUaGF0IHdvdWxkCj4+Pj4gc2F2ZSB1
-cyBhIGxvdCB0aW1lLgo+Pj4gQWZ0ZXIgdGhlIHJlYWRpbmcgb2YgdGhlIGJ1ZmZlcnMgZnJvbSB0
-aGUgdmlydHF1ZXVlIEkgdGhpbmsgdGhlIHByb2Nlc3MKPj4+IGlzIHNsaWdodGx5IGRpZmZlcmVu
-dCwgYmVjYXVzZSB2aXJ0aW8tbmV0IHdpbGwgaW50ZXJmYWNlIHdpdGggdGhlIG5ldHdvcmsKPj4+
-IHN0YWNrLCB3aGlsZSB2aXJ0aW8tdnNvY2sgd2lsbCBpbnRlcmZhY2Ugd2l0aCB0aGUgdnNvY2st
-Y29yZSAoc29ja2V0KS4KPj4+IFNvIHRoZSB2aXJ0aW8tdnNvY2sgaW1wbGVtZW50cyB0aGUgZm9s
-bG93aW5nOgo+Pj4gLSBjb250cm9sIGZsb3cgbWVjaGFuaXNtIHRvIGF2b2lkIHRvIGxvb3NlIHBh
-Y2tldHMsIGluZm9ybWluZyB0aGUgcGVlcgo+Pj4gICAgYWJvdXQgdGhlIGFtb3VudCBvZiBtZW1v
-cnkgYXZhaWxhYmxlIGluIHRoZSByZWNlaXZlIHF1ZXVlIHVzaW5nIHNvbWUKPj4+ICAgIGZpZWxk
-cyBpbiB0aGUgdmlydGlvX3Zzb2NrX2hkcgo+Pj4gLSBkZS1tdWx0aXBsZXhpbmcgcGFyc2luZyB0
-aGUgdmlydGlvX3Zzb2NrX2hkciBhbmQgY2hvb3NpbmcgdGhlIHJpZ2h0Cj4+PiAgICBzb2NrZXQg
-ZGVwZW5kaW5nIG9uIHRoZSBwb3J0Cj4+PiAtIHNvY2tldCBzdGF0ZSBoYW5kbGluZwoKCkkgdGhp
-bmsgaXQncyBqdXN0IGEgYnJhbmNoLCBmb3IgZXRoZXJuZXQsIGdvIGZvciBuZXR3b3JraW5nIHN0
-YWNrLiAKb3RoZXJ3aXNlIGdvIGZvciB2c29jayBjb3JlPwoKCj4+Pgo+Pj4gV2UgY2FuIHVzZSB0
-aGUgdmlydGlvLW5ldCBhcyB0cmFuc3BvcnQsIGJ1dCB3ZSBzaG91bGQgYWRkIGEgbG90IG9mCj4+
-PiBjb2RlIHRvIHNraXAgIm5ldCBkZXZpY2UiIHN0dWZmIHdoZW4gaXQgaXMgdXNlZCBieSB0aGUg
-dmlydGlvLXZzb2NrLgoKClRoaXMgY291bGQgYmUgYW5vdGhlciBjaG9pY2UsIGJ1dCBjb25zaWRl
-ciBpdCB3YXMgbm90IHRyYW5zcGFyZW50IHRvIHRoZSAKYWRtaW4gYW5kIHJlcXVpcmUgbmV3IGZl
-YXR1cmVzLCB3ZSBtYXkgc2VlayBhIHRyYW5zcGFyZW50IHNvbHV0aW9uIGhlcmUuCgoKPj4+IFRo
-aXMgY291bGQgYnJlYWsgc29tZXRoaW5nIGluIHZpcnRpby1uZXQsIGZvciB0aGlzIHJlYXNvbiwg
-SSB0aG91Z2h0IHRvIHJldXNlCj4+PiBvbmx5IHRoZSBzZW5kL3JlY3YgZnVuY3Rpb25zIHN0YXJ0
-aW5nIGZyb20gdGhlIGlkZWEgdG8gc3BsaXQgdGhlIHZpcnRpby1uZXQKPj4+IGRyaXZlciBpbiB0
-d28gcGFydHM6Cj4+PiBhLiBvbmUgd2l0aCBhbGwgc3R1ZmYgcmVsYXRlZCB0byB0aGUgbmV0d29y
-ayBzdGFjawo+Pj4gYi4gb25lIHdpdGggdGhlIHN0dWZmIG5lZWRlZCB0byBjb21tdW5pY2F0ZSB3
-aXRoIHRoZSBob3N0Cj4+Pgo+Pj4gQW5kIHVzZSBza2J1ZmYgdG8gY29tbXVuaWNhdGUgYmV0d2Vl
-biBwYXJ0cy4gSW4gdGhpcyB3YXksIHZpcnRpby12c29jawo+Pj4gY2FuIHVzZSBvbmx5IHRoZSBi
-IHBhcnQuCj4+Pgo+Pj4gTWF5YmUgd2UgY2FuIGRvIHRoaXMgc3BsaXQgaW4gYSBiZXR0ZXIgd2F5
-LCBidXQgSSdtIG5vdCBzdXJlIGl0IGlzCj4+PiBzaW1wbGUuCj4+Pgo+Pj4gVGhhbmtzLAo+Pj4g
-U3RlZmFubwo+PiBGcmFua2x5LCBza2IgaXMgYSBodWdlIHN0cnVjdHVyZSB3aGljaCBhZGRzIGEg
-bG90IG9mCj4+IG92ZXJoZWFkLiBJIGFtIG5vdCBzdXJlIHRoYXQgdXNpbmcgaXQgaXMgc3VjaCBh
-IGdyZWF0IGlkZWEKPj4gaWYgYnVpbGRpbmcgYSBkZXZpY2UgdGhhdCBkb2VzIG5vdCBoYXZlIHRv
-IGludGVyZmFjZQo+PiB3aXRoIHRoZSBuZXR3b3JraW5nIHN0YWNrLgoKCkkgYmVsaWV2ZSB2c29j
-ayBpcyBtYWlubHkgdXNlZCBmb3Igc3RyZWFtIHBlcmZvcm1hbmNlIG5vdCBmb3IgUFBTLiBTbyAK
-dGhlIGltcGFjdCBzaG91bGQgYmUgbWluaW1hbC4gV2UgY2FuIHVzZSBvdGhlciBtZXRhZGF0YSwg
-anVzdCBuZWVkIApicmFuY2ggaW4gcmVjdl94eHgoKS4KCgo+IFRoYW5rcyBmb3IgdGhlIGFkdmlj
-ZSEKPgo+PiBTbyBJIGFncmVlIHdpdGggSmFzb24gaW4gdGhlb3J5LiBUbyBjbGFyaWZ5LCBoZSBp
-cyBiYXNpY2FsbHkgc2F5aW5nCj4+IGN1cnJlbnQgaW1wbGVtZW50YXRpb24gaXMgYWxsIHdyb25n
-LCBpdCBzaG91bGQgYmUgYSBwcm90b2NvbCBhbmQgd2UKPj4gc2hvdWxkIHRlYWNoIG5ldHdvcmtp
-bmcgc3RhY2sgdGhhdCB0aGVyZSBhcmUgcmVsaWFibGUgbmV0IGRldmljZXMgdGhhdAo+PiBoYW5k
-bGUganVzdCB0aGlzIHByb3RvY29sLiBXZSBjb3VsZCBhZGQgYSBmbGFnIGluIHZpcnRpbyBuZXQg
-dGhhdAo+PiB3aWxsIHNheSBpdCdzIHN1Y2ggYSBkZXZpY2UuCj4+Cj4+IFdoZXRoZXIgaXQncyBk
-b2FibGUsIEkgZG9uJ3Qga25vdywgYW5kIGl0J3MgZGVmaW5pdGVseSBub3Qgc2ltcGxlIC0gaW4K
-Pj4gcGFydGljdWxhciB5b3Ugd2lsbCBoYXZlIHRvIGFsc28gcmUtaW1wbGVtZW50IGV4aXN0aW5n
-IGRldmljZXMgaW4gdGhlc2UKPj4gdGVybXMsIGFuZCBub3QganVzdCB2aXJ0aW8gLSB2bXdhcmUg
-dnNvY2sgdG9vLgoKCk1lcmdpbmcgdnNvY2sgcHJvdG9jb2wgdG8gZXhpc3QgbmV0d29ya2luZyBz
-dGFjayBjb3VsZCBiZSBhIGxvbmcgdGVybSAKZ29hbCwgSSBiZWxpZXZlIGZvciB0aGUgZmlyc3Qg
-cGhhc2UsIHdlIGNhbiBzZWVrIHRvIHVzZSB2aXJ0aW8tbmV0IGZpcnN0LgoKCj4+Cj4+IElmIHlv
-dSB3YW50IHRvIGRvIGEgUE9DIHlvdSBjYW4gYWRkIGEgbmV3IGFkZHJlc3MgZmFtaWx5LAo+PiB0
-aGF0J3MgZWFzaWVyLgo+IFZlcnkgaW50ZXJlc3RpbmchCj4gSSBhZ3JlZSB3aXRoIHlvdS4gSW4g
-dGhpcyB3YXkgd2UgY2FuIGNvbXBsZXRlbHkgc3BsaXQgdGhlIHByb3RvY29sCj4gbG9naWMsIGZy
-b20gdGhlIGRldmljZS4KPgo+IEFzIHlvdSBzYWlkLCBpdCB3aWxsIG5vdCBzaW1wbGUgdG8gZG8s
-IGJ1dCBjYW4gYmUgYW4gb3Bwb3J0dW5pdHkgdG8gbGVhcm4KPiBiZXR0ZXIgdGhlIExpbnV4IG5l
-dHdvcmtpbmcgc3RhY2shCj4gSSdsbCB0cnkgdG8gZG8gYSBQb0Mgd2l0aCBBRl9WU09DSzIgdGhh
-dCB3aWxsIHVzZSB0aGUgdmlydGlvLW5ldC4KCgpJIHN1Z2dlc3QgdG8gZG8gdGhpcyBzdGVwIGJ5
-IHN0ZXA6CgoxKSB1c2UgdmlydGlvLW5ldCBidXQga2VlcCBzb21lIHByb3RvY29sIGxvZ2ljCgoy
-KSBzZXBhcmF0ZSBwcm90b2NvbCBsb2dpYyBhbmQgbWVyZ2UgaXQgdG8gZXhpc3QgTGludXggbmV0
-d29ya2luZyBzdGFjawoKVGhhbmtzCgoKPj4gSnVzdCByZXVzaW5nIHJhbmRvbSBmdW5jdGlvbnMg
-d29uJ3QgaGVscCwgbmV0IHN0YWNrCj4+IGlzIHZlcnkgaGVhdnksIGlmIGl0IG1hbmFnZXMgdG8g
-b3V0cGVyZm9ybSB2c29jayBpdCdzCj4+IGJlY2F1c2UgdnNvY2sgd2FzIG5vdCB3cml0dGVuIHdp
-dGggcGVyZm9ybWFuY2UgaW4gbWluZC4KPj4gQnV0IHRoZSBzbWFydHMgYXJlIGluIHRoZSBjb3Jl
-IG5vdCB2aXJ0aW8gZHJpdmVyLgo+PiBXaGF0IG1ha2VzIHZzb2NrIHNsb3cgaXMgZGVzaWduIGRl
-Y2lzaW9ucyBsaWtlCj4+IHVzaW5nIGEgd29ya3F1ZXVlIHRvIHByb2Nlc3MgcGFja2V0cywKPj4g
-bm90IGJhdGNoaW5nIG1lbW9yeSBtYW5hZ2VtZW50IGV0YyBldGMuCj4+IEFsbCB0aGluZ3MgdGhh
-dCBuZXQgY29yZSBkb2VzIGZvciB2aXJ0aW8gbmV0Lgo+IEdvdCBpdCA6KQo+Cj4gTWljaGFlbCwg
-SmFzb24sIHRoYW5rIHlvdSB2ZXJ5IG11Y2ghIFlvdXIgc3VnZ2VzdGlvbnMgYXJlIHZlcnkgdXNl
-ZnVsIQo+Cj4gU3RlZmFubwpfX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19f
-X19fX19fXwpWaXJ0dWFsaXphdGlvbiBtYWlsaW5nIGxpc3QKVmlydHVhbGl6YXRpb25AbGlzdHMu
-bGludXgtZm91bmRhdGlvbi5vcmcKaHR0cHM6Ly9saXN0cy5saW51eGZvdW5kYXRpb24ub3JnL21h
-aWxtYW4vbGlzdGluZm8vdmlydHVhbGl6YXRpb24=
+On Fri, Jul 12, 2019 at 10:46:10AM +0530, Pankaj Gupta wrote:
+> This patch fixes below sparse warning related to __virtio
+> type in virtio pmem driver. This is reported by Intel test
+> bot on linux-next tree.
+> 
+> nd_virtio.c:56:28: warning: incorrect type in assignment
+>                                 (different base types)
+> nd_virtio.c:56:28:    expected unsigned int [unsigned] [usertype] type
+> nd_virtio.c:56:28:    got restricted __virtio32
+> nd_virtio.c:93:59: warning: incorrect type in argument 2
+>                                 (different base types)
+> nd_virtio.c:93:59:    expected restricted __virtio32 [usertype] val
+> nd_virtio.c:93:59:    got unsigned int [unsigned] [usertype] ret
+> 
+> Reported-by: kbuild test robot <lkp@intel.com>
+> Signed-off-by: Pankaj Gupta <pagupta@redhat.com>
+
+Acked-by: Michael S. Tsirkin <mst@redhat.com>
+
+Pls merge - I assume nvdimm tree?
+
+> ---
+> This fixes a warning, so submitting it as a separate
+> patch on top of virtio pmem series.
+> 
+> v2-> v3
+>  Use __le for req/resp fields - Michael
+> 
+>  drivers/nvdimm/nd_virtio.c       | 4 ++--
+>  include/uapi/linux/virtio_pmem.h | 4 ++--
+>  2 files changed, 4 insertions(+), 4 deletions(-)
+> 
+> diff --git a/drivers/nvdimm/nd_virtio.c b/drivers/nvdimm/nd_virtio.c
+> index 8645275c08c2..10351d5b49fa 100644
+> --- a/drivers/nvdimm/nd_virtio.c
+> +++ b/drivers/nvdimm/nd_virtio.c
+> @@ -53,7 +53,7 @@ static int virtio_pmem_flush(struct nd_region *nd_region)
+>  	init_waitqueue_head(&req_data->host_acked);
+>  	init_waitqueue_head(&req_data->wq_buf);
+>  	INIT_LIST_HEAD(&req_data->list);
+> -	req_data->req.type = cpu_to_virtio32(vdev, VIRTIO_PMEM_REQ_TYPE_FLUSH);
+> +	req_data->req.type = cpu_to_le32(VIRTIO_PMEM_REQ_TYPE_FLUSH);
+>  	sg_init_one(&sg, &req_data->req, sizeof(req_data->req));
+>  	sgs[0] = &sg;
+>  	sg_init_one(&ret, &req_data->resp.ret, sizeof(req_data->resp));
+> @@ -90,7 +90,7 @@ static int virtio_pmem_flush(struct nd_region *nd_region)
+>  	} else {
+>  		/* A host repsonse results in "host_ack" getting called */
+>  		wait_event(req_data->host_acked, req_data->done);
+> -		err = virtio32_to_cpu(vdev, req_data->resp.ret);
+> +		err = le32_to_cpu(req_data->resp.ret);
+>  	}
+>  
+>  	kfree(req_data);
+> diff --git a/include/uapi/linux/virtio_pmem.h b/include/uapi/linux/virtio_pmem.h
+> index efcd72f2d20d..9a63ed6d062f 100644
+> --- a/include/uapi/linux/virtio_pmem.h
+> +++ b/include/uapi/linux/virtio_pmem.h
+> @@ -23,12 +23,12 @@ struct virtio_pmem_config {
+>  
+>  struct virtio_pmem_resp {
+>  	/* Host return status corresponding to flush request */
+> -	__u32 ret;
+> +	__le32 ret;
+>  };
+>  
+>  struct virtio_pmem_req {
+>  	/* command type */
+> -	__u32 type;
+> +	__le32 type;
+>  };
+>  
+>  #endif
+> -- 
+> 2.14.5
