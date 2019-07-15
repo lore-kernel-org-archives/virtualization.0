@@ -1,16 +1,23 @@
-From: Nadav Amit via Virtualization <virtualization@lists.linux-foundation.org>
-Subject: Re: [PATCH v2] x86/paravirt: Drop {read,write}_cr8() hooks
-Date: Mon, 15 Jul 2019 18:17:59 +0000
-Message-ID: <602B4D96-E2A9-45BE-8247-4E3481ED5402__8118.54929649911$1563214693$gmane$org@vmware.com>
-References: <20190715151641.29210-1-andrew.cooper3@citrix.com>
-Reply-To: Nadav Amit <namit@vmware.com>
+From: Thiago Jung Bauermann <bauerman@linux.ibm.com>
+Subject: Re: [RFC PATCH] virtio_ring: Use DMA API if guest memory is encrypted
+Date: Mon, 15 Jul 2019 17:29:06 -0300
+Message-ID: <874l3nnist.fsf__47093.8964559295$1563222593$gmane$org@morokweng.localdomain>
+References: <20190320171027-mutt-send-email-mst@kernel.org>
+	<87tvfvbwpb.fsf@morokweng.localdomain>
+	<20190323165456-mutt-send-email-mst@kernel.org>
+	<87a7go71hz.fsf@morokweng.localdomain>
+	<20190520090939-mutt-send-email-mst@kernel.org>
+	<877ea26tk8.fsf@morokweng.localdomain>
+	<20190603211528-mutt-send-email-mst@kernel.org>
+	<877e96qxm7.fsf@morokweng.localdomain>
+	<20190701092212-mutt-send-email-mst@kernel.org>
+	<87d0id9nah.fsf@morokweng.localdomain>
+	<20190715103411-mutt-send-email-mst@kernel.org>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="utf-8"
-Content-Transfer-Encoding: base64
+Content-Type: text/plain; charset="us-ascii"
+Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <20190715151641.29210-1-andrew.cooper3@citrix.com>
-Content-Language: en-US
-Content-ID: <FD49B339CA227D44BB5DFB367BC85236@namprd05.prod.outlook.com>
+In-reply-to: <20190715103411-mutt-send-email-mst@kernel.org>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -20,30 +27,65 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Andrew Cooper <andrew.cooper3@citrix.com>
-Cc: Juergen Gross <jgross@suse.com>, Feng Tang <feng.tang@intel.com>, Pavel Machek <pavel@ucw.cz>, Peter Zijlstra <peterz@infradead.org>, the arch/x86 maintainers <x86@kernel.org>, "Rafael J. Wysocki" <rjw@rjwysocki.net>, LKML <linux-kernel@vger.kernel.org>, Stephane Eranian <eranian@google.com>, "virtualization@lists.linux-foundation.org" <virtualization@lists.linux-foundation.org>, Borislav Petkov <bp@alien8.de>, Andy Lutomirski <luto@kernel.org>, Boris Ostrovsky <boris.ostrovsky@oracle.com>
+To: "Michael S. Tsirkin" <mst@redhat.com>
+Cc: Mike Anderson <andmike@linux.ibm.com>, Jean-Philippe Brucker <jean-philippe.brucker@arm.com>, Benjamin Herrenschmidt <benh@kernel.crashing.org>, Alexey Kardashevskiy <aik@linux.ibm.com>, Ram Pai <linuxram@us.ibm.com>, linux-kernel@vger.kernel.org, virtualization@lists.linux-foundation.org, Paul Mackerras <paulus@ozlabs.org>, iommu@lists.linux-foundation.org, linuxppc-dev@lists.ozlabs.org, Christoph Hellwig <hch@lst.de>, David Gibson <david@gibson.dropbear.id.au>
 List-Id: virtualization@lists.linuxfoundation.org
 
-PiBPbiBKdWwgMTUsIDIwMTksIGF0IDg6MTYgQU0sIEFuZHJldyBDb29wZXIgPGFuZHJldy5jb29w
-ZXIzQGNpdHJpeC5jb20+IHdyb3RlOg0KPiANCj4gVGhlcmUgaXMgYSBsb3Qgb2YgaW5mcmFzdHJ1
-Y3R1cmUgZm9yIGZ1bmN0aW9uYWxpdHkgd2hpY2ggaXMgdXNlZA0KPiBleGNsdXNpdmVseSBpbiBf
-X3tzYXZlLHJlc3RvcmV9X3Byb2Nlc3Nvcl9zdGF0ZSgpIG9uIHRoZSBzdXNwZW5kL3Jlc3VtZQ0K
-PiBwYXRoLg0KPiANCj4gY3I4IGlzIGFuIGFsaWFzIG9mIEFQSUNfVEFTS1BSSSwgYW5kIEFQSUNf
-VEFTS1BSSSBpcyBzYXZlZC9yZXN0b3JlZCBieQ0KPiBsYXBpY197c3VzcGVuZCxyZXN1bWV9KCku
-ICBTYXZpbmcgYW5kIHJlc3RvcmluZyBjcjggaW5kZXBlbmRlbnRseSBvZiB0aGUNCj4gcmVzdCBv
-ZiB0aGUgTG9jYWwgQVBJQyBzdGF0ZSBpc24ndCBhIGNsZXZlciB0aGluZyB0byBiZSBkb2luZy4N
-Cj4gDQo+IERlbGV0ZSB0aGUgc3VzcGVuZC9yZXN1bWUgY3I4IGhhbmRsaW5nLCB3aGljaCBzaHJp
-bmtzIHRoZSBzaXplIG9mIHN0cnVjdA0KPiBzYXZlZF9jb250ZXh0LCBhbmQgYWxsb3dzIGZvciB0
-aGUgcmVtb3ZhbCBvZiBib3RoIFBWT1BTLg0KDQpJIHRoaW5rIHJlbW92aW5nIHRoZSBpbnRlcmZh
-Y2UgZm9yIENSOCB3cml0ZXMgaXMgYWxzbyBnb29kIHRvIGF2b2lkDQpwb3RlbnRpYWwgY29ycmVj
-dG5lc3MgaXNzdWVzLCBhcyB0aGUgU0RNIHNheXMgKDEwLjguNi4xICJJbnRlcmFjdGlvbiBvZiBU
-YXNrDQpQcmlvcml0aWVzIGJldHdlZW4gQ1I4IGFuZCBBUElD4oCdKToNCg0KIk9wZXJhdGluZyBz
-b2Z0d2FyZSBzaG91bGQgaW1wbGVtZW50IGVpdGhlciBkaXJlY3QgQVBJQyBUUFIgdXBkYXRlcyBv
-ciBDUjgNCnN0eWxlIFRQUiB1cGRhdGVzIGJ1dCBub3QgbWl4IHRoZW0uIFNvZnR3YXJlIGNhbiB1
-c2UgYSBzZXJpYWxpemluZw0KaW5zdHJ1Y3Rpb24gKGZvciBleGFtcGxlLCBDUFVJRCkgdG8gc2Vy
-aWFsaXplIHVwZGF0ZXMgYmV0d2VlbiBNT1YgQ1I4IGFuZA0Kc3RvcmVzIHRvIHRoZSBBUElDLuKA
-nQ0KDQpBbmQgbmF0aXZlX3dyaXRlX2NyOCgpIGRpZCBub3QgZXZlbiBpc3N1ZSBhIHNlcmlhbGl6
-aW5nIGluc3RydWN0aW9uLg0KDQpfX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19f
-X19fX19fX19fXwpWaXJ0dWFsaXphdGlvbiBtYWlsaW5nIGxpc3QKVmlydHVhbGl6YXRpb25AbGlz
-dHMubGludXgtZm91bmRhdGlvbi5vcmcKaHR0cHM6Ly9saXN0cy5saW51eGZvdW5kYXRpb24ub3Jn
-L21haWxtYW4vbGlzdGluZm8vdmlydHVhbGl6YXRpb24=
+
+Michael S. Tsirkin <mst@redhat.com> writes:
+
+> On Sun, Jul 14, 2019 at 02:51:18AM -0300, Thiago Jung Bauermann wrote:
+>>
+>>
+>> Michael S. Tsirkin <mst@redhat.com> writes:
+>>
+>> > So this is what I would call this option:
+>> >
+>> > VIRTIO_F_ACCESS_PLATFORM_IDENTITY_ADDRESS
+>> >
+>> > and the explanation should state that all device
+>> > addresses are translated by the platform to identical
+>> > addresses.
+>> >
+>> > In fact this option then becomes more, not less restrictive
+>> > than VIRTIO_F_ACCESS_PLATFORM - it's a promise
+>> > by guest to only create identity mappings,
+>> > and only before driver_ok is set.
+>> > This option then would always be negotiated together with
+>> > VIRTIO_F_ACCESS_PLATFORM.
+>> >
+>> > Host then must verify that
+>> > 1. full 1:1 mappings are created before driver_ok
+>> >     or can we make sure this happens before features_ok?
+>> >     that would be ideal as we could require that features_ok fails
+>> > 2. mappings are not modified between driver_ok and reset
+>> >     i guess attempts to change them will fail -
+>> >     possibly by causing a guest crash
+>> >     or some other kind of platform-specific error
+>>
+>> I think VIRTIO_F_ACCESS_PLATFORM_IDENTITY_ADDRESS is good, but requiring
+>> it to be accompanied by ACCESS_PLATFORM can be a problem. One reason is
+>> SLOF as I mentioned above, another is that we would be requiring all
+>> guests running on the machine (secure guests or not, since we would use
+>> the same configuration for all guests) to support it. But
+>> ACCESS_PLATFORM is relatively recent so it's a bit early for that. For
+>> instance, Ubuntu 16.04 LTS (which is still supported) doesn't know about
+>> it and wouldn't be able to use the device.
+>
+> OK and your target is to enable use with kernel drivers within
+> guests, right?
+
+Right.
+
+> My question is, we are defining a new flag here, I guess old guests
+> then do not set it. How does it help old guests? Or maybe it's
+> not designed to ...
+
+Indeed. The idea is that QEMU can offer the flag, old guests can reject
+it (or even new guests can reject it, if they decide not to convert into
+secure VMs) and the feature negotiation will succeed with the flag
+unset.
+
+--
+Thiago Jung Bauermann
+IBM Linux Technology Center
