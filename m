@@ -1,13 +1,13 @@
 From: Sasha Levin <sashal@kernel.org>
-Subject: [PATCH AUTOSEL 5.1 105/219] vhost_net: disable zerocopy by default
-Date: Mon, 15 Jul 2019 10:01:46 -0400
-Message-ID: <20190715140341.6443-105-sashal@kernel.org>
-References: <20190715140341.6443-1-sashal@kernel.org>
+Subject: [PATCH AUTOSEL 4.19 079/158] vhost_net: disable zerocopy by default
+Date: Mon, 15 Jul 2019 10:16:50 -0400
+Message-ID: <20190715141809.8445-79-sashal@kernel.org>
+References: <20190715141809.8445-1-sashal@kernel.org>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <20190715140341.6443-1-sashal@kernel.org>
+In-Reply-To: <20190715141809.8445-1-sashal@kernel.org>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -46,7 +46,7 @@ Signed-off-by: Sasha Levin <sashal@kernel.org>
  1 file changed, 1 insertion(+), 1 deletion(-)
 
 diff --git a/drivers/vhost/net.c b/drivers/vhost/net.c
-index df51a35cf537..8beacbee2553 100644
+index 39155d7cc894..ae704658b528 100644
 --- a/drivers/vhost/net.c
 +++ b/drivers/vhost/net.c
 @@ -36,7 +36,7 @@
