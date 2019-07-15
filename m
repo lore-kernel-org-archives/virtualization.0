@@ -1,22 +1,11 @@
-From: Stefano Garzarella <sgarzare@redhat.com>
-Subject: Re: [RFC] virtio-net: share receive_*() and add_recvbuf_*() with
-	virtio-vsock
-Date: Mon, 15 Jul 2019 12:42:20 +0200
-Message-ID: <20190715104220.dy4rty7xzerq2wut@steredhat>
-References: <20190710153707.twmzgmwqqw3pstos@steredhat>
-	<9574bc38-4c5c-2325-986b-430e4a2b6661@redhat.com>
-	<20190711114134.xhmpciyglb2angl6@steredhat>
-	<20190711152855-mutt-send-email-mst@kernel.org>
-	<20190712100033.xs3xesz2plfwj3ag@steredhat>
-	<a514d8a4-3a12-feeb-4467-af7a9fbf5183@redhat.com>
-	<20190715074416.a3s2i5ausognotbn@steredhat>
-	<880c1ad2-7e02-3d5d-82d7-49076cc8d02b@redhat.com>
+From: Juergen Gross <jgross@suse.com>
+Subject: [PATCH 0/2] Remove 32-bit Xen PV guest support
+Date: Mon, 15 Jul 2019 13:37:37 +0200
+Message-ID: <20190715113739.17694-1-jgross__19259.7239905567$1563190679$gmane$org@suse.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-Content-Disposition: inline
-In-Reply-To: <880c1ad2-7e02-3d5d-82d7-49076cc8d02b@redhat.com>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -26,76 +15,49 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Jason Wang <jasowang@redhat.com>
-Cc: netdev@vger.kernel.org, virtualization@lists.linux-foundation.org, Stefan Hajnoczi <stefanha@redhat.com>, "Michael S. Tsirkin" <mst@redhat.com>
+To: xen-devel@lists.xenproject.org, x86@kernel.org, linux-kernel@vger.kernel.org, virtualization@lists.linux-foundation.org
+Cc: Juergen Gross <jgross@suse.com>, Stefano Stabellini <sstabellini@kernel.org>, Alok Kataria <akataria@vmware.com>, Ingo Molnar <mingo@redhat.com>, Borislav Petkov <bp@alien8.de>, Andy Lutomirski <luto@kernel.org>, "H. Peter Anvin" <hpa@zytor.com>, Thomas Gleixner <tglx@linutronix.de>, Boris Ostrovsky <boris.ostrovsky@oracle.com>
 List-Id: virtualization@lists.linuxfoundation.org
 
-On Mon, Jul 15, 2019 at 05:16:09PM +0800, Jason Wang wrote:
-> 
-> > > > > > > >        struct sk_buff *virtskb_receive_small(struct virtskb *vs, ...);
-> > > > > > > >        struct sk_buff *virtskb_receive_big(struct virtskb *vs, ...);
-> > > > > > > >        struct sk_buff *virtskb_receive_mergeable(struct virtskb *vs, ...);
-> > > > > > > > 
-> > > > > > > >        int virtskb_add_recvbuf_small(struct virtskb*vs, ...);
-> > > > > > > >        int virtskb_add_recvbuf_big(struct virtskb *vs, ...);
-> > > > > > > >        int virtskb_add_recvbuf_mergeable(struct virtskb *vs, ...);
-> > > > > > > > 
-> > > > > > > > For the Guest->Host path it should be easier, so maybe I can add a
-> > > > > > > > "virtskb_send(struct virtskb *vs, struct sk_buff *skb)" with a part of the code
-> > > > > > > > of xmit_skb().
-> > > > > > > I may miss something, but I don't see any thing that prevents us from using
-> > > > > > > xmit_skb() directly.
-> > > > > > > 
-> > > > > > Yes, but my initial idea was to make it more parametric and not related to the
-> > > > > > virtio_net_hdr, so the 'hdr_len' could be a parameter and the
-> > > > > > 'num_buffers' should be handled by the caller.
-> > > > > > 
-> > > > > > > > Let me know if you have in mind better names or if I should put these function
-> > > > > > > > in another place.
-> > > > > > > > 
-> > > > > > > > I would like to leave the control part completely separate, so, for example,
-> > > > > > > > the two drivers will negotiate the features independently and they will call
-> > > > > > > > the right virtskb_receive_*() function based on the negotiation.
-> > > > > > > If it's one the issue of negotiation, we can simply change the
-> > > > > > > virtnet_probe() to deal with different devices.
-> > > > > > > 
-> > > > > > > 
-> > > > > > > > I already started to work on it, but before to do more steps and send an RFC
-> > > > > > > > patch, I would like to hear your opinion.
-> > > > > > > > Do you think that makes sense?
-> > > > > > > > Do you see any issue or a better solution?
-> > > > > > > I still think we need to seek a way of adding some codes on virtio-net.c
-> > > > > > > directly if there's no huge different in the processing of TX/RX. That would
-> > > > > > > save us a lot time.
-> > > > > > After the reading of the buffers from the virtqueue I think the process
-> > > > > > is slightly different, because virtio-net will interface with the network
-> > > > > > stack, while virtio-vsock will interface with the vsock-core (socket).
-> > > > > > So the virtio-vsock implements the following:
-> > > > > > - control flow mechanism to avoid to loose packets, informing the peer
-> > > > > >     about the amount of memory available in the receive queue using some
-> > > > > >     fields in the virtio_vsock_hdr
-> > > > > > - de-multiplexing parsing the virtio_vsock_hdr and choosing the right
-> > > > > >     socket depending on the port
-> > > > > > - socket state handling
-> > > 
-> > > I think it's just a branch, for ethernet, go for networking stack. otherwise
-> > > go for vsock core?
-> > > 
-> > Yes, that should work.
-> > 
-> > So, I should refactor the functions that can be called also from the vsock
-> > core, in order to remove "struct net_device *dev" parameter.
-> > Maybe creating some wrappers for the network stack.
-> > 
-> > Otherwise I should create a fake net_device for vsock_core.
-> > 
-> > What do you suggest?
-> 
-> 
-> I'm not quite sure I get the question. Can you just use the one that created
-> by virtio_net?
+The long term plan has been to replace Xen PV guests by PVH. The first
+victim of that plan are now 32-bit PV guests, as those are used only
+rather seldom these days. Xen on x86 requires 64-bit support and with
+Grub2 now supporting PVH officially since version 2.04 there is no
+need to keep 32-bit PV guest support alive in the Linux kernel.
+Additionally Meltdown mitigation is not available in the kernel running
+as 32-bit PV guest, so dropping this mode makes sense from security
+point of view, too.
 
-Sure, sorry but I missed that it is allocated in the virtnet_probe()!
+Juergen Gross (2):
+  x86/xen: remove 32-bit Xen PV guest support
+  x86/paravirt: remove 32-bit support from PARAVIRT_XXL
 
-Thanks,
-Stefano
+ arch/x86/entry/entry_32.S                   |  93 --------
+ arch/x86/entry/vdso/vdso32/vclock_gettime.c |   1 +
+ arch/x86/include/asm/paravirt.h             | 105 +--------
+ arch/x86/include/asm/paravirt_types.h       |  20 --
+ arch/x86/include/asm/pgtable-3level_types.h |   5 -
+ arch/x86/include/asm/proto.h                |   2 +-
+ arch/x86/include/asm/segment.h              |   2 +-
+ arch/x86/include/asm/traps.h                |   2 +-
+ arch/x86/kernel/cpu/common.c                |   8 -
+ arch/x86/kernel/paravirt.c                  |  17 --
+ arch/x86/kernel/paravirt_patch_32.c         |  36 +--
+ arch/x86/xen/Kconfig                        |   3 +-
+ arch/x86/xen/Makefile                       |   4 +-
+ arch/x86/xen/apic.c                         |  17 --
+ arch/x86/xen/enlighten_pv.c                 |  45 +---
+ arch/x86/xen/mmu_pv.c                       | 326 +++-------------------------
+ arch/x86/xen/p2m.c                          |   4 -
+ arch/x86/xen/setup.c                        |  44 +---
+ arch/x86/xen/smp_pv.c                       |  19 +-
+ arch/x86/xen/xen-asm.S                      |  14 --
+ arch/x86/xen/xen-asm_32.S                   | 207 ------------------
+ arch/x86/xen/xen-head.S                     |   6 -
+ arch/x86/xen/xen-ops.h                      |   5 -
+ drivers/xen/Kconfig                         |   4 +-
+ 24 files changed, 57 insertions(+), 932 deletions(-)
+ delete mode 100644 arch/x86/xen/xen-asm_32.S
+
+-- 
+2.16.4
