@@ -1,15 +1,24 @@
-From: Andrew Cooper <andrew.cooper3@citrix.com>
-Subject: Re: [PATCH v2] x86/paravirt: Drop {read,write}_cr8() hooks
-Date: Tue, 16 Jul 2019 00:30:09 +0100
-Message-ID: <4a7592c8-0ee8-f394-c445-4032daf74493__15619.8775208154$1563233426$gmane$org@citrix.com>
-References: <20190715151641.29210-1-andrew.cooper3@citrix.com>
-	<602B4D96-E2A9-45BE-8247-4E3481ED5402@vmware.com>
+From: Benjamin Herrenschmidt <benh@kernel.crashing.org>
+Subject: Re: [RFC PATCH] virtio_ring: Use DMA API if guest memory is encrypted
+Date: Tue, 16 Jul 2019 09:24:06 +1000
+Message-ID: <d5b4f80db724da9d7571b614be76dd8b2b57432e.camel__24066.2994723365$1563235327$gmane$org@kernel.crashing.org>
+References: <20190323165456-mutt-send-email-mst@kernel.org>
+	<87a7go71hz.fsf@morokweng.localdomain>
+	<20190520090939-mutt-send-email-mst@kernel.org>
+	<877ea26tk8.fsf@morokweng.localdomain>
+	<20190603211528-mutt-send-email-mst@kernel.org>
+	<877e96qxm7.fsf@morokweng.localdomain>
+	<20190701092212-mutt-send-email-mst@kernel.org>
+	<87d0id9nah.fsf@morokweng.localdomain>
+	<20190715103411-mutt-send-email-mst@kernel.org>
+	<874l3nnist.fsf@morokweng.localdomain>
+	<20190715163453-mutt-send-email-mst@kernel.org>
+	<8736j7neg8.fsf@morokweng.localdomain>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="utf-8"
-Content-Transfer-Encoding: base64
+Content-Type: text/plain; charset="us-ascii"
+Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <602B4D96-E2A9-45BE-8247-4E3481ED5402@vmware.com>
-Content-Language: en-GB
+In-Reply-To: <8736j7neg8.fsf@morokweng.localdomain>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -19,36 +28,44 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Nadav Amit <namit@vmware.com>
-Cc: Juergen Gross <jgross@suse.com>, Feng Tang <feng.tang@intel.com>, Pavel Machek <pavel@ucw.cz>, Peter Zijlstra <peterz@infradead.org>, the arch/x86 maintainers <x86@kernel.org>, "Rafael J. Wysocki" <rjw@rjwysocki.net>, LKML <linux-kernel@vger.kernel.org>, Stephane Eranian <eranian@google.com>, "virtualization@lists.linux-foundation.org" <virtualization@lists.linux-foundation.org>, Borislav Petkov <bp@alien8.de>, Andy Lutomirski <luto@kernel.org>, Boris Ostrovsky <boris.ostrovsky@oracle.com>
+To: Thiago Jung Bauermann <bauerman@linux.ibm.com>, "Michael S. Tsirkin" <mst@redhat.com>
+Cc: Mike Anderson <andmike@linux.ibm.com>, Jean-Philippe Brucker <jean-philippe.brucker@arm.com>, Alexey Kardashevskiy <aik@linux.ibm.com>, Ram Pai <linuxram@us.ibm.com>, linux-kernel@vger.kernel.org, virtualization@lists.linux-foundation.org, Paul Mackerras <paulus@ozlabs.org>, iommu@lists.linux-foundation.org, linuxppc-dev@lists.ozlabs.org, Christoph Hellwig <hch@lst.de>, David Gibson <david@gibson.dropbear.id.au>
 List-Id: virtualization@lists.linuxfoundation.org
 
-T24gMTUvMDcvMjAxOSAxOToxNywgTmFkYXYgQW1pdCB3cm90ZToKPj4gT24gSnVsIDE1LCAyMDE5
-LCBhdCA4OjE2IEFNLCBBbmRyZXcgQ29vcGVyIDxhbmRyZXcuY29vcGVyM0BjaXRyaXguY29tPiB3
-cm90ZToKPj4KPj4gVGhlcmUgaXMgYSBsb3Qgb2YgaW5mcmFzdHJ1Y3R1cmUgZm9yIGZ1bmN0aW9u
-YWxpdHkgd2hpY2ggaXMgdXNlZAo+PiBleGNsdXNpdmVseSBpbiBfX3tzYXZlLHJlc3RvcmV9X3By
-b2Nlc3Nvcl9zdGF0ZSgpIG9uIHRoZSBzdXNwZW5kL3Jlc3VtZQo+PiBwYXRoLgo+Pgo+PiBjcjgg
-aXMgYW4gYWxpYXMgb2YgQVBJQ19UQVNLUFJJLCBhbmQgQVBJQ19UQVNLUFJJIGlzIHNhdmVkL3Jl
-c3RvcmVkIGJ5Cj4+IGxhcGljX3tzdXNwZW5kLHJlc3VtZX0oKS4gIFNhdmluZyBhbmQgcmVzdG9y
-aW5nIGNyOCBpbmRlcGVuZGVudGx5IG9mIHRoZQo+PiByZXN0IG9mIHRoZSBMb2NhbCBBUElDIHN0
-YXRlIGlzbid0IGEgY2xldmVyIHRoaW5nIHRvIGJlIGRvaW5nLgo+Pgo+PiBEZWxldGUgdGhlIHN1
-c3BlbmQvcmVzdW1lIGNyOCBoYW5kbGluZywgd2hpY2ggc2hyaW5rcyB0aGUgc2l6ZSBvZiBzdHJ1
-Y3QKPj4gc2F2ZWRfY29udGV4dCwgYW5kIGFsbG93cyBmb3IgdGhlIHJlbW92YWwgb2YgYm90aCBQ
-Vk9QUy4KPiBJIHRoaW5rIHJlbW92aW5nIHRoZSBpbnRlcmZhY2UgZm9yIENSOCB3cml0ZXMgaXMg
-YWxzbyBnb29kIHRvIGF2b2lkCj4gcG90ZW50aWFsIGNvcnJlY3RuZXNzIGlzc3VlcywgYXMgdGhl
-IFNETSBzYXlzICgxMC44LjYuMSAiSW50ZXJhY3Rpb24gb2YgVGFzawo+IFByaW9yaXRpZXMgYmV0
-d2VlbiBDUjggYW5kIEFQSUPigJ0pOgo+Cj4gIk9wZXJhdGluZyBzb2Z0d2FyZSBzaG91bGQgaW1w
-bGVtZW50IGVpdGhlciBkaXJlY3QgQVBJQyBUUFIgdXBkYXRlcyBvciBDUjgKPiBzdHlsZSBUUFIg
-dXBkYXRlcyBidXQgbm90IG1peCB0aGVtLiBTb2Z0d2FyZSBjYW4gdXNlIGEgc2VyaWFsaXppbmcK
-PiBpbnN0cnVjdGlvbiAoZm9yIGV4YW1wbGUsIENQVUlEKSB0byBzZXJpYWxpemUgdXBkYXRlcyBi
-ZXR3ZWVuIE1PViBDUjggYW5kCj4gc3RvcmVzIHRvIHRoZSBBUElDLuKAnQo+Cj4gQW5kIG5hdGl2
-ZV93cml0ZV9jcjgoKSBkaWQgbm90IGV2ZW4gaXNzdWUgYSBzZXJpYWxpemluZyBpbnN0cnVjdGlv
-bi4KPgoKR2l2ZW4gaXRzIGxvY2F0aW9uLCB0aGUgb25lIHdyaXRlX2NyOCgpIGlzIGJvdW5kZWQg
-YnkgdHdvIHNlcmlhbGlzaW5nCm9wZXJhdGlvbnMsIHNvIGlzIHNhZmUgaW4gcHJhY3RpY2UuCgpI
-b3dldmVyLCBJIGFncmVlIHdpdGggdGhlIHN0YXRlbWVudCBpbiB0aGUgbWFudWFsLsKgIEkgY291
-bGQgc3VibWl0IGEgdjMKd2l0aCBhbiB1cGRhdGVkIGNvbW1pdCBtZXNzYWdlLCBvciBsZXQgaXQg
-YmUgZml4ZWQgb24gY29tbWl0LsKgIFdoaWNoZXZlcgppcyBlYXNpZXN0LgoKfkFuZHJldwpfX19f
-X19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fXwpWaXJ0dWFsaXphdGlv
-biBtYWlsaW5nIGxpc3QKVmlydHVhbGl6YXRpb25AbGlzdHMubGludXgtZm91bmRhdGlvbi5vcmcK
-aHR0cHM6Ly9saXN0cy5saW51eGZvdW5kYXRpb24ub3JnL21haWxtYW4vbGlzdGluZm8vdmlydHVh
-bGl6YXRpb24=
+On Mon, 2019-07-15 at 19:03 -0300, Thiago Jung Bauermann wrote:
+> > > Indeed. The idea is that QEMU can offer the flag, old guests can
+> > > reject
+> > > it (or even new guests can reject it, if they decide not to
+> > > convert into
+> > > secure VMs) and the feature negotiation will succeed with the
+> > > flag
+> > > unset.
+> > 
+> > OK. And then what does QEMU do? Assume guest is not encrypted I
+> > guess?
+> 
+> There's nothing different that QEMU needs to do, with or without the
+> flag. the perspective of the host, a secure guest and a regular guest
+> work the same way with respect to virtio.
+
+This is *precisely* why I was against adding a flag and touch the
+protocol negociation with qemu in the first place, back when I cared
+about that stuff...
+
+Guys, this has gone in circles over and over again.
+
+This has nothing to do with qemu. Qemu doesn't need to know about this.
+It's entirely guest local. This is why the one-liner in virtio was a
+far better and simpler solution.
+
+This is something the guest does to itself (with the participation of a
+ultravisor but that's not something qemu cares about at this stage, at
+least not as far as virtio is concerned).
+
+Basically, the guest "hides" its memory from the host using a HW secure
+memory facility. As a result, it needs to ensure that all of its DMA
+pages are bounced through insecure pages that aren't hidden. That's it,
+it's all guest side. Qemu shouldn't have to care about it at all.
+
+Cheers,
+Ben.
