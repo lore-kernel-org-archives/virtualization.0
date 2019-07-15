@@ -1,20 +1,21 @@
-From: Stefano Garzarella <sgarzare@redhat.com>
+From: Jason Wang <jasowang@redhat.com>
 Subject: Re: [RFC] virtio-net: share receive_*() and add_recvbuf_*() with
 	virtio-vsock
-Date: Mon, 15 Jul 2019 09:44:16 +0200
-Message-ID: <20190715074416.a3s2i5ausognotbn__22398.3913239621$1563176672$gmane$org@steredhat>
+Date: Mon, 15 Jul 2019 17:16:09 +0800
+Message-ID: <880c1ad2-7e02-3d5d-82d7-49076cc8d02b__35808.1288331718$1563182191$gmane$org@redhat.com>
 References: <20190710153707.twmzgmwqqw3pstos@steredhat>
 	<9574bc38-4c5c-2325-986b-430e4a2b6661@redhat.com>
 	<20190711114134.xhmpciyglb2angl6@steredhat>
 	<20190711152855-mutt-send-email-mst@kernel.org>
 	<20190712100033.xs3xesz2plfwj3ag@steredhat>
 	<a514d8a4-3a12-feeb-4467-af7a9fbf5183@redhat.com>
+	<20190715074416.a3s2i5ausognotbn@steredhat>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="utf-8"
-Content-Transfer-Encoding: base64
+Content-Type: text/plain; charset="us-ascii"; Format="flowed"
+Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-Content-Disposition: inline
-In-Reply-To: <a514d8a4-3a12-feeb-4467-af7a9fbf5183@redhat.com>
+In-Reply-To: <20190715074416.a3s2i5ausognotbn@steredhat>
+Content-Language: en-US
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -24,168 +25,73 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Jason Wang <jasowang@redhat.com>
+To: Stefano Garzarella <sgarzare@redhat.com>
 Cc: netdev@vger.kernel.org, virtualization@lists.linux-foundation.org, Stefan Hajnoczi <stefanha@redhat.com>, "Michael S. Tsirkin" <mst@redhat.com>
 List-Id: virtualization@lists.linuxfoundation.org
 
-T24gRnJpLCBKdWwgMTIsIDIwMTkgYXQgMDY6MTQ6MzlQTSArMDgwMCwgSmFzb24gV2FuZyB3cm90
-ZToKPiAKPiBPbiAyMDE5LzcvMTIg5LiL5Y2INjowMCwgU3RlZmFubyBHYXJ6YXJlbGxhIHdyb3Rl
-Ogo+ID4gT24gVGh1LCBKdWwgMTEsIDIwMTkgYXQgMDM6NTI6MjFQTSAtMDQwMCwgTWljaGFlbCBT
-LiBUc2lya2luIHdyb3RlOgo+ID4gPiBPbiBUaHUsIEp1bCAxMSwgMjAxOSBhdCAwMTo0MTozNFBN
-ICswMjAwLCBTdGVmYW5vIEdhcnphcmVsbGEgd3JvdGU6Cj4gPiA+ID4gT24gVGh1LCBKdWwgMTEs
-IDIwMTkgYXQgMDM6Mzc6MDBQTSArMDgwMCwgSmFzb24gV2FuZyB3cm90ZToKPiA+ID4gPiA+IE9u
-IDIwMTkvNy8xMCDkuIvljYgxMTozNywgU3RlZmFubyBHYXJ6YXJlbGxhIHdyb3RlOgo+ID4gPiA+
-ID4gPiBIaSwKPiA+ID4gPiA+ID4gYXMgSmFzb24gc3VnZ2VzdGVkIHNvbWUgbW9udGhzIGFnbywg
-SSBsb29rZWQgYmV0dGVyIGF0IHRoZSB2aXJ0aW8tbmV0IGRyaXZlciB0bwo+ID4gPiA+ID4gPiB1
-bmRlcnN0YW5kIGlmIHdlIGNhbiByZXVzZSBzb21lIHBhcnRzIGFsc28gaW4gdGhlIHZpcnRpby12
-c29jayBkcml2ZXIsIHNpbmNlIHdlCj4gPiA+ID4gPiA+IGhhdmUgc2ltaWxhciBjaGFsbGVuZ2Vz
-IChtZXJnZWFibGUgYnVmZmVycywgcGFnZSBhbGxvY2F0aW9uLCBzbWFsbAo+ID4gPiA+ID4gPiBw
-YWNrZXRzLCBldGMuKS4KPiA+ID4gPiA+ID4gCj4gPiA+ID4gPiA+IEluaXRpYWxseSwgSSB3b3Vs
-ZCBhZGQgdGhlIHNrYnVmZiBpbiB0aGUgdmlydGlvLXZzb2NrIGluIG9yZGVyIHRvIHJlLXVzZQo+
-ID4gPiA+ID4gPiByZWNlaXZlXyooKSBmdW5jdGlvbnMuCj4gPiA+ID4gPiAKPiA+ID4gPiA+IFll
-cywgdGhhdCB3aWxsIGJlIGEgZ29vZCBzdGVwLgo+ID4gPiA+ID4gCj4gPiA+ID4gT2theSwgSSds
-bCBnbyBvbiB0aGlzIHdheS4KPiA+ID4gPiAKPiA+ID4gPiA+ID4gVGhlbiBJIHdvdWxkIG1vdmUg
-cmVjZWl2ZV9bc21hbGwsIGJpZywgbWVyZ2VhYmxlXSgpIGFuZAo+ID4gPiA+ID4gPiBhZGRfcmVj
-dmJ1Zl9bc21hbGwsIGJpZywgbWVyZ2VhYmxlXSgpIG91dHNpZGUgb2YgdmlydGlvLW5ldCBkcml2
-ZXIsIGluIG9yZGVyIHRvCj4gPiA+ID4gPiA+IGNhbGwgdGhlbSBhbHNvIGZyb20gdmlydGlvLXZz
-b2NrLiBJIG5lZWQgdG8gZG8gc29tZSByZWZhY3RvcmluZyAoZS5nLiBsZWF2ZSB0aGUKPiA+ID4g
-PiA+ID4gWERQIHBhcnQgb24gdGhlIHZpcnRpby1uZXQgZHJpdmVyKSwgYnV0IEkgdGhpbmsgaXQg
-aXMgZmVhc2libGUuCj4gPiA+ID4gPiA+IAo+ID4gPiA+ID4gPiBUaGUgaWRlYSBpcyB0byBjcmVh
-dGUgYSB2aXJ0aW8tc2tiLltoLGNdIHdoZXJlIHB1dCB0aGVzZSBmdW5jdGlvbnMgYW5kIGEgbmV3
-Cj4gPiA+ID4gPiA+IG9iamVjdCB3aGVyZSBzdG9yZXMgc29tZSBhdHRyaWJ1dGVzIG5lZWRlZCAo
-ZS5nLiBoZHJfbGVuICkgYW5kIHN0YXR1cyAoZS5nLgo+ID4gPiA+ID4gPiBzb21lIGZpZWxkcyBv
-ZiBzdHJ1Y3QgcmVjZWl2ZV9xdWV1ZSkuCj4gPiA+ID4gPiAKPiA+ID4gPiA+IE15IHVuZGVyc3Rh
-bmRpbmcgaXMgd2UgY291bGQgYmUgbW9yZSBhbWJpdGlvdXMgaGVyZS4gRG8geW91IHNlZSBhbnkg
-YmxvY2tlcgo+ID4gPiA+ID4gZm9yIHJldXNpbmcgdmlydGlvLW5ldCBkaXJlY3RseT8gSXQncyBi
-ZXR0ZXIgdG8gcmV1c2Ugbm90IG9ubHkgdGhlIGZ1bmN0aW9ucwo+ID4gPiA+ID4gYnV0IGFsc28g
-dGhlIGxvZ2ljIGxpa2UgTkFQSSB0byBhdm9pZCByZS1pbnZlbnRpbmcgc29tZXRoaW5nIGJ1Z2d5
-IGFuZAo+ID4gPiA+ID4gZHVwbGljYXRlZC4KPiA+ID4gPiA+IAo+ID4gPiA+IFRoZXNlIGFyZSBt
-eSBjb25jZXJuczoKPiA+ID4gPiAtIHZpcnRpby12c29jayBpcyBub3QgYSAibmV0X2RldmljZSIs
-IHNvIGEgbG90IG9mIGNvZGUgcmVsYXRlZCB0bwo+ID4gPiA+ICAgIGV0aHRvb2wsIG5ldCBkZXZp
-Y2VzIChNQUMgYWRkcmVzcywgTVRVLCBzcGVlZCwgVkxBTiwgWERQLCBvZmZsb2FkaW5nKSB3aWxs
-IGJlCj4gPiA+ID4gICAgbm90IHVzZWQgYnkgdmlydGlvLXZzb2NrLgo+IAo+IAo+IExpbnV4IHN1
-cHBvcnQgZGV2aWNlIG90aGVyIHRoYW4gZXRoZXJuZXQsIHNvIGl0IHNob3VsZCBub3QgYmUgYSBw
-cm9ibGVtLgo+IAo+IAo+ID4gPiA+IAo+ID4gPiA+IC0gdmlydGlvLXZzb2NrIGhhcyBhIGRpZmZl
-cmVudCBoZWFkZXIuIFdlIGNhbiBjb25zaWRlciBpdCBhcyBwYXJ0IG9mCj4gPiA+ID4gICAgdmly
-dGlvX25ldCBwYXlsb2FkLCBidXQgaXQgcHJlY2x1ZGVzIHRoZSBjb21wYXRpYmlsaXR5IHdpdGgg
-b2xkIGhvc3RzLiBUaGlzCj4gPiA+ID4gICAgd2FzIG9uZSBvZiB0aGUgbWFqb3IgZG91YnRzIHRo
-YXQgbWFkZSBtZSB0aGluayBhYm91dCB1c2luZyBvbmx5IHRoZQo+ID4gPiA+ICAgIHNlbmQvcmVj
-diBza2J1ZmYgZnVuY3Rpb25zLCB0aGF0IGl0IHNob3VsZG4ndCBicmVhayB0aGUgY29tcGF0aWJp
-bGl0eS4KPiAKPiAKPiBXZSBjYW4gZXh0ZW5kIHRoZSBjdXJyZW50IHZuZXQgaGVhZGVyIGhlbHBl
-ciBmb3IgaXQgdG8gd29yayBmb3IgdnNvY2suCgpPa2F5LCBJJ2xsIGRvIGl0LgoKPiAKPiAKPiA+
-ID4gPiAKPiA+ID4gPiA+ID4gVGhpcyBpcyBhbiBpZGVhIG9mIHZpcnRpby1za2IuaCB0aGF0Cj4g
-PiA+ID4gPiA+IEkgaGF2ZSBpbiBtaW5kOgo+ID4gPiA+ID4gPiAgICAgICBzdHJ1Y3QgdmlydHNr
-YjsKPiA+ID4gPiA+IAo+ID4gPiA+ID4gV2hhdCBmaWVsZHMgZG8geW91IHdhbnQgdG8gc3RvcmUg
-aW4gdmlydHNrYj8gSXQgbG9va3MgdG8gYmUgZXhpc3Qgc2tfYnVmZiBpcwo+ID4gPiA+ID4gZmxl
-eGlibGUgZW5vdWdoIHRvIHVzPwo+ID4gPiA+IE15IGlkZWEgaXMgdG8gc3RvcmUgcXVldWVzIGlu
-Zm9ybWF0aW9uLCBsaWtlIHN0cnVjdCByZWNlaXZlX3F1ZXVlIG9yCj4gPiA+ID4gc3RydWN0IHNl
-bmRfcXVldWUsIGFuZCBzb21lIGRldmljZSBhdHRyaWJ1dGVzIChlLmcuIGhkcl9sZW4gKS4KPiAK
-PiAKPiBJZiB5b3UgcmV1c2Ugc2tiIG9yIHZpcnRuZXRfaW5mbywgdGhlcmUgaXMgbm90IG5lY2Vz
-c2FyeS4KPiAKCk9rYXkuCgo+IAo+ID4gPiA+IAo+ID4gPiA+ID4gCj4gPiA+ID4gPiA+ICAgICAg
-IHN0cnVjdCBza19idWZmICp2aXJ0c2tiX3JlY2VpdmVfc21hbGwoc3RydWN0IHZpcnRza2IgKnZz
-LCAuLi4pOwo+ID4gPiA+ID4gPiAgICAgICBzdHJ1Y3Qgc2tfYnVmZiAqdmlydHNrYl9yZWNlaXZl
-X2JpZyhzdHJ1Y3QgdmlydHNrYiAqdnMsIC4uLik7Cj4gPiA+ID4gPiA+ICAgICAgIHN0cnVjdCBz
-a19idWZmICp2aXJ0c2tiX3JlY2VpdmVfbWVyZ2VhYmxlKHN0cnVjdCB2aXJ0c2tiICp2cywgLi4u
-KTsKPiA+ID4gPiA+ID4gCj4gPiA+ID4gPiA+ICAgICAgIGludCB2aXJ0c2tiX2FkZF9yZWN2YnVm
-X3NtYWxsKHN0cnVjdCB2aXJ0c2tiKnZzLCAuLi4pOwo+ID4gPiA+ID4gPiAgICAgICBpbnQgdmly
-dHNrYl9hZGRfcmVjdmJ1Zl9iaWcoc3RydWN0IHZpcnRza2IgKnZzLCAuLi4pOwo+ID4gPiA+ID4g
-PiAgICAgICBpbnQgdmlydHNrYl9hZGRfcmVjdmJ1Zl9tZXJnZWFibGUoc3RydWN0IHZpcnRza2Ig
-KnZzLCAuLi4pOwo+ID4gPiA+ID4gPiAKPiA+ID4gPiA+ID4gRm9yIHRoZSBHdWVzdC0+SG9zdCBw
-YXRoIGl0IHNob3VsZCBiZSBlYXNpZXIsIHNvIG1heWJlIEkgY2FuIGFkZCBhCj4gPiA+ID4gPiA+
-ICJ2aXJ0c2tiX3NlbmQoc3RydWN0IHZpcnRza2IgKnZzLCBzdHJ1Y3Qgc2tfYnVmZiAqc2tiKSIg
-d2l0aCBhIHBhcnQgb2YgdGhlIGNvZGUKPiA+ID4gPiA+ID4gb2YgeG1pdF9za2IoKS4KPiA+ID4g
-PiA+IAo+ID4gPiA+ID4gSSBtYXkgbWlzcyBzb21ldGhpbmcsIGJ1dCBJIGRvbid0IHNlZSBhbnkg
-dGhpbmcgdGhhdCBwcmV2ZW50cyB1cyBmcm9tIHVzaW5nCj4gPiA+ID4gPiB4bWl0X3NrYigpIGRp
-cmVjdGx5Lgo+ID4gPiA+ID4gCj4gPiA+ID4gWWVzLCBidXQgbXkgaW5pdGlhbCBpZGVhIHdhcyB0
-byBtYWtlIGl0IG1vcmUgcGFyYW1ldHJpYyBhbmQgbm90IHJlbGF0ZWQgdG8gdGhlCj4gPiA+ID4g
-dmlydGlvX25ldF9oZHIsIHNvIHRoZSAnaGRyX2xlbicgY291bGQgYmUgYSBwYXJhbWV0ZXIgYW5k
-IHRoZQo+ID4gPiA+ICdudW1fYnVmZmVycycgc2hvdWxkIGJlIGhhbmRsZWQgYnkgdGhlIGNhbGxl
-ci4KPiA+ID4gPiAKPiA+ID4gPiA+ID4gTGV0IG1lIGtub3cgaWYgeW91IGhhdmUgaW4gbWluZCBi
-ZXR0ZXIgbmFtZXMgb3IgaWYgSSBzaG91bGQgcHV0IHRoZXNlIGZ1bmN0aW9uCj4gPiA+ID4gPiA+
-IGluIGFub3RoZXIgcGxhY2UuCj4gPiA+ID4gPiA+IAo+ID4gPiA+ID4gPiBJIHdvdWxkIGxpa2Ug
-dG8gbGVhdmUgdGhlIGNvbnRyb2wgcGFydCBjb21wbGV0ZWx5IHNlcGFyYXRlLCBzbywgZm9yIGV4
-YW1wbGUsCj4gPiA+ID4gPiA+IHRoZSB0d28gZHJpdmVycyB3aWxsIG5lZ290aWF0ZSB0aGUgZmVh
-dHVyZXMgaW5kZXBlbmRlbnRseSBhbmQgdGhleSB3aWxsIGNhbGwKPiA+ID4gPiA+ID4gdGhlIHJp
-Z2h0IHZpcnRza2JfcmVjZWl2ZV8qKCkgZnVuY3Rpb24gYmFzZWQgb24gdGhlIG5lZ290aWF0aW9u
-Lgo+ID4gPiA+ID4gCj4gPiA+ID4gPiBJZiBpdCdzIG9uZSB0aGUgaXNzdWUgb2YgbmVnb3RpYXRp
-b24sIHdlIGNhbiBzaW1wbHkgY2hhbmdlIHRoZQo+ID4gPiA+ID4gdmlydG5ldF9wcm9iZSgpIHRv
-IGRlYWwgd2l0aCBkaWZmZXJlbnQgZGV2aWNlcy4KPiA+ID4gPiA+IAo+ID4gPiA+ID4gCj4gPiA+
-ID4gPiA+IEkgYWxyZWFkeSBzdGFydGVkIHRvIHdvcmsgb24gaXQsIGJ1dCBiZWZvcmUgdG8gZG8g
-bW9yZSBzdGVwcyBhbmQgc2VuZCBhbiBSRkMKPiA+ID4gPiA+ID4gcGF0Y2gsIEkgd291bGQgbGlr
-ZSB0byBoZWFyIHlvdXIgb3Bpbmlvbi4KPiA+ID4gPiA+ID4gRG8geW91IHRoaW5rIHRoYXQgbWFr
-ZXMgc2Vuc2U/Cj4gPiA+ID4gPiA+IERvIHlvdSBzZWUgYW55IGlzc3VlIG9yIGEgYmV0dGVyIHNv
-bHV0aW9uPwo+ID4gPiA+ID4gCj4gPiA+ID4gPiBJIHN0aWxsIHRoaW5rIHdlIG5lZWQgdG8gc2Vl
-ayBhIHdheSBvZiBhZGRpbmcgc29tZSBjb2RlcyBvbiB2aXJ0aW8tbmV0LmMKPiA+ID4gPiA+IGRp
-cmVjdGx5IGlmIHRoZXJlJ3Mgbm8gaHVnZSBkaWZmZXJlbnQgaW4gdGhlIHByb2Nlc3Npbmcgb2Yg
-VFgvUlguIFRoYXQgd291bGQKPiA+ID4gPiA+IHNhdmUgdXMgYSBsb3QgdGltZS4KPiA+ID4gPiBB
-ZnRlciB0aGUgcmVhZGluZyBvZiB0aGUgYnVmZmVycyBmcm9tIHRoZSB2aXJ0cXVldWUgSSB0aGlu
-ayB0aGUgcHJvY2Vzcwo+ID4gPiA+IGlzIHNsaWdodGx5IGRpZmZlcmVudCwgYmVjYXVzZSB2aXJ0
-aW8tbmV0IHdpbGwgaW50ZXJmYWNlIHdpdGggdGhlIG5ldHdvcmsKPiA+ID4gPiBzdGFjaywgd2hp
-bGUgdmlydGlvLXZzb2NrIHdpbGwgaW50ZXJmYWNlIHdpdGggdGhlIHZzb2NrLWNvcmUgKHNvY2tl
-dCkuCj4gPiA+ID4gU28gdGhlIHZpcnRpby12c29jayBpbXBsZW1lbnRzIHRoZSBmb2xsb3dpbmc6
-Cj4gPiA+ID4gLSBjb250cm9sIGZsb3cgbWVjaGFuaXNtIHRvIGF2b2lkIHRvIGxvb3NlIHBhY2tl
-dHMsIGluZm9ybWluZyB0aGUgcGVlcgo+ID4gPiA+ICAgIGFib3V0IHRoZSBhbW91bnQgb2YgbWVt
-b3J5IGF2YWlsYWJsZSBpbiB0aGUgcmVjZWl2ZSBxdWV1ZSB1c2luZyBzb21lCj4gPiA+ID4gICAg
-ZmllbGRzIGluIHRoZSB2aXJ0aW9fdnNvY2tfaGRyCj4gPiA+ID4gLSBkZS1tdWx0aXBsZXhpbmcg
-cGFyc2luZyB0aGUgdmlydGlvX3Zzb2NrX2hkciBhbmQgY2hvb3NpbmcgdGhlIHJpZ2h0Cj4gPiA+
-ID4gICAgc29ja2V0IGRlcGVuZGluZyBvbiB0aGUgcG9ydAo+ID4gPiA+IC0gc29ja2V0IHN0YXRl
-IGhhbmRsaW5nCj4gCj4gCj4gSSB0aGluayBpdCdzIGp1c3QgYSBicmFuY2gsIGZvciBldGhlcm5l
-dCwgZ28gZm9yIG5ldHdvcmtpbmcgc3RhY2suIG90aGVyd2lzZQo+IGdvIGZvciB2c29jayBjb3Jl
-Pwo+IAoKWWVzLCB0aGF0IHNob3VsZCB3b3JrLgoKU28sIEkgc2hvdWxkIHJlZmFjdG9yIHRoZSBm
-dW5jdGlvbnMgdGhhdCBjYW4gYmUgY2FsbGVkIGFsc28gZnJvbSB0aGUgdnNvY2sKY29yZSwgaW4g
-b3JkZXIgdG8gcmVtb3ZlICJzdHJ1Y3QgbmV0X2RldmljZSAqZGV2IiBwYXJhbWV0ZXIuCk1heWJl
-IGNyZWF0aW5nIHNvbWUgd3JhcHBlcnMgZm9yIHRoZSBuZXR3b3JrIHN0YWNrLgoKT3RoZXJ3aXNl
-IEkgc2hvdWxkIGNyZWF0ZSBhIGZha2UgbmV0X2RldmljZSBmb3IgdnNvY2tfY29yZS4KCldoYXQg
-ZG8geW91IHN1Z2dlc3Q/Cgo+IAo+ID4gPiA+IAo+ID4gPiA+IFdlIGNhbiB1c2UgdGhlIHZpcnRp
-by1uZXQgYXMgdHJhbnNwb3J0LCBidXQgd2Ugc2hvdWxkIGFkZCBhIGxvdCBvZgo+ID4gPiA+IGNv
-ZGUgdG8gc2tpcCAibmV0IGRldmljZSIgc3R1ZmYgd2hlbiBpdCBpcyB1c2VkIGJ5IHRoZSB2aXJ0
-aW8tdnNvY2suCj4gCj4gCj4gVGhpcyBjb3VsZCBiZSBhbm90aGVyIGNob2ljZSwgYnV0IGNvbnNp
-ZGVyIGl0IHdhcyBub3QgdHJhbnNwYXJlbnQgdG8gdGhlCj4gYWRtaW4gYW5kIHJlcXVpcmUgbmV3
-IGZlYXR1cmVzLCB3ZSBtYXkgc2VlayBhIHRyYW5zcGFyZW50IHNvbHV0aW9uIGhlcmUuCj4gCj4g
-Cj4gPiA+ID4gVGhpcyBjb3VsZCBicmVhayBzb21ldGhpbmcgaW4gdmlydGlvLW5ldCwgZm9yIHRo
-aXMgcmVhc29uLCBJIHRob3VnaHQgdG8gcmV1c2UKPiA+ID4gPiBvbmx5IHRoZSBzZW5kL3JlY3Yg
-ZnVuY3Rpb25zIHN0YXJ0aW5nIGZyb20gdGhlIGlkZWEgdG8gc3BsaXQgdGhlIHZpcnRpby1uZXQK
-PiA+ID4gPiBkcml2ZXIgaW4gdHdvIHBhcnRzOgo+ID4gPiA+IGEuIG9uZSB3aXRoIGFsbCBzdHVm
-ZiByZWxhdGVkIHRvIHRoZSBuZXR3b3JrIHN0YWNrCj4gPiA+ID4gYi4gb25lIHdpdGggdGhlIHN0
-dWZmIG5lZWRlZCB0byBjb21tdW5pY2F0ZSB3aXRoIHRoZSBob3N0Cj4gPiA+ID4gCj4gPiA+ID4g
-QW5kIHVzZSBza2J1ZmYgdG8gY29tbXVuaWNhdGUgYmV0d2VlbiBwYXJ0cy4gSW4gdGhpcyB3YXks
-IHZpcnRpby12c29jawo+ID4gPiA+IGNhbiB1c2Ugb25seSB0aGUgYiBwYXJ0Lgo+ID4gPiA+IAo+
-ID4gPiA+IE1heWJlIHdlIGNhbiBkbyB0aGlzIHNwbGl0IGluIGEgYmV0dGVyIHdheSwgYnV0IEkn
-bSBub3Qgc3VyZSBpdCBpcwo+ID4gPiA+IHNpbXBsZS4KPiA+ID4gPiAKPiA+ID4gPiBUaGFua3Ms
-Cj4gPiA+ID4gU3RlZmFubwo+ID4gPiBGcmFua2x5LCBza2IgaXMgYSBodWdlIHN0cnVjdHVyZSB3
-aGljaCBhZGRzIGEgbG90IG9mCj4gPiA+IG92ZXJoZWFkLiBJIGFtIG5vdCBzdXJlIHRoYXQgdXNp
-bmcgaXQgaXMgc3VjaCBhIGdyZWF0IGlkZWEKPiA+ID4gaWYgYnVpbGRpbmcgYSBkZXZpY2UgdGhh
-dCBkb2VzIG5vdCBoYXZlIHRvIGludGVyZmFjZQo+ID4gPiB3aXRoIHRoZSBuZXR3b3JraW5nIHN0
-YWNrLgo+IAo+IAo+IEkgYmVsaWV2ZSB2c29jayBpcyBtYWlubHkgdXNlZCBmb3Igc3RyZWFtIHBl
-cmZvcm1hbmNlIG5vdCBmb3IgUFBTLiBTbyB0aGUKPiBpbXBhY3Qgc2hvdWxkIGJlIG1pbmltYWwu
-IFdlIGNhbiB1c2Ugb3RoZXIgbWV0YWRhdGEsIGp1c3QgbmVlZCBicmFuY2ggaW4KPiByZWN2X3h4
-eCgpLgo+IAoKWWVzLCBJIHRoaW5rIHN0cmVhbSBwZXJmb3JtYW5jZSBpcyB0aGUgY2FzZS4KCj4g
-Cj4gPiBUaGFua3MgZm9yIHRoZSBhZHZpY2UhCj4gPiAKPiA+ID4gU28gSSBhZ3JlZSB3aXRoIEph
-c29uIGluIHRoZW9yeS4gVG8gY2xhcmlmeSwgaGUgaXMgYmFzaWNhbGx5IHNheWluZwo+ID4gPiBj
-dXJyZW50IGltcGxlbWVudGF0aW9uIGlzIGFsbCB3cm9uZywgaXQgc2hvdWxkIGJlIGEgcHJvdG9j
-b2wgYW5kIHdlCj4gPiA+IHNob3VsZCB0ZWFjaCBuZXR3b3JraW5nIHN0YWNrIHRoYXQgdGhlcmUg
-YXJlIHJlbGlhYmxlIG5ldCBkZXZpY2VzIHRoYXQKPiA+ID4gaGFuZGxlIGp1c3QgdGhpcyBwcm90
-b2NvbC4gV2UgY291bGQgYWRkIGEgZmxhZyBpbiB2aXJ0aW8gbmV0IHRoYXQKPiA+ID4gd2lsbCBz
-YXkgaXQncyBzdWNoIGEgZGV2aWNlLgo+ID4gPiAKPiA+ID4gV2hldGhlciBpdCdzIGRvYWJsZSwg
-SSBkb24ndCBrbm93LCBhbmQgaXQncyBkZWZpbml0ZWx5IG5vdCBzaW1wbGUgLSBpbgo+ID4gPiBw
-YXJ0aWN1bGFyIHlvdSB3aWxsIGhhdmUgdG8gYWxzbyByZS1pbXBsZW1lbnQgZXhpc3RpbmcgZGV2
-aWNlcyBpbiB0aGVzZQo+ID4gPiB0ZXJtcywgYW5kIG5vdCBqdXN0IHZpcnRpbyAtIHZtd2FyZSB2
-c29jayB0b28uCj4gCj4gCj4gTWVyZ2luZyB2c29jayBwcm90b2NvbCB0byBleGlzdCBuZXR3b3Jr
-aW5nIHN0YWNrIGNvdWxkIGJlIGEgbG9uZyB0ZXJtIGdvYWwsCj4gSSBiZWxpZXZlIGZvciB0aGUg
-Zmlyc3QgcGhhc2UsIHdlIGNhbiBzZWVrIHRvIHVzZSB2aXJ0aW8tbmV0IGZpcnN0Lgo+CgpZZXMs
-IEkgYWdyZWUuCgo+IAo+ID4gPiAKPiA+ID4gSWYgeW91IHdhbnQgdG8gZG8gYSBQT0MgeW91IGNh
-biBhZGQgYSBuZXcgYWRkcmVzcyBmYW1pbHksCj4gPiA+IHRoYXQncyBlYXNpZXIuCj4gPiBWZXJ5
-IGludGVyZXN0aW5nIQo+ID4gSSBhZ3JlZSB3aXRoIHlvdS4gSW4gdGhpcyB3YXkgd2UgY2FuIGNv
-bXBsZXRlbHkgc3BsaXQgdGhlIHByb3RvY29sCj4gPiBsb2dpYywgZnJvbSB0aGUgZGV2aWNlLgo+
-ID4gCj4gPiBBcyB5b3Ugc2FpZCwgaXQgd2lsbCBub3Qgc2ltcGxlIHRvIGRvLCBidXQgY2FuIGJl
-IGFuIG9wcG9ydHVuaXR5IHRvIGxlYXJuCj4gPiBiZXR0ZXIgdGhlIExpbnV4IG5ldHdvcmtpbmcg
-c3RhY2shCj4gPiBJJ2xsIHRyeSB0byBkbyBhIFBvQyB3aXRoIEFGX1ZTT0NLMiB0aGF0IHdpbGwg
-dXNlIHRoZSB2aXJ0aW8tbmV0Lgo+IAo+IAo+IEkgc3VnZ2VzdCB0byBkbyB0aGlzIHN0ZXAgYnkg
-c3RlcDoKPiAKPiAxKSB1c2UgdmlydGlvLW5ldCBidXQga2VlcCBzb21lIHByb3RvY29sIGxvZ2lj
-Cj4gCj4gMikgc2VwYXJhdGUgcHJvdG9jb2wgbG9naWMgYW5kIG1lcmdlIGl0IHRvIGV4aXN0IExp
-bnV4IG5ldHdvcmtpbmcgc3RhY2sKCk1ha2Ugc2Vuc2UsIHRoYW5rcyBmb3IgdGhlIHN1Z2dlc3Rp
-b25zLCBJJ2xsIHRyeSB0byBkbyB0aGVzZSBzdGVwcyEKClRoYW5rcywKU3RlZmFubwpfX19fX19f
-X19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fXwpWaXJ0dWFsaXphdGlvbiBt
-YWlsaW5nIGxpc3QKVmlydHVhbGl6YXRpb25AbGlzdHMubGludXgtZm91bmRhdGlvbi5vcmcKaHR0
-cHM6Ly9saXN0cy5saW51eGZvdW5kYXRpb24ub3JnL21haWxtYW4vbGlzdGluZm8vdmlydHVhbGl6
-YXRpb24=
+
+>>>>>>>        struct sk_buff *virtskb_receive_small(struct virtskb *vs, ...);
+>>>>>>>        struct sk_buff *virtskb_receive_big(struct virtskb *vs, ...);
+>>>>>>>        struct sk_buff *virtskb_receive_mergeable(struct virtskb *vs, ...);
+>>>>>>>
+>>>>>>>        int virtskb_add_recvbuf_small(struct virtskb*vs, ...);
+>>>>>>>        int virtskb_add_recvbuf_big(struct virtskb *vs, ...);
+>>>>>>>        int virtskb_add_recvbuf_mergeable(struct virtskb *vs, ...);
+>>>>>>>
+>>>>>>> For the Guest->Host path it should be easier, so maybe I can add a
+>>>>>>> "virtskb_send(struct virtskb *vs, struct sk_buff *skb)" with a part of the code
+>>>>>>> of xmit_skb().
+>>>>>> I may miss something, but I don't see any thing that prevents us from using
+>>>>>> xmit_skb() directly.
+>>>>>>
+>>>>> Yes, but my initial idea was to make it more parametric and not related to the
+>>>>> virtio_net_hdr, so the 'hdr_len' could be a parameter and the
+>>>>> 'num_buffers' should be handled by the caller.
+>>>>>
+>>>>>>> Let me know if you have in mind better names or if I should put these function
+>>>>>>> in another place.
+>>>>>>>
+>>>>>>> I would like to leave the control part completely separate, so, for example,
+>>>>>>> the two drivers will negotiate the features independently and they will call
+>>>>>>> the right virtskb_receive_*() function based on the negotiation.
+>>>>>> If it's one the issue of negotiation, we can simply change the
+>>>>>> virtnet_probe() to deal with different devices.
+>>>>>>
+>>>>>>
+>>>>>>> I already started to work on it, but before to do more steps and send an RFC
+>>>>>>> patch, I would like to hear your opinion.
+>>>>>>> Do you think that makes sense?
+>>>>>>> Do you see any issue or a better solution?
+>>>>>> I still think we need to seek a way of adding some codes on virtio-net.c
+>>>>>> directly if there's no huge different in the processing of TX/RX. That would
+>>>>>> save us a lot time.
+>>>>> After the reading of the buffers from the virtqueue I think the process
+>>>>> is slightly different, because virtio-net will interface with the network
+>>>>> stack, while virtio-vsock will interface with the vsock-core (socket).
+>>>>> So the virtio-vsock implements the following:
+>>>>> - control flow mechanism to avoid to loose packets, informing the peer
+>>>>>     about the amount of memory available in the receive queue using some
+>>>>>     fields in the virtio_vsock_hdr
+>>>>> - de-multiplexing parsing the virtio_vsock_hdr and choosing the right
+>>>>>     socket depending on the port
+>>>>> - socket state handling
+>>
+>> I think it's just a branch, for ethernet, go for networking stack. otherwise
+>> go for vsock core?
+>>
+> Yes, that should work.
+>
+> So, I should refactor the functions that can be called also from the vsock
+> core, in order to remove "struct net_device *dev" parameter.
+> Maybe creating some wrappers for the network stack.
+>
+> Otherwise I should create a fake net_device for vsock_core.
+>
+> What do you suggest?
+
+
+I'm not quite sure I get the question. Can you just use the one that 
+created by virtio_net?
+
+
+Thanks
