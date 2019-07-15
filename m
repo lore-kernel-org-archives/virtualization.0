@@ -1,17 +1,11 @@
 From: Andrew Cooper <andrew.cooper3@citrix.com>
-Subject: Re: [PATCH] x86/paravirt: Drop {read,write}_cr8() hooks
-Date: Mon, 15 Jul 2019 15:53:45 +0100
-Message-ID: <c49f8079-fc3e-8d2e-7e5a-327a7b1bec09@citrix.com>
-References: <20190715130056.10627-1-andrew.cooper3@citrix.com>
-	<a04918d1-975e-5869-1ecd-c9df4ae5b1c1@suse.com>
-	<CALCETrX0T=vzyN8gqoBmA72xwzS45d5bDTfcZQJayht9n9ijPA@mail.gmail.com>
-	<f51ce980-599b-cae3-e3fa-4a67443ea128@suse.com>
+Subject: [PATCH v2] x86/paravirt: Drop {read,write}_cr8() hooks
+Date: Mon, 15 Jul 2019 16:16:41 +0100
+Message-ID: <20190715151641.29210-1-andrew.cooper3__2446.98758922226$1563203823$gmane$org@citrix.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="utf-8"
-Content-Transfer-Encoding: base64
+Content-Type: text/plain; charset="us-ascii"
+Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <f51ce980-599b-cae3-e3fa-4a67443ea128@suse.com>
-Content-Language: en-GB
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -21,31 +15,229 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Juergen Gross <jgross@suse.com>, Andy Lutomirski <luto@kernel.org>
-Cc: FengTang <feng.tang@intel.com>, Peter Zijlstra <peterz@infradead.org>, X86 ML <x86@kernel.org>, "Rafael J.Wysocki" <rjw@rjwysocki.net>, LKML <linux-kernel@vger.kernel.org>, Stephane Eranian <eranian@google.com>, Linux Virtualization <virtualization@lists.linux-foundation.org>, Borislav Petkov <bp@alien8.de>, Pavel Machek <pavel@ucw.cz>, Nadav Amit <namit@vmware.com>, Boris Ostrovsky <boris.ostrovsky@oracle.com>, Alok Kataria <akataria@vmware.com>
+To: LKML <linux-kernel@vger.kernel.org>
+Cc: Juergen Gross <jgross@suse.com>, Feng Tang <feng.tang@intel.com>, Pavel Machek <pavel@ucw.cz>, Peter Zijlstra <peterz@infradead.org>, Andrew Cooper <andrew.cooper3@citrix.com>, x86@kernel.org, "Rafael J. Wysocki" <rjw@rjwysocki.net>, Stephane Eranian <eranian@google.com>, virtualization@lists.linux-foundation.org, Borislav Petkov <bp@alien8.de>, Andy Lutomirski <luto@kernel.org>, Nadav Amit <namit@vmware.com>, Boris Ostrovsky <boris.ostrovsky@oracle.com>
 List-Id: virtualization@lists.linuxfoundation.org
 
-T24gMTUvMDcvMjAxOSAxNTo1MiwgSnVlcmdlbiBHcm9zcyB3cm90ZToKPiBPbiAxNS4wNy4xOSAx
-NjoyNiwgQW5keSBMdXRvbWlyc2tpIHdyb3RlOgo+PiBPbiBNb24sIEp1bCAxNSwgMjAxOSBhdCA2
-OjIzIEFNIEp1ZXJnZW4gR3Jvc3MgPGpncm9zc0BzdXNlLmNvbT4gd3JvdGU6Cj4+Pgo+Pj4gT24g
-MTUuMDcuMTkgMTU6MDAsIEFuZHJldyBDb29wZXIgd3JvdGU6Cj4+Pj4gVGhlcmUgaXMgYSBsb3Qg
-b2YgaW5mcmFzdHJ1Y3R1cmUgZm9yIGZ1bmN0aW9uYWxpdHkgd2hpY2ggaXMgdXNlZAo+Pj4+IGV4
-Y2x1c2l2ZWx5IGluIF9fe3NhdmUscmVzdG9yZX1fcHJvY2Vzc29yX3N0YXRlKCkgb24gdGhlCj4+
-Pj4gc3VzcGVuZC9yZXN1bWUKPj4+PiBwYXRoLgo+Pj4+Cj4+Pj4gY3I4IGlzIGFuIGFsaWFzIG9m
-IEFQSUNfVEFTS1BSSSwgYW5kIEFQSUNfVEFTS1BSSSBpcyBzYXZlZC9yZXN0b3JlZAo+Pj4+IGlu
-ZGVwZW5kZW50bHkgYnkgbGFwaWNfe3N1c3BlbmQscmVzdW1lfSgpLgo+Pj4KPj4+IEFyZW4ndCB0
-aG9zZSBjYWxsZWQgb25seSB3aXRoIENPTkZJR19QTSBzZXQ/Cj4+Pgo+Pgo+Pgo+PiBVbmxlc3Mg
-SSdtIG1pc3Npbmcgc29tZXRoaW5nLCB3ZSBvbmx5IGJ1aWxkIGFueSBvZiB0aGUgcmVzdG9yZSBj
-b2RlCj4+IChpbmNsdWRpbmcgdGhlIHdyaXRlX2NyOCgpIGNhbGwpIGlmIENPTkZJR19QTV9TTEVF
-UCBpcyBzZXQsIGFuZCB0aGF0Cj4+IHNlbGVjdHMgQ09ORklHX1BNLCBzbyB3ZSBzaG91bGQgYmUg
-ZmluZSwgSSB0aGluay4KPj4KPgo+IE9rYXksIGluIHRoYXQgY2FzZSBJJ2Qgc3VnZ2VzdCB0byBy
-ZW1vdmUgImNyOCIgZnJvbSBzdHJ1Y3Qgc2F2ZWRfY29udGV4dAo+IGFzIGl0IHdvbid0IGJlIHVz
-ZWQgYW55IGxvbmdlci4KClRvIGJlIGhvbmVzdCwgc2F2aW5nIGFuZCByZXN0b3Jpbmcgb2YgY3I4
-IHdpdGhvdXQgdGhlIHJlc3Qgb2YgdGhlIExvY2FsCkFQSUMgc3RhdGUgaXMgY29uY2VwdHVhbGx5
-IGJyb2tlbiB0byBiZWdpbiB3aXRoLgoKSWYgdGhlcmUgYXJlIGFueSBidWdzIHJldmVhbGVkIGJ5
-IHRoaXMsIHRoZW4gdGhlIGNvcnJlY3QgZml4ZXMgYXJlCmVsc2V3aGVyZS4KCllvdSdyZSByaWdo
-dCBhYm91dCB0aGUgc2F2ZWRfY29udGV4dC7CoCBJJ2xsIHN1Ym1pdCBhIHYyIHdpdGggYW4gZXZl
-bgpsYXJnZXIgbmVnYXRpdmUgZGlmZnN0YXQuCgp+QW5kcmV3Cl9fX19fX19fX19fX19fX19fX19f
-X19fX19fX19fX19fX19fX19fX19fX19fX19fClZpcnR1YWxpemF0aW9uIG1haWxpbmcgbGlzdApW
-aXJ0dWFsaXphdGlvbkBsaXN0cy5saW51eC1mb3VuZGF0aW9uLm9yZwpodHRwczovL2xpc3RzLmxp
-bnV4Zm91bmRhdGlvbi5vcmcvbWFpbG1hbi9saXN0aW5mby92aXJ0dWFsaXphdGlvbg==
+There is a lot of infrastructure for functionality which is used
+exclusively in __{save,restore}_processor_state() on the suspend/resume
+path.
+
+cr8 is an alias of APIC_TASKPRI, and APIC_TASKPRI is saved/restored by
+lapic_{suspend,resume}().  Saving and restoring cr8 independently of the
+rest of the Local APIC state isn't a clever thing to be doing.
+
+Delete the suspend/resume cr8 handling, which shrinks the size of struct
+saved_context, and allows for the removal of both PVOPS.
+
+Signed-off-by: Andrew Cooper <andrew.cooper3@citrix.com>
+---
+CC: x86@kernel.org
+CC: virtualization@lists.linux-foundation.org
+CC: Borislav Petkov <bp@alien8.de>
+CC: Peter Zijlstra <peterz@infradead.org>
+CC: Andy Lutomirski <luto@kernel.org>
+CC: Nadav Amit <namit@vmware.com>
+CC: Stephane Eranian <eranian@google.com>
+CC: Feng Tang <feng.tang@intel.com>
+CC: Juergen Gross <jgross@suse.com>
+CC: Boris Ostrovsky <boris.ostrovsky@oracle.com>
+CC: "Rafael J. Wysocki" <rjw@rjwysocki.net>
+CC: Pavel Machek <pavel@ucw.cz>
+
+Spotted while reviewing "x86/apic: Initialize TPR to block interrupts 16-31"
+
+https://lore.kernel.org/lkml/dc04a9f8b234d7b0956a8d2560b8945bcd9c4bf7.1563117760.git.luto@kernel.org/
+
+v2:
+ * Drop saved_context.cr8 as well (Juergen)
+ * Remove akataria@vmware.com from the CC list due to bounces
+---
+ arch/x86/include/asm/paravirt.h       | 12 ------------
+ arch/x86/include/asm/paravirt_types.h |  5 -----
+ arch/x86/include/asm/special_insns.h  | 24 ------------------------
+ arch/x86/include/asm/suspend_64.h     |  2 +-
+ arch/x86/kernel/asm-offsets_64.c      |  1 -
+ arch/x86/kernel/paravirt.c            |  4 ----
+ arch/x86/power/cpu.c                  |  4 ----
+ arch/x86/xen/enlighten_pv.c           | 15 ---------------
+ 8 files changed, 1 insertion(+), 66 deletions(-)
+
+diff --git a/arch/x86/include/asm/paravirt.h b/arch/x86/include/asm/paravirt.h
+index c25c38a05c1c..0e4a0539c353 100644
+--- a/arch/x86/include/asm/paravirt.h
++++ b/arch/x86/include/asm/paravirt.h
+@@ -139,18 +139,6 @@ static inline void __write_cr4(unsigned long x)
+ 	PVOP_VCALL1(cpu.write_cr4, x);
+ }
+ 
+-#ifdef CONFIG_X86_64
+-static inline unsigned long read_cr8(void)
+-{
+-	return PVOP_CALL0(unsigned long, cpu.read_cr8);
+-}
+-
+-static inline void write_cr8(unsigned long x)
+-{
+-	PVOP_VCALL1(cpu.write_cr8, x);
+-}
+-#endif
+-
+ static inline void arch_safe_halt(void)
+ {
+ 	PVOP_VCALL0(irq.safe_halt);
+diff --git a/arch/x86/include/asm/paravirt_types.h b/arch/x86/include/asm/paravirt_types.h
+index 946f8f1f1efc..3c775fb5524b 100644
+--- a/arch/x86/include/asm/paravirt_types.h
++++ b/arch/x86/include/asm/paravirt_types.h
+@@ -119,11 +119,6 @@ struct pv_cpu_ops {
+ 
+ 	void (*write_cr4)(unsigned long);
+ 
+-#ifdef CONFIG_X86_64
+-	unsigned long (*read_cr8)(void);
+-	void (*write_cr8)(unsigned long);
+-#endif
+-
+ 	/* Segment descriptor handling */
+ 	void (*load_tr_desc)(void);
+ 	void (*load_gdt)(const struct desc_ptr *);
+diff --git a/arch/x86/include/asm/special_insns.h b/arch/x86/include/asm/special_insns.h
+index 219be88a59d2..6d37b8fcfc77 100644
+--- a/arch/x86/include/asm/special_insns.h
++++ b/arch/x86/include/asm/special_insns.h
+@@ -73,20 +73,6 @@ static inline unsigned long native_read_cr4(void)
+ 
+ void native_write_cr4(unsigned long val);
+ 
+-#ifdef CONFIG_X86_64
+-static inline unsigned long native_read_cr8(void)
+-{
+-	unsigned long cr8;
+-	asm volatile("movq %%cr8,%0" : "=r" (cr8));
+-	return cr8;
+-}
+-
+-static inline void native_write_cr8(unsigned long val)
+-{
+-	asm volatile("movq %0,%%cr8" :: "r" (val) : "memory");
+-}
+-#endif
+-
+ #ifdef CONFIG_X86_INTEL_MEMORY_PROTECTION_KEYS
+ static inline u32 rdpkru(void)
+ {
+@@ -200,16 +186,6 @@ static inline void wbinvd(void)
+ 
+ #ifdef CONFIG_X86_64
+ 
+-static inline unsigned long read_cr8(void)
+-{
+-	return native_read_cr8();
+-}
+-
+-static inline void write_cr8(unsigned long x)
+-{
+-	native_write_cr8(x);
+-}
+-
+ static inline void load_gs_index(unsigned selector)
+ {
+ 	native_load_gs_index(selector);
+diff --git a/arch/x86/include/asm/suspend_64.h b/arch/x86/include/asm/suspend_64.h
+index a7af9f53c0cb..35bb35d28733 100644
+--- a/arch/x86/include/asm/suspend_64.h
++++ b/arch/x86/include/asm/suspend_64.h
+@@ -34,7 +34,7 @@ struct saved_context {
+ 	 */
+ 	unsigned long kernelmode_gs_base, usermode_gs_base, fs_base;
+ 
+-	unsigned long cr0, cr2, cr3, cr4, cr8;
++	unsigned long cr0, cr2, cr3, cr4;
+ 	u64 misc_enable;
+ 	bool misc_enable_saved;
+ 	struct saved_msrs saved_msrs;
+diff --git a/arch/x86/kernel/asm-offsets_64.c b/arch/x86/kernel/asm-offsets_64.c
+index d3d075226c0a..8b54d8e3a561 100644
+--- a/arch/x86/kernel/asm-offsets_64.c
++++ b/arch/x86/kernel/asm-offsets_64.c
+@@ -62,7 +62,6 @@ int main(void)
+ 	ENTRY(cr2);
+ 	ENTRY(cr3);
+ 	ENTRY(cr4);
+-	ENTRY(cr8);
+ 	ENTRY(gdt_desc);
+ 	BLANK();
+ #undef ENTRY
+diff --git a/arch/x86/kernel/paravirt.c b/arch/x86/kernel/paravirt.c
+index 98039d7fb998..de4d4e8a54c1 100644
+--- a/arch/x86/kernel/paravirt.c
++++ b/arch/x86/kernel/paravirt.c
+@@ -311,10 +311,6 @@ struct paravirt_patch_template pv_ops = {
+ 	.cpu.read_cr0		= native_read_cr0,
+ 	.cpu.write_cr0		= native_write_cr0,
+ 	.cpu.write_cr4		= native_write_cr4,
+-#ifdef CONFIG_X86_64
+-	.cpu.read_cr8		= native_read_cr8,
+-	.cpu.write_cr8		= native_write_cr8,
+-#endif
+ 	.cpu.wbinvd		= native_wbinvd,
+ 	.cpu.read_msr		= native_read_msr,
+ 	.cpu.write_msr		= native_write_msr,
+diff --git a/arch/x86/power/cpu.c b/arch/x86/power/cpu.c
+index 24b079e94bc2..1c58d8982728 100644
+--- a/arch/x86/power/cpu.c
++++ b/arch/x86/power/cpu.c
+@@ -122,9 +122,6 @@ static void __save_processor_state(struct saved_context *ctxt)
+ 	ctxt->cr2 = read_cr2();
+ 	ctxt->cr3 = __read_cr3();
+ 	ctxt->cr4 = __read_cr4();
+-#ifdef CONFIG_X86_64
+-	ctxt->cr8 = read_cr8();
+-#endif
+ 	ctxt->misc_enable_saved = !rdmsrl_safe(MSR_IA32_MISC_ENABLE,
+ 					       &ctxt->misc_enable);
+ 	msr_save_context(ctxt);
+@@ -207,7 +204,6 @@ static void notrace __restore_processor_state(struct saved_context *ctxt)
+ #else
+ /* CONFIG X86_64 */
+ 	wrmsrl(MSR_EFER, ctxt->efer);
+-	write_cr8(ctxt->cr8);
+ 	__write_cr4(ctxt->cr4);
+ #endif
+ 	write_cr3(ctxt->cr3);
+diff --git a/arch/x86/xen/enlighten_pv.c b/arch/x86/xen/enlighten_pv.c
+index 4722ba2966ac..27aba18f30e8 100644
+--- a/arch/x86/xen/enlighten_pv.c
++++ b/arch/x86/xen/enlighten_pv.c
+@@ -877,16 +877,6 @@ static void xen_write_cr4(unsigned long cr4)
+ 
+ 	native_write_cr4(cr4);
+ }
+-#ifdef CONFIG_X86_64
+-static inline unsigned long xen_read_cr8(void)
+-{
+-	return 0;
+-}
+-static inline void xen_write_cr8(unsigned long val)
+-{
+-	BUG_ON(val);
+-}
+-#endif
+ 
+ static u64 xen_read_msr_safe(unsigned int msr, int *err)
+ {
+@@ -1022,11 +1012,6 @@ static const struct pv_cpu_ops xen_cpu_ops __initconst = {
+ 
+ 	.write_cr4 = xen_write_cr4,
+ 
+-#ifdef CONFIG_X86_64
+-	.read_cr8 = xen_read_cr8,
+-	.write_cr8 = xen_write_cr8,
+-#endif
+-
+ 	.wbinvd = native_wbinvd,
+ 
+ 	.read_msr = xen_read_msr,
+-- 
+2.11.0
