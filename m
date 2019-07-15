@@ -1,14 +1,13 @@
-From: Andy Lutomirski <luto@kernel.org>
-Subject: Re: [PATCH] x86/paravirt: Drop {read,write}_cr8() hooks
-Date: Mon, 15 Jul 2019 07:26:25 -0700
-Message-ID: <CALCETrX0T=vzyN8gqoBmA72xwzS45d5bDTfcZQJayht9n9ijPA@mail.gmail.com>
-References: <20190715130056.10627-1-andrew.cooper3@citrix.com>
-	<a04918d1-975e-5869-1ecd-c9df4ae5b1c1@suse.com>
+From: Sasha Levin <sashal@kernel.org>
+Subject: [PATCH AUTOSEL 4.14 056/105] vhost_net: disable zerocopy by default
+Date: Mon, 15 Jul 2019 10:27:50 -0400
+Message-ID: <20190715142839.9896-56-sashal@kernel.org>
+References: <20190715142839.9896-1-sashal@kernel.org>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <a04918d1-975e-5869-1ecd-c9df4ae5b1c1@suse.com>
+In-Reply-To: <20190715142839.9896-1-sashal@kernel.org>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -18,24 +17,46 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Juergen Gross <jgross@suse.com>
-Cc: FengTang <feng.tang@intel.com>, Pavel Machek <pavel@ucw.cz>, Peter Zijlstra <peterz@infradead.org>, Andrew Cooper <andrew.cooper3@citrix.com>, X86 ML <x86@kernel.org>, "Rafael J.Wysocki" <rjw@rjwysocki.net>, LKML <linux-kernel@vger.kernel.org>, Stephane Eranian <eranian@google.com>, Linux Virtualization <virtualization@lists.linux-foundation.org>, Borislav Petkov <bp@alien8.de>, Andy Lutomirski <luto@kernel.org>, Nadav Amit <namit@vmware.com>, Boris Ostrovsky <boris.ostrovsky@oracle.com>, Alok Kataria <akataria@vmware.com>
+To: linux-kernel@vger.kernel.org, stable@vger.kernel.org
+Cc: Sasha Levin <sashal@kernel.org>, kvm@vger.kernel.org, "Michael S . Tsirkin" <mst@redhat.com>, netdev@vger.kernel.org, virtualization@lists.linux-foundation.org, "David S . Miller" <davem@davemloft.net>
 List-Id: virtualization@lists.linuxfoundation.org
 
-On Mon, Jul 15, 2019 at 6:23 AM Juergen Gross <jgross@suse.com> wrote:
->
-> On 15.07.19 15:00, Andrew Cooper wrote:
-> > There is a lot of infrastructure for functionality which is used
-> > exclusively in __{save,restore}_processor_state() on the suspend/resume
-> > path.
-> >
-> > cr8 is an alias of APIC_TASKPRI, and APIC_TASKPRI is saved/restored
-> > independently by lapic_{suspend,resume}().
->
-> Aren't those called only with CONFIG_PM set?
->
+From: Jason Wang <jasowang@redhat.com>
 
+[ Upstream commit 098eadce3c622c07b328d0a43dda379b38cf7c5e ]
 
-Unless I'm missing something, we only build any of the restore code
-(including the write_cr8() call) if CONFIG_PM_SLEEP is set, and that
-selects CONFIG_PM, so we should be fine, I think.
+Vhost_net was known to suffer from HOL[1] issues which is not easy to
+fix. Several downstream disable the feature by default. What's more,
+the datapath was split and datacopy path got the support of batching
+and XDP support recently which makes it faster than zerocopy part for
+small packets transmission.
+
+It looks to me that disable zerocopy by default is more
+appropriate. It cold be enabled by default again in the future if we
+fix the above issues.
+
+[1] https://patchwork.kernel.org/patch/3787671/
+
+Signed-off-by: Jason Wang <jasowang@redhat.com>
+Acked-by: Michael S. Tsirkin <mst@redhat.com>
+Signed-off-by: David S. Miller <davem@davemloft.net>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
+---
+ drivers/vhost/net.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
+
+diff --git a/drivers/vhost/net.c b/drivers/vhost/net.c
+index b40e8ded49c6..4d11152e60c1 100644
+--- a/drivers/vhost/net.c
++++ b/drivers/vhost/net.c
+@@ -35,7 +35,7 @@
+ 
+ #include "vhost.h"
+ 
+-static int experimental_zcopytx = 1;
++static int experimental_zcopytx = 0;
+ module_param(experimental_zcopytx, int, 0444);
+ MODULE_PARM_DESC(experimental_zcopytx, "Enable Zero Copy TX;"
+ 		                       " 1 -Enable; 0 - Disable");
+-- 
+2.20.1
