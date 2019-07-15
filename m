@@ -1,16 +1,16 @@
-From: Andrew Cooper <andrew.cooper3@citrix.com>
-Subject: Re: [Xen-devel] [PATCH 0/2] Remove 32-bit Xen PV guest support
-Date: Mon, 15 Jul 2019 18:39:03 +0100
-Message-ID: <bbf1ea2d-1206-eb54-3611-4c9b9fad4aa4__29769.5863105886$1563212365$gmane$org@citrix.com>
+From: Juergen Gross <jgross@suse.com>
+Subject: Re: [PATCH 0/2] Remove 32-bit Xen PV guest support
+Date: Mon, 15 Jul 2019 19:42:34 +0200
+Message-ID: <35d93381-7517-5741-0b81-0839dd46a1fa__792.020051606812$1563212569$gmane$org@suse.com>
 References: <20190715113739.17694-1-jgross@suse.com>
 	<87y30zfe9z.fsf@linux.intel.com>
 	<CALCETrUn=gho5Oug-yYvF2d1WYCe7gvtx+bXuhJ8LTjb9guvuA@mail.gmail.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="utf-8"
-Content-Transfer-Encoding: base64
+Content-Type: text/plain; charset="us-ascii"; Format="flowed"
+Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
 In-Reply-To: <CALCETrUn=gho5Oug-yYvF2d1WYCe7gvtx+bXuhJ8LTjb9guvuA@mail.gmail.com>
-Content-Language: en-GB
+Content-Language: de-DE
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -21,51 +21,47 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
 To: Andy Lutomirski <luto@kernel.org>, Andi Kleen <ak@linux.intel.com>
-Cc: Juergen Gross <jgross@suse.com>, Stefano Stabellini <sstabellini@kernel.org>, Boris Ostrovsky <boris.ostrovsky@oracle.com>, X86 ML <x86@kernel.org>, LKML <linux-kernel@vger.kernel.org>, Linux Virtualization <virtualization@lists.linux-foundation.org>, Ingo Molnar <mingo@redhat.com>, Borislav Petkov <bp@alien8.de>, "H. Peter Anvin" <hpa@zytor.com>, xen-devel <xen-devel@lists.xenproject.org>, Alok Kataria <akataria@vmware.com>, Thomas Gleixner <tglx@linutronix.de>
+Cc: Stefano Stabellini <sstabellini@kernel.org>, X86 ML <x86@kernel.org>, Alok Kataria <akataria@vmware.com>, LKML <linux-kernel@vger.kernel.org>, Linux Virtualization <virtualization@lists.linux-foundation.org>, Ingo Molnar <mingo@redhat.com>, Borislav Petkov <bp@alien8.de>, "H. Peter Anvin" <hpa@zytor.com>, xen-devel <xen-devel@lists.xenproject.org>, Thomas Gleixner <tglx@linutronix.de>, Boris Ostrovsky <boris.ostrovsky@oracle.com>
 List-Id: virtualization@lists.linuxfoundation.org
 
-T24gMTUvMDcvMjAxOSAxODoyOCwgQW5keSBMdXRvbWlyc2tpIHdyb3RlOgo+IE9uIE1vbiwgSnVs
-IDE1LCAyMDE5IGF0IDk6MzQgQU0gQW5kaSBLbGVlbiA8YWtAbGludXguaW50ZWwuY29tPiB3cm90
-ZToKPj4gSnVlcmdlbiBHcm9zcyA8amdyb3NzQHN1c2UuY29tPiB3cml0ZXM6Cj4+Cj4+PiBUaGUg
-bG9uZyB0ZXJtIHBsYW4gaGFzIGJlZW4gdG8gcmVwbGFjZSBYZW4gUFYgZ3Vlc3RzIGJ5IFBWSC4g
-VGhlIGZpcnN0Cj4+PiB2aWN0aW0gb2YgdGhhdCBwbGFuIGFyZSBub3cgMzItYml0IFBWIGd1ZXN0
-cywgYXMgdGhvc2UgYXJlIHVzZWQgb25seQo+Pj4gcmF0aGVyIHNlbGRvbSB0aGVzZSBkYXlzLiBY
-ZW4gb24geDg2IHJlcXVpcmVzIDY0LWJpdCBzdXBwb3J0IGFuZCB3aXRoCj4+PiBHcnViMiBub3cg
-c3VwcG9ydGluZyBQVkggb2ZmaWNpYWxseSBzaW5jZSB2ZXJzaW9uIDIuMDQgdGhlcmUgaXMgbm8K
-Pj4+IG5lZWQgdG8ga2VlcCAzMi1iaXQgUFYgZ3Vlc3Qgc3VwcG9ydCBhbGl2ZSBpbiB0aGUgTGlu
-dXgga2VybmVsLgo+Pj4gQWRkaXRpb25hbGx5IE1lbHRkb3duIG1pdGlnYXRpb24gaXMgbm90IGF2
-YWlsYWJsZSBpbiB0aGUga2VybmVsIHJ1bm5pbmcKPj4+IGFzIDMyLWJpdCBQViBndWVzdCwgc28g
-ZHJvcHBpbmcgdGhpcyBtb2RlIG1ha2VzIHNlbnNlIGZyb20gc2VjdXJpdHkKPj4+IHBvaW50IG9m
-IHZpZXcsIHRvby4KPj4gTm9ybWFsbHkgd2UgaGF2ZSBhIGRlcHJlY2F0aW9uIHBlcmlvZCBmb3Ig
-ZmVhdHVyZSByZW1vdmFscyBsaWtlIHRoaXMuCj4+IFlvdSB3b3VsZCBtYWtlIHRoZSBrZXJuZWwg
-cHJpbnQgYSB3YXJuaW5nIGZvciBzb21lIHJlbGVhc2VzLCBhbmQgd2hlbgo+PiBubyB1c2VyIGNv
-bXBsYWlucyB5b3UgY2FuIHRoZW4gcmVtb3ZlLiBJZiBhIHVzZXIgY29tcGxhaW5zIHlvdSBjYW4n
-dC4KPj4KPiBBcyBJIHVuZGVyc3RhbmQgaXQsIHRoZSBrZXJuZWwgcnVsZXMgZG8gYWxsb3cgY2hh
-bmdlcyBsaWtlIHRoaXMgZXZlbgo+IGlmIHRoZXJlJ3MgYSBjb21wbGFpbnQ6IHRoaXMgaXMgYSBw
-YXRjaCB0aGF0IHJlbW92ZXMgd2hhdCBpcwo+IGVmZmVjdGl2ZWx5IGhhcmR3YXJlIHN1cHBvcnQu
-ICBJZiB0aGUgbWFpbnRlbmFuY2UgY29zdCBleGNlZWRzIHRoZQo+IHZhbHVlLCB0aGVuIHJlbW92
-YWwgaXMgZmFpciBnYW1lLiAgKE9idmlvdXNseSB3ZSB3ZWlnaHQgdGhlIHZhbHVlIHRvCj4gcHJl
-c2VydmluZyBjb21wYXRpYmlsaXR5IHF1aXRlIGhpZ2hseSwgYnV0IGluIHRoaXMgY2FzZSwgWGVu
-IGRyb3BwZWQKPiAzMi1iaXQgaGFyZHdhcmUgc3VwcG9ydCBhIGxvbmcgdGltZSBhZ28uICBJZiB0
-aGUgWGVuIGh5cGVydmlzb3Igc2F5cwo+IHRoYXQgMzItYml0IFBWIGd1ZXN0IHN1cHBvcnQgaXMg
-ZGVwcmVjYXRlZCwgaXQncyBkZXByZWNhdGVkLikKPgo+IFRoYXQgYmVpbmcgc2FpZCwgYSB3YXJu
-aW5nIG1pZ2h0IG5vdCBiZSBhIGJhZCBpZGVhLiAgV2hhdCdzIHRoZQo+IGN1cnJlbnQgc3RhdHVz
-IG9mIHRoaXMgaW4gdXBzdHJlYW0gWGVuPwoKU28gcGVyc29uYWxseSwgSSdkIHByZWZlciB0byBz
-ZWUgc3VwcG9ydCBzdGF5LCBidXQgYXQgdGhlIGVuZCBvZiB0aGUgZGF5Cml0IGlzIEp1ZXJnZW4n
-cyBjaG9pY2UgYXMgdGhlIG1haW50YWluZXIgb2YgdGhlIGNvZGUuCgpYZW4gaXRzZWxmIGhhcyBi
-ZWVuIGV4Y2x1c2l2ZWx5IDY0LWJpdCBzaW5jZSBYZW4gNC4zIChyZWxlYXNlZCBpbiAyMDEzKS4K
-Ck92ZXIgdGltZSwgdmFyaW91cyBmZWF0dXJlcyBsaWtlIFNNRVAvU01BUCBoYXZlIGJlZW4gbWFr
-aW5nIDMyYml0IFBWCmd1ZXN0cyBwcm9ncmVzc2l2ZWx5IHNsb3dlciwgYmVjYXVzZSByaW5nIDEg
-aXMgc3VwZXJ2aXNvciByYXRoZXIgdGhhbgp1c2VyLsKgIFRoaW5ncyBoYXZlIGdvdCBldmVuIHdv
-cnNlIHdpdGggSUJSUywgdG8gdGhlIHBvaW50IGF0IHdoaWNoIDMyYml0ClBWIGd1ZXN0cyBhcmUg
-c3RhcnRpbmcgdG8gcnVuIGxpa2UgdHJlYWNsZS4KClRoZXJlIGFyZSBubyBjdXJyZW50IHBsYW5z
-IHRvIHJlbW92ZSBzdXBwb3J0IGZvciAzMmJpdCBQViBndWVzdHMgZnJvbQpYZW4sIGJ1dCBpdCBp
-cyB2ZXJ5IG11Y2ggaW4gdGhlIGNhdGVnb3J5IG9mICJ5b3Ugc2hvdWxkbid0IGJlIHVzaW5nIHRo
-aXMKbW9kZSBhbnkgbW9yZSIuCgp+QW5kcmV3CgpQLlMuIEkgZG9uJ3Qgc2VlIDY0Yml0IFBWIGd1
-ZXN0IHN1cHBvcnQgZ29pbmcgYW55d2hlcmUsIGJlY2F1c2UgdGhlcmUKYXJlIHN0aWxsIGEgbnVt
-YmVyIG9mIG9wZW4gcGVyZm9ybWFuY2UgcXVlc3Rpb25zIGR1ZSB0byB0aGUgaW5oZXJlbnQKZGlm
-ZmVyZW5jZXMgYmV0d2VlbiBzeXNjYWxsIGFuZCB2bWV4aXQsIGFuZCB0aGUgZGlmZmVyZW5jZSBF
-UFQvTlBUCnRhYmxlcyBtYWtlIG9uIGNyb3NzLWRvbWFpbiBtYXBwaW5ncy4KX19fX19fX19fX19f
-X19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX18KVmlydHVhbGl6YXRpb24gbWFpbGlu
-ZyBsaXN0ClZpcnR1YWxpemF0aW9uQGxpc3RzLmxpbnV4LWZvdW5kYXRpb24ub3JnCmh0dHBzOi8v
-bGlzdHMubGludXhmb3VuZGF0aW9uLm9yZy9tYWlsbWFuL2xpc3RpbmZvL3ZpcnR1YWxpemF0aW9u
+On 15.07.19 19:28, Andy Lutomirski wrote:
+> On Mon, Jul 15, 2019 at 9:34 AM Andi Kleen <ak@linux.intel.com> wrote:
+>>
+>> Juergen Gross <jgross@suse.com> writes:
+>>
+>>> The long term plan has been to replace Xen PV guests by PVH. The first
+>>> victim of that plan are now 32-bit PV guests, as those are used only
+>>> rather seldom these days. Xen on x86 requires 64-bit support and with
+>>> Grub2 now supporting PVH officially since version 2.04 there is no
+>>> need to keep 32-bit PV guest support alive in the Linux kernel.
+>>> Additionally Meltdown mitigation is not available in the kernel running
+>>> as 32-bit PV guest, so dropping this mode makes sense from security
+>>> point of view, too.
+>>
+>> Normally we have a deprecation period for feature removals like this.
+>> You would make the kernel print a warning for some releases, and when
+>> no user complains you can then remove. If a user complains you can't.
+>>
+> 
+> As I understand it, the kernel rules do allow changes like this even
+> if there's a complaint: this is a patch that removes what is
+> effectively hardware support.  If the maintenance cost exceeds the
+> value, then removal is fair game.  (Obviously we weight the value to
+> preserving compatibility quite highly, but in this case, Xen dropped
+> 32-bit hardware support a long time ago.  If the Xen hypervisor says
+> that 32-bit PV guest support is deprecated, it's deprecated.)
+> 
+> That being said, a warning might not be a bad idea.  What's the
+> current status of this in upstream Xen?
+
+Xen still supports that.
+
+We have asked downstream for their opinion about dropping 32-bit PV
+guest support in the kernel about 1 year ago and the common answer was:
+no problem, but for users still wanting 32 bit guests we should wait
+until PVH support is available in all related products. Grub2 was the
+last one missing and as grub2 has released a version with PVH support
+I posted this small series now.
+
+
+Juergen
