@@ -1,23 +1,15 @@
-From: Thiago Jung Bauermann <bauerman@linux.ibm.com>
-Subject: Re: [RFC PATCH] virtio_ring: Use DMA API if guest memory is encrypted
-Date: Mon, 15 Jul 2019 20:05:08 -0300
-Message-ID: <871ryqoq57.fsf__6051.88222123019$1563231946$gmane$org@morokweng.localdomain>
-References: <20190520090939-mutt-send-email-mst@kernel.org>
-	<877ea26tk8.fsf@morokweng.localdomain>
-	<20190603211528-mutt-send-email-mst@kernel.org>
-	<877e96qxm7.fsf@morokweng.localdomain>
-	<20190701092212-mutt-send-email-mst@kernel.org>
-	<87d0id9nah.fsf@morokweng.localdomain>
-	<20190715103411-mutt-send-email-mst@kernel.org>
-	<874l3nnist.fsf@morokweng.localdomain>
-	<20190715163453-mutt-send-email-mst@kernel.org>
-	<8736j7neg8.fsf@morokweng.localdomain>
-	<20190715181449-mutt-send-email-mst@kernel.org>
+From: Andrew Cooper <andrew.cooper3@citrix.com>
+Subject: Re: [PATCH v2] x86/paravirt: Drop {read,write}_cr8() hooks
+Date: Tue, 16 Jul 2019 00:30:09 +0100
+Message-ID: <4a7592c8-0ee8-f394-c445-4032daf74493__15619.8775208154$1563233426$gmane$org@citrix.com>
+References: <20190715151641.29210-1-andrew.cooper3@citrix.com>
+	<602B4D96-E2A9-45BE-8247-4E3481ED5402@vmware.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset="utf-8"
+Content-Transfer-Encoding: base64
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-reply-to: <20190715181449-mutt-send-email-mst@kernel.org>
+In-Reply-To: <602B4D96-E2A9-45BE-8247-4E3481ED5402@vmware.com>
+Content-Language: en-GB
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -27,90 +19,36 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: "Michael S. Tsirkin" <mst@redhat.com>
-Cc: Mike Anderson <andmike@linux.ibm.com>, Jean-Philippe Brucker <jean-philippe.brucker@arm.com>, Benjamin Herrenschmidt <benh@kernel.crashing.org>, Alexey Kardashevskiy <aik@linux.ibm.com>, Ram Pai <linuxram@us.ibm.com>, linux-kernel@vger.kernel.org, virtualization@lists.linux-foundation.org, Paul Mackerras <paulus@ozlabs.org>, iommu@lists.linux-foundation.org, linuxppc-dev@lists.ozlabs.org, Christoph Hellwig <hch@lst.de>, David Gibson <david@gibson.dropbear.id.au>
+To: Nadav Amit <namit@vmware.com>
+Cc: Juergen Gross <jgross@suse.com>, Feng Tang <feng.tang@intel.com>, Pavel Machek <pavel@ucw.cz>, Peter Zijlstra <peterz@infradead.org>, the arch/x86 maintainers <x86@kernel.org>, "Rafael J. Wysocki" <rjw@rjwysocki.net>, LKML <linux-kernel@vger.kernel.org>, Stephane Eranian <eranian@google.com>, "virtualization@lists.linux-foundation.org" <virtualization@lists.linux-foundation.org>, Borislav Petkov <bp@alien8.de>, Andy Lutomirski <luto@kernel.org>, Boris Ostrovsky <boris.ostrovsky@oracle.com>
 List-Id: virtualization@lists.linuxfoundation.org
 
-
-Michael S. Tsirkin <mst@redhat.com> writes:
-
-> On Mon, Jul 15, 2019 at 07:03:03PM -0300, Thiago Jung Bauermann wrote:
->> 
->> Michael S. Tsirkin <mst@redhat.com> writes:
->> 
->> > On Mon, Jul 15, 2019 at 05:29:06PM -0300, Thiago Jung Bauermann wrote:
->> >>
->> >> Michael S. Tsirkin <mst@redhat.com> writes:
->> >>
->> >> > On Sun, Jul 14, 2019 at 02:51:18AM -0300, Thiago Jung Bauermann wrote:
->> >> >>
->> >> >>
->> >> >> Michael S. Tsirkin <mst@redhat.com> writes:
->> >> >>
->> >> >> > So this is what I would call this option:
->> >> >> >
->> >> >> > VIRTIO_F_ACCESS_PLATFORM_IDENTITY_ADDRESS
->> >> >> >
->> >> >> > and the explanation should state that all device
->> >> >> > addresses are translated by the platform to identical
->> >> >> > addresses.
->> >> >> >
->> >> >> > In fact this option then becomes more, not less restrictive
->> >> >> > than VIRTIO_F_ACCESS_PLATFORM - it's a promise
->> >> >> > by guest to only create identity mappings,
->> >> >> > and only before driver_ok is set.
->> >> >> > This option then would always be negotiated together with
->> >> >> > VIRTIO_F_ACCESS_PLATFORM.
->> >> >> >
->> >> >> > Host then must verify that
->> >> >> > 1. full 1:1 mappings are created before driver_ok
->> >> >> >     or can we make sure this happens before features_ok?
->> >> >> >     that would be ideal as we could require that features_ok fails
->> >> >> > 2. mappings are not modified between driver_ok and reset
->> >> >> >     i guess attempts to change them will fail -
->> >> >> >     possibly by causing a guest crash
->> >> >> >     or some other kind of platform-specific error
->> >> >>
->> >> >> I think VIRTIO_F_ACCESS_PLATFORM_IDENTITY_ADDRESS is good, but requiring
->> >> >> it to be accompanied by ACCESS_PLATFORM can be a problem. One reason is
->> >> >> SLOF as I mentioned above, another is that we would be requiring all
->> >> >> guests running on the machine (secure guests or not, since we would use
->> >> >> the same configuration for all guests) to support it. But
->> >> >> ACCESS_PLATFORM is relatively recent so it's a bit early for that. For
->> >> >> instance, Ubuntu 16.04 LTS (which is still supported) doesn't know about
->> >> >> it and wouldn't be able to use the device.
->> >> >
->> >> > OK and your target is to enable use with kernel drivers within
->> >> > guests, right?
->> >>
->> >> Right.
->> >>
->> >> > My question is, we are defining a new flag here, I guess old guests
->> >> > then do not set it. How does it help old guests? Or maybe it's
->> >> > not designed to ...
->> >>
->> >> Indeed. The idea is that QEMU can offer the flag, old guests can reject
->> >> it (or even new guests can reject it, if they decide not to convert into
->> >> secure VMs) and the feature negotiation will succeed with the flag
->> >> unset.
->> >
->> > OK. And then what does QEMU do? Assume guest is not encrypted I guess?
->> 
->> There's nothing different that QEMU needs to do, with or without the
->> flag. the perspective of the host, a secure guest and a regular guest
->> work the same way with respect to virtio.
->
-> OK. So now let's get back to implementation. What will
-> Linux guest driver do? It can't activate DMA API blindly since that
-> will assume translation also works, right?
-
-It can on pseries, because we always have a 1:1 window mapping the whole
-guest memory.
-
-> Or do we somehow limit it to just a specific platform?
-
-Yes, we want to accept the new flag only on secure pseries guests.
-
--- 
-Thiago Jung Bauermann
-IBM Linux Technology Center
+T24gMTUvMDcvMjAxOSAxOToxNywgTmFkYXYgQW1pdCB3cm90ZToKPj4gT24gSnVsIDE1LCAyMDE5
+LCBhdCA4OjE2IEFNLCBBbmRyZXcgQ29vcGVyIDxhbmRyZXcuY29vcGVyM0BjaXRyaXguY29tPiB3
+cm90ZToKPj4KPj4gVGhlcmUgaXMgYSBsb3Qgb2YgaW5mcmFzdHJ1Y3R1cmUgZm9yIGZ1bmN0aW9u
+YWxpdHkgd2hpY2ggaXMgdXNlZAo+PiBleGNsdXNpdmVseSBpbiBfX3tzYXZlLHJlc3RvcmV9X3By
+b2Nlc3Nvcl9zdGF0ZSgpIG9uIHRoZSBzdXNwZW5kL3Jlc3VtZQo+PiBwYXRoLgo+Pgo+PiBjcjgg
+aXMgYW4gYWxpYXMgb2YgQVBJQ19UQVNLUFJJLCBhbmQgQVBJQ19UQVNLUFJJIGlzIHNhdmVkL3Jl
+c3RvcmVkIGJ5Cj4+IGxhcGljX3tzdXNwZW5kLHJlc3VtZX0oKS4gIFNhdmluZyBhbmQgcmVzdG9y
+aW5nIGNyOCBpbmRlcGVuZGVudGx5IG9mIHRoZQo+PiByZXN0IG9mIHRoZSBMb2NhbCBBUElDIHN0
+YXRlIGlzbid0IGEgY2xldmVyIHRoaW5nIHRvIGJlIGRvaW5nLgo+Pgo+PiBEZWxldGUgdGhlIHN1
+c3BlbmQvcmVzdW1lIGNyOCBoYW5kbGluZywgd2hpY2ggc2hyaW5rcyB0aGUgc2l6ZSBvZiBzdHJ1
+Y3QKPj4gc2F2ZWRfY29udGV4dCwgYW5kIGFsbG93cyBmb3IgdGhlIHJlbW92YWwgb2YgYm90aCBQ
+Vk9QUy4KPiBJIHRoaW5rIHJlbW92aW5nIHRoZSBpbnRlcmZhY2UgZm9yIENSOCB3cml0ZXMgaXMg
+YWxzbyBnb29kIHRvIGF2b2lkCj4gcG90ZW50aWFsIGNvcnJlY3RuZXNzIGlzc3VlcywgYXMgdGhl
+IFNETSBzYXlzICgxMC44LjYuMSAiSW50ZXJhY3Rpb24gb2YgVGFzawo+IFByaW9yaXRpZXMgYmV0
+d2VlbiBDUjggYW5kIEFQSUPigJ0pOgo+Cj4gIk9wZXJhdGluZyBzb2Z0d2FyZSBzaG91bGQgaW1w
+bGVtZW50IGVpdGhlciBkaXJlY3QgQVBJQyBUUFIgdXBkYXRlcyBvciBDUjgKPiBzdHlsZSBUUFIg
+dXBkYXRlcyBidXQgbm90IG1peCB0aGVtLiBTb2Z0d2FyZSBjYW4gdXNlIGEgc2VyaWFsaXppbmcK
+PiBpbnN0cnVjdGlvbiAoZm9yIGV4YW1wbGUsIENQVUlEKSB0byBzZXJpYWxpemUgdXBkYXRlcyBi
+ZXR3ZWVuIE1PViBDUjggYW5kCj4gc3RvcmVzIHRvIHRoZSBBUElDLuKAnQo+Cj4gQW5kIG5hdGl2
+ZV93cml0ZV9jcjgoKSBkaWQgbm90IGV2ZW4gaXNzdWUgYSBzZXJpYWxpemluZyBpbnN0cnVjdGlv
+bi4KPgoKR2l2ZW4gaXRzIGxvY2F0aW9uLCB0aGUgb25lIHdyaXRlX2NyOCgpIGlzIGJvdW5kZWQg
+YnkgdHdvIHNlcmlhbGlzaW5nCm9wZXJhdGlvbnMsIHNvIGlzIHNhZmUgaW4gcHJhY3RpY2UuCgpI
+b3dldmVyLCBJIGFncmVlIHdpdGggdGhlIHN0YXRlbWVudCBpbiB0aGUgbWFudWFsLsKgIEkgY291
+bGQgc3VibWl0IGEgdjMKd2l0aCBhbiB1cGRhdGVkIGNvbW1pdCBtZXNzYWdlLCBvciBsZXQgaXQg
+YmUgZml4ZWQgb24gY29tbWl0LsKgIFdoaWNoZXZlcgppcyBlYXNpZXN0LgoKfkFuZHJldwpfX19f
+X19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fXwpWaXJ0dWFsaXphdGlv
+biBtYWlsaW5nIGxpc3QKVmlydHVhbGl6YXRpb25AbGlzdHMubGludXgtZm91bmRhdGlvbi5vcmcK
+aHR0cHM6Ly9saXN0cy5saW51eGZvdW5kYXRpb24ub3JnL21haWxtYW4vbGlzdGluZm8vdmlydHVh
+bGl6YXRpb24=
