@@ -1,24 +1,15 @@
-From: Benjamin Herrenschmidt <benh@kernel.crashing.org>
-Subject: Re: [RFC PATCH] virtio_ring: Use DMA API if guest memory is encrypted
-Date: Tue, 16 Jul 2019 09:24:06 +1000
-Message-ID: <d5b4f80db724da9d7571b614be76dd8b2b57432e.camel__24066.2994723365$1563235327$gmane$org@kernel.crashing.org>
-References: <20190323165456-mutt-send-email-mst@kernel.org>
-	<87a7go71hz.fsf@morokweng.localdomain>
-	<20190520090939-mutt-send-email-mst@kernel.org>
-	<877ea26tk8.fsf@morokweng.localdomain>
-	<20190603211528-mutt-send-email-mst@kernel.org>
-	<877e96qxm7.fsf@morokweng.localdomain>
-	<20190701092212-mutt-send-email-mst@kernel.org>
-	<87d0id9nah.fsf@morokweng.localdomain>
-	<20190715103411-mutt-send-email-mst@kernel.org>
-	<874l3nnist.fsf@morokweng.localdomain>
-	<20190715163453-mutt-send-email-mst@kernel.org>
-	<8736j7neg8.fsf@morokweng.localdomain>
+From: Andy Lutomirski <luto@kernel.org>
+Subject: Re: [PATCH v2] x86/paravirt: Drop {read,write}_cr8() hooks
+Date: Mon, 15 Jul 2019 17:05:04 -0700
+Message-ID: <CALCETrWBO6dUNzkyD12ZfEQ+biN8rhrWxm8YoNhgisDd2Spujg@mail.gmail.com>
+References: <20190715151641.29210-1-andrew.cooper3@citrix.com>
+	<602B4D96-E2A9-45BE-8247-4E3481ED5402@vmware.com>
+	<4a7592c8-0ee8-f394-c445-4032daf74493@citrix.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset="utf-8"
+Content-Transfer-Encoding: base64
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <8736j7neg8.fsf@morokweng.localdomain>
+In-Reply-To: <4a7592c8-0ee8-f394-c445-4032daf74493@citrix.com>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -28,44 +19,45 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Thiago Jung Bauermann <bauerman@linux.ibm.com>, "Michael S. Tsirkin" <mst@redhat.com>
-Cc: Mike Anderson <andmike@linux.ibm.com>, Jean-Philippe Brucker <jean-philippe.brucker@arm.com>, Alexey Kardashevskiy <aik@linux.ibm.com>, Ram Pai <linuxram@us.ibm.com>, linux-kernel@vger.kernel.org, virtualization@lists.linux-foundation.org, Paul Mackerras <paulus@ozlabs.org>, iommu@lists.linux-foundation.org, linuxppc-dev@lists.ozlabs.org, Christoph Hellwig <hch@lst.de>, David Gibson <david@gibson.dropbear.id.au>
+To: Andrew Cooper <andrew.cooper3@citrix.com>
+Cc: Juergen Gross <jgross@suse.com>, Feng Tang <feng.tang@intel.com>, Pavel Machek <pavel@ucw.cz>, Peter Zijlstra <peterz@infradead.org>, the arch/x86 maintainers <x86@kernel.org>, "Rafael J. Wysocki" <rjw@rjwysocki.net>, LKML <linux-kernel@vger.kernel.org>, Stephane Eranian <eranian@google.com>, "virtualization@lists.linux-foundation.org" <virtualization@lists.linux-foundation.org>, Borislav Petkov <bp@alien8.de>, Andy Lutomirski <luto@kernel.org>, Nadav Amit <namit@vmware.com>, Boris Ostrovsky <boris.ostrovsky@oracle.com>
 List-Id: virtualization@lists.linuxfoundation.org
 
-On Mon, 2019-07-15 at 19:03 -0300, Thiago Jung Bauermann wrote:
-> > > Indeed. The idea is that QEMU can offer the flag, old guests can
-> > > reject
-> > > it (or even new guests can reject it, if they decide not to
-> > > convert into
-> > > secure VMs) and the feature negotiation will succeed with the
-> > > flag
-> > > unset.
-> > 
-> > OK. And then what does QEMU do? Assume guest is not encrypted I
-> > guess?
-> 
-> There's nothing different that QEMU needs to do, with or without the
-> flag. the perspective of the host, a secure guest and a regular guest
-> work the same way with respect to virtio.
-
-This is *precisely* why I was against adding a flag and touch the
-protocol negociation with qemu in the first place, back when I cared
-about that stuff...
-
-Guys, this has gone in circles over and over again.
-
-This has nothing to do with qemu. Qemu doesn't need to know about this.
-It's entirely guest local. This is why the one-liner in virtio was a
-far better and simpler solution.
-
-This is something the guest does to itself (with the participation of a
-ultravisor but that's not something qemu cares about at this stage, at
-least not as far as virtio is concerned).
-
-Basically, the guest "hides" its memory from the host using a HW secure
-memory facility. As a result, it needs to ensure that all of its DMA
-pages are bounced through insecure pages that aren't hidden. That's it,
-it's all guest side. Qemu shouldn't have to care about it at all.
-
-Cheers,
-Ben.
+T24gTW9uLCBKdWwgMTUsIDIwMTkgYXQgNDozMCBQTSBBbmRyZXcgQ29vcGVyIDxhbmRyZXcuY29v
+cGVyM0BjaXRyaXguY29tPiB3cm90ZToKPgo+IE9uIDE1LzA3LzIwMTkgMTk6MTcsIE5hZGF2IEFt
+aXQgd3JvdGU6Cj4gPj4gT24gSnVsIDE1LCAyMDE5LCBhdCA4OjE2IEFNLCBBbmRyZXcgQ29vcGVy
+IDxhbmRyZXcuY29vcGVyM0BjaXRyaXguY29tPiB3cm90ZToKPiA+Pgo+ID4+IFRoZXJlIGlzIGEg
+bG90IG9mIGluZnJhc3RydWN0dXJlIGZvciBmdW5jdGlvbmFsaXR5IHdoaWNoIGlzIHVzZWQKPiA+
+PiBleGNsdXNpdmVseSBpbiBfX3tzYXZlLHJlc3RvcmV9X3Byb2Nlc3Nvcl9zdGF0ZSgpIG9uIHRo
+ZSBzdXNwZW5kL3Jlc3VtZQo+ID4+IHBhdGguCj4gPj4KPiA+PiBjcjggaXMgYW4gYWxpYXMgb2Yg
+QVBJQ19UQVNLUFJJLCBhbmQgQVBJQ19UQVNLUFJJIGlzIHNhdmVkL3Jlc3RvcmVkIGJ5Cj4gPj4g
+bGFwaWNfe3N1c3BlbmQscmVzdW1lfSgpLiAgU2F2aW5nIGFuZCByZXN0b3JpbmcgY3I4IGluZGVw
+ZW5kZW50bHkgb2YgdGhlCj4gPj4gcmVzdCBvZiB0aGUgTG9jYWwgQVBJQyBzdGF0ZSBpc24ndCBh
+IGNsZXZlciB0aGluZyB0byBiZSBkb2luZy4KPiA+Pgo+ID4+IERlbGV0ZSB0aGUgc3VzcGVuZC9y
+ZXN1bWUgY3I4IGhhbmRsaW5nLCB3aGljaCBzaHJpbmtzIHRoZSBzaXplIG9mIHN0cnVjdAo+ID4+
+IHNhdmVkX2NvbnRleHQsIGFuZCBhbGxvd3MgZm9yIHRoZSByZW1vdmFsIG9mIGJvdGggUFZPUFMu
+Cj4gPiBJIHRoaW5rIHJlbW92aW5nIHRoZSBpbnRlcmZhY2UgZm9yIENSOCB3cml0ZXMgaXMgYWxz
+byBnb29kIHRvIGF2b2lkCj4gPiBwb3RlbnRpYWwgY29ycmVjdG5lc3MgaXNzdWVzLCBhcyB0aGUg
+U0RNIHNheXMgKDEwLjguNi4xICJJbnRlcmFjdGlvbiBvZiBUYXNrCj4gPiBQcmlvcml0aWVzIGJl
+dHdlZW4gQ1I4IGFuZCBBUElD4oCdKToKPiA+Cj4gPiAiT3BlcmF0aW5nIHNvZnR3YXJlIHNob3Vs
+ZCBpbXBsZW1lbnQgZWl0aGVyIGRpcmVjdCBBUElDIFRQUiB1cGRhdGVzIG9yIENSOAo+ID4gc3R5
+bGUgVFBSIHVwZGF0ZXMgYnV0IG5vdCBtaXggdGhlbS4gU29mdHdhcmUgY2FuIHVzZSBhIHNlcmlh
+bGl6aW5nCj4gPiBpbnN0cnVjdGlvbiAoZm9yIGV4YW1wbGUsIENQVUlEKSB0byBzZXJpYWxpemUg
+dXBkYXRlcyBiZXR3ZWVuIE1PViBDUjggYW5kCj4gPiBzdG9yZXMgdG8gdGhlIEFQSUMu4oCdCj4g
+Pgo+ID4gQW5kIG5hdGl2ZV93cml0ZV9jcjgoKSBkaWQgbm90IGV2ZW4gaXNzdWUgYSBzZXJpYWxp
+emluZyBpbnN0cnVjdGlvbi4KPiA+Cj4KPiBHaXZlbiBpdHMgbG9jYXRpb24sIHRoZSBvbmUgd3Jp
+dGVfY3I4KCkgaXMgYm91bmRlZCBieSB0d28gc2VyaWFsaXNpbmcKPiBvcGVyYXRpb25zLCBzbyBp
+cyBzYWZlIGluIHByYWN0aWNlLgo+Cj4gSG93ZXZlciwgSSBhZ3JlZSB3aXRoIHRoZSBzdGF0ZW1l
+bnQgaW4gdGhlIG1hbnVhbC4gIEkgY291bGQgc3VibWl0IGEgdjMKPiB3aXRoIGFuIHVwZGF0ZWQg
+Y29tbWl0IG1lc3NhZ2UsIG9yIGxldCBpdCBiZSBmaXhlZCBvbiBjb21taXQuICBXaGljaGV2ZXIK
+PiBpcyBlYXNpZXN0Lgo+CgpJIGRvbid0IHNlZSBhbnl0aGluZyB3cm9uZyB3aXRoIHRoZSBtZXNz
+YWdlLiAgSWYgd2UgYWN0dWFsbHkgdXNlZCBDUjgKZm9yIGludGVycnVwdCBwcmlvcml0aWVzLCB3
+ZSB3b3VsZG4ndCB3YW50IGl0IHRvIHNlcmlhbGl6ZS4gIFRoZSBidWcKaXMgdGhhdCB0aGUgY29k
+ZSB0aGF0IGRpZCB0aGUgd3JpdGVfY3I4KCkgc2hvdWxkIGhhdmUgaGFkIGEgY29tbWVudCBhcwp0
+byBob3cgaXQgc2VyaWFsaXplZCBhZ2FpbnN0IGxhcGljX3Jlc3RvcmUoKS4gIEJ1dCB0aGF0IGRv
+ZXNuJ3Qgc2VlbQp3b3J0aCBtZW50aW9uaW5nIGluIHRoZSBtZXNzYWdlLCBzaW5jZSwgYXMgbm90
+ZWQsIHRoZSByZWFsIHByb2JsZW0gd2FzCnRoYXQgaXQgbm9uc2Vuc2ljYWxseSByZXN0b3JlZCBq
+dXN0IFRQUiB3aXRob3V0IHJlc3RvcmluZyBldmVyeXRoaW5nCmVsc2UuCl9fX19fX19fX19fX19f
+X19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fClZpcnR1YWxpemF0aW9uIG1haWxpbmcg
+bGlzdApWaXJ0dWFsaXphdGlvbkBsaXN0cy5saW51eC1mb3VuZGF0aW9uLm9yZwpodHRwczovL2xp
+c3RzLmxpbnV4Zm91bmRhdGlvbi5vcmcvbWFpbG1hbi9saXN0aW5mby92aXJ0dWFsaXphdGlvbg==
