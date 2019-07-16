@@ -1,12 +1,13 @@
-From: "Michael S. Tsirkin" <mst@redhat.com>
-Subject: [PULL] virtio, vhost: fixes, features, performance
-Date: Tue, 16 Jul 2019 11:31:51 -0400
-Message-ID: <20190716113151-mutt-send-email-mst__11114.59155088$1563291140$gmane$org@kernel.org>
+From: Rob Clark <robdclark@gmail.com>
+Subject: [PATCH v2 2/3] drm: plumb attaching dev thru to prime_pin/unpin
+Date: Tue, 16 Jul 2019 10:43:22 -0700
+Message-ID: <20190716174331.7371-2-robdclark__39762.6870124199$1563299306$gmane$org@gmail.com>
+References: <20190716174331.7371-1-robdclark@gmail.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-Content-Disposition: inline
+In-Reply-To: <20190716174331.7371-1-robdclark@gmail.com>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -16,106 +17,349 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Linus Torvalds <torvalds@linux-foundation.org>
-Cc: aarcange@redhat.com, James.Bottomley@hansenpartnership.com, linux-parisc@vger.kernel.org, kvm@vger.kernel.org, eric.auger@redhat.com, jean-philippe.brucker@arm.com, netdev@vger.kernel.org, gustavo@embeddedor.com, linux-kernel@vger.kernel.org, virtualization@lists.linux-foundation.org, hch@infradead.org, linux-mm@kvack.org, jglisse@redhat.com, mst@redhat.com, ihor.matushchak@foobox.net, bhelgaas@google.com, natechancellor@gmail.com, davem@davemloft.net, linux-arm-kernel@lists.infradead.org
+To: dri-devel@lists.freedesktop.org
+Cc: Eric Biggers <ebiggers@google.com>, Maxime Ripard <maxime.ripard@bootlin.com>, nouveau@lists.freedesktop.org, Imre Deak <imre.deak@intel.com>, Chris Wilson <chris@chris-wilson.co.uk>, Emil Velikov <emil.velikov@collabora.com>, Rob Clark <robdclark@chromium.org>, "David (ChunMing) Zhou" <David1.Zhou@amd.com>, amd-gfx@lists.freedesktop.org, David Airlie <airlied@linux.ie>, Ben Skeggs <bskeggs@redhat.com>, Russell King <linux+etnaviv@armlinux.org.uk>, Dave Airlie <airlied@redhat.com>, Laura Abbott <labbott@redhat.com>, Deepak Sharma <deepak.sharma@amd.com>, Thomas Zimmermann <tzimmermann@suse.de>, linux-arm-msm@vger.kernel.org, Intel Graphics Development <intel-gfx@lists.freedesktop.org>, Maarten Lankhorst <maarten.lankhorst@linux.intel.com>, etnaviv@lists.freedesktop.org, Hans de Goede <hdegoede@redhat.com>, Christian Gmeiner <christian.gmeiner@gmail.com>, spice-deve
 List-Id: virtualization@lists.linuxfoundation.org
 
-The following changes since commit c1ea02f15ab5efb3e93fc3144d895410bf79fcf2:
+From: Rob Clark <robdclark@chromium.org>
 
-  vhost: scsi: add weight support (2019-05-27 11:08:23 -0400)
+Needed in the following patch for cache operations.
 
-are available in the Git repository at:
-
-  git://git.kernel.org/pub/scm/linux/kernel/git/mst/vhost.git tags/for_linus
-
-for you to fetch changes up to 5e663f0410fa2f355042209154029842ba1abd43:
-
-  virtio-mmio: add error check for platform_get_irq (2019-07-11 16:22:29 -0400)
-
-----------------------------------------------------------------
-virtio, vhost: fixes, features, performance
-
-new iommu device
-vhost guest memory access using vmap (just meta-data for now)
-minor fixes
-
-Signed-off-by: Michael S. Tsirkin <mst@redhat.com>
-
-Note: due to code driver changes the driver-core tree, the following
-patch is needed when merging tree with commit 92ce7e83b4e5
-("driver_find_device: Unify the match function with
-class_find_device()") in the driver-core tree:
-
-From: Nathan Chancellor <natechancellor@gmail.com>
-Subject: [PATCH] iommu/virtio: Constify data parameter in viommu_match_node
-
-After commit 92ce7e83b4e5 ("driver_find_device: Unify the match
-function with class_find_device()") in the driver-core tree.
-
-Signed-off-by: Nathan Chancellor <natechancellor@gmail.com>
-Signed-off-by: Michael S. Tsirkin <mst@redhat.com>
-
+Signed-off-by: Rob Clark <robdclark@chromium.org>
 ---
- drivers/iommu/virtio-iommu.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ drivers/gpu/drm/drm_gem.c                   | 10 ++++++----
+ drivers/gpu/drm/drm_gem_vram_helper.c       |  6 ++++--
+ drivers/gpu/drm/drm_prime.c                 |  4 ++--
+ drivers/gpu/drm/etnaviv/etnaviv_gem_prime.c |  4 ++--
+ drivers/gpu/drm/msm/msm_drv.h               |  4 ++--
+ drivers/gpu/drm/msm/msm_gem_prime.c         |  4 ++--
+ drivers/gpu/drm/nouveau/nouveau_gem.h       |  4 ++--
+ drivers/gpu/drm/nouveau/nouveau_prime.c     |  4 ++--
+ drivers/gpu/drm/qxl/qxl_prime.c             |  4 ++--
+ drivers/gpu/drm/radeon/radeon_prime.c       |  4 ++--
+ drivers/gpu/drm/vboxvideo/vbox_prime.c      |  4 ++--
+ drivers/gpu/drm/vgem/vgem_drv.c             |  4 ++--
+ include/drm/drm_drv.h                       |  4 ++--
+ include/drm/drm_gem.h                       |  4 ++--
+ include/drm/drm_gem_vram_helper.h           |  4 ++--
+ 15 files changed, 36 insertions(+), 32 deletions(-)
 
-diff --git a/drivers/iommu/virtio-iommu.c b/drivers/iommu/virtio-iommu.c
-index 4620dd221ffd..433f4d2ee956 100644
---- a/drivers/iommu/virtio-iommu.c
-+++ b/drivers/iommu/virtio-iommu.c
-@@ -839,7 +839,7 @@ static void viommu_put_resv_regions(struct device *dev, struct list_head *head)
- static struct iommu_ops viommu_ops;
- static struct virtio_driver virtio_iommu_drv;
-
--static int viommu_match_node(struct device *dev, void *data)
-+static int viommu_match_node(struct device *dev, const void *data)
+diff --git a/drivers/gpu/drm/drm_gem.c b/drivers/gpu/drm/drm_gem.c
+index 7d6242cc69f2..0a2645769624 100644
+--- a/drivers/gpu/drm/drm_gem.c
++++ b/drivers/gpu/drm/drm_gem.c
+@@ -1219,18 +1219,19 @@ void drm_gem_print_info(struct drm_printer *p, unsigned int indent,
+ /**
+  * drm_gem_pin - Pin backing buffer in memory
+  * @obj: GEM object
++ * @dev: the device the buffer is being pinned for
+  *
+  * Make sure the backing buffer is pinned in memory.
+  *
+  * Returns:
+  * 0 on success or a negative error code on failure.
+  */
+-int drm_gem_pin(struct drm_gem_object *obj)
++int drm_gem_pin(struct drm_gem_object *obj, struct device *dev)
  {
- 	return dev->parent->fwnode == data;
+ 	if (obj->funcs && obj->funcs->pin)
+ 		return obj->funcs->pin(obj);
+ 	else if (obj->dev->driver->gem_prime_pin)
+-		return obj->dev->driver->gem_prime_pin(obj);
++		return obj->dev->driver->gem_prime_pin(obj, dev);
+ 	else
+ 		return 0;
  }
-
-----------------------------------------------------------------
-Gustavo A. R. Silva (1):
-      scsi: virtio_scsi: Use struct_size() helper
-
-Ihor Matushchak (1):
-      virtio-mmio: add error check for platform_get_irq
-
-Jason Wang (6):
-      vhost: generalize adding used elem
-      vhost: fine grain userspace memory accessors
-      vhost: rename vq_iotlb_prefetch() to vq_meta_prefetch()
-      vhost: introduce helpers to get the size of metadata area
-      vhost: factor out setting vring addr and num
-      vhost: access vq metadata through kernel virtual address
-
-Jean-Philippe Brucker (7):
-      dt-bindings: virtio-mmio: Add IOMMU description
-      dt-bindings: virtio: Add virtio-pci-iommu node
-      of: Allow the iommu-map property to omit untranslated devices
-      PCI: OF: Initialize dev->fwnode appropriately
-      iommu: Add virtio-iommu driver
-      iommu/virtio: Add probe request
-      iommu/virtio: Add event queue
-
-Michael S. Tsirkin (1):
-      vhost: fix clang build warning
-
- Documentation/devicetree/bindings/virtio/iommu.txt |   66 ++
- Documentation/devicetree/bindings/virtio/mmio.txt  |   30 +
- MAINTAINERS                                        |    7 +
- drivers/iommu/Kconfig                              |   11 +
- drivers/iommu/Makefile                             |    1 +
- drivers/iommu/virtio-iommu.c                       | 1158 ++++++++++++++++++++
- drivers/of/base.c                                  |   10 +-
- drivers/pci/of.c                                   |    8 +
- drivers/scsi/virtio_scsi.c                         |    2 +-
- drivers/vhost/net.c                                |    4 +-
- drivers/vhost/vhost.c                              |  850 +++++++++++---
- drivers/vhost/vhost.h                              |   43 +-
- drivers/virtio/virtio_mmio.c                       |    7 +-
- include/uapi/linux/virtio_ids.h                    |    1 +
- include/uapi/linux/virtio_iommu.h                  |  161 +++
- 15 files changed, 2228 insertions(+), 131 deletions(-)
- create mode 100644 Documentation/devicetree/bindings/virtio/iommu.txt
- create mode 100644 drivers/iommu/virtio-iommu.c
- create mode 100644 include/uapi/linux/virtio_iommu.h
+@@ -1239,15 +1240,16 @@ EXPORT_SYMBOL(drm_gem_pin);
+ /**
+  * drm_gem_unpin - Unpin backing buffer from memory
+  * @obj: GEM object
++ * @dev: the device the buffer is being pinned for
+  *
+  * Relax the requirement that the backing buffer is pinned in memory.
+  */
+-void drm_gem_unpin(struct drm_gem_object *obj)
++void drm_gem_unpin(struct drm_gem_object *obj, struct device *dev)
+ {
+ 	if (obj->funcs && obj->funcs->unpin)
+ 		obj->funcs->unpin(obj);
+ 	else if (obj->dev->driver->gem_prime_unpin)
+-		obj->dev->driver->gem_prime_unpin(obj);
++		obj->dev->driver->gem_prime_unpin(obj, dev);
+ }
+ EXPORT_SYMBOL(drm_gem_unpin);
+ 
+diff --git a/drivers/gpu/drm/drm_gem_vram_helper.c b/drivers/gpu/drm/drm_gem_vram_helper.c
+index 4de782ca26b2..62fafec93948 100644
+--- a/drivers/gpu/drm/drm_gem_vram_helper.c
++++ b/drivers/gpu/drm/drm_gem_vram_helper.c
+@@ -548,7 +548,8 @@ EXPORT_SYMBOL(drm_gem_vram_driver_dumb_mmap_offset);
+  * 0 on success, or
+  * a negative errno code otherwise.
+  */
+-int drm_gem_vram_driver_gem_prime_pin(struct drm_gem_object *gem)
++int drm_gem_vram_driver_gem_prime_pin(struct drm_gem_object *gem,
++				      struct device *dev)
+ {
+ 	struct drm_gem_vram_object *gbo = drm_gem_vram_of_gem(gem);
+ 
+@@ -569,7 +570,8 @@ EXPORT_SYMBOL(drm_gem_vram_driver_gem_prime_pin);
+ 	Implements &struct drm_driver.gem_prime_unpin
+  * @gem:	The GEM object to unpin
+  */
+-void drm_gem_vram_driver_gem_prime_unpin(struct drm_gem_object *gem)
++void drm_gem_vram_driver_gem_prime_unpin(struct drm_gem_object *gem,
++					 struct device *dev)
+ {
+ 	struct drm_gem_vram_object *gbo = drm_gem_vram_of_gem(gem);
+ 
+diff --git a/drivers/gpu/drm/drm_prime.c b/drivers/gpu/drm/drm_prime.c
+index d0c01318076b..505893cfac8e 100644
+--- a/drivers/gpu/drm/drm_prime.c
++++ b/drivers/gpu/drm/drm_prime.c
+@@ -196,7 +196,7 @@ int drm_gem_map_attach(struct dma_buf *dma_buf,
+ {
+ 	struct drm_gem_object *obj = dma_buf->priv;
+ 
+-	return drm_gem_pin(obj);
++	return drm_gem_pin(obj, attach->dev);
+ }
+ EXPORT_SYMBOL(drm_gem_map_attach);
+ 
+@@ -213,7 +213,7 @@ void drm_gem_map_detach(struct dma_buf *dma_buf,
+ {
+ 	struct drm_gem_object *obj = dma_buf->priv;
+ 
+-	drm_gem_unpin(obj);
++	drm_gem_unpin(obj, attach->dev);
+ }
+ EXPORT_SYMBOL(drm_gem_map_detach);
+ 
+diff --git a/drivers/gpu/drm/etnaviv/etnaviv_gem_prime.c b/drivers/gpu/drm/etnaviv/etnaviv_gem_prime.c
+index 00e8b6a817e3..44385d590aa7 100644
+--- a/drivers/gpu/drm/etnaviv/etnaviv_gem_prime.c
++++ b/drivers/gpu/drm/etnaviv/etnaviv_gem_prime.c
+@@ -43,7 +43,7 @@ int etnaviv_gem_prime_mmap(struct drm_gem_object *obj,
+ 	return etnaviv_obj->ops->mmap(etnaviv_obj, vma);
+ }
+ 
+-int etnaviv_gem_prime_pin(struct drm_gem_object *obj)
++int etnaviv_gem_prime_pin(struct drm_gem_object *obj, struct device *dev)
+ {
+ 	if (!obj->import_attach) {
+ 		struct etnaviv_gem_object *etnaviv_obj = to_etnaviv_bo(obj);
+@@ -55,7 +55,7 @@ int etnaviv_gem_prime_pin(struct drm_gem_object *obj)
+ 	return 0;
+ }
+ 
+-void etnaviv_gem_prime_unpin(struct drm_gem_object *obj)
++void etnaviv_gem_prime_unpin(struct drm_gem_object *obj, struct device *dev)
+ {
+ 	if (!obj->import_attach) {
+ 		struct etnaviv_gem_object *etnaviv_obj = to_etnaviv_bo(obj);
+diff --git a/drivers/gpu/drm/msm/msm_drv.h b/drivers/gpu/drm/msm/msm_drv.h
+index 9ada948f6b01..6f8f6df9c289 100644
+--- a/drivers/gpu/drm/msm/msm_drv.h
++++ b/drivers/gpu/drm/msm/msm_drv.h
+@@ -298,8 +298,8 @@ void msm_gem_prime_vunmap(struct drm_gem_object *obj, void *vaddr);
+ int msm_gem_prime_mmap(struct drm_gem_object *obj, struct vm_area_struct *vma);
+ struct drm_gem_object *msm_gem_prime_import_sg_table(struct drm_device *dev,
+ 		struct dma_buf_attachment *attach, struct sg_table *sg);
+-int msm_gem_prime_pin(struct drm_gem_object *obj);
+-void msm_gem_prime_unpin(struct drm_gem_object *obj);
++int msm_gem_prime_pin(struct drm_gem_object *obj, struct device *dev);
++void msm_gem_prime_unpin(struct drm_gem_object *obj, struct device *dev);
+ void *msm_gem_get_vaddr(struct drm_gem_object *obj);
+ void *msm_gem_get_vaddr_active(struct drm_gem_object *obj);
+ void msm_gem_put_vaddr(struct drm_gem_object *obj);
+diff --git a/drivers/gpu/drm/msm/msm_gem_prime.c b/drivers/gpu/drm/msm/msm_gem_prime.c
+index 60bb290700ce..8e0ddf5c9460 100644
+--- a/drivers/gpu/drm/msm/msm_gem_prime.c
++++ b/drivers/gpu/drm/msm/msm_gem_prime.c
+@@ -58,14 +58,14 @@ struct drm_gem_object *msm_gem_prime_import_sg_table(struct drm_device *dev,
+ 	return msm_gem_import(dev, attach->dmabuf, sg);
+ }
+ 
+-int msm_gem_prime_pin(struct drm_gem_object *obj)
++int msm_gem_prime_pin(struct drm_gem_object *obj, struct device *dev)
+ {
+ 	if (!obj->import_attach)
+ 		msm_gem_get_pages(obj);
+ 	return 0;
+ }
+ 
+-void msm_gem_prime_unpin(struct drm_gem_object *obj)
++void msm_gem_prime_unpin(struct drm_gem_object *obj, struct device *dev)
+ {
+ 	if (!obj->import_attach)
+ 		msm_gem_put_pages(obj);
+diff --git a/drivers/gpu/drm/nouveau/nouveau_gem.h b/drivers/gpu/drm/nouveau/nouveau_gem.h
+index fe39998f65cc..91dcf89138f1 100644
+--- a/drivers/gpu/drm/nouveau/nouveau_gem.h
++++ b/drivers/gpu/drm/nouveau/nouveau_gem.h
+@@ -32,9 +32,9 @@ extern int nouveau_gem_ioctl_cpu_fini(struct drm_device *, void *,
+ extern int nouveau_gem_ioctl_info(struct drm_device *, void *,
+ 				  struct drm_file *);
+ 
+-extern int nouveau_gem_prime_pin(struct drm_gem_object *);
++extern int nouveau_gem_prime_pin(struct drm_gem_object *, struct device *);
+ struct reservation_object *nouveau_gem_prime_res_obj(struct drm_gem_object *);
+-extern void nouveau_gem_prime_unpin(struct drm_gem_object *);
++extern void nouveau_gem_prime_unpin(struct drm_gem_object *, struct device *);
+ extern struct sg_table *nouveau_gem_prime_get_sg_table(struct drm_gem_object *);
+ extern struct drm_gem_object *nouveau_gem_prime_import_sg_table(
+ 	struct drm_device *, struct dma_buf_attachment *, struct sg_table *);
+diff --git a/drivers/gpu/drm/nouveau/nouveau_prime.c b/drivers/gpu/drm/nouveau/nouveau_prime.c
+index 1fefc93af1d7..dec2d5e37b34 100644
+--- a/drivers/gpu/drm/nouveau/nouveau_prime.c
++++ b/drivers/gpu/drm/nouveau/nouveau_prime.c
+@@ -88,7 +88,7 @@ struct drm_gem_object *nouveau_gem_prime_import_sg_table(struct drm_device *dev,
+ 	return &nvbo->gem;
+ }
+ 
+-int nouveau_gem_prime_pin(struct drm_gem_object *obj)
++int nouveau_gem_prime_pin(struct drm_gem_object *obj, struct device *dev)
+ {
+ 	struct nouveau_bo *nvbo = nouveau_gem_object(obj);
+ 	int ret;
+@@ -101,7 +101,7 @@ int nouveau_gem_prime_pin(struct drm_gem_object *obj)
+ 	return 0;
+ }
+ 
+-void nouveau_gem_prime_unpin(struct drm_gem_object *obj)
++void nouveau_gem_prime_unpin(struct drm_gem_object *obj, struct device *dev)
+ {
+ 	struct nouveau_bo *nvbo = nouveau_gem_object(obj);
+ 
+diff --git a/drivers/gpu/drm/qxl/qxl_prime.c b/drivers/gpu/drm/qxl/qxl_prime.c
+index 7d3816fca5a8..21e9b44eb2e4 100644
+--- a/drivers/gpu/drm/qxl/qxl_prime.c
++++ b/drivers/gpu/drm/qxl/qxl_prime.c
+@@ -28,14 +28,14 @@
+ /* Empty Implementations as there should not be any other driver for a virtual
+  * device that might share buffers with qxl */
+ 
+-int qxl_gem_prime_pin(struct drm_gem_object *obj)
++int qxl_gem_prime_pin(struct drm_gem_object *obj, struct device *dev)
+ {
+ 	struct qxl_bo *bo = gem_to_qxl_bo(obj);
+ 
+ 	return qxl_bo_pin(bo);
+ }
+ 
+-void qxl_gem_prime_unpin(struct drm_gem_object *obj)
++void qxl_gem_prime_unpin(struct drm_gem_object *obj, struct device *dev)
+ {
+ 	struct qxl_bo *bo = gem_to_qxl_bo(obj);
+ 
+diff --git a/drivers/gpu/drm/radeon/radeon_prime.c b/drivers/gpu/drm/radeon/radeon_prime.c
+index d3a5bea9a2c5..2d3eadcf0f2d 100644
+--- a/drivers/gpu/drm/radeon/radeon_prime.c
++++ b/drivers/gpu/drm/radeon/radeon_prime.c
+@@ -83,7 +83,7 @@ struct drm_gem_object *radeon_gem_prime_import_sg_table(struct drm_device *dev,
+ 	return &bo->gem_base;
+ }
+ 
+-int radeon_gem_prime_pin(struct drm_gem_object *obj)
++int radeon_gem_prime_pin(struct drm_gem_object *obj, struct device *dev)
+ {
+ 	struct radeon_bo *bo = gem_to_radeon_bo(obj);
+ 	int ret = 0;
+@@ -101,7 +101,7 @@ int radeon_gem_prime_pin(struct drm_gem_object *obj)
+ 	return ret;
+ }
+ 
+-void radeon_gem_prime_unpin(struct drm_gem_object *obj)
++void radeon_gem_prime_unpin(struct drm_gem_object *obj, struct device *dev)
+ {
+ 	struct radeon_bo *bo = gem_to_radeon_bo(obj);
+ 	int ret = 0;
+diff --git a/drivers/gpu/drm/vboxvideo/vbox_prime.c b/drivers/gpu/drm/vboxvideo/vbox_prime.c
+index 702b1aa53494..ad6de9a41950 100644
+--- a/drivers/gpu/drm/vboxvideo/vbox_prime.c
++++ b/drivers/gpu/drm/vboxvideo/vbox_prime.c
+@@ -13,13 +13,13 @@
+  * device that might share buffers with vboxvideo
+  */
+ 
+-int vbox_gem_prime_pin(struct drm_gem_object *obj)
++int vbox_gem_prime_pin(struct drm_gem_object *obj, struct device *dev)
+ {
+ 	WARN_ONCE(1, "not implemented");
+ 	return -ENODEV;
+ }
+ 
+-void vbox_gem_prime_unpin(struct drm_gem_object *obj)
++void vbox_gem_prime_unpin(struct drm_gem_object *obj, struct device *dev)
+ {
+ 	WARN_ONCE(1, "not implemented");
+ }
+diff --git a/drivers/gpu/drm/vgem/vgem_drv.c b/drivers/gpu/drm/vgem/vgem_drv.c
+index 11a8f99ba18c..a179e962b79e 100644
+--- a/drivers/gpu/drm/vgem/vgem_drv.c
++++ b/drivers/gpu/drm/vgem/vgem_drv.c
+@@ -307,7 +307,7 @@ static void vgem_unpin_pages(struct drm_vgem_gem_object *bo)
+ 	mutex_unlock(&bo->pages_lock);
+ }
+ 
+-static int vgem_prime_pin(struct drm_gem_object *obj)
++static int vgem_prime_pin(struct drm_gem_object *obj, struct device *dev)
+ {
+ 	struct drm_vgem_gem_object *bo = to_vgem_bo(obj);
+ 	long n_pages = obj->size >> PAGE_SHIFT;
+@@ -325,7 +325,7 @@ static int vgem_prime_pin(struct drm_gem_object *obj)
+ 	return 0;
+ }
+ 
+-static void vgem_prime_unpin(struct drm_gem_object *obj)
++static void vgem_prime_unpin(struct drm_gem_object *obj, struct device *dev)
+ {
+ 	struct drm_vgem_gem_object *bo = to_vgem_bo(obj);
+ 
+diff --git a/include/drm/drm_drv.h b/include/drm/drm_drv.h
+index 68ca736c548d..6a9489b9532f 100644
+--- a/include/drm/drm_drv.h
++++ b/include/drm/drm_drv.h
+@@ -584,8 +584,8 @@ struct drm_driver {
+ 	 */
+ 	struct drm_gem_object * (*gem_prime_import)(struct drm_device *dev,
+ 				struct dma_buf *dma_buf);
+-	int (*gem_prime_pin)(struct drm_gem_object *obj);
+-	void (*gem_prime_unpin)(struct drm_gem_object *obj);
++	int (*gem_prime_pin)(struct drm_gem_object *obj, struct device *dev);
++	void (*gem_prime_unpin)(struct drm_gem_object *obj, struct device *dev);
+ 	struct reservation_object * (*gem_prime_res_obj)(
+ 				struct drm_gem_object *obj);
+ 	struct sg_table *(*gem_prime_get_sg_table)(struct drm_gem_object *obj);
+diff --git a/include/drm/drm_gem.h b/include/drm/drm_gem.h
+index 5047c7ee25f5..ebd12be354d2 100644
+--- a/include/drm/drm_gem.h
++++ b/include/drm/drm_gem.h
+@@ -401,8 +401,8 @@ int drm_gem_dumb_destroy(struct drm_file *file,
+ 			 struct drm_device *dev,
+ 			 uint32_t handle);
+ 
+-int drm_gem_pin(struct drm_gem_object *obj);
+-void drm_gem_unpin(struct drm_gem_object *obj);
++int drm_gem_pin(struct drm_gem_object *obj, struct device *dev);
++void drm_gem_unpin(struct drm_gem_object *obj, struct device *dev);
+ void *drm_gem_vmap(struct drm_gem_object *obj);
+ void drm_gem_vunmap(struct drm_gem_object *obj, void *vaddr);
+ 
+diff --git a/include/drm/drm_gem_vram_helper.h b/include/drm/drm_gem_vram_helper.h
+index 9581ea0a4f7e..33556e157202 100644
+--- a/include/drm/drm_gem_vram_helper.h
++++ b/include/drm/drm_gem_vram_helper.h
+@@ -133,8 +133,8 @@ int drm_gem_vram_driver_dumb_mmap_offset(struct drm_file *file,
+  * PRIME helpers for struct drm_driver
+  */
+ 
+-int drm_gem_vram_driver_gem_prime_pin(struct drm_gem_object *obj);
+-void drm_gem_vram_driver_gem_prime_unpin(struct drm_gem_object *obj);
++int drm_gem_vram_driver_gem_prime_pin(struct drm_gem_object *obj, struct device *dev);
++void drm_gem_vram_driver_gem_prime_unpin(struct drm_gem_object *obj, struct device *dev);
+ void *drm_gem_vram_driver_gem_prime_vmap(struct drm_gem_object *obj);
+ void drm_gem_vram_driver_gem_prime_vunmap(struct drm_gem_object *obj,
+ 					  void *vaddr);
+-- 
+2.21.0
