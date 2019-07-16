@@ -1,17 +1,22 @@
-From: Jan Beulich <JBeulich@suse.com>
-Subject: Re: [Xen-devel] [PATCH 0/2] Remove 32-bit Xen PV guest support
-Date: Tue, 16 Jul 2019 06:58:14 +0000
-Message-ID: <88e295ad-6ae0-58c6-4395-3bfc7d968305@suse.com>
-References: <20190715113739.17694-1-jgross@suse.com>
-	<87y30zfe9z.fsf@linux.intel.com>
-	<CALCETrUn=gho5Oug-yYvF2d1WYCe7gvtx+bXuhJ8LTjb9guvuA@mail.gmail.com>
+From: Stefano Garzarella <sgarzare@redhat.com>
+Subject: Re: [RFC] virtio-net: share receive_*() and add_recvbuf_*() with
+	virtio-vsock
+Date: Tue, 16 Jul 2019 11:40:24 +0200
+Message-ID: <20190716094024.ob43g5lxga5uwb7z__10955.3834934317$1563270045$gmane$org@steredhat>
+References: <20190710153707.twmzgmwqqw3pstos@steredhat>
+	<9574bc38-4c5c-2325-986b-430e4a2b6661@redhat.com>
+	<20190711114134.xhmpciyglb2angl6@steredhat>
+	<20190711152855-mutt-send-email-mst@kernel.org>
+	<20190712100033.xs3xesz2plfwj3ag@steredhat>
+	<a514d8a4-3a12-feeb-4467-af7a9fbf5183@redhat.com>
+	<20190715074416.a3s2i5ausognotbn@steredhat>
+	<20190715134115-mutt-send-email-mst@kernel.org>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <CALCETrUn=gho5Oug-yYvF2d1WYCe7gvtx+bXuhJ8LTjb9guvuA@mail.gmail.com>
-Content-Language: en-US
-Content-ID: <E35FAA33AD37C8429158911267A42F18@namprd18.prod.outlook.com>
+Content-Disposition: inline
+In-Reply-To: <20190715134115-mutt-send-email-mst@kernel.org>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -21,39 +26,104 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Andy Lutomirski <luto@kernel.org>
-Cc: Juergen Gross <JGross@suse.com>, Andi Kleen <ak@linux.intel.com>, X86 ML <x86@kernel.org>, Alok Kataria <akataria@vmware.com>, LKML <linux-kernel@vger.kernel.org>, Linux Virtualization <virtualization@lists.linux-foundation.org>, Stefano Stabellini <sstabellini@kernel.org>, Borislav Petkov <bp@alien8.de>, "H. Peter Anvin" <hpa@zytor.com>, xen-devel <xen-devel@lists.xenproject.org>, Thomas Gleixner <tglx@linutronix.de>, Ingo Molnar <mingo@redhat.com>, Boris Ostrovsky <boris.ostrovsky@oracle.com>
+To: "Michael S. Tsirkin" <mst@redhat.com>
+Cc: netdev@vger.kernel.org, Stefan Hajnoczi <stefanha@redhat.com>, virtualization@lists.linux-foundation.org
 List-Id: virtualization@lists.linuxfoundation.org
 
-On 15.07.2019 19:28, Andy Lutomirski wrote:
-> On Mon, Jul 15, 2019 at 9:34 AM Andi Kleen <ak@linux.intel.com> wrote:
->>
->> Juergen Gross <jgross@suse.com> writes:
->>
->>> The long term plan has been to replace Xen PV guests by PVH. The first
->>> victim of that plan are now 32-bit PV guests, as those are used only
->>> rather seldom these days. Xen on x86 requires 64-bit support and with
->>> Grub2 now supporting PVH officially since version 2.04 there is no
->>> need to keep 32-bit PV guest support alive in the Linux kernel.
->>> Additionally Meltdown mitigation is not available in the kernel running
->>> as 32-bit PV guest, so dropping this mode makes sense from security
->>> point of view, too.
->>
->> Normally we have a deprecation period for feature removals like this.
->> You would make the kernel print a warning for some releases, and when
->> no user complains you can then remove. If a user complains you can't.
->>
+On Mon, Jul 15, 2019 at 01:50:28PM -0400, Michael S. Tsirkin wrote:
+> On Mon, Jul 15, 2019 at 09:44:16AM +0200, Stefano Garzarella wrote:
+> > On Fri, Jul 12, 2019 at 06:14:39PM +0800, Jason Wang wrote:
+
+[...]
+
+> > > 
+> > > 
+> > > I think it's just a branch, for ethernet, go for networking stack. otherwise
+> > > go for vsock core?
+> > > 
+> > 
+> > Yes, that should work.
+> > 
+> > So, I should refactor the functions that can be called also from the vsock
+> > core, in order to remove "struct net_device *dev" parameter.
+> > Maybe creating some wrappers for the network stack.
+> > 
+> > Otherwise I should create a fake net_device for vsock_core.
+> > 
+> > What do you suggest?
 > 
-> As I understand it, the kernel rules do allow changes like this even
-> if there's a complaint: this is a patch that removes what is
-> effectively hardware support.  If the maintenance cost exceeds the
-> value, then removal is fair game.  (Obviously we weight the value to
-> preserving compatibility quite highly, but in this case, Xen dropped
-> 32-bit hardware support a long time ago.  If the Xen hypervisor says
-> that 32-bit PV guest support is deprecated, it's deprecated.)
+> Neither.
+> 
+> I think what Jason was saying all along is this:
+> 
+> virtio net doesn't actually lose packets, at least most
+> of the time. And it actually most of the time
+> passes all packets to host. So it's possible to use a virtio net
+> device (possibly with a feature flag that says "does not lose packets,
+> all packets go to host") and build vsock on top.
 
-Since it was implied but not explicit from Andrew's reply, just to
-make it explicit: So far 32-bit PV guest support has not been
-deprecated in Xen itself.
+Yes, I got it after the latest Jason's reply.
 
-Jan
+> 
+> and all of this is nice, but don't expect anything easy,
+> or any quick results.
+
+I expected this... :-(
+
+> 
+> Also, in a sense it's a missed opportunity: we could cut out a lot
+> of fat and see just how fast can a protocol that is completely
+> new and separate from networking stack go.
+
+In this case, if we will try to do a PoC, what do you think is better?
+    1. new AF_VSOCK + network-stack + virtio-net modified
+        Maybe it is allow us to reuse a lot of stuff already written,
+        but we will go through the network stack
+
+    2. new AF_VSOCK + glue + virtio-net modified
+        Intermediate approach, similar to Jason's proposal
+
+    3, new AF_VSOCK + new virtio-vsock
+        Can be the thinnest, but we have to rewrite many things, with the risk
+        of making the same mistakes as the current implementation.
+
+
+> Instead vsock implementation carries so much baggage from both
+> networking stack - such as softirq processing - and itself such as
+> workqueues, global state and crude locking - to the point where
+> it's actually slower than TCP.
+
+I agree, and I'm finding new issues while I'm trying to support nested
+VMs, allowing multiple vsock transports (virtio-vsock and vhost-vsock in
+the KVM case) at runtime.
+
+> 
+
+[...]
+
+> > > 
+> > > I suggest to do this step by step:
+> > > 
+> > > 1) use virtio-net but keep some protocol logic
+> > > 
+> > > 2) separate protocol logic and merge it to exist Linux networking stack
+> > 
+> > Make sense, thanks for the suggestions, I'll try to do these steps!
+> > 
+> > Thanks,
+> > Stefano
+> 
+> 
+> An alternative is look at sources of overhead in vsock and get rid of
+> them, or rewrite it from scratch focusing on performance.
+
+I started looking at virtio-vsock and vhost-vsock trying to do very
+simple changes [1] to increase the performance. I should send a v4 of that
+series as a very short term, then I'd like to have a deeper look to understand
+if it is better to try to optimize or rewrite it from scratch.
+
+
+Thanks,
+Stefano
+
+[1] https://patchwork.kernel.org/cover/10970145/
