@@ -1,16 +1,11 @@
-From: "Koenig, Christian" <Christian.Koenig@amd.com>
-Subject: Re: [PATCH v3 2/3] drm: plumb attaching dev thru to prime_pin/unpin
-Date: Wed, 17 Jul 2019 06:59:03 +0000
-Message-ID: <fc57fbc8-3b37-519b-a6e2-9714df3c7715__44889.210075938$1563346759$gmane$org@amd.com>
-References: <20190716213746.4670-1-robdclark@gmail.com>
-	<20190716213746.4670-2-robdclark@gmail.com>
+From: Jason Wang <jasowang@redhat.com>
+Subject: [PATCH V3 00/15] Packed virtqueue support for vhost
+Date: Wed, 17 Jul 2019 06:52:40 -0400
+Message-ID: <20190717105255.63488-1-jasowang__27477.6938533009$1563360796$gmane$org@redhat.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <20190716213746.4670-2-robdclark@gmail.com>
-Content-Language: en-US
-Content-ID: <E6EDA68FB1F2154482748941D0CB311D@namprd12.prod.outlook.com>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -20,301 +15,111 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Rob Clark <robdclark@gmail.com>, "dri-devel@lists.freedesktop.org" <dri-devel@lists.freedesktop.org>
-Cc: Eric Biggers <ebiggers@google.com>, Maxime Ripard <maxime.ripard@bootlin.com>, "nouveau@lists.freedesktop.org" <nouveau@lists.freedesktop.org>, Imre Deak <imre.deak@intel.com>, Chris Wilson <chris@chris-wilson.co.uk>, Eric Anholt <eric@anholt.net>, Emil Velikov <emil.velikov@collabora.com>, Rob Clark <robdclark@chromium.org>, "Zhou,
-	David(ChunMing)" <David1.Zhou@amd.com>, "amd-gfx@lists.freedesktop.org" <amd-gfx@lists.freedesktop.org>, David Airlie <airlied@linux.ie>, Ben Skeggs <bskeggs@redhat.com>, Russell King <linux+etnaviv@armlinux.org.uk>, Dave Airlie <airlied@redhat.com>, "Sharma,
-	Deepak" <Deepak.Sharma@amd.com>, Daniel Vetter <daniel@ffwll.ch>, "linux-arm-msm@vger.kernel.org" <linux-arm-msm@vger.kernel.org>, Intel Graphics Development <intel-gfx@lists.freedesktop.org>, Maarten Lankhorst <maarten.lankhorst@linux.intel.com>"etnaviv@lists.freedesktop.org" <e>
+To: mst@redhat.com, jasowang@redhat.com
+Cc: kvm@vger.kernel.org, netdev@vger.kernel.org, linux-kernel@vger.kernel.org, virtualization@lists.linux-foundation.org, maxime.coquelin@redhat.com
 List-Id: virtualization@lists.linuxfoundation.org
 
-Am 16.07.19 um 23:37 schrieb Rob Clark:
-> From: Rob Clark <robdclark@chromium.org>
->
-> Needed in the following patch for cache operations.
+Hi all:
 
-Well have you seen that those callbacks are deprecated?
->   	 * Deprecated hook in favour of &drm_gem_object_funcs.pin.
+This series implements packed virtqueues which were described
+at [1]. In this version we try to address the performance regression
+saw by V2. The root cause is packed virtqueue need more times of
+userspace memory accesssing which turns out to be very
+expensive. Thanks to the help of 7f466032dc9e ("vhost: access vq
+metadata through kernel virtual address"), such overhead cold be
+eliminated. So in this version, we can see about 2% improvement for
+packed virtqueue on PPS.
 
->   	 * Deprecated hook in favour of &drm_gem_object_funcs.unpin.
->
+More optimizations (e.g IN_ORDER) is on the road.
 
-I would rather say if you want to extend something it would be better to 
-switch over to the per GEM object functions first.
+Please review.
 
-Regards,
-Christian.
+[1] https://docs.oasis-open.org/virtio/virtio/v1.1/csprd01/virtio-v1.1-csprd01.html#x1-610007
 
->
-> Signed-off-by: Rob Clark <robdclark@chromium.org>
-> ---
-> v3: rebased on drm-tip
->
->   drivers/gpu/drm/drm_gem.c                   | 8 ++++----
->   drivers/gpu/drm/drm_internal.h              | 4 ++--
->   drivers/gpu/drm/drm_prime.c                 | 4 ++--
->   drivers/gpu/drm/etnaviv/etnaviv_gem_prime.c | 4 ++--
->   drivers/gpu/drm/msm/msm_drv.h               | 4 ++--
->   drivers/gpu/drm/msm/msm_gem_prime.c         | 4 ++--
->   drivers/gpu/drm/nouveau/nouveau_gem.h       | 4 ++--
->   drivers/gpu/drm/nouveau/nouveau_prime.c     | 4 ++--
->   drivers/gpu/drm/qxl/qxl_prime.c             | 4 ++--
->   drivers/gpu/drm/radeon/radeon_prime.c       | 4 ++--
->   drivers/gpu/drm/vgem/vgem_drv.c             | 4 ++--
->   include/drm/drm_drv.h                       | 5 ++---
->   12 files changed, 26 insertions(+), 27 deletions(-)
->
-> diff --git a/drivers/gpu/drm/drm_gem.c b/drivers/gpu/drm/drm_gem.c
-> index 84689ccae885..af2549c45027 100644
-> --- a/drivers/gpu/drm/drm_gem.c
-> +++ b/drivers/gpu/drm/drm_gem.c
-> @@ -1215,22 +1215,22 @@ void drm_gem_print_info(struct drm_printer *p, unsigned int indent,
->   		obj->dev->driver->gem_print_info(p, indent, obj);
->   }
->   
-> -int drm_gem_pin(struct drm_gem_object *obj)
-> +int drm_gem_pin(struct drm_gem_object *obj, struct device *dev)
->   {
->   	if (obj->funcs && obj->funcs->pin)
->   		return obj->funcs->pin(obj);
->   	else if (obj->dev->driver->gem_prime_pin)
-> -		return obj->dev->driver->gem_prime_pin(obj);
-> +		return obj->dev->driver->gem_prime_pin(obj, dev);
->   	else
->   		return 0;
->   }
->   
-> -void drm_gem_unpin(struct drm_gem_object *obj)
-> +void drm_gem_unpin(struct drm_gem_object *obj, struct device *dev)
->   {
->   	if (obj->funcs && obj->funcs->unpin)
->   		obj->funcs->unpin(obj);
->   	else if (obj->dev->driver->gem_prime_unpin)
-> -		obj->dev->driver->gem_prime_unpin(obj);
-> +		obj->dev->driver->gem_prime_unpin(obj, dev);
->   }
->   
->   void *drm_gem_vmap(struct drm_gem_object *obj)
-> diff --git a/drivers/gpu/drm/drm_internal.h b/drivers/gpu/drm/drm_internal.h
-> index 51a2055c8f18..e64090373e3a 100644
-> --- a/drivers/gpu/drm/drm_internal.h
-> +++ b/drivers/gpu/drm/drm_internal.h
-> @@ -133,8 +133,8 @@ void drm_gem_release(struct drm_device *dev, struct drm_file *file_private);
->   void drm_gem_print_info(struct drm_printer *p, unsigned int indent,
->   			const struct drm_gem_object *obj);
->   
-> -int drm_gem_pin(struct drm_gem_object *obj);
-> -void drm_gem_unpin(struct drm_gem_object *obj);
-> +int drm_gem_pin(struct drm_gem_object *obj, struct device *dev);
-> +void drm_gem_unpin(struct drm_gem_object *obj, struct device *dev);
->   void *drm_gem_vmap(struct drm_gem_object *obj);
->   void drm_gem_vunmap(struct drm_gem_object *obj, void *vaddr);
->   
-> diff --git a/drivers/gpu/drm/drm_prime.c b/drivers/gpu/drm/drm_prime.c
-> index 189d980402ad..126860432ff9 100644
-> --- a/drivers/gpu/drm/drm_prime.c
-> +++ b/drivers/gpu/drm/drm_prime.c
-> @@ -575,7 +575,7 @@ int drm_gem_map_attach(struct dma_buf *dma_buf,
->   {
->   	struct drm_gem_object *obj = dma_buf->priv;
->   
-> -	return drm_gem_pin(obj);
-> +	return drm_gem_pin(obj, attach->dev);
->   }
->   EXPORT_SYMBOL(drm_gem_map_attach);
->   
-> @@ -593,7 +593,7 @@ void drm_gem_map_detach(struct dma_buf *dma_buf,
->   {
->   	struct drm_gem_object *obj = dma_buf->priv;
->   
-> -	drm_gem_unpin(obj);
-> +	drm_gem_unpin(obj, attach->dev);
->   }
->   EXPORT_SYMBOL(drm_gem_map_detach);
->   
-> diff --git a/drivers/gpu/drm/etnaviv/etnaviv_gem_prime.c b/drivers/gpu/drm/etnaviv/etnaviv_gem_prime.c
-> index a05292e8ed6f..67e69a5f00f2 100644
-> --- a/drivers/gpu/drm/etnaviv/etnaviv_gem_prime.c
-> +++ b/drivers/gpu/drm/etnaviv/etnaviv_gem_prime.c
-> @@ -43,7 +43,7 @@ int etnaviv_gem_prime_mmap(struct drm_gem_object *obj,
->   	return etnaviv_obj->ops->mmap(etnaviv_obj, vma);
->   }
->   
-> -int etnaviv_gem_prime_pin(struct drm_gem_object *obj)
-> +int etnaviv_gem_prime_pin(struct drm_gem_object *obj, struct device *dev)
->   {
->   	if (!obj->import_attach) {
->   		struct etnaviv_gem_object *etnaviv_obj = to_etnaviv_bo(obj);
-> @@ -55,7 +55,7 @@ int etnaviv_gem_prime_pin(struct drm_gem_object *obj)
->   	return 0;
->   }
->   
-> -void etnaviv_gem_prime_unpin(struct drm_gem_object *obj)
-> +void etnaviv_gem_prime_unpin(struct drm_gem_object *obj, struct device *dev)
->   {
->   	if (!obj->import_attach) {
->   		struct etnaviv_gem_object *etnaviv_obj = to_etnaviv_bo(obj);
-> diff --git a/drivers/gpu/drm/msm/msm_drv.h b/drivers/gpu/drm/msm/msm_drv.h
-> index ee7b512dc158..0eea68618b68 100644
-> --- a/drivers/gpu/drm/msm/msm_drv.h
-> +++ b/drivers/gpu/drm/msm/msm_drv.h
-> @@ -288,8 +288,8 @@ void msm_gem_prime_vunmap(struct drm_gem_object *obj, void *vaddr);
->   int msm_gem_prime_mmap(struct drm_gem_object *obj, struct vm_area_struct *vma);
->   struct drm_gem_object *msm_gem_prime_import_sg_table(struct drm_device *dev,
->   		struct dma_buf_attachment *attach, struct sg_table *sg);
-> -int msm_gem_prime_pin(struct drm_gem_object *obj);
-> -void msm_gem_prime_unpin(struct drm_gem_object *obj);
-> +int msm_gem_prime_pin(struct drm_gem_object *obj, struct device *dev);
-> +void msm_gem_prime_unpin(struct drm_gem_object *obj, struct device *dev);
->   void *msm_gem_get_vaddr(struct drm_gem_object *obj);
->   void *msm_gem_get_vaddr_active(struct drm_gem_object *obj);
->   void msm_gem_put_vaddr(struct drm_gem_object *obj);
-> diff --git a/drivers/gpu/drm/msm/msm_gem_prime.c b/drivers/gpu/drm/msm/msm_gem_prime.c
-> index 5d64e0671f7a..cc07bf94e206 100644
-> --- a/drivers/gpu/drm/msm/msm_gem_prime.c
-> +++ b/drivers/gpu/drm/msm/msm_gem_prime.c
-> @@ -47,14 +47,14 @@ struct drm_gem_object *msm_gem_prime_import_sg_table(struct drm_device *dev,
->   	return msm_gem_import(dev, attach->dmabuf, sg);
->   }
->   
-> -int msm_gem_prime_pin(struct drm_gem_object *obj)
-> +int msm_gem_prime_pin(struct drm_gem_object *obj, struct device *dev)
->   {
->   	if (!obj->import_attach)
->   		msm_gem_get_pages(obj);
->   	return 0;
->   }
->   
-> -void msm_gem_prime_unpin(struct drm_gem_object *obj)
-> +void msm_gem_prime_unpin(struct drm_gem_object *obj, struct device *dev)
->   {
->   	if (!obj->import_attach)
->   		msm_gem_put_pages(obj);
-> diff --git a/drivers/gpu/drm/nouveau/nouveau_gem.h b/drivers/gpu/drm/nouveau/nouveau_gem.h
-> index fe39998f65cc..91dcf89138f1 100644
-> --- a/drivers/gpu/drm/nouveau/nouveau_gem.h
-> +++ b/drivers/gpu/drm/nouveau/nouveau_gem.h
-> @@ -32,9 +32,9 @@ extern int nouveau_gem_ioctl_cpu_fini(struct drm_device *, void *,
->   extern int nouveau_gem_ioctl_info(struct drm_device *, void *,
->   				  struct drm_file *);
->   
-> -extern int nouveau_gem_prime_pin(struct drm_gem_object *);
-> +extern int nouveau_gem_prime_pin(struct drm_gem_object *, struct device *);
->   struct reservation_object *nouveau_gem_prime_res_obj(struct drm_gem_object *);
-> -extern void nouveau_gem_prime_unpin(struct drm_gem_object *);
-> +extern void nouveau_gem_prime_unpin(struct drm_gem_object *, struct device *);
->   extern struct sg_table *nouveau_gem_prime_get_sg_table(struct drm_gem_object *);
->   extern struct drm_gem_object *nouveau_gem_prime_import_sg_table(
->   	struct drm_device *, struct dma_buf_attachment *, struct sg_table *);
-> diff --git a/drivers/gpu/drm/nouveau/nouveau_prime.c b/drivers/gpu/drm/nouveau/nouveau_prime.c
-> index 1fefc93af1d7..dec2d5e37b34 100644
-> --- a/drivers/gpu/drm/nouveau/nouveau_prime.c
-> +++ b/drivers/gpu/drm/nouveau/nouveau_prime.c
-> @@ -88,7 +88,7 @@ struct drm_gem_object *nouveau_gem_prime_import_sg_table(struct drm_device *dev,
->   	return &nvbo->gem;
->   }
->   
-> -int nouveau_gem_prime_pin(struct drm_gem_object *obj)
-> +int nouveau_gem_prime_pin(struct drm_gem_object *obj, struct device *dev)
->   {
->   	struct nouveau_bo *nvbo = nouveau_gem_object(obj);
->   	int ret;
-> @@ -101,7 +101,7 @@ int nouveau_gem_prime_pin(struct drm_gem_object *obj)
->   	return 0;
->   }
->   
-> -void nouveau_gem_prime_unpin(struct drm_gem_object *obj)
-> +void nouveau_gem_prime_unpin(struct drm_gem_object *obj, struct device *dev)
->   {
->   	struct nouveau_bo *nvbo = nouveau_gem_object(obj);
->   
-> diff --git a/drivers/gpu/drm/qxl/qxl_prime.c b/drivers/gpu/drm/qxl/qxl_prime.c
-> index 7d3816fca5a8..21e9b44eb2e4 100644
-> --- a/drivers/gpu/drm/qxl/qxl_prime.c
-> +++ b/drivers/gpu/drm/qxl/qxl_prime.c
-> @@ -28,14 +28,14 @@
->   /* Empty Implementations as there should not be any other driver for a virtual
->    * device that might share buffers with qxl */
->   
-> -int qxl_gem_prime_pin(struct drm_gem_object *obj)
-> +int qxl_gem_prime_pin(struct drm_gem_object *obj, struct device *dev)
->   {
->   	struct qxl_bo *bo = gem_to_qxl_bo(obj);
->   
->   	return qxl_bo_pin(bo);
->   }
->   
-> -void qxl_gem_prime_unpin(struct drm_gem_object *obj)
-> +void qxl_gem_prime_unpin(struct drm_gem_object *obj, struct device *dev)
->   {
->   	struct qxl_bo *bo = gem_to_qxl_bo(obj);
->   
-> diff --git a/drivers/gpu/drm/radeon/radeon_prime.c b/drivers/gpu/drm/radeon/radeon_prime.c
-> index deaffce50a2e..f3442bd860f6 100644
-> --- a/drivers/gpu/drm/radeon/radeon_prime.c
-> +++ b/drivers/gpu/drm/radeon/radeon_prime.c
-> @@ -83,7 +83,7 @@ struct drm_gem_object *radeon_gem_prime_import_sg_table(struct drm_device *dev,
->   	return &bo->gem_base;
->   }
->   
-> -int radeon_gem_prime_pin(struct drm_gem_object *obj)
-> +int radeon_gem_prime_pin(struct drm_gem_object *obj, struct device *dev)
->   {
->   	struct radeon_bo *bo = gem_to_radeon_bo(obj);
->   	int ret = 0;
-> @@ -101,7 +101,7 @@ int radeon_gem_prime_pin(struct drm_gem_object *obj)
->   	return ret;
->   }
->   
-> -void radeon_gem_prime_unpin(struct drm_gem_object *obj)
-> +void radeon_gem_prime_unpin(struct drm_gem_object *obj, struct device *dev)
->   {
->   	struct radeon_bo *bo = gem_to_radeon_bo(obj);
->   	int ret = 0;
-> diff --git a/drivers/gpu/drm/vgem/vgem_drv.c b/drivers/gpu/drm/vgem/vgem_drv.c
-> index 76d95b5e289c..e7d12e93b1f0 100644
-> --- a/drivers/gpu/drm/vgem/vgem_drv.c
-> +++ b/drivers/gpu/drm/vgem/vgem_drv.c
-> @@ -307,7 +307,7 @@ static void vgem_unpin_pages(struct drm_vgem_gem_object *bo)
->   	mutex_unlock(&bo->pages_lock);
->   }
->   
-> -static int vgem_prime_pin(struct drm_gem_object *obj)
-> +static int vgem_prime_pin(struct drm_gem_object *obj, struct device *dev)
->   {
->   	struct drm_vgem_gem_object *bo = to_vgem_bo(obj);
->   	long n_pages = obj->size >> PAGE_SHIFT;
-> @@ -325,7 +325,7 @@ static int vgem_prime_pin(struct drm_gem_object *obj)
->   	return 0;
->   }
->   
-> -static void vgem_prime_unpin(struct drm_gem_object *obj)
-> +static void vgem_prime_unpin(struct drm_gem_object *obj, struct device *dev)
->   {
->   	struct drm_vgem_gem_object *bo = to_vgem_bo(obj);
->   
-> diff --git a/include/drm/drm_drv.h b/include/drm/drm_drv.h
-> index b33f2cee2099..2b3d79bde6e1 100644
-> --- a/include/drm/drm_drv.h
-> +++ b/include/drm/drm_drv.h
-> @@ -592,20 +592,19 @@ struct drm_driver {
->   	 */
->   	struct drm_gem_object * (*gem_prime_import)(struct drm_device *dev,
->   				struct dma_buf *dma_buf);
-> -
->   	/**
->   	 * @gem_prime_pin:
->   	 *
->   	 * Deprecated hook in favour of &drm_gem_object_funcs.pin.
->   	 */
-> -	int (*gem_prime_pin)(struct drm_gem_object *obj);
-> +	int (*gem_prime_pin)(struct drm_gem_object *obj, struct device *dev);
->   
->   	/**
->   	 * @gem_prime_unpin:
->   	 *
->   	 * Deprecated hook in favour of &drm_gem_object_funcs.unpin.
->   	 */
-> -	void (*gem_prime_unpin)(struct drm_gem_object *obj);
-> +	void (*gem_prime_unpin)(struct drm_gem_object *obj, struct device *dev);
->   
->   
->   	/**
+This version were tested with:
+- zercopy/datacopy
+- mergeable buffer on/off
+- TCP stream & virtio-user
+
+Changes from V2:
+- rebase on top of vhost metadata accelreation series
+- introduce shadow used ring API
+- new SET_VRING_BASE/GET_VRING_BASE that takes care about warp counter
+  and index for both avail and used
+- various twaeaks
+
+Changes from V1:
+- drop uapi patch and use Tiwei's
+- split the enablement of packed virtqueue into a separate patch
+
+Changes from RFC V5:
+- save unnecessary barriers during vhost_add_used_packed_n()
+- more compact math for event idx
+- fix failure of SET_VRING_BASE when avail_wrap_counter is true
+- fix not copy avail_wrap_counter during GET_VRING_BASE
+- introduce SET_VRING_USED_BASE/GET_VRING_USED_BASE for syncing
+- last_used_idx
+- rename used_wrap_counter to last_used_wrap_counter
+- rebase to net-next
+
+Changes from RFC V4:
+- fix signalled_used index recording
+- track avail index correctly
+- various minor fixes
+
+Changes from RFC V3:
+- Fix math on event idx checking
+- Sync last avail wrap counter through GET/SET_VRING_BASE
+- remove desc_event prefix in the driver/device structure
+
+Changes from RFC V2:
+- do not use & in checking desc_event_flags
+- off should be most significant bit
+- remove the workaround of mergeable buffer for dpdk prototype
+- id should be in the last descriptor in the chain
+- keep _F_WRITE for write descriptor when adding used
+- device flags updating should use ADDR_USED type
+- return error on unexpected unavail descriptor in a chain
+- return false in vhost_ve_avail_empty is descriptor is available
+- track last seen avail_wrap_counter
+- correctly examine available descriptor in get_indirect_packed()
+- vhost_idx_diff should return u16 instead of bool
+
+Changes from RFC V1:
+- Refactor vhost used elem code to avoid open coding on used elem
+- Event suppression support (compile test only).
+- Indirect descriptor support (compile test only).
+- Zerocopy support.
+- vIOMMU support.
+- SCSI/VSOCK support (compile test only).
+- Fix several bugs
+
+Jason Wang (15):
+  vhost: simplify meta data pointer accessing
+  vhost: remove the unnecessary parameter of vhost_vq_avail_empty()
+  vhost: remove unnecessary parameter of
+    vhost_enable_notify()/vhost_disable_notify
+  vhost-net: don't use vhost_add_used_n() for zerocopy
+  vhost: introduce helpers to manipulate shadow used ring
+  vhost_net: switch TX to use shadow used ring API
+  vhost_net: calculate last used length once for mergeable buffer
+  vhost_net: switch to use shadow used ring API for RX
+  vhost: do not export vhost_add_used_n() and
+    vhost_add_used_and_signal_n()
+  vhost: hide used ring layout from device
+  vhost: do not use vring_used_elem
+  vhost: vhost_put_user() can accept metadata type
+  vhost: packed ring support
+  vhost: event suppression for packed ring
+  vhost: enable packed virtqueues
+
+ drivers/vhost/net.c   |  200 +++---
+ drivers/vhost/scsi.c  |   72 +-
+ drivers/vhost/test.c  |    6 +-
+ drivers/vhost/vhost.c | 1508 +++++++++++++++++++++++++++++++++++------
+ drivers/vhost/vhost.h |   78 ++-
+ drivers/vhost/vsock.c |   57 +-
+ 6 files changed, 1513 insertions(+), 408 deletions(-)
+
+-- 
+2.18.1
