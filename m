@@ -1,16 +1,16 @@
 From: "Michael S. Tsirkin" <mst@redhat.com>
-Subject: Re: [PATCH V3 00/15] Packed virtqueue support for vhost
-Date: Wed, 17 Jul 2019 10:28:35 -0400
-Message-ID: <20190717102824-mutt-send-email-mst__11227.9901908309$1563373743$gmane$org@kernel.org>
-References: <20190717105255.63488-1-jasowang@redhat.com>
-	<20190717070100-mutt-send-email-mst@kernel.org>
-	<af066030-96f1-4a8d-4864-7b6b903477a6@redhat.com>
+Subject: Re: [PATCH v4 3/5] vsock/virtio: fix locking in
+	virtio_transport_inc_tx_pkt()
+Date: Wed, 17 Jul 2019 10:51:47 -0400
+Message-ID: <20190717105056-mutt-send-email-mst__27436.2091485941$1563375128$gmane$org@kernel.org>
+References: <20190717113030.163499-1-sgarzare@redhat.com>
+	<20190717113030.163499-4-sgarzare@redhat.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="utf-8"
-Content-Transfer-Encoding: base64
+Content-Type: text/plain; charset="us-ascii"
+Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
 Content-Disposition: inline
-In-Reply-To: <af066030-96f1-4a8d-4864-7b6b903477a6@redhat.com>
+In-Reply-To: <20190717113030.163499-4-sgarzare@redhat.com>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -20,28 +20,65 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Jason Wang <jasowang@redhat.com>
-Cc: kvm@vger.kernel.org, netdev@vger.kernel.org, linux-kernel@vger.kernel.org, virtualization@lists.linux-foundation.org, maxime.coquelin@redhat.com
+To: Stefano Garzarella <sgarzare@redhat.com>
+Cc: kvm@vger.kernel.org, netdev@vger.kernel.org, linux-kernel@vger.kernel.org, virtualization@lists.linux-foundation.org, Stefan Hajnoczi <stefanha@redhat.com>, "David S. Miller" <davem@davemloft.net>
 List-Id: virtualization@lists.linuxfoundation.org
 
-T24gV2VkLCBKdWwgMTcsIDIwMTkgYXQgMDg6Mjc6MjhQTSArMDgwMCwgSmFzb24gV2FuZyB3cm90
-ZToKPiAKPiBPbiAyMDE5LzcvMTcg5LiL5Y2INzowMiwgTWljaGFlbCBTLiBUc2lya2luIHdyb3Rl
-Ogo+ID4gT24gV2VkLCBKdWwgMTcsIDIwMTkgYXQgMDY6NTI6NDBBTSAtMDQwMCwgSmFzb24gV2Fu
-ZyB3cm90ZToKPiA+ID4gSGkgYWxsOgo+ID4gPiAKPiA+ID4gVGhpcyBzZXJpZXMgaW1wbGVtZW50
-cyBwYWNrZWQgdmlydHF1ZXVlcyB3aGljaCB3ZXJlIGRlc2NyaWJlZAo+ID4gPiBhdCBbMV0uIElu
-IHRoaXMgdmVyc2lvbiB3ZSB0cnkgdG8gYWRkcmVzcyB0aGUgcGVyZm9ybWFuY2UgcmVncmVzc2lv
-bgo+ID4gPiBzYXcgYnkgVjIuIFRoZSByb290IGNhdXNlIGlzIHBhY2tlZCB2aXJ0cXVldWUgbmVl
-ZCBtb3JlIHRpbWVzIG9mCj4gPiA+IHVzZXJzcGFjZSBtZW1vcnkgYWNjZXNzc2luZyB3aGljaCB0
-dXJucyBvdXQgdG8gYmUgdmVyeQo+ID4gPiBleHBlbnNpdmUuIFRoYW5rcyB0byB0aGUgaGVscCBv
-ZiA3ZjQ2NjAzMmRjOWUgKCJ2aG9zdDogYWNjZXNzIHZxCj4gPiA+IG1ldGFkYXRhIHRocm91Z2gg
-a2VybmVsIHZpcnR1YWwgYWRkcmVzcyIpLCBzdWNoIG92ZXJoZWFkIGNvbGQgYmUKPiA+ID4gZWxp
-bWluYXRlZC4gU28gaW4gdGhpcyB2ZXJzaW9uLCB3ZSBjYW4gc2VlIGFib3V0IDIlIGltcHJvdmVt
-ZW50IGZvcgo+ID4gPiBwYWNrZWQgdmlydHF1ZXVlIG9uIFBQUy4KPiA+IEdyZWF0IGpvYiwgdGhh
-bmtzIQo+ID4gUGxzIGFsbG93IGEgYml0IG1vcmUgcmV2aWV3IHRpbWUgdGhhbiB1c3VhbCBhcyB0
-aGlzIGlzIGEgYmlnIHBhdGNoc2V0Lgo+ID4gU2hvdWxkIGJlIGRvbmUgYnkgVHVlc2RheS4KPiA+
-IC1uZXh0IG1hdGVyaWFsIGFueXdheS4KPiAKPiAKPiBTdXJlLCBqdXN0IHRvIGNvbmZpcm0sIEkg
-dGhpbmsgdGhpcyBzaG91bGQgZ28gZm9yIHlvdXIgdmhvc3QgdHJlZT8uCj4gCj4gVGhhbmtzCgpJ
-IHRoaW5rIHRoaXMgbWFrZXMgc2Vuc2UsIHllcy4KX19fX19fX19fX19fX19fX19fX19fX19fX19f
-X19fX19fX19fX19fX19fX19fX18KVmlydHVhbGl6YXRpb24gbWFpbGluZyBsaXN0ClZpcnR1YWxp
-emF0aW9uQGxpc3RzLmxpbnV4LWZvdW5kYXRpb24ub3JnCmh0dHBzOi8vbGlzdHMubGludXhmb3Vu
-ZGF0aW9uLm9yZy9tYWlsbWFuL2xpc3RpbmZvL3ZpcnR1YWxpemF0aW9u
+On Wed, Jul 17, 2019 at 01:30:28PM +0200, Stefano Garzarella wrote:
+> fwd_cnt and last_fwd_cnt are protected by rx_lock, so we should use
+> the same spinlock also if we are in the TX path.
+> 
+> Move also buf_alloc under the same lock.
+> 
+> Signed-off-by: Stefano Garzarella <sgarzare@redhat.com>
+
+Wait a second is this a bugfix?
+If it's used under the wrong lock won't values get corrupted?
+Won't traffic then stall or more data get to sent than
+credits?
+
+> ---
+>  include/linux/virtio_vsock.h            | 2 +-
+>  net/vmw_vsock/virtio_transport_common.c | 4 ++--
+>  2 files changed, 3 insertions(+), 3 deletions(-)
+> 
+> diff --git a/include/linux/virtio_vsock.h b/include/linux/virtio_vsock.h
+> index 49fc9d20bc43..4c7781f4b29b 100644
+> --- a/include/linux/virtio_vsock.h
+> +++ b/include/linux/virtio_vsock.h
+> @@ -35,7 +35,6 @@ struct virtio_vsock_sock {
+>  
+>  	/* Protected by tx_lock */
+>  	u32 tx_cnt;
+> -	u32 buf_alloc;
+>  	u32 peer_fwd_cnt;
+>  	u32 peer_buf_alloc;
+>  
+> @@ -43,6 +42,7 @@ struct virtio_vsock_sock {
+>  	u32 fwd_cnt;
+>  	u32 last_fwd_cnt;
+>  	u32 rx_bytes;
+> +	u32 buf_alloc;
+>  	struct list_head rx_queue;
+>  };
+>  
+> diff --git a/net/vmw_vsock/virtio_transport_common.c b/net/vmw_vsock/virtio_transport_common.c
+> index a85559d4d974..34a2b42313b7 100644
+> --- a/net/vmw_vsock/virtio_transport_common.c
+> +++ b/net/vmw_vsock/virtio_transport_common.c
+> @@ -210,11 +210,11 @@ static void virtio_transport_dec_rx_pkt(struct virtio_vsock_sock *vvs,
+>  
+>  void virtio_transport_inc_tx_pkt(struct virtio_vsock_sock *vvs, struct virtio_vsock_pkt *pkt)
+>  {
+> -	spin_lock_bh(&vvs->tx_lock);
+> +	spin_lock_bh(&vvs->rx_lock);
+>  	vvs->last_fwd_cnt = vvs->fwd_cnt;
+>  	pkt->hdr.fwd_cnt = cpu_to_le32(vvs->fwd_cnt);
+>  	pkt->hdr.buf_alloc = cpu_to_le32(vvs->buf_alloc);
+> -	spin_unlock_bh(&vvs->tx_lock);
+> +	spin_unlock_bh(&vvs->rx_lock);
+>  }
+>  EXPORT_SYMBOL_GPL(virtio_transport_inc_tx_pkt);
+>  
+> -- 
+> 2.20.1
