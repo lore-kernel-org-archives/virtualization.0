@@ -1,18 +1,12 @@
 From: "Michael S. Tsirkin" <mst@redhat.com>
-Subject: Re: [PATCH] virtio-net: parameterize min ring num_free for virtio
-	receive
-Date: Thu, 18 Jul 2019 10:43:46 -0400
-Message-ID: <20190718104307-mutt-send-email-mst__29564.2747588985$1563461061$gmane$org@kernel.org>
-References: <BYAPR14MB32056583C4963342F5D817C4A6C80@BYAPR14MB3205.namprd14.prod.outlook.com>
-	<20190718085836-mutt-send-email-mst@kernel.org>
-	<bdd30ef5-4f69-8218-eed0-38c6daac42db@redhat.com>
-	<20190718103641-mutt-send-email-mst@kernel.org>
+Subject: [PATCH v5 1/2] mm/balloon_compaction: avoid duplicate page removal
+Date: Thu, 18 Jul 2019 16:45:46 -0400
+Message-ID: <20190718204333.26030-1-mst__20206.8157772132$1563482781$gmane$org@redhat.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="utf-8"
-Content-Transfer-Encoding: base64
+Content-Type: text/plain; charset="us-ascii"
+Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
 Content-Disposition: inline
-In-Reply-To: <20190718103641-mutt-send-email-mst@kernel.org>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -22,50 +16,72 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Jason Wang <jasowang@redhat.com>
-Cc: "xdp-newbies@vger.kernel.org" <xdp-newbies@vger.kernel.org>, "songliubraving@fb.com" <songliubraving@fb.com>, "kafai@fb.com" <kafai@fb.com>, "jakub.kicinski@netronome.com" <jakub.kicinski@netronome.com>, "hawk@kernel.org" <hawk@kernel.org>, "daniel@iogearbox.net" <daniel@iogearbox.net>, "jiangran.jr@alibaba-inc.com" <jiangran.jr@alibaba-inc.com>, "netdev@vger.kernel.org" <netdev@vger.kernel.org>, "john.fastabend@gmail.com" <john.fastabend@gmail.com>, "ast@kernel.org" <ast@kernel.org>, ? jiang <jiangkidd@hotmail.com>, "yhs@fb.com" <yhs@fb.com>, "bpf@vger.kernel.org" <bpf@vger.kernel.org>, "virtualization@lists.linux-foundation.org" <virtualization@lists.linux-foundation.org>, "davem@davemloft.net" <davem@davemloft.net>, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>
+To: linux-kernel@vger.kernel.org
+Cc: linux-mm@kvack.org, Andrew Morton <akpm@linux-foundation.org>, virtualization@lists.linux-foundation.org
 List-Id: virtualization@lists.linuxfoundation.org
 
-T24gVGh1LCBKdWwgMTgsIDIwMTkgYXQgMTA6NDI6NDdBTSAtMDQwMCwgTWljaGFlbCBTLiBUc2ly
-a2luIHdyb3RlOgo+IE9uIFRodSwgSnVsIDE4LCAyMDE5IGF0IDEwOjAxOjA1UE0gKzA4MDAsIEph
-c29uIFdhbmcgd3JvdGU6Cj4gPiAKPiA+IE9uIDIwMTkvNy8xOCDkuIvljYg5OjA0LCBNaWNoYWVs
-IFMuIFRzaXJraW4gd3JvdGU6Cj4gPiA+IE9uIFRodSwgSnVsIDE4LCAyMDE5IGF0IDEyOjU1OjUw
-UE0gKzAwMDAsID8gamlhbmcgd3JvdGU6Cj4gPiA+ID4gVGhpcyBjaGFuZ2UgbWFrZXMgcmluZyBi
-dWZmZXIgcmVjbGFpbSB0aHJlc2hvbGQgbnVtX2ZyZWUgY29uZmlndXJhYmxlCj4gPiA+ID4gZm9y
-IGJldHRlciBwZXJmb3JtYW5jZSwgd2hpbGUgaXQncyBoYXJkIGNvZGVkIGFzIDEvMiAqIHF1ZXVl
-IG5vdy4KPiA+ID4gPiBBY2NvcmRpbmcgdG8gb3VyIHRlc3Qgd2l0aCBxZW11ICsgZHBkaywgcGFj
-a2V0IGRyb3BwaW5nIGhhcHBlbnMgd2hlbgo+ID4gPiA+IHRoZSBndWVzdCBpcyBub3QgYWJsZSB0
-byBwcm92aWRlIGZyZWUgYnVmZmVyIGluIGF2YWlsIHJpbmcgdGltZWx5Lgo+ID4gPiA+IFNtYWxs
-ZXIgdmFsdWUgb2YgbnVtX2ZyZWUgZG9lcyBkZWNyZWFzZSB0aGUgbnVtYmVyIG9mIHBhY2tldCBk
-cm9wcGluZwo+ID4gPiA+IGR1cmluZyBvdXIgdGVzdCBhcyBpdCBtYWtlcyB2aXJ0aW9fbmV0IHJl
-Y2xhaW0gYnVmZmVyIGVhcmxpZXIuCj4gPiA+ID4gCj4gPiA+ID4gQXQgbGVhc3QsIHdlIHNob3Vs
-ZCBsZWF2ZSB0aGUgdmFsdWUgY2hhbmdlYWJsZSB0byB1c2VyIHdoaWxlIHRoZQo+ID4gPiA+IGRl
-ZmF1bHQgdmFsdWUgYXMgMS8yICogcXVldWUgaXMga2VwdC4KPiA+ID4gPiAKPiA+ID4gPiBTaWdu
-ZWQtb2ZmLWJ5OiBqaWFuZ2tpZGQ8amlhbmdraWRkQGhvdG1haWwuY29tPgo+ID4gPiBUaGF0IHdv
-dWxkIGJlIG9uZSByZWFzb24sIGJ1dCBJIHN1c3BlY3QgaXQncyBub3QgdGhlCj4gPiA+IHRydWUg
-b25lLiBJZiB5b3UgbmVlZCBtb3JlIGJ1ZmZlciBkdWUgdG8gaml0dGVyCj4gPiA+IHRoZW4ganVz
-dCBpbmNyZWFzZSB0aGUgcXVldWUgc2l6ZS4gV291bGQgYmUgY2xlYW5lci4KPiA+ID4gCj4gPiA+
-IAo+ID4gPiBIb3dldmVyIGFyZSB5b3Ugc3VyZSB0aGlzIGlzIHRoZSByZWFzb24gZm9yCj4gPiA+
-IHBhY2tldCBkcm9wcz8gRG8geW91IHNlZSB0aGVtIGRyb3BwZWQgYnkgZHBkawo+ID4gPiBkdWUg
-dG8gbGFjayBvZiBzcGFjZSBpbiB0aGUgcmluZz8gQXMgb3Bwb3NlZCB0bwo+ID4gPiBieSBndWVz
-dD8KPiA+ID4gCj4gPiA+IAo+ID4gCj4gPiBCZXNpZGVzIHRob3NlLCB0aGlzIHBhdGNoIGRlcGVu
-ZHMgb24gdGhlIHVzZXIgdG8gY2hvb3NlIGEgc3VpdGFibGUgdGhyZXNob2xkCj4gPiB3aGljaCBp
-cyBub3QgZ29vZC4gWW91IG5lZWQgZWl0aGVyIGEgZ29vZCB2YWx1ZSB3aXRoIGRlbW9uc3RyYXRl
-ZCBudW1iZXJzIG9yCj4gPiBzb21ldGhpbmcgc21hcnRlci4KPiA+IAo+ID4gVGhhbmtzCj4gCj4g
-SSBkbyBob3dldmVyIHRoaW5rIHRoYXQgd2UgaGF2ZSBhIHByb2JsZW0gcmlnaHQgbm93OiB0cnlf
-ZmlsbF9yZWN2IGNhbgo+IHRha2UgdXAgYSBsb25nIHRpbWUgZHVyaW5nIHdoaWNoIG5ldCBzdGFj
-ayBkb2VzIG5vdCBydW4gYXQgYWxsLiBJbWFnaW5lCj4gYSAxSyBxdWV1ZSAtIHdlIGFyZSB0YWxr
-aW5nIDUxMiBwYWNrZXRzLiBUaGF0J3MgZXhjZWVzc2l2ZS4gIG5hcGkgcG9sbAo+IHdlaWdodCBz
-b2x2ZXMgYSBzaW1pbGFyIHByb2JsZW0sIHNvIGl0IG1pZ2h0IG1ha2Ugc2Vuc2UgdG8gY2FwIHRo
-aXMgYXQKPiBuYXBpX3BvbGxfd2VpZ2h0Lgo+IAo+IFdoaWNoIHdpbGwgYWxsb3cgdHdlYWtpbmcg
-aXQgdGhyb3VnaCBhIG1vZHVsZSBwYXJhbWV0ZXIgYXMgYQo+IHNpZGUgZWZmZWN0IDopIE1heWJl
-IGp1c3QgZG8gTkFQSV9QT0xMX1dFSUdIVC4KCk9yIG1heWJlIE5BUElfUE9MTF9XRUlHSFQvMiBs
-aWtlIHdlIGRvIGF0IGhhbGYgdGhlIHF1ZXVlIDspLiBQbGVhc2UKZXhwZXJpbWVudCwgbWVhc3Vy
-ZSBwZXJmb3JtYW5jZSBhbmQgbGV0IHRoZSBsaXN0IGtub3cKCj4gTmVlZCB0byBiZSBjYXJlZnVs
-IHRob3VnaDogcXVldWVzIGNhbiBhbHNvIGJlIHNtYWxsIGFuZCBJIGRvbid0IHRoaW5rIHdlCj4g
-d2FudCB0byBleGNlZWQgcXVldWUgc2l6ZSAvIDIsIG9yIG1heWJlIHF1ZXVlIHNpemUgLSBuYXBp
-X3BvbGxfd2VpZ2h0Lgo+IERlZmluaXRlbHkgbXVzdCBub3QgZXhjZWVkIHRoZSBmdWxsIHF1ZXVl
-IHNpemUuCj4gCj4gLS0gCj4gTVNUCl9fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19f
-X19fX19fX19fX19fClZpcnR1YWxpemF0aW9uIG1haWxpbmcgbGlzdApWaXJ0dWFsaXphdGlvbkBs
-aXN0cy5saW51eC1mb3VuZGF0aW9uLm9yZwpodHRwczovL2xpc3RzLmxpbnV4Zm91bmRhdGlvbi5v
-cmcvbWFpbG1hbi9saXN0aW5mby92aXJ0dWFsaXphdGlvbg==
+From: Wei Wang <wei.w.wang@intel.com>
+
+A #GP is reported in the guest when requesting balloon inflation via
+virtio-balloon. The reason is that the virtio-balloon driver has
+removed the page from its internal page list (via balloon_page_pop),
+but balloon_page_enqueue_one also calls "list_del"  to do the removal.
+This is necessary when it's used from balloon_page_enqueue_list, but
+not from balloon_page_enqueue.
+
+Move list_del to balloon_page_enqueue, and update comments accordingly.
+
+Fixes: 418a3ab1e778 (mm/balloon_compaction: List interfaces)
+Signed-off-by: Wei Wang <wei.w.wang@intel.com>
+Signed-off-by: Michael S. Tsirkin <mst@redhat.com>
+---
+
+Note: no need for CC stable since 418a3ab1e778 is new since 5.2
+
+ mm/balloon_compaction.c | 12 +++++++++---
+ 1 file changed, 9 insertions(+), 3 deletions(-)
+
+diff --git a/mm/balloon_compaction.c b/mm/balloon_compaction.c
+index 83a7b614061f..d25664e1857b 100644
+--- a/mm/balloon_compaction.c
++++ b/mm/balloon_compaction.c
+@@ -21,7 +21,6 @@ static void balloon_page_enqueue_one(struct balloon_dev_info *b_dev_info,
+ 	 * memory corruption is possible and we should stop execution.
+ 	 */
+ 	BUG_ON(!trylock_page(page));
+-	list_del(&page->lru);
+ 	balloon_page_insert(b_dev_info, page);
+ 	unlock_page(page);
+ 	__count_vm_event(BALLOON_INFLATE);
+@@ -47,6 +46,7 @@ size_t balloon_page_list_enqueue(struct balloon_dev_info *b_dev_info,
+ 
+ 	spin_lock_irqsave(&b_dev_info->pages_lock, flags);
+ 	list_for_each_entry_safe(page, tmp, pages, lru) {
++		list_del(&page->lru);
+ 		balloon_page_enqueue_one(b_dev_info, page);
+ 		n_pages++;
+ 	}
+@@ -128,13 +128,19 @@ struct page *balloon_page_alloc(void)
+ EXPORT_SYMBOL_GPL(balloon_page_alloc);
+ 
+ /*
+- * balloon_page_enqueue - allocates a new page and inserts it into the balloon
+- *			  page list.
++ * balloon_page_enqueue - inserts a new page into the balloon page list.
++ *
+  * @b_dev_info: balloon device descriptor where we will insert a new page to
+  * @page: new page to enqueue - allocated using balloon_page_alloc.
+  *
+  * Driver must call it to properly enqueue a new allocated balloon page
+  * before definitively removing it from the guest system.
++ *
++ * Drivers must not call balloon_page_enqueue on pages that have been
++ * pushed to a list with balloon_page_push before removing them with
++ * balloon_page_pop. To all pages on a list, use balloon_page_list_enqueue
++ * instead.
++ *
+  * This function returns the page address for the recently enqueued page or
+  * NULL in the case we fail to allocate a new page this turn.
+  */
+-- 
+MST
