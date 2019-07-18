@@ -1,14 +1,17 @@
 From: "Michael S. Tsirkin" <mst@redhat.com>
-Subject: [PATCH v4 2/2] balloon: fix up comments
-Date: Thu, 18 Jul 2019 10:01:05 -0400
-Message-ID: <20190718140006.15052-2-mst__7036.8838425324$1563458523$gmane$org@redhat.com>
-References: <20190718140006.15052-1-mst@redhat.com>
+Subject: Re: [PATCH] virtio-net: parameterize min ring num_free for virtio
+	receive
+Date: Thu, 18 Jul 2019 10:42:47 -0400
+Message-ID: <20190718103641-mutt-send-email-mst__25401.3616054848$1563461008$gmane$org@kernel.org>
+References: <BYAPR14MB32056583C4963342F5D817C4A6C80@BYAPR14MB3205.namprd14.prod.outlook.com>
+	<20190718085836-mutt-send-email-mst@kernel.org>
+	<bdd30ef5-4f69-8218-eed0-38c6daac42db@redhat.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset="utf-8"
+Content-Transfer-Encoding: base64
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
 Content-Disposition: inline
-In-Reply-To: <20190718140006.15052-1-mst@redhat.com>
+In-Reply-To: <bdd30ef5-4f69-8218-eed0-38c6daac42db@redhat.com>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -18,158 +21,45 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: linux-kernel@vger.kernel.org
-Cc: linux-mm@kvack.org, virtualization@lists.linux-foundation.org
+To: Jason Wang <jasowang@redhat.com>
+Cc: "xdp-newbies@vger.kernel.org" <xdp-newbies@vger.kernel.org>, "songliubraving@fb.com" <songliubraving@fb.com>, "kafai@fb.com" <kafai@fb.com>, "jakub.kicinski@netronome.com" <jakub.kicinski@netronome.com>, "hawk@kernel.org" <hawk@kernel.org>, "daniel@iogearbox.net" <daniel@iogearbox.net>, "jiangran.jr@alibaba-inc.com" <jiangran.jr@alibaba-inc.com>, "netdev@vger.kernel.org" <netdev@vger.kernel.org>, "john.fastabend@gmail.com" <john.fastabend@gmail.com>, "ast@kernel.org" <ast@kernel.org>, ? jiang <jiangkidd@hotmail.com>, "yhs@fb.com" <yhs@fb.com>, "bpf@vger.kernel.org" <bpf@vger.kernel.org>, "virtualization@lists.linux-foundation.org" <virtualization@lists.linux-foundation.org>, "davem@davemloft.net" <davem@davemloft.net>, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>
 List-Id: virtualization@lists.linuxfoundation.org
 
-Lots of comments bitrotted. Fix them up.
-
-Fixes: 418a3ab1e778 (mm/balloon_compaction: List interfaces)
-Reviewed-by: Wei Wang <wei.w.wang@intel.com>
-Signed-off-by: Michael S. Tsirkin <mst@redhat.com>
----
-
-fixes since v3:
-	teaks suggested by Wei
-
- mm/balloon_compaction.c | 71 ++++++++++++++++++++++-------------------
- 1 file changed, 39 insertions(+), 32 deletions(-)
-
-diff --git a/mm/balloon_compaction.c b/mm/balloon_compaction.c
-index d25664e1857b..7e95d2cd185a 100644
---- a/mm/balloon_compaction.c
-+++ b/mm/balloon_compaction.c
-@@ -32,10 +32,10 @@ static void balloon_page_enqueue_one(struct balloon_dev_info *b_dev_info,
-  * @b_dev_info: balloon device descriptor where we will insert a new page to
-  * @pages: pages to enqueue - allocated using balloon_page_alloc.
-  *
-- * Driver must call it to properly enqueue a balloon pages before definitively
-- * removing it from the guest system.
-+ * Driver must call this function to properly enqueue balloon pages before
-+ * definitively removing them from the guest system.
-  *
-- * Return: number of pages that were enqueued.
-+ * Returns: number of pages that were enqueued.
-  */
- size_t balloon_page_list_enqueue(struct balloon_dev_info *b_dev_info,
- 				 struct list_head *pages)
-@@ -63,14 +63,15 @@ EXPORT_SYMBOL_GPL(balloon_page_list_enqueue);
-  * @n_req_pages: number of requested pages.
-  *
-  * Driver must call this function to properly de-allocate a previous enlisted
-- * balloon pages before definetively releasing it back to the guest system.
-+ * balloon pages before definitively releasing it back to the guest system.
-  * This function tries to remove @n_req_pages from the ballooned pages and
-  * return them to the caller in the @pages list.
-  *
-- * Note that this function may fail to dequeue some pages temporarily empty due
-- * to compaction isolated pages.
-+ * Note that this function may fail to dequeue some pages even if the balloon
-+ * isn't empty - since the page list can be temporarily empty due to compaction
-+ * of isolated pages.
-  *
-- * Return: number of pages that were added to the @pages list.
-+ * Returns: number of pages that were added to the @pages list.
-  */
- size_t balloon_page_list_dequeue(struct balloon_dev_info *b_dev_info,
- 				 struct list_head *pages, size_t n_req_pages)
-@@ -112,12 +113,13 @@ EXPORT_SYMBOL_GPL(balloon_page_list_dequeue);
- 
- /*
-  * balloon_page_alloc - allocates a new page for insertion into the balloon
-- *			  page list.
-+ *			page list.
-  *
-- * Driver must call it to properly allocate a new enlisted balloon page.
-- * Driver must call balloon_page_enqueue before definitively removing it from
-- * the guest system.  This function returns the page address for the recently
-- * allocated page or NULL in the case we fail to allocate a new page this turn.
-+ * Driver must call this function to properly allocate a new balloon page.
-+ * Driver must call balloon_page_enqueue before definitively removing the page
-+ * from the guest system.
-+ *
-+ * Returns: struct page for the allocated page or NULL on allocation failure.
-  */
- struct page *balloon_page_alloc(void)
- {
-@@ -130,19 +132,15 @@ EXPORT_SYMBOL_GPL(balloon_page_alloc);
- /*
-  * balloon_page_enqueue - inserts a new page into the balloon page list.
-  *
-- * @b_dev_info: balloon device descriptor where we will insert a new page to
-+ * @b_dev_info: balloon device descriptor where we will insert a new page
-  * @page: new page to enqueue - allocated using balloon_page_alloc.
-  *
-- * Driver must call it to properly enqueue a new allocated balloon page
-- * before definitively removing it from the guest system.
-+ * Drivers must call this function to properly enqueue a new allocated balloon
-+ * page before definitively removing the page from the guest system.
-  *
-- * Drivers must not call balloon_page_enqueue on pages that have been
-- * pushed to a list with balloon_page_push before removing them with
-- * balloon_page_pop. To all pages on a list, use balloon_page_list_enqueue
-- * instead.
-- *
-- * This function returns the page address for the recently enqueued page or
-- * NULL in the case we fail to allocate a new page this turn.
-+ * Drivers must not call balloon_page_enqueue on pages that have been pushed to
-+ * a list with balloon_page_push before removing them with balloon_page_pop. To
-+ * enqueue a list of pages, use balloon_page_list_enqueue instead.
-  */
- void balloon_page_enqueue(struct balloon_dev_info *b_dev_info,
- 			  struct page *page)
-@@ -157,14 +155,23 @@ EXPORT_SYMBOL_GPL(balloon_page_enqueue);
- 
- /*
-  * balloon_page_dequeue - removes a page from balloon's page list and returns
-- *			  the its address to allow the driver release the page.
-+ *			  its address to allow the driver to release the page.
-  * @b_dev_info: balloon device decriptor where we will grab a page from.
-  *
-- * Driver must call it to properly de-allocate a previous enlisted balloon page
-- * before definetively releasing it back to the guest system.
-- * This function returns the page address for the recently dequeued page or
-- * NULL in the case we find balloon's page list temporarily empty due to
-- * compaction isolated pages.
-+ * Driver must call this function to properly dequeue a previously enqueued page
-+ * before definitively releasing it back to the guest system.
-+ *
-+ * Caller must perform its own accounting to ensure that this
-+ * function is called only if some pages are actually enqueued.
-+ *
-+ * Note that this function may fail to dequeue some pages even if there are
-+ * some enqueued pages - since the page list can be temporarily empty due to
-+ * the compaction of isolated pages.
-+ *
-+ * TODO: remove the caller accounting requirements, and allow caller to wait
-+ * until all pages can be dequeued.
-+ *
-+ * Returns: struct page for the dequeued page, or NULL if no page was dequeued.
-  */
- struct page *balloon_page_dequeue(struct balloon_dev_info *b_dev_info)
- {
-@@ -177,9 +184,9 @@ struct page *balloon_page_dequeue(struct balloon_dev_info *b_dev_info)
- 	if (n_pages != 1) {
- 		/*
- 		 * If we are unable to dequeue a balloon page because the page
--		 * list is empty and there is no isolated pages, then something
-+		 * list is empty and there are no isolated pages, then something
- 		 * went out of track and some balloon pages are lost.
--		 * BUG() here, otherwise the balloon driver may get stuck into
-+		 * BUG() here, otherwise the balloon driver may get stuck in
- 		 * an infinite loop while attempting to release all its pages.
- 		 */
- 		spin_lock_irqsave(&b_dev_info->pages_lock, flags);
-@@ -230,8 +237,8 @@ int balloon_page_migrate(struct address_space *mapping,
- 
- 	/*
- 	 * We can not easily support the no copy case here so ignore it as it
--	 * is unlikely to be use with ballon pages. See include/linux/hmm.h for
--	 * user of the MIGRATE_SYNC_NO_COPY mode.
-+	 * is unlikely to be used with balloon pages. See include/linux/hmm.h
-+	 * for a user of the MIGRATE_SYNC_NO_COPY mode.
- 	 */
- 	if (mode == MIGRATE_SYNC_NO_COPY)
- 		return -EINVAL;
--- 
-MST
+T24gVGh1LCBKdWwgMTgsIDIwMTkgYXQgMTA6MDE6MDVQTSArMDgwMCwgSmFzb24gV2FuZyB3cm90
+ZToKPiAKPiBPbiAyMDE5LzcvMTgg5LiL5Y2IOTowNCwgTWljaGFlbCBTLiBUc2lya2luIHdyb3Rl
+Ogo+ID4gT24gVGh1LCBKdWwgMTgsIDIwMTkgYXQgMTI6NTU6NTBQTSArMDAwMCwgPyBqaWFuZyB3
+cm90ZToKPiA+ID4gVGhpcyBjaGFuZ2UgbWFrZXMgcmluZyBidWZmZXIgcmVjbGFpbSB0aHJlc2hv
+bGQgbnVtX2ZyZWUgY29uZmlndXJhYmxlCj4gPiA+IGZvciBiZXR0ZXIgcGVyZm9ybWFuY2UsIHdo
+aWxlIGl0J3MgaGFyZCBjb2RlZCBhcyAxLzIgKiBxdWV1ZSBub3cuCj4gPiA+IEFjY29yZGluZyB0
+byBvdXIgdGVzdCB3aXRoIHFlbXUgKyBkcGRrLCBwYWNrZXQgZHJvcHBpbmcgaGFwcGVucyB3aGVu
+Cj4gPiA+IHRoZSBndWVzdCBpcyBub3QgYWJsZSB0byBwcm92aWRlIGZyZWUgYnVmZmVyIGluIGF2
+YWlsIHJpbmcgdGltZWx5Lgo+ID4gPiBTbWFsbGVyIHZhbHVlIG9mIG51bV9mcmVlIGRvZXMgZGVj
+cmVhc2UgdGhlIG51bWJlciBvZiBwYWNrZXQgZHJvcHBpbmcKPiA+ID4gZHVyaW5nIG91ciB0ZXN0
+IGFzIGl0IG1ha2VzIHZpcnRpb19uZXQgcmVjbGFpbSBidWZmZXIgZWFybGllci4KPiA+ID4gCj4g
+PiA+IEF0IGxlYXN0LCB3ZSBzaG91bGQgbGVhdmUgdGhlIHZhbHVlIGNoYW5nZWFibGUgdG8gdXNl
+ciB3aGlsZSB0aGUKPiA+ID4gZGVmYXVsdCB2YWx1ZSBhcyAxLzIgKiBxdWV1ZSBpcyBrZXB0Lgo+
+ID4gPiAKPiA+ID4gU2lnbmVkLW9mZi1ieTogamlhbmdraWRkPGppYW5na2lkZEBob3RtYWlsLmNv
+bT4KPiA+IFRoYXQgd291bGQgYmUgb25lIHJlYXNvbiwgYnV0IEkgc3VzcGVjdCBpdCdzIG5vdCB0
+aGUKPiA+IHRydWUgb25lLiBJZiB5b3UgbmVlZCBtb3JlIGJ1ZmZlciBkdWUgdG8gaml0dGVyCj4g
+PiB0aGVuIGp1c3QgaW5jcmVhc2UgdGhlIHF1ZXVlIHNpemUuIFdvdWxkIGJlIGNsZWFuZXIuCj4g
+PiAKPiA+IAo+ID4gSG93ZXZlciBhcmUgeW91IHN1cmUgdGhpcyBpcyB0aGUgcmVhc29uIGZvcgo+
+ID4gcGFja2V0IGRyb3BzPyBEbyB5b3Ugc2VlIHRoZW0gZHJvcHBlZCBieSBkcGRrCj4gPiBkdWUg
+dG8gbGFjayBvZiBzcGFjZSBpbiB0aGUgcmluZz8gQXMgb3Bwb3NlZCB0bwo+ID4gYnkgZ3Vlc3Q/
+Cj4gPiAKPiA+IAo+IAo+IEJlc2lkZXMgdGhvc2UsIHRoaXMgcGF0Y2ggZGVwZW5kcyBvbiB0aGUg
+dXNlciB0byBjaG9vc2UgYSBzdWl0YWJsZSB0aHJlc2hvbGQKPiB3aGljaCBpcyBub3QgZ29vZC4g
+WW91IG5lZWQgZWl0aGVyIGEgZ29vZCB2YWx1ZSB3aXRoIGRlbW9uc3RyYXRlZCBudW1iZXJzIG9y
+Cj4gc29tZXRoaW5nIHNtYXJ0ZXIuCj4gCj4gVGhhbmtzCgpJIGRvIGhvd2V2ZXIgdGhpbmsgdGhh
+dCB3ZSBoYXZlIGEgcHJvYmxlbSByaWdodCBub3c6IHRyeV9maWxsX3JlY3YgY2FuCnRha2UgdXAg
+YSBsb25nIHRpbWUgZHVyaW5nIHdoaWNoIG5ldCBzdGFjayBkb2VzIG5vdCBydW4gYXQgYWxsLiBJ
+bWFnaW5lCmEgMUsgcXVldWUgLSB3ZSBhcmUgdGFsa2luZyA1MTIgcGFja2V0cy4gVGhhdCdzIGV4
+Y2Vlc3NpdmUuICBuYXBpIHBvbGwKd2VpZ2h0IHNvbHZlcyBhIHNpbWlsYXIgcHJvYmxlbSwgc28g
+aXQgbWlnaHQgbWFrZSBzZW5zZSB0byBjYXAgdGhpcyBhdApuYXBpX3BvbGxfd2VpZ2h0LgoKV2hp
+Y2ggd2lsbCBhbGxvdyB0d2Vha2luZyBpdCB0aHJvdWdoIGEgbW9kdWxlIHBhcmFtZXRlciBhcyBh
+CnNpZGUgZWZmZWN0IDopIE1heWJlIGp1c3QgZG8gTkFQSV9QT0xMX1dFSUdIVC4KCk5lZWQgdG8g
+YmUgY2FyZWZ1bCB0aG91Z2g6IHF1ZXVlcyBjYW4gYWxzbyBiZSBzbWFsbCBhbmQgSSBkb24ndCB0
+aGluayB3ZQp3YW50IHRvIGV4Y2VlZCBxdWV1ZSBzaXplIC8gMiwgb3IgbWF5YmUgcXVldWUgc2l6
+ZSAtIG5hcGlfcG9sbF93ZWlnaHQuCkRlZmluaXRlbHkgbXVzdCBub3QgZXhjZWVkIHRoZSBmdWxs
+IHF1ZXVlIHNpemUuCgotLSAKTVNUCl9fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19f
+X19fX19fX19fX19fClZpcnR1YWxpemF0aW9uIG1haWxpbmcgbGlzdApWaXJ0dWFsaXphdGlvbkBs
+aXN0cy5saW51eC1mb3VuZGF0aW9uLm9yZwpodHRwczovL2xpc3RzLmxpbnV4Zm91bmRhdGlvbi5v
+cmcvbWFpbG1hbi9saXN0aW5mby92aXJ0dWFsaXphdGlvbg==
