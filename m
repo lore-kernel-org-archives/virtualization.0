@@ -1,7 +1,8 @@
 From: Sasha Levin <sashal@kernel.org>
-Subject: [PATCH AUTOSEL 5.1 004/141] drm/virtio: set seqno for dma-fence
-Date: Fri, 19 Jul 2019 00:00:29 -0400
-Message-ID: <20190719040246.15945-4-sashal__35345.248894167$1563509000$gmane$org@kernel.org>
+Subject: [PATCH AUTOSEL 5.1 007/141] drm/bochs: Fix connector leak during
+	driver unload
+Date: Fri, 19 Jul 2019 00:00:32 -0400
+Message-ID: <20190719040246.15945-7-sashal__10402.7503564552$1563509009$gmane$org@kernel.org>
 References: <20190719040246.15945-1-sashal@kernel.org>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
@@ -18,111 +19,48 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
 To: linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc: Sasha Levin <sashal@kernel.org>, dri-devel@lists.freedesktop.org, virtualization@lists.linux-foundation.org, Chia-I Wu <olvaffe@gmail.com>, Emil Velikov <emil.velikov@collabora.com>
+Cc: Sam Bobroff <sbobroff@linux.ibm.com>, Sasha Levin <sashal@kernel.org>, dri-devel@lists.freedesktop.org, virtualization@lists.linux-foundation.org
 List-Id: virtualization@lists.linuxfoundation.org
 
-From: Chia-I Wu <olvaffe@gmail.com>
+From: Sam Bobroff <sbobroff@linux.ibm.com>
 
-[ Upstream commit efe2bf965522bf0796d413b47a2abbf81d471d6f ]
+[ Upstream commit 3c6b8625dde82600fd03ad1fcba223f1303ee535 ]
 
-This is motivated by having meaningful ftrace events, but it also
-fixes use cases where dma_fence_is_later is called, such as in
-sync_file_merge.
+When unloading the bochs-drm driver, a warning message is printed by
+drm_mode_config_cleanup() because a reference is still held to one of
+the drm_connector structs.
 
-In other drivers, fence creation and cmdbuf submission normally
-happen atomically,
+Correct this by calling drm_atomic_helper_shutdown() in
+bochs_pci_remove().
 
-  mutex_lock();
-  fence = dma_fence_create(..., ++timeline->seqno);
-  submit_cmdbuf();
-  mutex_unlock();
-
-and have no such issue.  But in our driver, because most ioctls
-queue commands into ctrlq, we do not want to grab a lock.  Instead,
-we set seqno to 0 when a fence is created, and update it when the
-command is finally queued and the seqno is known.
-
-Signed-off-by: Chia-I Wu <olvaffe@gmail.com>
-Reviewed-by: Emil Velikov <emil.velikov@collabora.com>
-Link: http://patchwork.freedesktop.org/patch/msgid/20190429220825.156644-1-olvaffe@gmail.com
+Fixes: 6579c39594ae ("drm/bochs: atomic: switch planes to atomic, wire up helpers.")
+Signed-off-by: Sam Bobroff <sbobroff@linux.ibm.com>
+Link: http://patchwork.freedesktop.org/patch/msgid/93b363ad62f4938d9ddf3e05b2a61e3f66b2dcd3.1558416473.git.sbobroff@linux.ibm.com
 Signed-off-by: Gerd Hoffmann <kraxel@redhat.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/gpu/drm/virtio/virtgpu_drv.h   |  1 -
- drivers/gpu/drm/virtio/virtgpu_fence.c | 17 ++++++++++-------
- 2 files changed, 10 insertions(+), 8 deletions(-)
+ drivers/gpu/drm/bochs/bochs_drv.c | 2 ++
+ 1 file changed, 2 insertions(+)
 
-diff --git a/drivers/gpu/drm/virtio/virtgpu_drv.h b/drivers/gpu/drm/virtio/virtgpu_drv.h
-index d577cb76f5ad..eaa19c338f68 100644
---- a/drivers/gpu/drm/virtio/virtgpu_drv.h
-+++ b/drivers/gpu/drm/virtio/virtgpu_drv.h
-@@ -85,7 +85,6 @@ struct virtio_gpu_fence {
- 	struct dma_fence f;
- 	struct virtio_gpu_fence_driver *drv;
- 	struct list_head node;
--	uint64_t seq;
- };
- #define to_virtio_fence(x) \
- 	container_of(x, struct virtio_gpu_fence, f)
-diff --git a/drivers/gpu/drm/virtio/virtgpu_fence.c b/drivers/gpu/drm/virtio/virtgpu_fence.c
-index 21bd4c4a32d1..216ab005e224 100644
---- a/drivers/gpu/drm/virtio/virtgpu_fence.c
-+++ b/drivers/gpu/drm/virtio/virtgpu_fence.c
-@@ -40,16 +40,14 @@ static bool virtio_signaled(struct dma_fence *f)
+diff --git a/drivers/gpu/drm/bochs/bochs_drv.c b/drivers/gpu/drm/bochs/bochs_drv.c
+index 6b6e037258c3..7031f0168795 100644
+--- a/drivers/gpu/drm/bochs/bochs_drv.c
++++ b/drivers/gpu/drm/bochs/bochs_drv.c
+@@ -10,6 +10,7 @@
+ #include <linux/slab.h>
+ #include <drm/drm_fb_helper.h>
+ #include <drm/drm_probe_helper.h>
++#include <drm/drm_atomic_helper.h>
+ 
+ #include "bochs.h"
+ 
+@@ -174,6 +175,7 @@ static void bochs_pci_remove(struct pci_dev *pdev)
  {
- 	struct virtio_gpu_fence *fence = to_virtio_fence(f);
+ 	struct drm_device *dev = pci_get_drvdata(pdev);
  
--	if (atomic64_read(&fence->drv->last_seq) >= fence->seq)
-+	if (atomic64_read(&fence->drv->last_seq) >= fence->f.seqno)
- 		return true;
- 	return false;
- }
- 
- static void virtio_fence_value_str(struct dma_fence *f, char *str, int size)
- {
--	struct virtio_gpu_fence *fence = to_virtio_fence(f);
--
--	snprintf(str, size, "%llu", fence->seq);
-+	snprintf(str, size, "%llu", f->seqno);
- }
- 
- static void virtio_timeline_value_str(struct dma_fence *f, char *str, int size)
-@@ -76,6 +74,11 @@ struct virtio_gpu_fence *virtio_gpu_fence_alloc(struct virtio_gpu_device *vgdev)
- 		return fence;
- 
- 	fence->drv = drv;
-+
-+	/* This only partially initializes the fence because the seqno is
-+	 * unknown yet.  The fence must not be used outside of the driver
-+	 * until virtio_gpu_fence_emit is called.
-+	 */
- 	dma_fence_init(&fence->f, &virtio_fence_ops, &drv->lock, drv->context, 0);
- 
- 	return fence;
-@@ -89,13 +92,13 @@ int virtio_gpu_fence_emit(struct virtio_gpu_device *vgdev,
- 	unsigned long irq_flags;
- 
- 	spin_lock_irqsave(&drv->lock, irq_flags);
--	fence->seq = ++drv->sync_seq;
-+	fence->f.seqno = ++drv->sync_seq;
- 	dma_fence_get(&fence->f);
- 	list_add_tail(&fence->node, &drv->fences);
- 	spin_unlock_irqrestore(&drv->lock, irq_flags);
- 
- 	cmd_hdr->flags |= cpu_to_le32(VIRTIO_GPU_FLAG_FENCE);
--	cmd_hdr->fence_id = cpu_to_le64(fence->seq);
-+	cmd_hdr->fence_id = cpu_to_le64(fence->f.seqno);
- 	return 0;
- }
- 
-@@ -109,7 +112,7 @@ void virtio_gpu_fence_event_process(struct virtio_gpu_device *vgdev,
- 	spin_lock_irqsave(&drv->lock, irq_flags);
- 	atomic64_set(&vgdev->fence_drv.last_seq, last_seq);
- 	list_for_each_entry_safe(fence, tmp, &drv->fences, node) {
--		if (last_seq < fence->seq)
-+		if (last_seq < fence->f.seqno)
- 			continue;
- 		dma_fence_signal_locked(&fence->f);
- 		list_del(&fence->node);
++	drm_atomic_helper_shutdown(dev);
+ 	drm_dev_unregister(dev);
+ 	bochs_unload(dev);
+ 	drm_dev_put(dev);
 -- 
 2.20.1
