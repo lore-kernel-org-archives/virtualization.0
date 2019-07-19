@@ -1,14 +1,14 @@
 From: Sasha Levin <sashal@kernel.org>
-Subject: [PATCH AUTOSEL 4.9 13/45] drm/virtio: Add memory barriers for capset
+Subject: [PATCH AUTOSEL 4.4 10/35] drm/virtio: Add memory barriers for capset
 	cache.
-Date: Fri, 19 Jul 2019 00:12:32 -0400
-Message-ID: <20190719041304.18849-13-sashal__31090.219672636$1563509631$gmane$org@kernel.org>
-References: <20190719041304.18849-1-sashal@kernel.org>
+Date: Fri, 19 Jul 2019 00:13:58 -0400
+Message-ID: <20190719041423.19322-10-sashal__35296.6499443696$1563509708$gmane$org@kernel.org>
+References: <20190719041423.19322-1-sashal@kernel.org>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <20190719041304.18849-1-sashal@kernel.org>
+In-Reply-To: <20190719041423.19322-1-sashal@kernel.org>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -40,10 +40,10 @@ Signed-off-by: Sasha Levin <sashal@kernel.org>
  2 files changed, 5 insertions(+)
 
 diff --git a/drivers/gpu/drm/virtio/virtgpu_ioctl.c b/drivers/gpu/drm/virtio/virtgpu_ioctl.c
-index 54639395aba0..a3559b1a3a0f 100644
+index 6296e9f270ca..0b8f8c10f2ed 100644
 --- a/drivers/gpu/drm/virtio/virtgpu_ioctl.c
 +++ b/drivers/gpu/drm/virtio/virtgpu_ioctl.c
-@@ -521,6 +521,9 @@ static int virtio_gpu_get_caps_ioctl(struct drm_device *dev,
+@@ -535,6 +535,9 @@ static int virtio_gpu_get_caps_ioctl(struct drm_device *dev,
  	ret = wait_event_timeout(vgdev->resp_wq,
  				 atomic_read(&cache_ent->is_valid), 5 * HZ);
  
