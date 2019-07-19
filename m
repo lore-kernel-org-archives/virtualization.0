@@ -1,8 +1,8 @@
 From: Sasha Levin <sashal@kernel.org>
-Subject: [PATCH AUTOSEL 5.2 009/171] drm/bochs: Fix connector leak during
-	driver unload
-Date: Thu, 18 Jul 2019 23:54:00 -0400
-Message-ID: <20190719035643.14300-9-sashal__38822.7686098375$1563508660$gmane$org@kernel.org>
+Subject: [PATCH AUTOSEL 5.2 054/171] drm/virtio: Add memory barriers for
+	capset cache.
+Date: Thu, 18 Jul 2019 23:54:45 -0400
+Message-ID: <20190719035643.14300-54-sashal__10517.9088584677$1563508750$gmane$org@kernel.org>
 References: <20190719035643.14300-1-sashal@kernel.org>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
@@ -19,48 +19,52 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
 To: linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc: Sam Bobroff <sbobroff@linux.ibm.com>, Sasha Levin <sashal@kernel.org>, dri-devel@lists.freedesktop.org, virtualization@lists.linux-foundation.org
+Cc: Sasha Levin <sashal@kernel.org>, dri-devel@lists.freedesktop.org, virtualization@lists.linux-foundation.org
 List-Id: virtualization@lists.linuxfoundation.org
 
-From: Sam Bobroff <sbobroff@linux.ibm.com>
+From: David Riley <davidriley@chromium.org>
 
-[ Upstream commit 3c6b8625dde82600fd03ad1fcba223f1303ee535 ]
+[ Upstream commit 9ff3a5c88e1f1ab17a31402b96d45abe14aab9d7 ]
 
-When unloading the bochs-drm driver, a warning message is printed by
-drm_mode_config_cleanup() because a reference is still held to one of
-the drm_connector structs.
+After data is copied to the cache entry, atomic_set is used indicate
+that the data is the entry is valid without appropriate memory barriers.
+Similarly the read side was missing the corresponding memory barriers.
 
-Correct this by calling drm_atomic_helper_shutdown() in
-bochs_pci_remove().
-
-Fixes: 6579c39594ae ("drm/bochs: atomic: switch planes to atomic, wire up helpers.")
-Signed-off-by: Sam Bobroff <sbobroff@linux.ibm.com>
-Link: http://patchwork.freedesktop.org/patch/msgid/93b363ad62f4938d9ddf3e05b2a61e3f66b2dcd3.1558416473.git.sbobroff@linux.ibm.com
+Signed-off-by: David Riley <davidriley@chromium.org>
+Link: http://patchwork.freedesktop.org/patch/msgid/20190610211810.253227-5-davidriley@chromium.org
 Signed-off-by: Gerd Hoffmann <kraxel@redhat.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/gpu/drm/bochs/bochs_drv.c | 2 ++
- 1 file changed, 2 insertions(+)
+ drivers/gpu/drm/virtio/virtgpu_ioctl.c | 3 +++
+ drivers/gpu/drm/virtio/virtgpu_vq.c    | 2 ++
+ 2 files changed, 5 insertions(+)
 
-diff --git a/drivers/gpu/drm/bochs/bochs_drv.c b/drivers/gpu/drm/bochs/bochs_drv.c
-index b86cc705138c..d8b945596b09 100644
---- a/drivers/gpu/drm/bochs/bochs_drv.c
-+++ b/drivers/gpu/drm/bochs/bochs_drv.c
-@@ -7,6 +7,7 @@
- #include <linux/slab.h>
- #include <drm/drm_fb_helper.h>
- #include <drm/drm_probe_helper.h>
-+#include <drm/drm_atomic_helper.h>
+diff --git a/drivers/gpu/drm/virtio/virtgpu_ioctl.c b/drivers/gpu/drm/virtio/virtgpu_ioctl.c
+index 949a264985fc..19fbffd0f7a3 100644
+--- a/drivers/gpu/drm/virtio/virtgpu_ioctl.c
++++ b/drivers/gpu/drm/virtio/virtgpu_ioctl.c
+@@ -542,6 +542,9 @@ static int virtio_gpu_get_caps_ioctl(struct drm_device *dev,
+ 	if (!ret)
+ 		return -EBUSY;
  
- #include "bochs.h"
++	/* is_valid check must proceed before copy of the cache entry. */
++	smp_rmb();
++
+ 	ptr = cache_ent->caps_cache;
  
-@@ -171,6 +172,7 @@ static void bochs_pci_remove(struct pci_dev *pdev)
- {
- 	struct drm_device *dev = pci_get_drvdata(pdev);
- 
-+	drm_atomic_helper_shutdown(dev);
- 	drm_dev_unregister(dev);
- 	bochs_unload(dev);
- 	drm_dev_put(dev);
+ copy_exit:
+diff --git a/drivers/gpu/drm/virtio/virtgpu_vq.c b/drivers/gpu/drm/virtio/virtgpu_vq.c
+index 5bb0f0a084e9..a7684f9c80db 100644
+--- a/drivers/gpu/drm/virtio/virtgpu_vq.c
++++ b/drivers/gpu/drm/virtio/virtgpu_vq.c
+@@ -583,6 +583,8 @@ static void virtio_gpu_cmd_capset_cb(struct virtio_gpu_device *vgdev,
+ 		    cache_ent->id == le32_to_cpu(cmd->capset_id)) {
+ 			memcpy(cache_ent->caps_cache, resp->capset_data,
+ 			       cache_ent->size);
++			/* Copy must occur before is_valid is signalled. */
++			smp_wmb();
+ 			atomic_set(&cache_ent->is_valid, 1);
+ 			break;
+ 		}
 -- 
 2.20.1
