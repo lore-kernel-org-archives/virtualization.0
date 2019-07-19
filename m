@@ -1,22 +1,19 @@
-From: Jason Wang <jasowang@redhat.com>
-Subject: Re: [PATCH v4 4/5] vhost/vsock: split packets to send using multiple
-	buffers
-Date: Fri, 19 Jul 2019 16:21:52 +0800
-Message-ID: <fcd19719-e5a9-adad-1e6c-c84487187088__4367.52217808447$1563524550$gmane$org@redhat.com>
+From: Stefano Garzarella <sgarzare@redhat.com>
+Subject: Re: [PATCH v4 5/5] vsock/virtio: change the maximum packet size
+	allowed
+Date: Fri, 19 Jul 2019 10:29:54 +0200
+Message-ID: <20190719082954.m2lw77adpp5dylxw__25728.8287671813$1563525029$gmane$org@steredhat>
 References: <20190717113030.163499-1-sgarzare@redhat.com>
-	<20190717113030.163499-5-sgarzare@redhat.com>
-	<20190717105336-mutt-send-email-mst@kernel.org>
-	<CAGxU2F45v40qAOHkm1Hk2E69gCS0UwVgS5NS+tDXXuzdF4EixA@mail.gmail.com>
-	<20190718041234-mutt-send-email-mst@kernel.org>
-	<CAGxU2F6oo7Cou7t9o=gG2=wxHMKX9xYQXNxVtDYeHq5fyEhJWg@mail.gmail.com>
-	<20190718072741-mutt-send-email-mst@kernel.org>
-	<20190719080832.7hoeus23zjyrx3cc@steredhat>
+	<20190717113030.163499-6-sgarzare@redhat.com>
+	<20190717105703-mutt-send-email-mst@kernel.org>
+	<CAGxU2F5ybg1_8VhS=COMnxSKC4AcW4ZagYwNMi==d6-rNPgzsg@mail.gmail.com>
+	<20190718083105-mutt-send-email-mst@kernel.org>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="utf-8"; Format="flowed"
-Content-Transfer-Encoding: base64
+Content-Type: text/plain; charset="us-ascii"
+Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <20190719080832.7hoeus23zjyrx3cc@steredhat>
-Content-Language: en-US
+Content-Disposition: inline
+In-Reply-To: <20190718083105-mutt-send-email-mst@kernel.org>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -26,73 +23,53 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Stefano Garzarella <sgarzare@redhat.com>, "Michael S. Tsirkin" <mst@redhat.com>
+To: "Michael S. Tsirkin" <mst@redhat.com>
 Cc: kvm@vger.kernel.org, netdev@vger.kernel.org, linux-kernel@vger.kernel.org, virtualization@lists.linux-foundation.org, Stefan Hajnoczi <stefanha@redhat.com>, "David S. Miller" <davem@davemloft.net>
 List-Id: virtualization@lists.linuxfoundation.org
 
-Ck9uIDIwMTkvNy8xOSDkuIvljYg0OjA4LCBTdGVmYW5vIEdhcnphcmVsbGEgd3JvdGU6Cj4gT24g
-VGh1LCBKdWwgMTgsIDIwMTkgYXQgMDc6MzU6NDZBTSAtMDQwMCwgTWljaGFlbCBTLiBUc2lya2lu
-IHdyb3RlOgo+PiBPbiBUaHUsIEp1bCAxOCwgMjAxOSBhdCAxMTozNzozMEFNICswMjAwLCBTdGVm
-YW5vIEdhcnphcmVsbGEgd3JvdGU6Cj4+PiBPbiBUaHUsIEp1bCAxOCwgMjAxOSBhdCAxMDoxMyBB
-TSBNaWNoYWVsIFMuIFRzaXJraW48bXN0QHJlZGhhdC5jb20+ICB3cm90ZToKPj4+PiBPbiBUaHUs
-IEp1bCAxOCwgMjAxOSBhdCAwOTo1MDoxNEFNICswMjAwLCBTdGVmYW5vIEdhcnphcmVsbGEgd3Jv
-dGU6Cj4+Pj4+IE9uIFdlZCwgSnVsIDE3LCAyMDE5IGF0IDQ6NTUgUE0gTWljaGFlbCBTLiBUc2ly
-a2luPG1zdEByZWRoYXQuY29tPiAgd3JvdGU6Cj4+Pj4+PiBPbiBXZWQsIEp1bCAxNywgMjAxOSBh
-dCAwMTozMDoyOVBNICswMjAwLCBTdGVmYW5vIEdhcnphcmVsbGEgd3JvdGU6Cj4+Pj4+Pj4gSWYg
-dGhlIHBhY2tldHMgdG8gc2VudCB0byB0aGUgZ3Vlc3QgYXJlIGJpZ2dlciB0aGFuIHRoZSBidWZm
-ZXIKPj4+Pj4+PiBhdmFpbGFibGUsIHdlIGNhbiBzcGxpdCB0aGVtLCB1c2luZyBtdWx0aXBsZSBi
-dWZmZXJzIGFuZCBmaXhpbmcKPj4+Pj4+PiB0aGUgbGVuZ3RoIGluIHRoZSBwYWNrZXQgaGVhZGVy
-Lgo+Pj4+Pj4+IFRoaXMgaXMgc2FmZSBzaW5jZSB2aXJ0aW8tdnNvY2sgc3VwcG9ydHMgb25seSBz
-dHJlYW0gc29ja2V0cy4KPj4+Pj4+Pgo+Pj4+Pj4+IFNpZ25lZC1vZmYtYnk6IFN0ZWZhbm8gR2Fy
-emFyZWxsYTxzZ2FyemFyZUByZWRoYXQuY29tPgo+Pj4+Pj4gU28gaG93IGRvZXMgaXQgd29yayBy
-aWdodCBub3c/IElmIGFuIGFwcAo+Pj4+Pj4gZG9lcyBzZW5kbXNnIHdpdGggYSA2NEsgYnVmZmVy
-IGFuZCB0aGUgb3RoZXIKPj4+Pj4+IHNpZGUgcHVibGlzaGVzIDRLIGJ1ZmZlcnMgLSBkb2VzIGl0
-IGp1c3Qgc3RhbGw/Cj4+Pj4+IEJlZm9yZSB0aGlzIHNlcmllcywgdGhlIDY0SyAob3IgYmlnZ2Vy
-KSB1c2VyIG1lc3NhZ2VzIHdhcyBzcGxpdCBpbiA0SyBwYWNrZXRzCj4+Pj4+IChmaXhlZCBpbiB0
-aGUgY29kZSkgYW5kIHF1ZXVlZCBpbiBhbiBpbnRlcm5hbCBsaXN0IGZvciB0aGUgVFggd29ya2Vy
-Lgo+Pj4+Pgo+Pj4+PiBBZnRlciB0aGlzIHNlcmllcywgd2Ugd2lsbCBxdWV1ZSB1cCB0byA2NEsg
-cGFja2V0cyBhbmQgdGhlbiBpdCB3aWxsIGJlIHNwbGl0IGluCj4+Pj4+IHRoZSBUWCB3b3JrZXIs
-IGRlcGVuZGluZyBvbiB0aGUgc2l6ZSBvZiB0aGUgYnVmZmVycyBhdmFpbGFibGUgaW4gdGhlCj4+
-Pj4+IHZyaW5nLiAoVGhlIGlkZWEgd2FzIHRvIGFsbG93IEVXTUEgb3IgYSBjb25maWd1cmF0aW9u
-IG9mIHRoZSBidWZmZXJzIHNpemUsIGJ1dAo+Pj4+PiBmb3Igbm93IHdlIHBvc3Rwb25lZCBpdCkK
-Pj4+PiBHb3QgaXQuIFVzaW5nIHdvcmtlcnMgZm9yIHhtaXQgaXMgSU1ITyBhIGJhZCBpZGVhIGJ0
-dy4KPj4+PiBXaHkgaXMgaXQgZG9uZSBsaWtlIHRoaXM/Cj4+PiBIb25lc3RseSwgSSBkb24ndCBr
-bm93IHRoZSBleGFjdCByZWFzb25zIGZvciB0aGlzIGRlc2lnbiwgYnV0IEkgc3VwcG9zZQo+Pj4g
-dGhhdCB0aGUgaWRlYSB3YXMgdG8gaGF2ZSBvbmx5IG9uZSB3b3JrZXIgdGhhdCB1c2VzIHRoZSB2
-cmluZywgYW5kCj4+PiBtdWx0aXBsZSB1c2VyIHRocmVhZHMgdGhhdCBlbnF1ZXVlIHBhY2tldHMg
-aW4gdGhlIGxpc3QuCj4+PiBUaGlzIGNhbiBzaW1wbGlmeSB0aGUgY29kZSBhbmQgd2UgY2FuIHB1
-dCB0aGUgdXNlciB0aHJlYWRzIHRvIHNsZWVwIGlmCj4+PiB3ZSBkb24ndCBoYXZlICJjcmVkaXQi
-IGF2YWlsYWJsZSAodGhpcyBtZWFucyB0aGF0IHRoZSByZWNlaXZlciBkb2Vzbid0Cj4+PiBoYXZl
-IHNwYWNlIHRvIHJlY2VpdmUgdGhlIHBhY2tldCkuCj4+IEkgdGhpbmsgeW91IG1lYW4gdGhlIHJl
-dmVyc2U6IGV2ZW4gd2l0aG91dCBjcmVkaXRzIHlvdSBjYW4gY29weSBmcm9tCj4+IHVzZXIgYW5k
-IHF1ZXVlIHVwIGRhdGEsIHRoZW4gcHJvY2VzcyBpdCB3aXRob3V0IHdha2luZyB1cCB0aGUgdXNl
-cgo+PiB0aHJlYWQuCj4gSSBjaGVja2VkIHRoZSBjb2RlIGJldHRlciwgYnV0IGl0IGRvZXNuJ3Qg
-c2VlbSB0byBkbyB0aGF0Lgo+IFRoZSAuc2VuZG1zZyBjYWxsYmFjayBvZiBhZl92c29jaywgY2hl
-Y2sgaWYgdGhlIHRyYW5zcG9ydCBoYXMgc3BhY2UKPiAodmlydGlvLXZzb2NrIHRyYW5zcG9ydCBy
-ZXR1cm5zIHRoZSBjcmVkaXQgYXZhaWxhYmxlKS4gSWYgdGhlcmUgaXMgbm8KPiBzcGFjZSwgaXQg
-cHV0IHRoZSB0aHJlYWQgdG8gc2xlZXAgb24gdGhlICdza19zbGVlcChzayknIHdhaXRfcXVldWUu
-Cj4KPiBXaGVuIHRoZSB0cmFuc3BvcnQgcmVjZWl2ZXMgYW4gdXBkYXRlIG9mIGNyZWRpdCBhdmFp
-bGFibGUgb24gdGhlIG90aGVyCj4gcGVlciwgaXQgY2FsbHMgJ3NrLT5za193cml0ZV9zcGFjZShz
-ayknIHRoYXQgd2FrZXMgdXAgdGhlIHRocmVhZAo+IHNsZWVwaW5nLCB0aGF0IHdpbGwgcXVldWUg
-dGhlIG5ldyBwYWNrZXQuCj4KPiBTbywgaW4gdGhlIGN1cnJlbnQgaW1wbGVtZW50YXRpb24sIHRo
-ZSBUWCB3b3JrZXIgZG9lc24ndCBjaGVjayB0aGUKPiBjcmVkaXQgYXZhaWxhYmxlLCBpdCBvbmx5
-IHNlbmRzIHRoZSBwYWNrZXRzLgo+Cj4+IERvZXMgaXQgaGVscCB0aG91Z2g/IEl0IGNlcnRhaW5s
-eSBhZGRzIHVwIHdvcmsgb3V0c2lkZSBvZgo+PiB1c2VyIHRocmVhZCBjb250ZXh0IHdoaWNoIG1l
-YW5zIGl0J3Mgbm90IGFjY291bnRlZCBmb3IKPj4gY29ycmVjdGx5Lgo+IEkgY2FuIHRyeSB0byB4
-bWl0IHRoZSBwYWNrZXQgZGlyZWN0bHkgaW4gdGhlIHVzZXIgdGhyZWFkIGNvbnRleHQsIHRvIHNl
-ZQo+IHRoZSBpbXByb3ZlbWVudHMuCgoKSXQgd2lsbCB0aGVuIGxvb2tzIG1vcmUgbGlrZSB3aGF0
-IHZpcnRpby1uZXQgKGFuZCBvdGhlciBuZXR3b3JraW5nIApkZXZpY2UpIGRpZC4KCgo+Cj4+IE1h
-eWJlIHdlIHdhbnQgbW9yZSBWUXMuIFdvdWxkIGhlbHAgaW1wcm92ZSBwYXJhbGxlbGlzbS4gVGhl
-IHF1ZXN0aW9uCj4+IHdvdWxkIHRoZW4gYmVjb21lIGhvdyB0byBtYXAgc29ja2V0cyB0byBWUXMu
-IFdpdGggYSBzaW1wbGUgaGFzaAo+PiBpdCdzIGVhc3kgdG8gY3JlYXRlIGNvbGxpc2lvbnMgLi4u
-Cj4gWWVzLCBtb3JlIFZRcyBjYW4gaGVscCBidXQgdGhlIG1hcCBxdWVzdGlvbiBpcyBub3Qgc2lt
-cGxlIHRvIGFuc3dlci4KPiBNYXliZSB3ZSBjYW4gZG8gYW4gaGFzaCBvbiB0aGUgKGNpZCwgcG9y
-dCkgb3IgZG8gc29tZSBraW5kIG9mIGVzdGltYXRpb24KPiBvZiBxdWV1ZSB1dGlsaXphdGlvbiBh
-bmQgdHJ5IHRvIGJhbGFuY2UuCj4gU2hvdWxkIHRoZSBtYXBwaW5nIGJlIHVuaXF1ZT8KCgpJdCBz
-b3VuZHMgdG8gbWUgeW91IHdhbnQgc29tZSBraW5kIG9mIGZhaXIgcXVldWluZz8gV2UndmUgYWxy
-ZWFkeSBoYWQgCnNldmVyYWwgcWRpc2NzIHRoYXQgZG8gdGhpcy4KClNvIGlmIHdlIHVzZSB0aGUg
-a2VybmVsIG5ldHdvcmtpbmcgeG1pdCBwYXRoLCBhbGwgdGhvc2UgaXNzdWVzIGNvdWxkIGJlIAph
-ZGRyZXNzZWQuCgpUaGFua3MKCj4KX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19f
-X19fX19fX19fX18KVmlydHVhbGl6YXRpb24gbWFpbGluZyBsaXN0ClZpcnR1YWxpemF0aW9uQGxp
-c3RzLmxpbnV4LWZvdW5kYXRpb24ub3JnCmh0dHBzOi8vbGlzdHMubGludXhmb3VuZGF0aW9uLm9y
-Zy9tYWlsbWFuL2xpc3RpbmZvL3ZpcnR1YWxpemF0aW9u
+On Thu, Jul 18, 2019 at 08:33:40AM -0400, Michael S. Tsirkin wrote:
+> On Thu, Jul 18, 2019 at 09:52:41AM +0200, Stefano Garzarella wrote:
+> > On Wed, Jul 17, 2019 at 5:00 PM Michael S. Tsirkin <mst@redhat.com> wrote:
+> > >
+> > > On Wed, Jul 17, 2019 at 01:30:30PM +0200, Stefano Garzarella wrote:
+> > > > Since now we are able to split packets, we can avoid limiting
+> > > > their sizes to VIRTIO_VSOCK_DEFAULT_RX_BUF_SIZE.
+> > > > Instead, we can use VIRTIO_VSOCK_MAX_PKT_BUF_SIZE as the max
+> > > > packet size.
+> > > >
+> > > > Signed-off-by: Stefano Garzarella <sgarzare@redhat.com>
+> > >
+> > >
+> > > OK so this is kind of like GSO where we are passing
+> > > 64K packets to the vsock and then split at the
+> > > low level.
+> > 
+> > Exactly, something like that in the Host->Guest path, instead in the
+> > Guest->Host we use the entire 64K packet.
+> > 
+> > Thanks,
+> > Stefano
+> 
+> btw two allocations for each packet isn't great. How about
+> allocating the struct linearly with the data?
+
+Are you referring to the kzalloc() to allocate the 'struct
+virtio_vsock_pkt', followed by the kmalloc() to allocate the buffer?
+
+Actually they don't look great, I will try to do a single allocation.
+
+> And all buffers are same length for you - so you can actually
+> do alloc_pages.
+
+Yes, also Jason suggested it and we decided to postpone since we will
+try to reuse the virtio-net where it comes for free.
+
+> Allocating/freeing pages in a batch should also be considered.
+
+For the allocation of guest rx buffers we do some kind of batching (we
+refill the queue when it reaches the half), but only it this case :(
+
+I'll try to do more alloc/free batching.
+
+Thanks,
+Stefano
