@@ -1,19 +1,23 @@
 From: Stefano Garzarella <sgarzare@redhat.com>
-Subject: Re: [PATCH v4 5/5] vsock/virtio: change the maximum packet size
-	allowed
-Date: Fri, 19 Jul 2019 10:29:54 +0200
-Message-ID: <20190719082954.m2lw77adpp5dylxw__25728.8287671813$1563525029$gmane$org@steredhat>
+Subject: Re: [PATCH v4 4/5] vhost/vsock: split packets to send using multiple
+	buffers
+Date: Fri, 19 Jul 2019 10:39:20 +0200
+Message-ID: <20190719083920.67qo2umpthz454be__1138.38308477483$1563525588$gmane$org@steredhat>
 References: <20190717113030.163499-1-sgarzare@redhat.com>
-	<20190717113030.163499-6-sgarzare@redhat.com>
-	<20190717105703-mutt-send-email-mst@kernel.org>
-	<CAGxU2F5ybg1_8VhS=COMnxSKC4AcW4ZagYwNMi==d6-rNPgzsg@mail.gmail.com>
-	<20190718083105-mutt-send-email-mst@kernel.org>
+	<20190717113030.163499-5-sgarzare@redhat.com>
+	<20190717105336-mutt-send-email-mst@kernel.org>
+	<CAGxU2F45v40qAOHkm1Hk2E69gCS0UwVgS5NS+tDXXuzdF4EixA@mail.gmail.com>
+	<20190718041234-mutt-send-email-mst@kernel.org>
+	<CAGxU2F6oo7Cou7t9o=gG2=wxHMKX9xYQXNxVtDYeHq5fyEhJWg@mail.gmail.com>
+	<20190718072741-mutt-send-email-mst@kernel.org>
+	<20190719080832.7hoeus23zjyrx3cc@steredhat>
+	<fcd19719-e5a9-adad-1e6c-c84487187088@redhat.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset="utf-8"
+Content-Transfer-Encoding: base64
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
 Content-Disposition: inline
-In-Reply-To: <20190718083105-mutt-send-email-mst@kernel.org>
+In-Reply-To: <fcd19719-e5a9-adad-1e6c-c84487187088@redhat.com>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -23,53 +27,84 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: "Michael S. Tsirkin" <mst@redhat.com>
-Cc: kvm@vger.kernel.org, netdev@vger.kernel.org, linux-kernel@vger.kernel.org, virtualization@lists.linux-foundation.org, Stefan Hajnoczi <stefanha@redhat.com>, "David S. Miller" <davem@davemloft.net>
+To: Jason Wang <jasowang@redhat.com>
+Cc: kvm@vger.kernel.org, "Michael S. Tsirkin" <mst@redhat.com>, netdev@vger.kernel.org, linux-kernel@vger.kernel.org, virtualization@lists.linux-foundation.org, Stefan Hajnoczi <stefanha@redhat.com>, "David S. Miller" <davem@davemloft.net>
 List-Id: virtualization@lists.linuxfoundation.org
 
-On Thu, Jul 18, 2019 at 08:33:40AM -0400, Michael S. Tsirkin wrote:
-> On Thu, Jul 18, 2019 at 09:52:41AM +0200, Stefano Garzarella wrote:
-> > On Wed, Jul 17, 2019 at 5:00 PM Michael S. Tsirkin <mst@redhat.com> wrote:
-> > >
-> > > On Wed, Jul 17, 2019 at 01:30:30PM +0200, Stefano Garzarella wrote:
-> > > > Since now we are able to split packets, we can avoid limiting
-> > > > their sizes to VIRTIO_VSOCK_DEFAULT_RX_BUF_SIZE.
-> > > > Instead, we can use VIRTIO_VSOCK_MAX_PKT_BUF_SIZE as the max
-> > > > packet size.
-> > > >
-> > > > Signed-off-by: Stefano Garzarella <sgarzare@redhat.com>
-> > >
-> > >
-> > > OK so this is kind of like GSO where we are passing
-> > > 64K packets to the vsock and then split at the
-> > > low level.
-> > 
-> > Exactly, something like that in the Host->Guest path, instead in the
-> > Guest->Host we use the entire 64K packet.
-> > 
-> > Thanks,
-> > Stefano
-> 
-> btw two allocations for each packet isn't great. How about
-> allocating the struct linearly with the data?
-
-Are you referring to the kzalloc() to allocate the 'struct
-virtio_vsock_pkt', followed by the kmalloc() to allocate the buffer?
-
-Actually they don't look great, I will try to do a single allocation.
-
-> And all buffers are same length for you - so you can actually
-> do alloc_pages.
-
-Yes, also Jason suggested it and we decided to postpone since we will
-try to reuse the virtio-net where it comes for free.
-
-> Allocating/freeing pages in a batch should also be considered.
-
-For the allocation of guest rx buffers we do some kind of batching (we
-refill the queue when it reaches the half), but only it this case :(
-
-I'll try to do more alloc/free batching.
-
-Thanks,
-Stefano
+T24gRnJpLCBKdWwgMTksIDIwMTkgYXQgMDQ6MjE6NTJQTSArMDgwMCwgSmFzb24gV2FuZyB3cm90
+ZToKPiAKPiBPbiAyMDE5LzcvMTkg5LiL5Y2INDowOCwgU3RlZmFubyBHYXJ6YXJlbGxhIHdyb3Rl
+Ogo+ID4gT24gVGh1LCBKdWwgMTgsIDIwMTkgYXQgMDc6MzU6NDZBTSAtMDQwMCwgTWljaGFlbCBT
+LiBUc2lya2luIHdyb3RlOgo+ID4gPiBPbiBUaHUsIEp1bCAxOCwgMjAxOSBhdCAxMTozNzozMEFN
+ICswMjAwLCBTdGVmYW5vIEdhcnphcmVsbGEgd3JvdGU6Cj4gPiA+ID4gT24gVGh1LCBKdWwgMTgs
+IDIwMTkgYXQgMTA6MTMgQU0gTWljaGFlbCBTLiBUc2lya2luPG1zdEByZWRoYXQuY29tPiAgd3Jv
+dGU6Cj4gPiA+ID4gPiBPbiBUaHUsIEp1bCAxOCwgMjAxOSBhdCAwOTo1MDoxNEFNICswMjAwLCBT
+dGVmYW5vIEdhcnphcmVsbGEgd3JvdGU6Cj4gPiA+ID4gPiA+IE9uIFdlZCwgSnVsIDE3LCAyMDE5
+IGF0IDQ6NTUgUE0gTWljaGFlbCBTLiBUc2lya2luPG1zdEByZWRoYXQuY29tPiAgd3JvdGU6Cj4g
+PiA+ID4gPiA+ID4gT24gV2VkLCBKdWwgMTcsIDIwMTkgYXQgMDE6MzA6MjlQTSArMDIwMCwgU3Rl
+ZmFubyBHYXJ6YXJlbGxhIHdyb3RlOgo+ID4gPiA+ID4gPiA+ID4gSWYgdGhlIHBhY2tldHMgdG8g
+c2VudCB0byB0aGUgZ3Vlc3QgYXJlIGJpZ2dlciB0aGFuIHRoZSBidWZmZXIKPiA+ID4gPiA+ID4g
+PiA+IGF2YWlsYWJsZSwgd2UgY2FuIHNwbGl0IHRoZW0sIHVzaW5nIG11bHRpcGxlIGJ1ZmZlcnMg
+YW5kIGZpeGluZwo+ID4gPiA+ID4gPiA+ID4gdGhlIGxlbmd0aCBpbiB0aGUgcGFja2V0IGhlYWRl
+ci4KPiA+ID4gPiA+ID4gPiA+IFRoaXMgaXMgc2FmZSBzaW5jZSB2aXJ0aW8tdnNvY2sgc3VwcG9y
+dHMgb25seSBzdHJlYW0gc29ja2V0cy4KPiA+ID4gPiA+ID4gPiA+IAo+ID4gPiA+ID4gPiA+ID4g
+U2lnbmVkLW9mZi1ieTogU3RlZmFubyBHYXJ6YXJlbGxhPHNnYXJ6YXJlQHJlZGhhdC5jb20+Cj4g
+PiA+ID4gPiA+ID4gU28gaG93IGRvZXMgaXQgd29yayByaWdodCBub3c/IElmIGFuIGFwcAo+ID4g
+PiA+ID4gPiA+IGRvZXMgc2VuZG1zZyB3aXRoIGEgNjRLIGJ1ZmZlciBhbmQgdGhlIG90aGVyCj4g
+PiA+ID4gPiA+ID4gc2lkZSBwdWJsaXNoZXMgNEsgYnVmZmVycyAtIGRvZXMgaXQganVzdCBzdGFs
+bD8KPiA+ID4gPiA+ID4gQmVmb3JlIHRoaXMgc2VyaWVzLCB0aGUgNjRLIChvciBiaWdnZXIpIHVz
+ZXIgbWVzc2FnZXMgd2FzIHNwbGl0IGluIDRLIHBhY2tldHMKPiA+ID4gPiA+ID4gKGZpeGVkIGlu
+IHRoZSBjb2RlKSBhbmQgcXVldWVkIGluIGFuIGludGVybmFsIGxpc3QgZm9yIHRoZSBUWCB3b3Jr
+ZXIuCj4gPiA+ID4gPiA+IAo+ID4gPiA+ID4gPiBBZnRlciB0aGlzIHNlcmllcywgd2Ugd2lsbCBx
+dWV1ZSB1cCB0byA2NEsgcGFja2V0cyBhbmQgdGhlbiBpdCB3aWxsIGJlIHNwbGl0IGluCj4gPiA+
+ID4gPiA+IHRoZSBUWCB3b3JrZXIsIGRlcGVuZGluZyBvbiB0aGUgc2l6ZSBvZiB0aGUgYnVmZmVy
+cyBhdmFpbGFibGUgaW4gdGhlCj4gPiA+ID4gPiA+IHZyaW5nLiAoVGhlIGlkZWEgd2FzIHRvIGFs
+bG93IEVXTUEgb3IgYSBjb25maWd1cmF0aW9uIG9mIHRoZSBidWZmZXJzIHNpemUsIGJ1dAo+ID4g
+PiA+ID4gPiBmb3Igbm93IHdlIHBvc3Rwb25lZCBpdCkKPiA+ID4gPiA+IEdvdCBpdC4gVXNpbmcg
+d29ya2VycyBmb3IgeG1pdCBpcyBJTUhPIGEgYmFkIGlkZWEgYnR3Lgo+ID4gPiA+ID4gV2h5IGlz
+IGl0IGRvbmUgbGlrZSB0aGlzPwo+ID4gPiA+IEhvbmVzdGx5LCBJIGRvbid0IGtub3cgdGhlIGV4
+YWN0IHJlYXNvbnMgZm9yIHRoaXMgZGVzaWduLCBidXQgSSBzdXBwb3NlCj4gPiA+ID4gdGhhdCB0
+aGUgaWRlYSB3YXMgdG8gaGF2ZSBvbmx5IG9uZSB3b3JrZXIgdGhhdCB1c2VzIHRoZSB2cmluZywg
+YW5kCj4gPiA+ID4gbXVsdGlwbGUgdXNlciB0aHJlYWRzIHRoYXQgZW5xdWV1ZSBwYWNrZXRzIGlu
+IHRoZSBsaXN0Lgo+ID4gPiA+IFRoaXMgY2FuIHNpbXBsaWZ5IHRoZSBjb2RlIGFuZCB3ZSBjYW4g
+cHV0IHRoZSB1c2VyIHRocmVhZHMgdG8gc2xlZXAgaWYKPiA+ID4gPiB3ZSBkb24ndCBoYXZlICJj
+cmVkaXQiIGF2YWlsYWJsZSAodGhpcyBtZWFucyB0aGF0IHRoZSByZWNlaXZlciBkb2Vzbid0Cj4g
+PiA+ID4gaGF2ZSBzcGFjZSB0byByZWNlaXZlIHRoZSBwYWNrZXQpLgo+ID4gPiBJIHRoaW5rIHlv
+dSBtZWFuIHRoZSByZXZlcnNlOiBldmVuIHdpdGhvdXQgY3JlZGl0cyB5b3UgY2FuIGNvcHkgZnJv
+bQo+ID4gPiB1c2VyIGFuZCBxdWV1ZSB1cCBkYXRhLCB0aGVuIHByb2Nlc3MgaXQgd2l0aG91dCB3
+YWtpbmcgdXAgdGhlIHVzZXIKPiA+ID4gdGhyZWFkLgo+ID4gSSBjaGVja2VkIHRoZSBjb2RlIGJl
+dHRlciwgYnV0IGl0IGRvZXNuJ3Qgc2VlbSB0byBkbyB0aGF0Lgo+ID4gVGhlIC5zZW5kbXNnIGNh
+bGxiYWNrIG9mIGFmX3Zzb2NrLCBjaGVjayBpZiB0aGUgdHJhbnNwb3J0IGhhcyBzcGFjZQo+ID4g
+KHZpcnRpby12c29jayB0cmFuc3BvcnQgcmV0dXJucyB0aGUgY3JlZGl0IGF2YWlsYWJsZSkuIElm
+IHRoZXJlIGlzIG5vCj4gPiBzcGFjZSwgaXQgcHV0IHRoZSB0aHJlYWQgdG8gc2xlZXAgb24gdGhl
+ICdza19zbGVlcChzayknIHdhaXRfcXVldWUuCj4gPiAKPiA+IFdoZW4gdGhlIHRyYW5zcG9ydCBy
+ZWNlaXZlcyBhbiB1cGRhdGUgb2YgY3JlZGl0IGF2YWlsYWJsZSBvbiB0aGUgb3RoZXIKPiA+IHBl
+ZXIsIGl0IGNhbGxzICdzay0+c2tfd3JpdGVfc3BhY2Uoc2spJyB0aGF0IHdha2VzIHVwIHRoZSB0
+aHJlYWQKPiA+IHNsZWVwaW5nLCB0aGF0IHdpbGwgcXVldWUgdGhlIG5ldyBwYWNrZXQuCj4gPiAK
+PiA+IFNvLCBpbiB0aGUgY3VycmVudCBpbXBsZW1lbnRhdGlvbiwgdGhlIFRYIHdvcmtlciBkb2Vz
+bid0IGNoZWNrIHRoZQo+ID4gY3JlZGl0IGF2YWlsYWJsZSwgaXQgb25seSBzZW5kcyB0aGUgcGFj
+a2V0cy4KPiA+IAo+ID4gPiBEb2VzIGl0IGhlbHAgdGhvdWdoPyBJdCBjZXJ0YWlubHkgYWRkcyB1
+cCB3b3JrIG91dHNpZGUgb2YKPiA+ID4gdXNlciB0aHJlYWQgY29udGV4dCB3aGljaCBtZWFucyBp
+dCdzIG5vdCBhY2NvdW50ZWQgZm9yCj4gPiA+IGNvcnJlY3RseS4KPiA+IEkgY2FuIHRyeSB0byB4
+bWl0IHRoZSBwYWNrZXQgZGlyZWN0bHkgaW4gdGhlIHVzZXIgdGhyZWFkIGNvbnRleHQsIHRvIHNl
+ZQo+ID4gdGhlIGltcHJvdmVtZW50cy4KPiAKPiAKPiBJdCB3aWxsIHRoZW4gbG9va3MgbW9yZSBs
+aWtlIHdoYXQgdmlydGlvLW5ldCAoYW5kIG90aGVyIG5ldHdvcmtpbmcgZGV2aWNlKQo+IGRpZC4K
+CkknbGwgdHJ5IEFTQVAsIHRoZSBjaGFuZ2VzIHNob3VsZCBub3QgYmUgdG9vIGNvbXBsaWNhdGVk
+Li4uIEkgaG9wZSA6KQoKPiAKPiAKPiA+IAo+ID4gPiBNYXliZSB3ZSB3YW50IG1vcmUgVlFzLiBX
+b3VsZCBoZWxwIGltcHJvdmUgcGFyYWxsZWxpc20uIFRoZSBxdWVzdGlvbgo+ID4gPiB3b3VsZCB0
+aGVuIGJlY29tZSBob3cgdG8gbWFwIHNvY2tldHMgdG8gVlFzLiBXaXRoIGEgc2ltcGxlIGhhc2gK
+PiA+ID4gaXQncyBlYXN5IHRvIGNyZWF0ZSBjb2xsaXNpb25zIC4uLgo+ID4gWWVzLCBtb3JlIFZR
+cyBjYW4gaGVscCBidXQgdGhlIG1hcCBxdWVzdGlvbiBpcyBub3Qgc2ltcGxlIHRvIGFuc3dlci4K
+PiA+IE1heWJlIHdlIGNhbiBkbyBhbiBoYXNoIG9uIHRoZSAoY2lkLCBwb3J0KSBvciBkbyBzb21l
+IGtpbmQgb2YgZXN0aW1hdGlvbgo+ID4gb2YgcXVldWUgdXRpbGl6YXRpb24gYW5kIHRyeSB0byBi
+YWxhbmNlLgo+ID4gU2hvdWxkIHRoZSBtYXBwaW5nIGJlIHVuaXF1ZT8KPiAKPiAKPiBJdCBzb3Vu
+ZHMgdG8gbWUgeW91IHdhbnQgc29tZSBraW5kIG9mIGZhaXIgcXVldWluZz8gV2UndmUgYWxyZWFk
+eSBoYWQKPiBzZXZlcmFsIHFkaXNjcyB0aGF0IGRvIHRoaXMuCgpUaGFua3MgZm9yIHBvaW50aW5n
+IGl0IG91dCEKCj4gCj4gU28gaWYgd2UgdXNlIHRoZSBrZXJuZWwgbmV0d29ya2luZyB4bWl0IHBh
+dGgsIGFsbCB0aG9zZSBpc3N1ZXMgY291bGQgYmUKPiBhZGRyZXNzZWQuCgpPbmUgbW9yZSBwb2lu
+dCB0byBBRl9WU09DSyArIG5ldC1zdGFjaywgYnV0IHdlIGhhdmUgdG8gZXZhbHVhdGUgcG9zc2li
+bGUKZHJhd2JhY2tzIGluIHVzaW5nIHRoZSBuZXQtc3RhY2suIChlLmcuIG1vcmUgbGF0ZW5jeSBk
+dWUgdG8gdGhlIGNvbXBsZXhpdHkKb2YgdGhlIG5ldC1zdGFjaz8pCgpUaGFua3MsClN0ZWZhbm8K
+X19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX18KVmlydHVhbGl6
+YXRpb24gbWFpbGluZyBsaXN0ClZpcnR1YWxpemF0aW9uQGxpc3RzLmxpbnV4LWZvdW5kYXRpb24u
+b3JnCmh0dHBzOi8vbGlzdHMubGludXhmb3VuZGF0aW9uLm9yZy9tYWlsbWFuL2xpc3RpbmZvL3Zp
+cnR1YWxpemF0aW9u
