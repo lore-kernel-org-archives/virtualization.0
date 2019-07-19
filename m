@@ -1,14 +1,14 @@
 From: Sasha Levin <sashal@kernel.org>
-Subject: [PATCH AUTOSEL 4.14 15/60] drm/virtio: Add memory barriers for capset
+Subject: [PATCH AUTOSEL 4.9 13/45] drm/virtio: Add memory barriers for capset
 	cache.
-Date: Fri, 19 Jul 2019 00:10:24 -0400
-Message-ID: <20190719041109.18262-15-sashal__9033.61356338195$1563509515$gmane$org@kernel.org>
-References: <20190719041109.18262-1-sashal@kernel.org>
+Date: Fri, 19 Jul 2019 00:12:32 -0400
+Message-ID: <20190719041304.18849-13-sashal__31090.219672636$1563509631$gmane$org@kernel.org>
+References: <20190719041304.18849-1-sashal@kernel.org>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <20190719041109.18262-1-sashal@kernel.org>
+In-Reply-To: <20190719041304.18849-1-sashal@kernel.org>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -40,10 +40,10 @@ Signed-off-by: Sasha Levin <sashal@kernel.org>
  2 files changed, 5 insertions(+)
 
 diff --git a/drivers/gpu/drm/virtio/virtgpu_ioctl.c b/drivers/gpu/drm/virtio/virtgpu_ioctl.c
-index ed9c443bb8a1..40cc2f6707cf 100644
+index 54639395aba0..a3559b1a3a0f 100644
 --- a/drivers/gpu/drm/virtio/virtgpu_ioctl.c
 +++ b/drivers/gpu/drm/virtio/virtgpu_ioctl.c
-@@ -523,6 +523,9 @@ static int virtio_gpu_get_caps_ioctl(struct drm_device *dev,
+@@ -521,6 +521,9 @@ static int virtio_gpu_get_caps_ioctl(struct drm_device *dev,
  	ret = wait_event_timeout(vgdev->resp_wq,
  				 atomic_read(&cache_ent->is_valid), 5 * HZ);
  
@@ -54,10 +54,10 @@ index ed9c443bb8a1..40cc2f6707cf 100644
  
  copy_exit:
 diff --git a/drivers/gpu/drm/virtio/virtgpu_vq.c b/drivers/gpu/drm/virtio/virtgpu_vq.c
-index 26a2da1f712d..21c2de81f3e3 100644
+index 52436b3c01bb..a1b3ea1ccb65 100644
 --- a/drivers/gpu/drm/virtio/virtgpu_vq.c
 +++ b/drivers/gpu/drm/virtio/virtgpu_vq.c
-@@ -585,6 +585,8 @@ static void virtio_gpu_cmd_capset_cb(struct virtio_gpu_device *vgdev,
+@@ -618,6 +618,8 @@ static void virtio_gpu_cmd_capset_cb(struct virtio_gpu_device *vgdev,
  		    cache_ent->id == le32_to_cpu(cmd->capset_id)) {
  			memcpy(cache_ent->caps_cache, resp->capset_data,
  			       cache_ent->size);
