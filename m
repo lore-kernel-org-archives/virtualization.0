@@ -1,14 +1,12 @@
-From: "Michael S. Tsirkin" <mst@redhat.com>
-Subject: [PATCH v5 2/2] balloon: fix up comments
-Date: Thu, 18 Jul 2019 16:45:50 -0400
-Message-ID: <20190718204333.26030-2-mst__48197.6382596017$1563482786$gmane$org@redhat.com>
-References: <20190718204333.26030-1-mst@redhat.com>
+From: Nadav Amit via Virtualization <virtualization@lists.linux-foundation.org>
+Subject: [PATCH v3 0/9] x86: Concurrent TLB flushes
+Date: Thu, 18 Jul 2019 17:58:28 -0700
+Message-ID: <20190719005837.4150-1-namit__4147.36591499008$1563498006$gmane$org@vmware.com>
+Reply-To: Nadav Amit <namit@vmware.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-Content-Disposition: inline
-In-Reply-To: <20190718204333.26030-1-mst@redhat.com>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -18,150 +16,136 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: linux-kernel@vger.kernel.org
-Cc: Ralph Campbell <rcampbell@nvidia.com>, virtualization@lists.linux-foundation.org, linux-mm@kvack.org, Nadav Amit <namit@vmware.com>, Andrew Morton <akpm@linux-foundation.org>
+To: Andy Lutomirski <luto@kernel.org>, Dave Hansen <dave.hansen@linux.intel.com>
+Cc: Juergen Gross <jgross@suse.com>, Sasha Levin <sashal@kernel.org>, linux-hyperv@vger.kernel.org, Stephen Hemminger <sthemmin@microsoft.com>, kvm@vger.kernel.org, Paolo Bonzini <pbonzini@redhat.com>, Rik van Riel <riel@surriel.com>, Peter Zijlstra <peterz@infradead.org>, Haiyang Zhang <haiyangz@microsoft.com>, x86@kernel.org, linux-kernel@vger.kernel.org, virtualization@lists.linux-foundation.org, xen-devel@lists.xenproject.org, Ingo Molnar <mingo@redhat.com>, Nadav Amit <namit@vmware.com>, Josh Poimboeuf <jpoimboe@redhat.com>, Borislav Petkov <bp@alien8.de>, Thomas Gleixner <tglx@linutronix.de>, Boris Ostrovsky <boris.ostrovsky@oracle.com>
 List-Id: virtualization@lists.linuxfoundation.org
 
-Lots of comments bitrotted. Fix them up.
+[ Cover-letter is identical to v2, including benchmark results,
+  excluding the change log. ] 
 
-Fixes: 418a3ab1e778 (mm/balloon_compaction: List interfaces)
-Reviewed-by: Wei Wang <wei.w.wang@intel.com>
-Signed-off-by: Michael S. Tsirkin <mst@redhat.com>
-Reviewed-by: Ralph Campbell <rcampbell@nvidia.com>
-Acked-by: Nadav Amit <namit@vmware.com>
----
- mm/balloon_compaction.c | 67 +++++++++++++++++++++++------------------
- 1 file changed, 37 insertions(+), 30 deletions(-)
+Currently, local and remote TLB flushes are not performed concurrently,
+which introduces unnecessary overhead - each INVLPG can take 100s of
+cycles. This patch-set allows TLB flushes to be run concurrently: first
+request the remote CPUs to initiate the flush, then run it locally, and
+finally wait for the remote CPUs to finish their work.
 
-diff --git a/mm/balloon_compaction.c b/mm/balloon_compaction.c
-index d25664e1857b..798275a51887 100644
---- a/mm/balloon_compaction.c
-+++ b/mm/balloon_compaction.c
-@@ -32,8 +32,8 @@ static void balloon_page_enqueue_one(struct balloon_dev_info *b_dev_info,
-  * @b_dev_info: balloon device descriptor where we will insert a new page to
-  * @pages: pages to enqueue - allocated using balloon_page_alloc.
-  *
-- * Driver must call it to properly enqueue a balloon pages before definitively
-- * removing it from the guest system.
-+ * Driver must call this function to properly enqueue balloon pages before
-+ * definitively removing them from the guest system.
-  *
-  * Return: number of pages that were enqueued.
-  */
-@@ -63,12 +63,13 @@ EXPORT_SYMBOL_GPL(balloon_page_list_enqueue);
-  * @n_req_pages: number of requested pages.
-  *
-  * Driver must call this function to properly de-allocate a previous enlisted
-- * balloon pages before definetively releasing it back to the guest system.
-+ * balloon pages before definitively releasing it back to the guest system.
-  * This function tries to remove @n_req_pages from the ballooned pages and
-  * return them to the caller in the @pages list.
-  *
-- * Note that this function may fail to dequeue some pages temporarily empty due
-- * to compaction isolated pages.
-+ * Note that this function may fail to dequeue some pages even if the balloon
-+ * isn't empty - since the page list can be temporarily empty due to compaction
-+ * of isolated pages.
-  *
-  * Return: number of pages that were added to the @pages list.
-  */
-@@ -112,12 +113,13 @@ EXPORT_SYMBOL_GPL(balloon_page_list_dequeue);
- 
- /*
-  * balloon_page_alloc - allocates a new page for insertion into the balloon
-- *			  page list.
-+ *			page list.
-  *
-- * Driver must call it to properly allocate a new enlisted balloon page.
-- * Driver must call balloon_page_enqueue before definitively removing it from
-- * the guest system.  This function returns the page address for the recently
-- * allocated page or NULL in the case we fail to allocate a new page this turn.
-+ * Driver must call this function to properly allocate a new balloon page.
-+ * Driver must call balloon_page_enqueue before definitively removing the page
-+ * from the guest system.
-+ *
-+ * Return: struct page for the allocated page or NULL on allocation failure.
-  */
- struct page *balloon_page_alloc(void)
- {
-@@ -130,19 +132,15 @@ EXPORT_SYMBOL_GPL(balloon_page_alloc);
- /*
-  * balloon_page_enqueue - inserts a new page into the balloon page list.
-  *
-- * @b_dev_info: balloon device descriptor where we will insert a new page to
-+ * @b_dev_info: balloon device descriptor where we will insert a new page
-  * @page: new page to enqueue - allocated using balloon_page_alloc.
-  *
-- * Driver must call it to properly enqueue a new allocated balloon page
-- * before definitively removing it from the guest system.
-+ * Drivers must call this function to properly enqueue a new allocated balloon
-+ * page before definitively removing the page from the guest system.
-  *
-- * Drivers must not call balloon_page_enqueue on pages that have been
-- * pushed to a list with balloon_page_push before removing them with
-- * balloon_page_pop. To all pages on a list, use balloon_page_list_enqueue
-- * instead.
-- *
-- * This function returns the page address for the recently enqueued page or
-- * NULL in the case we fail to allocate a new page this turn.
-+ * Drivers must not call balloon_page_enqueue on pages that have been pushed to
-+ * a list with balloon_page_push before removing them with balloon_page_pop. To
-+ * enqueue a list of pages, use balloon_page_list_enqueue instead.
-  */
- void balloon_page_enqueue(struct balloon_dev_info *b_dev_info,
- 			  struct page *page)
-@@ -157,14 +155,23 @@ EXPORT_SYMBOL_GPL(balloon_page_enqueue);
- 
- /*
-  * balloon_page_dequeue - removes a page from balloon's page list and returns
-- *			  the its address to allow the driver release the page.
-+ *			  its address to allow the driver to release the page.
-  * @b_dev_info: balloon device decriptor where we will grab a page from.
-  *
-- * Driver must call it to properly de-allocate a previous enlisted balloon page
-- * before definetively releasing it back to the guest system.
-- * This function returns the page address for the recently dequeued page or
-- * NULL in the case we find balloon's page list temporarily empty due to
-- * compaction isolated pages.
-+ * Driver must call this function to properly dequeue a previously enqueued page
-+ * before definitively releasing it back to the guest system.
-+ *
-+ * Caller must perform its own accounting to ensure that this
-+ * function is called only if some pages are actually enqueued.
-+ *
-+ * Note that this function may fail to dequeue some pages even if there are
-+ * some enqueued pages - since the page list can be temporarily empty due to
-+ * the compaction of isolated pages.
-+ *
-+ * TODO: remove the caller accounting requirements, and allow caller to wait
-+ * until all pages can be dequeued.
-+ *
-+ * Return: struct page for the dequeued page, or NULL if no page was dequeued.
-  */
- struct page *balloon_page_dequeue(struct balloon_dev_info *b_dev_info)
- {
-@@ -177,9 +184,9 @@ struct page *balloon_page_dequeue(struct balloon_dev_info *b_dev_info)
- 	if (n_pages != 1) {
- 		/*
- 		 * If we are unable to dequeue a balloon page because the page
--		 * list is empty and there is no isolated pages, then something
-+		 * list is empty and there are no isolated pages, then something
- 		 * went out of track and some balloon pages are lost.
--		 * BUG() here, otherwise the balloon driver may get stuck into
-+		 * BUG() here, otherwise the balloon driver may get stuck in
- 		 * an infinite loop while attempting to release all its pages.
- 		 */
- 		spin_lock_irqsave(&b_dev_info->pages_lock, flags);
-@@ -230,8 +237,8 @@ int balloon_page_migrate(struct address_space *mapping,
- 
- 	/*
- 	 * We can not easily support the no copy case here so ignore it as it
--	 * is unlikely to be use with ballon pages. See include/linux/hmm.h for
--	 * user of the MIGRATE_SYNC_NO_COPY mode.
-+	 * is unlikely to be used with balloon pages. See include/linux/hmm.h
-+	 * for a user of the MIGRATE_SYNC_NO_COPY mode.
- 	 */
- 	if (mode == MIGRATE_SYNC_NO_COPY)
- 		return -EINVAL;
+In addition, there are various small optimizations to avoid unwarranted
+false-sharing and atomic operations.
+
+The proposed changes should also improve the performance of other
+invocations of on_each_cpu(). Hopefully, no one has relied on this
+behavior of on_each_cpu() that invoked functions first remotely and only
+then locally [Peter says he remembers someone might do so, but without
+further information it is hard to know how to address it].
+
+Running sysbench on dax/ext4 w/emulated-pmem, write-cache disabled on
+2-socket, 48-logical-cores (24+SMT) Haswell-X, 5 repetitions:
+
+ sysbench fileio --file-total-size=3G --file-test-mode=rndwr \
+  --file-io-mode=mmap --threads=X --file-fsync-mode=fdatasync run
+
+  Th.   tip-jun28 avg (stdev)   +patch-set avg (stdev)  change
+  ---   ---------------------   ----------------------  ------
+  1     1267765 (14146)         1299253 (5715)          +2.4%
+  2     1734644 (11936)         1799225 (19577)         +3.7%
+  4     2821268 (41184)         2919132 (40149)         +3.4%
+  8     4171652 (31243)         4376925 (65416)         +4.9%
+  16    5590729 (24160)         5829866 (8127)          +4.2%
+  24    6250212 (24481)         6522303 (28044)         +4.3%
+  32    3994314 (26606)         4077543 (10685)         +2.0%
+  48    4345177 (28091)         4417821 (41337)         +1.6%
+
+(Note that on configurations with up to 24 threads numactl was used to
+set all threads on socket 1, which explains the drop in performance when
+going to 32 threads).
+
+Running the same benchmark with security mitigations disabled (PTI,
+Spectre, MDS):
+
+  Th.   tip-jun28 avg (stdev)   +patch-set avg (stdev)  change
+  ---   ---------------------   ----------------------  ------
+  1     1598896 (5174)          1607903 (4091)          +0.5%
+  2     2109472 (17827)         2224726 (4372)          +5.4%
+  4     3448587 (11952)         3668551 (30219)         +6.3%
+  8     5425778 (29641)         5606266 (33519)         +3.3%
+  16    6931232 (34677)         7054052 (27873)         +1.7%
+  24    7612473 (23482)         7783138 (13871)         +2.2%
+  32    4296274 (18029)         4283279 (32323)         -0.3%
+  48    4770029 (35541)         4764760 (13575)         -0.1%
+
+Presumably, PTI requires two invalidations of each mapping, which allows
+to get higher benefits from concurrency when PTI is on. At the same
+time, when mitigations are on, other overheads reduce the potential
+speedup.
+
+I tried to reduce the size of the code of the main patch, which required
+restructuring of the series.
+
+v2 -> v3:
+* Open-code the remote/local-flush decision code [Andy]
+* Fix hyper-v, Xen implementations [Andrew]
+* Fix redundant TLB flushes.
+
+v1 -> v2:
+* Removing the patches that Thomas took [tglx]
+* Adding hyper-v, Xen compile-tested implementations [Dave]
+* Removing UV [Andy]
+* Adding lazy optimization, removing inline keyword [Dave]
+* Restructuring patch-set
+
+RFCv2 -> v1:
+* Fix comment on flush_tlb_multi [Juergen]
+* Removing async invalidation optimizations [Andy]
+* Adding KVM support [Paolo]
+
+Cc: Andy Lutomirski <luto@kernel.org>
+Cc: Borislav Petkov <bp@alien8.de>
+Cc: Boris Ostrovsky <boris.ostrovsky@oracle.com>
+Cc: Dave Hansen <dave.hansen@linux.intel.com>
+Cc: Haiyang Zhang <haiyangz@microsoft.com>
+Cc: Ingo Molnar <mingo@redhat.com>
+Cc: Josh Poimboeuf <jpoimboe@redhat.com>
+Cc: Juergen Gross <jgross@suse.com>
+Cc: "K. Y. Srinivasan" <kys@microsoft.com>
+Cc: Paolo Bonzini <pbonzini@redhat.com>
+Cc: Peter Zijlstra <peterz@infradead.org>
+Cc: Rik van Riel <riel@surriel.com>
+Cc: Sasha Levin <sashal@kernel.org>
+Cc: Stephen Hemminger <sthemmin@microsoft.com>
+Cc: Thomas Gleixner <tglx@linutronix.de>
+Cc: kvm@vger.kernel.org
+Cc: linux-hyperv@vger.kernel.org
+Cc: linux-kernel@vger.kernel.org
+Cc: virtualization@lists.linux-foundation.org
+Cc: x86@kernel.org
+Cc: xen-devel@lists.xenproject.org
+
+Nadav Amit (9):
+  smp: Run functions concurrently in smp_call_function_many()
+  x86/mm/tlb: Remove reason as argument for flush_tlb_func_local()
+  x86/mm/tlb: Open-code on_each_cpu_cond_mask() for tlb_is_not_lazy()
+  x86/mm/tlb: Flush remote and local TLBs concurrently
+  x86/mm/tlb: Privatize cpu_tlbstate
+  x86/mm/tlb: Do not make is_lazy dirty for no reason
+  cpumask: Mark functions as pure
+  x86/mm/tlb: Remove UV special case
+  x86/mm/tlb: Remove unnecessary uses of the inline keyword
+
+ arch/x86/hyperv/mmu.c                 |  10 +-
+ arch/x86/include/asm/paravirt.h       |   6 +-
+ arch/x86/include/asm/paravirt_types.h |   4 +-
+ arch/x86/include/asm/tlbflush.h       |  47 ++++-----
+ arch/x86/include/asm/trace/hyperv.h   |   2 +-
+ arch/x86/kernel/kvm.c                 |  11 ++-
+ arch/x86/kernel/paravirt.c            |   2 +-
+ arch/x86/mm/init.c                    |   2 +-
+ arch/x86/mm/tlb.c                     | 133 ++++++++++++++++----------
+ arch/x86/xen/mmu_pv.c                 |  11 +--
+ include/linux/cpumask.h               |   6 +-
+ include/linux/smp.h                   |  27 ++++--
+ include/trace/events/xen.h            |   2 +-
+ kernel/smp.c                          | 133 ++++++++++++--------------
+ 14 files changed, 218 insertions(+), 178 deletions(-)
+
 -- 
-MST
+2.20.1
