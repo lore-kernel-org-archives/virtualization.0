@@ -1,12 +1,14 @@
 From: Eric Auger <eric.auger@redhat.com>
-Subject: [PATCH 0/2] Fix NULL pointer dereference with virtio-blk-pci and
-	virtual IOMMU
-Date: Mon, 22 Jul 2019 16:55:07 +0200
-Message-ID: <20190722145509.1284-1-eric.auger__44951.2254491978$1563807346$gmane$org@redhat.com>
+Subject: [PATCH 1/2] dma-mapping: Protect dma_addressing_limited against NULL
+	dma_mask
+Date: Mon, 22 Jul 2019 16:55:08 +0200
+Message-ID: <20190722145509.1284-2-eric.auger__2599.8208949872$1563807358$gmane$org@redhat.com>
+References: <20190722145509.1284-1-eric.auger@redhat.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
+In-Reply-To: <20190722145509.1284-1-eric.auger@redhat.com>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -19,21 +21,37 @@ Errors-To: virtualization-bounces@lists.linux-foundation.org
 To: eric.auger.pro@gmail.com, eric.auger@redhat.com, hch@lst.de, m.szyprowski@samsung.com, robin.murphy@arm.com, mst@redhat.com, jasowang@redhat.com, virtualization@lists.linux-foundation.org, iommu@lists.linux-foundation.org, linux-kernel@vger.kernel.org
 List-Id: virtualization@lists.linuxfoundation.org
 
-When running a guest featuring a virtio-blk-pci protected with a virtual
-IOMMU we hit a NULL pointer dereference.
+dma_addressing_limited() should not be called on a device with
+a NULL dma_mask. If this occurs let's WARN_ON_ONCE and immediately
+return. Existing call sites are updated separately.
 
-This series removes the dma_max_mapping_size() call in
-virtio_max_dma_size when the device does not have any dma_mask set.
-A check is also added to early return in dma_addressing_limited()
-if the dma_mask is NULL.
+Fixes: b866455423e0 ("dma-mapping: add a dma_addressing_limited helper")
+Signed-off-by: Eric Auger <eric.auger@redhat.com>
 
-Eric Auger (2):
-  dma-mapping: Protect dma_addressing_limited against NULL dma_mask
-  virtio/virtio_ring: Fix the dma_max_mapping_size call
+---
 
- drivers/virtio/virtio_ring.c | 2 +-
- include/linux/dma-mapping.h  | 5 +++--
- 2 files changed, 4 insertions(+), 3 deletions(-)
+v1 -> v2:
+- add a WARN_ON_ONCE()
+- reword the commit message
+---
+ include/linux/dma-mapping.h | 5 +++--
+ 1 file changed, 3 insertions(+), 2 deletions(-)
 
+diff --git a/include/linux/dma-mapping.h b/include/linux/dma-mapping.h
+index e11b115dd0e4..ef0cf9537abc 100644
+--- a/include/linux/dma-mapping.h
++++ b/include/linux/dma-mapping.h
+@@ -689,8 +689,9 @@ static inline int dma_coerce_mask_and_coherent(struct device *dev, u64 mask)
+  */
+ static inline bool dma_addressing_limited(struct device *dev)
+ {
+-	return min_not_zero(*dev->dma_mask, dev->bus_dma_mask) <
+-		dma_get_required_mask(dev);
++	return WARN_ON_ONCE(!dev->dma_mask) ? false :
++		min_not_zero(*dev->dma_mask, dev->bus_dma_mask) <
++			dma_get_required_mask(dev);
+ }
+ 
+ #ifdef CONFIG_ARCH_HAS_SETUP_DMA_OPS
 -- 
 2.20.1
