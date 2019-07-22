@@ -1,17 +1,11 @@
-From: Auger Eric <eric.auger@redhat.com>
-Subject: Re: [PATCH 1/2] dma-mapping: Protect dma_addressing_limited against
-	NULL dma_mask
-Date: Mon, 22 Jul 2019 17:46:00 +0200
-Message-ID: <e1e02286-ccf9-3335-28c8-0c6b122b05a1__27564.4663766556$1563810421$gmane$org@redhat.com>
-References: <20190722145509.1284-1-eric.auger@redhat.com>
-	<20190722145509.1284-2-eric.auger@redhat.com>
-	<20190722152637.GA3780@lst.de>
+From: Eric Auger <eric.auger@redhat.com>
+Subject: [PATCH v2] dma-mapping: Use dma_get_mask in dma_addressing_limited
+Date: Mon, 22 Jul 2019 18:51:49 +0200
+Message-ID: <20190722165149.3763-1-eric.auger__25300.343839784$1563814343$gmane$org@redhat.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <20190722152637.GA3780@lst.de>
-Content-Language: en-US
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -21,30 +15,41 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Christoph Hellwig <hch@lst.de>
-Cc: mst@redhat.com, linux-kernel@vger.kernel.org, virtualization@lists.linux-foundation.org, iommu@lists.linux-foundation.org, eric.auger.pro@gmail.com, robin.murphy@arm.com, m.szyprowski@samsung.com
+To: eric.auger.pro@gmail.com, eric.auger@redhat.com, hch@lst.de, m.szyprowski@samsung.com, robin.murphy@arm.com, mst@redhat.com, jasowang@redhat.com, virtualization@lists.linux-foundation.org, iommu@lists.linux-foundation.org, linux-kernel@vger.kernel.org
 List-Id: virtualization@lists.linuxfoundation.org
 
-Hi Christoph,
+We currently have cases where the dma_addressing_limited() gets
+called with dma_mask unset. This causes a NULL pointer dereference.
 
-On 7/22/19 5:26 PM, Christoph Hellwig wrote:
->>  static inline bool dma_addressing_limited(struct device *dev)
->>  {
->> -	return min_not_zero(*dev->dma_mask, dev->bus_dma_mask) <
->> -		dma_get_required_mask(dev);
->> +	return WARN_ON_ONCE(!dev->dma_mask) ? false :
->> +		min_not_zero(*dev->dma_mask, dev->bus_dma_mask) <
->> +			dma_get_required_mask(dev);
-> 
-> This should really use a separate if statement, but I can fix that
-> up when applying it.
-> 
-Just wondering why we don't use the dma_get_mask() accessor which
-returns DMA_BIT_MASK(32) in case the dma_mask is not set.
+Use dma_get_mask() accessor to prevent the crash.
 
-Do you foresee any issue and would it still mandate to add dma_mask
-checks on each call sites?
+Fixes: b866455423e0 ("dma-mapping: add a dma_addressing_limited helper")
+Signed-off-by: Eric Auger <eric.auger@redhat.com>
 
-Thanks
+---
 
-Eric
+v1 -> v2:
+- was [PATCH 1/2] dma-mapping: Protect dma_addressing_limited
+  against NULL dma_mask
+- Use dma_get_mask
+---
+ include/linux/dma-mapping.h | 4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
+
+diff --git a/include/linux/dma-mapping.h b/include/linux/dma-mapping.h
+index e11b115dd0e4..f7d1eea32c78 100644
+--- a/include/linux/dma-mapping.h
++++ b/include/linux/dma-mapping.h
+@@ -689,8 +689,8 @@ static inline int dma_coerce_mask_and_coherent(struct device *dev, u64 mask)
+  */
+ static inline bool dma_addressing_limited(struct device *dev)
+ {
+-	return min_not_zero(*dev->dma_mask, dev->bus_dma_mask) <
+-		dma_get_required_mask(dev);
++	return min_not_zero(dma_get_mask(dev), dev->bus_dma_mask) <
++			    dma_get_required_mask(dev);
+ }
+ 
+ #ifdef CONFIG_ARCH_HAS_SETUP_DMA_OPS
+-- 
+2.20.1
