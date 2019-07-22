@@ -1,16 +1,12 @@
-From: Stefano Garzarella <sgarzare@redhat.com>
-Subject: Re: [PATCH v4 0/5] vsock/virtio: optimizations to increase the
-	throughput
-Date: Mon, 22 Jul 2019 11:14:34 +0200
-Message-ID: <20190722091434.tzf7lxw3tvrs5w5v__31136.4468697988$1563786896$gmane$org@steredhat>
-References: <20190717113030.163499-1-sgarzare@redhat.com>
-	<20190722090835.GF24934@stefanha-x1.localdomain>
+From: Eric Auger <eric.auger@redhat.com>
+Subject: [PATCH 0/2] Fix NULL pointer dereference with virtio-blk-pci and
+	virtual IOMMU
+Date: Mon, 22 Jul 2019 16:55:07 +0200
+Message-ID: <20190722145509.1284-1-eric.auger__44951.2254491978$1563807346$gmane$org@redhat.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-Content-Disposition: inline
-In-Reply-To: <20190722090835.GF24934@stefanha-x1.localdomain>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -20,36 +16,24 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Stefan Hajnoczi <stefanha@redhat.com>
-Cc: kvm@vger.kernel.org, "Michael S. Tsirkin" <mst@redhat.com>, netdev@vger.kernel.org, linux-kernel@vger.kernel.org, virtualization@lists.linux-foundation.org, "David S. Miller" <davem@davemloft.net>
+To: eric.auger.pro@gmail.com, eric.auger@redhat.com, hch@lst.de, m.szyprowski@samsung.com, robin.murphy@arm.com, mst@redhat.com, jasowang@redhat.com, virtualization@lists.linux-foundation.org, iommu@lists.linux-foundation.org, linux-kernel@vger.kernel.org
 List-Id: virtualization@lists.linuxfoundation.org
 
-On Mon, Jul 22, 2019 at 10:08:35AM +0100, Stefan Hajnoczi wrote:
-> On Wed, Jul 17, 2019 at 01:30:25PM +0200, Stefano Garzarella wrote:
-> > This series tries to increase the throughput of virtio-vsock with slight
-> > changes.
-> > While I was testing the v2 of this series I discovered an huge use of memory,
-> > so I added patch 1 to mitigate this issue. I put it in this series in order
-> > to better track the performance trends.
-> > 
-> > v4:
-> > - rebased all patches on current master (conflicts is Patch 4)
-> > - Patch 1: added Stefan's R-b
-> > - Patch 3: removed lock when buf_alloc is written [David];
-> >            moved this patch after "vsock/virtio: reduce credit update messages"
-> >            to make it clearer
-> > - Patch 4: vhost_exceeds_weight() is recently introduced, so I've solved some
-> >            conflicts
-> 
-> Stefano: Do you want to continue experimenting before we merge this
-> patch series?  The code looks functionally correct and the performance
-> increases, so I'm happy for it to be merged.
+When running a guest featuring a virtio-blk-pci protected with a virtual
+IOMMU we hit a NULL pointer dereference.
 
-I think we can merge this series.
+This series removes the dma_max_mapping_size() call in
+virtio_max_dma_size when the device does not have any dma_mask set.
+A check is also added to early return in dma_addressing_limited()
+if the dma_mask is NULL.
 
-I'll continue to do other experiments (e.g. removing TX workers, allocating
-pages, etc.) but I think these changes are prerequisites for the other patches,
-so we can merge them.
+Eric Auger (2):
+  dma-mapping: Protect dma_addressing_limited against NULL dma_mask
+  virtio/virtio_ring: Fix the dma_max_mapping_size call
 
-Thank you very much for the reviews!
-Stefano
+ drivers/virtio/virtio_ring.c | 2 +-
+ include/linux/dma-mapping.h  | 5 +++--
+ 2 files changed, 4 insertions(+), 3 deletions(-)
+
+-- 
+2.20.1
