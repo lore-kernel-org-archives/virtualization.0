@@ -1,16 +1,19 @@
-From: Peter Zijlstra <peterz@infradead.org>
+From: Nadav Amit via Virtualization <virtualization@lists.linux-foundation.org>
 Subject: Re: [PATCH v3 4/9] x86/mm/tlb: Flush remote and local TLBs
 	concurrently
-Date: Mon, 22 Jul 2019 21:14:33 +0200
-Message-ID: <20190722191433.GD6698@worktop.programming.kicks-ass.net>
+Date: Mon, 22 Jul 2019 19:27:09 +0000
+Message-ID: <58DA0841-33C2-4D16-A671-08064A15001C__32951.2758342148$1563823644$gmane$org@vmware.com>
 References: <20190719005837.4150-1-namit@vmware.com>
 	<20190719005837.4150-5-namit@vmware.com>
+	<20190722191433.GD6698@worktop.programming.kicks-ass.net>
+Reply-To: Nadav Amit <namit@vmware.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset="utf-8"
+Content-Transfer-Encoding: base64
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-Content-Disposition: inline
-In-Reply-To: <20190719005837.4150-5-namit@vmware.com>
+In-Reply-To: <20190722191433.GD6698@worktop.programming.kicks-ass.net>
+Content-Language: en-US
+Content-ID: <7A65B5E7E822C34B830FEF5BE20B7A60@namprd05.prod.outlook.com>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -20,117 +23,95 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Nadav Amit <namit@vmware.com>
-Cc: Sasha Levin <sashal@kernel.org>, Juergen Gross <jgross@suse.com>, linux-hyperv@vger.kernel.org, x86@kernel.org, Stephen Hemminger <sthemmin@microsoft.com>, kvm@vger.kernel.org, Haiyang Zhang <haiyangz@microsoft.com>, Dave Hansen <dave.hansen@linux.intel.com>, linux-kernel@vger.kernel.org, virtualization@lists.linux-foundation.org, Ingo Molnar <mingo@redhat.com>, Borislav Petkov <bp@alien8.de>, Andy Lutomirski <luto@kernel.org>, xen-devel@lists.xenproject.org, Paolo Bonzini <pbonzini@redhat.com>, Thomas Gleixner <tglx@linutronix.de>, Boris Ostrovsky <boris.ostrovsky@oracle.com>
+To: Peter Zijlstra <peterz@infradead.org>
+Cc: Sasha Levin <sashal@kernel.org>, Juergen Gross <jgross@suse.com>, "linux-hyperv@vger.kernel.org" <linux-hyperv@vger.kernel.org>, the arch/x86 maintainers <x86@kernel.org>, Stephen Hemminger <sthemmin@microsoft.com>, "kvm@vger.kernel.org" <kvm@vger.kernel.org>, Haiyang Zhang <haiyangz@microsoft.com>, Dave Hansen <dave.hansen@linux.intel.com>, LKML <linux-kernel@vger.kernel.org>, "virtualization@lists.linux-foundation.org" <virtualization@lists.linux-foundation.org>, Ingo Molnar <mingo@redhat.com>, Borislav Petkov <bp@alien8.de>, Andy Lutomirski <luto@kernel.org>, "xen-devel@lists.xenproject.org" <xen-devel@lists.xenproject.org>, Paolo Bonzini <pbonzini@redhat.com>, Thomas Gleixner <tglx@linutronix.de>, Boris Ostrovsky <boris.ostrovsky@oracle.com>
 List-Id: virtualization@lists.linuxfoundation.org
 
-On Thu, Jul 18, 2019 at 05:58:32PM -0700, Nadav Amit wrote:
-> @@ -709,8 +716,9 @@ void native_flush_tlb_others(const struct cpumask *cpumask,
->  	 * doing a speculative memory access.
->  	 */
->  	if (info->freed_tables) {
-> -		smp_call_function_many(cpumask, flush_tlb_func_remote,
-> -			       (void *)info, 1);
-> +		__smp_call_function_many(cpumask, flush_tlb_func_remote,
-> +					 flush_tlb_func_local,
-> +					 (void *)info, 1);
->  	} else {
->  		/*
->  		 * Although we could have used on_each_cpu_cond_mask(),
-> @@ -737,7 +745,8 @@ void native_flush_tlb_others(const struct cpumask *cpumask,
->  			if (tlb_is_not_lazy(cpu))
->  				__cpumask_set_cpu(cpu, cond_cpumask);
->  		}
-> -		smp_call_function_many(cond_cpumask, flush_tlb_func_remote,
-> +		__smp_call_function_many(cond_cpumask, flush_tlb_func_remote,
-> +					 flush_tlb_func_local,
->  					 (void *)info, 1);
->  	}
->  }
-
-Do we really need that _local/_remote distinction? ISTR you had a patch
-that frobbed flush_tlb_info into the csd and that gave space
-constraints, but I'm not seeing that here (probably a wise, get stuff
-merged etc..).
-
-struct __call_single_data {
-        struct llist_node          llist;                /*     0     8 */
-        smp_call_func_t            func;                 /*     8     8 */
-        void *                     info;                 /*    16     8 */
-        unsigned int               flags;                /*    24     4 */
-
-        /* size: 32, cachelines: 1, members: 4 */
-        /* padding: 4 */
-        /* last cacheline: 32 bytes */
-};
-
-struct flush_tlb_info {
-        struct mm_struct *         mm;                   /*     0     8 */
-        long unsigned int          start;                /*     8     8 */
-        long unsigned int          end;                  /*    16     8 */
-        u64                        new_tlb_gen;          /*    24     8 */
-        unsigned int               stride_shift;         /*    32     4 */
-        bool                       freed_tables;         /*    36     1 */
-
-        /* size: 40, cachelines: 1, members: 6 */
-        /* padding: 3 */
-        /* last cacheline: 40 bytes */
-};
-
-IIRC what you did was make void *__call_single_data::info the last
-member and a union until the full cacheline size (64). Given the above
-that would get us 24 bytes for csd, leaving us 40 for that
-flush_tlb_info.
-
-But then we can still do something like the below, which doesn't change
-things and still gets rid of that dual function crud, simplifying
-smp_call_function_many again.
-
-Index: linux-2.6/arch/x86/include/asm/tlbflush.h
-===================================================================
---- linux-2.6.orig/arch/x86/include/asm/tlbflush.h
-+++ linux-2.6/arch/x86/include/asm/tlbflush.h
-@@ -546,8 +546,9 @@ struct flush_tlb_info {
- 	unsigned long		start;
- 	unsigned long		end;
- 	u64			new_tlb_gen;
--	unsigned int		stride_shift;
--	bool			freed_tables;
-+	unsigned int		cpu;
-+	unsigned short		stride_shift;
-+	unsigned char		freed_tables;
- };
- 
- #define local_flush_tlb() __flush_tlb()
-Index: linux-2.6/arch/x86/mm/tlb.c
-===================================================================
---- linux-2.6.orig/arch/x86/mm/tlb.c
-+++ linux-2.6/arch/x86/mm/tlb.c
-@@ -659,6 +659,27 @@ static void flush_tlb_func_remote(void *
- 	flush_tlb_func_common(f, false, TLB_REMOTE_SHOOTDOWN);
- }
- 
-+static void flush_tlb_func(void *info)
-+{
-+	const struct flush_tlb_info *f = info;
-+	enum tlb_flush_reason reason = TLB_REMOTE_SHOOTDOWN;
-+	bool local = false;
-+
-+	if (f->cpu == smp_processor_id()) {
-+		local = true;
-+		reason = (f->mm == NULL) ? TLB_LOCAL_SHOOTDOWN : TLB_LOCAL_MM_SHOOTDOWN;
-+	} else {
-+		inc_irq_stat(irq_tlb_count);
-+
-+		if (f->mm && f->mm != this_cpu_read(cpu_tlbstate.loaded_mm))
-+			return;
-+
-+		count_vm_tlb_event(NR_TLB_REMOTE_FLUSH_RECEIVED);
-+	}
-+
-+	flush_tlb_func_common(f, local, reason);
-+}
-+
- static bool tlb_is_not_lazy(int cpu)
- {
- 	return !per_cpu(cpu_tlbstate_shared.is_lazy, cpu);
+PiBPbiBKdWwgMjIsIDIwMTksIGF0IDEyOjE0IFBNLCBQZXRlciBaaWpsc3RyYSA8cGV0ZXJ6QGlu
+ZnJhZGVhZC5vcmc+IHdyb3RlOg0KPiANCj4gT24gVGh1LCBKdWwgMTgsIDIwMTkgYXQgMDU6NTg6
+MzJQTSAtMDcwMCwgTmFkYXYgQW1pdCB3cm90ZToNCj4+IEBAIC03MDksOCArNzE2LDkgQEAgdm9p
+ZCBuYXRpdmVfZmx1c2hfdGxiX290aGVycyhjb25zdCBzdHJ1Y3QgY3B1bWFzayAqY3B1bWFzaywN
+Cj4+IAkgKiBkb2luZyBhIHNwZWN1bGF0aXZlIG1lbW9yeSBhY2Nlc3MuDQo+PiAJICovDQo+PiAJ
+aWYgKGluZm8tPmZyZWVkX3RhYmxlcykgew0KPj4gLQkJc21wX2NhbGxfZnVuY3Rpb25fbWFueShj
+cHVtYXNrLCBmbHVzaF90bGJfZnVuY19yZW1vdGUsDQo+PiAtCQkJICAgICAgICh2b2lkICopaW5m
+bywgMSk7DQo+PiArCQlfX3NtcF9jYWxsX2Z1bmN0aW9uX21hbnkoY3B1bWFzaywgZmx1c2hfdGxi
+X2Z1bmNfcmVtb3RlLA0KPj4gKwkJCQkJIGZsdXNoX3RsYl9mdW5jX2xvY2FsLA0KPj4gKwkJCQkJ
+ICh2b2lkICopaW5mbywgMSk7DQo+PiAJfSBlbHNlIHsNCj4+IAkJLyoNCj4+IAkJICogQWx0aG91
+Z2ggd2UgY291bGQgaGF2ZSB1c2VkIG9uX2VhY2hfY3B1X2NvbmRfbWFzaygpLA0KPj4gQEAgLTcz
+Nyw3ICs3NDUsOCBAQCB2b2lkIG5hdGl2ZV9mbHVzaF90bGJfb3RoZXJzKGNvbnN0IHN0cnVjdCBj
+cHVtYXNrICpjcHVtYXNrLA0KPj4gCQkJaWYgKHRsYl9pc19ub3RfbGF6eShjcHUpKQ0KPj4gCQkJ
+CV9fY3B1bWFza19zZXRfY3B1KGNwdSwgY29uZF9jcHVtYXNrKTsNCj4+IAkJfQ0KPj4gLQkJc21w
+X2NhbGxfZnVuY3Rpb25fbWFueShjb25kX2NwdW1hc2ssIGZsdXNoX3RsYl9mdW5jX3JlbW90ZSwN
+Cj4+ICsJCV9fc21wX2NhbGxfZnVuY3Rpb25fbWFueShjb25kX2NwdW1hc2ssIGZsdXNoX3RsYl9m
+dW5jX3JlbW90ZSwNCj4+ICsJCQkJCSBmbHVzaF90bGJfZnVuY19sb2NhbCwNCj4+IAkJCQkJICh2
+b2lkICopaW5mbywgMSk7DQo+PiAJfQ0KPj4gfQ0KPiANCj4gRG8gd2UgcmVhbGx5IG5lZWQgdGhh
+dCBfbG9jYWwvX3JlbW90ZSBkaXN0aW5jdGlvbj8gSVNUUiB5b3UgaGFkIGEgcGF0Y2gNCj4gdGhh
+dCBmcm9iYmVkIGZsdXNoX3RsYl9pbmZvIGludG8gdGhlIGNzZCBhbmQgdGhhdCBnYXZlIHNwYWNl
+DQo+IGNvbnN0cmFpbnRzLCBidXQgSSdtIG5vdCBzZWVpbmcgdGhhdCBoZXJlIChwcm9iYWJseSBh
+IHdpc2UsIGdldCBzdHVmZg0KPiBtZXJnZWQgZXRjLi4pLg0KPiANCj4gc3RydWN0IF9fY2FsbF9z
+aW5nbGVfZGF0YSB7DQo+ICAgICAgICBzdHJ1Y3QgbGxpc3Rfbm9kZSAgICAgICAgICBsbGlzdDsg
+ICAgICAgICAgICAgICAgLyogICAgIDAgICAgIDggKi8NCj4gICAgICAgIHNtcF9jYWxsX2Z1bmNf
+dCAgICAgICAgICAgIGZ1bmM7ICAgICAgICAgICAgICAgICAvKiAgICAgOCAgICAgOCAqLw0KPiAg
+ICAgICAgdm9pZCAqICAgICAgICAgICAgICAgICAgICAgaW5mbzsgICAgICAgICAgICAgICAgIC8q
+ICAgIDE2ICAgICA4ICovDQo+ICAgICAgICB1bnNpZ25lZCBpbnQgICAgICAgICAgICAgICBmbGFn
+czsgICAgICAgICAgICAgICAgLyogICAgMjQgICAgIDQgKi8NCj4gDQo+ICAgICAgICAvKiBzaXpl
+OiAzMiwgY2FjaGVsaW5lczogMSwgbWVtYmVyczogNCAqLw0KPiAgICAgICAgLyogcGFkZGluZzog
+NCAqLw0KPiAgICAgICAgLyogbGFzdCBjYWNoZWxpbmU6IDMyIGJ5dGVzICovDQo+IH07DQo+IA0K
+PiBzdHJ1Y3QgZmx1c2hfdGxiX2luZm8gew0KPiAgICAgICAgc3RydWN0IG1tX3N0cnVjdCAqICAg
+ICAgICAgbW07ICAgICAgICAgICAgICAgICAgIC8qICAgICAwICAgICA4ICovDQo+ICAgICAgICBs
+b25nIHVuc2lnbmVkIGludCAgICAgICAgICBzdGFydDsgICAgICAgICAgICAgICAgLyogICAgIDgg
+ICAgIDggKi8NCj4gICAgICAgIGxvbmcgdW5zaWduZWQgaW50ICAgICAgICAgIGVuZDsgICAgICAg
+ICAgICAgICAgICAvKiAgICAxNiAgICAgOCAqLw0KPiAgICAgICAgdTY0ICAgICAgICAgICAgICAg
+ICAgICAgICAgbmV3X3RsYl9nZW47ICAgICAgICAgIC8qICAgIDI0ICAgICA4ICovDQo+ICAgICAg
+ICB1bnNpZ25lZCBpbnQgICAgICAgICAgICAgICBzdHJpZGVfc2hpZnQ7ICAgICAgICAgLyogICAg
+MzIgICAgIDQgKi8NCj4gICAgICAgIGJvb2wgICAgICAgICAgICAgICAgICAgICAgIGZyZWVkX3Rh
+YmxlczsgICAgICAgICAvKiAgICAzNiAgICAgMSAqLw0KPiANCj4gICAgICAgIC8qIHNpemU6IDQw
+LCBjYWNoZWxpbmVzOiAxLCBtZW1iZXJzOiA2ICovDQo+ICAgICAgICAvKiBwYWRkaW5nOiAzICov
+DQo+ICAgICAgICAvKiBsYXN0IGNhY2hlbGluZTogNDAgYnl0ZXMgKi8NCj4gfTsNCj4gDQo+IElJ
+UkMgd2hhdCB5b3UgZGlkIHdhcyBtYWtlIHZvaWQgKl9fY2FsbF9zaW5nbGVfZGF0YTo6aW5mbyB0
+aGUgbGFzdA0KPiBtZW1iZXIgYW5kIGEgdW5pb24gdW50aWwgdGhlIGZ1bGwgY2FjaGVsaW5lIHNp
+emUgKDY0KS4gR2l2ZW4gdGhlIGFib3ZlDQo+IHRoYXQgd291bGQgZ2V0IHVzIDI0IGJ5dGVzIGZv
+ciBjc2QsIGxlYXZpbmcgdXMgNDAgZm9yIHRoYXQNCj4gZmx1c2hfdGxiX2luZm8uDQo+IA0KPiBC
+dXQgdGhlbiB3ZSBjYW4gc3RpbGwgZG8gc29tZXRoaW5nIGxpa2UgdGhlIGJlbG93LCB3aGljaCBk
+b2Vzbid0IGNoYW5nZQ0KPiB0aGluZ3MgYW5kIHN0aWxsIGdldHMgcmlkIG9mIHRoYXQgZHVhbCBm
+dW5jdGlvbiBjcnVkLCBzaW1wbGlmeWluZw0KPiBzbXBfY2FsbF9mdW5jdGlvbl9tYW55IGFnYWlu
+Lg0KPiANCj4gSW5kZXg6IGxpbnV4LTIuNi9hcmNoL3g4Ni9pbmNsdWRlL2FzbS90bGJmbHVzaC5o
+DQo+ID09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09
+PT09PT09PT09PT09PT0NCj4gLS0tIGxpbnV4LTIuNi5vcmlnL2FyY2gveDg2L2luY2x1ZGUvYXNt
+L3RsYmZsdXNoLmgNCj4gKysrIGxpbnV4LTIuNi9hcmNoL3g4Ni9pbmNsdWRlL2FzbS90bGJmbHVz
+aC5oDQo+IEBAIC01NDYsOCArNTQ2LDkgQEAgc3RydWN0IGZsdXNoX3RsYl9pbmZvIHsNCj4gCXVu
+c2lnbmVkIGxvbmcJCXN0YXJ0Ow0KPiAJdW5zaWduZWQgbG9uZwkJZW5kOw0KPiAJdTY0CQkJbmV3
+X3RsYl9nZW47DQo+IC0JdW5zaWduZWQgaW50CQlzdHJpZGVfc2hpZnQ7DQo+IC0JYm9vbAkJCWZy
+ZWVkX3RhYmxlczsNCj4gKwl1bnNpZ25lZCBpbnQJCWNwdTsNCj4gKwl1bnNpZ25lZCBzaG9ydAkJ
+c3RyaWRlX3NoaWZ0Ow0KPiArCXVuc2lnbmVkIGNoYXIJCWZyZWVkX3RhYmxlczsNCj4gfTsNCj4g
+DQo+ICNkZWZpbmUgbG9jYWxfZmx1c2hfdGxiKCkgX19mbHVzaF90bGIoKQ0KPiBJbmRleDogbGlu
+dXgtMi42L2FyY2gveDg2L21tL3RsYi5jDQo+ID09PT09PT09PT09PT09PT09PT09PT09PT09PT09
+PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT0NCj4gLS0tIGxpbnV4LTIuNi5v
+cmlnL2FyY2gveDg2L21tL3RsYi5jDQo+ICsrKyBsaW51eC0yLjYvYXJjaC94ODYvbW0vdGxiLmMN
+Cj4gQEAgLTY1OSw2ICs2NTksMjcgQEAgc3RhdGljIHZvaWQgZmx1c2hfdGxiX2Z1bmNfcmVtb3Rl
+KHZvaWQgKg0KPiAJZmx1c2hfdGxiX2Z1bmNfY29tbW9uKGYsIGZhbHNlLCBUTEJfUkVNT1RFX1NI
+T09URE9XTik7DQo+IH0NCj4gDQo+ICtzdGF0aWMgdm9pZCBmbHVzaF90bGJfZnVuYyh2b2lkICpp
+bmZvKQ0KPiArew0KPiArCWNvbnN0IHN0cnVjdCBmbHVzaF90bGJfaW5mbyAqZiA9IGluZm87DQo+
+ICsJZW51bSB0bGJfZmx1c2hfcmVhc29uIHJlYXNvbiA9IFRMQl9SRU1PVEVfU0hPT1RET1dOOw0K
+PiArCWJvb2wgbG9jYWwgPSBmYWxzZTsNCj4gKw0KPiArCWlmIChmLT5jcHUgPT0gc21wX3Byb2Nl
+c3Nvcl9pZCgpKSB7DQo+ICsJCWxvY2FsID0gdHJ1ZTsNCj4gKwkJcmVhc29uID0gKGYtPm1tID09
+IE5VTEwpID8gVExCX0xPQ0FMX1NIT09URE9XTiA6IFRMQl9MT0NBTF9NTV9TSE9PVERPV047DQo+
+ICsJfSBlbHNlIHsNCj4gKwkJaW5jX2lycV9zdGF0KGlycV90bGJfY291bnQpOw0KPiArDQo+ICsJ
+CWlmIChmLT5tbSAmJiBmLT5tbSAhPSB0aGlzX2NwdV9yZWFkKGNwdV90bGJzdGF0ZS5sb2FkZWRf
+bW0pKQ0KPiArCQkJcmV0dXJuOw0KPiArDQo+ICsJCWNvdW50X3ZtX3RsYl9ldmVudChOUl9UTEJf
+UkVNT1RFX0ZMVVNIX1JFQ0VJVkVEKTsNCj4gKwl9DQo+ICsNCj4gKwlmbHVzaF90bGJfZnVuY19j
+b21tb24oZiwgbG9jYWwsIHJlYXNvbik7DQo+ICt9DQo+ICsNCj4gc3RhdGljIGJvb2wgdGxiX2lz
+X25vdF9sYXp5KGludCBjcHUpDQo+IHsNCj4gCXJldHVybiAhcGVyX2NwdShjcHVfdGxic3RhdGVf
+c2hhcmVkLmlzX2xhenksIGNwdSk7DQoNCk5pY2UhIEkgd2lsbCBhZGQgaXQgb24gdG9wLCBpZiB5
+b3UgZG9u4oCZdCBtaW5kIChpbnN0ZWFkIHNxdWFzaGluZyBpdCkuDQoNClRoZSBvcmlnaW5hbCBk
+ZWNpc2lvbiB0byBoYXZlIGxvY2FsL3JlbW90ZSBmdW5jdGlvbnMgd2FzIG1vc3RseSB0byBwcm92
+aWRlDQp0aGUgZ2VuZXJhbGl0eS4NCg0KSSB3b3VsZCBjaGFuZ2UgdGhlIGxhc3QgYXJndW1lbnQg
+b2YgX19zbXBfY2FsbF9mdW5jdGlvbl9tYW55KCkgZnJvbSDigJx3YWl04oCdDQp0byDigJxmbGFn
+c+KAnSB0aGF0IHdvdWxkIGluZGljYXRlIHdoZXRoZXIgdG8gcnVuIHRoZSBmdW5jdGlvbiBsb2Nh
+bGx5LCBzaW5jZSBJDQpkb27igJl0IHdhbnQgdG8gY2hhbmdlIHRoZSBzZW1hbnRpY3Mgb2Ygc21w
+X2NhbGxfZnVuY3Rpb25fbWFueSgpIGFuZCBkZWNpZGUNCndoZXRoZXIgdG8gcnVuIHRoZSBmdW5j
+dGlvbiBsb2NhbGx5IHB1cmVseSBiYXNlZCBvbiB0aGUgbWFzay4gTGV0IG1lIGtub3cgaWYNCnlv
+dSBkaXNhZ3JlZS4KX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19f
+X18KVmlydHVhbGl6YXRpb24gbWFpbGluZyBsaXN0ClZpcnR1YWxpemF0aW9uQGxpc3RzLmxpbnV4
+LWZvdW5kYXRpb24ub3JnCmh0dHBzOi8vbGlzdHMubGludXhmb3VuZGF0aW9uLm9yZy9tYWlsbWFu
+L2xpc3RpbmZvL3ZpcnR1YWxpemF0aW9u
