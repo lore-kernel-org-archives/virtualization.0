@@ -1,14 +1,14 @@
-From: Auger Eric <eric.auger@redhat.com>
+From: "Michael S. Tsirkin" <mst@redhat.com>
 Subject: Re: [PATCH] iommu/virtio: Update to most recent specification
-Date: Mon, 22 Jul 2019 17:01:21 +0200
-Message-ID: <2b649f7d-67fc-4535-9c80-669d916f9f29__39696.4323752158$1563807709$gmane$org@redhat.com>
+Date: Mon, 22 Jul 2019 11:16:08 -0400
+Message-ID: <20190722111547-mutt-send-email-mst__33629.2151174106$1563808600$gmane$org@kernel.org>
 References: <20190722144007.6437-1-jean-philippe@linaro.org>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
+Content-Disposition: inline
 In-Reply-To: <20190722144007.6437-1-jean-philippe@linaro.org>
-Content-Language: en-US
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -18,13 +18,11 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Jean-Philippe Brucker <jean-philippe@linaro.org>, mst@redhat.com, joro@8bytes.org
-Cc: iommu@lists.linux-foundation.org, virtualization@lists.linux-foundation.org
+To: Jean-Philippe Brucker <jean-philippe@linaro.org>
+Cc: eric.auger@redhat.com, joro@8bytes.org, iommu@lists.linux-foundation.org, virtualization@lists.linux-foundation.org
 List-Id: virtualization@lists.linuxfoundation.org
 
-Hi Jean,
-
-On 7/22/19 4:40 PM, Jean-Philippe Brucker wrote:
+On Mon, Jul 22, 2019 at 03:40:07PM +0100, Jean-Philippe Brucker wrote:
 > Following specification review a few things were changed in v8 of the
 > virtio-iommu series [1], but have been omitted when merging the base
 > driver. Add them now:
@@ -35,17 +33,13 @@ On 7/22/19 4:40 PM, Jean-Philippe Brucker wrote:
 > * Add NOMEM status flag.
 > 
 > [1] https://lore.kernel.org/linux-iommu/20190530170929.19366-1-jean-philippe.brucker@arm.com/
-
 > 
 > Fixes: edcd69ab9a32 ("iommu: Add virtio-iommu driver")
 > Reported-by: Eric Auger <eric.auger@redhat.com>
 > Signed-off-by: Jean-Philippe Brucker <jean-philippe@linaro.org>
-Reviewed-by: Eric Auger <eric.auger@redhat.com>
-Tested-by: Eric Auger <eric.auger@redhat.com>
 
-Thanks
+I'm merging this for this release, unless someone objects.
 
-Eric
 > ---
 >  drivers/iommu/virtio-iommu.c      | 40 ++++++++++++++++++++++---------
 >  include/uapi/linux/virtio_iommu.h | 32 ++++++++++++++-----------
@@ -258,4 +252,5 @@ Eric
 >  						 VIRTIO_IOMMU_MAP_F_MMIO)
 >  
 >  struct virtio_iommu_req_map {
-> 
+> -- 
+> 2.22.0
