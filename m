@@ -1,7 +1,7 @@
-From: Christoph Hellwig <hch@lst.de>
+From: "Michael S. Tsirkin" <mst@redhat.com>
 Subject: Re: [PATCH 2/2] virtio/virtio_ring: Fix the dma_max_mapping_size call
-Date: Mon, 22 Jul 2019 17:27:10 +0200
-Message-ID: <20190722152710.GB3780__47851.7469995253$1563809252$gmane$org@lst.de>
+Date: Mon, 22 Jul 2019 11:33:35 -0400
+Message-ID: <20190722112704-mutt-send-email-mst__2819.45291660435$1563809654$gmane$org@kernel.org>
 References: <20190722145509.1284-1-eric.auger@redhat.com>
 	<20190722145509.1284-3-eric.auger@redhat.com>
 Mime-Version: 1.0
@@ -20,7 +20,7 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
 To: Eric Auger <eric.auger@redhat.com>
-Cc: mst@redhat.com, linux-kernel@vger.kernel.org, virtualization@lists.linux-foundation.org, iommu@lists.linux-foundation.org, eric.auger.pro@gmail.com, robin.murphy@arm.com, hch@lst.de, m.szyprowski@samsung.com
+Cc: linux-kernel@vger.kernel.org, virtualization@lists.linux-foundation.org, iommu@lists.linux-foundation.org, eric.auger.pro@gmail.com, robin.murphy@arm.com, hch@lst.de, m.szyprowski@samsung.com
 List-Id: virtualization@lists.linuxfoundation.org
 
 On Mon, Jul 22, 2019 at 04:55:09PM +0200, Eric Auger wrote:
@@ -34,5 +34,28 @@ On Mon, Jul 22, 2019 at 04:55:09PM +0200, Eric Auger wrote:
 > Signed-off-by: Eric Auger <eric.auger@redhat.com>
 > Suggested-by: Christoph Hellwig <hch@lst.de>
 
-Looks good.  virtio maintainers, let me know if you want to queue
-it up or if I should pick the patch up through the dma-mapping tree.
+Christoph, I wonder why did you suggest this?
+The connection between dma_mask and dma_max_mapping_size
+is far from obvious.  The documentation doesn't exist.
+Do we really have to teach all users about this hack?
+Why not just make dma_max_mapping_size DTRT?
+
+> ---
+>  drivers/virtio/virtio_ring.c | 2 +-
+>  1 file changed, 1 insertion(+), 1 deletion(-)
+> 
+> diff --git a/drivers/virtio/virtio_ring.c b/drivers/virtio/virtio_ring.c
+> index c8be1c4f5b55..37c143971211 100644
+> --- a/drivers/virtio/virtio_ring.c
+> +++ b/drivers/virtio/virtio_ring.c
+> @@ -262,7 +262,7 @@ size_t virtio_max_dma_size(struct virtio_device *vdev)
+>  {
+>  	size_t max_segment_size = SIZE_MAX;
+>  
+> -	if (vring_use_dma_api(vdev))
+> +	if (vring_use_dma_api(vdev) && vdev->dev.dma_mask)
+>  		max_segment_size = dma_max_mapping_size(&vdev->dev);
+>  
+>  	return max_segment_size;
+> -- 
+> 2.20.1
