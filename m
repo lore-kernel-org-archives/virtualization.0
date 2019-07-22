@@ -1,16 +1,17 @@
-From: "Michael S. Tsirkin" <mst@redhat.com>
-Subject: Re: [PATCH 2/2] virtio/virtio_ring: Fix the dma_max_mapping_size call
-Date: Mon, 22 Jul 2019 11:45:22 -0400
-Message-ID: <20190722114117-mutt-send-email-mst__39856.0521703743$1563810349$gmane$org@kernel.org>
+From: Auger Eric <eric.auger@redhat.com>
+Subject: Re: [PATCH 1/2] dma-mapping: Protect dma_addressing_limited against
+	NULL dma_mask
+Date: Mon, 22 Jul 2019 17:46:00 +0200
+Message-ID: <e1e02286-ccf9-3335-28c8-0c6b122b05a1__27564.4663766556$1563810421$gmane$org@redhat.com>
 References: <20190722145509.1284-1-eric.auger@redhat.com>
-	<20190722145509.1284-3-eric.auger@redhat.com>
-	<e4a288f2-a93a-5ce4-32da-f5434302551f@arm.com>
+	<20190722145509.1284-2-eric.auger@redhat.com>
+	<20190722152637.GA3780@lst.de>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-Content-Disposition: inline
-In-Reply-To: <e4a288f2-a93a-5ce4-32da-f5434302551f@arm.com>
+In-Reply-To: <20190722152637.GA3780@lst.de>
+Content-Language: en-US
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -20,46 +21,30 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Robin Murphy <robin.murphy@arm.com>
-Cc: linux-kernel@vger.kernel.org, virtualization@lists.linux-foundation.org, Eric Auger <eric.auger@redhat.com>, iommu@lists.linux-foundation.org, eric.auger.pro@gmail.com, hch@lst.de, m.szyprowski@samsung.com
+To: Christoph Hellwig <hch@lst.de>
+Cc: mst@redhat.com, linux-kernel@vger.kernel.org, virtualization@lists.linux-foundation.org, iommu@lists.linux-foundation.org, eric.auger.pro@gmail.com, robin.murphy@arm.com, m.szyprowski@samsung.com
 List-Id: virtualization@lists.linuxfoundation.org
 
-On Mon, Jul 22, 2019 at 04:36:09PM +0100, Robin Murphy wrote:
-> On 22/07/2019 15:55, Eric Auger wrote:
-> > Do not call dma_max_mapping_size for devices that have no DMA
-> > mask set, otherwise we can hit a NULL pointer dereference.
-> > 
-> > This occurs when a virtio-blk-pci device is protected with
-> > a virtual IOMMU.
-> > 
-> > Fixes: e6d6dd6c875e ("virtio: Introduce virtio_max_dma_size()")
-> > Signed-off-by: Eric Auger <eric.auger@redhat.com>
-> > Suggested-by: Christoph Hellwig <hch@lst.de>
-> > ---
-> >   drivers/virtio/virtio_ring.c | 2 +-
-> >   1 file changed, 1 insertion(+), 1 deletion(-)
-> > 
-> > diff --git a/drivers/virtio/virtio_ring.c b/drivers/virtio/virtio_ring.c
-> > index c8be1c4f5b55..37c143971211 100644
-> > --- a/drivers/virtio/virtio_ring.c
-> > +++ b/drivers/virtio/virtio_ring.c
-> > @@ -262,7 +262,7 @@ size_t virtio_max_dma_size(struct virtio_device *vdev)
-> >   {
-> >   	size_t max_segment_size = SIZE_MAX;
-> > -	if (vring_use_dma_api(vdev))
-> > +	if (vring_use_dma_api(vdev) && vdev->dev.dma_mask)
+Hi Christoph,
+
+On 7/22/19 5:26 PM, Christoph Hellwig wrote:
+>>  static inline bool dma_addressing_limited(struct device *dev)
+>>  {
+>> -	return min_not_zero(*dev->dma_mask, dev->bus_dma_mask) <
+>> -		dma_get_required_mask(dev);
+>> +	return WARN_ON_ONCE(!dev->dma_mask) ? false :
+>> +		min_not_zero(*dev->dma_mask, dev->bus_dma_mask) <
+>> +			dma_get_required_mask(dev);
 > 
-> Hmm, might it make sense to roll that check up into vring_use_dma_api()
-> itself? After all, if the device has no mask then it's likely that other DMA
-> API ops wouldn't really work as expected either.
+> This should really use a separate if statement, but I can fix that
+> up when applying it.
 > 
-> Robin.
+Just wondering why we don't use the dma_get_mask() accessor which
+returns DMA_BIT_MASK(32) in case the dma_mask is not set.
 
-Nope, Eric pointed out it's just dma_addressing_limited that is broken.
+Do you foresee any issue and would it still mandate to add dma_mask
+checks on each call sites?
 
-Other APIs call dma_get_mask which handles the NULL mask case fine.
+Thanks
 
-
-> >   		max_segment_size = dma_max_mapping_size(&vdev->dev);
-> >   	return max_segment_size;
-> > 
+Eric
