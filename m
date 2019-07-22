@@ -1,14 +1,13 @@
 From: Stefan Hajnoczi <stefanha@redhat.com>
-Subject: Re: [PATCH v4 5/5] vsock/virtio: change the maximum packet size
-	allowed
-Date: Mon, 22 Jul 2019 10:07:30 +0100
-Message-ID: <20190722090730.GE24934__25866.1575194978$1563786465$gmane$org@stefanha-x1.localdomain>
+Subject: Re: [PATCH v4 0/5] vsock/virtio: optimizations to increase the
+	throughput
+Date: Mon, 22 Jul 2019 10:08:35 +0100
+Message-ID: <20190722090835.GF24934__30635.2464411006$1563786539$gmane$org@stefanha-x1.localdomain>
 References: <20190717113030.163499-1-sgarzare@redhat.com>
-	<20190717113030.163499-6-sgarzare@redhat.com>
 Mime-Version: 1.0
-Content-Type: multipart/mixed; boundary="===============2140561293501717578=="
+Content-Type: multipart/mixed; boundary="===============7180977776759916593=="
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <20190717113030.163499-6-sgarzare@redhat.com>
+In-Reply-To: <20190717113030.163499-1-sgarzare@redhat.com>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -23,48 +22,59 @@ Cc: kvm@vger.kernel.org, "Michael S. Tsirkin" <mst@redhat.com>, netdev@vger.kern
 List-Id: virtualization@lists.linuxfoundation.org
 
 
---===============2140561293501717578==
+--===============7180977776759916593==
 Content-Type: multipart/signed; micalg=pgp-sha256;
-	protocol="application/pgp-signature"; boundary="Qz2CZ664xQdCRdPu"
+	protocol="application/pgp-signature"; boundary="0rSojgWGcpz+ezC3"
 Content-Disposition: inline
 
 
---Qz2CZ664xQdCRdPu
+--0rSojgWGcpz+ezC3
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
 Content-Transfer-Encoding: quoted-printable
 
-On Wed, Jul 17, 2019 at 01:30:30PM +0200, Stefano Garzarella wrote:
-> Since now we are able to split packets, we can avoid limiting
-> their sizes to VIRTIO_VSOCK_DEFAULT_RX_BUF_SIZE.
-> Instead, we can use VIRTIO_VSOCK_MAX_PKT_BUF_SIZE as the max
-> packet size.
+On Wed, Jul 17, 2019 at 01:30:25PM +0200, Stefano Garzarella wrote:
+> This series tries to increase the throughput of virtio-vsock with slight
+> changes.
+> While I was testing the v2 of this series I discovered an huge use of mem=
+ory,
+> so I added patch 1 to mitigate this issue. I put it in this series in ord=
+er
+> to better track the performance trends.
 >=20
-> Signed-off-by: Stefano Garzarella <sgarzare@redhat.com>
-> ---
->  net/vmw_vsock/virtio_transport_common.c | 4 ++--
->  1 file changed, 2 insertions(+), 2 deletions(-)
+> v4:
+> - rebased all patches on current master (conflicts is Patch 4)
+> - Patch 1: added Stefan's R-b
+> - Patch 3: removed lock when buf_alloc is written [David];
+>            moved this patch after "vsock/virtio: reduce credit update mes=
+sages"
+>            to make it clearer
+> - Patch 4: vhost_exceeds_weight() is recently introduced, so I've solved =
+some
+>            conflicts
 
-Reviewed-by: Stefan Hajnoczi <stefanha@redhat.com>
+Stefano: Do you want to continue experimenting before we merge this
+patch series?  The code looks functionally correct and the performance
+increases, so I'm happy for it to be merged.
 
---Qz2CZ664xQdCRdPu
+--0rSojgWGcpz+ezC3
 Content-Type: application/pgp-signature; name="signature.asc"
 
 -----BEGIN PGP SIGNATURE-----
 
-iQEzBAEBCAAdFiEEhpWov9P5fNqsNXdanKSrs4Grc8gFAl01fNIACgkQnKSrs4Gr
-c8jlPwf+K8D7nnRfxW5Y5W22bqktswfcGjAt29NMC9KGkYjL0hM745Dg5G6LG8tD
-FuJQqW0Daerwk5vC3b0d9iyF1MtAQlMCm4XhIEHi0aGS2blFtrra2M9IpTqnQ/t+
-sGwMqmUWbCjBAFZQb1QNCgLXxwMXIabNCgSFY/cBsHMWyOKbTlTVaGstCA8Tp3RW
-TKqUGWseTe9K1WQcX2el2klhhir+K+XMN4iIxmtJks7dRB6wci+G2JDKaYtjm6t3
-0kdIjyRhhj4I4WOHq7vvZyHYAj0oT4odRHTKF8aNa+oUhoo8PHJ5VeHah3+wciCp
-MDed3Aanbck3Tmyq/YcOBNMozk1KcQ==
-=xu6B
+iQEzBAEBCAAdFiEEhpWov9P5fNqsNXdanKSrs4Grc8gFAl01fRMACgkQnKSrs4Gr
+c8jTLwgAkxfRp9mHdA/2v4fYnheHpBNa4CYfMPvJjwm3cV2wOPsoVqnPx6kFjNED
+LJ54+h1tVFruOGHKnjsMYU4e9U9Aw2oLYV2FfAXJqeX6QzGM5Fp/pP7uaJt84htO
+R/PUE2syWbEmd/O4BII7vdLSi6flpPHrnYE4qU585fU3C+zcSMa5J+cJKCQiE/ZD
+mDwIQulVhh7pRJktNHPsi1YndADEm9ycqXU5UJYIMfoOilnT5Bri68hLS5fK410+
+DMAONtomNK9EirCGpH8T6jNrLpJImwLFHsp6+VmAC6xcvDpQwR3WjIPlzkTlEb+X
+DilvYlXPjDGvW6KgTTp+X70lkoIDnQ==
+=2Juw
 -----END PGP SIGNATURE-----
 
---Qz2CZ664xQdCRdPu--
+--0rSojgWGcpz+ezC3--
 
---===============2140561293501717578==
+--===============7180977776759916593==
 Content-Type: text/plain; charset="us-ascii"
 MIME-Version: 1.0
 Content-Transfer-Encoding: 7bit
@@ -74,4 +84,4 @@ _______________________________________________
 Virtualization mailing list
 Virtualization@lists.linux-foundation.org
 https://lists.linuxfoundation.org/mailman/listinfo/virtualization
---===============2140561293501717578==--
+--===============7180977776759916593==--
