@@ -1,14 +1,13 @@
-From: Dave Hansen <dave.hansen@intel.com>
-Subject: Re: [PATCH v3 0/9] x86: Concurrent TLB flushes
-Date: Fri, 19 Jul 2019 14:36:00 -0700
-Message-ID: <21b9c9f2-de63-71e9-34e3-8206b778f8b7__27675.966643595$1563572182$gmane$org@intel.com>
-References: <20190719005837.4150-1-namit@vmware.com>
+From: Stefan Hajnoczi <stefanha@redhat.com>
+Subject: Re: [PATCH v4 2/5] vsock/virtio: reduce credit update messages
+Date: Mon, 22 Jul 2019 09:36:40 +0100
+Message-ID: <20190722083640.GB24934__26183.0543213122$1563784622$gmane$org@stefanha-x1.localdomain>
+References: <20190717113030.163499-1-sgarzare@redhat.com>
+	<20190717113030.163499-3-sgarzare@redhat.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
-Content-Transfer-Encoding: 7bit
+Content-Type: multipart/mixed; boundary="===============5773362539808652197=="
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <20190719005837.4150-1-namit@vmware.com>
-Content-Language: en-US
+In-Reply-To: <20190717113030.163499-3-sgarzare@redhat.com>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -18,21 +17,63 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Nadav Amit <namit@vmware.com>, Andy Lutomirski <luto@kernel.org>, Dave Hansen <dave.hansen@linux.intel.com>
-Cc: Juergen Gross <jgross@suse.com>, Sasha Levin <sashal@kernel.org>, linux-hyperv@vger.kernel.org, Stephen Hemminger <sthemmin@microsoft.com>, xen-devel@lists.xenproject.org, kvm@vger.kernel.org, Rik van Riel <riel@surriel.com>, Peter Zijlstra <peterz@infradead.org>, Haiyang Zhang <haiyangz@microsoft.com>, x86@kernel.org, linux-kernel@vger.kernel.org, virtualization@lists.linux-foundation.org, Ingo Molnar <mingo@redhat.com>, Borislav Petkov <bp@alien8.de>, Josh Poimboeuf <jpoimboe@redhat.com>, Paolo Bonzini <pbonzini@redhat.com>, Thomas Gleixner <tglx@linutronix.de>, Boris Ostrovsky <boris.ostrovsky@oracle.com>
+To: Stefano Garzarella <sgarzare@redhat.com>
+Cc: kvm@vger.kernel.org, "Michael S. Tsirkin" <mst@redhat.com>, netdev@vger.kernel.org, linux-kernel@vger.kernel.org, virtualization@lists.linux-foundation.org, "David S. Miller" <davem@davemloft.net>
 List-Id: virtualization@lists.linuxfoundation.org
 
-Thanks for doing this, it's something I've been hoping someone would do
-for a long time.
 
-While I kinda wish we had performance data for each individual patch (at
-least the behavior-changing ones), this does look like a good
-improvement.  That might, for instance, tell is a bit about how the
-separating out "is_lazy" compares to the "check before setting"
-optimization.  But, they're both sane enough on their own that I'm not
-too worried.
+--===============5773362539808652197==
+Content-Type: multipart/signed; micalg=pgp-sha256;
+	protocol="application/pgp-signature"; boundary="qlTNgmc+xy1dBmNv"
+Content-Disposition: inline
 
-I had some nits that I hope get covered in later revisions, if sent.
-But, overall looks fine.  For the series:
 
-Reviewed-by: Dave Hansen <dave.hansen@linux.intel.com>
+--qlTNgmc+xy1dBmNv
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+Content-Transfer-Encoding: quoted-printable
+
+On Wed, Jul 17, 2019 at 01:30:27PM +0200, Stefano Garzarella wrote:
+> In order to reduce the number of credit update messages,
+> we send them only when the space available seen by the
+> transmitter is less than VIRTIO_VSOCK_MAX_PKT_BUF_SIZE.
+>=20
+> Signed-off-by: Stefano Garzarella <sgarzare@redhat.com>
+> ---
+>  include/linux/virtio_vsock.h            |  1 +
+>  net/vmw_vsock/virtio_transport_common.c | 16 +++++++++++++---
+>  2 files changed, 14 insertions(+), 3 deletions(-)
+
+It's an arbitrary limit but the risk of regressions is low since the
+credit update traffic was so excessive:
+
+Reviewed-by: Stefan Hajnoczi <stefanha@redhat.com>
+
+--qlTNgmc+xy1dBmNv
+Content-Type: application/pgp-signature; name="signature.asc"
+
+-----BEGIN PGP SIGNATURE-----
+
+iQEzBAEBCAAdFiEEhpWov9P5fNqsNXdanKSrs4Grc8gFAl01dZgACgkQnKSrs4Gr
+c8h/oQgAuTo0CerV6R9QtoxW4hcg6Tkq8sm7tBtXxSlRDhm5cvCYY3GKnhq1R/d0
+Kg0hqcHUpqMsLT0yNza3j2F2USkvoxFm3wMgKijp5A0L15YVUQ+qZOwxVfBw9wDe
+RXeY5bMyEHE5MFFtMfGDAiNyL1umrZ0Cy2RSYdzc+JhvZEkFyvwqE/za5PmXhofP
+hF5u98zTLSjIxjxMAl7I7obkZIaJmU4A5XDUWwucqQm4wBP4QFQQqocM91RlQ7Gz
+slJK7JiLWEpd2ka1VDVK9AfgE6R0dnT6tZ1r306NaG0moJmgts9gm3ETffKce8bn
+OlHQa8PxT//6DYE3ghoFPTOpYxFqLw==
+=G3Rg
+-----END PGP SIGNATURE-----
+
+--qlTNgmc+xy1dBmNv--
+
+--===============5773362539808652197==
+Content-Type: text/plain; charset="us-ascii"
+MIME-Version: 1.0
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+
+_______________________________________________
+Virtualization mailing list
+Virtualization@lists.linux-foundation.org
+https://lists.linuxfoundation.org/mailman/listinfo/virtualization
+--===============5773362539808652197==--
