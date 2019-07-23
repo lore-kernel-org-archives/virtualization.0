@@ -1,15 +1,17 @@
-From: "Michael S. Tsirkin" <mst@redhat.com>
-Subject: Re: [PATCH 2/6] vhost: validate MMU notifier registration
-Date: Tue, 23 Jul 2019 05:17:45 -0400
-Message-ID: <20190723042428-mutt-send-email-mst__9106.44940320111$1563873479$gmane$org@kernel.org>
+From: Jason Wang <jasowang@redhat.com>
+Subject: Re: [PATCH 6/6] vhost: don't do synchronize_rcu() in
+	vhost_uninit_vq_maps()
+Date: Tue, 23 Jul 2019 21:16:20 +0800
+Message-ID: <f2074bc7-6d67-14fa-4f58-91e9c5a9cc12__23103.8138199196$1563887797$gmane$org@redhat.com>
 References: <20190723075718.6275-1-jasowang@redhat.com>
-	<20190723075718.6275-3-jasowang@redhat.com>
+	<20190723075718.6275-7-jasowang@redhat.com>
+	<20190723041144-mutt-send-email-mst@kernel.org>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset="utf-8"; Format="flowed"
+Content-Transfer-Encoding: base64
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-Content-Disposition: inline
-In-Reply-To: <20190723075718.6275-3-jasowang@redhat.com>
+In-Reply-To: <20190723041144-mutt-send-email-mst@kernel.org>
+Content-Language: en-US
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -19,112 +21,49 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Jason Wang <jasowang@redhat.com>
+To: "Michael S. Tsirkin" <mst@redhat.com>
 Cc: netdev@vger.kernel.org, linux-kernel@vger.kernel.org, kvm@vger.kernel.org, virtualization@lists.linux-foundation.org
 List-Id: virtualization@lists.linuxfoundation.org
 
-On Tue, Jul 23, 2019 at 03:57:14AM -0400, Jason Wang wrote:
-> The return value of mmu_notifier_register() is not checked in
-> vhost_vring_set_num_addr(). This will cause an out of sync between mm
-> and MMU notifier thus a double free. To solve this, introduce a
-> boolean flag to track whether MMU notifier is registered and only do
-> unregistering when it was true.
-> 
-> Reported-and-tested-by:
-> syzbot+e58112d71f77113ddb7b@syzkaller.appspotmail.com
-> Fixes: 7f466032dc9e ("vhost: access vq metadata through kernel virtual address")
-> Signed-off-by: Jason Wang <jasowang@redhat.com>
-
-Right. This fixes the bug.
-But it's not great that simple things like
-setting vq address put pressure on memory allocator.
-Also, if we get a single during processing
-notifier register will fail, disabling optimization permanently.
-
-In fact, see below:
-
-
-> ---
->  drivers/vhost/vhost.c | 19 +++++++++++++++----
->  drivers/vhost/vhost.h |  1 +
->  2 files changed, 16 insertions(+), 4 deletions(-)
-> 
-> diff --git a/drivers/vhost/vhost.c b/drivers/vhost/vhost.c
-> index 34c0d970bcbc..058191d5efad 100644
-> --- a/drivers/vhost/vhost.c
-> +++ b/drivers/vhost/vhost.c
-> @@ -630,6 +630,7 @@ void vhost_dev_init(struct vhost_dev *dev,
->  	dev->iov_limit = iov_limit;
->  	dev->weight = weight;
->  	dev->byte_weight = byte_weight;
-> +	dev->has_notifier = false;
->  	init_llist_head(&dev->work_list);
->  	init_waitqueue_head(&dev->wait);
->  	INIT_LIST_HEAD(&dev->read_list);
-> @@ -731,6 +732,7 @@ long vhost_dev_set_owner(struct vhost_dev *dev)
->  	if (err)
->  		goto err_mmu_notifier;
->  #endif
-> +	dev->has_notifier = true;
->  
->  	return 0;
->  
-
-I just noticed that set owner now fails if we get a signal.
-Userspace could retry in theory but it does not:
-this is userspace abi breakage since it used to only
-fail on invalid input.
-
-> @@ -960,7 +962,11 @@ void vhost_dev_cleanup(struct vhost_dev *dev)
->  	}
->  	if (dev->mm) {
->  #if VHOST_ARCH_CAN_ACCEL_UACCESS
-> -		mmu_notifier_unregister(&dev->mmu_notifier, dev->mm);
-> +		if (dev->has_notifier) {
-> +			mmu_notifier_unregister(&dev->mmu_notifier,
-> +						dev->mm);
-> +			dev->has_notifier = false;
-> +		}
->  #endif
->  		mmput(dev->mm);
->  	}
-> @@ -2065,8 +2071,10 @@ static long vhost_vring_set_num_addr(struct vhost_dev *d,
->  	/* Unregister MMU notifer to allow invalidation callback
->  	 * can access vq->uaddrs[] without holding a lock.
->  	 */
-> -	if (d->mm)
-> +	if (d->has_notifier) {
->  		mmu_notifier_unregister(&d->mmu_notifier, d->mm);
-> +		d->has_notifier = false;
-> +	}
->  
->  	vhost_uninit_vq_maps(vq);
->  #endif
-> @@ -2086,8 +2094,11 @@ static long vhost_vring_set_num_addr(struct vhost_dev *d,
->  	if (r == 0)
->  		vhost_setup_vq_uaddr(vq);
->  
-> -	if (d->mm)
-> -		mmu_notifier_register(&d->mmu_notifier, d->mm);
-> +	if (d->mm) {
-> +		r = mmu_notifier_register(&d->mmu_notifier, d->mm);
-> +		if (!r)
-> +			d->has_notifier = true;
-> +	}
->  #endif
->  
->  	mutex_unlock(&vq->mutex);
-> diff --git a/drivers/vhost/vhost.h b/drivers/vhost/vhost.h
-> index 819296332913..a62f56a4cf72 100644
-> --- a/drivers/vhost/vhost.h
-> +++ b/drivers/vhost/vhost.h
-> @@ -214,6 +214,7 @@ struct vhost_dev {
->  	int iov_limit;
->  	int weight;
->  	int byte_weight;
-> +	bool has_notifier;
->  };
->  
->  bool vhost_exceeds_weight(struct vhost_virtqueue *vq, int pkts, int total_len);
-> -- 
-> 2.18.1
+Ck9uIDIwMTkvNy8yMyDkuIvljYg1OjE2LCBNaWNoYWVsIFMuIFRzaXJraW4gd3JvdGU6Cj4gT24g
+VHVlLCBKdWwgMjMsIDIwMTkgYXQgMDM6NTc6MThBTSAtMDQwMCwgSmFzb24gV2FuZyB3cm90ZToK
+Pj4gVGhlcmUncyBubyBuZWVkIGZvciBSQ1Ugc3luY2hyb25pemF0aW9uIGluIHZob3N0X3VuaW5p
+dF92cV9tYXBzKCkKPj4gc2luY2Ugd2UndmUgYWxyZWFkeSBzZXJpYWxpemVkIHdpdGggcmVhZGVy
+cyAobWVtb3J5IGFjY2Vzc29ycykuIFRoaXMKPj4gYWxzbyBhdm9pZCB0aGUgcG9zc2libGUgdXNl
+cnNwYWNlIERPUyB0aHJvdWdoIGlvY3RsKCkgYmVjYXVzZSBvZiB0aGUKPj4gcG9zc2libGUgaGln
+aCBsYXRlbmN5IGNhdXNlZCBieSBzeW5jaHJvbml6ZV9yY3UoKS4KPj4KPj4gUmVwb3J0ZWQtYnk6
+IE1pY2hhZWwgUy4gVHNpcmtpbiA8bXN0QHJlZGhhdC5jb20+Cj4+IEZpeGVzOiA3ZjQ2NjAzMmRj
+OWUgKCJ2aG9zdDogYWNjZXNzIHZxIG1ldGFkYXRhIHRocm91Z2gga2VybmVsIHZpcnR1YWwgYWRk
+cmVzcyIpCj4+IFNpZ25lZC1vZmYtYnk6IEphc29uIFdhbmcgPGphc293YW5nQHJlZGhhdC5jb20+
+Cj4gSSBhZ3JlZSBzeW5jaHJvbml6ZV9yY3UgaW4gYm90aCBtbXUgbm90aWZpZXJzIGFuZCBpb2N0
+bAo+IGlzIGEgcHJvYmxlbSB3ZSBtdXN0IGZpeC4KPgo+PiAtLS0KPj4gICBkcml2ZXJzL3Zob3N0
+L3Zob3N0LmMgfCA0ICsrKy0KPj4gICAxIGZpbGUgY2hhbmdlZCwgMyBpbnNlcnRpb25zKCspLCAx
+IGRlbGV0aW9uKC0pCj4+Cj4+IGRpZmYgLS1naXQgYS9kcml2ZXJzL3Zob3N0L3Zob3N0LmMgYi9k
+cml2ZXJzL3Zob3N0L3Zob3N0LmMKPj4gaW5kZXggNWI4ODIxZDAwZmU0Li5hMTdkZjFmNDA2OWEg
+MTAwNjQ0Cj4+IC0tLSBhL2RyaXZlcnMvdmhvc3Qvdmhvc3QuYwo+PiArKysgYi9kcml2ZXJzL3Zo
+b3N0L3Zob3N0LmMKPj4gQEAgLTMzNCw3ICszMzQsOSBAQCBzdGF0aWMgdm9pZCB2aG9zdF91bmlu
+aXRfdnFfbWFwcyhzdHJ1Y3Qgdmhvc3RfdmlydHF1ZXVlICp2cSkKPj4gICAJfQo+PiAgIAlzcGlu
+X3VubG9jaygmdnEtPm1tdV9sb2NrKTsKPj4gICAKPj4gLQlzeW5jaHJvbml6ZV9yY3UoKTsKPj4g
+KwkvKiBObyBuZWVkIGZvciBzeW5jaHJvbml6ZV9yY3UoKSBvciBrZnJlZV9yY3UoKSBzaW5jZSB3
+ZSBhcmUKPj4gKwkgKiBzZXJpYWxpemVkIHdpdGggbWVtb3J5IGFjY2Vzc29ycyAoZS5nIHZxIG11
+dGV4IGhlbGQpLgo+PiArCSAqLwo+PiAgIAo+PiAgIAlmb3IgKGkgPSAwOyBpIDwgVkhPU1RfTlVN
+X0FERFJTOyBpKyspCj4+ICAgCQlpZiAobWFwW2ldKQo+PiAtLSAKPj4gMi4xOC4xCj4gLi4gaG93
+ZXZlciB3ZSBjYW4gbm90IFJDVSB3aXRoIG5vIHN5bmNocm9uaXphdGlvbiBpbiBzaWdodC4KPiBT
+b21ldGltZXMgdGhlcmUgYXJlIGhhY2tzIGxpa2UgdXNpbmcgYSBsb2NrL3VubG9jawo+IHBhaXIg
+aW5zdGVhZCBvZiBzeW5jLCBidXQgaGVyZSBubyBvbmUgYm90aGVycy4KPgo+IHNwZWNpZmljYWxs
+eSBub3RpZmllcnMgY2FsbCByZXNldCB2cSBtYXBzIHdoaWNoIGNhbGxzCj4gdW5pbml0IHZxIG1h
+cHMgd2hpY2ggaXMgbm90IHVuZGVyIGFueSBsb2NrLgoKCk5vdGlmaWVyIGRpZCB0aGlzOgoKIMKg
+wqDCoMKgwqDCoMKgIGlmIChtYXApIHsKIMKgwqDCoMKgwqDCoMKgwqDCoMKgwqDCoMKgwqDCoCBp
+ZiAodWFkZHItPndyaXRlKSB7CiDCoMKgwqDCoMKgwqDCoMKgwqDCoMKgwqDCoMKgwqDCoMKgwqDC
+oMKgwqDCoMKgIGZvciAoaSA9IDA7IGkgPCBtYXAtPm5wYWdlczsgaSsrKQpzZXRfcGFnZV9kaXJ0
+eShtYXAtPnBhZ2VzW2ldKTsKfQogwqDCoMKgwqDCoMKgwqDCoMKgwqDCoMKgwqDCoMKgIHJjdV9h
+c3NpZ25fcG9pbnRlcih2cS0+bWFwc1tpbmRleF0sIE5VTEwpOwp9CnNwaW5fdW5sb2NrKCZ2cS0+
+bW11X2xvY2spOwoKIMKgwqDCoMKgwqDCoMKgIGlmIChtYXApIHsKc3luY2hyb25pemVfcmN1KCk7
+CnZob3N0X21hcF91bnByZWZldGNoKG1hcCk7CiDCoMKgwqDCoMKgwqDCoCB9CgpTbyBpdCBpbmRl
+ZWQgaGF2ZSBhIHN5bmNocm9uaXplX3JjdSgpIHRoZXJlLgoKVGhhbmtzCgoKPgo+IFlvdSB3aWxs
+IGdldCB1c2UgYWZ0ZXIgZnJlZSB3aGVuIG1hcCBpcyB0aGVuIGFjY2Vzc2VkLgo+Cj4gSWYgeW91
+IGFsd2F5cyBoYXZlIGEgbG9jayB0aGVuIGp1c3QgdGFrZSB0aGF0IGxvY2sKPiBhbmQgbm8gbmVl
+ZCBmb3IgUkNVLgo+Cl9fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19f
+X19fClZpcnR1YWxpemF0aW9uIG1haWxpbmcgbGlzdApWaXJ0dWFsaXphdGlvbkBsaXN0cy5saW51
+eC1mb3VuZGF0aW9uLm9yZwpodHRwczovL2xpc3RzLmxpbnV4Zm91bmRhdGlvbi5vcmcvbWFpbG1h
+bi9saXN0aW5mby92aXJ0dWFsaXphdGlvbg==
