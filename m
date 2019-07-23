@@ -1,17 +1,11 @@
-From: "Michael S. Tsirkin" <mst@redhat.com>
-Subject: Re: [PATCH 2/2] virtio/virtio_ring: Fix the dma_max_mapping_size call
-Date: Tue, 23 Jul 2019 11:47:27 -0400
-Message-ID: <20190723114504-mutt-send-email-mst__35356.7919389874$1563896872$gmane$org@kernel.org>
-References: <20190722145509.1284-1-eric.auger@redhat.com>
-	<20190722145509.1284-3-eric.auger@redhat.com>
-	<20190722112704-mutt-send-email-mst@kernel.org>
-	<20190723153830.GD720@lst.de>
+From: Halil Pasic <pasic@linux.ibm.com>
+Subject: [PATCH 1/1] virtio/s390: fix race on airq_areas[]
+Date: Wed, 24 Jul 2019 00:58:17 +0200
+Message-ID: <20190723225817.12800-1-pasic@linux.ibm.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-Content-Disposition: inline
-In-Reply-To: <20190723153830.GD720@lst.de>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -21,34 +15,56 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Christoph Hellwig <hch@lst.de>
-Cc: linux-kernel@vger.kernel.org, virtualization@lists.linux-foundation.org, Eric Auger <eric.auger@redhat.com>, iommu@lists.linux-foundation.org, eric.auger.pro@gmail.com, robin.murphy@arm.com, m.szyprowski@samsung.com
+To: Cornelia Huck <cohuck@redhat.com>, kvm@vger.kernel.org, linux-s390@vger.kernel.org
+Cc: Halil Pasic <pasic@linux.ibm.com>, Christian Borntraeger <borntraeger@de.ibm.com>, Marc Hartmayer <mhartmay@linux.ibm.com>, Janosch Frank <frankja@linux.ibm.com>, virtualization@lists.linux-foundation.org
 List-Id: virtualization@lists.linuxfoundation.org
 
-On Tue, Jul 23, 2019 at 05:38:30PM +0200, Christoph Hellwig wrote:
-> On Mon, Jul 22, 2019 at 11:33:35AM -0400, Michael S. Tsirkin wrote:
-> > On Mon, Jul 22, 2019 at 04:55:09PM +0200, Eric Auger wrote:
-> > > Do not call dma_max_mapping_size for devices that have no DMA
-> > > mask set, otherwise we can hit a NULL pointer dereference.
-> > > 
-> > > This occurs when a virtio-blk-pci device is protected with
-> > > a virtual IOMMU.
-> > > 
-> > > Fixes: e6d6dd6c875e ("virtio: Introduce virtio_max_dma_size()")
-> > > Signed-off-by: Eric Auger <eric.auger@redhat.com>
-> > > Suggested-by: Christoph Hellwig <hch@lst.de>
-> > 
-> > Christoph, I wonder why did you suggest this?
-> > The connection between dma_mask and dma_max_mapping_size
-> > is far from obvious.  The documentation doesn't exist.
-> > Do we really have to teach all users about this hack?
-> > Why not just make dma_max_mapping_size DTRT?
-> 
-> Because we should not call into dma API functions for devices that
-> are not DMA capable.
+The access to airq_areas was racy ever since the adapter interrupts got
+introduced to virtio-ccw, but since commit 39c7dcb15892 ("virtio/s390:
+make airq summary indicators DMA") this became an issue in practice as
+well. Namely before that commit the airq_info that got overwritten was
+still functional. After that commit however the two infos share a
+summary_indicator, which aggravates the situation. Which means
+auto-online mechanism occasionally hangs the boot with virtio_blk.
 
-I'd rather call is_device_dma_capable then, better than poking
-at DMA internals.
+Signed-off-by: Halil Pasic <pasic@linux.ibm.com>
+Reported-by: Marc Hartmayer <mhartmay@linux.ibm.com>
+Fixes: 96b14536d935 ("virtio-ccw: virtio-ccw adapter interrupt support.")
+---
+* We need definitely this fixed for 5.3. For older stable kernels it is
+to be discussed. @Connie what do you think: do we need a cc stable?
 
+* I have a variant that does not need the extra mutex but uses cmpxchg().
+Decided to post this one because that one is more complex. But if there
+is interest we can have a look at it as well.
+---
+ drivers/s390/virtio/virtio_ccw.c | 4 ++++
+ 1 file changed, 4 insertions(+)
+
+diff --git a/drivers/s390/virtio/virtio_ccw.c b/drivers/s390/virtio/virtio_ccw.c
+index 1a55e5942d36..d97742662755 100644
+--- a/drivers/s390/virtio/virtio_ccw.c
++++ b/drivers/s390/virtio/virtio_ccw.c
+@@ -145,6 +145,8 @@ struct airq_info {
+ 	struct airq_iv *aiv;
+ };
+ static struct airq_info *airq_areas[MAX_AIRQ_AREAS];
++DEFINE_MUTEX(airq_areas_lock);
++
+ static u8 *summary_indicators;
+ 
+ static inline u8 *get_summary_indicator(struct airq_info *info)
+@@ -265,9 +267,11 @@ static unsigned long get_airq_indicator(struct virtqueue *vqs[], int nvqs,
+ 	unsigned long bit, flags;
+ 
+ 	for (i = 0; i < MAX_AIRQ_AREAS && !indicator_addr; i++) {
++		mutex_lock(&airq_areas_lock);
+ 		if (!airq_areas[i])
+ 			airq_areas[i] = new_airq_info(i);
+ 		info = airq_areas[i];
++		mutex_unlock(&airq_areas_lock);
+ 		if (!info)
+ 			return 0;
+ 		write_lock_irqsave(&info->lock, flags);
 -- 
-MST
+2.17.1
