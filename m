@@ -1,7 +1,8 @@
 From: Jason Wang <jasowang@redhat.com>
-Subject: [PATCH 5/6] vhost: mark dirty pages during map uninit
-Date: Tue, 23 Jul 2019 03:57:17 -0400
-Message-ID: <20190723075718.6275-6-jasowang__34760.4799362429$1563868714$gmane$org@redhat.com>
+Subject: [PATCH 6/6] vhost: don't do synchronize_rcu() in
+	vhost_uninit_vq_maps()
+Date: Tue, 23 Jul 2019 03:57:18 -0400
+Message-ID: <20190723075718.6275-7-jasowang__29504.5522785344$1563868721$gmane$org@redhat.com>
 References: <20190723075718.6275-1-jasowang@redhat.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
@@ -21,71 +22,32 @@ To: mst@redhat.com, jasowang@redhat.com
 Cc: netdev@vger.kernel.org, linux-kernel@vger.kernel.org, kvm@vger.kernel.org, virtualization@lists.linux-foundation.org
 List-Id: virtualization@lists.linuxfoundation.org
 
-We don't mark dirty pages if the map was teared down outside MMU
-notifier. This will lead untracked dirty pages. Fixing by marking
-dirty pages during map uninit.
+There's no need for RCU synchronization in vhost_uninit_vq_maps()
+since we've already serialized with readers (memory accessors). This
+also avoid the possible userspace DOS through ioctl() because of the
+possible high latency caused by synchronize_rcu().
 
 Reported-by: Michael S. Tsirkin <mst@redhat.com>
 Fixes: 7f466032dc9e ("vhost: access vq metadata through kernel virtual address")
 Signed-off-by: Jason Wang <jasowang@redhat.com>
 ---
- drivers/vhost/vhost.c | 22 ++++++++++++++++------
- 1 file changed, 16 insertions(+), 6 deletions(-)
+ drivers/vhost/vhost.c | 4 +++-
+ 1 file changed, 3 insertions(+), 1 deletion(-)
 
 diff --git a/drivers/vhost/vhost.c b/drivers/vhost/vhost.c
-index 89c9f08b5146..5b8821d00fe4 100644
+index 5b8821d00fe4..a17df1f4069a 100644
 --- a/drivers/vhost/vhost.c
 +++ b/drivers/vhost/vhost.c
-@@ -306,6 +306,18 @@ static void vhost_map_unprefetch(struct vhost_map *map)
- 	kfree(map);
- }
- 
-+static void vhost_set_map_dirty(struct vhost_virtqueue *vq,
-+				struct vhost_map *map, int index)
-+{
-+	struct vhost_uaddr *uaddr = &vq->uaddrs[index];
-+	int i;
-+
-+	if (uaddr->write) {
-+		for (i = 0; i < map->npages; i++)
-+			set_page_dirty(map->pages[i]);
-+	}
-+}
-+
- static void vhost_uninit_vq_maps(struct vhost_virtqueue *vq)
- {
- 	struct vhost_map *map[VHOST_NUM_ADDRS];
-@@ -315,8 +327,10 @@ static void vhost_uninit_vq_maps(struct vhost_virtqueue *vq)
- 	for (i = 0; i < VHOST_NUM_ADDRS; i++) {
- 		map[i] = rcu_dereference_protected(vq->maps[i],
- 				  lockdep_is_held(&vq->mmu_lock));
--		if (map[i])
-+		if (map[i]) {
-+			vhost_set_map_dirty(vq, map[i], i);
- 			rcu_assign_pointer(vq->maps[i], NULL);
-+		}
+@@ -334,7 +334,9 @@ static void vhost_uninit_vq_maps(struct vhost_virtqueue *vq)
  	}
  	spin_unlock(&vq->mmu_lock);
  
-@@ -354,7 +368,6 @@ static void vhost_invalidate_vq_start(struct vhost_virtqueue *vq,
- {
- 	struct vhost_uaddr *uaddr = &vq->uaddrs[index];
- 	struct vhost_map *map;
--	int i;
+-	synchronize_rcu();
++	/* No need for synchronize_rcu() or kfree_rcu() since we are
++	 * serialized with memory accessors (e.g vq mutex held).
++	 */
  
- 	if (!vhost_map_range_overlap(uaddr, start, end))
- 		return;
-@@ -365,10 +378,7 @@ static void vhost_invalidate_vq_start(struct vhost_virtqueue *vq,
- 	map = rcu_dereference_protected(vq->maps[index],
- 					lockdep_is_held(&vq->mmu_lock));
- 	if (map) {
--		if (uaddr->write) {
--			for (i = 0; i < map->npages; i++)
--				set_page_dirty(map->pages[i]);
--		}
-+		vhost_set_map_dirty(vq, map, index);
- 		rcu_assign_pointer(vq->maps[index], NULL);
- 	}
- 	spin_unlock(&vq->mmu_lock);
+ 	for (i = 0; i < VHOST_NUM_ADDRS; i++)
+ 		if (map[i])
 -- 
 2.18.1
