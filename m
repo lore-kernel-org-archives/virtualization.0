@@ -1,11 +1,13 @@
 From: Jason Wang <jasowang@redhat.com>
-Subject: [PATCH 0/6] Fixes for meta data acceleration
-Date: Tue, 23 Jul 2019 03:57:12 -0400
-Message-ID: <20190723075718.6275-1-jasowang__27970.3205613018$1563868666$gmane$org@redhat.com>
+Subject: [PATCH 1/6] vhost: don't set uaddr for invalid address
+Date: Tue, 23 Jul 2019 03:57:13 -0400
+Message-ID: <20190723075718.6275-2-jasowang__30427.9097750381$1563868675$gmane$org@redhat.com>
+References: <20190723075718.6275-1-jasowang@redhat.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
+In-Reply-To: <20190723075718.6275-1-jasowang@redhat.com>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -19,22 +21,28 @@ To: mst@redhat.com, jasowang@redhat.com
 Cc: netdev@vger.kernel.org, linux-kernel@vger.kernel.org, kvm@vger.kernel.org, virtualization@lists.linux-foundation.org
 List-Id: virtualization@lists.linuxfoundation.org
 
-Hi all:
+We should not setup uaddr for the invalid address, otherwise we may
+try to pin or prefetch mapping of wrong pages.
 
-This series try to fix several issues introduced by meta data
-accelreation series. Please review.
+Fixes: 7f466032dc9e ("vhost: access vq metadata through kernel virtual address")
+Signed-off-by: Jason Wang <jasowang@redhat.com>
+---
+ drivers/vhost/vhost.c | 3 ++-
+ 1 file changed, 2 insertions(+), 1 deletion(-)
 
-Jason Wang (6):
-  vhost: don't set uaddr for invalid address
-  vhost: validate MMU notifier registration
-  vhost: fix vhost map leak
-  vhost: reset invalidate_count in vhost_set_vring_num_addr()
-  vhost: mark dirty pages during map uninit
-  vhost: don't do synchronize_rcu() in vhost_uninit_vq_maps()
-
- drivers/vhost/vhost.c | 56 +++++++++++++++++++++++++++++++------------
- drivers/vhost/vhost.h |  1 +
- 2 files changed, 42 insertions(+), 15 deletions(-)
-
+diff --git a/drivers/vhost/vhost.c b/drivers/vhost/vhost.c
+index dc9301d31f12..34c0d970bcbc 100644
+--- a/drivers/vhost/vhost.c
++++ b/drivers/vhost/vhost.c
+@@ -2083,7 +2083,8 @@ static long vhost_vring_set_num_addr(struct vhost_dev *d,
+ 	}
+ 
+ #if VHOST_ARCH_CAN_ACCEL_UACCESS
+-	vhost_setup_vq_uaddr(vq);
++	if (r == 0)
++		vhost_setup_vq_uaddr(vq);
+ 
+ 	if (d->mm)
+ 		mmu_notifier_register(&d->mmu_notifier, d->mm);
 -- 
 2.18.1
