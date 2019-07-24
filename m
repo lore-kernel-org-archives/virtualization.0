@@ -1,14 +1,11 @@
-From: Will Deacon <will@kernel.org>
-Subject: Re: [PATCH] MAINTAINERS: Update my email address
-Date: Mon, 22 Jul 2019 14:56:53 +0100
-Message-ID: <20190722135652.se2ba5ithml37dtz__14089.7179300495$1563994948$gmane$org@willie-the-truck>
-References: <20190722134438.31003-1-jean-philippe@linaro.org>
+From: john.hubbard@gmail.com
+Subject: [PATCH 00/12] block/bio, fs: convert put_page() to put_user_page*()
+Date: Tue, 23 Jul 2019 21:25:06 -0700
+Message-ID: <20190724042518.14363-1-jhubbard__13359.5612643816$1563994960$gmane$org@nvidia.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset="utf-8"
+Content-Transfer-Encoding: base64
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-Content-Disposition: inline
-In-Reply-To: <20190722134438.31003-1-jean-philippe@linaro.org>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -18,48 +15,76 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Jean-Philippe Brucker <jean-philippe@linaro.org>
-Cc: virtio-dev@lists.oasis-open.org, lorenzo.pieralisi@arm.com, mst@redhat.com, maz@kernel.org, joro@8bytes.org, virtualization@lists.linux-foundation.org, iommu@lists.linux-foundation.org, linux-pci@vger.kernel.org, kvmarm@lists.cs.columbia.edu, linux-arm-kernel@lists.infradead.org
+To: Andrew Morton <akpm@linux-foundation.org>
+Cc: kvm@vger.kernel.org, "Michael S . Tsirkin" <mst@redhat.com>, virtualization@lists.linux-foundation.org, linux-mm@kvack.org, Christoph Hellwig <hch@lst.de>, linux-cifs@vger.kernel.org, Miklos Szeredi <miklos@szeredi.hu>, linux-rdma@vger.kernel.org, Matthew Wilcox <willy@infradead.org>, Jason Gunthorpe <jgg@ziepe.ca>, v9fs-developer@lists.sourceforge.net, Eric Van Hensbergen <ericvh@gmail.com>, John Hubbard <jhubbard@nvidia.com>, linux-block@vger.kernel.org, Alexander Viro <viro@zeniv.linux.org.uk>, ceph-devel@vger.kernel.org, Trond Myklebust <trond.myklebust@hammerspace.com>, Jens Axboe <axboe@kernel.dk>, linux-nfs@vger.kernel.org, netdev@vger.kernel.org, samba-technical@lists.samba.org, LKML <linux-kernel@vger.kernel.org>, "David S . Miller" <davem@davemloft.net>, linux-fsdevel@vger.kernel.org, Anna Schumaker <anna.schumaker@netapp.com>
 List-Id: virtualization@lists.linuxfoundation.org
 
-On Mon, Jul 22, 2019 at 02:44:40PM +0100, Jean-Philippe Brucker wrote:
-> Update MAINTAINERS and .mailmap with my @linaro.org address, since I
-> don't have access to my @arm.com address anymore.
-> 
-> Signed-off-by: Jean-Philippe Brucker <jean-philippe@linaro.org>
-> ---
->  .mailmap    | 1 +
->  MAINTAINERS | 2 +-
->  2 files changed, 2 insertions(+), 1 deletion(-)
-> 
-> diff --git a/.mailmap b/.mailmap
-> index 0fef932de3db..8ce554b9c9f1 100644
-> --- a/.mailmap
-> +++ b/.mailmap
-> @@ -98,6 +98,7 @@ Jason Gunthorpe <jgg@ziepe.ca> <jgunthorpe@obsidianresearch.com>
->  Javi Merino <javi.merino@kernel.org> <javi.merino@arm.com>
->  <javier@osg.samsung.com> <javier.martinez@collabora.co.uk>
->  Jean Tourrilhes <jt@hpl.hp.com>
-> +<jean-philippe@linaro.org> <jean-philippe.brucker@arm.com>
->  Jeff Garzik <jgarzik@pretzel.yyz.us>
->  Jeff Layton <jlayton@kernel.org> <jlayton@redhat.com>
->  Jeff Layton <jlayton@kernel.org> <jlayton@poochiereds.net>
-> diff --git a/MAINTAINERS b/MAINTAINERS
-> index 783569e3c4b4..bded78c84701 100644
-> --- a/MAINTAINERS
-> +++ b/MAINTAINERS
-> @@ -17123,7 +17123,7 @@ F:	drivers/virtio/virtio_input.c
->  F:	include/uapi/linux/virtio_input.h
->  
->  VIRTIO IOMMU DRIVER
-> -M:	Jean-Philippe Brucker <jean-philippe.brucker@arm.com>
-> +M:	Jean-Philippe Brucker <jean-philippe@linaro.org>
->  L:	virtualization@lists.linux-foundation.org
->  S:	Maintained
->  F:	drivers/iommu/virtio-iommu.c
-
-Thanks (and your new address is easier to remember ;). I can take this one
-via arm64, since I already have a bunch of MAINTAINERS updates queued for
--rc2.
-
-Will
+RnJvbTogSm9obiBIdWJiYXJkIDxqaHViYmFyZEBudmlkaWEuY29tPgoKSGksCgpUaGlzIGlzIG1v
+c3RseSBKZXJvbWUncyB3b3JrLCBjb252ZXJ0aW5nIHRoZSBibG9jay9iaW8gYW5kIHJlbGF0ZWQg
+YXJlYXMKdG8gY2FsbCBwdXRfdXNlcl9wYWdlKigpIGluc3RlYWQgb2YgcHV0X3BhZ2UoKS4gQmVj
+YXVzZSBJJ3ZlIGNoYW5nZWQKSmVyb21lJ3MgcGF0Y2hlcywgaW4gc29tZSBjYXNlcyBzaWduaWZp
+Y2FudGx5LCBJJ2QgbGlrZSB0byBnZXQgaGlzCmZlZWRiYWNrIGJlZm9yZSB3ZSBhY3R1YWxseSBs
+ZWF2ZSBoaW0gbGlzdGVkIGFzIHRoZSBhdXRob3IgKGhlIG1pZ2h0CndhbnQgdG8gZGlzb3duIHNv
+bWUgb3IgYWxsIG9mIHRoZXNlKS4KCkkgYWRkZWQgYSBuZXcgcGF0Y2gsIGluIG9yZGVyIHRvIG1h
+a2UgdGhpcyB3b3JrIHdpdGggQ2hyaXN0b3BoIEhlbGx3aWcncwpyZWNlbnQgb3ZlcmhhdWwgdG8g
+YmlvX3JlbGVhc2VfcGFnZXMoKTogImJsb2NrOiBiaW9fcmVsZWFzZV9wYWdlczogdXNlCmZsYWdz
+IGFyZyBpbnN0ZWFkIG9mIGJvb2wiLgoKSSd2ZSBzdGFydGVkIHRoZSBzZXJpZXMgd2l0aCBhIHBh
+dGNoIHRoYXQgSSd2ZSBwb3N0ZWQgaW4gYW5vdGhlcgpzZXJpZXMgKCJtbS9ndXA6IGFkZCBtYWtl
+X2RpcnR5IGFyZyB0byBwdXRfdXNlcl9wYWdlc19kaXJ0eV9sb2NrKCkiWzFdKSwKYmVjYXVzZSBJ
+J20gbm90IHN1cmUgd2hpY2ggb2YgdGhlc2Ugd2lsbCBnbyBpbiBmaXJzdCwgYW5kIHRoaXMgYWxs
+b3dzIGVhY2gKdG8gc3RhbmQgYWxvbmUuCgpUZXN0aW5nOiBub3QgbXVjaCBiZXlvbmQgYnVpbGQg
+YW5kIGJvb3QgdGVzdGluZyBoYXMgYmVlbiBkb25lIHlldC4gQW5kCkknbSBub3Qgc2V0IHVwIHRv
+IGV2ZW4gZXhlcmNpc2UgYWxsIG9mIGl0IChlc3BlY2lhbGx5IHRoZSBJQiBwYXJ0cykgYXQKcnVu
+IHRpbWUuCgpBbnl3YXksIGNoYW5nZXMgaGVyZSBhcmU6CgoqIFN0b3JlLCBpbiB0aGUgaW92X2l0
+ZXIsIGEgImNhbWUgZnJvbSBndXAgKGdldF91c2VyX3BhZ2VzKSIgcGFyYW1ldGVyLgogIFRoZW4s
+IHVzZSB0aGUgbmV3IGlvdl9pdGVyX2dldF9wYWdlc191c2VfZ3VwKCkgdG8gcmV0cmlldmUgaXQg
+d2hlbgogIGl0IGlzIHRpbWUgdG8gcmVsZWFzZSB0aGUgcGFnZXMuIFRoYXQgYWxsb3dzIGNob29z
+aW5nIGJldHdlZW4gcHV0X3BhZ2UoKQogIGFuZCBwdXRfdXNlcl9wYWdlKigpLgoKKiBQYXNzIGlu
+IG9uZSBtb3JlIHBpZWNlIG9mIGluZm9ybWF0aW9uIHRvIGJpb19yZWxlYXNlX3BhZ2VzOiBhICJm
+cm9tX2d1cCIKICBwYXJhbWV0ZXIuIFNpbWlsYXIgdXNlIGFzIGFib3ZlLgoKKiBDaGFuZ2UgdGhl
+IGJsb2NrIGxheWVyLCBhbmQgc2V2ZXJhbCBmaWxlIHN5c3RlbXMsIHRvIHVzZQogIHB1dF91c2Vy
+X3BhZ2UqKCkuCgpbMV0gaHR0cHM6Ly9sb3JlLmtlcm5lbC5vcmcvci8yMDE5MDcyNDAxMjYwNi4y
+NTg0NC0yLWpodWJiYXJkQG52aWRpYS5jb20KICAgIEFuZCBwbGVhc2Ugbm90ZSB0aGUgY29ycmVj
+dGlvbiBlbWFpbCB0aGF0IEkgcG9zdGVkIGFzIGEgZm9sbG93LXVwLAogICAgaWYgeW91J3JlIGxv
+b2tpbmcgY2xvc2VseSBhdCB0aGF0IHBhdGNoLiA6KSBUaGUgZml4ZWQgdmVyc2lvbiBpcwogICAg
+aW5jbHVkZWQgaGVyZS4KCkpvaG4gSHViYmFyZCAoMyk6CiAgbW0vZ3VwOiBhZGQgbWFrZV9kaXJ0
+eSBhcmcgdG8gcHV0X3VzZXJfcGFnZXNfZGlydHlfbG9jaygpCiAgYmxvY2s6IGJpb19yZWxlYXNl
+X3BhZ2VzOiB1c2UgZmxhZ3MgYXJnIGluc3RlYWQgb2YgYm9vbAogIGZzL2NlcGg6IGZpeCBhIGJ1
+aWxkIHdhcm5pbmc6IHJldHVybmluZyBhIHZhbHVlIGZyb20gdm9pZCBmdW5jdGlvbgoKSsOpcsO0
+bWUgR2xpc3NlICg5KToKICBpb3ZfaXRlcjogYWRkIGhlbHBlciB0byB0ZXN0IGlmIGFuIGl0ZXIg
+d291bGQgdXNlIEdVUCB2MgogIGJsb2NrOiBiaW9fcmVsZWFzZV9wYWdlczogY29udmVydCBwdXRf
+cGFnZSgpIHRvIHB1dF91c2VyX3BhZ2UqKCkKICBibG9ja19kZXY6IGNvbnZlcnQgcHV0X3BhZ2Uo
+KSB0byBwdXRfdXNlcl9wYWdlKigpCiAgZnMvbmZzOiBjb252ZXJ0IHB1dF9wYWdlKCkgdG8gcHV0
+X3VzZXJfcGFnZSooKQogIHZob3N0LXNjc2k6IGNvbnZlcnQgcHV0X3BhZ2UoKSB0byBwdXRfdXNl
+cl9wYWdlKigpCiAgZnMvY2lmczogY29udmVydCBwdXRfcGFnZSgpIHRvIHB1dF91c2VyX3BhZ2Uq
+KCkKICBmcy9mdXNlOiBjb252ZXJ0IHB1dF9wYWdlKCkgdG8gcHV0X3VzZXJfcGFnZSooKQogIGZz
+L2NlcGg6IGNvbnZlcnQgcHV0X3BhZ2UoKSB0byBwdXRfdXNlcl9wYWdlKigpCiAgOXAvbmV0OiBj
+b252ZXJ0IHB1dF9wYWdlKCkgdG8gcHV0X3VzZXJfcGFnZSooKQoKIGJsb2NrL2Jpby5jICAgICAg
+ICAgICAgICAgICAgICAgICAgICAgICAgICB8ICA4MSArKysrKysrKysrKystLS0KIGRyaXZlcnMv
+aW5maW5pYmFuZC9jb3JlL3VtZW0uYyAgICAgICAgICAgICB8ICAgNSArLQogZHJpdmVycy9pbmZp
+bmliYW5kL2h3L2hmaTEvdXNlcl9wYWdlcy5jICAgIHwgICA1ICstCiBkcml2ZXJzL2luZmluaWJh
+bmQvaHcvcWliL3FpYl91c2VyX3BhZ2VzLmMgfCAgIDUgKy0KIGRyaXZlcnMvaW5maW5pYmFuZC9o
+dy91c25pYy91c25pY191aW9tLmMgICB8ICAgNSArLQogZHJpdmVycy9pbmZpbmliYW5kL3N3L3Np
+dy9zaXdfbWVtLmMgICAgICAgIHwgICA4ICstCiBkcml2ZXJzL3Zob3N0L3Njc2kuYyAgICAgICAg
+ICAgICAgICAgICAgICAgfCAgMTMgKystCiBmcy9ibG9ja19kZXYuYyAgICAgICAgICAgICAgICAg
+ICAgICAgICAgICAgfCAgMjIgKysrLQogZnMvY2VwaC9kZWJ1Z2ZzLmMgICAgICAgICAgICAgICAg
+ICAgICAgICAgIHwgICAyICstCiBmcy9jZXBoL2ZpbGUuYyAgICAgICAgICAgICAgICAgICAgICAg
+ICAgICAgfCAgNjIgKysrKysrKystLS0KIGZzL2NpZnMvY2lmc2dsb2IuaCAgICAgICAgICAgICAg
+ICAgICAgICAgICB8ICAgMyArCiBmcy9jaWZzL2ZpbGUuYyAgICAgICAgICAgICAgICAgICAgICAg
+ICAgICAgfCAgMjIgKysrLQogZnMvY2lmcy9taXNjLmMgICAgICAgICAgICAgICAgICAgICAgICAg
+ICAgIHwgIDE5ICsrKy0KIGZzL2RpcmVjdC1pby5jICAgICAgICAgICAgICAgICAgICAgICAgICAg
+ICB8ICAgMiArLQogZnMvZnVzZS9kZXYuYyAgICAgICAgICAgICAgICAgICAgICAgICAgICAgIHwg
+IDIyICsrKy0KIGZzL2Z1c2UvZmlsZS5jICAgICAgICAgICAgICAgICAgICAgICAgICAgICB8ICA1
+MyArKysrKysrLS0tCiBmcy9uZnMvZGlyZWN0LmMgICAgICAgICAgICAgICAgICAgICAgICAgICAg
+fCAgMTAgKy0KIGluY2x1ZGUvbGludXgvYmlvLmggICAgICAgICAgICAgICAgICAgICAgICB8ICAy
+MiArKystCiBpbmNsdWRlL2xpbnV4L21tLmggICAgICAgICAgICAgICAgICAgICAgICAgfCAgIDUg
+Ky0KIGluY2x1ZGUvbGludXgvdWlvLmggICAgICAgICAgICAgICAgICAgICAgICB8ICAxMSArKwog
+bW0vZ3VwLmMgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgIHwgMTE1ICsrKysrKysr
+Ky0tLS0tLS0tLS0tLQogbmV0LzlwL3RyYW5zX2NvbW1vbi5jICAgICAgICAgICAgICAgICAgICAg
+IHwgIDE0ICsrLQogbmV0LzlwL3RyYW5zX2NvbW1vbi5oICAgICAgICAgICAgICAgICAgICAgIHwg
+ICAzICstCiBuZXQvOXAvdHJhbnNfdmlydGlvLmMgICAgICAgICAgICAgICAgICAgICAgfCAgMTgg
+KysrLQogMjQgZmlsZXMgY2hhbmdlZCwgMzU3IGluc2VydGlvbnMoKyksIDE3MCBkZWxldGlvbnMo
+LSkKCi0tIAoyLjIyLjAKCl9fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19f
+X19fX19fClZpcnR1YWxpemF0aW9uIG1haWxpbmcgbGlzdApWaXJ0dWFsaXphdGlvbkBsaXN0cy5s
+aW51eC1mb3VuZGF0aW9uLm9yZwpodHRwczovL2xpc3RzLmxpbnV4Zm91bmRhdGlvbi5vcmcvbWFp
+bG1hbi9saXN0aW5mby92aXJ0dWFsaXphdGlvbg==
