@@ -1,15 +1,10 @@
-From: John Hubbard <jhubbard@nvidia.com>
-Subject: Re: [PATCH 07/12] vhost-scsi: convert put_page() to put_user_page*()
-Date: Tue, 23 Jul 2019 21:34:56 -0700
-Message-ID: <de40950e-0801-b830-4c48-56e84de0c82b__16925.9849631757$1563995432$gmane$org@nvidia.com>
-References: <20190724042518.14363-1-jhubbard@nvidia.com>
-	<20190724042518.14363-8-jhubbard@nvidia.com>
+From: Arnau Verdaguer <averdaguer@clevernet.io>
+Subject: virtio BPF offers incorrect packet length
+Date: Wed, 24 Jul 2019 18:44:43 +0200
+Message-ID: <CAFzp4AkgShgHFniuB5aQzLw_5uGLOFuRshSbbOipoA3-Arneqw@mail.gmail.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="utf-8"
-Content-Transfer-Encoding: base64
+Content-Type: multipart/mixed; boundary="0000000000006e5415058e700721"
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <20190724042518.14363-8-jhubbard@nvidia.com>
-Content-Language: en-US
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -19,28 +14,116 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: john.hubbard@gmail.com, Andrew Morton <akpm@linux-foundation.org>
-Cc: Boaz Harrosh <boaz@plexistor.com>, Jan Kara <jack@suse.cz>, kvm@vger.kernel.org, "Michael S . Tsirkin" <mst@redhat.com>, Dave Chinner <david@fromorbit.com>, virtualization@lists.linux-foundation.org, linux-mm@kvack.org, Christoph Hellwig <hch@lst.de>, linux-cifs@vger.kernel.org, Miklos Szeredi <miklos@szeredi.hu>, linux-rdma@vger.kernel.org, Matthew Wilcox <willy@infradead.org>, Jason Gunthorpe <jgg@ziepe.ca>, Johannes Thumshirn <jthumshirn@suse.de>, v9fs-developer@lists.sourceforge.net, Eric Van Hensbergen <ericvh@gmail.com>, Dan Williams <dan.j.williams@intel.com>, Ming Lei <ming.lei@redhat.com>, linux-block@vger.kernel.org, =?UTF-8?B?SsOpcsO0bWUgR2xpc3Nl?= <jglisse@redhat.com>, Alexander Viro <viro@zeniv.linux.org.uk>, Stefan Hajnoczi <stefanha@redhat.com>, ceph-devel@vger.kernel.org, Trond Myklebust <trond.myklebust@hammerspace.com>, Jens Axboe <axboe@kernel.dk>
+To: virtualization@lists.linux-foundation.org
 List-Id: virtualization@lists.linuxfoundation.org
 
-T24gNy8yMy8xOSA5OjI1IFBNLCBqb2huLmh1YmJhcmRAZ21haWwuY29tIHdyb3RlOgo+IEZyb206
-IErDqXLDtG1lIEdsaXNzZSA8amdsaXNzZUByZWRoYXQuY29tPgo+IAo+IEZvciBwYWdlcyB0aGF0
-IHdlcmUgcmV0YWluZWQgdmlhIGdldF91c2VyX3BhZ2VzKigpLCByZWxlYXNlIHRob3NlIHBhZ2Vz
-Cj4gdmlhIHRoZSBuZXcgcHV0X3VzZXJfcGFnZSooKSByb3V0aW5lcywgaW5zdGVhZCBvZiB2aWEg
-cHV0X3BhZ2UoKS4KPiAKPiBUaGlzIGlzIHBhcnQgYSB0cmVlLXdpZGUgY29udmVyc2lvbiwgYXMg
-ZGVzY3JpYmVkIGluIGNvbW1pdCBmYzFkOGU3Y2NhMmQKPiAoIm1tOiBpbnRyb2R1Y2UgcHV0X3Vz
-ZXJfcGFnZSooKSwgcGxhY2Vob2xkZXIgdmVyc2lvbnMiKS4KPiAKPiBDaGFuZ2VzIGZyb20gSsOp
-csO0bWUncyBvcmlnaW5hbCBwYXRjaDoKPiAKPiAqIENoYW5nZWQgYSBXQVJOX09OIHRvIGEgQlVH
-X09OLgo+IAoKQ2xlYXJseSwgdGhlIGFib3ZlIGNvbW1pdCBsb2cgaGFzIGl0IGJhY2t3YXJkcyAo
-dGhpcyBpcyBxdWl0ZSBteSBuaWdodApmb3IgdHlwb3MpLiAgUGxlYXNlIHJlYWQgdGhhdCBhcyAi
-Y2hhbmdlZCBhIEJVR19PTiB0byBhIFdBUk5fT04iLgoKSSdsbCBjb3JyZWN0IHRoZSBjb21taXQg
-ZGVzY3JpcHRpb24gaW4gbmV4dCBpdGVyYXRpb24gb2YgdGhpcyBwYXRjaHNldC4KCi4uLgoKPiAr
-CS8qCj4gKwkgKiBIZXJlIGluIGFsbCBjYXNlcyB3ZSBzaG91bGQgaGF2ZSBhbiBJT1ZFQyB3aGlj
-aCB1c2UgR1VQLiBJZiB0aGF0IGlzCj4gKwkgKiBub3QgdGhlIGNhc2UgdGhlbiB3ZSB3aWxsIHdy
-b25nbHkgY2FsbCBwdXRfdXNlcl9wYWdlKCkgYW5kIHRoZSBwYWdlCj4gKwkgKiByZWZjb3VudCB3
-aWxsIGdvIHdyb25nICh0aGlzIGlzIGluIHZob3N0X3Njc2lfcmVsZWFzZV9jbWQoKSkKPiArCSAq
-Lwo+ICsJV0FSTl9PTighaW92X2l0ZXJfZ2V0X3BhZ2VzX3VzZV9ndXAoaXRlcikpOwo+ICsKLi4u
-Cgp0aGFua3MsCi0tIApKb2huIEh1YmJhcmQKTlZJRElBCl9fX19fX19fX19fX19fX19fX19fX19f
-X19fX19fX19fX19fX19fX19fX19fX19fClZpcnR1YWxpemF0aW9uIG1haWxpbmcgbGlzdApWaXJ0
-dWFsaXphdGlvbkBsaXN0cy5saW51eC1mb3VuZGF0aW9uLm9yZwpodHRwczovL2xpc3RzLmxpbnV4
-Zm91bmRhdGlvbi5vcmcvbWFpbG1hbi9saXN0aW5mby92aXJ0dWFsaXphdGlvbg==
+--0000000000006e5415058e700721
+Content-Type: multipart/alternative; boundary="0000000000006e5411058e70071f"
+
+--0000000000006e5411058e70071f
+Content-Type: text/plain; charset="UTF-8"
+
+Hi,
+
+I suspect that the virtio network driver calls some skb BPF programs with
+skb->data_end - skb->data != skb->len, but only for forwarded packets.
+
+For instance, the attached sched_cls tc program prints skb->data,
+skb->data_end and skb->len for each packet:
+
+          <idle>-0     [000] ..s.   491.561727: 0: data: 3110080576
+data_end: 3110080704 len: 262
+          <idle>-0     [000] .Ns.   491.561752: 0: data: 3110080064
+data_end: 3110080192 len: 250
+
+As it can be seen, the frame length should be 262 and 250 bytes, but
+data_end - data is always 128. For packets smaller than 128 it works fine.
+
+I've tried the latest kernel (5.3-rc1) besides 4.14, 4.19, 5.2, etc., and
+the error persists. Other drivers than virtio work as expected and I can
+inspect every byte of the packet. Locally generated traffic also works as
+expected.
+
+To carry out this experiment I've used a Debian 10 virtual machine with
+net.ipv4.ip_forward=1 and net.ipv4.conf.eth0.forwarding=1, forwarding
+packets between its two virtio interfaces. The example program is run with
+the following command, having BCC installed:
+
+$> sudo python3 pkt_len_text.py eth0
+
+Where "eth0" could be another ingress interface. The output is showed at
+/sys/kernel/debug/tracing/trace_pipe.
+
+Can anyone confirm if this error is reproducible, and does it have any
+solutions?
+
+BR.
+
+Arnau
+
+--0000000000006e5411058e70071f
+Content-Type: text/html; charset="UTF-8"
+Content-Transfer-Encoding: quoted-printable
+
+<div dir=3D"ltr">Hi,<br><br>I suspect that the virtio network driver calls =
+some skb BPF programs with skb-&gt;data_end - skb-&gt;data !=3D skb-&gt;len=
+, but only for forwarded packets.<br><br>For instance, the attached sched_c=
+ls tc program prints skb-&gt;data, skb-&gt;data_end and skb-&gt;len for eac=
+h packet:<br><br>=C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 &lt;idle&gt;-0 =C2=A0 =
+=C2=A0 [000] ..s. =C2=A0 491.561727: 0: data: 3110080576 data_end: 31100807=
+04 len: 262<br>=C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 &lt;idle&gt;-0 =C2=A0 =C2=
+=A0 [000] .Ns. =C2=A0 491.561752: 0: data: 3110080064 data_end: 3110080192 =
+len: 250<br><br>As it can be seen, the frame length should be 262 and 250 b=
+ytes, but data_end - data is always 128. For packets smaller than 128 it wo=
+rks fine.<br><br>I&#39;ve tried the latest kernel (5.3-rc1) besides 4.14, 4=
+.19, 5.2, etc., and the error persists. Other drivers than virtio work as e=
+xpected and I can inspect every byte of the packet. Locally generated traff=
+ic also works as expected.<br><br>To carry out this experiment I&#39;ve use=
+d a Debian 10 virtual machine with net.ipv4.ip_forward=3D1 and net.ipv4.con=
+f.eth0.forwarding=3D1, forwarding packets between its two virtio interfaces=
+. The example program is run with the following command, having BCC install=
+ed:<br><br>$&gt; sudo python3 pkt_len_text.py eth0<br><br>Where &quot;eth0&=
+quot; could be another ingress interface. The output is showed at /sys/kern=
+el/debug/tracing/trace_pipe.<br><br>Can anyone confirm if this error is rep=
+roducible, and does it have any solutions?<br><br>BR.<br><br>Arnau</div>
+
+--0000000000006e5411058e70071f--
+
+--0000000000006e5415058e700721
+Content-Type: text/x-python; charset="US-ASCII"; name="pkt_len_test.py"
+Content-Disposition: attachment; filename="pkt_len_test.py"
+Content-Transfer-Encoding: base64
+Content-ID: <f_jyhf7x7r0>
+X-Attachment-Id: f_jyhf7x7r0
+
+IyEvdXNyL2Jpbi9weXRob24KIyBDb3B5cmlnaHQgKGMpIFBMVU1ncmlkLCBJbmMuCiMgTGljZW5z
+ZWQgdW5kZXIgdGhlIEFwYWNoZSBMaWNlbnNlLCBWZXJzaW9uIDIuMCAodGhlICJMaWNlbnNlIikK
+aW1wb3J0IHN5cwpmcm9tIGJjYyBpbXBvcnQgQlBGCmZyb20gcHlyb3V0ZTIgaW1wb3J0IElQUm91
+dGUKCmlwciA9IElQUm91dGUoKQoKdGV4dCA9ICIiIgogICAgaW50IHBrdF9sZW5fdGVzdChzdHJ1
+Y3QgX19za19idWZmICpza2IpIHsKICAgIHZvaWQgKmRhdGFfZW5kID0gKHZvaWQgKikgKGxvbmcp
+c2tiLT5kYXRhX2VuZDsKICAgIHZvaWQgKmRhdGEgPSAodm9pZCAqKSAobG9uZylza2ItPmRhdGE7
+CiAgICBicGZfdHJhY2VfcHJpbnRrKCJkYXRhOiAldSBlbmQ6ICV1IGxlbjogJWQgXFxuIiwgZGF0
+YSwgZGF0YV9lbmQsIHNrYi0+bGVuKTsKICAgIHJldHVybiAxOwp9CiIiIgoKdHJ5OgogICAgYiA9
+IEJQRih0ZXh0PXRleHQsIGRlYnVnPTApCiAgICBmbiA9IGIubG9hZF9mdW5jKCJwa3RfbGVuX3Rl
+c3QiLCBCUEYuU0NIRURfQ0xTKQogICAgaWR4ID0gaXByLmxpbmtfbG9va3VwKGlmbmFtZT1zdHIo
+c3lzLmFyZ3ZbMV0pKVswXQoKICAgIGlwci50YygiYWRkIiwgImluZ3Jlc3MiLCBpZHgsICJmZmZm
+OiIpCiAgICBpcHIudGMoImFkZC1maWx0ZXIiLCAiYnBmIiwgaWR4LCAiOjEiLCBmZD1mbi5mZCwK
+ICAgICAgICAgICBuYW1lPWZuLm5hbWUsIHBhcmVudD0iZmZmZjoiLCBhY3Rpb249Im9rIiwgY2xh
+c3NpZD0xKQogICAgaXByLnRjKCJhZGQiLCAic2ZxIiwgaWR4LCAiMToiKQogICAgaXByLnRjKCJh
+ZGQtZmlsdGVyIiwgImJwZiIsIGlkeCwgIjoxIiwgZmQ9Zm4uZmQsCiAgICAgICAgICAgbmFtZT1m
+bi5uYW1lLCBwYXJlbnQ9IjE6IiwgYWN0aW9uPSJvayIsIGNsYXNzaWQ9MSkKICAgIGZvbyA9IGlu
+cHV0KCJQcmVzcyBhbnkga2V5IHRvIHJlbW92ZSB0aGUgZmlsdGVycyBhbmQgc3RvcCB0aGUgcHJv
+Z3JhbSIpCiAgICBpcHIudGMoImRlbCIsICJpbmdyZXNzIiwgaWR4LCAiZmZmZjoiKQogICAgaXBy
+LnRjKCJkZWwiLCAic2ZxIiwgaWR4LCAiMToiKQogICAgcHJpbnQoIkZpbHRlcnMgZGVsZXRlZCIp
+CmV4Y2VwdCBFeGNlcHRpb24gYXMgZToKICAgIHByaW50KCJFcnJvcjogJXMiLCBlKQoK
+--0000000000006e5415058e700721
+Content-Type: text/plain; charset="us-ascii"
+MIME-Version: 1.0
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+
+_______________________________________________
+Virtualization mailing list
+Virtualization@lists.linux-foundation.org
+https://lists.linuxfoundation.org/mailman/listinfo/virtualization
+--0000000000006e5415058e700721--
