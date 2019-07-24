@@ -1,15 +1,14 @@
-From: Christoph Hellwig <hch@infradead.org>
-Subject: Re: [PATCH 00/12] block/bio, fs: convert put_page() to
-	put_user_page*()
-Date: Tue, 23 Jul 2019 23:17:50 -0700
-Message-ID: <20190724061750.GA19397__20932.3873090156$1563949096$gmane$org@infradead.org>
-References: <20190724042518.14363-1-jhubbard@nvidia.com>
+From: Christian Borntraeger <borntraeger@de.ibm.com>
+Subject: Re: [PATCH 1/1] virtio/s390: fix race on airq_areas[]
+Date: Wed, 24 Jul 2019 08:44:19 +0200
+Message-ID: <74087255-fdae-01a1-7152-f6fac8e13019@de.ibm.com>
+References: <20190723225817.12800-1-pasic@linux.ibm.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="utf-8"
-Content-Transfer-Encoding: base64
+Content-Type: text/plain; charset="us-ascii"
+Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-Content-Disposition: inline
-In-Reply-To: <20190724042518.14363-1-jhubbard@nvidia.com>
+In-Reply-To: <20190723225817.12800-1-pasic@linux.ibm.com>
+Content-Language: en-US
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -19,39 +18,65 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: john.hubbard@gmail.com
-Cc: kvm@vger.kernel.org, "Michael S . Tsirkin" <mst@redhat.com>, virtualization@lists.linux-foundation.org, linux-mm@kvack.org, Christoph Hellwig <hch@lst.de>, linux-cifs@vger.kernel.org, Miklos Szeredi <miklos@szeredi.hu>, linux-rdma@vger.kernel.org, Matthew Wilcox <willy@infradead.org>, Jason Gunthorpe <jgg@ziepe.ca>, v9fs-developer@lists.sourceforge.net, Eric Van Hensbergen <ericvh@gmail.com>, John Hubbard <jhubbard@nvidia.com>, linux-block@vger.kernel.org, Alexander Viro <viro@zeniv.linux.org.uk>, ceph-devel@vger.kernel.org, Trond Myklebust <trond.myklebust@hammerspace.com>, Jens Axboe <axboe@kernel.dk>, linux-nfs@vger.kernel.org, netdev@vger.kernel.org, samba-technical@lists.samba.org, LKML <linux-kernel@vger.kernel.org>, "David S . Miller" <davem@davemloft.net>, linux-fsdevel@vger.kernel.org, Andrew Morton <akpm@linux-foundation.org>, Anna Schumaker <anna.schumaker@n>
+To: Halil Pasic <pasic@linux.ibm.com>, Cornelia Huck <cohuck@redhat.com>, kvm@vger.kernel.org, linux-s390@vger.kernel.org
+Cc: Marc Hartmayer <mhartmay@linux.ibm.com>, Janosch Frank <frankja@linux.ibm.com>, virtualization@lists.linux-foundation.org
 List-Id: virtualization@lists.linuxfoundation.org
 
-T24gVHVlLCBKdWwgMjMsIDIwMTkgYXQgMDk6MjU6MDZQTSAtMDcwMCwgam9obi5odWJiYXJkQGdt
-YWlsLmNvbSB3cm90ZToKPiAqIFN0b3JlLCBpbiB0aGUgaW92X2l0ZXIsIGEgImNhbWUgZnJvbSBn
-dXAgKGdldF91c2VyX3BhZ2VzKSIgcGFyYW1ldGVyLgo+ICAgVGhlbiwgdXNlIHRoZSBuZXcgaW92
-X2l0ZXJfZ2V0X3BhZ2VzX3VzZV9ndXAoKSB0byByZXRyaWV2ZSBpdCB3aGVuCj4gICBpdCBpcyB0
-aW1lIHRvIHJlbGVhc2UgdGhlIHBhZ2VzLiBUaGF0IGFsbG93cyBjaG9vc2luZyBiZXR3ZWVuIHB1
-dF9wYWdlKCkKPiAgIGFuZCBwdXRfdXNlcl9wYWdlKigpLgo+IAo+ICogUGFzcyBpbiBvbmUgbW9y
-ZSBwaWVjZSBvZiBpbmZvcm1hdGlvbiB0byBiaW9fcmVsZWFzZV9wYWdlczogYSAiZnJvbV9ndXAi
-Cj4gICBwYXJhbWV0ZXIuIFNpbWlsYXIgdXNlIGFzIGFib3ZlLgo+IAo+ICogQ2hhbmdlIHRoZSBi
-bG9jayBsYXllciwgYW5kIHNldmVyYWwgZmlsZSBzeXN0ZW1zLCB0byB1c2UKPiAgIHB1dF91c2Vy
-X3BhZ2UqKCkuCgpJIHRoaW5rIHdlIGNhbiBkbyB0aGlzIGluIGEgc2ltcGxlIGFuZCBiZXR0ZXIg
-d2F5LiAgV2UgaGF2ZSA1IElURVJfKgp0eXBlcy4gIE9mIHRob3NlIElURVJfRElTQ0FSRCBhcyB0
-aGUgbmFtZSBzdWdnZXN0cyBuZXZlciB1c2VzIHBhZ2VzLCBzbwp3ZSBjYW4gc2tpcCBoYW5kbGlu
-ZyBpdC4gIElURVJfUElQRSBpcyByZWplY3RlZCDRlm4gdGhlIGRpcmVjdCBJL08gcGF0aCwKd2hp
-Y2ggbGVhdmVzIHVzIHdpdGggdGhyZWUuCgpPdXQgb2YgdGhvc2UgSVRFUl9CVkVDIG5lZWRzIGEg
-dXNlciBwYWdlIHJlZmVyZW5jZSwgc28gd2Ugd2FudCB0byBjYWxsCnB1dF91c2VyX3BhZ2UqIG9u
-IGl0LiAgSVRFUl9CVkVDIGFsd2F5cyBhbHJlYWR5IGhhcyBwYWdlIHJlZmVyZW5jZSwKd2hpY2gg
-bWVhbnMgaW4gdGhlIGJsb2NrIGRpcmVjdCBJL08gcGF0aCBwYXRoIHdlIGFscmVhZCBkb24ndCB0
-YWtlCmEgcGFnZSByZWZlcmVuY2UuICBXZSBzaG91bGQgZXh0ZW50IHRoYXQgaGFuZGxpbmcgdG8g
-YWxsIG90aGVyIGNhbGxzCm9mIGlvdl9pdGVyX2dldF9wYWdlcyAvIGlvdl9pdGVyX2dldF9wYWdl
-c19hbGxvYy4gIEkgdGhpbmsgd2Ugc2hvdWxkCmp1c3QgcmVqZWN0IElURVJfS1ZFQyBmb3IgZGly
-ZWN0IEkvTyBhcyB3ZWxsIGFzIHdlIGhhdmUgbm8gdXNlcnMgYW5kCml0IGlzIHJhdGhlciBwb2lu
-dGxlc3MuICBBbHRlcm5hdGl2ZWx5IGlmIHdlIHNlZSBhIHVzZSBmb3IgaXQgdGhlCmNhbGxlcnMg
-c2hvdWxkIGFsd2F5cyBoYXZlIGEgbGlmZSBwYWdlIHJlZmVyZW5jZSBhbnl3YXkgKG9yIG1pZ2h0
-CmJlIG9uIGttYWxsb2MgbWVtb3J5KSwgc28gd2UgcmVhbGx5IHNob3VsZCBub3QgdGFrZSBhIHJl
-ZmVyZW5jZSBlaXRoZXIuCgpJbiBvdGhlciB3b3JkczogIHRoZSBvbmx5IHRpbWUgd2Ugc2hvdWxk
-IGV2ZXIgaGF2ZSB0byBwdXQgYSBwYWdlIGluCnRoaXMgcGF0Y2ggaXMgd2hlbiB0aGV5IGFyZSB1
-c2VyIHBhZ2VzLiAgV2UnbGwgbmVlZCB0byBjbGVhbiB1cAp2YXJpb3VzIGJpdHMgb2YgY29kZSBm
-b3IgdGhhdCwgYnV0IHRoYXQgY2FuIGJlIGRvbmUgZ3JhZHVhbGx5IGJlZm9yZQpldmVuIGdldHRp
-bmcgdG8gdGhlIGFjdHVhbCBwdXRfdXNlcl9wYWdlcyBjb252ZXJzaW9uLgpfX19fX19fX19fX19f
-X19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fXwpWaXJ0dWFsaXphdGlvbiBtYWlsaW5n
-IGxpc3QKVmlydHVhbGl6YXRpb25AbGlzdHMubGludXgtZm91bmRhdGlvbi5vcmcKaHR0cHM6Ly9s
-aXN0cy5saW51eGZvdW5kYXRpb24ub3JnL21haWxtYW4vbGlzdGluZm8vdmlydHVhbGl6YXRpb24=
+
+
+On 24.07.19 00:58, Halil Pasic wrote:
+> The access to airq_areas was racy ever since the adapter interrupts got
+> introduced to virtio-ccw, but since commit 39c7dcb15892 ("virtio/s390:
+> make airq summary indicators DMA") this became an issue in practice as
+> well. Namely before that commit the airq_info that got overwritten was
+> still functional. After that commit however the two infos share a
+> summary_indicator, which aggravates the situation. Which means
+> auto-online mechanism occasionally hangs the boot with virtio_blk.
+> 
+> Signed-off-by: Halil Pasic <pasic@linux.ibm.com>
+> Reported-by: Marc Hartmayer <mhartmay@linux.ibm.com>
+> Fixes: 96b14536d935 ("virtio-ccw: virtio-ccw adapter interrupt support.")
+> ---
+> * We need definitely this fixed for 5.3. For older stable kernels it is
+> to be discussed. @Connie what do you think: do we need a cc stable?
+
+Unless you can prove that the problem could never happen on old version
+we absolutely do need cc stable. 
+
+> 
+> * I have a variant that does not need the extra mutex but uses cmpxchg().
+> Decided to post this one because that one is more complex. But if there
+> is interest we can have a look at it as well.
+
+This is slow path (startup) and never called in hot path. Correct? Mutex should be
+fine.
+> ---
+>  drivers/s390/virtio/virtio_ccw.c | 4 ++++
+>  1 file changed, 4 insertions(+)
+> 
+> diff --git a/drivers/s390/virtio/virtio_ccw.c b/drivers/s390/virtio/virtio_ccw.c
+> index 1a55e5942d36..d97742662755 100644
+> --- a/drivers/s390/virtio/virtio_ccw.c
+> +++ b/drivers/s390/virtio/virtio_ccw.c
+> @@ -145,6 +145,8 @@ struct airq_info {
+>  	struct airq_iv *aiv;
+>  };
+>  static struct airq_info *airq_areas[MAX_AIRQ_AREAS];
+> +DEFINE_MUTEX(airq_areas_lock);
+> +
+>  static u8 *summary_indicators;
+>  
+>  static inline u8 *get_summary_indicator(struct airq_info *info)
+> @@ -265,9 +267,11 @@ static unsigned long get_airq_indicator(struct virtqueue *vqs[], int nvqs,
+>  	unsigned long bit, flags;
+>  
+>  	for (i = 0; i < MAX_AIRQ_AREAS && !indicator_addr; i++) {
+> +		mutex_lock(&airq_areas_lock);
+>  		if (!airq_areas[i])
+>  			airq_areas[i] = new_airq_info(i);
+>  		info = airq_areas[i];
+> +		mutex_unlock(&airq_areas_lock);
+>  		if (!info)
+>  			return 0;
+>  		write_lock_irqsave(&info->lock, flags);
+> 
