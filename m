@@ -1,17 +1,16 @@
-From: "Michael S. Tsirkin" <mst@redhat.com>
-Subject: Re: [PATCH 2/2] virtio/virtio_ring: Fix the dma_max_mapping_size call
-Date: Wed, 24 Jul 2019 18:10:53 -0400
-Message-ID: <20190723114750-mutt-send-email-mst__5866.15608060441$1564006271$gmane$org@kernel.org>
-References: <20190722145509.1284-1-eric.auger@redhat.com>
-	<20190722145509.1284-3-eric.auger@redhat.com>
-	<e4a288f2-a93a-5ce4-32da-f5434302551f@arm.com>
-	<20190723153851.GE720@lst.de>
+From: John Hubbard <jhubbard@nvidia.com>
+Subject: Re: [PATCH 00/12] block/bio, fs: convert put_page() to
+	put_user_page*()
+Date: Wed, 24 Jul 2019 16:23:21 -0700
+Message-ID: <17f12f3d-981e-a717-c8e5-bfbbfb7ec1a3@nvidia.com>
+References: <20190724042518.14363-1-jhubbard@nvidia.com>
+	<20190724061750.GA19397@infradead.org>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset="utf-8"
+Content-Transfer-Encoding: base64
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-Content-Disposition: inline
-In-Reply-To: <20190723153851.GE720@lst.de>
+In-Reply-To: <20190724061750.GA19397@infradead.org>
+Content-Language: en-US
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -21,32 +20,48 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Christoph Hellwig <hch@lst.de>
-Cc: linux-kernel@vger.kernel.org, virtualization@lists.linux-foundation.org, Eric Auger <eric.auger@redhat.com>, iommu@lists.linux-foundation.org, eric.auger.pro@gmail.com, Robin Murphy <robin.murphy@arm.com>, m.szyprowski@samsung.com
+To: Christoph Hellwig <hch@infradead.org>, john.hubbard@gmail.com
+Cc: kvm@vger.kernel.org, "Michael S . Tsirkin" <mst@redhat.com>, virtualization@lists.linux-foundation.org, linux-mm@kvack.org, Christoph Hellwig <hch@lst.de>, linux-cifs@vger.kernel.org, Miklos Szeredi <miklos@szeredi.hu>, linux-rdma@vger.kernel.org, Matthew Wilcox <willy@infradead.org>, Jason Gunthorpe <jgg@ziepe.ca>, v9fs-developer@lists.sourceforge.net, Eric Van Hensbergen <ericvh@gmail.com>, linux-block@vger.kernel.org, Alexander Viro <viro@zeniv.linux.org.uk>, ceph-devel@vger.kernel.org, Trond Myklebust <trond.myklebust@hammerspace.com>, Jens Axboe <axboe@kernel.dk>, linux-nfs@vger.kernel.org, netdev@vger.kernel.org, samba-technical@lists.samba.org, LKML <linux-kernel@vger.kernel.org>, "David
+	S . Miller" <davem@davemloft.net>, linux-fsdevel@vger.kernel.org, Andrew Morton <akpm@linux-foundation.org>, Anna Schumaker <anna.schumaker@netapp.com>
 List-Id: virtualization@lists.linuxfoundation.org
 
-On Tue, Jul 23, 2019 at 05:38:51PM +0200, Christoph Hellwig wrote:
-> On Mon, Jul 22, 2019 at 04:36:09PM +0100, Robin Murphy wrote:
-> >> diff --git a/drivers/virtio/virtio_ring.c b/drivers/virtio/virtio_ring.c
-> >> index c8be1c4f5b55..37c143971211 100644
-> >> --- a/drivers/virtio/virtio_ring.c
-> >> +++ b/drivers/virtio/virtio_ring.c
-> >> @@ -262,7 +262,7 @@ size_t virtio_max_dma_size(struct virtio_device *vdev)
-> >>   {
-> >>   	size_t max_segment_size = SIZE_MAX;
-> >>   -	if (vring_use_dma_api(vdev))
-> >> +	if (vring_use_dma_api(vdev) && vdev->dev.dma_mask)
-> >
-> > Hmm, might it make sense to roll that check up into vring_use_dma_api() 
-> > itself? After all, if the device has no mask then it's likely that other 
-> > DMA API ops wouldn't really work as expected either.
-> 
-> Makes sense to me.
-
-Christoph - would a documented API wrapping dma_mask make sense?
-With the documentation explaining how users must
-desist from using DMA APIs if that returns false ...
-
-
--- 
-MST
+T24gNy8yMy8xOSAxMToxNyBQTSwgQ2hyaXN0b3BoIEhlbGx3aWcgd3JvdGU6Cj4gT24gVHVlLCBK
+dWwgMjMsIDIwMTkgYXQgMDk6MjU6MDZQTSAtMDcwMCwgam9obi5odWJiYXJkQGdtYWlsLmNvbSB3
+cm90ZToKPj4gKiBTdG9yZSwgaW4gdGhlIGlvdl9pdGVyLCBhICJjYW1lIGZyb20gZ3VwIChnZXRf
+dXNlcl9wYWdlcykiIHBhcmFtZXRlci4KPj4gICBUaGVuLCB1c2UgdGhlIG5ldyBpb3ZfaXRlcl9n
+ZXRfcGFnZXNfdXNlX2d1cCgpIHRvIHJldHJpZXZlIGl0IHdoZW4KPj4gICBpdCBpcyB0aW1lIHRv
+IHJlbGVhc2UgdGhlIHBhZ2VzLiBUaGF0IGFsbG93cyBjaG9vc2luZyBiZXR3ZWVuIHB1dF9wYWdl
+KCkKPj4gICBhbmQgcHV0X3VzZXJfcGFnZSooKS4KPj4KPj4gKiBQYXNzIGluIG9uZSBtb3JlIHBp
+ZWNlIG9mIGluZm9ybWF0aW9uIHRvIGJpb19yZWxlYXNlX3BhZ2VzOiBhICJmcm9tX2d1cCIKPj4g
+ICBwYXJhbWV0ZXIuIFNpbWlsYXIgdXNlIGFzIGFib3ZlLgo+Pgo+PiAqIENoYW5nZSB0aGUgYmxv
+Y2sgbGF5ZXIsIGFuZCBzZXZlcmFsIGZpbGUgc3lzdGVtcywgdG8gdXNlCj4+ICAgcHV0X3VzZXJf
+cGFnZSooKS4KPiAKPiBJIHRoaW5rIHdlIGNhbiBkbyB0aGlzIGluIGEgc2ltcGxlIGFuZCBiZXR0
+ZXIgd2F5LiAgV2UgaGF2ZSA1IElURVJfKgo+IHR5cGVzLiAgT2YgdGhvc2UgSVRFUl9ESVNDQVJE
+IGFzIHRoZSBuYW1lIHN1Z2dlc3RzIG5ldmVyIHVzZXMgcGFnZXMsIHNvCj4gd2UgY2FuIHNraXAg
+aGFuZGxpbmcgaXQuICBJVEVSX1BJUEUgaXMgcmVqZWN0ZWQg0ZZuIHRoZSBkaXJlY3QgSS9PIHBh
+dGgsCj4gd2hpY2ggbGVhdmVzIHVzIHdpdGggdGhyZWUuCj4gCj4gT3V0IG9mIHRob3NlIElURVJf
+QlZFQyBuZWVkcyBhIHVzZXIgcGFnZSByZWZlcmVuY2UsIHNvIHdlIHdhbnQgdG8gY2FsbAoKICAg
+ICAgICAgICAgICAgXiBJVEVSX0lPVkVDLCBJIGhvcGUuIE90aGVyd2lzZSBJJ20gaG9wZWxlc3Mg
+bG9zdC4gOikKCj4gcHV0X3VzZXJfcGFnZSogb24gaXQuICBJVEVSX0JWRUMgYWx3YXlzIGFscmVh
+ZHkgaGFzIHBhZ2UgcmVmZXJlbmNlLAo+IHdoaWNoIG1lYW5zIGluIHRoZSBibG9jayBkaXJlY3Qg
+SS9PIHBhdGggcGF0aCB3ZSBhbHJlYWQgZG9uJ3QgdGFrZQo+IGEgcGFnZSByZWZlcmVuY2UuICBX
+ZSBzaG91bGQgZXh0ZW50IHRoYXQgaGFuZGxpbmcgdG8gYWxsIG90aGVyIGNhbGxzCj4gb2YgaW92
+X2l0ZXJfZ2V0X3BhZ2VzIC8gaW92X2l0ZXJfZ2V0X3BhZ2VzX2FsbG9jLiAgSSB0aGluayB3ZSBz
+aG91bGQKPiBqdXN0IHJlamVjdCBJVEVSX0tWRUMgZm9yIGRpcmVjdCBJL08gYXMgd2VsbCBhcyB3
+ZSBoYXZlIG5vIHVzZXJzIGFuZAo+IGl0IGlzIHJhdGhlciBwb2ludGxlc3MuICBBbHRlcm5hdGl2
+ZWx5IGlmIHdlIHNlZSBhIHVzZSBmb3IgaXQgdGhlCj4gY2FsbGVycyBzaG91bGQgYWx3YXlzIGhh
+dmUgYSBsaWZlIHBhZ2UgcmVmZXJlbmNlIGFueXdheSAob3IgbWlnaHQKPiBiZSBvbiBrbWFsbG9j
+IG1lbW9yeSksIHNvIHdlIHJlYWxseSBzaG91bGQgbm90IHRha2UgYSByZWZlcmVuY2UgZWl0aGVy
+Lgo+IAo+IEluIG90aGVyIHdvcmRzOiAgdGhlIG9ubHkgdGltZSB3ZSBzaG91bGQgZXZlciBoYXZl
+IHRvIHB1dCBhIHBhZ2UgaW4KPiB0aGlzIHBhdGNoIGlzIHdoZW4gdGhleSBhcmUgdXNlciBwYWdl
+cy4gIFdlJ2xsIG5lZWQgdG8gY2xlYW4gdXAKPiB2YXJpb3VzIGJpdHMgb2YgY29kZSBmb3IgdGhh
+dCwgYnV0IHRoYXQgY2FuIGJlIGRvbmUgZ3JhZHVhbGx5IGJlZm9yZQo+IGV2ZW4gZ2V0dGluZyB0
+byB0aGUgYWN0dWFsIHB1dF91c2VyX3BhZ2VzIGNvbnZlcnNpb24uCj4gCgpTb3VuZHMgZ3JlYXQu
+IEknbSBwYXJ0IHdheSBpbnRvIGl0IGFuZCBpdCBkb2Vzbid0IGxvb2sgdG9vIGJhZC4gVGhlIG1h
+aW4KcXVlc3Rpb24gaXMgd2hlcmUgdG8gc2NhdHRlciB2YXJpb3VzIGNoZWNrcyBhbmQgYXNzZXJ0
+aW9ucywgdG8ga2VlcAp0aGUga3ZlY3Mgb3V0IG9mIGRpcmVjdCBJLzAuIE9yIGF0IGxlYXN0IGtl
+ZXAgdGhlIGd1cHMgYXdheSBmcm9tIApkaXJlY3QgSS8wLgoKCnRoYW5rcywKLS0gCkpvaG4gSHVi
+YmFyZApOVklESUEKX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19f
+X18KVmlydHVhbGl6YXRpb24gbWFpbGluZyBsaXN0ClZpcnR1YWxpemF0aW9uQGxpc3RzLmxpbnV4
+LWZvdW5kYXRpb24ub3JnCmh0dHBzOi8vbGlzdHMubGludXhmb3VuZGF0aW9uLm9yZy9tYWlsbWFu
+L2xpc3RpbmZvL3ZpcnR1YWxpemF0aW9u
