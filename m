@@ -1,11 +1,14 @@
-From: Halil Pasic <pasic@linux.ibm.com>
-Subject: [PATCH 1/1] virtio/s390: fix race on airq_areas[]
-Date: Wed, 24 Jul 2019 00:58:17 +0200
-Message-ID: <20190723225817.12800-1-pasic@linux.ibm.com>
+From: Jason Wang <jasowang@redhat.com>
+Subject: Re: Reminder: 3 open syzbot bugs in vhost subsystem
+Date: Wed, 24 Jul 2019 11:05:14 +0800
+Message-ID: <fabf96ac-e472-c7fd-07ff-486fe03e6433__48663.2544825383$1563937532$gmane$org@redhat.com>
+References: <20190724023835.GY643@sol.localdomain>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset="utf-8"; Format="flowed"
+Content-Transfer-Encoding: base64
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
+In-Reply-To: <20190724023835.GY643@sol.localdomain>
+Content-Language: en-US
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -15,56 +18,96 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Cornelia Huck <cohuck@redhat.com>, kvm@vger.kernel.org, linux-s390@vger.kernel.org
-Cc: Halil Pasic <pasic@linux.ibm.com>, Christian Borntraeger <borntraeger@de.ibm.com>, Marc Hartmayer <mhartmay@linux.ibm.com>, Janosch Frank <frankja@linux.ibm.com>, virtualization@lists.linux-foundation.org
+To: kvm@vger.kernel.org, virtualization@lists.linux-foundation.org, netdev@vger.kernel.org, "Michael S. Tsirkin" <mst@redhat.com>, linux-kernel@vger.kernel.org, syzkaller-bugs@googlegroups.com
 List-Id: virtualization@lists.linuxfoundation.org
 
-The access to airq_areas was racy ever since the adapter interrupts got
-introduced to virtio-ccw, but since commit 39c7dcb15892 ("virtio/s390:
-make airq summary indicators DMA") this became an issue in practice as
-well. Namely before that commit the airq_info that got overwritten was
-still functional. After that commit however the two infos share a
-summary_indicator, which aggravates the situation. Which means
-auto-online mechanism occasionally hangs the boot with virtio_blk.
-
-Signed-off-by: Halil Pasic <pasic@linux.ibm.com>
-Reported-by: Marc Hartmayer <mhartmay@linux.ibm.com>
-Fixes: 96b14536d935 ("virtio-ccw: virtio-ccw adapter interrupt support.")
----
-* We need definitely this fixed for 5.3. For older stable kernels it is
-to be discussed. @Connie what do you think: do we need a cc stable?
-
-* I have a variant that does not need the extra mutex but uses cmpxchg().
-Decided to post this one because that one is more complex. But if there
-is interest we can have a look at it as well.
----
- drivers/s390/virtio/virtio_ccw.c | 4 ++++
- 1 file changed, 4 insertions(+)
-
-diff --git a/drivers/s390/virtio/virtio_ccw.c b/drivers/s390/virtio/virtio_ccw.c
-index 1a55e5942d36..d97742662755 100644
---- a/drivers/s390/virtio/virtio_ccw.c
-+++ b/drivers/s390/virtio/virtio_ccw.c
-@@ -145,6 +145,8 @@ struct airq_info {
- 	struct airq_iv *aiv;
- };
- static struct airq_info *airq_areas[MAX_AIRQ_AREAS];
-+DEFINE_MUTEX(airq_areas_lock);
-+
- static u8 *summary_indicators;
- 
- static inline u8 *get_summary_indicator(struct airq_info *info)
-@@ -265,9 +267,11 @@ static unsigned long get_airq_indicator(struct virtqueue *vqs[], int nvqs,
- 	unsigned long bit, flags;
- 
- 	for (i = 0; i < MAX_AIRQ_AREAS && !indicator_addr; i++) {
-+		mutex_lock(&airq_areas_lock);
- 		if (!airq_areas[i])
- 			airq_areas[i] = new_airq_info(i);
- 		info = airq_areas[i];
-+		mutex_unlock(&airq_areas_lock);
- 		if (!info)
- 			return 0;
- 		write_lock_irqsave(&info->lock, flags);
--- 
-2.17.1
+Ck9uIDIwMTkvNy8yNCDkuIrljYgxMDozOCwgRXJpYyBCaWdnZXJzIHdyb3RlOgo+IFtUaGlzIGVt
+YWlsIHdhcyBnZW5lcmF0ZWQgYnkgYSBzY3JpcHQuICBMZXQgbWUga25vdyBpZiB5b3UgaGF2ZSBh
+bnkgc3VnZ2VzdGlvbnMKPiB0byBtYWtlIGl0IGJldHRlciwgb3IgaWYgeW91IHdhbnQgaXQgcmUt
+Z2VuZXJhdGVkIHdpdGggdGhlIGxhdGVzdCBzdGF0dXMuXQo+Cj4gT2YgdGhlIGN1cnJlbnRseSBv
+cGVuIHN5emJvdCByZXBvcnRzIGFnYWluc3QgdGhlIHVwc3RyZWFtIGtlcm5lbCwgSSd2ZSBtYW51
+YWxseQo+IG1hcmtlZCAzIG9mIHRoZW0gYXMgcG9zc2libHkgYmVpbmcgYnVncyBpbiB0aGUgdmhv
+c3Qgc3Vic3lzdGVtLiAgSSd2ZSBsaXN0ZWQKPiB0aGVzZSByZXBvcnRzIGJlbG93LCBzb3J0ZWQg
+YnkgYW4gYWxnb3JpdGhtIHRoYXQgdHJpZXMgdG8gbGlzdCBmaXJzdCB0aGUgcmVwb3J0cwo+IG1v
+c3QgbGlrZWx5IHRvIGJlIHN0aWxsIHZhbGlkLCBpbXBvcnRhbnQsIGFuZCBhY3Rpb25hYmxlLgo+
+Cj4gT2YgdGhlc2UgMyBidWdzLCAyIHdlcmUgc2VlbiBpbiBtYWlubGluZSBpbiB0aGUgbGFzdCB3
+ZWVrLgo+Cj4gT2YgdGhlc2UgMyBidWdzLCAyIHdlcmUgYmlzZWN0ZWQgdG8gY29tbWl0cyBmcm9t
+IHRoZSBmb2xsb3dpbmcgcGVyc29uOgo+Cj4gCUphc29uIFdhbmcgPGphc293YW5nQHJlZGhhdC5j
+b20+Cj4KPiBJZiB5b3UgYmVsaWV2ZSBhIGJ1ZyBpcyBubyBsb25nZXIgdmFsaWQsIHBsZWFzZSBj
+bG9zZSB0aGUgc3l6Ym90IHJlcG9ydCBieQo+IHNlbmRpbmcgYSAnI3N5eiBmaXgnLCAnI3N5eiBk
+dXAnLCBvciAnI3N5eiBpbnZhbGlkJyBjb21tYW5kIGluIHJlcGx5IHRvIHRoZQo+IG9yaWdpbmFs
+IHRocmVhZCwgYXMgZXhwbGFpbmVkIGF0IGh0dHBzOi8vZ29vLmdsL3Rwc21FSiNzdGF0dXMKPgo+
+IElmIHlvdSBiZWxpZXZlIEkgbWlzYXR0cmlidXRlZCBhIGJ1ZyB0byB0aGUgdmhvc3Qgc3Vic3lz
+dGVtLCBwbGVhc2UgbGV0IG1lIGtub3csCj4gYW5kIGlmIHBvc3NpYmxlIGZvcndhcmQgdGhlIHJl
+cG9ydCB0byB0aGUgY29ycmVjdCBwZW9wbGUgb3IgbWFpbGluZyBsaXN0Lgo+Cj4gSGVyZSBhcmUg
+dGhlIGJ1Z3M6Cj4KPiAtLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0t
+LS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLQo+IFRpdGxlOiAgICAgICAgICAg
+ICAgS0FTQU46IHVzZS1hZnRlci1mcmVlIFdyaXRlIGluIHRsYl9maW5pc2hfbW11Cj4gTGFzdCBv
+Y2N1cnJlZDogICAgICA1IGRheXMgYWdvCj4gUmVwb3J0ZWQ6ICAgICAgICAgICA0IGRheXMgYWdv
+Cj4gQnJhbmNoZXM6ICAgICAgICAgICBNYWlubGluZQo+IERhc2hib2FyZCBsaW5rOiAgICAgaHR0
+cHM6Ly9zeXprYWxsZXIuYXBwc3BvdC5jb20vYnVnP2lkPWQ1N2I5NGY4OWU0OGM4NWVmN2Q5NWFj
+YzIwODIwOWVhNGJkYzEwZGUKPiBPcmlnaW5hbCB0aHJlYWQ6ICAgIGh0dHBzOi8vbGttbC5rZXJu
+ZWwub3JnL2xrbWwvMDAwMDAwMDAwMDAwNDVlN2ExMDU4ZTAyNDU4YUBnb29nbGUuY29tL1QvI3UK
+Pgo+IFRoaXMgYnVnIGhhcyBhIHN5emthbGxlciByZXByb2R1Y2VyIG9ubHkuCj4KPiBUaGlzIGJ1
+ZyB3YXMgYmlzZWN0ZWQgdG86Cj4KPiAJY29tbWl0IDdmNDY2MDMyZGM5ZTVhNjEyMTdmMjJlYTM0
+YjJkZjkzMjc4NmJiZmMKPiAJQXV0aG9yOiBKYXNvbiBXYW5nIDxqYXNvd2FuZ0ByZWRoYXQuY29t
+Pgo+IAlEYXRlOiAgIEZyaSBNYXkgMjQgMDg6MTI6MTggMjAxOSArMDAwMAo+Cj4gCcKgwqB2aG9z
+dDogYWNjZXNzIHZxIG1ldGFkYXRhIHRocm91Z2gga2VybmVsIHZpcnR1YWwgYWRkcmVzcwo+Cj4g
+Tm8gb25lIGhhcyByZXBsaWVkIHRvIHRoZSBvcmlnaW5hbCB0aHJlYWQgZm9yIHRoaXMgYnVnIHll
+dC4KPgo+IElmIHlvdSBmaXggdGhpcyBidWcsIHBsZWFzZSBhZGQgdGhlIGZvbGxvd2luZyB0YWcg
+dG8gdGhlIGNvbW1pdDoKPiAgICAgIFJlcG9ydGVkLWJ5OiBzeXpib3QrODI2N2U5YWY3OTU0MzRm
+ZmFkYWRAc3l6a2FsbGVyLmFwcHNwb3RtYWlsLmNvbQo+Cj4gSWYgeW91IHNlbmQgYW55IGVtYWls
+IG9yIHBhdGNoIGZvciB0aGlzIGJ1ZywgcGxlYXNlIHJlcGx5IHRvIHRoZSBvcmlnaW5hbAo+IHRo
+cmVhZC4gIEZvciB0aGUgZ2l0IHNlbmQtZW1haWwgY29tbWFuZCB0byB1c2UsIG9yIHRpcHMgb24g
+aG93IHRvIHJlcGx5IGlmIHRoZQo+IHRocmVhZCBpc24ndCBpbiB5b3VyIG1haWxib3gsIHNlZSB0
+aGUgIlJlcGx5IGluc3RydWN0aW9ucyIgYXQKPiBodHRwczovL2xrbWwua2VybmVsLm9yZy9yLzAw
+MDAwMDAwMDAwMDQ1ZTdhMTA1OGUwMjQ1OGFAZ29vZ2xlLmNvbQo+Cj4gLS0tLS0tLS0tLS0tLS0t
+LS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0t
+LS0tLS0tLS0KPiBUaXRsZTogICAgICAgICAgICAgIEtBU0FOOiB1c2UtYWZ0ZXItZnJlZSBSZWFk
+IGluIGZpbmlzaF90YXNrX3N3aXRjaCAoMikKPiBMYXN0IG9jY3VycmVkOiAgICAgIDUgZGF5cyBh
+Z28KPiBSZXBvcnRlZDogICAgICAgICAgIDQgZGF5cyBhZ28KPiBCcmFuY2hlczogICAgICAgICAg
+IE1haW5saW5lCj4gRGFzaGJvYXJkIGxpbms6ICAgICBodHRwczovL3N5emthbGxlci5hcHBzcG90
+LmNvbS9idWc/aWQ9OWE5OGZjYWQ2YzhiZDMxZjVjM2FmYmRjNmM3NWRlOWYwODJjMGZmYQo+IE9y
+aWdpbmFsIHRocmVhZDogICAgaHR0cHM6Ly9sa21sLmtlcm5lbC5vcmcvbGttbC8wMDAwMDAwMDAw
+MDA0OTA2NzkwNThlMDI0NWVlQGdvb2dsZS5jb20vVC8jdQo+Cj4gVGhpcyBidWcgaGFzIGEgc3l6
+a2FsbGVyIHJlcHJvZHVjZXIgb25seS4KPgo+IFRoaXMgYnVnIHdhcyBiaXNlY3RlZCB0bzoKPgo+
+IAljb21taXQgN2Y0NjYwMzJkYzllNWE2MTIxN2YyMmVhMzRiMmRmOTMyNzg2YmJmYwo+IAlBdXRo
+b3I6IEphc29uIFdhbmcgPGphc293YW5nQHJlZGhhdC5jb20+Cj4gCURhdGU6ICAgRnJpIE1heSAy
+NCAwODoxMjoxOCAyMDE5ICswMDAwCj4KPiAJwqDCoHZob3N0OiBhY2Nlc3MgdnEgbWV0YWRhdGEg
+dGhyb3VnaCBrZXJuZWwgdmlydHVhbCBhZGRyZXNzCj4KPiBObyBvbmUgaGFzIHJlcGxpZWQgdG8g
+dGhlIG9yaWdpbmFsIHRocmVhZCBmb3IgdGhpcyBidWcgeWV0LgoKCkhpOgoKV2UgYmVsaWV2ZSBh
+Ym92ZSB0d28gYnVncyBhcmUgZHVwbGljYXRlZCB3aXRoIHRoZSByZXBvcnQgIldBUk5JTkcgaW4g
+Cl9fbW1kcm9wIi4gQ2FuIEkganVzdCBkdXAgdGhlbSB3aXRoCgojc3l6IGR1cCAiV0FSTklORyBp
+biBfX21tZHJvcCIKCihJZiB5ZXMsIGp1c3Qgd29uZGVyIGhvdyBzeXpib3QgZGlmZmVyIGJ1Z3Ms
+IHRlY2huaWNhbGx5LCBzZXZlcmFsIApkaWZmZXJlbnQgYnVnIGNhbiBoaXQgdGhlIHNhbWUgd2Fy
+bmluZykuCgoKPgo+IElmIHlvdSBmaXggdGhpcyBidWcsIHBsZWFzZSBhZGQgdGhlIGZvbGxvd2lu
+ZyB0YWcgdG8gdGhlIGNvbW1pdDoKPiAgICAgIFJlcG9ydGVkLWJ5OiBzeXpib3QrN2YwNjdjNzk2
+ZWVlMmFjYmM1N2FAc3l6a2FsbGVyLmFwcHNwb3RtYWlsLmNvbQo+Cj4gSWYgeW91IHNlbmQgYW55
+IGVtYWlsIG9yIHBhdGNoIGZvciB0aGlzIGJ1ZywgcGxlYXNlIHJlcGx5IHRvIHRoZSBvcmlnaW5h
+bAo+IHRocmVhZC4gIEZvciB0aGUgZ2l0IHNlbmQtZW1haWwgY29tbWFuZCB0byB1c2UsIG9yIHRp
+cHMgb24gaG93IHRvIHJlcGx5IGlmIHRoZQo+IHRocmVhZCBpc24ndCBpbiB5b3VyIG1haWxib3gs
+IHNlZSB0aGUgIlJlcGx5IGluc3RydWN0aW9ucyIgYXQKPiBodHRwczovL2xrbWwua2VybmVsLm9y
+Zy9yLzAwMDAwMDAwMDAwMDQ5MDY3OTA1OGUwMjQ1ZWVAZ29vZ2xlLmNvbQo+Cj4gLS0tLS0tLS0t
+LS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0t
+LS0tLS0tLS0tLS0tLS0KPiBUaXRsZTogICAgICAgICAgICAgIG1lbW9yeSBsZWFrIGluIHZob3N0
+X25ldF9pb2N0bAo+IExhc3Qgb2NjdXJyZWQ6ICAgICAgMjIgZGF5cyBhZ28KPiBSZXBvcnRlZDog
+ICAgICAgICAgIDQ4IGRheXMgYWdvCj4gQnJhbmNoZXM6ICAgICAgICAgICBNYWlubGluZQo+IERh
+c2hib2FyZCBsaW5rOiAgICAgaHR0cHM6Ly9zeXprYWxsZXIuYXBwc3BvdC5jb20vYnVnP2lkPTEy
+YmEzNDlkN2UyNmNjZmU5NTMxN2JjMzc2ZTgxMmViYmFlMmVlMGYKPiBPcmlnaW5hbCB0aHJlYWQ6
+ICAgIGh0dHBzOi8vbGttbC5rZXJuZWwub3JnL2xrbWwvMDAwMDAwMDAwMDAwMTg4ZGExMDU4YTlj
+MjVlM0Bnb29nbGUuY29tL1QvI3UKPgo+IFRoaXMgYnVnIGhhcyBhIEMgcmVwcm9kdWNlci4KPgo+
+IFRoZSBvcmlnaW5hbCB0aHJlYWQgZm9yIHRoaXMgYnVnIGhhcyByZWNlaXZlZCA0IHJlcGxpZXM7
+IHRoZSBsYXN0IHdhcyAzOSBkYXlzCj4gYWdvLgo+Cj4gSWYgeW91IGZpeCB0aGlzIGJ1ZywgcGxl
+YXNlIGFkZCB0aGUgZm9sbG93aW5nIHRhZyB0byB0aGUgY29tbWl0Ogo+ICAgICAgUmVwb3J0ZWQt
+Ynk6IHN5emJvdCswNzg5ZjBjN2U0NWVmZDdiYjY0M0BzeXprYWxsZXIuYXBwc3BvdG1haWwuY29t
+CgoKSSBkbyByZW1lbWJlciBpdCBjYW4gbm90IGJlIHJlcHJvZHVjZWQgdXBzdHJlYW0sIGxldCBt
+ZSBkb3VibGUgY2hlY2sgYW5kIApjbG9zZSB0aGlzIG9uZS4KClRoYW5rcwoKCj4KPiBJZiB5b3Ug
+c2VuZCBhbnkgZW1haWwgb3IgcGF0Y2ggZm9yIHRoaXMgYnVnLCBwbGVhc2UgY29uc2lkZXIgcmVw
+bHlpbmcgdG8gdGhlCj4gb3JpZ2luYWwgdGhyZWFkLiAgRm9yIHRoZSBnaXQgc2VuZC1lbWFpbCBj
+b21tYW5kIHRvIHVzZSwgb3IgdGlwcyBvbiBob3cgdG8gcmVwbHkKPiBpZiB0aGUgdGhyZWFkIGlz
+bid0IGluIHlvdXIgbWFpbGJveCwgc2VlIHRoZSAiUmVwbHkgaW5zdHJ1Y3Rpb25zIiBhdAo+IGh0
+dHBzOi8vbGttbC5rZXJuZWwub3JnL3IvMDAwMDAwMDAwMDAwMTg4ZGExMDU4YTljMjVlM0Bnb29n
+bGUuY29tCj4KX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX18K
+VmlydHVhbGl6YXRpb24gbWFpbGluZyBsaXN0ClZpcnR1YWxpemF0aW9uQGxpc3RzLmxpbnV4LWZv
+dW5kYXRpb24ub3JnCmh0dHBzOi8vbGlzdHMubGludXhmb3VuZGF0aW9uLm9yZy9tYWlsbWFuL2xp
+c3RpbmZvL3ZpcnR1YWxpemF0aW9u
