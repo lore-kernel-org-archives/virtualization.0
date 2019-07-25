@@ -1,7 +1,7 @@
 From: "Dr. David Alan Gilbert (git)" <dgilbert@redhat.com>
-Subject: [PATCH 3/4] virtio_pci: Defined shared memory capability
-Date: Thu, 25 Jul 2019 18:50:43 +0100
-Message-ID: <20190725175044.29303-4-dgilbert@redhat.com>
+Subject: [PATCH 4/4] virito_mmio: Define shared memory region registers
+Date: Thu, 25 Jul 2019 18:50:44 +0100
+Message-ID: <20190725175044.29303-5-dgilbert@redhat.com>
 References: <20190725175044.29303-1-dgilbert@redhat.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
@@ -23,30 +23,38 @@ List-Id: virtualization@lists.linuxfoundation.org
 
 From: "Dr. David Alan Gilbert" <dgilbert@redhat.com>
 
-Define the PCI capability used for enumerating shared memory regions.
-Each capability contains a 'struct virtio_pci_cap64'
-Multiple capabilities of this type may exist for a device and may
-be distinguished using the 'cap.id' field.
+Define an MMIO interface to discover and map shared
+memory regions.
 
-Defined in virtio spec commit 855ad7af2bd64 ("shared memory: Define PCI capability")
+Defined in virtio spec commit 2dd2d468f69b ("shared memory: Define mmio registers")
 
+Signed-off-by: Sebastien Boeuf <sebastien.boeuf@intel.com>
 Signed-off-by: Dr. David Alan Gilbert <dgilbert@redhat.com>
 ---
- include/uapi/linux/virtio_pci.h | 2 ++
- 1 file changed, 2 insertions(+)
+ include/uapi/linux/virtio_mmio.h | 11 +++++++++++
+ 1 file changed, 11 insertions(+)
 
-diff --git a/include/uapi/linux/virtio_pci.h b/include/uapi/linux/virtio_pci.h
-index 11e508719dfd..401a5d6851f1 100644
---- a/include/uapi/linux/virtio_pci.h
-+++ b/include/uapi/linux/virtio_pci.h
-@@ -113,6 +113,8 @@
- #define VIRTIO_PCI_CAP_DEVICE_CFG	4
- /* PCI configuration access */
- #define VIRTIO_PCI_CAP_PCI_CFG		5
-+/* Additional shared memory capability */
-+#define VIRTIO_PCI_CAP_SHARED_MEMORY_CFG 8
+diff --git a/include/uapi/linux/virtio_mmio.h b/include/uapi/linux/virtio_mmio.h
+index c4b09689ab64..0650f91bea6c 100644
+--- a/include/uapi/linux/virtio_mmio.h
++++ b/include/uapi/linux/virtio_mmio.h
+@@ -122,6 +122,17 @@
+ #define VIRTIO_MMIO_QUEUE_USED_LOW	0x0a0
+ #define VIRTIO_MMIO_QUEUE_USED_HIGH	0x0a4
  
- /* This is the PCI capability header: */
- struct virtio_pci_cap {
++/* Shared memory region id */
++#define VIRTIO_MMIO_SHM_SEL             0x0ac
++
++/* Shared memory region length, 64 bits in two halves */
++#define VIRTIO_MMIO_SHM_LEN_LOW         0x0b0
++#define VIRTIO_MMIO_SHM_LEN_HIGH        0x0b4
++
++/* Shared memory region base address, 64 bits in two halves */
++#define VIRTIO_MMIO_SHM_BASE_LOW        0x0b8
++#define VIRTIO_MMIO_SHM_BASE_HIGH       0x0bc
++
+ /* Configuration atomicity value */
+ #define VIRTIO_MMIO_CONFIG_GENERATION	0x0fc
+ 
 -- 
 2.21.0
