@@ -1,16 +1,17 @@
-From: Christoph Hellwig <hch@infradead.org>
-Subject: Re: [PATCH 03/12] block: bio_release_pages: use flags arg instead of
-	bool
-Date: Tue, 23 Jul 2019 22:30:53 -0700
-Message-ID: <20190724053053.GA18330__19020.7336026774$1576316722$gmane$org@infradead.org>
-References: <20190724042518.14363-1-jhubbard@nvidia.com>
-	<20190724042518.14363-4-jhubbard@nvidia.com>
+From: "Michael S. Tsirkin" <mst@redhat.com>
+Subject: Re: [PATCH 5/6] vhost: mark dirty pages during map uninit
+Date: Thu, 25 Jul 2019 01:21:09 -0400
+Message-ID: <20190725010944-mutt-send-email-mst__39182.3334781051$1576317564$gmane$org@kernel.org>
+References: <20190723075718.6275-1-jasowang@redhat.com>
+	<20190723075718.6275-6-jasowang@redhat.com>
+	<20190723041702-mutt-send-email-mst@kernel.org>
+	<a670cd0d-581d-1aba-41bd-c643c19f9604@redhat.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset="utf-8"
+Content-Transfer-Encoding: base64
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
 Content-Disposition: inline
-In-Reply-To: <20190724042518.14363-4-jhubbard@nvidia.com>
+In-Reply-To: <a670cd0d-581d-1aba-41bd-c643c19f9604@redhat.com>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -20,20 +21,67 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: john.hubbard@gmail.com
-Cc: kvm@vger.kernel.org, "Michael S . Tsirkin" <mst@redhat.com>, virtualization@lists.linux-foundation.org, linux-mm@kvack.org, Christoph Hellwig <hch@lst.de>, linux-cifs@vger.kernel.org, Miklos Szeredi <miklos@szeredi.hu>, linux-rdma@vger.kernel.org, Matthew Wilcox <willy@infradead.org>, Christoph Hellwig <hch@infradead.org>, Jason Gunthorpe <jgg@ziepe.ca>, Minwoo Im <minwoo.im.dev@gmail.com>, v9fs-developer@lists.sourceforge.net, Eric Van Hensbergen <ericvh@gmail.com>, John Hubbard <jhubbard@nvidia.com>, linux-block@vger.kernel.org, =?iso-8859-1?B?Suly9G1l?= Glisse <jglisse@redhat.com>, Alexander Viro <viro@zeniv.linux.org.uk>, ceph-devel@vger.kernel.org, Trond Myklebust <trond.myklebust@hammerspace.com>, Jens Axboe <axboe@kernel.dk>, linux-nfs@vger.kernel.org, netdev@vger.kernel.org, samba-technical@lists.samba.org, LKML <linux-kernel@vger.kernel.org>, David S . Miller
+To: Jason Wang <jasowang@redhat.com>
+Cc: netdev@vger.kernel.org, linux-kernel@vger.kernel.org, kvm@vger.kernel.org, virtualization@lists.linux-foundation.org
 List-Id: virtualization@lists.linuxfoundation.org
 
-On Tue, Jul 23, 2019 at 09:25:09PM -0700, john.hubbard@gmail.com wrote:
-> From: John Hubbard <jhubbard@nvidia.com>
-> 
-> In commit d241a95f3514 ("block: optionally mark pages dirty in
-> bio_release_pages"), new "bool mark_dirty" argument was added to
-> bio_release_pages.
-> 
-> In upcoming work, another bool argument (to indicate that the pages came
-> from get_user_pages) is going to be added. That's one bool too many,
-> because it's not desirable have calls of the form:
-
-All pages releases by bio_release_pages should come from
-get_get_user_pages, so I don't really see the point here.
+T24gVHVlLCBKdWwgMjMsIDIwMTkgYXQgMDk6MTk6MzNQTSArMDgwMCwgSmFzb24gV2FuZyB3cm90
+ZToKPiAKPiBPbiAyMDE5LzcvMjMg5LiL5Y2INToxNywgTWljaGFlbCBTLiBUc2lya2luIHdyb3Rl
+Ogo+ID4gT24gVHVlLCBKdWwgMjMsIDIwMTkgYXQgMDM6NTc6MTdBTSAtMDQwMCwgSmFzb24gV2Fu
+ZyB3cm90ZToKPiA+ID4gV2UgZG9uJ3QgbWFyayBkaXJ0eSBwYWdlcyBpZiB0aGUgbWFwIHdhcyB0
+ZWFyZWQgZG93biBvdXRzaWRlIE1NVQo+ID4gPiBub3RpZmllci4gVGhpcyB3aWxsIGxlYWQgdW50
+cmFja2VkIGRpcnR5IHBhZ2VzLiBGaXhpbmcgYnkgbWFya2luZwo+ID4gPiBkaXJ0eSBwYWdlcyBk
+dXJpbmcgbWFwIHVuaW5pdC4KPiA+ID4gCj4gPiA+IFJlcG9ydGVkLWJ5OiBNaWNoYWVsIFMuIFRz
+aXJraW48bXN0QHJlZGhhdC5jb20+Cj4gPiA+IEZpeGVzOiA3ZjQ2NjAzMmRjOWUgKCJ2aG9zdDog
+YWNjZXNzIHZxIG1ldGFkYXRhIHRocm91Z2gga2VybmVsIHZpcnR1YWwgYWRkcmVzcyIpCj4gPiA+
+IFNpZ25lZC1vZmYtYnk6IEphc29uIFdhbmc8amFzb3dhbmdAcmVkaGF0LmNvbT4KPiA+ID4gLS0t
+Cj4gPiA+ICAgZHJpdmVycy92aG9zdC92aG9zdC5jIHwgMjIgKysrKysrKysrKysrKysrKy0tLS0t
+LQo+ID4gPiAgIDEgZmlsZSBjaGFuZ2VkLCAxNiBpbnNlcnRpb25zKCspLCA2IGRlbGV0aW9ucygt
+KQo+ID4gPiAKPiA+ID4gZGlmZiAtLWdpdCBhL2RyaXZlcnMvdmhvc3Qvdmhvc3QuYyBiL2RyaXZl
+cnMvdmhvc3Qvdmhvc3QuYwo+ID4gPiBpbmRleCA4OWM5ZjA4YjUxNDYuLjViODgyMWQwMGZlNCAx
+MDA2NDQKPiA+ID4gLS0tIGEvZHJpdmVycy92aG9zdC92aG9zdC5jCj4gPiA+ICsrKyBiL2RyaXZl
+cnMvdmhvc3Qvdmhvc3QuYwo+ID4gPiBAQCAtMzA2LDYgKzMwNiwxOCBAQCBzdGF0aWMgdm9pZCB2
+aG9zdF9tYXBfdW5wcmVmZXRjaChzdHJ1Y3Qgdmhvc3RfbWFwICptYXApCj4gPiA+ICAgCWtmcmVl
+KG1hcCk7Cj4gPiA+ICAgfQo+ID4gPiArc3RhdGljIHZvaWQgdmhvc3Rfc2V0X21hcF9kaXJ0eShz
+dHJ1Y3Qgdmhvc3RfdmlydHF1ZXVlICp2cSwKPiA+ID4gKwkJCQlzdHJ1Y3Qgdmhvc3RfbWFwICpt
+YXAsIGludCBpbmRleCkKPiA+ID4gK3sKPiA+ID4gKwlzdHJ1Y3Qgdmhvc3RfdWFkZHIgKnVhZGRy
+ID0gJnZxLT51YWRkcnNbaW5kZXhdOwo+ID4gPiArCWludCBpOwo+ID4gPiArCj4gPiA+ICsJaWYg
+KHVhZGRyLT53cml0ZSkgewo+ID4gPiArCQlmb3IgKGkgPSAwOyBpIDwgbWFwLT5ucGFnZXM7IGkr
+KykKPiA+ID4gKwkJCXNldF9wYWdlX2RpcnR5KG1hcC0+cGFnZXNbaV0pOwo+ID4gPiArCX0KPiA+
+ID4gK30KPiA+ID4gKwo+ID4gPiAgIHN0YXRpYyB2b2lkIHZob3N0X3VuaW5pdF92cV9tYXBzKHN0
+cnVjdCB2aG9zdF92aXJ0cXVldWUgKnZxKQo+ID4gPiAgIHsKPiA+ID4gICAJc3RydWN0IHZob3N0
+X21hcCAqbWFwW1ZIT1NUX05VTV9BRERSU107Cj4gPiA+IEBAIC0zMTUsOCArMzI3LDEwIEBAIHN0
+YXRpYyB2b2lkIHZob3N0X3VuaW5pdF92cV9tYXBzKHN0cnVjdCB2aG9zdF92aXJ0cXVldWUgKnZx
+KQo+ID4gPiAgIAlmb3IgKGkgPSAwOyBpIDwgVkhPU1RfTlVNX0FERFJTOyBpKyspIHsKPiA+ID4g
+ICAJCW1hcFtpXSA9IHJjdV9kZXJlZmVyZW5jZV9wcm90ZWN0ZWQodnEtPm1hcHNbaV0sCj4gPiA+
+ICAgCQkJCSAgbG9ja2RlcF9pc19oZWxkKCZ2cS0+bW11X2xvY2spKTsKPiA+ID4gLQkJaWYgKG1h
+cFtpXSkKPiA+ID4gKwkJaWYgKG1hcFtpXSkgewo+ID4gPiArCQkJdmhvc3Rfc2V0X21hcF9kaXJ0
+eSh2cSwgbWFwW2ldLCBpKTsKPiA+ID4gICAJCQlyY3VfYXNzaWduX3BvaW50ZXIodnEtPm1hcHNb
+aV0sIE5VTEwpOwo+ID4gPiArCQl9Cj4gPiA+ICAgCX0KPiA+ID4gICAJc3Bpbl91bmxvY2soJnZx
+LT5tbXVfbG9jayk7Cj4gPiA+IEBAIC0zNTQsNyArMzY4LDYgQEAgc3RhdGljIHZvaWQgdmhvc3Rf
+aW52YWxpZGF0ZV92cV9zdGFydChzdHJ1Y3Qgdmhvc3RfdmlydHF1ZXVlICp2cSwKPiA+ID4gICB7
+Cj4gPiA+ICAgCXN0cnVjdCB2aG9zdF91YWRkciAqdWFkZHIgPSAmdnEtPnVhZGRyc1tpbmRleF07
+Cj4gPiA+ICAgCXN0cnVjdCB2aG9zdF9tYXAgKm1hcDsKPiA+ID4gLQlpbnQgaTsKPiA+ID4gICAJ
+aWYgKCF2aG9zdF9tYXBfcmFuZ2Vfb3ZlcmxhcCh1YWRkciwgc3RhcnQsIGVuZCkpCj4gPiA+ICAg
+CQlyZXR1cm47Cj4gPiA+IEBAIC0zNjUsMTAgKzM3OCw3IEBAIHN0YXRpYyB2b2lkIHZob3N0X2lu
+dmFsaWRhdGVfdnFfc3RhcnQoc3RydWN0IHZob3N0X3ZpcnRxdWV1ZSAqdnEsCj4gPiA+ICAgCW1h
+cCA9IHJjdV9kZXJlZmVyZW5jZV9wcm90ZWN0ZWQodnEtPm1hcHNbaW5kZXhdLAo+ID4gPiAgIAkJ
+CQkJbG9ja2RlcF9pc19oZWxkKCZ2cS0+bW11X2xvY2spKTsKPiA+ID4gICAJaWYgKG1hcCkgewo+
+ID4gPiAtCQlpZiAodWFkZHItPndyaXRlKSB7Cj4gPiA+IC0JCQlmb3IgKGkgPSAwOyBpIDwgbWFw
+LT5ucGFnZXM7IGkrKykKPiA+ID4gLQkJCQlzZXRfcGFnZV9kaXJ0eShtYXAtPnBhZ2VzW2ldKTsK
+PiA+ID4gLQkJfQo+ID4gPiArCQl2aG9zdF9zZXRfbWFwX2RpcnR5KHZxLCBtYXAsIGluZGV4KTsK
+PiA+ID4gICAJCXJjdV9hc3NpZ25fcG9pbnRlcih2cS0+bWFwc1tpbmRleF0sIE5VTEwpOwo+ID4g
+PiAgIAl9Cj4gPiA+ICAgCXNwaW5fdW5sb2NrKCZ2cS0+bW11X2xvY2spOwo+ID4gT0sgYW5kIHRo
+ZSByZWFzb24gaXQncyBzYWZlIGlzIGJlY2F1c2UgdGhlIGludmFsaWRhdGUgY291bnRlcgo+ID4g
+Z290IGluY3JlbWVudGVkIHNvIHdlIGtub3cgcGFnZSB3aWxsIG5vdCBnZXQgbWFwcGVkIGFnYWlu
+Lgo+ID4gCj4gPiBCdXQgd2UqZG8qICBuZWVkIHRvIHdhaXQgZm9yIHBhZ2Ugbm90IHRvIGJlIG1h
+cHBlZC4KPiA+IEFuZCBpZiB0aGF0IG1lYW5zIHdhaXRpbmcgZm9yIFZRIHByb2Nlc3NpbmcgdG8g
+ZmluaXNoLAo+ID4gdGhlbiBJIHdvcnJ5IHRoYXQgaXMgYSB2ZXJ5IGxvZyB0aW1lLgo+ID4gCj4g
+Cj4gSSdtIG5vdCBzdXJlIEkgZ2V0IHlvdSBoZXJlLiBJZiB3ZSBkb24ndCBoYXZlIHN1Y2ggbWFw
+LCB3ZSB3aWxsIGZhbGwgYmFjayB0bwo+IG5vcm1hbCB1YWNjZXNzIGhlbHBlci4gQW5kIGluIHRo
+ZSBtZW1vcnkgYWNjZXNzb3IsIHRoZSByY3UgY3JpdGljYWwgc2VjdGlvbgo+IGlzIHByZXR0eSBz
+bWFsbC4KPiAKPiBUaGFua3MKPiAKCk9LLiBTbyB0aGUgdHJpY2sgaXMgdGhhdCBwYWdlX21rY2xl
+YW4gaW52b2tlcyBtbXUgbm90aWZpZXJzLgoKLS0gCk1TVApfX19fX19fX19fX19fX19fX19fX19f
+X19fX19fX19fX19fX19fX19fX19fX19fXwpWaXJ0dWFsaXphdGlvbiBtYWlsaW5nIGxpc3QKVmly
+dHVhbGl6YXRpb25AbGlzdHMubGludXgtZm91bmRhdGlvbi5vcmcKaHR0cHM6Ly9saXN0cy5saW51
+eGZvdW5kYXRpb24ub3JnL21haWxtYW4vbGlzdGluZm8vdmlydHVhbGl6YXRpb24=
