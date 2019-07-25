@@ -1,18 +1,12 @@
-From: Christoph Hellwig <hch@lst.de>
-Subject: Re: [PATCH 2/2] virtio/virtio_ring: Fix the dma_max_mapping_size call
-Date: Thu, 25 Jul 2019 07:25:29 +0200
-Message-ID: <20190725052529.GA24355__4146.47813174582$1564032347$gmane$org@lst.de>
-References: <20190722145509.1284-1-eric.auger@redhat.com>
-	<20190722145509.1284-3-eric.auger@redhat.com>
-	<e4a288f2-a93a-5ce4-32da-f5434302551f@arm.com>
-	<20190723153851.GE720@lst.de>
-	<20190723114750-mutt-send-email-mst@kernel.org>
+From: Jia-Ju Bai <baijiaju1990@gmail.com>
+Subject: [PATCH] gpu: drm: qxl: Fix possible null-pointer dereferences in
+	qxl_crtc_atomic_flush()
+Date: Thu, 25 Jul 2019 18:21:27 +0800
+Message-ID: <20190725102127.16086-1-baijiaju1990__1932.86535083956$1564050108$gmane$org@gmail.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-Content-Disposition: inline
-In-Reply-To: <20190723114750-mutt-send-email-mst@kernel.org>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -22,14 +16,45 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: "Michael S. Tsirkin" <mst@redhat.com>
-Cc: linux-kernel@vger.kernel.org, virtualization@lists.linux-foundation.org, Eric Auger <eric.auger@redhat.com>, iommu@lists.linux-foundation.org, eric.auger.pro@gmail.com, Robin Murphy <robin.murphy@arm.com>, Christoph Hellwig <hch@lst.de>, m.szyprowski@samsung.com
+To: airlied@redhat.com, kraxel@redhat.com, airlied@linux.ie, daniel@ffwll.ch
+Cc: spice-devel@lists.freedesktop.org, Jia-Ju Bai <baijiaju1990@gmail.com>, linux-kernel@vger.kernel.org, dri-devel@lists.freedesktop.org, virtualization@lists.linux-foundation.org
 List-Id: virtualization@lists.linuxfoundation.org
 
-On Wed, Jul 24, 2019 at 06:10:53PM -0400, Michael S. Tsirkin wrote:
-> Christoph - would a documented API wrapping dma_mask make sense?
-> With the documentation explaining how users must
-> desist from using DMA APIs if that returns false ...
+In qxl_crtc_atomic_flush(), there is an if statement on line 376 to
+check whether crtc->state is NULL:
+    if (crtc->state && crtc->state->event)
 
-We have some bigger changes in this are planned, including turning
-dma_mask into a scalar instead of a pointer, please stay tuned.
+When crtc->state is NULL and qxl_crtc_update_monitors_config() is call, 
+qxl_crtc_update_monitors_config() uses crtc->state on line 326:
+    if (crtc->state->active)
+and on line 358:
+    DRM_DEBUG_KMS(..., crtc->state->active, ...);
+
+Thus, possible null-pointer dereferences may occur.
+
+To fix these bugs, crtc->state is checked before calling
+qxl_crtc_update_monitors_config().
+
+These bugs are found by a static analysis tool STCheck written by us.
+
+Signed-off-by: Jia-Ju Bai <baijiaju1990@gmail.com>
+---
+ drivers/gpu/drm/qxl/qxl_display.c | 3 ++-
+ 1 file changed, 2 insertions(+), 1 deletion(-)
+
+diff --git a/drivers/gpu/drm/qxl/qxl_display.c b/drivers/gpu/drm/qxl/qxl_display.c
+index 8b319ebbb0fb..fae18ef1ba59 100644
+--- a/drivers/gpu/drm/qxl/qxl_display.c
++++ b/drivers/gpu/drm/qxl/qxl_display.c
+@@ -382,7 +382,8 @@ static void qxl_crtc_atomic_flush(struct drm_crtc *crtc,
+ 		spin_unlock_irqrestore(&dev->event_lock, flags);
+ 	}
+ 
+-	qxl_crtc_update_monitors_config(crtc, "flush");
++	if (crtc->state)
++		qxl_crtc_update_monitors_config(crtc, "flush");
+ }
+ 
+ static void qxl_crtc_destroy(struct drm_crtc *crtc)
+-- 
+2.17.0
