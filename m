@@ -1,7 +1,7 @@
 From: "Dr. David Alan Gilbert (git)" <dgilbert@redhat.com>
-Subject: [PATCH 2/4] virtio_pci: Define virtio_pci_cap64
-Date: Thu, 25 Jul 2019 18:50:42 +0100
-Message-ID: <20190725175044.29303-3-dgilbert@redhat.com>
+Subject: [PATCH 3/4] virtio_pci: Defined shared memory capability
+Date: Thu, 25 Jul 2019 18:50:43 +0100
+Message-ID: <20190725175044.29303-4-dgilbert@redhat.com>
 References: <20190725175044.29303-1-dgilbert@redhat.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
@@ -23,34 +23,30 @@ List-Id: virtualization@lists.linuxfoundation.org
 
 From: "Dr. David Alan Gilbert" <dgilbert@redhat.com>
 
-Define 'virtio_pci_cap64' to allow capabilities to describe
-memory regions larger than, or with an offset larger than 4GiB.
+Define the PCI capability used for enumerating shared memory regions.
+Each capability contains a 'struct virtio_pci_cap64'
+Multiple capabilities of this type may exist for a device and may
+be distinguished using the 'cap.id' field.
 
-This will be used by the shared memory region capability.
-
-Defined in virtio spec commit 8100dcfcd622 ("pci: Define virtio_pci_cap64")
+Defined in virtio spec commit 855ad7af2bd64 ("shared memory: Define PCI capability")
 
 Signed-off-by: Dr. David Alan Gilbert <dgilbert@redhat.com>
 ---
- include/uapi/linux/virtio_pci.h | 6 ++++++
- 1 file changed, 6 insertions(+)
+ include/uapi/linux/virtio_pci.h | 2 ++
+ 1 file changed, 2 insertions(+)
 
 diff --git a/include/uapi/linux/virtio_pci.h b/include/uapi/linux/virtio_pci.h
-index 9defe4a124c5..11e508719dfd 100644
+index 11e508719dfd..401a5d6851f1 100644
 --- a/include/uapi/linux/virtio_pci.h
 +++ b/include/uapi/linux/virtio_pci.h
-@@ -127,6 +127,12 @@ struct virtio_pci_cap {
- 	__le32 length;		/* Length of the structure, in bytes. */
- };
+@@ -113,6 +113,8 @@
+ #define VIRTIO_PCI_CAP_DEVICE_CFG	4
+ /* PCI configuration access */
+ #define VIRTIO_PCI_CAP_PCI_CFG		5
++/* Additional shared memory capability */
++#define VIRTIO_PCI_CAP_SHARED_MEMORY_CFG 8
  
-+struct virtio_pci_cap64 {
-+	struct virtio_pci_cap cap;
-+	__le32 offset_hi;	/* Most sig 32 bits of offset */
-+	__le32 length_hi;	/* Most sig 32 bits of length */
-+};
-+
- struct virtio_pci_notify_cap {
- 	struct virtio_pci_cap cap;
- 	__le32 notify_off_multiplier;	/* Multiplier for queue_notify_off. */
+ /* This is the PCI capability header: */
+ struct virtio_pci_cap {
 -- 
 2.21.0
