@@ -1,15 +1,18 @@
-From: Daniel Vetter <daniel@ffwll.ch>
-Subject: Re: [PATCH] gpu: drm: qxl: Fix possible null-pointer dereferences in
-	qxl_crtc_atomic_flush()
-Date: Thu, 25 Jul 2019 14:03:59 +0200
-Message-ID: <20190725120359.GB15868__5677.97390265099$1564056256$gmane$org@phenom.ffwll.local>
-References: <20190725102127.16086-1-baijiaju1990@gmail.com>
+From: Christoph Hellwig <hch@lst.de>
+Subject: Re: [PATCH 2/2] virtio/virtio_ring: Fix the dma_max_mapping_size call
+Date: Thu, 25 Jul 2019 15:04:16 +0200
+Message-ID: <20190725130416.GA4992__24833.1088035897$1564059875$gmane$org@lst.de>
+References: <20190722145509.1284-1-eric.auger@redhat.com>
+	<20190722145509.1284-3-eric.auger@redhat.com>
+	<e4a288f2-a93a-5ce4-32da-f5434302551f@arm.com>
+	<20190723153851.GE720@lst.de>
+	<fa0fbad5-9b44-d937-e0fd-65fb20c90666@redhat.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
 Content-Disposition: inline
-In-Reply-To: <20190725102127.16086-1-baijiaju1990@gmail.com>
+In-Reply-To: <fa0fbad5-9b44-d937-e0fd-65fb20c90666@redhat.com>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -19,61 +22,20 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Jia-Ju Bai <baijiaju1990@gmail.com>
-Cc: airlied@linux.ie, linux-kernel@vger.kernel.org, dri-devel@lists.freedesktop.org, virtualization@lists.linux-foundation.org, daniel@ffwll.ch, spice-devel@lists.freedesktop.org, airlied@redhat.com
+To: Auger Eric <eric.auger@redhat.com>
+Cc: mst@redhat.com, linux-kernel@vger.kernel.org, virtualization@lists.linux-foundation.org, iommu@lists.linux-foundation.org, eric.auger.pro@gmail.com, Robin Murphy <robin.murphy@arm.com>, Christoph Hellwig <hch@lst.de>, m.szyprowski@samsung.com
 List-Id: virtualization@lists.linuxfoundation.org
 
-On Thu, Jul 25, 2019 at 06:21:27PM +0800, Jia-Ju Bai wrote:
-> In qxl_crtc_atomic_flush(), there is an if statement on line 376 to
-> check whether crtc->state is NULL:
->     if (crtc->state && crtc->state->event)
+On Thu, Jul 25, 2019 at 01:53:49PM +0200, Auger Eric wrote:
+> I am confused: if vring_use_dma_api() returns false if the dma_mask is
+> unset (ie. vring_use_dma_api() returns false), the virtio-blk-pci device
+> will not be able to get translated addresses and won't work properly.
 > 
-> When crtc->state is NULL and qxl_crtc_update_monitors_config() is call, 
-> qxl_crtc_update_monitors_config() uses crtc->state on line 326:
->     if (crtc->state->active)
-> and on line 358:
->     DRM_DEBUG_KMS(..., crtc->state->active, ...);
+> The patch above allows the dma api to be used and only influences the
+> max_segment_size and it works properly.
 > 
-> Thus, possible null-pointer dereferences may occur.
-> 
-> To fix these bugs, crtc->state is checked before calling
-> qxl_crtc_update_monitors_config().
-> 
-> These bugs are found by a static analysis tool STCheck written by us.
-> 
-> Signed-off-by: Jia-Ju Bai <baijiaju1990@gmail.com>
+> So is it normal the dma_mask is unset in my case?
 
-crtc->state should never be NULL in this function, ever. Imo correct fix
-is to remove that other NULL check (since obviously it would blow up,
-hence it's dead code).
-
-Atomic kms drivers use drm_mode_config_reset() to make sure the various
-->state pointers are always set and valid.
--Daniel
-
-> ---
->  drivers/gpu/drm/qxl/qxl_display.c | 3 ++-
->  1 file changed, 2 insertions(+), 1 deletion(-)
-> 
-> diff --git a/drivers/gpu/drm/qxl/qxl_display.c b/drivers/gpu/drm/qxl/qxl_display.c
-> index 8b319ebbb0fb..fae18ef1ba59 100644
-> --- a/drivers/gpu/drm/qxl/qxl_display.c
-> +++ b/drivers/gpu/drm/qxl/qxl_display.c
-> @@ -382,7 +382,8 @@ static void qxl_crtc_atomic_flush(struct drm_crtc *crtc,
->  		spin_unlock_irqrestore(&dev->event_lock, flags);
->  	}
->  
-> -	qxl_crtc_update_monitors_config(crtc, "flush");
-> +	if (crtc->state)
-> +		qxl_crtc_update_monitors_config(crtc, "flush");
->  }
->  
->  static void qxl_crtc_destroy(struct drm_crtc *crtc)
-> -- 
-> 2.17.0
-> 
-
--- 
-Daniel Vetter
-Software Engineer, Intel Corporation
-http://blog.ffwll.ch
+Its not normal.  I assume you use virtio-nmio?  Due to the mess with
+the dma_mask being a pointer a lot of subsystems forgot to set a dma
+mask up, and oddly enough seem to mostly get away with it.
