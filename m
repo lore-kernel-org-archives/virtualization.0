@@ -1,14 +1,15 @@
-From: Jason Wang <jasowang@redhat.com>
-Subject: Re: [PATCH] vhost: disable metadata prefetch optimization
-Date: Fri, 26 Jul 2019 19:57:25 +0800
-Message-ID: <ccba99c1-7708-3e55-6fc9-7775415c77a8__49374.1227242694$1564142263$gmane$org@redhat.com>
-References: <20190726115021.7319-1-mst@redhat.com>
+From: Herbert Xu <herbert@gondor.apana.org.au>
+Subject: Re: [PATCH v2 06/35] crypto: Use kmemdup rather than duplicating its
+	implementation
+Date: Fri, 26 Jul 2019 22:32:02 +1000
+Message-ID: <20190726123202.GA8187__6520.95365091867$1564144351$gmane$org@gondor.apana.org.au>
+References: <20190703162708.32137-1-huangfq.daxian@gmail.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="utf-8"; Format="flowed"
-Content-Transfer-Encoding: base64
+Content-Type: text/plain; charset="us-ascii"
+Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <20190726115021.7319-1-mst@redhat.com>
-Content-Language: en-US
+Content-Disposition: inline
+In-Reply-To: <20190703162708.32137-1-huangfq.daxian@gmail.com>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -18,30 +19,27 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: "Michael S. Tsirkin" <mst@redhat.com>, linux-kernel@vger.kernel.org
-Cc: netdev@vger.kernel.org, kvm@vger.kernel.org, virtualization@lists.linux-foundation.org
+Cc: aymen.sghaier@nxp.com, horia.geanta@nxp.com, mst@redhat.com, linux-kernel@vger.kernel.org, virtualization@lists.linux-foundation.org, linux-crypto@vger.kernel.org, huangfq.daxian@gmail.com, davem@davemloft.net
 List-Id: virtualization@lists.linuxfoundation.org
 
-Ck9uIDIwMTkvNy8yNiDkuIvljYg3OjUxLCBNaWNoYWVsIFMuIFRzaXJraW4gd3JvdGU6Cj4gVGhp
-cyBzZWVtcyB0byBjYXVzZSBndWVzdCBhbmQgaG9zdCBtZW1vcnkgY29ycnVwdGlvbi4KPiBEaXNh
-YmxlIGZvciBub3cgdW50aWwgd2UgZ2V0IGEgYmV0dGVyIGhhbmRsZSBvbiB0aGF0Lgo+Cj4gU2ln
-bmVkLW9mZi1ieTogTWljaGFlbCBTLiBUc2lya2luIDxtc3RAcmVkaGF0LmNvbT4KPiAtLS0KPgo+
-IEkgcHV0IHRoaXMgaW4gbGludXgtbmV4dCwgd2UnbGwgcmUtZW5hYmxlIGlmIHdlIGNhbiBmaXgK
-PiB0aGUgb3V0c3RhbmRpbmcgaXNzdWVzIGluIGEgc2hvcnQgb3JkZXIuCgoKQnR3LCBpcyB0aGlz
-IG1vcmUgc3VpdGFibGUgdG8gZS5nIHJldmVydCB0aGUgCjg0MmFhNjRlZGRhY2QyM2FkYzZlY2Ri
-YzY5Y2IyMDMwYmVjNDcxMjIgYW5kIGxldCBzeXpib3QgZnV6eiBtb3JlIG9uIHRoZSAKY3VycmVu
-dCBjb2RlPwoKSSB0aGluayB3ZSB3b24ndCBhY2NlcHQgdGhhdCBwYXRjaCBldmVudHVhbGx5LCBz
-byBJIHN1c3BlY3Qgd2hhdCBzeXpib3QgCnJlcG9ydHMgdG9kYXkgaXMgYSBmYWxzZSBwb3NpdGl2
-ZXMuCgpUaGFua3MKCgo+Cj4gICBkcml2ZXJzL3Zob3N0L3Zob3N0LmggfCAyICstCj4gICAxIGZp
-bGUgY2hhbmdlZCwgMSBpbnNlcnRpb24oKyksIDEgZGVsZXRpb24oLSkKPgo+IGRpZmYgLS1naXQg
-YS9kcml2ZXJzL3Zob3N0L3Zob3N0LmggYi9kcml2ZXJzL3Zob3N0L3Zob3N0LmgKPiBpbmRleCA4
-MTkyOTYzMzI5MTMuLjQyYThjMmExM2FiMSAxMDA2NDQKPiAtLS0gYS9kcml2ZXJzL3Zob3N0L3Zo
-b3N0LmgKPiArKysgYi9kcml2ZXJzL3Zob3N0L3Zob3N0LmgKPiBAQCAtOTYsNyArOTYsNyBAQCBz
-dHJ1Y3Qgdmhvc3RfdWFkZHIgewo+ICAgfTsKPiAgIAo+ICAgI2lmIGRlZmluZWQoQ09ORklHX01N
-VV9OT1RJRklFUikgJiYgQVJDSF9JTVBMRU1FTlRTX0ZMVVNIX0RDQUNIRV9QQUdFID09IDAKPiAt
-I2RlZmluZSBWSE9TVF9BUkNIX0NBTl9BQ0NFTF9VQUNDRVNTIDEKPiArI2RlZmluZSBWSE9TVF9B
-UkNIX0NBTl9BQ0NFTF9VQUNDRVNTIDAKPiAgICNlbHNlCj4gICAjZGVmaW5lIFZIT1NUX0FSQ0hf
-Q0FOX0FDQ0VMX1VBQ0NFU1MgMAo+ICAgI2VuZGlmCl9fX19fX19fX19fX19fX19fX19fX19fX19f
-X19fX19fX19fX19fX19fX19fX19fClZpcnR1YWxpemF0aW9uIG1haWxpbmcgbGlzdApWaXJ0dWFs
-aXphdGlvbkBsaXN0cy5saW51eC1mb3VuZGF0aW9uLm9yZwpodHRwczovL2xpc3RzLmxpbnV4Zm91
-bmRhdGlvbi5vcmcvbWFpbG1hbi9saXN0aW5mby92aXJ0dWFsaXphdGlvbg==
+Fuqian Huang <huangfq.daxian@gmail.com> wrote:
+> kmemdup is introduced to duplicate a region of memory in a neat way.
+> Rather than kmalloc/kzalloc + memcpy, which the programmer needs to
+> write the size twice (sometimes lead to mistakes), kmemdup improves
+> readability, leads to smaller code and also reduce the chances of mistakes.
+> Suggestion to use kmemdup rather than using kmalloc/kzalloc + memcpy.
+> 
+> Signed-off-by: Fuqian Huang <huangfq.daxian@gmail.com>
+> ---
+> Changes in v2:
+>  - Fix a typo in commit message (memset -> memcpy)
+> 
+> drivers/crypto/caam/caampkc.c              | 11 +++--------
+> drivers/crypto/virtio/virtio_crypto_algs.c |  4 +---
+> 2 files changed, 4 insertions(+), 11 deletions(-)
+
+Patch applied.  Thanks.
+-- 
+Email: Herbert Xu <herbert@gondor.apana.org.au>
+Home Page: http://gondor.apana.org.au/~herbert/
+PGP Key: http://gondor.apana.org.au/~herbert/pubkey.txt
