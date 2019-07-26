@@ -1,14 +1,14 @@
 From: Sasha Levin <sashal@kernel.org>
-Subject: [PATCH AUTOSEL 4.19 45/47] x86/paravirt: Fix callee-saved function
+Subject: [PATCH AUTOSEL 4.14 35/37] x86/paravirt: Fix callee-saved function
 	ELF sizes
-Date: Fri, 26 Jul 2019 09:42:08 -0400
-Message-ID: <20190726134210.12156-45-sashal@kernel.org>
-References: <20190726134210.12156-1-sashal@kernel.org>
+Date: Fri, 26 Jul 2019 09:43:30 -0400
+Message-ID: <20190726134332.12626-35-sashal@kernel.org>
+References: <20190726134332.12626-1-sashal@kernel.org>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <20190726134210.12156-1-sashal@kernel.org>
+In-Reply-To: <20190726134332.12626-1-sashal@kernel.org>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -48,10 +48,10 @@ Signed-off-by: Sasha Levin <sashal@kernel.org>
  2 files changed, 2 insertions(+)
 
 diff --git a/arch/x86/include/asm/paravirt.h b/arch/x86/include/asm/paravirt.h
-index e375d4266b53..a04677038872 100644
+index c83a2f418cea..4471f0da6ed7 100644
 --- a/arch/x86/include/asm/paravirt.h
 +++ b/arch/x86/include/asm/paravirt.h
-@@ -768,6 +768,7 @@ static __always_inline bool pv_vcpu_is_preempted(long cpu)
+@@ -758,6 +758,7 @@ static __always_inline bool pv_vcpu_is_preempted(long cpu)
  	    PV_RESTORE_ALL_CALLER_REGS					\
  	    FRAME_END							\
  	    "ret;"							\
@@ -60,10 +60,10 @@ index e375d4266b53..a04677038872 100644
  
  /* Get a reference to a callee-save function */
 diff --git a/arch/x86/kernel/kvm.c b/arch/x86/kernel/kvm.c
-index 7f89d609095a..cee45d46e67d 100644
+index 652bdd867782..5853eb50138e 100644
 --- a/arch/x86/kernel/kvm.c
 +++ b/arch/x86/kernel/kvm.c
-@@ -830,6 +830,7 @@ asm(
+@@ -631,6 +631,7 @@ asm(
  "cmpb	$0, " __stringify(KVM_STEAL_TIME_preempted) "+steal_time(%rax);"
  "setne	%al;"
  "ret;"
