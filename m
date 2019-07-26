@@ -1,12 +1,14 @@
-From: "Michael S. Tsirkin" <mst@redhat.com>
-Subject: [PATCH] vhost: disable metadata prefetch optimization
-Date: Fri, 26 Jul 2019 07:51:12 -0400
-Message-ID: <20190726115021.7319-1-mst__17420.8554600895$1564141887$gmane$org@redhat.com>
+From: Jason Wang <jasowang@redhat.com>
+Subject: Re: [PATCH] vhost: disable metadata prefetch optimization
+Date: Fri, 26 Jul 2019 19:57:25 +0800
+Message-ID: <ccba99c1-7708-3e55-6fc9-7775415c77a8__49374.1227242694$1564142263$gmane$org@redhat.com>
+References: <20190726115021.7319-1-mst@redhat.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset="utf-8"; Format="flowed"
+Content-Transfer-Encoding: base64
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-Content-Disposition: inline
+In-Reply-To: <20190726115021.7319-1-mst@redhat.com>
+Content-Language: en-US
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -16,34 +18,30 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: linux-kernel@vger.kernel.org
+To: "Michael S. Tsirkin" <mst@redhat.com>, linux-kernel@vger.kernel.org
 Cc: netdev@vger.kernel.org, kvm@vger.kernel.org, virtualization@lists.linux-foundation.org
 List-Id: virtualization@lists.linuxfoundation.org
 
-This seems to cause guest and host memory corruption.
-Disable for now until we get a better handle on that.
-
-Signed-off-by: Michael S. Tsirkin <mst@redhat.com>
----
-
-I put this in linux-next, we'll re-enable if we can fix
-the outstanding issues in a short order.
-
- drivers/vhost/vhost.h | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
-
-diff --git a/drivers/vhost/vhost.h b/drivers/vhost/vhost.h
-index 819296332913..42a8c2a13ab1 100644
---- a/drivers/vhost/vhost.h
-+++ b/drivers/vhost/vhost.h
-@@ -96,7 +96,7 @@ struct vhost_uaddr {
- };
- 
- #if defined(CONFIG_MMU_NOTIFIER) && ARCH_IMPLEMENTS_FLUSH_DCACHE_PAGE == 0
--#define VHOST_ARCH_CAN_ACCEL_UACCESS 1
-+#define VHOST_ARCH_CAN_ACCEL_UACCESS 0
- #else
- #define VHOST_ARCH_CAN_ACCEL_UACCESS 0
- #endif
--- 
-MST
+Ck9uIDIwMTkvNy8yNiDkuIvljYg3OjUxLCBNaWNoYWVsIFMuIFRzaXJraW4gd3JvdGU6Cj4gVGhp
+cyBzZWVtcyB0byBjYXVzZSBndWVzdCBhbmQgaG9zdCBtZW1vcnkgY29ycnVwdGlvbi4KPiBEaXNh
+YmxlIGZvciBub3cgdW50aWwgd2UgZ2V0IGEgYmV0dGVyIGhhbmRsZSBvbiB0aGF0Lgo+Cj4gU2ln
+bmVkLW9mZi1ieTogTWljaGFlbCBTLiBUc2lya2luIDxtc3RAcmVkaGF0LmNvbT4KPiAtLS0KPgo+
+IEkgcHV0IHRoaXMgaW4gbGludXgtbmV4dCwgd2UnbGwgcmUtZW5hYmxlIGlmIHdlIGNhbiBmaXgK
+PiB0aGUgb3V0c3RhbmRpbmcgaXNzdWVzIGluIGEgc2hvcnQgb3JkZXIuCgoKQnR3LCBpcyB0aGlz
+IG1vcmUgc3VpdGFibGUgdG8gZS5nIHJldmVydCB0aGUgCjg0MmFhNjRlZGRhY2QyM2FkYzZlY2Ri
+YzY5Y2IyMDMwYmVjNDcxMjIgYW5kIGxldCBzeXpib3QgZnV6eiBtb3JlIG9uIHRoZSAKY3VycmVu
+dCBjb2RlPwoKSSB0aGluayB3ZSB3b24ndCBhY2NlcHQgdGhhdCBwYXRjaCBldmVudHVhbGx5LCBz
+byBJIHN1c3BlY3Qgd2hhdCBzeXpib3QgCnJlcG9ydHMgdG9kYXkgaXMgYSBmYWxzZSBwb3NpdGl2
+ZXMuCgpUaGFua3MKCgo+Cj4gICBkcml2ZXJzL3Zob3N0L3Zob3N0LmggfCAyICstCj4gICAxIGZp
+bGUgY2hhbmdlZCwgMSBpbnNlcnRpb24oKyksIDEgZGVsZXRpb24oLSkKPgo+IGRpZmYgLS1naXQg
+YS9kcml2ZXJzL3Zob3N0L3Zob3N0LmggYi9kcml2ZXJzL3Zob3N0L3Zob3N0LmgKPiBpbmRleCA4
+MTkyOTYzMzI5MTMuLjQyYThjMmExM2FiMSAxMDA2NDQKPiAtLS0gYS9kcml2ZXJzL3Zob3N0L3Zo
+b3N0LmgKPiArKysgYi9kcml2ZXJzL3Zob3N0L3Zob3N0LmgKPiBAQCAtOTYsNyArOTYsNyBAQCBz
+dHJ1Y3Qgdmhvc3RfdWFkZHIgewo+ICAgfTsKPiAgIAo+ICAgI2lmIGRlZmluZWQoQ09ORklHX01N
+VV9OT1RJRklFUikgJiYgQVJDSF9JTVBMRU1FTlRTX0ZMVVNIX0RDQUNIRV9QQUdFID09IDAKPiAt
+I2RlZmluZSBWSE9TVF9BUkNIX0NBTl9BQ0NFTF9VQUNDRVNTIDEKPiArI2RlZmluZSBWSE9TVF9B
+UkNIX0NBTl9BQ0NFTF9VQUNDRVNTIDAKPiAgICNlbHNlCj4gICAjZGVmaW5lIFZIT1NUX0FSQ0hf
+Q0FOX0FDQ0VMX1VBQ0NFU1MgMAo+ICAgI2VuZGlmCl9fX19fX19fX19fX19fX19fX19fX19fX19f
+X19fX19fX19fX19fX19fX19fX19fClZpcnR1YWxpemF0aW9uIG1haWxpbmcgbGlzdApWaXJ0dWFs
+aXphdGlvbkBsaXN0cy5saW51eC1mb3VuZGF0aW9uLm9yZwpodHRwczovL2xpc3RzLmxpbnV4Zm91
+bmRhdGlvbi5vcmcvbWFpbG1hbi9saXN0aW5mby92aXJ0dWFsaXphdGlvbg==
