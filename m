@@ -1,14 +1,15 @@
-From: Sasha Levin <sashal@kernel.org>
-Subject: [PATCH AUTOSEL 4.14 35/37] x86/paravirt: Fix callee-saved function
-	ELF sizes
-Date: Fri, 26 Jul 2019 09:43:30 -0400
-Message-ID: <20190726134332.12626-35-sashal@kernel.org>
-References: <20190726134332.12626-1-sashal@kernel.org>
+From: "Michael S. Tsirkin" <mst@redhat.com>
+Subject: Re: [PATCH] vhost: disable metadata prefetch optimization
+Date: Fri, 26 Jul 2019 09:52:59 -0400
+Message-ID: <20190726095044-mutt-send-email-mst__31616.7065453314$1564149202$gmane$org@kernel.org>
+References: <20190726115021.7319-1-mst@redhat.com>
+	<ccba99c1-7708-3e55-6fc9-7775415c77a8@redhat.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset="utf-8"
+Content-Transfer-Encoding: base64
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <20190726134332.12626-1-sashal@kernel.org>
+Content-Disposition: inline
+In-Reply-To: <ccba99c1-7708-3e55-6fc9-7775415c77a8@redhat.com>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -18,58 +19,38 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc: Juergen Gross <jgross@suse.com>, Sasha Levin <sashal@kernel.org>, kvm@vger.kernel.org, Peter Zijlstra <peterz@infradead.org>, virtualization@lists.linux-foundation.org, Josh Poimboeuf <jpoimboe@redhat.com>, Thomas Gleixner <tglx@linutronix.de>
+To: Jason Wang <jasowang@redhat.com>
+Cc: netdev@vger.kernel.org, linux-kernel@vger.kernel.org, kvm@vger.kernel.org, virtualization@lists.linux-foundation.org
 List-Id: virtualization@lists.linuxfoundation.org
 
-From: Josh Poimboeuf <jpoimboe@redhat.com>
-
-[ Upstream commit 083db6764821996526970e42d09c1ab2f4155dd4 ]
-
-The __raw_callee_save_*() functions have an ELF symbol size of zero,
-which confuses objtool and other tools.
-
-Fixes a bunch of warnings like the following:
-
-  arch/x86/xen/mmu_pv.o: warning: objtool: __raw_callee_save_xen_pte_val() is missing an ELF size annotation
-  arch/x86/xen/mmu_pv.o: warning: objtool: __raw_callee_save_xen_pgd_val() is missing an ELF size annotation
-  arch/x86/xen/mmu_pv.o: warning: objtool: __raw_callee_save_xen_make_pte() is missing an ELF size annotation
-  arch/x86/xen/mmu_pv.o: warning: objtool: __raw_callee_save_xen_make_pgd() is missing an ELF size annotation
-
-Signed-off-by: Josh Poimboeuf <jpoimboe@redhat.com>
-Signed-off-by: Thomas Gleixner <tglx@linutronix.de>
-Reviewed-by: Juergen Gross <jgross@suse.com>
-Acked-by: Peter Zijlstra (Intel) <peterz@infradead.org>
-Link: https://lkml.kernel.org/r/afa6d49bb07497ca62e4fc3b27a2d0cece545b4e.1563413318.git.jpoimboe@redhat.com
-Signed-off-by: Sasha Levin <sashal@kernel.org>
----
- arch/x86/include/asm/paravirt.h | 1 +
- arch/x86/kernel/kvm.c           | 1 +
- 2 files changed, 2 insertions(+)
-
-diff --git a/arch/x86/include/asm/paravirt.h b/arch/x86/include/asm/paravirt.h
-index c83a2f418cea..4471f0da6ed7 100644
---- a/arch/x86/include/asm/paravirt.h
-+++ b/arch/x86/include/asm/paravirt.h
-@@ -758,6 +758,7 @@ static __always_inline bool pv_vcpu_is_preempted(long cpu)
- 	    PV_RESTORE_ALL_CALLER_REGS					\
- 	    FRAME_END							\
- 	    "ret;"							\
-+	    ".size " PV_THUNK_NAME(func) ", .-" PV_THUNK_NAME(func) ";"	\
- 	    ".popsection")
- 
- /* Get a reference to a callee-save function */
-diff --git a/arch/x86/kernel/kvm.c b/arch/x86/kernel/kvm.c
-index 652bdd867782..5853eb50138e 100644
---- a/arch/x86/kernel/kvm.c
-+++ b/arch/x86/kernel/kvm.c
-@@ -631,6 +631,7 @@ asm(
- "cmpb	$0, " __stringify(KVM_STEAL_TIME_preempted) "+steal_time(%rax);"
- "setne	%al;"
- "ret;"
-+".size __raw_callee_save___kvm_vcpu_is_preempted, .-__raw_callee_save___kvm_vcpu_is_preempted;"
- ".popsection");
- 
- #endif
--- 
-2.20.1
+T24gRnJpLCBKdWwgMjYsIDIwMTkgYXQgMDc6NTc6MjVQTSArMDgwMCwgSmFzb24gV2FuZyB3cm90
+ZToKPiAKPiBPbiAyMDE5LzcvMjYg5LiL5Y2INzo1MSwgTWljaGFlbCBTLiBUc2lya2luIHdyb3Rl
+Ogo+ID4gVGhpcyBzZWVtcyB0byBjYXVzZSBndWVzdCBhbmQgaG9zdCBtZW1vcnkgY29ycnVwdGlv
+bi4KPiA+IERpc2FibGUgZm9yIG5vdyB1bnRpbCB3ZSBnZXQgYSBiZXR0ZXIgaGFuZGxlIG9uIHRo
+YXQuCj4gPiAKPiA+IFNpZ25lZC1vZmYtYnk6IE1pY2hhZWwgUy4gVHNpcmtpbiA8bXN0QHJlZGhh
+dC5jb20+Cj4gPiAtLS0KPiA+IAo+ID4gSSBwdXQgdGhpcyBpbiBsaW51eC1uZXh0LCB3ZSdsbCBy
+ZS1lbmFibGUgaWYgd2UgY2FuIGZpeAo+ID4gdGhlIG91dHN0YW5kaW5nIGlzc3VlcyBpbiBhIHNo
+b3J0IG9yZGVyLgo+IAo+IAo+IEJ0dywgaXMgdGhpcyBtb3JlIHN1aXRhYmxlIHRvIGUuZyByZXZl
+cnQgdGhlCj4gODQyYWE2NGVkZGFjZDIzYWRjNmVjZGJjNjljYjIwMzBiZWM0NzEyMgoKWWVzIEkg
+ZGlkIHRoYXQgdG9vLgoKPiBhbmQgbGV0IHN5emJvdCBmdXp6IG1vcmUgb24gdGhlCj4gY3VycmVu
+dCBjb2RlPwoKQ3VycmVudCBtZXRhZGF0YSBkaXJlY3QgYWNjZXNzIGNvZGUgaXMga25vd24gdG8g
+Y29ycnVwdCBndWVzdCBhbmQgaG9zdAptZW1vcnkgLSBJIGRvbid0IGZlZWwgd2UgbmVlZCBtb3Jl
+IGZ1enppbmcuCgo+IAo+IEkgdGhpbmsgd2Ugd29uJ3QgYWNjZXB0IHRoYXQgcGF0Y2ggZXZlbnR1
+YWxseSwgc28gSSBzdXNwZWN0IHdoYXQgc3l6Ym90Cj4gcmVwb3J0cyB0b2RheSBpcyBhIGZhbHNl
+IHBvc2l0aXZlcy4KClRvZGF5J3MgcmVwb3J0cyBhcmUgcmVhbCwgaXQncyBhIGJ1ZyBpbiBteSBw
+YXRjaC4gQnV0IEkgcmV2ZXJ0ZWQgaXQgLQp0aGUgYmVsb3cgaXMgYW4gZWFzaWVyIHdheSB0byBt
+YWtlIHN1cmUgYXQgbGVhc3QgbGludXgtbmV4dCBpcyBzdGFibGUKZm9yIGV2ZXJ5b25lLgoKPiAK
+PiBUaGFua3MKPiAKPiAKPiA+IAo+ID4gICBkcml2ZXJzL3Zob3N0L3Zob3N0LmggfCAyICstCj4g
+PiAgIDEgZmlsZSBjaGFuZ2VkLCAxIGluc2VydGlvbigrKSwgMSBkZWxldGlvbigtKQo+ID4gCj4g
+PiBkaWZmIC0tZ2l0IGEvZHJpdmVycy92aG9zdC92aG9zdC5oIGIvZHJpdmVycy92aG9zdC92aG9z
+dC5oCj4gPiBpbmRleCA4MTkyOTYzMzI5MTMuLjQyYThjMmExM2FiMSAxMDA2NDQKPiA+IC0tLSBh
+L2RyaXZlcnMvdmhvc3Qvdmhvc3QuaAo+ID4gKysrIGIvZHJpdmVycy92aG9zdC92aG9zdC5oCj4g
+PiBAQCAtOTYsNyArOTYsNyBAQCBzdHJ1Y3Qgdmhvc3RfdWFkZHIgewo+ID4gICB9Owo+ID4gICAj
+aWYgZGVmaW5lZChDT05GSUdfTU1VX05PVElGSUVSKSAmJiBBUkNIX0lNUExFTUVOVFNfRkxVU0hf
+RENBQ0hFX1BBR0UgPT0gMAo+ID4gLSNkZWZpbmUgVkhPU1RfQVJDSF9DQU5fQUNDRUxfVUFDQ0VT
+UyAxCj4gPiArI2RlZmluZSBWSE9TVF9BUkNIX0NBTl9BQ0NFTF9VQUNDRVNTIDAKPiA+ICAgI2Vs
+c2UKPiA+ICAgI2RlZmluZSBWSE9TVF9BUkNIX0NBTl9BQ0NFTF9VQUNDRVNTIDAKPiA+ICAgI2Vu
+ZGlmCl9fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fClZpcnR1
+YWxpemF0aW9uIG1haWxpbmcgbGlzdApWaXJ0dWFsaXphdGlvbkBsaXN0cy5saW51eC1mb3VuZGF0
+aW9uLm9yZwpodHRwczovL2xpc3RzLmxpbnV4Zm91bmRhdGlvbi5vcmcvbWFpbG1hbi9saXN0aW5m
+by92aXJ0dWFsaXphdGlvbg==
