@@ -1,15 +1,14 @@
-From: "Michael S. Tsirkin" <mst@redhat.com>
-Subject: Re: [PATCH] vhost: disable metadata prefetch optimization
-Date: Fri, 26 Jul 2019 09:52:59 -0400
-Message-ID: <20190726095044-mutt-send-email-mst__31616.7065453314$1564149202$gmane$org@kernel.org>
-References: <20190726115021.7319-1-mst@redhat.com>
-	<ccba99c1-7708-3e55-6fc9-7775415c77a8@redhat.com>
+From: Linus Torvalds <torvalds@linux-foundation.org>
+Subject: Re: INFO: rcu detected stall in vhost_worker
+Date: Fri, 26 Jul 2019 14:35:25 -0700
+Message-ID: <CAHk-=whnM5+FBJuVoxXELvFgecuc0+vW7ibWy4Gc5qJbW8HL2Q__2116.41813382215$1564176955$gmane$org@mail.gmail.com>
+References: <000000000000b4358f058e924c6d@google.com>
+	<000000000000e87d14058e9728d7@google.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="utf-8"
-Content-Transfer-Encoding: base64
+Content-Type: text/plain; charset="us-ascii"
+Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-Content-Disposition: inline
-In-Reply-To: <ccba99c1-7708-3e55-6fc9-7775415c77a8@redhat.com>
+In-Reply-To: <000000000000e87d14058e9728d7@google.com>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -19,38 +18,25 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Jason Wang <jasowang@redhat.com>
-Cc: netdev@vger.kernel.org, linux-kernel@vger.kernel.org, kvm@vger.kernel.org, virtualization@lists.linux-foundation.org
+To: syzbot <syzbot+36e93b425cd6eb54fcc1@syzkaller.appspotmail.com>
+Cc: michal.lkml@markovi.net, KVM list <kvm@vger.kernel.org>, "Michael S. Tsirkin" <mst@redhat.com>, Netdev <netdev@vger.kernel.org>, Linux Kbuild mailing list <linux-kbuild@vger.kernel.org>, syzkaller-bugs <syzkaller-bugs@googlegroups.com>, Linux List Kernel Mailing <linux-kernel@vger.kernel.org>, virtualization@lists.linux-foundation.org, Masahiro Yamada <yamada.masahiro@socionext.com>
 List-Id: virtualization@lists.linuxfoundation.org
 
-T24gRnJpLCBKdWwgMjYsIDIwMTkgYXQgMDc6NTc6MjVQTSArMDgwMCwgSmFzb24gV2FuZyB3cm90
-ZToKPiAKPiBPbiAyMDE5LzcvMjYg5LiL5Y2INzo1MSwgTWljaGFlbCBTLiBUc2lya2luIHdyb3Rl
-Ogo+ID4gVGhpcyBzZWVtcyB0byBjYXVzZSBndWVzdCBhbmQgaG9zdCBtZW1vcnkgY29ycnVwdGlv
-bi4KPiA+IERpc2FibGUgZm9yIG5vdyB1bnRpbCB3ZSBnZXQgYSBiZXR0ZXIgaGFuZGxlIG9uIHRo
-YXQuCj4gPiAKPiA+IFNpZ25lZC1vZmYtYnk6IE1pY2hhZWwgUy4gVHNpcmtpbiA8bXN0QHJlZGhh
-dC5jb20+Cj4gPiAtLS0KPiA+IAo+ID4gSSBwdXQgdGhpcyBpbiBsaW51eC1uZXh0LCB3ZSdsbCBy
-ZS1lbmFibGUgaWYgd2UgY2FuIGZpeAo+ID4gdGhlIG91dHN0YW5kaW5nIGlzc3VlcyBpbiBhIHNo
-b3J0IG9yZGVyLgo+IAo+IAo+IEJ0dywgaXMgdGhpcyBtb3JlIHN1aXRhYmxlIHRvIGUuZyByZXZl
-cnQgdGhlCj4gODQyYWE2NGVkZGFjZDIzYWRjNmVjZGJjNjljYjIwMzBiZWM0NzEyMgoKWWVzIEkg
-ZGlkIHRoYXQgdG9vLgoKPiBhbmQgbGV0IHN5emJvdCBmdXp6IG1vcmUgb24gdGhlCj4gY3VycmVu
-dCBjb2RlPwoKQ3VycmVudCBtZXRhZGF0YSBkaXJlY3QgYWNjZXNzIGNvZGUgaXMga25vd24gdG8g
-Y29ycnVwdCBndWVzdCBhbmQgaG9zdAptZW1vcnkgLSBJIGRvbid0IGZlZWwgd2UgbmVlZCBtb3Jl
-IGZ1enppbmcuCgo+IAo+IEkgdGhpbmsgd2Ugd29uJ3QgYWNjZXB0IHRoYXQgcGF0Y2ggZXZlbnR1
-YWxseSwgc28gSSBzdXNwZWN0IHdoYXQgc3l6Ym90Cj4gcmVwb3J0cyB0b2RheSBpcyBhIGZhbHNl
-IHBvc2l0aXZlcy4KClRvZGF5J3MgcmVwb3J0cyBhcmUgcmVhbCwgaXQncyBhIGJ1ZyBpbiBteSBw
-YXRjaC4gQnV0IEkgcmV2ZXJ0ZWQgaXQgLQp0aGUgYmVsb3cgaXMgYW4gZWFzaWVyIHdheSB0byBt
-YWtlIHN1cmUgYXQgbGVhc3QgbGludXgtbmV4dCBpcyBzdGFibGUKZm9yIGV2ZXJ5b25lLgoKPiAK
-PiBUaGFua3MKPiAKPiAKPiA+IAo+ID4gICBkcml2ZXJzL3Zob3N0L3Zob3N0LmggfCAyICstCj4g
-PiAgIDEgZmlsZSBjaGFuZ2VkLCAxIGluc2VydGlvbigrKSwgMSBkZWxldGlvbigtKQo+ID4gCj4g
-PiBkaWZmIC0tZ2l0IGEvZHJpdmVycy92aG9zdC92aG9zdC5oIGIvZHJpdmVycy92aG9zdC92aG9z
-dC5oCj4gPiBpbmRleCA4MTkyOTYzMzI5MTMuLjQyYThjMmExM2FiMSAxMDA2NDQKPiA+IC0tLSBh
-L2RyaXZlcnMvdmhvc3Qvdmhvc3QuaAo+ID4gKysrIGIvZHJpdmVycy92aG9zdC92aG9zdC5oCj4g
-PiBAQCAtOTYsNyArOTYsNyBAQCBzdHJ1Y3Qgdmhvc3RfdWFkZHIgewo+ID4gICB9Owo+ID4gICAj
-aWYgZGVmaW5lZChDT05GSUdfTU1VX05PVElGSUVSKSAmJiBBUkNIX0lNUExFTUVOVFNfRkxVU0hf
-RENBQ0hFX1BBR0UgPT0gMAo+ID4gLSNkZWZpbmUgVkhPU1RfQVJDSF9DQU5fQUNDRUxfVUFDQ0VT
-UyAxCj4gPiArI2RlZmluZSBWSE9TVF9BUkNIX0NBTl9BQ0NFTF9VQUNDRVNTIDAKPiA+ICAgI2Vs
-c2UKPiA+ICAgI2RlZmluZSBWSE9TVF9BUkNIX0NBTl9BQ0NFTF9VQUNDRVNTIDAKPiA+ICAgI2Vu
-ZGlmCl9fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fClZpcnR1
-YWxpemF0aW9uIG1haWxpbmcgbGlzdApWaXJ0dWFsaXphdGlvbkBsaXN0cy5saW51eC1mb3VuZGF0
-aW9uLm9yZwpodHRwczovL2xpc3RzLmxpbnV4Zm91bmRhdGlvbi5vcmcvbWFpbG1hbi9saXN0aW5m
-by92aXJ0dWFsaXphdGlvbg==
+On Fri, Jul 26, 2019 at 8:26 AM syzbot
+<syzbot+36e93b425cd6eb54fcc1@syzkaller.appspotmail.com> wrote:
+>
+> syzbot has bisected this bug to:
+>
+> commit 0ecfebd2b52404ae0c54a878c872bb93363ada36
+> Author: Linus Torvalds <torvalds@linux-foundation.org>
+> Date:   Sun Jul 7 22:41:56 2019 +0000
+>
+>      Linux 5.2
+
+That seems very unlikely. That commit literally just changes the
+EXTRAVERSION part of the version string.
+
+So even if something actually depended on the version number, even
+that wouldn't have triggered any semantic change.
+
+              Linus
