@@ -1,16 +1,16 @@
-From: John Hubbard <jhubbard@nvidia.com>
-Subject: Re: [PATCH 00/12] block/bio, fs: convert put_page() to
-	put_user_page*()
-Date: Thu, 25 Jul 2019 18:24:16 -0700
-Message-ID: <88864b91-516d-9774-f4ca-b45927ac4556@nvidia.com>
-References: <20190724042518.14363-1-jhubbard@nvidia.com>
-	<8621066c-e242-c449-eb04-4f2ce6867140@oracle.com>
+From: Juergen Gross <jgross@suse.com>
+Subject: Re: [PATCH v3 4/9] x86/mm/tlb: Flush remote and local TLBs
+	concurrently
+Date: Fri, 26 Jul 2019 09:28:01 +0200
+Message-ID: <3fc06d95-5f17-4642-cd91-49a0f70057c0__14187.4375332677$1564126117$gmane$org@suse.com>
+References: <20190719005837.4150-1-namit@vmware.com>
+	<20190719005837.4150-5-namit@vmware.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
+Content-Type: text/plain; charset="us-ascii"; Format="flowed"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <8621066c-e242-c449-eb04-4f2ce6867140@oracle.com>
-Content-Language: en-US
+In-Reply-To: <20190719005837.4150-5-namit@vmware.com>
+Content-Language: de-DE
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -20,44 +20,61 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Bob Liu <bob.liu@oracle.com>, Andrew Morton <akpm@linux-foundation.org>
-Cc: kvm@vger.kernel.org, "Michael S . Tsirkin" <mst@redhat.com>, virtualization@lists.linux-foundation.org, linux-mm@kvack.org, Christoph Hellwig <hch@lst.de>, linux-cifs@vger.kernel.org, Miklos Szeredi <miklos@szeredi.hu>, linux-rdma@vger.kernel.org, Matthew Wilcox <willy@infradead.org>, Jason Gunthorpe <jgg@ziepe.ca>, v9fs-developer@lists.sourceforge.net, Eric Van Hensbergen <ericvh@gmail.com>, linux-block@vger.kernel.org, Alexander Viro <viro@zeniv.linux.org.uk>, ceph-devel@vger.kernel.org, Trond Myklebust <trond.myklebust@hammerspace.com>, Jens Axboe <axboe@kernel.dk>, linux-nfs@vger.kernel.org, netdev@vger.kernel.org, samba-technical@lists.samba.org, LKML <linux-kernel@vger.kernel.org>, "David S . Miller" <davem@davemloft.net>, linux-fsdevel@vger.kernel.org, Anna Schumaker <anna.schumaker@netapp.com>
+To: Nadav Amit <namit@vmware.com>, Andy Lutomirski <luto@kernel.org>, Dave Hansen <dave.hansen@linux.intel.com>
+Cc: Sasha Levin <sashal@kernel.org>, linux-hyperv@vger.kernel.org, Stephen Hemminger <sthemmin@microsoft.com>, kvm@vger.kernel.org, Peter Zijlstra <peterz@infradead.org>, Haiyang Zhang <haiyangz@microsoft.com>, x86@kernel.org, linux-kernel@vger.kernel.org, virtualization@lists.linux-foundation.org, Ingo Molnar <mingo@redhat.com>, Borislav Petkov <bp@alien8.de>, Paolo Bonzini <pbonzini@redhat.com>, xen-devel@lists.xenproject.org, Thomas Gleixner <tglx@linutronix.de>, Boris Ostrovsky <boris.ostrovsky@oracle.com>
 List-Id: virtualization@lists.linuxfoundation.org
 
-On 7/24/19 5:41 PM, Bob Liu wrote:
-> On 7/24/19 12:25 PM, john.hubbard@gmail.com wrote:
->> From: John Hubbard <jhubbard@nvidia.com>
->>
->> Hi,
->>
->> This is mostly Jerome's work, converting the block/bio and related areas
->> to call put_user_page*() instead of put_page(). Because I've changed
->> Jerome's patches, in some cases significantly, I'd like to get his
->> feedback before we actually leave him listed as the author (he might
->> want to disown some or all of these).
->>
+On 19.07.19 02:58, Nadav Amit wrote:
+> To improve TLB shootdown performance, flush the remote and local TLBs
+> concurrently. Introduce flush_tlb_multi() that does so. Introduce
+> paravirtual versions of flush_tlb_multi() for KVM, Xen and hyper-v (Xen
+> and hyper-v are only compile-tested).
 > 
-> Could you add some background to the commit log for people don't have the context..
-> Why this converting? What's the main differences?
+> While the updated smp infrastructure is capable of running a function on
+> a single local core, it is not optimized for this case. The multiple
+> function calls and the indirect branch introduce some overhead, and
+> might make local TLB flushes slower than they were before the recent
+> changes.
 > 
+> Before calling the SMP infrastructure, check if only a local TLB flush
+> is needed to restore the lost performance in this common case. This
+> requires to check mm_cpumask() one more time, but unless this mask is
+> updated very frequently, this should impact performance negatively.
+> 
+> Cc: "K. Y. Srinivasan" <kys@microsoft.com>
+> Cc: Haiyang Zhang <haiyangz@microsoft.com>
+> Cc: Stephen Hemminger <sthemmin@microsoft.com>
+> Cc: Sasha Levin <sashal@kernel.org>
+> Cc: Thomas Gleixner <tglx@linutronix.de>
+> Cc: Ingo Molnar <mingo@redhat.com>
+> Cc: Borislav Petkov <bp@alien8.de>
+> Cc: x86@kernel.org
+> Cc: Juergen Gross <jgross@suse.com>
+> Cc: Paolo Bonzini <pbonzini@redhat.com>
+> Cc: Dave Hansen <dave.hansen@linux.intel.com>
+> Cc: Andy Lutomirski <luto@kernel.org>
+> Cc: Peter Zijlstra <peterz@infradead.org>
+> Cc: Boris Ostrovsky <boris.ostrovsky@oracle.com>
+> Cc: linux-hyperv@vger.kernel.org
+> Cc: linux-kernel@vger.kernel.org
+> Cc: virtualization@lists.linux-foundation.org
+> Cc: kvm@vger.kernel.org
+> Cc: xen-devel@lists.xenproject.org
+> Signed-off-by: Nadav Amit <namit@vmware.com>
+> ---
+>   arch/x86/hyperv/mmu.c                 | 10 +++---
+>   arch/x86/include/asm/paravirt.h       |  6 ++--
+>   arch/x86/include/asm/paravirt_types.h |  4 +--
+>   arch/x86/include/asm/tlbflush.h       |  8 ++---
+>   arch/x86/include/asm/trace/hyperv.h   |  2 +-
+>   arch/x86/kernel/kvm.c                 | 11 +++++--
+>   arch/x86/kernel/paravirt.c            |  2 +-
+>   arch/x86/mm/tlb.c                     | 47 ++++++++++++++++++---------
+>   arch/x86/xen/mmu_pv.c                 | 11 +++----
+>   include/trace/events/xen.h            |  2 +-
+>   10 files changed, 62 insertions(+), 41 deletions(-)
 
-Hi Bob,
+Xen and paravirt parts: Reviewed-by: Juergen Gross <jgross@suse.com>
 
-1. Many of the patches have a blurb like this:
 
-For pages that were retained via get_user_pages*(), release those pages
-via the new put_user_page*() routines, instead of via put_page().
-
-This is part a tree-wide conversion, as described in commit fc1d8e7cca2d
-("mm: introduce put_user_page*(), placeholder versions").
-
-...and if you look at that commit, you'll find several pages of
-information in its commit description, which should address your point.
-
-2. This whole series has to be re-worked, as per the other feedback thread.
-So I'll keep your comment in mind when I post a new series.
-
-thanks,
--- 
-John Hubbard
-NVIDIA
+Juergen
