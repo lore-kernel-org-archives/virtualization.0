@@ -1,12 +1,18 @@
-From: "Michael S. Tsirkin" <mst@redhat.com>
-Subject: [PULL] vhost,virtio: cleanups and fixes
-Date: Mon, 29 Jul 2019 12:16:05 -0400
-Message-ID: <20190729121605-mutt-send-email-mst__38748.486996495$1564417118$gmane$org@kernel.org>
+From: Stefano Garzarella <sgarzare@redhat.com>
+Subject: Re: [PATCH v4 1/5] vsock/virtio: limit the memory used per-socket
+Date: Mon, 29 Jul 2019 18:19:03 +0200
+Message-ID: <20190729161903.yhaj5rfcvleexkhc__38225.0207870797$1564417351$gmane$org@steredhat>
+References: <20190717113030.163499-1-sgarzare@redhat.com>
+	<20190717113030.163499-2-sgarzare@redhat.com>
+	<20190729095956-mutt-send-email-mst@kernel.org>
+	<20190729153656.zk4q4rob5oi6iq7l@steredhat>
+	<20190729114302-mutt-send-email-mst@kernel.org>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
 Content-Disposition: inline
+In-Reply-To: <20190729114302-mutt-send-email-mst@kernel.org>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -16,45 +22,76 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Linus Torvalds <torvalds@linux-foundation.org>
-Cc: jean-philippe@linaro.org, jroedel@suse.de, kvm@vger.kernel.org, mst@redhat.com, netdev@vger.kernel.org, linux-kernel@vger.kernel.org, virtualization@lists.linux-foundation.org, eric.auger@redhat.com, namit@vmware.com
+To: "Michael S. Tsirkin" <mst@redhat.com>
+Cc: kvm@vger.kernel.org, netdev@vger.kernel.org, linux-kernel@vger.kernel.org, virtualization@lists.linux-foundation.org, Stefan Hajnoczi <stefanha@redhat.com>, "David S. Miller" <davem@davemloft.net>
 List-Id: virtualization@lists.linuxfoundation.org
 
-The following changes since commit 5f9e832c137075045d15cd6899ab0505cfb2ca4b:
+On Mon, Jul 29, 2019 at 11:49:02AM -0400, Michael S. Tsirkin wrote:
+> On Mon, Jul 29, 2019 at 05:36:56PM +0200, Stefano Garzarella wrote:
+> > On Mon, Jul 29, 2019 at 10:04:29AM -0400, Michael S. Tsirkin wrote:
+> > > On Wed, Jul 17, 2019 at 01:30:26PM +0200, Stefano Garzarella wrote:
+> > > > Since virtio-vsock was introduced, the buffers filled by the host
+> > > > and pushed to the guest using the vring, are directly queued in
+> > > > a per-socket list. These buffers are preallocated by the guest
+> > > > with a fixed size (4 KB).
+> > > > 
+> > > > The maximum amount of memory used by each socket should be
+> > > > controlled by the credit mechanism.
+> > > > The default credit available per-socket is 256 KB, but if we use
+> > > > only 1 byte per packet, the guest can queue up to 262144 of 4 KB
+> > > > buffers, using up to 1 GB of memory per-socket. In addition, the
+> > > > guest will continue to fill the vring with new 4 KB free buffers
+> > > > to avoid starvation of other sockets.
+> > > > 
+> > > > This patch mitigates this issue copying the payload of small
+> > > > packets (< 128 bytes) into the buffer of last packet queued, in
+> > > > order to avoid wasting memory.
+> > > > 
+> > > > Reviewed-by: Stefan Hajnoczi <stefanha@redhat.com>
+> > > > Signed-off-by: Stefano Garzarella <sgarzare@redhat.com>
+> > > 
+> > > This is good enough for net-next, but for net I think we
+> > > should figure out how to address the issue completely.
+> > > Can we make the accounting precise? What happens to
+> > > performance if we do?
+> > > 
+> > 
+> > In order to do more precise accounting maybe we can use the buffer size,
+> > instead of payload size when we update the credit available.
+> > In this way, the credit available for each socket will reflect the memory
+> > actually used.
+> > 
+> > I should check better, because I'm not sure what happen if the peer sees
+> > 1KB of space available, then it sends 1KB of payload (using a 4KB
+> > buffer).
+> > 
+> > The other option is to copy each packet in a new buffer like I did in
+> > the v2 [2], but this forces us to make a copy for each packet that does
+> > not fill the entire buffer, perhaps too expensive.
+> > 
+> > [2] https://patchwork.kernel.org/patch/10938741/
+> > 
+> > 
+> > Thanks,
+> > Stefano
+> 
+> Interesting. You are right, and at some level the protocol forces copies.
+> 
+> We could try to detect that the actual memory is getting close to
+> admin limits and force copies on queued packets after the fact.
+> Is that practical?
 
-  Linus 5.3-rc1 (2019-07-21 14:05:38 -0700)
+Yes, I think it is doable!
+We can decrease the credit available with the buffer size queued, and
+when the buffer size of packet to queue is bigger than the credit
+available, we can copy it.
 
-are available in the Git repository at:
+> 
+> And yes we can extend the credit accounting to include buffer size.
+> That's a protocol change but maybe it makes sense.
 
-  git://git.kernel.org/pub/scm/linux/kernel/git/mst/vhost.git tags/for_linus
+Since we send to the other peer the credit available, maybe this
+change can be backwards compatible (I'll check better this).
 
-for you to fetch changes up to 73f628ec9e6bcc45b77c53fe6d0c0ec55eaf82af:
-
-  vhost: disable metadata prefetch optimization (2019-07-26 07:49:29 -0400)
-
-----------------------------------------------------------------
-virtio, vhost: bugfixes
-
-Fixes in the iommu and balloon devices.
-Disable the meta-data optimization for now - I hope we can get it fixed
-shortly, but there's no point in making users suffer crashes while we
-are working on that.
-
-Signed-off-by: Michael S. Tsirkin <mst@redhat.com>
-
-----------------------------------------------------------------
-Jean-Philippe Brucker (1):
-      iommu/virtio: Update to most recent specification
-
-Michael S. Tsirkin (2):
-      balloon: fix up comments
-      vhost: disable metadata prefetch optimization
-
-Wei Wang (1):
-      mm/balloon_compaction: avoid duplicate page removal
-
- drivers/iommu/virtio-iommu.c      | 40 ++++++++++++++++-------
- drivers/vhost/vhost.h             |  2 +-
- include/uapi/linux/virtio_iommu.h | 32 ++++++++++--------
- mm/balloon_compaction.c           | 69 +++++++++++++++++++++++----------------
- 4 files changed, 89 insertions(+), 54 deletions(-)
+Thanks,
+Stefano
