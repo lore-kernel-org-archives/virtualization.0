@@ -1,7 +1,7 @@
 From: "Michael S. Tsirkin" <mst@redhat.com>
 Subject: Re: [PATCH v4 1/5] vsock/virtio: limit the memory used per-socket
-Date: Mon, 29 Jul 2019 11:49:02 -0400
-Message-ID: <20190729114302-mutt-send-email-mst__47930.815867015$1564415590$gmane$org@kernel.org>
+Date: Mon, 29 Jul 2019 12:01:37 -0400
+Message-ID: <20190729115904-mutt-send-email-mst__35078.6422191717$1564416293$gmane$org@kernel.org>
 References: <20190717113030.163499-1-sgarzare@redhat.com>
 	<20190717113030.163499-2-sgarzare@redhat.com>
 	<20190729095956-mutt-send-email-mst@kernel.org>
@@ -62,25 +62,18 @@ On Mon, Jul 29, 2019 at 05:36:56PM +0200, Stefano Garzarella wrote:
 > I should check better, because I'm not sure what happen if the peer sees
 > 1KB of space available, then it sends 1KB of payload (using a 4KB
 > buffer).
-> 
 > The other option is to copy each packet in a new buffer like I did in
 > the v2 [2], but this forces us to make a copy for each packet that does
 > not fill the entire buffer, perhaps too expensive.
 > 
 > [2] https://patchwork.kernel.org/patch/10938741/
 > 
+
+So one thing we can easily do is to under-report the
+available credit. E.g. if we copy up to 256bytes,
+then report just 256bytes for every buffer in the queue.
+
+
 > 
 > Thanks,
 > Stefano
-
-Interesting. You are right, and at some level the protocol forces copies.
-
-We could try to detect that the actual memory is getting close to
-admin limits and force copies on queued packets after the fact.
-Is that practical?
-
-And yes we can extend the credit accounting to include buffer size.
-That's a protocol change but maybe it makes sense.
-
--- 
-MST
