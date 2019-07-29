@@ -1,19 +1,17 @@
-From: "Michael S. Tsirkin" <mst@redhat.com>
-Subject: Re: [PATCH v4 1/5] vsock/virtio: limit the memory used per-socket
-Date: Mon, 29 Jul 2019 15:33:49 -0400
-Message-ID: <20190729152634-mutt-send-email-mst@kernel.org>
-References: <20190717113030.163499-1-sgarzare@redhat.com>
-	<20190717113030.163499-2-sgarzare@redhat.com>
-	<20190729095956-mutt-send-email-mst@kernel.org>
-	<20190729153656.zk4q4rob5oi6iq7l@steredhat>
-	<20190729115904-mutt-send-email-mst@kernel.org>
-	<CAGxU2F5F1KcaFNJ6n7++ApZiYMGnoEWKVRgo3Vc4h5hpxSJEZg@mail.gmail.com>
+From: Jerome Glisse <jglisse@redhat.com>
+Subject: Re: [PATCH 03/12] block: bio_release_pages: use flags arg instead of
+	bool
+Date: Mon, 29 Jul 2019 16:57:21 -0400
+Message-ID: <20190729205721.GB3760__3498.58284914575$1564434146$gmane$org@redhat.com>
+References: <20190724042518.14363-1-jhubbard@nvidia.com>
+	<20190724042518.14363-4-jhubbard@nvidia.com>
+	<20190724053053.GA18330@infradead.org>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset="iso-8859-1"
+Content-Transfer-Encoding: quoted-printable
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
 Content-Disposition: inline
-In-Reply-To: <CAGxU2F5F1KcaFNJ6n7++ApZiYMGnoEWKVRgo3Vc4h5hpxSJEZg@mail.gmail.com>
+In-Reply-To: <20190724053053.GA18330@infradead.org>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -23,84 +21,33 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Stefano Garzarella <sgarzare@redhat.com>
-Cc: kvm@vger.kernel.org, netdev@vger.kernel.org, linux-kernel@vger.kernel.org, virtualization@lists.linux-foundation.org, Stefan Hajnoczi <stefanha@redhat.com>, "David S. Miller" <davem@davemloft.net>
+To: Christoph Hellwig <hch@infradead.org>
+Cc: kvm@vger.kernel.org, "Michael S . Tsirkin" <mst@redhat.com>, virtualization@lists.linux-foundation.org, linux-mm@kvack.org, Christoph Hellwig <hch@lst.de>, linux-cifs@vger.kernel.org, Miklos Szeredi <miklos@szeredi.hu>, linux-rdma@vger.kernel.org, Matthew Wilcox <willy@infradead.org>, Jason Gunthorpe <jgg@ziepe.ca>, Minwoo Im <minwoo.im.dev@gmail.com>, v9fs-developer@lists.sourceforge.net, Eric Van Hensbergen <ericvh@gmail.com>, John Hubbard <jhubbard@nvidia.com>, john.hubbard@gmail.com, linux-block@vger.kernel.org, Alexander Viro <viro@zeniv.linux.org.uk>, ceph-devel@vger.kernel.org, Trond Myklebust <trond.myklebust@hammerspace.com>, Jens Axboe <axboe@kernel.dk>, linux-nfs@vger.kernel.org, netdev@vger.kernel.org, samba-technical@lists.samba.org, LKML <linux-kernel@vger.kernel.org>, "David S . Miller" <davem@davemloft.net>, linux-fsdevel@vger.kernel.org, Andrew
 List-Id: virtualization@lists.linuxfoundation.org
 
-On Mon, Jul 29, 2019 at 06:41:27PM +0200, Stefano Garzarella wrote:
-> On Mon, Jul 29, 2019 at 12:01:37PM -0400, Michael S. Tsirkin wrote:
-> > On Mon, Jul 29, 2019 at 05:36:56PM +0200, Stefano Garzarella wrote:
-> > > On Mon, Jul 29, 2019 at 10:04:29AM -0400, Michael S. Tsirkin wrote:
-> > > > On Wed, Jul 17, 2019 at 01:30:26PM +0200, Stefano Garzarella wrote:
-> > > > > Since virtio-vsock was introduced, the buffers filled by the host
-> > > > > and pushed to the guest using the vring, are directly queued in
-> > > > > a per-socket list. These buffers are preallocated by the guest
-> > > > > with a fixed size (4 KB).
-> > > > >
-> > > > > The maximum amount of memory used by each socket should be
-> > > > > controlled by the credit mechanism.
-> > > > > The default credit available per-socket is 256 KB, but if we use
-> > > > > only 1 byte per packet, the guest can queue up to 262144 of 4 KB
-> > > > > buffers, using up to 1 GB of memory per-socket. In addition, the
-> > > > > guest will continue to fill the vring with new 4 KB free buffers
-> > > > > to avoid starvation of other sockets.
-> > > > >
-> > > > > This patch mitigates this issue copying the payload of small
-> > > > > packets (< 128 bytes) into the buffer of last packet queued, in
-> > > > > order to avoid wasting memory.
-> > > > >
-> > > > > Reviewed-by: Stefan Hajnoczi <stefanha@redhat.com>
-> > > > > Signed-off-by: Stefano Garzarella <sgarzare@redhat.com>
-> > > >
-> > > > This is good enough for net-next, but for net I think we
-> > > > should figure out how to address the issue completely.
-> > > > Can we make the accounting precise? What happens to
-> > > > performance if we do?
-> > > >
-> > >
-> > > In order to do more precise accounting maybe we can use the buffer size,
-> > > instead of payload size when we update the credit available.
-> > > In this way, the credit available for each socket will reflect the memory
-> > > actually used.
-> > >
-> > > I should check better, because I'm not sure what happen if the peer sees
-> > > 1KB of space available, then it sends 1KB of payload (using a 4KB
-> > > buffer).
-> > > The other option is to copy each packet in a new buffer like I did in
-> > > the v2 [2], but this forces us to make a copy for each packet that does
-> > > not fill the entire buffer, perhaps too expensive.
-> > >
-> > > [2] https://patchwork.kernel.org/patch/10938741/
-> > >
-> >
-> > So one thing we can easily do is to under-report the
-> > available credit. E.g. if we copy up to 256bytes,
-> > then report just 256bytes for every buffer in the queue.
-> >
-> 
-> Ehm sorry, I got lost :(
-> Can you explain better?
-> 
-> 
-> Thanks,
-> Stefano
+On Tue, Jul 23, 2019 at 10:30:53PM -0700, Christoph Hellwig wrote:
+> On Tue, Jul 23, 2019 at 09:25:09PM -0700, john.hubbard@gmail.com wrote:
+> > From: John Hubbard <jhubbard@nvidia.com>
+> > =
 
-I think I suggested a better idea more recently.
-But to clarify this option: we are adding a 4K buffer.
-Let's say we know we will always copy 128 bytes.
+> > In commit d241a95f3514 ("block: optionally mark pages dirty in
+> > bio_release_pages"), new "bool mark_dirty" argument was added to
+> > bio_release_pages.
+> > =
 
-So we just tell remote we have 128.
-If we add another 4K buffer we add another 128 credits.
+> > In upcoming work, another bool argument (to indicate that the pages came
+> > from get_user_pages) is going to be added. That's one bool too many,
+> > because it's not desirable have calls of the form:
+> =
 
-So we are charging local socket 16x more (4k for a 128 byte packet) but
-we are paying remote 16x less (128 credits for 4k byte buffer). It evens
-out.
+> All pages releases by bio_release_pages should come from
+> get_get_user_pages, so I don't really see the point here.
 
-Way less credits to go around so I'm not sure it's a good idea,
-at least as the only solution. Can be combined with other
-optimizations and probably in a less drastic fashion
-(e.g. 2x rather than 16x).
+No they do not all comes from GUP for see various callers
+of bio_check_pages_dirty() for instance iomap_dio_zero()
 
+I have carefully tracked down all this and i did not do
+anyconvertion just for the fun of it :)
 
--- 
-MST
+Cheers,
+J=E9r=F4me
