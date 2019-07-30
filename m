@@ -1,18 +1,18 @@
-From: Christoph Hellwig <hch@lst.de>
-Subject: Re: [PATCH 03/12] block: bio_release_pages: use flags arg instead
-	of bool
-Date: Tue, 30 Jul 2019 12:25:57 +0200
-Message-ID: <20190730102557.GA1700__10950.7001050346$1564482734$gmane$org@lst.de>
-References: <20190724042518.14363-1-jhubbard@nvidia.com>
-	<20190724042518.14363-4-jhubbard@nvidia.com>
-	<20190724053053.GA18330@infradead.org>
-	<20190729205721.GB3760@redhat.com>
+From: Stefano Garzarella <sgarzare@redhat.com>
+Subject: Re: [PATCH v4 0/5] vsock/virtio: optimizations to increase the
+	throughput
+Date: Tue, 30 Jul 2019 17:38:03 +0200
+Message-ID: <20190730153803.qxilmuvaylzyeqi4__1044.87315272621$1564501720$gmane$org@steredhat>
+References: <20190717113030.163499-1-sgarzare@redhat.com>
+	<20190729095743-mutt-send-email-mst@kernel.org>
+	<20190730094013.ruqjllqrjmkdnh5y@steredhat>
+	<fc568e3d-7af5-5895-89e8-32e35b0f9af4@redhat.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset="utf-8"
+Content-Transfer-Encoding: base64
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
 Content-Disposition: inline
-In-Reply-To: <20190729205721.GB3760@redhat.com>
+In-Reply-To: <fc568e3d-7af5-5895-89e8-32e35b0f9af4@redhat.com>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -22,29 +22,26 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Jerome Glisse <jglisse@redhat.com>
-Cc: kvm@vger.kernel.org, "Michael S . Tsirkin" <mst@redhat.com>, virtualization@lists.linux-foundation.org, linux-mm@kvack.org, Christoph Hellwig <hch@lst.de>, linux-cifs@vger.kernel.org, Miklos Szeredi <miklos@szeredi.hu>, linux-rdma@vger.kernel.org, Matthew Wilcox <willy@infradead.org>, Christoph Hellwig <hch@infradead.org>, Jason Gunthorpe <jgg@ziepe.ca>, Minwoo Im <minwoo.im.dev@gmail.com>, v9fs-developer@lists.sourceforge.net, Eric Van Hensbergen <ericvh@gmail.com>, John Hubbard <jhubbard@nvidia.com>, john.hubbard@gmail.com, linux-block@vger.kernel.org, Alexander Viro <viro@zeniv.linux.org.uk>, ceph-devel@vger.kernel.org, Trond Myklebust <trond.myklebust@hammerspace.com>, Jens Axboe <axboe@kernel.dk>, linux-nfs@vger.kernel.org, netdev@vger.kernel.org, samba-technical@lists.samba.org, LKML <linux-kernel@vger.kernel.org>, "David S . Miller" <davem@davemloft.net>linux-
+To: Jason Wang <jasowang@redhat.com>
+Cc: kvm@vger.kernel.org, "Michael S. Tsirkin" <mst@redhat.com>, netdev@vger.kernel.org, linux-kernel@vger.kernel.org, virtualization@lists.linux-foundation.org, Stefan Hajnoczi <stefanha@redhat.com>, "David S. Miller" <davem@davemloft.net>
 List-Id: virtualization@lists.linuxfoundation.org
 
-On Mon, Jul 29, 2019 at 04:57:21PM -0400, Jerome Glisse wrote:
-> > All pages releases by bio_release_pages should come from
-> > get_get_user_pages, so I don't really see the point here.
-> 
-> No they do not all comes from GUP for see various callers
-> of bio_check_pages_dirty() for instance iomap_dio_zero()
-> 
-> I have carefully tracked down all this and i did not do
-> anyconvertion just for the fun of it :)
-
-Well, the point is _should_ not necessarily do.  iomap_dio_zero adds the
-ZERO_PAGE, which we by definition don't need to refcount.  So we can
-mark this bio BIO_NO_PAGE_REF safely after removing the get_page there.
-
-Note that the equivalent in the old direct I/O code, dio_refill_pages,
-will be a little more complicated as it can match user pages and the
-ZERO_PAGE in a single bio, so a per-bio flag won't handle it easily.
-Maybe we just need to use a separate bio there as well.
-
-In general with series like this we should not encode the status quo an
-pile new hacks upon the old one, but thing where we should be and fix
-up the old warts while having to wade through all that code.
+T24gVHVlLCBKdWwgMzAsIDIwMTkgYXQgMDY6MDM6MjRQTSArMDgwMCwgSmFzb24gV2FuZyB3cm90
+ZToKPiAKPiBPbiAyMDE5LzcvMzAg5LiL5Y2INTo0MCwgU3RlZmFubyBHYXJ6YXJlbGxhIHdyb3Rl
+Ogo+ID4gT24gTW9uLCBKdWwgMjksIDIwMTkgYXQgMDk6NTk6MjNBTSAtMDQwMCwgTWljaGFlbCBT
+LiBUc2lya2luIHdyb3RlOgo+ID4gPiBPbiBXZWQsIEp1bCAxNywgMjAxOSBhdCAwMTozMDoyNVBN
+ICswMjAwLCBTdGVmYW5vIEdhcnphcmVsbGEgd3JvdGU6Cj4gPiA+ID4gVGhpcyBzZXJpZXMgdHJp
+ZXMgdG8gaW5jcmVhc2UgdGhlIHRocm91Z2hwdXQgb2YgdmlydGlvLXZzb2NrIHdpdGggc2xpZ2h0
+Cj4gPiA+ID4gY2hhbmdlcy4KPiA+ID4gPiBXaGlsZSBJIHdhcyB0ZXN0aW5nIHRoZSB2MiBvZiB0
+aGlzIHNlcmllcyBJIGRpc2NvdmVyZWQgYW4gaHVnZSB1c2Ugb2YgbWVtb3J5LAo+ID4gPiA+IHNv
+IEkgYWRkZWQgcGF0Y2ggMSB0byBtaXRpZ2F0ZSB0aGlzIGlzc3VlLiBJIHB1dCBpdCBpbiB0aGlz
+IHNlcmllcyBpbiBvcmRlcgo+ID4gPiA+IHRvIGJldHRlciB0cmFjayB0aGUgcGVyZm9ybWFuY2Ug
+dHJlbmRzLgo+ID4gPiBTZXJpZXM6Cj4gPiA+IAo+ID4gPiBBY2tlZC1ieTogTWljaGFlbCBTLiBU
+c2lya2luIDxtc3RAcmVkaGF0LmNvbT4KPiA+ID4gCj4gPiA+IENhbiB0aGlzIGdvIGludG8gbmV0
+LW5leHQ/Cj4gPiA+IAo+ID4gSSB0aGluayBzby4KPiA+IE1pY2hhZWwsIFN0ZWZhbiB0aGFua3Mg
+dG8gYWNrIHRoZSBzZXJpZXMhCj4gPiAKPiA+IFNob3VsZCBJIHJlc2VuZCBpdCB3aXRoIG5ldC1u
+ZXh0IHRhZz8KPiA+IAo+ID4gVGhhbmtzLAo+ID4gU3RlZmFubwo+IAo+IAo+IEkgdGhpbmsgc28u
+CgpPa2F5LCBJJ2xsIHJlc2VuZCBpdCEKClRoYW5rcywKU3RlZmFubwpfX19fX19fX19fX19fX19f
+X19fX19fX19fX19fX19fX19fX19fX19fX19fX19fXwpWaXJ0dWFsaXphdGlvbiBtYWlsaW5nIGxp
+c3QKVmlydHVhbGl6YXRpb25AbGlzdHMubGludXgtZm91bmRhdGlvbi5vcmcKaHR0cHM6Ly9saXN0
+cy5saW51eGZvdW5kYXRpb24ub3JnL21haWxtYW4vbGlzdGluZm8vdmlydHVhbGl6YXRpb24=
