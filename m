@@ -1,7 +1,8 @@
 From: Jason Wang <jasowang@redhat.com>
-Subject: [PATCH V2 3/9] vhost: fix vhost map leak
-Date: Wed, 31 Jul 2019 04:46:49 -0400
-Message-ID: <20190731084655.7024-4-jasowang__24722.0831502759$1564563437$gmane$org@redhat.com>
+Subject: [PATCH V2 4/9] vhost: reset invalidate_count in
+	vhost_set_vring_num_addr()
+Date: Wed, 31 Jul 2019 04:46:50 -0400
+Message-ID: <20190731084655.7024-5-jasowang__49010.4235870362$1564563448$gmane$org@redhat.com>
 References: <20190731084655.7024-1-jasowang@redhat.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
@@ -21,30 +22,34 @@ To: mst@redhat.com, jasowang@redhat.com, kvm@vger.kernel.org, virtualization@lis
 Cc: linux-mm@kvack.org, linux-kernel@vger.kernel.org, jgg@ziepe.ca
 List-Id: virtualization@lists.linuxfoundation.org
 
-We don't free map during vhost_map_unprefetch(). This means it could
-be leaked. Fixing by free the map.
+The vhost_set_vring_num_addr() could be called in the middle of
+invalidate_range_start() and invalidate_range_end(). If we don't reset
+invalidate_count after the un-registering of MMU notifier, the
+invalidate_cont will run out of sync (e.g never reach zero). This will
+in fact disable the fast accessor path. Fixing by reset the count to
+zero.
 
 Reported-by: Michael S. Tsirkin <mst@redhat.com>
 Fixes: 7f466032dc9e ("vhost: access vq metadata through kernel virtual address")
 Signed-off-by: Jason Wang <jasowang@redhat.com>
 ---
- drivers/vhost/vhost.c | 4 +---
- 1 file changed, 1 insertion(+), 3 deletions(-)
+ drivers/vhost/vhost.c | 4 ++++
+ 1 file changed, 4 insertions(+)
 
 diff --git a/drivers/vhost/vhost.c b/drivers/vhost/vhost.c
-index 17f6abea192e..2a3154976277 100644
+index 2a3154976277..2a7217c33668 100644
 --- a/drivers/vhost/vhost.c
 +++ b/drivers/vhost/vhost.c
-@@ -302,9 +302,7 @@ static void vhost_vq_meta_reset(struct vhost_dev *d)
- static void vhost_map_unprefetch(struct vhost_map *map)
- {
- 	kfree(map->pages);
--	map->pages = NULL;
--	map->npages = 0;
--	map->addr = NULL;
-+	kfree(map);
- }
+@@ -2073,6 +2073,10 @@ static long vhost_vring_set_num_addr(struct vhost_dev *d,
+ 		d->has_notifier = false;
+ 	}
  
- static void vhost_uninit_vq_maps(struct vhost_virtqueue *vq)
++	/* reset invalidate_count in case we are in the middle of
++	 * invalidate_start() and invalidate_end().
++	 */
++	vq->invalidate_count = 0;
+ 	vhost_uninit_vq_maps(vq);
+ #endif
+ 
 -- 
 2.18.1
