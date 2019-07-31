@@ -1,14 +1,11 @@
-From: Cornelia Huck <cohuck@redhat.com>
-Subject: Re: [PATCH v5 12/29] compat_ioctl: move drivers to compat_ptr_ioctl
-Date: Wed, 31 Jul 2019 10:37:51 +0200
-Message-ID: <20190731103751.3cc53132.cohuck__10060.3301705391$1564562998$gmane$org@redhat.com>
-References: <20190730192552.4014288-1-arnd@arndb.de>
-	<20190730195227.742215-1-arnd@arndb.de>
+From: Jason Wang <jasowang@redhat.com>
+Subject: [PATCH V2 0/9] Fixes for metadata accelreation
+Date: Wed, 31 Jul 2019 04:46:46 -0400
+Message-ID: <20190731084655.7024-1-jasowang__44289.955361613$1564563418$gmane$org@redhat.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <20190730195227.742215-1-arnd@arndb.de>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -18,29 +15,36 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Arnd Bergmann <arnd@arndb.de>
-Cc: devel@driverdev.osuosl.org, kvm@vger.kernel.org, "Michael S . Tsirkin" <mst@redhat.com>, Greg Kroah-Hartman <gregkh@linuxfoundation.org>, linux-usb@vger.kernel.org, linux-stm32@st-md-mailman.stormreply.com, linux-kernel@vger.kernel.org, Jarkko Sakkinen <jarkko.sakkinen@linux.intel.com>, virtualization@lists.linux-foundation.org, linux-integrity@vger.kernel.org, netdev@vger.kernel.org, linux-mtd@lists.infradead.org, Alexander Viro <viro@zeniv.linux.org.uk>, Stefan Hajnoczi <stefanha@redhat.com>, linux-input@vger.kernel.org, linux-fsdevel@vger.kernel.org, Jiri Kosina <jkosina@suse.cz>, ceph-devel@vger.kernel.org, linux1394-devel@lists.sourceforge.net, Jason Gunthorpe <jgg@mellanox.com>, linux-arm-kernel@lists.infradead.org
+To: mst@redhat.com, jasowang@redhat.com, kvm@vger.kernel.org, virtualization@lists.linux-foundation.org, netdev@vger.kernel.org
+Cc: linux-mm@kvack.org, linux-kernel@vger.kernel.org, jgg@ziepe.ca
 List-Id: virtualization@lists.linuxfoundation.org
 
-On Tue, 30 Jul 2019 21:50:28 +0200
-Arnd Bergmann <arnd@arndb.de> wrote:
+Hi all:
 
-> Each of these drivers has a copy of the same trivial helper function to
-> convert the pointer argument and then call the native ioctl handler.
-> 
-> We now have a generic implementation of that, so use it.
-> 
-> Acked-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-> Acked-by: Michael S. Tsirkin <mst@redhat.com>
-> Reviewed-by: Jarkko Sakkinen <jarkko.sakkinen@linux.intel.com>
-> Reviewed-by: Jason Gunthorpe <jgg@mellanox.com>
-> Reviewed-by: Jiri Kosina <jkosina@suse.cz>
-> Reviewed-by: Stefan Hajnoczi <stefanha@redhat.com>
-> Signed-off-by: Arnd Bergmann <arnd@arndb.de>
-> ---
+This series try to fix several issues introduced by meta data
+accelreation series. Please review.
 
->  drivers/vfio/vfio.c               | 39 +++----------------------------
+Changes from V1:
 
-vfio changes:
+- Try not use RCU to syncrhonize MMU notifier with vhost worker
+- set dirty pages after no readers
+- return -EAGAIN only when we find the range is overlapped with
+  metadata
 
-Reviewed-by: Cornelia Huck <cohuck@redhat.com>
+Jason Wang (9):
+  vhost: don't set uaddr for invalid address
+  vhost: validate MMU notifier registration
+  vhost: fix vhost map leak
+  vhost: reset invalidate_count in vhost_set_vring_num_addr()
+  vhost: mark dirty pages during map uninit
+  vhost: don't do synchronize_rcu() in vhost_uninit_vq_maps()
+  vhost: do not use RCU to synchronize MMU notifier with worker
+  vhost: correctly set dirty pages in MMU notifiers callback
+  vhost: do not return -EAGIAN for non blocking invalidation too early
+
+ drivers/vhost/vhost.c | 232 +++++++++++++++++++++++++++---------------
+ drivers/vhost/vhost.h |   8 +-
+ 2 files changed, 154 insertions(+), 86 deletions(-)
+
+-- 
+2.18.1
