@@ -1,16 +1,15 @@
-From: Jason Gunthorpe <jgg@ziepe.ca>
-Subject: Re: [PATCH V2 4/9] vhost: reset invalidate_count in
-	vhost_set_vring_num_addr()
-Date: Wed, 31 Jul 2019 09:41:24 -0300
-Message-ID: <20190731124124.GD3946__22761.4561373898$1564577583$gmane$org@ziepe.ca>
-References: <20190731084655.7024-1-jasowang@redhat.com>
-	<20190731084655.7024-5-jasowang@redhat.com>
+From: Peter Zijlstra <peterz@infradead.org>
+Subject: Re: [PATCH v9 10/11] x86/paravirt: Adapt assembly for PIE support
+Date: Wed, 31 Jul 2019 14:53:06 +0200
+Message-ID: <20190731125306.GU31381__30317.9574360669$1564578411$gmane$org@hirez.programming.kicks-ass.net>
+References: <20190730191303.206365-1-thgarnie@chromium.org>
+	<20190730191303.206365-11-thgarnie@chromium.org>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
 Content-Disposition: inline
-In-Reply-To: <20190731084655.7024-5-jasowang@redhat.com>
+In-Reply-To: <20190730191303.206365-11-thgarnie@chromium.org>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -20,38 +19,69 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Jason Wang <jasowang@redhat.com>
-Cc: kvm@vger.kernel.org, mst@redhat.com, netdev@vger.kernel.org, linux-kernel@vger.kernel.org, virtualization@lists.linux-foundation.org, linux-mm@kvack.org
+To: Thomas Garnier <thgarnie@chromium.org>
+Cc: Juergen Gross <jgross@suse.com>, Thomas Hellstrom <thellstrom@vmware.com>, keescook@chromium.org, kernel-hardening@lists.openwall.com, "VMware, Inc." <pv-drivers@vmware.com>, x86@kernel.org, linux-kernel@vger.kernel.org, virtualization@lists.linux-foundation.org, Ingo Molnar <mingo@redhat.com>, Borislav Petkov <bp@alien8.de>, kristen@linux.intel.com, "H. Peter Anvin" <hpa@zytor.com>, Thomas Gleixner <tglx@linutronix.de>
 List-Id: virtualization@lists.linuxfoundation.org
 
-On Wed, Jul 31, 2019 at 04:46:50AM -0400, Jason Wang wrote:
-> The vhost_set_vring_num_addr() could be called in the middle of
-> invalidate_range_start() and invalidate_range_end(). If we don't reset
-> invalidate_count after the un-registering of MMU notifier, the
-> invalidate_cont will run out of sync (e.g never reach zero). This will
-> in fact disable the fast accessor path. Fixing by reset the count to
-> zero.
+On Tue, Jul 30, 2019 at 12:12:54PM -0700, Thomas Garnier wrote:
+> if PIE is enabled, switch the paravirt assembly constraints to be
+> compatible. The %c/i constrains generate smaller code so is kept by
+> default.
 > 
-> Reported-by: Michael S. Tsirkin <mst@redhat.com>
-
-Did Michael report this as well?
-
-> Fixes: 7f466032dc9e ("vhost: access vq metadata through kernel virtual address")
-> Signed-off-by: Jason Wang <jasowang@redhat.com>
->  drivers/vhost/vhost.c | 4 ++++
->  1 file changed, 4 insertions(+)
+> Position Independent Executable (PIE) support will allow to extend the
+> KASLR randomization range below 0xffffffff80000000.
 > 
-> diff --git a/drivers/vhost/vhost.c b/drivers/vhost/vhost.c
-> index 2a3154976277..2a7217c33668 100644
-> +++ b/drivers/vhost/vhost.c
-> @@ -2073,6 +2073,10 @@ static long vhost_vring_set_num_addr(struct vhost_dev *d,
->  		d->has_notifier = false;
->  	}
+> Signed-off-by: Thomas Garnier <thgarnie@chromium.org>
+> Acked-by: Juergen Gross <jgross@suse.com>
+> ---
+>  arch/x86/include/asm/paravirt_types.h | 25 +++++++++++++++++++++----
+>  1 file changed, 21 insertions(+), 4 deletions(-)
+> 
+> diff --git a/arch/x86/include/asm/paravirt_types.h b/arch/x86/include/asm/paravirt_types.h
+> index 70b654f3ffe5..fd7dc37d0010 100644
+> --- a/arch/x86/include/asm/paravirt_types.h
+> +++ b/arch/x86/include/asm/paravirt_types.h
+> @@ -338,9 +338,25 @@ extern struct paravirt_patch_template pv_ops;
+>  #define PARAVIRT_PATCH(x)					\
+>  	(offsetof(struct paravirt_patch_template, x) / sizeof(void *))
 >  
-> +	/* reset invalidate_count in case we are in the middle of
-> +	 * invalidate_start() and invalidate_end().
-> +	 */
-> +	vq->invalidate_count = 0;
->  	vhost_uninit_vq_maps(vq);
->  #endif
+> +#ifdef CONFIG_X86_PIE
+> +#define paravirt_opptr_call "a"
+> +#define paravirt_opptr_type "p"
+> +
+> +/*
+> + * Alternative patching requires a maximum of 7 bytes but the relative call is
+> + * only 6 bytes. If PIE is enabled, add an additional nop to the call
+> + * instruction to ensure patching is possible.
+> + */
+> +#define PARAVIRT_CALL_POST  "nop;"
+
+I'm confused; where does the 7 come from? The relative call is 6 bytes,
+a normal call is 5 bytes (which is what we normally replace them with),
+and the longest 'native' sequence we seem to have is also 6 bytes
+(.cpu_usergs_sysret64).
+
+> +#else
+> +#define paravirt_opptr_call "c"
+> +#define paravirt_opptr_type "i"
+> +#define PARAVIRT_CALL_POST  ""
+> +#endif
+> +
+>  #define paravirt_type(op)				\
+>  	[paravirt_typenum] "i" (PARAVIRT_PATCH(op)),	\
+> -	[paravirt_opptr] "i" (&(pv_ops.op))
+> +	[paravirt_opptr] paravirt_opptr_type (&(pv_ops.op))
+>  #define paravirt_clobber(clobber)		\
+>  	[paravirt_clobber] "i" (clobber)
 >  
+> @@ -379,9 +395,10 @@ int paravirt_disable_iospace(void);
+>   * offset into the paravirt_patch_template structure, and can therefore be
+>   * freely converted back into a structure offset.
+>   */
+> -#define PARAVIRT_CALL					\
+> -	ANNOTATE_RETPOLINE_SAFE				\
+> -	"call *%c[paravirt_opptr];"
+> +#define PARAVIRT_CALL						\
+> +	ANNOTATE_RETPOLINE_SAFE					\
+> +	"call *%" paravirt_opptr_call "[paravirt_opptr];"	\
+> +	PARAVIRT_CALL_POST
