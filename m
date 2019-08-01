@@ -1,20 +1,11 @@
-From: Jason Gunthorpe <jgg@ziepe.ca>
-Subject: Re: [PATCH V2 7/9] vhost: do not use RCU to synchronize MMU notifier
-	with worker
-Date: Thu, 1 Aug 2019 11:15:12 -0300
-Message-ID: <20190801141512.GB23899__5978.5286591918$1564668933$gmane$org@ziepe.ca>
-References: <20190731084655.7024-1-jasowang@redhat.com>
-	<20190731084655.7024-8-jasowang@redhat.com>
-	<20190731123935.GC3946@ziepe.ca>
-	<7555c949-ae6f-f105-6e1d-df21ddae9e4e@redhat.com>
-	<20190731193057.GG3946@ziepe.ca>
-	<a3bde826-6329-68e4-2826-8a9de4c5bd1e@redhat.com>
+From: Stefano Garzarella <sgarzare@redhat.com>
+Subject: [PATCH v2 00/11] VSOCK: add vsock_test test suite
+Date: Thu,  1 Aug 2019 17:25:30 +0200
+Message-ID: <20190801152541.245833-1-sgarzare__39395.3102802456$1564673180$gmane$org@redhat.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="utf-8"
-Content-Transfer-Encoding: base64
+Content-Type: text/plain; charset="us-ascii"
+Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-Content-Disposition: inline
-In-Reply-To: <a3bde826-6329-68e4-2826-8a9de4c5bd1e@redhat.com>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -24,78 +15,74 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Jason Wang <jasowang@redhat.com>
-Cc: kvm@vger.kernel.org, mst@redhat.com, netdev@vger.kernel.org, linux-kernel@vger.kernel.org, virtualization@lists.linux-foundation.org, linux-mm@kvack.org
+To: netdev@vger.kernel.org
+Cc: kvm@vger.kernel.org, Dexuan Cui <decui@microsoft.com>, linux-kernel@vger.kernel.org, virtualization@lists.linux-foundation.org, Stefan Hajnoczi <stefanha@redhat.com>, "David S. Miller" <davem@davemloft.net>, Jorgen Hansen <jhansen@vmware.com>
 List-Id: virtualization@lists.linuxfoundation.org
 
-T24gVGh1LCBBdWcgMDEsIDIwMTkgYXQgMDE6MDI6MThQTSArMDgwMCwgSmFzb24gV2FuZyB3cm90
-ZToKPiAKPiBPbiAyMDE5LzgvMSDkuIrljYgzOjMwLCBKYXNvbiBHdW50aG9ycGUgd3JvdGU6Cj4g
-PiBPbiBXZWQsIEp1bCAzMSwgMjAxOSBhdCAwOToyODoyMFBNICswODAwLCBKYXNvbiBXYW5nIHdy
-b3RlOgo+ID4gPiBPbiAyMDE5LzcvMzEg5LiL5Y2IODozOSwgSmFzb24gR3VudGhvcnBlIHdyb3Rl
-Ogo+ID4gPiA+IE9uIFdlZCwgSnVsIDMxLCAyMDE5IGF0IDA0OjQ2OjUzQU0gLTA0MDAsIEphc29u
-IFdhbmcgd3JvdGU6Cj4gPiA+ID4gPiBXZSB1c2VkIHRvIHVzZSBSQ1UgdG8gc3luY2hyb25pemUg
-TU1VIG5vdGlmaWVyIHdpdGggd29ya2VyLiBUaGlzIGxlYWRzCj4gPiA+ID4gPiBjYWxsaW5nIHN5
-bmNocm9uaXplX3JjdSgpIGluIGludmFsaWRhdGVfcmFuZ2Vfc3RhcnQoKS4gQnV0IG9uIGEgYnVz
-eQo+ID4gPiA+ID4gc3lzdGVtLCB0aGVyZSB3b3VsZCBiZSBtYW55IGZhY3RvcnMgdGhhdCBtYXkg
-c2xvdyBkb3duIHRoZQo+ID4gPiA+ID4gc3luY2hyb25pemVfcmN1KCkgd2hpY2ggbWFrZXMgaXQg
-dW5zdWl0YWJsZSB0byBiZSBjYWxsZWQgaW4gTU1VCj4gPiA+ID4gPiBub3RpZmllci4KPiA+ID4g
-PiA+IAo+ID4gPiA+ID4gQSBzb2x1dGlvbiBpcyBTUkNVIGJ1dCBpdHMgb3ZlcmhlYWQgaXMgb2J2
-aW91cyB3aXRoIHRoZSBleHBlbnNpdmUgZnVsbAo+ID4gPiA+ID4gbWVtb3J5IGJhcnJpZXIuIEFu
-b3RoZXIgY2hvaWNlIGlzIHRvIHVzZSBzZXFsb2NrLCBidXQgaXQgZG9lc24ndAo+ID4gPiA+ID4g
-cHJvdmlkZSBhIHN5bmNocm9uaXphdGlvbiBtZXRob2QgYmV0d2VlbiByZWFkZXJzIGFuZCB3cml0
-ZXJzLiBUaGUgbGFzdAo+ID4gPiA+ID4gY2hvaWNlIGlzIHRvIHVzZSB2cSBtdXRleCwgYnV0IGl0
-IG5lZWQgdG8gZGVhbCB3aXRoIHRoZSB3b3JzdCBjYXNlCj4gPiA+ID4gPiB0aGF0IE1NVSBub3Rp
-ZmllciBtdXN0IGJlIGJsb2NrZWQgYW5kIHdhaXQgZm9yIHRoZSBmaW5pc2ggb2Ygc3dhcCBpbi4K
-PiA+ID4gPiA+IAo+ID4gPiA+ID4gU28gdGhpcyBwYXRjaCBzd2l0Y2hlcyB1c2UgYSBjb3VudGVy
-IHRvIHRyYWNrIHdoZXRoZXIgb3Igbm90IHRoZSBtYXAKPiA+ID4gPiA+IHdhcyB1c2VkLiBUaGUg
-Y291bnRlciB3YXMgaW5jcmVhc2VkIHdoZW4gdnEgdHJ5IHRvIHN0YXJ0IG9yIGZpbmlzaAo+ID4g
-PiA+ID4gdXNlcyB0aGUgbWFwLiBUaGlzIG1lYW5zLCB3aGVuIGl0IHdhcyBldmVuLCB3ZSdyZSBz
-dXJlIHRoZXJlJ3Mgbm8KPiA+ID4gPiA+IHJlYWRlcnMgYW5kIE1NVSBub3RpZmllciBpcyBzeW5j
-aHJvbml6ZWQuIFdoZW4gaXQgd2FzIG9kZCwgaXQgbWVhbnMKPiA+ID4gPiA+IHRoZXJlJ3MgYSBy
-ZWFkZXIgd2UgbmVlZCB0byB3YWl0IGl0IHRvIGJlIGV2ZW4gYWdhaW4gdGhlbiB3ZSBhcmUKPiA+
-ID4gPiA+IHN5bmNocm9uaXplZC4KPiA+ID4gPiBZb3UganVzdCBkZXNjcmliZWQgYSBzZXFsb2Nr
-Lgo+ID4gPiAKPiA+ID4gS2luZCBvZiwgc2VlIG15IGV4cGxhbmF0aW9uIGJlbG93Lgo+ID4gPiAK
-PiA+ID4gCj4gPiA+ID4gV2UndmUgYmVlbiB0YWxraW5nIGFib3V0IHByb3ZpZGluZyB0aGlzIGFz
-IHNvbWUgY29yZSBzZXJ2aWNlIGZyb20gbW11Cj4gPiA+ID4gbm90aWZpZXJzIGJlY2F1c2UgbmVh
-cmx5IGV2ZXJ5IHVzZSBvZiB0aGlzIEFQSSBuZWVkcyBpdC4KPiA+ID4gCj4gPiA+IFRoYXQgd291
-bGQgYmUgdmVyeSBoZWxwZnVsLgo+ID4gPiAKPiA+ID4gCj4gPiA+ID4gSU1ITyB0aGlzIGdldHMg
-dGhlIHdob2xlIHRoaW5nIGJhY2t3YXJkcywgdGhlIGNvbW1vbiBwYXR0ZXJuIGlzIHRvCj4gPiA+
-ID4gcHJvdGVjdCB0aGUgJ3NoYWRvdyBwdGUnIGRhdGEgd2l0aCBhIHNlcWxvY2sgKHVzdWFsbHkg
-b3BlbiBjb2RlZCksCj4gPiA+ID4gc3VjaCB0aGF0IHRoZSBtbXUgbm90aWZpZmVyIHNpZGUgaGFz
-IHRoZSB3cml0ZSBzaWRlIG9mIHRoYXQgbG9jayBhbmQKPiA+ID4gPiB0aGUgcmVhZCBzaWRlIGlz
-IGNvbnN1bWVkIGJ5IHRoZSB0aHJlYWQgYWNjZXNzaW5nIG9yIHVwZGF0aW5nIHRoZSBTUFRFLgo+
-ID4gPiAKPiA+ID4gWWVzLCBJJ3ZlIGNvbnNpZGVyZWQgc29tZXRoaW5nIGxpa2UgdGhhdC4gQnV0
-IHRoZSBwcm9ibGVtIGlzLCBtbXUgbm90aWZpZXIKPiA+ID4gKHdyaXRlcikgbmVlZCB0byB3YWl0
-IGZvciB0aGUgdmhvc3Qgd29ya2VyIHRvIGZpbmlzaCB0aGUgcmVhZCBiZWZvcmUgaXQgY2FuCj4g
-PiA+IGRvIHRoaW5ncyBsaWtlIHNldHRpbmcgZGlydHkgcGFnZXMgYW5kIHVubWFwcGluZyBwYWdl
-LsKgIEl0IGxvb2tzIHRvIG1lCj4gPiA+IHNlcWxvY2sgZG9lc24ndCBwcm92aWRlIHRoaW5ncyBs
-aWtlIHRoaXMuCj4gPiBUaGUgc2VxbG9jayBpcyB1c3VhbGx5IHVzZWQgdG8gcHJldmVudCBhIDJu
-ZCB0aHJlYWQgZnJvbSBhY2Nlc3NpbmcgdGhlCj4gPiBWQSB3aGlsZSBpdCBpcyBiZWluZyBjaGFu
-Z2VkIGJ5IHRoZSBtbS4gaWUgeW91IHVzZSBzb21ldGhpbmcgc2VxbG9ja3kKPiA+IGluc3RlYWQg
-b2YgdGhlIHVnbHkgbW11X25vdGlmaWVyX3VucmVnaXN0ZXIvcmVnaXN0ZXIgY3ljbGUuCj4gCj4g
-Cj4gWWVzLCBzbyB3ZSBoYXZlIHR3byBtYXBwaW5nczoKPiAKPiBbMV0gdnJpbmcgYWRkcmVzcyB0
-byBWQQo+IFsyXSBWQSB0byBQQQo+IAo+IEFuZCBoYXZlIHNldmVyYWwgcmVhZGVycyBhbmQgd3Jp
-dGVycwo+IAo+IDEpIHNldF92cmluZ19udW1fYWRkcigpOiB3cml0ZXIgb2YgYm90aCBbMV0gYW5k
-IFsyXQo+IDIpIE1NVSBub3RpZmllcjogcmVhZGVyIG9mIFsxXSB3cml0ZXIgb2YgWzJdCj4gMykg
-R1VQOiByZWFkZXIgb2YgWzFdIHdyaXRlciBvZiBbMl0KPiA0KSBtZW1vcnkgYWNjZXNzb3JzOiBy
-ZWFkZXIgb2YgWzFdIGFuZCBbMl0KPiAKPiBGb3J0dW5hdGVseSwgMSkgMykgYW5kIDQpIGhhdmUg
-YWxyZWFkeSBzeW5jaHJvbml6ZWQgdGhyb3VnaCB2cS0+bXV0ZXguIFdlCj4gb25seSBuZWVkIHRv
-IGRlYWwgd2l0aCBzeW5jaHJvbml6YXRpb24gYmV0d2VlbiAyKSBhbmQgZWFjaCBvZiB0aGUgcmVz
-ZXQ6Cj4gU3luYyBiZXR3ZWVuIDEpIGFuZCAyKTogRm9yIG1hcHBpbmcgWzFdLCBJIGRvCj4gbW11
-X25vdGlmaWVyX3VucmVnaXN0ZXIvcmVnaXN0ZXIuIFRoaXMgaGVscCB0byBhdm9pZCBob2xkaW5n
-IGFueSBsb2NrIHRvIGRvCj4gb3ZlcmxhcCBjaGVjay4KCkkgc3VzcGVjdCB5b3UgY291bGQgaGF2
-ZSBkb25lIHRoaXMgd2l0aCBhIFJDVSB0ZWNobmlxdWUgaW5zdGVhZCBvZgpyZWdpc3Rlci91bnJl
-Z2lzdGVyLgoKPiBTeW5jIGJldHdlZW4gMikgYW5kIDQpOiBGb3IgbWFwcGluZyBbMV0sIGJvdGgg
-YXJlIHJlYWRlcnMsIG5vIG5lZWQgYW55Cj4gc3luY2hyb25pemF0aW9uLiBGb3IgbWFwcGluZyBb
-Ml0sIHN5bmNocm9uaXplIHRocm91Z2ggUkNVIChvciBzb21ldGhpbmcKPiBzaW1saWFyIHRvIHNl
-cWxvY2spLgoKWW91IGNhbid0IHJlYWxseSB1c2UgYSBzZXFsb2NrLCBzZXFsb2NrcyBhcmUgY29s
-bGlzaW9uLXJldHJ5IGxvY2tzLAphbmQgdGhlIHNlbWFudGljIGhlcmUgaXMgdGhhdCBpbnZhbGlk
-YXRlX3JhbmdlX3N0YXJ0ICpNVVNUKiBub3QKY29udGludWUgdW50aWwgdGhyZWFkIGRvaW5nICM0
-IGFib3ZlIGlzIGd1YXJlbnRlZWQgbm8gbG9uZ2VyIHRvdWNoaW5nCnRoZSBtZW1vcnkuCgpUaGlz
-IG11c3QgYmUgYSBwcm9wZXIgYmFycmllciwgbGlrZSBhIHNwaW5sb2NrLCBtdXRleCwgb3IKc3lu
-Y2hyb25pemVfcmN1LgoKQW5kLCBhZ2FpbiwgeW91IGNhbid0IHJlLWludmVudCBhIHNwaW5sb2Nr
-IHdpdGggb3BlbiBjb2RpbmcgYW5kIGdldApzb21ldGhpbmcgYmV0dGVyLgoKSmFzb24KX19fX19f
-X19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX18KVmlydHVhbGl6YXRpb24g
-bWFpbGluZyBsaXN0ClZpcnR1YWxpemF0aW9uQGxpc3RzLmxpbnV4LWZvdW5kYXRpb24ub3JnCmh0
-dHBzOi8vbGlzdHMubGludXhmb3VuZGF0aW9uLm9yZy9tYWlsbWFuL2xpc3RpbmZvL3ZpcnR1YWxp
-emF0aW9u
+The vsock_diag.ko module already has a test suite but the core AF_VSOCK
+functionality has no tests.  This patch series adds several test cases that
+exercise AF_VSOCK SOCK_STREAM socket semantics (send/recv, connect/accept,
+half-closed connections, simultaneous connections).
+
+Stefan: Do you think we should have a single application or is better to
+split it in single tests (e.g. vsock_test_send_recv, vsock_test_half_close,
+vsock_test_multiconnection, etc.)?
+
+Jorgen: Please test the VMCI transport and let me know if the fixes work.
+I added the '--transport' parameter to skip the read() on the half-closed
+connection test.
+
+Dexuan: Do you think can be useful to test HyperV?
+
+The v1 of this series was originally sent by Stefan. I rebased on master
+and tried to fix some issues reported by Jorgen.
+
+v2:
+- Patch 1 added by Stefan to fix header include in vsock_diag_test.
+- Patch 2 added by Stefan to add SPDX identifiers. I modified it to be
+  aligned with SPDX currently used on master.
+- Patch 3:
+  * fixed SPDX [Stefano].
+- Patch 7:
+  * Drop unnecessary includes [Stefan]
+  * Fixed SPDX [Stefano]
+  * Set MULTICONN_NFDS to 100 [Stefano]
+  * Changed (i % 1) in (i % 2) in the 'multiconn' test [Stefano]
+- Patches 8,9,10 added to skip read after close in test_stream*close tests
+  on a VMCI host.
+- Patch 11 added to wait for the remote to close the connection, before
+  check if a send returns -EPIPE.
+
+v1: https://patchwork.ozlabs.org/cover/847998/
+
+Stefan Hajnoczi (7):
+  VSOCK: fix header include in vsock_diag_test
+  VSOCK: add SPDX identifiers to vsock tests
+  VSOCK: extract utility functions from vsock_diag_test.c
+  VSOCK: extract connect/accept functions from vsock_diag_test.c
+  VSOCK: add full barrier between test cases
+  VSOCK: add send_byte()/recv_byte() test utilities
+  VSOCK: add AF_VSOCK test cases
+
+Stefano Garzarella (4):
+  VSOCK: add vsock_get_local_cid() test utility
+  vsock_test: add --transport parameter
+  vsock_test: skip read() in test_stream*close tests on a VMCI host
+  vsock_test: wait for the remote to close the connection
+
+ tools/testing/vsock/.gitignore        |   1 +
+ tools/testing/vsock/Makefile          |   9 +-
+ tools/testing/vsock/README            |   3 +-
+ tools/testing/vsock/control.h         |   1 +
+ tools/testing/vsock/timeout.h         |   1 +
+ tools/testing/vsock/util.c            | 342 ++++++++++++++++++++++++
+ tools/testing/vsock/util.h            |  54 ++++
+ tools/testing/vsock/vsock_diag_test.c | 170 ++----------
+ tools/testing/vsock/vsock_test.c      | 362 ++++++++++++++++++++++++++
+ 9 files changed, 793 insertions(+), 150 deletions(-)
+ create mode 100644 tools/testing/vsock/util.c
+ create mode 100644 tools/testing/vsock/util.h
+ create mode 100644 tools/testing/vsock/vsock_test.c
+
+-- 
+2.20.1
