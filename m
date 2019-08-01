@@ -1,7 +1,8 @@
 From: Stefano Garzarella <sgarzare@redhat.com>
-Subject: [PATCH v2 09/11] vsock_test: add --transport parameter
-Date: Thu,  1 Aug 2019 17:25:39 +0200
-Message-ID: <20190801152541.245833-10-sgarzare__4728.03422469355$1564673283$gmane$org@redhat.com>
+Subject: [PATCH v2 10/11] vsock_test: skip read() in test_stream*close tests
+	on a VMCI host
+Date: Thu,  1 Aug 2019 17:25:40 +0200
+Message-ID: <20190801152541.245833-11-sgarzare__44707.7553298854$1564673295$gmane$org@redhat.com>
 References: <20190801152541.245833-1-sgarzare@redhat.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
@@ -21,89 +22,78 @@ To: netdev@vger.kernel.org
 Cc: kvm@vger.kernel.org, Dexuan Cui <decui@microsoft.com>, linux-kernel@vger.kernel.org, virtualization@lists.linux-foundation.org, Stefan Hajnoczi <stefanha@redhat.com>, "David S. Miller" <davem@davemloft.net>, Jorgen Hansen <jhansen@vmware.com>
 List-Id: virtualization@lists.linuxfoundation.org
 
-Add new --transport parameter to skip some tests or checks
-not supported by a specific transport.
+When VMCI transport is used, if the guest closes a connection,
+all data is gone and EOF is returned, so we should skip the read
+of data written by the peer before closing the connection.
 
-Suggested-by: Jorgen Hansen <jhansen@vmware.com>
+Reported-by: Jorgen Hansen <jhansen@vmware.com>
 Signed-off-by: Stefano Garzarella <sgarzare@redhat.com>
 ---
- tools/testing/vsock/util.h       |  8 ++++++++
- tools/testing/vsock/vsock_test.c | 20 +++++++++++++++++++-
- 2 files changed, 27 insertions(+), 1 deletion(-)
+ tools/testing/vsock/vsock_test.c | 26 ++++++++++++++++++++++++--
+ 1 file changed, 24 insertions(+), 2 deletions(-)
 
-diff --git a/tools/testing/vsock/util.h b/tools/testing/vsock/util.h
-index 379e02ab59bb..7fdb8100f035 100644
---- a/tools/testing/vsock/util.h
-+++ b/tools/testing/vsock/util.h
-@@ -12,9 +12,17 @@ enum test_mode {
- 	TEST_MODE_SERVER
- };
- 
-+enum test_transport {
-+	TEST_TRANSPORT_UNSET,
-+	TEST_TRANSPORT_VMCI,
-+	TEST_TRANSPORT_VIRTIO,
-+	TEST_TRANSPORT_HYPERV
-+};
-+
- /* Test runner options */
- struct test_opts {
- 	enum test_mode mode;
-+	enum test_transport transport;
- 	unsigned int peer_cid;
- };
- 
 diff --git a/tools/testing/vsock/vsock_test.c b/tools/testing/vsock/vsock_test.c
-index 06099d037405..cb606091489f 100644
+index cb606091489f..64adf45501ca 100644
 --- a/tools/testing/vsock/vsock_test.c
 +++ b/tools/testing/vsock/vsock_test.c
-@@ -218,6 +218,11 @@ static const struct option longopts[] = {
- 		.has_arg = required_argument,
- 		.val = 'p',
- 	},
-+	{
-+		.name = "transport",
-+		.has_arg = required_argument,
-+		.val = 't',
-+	},
- 	{
- 		.name = "help",
- 		.has_arg = no_argument,
-@@ -228,7 +233,7 @@ static const struct option longopts[] = {
+@@ -71,6 +71,7 @@ static void test_stream_client_close_client(const struct test_opts *opts)
  
- static void usage(void)
+ static void test_stream_client_close_server(const struct test_opts *opts)
  {
--	fprintf(stderr, "Usage: vsock_test [--help] [--control-host=<host>] --control-port=<port> --mode=client|server --peer-cid=<cid>\n"
-+	fprintf(stderr, "Usage: vsock_test [--help] [--control-host=<host>] --control-port=<port> --mode=client|server --peer-cid=<cid> [--transport=vmci|virtio|hyperv]\n"
- 		"\n"
- 		"  Server: vsock_test --control-port=1234 --mode=server --peer-cid=3\n"
- 		"  Client: vsock_test --control-host=192.168.0.1 --control-port=1234 --mode=client --peer-cid=2\n"
-@@ -252,6 +257,7 @@ int main(int argc, char **argv)
- 	const char *control_port = NULL;
- 	struct test_opts opts = {
- 		.mode = TEST_MODE_UNSET,
-+		.transport = TEST_TRANSPORT_UNSET,
- 		.peer_cid = VMADDR_CID_ANY,
- 	};
++	unsigned int local_cid;
+ 	int fd;
  
-@@ -283,6 +289,18 @@ int main(int argc, char **argv)
- 		case 'P':
- 			control_port = optarg;
- 			break;
-+		case 't':
-+			if (strcmp(optarg, "vmci") == 0)
-+				opts.transport = TEST_TRANSPORT_VMCI;
-+			else if (strcmp(optarg, "virtio") == 0)
-+				opts.transport = TEST_TRANSPORT_VIRTIO;
-+			else if (strcmp(optarg, "hyperv") == 0)
-+				opts.transport = TEST_TRANSPORT_HYPERV;
-+			else {
-+				fprintf(stderr, "--transport must be \"vmci\" or \"virtio\" or \"hyperv\"\n");
-+				return EXIT_FAILURE;
-+			}
-+			break;
- 		case '?':
- 		default:
- 			usage();
+ 	fd = vsock_stream_accept(VMADDR_CID_ANY, 1234, NULL);
+@@ -79,16 +80,27 @@ static void test_stream_client_close_server(const struct test_opts *opts)
+ 		exit(EXIT_FAILURE);
+ 	}
+ 
++	local_cid = vsock_get_local_cid(fd);
++
+ 	control_expectln("CLOSED");
+ 
+ 	send_byte(fd, -EPIPE);
+-	recv_byte(fd, 1);
++
++	/* Skip the read of data wrote by the peer if we are on VMCI and
++	 * we are on the host side, because when the guest closes a
++	 * connection, all data is gone and EOF is returned.
++	 */
++	if (!(opts->transport == TEST_TRANSPORT_VMCI &&
++	    local_cid == VMADDR_CID_HOST))
++		recv_byte(fd, 1);
++
+ 	recv_byte(fd, 0);
+ 	close(fd);
+ }
+ 
+ static void test_stream_server_close_client(const struct test_opts *opts)
+ {
++	unsigned int local_cid;
+ 	int fd;
+ 
+ 	fd = vsock_stream_connect(opts->peer_cid, 1234);
+@@ -97,10 +109,20 @@ static void test_stream_server_close_client(const struct test_opts *opts)
+ 		exit(EXIT_FAILURE);
+ 	}
+ 
++	local_cid = vsock_get_local_cid(fd);
++
+ 	control_expectln("CLOSED");
+ 
+ 	send_byte(fd, -EPIPE);
+-	recv_byte(fd, 1);
++
++	/* Skip the read of data wrote by the peer if we are on VMCI and
++	 * we are on the host side, because when the guest closes a
++	 * connection, all data is gone and EOF is returned.
++	 */
++	if (!(opts->transport == TEST_TRANSPORT_VMCI &&
++	    local_cid == VMADDR_CID_HOST))
++		recv_byte(fd, 1);
++
+ 	recv_byte(fd, 0);
+ 	close(fd);
+ }
 -- 
 2.20.1
