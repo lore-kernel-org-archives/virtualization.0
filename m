@@ -1,7 +1,7 @@
 From: Stefano Garzarella <sgarzare@redhat.com>
-Subject: [PATCH v2 01/11] VSOCK: fix header include in vsock_diag_test
-Date: Thu,  1 Aug 2019 17:25:31 +0200
-Message-ID: <20190801152541.245833-2-sgarzare__32474.5878855296$1564673203$gmane$org@redhat.com>
+Subject: [PATCH v2 02/11] VSOCK: add SPDX identifiers to vsock tests
+Date: Thu,  1 Aug 2019 17:25:32 +0200
+Message-ID: <20190801152541.245833-3-sgarzare__40641.0027806245$1564673212$gmane$org@redhat.com>
 References: <20190801152541.245833-1-sgarzare@redhat.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
@@ -23,64 +23,33 @@ List-Id: virtualization@lists.linuxfoundation.org
 
 From: Stefan Hajnoczi <stefanha@redhat.com>
 
-The vsock_diag_test program directly included ../../../include/uapi/
-headers from the source tree.  Tests are supposed to use the
-usr/include/linux/ headers that have been prepared with make
-headers_install instead.
-
-Suggested-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Stefan Hajnoczi <stefanha@redhat.com>
 Signed-off-by: Stefano Garzarella <sgarzare@redhat.com>
 ---
- tools/testing/vsock/Makefile          | 2 +-
- tools/testing/vsock/README            | 2 +-
- tools/testing/vsock/vsock_diag_test.c | 5 ++---
- 3 files changed, 4 insertions(+), 5 deletions(-)
+v2:
+ * Aligned with the current SPDX [Stefano]
+---
+ tools/testing/vsock/control.h | 1 +
+ tools/testing/vsock/timeout.h | 1 +
+ 2 files changed, 2 insertions(+)
 
-diff --git a/tools/testing/vsock/Makefile b/tools/testing/vsock/Makefile
-index 5be687b1e16c..d41a4e13960a 100644
---- a/tools/testing/vsock/Makefile
-+++ b/tools/testing/vsock/Makefile
-@@ -3,7 +3,7 @@ all: test
- test: vsock_diag_test
- vsock_diag_test: vsock_diag_test.o timeout.o control.o
+diff --git a/tools/testing/vsock/control.h b/tools/testing/vsock/control.h
+index 54a07efd267c..dac3964a891d 100644
+--- a/tools/testing/vsock/control.h
++++ b/tools/testing/vsock/control.h
+@@ -1,3 +1,4 @@
++/* SPDX-License-Identifier: GPL-2.0-only */
+ #ifndef CONTROL_H
+ #define CONTROL_H
  
--CFLAGS += -g -O2 -Werror -Wall -I. -I../../include/uapi -I../../include -Wno-pointer-sign -fno-strict-overflow -fno-strict-aliasing -fno-common -MMD -U_FORTIFY_SOURCE -D_GNU_SOURCE
-+CFLAGS += -g -O2 -Werror -Wall -I. -I../../include -I../../../usr/include -Wno-pointer-sign -fno-strict-overflow -fno-strict-aliasing -fno-common -MMD -U_FORTIFY_SOURCE -D_GNU_SOURCE
- .PHONY: all test clean
- clean:
- 	${RM} *.o *.d vsock_diag_test
-diff --git a/tools/testing/vsock/README b/tools/testing/vsock/README
-index 2cc6d7302db6..cf7dc64273bf 100644
---- a/tools/testing/vsock/README
-+++ b/tools/testing/vsock/README
-@@ -10,7 +10,7 @@ The following tests are available:
- The following prerequisite steps are not automated and must be performed prior
- to running tests:
- 
--1. Build the kernel and these tests.
-+1. Build the kernel, make headers_install, and build these tests.
- 2. Install the kernel and tests on the host.
- 3. Install the kernel and tests inside the guest.
- 4. Boot the guest and ensure that the AF_VSOCK transport is enabled.
-diff --git a/tools/testing/vsock/vsock_diag_test.c b/tools/testing/vsock/vsock_diag_test.c
-index c481101364a4..fc391e041954 100644
---- a/tools/testing/vsock/vsock_diag_test.c
-+++ b/tools/testing/vsock/vsock_diag_test.c
-@@ -21,12 +21,11 @@
- #include <linux/list.h>
- #include <linux/net.h>
- #include <linux/netlink.h>
-+#include <linux/vm_sockets.h>
- #include <linux/sock_diag.h>
-+#include <linux/vm_sockets_diag.h>
- #include <netinet/tcp.h>
- 
--#include "../../../include/uapi/linux/vm_sockets.h"
--#include "../../../include/uapi/linux/vm_sockets_diag.h"
--
- #include "timeout.h"
- #include "control.h"
+diff --git a/tools/testing/vsock/timeout.h b/tools/testing/vsock/timeout.h
+index 77db9ce9860a..ecb7c840e65a 100644
+--- a/tools/testing/vsock/timeout.h
++++ b/tools/testing/vsock/timeout.h
+@@ -1,3 +1,4 @@
++/* SPDX-License-Identifier: GPL-2.0-only */
+ #ifndef TIMEOUT_H
+ #define TIMEOUT_H
  
 -- 
 2.20.1
