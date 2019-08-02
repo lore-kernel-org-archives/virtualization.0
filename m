@@ -1,7 +1,7 @@
 From: Gerd Hoffmann <kraxel@redhat.com>
-Subject: [PATCH v7 18/18] drm/virtio: add fence sanity check
-Date: Fri,  2 Aug 2019 15:12:25 +0200
-Message-ID: <20190802131225.17760-19-kraxel__32856.0468669579$1564751686$gmane$org@redhat.com>
+Subject: [PATCH v7 03/18] drm/virtio: simplify cursor updates
+Date: Fri,  2 Aug 2019 15:12:10 +0200
+Message-ID: <20190802131225.17760-4-kraxel__7681.36138083122$1564751703$gmane$org@redhat.com>
 References: <20190802131225.17760-1-kraxel@redhat.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
@@ -21,27 +21,45 @@ To: dri-devel@lists.freedesktop.org
 Cc: David Airlie <airlied@linux.ie>, open list <linux-kernel@vger.kernel.org>, "open list:VIRTIO GPU DRIVER" <virtualization@lists.linux-foundation.org>, Daniel Vetter <daniel@ffwll.ch>, gurchetansingh@chromium.org, olvaffe@gmail.com
 List-Id: virtualization@lists.linuxfoundation.org
 
-Make sure we don't leak half-initialized fences outside the driver.
+No need to do the reservation dance,
+we can just wait on the fence directly.
 
 Signed-off-by: Gerd Hoffmann <kraxel@redhat.com>
+Reviewed-by: Daniel Vetter <daniel.vetter@ffwll.ch>
 ---
- drivers/gpu/drm/virtio/virtgpu_fence.c | 4 ++++
- 1 file changed, 4 insertions(+)
+ drivers/gpu/drm/virtio/virtgpu_plane.c | 13 +++----------
+ 1 file changed, 3 insertions(+), 10 deletions(-)
 
-diff --git a/drivers/gpu/drm/virtio/virtgpu_fence.c b/drivers/gpu/drm/virtio/virtgpu_fence.c
-index a0514f5bd006..a4b9881ca1d3 100644
---- a/drivers/gpu/drm/virtio/virtgpu_fence.c
-+++ b/drivers/gpu/drm/virtio/virtgpu_fence.c
-@@ -41,6 +41,10 @@ bool virtio_fence_signaled(struct dma_fence *f)
- {
- 	struct virtio_gpu_fence *fence = to_virtio_fence(f);
+diff --git a/drivers/gpu/drm/virtio/virtgpu_plane.c b/drivers/gpu/drm/virtio/virtgpu_plane.c
+index f96c8296307e..11539b66c6f2 100644
+--- a/drivers/gpu/drm/virtio/virtgpu_plane.c
++++ b/drivers/gpu/drm/virtio/virtgpu_plane.c
+@@ -186,7 +186,6 @@ static void virtio_gpu_cursor_plane_update(struct drm_plane *plane,
+ 	struct virtio_gpu_framebuffer *vgfb;
+ 	struct virtio_gpu_object *bo = NULL;
+ 	uint32_t handle;
+-	int ret = 0;
  
-+	if (WARN_ON_ONCE(fence->f.seqno == 0))
-+		/* leaked fence outside driver before completing
-+		 * initialization with virtio_gpu_fence_emit */
-+		return false;
- 	if (atomic64_read(&fence->drv->last_seq) >= fence->f.seqno)
- 		return true;
- 	return false;
+ 	if (plane->state->crtc)
+ 		output = drm_crtc_to_virtio_gpu_output(plane->state->crtc);
+@@ -210,15 +209,9 @@ static void virtio_gpu_cursor_plane_update(struct drm_plane *plane,
+ 			 cpu_to_le32(plane->state->crtc_w),
+ 			 cpu_to_le32(plane->state->crtc_h),
+ 			 0, 0, vgfb->fence);
+-		ret = virtio_gpu_object_reserve(bo, false);
+-		if (!ret) {
+-			reservation_object_add_excl_fence(bo->tbo.resv,
+-							  &vgfb->fence->f);
+-			dma_fence_put(&vgfb->fence->f);
+-			vgfb->fence = NULL;
+-			virtio_gpu_object_unreserve(bo);
+-			virtio_gpu_object_wait(bo, false);
+-		}
++		dma_fence_wait(&vgfb->fence->f, true);
++		dma_fence_put(&vgfb->fence->f);
++		vgfb->fence = NULL;
+ 	}
+ 
+ 	if (plane->state->fb != old_state->fb) {
 -- 
 2.18.1
