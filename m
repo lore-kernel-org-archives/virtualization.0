@@ -1,13 +1,22 @@
-From: Gerd Hoffmann <kraxel@redhat.com>
-Subject: [PATCH v7 16/18] drm/virtio: drop virtio_gpu_object_{ref,unref}
-Date: Fri,  2 Aug 2019 15:12:23 +0200
-Message-ID: <20190802131225.17760-17-kraxel__24408.3014478505$1564751742$gmane$org@redhat.com>
-References: <20190802131225.17760-1-kraxel@redhat.com>
+From: "Michael S. Tsirkin" <mst@redhat.com>
+Subject: Re: [PATCH V2 7/9] vhost: do not use RCU to synchronize MMU notifier
+	with worker
+Date: Fri, 2 Aug 2019 10:03:49 -0400
+Message-ID: <20190802094331-mutt-send-email-mst__25400.2661605895$1564754666$gmane$org@kernel.org>
+References: <20190731084655.7024-1-jasowang@redhat.com>
+	<20190731084655.7024-8-jasowang@redhat.com>
+	<20190731123935.GC3946@ziepe.ca>
+	<7555c949-ae6f-f105-6e1d-df21ddae9e4e@redhat.com>
+	<20190731193057.GG3946@ziepe.ca>
+	<a3bde826-6329-68e4-2826-8a9de4c5bd1e@redhat.com>
+	<20190801141512.GB23899@ziepe.ca>
+	<42ead87b-1749-4c73-cbe4-29dbeb945041@redhat.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <20190802131225.17760-1-kraxel@redhat.com>
+Content-Disposition: inline
+In-Reply-To: <42ead87b-1749-4c73-cbe4-29dbeb945041@redhat.com>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -17,42 +26,43 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: dri-devel@lists.freedesktop.org
-Cc: David Airlie <airlied@linux.ie>, open list <linux-kernel@vger.kernel.org>, "open list:VIRTIO GPU DRIVER" <virtualization@lists.linux-foundation.org>, Daniel Vetter <daniel@ffwll.ch>, gurchetansingh@chromium.org, olvaffe@gmail.com
+To: Jason Wang <jasowang@redhat.com>
+Cc: kvm@vger.kernel.org, Jason Gunthorpe <jgg@ziepe.ca>, netdev@vger.kernel.org, linux-kernel@vger.kernel.org, virtualization@lists.linux-foundation.org, linux-mm@kvack.org
 List-Id: virtualization@lists.linuxfoundation.org
 
-No users left.
+On Fri, Aug 02, 2019 at 05:40:07PM +0800, Jason Wang wrote:
+> Btw, I come up another idea, that is to disable preemption when vhost thread
+> need to access the memory. Then register preempt notifier and if vhost
+> thread is preempted, we're sure no one will access the memory and can do the
+> cleanup.
 
-Signed-off-by: Gerd Hoffmann <kraxel@redhat.com>
----
- drivers/gpu/drm/virtio/virtgpu_drv.h | 15 ---------------
- 1 file changed, 15 deletions(-)
+Great, more notifiers :(
 
-diff --git a/drivers/gpu/drm/virtio/virtgpu_drv.h b/drivers/gpu/drm/virtio/virtgpu_drv.h
-index d4d82679d83a..59f71dc94017 100644
---- a/drivers/gpu/drm/virtio/virtgpu_drv.h
-+++ b/drivers/gpu/drm/virtio/virtgpu_drv.h
-@@ -363,21 +363,6 @@ struct drm_gem_object *virtgpu_gem_prime_import_sg_table(
- 	struct drm_device *dev, struct dma_buf_attachment *attach,
- 	struct sg_table *sgt);
- 
--static inline struct virtio_gpu_object*
--virtio_gpu_object_ref(struct virtio_gpu_object *bo)
--{
--	drm_gem_object_get(&bo->base.base);
--	return bo;
--}
--
--static inline void virtio_gpu_object_unref(struct virtio_gpu_object **bo)
--{
--	if ((*bo) == NULL)
--		return;
--	drm_gem_object_put(&(*bo)->base.base);
--	*bo = NULL;
--}
--
- static inline u64 virtio_gpu_object_mmap_offset(struct virtio_gpu_object *bo)
- {
- 	return drm_vma_node_offset_addr(&bo->base.base.vma_node);
+Maybe can live with
+1- disable preemption while using the cached pointer
+2- teach vhost to recover from memory access failures,
+   by switching to regular from/to user path
+
+So if you want to try that, fine since it's a step in
+the right direction.
+
+But I think fundamentally it's not what we want to do long term.
+
+It's always been a fundamental problem with this patch series that only
+metadata is accessed through a direct pointer.
+
+The difference in ways you handle metadata and data is what is
+now coming and messing everything up.
+
+So if continuing the direct map approach,
+what is needed is a cache of mapped VM memory, then on a cache miss
+we'd queue work along the lines of 1-2 above.
+
+That's one direction to take. Another one is to give up on that and
+write our own version of uaccess macros.  Add a "high security" flag to
+the vhost module and if not active use these for userspace memory
+access.
+
+
 -- 
-2.18.1
+MST
