@@ -1,22 +1,13 @@
-From: Jason Gunthorpe <jgg@ziepe.ca>
-Subject: Re: [PATCH V2 7/9] vhost: do not use RCU to synchronize MMU notifier
-	with worker
-Date: Fri, 2 Aug 2019 09:46:13 -0300
-Message-ID: <20190802124613.GA11245__29896.6861491621$1564750005$gmane$org@ziepe.ca>
-References: <20190731084655.7024-1-jasowang@redhat.com>
-	<20190731084655.7024-8-jasowang@redhat.com>
-	<20190731123935.GC3946@ziepe.ca>
-	<7555c949-ae6f-f105-6e1d-df21ddae9e4e@redhat.com>
-	<20190731193057.GG3946@ziepe.ca>
-	<a3bde826-6329-68e4-2826-8a9de4c5bd1e@redhat.com>
-	<20190801141512.GB23899@ziepe.ca>
-	<42ead87b-1749-4c73-cbe4-29dbeb945041@redhat.com>
+From: Gerd Hoffmann <kraxel@redhat.com>
+Subject: [PATCH v7 01/18] drm/virtio: pass gem reservation object to ttm init
+Date: Fri,  2 Aug 2019 15:12:08 +0200
+Message-ID: <20190802131225.17760-2-kraxel__8532.23032770387$1564751577$gmane$org@redhat.com>
+References: <20190802131225.17760-1-kraxel@redhat.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-Content-Disposition: inline
-In-Reply-To: <42ead87b-1749-4c73-cbe4-29dbeb945041@redhat.com>
+In-Reply-To: <20190802131225.17760-1-kraxel@redhat.com>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -26,53 +17,33 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Jason Wang <jasowang@redhat.com>
-Cc: kvm@vger.kernel.org, mst@redhat.com, netdev@vger.kernel.org, linux-kernel@vger.kernel.org, virtualization@lists.linux-foundation.org, linux-mm@kvack.org
+To: dri-devel@lists.freedesktop.org
+Cc: David Airlie <airlied@linux.ie>, open list <linux-kernel@vger.kernel.org>, "open list:VIRTIO GPU DRIVER" <virtualization@lists.linux-foundation.org>, Daniel Vetter <daniel@ffwll.ch>, gurchetansingh@chromium.org, olvaffe@gmail.com
 List-Id: virtualization@lists.linuxfoundation.org
 
-On Fri, Aug 02, 2019 at 05:40:07PM +0800, Jason Wang wrote:
-> > This must be a proper barrier, like a spinlock, mutex, or
-> > synchronize_rcu.
-> 
-> 
-> I start with synchronize_rcu() but both you and Michael raise some
-> concern.
+With this gem and ttm will use the same reservation object,
+so mixing and matching ttm / gem reservation helpers should
+work fine.
 
-I've also idly wondered if calling synchronize_rcu() under the various
-mm locks is a deadlock situation.
+Signed-off-by: Gerd Hoffmann <kraxel@redhat.com>
+Reviewed-by: Daniel Vetter <daniel.vetter@ffwll.ch>
+---
+ drivers/gpu/drm/virtio/virtgpu_object.c | 3 ++-
+ 1 file changed, 2 insertions(+), 1 deletion(-)
 
-> Then I try spinlock and mutex:
-> 
-> 1) spinlock: add lots of overhead on datapath, this leads 0 performance
-> improvement.
-
-I think the topic here is correctness not performance improvement
-
-> 2) SRCU: full memory barrier requires on srcu_read_lock(), which still leads
-> little performance improvement
- 
-> 3) mutex: a possible issue is need to wait for the page to be swapped in (is
-> this unacceptable ?), another issue is that we need hold vq lock during
-> range overlap check.
-
-I have a feeling that mmu notififers cannot safely become dependent on
-progress of swap without causing deadlock. You probably should avoid
-this.
-
-> > And, again, you can't re-invent a spinlock with open coding and get
-> > something better.
-> 
-> So the question is if waiting for swap is considered to be unsuitable for
-> MMU notifiers. If not, it would simplify codes. If not, we still need to
-> figure out a possible solution.
-> 
-> Btw, I come up another idea, that is to disable preemption when vhost thread
-> need to access the memory. Then register preempt notifier and if vhost
-> thread is preempted, we're sure no one will access the memory and can do the
-> cleanup.
-
-I think you should use the spinlock so at least the code is obviously
-functionally correct and worry about designing some properly justified
-performance change after.
-
-Jason
+diff --git a/drivers/gpu/drm/virtio/virtgpu_object.c b/drivers/gpu/drm/virtio/virtgpu_object.c
+index b2da31310d24..242766d644a7 100644
+--- a/drivers/gpu/drm/virtio/virtgpu_object.c
++++ b/drivers/gpu/drm/virtio/virtgpu_object.c
+@@ -132,7 +132,8 @@ int virtio_gpu_object_create(struct virtio_gpu_device *vgdev,
+ 	virtio_gpu_init_ttm_placement(bo);
+ 	ret = ttm_bo_init(&vgdev->mman.bdev, &bo->tbo, params->size,
+ 			  ttm_bo_type_device, &bo->placement, 0,
+-			  true, acc_size, NULL, NULL,
++			  true, acc_size, NULL,
++			  bo->gem_base.resv,
+ 			  &virtio_gpu_ttm_bo_destroy);
+ 	/* ttm_bo_init failure will call the destroy */
+ 	if (ret != 0)
+-- 
+2.18.1
