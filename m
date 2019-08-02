@@ -1,8 +1,7 @@
 From: Gerd Hoffmann <kraxel@redhat.com>
-Subject: [PATCH v7 10/18] drm/virtio: rework
-	virtio_gpu_transfer_from_host_ioctl fencing
-Date: Fri,  2 Aug 2019 15:12:17 +0200
-Message-ID: <20190802131225.17760-11-kraxel__44140.9238892206$1564751705$gmane$org@redhat.com>
+Subject: [PATCH v7 07/18] drm/virtio: add virtio_gpu_object_array & helpers
+Date: Fri,  2 Aug 2019 15:12:14 +0200
+Message-ID: <20190802131225.17760-8-kraxel__490.633670573004$1564751714$gmane$org@redhat.com>
 References: <20190802131225.17760-1-kraxel@redhat.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
@@ -22,130 +21,157 @@ To: dri-devel@lists.freedesktop.org
 Cc: David Airlie <airlied@linux.ie>, open list <linux-kernel@vger.kernel.org>, "open list:VIRTIO GPU DRIVER" <virtualization@lists.linux-foundation.org>, Daniel Vetter <daniel@ffwll.ch>, gurchetansingh@chromium.org, olvaffe@gmail.com
 List-Id: virtualization@lists.linuxfoundation.org
 
-Switch to the virtio_gpu_array_* helper workflow.
+Some helper functions to manage an array of gem objects.
+
+v6:
+ - add ticket to struct virtio_gpu_object_array.
+ - add virtio_gpu_array_{lock,unlock}_resv helpers.
+ - add virtio_gpu_array_add_fence helper.
+v5: some small optimizations (Chia-I Wu).
+v4: make them virtio-private instead of generic helpers.
 
 Signed-off-by: Gerd Hoffmann <kraxel@redhat.com>
 ---
- drivers/gpu/drm/virtio/virtgpu_drv.h   |  3 +-
- drivers/gpu/drm/virtio/virtgpu_ioctl.c | 40 ++++++++++----------------
- drivers/gpu/drm/virtio/virtgpu_vq.c    |  8 ++++--
- 3 files changed, 23 insertions(+), 28 deletions(-)
+ drivers/gpu/drm/virtio/virtgpu_drv.h | 17 +++++
+ drivers/gpu/drm/virtio/virtgpu_gem.c | 94 ++++++++++++++++++++++++++++
+ 2 files changed, 111 insertions(+)
 
 diff --git a/drivers/gpu/drm/virtio/virtgpu_drv.h b/drivers/gpu/drm/virtio/virtgpu_drv.h
-index e5d85c104bd1..06be9201c24d 100644
+index 3473b602ec35..bafa06e69032 100644
 --- a/drivers/gpu/drm/virtio/virtgpu_drv.h
 +++ b/drivers/gpu/drm/virtio/virtgpu_drv.h
-@@ -323,9 +323,10 @@ void virtio_gpu_cmd_submit(struct virtio_gpu_device *vgdev,
- 			   struct virtio_gpu_object_array *objs,
- 			   struct virtio_gpu_fence *fence);
- void virtio_gpu_cmd_transfer_from_host_3d(struct virtio_gpu_device *vgdev,
--					  uint32_t resource_id, uint32_t ctx_id,
-+					  uint32_t ctx_id,
- 					  uint64_t offset, uint32_t level,
- 					  struct virtio_gpu_box *box,
-+					  struct virtio_gpu_object_array *objs,
- 					  struct virtio_gpu_fence *fence);
- void virtio_gpu_cmd_transfer_to_host_3d(struct virtio_gpu_device *vgdev,
- 					struct virtio_gpu_object *bo,
-diff --git a/drivers/gpu/drm/virtio/virtgpu_ioctl.c b/drivers/gpu/drm/virtio/virtgpu_ioctl.c
-index a3e357f75099..efca7f831834 100644
---- a/drivers/gpu/drm/virtio/virtgpu_ioctl.c
-+++ b/drivers/gpu/drm/virtio/virtgpu_ioctl.c
-@@ -340,9 +340,7 @@ static int virtio_gpu_transfer_from_host_ioctl(struct drm_device *dev,
- 	struct virtio_gpu_device *vgdev = dev->dev_private;
- 	struct virtio_gpu_fpriv *vfpriv = file->driver_priv;
- 	struct drm_virtgpu_3d_transfer_from_host *args = data;
--	struct ttm_operation_ctx ctx = { true, false };
--	struct drm_gem_object *gobj = NULL;
--	struct virtio_gpu_object *qobj = NULL;
+@@ -84,6 +84,12 @@ struct virtio_gpu_object {
+ #define gem_to_virtio_gpu_obj(gobj) \
+ 	container_of((gobj), struct virtio_gpu_object, gem_base)
+ 
++struct virtio_gpu_object_array {
++	struct ww_acquire_ctx ticket;
++	u32 nents, total;
++	struct drm_gem_object *objs[];
++};
++
+ struct virtio_gpu_vbuffer;
+ struct virtio_gpu_device;
+ 
+@@ -251,6 +257,17 @@ int virtio_gpu_mode_dumb_mmap(struct drm_file *file_priv,
+ 			      struct drm_device *dev,
+ 			      uint32_t handle, uint64_t *offset_p);
+ 
++struct virtio_gpu_object_array *virtio_gpu_array_alloc(u32 nents);
++struct virtio_gpu_object_array*
++virtio_gpu_array_from_handles(struct drm_file *drm_file, u32 *handles, u32 nents);
++void virtio_gpu_array_add_obj(struct virtio_gpu_object_array *objs,
++			      struct drm_gem_object *obj);
++int virtio_gpu_array_lock_resv(struct virtio_gpu_object_array *objs);
++void virtio_gpu_array_unlock_resv(struct virtio_gpu_object_array *objs);
++void virtio_gpu_array_add_fence(struct virtio_gpu_object_array *objs,
++				struct dma_fence *fence);
++void virtio_gpu_array_put_free(struct virtio_gpu_object_array *objs);
++
+ /* virtio vg */
+ int virtio_gpu_alloc_vbufs(struct virtio_gpu_device *vgdev);
+ void virtio_gpu_free_vbufs(struct virtio_gpu_device *vgdev);
+diff --git a/drivers/gpu/drm/virtio/virtgpu_gem.c b/drivers/gpu/drm/virtio/virtgpu_gem.c
+index 6fe6f72f64d1..f3c9419858b7 100644
+--- a/drivers/gpu/drm/virtio/virtgpu_gem.c
++++ b/drivers/gpu/drm/virtio/virtgpu_gem.c
+@@ -171,3 +171,97 @@ void virtio_gpu_gem_object_close(struct drm_gem_object *obj,
+ 						qobj->hw_res_handle);
+ 	virtio_gpu_object_unreserve(qobj);
+ }
++
++struct virtio_gpu_object_array *virtio_gpu_array_alloc(u32 nents)
++{
 +	struct virtio_gpu_object_array *objs;
- 	struct virtio_gpu_fence *fence;
- 	int ret;
- 	u32 offset = args->offset;
-@@ -351,39 +349,31 @@ static int virtio_gpu_transfer_from_host_ioctl(struct drm_device *dev,
- 	if (vgdev->has_virgl_3d == false)
- 		return -ENOSYS;
- 
--	gobj = drm_gem_object_lookup(file, args->bo_handle);
--	if (gobj == NULL)
-+	objs = virtio_gpu_array_from_handles(file, &args->bo_handle, 1);
-+	if (objs == NULL)
- 		return -ENOENT;
- 
--	qobj = gem_to_virtio_gpu_obj(gobj);
--
--	ret = virtio_gpu_object_reserve(qobj);
--	if (ret)
--		goto out;
--
--	ret = ttm_bo_validate(&qobj->tbo, &qobj->placement, &ctx);
--	if (unlikely(ret))
--		goto out_unres;
-+	ret = virtio_gpu_array_lock_resv(objs);
-+	if (ret != 0)
-+		goto err_put_free;
- 
- 	convert_to_hw_box(&box, &args->box);
- 
- 	fence = virtio_gpu_fence_alloc(vgdev);
- 	if (!fence) {
- 		ret = -ENOMEM;
--		goto out_unres;
-+		goto err_unlock;
- 	}
- 	virtio_gpu_cmd_transfer_from_host_3d
--		(vgdev, qobj->hw_res_handle,
--		 vfpriv->ctx_id, offset, args->level,
--		 &box, fence);
--	reservation_object_add_excl_fence(qobj->tbo.resv,
--					  &fence->f);
--
-+		(vgdev, vfpriv->ctx_id, offset, args->level,
-+		 &box, objs, fence);
- 	dma_fence_put(&fence->f);
--out_unres:
--	virtio_gpu_object_unreserve(qobj);
--out:
--	drm_gem_object_put_unlocked(gobj);
-+	return 0;
++	size_t size = sizeof(*objs) + sizeof(objs->objs[0]) * nents;
 +
-+err_unlock:
-+	virtio_gpu_array_unlock_resv(objs);
-+err_put_free:
-+	virtio_gpu_array_put_free(objs);
- 	return ret;
- }
- 
-diff --git a/drivers/gpu/drm/virtio/virtgpu_vq.c b/drivers/gpu/drm/virtio/virtgpu_vq.c
-index 079907e8a596..59d32787944d 100644
---- a/drivers/gpu/drm/virtio/virtgpu_vq.c
-+++ b/drivers/gpu/drm/virtio/virtgpu_vq.c
-@@ -929,20 +929,24 @@ void virtio_gpu_cmd_transfer_to_host_3d(struct virtio_gpu_device *vgdev,
- }
- 
- void virtio_gpu_cmd_transfer_from_host_3d(struct virtio_gpu_device *vgdev,
--					  uint32_t resource_id, uint32_t ctx_id,
-+					  uint32_t ctx_id,
- 					  uint64_t offset, uint32_t level,
- 					  struct virtio_gpu_box *box,
-+					  struct virtio_gpu_object_array *objs,
- 					  struct virtio_gpu_fence *fence)
- {
-+	struct virtio_gpu_object *bo = gem_to_virtio_gpu_obj(objs->objs[0]);
- 	struct virtio_gpu_transfer_host_3d *cmd_p;
- 	struct virtio_gpu_vbuffer *vbuf;
- 
- 	cmd_p = virtio_gpu_alloc_cmd(vgdev, &vbuf, sizeof(*cmd_p));
- 	memset(cmd_p, 0, sizeof(*cmd_p));
- 
-+	vbuf->objs = objs;
++	objs = kmalloc(size, GFP_KERNEL);
++	if (!objs)
++		return NULL;
 +
- 	cmd_p->hdr.type = cpu_to_le32(VIRTIO_GPU_CMD_TRANSFER_FROM_HOST_3D);
- 	cmd_p->hdr.ctx_id = cpu_to_le32(ctx_id);
--	cmd_p->resource_id = cpu_to_le32(resource_id);
-+	cmd_p->resource_id = cpu_to_le32(bo->hw_res_handle);
- 	cmd_p->box = *box;
- 	cmd_p->offset = cpu_to_le64(offset);
- 	cmd_p->level = cpu_to_le32(level);
++	objs->nents = 0;
++	objs->total = nents;
++	return objs;
++}
++
++static void virtio_gpu_array_free(struct virtio_gpu_object_array *objs)
++{
++	kfree(objs);
++}
++
++struct virtio_gpu_object_array*
++virtio_gpu_array_from_handles(struct drm_file *drm_file, u32 *handles, u32 nents)
++{
++	struct virtio_gpu_object_array *objs;
++	u32 i;
++
++	objs = virtio_gpu_array_alloc(nents);
++	if (!objs)
++		return NULL;
++
++	for (i = 0; i < nents; i++) {
++		objs->objs[i] = drm_gem_object_lookup(drm_file, handles[i]);
++		if (!objs->objs[i]) {
++			objs->nents = i;
++			virtio_gpu_array_put_free(objs);
++			return NULL;
++		}
++	}
++	objs->nents = i;
++	return objs;
++}
++
++void virtio_gpu_array_add_obj(struct virtio_gpu_object_array *objs,
++			      struct drm_gem_object *obj)
++{
++	if (WARN_ON_ONCE(objs->nents == objs->total))
++		return;
++
++	drm_gem_object_get(obj);
++	objs->objs[objs->nents] = obj;
++	objs->nents++;
++}
++
++int virtio_gpu_array_lock_resv(struct virtio_gpu_object_array *objs)
++{
++	int ret;
++
++	if (objs->nents == 1) {
++		ret = reservation_object_lock(objs->objs[0]->resv, NULL);
++	} else {
++		ret = drm_gem_lock_reservations(objs->objs, objs->nents,
++						&objs->ticket);
++	}
++	return ret;
++}
++
++void virtio_gpu_array_unlock_resv(struct virtio_gpu_object_array *objs)
++{
++	if (objs->nents == 1) {
++		reservation_object_unlock(objs->objs[0]->resv);
++	} else {
++		drm_gem_unlock_reservations(objs->objs, objs->nents,
++					    &objs->ticket);
++	}
++}
++
++void virtio_gpu_array_add_fence(struct virtio_gpu_object_array *objs,
++				struct dma_fence *fence)
++{
++	int i;
++
++	for (i = 0; i < objs->nents; i++)
++		reservation_object_add_excl_fence(objs->objs[i]->resv,
++						  fence);
++}
++
++void virtio_gpu_array_put_free(struct virtio_gpu_object_array *objs)
++{
++	u32 i;
++
++	for (i = 0; i < objs->nents; i++)
++		drm_gem_object_put_unlocked(objs->objs[i]);
++	virtio_gpu_array_free(objs);
++}
 -- 
 2.18.1
