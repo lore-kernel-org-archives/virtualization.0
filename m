@@ -1,24 +1,14 @@
-From: Jason Gunthorpe <jgg@ziepe.ca>
-Subject: Re: [PATCH V2 7/9] vhost: do not use RCU to synchronize MMU notifier
-	with worker
-Date: Tue, 6 Aug 2019 10:40:30 -0300
-Message-ID: <20190806134030.GD11627__10644.1061174095$1565098843$gmane$org@ziepe.ca>
-References: <20190801141512.GB23899@ziepe.ca>
-	<42ead87b-1749-4c73-cbe4-29dbeb945041@redhat.com>
-	<20190802124613.GA11245@ziepe.ca>
-	<20190802100414-mutt-send-email-mst@kernel.org>
-	<20190802172418.GB11245@ziepe.ca>
-	<20190803172944-mutt-send-email-mst@kernel.org>
-	<20190804001400.GA25543@ziepe.ca>
-	<20190804040034-mutt-send-email-mst@kernel.org>
-	<20190806115317.GA11627@ziepe.ca>
-	<20190806093633-mutt-send-email-mst@kernel.org>
+From: Borislav Petkov <bp@alien8.de>
+Subject: Re: [PATCH v9 00/11] x86: PIE support to extend KASLR randomization
+Date: Tue, 6 Aug 2019 17:43:47 +0200
+Message-ID: <20190806154347.GD25897__49045.7789901242$1565106242$gmane$org@zn.tnic>
+References: <20190730191303.206365-1-thgarnie@chromium.org>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
 Content-Disposition: inline
-In-Reply-To: <20190806093633-mutt-send-email-mst@kernel.org>
+In-Reply-To: <20190730191303.206365-1-thgarnie@chromium.org>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -28,31 +18,29 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: "Michael S. Tsirkin" <mst@redhat.com>
-Cc: kvm@vger.kernel.org, netdev@vger.kernel.org, linux-kernel@vger.kernel.org, virtualization@lists.linux-foundation.org, linux-mm@kvack.org
+To: Thomas Garnier <thgarnie@chromium.org>
+Cc: Feng Tang <feng.tang@intel.com>, kristen@linux.intel.com, kernel-hardening@lists.openwall.com, "VMware,
+	Inc." <pv-drivers@vmware.com>, virtualization@lists.linux-foundation.org, Nadav Amit <namit@vmware.com>, Pavel Machek <pavel@ucw.cz>, "H. Peter Anvin" <hpa@zytor.com>, Thomas Hellstrom <thellstrom@vmware.com>, Herbert Xu <herbert@gondor.apana.org.au>, x86@kernel.org, Peter Zijlstra <peterz@infradead.org>, Ingo Molnar <mingo@redhat.com>, Len Brown <len.brown@intel.com>, keescook@chromium.org, Jann Horn <jannh@google.com>, Alexios Zavras <alexios.zavras@intel.com>, Andy Lutomirski <luto@kernel.org>, Thomas Gleixner <tglx@linutronix.de>, Allison Randal <allison@lohutok.net>, Juergen Gross <jgross@suse.com>, Maran Wilson <maran.wilson@oracle.com>, linux-pm@vger.kernel.org, "Rafael J. Wysocki" <rjw@rjwysocki.net>, linux-kernel@vger.kernel.org, linux-crypto@vger.kernel.org
 List-Id: virtualization@lists.linuxfoundation.org
 
-On Tue, Aug 06, 2019 at 09:36:58AM -0400, Michael S. Tsirkin wrote:
-> On Tue, Aug 06, 2019 at 08:53:17AM -0300, Jason Gunthorpe wrote:
-> > On Sun, Aug 04, 2019 at 04:07:17AM -0400, Michael S. Tsirkin wrote:
-> > > > > > Also, why can't this just permanently GUP the pages? In fact, where
-> > > > > > does it put_page them anyhow? Worrying that 7f466 adds a get_user page
-> > > > > > but does not add a put_page??
-> > > > 
-> > > > You didn't answer this.. Why not just use GUP?
-> > > > 
-> > > > Jason
-> > > 
-> > > Sorry I misunderstood the question. Permanent GUP breaks lots of
-> > > functionality we need such as THP and numa balancing.
-> > 
-> > Really? It doesn't look like that many pages are involved..
-> > 
-> > Jason
-> 
-> Yea. But they just might happen to be heavily accessed ones....
+On Tue, Jul 30, 2019 at 12:12:44PM -0700, Thomas Garnier wrote:
+> These patches make some of the changes necessary to build the kernel as
+> Position Independent Executable (PIE) on x86_64. Another patchset will
+> add the PIE option and larger architecture changes.
 
-Maybe you can solve the numa balance problem some other way and use
-normal GUP..
+Yeah, about this: do we have a longer writeup about the actual benefits
+of all this and why we should take this all? After all, after looking
+at the first couple of asm patches, it is posing restrictions to how
+we deal with virtual addresses in asm (only RIP-relative addressing in
+64-bit mode, MOVs with 64-bit immediates, etc, for example) and I'm
+willing to bet money that some future unrelated change will break PIE
+sooner or later. And I'd like to have a better justification why we
+should enforce those new "rules" unconditionally.
 
-Jason 
+Thx.
+
+-- 
+Regards/Gruss,
+    Boris.
+
+Good mailing practices for 400: avoid top-posting and trim the reply.
