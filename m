@@ -1,14 +1,24 @@
-From: Gerd Hoffmann <kraxel@redhat.com>
-Subject: Re: [PATCH] drm/qxl: Use dev_get_drvdata where possible
-Date: Tue, 6 Aug 2019 09:21:49 +0200
-Message-ID: <20190806072149.n32ktcp23qys26jy__31359.802202654$1565076125$gmane$org@sirius.home.kraxel.org>
-References: <20190723103959.4078-1-hslester96@gmail.com>
+From: Jason Gunthorpe <jgg@ziepe.ca>
+Subject: Re: [PATCH V2 7/9] vhost: do not use RCU to synchronize MMU notifier
+	with worker
+Date: Tue, 6 Aug 2019 08:53:17 -0300
+Message-ID: <20190806115317.GA11627__8250.4049454414$1565092411$gmane$org@ziepe.ca>
+References: <20190731193057.GG3946@ziepe.ca>
+	<a3bde826-6329-68e4-2826-8a9de4c5bd1e@redhat.com>
+	<20190801141512.GB23899@ziepe.ca>
+	<42ead87b-1749-4c73-cbe4-29dbeb945041@redhat.com>
+	<20190802124613.GA11245@ziepe.ca>
+	<20190802100414-mutt-send-email-mst@kernel.org>
+	<20190802172418.GB11245@ziepe.ca>
+	<20190803172944-mutt-send-email-mst@kernel.org>
+	<20190804001400.GA25543@ziepe.ca>
+	<20190804040034-mutt-send-email-mst@kernel.org>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
 Content-Disposition: inline
-In-Reply-To: <20190723103959.4078-1-hslester96@gmail.com>
+In-Reply-To: <20190804040034-mutt-send-email-mst@kernel.org>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -18,17 +28,22 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Chuhong Yuan <hslester96@gmail.com>
-Cc: David Airlie <airlied@linux.ie>, linux-kernel@vger.kernel.org, dri-devel@lists.freedesktop.org, virtualization@lists.linux-foundation.org, Daniel Vetter <daniel@ffwll.ch>, spice-devel@lists.freedesktop.org, Dave Airlie <airlied@redhat.com>
+To: "Michael S. Tsirkin" <mst@redhat.com>
+Cc: kvm@vger.kernel.org, netdev@vger.kernel.org, linux-kernel@vger.kernel.org, virtualization@lists.linux-foundation.org, linux-mm@kvack.org
 List-Id: virtualization@lists.linuxfoundation.org
 
-On Tue, Jul 23, 2019 at 06:40:00PM +0800, Chuhong Yuan wrote:
-> Instead of using to_pci_dev + pci_get_drvdata,
-> use dev_get_drvdata to make code simpler.
+On Sun, Aug 04, 2019 at 04:07:17AM -0400, Michael S. Tsirkin wrote:
+> > > > Also, why can't this just permanently GUP the pages? In fact, where
+> > > > does it put_page them anyhow? Worrying that 7f466 adds a get_user page
+> > > > but does not add a put_page??
+> > 
+> > You didn't answer this.. Why not just use GUP?
+> > 
+> > Jason
 > 
-> Signed-off-by: Chuhong Yuan <hslester96@gmail.com>
+> Sorry I misunderstood the question. Permanent GUP breaks lots of
+> functionality we need such as THP and numa balancing.
 
-Queued for drm-misc-next (the bochs patch too).
+Really? It doesn't look like that many pages are involved..
 
-thanks,
-  Gerd
+Jason
