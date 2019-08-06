@@ -1,16 +1,14 @@
-From: John Hubbard <jhubbard@nvidia.com>
-Subject: Re: [PATCH 00/12] block/bio, fs: convert put_page() to
-	put_user_page*()
-Date: Mon, 5 Aug 2019 15:54:35 -0700
-Message-ID: <c35aa2bf-c830-9e57-78ca-9ce6fb6cb53b@nvidia.com>
-References: <20190724042518.14363-1-jhubbard@nvidia.com>
-	<20190724061750.GA19397@infradead.org>
+From: Gerd Hoffmann <kraxel@redhat.com>
+Subject: Re: [PATCH] drm/qxl: Use dev_get_drvdata where possible
+Date: Tue, 6 Aug 2019 09:21:49 +0200
+Message-ID: <20190806072149.n32ktcp23qys26jy__31359.802202654$1565076125$gmane$org@sirius.home.kraxel.org>
+References: <20190723103959.4078-1-hslester96@gmail.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="utf-8"
-Content-Transfer-Encoding: base64
+Content-Type: text/plain; charset="us-ascii"
+Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <20190724061750.GA19397@infradead.org>
-Content-Language: en-US
+Content-Disposition: inline
+In-Reply-To: <20190723103959.4078-1-hslester96@gmail.com>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -20,46 +18,17 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Christoph Hellwig <hch@infradead.org>, john.hubbard@gmail.com
-Cc: kvm@vger.kernel.org, "Michael S . Tsirkin" <mst@redhat.com>, virtualization@lists.linux-foundation.org, linux-mm@kvack.org, Christoph Hellwig <hch@lst.de>, linux-cifs@vger.kernel.org, Miklos Szeredi <miklos@szeredi.hu>, linux-rdma@vger.kernel.org, Matthew Wilcox <willy@infradead.org>, Jason Gunthorpe <jgg@ziepe.ca>, v9fs-developer@lists.sourceforge.net, Eric Van Hensbergen <ericvh@gmail.com>, linux-block@vger.kernel.org, Alexander Viro <viro@zeniv.linux.org.uk>, ceph-devel@vger.kernel.org, Trond Myklebust <trond.myklebust@hammerspace.com>, Jens Axboe <axboe@kernel.dk>, linux-nfs@vger.kernel.org, netdev@vger.kernel.org, samba-technical@lists.samba.org, LKML <linux-kernel@vger.kernel.org>, "David
-	S . Miller" <davem@davemloft.net>, linux-fsdevel@vger.kernel.org, Andrew Morton <akpm@linux-foundation.org>, Anna Schumaker <anna.schumaker@netapp.com>
+To: Chuhong Yuan <hslester96@gmail.com>
+Cc: David Airlie <airlied@linux.ie>, linux-kernel@vger.kernel.org, dri-devel@lists.freedesktop.org, virtualization@lists.linux-foundation.org, Daniel Vetter <daniel@ffwll.ch>, spice-devel@lists.freedesktop.org, Dave Airlie <airlied@redhat.com>
 List-Id: virtualization@lists.linuxfoundation.org
 
-T24gNy8yMy8xOSAxMToxNyBQTSwgQ2hyaXN0b3BoIEhlbGx3aWcgd3JvdGU6Cj4gT24gVHVlLCBK
-dWwgMjMsIDIwMTkgYXQgMDk6MjU6MDZQTSAtMDcwMCwgam9obi5odWJiYXJkQGdtYWlsLmNvbSB3
-cm90ZToKPj4gKiBTdG9yZSwgaW4gdGhlIGlvdl9pdGVyLCBhICJjYW1lIGZyb20gZ3VwIChnZXRf
-dXNlcl9wYWdlcykiIHBhcmFtZXRlci4KPj4gICBUaGVuLCB1c2UgdGhlIG5ldyBpb3ZfaXRlcl9n
-ZXRfcGFnZXNfdXNlX2d1cCgpIHRvIHJldHJpZXZlIGl0IHdoZW4KPj4gICBpdCBpcyB0aW1lIHRv
-IHJlbGVhc2UgdGhlIHBhZ2VzLiBUaGF0IGFsbG93cyBjaG9vc2luZyBiZXR3ZWVuIHB1dF9wYWdl
-KCkKPj4gICBhbmQgcHV0X3VzZXJfcGFnZSooKS4KPj4KPj4gKiBQYXNzIGluIG9uZSBtb3JlIHBp
-ZWNlIG9mIGluZm9ybWF0aW9uIHRvIGJpb19yZWxlYXNlX3BhZ2VzOiBhICJmcm9tX2d1cCIKPj4g
-ICBwYXJhbWV0ZXIuIFNpbWlsYXIgdXNlIGFzIGFib3ZlLgo+Pgo+PiAqIENoYW5nZSB0aGUgYmxv
-Y2sgbGF5ZXIsIGFuZCBzZXZlcmFsIGZpbGUgc3lzdGVtcywgdG8gdXNlCj4+ICAgcHV0X3VzZXJf
-cGFnZSooKS4KPiAKPiBJIHRoaW5rIHdlIGNhbiBkbyB0aGlzIGluIGEgc2ltcGxlIGFuZCBiZXR0
-ZXIgd2F5LiAgV2UgaGF2ZSA1IElURVJfKgo+IHR5cGVzLiAgT2YgdGhvc2UgSVRFUl9ESVNDQVJE
-IGFzIHRoZSBuYW1lIHN1Z2dlc3RzIG5ldmVyIHVzZXMgcGFnZXMsIHNvCj4gd2UgY2FuIHNraXAg
-aGFuZGxpbmcgaXQuICBJVEVSX1BJUEUgaXMgcmVqZWN0ZWQg0ZZuIHRoZSBkaXJlY3QgSS9PIHBh
-dGgsCj4gd2hpY2ggbGVhdmVzIHVzIHdpdGggdGhyZWUuCj4gCgpIaSBDaHJpc3RvcGgsCgpBcmUg
-eW91IHdvcmtpbmcgb24gYW55dGhpbmcgbGlrZSB0aGlzPyBPciBvbiB0aGUgcHV0X3VzZXJfYnZl
-YygpIGlkZWE/ClBsZWFzZSBsZXQgbWUga25vdywgb3RoZXJ3aXNlIEknbGwgZ28gaW4gYW5kIGlt
-cGxlbWVudCBzb21ldGhpbmcgaGVyZS4KCgp0aGFua3MsCi0tIApKb2huIEh1YmJhcmQKTlZJRElB
-Cgo+IE91dCBvZiB0aG9zZSBJVEVSX0JWRUMgbmVlZHMgYSB1c2VyIHBhZ2UgcmVmZXJlbmNlLCBz
-byB3ZSB3YW50IHRvIGNhbGwKPiBwdXRfdXNlcl9wYWdlKiBvbiBpdC4gIElURVJfQlZFQyBhbHdh
-eXMgYWxyZWFkeSBoYXMgcGFnZSByZWZlcmVuY2UsCj4gd2hpY2ggbWVhbnMgaW4gdGhlIGJsb2Nr
-IGRpcmVjdCBJL08gcGF0aCBwYXRoIHdlIGFscmVhZCBkb24ndCB0YWtlCj4gYSBwYWdlIHJlZmVy
-ZW5jZS4gIFdlIHNob3VsZCBleHRlbnQgdGhhdCBoYW5kbGluZyB0byBhbGwgb3RoZXIgY2FsbHMK
-PiBvZiBpb3ZfaXRlcl9nZXRfcGFnZXMgLyBpb3ZfaXRlcl9nZXRfcGFnZXNfYWxsb2MuICBJIHRo
-aW5rIHdlIHNob3VsZAo+IGp1c3QgcmVqZWN0IElURVJfS1ZFQyBmb3IgZGlyZWN0IEkvTyBhcyB3
-ZWxsIGFzIHdlIGhhdmUgbm8gdXNlcnMgYW5kCj4gaXQgaXMgcmF0aGVyIHBvaW50bGVzcy4gIEFs
-dGVybmF0aXZlbHkgaWYgd2Ugc2VlIGEgdXNlIGZvciBpdCB0aGUKPiBjYWxsZXJzIHNob3VsZCBh
-bHdheXMgaGF2ZSBhIGxpZmUgcGFnZSByZWZlcmVuY2UgYW55d2F5IChvciBtaWdodAo+IGJlIG9u
-IGttYWxsb2MgbWVtb3J5KSwgc28gd2UgcmVhbGx5IHNob3VsZCBub3QgdGFrZSBhIHJlZmVyZW5j
-ZSBlaXRoZXIuCj4gCj4gSW4gb3RoZXIgd29yZHM6ICB0aGUgb25seSB0aW1lIHdlIHNob3VsZCBl
-dmVyIGhhdmUgdG8gcHV0IGEgcGFnZSBpbgo+IHRoaXMgcGF0Y2ggaXMgd2hlbiB0aGV5IGFyZSB1
-c2VyIHBhZ2VzLiAgV2UnbGwgbmVlZCB0byBjbGVhbiB1cAo+IHZhcmlvdXMgYml0cyBvZiBjb2Rl
-IGZvciB0aGF0LCBidXQgdGhhdCBjYW4gYmUgZG9uZSBncmFkdWFsbHkgYmVmb3JlCj4gZXZlbiBn
-ZXR0aW5nIHRvIHRoZSBhY3R1YWwgcHV0X3VzZXJfcGFnZXMgY29udmVyc2lvbi4KPiAKX19fX19f
-X19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX18KVmlydHVhbGl6YXRpb24g
-bWFpbGluZyBsaXN0ClZpcnR1YWxpemF0aW9uQGxpc3RzLmxpbnV4LWZvdW5kYXRpb24ub3JnCmh0
-dHBzOi8vbGlzdHMubGludXhmb3VuZGF0aW9uLm9yZy9tYWlsbWFuL2xpc3RpbmZvL3ZpcnR1YWxp
-emF0aW9u
+On Tue, Jul 23, 2019 at 06:40:00PM +0800, Chuhong Yuan wrote:
+> Instead of using to_pci_dev + pci_get_drvdata,
+> use dev_get_drvdata to make code simpler.
+> 
+> Signed-off-by: Chuhong Yuan <hslester96@gmail.com>
+
+Queued for drm-misc-next (the bochs patch too).
+
+thanks,
+  Gerd
