@@ -1,24 +1,13 @@
-From: Jason Gunthorpe <jgg@ziepe.ca>
-Subject: Re: [PATCH V2 7/9] vhost: do not use RCU to synchronize MMU notifier
-	with worker
-Date: Tue, 6 Aug 2019 09:04:16 -0300
-Message-ID: <20190806120416.GB11627__26936.0344785795$1565093067$gmane$org@ziepe.ca>
-References: <20190731084655.7024-1-jasowang@redhat.com>
-	<20190731084655.7024-8-jasowang@redhat.com>
-	<20190731123935.GC3946@ziepe.ca>
-	<7555c949-ae6f-f105-6e1d-df21ddae9e4e@redhat.com>
-	<20190731193057.GG3946@ziepe.ca>
-	<a3bde826-6329-68e4-2826-8a9de4c5bd1e@redhat.com>
-	<20190801141512.GB23899@ziepe.ca>
-	<42ead87b-1749-4c73-cbe4-29dbeb945041@redhat.com>
-	<20190802124613.GA11245@ziepe.ca>
-	<11b2a930-eae4-522c-4132-3f8a2da05666@redhat.com>
+From: Gerd Hoffmann <kraxel@redhat.com>
+Subject: [PATCH 3/3] drm/qxl: switch qxl to use the new ttm helpers.
+Date: Tue,  6 Aug 2019 15:34:54 +0200
+Message-ID: <20190806133454.8254-4-kraxel@redhat.com>
+References: <20190806133454.8254-1-kraxel@redhat.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="utf-8"
-Content-Transfer-Encoding: base64
+Content-Type: text/plain; charset="us-ascii"
+Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-Content-Disposition: inline
-In-Reply-To: <11b2a930-eae4-522c-4132-3f8a2da05666@redhat.com>
+In-Reply-To: <20190806133454.8254-1-kraxel@redhat.com>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -28,38 +17,123 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Jason Wang <jasowang@redhat.com>
-Cc: kvm@vger.kernel.org, mst@redhat.com, netdev@vger.kernel.org, linux-kernel@vger.kernel.org, virtualization@lists.linux-foundation.org, linux-mm@kvack.org
+To: dri-devel@lists.freedesktop.org
+Cc: tzimmermann@suse.de, David Airlie <airlied@linux.ie>, open list <linux-kernel@vger.kernel.org>, "open list:DRM DRIVER FOR QXL VIRTUAL GPU" <virtualization@lists.linux-foundation.org>, Daniel Vetter <daniel@ffwll.ch>, "open list:DRM DRIVER FOR QXL VIRTUAL GPU" <spice-devel@lists.freedesktop.org>, Dave Airlie <airlied@redhat.com>
 List-Id: virtualization@lists.linuxfoundation.org
 
-T24gTW9uLCBBdWcgMDUsIDIwMTkgYXQgMTI6MjA6NDVQTSArMDgwMCwgSmFzb24gV2FuZyB3cm90
-ZToKPiAKPiBPbiAyMDE5LzgvMiDkuIvljYg4OjQ2LCBKYXNvbiBHdW50aG9ycGUgd3JvdGU6Cj4g
-PiBPbiBGcmksIEF1ZyAwMiwgMjAxOSBhdCAwNTo0MDowN1BNICswODAwLCBKYXNvbiBXYW5nIHdy
-b3RlOgo+ID4gPiA+IFRoaXMgbXVzdCBiZSBhIHByb3BlciBiYXJyaWVyLCBsaWtlIGEgc3Bpbmxv
-Y2ssIG11dGV4LCBvcgo+ID4gPiA+IHN5bmNocm9uaXplX3JjdS4KPiA+ID4gCj4gPiA+IEkgc3Rh
-cnQgd2l0aCBzeW5jaHJvbml6ZV9yY3UoKSBidXQgYm90aCB5b3UgYW5kIE1pY2hhZWwgcmFpc2Ug
-c29tZQo+ID4gPiBjb25jZXJuLgo+ID4gSSd2ZSBhbHNvIGlkbHkgd29uZGVyZWQgaWYgY2FsbGlu
-ZyBzeW5jaHJvbml6ZV9yY3UoKSB1bmRlciB0aGUgdmFyaW91cwo+ID4gbW0gbG9ja3MgaXMgYSBk
-ZWFkbG9jayBzaXR1YXRpb24uCj4gCj4gCj4gTWF5YmUsIHRoYXQncyB3aHkgSSBzdWdnZXN0IHRv
-IHVzZSB2aG9zdF93b3JrX2ZsdXNoKCkgd2hpY2ggaXMgbXVjaAo+IGxpZ2h0d2VpZ2h0IGNhbiBj
-YW4gYWNoaWV2ZSB0aGUgc2FtZSBmdW5jdGlvbi4gSXQgY2FuIGd1YXJhbnRlZSBhbGwgcHJldmlv
-dXMKPiB3b3JrIGhhcyBiZWVuIHByb2Nlc3NlZCBhZnRlciB2aG9zdF93b3JrX2ZsdXNoKCkgcmV0
-dXJuLgoKSWYgdGhpbmdzIGFyZSBhbHJlYWR5IHJ1bm5pbmcgaW4gYSB3b3JrLCB0aGVuIHllcywg
-eW91IGNhbiBwaWdneWJhY2sKb24gdGhlIGV4aXN0aW5nIHNwaW5sb2NrcyBpbnNpZGUgdGhlIHdv
-cmtxdWV1ZSBhbmQgYmUgT2sKCkhvd2V2ZXIsIGlmIHRoYXQgd29yayBpcyBkb2luZyBhbnkgY29w
-eV9mcm9tX3VzZXIsIHRoZW4gdGhlIGZsdXNoCmJlY29tZXMgZGVwZW5kZW50IG9uIHN3YXAgYW5k
-IGl0IHdvbid0IHdvcmsgYWdhaW4uLi4KCj4gPiA+IDEpIHNwaW5sb2NrOiBhZGQgbG90cyBvZiBv
-dmVyaGVhZCBvbiBkYXRhcGF0aCwgdGhpcyBsZWFkcyAwIHBlcmZvcm1hbmNlCj4gPiA+IGltcHJv
-dmVtZW50Lgo+ID4gSSB0aGluayB0aGUgdG9waWMgaGVyZSBpcyBjb3JyZWN0bmVzcyBub3QgcGVy
-Zm9ybWFuY2UgaW1wcm92ZW1lbnQ+IAogCj4gQnV0IHRoZSB3aG9sZSBzZXJpZXMgaXMgdG8gc3Bl
-ZWQgdXAgdmhvc3QuCgpTbz8gU3RhcnRpbmcgd2l0aCBhIHdob2xlIGJ1bmNoIG9mIGNyYXp5LCBw
-b3NzaWJseSBicm9rZW4sIGxvY2tpbmcgYW5kCmNsYWltaW5nIGEgcGVyZm9ybWFuY2Ugd2luIGlz
-IG5vdCByZWFzb25hYmxlLgoKPiBTcGlubG9jayBpcyBjb3JyZWN0IGJ1dCBtYWtlIHRoZSB3aG9s
-ZSBzZXJpZXMgbWVhbmluZ2xlc3MgY29uc2lkZXIgaXQgd29uJ3QKPiBicmluZyBhbnkgcGVyZm9y
-bWFuY2UgaW1wcm92ZW1lbnQuCgpZb3UgY2FuJ3QgaW52ZW50IGEgZmFzdGVyIHNwaW5sb2NrIGJ5
-IG9wZW5jb2Rpbmcgc29tZSB3aWxkCnNjaGVtZS4gVGhlcmUgaXMgbm90aGluZyBzcGVjaWFsIGFi
-b3V0IHRoZSB1c2FnZSBoZXJlLCBpdCBuZWVkcyBhCmJsb2NraW5nIGxvY2ssIHBsYWluIGFuZCBz
-aW1wbGUuCgpKYXNvbgpfX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19f
-X19fXwpWaXJ0dWFsaXphdGlvbiBtYWlsaW5nIGxpc3QKVmlydHVhbGl6YXRpb25AbGlzdHMubGlu
-dXgtZm91bmRhdGlvbi5vcmcKaHR0cHM6Ly9saXN0cy5saW51eGZvdW5kYXRpb24ub3JnL21haWxt
-YW4vbGlzdGluZm8vdmlydHVhbGl6YXRpb24=
+Signed-off-by: Gerd Hoffmann <kraxel@redhat.com>
+---
+ drivers/gpu/drm/qxl/qxl_drv.h    |  4 +---
+ drivers/gpu/drm/qxl/qxl_object.h |  5 -----
+ drivers/gpu/drm/qxl/qxl_drv.c    |  2 +-
+ drivers/gpu/drm/qxl/qxl_dumb.c   | 17 -----------------
+ drivers/gpu/drm/qxl/qxl_ioctl.c  |  5 +++--
+ drivers/gpu/drm/qxl/Kconfig      |  1 +
+ 6 files changed, 6 insertions(+), 28 deletions(-)
+
+diff --git a/drivers/gpu/drm/qxl/qxl_drv.h b/drivers/gpu/drm/qxl/qxl_drv.h
+index 9e034c5fa87d..82efbe76062a 100644
+--- a/drivers/gpu/drm/qxl/qxl_drv.h
++++ b/drivers/gpu/drm/qxl/qxl_drv.h
+@@ -38,6 +38,7 @@
+ #include <drm/drm_crtc.h>
+ #include <drm/drm_encoder.h>
+ #include <drm/drm_fb_helper.h>
++#include <drm/drm_gem_ttm_helper.h>
+ #include <drm/drm_ioctl.h>
+ #include <drm/drm_gem.h>
+ #include <drm/qxl_drm.h>
+@@ -347,9 +348,6 @@ int qxl_bo_kmap(struct qxl_bo *bo, void **ptr);
+ int qxl_mode_dumb_create(struct drm_file *file_priv,
+ 			 struct drm_device *dev,
+ 			 struct drm_mode_create_dumb *args);
+-int qxl_mode_dumb_mmap(struct drm_file *filp,
+-		       struct drm_device *dev,
+-		       uint32_t handle, uint64_t *offset_p);
+ 
+ /* qxl ttm */
+ int qxl_ttm_init(struct qxl_device *qdev);
+diff --git a/drivers/gpu/drm/qxl/qxl_object.h b/drivers/gpu/drm/qxl/qxl_object.h
+index 8ae54ba7857c..1f0316ebcfd0 100644
+--- a/drivers/gpu/drm/qxl/qxl_object.h
++++ b/drivers/gpu/drm/qxl/qxl_object.h
+@@ -58,11 +58,6 @@ static inline unsigned long qxl_bo_size(struct qxl_bo *bo)
+ 	return bo->tbo.num_pages << PAGE_SHIFT;
+ }
+ 
+-static inline u64 qxl_bo_mmap_offset(struct qxl_bo *bo)
+-{
+-	return drm_vma_node_offset_addr(&bo->tbo.base.vma_node);
+-}
+-
+ static inline int qxl_bo_wait(struct qxl_bo *bo, u32 *mem_type,
+ 			      bool no_wait)
+ {
+diff --git a/drivers/gpu/drm/qxl/qxl_drv.c b/drivers/gpu/drm/qxl/qxl_drv.c
+index c1802e01d9f6..18249110aa56 100644
+--- a/drivers/gpu/drm/qxl/qxl_drv.c
++++ b/drivers/gpu/drm/qxl/qxl_drv.c
+@@ -252,7 +252,7 @@ static struct drm_driver qxl_driver = {
+ 	.driver_features = DRIVER_GEM | DRIVER_MODESET | DRIVER_ATOMIC,
+ 
+ 	.dumb_create = qxl_mode_dumb_create,
+-	.dumb_map_offset = qxl_mode_dumb_mmap,
++	.dumb_map_offset = drm_gem_ttm_driver_dumb_mmap_offset,
+ #if defined(CONFIG_DEBUG_FS)
+ 	.debugfs_init = qxl_debugfs_init,
+ #endif
+diff --git a/drivers/gpu/drm/qxl/qxl_dumb.c b/drivers/gpu/drm/qxl/qxl_dumb.c
+index 272d19b677d8..bd3b16a701a6 100644
+--- a/drivers/gpu/drm/qxl/qxl_dumb.c
++++ b/drivers/gpu/drm/qxl/qxl_dumb.c
+@@ -69,20 +69,3 @@ int qxl_mode_dumb_create(struct drm_file *file_priv,
+ 	args->handle = handle;
+ 	return 0;
+ }
+-
+-int qxl_mode_dumb_mmap(struct drm_file *file_priv,
+-		       struct drm_device *dev,
+-		       uint32_t handle, uint64_t *offset_p)
+-{
+-	struct drm_gem_object *gobj;
+-	struct qxl_bo *qobj;
+-
+-	BUG_ON(!offset_p);
+-	gobj = drm_gem_object_lookup(file_priv, handle);
+-	if (gobj == NULL)
+-		return -ENOENT;
+-	qobj = gem_to_qxl_bo(gobj);
+-	*offset_p = qxl_bo_mmap_offset(qobj);
+-	drm_gem_object_put_unlocked(gobj);
+-	return 0;
+-}
+diff --git a/drivers/gpu/drm/qxl/qxl_ioctl.c b/drivers/gpu/drm/qxl/qxl_ioctl.c
+index 8117a45b3610..b1cc38ed0ed4 100644
+--- a/drivers/gpu/drm/qxl/qxl_ioctl.c
++++ b/drivers/gpu/drm/qxl/qxl_ioctl.c
+@@ -67,8 +67,9 @@ static int qxl_map_ioctl(struct drm_device *dev, void *data,
+ 	struct qxl_device *qdev = dev->dev_private;
+ 	struct drm_qxl_map *qxl_map = data;
+ 
+-	return qxl_mode_dumb_mmap(file_priv, &qdev->ddev, qxl_map->handle,
+-				  &qxl_map->offset);
++	return drm_gem_ttm_driver_dumb_mmap_offset(file_priv, &qdev->ddev,
++						   qxl_map->handle,
++						   &qxl_map->offset);
+ }
+ 
+ struct qxl_reloc_info {
+diff --git a/drivers/gpu/drm/qxl/Kconfig b/drivers/gpu/drm/qxl/Kconfig
+index d0d691b31f4a..bfe90c7d17b2 100644
+--- a/drivers/gpu/drm/qxl/Kconfig
++++ b/drivers/gpu/drm/qxl/Kconfig
+@@ -3,6 +3,7 @@ config DRM_QXL
+ 	tristate "QXL virtual GPU"
+ 	depends on DRM && PCI && MMU
+ 	select DRM_KMS_HELPER
++	select DRM_TTM_HELPER
+ 	select DRM_TTM
+ 	select CRC32
+ 	help
+-- 
+2.18.1
