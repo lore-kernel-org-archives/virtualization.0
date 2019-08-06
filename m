@@ -1,24 +1,24 @@
 From: Jason Gunthorpe <jgg@ziepe.ca>
 Subject: Re: [PATCH V2 7/9] vhost: do not use RCU to synchronize MMU notifier
 	with worker
-Date: Tue, 6 Aug 2019 08:53:17 -0300
-Message-ID: <20190806115317.GA11627__8250.4049454414$1565092411$gmane$org@ziepe.ca>
-References: <20190731193057.GG3946@ziepe.ca>
+Date: Tue, 6 Aug 2019 09:04:16 -0300
+Message-ID: <20190806120416.GB11627__26936.0344785795$1565093067$gmane$org@ziepe.ca>
+References: <20190731084655.7024-1-jasowang@redhat.com>
+	<20190731084655.7024-8-jasowang@redhat.com>
+	<20190731123935.GC3946@ziepe.ca>
+	<7555c949-ae6f-f105-6e1d-df21ddae9e4e@redhat.com>
+	<20190731193057.GG3946@ziepe.ca>
 	<a3bde826-6329-68e4-2826-8a9de4c5bd1e@redhat.com>
 	<20190801141512.GB23899@ziepe.ca>
 	<42ead87b-1749-4c73-cbe4-29dbeb945041@redhat.com>
 	<20190802124613.GA11245@ziepe.ca>
-	<20190802100414-mutt-send-email-mst@kernel.org>
-	<20190802172418.GB11245@ziepe.ca>
-	<20190803172944-mutt-send-email-mst@kernel.org>
-	<20190804001400.GA25543@ziepe.ca>
-	<20190804040034-mutt-send-email-mst@kernel.org>
+	<11b2a930-eae4-522c-4132-3f8a2da05666@redhat.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset="utf-8"
+Content-Transfer-Encoding: base64
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
 Content-Disposition: inline
-In-Reply-To: <20190804040034-mutt-send-email-mst@kernel.org>
+In-Reply-To: <11b2a930-eae4-522c-4132-3f8a2da05666@redhat.com>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -28,22 +28,38 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: "Michael S. Tsirkin" <mst@redhat.com>
-Cc: kvm@vger.kernel.org, netdev@vger.kernel.org, linux-kernel@vger.kernel.org, virtualization@lists.linux-foundation.org, linux-mm@kvack.org
+To: Jason Wang <jasowang@redhat.com>
+Cc: kvm@vger.kernel.org, mst@redhat.com, netdev@vger.kernel.org, linux-kernel@vger.kernel.org, virtualization@lists.linux-foundation.org, linux-mm@kvack.org
 List-Id: virtualization@lists.linuxfoundation.org
 
-On Sun, Aug 04, 2019 at 04:07:17AM -0400, Michael S. Tsirkin wrote:
-> > > > Also, why can't this just permanently GUP the pages? In fact, where
-> > > > does it put_page them anyhow? Worrying that 7f466 adds a get_user page
-> > > > but does not add a put_page??
-> > 
-> > You didn't answer this.. Why not just use GUP?
-> > 
-> > Jason
-> 
-> Sorry I misunderstood the question. Permanent GUP breaks lots of
-> functionality we need such as THP and numa balancing.
-
-Really? It doesn't look like that many pages are involved..
-
-Jason
+T24gTW9uLCBBdWcgMDUsIDIwMTkgYXQgMTI6MjA6NDVQTSArMDgwMCwgSmFzb24gV2FuZyB3cm90
+ZToKPiAKPiBPbiAyMDE5LzgvMiDkuIvljYg4OjQ2LCBKYXNvbiBHdW50aG9ycGUgd3JvdGU6Cj4g
+PiBPbiBGcmksIEF1ZyAwMiwgMjAxOSBhdCAwNTo0MDowN1BNICswODAwLCBKYXNvbiBXYW5nIHdy
+b3RlOgo+ID4gPiA+IFRoaXMgbXVzdCBiZSBhIHByb3BlciBiYXJyaWVyLCBsaWtlIGEgc3Bpbmxv
+Y2ssIG11dGV4LCBvcgo+ID4gPiA+IHN5bmNocm9uaXplX3JjdS4KPiA+ID4gCj4gPiA+IEkgc3Rh
+cnQgd2l0aCBzeW5jaHJvbml6ZV9yY3UoKSBidXQgYm90aCB5b3UgYW5kIE1pY2hhZWwgcmFpc2Ug
+c29tZQo+ID4gPiBjb25jZXJuLgo+ID4gSSd2ZSBhbHNvIGlkbHkgd29uZGVyZWQgaWYgY2FsbGlu
+ZyBzeW5jaHJvbml6ZV9yY3UoKSB1bmRlciB0aGUgdmFyaW91cwo+ID4gbW0gbG9ja3MgaXMgYSBk
+ZWFkbG9jayBzaXR1YXRpb24uCj4gCj4gCj4gTWF5YmUsIHRoYXQncyB3aHkgSSBzdWdnZXN0IHRv
+IHVzZSB2aG9zdF93b3JrX2ZsdXNoKCkgd2hpY2ggaXMgbXVjaAo+IGxpZ2h0d2VpZ2h0IGNhbiBj
+YW4gYWNoaWV2ZSB0aGUgc2FtZSBmdW5jdGlvbi4gSXQgY2FuIGd1YXJhbnRlZSBhbGwgcHJldmlv
+dXMKPiB3b3JrIGhhcyBiZWVuIHByb2Nlc3NlZCBhZnRlciB2aG9zdF93b3JrX2ZsdXNoKCkgcmV0
+dXJuLgoKSWYgdGhpbmdzIGFyZSBhbHJlYWR5IHJ1bm5pbmcgaW4gYSB3b3JrLCB0aGVuIHllcywg
+eW91IGNhbiBwaWdneWJhY2sKb24gdGhlIGV4aXN0aW5nIHNwaW5sb2NrcyBpbnNpZGUgdGhlIHdv
+cmtxdWV1ZSBhbmQgYmUgT2sKCkhvd2V2ZXIsIGlmIHRoYXQgd29yayBpcyBkb2luZyBhbnkgY29w
+eV9mcm9tX3VzZXIsIHRoZW4gdGhlIGZsdXNoCmJlY29tZXMgZGVwZW5kZW50IG9uIHN3YXAgYW5k
+IGl0IHdvbid0IHdvcmsgYWdhaW4uLi4KCj4gPiA+IDEpIHNwaW5sb2NrOiBhZGQgbG90cyBvZiBv
+dmVyaGVhZCBvbiBkYXRhcGF0aCwgdGhpcyBsZWFkcyAwIHBlcmZvcm1hbmNlCj4gPiA+IGltcHJv
+dmVtZW50Lgo+ID4gSSB0aGluayB0aGUgdG9waWMgaGVyZSBpcyBjb3JyZWN0bmVzcyBub3QgcGVy
+Zm9ybWFuY2UgaW1wcm92ZW1lbnQ+IAogCj4gQnV0IHRoZSB3aG9sZSBzZXJpZXMgaXMgdG8gc3Bl
+ZWQgdXAgdmhvc3QuCgpTbz8gU3RhcnRpbmcgd2l0aCBhIHdob2xlIGJ1bmNoIG9mIGNyYXp5LCBw
+b3NzaWJseSBicm9rZW4sIGxvY2tpbmcgYW5kCmNsYWltaW5nIGEgcGVyZm9ybWFuY2Ugd2luIGlz
+IG5vdCByZWFzb25hYmxlLgoKPiBTcGlubG9jayBpcyBjb3JyZWN0IGJ1dCBtYWtlIHRoZSB3aG9s
+ZSBzZXJpZXMgbWVhbmluZ2xlc3MgY29uc2lkZXIgaXQgd29uJ3QKPiBicmluZyBhbnkgcGVyZm9y
+bWFuY2UgaW1wcm92ZW1lbnQuCgpZb3UgY2FuJ3QgaW52ZW50IGEgZmFzdGVyIHNwaW5sb2NrIGJ5
+IG9wZW5jb2Rpbmcgc29tZSB3aWxkCnNjaGVtZS4gVGhlcmUgaXMgbm90aGluZyBzcGVjaWFsIGFi
+b3V0IHRoZSB1c2FnZSBoZXJlLCBpdCBuZWVkcyBhCmJsb2NraW5nIGxvY2ssIHBsYWluIGFuZCBz
+aW1wbGUuCgpKYXNvbgpfX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19f
+X19fXwpWaXJ0dWFsaXphdGlvbiBtYWlsaW5nIGxpc3QKVmlydHVhbGl6YXRpb25AbGlzdHMubGlu
+dXgtZm91bmRhdGlvbi5vcmcKaHR0cHM6Ly9saXN0cy5saW51eGZvdW5kYXRpb24ub3JnL21haWxt
+YW4vbGlzdGluZm8vdmlydHVhbGl6YXRpb24=
