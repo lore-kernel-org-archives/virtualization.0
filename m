@@ -1,25 +1,11 @@
 From: Jason Wang <jasowang@redhat.com>
-Subject: Re: [PATCH V2 7/9] vhost: do not use RCU to synchronize MMU notifier
-	with worker
-Date: Wed, 7 Aug 2019 14:49:57 +0800
-Message-ID: <4b448aa5-2c92-a6ca-67d6-d30fad67254c__15704.4350098417$1565160614$gmane$org@redhat.com>
-References: <20190731084655.7024-1-jasowang@redhat.com>
-	<20190731084655.7024-8-jasowang@redhat.com>
-	<20190731123935.GC3946@ziepe.ca>
-	<7555c949-ae6f-f105-6e1d-df21ddae9e4e@redhat.com>
-	<20190731193057.GG3946@ziepe.ca>
-	<a3bde826-6329-68e4-2826-8a9de4c5bd1e@redhat.com>
-	<20190801141512.GB23899@ziepe.ca>
-	<42ead87b-1749-4c73-cbe4-29dbeb945041@redhat.com>
-	<20190802124613.GA11245@ziepe.ca>
-	<11b2a930-eae4-522c-4132-3f8a2da05666@redhat.com>
-	<20190806120416.GB11627@ziepe.ca>
+Subject: [PATCH V3 00/10] Fixes for metadata accelreation
+Date: Wed,  7 Aug 2019 02:54:39 -0400
+Message-ID: <20190807065449.23373-1-jasowang__38730.2895587467$1565160910$gmane$org@redhat.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="utf-8"; Format="flowed"
-Content-Transfer-Encoding: base64
+Content-Type: text/plain; charset="us-ascii"
+Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <20190806120416.GB11627@ziepe.ca>
-Content-Language: en-US
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -29,43 +15,42 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Jason Gunthorpe <jgg@ziepe.ca>
-Cc: kvm@vger.kernel.org, mst@redhat.com, netdev@vger.kernel.org, linux-kernel@vger.kernel.org, virtualization@lists.linux-foundation.org, linux-mm@kvack.org
+To: mst@redhat.com, kvm@vger.kernel.org, virtualization@lists.linux-foundation.org, netdev@vger.kernel.org
+Cc: linux-mm@kvack.org, linux-kernel@vger.kernel.org, jgg@ziepe.ca
 List-Id: virtualization@lists.linuxfoundation.org
 
-Ck9uIDIwMTkvOC82IOS4i+WNiDg6MDQsIEphc29uIEd1bnRob3JwZSB3cm90ZToKPiBPbiBNb24s
-IEF1ZyAwNSwgMjAxOSBhdCAxMjoyMDo0NVBNICswODAwLCBKYXNvbiBXYW5nIHdyb3RlOgo+PiBP
-biAyMDE5LzgvMiDkuIvljYg4OjQ2LCBKYXNvbiBHdW50aG9ycGUgd3JvdGU6Cj4+PiBPbiBGcmks
-IEF1ZyAwMiwgMjAxOSBhdCAwNTo0MDowN1BNICswODAwLCBKYXNvbiBXYW5nIHdyb3RlOgo+Pj4+
-PiBUaGlzIG11c3QgYmUgYSBwcm9wZXIgYmFycmllciwgbGlrZSBhIHNwaW5sb2NrLCBtdXRleCwg
-b3IKPj4+Pj4gc3luY2hyb25pemVfcmN1Lgo+Pj4+IEkgc3RhcnQgd2l0aCBzeW5jaHJvbml6ZV9y
-Y3UoKSBidXQgYm90aCB5b3UgYW5kIE1pY2hhZWwgcmFpc2Ugc29tZQo+Pj4+IGNvbmNlcm4uCj4+
-PiBJJ3ZlIGFsc28gaWRseSB3b25kZXJlZCBpZiBjYWxsaW5nIHN5bmNocm9uaXplX3JjdSgpIHVu
-ZGVyIHRoZSB2YXJpb3VzCj4+PiBtbSBsb2NrcyBpcyBhIGRlYWRsb2NrIHNpdHVhdGlvbi4KPj4K
-Pj4gTWF5YmUsIHRoYXQncyB3aHkgSSBzdWdnZXN0IHRvIHVzZSB2aG9zdF93b3JrX2ZsdXNoKCkg
-d2hpY2ggaXMgbXVjaAo+PiBsaWdodHdlaWdodCBjYW4gY2FuIGFjaGlldmUgdGhlIHNhbWUgZnVu
-Y3Rpb24uIEl0IGNhbiBndWFyYW50ZWUgYWxsIHByZXZpb3VzCj4+IHdvcmsgaGFzIGJlZW4gcHJv
-Y2Vzc2VkIGFmdGVyIHZob3N0X3dvcmtfZmx1c2goKSByZXR1cm4uCj4gSWYgdGhpbmdzIGFyZSBh
-bHJlYWR5IHJ1bm5pbmcgaW4gYSB3b3JrLCB0aGVuIHllcywgeW91IGNhbiBwaWdneWJhY2sKPiBv
-biB0aGUgZXhpc3Rpbmcgc3BpbmxvY2tzIGluc2lkZSB0aGUgd29ya3F1ZXVlIGFuZCBiZSBPawo+
-Cj4gSG93ZXZlciwgaWYgdGhhdCB3b3JrIGlzIGRvaW5nIGFueSBjb3B5X2Zyb21fdXNlciwgdGhl
-biB0aGUgZmx1c2gKPiBiZWNvbWVzIGRlcGVuZGVudCBvbiBzd2FwIGFuZCBpdCB3b24ndCB3b3Jr
-IGFnYWluLi4uCgoKWWVzIGl0IGRvIGNvcHlfZnJvbV91c2VyKCksIHNvIHdlIGNhbid0IGRvIHRo
-aXMuCgoKPgo+Pj4+IDEpIHNwaW5sb2NrOiBhZGQgbG90cyBvZiBvdmVyaGVhZCBvbiBkYXRhcGF0
-aCwgdGhpcyBsZWFkcyAwIHBlcmZvcm1hbmNlCj4+Pj4gaW1wcm92ZW1lbnQuCj4+PiBJIHRoaW5r
-IHRoZSB0b3BpYyBoZXJlIGlzIGNvcnJlY3RuZXNzIG5vdCBwZXJmb3JtYW5jZSBpbXByb3ZlbWVu
-dD4KPiAgIAo+PiBCdXQgdGhlIHdob2xlIHNlcmllcyBpcyB0byBzcGVlZCB1cCB2aG9zdC4KPiBT
-bz8gU3RhcnRpbmcgd2l0aCBhIHdob2xlIGJ1bmNoIG9mIGNyYXp5LCBwb3NzaWJseSBicm9rZW4s
-IGxvY2tpbmcgYW5kCj4gY2xhaW1pbmcgYSBwZXJmb3JtYW5jZSB3aW4gaXMgbm90IHJlYXNvbmFi
-bGUuCgoKWWVzLCBJIGFkbWl0IHRoaXMgcGF0Y2ggaXMgdHJpY2t5LCBJJ20gbm90IGdvaW5nIHRv
-IHB1c2ggdGhpcy4gV2lsbCBwb3N0IAphIFYzLgoKCj4KPj4gU3BpbmxvY2sgaXMgY29ycmVjdCBi
-dXQgbWFrZSB0aGUgd2hvbGUgc2VyaWVzIG1lYW5pbmdsZXNzIGNvbnNpZGVyIGl0IHdvbid0Cj4+
-IGJyaW5nIGFueSBwZXJmb3JtYW5jZSBpbXByb3ZlbWVudC4KPiBZb3UgY2FuJ3QgaW52ZW50IGEg
-ZmFzdGVyIHNwaW5sb2NrIGJ5IG9wZW5jb2Rpbmcgc29tZSB3aWxkCj4gc2NoZW1lLiBUaGVyZSBp
-cyBub3RoaW5nIHNwZWNpYWwgYWJvdXQgdGhlIHVzYWdlIGhlcmUsIGl0IG5lZWRzIGEKPiBibG9j
-a2luZyBsb2NrLCBwbGFpbiBhbmQgc2ltcGxlLgo+Cj4gSmFzb24KCgpXaWxsIHBvc3QgVjMuIExl
-dCdzIHNlZSBpZiB5b3UgYXJlIGhhcHB5IHdpdGggdGhhdCB2ZXJzaW9uLgoKVGhhbmtzCgoKX19f
-X19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX18KVmlydHVhbGl6YXRp
-b24gbWFpbGluZyBsaXN0ClZpcnR1YWxpemF0aW9uQGxpc3RzLmxpbnV4LWZvdW5kYXRpb24ub3Jn
-Cmh0dHBzOi8vbGlzdHMubGludXhmb3VuZGF0aW9uLm9yZy9tYWlsbWFuL2xpc3RpbmZvL3ZpcnR1
-YWxpemF0aW9u
+Hi all:
+
+This series try to fix several issues introduced by meta data
+accelreation series. Please review.
+
+Changes from V2:
+- use seqlck helper to synchronize MMU notifier with vhost worker
+
+Changes from V1:
+
+- try not use RCU to syncrhonize MMU notifier with vhost worker
+- set dirty pages after no readers
+- return -EAGAIN only when we find the range is overlapped with
+  metadata
+
+Jason Wang (9):
+  vhost: don't set uaddr for invalid address
+  vhost: validate MMU notifier registration
+  vhost: fix vhost map leak
+  vhost: reset invalidate_count in vhost_set_vring_num_addr()
+  vhost: mark dirty pages during map uninit
+  vhost: don't do synchronize_rcu() in vhost_uninit_vq_maps()
+  vhost: do not use RCU to synchronize MMU notifier with worker
+  vhost: correctly set dirty pages in MMU notifiers callback
+  vhost: do not return -EAGAIN for non blocking invalidation too early
+
+Michael S. Tsirkin (1):
+  vhost: disable metadata prefetch optimization
+
+ drivers/vhost/vhost.c | 228 +++++++++++++++++++++++++++---------------
+ drivers/vhost/vhost.h |  10 +-
+ 2 files changed, 151 insertions(+), 87 deletions(-)
+
+-- 
+2.18.1
