@@ -1,7 +1,7 @@
 From: Jason Wang <jasowang@redhat.com>
-Subject: [PATCH V3 01/10] vhost: disable metadata prefetch optimization
-Date: Wed,  7 Aug 2019 02:54:40 -0400
-Message-ID: <20190807065449.23373-2-jasowang__27648.5260970489$1565160919$gmane$org@redhat.com>
+Subject: [PATCH V3 02/10] vhost: don't set uaddr for invalid address
+Date: Wed,  7 Aug 2019 02:54:41 -0400
+Message-ID: <20190807065449.23373-3-jasowang__3975.45397733978$1565160927$gmane$org@redhat.com>
 References: <20190807065449.23373-1-jasowang@redhat.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
@@ -21,28 +21,28 @@ To: mst@redhat.com, kvm@vger.kernel.org, virtualization@lists.linux-foundation.o
 Cc: linux-mm@kvack.org, linux-kernel@vger.kernel.org, jgg@ziepe.ca
 List-Id: virtualization@lists.linuxfoundation.org
 
-From: "Michael S. Tsirkin" <mst@redhat.com>
+We should not setup uaddr for the invalid address, otherwise we may
+try to pin or prefetch mapping of wrong pages.
 
-This seems to cause guest and host memory corruption.
-Disable for now until we get a better handle on that.
-
-Signed-off-by: Michael S. Tsirkin <mst@redhat.com>
+Fixes: 7f466032dc9e ("vhost: access vq metadata through kernel virtual address")
+Signed-off-by: Jason Wang <jasowang@redhat.com>
 ---
- drivers/vhost/vhost.h | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ drivers/vhost/vhost.c | 3 ++-
+ 1 file changed, 2 insertions(+), 1 deletion(-)
 
-diff --git a/drivers/vhost/vhost.h b/drivers/vhost/vhost.h
-index 819296332913..42a8c2a13ab1 100644
---- a/drivers/vhost/vhost.h
-+++ b/drivers/vhost/vhost.h
-@@ -96,7 +96,7 @@ struct vhost_uaddr {
- };
+diff --git a/drivers/vhost/vhost.c b/drivers/vhost/vhost.c
+index 0536f8526359..488380a581dc 100644
+--- a/drivers/vhost/vhost.c
++++ b/drivers/vhost/vhost.c
+@@ -2082,7 +2082,8 @@ static long vhost_vring_set_num_addr(struct vhost_dev *d,
+ 	}
  
- #if defined(CONFIG_MMU_NOTIFIER) && ARCH_IMPLEMENTS_FLUSH_DCACHE_PAGE == 0
--#define VHOST_ARCH_CAN_ACCEL_UACCESS 1
-+#define VHOST_ARCH_CAN_ACCEL_UACCESS 0
- #else
- #define VHOST_ARCH_CAN_ACCEL_UACCESS 0
- #endif
+ #if VHOST_ARCH_CAN_ACCEL_UACCESS
+-	vhost_setup_vq_uaddr(vq);
++	if (r == 0)
++		vhost_setup_vq_uaddr(vq);
+ 
+ 	if (d->mm)
+ 		mmu_notifier_register(&d->mmu_notifier, d->mm);
 -- 
 2.18.1
