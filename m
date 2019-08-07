@@ -1,16 +1,14 @@
-From: Jason Gunthorpe <jgg@ziepe.ca>
-Subject: Re: [PATCH V4 7/9] vhost: do not use RCU to synchronize MMU notifier
-	with worker
-Date: Wed, 7 Aug 2019 09:07:38 -0300
-Message-ID: <20190807120738.GB1557__27467.7328461379$1565179729$gmane$org@ziepe.ca>
-References: <20190807070617.23716-1-jasowang@redhat.com>
-	<20190807070617.23716-8-jasowang@redhat.com>
+From: Stefan Hajnoczi <stefanha@redhat.com>
+Subject: Re: [PATCH 0/4] virtio: Add definitions for shared memory regions
+Date: Wed, 7 Aug 2019 14:20:55 +0100
+Message-ID: <20190807132055.GB32432@stefanha-x1.localdomain>
+References: <20190725175044.29303-1-dgilbert@redhat.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
 Content-Disposition: inline
-In-Reply-To: <20190807070617.23716-8-jasowang@redhat.com>
+In-Reply-To: <20190725175044.29303-1-dgilbert@redhat.com>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -20,93 +18,28 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Jason Wang <jasowang@redhat.com>
-Cc: kvm@vger.kernel.org, mst@redhat.com, netdev@vger.kernel.org, linux-kernel@vger.kernel.org, virtualization@lists.linux-foundation.org, linux-mm@kvack.org
+To: "Dr. David Alan Gilbert (git)" <dgilbert@redhat.com>
+Cc: mst@redhat.com, sebastien.boeuf@intel.com, vgoyal@redhat.com, virtualization@lists.linux-foundation.org
 List-Id: virtualization@lists.linuxfoundation.org
 
-On Wed, Aug 07, 2019 at 03:06:15AM -0400, Jason Wang wrote:
-> We used to use RCU to synchronize MMU notifier with worker. This leads
-> calling synchronize_rcu() in invalidate_range_start(). But on a busy
-> system, there would be many factors that may slow down the
-> synchronize_rcu() which makes it unsuitable to be called in MMU
-> notifier.
+On Thu, Jul 25, 2019 at 06:50:40PM +0100, Dr. David Alan Gilbert (git) wrote:
+> From: "Dr. David Alan Gilbert" <dgilbert@redhat.com>
 > 
-> So this patch switches use seqlock counter to track whether or not the
-> map was used. The counter was increased when vq try to start or finish
-> uses the map. This means, when it was even, we're sure there's no
-> readers and MMU notifier is synchronized. When it was odd, it means
-> there's a reader we need to wait it to be even again then we are
-> synchronized. Consider the read critical section is pretty small the
-> synchronization should be done very fast.
+> Add the virtio shared memory region definitions that
+> have just got merged into the spec.
 > 
-> Reported-by: Michael S. Tsirkin <mst@redhat.com>
-> Fixes: 7f466032dc9e ("vhost: access vq metadata through kernel virtual address")
-> Signed-off-by: Jason Wang <jasowang@redhat.com>
->  drivers/vhost/vhost.c | 141 ++++++++++++++++++++++++++----------------
->  drivers/vhost/vhost.h |   7 ++-
->  2 files changed, 90 insertions(+), 58 deletions(-)
+> Dr. David Alan Gilbert (4):
+>   virtio_pci: Define id field
+>   virtio_pci: Define virtio_pci_cap64
+>   virtio_pci: Defined shared memory capability
+>   virito_mmio: Define shared memory region registers
 > 
-> diff --git a/drivers/vhost/vhost.c b/drivers/vhost/vhost.c
-> index cfc11f9ed9c9..57bfbb60d960 100644
-> +++ b/drivers/vhost/vhost.c
-> @@ -324,17 +324,16 @@ static void vhost_uninit_vq_maps(struct vhost_virtqueue *vq)
->  
->  	spin_lock(&vq->mmu_lock);
->  	for (i = 0; i < VHOST_NUM_ADDRS; i++) {
-> -		map[i] = rcu_dereference_protected(vq->maps[i],
-> -				  lockdep_is_held(&vq->mmu_lock));
-> +		map[i] = vq->maps[i];
->  		if (map[i]) {
->  			vhost_set_map_dirty(vq, map[i], i);
-> -			rcu_assign_pointer(vq->maps[i], NULL);
-> +			vq->maps[i] = NULL;
->  		}
->  	}
->  	spin_unlock(&vq->mmu_lock);
->  
-> -	/* No need for synchronize_rcu() or kfree_rcu() since we are
-> -	 * serialized with memory accessors (e.g vq mutex held).
-> +	/* No need for synchronization since we are serialized with
-> +	 * memory accessors (e.g vq mutex held).
->  	 */
->  
->  	for (i = 0; i < VHOST_NUM_ADDRS; i++)
-> @@ -362,6 +361,40 @@ static bool vhost_map_range_overlap(struct vhost_uaddr *uaddr,
->  	return !(end < uaddr->uaddr || start > uaddr->uaddr - 1 + uaddr->size);
->  }
->  
-> +static void inline vhost_vq_access_map_begin(struct vhost_virtqueue *vq)
-> +{
-> +	write_seqcount_begin(&vq->seq);
-> +}
-> +
-> +static void inline vhost_vq_access_map_end(struct vhost_virtqueue *vq)
-> +{
-> +	write_seqcount_end(&vq->seq);
-> +}
+>  include/uapi/linux/virtio_mmio.h | 11 +++++++++++
+>  include/uapi/linux/virtio_pci.h  | 11 ++++++++++-
+>  2 files changed, 21 insertions(+), 1 deletion(-)
+> 
+> -- 
+> 2.21.0
+> 
 
-The write side of a seqlock only provides write barriers. Access to
-
-	map = vq->maps[VHOST_ADDR_USED];
-
-Still needs a read side barrier, and then I think this will be no
-better than a normal spinlock.
-
-It also doesn't seem like this algorithm even needs a seqlock, as this
-is just a one bit flag
-
-atomic_set_bit(using map)
-smp_mb__after_atomic()
-.. maps [...]
-atomic_clear_bit(using map)
-
-
-map = NULL;
-smp_mb__before_atomic();
-while (atomic_read_bit(using map))
-   relax()
-
-Again, not clear this could be faster than a spinlock when the
-barriers are correct...
-
-Jason
+Reviewed-by: Stefan Hajnoczi <stefanha@redhat.com>
