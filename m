@@ -1,8 +1,8 @@
 From: Jason Wang <jasowang@redhat.com>
-Subject: [PATCH V3 09/10] vhost: correctly set dirty pages in MMU notifiers
-	callback
-Date: Wed,  7 Aug 2019 02:54:48 -0400
-Message-ID: <20190807065449.23373-10-jasowang__33107.3787108593$1565160997$gmane$org@redhat.com>
+Subject: [PATCH V3 10/10] vhost: do not return -EAGAIN for non blocking
+	invalidation too early
+Date: Wed,  7 Aug 2019 02:54:49 -0400
+Message-ID: <20190807065449.23373-11-jasowang__9565.94438045926$1565161007$gmane$org@redhat.com>
 References: <20190807065449.23373-1-jasowang@redhat.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
@@ -22,36 +22,81 @@ To: mst@redhat.com, kvm@vger.kernel.org, virtualization@lists.linux-foundation.o
 Cc: linux-mm@kvack.org, linux-kernel@vger.kernel.org, jgg@ziepe.ca
 List-Id: virtualization@lists.linuxfoundation.org
 
-We need make sure there's no reference on the map before trying to
-mark set dirty pages.
+Instead of returning -EAGAIN unconditionally, we'd better do that only
+we're sure the range is overlapped with the metadata area.
 
-Reported-by: Michael S. Tsirkin <mst@redhat.com>
+Reported-by: Jason Gunthorpe <jgg@ziepe.ca>
 Fixes: 7f466032dc9e ("vhost: access vq metadata through kernel virtual address")
 Signed-off-by: Jason Wang <jasowang@redhat.com>
 ---
- drivers/vhost/vhost.c | 5 ++---
- 1 file changed, 2 insertions(+), 3 deletions(-)
+ drivers/vhost/vhost.c | 32 +++++++++++++++++++-------------
+ 1 file changed, 19 insertions(+), 13 deletions(-)
 
 diff --git a/drivers/vhost/vhost.c b/drivers/vhost/vhost.c
-index 57bfbb60d960..6650a3ff88c1 100644
+index 6650a3ff88c1..0271f853fa9c 100644
 --- a/drivers/vhost/vhost.c
 +++ b/drivers/vhost/vhost.c
-@@ -410,14 +410,13 @@ static void vhost_invalidate_vq_start(struct vhost_virtqueue *vq,
+@@ -395,16 +395,19 @@ static void inline vhost_vq_sync_access(struct vhost_virtqueue *vq)
+ 	smp_mb();
+ }
+ 
+-static void vhost_invalidate_vq_start(struct vhost_virtqueue *vq,
+-				      int index,
+-				      unsigned long start,
+-				      unsigned long end)
++static int vhost_invalidate_vq_start(struct vhost_virtqueue *vq,
++				     int index,
++				     unsigned long start,
++				     unsigned long end,
++				     bool blockable)
+ {
+ 	struct vhost_uaddr *uaddr = &vq->uaddrs[index];
+ 	struct vhost_map *map;
+ 
+ 	if (!vhost_map_range_overlap(uaddr, start, end))
+-		return;
++		return 0;
++	else if (!blockable)
++		return -EAGAIN;
+ 
+ 	spin_lock(&vq->mmu_lock);
  	++vq->invalidate_count;
- 
- 	map = vq->maps[index];
--	if (map) {
--		vhost_set_map_dirty(vq, map, index);
-+	if (map)
- 		vq->maps[index] = NULL;
--	}
- 	spin_unlock(&vq->mmu_lock);
- 
- 	if (map) {
- 		vhost_vq_sync_access(vq);
-+		vhost_set_map_dirty(vq, map, index);
+@@ -419,6 +422,8 @@ static void vhost_invalidate_vq_start(struct vhost_virtqueue *vq,
+ 		vhost_set_map_dirty(vq, map, index);
  		vhost_map_unprefetch(map);
  	}
++
++	return 0;
  }
+ 
+ static void vhost_invalidate_vq_end(struct vhost_virtqueue *vq,
+@@ -439,18 +444,19 @@ static int vhost_invalidate_range_start(struct mmu_notifier *mn,
+ {
+ 	struct vhost_dev *dev = container_of(mn, struct vhost_dev,
+ 					     mmu_notifier);
+-	int i, j;
+-
+-	if (!mmu_notifier_range_blockable(range))
+-		return -EAGAIN;
++	bool blockable = mmu_notifier_range_blockable(range);
++	int i, j, ret;
+ 
+ 	for (i = 0; i < dev->nvqs; i++) {
+ 		struct vhost_virtqueue *vq = dev->vqs[i];
+ 
+-		for (j = 0; j < VHOST_NUM_ADDRS; j++)
+-			vhost_invalidate_vq_start(vq, j,
+-						  range->start,
+-						  range->end);
++		for (j = 0; j < VHOST_NUM_ADDRS; j++) {
++			ret = vhost_invalidate_vq_start(vq, j,
++							range->start,
++							range->end, blockable);
++			if (ret)
++				return ret;
++		}
+ 	}
+ 
+ 	return 0;
 -- 
 2.18.1
