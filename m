@@ -1,13 +1,11 @@
 From: Gerd Hoffmann <kraxel@redhat.com>
-Subject: [PATCH v4 16/17] drm/qxl: drop verify_access
-Date: Thu,  8 Aug 2019 15:44:16 +0200
-Message-ID: <20190808134417.10610-17-kraxel__23505.2605321229$1565271958$gmane$org@redhat.com>
-References: <20190808134417.10610-1-kraxel@redhat.com>
+Subject: [PATCH] drm/virtio: use virtio_max_dma_size
+Date: Thu,  8 Aug 2019 17:34:45 +0200
+Message-ID: <20190808153445.27177-1-kraxel__2.64236457354627$1565278511$gmane$org@redhat.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <20190808134417.10610-1-kraxel@redhat.com>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -18,42 +16,45 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
 To: dri-devel@lists.freedesktop.org
-Cc: tzimmermann@suse.de, David Airlie <airlied@linux.ie>, open list <linux-kernel@vger.kernel.org>, "open list:DRM DRIVER FOR QXL VIRTUAL GPU" <virtualization@lists.linux-foundation.org>, Daniel Vetter <daniel@ffwll.ch>, "open list:DRM DRIVER FOR QXL VIRTUAL GPU" <spice-devel@lists.freedesktop.org>, Dave Airlie <airlied@redhat.com>
+Cc: David Airlie <airlied@linux.ie>, open list <linux-kernel@vger.kernel.org>, Daniel Vetter <daniel@ffwll.ch>, "open list:VIRTIO GPU DRIVER" <virtualization@lists.linux-foundation.org>
 List-Id: virtualization@lists.linuxfoundation.org
 
-Not needed any more.
+We must make sure our scatterlist segments are not too big, otherwise
+we might see swiotlb failures (happens with sev, also reproducable with
+swiotlb=force).
 
 Signed-off-by: Gerd Hoffmann <kraxel@redhat.com>
 ---
- drivers/gpu/drm/qxl/qxl_ttm.c | 9 ---------
- 1 file changed, 9 deletions(-)
+ drivers/gpu/drm/virtio/virtgpu_object.c | 10 ++++++++--
+ 1 file changed, 8 insertions(+), 2 deletions(-)
 
-diff --git a/drivers/gpu/drm/qxl/qxl_ttm.c b/drivers/gpu/drm/qxl/qxl_ttm.c
-index dbaed0e67c21..d1d8fe6e1e93 100644
---- a/drivers/gpu/drm/qxl/qxl_ttm.c
-+++ b/drivers/gpu/drm/qxl/qxl_ttm.c
-@@ -110,14 +110,6 @@ static void qxl_evict_flags(struct ttm_buffer_object *bo,
- 	*placement = qbo->placement;
- }
+diff --git a/drivers/gpu/drm/virtio/virtgpu_object.c b/drivers/gpu/drm/virtio/virtgpu_object.c
+index b2da31310d24..6e44568813dd 100644
+--- a/drivers/gpu/drm/virtio/virtgpu_object.c
++++ b/drivers/gpu/drm/virtio/virtgpu_object.c
+@@ -204,6 +204,7 @@ int virtio_gpu_object_get_sg_table(struct virtio_gpu_device *qdev,
+ 		.interruptible = false,
+ 		.no_wait_gpu = false
+ 	};
++	unsigned max_segment;
  
--static int qxl_verify_access(struct ttm_buffer_object *bo, struct file *filp)
--{
--	struct qxl_bo *qbo = to_qxl_bo(bo);
--
--	return drm_vma_node_verify_access(&qbo->tbo.base.vma_node,
--					  filp->private_data);
--}
--
- static int qxl_ttm_io_mem_reserve(struct ttm_bo_device *bdev,
- 				  struct ttm_mem_reg *mem)
- {
-@@ -269,7 +261,6 @@ static struct ttm_bo_driver qxl_bo_driver = {
- 	.eviction_valuable = ttm_bo_eviction_valuable,
- 	.evict_flags = &qxl_evict_flags,
- 	.move = &qxl_bo_move,
--	.verify_access = &qxl_verify_access,
- 	.io_mem_reserve = &qxl_ttm_io_mem_reserve,
- 	.io_mem_free = &qxl_ttm_io_mem_free,
- 	.move_notify = &qxl_bo_move_notify,
+ 	/* wtf swapping */
+ 	if (bo->pages)
+@@ -215,8 +216,13 @@ int virtio_gpu_object_get_sg_table(struct virtio_gpu_device *qdev,
+ 	if (!bo->pages)
+ 		goto out;
+ 
+-	ret = sg_alloc_table_from_pages(bo->pages, pages, nr_pages, 0,
+-					nr_pages << PAGE_SHIFT, GFP_KERNEL);
++	max_segment = virtio_max_dma_size(qdev->vdev);
++	max_segment &= ~(size_t)(PAGE_SIZE - 1);
++	if (max_segment > SCATTERLIST_MAX_SEGMENT)
++		max_segment = SCATTERLIST_MAX_SEGMENT;
++	ret = __sg_alloc_table_from_pages(bo->pages, pages, nr_pages, 0,
++					  nr_pages << PAGE_SHIFT,
++					  max_segment, GFP_KERNEL);
+ 	if (ret)
+ 		goto out;
+ 	return 0;
 -- 
 2.18.1
