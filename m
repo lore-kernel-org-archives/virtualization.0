@@ -1,16 +1,16 @@
 From: Pankaj Gupta <pagupta@redhat.com>
-Subject: Re: [PATCH v2 1/2] virtio_console: free unused buffers with port
-	delete
-Date: Thu, 8 Aug 2019 08:19:24 -0400 (EDT)
-Message-ID: <1593246032.7424344.1565266764494.JavaMail.zimbra@redhat.com>
+Subject: Re: [PATCH v2 2/2] virtio_ring: packed ring: fix
+	virtqueue_detach_unused_buf
+Date: Thu, 8 Aug 2019 08:28:46 -0400 (EDT)
+Message-ID: <1512438873.7425183.1565267326035.JavaMail.zimbra__42315.0300093525$1565267336$gmane$org@redhat.com>
 References: <20190808113606.19504-1-pagupta@redhat.com>
-	<20190808113606.19504-2-pagupta@redhat.com>
-	<20190808115555.GA2015@kroah.com>
+	<20190808113606.19504-3-pagupta@redhat.com>
+	<20190808115630.GB2015@kroah.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <20190808115555.GA2015@kroah.com>
+In-Reply-To: <20190808115630.GB2015@kroah.com>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -25,44 +25,20 @@ Cc: arnd@arndb.de, mst@redhat.com, amit@kernel.org, linux-kernel@vger.kernel.org
 List-Id: virtualization@lists.linuxfoundation.org
 
 
-> 
-> On Thu, Aug 08, 2019 at 05:06:05PM +0530, Pankaj Gupta wrote:
-> >   The commit a7a69ec0d8e4 ("virtio_console: free buffers after reset")
-> >   deferred detaching of unused buffer to virtio device unplug time.
-> > 
-> >   This causes unplug/replug of single port in virtio device with an
-> >   error "Error allocating inbufs\n". As we don't free the unused buffers
-> >   attached with the port. Re-plug the same port tries to allocate new
-> >   buffers in virtqueue and results in this error if queue is full.
-> > 
-> >   This patch removes the unused buffers in vq's when we unplug the port.
-> >   This is the best we can do as we cannot call device_reset because virtio
-> >   device is still active.
-> 
-> Why is this indented?
 
-o.k. will remove the empty lines.
-
+> > This patch makes packed ring code compatible with split ring in function
+> > 'virtqueue_detach_unused_buf_*'.
 > 
-> > 
-> > Reported-by: Xiaohui Li <xiaohli@redhat.com>
-> > Fixes: b3258ff1d6 ("virtio_console: free buffers after reset")
-> 
-> Fixes: b3258ff1d608 ("virtio: Decrement avail idx on buffer detach")
-> 
-> is the correct format to use.
+> What does that mean?  What does this "fix"?
 
-Sorry! for this. Commit it fixes is:
-a7a69ec0d8e4 ("virtio_console: free buffers after reset")
-
-> 
-> And given that this is from 2.6.39 (and 2.6.38.5), shouldn't it also be
-> backported for the stable kernels?
-
-Yes.
+Patch 1 frees the buffers When a port is unplugged from the virtio
+console device. It does this with the help of 'virtqueue_detach_unused_buf_split/packed'
+function. For split ring case, corresponding function decrements avail ring index.
+For packed ring code, this functionality is not available, so this patch adds the
+required support and hence help to remove the unused buffer completely.
 
 Thanks,
-Pankaj
+Pankaj  
 
 > 
 > thanks,
