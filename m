@@ -1,7 +1,8 @@
 From: Gerd Hoffmann <kraxel@redhat.com>
-Subject: [PATCH v4 07/17] drm/shmem: drop DEFINE_DRM_GEM_SHMEM_FOPS
-Date: Thu,  8 Aug 2019 15:44:07 +0200
-Message-ID: <20190808134417.10610-8-kraxel@redhat.com>
+Subject: [PATCH v4 15/17] drm/qxl: switch qxl to drm_gem_object_funcs->mmap
+	codepath
+Date: Thu,  8 Aug 2019 15:44:15 +0200
+Message-ID: <20190808134417.10610-16-kraxel__22847.8922204644$1565271911$gmane$org@redhat.com>
 References: <20190808134417.10610-1-kraxel@redhat.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
@@ -18,95 +19,82 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
 To: dri-devel@lists.freedesktop.org
-Cc: Rob Herring <robh@kernel.org>, Maxime Ripard <maxime.ripard@bootlin.com>, tzimmermann@suse.de, Tomeu Vizoso <tomeu.vizoso@collabora.com>, David Airlie <airlied@linux.ie>, Maarten Lankhorst <maarten.lankhorst@linux.intel.com>, open list <linux-kernel@vger.kernel.org>, "open list:DRM DRIVER FOR QEMU'S CIRRUS DEVICE" <virtualization@lists.linux-foundation.org>, Eric Anholt <eric@anholt.net>, Daniel Vetter <daniel@ffwll.ch>, Dave Airlie <airlied@redhat.com>, Sean Paul <sean@poorly.run>
+Cc: tzimmermann@suse.de, David Airlie <airlied@linux.ie>, open list <linux-kernel@vger.kernel.org>, "open list:DRM DRIVER FOR QXL VIRTUAL GPU" <virtualization@lists.linux-foundation.org>, Daniel Vetter <daniel@ffwll.ch>, "open list:DRM DRIVER FOR QXL VIRTUAL GPU" <spice-devel@lists.freedesktop.org>, Dave Airlie <airlied@redhat.com>
 List-Id: virtualization@lists.linuxfoundation.org
 
-DEFINE_DRM_GEM_SHMEM_FOPS is identical to DEFINE_DRM_GEM_FOPS now,
-drop it.
+... using the use drm_gem_ttm_mmap() helper function.
 
 Signed-off-by: Gerd Hoffmann <kraxel@redhat.com>
 ---
- include/drm/drm_gem_shmem_helper.h      | 26 -------------------------
- drivers/gpu/drm/cirrus/cirrus.c         |  2 +-
- drivers/gpu/drm/panfrost/panfrost_drv.c |  2 +-
- drivers/gpu/drm/v3d/v3d_drv.c           |  2 +-
- 4 files changed, 3 insertions(+), 29 deletions(-)
+ drivers/gpu/drm/qxl/qxl_drv.h    |  1 -
+ drivers/gpu/drm/qxl/qxl_drv.c    |  2 +-
+ drivers/gpu/drm/qxl/qxl_object.c |  1 +
+ drivers/gpu/drm/qxl/qxl_ttm.c    | 16 ----------------
+ 4 files changed, 2 insertions(+), 18 deletions(-)
 
-diff --git a/include/drm/drm_gem_shmem_helper.h b/include/drm/drm_gem_shmem_helper.h
-index 0f7b77cdc26b..813240dcfe17 100644
---- a/include/drm/drm_gem_shmem_helper.h
-+++ b/include/drm/drm_gem_shmem_helper.h
-@@ -85,32 +85,6 @@ struct drm_gem_shmem_object {
- #define to_drm_gem_shmem_obj(obj) \
- 	container_of(obj, struct drm_gem_shmem_object, base)
+diff --git a/drivers/gpu/drm/qxl/qxl_drv.h b/drivers/gpu/drm/qxl/qxl_drv.h
+index 82efbe76062a..dc36479a54f2 100644
+--- a/drivers/gpu/drm/qxl/qxl_drv.h
++++ b/drivers/gpu/drm/qxl/qxl_drv.h
+@@ -352,7 +352,6 @@ int qxl_mode_dumb_create(struct drm_file *file_priv,
+ /* qxl ttm */
+ int qxl_ttm_init(struct qxl_device *qdev);
+ void qxl_ttm_fini(struct qxl_device *qdev);
+-int qxl_mmap(struct file *filp, struct vm_area_struct *vma);
  
--/**
-- * DEFINE_DRM_GEM_SHMEM_FOPS() - Macro to generate file operations for shmem drivers
-- * @name: name for the generated structure
-- *
-- * This macro autogenerates a suitable &struct file_operations for shmem based
-- * drivers, which can be assigned to &drm_driver.fops. Note that this structure
-- * cannot be shared between drivers, because it contains a reference to the
-- * current module using THIS_MODULE.
-- *
-- * Note that the declaration is already marked as static - if you need a
-- * non-static version of this you're probably doing it wrong and will break the
-- * THIS_MODULE reference by accident.
-- */
--#define DEFINE_DRM_GEM_SHMEM_FOPS(name) \
--	static const struct file_operations name = {\
--		.owner		= THIS_MODULE,\
--		.open		= drm_open,\
--		.release	= drm_release,\
--		.unlocked_ioctl	= drm_ioctl,\
--		.compat_ioctl	= drm_compat_ioctl,\
--		.poll		= drm_poll,\
--		.read		= drm_read,\
--		.llseek		= noop_llseek,\
--		.mmap		= drm_gem_mmap, \
--	}
--
- struct drm_gem_shmem_object *drm_gem_shmem_create(struct drm_device *dev, size_t size);
- void drm_gem_shmem_free_object(struct drm_gem_object *obj);
+ /* qxl image */
  
-diff --git a/drivers/gpu/drm/cirrus/cirrus.c b/drivers/gpu/drm/cirrus/cirrus.c
-index 36a69aec8a4b..9438af468331 100644
---- a/drivers/gpu/drm/cirrus/cirrus.c
-+++ b/drivers/gpu/drm/cirrus/cirrus.c
-@@ -510,7 +510,7 @@ static void cirrus_mode_config_init(struct cirrus_device *cirrus)
- 
- /* ------------------------------------------------------------------ */
- 
--DEFINE_DRM_GEM_SHMEM_FOPS(cirrus_fops);
-+DEFINE_DRM_GEM_FOPS(cirrus_fops);
- 
- static struct drm_driver cirrus_driver = {
- 	.driver_features = DRIVER_MODESET | DRIVER_GEM | DRIVER_ATOMIC,
-diff --git a/drivers/gpu/drm/panfrost/panfrost_drv.c b/drivers/gpu/drm/panfrost/panfrost_drv.c
-index b187daa4da85..1c07e1c3386e 100644
---- a/drivers/gpu/drm/panfrost/panfrost_drv.c
-+++ b/drivers/gpu/drm/panfrost/panfrost_drv.c
-@@ -386,7 +386,7 @@ static const struct drm_ioctl_desc panfrost_drm_driver_ioctls[] = {
- 	PANFROST_IOCTL(PERFCNT_DUMP,	perfcnt_dump,	DRM_RENDER_ALLOW),
+diff --git a/drivers/gpu/drm/qxl/qxl_drv.c b/drivers/gpu/drm/qxl/qxl_drv.c
+index 38467478c7b2..2fb1641c817e 100644
+--- a/drivers/gpu/drm/qxl/qxl_drv.c
++++ b/drivers/gpu/drm/qxl/qxl_drv.c
+@@ -139,7 +139,7 @@ static const struct file_operations qxl_fops = {
+ 	.unlocked_ioctl = drm_ioctl,
+ 	.poll = drm_poll,
+ 	.read = drm_read,
+-	.mmap = qxl_mmap,
++	.mmap = drm_gem_mmap,
  };
  
--DEFINE_DRM_GEM_SHMEM_FOPS(panfrost_drm_driver_fops);
-+DEFINE_DRM_GEM_FOPS(panfrost_drm_driver_fops);
+ static int qxl_drm_freeze(struct drm_device *dev)
+diff --git a/drivers/gpu/drm/qxl/qxl_object.c b/drivers/gpu/drm/qxl/qxl_object.c
+index 29aab7b14513..5c503829c580 100644
+--- a/drivers/gpu/drm/qxl/qxl_object.c
++++ b/drivers/gpu/drm/qxl/qxl_object.c
+@@ -86,6 +86,7 @@ static const struct drm_gem_object_funcs qxl_object_funcs = {
+ 	.get_sg_table = qxl_gem_prime_get_sg_table,
+ 	.vmap = qxl_gem_prime_vmap,
+ 	.vunmap = qxl_gem_prime_vunmap,
++	.mmap = drm_gem_ttm_mmap,
+ };
  
- static struct drm_driver panfrost_drm_driver = {
- 	.driver_features	= DRIVER_RENDER | DRIVER_GEM | DRIVER_SYNCOBJ,
-diff --git a/drivers/gpu/drm/v3d/v3d_drv.c b/drivers/gpu/drm/v3d/v3d_drv.c
-index 3506ae2723ae..03e4fbe1b92b 100644
---- a/drivers/gpu/drm/v3d/v3d_drv.c
-+++ b/drivers/gpu/drm/v3d/v3d_drv.c
-@@ -169,7 +169,7 @@ v3d_postclose(struct drm_device *dev, struct drm_file *file)
- 	kfree(v3d_priv);
+ int qxl_bo_create(struct qxl_device *qdev,
+diff --git a/drivers/gpu/drm/qxl/qxl_ttm.c b/drivers/gpu/drm/qxl/qxl_ttm.c
+index 41edbde0e37e..dbaed0e67c21 100644
+--- a/drivers/gpu/drm/qxl/qxl_ttm.c
++++ b/drivers/gpu/drm/qxl/qxl_ttm.c
+@@ -48,22 +48,6 @@ static struct qxl_device *qxl_get_qdev(struct ttm_bo_device *bdev)
+ 	return qdev;
  }
  
--DEFINE_DRM_GEM_SHMEM_FOPS(v3d_drm_fops);
-+DEFINE_DRM_GEM_FOPS(v3d_drm_fops);
- 
- /* DRM_AUTH is required on SUBMIT_CL for now, while we don't have GMP
-  * protection between clients.  Note that render nodes would be be
+-int qxl_mmap(struct file *filp, struct vm_area_struct *vma)
+-{
+-	struct drm_file *file_priv = filp->private_data;
+-	struct qxl_device *qdev = file_priv->minor->dev->dev_private;
+-
+-	if (qdev == NULL) {
+-		DRM_ERROR(
+-		 "filp->private_data->minor->dev->dev_private == NULL\n");
+-		return -EINVAL;
+-	}
+-	DRM_DEBUG_DRIVER("filp->private_data = 0x%p, vma->vm_pgoff = %lx\n",
+-		  filp->private_data, vma->vm_pgoff);
+-
+-	return ttm_bo_mmap(filp, vma, &qdev->mman.bdev);
+-}
+-
+ static int qxl_invalidate_caches(struct ttm_bo_device *bdev, uint32_t flags)
+ {
+ 	return 0;
 -- 
 2.18.1
