@@ -1,11 +1,13 @@
 From: Jason Wang <jasowang@redhat.com>
-Subject: [PATCH V5 0/9] Fixes for vhost metadata acceleration
-Date: Fri,  9 Aug 2019 01:48:42 -0400
-Message-ID: <20190809054851.20118-1-jasowang__11809.6694977552$1565329750$gmane$org@redhat.com>
+Subject: [PATCH V5 1/9] vhost: don't set uaddr for invalid address
+Date: Fri,  9 Aug 2019 01:48:43 -0400
+Message-ID: <20190809054851.20118-2-jasowang__4219.34472849301$1565329762$gmane$org@redhat.com>
+References: <20190809054851.20118-1-jasowang@redhat.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
+In-Reply-To: <20190809054851.20118-1-jasowang@redhat.com>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -19,40 +21,28 @@ To: mst@redhat.com, kvm@vger.kernel.org, virtualization@lists.linux-foundation.o
 Cc: linux-mm@kvack.org, jgg@ziepe.ca
 List-Id: virtualization@lists.linuxfoundation.org
 
-Hi all:
+We should not setup uaddr for the invalid address, otherwise we may
+try to pin or prefetch mapping of wrong pages.
 
-This series try to fix several issues introduced by meta data
-accelreation series. Please review.
+Fixes: 7f466032dc9e ("vhost: access vq metadata through kernel virtual address")
+Signed-off-by: Jason Wang <jasowang@redhat.com>
+---
+ drivers/vhost/vhost.c | 3 ++-
+ 1 file changed, 2 insertions(+), 1 deletion(-)
 
-Changes from V4:
-- switch to use spinlock synchronize MMU notifier with accessors
-
-Changes from V3:
-- remove the unnecessary patch
-
-Changes from V2:
-- use seqlck helper to synchronize MMU notifier with vhost worker
-
-Changes from V1:
-- try not use RCU to syncrhonize MMU notifier with vhost worker
-- set dirty pages after no readers
-- return -EAGAIN only when we find the range is overlapped with
-  metadata
-
-Jason Wang (9):
-  vhost: don't set uaddr for invalid address
-  vhost: validate MMU notifier registration
-  vhost: fix vhost map leak
-  vhost: reset invalidate_count in vhost_set_vring_num_addr()
-  vhost: mark dirty pages during map uninit
-  vhost: don't do synchronize_rcu() in vhost_uninit_vq_maps()
-  vhost: do not use RCU to synchronize MMU notifier with worker
-  vhost: correctly set dirty pages in MMU notifiers callback
-  vhost: do not return -EAGAIN for non blocking invalidation too early
-
- drivers/vhost/vhost.c | 202 +++++++++++++++++++++++++-----------------
- drivers/vhost/vhost.h |   6 +-
- 2 files changed, 122 insertions(+), 86 deletions(-)
-
+diff --git a/drivers/vhost/vhost.c b/drivers/vhost/vhost.c
+index 0536f8526359..488380a581dc 100644
+--- a/drivers/vhost/vhost.c
++++ b/drivers/vhost/vhost.c
+@@ -2082,7 +2082,8 @@ static long vhost_vring_set_num_addr(struct vhost_dev *d,
+ 	}
+ 
+ #if VHOST_ARCH_CAN_ACCEL_UACCESS
+-	vhost_setup_vq_uaddr(vq);
++	if (r == 0)
++		vhost_setup_vq_uaddr(vq);
+ 
+ 	if (d->mm)
+ 		mmu_notifier_register(&d->mmu_notifier, d->mm);
 -- 
 2.18.1
