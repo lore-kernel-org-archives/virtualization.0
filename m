@@ -1,7 +1,8 @@
 From: Pankaj Gupta <pagupta@redhat.com>
-Subject: [PATCH v3 1/2] virtio_console: free unused buffers with port delete
-Date: Fri,  9 Aug 2019 12:18:46 +0530
-Message-ID: <20190809064847.28918-2-pagupta__30772.0875529171$1565333353$gmane$org@redhat.com>
+Subject: [PATCH v3 2/2] virtio: decrement avail idx with buffer detach for
+	packed ring
+Date: Fri,  9 Aug 2019 12:18:47 +0530
+Message-ID: <20190809064847.28918-3-pagupta@redhat.com>
 References: <20190809064847.28918-1-pagupta@redhat.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
@@ -21,66 +22,33 @@ To: amit@kernel.org, mst@redhat.com
 Cc: pagupta@redhat.com, arnd@arndb.de, gregkh@linuxfoundation.org, linux-kernel@vger.kernel.org, virtualization@lists.linux-foundation.org, xiaohli@redhat.com
 List-Id: virtualization@lists.linuxfoundation.org
 
-The commit a7a69ec0d8e4 ("virtio_console: free buffers after reset")
-deferred detaching of unused buffer to virtio device unplug time.
-This causes unplug/replug of single port in virtio device with an
-error "Error allocating inbufs\n". As we don't free the unused buffers
-attached with the port. Re-plug the same port tries to allocate new
-buffers in virtqueue and results in this error if queue is full.
-This patch removes the unused buffers in vq's when we unplug the port.
-This is the best we can do as we cannot call device_reset because virtio
-device is still active.
+This patch decrements 'next_avail_idx' count when detaching a buffer
+from vq for packed ring code. Split ring code already does this in
+virtqueue_detach_unused_buf_split function. This updates the
+'next_avail_idx' to the previous correct index after an unused buffer
+is detatched from the vq.
 
-Reported-by: Xiaohui Li <xiaohli@redhat.com>
-Fixes: a7a69ec0d8e4 ("virtio_console: free buffers after reset")
-Cc: stable@vger.kernel.org
 Signed-off-by: Pankaj Gupta <pagupta@redhat.com>
 ---
- drivers/char/virtio_console.c | 14 +++++++++++---
- 1 file changed, 11 insertions(+), 3 deletions(-)
+ drivers/virtio/virtio_ring.c | 6 ++++++
+ 1 file changed, 6 insertions(+)
 
-diff --git a/drivers/char/virtio_console.c b/drivers/char/virtio_console.c
-index 7270e7b69262..e8be82f1bae9 100644
---- a/drivers/char/virtio_console.c
-+++ b/drivers/char/virtio_console.c
-@@ -1494,15 +1494,25 @@ static void remove_port(struct kref *kref)
- 	kfree(port);
- }
- 
-+static void remove_unused_bufs(struct virtqueue *vq)
-+{
-+	struct port_buffer *buf;
+diff --git a/drivers/virtio/virtio_ring.c b/drivers/virtio/virtio_ring.c
+index c8be1c4f5b55..7c69181113e2 100644
+--- a/drivers/virtio/virtio_ring.c
++++ b/drivers/virtio/virtio_ring.c
+@@ -1537,6 +1537,12 @@ static void *virtqueue_detach_unused_buf_packed(struct virtqueue *_vq)
+ 		/* detach_buf clears data, so grab it now. */
+ 		buf = vq->packed.desc_state[i].data;
+ 		detach_buf_packed(vq, i, NULL);
++		vq->packed.next_avail_idx--;
++		if (vq->packed.next_avail_idx < 0) {
++			vq->packed.next_avail_idx = vq->packed.vring.num - 1;
++			vq->packed.avail_wrap_counter ^= 1;
++		}
 +
-+	while ((buf = virtqueue_detach_unused_buf(vq)))
-+		free_buf(buf, true);
-+}
-+
- static void remove_port_data(struct port *port)
- {
- 	spin_lock_irq(&port->inbuf_lock);
- 	/* Remove unused data this port might have received. */
- 	discard_port_data(port);
-+	remove_unused_bufs(port->in_vq);
- 	spin_unlock_irq(&port->inbuf_lock);
- 
- 	spin_lock_irq(&port->outvq_lock);
- 	reclaim_consumed_buffers(port);
-+	remove_unused_bufs(port->out_vq);
- 	spin_unlock_irq(&port->outvq_lock);
- }
- 
-@@ -1938,11 +1948,9 @@ static void remove_vqs(struct ports_device *portdev)
- 	struct virtqueue *vq;
- 
- 	virtio_device_for_each_vq(portdev->vdev, vq) {
--		struct port_buffer *buf;
- 
- 		flush_bufs(vq, true);
--		while ((buf = virtqueue_detach_unused_buf(vq)))
--			free_buf(buf, true);
-+		remove_unused_bufs(vq);
+ 		END_USE(vq);
+ 		return buf;
  	}
- 	portdev->vdev->config->del_vqs(portdev->vdev);
- 	kfree(portdev->in_vqs);
 -- 
-2.21.0
+2.20.1
