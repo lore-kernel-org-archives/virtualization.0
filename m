@@ -1,11 +1,13 @@
-From: Gerd Hoffmann <kraxel@redhat.com>
-Subject: [PATCH v2] drm/virtio: use virtio_max_dma_size
-Date: Fri,  9 Aug 2019 16:14:19 +0200
-Message-ID: <20190809141419.3353-1-kraxel__36150.9057039925$1565360129$gmane$org@redhat.com>
+From: =?UTF-8?q?Adalbert=20Laz=C4=83r?= <alazar@bitdefender.com>
+Subject: [RFC PATCH v6 05/92] kvm: introspection: add KVMI_GET_VERSION
+Date: Fri,  9 Aug 2019 18:59:20 +0300
+Message-ID: <20190809160047.8319-6-alazar@bitdefender.com>
+References: <20190809160047.8319-1-alazar@bitdefender.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset="utf-8"
+Content-Transfer-Encoding: base64
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
+In-Reply-To: <20190809160047.8319-1-alazar@bitdefender.com>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -15,47 +17,87 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: dri-devel@lists.freedesktop.org
-Cc: David Airlie <airlied@linux.ie>, open list <linux-kernel@vger.kernel.org>, "open list:VIRTIO GPU DRIVER" <virtualization@lists.linux-foundation.org>, Daniel Vetter <daniel@ffwll.ch>, =?UTF-8?q?L=C3=A1szl=C3=B3=20=C3=89rsek?= <lersek@redhat.com>
+To: kvm@vger.kernel.org
+Cc: Tamas K Lengyel <tamas@tklengyel.com>, Weijiang Yang <weijiang.yang@intel.com>, Yu C <yu.c.zhang@intel.com>, =?UTF-8?q?Radim=20Kr=C4=8Dm=C3=A1=C5=99?= <rkrcmar@redhat.com>, Jan Kiszka <jan.kiszka@siemens.com>, =?UTF-8?q?Samuel=20Laur=C3=A9n?= <samuel.lauren@iki.fi>, Konrad Rzeszutek Wilk <konrad.wilk@oracle.com>, virtualization@lists.linux-foundation.org, =?UTF-8?q?Adalbert=20Laz=C4=83r?= <alazar@bitdefender.com>, linux-mm@kvack.org, Patrick Colp <patrick.colp@oracle.com>, Mathieu Tarral <mathieu.tarral@protonmail.com>, Stefan Hajnoczi <stefanha@redhat.com>, Paolo Bonzini <pbonzini@redhat.com>, Zhang@mail.linuxfoundation.org, =?UTF-8?q?Mihai=20Don=C8=9Bu?= <mdontu@bitdefender.com>
 List-Id: virtualization@lists.linuxfoundation.org
 
-We must make sure our scatterlist segments are not too big, otherwise
-we might see swiotlb failures (happens with sev, also reproducable with
-swiotlb=force).
-
-Suggested-by: Laszlo Ersek <lersek@redhat.com>
-Signed-off-by: Gerd Hoffmann <kraxel@redhat.com>
----
- drivers/gpu/drm/virtio/virtgpu_object.c | 10 ++++++++--
- 1 file changed, 8 insertions(+), 2 deletions(-)
-
-diff --git a/drivers/gpu/drm/virtio/virtgpu_object.c b/drivers/gpu/drm/virtio/virtgpu_object.c
-index b2da31310d24..6e44568813dd 100644
---- a/drivers/gpu/drm/virtio/virtgpu_object.c
-+++ b/drivers/gpu/drm/virtio/virtgpu_object.c
-@@ -204,6 +204,7 @@ int virtio_gpu_object_get_sg_table(struct virtio_gpu_device *qdev,
- 		.interruptible = false,
- 		.no_wait_gpu = false
- 	};
-+	unsigned max_segment;
- 
- 	/* wtf swapping */
- 	if (bo->pages)
-@@ -215,8 +216,13 @@ int virtio_gpu_object_get_sg_table(struct virtio_gpu_device *qdev,
- 	if (!bo->pages)
- 		goto out;
- 
--	ret = sg_alloc_table_from_pages(bo->pages, pages, nr_pages, 0,
--					nr_pages << PAGE_SHIFT, GFP_KERNEL);
-+	max_segment = virtio_max_dma_size(qdev->vdev);
-+	max_segment &= ~(size_t)(PAGE_SIZE - 1);
-+	if (max_segment > SCATTERLIST_MAX_SEGMENT)
-+		max_segment = SCATTERLIST_MAX_SEGMENT;
-+	ret = __sg_alloc_table_from_pages(bo->pages, pages, nr_pages, 0,
-+					  nr_pages << PAGE_SHIFT,
-+					  max_segment, GFP_KERNEL);
- 	if (ret)
- 		goto out;
- 	return 0;
--- 
-2.18.1
+VGhpcyBjb21tYW5kIHNob3VsZCBiZSB1c2VkIGJ5IHRoZSBpbnRyb3NwZWN0aW9uIHRvb2wgdG8g
+aWRlbnRpZnkgdGhlCmNvbW1hbmRzL2V2ZW50cyBzdXBwb3J0ZWQgYnkgdGhlIEtWTWkgc3Vic3lz
+dGVtIGFuZCwgbW9zdCBpbXBvcnRhbnQsCndoYXQgbWVzc2FnZXMgbXVzdCBiZSB1c2VkIGZvciBl
+dmVudCByZXBsaWVzLiBUaGUga2VybmVsIHNpZGUgd2lsbCBhY2NlcHQKc21hbGxlciBvciBiaWdn
+ZXIgY29tbWFuZCBtZXNzYWdlcywgYnV0IGl0IGNhbiBiZSBtb3JlIHN0cmljdCB3aXRoIGJpZ2dl
+cgpldmVudCByZXBseSBtZXNzYWdlcy4KClRoZSBjb21tYW5kIGlzIGFsd2F5cyBhbGxvd2VkIGFu
+ZCBhbnkgYXR0ZW1wdCBmcm9tIHVzZXJzcGFjZSB0byBkaXNhbGxvdyBpdAp0aHJvdWdoIEtWTV9J
+TlRST1NQRUNUSU9OX0NPTU1BTkQgd2lsbCBnZXQgLUVQRVJNICh1bmxlc3MgdXNlcnNwYWNlIGNo
+b29zZQp0byBkaXNhYmxlIGFsbCBjb21tYW5kcywgdXNpbmcgaWQ9LTEsIGluIHdoaWNoIGNhc2Ug
+S1ZNSV9HRVRfVkVSU0lPTiBpcwpxdWlldGx5IGFsbG93ZWQsIHdpdGhvdXQgYW4gZXJyb3IpLgoK
+U2lnbmVkLW9mZi1ieTogQWRhbGJlcnQgTGF6xINyIDxhbGF6YXJAYml0ZGVmZW5kZXIuY29tPgot
+LS0KIERvY3VtZW50YXRpb24vdmlydHVhbC9rdm0va3ZtaS5yc3QgfCAyOCArKysrKysrKysrKysr
+KysrKysrKysrKysrKysrCiBpbmNsdWRlL3VhcGkvbGludXgva3ZtaS5oICAgICAgICAgIHwgIDUg
+KysrKysKIHZpcnQva3ZtL2t2bWkuYyAgICAgICAgICAgICAgICAgICAgfCAxNCArKysrKysrKysr
+KysrKwogdmlydC9rdm0va3ZtaV9tc2cuYyAgICAgICAgICAgICAgICB8IDEzICsrKysrKysrKysr
+KysKIDQgZmlsZXMgY2hhbmdlZCwgNjAgaW5zZXJ0aW9ucygrKQoKZGlmZiAtLWdpdCBhL0RvY3Vt
+ZW50YXRpb24vdmlydHVhbC9rdm0va3ZtaS5yc3QgYi9Eb2N1bWVudGF0aW9uL3ZpcnR1YWwva3Zt
+L2t2bWkucnN0CmluZGV4IDFkNGExZGNkN2QyZi4uMGYyOTZlM2M0MjQ0IDEwMDY0NAotLS0gYS9E
+b2N1bWVudGF0aW9uL3ZpcnR1YWwva3ZtL2t2bWkucnN0CisrKyBiL0RvY3VtZW50YXRpb24vdmly
+dHVhbC9rdm0va3ZtaS5yc3QKQEAgLTIyNCwzICsyMjQsMzEgQEAgZGV2aWNlLXNwZWNpZmljIG1l
+bW9yeSAoRE1BLCBlbXVsYXRlZCBNTUlPLCByZXNlcnZlZCBieSBhIHBhc3N0aHJvdWdoCiBkZXZp
+Y2UgZXRjLikuIEl0IGlzIHVwIHRvIHRoZSB1c2VyIHRvIGRldGVybWluZSwgdXNpbmcgdGhlIGd1
+ZXN0IG9wZXJhdGluZwogc3lzdGVtIGRhdGEgc3RydWN0dXJlcywgdGhlIGFyZWFzIHRoYXQgYXJl
+IHNhZmUgdG8gYWNjZXNzIChjb2RlLCBzdGFjaywgaGVhcAogZXRjLikuCisKK0NvbW1hbmRzCist
+LS0tLS0tLQorCitUaGUgZm9sbG93aW5nIEMgc3RydWN0dXJlcyBhcmUgbWVhbnQgdG8gYmUgdXNl
+ZCBkaXJlY3RseSB3aGVuIGNvbW11bmljYXRpbmcKK292ZXIgdGhlIHdpcmUuIFRoZSBwZWVyIHRo
+YXQgZGV0ZWN0cyBhbnkgc2l6ZSBtaXNtYXRjaCBzaG91bGQgc2ltcGx5IGNsb3NlCit0aGUgY29u
+bmVjdGlvbiBhbmQgcmVwb3J0IHRoZSBlcnJvci4KKworMS4gS1ZNSV9HRVRfVkVSU0lPTgorLS0t
+LS0tLS0tLS0tLS0tLS0tLQorCis6QXJjaGl0ZWN0dXJlczogYWxsCis6VmVyc2lvbnM6ID49IDEK
+KzpQYXJhbWV0ZXJzOiBub25lCis6UmV0dXJuczoKKworOjoKKworCXN0cnVjdCBrdm1pX2Vycm9y
+X2NvZGU7CisJc3RydWN0IGt2bWlfZ2V0X3ZlcnNpb25fcmVwbHkgeworCQlfX3UzMiB2ZXJzaW9u
+OworCQlfX3UzMiBwYWRkaW5nOworCX07CisKK1JldHVybnMgdGhlIGludHJvc3BlY3Rpb24gQVBJ
+IHZlcnNpb24uCisKK1RoaXMgY29tbWFuZCBpcyBhbHdheXMgYWxsb3dlZCBhbmQgc3VjY2Vzc2Z1
+bCAoaWYgdGhlIGludHJvc3BlY3Rpb24gaXMKK2J1aWx0IGluIGtlcm5lbCkuCmRpZmYgLS1naXQg
+YS9pbmNsdWRlL3VhcGkvbGludXgva3ZtaS5oIGIvaW5jbHVkZS91YXBpL2xpbnV4L2t2bWkuaApp
+bmRleCA2Yzc2MDBlZDQ1NjQuLjk1NzRiYTBiOTU2NSAxMDA2NDQKLS0tIGEvaW5jbHVkZS91YXBp
+L2xpbnV4L2t2bWkuaAorKysgYi9pbmNsdWRlL3VhcGkvbGludXgva3ZtaS5oCkBAIC03OCw0ICs3
+OCw5IEBAIHN0cnVjdCBrdm1pX2Vycm9yX2NvZGUgewogCV9fdTMyIHBhZGRpbmc7CiB9OwogCitz
+dHJ1Y3Qga3ZtaV9nZXRfdmVyc2lvbl9yZXBseSB7CisJX191MzIgdmVyc2lvbjsKKwlfX3UzMiBw
+YWRkaW5nOworfTsKKwogI2VuZGlmIC8qIF9VQVBJX19MSU5VWF9LVk1JX0ggKi8KZGlmZiAtLWdp
+dCBhL3ZpcnQva3ZtL2t2bWkuYyBiL3ZpcnQva3ZtL2t2bWkuYwppbmRleCBhZmEzMTc0OGQ3ZjQu
+LmQ1YjZhZjIxNTY0ZSAxMDA2NDQKLS0tIGEvdmlydC9rdm0va3ZtaS5jCisrKyBiL3ZpcnQva3Zt
+L2t2bWkuYwpAQCAtNjgsNiArNjgsOCBAQCBzdGF0aWMgYm9vbCBhbGxvY19rdm1pKHN0cnVjdCBr
+dm0gKmt2bSwgY29uc3Qgc3RydWN0IGt2bV9pbnRyb3NwZWN0aW9uICpxZW11KQogCWlmICghaWt2
+bSkKIAkJcmV0dXJuIGZhbHNlOwogCisJc2V0X2JpdChLVk1JX0dFVF9WRVJTSU9OLCBpa3ZtLT5j
+bWRfYWxsb3dfbWFzayk7CisKIAltZW1jcHkoJmlrdm0tPnV1aWQsICZxZW11LT51dWlkLCBzaXpl
+b2YoaWt2bS0+dXVpZCkpOwogCiAJaWt2bS0+a3ZtID0ga3ZtOwpAQCAtMjkwLDYgKzI5MiwxOCBA
+QCBpbnQga3ZtaV9pb2N0bF9jb21tYW5kKHN0cnVjdCBrdm0gKmt2bSwgdm9pZCBfX3VzZXIgKmFy
+Z3ApCiAJYml0bWFwX2Zyb21fdTY0KGtub3duLCBLVk1JX0tOT1dOX0NPTU1BTkRTKTsKIAliaXRt
+YXBfYW5kKHJlcXVlc3RlZCwgcmVxdWVzdGVkLCBrbm93biwgS1ZNSV9OVU1fQ09NTUFORFMpOwog
+CisJaWYgKCFhbGxvdykgeworCQlERUNMQVJFX0JJVE1BUChhbHdheXNfYWxsb3dlZCwgS1ZNSV9O
+VU1fQ09NTUFORFMpOworCisJCWlmIChpZCA9PSBLVk1JX0dFVF9WRVJTSU9OKQorCQkJcmV0dXJu
+IC1FUEVSTTsKKworCQlzZXRfYml0KEtWTUlfR0VUX1ZFUlNJT04sIGFsd2F5c19hbGxvd2VkKTsK
+KworCQliaXRtYXBfYW5kbm90KHJlcXVlc3RlZCwgcmVxdWVzdGVkLCBhbHdheXNfYWxsb3dlZCwK
+KwkJCSAgICAgIEtWTUlfTlVNX0NPTU1BTkRTKTsKKwl9CisKIAlyZXR1cm4ga3ZtaV9pb2N0bF9m
+ZWF0dXJlKGt2bSwgYWxsb3csIHJlcXVlc3RlZCwKIAkJCQkgIG9mZnNldG9mKHN0cnVjdCBrdm1p
+LCBjbWRfYWxsb3dfbWFzayksCiAJCQkJICBLVk1JX05VTV9DT01NQU5EUyk7CmRpZmYgLS1naXQg
+YS92aXJ0L2t2bS9rdm1pX21zZy5jIGIvdmlydC9rdm0va3ZtaV9tc2cuYwppbmRleCBhZjZiYzQ3
+ZGMwMzEuLjZmZTA0ZGUyOWY3ZSAxMDA2NDQKLS0tIGEvdmlydC9rdm0va3ZtaV9tc2cuYworKysg
+Yi92aXJ0L2t2bS9rdm1pX21zZy5jCkBAIC05LDYgKzksNyBAQAogI2luY2x1ZGUgImt2bWlfaW50
+LmgiCiAKIHN0YXRpYyBjb25zdCBjaGFyICpjb25zdCBtc2dfSURzW10gPSB7CisJW0tWTUlfR0VU
+X1ZFUlNJT05dICAgICAgICAgICA9ICJLVk1JX0dFVF9WRVJTSU9OIiwKIH07CiAKIHN0YXRpYyBi
+b29sIGlzX2tub3duX21lc3NhZ2UodTE2IGlkKQpAQCAtMTI5LDYgKzEzMCwxNyBAQCBzdGF0aWMg
+aW50IGt2bWlfbXNnX3ZtX3JlcGx5KHN0cnVjdCBrdm1pICppa3ZtLAogCXJldHVybiBrdm1pX21z
+Z19yZXBseShpa3ZtLCBtc2csIGVyciwgcnBsLCBycGxfc2l6ZSk7CiB9CiAKK3N0YXRpYyBpbnQg
+aGFuZGxlX2dldF92ZXJzaW9uKHN0cnVjdCBrdm1pICppa3ZtLAorCQkJICAgICAgY29uc3Qgc3Ry
+dWN0IGt2bWlfbXNnX2hkciAqbXNnLCBjb25zdCB2b2lkICpyZXEpCit7CisJc3RydWN0IGt2bWlf
+Z2V0X3ZlcnNpb25fcmVwbHkgcnBsOworCisJbWVtc2V0KCZycGwsIDAsIHNpemVvZihycGwpKTsK
+KwlycGwudmVyc2lvbiA9IEtWTUlfVkVSU0lPTjsKKworCXJldHVybiBrdm1pX21zZ192bV9yZXBs
+eShpa3ZtLCBtc2csIDAsICZycGwsIHNpemVvZihycGwpKTsKK30KKwogc3RhdGljIGJvb2wgaXNf
+Y29tbWFuZF9hbGxvd2VkKHN0cnVjdCBrdm1pICppa3ZtLCBpbnQgaWQpCiB7CiAJcmV0dXJuIHRl
+c3RfYml0KGlkLCBpa3ZtLT5jbWRfYWxsb3dfbWFzayk7CkBAIC0xMzksNiArMTUxLDcgQEAgc3Rh
+dGljIGJvb2wgaXNfY29tbWFuZF9hbGxvd2VkKHN0cnVjdCBrdm1pICppa3ZtLCBpbnQgaWQpCiAg
+Ki8KIHN0YXRpYyBpbnQoKmNvbnN0IG1zZ192bVtdKShzdHJ1Y3Qga3ZtaSAqLCBjb25zdCBzdHJ1
+Y3Qga3ZtaV9tc2dfaGRyICosCiAJCQkgICAgY29uc3Qgdm9pZCAqKSA9IHsKKwlbS1ZNSV9HRVRf
+VkVSU0lPTl0gICAgICAgICAgID0gaGFuZGxlX2dldF92ZXJzaW9uLAogfTsKIAogc3RhdGljIGJv
+b2wgaXNfdm1fbWVzc2FnZSh1MTYgaWQpCl9fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19f
+X19fX19fX19fX19fX19fClZpcnR1YWxpemF0aW9uIG1haWxpbmcgbGlzdApWaXJ0dWFsaXphdGlv
+bkBsaXN0cy5saW51eC1mb3VuZGF0aW9uLm9yZwpodHRwczovL2xpc3RzLmxpbnV4Zm91bmRhdGlv
+bi5vcmcvbWFpbG1hbi9saXN0aW5mby92aXJ0dWFsaXphdGlvbg==
