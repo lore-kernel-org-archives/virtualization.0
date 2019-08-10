@@ -1,16 +1,14 @@
 From: "Michael S. Tsirkin" <mst@redhat.com>
-Subject: Re: [PATCH v3 1/2] virtio_console: free unused buffers with port
-	delete
-Date: Sat, 10 Aug 2019 14:18:48 -0400
-Message-ID: <20190810141019-mutt-send-email-mst@kernel.org>
-References: <20190809064847.28918-1-pagupta@redhat.com>
-	<20190809064847.28918-2-pagupta@redhat.com>
+Subject: Re: [RFC PATCH] virtio_ring: Use DMA API if guest memory is encrypted
+Date: Sat, 10 Aug 2019 14:57:17 -0400
+Message-ID: <20190810143038-mutt-send-email-mst@kernel.org>
+References: <87zhrj8kcp.fsf@morokweng.localdomain>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
 Content-Disposition: inline
-In-Reply-To: <20190809064847.28918-2-pagupta@redhat.com>
+In-Reply-To: <87zhrj8kcp.fsf@morokweng.localdomain>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -20,93 +18,93 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Pankaj Gupta <pagupta@redhat.com>
-Cc: arnd@arndb.de, amit@kernel.org, gregkh@linuxfoundation.org, linux-kernel@vger.kernel.org, virtualization@lists.linux-foundation.org, xiaohli@redhat.com
+To: Thiago Jung Bauermann <bauerman@linux.ibm.com>
+Cc: Benjamin Herrenschmidt <benh@kernel.crashing.org>, Alexey Kardashevskiy <aik@linux.ibm.com>, Ram Pai <linuxram@us.ibm.com>, linux-kernel@vger.kernel.org, virtualization@lists.linux-foundation.org, Paul Mackerras <paulus@ozlabs.org>, iommu@lists.linux-foundation.org, linuxppc-devel@lists.ozlabs.org, Christoph Hellwig <hch@lst.de>, David Gibson <david@gibson.dropbear.id.au>
 List-Id: virtualization@lists.linuxfoundation.org
 
-On Fri, Aug 09, 2019 at 12:18:46PM +0530, Pankaj Gupta wrote:
-> The commit a7a69ec0d8e4 ("virtio_console: free buffers after reset")
-> deferred detaching of unused buffer to virtio device unplug time.
-> This causes unplug/replug of single port in virtio device with an
-> error "Error allocating inbufs\n". As we don't free the unused buffers
-> attached with the port. Re-plug the same port tries to allocate new
-> buffers in virtqueue and results in this error if queue is full.
-
-So why not reuse the buffers that are already there in this case?
-Seems quite possible.
-
-> This patch removes the unused buffers in vq's when we unplug the port.
-> This is the best we can do as we cannot call device_reset because virtio
-> device is still active.
+On Tue, Jan 29, 2019 at 03:08:12PM -0200, Thiago Jung Bauermann wrote:
 > 
-> Reported-by: Xiaohui Li <xiaohli@redhat.com>
-> Fixes: a7a69ec0d8e4 ("virtio_console: free buffers after reset")
-> Cc: stable@vger.kernel.org
-> Signed-off-by: Pankaj Gupta <pagupta@redhat.com>
-
-This is really a revert of a7a69ec0d8e4, just tagged confusingly.
-
-And the original is also supposed to be a bugfix.
-So how will the original bug be fixed?
-
-"this is the best we can do" is rarely the case.
-
-I am not necessarily against the revert. But if we go that way then what
-we need to do is specify the behaviour in the spec, since strict spec
-compliance is exactly what the original patch was addressing.
-
-In particular, we'd document that console has a special property that
-when port is detached virtqueue is considered stopped, device must not
-use any buffers, and it is legal to take buffers out of the device.
-
-
-
+> Hello,
+> 
+> With Christoph's rework of the DMA API that recently landed, the patch
+> below is the only change needed in virtio to make it work in a POWER
+> secure guest under the ultravisor.
+> 
+> The other change we need (making sure the device's dma_map_ops is NULL
+> so that the dma-direct/swiotlb code is used) can be made in
+> powerpc-specific code.
+> 
+> Of course, I also have patches (soon to be posted as RFC) which hook up
+> <linux/mem_encrypt.h> to the powerpc secure guest support code.
+> 
+> What do you think?
+> 
+> >From d0629a36a75c678b4a72b853f8f7f8c17eedd6b3 Mon Sep 17 00:00:00 2001
+> From: Thiago Jung Bauermann <bauerman@linux.ibm.com>
+> Date: Thu, 24 Jan 2019 22:08:02 -0200
+> Subject: [RFC PATCH] virtio_ring: Use DMA API if guest memory is encrypted
+> 
+> The host can't access the guest memory when it's encrypted, so using
+> regular memory pages for the ring isn't an option. Go through the DMA API.
+> 
+> Signed-off-by: Thiago Jung Bauermann <bauerman@linux.ibm.com>
 > ---
->  drivers/char/virtio_console.c | 14 +++++++++++---
->  1 file changed, 11 insertions(+), 3 deletions(-)
+>  drivers/virtio/virtio_ring.c | 5 ++++-
+>  1 file changed, 4 insertions(+), 1 deletion(-)
 > 
-> diff --git a/drivers/char/virtio_console.c b/drivers/char/virtio_console.c
-> index 7270e7b69262..e8be82f1bae9 100644
-> --- a/drivers/char/virtio_console.c
-> +++ b/drivers/char/virtio_console.c
-> @@ -1494,15 +1494,25 @@ static void remove_port(struct kref *kref)
->  	kfree(port);
->  }
->  
-> +static void remove_unused_bufs(struct virtqueue *vq)
-> +{
-> +	struct port_buffer *buf;
-> +
-> +	while ((buf = virtqueue_detach_unused_buf(vq)))
-> +		free_buf(buf, true);
-> +}
-> +
->  static void remove_port_data(struct port *port)
->  {
->  	spin_lock_irq(&port->inbuf_lock);
->  	/* Remove unused data this port might have received. */
->  	discard_port_data(port);
-> +	remove_unused_bufs(port->in_vq);
->  	spin_unlock_irq(&port->inbuf_lock);
->  
->  	spin_lock_irq(&port->outvq_lock);
->  	reclaim_consumed_buffers(port);
-> +	remove_unused_bufs(port->out_vq);
->  	spin_unlock_irq(&port->outvq_lock);
->  }
->  
-> @@ -1938,11 +1948,9 @@ static void remove_vqs(struct ports_device *portdev)
->  	struct virtqueue *vq;
->  
->  	virtio_device_for_each_vq(portdev->vdev, vq) {
-> -		struct port_buffer *buf;
->  
->  		flush_bufs(vq, true);
-> -		while ((buf = virtqueue_detach_unused_buf(vq)))
-> -			free_buf(buf, true);
-> +		remove_unused_bufs(vq);
->  	}
->  	portdev->vdev->config->del_vqs(portdev->vdev);
->  	kfree(portdev->in_vqs);
-> -- 
-> 2.21.0
+> diff --git a/drivers/virtio/virtio_ring.c b/drivers/virtio/virtio_ring.c
+> index cd7e755484e3..321a27075380 100644
+> --- a/drivers/virtio/virtio_ring.c
+> +++ b/drivers/virtio/virtio_ring.c
+> @@ -259,8 +259,11 @@ static bool vring_use_dma_api(struct virtio_device *vdev)
+>  	 * not work without an even larger kludge.  Instead, enable
+>  	 * the DMA API if we're a Xen guest, which at least allows
+>  	 * all of the sensible Xen configurations to work correctly.
+> +	 *
+> +	 * Also, if guest memory is encrypted the host can't access
+> +	 * it directly. In this case, we'll need to use the DMA API.
+>  	 */
+> -	if (xen_domain())
+> +	if (xen_domain() || sev_active())
+>  		return true;
+> 
+>  	return false;
+
+So I gave this lots of thought, and I'm coming round to
+basically accepting something very similar to this patch.
+
+But not exactly like this :).
+
+Let's see what are the requirements.
+
+If
+
+1. We do not trust the device (so we want to use a bounce buffer with it)
+2. DMA address is also a physical address of a buffer
+
+then we should use DMA API with virtio.
+
+
+sev_active() above is one way to put (1).  I can't say I love it but
+it's tolerable.
+
+
+But we also want promise from DMA API about 2.
+
+
+Without promise 2 we simply can't use DMA API with a legacy device.
+
+
+Otherwise, on a SEV system with an IOMMU which isn't 1:1
+and with a virtio device without ACCESS_PLATFORM, we are trying
+to pass a virtual address, and devices without ACCESS_PLATFORM
+can only access CPU physical addresses.
+
+So something like:
+
+dma_addr_is_phys_addr?
+
+
+
+-- 
+MST
