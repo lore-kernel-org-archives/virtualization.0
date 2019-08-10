@@ -1,13 +1,16 @@
-From: =?UTF-8?q?Adalbert=20Laz=C4=83r?= <alazar@bitdefender.com>
-Subject: [RFC PATCH v6 30/92] kvm: x86: add kvm_spt_fault()
-Date: Fri,  9 Aug 2019 18:59:45 +0300
-Message-ID: <20190809160047.8319-31-alazar@bitdefender.com>
-References: <20190809160047.8319-1-alazar@bitdefender.com>
+From: Christoph Hellwig <hch@infradead.org>
+Subject: Re: [PATCH v4 0/5] iommu/amd: Convert the AMD iommu driver to the
+	dma-iommu api
+Date: Sat, 10 Aug 2019 00:19:52 -0700
+Message-ID: <20190810071952.GA25550__47865.6878390879$1565421620$gmane$org@infradead.org>
+References: <20190613223901.9523-1-murphyt7@tcd.ie>
+	<20190624061945.GA4912@infradead.org>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="utf-8"
-Content-Transfer-Encoding: base64
+Content-Type: text/plain; charset="us-ascii"
+Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <20190809160047.8319-1-alazar@bitdefender.com>
+Content-Disposition: inline
+In-Reply-To: <20190624061945.GA4912@infradead.org>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -17,71 +20,19 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: kvm@vger.kernel.org
-Cc: Tamas K Lengyel <tamas@tklengyel.com>, Weijiang Yang <weijiang.yang@intel.com>, Yu C <yu.c.zhang@intel.com>, =?UTF-8?q?Radim=20Kr=C4=8Dm=C3=A1=C5=99?= <rkrcmar@redhat.com>, Jan Kiszka <jan.kiszka@siemens.com>, =?UTF-8?q?Samuel=20Laur=C3=A9n?= <samuel.lauren@iki.fi>, Konrad Rzeszutek Wilk <konrad.wilk@oracle.com>, virtualization@lists.linux-foundation.org, =?UTF-8?q?Adalbert=20Laz=C4=83r?= <alazar@bitdefender.com>, linux-mm@kvack.org, Patrick Colp <patrick.colp@oracle.com>, Mathieu Tarral <mathieu.tarral@protonmail.com>, Stefan Hajnoczi <stefanha@redhat.com>, Paolo Bonzini <pbonzini@redhat.com>, Zhang@mail.linuxfoundation.org, =?UTF-8?q?Mihai=20Don=C8=9Bu?= <mdontu@bitdefender.com>
+To: Tom Murphy <murphyt7@tcd.ie>, Joerg Roedel <joro@8bytes.org>
+Cc: Heiko Stuebner <heiko@sntech.de>, Will Deacon <will.deacon@arm.com>, virtualization@lists.linux-foundation.org, David Brown <david.brown@linaro.org>, Thierry Reding <thierry.reding@gmail.com>, linux-s390@vger.kernel.org, linux-samsung-soc@vger.kernel.org, Jean-Philippe Brucker <jean-philippe.brucker@arm.com>, Krzysztof Kozlowski <krzk@kernel.org>, Jonathan Hunter <jonathanh@nvidia.com>, linux-rockchip@lists.infradead.org, Andy Gross <agross@kernel.org>, Matthias Brugger <matthias.bgg@gmail.com>, Gerald Schaefer <gerald.schaefer@de.ibm.com>, linux-arm-msm@vger.kernel.org, linux-mediatek@lists.infradead.org, linux-tegra@vger.kernel.org, linux-arm-kernel@lists.infradead.org, Robin Murphy <robin.murphy@arm.com>, linux-kernel@vger.kernel.org, iommu@lists.linux-foundation.org, Kukjin Kim <kgene@kernel.org>, David Woodhouse <dwmw2@infradead.org>
 List-Id: virtualization@lists.linuxfoundation.org
 
-RnJvbTogTWloYWkgRG9uyJt1IDxtZG9udHVAYml0ZGVmZW5kZXIuY29tPgoKVGhpcyBpcyBuZWVk
-ZWQgdG8gZmlsdGVyICNQRiBpbnRyb3NwZWN0aW9uIGV2ZW50cywgd2hlbiBub3QgY2F1c2VkIGJ5
-CkVQVC9OUFQgZmF1bHQuIE9uZSBzdWNoIGNhc2UgaXMgd2hlbiBoYW5kbGVfdWQoKSBjYWxscyB0
-aGUgZW11bGF0b3IKd2hpY2ggZmFpbGVzIHRvIGZldGNoIHRoZSBvcGNvZGVzIGZyb20gc3RhY2sg
-KHdoaWNoIGlzIGhvb2tlZCBydy0pCndoaWNoIGxlYWRzIHRvIGEgcGFnZSBmYXVsdCBldmVudC4K
-ClNpZ25lZC1vZmYtYnk6IE1paGFpIERvbsibdSA8bWRvbnR1QGJpdGRlZmVuZGVyLmNvbT4KU2ln
-bmVkLW9mZi1ieTogQWRhbGJlcnQgTGF6xINyIDxhbGF6YXJAYml0ZGVmZW5kZXIuY29tPgotLS0K
-IGFyY2gveDg2L2luY2x1ZGUvYXNtL2t2bV9ob3N0LmggfCAyICsrCiBhcmNoL3g4Ni9rdm0vc3Zt
-LmMgICAgICAgICAgICAgIHwgOCArKysrKysrKwogYXJjaC94ODYva3ZtL3ZteC92bXguYyAgICAg
-ICAgICB8IDggKysrKysrKysKIGFyY2gveDg2L2t2bS94ODYuYyAgICAgICAgICAgICAgfCA2ICsr
-KysrKwogNCBmaWxlcyBjaGFuZ2VkLCAyNCBpbnNlcnRpb25zKCspCgpkaWZmIC0tZ2l0IGEvYXJj
-aC94ODYvaW5jbHVkZS9hc20va3ZtX2hvc3QuaCBiL2FyY2gveDg2L2luY2x1ZGUvYXNtL2t2bV9o
-b3N0LmgKaW5kZXggN2RhMTEzN2EyYjgyLi5mMWIzZDg5YTA0MzAgMTAwNjQ0Ci0tLSBhL2FyY2gv
-eDg2L2luY2x1ZGUvYXNtL2t2bV9ob3N0LmgKKysrIGIvYXJjaC94ODYvaW5jbHVkZS9hc20va3Zt
-X2hvc3QuaApAQCAtMTAwNSw2ICsxMDA1LDcgQEAgc3RydWN0IGt2bV94ODZfb3BzIHsKIAl2b2lk
-ICgqY3B1aWRfdXBkYXRlKShzdHJ1Y3Qga3ZtX3ZjcHUgKnZjcHUpOwogCiAJYm9vbCAoKm5lc3Rl
-ZF9wYWdlZmF1bHQpKHN0cnVjdCBrdm1fdmNwdSAqdmNwdSk7CisJYm9vbCAoKnNwdF9mYXVsdCko
-c3RydWN0IGt2bV92Y3B1ICp2Y3B1KTsKIAogCXN0cnVjdCBrdm0gKigqdm1fYWxsb2MpKHZvaWQp
-OwogCXZvaWQgKCp2bV9mcmVlKShzdHJ1Y3Qga3ZtICopOwpAQCAtMTU5Niw1ICsxNTk3LDYgQEAg
-c3RhdGljIGlubGluZSBpbnQga3ZtX2NwdV9nZXRfYXBpY2lkKGludCBtcHNfY3B1KQogCSoodHlw
-ZSAqKSgoYnVmKSArIChvZmZzZXQpIC0gMHg3ZTAwKSA9IHZhbAogCiBib29sIGt2bV9tbXVfbmVz
-dGVkX3BhZ2VmYXVsdChzdHJ1Y3Qga3ZtX3ZjcHUgKnZjcHUpOworYm9vbCBrdm1fc3B0X2ZhdWx0
-KHN0cnVjdCBrdm1fdmNwdSAqdmNwdSk7CiAKICNlbmRpZiAvKiBfQVNNX1g4Nl9LVk1fSE9TVF9I
-ICovCmRpZmYgLS1naXQgYS9hcmNoL3g4Ni9rdm0vc3ZtLmMgYi9hcmNoL3g4Ni9rdm0vc3ZtLmMK
-aW5kZXggM2MwOTljNTYwOTljLi42YjUzMzY5OGM3M2QgMTAwNjQ0Ci0tLSBhL2FyY2gveDg2L2t2
-bS9zdm0uYworKysgYi9hcmNoL3g4Ni9rdm0vc3ZtLmMKQEAgLTcxMDMsNiArNzEwMywxMyBAQCBz
-dGF0aWMgYm9vbCBzdm1fbmVzdGVkX3BhZ2VmYXVsdChzdHJ1Y3Qga3ZtX3ZjcHUgKnZjcHUpCiAJ
-cmV0dXJuIGZhbHNlOwogfQogCitzdGF0aWMgYm9vbCBzdm1fc3B0X2ZhdWx0KHN0cnVjdCBrdm1f
-dmNwdSAqdmNwdSkKK3sKKwljb25zdCBzdHJ1Y3QgdmNwdV9zdm0gKnN2bSA9IHRvX3N2bSh2Y3B1
-KTsKKworCXJldHVybiAoc3ZtLT52bWNiLT5jb250cm9sLmV4aXRfY29kZSA9PSBTVk1fRVhJVF9O
-UEYpOworfQorCiBzdGF0aWMgc3RydWN0IGt2bV94ODZfb3BzIHN2bV94ODZfb3BzIF9fcm9fYWZ0
-ZXJfaW5pdCA9IHsKIAkuY3B1X2hhc19rdm1fc3VwcG9ydCA9IGhhc19zdm0sCiAJLmRpc2FibGVk
-X2J5X2Jpb3MgPSBpc19kaXNhYmxlZCwKQEAgLTcxMTUsNiArNzEyMiw3IEBAIHN0YXRpYyBzdHJ1
-Y3Qga3ZtX3g4Nl9vcHMgc3ZtX3g4Nl9vcHMgX19yb19hZnRlcl9pbml0ID0gewogCS5oYXNfZW11
-bGF0ZWRfbXNyID0gc3ZtX2hhc19lbXVsYXRlZF9tc3IsCiAKIAkubmVzdGVkX3BhZ2VmYXVsdCA9
-IHN2bV9uZXN0ZWRfcGFnZWZhdWx0LAorCS5zcHRfZmF1bHQgPSBzdm1fc3B0X2ZhdWx0LAogCiAJ
-LnZjcHVfY3JlYXRlID0gc3ZtX2NyZWF0ZV92Y3B1LAogCS52Y3B1X2ZyZWUgPSBzdm1fZnJlZV92
-Y3B1LApkaWZmIC0tZ2l0IGEvYXJjaC94ODYva3ZtL3ZteC92bXguYyBiL2FyY2gveDg2L2t2bS92
-bXgvdm14LmMKaW5kZXggZTEwZWU4ZmQxYzY3Li45N2NmZDVhMzE2ZjMgMTAwNjQ0Ci0tLSBhL2Fy
-Y2gveDg2L2t2bS92bXgvdm14LmMKKysrIGIvYXJjaC94ODYva3ZtL3ZteC92bXguYwpAQCAtNzY4
-OSw2ICs3Njg5LDEzIEBAIHN0YXRpYyBib29sIHZteF9uZXN0ZWRfcGFnZWZhdWx0KHN0cnVjdCBr
-dm1fdmNwdSAqdmNwdSkKIAlyZXR1cm4gdHJ1ZTsKIH0KIAorc3RhdGljIGJvb2wgdm14X3NwdF9m
-YXVsdChzdHJ1Y3Qga3ZtX3ZjcHUgKnZjcHUpCit7CisJY29uc3Qgc3RydWN0IHZjcHVfdm14ICp2
-bXggPSB0b192bXgodmNwdSk7CisKKwlyZXR1cm4gKHZteC0+ZXhpdF9yZWFzb24gPT0gRVhJVF9S
-RUFTT05fRVBUX1ZJT0xBVElPTik7Cit9CisKIHN0YXRpYyBzdHJ1Y3Qga3ZtX3g4Nl9vcHMgdm14
-X3g4Nl9vcHMgX19yb19hZnRlcl9pbml0ID0gewogCS5jcHVfaGFzX2t2bV9zdXBwb3J0ID0gY3B1
-X2hhc19rdm1fc3VwcG9ydCwKIAkuZGlzYWJsZWRfYnlfYmlvcyA9IHZteF9kaXNhYmxlZF9ieV9i
-aW9zLApAQCAtNzcwMSw2ICs3NzA4LDcgQEAgc3RhdGljIHN0cnVjdCBrdm1feDg2X29wcyB2bXhf
-eDg2X29wcyBfX3JvX2FmdGVyX2luaXQgPSB7CiAJLmhhc19lbXVsYXRlZF9tc3IgPSB2bXhfaGFz
-X2VtdWxhdGVkX21zciwKIAogCS5uZXN0ZWRfcGFnZWZhdWx0ID0gdm14X25lc3RlZF9wYWdlZmF1
-bHQsCisJLnNwdF9mYXVsdCA9IHZteF9zcHRfZmF1bHQsCiAKIAkudm1faW5pdCA9IHZteF92bV9p
-bml0LAogCS52bV9hbGxvYyA9IHZteF92bV9hbGxvYywKZGlmZiAtLWdpdCBhL2FyY2gveDg2L2t2
-bS94ODYuYyBiL2FyY2gveDg2L2t2bS94ODYuYwppbmRleCBjMjhlMmEyMGRlYzIuLjI1N2M0YTI2
-MmFjZCAxMDA2NDQKLS0tIGEvYXJjaC94ODYva3ZtL3g4Ni5jCisrKyBiL2FyY2gveDg2L2t2bS94
-ODYuYwpAQCAtOTg4NCw2ICs5ODg0LDEyIEBAIGJvb2wga3ZtX3ZlY3Rvcl9oYXNoaW5nX2VuYWJs
-ZWQodm9pZCkKIH0KIEVYUE9SVF9TWU1CT0xfR1BMKGt2bV92ZWN0b3JfaGFzaGluZ19lbmFibGVk
-KTsKIAorYm9vbCBrdm1fc3B0X2ZhdWx0KHN0cnVjdCBrdm1fdmNwdSAqdmNwdSkKK3sKKwlyZXR1
-cm4ga3ZtX3g4Nl9vcHMtPnNwdF9mYXVsdCh2Y3B1KTsKK30KK0VYUE9SVF9TWU1CT0woa3ZtX3Nw
-dF9mYXVsdCk7CisKIEVYUE9SVF9UUkFDRVBPSU5UX1NZTUJPTF9HUEwoa3ZtX2V4aXQpOwogRVhQ
-T1JUX1RSQUNFUE9JTlRfU1lNQk9MX0dQTChrdm1fZmFzdF9tbWlvKTsKIEVYUE9SVF9UUkFDRVBP
-SU5UX1NZTUJPTF9HUEwoa3ZtX2lual92aXJxKTsKX19fX19fX19fX19fX19fX19fX19fX19fX19f
-X19fX19fX19fX19fX19fX19fX18KVmlydHVhbGl6YXRpb24gbWFpbGluZyBsaXN0ClZpcnR1YWxp
-emF0aW9uQGxpc3RzLmxpbnV4LWZvdW5kYXRpb24ub3JnCmh0dHBzOi8vbGlzdHMubGludXhmb3Vu
-ZGF0aW9uLm9yZy9tYWlsbWFuL2xpc3RpbmZvL3ZpcnR1YWxpemF0aW9u
+On Sun, Jun 23, 2019 at 11:19:45PM -0700, Christoph Hellwig wrote:
+> Tom,
+> 
+> next time please cc Jerg as the AMD IOMMU maintainer.
+> 
+> Joerg, any chance you could review this?  Toms patches to convert the
+> AMD and Intel IOMMU drivers to the dma-iommu code are going to make my
+> life in DMA land significantly easier, so I have a vested interest
+> in this series moving forward :)
+
+Tom, can you repost the series?  Seems like there hasn't been any
+news for a month.
