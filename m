@@ -1,16 +1,14 @@
 From: Christoph Hellwig <hch@infradead.org>
-Subject: Re: [PATCH v4 0/5] iommu/amd: Convert the AMD iommu driver to the
-	dma-iommu api
-Date: Sat, 10 Aug 2019 00:19:52 -0700
-Message-ID: <20190810071952.GA25550__47865.6878390879$1565421620$gmane$org@infradead.org>
-References: <20190613223901.9523-1-murphyt7@tcd.ie>
-	<20190624061945.GA4912@infradead.org>
+Subject: Re: [PATCH] vhost: do not reference a file that does not exist
+Date: Sat, 10 Aug 2019 01:15:40 -0700
+Message-ID: <20190810081540.GA30426__35346.0389933147$1565424953$gmane$org@infradead.org>
+References: <20190808005255.106299-1-egranata@chromium.org>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
 Content-Disposition: inline
-In-Reply-To: <20190624061945.GA4912@infradead.org>
+In-Reply-To: <20190808005255.106299-1-egranata@chromium.org>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -20,19 +18,17 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Tom Murphy <murphyt7@tcd.ie>, Joerg Roedel <joro@8bytes.org>
-Cc: Heiko Stuebner <heiko@sntech.de>, Will Deacon <will.deacon@arm.com>, virtualization@lists.linux-foundation.org, David Brown <david.brown@linaro.org>, Thierry Reding <thierry.reding@gmail.com>, linux-s390@vger.kernel.org, linux-samsung-soc@vger.kernel.org, Jean-Philippe Brucker <jean-philippe.brucker@arm.com>, Krzysztof Kozlowski <krzk@kernel.org>, Jonathan Hunter <jonathanh@nvidia.com>, linux-rockchip@lists.infradead.org, Andy Gross <agross@kernel.org>, Matthias Brugger <matthias.bgg@gmail.com>, Gerald Schaefer <gerald.schaefer@de.ibm.com>, linux-arm-msm@vger.kernel.org, linux-mediatek@lists.infradead.org, linux-tegra@vger.kernel.org, linux-arm-kernel@lists.infradead.org, Robin Murphy <robin.murphy@arm.com>, linux-kernel@vger.kernel.org, iommu@lists.linux-foundation.org, Kukjin Kim <kgene@kernel.org>, David Woodhouse <dwmw2@infradead.org>
+To: egranata@chromium.org
+Cc: trivial@kernel.org, kvm@vger.kernel.org, mst@redhat.com, netdev@vger.kernel.org, linux-kernel@vger.kernel.org, virtualization@lists.linux-foundation.org, egranata@google.com
 List-Id: virtualization@lists.linuxfoundation.org
 
-On Sun, Jun 23, 2019 at 11:19:45PM -0700, Christoph Hellwig wrote:
-> Tom,
+On Wed, Aug 07, 2019 at 05:52:55PM -0700, egranata@chromium.org wrote:
+> From: Enrico Granata <egranata@google.com>
 > 
-> next time please cc Jerg as the AMD IOMMU maintainer.
+> lguest was removed from the mainline kernel in late 2017.
 > 
-> Joerg, any chance you could review this?  Toms patches to convert the
-> AMD and Intel IOMMU drivers to the dma-iommu code are going to make my
-> life in DMA land significantly easier, so I have a vested interest
-> in this series moving forward :)
+> Signed-off-by: Enrico Granata <egranata@google.com>
 
-Tom, can you repost the series?  Seems like there hasn't been any
-news for a month.
+But this particular file even has an override in the script looking
+for dead references, which together with the content of the overal
+contents makes me thing the dangling reference is somewhat intentional.
