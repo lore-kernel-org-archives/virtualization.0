@@ -1,17 +1,14 @@
-From: Jason Gunthorpe <jgg@ziepe.ca>
-Subject: Re: [PATCH V5 0/9] Fixes for vhost metadata acceleration
-Date: Mon, 12 Aug 2019 10:02:52 -0300
-Message-ID: <20190812130252.GE24457__9318.86043851904$1565614986$gmane$org@ziepe.ca>
-References: <20190809054851.20118-1-jasowang@redhat.com>
-	<20190810134948-mutt-send-email-mst@kernel.org>
-	<360a3b91-1ac5-84c0-d34b-a4243fa748c4@redhat.com>
-	<20190812054429-mutt-send-email-mst@kernel.org>
+From: David Gibson <david@gibson.dropbear.id.au>
+Subject: Re: [RFC PATCH] virtio_ring: Use DMA API if guest memory is encrypted
+Date: Mon, 12 Aug 2019 19:51:56 +1000
+Message-ID: <20190812095156.GD3947__30261.0183529154$1565618086$gmane$org@umbus.fritz.box>
+References: <87zhrj8kcp.fsf@morokweng.localdomain>
+	<20190810143038-mutt-send-email-mst@kernel.org>
+	<20190810220702.GA5964@ram.ibm.com> <20190811055607.GA12488@lst.de>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="utf-8"
-Content-Transfer-Encoding: base64
+Content-Type: multipart/mixed; boundary="===============4976469161546026162=="
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-Content-Disposition: inline
-In-Reply-To: <20190812054429-mutt-send-email-mst@kernel.org>
+In-Reply-To: <20190811055607.GA12488@lst.de>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -21,62 +18,94 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: "Michael S. Tsirkin" <mst@redhat.com>
-Cc: kvm@vger.kernel.org, netdev@vger.kernel.org, linux-kernel@vger.kernel.org, virtualization@lists.linux-foundation.org, linux-mm@kvack.org
+To: Christoph Hellwig <hch@lst.de>
+Cc: "Michael S. Tsirkin" <mst@redhat.com>, Benjamin Herrenschmidt <benh@kernel.crashing.org>, Alexey Kardashevskiy <aik@linux.ibm.com>, Ram Pai <linuxram@us.ibm.com>, linux-kernel@vger.kernel.org, virtualization@lists.linux-foundation.org, Paul Mackerras <paulus@ozlabs.org>, iommu@lists.linux-foundation.org, linuxppc-devel@lists.ozlabs.org
 List-Id: virtualization@lists.linuxfoundation.org
 
-T24gTW9uLCBBdWcgMTIsIDIwMTkgYXQgMDU6NDk6MDhBTSAtMDQwMCwgTWljaGFlbCBTLiBUc2ly
-a2luIHdyb3RlOgo+IE9uIE1vbiwgQXVnIDEyLCAyMDE5IGF0IDEwOjQ0OjUxQU0gKzA4MDAsIEph
-c29uIFdhbmcgd3JvdGU6Cj4gPiAKPiA+IE9uIDIwMTkvOC8xMSDkuIrljYgxOjUyLCBNaWNoYWVs
-IFMuIFRzaXJraW4gd3JvdGU6Cj4gPiA+IE9uIEZyaSwgQXVnIDA5LCAyMDE5IGF0IDAxOjQ4OjQy
-QU0gLTA0MDAsIEphc29uIFdhbmcgd3JvdGU6Cj4gPiA+ID4gSGkgYWxsOgo+ID4gPiA+IAo+ID4g
-PiA+IFRoaXMgc2VyaWVzIHRyeSB0byBmaXggc2V2ZXJhbCBpc3N1ZXMgaW50cm9kdWNlZCBieSBt
-ZXRhIGRhdGEKPiA+ID4gPiBhY2NlbHJlYXRpb24gc2VyaWVzLiBQbGVhc2UgcmV2aWV3Lgo+ID4g
-PiA+IAo+ID4gPiA+IENoYW5nZXMgZnJvbSBWNDoKPiA+ID4gPiAtIHN3aXRjaCB0byB1c2Ugc3Bp
-bmxvY2sgc3luY2hyb25pemUgTU1VIG5vdGlmaWVyIHdpdGggYWNjZXNzb3JzCj4gPiA+ID4gCj4g
-PiA+ID4gQ2hhbmdlcyBmcm9tIFYzOgo+ID4gPiA+IC0gcmVtb3ZlIHRoZSB1bm5lY2Vzc2FyeSBw
-YXRjaAo+ID4gPiA+IAo+ID4gPiA+IENoYW5nZXMgZnJvbSBWMjoKPiA+ID4gPiAtIHVzZSBzZXFs
-Y2sgaGVscGVyIHRvIHN5bmNocm9uaXplIE1NVSBub3RpZmllciB3aXRoIHZob3N0IHdvcmtlcgo+
-ID4gPiA+IAo+ID4gPiA+IENoYW5nZXMgZnJvbSBWMToKPiA+ID4gPiAtIHRyeSBub3QgdXNlIFJD
-VSB0byBzeW5jcmhvbml6ZSBNTVUgbm90aWZpZXIgd2l0aCB2aG9zdCB3b3JrZXIKPiA+ID4gPiAt
-IHNldCBkaXJ0eSBwYWdlcyBhZnRlciBubyByZWFkZXJzCj4gPiA+ID4gLSByZXR1cm4gLUVBR0FJ
-TiBvbmx5IHdoZW4gd2UgZmluZCB0aGUgcmFuZ2UgaXMgb3ZlcmxhcHBlZCB3aXRoCj4gPiA+ID4g
-ICAgbWV0YWRhdGEKPiA+ID4gPiAKPiA+ID4gPiBKYXNvbiBXYW5nICg5KToKPiA+ID4gPiAgICB2
-aG9zdDogZG9uJ3Qgc2V0IHVhZGRyIGZvciBpbnZhbGlkIGFkZHJlc3MKPiA+ID4gPiAgICB2aG9z
-dDogdmFsaWRhdGUgTU1VIG5vdGlmaWVyIHJlZ2lzdHJhdGlvbgo+ID4gPiA+ICAgIHZob3N0OiBm
-aXggdmhvc3QgbWFwIGxlYWsKPiA+ID4gPiAgICB2aG9zdDogcmVzZXQgaW52YWxpZGF0ZV9jb3Vu
-dCBpbiB2aG9zdF9zZXRfdnJpbmdfbnVtX2FkZHIoKQo+ID4gPiA+ICAgIHZob3N0OiBtYXJrIGRp
-cnR5IHBhZ2VzIGR1cmluZyBtYXAgdW5pbml0Cj4gPiA+ID4gICAgdmhvc3Q6IGRvbid0IGRvIHN5
-bmNocm9uaXplX3JjdSgpIGluIHZob3N0X3VuaW5pdF92cV9tYXBzKCkKPiA+ID4gPiAgICB2aG9z
-dDogZG8gbm90IHVzZSBSQ1UgdG8gc3luY2hyb25pemUgTU1VIG5vdGlmaWVyIHdpdGggd29ya2Vy
-Cj4gPiA+ID4gICAgdmhvc3Q6IGNvcnJlY3RseSBzZXQgZGlydHkgcGFnZXMgaW4gTU1VIG5vdGlm
-aWVycyBjYWxsYmFjawo+ID4gPiA+ICAgIHZob3N0OiBkbyBub3QgcmV0dXJuIC1FQUdBSU4gZm9y
-IG5vbiBibG9ja2luZyBpbnZhbGlkYXRpb24gdG9vIGVhcmx5Cj4gPiA+ID4gCj4gPiA+ID4gICBk
-cml2ZXJzL3Zob3N0L3Zob3N0LmMgfCAyMDIgKysrKysrKysrKysrKysrKysrKysrKysrKy0tLS0t
-LS0tLS0tLS0tLS0tCj4gPiA+ID4gICBkcml2ZXJzL3Zob3N0L3Zob3N0LmggfCAgIDYgKy0KPiA+
-ID4gPiAgIDIgZmlsZXMgY2hhbmdlZCwgMTIyIGluc2VydGlvbnMoKyksIDg2IGRlbGV0aW9ucygt
-KQo+ID4gPiBUaGlzIGdlbmVyYWxseSBsb29rcyBtb3JlIHNvbGlkLgo+ID4gPiAKPiA+ID4gQnV0
-IHRoaXMgYW1vdW50cyB0byBhIHNpZ25pZmljYW50IG92ZXJoYXVsIG9mIHRoZSBjb2RlLgo+ID4g
-PiAKPiA+ID4gQXQgdGhpcyBwb2ludCBob3cgYWJvdXQgd2UgcmV2ZXJ0IDdmNDY2MDMyZGM5ZTVh
-NjEyMTdmMjJlYTM0YjJkZjkzMjc4NmJiZmMKPiA+ID4gZm9yIHRoaXMgcmVsZWFzZSwgYW5kIHRo
-ZW4gcmUtYXBwbHkgYSBjb3JyZWN0ZWQgdmVyc2lvbgo+ID4gPiBmb3IgdGhlIG5leHQgb25lPwo+
-ID4gCj4gPiAKPiA+IElmIHBvc3NpYmxlLCBjb25zaWRlciB3ZSd2ZSBhY3R1YWxseSBkaXNhYmxl
-ZCB0aGUgZmVhdHVyZS4gSG93IGFib3V0IGp1c3QKPiA+IHF1ZXVlZCB0aG9zZSBwYXRjaGVzIGZv
-ciBuZXh0IHJlbGVhc2U/Cj4gPiAKPiA+IFRoYW5rcwo+IAo+IFNvcnJ5IGlmIEkgd2FzIHVuY2xl
-YXIuIE15IGlkZWEgaXMgdGhhdAo+IDEuIEkgcmV2ZXJ0IHRoZSBkaXNhYmxlZCBjb2RlCj4gMi4g
-WW91IHNlbmQgYSBwYXRjaCByZWFkZGluZyBpdCB3aXRoIGFsbCB0aGUgZml4ZXMgc3F1YXNoZWQK
-PiAzLiBNYXliZSBvcHRpbWl6YXRpb25zIG9uIHRvcCByaWdodCBhd2F5Pwo+IDQuIFdlIHF1ZXVl
-ICp0aGF0KiBmb3IgbmV4dCBhbmQgc2VlIHdoYXQgaGFwcGVucy4KPiAKPiBBbmQgdGhlIGFkdmFu
-dGFnZSBvdmVyIHRoZSBwYXRjaHkgYXBwcm9hY2ggaXMgdGhhdCB0aGUgY3VycmVudCBwYXRjaGVz
-Cj4gYXJlIGhhcmQgdG8gcmV2aWV3LiBFLmcuICBpdCdzIG5vdCByZWFzb25hYmxlIHRvIGFzayBS
-Q1UgZ3V5cyB0byByZXZpZXcKPiB0aGUgd2hvbGUgb2Ygdmhvc3QgZm9yIFJDVSB1c2FnZSBidXQg
-aXQncyBtdWNoIG1vcmUgcmVhc29uYWJsZSB0byBhc2sKPiBhYm91dCBhIHNwZWNpZmljIHBhdGNo
-LgoKSSB0aGluayB0aGVyZSBhcmUgb3RoZXIgcHJvYmxlbXMgaGVyZSB0b28sIEkgZG9uJ3QgbGlr
-ZSB0aGF0IHRoZSB1c2UKb2YgbW11IG5vdGlmaWVycyBpcyBzbyBkaWZmZXJlbnQgZnJvbSBldmVy
-eSBvdGhlciBkcml2ZXIsIG9yIHRoYXQgR1VQCmlzIGNhbGxlZCB1bmRlciBzcGlubG9jay4KClNv
-IEkgZmF2b3IgdGhlIHJldmVydCBhbmQgdHJ5IGFnYWluIGFwcHJvYWNoIGFzIHdlbGwuIEl0IGlz
-IGhhcmQgdG8KZ2V0IGEgY2xlYXIgcGljdHVyZSB3aXRoIHRoZXNlIGVuZGxlc3MgYnVnIGZpeCBw
-YXRjaGVzCgpKYXNvbgpfX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19f
-X19fXwpWaXJ0dWFsaXphdGlvbiBtYWlsaW5nIGxpc3QKVmlydHVhbGl6YXRpb25AbGlzdHMubGlu
-dXgtZm91bmRhdGlvbi5vcmcKaHR0cHM6Ly9saXN0cy5saW51eGZvdW5kYXRpb24ub3JnL21haWxt
-YW4vbGlzdGluZm8vdmlydHVhbGl6YXRpb24=
+
+--===============4976469161546026162==
+Content-Type: multipart/signed; micalg=pgp-sha256;
+	protocol="application/pgp-signature"; boundary="NtwzykIc2mflq5ck"
+Content-Disposition: inline
+
+
+--NtwzykIc2mflq5ck
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+Content-Transfer-Encoding: quoted-printable
+
+On Sun, Aug 11, 2019 at 07:56:07AM +0200, Christoph Hellwig wrote:
+> sev_active() is gone now in linux-next, at least as a global API.
+>=20
+> And once again this is entirely going in the wrong direction.  The only
+> way using the DMA API is going to work at all is if the device is ready
+> for it.  So we need a flag on the virtio device, exposed by the
+> hypervisor (or hardware for hw virtio devices) that says:  hey, I'm real,
+> don't take a shortcut.
+
+There still seems to be a failure to understand each other here.  The
+limitation here simply *is not* a property of the device.  In fact,
+it's effectively a property of the memory the virtio device would be
+trying to access (because it's in secure mode it can't be directly
+accessed via the hypervisor).  There absolutely are cases where this
+is a device property (a physical virtio device being the obvious one),
+but this isn't one of them.
+
+Unfortunately, we're kind of stymied by the feature negotiation model
+of virtio.  AIUI the hypervisor / device presents a bunch of feature
+bits of which the guest / driver selects a subset.
+
+AFAICT we already kind of abuse this for the VIRTIO_F_IOMMU_PLATFORM,
+because to handle for cases where it *is* a device limitation, we
+assume that if the hypervisor presents VIRTIO_F_IOMMU_PLATFORM then
+the guest *must* select it.
+
+What we actually need here is for the hypervisor to present
+VIRTIO_F_IOMMU_PLATFORM as available, but not required.  Then we need
+a way for the platform core code to communicate to the virtio driver
+that *it* requires the IOMMU to be used, so that the driver can select
+or not the feature bit on that basis.
+
+> And that means on power and s390 qemu will always have to set thos if
+> you want to be ready for the ultravisor and co games.  It's not like we
+> haven't been through this a few times before, have we?
+
+--=20
+David Gibson			| I'll have my music baroque, and my code
+david AT gibson.dropbear.id.au	| minimalist, thank you.  NOT _the_ _other_
+				| _way_ _around_!
+http://www.ozlabs.org/~dgibson
+
+--NtwzykIc2mflq5ck
+Content-Type: application/pgp-signature; name="signature.asc"
+
+-----BEGIN PGP SIGNATURE-----
+
+iQIzBAEBCAAdFiEEdfRlhq5hpmzETofcbDjKyiDZs5IFAl1RNrcACgkQbDjKyiDZ
+s5IeEA//dnRJ6mVj+RhQveMWMmeAiLbWMfnm//uTigHRNS3wsKGZnHuzpbBnRoCc
+lEX8grJ+aGO69ZFe4N41Fad605IFGUjnxTtQn6kMx85m7F6z1+Bdi0B4H/k9iZ77
+jr/rVpXQ9lv93Sns8vg9rZloaLf3xt1ZBN7hjecvVNSN5esttOlczRXSCq8m3rGE
+2wYsyLox6y/juyLl/f+MOADagIb5ca652DrmInAaER3HgNnMmZGjr+gAjgvzNWRC
+iYF3i/T/+NQLSS2IgG3eo9kzz3TF9FxmbtpqCynyr/JOUOf+M6vN9IZnr6MDSspR
+OnUgRJLIOVjAUcG5EDwfoZQIbuJ7rJZ68/q75aJpMWpfrAsEiKPVD42lhDRtPzuT
+fyT2lVp0ZF+VfSL4lc7nFq/yEG8YCJO2ZtgulzCFo72mPieeMZj3UyBOn0eJZ6Ui
+lAOZHKgkDuhvNYXigewhujz+kTJ2UlV0ioZ0fOs9ohqOMd3t9RcIn2HIhI1j+2hN
+drDFJUL6roSn+3rMA8MxCqeumTjFXGEGa9K+MIrVHpCnfgLgxV3Z2Z/gy8TNdetk
+qobrJcniwJGse95D0BXoU6FDLRTOBsyNXa1ruMT0srHClrFIVRkGGr8fveJvUo/z
+9pxHx2HQa0ePV1VCTj0h9YficujWGsF+RwC57aQOeCUFqLYz+0c=
+=pHtB
+-----END PGP SIGNATURE-----
+
+--NtwzykIc2mflq5ck--
+
+--===============4976469161546026162==
+Content-Type: text/plain; charset="us-ascii"
+MIME-Version: 1.0
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+
+_______________________________________________
+Virtualization mailing list
+Virtualization@lists.linux-foundation.org
+https://lists.linuxfoundation.org/mailman/listinfo/virtualization
+--===============4976469161546026162==--
