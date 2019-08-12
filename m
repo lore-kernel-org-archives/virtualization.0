@@ -1,15 +1,16 @@
-From: David Miller <davem@davemloft.net>
-Subject: Re: [PATCH V5 0/9] Fixes for vhost metadata acceleration
-Date: Sun, 11 Aug 2019 21:13:43 -0700 (PDT)
-Message-ID: <20190811.211343.1920857192153512765.davem@davemloft.net>
-References: <20190809054851.20118-1-jasowang@redhat.com>
-	<20190810134948-mutt-send-email-mst@kernel.org>
-	<360a3b91-1ac5-84c0-d34b-a4243fa748c4@redhat.com>
+From: Jason Wang <jasowang@redhat.com>
+Subject: Re: [PATCH v3 2/2] virtio: decrement avail idx with buffer detach for
+	packed ring
+Date: Mon, 12 Aug 2019 12:46:54 +0800
+Message-ID: <b1ab613d-55a4-fdb4-96b1-03bedbcc740b__37311.6991295078$1565585230$gmane$org@redhat.com>
+References: <20190809064847.28918-1-pagupta@redhat.com>
+	<20190809064847.28918-3-pagupta@redhat.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="iso-2022-jp"
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset="utf-8"; Format="flowed"
+Content-Transfer-Encoding: base64
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <360a3b91-1ac5-84c0-d34b-a4243fa748c4@redhat.com>
+In-Reply-To: <20190809064847.28918-3-pagupta@redhat.com>
+Content-Language: en-US
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -19,20 +20,32 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: jasowang@redhat.com
-Cc: jgg@ziepe.ca, kvm@vger.kernel.org, mst@redhat.com, netdev@vger.kernel.org, linux-kernel@vger.kernel.org, virtualization@lists.linux-foundation.org, linux-mm@kvack.org
+To: Pankaj Gupta <pagupta@redhat.com>, amit@kernel.org, mst@redhat.com
+Cc: gregkh@linuxfoundation.org, xiaohli@redhat.com, linux-kernel@vger.kernel.org, arnd@arndb.de, virtualization@lists.linux-foundation.org
 List-Id: virtualization@lists.linuxfoundation.org
 
-From: Jason Wang <jasowang@redhat.com>
-Date: Mon, 12 Aug 2019 10:44:51 +0800
-
-> On 2019/8/11 上午1:52, Michael S. Tsirkin wrote:
->> At this point how about we revert
->> 7f466032dc9e5a61217f22ea34b2df932786bbfc
->> for this release, and then re-apply a corrected version
->> for the next one?
-> 
-> If possible, consider we've actually disabled the feature. How about
-> just queued those patches for next release?
-
-I'm tossing this series while you and Michael decide how to move forward.
+Ck9uIDIwMTkvOC85IOS4i+WNiDI6NDgsIFBhbmthaiBHdXB0YSB3cm90ZToKPiBUaGlzIHBhdGNo
+IGRlY3JlbWVudHMgJ25leHRfYXZhaWxfaWR4JyBjb3VudCB3aGVuIGRldGFjaGluZyBhIGJ1ZmZl
+cgo+IGZyb20gdnEgZm9yIHBhY2tlZCByaW5nIGNvZGUuIFNwbGl0IHJpbmcgY29kZSBhbHJlYWR5
+IGRvZXMgdGhpcyBpbgo+IHZpcnRxdWV1ZV9kZXRhY2hfdW51c2VkX2J1Zl9zcGxpdCBmdW5jdGlv
+bi4gVGhpcyB1cGRhdGVzIHRoZQo+ICduZXh0X2F2YWlsX2lkeCcgdG8gdGhlIHByZXZpb3VzIGNv
+cnJlY3QgaW5kZXggYWZ0ZXIgYW4gdW51c2VkIGJ1ZmZlcgo+IGlzIGRldGF0Y2hlZCBmcm9tIHRo
+ZSB2cS4KPgo+IFNpZ25lZC1vZmYtYnk6IFBhbmthaiBHdXB0YSA8cGFndXB0YUByZWRoYXQuY29t
+Pgo+IC0tLQo+ICAgZHJpdmVycy92aXJ0aW8vdmlydGlvX3JpbmcuYyB8IDYgKysrKysrCj4gICAx
+IGZpbGUgY2hhbmdlZCwgNiBpbnNlcnRpb25zKCspCj4KPiBkaWZmIC0tZ2l0IGEvZHJpdmVycy92
+aXJ0aW8vdmlydGlvX3JpbmcuYyBiL2RyaXZlcnMvdmlydGlvL3ZpcnRpb19yaW5nLmMKPiBpbmRl
+eCBjOGJlMWM0ZjViNTUuLjdjNjkxODExMTNlMiAxMDA2NDQKPiAtLS0gYS9kcml2ZXJzL3ZpcnRp
+by92aXJ0aW9fcmluZy5jCj4gKysrIGIvZHJpdmVycy92aXJ0aW8vdmlydGlvX3JpbmcuYwo+IEBA
+IC0xNTM3LDYgKzE1MzcsMTIgQEAgc3RhdGljIHZvaWQgKnZpcnRxdWV1ZV9kZXRhY2hfdW51c2Vk
+X2J1Zl9wYWNrZWQoc3RydWN0IHZpcnRxdWV1ZSAqX3ZxKQo+ICAgCQkvKiBkZXRhY2hfYnVmIGNs
+ZWFycyBkYXRhLCBzbyBncmFiIGl0IG5vdy4gKi8KPiAgIAkJYnVmID0gdnEtPnBhY2tlZC5kZXNj
+X3N0YXRlW2ldLmRhdGE7Cj4gICAJCWRldGFjaF9idWZfcGFja2VkKHZxLCBpLCBOVUxMKTsKPiAr
+CQl2cS0+cGFja2VkLm5leHRfYXZhaWxfaWR4LS07Cj4gKwkJaWYgKHZxLT5wYWNrZWQubmV4dF9h
+dmFpbF9pZHggPCAwKSB7Cj4gKwkJCXZxLT5wYWNrZWQubmV4dF9hdmFpbF9pZHggPSB2cS0+cGFj
+a2VkLnZyaW5nLm51bSAtIDE7Cj4gKwkJCXZxLT5wYWNrZWQuYXZhaWxfd3JhcF9jb3VudGVyIF49
+IDE7Cj4gKwkJfQo+ICsKPiAgIAkJRU5EX1VTRSh2cSk7Cj4gICAJCXJldHVybiBidWY7Cj4gICAJ
+fQoKCkFja2VkLWJ5OiBKYXNvbiBXYW5nIDxqYXNvd2FuZ0ByZWRoYXQuY29tPgoKCl9fX19fX19f
+X19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fClZpcnR1YWxpemF0aW9uIG1h
+aWxpbmcgbGlzdApWaXJ0dWFsaXphdGlvbkBsaXN0cy5saW51eC1mb3VuZGF0aW9uLm9yZwpodHRw
+czovL2xpc3RzLmxpbnV4Zm91bmRhdGlvbi5vcmcvbWFpbG1hbi9saXN0aW5mby92aXJ0dWFsaXph
+dGlvbg==
