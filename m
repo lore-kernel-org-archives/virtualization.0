@@ -1,16 +1,15 @@
-From: "Michael S. Tsirkin" <mst@redhat.com>
-Subject: Re: [RFC PATCH] virtio_ring: Use DMA API if guest memory is encrypted
-Date: Sun, 11 Aug 2019 04:55:27 -0400
-Message-ID: <20190811044431-mutt-send-email-mst__40593.1957227708$1565513744$gmane$org@kernel.org>
-References: <87zhrj8kcp.fsf@morokweng.localdomain>
-	<20190810143038-mutt-send-email-mst@kernel.org>
-	<20190810220702.GA5964@ram.ibm.com> <20190811055607.GA12488@lst.de>
+From: Jason Wang <jasowang@redhat.com>
+Subject: Re: [PATCH V5 0/9] Fixes for vhost metadata acceleration
+Date: Mon, 12 Aug 2019 10:44:51 +0800
+Message-ID: <360a3b91-1ac5-84c0-d34b-a4243fa748c4__26544.6829421975$1565577915$gmane$org@redhat.com>
+References: <20190809054851.20118-1-jasowang@redhat.com>
+	<20190810134948-mutt-send-email-mst@kernel.org>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset="utf-8"; Format="flowed"
+Content-Transfer-Encoding: base64
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-Content-Disposition: inline
-In-Reply-To: <20190811055607.GA12488@lst.de>
+In-Reply-To: <20190810134948-mutt-send-email-mst@kernel.org>
+Content-Language: en-US
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -20,20 +19,42 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Christoph Hellwig <hch@lst.de>
-Cc: Benjamin Herrenschmidt <benh@kernel.crashing.org>, Alexey Kardashevskiy <aik@linux.ibm.com>, Ram Pai <linuxram@us.ibm.com>, linux-kernel@vger.kernel.org, virtualization@lists.linux-foundation.org, Paul Mackerras <paulus@ozlabs.org>, iommu@lists.linux-foundation.org, David Gibson <david@gibson.dropbear.id.au>
+To: "Michael S. Tsirkin" <mst@redhat.com>
+Cc: kvm@vger.kernel.org, jgg@ziepe.ca, netdev@vger.kernel.org, linux-kernel@vger.kernel.org, virtualization@lists.linux-foundation.org, linux-mm@kvack.org
 List-Id: virtualization@lists.linuxfoundation.org
 
-On Sun, Aug 11, 2019 at 07:56:07AM +0200, Christoph Hellwig wrote:
-> So we need a flag on the virtio device, exposed by the
-> hypervisor (or hardware for hw virtio devices) that says:  hey, I'm real,
-> don't take a shortcut.
-
-The point here is that it's actually still not real. So we would still
-use a physical address. However Linux decides that it wants extra
-security by moving all data through the bounce buffer.  The distinction
-made is that one can actually give device a physical address of the
-bounce buffer.
-
--- 
-MST
+Ck9uIDIwMTkvOC8xMSDkuIrljYgxOjUyLCBNaWNoYWVsIFMuIFRzaXJraW4gd3JvdGU6Cj4gT24g
+RnJpLCBBdWcgMDksIDIwMTkgYXQgMDE6NDg6NDJBTSAtMDQwMCwgSmFzb24gV2FuZyB3cm90ZToK
+Pj4gSGkgYWxsOgo+Pgo+PiBUaGlzIHNlcmllcyB0cnkgdG8gZml4IHNldmVyYWwgaXNzdWVzIGlu
+dHJvZHVjZWQgYnkgbWV0YSBkYXRhCj4+IGFjY2VscmVhdGlvbiBzZXJpZXMuIFBsZWFzZSByZXZp
+ZXcuCj4+Cj4+IENoYW5nZXMgZnJvbSBWNDoKPj4gLSBzd2l0Y2ggdG8gdXNlIHNwaW5sb2NrIHN5
+bmNocm9uaXplIE1NVSBub3RpZmllciB3aXRoIGFjY2Vzc29ycwo+Pgo+PiBDaGFuZ2VzIGZyb20g
+VjM6Cj4+IC0gcmVtb3ZlIHRoZSB1bm5lY2Vzc2FyeSBwYXRjaAo+Pgo+PiBDaGFuZ2VzIGZyb20g
+VjI6Cj4+IC0gdXNlIHNlcWxjayBoZWxwZXIgdG8gc3luY2hyb25pemUgTU1VIG5vdGlmaWVyIHdp
+dGggdmhvc3Qgd29ya2VyCj4+Cj4+IENoYW5nZXMgZnJvbSBWMToKPj4gLSB0cnkgbm90IHVzZSBS
+Q1UgdG8gc3luY3Job25pemUgTU1VIG5vdGlmaWVyIHdpdGggdmhvc3Qgd29ya2VyCj4+IC0gc2V0
+IGRpcnR5IHBhZ2VzIGFmdGVyIG5vIHJlYWRlcnMKPj4gLSByZXR1cm4gLUVBR0FJTiBvbmx5IHdo
+ZW4gd2UgZmluZCB0aGUgcmFuZ2UgaXMgb3ZlcmxhcHBlZCB3aXRoCj4+ICAgIG1ldGFkYXRhCj4+
+Cj4+IEphc29uIFdhbmcgKDkpOgo+PiAgICB2aG9zdDogZG9uJ3Qgc2V0IHVhZGRyIGZvciBpbnZh
+bGlkIGFkZHJlc3MKPj4gICAgdmhvc3Q6IHZhbGlkYXRlIE1NVSBub3RpZmllciByZWdpc3RyYXRp
+b24KPj4gICAgdmhvc3Q6IGZpeCB2aG9zdCBtYXAgbGVhawo+PiAgICB2aG9zdDogcmVzZXQgaW52
+YWxpZGF0ZV9jb3VudCBpbiB2aG9zdF9zZXRfdnJpbmdfbnVtX2FkZHIoKQo+PiAgICB2aG9zdDog
+bWFyayBkaXJ0eSBwYWdlcyBkdXJpbmcgbWFwIHVuaW5pdAo+PiAgICB2aG9zdDogZG9uJ3QgZG8g
+c3luY2hyb25pemVfcmN1KCkgaW4gdmhvc3RfdW5pbml0X3ZxX21hcHMoKQo+PiAgICB2aG9zdDog
+ZG8gbm90IHVzZSBSQ1UgdG8gc3luY2hyb25pemUgTU1VIG5vdGlmaWVyIHdpdGggd29ya2VyCj4+
+ICAgIHZob3N0OiBjb3JyZWN0bHkgc2V0IGRpcnR5IHBhZ2VzIGluIE1NVSBub3RpZmllcnMgY2Fs
+bGJhY2sKPj4gICAgdmhvc3Q6IGRvIG5vdCByZXR1cm4gLUVBR0FJTiBmb3Igbm9uIGJsb2NraW5n
+IGludmFsaWRhdGlvbiB0b28gZWFybHkKPj4KPj4gICBkcml2ZXJzL3Zob3N0L3Zob3N0LmMgfCAy
+MDIgKysrKysrKysrKysrKysrKysrKysrKysrKy0tLS0tLS0tLS0tLS0tLS0tCj4+ICAgZHJpdmVy
+cy92aG9zdC92aG9zdC5oIHwgICA2ICstCj4+ICAgMiBmaWxlcyBjaGFuZ2VkLCAxMjIgaW5zZXJ0
+aW9ucygrKSwgODYgZGVsZXRpb25zKC0pCj4gVGhpcyBnZW5lcmFsbHkgbG9va3MgbW9yZSBzb2xp
+ZC4KPgo+IEJ1dCB0aGlzIGFtb3VudHMgdG8gYSBzaWduaWZpY2FudCBvdmVyaGF1bCBvZiB0aGUg
+Y29kZS4KPgo+IEF0IHRoaXMgcG9pbnQgaG93IGFib3V0IHdlIHJldmVydCA3ZjQ2NjAzMmRjOWU1
+YTYxMjE3ZjIyZWEzNGIyZGY5MzI3ODZiYmZjCj4gZm9yIHRoaXMgcmVsZWFzZSwgYW5kIHRoZW4g
+cmUtYXBwbHkgYSBjb3JyZWN0ZWQgdmVyc2lvbgo+IGZvciB0aGUgbmV4dCBvbmU/CgoKSWYgcG9z
+c2libGUsIGNvbnNpZGVyIHdlJ3ZlIGFjdHVhbGx5IGRpc2FibGVkIHRoZSBmZWF0dXJlLiBIb3cg
+YWJvdXQgCmp1c3QgcXVldWVkIHRob3NlIHBhdGNoZXMgZm9yIG5leHQgcmVsZWFzZT8KClRoYW5r
+cwoKCj4KPj4gLS0gCj4+IDIuMTguMQpfX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19f
+X19fX19fX19fX19fXwpWaXJ0dWFsaXphdGlvbiBtYWlsaW5nIGxpc3QKVmlydHVhbGl6YXRpb25A
+bGlzdHMubGludXgtZm91bmRhdGlvbi5vcmcKaHR0cHM6Ly9saXN0cy5saW51eGZvdW5kYXRpb24u
+b3JnL21haWxtYW4vbGlzdGluZm8vdmlydHVhbGl6YXRpb24=
