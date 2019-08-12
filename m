@@ -1,18 +1,16 @@
 From: "Michael S. Tsirkin" <mst@redhat.com>
-Subject: Re: [PATCH v3 1/2] virtio_console: free unused buffers with port
-	delete
-Date: Mon, 12 Aug 2019 05:18:41 -0400
-Message-ID: <20190812051642-mutt-send-email-mst@kernel.org>
-References: <20190809064847.28918-1-pagupta@redhat.com>
-	<20190809064847.28918-2-pagupta@redhat.com>
-	<20190810141019-mutt-send-email-mst@kernel.org>
-	<361928616.7829318.1565588208467.JavaMail.zimbra@redhat.com>
+Subject: Re: [PATCH V5 0/9] Fixes for vhost metadata acceleration
+Date: Mon, 12 Aug 2019 05:49:08 -0400
+Message-ID: <20190812054429-mutt-send-email-mst__25433.6639585503$1565603364$gmane$org@kernel.org>
+References: <20190809054851.20118-1-jasowang@redhat.com>
+	<20190810134948-mutt-send-email-mst@kernel.org>
+	<360a3b91-1ac5-84c0-d34b-a4243fa748c4@redhat.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset="utf-8"
+Content-Transfer-Encoding: base64
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
 Content-Disposition: inline
-In-Reply-To: <361928616.7829318.1565588208467.JavaMail.zimbra@redhat.com>
+In-Reply-To: <360a3b91-1ac5-84c0-d34b-a4243fa748c4@redhat.com>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -22,126 +20,54 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Pankaj Gupta <pagupta@redhat.com>
-Cc: arnd@arndb.de, amit@kernel.org, gregkh@linuxfoundation.org, linux-kernel@vger.kernel.org, virtualization@lists.linux-foundation.org, xiaohli@redhat.com
+To: Jason Wang <jasowang@redhat.com>
+Cc: kvm@vger.kernel.org, jgg@ziepe.ca, netdev@vger.kernel.org, linux-kernel@vger.kernel.org, virtualization@lists.linux-foundation.org, linux-mm@kvack.org
 List-Id: virtualization@lists.linuxfoundation.org
 
-On Mon, Aug 12, 2019 at 01:36:48AM -0400, Pankaj Gupta wrote:
-> 
-> > 
-> > On Fri, Aug 09, 2019 at 12:18:46PM +0530, Pankaj Gupta wrote:
-> > > The commit a7a69ec0d8e4 ("virtio_console: free buffers after reset")
-> > > deferred detaching of unused buffer to virtio device unplug time.
-> > > This causes unplug/replug of single port in virtio device with an
-> > > error "Error allocating inbufs\n". As we don't free the unused buffers
-> > > attached with the port. Re-plug the same port tries to allocate new
-> > > buffers in virtqueue and results in this error if queue is full.
-> > 
-> > So why not reuse the buffers that are already there in this case?
-> > Seems quite possible.
-> 
-> I took this approach because reusing the buffers will involve tweaking
-> the existing core functionality like managing the the virt queue indexes.
-
-I don't see why frankly, if you keep a list of outstanding
-buffers on plug you can assume they have been added.
-
-> Compared to that deleting the buffers while hot-unplugging port is simple
-> and was working fine before. It seems logically correct as well.   
-> 
-> I agree we need a spec change for this.
-> 
-> > 
-> > > This patch removes the unused buffers in vq's when we unplug the port.
-> > > This is the best we can do as we cannot call device_reset because virtio
-> > > device is still active.
-> > > 
-> > > Reported-by: Xiaohui Li <xiaohli@redhat.com>
-> > > Fixes: a7a69ec0d8e4 ("virtio_console: free buffers after reset")
-> > > Cc: stable@vger.kernel.org
-> > > Signed-off-by: Pankaj Gupta <pagupta@redhat.com>
-> > 
-> > This is really a revert of a7a69ec0d8e4, just tagged confusingly.
-> > 
-> > And the original is also supposed to be a bugfix.
-> > So how will the original bug be fixed?
-> 
-> Yes, Even I was confused while adding this tag.
-> I will remove remove 'fixes' tag completely for this patch?
-> because its a revert to original behavior which also is a bugfix.
-> 
-> > 
-> > "this is the best we can do" is rarely the case.
-> > 
-> > I am not necessarily against the revert. But if we go that way then what
-> > we need to do is specify the behaviour in the spec, since strict spec
-> > compliance is exactly what the original patch was addressing.
-> 
-> Agree.
-> 
-> > 
-> > In particular, we'd document that console has a special property that
-> > when port is detached virtqueue is considered stopped, device must not
-> > use any buffers, and it is legal to take buffers out of the device.
-> 
-> Yes. This documents the exact scenario. Thanks.
-> You want me to send a patch for the spec change?
-> 
-> Best regards,
-> Pankaj
-
-Go ahead.
-
-> > 
-> > 
-> > 
-> > > ---
-> > >  drivers/char/virtio_console.c | 14 +++++++++++---
-> > >  1 file changed, 11 insertions(+), 3 deletions(-)
-> > > 
-> > > diff --git a/drivers/char/virtio_console.c b/drivers/char/virtio_console.c
-> > > index 7270e7b69262..e8be82f1bae9 100644
-> > > --- a/drivers/char/virtio_console.c
-> > > +++ b/drivers/char/virtio_console.c
-> > > @@ -1494,15 +1494,25 @@ static void remove_port(struct kref *kref)
-> > >          kfree(port);
-> > >  }
-> > >  
-> > > +static void remove_unused_bufs(struct virtqueue *vq)
-> > > +{
-> > > +        struct port_buffer *buf;
-> > > +
-> > > +        while ((buf = virtqueue_detach_unused_buf(vq)))
-> > > +                free_buf(buf, true);
-> > > +}
-> > > +
-> > >  static void remove_port_data(struct port *port)
-> > >  {
-> > >          spin_lock_irq(&port->inbuf_lock);
-> > >          /* Remove unused data this port might have received. */
-> > >          discard_port_data(port);
-> > > +        remove_unused_bufs(port->in_vq);
-> > >          spin_unlock_irq(&port->inbuf_lock);
-> > >  
-> > >          spin_lock_irq(&port->outvq_lock);
-> > >          reclaim_consumed_buffers(port);
-> > > +        remove_unused_bufs(port->out_vq);
-> > >          spin_unlock_irq(&port->outvq_lock);
-> > >  }
-> > >  
-> > > @@ -1938,11 +1948,9 @@ static void remove_vqs(struct ports_device *portdev)
-> > >          struct virtqueue *vq;
-> > >  
-> > >          virtio_device_for_each_vq(portdev->vdev, vq) {
-> > > -                struct port_buffer *buf;
-> > >  
-> > >                  flush_bufs(vq, true);
-> > > -                while ((buf = virtqueue_detach_unused_buf(vq)))
-> > > -                        free_buf(buf, true);
-> > > +                remove_unused_bufs(vq);
-> > >          }
-> > >          portdev->vdev->config->del_vqs(portdev->vdev);
-> > >          kfree(portdev->in_vqs);
-> > > --
-> > > 2.21.0
-> > 
+T24gTW9uLCBBdWcgMTIsIDIwMTkgYXQgMTA6NDQ6NTFBTSArMDgwMCwgSmFzb24gV2FuZyB3cm90
+ZToKPiAKPiBPbiAyMDE5LzgvMTEg5LiK5Y2IMTo1MiwgTWljaGFlbCBTLiBUc2lya2luIHdyb3Rl
+Ogo+ID4gT24gRnJpLCBBdWcgMDksIDIwMTkgYXQgMDE6NDg6NDJBTSAtMDQwMCwgSmFzb24gV2Fu
+ZyB3cm90ZToKPiA+ID4gSGkgYWxsOgo+ID4gPiAKPiA+ID4gVGhpcyBzZXJpZXMgdHJ5IHRvIGZp
+eCBzZXZlcmFsIGlzc3VlcyBpbnRyb2R1Y2VkIGJ5IG1ldGEgZGF0YQo+ID4gPiBhY2NlbHJlYXRp
+b24gc2VyaWVzLiBQbGVhc2UgcmV2aWV3Lgo+ID4gPiAKPiA+ID4gQ2hhbmdlcyBmcm9tIFY0Ogo+
+ID4gPiAtIHN3aXRjaCB0byB1c2Ugc3BpbmxvY2sgc3luY2hyb25pemUgTU1VIG5vdGlmaWVyIHdp
+dGggYWNjZXNzb3JzCj4gPiA+IAo+ID4gPiBDaGFuZ2VzIGZyb20gVjM6Cj4gPiA+IC0gcmVtb3Zl
+IHRoZSB1bm5lY2Vzc2FyeSBwYXRjaAo+ID4gPiAKPiA+ID4gQ2hhbmdlcyBmcm9tIFYyOgo+ID4g
+PiAtIHVzZSBzZXFsY2sgaGVscGVyIHRvIHN5bmNocm9uaXplIE1NVSBub3RpZmllciB3aXRoIHZo
+b3N0IHdvcmtlcgo+ID4gPiAKPiA+ID4gQ2hhbmdlcyBmcm9tIFYxOgo+ID4gPiAtIHRyeSBub3Qg
+dXNlIFJDVSB0byBzeW5jcmhvbml6ZSBNTVUgbm90aWZpZXIgd2l0aCB2aG9zdCB3b3JrZXIKPiA+
+ID4gLSBzZXQgZGlydHkgcGFnZXMgYWZ0ZXIgbm8gcmVhZGVycwo+ID4gPiAtIHJldHVybiAtRUFH
+QUlOIG9ubHkgd2hlbiB3ZSBmaW5kIHRoZSByYW5nZSBpcyBvdmVybGFwcGVkIHdpdGgKPiA+ID4g
+ICAgbWV0YWRhdGEKPiA+ID4gCj4gPiA+IEphc29uIFdhbmcgKDkpOgo+ID4gPiAgICB2aG9zdDog
+ZG9uJ3Qgc2V0IHVhZGRyIGZvciBpbnZhbGlkIGFkZHJlc3MKPiA+ID4gICAgdmhvc3Q6IHZhbGlk
+YXRlIE1NVSBub3RpZmllciByZWdpc3RyYXRpb24KPiA+ID4gICAgdmhvc3Q6IGZpeCB2aG9zdCBt
+YXAgbGVhawo+ID4gPiAgICB2aG9zdDogcmVzZXQgaW52YWxpZGF0ZV9jb3VudCBpbiB2aG9zdF9z
+ZXRfdnJpbmdfbnVtX2FkZHIoKQo+ID4gPiAgICB2aG9zdDogbWFyayBkaXJ0eSBwYWdlcyBkdXJp
+bmcgbWFwIHVuaW5pdAo+ID4gPiAgICB2aG9zdDogZG9uJ3QgZG8gc3luY2hyb25pemVfcmN1KCkg
+aW4gdmhvc3RfdW5pbml0X3ZxX21hcHMoKQo+ID4gPiAgICB2aG9zdDogZG8gbm90IHVzZSBSQ1Ug
+dG8gc3luY2hyb25pemUgTU1VIG5vdGlmaWVyIHdpdGggd29ya2VyCj4gPiA+ICAgIHZob3N0OiBj
+b3JyZWN0bHkgc2V0IGRpcnR5IHBhZ2VzIGluIE1NVSBub3RpZmllcnMgY2FsbGJhY2sKPiA+ID4g
+ICAgdmhvc3Q6IGRvIG5vdCByZXR1cm4gLUVBR0FJTiBmb3Igbm9uIGJsb2NraW5nIGludmFsaWRh
+dGlvbiB0b28gZWFybHkKPiA+ID4gCj4gPiA+ICAgZHJpdmVycy92aG9zdC92aG9zdC5jIHwgMjAy
+ICsrKysrKysrKysrKysrKysrKysrKysrKystLS0tLS0tLS0tLS0tLS0tLQo+ID4gPiAgIGRyaXZl
+cnMvdmhvc3Qvdmhvc3QuaCB8ICAgNiArLQo+ID4gPiAgIDIgZmlsZXMgY2hhbmdlZCwgMTIyIGlu
+c2VydGlvbnMoKyksIDg2IGRlbGV0aW9ucygtKQo+ID4gVGhpcyBnZW5lcmFsbHkgbG9va3MgbW9y
+ZSBzb2xpZC4KPiA+IAo+ID4gQnV0IHRoaXMgYW1vdW50cyB0byBhIHNpZ25pZmljYW50IG92ZXJo
+YXVsIG9mIHRoZSBjb2RlLgo+ID4gCj4gPiBBdCB0aGlzIHBvaW50IGhvdyBhYm91dCB3ZSByZXZl
+cnQgN2Y0NjYwMzJkYzllNWE2MTIxN2YyMmVhMzRiMmRmOTMyNzg2YmJmYwo+ID4gZm9yIHRoaXMg
+cmVsZWFzZSwgYW5kIHRoZW4gcmUtYXBwbHkgYSBjb3JyZWN0ZWQgdmVyc2lvbgo+ID4gZm9yIHRo
+ZSBuZXh0IG9uZT8KPiAKPiAKPiBJZiBwb3NzaWJsZSwgY29uc2lkZXIgd2UndmUgYWN0dWFsbHkg
+ZGlzYWJsZWQgdGhlIGZlYXR1cmUuIEhvdyBhYm91dCBqdXN0Cj4gcXVldWVkIHRob3NlIHBhdGNo
+ZXMgZm9yIG5leHQgcmVsZWFzZT8KPiAKPiBUaGFua3MKClNvcnJ5IGlmIEkgd2FzIHVuY2xlYXIu
+IE15IGlkZWEgaXMgdGhhdAoxLiBJIHJldmVydCB0aGUgZGlzYWJsZWQgY29kZQoyLiBZb3Ugc2Vu
+ZCBhIHBhdGNoIHJlYWRkaW5nIGl0IHdpdGggYWxsIHRoZSBmaXhlcyBzcXVhc2hlZAozLiBNYXli
+ZSBvcHRpbWl6YXRpb25zIG9uIHRvcCByaWdodCBhd2F5Pwo0LiBXZSBxdWV1ZSAqdGhhdCogZm9y
+IG5leHQgYW5kIHNlZSB3aGF0IGhhcHBlbnMuCgpBbmQgdGhlIGFkdmFudGFnZSBvdmVyIHRoZSBw
+YXRjaHkgYXBwcm9hY2ggaXMgdGhhdCB0aGUgY3VycmVudCBwYXRjaGVzCmFyZSBoYXJkIHRvIHJl
+dmlldy4gRS5nLiAgaXQncyBub3QgcmVhc29uYWJsZSB0byBhc2sgUkNVIGd1eXMgdG8gcmV2aWV3
+CnRoZSB3aG9sZSBvZiB2aG9zdCBmb3IgUkNVIHVzYWdlIGJ1dCBpdCdzIG11Y2ggbW9yZSByZWFz
+b25hYmxlIHRvIGFzawphYm91dCBhIHNwZWNpZmljIHBhdGNoLgoKCi0tIApNU1QKX19fX19fX19f
+X19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX18KVmlydHVhbGl6YXRpb24gbWFp
+bGluZyBsaXN0ClZpcnR1YWxpemF0aW9uQGxpc3RzLmxpbnV4LWZvdW5kYXRpb24ub3JnCmh0dHBz
+Oi8vbGlzdHMubGludXhmb3VuZGF0aW9uLm9yZy9tYWlsbWFuL2xpc3RpbmZvL3ZpcnR1YWxpemF0
+aW9u
