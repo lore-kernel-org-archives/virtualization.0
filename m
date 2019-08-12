@@ -1,16 +1,16 @@
-From: Jason Wang <jasowang@redhat.com>
-Subject: Re: [PATCH v3 2/2] virtio: decrement avail idx with buffer detach for
-	packed ring
-Date: Mon, 12 Aug 2019 12:46:54 +0800
-Message-ID: <b1ab613d-55a4-fdb4-96b1-03bedbcc740b__37311.6991295078$1565585230$gmane$org@redhat.com>
+From: Pankaj Gupta <pagupta@redhat.com>
+Subject: Re: [PATCH v3 2/2] virtio: decrement avail idx with buffer detach
+	for packed ring
+Date: Mon, 12 Aug 2019 01:05:31 -0400 (EDT)
+Message-ID: <904809366.7828013.1565586331773.JavaMail.zimbra__46033.5319208511$1565586343$gmane$org@redhat.com>
 References: <20190809064847.28918-1-pagupta@redhat.com>
 	<20190809064847.28918-3-pagupta@redhat.com>
+	<20190810141213-mutt-send-email-mst@kernel.org>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="utf-8"; Format="flowed"
-Content-Transfer-Encoding: base64
+Content-Type: text/plain; charset="us-ascii"
+Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <20190809064847.28918-3-pagupta@redhat.com>
-Content-Language: en-US
+In-Reply-To: <20190810141213-mutt-send-email-mst@kernel.org>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -20,32 +20,52 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Pankaj Gupta <pagupta@redhat.com>, amit@kernel.org, mst@redhat.com
-Cc: gregkh@linuxfoundation.org, xiaohli@redhat.com, linux-kernel@vger.kernel.org, arnd@arndb.de, virtualization@lists.linux-foundation.org
+To: "Michael S. Tsirkin" <mst@redhat.com>
+Cc: arnd@arndb.de, amit@kernel.org, gregkh@linuxfoundation.org, linux-kernel@vger.kernel.org, virtualization@lists.linux-foundation.org, xiaohli@redhat.com
 List-Id: virtualization@lists.linuxfoundation.org
 
-Ck9uIDIwMTkvOC85IOS4i+WNiDI6NDgsIFBhbmthaiBHdXB0YSB3cm90ZToKPiBUaGlzIHBhdGNo
-IGRlY3JlbWVudHMgJ25leHRfYXZhaWxfaWR4JyBjb3VudCB3aGVuIGRldGFjaGluZyBhIGJ1ZmZl
-cgo+IGZyb20gdnEgZm9yIHBhY2tlZCByaW5nIGNvZGUuIFNwbGl0IHJpbmcgY29kZSBhbHJlYWR5
-IGRvZXMgdGhpcyBpbgo+IHZpcnRxdWV1ZV9kZXRhY2hfdW51c2VkX2J1Zl9zcGxpdCBmdW5jdGlv
-bi4gVGhpcyB1cGRhdGVzIHRoZQo+ICduZXh0X2F2YWlsX2lkeCcgdG8gdGhlIHByZXZpb3VzIGNv
-cnJlY3QgaW5kZXggYWZ0ZXIgYW4gdW51c2VkIGJ1ZmZlcgo+IGlzIGRldGF0Y2hlZCBmcm9tIHRo
-ZSB2cS4KPgo+IFNpZ25lZC1vZmYtYnk6IFBhbmthaiBHdXB0YSA8cGFndXB0YUByZWRoYXQuY29t
-Pgo+IC0tLQo+ICAgZHJpdmVycy92aXJ0aW8vdmlydGlvX3JpbmcuYyB8IDYgKysrKysrCj4gICAx
-IGZpbGUgY2hhbmdlZCwgNiBpbnNlcnRpb25zKCspCj4KPiBkaWZmIC0tZ2l0IGEvZHJpdmVycy92
-aXJ0aW8vdmlydGlvX3JpbmcuYyBiL2RyaXZlcnMvdmlydGlvL3ZpcnRpb19yaW5nLmMKPiBpbmRl
-eCBjOGJlMWM0ZjViNTUuLjdjNjkxODExMTNlMiAxMDA2NDQKPiAtLS0gYS9kcml2ZXJzL3ZpcnRp
-by92aXJ0aW9fcmluZy5jCj4gKysrIGIvZHJpdmVycy92aXJ0aW8vdmlydGlvX3JpbmcuYwo+IEBA
-IC0xNTM3LDYgKzE1MzcsMTIgQEAgc3RhdGljIHZvaWQgKnZpcnRxdWV1ZV9kZXRhY2hfdW51c2Vk
-X2J1Zl9wYWNrZWQoc3RydWN0IHZpcnRxdWV1ZSAqX3ZxKQo+ICAgCQkvKiBkZXRhY2hfYnVmIGNs
-ZWFycyBkYXRhLCBzbyBncmFiIGl0IG5vdy4gKi8KPiAgIAkJYnVmID0gdnEtPnBhY2tlZC5kZXNj
-X3N0YXRlW2ldLmRhdGE7Cj4gICAJCWRldGFjaF9idWZfcGFja2VkKHZxLCBpLCBOVUxMKTsKPiAr
-CQl2cS0+cGFja2VkLm5leHRfYXZhaWxfaWR4LS07Cj4gKwkJaWYgKHZxLT5wYWNrZWQubmV4dF9h
-dmFpbF9pZHggPCAwKSB7Cj4gKwkJCXZxLT5wYWNrZWQubmV4dF9hdmFpbF9pZHggPSB2cS0+cGFj
-a2VkLnZyaW5nLm51bSAtIDE7Cj4gKwkJCXZxLT5wYWNrZWQuYXZhaWxfd3JhcF9jb3VudGVyIF49
-IDE7Cj4gKwkJfQo+ICsKPiAgIAkJRU5EX1VTRSh2cSk7Cj4gICAJCXJldHVybiBidWY7Cj4gICAJ
-fQoKCkFja2VkLWJ5OiBKYXNvbiBXYW5nIDxqYXNvd2FuZ0ByZWRoYXQuY29tPgoKCl9fX19fX19f
-X19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fClZpcnR1YWxpemF0aW9uIG1h
-aWxpbmcgbGlzdApWaXJ0dWFsaXphdGlvbkBsaXN0cy5saW51eC1mb3VuZGF0aW9uLm9yZwpodHRw
-czovL2xpc3RzLmxpbnV4Zm91bmRhdGlvbi5vcmcvbWFpbG1hbi9saXN0aW5mby92aXJ0dWFsaXph
-dGlvbg==
+
+> On Fri, Aug 09, 2019 at 12:18:47PM +0530, Pankaj Gupta wrote:
+> > This patch decrements 'next_avail_idx' count when detaching a buffer
+> > from vq for packed ring code. Split ring code already does this in
+> > virtqueue_detach_unused_buf_split function. This updates the
+> > 'next_avail_idx' to the previous correct index after an unused buffer
+> > is detatched from the vq.
+> > 
+> > Signed-off-by: Pankaj Gupta <pagupta@redhat.com>
+> 
+> I would make this patch 1, not patch 2, otherwise
+> patch 1 corrupts the ring.
+
+Sure. Will post this patch as patch 1 in next version.
+
+Thanks,
+Pankaj 
+
+> 
+> 
+> > ---
+> >  drivers/virtio/virtio_ring.c | 6 ++++++
+> >  1 file changed, 6 insertions(+)
+> > 
+> > diff --git a/drivers/virtio/virtio_ring.c b/drivers/virtio/virtio_ring.c
+> > index c8be1c4f5b55..7c69181113e2 100644
+> > --- a/drivers/virtio/virtio_ring.c
+> > +++ b/drivers/virtio/virtio_ring.c
+> > @@ -1537,6 +1537,12 @@ static void
+> > *virtqueue_detach_unused_buf_packed(struct virtqueue *_vq)
+> >  		/* detach_buf clears data, so grab it now. */
+> >  		buf = vq->packed.desc_state[i].data;
+> >  		detach_buf_packed(vq, i, NULL);
+> > +		vq->packed.next_avail_idx--;
+> > +		if (vq->packed.next_avail_idx < 0) {
+> > +			vq->packed.next_avail_idx = vq->packed.vring.num - 1;
+> > +			vq->packed.avail_wrap_counter ^= 1;
+> > +		}
+> > +
+> >  		END_USE(vq);
+> >  		return buf;
+> >  	}
+> > --
+> > 2.20.1
+> 
