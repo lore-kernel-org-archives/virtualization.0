@@ -1,16 +1,17 @@
-From: Borislav Petkov <bp@alien8.de>
-Subject: Re: [PATCH v9 10/11] x86/paravirt: Adapt assembly for PIE support
-Date: Mon, 12 Aug 2019 14:55:40 +0200
-Message-ID: <20190812125540.GD23772__34193.8889863499$1565614515$gmane$org@zn.tnic>
-References: <20190730191303.206365-1-thgarnie@chromium.org>
-	<20190730191303.206365-11-thgarnie@chromium.org>
-	<20190731125306.GU31381@hirez.programming.kicks-ass.net>
+From: Jason Gunthorpe <jgg@ziepe.ca>
+Subject: Re: [PATCH V5 0/9] Fixes for vhost metadata acceleration
+Date: Mon, 12 Aug 2019 10:02:52 -0300
+Message-ID: <20190812130252.GE24457__9318.86043851904$1565614986$gmane$org@ziepe.ca>
+References: <20190809054851.20118-1-jasowang@redhat.com>
+	<20190810134948-mutt-send-email-mst@kernel.org>
+	<360a3b91-1ac5-84c0-d34b-a4243fa748c4@redhat.com>
+	<20190812054429-mutt-send-email-mst@kernel.org>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset="utf-8"
+Content-Transfer-Encoding: base64
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
 Content-Disposition: inline
-In-Reply-To: <20190731125306.GU31381@hirez.programming.kicks-ass.net>
+In-Reply-To: <20190812054429-mutt-send-email-mst@kernel.org>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -20,76 +21,62 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Peter Zijlstra <peterz@infradead.org>
-Cc: Juergen Gross <jgross@suse.com>, Thomas Hellstrom <thellstrom@vmware.com>, x86@kernel.org, keescook@chromium.org, kernel-hardening@lists.openwall.com, "VMware,
-	Inc." <pv-drivers@vmware.com>, Thomas Garnier <thgarnie@chromium.org>, linux-kernel@vger.kernel.org, virtualization@lists.linux-foundation.org, Ingo Molnar <mingo@redhat.com>, kristen@linux.intel.com, "H. Peter Anvin" <hpa@zytor.com>, Thomas Gleixner <tglx@linutronix.de>
+To: "Michael S. Tsirkin" <mst@redhat.com>
+Cc: kvm@vger.kernel.org, netdev@vger.kernel.org, linux-kernel@vger.kernel.org, virtualization@lists.linux-foundation.org, linux-mm@kvack.org
 List-Id: virtualization@lists.linuxfoundation.org
 
-On Wed, Jul 31, 2019 at 02:53:06PM +0200, Peter Zijlstra wrote:
-> On Tue, Jul 30, 2019 at 12:12:54PM -0700, Thomas Garnier wrote:
-> > if PIE is enabled, switch the paravirt assembly constraints to be
-> > compatible. The %c/i constrains generate smaller code so is kept by
-> > default.
-> > 
-> > Position Independent Executable (PIE) support will allow to extend the
-> > KASLR randomization range below 0xffffffff80000000.
-> > 
-> > Signed-off-by: Thomas Garnier <thgarnie@chromium.org>
-> > Acked-by: Juergen Gross <jgross@suse.com>
-> > ---
-> >  arch/x86/include/asm/paravirt_types.h | 25 +++++++++++++++++++++----
-> >  1 file changed, 21 insertions(+), 4 deletions(-)
-> > 
-> > diff --git a/arch/x86/include/asm/paravirt_types.h b/arch/x86/include/asm/paravirt_types.h
-> > index 70b654f3ffe5..fd7dc37d0010 100644
-> > --- a/arch/x86/include/asm/paravirt_types.h
-> > +++ b/arch/x86/include/asm/paravirt_types.h
-> > @@ -338,9 +338,25 @@ extern struct paravirt_patch_template pv_ops;
-> >  #define PARAVIRT_PATCH(x)					\
-> >  	(offsetof(struct paravirt_patch_template, x) / sizeof(void *))
-> >  
-> > +#ifdef CONFIG_X86_PIE
-> > +#define paravirt_opptr_call "a"
-> > +#define paravirt_opptr_type "p"
-> > +
-> > +/*
-> > + * Alternative patching requires a maximum of 7 bytes but the relative call is
-> > + * only 6 bytes. If PIE is enabled, add an additional nop to the call
-> > + * instruction to ensure patching is possible.
-> > + */
-> > +#define PARAVIRT_CALL_POST  "nop;"
-> 
-> I'm confused; where does the 7 come from? The relative call is 6 bytes,
-
-Well, before it, the relative CALL is a CALL reg/mem64, i.e. the target
-is mem64. For example:
-
-
-ffffffff81025c45:       ff 14 25 68 37 02 82    callq  *0xffffffff82023768
-
-That address there is practically pv_ops + offset.
-
-Now, in the opcode bytes you have 0xff opcode, ModRM byte 0x14 and SIB
-byte 0x25, and 4 bytes imm32 offset. And this is 7 bytes.
-
-What it becomes is:
-
-ffffffff81025cd0:       ff 15 fa d9 ff 00       callq  *0xffd9fa(%rip)        # ffffffff820236d0 <pv_ops+0x30>
-ffffffff81025cd6:       90                      nop
-
-which is a RIP-relative, i.e., opcode 0xff, ModRM byte 0x15 and imm32.
-And this is 6 bytes.
-
-And since the paravirt patching doesn't do NOP padding like the
-alternatives patching does, you need to pad with a byte.
-
-Thomas, please add the gist of this to the comments because this
-incomprehensible machinery better be documented as detailed as possible.
-
-Thx.
-
--- 
-Regards/Gruss,
-    Boris.
-
-Good mailing practices for 400: avoid top-posting and trim the reply.
+T24gTW9uLCBBdWcgMTIsIDIwMTkgYXQgMDU6NDk6MDhBTSAtMDQwMCwgTWljaGFlbCBTLiBUc2ly
+a2luIHdyb3RlOgo+IE9uIE1vbiwgQXVnIDEyLCAyMDE5IGF0IDEwOjQ0OjUxQU0gKzA4MDAsIEph
+c29uIFdhbmcgd3JvdGU6Cj4gPiAKPiA+IE9uIDIwMTkvOC8xMSDkuIrljYgxOjUyLCBNaWNoYWVs
+IFMuIFRzaXJraW4gd3JvdGU6Cj4gPiA+IE9uIEZyaSwgQXVnIDA5LCAyMDE5IGF0IDAxOjQ4OjQy
+QU0gLTA0MDAsIEphc29uIFdhbmcgd3JvdGU6Cj4gPiA+ID4gSGkgYWxsOgo+ID4gPiA+IAo+ID4g
+PiA+IFRoaXMgc2VyaWVzIHRyeSB0byBmaXggc2V2ZXJhbCBpc3N1ZXMgaW50cm9kdWNlZCBieSBt
+ZXRhIGRhdGEKPiA+ID4gPiBhY2NlbHJlYXRpb24gc2VyaWVzLiBQbGVhc2UgcmV2aWV3Lgo+ID4g
+PiA+IAo+ID4gPiA+IENoYW5nZXMgZnJvbSBWNDoKPiA+ID4gPiAtIHN3aXRjaCB0byB1c2Ugc3Bp
+bmxvY2sgc3luY2hyb25pemUgTU1VIG5vdGlmaWVyIHdpdGggYWNjZXNzb3JzCj4gPiA+ID4gCj4g
+PiA+ID4gQ2hhbmdlcyBmcm9tIFYzOgo+ID4gPiA+IC0gcmVtb3ZlIHRoZSB1bm5lY2Vzc2FyeSBw
+YXRjaAo+ID4gPiA+IAo+ID4gPiA+IENoYW5nZXMgZnJvbSBWMjoKPiA+ID4gPiAtIHVzZSBzZXFs
+Y2sgaGVscGVyIHRvIHN5bmNocm9uaXplIE1NVSBub3RpZmllciB3aXRoIHZob3N0IHdvcmtlcgo+
+ID4gPiA+IAo+ID4gPiA+IENoYW5nZXMgZnJvbSBWMToKPiA+ID4gPiAtIHRyeSBub3QgdXNlIFJD
+VSB0byBzeW5jcmhvbml6ZSBNTVUgbm90aWZpZXIgd2l0aCB2aG9zdCB3b3JrZXIKPiA+ID4gPiAt
+IHNldCBkaXJ0eSBwYWdlcyBhZnRlciBubyByZWFkZXJzCj4gPiA+ID4gLSByZXR1cm4gLUVBR0FJ
+TiBvbmx5IHdoZW4gd2UgZmluZCB0aGUgcmFuZ2UgaXMgb3ZlcmxhcHBlZCB3aXRoCj4gPiA+ID4g
+ICAgbWV0YWRhdGEKPiA+ID4gPiAKPiA+ID4gPiBKYXNvbiBXYW5nICg5KToKPiA+ID4gPiAgICB2
+aG9zdDogZG9uJ3Qgc2V0IHVhZGRyIGZvciBpbnZhbGlkIGFkZHJlc3MKPiA+ID4gPiAgICB2aG9z
+dDogdmFsaWRhdGUgTU1VIG5vdGlmaWVyIHJlZ2lzdHJhdGlvbgo+ID4gPiA+ICAgIHZob3N0OiBm
+aXggdmhvc3QgbWFwIGxlYWsKPiA+ID4gPiAgICB2aG9zdDogcmVzZXQgaW52YWxpZGF0ZV9jb3Vu
+dCBpbiB2aG9zdF9zZXRfdnJpbmdfbnVtX2FkZHIoKQo+ID4gPiA+ICAgIHZob3N0OiBtYXJrIGRp
+cnR5IHBhZ2VzIGR1cmluZyBtYXAgdW5pbml0Cj4gPiA+ID4gICAgdmhvc3Q6IGRvbid0IGRvIHN5
+bmNocm9uaXplX3JjdSgpIGluIHZob3N0X3VuaW5pdF92cV9tYXBzKCkKPiA+ID4gPiAgICB2aG9z
+dDogZG8gbm90IHVzZSBSQ1UgdG8gc3luY2hyb25pemUgTU1VIG5vdGlmaWVyIHdpdGggd29ya2Vy
+Cj4gPiA+ID4gICAgdmhvc3Q6IGNvcnJlY3RseSBzZXQgZGlydHkgcGFnZXMgaW4gTU1VIG5vdGlm
+aWVycyBjYWxsYmFjawo+ID4gPiA+ICAgIHZob3N0OiBkbyBub3QgcmV0dXJuIC1FQUdBSU4gZm9y
+IG5vbiBibG9ja2luZyBpbnZhbGlkYXRpb24gdG9vIGVhcmx5Cj4gPiA+ID4gCj4gPiA+ID4gICBk
+cml2ZXJzL3Zob3N0L3Zob3N0LmMgfCAyMDIgKysrKysrKysrKysrKysrKysrKysrKysrKy0tLS0t
+LS0tLS0tLS0tLS0tCj4gPiA+ID4gICBkcml2ZXJzL3Zob3N0L3Zob3N0LmggfCAgIDYgKy0KPiA+
+ID4gPiAgIDIgZmlsZXMgY2hhbmdlZCwgMTIyIGluc2VydGlvbnMoKyksIDg2IGRlbGV0aW9ucygt
+KQo+ID4gPiBUaGlzIGdlbmVyYWxseSBsb29rcyBtb3JlIHNvbGlkLgo+ID4gPiAKPiA+ID4gQnV0
+IHRoaXMgYW1vdW50cyB0byBhIHNpZ25pZmljYW50IG92ZXJoYXVsIG9mIHRoZSBjb2RlLgo+ID4g
+PiAKPiA+ID4gQXQgdGhpcyBwb2ludCBob3cgYWJvdXQgd2UgcmV2ZXJ0IDdmNDY2MDMyZGM5ZTVh
+NjEyMTdmMjJlYTM0YjJkZjkzMjc4NmJiZmMKPiA+ID4gZm9yIHRoaXMgcmVsZWFzZSwgYW5kIHRo
+ZW4gcmUtYXBwbHkgYSBjb3JyZWN0ZWQgdmVyc2lvbgo+ID4gPiBmb3IgdGhlIG5leHQgb25lPwo+
+ID4gCj4gPiAKPiA+IElmIHBvc3NpYmxlLCBjb25zaWRlciB3ZSd2ZSBhY3R1YWxseSBkaXNhYmxl
+ZCB0aGUgZmVhdHVyZS4gSG93IGFib3V0IGp1c3QKPiA+IHF1ZXVlZCB0aG9zZSBwYXRjaGVzIGZv
+ciBuZXh0IHJlbGVhc2U/Cj4gPiAKPiA+IFRoYW5rcwo+IAo+IFNvcnJ5IGlmIEkgd2FzIHVuY2xl
+YXIuIE15IGlkZWEgaXMgdGhhdAo+IDEuIEkgcmV2ZXJ0IHRoZSBkaXNhYmxlZCBjb2RlCj4gMi4g
+WW91IHNlbmQgYSBwYXRjaCByZWFkZGluZyBpdCB3aXRoIGFsbCB0aGUgZml4ZXMgc3F1YXNoZWQK
+PiAzLiBNYXliZSBvcHRpbWl6YXRpb25zIG9uIHRvcCByaWdodCBhd2F5Pwo+IDQuIFdlIHF1ZXVl
+ICp0aGF0KiBmb3IgbmV4dCBhbmQgc2VlIHdoYXQgaGFwcGVucy4KPiAKPiBBbmQgdGhlIGFkdmFu
+dGFnZSBvdmVyIHRoZSBwYXRjaHkgYXBwcm9hY2ggaXMgdGhhdCB0aGUgY3VycmVudCBwYXRjaGVz
+Cj4gYXJlIGhhcmQgdG8gcmV2aWV3LiBFLmcuICBpdCdzIG5vdCByZWFzb25hYmxlIHRvIGFzayBS
+Q1UgZ3V5cyB0byByZXZpZXcKPiB0aGUgd2hvbGUgb2Ygdmhvc3QgZm9yIFJDVSB1c2FnZSBidXQg
+aXQncyBtdWNoIG1vcmUgcmVhc29uYWJsZSB0byBhc2sKPiBhYm91dCBhIHNwZWNpZmljIHBhdGNo
+LgoKSSB0aGluayB0aGVyZSBhcmUgb3RoZXIgcHJvYmxlbXMgaGVyZSB0b28sIEkgZG9uJ3QgbGlr
+ZSB0aGF0IHRoZSB1c2UKb2YgbW11IG5vdGlmaWVycyBpcyBzbyBkaWZmZXJlbnQgZnJvbSBldmVy
+eSBvdGhlciBkcml2ZXIsIG9yIHRoYXQgR1VQCmlzIGNhbGxlZCB1bmRlciBzcGlubG9jay4KClNv
+IEkgZmF2b3IgdGhlIHJldmVydCBhbmQgdHJ5IGFnYWluIGFwcHJvYWNoIGFzIHdlbGwuIEl0IGlz
+IGhhcmQgdG8KZ2V0IGEgY2xlYXIgcGljdHVyZSB3aXRoIHRoZXNlIGVuZGxlc3MgYnVnIGZpeCBw
+YXRjaGVzCgpKYXNvbgpfX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19f
+X19fXwpWaXJ0dWFsaXphdGlvbiBtYWlsaW5nIGxpc3QKVmlydHVhbGl6YXRpb25AbGlzdHMubGlu
+dXgtZm91bmRhdGlvbi5vcmcKaHR0cHM6Ly9saXN0cy5saW51eGZvdW5kYXRpb24ub3JnL21haWxt
+YW4vbGlzdGluZm8vdmlydHVhbGl6YXRpb24=
