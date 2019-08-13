@@ -1,15 +1,18 @@
-From: Tom Murphy <murphyt7@tcd.ie>
-Subject: Re: [PATCH v4 0/5] iommu/amd: Convert the AMD iommu driver to the
-	dma-iommu api
-Date: Tue, 13 Aug 2019 20:09:26 +0800
-Message-ID: <CALQxJuvxBc3MH3_B_fZ3FvURHOM3F3dvvZ6x=GtALUAvyu7Qxw__41390.3089169011$1565698195$gmane$org@mail.gmail.com>
-References: <20190613223901.9523-1-murphyt7@tcd.ie>
-	<20190624061945.GA4912@infradead.org>
-	<20190810071952.GA25550@infradead.org>
+From: Paolo Bonzini <pbonzini@redhat.com>
+Subject: Re: [RFC PATCH v6 01/92] kvm: introduce KVMI (VM introspection
+	subsystem)
+Date: Tue, 13 Aug 2019 14:09:51 +0200
+Message-ID: <5fa6bd89-9d02-22cd-24a8-479abaa4f788@redhat.com>
+References: <20190809160047.8319-1-alazar@bitdefender.com>
+	<20190809160047.8319-2-alazar@bitdefender.com>
+	<20190812202030.GB1437@linux.intel.com>
+	<5d52a5ae.1c69fb81.5c260.1573SMTPIN_ADDED_BROKEN@mx.google.com>
 Mime-Version: 1.0
-Content-Type: multipart/mixed; boundary="===============7371737247767286920=="
+Content-Type: text/plain; charset="utf-8"
+Content-Transfer-Encoding: base64
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <20190810071952.GA25550@infradead.org>
+In-Reply-To: <5d52a5ae.1c69fb81.5c260.1573SMTPIN_ADDED_BROKEN@mx.google.com>
+Content-Language: en-US
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -19,87 +22,51 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Christoph Hellwig <hch@infradead.org>
-Cc: Heiko Stuebner <heiko@sntech.de>, Will Deacon <will.deacon@arm.com>, virtualization@lists.linux-foundation.org, David Brown <david.brown@linaro.org>, Thierry Reding <thierry.reding@gmail.com>, linux-s390@vger.kernel.org, linux-samsung-soc@vger.kernel.org, Jean-Philippe Brucker <jean-philippe.brucker@arm.com>, Joerg Roedel <joro@8bytes.org>, Krzysztof Kozlowski <krzk@kernel.org>, Jonathan Hunter <jonathanh@nvidia.com>, linux-rockchip@lists.infradead.org, Andy Gross <agross@kernel.org>, Matthias Brugger <matthias.bgg@gmail.com>, Gerald Schaefer <gerald.schaefer@de.ibm.com>, linux-arm-msm@vger.kernel.org, linux-mediatek@lists.infradead.org, linux-tegra@vger.kernel.org, linux-arm-kernel@lists.infradead.org, Robin Murphy <robin.murphy@arm.com>, linux-kernel@vger.kernel.org, iommu@lists.linux-foundation.org, Kukjin Kim <kgene@kernel.org>, David Woodhouse <dwmw2@infradead.org>
+To: =?UTF-8?Q?Adalbert_Laz=c4=83r?= <alazar@bitdefender.com>, Sean Christopherson <sean.j.christopherson@intel.com>
+Cc: Tamas K Lengyel <tamas@tklengyel.com>, Weijiang Yang <weijiang.yang@intel.com>, Yu C <yu.c.zhang@intel.com>, kvm@vger.kernel.org, Konrad Rzeszutek Wilk <konrad.wilk@oracle.com>, Jan Kiszka <jan.kiszka@siemens.com>, =?UTF-8?Q?Samuel_Laur=c3=a9n?= <samuel.lauren@iki.fi>, =?UTF-8?B?UmFkaW0gS3LEjW3DocWZ?= <rkrcmar@redhat.com>, Zhang@vger.kernel.org, virtualization@lists.linux-foundation.org, linux-mm@kvack.org, Patrick Colp <patrick.colp@oracle.com>, Mathieu Tarral <mathieu.tarral@protonmail.com>, Stefan Hajnoczi <stefanha@redhat.com>, =?UTF-8?Q?Mircea_C=c3=aerjaliu?= <mcirjaliu@bitdefender.com>, =?UTF-8?Q?Mihai_Don=c8=9bu?= <mdontu@bitdefender.com>
 List-Id: virtualization@lists.linuxfoundation.org
 
---===============7371737247767286920==
-Content-Type: multipart/alternative; boundary="000000000000c3526e058ffe83e2"
-
---000000000000c3526e058ffe83e2
-Content-Type: text/plain; charset="UTF-8"
-
-Hi Christoph,
-
-I quit my job and am having a great time traveling South East Asia.
-
-I definitely don't want this work to go to waste and I hope to repost it
-later this week but I can't guarantee it.
-
-Let me know if you need this urgently.
-
-Thanks,
-Tom
-
-On Sat 10 Aug 2019, 3:20 p.m. Christoph Hellwig, <hch@infradead.org> wrote:
-
-> On Sun, Jun 23, 2019 at 11:19:45PM -0700, Christoph Hellwig wrote:
-> > Tom,
-> >
-> > next time please cc Jerg as the AMD IOMMU maintainer.
-> >
-> > Joerg, any chance you could review this?  Toms patches to convert the
-> > AMD and Intel IOMMU drivers to the dma-iommu code are going to make my
-> > life in DMA land significantly easier, so I have a vested interest
-> > in this series moving forward :)
->
-> Tom, can you repost the series?  Seems like there hasn't been any
-> news for a month.
->
-
---000000000000c3526e058ffe83e2
-Content-Type: text/html; charset="UTF-8"
-Content-Transfer-Encoding: quoted-printable
-
-<div dir=3D"auto"><div>Hi Christoph,</div><div dir=3D"auto"><br></div><div =
-dir=3D"auto">I quit my job and am having a great time traveling South East =
-Asia.=C2=A0</div><div dir=3D"auto"><br></div><div dir=3D"auto">I definitely=
- don&#39;t want this work to go to waste and I hope to repost it later this=
- week but I can&#39;t guarantee it.</div><div dir=3D"auto"><br></div><div d=
-ir=3D"auto">Let me know if you need this urgently.</div><div dir=3D"auto"><=
-br></div><div dir=3D"auto">Thanks,</div><div dir=3D"auto">Tom</div><div dir=
-=3D"auto"><br><div class=3D"gmail_quote" dir=3D"auto"><div dir=3D"ltr" clas=
-s=3D"gmail_attr">On Sat 10 Aug 2019, 3:20 p.m. Christoph Hellwig, &lt;<a hr=
-ef=3D"mailto:hch@infradead.org">hch@infradead.org</a>&gt; wrote:<br></div><=
-blockquote class=3D"gmail_quote" style=3D"margin:0 0 0 .8ex;border-left:1px=
- #ccc solid;padding-left:1ex">On Sun, Jun 23, 2019 at 11:19:45PM -0700, Chr=
-istoph Hellwig wrote:<br>
-&gt; Tom,<br>
-&gt; <br>
-&gt; next time please cc Jerg as the AMD IOMMU maintainer.<br>
-&gt; <br>
-&gt; Joerg, any chance you could review this?=C2=A0 Toms patches to convert=
- the<br>
-&gt; AMD and Intel IOMMU drivers to the dma-iommu code are going to make my=
-<br>
-&gt; life in DMA land significantly easier, so I have a vested interest<br>
-&gt; in this series moving forward :)<br>
-<br>
-Tom, can you repost the series?=C2=A0 Seems like there hasn&#39;t been any<=
-br>
-news for a month.<br>
-</blockquote></div></div></div>
-
---000000000000c3526e058ffe83e2--
-
---===============7371737247767286920==
-Content-Type: text/plain; charset="us-ascii"
-MIME-Version: 1.0
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-
-_______________________________________________
-Virtualization mailing list
-Virtualization@lists.linux-foundation.org
-https://lists.linuxfoundation.org/mailman/listinfo/virtualization
---===============7371737247767286920==--
+T24gMTMvMDgvMTkgMTM6NTcsIEFkYWxiZXJ0IExhesSDciB3cm90ZToKPj4gVGhlIHJlZmNvdW50
+aW5nIGFwcHJvYWNoIHNlZW1zIGEgYml0IGJhY2t3YXJkcywgYW5kIEFGQUlDVCBpcyBkcml2ZW4g
+YnkKPj4gaW1wbGVtZW50aW5nIHVuaG9vayB2aWEgYSBtZXNzYWdlLCB3aGljaCBhbHNvIHNlZW1z
+IGJhY2t3YXJkcy4gIEkgYXNzdW1lCj4+IGhvb2sgYW5kIHVuaG9vayBhcmUgcmVsYXRpdmVseSBy
+YXJlIGV2ZW50cyBhbmQgbm90IHBlcmZvcm1hbmNlIGNyaXRpY2FsLAo+PiBzbyBtYWtlIHRob3Nl
+IHRoZSByZXN0cmljdGVkL3Nsb3cgZmxvd3MsIGUuZy4gZm9yY2UgdXNlcnNwYWNlIHRvIHF1aWVz
+Y2UKPj4gdGhlIFZNIGJ5IG1ha2luZyB1bmhvb2soKSBtdXR1YWxseSBleGNsdXNpdmUgd2l0aCBl
+dmVyeSB2Y3B1IGlvY3RsKCkgYW5kCj4+IG1heWJlIGFueXRoaW5nIHRoYXQgdGFrZXMga3ZtLT5s
+b2NrLiAKPj4KPj4gVGhlbiBrdm1pX2lvY3RsX3VuaG9vaygpIGNhbiB1c2UgdGhyZWFkX3N0b3Ao
+KSBhbmQga3ZtaV9yZWN2KCkganVzdCBuZWVkcwo+PiB0byBjaGVjayBrdGhyZWFkX3Nob3VsZF9z
+dG9wKCkuCj4+Cj4+IFRoYXQgd2F5IGt2bWkgZG9lc24ndCBuZWVkIHRvIGJlIHJlZmNvdW50ZWQg
+c2luY2UgaXQncyBndWFyYW50ZWVkIHRvIGJlCj4+IGFsaXZlIGlmIHRoZSBwb2ludGVyIGlzIG5v
+bi1udWxsLiAgRWxpbWluYXRpbmcgdGhlIHJlZmNvdW50aW5nIHdpbGwgY2xlYW4KPj4gdXAgYSBs
+b3Qgb2YgdGhlIGNvZGUgYnkgZWxpbWluYXRpbmcgY2FsbHMgdG8ga3ZtaV97Z2V0LHB1dH0oKSwg
+ZS5nLgo+PiB3cmFwcGVycyBsaWtlIGt2bWlfYnJlYWtwb2ludF9ldmVudCgpIGp1c3QgY2hlY2sg
+dmNwdS0+a3ZtaSwgb3IgbWF5YmUKPj4gZXZlbiBnZXQgZHJvcHBlZCBhbHRvZ2V0aGVyLgo+IAo+
+IFRoZSB1bmhvb2sgZXZlbnQgaGFzIGJlZW4gYWRkZWQgdG8gY292ZXIgdGhlIGZvbGxvd2luZyBj
+YXNlOiB3aGlsZSB0aGUKPiBpbnRyb3NwZWN0aW9uIHRvb2wgcnVucyBpbiBhbm90aGVyIFZNLCBi
+b3RoIFZNcywgdGhlIHZpcnR1YWwgYXBwbGlhbmNlCj4gYW5kIHRoZSBpbnRyb3NwZWN0ZWQgVk0s
+IGNvdWxkIGJlIHBhdXNlZCBieSB0aGUgdXNlci4gV2UgbmVlZGVkIGEgd2F5Cj4gdG8gc2lnbmFs
+IHRoaXMgdG8gdGhlIGludHJvc3BlY3Rpb24gdG9vbCBhbmQgZ2l2ZSBpdCB0aW1lIHRvIHVuaG9v
+awo+ICh0aGUgaW50cm9zcGVjdGVkIFZNIGhhcyB0byBydW4gYW5kIGV4ZWN1dGUgdGhlIGludHJv
+c3BlY3Rpb24gY29tbWFuZHMKPiBkdXJpbmcgdGhpcyBwaGFzZSkuIFRoZSByZWNlaXZpbmcgdGhy
+ZWFkcyBxdWl0cyB3aGVuIHRoZSBzb2NrZXQgaXMgY2xvc2VkCj4gKGJ5IFFFTVUgb3IgYnkgdGhl
+IGludHJvc3BlY3Rpb24gdG9vbCkuCj4gCj4gSXQncyBhIGJpdCB1bmNsZWFyIGhvdywgYnV0IHdl
+J2xsIHRyeSB0byBnZXQgcmlkZSBvZiB0aGUgcmVmY291bnQgb2JqZWN0LAo+IHdoaWNoIHdpbGwg
+cmVtb3ZlIGEgbG90IG9mIGNvZGUsIGluZGVlZC4KCllvdSBjYW4ga2VlcCBpdCBmb3Igbm93LiAg
+SXQgbWF5IGJlY29tZSBjbGVhcmVyIGhvdyB0byBmaXggaXQgYWZ0ZXIgdGhlCmV2ZW50IGxvb3Ag
+aXMgY2xlYW5lZCB1cC4KCj4+Cj4+PiArdm9pZCBrdm1pX2NyZWF0ZV92bShzdHJ1Y3Qga3ZtICpr
+dm0pCj4+PiArewo+Pj4gKwlpbml0X2NvbXBsZXRpb24oJmt2bS0+a3ZtaV9jb21wbGV0ZWQpOwo+
+Pj4gKwljb21wbGV0ZSgma3ZtLT5rdm1pX2NvbXBsZXRlZCk7Cj4+IFByZXR0eSBzdXJlIHlvdSBk
+b24ndCB3YW50IHRvIGJlIGNhbGxpbmcgY29tcGxldGUoKSBoZXJlLgo+IFRoZSBpbnRlbnRpb24g
+d2FzIHRvIHN0b3AgdGhlIGhvb2tpbmcgaW9jdGwgdW50aWwgdGhlIFZNIGlzCj4gY3JlYXRlZC4g
+QSBiZXR0ZXIgbmFtZSBmb3IgJ2t2bWlfY29tcGxldGVkJyB3b3VsZCBoYXZlIGJlZW4KPiAncmVh
+ZHlfdG9fYmVfaW50cm9zcGVjdGVkJywgYXMga3ZtaV9ob29rKCkgd2lsbCB3YWl0IGZvciBpdC4K
+PiAKPiBXZSdsbCBzZWUgaG93IHdlIGNhbiBnZXQgcmlkZSBvZiB0aGUgY29tcGxldGlvbiBvYmpl
+Y3QuCgpUaGUgaW9jdGxzIGFyZSBub3QgYWNjZXNzaWJsZSB3aGlsZSBrdm1fY3JlYXRlX3ZtIHJ1
+bnMgKG9ubHkgYWZ0ZXIKa3ZtX2Rldl9pb2N0bF9jcmVhdGVfdm0gY2FsbHMgZmRfaW5zdGFsbCku
+ICBFdmVuIGlmIGl0IHdlcmUsIGhvd2V2ZXIsCnlvdSBzaG91bGQgaGF2ZSBwbGFjZWQgaW5pdF9j
+b21wbGV0aW9uIG11Y2ggZWFybGllciwgb3RoZXJ3aXNlCndhaXRfZm9yX2NvbXBsZXRpb24gd291
+bGQgYWNjZXNzIHVuaW5pdGlhbGl6ZWQgbWVtb3J5LgoKUGFvbG8KX19fX19fX19fX19fX19fX19f
+X19fX19fX19fX19fX19fX19fX19fX19fX19fX18KVmlydHVhbGl6YXRpb24gbWFpbGluZyBsaXN0
+ClZpcnR1YWxpemF0aW9uQGxpc3RzLmxpbnV4LWZvdW5kYXRpb24ub3JnCmh0dHBzOi8vbGlzdHMu
+bGludXhmb3VuZGF0aW9uLm9yZy9tYWlsbWFuL2xpc3RpbmZvL3ZpcnR1YWxpemF0aW9u
