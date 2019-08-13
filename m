@@ -1,18 +1,16 @@
-From: Paolo Bonzini <pbonzini@redhat.com>
-Subject: Re: [RFC PATCH v6 14/92] kvm: introspection: handle introspection
-	commands before returning to guest
-Date: Tue, 13 Aug 2019 16:45:11 +0200
-Message-ID: <97cdf9cb-286c-2387-6cb5-003b30f74c7e@redhat.com>
-References: <20190809160047.8319-1-alazar@bitdefender.com>
-	<20190809160047.8319-15-alazar@bitdefender.com>
-	<645d86f5-67f6-f5d3-3fbb-5ee9898a7ef8@redhat.com>
-	<5d52c10e.1c69fb81.26904.fd34SMTPIN_ADDED_BROKEN@mx.google.com>
+From: David Gibson <david@gibson.dropbear.id.au>
+Subject: Re: [RFC PATCH] virtio_ring: Use DMA API if guest memory is encrypted
+Date: Wed, 14 Aug 2019 00:24:39 +1000
+Message-ID: <20190813142439.GO3947__38048.4540875599$1565707681$gmane$org@umbus.fritz.box>
+References: <87zhrj8kcp.fsf@morokweng.localdomain>
+	<20190810143038-mutt-send-email-mst@kernel.org>
+	<20190810220702.GA5964@ram.ibm.com> <20190811055607.GA12488@lst.de>
+	<20190812095156.GD3947@umbus.fritz.box>
+	<20190813132617.GA6426@lst.de>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="utf-8"
-Content-Transfer-Encoding: base64
+Content-Type: multipart/mixed; boundary="===============1660255041622460718=="
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <5d52c10e.1c69fb81.26904.fd34SMTPIN_ADDED_BROKEN@mx.google.com>
-Content-Language: en-US
+In-Reply-To: <20190813132617.GA6426@lst.de>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -22,25 +20,89 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: =?UTF-8?Q?Adalbert_Laz=c4=83r?= <alazar@bitdefender.com>, kvm@vger.kernel.org
-Cc: Tamas K Lengyel <tamas@tklengyel.com>, Weijiang Yang <weijiang.yang@intel.com>, Yu C Zhang <yu.c.zhang@intel.com>, =?UTF-8?B?UmFkaW0gS3LEjW3DocWZ?= <rkrcmar@redhat.com>, Jan Kiszka <jan.kiszka@siemens.com>, =?UTF-8?Q?Samuel_Laur=c3=a9n?= <samuel.lauren@iki.fi>, Konrad Rzeszutek Wilk <konrad.wilk@oracle.com>, virtualization@lists.linux-foundation.org, linux-mm@kvack.org, Patrick Colp <patrick.colp@oracle.com>, Mathieu Tarral <mathieu.tarral@protonmail.com>, Stefan Hajnoczi <stefanha@redhat.com>, =?UTF-8?Q?Mircea_C=c3=aerjaliu?= <mcirjaliu@bitdefender.com>, =?UTF-8?Q?Mihai_Don=c8=9bu?= <mdontu@bitdefender.com>
+To: Christoph Hellwig <hch@lst.de>
+Cc: "Michael S. Tsirkin" <mst@redhat.com>, Benjamin Herrenschmidt <benh@kernel.crashing.org>, Alexey Kardashevskiy <aik@linux.ibm.com>, Ram Pai <linuxram@us.ibm.com>, linux-kernel@vger.kernel.org, virtualization@lists.linux-foundation.org, Paul Mackerras <paulus@ozlabs.org>, iommu@lists.linux-foundation.org, linuxppc-devel@lists.ozlabs.org
 List-Id: virtualization@lists.linuxfoundation.org
 
-T24gMTMvMDgvMTkgMTU6NTQsIEFkYWxiZXJ0IExhesSDciB3cm90ZToKPiAgICAgTGVhdmluZyBr
-dm1fdmNwdV9ibG9jaygpIGluIG9yZGVyIHRvIGhhbmRsZSBhIHJlcXVlc3Qgc3VjaCBhcyAncGF1
-c2UnLAo+ICAgICB3b3VsZCBjYXVzZSB0aGUgdkNQVSB0byBlbnRlciB0aGUgZ3Vlc3Qgd2hlbiBy
-ZXN1bWVkLiBNb3N0IG9mIHRoZQo+ICAgICB0aW1lIHRoaXMgZG9lcyBub3QgYXBwZWFyIHRvIGJl
-IGFuIGlzc3VlLCBidXQgZHVyaW5nIGVhcmx5IGJvb3QgaXQKPiAgICAgY2FuIGhhcHBlbiBmb3Ig
-YSBub24tYm9vdCB2Q1BVIHRvIHN0YXJ0IGV4ZWN1dGluZyBjb2RlIGZyb20gYXJlYXMgdGhhdAo+
-ICAgICBmaXJzdCBuZWVkZWQgdG8gYmUgc2V0IHVwIGJ5IHZDUFUgIzAuCj4gICAgIAo+ICAgICBJ
-biBhIHBhcnRpY3VsYXIgY2FzZSwgdkNQVSAjMSBleGVjdXRlZCBjb2RlIHdoaWNoIHJlc2lkZWQg
-aW4gYW4gYXJlYQo+ICAgICBub3QgY292ZXJlZCBieSBhIG1lbXNsb3QsIHdoaWNoIGNhdXNlZCBh
-biBFUFQgdmlvbGF0aW9uIHRoYXQgZ290Cj4gICAgIHR1cm5lZCBpbiBtbXVfc2V0X3NwdGUoKSBp
-bnRvIGEgTU1JTyByZXF1ZXN0IHRoYXQgcmVxdWlyZWQgZW11bGF0aW9uLgo+ICAgICBVbmZvcnR1
-bmF0ZWxseSwgdGhlIGVtdWxhdG9yIHRyaXBwZWQsIGV4aXRlZCB0byB1c2Vyc3BhY2UgYW5kIHRo
-ZSBWTQo+ICAgICB3YXMgYWJvcnRlZC4KCk9rYXksIHRoaXMgbWFrZXMgc2Vuc2UuICBNYXliZSB5
-b3Ugd2FudCB0byBoYW5kbGUgS1ZNX1JFUV9JTlRST1NQRUNUSU9OCmluIHZjcHVfcnVuIHJhdGhl
-ciB0aGFuIHZjcHVfZW50ZXJfZ3Vlc3Q/CgpQYW9sbwpfX19fX19fX19fX19fX19fX19fX19fX19f
-X19fX19fX19fX19fX19fX19fX19fXwpWaXJ0dWFsaXphdGlvbiBtYWlsaW5nIGxpc3QKVmlydHVh
-bGl6YXRpb25AbGlzdHMubGludXgtZm91bmRhdGlvbi5vcmcKaHR0cHM6Ly9saXN0cy5saW51eGZv
-dW5kYXRpb24ub3JnL21haWxtYW4vbGlzdGluZm8vdmlydHVhbGl6YXRpb24=
+
+--===============1660255041622460718==
+Content-Type: multipart/signed; micalg=pgp-sha256;
+	protocol="application/pgp-signature"; boundary="xexMVKTdXPhpRiVT"
+Content-Disposition: inline
+
+
+--xexMVKTdXPhpRiVT
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+Content-Transfer-Encoding: quoted-printable
+
+On Tue, Aug 13, 2019 at 03:26:17PM +0200, Christoph Hellwig wrote:
+> On Mon, Aug 12, 2019 at 07:51:56PM +1000, David Gibson wrote:
+> > AFAICT we already kind of abuse this for the VIRTIO_F_IOMMU_PLATFORM,
+> > because to handle for cases where it *is* a device limitation, we
+> > assume that if the hypervisor presents VIRTIO_F_IOMMU_PLATFORM then
+> > the guest *must* select it.
+> >=20
+> > What we actually need here is for the hypervisor to present
+> > VIRTIO_F_IOMMU_PLATFORM as available, but not required.  Then we need
+> > a way for the platform core code to communicate to the virtio driver
+> > that *it* requires the IOMMU to be used, so that the driver can select
+> > or not the feature bit on that basis.
+>=20
+> I agree with the above, but that just brings us back to the original
+> issue - the whole bypass of the DMA OPS should be an option that the
+> device can offer, not the other way around.  And we really need to
+> fix that root cause instead of doctoring around it.
+
+I'm not exactly sure what you mean by "device" in this context.  Do
+you mean the hypervisor (qemu) side implementation?
+
+You're right that this was the wrong way around to begin with, but as
+well as being hard to change now, I don't see how it really addresses
+the current problem.  The device could default to IOMMU and allow
+bypass, but the driver would still need to get information from the
+platform to know that it *can't* accept that option in the case of a
+secure VM.  Reversed sense, but the same basic problem.
+
+The hypervisor does not, and can not be aware of the secure VM
+restrictions - only the guest side platform code knows that.
+
+--=20
+David Gibson			| I'll have my music baroque, and my code
+david AT gibson.dropbear.id.au	| minimalist, thank you.  NOT _the_ _other_
+				| _way_ _around_!
+http://www.ozlabs.org/~dgibson
+
+--xexMVKTdXPhpRiVT
+Content-Type: application/pgp-signature; name="signature.asc"
+
+-----BEGIN PGP SIGNATURE-----
+
+iQIzBAEBCAAdFiEEdfRlhq5hpmzETofcbDjKyiDZs5IFAl1SyCcACgkQbDjKyiDZ
+s5I4bQ//S4EUhoZcI/LsW/VYsc9vUb4nR5PFUpsfHBRPpz5LSCyiE0zj6HPD0NEw
+xx7wFiEoEoijTK2eUAql0bciMMkjU4bktaIRNxHL0gHTJ+bYC0JQK42DBFC6t/9L
+2D5DD8K9CYwIwxjYOPlxaxCEJfVKLLCMwBXmO3n1wbp3DO4ejeOq6TcsFfzF079C
+rj1ofD3aAdjKicydMAWXVOly4fcAimPwCI+CU/hEuAiT5OOsvl3RkOcPQ2psC0kr
+AhWUtFFDmdTosz+3HvByFrQoIsWS833CETD/+h7QPRfcgdDnoctb5QY9oyqSCxvH
+phO1O07WExt8rXrRAWJvP81K0n+b4cTuw8aUKp8qchHopQUrSiUfwM0vLFgbHmPj
+qG+x3Z1XfdMRWJjnst0aF/EMnI3GXl+d2hzMJLbXicj0F4HLnn/F2mkQbXRkOcFw
+8gilmJLNmOhUWo8viy7dc90YU2i0HOQd6h0j+5fyfhYKf+4fWvodL6thBGHWWiTk
+g63CjmoEZByRc5iDwuGf3vRBsFU26hDHYXh3mk8+AEmfZ0zMfE+6NvgEdPOvU82A
+bwQU186bnnTF1AjRiGfC69gX4Dfe077FiFjcDwS6ojR+21MojjdITMsVOKw4ZwfQ
+wwnomYbPb7NjK2QJcSM8AqbQftwvqAIzBtjPEOsknnb4VyoVTXs=
+=2Lh2
+-----END PGP SIGNATURE-----
+
+--xexMVKTdXPhpRiVT--
+
+--===============1660255041622460718==
+Content-Type: text/plain; charset="us-ascii"
+MIME-Version: 1.0
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+
+_______________________________________________
+Virtualization mailing list
+Virtualization@lists.linux-foundation.org
+https://lists.linuxfoundation.org/mailman/listinfo/virtualization
+--===============1660255041622460718==--
