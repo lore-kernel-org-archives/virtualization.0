@@ -1,20 +1,16 @@
-From: Christoph Hellwig <hch@infradead.org>
-Subject: Re: [PATCH V5 0/9] Fixes for vhost metadata acceleration
-Date: Tue, 13 Aug 2019 09:41:05 -0700
-Message-ID: <20190813164105.GD22640@infradead.org>
-References: <20190809054851.20118-1-jasowang@redhat.com>
-	<20190810134948-mutt-send-email-mst@kernel.org>
-	<360a3b91-1ac5-84c0-d34b-a4243fa748c4@redhat.com>
-	<20190812054429-mutt-send-email-mst@kernel.org>
-	<20190812130252.GE24457@ziepe.ca>
-	<9a9641fe-b48f-f32a-eecc-af9c2f4fbe0e@redhat.com>
-	<20190813115707.GC29508@ziepe.ca>
+From: Adalbert =?iso-8859-2?b?TGF643I=?= <alazar@bitdefender.com>
+Subject: Re: [RFC PATCH v6 06/92] kvm: introspection: add
+	KVMI_CONTROL_CMD_RESPONSE
+Date: Tue, 13 Aug 2019 20:08:27 +0300
+Message-ID: <42556.642128487$1565716092@news.gmane.org>
+References: <20190809160047.8319-1-alazar@bitdefender.com>
+	<20190809160047.8319-7-alazar@bitdefender.com>
+	<e8f59b08-734a-2ce1-ae28-3cc9d90c0bcb@redhat.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset="utf-8"
+Content-Transfer-Encoding: base64
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-Content-Disposition: inline
-In-Reply-To: <20190813115707.GC29508@ziepe.ca>
+In-Reply-To: <e8f59b08-734a-2ce1-ae28-3cc9d90c0bcb@redhat.com>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -24,20 +20,43 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Jason Gunthorpe <jgg@ziepe.ca>
-Cc: kvm@vger.kernel.org, "Michael S. Tsirkin" <mst@redhat.com>, netdev@vger.kernel.org, linux-kernel@vger.kernel.org, virtualization@lists.linux-foundation.org, linux-mm@kvack.org
+To: Paolo Bonzini <pbonzini@redhat.com>, kvm@vger.kernel.org
+Cc: Tamas K Lengyel <tamas@tklengyel.com>, Weijiang Yang <weijiang.yang@intel.com>, Yu C Zhang <yu.c.zhang@intel.com>, Radim =?iso-8859-2?b?S3LobeH4?= <rkrcmar@redhat.com>, Jan Kiszka <jan.kiszka@siemens.com>, Samuel =?iso-8859-1?q?Laur=E9n?= <samuel.lauren@iki.fi>, Konrad Rzeszutek Wilk <konrad.wilk@oracle.com>, virtualization@lists.linux-foundation.org, linux-mm@kvack.org, Patrick Colp <patrick.colp@oracle.com>, Mathieu Tarral <mathieu.tarral@protonmail.com>, Stefan Hajnoczi <stefanha@redhat.com>, Mihai =?UTF-8?b?RG9uyJt1?= <mdontu@bitdefender.com>
 List-Id: virtualization@lists.linuxfoundation.org
 
-On Tue, Aug 13, 2019 at 08:57:07AM -0300, Jason Gunthorpe wrote:
-> On Tue, Aug 13, 2019 at 04:31:07PM +0800, Jason Wang wrote:
-> 
-> > What kind of issues do you see? Spinlock is to synchronize GUP with MMU
-> > notifier in this series.
-> 
-> A GUP that can't sleep can't pagefault which makes it a really weird
-> pattern
-
-get_user_pages/get_user_pages_fast must not be called under a spinlock.
-We have the somewhat misnamed __get_user_page_fast that just does a
-lookup for existing pages and never faults for a few places that need
-to do that lookup from contexts where we can't sleep.
+T24gVHVlLCAxMyBBdWcgMjAxOSAxMToxNTozNCArMDIwMCwgUGFvbG8gQm9uemluaSA8cGJvbnpp
+bmlAcmVkaGF0LmNvbT4gd3JvdGU6Cj4gT24gMDkvMDgvMTkgMTc6NTksIEFkYWxiZXJ0IExhesSD
+ciB3cm90ZToKPiA+ICtJZiBgbm93YCBpcyAxLCB0aGUgY29tbWFuZCByZXBseSBpcyBlbmFibGVk
+L2Rpc2FibGVkIChhY2NvcmRpbmcgdG8KPiA+ICtgZW5hYmxlYCkgc3RhcnRpbmcgd2l0aCB0aGUg
+Y3VycmVudCBjb21tYW5kLiBGb3IgZXhhbXBsZSwgYGVuYWJsZT0wYAo+ID4gK2FuZCBgbm93PTFg
+IG1lYW5zIHRoYXQgdGhlIHJlcGx5IGlzIGRpc2FibGVkIGZvciB0aGlzIGNvbW1hbmQgdG9vLAo+
+ID4gK3doaWxlIGBlbmFibGU9MGAgYW5kIGBub3c9MGAgbWVhbnMgdGhhdCBhIHJlcGx5IHdpbGwg
+YmUgc2VuZCBmb3IgdGhpcwo+ID4gK2NvbW1hbmQsIGJ1dCBub3QgZm9yIHRoZSBuZXh0IG9uZXMg
+KHVudGlsIGVuYWJsZWQgYmFjayB3aXRoIGFub3RoZXIKPiA+ICsqS1ZNSV9DT05UUk9MX0NNRF9S
+RVNQT05TRSopLgo+ID4gKwo+ID4gK1RoaXMgY29tbWFuZCBpcyB1c2VkIGJ5IHRoZSBpbnRyb3Nw
+ZWN0aW9uIHRvb2wgdG8gZGlzYWJsZSB0aGUgcmVwbGllcwo+ID4gK2ZvciBjb21tYW5kcyByZXR1
+cm5pbmcgYW4gZXJyb3IgY29kZSBvbmx5IChlZy4gKktWTUlfU0VUX1JFR0lTVEVSUyopCj4gPiAr
+d2hlbiBhbiBlcnJvciBpcyBsZXNzIGxpa2VseSB0byBoYXBwZW4uIEZvciBleGFtcGxlLCB0aGUg
+Zm9sbG93aW5nCj4gPiArY29tbWFuZHMgY2FuIGJlIHVzZWQgdG8gcmVwbHkgdG8gYW4gZXZlbnQg
+d2l0aCBhIHNpbmdsZSBgd3JpdGUoKWAgY2FsbDoKPiA+ICsKPiA+ICsJS1ZNSV9DT05UUk9MX0NN
+RF9SRVNQT05TRSBlbmFibGU9MCBub3c9MQo+ID4gKwlLVk1JX1NFVF9SRUdJU1RFUlMgdmNwdT1O
+Cj4gPiArCUtWTUlfRVZFTlRfUkVQTFkgICB2Y3B1PU4KPiA+ICsJS1ZNSV9DT05UUk9MX0NNRF9S
+RVNQT05TRSBlbmFibGU9MSBub3c9MAo+IAo+IEkgZG9uJ3QgdW5kZXJzdGFuZCB0aGUgdXNhZ2Uu
+ICBJcyB0aGVyZSBhbnkgY2FzZSB3aGVyZSB5b3Ugd2FudCBub3cgPT0gMQo+IGFjdHVhbGx5PyAg
+Q2FuIHlvdSBqdXN0IHNheSB0aGF0IEtWTUlfQ09OVFJPTF9DTURfUkVTUE9OU0UgbmV2ZXIgaGFz
+IGEKPiByZXBseSwgb3IgdG8gbWFrZSBub3c9PWVuYWJsZT8KClRoZSBlbmFibGU9MSBub3c9MSBp
+cyBmb3IgcGF1c2UgVk06CgoJS1ZNSV9DT05UUk9MX0NNRF9SRVNQT05TRSBlbmFibGU9MCBub3c9
+MQoJS1ZNSV9QQVVTRV9WQ1BVIDAKCUtWTUlfUEFVU0VfVkNQVSAxCgkuLi4KCUtWTUlfQ09OVFJP
+TF9DTURfUkVTUE9OU0UgZW5hYmxlPTEgbm93PTEKCldlIHdhaXQgZm9yIGEgcmVwbHkgdG8gbWFr
+ZSBzdXJlIHRoZSB2Q1BVcyB3ZXJlIHN0b3BwZWQgd2l0aG91dCB3YWl0aW5nCmZvciB0aGVpciBw
+YXVzZSBldmVudHMuCgpXZSBjYW4gZ2V0IGFyb3VuZCBmcm9tIHVzZXJzcGFjZSwgaWYgeW91IGxp
+a2U6CgoJS1ZNSV9DT05UUk9MX0NNRF9SRVNQT05TRSBlbmFibGU9MCBub3c9MQoJS1ZNSV9QQVVT
+RV9WQ1BVIDAKCUtWTUlfUEFVU0VfVkNQVSAxCgkuLi4KCUtWTUlfUEFVU0VfVkNQVSBOLTIKCUtW
+TUlfQ09OVFJPTF9DTURfUkVTUE9OU0UgZW5hYmxlPTEgbm93PTAKCUtWTUlfUEFVU0VfVkNQVSBO
+LTEKCj4gCj4gPiArCWlmIChlcnIpCj4gPiArCQlrdm1pX3dhcm4oaWt2bSwgIkVycm9yIGNvZGUg
+JWQgZGlzY2FyZGVkIGZvciBtZXNzYWdlIGlkICVkXG4iLAo+ID4gKwkJCSAgZXJyLCBtc2ctPmlk
+KTsKPiA+ICsKPiAKPiBXb3VsZCBpdCBtYWtlIHNlbnNlIHRvIGV2ZW4gY2xvc2UgdGhlIHNvY2tl
+dCBpZiB0aGVyZSBpcyBhbiBlcnJvcj8KPiAKPiBQYW9sbwoKU3VyZS4KX19fX19fX19fX19fX19f
+X19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX18KVmlydHVhbGl6YXRpb24gbWFpbGluZyBs
+aXN0ClZpcnR1YWxpemF0aW9uQGxpc3RzLmxpbnV4LWZvdW5kYXRpb24ub3JnCmh0dHBzOi8vbGlz
+dHMubGludXhmb3VuZGF0aW9uLm9yZy9tYWlsbWFuL2xpc3RpbmZvL3ZpcnR1YWxpemF0aW9u
