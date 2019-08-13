@@ -1,17 +1,19 @@
-From: Matthew Wilcox <willy@infradead.org>
-Subject: Re: DANGER WILL ROBINSON, DANGER
-Date: Tue, 13 Aug 2019 04:24:08 -0700
-Message-ID: <20190813112408.GC5307@bombadil.infradead.org>
-References: <20190809160047.8319-1-alazar@bitdefender.com>
-	<20190809160047.8319-72-alazar@bitdefender.com>
-	<20190809162444.GP5482@bombadil.infradead.org>
-	<ae0d274c-96b1-3ac9-67f2-f31fd7bbdcee@redhat.com>
+From: Jason Gunthorpe <jgg@ziepe.ca>
+Subject: Re: [PATCH V5 0/9] Fixes for vhost metadata acceleration
+Date: Tue, 13 Aug 2019 08:57:07 -0300
+Message-ID: <20190813115707.GC29508__41446.5270748892$1565697444$gmane$org@ziepe.ca>
+References: <20190809054851.20118-1-jasowang@redhat.com>
+	<20190810134948-mutt-send-email-mst@kernel.org>
+	<360a3b91-1ac5-84c0-d34b-a4243fa748c4@redhat.com>
+	<20190812054429-mutt-send-email-mst@kernel.org>
+	<20190812130252.GE24457@ziepe.ca>
+	<9a9641fe-b48f-f32a-eecc-af9c2f4fbe0e@redhat.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="utf-8"
-Content-Transfer-Encoding: base64
+Content-Type: text/plain; charset="us-ascii"
+Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
 Content-Disposition: inline
-In-Reply-To: <ae0d274c-96b1-3ac9-67f2-f31fd7bbdcee@redhat.com>
+In-Reply-To: <9a9641fe-b48f-f32a-eecc-af9c2f4fbe0e@redhat.com>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -21,27 +23,26 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Paolo Bonzini <pbonzini@redhat.com>
-Cc: Tamas K Lengyel <tamas@tklengyel.com>, Weijiang Yang <weijiang.yang@intel.com>, Yu C <yu.c.zhang@intel.com>, kvm@vger.kernel.org, Konrad Rzeszutek Wilk <konrad.wilk@oracle.com>, Jan Kiszka <jan.kiszka@siemens.com>, Samuel =?iso-8859-1?Q?Laur=E9n?= <samuel.lauren@iki.fi>, Radim =?utf-8?B?S3LEjW3DocWZ?= <rkrcmar@redhat.com>, virtualization@lists.linux-foundation.org, Adalbert =?utf-8?B?TGF6xINy?= <alazar@bitdefender.com>, linux-mm@kvack.org, Patrick Colp <patrick.colp@oracle.com>, Mathieu Tarral <mathieu.tarral@protonmail.com>, Stefan Hajnoczi <stefanha@redhat.com>, Zhang@kvack.org, Mircea =?iso-8859-1?Q?C=EErjaliu?= <mcirjaliu@bitdefender.com>, Mihai =?utf-8?B?RG9uyJt1?= <mdontu@bitdefender.com>
+To: Jason Wang <jasowang@redhat.com>
+Cc: kvm@vger.kernel.org, "Michael S. Tsirkin" <mst@redhat.com>, netdev@vger.kernel.org, linux-kernel@vger.kernel.org, virtualization@lists.linux-foundation.org, linux-mm@kvack.org
 List-Id: virtualization@lists.linuxfoundation.org
 
-T24gVHVlLCBBdWcgMTMsIDIwMTkgYXQgMTE6Mjk6MDdBTSArMDIwMCwgUGFvbG8gQm9uemluaSB3
-cm90ZToKPiBPbiAwOS8wOC8xOSAxODoyNCwgTWF0dGhldyBXaWxjb3ggd3JvdGU6Cj4gPiBPbiBG
-cmksIEF1ZyAwOSwgMjAxOSBhdCAwNzowMDoyNlBNICswMzAwLCBBZGFsYmVydCBMYXrEg3Igd3Jv
-dGU6Cj4gPj4gKysrIGIvaW5jbHVkZS9saW51eC9wYWdlLWZsYWdzLmgKPiA+PiBAQCAtNDE3LDgg
-KzQxNywxMCBAQCBQQUdFRkxBRyhJZGxlLCBpZGxlLCBQRl9BTlkpCj4gPj4gICAqLwo+ID4+ICAj
-ZGVmaW5lIFBBR0VfTUFQUElOR19BTk9OCTB4MQo+ID4+ICAjZGVmaW5lIFBBR0VfTUFQUElOR19N
-T1ZBQkxFCTB4Mgo+ID4+ICsjZGVmaW5lIFBBR0VfTUFQUElOR19SRU1PVEUJMHg0Cj4gPiBVaC4g
-IEhvdyBkbyB5b3Uga25vdyBwYWdlLT5tYXBwaW5nIHdvdWxkIG90aGVyd2lzZSBoYXZlIGJpdCAy
-IGNsZWFyPwo+ID4gV2hvJ3MgZ3VhcmFudGVlaW5nIHRoYXQ/Cj4gPiAKPiA+IFRoaXMgaXMgYW4g
-YXdmdWxseSBiaWcgcGF0Y2ggdG8gdGhlIG1lbW9yeSBtYW5hZ2VtZW50IGNvZGUsIGJ1cmllZCBp
-bgo+ID4gdGhlIG1pZGRsZSBvZiBhIGdpZ2FudGljIHNlcmllcyB3aGljaCBhbG1vc3QgZ3VhcmFu
-dGVlcyBub2JvZHkgd291bGQKPiA+IGxvb2sgYXQgaXQuICBJIGNhbGwgc2hlbmFuaWdhbnMuCj4g
-Cj4gQXJlIHlvdSBjYWxsaW5nIHNoZW5hbmlnYW5zIG9uIHRoZSBwYXRjaCBzdWJtaXR0ZXIgKHdo
-aWNoIGlzIGdyYXR1aXRvdXMpCj4gb3Igb24gdGhlIEtWTSBtYWludGFpbmVycy9yZXZpZXdlcnM/
-CgpPbiB0aGUgcGF0Y2ggc3VibWl0dGVyLCBvZiBjb3Vyc2UuICBIb3cgY2FuIEkgcG9zc2libHkg
-YmUgY3JpdGljaXNpbmcgeW91CmZvciBzb21ldGhpbmcgeW91IGRpZG4ndCBkbz8KCl9fX19fX19f
-X19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fClZpcnR1YWxpemF0aW9uIG1h
-aWxpbmcgbGlzdApWaXJ0dWFsaXphdGlvbkBsaXN0cy5saW51eC1mb3VuZGF0aW9uLm9yZwpodHRw
-czovL2xpc3RzLmxpbnV4Zm91bmRhdGlvbi5vcmcvbWFpbG1hbi9saXN0aW5mby92aXJ0dWFsaXph
-dGlvbg==
+On Tue, Aug 13, 2019 at 04:31:07PM +0800, Jason Wang wrote:
+
+> What kind of issues do you see? Spinlock is to synchronize GUP with MMU
+> notifier in this series.
+
+A GUP that can't sleep can't pagefault which makes it a really weird
+pattern
+
+> Btw, back to the original question. May I know why synchronize_rcu() is not
+> suitable? Consider:
+
+We already went over this. You'd need to determine it doesn't somehow
+deadlock the mm on reclaim paths. Maybe it is OK, the rcq_gq_wq is
+marked WQ_MEM_RECLAIM at least..
+
+I also think Michael was concerned about the latency spikes a long RCU
+delay would cause.
+
+Jason
