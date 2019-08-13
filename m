@@ -1,16 +1,11 @@
-From: Paolo Bonzini <pbonzini@redhat.com>
-Subject: Re: [RFC PATCH v6 75/92] kvm: x86: disable gpa_available optimization
-	in emulator_read_write_onepage()
-Date: Tue, 13 Aug 2019 10:47:34 +0200
-Message-ID: <eb748e05-8289-0c05-6907-b6c898f6080b@redhat.com>
-References: <20190809160047.8319-1-alazar@bitdefender.com>
-	<20190809160047.8319-76-alazar@bitdefender.com>
+From: Gerd Hoffmann <kraxel@redhat.com>
+Subject: [PATCH v3] drm/virtio: use virtio_max_dma_size
+Date: Tue, 13 Aug 2019 10:50:34 +0200
+Message-ID: <20190813085034.14234-1-kraxel__21451.9139424496$1565686259$gmane$org@redhat.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="utf-8"
-Content-Transfer-Encoding: base64
+Content-Type: text/plain; charset="us-ascii"
+Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <20190809160047.8319-76-alazar@bitdefender.com>
-Content-Language: en-US
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -20,45 +15,47 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: =?UTF-8?Q?Adalbert_Laz=c4=83r?= <alazar@bitdefender.com>, kvm@vger.kernel.org
-Cc: Tamas K Lengyel <tamas@tklengyel.com>, Weijiang Yang <weijiang.yang@intel.com>, Yu C Zhang <yu.c.zhang@intel.com>, =?UTF-8?B?UmFkaW0gS3LEjW3DocWZ?= <rkrcmar@redhat.com>, Jan Kiszka <jan.kiszka@siemens.com>, =?UTF-8?Q?Samuel_Laur=c3=a9n?= <samuel.lauren@iki.fi>, Konrad Rzeszutek Wilk <konrad.wilk@oracle.com>, virtualization@lists.linux-foundation.org, linux-mm@kvack.org, Patrick Colp <patrick.colp@oracle.com>, Mathieu Tarral <mathieu.tarral@protonmail.com>, Stefan Hajnoczi <stefanha@redhat.com>, =?UTF-8?Q?Mihai_Don=c8=9bu?= <mdontu@bitdefender.com>
+To: dri-devel@lists.freedesktop.org
+Cc: David Airlie <airlied@linux.ie>, open list <linux-kernel@vger.kernel.org>, Daniel Vetter <daniel@ffwll.ch>, "open list:VIRTIO GPU DRIVER" <virtualization@lists.linux-foundation.org>
 List-Id: virtualization@lists.linuxfoundation.org
 
-T24gMDkvMDgvMTkgMTg6MDAsIEFkYWxiZXJ0IExhesSDciB3cm90ZToKPiBJZiB0aGUgRVBUIHZp
-b2xhdGlvbiB3YXMgY2F1c2VkIGJ5IGFuIGV4ZWN1dGUgcmVzdHJpY3Rpb24gaW1wb3NlZCBieSB0
-aGUKPiBpbnRyb3NwZWN0aW9uIHRvb2wsIGdwYV9hdmFpbGFibGUgd2lsbCBwb2ludCB0byB0aGUg
-aW5zdHJ1Y3Rpb24gcG9pbnRlciwKPiBub3QgdGhlIHRvIHRoZSByZWFkL3dyaXRlIGxvY2F0aW9u
-IHRoYXQgaGFzIHRvIGJlIHVzZWQgdG8gZW11bGF0ZSB0aGUKPiBjdXJyZW50IGluc3RydWN0aW9u
-Lgo+IAo+IFRoaXMgb3B0aW1pemF0aW9uIHNob3VsZCBiZSBkaXNhYmxlZCBvbmx5IHdoZW4gdGhl
-IFZNIGlzIGludHJvc3BlY3RlZCwKPiBub3QganVzdCBiZWNhdXNlIHRoZSBpbnRyb3NwZWN0aW9u
-IHN1YnN5c3RlbSBpcyBwcmVzZW50Lgo+IAo+IFNpZ25lZC1vZmYtYnk6IEFkYWxiZXJ0IExhesSD
-ciA8YWxhemFyQGJpdGRlZmVuZGVyLmNvbT4KClRoZSByaWdodCB0aGluZyB0byBkbyBpcyB0byBu
-b3Qgc2V0IGdwYV9hdmFpbGFibGUgZm9yIGZldGNoIGZhaWx1cmVzIGluIAprdm1fbW11X3BhZ2Vf
-ZmF1bHQgaW5zdGVhZDoKCmRpZmYgLS1naXQgYS9hcmNoL3g4Ni9rdm0vbW11LmMgYi9hcmNoL3g4
-Ni9rdm0vbW11LmMKaW5kZXggMjQ4NDNjZjQ5NTc5Li4xYmRjYTQwZmE4MzEgMTAwNjQ0Ci0tLSBh
-L2FyY2gveDg2L2t2bS9tbXUuYworKysgYi9hcmNoL3g4Ni9rdm0vbW11LmMKQEAgLTUzNjQsOCAr
-NTM2NCwxMiBAQCBpbnQga3ZtX21tdV9wYWdlX2ZhdWx0KHN0cnVjdCBrdm1fdmNwdSAqdmNwdSwg
-Z3ZhX3QgY3IyLCB1NjQgZXJyb3JfY29kZSwKIAllbnVtIGVtdWxhdGlvbl9yZXN1bHQgZXI7CiAJ
-Ym9vbCBkaXJlY3QgPSB2Y3B1LT5hcmNoLm1tdS0+ZGlyZWN0X21hcDsKIAotCS8qIFdpdGggc2hh
-ZG93IHBhZ2UgdGFibGVzLCBmYXVsdF9hZGRyZXNzIGNvbnRhaW5zIGEgR1ZBIG9yIG5HUEEuICAq
-LwotCWlmICh2Y3B1LT5hcmNoLm1tdS0+ZGlyZWN0X21hcCkgeworCS8qCisJICogV2l0aCBzaGFk
-b3cgcGFnZSB0YWJsZXMsIGZhdWx0X2FkZHJlc3MgY29udGFpbnMgYSBHVkEgb3IgbkdQQS4KKwkg
-KiBPbiBhIGZldGNoIGZhdWx0LCBmYXVsdF9hZGRyZXNzIGNvbnRhaW5zIHRoZSBpbnN0cnVjdGlv
-biBwb2ludGVyLgorCSAqLworCWlmICh2Y3B1LT5hcmNoLm1tdS0+ZGlyZWN0X21hcCAmJgorCSAg
-ICBsaWtlbHkoIShlcnJvcl9jb2RlICYgUEZFUlJfRkVUQ0hfTUFTSykpIHsKIAkJdmNwdS0+YXJj
-aC5ncGFfYXZhaWxhYmxlID0gdHJ1ZTsKIAkJdmNwdS0+YXJjaC5ncGFfdmFsID0gY3IyOwogCX0K
-CgpQYW9sbwoKPiAtLS0KPiAgYXJjaC94ODYva3ZtL3g4Ni5jIHwgMiArLQo+ICAxIGZpbGUgY2hh
-bmdlZCwgMSBpbnNlcnRpb24oKyksIDEgZGVsZXRpb24oLSkKPiAKPiBkaWZmIC0tZ2l0IGEvYXJj
-aC94ODYva3ZtL3g4Ni5jIGIvYXJjaC94ODYva3ZtL3g4Ni5jCj4gaW5kZXggOTY1YzRmMDEwOGVi
-Li4zOTc1MzMxMjMwYjkgMTAwNjQ0Cj4gLS0tIGEvYXJjaC94ODYva3ZtL3g4Ni5jCj4gKysrIGIv
-YXJjaC94ODYva3ZtL3g4Ni5jCj4gQEAgLTU1MzIsNyArNTUzMiw3IEBAIHN0YXRpYyBpbnQgZW11
-bGF0b3JfcmVhZF93cml0ZV9vbmVwYWdlKHVuc2lnbmVkIGxvbmcgYWRkciwgdm9pZCAqdmFsLAo+
-ICAJICogb3BlcmF0aW9uIHVzaW5nIHJlcCB3aWxsIG9ubHkgaGF2ZSB0aGUgaW5pdGlhbCBHUEEg
-ZnJvbSB0aGUgTlBGCj4gIAkgKiBvY2N1cnJlZC4KPiAgCSAqLwo+IC0JaWYgKHZjcHUtPmFyY2gu
-Z3BhX2F2YWlsYWJsZSAmJgo+ICsJaWYgKHZjcHUtPmFyY2guZ3BhX2F2YWlsYWJsZSAmJiAha3Zt
-aV9pc19wcmVzZW50KCkgJiYKPiAgCSAgICBlbXVsYXRvcl9jYW5fdXNlX2dwYShjdHh0KSAmJgo+
-ICAJICAgIChhZGRyICYgflBBR0VfTUFTSykgPT0gKHZjcHUtPmFyY2guZ3BhX3ZhbCAmIH5QQUdF
-X01BU0spKSB7Cj4gIAkJZ3BhID0gdmNwdS0+YXJjaC5ncGFfdmFsOwo+IAoKX19fX19fX19fX19f
-X19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX18KVmlydHVhbGl6YXRpb24gbWFpbGlu
-ZyBsaXN0ClZpcnR1YWxpemF0aW9uQGxpc3RzLmxpbnV4LWZvdW5kYXRpb24ub3JnCmh0dHBzOi8v
-bGlzdHMubGludXhmb3VuZGF0aW9uLm9yZy9tYWlsbWFuL2xpc3RpbmZvL3ZpcnR1YWxpemF0aW9u
+We must make sure our scatterlist segments are not too big, otherwise
+we might see swiotlb failures (happens with sev, also reproducable with
+swiotlb=force).
+
+Suggested-by: Laszlo Ersek <lersek@redhat.com>
+Signed-off-by: Gerd Hoffmann <kraxel@redhat.com>
+---
+ drivers/gpu/drm/virtio/virtgpu_object.c | 10 ++++++++--
+ 1 file changed, 8 insertions(+), 2 deletions(-)
+
+diff --git a/drivers/gpu/drm/virtio/virtgpu_object.c b/drivers/gpu/drm/virtio/virtgpu_object.c
+index b2da31310d24..3d86e4b3de58 100644
+--- a/drivers/gpu/drm/virtio/virtgpu_object.c
++++ b/drivers/gpu/drm/virtio/virtgpu_object.c
+@@ -204,6 +204,7 @@ int virtio_gpu_object_get_sg_table(struct virtio_gpu_device *qdev,
+ 		.interruptible = false,
+ 		.no_wait_gpu = false
+ 	};
++	unsigned max_segment;
+ 
+ 	/* wtf swapping */
+ 	if (bo->pages)
+@@ -215,8 +216,13 @@ int virtio_gpu_object_get_sg_table(struct virtio_gpu_device *qdev,
+ 	if (!bo->pages)
+ 		goto out;
+ 
+-	ret = sg_alloc_table_from_pages(bo->pages, pages, nr_pages, 0,
+-					nr_pages << PAGE_SHIFT, GFP_KERNEL);
++	max_segment = virtio_max_dma_size(qdev->vdev);
++	max_segment &= PAGE_MASK;
++	if (max_segment > SCATTERLIST_MAX_SEGMENT)
++		max_segment = SCATTERLIST_MAX_SEGMENT;
++	ret = __sg_alloc_table_from_pages(bo->pages, pages, nr_pages, 0,
++					  nr_pages << PAGE_SHIFT,
++					  max_segment, GFP_KERNEL);
+ 	if (ret)
+ 		goto out;
+ 	return 0;
+-- 
+2.18.1
