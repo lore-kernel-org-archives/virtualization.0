@@ -1,20 +1,16 @@
-From: Ram Pai <linuxram@us.ibm.com>
-Subject: RE: [RFC PATCH] virtio_ring: Use DMA API if guest memory is encrypted
-Date: Tue, 13 Aug 2019 08:45:37 -0700
-Message-ID: <20190813154537.GE5964@ram.ibm.com>
-References: <87zhrj8kcp.fsf@morokweng.localdomain>
-	<20190810143038-mutt-send-email-mst@kernel.org>
-	<20190810220702.GA5964@ram.ibm.com> <20190811055607.GA12488@lst.de>
-	<20190812095156.GD3947@umbus.fritz.box>
-	<20190813132617.GA6426@lst.de>
-	<20190813142439.GO3947@umbus.fritz.box>
-Reply-To: Ram Pai <linuxram@us.ibm.com>
+From: Adalbert =?iso-8859-2?b?TGF643I=?= <alazar@bitdefender.com>
+Subject: Re: [RFC PATCH v6 70/92] kvm: x86: filter out access rights only when
+	tracked by the introspection tool
+Date: Tue, 13 Aug 2019 19:06:43 +0300
+Message-ID: <10168.3332746447$1565712388@news.gmane.org>
+References: <20190809160047.8319-1-alazar@bitdefender.com>
+	<20190809160047.8319-71-alazar@bitdefender.com>
+	<8cba6816-8d3a-2498-b3b0-2ce76a98ce12@redhat.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset="utf-8"
+Content-Transfer-Encoding: base64
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-Content-Disposition: inline
-In-Reply-To: <20190813142439.GO3947@umbus.fritz.box>
+In-Reply-To: <8cba6816-8d3a-2498-b3b0-2ce76a98ce12@redhat.com>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -24,69 +20,38 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: David Gibson <david@gibson.dropbear.id.au>
-Cc: "Michael S. Tsirkin" <mst@redhat.com>, Benjamin Herrenschmidt <benh@kernel.crashing.org>, Alexey Kardashevskiy <aik@linux.ibm.com>, linux-kernel@vger.kernel.org, virtualization@lists.linux-foundation.org, Paul Mackerras <paulus@ozlabs.org>, iommu@lists.linux-foundation.org, linuxppc-devel@lists.ozlabs.org, Christoph Hellwig <hch@lst.de>
+To: Paolo Bonzini <pbonzini@redhat.com>, kvm@vger.kernel.org
+Cc: Tamas K Lengyel <tamas@tklengyel.com>, Weijiang Yang <weijiang.yang@intel.com>, Yu C Zhang <yu.c.zhang@intel.com>, Radim =?iso-8859-2?b?S3LobeH4?= <rkrcmar@redhat.com>, Jan Kiszka <jan.kiszka@siemens.com>, Samuel =?iso-8859-1?q?Laur=E9n?= <samuel.lauren@iki.fi>, Konrad Rzeszutek Wilk <konrad.wilk@oracle.com>, virtualization@lists.linux-foundation.org, linux-mm@kvack.org, Patrick Colp <patrick.colp@oracle.com>, Mathieu Tarral <mathieu.tarral@protonmail.com>, Stefan Hajnoczi <stefanha@redhat.com>, Mihai =?UTF-8?b?RG9uyJt1?= <mdontu@bitdefender.com>
 List-Id: virtualization@lists.linuxfoundation.org
 
-On Wed, Aug 14, 2019 at 12:24:39AM +1000, David Gibson wrote:
-> On Tue, Aug 13, 2019 at 03:26:17PM +0200, Christoph Hellwig wrote:
-> > On Mon, Aug 12, 2019 at 07:51:56PM +1000, David Gibson wrote:
-> > > AFAICT we already kind of abuse this for the VIRTIO_F_IOMMU_PLATFORM,
-> > > because to handle for cases where it *is* a device limitation, we
-> > > assume that if the hypervisor presents VIRTIO_F_IOMMU_PLATFORM then
-> > > the guest *must* select it.
-> > > 
-> > > What we actually need here is for the hypervisor to present
-> > > VIRTIO_F_IOMMU_PLATFORM as available, but not required.  Then we need
-> > > a way for the platform core code to communicate to the virtio driver
-> > > that *it* requires the IOMMU to be used, so that the driver can select
-> > > or not the feature bit on that basis.
-> > 
-> > I agree with the above, but that just brings us back to the original
-> > issue - the whole bypass of the DMA OPS should be an option that the
-> > device can offer, not the other way around.  And we really need to
-> > fix that root cause instead of doctoring around it.
-> 
-> I'm not exactly sure what you mean by "device" in this context.  Do
-> you mean the hypervisor (qemu) side implementation?
-> 
-> You're right that this was the wrong way around to begin with, but as
-> well as being hard to change now, I don't see how it really addresses
-> the current problem.  The device could default to IOMMU and allow
-> bypass, but the driver would still need to get information from the
-> platform to know that it *can't* accept that option in the case of a
-> secure VM.  Reversed sense, but the same basic problem.
-> 
-> The hypervisor does not, and can not be aware of the secure VM
-> restrictions - only the guest side platform code knows that.
-
-This statement is almost entirely right. I will rephrase it to make it
-entirely right.   
-
-The hypervisor does not, and can not be aware of the secure VM
-requirement that it needs to do some special processing that has nothing
-to do with DMA address translation - only the guest side platform code
-know that.
-
-BTW: I do not consider 'bounce buffering' as 'DMA address translation'.
-DMA address translation, translates CPU address to DMA address.  Bounce
-buffering moves the data from one buffer at a given CPU address to
-another buffer at a different CPU address.  Unfortunately the current
-DMA ops conflates the two.  The need to do 'DMA address translation' 
-is something the device can enforce.  But the need to do bounce
-buffering, is something that the device should not be aware and should be
-entirely a decision made locally by the kernel/driver in the secure VM.
-
-RP
-
-> 
-> -- 
-> David Gibson			| I'll have my music baroque, and my code
-> david AT gibson.dropbear.id.au	| minimalist, thank you.  NOT _the_ _other_
-> 				| _way_ _around_!
-> http://www.ozlabs.org/~dgibson
-
-
-
--- 
-Ram Pai
+T24gVHVlLCAxMyBBdWcgMjAxOSAxMTowODozOSArMDIwMCwgUGFvbG8gQm9uemluaSA8cGJvbnpp
+bmlAcmVkaGF0LmNvbT4gd3JvdGU6Cj4gT24gMDkvMDgvMTkgMTg6MDAsIEFkYWxiZXJ0IExhesSD
+ciB3cm90ZToKPiA+IEl0IHNob3VsZCBjb21wbGV0ZSB0aGUgY29tbWl0IGZkMzRhOTUxODE3MyAo
+Imt2bTogeDg2OiBjb25zdWx0IHRoZSBwYWdlIHRyYWNraW5nIGZyb20ga3ZtX21tdV9nZXRfcGFn
+ZSgpIGFuZCBfX2RpcmVjdF9tYXAoKSIpCj4gPiAKPiA+IFNpZ25lZC1vZmYtYnk6IEFkYWxiZXJ0
+IExhesSDciA8YWxhemFyQGJpdGRlZmVuZGVyLmNvbT4KPiA+IC0tLQo+ID4gIGFyY2gveDg2L2t2
+bS9tbXUuYyB8IDMgKysrCj4gPiAgMSBmaWxlIGNoYW5nZWQsIDMgaW5zZXJ0aW9ucygrKQo+ID4g
+Cj4gPiBkaWZmIC0tZ2l0IGEvYXJjaC94ODYva3ZtL21tdS5jIGIvYXJjaC94ODYva3ZtL21tdS5j
+Cj4gPiBpbmRleCA2NWI2YWNiYTgyZGEuLmZkNjRjZjExMTVkYSAxMDA2NDQKPiA+IC0tLSBhL2Fy
+Y2gveDg2L2t2bS9tbXUuYwo+ID4gKysrIGIvYXJjaC94ODYva3ZtL21tdS5jCj4gPiBAQCAtMjY2
+MCw2ICsyNjYwLDkgQEAgc3RhdGljIHZvaWQgY2xlYXJfc3Bfd3JpdGVfZmxvb2RpbmdfY291bnQo
+dTY0ICpzcHRlKQo+ID4gIHN0YXRpYyB1bnNpZ25lZCBpbnQga3ZtX21tdV9wYWdlX3RyYWNrX2Fj
+YyhzdHJ1Y3Qga3ZtX3ZjcHUgKnZjcHUsIGdmbl90IGdmbiwKPiA+ICAJCQkJCSAgIHVuc2lnbmVk
+IGludCBhY2MpCj4gPiAgewo+ID4gKwlpZiAoIWt2bWlfdHJhY2tlZF9nZm4odmNwdSwgZ2ZuKSkK
+PiA+ICsJCXJldHVybiBhY2M7Cj4gPiArCj4gPiAgCWlmIChrdm1fcGFnZV90cmFja19pc19hY3Rp
+dmUodmNwdSwgZ2ZuLCBLVk1fUEFHRV9UUkFDS19QUkVSRUFEKSkKPiA+ICAJCWFjYyAmPSB+QUND
+X1VTRVJfTUFTSzsKPiA+ICAJaWYgKGt2bV9wYWdlX3RyYWNrX2lzX2FjdGl2ZSh2Y3B1LCBnZm4s
+IEtWTV9QQUdFX1RSQUNLX1BSRVdSSVRFKSB8fAo+ID4gCj4gCj4gSWYgdGhpcyBwYXRjaCBpcyBh
+bHdheXMgbmVlZGVkLCB0aGVuIHRoZSBmdW5jdGlvbiBzaG91bGQgYmUgbmFtZWQKPiBzb21ldGhp
+bmcgbGlrZSBrdm1fbW11X2FwcGx5X2ludHJvc3BlY3Rpb25fYWNjZXNzIGFuZCBrdm1pX3RyYWNr
+ZWRfZ2ZuCj4gc2hvdWxkIGJlIHRlc3RlZCBmcm9tIHRoZSBtb21lbnQgaXQgaXMgaW50cm9kdWNl
+ZC4KPiAKPiBCdXQgdGhlIGNvbW1pdCBtZXNzYWdlIHNheXMgbm90aGluZyBhYm91dCBfd2h5XyBp
+dCBpcyBuZWVkZWQsIHNvIEkKPiBjYW5ub3QgZ3Vlc3MuICBJIHdvdWxkIHZlcnkgbXVjaCBhdm9p
+ZCBpdCBob3dldmVyLiAgSXMgaXQganVzdCBhbgo+IG9wdGltaXphdGlvbj8KPiAKPiBQYW9sbwoK
+V2UnbGwgcmV0ZXN0IHRvIHNlZSBpZiB3ZSBzdGlsbCBuZWVkIGt2bV9tbXVfcGFnZV90cmFja19h
+Y2MoKS4KVGhlIGt2bWlfdHJhY2tlZF9nZm4oKSBjaGVjayB3YXMgdXNlZCB0byBrZWVwIHRoZSBL
+Vk0gY29kZSBmbG93CiJ1bmNoYW5nZWQiIGFzIG11Y2ggYXMgcG9zc2libGUuIFByb2JhYmx5LCB3
+ZSBjYW4gZ2V0IHJpZGUgb2YgaXQuCl9fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19f
+X19fX19fX19fX19fClZpcnR1YWxpemF0aW9uIG1haWxpbmcgbGlzdApWaXJ0dWFsaXphdGlvbkBs
+aXN0cy5saW51eC1mb3VuZGF0aW9uLm9yZwpodHRwczovL2xpc3RzLmxpbnV4Zm91bmRhdGlvbi5v
+cmcvbWFpbG1hbi9saXN0aW5mby92aXJ0dWFsaXphdGlvbg==
