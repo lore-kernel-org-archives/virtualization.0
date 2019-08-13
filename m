@@ -1,7 +1,7 @@
 From: Gerd Hoffmann <kraxel@redhat.com>
-Subject: [PATCH 2/2] drm/virtio: notify virtqueues without holding spinlock
-Date: Tue, 13 Aug 2019 10:25:09 +0200
-Message-ID: <20190813082509.29324-3-kraxel__11780.5880656064$1565684728$gmane$org@redhat.com>
+Subject: [PATCH 1/2] drm/virtio: cleanup queue functions
+Date: Tue, 13 Aug 2019 10:25:08 +0200
+Message-ID: <20190813082509.29324-2-kraxel__32097.4550837249$1565684733$gmane$org@redhat.com>
 References: <20190813082509.29324-1-kraxel@redhat.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
@@ -21,108 +21,110 @@ To: dri-devel@lists.freedesktop.org
 Cc: David Airlie <airlied@linux.ie>, open list <linux-kernel@vger.kernel.org>, "open list:VIRTIO GPU DRIVER" <virtualization@lists.linux-foundation.org>, Daniel Vetter <daniel@ffwll.ch>, olvaffe@gmail.com
 List-Id: virtualization@lists.linuxfoundation.org
 
-Split virtqueue_kick() call into virtqueue_kick_prepare(), which
-requires serialization, and virtqueue_notify(), which does not.  Move
-the virtqueue_notify() call out of the critical section protected by the
-queue lock.  This avoids triggering a vmexit while holding the lock and
-thereby fixes a rather bad spinlock contention.
+Make the queue functions return void, none of
+the call sites checks the return value.
 
-Suggested-by: Chia-I Wu <olvaffe@gmail.com>
 Signed-off-by: Gerd Hoffmann <kraxel@redhat.com>
 ---
- drivers/gpu/drm/virtio/virtgpu_vq.c | 25 +++++++++++++++++++------
- 1 file changed, 19 insertions(+), 6 deletions(-)
+ drivers/gpu/drm/virtio/virtgpu_vq.c | 41 ++++++++++-------------------
+ 1 file changed, 14 insertions(+), 27 deletions(-)
 
 diff --git a/drivers/gpu/drm/virtio/virtgpu_vq.c b/drivers/gpu/drm/virtio/virtgpu_vq.c
-index ca91e83ffaef..e41c96143342 100644
+index 7ac20490e1b4..ca91e83ffaef 100644
 --- a/drivers/gpu/drm/virtio/virtgpu_vq.c
 +++ b/drivers/gpu/drm/virtio/virtgpu_vq.c
-@@ -252,7 +252,7 @@ void virtio_gpu_dequeue_cursor_func(struct work_struct *work)
+@@ -252,8 +252,8 @@ void virtio_gpu_dequeue_cursor_func(struct work_struct *work)
  	wake_up(&vgdev->cursorq.ack_queue);
  }
  
--static void virtio_gpu_queue_ctrl_buffer_locked(struct virtio_gpu_device *vgdev,
-+static bool virtio_gpu_queue_ctrl_buffer_locked(struct virtio_gpu_device *vgdev,
- 						struct virtio_gpu_vbuffer *vbuf)
+-static int virtio_gpu_queue_ctrl_buffer_locked(struct virtio_gpu_device *vgdev,
+-					       struct virtio_gpu_vbuffer *vbuf)
++static void virtio_gpu_queue_ctrl_buffer_locked(struct virtio_gpu_device *vgdev,
++						struct virtio_gpu_vbuffer *vbuf)
  		__releases(&vgdev->ctrlq.qlock)
  		__acquires(&vgdev->ctrlq.qlock)
-@@ -260,10 +260,11 @@ static void virtio_gpu_queue_ctrl_buffer_locked(struct virtio_gpu_device *vgdev,
- 	struct virtqueue *vq = vgdev->ctrlq.vq;
- 	struct scatterlist *sgs[3], vcmd, vout, vresp;
- 	int outcnt = 0, incnt = 0;
-+	bool notify = false;
+ {
+@@ -263,7 +263,7 @@ static int virtio_gpu_queue_ctrl_buffer_locked(struct virtio_gpu_device *vgdev,
  	int ret;
  
  	if (!vgdev->vqs_ready)
--		return;
-+		return notify;
+-		return -ENODEV;
++		return;
  
  	sg_init_one(&vcmd, vbuf->buf, vbuf->size);
  	sgs[outcnt + incnt] = &vcmd;
-@@ -292,16 +293,21 @@ static void virtio_gpu_queue_ctrl_buffer_locked(struct virtio_gpu_device *vgdev,
- 		trace_virtio_gpu_cmd_queue(vq,
- 			(struct virtio_gpu_ctrl_hdr *)vbuf->buf);
+@@ -294,30 +294,22 @@ static int virtio_gpu_queue_ctrl_buffer_locked(struct virtio_gpu_device *vgdev,
  
--		virtqueue_kick(vq);
-+		notify = virtqueue_kick_prepare(vq);
+ 		virtqueue_kick(vq);
  	}
-+	return notify;
+-
+-	if (!ret)
+-		ret = vq->num_free;
+-	return ret;
  }
  
- static void virtio_gpu_queue_ctrl_buffer(struct virtio_gpu_device *vgdev,
- 					 struct virtio_gpu_vbuffer *vbuf)
+-static int virtio_gpu_queue_ctrl_buffer(struct virtio_gpu_device *vgdev,
+-					struct virtio_gpu_vbuffer *vbuf)
++static void virtio_gpu_queue_ctrl_buffer(struct virtio_gpu_device *vgdev,
++					 struct virtio_gpu_vbuffer *vbuf)
  {
-+	bool notify;
-+
+-	int rc;
+-
  	spin_lock(&vgdev->ctrlq.qlock);
--	virtio_gpu_queue_ctrl_buffer_locked(vgdev, vbuf);
-+	notify = virtio_gpu_queue_ctrl_buffer_locked(vgdev, vbuf);
+-	rc = virtio_gpu_queue_ctrl_buffer_locked(vgdev, vbuf);
++	virtio_gpu_queue_ctrl_buffer_locked(vgdev, vbuf);
  	spin_unlock(&vgdev->ctrlq.qlock);
-+	if (notify)
-+		virtqueue_notify(vgdev->ctrlq.vq);
+-	return rc;
  }
  
- static void virtio_gpu_queue_fenced_ctrl_buffer(struct virtio_gpu_device *vgdev,
-@@ -310,6 +316,7 @@ static void virtio_gpu_queue_fenced_ctrl_buffer(struct virtio_gpu_device *vgdev,
- 						struct virtio_gpu_fence *fence)
+-static int virtio_gpu_queue_fenced_ctrl_buffer(struct virtio_gpu_device *vgdev,
+-					       struct virtio_gpu_vbuffer *vbuf,
+-					       struct virtio_gpu_ctrl_hdr *hdr,
+-					       struct virtio_gpu_fence *fence)
++static void virtio_gpu_queue_fenced_ctrl_buffer(struct virtio_gpu_device *vgdev,
++						struct virtio_gpu_vbuffer *vbuf,
++						struct virtio_gpu_ctrl_hdr *hdr,
++						struct virtio_gpu_fence *fence)
  {
  	struct virtqueue *vq = vgdev->ctrlq.vq;
-+	bool notify;
+-	int rc;
  
  again:
  	spin_lock(&vgdev->ctrlq.qlock);
-@@ -330,8 +337,10 @@ static void virtio_gpu_queue_fenced_ctrl_buffer(struct virtio_gpu_device *vgdev,
+@@ -338,13 +330,12 @@ static int virtio_gpu_queue_fenced_ctrl_buffer(struct virtio_gpu_device *vgdev,
  
  	if (fence)
  		virtio_gpu_fence_emit(vgdev, hdr, fence);
--	virtio_gpu_queue_ctrl_buffer_locked(vgdev, vbuf);
-+	notify = virtio_gpu_queue_ctrl_buffer_locked(vgdev, vbuf);
+-	rc = virtio_gpu_queue_ctrl_buffer_locked(vgdev, vbuf);
++	virtio_gpu_queue_ctrl_buffer_locked(vgdev, vbuf);
  	spin_unlock(&vgdev->ctrlq.qlock);
-+	if (notify)
-+		virtqueue_notify(vgdev->ctrlq.vq);
+-	return rc;
  }
  
- static void virtio_gpu_queue_cursor(struct virtio_gpu_device *vgdev,
-@@ -339,6 +348,7 @@ static void virtio_gpu_queue_cursor(struct virtio_gpu_device *vgdev,
+-static int virtio_gpu_queue_cursor(struct virtio_gpu_device *vgdev,
+-				   struct virtio_gpu_vbuffer *vbuf)
++static void virtio_gpu_queue_cursor(struct virtio_gpu_device *vgdev,
++				    struct virtio_gpu_vbuffer *vbuf)
  {
  	struct virtqueue *vq = vgdev->cursorq.vq;
  	struct scatterlist *sgs[1], ccmd;
-+	bool notify;
- 	int ret;
+@@ -352,7 +343,7 @@ static int virtio_gpu_queue_cursor(struct virtio_gpu_device *vgdev,
  	int outcnt;
  
-@@ -361,10 +371,13 @@ static void virtio_gpu_queue_cursor(struct virtio_gpu_device *vgdev,
- 		trace_virtio_gpu_cmd_queue(vq,
- 			(struct virtio_gpu_ctrl_hdr *)vbuf->buf);
+ 	if (!vgdev->vqs_ready)
+-		return -ENODEV;
++		return;
  
--		virtqueue_kick(vq);
-+		notify = virtqueue_kick_prepare(vq);
+ 	sg_init_one(&ccmd, vbuf->buf, vbuf->size);
+ 	sgs[0] = &ccmd;
+@@ -374,10 +365,6 @@ static int virtio_gpu_queue_cursor(struct virtio_gpu_device *vgdev,
  	}
  
  	spin_unlock(&vgdev->cursorq.qlock);
-+
-+	if (notify)
-+		virtqueue_notify(vq);
+-
+-	if (!ret)
+-		ret = vq->num_free;
+-	return ret;
  }
  
  /* just create gem objects for userspace and long lived objects,
