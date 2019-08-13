@@ -1,16 +1,19 @@
-From: David Gibson <david@gibson.dropbear.id.au>
-Subject: Re: [RFC PATCH] virtio_ring: Use DMA API if guest memory is encrypted
-Date: Wed, 14 Aug 2019 00:24:39 +1000
-Message-ID: <20190813142439.GO3947__38048.4540875599$1565707681$gmane$org@umbus.fritz.box>
-References: <87zhrj8kcp.fsf@morokweng.localdomain>
-	<20190810143038-mutt-send-email-mst@kernel.org>
-	<20190810220702.GA5964@ram.ibm.com> <20190811055607.GA12488@lst.de>
-	<20190812095156.GD3947@umbus.fritz.box>
-	<20190813132617.GA6426@lst.de>
+From: Sean Christopherson <sean.j.christopherson@intel.com>
+Subject: Re: [RFC PATCH v6 01/92] kvm: introduce KVMI (VM introspection
+	subsystem)
+Date: Tue, 13 Aug 2019 08:01:28 -0700
+Message-ID: <20190813150128.GB13991@linux.intel.com>
+References: <20190809160047.8319-1-alazar@bitdefender.com>
+	<20190809160047.8319-2-alazar@bitdefender.com>
+	<20190812202030.GB1437@linux.intel.com>
+	<5d52a5ae.1c69fb81.5c260.1573SMTPIN_ADDED_BROKEN@mx.google.com>
+	<5fa6bd89-9d02-22cd-24a8-479abaa4f788@redhat.com>
 Mime-Version: 1.0
-Content-Type: multipart/mixed; boundary="===============1660255041622460718=="
+Content-Type: text/plain; charset="utf-8"
+Content-Transfer-Encoding: base64
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <20190813132617.GA6426@lst.de>
+Content-Disposition: inline
+In-Reply-To: <5fa6bd89-9d02-22cd-24a8-479abaa4f788@redhat.com>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -20,89 +23,47 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Christoph Hellwig <hch@lst.de>
-Cc: "Michael S. Tsirkin" <mst@redhat.com>, Benjamin Herrenschmidt <benh@kernel.crashing.org>, Alexey Kardashevskiy <aik@linux.ibm.com>, Ram Pai <linuxram@us.ibm.com>, linux-kernel@vger.kernel.org, virtualization@lists.linux-foundation.org, Paul Mackerras <paulus@ozlabs.org>, iommu@lists.linux-foundation.org, linuxppc-devel@lists.ozlabs.org
+To: Paolo Bonzini <pbonzini@redhat.com>
+Cc: Tamas K Lengyel <tamas@tklengyel.com>, Weijiang Yang <weijiang.yang@intel.com>, Yu C <yu.c.zhang@intel.com>, kvm@vger.kernel.org, Konrad Rzeszutek Wilk <konrad.wilk@oracle.com>, Jan Kiszka <jan.kiszka@siemens.com>, Samuel =?iso-8859-1?Q?Laur=E9n?= <samuel.lauren@iki.fi>, Radim =?utf-8?B?S3LEjW3DocWZ?= <rkrcmar@redhat.com>, Zhang@vger.kernel.org, virtualization@lists.linux-foundation.org, Adalbert =?utf-8?B?TGF6xINy?= <alazar@bitdefender.com>, linux-mm@kvack.org, Patrick Colp <patrick.colp@oracle.com>, Mathieu Tarral <mathieu.tarral@protonmail.com>, Stefan Hajnoczi <stefanha@redhat.com>, Mircea =?iso-8859-1?Q?C=EErjaliu?= <mcirjaliu@bitdefender.com>, Mihai =?utf-8?B?RG9uyJt1?= <mdontu@bitdefender.com>
 List-Id: virtualization@lists.linuxfoundation.org
 
-
---===============1660255041622460718==
-Content-Type: multipart/signed; micalg=pgp-sha256;
-	protocol="application/pgp-signature"; boundary="xexMVKTdXPhpRiVT"
-Content-Disposition: inline
-
-
---xexMVKTdXPhpRiVT
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
-
-On Tue, Aug 13, 2019 at 03:26:17PM +0200, Christoph Hellwig wrote:
-> On Mon, Aug 12, 2019 at 07:51:56PM +1000, David Gibson wrote:
-> > AFAICT we already kind of abuse this for the VIRTIO_F_IOMMU_PLATFORM,
-> > because to handle for cases where it *is* a device limitation, we
-> > assume that if the hypervisor presents VIRTIO_F_IOMMU_PLATFORM then
-> > the guest *must* select it.
-> >=20
-> > What we actually need here is for the hypervisor to present
-> > VIRTIO_F_IOMMU_PLATFORM as available, but not required.  Then we need
-> > a way for the platform core code to communicate to the virtio driver
-> > that *it* requires the IOMMU to be used, so that the driver can select
-> > or not the feature bit on that basis.
->=20
-> I agree with the above, but that just brings us back to the original
-> issue - the whole bypass of the DMA OPS should be an option that the
-> device can offer, not the other way around.  And we really need to
-> fix that root cause instead of doctoring around it.
-
-I'm not exactly sure what you mean by "device" in this context.  Do
-you mean the hypervisor (qemu) side implementation?
-
-You're right that this was the wrong way around to begin with, but as
-well as being hard to change now, I don't see how it really addresses
-the current problem.  The device could default to IOMMU and allow
-bypass, but the driver would still need to get information from the
-platform to know that it *can't* accept that option in the case of a
-secure VM.  Reversed sense, but the same basic problem.
-
-The hypervisor does not, and can not be aware of the secure VM
-restrictions - only the guest side platform code knows that.
-
---=20
-David Gibson			| I'll have my music baroque, and my code
-david AT gibson.dropbear.id.au	| minimalist, thank you.  NOT _the_ _other_
-				| _way_ _around_!
-http://www.ozlabs.org/~dgibson
-
---xexMVKTdXPhpRiVT
-Content-Type: application/pgp-signature; name="signature.asc"
-
------BEGIN PGP SIGNATURE-----
-
-iQIzBAEBCAAdFiEEdfRlhq5hpmzETofcbDjKyiDZs5IFAl1SyCcACgkQbDjKyiDZ
-s5I4bQ//S4EUhoZcI/LsW/VYsc9vUb4nR5PFUpsfHBRPpz5LSCyiE0zj6HPD0NEw
-xx7wFiEoEoijTK2eUAql0bciMMkjU4bktaIRNxHL0gHTJ+bYC0JQK42DBFC6t/9L
-2D5DD8K9CYwIwxjYOPlxaxCEJfVKLLCMwBXmO3n1wbp3DO4ejeOq6TcsFfzF079C
-rj1ofD3aAdjKicydMAWXVOly4fcAimPwCI+CU/hEuAiT5OOsvl3RkOcPQ2psC0kr
-AhWUtFFDmdTosz+3HvByFrQoIsWS833CETD/+h7QPRfcgdDnoctb5QY9oyqSCxvH
-phO1O07WExt8rXrRAWJvP81K0n+b4cTuw8aUKp8qchHopQUrSiUfwM0vLFgbHmPj
-qG+x3Z1XfdMRWJjnst0aF/EMnI3GXl+d2hzMJLbXicj0F4HLnn/F2mkQbXRkOcFw
-8gilmJLNmOhUWo8viy7dc90YU2i0HOQd6h0j+5fyfhYKf+4fWvodL6thBGHWWiTk
-g63CjmoEZByRc5iDwuGf3vRBsFU26hDHYXh3mk8+AEmfZ0zMfE+6NvgEdPOvU82A
-bwQU186bnnTF1AjRiGfC69gX4Dfe077FiFjcDwS6ojR+21MojjdITMsVOKw4ZwfQ
-wwnomYbPb7NjK2QJcSM8AqbQftwvqAIzBtjPEOsknnb4VyoVTXs=
-=2Lh2
------END PGP SIGNATURE-----
-
---xexMVKTdXPhpRiVT--
-
---===============1660255041622460718==
-Content-Type: text/plain; charset="us-ascii"
-MIME-Version: 1.0
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-
-_______________________________________________
-Virtualization mailing list
-Virtualization@lists.linux-foundation.org
-https://lists.linuxfoundation.org/mailman/listinfo/virtualization
---===============1660255041622460718==--
+T24gVHVlLCBBdWcgMTMsIDIwMTkgYXQgMDI6MDk6NTFQTSArMDIwMCwgUGFvbG8gQm9uemluaSB3
+cm90ZToKPiBPbiAxMy8wOC8xOSAxMzo1NywgQWRhbGJlcnQgTGF6xINyIHdyb3RlOgo+ID4+IFRo
+ZSByZWZjb3VudGluZyBhcHByb2FjaCBzZWVtcyBhIGJpdCBiYWNrd2FyZHMsIGFuZCBBRkFJQ1Qg
+aXMgZHJpdmVuIGJ5Cj4gPj4gaW1wbGVtZW50aW5nIHVuaG9vayB2aWEgYSBtZXNzYWdlLCB3aGlj
+aCBhbHNvIHNlZW1zIGJhY2t3YXJkcy4gIEkgYXNzdW1lCj4gPj4gaG9vayBhbmQgdW5ob29rIGFy
+ZSByZWxhdGl2ZWx5IHJhcmUgZXZlbnRzIGFuZCBub3QgcGVyZm9ybWFuY2UgY3JpdGljYWwsCj4g
+Pj4gc28gbWFrZSB0aG9zZSB0aGUgcmVzdHJpY3RlZC9zbG93IGZsb3dzLCBlLmcuIGZvcmNlIHVz
+ZXJzcGFjZSB0byBxdWllc2NlCj4gPj4gdGhlIFZNIGJ5IG1ha2luZyB1bmhvb2soKSBtdXR1YWxs
+eSBleGNsdXNpdmUgd2l0aCBldmVyeSB2Y3B1IGlvY3RsKCkgYW5kCj4gPj4gbWF5YmUgYW55dGhp
+bmcgdGhhdCB0YWtlcyBrdm0tPmxvY2suIAo+ID4+Cj4gPj4gVGhlbiBrdm1pX2lvY3RsX3VuaG9v
+aygpIGNhbiB1c2UgdGhyZWFkX3N0b3AoKSBhbmQga3ZtaV9yZWN2KCkganVzdCBuZWVkcwo+ID4+
+IHRvIGNoZWNrIGt0aHJlYWRfc2hvdWxkX3N0b3AoKS4KPiA+Pgo+ID4+IFRoYXQgd2F5IGt2bWkg
+ZG9lc24ndCBuZWVkIHRvIGJlIHJlZmNvdW50ZWQgc2luY2UgaXQncyBndWFyYW50ZWVkIHRvIGJl
+Cj4gPj4gYWxpdmUgaWYgdGhlIHBvaW50ZXIgaXMgbm9uLW51bGwuICBFbGltaW5hdGluZyB0aGUg
+cmVmY291bnRpbmcgd2lsbCBjbGVhbgo+ID4+IHVwIGEgbG90IG9mIHRoZSBjb2RlIGJ5IGVsaW1p
+bmF0aW5nIGNhbGxzIHRvIGt2bWlfe2dldCxwdXR9KCksIGUuZy4KPiA+PiB3cmFwcGVycyBsaWtl
+IGt2bWlfYnJlYWtwb2ludF9ldmVudCgpIGp1c3QgY2hlY2sgdmNwdS0+a3ZtaSwgb3IgbWF5YmUK
+PiA+PiBldmVuIGdldCBkcm9wcGVkIGFsdG9nZXRoZXIuCj4gPiAKPiA+IFRoZSB1bmhvb2sgZXZl
+bnQgaGFzIGJlZW4gYWRkZWQgdG8gY292ZXIgdGhlIGZvbGxvd2luZyBjYXNlOiB3aGlsZSB0aGUK
+PiA+IGludHJvc3BlY3Rpb24gdG9vbCBydW5zIGluIGFub3RoZXIgVk0sIGJvdGggVk1zLCB0aGUg
+dmlydHVhbCBhcHBsaWFuY2UKPiA+IGFuZCB0aGUgaW50cm9zcGVjdGVkIFZNLCBjb3VsZCBiZSBw
+YXVzZWQgYnkgdGhlIHVzZXIuIFdlIG5lZWRlZCBhIHdheQo+ID4gdG8gc2lnbmFsIHRoaXMgdG8g
+dGhlIGludHJvc3BlY3Rpb24gdG9vbCBhbmQgZ2l2ZSBpdCB0aW1lIHRvIHVuaG9vawo+ID4gKHRo
+ZSBpbnRyb3NwZWN0ZWQgVk0gaGFzIHRvIHJ1biBhbmQgZXhlY3V0ZSB0aGUgaW50cm9zcGVjdGlv
+biBjb21tYW5kcwo+ID4gZHVyaW5nIHRoaXMgcGhhc2UpLiBUaGUgcmVjZWl2aW5nIHRocmVhZHMg
+cXVpdHMgd2hlbiB0aGUgc29ja2V0IGlzIGNsb3NlZAo+ID4gKGJ5IFFFTVUgb3IgYnkgdGhlIGlu
+dHJvc3BlY3Rpb24gdG9vbCkuCgpXaHkgZG9lcyBjbG9zaW5nIHRoZSBzb2NrZXQgcmVxdWlyZSBk
+ZXN0cm95aW5nIHRoZSBrdm1pIG9iamVjdD8gIEUuZy4gY2FuCml0IGJlIG1hcmtlZCBhcyBkZWZ1
+bmN0IG9yIHdoYXRldmVyIGFuZCBvbmx5IGZ1bGx5IHJlbW92ZWQgb24gYSBzeW5jaHJvbm91cwp1
+bmhvb2sgZnJvbSB1c2Vyc3BhY2U/ICBSZS1ob29raW5nIGNvdWxkIGVpdGhlciByZXF1aXJlIHNh
+aWQgdW5ob29rLCBvcgptYXliZSByZXVzZSB0aGUgZXhpc3Rpbmcga3ZtaSBvYmplY3Qgd2l0aCBh
+IG5ldyBzb2NrZXQuCgo+ID4gSXQncyBhIGJpdCB1bmNsZWFyIGhvdywgYnV0IHdlJ2xsIHRyeSB0
+byBnZXQgcmlkZSBvZiB0aGUgcmVmY291bnQgb2JqZWN0LAo+ID4gd2hpY2ggd2lsbCByZW1vdmUg
+YSBsb3Qgb2YgY29kZSwgaW5kZWVkLgo+IAo+IFlvdSBjYW4ga2VlcCBpdCBmb3Igbm93LiAgSXQg
+bWF5IGJlY29tZSBjbGVhcmVyIGhvdyB0byBmaXggaXQgYWZ0ZXIgdGhlCj4gZXZlbnQgbG9vcCBp
+cyBjbGVhbmVkIHVwLgoKQnkgZXZlbnQgbG9vcCwgZG8geW91IG1lYW4gdGhlIHBlci12Q1BVIGpv
+YnMgbGlzdD8KX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX18K
+VmlydHVhbGl6YXRpb24gbWFpbGluZyBsaXN0ClZpcnR1YWxpemF0aW9uQGxpc3RzLmxpbnV4LWZv
+dW5kYXRpb24ub3JnCmh0dHBzOi8vbGlzdHMubGludXhmb3VuZGF0aW9uLm9yZy9tYWlsbWFuL2xp
+c3RpbmZvL3ZpcnR1YWxpemF0aW9u
