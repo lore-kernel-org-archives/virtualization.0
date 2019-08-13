@@ -1,15 +1,13 @@
-From: Paolo Bonzini <pbonzini@redhat.com>
-Subject: Re: [RFC PATCH v6 26/92] kvm: x86: add kvm_mmu_nested_pagefault()
-Date: Tue, 13 Aug 2019 10:12:54 +0200
-Message-ID: <a35a1d7c-fa36-c4f2-e8e6-7a242789364e@redhat.com>
-References: <20190809160047.8319-1-alazar@bitdefender.com>
-	<20190809160047.8319-27-alazar@bitdefender.com>
+From: Gerd Hoffmann <kraxel@redhat.com>
+Subject: [PATCH 2/2] drm/virtio: notify virtqueues without holding spinlock
+Date: Tue, 13 Aug 2019 10:25:09 +0200
+Message-ID: <20190813082509.29324-3-kraxel__11780.5880656064$1565684728$gmane$org@redhat.com>
+References: <20190813082509.29324-1-kraxel@redhat.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="utf-8"
-Content-Transfer-Encoding: base64
+Content-Type: text/plain; charset="us-ascii"
+Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <20190809160047.8319-27-alazar@bitdefender.com>
-Content-Language: en-US
+In-Reply-To: <20190813082509.29324-1-kraxel@redhat.com>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -19,19 +17,114 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: =?UTF-8?Q?Adalbert_Laz=c4=83r?= <alazar@bitdefender.com>, kvm@vger.kernel.org
-Cc: Tamas K Lengyel <tamas@tklengyel.com>, Weijiang Yang <weijiang.yang@intel.com>, Yu C Zhang <yu.c.zhang@intel.com>, =?UTF-8?B?UmFkaW0gS3LEjW3DocWZ?= <rkrcmar@redhat.com>, Jan Kiszka <jan.kiszka@siemens.com>, =?UTF-8?Q?Samuel_Laur=c3=a9n?= <samuel.lauren@iki.fi>, Konrad Rzeszutek Wilk <konrad.wilk@oracle.com>, virtualization@lists.linux-foundation.org, linux-mm@kvack.org, Patrick Colp <patrick.colp@oracle.com>, =?UTF-8?B?TmljdciZb3IgQ8OuyJt1?= <ncitu@bitdefender.com>, Mathieu Tarral <mathieu.tarral@protonmail.com>, Stefan Hajnoczi <stefanha@redhat.com>, =?UTF-8?Q?Mihai_Don=c8=9bu?= <mdontu@bitdefender.com>
+To: dri-devel@lists.freedesktop.org
+Cc: David Airlie <airlied@linux.ie>, open list <linux-kernel@vger.kernel.org>, "open list:VIRTIO GPU DRIVER" <virtualization@lists.linux-foundation.org>, Daniel Vetter <daniel@ffwll.ch>, olvaffe@gmail.com
 List-Id: virtualization@lists.linuxfoundation.org
 
-T24gMDkvMDgvMTkgMTc6NTksIEFkYWxiZXJ0IExhesSDciB3cm90ZToKPiArc3RhdGljIGJvb2wg
-dm14X25lc3RlZF9wYWdlZmF1bHQoc3RydWN0IGt2bV92Y3B1ICp2Y3B1KQo+ICt7Cj4gKwlpZiAo
-dmNwdS0+YXJjaC5leGl0X3F1YWxpZmljYXRpb24gJiBFUFRfVklPTEFUSU9OX0dWQV9UUkFOU0xB
-VEVEKQo+ICsJCXJldHVybiBmYWxzZTsKPiArCXJldHVybiB0cnVlOwo+ICt9Cj4gKwoKVGhpcyBo
-b29rIGlzIG1pc25hbWVkOyBpdCBoYXMgbm90aGluZyB0byBkbyB3aXRoIG5lc3RlZCB2aXJ0dWFs
-aXphdGlvbi4KIFJhdGhlciwgaXQgcmV0dXJucyB0cnVlIGlmIGl0IHRoZSBmYWlsdXJlIGhhcHBl
-bmVkIHdoaWxlIHRyYW5zbGF0aW5nCnRoZSBhZGRyZXNzIG9mIGEgZ3Vlc3QgcGFnZSB0YWJsZS4K
-ClNWTSBtYWtlcyB0aGUgc2FtZSBpbmZvcm1hdGlvbiBhdmFpbGFibGUgaW4gRVhJVElORk9bMzNd
-LgoKUGFvbG8KX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX18K
-VmlydHVhbGl6YXRpb24gbWFpbGluZyBsaXN0ClZpcnR1YWxpemF0aW9uQGxpc3RzLmxpbnV4LWZv
-dW5kYXRpb24ub3JnCmh0dHBzOi8vbGlzdHMubGludXhmb3VuZGF0aW9uLm9yZy9tYWlsbWFuL2xp
-c3RpbmZvL3ZpcnR1YWxpemF0aW9u
+Split virtqueue_kick() call into virtqueue_kick_prepare(), which
+requires serialization, and virtqueue_notify(), which does not.  Move
+the virtqueue_notify() call out of the critical section protected by the
+queue lock.  This avoids triggering a vmexit while holding the lock and
+thereby fixes a rather bad spinlock contention.
+
+Suggested-by: Chia-I Wu <olvaffe@gmail.com>
+Signed-off-by: Gerd Hoffmann <kraxel@redhat.com>
+---
+ drivers/gpu/drm/virtio/virtgpu_vq.c | 25 +++++++++++++++++++------
+ 1 file changed, 19 insertions(+), 6 deletions(-)
+
+diff --git a/drivers/gpu/drm/virtio/virtgpu_vq.c b/drivers/gpu/drm/virtio/virtgpu_vq.c
+index ca91e83ffaef..e41c96143342 100644
+--- a/drivers/gpu/drm/virtio/virtgpu_vq.c
++++ b/drivers/gpu/drm/virtio/virtgpu_vq.c
+@@ -252,7 +252,7 @@ void virtio_gpu_dequeue_cursor_func(struct work_struct *work)
+ 	wake_up(&vgdev->cursorq.ack_queue);
+ }
+ 
+-static void virtio_gpu_queue_ctrl_buffer_locked(struct virtio_gpu_device *vgdev,
++static bool virtio_gpu_queue_ctrl_buffer_locked(struct virtio_gpu_device *vgdev,
+ 						struct virtio_gpu_vbuffer *vbuf)
+ 		__releases(&vgdev->ctrlq.qlock)
+ 		__acquires(&vgdev->ctrlq.qlock)
+@@ -260,10 +260,11 @@ static void virtio_gpu_queue_ctrl_buffer_locked(struct virtio_gpu_device *vgdev,
+ 	struct virtqueue *vq = vgdev->ctrlq.vq;
+ 	struct scatterlist *sgs[3], vcmd, vout, vresp;
+ 	int outcnt = 0, incnt = 0;
++	bool notify = false;
+ 	int ret;
+ 
+ 	if (!vgdev->vqs_ready)
+-		return;
++		return notify;
+ 
+ 	sg_init_one(&vcmd, vbuf->buf, vbuf->size);
+ 	sgs[outcnt + incnt] = &vcmd;
+@@ -292,16 +293,21 @@ static void virtio_gpu_queue_ctrl_buffer_locked(struct virtio_gpu_device *vgdev,
+ 		trace_virtio_gpu_cmd_queue(vq,
+ 			(struct virtio_gpu_ctrl_hdr *)vbuf->buf);
+ 
+-		virtqueue_kick(vq);
++		notify = virtqueue_kick_prepare(vq);
+ 	}
++	return notify;
+ }
+ 
+ static void virtio_gpu_queue_ctrl_buffer(struct virtio_gpu_device *vgdev,
+ 					 struct virtio_gpu_vbuffer *vbuf)
+ {
++	bool notify;
++
+ 	spin_lock(&vgdev->ctrlq.qlock);
+-	virtio_gpu_queue_ctrl_buffer_locked(vgdev, vbuf);
++	notify = virtio_gpu_queue_ctrl_buffer_locked(vgdev, vbuf);
+ 	spin_unlock(&vgdev->ctrlq.qlock);
++	if (notify)
++		virtqueue_notify(vgdev->ctrlq.vq);
+ }
+ 
+ static void virtio_gpu_queue_fenced_ctrl_buffer(struct virtio_gpu_device *vgdev,
+@@ -310,6 +316,7 @@ static void virtio_gpu_queue_fenced_ctrl_buffer(struct virtio_gpu_device *vgdev,
+ 						struct virtio_gpu_fence *fence)
+ {
+ 	struct virtqueue *vq = vgdev->ctrlq.vq;
++	bool notify;
+ 
+ again:
+ 	spin_lock(&vgdev->ctrlq.qlock);
+@@ -330,8 +337,10 @@ static void virtio_gpu_queue_fenced_ctrl_buffer(struct virtio_gpu_device *vgdev,
+ 
+ 	if (fence)
+ 		virtio_gpu_fence_emit(vgdev, hdr, fence);
+-	virtio_gpu_queue_ctrl_buffer_locked(vgdev, vbuf);
++	notify = virtio_gpu_queue_ctrl_buffer_locked(vgdev, vbuf);
+ 	spin_unlock(&vgdev->ctrlq.qlock);
++	if (notify)
++		virtqueue_notify(vgdev->ctrlq.vq);
+ }
+ 
+ static void virtio_gpu_queue_cursor(struct virtio_gpu_device *vgdev,
+@@ -339,6 +348,7 @@ static void virtio_gpu_queue_cursor(struct virtio_gpu_device *vgdev,
+ {
+ 	struct virtqueue *vq = vgdev->cursorq.vq;
+ 	struct scatterlist *sgs[1], ccmd;
++	bool notify;
+ 	int ret;
+ 	int outcnt;
+ 
+@@ -361,10 +371,13 @@ static void virtio_gpu_queue_cursor(struct virtio_gpu_device *vgdev,
+ 		trace_virtio_gpu_cmd_queue(vq,
+ 			(struct virtio_gpu_ctrl_hdr *)vbuf->buf);
+ 
+-		virtqueue_kick(vq);
++		notify = virtqueue_kick_prepare(vq);
+ 	}
+ 
+ 	spin_unlock(&vgdev->cursorq.qlock);
++
++	if (notify)
++		virtqueue_notify(vq);
+ }
+ 
+ /* just create gem objects for userspace and long lived objects,
+-- 
+2.18.1
