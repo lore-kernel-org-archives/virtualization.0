@@ -1,19 +1,11 @@
-From: Paolo Bonzini <pbonzini@redhat.com>
-Subject: Re: [RFC PATCH v6 01/92] kvm: introduce KVMI (VM introspection
-	subsystem)
-Date: Tue, 13 Aug 2019 23:03:10 +0200
-Message-ID: <add4f505-7011-c7f4-2361-c8814cac2424@redhat.com>
-References: <20190809160047.8319-1-alazar@bitdefender.com>
-	<20190809160047.8319-2-alazar@bitdefender.com>
-	<20190812202030.GB1437@linux.intel.com>
-	<5d52a5ae.1c69fb81.5c260.1573SMTPIN_ADDED_BROKEN@mx.google.com>
-	<5fa6bd89-9d02-22cd-24a8-479abaa4f788@redhat.com>
-	<20190813150128.GB13991@linux.intel.com>
+From: ? jiang <jiangkidd@hotmail.com>
+Subject: [PATCH] virtio-net: lower min ring num_free for efficiency
+Date: Wed, 14 Aug 2019 02:06:48 +0000
+Message-ID: <BYAPR14MB3205E4E194942B0A1A91A222A6AD0@BYAPR14MB3205.namprd14.prod.outlook.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <20190813150128.GB13991@linux.intel.com>
 Content-Language: en-US
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
@@ -24,17 +16,33 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Sean Christopherson <sean.j.christopherson@intel.com>
-Cc: Tamas K Lengyel <tamas@tklengyel.com>, Weijiang Yang <weijiang.yang@intel.com>, Yu C <yu.c.zhang@intel.com>, kvm@vger.kernel.org, Konrad Rzeszutek Wilk <konrad.wilk@oracle.com>, Jan Kiszka <jan.kiszka@siemens.com>, =?UTF-8?Q?Samuel_Laur=c3=a9n?= <samuel.lauren@iki.fi>, =?UTF-8?B?UmFkaW0gS3LEjW3DocWZ?= <rkrcmar@redhat.com>, Zhang@vger.kernel.org, virtualization@lists.linux-foundation.org, =?UTF-8?Q?Adalbert_Laz=c4=83r?= <alazar@bitdefender.com>, linux-mm@kvack.org, Patrick Colp <patrick.colp@oracle.com>, Mathieu Tarral <mathieu.tarral@protonmail.com>, Stefan Hajnoczi <stefanha@redhat.com>, =?UTF-8?Q?Mircea_C=c3=aerjaliu?= <mcirjaliu@bitdefender.com>, =?UTF-8?Q?Mihai_Don=c8=9bu?= <mdontu@bitdefender.com>
+To: "mst@redhat.com" <mst@redhat.com>
+Cc: "xdp-newbies@vger.kernel.org" <xdp-newbies@vger.kernel.org>, "songliubraving@fb.com" <songliubraving@fb.com>, "jakub.kicinski@netronome.com" <jakub.kicinski@netronome.com>, "hawk@kernel.org" <hawk@kernel.org>, "daniel@iogearbox.net" <daniel@iogearbox.net>, "jiangran.jr@alibaba-inc.com" <jiangran.jr@alibaba-inc.com>, "netdev@vger.kernel.org" <netdev@vger.kernel.org>, "john.fastabend@gmail.com" <john.fastabend@gmail.com>, "ast@kernel.org" <ast@kernel.org>, "kafai@fb.com" <kafai@fb.com>, ? jiang <jiangkidd@hotmail.com>, "yhs@fb.com" <yhs@fb.com>, "bpf@vger.kernel.org" <bpf@vger.kernel.org>, "virtualization@lists.linux-foundation.org" <virtualization@lists.linux-foundation.org>, "davem@davemloft.net" <davem@davemloft.net>, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>
 List-Id: virtualization@lists.linuxfoundation.org
 
-On 13/08/19 17:01, Sean Christopherson wrote:
->>> It's a bit unclear how, but we'll try to get ride of the refcount object,
->>> which will remove a lot of code, indeed.
->> You can keep it for now.  It may become clearer how to fix it after the
->> event loop is cleaned up.
-> By event loop, do you mean the per-vCPU jobs list?
+This change lowers ring buffer reclaim threshold from 1/2*queue to budget
+for better performance. According to our test with qemu + dpdk, packet
+dropping happens when the guest is not able to provide free buffer in
+avail ring timely with default 1/2*queue. The value in the patch has been
+tested and does show better performance.
 
-Yes, I meant event handling (which involves the jobs list).
+Signed-off-by: jiangkidd <jiangkidd@hotmail.com>
+---
+ drivers/net/virtio_net.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-Paolo
+diff --git a/drivers/net/virtio_net.c b/drivers/net/virtio_net.c
+index 0d4115c9e20b..bc08be7925eb 100644
+--- a/drivers/net/virtio_net.c
++++ b/drivers/net/virtio_net.c
+@@ -1331,7 +1331,7 @@ static int virtnet_receive(struct receive_queue *rq, int budget,
+ 		}
+ 	}
+ 
+-	if (rq->vq->num_free > virtqueue_get_vring_size(rq->vq) / 2) {
++	if (rq->vq->num_free > min((unsigned int)budget, virtqueue_get_vring_size(rq->vq)) / 2) {
+ 		if (!try_fill_recv(vi, rq, GFP_ATOMIC))
+ 			schedule_delayed_work(&vi->refill, 0);
+ 	}
+-- 
+2.11.0
