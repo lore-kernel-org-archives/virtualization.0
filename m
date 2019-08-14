@@ -1,18 +1,19 @@
 From: Adalbert =?iso-8859-2?b?TGF643I=?= <alazar@bitdefender.com>
-Subject: Re: [RFC PATCH v6 14/92] kvm: introspection: handle introspection
-	commands before returning to guest
-Date: Wed, 14 Aug 2019 12:39:31 +0300
-Message-ID: <46222.6762714394$1565775558@news.gmane.org>
+Subject: Re: [RFC PATCH v6 01/92] kvm: introduce KVMI (VM introspection
+	subsystem)
+Date: Wed, 14 Aug 2019 12:48:22 +0300
+Message-ID: <9440.49299448437$1565776090@news.gmane.org>
 References: <20190809160047.8319-1-alazar@bitdefender.com>
-	<20190809160047.8319-15-alazar@bitdefender.com>
-	<645d86f5-67f6-f5d3-3fbb-5ee9898a7ef8@redhat.com>
-	<5d52c10e.1c69fb81.26904.fd34SMTPIN_ADDED_BROKEN@mx.google.com>
-	<97cdf9cb-286c-2387-6cb5-003b30f74c7e@redhat.com>
+	<20190809160047.8319-2-alazar@bitdefender.com>
+	<20190812202030.GB1437@linux.intel.com>
+	<5d52a5ae.1c69fb81.5c260.1573SMTPIN_ADDED_BROKEN@mx.google.com>
+	<5fa6bd89-9d02-22cd-24a8-479abaa4f788@redhat.com>
+	<20190813150128.GB13991@linux.intel.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="utf-8"
 Content-Transfer-Encoding: base64
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <97cdf9cb-286c-2387-6cb5-003b30f74c7e@redhat.com>
+In-Reply-To: <20190813150128.GB13991@linux.intel.com>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -22,28 +23,48 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Paolo Bonzini <pbonzini@redhat.com>, kvm@vger.kernel.org
-Cc: Tamas K Lengyel <tamas@tklengyel.com>, Weijiang Yang <weijiang.yang@intel.com>, Yu C Zhang <yu.c.zhang@intel.com>, Radim =?iso-8859-2?b?S3LobeH4?= <rkrcmar@redhat.com>, Jan Kiszka <jan.kiszka@siemens.com>, Samuel =?iso-8859-1?q?Laur=E9n?= <samuel.lauren@iki.fi>, Konrad Rzeszutek Wilk <konrad.wilk@oracle.com>, virtualization@lists.linux-foundation.org, linux-mm@kvack.org, Patrick Colp <patrick.colp@oracle.com>, Mathieu Tarral <mathieu.tarral@protonmail.com>, Stefan Hajnoczi <stefanha@redhat.com>, Mircea =?iso-8859-1?q?C=EErjaliu?= <mcirjaliu@bitdefender.com>, Mihai =?UTF-8?b?RG9uyJt1?= <mdontu@bitdefender.com>
+To: Sean Christopherson <sean.j.christopherson@intel.com>, Paolo Bonzini <pbonzini@redhat.com>
+Cc: Tamas K Lengyel <tamas@tklengyel.com>, Weijiang Yang <weijiang.yang@intel.com>, Yu C <yu.c.zhang@intel.com>, kvm@vger.kernel.org, Konrad Rzeszutek Wilk <konrad.wilk@oracle.com>, Jan Kiszka <jan.kiszka@siemens.com>, Samuel =?iso-8859-1?q?Laur=E9n?= <samuel.lauren@iki.fi>, Radim =?iso-8859-2?b?S3LobeH4?= <rkrcmar@redhat.com>, Zhang@vger.kernel.org, virtualization@lists.linux-foundation.org, linux-mm@kvack.org, Patrick Colp <patrick.colp@oracle.com>, Mathieu Tarral <mathieu.tarral@protonmail.com>, Stefan Hajnoczi <stefanha@redhat.com>, Mircea =?iso-8859-1?q?C=EErjaliu?= <mcirjaliu@bitdefender.com>, Mihai =?UTF-8?b?RG9uyJt1?= <mdontu@bitdefender.com>
 List-Id: virtualization@lists.linuxfoundation.org
 
-T24gVHVlLCAxMyBBdWcgMjAxOSAxNjo0NToxMSArMDIwMCwgUGFvbG8gQm9uemluaSA8cGJvbnpp
-bmlAcmVkaGF0LmNvbT4gd3JvdGU6Cj4gT24gMTMvMDgvMTkgMTU6NTQsIEFkYWxiZXJ0IExhesSD
-ciB3cm90ZToKPiA+ICAgICBMZWF2aW5nIGt2bV92Y3B1X2Jsb2NrKCkgaW4gb3JkZXIgdG8gaGFu
-ZGxlIGEgcmVxdWVzdCBzdWNoIGFzICdwYXVzZScsCj4gPiAgICAgd291bGQgY2F1c2UgdGhlIHZD
-UFUgdG8gZW50ZXIgdGhlIGd1ZXN0IHdoZW4gcmVzdW1lZC4gTW9zdCBvZiB0aGUKPiA+ICAgICB0
-aW1lIHRoaXMgZG9lcyBub3QgYXBwZWFyIHRvIGJlIGFuIGlzc3VlLCBidXQgZHVyaW5nIGVhcmx5
-IGJvb3QgaXQKPiA+ICAgICBjYW4gaGFwcGVuIGZvciBhIG5vbi1ib290IHZDUFUgdG8gc3RhcnQg
-ZXhlY3V0aW5nIGNvZGUgZnJvbSBhcmVhcyB0aGF0Cj4gPiAgICAgZmlyc3QgbmVlZGVkIHRvIGJl
-IHNldCB1cCBieSB2Q1BVICMwLgo+ID4gICAgIAo+ID4gICAgIEluIGEgcGFydGljdWxhciBjYXNl
-LCB2Q1BVICMxIGV4ZWN1dGVkIGNvZGUgd2hpY2ggcmVzaWRlZCBpbiBhbiBhcmVhCj4gPiAgICAg
-bm90IGNvdmVyZWQgYnkgYSBtZW1zbG90LCB3aGljaCBjYXVzZWQgYW4gRVBUIHZpb2xhdGlvbiB0
-aGF0IGdvdAo+ID4gICAgIHR1cm5lZCBpbiBtbXVfc2V0X3NwdGUoKSBpbnRvIGEgTU1JTyByZXF1
-ZXN0IHRoYXQgcmVxdWlyZWQgZW11bGF0aW9uLgo+ID4gICAgIFVuZm9ydHVuYXRlbGx5LCB0aGUg
-ZW11bGF0b3IgdHJpcHBlZCwgZXhpdGVkIHRvIHVzZXJzcGFjZSBhbmQgdGhlIFZNCj4gPiAgICAg
-d2FzIGFib3J0ZWQuCj4gCj4gT2theSwgdGhpcyBtYWtlcyBzZW5zZS4gIE1heWJlIHlvdSB3YW50
-IHRvIGhhbmRsZSBLVk1fUkVRX0lOVFJPU1BFQ1RJT04KPiBpbiB2Y3B1X3J1biByYXRoZXIgdGhh
-biB2Y3B1X2VudGVyX2d1ZXN0Pwo+IAo+IFBhb2xvCgpSaWdodCEgV2UndmUgbWlzc2VkIHRoYXQu
-Cl9fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fClZpcnR1YWxp
-emF0aW9uIG1haWxpbmcgbGlzdApWaXJ0dWFsaXphdGlvbkBsaXN0cy5saW51eC1mb3VuZGF0aW9u
-Lm9yZwpodHRwczovL2xpc3RzLmxpbnV4Zm91bmRhdGlvbi5vcmcvbWFpbG1hbi9saXN0aW5mby92
-aXJ0dWFsaXphdGlvbg==
+T24gVHVlLCAxMyBBdWcgMjAxOSAwODowMToyOCAtMDcwMCwgU2VhbiBDaHJpc3RvcGhlcnNvbiA8
+c2Vhbi5qLmNocmlzdG9waGVyc29uQGludGVsLmNvbT4gd3JvdGU6Cj4gT24gVHVlLCBBdWcgMTMs
+IDIwMTkgYXQgMDI6MDk6NTFQTSArMDIwMCwgUGFvbG8gQm9uemluaSB3cm90ZToKPiA+IE9uIDEz
+LzA4LzE5IDEzOjU3LCBBZGFsYmVydCBMYXrEg3Igd3JvdGU6Cj4gPiA+PiBUaGUgcmVmY291bnRp
+bmcgYXBwcm9hY2ggc2VlbXMgYSBiaXQgYmFja3dhcmRzLCBhbmQgQUZBSUNUIGlzIGRyaXZlbiBi
+eQo+ID4gPj4gaW1wbGVtZW50aW5nIHVuaG9vayB2aWEgYSBtZXNzYWdlLCB3aGljaCBhbHNvIHNl
+ZW1zIGJhY2t3YXJkcy4gIEkgYXNzdW1lCj4gPiA+PiBob29rIGFuZCB1bmhvb2sgYXJlIHJlbGF0
+aXZlbHkgcmFyZSBldmVudHMgYW5kIG5vdCBwZXJmb3JtYW5jZSBjcml0aWNhbCwKPiA+ID4+IHNv
+IG1ha2UgdGhvc2UgdGhlIHJlc3RyaWN0ZWQvc2xvdyBmbG93cywgZS5nLiBmb3JjZSB1c2Vyc3Bh
+Y2UgdG8gcXVpZXNjZQo+ID4gPj4gdGhlIFZNIGJ5IG1ha2luZyB1bmhvb2soKSBtdXR1YWxseSBl
+eGNsdXNpdmUgd2l0aCBldmVyeSB2Y3B1IGlvY3RsKCkgYW5kCj4gPiA+PiBtYXliZSBhbnl0aGlu
+ZyB0aGF0IHRha2VzIGt2bS0+bG9jay4gCj4gPiA+Pgo+ID4gPj4gVGhlbiBrdm1pX2lvY3RsX3Vu
+aG9vaygpIGNhbiB1c2UgdGhyZWFkX3N0b3AoKSBhbmQga3ZtaV9yZWN2KCkganVzdCBuZWVkcwo+
+ID4gPj4gdG8gY2hlY2sga3RocmVhZF9zaG91bGRfc3RvcCgpLgo+ID4gPj4KPiA+ID4+IFRoYXQg
+d2F5IGt2bWkgZG9lc24ndCBuZWVkIHRvIGJlIHJlZmNvdW50ZWQgc2luY2UgaXQncyBndWFyYW50
+ZWVkIHRvIGJlCj4gPiA+PiBhbGl2ZSBpZiB0aGUgcG9pbnRlciBpcyBub24tbnVsbC4gIEVsaW1p
+bmF0aW5nIHRoZSByZWZjb3VudGluZyB3aWxsIGNsZWFuCj4gPiA+PiB1cCBhIGxvdCBvZiB0aGUg
+Y29kZSBieSBlbGltaW5hdGluZyBjYWxscyB0byBrdm1pX3tnZXQscHV0fSgpLCBlLmcuCj4gPiA+
+PiB3cmFwcGVycyBsaWtlIGt2bWlfYnJlYWtwb2ludF9ldmVudCgpIGp1c3QgY2hlY2sgdmNwdS0+
+a3ZtaSwgb3IgbWF5YmUKPiA+ID4+IGV2ZW4gZ2V0IGRyb3BwZWQgYWx0b2dldGhlci4KPiA+ID4g
+Cj4gPiA+IFRoZSB1bmhvb2sgZXZlbnQgaGFzIGJlZW4gYWRkZWQgdG8gY292ZXIgdGhlIGZvbGxv
+d2luZyBjYXNlOiB3aGlsZSB0aGUKPiA+ID4gaW50cm9zcGVjdGlvbiB0b29sIHJ1bnMgaW4gYW5v
+dGhlciBWTSwgYm90aCBWTXMsIHRoZSB2aXJ0dWFsIGFwcGxpYW5jZQo+ID4gPiBhbmQgdGhlIGlu
+dHJvc3BlY3RlZCBWTSwgY291bGQgYmUgcGF1c2VkIGJ5IHRoZSB1c2VyLiBXZSBuZWVkZWQgYSB3
+YXkKPiA+ID4gdG8gc2lnbmFsIHRoaXMgdG8gdGhlIGludHJvc3BlY3Rpb24gdG9vbCBhbmQgZ2l2
+ZSBpdCB0aW1lIHRvIHVuaG9vawo+ID4gPiAodGhlIGludHJvc3BlY3RlZCBWTSBoYXMgdG8gcnVu
+IGFuZCBleGVjdXRlIHRoZSBpbnRyb3NwZWN0aW9uIGNvbW1hbmRzCj4gPiA+IGR1cmluZyB0aGlz
+IHBoYXNlKS4gVGhlIHJlY2VpdmluZyB0aHJlYWRzIHF1aXRzIHdoZW4gdGhlIHNvY2tldCBpcyBj
+bG9zZWQKPiA+ID4gKGJ5IFFFTVUgb3IgYnkgdGhlIGludHJvc3BlY3Rpb24gdG9vbCkuCj4gCj4g
+V2h5IGRvZXMgY2xvc2luZyB0aGUgc29ja2V0IHJlcXVpcmUgZGVzdHJveWluZyB0aGUga3ZtaSBv
+YmplY3Q/ICBFLmcuIGNhbgo+IGl0IGJlIG1hcmtlZCBhcyBkZWZ1bmN0IG9yIHdoYXRldmVyIGFu
+ZCBvbmx5IGZ1bGx5IHJlbW92ZWQgb24gYSBzeW5jaHJvbm91cwo+IHVuaG9vayBmcm9tIHVzZXJz
+cGFjZT8gIFJlLWhvb2tpbmcgY291bGQgZWl0aGVyIHJlcXVpcmUgc2FpZCB1bmhvb2ssIG9yCj4g
+bWF5YmUgcmV1c2UgdGhlIGV4aXN0aW5nIGt2bWkgb2JqZWN0IHdpdGggYSBuZXcgc29ja2V0LgoK
+V2lsbCBpdCBiZSBiZXR0ZXIgdG8gaGF2ZSB0aGUgZm9sbG93aW5nIGlvY3Rscz8KCiAgLSBob29r
+IChhbGxvYyBrdm1pIGFuZCBrdm1pX3ZjcHUgc3RydWN0cykKICAtIG5vdGlmeV9pbW1pbmVudF91
+bmhvb2sgKHNlbmQgdGhlIEtWTUlfRVZFTlRfVU5IT09LIGV2ZW50KQogIC0gdW5ob29rIChmcmVl
+IGt2bWkgYW5kIGt2bWlfdmNwdSBzdHJ1Y3RzKQpfX19fX19fX19fX19fX19fX19fX19fX19fX19f
+X19fX19fX19fX19fX19fX19fXwpWaXJ0dWFsaXphdGlvbiBtYWlsaW5nIGxpc3QKVmlydHVhbGl6
+YXRpb25AbGlzdHMubGludXgtZm91bmRhdGlvbi5vcmcKaHR0cHM6Ly9saXN0cy5saW51eGZvdW5k
+YXRpb24ub3JnL21haWxtYW4vbGlzdGluZm8vdmlydHVhbGl6YXRpb24=
