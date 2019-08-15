@@ -1,14 +1,12 @@
-From: Jason Wang <jasowang@redhat.com>
-Subject: Re: [PATCH v2] virtio-net: lower min ring num_free for efficiency
-Date: Thu, 15 Aug 2019 17:55:17 +0800
-Message-ID: <f26c808a-180a-6c85-637c-17629f2906e4__47407.2011232906$1565862939$gmane$org@redhat.com>
-References: <BYAPR14MB32058F4B2AD162F5421BB9B4A6AC0@BYAPR14MB3205.namprd14.prod.outlook.com>
+From: Tom Murphy <murphyt7@tcd.ie>
+Subject: [PATCH V5 0/5] iommu/amd: Convert the AMD iommu driver to the
+	dma-iommu api
+Date: Thu, 15 Aug 2019 12:09:38 +0100
+Message-ID: <20190815110944.3579-1-murphyt7__44306.0683713824$1565867429$gmane$org@tcd.ie>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="utf-8"; Format="flowed"
-Content-Transfer-Encoding: base64
+Content-Type: text/plain; charset="us-ascii"
+Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <BYAPR14MB32058F4B2AD162F5421BB9B4A6AC0@BYAPR14MB3205.namprd14.prod.outlook.com>
-Content-Language: en-US
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -18,33 +16,59 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: ? jiang <jiangkidd@hotmail.com>, "mst@redhat.com" <mst@redhat.com>
-Cc: "xdp-newbies@vger.kernel.org" <xdp-newbies@vger.kernel.org>, "songliubraving@fb.com" <songliubraving@fb.com>, "jakub.kicinski@netronome.com" <jakub.kicinski@netronome.com>, "hawk@kernel.org" <hawk@kernel.org>, "daniel@iogearbox.net" <daniel@iogearbox.net>, "jiangran.jr@alibaba-inc.com" <jiangran.jr@alibaba-inc.com>, "netdev@vger.kernel.org" <netdev@vger.kernel.org>, "john.fastabend@gmail.com" <john.fastabend@gmail.com>, "ast@kernel.org" <ast@kernel.org>, "kafai@fb.com" <kafai@fb.com>, "yhs@fb.com" <yhs@fb.com>, "bpf@vger.kernel.org" <bpf@vger.kernel.org>, "virtualization@lists.linux-foundation.org" <virtualization@lists.linux-foundation.org>, "davem@davemloft.net" <davem@davemloft.net>, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>
+To: iommu@lists.linux-foundation.org
+Cc: Heiko Stuebner <heiko@sntech.de>, virtualization@lists.linux-foundation.org, linux-tegra@vger.kernel.org, Thierry Reding <thierry.reding@gmail.com>, Will Deacon <will@kernel.org>, Marek Szyprowski <m.szyprowski@samsung.com>, Jean-Philippe Brucker <jean-philippe@linaro.org>, linux-samsung-soc@vger.kernel.org, Joerg Roedel <joro@8bytes.org>, Krzysztof Kozlowski <krzk@kernel.org>, Jonathan Hunter <jonathanh@nvidia.com>, linux-rockchip@lists.infradead.org, Andy Gross <agross@kernel.org>, Gerald Schaefer <gerald.schaefer@de.ibm.com>, linux-s390@vger.kernel.org, linux-arm-msm@vger.kernel.org, linux-mediatek@lists.infradead.org, Matthias Brugger <matthias.bgg@gmail.com>, linux-arm-kernel@lists.infradead.org, David Woodhouse <dwmw2@infradead.org>, linux-kernel@vger.kernel.org, Tom Murphy <murphyt7@tcd.ie>, Rob Clark <robdclark@gmail.com>, Kukjin Kim <kgene@kernel.org>, Robin
 List-Id: virtualization@lists.linuxfoundation.org
 
-Ck9uIDIwMTkvOC8xNSDkuIvljYg1OjQyLCA/IGppYW5nIHdyb3RlOgo+IFRoaXMgY2hhbmdlIGxv
-d2VycyByaW5nIGJ1ZmZlciByZWNsYWltIHRocmVzaG9sZCBmcm9tIDEvMipxdWV1ZSB0byBidWRn
-ZXQKPiBmb3IgYmV0dGVyIHBlcmZvcm1hbmNlLiBBY2NvcmRpbmcgdG8gb3VyIHRlc3Qgd2l0aCBx
-ZW11ICsgZHBkaywgcGFja2V0Cj4gZHJvcHBpbmcgaGFwcGVucyB3aGVuIHRoZSBndWVzdCBpcyBu
-b3QgYWJsZSB0byBwcm92aWRlIGZyZWUgYnVmZmVyIGluCj4gYXZhaWwgcmluZyB0aW1lbHkgd2l0
-aCBkZWZhdWx0IDEvMipxdWV1ZS4gVGhlIHZhbHVlIGluIHRoZSBwYXRjaCBoYXMgYmVlbgo+IHRl
-c3RlZCBhbmQgZG9lcyBzaG93IGJldHRlciBwZXJmb3JtYW5jZS4KPgo+IFRlc3Qgc2V0dXA6IGlw
-ZXJmMyB0byBnZW5lcmF0ZSBwYWNrZXRzIHRvIGd1ZXN0ICh0b3RhbCAzMG1pbnMsIHBwcyA0MDBr
-LCBVRFApCj4gYXZnIHBhY2tldHMgZHJvcCBiZWZvcmU6IDI4NDIKPiBhdmcgcGFja2V0cyBkcm9w
-IGFmdGVyOiAzNjAoLTg3LjMlKQo+Cj4gU2lnbmVkLW9mZi1ieTogamlhbmdraWRkIDxqaWFuZ2tp
-ZGRAaG90bWFpbC5jb20+Cj4gLS0tCj4gICBkcml2ZXJzL25ldC92aXJ0aW9fbmV0LmMgfCAyICst
-Cj4gICAxIGZpbGUgY2hhbmdlZCwgMSBpbnNlcnRpb24oKyksIDEgZGVsZXRpb24oLSkKPgo+IGRp
-ZmYgLS1naXQgYS9kcml2ZXJzL25ldC92aXJ0aW9fbmV0LmMgYi9kcml2ZXJzL25ldC92aXJ0aW9f
-bmV0LmMKPiBpbmRleCAwZDQxMTVjOWUyMGIuLmJjMDhiZTc5MjVlYiAxMDA2NDQKPiAtLS0gYS9k
-cml2ZXJzL25ldC92aXJ0aW9fbmV0LmMKPiArKysgYi9kcml2ZXJzL25ldC92aXJ0aW9fbmV0LmMK
-PiBAQCAtMTMzMSw3ICsxMzMxLDcgQEAgc3RhdGljIGludCB2aXJ0bmV0X3JlY2VpdmUoc3RydWN0
-IHJlY2VpdmVfcXVldWUgKnJxLCBpbnQgYnVkZ2V0LAo+ICAgCQl9Cj4gICAJfQo+ICAgCj4gLQlp
-ZiAocnEtPnZxLT5udW1fZnJlZSA+IHZpcnRxdWV1ZV9nZXRfdnJpbmdfc2l6ZShycS0+dnEpIC8g
-Mikgewo+ICsJaWYgKHJxLT52cS0+bnVtX2ZyZWUgPiBtaW4oKHVuc2lnbmVkIGludClidWRnZXQs
-IHZpcnRxdWV1ZV9nZXRfdnJpbmdfc2l6ZShycS0+dnEpKSAvIDIpIHsKPiAgIAkJaWYgKCF0cnlf
-ZmlsbF9yZWN2KHZpLCBycSwgR0ZQX0FUT01JQykpCj4gICAJCQlzY2hlZHVsZV9kZWxheWVkX3dv
-cmsoJnZpLT5yZWZpbGwsIDApOwo+ICAgCX0KCgpBY2tlZC1ieTogSmFzb24gV2FuZyA8amFzb3dh
-bmdAcmVkaGF0LmNvbT4KCgpfX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19f
-X19fX19fXwpWaXJ0dWFsaXphdGlvbiBtYWlsaW5nIGxpc3QKVmlydHVhbGl6YXRpb25AbGlzdHMu
-bGludXgtZm91bmRhdGlvbi5vcmcKaHR0cHM6Ly9saXN0cy5saW51eGZvdW5kYXRpb24ub3JnL21h
-aWxtYW4vbGlzdGluZm8vdmlydHVhbGl6YXRpb24=
+Convert the AMD iommu driver to the dma-iommu api. Remove the iova
+handling and reserve region code from the AMD iommu driver.
+
+Change-log:
+V5:
+-Rebase on top of linux-next
+V4:
+-Rebase on top of linux-next
+-Split the removing of the unnecessary locking in the amd iommu driver into a seperate patch
+-refactor the "iommu/dma-iommu: Handle deferred devices" patch and address comments
+v3:
+-rename dma_limit to dma_mask
+-exit handle_deferred_device early if (!is_kdump_kernel())
+-remove pointless calls to handle_deferred_device
+v2:
+-Rebase on top of this series:
+ http://git.infradead.org/users/hch/misc.git/shortlog/refs/heads/dma-iommu-ops.3
+-Add a gfp_t parameter to the iommu_ops::map function.
+-Made use of the reserve region code inside the dma-iommu api
+
+Tom Murphy (5):
+  iommu/amd: Remove unnecessary locking from AMD iommu driver
+  iommu: Add gfp parameter to iommu_ops::map
+  iommu/dma-iommu: Handle deferred devices
+  iommu/dma-iommu: Use the dev->coherent_dma_mask
+  iommu/amd: Convert AMD iommu driver to the dma-iommu api
+
+ drivers/iommu/Kconfig           |   1 +
+ drivers/iommu/amd_iommu.c       | 690 ++++----------------------------
+ drivers/iommu/amd_iommu_types.h |   1 -
+ drivers/iommu/arm-smmu-v3.c     |   2 +-
+ drivers/iommu/arm-smmu.c        |   2 +-
+ drivers/iommu/dma-iommu.c       |  43 +-
+ drivers/iommu/exynos-iommu.c    |   2 +-
+ drivers/iommu/intel-iommu.c     |   2 +-
+ drivers/iommu/iommu.c           |  43 +-
+ drivers/iommu/ipmmu-vmsa.c      |   2 +-
+ drivers/iommu/msm_iommu.c       |   2 +-
+ drivers/iommu/mtk_iommu.c       |   2 +-
+ drivers/iommu/mtk_iommu_v1.c    |   2 +-
+ drivers/iommu/omap-iommu.c      |   2 +-
+ drivers/iommu/qcom_iommu.c      |   2 +-
+ drivers/iommu/rockchip-iommu.c  |   2 +-
+ drivers/iommu/s390-iommu.c      |   2 +-
+ drivers/iommu/tegra-gart.c      |   2 +-
+ drivers/iommu/tegra-smmu.c      |   2 +-
+ drivers/iommu/virtio-iommu.c    |   2 +-
+ include/linux/iommu.h           |  21 +-
+ 21 files changed, 178 insertions(+), 651 deletions(-)
+
+-- 
+2.20.1
