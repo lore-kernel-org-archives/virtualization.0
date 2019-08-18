@@ -1,14 +1,14 @@
-From: Tom Murphy <murphyt7@tcd.ie>
-Subject: Re: [PATCH V5 3/5] iommu/dma-iommu: Handle deferred devices
-Date: Sat, 17 Aug 2019 08:19:33 +0100
-Message-ID: <CALQxJut_0bjojiFza9bZF26n0+9Vjq8QFqsxgd5Rxag+Qx609Q__32153.2279181824$1566026421$gmane$org@mail.gmail.com>
-References: <20190815110944.3579-1-murphyt7@tcd.ie>
-	<20190817033914.4812-1-hdanton@sina.com>
+From: "Michael S. Tsirkin" <mst@redhat.com>
+Subject: Re: [PATCH v2] virtio-net: lower min ring num_free for efficiency
+Date: Sun, 18 Aug 2019 03:10:35 -0400
+Message-ID: <20190818030410-mutt-send-email-mst@kernel.org>
+References: <BYAPR14MB32058F4B2AD162F5421BB9B4A6AC0@BYAPR14MB3205.namprd14.prod.outlook.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <20190817033914.4812-1-hdanton@sina.com>
+Content-Disposition: inline
+In-Reply-To: <BYAPR14MB32058F4B2AD162F5421BB9B4A6AC0@BYAPR14MB3205.namprd14.prod.outlook.com>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -18,79 +18,51 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Hillf Danton <hdanton@sina.com>
-Cc: Heiko Stuebner <heiko@sntech.de>, virtualization@lists.linux-foundation.org, linux-tegra@vger.kernel.org, Thierry Reding <thierry.reding@gmail.com>, Will Deacon <will@kernel.org>, Marek Szyprowski <m.szyprowski@samsung.com>, Jean-Philippe Brucker <jean-philippe@linaro.org>, linux-samsung-soc@vger.kernel.org, Joerg Roedel <joro@8bytes.org>, iommu@lists.linux-foundation.org, Krzysztof Kozlowski <krzk@kernel.org>, Jonathan Hunter <jonathanh@nvidia.com>, linux-rockchip@lists.infradead.org, Andy Gross <agross@kernel.org>, Gerald Schaefer <gerald.schaefer@de.ibm.com>, linux-s390@vger.kernel.org, linux-arm-msm@vger.kernel.org, linux-mediatek@lists.infradead.org, Matthias Brugger <matthias.bgg@gmail.com>, linux-arm-kernel@lists.infradead.org, David Woodhouse <dwmw2@infradead.org>, Linux Kernel Mailing List <linux-kernel@vger.kernel.org>, Rob Clark <robdclark@gmail.com>, Kukji
+To: ? jiang <jiangkidd@hotmail.com>
+Cc: "xdp-newbies@vger.kernel.org" <xdp-newbies@vger.kernel.org>, "songliubraving@fb.com" <songliubraving@fb.com>, "jakub.kicinski@netronome.com" <jakub.kicinski@netronome.com>, "hawk@kernel.org" <hawk@kernel.org>, "daniel@iogearbox.net" <daniel@iogearbox.net>, "jiangran.jr@alibaba-inc.com" <jiangran.jr@alibaba-inc.com>, "netdev@vger.kernel.org" <netdev@vger.kernel.org>, "john.fastabend@gmail.com" <john.fastabend@gmail.com>, "ast@kernel.org" <ast@kernel.org>, "kafai@fb.com" <kafai@fb.com>, "yhs@fb.com" <yhs@fb.com>, "bpf@vger.kernel.org" <bpf@vger.kernel.org>, "virtualization@lists.linux-foundation.org" <virtualization@lists.linux-foundation.org>, "davem@davemloft.net" <davem@davemloft.net>, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>
 List-Id: virtualization@lists.linuxfoundation.org
 
-On Sat, 17 Aug 2019 at 04:39, Hillf Danton <hdanton@sina.com> wrote:
->
->
-> On Thu, 15 Aug 2019 12:09:41 +0100 Tom Murphy wrote:
-> >
-> > Handle devices which defer their attach to the iommu in the dma-iommu api
-> >
-> > Signed-off-by: Tom Murphy <murphyt7@tcd.ie>
-> > ---
-> >  drivers/iommu/dma-iommu.c | 27 ++++++++++++++++++++++++++-
-> >  1 file changed, 26 insertions(+), 1 deletion(-)
-> >
-> > diff --git a/drivers/iommu/dma-iommu.c b/drivers/iommu/dma-iommu.c
-> > index 2712fbc68b28..906b7fa14d3c 100644
-> > --- a/drivers/iommu/dma-iommu.c
-> > +++ b/drivers/iommu/dma-iommu.c
-> > @@ -22,6 +22,7 @@
-> >  #include <linux/pci.h>
-> >  #include <linux/scatterlist.h>
-> >  #include <linux/vmalloc.h>
-> > +#include <linux/crash_dump.h>
-> >
-> >  struct iommu_dma_msi_page {
-> >       struct list_head        list;
-> > @@ -351,6 +352,21 @@ static int iommu_dma_init_domain(struct iommu_domain *domain, dma_addr_t base,
-> >       return iova_reserve_iommu_regions(dev, domain);
-> >  }
-> >
-> > +static int handle_deferred_device(struct device *dev,
-> > +     struct iommu_domain *domain)
-> > +{
-> > +     const struct iommu_ops *ops = domain->ops;
-> > +
-> > +     if (!is_kdump_kernel())
-> > +             return 0;
-> > +
-> > +     if (unlikely(ops->is_attach_deferred &&
-> > +             ops->is_attach_deferred(domain, dev)))
-> > +             return iommu_attach_device(domain, dev);
-> > +
-> > +     return 0;
-> > +}
-> > +
-> >  /**
-> >   * dma_info_to_prot - Translate DMA API directions and attributes to IOMMU API
-> >   *                    page flags.
-> > @@ -463,6 +479,9 @@ static dma_addr_t __iommu_dma_map(struct device *dev, phys_addr_t phys,
-> >       size_t iova_off = iova_offset(iovad, phys);
-> >       dma_addr_t iova;
-> >
-> > +     if (unlikely(handle_deferred_device(dev, domain)))
-> > +             return DMA_MAPPING_ERROR;
-> > +
-> >       size = iova_align(iovad, size + iova_off);
-> >
-> >       iova = iommu_dma_alloc_iova(domain, size, dma_get_mask(dev), dev);
->
-> iommu_map_atomic() is applied to __iommu_dma_map() in 2/5.
-> Is it an atomic context currently given the mutex_lock() in
-> iommu_attach_device()?
+On Thu, Aug 15, 2019 at 09:42:40AM +0000, ? jiang wrote:
+> This change lowers ring buffer reclaim threshold from 1/2*queue to budget
+> for better performance. According to our test with qemu + dpdk, packet
+> dropping happens when the guest is not able to provide free buffer in
+> avail ring timely with default 1/2*queue. The value in the patch has been
+> tested and does show better performance.
+> 
+> Test setup: iperf3 to generate packets to guest (total 30mins, pps 400k, UDP)
+> avg packets drop before: 2842
+> avg packets drop after: 360(-87.3%)
+> 
+> Signed-off-by: jiangkidd <jiangkidd@hotmail.com>
 
-I don't see your point here. __iommu_dma_map isn't called from
-iommu_attach_device, why would we care about a mutex in
-iommu_attach_device?
+To add to that:
 
-__iommu_dma_map can be called from an atomic context (it isn't always
-but it does happen). __iommu_dma_map is called by iommu_dma_alloc
-which implements the iommu_dma_ops::alloc function which by design
-needs to be callable from an atomic context. Does that answer your
-question?
+Further, current code suffers from a starvation problem: the amount of
+work done by try_fill_recv is not bounded by the budget parameter, thus
+(with large queues) once in a while userspace gets blocked for a long
+time while queue is being refilled. Trigger refills earlier to make sure
+the amount of work to do is limited.
 
->
+With this addition to the log:
+
+Acked-by: Michael S. Tsirkin <mst@redhat.com>
+
+> ---
+>  drivers/net/virtio_net.c | 2 +-
+>  1 file changed, 1 insertion(+), 1 deletion(-)
+> 
+> diff --git a/drivers/net/virtio_net.c b/drivers/net/virtio_net.c
+> index 0d4115c9e20b..bc08be7925eb 100644
+> --- a/drivers/net/virtio_net.c
+> +++ b/drivers/net/virtio_net.c
+> @@ -1331,7 +1331,7 @@ static int virtnet_receive(struct receive_queue *rq, int budget,
+>  		}
+>  	}
+>  
+> -	if (rq->vq->num_free > virtqueue_get_vring_size(rq->vq) / 2) {
+> +	if (rq->vq->num_free > min((unsigned int)budget, virtqueue_get_vring_size(rq->vq)) / 2) {
+>  		if (!try_fill_recv(vi, rq, GFP_ATOMIC))
+>  			schedule_delayed_work(&vi->refill, 0);
+>  	}
+> -- 
+> 2.11.0
