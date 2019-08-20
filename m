@@ -1,14 +1,14 @@
 From: Stefan Hajnoczi <stefanha@redhat.com>
-Subject: Re: [PATCH v2 11/11] vsock_test: wait for the remote to close the
-	connection
-Date: Tue, 20 Aug 2019 09:28:28 +0100
-Message-ID: <20190820082828.GA9855__29959.6197831974$1566289725$gmane$org@stefanha-x1.localdomain>
+Subject: Re: [PATCH v2 10/11] vsock_test: skip read() in test_stream*close
+	tests on a VMCI host
+Date: Tue, 20 Aug 2019 09:32:03 +0100
+Message-ID: <20190820083203.GB9855__7519.49222046591$1566289936$gmane$org@stefanha-x1.localdomain>
 References: <20190801152541.245833-1-sgarzare@redhat.com>
-	<20190801152541.245833-12-sgarzare@redhat.com>
+	<20190801152541.245833-11-sgarzare@redhat.com>
 Mime-Version: 1.0
-Content-Type: multipart/mixed; boundary="===============4437949161351036723=="
+Content-Type: multipart/mixed; boundary="===============2223663232642248723=="
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <20190801152541.245833-12-sgarzare@redhat.com>
+In-Reply-To: <20190801152541.245833-11-sgarzare@redhat.com>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -23,94 +23,47 @@ Cc: kvm@vger.kernel.org, netdev@vger.kernel.org, Dexuan Cui <decui@microsoft.com
 List-Id: virtualization@lists.linuxfoundation.org
 
 
---===============4437949161351036723==
+--===============2223663232642248723==
 Content-Type: multipart/signed; micalg=pgp-sha256;
-	protocol="application/pgp-signature"; boundary="0F1p//8PRICkK4MW"
+	protocol="application/pgp-signature"; boundary="qlTNgmc+xy1dBmNv"
 Content-Disposition: inline
 
 
---0F1p//8PRICkK4MW
+--qlTNgmc+xy1dBmNv
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
 
-On Thu, Aug 01, 2019 at 05:25:41PM +0200, Stefano Garzarella wrote:
-> +/* Wait for the remote to close the connection */
-> +void vsock_wait_remote_close(int fd)
-> +{
-> +	struct epoll_event ev;
-> +	int epollfd, nfds;
-> +
-> +	epollfd =3D epoll_create1(0);
-> +	if (epollfd =3D=3D -1) {
-> +		perror("epoll_create1");
-> +		exit(EXIT_FAILURE);
-> +	}
-> +
-> +	ev.events =3D EPOLLRDHUP | EPOLLHUP;
-> +	ev.data.fd =3D fd;
-> +	if (epoll_ctl(epollfd, EPOLL_CTL_ADD, fd, &ev) =3D=3D -1) {
-> +		perror("epoll_ctl");
-> +		exit(EXIT_FAILURE);
-> +	}
-> +
-> +	nfds =3D epoll_wait(epollfd, &ev, 1, TIMEOUT * 1000);
-> +	if (nfds =3D=3D -1) {
-> +		perror("epoll_wait");
-> +		exit(EXIT_FAILURE);
-> +	}
-> +
-> +	if (nfds =3D=3D 0) {
-> +		fprintf(stderr, "epoll_wait timed out\n");
-> +		exit(EXIT_FAILURE);
-> +	}
-> +
-> +	assert(nfds =3D=3D 1);
-> +	assert(ev.events & (EPOLLRDHUP | EPOLLHUP));
-> +	assert(ev.data.fd =3D=3D fd);
-> +
-> +	close(epollfd);
-> +}
+On Thu, Aug 01, 2019 at 05:25:40PM +0200, Stefano Garzarella wrote:
+> When VMCI transport is used, if the guest closes a connection,
+> all data is gone and EOF is returned, so we should skip the read
+> of data written by the peer before closing the connection.
 
-Please use timeout_begin()/timeout_end() so that the test cannot hang.
+All transports should aim for identical semantics.  I think virtio-vsock
+should behave the same as VMCI since userspace applications should be
+transport-independent.
 
-> diff --git a/tools/testing/vsock/vsock_test.c b/tools/testing/vsock/vsock=
-_test.c
-> index 64adf45501ca..a664675bec5a 100644
-> --- a/tools/testing/vsock/vsock_test.c
-> +++ b/tools/testing/vsock/vsock_test.c
-> @@ -84,6 +84,11 @@ static void test_stream_client_close_server(const stru=
-ct test_opts *opts)
-> =20
->  	control_expectln("CLOSED");
-> =20
-> +	/* Wait for the remote to close the connection, before check
-> +	 * -EPIPE error on send.
-> +	 */
-> +	vsock_wait_remote_close(fd);
+Let's view this as a vsock bug.  Is it feasible to change the VMCI
+behavior so it's more like TCP sockets?  If not, let's change the
+virtio-vsock behavior to be compatible with VMCI.
 
-Is control_expectln("CLOSED") still necessary now that we're waiting for
-the poll event?  The control message was an attempt to wait until the
-other side closed the socket.
-
---0F1p//8PRICkK4MW
+--qlTNgmc+xy1dBmNv
 Content-Type: application/pgp-signature; name="signature.asc"
 
 -----BEGIN PGP SIGNATURE-----
 
-iQEzBAEBCAAdFiEEhpWov9P5fNqsNXdanKSrs4Grc8gFAl1brywACgkQnKSrs4Gr
-c8he/ggAs417RXraEFHwXmiz0k0MOniGzChyB01FvERBmU5Q3lFaA9yTm3CfBmeM
-dsWmGaQ+UcV0T+BvE+Y+oUV6lspdjNMX2D02+Xfl9SNwKh1CGxmipyRSsITapVXg
-9wFwZzD/+IJ6bSzUxyYpPZhb0n1cZNnMnB0hpTFGSvJMrbk/phSv3NVd7LrJVuM2
-uTYaoaFXQ4QTPnnVO7JonGbeHJuinIleByziLGaCCDgeEan9gf48eQPsN1Pvhf+g
-/YjmlJEqbpekU8wpwggoRFZ9UlkbiLhbCtZdvE7Kzj9PaS1DSF+AWLdL9fOa+N1K
-jNvf8bhepUvIw0MgGeM/Az9vsHfFZw==
-=E1TQ
+iQEzBAEBCAAdFiEEhpWov9P5fNqsNXdanKSrs4Grc8gFAl1bsAIACgkQnKSrs4Gr
+c8iy2wf9Hf2RT30SVoJTzJ+hX0eVKck7gc8yFdT08PLyaZW9ND3d2J7oYGhT3/kF
+3IneL017fwh3nVZ9rcWcVH2ntn7Mq8+I0mTBH24UP0UMLMz/Ieq/6oRj3ySm/UbA
+7/RZHJ2+he0dBgOPggnmNBPDTqAytUBaDouuIWJiXYnVX8g82C1qhcckeuIrxbc5
+5hQPmjQnSmRVcclubheU+QAqqQbAySFDYbJp36sRGiAyJR31vQJGQWqk+r0uZvlt
+DT1YTMdU7EfmWoVp4nW2dDMnN+WlZA0qFZ2gv/7/ZiZ0etvXTPN8/owaW3HxTQOJ
+PPVwBTXGU+LNuAHvJOt9METVQX4+oQ==
+=YtHX
 -----END PGP SIGNATURE-----
 
---0F1p//8PRICkK4MW--
+--qlTNgmc+xy1dBmNv--
 
---===============4437949161351036723==
+--===============2223663232642248723==
 Content-Type: text/plain; charset="us-ascii"
 MIME-Version: 1.0
 Content-Transfer-Encoding: 7bit
@@ -120,4 +73,4 @@ _______________________________________________
 Virtualization mailing list
 Virtualization@lists.linux-foundation.org
 https://lists.linuxfoundation.org/mailman/listinfo/virtualization
---===============4437949161351036723==--
+--===============2223663232642248723==--
