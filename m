@@ -1,18 +1,11 @@
-From: Jason Wang <jasowang@redhat.com>
-Subject: Re: [PATCH V5 0/9] Fixes for vhost metadata acceleration
-Date: Tue, 20 Aug 2019 10:29:32 +0800
-Message-ID: <9325de4b-1d79-eb19-306e-e7a8fa8cc1a5__21494.9524191738$1566268189$gmane$org@redhat.com>
-References: <20190809054851.20118-1-jasowang@redhat.com>
-	<20190810134948-mutt-send-email-mst@kernel.org>
-	<360a3b91-1ac5-84c0-d34b-a4243fa748c4@redhat.com>
-	<20190812054429-mutt-send-email-mst@kernel.org>
-	<663be71f-f96d-cfbc-95a0-da0ac6b82d9f@redhat.com>
-	<20190819162733-mutt-send-email-mst@kernel.org>
+From: ? jiang <jiangkidd@hotmail.com>
+Subject: [PATCH v3] virtio-net: lower min ring num_free for efficiency
+Date: Tue, 20 Aug 2019 02:51:23 +0000
+Message-ID: <BYAPR14MB32059DD9439280B66B532351A6AB0@BYAPR14MB3205.namprd14.prod.outlook.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="utf-8"; Format="flowed"
-Content-Transfer-Encoding: base64
+Content-Type: text/plain; charset="us-ascii"
+Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <20190819162733-mutt-send-email-mst@kernel.org>
 Content-Language: en-US
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
@@ -23,62 +16,45 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: "Michael S. Tsirkin" <mst@redhat.com>
-Cc: kvm@vger.kernel.org, jgg@ziepe.ca, netdev@vger.kernel.org, linux-kernel@vger.kernel.org, virtualization@lists.linux-foundation.org, linux-mm@kvack.org
+To: "mst@redhat.com" <mst@redhat.com>
+Cc: "xdp-newbies@vger.kernel.org" <xdp-newbies@vger.kernel.org>, "songliubraving@fb.com" <songliubraving@fb.com>, "jakub.kicinski@netronome.com" <jakub.kicinski@netronome.com>, "hawk@kernel.org" <hawk@kernel.org>, "daniel@iogearbox.net" <daniel@iogearbox.net>, "jiangran.jr@alibaba-inc.com" <jiangran.jr@alibaba-inc.com>, "netdev@vger.kernel.org" <netdev@vger.kernel.org>, "john.fastabend@gmail.com" <john.fastabend@gmail.com>, "ast@kernel.org" <ast@kernel.org>, "kafai@fb.com" <kafai@fb.com>, ? jiang <jiangkidd@hotmail.com>, "yhs@fb.com" <yhs@fb.com>, "bpf@vger.kernel.org" <bpf@vger.kernel.org>, "virtualization@lists.linux-foundation.org" <virtualization@lists.linux-foundation.org>, "davem@davemloft.net" <davem@davemloft.net>, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>
 List-Id: virtualization@lists.linuxfoundation.org
 
-Ck9uIDIwMTkvOC8yMCDkuIrljYg1OjA4LCBNaWNoYWVsIFMuIFRzaXJraW4gd3JvdGU6Cj4gT24g
-VHVlLCBBdWcgMTMsIDIwMTkgYXQgMDQ6MTI6NDlQTSArMDgwMCwgSmFzb24gV2FuZyB3cm90ZToK
-Pj4gT24gMjAxOS84LzEyIOS4i+WNiDU6NDksIE1pY2hhZWwgUy4gVHNpcmtpbiB3cm90ZToKPj4+
-IE9uIE1vbiwgQXVnIDEyLCAyMDE5IGF0IDEwOjQ0OjUxQU0gKzA4MDAsIEphc29uIFdhbmcgd3Jv
-dGU6Cj4+Pj4gT24gMjAxOS84LzExIOS4iuWNiDE6NTIsIE1pY2hhZWwgUy4gVHNpcmtpbiB3cm90
-ZToKPj4+Pj4gT24gRnJpLCBBdWcgMDksIDIwMTkgYXQgMDE6NDg6NDJBTSAtMDQwMCwgSmFzb24g
-V2FuZyB3cm90ZToKPj4+Pj4+IEhpIGFsbDoKPj4+Pj4+Cj4+Pj4+PiBUaGlzIHNlcmllcyB0cnkg
-dG8gZml4IHNldmVyYWwgaXNzdWVzIGludHJvZHVjZWQgYnkgbWV0YSBkYXRhCj4+Pj4+PiBhY2Nl
-bHJlYXRpb24gc2VyaWVzLiBQbGVhc2UgcmV2aWV3Lgo+Pj4+Pj4KPj4+Pj4+IENoYW5nZXMgZnJv
-bSBWNDoKPj4+Pj4+IC0gc3dpdGNoIHRvIHVzZSBzcGlubG9jayBzeW5jaHJvbml6ZSBNTVUgbm90
-aWZpZXIgd2l0aCBhY2Nlc3NvcnMKPj4+Pj4+Cj4+Pj4+PiBDaGFuZ2VzIGZyb20gVjM6Cj4+Pj4+
-PiAtIHJlbW92ZSB0aGUgdW5uZWNlc3NhcnkgcGF0Y2gKPj4+Pj4+Cj4+Pj4+PiBDaGFuZ2VzIGZy
-b20gVjI6Cj4+Pj4+PiAtIHVzZSBzZXFsY2sgaGVscGVyIHRvIHN5bmNocm9uaXplIE1NVSBub3Rp
-ZmllciB3aXRoIHZob3N0IHdvcmtlcgo+Pj4+Pj4KPj4+Pj4+IENoYW5nZXMgZnJvbSBWMToKPj4+
-Pj4+IC0gdHJ5IG5vdCB1c2UgUkNVIHRvIHN5bmNyaG9uaXplIE1NVSBub3RpZmllciB3aXRoIHZo
-b3N0IHdvcmtlcgo+Pj4+Pj4gLSBzZXQgZGlydHkgcGFnZXMgYWZ0ZXIgbm8gcmVhZGVycwo+Pj4+
-Pj4gLSByZXR1cm4gLUVBR0FJTiBvbmx5IHdoZW4gd2UgZmluZCB0aGUgcmFuZ2UgaXMgb3Zlcmxh
-cHBlZCB3aXRoCj4+Pj4+PiAgICAgIG1ldGFkYXRhCj4+Pj4+Pgo+Pj4+Pj4gSmFzb24gV2FuZyAo
-OSk6Cj4+Pj4+PiAgICAgIHZob3N0OiBkb24ndCBzZXQgdWFkZHIgZm9yIGludmFsaWQgYWRkcmVz
-cwo+Pj4+Pj4gICAgICB2aG9zdDogdmFsaWRhdGUgTU1VIG5vdGlmaWVyIHJlZ2lzdHJhdGlvbgo+
-Pj4+Pj4gICAgICB2aG9zdDogZml4IHZob3N0IG1hcCBsZWFrCj4+Pj4+PiAgICAgIHZob3N0OiBy
-ZXNldCBpbnZhbGlkYXRlX2NvdW50IGluIHZob3N0X3NldF92cmluZ19udW1fYWRkcigpCj4+Pj4+
-PiAgICAgIHZob3N0OiBtYXJrIGRpcnR5IHBhZ2VzIGR1cmluZyBtYXAgdW5pbml0Cj4+Pj4+PiAg
-ICAgIHZob3N0OiBkb24ndCBkbyBzeW5jaHJvbml6ZV9yY3UoKSBpbiB2aG9zdF91bmluaXRfdnFf
-bWFwcygpCj4+Pj4+PiAgICAgIHZob3N0OiBkbyBub3QgdXNlIFJDVSB0byBzeW5jaHJvbml6ZSBN
-TVUgbm90aWZpZXIgd2l0aCB3b3JrZXIKPj4+Pj4+ICAgICAgdmhvc3Q6IGNvcnJlY3RseSBzZXQg
-ZGlydHkgcGFnZXMgaW4gTU1VIG5vdGlmaWVycyBjYWxsYmFjawo+Pj4+Pj4gICAgICB2aG9zdDog
-ZG8gbm90IHJldHVybiAtRUFHQUlOIGZvciBub24gYmxvY2tpbmcgaW52YWxpZGF0aW9uIHRvbyBl
-YXJseQo+Pj4+Pj4KPj4+Pj4+ICAgICBkcml2ZXJzL3Zob3N0L3Zob3N0LmMgfCAyMDIgKysrKysr
-KysrKysrKysrKysrKysrKysrKy0tLS0tLS0tLS0tLS0tLS0tCj4+Pj4+PiAgICAgZHJpdmVycy92
-aG9zdC92aG9zdC5oIHwgICA2ICstCj4+Pj4+PiAgICAgMiBmaWxlcyBjaGFuZ2VkLCAxMjIgaW5z
-ZXJ0aW9ucygrKSwgODYgZGVsZXRpb25zKC0pCj4+Pj4+IFRoaXMgZ2VuZXJhbGx5IGxvb2tzIG1v
-cmUgc29saWQuCj4+Pj4+Cj4+Pj4+IEJ1dCB0aGlzIGFtb3VudHMgdG8gYSBzaWduaWZpY2FudCBv
-dmVyaGF1bCBvZiB0aGUgY29kZS4KPj4+Pj4KPj4+Pj4gQXQgdGhpcyBwb2ludCBob3cgYWJvdXQg
-d2UgcmV2ZXJ0IDdmNDY2MDMyZGM5ZTVhNjEyMTdmMjJlYTM0YjJkZjkzMjc4NmJiZmMKPj4+Pj4g
-Zm9yIHRoaXMgcmVsZWFzZSwgYW5kIHRoZW4gcmUtYXBwbHkgYSBjb3JyZWN0ZWQgdmVyc2lvbgo+
-Pj4+PiBmb3IgdGhlIG5leHQgb25lPwo+Pj4+IElmIHBvc3NpYmxlLCBjb25zaWRlciB3ZSd2ZSBh
-Y3R1YWxseSBkaXNhYmxlZCB0aGUgZmVhdHVyZS4gSG93IGFib3V0IGp1c3QKPj4+PiBxdWV1ZWQg
-dGhvc2UgcGF0Y2hlcyBmb3IgbmV4dCByZWxlYXNlPwo+Pj4+Cj4+Pj4gVGhhbmtzCj4+PiBTb3Jy
-eSBpZiBJIHdhcyB1bmNsZWFyLiBNeSBpZGVhIGlzIHRoYXQKPj4+IDEuIEkgcmV2ZXJ0IHRoZSBk
-aXNhYmxlZCBjb2RlCj4+PiAyLiBZb3Ugc2VuZCBhIHBhdGNoIHJlYWRkaW5nIGl0IHdpdGggYWxs
-IHRoZSBmaXhlcyBzcXVhc2hlZAo+Pj4gMy4gTWF5YmUgb3B0aW1pemF0aW9ucyBvbiB0b3Agcmln
-aHQgYXdheT8KPj4+IDQuIFdlIHF1ZXVlICp0aGF0KiBmb3IgbmV4dCBhbmQgc2VlIHdoYXQgaGFw
-cGVucy4KPj4+Cj4+PiBBbmQgdGhlIGFkdmFudGFnZSBvdmVyIHRoZSBwYXRjaHkgYXBwcm9hY2gg
-aXMgdGhhdCB0aGUgY3VycmVudCBwYXRjaGVzCj4+PiBhcmUgaGFyZCB0byByZXZpZXcuIEUuZy4g
-IGl0J3Mgbm90IHJlYXNvbmFibGUgdG8gYXNrIFJDVSBndXlzIHRvIHJldmlldwo+Pj4gdGhlIHdo
-b2xlIG9mIHZob3N0IGZvciBSQ1UgdXNhZ2UgYnV0IGl0J3MgbXVjaCBtb3JlIHJlYXNvbmFibGUg
-dG8gYXNrCj4+PiBhYm91dCBhIHNwZWNpZmljIHBhdGNoLgo+Pgo+PiBPay4gVGhlbiBJIGFncmVl
-IHRvIHJldmVydC4KPj4KPj4gVGhhbmtzCj4gR3JlYXQsIHNvIHBsZWFzZSBzZW5kIHRoZSBmb2xs
-b3dpbmc6Cj4gLSByZXZlcnQKPiAtIHNxdWFzaGVkIGFuZCBmaXhlZCBwYXRjaAoKCkp1c3QgdG8g
-Y29uZmlybSwgZG8geW91IHdhbnQgbWUgdG8gc2VuZCBhIHNpbmdsZSBzZXJpZXMgb3IgdHdvPwoK
-VGhhbmtzCgoKX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX18K
-VmlydHVhbGl6YXRpb24gbWFpbGluZyBsaXN0ClZpcnR1YWxpemF0aW9uQGxpc3RzLmxpbnV4LWZv
-dW5kYXRpb24ub3JnCmh0dHBzOi8vbGlzdHMubGludXhmb3VuZGF0aW9uLm9yZy9tYWlsbWFuL2xp
-c3RpbmZvL3ZpcnR1YWxpemF0aW9u
+This change lowers ring buffer reclaim threshold from 1/2*queue to budget
+for better performance. According to our test with qemu + dpdk, packet
+dropping happens when the guest is not able to provide free buffer in
+avail ring timely with default 1/2*queue. The value in the patch has been
+tested and does show better performance.
+
+Test setup: iperf3 to generate packets to guest (total 30mins, pps 400k, UDP)
+avg packets drop before: 2842
+avg packets drop after: 360(-87.3%)
+
+Further, current code suffers from a starvation problem: the amount of
+work done by try_fill_recv is not bounded by the budget parameter, thus
+(with large queues) once in a while userspace gets blocked for a long
+time while queue is being refilled. Trigger refills earlier to make sure
+the amount of work to do is limited.
+
+Signed-off-by: jiangkidd <jiangkidd@hotmail.com>
+Acked-by: Jason Wang <jasowang@redhat.com>
+Acked-by: Michael S. Tsirkin <mst@redhat.com>
+---
+ drivers/net/virtio_net.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
+
+diff --git a/drivers/net/virtio_net.c b/drivers/net/virtio_net.c
+index 0d4115c9e20b..bc08be7925eb 100644
+--- a/drivers/net/virtio_net.c
++++ b/drivers/net/virtio_net.c
+@@ -1331,7 +1331,7 @@ static int virtnet_receive(struct receive_queue *rq, int budget,
+ 		}
+ 	}
+ 
+-	if (rq->vq->num_free > virtqueue_get_vring_size(rq->vq) / 2) {
++	if (rq->vq->num_free > min((unsigned int)budget, virtqueue_get_vring_size(rq->vq)) / 2) {
+ 		if (!try_fill_recv(vi, rq, GFP_ATOMIC))
+ 			schedule_delayed_work(&vi->refill, 0);
+ 	}
+-- 
+2.11.0
