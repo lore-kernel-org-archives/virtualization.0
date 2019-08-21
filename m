@@ -1,17 +1,17 @@
 From: David Hildenbrand <david@redhat.com>
-Subject: Re: [PATCH v2] mm/balloon_compaction: Informative allocation warnings
-Date: Wed, 21 Aug 2019 21:12:34 +0200
-Message-ID: <3873b6ab-de6d-cac2-90e8-541fe86e2005__332.472384774007$1566414767$gmane$org@redhat.com>
-References: <20190821094159.40795-1-namit@vmware.com>
-	<75ff92c2-7ae2-c4a6-cd1f-44741e29d20e@redhat.com>
-	<4E10A342-9A51-4C1F-8E5A-8005AACEF4CE@vmware.com>
-	<497b1189-8e1d-2926-ee5e-9077fcceb04b@redhat.com>
-	<36AC2460-9E88-4BAF-B793-A14A00E41617@vmware.com>
+Subject: Re: [PATCH] mm/balloon_compaction: suppress allocation warnings
+Date: Wed, 21 Aug 2019 21:13:36 +0200
+Message-ID: <2aa52636-4ca7-0d47-c5bf-42408af3ea0f__49239.4623159029$1566414831$gmane$org@redhat.com>
+References: <20190820091646.29642-1-namit@vmware.com>
+	<ba01ec8c-19c3-847c-a315-2f70f4b1fe31@redhat.com>
+	<5BBC6CB3-2DCD-4A95-90C9-7C23482F9B32@vmware.com>
+	<85c72875-278f-fbab-69c9-92dc1873d407@redhat.com>
+	<FC42B62F-167F-4D7D-ADC5-926B36347E82@vmware.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset="utf-8"
+Content-Transfer-Encoding: base64
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <36AC2460-9E88-4BAF-B793-A14A00E41617@vmware.com>
+In-Reply-To: <FC42B62F-167F-4D7D-ADC5-926B36347E82@vmware.com>
 Content-Language: en-US
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
@@ -23,94 +23,38 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
 To: Nadav Amit <namit@vmware.com>
-Cc: Linux-MM <linux-mm@kvack.org>, "virtualization@lists.linux-foundation.org" <virtualization@lists.linux-foundation.org>, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>, "Michael S. Tsirkin" <mst@redhat.com>
+Cc: "linux-mm@kvack.org" <linux-mm@kvack.org>, "virtualization@lists.linux-foundation.org" <virtualization@lists.linux-foundation.org>, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>, "Michael S. Tsirkin" <mst@redhat.com>
 List-Id: virtualization@lists.linuxfoundation.org
 
-On 21.08.19 21:10, Nadav Amit wrote:
->> On Aug 21, 2019, at 12:06 PM, David Hildenbrand <david@redhat.com> wrote:
->>
->> On 21.08.19 20:59, Nadav Amit wrote:
->>>> On Aug 21, 2019, at 11:57 AM, David Hildenbrand <david@redhat.com> wrote:
->>>>
->>>> On 21.08.19 11:41, Nadav Amit wrote:
->>>>> There is no reason to print generic warnings when balloon memory
->>>>> allocation fails, as failures are expected and can be handled
->>>>> gracefully. Since VMware balloon now uses balloon-compaction
->>>>> infrastructure, and suppressed these warnings before, it is also
->>>>> beneficial to suppress these warnings to keep the same behavior that the
->>>>> balloon had before.
->>>>>
->>>>> Since such warnings can still be useful to indicate that the balloon is
->>>>> over-inflated, print more informative and less frightening warning if
->>>>> allocation fails instead.
->>>>>
->>>>> Cc: David Hildenbrand <david@redhat.com>
->>>>> Cc: Jason Wang <jasowang@redhat.com>
->>>>> Signed-off-by: Nadav Amit <namit@vmware.com>
->>>>>
->>>>> ---
->>>>>
->>>>> v1->v2:
->>>>> * Print informative warnings instead suppressing [David]
->>>>> ---
->>>>> mm/balloon_compaction.c | 7 ++++++-
->>>>> 1 file changed, 6 insertions(+), 1 deletion(-)
->>>>>
->>>>> diff --git a/mm/balloon_compaction.c b/mm/balloon_compaction.c
->>>>> index 798275a51887..0c1d1f7689f0 100644
->>>>> --- a/mm/balloon_compaction.c
->>>>> +++ b/mm/balloon_compaction.c
->>>>> @@ -124,7 +124,12 @@ EXPORT_SYMBOL_GPL(balloon_page_list_dequeue);
->>>>> struct page *balloon_page_alloc(void)
->>>>> {
->>>>> 	struct page *page = alloc_page(balloon_mapping_gfp_mask() |
->>>>> -				       __GFP_NOMEMALLOC | __GFP_NORETRY);
->>>>> +				       __GFP_NOMEMALLOC | __GFP_NORETRY |
->>>>> +				       __GFP_NOWARN);
->>>>> +
->>>>> +	if (!page)
->>>>> +		pr_warn_ratelimited("memory balloon: memory allocation failed");
->>>>> +
->>>>> 	return page;
->>>>> }
->>>>> EXPORT_SYMBOL_GPL(balloon_page_alloc);
->>>>
->>>> Not sure if "memory balloon" is the right wording. hmmm.
->>>>
->>>> Acked-by: David Hildenbrand <david@redhat.com>
->>>
->>> Do you have a better suggestion?
->>
->> Not really - that's why I ack'ed :)
->>
->> However, thinking about it - what about moving the check + print to the
->> caller and then using dev_warn... or sth. like simple "virtio_balloon:
->> ..." ? You can then drop the warning for vmware balloon if you feel like
->> not needing it.
-> 
-> Actually, there is already a warning that is printed by the virtue_balloon
-> in fill_balloon():
-> 
->                 struct page *page = balloon_page_alloc();
-> 
->                 if (!page) {
->                         dev_info_ratelimited(&vb->vdev->dev,
->                                              "Out of puff! Can't get %u pages\n",
->                                              VIRTIO_BALLOON_PAGES_PER_PAGE);
->                         /* Sleep for at least 1/5 of a second before retry. */
->                         msleep(200);
->                         break;
->                 }
-> 
-> So are you ok with going back to v1?
-> 
-
-Whoops, I missed that - sorry - usually the warnings scream louder at me :D
-
-Yes, v1 is fine with me!
-
--- 
-
-Thanks,
-
-David / dhildenb
+T24gMjEuMDguMTkgMTg6MzQsIE5hZGF2IEFtaXQgd3JvdGU6Cj4+IE9uIEF1ZyAyMSwgMjAxOSwg
+YXQgOToyOSBBTSwgRGF2aWQgSGlsZGVuYnJhbmQgPGRhdmlkQHJlZGhhdC5jb20+IHdyb3RlOgo+
+Pgo+PiBPbiAyMS4wOC4xOSAxODoyMywgTmFkYXYgQW1pdCB3cm90ZToKPj4+PiBPbiBBdWcgMjEs
+IDIwMTksIGF0IDk6MDUgQU0sIERhdmlkIEhpbGRlbmJyYW5kIDxkYXZpZEByZWRoYXQuY29tPiB3
+cm90ZToKPj4+Pgo+Pj4+IE9uIDIwLjA4LjE5IDExOjE2LCBOYWRhdiBBbWl0IHdyb3RlOgo+Pj4+
+PiBUaGVyZSBpcyBubyByZWFzb24gdG8gcHJpbnQgd2FybmluZ3Mgd2hlbiBiYWxsb29uIHBhZ2Ug
+YWxsb2NhdGlvbiBmYWlscywKPj4+Pj4gYXMgdGhleSBhcmUgZXhwZWN0ZWQgYW5kIGNhbiBiZSBo
+YW5kbGVkIGdyYWNlZnVsbHkuICBTaW5jZSBWTXdhcmUKPj4+Pj4gYmFsbG9vbiBub3cgdXNlcyBi
+YWxsb29uLWNvbXBhY3Rpb24gaW5mcmFzdHJ1Y3R1cmUsIGFuZCBzdXBwcmVzc2VkIHRoZXNlCj4+
+Pj4+IHdhcm5pbmdzIGJlZm9yZSwgaXQgaXMgYWxzbyBiZW5lZmljaWFsIHRvIHN1cHByZXNzIHRo
+ZXNlIHdhcm5pbmdzIHRvCj4+Pj4+IGtlZXAgdGhlIHNhbWUgYmVoYXZpb3IgdGhhdCB0aGUgYmFs
+bG9vbiBoYWQgYmVmb3JlLgo+Pj4+Cj4+Pj4gSSBhbSBub3Qgc3VyZSBpZiB0aGF0J3MgYSBnb29k
+IGlkZWEuIFRoZSBhbGxvY2F0aW9uIHdhcm5pbmdzIGFyZSB1c3VhbGx5Cj4+Pj4gdGhlIG9ubHkg
+dHJhY2Ugb2YgInRoZSB1c2VyL2FkbWluIGRpZCBzb21ldGhpbmcgYmFkIGJlY2F1c2UgaGUvc2hl
+IHRyaWVkCj4+Pj4gdG8gaW5mbGF0ZSB0aGUgYmFsbG9vbiB0byBhbiB1bnNhZmUgdmFsdWUiLiBC
+ZWxpZXZlIG1lLCBJIHByb2Nlc3NlZCBhCj4+Pj4gY291cGxlIG9mIHN1Y2ggYnVncmVwb3J0cyBy
+ZWxhdGVkIHRvIHZpcnRpby1iYWxsb29uIGFuZCB0aGUgd2FybmluZyB3ZXJlCj4+Pj4gdmVyeSBo
+ZWxwZnVsIGZvciB0aGF0Lgo+Pj4KPj4+IE9rLCBzbyBhIG1lc3NhZ2UgaXMgbmVlZGVkLCBidXQg
+ZG9lcyBpdCBoYXZlIHRvIGJlIGEgZ2VuZXJpYyBmcmlnaHRlbmluZwo+Pj4gd2FybmluZz8KPj4+
+Cj4+PiBIb3cgYWJvdXQgdXNpbmcgX19HRlBfTk9XQVJOLCBhbmQgaWYgYWxsb2NhdGlvbiBkbyBz
+b21ldGhpbmcgbGlrZToKPj4+Cj4+PiAgcHJfd2FybijigJxCYWxsb29uIG1lbW9yeSBhbGxvY2F0
+aW9uIGZhaWxlZOKAnSk7Cj4+Pgo+Pj4gT3IgZXZlbiBzb21ldGhpbmcgbW9yZSBpbmZvcm1hdGl2
+ZT8gVGhpcyB3b3VsZCBzdXJlbHkgYmUgbGVzcyBpbnRpbWlkYXRpbmcKPj4+IGZvciBjb21tb24g
+dXNlcnMuCj4+Cj4+IHJhdGVsaW1pdCB3b3VsZCBtYWtlIHNlbnNlIDopCj4+Cj4+IEFuZCB5ZXMs
+IHRoaXMgd291bGQgY2VydGFpbmx5IGJlIG5pY2VyLgo+IAo+IFRoYW5rcy4gSSB3aWxsIHBvc3Qg
+djIgb2YgdGhlIHBhdGNoLgo+IAoKQXMgZGlzY3Vzc2VkIGluIHYyLCB3ZSBhbHJlYWR5IHByaW50
+IGEgd2FybmluZyBpbiB2aXJ0aW8tYmFsbG9vbiwgc28gSQphbSBmaW5lIHdpdGggdGhpcyBwYXRj
+aC4KClJldmlld2VkLWJ5OiBEYXZpZCBIaWxkZW5icmFuZCA8ZGF2aWRAcmVkaGF0LmNvbT4KCi0t
+IAoKVGhhbmtzLAoKRGF2aWQgLyBkaGlsZGVuYgpfX19fX19fX19fX19fX19fX19fX19fX19fX19f
+X19fX19fX19fX19fX19fX19fXwpWaXJ0dWFsaXphdGlvbiBtYWlsaW5nIGxpc3QKVmlydHVhbGl6
+YXRpb25AbGlzdHMubGludXgtZm91bmRhdGlvbi5vcmcKaHR0cHM6Ly9saXN0cy5saW51eGZvdW5k
+YXRpb24ub3JnL21haWxtYW4vbGlzdGluZm8vdmlydHVhbGl6YXRpb24=
