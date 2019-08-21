@@ -1,14 +1,17 @@
-From: David Hildenbrand <david@redhat.com>
+From: Nadav Amit via Virtualization <virtualization@lists.linux-foundation.org>
 Subject: Re: [PATCH] mm/balloon_compaction: suppress allocation warnings
-Date: Wed, 21 Aug 2019 18:05:54 +0200
-Message-ID: <ba01ec8c-19c3-847c-a315-2f70f4b1fe31__8566.56872654042$1566403568$gmane$org@redhat.com>
+Date: Wed, 21 Aug 2019 16:23:22 +0000
+Message-ID: <5BBC6CB3-2DCD-4A95-90C9-7C23482F9B32@vmware.com>
 References: <20190820091646.29642-1-namit@vmware.com>
+	<ba01ec8c-19c3-847c-a315-2f70f4b1fe31@redhat.com>
+Reply-To: Nadav Amit <namit@vmware.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset="utf-8"
+Content-Transfer-Encoding: base64
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <20190820091646.29642-1-namit@vmware.com>
+In-Reply-To: <ba01ec8c-19c3-847c-a315-2f70f4b1fe31@redhat.com>
 Content-Language: en-US
+Content-ID: <A6726210375C704692078D756D10D1B3@namprd05.prod.outlook.com>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -18,49 +21,30 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Nadav Amit <namit@vmware.com>, "Michael S. Tsirkin" <mst@redhat.com>
-Cc: linux-mm@kvack.org, linux-kernel@vger.kernel.org, virtualization@lists.linux-foundation.org
+To: David Hildenbrand <david@redhat.com>
+Cc: "linux-mm@kvack.org" <linux-mm@kvack.org>, "virtualization@lists.linux-foundation.org" <virtualization@lists.linux-foundation.org>, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>, "Michael S. Tsirkin" <mst@redhat.com>
 List-Id: virtualization@lists.linuxfoundation.org
 
-On 20.08.19 11:16, Nadav Amit wrote:
-> There is no reason to print warnings when balloon page allocation fails,
-> as they are expected and can be handled gracefully.  Since VMware
-> balloon now uses balloon-compaction infrastructure, and suppressed these
-> warnings before, it is also beneficial to suppress these warnings to
-> keep the same behavior that the balloon had before.
-
-I am not sure if that's a good idea. The allocation warnings are usually
-the only trace of "the user/admin did something bad because he/she tried
-to inflate the balloon to an unsafe value". Believe me, I processed a
-couple of such bugreports related to virtio-balloon and the warning were
-very helpful for that.
-
-> 
-> Cc: Jason Wang <jasowang@redhat.com>
-> Signed-off-by: Nadav Amit <namit@vmware.com>
-> ---
->  mm/balloon_compaction.c | 3 ++-
->  1 file changed, 2 insertions(+), 1 deletion(-)
-> 
-> diff --git a/mm/balloon_compaction.c b/mm/balloon_compaction.c
-> index 798275a51887..26de020aae7b 100644
-> --- a/mm/balloon_compaction.c
-> +++ b/mm/balloon_compaction.c
-> @@ -124,7 +124,8 @@ EXPORT_SYMBOL_GPL(balloon_page_list_dequeue);
->  struct page *balloon_page_alloc(void)
->  {
->  	struct page *page = alloc_page(balloon_mapping_gfp_mask() |
-> -				       __GFP_NOMEMALLOC | __GFP_NORETRY);
-> +				       __GFP_NOMEMALLOC | __GFP_NORETRY |
-> +				       __GFP_NOWARN);
->  	return page;
->  }
->  EXPORT_SYMBOL_GPL(balloon_page_alloc);
-> 
-
-
--- 
-
-Thanks,
-
-David / dhildenb
+PiBPbiBBdWcgMjEsIDIwMTksIGF0IDk6MDUgQU0sIERhdmlkIEhpbGRlbmJyYW5kIDxkYXZpZEBy
+ZWRoYXQuY29tPiB3cm90ZToNCj4gDQo+IE9uIDIwLjA4LjE5IDExOjE2LCBOYWRhdiBBbWl0IHdy
+b3RlOg0KPj4gVGhlcmUgaXMgbm8gcmVhc29uIHRvIHByaW50IHdhcm5pbmdzIHdoZW4gYmFsbG9v
+biBwYWdlIGFsbG9jYXRpb24gZmFpbHMsDQo+PiBhcyB0aGV5IGFyZSBleHBlY3RlZCBhbmQgY2Fu
+IGJlIGhhbmRsZWQgZ3JhY2VmdWxseS4gIFNpbmNlIFZNd2FyZQ0KPj4gYmFsbG9vbiBub3cgdXNl
+cyBiYWxsb29uLWNvbXBhY3Rpb24gaW5mcmFzdHJ1Y3R1cmUsIGFuZCBzdXBwcmVzc2VkIHRoZXNl
+DQo+PiB3YXJuaW5ncyBiZWZvcmUsIGl0IGlzIGFsc28gYmVuZWZpY2lhbCB0byBzdXBwcmVzcyB0
+aGVzZSB3YXJuaW5ncyB0bw0KPj4ga2VlcCB0aGUgc2FtZSBiZWhhdmlvciB0aGF0IHRoZSBiYWxs
+b29uIGhhZCBiZWZvcmUuDQo+IA0KPiBJIGFtIG5vdCBzdXJlIGlmIHRoYXQncyBhIGdvb2QgaWRl
+YS4gVGhlIGFsbG9jYXRpb24gd2FybmluZ3MgYXJlIHVzdWFsbHkNCj4gdGhlIG9ubHkgdHJhY2Ug
+b2YgInRoZSB1c2VyL2FkbWluIGRpZCBzb21ldGhpbmcgYmFkIGJlY2F1c2UgaGUvc2hlIHRyaWVk
+DQo+IHRvIGluZmxhdGUgdGhlIGJhbGxvb24gdG8gYW4gdW5zYWZlIHZhbHVlIi4gQmVsaWV2ZSBt
+ZSwgSSBwcm9jZXNzZWQgYQ0KPiBjb3VwbGUgb2Ygc3VjaCBidWdyZXBvcnRzIHJlbGF0ZWQgdG8g
+dmlydGlvLWJhbGxvb24gYW5kIHRoZSB3YXJuaW5nIHdlcmUNCj4gdmVyeSBoZWxwZnVsIGZvciB0
+aGF0Lg0KDQpPaywgc28gYSBtZXNzYWdlIGlzIG5lZWRlZCwgYnV0IGRvZXMgaXQgaGF2ZSB0byBi
+ZSBhIGdlbmVyaWMgZnJpZ2h0ZW5pbmcNCndhcm5pbmc/DQoNCkhvdyBhYm91dCB1c2luZyBfX0dG
+UF9OT1dBUk4sIGFuZCBpZiBhbGxvY2F0aW9uIGRvIHNvbWV0aGluZyBsaWtlOg0KDQogIHByX3dh
+cm4o4oCcQmFsbG9vbiBtZW1vcnkgYWxsb2NhdGlvbiBmYWlsZWTigJ0pOw0KDQpPciBldmVuIHNv
+bWV0aGluZyBtb3JlIGluZm9ybWF0aXZlPyBUaGlzIHdvdWxkIHN1cmVseSBiZSBsZXNzIGludGlt
+aWRhdGluZw0KZm9yIGNvbW1vbiB1c2Vycy4NCg0KX19fX19fX19fX19fX19fX19fX19fX19fX19f
+X19fX19fX19fX19fX19fX19fX18KVmlydHVhbGl6YXRpb24gbWFpbGluZyBsaXN0ClZpcnR1YWxp
+emF0aW9uQGxpc3RzLmxpbnV4LWZvdW5kYXRpb24ub3JnCmh0dHBzOi8vbGlzdHMubGludXhmb3Vu
+ZGF0aW9uLm9yZy9tYWlsbWFuL2xpc3RpbmZvL3ZpcnR1YWxpemF0aW9u
