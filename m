@@ -1,21 +1,21 @@
 From: Nadav Amit via Virtualization <virtualization@lists.linux-foundation.org>
-Subject: Re: [PATCH v2] mm/balloon_compaction: Informative allocation warnings
-Date: Wed, 21 Aug 2019 19:19:18 +0000
-Message-ID: <9DDD9A0D-C88C-4EEF-A41B-E5646BDEF414@vmware.com>
-References: <20190821094159.40795-1-namit@vmware.com>
-	<75ff92c2-7ae2-c4a6-cd1f-44741e29d20e@redhat.com>
-	<4E10A342-9A51-4C1F-8E5A-8005AACEF4CE@vmware.com>
-	<497b1189-8e1d-2926-ee5e-9077fcceb04b@redhat.com>
-	<36AC2460-9E88-4BAF-B793-A14A00E41617@vmware.com>
-	<3873b6ab-de6d-cac2-90e8-541fe86e2005@redhat.com>
+Subject: Re: [PATCH] mm/balloon_compaction: suppress allocation warnings
+Date: Wed, 21 Aug 2019 19:44:33 +0000
+Message-ID: <D4105FF4-5DF3-4DB5-9325-855B63CD9AAD@vmware.com>
+References: <20190820091646.29642-1-namit@vmware.com>
+	<ba01ec8c-19c3-847c-a315-2f70f4b1fe31@redhat.com>
+	<5BBC6CB3-2DCD-4A95-90C9-7C23482F9B32@vmware.com>
+	<85c72875-278f-fbab-69c9-92dc1873d407@redhat.com>
+	<FC42B62F-167F-4D7D-ADC5-926B36347E82@vmware.com>
+	<2aa52636-4ca7-0d47-c5bf-42408af3ea0f@redhat.com>
 Reply-To: Nadav Amit <namit@vmware.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset="utf-8"
+Content-Transfer-Encoding: base64
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <3873b6ab-de6d-cac2-90e8-541fe86e2005@redhat.com>
+In-Reply-To: <2aa52636-4ca7-0d47-c5bf-42408af3ea0f@redhat.com>
 Content-Language: en-US
-Content-ID: <F2EB266CFF731C4798729C491FC45D72@namprd05.prod.outlook.com>
+Content-ID: <E0487EC43891654D90815A578D153FBD@namprd05.prod.outlook.com>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -25,93 +25,44 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: David Hildenbrand <david@redhat.com>
-Cc: Linux-MM <linux-mm@kvack.org>, "virtualization@lists.linux-foundation.org" <virtualization@lists.linux-foundation.org>, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>, "Michael S. Tsirkin" <mst@redhat.com>
+To: "Michael S. Tsirkin" <mst@redhat.com>
+Cc: "linux-mm@kvack.org" <linux-mm@kvack.org>, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>, "virtualization@lists.linux-foundation.org" <virtualization@lists.linux-foundation.org>
 List-Id: virtualization@lists.linuxfoundation.org
 
-> On Aug 21, 2019, at 12:12 PM, David Hildenbrand <david@redhat.com> wrote:
-> 
-> On 21.08.19 21:10, Nadav Amit wrote:
->>> On Aug 21, 2019, at 12:06 PM, David Hildenbrand <david@redhat.com> wrote:
->>> 
->>> On 21.08.19 20:59, Nadav Amit wrote:
->>>>> On Aug 21, 2019, at 11:57 AM, David Hildenbrand <david@redhat.com> wrote:
->>>>> 
->>>>> On 21.08.19 11:41, Nadav Amit wrote:
->>>>>> There is no reason to print generic warnings when balloon memory
->>>>>> allocation fails, as failures are expected and can be handled
->>>>>> gracefully. Since VMware balloon now uses balloon-compaction
->>>>>> infrastructure, and suppressed these warnings before, it is also
->>>>>> beneficial to suppress these warnings to keep the same behavior that the
->>>>>> balloon had before.
->>>>>> 
->>>>>> Since such warnings can still be useful to indicate that the balloon is
->>>>>> over-inflated, print more informative and less frightening warning if
->>>>>> allocation fails instead.
->>>>>> 
->>>>>> Cc: David Hildenbrand <david@redhat.com>
->>>>>> Cc: Jason Wang <jasowang@redhat.com>
->>>>>> Signed-off-by: Nadav Amit <namit@vmware.com>
->>>>>> 
->>>>>> ---
->>>>>> 
->>>>>> v1->v2:
->>>>>> * Print informative warnings instead suppressing [David]
->>>>>> ---
->>>>>> mm/balloon_compaction.c | 7 ++++++-
->>>>>> 1 file changed, 6 insertions(+), 1 deletion(-)
->>>>>> 
->>>>>> diff --git a/mm/balloon_compaction.c b/mm/balloon_compaction.c
->>>>>> index 798275a51887..0c1d1f7689f0 100644
->>>>>> --- a/mm/balloon_compaction.c
->>>>>> +++ b/mm/balloon_compaction.c
->>>>>> @@ -124,7 +124,12 @@ EXPORT_SYMBOL_GPL(balloon_page_list_dequeue);
->>>>>> struct page *balloon_page_alloc(void)
->>>>>> {
->>>>>> 	struct page *page = alloc_page(balloon_mapping_gfp_mask() |
->>>>>> -				       __GFP_NOMEMALLOC | __GFP_NORETRY);
->>>>>> +				       __GFP_NOMEMALLOC | __GFP_NORETRY |
->>>>>> +				       __GFP_NOWARN);
->>>>>> +
->>>>>> +	if (!page)
->>>>>> +		pr_warn_ratelimited("memory balloon: memory allocation failed");
->>>>>> +
->>>>>> 	return page;
->>>>>> }
->>>>>> EXPORT_SYMBOL_GPL(balloon_page_alloc);
->>>>> 
->>>>> Not sure if "memory balloon" is the right wording. hmmm.
->>>>> 
->>>>> Acked-by: David Hildenbrand <david@redhat.com>
->>>> 
->>>> Do you have a better suggestion?
->>> 
->>> Not really - that's why I ack'ed :)
->>> 
->>> However, thinking about it - what about moving the check + print to the
->>> caller and then using dev_warn... or sth. like simple "virtio_balloon:
->>> ..." ? You can then drop the warning for vmware balloon if you feel like
->>> not needing it.
->> 
->> Actually, there is already a warning that is printed by the virtue_balloon
->> in fill_balloon():
->> 
->>                struct page *page = balloon_page_alloc();
->> 
->>                if (!page) {
->>                        dev_info_ratelimited(&vb->vdev->dev,
->>                                             "Out of puff! Can't get %u pages\n",
->>                                             VIRTIO_BALLOON_PAGES_PER_PAGE);
->>                        /* Sleep for at least 1/5 of a second before retry. */
->>                        msleep(200);
->>                        break;
->>                }
->> 
->> So are you ok with going back to v1?
-> 
-> Whoops, I missed that - sorry - usually the warnings scream louder at me :D
-> 
-> Yes, v1 is fine with me!
-
-Thanks, I missed this one too. This change should prevent making users
-concerned for no good reason.
+PiBPbiBBdWcgMjEsIDIwMTksIGF0IDEyOjEzIFBNLCBEYXZpZCBIaWxkZW5icmFuZCA8ZGF2aWRA
+cmVkaGF0LmNvbT4gd3JvdGU6DQo+IA0KPiBPbiAyMS4wOC4xOSAxODozNCwgTmFkYXYgQW1pdCB3
+cm90ZToNCj4+PiBPbiBBdWcgMjEsIDIwMTksIGF0IDk6MjkgQU0sIERhdmlkIEhpbGRlbmJyYW5k
+IDxkYXZpZEByZWRoYXQuY29tPiB3cm90ZToNCj4+PiANCj4+PiBPbiAyMS4wOC4xOSAxODoyMywg
+TmFkYXYgQW1pdCB3cm90ZToNCj4+Pj4+IE9uIEF1ZyAyMSwgMjAxOSwgYXQgOTowNSBBTSwgRGF2
+aWQgSGlsZGVuYnJhbmQgPGRhdmlkQHJlZGhhdC5jb20+IHdyb3RlOg0KPj4+Pj4gDQo+Pj4+PiBP
+biAyMC4wOC4xOSAxMToxNiwgTmFkYXYgQW1pdCB3cm90ZToNCj4+Pj4+PiBUaGVyZSBpcyBubyBy
+ZWFzb24gdG8gcHJpbnQgd2FybmluZ3Mgd2hlbiBiYWxsb29uIHBhZ2UgYWxsb2NhdGlvbiBmYWls
+cywNCj4+Pj4+PiBhcyB0aGV5IGFyZSBleHBlY3RlZCBhbmQgY2FuIGJlIGhhbmRsZWQgZ3JhY2Vm
+dWxseS4gIFNpbmNlIFZNd2FyZQ0KPj4+Pj4+IGJhbGxvb24gbm93IHVzZXMgYmFsbG9vbi1jb21w
+YWN0aW9uIGluZnJhc3RydWN0dXJlLCBhbmQgc3VwcHJlc3NlZCB0aGVzZQ0KPj4+Pj4+IHdhcm5p
+bmdzIGJlZm9yZSwgaXQgaXMgYWxzbyBiZW5lZmljaWFsIHRvIHN1cHByZXNzIHRoZXNlIHdhcm5p
+bmdzIHRvDQo+Pj4+Pj4ga2VlcCB0aGUgc2FtZSBiZWhhdmlvciB0aGF0IHRoZSBiYWxsb29uIGhh
+ZCBiZWZvcmUuDQo+Pj4+PiANCj4+Pj4+IEkgYW0gbm90IHN1cmUgaWYgdGhhdCdzIGEgZ29vZCBp
+ZGVhLiBUaGUgYWxsb2NhdGlvbiB3YXJuaW5ncyBhcmUgdXN1YWxseQ0KPj4+Pj4gdGhlIG9ubHkg
+dHJhY2Ugb2YgInRoZSB1c2VyL2FkbWluIGRpZCBzb21ldGhpbmcgYmFkIGJlY2F1c2UgaGUvc2hl
+IHRyaWVkDQo+Pj4+PiB0byBpbmZsYXRlIHRoZSBiYWxsb29uIHRvIGFuIHVuc2FmZSB2YWx1ZSIu
+IEJlbGlldmUgbWUsIEkgcHJvY2Vzc2VkIGENCj4+Pj4+IGNvdXBsZSBvZiBzdWNoIGJ1Z3JlcG9y
+dHMgcmVsYXRlZCB0byB2aXJ0aW8tYmFsbG9vbiBhbmQgdGhlIHdhcm5pbmcgd2VyZQ0KPj4+Pj4g
+dmVyeSBoZWxwZnVsIGZvciB0aGF0Lg0KPj4+PiANCj4+Pj4gT2ssIHNvIGEgbWVzc2FnZSBpcyBu
+ZWVkZWQsIGJ1dCBkb2VzIGl0IGhhdmUgdG8gYmUgYSBnZW5lcmljIGZyaWdodGVuaW5nDQo+Pj4+
+IHdhcm5pbmc/DQo+Pj4+IA0KPj4+PiBIb3cgYWJvdXQgdXNpbmcgX19HRlBfTk9XQVJOLCBhbmQg
+aWYgYWxsb2NhdGlvbiBkbyBzb21ldGhpbmcgbGlrZToNCj4+Pj4gDQo+Pj4+IHByX3dhcm4o4oCc
+QmFsbG9vbiBtZW1vcnkgYWxsb2NhdGlvbiBmYWlsZWTigJ0pOw0KPj4+PiANCj4+Pj4gT3IgZXZl
+biBzb21ldGhpbmcgbW9yZSBpbmZvcm1hdGl2ZT8gVGhpcyB3b3VsZCBzdXJlbHkgYmUgbGVzcyBp
+bnRpbWlkYXRpbmcNCj4+Pj4gZm9yIGNvbW1vbiB1c2Vycy4NCj4+PiANCj4+PiByYXRlbGltaXQg
+d291bGQgbWFrZSBzZW5zZSA6KQ0KPj4+IA0KPj4+IEFuZCB5ZXMsIHRoaXMgd291bGQgY2VydGFp
+bmx5IGJlIG5pY2VyLg0KPj4gDQo+PiBUaGFua3MuIEkgd2lsbCBwb3N0IHYyIG9mIHRoZSBwYXRj
+aC4NCj4gDQo+IEFzIGRpc2N1c3NlZCBpbiB2Miwgd2UgYWxyZWFkeSBwcmludCBhIHdhcm5pbmcg
+aW4gdmlydGlvLWJhbGxvb24sIHNvIEkNCj4gYW0gZmluZSB3aXRoIHRoaXMgcGF0Y2guDQo+IA0K
+PiBSZXZpZXdlZC1ieTogRGF2aWQgSGlsZGVuYnJhbmQgPGRhdmlkQHJlZGhhdC5jb20+DQoNCk1p
+Y2hhZWwsDQoNCklmIGl0IGlzIHBvc3NpYmxlIHRvIGdldCBpdCB0byA1LjMsIHRvIGF2b2lkIGJl
+aGF2aW9yYWwgY2hhbmdlIGZvciBWTXdhcmUNCmJhbGxvb24gdXNlcnMsIGl0IHdvdWxkIGJlIGdy
+ZWF0Lg0KDQpUaGFua3MsDQpOYWRhdgpfX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19f
+X19fX19fX19fX19fXwpWaXJ0dWFsaXphdGlvbiBtYWlsaW5nIGxpc3QKVmlydHVhbGl6YXRpb25A
+bGlzdHMubGludXgtZm91bmRhdGlvbi5vcmcKaHR0cHM6Ly9saXN0cy5saW51eGZvdW5kYXRpb24u
+b3JnL21haWxtYW4vbGlzdGluZm8vdmlydHVhbGl6YXRpb24=
