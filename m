@@ -1,7 +1,7 @@
 From: Gerd Hoffmann <kraxel@redhat.com>
-Subject: [PATCH v4 2/4] drm/bochs: drop yres_virtual from struct bochs_device
-Date: Thu, 22 Aug 2019 08:50:39 +0200
-Message-ID: <20190822065041.11941-3-kraxel__41482.3479762831$1566456663$gmane$org@redhat.com>
+Subject: [PATCH v4 3/4] drm/bochs: drop stride and bpp from struct bochs_device
+Date: Thu, 22 Aug 2019 08:50:40 +0200
+Message-ID: <20190822065041.11941-4-kraxel__48684.1362597019$1566456672$gmane$org@redhat.com>
 References: <20190822065041.11941-1-kraxel@redhat.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
@@ -21,52 +21,65 @@ To: dri-devel@lists.freedesktop.org
 Cc: tzimmermann@suse.de, David Airlie <airlied@linux.ie>, open list <linux-kernel@vger.kernel.org>, "open list:DRM DRIVER FOR BOCHS VIRTUAL GPU" <virtualization@lists.linux-foundation.org>, Daniel Vetter <daniel@ffwll.ch>
 List-Id: virtualization@lists.linuxfoundation.org
 
-Not needed, writing to VBE_DISPI_INDEX_VIRT_HEIGHT has no effect anyway.
+No need to store these values.  bpp is fixed (32) anyway.
+We lookup the stride from struct drm_framebuffer if needed.
 
 Signed-off-by: Gerd Hoffmann <kraxel@redhat.com>
 ---
- drivers/gpu/drm/bochs/bochs.h    | 1 -
- drivers/gpu/drm/bochs/bochs_hw.c | 8 ++------
- 2 files changed, 2 insertions(+), 7 deletions(-)
+ drivers/gpu/drm/bochs/bochs.h     | 2 --
+ drivers/gpu/drm/bochs/bochs_hw.c  | 8 +++-----
+ drivers/gpu/drm/bochs/bochs_kms.c | 2 +-
+ 3 files changed, 4 insertions(+), 8 deletions(-)
 
 diff --git a/drivers/gpu/drm/bochs/bochs.h b/drivers/gpu/drm/bochs/bochs.h
-index ed16840411f1..6aae494ffbe8 100644
+index 6aae494ffbe8..fa36a358a5dc 100644
 --- a/drivers/gpu/drm/bochs/bochs.h
 +++ b/drivers/gpu/drm/bochs/bochs.h
-@@ -62,7 +62,6 @@ struct bochs_device {
+@@ -62,8 +62,6 @@ struct bochs_device {
  	/* mode */
  	u16 xres;
  	u16 yres;
--	u16 yres_virtual;
- 	u32 stride;
- 	u32 bpp;
+-	u32 stride;
+-	u32 bpp;
  	struct edid *edid;
+ 
+ 	/* drm */
 diff --git a/drivers/gpu/drm/bochs/bochs_hw.c b/drivers/gpu/drm/bochs/bochs_hw.c
-index 949930d8a92f..2657b2e6e4d8 100644
+index 2657b2e6e4d8..0749e9de1a4d 100644
 --- a/drivers/gpu/drm/bochs/bochs_hw.c
 +++ b/drivers/gpu/drm/bochs/bochs_hw.c
-@@ -211,11 +211,9 @@ void bochs_hw_setmode(struct bochs_device *bochs,
+@@ -209,16 +209,14 @@ void bochs_hw_setmode(struct bochs_device *bochs,
+ {
+ 	bochs->xres = mode->hdisplay;
  	bochs->yres = mode->vdisplay;
- 	bochs->bpp = 32;
- 	bochs->stride = mode->hdisplay * (bochs->bpp / 8);
--	bochs->yres_virtual = bochs->fb_size / bochs->stride;
+-	bochs->bpp = 32;
+-	bochs->stride = mode->hdisplay * (bochs->bpp / 8);
  
--	DRM_DEBUG_DRIVER("%dx%d @ %d bpp, vy %d\n",
--			 bochs->xres, bochs->yres, bochs->bpp,
--			 bochs->yres_virtual);
-+	DRM_DEBUG_DRIVER("%dx%d @ %d bpp\n",
-+			 bochs->xres, bochs->yres, bochs->bpp);
+-	DRM_DEBUG_DRIVER("%dx%d @ %d bpp\n",
+-			 bochs->xres, bochs->yres, bochs->bpp);
++	DRM_DEBUG_DRIVER("%dx%d\n",
++			 bochs->xres, bochs->yres);
  
  	bochs_vga_writeb(bochs, 0x3c0, 0x20); /* unblank */
  
-@@ -225,8 +223,6 @@ void bochs_hw_setmode(struct bochs_device *bochs,
+ 	bochs_dispi_write(bochs, VBE_DISPI_INDEX_ENABLE,      0);
+-	bochs_dispi_write(bochs, VBE_DISPI_INDEX_BPP,         bochs->bpp);
++	bochs_dispi_write(bochs, VBE_DISPI_INDEX_BPP,         32);
+ 	bochs_dispi_write(bochs, VBE_DISPI_INDEX_XRES,        bochs->xres);
  	bochs_dispi_write(bochs, VBE_DISPI_INDEX_YRES,        bochs->yres);
  	bochs_dispi_write(bochs, VBE_DISPI_INDEX_BANK,        0);
- 	bochs_dispi_write(bochs, VBE_DISPI_INDEX_VIRT_WIDTH,  bochs->xres);
--	bochs_dispi_write(bochs, VBE_DISPI_INDEX_VIRT_HEIGHT,
--			  bochs->yres_virtual);
- 	bochs_dispi_write(bochs, VBE_DISPI_INDEX_X_OFFSET,    0);
- 	bochs_dispi_write(bochs, VBE_DISPI_INDEX_Y_OFFSET,    0);
+diff --git a/drivers/gpu/drm/bochs/bochs_kms.c b/drivers/gpu/drm/bochs/bochs_kms.c
+index f5d663259753..334e458cbc31 100644
+--- a/drivers/gpu/drm/bochs/bochs_kms.c
++++ b/drivers/gpu/drm/bochs/bochs_kms.c
+@@ -29,7 +29,7 @@ static const uint32_t bochs_formats[] = {
+ static void bochs_plane_update(struct bochs_device *bochs,
+ 			       struct drm_plane_state *state)
+ {
+-	if (!state->fb || !bochs->stride)
++	if (!state->fb)
+ 		return;
  
+ 	bochs_hw_setfb(bochs, state->fb,
 -- 
 2.18.1
