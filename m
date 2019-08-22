@@ -1,21 +1,13 @@
-From: Nadav Amit via Virtualization <virtualization@lists.linux-foundation.org>
-Subject: Re: [PATCH] mm/balloon_compaction: suppress allocation warnings
-Date: Wed, 21 Aug 2019 19:44:33 +0000
-Message-ID: <D4105FF4-5DF3-4DB5-9325-855B63CD9AAD@vmware.com>
-References: <20190820091646.29642-1-namit@vmware.com>
-	<ba01ec8c-19c3-847c-a315-2f70f4b1fe31@redhat.com>
-	<5BBC6CB3-2DCD-4A95-90C9-7C23482F9B32@vmware.com>
-	<85c72875-278f-fbab-69c9-92dc1873d407@redhat.com>
-	<FC42B62F-167F-4D7D-ADC5-926B36347E82@vmware.com>
-	<2aa52636-4ca7-0d47-c5bf-42408af3ea0f@redhat.com>
-Reply-To: Nadav Amit <namit@vmware.com>
+From: Gerd Hoffmann <kraxel@redhat.com>
+Subject: [PATCH v4 1/4] drm/bochs: pass framebuffer to bochs_hw_setbase
+Date: Thu, 22 Aug 2019 08:50:38 +0200
+Message-ID: <20190822065041.11941-2-kraxel__46821.3971749478$1566456655$gmane$org@redhat.com>
+References: <20190822065041.11941-1-kraxel@redhat.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="utf-8"
-Content-Transfer-Encoding: base64
+Content-Type: text/plain; charset="us-ascii"
+Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <2aa52636-4ca7-0d47-c5bf-42408af3ea0f@redhat.com>
-Content-Language: en-US
-Content-ID: <E0487EC43891654D90815A578D153FBD@namprd05.prod.outlook.com>
+In-Reply-To: <20190822065041.11941-1-kraxel@redhat.com>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -25,44 +17,98 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: "Michael S. Tsirkin" <mst@redhat.com>
-Cc: "linux-mm@kvack.org" <linux-mm@kvack.org>, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>, "virtualization@lists.linux-foundation.org" <virtualization@lists.linux-foundation.org>
+To: dri-devel@lists.freedesktop.org
+Cc: tzimmermann@suse.de, David Airlie <airlied@linux.ie>, open list <linux-kernel@vger.kernel.org>, "open list:DRM DRIVER FOR BOCHS VIRTUAL GPU" <virtualization@lists.linux-foundation.org>, Daniel Vetter <daniel@ffwll.ch>
 List-Id: virtualization@lists.linuxfoundation.org
 
-PiBPbiBBdWcgMjEsIDIwMTksIGF0IDEyOjEzIFBNLCBEYXZpZCBIaWxkZW5icmFuZCA8ZGF2aWRA
-cmVkaGF0LmNvbT4gd3JvdGU6DQo+IA0KPiBPbiAyMS4wOC4xOSAxODozNCwgTmFkYXYgQW1pdCB3
-cm90ZToNCj4+PiBPbiBBdWcgMjEsIDIwMTksIGF0IDk6MjkgQU0sIERhdmlkIEhpbGRlbmJyYW5k
-IDxkYXZpZEByZWRoYXQuY29tPiB3cm90ZToNCj4+PiANCj4+PiBPbiAyMS4wOC4xOSAxODoyMywg
-TmFkYXYgQW1pdCB3cm90ZToNCj4+Pj4+IE9uIEF1ZyAyMSwgMjAxOSwgYXQgOTowNSBBTSwgRGF2
-aWQgSGlsZGVuYnJhbmQgPGRhdmlkQHJlZGhhdC5jb20+IHdyb3RlOg0KPj4+Pj4gDQo+Pj4+PiBP
-biAyMC4wOC4xOSAxMToxNiwgTmFkYXYgQW1pdCB3cm90ZToNCj4+Pj4+PiBUaGVyZSBpcyBubyBy
-ZWFzb24gdG8gcHJpbnQgd2FybmluZ3Mgd2hlbiBiYWxsb29uIHBhZ2UgYWxsb2NhdGlvbiBmYWls
-cywNCj4+Pj4+PiBhcyB0aGV5IGFyZSBleHBlY3RlZCBhbmQgY2FuIGJlIGhhbmRsZWQgZ3JhY2Vm
-dWxseS4gIFNpbmNlIFZNd2FyZQ0KPj4+Pj4+IGJhbGxvb24gbm93IHVzZXMgYmFsbG9vbi1jb21w
-YWN0aW9uIGluZnJhc3RydWN0dXJlLCBhbmQgc3VwcHJlc3NlZCB0aGVzZQ0KPj4+Pj4+IHdhcm5p
-bmdzIGJlZm9yZSwgaXQgaXMgYWxzbyBiZW5lZmljaWFsIHRvIHN1cHByZXNzIHRoZXNlIHdhcm5p
-bmdzIHRvDQo+Pj4+Pj4ga2VlcCB0aGUgc2FtZSBiZWhhdmlvciB0aGF0IHRoZSBiYWxsb29uIGhh
-ZCBiZWZvcmUuDQo+Pj4+PiANCj4+Pj4+IEkgYW0gbm90IHN1cmUgaWYgdGhhdCdzIGEgZ29vZCBp
-ZGVhLiBUaGUgYWxsb2NhdGlvbiB3YXJuaW5ncyBhcmUgdXN1YWxseQ0KPj4+Pj4gdGhlIG9ubHkg
-dHJhY2Ugb2YgInRoZSB1c2VyL2FkbWluIGRpZCBzb21ldGhpbmcgYmFkIGJlY2F1c2UgaGUvc2hl
-IHRyaWVkDQo+Pj4+PiB0byBpbmZsYXRlIHRoZSBiYWxsb29uIHRvIGFuIHVuc2FmZSB2YWx1ZSIu
-IEJlbGlldmUgbWUsIEkgcHJvY2Vzc2VkIGENCj4+Pj4+IGNvdXBsZSBvZiBzdWNoIGJ1Z3JlcG9y
-dHMgcmVsYXRlZCB0byB2aXJ0aW8tYmFsbG9vbiBhbmQgdGhlIHdhcm5pbmcgd2VyZQ0KPj4+Pj4g
-dmVyeSBoZWxwZnVsIGZvciB0aGF0Lg0KPj4+PiANCj4+Pj4gT2ssIHNvIGEgbWVzc2FnZSBpcyBu
-ZWVkZWQsIGJ1dCBkb2VzIGl0IGhhdmUgdG8gYmUgYSBnZW5lcmljIGZyaWdodGVuaW5nDQo+Pj4+
-IHdhcm5pbmc/DQo+Pj4+IA0KPj4+PiBIb3cgYWJvdXQgdXNpbmcgX19HRlBfTk9XQVJOLCBhbmQg
-aWYgYWxsb2NhdGlvbiBkbyBzb21ldGhpbmcgbGlrZToNCj4+Pj4gDQo+Pj4+IHByX3dhcm4o4oCc
-QmFsbG9vbiBtZW1vcnkgYWxsb2NhdGlvbiBmYWlsZWTigJ0pOw0KPj4+PiANCj4+Pj4gT3IgZXZl
-biBzb21ldGhpbmcgbW9yZSBpbmZvcm1hdGl2ZT8gVGhpcyB3b3VsZCBzdXJlbHkgYmUgbGVzcyBp
-bnRpbWlkYXRpbmcNCj4+Pj4gZm9yIGNvbW1vbiB1c2Vycy4NCj4+PiANCj4+PiByYXRlbGltaXQg
-d291bGQgbWFrZSBzZW5zZSA6KQ0KPj4+IA0KPj4+IEFuZCB5ZXMsIHRoaXMgd291bGQgY2VydGFp
-bmx5IGJlIG5pY2VyLg0KPj4gDQo+PiBUaGFua3MuIEkgd2lsbCBwb3N0IHYyIG9mIHRoZSBwYXRj
-aC4NCj4gDQo+IEFzIGRpc2N1c3NlZCBpbiB2Miwgd2UgYWxyZWFkeSBwcmludCBhIHdhcm5pbmcg
-aW4gdmlydGlvLWJhbGxvb24sIHNvIEkNCj4gYW0gZmluZSB3aXRoIHRoaXMgcGF0Y2guDQo+IA0K
-PiBSZXZpZXdlZC1ieTogRGF2aWQgSGlsZGVuYnJhbmQgPGRhdmlkQHJlZGhhdC5jb20+DQoNCk1p
-Y2hhZWwsDQoNCklmIGl0IGlzIHBvc3NpYmxlIHRvIGdldCBpdCB0byA1LjMsIHRvIGF2b2lkIGJl
-aGF2aW9yYWwgY2hhbmdlIGZvciBWTXdhcmUNCmJhbGxvb24gdXNlcnMsIGl0IHdvdWxkIGJlIGdy
-ZWF0Lg0KDQpUaGFua3MsDQpOYWRhdgpfX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19f
-X19fX19fX19fX19fXwpWaXJ0dWFsaXphdGlvbiBtYWlsaW5nIGxpc3QKVmlydHVhbGl6YXRpb25A
-bGlzdHMubGludXgtZm91bmRhdGlvbi5vcmcKaHR0cHM6Ly9saXN0cy5saW51eGZvdW5kYXRpb24u
-b3JnL21haWxtYW4vbGlzdGluZm8vdmlydHVhbGl6YXRpb24=
+Also rename bochs_hw_setbase to bochs_hw_setfb,
+we have to set more than just the base address.
+
+Signed-off-by: Gerd Hoffmann <kraxel@redhat.com>
+---
+ drivers/gpu/drm/bochs/bochs.h     |  5 +++--
+ drivers/gpu/drm/bochs/bochs_hw.c  | 24 +++++++++++-------------
+ drivers/gpu/drm/bochs/bochs_kms.c | 11 +++--------
+ 3 files changed, 17 insertions(+), 23 deletions(-)
+
+diff --git a/drivers/gpu/drm/bochs/bochs.h b/drivers/gpu/drm/bochs/bochs.h
+index 68483a2fc12c..ed16840411f1 100644
+--- a/drivers/gpu/drm/bochs/bochs.h
++++ b/drivers/gpu/drm/bochs/bochs.h
+@@ -83,8 +83,9 @@ void bochs_hw_setmode(struct bochs_device *bochs,
+ 		      struct drm_display_mode *mode);
+ void bochs_hw_setformat(struct bochs_device *bochs,
+ 			const struct drm_format_info *format);
+-void bochs_hw_setbase(struct bochs_device *bochs,
+-		      int x, int y, int stride, u64 addr);
++void bochs_hw_setfb(struct bochs_device *bochs,
++		    struct drm_framebuffer *fb,
++		    int x, int y);
+ int bochs_hw_load_edid(struct bochs_device *bochs);
+ 
+ /* bochs_mm.c */
+diff --git a/drivers/gpu/drm/bochs/bochs_hw.c b/drivers/gpu/drm/bochs/bochs_hw.c
+index e567bdfa2ab8..949930d8a92f 100644
+--- a/drivers/gpu/drm/bochs/bochs_hw.c
++++ b/drivers/gpu/drm/bochs/bochs_hw.c
+@@ -258,22 +258,20 @@ void bochs_hw_setformat(struct bochs_device *bochs,
+ 	};
+ }
+ 
+-void bochs_hw_setbase(struct bochs_device *bochs,
+-		      int x, int y, int stride, u64 addr)
++void bochs_hw_setfb(struct bochs_device *bochs,
++		    struct drm_framebuffer *fb,
++		    int x, int y)
+ {
+-	unsigned long offset;
+-	unsigned int vx, vy, vwidth;
+-
+-	bochs->stride = stride;
+-	offset = (unsigned long)addr +
+-		y * bochs->stride +
+-		x * (bochs->bpp / 8);
+-	vy = offset / bochs->stride;
+-	vx = (offset % bochs->stride) * 8 / bochs->bpp;
+-	vwidth = stride * 8 / bochs->bpp;
++	struct drm_gem_vram_object *bo = drm_gem_vram_of_gem(fb->obj[0]);
++	unsigned long offset = bo->bo.offset +
++		y * fb->pitches[0] +
++		x * fb->format->cpp[0];
++	int vy = offset / fb->pitches[0];
++	int vx = (offset % fb->pitches[0]) / fb->format->cpp[0];
++	int vwidth = fb->pitches[0] / fb->format->cpp[0];
+ 
+ 	DRM_DEBUG_DRIVER("x %d, y %d, addr %llx -> offset %lx, vx %d, vy %d\n",
+-			 x, y, addr, offset, vx, vy);
++			 x, y, bo->bo.offset, offset, vx, vy);
+ 	bochs_dispi_write(bochs, VBE_DISPI_INDEX_VIRT_WIDTH, vwidth);
+ 	bochs_dispi_write(bochs, VBE_DISPI_INDEX_X_OFFSET, vx);
+ 	bochs_dispi_write(bochs, VBE_DISPI_INDEX_Y_OFFSET, vy);
+diff --git a/drivers/gpu/drm/bochs/bochs_kms.c b/drivers/gpu/drm/bochs/bochs_kms.c
+index 02a9c1ed165b..f5d663259753 100644
+--- a/drivers/gpu/drm/bochs/bochs_kms.c
++++ b/drivers/gpu/drm/bochs/bochs_kms.c
+@@ -29,17 +29,12 @@ static const uint32_t bochs_formats[] = {
+ static void bochs_plane_update(struct bochs_device *bochs,
+ 			       struct drm_plane_state *state)
+ {
+-	struct drm_gem_vram_object *gbo;
+-
+ 	if (!state->fb || !bochs->stride)
+ 		return;
+ 
+-	gbo = drm_gem_vram_of_gem(state->fb->obj[0]);
+-	bochs_hw_setbase(bochs,
+-			 state->crtc_x,
+-			 state->crtc_y,
+-			 state->fb->pitches[0],
+-			 state->fb->offsets[0] + gbo->bo.offset);
++	bochs_hw_setfb(bochs, state->fb,
++		       state->crtc_x,
++		       state->crtc_y);
+ 	bochs_hw_setformat(bochs, state->fb->format);
+ }
+ 
+-- 
+2.18.1
