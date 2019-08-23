@@ -1,7 +1,8 @@
 From: Gerd Hoffmann <kraxel@redhat.com>
-Subject: [PATCH v8 04/18] drm/virtio: remove virtio_gpu_object_wait
-Date: Fri, 23 Aug 2019 11:54:49 +0200
-Message-ID: <20190823095503.2261-5-kraxel@redhat.com>
+Subject: [PATCH v8 02/18] drm/virtio: switch virtio_gpu_wait_ioctl() to gem
+	helper.
+Date: Fri, 23 Aug 2019 11:54:47 +0200
+Message-ID: <20190823095503.2261-3-kraxel__48380.8602833719$1566554132$gmane$org@redhat.com>
 References: <20190823095503.2261-1-kraxel@redhat.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
@@ -21,47 +22,56 @@ To: dri-devel@lists.freedesktop.org
 Cc: David Airlie <airlied@linux.ie>, open list <linux-kernel@vger.kernel.org>, "open list:VIRTIO GPU DRIVER" <virtualization@lists.linux-foundation.org>, Daniel Vetter <daniel@ffwll.ch>, gurchetansingh@chromium.org, olvaffe@gmail.com
 List-Id: virtualization@lists.linuxfoundation.org
 
-No users left.
+Use drm_gem_reservation_object_wait() in virtio_gpu_wait_ioctl().
+This also makes the ioctl run lockless.
+
+v5: handle lookup failure.
+v2: use reservation_object_test_signaled_rcu for VIRTGPU_WAIT_NOWAIT.
 
 Signed-off-by: Gerd Hoffmann <kraxel@redhat.com>
 Reviewed-by: Daniel Vetter <daniel.vetter@ffwll.ch>
 ---
- drivers/gpu/drm/virtio/virtgpu_drv.h    |  1 -
- drivers/gpu/drm/virtio/virtgpu_object.c | 13 -------------
- 2 files changed, 14 deletions(-)
+ drivers/gpu/drm/virtio/virtgpu_ioctl.c | 25 +++++++++++--------------
+ 1 file changed, 11 insertions(+), 14 deletions(-)
 
-diff --git a/drivers/gpu/drm/virtio/virtgpu_drv.h b/drivers/gpu/drm/virtio/virtgpu_drv.h
-index e28829661724..3e0a53309c5b 100644
---- a/drivers/gpu/drm/virtio/virtgpu_drv.h
-+++ b/drivers/gpu/drm/virtio/virtgpu_drv.h
-@@ -364,7 +364,6 @@ int virtio_gpu_object_kmap(struct virtio_gpu_object *bo);
- int virtio_gpu_object_get_sg_table(struct virtio_gpu_device *qdev,
- 				   struct virtio_gpu_object *bo);
- void virtio_gpu_object_free_sg_table(struct virtio_gpu_object *bo);
--int virtio_gpu_object_wait(struct virtio_gpu_object *bo, bool no_wait);
+diff --git a/drivers/gpu/drm/virtio/virtgpu_ioctl.c b/drivers/gpu/drm/virtio/virtgpu_ioctl.c
+index 0a88ef11b9d3..74b6bad01d7f 100644
+--- a/drivers/gpu/drm/virtio/virtgpu_ioctl.c
++++ b/drivers/gpu/drm/virtio/virtgpu_ioctl.c
+@@ -466,23 +466,20 @@ static int virtio_gpu_wait_ioctl(struct drm_device *dev, void *data,
+ 			    struct drm_file *file)
+ {
+ 	struct drm_virtgpu_3d_wait *args = data;
+-	struct drm_gem_object *gobj = NULL;
+-	struct virtio_gpu_object *qobj = NULL;
++	struct drm_gem_object *obj;
++	long timeout = 15 * HZ;
+ 	int ret;
+-	bool nowait = false;
  
- /* virtgpu_prime.c */
- struct sg_table *virtgpu_gem_prime_get_sg_table(struct drm_gem_object *obj);
-diff --git a/drivers/gpu/drm/virtio/virtgpu_object.c b/drivers/gpu/drm/virtio/virtgpu_object.c
-index 242766d644a7..82bfbf983fd2 100644
---- a/drivers/gpu/drm/virtio/virtgpu_object.c
-+++ b/drivers/gpu/drm/virtio/virtgpu_object.c
-@@ -233,16 +233,3 @@ void virtio_gpu_object_free_sg_table(struct virtio_gpu_object *bo)
- 	kfree(bo->pages);
- 	bo->pages = NULL;
+-	gobj = drm_gem_object_lookup(file, args->handle);
+-	if (gobj == NULL)
+-		return -ENOENT;
++	if (args->flags & VIRTGPU_WAIT_NOWAIT) {
++		obj = drm_gem_object_lookup(file, args->handle);
++		if (obj == NULL)
++			return -ENOENT;
++		ret = dma_resv_test_signaled_rcu(obj->resv, true);
++		drm_gem_object_put_unlocked(obj);
++		return ret ? 0 : -EBUSY;
++	}
+ 
+-	qobj = gem_to_virtio_gpu_obj(gobj);
+-
+-	if (args->flags & VIRTGPU_WAIT_NOWAIT)
+-		nowait = true;
+-	ret = virtio_gpu_object_wait(qobj, nowait);
+-
+-	drm_gem_object_put_unlocked(gobj);
+-	return ret;
++	return drm_gem_dma_resv_wait(file, args->handle, true, timeout);
  }
--
--int virtio_gpu_object_wait(struct virtio_gpu_object *bo, bool no_wait)
--{
--	int r;
--
--	r = ttm_bo_reserve(&bo->tbo, true, no_wait, NULL);
--	if (unlikely(r != 0))
--		return r;
--	r = ttm_bo_wait(&bo->tbo, true, no_wait);
--	ttm_bo_unreserve(&bo->tbo);
--	return r;
--}
--
+ 
+ static int virtio_gpu_get_caps_ioctl(struct drm_device *dev,
 -- 
 2.18.1
