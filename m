@@ -1,18 +1,21 @@
-From: Christoph Hellwig <hch@infradead.org>
-Subject: Re: [PATCH V5 1/5] iommu/amd: Remove unnecessary locking from AMD
-	iommu driver
-Date: Sat, 24 Aug 2019 15:41:32 -0700
-Message-ID: <20190824224132.GA14806__42078.9689103671$1566686514$gmane$org@infradead.org>
-References: <20190815110944.3579-1-murphyt7@tcd.ie>
-	<20190815110944.3579-2-murphyt7@tcd.ie>
-	<20190820094143.GA24154@infradead.org>
-	<CALQxJussiGDzWFT1xhko6no5jZNOezWCFuJQUCr4XwH4NHri3Q@mail.gmail.com>
+From: Ram Pai <linuxram@us.ibm.com>
+Subject: RE: [RFC PATCH] virtio_ring: Use DMA API if guest memory is encrypted
+Date: Mon, 26 Aug 2019 10:48:49 -0700
+Message-ID: <20190826174849.GA5445__8614.62174668617$1566841757$gmane$org@ram.ibm.com>
+References: <87zhrj8kcp.fsf@morokweng.localdomain>
+	<20190810143038-mutt-send-email-mst@kernel.org>
+	<20190810220702.GA5964@ram.ibm.com> <20190811055607.GA12488@lst.de>
+	<20190812095156.GD3947@umbus.fritz.box>
+	<20190813132617.GA6426@lst.de>
+	<20190813142439.GO3947@umbus.fritz.box>
+	<20190813154537.GE5964@ram.ibm.com>
+Reply-To: Ram Pai <linuxram@us.ibm.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
 Content-Disposition: inline
-In-Reply-To: <CALQxJussiGDzWFT1xhko6no5jZNOezWCFuJQUCr4XwH4NHri3Q@mail.gmail.com>
+In-Reply-To: <20190813154537.GE5964@ram.ibm.com>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -22,9 +25,77 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Tom Murphy <murphyt7@tcd.ie>
-Cc: Heiko Stuebner <heiko@sntech.de>, virtualization@lists.linux-foundation.org, Matthias Brugger <matthias.bgg@gmail.com>, Thierry Reding <thierry.reding@gmail.com>, Will Deacon <will@kernel.org>, Jean-Philippe Brucker <jean-philippe@linaro.org>, linux-samsung-soc@vger.kernel.org, Krzysztof Kozlowski <krzk@kernel.org>, Jonathan Hunter <jonathanh@nvidia.com>, Christoph Hellwig <hch@infradead.org>, linux-rockchip@lists.infradead.org, Kukjin Kim <kgene@kernel.org>, Andy Gross <agross@kernel.org>, linux-s390@vger.kernel.org, Gerald Schaefer <gerald.schaefer@de.ibm.com>, linux-arm-msm@vger.kernel.org, linux-mediatek@lists.infradead.org, linux-tegra@vger.kernel.org, linux-arm-kernel@lists.infradead.org, Robin Murphy <robin.murphy@arm.com>, Linux Kernel Mailing List <linux-kernel@vger.kernel.org>, iommu@lists.linux-foundation.org, David Woodhouse <dwmw2@infradead.org>
+To: David Gibson <david@gibson.dropbear.id.au>, Christoph Hellwig <hch@lst.de>
+Cc: "Michael S. Tsirkin" <mst@redhat.com>, Benjamin Herrenschmidt <benh@kernel.crashing.org>, Alexey Kardashevskiy <aik@linux.ibm.com>, linux-kernel@vger.kernel.org, virtualization@lists.linux-foundation.org, Paul Mackerras <paulus@ozlabs.org>, iommu@lists.linux-foundation.org, ram.n.pai@gmail.com, linuxppc-devel@lists.ozlabs.org
 List-Id: virtualization@lists.linuxfoundation.org
 
-Thank for the explanation Tom. It might make sense to add a condensed
-version of it to commit log for the next iteration.
+On Tue, Aug 13, 2019 at 08:45:37AM -0700, Ram Pai wrote:
+> On Wed, Aug 14, 2019 at 12:24:39AM +1000, David Gibson wrote:
+> > On Tue, Aug 13, 2019 at 03:26:17PM +0200, Christoph Hellwig wrote:
+> > > On Mon, Aug 12, 2019 at 07:51:56PM +1000, David Gibson wrote:
+> > > > AFAICT we already kind of abuse this for the VIRTIO_F_IOMMU_PLATFORM,
+> > > > because to handle for cases where it *is* a device limitation, we
+> > > > assume that if the hypervisor presents VIRTIO_F_IOMMU_PLATFORM then
+> > > > the guest *must* select it.
+> > > > 
+> > > > What we actually need here is for the hypervisor to present
+> > > > VIRTIO_F_IOMMU_PLATFORM as available, but not required.  Then we need
+> > > > a way for the platform core code to communicate to the virtio driver
+> > > > that *it* requires the IOMMU to be used, so that the driver can select
+> > > > or not the feature bit on that basis.
+> > > 
+> > > I agree with the above, but that just brings us back to the original
+> > > issue - the whole bypass of the DMA OPS should be an option that the
+> > > device can offer, not the other way around.  And we really need to
+> > > fix that root cause instead of doctoring around it.
+> > 
+> > I'm not exactly sure what you mean by "device" in this context.  Do
+> > you mean the hypervisor (qemu) side implementation?
+> > 
+> > You're right that this was the wrong way around to begin with, but as
+> > well as being hard to change now, I don't see how it really addresses
+> > the current problem.  The device could default to IOMMU and allow
+> > bypass, but the driver would still need to get information from the
+> > platform to know that it *can't* accept that option in the case of a
+> > secure VM.  Reversed sense, but the same basic problem.
+> > 
+> > The hypervisor does not, and can not be aware of the secure VM
+> > restrictions - only the guest side platform code knows that.
+> 
+> This statement is almost entirely right. I will rephrase it to make it
+> entirely right.   
+> 
+> The hypervisor does not, and can not be aware of the secure VM
+> requirement that it needs to do some special processing that has nothing
+> to do with DMA address translation - only the guest side platform code
+> know that.
+> 
+> BTW: I do not consider 'bounce buffering' as 'DMA address translation'.
+> DMA address translation, translates CPU address to DMA address.  Bounce
+> buffering moves the data from one buffer at a given CPU address to
+> another buffer at a different CPU address.  Unfortunately the current
+> DMA ops conflates the two.  The need to do 'DMA address translation' 
+> is something the device can enforce.  But the need to do bounce
+> buffering, is something that the device should not be aware and should be
+> entirely a decision made locally by the kernel/driver in the secure VM.
+
+
+Christoph,
+
+	Since we have not heard back from you, I am not sure where you
+	stand on this issue now.   One of the three things are
+	possible..
+
+	(a) our above explaination did not make sense and hence
+		you decided to ignore it.
+	(b) our above above made some sense and need more time to think 
+		and respond.
+	(c) you totally forgot about this.
+
+
+I hope it is (b). We want a solution that works for all, and your inputs 
+are important to us.
+
+
+Thanks,
+RP
