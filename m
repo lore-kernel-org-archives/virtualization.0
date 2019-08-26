@@ -1,14 +1,13 @@
 From: Chia-I Wu <olvaffe@gmail.com>
-Subject: Re: [PATCH v2] drm/virtio: make resource id workaround runtime
-	switchable.
-Date: Mon, 26 Aug 2019 15:06:07 -0700
-Message-ID: <CAPaKu7Q+T1qf4jboXSV-jsXHrvqSxG+MrJGJzFf7qNisaZj3Wg__44154.0461777308$1566857188$gmane$org@mail.gmail.com>
-References: <20190822102614.18164-1-kraxel@redhat.com>
+Subject: Re: [PATCH v2] drm/virtio: add plane check
+Date: Mon, 26 Aug 2019 15:34:56 -0700
+Message-ID: <CAPaKu7S_He9RYsxDi0Qco4u=Xnc3FjB5nvFT_Zh+o7pvFzCvRQ__29606.0180802428$1566858921$gmane$org@mail.gmail.com>
+References: <20190822094657.27483-1-kraxel@redhat.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <20190822102614.18164-1-kraxel@redhat.com>
+In-Reply-To: <20190822094657.27483-1-kraxel@redhat.com>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -22,79 +21,46 @@ To: Gerd Hoffmann <kraxel@redhat.com>
 Cc: David Airlie <airlied@linux.ie>, open list <linux-kernel@vger.kernel.org>, ML dri-devel <dri-devel@lists.freedesktop.org>, "open list:VIRTIO GPU DRIVER" <virtualization@lists.linux-foundation.org>
 List-Id: virtualization@lists.linuxfoundation.org
 
-On Thu, Aug 22, 2019 at 3:26 AM Gerd Hoffmann <kraxel@redhat.com> wrote:
+On Thu, Aug 22, 2019 at 2:47 AM Gerd Hoffmann <kraxel@redhat.com> wrote:
 >
-> Also update the comment with a reference to the virglrenderer fix.
+> Use drm_atomic_helper_check_plane_state()
+> to sanity check the plane state.
 >
 > Signed-off-by: Gerd Hoffmann <kraxel@redhat.com>
-Reviewed-by: Chia-I Wu <olvaffe@gmail.com>
 > ---
->  drivers/gpu/drm/virtio/virtgpu_object.c | 44 ++++++++++++++-----------
->  1 file changed, 24 insertions(+), 20 deletions(-)
+>  drivers/gpu/drm/virtio/virtgpu_plane.c | 17 ++++++++++++++++-
+>  1 file changed, 16 insertions(+), 1 deletion(-)
 >
-> diff --git a/drivers/gpu/drm/virtio/virtgpu_object.c b/drivers/gpu/drm/virtio/virtgpu_object.c
-> index b2da31310d24..e98aaa00578d 100644
-> --- a/drivers/gpu/drm/virtio/virtgpu_object.c
-> +++ b/drivers/gpu/drm/virtio/virtgpu_object.c
-> @@ -27,34 +27,38 @@
->
->  #include "virtgpu_drv.h"
->
-> +static int virtio_gpu_virglrenderer_workaround = 1;
-> +module_param_named(virglhack, virtio_gpu_virglrenderer_workaround, int, 0400);
+> diff --git a/drivers/gpu/drm/virtio/virtgpu_plane.c b/drivers/gpu/drm/virtio/virtgpu_plane.c
+> index a492ac3f4a7e..fe5efb2de90d 100644
+> --- a/drivers/gpu/drm/virtio/virtgpu_plane.c
+> +++ b/drivers/gpu/drm/virtio/virtgpu_plane.c
+> @@ -84,7 +84,22 @@ static const struct drm_plane_funcs virtio_gpu_plane_funcs = {
+>  static int virtio_gpu_plane_atomic_check(struct drm_plane *plane,
+>                                          struct drm_plane_state *state)
+>  {
+> -       return 0;
+> +       bool is_cursor = plane->type == DRM_PLANE_TYPE_CURSOR;
+> +       struct drm_crtc_state *crtc_state;
+> +       int ret;
 > +
->  static int virtio_gpu_resource_id_get(struct virtio_gpu_device *vgdev,
->                                        uint32_t *resid)
->  {
-> -#if 0
-> -       int handle = ida_alloc(&vgdev->resource_ida, GFP_KERNEL);
-> -
-> -       if (handle < 0)
-> -               return handle;
-> -#else
-> -       static int handle;
-> -
-> -       /*
-> -        * FIXME: dirty hack to avoid re-using IDs, virglrenderer
-> -        * can't deal with that.  Needs fixing in virglrenderer, also
-> -        * should figure a better way to handle that in the guest.
-> -        */
-> -       handle++;
-> -#endif
-> -
-> -       *resid = handle + 1;
-> +       if (virtio_gpu_virglrenderer_workaround) {
-> +               /*
-> +                * Hack to avoid re-using resource IDs.
-> +                *
-> +                * virglrenderer versions up to (and including) 0.7.0
-> +                * can't deal with that.  virglrenderer commit
-> +                * "f91a9dd35715 Fix unlinking resources from hash
-> +                * table." (Feb 2019) fixes the bug.
-> +                */
-> +               static int handle;
-> +               handle++;
-> +               *resid = handle + 1;
-> +       } else {
-> +               int handle = ida_alloc(&vgdev->resource_ida, GFP_KERNEL);
-> +               if (handle < 0)
-> +                       return handle;
-> +               *resid = handle + 1;
-> +       }
->         return 0;
+> +       if (!state->fb || !state->crtc)
+> +               return 0;
+> +
+> +       crtc_state = drm_atomic_get_crtc_state(state->state, state->crtc);
+> +       if (IS_ERR(crtc_state))
+> +                return PTR_ERR(crtc_state);
+Is drm_atomic_get_new_crtc_state better here?
+
+> +
+> +       ret = drm_atomic_helper_check_plane_state(state, crtc_state,
+> +                                                 DRM_PLANE_HELPER_NO_SCALING,
+> +                                                 DRM_PLANE_HELPER_NO_SCALING,
+> +                                                 is_cursor, true);
+> +       return ret;
 >  }
 >
->  static void virtio_gpu_resource_id_put(struct virtio_gpu_device *vgdev, uint32_t id)
->  {
-> -#if 0
-> -       ida_free(&vgdev->resource_ida, id - 1);
-> -#endif
-> +       if (!virtio_gpu_virglrenderer_workaround) {
-> +               ida_free(&vgdev->resource_ida, id - 1);
-> +       }
->  }
->
->  static void virtio_gpu_ttm_bo_destroy(struct ttm_buffer_object *tbo)
+>  static void virtio_gpu_primary_plane_update(struct drm_plane *plane,
 > --
 > 2.18.1
 >
