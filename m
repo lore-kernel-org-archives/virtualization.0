@@ -1,7 +1,7 @@
 From: Thierry Reding <thierry.reding@gmail.com>
-Subject: [PATCH 3/5] iommu: amd: Use iommu_put_resv_regions_simple()
-Date: Thu, 29 Aug 2019 13:17:50 +0200
-Message-ID: <20190829111752.17513-4-thierry.reding__10227.159822692$1567077550$gmane$org@gmail.com>
+Subject: [PATCH 4/5] iommu: intel: Use iommu_put_resv_regions_simple()
+Date: Thu, 29 Aug 2019 13:17:51 +0200
+Message-ID: <20190829111752.17513-5-thierry.reding__31799.4057828159$1567077565$gmane$org@gmail.com>
 References: <20190829111752.17513-1-thierry.reding@gmail.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
@@ -25,21 +25,22 @@ From: Thierry Reding <treding@nvidia.com>
 
 Use the new standard function instead of open-coding it.
 
+Cc: David Woodhouse <dwmw2@infradead.org>
 Signed-off-by: Thierry Reding <treding@nvidia.com>
 ---
- drivers/iommu/amd_iommu.c | 11 +----------
+ drivers/iommu/intel-iommu.c | 11 +----------
  1 file changed, 1 insertion(+), 10 deletions(-)
 
-diff --git a/drivers/iommu/amd_iommu.c b/drivers/iommu/amd_iommu.c
-index 04a9f8443344..7d8896d5fab9 100644
---- a/drivers/iommu/amd_iommu.c
-+++ b/drivers/iommu/amd_iommu.c
-@@ -3160,15 +3160,6 @@ static void amd_iommu_get_resv_regions(struct device *dev,
- 	list_add_tail(&region->list, head);
+diff --git a/drivers/iommu/intel-iommu.c b/drivers/iommu/intel-iommu.c
+index 4658cda6f3d2..2fe5da41c786 100644
+--- a/drivers/iommu/intel-iommu.c
++++ b/drivers/iommu/intel-iommu.c
+@@ -5386,15 +5386,6 @@ static void intel_iommu_get_resv_regions(struct device *device,
+ 	list_add_tail(&reg->list, head);
  }
  
--static void amd_iommu_put_resv_regions(struct device *dev,
--				     struct list_head *head)
+-static void intel_iommu_put_resv_regions(struct device *dev,
+-					 struct list_head *head)
 -{
 -	struct iommu_resv_region *entry, *next;
 -
@@ -47,17 +48,17 @@ index 04a9f8443344..7d8896d5fab9 100644
 -		kfree(entry);
 -}
 -
- static void amd_iommu_apply_resv_region(struct device *dev,
- 				      struct iommu_domain *domain,
- 				      struct iommu_resv_region *region)
-@@ -3216,7 +3207,7 @@ const struct iommu_ops amd_iommu_ops = {
- 	.remove_device = amd_iommu_remove_device,
- 	.device_group = amd_iommu_device_group,
- 	.get_resv_regions = amd_iommu_get_resv_regions,
--	.put_resv_regions = amd_iommu_put_resv_regions,
-+	.put_resv_regions = iommu_put_resv_regions_simple,
- 	.apply_resv_region = amd_iommu_apply_resv_region,
- 	.is_attach_deferred = amd_iommu_is_attach_deferred,
- 	.pgsize_bitmap	= AMD_IOMMU_PGSIZES,
+ int intel_iommu_enable_pasid(struct intel_iommu *iommu, struct device *dev)
+ {
+ 	struct device_domain_info *info;
+@@ -5629,7 +5620,7 @@ const struct iommu_ops intel_iommu_ops = {
+ 	.add_device		= intel_iommu_add_device,
+ 	.remove_device		= intel_iommu_remove_device,
+ 	.get_resv_regions	= intel_iommu_get_resv_regions,
+-	.put_resv_regions	= intel_iommu_put_resv_regions,
++	.put_resv_regions	= iommu_put_resv_regions_simple,
+ 	.apply_resv_region	= intel_iommu_apply_resv_region,
+ 	.device_group		= pci_device_group,
+ 	.dev_has_feat		= intel_iommu_dev_has_feat,
 -- 
 2.22.0
