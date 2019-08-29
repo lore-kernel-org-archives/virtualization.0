@@ -1,7 +1,7 @@
 From: Thierry Reding <thierry.reding@gmail.com>
-Subject: [PATCH 2/5] iommu: arm: Use iommu_put_resv_regions_simple()
-Date: Thu, 29 Aug 2019 13:17:49 +0200
-Message-ID: <20190829111752.17513-3-thierry.reding__45329.0460560069$1567077535$gmane$org@gmail.com>
+Subject: [PATCH 3/5] iommu: amd: Use iommu_put_resv_regions_simple()
+Date: Thu, 29 Aug 2019 13:17:50 +0200
+Message-ID: <20190829111752.17513-4-thierry.reding__10227.159822692$1567077550$gmane$org@gmail.com>
 References: <20190829111752.17513-1-thierry.reding@gmail.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
@@ -25,24 +25,21 @@ From: Thierry Reding <treding@nvidia.com>
 
 Use the new standard function instead of open-coding it.
 
-Cc: Will Deacon <will@kernel.org>
-Cc: Robin Murphy <robin.murphy@arm.com>
 Signed-off-by: Thierry Reding <treding@nvidia.com>
 ---
- drivers/iommu/arm-smmu-v3.c | 11 +----------
- drivers/iommu/arm-smmu.c    | 11 +----------
- 2 files changed, 2 insertions(+), 20 deletions(-)
+ drivers/iommu/amd_iommu.c | 11 +----------
+ 1 file changed, 1 insertion(+), 10 deletions(-)
 
-diff --git a/drivers/iommu/arm-smmu-v3.c b/drivers/iommu/arm-smmu-v3.c
-index 0ad6d34d1e96..b3b7ca2c057a 100644
---- a/drivers/iommu/arm-smmu-v3.c
-+++ b/drivers/iommu/arm-smmu-v3.c
-@@ -2263,15 +2263,6 @@ static void arm_smmu_get_resv_regions(struct device *dev,
- 	iommu_dma_get_resv_regions(dev, head);
+diff --git a/drivers/iommu/amd_iommu.c b/drivers/iommu/amd_iommu.c
+index 04a9f8443344..7d8896d5fab9 100644
+--- a/drivers/iommu/amd_iommu.c
++++ b/drivers/iommu/amd_iommu.c
+@@ -3160,15 +3160,6 @@ static void amd_iommu_get_resv_regions(struct device *dev,
+ 	list_add_tail(&region->list, head);
  }
  
--static void arm_smmu_put_resv_regions(struct device *dev,
--				      struct list_head *head)
+-static void amd_iommu_put_resv_regions(struct device *dev,
+-				     struct list_head *head)
 -{
 -	struct iommu_resv_region *entry, *next;
 -
@@ -50,46 +47,17 @@ index 0ad6d34d1e96..b3b7ca2c057a 100644
 -		kfree(entry);
 -}
 -
- static struct iommu_ops arm_smmu_ops = {
- 	.capable		= arm_smmu_capable,
- 	.domain_alloc		= arm_smmu_domain_alloc,
-@@ -2289,7 +2280,7 @@ static struct iommu_ops arm_smmu_ops = {
- 	.domain_set_attr	= arm_smmu_domain_set_attr,
- 	.of_xlate		= arm_smmu_of_xlate,
- 	.get_resv_regions	= arm_smmu_get_resv_regions,
--	.put_resv_regions	= arm_smmu_put_resv_regions,
-+	.put_resv_regions	= iommu_put_resv_regions_simple,
- 	.pgsize_bitmap		= -1UL, /* Restricted during device attach */
- };
- 
-diff --git a/drivers/iommu/arm-smmu.c b/drivers/iommu/arm-smmu.c
-index d6fe997e9466..e547b4322bcc 100644
---- a/drivers/iommu/arm-smmu.c
-+++ b/drivers/iommu/arm-smmu.c
-@@ -1724,15 +1724,6 @@ static void arm_smmu_get_resv_regions(struct device *dev,
- 	iommu_dma_get_resv_regions(dev, head);
- }
- 
--static void arm_smmu_put_resv_regions(struct device *dev,
--				      struct list_head *head)
--{
--	struct iommu_resv_region *entry, *next;
--
--	list_for_each_entry_safe(entry, next, head, list)
--		kfree(entry);
--}
--
- static struct iommu_ops arm_smmu_ops = {
- 	.capable		= arm_smmu_capable,
- 	.domain_alloc		= arm_smmu_domain_alloc,
-@@ -1750,7 +1741,7 @@ static struct iommu_ops arm_smmu_ops = {
- 	.domain_set_attr	= arm_smmu_domain_set_attr,
- 	.of_xlate		= arm_smmu_of_xlate,
- 	.get_resv_regions	= arm_smmu_get_resv_regions,
--	.put_resv_regions	= arm_smmu_put_resv_regions,
-+	.put_resv_regions	= iommu_put_resv_regions_simple,
- 	.pgsize_bitmap		= -1UL, /* Restricted during device attach */
- };
- 
+ static void amd_iommu_apply_resv_region(struct device *dev,
+ 				      struct iommu_domain *domain,
+ 				      struct iommu_resv_region *region)
+@@ -3216,7 +3207,7 @@ const struct iommu_ops amd_iommu_ops = {
+ 	.remove_device = amd_iommu_remove_device,
+ 	.device_group = amd_iommu_device_group,
+ 	.get_resv_regions = amd_iommu_get_resv_regions,
+-	.put_resv_regions = amd_iommu_put_resv_regions,
++	.put_resv_regions = iommu_put_resv_regions_simple,
+ 	.apply_resv_region = amd_iommu_apply_resv_region,
+ 	.is_attach_deferred = amd_iommu_is_attach_deferred,
+ 	.pgsize_bitmap	= AMD_IOMMU_PGSIZES,
 -- 
 2.22.0
