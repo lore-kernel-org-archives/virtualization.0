@@ -1,7 +1,8 @@
 From: Gerd Hoffmann <kraxel@redhat.com>
-Subject: [PATCH v9 03/18] drm/virtio: simplify cursor updates
-Date: Thu, 29 Aug 2019 12:32:46 +0200
-Message-ID: <20190829103301.3539-4-kraxel@redhat.com>
+Subject: [PATCH v9 06/18] drm/virtio: remove ttm calls from in
+	virtio_gpu_object_{reserve, unreserve}
+Date: Thu, 29 Aug 2019 12:32:49 +0200
+Message-ID: <20190829103301.3539-7-kraxel__16781.469764986$1567074828$gmane$org@redhat.com>
 References: <20190829103301.3539-1-kraxel@redhat.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
@@ -21,45 +22,42 @@ To: dri-devel@lists.freedesktop.org
 Cc: David Airlie <airlied@linux.ie>, open list <linux-kernel@vger.kernel.org>, "open list:VIRTIO GPU DRIVER" <virtualization@lists.linux-foundation.org>, Daniel Vetter <daniel@ffwll.ch>, gurchetansingh@chromium.org, olvaffe@gmail.com
 List-Id: virtualization@lists.linuxfoundation.org
 
-No need to do the reservation dance,
-we can just wait on the fence directly.
+Call reservation_object_* directly instead
+of using ttm_bo_{reserve,unreserve}.
+
+v4: check for EINTR only.
+v3: check for EINTR too.
 
 Signed-off-by: Gerd Hoffmann <kraxel@redhat.com>
 Reviewed-by: Daniel Vetter <daniel.vetter@ffwll.ch>
 ---
- drivers/gpu/drm/virtio/virtgpu_plane.c | 13 +++----------
- 1 file changed, 3 insertions(+), 10 deletions(-)
+ drivers/gpu/drm/virtio/virtgpu_drv.h | 6 +++---
+ 1 file changed, 3 insertions(+), 3 deletions(-)
 
-diff --git a/drivers/gpu/drm/virtio/virtgpu_plane.c b/drivers/gpu/drm/virtio/virtgpu_plane.c
-index fe5efb2de90d..f23622b12629 100644
---- a/drivers/gpu/drm/virtio/virtgpu_plane.c
-+++ b/drivers/gpu/drm/virtio/virtgpu_plane.c
-@@ -201,7 +201,6 @@ static void virtio_gpu_cursor_plane_update(struct drm_plane *plane,
- 	struct virtio_gpu_framebuffer *vgfb;
- 	struct virtio_gpu_object *bo = NULL;
- 	uint32_t handle;
--	int ret = 0;
+diff --git a/drivers/gpu/drm/virtio/virtgpu_drv.h b/drivers/gpu/drm/virtio/virtgpu_drv.h
+index d886c0e3502a..db57bbb36216 100644
+--- a/drivers/gpu/drm/virtio/virtgpu_drv.h
++++ b/drivers/gpu/drm/virtio/virtgpu_drv.h
+@@ -402,9 +402,9 @@ static inline int virtio_gpu_object_reserve(struct virtio_gpu_object *bo)
+ {
+ 	int r;
  
- 	if (plane->state->crtc)
- 		output = drm_crtc_to_virtio_gpu_output(plane->state->crtc);
-@@ -225,15 +224,9 @@ static void virtio_gpu_cursor_plane_update(struct drm_plane *plane,
- 			 cpu_to_le32(plane->state->crtc_w),
- 			 cpu_to_le32(plane->state->crtc_h),
- 			 0, 0, vgfb->fence);
--		ret = virtio_gpu_object_reserve(bo, false);
--		if (!ret) {
--			dma_resv_add_excl_fence(bo->tbo.base.resv,
--							  &vgfb->fence->f);
--			dma_fence_put(&vgfb->fence->f);
--			vgfb->fence = NULL;
--			virtio_gpu_object_unreserve(bo);
--			virtio_gpu_object_wait(bo, false);
--		}
-+		dma_fence_wait(&vgfb->fence->f, true);
-+		dma_fence_put(&vgfb->fence->f);
-+		vgfb->fence = NULL;
- 	}
+-	r = ttm_bo_reserve(&bo->tbo, true, false, NULL);
++	r = dma_resv_lock_interruptible(bo->gem_base.resv, NULL);
+ 	if (unlikely(r != 0)) {
+-		if (r != -ERESTARTSYS) {
++		if (r != -EINTR) {
+ 			struct virtio_gpu_device *qdev =
+ 				bo->gem_base.dev->dev_private;
+ 			dev_err(qdev->dev, "%p reserve failed\n", bo);
+@@ -416,7 +416,7 @@ static inline int virtio_gpu_object_reserve(struct virtio_gpu_object *bo)
  
- 	if (plane->state->fb != old_state->fb) {
+ static inline void virtio_gpu_object_unreserve(struct virtio_gpu_object *bo)
+ {
+-	ttm_bo_unreserve(&bo->tbo);
++	dma_resv_unlock(bo->gem_base.resv);
+ }
+ 
+ /* virgl debufs */
 -- 
 2.18.1
