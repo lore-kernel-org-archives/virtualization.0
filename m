@@ -1,8 +1,8 @@
 From: Gerd Hoffmann <kraxel@redhat.com>
-Subject: [PATCH v9 02/18] drm/virtio: switch virtio_gpu_wait_ioctl() to gem
-	helper.
-Date: Thu, 29 Aug 2019 12:32:45 +0200
-Message-ID: <20190829103301.3539-3-kraxel__7080.53582800261$1567074888$gmane$org@redhat.com>
+Subject: [PATCH v9 17/18] drm/virtio: drop virtio_gpu_object_{reserve,
+	unreserve}
+Date: Thu, 29 Aug 2019 12:33:00 +0200
+Message-ID: <20190829103301.3539-18-kraxel__3243.38637744717$1567074898$gmane$org@redhat.com>
 References: <20190829103301.3539-1-kraxel@redhat.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
@@ -22,64 +22,44 @@ To: dri-devel@lists.freedesktop.org
 Cc: David Airlie <airlied@linux.ie>, open list <linux-kernel@vger.kernel.org>, "open list:VIRTIO GPU DRIVER" <virtualization@lists.linux-foundation.org>, Daniel Vetter <daniel@ffwll.ch>, gurchetansingh@chromium.org, olvaffe@gmail.com
 List-Id: virtualization@lists.linuxfoundation.org
 
-Use drm_gem_reservation_object_wait() in virtio_gpu_wait_ioctl().
-This also makes the ioctl run lockless.
-
-v9: fix return value.
-v5: handle lookup failure.
-v2: use reservation_object_test_signaled_rcu for VIRTGPU_WAIT_NOWAIT.
+No users left.
 
 Signed-off-by: Gerd Hoffmann <kraxel@redhat.com>
-Reviewed-by: Daniel Vetter <daniel.vetter@ffwll.ch>
 ---
- drivers/gpu/drm/virtio/virtgpu_ioctl.c | 28 +++++++++++++++-----------
- 1 file changed, 16 insertions(+), 12 deletions(-)
+ drivers/gpu/drm/virtio/virtgpu_drv.h | 21 ---------------------
+ 1 file changed, 21 deletions(-)
 
-diff --git a/drivers/gpu/drm/virtio/virtgpu_ioctl.c b/drivers/gpu/drm/virtio/virtgpu_ioctl.c
-index 0a88ef11b9d3..a662394f6892 100644
---- a/drivers/gpu/drm/virtio/virtgpu_ioctl.c
-+++ b/drivers/gpu/drm/virtio/virtgpu_ioctl.c
-@@ -463,25 +463,29 @@ static int virtio_gpu_transfer_to_host_ioctl(struct drm_device *dev, void *data,
+diff --git a/drivers/gpu/drm/virtio/virtgpu_drv.h b/drivers/gpu/drm/virtio/virtgpu_drv.h
+index 85f974a9837b..fb35831ed351 100644
+--- a/drivers/gpu/drm/virtio/virtgpu_drv.h
++++ b/drivers/gpu/drm/virtio/virtgpu_drv.h
+@@ -368,27 +368,6 @@ static inline u64 virtio_gpu_object_mmap_offset(struct virtio_gpu_object *bo)
+ 	return drm_vma_node_offset_addr(&bo->base.base.vma_node);
  }
  
- static int virtio_gpu_wait_ioctl(struct drm_device *dev, void *data,
--			    struct drm_file *file)
-+				 struct drm_file *file)
- {
- 	struct drm_virtgpu_3d_wait *args = data;
--	struct drm_gem_object *gobj = NULL;
--	struct virtio_gpu_object *qobj = NULL;
-+	struct drm_gem_object *obj;
-+	long timeout = 15 * HZ;
- 	int ret;
--	bool nowait = false;
- 
--	gobj = drm_gem_object_lookup(file, args->handle);
--	if (gobj == NULL)
-+	obj = drm_gem_object_lookup(file, args->handle);
-+	if (obj == NULL)
- 		return -ENOENT;
- 
--	qobj = gem_to_virtio_gpu_obj(gobj);
-+	if (args->flags & VIRTGPU_WAIT_NOWAIT) {
-+		ret = dma_resv_test_signaled_rcu(obj->resv, true);
-+	} else {
-+		ret = dma_resv_wait_timeout_rcu(obj->resv, true, true,
-+						timeout);
-+	}
-+	if (ret == 0)
-+		ret = -EBUSY;
-+	else if (ret > 0)
-+		ret = 0;
- 
--	if (args->flags & VIRTGPU_WAIT_NOWAIT)
--		nowait = true;
--	ret = virtio_gpu_object_wait(qobj, nowait);
+-static inline int virtio_gpu_object_reserve(struct virtio_gpu_object *bo)
+-{
+-	int r;
 -
--	drm_gem_object_put_unlocked(gobj);
-+	drm_gem_object_put_unlocked(obj);
- 	return ret;
- }
+-	r = dma_resv_lock_interruptible(bo->base.base.resv, NULL);
+-	if (unlikely(r != 0)) {
+-		if (r != -EINTR) {
+-			struct virtio_gpu_device *qdev =
+-				bo->base.base.dev->dev_private;
+-			dev_err(qdev->dev, "%p reserve failed\n", bo);
+-		}
+-		return r;
+-	}
+-	return 0;
+-}
+-
+-static inline void virtio_gpu_object_unreserve(struct virtio_gpu_object *bo)
+-{
+-	dma_resv_unlock(bo->base.base.resv);
+-}
+-
+ /* virgl debufs */
+ int virtio_gpu_debugfs_init(struct drm_minor *minor);
  
 -- 
 2.18.1
