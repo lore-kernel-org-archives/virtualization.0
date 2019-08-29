@@ -1,7 +1,7 @@
 From: Gerd Hoffmann <kraxel@redhat.com>
-Subject: [PATCH v9 07/18] drm/virtio: add virtio_gpu_object_array & helpers
-Date: Thu, 29 Aug 2019 12:32:50 +0200
-Message-ID: <20190829103301.3539-8-kraxel__13275.5951419071$1567074856$gmane$org@redhat.com>
+Subject: [PATCH v9 15/18] drm/virtio: remove virtio_gpu_alloc_object
+Date: Thu, 29 Aug 2019 12:32:58 +0200
+Message-ID: <20190829103301.3539-16-kraxel__40146.7676785373$1567074870$gmane$org@redhat.com>
 References: <20190829103301.3539-1-kraxel@redhat.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
@@ -21,159 +21,93 @@ To: dri-devel@lists.freedesktop.org
 Cc: David Airlie <airlied@linux.ie>, open list <linux-kernel@vger.kernel.org>, "open list:VIRTIO GPU DRIVER" <virtualization@lists.linux-foundation.org>, Daniel Vetter <daniel@ffwll.ch>, gurchetansingh@chromium.org, olvaffe@gmail.com
 List-Id: virtualization@lists.linuxfoundation.org
 
-Some helper functions to manage an array of gem objects.
-
-v9: use dma_resv_lock_interruptible.
-v6:
- - add ticket to struct virtio_gpu_object_array.
- - add virtio_gpu_array_{lock,unlock}_resv helpers.
- - add virtio_gpu_array_add_fence helper.
-v5: some small optimizations (Chia-I Wu).
-v4: make them virtio-private instead of generic helpers.
+Thin wrapper around virtio_gpu_object_create(),
+but calling that directly works equally well.
 
 Signed-off-by: Gerd Hoffmann <kraxel@redhat.com>
-
-[fixup] virtio_gpu_array_lock_resv
+Acked-by: Daniel Vetter <daniel.vetter@ffwll.ch>
 ---
- drivers/gpu/drm/virtio/virtgpu_drv.h | 17 +++++
- drivers/gpu/drm/virtio/virtgpu_gem.c | 93 ++++++++++++++++++++++++++++
- 2 files changed, 110 insertions(+)
+ drivers/gpu/drm/virtio/virtgpu_drv.h   |  4 ----
+ drivers/gpu/drm/virtio/virtgpu_gem.c   | 23 ++++-------------------
+ drivers/gpu/drm/virtio/virtgpu_ioctl.c |  6 +++---
+ 3 files changed, 7 insertions(+), 26 deletions(-)
 
 diff --git a/drivers/gpu/drm/virtio/virtgpu_drv.h b/drivers/gpu/drm/virtio/virtgpu_drv.h
-index db57bbb36216..b6bd2b1141fb 100644
+index b67d23ef2b11..3e5b2d1db42d 100644
 --- a/drivers/gpu/drm/virtio/virtgpu_drv.h
 +++ b/drivers/gpu/drm/virtio/virtgpu_drv.h
-@@ -84,6 +84,12 @@ struct virtio_gpu_object {
- #define gem_to_virtio_gpu_obj(gobj) \
- 	container_of((gobj), struct virtio_gpu_object, gem_base)
- 
-+struct virtio_gpu_object_array {
-+	struct ww_acquire_ctx ticket;
-+	u32 nents, total;
-+	struct drm_gem_object *objs[];
-+};
-+
- struct virtio_gpu_vbuffer;
- struct virtio_gpu_device;
- 
-@@ -251,6 +257,17 @@ int virtio_gpu_mode_dumb_mmap(struct drm_file *file_priv,
- 			      struct drm_device *dev,
- 			      uint32_t handle, uint64_t *offset_p);
- 
-+struct virtio_gpu_object_array *virtio_gpu_array_alloc(u32 nents);
-+struct virtio_gpu_object_array*
-+virtio_gpu_array_from_handles(struct drm_file *drm_file, u32 *handles, u32 nents);
-+void virtio_gpu_array_add_obj(struct virtio_gpu_object_array *objs,
-+			      struct drm_gem_object *obj);
-+int virtio_gpu_array_lock_resv(struct virtio_gpu_object_array *objs);
-+void virtio_gpu_array_unlock_resv(struct virtio_gpu_object_array *objs);
-+void virtio_gpu_array_add_fence(struct virtio_gpu_object_array *objs,
-+				struct dma_fence *fence);
-+void virtio_gpu_array_put_free(struct virtio_gpu_object_array *objs);
-+
- /* virtio vg */
- int virtio_gpu_alloc_vbufs(struct virtio_gpu_device *vgdev);
- void virtio_gpu_free_vbufs(struct virtio_gpu_device *vgdev);
+@@ -229,10 +229,6 @@ int virtio_gpu_gem_object_open(struct drm_gem_object *obj,
+ 			       struct drm_file *file);
+ void virtio_gpu_gem_object_close(struct drm_gem_object *obj,
+ 				 struct drm_file *file);
+-struct virtio_gpu_object*
+-virtio_gpu_alloc_object(struct drm_device *dev,
+-			struct virtio_gpu_object_params *params,
+-			struct virtio_gpu_fence *fence);
+ int virtio_gpu_mode_dumb_create(struct drm_file *file_priv,
+ 				struct drm_device *dev,
+ 				struct drm_mode_create_dumb *args);
 diff --git a/drivers/gpu/drm/virtio/virtgpu_gem.c b/drivers/gpu/drm/virtio/virtgpu_gem.c
-index 6fe6f72f64d1..fd60b45aabd2 100644
+index fb957e3183b6..b812094ae916 100644
 --- a/drivers/gpu/drm/virtio/virtgpu_gem.c
 +++ b/drivers/gpu/drm/virtio/virtgpu_gem.c
-@@ -171,3 +171,96 @@ void virtio_gpu_gem_object_close(struct drm_gem_object *obj,
- 						qobj->hw_res_handle);
- 	virtio_gpu_object_unreserve(qobj);
- }
-+
-+struct virtio_gpu_object_array *virtio_gpu_array_alloc(u32 nents)
-+{
-+	struct virtio_gpu_object_array *objs;
-+	size_t size = sizeof(*objs) + sizeof(objs->objs[0]) * nents;
-+
-+	objs = kmalloc(size, GFP_KERNEL);
-+	if (!objs)
-+		return NULL;
-+
-+	objs->nents = 0;
-+	objs->total = nents;
-+	return objs;
-+}
-+
-+static void virtio_gpu_array_free(struct virtio_gpu_object_array *objs)
-+{
-+	kfree(objs);
-+}
-+
-+struct virtio_gpu_object_array*
-+virtio_gpu_array_from_handles(struct drm_file *drm_file, u32 *handles, u32 nents)
-+{
-+	struct virtio_gpu_object_array *objs;
-+	u32 i;
-+
-+	objs = virtio_gpu_array_alloc(nents);
-+	if (!objs)
-+		return NULL;
-+
-+	for (i = 0; i < nents; i++) {
-+		objs->objs[i] = drm_gem_object_lookup(drm_file, handles[i]);
-+		if (!objs->objs[i]) {
-+			objs->nents = i;
-+			virtio_gpu_array_put_free(objs);
-+			return NULL;
-+		}
-+	}
-+	objs->nents = i;
-+	return objs;
-+}
-+
-+void virtio_gpu_array_add_obj(struct virtio_gpu_object_array *objs,
-+			      struct drm_gem_object *obj)
-+{
-+	if (WARN_ON_ONCE(objs->nents == objs->total))
-+		return;
-+
-+	drm_gem_object_get(obj);
-+	objs->objs[objs->nents] = obj;
-+	objs->nents++;
-+}
-+
-+int virtio_gpu_array_lock_resv(struct virtio_gpu_object_array *objs)
-+{
-+	int ret;
-+
-+	if (objs->nents == 1) {
-+		ret = dma_resv_lock_interruptible(objs->objs[0]->resv, NULL);
-+	} else {
-+		ret = drm_gem_lock_reservations(objs->objs, objs->nents,
-+						&objs->ticket);
-+	}
-+	return ret;
-+}
-+
-+void virtio_gpu_array_unlock_resv(struct virtio_gpu_object_array *objs)
-+{
-+	if (objs->nents == 1) {
-+		dma_resv_unlock(objs->objs[0]->resv);
-+	} else {
-+		drm_gem_unlock_reservations(objs->objs, objs->nents,
-+					    &objs->ticket);
-+	}
-+}
-+
-+void virtio_gpu_array_add_fence(struct virtio_gpu_object_array *objs,
-+				struct dma_fence *fence)
-+{
-+	int i;
-+
-+	for (i = 0; i < objs->nents; i++)
-+		dma_resv_add_excl_fence(objs->objs[i]->resv, fence);
-+}
-+
-+void virtio_gpu_array_put_free(struct virtio_gpu_object_array *objs)
-+{
-+	u32 i;
-+
-+	for (i = 0; i < objs->nents; i++)
-+		drm_gem_object_put_unlocked(objs->objs[i]);
-+	virtio_gpu_array_free(objs);
-+}
+@@ -28,35 +28,20 @@
+ 
+ #include "virtgpu_drv.h"
+ 
+-struct virtio_gpu_object*
+-virtio_gpu_alloc_object(struct drm_device *dev,
+-			struct virtio_gpu_object_params *params,
+-			struct virtio_gpu_fence *fence)
+-{
+-	struct virtio_gpu_device *vgdev = dev->dev_private;
+-	struct virtio_gpu_object *obj;
+-	int ret;
+-
+-	ret = virtio_gpu_object_create(vgdev, params, &obj, fence);
+-	if (ret)
+-		return ERR_PTR(ret);
+-
+-	return obj;
+-}
+-
+ int virtio_gpu_gem_create(struct drm_file *file,
+ 			  struct drm_device *dev,
+ 			  struct virtio_gpu_object_params *params,
+ 			  struct drm_gem_object **obj_p,
+ 			  uint32_t *handle_p)
+ {
++	struct virtio_gpu_device *vgdev = dev->dev_private;
+ 	struct virtio_gpu_object *obj;
+ 	int ret;
+ 	u32 handle;
+ 
+-	obj = virtio_gpu_alloc_object(dev, params, NULL);
+-	if (IS_ERR(obj))
+-		return PTR_ERR(obj);
++	ret = virtio_gpu_object_create(vgdev, params, &obj, NULL);
++	if (ret < 0)
++		return ret;
+ 
+ 	ret = drm_gem_handle_create(file, &obj->base.base, &handle);
+ 	if (ret) {
+diff --git a/drivers/gpu/drm/virtio/virtgpu_ioctl.c b/drivers/gpu/drm/virtio/virtgpu_ioctl.c
+index 588a4ba1e7a4..f5083c538f9c 100644
+--- a/drivers/gpu/drm/virtio/virtgpu_ioctl.c
++++ b/drivers/gpu/drm/virtio/virtgpu_ioctl.c
+@@ -256,10 +256,10 @@ static int virtio_gpu_resource_create_ioctl(struct drm_device *dev, void *data,
+ 	fence = virtio_gpu_fence_alloc(vgdev);
+ 	if (!fence)
+ 		return -ENOMEM;
+-	qobj = virtio_gpu_alloc_object(dev, &params, fence);
++	ret = virtio_gpu_object_create(vgdev, &params, &qobj, fence);
+ 	dma_fence_put(&fence->f);
+-	if (IS_ERR(qobj))
+-		return PTR_ERR(qobj);
++	if (ret < 0)
++		return ret;
+ 	obj = &qobj->base.base;
+ 
+ 	ret = drm_gem_handle_create(file_priv, obj, &handle);
 -- 
 2.18.1
