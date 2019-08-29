@@ -1,13 +1,15 @@
-From: Thierry Reding <thierry.reding@gmail.com>
-Subject: [PATCH 5/5] iommu: virt: Use iommu_put_resv_regions_simple()
-Date: Thu, 29 Aug 2019 13:17:52 +0200
-Message-ID: <20190829111752.17513-6-thierry.reding__41456.3122599915$1567077582$gmane$org@gmail.com>
-References: <20190829111752.17513-1-thierry.reding@gmail.com>
+From: Thomas Garnier <thgarnie@chromium.org>
+Subject: Re: [PATCH v9 00/11] x86: PIE support to extend KASLR randomization
+Date: Thu, 29 Aug 2019 12:55:00 -0700
+Message-ID: <CAJcbSZETvvQYmh6U_Oauptdsrp-emmSG_QsAZzKLv+0-b2Yxig__41430.7482003764$1567109000$gmane$org@mail.gmail.com>
+References: <20190730191303.206365-1-thgarnie@chromium.org>
+	<20190806154347.GD25897@zn.tnic>
+	<20190806155034.GP2349@hirez.programming.kicks-ass.net>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <20190829111752.17513-1-thierry.reding@gmail.com>
+In-Reply-To: <20190806155034.GP2349@hirez.programming.kicks-ass.net>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -17,66 +19,35 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Joerg Roedel <joro@8bytes.org>
-Cc: Jean-Philippe Brucker <jean-philippe@linaro.org>, Will Deacon <will@kernel.org>, linux-kernel@vger.kernel.org, virtualization@lists.linux-foundation.org, iommu@lists.linux-foundation.org, Robin Murphy <robin.murphy@arm.com>, David Woodhouse <dwmw2@infradead.org>, linux-arm-kernel@lists.infradead.org
+To: Peter Zijlstra <peterz@infradead.org>
+Cc: Feng Tang <feng.tang@intel.com>, Kristen Carlson Accardi <kristen@linux.intel.com>, Kernel Hardening <kernel-hardening@lists.openwall.com>, "VMware,
+	Inc." <pv-drivers@vmware.com>, virtualization@lists.linux-foundation.org, Nadav Amit <namit@vmware.com>, Pavel Machek <pavel@ucw.cz>, "H. Peter Anvin" <hpa@zytor.com>, Thomas Hellstrom <thellstrom@vmware.com>, Herbert Xu <herbert@gondor.apana.org.au>, the arch/x86 maintainers <x86@kernel.org>, Ingo Molnar <mingo@redhat.com>, Len Brown <len.brown@intel.com>, Kees Cook <keescook@chromium.org>, Jann Horn <jannh@google.com>, Alexios Zavras <alexios.zavras@intel.com>, Borislav Petkov <bp@alien8.de>, Andy Lutomirski <luto@kernel.org>, Thomas Gleixner <tglx@linutronix.de>, Allison Randal <allison@lohutok.net>, Juergen Gross <jgross@suse.com>, Maran Wilson <maran.wilson@oracle.com>, Linux PM list <linux-pm@vger.kernel.org>, Rafae
 List-Id: virtualization@lists.linuxfoundation.org
 
-From: Thierry Reding <treding@nvidia.com>
+On Tue, Aug 6, 2019 at 8:51 AM Peter Zijlstra <peterz@infradead.org> wrote:
+>
+> On Tue, Aug 06, 2019 at 05:43:47PM +0200, Borislav Petkov wrote:
+> > On Tue, Jul 30, 2019 at 12:12:44PM -0700, Thomas Garnier wrote:
+> > > These patches make some of the changes necessary to build the kernel as
+> > > Position Independent Executable (PIE) on x86_64. Another patchset will
+> > > add the PIE option and larger architecture changes.
+> >
+> > Yeah, about this: do we have a longer writeup about the actual benefits
+> > of all this and why we should take this all? After all, after looking
+> > at the first couple of asm patches, it is posing restrictions to how
+> > we deal with virtual addresses in asm (only RIP-relative addressing in
+> > 64-bit mode, MOVs with 64-bit immediates, etc, for example) and I'm
+> > willing to bet money that some future unrelated change will break PIE
+> > sooner or later.
 
-Use the new standard function instead of open-coding it.
+The goal is being able to extend the range of addresses where the
+kernel can be placed with KASLR. I will look at clarifying that in the
+future.
 
-Cc: Jean-Philippe Brucker <jean-philippe@linaro.org>
-Cc: virtualization@lists.linux-foundation.org
-Signed-off-by: Thierry Reding <treding@nvidia.com>
----
- drivers/iommu/virtio-iommu.c | 14 +++-----------
- 1 file changed, 3 insertions(+), 11 deletions(-)
+>
+> Possibly objtool can help here; it should be possible to teach it about
+> these rules, and then it will yell when violated. That should avoid
+> regressions.
+>
 
-diff --git a/drivers/iommu/virtio-iommu.c b/drivers/iommu/virtio-iommu.c
-index 3ea9d7682999..bc3c7ab7f996 100644
---- a/drivers/iommu/virtio-iommu.c
-+++ b/drivers/iommu/virtio-iommu.c
-@@ -838,14 +838,6 @@ static void viommu_get_resv_regions(struct device *dev, struct list_head *head)
- 	iommu_dma_get_resv_regions(dev, head);
- }
- 
--static void viommu_put_resv_regions(struct device *dev, struct list_head *head)
--{
--	struct iommu_resv_region *entry, *next;
--
--	list_for_each_entry_safe(entry, next, head, list)
--		kfree(entry);
--}
--
- static struct iommu_ops viommu_ops;
- static struct virtio_driver virtio_iommu_drv;
- 
-@@ -915,7 +907,7 @@ static int viommu_add_device(struct device *dev)
- err_unlink_dev:
- 	iommu_device_unlink(&viommu->iommu, dev);
- err_free_dev:
--	viommu_put_resv_regions(dev, &vdev->resv_regions);
-+	iommu_put_resv_regions_simple(dev, &vdev->resv_regions);
- 	kfree(vdev);
- 
- 	return ret;
-@@ -933,7 +925,7 @@ static void viommu_remove_device(struct device *dev)
- 
- 	iommu_group_remove_device(dev);
- 	iommu_device_unlink(&vdev->viommu->iommu, dev);
--	viommu_put_resv_regions(dev, &vdev->resv_regions);
-+	iommu_put_resv_regions_simple(dev, &vdev->resv_regions);
- 	kfree(vdev);
- }
- 
-@@ -962,7 +954,7 @@ static struct iommu_ops viommu_ops = {
- 	.remove_device		= viommu_remove_device,
- 	.device_group		= viommu_device_group,
- 	.get_resv_regions	= viommu_get_resv_regions,
--	.put_resv_regions	= viommu_put_resv_regions,
-+	.put_resv_regions	= iommu_put_resv_regions_simple,
- 	.of_xlate		= viommu_of_xlate,
- };
- 
--- 
-2.22.0
+I will look into that as well.
