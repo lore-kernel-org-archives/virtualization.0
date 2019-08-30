@@ -1,14 +1,13 @@
-From: "Michael S. Tsirkin" <mst@redhat.com>
-Subject: Re: [PATCH] virtio: Change typecasts in vring_init()
-Date: Fri, 30 Aug 2019 10:02:32 -0400
-Message-ID: <20190830095928-mutt-send-email-mst__23882.6452916086$1567173883$gmane$org@kernel.org>
-References: <20190827152000.53920-1-matej.genci@nutanix.com>
+From: Chia-I Wu <olvaffe@gmail.com>
+Subject: Re: [PATCH] drm/virtio: Use vmalloc for command buffer allocations.
+Date: Fri, 30 Aug 2019 09:18:52 -0700
+Message-ID: <CAPaKu7SmqNLNDNNZr7c7gEi+ypAKdXJ3z5oYZFppk+53rsTygA__24500.0864890002$1567182030$gmane$org@mail.gmail.com>
+References: <20190829212417.257397-1-davidriley@chromium.org>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-Content-Disposition: inline
-In-Reply-To: <20190827152000.53920-1-matej.genci@nutanix.com>
+In-Reply-To: <20190829212417.257397-1-davidriley@chromium.org>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -18,50 +17,164 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Matej Genci <matej.genci@nutanix.com>
-Cc: "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>, "virtualization@lists.linux-foundation.org" <virtualization@lists.linux-foundation.org>
+To: David Riley <davidriley@chromium.org>
+Cc: David Airlie <airlied@linux.ie>, open list <linux-kernel@vger.kernel.org>, ML dri-devel <dri-devel@lists.freedesktop.org>, Gurchetan Singh <gurchetansingh@chromium.org>, =?UTF-8?Q?St=C3=A9phane_Marchesin?= <marcheu@chromium.org>, "open list:VIRTIO CORE,
+	NET AND BLOCK DRIVERS" <virtualization@lists.linux-foundation.org>
 List-Id: virtualization@lists.linuxfoundation.org
 
-On Tue, Aug 27, 2019 at 03:20:57PM +0000, Matej Genci wrote:
-> Compilers such as g++ 7.3 complain about assigning void* variable to
-> a non-void* variable (like struct pointers) and pointer arithmetics
-> on void*.
-> 
-> Signed-off-by: Matej Genci <matej.genci@nutanix.com>
+On Thu, Aug 29, 2019 at 2:24 PM David Riley <davidriley@chromium.org> wrote:
+>
+> Userspace requested command buffer allocations could be too large
+> to make as a contiguous allocation.  Use vmalloc if necessary to
+> satisfy those allocations.
+>
+> Signed-off-by: David Riley <davidriley@chromium.org>
 > ---
->  include/uapi/linux/virtio_ring.h | 9 +++++----
->  1 file changed, 5 insertions(+), 4 deletions(-)
-> 
-> diff --git a/include/uapi/linux/virtio_ring.h b/include/uapi/linux/virtio_ring.h
-> index 4c4e24c291a5..2c339b9e2923 100644
-> --- a/include/uapi/linux/virtio_ring.h
-> +++ b/include/uapi/linux/virtio_ring.h
-> @@ -168,10 +168,11 @@ static inline void vring_init(struct vring *vr, unsigned int num, void *p,
->  			      unsigned long align)
+>  drivers/gpu/drm/virtio/virtgpu_ioctl.c |  4 +-
+>  drivers/gpu/drm/virtio/virtgpu_vq.c    | 74 ++++++++++++++++++++++++--
+>  2 files changed, 73 insertions(+), 5 deletions(-)
+>
+> diff --git a/drivers/gpu/drm/virtio/virtgpu_ioctl.c b/drivers/gpu/drm/virtio/virtgpu_ioctl.c
+> index ac60be9b5c19..a8732a8af766 100644
+> --- a/drivers/gpu/drm/virtio/virtgpu_ioctl.c
+> +++ b/drivers/gpu/drm/virtio/virtgpu_ioctl.c
+> @@ -195,7 +195,7 @@ static int virtio_gpu_execbuffer_ioctl(struct drm_device *dev, void *data,
+>         if (ret)
+>                 goto out_free;
+>
+> -       buf = memdup_user(u64_to_user_ptr(exbuf->command), exbuf->size);
+> +       buf = vmemdup_user(u64_to_user_ptr(exbuf->command), exbuf->size);
+>         if (IS_ERR(buf)) {
+>                 ret = PTR_ERR(buf);
+>                 goto out_unresv;
+> @@ -230,7 +230,7 @@ static int virtio_gpu_execbuffer_ioctl(struct drm_device *dev, void *data,
+>         return 0;
+>
+>  out_memdup:
+> -       kfree(buf);
+> +       kvfree(buf);
+>  out_unresv:
+>         ttm_eu_backoff_reservation(&ticket, &validate_list);
+>  out_free:
+> diff --git a/drivers/gpu/drm/virtio/virtgpu_vq.c b/drivers/gpu/drm/virtio/virtgpu_vq.c
+> index 981ee16e3ee9..bcbc48b7284f 100644
+> --- a/drivers/gpu/drm/virtio/virtgpu_vq.c
+> +++ b/drivers/gpu/drm/virtio/virtgpu_vq.c
+> @@ -154,7 +154,7 @@ static void free_vbuf(struct virtio_gpu_device *vgdev,
 >  {
->  	vr->num = num;
-> -	vr->desc = p;
-> -	vr->avail = p + num*sizeof(struct vring_desc);
-> -	vr->used = (void *)(((uintptr_t)&vr->avail->ring[num] + sizeof(__virtio16)
-> -		+ align-1) & ~(align - 1));
-> +	vr->desc = (struct vring_desc *)p;
-> +	vr->avail = (struct vring_avail *)((uintptr_t)p
-> +		+ num*sizeof(struct vring_desc));
-> +	vr->used = (struct vring_used *)(((uintptr_t)&vr->avail->ring[num]
-> +		+ sizeof(__virtio16) + align-1) & ~(align - 1));
+>         if (vbuf->resp_size > MAX_INLINE_RESP_SIZE)
+>                 kfree(vbuf->resp_buf);
+> -       kfree(vbuf->data_buf);
+> +       kvfree(vbuf->data_buf);
+>         kmem_cache_free(vgdev->vbufs, vbuf);
 >  }
->  
->  static inline unsigned vring_size(unsigned int num, unsigned long align)
-
-I'm not really interested in building with g++, sorry.
-Centainly not if it makes code less robust by forcing
-casts where they weren't previously necessary.
-
-However, vring_init and vring_size are legacy APIs anyway,
-so I'd be happy to add ifndefs that will allow userspace
-simply hide these functions if it does not need them.
-
-
-> -- 
-> 2.22.0
-> 
+>
+> @@ -251,6 +251,59 @@ void virtio_gpu_dequeue_cursor_func(struct work_struct *work)
+>         wake_up(&vgdev->cursorq.ack_queue);
+>  }
+>
+> +/* How many bytes left in this page. */
+> +static unsigned int rest_of_page(void *data)
+> +{
+> +       return PAGE_SIZE - offset_in_page(data);
+> +}
+> +
+> +/* Create sg_table from a vmalloc'd buffer. */
+> +static struct sg_table *vmalloc_to_sgt(char *data, uint32_t size)
+> +{
+> +       int nents, ret, s, i;
+> +       struct sg_table *sgt;
+> +       struct scatterlist *sg;
+> +       struct page *pg;
+> +
+> +       sgt = kmalloc(sizeof(*sgt), GFP_KERNEL);
+> +       if (!sgt)
+> +               return NULL;
+> +
+> +       nents = DIV_ROUND_UP(size, PAGE_SIZE) + 1;
+> +       ret = sg_alloc_table(sgt, nents, GFP_KERNEL);
+> +       if (ret) {
+> +               kfree(sgt);
+> +               return NULL;
+> +       }
+> +
+> +       for_each_sg(sgt->sgl, sg, nents, i) {
+> +               pg = vmalloc_to_page(data);
+> +               if (!pg) {
+> +                       sg_free_table(sgt);
+> +                       kfree(sgt);
+> +                       return NULL;
+> +               }
+> +
+> +               s = rest_of_page(data);
+> +               if (s > size)
+> +                       s = size;
+> +
+> +               sg_set_page(sg, pg, s, offset_in_page(data));
+> +
+> +               size -= s;
+> +               data += s;
+> +
+> +               if (size) {
+> +                       sg_unmark_end(sg);
+> +               } else {
+> +                       sg_mark_end(sg);
+> +                       break;
+> +               }
+> +       }
+> +
+> +       return sgt;
+> +}
+> +
+>  static int virtio_gpu_queue_ctrl_buffer_locked(struct virtio_gpu_device *vgdev,
+>                                                struct virtio_gpu_vbuffer *vbuf)
+>                 __releases(&vgdev->ctrlq.qlock)
+> @@ -260,6 +313,7 @@ static int virtio_gpu_queue_ctrl_buffer_locked(struct virtio_gpu_device *vgdev,
+>         struct scatterlist *sgs[3], vcmd, vout, vresp;
+>         int outcnt = 0, incnt = 0;
+>         int ret;
+> +       struct sg_table *sgt = NULL;
+>
+>         if (!vgdev->vqs_ready)
+>                 return -ENODEV;
+> @@ -269,8 +323,17 @@ static int virtio_gpu_queue_ctrl_buffer_locked(struct virtio_gpu_device *vgdev,
+>         outcnt++;
+>
+>         if (vbuf->data_size) {
+> -               sg_init_one(&vout, vbuf->data_buf, vbuf->data_size);
+> -               sgs[outcnt + incnt] = &vout;
+> +               if (is_vmalloc_addr(vbuf->data_buf)) {
+> +                       spin_unlock(&vgdev->ctrlq.qlock);
+> +                       sgt = vmalloc_to_sgt(vbuf->data_buf, vbuf->data_size);
+> +                       spin_lock(&vgdev->ctrlq.qlock);
+> +                       if (!sgt)
+> +                               return -ENOMEM;
+> +                       sgs[outcnt + incnt] = sgt->sgl;
+If the construction of sgs is no longer atomic, it should be moved out
+of the critical section.
+> +               } else {
+> +                       sg_init_one(&vout, vbuf->data_buf, vbuf->data_size);
+> +                       sgs[outcnt + incnt] = &vout;
+> +               }
+>                 outcnt++;
+>         }
+>
+> @@ -294,6 +357,11 @@ static int virtio_gpu_queue_ctrl_buffer_locked(struct virtio_gpu_device *vgdev,
+>                 virtqueue_kick(vq);
+>         }
+>
+> +       if (sgt) {
+> +               sg_free_table(sgt);
+> +               kfree(sgt);
+> +       }
+> +
+>         if (!ret)
+>                 ret = vq->num_free;
+>         return ret;
+> --
+> 2.23.0.187.g17f5b7556c-goog
+>
+> _______________________________________________
+> dri-devel mailing list
+> dri-devel@lists.freedesktop.org
+> https://lists.freedesktop.org/mailman/listinfo/dri-devel
