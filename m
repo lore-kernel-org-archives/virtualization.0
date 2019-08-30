@@ -1,12 +1,13 @@
-From: Nadav Amit via Virtualization <virtualization@lists.linux-foundation.org>
-Subject: [PATCH v4 0/9] x86/tlb: Concurrent TLB flushes
-Date: Fri, 23 Aug 2019 15:41:44 -0700
-Message-ID: <20190823224153.15223-1-namit__1515.47154398344$1576328451$gmane$org@vmware.com>
-Reply-To: Nadav Amit <namit@vmware.com>
+From: David Riley <davidriley@chromium.org>
+Subject: Re: [PATCH] drm/virtio: Use vmalloc for command buffer allocations.
+Date: Thu, 29 Aug 2019 23:36:30 -0700
+Message-ID: <CAASgrz2v0DYb_5A3MnaWFM4Csx1DKkZe546v7DG7R+UyLOA8og__1328.85681684769$1576330785$gmane$org@mail.gmail.com>
+References: <20190829212417.257397-1-davidriley@chromium.org>
+	<20190830060857.tzrzgoi2hrmchdi5@sirius.home.kraxel.org>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
-Content-Transfer-Encoding: 7bit
+Content-Type: multipart/mixed; boundary="===============6992158318738991922=="
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
+In-Reply-To: <20190830060857.tzrzgoi2hrmchdi5@sirius.home.kraxel.org>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -16,136 +17,135 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Andy Lutomirski <luto@kernel.org>, Dave Hansen <dave.hansen@linux.intel.com>
-Cc: Juergen Gross <jgross@suse.com>, Sasha Levin <sashal@kernel.org>, linux-hyperv@vger.kernel.org, Stephen Hemminger <sthemmin@microsoft.com>, kvm@vger.kernel.org, Paolo Bonzini <pbonzini@redhat.com>, Rik van Riel <riel@surriel.com>, Peter Zijlstra <peterz@infradead.org>, Haiyang Zhang <haiyangz@microsoft.com>, x86@kernel.org, linux-kernel@vger.kernel.org, virtualization@lists.linux-foundation.org, xen-devel@lists.xenproject.org, Ingo Molnar <mingo@redhat.com>, Nadav Amit <namit@vmware.com>, Josh Poimboeuf <jpoimboe@redhat.com>, Borislav Petkov <bp@alien8.de>, Thomas Gleixner <tglx@linutronix.de>, Boris Ostrovsky <boris.ostrovsky@oracle.com>
+To: Gerd Hoffmann <kraxel@redhat.com>
+Cc: David Airlie <airlied@linux.ie>, linux-kernel@vger.kernel.org, dri-devel@lists.freedesktop.org, Gurchetan Singh <gurchetansingh@chromium.org>, Daniel Vetter <daniel@ffwll.ch>, =?UTF-8?Q?St=C3=A9phane_Marchesin?= <marcheu@chromium.org>, virtualization@lists.linux-foundation.org
 List-Id: virtualization@lists.linuxfoundation.org
 
-[ Similar cover-letter to v3 with updated performance numbers on skylake.
-  Sorry for the time it since the last version. ]
+--===============6992158318738991922==
+Content-Type: multipart/alternative; boundary="00000000000060f46005914fd875"
 
-Currently, local and remote TLB flushes are not performed concurrently,
-which introduces unnecessary overhead - each PTE flushing can take 100s
-of cycles. This patch-set allows TLB flushes to be run concurrently:
-first request the remote CPUs to initiate the flush, then run it
-locally, and finally wait for the remote CPUs to finish their work.
+--00000000000060f46005914fd875
+Content-Type: text/plain; charset="UTF-8"
 
-In addition, there are various small optimizations to avoid, for
-example, unwarranted false-sharing.
+On Thu, Aug 29, 2019 at 11:09 PM Gerd Hoffmann <kraxel@redhat.com> wrote:
 
-The proposed changes should also improve the performance of other
-invocations of on_each_cpu(). Hopefully, no one has relied on this
-behavior of on_each_cpu() that invoked functions first remotely and only
-then locally [Peter says he remembers someone might do so, but without
-further information it is hard to know how to address it].
+>   Hi,
+>
+> >  {
+> >       if (vbuf->resp_size > MAX_INLINE_RESP_SIZE)
+> >               kfree(vbuf->resp_buf);
+> > -     kfree(vbuf->data_buf);
+> > +     kvfree(vbuf->data_buf);
+>
+> if (is_vmalloc_addr(vbuf->data_buf)) ...
+>
+> needed here I gues?
+>
 
-Running sysbench on dax/ext4 w/emulated-pmem, write-cache disabled on
-2-socket, 56-logical-cores (28+SMT) Skylake, 5 repetitions:
+kvfree() handles vmalloc/kmalloc/kvmalloc internally by doing that check.
 
-sysbench fileio --file-total-size=3G --file-test-mode=rndwr \
- --file-io-mode=mmap --threads=X --file-fsync-mode=fdatasync run
 
- Th.   tip-aug22 avg (stdev)   +patch-set avg (stdev)  change
- ---   ---------------------   ----------------------  ------
- 1	1152920 (7453)		1169469 (9059)		+1.4%
- 2	1545832 (12555)		1584172 (10484) 	+2.4%
- 4	2480703 (12039)		2518641 (12875)		+1.5%
- 8	3684486 (26007)		3840343 (44144)		+4.2%
- 16	4981567 (23565)		5125756 (15458)		+2.8%
- 32	5679542 (10116)		5887826 (6121)		+3.6%
- 56	5630944 (17937)		5812514 (26264)		+3.2%
+>
+> > +/* Create sg_table from a vmalloc'd buffer. */
+> > +static struct sg_table *vmalloc_to_sgt(char *data, uint32_t size)
+>
+> Hmm, isn't there an existing function for that?
+> I'd be surprised if virtio-gpu is the first driver needing this ...
+>
+> And it case there really isn't one this should probably added to the
+> vmalloc or scatterlist code, not the virtio-gpu driver.
+>
 
-(Note that on configurations with up to 28 threads numactl was used to
-set all threads on socket 1, which explains the drop in performance when
-going to 32 threads).
+There's a few other similar ones around:
+- pack_sg_list in net/9p/trans_virtio.c, assumes contiguous array of
+scatterlist and non-vmalloc
+- videobuf_vmalloc_to_sg in drivers/media/v4l2-core/videobuf-dma-sg.c,
+assumes contiguous array of scatterlist and that the buffer being converted
+is page aligned (the l
+- vmalloc_to_sg() in drivers/media/common/saa7146/saa7146_core.c, duplicate
+of videobuf_vmalloc_to_sg
 
-Running the same benchmark with security mitigations disabled (PTI,
-Spectre, MDS):
+None of the existing ones seemed to do what was needed and the convention
+seemed to pack an sg table as needed for the usage and just keep it in the
+module so that's what I followed.  I'm not very familiar with these APIs so
+maybe there's something I missed, but I did look through the helpers in
+lib/scatterlist.c and didn't see anything.  If you think it is better
+suited to live in scatterlist I can prepare another change for that.
 
- Th.   tip-aug22 avg (stdev)   +patch-set avg (stdev)  change
- ---   ---------------------   ----------------------  ------
- 1	1444119 (8524)		1469606 (10527)		+1.7%
- 2	1921540 (24169)		1961899 (14450)		+2.1%
- 4	3073716 (21786)		3199880 (16774)		+4.1%
- 8	4700698 (49534)		4802312 (11043)		+2.1%
- 16	6005180 (6366)		6006656 (31624)		   0%
- 32	6826466 (10496)		6886622 (19110)		+0.8%
- 56	6832344 (13468)		6885586 (20646)		+0.8%
+Dave
 
-The results are somewhat different than the results that have been obtained on
-Haswell-X, which were sent before and the maximum performance improvement is
-smaller. However, the performance improvement is significant.
+>
+> cheers,
+>   Gerd
+>
+>
 
-v3 -> v4:
-  * Merge flush_tlb_func_local and flush_tlb_func_remote() [Peter]
-  * Prevent preemption on_each_cpu(). It is not needed, but it prevents
-    concerns. [Peter/tglx]
-  * Adding acked-, review-by tags
+--00000000000060f46005914fd875
+Content-Type: text/html; charset="UTF-8"
+Content-Transfer-Encoding: quoted-printable
 
-v2 -> v3:
-* Open-code the remote/local-flush decision code [Andy]
-* Fix hyper-v, Xen implementations [Andrew]
-* Fix redundant TLB flushes.
+<div dir=3D"ltr"><div dir=3D"ltr"><br></div><br><div class=3D"gmail_quote">=
+<div dir=3D"ltr" class=3D"gmail_attr">On Thu, Aug 29, 2019 at 11:09 PM Gerd=
+ Hoffmann &lt;<a href=3D"mailto:kraxel@redhat.com">kraxel@redhat.com</a>&gt=
+; wrote:<br></div><blockquote class=3D"gmail_quote" style=3D"margin:0px 0px=
+ 0px 0.8ex;border-left:1px solid rgb(204,204,204);padding-left:1ex">=C2=A0 =
+Hi,<br>
+<br>
+&gt;=C2=A0 {<br>
+&gt;=C2=A0 =C2=A0 =C2=A0 =C2=A0if (vbuf-&gt;resp_size &gt; MAX_INLINE_RESP_=
+SIZE)<br>
+&gt;=C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0kfree(vbuf-&gt;r=
+esp_buf);<br>
+&gt; -=C2=A0 =C2=A0 =C2=A0kfree(vbuf-&gt;data_buf);<br>
+&gt; +=C2=A0 =C2=A0 =C2=A0kvfree(vbuf-&gt;data_buf);<br>
+<br>
+if (is_vmalloc_addr(vbuf-&gt;data_buf)) ...<br>
+<br>
+needed here I gues?<br></blockquote><div><br></div><div>kvfree() handles vm=
+alloc/kmalloc/kvmalloc internally by doing that check.</div><div>=C2=A0</di=
+v><blockquote class=3D"gmail_quote" style=3D"margin:0px 0px 0px 0.8ex;borde=
+r-left:1px solid rgb(204,204,204);padding-left:1ex">
+<br>
+&gt; +/* Create sg_table from a vmalloc&#39;d buffer. */<br>
+&gt; +static struct sg_table *vmalloc_to_sgt(char *data, uint32_t size)<br>
+<br>
+Hmm, isn&#39;t there an existing function for that?<br>
+I&#39;d be surprised if virtio-gpu is the first driver needing this ...<br>
+<br>
+And it case there really isn&#39;t one this should probably added to the<br=
+>
+vmalloc or scatterlist code, not the virtio-gpu driver.<br></blockquote><di=
+v><br></div><div>There&#39;s a few other similar ones around:</div><div>- p=
+ack_sg_list in net/9p/trans_virtio.c, assumes contiguous=C2=A0array of scat=
+terlist and non-vmalloc</div><div>-=C2=A0videobuf_vmalloc_to_sg in=C2=A0dri=
+vers/media/v4l2-core/videobuf-dma-sg.c, assumes contiguous array of scatter=
+list and that the buffer being converted is page aligned (the l</div><div>-=
+ vmalloc_to_sg() in drivers/media/common/saa7146/saa7146_core.c, duplicate =
+of videobuf_vmalloc_to_sg</div><div><br></div><div>None of the existing one=
+s seemed to do what was needed and the convention seemed to pack an sg tabl=
+e as needed for the usage and just keep it in the module so that&#39;s what=
+ I followed.=C2=A0 I&#39;m not very familiar with these APIs so maybe there=
+&#39;s something I missed, but I did look through the helpers in lib/scatte=
+rlist.c and didn&#39;t see anything.=C2=A0 If you think it is better suited=
+ to live in scatterlist I can prepare another change for that.</div><div><b=
+r></div><div>Dave</div><blockquote class=3D"gmail_quote" style=3D"margin:0p=
+x 0px 0px 0.8ex;border-left:1px solid rgb(204,204,204);padding-left:1ex">
+<br>
+cheers,<br>
+=C2=A0 Gerd<br>
+<br>
+</blockquote></div></div>
 
-v1 -> v2:
-* Removing the patches that Thomas took [tglx]
-* Adding hyper-v, Xen compile-tested implementations [Dave]
-* Removing UV [Andy]
-* Adding lazy optimization, removing inline keyword [Dave]
-* Restructuring patch-set
+--00000000000060f46005914fd875--
 
-RFCv2 -> v1:
-* Fix comment on flush_tlb_multi [Juergen]
-* Removing async invalidation optimizations [Andy]
-* Adding KVM support [Paolo]
+--===============6992158318738991922==
+Content-Type: text/plain; charset="us-ascii"
+MIME-Version: 1.0
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
 
-Cc: Andy Lutomirski <luto@kernel.org>
-Cc: Borislav Petkov <bp@alien8.de>
-Cc: Boris Ostrovsky <boris.ostrovsky@oracle.com>
-Cc: Dave Hansen <dave.hansen@linux.intel.com>
-Cc: Haiyang Zhang <haiyangz@microsoft.com>
-Cc: Ingo Molnar <mingo@redhat.com>
-Cc: Josh Poimboeuf <jpoimboe@redhat.com>
-Cc: Juergen Gross <jgross@suse.com>
-Cc: "K. Y. Srinivasan" <kys@microsoft.com>
-Cc: Paolo Bonzini <pbonzini@redhat.com>
-Cc: Peter Zijlstra <peterz@infradead.org>
-Cc: Rik van Riel <riel@surriel.com>
-Cc: Sasha Levin <sashal@kernel.org>
-Cc: Stephen Hemminger <sthemmin@microsoft.com>
-Cc: Thomas Gleixner <tglx@linutronix.de>
-Cc: kvm@vger.kernel.org
-Cc: linux-hyperv@vger.kernel.org
-Cc: linux-kernel@vger.kernel.org
-Cc: virtualization@lists.linux-foundation.org
-Cc: x86@kernel.org
-Cc: xen-devel@lists.xenproject.org
-
-Nadav Amit (9):
-  smp: Run functions concurrently in smp_call_function_many()
-  x86/mm/tlb: Unify flush_tlb_func_local() and flush_tlb_func_remote()
-  x86/mm/tlb: Open-code on_each_cpu_cond_mask() for tlb_is_not_lazy()
-  x86/mm/tlb: Flush remote and local TLBs concurrently
-  x86/mm/tlb: Privatize cpu_tlbstate
-  x86/mm/tlb: Do not make is_lazy dirty for no reason
-  cpumask: Mark functions as pure
-  x86/mm/tlb: Remove UV special case
-  x86/mm/tlb: Remove unnecessary uses of the inline keyword
-
- arch/x86/hyperv/mmu.c                 |  10 +-
- arch/x86/include/asm/paravirt.h       |   6 +-
- arch/x86/include/asm/paravirt_types.h |   4 +-
- arch/x86/include/asm/tlbflush.h       |  52 +++----
- arch/x86/include/asm/trace/hyperv.h   |   2 +-
- arch/x86/kernel/kvm.c                 |  11 +-
- arch/x86/kernel/paravirt.c            |   2 +-
- arch/x86/mm/init.c                    |   2 +-
- arch/x86/mm/tlb.c                     | 195 ++++++++++++++------------
- arch/x86/xen/mmu_pv.c                 |  11 +-
- include/linux/cpumask.h               |   6 +-
- include/linux/smp.h                   |  34 ++++-
- include/trace/events/xen.h            |   2 +-
- kernel/smp.c                          | 138 +++++++++---------
- 14 files changed, 254 insertions(+), 221 deletions(-)
-
--- 
-2.17.1
+_______________________________________________
+Virtualization mailing list
+Virtualization@lists.linux-foundation.org
+https://lists.linuxfoundation.org/mailman/listinfo/virtualization
+--===============6992158318738991922==--
