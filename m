@@ -1,16 +1,14 @@
-From: Gerd Hoffmann <kraxel@redhat.com>
-Subject: Re: [PATCH] drm/virtio: Use vmalloc for command buffer allocations.
-Date: Fri, 30 Aug 2019 13:16:05 +0200
-Message-ID: <20190830111605.twzssycagmjhfa45__25675.5485710286$1567163876$gmane$org@sirius.home.kraxel.org>
-References: <20190829212417.257397-1-davidriley@chromium.org>
-	<20190830060857.tzrzgoi2hrmchdi5@sirius.home.kraxel.org>
-	<CAASgrz2v0DYb_5A3MnaWFM4Csx1DKkZe546v7DG7R+UyLOA8og@mail.gmail.com>
+From: "Michael S. Tsirkin" <mst@redhat.com>
+Subject: Re: [PATCH] virtio: Change typecasts in vring_init()
+Date: Fri, 30 Aug 2019 10:02:32 -0400
+Message-ID: <20190830095928-mutt-send-email-mst__23882.6452916086$1567173883$gmane$org@kernel.org>
+References: <20190827152000.53920-1-matej.genci@nutanix.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
 Content-Disposition: inline
-In-Reply-To: <CAASgrz2v0DYb_5A3MnaWFM4Csx1DKkZe546v7DG7R+UyLOA8og@mail.gmail.com>
+In-Reply-To: <20190827152000.53920-1-matej.genci@nutanix.com>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -20,36 +18,50 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: David Riley <davidriley@chromium.org>
-Cc: David Airlie <airlied@linux.ie>, linux-kernel@vger.kernel.org, dri-devel@lists.freedesktop.org, Gurchetan Singh <gurchetansingh@chromium.org>, Daniel Vetter <daniel@ffwll.ch>, =?utf-8?B?U3TDqXBoYW5l?= Marchesin <marcheu@chromium.org>, virtualization@lists.linux-foundation.org
+To: Matej Genci <matej.genci@nutanix.com>
+Cc: "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>, "virtualization@lists.linux-foundation.org" <virtualization@lists.linux-foundation.org>
 List-Id: virtualization@lists.linuxfoundation.org
 
-  Hi,
-
-> > > -     kfree(vbuf->data_buf);
-> > > +     kvfree(vbuf->data_buf);
-> >
-> > if (is_vmalloc_addr(vbuf->data_buf)) ...
-> >
-> > needed here I gues?
-> >
+On Tue, Aug 27, 2019 at 03:20:57PM +0000, Matej Genci wrote:
+> Compilers such as g++ 7.3 complain about assigning void* variable to
+> a non-void* variable (like struct pointers) and pointer arithmetics
+> on void*.
 > 
-> kvfree() handles vmalloc/kmalloc/kvmalloc internally by doing that check.
+> Signed-off-by: Matej Genci <matej.genci@nutanix.com>
+> ---
+>  include/uapi/linux/virtio_ring.h | 9 +++++----
+>  1 file changed, 5 insertions(+), 4 deletions(-)
+> 
+> diff --git a/include/uapi/linux/virtio_ring.h b/include/uapi/linux/virtio_ring.h
+> index 4c4e24c291a5..2c339b9e2923 100644
+> --- a/include/uapi/linux/virtio_ring.h
+> +++ b/include/uapi/linux/virtio_ring.h
+> @@ -168,10 +168,11 @@ static inline void vring_init(struct vring *vr, unsigned int num, void *p,
+>  			      unsigned long align)
+>  {
+>  	vr->num = num;
+> -	vr->desc = p;
+> -	vr->avail = p + num*sizeof(struct vring_desc);
+> -	vr->used = (void *)(((uintptr_t)&vr->avail->ring[num] + sizeof(__virtio16)
+> -		+ align-1) & ~(align - 1));
+> +	vr->desc = (struct vring_desc *)p;
+> +	vr->avail = (struct vring_avail *)((uintptr_t)p
+> +		+ num*sizeof(struct vring_desc));
+> +	vr->used = (struct vring_used *)(((uintptr_t)&vr->avail->ring[num]
+> +		+ sizeof(__virtio16) + align-1) & ~(align - 1));
+>  }
+>  
+>  static inline unsigned vring_size(unsigned int num, unsigned long align)
 
-Ok.
+I'm not really interested in building with g++, sorry.
+Centainly not if it makes code less robust by forcing
+casts where they weren't previously necessary.
 
-> - videobuf_vmalloc_to_sg in drivers/media/v4l2-core/videobuf-dma-sg.c,
-> assumes contiguous array of scatterlist and that the buffer being converted
-> is page aligned
+However, vring_init and vring_size are legacy APIs anyway,
+so I'd be happy to add ifndefs that will allow userspace
+simply hide these functions if it does not need them.
 
-Well, vmalloc memory _is_ page aligned.
 
-sg_alloc_table_from_pages() does alot of what you need, you just need a
-small loop around vmalloc_to_page() create a struct page array
-beforehand.
-
-Completely different approach: use get_user_pages() and don't copy the
-execbuffer at all.
-
-cheers,
-  Gerd
+> -- 
+> 2.22.0
+> 
