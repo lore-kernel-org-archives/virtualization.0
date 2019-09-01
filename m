@@ -1,23 +1,20 @@
 From: "Michael S. Tsirkin" <mst@redhat.com>
-Subject: Re: [PATCH v4 1/5] vsock/virtio: limit the memory used per-socket
-Date: Sun, 1 Sep 2019 06:17:58 -0400
-Message-ID: <20190901061707-mutt-send-email-mst@kernel.org>
-References: <20190729114302-mutt-send-email-mst@kernel.org>
-	<20190729161903.yhaj5rfcvleexkhc@steredhat>
-	<20190729165056.r32uzj6om3o6vfvp@steredhat>
-	<20190729143622-mutt-send-email-mst@kernel.org>
-	<20190730093539.dcksure3vrykir3g@steredhat>
-	<20190730163807-mutt-send-email-mst@kernel.org>
-	<20190801104754.lb3ju5xjfmnxioii@steredhat>
-	<20190801091106-mutt-send-email-mst@kernel.org>
-	<20190801133616.sik5drn6ecesukbb@steredhat>
-	<20190901025815-mutt-send-email-mst@kernel.org>
+Subject: Re: [PATCH V5 0/9] Fixes for vhost metadata acceleration
+Date: Sun, 1 Sep 2019 14:02:44 -0400
+Message-ID: <20190901140220-mutt-send-email-mst@kernel.org>
+References: <20190809054851.20118-1-jasowang@redhat.com>
+	<20190810134948-mutt-send-email-mst@kernel.org>
+	<360a3b91-1ac5-84c0-d34b-a4243fa748c4@redhat.com>
+	<20190812054429-mutt-send-email-mst@kernel.org>
+	<663be71f-f96d-cfbc-95a0-da0ac6b82d9f@redhat.com>
+	<20190819162733-mutt-send-email-mst@kernel.org>
+	<9325de4b-1d79-eb19-306e-e7a8fa8cc1a5@redhat.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset="utf-8"
+Content-Transfer-Encoding: base64
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
 Content-Disposition: inline
-In-Reply-To: <20190901025815-mutt-send-email-mst@kernel.org>
+In-Reply-To: <9325de4b-1d79-eb19-306e-e7a8fa8cc1a5@redhat.com>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -27,144 +24,70 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Stefano Garzarella <sgarzare@redhat.com>
-Cc: kvm@vger.kernel.org, netdev@vger.kernel.org, linux-kernel@vger.kernel.org, virtualization@lists.linux-foundation.org, Stefan Hajnoczi <stefanha@redhat.com>, "David S. Miller" <davem@davemloft.net>
+To: Jason Wang <jasowang@redhat.com>
+Cc: kvm@vger.kernel.org, jgg@ziepe.ca, netdev@vger.kernel.org, linux-kernel@vger.kernel.org, virtualization@lists.linux-foundation.org, linux-mm@kvack.org
 List-Id: virtualization@lists.linuxfoundation.org
 
-On Sun, Sep 01, 2019 at 04:26:19AM -0400, Michael S. Tsirkin wrote:
-> On Thu, Aug 01, 2019 at 03:36:16PM +0200, Stefano Garzarella wrote:
-> > On Thu, Aug 01, 2019 at 09:21:15AM -0400, Michael S. Tsirkin wrote:
-> > > On Thu, Aug 01, 2019 at 12:47:54PM +0200, Stefano Garzarella wrote:
-> > > > On Tue, Jul 30, 2019 at 04:42:25PM -0400, Michael S. Tsirkin wrote:
-> > > > > On Tue, Jul 30, 2019 at 11:35:39AM +0200, Stefano Garzarella wrote:
-> > > > 
-> > > > (...)
-> > > > 
-> > > > > > 
-> > > > > > The problem here is the compatibility. Before this series virtio-vsock
-> > > > > > and vhost-vsock modules had the RX buffer size hard-coded
-> > > > > > (VIRTIO_VSOCK_DEFAULT_RX_BUF_SIZE = 4K). So, if we send a buffer smaller
-> > > > > > of 4K, there might be issues.
-> > > > > 
-> > > > > Shouldn't be if they are following the spec. If not let's fix
-> > > > > the broken parts.
-> > > > > 
-> > > > > > 
-> > > > > > Maybe it is the time to add add 'features' to virtio-vsock device.
-> > > > > > 
-> > > > > > Thanks,
-> > > > > > Stefano
-> > > > > 
-> > > > > Why would a remote care about buffer sizes?
-> > > > > 
-> > > > > Let's first see what the issues are. If they exist
-> > > > > we can either fix the bugs, or code the bug as a feature in spec.
-> > > > > 
-> > > > 
-> > > > The vhost_transport '.stream_enqueue' callback
-> > > > [virtio_transport_stream_enqueue()] calls the virtio_transport_send_pkt_info(),
-> > > > passing the user message. This function allocates a new packet, copying
-> > > > the user message, but (before this series) it limits the packet size to
-> > > > the VIRTIO_VSOCK_DEFAULT_RX_BUF_SIZE (4K):
-> > > > 
-> > > > static int virtio_transport_send_pkt_info(struct vsock_sock *vsk,
-> > > > 					  struct virtio_vsock_pkt_info *info)
-> > > > {
-> > > >  ...
-> > > > 	/* we can send less than pkt_len bytes */
-> > > > 	if (pkt_len > VIRTIO_VSOCK_DEFAULT_RX_BUF_SIZE)
-> > > > 		pkt_len = VIRTIO_VSOCK_DEFAULT_RX_BUF_SIZE;
-> > > > 
-> > > > 	/* virtio_transport_get_credit might return less than pkt_len credit */
-> > > > 	pkt_len = virtio_transport_get_credit(vvs, pkt_len);
-> > > > 
-> > > > 	/* Do not send zero length OP_RW pkt */
-> > > > 	if (pkt_len == 0 && info->op == VIRTIO_VSOCK_OP_RW)
-> > > > 		return pkt_len;
-> > > >  ...
-> > > > }
-> > > > 
-> > > > then it queues the packet for the TX worker calling .send_pkt()
-> > > > [vhost_transport_send_pkt() in the vhost_transport case]
-> > > > 
-> > > > The main function executed by the TX worker is
-> > > > vhost_transport_do_send_pkt() that picks up a buffer from the virtqueue
-> > > > and it tries to copy the packet (up to 4K) on it.  If the buffer
-> > > > allocated from the guest will be smaller then 4K, I think here it will
-> > > > be discarded with an error:
-> > > > 
-> > 
-> > I'm adding more lines to explain better.
-> > 
-> > > > static void
-> > > > vhost_transport_do_send_pkt(struct vhost_vsock *vsock,
-> > > > 				struct vhost_virtqueue *vq)
-> > > > {
-> > 		...
-> > 
-> > 		head = vhost_get_vq_desc(vq, vq->iov, ARRAY_SIZE(vq->iov),
-> > 					 &out, &in, NULL, NULL);
-> > 
-> > 		...
-> > 
-> > 		len = iov_length(&vq->iov[out], in);
-> > 		iov_iter_init(&iov_iter, READ, &vq->iov[out], in, len);
-> > 
-> > 		nbytes = copy_to_iter(&pkt->hdr, sizeof(pkt->hdr), &iov_iter);
-> > 		if (nbytes != sizeof(pkt->hdr)) {
-> > 			virtio_transport_free_pkt(pkt);
-> > 			vq_err(vq, "Faulted on copying pkt hdr\n");
-> > 			break;
-> > 		}
-> > 
-> > > >  ...
-> > > > 		nbytes = copy_to_iter(pkt->buf, pkt->len, &iov_iter);
-> > > 
-> > > isn't pck len the actual length though?
-> > > 
-> > 
-> > It is the length of the packet that we are copying in the guest RX
-> > buffers pointed by the iov_iter. The guest allocates an iovec with 2
-> > buffers, one for the header and one for the payload (4KB).
-> 
-> BTW at the moment that forces another kmalloc within virtio core. Maybe
-> vsock needs a flag to skip allocation in this case.  Worth benchmarking.
-> See virtqueue_use_indirect which just does total_sg > 1.
-> 
-> > 
-> > > > 		if (nbytes != pkt->len) {
-> > > > 			virtio_transport_free_pkt(pkt);
-> > > > 			vq_err(vq, "Faulted on copying pkt buf\n");
-> > > > 			break;
-> > > > 		}
-> > > >  ...
-> > > > }
-> > > > 
-> > > > 
-> > > > This series changes this behavior since now we will split the packet in
-> > > > vhost_transport_do_send_pkt() depending on the buffer found in the
-> > > > virtqueue.
-> > > > 
-> > > > We didn't change the buffer size in this series, so we still backward
-> > > > compatible, but if we will use buffers smaller than 4K, we should
-> > > > encounter the error described above.
-> 
-> So that's an implementation bug then? It made an assumption
-> of a 4K sized buffer? Or even PAGE_SIZE sized buffer?
-
-Assuming we miss nothing and buffers < 4K are broken,
-I think we need to add this to the spec, possibly with
-a feature bit to relax the requirement that all buffers
-are at least 4k in size.
-
-> 
-> > > > 
-> > > > How do you suggest we proceed if we want to change the buffer size?
-> > > > Maybe adding a feature to "support any buffer size"?
-> > > > 
-> > > > Thanks,
-> > > > Stefano
-> > > 
-> > > 
-> > 
-> > -- 
+T24gVHVlLCBBdWcgMjAsIDIwMTkgYXQgMTA6Mjk6MzJBTSArMDgwMCwgSmFzb24gV2FuZyB3cm90
+ZToKPiAKPiBPbiAyMDE5LzgvMjAg5LiK5Y2INTowOCwgTWljaGFlbCBTLiBUc2lya2luIHdyb3Rl
+Ogo+ID4gT24gVHVlLCBBdWcgMTMsIDIwMTkgYXQgMDQ6MTI6NDlQTSArMDgwMCwgSmFzb24gV2Fu
+ZyB3cm90ZToKPiA+ID4gT24gMjAxOS84LzEyIOS4i+WNiDU6NDksIE1pY2hhZWwgUy4gVHNpcmtp
+biB3cm90ZToKPiA+ID4gPiBPbiBNb24sIEF1ZyAxMiwgMjAxOSBhdCAxMDo0NDo1MUFNICswODAw
+LCBKYXNvbiBXYW5nIHdyb3RlOgo+ID4gPiA+ID4gT24gMjAxOS84LzExIOS4iuWNiDE6NTIsIE1p
+Y2hhZWwgUy4gVHNpcmtpbiB3cm90ZToKPiA+ID4gPiA+ID4gT24gRnJpLCBBdWcgMDksIDIwMTkg
+YXQgMDE6NDg6NDJBTSAtMDQwMCwgSmFzb24gV2FuZyB3cm90ZToKPiA+ID4gPiA+ID4gPiBIaSBh
+bGw6Cj4gPiA+ID4gPiA+ID4gCj4gPiA+ID4gPiA+ID4gVGhpcyBzZXJpZXMgdHJ5IHRvIGZpeCBz
+ZXZlcmFsIGlzc3VlcyBpbnRyb2R1Y2VkIGJ5IG1ldGEgZGF0YQo+ID4gPiA+ID4gPiA+IGFjY2Vs
+cmVhdGlvbiBzZXJpZXMuIFBsZWFzZSByZXZpZXcuCj4gPiA+ID4gPiA+ID4gCj4gPiA+ID4gPiA+
+ID4gQ2hhbmdlcyBmcm9tIFY0Ogo+ID4gPiA+ID4gPiA+IC0gc3dpdGNoIHRvIHVzZSBzcGlubG9j
+ayBzeW5jaHJvbml6ZSBNTVUgbm90aWZpZXIgd2l0aCBhY2Nlc3NvcnMKPiA+ID4gPiA+ID4gPiAK
+PiA+ID4gPiA+ID4gPiBDaGFuZ2VzIGZyb20gVjM6Cj4gPiA+ID4gPiA+ID4gLSByZW1vdmUgdGhl
+IHVubmVjZXNzYXJ5IHBhdGNoCj4gPiA+ID4gPiA+ID4gCj4gPiA+ID4gPiA+ID4gQ2hhbmdlcyBm
+cm9tIFYyOgo+ID4gPiA+ID4gPiA+IC0gdXNlIHNlcWxjayBoZWxwZXIgdG8gc3luY2hyb25pemUg
+TU1VIG5vdGlmaWVyIHdpdGggdmhvc3Qgd29ya2VyCj4gPiA+ID4gPiA+ID4gCj4gPiA+ID4gPiA+
+ID4gQ2hhbmdlcyBmcm9tIFYxOgo+ID4gPiA+ID4gPiA+IC0gdHJ5IG5vdCB1c2UgUkNVIHRvIHN5
+bmNyaG9uaXplIE1NVSBub3RpZmllciB3aXRoIHZob3N0IHdvcmtlcgo+ID4gPiA+ID4gPiA+IC0g
+c2V0IGRpcnR5IHBhZ2VzIGFmdGVyIG5vIHJlYWRlcnMKPiA+ID4gPiA+ID4gPiAtIHJldHVybiAt
+RUFHQUlOIG9ubHkgd2hlbiB3ZSBmaW5kIHRoZSByYW5nZSBpcyBvdmVybGFwcGVkIHdpdGgKPiA+
+ID4gPiA+ID4gPiAgICAgIG1ldGFkYXRhCj4gPiA+ID4gPiA+ID4gCj4gPiA+ID4gPiA+ID4gSmFz
+b24gV2FuZyAoOSk6Cj4gPiA+ID4gPiA+ID4gICAgICB2aG9zdDogZG9uJ3Qgc2V0IHVhZGRyIGZv
+ciBpbnZhbGlkIGFkZHJlc3MKPiA+ID4gPiA+ID4gPiAgICAgIHZob3N0OiB2YWxpZGF0ZSBNTVUg
+bm90aWZpZXIgcmVnaXN0cmF0aW9uCj4gPiA+ID4gPiA+ID4gICAgICB2aG9zdDogZml4IHZob3N0
+IG1hcCBsZWFrCj4gPiA+ID4gPiA+ID4gICAgICB2aG9zdDogcmVzZXQgaW52YWxpZGF0ZV9jb3Vu
+dCBpbiB2aG9zdF9zZXRfdnJpbmdfbnVtX2FkZHIoKQo+ID4gPiA+ID4gPiA+ICAgICAgdmhvc3Q6
+IG1hcmsgZGlydHkgcGFnZXMgZHVyaW5nIG1hcCB1bmluaXQKPiA+ID4gPiA+ID4gPiAgICAgIHZo
+b3N0OiBkb24ndCBkbyBzeW5jaHJvbml6ZV9yY3UoKSBpbiB2aG9zdF91bmluaXRfdnFfbWFwcygp
+Cj4gPiA+ID4gPiA+ID4gICAgICB2aG9zdDogZG8gbm90IHVzZSBSQ1UgdG8gc3luY2hyb25pemUg
+TU1VIG5vdGlmaWVyIHdpdGggd29ya2VyCj4gPiA+ID4gPiA+ID4gICAgICB2aG9zdDogY29ycmVj
+dGx5IHNldCBkaXJ0eSBwYWdlcyBpbiBNTVUgbm90aWZpZXJzIGNhbGxiYWNrCj4gPiA+ID4gPiA+
+ID4gICAgICB2aG9zdDogZG8gbm90IHJldHVybiAtRUFHQUlOIGZvciBub24gYmxvY2tpbmcgaW52
+YWxpZGF0aW9uIHRvbyBlYXJseQo+ID4gPiA+ID4gPiA+IAo+ID4gPiA+ID4gPiA+ICAgICBkcml2
+ZXJzL3Zob3N0L3Zob3N0LmMgfCAyMDIgKysrKysrKysrKysrKysrKysrKysrKysrKy0tLS0tLS0t
+LS0tLS0tLS0tCj4gPiA+ID4gPiA+ID4gICAgIGRyaXZlcnMvdmhvc3Qvdmhvc3QuaCB8ICAgNiAr
+LQo+ID4gPiA+ID4gPiA+ICAgICAyIGZpbGVzIGNoYW5nZWQsIDEyMiBpbnNlcnRpb25zKCspLCA4
+NiBkZWxldGlvbnMoLSkKPiA+ID4gPiA+ID4gVGhpcyBnZW5lcmFsbHkgbG9va3MgbW9yZSBzb2xp
+ZC4KPiA+ID4gPiA+ID4gCj4gPiA+ID4gPiA+IEJ1dCB0aGlzIGFtb3VudHMgdG8gYSBzaWduaWZp
+Y2FudCBvdmVyaGF1bCBvZiB0aGUgY29kZS4KPiA+ID4gPiA+ID4gCj4gPiA+ID4gPiA+IEF0IHRo
+aXMgcG9pbnQgaG93IGFib3V0IHdlIHJldmVydCA3ZjQ2NjAzMmRjOWU1YTYxMjE3ZjIyZWEzNGIy
+ZGY5MzI3ODZiYmZjCj4gPiA+ID4gPiA+IGZvciB0aGlzIHJlbGVhc2UsIGFuZCB0aGVuIHJlLWFw
+cGx5IGEgY29ycmVjdGVkIHZlcnNpb24KPiA+ID4gPiA+ID4gZm9yIHRoZSBuZXh0IG9uZT8KPiA+
+ID4gPiA+IElmIHBvc3NpYmxlLCBjb25zaWRlciB3ZSd2ZSBhY3R1YWxseSBkaXNhYmxlZCB0aGUg
+ZmVhdHVyZS4gSG93IGFib3V0IGp1c3QKPiA+ID4gPiA+IHF1ZXVlZCB0aG9zZSBwYXRjaGVzIGZv
+ciBuZXh0IHJlbGVhc2U/Cj4gPiA+ID4gPiAKPiA+ID4gPiA+IFRoYW5rcwo+ID4gPiA+IFNvcnJ5
+IGlmIEkgd2FzIHVuY2xlYXIuIE15IGlkZWEgaXMgdGhhdAo+ID4gPiA+IDEuIEkgcmV2ZXJ0IHRo
+ZSBkaXNhYmxlZCBjb2RlCj4gPiA+ID4gMi4gWW91IHNlbmQgYSBwYXRjaCByZWFkZGluZyBpdCB3
+aXRoIGFsbCB0aGUgZml4ZXMgc3F1YXNoZWQKPiA+ID4gPiAzLiBNYXliZSBvcHRpbWl6YXRpb25z
+IG9uIHRvcCByaWdodCBhd2F5Pwo+ID4gPiA+IDQuIFdlIHF1ZXVlICp0aGF0KiBmb3IgbmV4dCBh
+bmQgc2VlIHdoYXQgaGFwcGVucy4KPiA+ID4gPiAKPiA+ID4gPiBBbmQgdGhlIGFkdmFudGFnZSBv
+dmVyIHRoZSBwYXRjaHkgYXBwcm9hY2ggaXMgdGhhdCB0aGUgY3VycmVudCBwYXRjaGVzCj4gPiA+
+ID4gYXJlIGhhcmQgdG8gcmV2aWV3LiBFLmcuICBpdCdzIG5vdCByZWFzb25hYmxlIHRvIGFzayBS
+Q1UgZ3V5cyB0byByZXZpZXcKPiA+ID4gPiB0aGUgd2hvbGUgb2Ygdmhvc3QgZm9yIFJDVSB1c2Fn
+ZSBidXQgaXQncyBtdWNoIG1vcmUgcmVhc29uYWJsZSB0byBhc2sKPiA+ID4gPiBhYm91dCBhIHNw
+ZWNpZmljIHBhdGNoLgo+ID4gPiAKPiA+ID4gT2suIFRoZW4gSSBhZ3JlZSB0byByZXZlcnQuCj4g
+PiA+IAo+ID4gPiBUaGFua3MKPiA+IEdyZWF0LCBzbyBwbGVhc2Ugc2VuZCB0aGUgZm9sbG93aW5n
+Ogo+ID4gLSByZXZlcnQKPiA+IC0gc3F1YXNoZWQgYW5kIGZpeGVkIHBhdGNoCj4gCj4gCj4gSnVz
+dCB0byBjb25maXJtLCBkbyB5b3Ugd2FudCBtZSB0byBzZW5kIGEgc2luZ2xlIHNlcmllcyBvciB0
+d28/Cj4gCj4gVGhhbmtzCj4gCgpPbmUgaXMgZmluZS4KCi0tIApNU1QKX19fX19fX19fX19fX19f
+X19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX18KVmlydHVhbGl6YXRpb24gbWFpbGluZyBs
+aXN0ClZpcnR1YWxpemF0aW9uQGxpc3RzLmxpbnV4LWZvdW5kYXRpb24ub3JnCmh0dHBzOi8vbGlz
+dHMubGludXhmb3VuZGF0aW9uLm9yZy9tYWlsbWFuL2xpc3RpbmZvL3ZpcnR1YWxpemF0aW9u
