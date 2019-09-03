@@ -1,16 +1,23 @@
-From: Alex Williamson <alex.williamson@redhat.com>
-Subject: Re: [PATCH V2 6/8] mdev: introduce virtio device and its device ops
-Date: Mon, 30 Sep 2019 15:36:01 -0600
-Message-ID: <20190930153601.31e29f7e__31111.2095763505$1569879425$gmane$org@x1.home>
-References: <20190924135332.14160-1-jasowang@redhat.com>
-	<20190924135332.14160-7-jasowang@redhat.com>
-	<20190924170640.1da03bae@x1.home>
-	<AM0PR05MB48662BA1D397D74DF4F5B9AFD1810@AM0PR05MB4866.eurprd05.prod.outlook.com>
+From: Stefano Garzarella <sgarzare@redhat.com>
+Subject: Re: [PATCH v4 1/5] vsock/virtio: limit the memory used per-socket
+Date: Tue, 3 Sep 2019 10:00:40 +0200
+Message-ID: <20190903080040.pfsxrlhcny6xyfee__26772.4998573371$1576332171$gmane$org@steredhat>
+References: <20190730163807-mutt-send-email-mst@kernel.org>
+	<20190801104754.lb3ju5xjfmnxioii@steredhat>
+	<20190801091106-mutt-send-email-mst@kernel.org>
+	<20190801133616.sik5drn6ecesukbb@steredhat>
+	<20190901025815-mutt-send-email-mst@kernel.org>
+	<20190901061707-mutt-send-email-mst@kernel.org>
+	<20190902095723.6vuvp73fdunmiogo@steredhat>
+	<20190903003823-mutt-send-email-mst@kernel.org>
+	<20190903074554.mq6spyivftuodahy@steredhat>
+	<20190903034747-mutt-send-email-mst@kernel.org>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <AM0PR05MB48662BA1D397D74DF4F5B9AFD1810@AM0PR05MB4866.eurprd05.prod.outlook.com>
+Content-Disposition: inline
+In-Reply-To: <20190903034747-mutt-send-email-mst@kernel.org>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -20,92 +27,47 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Parav Pandit <parav@mellanox.com>
-Cc: "christophe.de.dinechin@gmail.com" <christophe.de.dinechin@gmail.com>, "kvm@vger.kernel.org" <kvm@vger.kernel.org>, "mst@redhat.com" <mst@redhat.com>, "airlied@linux.ie" <airlied@linux.ie>, "joonas.lahtinen@linux.intel.com" <joonas.lahtinen@linux.intel.com>, "heiko.carstens@de.ibm.com" <heiko.carstens@de.ibm.com>, "dri-devel@lists.freedesktop.org" <dri-devel@lists.freedesktop.org>, "virtualization@lists.linux-foundation.org" <virtualization@lists.linux-foundation.org>, "kwankhede@nvidia.com" <kwankhede@nvidia.com>, "rob.miller@broadcom.com" <rob.miller@broadcom.com>, "linux-s390@vger.kernel.org" <linux-s390@vger.kernel.org>, "sebott@linux.ibm.com" <sebott@linux.ibm.com>, "lulu@redhat.com" <lulu@redhat.com>, "eperezma@redhat.com" <eperezma@redhat.com>, "pasic@linux.ibm.com" <pasic@linux.ibm.com>, "borntraeger@de.ibm.com" <borntraeger@de.ibm.com>, haotian.wang@sifive.c
+To: "Michael S. Tsirkin" <mst@redhat.com>
+Cc: kvm@vger.kernel.org, netdev@vger.kernel.org, linux-kernel@vger.kernel.org, virtualization@lists.linux-foundation.org, Stefan Hajnoczi <stefanha@redhat.com>, "David S. Miller" <davem@davemloft.net>
 List-Id: virtualization@lists.linuxfoundation.org
 
-On Fri, 27 Sep 2019 16:25:13 +0000
-Parav Pandit <parav@mellanox.com> wrote:
-
-> Hi Alex,
-> 
-> 
-> > -----Original Message-----
-> > From: Alex Williamson <alex.williamson@redhat.com>
-> > Sent: Tuesday, September 24, 2019 6:07 PM
-> > To: Jason Wang <jasowang@redhat.com>
-> > Cc: kvm@vger.kernel.org; linux-s390@vger.kernel.org; linux-
-> > kernel@vger.kernel.org; dri-devel@lists.freedesktop.org; intel-
-> > gfx@lists.freedesktop.org; intel-gvt-dev@lists.freedesktop.org;
-> > kwankhede@nvidia.com; mst@redhat.com; tiwei.bie@intel.com;
-> > virtualization@lists.linux-foundation.org; netdev@vger.kernel.org;
-> > cohuck@redhat.com; maxime.coquelin@redhat.com;
-> > cunming.liang@intel.com; zhihong.wang@intel.com;
-> > rob.miller@broadcom.com; xiao.w.wang@intel.com;
-> > haotian.wang@sifive.com; zhenyuw@linux.intel.com; zhi.a.wang@intel.com;
-> > jani.nikula@linux.intel.com; joonas.lahtinen@linux.intel.com;
-> > rodrigo.vivi@intel.com; airlied@linux.ie; daniel@ffwll.ch;
-> > farman@linux.ibm.com; pasic@linux.ibm.com; sebott@linux.ibm.com;
-> > oberpar@linux.ibm.com; heiko.carstens@de.ibm.com; gor@linux.ibm.com;
-> > borntraeger@de.ibm.com; akrowiak@linux.ibm.com; freude@linux.ibm.com;
-> > lingshan.zhu@intel.com; Ido Shamay <idos@mellanox.com>;
-> > eperezma@redhat.com; lulu@redhat.com; Parav Pandit
-> > <parav@mellanox.com>; christophe.de.dinechin@gmail.com;
-> > kevin.tian@intel.com
-> > Subject: Re: [PATCH V2 6/8] mdev: introduce virtio device and its device ops
+On Tue, Sep 03, 2019 at 03:52:24AM -0400, Michael S. Tsirkin wrote:
+> On Tue, Sep 03, 2019 at 09:45:54AM +0200, Stefano Garzarella wrote:
+> > On Tue, Sep 03, 2019 at 12:39:19AM -0400, Michael S. Tsirkin wrote:
+> > > On Mon, Sep 02, 2019 at 11:57:23AM +0200, Stefano Garzarella wrote:
+> > > > > 
+> > > > > Assuming we miss nothing and buffers < 4K are broken,
+> > > > > I think we need to add this to the spec, possibly with
+> > > > > a feature bit to relax the requirement that all buffers
+> > > > > are at least 4k in size.
+> > > > > 
+> > > > 
+> > > > Okay, should I send a proposal to virtio-dev@lists.oasis-open.org?
+> > > 
+> > > How about we also fix the bug for now?
 > > 
-> > On Tue, 24 Sep 2019 21:53:30 +0800
-> > Jason Wang <jasowang@redhat.com> wrote:
-> >   
-> > > This patch implements basic support for mdev driver that supports
-> > > virtio transport for kernel virtio driver.
-> > >
-> > > Signed-off-by: Jason Wang <jasowang@redhat.com>
-> > > ---
-> > >  include/linux/mdev.h        |   2 +
-> > >  include/linux/virtio_mdev.h | 145
-> > > ++++++++++++++++++++++++++++++++++++
-> > >  2 files changed, 147 insertions(+)
-> > >  create mode 100644 include/linux/virtio_mdev.h
-> > >
-> > > diff --git a/include/linux/mdev.h b/include/linux/mdev.h index
-> > > 3414307311f1..73ac27b3b868 100644
-> > > --- a/include/linux/mdev.h
-> > > +++ b/include/linux/mdev.h
-> > > @@ -126,6 +126,8 @@ struct mdev_device *mdev_from_dev(struct device
-> > > *dev);
-> > >
-> > >  enum {
-> > >  	MDEV_ID_VFIO = 1,
-> > > +	MDEV_ID_VIRTIO = 2,
-> > > +	MDEV_ID_VHOST = 3,  
+> > This series unintentionally fix the bug because we are introducing a way
+> > to split the packet depending on the buffer size ([PATCH 4/5] vhost/vsock:
+> > split packets to send using multiple buffers) and we removed the limit
+> > to 4K buffers ([PATCH 5/5] vsock/virtio: change the maximum packet size
+> > allowed).
 > > 
-> > MDEV_ID_VHOST isn't used yet here.  Also, given the strong interdependence
-> > between the class_id and the ops structure, we might wand to define them in
-> > the same place.  Thanks,
-> >   
+> > I discovered that there was a bug while we discussed memory accounting.
+> > 
+> > Do you think it's enough while we introduce the feature bit in the spec?
+> > 
+> > Thanks,
+> > Stefano
 > 
-> When mlx5_core creates mdevs (parent->ops->create() and it wants to
-> bind to mlx5 mdev driver (which does mdev_register_driver()), mlx5
-> core driver will publish MDEV_ID_MLX5_NET defined in central place as
-> include/linux/mdev.h without any ops structure. Because such ops are
-> not relevant. It uses usual, standard ops probe() remove() on the
-> mdev (similar to a regular PCI device). So for VHOST case ops may be
-> closely related to ID, but not for other type of ID.
-> 
-> Just want to make sure, that scope of ID covers this case.
+> Well locking is also broken (patch 3/5).  It seems that 3/5 and 4/5 work
+> by themselves, right?  So how about we ask Dave to send these to stable?
 
-AIUI, these device-ops are primarily meant to have 1:N multiplexing of
-the mdev bus driver.  One mdev bus driver supports N vendor drivers via
-a common "protocol" defined by this structure.  vfio-mdev supports
-GVT-g, GRID, and several sample drivers.  I think Jason and Tiwei are
-attempting something similar if we have multiple vendors that may
-provide virtio/vhost parent drivers.  If you have a 1:1 model with
-mlx5 where you're not trying to abstract a common channel between the
-mdev bus driver and the mdev vendor driver, then I suppose you might
-not use the device-ops capabilities of the mdev-core.  Did I interpret
-the question correctly?  I think that's probably fine, mdev-core
-shouldn't have any dependencies on the device-ops and we shouldn't
-really be dictating the bus/vendor link through mdev.  Thanks,
+Yes, they work by themselves and I agree that should be send to stable.
 
-Alex
+> Also, how about 1/5? Also needed for stable?
+
+I think so, without this patch if we flood the guest with 1-byte packets,
+we can consume ~ 1 GB of guest memory per-socket.
+
+Thanks,
+Stefano
