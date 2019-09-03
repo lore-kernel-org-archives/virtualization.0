@@ -1,17 +1,18 @@
-From: Vivek Goyal <vgoyal@redhat.com>
+From: "Michael S. Tsirkin" <mst@redhat.com>
 Subject: Re: [PATCH v3 00/13] virtio-fs: shared file system for virtual
 	machines
-Date: Tue, 3 Sep 2019 10:07:52 -0400
-Message-ID: <20190903140752.GA10983__28396.922855039$1567519696$gmane$org@redhat.com>
+Date: Tue, 3 Sep 2019 10:12:16 -0400
+Message-ID: <20190903101001-mutt-send-email-mst__34083.9527941839$1567519951$gmane$org@kernel.org>
 References: <20190821173742.24574-1-vgoyal@redhat.com>
 	<CAJfpegvPTxkaNhXWhiQSprSJqyW1cLXeZEz6x_f0PxCd-yzHQg@mail.gmail.com>
 	<20190903041507-mutt-send-email-mst@kernel.org>
+	<20190903140752.GA10983@redhat.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
 Content-Disposition: inline
-In-Reply-To: <20190903041507-mutt-send-email-mst@kernel.org>
+In-Reply-To: <20190903140752.GA10983@redhat.com>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -21,34 +22,41 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: "Michael S. Tsirkin" <mst@redhat.com>
+To: Vivek Goyal <vgoyal@redhat.com>
 Cc: Miklos Szeredi <miklos@szeredi.hu>, linux-kernel@vger.kernel.org, virtualization@lists.linux-foundation.org, virtio-fs@redhat.com, Stefan Hajnoczi <stefanha@redhat.com>, linux-fsdevel@vger.kernel.org, "Dr. David Alan Gilbert" <dgilbert@redhat.com>
 List-Id: virtualization@lists.linuxfoundation.org
 
-On Tue, Sep 03, 2019 at 04:31:38AM -0400, Michael S. Tsirkin wrote:
-
-[..]
-> +	/* TODO lock */
-> give me pause.
+On Tue, Sep 03, 2019 at 10:07:52AM -0400, Vivek Goyal wrote:
+> On Tue, Sep 03, 2019 at 04:31:38AM -0400, Michael S. Tsirkin wrote:
 > 
-> Cleanup generally seems broken to me - what pauses the FS
-
-I am looking into device removal aspect of it now. Thinking of adding
-a reference count to virtiofs device and possibly also a bit flag to
-indicate if device is still alive. That way, we should be able to cleanup
-device more gracefully.
-
+> [..]
+> > +	/* TODO lock */
+> > give me pause.
+> > 
+> > Cleanup generally seems broken to me - what pauses the FS
 > 
-> What about the rest of TODOs in that file?
+> I am looking into device removal aspect of it now. Thinking of adding
+> a reference count to virtiofs device and possibly also a bit flag to
+> indicate if device is still alive. That way, we should be able to cleanup
+> device more gracefully.
 
-I will also take a closer look at TODOs now. Better device cleanup path
-might get rid of some of them. Some of them might not be valid anymore.
+Generally, the way to cleanup things is to first disconnect device from
+linux so linux won't send new requests, wait for old ones to finish.
 
+
+
+
+> > 
+> > What about the rest of TODOs in that file?
 > 
-> use of usleep is hacky - can't we do better e.g. with a
-> completion?
-
-Agreed.
-
-Thanks
-Vivek
+> I will also take a closer look at TODOs now. Better device cleanup path
+> might get rid of some of them. Some of them might not be valid anymore.
+> 
+> > 
+> > use of usleep is hacky - can't we do better e.g. with a
+> > completion?
+> 
+> Agreed.
+> 
+> Thanks
+> Vivek
