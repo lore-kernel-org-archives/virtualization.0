@@ -1,13 +1,13 @@
 From: Sasha Levin <sashal@kernel.org>
-Subject: [PATCH AUTOSEL 5.2 18/23] virtio/s390: fix race on airq_areas[]
-Date: Tue,  3 Sep 2019 12:24:19 -0400
-Message-ID: <20190903162424.6877-18-sashal@kernel.org>
-References: <20190903162424.6877-1-sashal@kernel.org>
+Subject: [PATCH AUTOSEL 4.19 162/167] virtio/s390: fix race on airq_areas[]
+Date: Tue,  3 Sep 2019 12:25:14 -0400
+Message-ID: <20190903162519.7136-162-sashal@kernel.org>
+References: <20190903162519.7136-1-sashal@kernel.org>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <20190903162424.6877-1-sashal@kernel.org>
+In-Reply-To: <20190903162519.7136-1-sashal@kernel.org>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -45,7 +45,7 @@ Signed-off-by: Sasha Levin <sashal@kernel.org>
  1 file changed, 3 insertions(+)
 
 diff --git a/drivers/s390/virtio/virtio_ccw.c b/drivers/s390/virtio/virtio_ccw.c
-index 6a30768813219..8d47ad61bac3d 100644
+index ec54538f7ae1c..67efdf25657f3 100644
 --- a/drivers/s390/virtio/virtio_ccw.c
 +++ b/drivers/s390/virtio/virtio_ccw.c
 @@ -132,6 +132,7 @@ struct airq_info {
