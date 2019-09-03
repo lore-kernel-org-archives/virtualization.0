@@ -1,14 +1,23 @@
-From: Stefano Garzarella <sgarzare@redhat.com>
-Subject: Re: [PATCH net-next] vsock/virtio: a better comment on credit update
-Date: Tue, 3 Sep 2019 09:47:33 +0200
-Message-ID: <20190903074733.dg55ucs7jh5zvfbh__42410.8782711969$1567496867$gmane$org@steredhat>
-References: <20190903073748.25214-1-mst@redhat.com>
+From: "Michael S. Tsirkin" <mst@redhat.com>
+Subject: Re: [PATCH v4 1/5] vsock/virtio: limit the memory used per-socket
+Date: Tue, 3 Sep 2019 03:52:24 -0400
+Message-ID: <20190903034747-mutt-send-email-mst__17357.3542547942$1567497162$gmane$org@kernel.org>
+References: <20190730093539.dcksure3vrykir3g@steredhat>
+	<20190730163807-mutt-send-email-mst@kernel.org>
+	<20190801104754.lb3ju5xjfmnxioii@steredhat>
+	<20190801091106-mutt-send-email-mst@kernel.org>
+	<20190801133616.sik5drn6ecesukbb@steredhat>
+	<20190901025815-mutt-send-email-mst@kernel.org>
+	<20190901061707-mutt-send-email-mst@kernel.org>
+	<20190902095723.6vuvp73fdunmiogo@steredhat>
+	<20190903003823-mutt-send-email-mst@kernel.org>
+	<20190903074554.mq6spyivftuodahy@steredhat>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
 Content-Disposition: inline
-In-Reply-To: <20190903073748.25214-1-mst@redhat.com>
+In-Reply-To: <20190903074554.mq6spyivftuodahy@steredhat>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -18,39 +27,41 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: "Michael S. Tsirkin" <mst@redhat.com>
+To: Stefano Garzarella <sgarzare@redhat.com>
 Cc: kvm@vger.kernel.org, netdev@vger.kernel.org, linux-kernel@vger.kernel.org, virtualization@lists.linux-foundation.org, Stefan Hajnoczi <stefanha@redhat.com>, "David S. Miller" <davem@davemloft.net>
 List-Id: virtualization@lists.linuxfoundation.org
 
-On Tue, Sep 03, 2019 at 03:38:16AM -0400, Michael S. Tsirkin wrote:
-> The comment we have is just repeating what the code does.
-> Include the *reason* for the condition instead.
+On Tue, Sep 03, 2019 at 09:45:54AM +0200, Stefano Garzarella wrote:
+> On Tue, Sep 03, 2019 at 12:39:19AM -0400, Michael S. Tsirkin wrote:
+> > On Mon, Sep 02, 2019 at 11:57:23AM +0200, Stefano Garzarella wrote:
+> > > > 
+> > > > Assuming we miss nothing and buffers < 4K are broken,
+> > > > I think we need to add this to the spec, possibly with
+> > > > a feature bit to relax the requirement that all buffers
+> > > > are at least 4k in size.
+> > > > 
+> > > 
+> > > Okay, should I send a proposal to virtio-dev@lists.oasis-open.org?
+> > 
+> > How about we also fix the bug for now?
 > 
-> Cc: Stefano Garzarella <sgarzare@redhat.com>
-> Signed-off-by: Michael S. Tsirkin <mst@redhat.com>
-> ---
->  net/vmw_vsock/virtio_transport_common.c | 9 +++++++--
->  1 file changed, 7 insertions(+), 2 deletions(-)
+> This series unintentionally fix the bug because we are introducing a way
+> to split the packet depending on the buffer size ([PATCH 4/5] vhost/vsock:
+> split packets to send using multiple buffers) and we removed the limit
+> to 4K buffers ([PATCH 5/5] vsock/virtio: change the maximum packet size
+> allowed).
 > 
-> diff --git a/net/vmw_vsock/virtio_transport_common.c b/net/vmw_vsock/virtio_transport_common.c
-> index 94cc0fa3e848..5bb70c692b1e 100644
-> --- a/net/vmw_vsock/virtio_transport_common.c
-> +++ b/net/vmw_vsock/virtio_transport_common.c
-> @@ -307,8 +307,13 @@ virtio_transport_stream_do_dequeue(struct vsock_sock *vsk,
->  
->  	spin_unlock_bh(&vvs->rx_lock);
->  
-> -	/* We send a credit update only when the space available seen
-> -	 * by the transmitter is less than VIRTIO_VSOCK_MAX_PKT_BUF_SIZE
-> +	/* To reduce the number of credit update messages,
-> +	 * don't update credits as long as lots of space is available.
-> +	 * Note: the limit chosen here is arbitrary. Setting the limit
-> +	 * too high causes extra messages. Too low causes transmitter
-> +	 * stalls. As stalls are in theory more expensive than extra
-> +	 * messages, we set the limit to a high value. TODO: experiment
-> +	 * with different values.
->  	 */
->  	if (free_space < VIRTIO_VSOCK_MAX_PKT_BUF_SIZE) {
->  		virtio_transport_send_credit_update(vsk,
+> I discovered that there was a bug while we discussed memory accounting.
+> 
+> Do you think it's enough while we introduce the feature bit in the spec?
+> 
+> Thanks,
+> Stefano
 
-Reviewed-by: Stefano Garzarella <sgarzare@redhat.com>
+Well locking is also broken (patch 3/5).  It seems that 3/5 and 4/5 work
+by themselves, right?  So how about we ask Dave to send these to stable?
+Also, how about 1/5? Also needed for stable?
+
+
+-- 
+MST
