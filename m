@@ -1,20 +1,16 @@
-From: "Michael S. Tsirkin" <mst@redhat.com>
-Subject: Re: [PATCH] mm/balloon_compaction: suppress allocation warnings
-Date: Wed, 4 Sep 2019 06:37:15 -0400
-Message-ID: <20190904063703-mutt-send-email-mst__46566.2006217585$1567593470$gmane$org@kernel.org>
-References: <20190820091646.29642-1-namit@vmware.com>
-	<ba01ec8c-19c3-847c-a315-2f70f4b1fe31@redhat.com>
-	<5BBC6CB3-2DCD-4A95-90C9-7C23482F9B32@vmware.com>
-	<85c72875-278f-fbab-69c9-92dc1873d407@redhat.com>
-	<FC42B62F-167F-4D7D-ADC5-926B36347E82@vmware.com>
-	<2aa52636-4ca7-0d47-c5bf-42408af3ea0f@redhat.com>
-	<D4105FF4-5DF3-4DB5-9325-855B63CD9AAD@vmware.com>
+From: Stefan Hajnoczi <stefanha@redhat.com>
+Subject: Re: [PATCH v3 00/13] virtio-fs: shared file system for virtual
+	machines
+Date: Wed, 4 Sep 2019 16:54:19 +0100
+Message-ID: <20190904155419.GB25679__24598.4055496351$1567612506$gmane$org@stefanha-x1.localdomain>
+References: <20190821173742.24574-1-vgoyal@redhat.com>
+	<CAJfpegvPTxkaNhXWhiQSprSJqyW1cLXeZEz6x_f0PxCd-yzHQg@mail.gmail.com>
+	<20190903041507-mutt-send-email-mst@kernel.org>
+	<CAJfpeguB6fFhghuFS420ZQ+JuQvTLc5TgsGjoB_RvFrSVf+v5w@mail.gmail.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="utf-8"
-Content-Transfer-Encoding: base64
+Content-Type: multipart/mixed; boundary="===============7791870378345050685=="
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-Content-Disposition: inline
-In-Reply-To: <D4105FF4-5DF3-4DB5-9325-855B63CD9AAD@vmware.com>
+In-Reply-To: <CAJfpeguB6fFhghuFS420ZQ+JuQvTLc5TgsGjoB_RvFrSVf+v5w@mail.gmail.com>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -24,47 +20,85 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Nadav Amit <namit@vmware.com>
-Cc: "linux-mm@kvack.org" <linux-mm@kvack.org>, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>, "virtualization@lists.linux-foundation.org" <virtualization@lists.linux-foundation.org>
+To: Miklos Szeredi <miklos@szeredi.hu>
+Cc: "Michael S. Tsirkin" <mst@redhat.com>, linux-kernel@vger.kernel.org, virtualization@lists.linux-foundation.org, virtio-fs@redhat.com, "Dr. David Alan Gilbert" <dgilbert@redhat.com>, linux-fsdevel@vger.kernel.org, Vivek Goyal <vgoyal@redhat.com>
 List-Id: virtualization@lists.linuxfoundation.org
 
-T24gV2VkLCBBdWcgMjEsIDIwMTkgYXQgMDc6NDQ6MzNQTSArMDAwMCwgTmFkYXYgQW1pdCB3cm90
-ZToKPiA+IE9uIEF1ZyAyMSwgMjAxOSwgYXQgMTI6MTMgUE0sIERhdmlkIEhpbGRlbmJyYW5kIDxk
-YXZpZEByZWRoYXQuY29tPiB3cm90ZToKPiA+IAo+ID4gT24gMjEuMDguMTkgMTg6MzQsIE5hZGF2
-IEFtaXQgd3JvdGU6Cj4gPj4+IE9uIEF1ZyAyMSwgMjAxOSwgYXQgOToyOSBBTSwgRGF2aWQgSGls
-ZGVuYnJhbmQgPGRhdmlkQHJlZGhhdC5jb20+IHdyb3RlOgo+ID4+PiAKPiA+Pj4gT24gMjEuMDgu
-MTkgMTg6MjMsIE5hZGF2IEFtaXQgd3JvdGU6Cj4gPj4+Pj4gT24gQXVnIDIxLCAyMDE5LCBhdCA5
-OjA1IEFNLCBEYXZpZCBIaWxkZW5icmFuZCA8ZGF2aWRAcmVkaGF0LmNvbT4gd3JvdGU6Cj4gPj4+
-Pj4gCj4gPj4+Pj4gT24gMjAuMDguMTkgMTE6MTYsIE5hZGF2IEFtaXQgd3JvdGU6Cj4gPj4+Pj4+
-IFRoZXJlIGlzIG5vIHJlYXNvbiB0byBwcmludCB3YXJuaW5ncyB3aGVuIGJhbGxvb24gcGFnZSBh
-bGxvY2F0aW9uIGZhaWxzLAo+ID4+Pj4+PiBhcyB0aGV5IGFyZSBleHBlY3RlZCBhbmQgY2FuIGJl
-IGhhbmRsZWQgZ3JhY2VmdWxseS4gIFNpbmNlIFZNd2FyZQo+ID4+Pj4+PiBiYWxsb29uIG5vdyB1
-c2VzIGJhbGxvb24tY29tcGFjdGlvbiBpbmZyYXN0cnVjdHVyZSwgYW5kIHN1cHByZXNzZWQgdGhl
-c2UKPiA+Pj4+Pj4gd2FybmluZ3MgYmVmb3JlLCBpdCBpcyBhbHNvIGJlbmVmaWNpYWwgdG8gc3Vw
-cHJlc3MgdGhlc2Ugd2FybmluZ3MgdG8KPiA+Pj4+Pj4ga2VlcCB0aGUgc2FtZSBiZWhhdmlvciB0
-aGF0IHRoZSBiYWxsb29uIGhhZCBiZWZvcmUuCj4gPj4+Pj4gCj4gPj4+Pj4gSSBhbSBub3Qgc3Vy
-ZSBpZiB0aGF0J3MgYSBnb29kIGlkZWEuIFRoZSBhbGxvY2F0aW9uIHdhcm5pbmdzIGFyZSB1c3Vh
-bGx5Cj4gPj4+Pj4gdGhlIG9ubHkgdHJhY2Ugb2YgInRoZSB1c2VyL2FkbWluIGRpZCBzb21ldGhp
-bmcgYmFkIGJlY2F1c2UgaGUvc2hlIHRyaWVkCj4gPj4+Pj4gdG8gaW5mbGF0ZSB0aGUgYmFsbG9v
-biB0byBhbiB1bnNhZmUgdmFsdWUiLiBCZWxpZXZlIG1lLCBJIHByb2Nlc3NlZCBhCj4gPj4+Pj4g
-Y291cGxlIG9mIHN1Y2ggYnVncmVwb3J0cyByZWxhdGVkIHRvIHZpcnRpby1iYWxsb29uIGFuZCB0
-aGUgd2FybmluZyB3ZXJlCj4gPj4+Pj4gdmVyeSBoZWxwZnVsIGZvciB0aGF0Lgo+ID4+Pj4gCj4g
-Pj4+PiBPaywgc28gYSBtZXNzYWdlIGlzIG5lZWRlZCwgYnV0IGRvZXMgaXQgaGF2ZSB0byBiZSBh
-IGdlbmVyaWMgZnJpZ2h0ZW5pbmcKPiA+Pj4+IHdhcm5pbmc/Cj4gPj4+PiAKPiA+Pj4+IEhvdyBh
-Ym91dCB1c2luZyBfX0dGUF9OT1dBUk4sIGFuZCBpZiBhbGxvY2F0aW9uIGRvIHNvbWV0aGluZyBs
-aWtlOgo+ID4+Pj4gCj4gPj4+PiBwcl93YXJuKOKAnEJhbGxvb24gbWVtb3J5IGFsbG9jYXRpb24g
-ZmFpbGVk4oCdKTsKPiA+Pj4+IAo+ID4+Pj4gT3IgZXZlbiBzb21ldGhpbmcgbW9yZSBpbmZvcm1h
-dGl2ZT8gVGhpcyB3b3VsZCBzdXJlbHkgYmUgbGVzcyBpbnRpbWlkYXRpbmcKPiA+Pj4+IGZvciBj
-b21tb24gdXNlcnMuCj4gPj4+IAo+ID4+PiByYXRlbGltaXQgd291bGQgbWFrZSBzZW5zZSA6KQo+
-ID4+PiAKPiA+Pj4gQW5kIHllcywgdGhpcyB3b3VsZCBjZXJ0YWlubHkgYmUgbmljZXIuCj4gPj4g
-Cj4gPj4gVGhhbmtzLiBJIHdpbGwgcG9zdCB2MiBvZiB0aGUgcGF0Y2guCj4gPiAKPiA+IEFzIGRp
-c2N1c3NlZCBpbiB2Miwgd2UgYWxyZWFkeSBwcmludCBhIHdhcm5pbmcgaW4gdmlydGlvLWJhbGxv
-b24sIHNvIEkKPiA+IGFtIGZpbmUgd2l0aCB0aGlzIHBhdGNoLgo+ID4gCj4gPiBSZXZpZXdlZC1i
-eTogRGF2aWQgSGlsZGVuYnJhbmQgPGRhdmlkQHJlZGhhdC5jb20+Cj4gCj4gTWljaGFlbCwKPiAK
-PiBJZiBpdCBpcyBwb3NzaWJsZSB0byBnZXQgaXQgdG8gNS4zLCB0byBhdm9pZCBiZWhhdmlvcmFs
-IGNoYW5nZSBmb3IgVk13YXJlCj4gYmFsbG9vbiB1c2VycywgaXQgd291bGQgYmUgZ3JlYXQuCj4g
-Cj4gVGhhbmtzLAo+IE5hZGF2CgpKdXN0IGJhY2sgZnJvbSB2YWNhdGlvbiwgSSdsbCB0cnkuCgpf
-X19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fXwpWaXJ0dWFsaXph
-dGlvbiBtYWlsaW5nIGxpc3QKVmlydHVhbGl6YXRpb25AbGlzdHMubGludXgtZm91bmRhdGlvbi5v
-cmcKaHR0cHM6Ly9saXN0cy5saW51eGZvdW5kYXRpb24ub3JnL21haWxtYW4vbGlzdGluZm8vdmly
-dHVhbGl6YXRpb24=
+
+--===============7791870378345050685==
+Content-Type: multipart/signed; micalg=pgp-sha256;
+	protocol="application/pgp-signature"; boundary="GID0FwUMdk1T2AWN"
+Content-Disposition: inline
+
+
+--GID0FwUMdk1T2AWN
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+Content-Transfer-Encoding: quoted-printable
+
+On Tue, Sep 03, 2019 at 11:17:35AM +0200, Miklos Szeredi wrote:
+> On Tue, Sep 3, 2019 at 10:31 AM Michael S. Tsirkin <mst@redhat.com> wrote:
+> > > >  fs/fuse/Kconfig                 |   11 +
+> > > >  fs/fuse/Makefile                |    1 +
+> > > >  fs/fuse/control.c               |    4 +-
+> > > >  fs/fuse/cuse.c                  |    4 +-
+> > > >  fs/fuse/dev.c                   |   89 ++-
+> > > >  fs/fuse/dir.c                   |   26 +-
+> > > >  fs/fuse/file.c                  |   15 +-
+> > > >  fs/fuse/fuse_i.h                |  120 +++-
+> > > >  fs/fuse/inode.c                 |  203 +++---
+> > > >  fs/fuse/virtio_fs.c             | 1061 +++++++++++++++++++++++++++=
+++++
+> > > >  fs/splice.c                     |    3 +-
+> > > >  include/linux/fs.h              |    2 +
+> > > >  include/uapi/linux/virtio_fs.h  |   41 ++
+> > > >  include/uapi/linux/virtio_ids.h |    1 +
+> > > >  init/do_mounts.c                |   10 +
+> > > >  15 files changed, 1462 insertions(+), 129 deletions(-)
+> > > >  create mode 100644 fs/fuse/virtio_fs.c
+> > > >  create mode 100644 include/uapi/linux/virtio_fs.h
+> >
+> > Don't the new files need a MAINTAINERS entry?
+> > I think we want virtualization@lists.linux-foundation.org to be
+> > copied.
+>=20
+> Yep.
+>=20
+> Stefan, do you want to formally maintain this file?
+
+Vivek has been doing most of the kernel work lately and I would suggest
+that he acts as maintainer.
+
+But I'm happy to be added if you want two people or if Vivek is
+unwilling.
+
+Stefan
+
+--GID0FwUMdk1T2AWN
+Content-Type: application/pgp-signature; name="signature.asc"
+
+-----BEGIN PGP SIGNATURE-----
+
+iQEzBAEBCAAdFiEEhpWov9P5fNqsNXdanKSrs4Grc8gFAl1v3isACgkQnKSrs4Gr
+c8i3IwgAkPNsvQFn07eQEq84FvAQliEAhVlQPhZtCsVbch+9uZMEFLknwvu44nDV
+4jl49BomGl8bnL2zO9Fw3v8TDw2mcmvzIwGrb3r+TF1fX/Hdgt6I/GLk9sGX6Pnx
+zaCOEFRPRWzo/wC//ljow5suXYiIhGkE9JrxRrTjgxSPbYIKTnoMxIJmXvsa/JWl
+pnWGDMmMMH5ZucxT8iXJozyGqo/KKM04NtKxREt+Qdt1VvVvB92eevZ0uFiA/iah
+ZlVDb+uBVx1t8hbXOOeb85HSUqL/qCQdm0e7FzBxhIg/dIGQgKqQb8Vw5cjEJu/i
+Lb/NaWqBPfAHYb4ZRwHMznYrZBDaKQ==
+=9DaP
+-----END PGP SIGNATURE-----
+
+--GID0FwUMdk1T2AWN--
+
+--===============7791870378345050685==
+Content-Type: text/plain; charset="us-ascii"
+MIME-Version: 1.0
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+
+_______________________________________________
+Virtualization mailing list
+Virtualization@lists.linux-foundation.org
+https://lists.linuxfoundation.org/mailman/listinfo/virtualization
+--===============7791870378345050685==--
