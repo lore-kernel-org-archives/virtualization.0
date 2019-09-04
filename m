@@ -1,17 +1,14 @@
-From: "Michael S. Tsirkin" <mst@redhat.com>
-Subject: Re: [PATCH v4 15/16] virtio-fs: add virtiofs filesystem
-Date: Wed, 4 Sep 2019 14:58:40 -0400
-Message-ID: <20190904145656-mutt-send-email-mst__17295.9375356854$1567623566$gmane$org@kernel.org>
-References: <20190903113640.7984-1-mszeredi@redhat.com>
-	<20190903114203.8278-10-mszeredi@redhat.com>
-	<20190903092222-mutt-send-email-mst@kernel.org>
-	<20190904181630.GB26826@stefanha-x1.localdomain>
+From: Chia-I Wu <olvaffe@gmail.com>
+Subject: Re: [PATCH] drm/virtio: fix command submission with objects but
+	without fence.
+Date: Wed, 4 Sep 2019 16:10:30 -0700
+Message-ID: <CAPaKu7RWiEr5n_DWcg0H2PPnRs9CUn-ZgQV3NYe8VrdZgEAhTQ__31187.6211942703$1567638682$gmane$org@mail.gmail.com>
+References: <20190904074828.32502-1-kraxel@redhat.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-Content-Disposition: inline
-In-Reply-To: <20190904181630.GB26826@stefanha-x1.localdomain>
+In-Reply-To: <20190904074828.32502-1-kraxel@redhat.com>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -21,40 +18,45 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Stefan Hajnoczi <stefanha@redhat.com>
-Cc: Miklos Szeredi <mszeredi@redhat.com>, "Dr. David Alan Gilbert" <dgilbert@redhat.com>, linux-kernel@vger.kernel.org, linux-fsdevel@vger.kernel.org, virtualization@lists.linux-foundation.org, Vivek Goyal <vgoyal@redhat.com>
+To: Gerd Hoffmann <kraxel@redhat.com>
+Cc: David Airlie <airlied@linux.ie>, open list <linux-kernel@vger.kernel.org>, Daniel Vetter <daniel@ffwll.ch>, ML dri-devel <dri-devel@lists.freedesktop.org>, "open list:VIRTIO GPU DRIVER" <virtualization@lists.linux-foundation.org>
 List-Id: virtualization@lists.linuxfoundation.org
 
-On Wed, Sep 04, 2019 at 07:16:30PM +0100, Stefan Hajnoczi wrote:
-> On Tue, Sep 03, 2019 at 09:55:49AM -0400, Michael S. Tsirkin wrote:
-> > On Tue, Sep 03, 2019 at 01:42:02PM +0200, Miklos Szeredi wrote:
-> > Endian-ness for fuse header also looks wrong.
-> [...]
-> > > +struct virtio_fs_forget {
-> > > +	struct fuse_in_header ih;
-> > > +	struct fuse_forget_in arg;
-> > 
-> > These structures are all native endian.
-> > 
-> > Passing them to host will make cross-endian setups painful to support,
-> > and hardware implementations impossible.
-> > 
-> > How about converting everything to LE?
-> 
-> The driver dictates the endianness of the FUSE protocol session.  The
-> virtio-fs device specification states that the device looks at the first
-> request's fuse_in_header::opcode field to detect the guest endianness.
-> 
-> If it sees FUSE_INIT in its native endianness then no byte-swapping is
-> necessary.  If it sees FUSE_INIT in the opposite endianness then
-> byte-swapping is necessary on the device side.
+On Wed, Sep 4, 2019 at 12:48 AM Gerd Hoffmann <kraxel@redhat.com> wrote:
+>
+> Only call virtio_gpu_array_add_fence if we actually have a fence.
+>
+> Fixes: da758d51968a ("drm/virtio: rework virtio_gpu_execbuffer_ioctl fencing")
+> Signed-off-by: Gerd Hoffmann <kraxel@redhat.com>
+> ---
+>  drivers/gpu/drm/virtio/virtgpu_vq.c | 9 +++++----
+>  1 file changed, 5 insertions(+), 4 deletions(-)
+>
+> diff --git a/drivers/gpu/drm/virtio/virtgpu_vq.c b/drivers/gpu/drm/virtio/virtgpu_vq.c
+> index 595fa6ec2d58..7fd2851f7b97 100644
+> --- a/drivers/gpu/drm/virtio/virtgpu_vq.c
+> +++ b/drivers/gpu/drm/virtio/virtgpu_vq.c
+> @@ -339,11 +339,12 @@ static void virtio_gpu_queue_fenced_ctrl_buffer(struct virtio_gpu_device *vgdev,
+>                 goto again;
+>         }
+>
+> -       if (fence)
+> +       if (fence) {
+>                 virtio_gpu_fence_emit(vgdev, hdr, fence);
+> -       if (vbuf->objs) {
+> -               virtio_gpu_array_add_fence(vbuf->objs, &fence->f);
+> -               virtio_gpu_array_unlock_resv(vbuf->objs);
+> +               if (vbuf->objs) {
+> +                       virtio_gpu_array_add_fence(vbuf->objs, &fence->f);
+> +                       virtio_gpu_array_unlock_resv(vbuf->objs);
+> +               }
+This leaks when fence == NULL and vbuf->objs != NULL (which can really
+happen IIRC... not at my desk to check).
 
 
-You are right.  Pls ignore the comment.  We need to reserve the
-byte-swapped FUSE_INIT to make sure future versions of fuse don't try to
-send that though.  I sent a patch to that effect, let's see whether it
-gets accepted.
-
-
--- 
-MST
+>         }
+>         notify = virtio_gpu_queue_ctrl_buffer_locked(vgdev, vbuf);
+>         spin_unlock(&vgdev->ctrlq.qlock);
+> --
+> 2.18.1
+>
