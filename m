@@ -1,14 +1,20 @@
 From: "Michael S. Tsirkin" <mst@redhat.com>
-Subject: Re: [PATCH] scsi: virtio_scsi: unplug LUNs when events missed
-Date: Wed, 4 Sep 2019 05:14:33 -0400
-Message-ID: <20190904051230-mutt-send-email-mst__31555.9778989822$1567588511$gmane$org@kernel.org>
-References: <20190903170408.32286-1-mlupfer@ddn.com>
+Subject: Re: [PATCH] mm/balloon_compaction: suppress allocation warnings
+Date: Wed, 4 Sep 2019 06:37:15 -0400
+Message-ID: <20190904063703-mutt-send-email-mst__46566.2006217585$1567593470$gmane$org@kernel.org>
+References: <20190820091646.29642-1-namit@vmware.com>
+	<ba01ec8c-19c3-847c-a315-2f70f4b1fe31@redhat.com>
+	<5BBC6CB3-2DCD-4A95-90C9-7C23482F9B32@vmware.com>
+	<85c72875-278f-fbab-69c9-92dc1873d407@redhat.com>
+	<FC42B62F-167F-4D7D-ADC5-926B36347E82@vmware.com>
+	<2aa52636-4ca7-0d47-c5bf-42408af3ea0f@redhat.com>
+	<D4105FF4-5DF3-4DB5-9325-855B63CD9AAD@vmware.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset="utf-8"
+Content-Transfer-Encoding: base64
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
 Content-Disposition: inline
-In-Reply-To: <20190903170408.32286-1-mlupfer@ddn.com>
+In-Reply-To: <D4105FF4-5DF3-4DB5-9325-855B63CD9AAD@vmware.com>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -18,78 +24,47 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Matt Lupfer <mlupfer@ddn.com>
-Cc: "linux-scsi@vger.kernel.org" <linux-scsi@vger.kernel.org>, "Martin K . Petersen" <martin.petersen@oracle.com>, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>, "virtualization@lists.linux-foundation.org" <virtualization@lists.linux-foundation.org>, Stefan Hajnoczi <stefanha@redhat.com>, Paolo Bonzini <pbonzini@redhat.com>, "James E . J . Bottomley" <jejb@linux.ibm.com>
+To: Nadav Amit <namit@vmware.com>
+Cc: "linux-mm@kvack.org" <linux-mm@kvack.org>, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>, "virtualization@lists.linux-foundation.org" <virtualization@lists.linux-foundation.org>
 List-Id: virtualization@lists.linuxfoundation.org
 
-On Tue, Sep 03, 2019 at 05:04:20PM +0000, Matt Lupfer wrote:
-> The event handler calls scsi_scan_host() when events are missed, which
-> will hotplug new LUNs.  However, this function won't remove any
-> unplugged LUNs.  The result is that hotunplug doesn't work properly when
-> the number of unplugged LUNs exceeds the event queue size (currently 8).
-> 
-> Scan existing LUNs when events are missed to check if they are still
-> present.  If not, remove them.
-> 
-> Signed-off-by: Matt Lupfer <mlupfer@ddn.com>
-> ---
->  drivers/scsi/virtio_scsi.c | 31 +++++++++++++++++++++++++++++++
->  1 file changed, 31 insertions(+)
-> 
-> diff --git a/drivers/scsi/virtio_scsi.c b/drivers/scsi/virtio_scsi.c
-> index 297e1076e571..18df77bf371b 100644
-> --- a/drivers/scsi/virtio_scsi.c
-> +++ b/drivers/scsi/virtio_scsi.c
-> @@ -324,6 +324,36 @@ static void virtscsi_handle_param_change(struct virtio_scsi *vscsi,
->  	scsi_device_put(sdev);
->  }
->  
-> +static void virtscsi_rescan_hotunplug(struct virtio_scsi *vscsi)
-> +{
-> +	struct scsi_device *sdev;
-> +	struct Scsi_Host *shost = virtio_scsi_host(vscsi->vdev);
-> +	unsigned char scsi_cmd[MAX_COMMAND_SIZE];
-> +	int result, inquiry_len, inq_result_len = 256;
-> +	char *inq_result = kmalloc(inq_result_len, GFP_KERNEL);
-> +
-> +	shost_for_each_device(sdev, shost) {
-> +		inquiry_len = sdev->inquiry_len ? sdev->inquiry_len : 36;
-> +
-> +		memset(scsi_cmd, 0, sizeof(scsi_cmd));
-> +		scsi_cmd[0] = INQUIRY;
-> +		scsi_cmd[4] = (unsigned char) inquiry_len;
-> +
-> +		memset(inq_result, 0, inq_result_len);
-> +
-> +		result = scsi_execute_req(sdev, scsi_cmd, DMA_FROM_DEVICE,
-> +					  inq_result, inquiry_len, NULL,
-> +					  2, 3, NULL);
-
-
-Where do the weird 2 and 3 values come from?
-
-Most callers seem to use SD_TIMEOUT, SD_MAX_RETRIES...
-
-> +
-> +		if (result == 0 && inq_result[0] >> 5) {
-> +			/* PQ indicates the LUN is not attached */
-> +			scsi_remove_device(sdev);
-> +		}
-> +	}
-> +
-> +	kfree(inq_result);
-> +}
-> +
->  static void virtscsi_handle_event(struct work_struct *work)
->  {
->  	struct virtio_scsi_event_node *event_node =
-> @@ -335,6 +365,7 @@ static void virtscsi_handle_event(struct work_struct *work)
->  	    cpu_to_virtio32(vscsi->vdev, VIRTIO_SCSI_T_EVENTS_MISSED)) {
->  		event->event &= ~cpu_to_virtio32(vscsi->vdev,
->  						   VIRTIO_SCSI_T_EVENTS_MISSED);
-> +		virtscsi_rescan_hotunplug(vscsi);
->  		scsi_scan_host(virtio_scsi_host(vscsi->vdev));
->  	}
->  
-> -- 
-> 2.23.0
+T24gV2VkLCBBdWcgMjEsIDIwMTkgYXQgMDc6NDQ6MzNQTSArMDAwMCwgTmFkYXYgQW1pdCB3cm90
+ZToKPiA+IE9uIEF1ZyAyMSwgMjAxOSwgYXQgMTI6MTMgUE0sIERhdmlkIEhpbGRlbmJyYW5kIDxk
+YXZpZEByZWRoYXQuY29tPiB3cm90ZToKPiA+IAo+ID4gT24gMjEuMDguMTkgMTg6MzQsIE5hZGF2
+IEFtaXQgd3JvdGU6Cj4gPj4+IE9uIEF1ZyAyMSwgMjAxOSwgYXQgOToyOSBBTSwgRGF2aWQgSGls
+ZGVuYnJhbmQgPGRhdmlkQHJlZGhhdC5jb20+IHdyb3RlOgo+ID4+PiAKPiA+Pj4gT24gMjEuMDgu
+MTkgMTg6MjMsIE5hZGF2IEFtaXQgd3JvdGU6Cj4gPj4+Pj4gT24gQXVnIDIxLCAyMDE5LCBhdCA5
+OjA1IEFNLCBEYXZpZCBIaWxkZW5icmFuZCA8ZGF2aWRAcmVkaGF0LmNvbT4gd3JvdGU6Cj4gPj4+
+Pj4gCj4gPj4+Pj4gT24gMjAuMDguMTkgMTE6MTYsIE5hZGF2IEFtaXQgd3JvdGU6Cj4gPj4+Pj4+
+IFRoZXJlIGlzIG5vIHJlYXNvbiB0byBwcmludCB3YXJuaW5ncyB3aGVuIGJhbGxvb24gcGFnZSBh
+bGxvY2F0aW9uIGZhaWxzLAo+ID4+Pj4+PiBhcyB0aGV5IGFyZSBleHBlY3RlZCBhbmQgY2FuIGJl
+IGhhbmRsZWQgZ3JhY2VmdWxseS4gIFNpbmNlIFZNd2FyZQo+ID4+Pj4+PiBiYWxsb29uIG5vdyB1
+c2VzIGJhbGxvb24tY29tcGFjdGlvbiBpbmZyYXN0cnVjdHVyZSwgYW5kIHN1cHByZXNzZWQgdGhl
+c2UKPiA+Pj4+Pj4gd2FybmluZ3MgYmVmb3JlLCBpdCBpcyBhbHNvIGJlbmVmaWNpYWwgdG8gc3Vw
+cHJlc3MgdGhlc2Ugd2FybmluZ3MgdG8KPiA+Pj4+Pj4ga2VlcCB0aGUgc2FtZSBiZWhhdmlvciB0
+aGF0IHRoZSBiYWxsb29uIGhhZCBiZWZvcmUuCj4gPj4+Pj4gCj4gPj4+Pj4gSSBhbSBub3Qgc3Vy
+ZSBpZiB0aGF0J3MgYSBnb29kIGlkZWEuIFRoZSBhbGxvY2F0aW9uIHdhcm5pbmdzIGFyZSB1c3Vh
+bGx5Cj4gPj4+Pj4gdGhlIG9ubHkgdHJhY2Ugb2YgInRoZSB1c2VyL2FkbWluIGRpZCBzb21ldGhp
+bmcgYmFkIGJlY2F1c2UgaGUvc2hlIHRyaWVkCj4gPj4+Pj4gdG8gaW5mbGF0ZSB0aGUgYmFsbG9v
+biB0byBhbiB1bnNhZmUgdmFsdWUiLiBCZWxpZXZlIG1lLCBJIHByb2Nlc3NlZCBhCj4gPj4+Pj4g
+Y291cGxlIG9mIHN1Y2ggYnVncmVwb3J0cyByZWxhdGVkIHRvIHZpcnRpby1iYWxsb29uIGFuZCB0
+aGUgd2FybmluZyB3ZXJlCj4gPj4+Pj4gdmVyeSBoZWxwZnVsIGZvciB0aGF0Lgo+ID4+Pj4gCj4g
+Pj4+PiBPaywgc28gYSBtZXNzYWdlIGlzIG5lZWRlZCwgYnV0IGRvZXMgaXQgaGF2ZSB0byBiZSBh
+IGdlbmVyaWMgZnJpZ2h0ZW5pbmcKPiA+Pj4+IHdhcm5pbmc/Cj4gPj4+PiAKPiA+Pj4+IEhvdyBh
+Ym91dCB1c2luZyBfX0dGUF9OT1dBUk4sIGFuZCBpZiBhbGxvY2F0aW9uIGRvIHNvbWV0aGluZyBs
+aWtlOgo+ID4+Pj4gCj4gPj4+PiBwcl93YXJuKOKAnEJhbGxvb24gbWVtb3J5IGFsbG9jYXRpb24g
+ZmFpbGVk4oCdKTsKPiA+Pj4+IAo+ID4+Pj4gT3IgZXZlbiBzb21ldGhpbmcgbW9yZSBpbmZvcm1h
+dGl2ZT8gVGhpcyB3b3VsZCBzdXJlbHkgYmUgbGVzcyBpbnRpbWlkYXRpbmcKPiA+Pj4+IGZvciBj
+b21tb24gdXNlcnMuCj4gPj4+IAo+ID4+PiByYXRlbGltaXQgd291bGQgbWFrZSBzZW5zZSA6KQo+
+ID4+PiAKPiA+Pj4gQW5kIHllcywgdGhpcyB3b3VsZCBjZXJ0YWlubHkgYmUgbmljZXIuCj4gPj4g
+Cj4gPj4gVGhhbmtzLiBJIHdpbGwgcG9zdCB2MiBvZiB0aGUgcGF0Y2guCj4gPiAKPiA+IEFzIGRp
+c2N1c3NlZCBpbiB2Miwgd2UgYWxyZWFkeSBwcmludCBhIHdhcm5pbmcgaW4gdmlydGlvLWJhbGxv
+b24sIHNvIEkKPiA+IGFtIGZpbmUgd2l0aCB0aGlzIHBhdGNoLgo+ID4gCj4gPiBSZXZpZXdlZC1i
+eTogRGF2aWQgSGlsZGVuYnJhbmQgPGRhdmlkQHJlZGhhdC5jb20+Cj4gCj4gTWljaGFlbCwKPiAK
+PiBJZiBpdCBpcyBwb3NzaWJsZSB0byBnZXQgaXQgdG8gNS4zLCB0byBhdm9pZCBiZWhhdmlvcmFs
+IGNoYW5nZSBmb3IgVk13YXJlCj4gYmFsbG9vbiB1c2VycywgaXQgd291bGQgYmUgZ3JlYXQuCj4g
+Cj4gVGhhbmtzLAo+IE5hZGF2CgpKdXN0IGJhY2sgZnJvbSB2YWNhdGlvbiwgSSdsbCB0cnkuCgpf
+X19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fXwpWaXJ0dWFsaXph
+dGlvbiBtYWlsaW5nIGxpc3QKVmlydHVhbGl6YXRpb25AbGlzdHMubGludXgtZm91bmRhdGlvbi5v
+cmcKaHR0cHM6Ly9saXN0cy5saW51eGZvdW5kYXRpb24ub3JnL21haWxtYW4vbGlzdGluZm8vdmly
+dHVhbGl6YXRpb24=
