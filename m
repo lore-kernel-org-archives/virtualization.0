@@ -1,7 +1,7 @@
 From: Gerd Hoffmann <kraxel@redhat.com>
-Subject: [PATCH v3 5/7] drm/qxl: use drm_gem_object_funcs callbacks
-Date: Wed,  4 Sep 2019 07:47:38 +0200
-Message-ID: <20190904054740.20817-6-kraxel__38776.1257983343$1567576076$gmane$org@redhat.com>
+Subject: [PATCH v3 7/7] drm/vram: fix Kconfig
+Date: Wed,  4 Sep 2019 07:47:40 +0200
+Message-ID: <20190904054740.20817-8-kraxel__43807.2565406159$1567576087$gmane$org@redhat.com>
 References: <20190904054740.20817-1-kraxel@redhat.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
@@ -18,69 +18,101 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
 To: dri-devel@lists.freedesktop.org
-Cc: David Airlie <airlied@linux.ie>, open list <linux-kernel@vger.kernel.org>, "open list:DRM DRIVER FOR QXL VIRTUAL GPU" <virtualization@lists.linux-foundation.org>, Daniel Vetter <daniel@ffwll.ch>, "open list:DRM DRIVER FOR QXL VIRTUAL GPU" <spice-devel@lists.freedesktop.org>, Dave Airlie <airlied@redhat.com>
+Cc: Hans de Goede <hdegoede@redhat.com>, Maxime Ripard <maxime.ripard@bootlin.com>, Chen Feng <puck.chen@hisilicon.com>, Maarten Lankhorst <maarten.lankhorst@linux.intel.com>, open list <linux-kernel@vger.kernel.org>, "open list:DRM DRIVER FOR BOCHS VIRTUAL GPU" <virtualization@lists.linux-foundation.org>, Xinliang Liu <z.liuxinliang@hisilicon.com>, David Airlie <airlied@linux.ie>, Xinwei Kong <kong.kongxinwei@hisilicon.com>, Daniel Vetter <daniel@ffwll.ch>, Rongrong Zou <zourongrong@gmail.com>, Dave Airlie <airlied@redhat.com>, Sean Paul <sean@poorly.run>
 List-Id: virtualization@lists.linuxfoundation.org
 
-Switch qxl to use drm_gem_object_funcs callbacks
-instead of drm_driver callbacks.
+select isn't recursive, so we can't turn on DRM_TTM + DRM_TTM_HELPER
+in config DRM_VRAM_HELPER, we have to select them on the vram users
+instead.
 
 Signed-off-by: Gerd Hoffmann <kraxel@redhat.com>
-Acked-by: Thomas Zimmermann <tzimmermann@suse.de>
 ---
- drivers/gpu/drm/qxl/qxl_drv.c    |  8 --------
- drivers/gpu/drm/qxl/qxl_object.c | 12 ++++++++++++
- 2 files changed, 12 insertions(+), 8 deletions(-)
+ drivers/gpu/drm/Kconfig                 | 2 --
+ drivers/gpu/drm/ast/Kconfig             | 2 ++
+ drivers/gpu/drm/bochs/Kconfig           | 2 ++
+ drivers/gpu/drm/hisilicon/hibmc/Kconfig | 3 ++-
+ drivers/gpu/drm/mgag200/Kconfig         | 2 ++
+ drivers/gpu/drm/vboxvideo/Kconfig       | 2 ++
+ 6 files changed, 10 insertions(+), 3 deletions(-)
 
-diff --git a/drivers/gpu/drm/qxl/qxl_drv.c b/drivers/gpu/drm/qxl/qxl_drv.c
-index 2b726a51a302..996d428fa7e6 100644
---- a/drivers/gpu/drm/qxl/qxl_drv.c
-+++ b/drivers/gpu/drm/qxl/qxl_drv.c
-@@ -258,16 +258,8 @@ static struct drm_driver qxl_driver = {
- #endif
- 	.prime_handle_to_fd = drm_gem_prime_handle_to_fd,
- 	.prime_fd_to_handle = drm_gem_prime_fd_to_handle,
--	.gem_prime_pin = qxl_gem_prime_pin,
--	.gem_prime_unpin = qxl_gem_prime_unpin,
--	.gem_prime_get_sg_table = qxl_gem_prime_get_sg_table,
- 	.gem_prime_import_sg_table = qxl_gem_prime_import_sg_table,
--	.gem_prime_vmap = qxl_gem_prime_vmap,
--	.gem_prime_vunmap = qxl_gem_prime_vunmap,
- 	.gem_prime_mmap = qxl_gem_prime_mmap,
--	.gem_free_object_unlocked = qxl_gem_object_free,
--	.gem_open_object = qxl_gem_object_open,
--	.gem_close_object = qxl_gem_object_close,
- 	.fops = &qxl_fops,
- 	.ioctls = qxl_ioctls,
- 	.irq_handler = qxl_irq_handler,
-diff --git a/drivers/gpu/drm/qxl/qxl_object.c b/drivers/gpu/drm/qxl/qxl_object.c
-index 548dfe6f3b26..29aab7b14513 100644
---- a/drivers/gpu/drm/qxl/qxl_object.c
-+++ b/drivers/gpu/drm/qxl/qxl_object.c
-@@ -77,6 +77,17 @@ void qxl_ttm_placement_from_domain(struct qxl_bo *qbo, u32 domain, bool pinned)
- 	}
- }
+diff --git a/drivers/gpu/drm/Kconfig b/drivers/gpu/drm/Kconfig
+index 1be8ad30d8fe..cd11a3bde19c 100644
+--- a/drivers/gpu/drm/Kconfig
++++ b/drivers/gpu/drm/Kconfig
+@@ -168,8 +168,6 @@ config DRM_TTM
+ config DRM_VRAM_HELPER
+ 	tristate
+ 	depends on DRM
+-	select DRM_TTM
+-	select DRM_TTM_HELPER
+ 	help
+ 	  Helpers for VRAM memory management
  
-+static const struct drm_gem_object_funcs qxl_object_funcs = {
-+	.free = qxl_gem_object_free,
-+	.open = qxl_gem_object_open,
-+	.close = qxl_gem_object_close,
-+	.pin = qxl_gem_prime_pin,
-+	.unpin = qxl_gem_prime_unpin,
-+	.get_sg_table = qxl_gem_prime_get_sg_table,
-+	.vmap = qxl_gem_prime_vmap,
-+	.vunmap = qxl_gem_prime_vunmap,
-+};
-+
- int qxl_bo_create(struct qxl_device *qdev,
- 		  unsigned long size, bool kernel, bool pinned, u32 domain,
- 		  struct qxl_surface *surf,
-@@ -100,6 +111,7 @@ int qxl_bo_create(struct qxl_device *qdev,
- 		kfree(bo);
- 		return r;
- 	}
-+	bo->tbo.base.funcs = &qxl_object_funcs;
- 	bo->type = domain;
- 	bo->pin_count = pinned ? 1 : 0;
- 	bo->surface_id = 0;
+diff --git a/drivers/gpu/drm/ast/Kconfig b/drivers/gpu/drm/ast/Kconfig
+index 829620d5326c..fbcf2f45cef5 100644
+--- a/drivers/gpu/drm/ast/Kconfig
++++ b/drivers/gpu/drm/ast/Kconfig
+@@ -4,6 +4,8 @@ config DRM_AST
+ 	depends on DRM && PCI && MMU
+ 	select DRM_KMS_HELPER
+ 	select DRM_VRAM_HELPER
++	select DRM_TTM
++	select DRM_TTM_HELPER
+ 	help
+ 	 Say yes for experimental AST GPU driver. Do not enable
+ 	 this driver without having a working -modesetting,
+diff --git a/drivers/gpu/drm/bochs/Kconfig b/drivers/gpu/drm/bochs/Kconfig
+index 32b043abb668..7bcdf294fed8 100644
+--- a/drivers/gpu/drm/bochs/Kconfig
++++ b/drivers/gpu/drm/bochs/Kconfig
+@@ -4,6 +4,8 @@ config DRM_BOCHS
+ 	depends on DRM && PCI && MMU
+ 	select DRM_KMS_HELPER
+ 	select DRM_VRAM_HELPER
++	select DRM_TTM
++	select DRM_TTM_HELPER
+ 	help
+ 	  Choose this option for qemu.
+ 	  If M is selected the module will be called bochs-drm.
+diff --git a/drivers/gpu/drm/hisilicon/hibmc/Kconfig b/drivers/gpu/drm/hisilicon/hibmc/Kconfig
+index f20eedf0073a..8ad9a5b12e40 100644
+--- a/drivers/gpu/drm/hisilicon/hibmc/Kconfig
++++ b/drivers/gpu/drm/hisilicon/hibmc/Kconfig
+@@ -4,7 +4,8 @@ config DRM_HISI_HIBMC
+ 	depends on DRM && PCI && MMU
+ 	select DRM_KMS_HELPER
+ 	select DRM_VRAM_HELPER
+-
++	select DRM_TTM
++	select DRM_TTM_HELPER
+ 	help
+ 	  Choose this option if you have a Hisilicon Hibmc soc chipset.
+ 	  If M is selected the module will be called hibmc-drm.
+diff --git a/drivers/gpu/drm/mgag200/Kconfig b/drivers/gpu/drm/mgag200/Kconfig
+index 76fee0fbdcae..aed11f4f4c55 100644
+--- a/drivers/gpu/drm/mgag200/Kconfig
++++ b/drivers/gpu/drm/mgag200/Kconfig
+@@ -4,6 +4,8 @@ config DRM_MGAG200
+ 	depends on DRM && PCI && MMU
+ 	select DRM_KMS_HELPER
+ 	select DRM_VRAM_HELPER
++	select DRM_TTM
++	select DRM_TTM_HELPER
+ 	help
+ 	 This is a KMS driver for the MGA G200 server chips, it
+          does not support the original MGA G200 or any of the desktop
+diff --git a/drivers/gpu/drm/vboxvideo/Kconfig b/drivers/gpu/drm/vboxvideo/Kconfig
+index 56ba510f21a2..45fe135d6e43 100644
+--- a/drivers/gpu/drm/vboxvideo/Kconfig
++++ b/drivers/gpu/drm/vboxvideo/Kconfig
+@@ -4,6 +4,8 @@ config DRM_VBOXVIDEO
+ 	depends on DRM && X86 && PCI
+ 	select DRM_KMS_HELPER
+ 	select DRM_VRAM_HELPER
++	select DRM_TTM
++	select DRM_TTM_HELPER
+ 	select GENERIC_ALLOCATOR
+ 	help
+ 	  This is a KMS driver for the virtual Graphics Card used in
 -- 
 2.18.1
