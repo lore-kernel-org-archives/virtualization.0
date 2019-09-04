@@ -1,16 +1,13 @@
-From: Stefan Hajnoczi <stefanha@redhat.com>
-Subject: Re: [PATCH v3 00/13] virtio-fs: shared file system for virtual
-	machines
-Date: Wed, 4 Sep 2019 16:54:19 +0100
-Message-ID: <20190904155419.GB25679__24598.4055496351$1567612506$gmane$org@stefanha-x1.localdomain>
-References: <20190821173742.24574-1-vgoyal@redhat.com>
-	<CAJfpegvPTxkaNhXWhiQSprSJqyW1cLXeZEz6x_f0PxCd-yzHQg@mail.gmail.com>
-	<20190903041507-mutt-send-email-mst@kernel.org>
-	<CAJfpeguB6fFhghuFS420ZQ+JuQvTLc5TgsGjoB_RvFrSVf+v5w@mail.gmail.com>
+From: Sasha Levin <sashal@kernel.org>
+Subject: [PATCH AUTOSEL 5.2 36/94] drm/virtio: use virtio_max_dma_size
+Date: Wed,  4 Sep 2019 11:56:41 -0400
+Message-ID: <20190904155739.2816-36-sashal__3317.80761932663$1567612760$gmane$org@kernel.org>
+References: <20190904155739.2816-1-sashal@kernel.org>
 Mime-Version: 1.0
-Content-Type: multipart/mixed; boundary="===============7791870378345050685=="
+Content-Type: text/plain; charset="us-ascii"
+Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <CAJfpeguB6fFhghuFS420ZQ+JuQvTLc5TgsGjoB_RvFrSVf+v5w@mail.gmail.com>
+In-Reply-To: <20190904155739.2816-1-sashal@kernel.org>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -20,85 +17,54 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Miklos Szeredi <miklos@szeredi.hu>
-Cc: "Michael S. Tsirkin" <mst@redhat.com>, linux-kernel@vger.kernel.org, virtualization@lists.linux-foundation.org, virtio-fs@redhat.com, "Dr. David Alan Gilbert" <dgilbert@redhat.com>, linux-fsdevel@vger.kernel.org, Vivek Goyal <vgoyal@redhat.com>
+To: linux-kernel@vger.kernel.org, stable@vger.kernel.org
+Cc: Sasha Levin <sashal@kernel.org>, Laszlo Ersek <lersek@redhat.com>, dri-devel@lists.freedesktop.org, virtualization@lists.linux-foundation.org
 List-Id: virtualization@lists.linuxfoundation.org
 
+From: Gerd Hoffmann <kraxel@redhat.com>
 
---===============7791870378345050685==
-Content-Type: multipart/signed; micalg=pgp-sha256;
-	protocol="application/pgp-signature"; boundary="GID0FwUMdk1T2AWN"
-Content-Disposition: inline
+[ Upstream commit 9b2a0a1ef66f96bf34921a3865581eca32ff05ec ]
 
+We must make sure our scatterlist segments are not too big, otherwise
+we might see swiotlb failures (happens with sev, also reproducable with
+swiotlb=force).
 
---GID0FwUMdk1T2AWN
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
+Suggested-by: Laszlo Ersek <lersek@redhat.com>
+Signed-off-by: Gerd Hoffmann <kraxel@redhat.com>
+Reviewed-by: Laszlo Ersek <lersek@redhat.com>
+Link: http://patchwork.freedesktop.org/patch/msgid/20190821111210.27165-1-kraxel@redhat.com
+Signed-off-by: Sasha Levin <sashal@kernel.org>
+---
+ drivers/gpu/drm/virtio/virtgpu_object.c | 10 ++++++++--
+ 1 file changed, 8 insertions(+), 2 deletions(-)
 
-On Tue, Sep 03, 2019 at 11:17:35AM +0200, Miklos Szeredi wrote:
-> On Tue, Sep 3, 2019 at 10:31 AM Michael S. Tsirkin <mst@redhat.com> wrote:
-> > > >  fs/fuse/Kconfig                 |   11 +
-> > > >  fs/fuse/Makefile                |    1 +
-> > > >  fs/fuse/control.c               |    4 +-
-> > > >  fs/fuse/cuse.c                  |    4 +-
-> > > >  fs/fuse/dev.c                   |   89 ++-
-> > > >  fs/fuse/dir.c                   |   26 +-
-> > > >  fs/fuse/file.c                  |   15 +-
-> > > >  fs/fuse/fuse_i.h                |  120 +++-
-> > > >  fs/fuse/inode.c                 |  203 +++---
-> > > >  fs/fuse/virtio_fs.c             | 1061 +++++++++++++++++++++++++++=
-++++
-> > > >  fs/splice.c                     |    3 +-
-> > > >  include/linux/fs.h              |    2 +
-> > > >  include/uapi/linux/virtio_fs.h  |   41 ++
-> > > >  include/uapi/linux/virtio_ids.h |    1 +
-> > > >  init/do_mounts.c                |   10 +
-> > > >  15 files changed, 1462 insertions(+), 129 deletions(-)
-> > > >  create mode 100644 fs/fuse/virtio_fs.c
-> > > >  create mode 100644 include/uapi/linux/virtio_fs.h
-> >
-> > Don't the new files need a MAINTAINERS entry?
-> > I think we want virtualization@lists.linux-foundation.org to be
-> > copied.
->=20
-> Yep.
->=20
-> Stefan, do you want to formally maintain this file?
-
-Vivek has been doing most of the kernel work lately and I would suggest
-that he acts as maintainer.
-
-But I'm happy to be added if you want two people or if Vivek is
-unwilling.
-
-Stefan
-
---GID0FwUMdk1T2AWN
-Content-Type: application/pgp-signature; name="signature.asc"
-
------BEGIN PGP SIGNATURE-----
-
-iQEzBAEBCAAdFiEEhpWov9P5fNqsNXdanKSrs4Grc8gFAl1v3isACgkQnKSrs4Gr
-c8i3IwgAkPNsvQFn07eQEq84FvAQliEAhVlQPhZtCsVbch+9uZMEFLknwvu44nDV
-4jl49BomGl8bnL2zO9Fw3v8TDw2mcmvzIwGrb3r+TF1fX/Hdgt6I/GLk9sGX6Pnx
-zaCOEFRPRWzo/wC//ljow5suXYiIhGkE9JrxRrTjgxSPbYIKTnoMxIJmXvsa/JWl
-pnWGDMmMMH5ZucxT8iXJozyGqo/KKM04NtKxREt+Qdt1VvVvB92eevZ0uFiA/iah
-ZlVDb+uBVx1t8hbXOOeb85HSUqL/qCQdm0e7FzBxhIg/dIGQgKqQb8Vw5cjEJu/i
-Lb/NaWqBPfAHYb4ZRwHMznYrZBDaKQ==
-=9DaP
------END PGP SIGNATURE-----
-
---GID0FwUMdk1T2AWN--
-
---===============7791870378345050685==
-Content-Type: text/plain; charset="us-ascii"
-MIME-Version: 1.0
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-
-_______________________________________________
-Virtualization mailing list
-Virtualization@lists.linux-foundation.org
-https://lists.linuxfoundation.org/mailman/listinfo/virtualization
---===============7791870378345050685==--
+diff --git a/drivers/gpu/drm/virtio/virtgpu_object.c b/drivers/gpu/drm/virtio/virtgpu_object.c
+index b2da31310d24c..09b526518f5a6 100644
+--- a/drivers/gpu/drm/virtio/virtgpu_object.c
++++ b/drivers/gpu/drm/virtio/virtgpu_object.c
+@@ -204,6 +204,7 @@ int virtio_gpu_object_get_sg_table(struct virtio_gpu_device *qdev,
+ 		.interruptible = false,
+ 		.no_wait_gpu = false
+ 	};
++	size_t max_segment;
+ 
+ 	/* wtf swapping */
+ 	if (bo->pages)
+@@ -215,8 +216,13 @@ int virtio_gpu_object_get_sg_table(struct virtio_gpu_device *qdev,
+ 	if (!bo->pages)
+ 		goto out;
+ 
+-	ret = sg_alloc_table_from_pages(bo->pages, pages, nr_pages, 0,
+-					nr_pages << PAGE_SHIFT, GFP_KERNEL);
++	max_segment = virtio_max_dma_size(qdev->vdev);
++	max_segment &= PAGE_MASK;
++	if (max_segment > SCATTERLIST_MAX_SEGMENT)
++		max_segment = SCATTERLIST_MAX_SEGMENT;
++	ret = __sg_alloc_table_from_pages(bo->pages, pages, nr_pages, 0,
++					  nr_pages << PAGE_SHIFT,
++					  max_segment, GFP_KERNEL);
+ 	if (ret)
+ 		goto out;
+ 	return 0;
+-- 
+2.20.1
