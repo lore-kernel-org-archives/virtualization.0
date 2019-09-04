@@ -1,15 +1,16 @@
-From: Tiwei Bie <tiwei.bie@intel.com>
+From: Jason Wang <jasowang@redhat.com>
 Subject: Re: [RFC v3] vhost: introduce mdev based hardware vhost backend
-Date: Wed, 4 Sep 2019 10:48:01 +0800
-Message-ID: <20190904024801.GA5671__2117.5750460074$1567565445$gmane$org@___>
+Date: Wed, 4 Sep 2019 12:32:56 +0800
+Message-ID: <5972f30a-4f01-c953-0785-1c82b20cec58__574.304202903875$1567571601$gmane$org@redhat.com>
 References: <20190828053712.26106-1-tiwei.bie@intel.com>
 	<20190903043704-mutt-send-email-mst@kernel.org>
+	<20190904024801.GA5671@___>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset="utf-8"; Format="flowed"
+Content-Transfer-Encoding: base64
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-Content-Disposition: inline
-In-Reply-To: <20190903043704-mutt-send-email-mst@kernel.org>
+In-Reply-To: <20190904024801.GA5671@___>
+Content-Language: en-US
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -19,156 +20,97 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: "Michael S. Tsirkin" <mst@redhat.com>
-Cc: kvm@vger.kernel.org, linux-kernel@vger.kernel.org, zhihong.wang@intel.com, virtualization@lists.linux-foundation.org, maxime.coquelin@redhat.com, netdev@vger.kernel.org, lingshan.zhu@intel.com
+To: Tiwei Bie <tiwei.bie@intel.com>, "Michael S. Tsirkin" <mst@redhat.com>
+Cc: kvm@vger.kernel.org, netdev@vger.kernel.org, maxime.coquelin@redhat.com, virtualization@lists.linux-foundation.org, zhihong.wang@intel.com, lingshan.zhu@intel.com, linux-kernel@vger.kernel.org
 List-Id: virtualization@lists.linuxfoundation.org
 
-On Tue, Sep 03, 2019 at 07:26:03AM -0400, Michael S. Tsirkin wrote:
-> On Wed, Aug 28, 2019 at 01:37:12PM +0800, Tiwei Bie wrote:
-> > Details about this can be found here:
-> > 
-> > https://lwn.net/Articles/750770/
-> > 
-> > What's new in this version
-> > ==========================
-> > 
-> > There are three choices based on the discussion [1] in RFC v2:
-> > 
-> > > #1. We expose a VFIO device, so we can reuse the VFIO container/group
-> > >     based DMA API and potentially reuse a lot of VFIO code in QEMU.
-> > >
-> > >     But in this case, we have two choices for the VFIO device interface
-> > >     (i.e. the interface on top of VFIO device fd):
-> > >
-> > >     A) we may invent a new vhost protocol (as demonstrated by the code
-> > >        in this RFC) on VFIO device fd to make it work in VFIO's way,
-> > >        i.e. regions and irqs.
-> > >
-> > >     B) Or as you proposed, instead of inventing a new vhost protocol,
-> > >        we can reuse most existing vhost ioctls on the VFIO device fd
-> > >        directly. There should be no conflicts between the VFIO ioctls
-> > >        (type is 0x3B) and VHOST ioctls (type is 0xAF) currently.
-> > >
-> > > #2. Instead of exposing a VFIO device, we may expose a VHOST device.
-> > >     And we will introduce a new mdev driver vhost-mdev to do this.
-> > >     It would be natural to reuse the existing kernel vhost interface
-> > >     (ioctls) on it as much as possible. But we will need to invent
-> > >     some APIs for DMA programming (reusing VHOST_SET_MEM_TABLE is a
-> > >     choice, but it's too heavy and doesn't support vIOMMU by itself).
-> > 
-> > This version is more like a quick PoC to try Jason's proposal on
-> > reusing vhost ioctls. And the second way (#1/B) in above three
-> > choices was chosen in this version to demonstrate the idea quickly.
-> > 
-> > Now the userspace API looks like this:
-> > 
-> > - VFIO's container/group based IOMMU API is used to do the
-> >   DMA programming.
-> > 
-> > - Vhost's existing ioctls are used to setup the device.
-> > 
-> > And the device will report device_api as "vfio-vhost".
-> > 
-> > Note that, there are dirty hacks in this version. If we decide to
-> > go this way, some refactoring in vhost.c/vhost.h may be needed.
-> > 
-> > PS. The direct mapping of the notify registers isn't implemented
-> >     in this version.
-> > 
-> > [1] https://lkml.org/lkml/2019/7/9/101
-> > 
-> > Signed-off-by: Tiwei Bie <tiwei.bie@intel.com>
-> 
-> ....
-> 
-> > +long vhost_mdev_ioctl(struct mdev_device *mdev, unsigned int cmd,
-> > +		      unsigned long arg)
-> > +{
-> > +	void __user *argp = (void __user *)arg;
-> > +	struct vhost_mdev *vdpa;
-> > +	unsigned long minsz;
-> > +	int ret = 0;
-> > +
-> > +	if (!mdev)
-> > +		return -EINVAL;
-> > +
-> > +	vdpa = mdev_get_drvdata(mdev);
-> > +	if (!vdpa)
-> > +		return -ENODEV;
-> > +
-> > +	switch (cmd) {
-> > +	case VFIO_DEVICE_GET_INFO:
-> > +	{
-> > +		struct vfio_device_info info;
-> > +
-> > +		minsz = offsetofend(struct vfio_device_info, num_irqs);
-> > +
-> > +		if (copy_from_user(&info, (void __user *)arg, minsz)) {
-> > +			ret = -EFAULT;
-> > +			break;
-> > +		}
-> > +
-> > +		if (info.argsz < minsz) {
-> > +			ret = -EINVAL;
-> > +			break;
-> > +		}
-> > +
-> > +		info.flags = VFIO_DEVICE_FLAGS_VHOST;
-> > +		info.num_regions = 0;
-> > +		info.num_irqs = 0;
-> > +
-> > +		if (copy_to_user((void __user *)arg, &info, minsz)) {
-> > +			ret = -EFAULT;
-> > +			break;
-> > +		}
-> > +
-> > +		break;
-> > +	}
-> > +	case VFIO_DEVICE_GET_REGION_INFO:
-> > +	case VFIO_DEVICE_GET_IRQ_INFO:
-> > +	case VFIO_DEVICE_SET_IRQS:
-> > +	case VFIO_DEVICE_RESET:
-> > +		ret = -EINVAL;
-> > +		break;
-> > +
-> > +	case VHOST_MDEV_SET_STATE:
-> > +		ret = vhost_set_state(vdpa, argp);
-> > +		break;
-> > +	case VHOST_GET_FEATURES:
-> > +		ret = vhost_get_features(vdpa, argp);
-> > +		break;
-> > +	case VHOST_SET_FEATURES:
-> > +		ret = vhost_set_features(vdpa, argp);
-> > +		break;
-> > +	case VHOST_GET_VRING_BASE:
-> > +		ret = vhost_get_vring_base(vdpa, argp);
-> > +		break;
-> > +	default:
-> > +		ret = vhost_dev_ioctl(&vdpa->dev, cmd, argp);
-> > +		if (ret == -ENOIOCTLCMD)
-> > +			ret = vhost_vring_ioctl(&vdpa->dev, cmd, argp);
-> > +	}
-> > +
-> > +	return ret;
-> > +}
-> > +EXPORT_SYMBOL(vhost_mdev_ioctl);
-> 
-> 
-> I don't have a problem with this approach. A small question:
-> would it make sense to have two fds: send vhost ioctls
-> on one and vfio ioctls on another?
-> We can then pass vfio fd to the vhost fd with a
-> SET_BACKEND ioctl.
-> 
-> What do you think?
-
-I like this idea! I will give it a try.
-So we can introduce /dev/vhost-mdev to have the vhost fd, and let
-userspace pass vfio fd to the vhost fd with a SET_BACKEND ioctl.
-
-Thanks a lot!
-Tiwei
-
-> 
-> -- 
-> MST
+Ck9uIDIwMTkvOS80IOS4iuWNiDEwOjQ4LCBUaXdlaSBCaWUgd3JvdGU6Cj4gT24gVHVlLCBTZXAg
+MDMsIDIwMTkgYXQgMDc6MjY6MDNBTSAtMDQwMCwgTWljaGFlbCBTLiBUc2lya2luIHdyb3RlOgo+
+PiBPbiBXZWQsIEF1ZyAyOCwgMjAxOSBhdCAwMTozNzoxMlBNICswODAwLCBUaXdlaSBCaWUgd3Jv
+dGU6Cj4+PiBEZXRhaWxzIGFib3V0IHRoaXMgY2FuIGJlIGZvdW5kIGhlcmU6Cj4+Pgo+Pj4gaHR0
+cHM6Ly9sd24ubmV0L0FydGljbGVzLzc1MDc3MC8KPj4+Cj4+PiBXaGF0J3MgbmV3IGluIHRoaXMg
+dmVyc2lvbgo+Pj4gPT09PT09PT09PT09PT09PT09PT09PT09PT0KPj4+Cj4+PiBUaGVyZSBhcmUg
+dGhyZWUgY2hvaWNlcyBiYXNlZCBvbiB0aGUgZGlzY3Vzc2lvbiBbMV0gaW4gUkZDIHYyOgo+Pj4K
+Pj4+PiAjMS4gV2UgZXhwb3NlIGEgVkZJTyBkZXZpY2UsIHNvIHdlIGNhbiByZXVzZSB0aGUgVkZJ
+TyBjb250YWluZXIvZ3JvdXAKPj4+PiAgICAgIGJhc2VkIERNQSBBUEkgYW5kIHBvdGVudGlhbGx5
+IHJldXNlIGEgbG90IG9mIFZGSU8gY29kZSBpbiBRRU1VLgo+Pj4+Cj4+Pj4gICAgICBCdXQgaW4g
+dGhpcyBjYXNlLCB3ZSBoYXZlIHR3byBjaG9pY2VzIGZvciB0aGUgVkZJTyBkZXZpY2UgaW50ZXJm
+YWNlCj4+Pj4gICAgICAoaS5lLiB0aGUgaW50ZXJmYWNlIG9uIHRvcCBvZiBWRklPIGRldmljZSBm
+ZCk6Cj4+Pj4KPj4+PiAgICAgIEEpIHdlIG1heSBpbnZlbnQgYSBuZXcgdmhvc3QgcHJvdG9jb2wg
+KGFzIGRlbW9uc3RyYXRlZCBieSB0aGUgY29kZQo+Pj4+ICAgICAgICAgaW4gdGhpcyBSRkMpIG9u
+IFZGSU8gZGV2aWNlIGZkIHRvIG1ha2UgaXQgd29yayBpbiBWRklPJ3Mgd2F5LAo+Pj4+ICAgICAg
+ICAgaS5lLiByZWdpb25zIGFuZCBpcnFzLgo+Pj4+Cj4+Pj4gICAgICBCKSBPciBhcyB5b3UgcHJv
+cG9zZWQsIGluc3RlYWQgb2YgaW52ZW50aW5nIGEgbmV3IHZob3N0IHByb3RvY29sLAo+Pj4+ICAg
+ICAgICAgd2UgY2FuIHJldXNlIG1vc3QgZXhpc3Rpbmcgdmhvc3QgaW9jdGxzIG9uIHRoZSBWRklP
+IGRldmljZSBmZAo+Pj4+ICAgICAgICAgZGlyZWN0bHkuIFRoZXJlIHNob3VsZCBiZSBubyBjb25m
+bGljdHMgYmV0d2VlbiB0aGUgVkZJTyBpb2N0bHMKPj4+PiAgICAgICAgICh0eXBlIGlzIDB4M0Ip
+IGFuZCBWSE9TVCBpb2N0bHMgKHR5cGUgaXMgMHhBRikgY3VycmVudGx5Lgo+Pj4+Cj4+Pj4gIzIu
+IEluc3RlYWQgb2YgZXhwb3NpbmcgYSBWRklPIGRldmljZSwgd2UgbWF5IGV4cG9zZSBhIFZIT1NU
+IGRldmljZS4KPj4+PiAgICAgIEFuZCB3ZSB3aWxsIGludHJvZHVjZSBhIG5ldyBtZGV2IGRyaXZl
+ciB2aG9zdC1tZGV2IHRvIGRvIHRoaXMuCj4+Pj4gICAgICBJdCB3b3VsZCBiZSBuYXR1cmFsIHRv
+IHJldXNlIHRoZSBleGlzdGluZyBrZXJuZWwgdmhvc3QgaW50ZXJmYWNlCj4+Pj4gICAgICAoaW9j
+dGxzKSBvbiBpdCBhcyBtdWNoIGFzIHBvc3NpYmxlLiBCdXQgd2Ugd2lsbCBuZWVkIHRvIGludmVu
+dAo+Pj4+ICAgICAgc29tZSBBUElzIGZvciBETUEgcHJvZ3JhbW1pbmcgKHJldXNpbmcgVkhPU1Rf
+U0VUX01FTV9UQUJMRSBpcyBhCj4+Pj4gICAgICBjaG9pY2UsIGJ1dCBpdCdzIHRvbyBoZWF2eSBh
+bmQgZG9lc24ndCBzdXBwb3J0IHZJT01NVSBieSBpdHNlbGYpLgo+Pj4gVGhpcyB2ZXJzaW9uIGlz
+IG1vcmUgbGlrZSBhIHF1aWNrIFBvQyB0byB0cnkgSmFzb24ncyBwcm9wb3NhbCBvbgo+Pj4gcmV1
+c2luZyB2aG9zdCBpb2N0bHMuIEFuZCB0aGUgc2Vjb25kIHdheSAoIzEvQikgaW4gYWJvdmUgdGhy
+ZWUKPj4+IGNob2ljZXMgd2FzIGNob3NlbiBpbiB0aGlzIHZlcnNpb24gdG8gZGVtb25zdHJhdGUg
+dGhlIGlkZWEgcXVpY2tseS4KPj4+Cj4+PiBOb3cgdGhlIHVzZXJzcGFjZSBBUEkgbG9va3MgbGlr
+ZSB0aGlzOgo+Pj4KPj4+IC0gVkZJTydzIGNvbnRhaW5lci9ncm91cCBiYXNlZCBJT01NVSBBUEkg
+aXMgdXNlZCB0byBkbyB0aGUKPj4+ICAgIERNQSBwcm9ncmFtbWluZy4KPj4+Cj4+PiAtIFZob3N0
+J3MgZXhpc3RpbmcgaW9jdGxzIGFyZSB1c2VkIHRvIHNldHVwIHRoZSBkZXZpY2UuCj4+Pgo+Pj4g
+QW5kIHRoZSBkZXZpY2Ugd2lsbCByZXBvcnQgZGV2aWNlX2FwaSBhcyAidmZpby12aG9zdCIuCj4+
+Pgo+Pj4gTm90ZSB0aGF0LCB0aGVyZSBhcmUgZGlydHkgaGFja3MgaW4gdGhpcyB2ZXJzaW9uLiBJ
+ZiB3ZSBkZWNpZGUgdG8KPj4+IGdvIHRoaXMgd2F5LCBzb21lIHJlZmFjdG9yaW5nIGluIHZob3N0
+LmMvdmhvc3QuaCBtYXkgYmUgbmVlZGVkLgo+Pj4KPj4+IFBTLiBUaGUgZGlyZWN0IG1hcHBpbmcg
+b2YgdGhlIG5vdGlmeSByZWdpc3RlcnMgaXNuJ3QgaW1wbGVtZW50ZWQKPj4+ICAgICAgaW4gdGhp
+cyB2ZXJzaW9uLgo+Pj4KPj4+IFsxXSBodHRwczovL2xrbWwub3JnL2xrbWwvMjAxOS83LzkvMTAx
+Cj4+Pgo+Pj4gU2lnbmVkLW9mZi1ieTogVGl3ZWkgQmllIDx0aXdlaS5iaWVAaW50ZWwuY29tPgo+
+PiAuLi4uCj4+Cj4+PiArbG9uZyB2aG9zdF9tZGV2X2lvY3RsKHN0cnVjdCBtZGV2X2RldmljZSAq
+bWRldiwgdW5zaWduZWQgaW50IGNtZCwKPj4+ICsJCSAgICAgIHVuc2lnbmVkIGxvbmcgYXJnKQo+
+Pj4gK3sKPj4+ICsJdm9pZCBfX3VzZXIgKmFyZ3AgPSAodm9pZCBfX3VzZXIgKilhcmc7Cj4+PiAr
+CXN0cnVjdCB2aG9zdF9tZGV2ICp2ZHBhOwo+Pj4gKwl1bnNpZ25lZCBsb25nIG1pbnN6Owo+Pj4g
+KwlpbnQgcmV0ID0gMDsKPj4+ICsKPj4+ICsJaWYgKCFtZGV2KQo+Pj4gKwkJcmV0dXJuIC1FSU5W
+QUw7Cj4+PiArCj4+PiArCXZkcGEgPSBtZGV2X2dldF9kcnZkYXRhKG1kZXYpOwo+Pj4gKwlpZiAo
+IXZkcGEpCj4+PiArCQlyZXR1cm4gLUVOT0RFVjsKPj4+ICsKPj4+ICsJc3dpdGNoIChjbWQpIHsK
+Pj4+ICsJY2FzZSBWRklPX0RFVklDRV9HRVRfSU5GTzoKPj4+ICsJewo+Pj4gKwkJc3RydWN0IHZm
+aW9fZGV2aWNlX2luZm8gaW5mbzsKPj4+ICsKPj4+ICsJCW1pbnN6ID0gb2Zmc2V0b2ZlbmQoc3Ry
+dWN0IHZmaW9fZGV2aWNlX2luZm8sIG51bV9pcnFzKTsKPj4+ICsKPj4+ICsJCWlmIChjb3B5X2Zy
+b21fdXNlcigmaW5mbywgKHZvaWQgX191c2VyICopYXJnLCBtaW5zeikpIHsKPj4+ICsJCQlyZXQg
+PSAtRUZBVUxUOwo+Pj4gKwkJCWJyZWFrOwo+Pj4gKwkJfQo+Pj4gKwo+Pj4gKwkJaWYgKGluZm8u
+YXJnc3ogPCBtaW5zeikgewo+Pj4gKwkJCXJldCA9IC1FSU5WQUw7Cj4+PiArCQkJYnJlYWs7Cj4+
+PiArCQl9Cj4+PiArCj4+PiArCQlpbmZvLmZsYWdzID0gVkZJT19ERVZJQ0VfRkxBR1NfVkhPU1Q7
+Cj4+PiArCQlpbmZvLm51bV9yZWdpb25zID0gMDsKPj4+ICsJCWluZm8ubnVtX2lycXMgPSAwOwo+
+Pj4gKwo+Pj4gKwkJaWYgKGNvcHlfdG9fdXNlcigodm9pZCBfX3VzZXIgKilhcmcsICZpbmZvLCBt
+aW5zeikpIHsKPj4+ICsJCQlyZXQgPSAtRUZBVUxUOwo+Pj4gKwkJCWJyZWFrOwo+Pj4gKwkJfQo+
+Pj4gKwo+Pj4gKwkJYnJlYWs7Cj4+PiArCX0KPj4+ICsJY2FzZSBWRklPX0RFVklDRV9HRVRfUkVH
+SU9OX0lORk86Cj4+PiArCWNhc2UgVkZJT19ERVZJQ0VfR0VUX0lSUV9JTkZPOgo+Pj4gKwljYXNl
+IFZGSU9fREVWSUNFX1NFVF9JUlFTOgo+Pj4gKwljYXNlIFZGSU9fREVWSUNFX1JFU0VUOgo+Pj4g
+KwkJcmV0ID0gLUVJTlZBTDsKPj4+ICsJCWJyZWFrOwo+Pj4gKwo+Pj4gKwljYXNlIFZIT1NUX01E
+RVZfU0VUX1NUQVRFOgo+Pj4gKwkJcmV0ID0gdmhvc3Rfc2V0X3N0YXRlKHZkcGEsIGFyZ3ApOwo+
+Pj4gKwkJYnJlYWs7Cj4+PiArCWNhc2UgVkhPU1RfR0VUX0ZFQVRVUkVTOgo+Pj4gKwkJcmV0ID0g
+dmhvc3RfZ2V0X2ZlYXR1cmVzKHZkcGEsIGFyZ3ApOwo+Pj4gKwkJYnJlYWs7Cj4+PiArCWNhc2Ug
+VkhPU1RfU0VUX0ZFQVRVUkVTOgo+Pj4gKwkJcmV0ID0gdmhvc3Rfc2V0X2ZlYXR1cmVzKHZkcGEs
+IGFyZ3ApOwo+Pj4gKwkJYnJlYWs7Cj4+PiArCWNhc2UgVkhPU1RfR0VUX1ZSSU5HX0JBU0U6Cj4+
+PiArCQlyZXQgPSB2aG9zdF9nZXRfdnJpbmdfYmFzZSh2ZHBhLCBhcmdwKTsKPj4+ICsJCWJyZWFr
+Owo+Pj4gKwlkZWZhdWx0Ogo+Pj4gKwkJcmV0ID0gdmhvc3RfZGV2X2lvY3RsKCZ2ZHBhLT5kZXYs
+IGNtZCwgYXJncCk7Cj4+PiArCQlpZiAocmV0ID09IC1FTk9JT0NUTENNRCkKPj4+ICsJCQlyZXQg
+PSB2aG9zdF92cmluZ19pb2N0bCgmdmRwYS0+ZGV2LCBjbWQsIGFyZ3ApOwo+Pj4gKwl9Cj4+PiAr
+Cj4+PiArCXJldHVybiByZXQ7Cj4+PiArfQo+Pj4gK0VYUE9SVF9TWU1CT0wodmhvc3RfbWRldl9p
+b2N0bCk7Cj4+Cj4+IEkgZG9uJ3QgaGF2ZSBhIHByb2JsZW0gd2l0aCB0aGlzIGFwcHJvYWNoLiBB
+IHNtYWxsIHF1ZXN0aW9uOgo+PiB3b3VsZCBpdCBtYWtlIHNlbnNlIHRvIGhhdmUgdHdvIGZkczog
+c2VuZCB2aG9zdCBpb2N0bHMKPj4gb24gb25lIGFuZCB2ZmlvIGlvY3RscyBvbiBhbm90aGVyPwo+
+PiBXZSBjYW4gdGhlbiBwYXNzIHZmaW8gZmQgdG8gdGhlIHZob3N0IGZkIHdpdGggYQo+PiBTRVRf
+QkFDS0VORCBpb2N0bC4KPj4KPj4gV2hhdCBkbyB5b3UgdGhpbms/Cj4gSSBsaWtlIHRoaXMgaWRl
+YSEgSSB3aWxsIGdpdmUgaXQgYSB0cnkuCj4gU28gd2UgY2FuIGludHJvZHVjZSAvZGV2L3Zob3N0
+LW1kZXYgdG8gaGF2ZSB0aGUgdmhvc3QgZmQsCgoKWW91IHN0aWxsIG5lZWQgdG8gdGhpbmsgYWJv
+dXQgaG93IHRvIGNvbm5lY3QgaXQgdG8gY3VycmVudCBzeXNmcyBiYXNlZCAKbWRldiBtYW5hZ2Vt
+ZW50IGludGVyZmFjZSwgb3IgeW91IHdhbnQgdG8gaW52ZW50IGFub3RoZXIgQVBJLCBvciBqdXN0
+IAp1c2UgdGhlIC9kZXYvdmhvc3QtbmV0IGJ1dCBwYXNzIHZmaW8gZmQgdGhyb3VnaCBpb2N0bCB0
+byB0aGUgZmlsZS4KClRoYW5rcwoKCj4gICBhbmQgbGV0Cj4gdXNlcnNwYWNlIHBhc3MgdmZpbyBm
+ZCB0byB0aGUgdmhvc3QgZmQgd2l0aCBhIFNFVF9CQUNLRU5EIGlvY3RsLgo+Cj4gVGhhbmtzIGEg
+bG90IQo+IFRpd2VpCj4KPj4gLS0gCj4+IE1TVApfX19fX19fX19fX19fX19fX19fX19fX19fX19f
+X19fX19fX19fX19fX19fX19fXwpWaXJ0dWFsaXphdGlvbiBtYWlsaW5nIGxpc3QKVmlydHVhbGl6
+YXRpb25AbGlzdHMubGludXgtZm91bmRhdGlvbi5vcmcKaHR0cHM6Ly9saXN0cy5saW51eGZvdW5k
+YXRpb24ub3JnL21haWxtYW4vbGlzdGluZm8vdmlydHVhbGl6YXRpb24=
