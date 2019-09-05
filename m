@@ -1,8 +1,7 @@
 From: Vivek Goyal <vgoyal@redhat.com>
-Subject: [PATCH 13/18] virtiofs: Do not access virtqueue in request submission
-	path
-Date: Thu,  5 Sep 2019 15:48:54 -0400
-Message-ID: <20190905194859.16219-14-vgoyal__36960.5998670281$1567713105$gmane$org@redhat.com>
+Subject: [PATCH 17/18] virtiofs: Remove TODO to quiesce/end_requests
+Date: Thu,  5 Sep 2019 15:48:58 -0400
+Message-ID: <20190905194859.16219-18-vgoyal__29248.9842789777$1567713109$gmane$org@redhat.com>
 References: <20190905194859.16219-1-vgoyal@redhat.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
@@ -22,35 +21,36 @@ To: linux-fsdevel@vger.kernel.org, virtualization@lists.linux-foundation.org, mi
 Cc: mst@redhat.com, linux-kernel@vger.kernel.org, dgilbert@redhat.com, virtio-fs@redhat.com, stefanha@redhat.com, vgoyal@redhat.com
 List-Id: virtualization@lists.linuxfoundation.org
 
-In request submission path it is possible that virtqueue is already gone
-due to driver->remove(). So do not access it in dev_dbg(). Use pr_debug()
-instead.
+We now stop queues and drain all the pending requests from all virtqueues.
+So this is not a TODO anymore.
 
-If virtuqueue is gone, this will result in NULL pointer deference.
+Got rid of incrementing fc->dev_count as well. It did not seem meaningful
+for virtio_fs.
 
 Signed-off-by: Vivek Goyal <vgoyal@redhat.com>
 ---
- fs/fuse/virtio_fs.c | 8 ++++----
- 1 file changed, 4 insertions(+), 4 deletions(-)
+ fs/fuse/virtio_fs.c | 2 --
+ 1 file changed, 2 deletions(-)
 
 diff --git a/fs/fuse/virtio_fs.c b/fs/fuse/virtio_fs.c
-index 40259368a6bd..01bbf2c0e144 100644
+index c483482185b6..eadaea6eb8e2 100644
 --- a/fs/fuse/virtio_fs.c
 +++ b/fs/fuse/virtio_fs.c
-@@ -888,10 +888,10 @@ __releases(fiq->waitq.lock)
- 	fs = fiq->priv;
- 	fc = fs->vqs[queue_id].fud->fc;
+@@ -208,7 +208,6 @@ static void virtio_fs_free_devs(struct virtio_fs *fs)
+ 		if (!fsvq->fud)
+ 			continue;
  
--	dev_dbg(&fs->vqs[queue_id].vq->vdev->dev,
--		"%s: opcode %u unique %#llx nodeid %#llx in.len %u out.len %u\n",
--		__func__, req->in.h.opcode, req->in.h.unique, req->in.h.nodeid,
--		req->in.h.len, fuse_len_args(req->out.numargs, req->out.args));
-+	pr_debug("%s: opcode %u unique %#llx nodeid %#llx in.len %u out.len %u"
-+		 "\n", __func__, req->in.h.opcode, req->in.h.unique,
-+		 req->in.h.nodeid, req->in.h.len,
-+		 fuse_len_args(req->out.numargs, req->out.args));
+-		/* TODO need to quiesce/end_requests/decrement dev_count */
+ 		fuse_dev_free(fsvq->fud);
+ 		fsvq->fud = NULL;
+ 	}
+@@ -1022,7 +1021,6 @@ static int virtio_fs_fill_super(struct super_block *sb)
+ 		if (i == VQ_REQUEST)
+ 			continue; /* already initialized */
+ 		fuse_dev_install(fsvq->fud, fc);
+-		atomic_inc(&fc->dev_count);
+ 	}
  
- 	fpq = &fs->vqs[queue_id].fud->pq;
- 	spin_lock(&fpq->lock);
+ 	/* Previous unmount will stop all queues. Start these again */
 -- 
 2.20.1
