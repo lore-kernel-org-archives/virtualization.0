@@ -1,7 +1,7 @@
 From: Vivek Goyal <vgoyal@redhat.com>
-Subject: [PATCH 12/18] virtiofs: Use virtio_fs_free_devs() in error path
-Date: Thu,  5 Sep 2019 15:48:53 -0400
-Message-ID: <20190905194859.16219-13-vgoyal__3606.82158950425$1567713040$gmane$org@redhat.com>
+Subject: [PATCH 11/18] virtiofs: stop and drain queues after sending DESTROY
+Date: Thu,  5 Sep 2019 15:48:52 -0400
+Message-ID: <20190905194859.16219-12-vgoyal__14317.9611115315$1567713047$gmane$org@redhat.com>
 References: <20190905194859.16219-1-vgoyal@redhat.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
@@ -21,27 +21,54 @@ To: linux-fsdevel@vger.kernel.org, virtualization@lists.linux-foundation.org, mi
 Cc: mst@redhat.com, linux-kernel@vger.kernel.org, dgilbert@redhat.com, virtio-fs@redhat.com, stefanha@redhat.com, vgoyal@redhat.com
 List-Id: virtualization@lists.linuxfoundation.org
 
-We already have an helper to cleanup fuse devices. Use that instead of
-duplicating the code.
+During virtio_kill_sb() we first stop forget queue and drain it and then
+call fuse_kill_sb_anon(). This will result in sending DESTROY request to
+fuse server. Once finished, stop all the queues and drain one more time
+just to be sure and then free up the devices.
+
+Given drain queues will call flush_work() on various workers, remove this
+logic from virtio_free_devs().
 
 Signed-off-by: Vivek Goyal <vgoyal@redhat.com>
 ---
- fs/fuse/virtio_fs.c | 3 +--
- 1 file changed, 1 insertion(+), 2 deletions(-)
+ fs/fuse/virtio_fs.c | 11 ++++++++---
+ 1 file changed, 8 insertions(+), 3 deletions(-)
 
 diff --git a/fs/fuse/virtio_fs.c b/fs/fuse/virtio_fs.c
-index a76bd5a04521..40259368a6bd 100644
+index 1ea0f889e804..a76bd5a04521 100644
 --- a/fs/fuse/virtio_fs.c
 +++ b/fs/fuse/virtio_fs.c
-@@ -999,8 +999,7 @@ static int virtio_fs_fill_super(struct super_block *sb)
- err_free_init_req:
- 	fuse_request_free(init_req);
- err_free_fuse_devs:
--	for (i = 0; i < fs->nvqs; i++)
--		fuse_dev_free(fs->vqs[i].fud);
-+	virtio_fs_free_devs(fs);
- err:
- 	return err;
+@@ -180,9 +180,6 @@ static void virtio_fs_free_devs(struct virtio_fs *fs)
+ 		if (!fsvq->fud)
+ 			continue;
+ 
+-		flush_work(&fsvq->done_work);
+-		flush_delayed_work(&fsvq->dispatch_work);
+-
+ 		/* TODO need to quiesce/end_requests/decrement dev_count */
+ 		fuse_dev_free(fsvq->fud);
+ 		fsvq->fud = NULL;
+@@ -994,6 +991,8 @@ static int virtio_fs_fill_super(struct super_block *sb)
+ 		atomic_inc(&fc->dev_count);
+ 	}
+ 
++	/* Previous unmount will stop all queues. Start these again */
++	virtio_fs_start_all_queues(fs);
+ 	fuse_send_init(fc, init_req);
+ 	return 0;
+ 
+@@ -1026,6 +1025,12 @@ static void virtio_kill_sb(struct super_block *sb)
+ 	virtio_fs_drain_all_queues(vfs);
+ 
+ 	fuse_kill_sb_anon(sb);
++
++	/* fuse_kill_sb_anon() must have sent destroy. Stop all queues
++	 * and drain one more time and free fuse devices.
++	 */
++	virtio_fs_stop_all_queues(vfs);
++	virtio_fs_drain_all_queues(vfs);
+ 	virtio_fs_free_devs(vfs);
  }
+ 
 -- 
 2.20.1
