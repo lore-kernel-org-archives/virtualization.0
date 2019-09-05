@@ -1,13 +1,11 @@
 From: Vivek Goyal <vgoyal@redhat.com>
-Subject: [PATCH 14/18] virtiofs: Add a fuse_iqueue operation to put() reference
-Date: Thu,  5 Sep 2019 15:48:55 -0400
-Message-ID: <20190905194859.16219-15-vgoyal__27269.2253392719$1567713059$gmane$org@redhat.com>
-References: <20190905194859.16219-1-vgoyal@redhat.com>
+Subject: [PATCH 00/18] virtiofs: Fix various races and cleanups round 1
+Date: Thu,  5 Sep 2019 15:48:41 -0400
+Message-ID: <20190905194859.16219-1-vgoyal__17550.4568427399$1567713066$gmane$org@redhat.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <20190905194859.16219-1-vgoyal@redhat.com>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -21,55 +19,60 @@ To: linux-fsdevel@vger.kernel.org, virtualization@lists.linux-foundation.org, mi
 Cc: mst@redhat.com, linux-kernel@vger.kernel.org, dgilbert@redhat.com, virtio-fs@redhat.com, stefanha@redhat.com, vgoyal@redhat.com
 List-Id: virtualization@lists.linuxfoundation.org
 
-Soon I will make virtio_fs object reference counted, where reference will
-be taken by device as well as by fuse_conn (fuse_conn->fuse_iqueue->fiq_priv).
+Hi,
 
-When fuse_connection is going away, it should put its reference on virtio_fs
-object.
+Michael Tsirkin pointed out issues w.r.t various locking related TODO
+items and races w.r.t device removal. 
 
-So add a fuse_iqueue method which can be used to call into virtio_fs to
-put the reference on the object (fiq_priv).
+In this first round of cleanups, I have taken care of most pressing
+issues.
 
-Signed-off-by: Vivek Goyal <vgoyal@redhat.com>
----
- fs/fuse/fuse_i.h | 5 +++++
- fs/fuse/inode.c  | 6 ++++++
- 2 files changed, 11 insertions(+)
+These patches apply on top of following.
 
-diff --git a/fs/fuse/fuse_i.h b/fs/fuse/fuse_i.h
-index 85e2dcad68c1..04e2c000d63f 100644
---- a/fs/fuse/fuse_i.h
-+++ b/fs/fuse/fuse_i.h
-@@ -479,6 +479,11 @@ struct fuse_iqueue_ops {
- 	 */
- 	void (*wake_pending_and_unlock)(struct fuse_iqueue *fiq)
- 		__releases(fiq->waitq.lock);
-+
-+	/**
-+	 * Put a reference on fiq_priv.
-+	 */
-+	void (*put)(struct fuse_iqueue *fiq);
- };
- 
- /** /dev/fuse input queue operations */
-diff --git a/fs/fuse/inode.c b/fs/fuse/inode.c
-index 7fa0dcc6f565..70a433bdf01f 100644
---- a/fs/fuse/inode.c
-+++ b/fs/fuse/inode.c
-@@ -631,8 +631,14 @@ EXPORT_SYMBOL_GPL(fuse_conn_init);
- void fuse_conn_put(struct fuse_conn *fc)
- {
- 	if (refcount_dec_and_test(&fc->count)) {
-+		struct fuse_iqueue *fiq = &fc->iq;
-+
- 		if (fc->destroy_req)
- 			fuse_request_free(fc->destroy_req);
-+		if (fiq->priv && fiq->ops->put) {
-+			fiq->ops->put(fiq);
-+			fiq->priv = NULL;
-+		}
- 		put_pid_ns(fc->pid_ns);
- 		put_user_ns(fc->user_ns);
- 		fc->release(fc);
+git://git.kernel.org/pub/scm/linux/kernel/git/mszeredi/fuse.git#virtiofs-v4
+
+I have tested these patches with mount/umount and device removal using
+qemu monitor. For example.
+
+virsh qemu-monitor-command --hmp vm9-f28 device_del myvirtiofs
+
+Now a mounted device can be removed and file system will return errors
+-ENOTCONN and one can unmount it.
+
+Miklos, if you are fine with the patches, I am fine if you fold these
+all into existing patch. I kept them separate so that review is easier.
+
+Any feedback or comments are welcome.
+
+Thanks
+Vivek
+
+
+Vivek Goyal (18):
+  virtiofs: Remove request from processing list before calling end
+  virtiofs: Check whether hiprio queue is connected at submission time
+  virtiofs: Pass fsvq instead of vq as parameter to
+    virtio_fs_enqueue_req
+  virtiofs: Check connected state for VQ_REQUEST queue as well
+  Maintain count of in flight requests for VQ_REQUEST queue
+  virtiofs: ->remove should not clean virtiofs fuse devices
+  virtiofs: Stop virtiofs queues when device is being removed
+  virtiofs: Drain all pending requests during ->remove time
+  virtiofs: Add an helper to start all the queues
+  virtiofs: Do not use device managed mem for virtio_fs and virtio_fs_vq
+  virtiofs: stop and drain queues after sending DESTROY
+  virtiofs: Use virtio_fs_free_devs() in error path
+  virtiofs: Do not access virtqueue in request submission path
+  virtiofs: Add a fuse_iqueue operation to put() reference
+  virtiofs: Make virtio_fs object refcounted
+  virtiofs: Use virtio_fs_mutex for races w.r.t ->remove and mount path
+  virtiofs: Remove TODO to quiesce/end_requests
+  virtiofs: Remove TODO item from virtio_fs_free_devs()
+
+ fs/fuse/fuse_i.h    |   5 +
+ fs/fuse/inode.c     |   6 +
+ fs/fuse/virtio_fs.c | 259 ++++++++++++++++++++++++++++++++------------
+ 3 files changed, 198 insertions(+), 72 deletions(-)
+
 -- 
 2.20.1
