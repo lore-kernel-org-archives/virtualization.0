@@ -1,14 +1,13 @@
-From: Gerd Hoffmann <kraxel@redhat.com>
-Subject: Re: Xorg indefinitely hangs in kernelspace
-Date: Thu, 5 Sep 2019 09:14:07 +0200
-Message-ID: <20190905071407.47iywqcqomizs3yr__6931.12024325586$1567667672$gmane$org@sirius.home.kraxel.org>
-References: <92785039-0941-4626-610b-f4e3d9613069@ristioja.ee>
+From: David Miller <davem@davemloft.net>
+Subject: Re: [PATCH net-next] vsock/virtio: a better comment on credit update
+Date: Thu, 05 Sep 2019 00:53:22 -0700 (PDT)
+Message-ID: <20190905.005322.1525752973478019785.davem__3579.80626156262$1567670019$gmane$org@davemloft.net>
+References: <20190903073748.25214-1-mst@redhat.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-Content-Disposition: inline
-In-Reply-To: <92785039-0941-4626-610b-f4e3d9613069@ristioja.ee>
+In-Reply-To: <20190903073748.25214-1-mst@redhat.com>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -18,18 +17,17 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Jaak Ristioja <jaak@ristioja.ee>
-Cc: David Airlie <airlied@linux.ie>, linux-kernel@vger.kernel.org, dri-devel@lists.freedesktop.org, virtualization@lists.linux-foundation.org, Daniel Vetter <daniel@ffwll.ch>, spice-devel@lists.freedesktop.org, Dave Airlie <airlied@redhat.com>
+To: mst@redhat.com
+Cc: kvm@vger.kernel.org, netdev@vger.kernel.org, linux-kernel@vger.kernel.org, virtualization@lists.linux-foundation.org, stefanha@redhat.com, sgarzare@redhat.com
 List-Id: virtualization@lists.linuxfoundation.org
 
-On Tue, Aug 06, 2019 at 09:00:10PM +0300, Jaak Ristioja wrote:
-> Hello!
+From: "Michael S. Tsirkin" <mst@redhat.com>
+Date: Tue, 3 Sep 2019 03:38:16 -0400
+
+> The comment we have is just repeating what the code does.
+> Include the *reason* for the condition instead.
 > 
-> I'm writing to report a crash in the QXL / DRM code in the Linux kernel.
-> I originally filed the issue on LaunchPad and more details can be found
-> there, although I doubt whether these details are useful.
+> Cc: Stefano Garzarella <sgarzare@redhat.com>
+> Signed-off-by: Michael S. Tsirkin <mst@redhat.com>
 
-Any change with kernel 5.3-rc7 ?
-
-cheers,
-  Gerd
+Applied.
