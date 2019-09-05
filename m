@@ -1,8 +1,7 @@
 From: Vivek Goyal <vgoyal@redhat.com>
-Subject: [PATCH 05/18] Maintain count of in flight requests for VQ_REQUEST
-	queue
-Date: Thu,  5 Sep 2019 15:48:46 -0400
-Message-ID: <20190905194859.16219-6-vgoyal__3594.40863119147$1567713144$gmane$org@redhat.com>
+Subject: [PATCH 18/18] virtiofs: Remove TODO item from virtio_fs_free_devs()
+Date: Thu,  5 Sep 2019 15:48:59 -0400
+Message-ID: <20190905194859.16219-19-vgoyal__15426.7425577686$1567713147$gmane$org@redhat.com>
 References: <20190905194859.16219-1-vgoyal@redhat.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
@@ -22,36 +21,34 @@ To: linux-fsdevel@vger.kernel.org, virtualization@lists.linux-foundation.org, mi
 Cc: mst@redhat.com, linux-kernel@vger.kernel.org, dgilbert@redhat.com, virtio-fs@redhat.com, stefanha@redhat.com, vgoyal@redhat.com
 List-Id: virtualization@lists.linuxfoundation.org
 
-As of now we maintain this count only for VQ_HIPRIO. Maintain it for
-VQ_REQUEST as well so that later it can be used to drain VQ_REQUEST
-queue.
+virtio_fs_free_devs() is now called from ->kill_sb(). By this time
+all device queues have been quiesced. I am assuming that while
+->kill_sb() is in progress, another mount instance will wait for
+it to finish (sb->s_umount mutex provides mutual exclusion).
+
+W.r.t ->remove path, we should be fine as we are not touching vdev
+or virtqueues. And we have reference on virtio_fs object, so we know
+rest of the data structures are valid.
+
+So I can't see the need of any additional locking yet.
 
 Signed-off-by: Vivek Goyal <vgoyal@redhat.com>
 ---
- fs/fuse/virtio_fs.c | 4 ++++
- 1 file changed, 4 insertions(+)
+ fs/fuse/virtio_fs.c | 2 --
+ 1 file changed, 2 deletions(-)
 
 diff --git a/fs/fuse/virtio_fs.c b/fs/fuse/virtio_fs.c
-index c46dd4d284d6..5df97dfee37d 100644
+index eadaea6eb8e2..61aa3eba7b22 100644
 --- a/fs/fuse/virtio_fs.c
 +++ b/fs/fuse/virtio_fs.c
-@@ -360,6 +360,9 @@ static void virtio_fs_requests_done_work(struct work_struct *work)
- 		spin_unlock(&fpq->lock);
+@@ -200,8 +200,6 @@ static void virtio_fs_free_devs(struct virtio_fs *fs)
+ {
+ 	unsigned int i;
  
- 		fuse_request_end(fc, req);
-+		spin_lock(&fsvq->lock);
-+		fsvq->in_flight--;
-+		spin_unlock(&fsvq->lock);
- 	}
- }
+-	/* TODO lock */
+-
+ 	for (i = 0; i < fs->nvqs; i++) {
+ 		struct virtio_fs_vq *fsvq = &fs->vqs[i];
  
-@@ -769,6 +772,7 @@ static int virtio_fs_enqueue_req(struct virtio_fs_vq *fsvq,
- 		goto out;
- 	}
- 
-+	fsvq->in_flight++;
- 	notify = virtqueue_kick_prepare(vq);
- 
- 	spin_unlock(&fsvq->lock);
 -- 
 2.20.1
