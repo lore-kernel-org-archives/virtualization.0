@@ -1,8 +1,8 @@
 From: Vivek Goyal <vgoyal@redhat.com>
-Subject: [PATCH 01/18] virtiofs: Remove request from processing list before
-	calling end
-Date: Thu,  5 Sep 2019 15:48:42 -0400
-Message-ID: <20190905194859.16219-2-vgoyal@redhat.com>
+Subject: [PATCH 06/18] virtiofs: ->remove should not clean virtiofs fuse
+	devices
+Date: Thu,  5 Sep 2019 15:48:47 -0400
+Message-ID: <20190905194859.16219-7-vgoyal__43779.3746170186$1567713005$gmane$org@redhat.com>
 References: <20190905194859.16219-1-vgoyal@redhat.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
@@ -22,29 +22,28 @@ To: linux-fsdevel@vger.kernel.org, virtualization@lists.linux-foundation.org, mi
 Cc: mst@redhat.com, linux-kernel@vger.kernel.org, dgilbert@redhat.com, virtio-fs@redhat.com, stefanha@redhat.com, vgoyal@redhat.com
 List-Id: virtualization@lists.linuxfoundation.org
 
-In error path we are calling fuse_request_end() but we need to clear
-FR_SENT bit as well as remove request from processing queue. Otherwise
-fuse_request_end() triggers a warning as well as other issues show up.
+We maintain a fuse device per virt queue. This fuse devices are allocated
+and installed during mount time and should be cleaned up when super block
+is going away. Device removal should not clean it. Device removal should
+stop queues and virtuques can go away.
 
 Signed-off-by: Vivek Goyal <vgoyal@redhat.com>
 ---
- fs/fuse/virtio_fs.c | 4 ++++
- 1 file changed, 4 insertions(+)
+ fs/fuse/virtio_fs.c | 2 --
+ 1 file changed, 2 deletions(-)
 
 diff --git a/fs/fuse/virtio_fs.c b/fs/fuse/virtio_fs.c
-index 197e79e536f9..a708ccb65662 100644
+index 5df97dfee37d..f68a25ca9e9d 100644
 --- a/fs/fuse/virtio_fs.c
 +++ b/fs/fuse/virtio_fs.c
-@@ -826,6 +826,10 @@ __releases(fiq->waitq.lock)
- 		}
- 		req->out.h.error = ret;
- 		pr_err("virtio-fs: virtio_fs_enqueue_req() failed %d\n", ret);
-+		spin_lock(&fpq->lock);
-+		clear_bit(FR_SENT, &req->flags);
-+		list_del_init(&req->list);
-+		spin_unlock(&fpq->lock);
- 		fuse_request_end(fc, req);
- 		return;
- 	}
+@@ -497,8 +497,6 @@ static void virtio_fs_remove(struct virtio_device *vdev)
+ {
+ 	struct virtio_fs *fs = vdev->priv;
+ 
+-	virtio_fs_free_devs(fs);
+-
+ 	vdev->config->reset(vdev);
+ 	virtio_fs_cleanup_vqs(vdev, fs);
+ 
 -- 
 2.20.1
