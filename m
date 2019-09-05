@@ -1,15 +1,15 @@
-From: Jaak Ristioja <jaak@ristioja.ee>
-Subject: Re: Xorg indefinitely hangs in kernelspace
-Date: Thu, 5 Sep 2019 15:34:12 +0300
-Message-ID: <e4b7d889-15f3-0c90-3b9f-d395344499c0__39110.6557844736$1567686861$gmane$org@ristioja.ee>
-References: <92785039-0941-4626-610b-f4e3d9613069@ristioja.ee>
-	<20190905071407.47iywqcqomizs3yr@sirius.home.kraxel.org>
+From: Jason Gunthorpe <jgg@mellanox.com>
+Subject: Re: [PATCH 0/2] Revert and rework on the metadata accelreation
+Date: Thu, 5 Sep 2019 13:59:10 +0000
+Message-ID: <20190905135907.GB6011__11323.6388818891$1567691971$gmane$org@mellanox.com>
+References: <20190905122736.19768-1-jasowang@redhat.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <20190905071407.47iywqcqomizs3yr@sirius.home.kraxel.org>
+In-Reply-To: <20190905122736.19768-1-jasowang@redhat.com>
 Content-Language: en-US
+Content-ID: <A9EFBDB41F67594A8536A97722126F60@eurprd05.prod.outlook.com>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -19,32 +19,30 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Gerd Hoffmann <kraxel@redhat.com>
-Cc: David Airlie <airlied@linux.ie>, linux-kernel@vger.kernel.org, dri-devel@lists.freedesktop.org, virtualization@lists.linux-foundation.org, Daniel Vetter <daniel@ffwll.ch>, spice-devel@lists.freedesktop.org, Dave Airlie <airlied@redhat.com>
+To: Jason Wang <jasowang@redhat.com>
+Cc: "aarcange@redhat.com" <aarcange@redhat.com>, "kvm@vger.kernel.org" <kvm@vger.kernel.org>, "mst@redhat.com" <mst@redhat.com>, "netdev@vger.kernel.org" <netdev@vger.kernel.org>, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>, "virtualization@lists.linux-foundation.org" <virtualization@lists.linux-foundation.org>, "linux-mm@kvack.org" <linux-mm@kvack.org>, "jglisse@redhat.com" <jglisse@redhat.com>
 List-Id: virtualization@lists.linuxfoundation.org
 
-On 05.09.19 10:14, Gerd Hoffmann wrote:
-> On Tue, Aug 06, 2019 at 09:00:10PM +0300, Jaak Ristioja wrote:
->> Hello!
->>
->> I'm writing to report a crash in the QXL / DRM code in the Linux kernel.
->> I originally filed the issue on LaunchPad and more details can be found
->> there, although I doubt whether these details are useful.
+On Thu, Sep 05, 2019 at 08:27:34PM +0800, Jason Wang wrote:
+> Hi:
 > 
-> Any change with kernel 5.3-rc7 ?
+> Per request from Michael and Jason, the metadata accelreation is
+> reverted in this version and rework in next version.
+> 
+> Please review.
+> 
+> Thanks
+> 
+> Jason Wang (2):
+>   Revert "vhost: access vq metadata through kernel virtual address"
+>   vhost: re-introducing metadata acceleration through kernel virtual
+>     address
 
-Didn't try. Did you change something? I could try, but I've done so
-before and every time this bug manifests itself with MAJOR.MINOR-rc# I
-get asked to try version MAJOR.(MINOR+1)-rc# so I guess I could as well
-give up?
+There are a bunch of patches in the queue already that will help
+vhost, and I a working on one for next cycle that will help alot more
+too.
 
-Alright, I'll install 5.3-rc7, but once more it might take some time for
-this bug to expose itself.
+I think you should apply the revert this cycle and rebase the other
+patch for next..
 
-One thing to note though, is that this occurred much more often with
-older kernels (or older versions of the Kubuntu desktop/Firefox in my
-VM), sometimes even several times in an hour of use.
-
-
-Best regards,
-J
+Jason
