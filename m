@@ -1,8 +1,8 @@
 From: Vivek Goyal <vgoyal@redhat.com>
-Subject: [PATCH 02/18] virtiofs: Check whether hiprio queue is connected at
-	submission time
-Date: Thu,  5 Sep 2019 15:48:43 -0400
-Message-ID: <20190905194859.16219-3-vgoyal__34054.7642366559$1567713084$gmane$org@redhat.com>
+Subject: [PATCH 04/18] virtiofs: Check connected state for VQ_REQUEST queue as
+	well
+Date: Thu,  5 Sep 2019 15:48:45 -0400
+Message-ID: <20190905194859.16219-5-vgoyal__96.4984110154887$1567713093$gmane$org@redhat.com>
 References: <20190905194859.16219-1-vgoyal@redhat.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
@@ -22,40 +22,35 @@ To: linux-fsdevel@vger.kernel.org, virtualization@lists.linux-foundation.org, mi
 Cc: mst@redhat.com, linux-kernel@vger.kernel.org, dgilbert@redhat.com, virtio-fs@redhat.com, stefanha@redhat.com, vgoyal@redhat.com
 List-Id: virtualization@lists.linuxfoundation.org
 
-For hiprio queue (forget requests), we are keeping a state in queue whether
-queue is connected or not. If queue is not connected, do not try to submit
-request and return error instead.
+Right now we are checking ->connected state only for VQ_HIPRIO. Now we want
+to make use of this method for all queues. So check it for VQ_REQUEST as
+well.
 
-As of now, we are checking for this state only in path where worker tries
-to submit forget after first attempt failed. Check this state even in
-the path when request is being submitted first time.
+This will be helpful if device has been removed and virtqueue is gone. In
+that case ->connected will be false and request can't be submitted anymore
+and user space will see error -ENOTCONN.
 
 Signed-off-by: Vivek Goyal <vgoyal@redhat.com>
 ---
- fs/fuse/virtio_fs.c | 9 ++++++++-
- 1 file changed, 8 insertions(+), 1 deletion(-)
+ fs/fuse/virtio_fs.c | 6 ++++++
+ 1 file changed, 6 insertions(+)
 
 diff --git a/fs/fuse/virtio_fs.c b/fs/fuse/virtio_fs.c
-index a708ccb65662..e9497b565dd8 100644
+index 9d30530e3ca9..c46dd4d284d6 100644
 --- a/fs/fuse/virtio_fs.c
 +++ b/fs/fuse/virtio_fs.c
-@@ -577,9 +577,16 @@ __releases(fiq->waitq.lock)
- 	sg_init_one(&sg, forget, sizeof(*forget));
+@@ -755,6 +755,12 @@ static int virtio_fs_enqueue_req(struct virtio_fs_vq *fsvq,
  
- 	/* Enqueue the request */
-+	spin_lock(&fsvq->lock);
-+
+ 	spin_lock(&fsvq->lock);
+ 
 +	if (!fsvq->connected) {
-+		kfree(forget);
 +		spin_unlock(&fsvq->lock);
++		ret = -ENOTCONN;
 +		goto out;
 +	}
 +
  	vq = fsvq->vq;
- 	dev_dbg(&vq->vdev->dev, "%s\n", __func__);
--	spin_lock(&fsvq->lock);
- 
- 	ret = virtqueue_add_sgs(vq, sgs, 1, 0, forget, GFP_ATOMIC);
+ 	ret = virtqueue_add_sgs(vq, sgs, out_sgs, in_sgs, req, GFP_ATOMIC);
  	if (ret < 0) {
 -- 
 2.20.1
