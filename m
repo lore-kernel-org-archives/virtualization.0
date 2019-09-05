@@ -1,7 +1,8 @@
 From: Vivek Goyal <vgoyal@redhat.com>
-Subject: [PATCH 17/18] virtiofs: Remove TODO to quiesce/end_requests
-Date: Thu,  5 Sep 2019 15:48:58 -0400
-Message-ID: <20190905194859.16219-18-vgoyal__29248.9842789777$1567713109$gmane$org@redhat.com>
+Subject: [PATCH 10/18] virtiofs: Do not use device managed mem for virtio_fs
+	and virtio_fs_vq
+Date: Thu,  5 Sep 2019 15:48:51 -0400
+Message-ID: <20190905194859.16219-11-vgoyal__29157.3982381792$1567713120$gmane$org@redhat.com>
 References: <20190905194859.16219-1-vgoyal@redhat.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
@@ -21,36 +22,81 @@ To: linux-fsdevel@vger.kernel.org, virtualization@lists.linux-foundation.org, mi
 Cc: mst@redhat.com, linux-kernel@vger.kernel.org, dgilbert@redhat.com, virtio-fs@redhat.com, stefanha@redhat.com, vgoyal@redhat.com
 List-Id: virtualization@lists.linuxfoundation.org
 
-We now stop queues and drain all the pending requests from all virtqueues.
-So this is not a TODO anymore.
+These data structures should go away when virtio_fs object is going away.
+When deivce is going away, we need to just make sure virtqueues can go
+away and after that none of the code accesses vq and all the requests
+get error.
 
-Got rid of incrementing fc->dev_count as well. It did not seem meaningful
-for virtio_fs.
+So allocate memory for virtio_fs and virtio_fs_vq normally and free it
+at right time.
+
+This patch still frees up memory during device remove time. A later patch
+will make virtio_fs object reference counted and this memory will be
+freed when last reference to object is dropped.
 
 Signed-off-by: Vivek Goyal <vgoyal@redhat.com>
 ---
- fs/fuse/virtio_fs.c | 2 --
- 1 file changed, 2 deletions(-)
+ fs/fuse/virtio_fs.c | 13 ++++++++-----
+ 1 file changed, 8 insertions(+), 5 deletions(-)
 
 diff --git a/fs/fuse/virtio_fs.c b/fs/fuse/virtio_fs.c
-index c483482185b6..eadaea6eb8e2 100644
+index f2936daca39c..1ea0f889e804 100644
 --- a/fs/fuse/virtio_fs.c
 +++ b/fs/fuse/virtio_fs.c
-@@ -208,7 +208,6 @@ static void virtio_fs_free_devs(struct virtio_fs *fs)
- 		if (!fsvq->fud)
- 			continue;
+@@ -446,7 +446,7 @@ static int virtio_fs_setup_vqs(struct virtio_device *vdev,
+ 	vq_callback_t **callbacks;
+ 	const char **names;
+ 	unsigned int i;
+-	int ret;
++	int ret = 0;
  
--		/* TODO need to quiesce/end_requests/decrement dev_count */
- 		fuse_dev_free(fsvq->fud);
- 		fsvq->fud = NULL;
- 	}
-@@ -1022,7 +1021,6 @@ static int virtio_fs_fill_super(struct super_block *sb)
- 		if (i == VQ_REQUEST)
- 			continue; /* already initialized */
- 		fuse_dev_install(fsvq->fud, fc);
--		atomic_inc(&fc->dev_count);
- 	}
+ 	virtio_cread(vdev, struct virtio_fs_config, num_queues,
+ 		     &fs->num_queues);
+@@ -454,9 +454,7 @@ static int virtio_fs_setup_vqs(struct virtio_device *vdev,
+ 		return -EINVAL;
  
- 	/* Previous unmount will stop all queues. Start these again */
+ 	fs->nvqs = 1 + fs->num_queues;
+-
+-	fs->vqs = devm_kcalloc(&vdev->dev, fs->nvqs,
+-				sizeof(fs->vqs[VQ_HIPRIO]), GFP_KERNEL);
++	fs->vqs = kcalloc(fs->nvqs, sizeof(fs->vqs[VQ_HIPRIO]), GFP_KERNEL);
+ 	if (!fs->vqs)
+ 		return -ENOMEM;
+ 
+@@ -504,6 +502,8 @@ static int virtio_fs_setup_vqs(struct virtio_device *vdev,
+ 	kfree(names);
+ 	kfree(callbacks);
+ 	kfree(vqs);
++	if (ret)
++		kfree(fs->vqs);
+ 	return ret;
+ }
+ 
+@@ -519,7 +519,7 @@ static int virtio_fs_probe(struct virtio_device *vdev)
+ 	struct virtio_fs *fs;
+ 	int ret;
+ 
+-	fs = devm_kzalloc(&vdev->dev, sizeof(*fs), GFP_KERNEL);
++	fs = kzalloc(sizeof(*fs), GFP_KERNEL);
+ 	if (!fs)
+ 		return -ENOMEM;
+ 	vdev->priv = fs;
+@@ -552,6 +552,7 @@ static int virtio_fs_probe(struct virtio_device *vdev)
+ 
+ out:
+ 	vdev->priv = NULL;
++	kfree(fs);
+ 	return ret;
+ }
+ 
+@@ -582,6 +583,8 @@ static void virtio_fs_remove(struct virtio_device *vdev)
+ 	mutex_unlock(&virtio_fs_mutex);
+ 
+ 	vdev->priv = NULL;
++	kfree(fs->vqs);
++	kfree(fs);
+ }
+ 
+ #ifdef CONFIG_PM_SLEEP
 -- 
 2.20.1
