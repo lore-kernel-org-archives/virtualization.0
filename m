@@ -1,14 +1,14 @@
 From: Stefan Hajnoczi <stefanha@redhat.com>
-Subject: Re: [PATCH 06/18] virtiofs: ->remove should not clean virtiofs fuse
-	devices
-Date: Fri, 6 Sep 2019 11:47:08 +0100
-Message-ID: <20190906104708.GN5900__26329.898186826$1567766845$gmane$org@stefanha-x1.localdomain>
+Subject: Re: [PATCH 07/18] virtiofs: Stop virtiofs queues when device is
+	being removed
+Date: Fri, 6 Sep 2019 11:47:38 +0100
+Message-ID: <20190906104738.GO5900__17388.2815333613$1567766876$gmane$org@stefanha-x1.localdomain>
 References: <20190905194859.16219-1-vgoyal@redhat.com>
-	<20190905194859.16219-7-vgoyal@redhat.com>
+	<20190905194859.16219-8-vgoyal@redhat.com>
 Mime-Version: 1.0
-Content-Type: multipart/mixed; boundary="===============8771087932482653607=="
+Content-Type: multipart/mixed; boundary="===============0437572114965404073=="
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <20190905194859.16219-7-vgoyal@redhat.com>
+In-Reply-To: <20190905194859.16219-8-vgoyal@redhat.com>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -23,48 +23,47 @@ Cc: miklos@szeredi.hu, mst@redhat.com, linux-kernel@vger.kernel.org, dgilbert@re
 List-Id: virtualization@lists.linuxfoundation.org
 
 
---===============8771087932482653607==
+--===============0437572114965404073==
 Content-Type: multipart/signed; micalg=pgp-sha256;
-	protocol="application/pgp-signature"; boundary="yK/6QRnH3Zanb0EF"
+	protocol="application/pgp-signature"; boundary="acOuGx3oQeOcSZJu"
 Content-Disposition: inline
 
 
---yK/6QRnH3Zanb0EF
+--acOuGx3oQeOcSZJu
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
 Content-Transfer-Encoding: quoted-printable
 
-On Thu, Sep 05, 2019 at 03:48:47PM -0400, Vivek Goyal wrote:
-> We maintain a fuse device per virt queue. This fuse devices are allocated
-> and installed during mount time and should be cleaned up when super block
-> is going away. Device removal should not clean it. Device removal should
-> stop queues and virtuques can go away.
+On Thu, Sep 05, 2019 at 03:48:48PM -0400, Vivek Goyal wrote:
+> Stop all the virt queues when device is going away. This will ensure that
+> no new requests are submitted to virtqueue and and request will end with
+> error -ENOTCONN.
 >=20
 > Signed-off-by: Vivek Goyal <vgoyal@redhat.com>
 > ---
->  fs/fuse/virtio_fs.c | 2 --
->  1 file changed, 2 deletions(-)
+>  fs/fuse/virtio_fs.c | 14 ++++++++++++++
+>  1 file changed, 14 insertions(+)
 
 Reviewed-by: Stefan Hajnoczi <stefanha@redhat.com>
 
---yK/6QRnH3Zanb0EF
+--acOuGx3oQeOcSZJu
 Content-Type: application/pgp-signature; name="signature.asc"
 
 -----BEGIN PGP SIGNATURE-----
 
-iQEzBAEBCAAdFiEEhpWov9P5fNqsNXdanKSrs4Grc8gFAl1yOSwACgkQnKSrs4Gr
-c8h6Qwf/WpO4mnEca0Q5mo2lnzp1LNn53yJFIz8baldN1jOcw33zkeKDoJ8jQ4ij
-1MbNgXpZWvKRM3ne2pDWOTfgU+JfCLruMSB7cgawvizBo2wsehRoCQ7Y+rEFrPhT
-QkfKngAlQfkxdMH0s3efds0D/ra9rWftywFg4BxtNrwWwq85JA5bA6IulJBeydlL
-kYibfDTxusBufOj57M6CzGNkcrhbBbGoGp29/WKGDTJPYr10IOINpG1VLMRalyyY
-DR1y94cFvWz3qNz1CduPxLeBXjCfAjd9u9RNV+U/JnsmVDm6+csXA70wr7tmPjEY
-mc+3IOwSwASzAjknAwn7k4QHKwpUmA==
-=TIQ2
+iQEzBAEBCAAdFiEEhpWov9P5fNqsNXdanKSrs4Grc8gFAl1yOUoACgkQnKSrs4Gr
+c8hIyQf/VEB8Z1kkLZJY07A6TpGDbf4zwdPwITwfIrZm8CV5Muj+9w7GN5o9QylC
+HcWecFIGEfC3JXeQdRnq/5rLiAhKXgFkAXo9qkS7uVwLSR1YS+iutJksY2M0V6z0
+sYo8cHSn4X5umbDMrnvlasCdLLAj3IKtaBmHYr8Cm9kOBMLl+H/n77Pvdr36qsoK
+BUNaNZtkGMFtKf+n7nJA1BXi/h+G3RhB6o1hyzdTF0VPLm0muWZda5jgc2cXTHnf
+gQBGQiO/TqCt3bwqiS/fJLIW38/XcDy683UCXkEJiaXcLwX0LgwfHM1zPAVHyx/v
+plygJH26nFKCsOQ2j9GueL6YA3uB2g==
+=VU0e
 -----END PGP SIGNATURE-----
 
---yK/6QRnH3Zanb0EF--
+--acOuGx3oQeOcSZJu--
 
---===============8771087932482653607==
+--===============0437572114965404073==
 Content-Type: text/plain; charset="us-ascii"
 MIME-Version: 1.0
 Content-Transfer-Encoding: 7bit
@@ -74,4 +73,4 @@ _______________________________________________
 Virtualization mailing list
 Virtualization@lists.linux-foundation.org
 https://lists.linuxfoundation.org/mailman/listinfo/virtualization
---===============8771087932482653607==--
+--===============0437572114965404073==--
