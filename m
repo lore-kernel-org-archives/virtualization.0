@@ -1,18 +1,14 @@
 From: "Michael S. Tsirkin" <mst@redhat.com>
-Subject: Re: [PATCH 00/18] virtiofs: Fix various races and cleanups round 1
-Date: Fri, 6 Sep 2019 09:57:27 -0400
-Message-ID: <20190906095428-mutt-send-email-mst@kernel.org>
-References: <20190905194859.16219-1-vgoyal@redhat.com>
-	<CAJfpegu8POz9gC4MDEcXxDWBD0giUNFgJhMEzntJX_u4+cS9Zw@mail.gmail.com>
-	<20190906103613.GH5900@stefanha-x1.localdomain>
-	<CAJfpegudNVZitQ5L8gPvA45mRPFDk9fhyboceVW6xShpJ4mLww@mail.gmail.com>
-	<20190906120817.GA22083@redhat.com>
+Subject: Re: [PATCH] virtio_ring: fix unmap of indirect descriptors
+Date: Fri, 6 Sep 2019 10:02:55 -0400
+Message-ID: <20190906095904-mutt-send-email-mst@kernel.org>
+References: <20190906120659.4545-1-matthias.lange@kernkonzept.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
 Content-Disposition: inline
-In-Reply-To: <20190906120817.GA22083@redhat.com>
+In-Reply-To: <20190906120659.4545-1-matthias.lange@kernkonzept.com>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -22,67 +18,76 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Vivek Goyal <vgoyal@redhat.com>
-Cc: Miklos Szeredi <miklos@szeredi.hu>, linux-kernel@vger.kernel.org, virtualization@lists.linux-foundation.org, virtio-fs@redhat.com, Stefan Hajnoczi <stefanha@redhat.com>, linux-fsdevel@vger.kernel.org, "Dr. David Alan Gilbert" <dgilbert@redhat.com>
+To: Matthias Lange <matthias.lange@kernkonzept.com>
+Cc: virtualization@lists.linux-foundation.org
 List-Id: virtualization@lists.linuxfoundation.org
 
-On Fri, Sep 06, 2019 at 08:08:17AM -0400, Vivek Goyal wrote:
-> On Fri, Sep 06, 2019 at 01:52:41PM +0200, Miklos Szeredi wrote:
-> > On Fri, Sep 6, 2019 at 12:36 PM Stefan Hajnoczi <stefanha@redhat.com> wrote:
-> > >
-> > > On Fri, Sep 06, 2019 at 10:15:14AM +0200, Miklos Szeredi wrote:
-> > > > On Thu, Sep 5, 2019 at 9:49 PM Vivek Goyal <vgoyal@redhat.com> wrote:
-> > > > >
-> > > > > Hi,
-> > > > >
-> > > > > Michael Tsirkin pointed out issues w.r.t various locking related TODO
-> > > > > items and races w.r.t device removal.
-> > > > >
-> > > > > In this first round of cleanups, I have taken care of most pressing
-> > > > > issues.
-> > > > >
-> > > > > These patches apply on top of following.
-> > > > >
-> > > > > git://git.kernel.org/pub/scm/linux/kernel/git/mszeredi/fuse.git#virtiofs-v4
-> > > > >
-> > > > > I have tested these patches with mount/umount and device removal using
-> > > > > qemu monitor. For example.
-> > > >
-> > > > Is device removal mandatory?  Can't this be made a non-removable
-> > > > device?  Is there a good reason why removing the virtio-fs device
-> > > > makes sense?
-> > >
-> > > Hot plugging and unplugging virtio PCI adapters is common.  I'd very
-> > > much like removal to work from the beginning.
-> > 
-> > Can you give an example use case?
+On Fri, Sep 06, 2019 at 02:06:59PM +0200, Matthias Lange wrote:
+> The function virtqueue_add_split() DMA-maps the scatterlist buffers. In
+> case a mapping error occurs the already mapped buffers must be unmapped.
+> This happens by jumping to the 'unmap_release' label.
 > 
-> David Gilbert mentioned this could be useful if daemon stops responding
-> or dies. One could remove device. That will fail all future requests
-> and allow unmounting filesystem.
+> In case of indirect descriptors the release is wrong and may leak kernel
+> memory. Because the implementation assumes that the head descriptor is
+> already mapped it starts iterating over the descriptor list starting
+> from the head descriptor. However for indirect descriptors the head
+> descriptor is never mapped in case of an error.
 > 
-> Havind said that, current implementation will help in above situation
-> only if there are no pending requests. If there are pending requests
-> and daemon stops responding, then removal will hang too, as we wait
-> for draining the queues.
+> The fix is to initialize the start index with zero in case of indirect
+> descriptors and use the 'desc' pointer directly for iterating over the
+> descriptor chain.
 > 
-> So at some point of time, we also need some sort of timeout functionality
-> where we end requests with error after a timeout.
+> This fix also changes the return code from EIO to ENOSPC in case of a
+> mapping error. The reason is that drivers such as virtio_blk may retry
+> their request and thus can recover from a mapping error.
 > 
-> I feel we should support removing device at some point of time. But its
-> not necessarily a must have feature for first round.
-> 
-> Thanks
-> Vivek
+> Signed-off-by: Matthias Lange <matthias.lange@kernkonzept.com>
 
-Without removal how do we stop guest poking at some files if we want to?
+Thanks for the patch!
 
-I guess we could invent a special event to block accesses,
-but unplug will just do it.
+However please, split this to 2 patches.
+I think the 1st patch at least is a stable candidate.
 
-blk and scsi support removal out of box, if this is supposed
-to be a drop in replacement then I think yes, you want this
-support.
+About the return code part - could you please add a bit more explanation
+in the commit log? E.g. document when does it trigger and what is the
+effect of the fix.  Thanks!
 
--- 
-MST
+> ---
+>  drivers/virtio/virtio_ring.c | 10 +++++++---
+>  1 file changed, 7 insertions(+), 3 deletions(-)
+> 
+> diff --git a/drivers/virtio/virtio_ring.c b/drivers/virtio/virtio_ring.c
+> index c8be1c4f5b55..d2e001f92e6e 100644
+> --- a/drivers/virtio/virtio_ring.c
+> +++ b/drivers/virtio/virtio_ring.c
+> @@ -566,13 +566,17 @@ static inline int virtqueue_add_split(struct virtqueue *_vq,
+>  
+>  unmap_release:
+>  	err_idx = i;
+> -	i = head;
+> +
+> +	if (indirect)
+> +		i = 0;
+> +	else
+> +		i = head;
+>  
+>  	for (n = 0; n < total_sg; n++) {
+>  		if (i == err_idx)
+>  			break;
+>  		vring_unmap_one_split(vq, &desc[i]);
+> -		i = virtio16_to_cpu(_vq->vdev, vq->split.vring.desc[i].next);
+> +		i = virtio16_to_cpu(_vq->vdev, desc[i].next);
+>  	}
+>  
+>  	if (indirect)
+> @@ -1081,7 +1085,7 @@ static int virtqueue_add_indirect_packed(struct vring_virtqueue *vq,
+>  	kfree(desc);
+>  
+>  	END_USE(vq);
+> -	return -EIO;
+> +	return -ENOSPC;
+>  }
+>  
+>  static inline int virtqueue_add_packed(struct virtqueue *_vq,
+> -- 
+> 2.17.1
