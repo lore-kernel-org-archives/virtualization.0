@@ -1,18 +1,15 @@
-From: "Michael S. Tsirkin" <mst@redhat.com>
-Subject: Re: [RFC PATCH] virtio_ring: Use DMA API if guest memory is encrypted
-Date: Fri, 6 Sep 2019 01:07:53 -0400
-Message-ID: <20190906001220-mutt-send-email-mst@kernel.org>
-References: <87zhrj8kcp.fsf@morokweng.localdomain>
-	<20190810143038-mutt-send-email-mst@kernel.org>
-	<20190810220702.GA5964@ram.ibm.com> <20190811055607.GA12488@lst.de>
-	<20190811044431-mutt-send-email-mst@kernel.org>
-	<20190812121532.GB9405@lst.de>
+From: Gerd Hoffmann <kraxel@redhat.com>
+Subject: Re: [PATCH v2] drm/virtio: Use vmalloc for command buffer allocations.
+Date: Fri, 6 Sep 2019 07:18:47 +0200
+Message-ID: <20190906051847.75mj4772nqwdper6__21290.2966815577$1567747149$gmane$org@sirius.home.kraxel.org>
+References: <20190829212417.257397-1-davidriley@chromium.org>
+	<20190905220008.75488-1-davidriley@chromium.org>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
 Content-Disposition: inline
-In-Reply-To: <20190812121532.GB9405@lst.de>
+In-Reply-To: <20190905220008.75488-1-davidriley@chromium.org>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -22,62 +19,113 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Christoph Hellwig <hch@lst.de>
-Cc: Benjamin Herrenschmidt <benh@kernel.crashing.org>, Alexey Kardashevskiy <aik@linux.ibm.com>, Ram Pai <linuxram@us.ibm.com>, linux-kernel@vger.kernel.org, virtualization@lists.linux-foundation.org, Paul Mackerras <paulus@ozlabs.org>, iommu@lists.linux-foundation.org, David Gibson <david@gibson.dropbear.id.au>
+To: David Riley <davidriley@chromium.org>
+Cc: David Airlie <airlied@linux.ie>, linux-kernel@vger.kernel.org, dri-devel@lists.freedesktop.org, Gurchetan Singh <gurchetansingh@chromium.org>, Daniel Vetter <daniel@ffwll.ch>, =?utf-8?B?U3TDqXBoYW5l?= Marchesin <marcheu@chromium.org>, virtualization@lists.linux-foundation.org
 List-Id: virtualization@lists.linuxfoundation.org
 
-On Mon, Aug 12, 2019 at 02:15:32PM +0200, Christoph Hellwig wrote:
-> On Sun, Aug 11, 2019 at 04:55:27AM -0400, Michael S. Tsirkin wrote:
-> > On Sun, Aug 11, 2019 at 07:56:07AM +0200, Christoph Hellwig wrote:
-> > > So we need a flag on the virtio device, exposed by the
-> > > hypervisor (or hardware for hw virtio devices) that says:  hey, I'm real,
-> > > don't take a shortcut.
-> > 
-> > The point here is that it's actually still not real. So we would still
-> > use a physical address. However Linux decides that it wants extra
-> > security by moving all data through the bounce buffer.  The distinction
-> > made is that one can actually give device a physical address of the
-> > bounce buffer.
-> 
-> Sure.  The problem is just that you keep piling hacks on top of hacks.
-> We need the per-device flag anyway to properly support hardware virtio
-> device in all circumstances.  Instead of coming up with another ad-hoc
-> hack to force DMA uses implement that one proper bit and reuse it here.
+> +/* How many bytes left in this page. */
+> +static unsigned int rest_of_page(void *data)
+> +{
+> +	return PAGE_SIZE - offset_in_page(data);
+> +}
 
-The flag that you mention literally means "I am a real device" so for
-example, you can use VFIO with it. And this device isn't a real one,
-and you can't use VFIO with it, even though it's part of a power
-system which always has an IOMMU.
+Not needed.
 
+> +/* Create sg_table from a vmalloc'd buffer. */
+> +static struct sg_table *vmalloc_to_sgt(char *data, uint32_t size, int *sg_ents)
+> +{
+> +	int nents, ret, s, i;
+> +	struct sg_table *sgt;
+> +	struct scatterlist *sg;
+> +	struct page *pg;
+> +
+> +	*sg_ents = 0;
+> +
+> +	sgt = kmalloc(sizeof(*sgt), GFP_KERNEL);
+> +	if (!sgt)
+> +		return NULL;
+> +
+> +	nents = DIV_ROUND_UP(size, PAGE_SIZE) + 1;
 
+Why +1?
 
-Or here's another way to put it: we have a broken device that can only
-access physical addresses, not DMA addresses. But to enable SEV Linux
-requires DMA API.  So we can still make it work if DMA address happens
-to be a physical address (not necessarily of the same page).
+> +	ret = sg_alloc_table(sgt, nents, GFP_KERNEL);
+> +	if (ret) {
+> +		kfree(sgt);
+> +		return NULL;
+> +	}
+> +
+> +	for_each_sg(sgt->sgl, sg, nents, i) {
+> +		pg = vmalloc_to_page(data);
+> +		if (!pg) {
+> +			sg_free_table(sgt);
+> +			kfree(sgt);
+> +			return NULL;
+> +		}
+> +
+> +		s = rest_of_page(data);
+> +		if (s > size)
+> +			s = size;
 
+vmalloc memory is page aligned, so:
 
-This is where dma_addr_is_a_phys_addr() is coming from: it tells us this
-weird configuration can still work.  What are we going to do for SEV if
-dma_addr_is_a_phys_addr does not apply? Fail probe I guess.
+		s = min(PAGE_SIZE, size);
 
+> +		sg_set_page(sg, pg, s, offset_in_page(data));
 
-So the proposal is really to make things safe and to this end,
-to add this in probe:
+Offset is always zero.
 
-	if (sev_active() &&
-	    !dma_addr_is_a_phys_addr(dev) &&
-	    !virtio_has_feature(vdev, VIRTIO_F_IOMMU_PLATFORM))
-		return -EINVAL;
+> +
+> +		size -= s;
+> +		data += s;
+> +		*sg_ents += 1;
 
+sg_ents isn't used anywhere.
 
-the point being to prevent loading driver where it would
-corrupt guest memory. Put this way, any objections to adding
-dma_addr_is_a_phys_addr to the DMA API?
+> +
+> +		if (size) {
+> +			sg_unmark_end(sg);
+> +		} else {
+> +			sg_mark_end(sg);
+> +			break;
+> +		}
 
+That looks a bit strange.  I guess you need only one of the two because
+the other is the default?
 
+>  static int virtio_gpu_queue_fenced_ctrl_buffer(struct virtio_gpu_device *vgdev,
+>  					       struct virtio_gpu_vbuffer *vbuf,
+>  					       struct virtio_gpu_ctrl_hdr *hdr,
+>  					       struct virtio_gpu_fence *fence)
+>  {
+>  	struct virtqueue *vq = vgdev->ctrlq.vq;
+> +	struct scatterlist *vout = NULL, sg;
+> +	struct sg_table *sgt = NULL;
+>  	int rc;
+> +	int outcnt = 0;
+> +
+> +	if (vbuf->data_size) {
+> +		if (is_vmalloc_addr(vbuf->data_buf)) {
+> +			sgt = vmalloc_to_sgt(vbuf->data_buf, vbuf->data_size,
+> +					     &outcnt);
+> +			if (!sgt)
+> +				return -ENOMEM;
+> +			vout = sgt->sgl;
+> +		} else {
+> +			sg_init_one(&sg, vbuf->data_buf, vbuf->data_size);
+> +			vout = &sg;
+> +			outcnt = 1;
 
+outcnt must be set in both cases.
 
+> +static int virtio_gpu_queue_ctrl_buffer(struct virtio_gpu_device *vgdev,
+> +					struct virtio_gpu_vbuffer *vbuf)
+> +{
+> +	return virtio_gpu_queue_fenced_ctrl_buffer(vgdev, vbuf, NULL, NULL);
+> +}
 
--- 
-MST
+Changing virtio_gpu_queue_ctrl_buffer to call
+virtio_gpu_queue_fenced_ctrl_buffer should be done in a separate patch.
+
+cheers,
+  Gerd
