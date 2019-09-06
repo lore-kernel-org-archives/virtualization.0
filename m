@@ -1,20 +1,18 @@
 From: "Michael S. Tsirkin" <mst@redhat.com>
-Subject: Re: [PATCH 00/18] virtiofs: Fix various races and cleanups round 1
-Date: Fri, 6 Sep 2019 10:17:44 -0400
-Message-ID: <20190906101339-mutt-send-email-mst__47482.6793697261$1567779481$gmane$org@kernel.org>
+Subject: Re: [PATCH 08/18] virtiofs: Drain all pending requests during
+	->remove time
+Date: Fri, 6 Sep 2019 10:18:49 -0400
+Message-ID: <20190906101819-mutt-send-email-mst__41198.9654226758$1567779546$gmane$org@kernel.org>
 References: <20190905194859.16219-1-vgoyal@redhat.com>
-	<CAJfpegu8POz9gC4MDEcXxDWBD0giUNFgJhMEzntJX_u4+cS9Zw@mail.gmail.com>
-	<20190906103613.GH5900@stefanha-x1.localdomain>
-	<CAJfpegudNVZitQ5L8gPvA45mRPFDk9fhyboceVW6xShpJ4mLww@mail.gmail.com>
-	<20190906120817.GA22083@redhat.com>
-	<20190906095428-mutt-send-email-mst@kernel.org>
-	<CAJfpeguVvwRCi7+23W2qA+KHeoaYaR7uKsX+JykC3HK00uGSNQ@mail.gmail.com>
+	<20190905194859.16219-9-vgoyal@redhat.com>
+	<20190906105210.GP5900@stefanha-x1.localdomain>
+	<20190906141705.GF22083@redhat.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
 Content-Disposition: inline
-In-Reply-To: <CAJfpeguVvwRCi7+23W2qA+KHeoaYaR7uKsX+JykC3HK00uGSNQ@mail.gmail.com>
+In-Reply-To: <20190906141705.GF22083@redhat.com>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -24,14 +22,40 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Miklos Szeredi <miklos@szeredi.hu>
-Cc: linux-kernel@vger.kernel.org, virtualization@lists.linux-foundation.org, virtio-fs@redhat.com, "Dr. David Alan Gilbert" <dgilbert@redhat.com>, Stefan Hajnoczi <stefanha@redhat.com>, linux-fsdevel@vger.kernel.org, Vivek Goyal <vgoyal@redhat.com>
+To: Vivek Goyal <vgoyal@redhat.com>
+Cc: miklos@szeredi.hu, linux-kernel@vger.kernel.org, virtualization@lists.linux-foundation.org, virtio-fs@redhat.com, Stefan Hajnoczi <stefanha@redhat.com>, linux-fsdevel@vger.kernel.org, dgilbert@redhat.com
 List-Id: virtualization@lists.linuxfoundation.org
 
-On Fri, Sep 06, 2019 at 04:11:45PM +0200, Miklos Szeredi wrote:
-> This is not a drop in replacement for blk and scsi transports.  More
-> for virtio-9p.  Does that have anything similar?
+On Fri, Sep 06, 2019 at 10:17:05AM -0400, Vivek Goyal wrote:
+> On Fri, Sep 06, 2019 at 11:52:10AM +0100, Stefan Hajnoczi wrote:
+> > On Thu, Sep 05, 2019 at 03:48:49PM -0400, Vivek Goyal wrote:
+> > > +static void virtio_fs_drain_queue(struct virtio_fs_vq *fsvq)
+> > > +{
+> > > +	WARN_ON(fsvq->in_flight < 0);
+> > > +
+> > > +	/* Wait for in flight requests to finish.*/
+> > > +	while (1) {
+> > > +		spin_lock(&fsvq->lock);
+> > > +		if (!fsvq->in_flight) {
+> > > +			spin_unlock(&fsvq->lock);
+> > > +			break;
+> > > +		}
+> > > +		spin_unlock(&fsvq->lock);
+> > > +		usleep_range(1000, 2000);
+> > > +	}
+> > 
+> > I think all contexts that call this allow sleeping so we could avoid
+> > usleep here.
+> 
+> usleep_range() is supposed to be used from non-atomic context.
+> 
+> https://github.com/torvalds/linux/blob/master/Documentation/timers/timers-howto.rst
+> 
+> What construct you are thinking of?
+> 
+> Vivek
 
-9p seems to supports unplug, yes. It's not great in that it
-blocks until we close the channel, but it's there and
-it does not crash or leak memory.
+completion + signal on vq callback?
+
+-- 
+MST
