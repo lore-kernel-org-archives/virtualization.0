@@ -1,14 +1,14 @@
 From: Stefan Hajnoczi <stefanha@redhat.com>
-Subject: Re: [PATCH 10/18] virtiofs: Do not use device managed mem for
-	virtio_fs and virtio_fs_vq
-Date: Fri, 6 Sep 2019 11:56:58 +0100
-Message-ID: <20190906105658.GR5900__8170.7223945827$1567767438$gmane$org@stefanha-x1.localdomain>
+Subject: Re: [PATCH 11/18] virtiofs: stop and drain queues after sending
+	DESTROY
+Date: Fri, 6 Sep 2019 12:50:26 +0100
+Message-ID: <20190906115026.GS5900@stefanha-x1.localdomain>
 References: <20190905194859.16219-1-vgoyal@redhat.com>
-	<20190905194859.16219-11-vgoyal@redhat.com>
+	<20190905194859.16219-12-vgoyal@redhat.com>
 Mime-Version: 1.0
-Content-Type: multipart/mixed; boundary="===============0750517170047623129=="
+Content-Type: multipart/mixed; boundary="===============7346664300694486098=="
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <20190905194859.16219-11-vgoyal@redhat.com>
+In-Reply-To: <20190905194859.16219-12-vgoyal@redhat.com>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -23,55 +23,51 @@ Cc: miklos@szeredi.hu, mst@redhat.com, linux-kernel@vger.kernel.org, dgilbert@re
 List-Id: virtualization@lists.linuxfoundation.org
 
 
---===============0750517170047623129==
+--===============7346664300694486098==
 Content-Type: multipart/signed; micalg=pgp-sha256;
-	protocol="application/pgp-signature"; boundary="Sf3MmCJcUNNLokcm"
+	protocol="application/pgp-signature"; boundary="6zn93sY2JrH9m7VZ"
 Content-Disposition: inline
 
 
---Sf3MmCJcUNNLokcm
+--6zn93sY2JrH9m7VZ
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
 Content-Transfer-Encoding: quoted-printable
 
-On Thu, Sep 05, 2019 at 03:48:51PM -0400, Vivek Goyal wrote:
-> These data structures should go away when virtio_fs object is going away.
-> When deivce is going away, we need to just make sure virtqueues can go
-> away and after that none of the code accesses vq and all the requests
-> get error.
+On Thu, Sep 05, 2019 at 03:48:52PM -0400, Vivek Goyal wrote:
+> During virtio_kill_sb() we first stop forget queue and drain it and then
+> call fuse_kill_sb_anon(). This will result in sending DESTROY request to
+> fuse server. Once finished, stop all the queues and drain one more time
+> just to be sure and then free up the devices.
 >=20
-> So allocate memory for virtio_fs and virtio_fs_vq normally and free it
-> at right time.
->=20
-> This patch still frees up memory during device remove time. A later patch
-> will make virtio_fs object reference counted and this memory will be
-> freed when last reference to object is dropped.
+> Given drain queues will call flush_work() on various workers, remove this
+> logic from virtio_free_devs().
 >=20
 > Signed-off-by: Vivek Goyal <vgoyal@redhat.com>
 > ---
->  fs/fuse/virtio_fs.c | 13 ++++++++-----
->  1 file changed, 8 insertions(+), 5 deletions(-)
+>  fs/fuse/virtio_fs.c | 11 ++++++++---
+>  1 file changed, 8 insertions(+), 3 deletions(-)
 
 Reviewed-by: Stefan Hajnoczi <stefanha@redhat.com>
 
---Sf3MmCJcUNNLokcm
+--6zn93sY2JrH9m7VZ
 Content-Type: application/pgp-signature; name="signature.asc"
 
 -----BEGIN PGP SIGNATURE-----
 
-iQEzBAEBCAAdFiEEhpWov9P5fNqsNXdanKSrs4Grc8gFAl1yO3oACgkQnKSrs4Gr
-c8gsdQgAw8es95r3jldWITNK2HV3hQUadAUD6wcJTqh47Co/1pn1JWttU9UhsGCs
-wlgovlHxIO9oPsjaBc+Vcyczu7QtV+5x4r2lAsxHBH0idZnq6H8T+Om+iM9F3Bhs
-hlXTBKrjDt3anxgGHZ/EysPRolxSBPr3W81uqVOATwsS8zKO0liMr6z6brUc12Jx
-a9w/zciAljgcusrSgVkQ5C1JwCvMxgGctU1rqzPE1QwPHOT+1/+f7KqJYmTvCYHJ
-NfWPrl8z3I68LSE9XkSL6oVU9NDNbey1lzpGIBOpOmZZqucUU67jXy8HO3z2iNB6
-UUKV1kzQjkeYn8GGRSqyyJhao8stKw==
-=d30F
+iQEzBAEBCAAdFiEEhpWov9P5fNqsNXdanKSrs4Grc8gFAl1ySAIACgkQnKSrs4Gr
+c8hPCggAqxxAtpxUlxuyJ1JMZVearCJpL7Y98Ts25vXNZJKaGv/Z7w+0b1YNHE04
+RuXVOEqhwAG5VKOIpPYs+SJwTEwWTgsHEdAgtprbwW+v/vrOlf3LEaC9QS7+Z6bZ
+altTVdvWHQiqulsObNYVrgm/alLh75y8skYmwHHAK0EtbLoOwBnwzYNHyuOsH7tk
+YdpXmipXCBBtjQrC9rWXSt0ug0xCm29uK/voTea5mrDVFTpTixcKJ2LM6jnT6r4v
+mXBtZwegQNYew2LLapEqG+GNE2SSbMD765Z/MFyR48cksq/5mEbCOavSmN8S1HfH
+zelxUzsGNaQAsRXvt+wUI8Y94D+aoQ==
+=OYfd
 -----END PGP SIGNATURE-----
 
---Sf3MmCJcUNNLokcm--
+--6zn93sY2JrH9m7VZ--
 
---===============0750517170047623129==
+--===============7346664300694486098==
 Content-Type: text/plain; charset="us-ascii"
 MIME-Version: 1.0
 Content-Transfer-Encoding: 7bit
@@ -81,4 +77,4 @@ _______________________________________________
 Virtualization mailing list
 Virtualization@lists.linux-foundation.org
 https://lists.linuxfoundation.org/mailman/listinfo/virtualization
---===============0750517170047623129==--
+--===============7346664300694486098==--
