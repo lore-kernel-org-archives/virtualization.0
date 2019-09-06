@@ -1,17 +1,18 @@
-From: Vivek Goyal <vgoyal@redhat.com>
-Subject: Re: [PATCH 16/18] virtiofs: Use virtio_fs_mutex for races w.r.t
-	->remove and mount path
-Date: Fri, 6 Sep 2019 09:51:31 -0400
-Message-ID: <20190906135131.GE22083__4457.85766221292$1567777914$gmane$org@redhat.com>
-References: <20190905194859.16219-1-vgoyal@redhat.com>
-	<20190905194859.16219-17-vgoyal@redhat.com>
-	<20190906120534.GX5900@stefanha-x1.localdomain>
+From: "Michael S. Tsirkin" <mst@redhat.com>
+Subject: Re: [PATCH v4 15/16] virtio-fs: add virtiofs filesystem
+Date: Fri, 6 Sep 2019 09:52:42 -0400
+Message-ID: <20190906095225-mutt-send-email-mst__6252.8650670842$1567777985$gmane$org@kernel.org>
+References: <20190903113640.7984-1-mszeredi@redhat.com>
+	<20190903114203.8278-10-mszeredi@redhat.com>
+	<20190903092222-mutt-send-email-mst@kernel.org>
+	<20190905191515.GA11702@redhat.com>
+	<20190906102209.GD5900@stefanha-x1.localdomain>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
 Content-Disposition: inline
-In-Reply-To: <20190906120534.GX5900@stefanha-x1.localdomain>
+In-Reply-To: <20190906102209.GD5900@stefanha-x1.localdomain>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -22,146 +23,312 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
 To: Stefan Hajnoczi <stefanha@redhat.com>
-Cc: miklos@szeredi.hu, mst@redhat.com, linux-kernel@vger.kernel.org, dgilbert@redhat.com, virtio-fs@redhat.com, linux-fsdevel@vger.kernel.org, virtualization@lists.linux-foundation.org
+Cc: Miklos Szeredi <mszeredi@redhat.com>, "Dr. David Alan Gilbert" <dgilbert@redhat.com>, linux-kernel@vger.kernel.org, linux-fsdevel@vger.kernel.org, virtualization@lists.linux-foundation.org, Vivek Goyal <vgoyal@redhat.com>
 List-Id: virtualization@lists.linuxfoundation.org
 
-On Fri, Sep 06, 2019 at 01:05:34PM +0100, Stefan Hajnoczi wrote:
-> On Thu, Sep 05, 2019 at 03:48:57PM -0400, Vivek Goyal wrote:
-> > It is possible that a mount is in progress and device is being removed at
-> > the same time. Use virtio_fs_mutex to avoid races.
+On Fri, Sep 06, 2019 at 11:22:09AM +0100, Stefan Hajnoczi wrote:
+> On Thu, Sep 05, 2019 at 03:15:15PM -0400, Vivek Goyal wrote:
+> > On Tue, Sep 03, 2019 at 09:55:49AM -0400, Michael S. Tsirkin wrote:
+> > [..]
+> > > What's with all of the TODOs? Some of these are really scary,
+> > > looks like they need to be figured out before this is merged.
 > > 
-> > This also takes care of bunch of races and removes some TODO items.
+> > Hi Michael,
 > > 
-> > Signed-off-by: Vivek Goyal <vgoyal@redhat.com>
-> > ---
-> >  fs/fuse/virtio_fs.c | 32 ++++++++++++++++++++++----------
-> >  1 file changed, 22 insertions(+), 10 deletions(-)
+> > One of the issue I noticed is races w.r.t device removal and super
+> > block initialization. I am about to post a set of patches which
+> > take care of these races and also get rid of some of the scary
+> > TODOs. Other TODOs like suspend/restore, multiqueue support etc
+> > are improvements which we can do over a period of time.
+> > 
+> > [..]
+> > > > +/* Per-virtqueue state */
+> > > > +struct virtio_fs_vq {
+> > > > +	spinlock_t lock;
+> > > > +	struct virtqueue *vq;     /* protected by ->lock */
+> > > > +	struct work_struct done_work;
+> > > > +	struct list_head queued_reqs;
+> > > > +	struct delayed_work dispatch_work;
+> > > > +	struct fuse_dev *fud;
+> > > > +	bool connected;
+> > > > +	long in_flight;
+> > > > +	char name[24];
+> > > 
+> > > I'd keep names somewhere separate as they are not used on data path.
+> > 
+> > Ok, this sounds like a nice to have. Will take care of this once base
+> > patch gets merged.
+> > 
+> > [..]
+> > > > +struct virtio_fs_forget {
+> > > > +	struct fuse_in_header ih;
+> > > > +	struct fuse_forget_in arg;
+> > > 
+> > > These structures are all native endian.
+> > > 
+> > > Passing them to host will make cross-endian setups painful to support,
+> > > and hardware implementations impossible.
+> > > 
+> > > How about converting everything to LE?
+> > 
+> > So looks like endianness issue is now resolved (going by the other
+> > emails). So I will not worry about it.
+> > 
+> > [..]
+> > > > +/* Add a new instance to the list or return -EEXIST if tag name exists*/
+> > > > +static int virtio_fs_add_instance(struct virtio_fs *fs)
+> > > > +{
+> > > > +	struct virtio_fs *fs2;
+> > > > +	bool duplicate = false;
+> > > > +
+> > > > +	mutex_lock(&virtio_fs_mutex);
+> > > > +
+> > > > +	list_for_each_entry(fs2, &virtio_fs_instances, list) {
+> > > > +		if (strcmp(fs->tag, fs2->tag) == 0)
+> > > > +			duplicate = true;
+> > > > +	}
+> > > > +
+> > > > +	if (!duplicate)
+> > > > +		list_add_tail(&fs->list, &virtio_fs_instances);
+> > > 
+> > > 
+> > > This is O(N^2) as it's presumably called for each istance.
+> > > Doesn't scale - please switch to a tree or such.
+> > 
+> > This is O(N) and not O(N^2) right? Addition of device is O(N), search
+> > during mount is O(N).
+> > 
+> > This is not a frequent event at all and number of virtiofs instances
+> > per guest are expected to be fairly small (say less than 10). So I 
+> > really don't think there is any value in converting this into a tree
+> > (instead of a list).
+> > 
+> > [..]
+> > > > +static void virtio_fs_free_devs(struct virtio_fs *fs)
+> > > > +{
+> > > > +	unsigned int i;
+> > > > +
+> > > > +	/* TODO lock */
+> > > 
+> > > Doesn't inspire confidence, does it?
+> > 
+> > Agreed. Getting rid of this in set of fixes I am about to post.
+> > 
+> > > 
+> > > > +
+> > > > +	for (i = 0; i < fs->nvqs; i++) {
+> > > > +		struct virtio_fs_vq *fsvq = &fs->vqs[i];
+> > > > +
+> > > > +		if (!fsvq->fud)
+> > > > +			continue;
+> > > > +
+> > > > +		flush_work(&fsvq->done_work);
+> > > > +		flush_delayed_work(&fsvq->dispatch_work);
+> > > > +
+> > > > +		/* TODO need to quiesce/end_requests/decrement dev_count */
+> > > 
+> > > Indeed. Won't this crash if we don't?
+> > 
+> > Took care of this as well.
+> > 
+> > [..]
+> > > > +static void virtio_fs_hiprio_dispatch_work(struct work_struct *work)
+> > > > +{
+> > > > +	struct virtio_fs_forget *forget;
+> > > > +	struct virtio_fs_vq *fsvq = container_of(work, struct virtio_fs_vq,
+> > > > +						 dispatch_work.work);
+> > > > +	struct virtqueue *vq = fsvq->vq;
+> > > > +	struct scatterlist sg;
+> > > > +	struct scatterlist *sgs[] = {&sg};
+> > > > +	bool notify;
+> > > > +	int ret;
+> > > > +
+> > > > +	pr_debug("virtio-fs: worker %s called.\n", __func__);
+> > > > +	while (1) {
+> > > > +		spin_lock(&fsvq->lock);
+> > > > +		forget = list_first_entry_or_null(&fsvq->queued_reqs,
+> > > > +					struct virtio_fs_forget, list);
+> > > > +		if (!forget) {
+> > > > +			spin_unlock(&fsvq->lock);
+> > > > +			return;
+> > > > +		}
+> > > > +
+> > > > +		list_del(&forget->list);
+> > > > +		if (!fsvq->connected) {
+> > > > +			spin_unlock(&fsvq->lock);
+> > > > +			kfree(forget);
+> > > > +			continue;
+> > > > +		}
+> > > > +
+> > > > +		sg_init_one(&sg, forget, sizeof(*forget));
+> > > 
+> > > This passes to host a structure including "struct list_head list";
+> > > 
+> > > Not a good idea.
+> > 
+> > Ok, host does not have to see "struct list_head list". Its needed for
+> > guest. Will look into getting rid of this.
+> > 
+> > > 
+> > > 
+> > > > +
+> > > > +		/* Enqueue the request */
+> > > > +		dev_dbg(&vq->vdev->dev, "%s\n", __func__);
+> > > > +		ret = virtqueue_add_sgs(vq, sgs, 1, 0, forget, GFP_ATOMIC);
+> > > 
+> > > 
+> > > This is easier as add_outbuf.
+> > 
+> > Will look into it.
+> > 
+> > > 
+> > > Also - why GFP_ATOMIC?
+> > 
+> > Hmm..., may be it can be GFP_KERNEL. I don't see atomic context here. Will
+> > look into it.
+> > 
+> > > 
+> > > > +		if (ret < 0) {
+> > > > +			if (ret == -ENOMEM || ret == -ENOSPC) {
+> > > > +				pr_debug("virtio-fs: Could not queue FORGET: err=%d. Will try later\n",
+> > > > +					 ret);
+> > > > +				list_add_tail(&forget->list,
+> > > > +						&fsvq->queued_reqs);
+> > > > +				schedule_delayed_work(&fsvq->dispatch_work,
+> > > > +						msecs_to_jiffies(1));
+> > > 
+> > > Can't we we requeue after some buffers get consumed?
+> > 
+> > That's what dispatch work is doing. It tries to requeue the request after
+> > a while.
+> > 
+> > [..]
+> > > > +static int virtio_fs_probe(struct virtio_device *vdev)
+> > > > +{
+> > > > +	struct virtio_fs *fs;
+> > > > +	int ret;
+> > > > +
+> > > > +	fs = devm_kzalloc(&vdev->dev, sizeof(*fs), GFP_KERNEL);
+> > > > +	if (!fs)
+> > > > +		return -ENOMEM;
+> > > > +	vdev->priv = fs;
+> > > > +
+> > > > +	ret = virtio_fs_read_tag(vdev, fs);
+> > > > +	if (ret < 0)
+> > > > +		goto out;
+> > > > +
+> > > > +	ret = virtio_fs_setup_vqs(vdev, fs);
+> > > > +	if (ret < 0)
+> > > > +		goto out;
+> > > > +
+> > > > +	/* TODO vq affinity */
+> > > > +	/* TODO populate notifications vq */
+> > > 
+> > > what's notifications vq?
+> > 
+> > It has not been implemented yet. At some point of time we want to have
+> > a notion of notification queue so that host can send notifications to
+> > guest. Will get rid of this comment for now.
+> > 
+> > [..]
+> > > > +#ifdef CONFIG_PM_SLEEP
+> > > > +static int virtio_fs_freeze(struct virtio_device *vdev)
+> > > > +{
+> > > > +	return 0; /* TODO */
+> > > > +}
+> > > > +
+> > > > +static int virtio_fs_restore(struct virtio_device *vdev)
+> > > > +{
+> > > > +	return 0; /* TODO */
+> > > > +}
+> > > 
+> > > Is this really a good idea? I'd rather it was implemented,
+> > > but if not possible at all disabling PM seems better than just
+> > > keep going.
+> > 
+> > I agree. Will look into disabling it.
+> > 
+> > > 
+> > > > +#endif /* CONFIG_PM_SLEEP */
+> > > > +
+> > > > +const static struct virtio_device_id id_table[] = {
+> > > > +	{ VIRTIO_ID_FS, VIRTIO_DEV_ANY_ID },
+> > > > +	{},
+> > > > +};
+> > > > +
+> > > > +const static unsigned int feature_table[] = {};
+> > > > +
+> > > > +static struct virtio_driver virtio_fs_driver = {
+> > > > +	.driver.name		= KBUILD_MODNAME,
+> > > > +	.driver.owner		= THIS_MODULE,
+> > > > +	.id_table		= id_table,
+> > > > +	.feature_table		= feature_table,
+> > > > +	.feature_table_size	= ARRAY_SIZE(feature_table),
+> > > > +	/* TODO validate config_get != NULL */
+> > > 
+> > > Why?
+> > 
+> > Don't know. Stefan, do you remember why did you put this comment? If not,
+> > I will get rid of it.
 > 
-> Let's move to a per-device mutex in the future.  That way a single
-> device that fails to drain/complete requests will not hang all other
-> virtio-fs instances.  This is fine for now.
+> This comment can be removed.
+> 
+> > > > +static void virtio_fs_wake_pending_and_unlock(struct fuse_iqueue *fiq)
+> > > > +__releases(fiq->waitq.lock)
+> > > > +{
+> > > > +	unsigned int queue_id = VQ_REQUEST; /* TODO multiqueue */
+> > > > +	struct virtio_fs *fs;
+> > > > +	struct fuse_conn *fc;
+> > > > +	struct fuse_req *req;
+> > > > +	struct fuse_pqueue *fpq;
+> > > > +	int ret;
+> > > > +
+> > > > +	WARN_ON(list_empty(&fiq->pending));
+> > > > +	req = list_last_entry(&fiq->pending, struct fuse_req, list);
+> > > > +	clear_bit(FR_PENDING, &req->flags);
+> > > > +	list_del_init(&req->list);
+> > > > +	WARN_ON(!list_empty(&fiq->pending));
+> > > > +	spin_unlock(&fiq->waitq.lock);
+> > > > +
+> > > > +	fs = fiq->priv;
+> > > > +	fc = fs->vqs[queue_id].fud->fc;
+> > > > +
+> > > > +	dev_dbg(&fs->vqs[queue_id].vq->vdev->dev,
+> > > > +		"%s: opcode %u unique %#llx nodeid %#llx in.len %u out.len %u\n",
+> > > > +		__func__, req->in.h.opcode, req->in.h.unique, req->in.h.nodeid,
+> > > > +		req->in.h.len, fuse_len_args(req->out.numargs, req->out.args));
+> > > > +
+> > > > +	fpq = &fs->vqs[queue_id].fud->pq;
+> > > > +	spin_lock(&fpq->lock);
+> > > > +	if (!fpq->connected) {
+> > > > +		spin_unlock(&fpq->lock);
+> > > > +		req->out.h.error = -ENODEV;
+> > > > +		pr_err("virtio-fs: %s disconnected\n", __func__);
+> > > > +		fuse_request_end(fc, req);
+> > > > +		return;
+> > > > +	}
+> > > > +	list_add_tail(&req->list, fpq->processing);
+> > > > +	spin_unlock(&fpq->lock);
+> > > > +	set_bit(FR_SENT, &req->flags);
+> > > > +	/* matches barrier in request_wait_answer() */
+> > > > +	smp_mb__after_atomic();
+> > > > +	/* TODO check for FR_INTERRUPTED? */
+> > > 
+> > > 
+> > > ?
+> > 
+> > hmm... we don't support FR_INTERRUPTED. Stefan, do you remember why
+> > this TODO is here. If not, I will get rid of it.
+> 
+> We don't support FUSE_INTERRUPT yet.  The purpose of this comment is
+> that when we do support FUSE_INTERRUPT we'll need to follow
+> fuse_dev_do_read() in queuing a FUSE_INTERRUPT here.
+> 
+> Stefan
 
-Good point. For now I updated the patch so that it applies cleanly
-after previous two patches changed.
 
-Subject: virtiofs: Use virtio_fs_mutex for races w.r.t ->remove and mount path
 
-It is possible that a mount is in progress and device is being removed at
-the same time. Use virtio_fs_mutex to avoid races. 
+OK so pls write this explicitly in the comment.
 
-This also takes care of bunch of races and removes some TODO items.
-
-Signed-off-by: Vivek Goyal <vgoyal@redhat.com>
----
- fs/fuse/virtio_fs.c |   32 ++++++++++++++++++++++----------
- 1 file changed, 22 insertions(+), 10 deletions(-)
-
-Index: rhvgoyal-linux-fuse/fs/fuse/virtio_fs.c
-===================================================================
---- rhvgoyal-linux-fuse.orig/fs/fuse/virtio_fs.c	2019-09-06 09:40:53.309245246 -0400
-+++ rhvgoyal-linux-fuse/fs/fuse/virtio_fs.c	2019-09-06 09:43:25.335245246 -0400
-@@ -13,7 +13,9 @@
- #include <linux/highmem.h>
- #include "fuse_i.h"
- 
--/* List of virtio-fs device instances and a lock for the list */
-+/* List of virtio-fs device instances and a lock for the list. Also provides
-+ * mutual exclusion in device removal and mounting path
-+ */
- static DEFINE_MUTEX(virtio_fs_mutex);
- static LIST_HEAD(virtio_fs_instances);
- 
-@@ -72,17 +74,19 @@ static void release_virtio_fs_obj(struct
- 	kfree(vfs);
- }
- 
-+/* Make sure virtiofs_mutex is held */
- static void virtio_fs_put(struct virtio_fs *fs)
- {
--	mutex_lock(&virtio_fs_mutex);
- 	kref_put(&fs->refcount, release_virtio_fs_obj);
--	mutex_unlock(&virtio_fs_mutex);
- }
- 
- static void virtio_fs_fiq_release(struct fuse_iqueue *fiq)
- {
- 	struct virtio_fs *vfs = fiq->priv;
-+
-+	mutex_lock(&virtio_fs_mutex);
- 	virtio_fs_put(vfs);
-+	mutex_unlock(&virtio_fs_mutex);
- }
- 
- static void virtio_fs_drain_queue(struct virtio_fs_vq *fsvq)
-@@ -596,9 +600,8 @@ static void virtio_fs_remove(struct virt
- 	struct virtio_fs *fs = vdev->priv;
- 
- 	mutex_lock(&virtio_fs_mutex);
-+	/* This device is going away. No one should get new reference */
- 	list_del_init(&fs->list);
--	mutex_unlock(&virtio_fs_mutex);
--
- 	virtio_fs_stop_all_queues(fs);
- 	virtio_fs_drain_all_queues(fs);
- 	vdev->config->reset(vdev);
-@@ -607,6 +610,7 @@ static void virtio_fs_remove(struct virt
- 	vdev->priv = NULL;
- 	/* Put device reference on virtio_fs object */
- 	virtio_fs_put(fs);
-+	mutex_unlock(&virtio_fs_mutex);
- }
- 
- #ifdef CONFIG_PM_SLEEP
-@@ -978,10 +982,15 @@ static int virtio_fs_fill_super(struct s
- 		.no_force_umount = true,
- 	};
- 
--	/* TODO lock */
--	if (fs->vqs[VQ_REQUEST].fud) {
--		pr_err("virtio-fs: device already in use\n");
--		err = -EBUSY;
-+	mutex_lock(&virtio_fs_mutex);
-+
-+	/* After holding mutex, make sure virtiofs device is still there.
-+	 * Though we are holding a refernce to it, drive ->remove might
-+	 * still have cleaned up virtual queues. In that case bail out.
-+	 */
-+	err = -EINVAL;
-+	if (list_empty(&fs->list)) {
-+		pr_info("virtio-fs: tag <%s> not found\n", fs->tag);
- 		goto err;
- 	}
- 
-@@ -1007,7 +1016,6 @@ static int virtio_fs_fill_super(struct s
- 
- 	fc = fs->vqs[VQ_REQUEST].fud->fc;
- 
--	/* TODO take fuse_mutex around this loop? */
- 	for (i = 0; i < fs->nvqs; i++) {
- 		struct virtio_fs_vq *fsvq = &fs->vqs[i];
- 
-@@ -1020,6 +1028,7 @@ static int virtio_fs_fill_super(struct s
- 	/* Previous unmount will stop all queues. Start these again */
- 	virtio_fs_start_all_queues(fs);
- 	fuse_send_init(fc, init_req);
-+	mutex_unlock(&virtio_fs_mutex);
- 	return 0;
- 
- err_free_init_req:
-@@ -1027,6 +1036,7 @@ err_free_init_req:
- err_free_fuse_devs:
- 	virtio_fs_free_devs(fs);
- err:
-+	mutex_unlock(&virtio_fs_mutex);
- 	return err;
- }
- 
-@@ -1100,7 +1110,9 @@ static int virtio_fs_get_tree(struct fs_
- 
- 	fc = kzalloc(sizeof(struct fuse_conn), GFP_KERNEL);
- 	if (!fc) {
-+		mutex_lock(&virtio_fs_mutex);
- 		virtio_fs_put(fs);
-+		mutex_unlock(&virtio_fs_mutex);
- 		return -ENOMEM;
- 	}
+-- 
+MST
