@@ -1,16 +1,17 @@
 From: Vivek Goyal <vgoyal@redhat.com>
-Subject: Re: [PATCH 15/18] virtiofs: Make virtio_fs object refcounted
-Date: Fri, 6 Sep 2019 09:50:32 -0400
-Message-ID: <20190906135032.GD22083__26539.1269627557$1567777854$gmane$org@redhat.com>
+Subject: Re: [PATCH 16/18] virtiofs: Use virtio_fs_mutex for races w.r.t
+	->remove and mount path
+Date: Fri, 6 Sep 2019 09:51:31 -0400
+Message-ID: <20190906135131.GE22083__4457.85766221292$1567777914$gmane$org@redhat.com>
 References: <20190905194859.16219-1-vgoyal@redhat.com>
-	<20190905194859.16219-16-vgoyal@redhat.com>
-	<20190906120309.GW5900@stefanha-x1.localdomain>
+	<20190905194859.16219-17-vgoyal@redhat.com>
+	<20190906120534.GX5900@stefanha-x1.localdomain>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
 Content-Disposition: inline
-In-Reply-To: <20190906120309.GW5900@stefanha-x1.localdomain>
+In-Reply-To: <20190906120534.GX5900@stefanha-x1.localdomain>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -24,212 +25,143 @@ To: Stefan Hajnoczi <stefanha@redhat.com>
 Cc: miklos@szeredi.hu, mst@redhat.com, linux-kernel@vger.kernel.org, dgilbert@redhat.com, virtio-fs@redhat.com, linux-fsdevel@vger.kernel.org, virtualization@lists.linux-foundation.org
 List-Id: virtualization@lists.linuxfoundation.org
 
-On Fri, Sep 06, 2019 at 01:03:09PM +0100, Stefan Hajnoczi wrote:
-> On Thu, Sep 05, 2019 at 03:48:56PM -0400, Vivek Goyal wrote:
-> > This object is used both by fuse_connection as well virt device. So make
-> > this object reference counted and that makes it easy to define life cycle
-> > of the object.
+On Fri, Sep 06, 2019 at 01:05:34PM +0100, Stefan Hajnoczi wrote:
+> On Thu, Sep 05, 2019 at 03:48:57PM -0400, Vivek Goyal wrote:
+> > It is possible that a mount is in progress and device is being removed at
+> > the same time. Use virtio_fs_mutex to avoid races.
 > > 
-> > Now deivce can be removed while filesystem is still mounted. This will
-> > cleanup all the virtqueues but virtio_fs object will still be around and
-> > will be cleaned when filesystem is unmounted and sb/fc drops its reference.
-> > 
-> > Removing a device also stops all virt queues and any new reuqest gets
-> > error -ENOTCONN. All existing in flight requests are drained before
-> > ->remove returns.
+> > This also takes care of bunch of races and removes some TODO items.
 > > 
 > > Signed-off-by: Vivek Goyal <vgoyal@redhat.com>
 > > ---
-> >  fs/fuse/virtio_fs.c | 52 +++++++++++++++++++++++++++++++++++++--------
-> >  1 file changed, 43 insertions(+), 9 deletions(-)
-> > 
-> > diff --git a/fs/fuse/virtio_fs.c b/fs/fuse/virtio_fs.c
-> > index 01bbf2c0e144..29ec2f5bbbe2 100644
-> > --- a/fs/fuse/virtio_fs.c
-> > +++ b/fs/fuse/virtio_fs.c
-> > @@ -37,6 +37,7 @@ struct virtio_fs_vq {
-> >  
-> >  /* A virtio-fs device instance */
-> >  struct virtio_fs {
-> > +	struct kref refcount;
-> >  	struct list_head list;    /* on virtio_fs_instances */
-> >  	char *tag;
-> >  	struct virtio_fs_vq *vqs;
-> > @@ -63,6 +64,27 @@ static inline struct fuse_pqueue *vq_to_fpq(struct virtqueue *vq)
-> >  	return &vq_to_fsvq(vq)->fud->pq;
-> >  }
-> >  
-> > +static void release_virtiofs_obj(struct kref *ref)
-> > +{
-> > +	struct virtio_fs *vfs = container_of(ref, struct virtio_fs, refcount);
-> > +
-> > +	kfree(vfs->vqs);
-> > +	kfree(vfs);
-> > +}
-> > +
-> > +static void virtiofs_put(struct virtio_fs *fs)
+> >  fs/fuse/virtio_fs.c | 32 ++++++++++++++++++++++----------
+> >  1 file changed, 22 insertions(+), 10 deletions(-)
 > 
-> Why do the two function names above contain "virtiofs" instead
-> of "virtio_fs"?  I'm not sure if this is intentional and is supposed to
-> mean something, but it's confusing.
-> 
-> > +{
-> > +	mutex_lock(&virtio_fs_mutex);
-> > +	kref_put(&fs->refcount, release_virtiofs_obj);
-> > +	mutex_unlock(&virtio_fs_mutex);
-> > +}
-> > +
-> > +static void virtio_fs_put(struct fuse_iqueue *fiq)
-> 
-> Minor issue: this function name is confusingly similar to
-> virtiofs_put().  Please rename to virtio_fs_fiq_put().
+> Let's move to a per-device mutex in the future.  That way a single
+> device that fails to drain/complete requests will not hang all other
+> virtio-fs instances.  This is fine for now.
 
-Fixed with ->release semantics. Replaced "virtiofs" with "virtio_fs".
+Good point. For now I updated the patch so that it applies cleanly
+after previous two patches changed.
 
+Subject: virtiofs: Use virtio_fs_mutex for races w.r.t ->remove and mount path
 
-Subject: virtiofs: Make virtio_fs object refcounted
+It is possible that a mount is in progress and device is being removed at
+the same time. Use virtio_fs_mutex to avoid races. 
 
-This object is used both by fuse_connection as well virt device. So make
-this object reference counted and that makes it easy to define life cycle
-of the object. 
-
-Now deivce can be removed while filesystem is still mounted. This will
-cleanup all the virtqueues but virtio_fs object will still be around and
-will be cleaned when filesystem is unmounted and sb/fc drops its reference.
-
-Removing a device also stops all virt queues and any new reuqest gets
-error -ENOTCONN. All existing in flight requests are drained before
-->remove returns.
+This also takes care of bunch of races and removes some TODO items.
 
 Signed-off-by: Vivek Goyal <vgoyal@redhat.com>
 ---
- fs/fuse/virtio_fs.c |   52 +++++++++++++++++++++++++++++++++++++++++++---------
- 1 file changed, 43 insertions(+), 9 deletions(-)
+ fs/fuse/virtio_fs.c |   32 ++++++++++++++++++++++----------
+ 1 file changed, 22 insertions(+), 10 deletions(-)
 
 Index: rhvgoyal-linux-fuse/fs/fuse/virtio_fs.c
 ===================================================================
---- rhvgoyal-linux-fuse.orig/fs/fuse/virtio_fs.c	2019-09-06 09:24:21.177245246 -0400
-+++ rhvgoyal-linux-fuse/fs/fuse/virtio_fs.c	2019-09-06 09:40:53.309245246 -0400
-@@ -37,6 +37,7 @@ struct virtio_fs_vq {
+--- rhvgoyal-linux-fuse.orig/fs/fuse/virtio_fs.c	2019-09-06 09:40:53.309245246 -0400
++++ rhvgoyal-linux-fuse/fs/fuse/virtio_fs.c	2019-09-06 09:43:25.335245246 -0400
+@@ -13,7 +13,9 @@
+ #include <linux/highmem.h>
+ #include "fuse_i.h"
  
- /* A virtio-fs device instance */
- struct virtio_fs {
-+	struct kref refcount;
- 	struct list_head list;    /* on virtio_fs_instances */
- 	char *tag;
- 	struct virtio_fs_vq *vqs;
-@@ -63,6 +64,27 @@ static inline struct fuse_pqueue *vq_to_
- 	return &vq_to_fsvq(vq)->fud->pq;
+-/* List of virtio-fs device instances and a lock for the list */
++/* List of virtio-fs device instances and a lock for the list. Also provides
++ * mutual exclusion in device removal and mounting path
++ */
+ static DEFINE_MUTEX(virtio_fs_mutex);
+ static LIST_HEAD(virtio_fs_instances);
+ 
+@@ -72,17 +74,19 @@ static void release_virtio_fs_obj(struct
+ 	kfree(vfs);
  }
  
-+static void release_virtio_fs_obj(struct kref *ref)
-+{
-+	struct virtio_fs *vfs = container_of(ref, struct virtio_fs, refcount);
++/* Make sure virtiofs_mutex is held */
+ static void virtio_fs_put(struct virtio_fs *fs)
+ {
+-	mutex_lock(&virtio_fs_mutex);
+ 	kref_put(&fs->refcount, release_virtio_fs_obj);
+-	mutex_unlock(&virtio_fs_mutex);
+ }
+ 
+ static void virtio_fs_fiq_release(struct fuse_iqueue *fiq)
+ {
+ 	struct virtio_fs *vfs = fiq->priv;
 +
-+	kfree(vfs->vqs);
-+	kfree(vfs);
-+}
-+
-+static void virtio_fs_put(struct virtio_fs *fs)
-+{
 +	mutex_lock(&virtio_fs_mutex);
-+	kref_put(&fs->refcount, release_virtio_fs_obj);
+ 	virtio_fs_put(vfs);
 +	mutex_unlock(&virtio_fs_mutex);
-+}
-+
-+static void virtio_fs_fiq_release(struct fuse_iqueue *fiq)
-+{
-+	struct virtio_fs *vfs = fiq->priv;
-+	virtio_fs_put(vfs);
-+}
-+
+ }
+ 
  static void virtio_fs_drain_queue(struct virtio_fs_vq *fsvq)
- {
- 	WARN_ON(fsvq->in_flight < 0);
-@@ -156,8 +178,10 @@ static struct virtio_fs *virtio_fs_find_
- 	mutex_lock(&virtio_fs_mutex);
- 
- 	list_for_each_entry(fs, &virtio_fs_instances, list) {
--		if (strcmp(fs->tag, tag) == 0)
-+		if (strcmp(fs->tag, tag) == 0) {
-+			kref_get(&fs->refcount);
- 			goto found;
-+		}
- 	}
- 
- 	fs = NULL; /* not found */
-@@ -519,6 +543,7 @@ static int virtio_fs_probe(struct virtio
- 	fs = kzalloc(sizeof(*fs), GFP_KERNEL);
- 	if (!fs)
- 		return -ENOMEM;
-+	kref_init(&fs->refcount);
- 	vdev->priv = fs;
- 
- 	ret = virtio_fs_read_tag(vdev, fs);
-@@ -570,18 +595,18 @@ static void virtio_fs_remove(struct virt
- {
+@@ -596,9 +600,8 @@ static void virtio_fs_remove(struct virt
  	struct virtio_fs *fs = vdev->priv;
  
-+	mutex_lock(&virtio_fs_mutex);
-+	list_del_init(&fs->list);
-+	mutex_unlock(&virtio_fs_mutex);
-+
+ 	mutex_lock(&virtio_fs_mutex);
++	/* This device is going away. No one should get new reference */
+ 	list_del_init(&fs->list);
+-	mutex_unlock(&virtio_fs_mutex);
+-
  	virtio_fs_stop_all_queues(fs);
  	virtio_fs_drain_all_queues(fs);
  	vdev->config->reset(vdev);
- 	virtio_fs_cleanup_vqs(vdev, fs);
- 
--	mutex_lock(&virtio_fs_mutex);
--	list_del(&fs->list);
--	mutex_unlock(&virtio_fs_mutex);
--
+@@ -607,6 +610,7 @@ static void virtio_fs_remove(struct virt
  	vdev->priv = NULL;
--	kfree(fs->vqs);
--	kfree(fs);
-+	/* Put device reference on virtio_fs object */
-+	virtio_fs_put(fs);
+ 	/* Put device reference on virtio_fs object */
+ 	virtio_fs_put(fs);
++	mutex_unlock(&virtio_fs_mutex);
  }
  
  #ifdef CONFIG_PM_SLEEP
-@@ -932,6 +957,7 @@ const static struct fuse_iqueue_ops virt
- 	.wake_forget_and_unlock		= virtio_fs_wake_forget_and_unlock,
- 	.wake_interrupt_and_unlock	= virtio_fs_wake_interrupt_and_unlock,
- 	.wake_pending_and_unlock	= virtio_fs_wake_pending_and_unlock,
-+	.release			= virtio_fs_fiq_release,
- };
+@@ -978,10 +982,15 @@ static int virtio_fs_fill_super(struct s
+ 		.no_force_umount = true,
+ 	};
  
- static int virtio_fs_fill_super(struct super_block *sb)
-@@ -1026,7 +1052,9 @@ static void virtio_kill_sb(struct super_
- 	fuse_kill_sb_anon(sb);
- 
- 	/* fuse_kill_sb_anon() must have sent destroy. Stop all queues
--	 * and drain one more time and free fuse devices.
-+	 * and drain one more time and free fuse devices. Freeing fuse
-+	 * devices will drop their reference on fuse_conn and that in
-+	 * turn will drop its reference on virtio_fs object.
- 	 */
- 	virtio_fs_stop_all_queues(vfs);
- 	virtio_fs_drain_all_queues(vfs);
-@@ -1060,6 +1088,10 @@ static int virtio_fs_get_tree(struct fs_
- 	struct fuse_conn *fc;
- 	int err;
- 
-+	/* This gets a reference on virtio_fs object. This ptr gets installed
-+	 * in fc->iq->priv. Once fuse_conn is going away, it calls ->put()
-+	 * to drop the reference to this object.
+-	/* TODO lock */
+-	if (fs->vqs[VQ_REQUEST].fud) {
+-		pr_err("virtio-fs: device already in use\n");
+-		err = -EBUSY;
++	mutex_lock(&virtio_fs_mutex);
++
++	/* After holding mutex, make sure virtiofs device is still there.
++	 * Though we are holding a refernce to it, drive ->remove might
++	 * still have cleaned up virtual queues. In that case bail out.
 +	 */
- 	fs = virtio_fs_find_instance(fsc->source);
- 	if (!fs) {
- 		pr_info("virtio-fs: tag <%s> not found\n", fsc->source);
-@@ -1067,8 +1099,10 @@ static int virtio_fs_get_tree(struct fs_
++	err = -EINVAL;
++	if (list_empty(&fs->list)) {
++		pr_info("virtio-fs: tag <%s> not found\n", fs->tag);
+ 		goto err;
  	}
  
- 	fc = kzalloc(sizeof(struct fuse_conn), GFP_KERNEL);
--	if (!fc)
-+	if (!fc) {
-+		virtio_fs_put(fs);
- 		return -ENOMEM;
-+	}
+@@ -1007,7 +1016,6 @@ static int virtio_fs_fill_super(struct s
  
- 	fuse_conn_init(fc, get_user_ns(current_user_ns()), &virtio_fs_fiq_ops,
- 		       fs);
+ 	fc = fs->vqs[VQ_REQUEST].fud->fc;
+ 
+-	/* TODO take fuse_mutex around this loop? */
+ 	for (i = 0; i < fs->nvqs; i++) {
+ 		struct virtio_fs_vq *fsvq = &fs->vqs[i];
+ 
+@@ -1020,6 +1028,7 @@ static int virtio_fs_fill_super(struct s
+ 	/* Previous unmount will stop all queues. Start these again */
+ 	virtio_fs_start_all_queues(fs);
+ 	fuse_send_init(fc, init_req);
++	mutex_unlock(&virtio_fs_mutex);
+ 	return 0;
+ 
+ err_free_init_req:
+@@ -1027,6 +1036,7 @@ err_free_init_req:
+ err_free_fuse_devs:
+ 	virtio_fs_free_devs(fs);
+ err:
++	mutex_unlock(&virtio_fs_mutex);
+ 	return err;
+ }
+ 
+@@ -1100,7 +1110,9 @@ static int virtio_fs_get_tree(struct fs_
+ 
+ 	fc = kzalloc(sizeof(struct fuse_conn), GFP_KERNEL);
+ 	if (!fc) {
++		mutex_lock(&virtio_fs_mutex);
+ 		virtio_fs_put(fs);
++		mutex_unlock(&virtio_fs_mutex);
+ 		return -ENOMEM;
+ 	}
