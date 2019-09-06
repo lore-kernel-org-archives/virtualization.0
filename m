@@ -1,13 +1,14 @@
 From: Stefan Hajnoczi <stefanha@redhat.com>
-Subject: Re: [PATCH 15/18] virtiofs: Make virtio_fs object refcounted
-Date: Fri, 6 Sep 2019 13:03:09 +0100
-Message-ID: <20190906120309.GW5900__11002.3641771235$1567771406$gmane$org@stefanha-x1.localdomain>
+Subject: Re: [PATCH 16/18] virtiofs: Use virtio_fs_mutex for races w.r.t
+	->remove and mount path
+Date: Fri, 6 Sep 2019 13:05:34 +0100
+Message-ID: <20190906120534.GX5900__17848.3855373756$1567771546$gmane$org@stefanha-x1.localdomain>
 References: <20190905194859.16219-1-vgoyal@redhat.com>
-	<20190905194859.16219-16-vgoyal@redhat.com>
+	<20190905194859.16219-17-vgoyal@redhat.com>
 Mime-Version: 1.0
-Content-Type: multipart/mixed; boundary="===============8343446716509938884=="
+Content-Type: multipart/mixed; boundary="===============3750306256798096800=="
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <20190905194859.16219-16-vgoyal@redhat.com>
+In-Reply-To: <20190905194859.16219-17-vgoyal@redhat.com>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -22,96 +23,52 @@ Cc: miklos@szeredi.hu, mst@redhat.com, linux-kernel@vger.kernel.org, dgilbert@re
 List-Id: virtualization@lists.linuxfoundation.org
 
 
---===============8343446716509938884==
+--===============3750306256798096800==
 Content-Type: multipart/signed; micalg=pgp-sha256;
-	protocol="application/pgp-signature"; boundary="fCmRXBY78W5odcVA"
+	protocol="application/pgp-signature"; boundary="ZcaUvQ23gCOmDTXi"
 Content-Disposition: inline
 
 
---fCmRXBY78W5odcVA
+--ZcaUvQ23gCOmDTXi
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
 Content-Transfer-Encoding: quoted-printable
 
-On Thu, Sep 05, 2019 at 03:48:56PM -0400, Vivek Goyal wrote:
-> This object is used both by fuse_connection as well virt device. So make
-> this object reference counted and that makes it easy to define life cycle
-> of the object.
+On Thu, Sep 05, 2019 at 03:48:57PM -0400, Vivek Goyal wrote:
+> It is possible that a mount is in progress and device is being removed at
+> the same time. Use virtio_fs_mutex to avoid races.
 >=20
-> Now deivce can be removed while filesystem is still mounted. This will
-> cleanup all the virtqueues but virtio_fs object will still be around and
-> will be cleaned when filesystem is unmounted and sb/fc drops its referenc=
-e.
->=20
-> Removing a device also stops all virt queues and any new reuqest gets
-> error -ENOTCONN. All existing in flight requests are drained before
-> ->remove returns.
+> This also takes care of bunch of races and removes some TODO items.
 >=20
 > Signed-off-by: Vivek Goyal <vgoyal@redhat.com>
 > ---
->  fs/fuse/virtio_fs.c | 52 +++++++++++++++++++++++++++++++++++++--------
->  1 file changed, 43 insertions(+), 9 deletions(-)
->=20
-> diff --git a/fs/fuse/virtio_fs.c b/fs/fuse/virtio_fs.c
-> index 01bbf2c0e144..29ec2f5bbbe2 100644
-> --- a/fs/fuse/virtio_fs.c
-> +++ b/fs/fuse/virtio_fs.c
-> @@ -37,6 +37,7 @@ struct virtio_fs_vq {
-> =20
->  /* A virtio-fs device instance */
->  struct virtio_fs {
-> +	struct kref refcount;
->  	struct list_head list;    /* on virtio_fs_instances */
->  	char *tag;
->  	struct virtio_fs_vq *vqs;
-> @@ -63,6 +64,27 @@ static inline struct fuse_pqueue *vq_to_fpq(struct vir=
-tqueue *vq)
->  	return &vq_to_fsvq(vq)->fud->pq;
->  }
-> =20
-> +static void release_virtiofs_obj(struct kref *ref)
-> +{
-> +	struct virtio_fs *vfs =3D container_of(ref, struct virtio_fs, refcount);
-> +
-> +	kfree(vfs->vqs);
-> +	kfree(vfs);
-> +}
-> +
-> +static void virtiofs_put(struct virtio_fs *fs)
+>  fs/fuse/virtio_fs.c | 32 ++++++++++++++++++++++----------
+>  1 file changed, 22 insertions(+), 10 deletions(-)
 
-Why do the two function names above contain "virtiofs" instead
-of "virtio_fs"?  I'm not sure if this is intentional and is supposed to
-mean something, but it's confusing.
+Let's move to a per-device mutex in the future.  That way a single
+device that fails to drain/complete requests will not hang all other
+virtio-fs instances.  This is fine for now.
 
-> +{
-> +	mutex_lock(&virtio_fs_mutex);
-> +	kref_put(&fs->refcount, release_virtiofs_obj);
-> +	mutex_unlock(&virtio_fs_mutex);
-> +}
-> +
-> +static void virtio_fs_put(struct fuse_iqueue *fiq)
+Reviewed-by: Stefan Hajnoczi <stefanha@redhat.com>
 
-Minor issue: this function name is confusingly similar to
-virtiofs_put().  Please rename to virtio_fs_fiq_put().
-
---fCmRXBY78W5odcVA
+--ZcaUvQ23gCOmDTXi
 Content-Type: application/pgp-signature; name="signature.asc"
 
 -----BEGIN PGP SIGNATURE-----
 
-iQEzBAEBCAAdFiEEhpWov9P5fNqsNXdanKSrs4Grc8gFAl1ySv0ACgkQnKSrs4Gr
-c8gi5QgAiBUMFExTxgTgb6RrUfkYvhvR0YjuN8ik/lgPSvOOVMtT6LMM77ysQauR
-LdWnlChQQCMbdamE0Z1RjdPlj461cs3RjPH7QHZtimEOeYBUQegMuOx2aPcLj55u
-LCaJauSLzpxYlNKcEFKlmrfaVNAoFRFcFMsAUt5qekoK1mhtcFQ1TYwXyJdqObUY
-sYK5tPk2nJvMkeRHr84V8fpI0WiyQU+6okJnEfNUYmx+p1qn7VjIPsGq+Yz4MLF8
-baWiJFLjWRFvW6STaaams5Yx4VI3jNtUI7qvikpuOkYWzwQfvv6qbH/RDYk5j5d1
-/yxvM1H6W/rDyI1qYOi1etkBab+HEg==
-=p10d
+iQEzBAEBCAAdFiEEhpWov9P5fNqsNXdanKSrs4Grc8gFAl1yS44ACgkQnKSrs4Gr
+c8gUCQf+Lirs+hHg5s88TZfhFQDIDlsjp7llI3ghi4VGGjOuWrHpg5U7YPVCoG+A
++0eiFCQiNg4fqbw/TLcaT8YknKoReHjLZb8waWsV+NWa4EVPLLcQHM4NPVMQpHXg
+/CNlyVrgI608sj4hndY5xrbKsnmJdSUBedMLU7nNpnl2dId2yIHYMzHrwsce+Fth
+a0bRjYBP1KZqXLaiTi+D7ytBAdRcIyacS+pJ8eeOOk+wOgWaoeQx8oZUfy6/IXyq
+hZ+zZpC6c7xcxaNJqgvs+eBG3oQBFJHWCqRtFJad+TSEPgSNOiRU/fcVTAR1Anmj
+czpMpNPM8lGfcpjr4tW456SPBRyiVw==
+=nWjp
 -----END PGP SIGNATURE-----
 
---fCmRXBY78W5odcVA--
+--ZcaUvQ23gCOmDTXi--
 
---===============8343446716509938884==
+--===============3750306256798096800==
 Content-Type: text/plain; charset="us-ascii"
 MIME-Version: 1.0
 Content-Transfer-Encoding: 7bit
@@ -121,4 +78,4 @@ _______________________________________________
 Virtualization mailing list
 Virtualization@lists.linux-foundation.org
 https://lists.linuxfoundation.org/mailman/listinfo/virtualization
---===============8343446716509938884==--
+--===============3750306256798096800==--
