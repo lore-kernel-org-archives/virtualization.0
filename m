@@ -1,17 +1,16 @@
-From: Vivek Goyal <vgoyal@redhat.com>
-Subject: Re: [PATCH 00/18] virtiofs: Fix various races and cleanups round 1
-Date: Fri, 6 Sep 2019 08:08:17 -0400
-Message-ID: <20190906120817.GA22083__42164.0300470003$1567771716$gmane$org@redhat.com>
-References: <20190905194859.16219-1-vgoyal@redhat.com>
-	<CAJfpegu8POz9gC4MDEcXxDWBD0giUNFgJhMEzntJX_u4+cS9Zw@mail.gmail.com>
-	<20190906103613.GH5900@stefanha-x1.localdomain>
-	<CAJfpegudNVZitQ5L8gPvA45mRPFDk9fhyboceVW6xShpJ4mLww@mail.gmail.com>
+From: Jason Wang <jasowang@redhat.com>
+Subject: Re: [PATCH 2/2] vhost: re-introducing metadata acceleration through
+	kernel virtual address
+Date: Fri, 6 Sep 2019 20:51:29 +0800
+Message-ID: <cd2ed116-4b19-73b2-a3f0-4377cc0f2db3__8256.78137350536$1567774317$gmane$org@redhat.com>
+References: <20190905122736.19768-1-jasowang@redhat.com>
+	<20190906032154.9376-1-hdanton@sina.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset="utf-8"; Format="flowed"
+Content-Transfer-Encoding: base64
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-Content-Disposition: inline
-In-Reply-To: <CAJfpegudNVZitQ5L8gPvA45mRPFDk9fhyboceVW6xShpJ4mLww@mail.gmail.com>
+In-Reply-To: <20190906032154.9376-1-hdanton@sina.com>
+Content-Language: en-US
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -21,54 +20,22 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Miklos Szeredi <miklos@szeredi.hu>
-Cc: "Michael S. Tsirkin" <mst@redhat.com>, "Dr. David Alan Gilbert" <dgilbert@redhat.com>, linux-kernel@vger.kernel.org, virtio-fs@redhat.com, Stefan Hajnoczi <stefanha@redhat.com>, linux-fsdevel@vger.kernel.org, virtualization@lists.linux-foundation.org
+To: Hillf Danton <hdanton@sina.com>
+Cc: aarcange@redhat.com, Christoph Hellwig <hch@infradead.org>, linux-parisc@vger.kernel.org, kvm@vger.kernel.org, mst@redhat.com, netdev@vger.kernel.org, linux-kernel@vger.kernel.org, virtualization@lists.linux-foundation.org, James Bottomley <James.Bottomley@hansenpartnership.com>, linux-mm@kvack.org, jglisse@redhat.com, jgg@mellanox.com, David Miller <davem@davemloft.net>, linux-arm-kernel@lists.infradead.org
 List-Id: virtualization@lists.linuxfoundation.org
 
-On Fri, Sep 06, 2019 at 01:52:41PM +0200, Miklos Szeredi wrote:
-> On Fri, Sep 6, 2019 at 12:36 PM Stefan Hajnoczi <stefanha@redhat.com> wrote:
-> >
-> > On Fri, Sep 06, 2019 at 10:15:14AM +0200, Miklos Szeredi wrote:
-> > > On Thu, Sep 5, 2019 at 9:49 PM Vivek Goyal <vgoyal@redhat.com> wrote:
-> > > >
-> > > > Hi,
-> > > >
-> > > > Michael Tsirkin pointed out issues w.r.t various locking related TODO
-> > > > items and races w.r.t device removal.
-> > > >
-> > > > In this first round of cleanups, I have taken care of most pressing
-> > > > issues.
-> > > >
-> > > > These patches apply on top of following.
-> > > >
-> > > > git://git.kernel.org/pub/scm/linux/kernel/git/mszeredi/fuse.git#virtiofs-v4
-> > > >
-> > > > I have tested these patches with mount/umount and device removal using
-> > > > qemu monitor. For example.
-> > >
-> > > Is device removal mandatory?  Can't this be made a non-removable
-> > > device?  Is there a good reason why removing the virtio-fs device
-> > > makes sense?
-> >
-> > Hot plugging and unplugging virtio PCI adapters is common.  I'd very
-> > much like removal to work from the beginning.
-> 
-> Can you give an example use case?
-
-David Gilbert mentioned this could be useful if daemon stops responding
-or dies. One could remove device. That will fail all future requests
-and allow unmounting filesystem.
-
-Havind said that, current implementation will help in above situation
-only if there are no pending requests. If there are pending requests
-and daemon stops responding, then removal will hang too, as we wait
-for draining the queues.
-
-So at some point of time, we also need some sort of timeout functionality
-where we end requests with error after a timeout.
-
-I feel we should support removing device at some point of time. But its
-not necessarily a must have feature for first round.
-
-Thanks
-Vivek
+Ck9uIDIwMTkvOS82IOS4iuWNiDExOjIxLCBIaWxsZiBEYW50b24gd3JvdGU6Cj4gT24gVGh1LCAg
+NSBTZXAgMjAxOSAyMDoyNzozNiArMDgwMCBGcm9tOiAgIEphc29uIFdhbmcgPGphc293YW5nQHJl
+ZGhhdC5jb20+Cj4+ICtzdGF0aWMgdm9pZCB2aG9zdF9zZXRfbWFwX2RpcnR5KHN0cnVjdCB2aG9z
+dF92aXJ0cXVldWUgKnZxLAo+PiArCQkJCXN0cnVjdCB2aG9zdF9tYXAgKm1hcCwgaW50IGluZGV4
+KQo+PiArewo+PiArCXN0cnVjdCB2aG9zdF91YWRkciAqdWFkZHIgPSAmdnEtPnVhZGRyc1tpbmRl
+eF07Cj4+ICsJaW50IGk7Cj4+ICsKPj4gKwlpZiAodWFkZHItPndyaXRlKSB7Cj4+ICsJCWZvciAo
+aSA9IDA7IGkgPCBtYXAtPm5wYWdlczsgaSsrKQo+PiArCQkJc2V0X3BhZ2VfZGlydHkobWFwLT5w
+YWdlc1tpXSk7Cj4+ICsJfQo+IE5vdCBzdXJlIG5lZWQgdG8gc2V0IHBhZ2UgZGlydHkgdW5kZXIg
+cGFnZSBsb2NrLgoKCkp1c3QgdG8gbWFrZSBzdXJlIEkgdW5kZXJzdGFuZCB0aGUgaXNzdWUuIERv
+IHlvdSBtZWFuIHRoZXJlJ3Mgbm8gbmVlZCAKZm9yIHNldF9wYWdlX2RpcnR5KCkgaGVyZT8gSWYg
+eWVzLCBpcyB0aGVyZSBhbnkgb3RoZXIgZnVuY3Rpb24gdGhhdCAKYWxyZWFkeSBkaWQgdGhpcz8K
+ClRoYW5rcwoKX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX18K
+VmlydHVhbGl6YXRpb24gbWFpbGluZyBsaXN0ClZpcnR1YWxpemF0aW9uQGxpc3RzLmxpbnV4LWZv
+dW5kYXRpb24ub3JnCmh0dHBzOi8vbGlzdHMubGludXhmb3VuZGF0aW9uLm9yZy9tYWlsbWFuL2xp
+c3RpbmZvL3ZpcnR1YWxpemF0aW9u
