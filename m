@@ -1,14 +1,17 @@
-From: "Michael S. Tsirkin" <mst@redhat.com>
-Subject: Re: [PATCH] virtio: add VIRTIO_RING_NO_LEGACY
-Date: Fri, 6 Sep 2019 10:06:36 -0400
-Message-ID: <20190906100456-mutt-send-email-mst__27099.5333603182$1567778814$gmane$org@kernel.org>
-References: <20190906124130.129870-1-matej.genci@nutanix.com>
+From: Vivek Goyal <vgoyal@redhat.com>
+Subject: Re: [PATCH 08/18] virtiofs: Drain all pending requests during
+	->remove time
+Date: Fri, 6 Sep 2019 10:17:05 -0400
+Message-ID: <20190906141705.GF22083__40738.9432469913$1567779448$gmane$org@redhat.com>
+References: <20190905194859.16219-1-vgoyal@redhat.com>
+	<20190905194859.16219-9-vgoyal@redhat.com>
+	<20190906105210.GP5900@stefanha-x1.localdomain>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
 Content-Disposition: inline
-In-Reply-To: <20190906124130.129870-1-matej.genci@nutanix.com>
+In-Reply-To: <20190906105210.GP5900@stefanha-x1.localdomain>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -18,46 +21,34 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Matej Genci <matej.genci@nutanix.com>
-Cc: "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>, "virtualization@lists.linux-foundation.org" <virtualization@lists.linux-foundation.org>
+To: Stefan Hajnoczi <stefanha@redhat.com>
+Cc: miklos@szeredi.hu, mst@redhat.com, linux-kernel@vger.kernel.org, dgilbert@redhat.com, virtio-fs@redhat.com, linux-fsdevel@vger.kernel.org, virtualization@lists.linux-foundation.org
 List-Id: virtualization@lists.linuxfoundation.org
 
-On Fri, Sep 06, 2019 at 12:42:14PM +0000, Matej Genci wrote:
-> Add macro to disable legacy functions vring_init and vring_size.
+On Fri, Sep 06, 2019 at 11:52:10AM +0100, Stefan Hajnoczi wrote:
+> On Thu, Sep 05, 2019 at 03:48:49PM -0400, Vivek Goyal wrote:
+> > +static void virtio_fs_drain_queue(struct virtio_fs_vq *fsvq)
+> > +{
+> > +	WARN_ON(fsvq->in_flight < 0);
+> > +
+> > +	/* Wait for in flight requests to finish.*/
+> > +	while (1) {
+> > +		spin_lock(&fsvq->lock);
+> > +		if (!fsvq->in_flight) {
+> > +			spin_unlock(&fsvq->lock);
+> > +			break;
+> > +		}
+> > +		spin_unlock(&fsvq->lock);
+> > +		usleep_range(1000, 2000);
+> > +	}
 > 
-> Signed-off-by: Matej Genci <matej.genci@nutanix.com>
-> ---
->  include/uapi/linux/virtio_ring.h | 4 ++++
->  1 file changed, 4 insertions(+)
-> 
-> diff --git a/include/uapi/linux/virtio_ring.h b/include/uapi/linux/virtio_ring.h
-> index 4c4e24c291a5..496db2f33830 100644
-> --- a/include/uapi/linux/virtio_ring.h
-> +++ b/include/uapi/linux/virtio_ring.h
-> @@ -164,6 +164,8 @@ struct vring {
->  #define vring_used_event(vr) ((vr)->avail->ring[(vr)->num])
->  #define vring_avail_event(vr) (*(__virtio16 *)&(vr)->used->ring[(vr)->num])
->  
-> +#ifndef VIRTIO_RING_NO_LEGACY
-> +
->  static inline void vring_init(struct vring *vr, unsigned int num, void *p,
->  			      unsigned long align)
->  {
-> @@ -181,6 +183,8 @@ static inline unsigned vring_size(unsigned int num, unsigned long align)
->  		+ sizeof(__virtio16) * 3 + sizeof(struct vring_used_elem) * num;
->  }
->  
-> +#endif
-> +
->  /* The following is used with USED_EVENT_IDX and AVAIL_EVENT_IDX */
->  /* Assuming a given event_idx value from the other side, if
->   * we have just incremented index from old to new_idx,
+> I think all contexts that call this allow sleeping so we could avoid
+> usleep here.
 
-Thanks!
-I am guessing vring_used_event/vring_avail_event should be within
-this ifndef too? How about struct vring?
+usleep_range() is supposed to be used from non-atomic context.
 
+https://github.com/torvalds/linux/blob/master/Documentation/timers/timers-howto.rst
 
-> -- 
-> 2.22.0
-> 
+What construct you are thinking of?
+
+Vivek
