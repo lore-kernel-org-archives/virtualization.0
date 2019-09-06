@@ -1,14 +1,14 @@
 From: Stefan Hajnoczi <stefanha@redhat.com>
-Subject: Re: [PATCH 07/18] virtiofs: Stop virtiofs queues when device is
-	being removed
-Date: Fri, 6 Sep 2019 11:47:38 +0100
-Message-ID: <20190906104738.GO5900__17388.2815333613$1567766876$gmane$org@stefanha-x1.localdomain>
+Subject: Re: [PATCH 08/18] virtiofs: Drain all pending requests during
+	->remove time
+Date: Fri, 6 Sep 2019 11:52:10 +0100
+Message-ID: <20190906105210.GP5900__34297.9445982323$1567767152$gmane$org@stefanha-x1.localdomain>
 References: <20190905194859.16219-1-vgoyal@redhat.com>
-	<20190905194859.16219-8-vgoyal@redhat.com>
+	<20190905194859.16219-9-vgoyal@redhat.com>
 Mime-Version: 1.0
-Content-Type: multipart/mixed; boundary="===============0437572114965404073=="
+Content-Type: multipart/mixed; boundary="===============7323030670655801549=="
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <20190905194859.16219-8-vgoyal@redhat.com>
+In-Reply-To: <20190905194859.16219-9-vgoyal@redhat.com>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -23,47 +23,53 @@ Cc: miklos@szeredi.hu, mst@redhat.com, linux-kernel@vger.kernel.org, dgilbert@re
 List-Id: virtualization@lists.linuxfoundation.org
 
 
---===============0437572114965404073==
+--===============7323030670655801549==
 Content-Type: multipart/signed; micalg=pgp-sha256;
-	protocol="application/pgp-signature"; boundary="acOuGx3oQeOcSZJu"
+	protocol="application/pgp-signature"; boundary="4IFtMBbmeqbTM/ox"
 Content-Disposition: inline
 
 
---acOuGx3oQeOcSZJu
+--4IFtMBbmeqbTM/ox
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
 
-On Thu, Sep 05, 2019 at 03:48:48PM -0400, Vivek Goyal wrote:
-> Stop all the virt queues when device is going away. This will ensure that
-> no new requests are submitted to virtqueue and and request will end with
-> error -ENOTCONN.
->=20
-> Signed-off-by: Vivek Goyal <vgoyal@redhat.com>
-> ---
->  fs/fuse/virtio_fs.c | 14 ++++++++++++++
->  1 file changed, 14 insertions(+)
+On Thu, Sep 05, 2019 at 03:48:49PM -0400, Vivek Goyal wrote:
+> +static void virtio_fs_drain_queue(struct virtio_fs_vq *fsvq)
+> +{
+> +	WARN_ON(fsvq->in_flight < 0);
+> +
+> +	/* Wait for in flight requests to finish.*/
+> +	while (1) {
+> +		spin_lock(&fsvq->lock);
+> +		if (!fsvq->in_flight) {
+> +			spin_unlock(&fsvq->lock);
+> +			break;
+> +		}
+> +		spin_unlock(&fsvq->lock);
+> +		usleep_range(1000, 2000);
+> +	}
 
-Reviewed-by: Stefan Hajnoczi <stefanha@redhat.com>
+I think all contexts that call this allow sleeping so we could avoid
+usleep here.
 
---acOuGx3oQeOcSZJu
+--4IFtMBbmeqbTM/ox
 Content-Type: application/pgp-signature; name="signature.asc"
 
 -----BEGIN PGP SIGNATURE-----
 
-iQEzBAEBCAAdFiEEhpWov9P5fNqsNXdanKSrs4Grc8gFAl1yOUoACgkQnKSrs4Gr
-c8hIyQf/VEB8Z1kkLZJY07A6TpGDbf4zwdPwITwfIrZm8CV5Muj+9w7GN5o9QylC
-HcWecFIGEfC3JXeQdRnq/5rLiAhKXgFkAXo9qkS7uVwLSR1YS+iutJksY2M0V6z0
-sYo8cHSn4X5umbDMrnvlasCdLLAj3IKtaBmHYr8Cm9kOBMLl+H/n77Pvdr36qsoK
-BUNaNZtkGMFtKf+n7nJA1BXi/h+G3RhB6o1hyzdTF0VPLm0muWZda5jgc2cXTHnf
-gQBGQiO/TqCt3bwqiS/fJLIW38/XcDy683UCXkEJiaXcLwX0LgwfHM1zPAVHyx/v
-plygJH26nFKCsOQ2j9GueL6YA3uB2g==
-=VU0e
+iQEzBAEBCAAdFiEEhpWov9P5fNqsNXdanKSrs4Grc8gFAl1yOloACgkQnKSrs4Gr
+c8gmeQgAoJQJeQAjTj+aeNGzBdb4oLsqKKM6Q+4z3dqyaIM7pOTsdgiPZ/q1DA5U
+3/e2c4UFDTEg+r9xvEx5FFgBiPFrpwGU3N8mroPEUY9yueCllNsIZmS0y8n76YDb
+dCAPCksGMF4o9AWlHAMnxFoao+EfbsJd1mNU/7f7hFqFQoAuCu64321mwhqtOO+V
+PXUqk6wTZtWxPAzvZCO93D4DuUfrW7jzHRNyvCvgPiJLCTU43uptr1PDJKuDCxAp
+Sqpb5jJevhxuwbc84hIEnKY/0ERKxjky+XWBsHHc1Yy/CWAdNCyU0tW8OuUaG5+k
+FF9UbW4BK3wqyzMhWOd/4jDbTz6oyA==
+=x8L/
 -----END PGP SIGNATURE-----
 
---acOuGx3oQeOcSZJu--
+--4IFtMBbmeqbTM/ox--
 
---===============0437572114965404073==
+--===============7323030670655801549==
 Content-Type: text/plain; charset="us-ascii"
 MIME-Version: 1.0
 Content-Transfer-Encoding: 7bit
@@ -73,4 +79,4 @@ _______________________________________________
 Virtualization mailing list
 Virtualization@lists.linux-foundation.org
 https://lists.linuxfoundation.org/mailman/listinfo/virtualization
---===============0437572114965404073==--
+--===============7323030670655801549==--
