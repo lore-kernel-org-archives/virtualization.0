@@ -1,14 +1,14 @@
 From: Stefan Hajnoczi <stefanha@redhat.com>
-Subject: Re: [PATCH 13/18] virtiofs: Do not access virtqueue in request
-	submission path
-Date: Fri, 6 Sep 2019 12:52:41 +0100
-Message-ID: <20190906115241.GU5900__46687.6809181244$1567770779$gmane$org@stefanha-x1.localdomain>
+Subject: Re: [PATCH 14/18] virtiofs: Add a fuse_iqueue operation to put()
+	reference
+Date: Fri, 6 Sep 2019 13:00:09 +0100
+Message-ID: <20190906120009.GV5900__48658.6703731277$1567771259$gmane$org@stefanha-x1.localdomain>
 References: <20190905194859.16219-1-vgoyal@redhat.com>
-	<20190905194859.16219-14-vgoyal@redhat.com>
+	<20190905194859.16219-15-vgoyal@redhat.com>
 Mime-Version: 1.0
-Content-Type: multipart/mixed; boundary="===============8288909688578011247=="
+Content-Type: multipart/mixed; boundary="===============4367025304054692416=="
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <20190905194859.16219-14-vgoyal@redhat.com>
+In-Reply-To: <20190905194859.16219-15-vgoyal@redhat.com>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -23,49 +23,67 @@ Cc: miklos@szeredi.hu, mst@redhat.com, linux-kernel@vger.kernel.org, dgilbert@re
 List-Id: virtualization@lists.linuxfoundation.org
 
 
---===============8288909688578011247==
+--===============4367025304054692416==
 Content-Type: multipart/signed; micalg=pgp-sha256;
-	protocol="application/pgp-signature"; boundary="iBHcHRCIarfY7C0j"
+	protocol="application/pgp-signature"; boundary="OlucDFihBVSxvK/7"
 Content-Disposition: inline
 
 
---iBHcHRCIarfY7C0j
+--OlucDFihBVSxvK/7
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
 
-On Thu, Sep 05, 2019 at 03:48:54PM -0400, Vivek Goyal wrote:
-> In request submission path it is possible that virtqueue is already gone
-> due to driver->remove(). So do not access it in dev_dbg(). Use pr_debug()
-> instead.
->=20
-> If virtuqueue is gone, this will result in NULL pointer deference.
->=20
-> Signed-off-by: Vivek Goyal <vgoyal@redhat.com>
-> ---
->  fs/fuse/virtio_fs.c | 8 ++++----
->  1 file changed, 4 insertions(+), 4 deletions(-)
+On Thu, Sep 05, 2019 at 03:48:55PM -0400, Vivek Goyal wrote:
+> diff --git a/fs/fuse/fuse_i.h b/fs/fuse/fuse_i.h
+> index 85e2dcad68c1..04e2c000d63f 100644
+> --- a/fs/fuse/fuse_i.h
+> +++ b/fs/fuse/fuse_i.h
+> @@ -479,6 +479,11 @@ struct fuse_iqueue_ops {
+>  	 */
+>  	void (*wake_pending_and_unlock)(struct fuse_iqueue *fiq)
+>  		__releases(fiq->waitq.lock);
+> +
+> +	/**
+> +	 * Put a reference on fiq_priv.
 
-Reviewed-by: Stefan Hajnoczi <stefanha@redhat.com>
+I'm a bit confused about fiq->priv's role in this.  The callback takes
+struct fuse_iqueue *fiq as the argument, not void *priv, so it could
+theoretically do more than just release priv.
 
---iBHcHRCIarfY7C0j
+I think one of the following would be clearer:
+
+ /**
+  * Drop a reference to fiq->priv.
+  */
+ void (*put_priv)(void *priv);
+
+Or:
+
+ /**
+  * Clean up when fuse_iqueue is destroyed.
+  */
+ void (*release)(struct fuse_iqueue *fiq);
+
+In the second case fuse_conn_put() shouldn't check fiq->priv.
+
+--OlucDFihBVSxvK/7
 Content-Type: application/pgp-signature; name="signature.asc"
 
 -----BEGIN PGP SIGNATURE-----
 
-iQEzBAEBCAAdFiEEhpWov9P5fNqsNXdanKSrs4Grc8gFAl1ySIkACgkQnKSrs4Gr
-c8gXMQf/QUTibXMbQdKidGB1Vqv7pi+fendYycKROG3QMPsuTAtmXYzqvaPyQ+V7
-IQKRcXkPStzxee3RJePDleTtTNsjDlsuLgfpvgh0Bik7ZTOfN7ddHzXvcBx2VDJf
-OtV+D2N9Cm2YkI1r2OEVWylqmv9aH83xFJHj5hsc7vNO+yu9V+7TA+RZKasdT1GX
-zd/W2E4xlYS/vz9fKRX7QReLWIla2yJVy7Qb6MECtMGELGmq02OdzsO5SJWX52cG
-gSh58Gw1wIyidQXqTbEkl+gNMORVs3xtNvlIXNyEcXjvaVZzRCAdq3UGVAFL2C7x
-LeqWw3/P3WTKxDZwTHLyAwoo2fpnpg==
-=cLla
+iQEzBAEBCAAdFiEEhpWov9P5fNqsNXdanKSrs4Grc8gFAl1ySkkACgkQnKSrs4Gr
+c8ivNAf+NYLja/k2E1pzgRX+58rLDkzT6qfQX2XKwJVUqTns/MMKaTPd/OJkf+hW
+4ubt3/0sb0kFtAsyffCUY7NiLFRWbanKCEZzP1RLN/ciK2l6bGJldM5TCC0AjMXi
+waisC1VR9iopyR8dEIZpZZykVQEjY2CF2UvUJwzCBph382sQM25+a6OpUQ8N2FSI
+7/7VMBVILOpdeBDum2QijFCXREuqvk0Si2Kg47nTq+muuOCD/mrGg7byV/pWPvyY
+2l3YzL/W0S03phxm8SlNegD0jQ9nr8po2bcY1coriYMz6WSqxDbBwmbb9Izr3aXD
+phrdP6+MgQk6AvUlXsmFd/yzwtYC4Q==
+=lftV
 -----END PGP SIGNATURE-----
 
---iBHcHRCIarfY7C0j--
+--OlucDFihBVSxvK/7--
 
---===============8288909688578011247==
+--===============4367025304054692416==
 Content-Type: text/plain; charset="us-ascii"
 MIME-Version: 1.0
 Content-Transfer-Encoding: 7bit
@@ -75,4 +93,4 @@ _______________________________________________
 Virtualization mailing list
 Virtualization@lists.linux-foundation.org
 https://lists.linuxfoundation.org/mailman/listinfo/virtualization
---===============8288909688578011247==--
+--===============4367025304054692416==--
