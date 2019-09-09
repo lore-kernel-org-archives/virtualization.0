@@ -1,20 +1,13 @@
-From: "Michael S. Tsirkin" <mst@redhat.com>
-Subject: Re: [Virtio-fs] [PATCH 00/18] virtiofs: Fix various races and
-	cleanups round 1
-Date: Mon, 9 Sep 2019 12:18:13 -0400
-Message-ID: <20190909121604-mutt-send-email-mst__33379.2154023953$1568045911$gmane$org@kernel.org>
-References: <20190905194859.16219-1-vgoyal@redhat.com>
-	<CAJfpegu8POz9gC4MDEcXxDWBD0giUNFgJhMEzntJX_u4+cS9Zw@mail.gmail.com>
-	<20190906103613.GH5900@stefanha-x1.localdomain>
-	<CAJfpegudNVZitQ5L8gPvA45mRPFDk9fhyboceVW6xShpJ4mLww@mail.gmail.com>
-	<866a1469-2c4b-59ce-cf3f-32f65e861b99@huawei.com>
-	<20190909161455.GG20875@stefanha-x1.localdomain>
+From: Paolo Bonzini <pbonzini@redhat.com>
+Subject: Re: [PATCH v2] scsi: virtio_scsi: unplug LUNs when events missed
+Date: Mon, 9 Sep 2019 18:55:48 +0200
+Message-ID: <45d4fc47-cfc2-b7ae-e147-fb993a77e9e5__29291.7992732086$1568048209$gmane$org@redhat.com>
+References: <20190905181903.29756-1-mlupfer@ddn.com>
+	<20190906085409.GC5900@stefanha-x1.localdomain>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
-Content-Transfer-Encoding: 7bit
+Content-Type: multipart/mixed; boundary="===============0137876054551001053=="
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-Content-Disposition: inline
-In-Reply-To: <20190909161455.GG20875@stefanha-x1.localdomain>
+In-Reply-To: <20190906085409.GC5900@stefanha-x1.localdomain>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -24,59 +17,103 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Stefan Hajnoczi <stefanha@redhat.com>
-Cc: virtio-fs@redhat.com, Miklos Szeredi <miklos@szeredi.hu>, linux-kernel@vger.kernel.org, virtualization@lists.linux-foundation.org, piaojun <piaojun@huawei.com>, linux-fsdevel@vger.kernel.org, Vivek Goyal <vgoyal@redhat.com>
+To: Stefan Hajnoczi <stefanha@redhat.com>, Matt Lupfer <mlupfer@ddn.com>
+Cc: "martin.petersen@oracle.com" <martin.petersen@oracle.com>, "linux-scsi@vger.kernel.org" <linux-scsi@vger.kernel.org>, "mst@redhat.com" <mst@redhat.com>, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>, "virtualization@lists.linux-foundation.org" <virtualization@lists.linux-foundation.org>, "jejb@linux.ibm.com" <jejb@linux.ibm.com>
 List-Id: virtualization@lists.linuxfoundation.org
 
-On Mon, Sep 09, 2019 at 06:14:55PM +0200, Stefan Hajnoczi wrote:
-> On Sun, Sep 08, 2019 at 07:53:55PM +0800, piaojun wrote:
-> > 
-> > 
-> > On 2019/9/6 19:52, Miklos Szeredi wrote:
-> > > On Fri, Sep 6, 2019 at 12:36 PM Stefan Hajnoczi <stefanha@redhat.com> wrote:
-> > >>
-> > >> On Fri, Sep 06, 2019 at 10:15:14AM +0200, Miklos Szeredi wrote:
-> > >>> On Thu, Sep 5, 2019 at 9:49 PM Vivek Goyal <vgoyal@redhat.com> wrote:
-> > >>>>
-> > >>>> Hi,
-> > >>>>
-> > >>>> Michael Tsirkin pointed out issues w.r.t various locking related TODO
-> > >>>> items and races w.r.t device removal.
-> > >>>>
-> > >>>> In this first round of cleanups, I have taken care of most pressing
-> > >>>> issues.
-> > >>>>
-> > >>>> These patches apply on top of following.
-> > >>>>
-> > >>>> git://git.kernel.org/pub/scm/linux/kernel/git/mszeredi/fuse.git#virtiofs-v4
-> > >>>>
-> > >>>> I have tested these patches with mount/umount and device removal using
-> > >>>> qemu monitor. For example.
-> > >>>
-> > >>> Is device removal mandatory?  Can't this be made a non-removable
-> > >>> device?  Is there a good reason why removing the virtio-fs device
-> > >>> makes sense?
-> > >>
-> > >> Hot plugging and unplugging virtio PCI adapters is common.  I'd very
-> > >> much like removal to work from the beginning.
-> > > 
-> > > Can you give an example use case?
-> > 
-> > I think VirtFS migration need hot plugging, or it may cause QEMU crash
-> > or some problems.
-> 
-> Live migration is currently unsupported.  Hot unplugging the virtio-fs
-> device would allow the guest to live migrate successfully, so it's a
-> useful feature to work around the missing live migration support.
-> 
-> Is this what you mean?
-> 
-> Stefan
+This is an OpenPGP/MIME signed message (RFC 4880 and 3156)
+--===============0137876054551001053==
+Content-Type: multipart/signed; micalg=pgp-sha256;
+ protocol="application/pgp-signature";
+ boundary="pxnQuVbtWYEwmX3SJy3OhOXnAXOYEWRNZ"
 
-Exactly. That's what I also said. To add to that, hotplug can not be
-negotiated, so it's not a feature we can easily add down the road if old
-guests crash on unplug. Thus a driver that does not support unplug
-should not claim to support removal.
+This is an OpenPGP/MIME signed message (RFC 4880 and 3156)
+--pxnQuVbtWYEwmX3SJy3OhOXnAXOYEWRNZ
+Content-Type: multipart/mixed; boundary="KlMsZ2txnG2HaPm51dmD2esB01PSzQkME";
+ protected-headers="v1"
+From: Paolo Bonzini <pbonzini@redhat.com>
+To: Stefan Hajnoczi <stefanha@redhat.com>, Matt Lupfer <mlupfer@ddn.com>
+Cc: "mst@redhat.com" <mst@redhat.com>,
+ "jasowang@redhat.com" <jasowang@redhat.com>,
+ "jejb@linux.ibm.com" <jejb@linux.ibm.com>,
+ "martin.petersen@oracle.com" <martin.petersen@oracle.com>,
+ "virtualization@lists.linux-foundation.org"
+ <virtualization@lists.linux-foundation.org>,
+ "linux-scsi@vger.kernel.org" <linux-scsi@vger.kernel.org>,
+ "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>
+Message-ID: <45d4fc47-cfc2-b7ae-e147-fb993a77e9e5@redhat.com>
+Subject: Re: [PATCH v2] scsi: virtio_scsi: unplug LUNs when events missed
+References: <20190905181903.29756-1-mlupfer@ddn.com>
+ <20190906085409.GC5900@stefanha-x1.localdomain>
+In-Reply-To: <20190906085409.GC5900@stefanha-x1.localdomain>
 
--- 
-MST
+--KlMsZ2txnG2HaPm51dmD2esB01PSzQkME
+Content-Type: text/plain; charset=windows-1252
+Content-Language: en-US
+Content-Transfer-Encoding: quoted-printable
+
+On 06/09/19 10:54, Stefan Hajnoczi wrote:
+> On Thu, Sep 05, 2019 at 06:19:28PM +0000, Matt Lupfer wrote:
+>> The event handler calls scsi_scan_host() when events are missed, which=
+
+>> will hotplug new LUNs.  However, this function won't remove any
+>> unplugged LUNs.  The result is that hotunplug doesn't work properly wh=
+en
+>> the number of unplugged LUNs exceeds the event queue size (currently 8=
+).
+>>
+>> Scan existing LUNs when events are missed to check if they are still
+>> present.  If not, remove them.
+>>
+>> Signed-off-by: Matt Lupfer <mlupfer@ddn.com>
+>> ---
+>>  drivers/scsi/virtio_scsi.c | 33 +++++++++++++++++++++++++++++++++
+>>  1 file changed, 33 insertions(+)
+>=20
+> Please include a changelog in future patch revisions.  For example:
+>=20
+>   Signed-off-by: ...
+>   ---
+>   v2:
+>     * Replaced magic constants with sd.h constants [Michael]
+>=20
+> Just C and virtio code review, no SCSI specifics:
+>=20
+> Reviewed-by: Stefan Hajnoczi <stefanha@redhat.com>
+>=20
+
+Acked-by: Paolo Bonzini <pbonzini@redhat.com>
+
+
+--KlMsZ2txnG2HaPm51dmD2esB01PSzQkME--
+
+--pxnQuVbtWYEwmX3SJy3OhOXnAXOYEWRNZ
+Content-Type: application/pgp-signature; name="signature.asc"
+Content-Description: OpenPGP digital signature
+Content-Disposition: attachment; filename="signature.asc"
+
+-----BEGIN PGP SIGNATURE-----
+
+iQEzBAEBCAAdFiEE8TM4V0tmI4mGbHaCv/vSX3jHroMFAl12hBQACgkQv/vSX3jH
+roNf/QgAmxUxJG1dOWyJiM9cOE05ZHpVBvjYtllR4MHb7M3HkgznPc7bAe3ojMCh
+MjjpnhamcSKKTKtx9cgDK1bh8uj8viucaOZ43r0/P+npJO8XsdwwAlzfx5WMQ/Al
+qEaNVoX1KUxdWZAEYS1y52JmEvOf+0SlmaeJZMYQOWSJHepaM3d7l2vslFhZMIdt
+y054MXFZiJxyEB/AE8R/Xy7LPe9/CHliHqxDBMVjLYRFuUeqtkgAXjKUVsThUsGt
+EIKONYmN0aQ+Nl8bphUlxHhVVUgCTZ+YP/OCQqAOWtGKpINsFKBcvipeJeAVj3id
+Z7Jdh+v01Bs92VJ3BdQHgIbvvRulCA==
+=O1le
+-----END PGP SIGNATURE-----
+
+--pxnQuVbtWYEwmX3SJy3OhOXnAXOYEWRNZ--
+
+--===============0137876054551001053==
+Content-Type: text/plain; charset="us-ascii"
+MIME-Version: 1.0
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+
+_______________________________________________
+Virtualization mailing list
+Virtualization@lists.linux-foundation.org
+https://lists.linuxfoundation.org/mailman/listinfo/virtualization
+--===============0137876054551001053==--
