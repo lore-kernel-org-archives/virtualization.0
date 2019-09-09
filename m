@@ -1,16 +1,13 @@
-From: =?UTF-8?Q?Christian_K=c3=b6nig?= <ckoenig.leichtzumerken@gmail.com>
-Subject: Re: [PATCH 1/8] drm/ttm: turn ttm_bo_device.vma_manager into a pointer
-Date: Mon, 9 Sep 2019 08:59:11 +0200
-Message-ID: <851d89ec-968f-2209-91d2-29ec0b083e0b__33475.3161574312$1568012380$gmane$org@gmail.com>
-References: <20190905070509.22407-1-kraxel@redhat.com>
-	<20190905070509.22407-2-kraxel@redhat.com>
-Reply-To: christian.koenig@amd.com
+From: Hillf Danton <hdanton@sina.com>
+Subject: Re: Xorg indefinitely hangs in kernelspace
+Date: Mon, 9 Sep 2019 15:13:48 +0800
+Message-ID: <20190909071353.EE4279CA@mail.linuxfoundation.org>
+References: <20190906055322.17900-1-hdanton@sina.com>
+	<20190909055219.q44k27cczwkuio3z@sirius.home.kraxel.org>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="utf-8"; Format="flowed"
-Content-Transfer-Encoding: base64
+Content-Type: multipart/mixed; boundary="===============4956052146285112116=="
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <20190905070509.22407-2-kraxel@redhat.com>
-Content-Language: en-US
+In-Reply-To: <20190909055219.q44k27cczwkuio3z@sirius.home.kraxel.org>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -20,175 +17,237 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Gerd Hoffmann <kraxel@redhat.com>, dri-devel@lists.freedesktop.org
-Cc: "David (ChunMing) Zhou" <David1.Zhou@amd.com>, Thomas Hellstrom <thellstrom@vmware.com>, David Airlie <airlied@linux.ie>, "open list:DRM DRIVER FOR NVIDIA GEFORCE/QUADRO GPUS" <nouveau@lists.freedesktop.org>, Maarten Lankhorst <maarten.lankhorst@linux.intel.com>, open list <linux-kernel@vger.kernel.org>, "open list:RADEON and AMDGPU DRM DRIVERS" <amd-gfx@lists.freedesktop.org>, "open list:DRM DRIVER FOR QXL VIRTUAL GPU" <virtualization@lists.linux-foundation.org>, Maxime Ripard <maxime.ripard@bootlin.com>, Huang Rui <ray.huang@amd.com>, VMware Graphics <linux-graphics-maintainer@vmware.com>, Ben Skeggs <bskeggs@redhat.com>, Daniel Vetter <daniel@ffwll.ch>, Dave Airlie <airlied@redhat.com>, Alex Deucher <alexander.deucher@amd.com>, "open list:DRM DRIVER FOR QXL VIRTUAL GPU" <spice-devel@lists.freedesktop.org>, Sean Paul <sean@poorly.run>, =?UTF-8?Q?Christian_K=c3=b6ni
+To: Gerd Hoffmann <kraxel@redhat.com>
+Cc: David Airlie <airlied@linux.ie>, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>, "dri-devel@lists.freedesktop.org" <dri-devel@lists.freedesktop.org>, "virtualization@lists.linux-foundation.org" <virtualization@lists.linux-foundation.org>, Daniel Vetter <daniel@ffwll.ch>, "spice-devel@lists.freedesktop.org" <spice-devel@lists.freedesktop.org>, Jaak Ristioja <jaak@ristioja.ee>, Dave Airlie <airlied@redhat.com>
 List-Id: virtualization@lists.linuxfoundation.org
 
-QW0gMDUuMDkuMTkgdW0gMDk6MDUgc2NocmllYiBHZXJkIEhvZmZtYW5uOgo+IFJlbmFtZSB0aGUg
-ZW1iZWRkZWQgc3RydWN0IHZtYV9vZmZzZXRfbWFuYWdlciwgbmV3IG5hbWUgaXMgX3ZtYV9tYW5h
-Z2VyLgo+IHR0bV9ib19kZXZpY2Uudm1hX21hbmFnZXIgY2hhbmdlZCB0byBhIHBvaW50ZXIuCj4K
-PiBUaGUgdHRtX2JvX2RldmljZV9pbml0KCkgZnVuY3Rpb24gZ2V0cyBhbiBhZGRpdGlvbmFsIHZt
-YV9tYW5hZ2VyCj4gYXJndW1lbnQgd2hpY2ggYWxsb3dzIHRvIGluaXRpYWxpemUgdHRtIHdpdGgg
-YSBkaWZmZXJlbnQgdm1hIG1hbmFnZXIuCj4gV2hlbiBwYXNzaW5nIE5VTEwgdGhlIGVtYmVkZGVk
-IF92bWFfbWFuYWdlciBpcyB1c2VkLgo+Cj4gQWxsIGNhbGxlcnMgYXJlIHVwZGF0ZWQgdG8gcGFz
-cyBOVUxMLCBzbyB0aGUgYmVoYXZpb3IgZG9lc24ndCBjaGFuZ2UuCj4KPiBTaWduZWQtb2ZmLWJ5
-OiBHZXJkIEhvZmZtYW5uIDxrcmF4ZWxAcmVkaGF0LmNvbT4KClJldmlld2VkLWJ5OiBDaHJpc3Rp
-YW4gS8O2bmlnIDxjaHJpc3RpYW4ua29lbmlnQGFtZC5jb20+Cgo+IC0tLQo+ICAgaW5jbHVkZS9k
-cm0vdHRtL3R0bV9ib19kcml2ZXIuaCAgICAgICAgIHwgIDggKysrKysrLS0KPiAgIGRyaXZlcnMv
-Z3B1L2RybS9hbWQvYW1kZ3B1L2FtZGdwdV90dG0uYyB8ICAxICsKPiAgIGRyaXZlcnMvZ3B1L2Ry
-bS9kcm1fdnJhbV9tbV9oZWxwZXIuYyAgICB8ICAxICsKPiAgIGRyaXZlcnMvZ3B1L2RybS9ub3V2
-ZWF1L25vdXZlYXVfdHRtLmMgICB8ICAxICsKPiAgIGRyaXZlcnMvZ3B1L2RybS9xeGwvcXhsX3R0
-bS5jICAgICAgICAgICB8ICAxICsKPiAgIGRyaXZlcnMvZ3B1L2RybS9yYWRlb24vcmFkZW9uX3R0
-bS5jICAgICB8ICAxICsKPiAgIGRyaXZlcnMvZ3B1L2RybS90dG0vdHRtX2JvLmMgICAgICAgICAg
-ICB8IDEzICsrKysrKysrKy0tLS0KPiAgIGRyaXZlcnMvZ3B1L2RybS90dG0vdHRtX2JvX3ZtLmMg
-ICAgICAgICB8ICA2ICsrKy0tLQo+ICAgZHJpdmVycy9ncHUvZHJtL3Ztd2dmeC92bXdnZnhfZHJ2
-LmMgICAgIHwgIDEgKwo+ICAgOSBmaWxlcyBjaGFuZ2VkLCAyNCBpbnNlcnRpb25zKCspLCA5IGRl
-bGV0aW9ucygtKQo+Cj4gZGlmZiAtLWdpdCBhL2luY2x1ZGUvZHJtL3R0bS90dG1fYm9fZHJpdmVy
-LmggYi9pbmNsdWRlL2RybS90dG0vdHRtX2JvX2RyaXZlci5oCj4gaW5kZXggZTg4ZTAwYzZjYmYy
-Li5lMzY1NDM0ZjkyYjMgMTAwNjQ0Cj4gLS0tIGEvaW5jbHVkZS9kcm0vdHRtL3R0bV9ib19kcml2
-ZXIuaAo+ICsrKyBiL2luY2x1ZGUvZHJtL3R0bS90dG1fYm9fZHJpdmVyLmgKPiBAQCAtNDQxLDcg
-KzQ0MSw4IEBAIGV4dGVybiBzdHJ1Y3QgdHRtX2JvX2dsb2JhbCB7Cj4gICAgKgo+ICAgICogQGRy
-aXZlcjogUG9pbnRlciB0byBhIHN0cnVjdCB0dG1fYm9fZHJpdmVyIHN0cnVjdCBzZXR1cCBieSB0
-aGUgZHJpdmVyLgo+ICAgICogQG1hbjogQW4gYXJyYXkgb2YgbWVtX3R5cGVfbWFuYWdlcnMuCj4g
-LSAqIEB2bWFfbWFuYWdlcjogQWRkcmVzcyBzcGFjZSBtYW5hZ2VyCj4gKyAqIEB2bWFfbWFuYWdl
-cjogQWRkcmVzcyBzcGFjZSBtYW5hZ2VyIChwb2ludGVyKQo+ICsgKiBAX3ZtYV9tYW5hZ2VyOiBB
-ZGRyZXNzIHNwYWNlIG1hbmFnZXIgKGVuYmVkZGVkKQo+ICAgICogbHJ1X2xvY2s6IFNwaW5sb2Nr
-IHRoYXQgcHJvdGVjdHMgdGhlIGJ1ZmZlcitkZXZpY2UgbHJ1IGxpc3RzIGFuZAo+ICAgICogZGRl
-c3Ryb3kgbGlzdHMuCj4gICAgKiBAZGV2X21hcHBpbmc6IEEgcG9pbnRlciB0byB0aGUgc3RydWN0
-IGFkZHJlc3Nfc3BhY2UgcmVwcmVzZW50aW5nIHRoZQo+IEBAIC00NjQsNyArNDY1LDggQEAgc3Ry
-dWN0IHR0bV9ib19kZXZpY2Ugewo+ICAgCS8qCj4gICAJICogUHJvdGVjdGVkIGJ5IGludGVybmFs
-IGxvY2tzLgo+ICAgCSAqLwo+IC0Jc3RydWN0IGRybV92bWFfb2Zmc2V0X21hbmFnZXIgdm1hX21h
-bmFnZXI7Cj4gKwlzdHJ1Y3QgZHJtX3ZtYV9vZmZzZXRfbWFuYWdlciAqdm1hX21hbmFnZXI7Cj4g
-KwlzdHJ1Y3QgZHJtX3ZtYV9vZmZzZXRfbWFuYWdlciBfdm1hX21hbmFnZXI7Cj4gICAKPiAgIAkv
-Kgo+ICAgCSAqIFByb3RlY3RlZCBieSB0aGUgZ2xvYmFsOmxydSBsb2NrLgo+IEBAIC01ODUsNiAr
-NTg3LDcgQEAgaW50IHR0bV9ib19kZXZpY2VfcmVsZWFzZShzdHJ1Y3QgdHRtX2JvX2RldmljZSAq
-YmRldik7Cj4gICAgKiBAZ2xvYjogQSBwb2ludGVyIHRvIGFuIGluaXRpYWxpemVkIHN0cnVjdCB0
-dG1fYm9fZ2xvYmFsLgo+ICAgICogQGRyaXZlcjogQSBwb2ludGVyIHRvIGEgc3RydWN0IHR0bV9i
-b19kcml2ZXIgc2V0IHVwIGJ5IHRoZSBjYWxsZXIuCj4gICAgKiBAbWFwcGluZzogVGhlIGFkZHJl
-c3Mgc3BhY2UgdG8gdXNlIGZvciB0aGlzIGJvLgo+ICsgKiBAdm1hX21hbmFnZXI6IEEgcG9pbnRl
-ciB0byBhIHZtYSBtYW5hZ2VyIG9yIE5VTEwuCj4gICAgKiBAZmlsZV9wYWdlX29mZnNldDogT2Zm
-c2V0IGludG8gdGhlIGRldmljZSBhZGRyZXNzIHNwYWNlIHRoYXQgaXMgYXZhaWxhYmxlCj4gICAg
-KiBmb3IgYnVmZmVyIGRhdGEuIFRoaXMgZW5zdXJlcyBjb21wYXRpYmlsaXR5IHdpdGggb3RoZXIg
-dXNlcnMgb2YgdGhlCj4gICAgKiBhZGRyZXNzIHNwYWNlLgo+IEBAIC01OTYsNiArNTk5LDcgQEAg
-aW50IHR0bV9ib19kZXZpY2VfcmVsZWFzZShzdHJ1Y3QgdHRtX2JvX2RldmljZSAqYmRldik7Cj4g
-ICBpbnQgdHRtX2JvX2RldmljZV9pbml0KHN0cnVjdCB0dG1fYm9fZGV2aWNlICpiZGV2LAo+ICAg
-CQkgICAgICAgc3RydWN0IHR0bV9ib19kcml2ZXIgKmRyaXZlciwKPiAgIAkJICAgICAgIHN0cnVj
-dCBhZGRyZXNzX3NwYWNlICptYXBwaW5nLAo+ICsJCSAgICAgICBzdHJ1Y3QgZHJtX3ZtYV9vZmZz
-ZXRfbWFuYWdlciAqdm1hX21hbmFnZXIsCj4gICAJCSAgICAgICBib29sIG5lZWRfZG1hMzIpOwo+
-ICAgCj4gICAvKioKPiBkaWZmIC0tZ2l0IGEvZHJpdmVycy9ncHUvZHJtL2FtZC9hbWRncHUvYW1k
-Z3B1X3R0bS5jIGIvZHJpdmVycy9ncHUvZHJtL2FtZC9hbWRncHUvYW1kZ3B1X3R0bS5jCj4gaW5k
-ZXggZmIwOTMxNGJjZmQ0Li4zNGVlNWQ3MjVmYWYgMTAwNjQ0Cj4gLS0tIGEvZHJpdmVycy9ncHUv
-ZHJtL2FtZC9hbWRncHUvYW1kZ3B1X3R0bS5jCj4gKysrIGIvZHJpdmVycy9ncHUvZHJtL2FtZC9h
-bWRncHUvYW1kZ3B1X3R0bS5jCj4gQEAgLTE3MjgsNiArMTcyOCw3IEBAIGludCBhbWRncHVfdHRt
-X2luaXQoc3RydWN0IGFtZGdwdV9kZXZpY2UgKmFkZXYpCj4gICAJciA9IHR0bV9ib19kZXZpY2Vf
-aW5pdCgmYWRldi0+bW1hbi5iZGV2LAo+ICAgCQkJICAgICAgICZhbWRncHVfYm9fZHJpdmVyLAo+
-ICAgCQkJICAgICAgIGFkZXYtPmRkZXYtPmFub25faW5vZGUtPmlfbWFwcGluZywKPiArCQkJICAg
-ICAgIE5VTEwsCj4gICAJCQkgICAgICAgYWRldi0+bmVlZF9kbWEzMik7Cj4gICAJaWYgKHIpIHsK
-PiAgIAkJRFJNX0VSUk9SKCJmYWlsZWQgaW5pdGlhbGl6aW5nIGJ1ZmZlciBvYmplY3QgZHJpdmVy
-KCVkKS5cbiIsIHIpOwo+IGRpZmYgLS1naXQgYS9kcml2ZXJzL2dwdS9kcm0vZHJtX3ZyYW1fbW1f
-aGVscGVyLmMgYi9kcml2ZXJzL2dwdS9kcm0vZHJtX3ZyYW1fbW1faGVscGVyLmMKPiBpbmRleCBj
-OTExNzgxZDY3MjguLjU2ZmQxNTE5ZWIzNSAxMDA2NDQKPiAtLS0gYS9kcml2ZXJzL2dwdS9kcm0v
-ZHJtX3ZyYW1fbW1faGVscGVyLmMKPiArKysgYi9kcml2ZXJzL2dwdS9kcm0vZHJtX3ZyYW1fbW1f
-aGVscGVyLmMKPiBAQCAtMTcyLDYgKzE3Miw3IEBAIGludCBkcm1fdnJhbV9tbV9pbml0KHN0cnVj
-dCBkcm1fdnJhbV9tbSAqdm1tLCBzdHJ1Y3QgZHJtX2RldmljZSAqZGV2LAo+ICAgCj4gICAJcmV0
-ID0gdHRtX2JvX2RldmljZV9pbml0KCZ2bW0tPmJkZXYsICZib19kcml2ZXIsCj4gICAJCQkJIGRl
-di0+YW5vbl9pbm9kZS0+aV9tYXBwaW5nLAo+ICsJCQkJIE5VTEwsCj4gICAJCQkJIHRydWUpOwo+
-ICAgCWlmIChyZXQpCj4gICAJCXJldHVybiByZXQ7Cj4gZGlmZiAtLWdpdCBhL2RyaXZlcnMvZ3B1
-L2RybS9ub3V2ZWF1L25vdXZlYXVfdHRtLmMgYi9kcml2ZXJzL2dwdS9kcm0vbm91dmVhdS9ub3V2
-ZWF1X3R0bS5jCj4gaW5kZXggZjBkYWY5NThlMDNhLi5lNjdlYjEwODQzZDEgMTAwNjQ0Cj4gLS0t
-IGEvZHJpdmVycy9ncHUvZHJtL25vdXZlYXUvbm91dmVhdV90dG0uYwo+ICsrKyBiL2RyaXZlcnMv
-Z3B1L2RybS9ub3V2ZWF1L25vdXZlYXVfdHRtLmMKPiBAQCAtMjM2LDYgKzIzNiw3IEBAIG5vdXZl
-YXVfdHRtX2luaXQoc3RydWN0IG5vdXZlYXVfZHJtICpkcm0pCj4gICAJcmV0ID0gdHRtX2JvX2Rl
-dmljZV9pbml0KCZkcm0tPnR0bS5iZGV2LAo+ICAgCQkJCSAgJm5vdXZlYXVfYm9fZHJpdmVyLAo+
-ICAgCQkJCSAgZGV2LT5hbm9uX2lub2RlLT5pX21hcHBpbmcsCj4gKwkJCQkgTlVMTCwKPiAgIAkJ
-CQkgIGRybS0+Y2xpZW50Lm1tdS5kbWFiaXRzIDw9IDMyID8gdHJ1ZSA6IGZhbHNlKTsKPiAgIAlp
-ZiAocmV0KSB7Cj4gICAJCU5WX0VSUk9SKGRybSwgImVycm9yIGluaXRpYWxpc2luZyBibyBkcml2
-ZXIsICVkXG4iLCByZXQpOwo+IGRpZmYgLS1naXQgYS9kcml2ZXJzL2dwdS9kcm0vcXhsL3F4bF90
-dG0uYyBiL2RyaXZlcnMvZ3B1L2RybS9xeGwvcXhsX3R0bS5jCj4gaW5kZXggOWIyNDUxNGM3NWFh
-Li42OWRhMGVlYTZlNGMgMTAwNjQ0Cj4gLS0tIGEvZHJpdmVycy9ncHUvZHJtL3F4bC9xeGxfdHRt
-LmMKPiArKysgYi9kcml2ZXJzL2dwdS9kcm0vcXhsL3F4bF90dG0uYwo+IEBAIC0zMjUsNiArMzI1
-LDcgQEAgaW50IHF4bF90dG1faW5pdChzdHJ1Y3QgcXhsX2RldmljZSAqcWRldikKPiAgIAlyID0g
-dHRtX2JvX2RldmljZV9pbml0KCZxZGV2LT5tbWFuLmJkZXYsCj4gICAJCQkgICAgICAgJnF4bF9i
-b19kcml2ZXIsCj4gICAJCQkgICAgICAgcWRldi0+ZGRldi5hbm9uX2lub2RlLT5pX21hcHBpbmcs
-Cj4gKwkJCSAgICAgICBOVUxMLAo+ICAgCQkJICAgICAgIGZhbHNlKTsKPiAgIAlpZiAocikgewo+
-ICAgCQlEUk1fRVJST1IoImZhaWxlZCBpbml0aWFsaXppbmcgYnVmZmVyIG9iamVjdCBkcml2ZXIo
-JWQpLlxuIiwgcik7Cj4gZGlmZiAtLWdpdCBhL2RyaXZlcnMvZ3B1L2RybS9yYWRlb24vcmFkZW9u
-X3R0bS5jIGIvZHJpdmVycy9ncHUvZHJtL3JhZGVvbi9yYWRlb25fdHRtLmMKPiBpbmRleCAzNWFj
-NzVhMTFkMzguLmUyYzEyZTU5NzA0ZCAxMDA2NDQKPiAtLS0gYS9kcml2ZXJzL2dwdS9kcm0vcmFk
-ZW9uL3JhZGVvbl90dG0uYwo+ICsrKyBiL2RyaXZlcnMvZ3B1L2RybS9yYWRlb24vcmFkZW9uX3R0
-bS5jCj4gQEAgLTc5NCw2ICs3OTQsNyBAQCBpbnQgcmFkZW9uX3R0bV9pbml0KHN0cnVjdCByYWRl
-b25fZGV2aWNlICpyZGV2KQo+ICAgCXIgPSB0dG1fYm9fZGV2aWNlX2luaXQoJnJkZXYtPm1tYW4u
-YmRldiwKPiAgIAkJCSAgICAgICAmcmFkZW9uX2JvX2RyaXZlciwKPiAgIAkJCSAgICAgICByZGV2
-LT5kZGV2LT5hbm9uX2lub2RlLT5pX21hcHBpbmcsCj4gKwkJCSAgICAgICBOVUxMLAo+ICAgCQkJ
-ICAgICAgIHJkZXYtPm5lZWRfZG1hMzIpOwo+ICAgCWlmIChyKSB7Cj4gICAJCURSTV9FUlJPUigi
-ZmFpbGVkIGluaXRpYWxpemluZyBidWZmZXIgb2JqZWN0IGRyaXZlciglZCkuXG4iLCByKTsKPiBk
-aWZmIC0tZ2l0IGEvZHJpdmVycy9ncHUvZHJtL3R0bS90dG1fYm8uYyBiL2RyaXZlcnMvZ3B1L2Ry
-bS90dG0vdHRtX2JvLmMKPiBpbmRleCA1OGQxZjJiMjgxMzIuLjhkYzI2YmFiYzVjYiAxMDA2NDQK
-PiAtLS0gYS9kcml2ZXJzL2dwdS9kcm0vdHRtL3R0bV9iby5jCj4gKysrIGIvZHJpdmVycy9ncHUv
-ZHJtL3R0bS90dG1fYm8uYwo+IEBAIC02NzIsNyArNjcyLDcgQEAgc3RhdGljIHZvaWQgdHRtX2Jv
-X3JlbGVhc2Uoc3RydWN0IGtyZWYgKmtyZWYpCj4gICAJc3RydWN0IHR0bV9ib19kZXZpY2UgKmJk
-ZXYgPSBiby0+YmRldjsKPiAgIAlzdHJ1Y3QgdHRtX21lbV90eXBlX21hbmFnZXIgKm1hbiA9ICZi
-ZGV2LT5tYW5bYm8tPm1lbS5tZW1fdHlwZV07Cj4gICAKPiAtCWRybV92bWFfb2Zmc2V0X3JlbW92
-ZSgmYmRldi0+dm1hX21hbmFnZXIsICZiby0+YmFzZS52bWFfbm9kZSk7Cj4gKwlkcm1fdm1hX29m
-ZnNldF9yZW1vdmUoYmRldi0+dm1hX21hbmFnZXIsICZiby0+YmFzZS52bWFfbm9kZSk7Cj4gICAJ
-dHRtX21lbV9pb19sb2NrKG1hbiwgZmFsc2UpOwo+ICAgCXR0bV9tZW1faW9fZnJlZV92bShibyk7
-Cj4gICAJdHRtX21lbV9pb191bmxvY2sobWFuKTsKPiBAQCAtMTM1Myw3ICsxMzUzLDcgQEAgaW50
-IHR0bV9ib19pbml0X3Jlc2VydmVkKHN0cnVjdCB0dG1fYm9fZGV2aWNlICpiZGV2LAo+ICAgCSAq
-Lwo+ICAgCWlmIChiby0+dHlwZSA9PSB0dG1fYm9fdHlwZV9kZXZpY2UgfHwKPiAgIAkgICAgYm8t
-PnR5cGUgPT0gdHRtX2JvX3R5cGVfc2cpCj4gLQkJcmV0ID0gZHJtX3ZtYV9vZmZzZXRfYWRkKCZi
-ZGV2LT52bWFfbWFuYWdlciwgJmJvLT5iYXNlLnZtYV9ub2RlLAo+ICsJCXJldCA9IGRybV92bWFf
-b2Zmc2V0X2FkZChiZGV2LT52bWFfbWFuYWdlciwgJmJvLT5iYXNlLnZtYV9ub2RlLAo+ICAgCQkJ
-CQkgYm8tPm1lbS5udW1fcGFnZXMpOwo+ICAgCj4gICAJLyogcGFzc2VkIHJlc2VydmF0aW9uIG9i
-amVjdHMgc2hvdWxkIGFscmVhZHkgYmUgbG9ja2VkLAo+IEBAIC0xNzA0LDcgKzE3MDQsNyBAQCBp
-bnQgdHRtX2JvX2RldmljZV9yZWxlYXNlKHN0cnVjdCB0dG1fYm9fZGV2aWNlICpiZGV2KQo+ICAg
-CQkJcHJfZGVidWcoIlN3YXAgbGlzdCAlZCB3YXMgY2xlYW5cbiIsIGkpOwo+ICAgCXNwaW5fdW5s
-b2NrKCZnbG9iLT5scnVfbG9jayk7Cj4gICAKPiAtCWRybV92bWFfb2Zmc2V0X21hbmFnZXJfZGVz
-dHJveSgmYmRldi0+dm1hX21hbmFnZXIpOwo+ICsJZHJtX3ZtYV9vZmZzZXRfbWFuYWdlcl9kZXN0
-cm95KCZiZGV2LT5fdm1hX21hbmFnZXIpOwo+ICAgCj4gICAJaWYgKCFyZXQpCj4gICAJCXR0bV9i
-b19nbG9iYWxfcmVsZWFzZSgpOwo+IEBAIC0xNzE2LDExICsxNzE2LDE1IEBAIEVYUE9SVF9TWU1C
-T0wodHRtX2JvX2RldmljZV9yZWxlYXNlKTsKPiAgIGludCB0dG1fYm9fZGV2aWNlX2luaXQoc3Ry
-dWN0IHR0bV9ib19kZXZpY2UgKmJkZXYsCj4gICAJCSAgICAgICBzdHJ1Y3QgdHRtX2JvX2RyaXZl
-ciAqZHJpdmVyLAo+ICAgCQkgICAgICAgc3RydWN0IGFkZHJlc3Nfc3BhY2UgKm1hcHBpbmcsCj4g
-KwkJICAgICAgIHN0cnVjdCBkcm1fdm1hX29mZnNldF9tYW5hZ2VyICp2bWFfbWFuYWdlciwKPiAg
-IAkJICAgICAgIGJvb2wgbmVlZF9kbWEzMikKPiAgIHsKPiAgIAlzdHJ1Y3QgdHRtX2JvX2dsb2Jh
-bCAqZ2xvYiA9ICZ0dG1fYm9fZ2xvYjsKPiAgIAlpbnQgcmV0Owo+ICAgCj4gKwlpZiAoIXZtYV9t
-YW5hZ2VyKQo+ICsJCXZtYV9tYW5hZ2VyID0gJmJkZXYtPl92bWFfbWFuYWdlcjsKPiArCj4gICAJ
-cmV0ID0gdHRtX2JvX2dsb2JhbF9pbml0KCk7Cj4gICAJaWYgKHJldCkKPiAgIAkJcmV0dXJuIHJl
-dDsKPiBAQCAtMTczNyw3ICsxNzQxLDggQEAgaW50IHR0bV9ib19kZXZpY2VfaW5pdChzdHJ1Y3Qg
-dHRtX2JvX2RldmljZSAqYmRldiwKPiAgIAlpZiAodW5saWtlbHkocmV0ICE9IDApKQo+ICAgCQln
-b3RvIG91dF9ub19zeXM7Cj4gICAKPiAtCWRybV92bWFfb2Zmc2V0X21hbmFnZXJfaW5pdCgmYmRl
-di0+dm1hX21hbmFnZXIsCj4gKwliZGV2LT52bWFfbWFuYWdlciA9IHZtYV9tYW5hZ2VyOwo+ICsJ
-ZHJtX3ZtYV9vZmZzZXRfbWFuYWdlcl9pbml0KCZiZGV2LT5fdm1hX21hbmFnZXIsCj4gICAJCQkJ
-ICAgIERSTV9GSUxFX1BBR0VfT0ZGU0VUX1NUQVJULAo+ICAgCQkJCSAgICBEUk1fRklMRV9QQUdF
-X09GRlNFVF9TSVpFKTsKPiAgIAlJTklUX0RFTEFZRURfV09SSygmYmRldi0+d3EsIHR0bV9ib19k
-ZWxheWVkX3dvcmtxdWV1ZSk7Cj4gZGlmZiAtLWdpdCBhL2RyaXZlcnMvZ3B1L2RybS90dG0vdHRt
-X2JvX3ZtLmMgYi9kcml2ZXJzL2dwdS9kcm0vdHRtL3R0bV9ib192bS5jCj4gaW5kZXggNzZlZWRi
-OTYzNjkzLi40YWEwMDdlZGZmYjAgMTAwNjQ0Cj4gLS0tIGEvZHJpdmVycy9ncHUvZHJtL3R0bS90
-dG1fYm9fdm0uYwo+ICsrKyBiL2RyaXZlcnMvZ3B1L2RybS90dG0vdHRtX2JvX3ZtLmMKPiBAQCAt
-NDA5LDE2ICs0MDksMTYgQEAgc3RhdGljIHN0cnVjdCB0dG1fYnVmZmVyX29iamVjdCAqdHRtX2Jv
-X3ZtX2xvb2t1cChzdHJ1Y3QgdHRtX2JvX2RldmljZSAqYmRldiwKPiAgIAlzdHJ1Y3QgZHJtX3Zt
-YV9vZmZzZXRfbm9kZSAqbm9kZTsKPiAgIAlzdHJ1Y3QgdHRtX2J1ZmZlcl9vYmplY3QgKmJvID0g
-TlVMTDsKPiAgIAo+IC0JZHJtX3ZtYV9vZmZzZXRfbG9ja19sb29rdXAoJmJkZXYtPnZtYV9tYW5h
-Z2VyKTsKPiArCWRybV92bWFfb2Zmc2V0X2xvY2tfbG9va3VwKGJkZXYtPnZtYV9tYW5hZ2VyKTsK
-PiAgIAo+IC0Jbm9kZSA9IGRybV92bWFfb2Zmc2V0X2xvb2t1cF9sb2NrZWQoJmJkZXYtPnZtYV9t
-YW5hZ2VyLCBvZmZzZXQsIHBhZ2VzKTsKPiArCW5vZGUgPSBkcm1fdm1hX29mZnNldF9sb29rdXBf
-bG9ja2VkKGJkZXYtPnZtYV9tYW5hZ2VyLCBvZmZzZXQsIHBhZ2VzKTsKPiAgIAlpZiAobGlrZWx5
-KG5vZGUpKSB7Cj4gICAJCWJvID0gY29udGFpbmVyX29mKG5vZGUsIHN0cnVjdCB0dG1fYnVmZmVy
-X29iamVjdCwKPiAgIAkJCQkgIGJhc2Uudm1hX25vZGUpOwo+ICAgCQlibyA9IHR0bV9ib19nZXRf
-dW5sZXNzX3plcm8oYm8pOwo+ICAgCX0KPiAgIAo+IC0JZHJtX3ZtYV9vZmZzZXRfdW5sb2NrX2xv
-b2t1cCgmYmRldi0+dm1hX21hbmFnZXIpOwo+ICsJZHJtX3ZtYV9vZmZzZXRfdW5sb2NrX2xvb2t1
-cChiZGV2LT52bWFfbWFuYWdlcik7Cj4gICAKPiAgIAlpZiAoIWJvKQo+ICAgCQlwcl9lcnIoIkNv
-dWxkIG5vdCBmaW5kIGJ1ZmZlciBvYmplY3QgdG8gbWFwXG4iKTsKPiBkaWZmIC0tZ2l0IGEvZHJp
-dmVycy9ncHUvZHJtL3Ztd2dmeC92bXdnZnhfZHJ2LmMgYi9kcml2ZXJzL2dwdS9kcm0vdm13Z2Z4
-L3Ztd2dmeF9kcnYuYwo+IGluZGV4IGNkMGQ0OWQ4YThkYS4uMjBiYzkxMjE0ZTc1IDEwMDY0NAo+
-IC0tLSBhL2RyaXZlcnMvZ3B1L2RybS92bXdnZngvdm13Z2Z4X2Rydi5jCj4gKysrIGIvZHJpdmVy
-cy9ncHUvZHJtL3Ztd2dmeC92bXdnZnhfZHJ2LmMKPiBAQCAtODMwLDYgKzgzMCw3IEBAIHN0YXRp
-YyBpbnQgdm13X2RyaXZlcl9sb2FkKHN0cnVjdCBkcm1fZGV2aWNlICpkZXYsIHVuc2lnbmVkIGxv
-bmcgY2hpcHNldCkKPiAgIAlyZXQgPSB0dG1fYm9fZGV2aWNlX2luaXQoJmRldl9wcml2LT5iZGV2
-LAo+ICAgCQkJCSAmdm13X2JvX2RyaXZlciwKPiAgIAkJCQkgZGV2LT5hbm9uX2lub2RlLT5pX21h
-cHBpbmcsCj4gKwkJCQkgTlVMTCwKPiAgIAkJCQkgZmFsc2UpOwo+ICAgCWlmICh1bmxpa2VseShy
-ZXQgIT0gMCkpIHsKPiAgIAkJRFJNX0VSUk9SKCJGYWlsZWQgaW5pdGlhbGl6aW5nIFRUTSBidWZm
-ZXIgb2JqZWN0IGRyaXZlci5cbiIpOwoKX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19f
-X19fX19fX19fX19fX18KVmlydHVhbGl6YXRpb24gbWFpbGluZyBsaXN0ClZpcnR1YWxpemF0aW9u
-QGxpc3RzLmxpbnV4LWZvdW5kYXRpb24ub3JnCmh0dHBzOi8vbGlzdHMubGludXhmb3VuZGF0aW9u
-Lm9yZy9tYWlsbWFuL2xpc3RpbmZvL3ZpcnR1YWxpemF0aW9u
+
+--===============4956052146285112116==
+Content-Type: multipart/alternative;
+	boundary="_AD05A452-BEFD-47CB-8E14-119A02D5DF11_"
+
+
+--_AD05A452-BEFD-47CB-8E14-119A02D5DF11_
+Content-Transfer-Encoding: quoted-printable
+Content-Type: text/plain; charset="utf-8"
+
+Hi,
+
+On Mon, 9 Sep 2019 from Gerd Hoffmann <kraxel@redhat.com>
+>
+> Hmm, I think the patch is wrong.  As far I know it is the qxl drivers's
+> job to call ttm_eu_backoff_reservation().  Doing that automatically in
+> ttm will most likely break other ttm users.
+>
+Perhaps.
+
+>So I guess the call is missing in the qxl driver somewhere, most likely
+>in some error handling code path given that this bug is a relatively
+>rare event.
+>
+>There is only a single ttm_eu_reserve_buffers() call in qxl.
+>So how about this?
+>
+No preference in either way if it is a right cure.
+
+BTW a quick peep at the mainline tree shows not every
+ttm_eu_reserve_buffers() pairs with ttm_eu_backoff_reservation()
+without qxl being taken in account.
+
+Hillf
+
+--_AD05A452-BEFD-47CB-8E14-119A02D5DF11_
+Content-Transfer-Encoding: quoted-printable
+Content-Type: text/html; charset="utf-8"
+
+<html xmlns:o=3D"urn:schemas-microsoft-com:office:office" xmlns:w=3D"urn:sc=
+hemas-microsoft-com:office:word" xmlns:m=3D"http://schemas.microsoft.com/of=
+fice/2004/12/omml" xmlns=3D"http://www.w3.org/TR/REC-html40"><head><meta ht=
+tp-equiv=3DContent-Type content=3D"text/html; charset=3Dutf-8"><meta name=
+=3DGenerator content=3D"Microsoft Word 15 (filtered medium)"><style><!--
+/* Font Definitions */
+@font-face
+	{font-family:Wingdings;
+	panose-1:5 0 0 0 0 0 0 0 0 0;}
+@font-face
+	{font-family:"Cambria Math";
+	panose-1:2 4 5 3 5 4 6 3 2 4;}
+@font-face
+	{font-family:DengXian;
+	panose-1:2 1 6 0 3 1 1 1 1 1;}
+@font-face
+	{font-family:DengXian;
+	panose-1:2 1 6 0 3 1 1 1 1 1;}
+/* Style Definitions */
+p.MsoNormal, li.MsoNormal, div.MsoNormal
+	{margin:0cm;
+	margin-bottom:.0001pt;
+	text-align:justify;
+	text-justify:inter-ideograph;
+	font-size:10.5pt;
+	font-family:DengXian;}
+a:link, span.MsoHyperlink
+	{mso-style-priority:99;
+	color:blue;
+	text-decoration:underline;}
+a:visited, span.MsoHyperlinkFollowed
+	{mso-style-priority:99;
+	color:#954F72;
+	text-decoration:underline;}
+p.MsoListParagraph, li.MsoListParagraph, div.MsoListParagraph
+	{mso-style-priority:34;
+	margin:0cm;
+	margin-bottom:.0001pt;
+	text-align:justify;
+	text-justify:inter-ideograph;
+	text-indent:21.0pt;
+	font-size:10.5pt;
+	font-family:DengXian;}
+span.DefaultFontHxMailStyle
+	{mso-style-name:"Default Font HxMail Style";
+	font-family:DengXian;
+	color:windowtext;
+	font-weight:normal;
+	font-style:normal;
+	text-decoration:none none;}
+.MsoChpDefault
+	{mso-style-type:export-only;}
+/* Page Definitions */
+@page WordSection1
+	{size:612.0pt 792.0pt;
+	margin:72.0pt 90.0pt 72.0pt 90.0pt;}
+div.WordSection1
+	{page:WordSection1;}
+/* List Definitions */
+@list l0
+	{mso-list-id:1496729359;
+	mso-list-type:hybrid;
+	mso-list-template-ids:-1873276564 -1 67698691 67698693 67698689 67698691 6=
+7698693 67698689 67698691 67698693;}
+@list l0:level1
+	{mso-level-start-at:0;
+	mso-level-number-format:bullet;
+	mso-level-text:\F0D8;
+	mso-level-tab-stop:none;
+	mso-level-number-position:left;
+	margin-left:18.0pt;
+	text-indent:-18.0pt;
+	font-family:Wingdings;
+	mso-fareast-font-family:DengXian;
+	mso-bidi-font-family:"Times New Roman";}
+@list l0:level2
+	{mso-level-number-format:bullet;
+	mso-level-text:\F06E;
+	mso-level-tab-stop:none;
+	mso-level-number-position:left;
+	margin-left:42.0pt;
+	text-indent:-21.0pt;
+	font-family:Wingdings;}
+@list l0:level3
+	{mso-level-number-format:bullet;
+	mso-level-text:\F075;
+	mso-level-tab-stop:none;
+	mso-level-number-position:left;
+	margin-left:63.0pt;
+	text-indent:-21.0pt;
+	font-family:Wingdings;}
+@list l0:level4
+	{mso-level-number-format:bullet;
+	mso-level-text:\F06C;
+	mso-level-tab-stop:none;
+	mso-level-number-position:left;
+	margin-left:84.0pt;
+	text-indent:-21.0pt;
+	font-family:Wingdings;}
+@list l0:level5
+	{mso-level-number-format:bullet;
+	mso-level-text:\F06E;
+	mso-level-tab-stop:none;
+	mso-level-number-position:left;
+	margin-left:105.0pt;
+	text-indent:-21.0pt;
+	font-family:Wingdings;}
+@list l0:level6
+	{mso-level-number-format:bullet;
+	mso-level-text:\F075;
+	mso-level-tab-stop:none;
+	mso-level-number-position:left;
+	margin-left:126.0pt;
+	text-indent:-21.0pt;
+	font-family:Wingdings;}
+@list l0:level7
+	{mso-level-number-format:bullet;
+	mso-level-text:\F06C;
+	mso-level-tab-stop:none;
+	mso-level-number-position:left;
+	margin-left:147.0pt;
+	text-indent:-21.0pt;
+	font-family:Wingdings;}
+@list l0:level8
+	{mso-level-number-format:bullet;
+	mso-level-text:\F06E;
+	mso-level-tab-stop:none;
+	mso-level-number-position:left;
+	margin-left:168.0pt;
+	text-indent:-21.0pt;
+	font-family:Wingdings;}
+@list l0:level9
+	{mso-level-number-format:bullet;
+	mso-level-text:\F075;
+	mso-level-tab-stop:none;
+	mso-level-number-position:left;
+	margin-left:189.0pt;
+	text-indent:-21.0pt;
+	font-family:Wingdings;}
+ol
+	{margin-bottom:0cm;}
+ul
+	{margin-bottom:0cm;}
+--></style></head><body lang=3DZH-CN link=3Dblue vlink=3D"#954F72"><div cla=
+ss=3DWordSection1><p class=3DMsoNormal><span lang=3DEN-US>Hi,</span></p><p =
+class=3DMsoNormal><span lang=3DEN-US><o:p>&nbsp;</o:p></span></p><p class=
+=3DMsoNormal><span lang=3DEN-US>On Mon, 9 Sep 2019 from Gerd Hoffmann &lt;k=
+raxel@redhat.com&gt;<o:p></o:p></span></p><p class=3DMsoNormal><span lang=
+=3DEN-US>&gt;<o:p>&nbsp;</o:p></span></p><p class=3DMsoNormal><span lang=3D=
+EN-US>&gt; Hmm, I think the patch is wrong.=C2=A0 As far I know it is the q=
+xl drivers's</span></p><p class=3DMsoNormal><span lang=3DEN-US>&gt; job to =
+call ttm_eu_backoff_reservation().=C2=A0 Doing that automatically in</span>=
+</p><p class=3DMsoNormal><span lang=3DEN-US>&gt; ttm will most likely break=
+ other ttm users.</span></p><p class=3DMsoNormal><span lang=3DEN-US>&gt;<o:=
+p>&nbsp;</o:p></span></p><p class=3DMsoNormal><span lang=3DEN-US>Perhaps.</=
+span></p><p class=3DMsoNormal><span lang=3DEN-US><o:p>&nbsp;</o:p></span></=
+p><p class=3DMsoNormal><span lang=3DEN-US>&gt;So I guess the call is missin=
+g in the qxl driver somewhere, most likely</span></p><p class=3DMsoNormal><=
+span lang=3DEN-US>&gt;in some error handling code path given that this bug =
+is a relatively</span></p><p class=3DMsoNormal><span lang=3DEN-US>&gt;rare =
+event.</span></p><p class=3DMsoNormal><span lang=3DEN-US>&gt;<o:p>&nbsp;</o=
+:p></span></p><p class=3DMsoNormal><span lang=3DEN-US>&gt;There is only a s=
+ingle ttm_eu_reserve_buffers() call in qxl.</span></p><p class=3DMsoNormal>=
+<span lang=3DEN-US>&gt;So how about this?</span></p><p class=3DMsoNormal><s=
+pan lang=3DEN-US>&gt;<o:p>&nbsp;</o:p></span></p><p class=3DMsoNormal><span=
+ lang=3DEN-US>No preference in either way if it is a right cure.</span></p>=
+<p class=3DMsoNormal><span lang=3DEN-US><o:p>&nbsp;</o:p></span></p><p clas=
+s=3DMsoNormal><span lang=3DEN-US>BTW a quick peep at the mainline tree show=
+s not every</span></p><p class=3DMsoNormal><span lang=3DEN-US>ttm_eu_reserv=
+e_buffers() pairs with ttm_eu_backoff_reservation()</span></p><p class=3DMs=
+oNormal><span lang=3DEN-US>without qxl being taken in account.</span></p><p=
+ class=3DMsoNormal><span class=3DDefaultFontHxMailStyle><span lang=3DEN-US>=
+<o:p>&nbsp;</o:p></span></span></p><p class=3DMsoNormal><span class=3DDefau=
+ltFontHxMailStyle><span lang=3DEN-US>Hillf<o:p></o:p></span></span></p></di=
+v></body></html>=
+
+--_AD05A452-BEFD-47CB-8E14-119A02D5DF11_--
+
+
+
+--===============4956052146285112116==
+Content-Type: text/plain; charset="us-ascii"
+MIME-Version: 1.0
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+
+_______________________________________________
+Virtualization mailing list
+Virtualization@lists.linux-foundation.org
+https://lists.linuxfoundation.org/mailman/listinfo/virtualization
+--===============4956052146285112116==--
