@@ -1,19 +1,11 @@
-From: Jason Wang <jasowang@redhat.com>
-Subject: Re: [PATCH 2/2] vhost: re-introducing metadata acceleration through
-	kernel virtual address
-Date: Mon, 9 Sep 2019 15:23:58 +0800
-Message-ID: <4ee20058-0beb-111c-6750-556965423f04__44533.7185099319$1568013858$gmane$org@redhat.com>
-References: <20190905122736.19768-1-jasowang@redhat.com>
-	<20190905122736.19768-3-jasowang@redhat.com>
-	<20190908063618-mutt-send-email-mst@kernel.org>
-	<1cb5aa8d-6213-5fce-5a77-fcada572c882@redhat.com>
-	<20190909004504-mutt-send-email-mst@kernel.org>
+From: Hillf Danton <hdanton@sina.com>
+Subject: Re: Xorg indefinitely hangs in kernelspace
+Date: Mon,  9 Sep 2019 20:12:50 +0800
+Message-ID: <20190909121250.11176-1-hdanton@sina.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="utf-8"; Format="flowed"
-Content-Transfer-Encoding: base64
+Content-Type: text/plain; charset="us-ascii"
+Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <20190909004504-mutt-send-email-mst@kernel.org>
-Content-Language: en-US
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -23,20 +15,58 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: "Michael S. Tsirkin" <mst@redhat.com>
-Cc: aarcange@redhat.com, Christoph Hellwig <hch@infradead.org>, linux-parisc@vger.kernel.org, kvm@vger.kernel.org, netdev@vger.kernel.org, linux-kernel@vger.kernel.org, virtualization@lists.linux-foundation.org, James Bottomley <James.Bottomley@hansenpartnership.com>, linux-mm@kvack.org, jglisse@redhat.com, jgg@mellanox.com, David Miller <davem@davemloft.net>, linux-arm-kernel@lists.infradead.org
+To: Gerd Hoffmann <kraxel@redhat.com>, Jaak Ristioja <jaak@ristioja.ee>
+Cc: David Airlie <airlied@linux.ie>, linux-kernel@vger.kernel.org, dri-devel@lists.freedesktop.org, virtualization@lists.linux-foundation.org, Daniel Vetter <daniel@ffwll.ch>, spice-devel@lists.freedesktop.org, Dave Airlie <airlied@redhat.com>
 List-Id: virtualization@lists.linuxfoundation.org
 
-Ck9uIDIwMTkvOS85IOS4i+WNiDEyOjQ1LCBNaWNoYWVsIFMuIFRzaXJraW4gd3JvdGU6Cj4+PiBT
-aW5jZSBpZHggY2FuIGJlIHNwZWN1bGF0ZWQsIEkgZ3Vlc3Mgd2UgbmVlZCBhcnJheV9pbmRleF9u
-b3NwZWMgaGVyZT8KPj4gU28gd2UgaGF2ZQo+Pgo+PiBBQ1FVSVJFKG1tdV9sb2NrKQo+Pgo+PiBn
-ZXQgaWR4Cj4+Cj4+IFJFTEVBU0UobW11X2xvY2spCj4+Cj4+IEFDUVVJUkUobW11X2xvY2spCj4+
-Cj4+IHJlYWQgYXJyYXlbaWR4XQo+Pgo+PiBSRUxFQVNFKG1tdV9sb2NrKQo+Pgo+PiBUaGVuIEkg
-dGhpbmsgaWR4IGNhbid0IGJlIHNwZWN1bGF0ZWQgY29uc2lkZXIgd2UndmUgcGFzc2VkIFJFTEVB
-U0UgKwo+PiBBQ1FVSVJFPwo+IEkgZG9uJ3QgdGhpbmsgbWVtb3J5IGJhcnJpZXJzIGhhdmUgYW55
-dGhpbmcgdG8gZG8gd2l0aCBzcGVjdWxhdGlvbiwKPiB0aGV5IGFyZSBhcmNoaXRlY3R1cmFsLgo+
-CgpPaCByaWdodC4gTGV0IG1lIGFkZCBhcnJheV9pbmRleF9ub3NwZWMoKSBpbiBuZXh0IHZlcnNp
-b24uCgpUaGFua3MKCl9fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19f
-X19fClZpcnR1YWxpemF0aW9uIG1haWxpbmcgbGlzdApWaXJ0dWFsaXphdGlvbkBsaXN0cy5saW51
-eC1mb3VuZGF0aW9uLm9yZwpodHRwczovL2xpc3RzLmxpbnV4Zm91bmRhdGlvbi5vcmcvbWFpbG1h
-bi9saXN0aW5mby92aXJ0dWFsaXphdGlvbg==
+
+On Mon, 9 Sep 2019 from Gerd Hoffmann <kraxel@redhat.com>
+>
+> Hmm, I think the patch is wrong.
+
+Hmm...it should have added change only in the error path, leaving locks
+for drivers to release if job is done with no error returned.
+
+> As far I know it is the qxl drivers's
+> job to call ttm_eu_backoff_reservation().
+
+Like other drivers, qxl is currently doing the right.
+
+> Doing that automatically in
+> ttm will most likely break other ttm users.
+>
+You are right. They are responsible for doing backoff if error happens
+while validating buffers afterwards.
+
+
+--- a/drivers/gpu/drm/ttm/ttm_execbuf_util.c
++++ b/drivers/gpu/drm/ttm/ttm_execbuf_util.c
+@@ -111,8 +111,10 @@ int ttm_eu_reserve_buffers(struct ww_acq
+ 
+ 	list_for_each_entry(entry, list, head) {
+ 		struct ttm_buffer_object *bo = entry->bo;
++		bool lockon;
+ 
+ 		ret = __ttm_bo_reserve(bo, intr, (ticket == NULL), ticket);
++		lockon = !ret;
+ 		if (!ret && unlikely(atomic_read(&bo->cpu_writers) > 0)) {
+ 			reservation_object_unlock(bo->resv);
+ 
+@@ -151,6 +153,7 @@ int ttm_eu_reserve_buffers(struct ww_acq
+ 				ret = 0;
+ 			}
+ 		}
++		lockon = !ret;
+ 
+ 		if (!ret && entry->num_shared)
+ 			ret = reservation_object_reserve_shared(bo->resv,
+@@ -163,6 +166,8 @@ int ttm_eu_reserve_buffers(struct ww_acq
+ 				ww_acquire_done(ticket);
+ 				ww_acquire_fini(ticket);
+ 			}
++			if (lockon)
++				ttm_eu_backoff_reservation_reverse(list, entry);
+ 			return ret;
+ 		}
+ 
+--
