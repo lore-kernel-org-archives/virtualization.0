@@ -1,16 +1,14 @@
 From: Jason Wang <jasowang@redhat.com>
-Subject: Re: [PATCH 0/2] Revert and rework on the metadata accelreation
-Date: Mon, 9 Sep 2019 15:18:01 +0800
-Message-ID: <bb9ae371-58b7-b7fc-b728-b5c5f55d3a91__44471.623333969$1568013525$gmane$org@redhat.com>
-References: <20190905122736.19768-1-jasowang@redhat.com>
-	<20190905135907.GB6011@mellanox.com>
-	<7785d39b-b4e7-8165-516c-ee6a08ac9c4e@redhat.com>
-	<20190906.151505.1486178691190611604.davem@davemloft.net>
+Subject: Re: [RFC PATCH untested] vhost: block speculation of translated
+	descriptors
+Date: Mon, 9 Sep 2019 15:19:55 +0800
+Message-ID: <db4d77d7-c467-935d-b4ae-1da7635e9b6b__40537.3372881272$1568013626$gmane$org@redhat.com>
+References: <20190908110521.4031-1-mst@redhat.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="iso-2022-jp"; Format="flowed"; DelSp="yes"
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset="utf-8"; Format="flowed"
+Content-Transfer-Encoding: base64
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <20190906.151505.1486178691190611604.davem@davemloft.net>
+In-Reply-To: <20190908110521.4031-1-mst@redhat.com>
 Content-Language: en-US
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
@@ -21,24 +19,36 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: David Miller <davem@davemloft.net>
-Cc: aarcange@redhat.com, kvm@vger.kernel.org, mst@redhat.com, netdev@vger.kernel.org, linux-kernel@vger.kernel.org, virtualization@lists.linux-foundation.org, linux-mm@kvack.org, jglisse@redhat.com, jgg@mellanox.com
+To: "Michael S. Tsirkin" <mst@redhat.com>, linux-kernel@vger.kernel.org
+Cc: netdev@vger.kernel.org, kvm@vger.kernel.org, virtualization@lists.linux-foundation.org
 List-Id: virtualization@lists.linuxfoundation.org
 
-
-On 2019/9/6 下午9:15, David Miller wrote:
-> From: Jason Wang <jasowang@redhat.com>
-> Date: Fri, 6 Sep 2019 18:02:35 +0800
->
->> On 2019/9/5 下午9:59, Jason Gunthorpe wrote:
->>> I think you should apply the revert this cycle and rebase the other
->>> patch for next..
->>>
->>> Jason
->> Yes, the plan is to revert in this release cycle.
-> Then you should reset patch #1 all by itself targetting 'net'.
-
-
-Thanks for the reminding. I want the patch to go through Michael's vhost  
-tree, that's why I don't put 'net' prefix. For next time, maybe I can  
-use "vhost" as a prefix for classification?
+Ck9uIDIwMTkvOS84IOS4i+WNiDc6MDUsIE1pY2hhZWwgUy4gVHNpcmtpbiB3cm90ZToKPiBpb3Zl
+YyBhZGRyZXNzZXMgY29taW5nIGZyb20gdmhvc3QgYXJlIGFzc3VtZWQgdG8gYmUKPiBwcmUtdmFs
+aWRhdGVkLCBidXQgaW4gZmFjdCBjYW4gYmUgc3BlY3VsYXRlZCB0byBhIHZhbHVlCj4gb3V0IG9m
+IHJhbmdlLgo+Cj4gVXNlcnNwYWNlIGFkZHJlc3MgYXJlIGxhdGVyIHZhbGlkYXRlZCB3aXRoIGFy
+cmF5X2luZGV4X25vc3BlYyBzbyB3ZSBjYW4KPiBiZSBzdXJlIGtlcm5lbCBpbmZvIGRvZXMgbm90
+IGxlYWsgdGhyb3VnaCB0aGVzZSBhZGRyZXNzZXMsIGJ1dCB2aG9zdAo+IG11c3QgYWxzbyBub3Qg
+bGVhayB1c2Vyc3BhY2UgaW5mbyBvdXRzaWRlIHRoZSBhbGxvd2VkIG1lbW9yeSB0YWJsZSB0bwo+
+IGd1ZXN0cy4KPgo+IEZvbGxvd2luZyB0aGUgZGVmZW5jZSBpbiBkZXB0aCBwcmluY2lwbGUsIG1h
+a2Ugc3VyZQo+IHRoZSBhZGRyZXNzIGlzIG5vdCB2YWxpZGF0ZWQgb3V0IG9mIG5vZGUgcmFuZ2Uu
+Cj4KPiBTaWduZWQtb2ZmLWJ5OiBNaWNoYWVsIFMuIFRzaXJraW4gPG1zdEByZWRoYXQuY29tPgo+
+IC0tLQo+ICAgZHJpdmVycy92aG9zdC92aG9zdC5jIHwgNCArKystCj4gICAxIGZpbGUgY2hhbmdl
+ZCwgMyBpbnNlcnRpb25zKCspLCAxIGRlbGV0aW9uKC0pCj4KPiBkaWZmIC0tZ2l0IGEvZHJpdmVy
+cy92aG9zdC92aG9zdC5jIGIvZHJpdmVycy92aG9zdC92aG9zdC5jCj4gaW5kZXggNWRjMTc0YWM4
+Y2FjLi4wZWUzNzVmYjcxNDUgMTAwNjQ0Cj4gLS0tIGEvZHJpdmVycy92aG9zdC92aG9zdC5jCj4g
+KysrIGIvZHJpdmVycy92aG9zdC92aG9zdC5jCj4gQEAgLTIwNzIsNyArMjA3Miw5IEBAIHN0YXRp
+YyBpbnQgdHJhbnNsYXRlX2Rlc2Moc3RydWN0IHZob3N0X3ZpcnRxdWV1ZSAqdnEsIHU2NCBhZGRy
+LCB1MzIgbGVuLAo+ICAgCQlzaXplID0gbm9kZS0+c2l6ZSAtIGFkZHIgKyBub2RlLT5zdGFydDsK
+PiAgIAkJX2lvdi0+aW92X2xlbiA9IG1pbigodTY0KWxlbiAtIHMsIHNpemUpOwo+ICAgCQlfaW92
+LT5pb3ZfYmFzZSA9ICh2b2lkIF9fdXNlciAqKSh1bnNpZ25lZCBsb25nKQo+IC0JCQkobm9kZS0+
+dXNlcnNwYWNlX2FkZHIgKyBhZGRyIC0gbm9kZS0+c3RhcnQpOwo+ICsJCQkobm9kZS0+dXNlcnNw
+YWNlX2FkZHIgKwo+ICsJCQkgYXJyYXlfaW5kZXhfbm9zcGVjKGFkZHIgLSBub2RlLT5zdGFydCwK
+PiArCQkJCQkgICAgbm9kZS0+c2l6ZSkpOwo+ICAgCQlzICs9IHNpemU7Cj4gICAJCWFkZHIgKz0g
+c2l6ZTsKPiAgIAkJKytyZXQ7CgoKSSd2ZSB0cmllZCB0aGlzIG9uIEthYnkgTGFrZSBzbWFwIG9m
+ZiBtZXRhZGF0YSBhY2NlbGVyYXRpb24gb2ZmIHVzaW5nIAp0ZXN0cG1kICh2aXJ0aW8tdXNlcikg
+KyB2aG9zdF9uZXQuIEkgZG9uJ3Qgc2VlIG9idmlvdXMgcGVyZm9ybWFuY2UgCmRpZmZlcmVuY2Ug
+d2l0aCBUWCBQUFMuCgpUaGFua3MKCl9fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19f
+X19fX19fX19fX19fClZpcnR1YWxpemF0aW9uIG1haWxpbmcgbGlzdApWaXJ0dWFsaXphdGlvbkBs
+aXN0cy5saW51eC1mb3VuZGF0aW9uLm9yZwpodHRwczovL2xpc3RzLmxpbnV4Zm91bmRhdGlvbi5v
+cmcvbWFpbG1hbi9saXN0aW5mby92aXJ0dWFsaXphdGlvbg==
