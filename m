@@ -1,16 +1,17 @@
-From: "Michael S. Tsirkin" <mst@redhat.com>
-Subject: Re: [RFC PATCH untested] vhost: block speculation of translated
-	descriptors
-Date: Mon, 9 Sep 2019 10:45:10 -0400
-Message-ID: <20190909104355-mutt-send-email-mst__34846.882712894$1568040324$gmane$org@kernel.org>
-References: <20190908110521.4031-1-mst@redhat.com>
-	<db4d77d7-c467-935d-b4ae-1da7635e9b6b@redhat.com>
+From: Vivek Goyal <vgoyal@redhat.com>
+Subject: Re: [Virtio-fs] [PATCH 15/18] virtiofs: Make virtio_fs object
+	refcounted
+Date: Mon, 9 Sep 2019 11:35:37 -0400
+Message-ID: <20190909153537.GA25501__25085.6262909778$1568043358$gmane$org@redhat.com>
+References: <20190905194859.16219-1-vgoyal@redhat.com>
+	<20190905194859.16219-16-vgoyal@redhat.com>
+	<a8ddb168-5fdb-b35a-5357-3c75e0226049@huawei.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="utf-8"
-Content-Transfer-Encoding: base64
+Content-Type: text/plain; charset="us-ascii"
+Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
 Content-Disposition: inline
-In-Reply-To: <db4d77d7-c467-935d-b4ae-1da7635e9b6b@redhat.com>
+In-Reply-To: <a8ddb168-5fdb-b35a-5357-3c75e0226049@huawei.com>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -20,41 +21,73 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Jason Wang <jasowang@redhat.com>
-Cc: netdev@vger.kernel.org, linux-kernel@vger.kernel.org, kvm@vger.kernel.org, virtualization@lists.linux-foundation.org
+To: piaojun <piaojun@huawei.com>
+Cc: miklos@szeredi.hu, mst@redhat.com, linux-kernel@vger.kernel.org, virtualization@lists.linux-foundation.org, virtio-fs@redhat.com, linux-fsdevel@vger.kernel.org
 List-Id: virtualization@lists.linuxfoundation.org
 
-T24gTW9uLCBTZXAgMDksIDIwMTkgYXQgMDM6MTk6NTVQTSArMDgwMCwgSmFzb24gV2FuZyB3cm90
-ZToKPiAKPiBPbiAyMDE5LzkvOCDkuIvljYg3OjA1LCBNaWNoYWVsIFMuIFRzaXJraW4gd3JvdGU6
-Cj4gPiBpb3ZlYyBhZGRyZXNzZXMgY29taW5nIGZyb20gdmhvc3QgYXJlIGFzc3VtZWQgdG8gYmUK
-PiA+IHByZS12YWxpZGF0ZWQsIGJ1dCBpbiBmYWN0IGNhbiBiZSBzcGVjdWxhdGVkIHRvIGEgdmFs
-dWUKPiA+IG91dCBvZiByYW5nZS4KPiA+IAo+ID4gVXNlcnNwYWNlIGFkZHJlc3MgYXJlIGxhdGVy
-IHZhbGlkYXRlZCB3aXRoIGFycmF5X2luZGV4X25vc3BlYyBzbyB3ZSBjYW4KPiA+IGJlIHN1cmUg
-a2VybmVsIGluZm8gZG9lcyBub3QgbGVhayB0aHJvdWdoIHRoZXNlIGFkZHJlc3NlcywgYnV0IHZo
-b3N0Cj4gPiBtdXN0IGFsc28gbm90IGxlYWsgdXNlcnNwYWNlIGluZm8gb3V0c2lkZSB0aGUgYWxs
-b3dlZCBtZW1vcnkgdGFibGUgdG8KPiA+IGd1ZXN0cy4KPiA+IAo+ID4gRm9sbG93aW5nIHRoZSBk
-ZWZlbmNlIGluIGRlcHRoIHByaW5jaXBsZSwgbWFrZSBzdXJlCj4gPiB0aGUgYWRkcmVzcyBpcyBu
-b3QgdmFsaWRhdGVkIG91dCBvZiBub2RlIHJhbmdlLgo+ID4gCj4gPiBTaWduZWQtb2ZmLWJ5OiBN
-aWNoYWVsIFMuIFRzaXJraW4gPG1zdEByZWRoYXQuY29tPgo+ID4gLS0tCj4gPiAgIGRyaXZlcnMv
-dmhvc3Qvdmhvc3QuYyB8IDQgKysrLQo+ID4gICAxIGZpbGUgY2hhbmdlZCwgMyBpbnNlcnRpb25z
-KCspLCAxIGRlbGV0aW9uKC0pCj4gPiAKPiA+IGRpZmYgLS1naXQgYS9kcml2ZXJzL3Zob3N0L3Zo
-b3N0LmMgYi9kcml2ZXJzL3Zob3N0L3Zob3N0LmMKPiA+IGluZGV4IDVkYzE3NGFjOGNhYy4uMGVl
-Mzc1ZmI3MTQ1IDEwMDY0NAo+ID4gLS0tIGEvZHJpdmVycy92aG9zdC92aG9zdC5jCj4gPiArKysg
-Yi9kcml2ZXJzL3Zob3N0L3Zob3N0LmMKPiA+IEBAIC0yMDcyLDcgKzIwNzIsOSBAQCBzdGF0aWMg
-aW50IHRyYW5zbGF0ZV9kZXNjKHN0cnVjdCB2aG9zdF92aXJ0cXVldWUgKnZxLCB1NjQgYWRkciwg
-dTMyIGxlbiwKPiA+ICAgCQlzaXplID0gbm9kZS0+c2l6ZSAtIGFkZHIgKyBub2RlLT5zdGFydDsK
-PiA+ICAgCQlfaW92LT5pb3ZfbGVuID0gbWluKCh1NjQpbGVuIC0gcywgc2l6ZSk7Cj4gPiAgIAkJ
-X2lvdi0+aW92X2Jhc2UgPSAodm9pZCBfX3VzZXIgKikodW5zaWduZWQgbG9uZykKPiA+IC0JCQko
-bm9kZS0+dXNlcnNwYWNlX2FkZHIgKyBhZGRyIC0gbm9kZS0+c3RhcnQpOwo+ID4gKwkJCShub2Rl
-LT51c2Vyc3BhY2VfYWRkciArCj4gPiArCQkJIGFycmF5X2luZGV4X25vc3BlYyhhZGRyIC0gbm9k
-ZS0+c3RhcnQsCj4gPiArCQkJCQkgICAgbm9kZS0+c2l6ZSkpOwo+ID4gICAJCXMgKz0gc2l6ZTsK
-PiA+ICAgCQlhZGRyICs9IHNpemU7Cj4gPiAgIAkJKytyZXQ7Cj4gCj4gCj4gSSd2ZSB0cmllZCB0
-aGlzIG9uIEthYnkgTGFrZSBzbWFwIG9mZiBtZXRhZGF0YSBhY2NlbGVyYXRpb24gb2ZmIHVzaW5n
-Cj4gdGVzdHBtZCAodmlydGlvLXVzZXIpICsgdmhvc3RfbmV0LiBJIGRvbid0IHNlZSBvYnZpb3Vz
-IHBlcmZvcm1hbmNlCj4gZGlmZmVyZW5jZSB3aXRoIFRYIFBQUy4KPiAKPiBUaGFua3MKClNob3Vs
-ZCBJIHB1c2ggdGhpcyB0byBMaW51cyByaWdodCBub3cgdGhlbj8gSXQncyBhIHNlY3VyaXR5IHRo
-aW5nIHNvCm1heWJlIHdlIGJldHRlciBkbyBpdCBBU0FQIC4uLiB3aGF0J3MgeW91ciBvcGluaW9u
-PwoKLS0gCk1TVApfX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19f
-XwpWaXJ0dWFsaXphdGlvbiBtYWlsaW5nIGxpc3QKVmlydHVhbGl6YXRpb25AbGlzdHMubGludXgt
-Zm91bmRhdGlvbi5vcmcKaHR0cHM6Ly9saXN0cy5saW51eGZvdW5kYXRpb24ub3JnL21haWxtYW4v
-bGlzdGluZm8vdmlydHVhbGl6YXRpb24=
+On Sun, Sep 08, 2019 at 07:10:03PM +0800, piaojun wrote:
+> 
+> 
+> On 2019/9/6 3:48, Vivek Goyal wrote:
+> > This object is used both by fuse_connection as well virt device. So make
+> > this object reference counted and that makes it easy to define life cycle
+> > of the object.
+> > 
+> > Now deivce can be removed while filesystem is still mounted. This will
+> > cleanup all the virtqueues but virtio_fs object will still be around and
+> > will be cleaned when filesystem is unmounted and sb/fc drops its reference.
+> > 
+> > Removing a device also stops all virt queues and any new reuqest gets
+> > error -ENOTCONN. All existing in flight requests are drained before
+> > ->remove returns.
+> > 
+> > Signed-off-by: Vivek Goyal <vgoyal@redhat.com>
+> > ---
+> >  fs/fuse/virtio_fs.c | 52 +++++++++++++++++++++++++++++++++++++--------
+> >  1 file changed, 43 insertions(+), 9 deletions(-)
+> > 
+> > diff --git a/fs/fuse/virtio_fs.c b/fs/fuse/virtio_fs.c
+> > index 01bbf2c0e144..29ec2f5bbbe2 100644
+> > --- a/fs/fuse/virtio_fs.c
+> > +++ b/fs/fuse/virtio_fs.c
+> > @@ -37,6 +37,7 @@ struct virtio_fs_vq {
+> >  
+> >  /* A virtio-fs device instance */
+> >  struct virtio_fs {
+> > +	struct kref refcount;
+> >  	struct list_head list;    /* on virtio_fs_instances */
+> >  	char *tag;
+> >  	struct virtio_fs_vq *vqs;
+> > @@ -63,6 +64,27 @@ static inline struct fuse_pqueue *vq_to_fpq(struct virtqueue *vq)
+> >  	return &vq_to_fsvq(vq)->fud->pq;
+> >  }
+> >  
+> > +static void release_virtiofs_obj(struct kref *ref)
+> > +{
+> > +	struct virtio_fs *vfs = container_of(ref, struct virtio_fs, refcount);
+> > +
+> > +	kfree(vfs->vqs);
+> > +	kfree(vfs);
+> > +}
+> > +
+> > +static void virtio_fs_put(struct virtio_fs *fs)
+> > +{
+> > +	mutex_lock(&virtio_fs_mutex);
+> > +	kref_put(&fs->refcount, release_virtiofs_obj);
+> > +	mutex_unlock(&virtio_fs_mutex);
+> > +}
+> > +
+> > +static void virtio_fs_put(struct fuse_iqueue *fiq)
+> > +{
+> > +	struct virtio_fs *vfs = fiq->priv;
+> > +	virtiofs_put(vfs);
+> > +}
+> 
+> It's a little confusing that virtiofs_put() looks like virtiofs_put(),
+> and could we use __virtio_fs_put to replace virtio_fs_put?
+
+Fixed this in follow up patch I posted.
+
+https://www.redhat.com/archives/virtio-fs/2019-September/msg00091.html
+
+Vivek
