@@ -1,14 +1,17 @@
-From: Tom Murphy <murphyt7@tcd.ie>
-Subject: [PATCH V6 5/5] iommu/amd: Convert AMD iommu driver to the dma-iommu
-	api
-Date: Sun,  8 Sep 2019 09:56:41 -0700
-Message-ID: <20190908165642.22253-6-murphyt7__3104.84465896792$1567961904$gmane$org@tcd.ie>
-References: <20190908165642.22253-1-murphyt7@tcd.ie>
+From: Jason Wang <jasowang@redhat.com>
+Subject: Re: [PATCH 2/2] vhost: re-introducing metadata acceleration through
+	kernel virtual address
+Date: Mon, 9 Sep 2019 10:18:57 +0800
+Message-ID: <1cb5aa8d-6213-5fce-5a77-fcada572c882__17033.9396850736$1567995592$gmane$org@redhat.com>
+References: <20190905122736.19768-1-jasowang@redhat.com>
+	<20190905122736.19768-3-jasowang@redhat.com>
+	<20190908063618-mutt-send-email-mst@kernel.org>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset="utf-8"; Format="flowed"
+Content-Transfer-Encoding: base64
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <20190908165642.22253-1-murphyt7@tcd.ie>
+In-Reply-To: <20190908063618-mutt-send-email-mst@kernel.org>
+Content-Language: en-US
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -18,881 +21,398 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: iommu@lists.linux-foundation.org
-Cc: Heiko Stuebner <heiko@sntech.de>, virtualization@lists.linux-foundation.org, linux-tegra@vger.kernel.org, Thierry Reding <thierry.reding@gmail.com>, Will Deacon <will@kernel.org>, Marek Szyprowski <m.szyprowski@samsung.com>, Jean-Philippe Brucker <jean-philippe@linaro.org>, linux-samsung-soc@vger.kernel.org, Joerg Roedel <joro@8bytes.org>, Krzysztof Kozlowski <krzk@kernel.org>, Jonathan Hunter <jonathanh@nvidia.com>, linux-rockchip@lists.infradead.org, Andy Gross <agross@kernel.org>, Gerald Schaefer <gerald.schaefer@de.ibm.com>, linux-s390@vger.kernel.org, linux-arm-msm@vger.kernel.org, linux-mediatek@lists.infradead.org, Matthias Brugger <matthias.bgg@gmail.com>, linux-arm-kernel@lists.infradead.org, David Woodhouse <dwmw2@infradead.org>, linux-kernel@vger.kernel.org, Tom Murphy <murphyt7@tcd.ie>, Rob Clark <robdclark@gmail.com>, Kukjin Kim <kgene@kernel.org>, Robin
+To: "Michael S. Tsirkin" <mst@redhat.com>
+Cc: aarcange@redhat.com, Christoph Hellwig <hch@infradead.org>, linux-parisc@vger.kernel.org, kvm@vger.kernel.org, netdev@vger.kernel.org, linux-kernel@vger.kernel.org, virtualization@lists.linux-foundation.org, James Bottomley <James.Bottomley@hansenpartnership.com>, linux-mm@kvack.org, jglisse@redhat.com, jgg@mellanox.com, David Miller <davem@davemloft.net>, linux-arm-kernel@lists.infradead.org
 List-Id: virtualization@lists.linuxfoundation.org
 
-Convert the AMD iommu driver to the dma-iommu api. Remove the iova
-handling and reserve region code from the AMD iommu driver.
-
-Signed-off-by: Tom Murphy <murphyt7@tcd.ie>
----
- drivers/iommu/Kconfig     |   1 +
- drivers/iommu/amd_iommu.c | 677 ++++----------------------------------
- 2 files changed, 68 insertions(+), 610 deletions(-)
-
-diff --git a/drivers/iommu/Kconfig b/drivers/iommu/Kconfig
-index e15cdcd8cb3c..437428571512 100644
---- a/drivers/iommu/Kconfig
-+++ b/drivers/iommu/Kconfig
-@@ -138,6 +138,7 @@ config AMD_IOMMU
- 	select PCI_PASID
- 	select IOMMU_API
- 	select IOMMU_IOVA
-+	select IOMMU_DMA
- 	depends on X86_64 && PCI && ACPI
- 	---help---
- 	  With this option you can enable support for AMD IOMMU hardware in
-diff --git a/drivers/iommu/amd_iommu.c b/drivers/iommu/amd_iommu.c
-index 0e53f9bd2be7..eb4801031a99 100644
---- a/drivers/iommu/amd_iommu.c
-+++ b/drivers/iommu/amd_iommu.c
-@@ -20,6 +20,7 @@
- #include <linux/scatterlist.h>
- #include <linux/dma-mapping.h>
- #include <linux/dma-direct.h>
-+#include <linux/dma-iommu.h>
- #include <linux/iommu-helper.h>
- #include <linux/iommu.h>
- #include <linux/delay.h>
-@@ -89,8 +90,6 @@ const struct iommu_ops amd_iommu_ops;
- static ATOMIC_NOTIFIER_HEAD(ppr_notifier);
- int amd_iommu_max_glx_val = -1;
- 
--static const struct dma_map_ops amd_iommu_dma_ops;
--
- /*
-  * general struct to manage commands send to an IOMMU
-  */
-@@ -103,21 +102,6 @@ struct kmem_cache *amd_iommu_irq_cache;
- static void update_domain(struct protection_domain *domain);
- static int protection_domain_init(struct protection_domain *domain);
- static void detach_device(struct device *dev);
--static void iova_domain_flush_tlb(struct iova_domain *iovad);
--
--/*
-- * Data container for a dma_ops specific protection domain
-- */
--struct dma_ops_domain {
--	/* generic protection domain information */
--	struct protection_domain domain;
--
--	/* IOVA RB-Tree */
--	struct iova_domain iovad;
--};
--
--static struct iova_domain reserved_iova_ranges;
--static struct lock_class_key reserved_rbtree_key;
- 
- /****************************************************************************
-  *
-@@ -188,12 +172,6 @@ static struct protection_domain *to_pdomain(struct iommu_domain *dom)
- 	return container_of(dom, struct protection_domain, domain);
- }
- 
--static struct dma_ops_domain* to_dma_ops_domain(struct protection_domain *domain)
--{
--	BUG_ON(domain->flags != PD_DMA_OPS_MASK);
--	return container_of(domain, struct dma_ops_domain, domain);
--}
--
- static struct iommu_dev_data *alloc_dev_data(u16 devid)
- {
- 	struct iommu_dev_data *dev_data;
-@@ -1267,12 +1245,6 @@ static void domain_flush_pages(struct protection_domain *domain,
- 	__domain_flush_pages(domain, address, size, 0);
- }
- 
--/* Flush the whole IO/TLB for a given protection domain */
--static void domain_flush_tlb(struct protection_domain *domain)
--{
--	__domain_flush_pages(domain, 0, CMD_INV_IOMMU_ALL_PAGES_ADDRESS, 0);
--}
--
- /* Flush the whole IO/TLB for a given protection domain - including PDE */
- static void domain_flush_tlb_pde(struct protection_domain *domain)
- {
-@@ -1674,43 +1646,6 @@ static unsigned long iommu_unmap_page(struct protection_domain *dom,
- 	return unmapped;
- }
- 
--/****************************************************************************
-- *
-- * The next functions belong to the address allocator for the dma_ops
-- * interface functions.
-- *
-- ****************************************************************************/
--
--
--static unsigned long dma_ops_alloc_iova(struct device *dev,
--					struct dma_ops_domain *dma_dom,
--					unsigned int pages, u64 dma_mask)
--{
--	unsigned long pfn = 0;
--
--	pages = __roundup_pow_of_two(pages);
--
--	if (dma_mask > DMA_BIT_MASK(32))
--		pfn = alloc_iova_fast(&dma_dom->iovad, pages,
--				      IOVA_PFN(DMA_BIT_MASK(32)), false);
--
--	if (!pfn)
--		pfn = alloc_iova_fast(&dma_dom->iovad, pages,
--				      IOVA_PFN(dma_mask), true);
--
--	return (pfn << PAGE_SHIFT);
--}
--
--static void dma_ops_free_iova(struct dma_ops_domain *dma_dom,
--			      unsigned long address,
--			      unsigned int pages)
--{
--	pages = __roundup_pow_of_two(pages);
--	address >>= PAGE_SHIFT;
--
--	free_iova_fast(&dma_dom->iovad, address, pages);
--}
--
- /****************************************************************************
-  *
-  * The next functions belong to the domain allocation. A domain is
-@@ -1787,38 +1722,23 @@ static void free_gcr3_table(struct protection_domain *domain)
- 	free_page((unsigned long)domain->gcr3_tbl);
- }
- 
--static void dma_ops_domain_flush_tlb(struct dma_ops_domain *dom)
--{
--	domain_flush_tlb(&dom->domain);
--	domain_flush_complete(&dom->domain);
--}
--
--static void iova_domain_flush_tlb(struct iova_domain *iovad)
--{
--	struct dma_ops_domain *dom;
--
--	dom = container_of(iovad, struct dma_ops_domain, iovad);
--
--	dma_ops_domain_flush_tlb(dom);
--}
--
- /*
-  * Free a domain, only used if something went wrong in the
-  * allocation path and we need to free an already allocated page table
-  */
--static void dma_ops_domain_free(struct dma_ops_domain *dom)
-+static void dma_ops_domain_free(struct protection_domain *domain)
- {
--	if (!dom)
-+	if (!domain)
- 		return;
- 
--	put_iova_domain(&dom->iovad);
-+	iommu_put_dma_cookie(&domain->domain);
- 
--	free_pagetable(&dom->domain);
-+	free_pagetable(domain);
- 
--	if (dom->domain.id)
--		domain_id_free(dom->domain.id);
-+	if (domain->id)
-+		domain_id_free(domain->id);
- 
--	kfree(dom);
-+	kfree(domain);
- }
- 
- /*
-@@ -1826,35 +1746,30 @@ static void dma_ops_domain_free(struct dma_ops_domain *dom)
-  * It also initializes the page table and the address allocator data
-  * structures required for the dma_ops interface
-  */
--static struct dma_ops_domain *dma_ops_domain_alloc(void)
-+static struct protection_domain *dma_ops_domain_alloc(void)
- {
--	struct dma_ops_domain *dma_dom;
-+	struct protection_domain *domain;
- 
--	dma_dom = kzalloc(sizeof(struct dma_ops_domain), GFP_KERNEL);
--	if (!dma_dom)
-+	domain = kzalloc(sizeof(struct protection_domain), GFP_KERNEL);
-+	if (!domain)
- 		return NULL;
- 
--	if (protection_domain_init(&dma_dom->domain))
--		goto free_dma_dom;
--
--	dma_dom->domain.mode = PAGE_MODE_3_LEVEL;
--	dma_dom->domain.pt_root = (void *)get_zeroed_page(GFP_KERNEL);
--	dma_dom->domain.flags = PD_DMA_OPS_MASK;
--	if (!dma_dom->domain.pt_root)
--		goto free_dma_dom;
--
--	init_iova_domain(&dma_dom->iovad, PAGE_SIZE, IOVA_START_PFN);
-+	if (protection_domain_init(domain))
-+		goto free_domain;
- 
--	if (init_iova_flush_queue(&dma_dom->iovad, iova_domain_flush_tlb, NULL))
--		goto free_dma_dom;
-+	domain->mode = PAGE_MODE_3_LEVEL;
-+	domain->pt_root = (void *)get_zeroed_page(GFP_KERNEL);
-+	domain->flags = PD_DMA_OPS_MASK;
-+	if (!domain->pt_root)
-+		goto free_domain;
- 
--	/* Initialize reserved ranges */
--	copy_reserved_iova(&reserved_iova_ranges, &dma_dom->iovad);
-+	if (iommu_get_dma_cookie(&domain->domain) == -ENOMEM)
-+		goto free_domain;
- 
--	return dma_dom;
-+	return domain;
- 
--free_dma_dom:
--	dma_ops_domain_free(dma_dom);
-+free_domain:
-+	dma_ops_domain_free(domain);
- 
- 	return NULL;
- }
-@@ -2233,8 +2148,8 @@ static int amd_iommu_add_device(struct device *dev)
- 	domain = iommu_get_domain_for_dev(dev);
- 	if (domain->type == IOMMU_DOMAIN_IDENTITY)
- 		dev_data->passthrough = true;
--	else
--		dev->dma_ops = &amd_iommu_dma_ops;
-+	else if (domain->type == IOMMU_DOMAIN_DMA)
-+		iommu_setup_dma_ops(dev, IOVA_START_PFN << PAGE_SHIFT, 0);
- 
- out:
- 	iommu_completion_wait(iommu);
-@@ -2268,43 +2183,32 @@ static struct iommu_group *amd_iommu_device_group(struct device *dev)
- 	return acpihid_device_group(dev);
- }
- 
-+static int amd_iommu_domain_get_attr(struct iommu_domain *domain,
-+		enum iommu_attr attr, void *data)
-+{
-+	switch (domain->type) {
-+	case IOMMU_DOMAIN_UNMANAGED:
-+		return -ENODEV;
-+	case IOMMU_DOMAIN_DMA:
-+		switch (attr) {
-+		case DOMAIN_ATTR_DMA_USE_FLUSH_QUEUE:
-+			*(int *)data = !amd_iommu_unmap_flush;
-+			return 0;
-+		default:
-+			return -ENODEV;
-+		}
-+		break;
-+	default:
-+		return -EINVAL;
-+	}
-+}
-+
- /*****************************************************************************
-  *
-  * The next functions belong to the dma_ops mapping/unmapping code.
-  *
-  *****************************************************************************/
- 
--/*
-- * In the dma_ops path we only have the struct device. This function
-- * finds the corresponding IOMMU, the protection domain and the
-- * requestor id for a given device.
-- * If the device is not yet associated with a domain this is also done
-- * in this function.
-- */
--static struct protection_domain *get_domain(struct device *dev)
--{
--	struct protection_domain *domain;
--	struct iommu_domain *io_domain;
--
--	if (!check_device(dev))
--		return ERR_PTR(-EINVAL);
--
--	domain = get_dev_data(dev)->domain;
--	if (domain == NULL && get_dev_data(dev)->defer_attach) {
--		get_dev_data(dev)->defer_attach = false;
--		io_domain = iommu_get_domain_for_dev(dev);
--		domain = to_pdomain(io_domain);
--		attach_device(dev, domain);
--	}
--	if (domain == NULL)
--		return ERR_PTR(-EBUSY);
--
--	if (!dma_ops_domain(domain))
--		return ERR_PTR(-EBUSY);
--
--	return domain;
--}
--
- static void update_device_table(struct protection_domain *domain)
- {
- 	struct iommu_dev_data *dev_data;
-@@ -2335,447 +2239,6 @@ static void update_domain(struct protection_domain *domain)
- 	domain->updated = false;
- }
- 
--static int dir2prot(enum dma_data_direction direction)
--{
--	if (direction == DMA_TO_DEVICE)
--		return IOMMU_PROT_IR;
--	else if (direction == DMA_FROM_DEVICE)
--		return IOMMU_PROT_IW;
--	else if (direction == DMA_BIDIRECTIONAL)
--		return IOMMU_PROT_IW | IOMMU_PROT_IR;
--	else
--		return 0;
--}
--
--/*
-- * This function contains common code for mapping of a physically
-- * contiguous memory region into DMA address space. It is used by all
-- * mapping functions provided with this IOMMU driver.
-- * Must be called with the domain lock held.
-- */
--static dma_addr_t __map_single(struct device *dev,
--			       struct dma_ops_domain *dma_dom,
--			       phys_addr_t paddr,
--			       size_t size,
--			       enum dma_data_direction direction,
--			       u64 dma_mask)
--{
--	dma_addr_t offset = paddr & ~PAGE_MASK;
--	dma_addr_t address, start, ret;
--	unsigned int pages;
--	int prot = 0;
--	int i;
--
--	pages = iommu_num_pages(paddr, size, PAGE_SIZE);
--	paddr &= PAGE_MASK;
--
--	address = dma_ops_alloc_iova(dev, dma_dom, pages, dma_mask);
--	if (!address)
--		goto out;
--
--	prot = dir2prot(direction);
--
--	start = address;
--	for (i = 0; i < pages; ++i) {
--		ret = iommu_map_page(&dma_dom->domain, start, paddr,
--				     PAGE_SIZE, prot, GFP_ATOMIC);
--		if (ret)
--			goto out_unmap;
--
--		paddr += PAGE_SIZE;
--		start += PAGE_SIZE;
--	}
--	address += offset;
--
--	domain_flush_np_cache(&dma_dom->domain, address, size);
--
--out:
--	return address;
--
--out_unmap:
--
--	for (--i; i >= 0; --i) {
--		start -= PAGE_SIZE;
--		iommu_unmap_page(&dma_dom->domain, start, PAGE_SIZE);
--	}
--
--	domain_flush_tlb(&dma_dom->domain);
--	domain_flush_complete(&dma_dom->domain);
--
--	dma_ops_free_iova(dma_dom, address, pages);
--
--	return DMA_MAPPING_ERROR;
--}
--
--/*
-- * Does the reverse of the __map_single function. Must be called with
-- * the domain lock held too
-- */
--static void __unmap_single(struct dma_ops_domain *dma_dom,
--			   dma_addr_t dma_addr,
--			   size_t size,
--			   int dir)
--{
--	dma_addr_t i, start;
--	unsigned int pages;
--
--	pages = iommu_num_pages(dma_addr, size, PAGE_SIZE);
--	dma_addr &= PAGE_MASK;
--	start = dma_addr;
--
--	for (i = 0; i < pages; ++i) {
--		iommu_unmap_page(&dma_dom->domain, start, PAGE_SIZE);
--		start += PAGE_SIZE;
--	}
--
--	if (amd_iommu_unmap_flush) {
--		domain_flush_tlb(&dma_dom->domain);
--		domain_flush_complete(&dma_dom->domain);
--		dma_ops_free_iova(dma_dom, dma_addr, pages);
--	} else {
--		pages = __roundup_pow_of_two(pages);
--		queue_iova(&dma_dom->iovad, dma_addr >> PAGE_SHIFT, pages, 0);
--	}
--}
--
--/*
-- * The exported map_single function for dma_ops.
-- */
--static dma_addr_t map_page(struct device *dev, struct page *page,
--			   unsigned long offset, size_t size,
--			   enum dma_data_direction dir,
--			   unsigned long attrs)
--{
--	phys_addr_t paddr = page_to_phys(page) + offset;
--	struct protection_domain *domain;
--	struct dma_ops_domain *dma_dom;
--	u64 dma_mask;
--
--	domain = get_domain(dev);
--	if (PTR_ERR(domain) == -EINVAL)
--		return (dma_addr_t)paddr;
--	else if (IS_ERR(domain))
--		return DMA_MAPPING_ERROR;
--
--	dma_mask = *dev->dma_mask;
--	dma_dom = to_dma_ops_domain(domain);
--
--	return __map_single(dev, dma_dom, paddr, size, dir, dma_mask);
--}
--
--/*
-- * The exported unmap_single function for dma_ops.
-- */
--static void unmap_page(struct device *dev, dma_addr_t dma_addr, size_t size,
--		       enum dma_data_direction dir, unsigned long attrs)
--{
--	struct protection_domain *domain;
--	struct dma_ops_domain *dma_dom;
--
--	domain = get_domain(dev);
--	if (IS_ERR(domain))
--		return;
--
--	dma_dom = to_dma_ops_domain(domain);
--
--	__unmap_single(dma_dom, dma_addr, size, dir);
--}
--
--static int sg_num_pages(struct device *dev,
--			struct scatterlist *sglist,
--			int nelems)
--{
--	unsigned long mask, boundary_size;
--	struct scatterlist *s;
--	int i, npages = 0;
--
--	mask          = dma_get_seg_boundary(dev);
--	boundary_size = mask + 1 ? ALIGN(mask + 1, PAGE_SIZE) >> PAGE_SHIFT :
--				   1UL << (BITS_PER_LONG - PAGE_SHIFT);
--
--	for_each_sg(sglist, s, nelems, i) {
--		int p, n;
--
--		s->dma_address = npages << PAGE_SHIFT;
--		p = npages % boundary_size;
--		n = iommu_num_pages(sg_phys(s), s->length, PAGE_SIZE);
--		if (p + n > boundary_size)
--			npages += boundary_size - p;
--		npages += n;
--	}
--
--	return npages;
--}
--
--/*
-- * The exported map_sg function for dma_ops (handles scatter-gather
-- * lists).
-- */
--static int map_sg(struct device *dev, struct scatterlist *sglist,
--		  int nelems, enum dma_data_direction direction,
--		  unsigned long attrs)
--{
--	int mapped_pages = 0, npages = 0, prot = 0, i;
--	struct protection_domain *domain;
--	struct dma_ops_domain *dma_dom;
--	struct scatterlist *s;
--	unsigned long address;
--	u64 dma_mask;
--	int ret;
--
--	domain = get_domain(dev);
--	if (IS_ERR(domain))
--		return 0;
--
--	dma_dom  = to_dma_ops_domain(domain);
--	dma_mask = *dev->dma_mask;
--
--	npages = sg_num_pages(dev, sglist, nelems);
--
--	address = dma_ops_alloc_iova(dev, dma_dom, npages, dma_mask);
--	if (!address)
--		goto out_err;
--
--	prot = dir2prot(direction);
--
--	/* Map all sg entries */
--	for_each_sg(sglist, s, nelems, i) {
--		int j, pages = iommu_num_pages(sg_phys(s), s->length, PAGE_SIZE);
--
--		for (j = 0; j < pages; ++j) {
--			unsigned long bus_addr, phys_addr;
--
--			bus_addr  = address + s->dma_address + (j << PAGE_SHIFT);
--			phys_addr = (sg_phys(s) & PAGE_MASK) + (j << PAGE_SHIFT);
--			ret = iommu_map_page(domain, bus_addr, phys_addr, PAGE_SIZE, prot, GFP_ATOMIC);
--			if (ret)
--				goto out_unmap;
--
--			mapped_pages += 1;
--		}
--	}
--
--	/* Everything is mapped - write the right values into s->dma_address */
--	for_each_sg(sglist, s, nelems, i) {
--		/*
--		 * Add in the remaining piece of the scatter-gather offset that
--		 * was masked out when we were determining the physical address
--		 * via (sg_phys(s) & PAGE_MASK) earlier.
--		 */
--		s->dma_address += address + (s->offset & ~PAGE_MASK);
--		s->dma_length   = s->length;
--	}
--
--	if (s)
--		domain_flush_np_cache(domain, s->dma_address, s->dma_length);
--
--	return nelems;
--
--out_unmap:
--	dev_err(dev, "IOMMU mapping error in map_sg (io-pages: %d reason: %d)\n",
--		npages, ret);
--
--	for_each_sg(sglist, s, nelems, i) {
--		int j, pages = iommu_num_pages(sg_phys(s), s->length, PAGE_SIZE);
--
--		for (j = 0; j < pages; ++j) {
--			unsigned long bus_addr;
--
--			bus_addr  = address + s->dma_address + (j << PAGE_SHIFT);
--			iommu_unmap_page(domain, bus_addr, PAGE_SIZE);
--
--			if (--mapped_pages == 0)
--				goto out_free_iova;
--		}
--	}
--
--out_free_iova:
--	free_iova_fast(&dma_dom->iovad, address >> PAGE_SHIFT, npages);
--
--out_err:
--	return 0;
--}
--
--/*
-- * The exported map_sg function for dma_ops (handles scatter-gather
-- * lists).
-- */
--static void unmap_sg(struct device *dev, struct scatterlist *sglist,
--		     int nelems, enum dma_data_direction dir,
--		     unsigned long attrs)
--{
--	struct protection_domain *domain;
--	struct dma_ops_domain *dma_dom;
--	unsigned long startaddr;
--	int npages;
--
--	domain = get_domain(dev);
--	if (IS_ERR(domain))
--		return;
--
--	startaddr = sg_dma_address(sglist) & PAGE_MASK;
--	dma_dom   = to_dma_ops_domain(domain);
--	npages    = sg_num_pages(dev, sglist, nelems);
--
--	__unmap_single(dma_dom, startaddr, npages << PAGE_SHIFT, dir);
--}
--
--/*
-- * The exported alloc_coherent function for dma_ops.
-- */
--static void *alloc_coherent(struct device *dev, size_t size,
--			    dma_addr_t *dma_addr, gfp_t flag,
--			    unsigned long attrs)
--{
--	u64 dma_mask = dev->coherent_dma_mask;
--	struct protection_domain *domain;
--	struct dma_ops_domain *dma_dom;
--	struct page *page;
--
--	domain = get_domain(dev);
--	if (PTR_ERR(domain) == -EINVAL) {
--		page = alloc_pages(flag, get_order(size));
--		*dma_addr = page_to_phys(page);
--		return page_address(page);
--	} else if (IS_ERR(domain))
--		return NULL;
--
--	dma_dom   = to_dma_ops_domain(domain);
--	size	  = PAGE_ALIGN(size);
--	dma_mask  = dev->coherent_dma_mask;
--	flag     &= ~(__GFP_DMA | __GFP_HIGHMEM | __GFP_DMA32);
--	flag     |= __GFP_ZERO;
--
--	page = alloc_pages(flag | __GFP_NOWARN,  get_order(size));
--	if (!page) {
--		if (!gfpflags_allow_blocking(flag))
--			return NULL;
--
--		page = dma_alloc_from_contiguous(dev, size >> PAGE_SHIFT,
--					get_order(size), flag & __GFP_NOWARN);
--		if (!page)
--			return NULL;
--	}
--
--	if (!dma_mask)
--		dma_mask = *dev->dma_mask;
--
--	*dma_addr = __map_single(dev, dma_dom, page_to_phys(page),
--				 size, DMA_BIDIRECTIONAL, dma_mask);
--
--	if (*dma_addr == DMA_MAPPING_ERROR)
--		goto out_free;
--
--	return page_address(page);
--
--out_free:
--
--	if (!dma_release_from_contiguous(dev, page, size >> PAGE_SHIFT))
--		__free_pages(page, get_order(size));
--
--	return NULL;
--}
--
--/*
-- * The exported free_coherent function for dma_ops.
-- */
--static void free_coherent(struct device *dev, size_t size,
--			  void *virt_addr, dma_addr_t dma_addr,
--			  unsigned long attrs)
--{
--	struct protection_domain *domain;
--	struct dma_ops_domain *dma_dom;
--	struct page *page;
--
--	page = virt_to_page(virt_addr);
--	size = PAGE_ALIGN(size);
--
--	domain = get_domain(dev);
--	if (IS_ERR(domain))
--		goto free_mem;
--
--	dma_dom = to_dma_ops_domain(domain);
--
--	__unmap_single(dma_dom, dma_addr, size, DMA_BIDIRECTIONAL);
--
--free_mem:
--	if (!dma_release_from_contiguous(dev, page, size >> PAGE_SHIFT))
--		__free_pages(page, get_order(size));
--}
--
--/*
-- * This function is called by the DMA layer to find out if we can handle a
-- * particular device. It is part of the dma_ops.
-- */
--static int amd_iommu_dma_supported(struct device *dev, u64 mask)
--{
--	if (!dma_direct_supported(dev, mask))
--		return 0;
--	return check_device(dev);
--}
--
--static const struct dma_map_ops amd_iommu_dma_ops = {
--	.alloc		= alloc_coherent,
--	.free		= free_coherent,
--	.map_page	= map_page,
--	.unmap_page	= unmap_page,
--	.map_sg		= map_sg,
--	.unmap_sg	= unmap_sg,
--	.dma_supported	= amd_iommu_dma_supported,
--};
--
--static int init_reserved_iova_ranges(void)
--{
--	struct pci_dev *pdev = NULL;
--	struct iova *val;
--
--	init_iova_domain(&reserved_iova_ranges, PAGE_SIZE, IOVA_START_PFN);
--
--	lockdep_set_class(&reserved_iova_ranges.iova_rbtree_lock,
--			  &reserved_rbtree_key);
--
--	/* MSI memory range */
--	val = reserve_iova(&reserved_iova_ranges,
--			   IOVA_PFN(MSI_RANGE_START), IOVA_PFN(MSI_RANGE_END));
--	if (!val) {
--		pr_err("Reserving MSI range failed\n");
--		return -ENOMEM;
--	}
--
--	/* HT memory range */
--	val = reserve_iova(&reserved_iova_ranges,
--			   IOVA_PFN(HT_RANGE_START), IOVA_PFN(HT_RANGE_END));
--	if (!val) {
--		pr_err("Reserving HT range failed\n");
--		return -ENOMEM;
--	}
--
--	/*
--	 * Memory used for PCI resources
--	 * FIXME: Check whether we can reserve the PCI-hole completly
--	 */
--	for_each_pci_dev(pdev) {
--		int i;
--
--		for (i = 0; i < PCI_NUM_RESOURCES; ++i) {
--			struct resource *r = &pdev->resource[i];
--
--			if (!(r->flags & IORESOURCE_MEM))
--				continue;
--
--			val = reserve_iova(&reserved_iova_ranges,
--					   IOVA_PFN(r->start),
--					   IOVA_PFN(r->end));
--			if (!val) {
--				pci_err(pdev, "Reserve pci-resource range %pR failed\n", r);
--				return -ENOMEM;
--			}
--		}
--	}
--
--	return 0;
--}
--
- int __init amd_iommu_init_api(void)
- {
- 	int ret, err = 0;
-@@ -2784,10 +2247,6 @@ int __init amd_iommu_init_api(void)
- 	if (ret)
- 		return ret;
- 
--	ret = init_reserved_iova_ranges();
--	if (ret)
--		return ret;
--
- 	err = bus_set_iommu(&pci_bus_type, &amd_iommu_ops);
- 	if (err)
- 		return err;
-@@ -2888,7 +2347,6 @@ static struct protection_domain *protection_domain_alloc(void)
- static struct iommu_domain *amd_iommu_domain_alloc(unsigned type)
- {
- 	struct protection_domain *pdomain;
--	struct dma_ops_domain *dma_domain;
- 
- 	switch (type) {
- 	case IOMMU_DOMAIN_UNMANAGED:
-@@ -2909,12 +2367,11 @@ static struct iommu_domain *amd_iommu_domain_alloc(unsigned type)
- 
- 		break;
- 	case IOMMU_DOMAIN_DMA:
--		dma_domain = dma_ops_domain_alloc();
--		if (!dma_domain) {
-+		pdomain = dma_ops_domain_alloc();
-+		if (!pdomain) {
- 			pr_err("Failed to allocate\n");
- 			return NULL;
- 		}
--		pdomain = &dma_domain->domain;
- 		break;
- 	case IOMMU_DOMAIN_IDENTITY:
- 		pdomain = protection_domain_alloc();
-@@ -2933,7 +2390,6 @@ static struct iommu_domain *amd_iommu_domain_alloc(unsigned type)
- static void amd_iommu_domain_free(struct iommu_domain *dom)
- {
- 	struct protection_domain *domain;
--	struct dma_ops_domain *dma_dom;
- 
- 	domain = to_pdomain(dom);
- 
-@@ -2948,8 +2404,7 @@ static void amd_iommu_domain_free(struct iommu_domain *dom)
- 	switch (dom->type) {
- 	case IOMMU_DOMAIN_DMA:
- 		/* Now release the domain */
--		dma_dom = to_dma_ops_domain(domain);
--		dma_ops_domain_free(dma_dom);
-+		dma_ops_domain_free(domain);
- 		break;
- 	default:
- 		if (domain->mode != PAGE_MODE_NONE)
-@@ -3005,6 +2460,7 @@ static int amd_iommu_attach_device(struct iommu_domain *dom,
- 		return -EINVAL;
- 
- 	dev_data = dev->archdata.iommu;
-+	dev_data->defer_attach = false;
- 
- 	iommu = amd_iommu_rlookup_table[dev_data->devid];
- 	if (!iommu)
-@@ -3161,19 +2617,6 @@ static void amd_iommu_put_resv_regions(struct device *dev,
- 		kfree(entry);
- }
- 
--static void amd_iommu_apply_resv_region(struct device *dev,
--				      struct iommu_domain *domain,
--				      struct iommu_resv_region *region)
--{
--	struct dma_ops_domain *dma_dom = to_dma_ops_domain(to_pdomain(domain));
--	unsigned long start, end;
--
--	start = IOVA_PFN(region->start);
--	end   = IOVA_PFN(region->start + region->length - 1);
--
--	WARN_ON_ONCE(reserve_iova(&dma_dom->iovad, start, end) == NULL);
--}
--
- static bool amd_iommu_is_attach_deferred(struct iommu_domain *domain,
- 					 struct device *dev)
- {
-@@ -3206,9 +2649,9 @@ const struct iommu_ops amd_iommu_ops = {
- 	.add_device = amd_iommu_add_device,
- 	.remove_device = amd_iommu_remove_device,
- 	.device_group = amd_iommu_device_group,
-+	.domain_get_attr = amd_iommu_domain_get_attr,
- 	.get_resv_regions = amd_iommu_get_resv_regions,
- 	.put_resv_regions = amd_iommu_put_resv_regions,
--	.apply_resv_region = amd_iommu_apply_resv_region,
- 	.is_attach_deferred = amd_iommu_is_attach_deferred,
- 	.pgsize_bitmap	= AMD_IOMMU_PGSIZES,
- 	.flush_iotlb_all = amd_iommu_flush_iotlb_all,
-@@ -3523,9 +2966,23 @@ EXPORT_SYMBOL(amd_iommu_complete_ppr);
- struct iommu_domain *amd_iommu_get_v2_domain(struct pci_dev *pdev)
- {
- 	struct protection_domain *pdomain;
-+	struct iommu_domain *io_domain;
-+	struct device *dev = &pdev->dev;
-+
-+	if (!check_device(dev))
-+		return NULL;
-+
-+	pdomain = get_dev_data(dev)->domain;
-+	if (pdomain == NULL && get_dev_data(dev)->defer_attach) {
-+		get_dev_data(dev)->defer_attach = false;
-+		io_domain = iommu_get_domain_for_dev(dev);
-+		pdomain = to_pdomain(io_domain);
-+		attach_device(dev, pdomain);
-+	}
-+	if (pdomain == NULL)
-+		return NULL;
- 
--	pdomain = get_domain(&pdev->dev);
--	if (IS_ERR(pdomain))
-+	if (!dma_ops_domain(pdomain))
- 		return NULL;
- 
- 	/* Only return IOMMUv2 domains */
--- 
-2.20.1
+Ck9uIDIwMTkvOS84IOS4i+WNiDc6MDUsIE1pY2hhZWwgUy4gVHNpcmtpbiB3cm90ZToKPiBPbiBU
+aHUsIFNlcCAwNSwgMjAxOSBhdCAwODoyNzozNlBNICswODAwLCBKYXNvbiBXYW5nIHdyb3RlOgo+
+PiBUaGlzIGlzIGEgcmV3b3JrIG9uIHRoZSBjb21taXQgN2Y0NjYwMzJkYzllICgidmhvc3Q6IGFj
+Y2VzcyB2cQo+PiBtZXRhZGF0YSB0aHJvdWdoIGtlcm5lbCB2aXJ0dWFsIGFkZHJlc3MiKS4KPj4K
+Pj4gSXQgd2FzIG5vdGljZWQgdGhhdCB0aGUgY29weV90by9mcm9tX3VzZXIoKSBmcmllbmRzIHRo
+YXQgd2FzIHVzZWQgdG8KPj4gYWNjZXNzIHZpcnRxdWV1ZSBtZXRkYXRhIHRlbmRzIHRvIGJlIHZl
+cnkgZXhwZW5zaXZlIGZvciBkYXRhcGxhbmUKPj4gaW1wbGVtZW50YXRpb24gbGlrZSB2aG9zdCBz
+aW5jZSBpdCBpbnZvbHZlcyBsb3RzIG9mIHNvZnR3YXJlIGNoZWNrcywKPj4gc3BlY3VsYXRpb24g
+YmFycmllcnMsCj4gU28gaWYgd2UgZHJvcCBzcGVjdWxhdGlvbiBiYXJyaWVyLAo+IHRoZXJlJ3Mg
+YSBwcm9ibGVtIGhlcmUgaW4gYWNjZXNzIHdpbGwgbm93IGJlIHNwZWN1bGF0ZWQuCj4gVGhpcyBl
+ZmZlY3RpdmVseSBkaXNhYmxlcyB0aGUgZGVmZW5jZSBpbiBkZXB0aCBlZmZlY3Qgb2YKPiBiM2Ji
+ZmIzZmI1ZDI1Nzc2YjhlM2YzNjFkMmVlZGFhYmIwYjQ5NmNkCj4gICAgICB4ODY6IEludHJvZHVj
+ZSBfX3VhY2Nlc3NfYmVnaW5fbm9zcGVjKCkgYW5kIHVhY2Nlc3NfdHJ5X25vc3BlYwo+Cj4KPiBT
+byBub3cgd2UgbmVlZCB0byBzcHJpbmtsZSBhcnJheV9pbmRleF9ub3NwZWMgb3IgYmFycmllcl9u
+b3NwZWMgb3ZlciB0aGUKPiBjb2RlIHdoZW5ldmVyIHdlIHVzZSBhbiBpbmRleCB3ZSBnb3QgZnJv
+bSB1c2Vyc3BhY2UuCj4gU2VlIGJlbG93IGZvciBzb21lIGV4YW1wbGVzLgo+Cj4KPj4gaGFyZHdh
+cmUgZmVhdHVyZSB0b2dnbGluZyAoZS5nIFNNQVApLiBUaGUKPj4gZXh0cmEgY29zdCB3aWxsIGJl
+IG1vcmUgb2J2aW91cyB3aGVuIHRyYW5zZmVycmluZyBzbWFsbCBwYWNrZXRzIHNpbmNlCj4+IHRo
+ZSB0aW1lIHNwZW50IG9uIG1ldGFkYXRhIGFjY2Vzc2luZyBiZWNvbWUgbW9yZSBzaWduaWZpY2Fu
+dC4KPj4KPj4gVGhpcyBwYXRjaCB0cmllcyB0byBlbGltaW5hdGUgdGhvc2Ugb3ZlcmhlYWRzIGJ5
+IGFjY2Vzc2luZyB0aGVtCj4+IHRocm91Z2ggZGlyZWN0IG1hcHBpbmcgb2YgdGhvc2UgcGFnZXMu
+IEludmFsaWRhdGlvbiBjYWxsYmFja3MgaXMKPj4gaW1wbGVtZW50ZWQgZm9yIGNvLW9wZXJhdGlv
+biB3aXRoIGdlbmVyYWwgVk0gbWFuYWdlbWVudCAoc3dhcCwgS1NNLAo+PiBUSFAgb3IgTlVNQSBi
+YWxhbmNpbmcpLiBXZSB3aWxsIHRyeSB0byBnZXQgdGhlIGRpcmVjdCBtYXBwaW5nIG9mIHZxCj4+
+IG1ldGFkYXRhIGJlZm9yZSBlYWNoIHJvdW5kIG9mIHBhY2tldCBwcm9jZXNzaW5nIGlmIGl0IGRv
+ZXNuJ3QKPj4gZXhpc3QuIElmIHdlIGZhaWwsIHdlIHdpbGwgc2ltcGxlbHkgZmFsbGJhY2sgdG8g
+Y29weV90by9mcm9tX3VzZXIoKQo+PiBmcmllbmRzLgo+Pgo+PiBUaGlzIGludmFsaWRhdGlvbiwg
+ZGlyZWN0IG1hcHBpbmcgYWNjZXNzIGFuZCBzZXQgYXJlIHN5bmNocm9uaXplZAo+PiB0aHJvdWdo
+IHNwaW5sb2NrLiBUaGlzIHRha2VzIGEgc3RlcCBiYWNrIGZyb20gdGhlIG9yaWdpbmFsIGNvbW1p
+dAo+PiA3ZjQ2NjAzMmRjOWUgKCJ2aG9zdDogYWNjZXNzIHZxIG1ldGFkYXRhIHRocm91Z2gga2Vy
+bmVsIHZpcnR1YWwKPj4gYWRkcmVzcyIpIHdoaWNoIHRyaWVzIHRvIFJDVSB3aGljaCBpcyBzdXNw
+aWNpb3VzIGFuZCBoYXJkIHRvIGJlCj4+IHJldmlld2VkLiBUaGlzIHdvbid0IHBlcmZvcm0gYXMg
+d2VsbCBhcyBSQ1UgYmVjYXVzZSBvZiB0aGUgYXRvbWljLAo+PiB0aGlzIGNvdWxkIGJlIGFkZHJl
+c3NlZCBieSB0aGUgZnV0dXJlIG9wdGltaXphdGlvbi4KPj4KPj4gVGhpcyBtZXRob2QgbWlnaHQg
+ZG9lcyBub3Qgd29yayBmb3IgaGlnaCBtZW0gcGFnZSB3aGljaCByZXF1aXJlcwo+PiB0ZW1wb3Jh
+cnkgbWFwcGluZyBzbyB3ZSBqdXN0IGZhbGxiYWNrIHRvIG5vcm1hbAo+PiBjb3B5X3RvL2Zyb21f
+dXNlcigpIGFuZCBtYXkgbm90IGZvciBhcmNoIHRoYXQgaGFzIHZpcnR1YWwgdGFnZ2VkIGNhY2hl
+Cj4+IHNpbmNlIGV4dHJhIGNhY2hlIGZsdXNoaW5nIGlzIG5lZWRlZCB0byBlbGltaW5hdGUgdGhl
+IGFsaWFzLiBUaGlzIHdpbGwKPj4gcmVzdWx0IGNvbXBsZXggbG9naWMgYW5kIGJhZCBwZXJmb3Jt
+YW5jZS4gRm9yIHRob3NlIGFyY2hzLCB0aGlzIHBhdGNoCj4+IHNpbXBseSBnbyBmb3IgY29weV90
+by9mcm9tX3VzZXIoKSBmcmllbmRzLiBUaGlzIGlzIGRvbmUgYnkgcnVsaW5nIG91dAo+PiBrZXJu
+ZWwgbWFwcGluZyBjb2RlcyB0aHJvdWdoIEFSQ0hfSU1QTEVNRU5UU19GTFVTSF9EQ0FDSEVfUEFH
+RS4KPj4KPj4gTm90ZSB0aGF0IHRoaXMgaXMgb25seSBkb25lIHdoZW4gZGV2aWNlIElPVExCIGlz
+IG5vdCBlbmFibGVkLiBXZQo+PiBjb3VsZCB1c2Ugc2ltaWxhciBtZXRob2QgdG8gb3B0aW1pemUg
+SU9UTEIgaW4gdGhlIGZ1dHVyZS4KPj4KPj4gVGVzdHMgc2hvd3MgYXQgbW9zdCBhYm91dCAyMiUg
+aW1wcm92ZW1lbnQgb24gVFggUFBTIHdoZW4gdXNpbmcKPj4gdmlydGlvLXVzZXIgKyB2aG9zdF9u
+ZXQgKyB4ZHAxICsgVEFQIG9uIDQuMEdIeiBLYWJ5IExha2UuCj4+Cj4+ICAgICAgICAgIFNNQVAg
+b24gfCBTTUFQIG9mZgo+PiBCZWZvcmU6IDQuOU1wcHMgfCA2LjlNcHBzCj4+IEFmdGVyOiAgNi4w
+TXBwcyB8IDcuNU1wcHMKPj4KPj4gT24gYSBlbGRlciBDUFUgU2FuZHkgQnJpZGdlIHdpdGhvdXQg
+U01BUCBzdXBwb3J0LiBUWCBQUFMgZG9lc24ndCBzZWUKPj4gYW55IGRpZmZlcmVuY2UuCj4gV2h5
+IGlzIG5vdCBLYWJ5IExha2Ugd2l0aCBTTUFQIG9mZiB0aGUgc2FtZSBhcyBTYW5keSBCcmlkZ2U/
+CgoKSSBkb24ndCBrbm93LCBJIGd1ZXNzIGl0IHdhcyBiZWNhdXNlIHRoZSBhdG9taWMgaXMgbAoK
+Cj4KPgo+PiBDYzogQW5kcmVhIEFyY2FuZ2VsaSA8YWFyY2FuZ2VAcmVkaGF0LmNvbT4KPj4gQ2M6
+IEphbWVzIEJvdHRvbWxleSA8SmFtZXMuQm90dG9tbGV5QGhhbnNlbnBhcnRuZXJzaGlwLmNvbT4K
+Pj4gQ2M6IENocmlzdG9waCBIZWxsd2lnIDxoY2hAaW5mcmFkZWFkLm9yZz4KPj4gQ2M6IERhdmlk
+IE1pbGxlciA8ZGF2ZW1AZGF2ZW1sb2Z0Lm5ldD4KPj4gQ2M6IEplcm9tZSBHbGlzc2UgPGpnbGlz
+c2VAcmVkaGF0LmNvbT4KPj4gQ2M6IEphc29uIEd1bnRob3JwZSA8amdnQG1lbGxhbm94LmNvbT4K
+Pj4gQ2M6IGxpbnV4LW1tQGt2YWNrLm9yZwo+PiBDYzogbGludXgtYXJtLWtlcm5lbEBsaXN0cy5p
+bmZyYWRlYWQub3JnCj4+IENjOiBsaW51eC1wYXJpc2NAdmdlci5rZXJuZWwub3JnCj4+IFNpZ25l
+ZC1vZmYtYnk6IEphc29uIFdhbmcgPGphc293YW5nQHJlZGhhdC5jb20+Cj4+IFNpZ25lZC1vZmYt
+Ynk6IE1pY2hhZWwgUy4gVHNpcmtpbiA8bXN0QHJlZGhhdC5jb20+Cj4+IC0tLQo+PiAgIGRyaXZl
+cnMvdmhvc3Qvdmhvc3QuYyB8IDU1MSArKysrKysrKysrKysrKysrKysrKysrKysrKysrKysrKysr
+KysrKysrKy0KPj4gICBkcml2ZXJzL3Zob3N0L3Zob3N0LmggfCAgNDEgKysrKwo+PiAgIDIgZmls
+ZXMgY2hhbmdlZCwgNTg5IGluc2VydGlvbnMoKyksIDMgZGVsZXRpb25zKC0pCj4+Cj4+IGRpZmYg
+LS1naXQgYS9kcml2ZXJzL3Zob3N0L3Zob3N0LmMgYi9kcml2ZXJzL3Zob3N0L3Zob3N0LmMKPj4g
+aW5kZXggNzkxNTYyZTAzZmUwLi5mOTgxNTVmMjhmMDIgMTAwNjQ0Cj4+IC0tLSBhL2RyaXZlcnMv
+dmhvc3Qvdmhvc3QuYwo+PiArKysgYi9kcml2ZXJzL3Zob3N0L3Zob3N0LmMKPj4gQEAgLTI5OCw2
+ICsyOTgsMTgyIEBAIHN0YXRpYyB2b2lkIHZob3N0X3ZxX21ldGFfcmVzZXQoc3RydWN0IHZob3N0
+X2RldiAqZCkKPj4gICAJCV9fdmhvc3RfdnFfbWV0YV9yZXNldChkLT52cXNbaV0pOwo+PiAgIH0K
+Pj4gICAKPj4gKyNpZiBWSE9TVF9BUkNIX0NBTl9BQ0NFTF9VQUNDRVNTCj4+ICtzdGF0aWMgdm9p
+ZCB2aG9zdF9tYXBfdW5wcmVmZXRjaChzdHJ1Y3Qgdmhvc3RfbWFwICptYXApCj4+ICt7Cj4+ICsJ
+a2ZyZWUobWFwLT5wYWdlcyk7Cj4+ICsJa2ZyZWUobWFwKTsKPj4gK30KPj4gKwo+PiArc3RhdGlj
+IHZvaWQgdmhvc3Rfc2V0X21hcF9kaXJ0eShzdHJ1Y3Qgdmhvc3RfdmlydHF1ZXVlICp2cSwKPj4g
+KwkJCQlzdHJ1Y3Qgdmhvc3RfbWFwICptYXAsIGludCBpbmRleCkKPj4gK3sKPj4gKwlzdHJ1Y3Qg
+dmhvc3RfdWFkZHIgKnVhZGRyID0gJnZxLT51YWRkcnNbaW5kZXhdOwo+PiArCWludCBpOwo+PiAr
+Cj4+ICsJaWYgKHVhZGRyLT53cml0ZSkgewo+PiArCQlmb3IgKGkgPSAwOyBpIDwgbWFwLT5ucGFn
+ZXM7IGkrKykKPj4gKwkJCXNldF9wYWdlX2RpcnR5KG1hcC0+cGFnZXNbaV0pOwo+PiArCX0KPj4g
+K30KPj4gKwo+PiArc3RhdGljIHZvaWQgdmhvc3RfdW5pbml0X3ZxX21hcHMoc3RydWN0IHZob3N0
+X3ZpcnRxdWV1ZSAqdnEpCj4+ICt7Cj4+ICsJc3RydWN0IHZob3N0X21hcCAqbWFwW1ZIT1NUX05V
+TV9BRERSU107Cj4+ICsJaW50IGk7Cj4+ICsKPj4gKwlzcGluX2xvY2soJnZxLT5tbXVfbG9jayk7
+Cj4+ICsJZm9yIChpID0gMDsgaSA8IFZIT1NUX05VTV9BRERSUzsgaSsrKSB7Cj4+ICsJCW1hcFtp
+XSA9IHZxLT5tYXBzW2ldOwo+PiArCQlpZiAobWFwW2ldKSB7Cj4+ICsJCQl2aG9zdF9zZXRfbWFw
+X2RpcnR5KHZxLCBtYXBbaV0sIGkpOwo+PiArCQkJdnEtPm1hcHNbaV0gPSBOVUxMOwo+PiArCQl9
+Cj4+ICsJfQo+PiArCXNwaW5fdW5sb2NrKCZ2cS0+bW11X2xvY2spOwo+PiArCj4+ICsJLyogTm8g
+bmVlZCBmb3Igc3luY2hyb25pemF0aW9uIHNpbmNlIHdlIGFyZSBzZXJpYWxpemVkIHdpdGgKPj4g
+KwkgKiBtZW1vcnkgYWNjZXNzb3JzIChlLmcgdnEgbXV0ZXggaGVsZCkuCj4+ICsJICovCj4+ICsK
+Pj4gKwlmb3IgKGkgPSAwOyBpIDwgVkhPU1RfTlVNX0FERFJTOyBpKyspCj4+ICsJCWlmIChtYXBb
+aV0pCj4+ICsJCQl2aG9zdF9tYXBfdW5wcmVmZXRjaChtYXBbaV0pOwo+PiArCj4+ICt9Cj4+ICsK
+Pj4gK3N0YXRpYyB2b2lkIHZob3N0X3Jlc2V0X3ZxX21hcHMoc3RydWN0IHZob3N0X3ZpcnRxdWV1
+ZSAqdnEpCj4+ICt7Cj4+ICsJaW50IGk7Cj4+ICsKPj4gKwl2aG9zdF91bmluaXRfdnFfbWFwcyh2
+cSk7Cj4+ICsJZm9yIChpID0gMDsgaSA8IFZIT1NUX05VTV9BRERSUzsgaSsrKQo+PiArCQl2cS0+
+dWFkZHJzW2ldLnNpemUgPSAwOwo+PiArfQo+PiArCj4+ICtzdGF0aWMgYm9vbCB2aG9zdF9tYXBf
+cmFuZ2Vfb3ZlcmxhcChzdHJ1Y3Qgdmhvc3RfdWFkZHIgKnVhZGRyLAo+PiArCQkJCSAgICAgdW5z
+aWduZWQgbG9uZyBzdGFydCwKPj4gKwkJCQkgICAgIHVuc2lnbmVkIGxvbmcgZW5kKQo+PiArewo+
+PiArCWlmICh1bmxpa2VseSghdWFkZHItPnNpemUpKQo+PiArCQlyZXR1cm4gZmFsc2U7Cj4+ICsK
+Pj4gKwlyZXR1cm4gIShlbmQgPCB1YWRkci0+dWFkZHIgfHwgc3RhcnQgPiB1YWRkci0+dWFkZHIg
+LSAxICsgdWFkZHItPnNpemUpOwo+PiArfQo+PiArCj4+ICtzdGF0aWMgdm9pZCBpbmxpbmUgdmhv
+c3RfdnFfYWNjZXNzX21hcF9iZWdpbihzdHJ1Y3Qgdmhvc3RfdmlydHF1ZXVlICp2cSkKPj4gK3sK
+Pj4gKwlzcGluX2xvY2soJnZxLT5tbXVfbG9jayk7Cj4+ICt9Cj4+ICsKPj4gK3N0YXRpYyB2b2lk
+IGlubGluZSB2aG9zdF92cV9hY2Nlc3NfbWFwX2VuZChzdHJ1Y3Qgdmhvc3RfdmlydHF1ZXVlICp2
+cSkKPj4gK3sKPj4gKwlzcGluX3VubG9jaygmdnEtPm1tdV9sb2NrKTsKPj4gK30KPj4gKwo+PiAr
+c3RhdGljIGludCB2aG9zdF9pbnZhbGlkYXRlX3ZxX3N0YXJ0KHN0cnVjdCB2aG9zdF92aXJ0cXVl
+dWUgKnZxLAo+PiArCQkJCSAgICAgaW50IGluZGV4LAo+PiArCQkJCSAgICAgdW5zaWduZWQgbG9u
+ZyBzdGFydCwKPj4gKwkJCQkgICAgIHVuc2lnbmVkIGxvbmcgZW5kLAo+PiArCQkJCSAgICAgYm9v
+bCBibG9ja2FibGUpCj4+ICt7Cj4+ICsJc3RydWN0IHZob3N0X3VhZGRyICp1YWRkciA9ICZ2cS0+
+dWFkZHJzW2luZGV4XTsKPj4gKwlzdHJ1Y3Qgdmhvc3RfbWFwICptYXA7Cj4+ICsKPj4gKwlpZiAo
+IXZob3N0X21hcF9yYW5nZV9vdmVybGFwKHVhZGRyLCBzdGFydCwgZW5kKSkKPj4gKwkJcmV0dXJu
+IDA7Cj4+ICsJZWxzZSBpZiAoIWJsb2NrYWJsZSkKPj4gKwkJcmV0dXJuIC1FQUdBSU47Cj4+ICsK
+Pj4gKwlzcGluX2xvY2soJnZxLT5tbXVfbG9jayk7Cj4+ICsJKyt2cS0+aW52YWxpZGF0ZV9jb3Vu
+dDsKPj4gKwo+PiArCW1hcCA9IHZxLT5tYXBzW2luZGV4XTsKPj4gKwlpZiAobWFwKQo+PiArCQl2
+cS0+bWFwc1tpbmRleF0gPSBOVUxMOwo+PiArCXNwaW5fdW5sb2NrKCZ2cS0+bW11X2xvY2spOwo+
+PiArCj4+ICsJaWYgKG1hcCkgewo+PiArCQl2aG9zdF9zZXRfbWFwX2RpcnR5KHZxLCBtYXAsIGlu
+ZGV4KTsKPj4gKwkJdmhvc3RfbWFwX3VucHJlZmV0Y2gobWFwKTsKPj4gKwl9Cj4+ICsKPj4gKwly
+ZXR1cm4gMDsKPj4gK30KPj4gKwo+PiArc3RhdGljIHZvaWQgdmhvc3RfaW52YWxpZGF0ZV92cV9l
+bmQoc3RydWN0IHZob3N0X3ZpcnRxdWV1ZSAqdnEsCj4+ICsJCQkJICAgIGludCBpbmRleCwKPj4g
+KwkJCQkgICAgdW5zaWduZWQgbG9uZyBzdGFydCwKPj4gKwkJCQkgICAgdW5zaWduZWQgbG9uZyBl
+bmQpCj4+ICt7Cj4+ICsJaWYgKCF2aG9zdF9tYXBfcmFuZ2Vfb3ZlcmxhcCgmdnEtPnVhZGRyc1tp
+bmRleF0sIHN0YXJ0LCBlbmQpKQo+PiArCQlyZXR1cm47Cj4+ICsKPj4gKwlzcGluX2xvY2soJnZx
+LT5tbXVfbG9jayk7Cj4+ICsJLS12cS0+aW52YWxpZGF0ZV9jb3VudDsKPj4gKwlzcGluX3VubG9j
+aygmdnEtPm1tdV9sb2NrKTsKPj4gK30KPj4gKwo+PiArc3RhdGljIGludCB2aG9zdF9pbnZhbGlk
+YXRlX3JhbmdlX3N0YXJ0KHN0cnVjdCBtbXVfbm90aWZpZXIgKm1uLAo+PiArCQkJCQljb25zdCBz
+dHJ1Y3QgbW11X25vdGlmaWVyX3JhbmdlICpyYW5nZSkKPj4gK3sKPj4gKwlzdHJ1Y3Qgdmhvc3Rf
+ZGV2ICpkZXYgPSBjb250YWluZXJfb2YobW4sIHN0cnVjdCB2aG9zdF9kZXYsCj4+ICsJCQkJCSAg
+ICAgbW11X25vdGlmaWVyKTsKPj4gKwlib29sIGJsb2NrYWJsZSA9IG1tdV9ub3RpZmllcl9yYW5n
+ZV9ibG9ja2FibGUocmFuZ2UpOwo+PiArCWludCBpLCBqLCByZXQ7Cj4+ICsKPj4gKwlmb3IgKGkg
+PSAwOyBpIDwgZGV2LT5udnFzOyBpKyspIHsKPj4gKwkJc3RydWN0IHZob3N0X3ZpcnRxdWV1ZSAq
+dnEgPSBkZXYtPnZxc1tpXTsKPj4gKwo+PiArCQlmb3IgKGogPSAwOyBqIDwgVkhPU1RfTlVNX0FE
+RFJTOyBqKyspIHsKPj4gKwkJCXJldCA9IHZob3N0X2ludmFsaWRhdGVfdnFfc3RhcnQodnEsIGos
+Cj4+ICsJCQkJCQkJcmFuZ2UtPnN0YXJ0LAo+PiArCQkJCQkJCXJhbmdlLT5lbmQsIGJsb2NrYWJs
+ZSk7Cj4+ICsJCQlpZiAocmV0KQo+PiArCQkJCXJldHVybiByZXQ7Cj4+ICsJCX0KPj4gKwl9Cj4+
+ICsKPj4gKwlyZXR1cm4gMDsKPj4gK30KPj4gKwo+PiArc3RhdGljIHZvaWQgdmhvc3RfaW52YWxp
+ZGF0ZV9yYW5nZV9lbmQoc3RydWN0IG1tdV9ub3RpZmllciAqbW4sCj4+ICsJCQkJICAgICAgIGNv
+bnN0IHN0cnVjdCBtbXVfbm90aWZpZXJfcmFuZ2UgKnJhbmdlKQo+PiArewo+PiArCXN0cnVjdCB2
+aG9zdF9kZXYgKmRldiA9IGNvbnRhaW5lcl9vZihtbiwgc3RydWN0IHZob3N0X2RldiwKPj4gKwkJ
+CQkJICAgICBtbXVfbm90aWZpZXIpOwo+PiArCWludCBpLCBqOwo+PiArCj4+ICsJZm9yIChpID0g
+MDsgaSA8IGRldi0+bnZxczsgaSsrKSB7Cj4+ICsJCXN0cnVjdCB2aG9zdF92aXJ0cXVldWUgKnZx
+ID0gZGV2LT52cXNbaV07Cj4+ICsKPj4gKwkJZm9yIChqID0gMDsgaiA8IFZIT1NUX05VTV9BRERS
+UzsgaisrKQo+PiArCQkJdmhvc3RfaW52YWxpZGF0ZV92cV9lbmQodnEsIGosCj4+ICsJCQkJCQly
+YW5nZS0+c3RhcnQsCj4+ICsJCQkJCQlyYW5nZS0+ZW5kKTsKPj4gKwl9Cj4+ICt9Cj4+ICsKPj4g
+K3N0YXRpYyBjb25zdCBzdHJ1Y3QgbW11X25vdGlmaWVyX29wcyB2aG9zdF9tbXVfbm90aWZpZXJf
+b3BzID0gewo+PiArCS5pbnZhbGlkYXRlX3JhbmdlX3N0YXJ0ID0gdmhvc3RfaW52YWxpZGF0ZV9y
+YW5nZV9zdGFydCwKPj4gKwkuaW52YWxpZGF0ZV9yYW5nZV9lbmQgPSB2aG9zdF9pbnZhbGlkYXRl
+X3JhbmdlX2VuZCwKPj4gK307Cj4+ICsKPj4gK3N0YXRpYyB2b2lkIHZob3N0X2luaXRfbWFwcyhz
+dHJ1Y3Qgdmhvc3RfZGV2ICpkZXYpCj4+ICt7Cj4+ICsJc3RydWN0IHZob3N0X3ZpcnRxdWV1ZSAq
+dnE7Cj4+ICsJaW50IGksIGo7Cj4+ICsKPj4gKwlkZXYtPm1tdV9ub3RpZmllci5vcHMgPSAmdmhv
+c3RfbW11X25vdGlmaWVyX29wczsKPj4gKwo+PiArCWZvciAoaSA9IDA7IGkgPCBkZXYtPm52cXM7
+ICsraSkgewo+PiArCQl2cSA9IGRldi0+dnFzW2ldOwo+PiArCQlmb3IgKGogPSAwOyBqIDwgVkhP
+U1RfTlVNX0FERFJTOyBqKyspCj4+ICsJCQl2cS0+bWFwc1tqXSA9IE5VTEw7Cj4+ICsJfQo+PiAr
+fQo+PiArI2VuZGlmCj4+ICsKPj4gICBzdGF0aWMgdm9pZCB2aG9zdF92cV9yZXNldChzdHJ1Y3Qg
+dmhvc3RfZGV2ICpkZXYsCj4+ICAgCQkJICAgc3RydWN0IHZob3N0X3ZpcnRxdWV1ZSAqdnEpCj4+
+ICAgewo+PiBAQCAtMzI2LDcgKzUwMiwxMSBAQCBzdGF0aWMgdm9pZCB2aG9zdF92cV9yZXNldChz
+dHJ1Y3Qgdmhvc3RfZGV2ICpkZXYsCj4+ICAgCXZxLT5idXN5bG9vcF90aW1lb3V0ID0gMDsKPj4g
+ICAJdnEtPnVtZW0gPSBOVUxMOwo+PiAgIAl2cS0+aW90bGIgPSBOVUxMOwo+PiArCXZxLT5pbnZh
+bGlkYXRlX2NvdW50ID0gMDsKPj4gICAJX192aG9zdF92cV9tZXRhX3Jlc2V0KHZxKTsKPj4gKyNp
+ZiBWSE9TVF9BUkNIX0NBTl9BQ0NFTF9VQUNDRVNTCj4+ICsJdmhvc3RfcmVzZXRfdnFfbWFwcyh2
+cSk7Cj4+ICsjZW5kaWYKPj4gICB9Cj4+ICAgCj4+ICAgc3RhdGljIGludCB2aG9zdF93b3JrZXIo
+dm9pZCAqZGF0YSkKPj4gQEAgLTQ3MSwxMiArNjUxLDE1IEBAIHZvaWQgdmhvc3RfZGV2X2luaXQo
+c3RydWN0IHZob3N0X2RldiAqZGV2LAo+PiAgIAlkZXYtPmlvdl9saW1pdCA9IGlvdl9saW1pdDsK
+Pj4gICAJZGV2LT53ZWlnaHQgPSB3ZWlnaHQ7Cj4+ICAgCWRldi0+Ynl0ZV93ZWlnaHQgPSBieXRl
+X3dlaWdodDsKPj4gKwlkZXYtPmhhc19ub3RpZmllciA9IGZhbHNlOwo+PiAgIAlpbml0X2xsaXN0
+X2hlYWQoJmRldi0+d29ya19saXN0KTsKPj4gICAJaW5pdF93YWl0cXVldWVfaGVhZCgmZGV2LT53
+YWl0KTsKPj4gICAJSU5JVF9MSVNUX0hFQUQoJmRldi0+cmVhZF9saXN0KTsKPj4gICAJSU5JVF9M
+SVNUX0hFQUQoJmRldi0+cGVuZGluZ19saXN0KTsKPj4gICAJc3Bpbl9sb2NrX2luaXQoJmRldi0+
+aW90bGJfbG9jayk7Cj4+IC0KPj4gKyNpZiBWSE9TVF9BUkNIX0NBTl9BQ0NFTF9VQUNDRVNTCj4+
+ICsJdmhvc3RfaW5pdF9tYXBzKGRldik7Cj4+ICsjZW5kaWYKPj4gICAKPj4gICAJZm9yIChpID0g
+MDsgaSA8IGRldi0+bnZxczsgKytpKSB7Cj4+ICAgCQl2cSA9IGRldi0+dnFzW2ldOwo+PiBAQCAt
+NDg1LDYgKzY2OCw3IEBAIHZvaWQgdmhvc3RfZGV2X2luaXQoc3RydWN0IHZob3N0X2RldiAqZGV2
+LAo+PiAgIAkJdnEtPmhlYWRzID0gTlVMTDsKPj4gICAJCXZxLT5kZXYgPSBkZXY7Cj4+ICAgCQlt
+dXRleF9pbml0KCZ2cS0+bXV0ZXgpOwo+PiArCQlzcGluX2xvY2tfaW5pdCgmdnEtPm1tdV9sb2Nr
+KTsKPj4gICAJCXZob3N0X3ZxX3Jlc2V0KGRldiwgdnEpOwo+PiAgIAkJaWYgKHZxLT5oYW5kbGVf
+a2ljaykKPj4gICAJCQl2aG9zdF9wb2xsX2luaXQoJnZxLT5wb2xsLCB2cS0+aGFuZGxlX2tpY2ss
+Cj4+IEBAIC01NjQsNyArNzQ4LDE5IEBAIGxvbmcgdmhvc3RfZGV2X3NldF9vd25lcihzdHJ1Y3Qg
+dmhvc3RfZGV2ICpkZXYpCj4+ICAgCWlmIChlcnIpCj4+ICAgCQlnb3RvIGVycl9jZ3JvdXA7Cj4+
+ICAgCj4+ICsjaWYgVkhPU1RfQVJDSF9DQU5fQUNDRUxfVUFDQ0VTUwo+PiArCWVyciA9IG1tdV9u
+b3RpZmllcl9yZWdpc3RlcigmZGV2LT5tbXVfbm90aWZpZXIsIGRldi0+bW0pOwo+PiArCWlmIChl
+cnIpCj4+ICsJCWdvdG8gZXJyX21tdV9ub3RpZmllcjsKPj4gKyNlbmRpZgo+PiArCWRldi0+aGFz
+X25vdGlmaWVyID0gdHJ1ZTsKPj4gKwo+PiAgIAlyZXR1cm4gMDsKPj4gKwo+PiArI2lmIFZIT1NU
+X0FSQ0hfQ0FOX0FDQ0VMX1VBQ0NFU1MKPj4gK2Vycl9tbXVfbm90aWZpZXI6Cj4+ICsJdmhvc3Rf
+ZGV2X2ZyZWVfaW92ZWNzKGRldik7Cj4+ICsjZW5kaWYKPj4gICBlcnJfY2dyb3VwOgo+PiAgIAlr
+dGhyZWFkX3N0b3Aod29ya2VyKTsKPj4gICAJZGV2LT53b3JrZXIgPSBOVUxMOwo+PiBAQCAtNjU1
+LDYgKzg1MSwxMDcgQEAgc3RhdGljIHZvaWQgdmhvc3RfY2xlYXJfbXNnKHN0cnVjdCB2aG9zdF9k
+ZXYgKmRldikKPj4gICAJc3Bpbl91bmxvY2soJmRldi0+aW90bGJfbG9jayk7Cj4+ICAgfQo+PiAg
+IAo+PiArI2lmIFZIT1NUX0FSQ0hfQ0FOX0FDQ0VMX1VBQ0NFU1MKPj4gK3N0YXRpYyB2b2lkIHZo
+b3N0X3NldHVwX3VhZGRyKHN0cnVjdCB2aG9zdF92aXJ0cXVldWUgKnZxLAo+PiArCQkJICAgICAg
+aW50IGluZGV4LCB1bnNpZ25lZCBsb25nIHVhZGRyLAo+PiArCQkJICAgICAgc2l6ZV90IHNpemUs
+IGJvb2wgd3JpdGUpCj4+ICt7Cj4+ICsJc3RydWN0IHZob3N0X3VhZGRyICphZGRyID0gJnZxLT51
+YWRkcnNbaW5kZXhdOwo+PiArCj4+ICsJYWRkci0+dWFkZHIgPSB1YWRkcjsKPj4gKwlhZGRyLT5z
+aXplID0gc2l6ZTsKPj4gKwlhZGRyLT53cml0ZSA9IHdyaXRlOwo+PiArfQo+PiArCj4+ICtzdGF0
+aWMgdm9pZCB2aG9zdF9zZXR1cF92cV91YWRkcihzdHJ1Y3Qgdmhvc3RfdmlydHF1ZXVlICp2cSkK
+Pj4gK3sKPj4gKwl2aG9zdF9zZXR1cF91YWRkcih2cSwgVkhPU1RfQUREUl9ERVNDLAo+PiArCQkJ
+ICAodW5zaWduZWQgbG9uZyl2cS0+ZGVzYywKPj4gKwkJCSAgdmhvc3RfZ2V0X2Rlc2Nfc2l6ZSh2
+cSwgdnEtPm51bSksCj4+ICsJCQkgIGZhbHNlKTsKPj4gKwl2aG9zdF9zZXR1cF91YWRkcih2cSwg
+VkhPU1RfQUREUl9BVkFJTCwKPj4gKwkJCSAgKHVuc2lnbmVkIGxvbmcpdnEtPmF2YWlsLAo+PiAr
+CQkJICB2aG9zdF9nZXRfYXZhaWxfc2l6ZSh2cSwgdnEtPm51bSksCj4+ICsJCQkgIGZhbHNlKTsK
+Pj4gKwl2aG9zdF9zZXR1cF91YWRkcih2cSwgVkhPU1RfQUREUl9VU0VELAo+PiArCQkJICAodW5z
+aWduZWQgbG9uZyl2cS0+dXNlZCwKPj4gKwkJCSAgdmhvc3RfZ2V0X3VzZWRfc2l6ZSh2cSwgdnEt
+Pm51bSksCj4+ICsJCQkgIHRydWUpOwo+PiArfQo+PiArCj4+ICtzdGF0aWMgaW50IHZob3N0X21h
+cF9wcmVmZXRjaChzdHJ1Y3Qgdmhvc3RfdmlydHF1ZXVlICp2cSwKPj4gKwkJCSAgICAgICBpbnQg
+aW5kZXgpCj4+ICt7Cj4+ICsJc3RydWN0IHZob3N0X21hcCAqbWFwOwo+PiArCXN0cnVjdCB2aG9z
+dF91YWRkciAqdWFkZHIgPSAmdnEtPnVhZGRyc1tpbmRleF07Cj4+ICsJc3RydWN0IHBhZ2UgKipw
+YWdlczsKPj4gKwlpbnQgbnBhZ2VzID0gRElWX1JPVU5EX1VQKHVhZGRyLT5zaXplLCBQQUdFX1NJ
+WkUpOwo+PiArCWludCBucGlubmVkOwo+PiArCXZvaWQgKnZhZGRyLCAqdjsKPj4gKwlpbnQgZXJy
+Owo+PiArCWludCBpOwo+PiArCj4+ICsJc3Bpbl9sb2NrKCZ2cS0+bW11X2xvY2spOwo+PiArCj4+
+ICsJZXJyID0gLUVGQVVMVDsKPj4gKwlpZiAodnEtPmludmFsaWRhdGVfY291bnQpCj4+ICsJCWdv
+dG8gZXJyOwo+PiArCj4+ICsJZXJyID0gLUVOT01FTTsKPj4gKwltYXAgPSBrbWFsbG9jKHNpemVv
+ZigqbWFwKSwgR0ZQX0FUT01JQyk7Cj4+ICsJaWYgKCFtYXApCj4+ICsJCWdvdG8gZXJyOwo+PiAr
+Cj4+ICsJcGFnZXMgPSBrbWFsbG9jX2FycmF5KG5wYWdlcywgc2l6ZW9mKHN0cnVjdCBwYWdlICop
+LCBHRlBfQVRPTUlDKTsKPj4gKwlpZiAoIXBhZ2VzKQo+PiArCQlnb3RvIGVycl9wYWdlczsKPj4g
+Kwo+PiArCWVyciA9IEVGQVVMVDsKPj4gKwlucGlubmVkID0gX19nZXRfdXNlcl9wYWdlc19mYXN0
+KHVhZGRyLT51YWRkciwgbnBhZ2VzLAo+PiArCQkJCQl1YWRkci0+d3JpdGUsIHBhZ2VzKTsKPj4g
+KwlpZiAobnBpbm5lZCA+IDApCj4+ICsJCXJlbGVhc2VfcGFnZXMocGFnZXMsIG5waW5uZWQpOwo+
+PiArCWlmIChucGlubmVkICE9IG5wYWdlcykKPj4gKwkJZ290byBlcnJfZ3VwOwo+PiArCj4+ICsJ
+Zm9yIChpID0gMDsgaSA8IG5waW5uZWQ7IGkrKykKPj4gKwkJaWYgKFBhZ2VIaWdoTWVtKHBhZ2Vz
+W2ldKSkKPj4gKwkJCWdvdG8gZXJyX2d1cDsKPj4gKwo+PiArCXZhZGRyID0gdiA9IHBhZ2VfYWRk
+cmVzcyhwYWdlc1swXSk7Cj4+ICsKPj4gKwkvKiBGb3Igc2ltcGxpY2l0eSwgZmFsbGJhY2sgdG8g
+dXNlcnNwYWNlIGFkZHJlc3MgaWYgVkEgaXMgbm90Cj4+ICsJICogY29udGlnaW91cy4KPj4gKwkg
+Ki8KPj4gKwlmb3IgKGkgPSAxOyBpIDwgbnBpbm5lZDsgaSsrKSB7Cj4+ICsJCXYgKz0gUEFHRV9T
+SVpFOwo+PiArCQlpZiAodiAhPSBwYWdlX2FkZHJlc3MocGFnZXNbaV0pKQo+PiArCQkJZ290byBl
+cnJfZ3VwOwo+PiArCX0KPj4gKwo+PiArCW1hcC0+YWRkciA9IHZhZGRyICsgKHVhZGRyLT51YWRk
+ciAmIChQQUdFX1NJWkUgLSAxKSk7Cj4+ICsJbWFwLT5ucGFnZXMgPSBucGFnZXM7Cj4+ICsJbWFw
+LT5wYWdlcyA9IHBhZ2VzOwo+PiArCj4+ICsJdnEtPm1hcHNbaW5kZXhdID0gbWFwOwo+PiArCS8q
+IE5vIG5lZWQgZm9yIGEgc3luY2hyb25pemVfcmN1KCkuIFRoaXMgZnVuY3Rpb24gc2hvdWxkIGJl
+Cj4+ICsJICogY2FsbGVkIGJ5IGRldi0+d29ya2VyIHNvIHdlIGFyZSBzZXJpYWxpemVkIHdpdGgg
+YWxsCj4+ICsJICogcmVhZGVycy4KPj4gKwkgKi8KPj4gKwlzcGluX3VubG9jaygmdnEtPm1tdV9s
+b2NrKTsKPj4gKwo+PiArCXJldHVybiAwOwo+PiArCj4+ICtlcnJfZ3VwOgo+PiArCWtmcmVlKHBh
+Z2VzKTsKPj4gK2Vycl9wYWdlczoKPj4gKwlrZnJlZShtYXApOwo+PiArZXJyOgo+PiArCXNwaW5f
+dW5sb2NrKCZ2cS0+bW11X2xvY2spOwo+PiArCXJldHVybiBlcnI7Cj4+ICt9Cj4+ICsjZW5kaWYK
+Pj4gKwo+PiAgIHZvaWQgdmhvc3RfZGV2X2NsZWFudXAoc3RydWN0IHZob3N0X2RldiAqZGV2KQo+
+PiAgIHsKPj4gICAJaW50IGk7Cj4+IEBAIC02ODQsOCArOTgxLDIwIEBAIHZvaWQgdmhvc3RfZGV2
+X2NsZWFudXAoc3RydWN0IHZob3N0X2RldiAqZGV2KQo+PiAgIAkJa3RocmVhZF9zdG9wKGRldi0+
+d29ya2VyKTsKPj4gICAJCWRldi0+d29ya2VyID0gTlVMTDsKPj4gICAJfQo+PiAtCWlmIChkZXYt
+Pm1tKQo+PiArCWlmIChkZXYtPm1tKSB7Cj4+ICsjaWYgVkhPU1RfQVJDSF9DQU5fQUNDRUxfVUFD
+Q0VTUwo+PiArCQlpZiAoZGV2LT5oYXNfbm90aWZpZXIpIHsKPj4gKwkJCW1tdV9ub3RpZmllcl91
+bnJlZ2lzdGVyKCZkZXYtPm1tdV9ub3RpZmllciwKPj4gKwkJCQkJCWRldi0+bW0pOwo+PiArCQkJ
+ZGV2LT5oYXNfbm90aWZpZXIgPSBmYWxzZTsKPj4gKwkJfQo+PiArI2VuZGlmCj4+ICAgCQltbXB1
+dChkZXYtPm1tKTsKPj4gKwl9Cj4+ICsjaWYgVkhPU1RfQVJDSF9DQU5fQUNDRUxfVUFDQ0VTUwo+
+PiArCWZvciAoaSA9IDA7IGkgPCBkZXYtPm52cXM7IGkrKykKPj4gKwkJdmhvc3RfdW5pbml0X3Zx
+X21hcHMoZGV2LT52cXNbaV0pOwo+PiArI2VuZGlmCj4+ICAgCWRldi0+bW0gPSBOVUxMOwo+PiAg
+IH0KPj4gICBFWFBPUlRfU1lNQk9MX0dQTCh2aG9zdF9kZXZfY2xlYW51cCk7Cj4+IEBAIC05MTQs
+NiArMTIyMywyNiBAQCBzdGF0aWMgaW5saW5lIHZvaWQgX191c2VyICpfX3Zob3N0X2dldF91c2Vy
+KHN0cnVjdCB2aG9zdF92aXJ0cXVldWUgKnZxLAo+PiAgIAo+PiAgIHN0YXRpYyBpbmxpbmUgaW50
+IHZob3N0X3B1dF9hdmFpbF9ldmVudChzdHJ1Y3Qgdmhvc3RfdmlydHF1ZXVlICp2cSkKPj4gICB7
+Cj4+ICsjaWYgVkhPU1RfQVJDSF9DQU5fQUNDRUxfVUFDQ0VTUwo+PiArCXN0cnVjdCB2aG9zdF9t
+YXAgKm1hcDsKPj4gKwlzdHJ1Y3QgdnJpbmdfdXNlZCAqdXNlZDsKPj4gKwo+PiArCWlmICghdnEt
+PmlvdGxiKSB7Cj4+ICsJCXZob3N0X3ZxX2FjY2Vzc19tYXBfYmVnaW4odnEpOwo+PiArCj4+ICsJ
+CW1hcCA9IHZxLT5tYXBzW1ZIT1NUX0FERFJfVVNFRF07Cj4+ICsJCWlmIChsaWtlbHkobWFwKSkg
+ewo+PiArCQkJdXNlZCA9IG1hcC0+YWRkcjsKPj4gKwkJCSooKF9fdmlydGlvMTYgKikmdXNlZC0+
+cmluZ1t2cS0+bnVtXSkgPQo+PiArCQkJCWNwdV90b192aG9zdDE2KHZxLCB2cS0+YXZhaWxfaWR4
+KTsKPj4gKwkJCXZob3N0X3ZxX2FjY2Vzc19tYXBfZW5kKHZxKTsKPj4gKwkJCXJldHVybiAwOwo+
+PiArCQl9Cj4+ICsKPj4gKwkJdmhvc3RfdnFfYWNjZXNzX21hcF9lbmQodnEpOwo+PiArCX0KPj4g
+KyNlbmRpZgo+PiArCj4+ICAgCXJldHVybiB2aG9zdF9wdXRfdXNlcih2cSwgY3B1X3RvX3Zob3N0
+MTYodnEsIHZxLT5hdmFpbF9pZHgpLAo+PiAgIAkJCSAgICAgIHZob3N0X2F2YWlsX2V2ZW50KHZx
+KSk7Cj4+ICAgfQo+PiBAQCAtOTIyLDYgKzEyNTEsMjcgQEAgc3RhdGljIGlubGluZSBpbnQgdmhv
+c3RfcHV0X3VzZWQoc3RydWN0IHZob3N0X3ZpcnRxdWV1ZSAqdnEsCj4+ICAgCQkJCSBzdHJ1Y3Qg
+dnJpbmdfdXNlZF9lbGVtICpoZWFkLCBpbnQgaWR4LAo+PiAgIAkJCQkgaW50IGNvdW50KQo+PiAg
+IHsKPj4gKyNpZiBWSE9TVF9BUkNIX0NBTl9BQ0NFTF9VQUNDRVNTCj4+ICsJc3RydWN0IHZob3N0
+X21hcCAqbWFwOwo+PiArCXN0cnVjdCB2cmluZ191c2VkICp1c2VkOwo+PiArCXNpemVfdCBzaXpl
+Owo+PiArCj4+ICsJaWYgKCF2cS0+aW90bGIpIHsKPj4gKwkJdmhvc3RfdnFfYWNjZXNzX21hcF9i
+ZWdpbih2cSk7Cj4+ICsKPj4gKwkJbWFwID0gdnEtPm1hcHNbVkhPU1RfQUREUl9VU0VEXTsKPj4g
+KwkJaWYgKGxpa2VseShtYXApKSB7Cj4+ICsJCQl1c2VkID0gbWFwLT5hZGRyOwo+PiArCQkJc2l6
+ZSA9IGNvdW50ICogc2l6ZW9mKCpoZWFkKTsKPj4gKwkJCW1lbWNweSh1c2VkLT5yaW5nICsgaWR4
+LCBoZWFkLCBzaXplKTsKPj4gKwkJCXZob3N0X3ZxX2FjY2Vzc19tYXBfZW5kKHZxKTsKPj4gKwkJ
+CXJldHVybiAwOwo+PiArCQl9Cj4+ICsKPj4gKwkJdmhvc3RfdnFfYWNjZXNzX21hcF9lbmQodnEp
+Owo+PiArCX0KPj4gKyNlbmRpZgo+PiArCj4+ICAgCXJldHVybiB2aG9zdF9jb3B5X3RvX3VzZXIo
+dnEsIHZxLT51c2VkLT5yaW5nICsgaWR4LCBoZWFkLAo+PiAgIAkJCQkgIGNvdW50ICogc2l6ZW9m
+KCpoZWFkKSk7Cj4+ICAgfQo+PiBAQCAtOTI5LDYgKzEyNzksMjUgQEAgc3RhdGljIGlubGluZSBp
+bnQgdmhvc3RfcHV0X3VzZWQoc3RydWN0IHZob3N0X3ZpcnRxdWV1ZSAqdnEsCj4+ICAgc3RhdGlj
+IGlubGluZSBpbnQgdmhvc3RfcHV0X3VzZWRfZmxhZ3Moc3RydWN0IHZob3N0X3ZpcnRxdWV1ZSAq
+dnEpCj4+ICAgCj4+ICAgewo+PiArI2lmIFZIT1NUX0FSQ0hfQ0FOX0FDQ0VMX1VBQ0NFU1MKPj4g
+KwlzdHJ1Y3Qgdmhvc3RfbWFwICptYXA7Cj4+ICsJc3RydWN0IHZyaW5nX3VzZWQgKnVzZWQ7Cj4+
+ICsKPj4gKwlpZiAoIXZxLT5pb3RsYikgewo+PiArCQl2aG9zdF92cV9hY2Nlc3NfbWFwX2JlZ2lu
+KHZxKTsKPj4gKwo+PiArCQltYXAgPSB2cS0+bWFwc1tWSE9TVF9BRERSX1VTRURdOwo+PiArCQlp
+ZiAobGlrZWx5KG1hcCkpIHsKPj4gKwkJCXVzZWQgPSBtYXAtPmFkZHI7Cj4+ICsJCQl1c2VkLT5m
+bGFncyA9IGNwdV90b192aG9zdDE2KHZxLCB2cS0+dXNlZF9mbGFncyk7Cj4+ICsJCQl2aG9zdF92
+cV9hY2Nlc3NfbWFwX2VuZCh2cSk7Cj4+ICsJCQlyZXR1cm4gMDsKPj4gKwkJfQo+PiArCj4+ICsJ
+CXZob3N0X3ZxX2FjY2Vzc19tYXBfZW5kKHZxKTsKPj4gKwl9Cj4+ICsjZW5kaWYKPj4gKwo+PiAg
+IAlyZXR1cm4gdmhvc3RfcHV0X3VzZXIodnEsIGNwdV90b192aG9zdDE2KHZxLCB2cS0+dXNlZF9m
+bGFncyksCj4+ICAgCQkJICAgICAgJnZxLT51c2VkLT5mbGFncyk7Cj4+ICAgfQo+PiBAQCAtOTM2
+LDYgKzEzMDUsMjUgQEAgc3RhdGljIGlubGluZSBpbnQgdmhvc3RfcHV0X3VzZWRfZmxhZ3Moc3Ry
+dWN0IHZob3N0X3ZpcnRxdWV1ZSAqdnEpCj4+ICAgc3RhdGljIGlubGluZSBpbnQgdmhvc3RfcHV0
+X3VzZWRfaWR4KHN0cnVjdCB2aG9zdF92aXJ0cXVldWUgKnZxKQo+PiAgIAo+PiAgIHsKPj4gKyNp
+ZiBWSE9TVF9BUkNIX0NBTl9BQ0NFTF9VQUNDRVNTCj4+ICsJc3RydWN0IHZob3N0X21hcCAqbWFw
+Owo+PiArCXN0cnVjdCB2cmluZ191c2VkICp1c2VkOwo+PiArCj4+ICsJaWYgKCF2cS0+aW90bGIp
+IHsKPj4gKwkJdmhvc3RfdnFfYWNjZXNzX21hcF9iZWdpbih2cSk7Cj4+ICsKPj4gKwkJbWFwID0g
+dnEtPm1hcHNbVkhPU1RfQUREUl9VU0VEXTsKPj4gKwkJaWYgKGxpa2VseShtYXApKSB7Cj4+ICsJ
+CQl1c2VkID0gbWFwLT5hZGRyOwo+PiArCQkJdXNlZC0+aWR4ID0gY3B1X3RvX3Zob3N0MTYodnEs
+IHZxLT5sYXN0X3VzZWRfaWR4KTsKPj4gKwkJCXZob3N0X3ZxX2FjY2Vzc19tYXBfZW5kKHZxKTsK
+Pj4gKwkJCXJldHVybiAwOwo+PiArCQl9Cj4+ICsKPj4gKwkJdmhvc3RfdnFfYWNjZXNzX21hcF9l
+bmQodnEpOwo+PiArCX0KPj4gKyNlbmRpZgo+PiArCj4+ICAgCXJldHVybiB2aG9zdF9wdXRfdXNl
+cih2cSwgY3B1X3RvX3Zob3N0MTYodnEsIHZxLT5sYXN0X3VzZWRfaWR4KSwKPj4gICAJCQkgICAg
+ICAmdnEtPnVzZWQtPmlkeCk7Cj4+ICAgfQo+PiBAQCAtOTgxLDEyICsxMzY5LDUwIEBAIHN0YXRp
+YyB2b2lkIHZob3N0X2Rldl91bmxvY2tfdnFzKHN0cnVjdCB2aG9zdF9kZXYgKmQpCj4+ICAgc3Rh
+dGljIGlubGluZSBpbnQgdmhvc3RfZ2V0X2F2YWlsX2lkeChzdHJ1Y3Qgdmhvc3RfdmlydHF1ZXVl
+ICp2cSwKPj4gICAJCQkJICAgICAgX192aXJ0aW8xNiAqaWR4KQo+PiAgIHsKPj4gKyNpZiBWSE9T
+VF9BUkNIX0NBTl9BQ0NFTF9VQUNDRVNTCj4+ICsJc3RydWN0IHZob3N0X21hcCAqbWFwOwo+PiAr
+CXN0cnVjdCB2cmluZ19hdmFpbCAqYXZhaWw7Cj4+ICsKPj4gKwlpZiAoIXZxLT5pb3RsYikgewo+
+PiArCQl2aG9zdF92cV9hY2Nlc3NfbWFwX2JlZ2luKHZxKTsKPj4gKwo+PiArCQltYXAgPSB2cS0+
+bWFwc1tWSE9TVF9BRERSX0FWQUlMXTsKPj4gKwkJaWYgKGxpa2VseShtYXApKSB7Cj4+ICsJCQlh
+dmFpbCA9IG1hcC0+YWRkcjsKPj4gKwkJCSppZHggPSBhdmFpbC0+aWR4Owo+IGluZGV4IGNhbiBu
+b3cgYmUgc3BlY3VsYXRlZC4KClsuLi5dCgoKPiArCQl2aG9zdF92cV9hY2Nlc3NfbWFwX2JlZ2lu
+KHZxKTsKPiArCj4gKwkJbWFwID0gdnEtPm1hcHNbVkhPU1RfQUREUl9BVkFJTF07Cj4gKwkJaWYg
+KGxpa2VseShtYXApKSB7Cj4gKwkJCWF2YWlsID0gbWFwLT5hZGRyOwo+ICsJCQkqaGVhZCA9IGF2
+YWlsLT5yaW5nW2lkeCAmICh2cS0+bnVtIC0gMSldOwo+Cj4gU2luY2UgaWR4IGNhbiBiZSBzcGVj
+dWxhdGVkLCBJIGd1ZXNzIHdlIG5lZWQgYXJyYXlfaW5kZXhfbm9zcGVjIGhlcmU/CgoKU28gd2Ug
+aGF2ZQoKQUNRVUlSRShtbXVfbG9jaykKCmdldCBpZHgKClJFTEVBU0UobW11X2xvY2spCgpBQ1FV
+SVJFKG1tdV9sb2NrKQoKcmVhZCBhcnJheVtpZHhdCgpSRUxFQVNFKG1tdV9sb2NrKQoKVGhlbiBJ
+IHRoaW5rIGlkeCBjYW4ndCBiZSBzcGVjdWxhdGVkIGNvbnNpZGVyIHdlJ3ZlIHBhc3NlZCBSRUxF
+QVNFICsgCkFDUVVJUkU/CgoKPgo+Cj4+ICsJCQl2aG9zdF92cV9hY2Nlc3NfbWFwX2VuZCh2cSk7
+Cj4+ICsJCQlyZXR1cm4gMDsKPj4gKwkJfQo+PiArCj4+ICsJCXZob3N0X3ZxX2FjY2Vzc19tYXBf
+ZW5kKHZxKTsKPj4gKwl9Cj4+ICsjZW5kaWYKPj4gKwo+PiAgIAlyZXR1cm4gdmhvc3RfZ2V0X2F2
+YWlsKHZxLCAqaGVhZCwKPj4gICAJCQkgICAgICAgJnZxLT5hdmFpbC0+cmluZ1tpZHggJiAodnEt
+Pm51bSAtIDEpXSk7Cj4+ICAgfQo+PiBAQCAtOTk0LDI0ICsxNDIwLDk4IEBAIHN0YXRpYyBpbmxp
+bmUgaW50IHZob3N0X2dldF9hdmFpbF9oZWFkKHN0cnVjdCB2aG9zdF92aXJ0cXVldWUgKnZxLAo+
+PiAgIHN0YXRpYyBpbmxpbmUgaW50IHZob3N0X2dldF9hdmFpbF9mbGFncyhzdHJ1Y3Qgdmhvc3Rf
+dmlydHF1ZXVlICp2cSwKPj4gICAJCQkJCV9fdmlydGlvMTYgKmZsYWdzKQo+PiAgIHsKPj4gKyNp
+ZiBWSE9TVF9BUkNIX0NBTl9BQ0NFTF9VQUNDRVNTCj4+ICsJc3RydWN0IHZob3N0X21hcCAqbWFw
+Owo+PiArCXN0cnVjdCB2cmluZ19hdmFpbCAqYXZhaWw7Cj4+ICsKPj4gKwlpZiAoIXZxLT5pb3Rs
+Yikgewo+PiArCQl2aG9zdF92cV9hY2Nlc3NfbWFwX2JlZ2luKHZxKTsKPj4gKwo+PiArCQltYXAg
+PSB2cS0+bWFwc1tWSE9TVF9BRERSX0FWQUlMXTsKPj4gKwkJaWYgKGxpa2VseShtYXApKSB7Cj4+
+ICsJCQlhdmFpbCA9IG1hcC0+YWRkcjsKPj4gKwkJCSpmbGFncyA9IGF2YWlsLT5mbGFnczsKPj4g
+KwkJCXZob3N0X3ZxX2FjY2Vzc19tYXBfZW5kKHZxKTsKPj4gKwkJCXJldHVybiAwOwo+PiArCQl9
+Cj4+ICsKPj4gKwkJdmhvc3RfdnFfYWNjZXNzX21hcF9lbmQodnEpOwo+PiArCX0KPj4gKyNlbmRp
+Zgo+PiArCj4+ICAgCXJldHVybiB2aG9zdF9nZXRfYXZhaWwodnEsICpmbGFncywgJnZxLT5hdmFp
+bC0+ZmxhZ3MpOwo+PiAgIH0KPj4gICAKPj4gICBzdGF0aWMgaW5saW5lIGludCB2aG9zdF9nZXRf
+dXNlZF9ldmVudChzdHJ1Y3Qgdmhvc3RfdmlydHF1ZXVlICp2cSwKPj4gICAJCQkJICAgICAgIF9f
+dmlydGlvMTYgKmV2ZW50KQo+PiAgIHsKPj4gKyNpZiBWSE9TVF9BUkNIX0NBTl9BQ0NFTF9VQUND
+RVNTCj4+ICsJc3RydWN0IHZob3N0X21hcCAqbWFwOwo+PiArCXN0cnVjdCB2cmluZ19hdmFpbCAq
+YXZhaWw7Cj4+ICsKPj4gKwlpZiAoIXZxLT5pb3RsYikgewo+PiArCQl2aG9zdF92cV9hY2Nlc3Nf
+bWFwX2JlZ2luKHZxKTsKPj4gKwkJbWFwID0gdnEtPm1hcHNbVkhPU1RfQUREUl9BVkFJTF07Cj4+
+ICsJCWlmIChsaWtlbHkobWFwKSkgewo+PiArCQkJYXZhaWwgPSBtYXAtPmFkZHI7Cj4+ICsJCQkq
+ZXZlbnQgPSAoX192aXJ0aW8xNilhdmFpbC0+cmluZ1t2cS0+bnVtXTsKPj4gKwkJCXZob3N0X3Zx
+X2FjY2Vzc19tYXBfZW5kKHZxKTsKPj4gKwkJCXJldHVybiAwOwo+PiArCQl9Cj4+ICsJCXZob3N0
+X3ZxX2FjY2Vzc19tYXBfZW5kKHZxKTsKPj4gKwl9Cj4+ICsjZW5kaWYKPj4gKwo+PiAgIAlyZXR1
+cm4gdmhvc3RfZ2V0X2F2YWlsKHZxLCAqZXZlbnQsIHZob3N0X3VzZWRfZXZlbnQodnEpKTsKPj4g
+ICB9Cj4+ICAgCj4+ICAgc3RhdGljIGlubGluZSBpbnQgdmhvc3RfZ2V0X3VzZWRfaWR4KHN0cnVj
+dCB2aG9zdF92aXJ0cXVldWUgKnZxLAo+PiAgIAkJCQkgICAgIF9fdmlydGlvMTYgKmlkeCkKPj4g
+ICB7Cj4+ICsjaWYgVkhPU1RfQVJDSF9DQU5fQUNDRUxfVUFDQ0VTUwo+PiArCXN0cnVjdCB2aG9z
+dF9tYXAgKm1hcDsKPj4gKwlzdHJ1Y3QgdnJpbmdfdXNlZCAqdXNlZDsKPj4gKwo+PiArCWlmICgh
+dnEtPmlvdGxiKSB7Cj4+ICsJCXZob3N0X3ZxX2FjY2Vzc19tYXBfYmVnaW4odnEpOwo+PiArCj4+
+ICsJCW1hcCA9IHZxLT5tYXBzW1ZIT1NUX0FERFJfVVNFRF07Cj4+ICsJCWlmIChsaWtlbHkobWFw
+KSkgewo+PiArCQkJdXNlZCA9IG1hcC0+YWRkcjsKPj4gKwkJCSppZHggPSB1c2VkLT5pZHg7Cj4+
+ICsJCQl2aG9zdF92cV9hY2Nlc3NfbWFwX2VuZCh2cSk7Cj4+ICsJCQlyZXR1cm4gMDsKPj4gKwkJ
+fQo+PiArCj4+ICsJCXZob3N0X3ZxX2FjY2Vzc19tYXBfZW5kKHZxKTsKPj4gKwl9Cj4+ICsjZW5k
+aWYKPj4gKwo+PiAgIAlyZXR1cm4gdmhvc3RfZ2V0X3VzZWQodnEsICppZHgsICZ2cS0+dXNlZC0+
+aWR4KTsKPj4gICB9Cj4KPiBUaGlzIHNlZW1zIHRvIGJlIHVzZWQgZHVyaW5nIGluaXQuIFdoeSBk
+byB3ZSBib3RoZXIKPiBhY2NlbGVyYXRpbmcgdGhpcz8KCgpPaywgSSBjYW4gcmVtb3ZlIHRoaXMg
+cGFydCBpbiBuZXh0IHZlcnNpb24uCgoKPgo+Cj4+ICAgCj4+ICAgc3RhdGljIGlubGluZSBpbnQg
+dmhvc3RfZ2V0X2Rlc2Moc3RydWN0IHZob3N0X3ZpcnRxdWV1ZSAqdnEsCj4+ICAgCQkJCSBzdHJ1
+Y3QgdnJpbmdfZGVzYyAqZGVzYywgaW50IGlkeCkKPj4gICB7Cj4+ICsjaWYgVkhPU1RfQVJDSF9D
+QU5fQUNDRUxfVUFDQ0VTUwo+PiArCXN0cnVjdCB2aG9zdF9tYXAgKm1hcDsKPj4gKwlzdHJ1Y3Qg
+dnJpbmdfZGVzYyAqZDsKPj4gKwo+PiArCWlmICghdnEtPmlvdGxiKSB7Cj4+ICsJCXZob3N0X3Zx
+X2FjY2Vzc19tYXBfYmVnaW4odnEpOwo+PiArCj4+ICsJCW1hcCA9IHZxLT5tYXBzW1ZIT1NUX0FE
+RFJfREVTQ107Cj4+ICsJCWlmIChsaWtlbHkobWFwKSkgewo+PiArCQkJZCA9IG1hcC0+YWRkcjsK
+Pj4gKwkJCSpkZXNjID0gKihkICsgaWR4KTsKPgo+IFNpbmNlIGlkeCBjYW4gYmUgc3BlY3VsYXRl
+ZCwgSSBndWVzcyB3ZSBuZWVkIGFycmF5X2luZGV4X25vc3BlYyBoZXJlPwoKClRoaXMgaXMgc2lt
+aWxhciB0byB0aGUgYWJvdmUgYXZhaWwgaWR4IGNhc2UuCgoKPgo+Cj4+ICsJCQl2aG9zdF92cV9h
+Y2Nlc3NfbWFwX2VuZCh2cSk7Cj4+ICsJCQlyZXR1cm4gMDsKPj4gKwkJfQo+PiArCj4+ICsJCXZo
+b3N0X3ZxX2FjY2Vzc19tYXBfZW5kKHZxKTsKPj4gKwl9Cj4+ICsjZW5kaWYKPj4gKwo+PiAgIAly
+ZXR1cm4gdmhvc3RfY29weV9mcm9tX3VzZXIodnEsIGRlc2MsIHZxLT5kZXNjICsgaWR4LCBzaXpl
+b2YoKmRlc2MpKTsKPj4gICB9Cj4+ICAgCj4gSSBhbHNvIHdvbmRlciBhYm91dCB0aGUgdXNlcnNw
+YWNlIGFkZHJlc3Mgd2UgZ2V0IGV2ZW50dWFseS4KPiBJdCB3b3VsZCBzZWVtIHRoYXQgd2UgbmVl
+ZCB0byBwcmV2ZW50IHRoYXQgZnJvbSBzcGVjdWxhdGluZyAtCj4gYW5kIHRoYXQgc2VlbXMgbGlr
+ZSBhIGdvb2QgaWRlYSBldmVuIGlmIHRoaXMgcGF0Y2ggaXNuJ3QKPiBhcHBsaWVkLiBBcyB5b3Ug
+YXJlIHBsYXlpbmcgd2l0aCBtaWNyby1iZW5jaG1hcmtzLCBtYXliZQo+IHlvdSBjb3VsZCB0aGUg
+YmVsb3cgcGF0Y2g/CgoKTGV0IG1lIHRlc3QgaXQuCgpUaGFua3MKCgo+IEl0J3MgdW5mb3J0dW5h
+dGVseSB1bnRlc3RlZC4KPiBUaGFua3MgYSBsb3QgaW4gYWR2YW5jZSEKPgo+ID09PT4KPiB2aG9z
+dDogYmxvY2sgc3BlY3VsYXRpb24gb2YgdHJhbnNsYXRlZCBkZXNjcmlwdG9ycwo+Cj4gaW92ZWMg
+YWRkcmVzc2VzIGNvbWluZyBmcm9tIHZob3N0IGFyZSBhc3N1bWVkIHRvIGJlCj4gcHJlLXZhbGlk
+YXRlZCwgYnV0IGluIGZhY3QgY2FuIGJlIHNwZWN1bGF0ZWQgdG8gYSB2YWx1ZQo+IG91dCBvZiBy
+YW5nZS4KPgo+IFVzZXJzcGFjZSBhZGRyZXNzIGFyZSBsYXRlciB2YWxpZGF0ZWQgd2l0aCBhcnJh
+eV9pbmRleF9ub3NwZWMgc28gd2UgY2FuCj4gYmUgc3VyZSBrZXJuZWwgaW5mbyBkb2VzIG5vdCBs
+ZWFrIHRocm91Z2ggdGhlc2UgYWRkcmVzc2VzLCBidXQgdmhvc3QKPiBtdXN0IGFsc28gbm90IGxl
+YWsgdXNlcnNwYWNlIGluZm8gb3V0c2lkZSB0aGUgYWxsb3dlZCBtZW1vcnkgdGFibGUgdG8KPiBn
+dWVzdHMuCj4KPiBGb2xsb3dpbmcgdGhlIGRlZmVuY2UgaW4gZGVwdGggcHJpbmNpcGxlLCBtYWtl
+IHN1cmUKPiB0aGUgYWRkcmVzcyBpcyBub3QgdmFsaWRhdGVkIG91dCBvZiBub2RlIHJhbmdlLgo+
+Cj4gU2lnbmVkLW9mZi1ieTogTWljaGFlbCBTLiBUc2lya2luIDxtc3RAcmVkaGF0LmNvbT4KPgo+
+IC0tLQo+Cj4KPiBkaWZmIC0tZ2l0IGEvZHJpdmVycy92aG9zdC92aG9zdC5jIGIvZHJpdmVycy92
+aG9zdC92aG9zdC5jCj4gaW5kZXggNWRjMTc0YWM4Y2FjLi44NjNlMjUwMTFlZjYgMTAwNjQ0Cj4g
+LS0tIGEvZHJpdmVycy92aG9zdC92aG9zdC5jCj4gKysrIGIvZHJpdmVycy92aG9zdC92aG9zdC5j
+Cj4gQEAgLTIwNzIsNyArMjA3Niw5IEBAIHN0YXRpYyBpbnQgdHJhbnNsYXRlX2Rlc2Moc3RydWN0
+IHZob3N0X3ZpcnRxdWV1ZSAqdnEsIHU2NCBhZGRyLCB1MzIgbGVuLAo+ICAgCQlzaXplID0gbm9k
+ZS0+c2l6ZSAtIGFkZHIgKyBub2RlLT5zdGFydDsKPiAgIAkJX2lvdi0+aW92X2xlbiA9IG1pbigo
+dTY0KWxlbiAtIHMsIHNpemUpOwo+ICAgCQlfaW92LT5pb3ZfYmFzZSA9ICh2b2lkIF9fdXNlciAq
+KSh1bnNpZ25lZCBsb25nKQo+IC0JCQkobm9kZS0+dXNlcnNwYWNlX2FkZHIgKyBhZGRyIC0gbm9k
+ZS0+c3RhcnQpOwo+ICsJCQkobm9kZS0+dXNlcnNwYWNlX2FkZHIgKwo+ICsJCQkgYXJyYXlfaW5k
+ZXhfbm9zcGVjKGFkZHIgLSBub2RlLT5zdGFydCwKPiArCQkJCQkgICAgbm9kZS0+c2l6ZSkpOwo+
+ICAgCQlzICs9IHNpemU7Cj4gICAJCWFkZHIgKz0gc2l6ZTsKPiAgIAkJKytyZXQ7Cl9fX19fX19f
+X19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fClZpcnR1YWxpemF0aW9uIG1h
+aWxpbmcgbGlzdApWaXJ0dWFsaXphdGlvbkBsaXN0cy5saW51eC1mb3VuZGF0aW9uLm9yZwpodHRw
+czovL2xpc3RzLmxpbnV4Zm91bmRhdGlvbi5vcmcvbWFpbG1hbi9saXN0aW5mby92aXJ0dWFsaXph
+dGlvbg==
