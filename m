@@ -1,16 +1,14 @@
-From: Adalbert =?iso-8859-2?b?TGF643I=?= <alazar@bitdefender.com>
-Subject: Re: [RFC PATCH v6 69/92] kvm: x86: keep the page protected if tracked
-	by the introspection tool
-Date: Tue, 10 Sep 2019 19:28:19 +0300
-Message-ID: <15681328990.F582D7fCB.15355@host>
-References: <20190809160047.8319-1-alazar@bitdefender.com>
-	<20190809160047.8319-70-alazar@bitdefender.com>
-	<20190910142642.GC5879@char.us.oracle.com>
+From: David Riley <davidriley@chromium.org>
+Subject: [PATCH v3 1/2] drm/virtio: Rewrite virtio_gpu_queue_ctrl_buffer using
+	fenced version.
+Date: Tue, 10 Sep 2019 13:06:50 -0700
+Message-ID: <20190910200651.118628-1-davidriley__29723.7615844764$1568146031$gmane$org@chromium.org>
+References: <20190829212417.257397-1-davidriley@chromium.org>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="utf-8"
-Content-Transfer-Encoding: base64
+Content-Type: text/plain; charset="us-ascii"
+Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <20190910142642.GC5879@char.us.oracle.com>
+In-Reply-To: <20190829212417.257397-1-davidriley@chromium.org>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -20,47 +18,59 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Konrad Rzeszutek Wilk <konrad.wilk@oracle.com>
-Cc: Tamas K Lengyel <tamas@tklengyel.com>, Weijiang Yang <weijiang.yang@intel.com>, Yu C <yu.c.zhang@intel.com>, kvm@vger.kernel.org, Radim =?iso-8859-2?b?S3LobeH4?= <rkrcmar@redhat.com>, Jan Kiszka <jan.kiszka@siemens.com>, Samuel =?iso-8859-1?q?Laur=E9n?= <samuel.lauren@iki.fi>, virtualization@lists.linux-foundation.org, linux-mm@kvack.org, Patrick Colp <patrick.colp@oracle.com>, Mathieu Tarral <mathieu.tarral@protonmail.com>, Stefan Hajnoczi <stefanha@redhat.com>, Paolo Bonzini <pbonzini@redhat.com>, Mihai =?UTF-8?b?RG9uyJt1?= <mdontu@bitdefender.com>
+To: dri-devel@lists.freedesktop.org, virtualization@lists.linux-foundation.org
+Cc: David Airlie <airlied@linux.ie>, linux-kernel@vger.kernel.org, Gurchetan Singh <gurchetansingh@chromium.org>, Daniel Vetter <daniel@ffwll.ch>, =?UTF-8?q?St=C3=A9phane=20Marchesin?= <marcheu@chromium.org>
 List-Id: virtualization@lists.linuxfoundation.org
 
-T24gVHVlLCAxMCBTZXAgMjAxOSAxMDoyNjo0MiAtMDQwMCwgS29ucmFkIFJ6ZXN6dXRlayBXaWxr
-IDxrb25yYWQud2lsa0BvcmFjbGUuY29tPiB3cm90ZToKPiBPbiBGcmksIEF1ZyAwOSwgMjAxOSBh
-dCAwNzowMDoyNFBNICswMzAwLCBBZGFsYmVydCBMYXrEg3Igd3JvdGU6Cj4gPiBUaGlzIHBhdGNo
-IG1pZ2h0IGJlIG9ic29sZXRlIHRoYW5rcyB0byBzaW5nbGUtc3RlcHBpbmcuCj4gCj4gc29vbyBz
-aG91bGQgaXQgYmUgc2tpcHBlZCBmcm9tIHRoaXMgbGFyZ2UgcGF0Y2hzZXQgdG8gZWFzeQo+IHJl
-dmlldz8KCkknbGwgYWRkIGEgY291cGxlIG9mIHdhcm5pbmcgbWVzc2FnZXMgdG8gY2hlY2sgaWYg
-dGhpcyBwYXRjaCBpcyBzdGlsbApuZWVkZWQsIGluIG9yZGVyIHRvIHNraXAgaXQgZnJvbSB0aGUg
-bmV4dCBzdWJtaXNzaW9uICh3aGljaCB3aWxsIGJlIHNtYWxsZXI6KQoKSG93ZXZlciwgb24gQU1E
-LCBzaW5nbGUtc3RlcHBpbmcgaXMgbm90IGFuIG9wdGlvbi4KClRoYW5rcywKQWRhbGJlcnQKCj4g
-Cj4gPiAKPiA+IFNpZ25lZC1vZmYtYnk6IEFkYWxiZXJ0IExhesSDciA8YWxhemFyQGJpdGRlZmVu
-ZGVyLmNvbT4KPiA+IC0tLQo+ID4gIGFyY2gveDg2L2t2bS94ODYuYyB8IDkgKysrKysrKy0tCj4g
-PiAgMSBmaWxlIGNoYW5nZWQsIDcgaW5zZXJ0aW9ucygrKSwgMiBkZWxldGlvbnMoLSkKPiA+IAo+
-ID4gZGlmZiAtLWdpdCBhL2FyY2gveDg2L2t2bS94ODYuYyBiL2FyY2gveDg2L2t2bS94ODYuYwo+
-ID4gaW5kZXggMmMwNmRlNzNhNzg0Li4wNmY0NGNlOGVkMDcgMTAwNjQ0Cj4gPiAtLS0gYS9hcmNo
-L3g4Ni9rdm0veDg2LmMKPiA+ICsrKyBiL2FyY2gveDg2L2t2bS94ODYuYwo+ID4gQEAgLTYzMTEs
-NyArNjMxMSw4IEBAIHN0YXRpYyBib29sIHJlZXhlY3V0ZV9pbnN0cnVjdGlvbihzdHJ1Y3Qga3Zt
-X3ZjcHUgKnZjcHUsIGd2YV90IGNyMiwKPiA+ICAJCWluZGlyZWN0X3NoYWRvd19wYWdlcyA9IHZj
-cHUtPmt2bS0+YXJjaC5pbmRpcmVjdF9zaGFkb3dfcGFnZXM7Cj4gPiAgCQlzcGluX3VubG9jaygm
-dmNwdS0+a3ZtLT5tbXVfbG9jayk7Cj4gPiAgCj4gPiAtCQlpZiAoaW5kaXJlY3Rfc2hhZG93X3Bh
-Z2VzKQo+ID4gKwkJaWYgKGluZGlyZWN0X3NoYWRvd19wYWdlcwo+ID4gKwkJICAgICYmICFrdm1p
-X3RyYWNrZWRfZ2ZuKHZjcHUsIGdwYV90b19nZm4oZ3BhKSkpCj4gPiAgCQkJa3ZtX21tdV91bnBy
-b3RlY3RfcGFnZSh2Y3B1LT5rdm0sIGdwYV90b19nZm4oZ3BhKSk7Cj4gPiAgCj4gPiAgCQlyZXR1
-cm4gdHJ1ZTsKPiA+IEBAIC02MzIyLDcgKzYzMjMsOCBAQCBzdGF0aWMgYm9vbCByZWV4ZWN1dGVf
-aW5zdHJ1Y3Rpb24oc3RydWN0IGt2bV92Y3B1ICp2Y3B1LCBndmFfdCBjcjIsCj4gPiAgCSAqIGFu
-ZCBpdCBmYWlsZWQgdHJ5IHRvIHVuc2hhZG93IHBhZ2UgYW5kIHJlLWVudGVyIHRoZQo+ID4gIAkg
-KiBndWVzdCB0byBsZXQgQ1BVIGV4ZWN1dGUgdGhlIGluc3RydWN0aW9uLgo+ID4gIAkgKi8KPiA+
-IC0Ja3ZtX21tdV91bnByb3RlY3RfcGFnZSh2Y3B1LT5rdm0sIGdwYV90b19nZm4oZ3BhKSk7Cj4g
-PiArCWlmICgha3ZtaV90cmFja2VkX2dmbih2Y3B1LCBncGFfdG9fZ2ZuKGdwYSkpKQo+ID4gKwkJ
-a3ZtX21tdV91bnByb3RlY3RfcGFnZSh2Y3B1LT5rdm0sIGdwYV90b19nZm4oZ3BhKSk7Cj4gPiAg
-Cj4gPiAgCS8qCj4gPiAgCSAqIElmIHRoZSBhY2Nlc3MgZmF1bHRzIG9uIGl0cyBwYWdlIHRhYmxl
-LCBpdCBjYW4gbm90Cj4gPiBAQCAtNjM3NCw2ICs2Mzc2LDkgQEAgc3RhdGljIGJvb2wgcmV0cnlf
-aW5zdHJ1Y3Rpb24oc3RydWN0IHg4Nl9lbXVsYXRlX2N0eHQgKmN0eHQsCj4gPiAgCWlmICghdmNw
-dS0+YXJjaC5tbXUtPmRpcmVjdF9tYXApCj4gPiAgCQlncGEgPSBrdm1fbW11X2d2YV90b19ncGFf
-d3JpdGUodmNwdSwgY3IyLCBOVUxMKTsKPiA+ICAKPiA+ICsJaWYgKGt2bWlfdHJhY2tlZF9nZm4o
-dmNwdSwgZ3BhX3RvX2dmbihncGEpKSkKPiA+ICsJCXJldHVybiBmYWxzZTsKPiA+ICsKPiA+ICAJ
-a3ZtX21tdV91bnByb3RlY3RfcGFnZSh2Y3B1LT5rdm0sIGdwYV90b19nZm4oZ3BhKSk7Cj4gPiAg
-Cj4gPiAgCXJldHVybiB0cnVlOwpfX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19f
-X19fX19fX19fXwpWaXJ0dWFsaXphdGlvbiBtYWlsaW5nIGxpc3QKVmlydHVhbGl6YXRpb25AbGlz
-dHMubGludXgtZm91bmRhdGlvbi5vcmcKaHR0cHM6Ly9saXN0cy5saW51eGZvdW5kYXRpb24ub3Jn
-L21haWxtYW4vbGlzdGluZm8vdmlydHVhbGl6YXRpb24=
+Factor function in preparation to generating scatterlist prior to locking.
+
+Signed-off-by: David Riley <davidriley@chromium.org>
+---
+ drivers/gpu/drm/virtio/virtgpu_vq.c | 19 +++++++------------
+ 1 file changed, 7 insertions(+), 12 deletions(-)
+
+diff --git a/drivers/gpu/drm/virtio/virtgpu_vq.c b/drivers/gpu/drm/virtio/virtgpu_vq.c
+index 981ee16e3ee9..bf5a4a50b002 100644
+--- a/drivers/gpu/drm/virtio/virtgpu_vq.c
++++ b/drivers/gpu/drm/virtio/virtgpu_vq.c
+@@ -299,17 +299,6 @@ static int virtio_gpu_queue_ctrl_buffer_locked(struct virtio_gpu_device *vgdev,
+ 	return ret;
+ }
+ 
+-static int virtio_gpu_queue_ctrl_buffer(struct virtio_gpu_device *vgdev,
+-					struct virtio_gpu_vbuffer *vbuf)
+-{
+-	int rc;
+-
+-	spin_lock(&vgdev->ctrlq.qlock);
+-	rc = virtio_gpu_queue_ctrl_buffer_locked(vgdev, vbuf);
+-	spin_unlock(&vgdev->ctrlq.qlock);
+-	return rc;
+-}
+-
+ static int virtio_gpu_queue_fenced_ctrl_buffer(struct virtio_gpu_device *vgdev,
+ 					       struct virtio_gpu_vbuffer *vbuf,
+ 					       struct virtio_gpu_ctrl_hdr *hdr,
+@@ -335,13 +324,19 @@ static int virtio_gpu_queue_fenced_ctrl_buffer(struct virtio_gpu_device *vgdev,
+ 		goto again;
+ 	}
+ 
+-	if (fence)
++	if (hdr && fence)
+ 		virtio_gpu_fence_emit(vgdev, hdr, fence);
+ 	rc = virtio_gpu_queue_ctrl_buffer_locked(vgdev, vbuf);
+ 	spin_unlock(&vgdev->ctrlq.qlock);
+ 	return rc;
+ }
+ 
++static int virtio_gpu_queue_ctrl_buffer(struct virtio_gpu_device *vgdev,
++					struct virtio_gpu_vbuffer *vbuf)
++{
++	return virtio_gpu_queue_fenced_ctrl_buffer(vgdev, vbuf, NULL, NULL);
++}
++
+ static int virtio_gpu_queue_cursor(struct virtio_gpu_device *vgdev,
+ 				   struct virtio_gpu_vbuffer *vbuf)
+ {
+-- 
+2.23.0.162.g0b9fbb3734-goog
