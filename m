@@ -1,14 +1,16 @@
-From: Gerd Hoffmann <kraxel@redhat.com>
-Subject: Re: [PATCH 0/4] Merge VRAM MM and GEM VRAM source files
-Date: Tue, 10 Sep 2019 13:06:03 +0200
-Message-ID: <20190910110603.upjt34ycylscjpnf@sirius.home.kraxel.org>
-References: <20190909130453.6718-1-tzimmermann@suse.de>
+From: Jason Wang <jasowang@redhat.com>
+Subject: Re: [RFC PATCH 3/4] virtio: introudce a mdev based transport
+Date: Tue, 10 Sep 2019 21:13:02 +0800
+Message-ID: <572ffc34-3081-8503-d3cc-192edc9b5311__11193.7234456249$1568121212$gmane$org@redhat.com>
+References: <20190910081935.30516-1-jasowang@redhat.com>
+	<20190910081935.30516-4-jasowang@redhat.com>
+	<20190910055744-mutt-send-email-mst@kernel.org>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset="utf-8"; Format="flowed"
+Content-Transfer-Encoding: base64
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-Content-Disposition: inline
-In-Reply-To: <20190909130453.6718-1-tzimmermann@suse.de>
+In-Reply-To: <20190910055744-mutt-send-email-mst@kernel.org>
+Content-Language: en-US
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -18,24 +20,78 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Thomas Zimmermann <tzimmermann@suse.de>
-Cc: yc_chen@aspeedtech.com, corbet@lwn.net, airlied@linux.ie, puck.chen@hisilicon.com, linux-doc@vger.kernel.org, dri-devel@lists.freedesktop.org, virtualization@lists.linux-foundation.org, z.liuxinliang@hisilicon.com, hdegoede@redhat.com, kong.kongxinwei@hisilicon.com, daniel@ffwll.ch, zourongrong@gmail.com, sam@ravnborg.org
+To: "Michael S. Tsirkin" <mst@redhat.com>
+Cc: kvm@vger.kernel.org, netdev@vger.kernel.org, cohuck@redhat.com, linux-kernel@vger.kernel.org, kwankhede@nvidia.com, xiao.w.wang@intel.com, zhihong.wang@intel.com, maxime.coquelin@redhat.com, virtualization@lists.linux-foundation.org, haotian.wang@sifive.com, idos@mellanox.com, rob.miller@broadcom.com
 List-Id: virtualization@lists.linuxfoundation.org
 
-On Mon, Sep 09, 2019 at 03:04:49PM +0200, Thomas Zimmermann wrote:
-> VRAM MM and GEM VRAM are only used with each other. This patch set
-> moves VRAM MM into GEM VRAM source files and cleans up the helper's
-> public interface.
-> 
-> Thomas Zimmermann (4):
->   drm/vram: Move VRAM memory manager to GEM VRAM implementation
->   drm/vram: Have VRAM MM call GEM VRAM functions directly
->   drm/vram: Unexport internal functions of VRAM MM
->   drm/vram: Unconditonally set BO call-back functions
-
-Looks all sane.
-
-Acked-by: Gerd Hoffmann <kraxel@redhat.com>
-
-cheers,
-  Gerd
+Ck9uIDIwMTkvOS8xMCDkuIvljYg2OjAxLCBNaWNoYWVsIFMuIFRzaXJraW4gd3JvdGU6Cj4+ICsj
+aWZuZGVmIF9MSU5VWF9WSVJUSU9fTURFVl9ICj4+ICsjZGVmaW5lIF9MSU5VWF9WSVJUSU9fTURF
+Vl9ICj4+ICsKPj4gKyNpbmNsdWRlIDxsaW51eC9pbnRlcnJ1cHQuaD4KPj4gKyNpbmNsdWRlIDxs
+aW51eC92cmluZ2guaD4KPj4gKyNpbmNsdWRlIDx1YXBpL2xpbnV4L3ZpcnRpb19uZXQuaD4KPj4g
+Kwo+PiArLyoKPj4gKyAqIElvY3Rscwo+PiArICovCj4gUGxzIGFkZCBhIGJpdCBtb3JlIGNvbnRl
+bnQgaGVyZS4gSXQncyByZWR1bmRhbnQgdG8gc3RhdGUgdGhlc2UKPiBhcmUgaW9jdGxzLiBNdWNo
+IGJldHRlciB0byBkb2N1bWVudCB3aGF0IGRvZXMgZWFjaCBvbmUgZG8uCgoKT2suCgoKPgo+PiAr
+Cj4+ICtzdHJ1Y3QgdmlydGlvX21kZXZfY2FsbGJhY2sgewo+PiArCWlycXJldHVybl90ICgqY2Fs
+bGJhY2spKHZvaWQgKik7Cj4+ICsJdm9pZCAqcHJpdmF0ZTsKPj4gK307Cj4+ICsKPj4gKyNkZWZp
+bmUgVklSVElPX01ERVYgMHhBRgo+PiArI2RlZmluZSBWSVJUSU9fTURFVl9TRVRfVlFfQ0FMTEJB
+Q0sgX0lPVyhWSVJUSU9fTURFViwgMHgwMCwgXAo+PiArCQkJCQkgc3RydWN0IHZpcnRpb19tZGV2
+X2NhbGxiYWNrKQo+PiArI2RlZmluZSBWSVJUSU9fTURFVl9TRVRfQ09ORklHX0NBTExCQUNLIF9J
+T1coVklSVElPX01ERVYsIDB4MDEsIFwKPj4gKwkJCQkJc3RydWN0IHZpcnRpb19tZGV2X2NhbGxi
+YWNrKQo+IEZ1bmN0aW9uIHBvaW50ZXIgaW4gYW4gaW9jdGwgcGFyYW1ldGVyPyBIb3cgZG9lcyB0
+aGlzIGV2ZXIgbWFrZSBzZW5zZT8KCgpJIGFkbWl0IHRoaXMgaXMgaGFja3kgKGNhc3RpbmcpLgoK
+Cj4gQW5kIGNhbid0IHdlIHVzZSBhIGNvdXBsZSBvZiByZWdpc3RlcnMgZm9yIHRoaXMsIGFuZCBh
+dm9pZCBpb2N0bHM/CgoKWWVzLCBob3cgYWJvdXQgc29tZXRoaW5nIGxpa2UgaW50ZXJydXB0IG51
+bWJlcnMgZm9yIGVhY2ggdmlydHF1ZXVlIGFuZCAKY29uZmlnPwoKCj4KPj4gKwo+PiArI2RlZmlu
+ZSBWSVJUSU9fTURFVl9ERVZJQ0VfQVBJX1NUUklORwkJInZpcnRpby1tZGV2Igo+PiArCj4+ICsv
+Kgo+PiArICogQ29udHJvbCByZWdpc3RlcnMKPj4gKyAqLwo+PiArCj4+ICsvKiBNYWdpYyB2YWx1
+ZSAoInZpcnQiIHN0cmluZykgLSBSZWFkIE9ubHkgKi8KPj4gKyNkZWZpbmUgVklSVElPX01ERVZf
+TUFHSUNfVkFMVUUJCTB4MDAwCj4+ICsKPj4gKy8qIFZpcnRpbyBkZXZpY2UgdmVyc2lvbiAtIFJl
+YWQgT25seSAqLwo+PiArI2RlZmluZSBWSVJUSU9fTURFVl9WRVJTSU9OCQkweDAwNAo+PiArCj4+
+ICsvKiBWaXJ0aW8gZGV2aWNlIElEIC0gUmVhZCBPbmx5ICovCj4+ICsjZGVmaW5lIFZJUlRJT19N
+REVWX0RFVklDRV9JRAkJMHgwMDgKPj4gKwo+PiArLyogVmlydGlvIHZlbmRvciBJRCAtIFJlYWQg
+T25seSAqLwo+PiArI2RlZmluZSBWSVJUSU9fTURFVl9WRU5ET1JfSUQJCTB4MDBjCj4+ICsKPj4g
+Ky8qIEJpdG1hc2sgb2YgdGhlIGZlYXR1cmVzIHN1cHBvcnRlZCBieSB0aGUgZGV2aWNlIChob3N0
+KQo+PiArICogKDMyIGJpdHMgcGVyIHNldCkgLSBSZWFkIE9ubHkgKi8KPj4gKyNkZWZpbmUgVklS
+VElPX01ERVZfREVWSUNFX0ZFQVRVUkVTCTB4MDEwCj4+ICsKPj4gKy8qIERldmljZSAoaG9zdCkg
+ZmVhdHVyZXMgc2V0IHNlbGVjdG9yIC0gV3JpdGUgT25seSAqLwo+PiArI2RlZmluZSBWSVJUSU9f
+TURFVl9ERVZJQ0VfRkVBVFVSRVNfU0VMCTB4MDE0Cj4+ICsKPj4gKy8qIEJpdG1hc2sgb2YgZmVh
+dHVyZXMgYWN0aXZhdGVkIGJ5IHRoZSBkcml2ZXIgKGd1ZXN0KQo+PiArICogKDMyIGJpdHMgcGVy
+IHNldCkgLSBXcml0ZSBPbmx5ICovCj4+ICsjZGVmaW5lIFZJUlRJT19NREVWX0RSSVZFUl9GRUFU
+VVJFUwkweDAyMAo+PiArCj4+ICsvKiBBY3RpdmF0ZWQgZmVhdHVyZXMgc2V0IHNlbGVjdG9yIC0g
+V3JpdGUgT25seSAqLwo+PiArI2RlZmluZSBWSVJUSU9fTURFVl9EUklWRVJfRkVBVFVSRVNfU0VM
+CTB4MDI0Cj4+ICsKPj4gKy8qIFF1ZXVlIHNlbGVjdG9yIC0gV3JpdGUgT25seSAqLwo+PiArI2Rl
+ZmluZSBWSVJUSU9fTURFVl9RVUVVRV9TRUwJCTB4MDMwCj4+ICsKPj4gKy8qIE1heGltdW0gc2l6
+ZSBvZiB0aGUgY3VycmVudGx5IHNlbGVjdGVkIHF1ZXVlIC0gUmVhZCBPbmx5ICovCj4+ICsjZGVm
+aW5lIFZJUlRJT19NREVWX1FVRVVFX05VTV9NQVgJMHgwMzQKPj4gKwo+PiArLyogUXVldWUgc2l6
+ZSBmb3IgdGhlIGN1cnJlbnRseSBzZWxlY3RlZCBxdWV1ZSAtIFdyaXRlIE9ubHkgKi8KPj4gKyNk
+ZWZpbmUgVklSVElPX01ERVZfUVVFVUVfTlVNCQkweDAzOAo+PiArCj4+ICsvKiBSZWFkeSBiaXQg
+Zm9yIHRoZSBjdXJyZW50bHkgc2VsZWN0ZWQgcXVldWUgLSBSZWFkIFdyaXRlICovCj4+ICsjZGVm
+aW5lIFZJUlRJT19NREVWX1FVRVVFX1JFQURZCQkweDA0NAo+IElzIHRoaXMgc2FtZSBhcyBzdGFy
+dGVkPwoKCkRvIHlvdSBtZWFuICJzdGF0dXMiPwoKCj4KPj4gKwo+PiArLyogQWxpZ25tZW50IG9m
+IHZpcnRxdWV1ZSAtIFJlYWQgT25seSAqLwo+PiArI2RlZmluZSBWSVJUSU9fTURFVl9RVUVVRV9B
+TElHTgkJMHgwNDgKPj4gKwo+PiArLyogUXVldWUgbm90aWZpZXIgLSBXcml0ZSBPbmx5ICovCj4+
+ICsjZGVmaW5lIFZJUlRJT19NREVWX1FVRVVFX05PVElGWQkweDA1MAo+PiArCj4+ICsvKiBEZXZp
+Y2Ugc3RhdHVzIHJlZ2lzdGVyIC0gUmVhZCBXcml0ZSAqLwo+PiArI2RlZmluZSBWSVJUSU9fTURF
+Vl9TVEFUVVMJCTB4MDYwCj4+ICsKPj4gKy8qIFNlbGVjdGVkIHF1ZXVlJ3MgRGVzY3JpcHRvciBU
+YWJsZSBhZGRyZXNzLCA2NCBiaXRzIGluIHR3byBoYWx2ZXMgKi8KPj4gKyNkZWZpbmUgVklSVElP
+X01ERVZfUVVFVUVfREVTQ19MT1cJMHgwODAKPj4gKyNkZWZpbmUgVklSVElPX01ERVZfUVVFVUVf
+REVTQ19ISUdICTB4MDg0Cj4+ICsKPj4gKy8qIFNlbGVjdGVkIHF1ZXVlJ3MgQXZhaWxhYmxlIFJp
+bmcgYWRkcmVzcywgNjQgYml0cyBpbiB0d28gaGFsdmVzICovCj4+ICsjZGVmaW5lIFZJUlRJT19N
+REVWX1FVRVVFX0FWQUlMX0xPVwkweDA5MAo+PiArI2RlZmluZSBWSVJUSU9fTURFVl9RVUVVRV9B
+VkFJTF9ISUdICTB4MDk0Cj4+ICsKPj4gKy8qIFNlbGVjdGVkIHF1ZXVlJ3MgVXNlZCBSaW5nIGFk
+ZHJlc3MsIDY0IGJpdHMgaW4gdHdvIGhhbHZlcyAqLwo+PiArI2RlZmluZSBWSVJUSU9fTURFVl9R
+VUVVRV9VU0VEX0xPVwkweDBhMAo+PiArI2RlZmluZSBWSVJUSU9fTURFVl9RVUVVRV9VU0VEX0hJ
+R0gJMHgwYTQKPj4gKwo+PiArLyogQ29uZmlndXJhdGlvbiBhdG9taWNpdHkgdmFsdWUgKi8KPj4g
+KyNkZWZpbmUgVklSVElPX01ERVZfQ09ORklHX0dFTkVSQVRJT04JMHgwZmMKPj4gKwo+PiArLyog
+VGhlIGNvbmZpZyBzcGFjZSBpcyBkZWZpbmVkIGJ5IGVhY2ggZHJpdmVyIGFzCj4+ICsgKiB0aGUg
+cGVyLWRyaXZlciBjb25maWd1cmF0aW9uIHNwYWNlIC0gUmVhZCBXcml0ZSAqLwo+PiArI2RlZmlu
+ZSBWSVJUSU9fTURFVl9DT05GSUcJCTB4MTAwCj4gTWl4aW5nIGRldmljZSBhbmQgZ2VuZXJpYyBj
+b25maWcgc3BhY2UgaXMgd2hhdCB2aXJ0aW8gcGNpIGRpZCwKPiBjYXVzZWQgbG90cyBvZiBwcm9i
+bGVtcyB3aXRoIGV4dGVuc2lvbnMuCj4gSXQgd291bGQgYmUgYmV0dGVyIHRvIHJlc2VydmUgbXVj
+aCBtb3JlIHNwYWNlLgoKCkkgc2VlLCB3aWxsIGRvIHRoaXMuCgpUaGFua3MKCgo+Cj4KPj4gKwo+
+PiArI2VuZGlmCj4+ICsKPj4gKwo+PiArLyogUmVhZHkgYml0IGZvciB0aGUgY3VycmVudGx5IHNl
+bGVjdGVkIHF1ZXVlIC0gUmVhZCBXcml0ZSAqLwo+PiAtLSAKPj4gMi4xOS4xCl9fX19fX19fX19f
+X19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fClZpcnR1YWxpemF0aW9uIG1haWxp
+bmcgbGlzdApWaXJ0dWFsaXphdGlvbkBsaXN0cy5saW51eC1mb3VuZGF0aW9uLm9yZwpodHRwczov
+L2xpc3RzLmxpbnV4Zm91bmRhdGlvbi5vcmcvbWFpbG1hbi9saXN0aW5mby92aXJ0dWFsaXphdGlv
+bg==
