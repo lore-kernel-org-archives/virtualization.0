@@ -1,19 +1,11 @@
 From: Jason Wang <jasowang@redhat.com>
-Subject: Re: [RFC PATCH untested] vhost: block speculation of translated
-	descriptors
-Date: Tue, 10 Sep 2019 15:28:27 +0800
-Message-ID: <bb71974e-a8b3-4cc4-f3e1-e48118469b78__5922.88536006294$1568100525$gmane$org@redhat.com>
-References: <20190908110521.4031-1-mst@redhat.com>
-	<db4d77d7-c467-935d-b4ae-1da7635e9b6b@redhat.com>
-	<20190909104355-mutt-send-email-mst@kernel.org>
-	<9ab48e0f-50a9-bed4-1801-73c37a7da27c@redhat.com>
-	<20190910024814-mutt-send-email-mst@kernel.org>
+Subject: [RFC PATCH 0/4] mdev based hardware virtio offloading support
+Date: Tue, 10 Sep 2019 16:19:31 +0800
+Message-ID: <20190910081935.30516-1-jasowang__9037.98589003912$1568103614$gmane$org@redhat.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="utf-8"; Format="flowed"
-Content-Transfer-Encoding: base64
+Content-Type: text/plain; charset="us-ascii"
+Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <20190910024814-mutt-send-email-mst@kernel.org>
-Content-Language: en-US
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -23,48 +15,72 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: "Michael S. Tsirkin" <mst@redhat.com>
-Cc: netdev@vger.kernel.org, linux-kernel@vger.kernel.org, kvm@vger.kernel.org, virtualization@lists.linux-foundation.org
+To: mst@redhat.com, jasowang@redhat.com, kvm@vger.kernel.org, virtualization@lists.linux-foundation.org, netdev@vger.kernel.org
+Cc: idos@mellanox.com, cohuck@redhat.com, kwankhede@nvidia.com, linux-kernel@vger.kernel.org, maxime.coquelin@redhat.com, xiao.w.wang@intel.com, zhihong.wang@intel.com, haotian.wang@sifive.com, rob.miller@broadcom.com
 List-Id: virtualization@lists.linuxfoundation.org
 
-Ck9uIDIwMTkvOS8xMCDkuIvljYgyOjQ4LCBNaWNoYWVsIFMuIFRzaXJraW4gd3JvdGU6Cj4gT24g
-VHVlLCBTZXAgMTAsIDIwMTkgYXQgMDk6NTI6MTBBTSArMDgwMCwgSmFzb24gV2FuZyB3cm90ZToK
-Pj4gT24gMjAxOS85Lzkg5LiL5Y2IMTA6NDUsIE1pY2hhZWwgUy4gVHNpcmtpbiB3cm90ZToKPj4+
-IE9uIE1vbiwgU2VwIDA5LCAyMDE5IGF0IDAzOjE5OjU1UE0gKzA4MDAsIEphc29uIFdhbmcgd3Jv
-dGU6Cj4+Pj4gT24gMjAxOS85Lzgg5LiL5Y2INzowNSwgTWljaGFlbCBTLiBUc2lya2luIHdyb3Rl
-Ogo+Pj4+PiBpb3ZlYyBhZGRyZXNzZXMgY29taW5nIGZyb20gdmhvc3QgYXJlIGFzc3VtZWQgdG8g
-YmUKPj4+Pj4gcHJlLXZhbGlkYXRlZCwgYnV0IGluIGZhY3QgY2FuIGJlIHNwZWN1bGF0ZWQgdG8g
-YSB2YWx1ZQo+Pj4+PiBvdXQgb2YgcmFuZ2UuCj4+Pj4+Cj4+Pj4+IFVzZXJzcGFjZSBhZGRyZXNz
-IGFyZSBsYXRlciB2YWxpZGF0ZWQgd2l0aCBhcnJheV9pbmRleF9ub3NwZWMgc28gd2UgY2FuCj4+
-Pj4+IGJlIHN1cmUga2VybmVsIGluZm8gZG9lcyBub3QgbGVhayB0aHJvdWdoIHRoZXNlIGFkZHJl
-c3NlcywgYnV0IHZob3N0Cj4+Pj4+IG11c3QgYWxzbyBub3QgbGVhayB1c2Vyc3BhY2UgaW5mbyBv
-dXRzaWRlIHRoZSBhbGxvd2VkIG1lbW9yeSB0YWJsZSB0bwo+Pj4+PiBndWVzdHMuCj4+Pj4+Cj4+
-Pj4+IEZvbGxvd2luZyB0aGUgZGVmZW5jZSBpbiBkZXB0aCBwcmluY2lwbGUsIG1ha2Ugc3VyZQo+
-Pj4+PiB0aGUgYWRkcmVzcyBpcyBub3QgdmFsaWRhdGVkIG91dCBvZiBub2RlIHJhbmdlLgo+Pj4+
-Pgo+Pj4+PiBTaWduZWQtb2ZmLWJ5OiBNaWNoYWVsIFMuIFRzaXJraW4gPG1zdEByZWRoYXQuY29t
-Pgo+Pj4+PiAtLS0KPj4+Pj4gICAgIGRyaXZlcnMvdmhvc3Qvdmhvc3QuYyB8IDQgKysrLQo+Pj4+
-PiAgICAgMSBmaWxlIGNoYW5nZWQsIDMgaW5zZXJ0aW9ucygrKSwgMSBkZWxldGlvbigtKQo+Pj4+
-Pgo+Pj4+PiBkaWZmIC0tZ2l0IGEvZHJpdmVycy92aG9zdC92aG9zdC5jIGIvZHJpdmVycy92aG9z
-dC92aG9zdC5jCj4+Pj4+IGluZGV4IDVkYzE3NGFjOGNhYy4uMGVlMzc1ZmI3MTQ1IDEwMDY0NAo+
-Pj4+PiAtLS0gYS9kcml2ZXJzL3Zob3N0L3Zob3N0LmMKPj4+Pj4gKysrIGIvZHJpdmVycy92aG9z
-dC92aG9zdC5jCj4+Pj4+IEBAIC0yMDcyLDcgKzIwNzIsOSBAQCBzdGF0aWMgaW50IHRyYW5zbGF0
-ZV9kZXNjKHN0cnVjdCB2aG9zdF92aXJ0cXVldWUgKnZxLCB1NjQgYWRkciwgdTMyIGxlbiwKPj4+
-Pj4gICAgIAkJc2l6ZSA9IG5vZGUtPnNpemUgLSBhZGRyICsgbm9kZS0+c3RhcnQ7Cj4+Pj4+ICAg
-ICAJCV9pb3YtPmlvdl9sZW4gPSBtaW4oKHU2NClsZW4gLSBzLCBzaXplKTsKPj4+Pj4gICAgIAkJ
-X2lvdi0+aW92X2Jhc2UgPSAodm9pZCBfX3VzZXIgKikodW5zaWduZWQgbG9uZykKPj4+Pj4gLQkJ
-CShub2RlLT51c2Vyc3BhY2VfYWRkciArIGFkZHIgLSBub2RlLT5zdGFydCk7Cj4+Pj4+ICsJCQko
-bm9kZS0+dXNlcnNwYWNlX2FkZHIgKwo+Pj4+PiArCQkJIGFycmF5X2luZGV4X25vc3BlYyhhZGRy
-IC0gbm9kZS0+c3RhcnQsCj4+Pj4+ICsJCQkJCSAgICBub2RlLT5zaXplKSk7Cj4+Pj4+ICAgICAJ
-CXMgKz0gc2l6ZTsKPj4+Pj4gICAgIAkJYWRkciArPSBzaXplOwo+Pj4+PiAgICAgCQkrK3JldDsK
-Pj4+PiBJJ3ZlIHRyaWVkIHRoaXMgb24gS2FieSBMYWtlIHNtYXAgb2ZmIG1ldGFkYXRhIGFjY2Vs
-ZXJhdGlvbiBvZmYgdXNpbmcKPj4+PiB0ZXN0cG1kICh2aXJ0aW8tdXNlcikgKyB2aG9zdF9uZXQu
-IEkgZG9uJ3Qgc2VlIG9idmlvdXMgcGVyZm9ybWFuY2UKPj4+PiBkaWZmZXJlbmNlIHdpdGggVFgg
-UFBTLgo+Pj4+Cj4+Pj4gVGhhbmtzCj4+PiBTaG91bGQgSSBwdXNoIHRoaXMgdG8gTGludXMgcmln
-aHQgbm93IHRoZW4/IEl0J3MgYSBzZWN1cml0eSB0aGluZyBzbwo+Pj4gbWF5YmUgd2UgYmV0dGVy
-IGRvIGl0IEFTQVAgLi4uIHdoYXQncyB5b3VyIG9waW5pb24/Cj4+Cj4+IFllcywgeW91IGNhbi4K
-Pj4KPj4gQWNrZWQtYnk6IEphc29uIFdhbmcgPGphc293YW5nQHJlZGhhdC5jb20+Cj4KPiBBbmQg
-c2hvdWxkIEkgaW5jbHVkZQo+Cj4gVGVzdGVkLWJ5OiBKYXNvbiBXYW5nIDxqYXNvd2FuZ0ByZWRo
-YXQuY29tPgo+Cj4gPwoKClllcy4KClRoYW5rcwoKCj4KPj4KX19fX19fX19fX19fX19fX19fX19f
-X19fX19fX19fX19fX19fX19fX19fX19fX18KVmlydHVhbGl6YXRpb24gbWFpbGluZyBsaXN0ClZp
-cnR1YWxpemF0aW9uQGxpc3RzLmxpbnV4LWZvdW5kYXRpb24ub3JnCmh0dHBzOi8vbGlzdHMubGlu
-dXhmb3VuZGF0aW9uLm9yZy9tYWlsbWFuL2xpc3RpbmZvL3ZpcnR1YWxpemF0aW9u
+Hi all:
+
+There are hardware that can do virtio datapath offloading while having
+its own control path. This path tries to implement a mdev based
+unified API to support using kernel virtio driver to drive those
+devices. This is done by introducing a new mdev transport for virtio
+(virtio_mdev) and register itself as a new kind of mdev driver. Then
+it provides a unified way for kernel virtio driver to talk with mdev
+device implementation.
+
+Though the series only contain kernel driver support, the goal is to
+make the transport generic enough to support userspace drivers. This
+means vhost-mdev[1] could be built on top as well by resuing the
+transport.
+
+A sample driver is also implemented which simulate a virito-net
+loopback ethernet device on top of vringh + workqueue. This could be
+used as a reference implementation for real hardware driver.
+
+Notes:
+
+- Some of the key transport command for vhost-mdev(userspace driver)
+  is not introduced. This includes:
+  1) set/get virtqueue state (idx etc), this could be simply done by
+     introducing new transport command
+  2) dirty pages tracking, could be simply done by introducing new
+     transport command
+  3) set/get device internal state, this requires more thought, of
+     course we can introduce device specific transport command, but it
+     would be better to have a unified API
+- Current mdev_parent_ops assumes all pointers are userspace pointer,
+  this block the kernel driver, this series just abuse those as kernel
+  pointer and this could be addressed by inventing new parent_ops.
+- For quick POC, mdev transport was just derived from virtio-MMIO,
+  I'm pretty sure it has lots of space to be optimized, please share
+  your thought.
+
+Please review.
+
+[1] https://lkml.org/lkml/2019/8/28/35
+
+Jason Wang (4):
+  vringh: fix copy direction of vringh_iov_push_kern()
+  mdev: introduce helper to set per device dma ops
+  virtio: introudce a mdev based transport
+  docs: Sample driver to demonstrate how to implement virtio-mdev
+    framework
+
+ drivers/vfio/mdev/Kconfig        |   7 +
+ drivers/vfio/mdev/Makefile       |   1 +
+ drivers/vfio/mdev/mdev_core.c    |   7 +
+ drivers/vfio/mdev/virtio_mdev.c  | 500 ++++++++++++++++++++
+ drivers/vhost/vringh.c           |   8 +-
+ include/linux/mdev.h             |   2 +
+ include/uapi/linux/virtio_mdev.h | 131 ++++++
+ samples/Kconfig                  |   7 +
+ samples/vfio-mdev/Makefile       |   1 +
+ samples/vfio-mdev/mvnet.c        | 766 +++++++++++++++++++++++++++++++
+ 10 files changed, 1429 insertions(+), 1 deletion(-)
+ create mode 100644 drivers/vfio/mdev/virtio_mdev.c
+ create mode 100644 include/uapi/linux/virtio_mdev.h
+ create mode 100644 samples/vfio-mdev/mvnet.c
+
+-- 
+2.19.1
