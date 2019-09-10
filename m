@@ -1,14 +1,16 @@
-From: Juergen Gross <jgross@suse.com>
-Subject: Re: [bug report] x86/paravirt: Use a single ops structure
-Date: Tue, 10 Sep 2019 17:09:13 +0200
-Message-ID: <82b0e36b-d6f6-3a5e-9ebe-9675a5764003@suse.com>
-References: <20190910145320.GA1479@mwanda>
+From: Adalbert =?iso-8859-2?b?TGF643I=?= <alazar@bitdefender.com>
+Subject: Re: [RFC PATCH v6 69/92] kvm: x86: keep the page protected if tracked
+	by the introspection tool
+Date: Tue, 10 Sep 2019 19:28:19 +0300
+Message-ID: <15681328990.F582D7fCB.15355@host>
+References: <20190809160047.8319-1-alazar@bitdefender.com>
+	<20190809160047.8319-70-alazar@bitdefender.com>
+	<20190910142642.GC5879@char.us.oracle.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"; Format="flowed"
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset="utf-8"
+Content-Transfer-Encoding: base64
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <20190910145320.GA1479@mwanda>
-Content-Language: de-DE
+In-Reply-To: <20190910142642.GC5879@char.us.oracle.com>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -18,47 +20,47 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Dan Carpenter <dan.carpenter@oracle.com>
-Cc: virtualization@lists.linux-foundation.org
+To: Konrad Rzeszutek Wilk <konrad.wilk@oracle.com>
+Cc: Tamas K Lengyel <tamas@tklengyel.com>, Weijiang Yang <weijiang.yang@intel.com>, Yu C <yu.c.zhang@intel.com>, kvm@vger.kernel.org, Radim =?iso-8859-2?b?S3LobeH4?= <rkrcmar@redhat.com>, Jan Kiszka <jan.kiszka@siemens.com>, Samuel =?iso-8859-1?q?Laur=E9n?= <samuel.lauren@iki.fi>, virtualization@lists.linux-foundation.org, linux-mm@kvack.org, Patrick Colp <patrick.colp@oracle.com>, Mathieu Tarral <mathieu.tarral@protonmail.com>, Stefan Hajnoczi <stefanha@redhat.com>, Paolo Bonzini <pbonzini@redhat.com>, Mihai =?UTF-8?b?RG9uyJt1?= <mdontu@bitdefender.com>
 List-Id: virtualization@lists.linuxfoundation.org
 
-On 10.09.19 16:53, Dan Carpenter wrote:
-> Hello Juergen Gross,
-> 
-> The patch 5c83511bdb98: "x86/paravirt: Use a single ops structure"
-> from Aug 28, 2018, leads to the following static checker warning:
-> 
-> 	arch/x86/kernel/paravirt.c:123 paravirt_patch_default()
-> 	warn: uncapped user index '*(&pv_ops + type)'
-> 
-> 	arch/x86/kernel/paravirt.c:124 paravirt_patch_default()
-> 	error: buffer overflow '&pv_ops' 90 <= 255 user_rl='0-255'
-> 
-> arch/x86/kernel/paravirt.c
->     116  unsigned paravirt_patch_default(u8 type, void *insn_buff,
->     117                                  unsigned long addr, unsigned len)
->     118  {
->     119          /*
->     120           * Neat trick to map patch type back to the call within the
->     121           * corresponding structure.
->     122           */
->     123          void *opfunc = *((void **)&pv_ops + type);
->                                            ^^^^^^^^^^^^^^
-> This code is actually pretty old...
-> 
-> This isn't a security issue, but the size of &pv_ops is variable but
-> type isn't checked so we could be reading beyond the end.  We could do
-> something like:
-> 
->          if (type >= sizeof(pv_ops) / sizeof(void *))
->                  return -EINVAL;
-
-No, not really. Please check how th return value is being used: it
-specifies the length of the instruction to patch. Just returning
--EINVAL would probably clobber most of the kernel.
-
-Please note that type is derived from the pv_ops field names, so
-in reality the risk to read beyond the end of pv_ops is zero.
-
-
-Juergen
+T24gVHVlLCAxMCBTZXAgMjAxOSAxMDoyNjo0MiAtMDQwMCwgS29ucmFkIFJ6ZXN6dXRlayBXaWxr
+IDxrb25yYWQud2lsa0BvcmFjbGUuY29tPiB3cm90ZToKPiBPbiBGcmksIEF1ZyAwOSwgMjAxOSBh
+dCAwNzowMDoyNFBNICswMzAwLCBBZGFsYmVydCBMYXrEg3Igd3JvdGU6Cj4gPiBUaGlzIHBhdGNo
+IG1pZ2h0IGJlIG9ic29sZXRlIHRoYW5rcyB0byBzaW5nbGUtc3RlcHBpbmcuCj4gCj4gc29vbyBz
+aG91bGQgaXQgYmUgc2tpcHBlZCBmcm9tIHRoaXMgbGFyZ2UgcGF0Y2hzZXQgdG8gZWFzeQo+IHJl
+dmlldz8KCkknbGwgYWRkIGEgY291cGxlIG9mIHdhcm5pbmcgbWVzc2FnZXMgdG8gY2hlY2sgaWYg
+dGhpcyBwYXRjaCBpcyBzdGlsbApuZWVkZWQsIGluIG9yZGVyIHRvIHNraXAgaXQgZnJvbSB0aGUg
+bmV4dCBzdWJtaXNzaW9uICh3aGljaCB3aWxsIGJlIHNtYWxsZXI6KQoKSG93ZXZlciwgb24gQU1E
+LCBzaW5nbGUtc3RlcHBpbmcgaXMgbm90IGFuIG9wdGlvbi4KClRoYW5rcywKQWRhbGJlcnQKCj4g
+Cj4gPiAKPiA+IFNpZ25lZC1vZmYtYnk6IEFkYWxiZXJ0IExhesSDciA8YWxhemFyQGJpdGRlZmVu
+ZGVyLmNvbT4KPiA+IC0tLQo+ID4gIGFyY2gveDg2L2t2bS94ODYuYyB8IDkgKysrKysrKy0tCj4g
+PiAgMSBmaWxlIGNoYW5nZWQsIDcgaW5zZXJ0aW9ucygrKSwgMiBkZWxldGlvbnMoLSkKPiA+IAo+
+ID4gZGlmZiAtLWdpdCBhL2FyY2gveDg2L2t2bS94ODYuYyBiL2FyY2gveDg2L2t2bS94ODYuYwo+
+ID4gaW5kZXggMmMwNmRlNzNhNzg0Li4wNmY0NGNlOGVkMDcgMTAwNjQ0Cj4gPiAtLS0gYS9hcmNo
+L3g4Ni9rdm0veDg2LmMKPiA+ICsrKyBiL2FyY2gveDg2L2t2bS94ODYuYwo+ID4gQEAgLTYzMTEs
+NyArNjMxMSw4IEBAIHN0YXRpYyBib29sIHJlZXhlY3V0ZV9pbnN0cnVjdGlvbihzdHJ1Y3Qga3Zt
+X3ZjcHUgKnZjcHUsIGd2YV90IGNyMiwKPiA+ICAJCWluZGlyZWN0X3NoYWRvd19wYWdlcyA9IHZj
+cHUtPmt2bS0+YXJjaC5pbmRpcmVjdF9zaGFkb3dfcGFnZXM7Cj4gPiAgCQlzcGluX3VubG9jaygm
+dmNwdS0+a3ZtLT5tbXVfbG9jayk7Cj4gPiAgCj4gPiAtCQlpZiAoaW5kaXJlY3Rfc2hhZG93X3Bh
+Z2VzKQo+ID4gKwkJaWYgKGluZGlyZWN0X3NoYWRvd19wYWdlcwo+ID4gKwkJICAgICYmICFrdm1p
+X3RyYWNrZWRfZ2ZuKHZjcHUsIGdwYV90b19nZm4oZ3BhKSkpCj4gPiAgCQkJa3ZtX21tdV91bnBy
+b3RlY3RfcGFnZSh2Y3B1LT5rdm0sIGdwYV90b19nZm4oZ3BhKSk7Cj4gPiAgCj4gPiAgCQlyZXR1
+cm4gdHJ1ZTsKPiA+IEBAIC02MzIyLDcgKzYzMjMsOCBAQCBzdGF0aWMgYm9vbCByZWV4ZWN1dGVf
+aW5zdHJ1Y3Rpb24oc3RydWN0IGt2bV92Y3B1ICp2Y3B1LCBndmFfdCBjcjIsCj4gPiAgCSAqIGFu
+ZCBpdCBmYWlsZWQgdHJ5IHRvIHVuc2hhZG93IHBhZ2UgYW5kIHJlLWVudGVyIHRoZQo+ID4gIAkg
+KiBndWVzdCB0byBsZXQgQ1BVIGV4ZWN1dGUgdGhlIGluc3RydWN0aW9uLgo+ID4gIAkgKi8KPiA+
+IC0Ja3ZtX21tdV91bnByb3RlY3RfcGFnZSh2Y3B1LT5rdm0sIGdwYV90b19nZm4oZ3BhKSk7Cj4g
+PiArCWlmICgha3ZtaV90cmFja2VkX2dmbih2Y3B1LCBncGFfdG9fZ2ZuKGdwYSkpKQo+ID4gKwkJ
+a3ZtX21tdV91bnByb3RlY3RfcGFnZSh2Y3B1LT5rdm0sIGdwYV90b19nZm4oZ3BhKSk7Cj4gPiAg
+Cj4gPiAgCS8qCj4gPiAgCSAqIElmIHRoZSBhY2Nlc3MgZmF1bHRzIG9uIGl0cyBwYWdlIHRhYmxl
+LCBpdCBjYW4gbm90Cj4gPiBAQCAtNjM3NCw2ICs2Mzc2LDkgQEAgc3RhdGljIGJvb2wgcmV0cnlf
+aW5zdHJ1Y3Rpb24oc3RydWN0IHg4Nl9lbXVsYXRlX2N0eHQgKmN0eHQsCj4gPiAgCWlmICghdmNw
+dS0+YXJjaC5tbXUtPmRpcmVjdF9tYXApCj4gPiAgCQlncGEgPSBrdm1fbW11X2d2YV90b19ncGFf
+d3JpdGUodmNwdSwgY3IyLCBOVUxMKTsKPiA+ICAKPiA+ICsJaWYgKGt2bWlfdHJhY2tlZF9nZm4o
+dmNwdSwgZ3BhX3RvX2dmbihncGEpKSkKPiA+ICsJCXJldHVybiBmYWxzZTsKPiA+ICsKPiA+ICAJ
+a3ZtX21tdV91bnByb3RlY3RfcGFnZSh2Y3B1LT5rdm0sIGdwYV90b19nZm4oZ3BhKSk7Cj4gPiAg
+Cj4gPiAgCXJldHVybiB0cnVlOwpfX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19f
+X19fX19fX19fXwpWaXJ0dWFsaXphdGlvbiBtYWlsaW5nIGxpc3QKVmlydHVhbGl6YXRpb25AbGlz
+dHMubGludXgtZm91bmRhdGlvbi5vcmcKaHR0cHM6Ly9saXN0cy5saW51eGZvdW5kYXRpb24ub3Jn
+L21haWxtYW4vbGlzdGluZm8vdmlydHVhbGl6YXRpb24=
