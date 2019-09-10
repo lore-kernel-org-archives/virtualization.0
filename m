@@ -1,15 +1,17 @@
-From: David Riley <davidriley@chromium.org>
-Subject: Re: [PATCH v2] drm/virtio: Use vmalloc for command buffer allocations.
-Date: Mon, 9 Sep 2019 10:12:09 -0700
-Message-ID: <CAASgrz2tPPEiArFb=HaTJwoshrdS9xaOaLYtG1Ah43Rfcb=iSA__47507.509582077$1568049162$gmane$org@mail.gmail.com>
-References: <20190829212417.257397-1-davidriley@chromium.org>
-	<20190905220008.75488-1-davidriley@chromium.org>
-	<20190906051847.75mj4772nqwdper6@sirius.home.kraxel.org>
+From: Jason Wang <jasowang@redhat.com>
+Subject: Re: [RFC PATCH untested] vhost: block speculation of translated
+	descriptors
+Date: Tue, 10 Sep 2019 09:52:10 +0800
+Message-ID: <9ab48e0f-50a9-bed4-1801-73c37a7da27c__11499.9409693823$1568080347$gmane$org@redhat.com>
+References: <20190908110521.4031-1-mst@redhat.com>
+	<db4d77d7-c467-935d-b4ae-1da7635e9b6b@redhat.com>
+	<20190909104355-mutt-send-email-mst@kernel.org>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset="utf-8"; Format="flowed"
+Content-Transfer-Encoding: base64
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <20190906051847.75mj4772nqwdper6@sirius.home.kraxel.org>
+In-Reply-To: <20190909104355-mutt-send-email-mst@kernel.org>
+Content-Language: en-US
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -19,149 +21,43 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Gerd Hoffmann <kraxel@redhat.com>
-Cc: David Airlie <airlied@linux.ie>, linux-kernel@vger.kernel.org, dri-devel@lists.freedesktop.org, Gurchetan Singh <gurchetansingh@chromium.org>, Daniel Vetter <daniel@ffwll.ch>, =?UTF-8?Q?St=C3=A9phane_Marchesin?= <marcheu@chromium.org>, virtualization@lists.linux-foundation.org
+To: "Michael S. Tsirkin" <mst@redhat.com>
+Cc: netdev@vger.kernel.org, linux-kernel@vger.kernel.org, kvm@vger.kernel.org, virtualization@lists.linux-foundation.org
 List-Id: virtualization@lists.linuxfoundation.org
 
-On Thu, Sep 5, 2019 at 10:18 PM Gerd Hoffmann <kraxel@redhat.com> wrote:
->
-> > +/* How many bytes left in this page. */
-> > +static unsigned int rest_of_page(void *data)
-> > +{
-> > +     return PAGE_SIZE - offset_in_page(data);
-> > +}
->
-> Not needed.
->
-> > +/* Create sg_table from a vmalloc'd buffer. */
-> > +static struct sg_table *vmalloc_to_sgt(char *data, uint32_t size, int *sg_ents)
-> > +{
-> > +     int nents, ret, s, i;
-> > +     struct sg_table *sgt;
-> > +     struct scatterlist *sg;
-> > +     struct page *pg;
-> > +
-> > +     *sg_ents = 0;
-> > +
-> > +     sgt = kmalloc(sizeof(*sgt), GFP_KERNEL);
-> > +     if (!sgt)
-> > +             return NULL;
-> > +
-> > +     nents = DIV_ROUND_UP(size, PAGE_SIZE) + 1;
->
-> Why +1?
-
-This is part of handling offsets within the vmalloc buffer and to
-maintain parity with the !is_vmalloc_addr/existing case (sg_init_one
-handles offsets within pages internally).  I had left it in because
-this is being used for all sg/descriptor generation and I wasn't sure
-if someone in the future might do something like:
-buf = vmemdup_user()
-offset = find_interesting(buf)
-queue(buf + offset)
-
-To respond specifically to your question, if we handle offsets, a
-vmalloc_to_sgt(size = PAGE_SIZE + 2) could end up with 3 sg_ents with
-the +1 being to account for that extra page.
-
-I'll just remove all support for offsets in v3 of the patch and
-comment that functionality will be different based on where the buffer
-was originally allocated from.
-
->
-> > +     ret = sg_alloc_table(sgt, nents, GFP_KERNEL);
-> > +     if (ret) {
-> > +             kfree(sgt);
-> > +             return NULL;
-> > +     }
-> > +
-> > +     for_each_sg(sgt->sgl, sg, nents, i) {
-> > +             pg = vmalloc_to_page(data);
-> > +             if (!pg) {
-> > +                     sg_free_table(sgt);
-> > +                     kfree(sgt);
-> > +                     return NULL;
-> > +             }
-> > +
-> > +             s = rest_of_page(data);
-> > +             if (s > size)
-> > +                     s = size;
->
-> vmalloc memory is page aligned, so:
-
-As per above, will remove with v3.
-
->
->                 s = min(PAGE_SIZE, size);
->
-> > +             sg_set_page(sg, pg, s, offset_in_page(data));
->
-> Offset is always zero.
-
-As per above, will remove with v3.
->
-> > +
-> > +             size -= s;
-> > +             data += s;
-> > +             *sg_ents += 1;
->
-> sg_ents isn't used anywhere.
-
-It's used for outcnt.
-
->
-> > +
-> > +             if (size) {
-> > +                     sg_unmark_end(sg);
-> > +             } else {
-> > +                     sg_mark_end(sg);
-> > +                     break;
-> > +             }
->
-> That looks a bit strange.  I guess you need only one of the two because
-> the other is the default?
-
-I was being overly paranoid and not wanting to make assumptions about
-the initial state of the table.  I'll simplify.
->
-> >  static int virtio_gpu_queue_fenced_ctrl_buffer(struct virtio_gpu_device *vgdev,
-> >                                              struct virtio_gpu_vbuffer *vbuf,
-> >                                              struct virtio_gpu_ctrl_hdr *hdr,
-> >                                              struct virtio_gpu_fence *fence)
-> >  {
-> >       struct virtqueue *vq = vgdev->ctrlq.vq;
-> > +     struct scatterlist *vout = NULL, sg;
-> > +     struct sg_table *sgt = NULL;
-> >       int rc;
-> > +     int outcnt = 0;
-> > +
-> > +     if (vbuf->data_size) {
-> > +             if (is_vmalloc_addr(vbuf->data_buf)) {
-> > +                     sgt = vmalloc_to_sgt(vbuf->data_buf, vbuf->data_size,
-> > +                                          &outcnt);
-> > +                     if (!sgt)
-> > +                             return -ENOMEM;
-> > +                     vout = sgt->sgl;
-> > +             } else {
-> > +                     sg_init_one(&sg, vbuf->data_buf, vbuf->data_size);
-> > +                     vout = &sg;
-> > +                     outcnt = 1;
->
-> outcnt must be set in both cases.
-
-outcnt is set by vmalloc_to_sgt.
-
->
-> > +static int virtio_gpu_queue_ctrl_buffer(struct virtio_gpu_device *vgdev,
-> > +                                     struct virtio_gpu_vbuffer *vbuf)
-> > +{
-> > +     return virtio_gpu_queue_fenced_ctrl_buffer(vgdev, vbuf, NULL, NULL);
-> > +}
->
-> Changing virtio_gpu_queue_ctrl_buffer to call
-> virtio_gpu_queue_fenced_ctrl_buffer should be done in a separate patch.
-
-Will do.
-
-Thanks,
-David
+Ck9uIDIwMTkvOS85IOS4i+WNiDEwOjQ1LCBNaWNoYWVsIFMuIFRzaXJraW4gd3JvdGU6Cj4gT24g
+TW9uLCBTZXAgMDksIDIwMTkgYXQgMDM6MTk6NTVQTSArMDgwMCwgSmFzb24gV2FuZyB3cm90ZToK
+Pj4gT24gMjAxOS85Lzgg5LiL5Y2INzowNSwgTWljaGFlbCBTLiBUc2lya2luIHdyb3RlOgo+Pj4g
+aW92ZWMgYWRkcmVzc2VzIGNvbWluZyBmcm9tIHZob3N0IGFyZSBhc3N1bWVkIHRvIGJlCj4+PiBw
+cmUtdmFsaWRhdGVkLCBidXQgaW4gZmFjdCBjYW4gYmUgc3BlY3VsYXRlZCB0byBhIHZhbHVlCj4+
+PiBvdXQgb2YgcmFuZ2UuCj4+Pgo+Pj4gVXNlcnNwYWNlIGFkZHJlc3MgYXJlIGxhdGVyIHZhbGlk
+YXRlZCB3aXRoIGFycmF5X2luZGV4X25vc3BlYyBzbyB3ZSBjYW4KPj4+IGJlIHN1cmUga2VybmVs
+IGluZm8gZG9lcyBub3QgbGVhayB0aHJvdWdoIHRoZXNlIGFkZHJlc3NlcywgYnV0IHZob3N0Cj4+
+PiBtdXN0IGFsc28gbm90IGxlYWsgdXNlcnNwYWNlIGluZm8gb3V0c2lkZSB0aGUgYWxsb3dlZCBt
+ZW1vcnkgdGFibGUgdG8KPj4+IGd1ZXN0cy4KPj4+Cj4+PiBGb2xsb3dpbmcgdGhlIGRlZmVuY2Ug
+aW4gZGVwdGggcHJpbmNpcGxlLCBtYWtlIHN1cmUKPj4+IHRoZSBhZGRyZXNzIGlzIG5vdCB2YWxp
+ZGF0ZWQgb3V0IG9mIG5vZGUgcmFuZ2UuCj4+Pgo+Pj4gU2lnbmVkLW9mZi1ieTogTWljaGFlbCBT
+LiBUc2lya2luIDxtc3RAcmVkaGF0LmNvbT4KPj4+IC0tLQo+Pj4gICAgZHJpdmVycy92aG9zdC92
+aG9zdC5jIHwgNCArKystCj4+PiAgICAxIGZpbGUgY2hhbmdlZCwgMyBpbnNlcnRpb25zKCspLCAx
+IGRlbGV0aW9uKC0pCj4+Pgo+Pj4gZGlmZiAtLWdpdCBhL2RyaXZlcnMvdmhvc3Qvdmhvc3QuYyBi
+L2RyaXZlcnMvdmhvc3Qvdmhvc3QuYwo+Pj4gaW5kZXggNWRjMTc0YWM4Y2FjLi4wZWUzNzVmYjcx
+NDUgMTAwNjQ0Cj4+PiAtLS0gYS9kcml2ZXJzL3Zob3N0L3Zob3N0LmMKPj4+ICsrKyBiL2RyaXZl
+cnMvdmhvc3Qvdmhvc3QuYwo+Pj4gQEAgLTIwNzIsNyArMjA3Miw5IEBAIHN0YXRpYyBpbnQgdHJh
+bnNsYXRlX2Rlc2Moc3RydWN0IHZob3N0X3ZpcnRxdWV1ZSAqdnEsIHU2NCBhZGRyLCB1MzIgbGVu
+LAo+Pj4gICAgCQlzaXplID0gbm9kZS0+c2l6ZSAtIGFkZHIgKyBub2RlLT5zdGFydDsKPj4+ICAg
+IAkJX2lvdi0+aW92X2xlbiA9IG1pbigodTY0KWxlbiAtIHMsIHNpemUpOwo+Pj4gICAgCQlfaW92
+LT5pb3ZfYmFzZSA9ICh2b2lkIF9fdXNlciAqKSh1bnNpZ25lZCBsb25nKQo+Pj4gLQkJCShub2Rl
+LT51c2Vyc3BhY2VfYWRkciArIGFkZHIgLSBub2RlLT5zdGFydCk7Cj4+PiArCQkJKG5vZGUtPnVz
+ZXJzcGFjZV9hZGRyICsKPj4+ICsJCQkgYXJyYXlfaW5kZXhfbm9zcGVjKGFkZHIgLSBub2RlLT5z
+dGFydCwKPj4+ICsJCQkJCSAgICBub2RlLT5zaXplKSk7Cj4+PiAgICAJCXMgKz0gc2l6ZTsKPj4+
+ICAgIAkJYWRkciArPSBzaXplOwo+Pj4gICAgCQkrK3JldDsKPj4KPj4gSSd2ZSB0cmllZCB0aGlz
+IG9uIEthYnkgTGFrZSBzbWFwIG9mZiBtZXRhZGF0YSBhY2NlbGVyYXRpb24gb2ZmIHVzaW5nCj4+
+IHRlc3RwbWQgKHZpcnRpby11c2VyKSArIHZob3N0X25ldC4gSSBkb24ndCBzZWUgb2J2aW91cyBw
+ZXJmb3JtYW5jZQo+PiBkaWZmZXJlbmNlIHdpdGggVFggUFBTLgo+Pgo+PiBUaGFua3MKPiBTaG91
+bGQgSSBwdXNoIHRoaXMgdG8gTGludXMgcmlnaHQgbm93IHRoZW4/IEl0J3MgYSBzZWN1cml0eSB0
+aGluZyBzbwo+IG1heWJlIHdlIGJldHRlciBkbyBpdCBBU0FQIC4uLiB3aGF0J3MgeW91ciBvcGlu
+aW9uPwoKClllcywgeW91IGNhbi4KCkFja2VkLWJ5OiBKYXNvbiBXYW5nIDxqYXNvd2FuZ0ByZWRo
+YXQuY29tPgoKCgo+Cl9fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19f
+X19fClZpcnR1YWxpemF0aW9uIG1haWxpbmcgbGlzdApWaXJ0dWFsaXphdGlvbkBsaXN0cy5saW51
+eC1mb3VuZGF0aW9uLm9yZwpodHRwczovL2xpc3RzLmxpbnV4Zm91bmRhdGlvbi5vcmcvbWFpbG1h
+bi9saXN0aW5mby92aXJ0dWFsaXphdGlvbg==
