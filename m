@@ -1,15 +1,16 @@
-From: Will Deacon <will@kernel.org>
-Subject: Re: [PATCH v2] vhost: block speculation of translated descriptors
-Date: Wed, 11 Sep 2019 17:25:04 +0100
-Message-ID: <20190911162503.em2ytox2iq5wdp3z__14071.0601162695$1568219124$gmane$org@willie-the-truck>
-References: <20190911120908.28410-1-mst@redhat.com>
-	<20190911095147-mutt-send-email-mst@kernel.org>
+From: David Riley <davidriley@chromium.org>
+Subject: Re: [PATCH v3 1/2] drm/virtio: Rewrite virtio_gpu_queue_ctrl_buffer
+	using fenced version.
+Date: Wed, 11 Sep 2019 10:35:15 -0700
+Message-ID: <CAASgrz3rA-i3AjT3UuG7gPTHzdHppNLR3C0j23DEgqxivXtPmg@mail.gmail.com>
+References: <20190829212417.257397-1-davidriley@chromium.org>
+	<20190910200651.118628-1-davidriley@chromium.org>
+	<20190911051240.2k2olzsc3xnqaggl@sirius.home.kraxel.org>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-Content-Disposition: inline
-In-Reply-To: <20190911095147-mutt-send-email-mst@kernel.org>
+In-Reply-To: <20190911051240.2k2olzsc3xnqaggl@sirius.home.kraxel.org>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -19,36 +20,25 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: "Michael S. Tsirkin" <mst@redhat.com>
-Cc: security@kernel.org, kvm@vger.kernel.org, netdev@vger.kernel.org, linux-kernel@vger.kernel.org, virtualization@lists.linux-foundation.org
+To: Gerd Hoffmann <kraxel@redhat.com>
+Cc: David Airlie <airlied@linux.ie>, linux-kernel@vger.kernel.org, dri-devel@lists.freedesktop.org, Gurchetan Singh <gurchetansingh@chromium.org>, Daniel Vetter <daniel@ffwll.ch>, =?UTF-8?Q?St=C3=A9phane_Marchesin?= <marcheu@chromium.org>, virtualization@lists.linux-foundation.org
 List-Id: virtualization@lists.linuxfoundation.org
 
-On Wed, Sep 11, 2019 at 09:52:25AM -0400, Michael S. Tsirkin wrote:
-> On Wed, Sep 11, 2019 at 08:10:00AM -0400, Michael S. Tsirkin wrote:
-> > iovec addresses coming from vhost are assumed to be
-> > pre-validated, but in fact can be speculated to a value
-> > out of range.
-> > 
-> > Userspace address are later validated with array_index_nospec so we can
-> > be sure kernel info does not leak through these addresses, but vhost
-> > must also not leak userspace info outside the allowed memory table to
-> > guests.
-> > 
-> > Following the defence in depth principle, make sure
-> > the address is not validated out of node range.
-> > 
-> > Signed-off-by: Michael S. Tsirkin <mst@redhat.com>
-> > Acked-by: Jason Wang <jasowang@redhat.com>
-> > Tested-by: Jason Wang <jasowang@redhat.com>
-> > ---
-> 
-> Cc: security@kernel.org
-> 
-> Pls advise on whether you'd like me to merge this directly,
-> Cc stable, or handle it in some other way.
+They were based off of  Linus' https://github.com/torvalds/linux
+master from yesterday.
 
-I think you're fine taking it directly, with a cc stable and a Fixes: tag.
+I can rebase onto drm-misc-next.
 
-Cheers,
-
-Will
+On Tue, Sep 10, 2019 at 10:12 PM Gerd Hoffmann <kraxel@redhat.com> wrote:
+>
+> On Tue, Sep 10, 2019 at 01:06:50PM -0700, David Riley wrote:
+> > Factor function in preparation to generating scatterlist prior to locking.
+>
+> Patches are looking good now, but they don't apply.  What tree was used
+> to create them?
+>
+> Latest virtio-gpu driver bits are in drm-misc-next (see
+> https://cgit.freedesktop.org/drm/drm-misc).
+>
+> cheers,
+>   Gerd
