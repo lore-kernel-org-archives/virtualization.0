@@ -1,16 +1,14 @@
-From: Gerd Hoffmann <kraxel@redhat.com>
-Subject: Re: [PATCH v3 1/2] drm/virtio: Rewrite virtio_gpu_queue_ctrl_buffer
-	using fenced version.
-Date: Wed, 11 Sep 2019 07:12:40 +0200
-Message-ID: <20190911051240.2k2olzsc3xnqaggl__23305.5857055419$1568178779$gmane$org@sirius.home.kraxel.org>
-References: <20190829212417.257397-1-davidriley@chromium.org>
-	<20190910200651.118628-1-davidriley@chromium.org>
+From: "Michael S. Tsirkin" <mst@redhat.com>
+Subject: Re: [PATCH v2] virtio: add VIRTIO_RING_NO_LEGACY
+Date: Wed, 11 Sep 2019 05:29:50 -0400
+Message-ID: <20190911052825-mutt-send-email-mst__5146.21859635867$1568194206$gmane$org@kernel.org>
+References: <20190910175335.231660-1-matej.genci@nutanix.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
 Content-Disposition: inline
-In-Reply-To: <20190910200651.118628-1-davidriley@chromium.org>
+In-Reply-To: <20190910175335.231660-1-matej.genci@nutanix.com>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -20,18 +18,65 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: David Riley <davidriley@chromium.org>
-Cc: David Airlie <airlied@linux.ie>, linux-kernel@vger.kernel.org, dri-devel@lists.freedesktop.org, Gurchetan Singh <gurchetansingh@chromium.org>, Daniel Vetter <daniel@ffwll.ch>, =?utf-8?B?U3TDqXBoYW5l?= Marchesin <marcheu@chromium.org>, virtualization@lists.linux-foundation.org
+To: Matej Genci <matej.genci@nutanix.com>
+Cc: "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>, "virtualization@lists.linux-foundation.org" <virtualization@lists.linux-foundation.org>
 List-Id: virtualization@lists.linuxfoundation.org
 
-On Tue, Sep 10, 2019 at 01:06:50PM -0700, David Riley wrote:
-> Factor function in preparation to generating scatterlist prior to locking.
+On Tue, Sep 10, 2019 at 05:53:44PM +0000, Matej Genci wrote:
+> Add macro to disable legacy functions vring_init and vring_size.
+> 
+> Signed-off-by: Matej Genci <matej.genci@nutanix.com>
+> ---
+> 
+> V2: Put all legacy APIs inside guards.
+> 
+> ---
+>  include/uapi/linux/virtio_ring.h | 8 ++++++++
+>  1 file changed, 8 insertions(+)
+> 
+> diff --git a/include/uapi/linux/virtio_ring.h b/include/uapi/linux/virtio_ring.h
+> index 4c4e24c291a5..efe5a421b4ea 100644
+> --- a/include/uapi/linux/virtio_ring.h
+> +++ b/include/uapi/linux/virtio_ring.h
+> @@ -118,6 +118,8 @@ struct vring_used {
+>  	struct vring_used_elem ring[];
+>  };
+>  
+> +#ifndef VIRTIO_RING_NO_LEGACY
+> +
+>  struct vring {
+>  	unsigned int num;
+>  
+> @@ -128,6 +130,8 @@ struct vring {
+>  	struct vring_used *used;
+>  };
+>  
+> +#endif /* VIRTIO_RING_NO_LEGACY */
+> +
+>  /* Alignment requirements for vring elements.
+>   * When using pre-virtio 1.0 layout, these fall out naturally.
+>   */
+> @@ -135,6 +139,8 @@ struct vring {
+>  #define VRING_USED_ALIGN_SIZE 4
+>  #define VRING_DESC_ALIGN_SIZE 16
+>  
+> +#ifndef VIRTIO_RING_NO_LEGACY
+> +
+>  /* The standard layout for the ring is a continuous chunk of memory which looks
+>   * like this.  We assume num is a power of 2.
+>   *
+> @@ -195,6 +201,8 @@ static inline int vring_need_event(__u16 event_idx, __u16 new_idx, __u16 old)
+>  	return (__u16)(new_idx - event_idx - 1) < (__u16)(new_idx - old);
+>  }
+>  
+> +#endif /* VIRTIO_RING_NO_LEGACY */
+> +
+>  struct vring_packed_desc_event {
+>  	/* Descriptor Ring Change Event Offset/Wrap Counter. */
+>  	__le16 off_wrap;
 
-Patches are looking good now, but they don't apply.  What tree was used
-to create them?
+OK almost but vring_need_event is actually useful for all variants
+so should be outside the guards :) Sorry about it.
 
-Latest virtio-gpu driver bits are in drm-misc-next (see
-https://cgit.freedesktop.org/drm/drm-misc).
-
-cheers,
-  Gerd
+-- 
+MST
