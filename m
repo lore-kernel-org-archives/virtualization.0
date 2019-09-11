@@ -1,14 +1,18 @@
-From: "Martin K. Petersen" <martin.petersen@oracle.com>
-Subject: Re: [PATCH v2] scsi: virtio_scsi: unplug LUNs when events missed
-Date: Tue, 10 Sep 2019 22:14:12 -0400
-Message-ID: <yq17e6ffukr.fsf@oracle.com>
-References: <20190905181903.29756-1-mlupfer@ddn.com>
+From: Jason Wang <jasowang@redhat.com>
+Subject: Re: [RFC PATCH 3/4] virtio: introudce a mdev based transport
+Date: Wed, 11 Sep 2019 10:38:39 +0800
+Message-ID: <390647ae-0a53-5f2b-ccb0-28ed657636e6__25617.129045871$1568169552$gmane$org@redhat.com>
+References: <20190910081935.30516-1-jasowang@redhat.com>
+	<20190910081935.30516-4-jasowang@redhat.com>
+	<20190910055744-mutt-send-email-mst@kernel.org>
+	<572ffc34-3081-8503-d3cc-192edc9b5311@redhat.com>
+	<20190910094807-mutt-send-email-mst@kernel.org>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset="utf-8"; Format="flowed"
+Content-Transfer-Encoding: base64
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <20190905181903.29756-1-mlupfer@ddn.com> (Matt Lupfer's message
-	of "Thu, 5 Sep 2019 18:19:28 +0000")
+In-Reply-To: <20190910094807-mutt-send-email-mst@kernel.org>
+Content-Language: en-US
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -18,23 +22,92 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Matt Lupfer <mlupfer@ddn.com>
-Cc: "linux-scsi@vger.kernel.org" <linux-scsi@vger.kernel.org>, "martin.petersen@oracle.com" <martin.petersen@oracle.com>, "mst@redhat.com" <mst@redhat.com>, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>, "virtualization@lists.linux-foundation.org" <virtualization@lists.linux-foundation.org>, "stefanha@redhat.com" <stefanha@redhat.com>, "pbonzini@redhat.com" <pbonzini@redhat.com>, "jejb@linux.ibm.com" <jejb@linux.ibm.com>
+To: "Michael S. Tsirkin" <mst@redhat.com>
+Cc: kvm@vger.kernel.org, netdev@vger.kernel.org, cohuck@redhat.com, linux-kernel@vger.kernel.org, kwankhede@nvidia.com, xiao.w.wang@intel.com, zhihong.wang@intel.com, maxime.coquelin@redhat.com, virtualization@lists.linux-foundation.org, haotian.wang@sifive.com, idos@mellanox.com, rob.miller@broadcom.com
 List-Id: virtualization@lists.linuxfoundation.org
 
-
-Matt,
-
-> The event handler calls scsi_scan_host() when events are missed, which
-> will hotplug new LUNs.  However, this function won't remove any
-> unplugged LUNs.  The result is that hotunplug doesn't work properly
-> when the number of unplugged LUNs exceeds the event queue size
-> (currently 8).
->
-> Scan existing LUNs when events are missed to check if they are still
-> present.  If not, remove them.
-
-Applied to 5.4/scsi-queue, thanks!
-
--- 
-Martin K. Petersen	Oracle Linux Engineering
+Ck9uIDIwMTkvOS8xMCDkuIvljYg5OjUyLCBNaWNoYWVsIFMuIFRzaXJraW4gd3JvdGU6Cj4gT24g
+VHVlLCBTZXAgMTAsIDIwMTkgYXQgMDk6MTM6MDJQTSArMDgwMCwgSmFzb24gV2FuZyB3cm90ZToK
+Pj4gT24gMjAxOS85LzEwIOS4i+WNiDY6MDEsIE1pY2hhZWwgUy4gVHNpcmtpbiB3cm90ZToKPj4+
+PiArI2lmbmRlZiBfTElOVVhfVklSVElPX01ERVZfSAo+Pj4+ICsjZGVmaW5lIF9MSU5VWF9WSVJU
+SU9fTURFVl9ICj4+Pj4gKwo+Pj4+ICsjaW5jbHVkZSA8bGludXgvaW50ZXJydXB0Lmg+Cj4+Pj4g
+KyNpbmNsdWRlIDxsaW51eC92cmluZ2guaD4KPj4+PiArI2luY2x1ZGUgPHVhcGkvbGludXgvdmly
+dGlvX25ldC5oPgo+Pj4+ICsKPj4+PiArLyoKPj4+PiArICogSW9jdGxzCj4+Pj4gKyAqLwo+Pj4g
+UGxzIGFkZCBhIGJpdCBtb3JlIGNvbnRlbnQgaGVyZS4gSXQncyByZWR1bmRhbnQgdG8gc3RhdGUg
+dGhlc2UKPj4+IGFyZSBpb2N0bHMuIE11Y2ggYmV0dGVyIHRvIGRvY3VtZW50IHdoYXQgZG9lcyBl
+YWNoIG9uZSBkby4KPj4KPj4gT2suCj4+Cj4+Cj4+Pj4gKwo+Pj4+ICtzdHJ1Y3QgdmlydGlvX21k
+ZXZfY2FsbGJhY2sgewo+Pj4+ICsJaXJxcmV0dXJuX3QgKCpjYWxsYmFjaykodm9pZCAqKTsKPj4+
+PiArCXZvaWQgKnByaXZhdGU7Cj4+Pj4gK307Cj4+Pj4gKwo+Pj4+ICsjZGVmaW5lIFZJUlRJT19N
+REVWIDB4QUYKPj4+PiArI2RlZmluZSBWSVJUSU9fTURFVl9TRVRfVlFfQ0FMTEJBQ0sgX0lPVyhW
+SVJUSU9fTURFViwgMHgwMCwgXAo+Pj4+ICsJCQkJCSBzdHJ1Y3QgdmlydGlvX21kZXZfY2FsbGJh
+Y2spCj4+Pj4gKyNkZWZpbmUgVklSVElPX01ERVZfU0VUX0NPTkZJR19DQUxMQkFDSyBfSU9XKFZJ
+UlRJT19NREVWLCAweDAxLCBcCj4+Pj4gKwkJCQkJc3RydWN0IHZpcnRpb19tZGV2X2NhbGxiYWNr
+KQo+Pj4gRnVuY3Rpb24gcG9pbnRlciBpbiBhbiBpb2N0bCBwYXJhbWV0ZXI/IEhvdyBkb2VzIHRo
+aXMgZXZlciBtYWtlIHNlbnNlPwo+Pgo+PiBJIGFkbWl0IHRoaXMgaXMgaGFja3kgKGNhc3Rpbmcp
+Lgo+Pgo+Pgo+Pj4gQW5kIGNhbid0IHdlIHVzZSBhIGNvdXBsZSBvZiByZWdpc3RlcnMgZm9yIHRo
+aXMsIGFuZCBhdm9pZCBpb2N0bHM/Cj4+Cj4+IFllcywgaG93IGFib3V0IHNvbWV0aGluZyBsaWtl
+IGludGVycnVwdCBudW1iZXJzIGZvciBlYWNoIHZpcnRxdWV1ZSBhbmQKPj4gY29uZmlnPwo+IFNo
+b3VsZCB3ZSBqdXN0IHJldXNlIFZJUlRJT19QQ0lfQ09NTU9OX1FfWFhYIHRoZW4/CgoKWW91IG1l
+YW4gc29tZXRoaW5nIGxpa2UgVklSVElPX1BDSV9DT01NT05fUV9NU0lYPyBUaGVuIGl0IGJlY29t
+ZXMgYSBQQ0kgCnRyYW5zcG9ydCBpbiBmYWN0LiBBbmQgdXNpbmcgZWl0aGVyIE1TSVggb3IgaXJx
+IG51bWJlciBpcyBhY3R1YWxseSAKYW5vdGhlciBsYXllciBvZiBpbmRpcmVjdGlvbi4gU28gSSB0
+aGluayB3ZSBjYW4ganVzdCB3cml0ZSBjYWxsYmFjayAKZnVuY3Rpb24gYW5kIHBhcmFtZXRlciB0
+aHJvdWdoIHJlZ2lzdGVycy4KCgo+Cj4KPj4+PiArCj4+Pj4gKyNkZWZpbmUgVklSVElPX01ERVZf
+REVWSUNFX0FQSV9TVFJJTkcJCSJ2aXJ0aW8tbWRldiIKPj4+PiArCj4+Pj4gKy8qCj4+Pj4gKyAq
+IENvbnRyb2wgcmVnaXN0ZXJzCj4+Pj4gKyAqLwo+Pj4+ICsKPj4+PiArLyogTWFnaWMgdmFsdWUg
+KCJ2aXJ0IiBzdHJpbmcpIC0gUmVhZCBPbmx5ICovCj4+Pj4gKyNkZWZpbmUgVklSVElPX01ERVZf
+TUFHSUNfVkFMVUUJCTB4MDAwCj4+Pj4gKwo+Pj4+ICsvKiBWaXJ0aW8gZGV2aWNlIHZlcnNpb24g
+LSBSZWFkIE9ubHkgKi8KPj4+PiArI2RlZmluZSBWSVJUSU9fTURFVl9WRVJTSU9OCQkweDAwNAo+
+Pj4+ICsKPj4+PiArLyogVmlydGlvIGRldmljZSBJRCAtIFJlYWQgT25seSAqLwo+Pj4+ICsjZGVm
+aW5lIFZJUlRJT19NREVWX0RFVklDRV9JRAkJMHgwMDgKPj4+PiArCj4+Pj4gKy8qIFZpcnRpbyB2
+ZW5kb3IgSUQgLSBSZWFkIE9ubHkgKi8KPj4+PiArI2RlZmluZSBWSVJUSU9fTURFVl9WRU5ET1Jf
+SUQJCTB4MDBjCj4+Pj4gKwo+Pj4+ICsvKiBCaXRtYXNrIG9mIHRoZSBmZWF0dXJlcyBzdXBwb3J0
+ZWQgYnkgdGhlIGRldmljZSAoaG9zdCkKPj4+PiArICogKDMyIGJpdHMgcGVyIHNldCkgLSBSZWFk
+IE9ubHkgKi8KPj4+PiArI2RlZmluZSBWSVJUSU9fTURFVl9ERVZJQ0VfRkVBVFVSRVMJMHgwMTAK
+Pj4+PiArCj4+Pj4gKy8qIERldmljZSAoaG9zdCkgZmVhdHVyZXMgc2V0IHNlbGVjdG9yIC0gV3Jp
+dGUgT25seSAqLwo+Pj4+ICsjZGVmaW5lIFZJUlRJT19NREVWX0RFVklDRV9GRUFUVVJFU19TRUwJ
+MHgwMTQKPj4+PiArCj4+Pj4gKy8qIEJpdG1hc2sgb2YgZmVhdHVyZXMgYWN0aXZhdGVkIGJ5IHRo
+ZSBkcml2ZXIgKGd1ZXN0KQo+Pj4+ICsgKiAoMzIgYml0cyBwZXIgc2V0KSAtIFdyaXRlIE9ubHkg
+Ki8KPj4+PiArI2RlZmluZSBWSVJUSU9fTURFVl9EUklWRVJfRkVBVFVSRVMJMHgwMjAKPj4+PiAr
+Cj4+Pj4gKy8qIEFjdGl2YXRlZCBmZWF0dXJlcyBzZXQgc2VsZWN0b3IgLSBXcml0ZSBPbmx5ICov
+Cj4+Pj4gKyNkZWZpbmUgVklSVElPX01ERVZfRFJJVkVSX0ZFQVRVUkVTX1NFTAkweDAyNAo+Pj4+
+ICsKPj4+PiArLyogUXVldWUgc2VsZWN0b3IgLSBXcml0ZSBPbmx5ICovCj4+Pj4gKyNkZWZpbmUg
+VklSVElPX01ERVZfUVVFVUVfU0VMCQkweDAzMAo+Pj4+ICsKPj4+PiArLyogTWF4aW11bSBzaXpl
+IG9mIHRoZSBjdXJyZW50bHkgc2VsZWN0ZWQgcXVldWUgLSBSZWFkIE9ubHkgKi8KPj4+PiArI2Rl
+ZmluZSBWSVJUSU9fTURFVl9RVUVVRV9OVU1fTUFYCTB4MDM0Cj4+Pj4gKwo+Pj4+ICsvKiBRdWV1
+ZSBzaXplIGZvciB0aGUgY3VycmVudGx5IHNlbGVjdGVkIHF1ZXVlIC0gV3JpdGUgT25seSAqLwo+
+Pj4+ICsjZGVmaW5lIFZJUlRJT19NREVWX1FVRVVFX05VTQkJMHgwMzgKPj4+PiArCj4+Pj4gKy8q
+IFJlYWR5IGJpdCBmb3IgdGhlIGN1cnJlbnRseSBzZWxlY3RlZCBxdWV1ZSAtIFJlYWQgV3JpdGUg
+Ki8KPj4+PiArI2RlZmluZSBWSVJUSU9fTURFVl9RVUVVRV9SRUFEWQkJMHgwNDQKPj4+IElzIHRo
+aXMgc2FtZSBhcyBzdGFydGVkPwo+Pgo+PiBEbyB5b3UgbWVhbiAic3RhdHVzIj8KPiBJIHJlYWxs
+eSBtZWFudCAiZW5hYmxlZCIsIGRpZG4ndCByZW1lbWJlciB0aGUgY29ycmVjdCBuYW1lLgo+IEFz
+IGluOiAgVklSVElPX1BDSV9DT01NT05fUV9FTkFCTEUKCgpZZXMsIGl0J3MgdGhlIHNhbWUuCgpU
+aGFua3MKCgo+Cj4+Pj4gKwo+Pj4+ICsvKiBBbGlnbm1lbnQgb2YgdmlydHF1ZXVlIC0gUmVhZCBP
+bmx5ICovCj4+Pj4gKyNkZWZpbmUgVklSVElPX01ERVZfUVVFVUVfQUxJR04JCTB4MDQ4Cj4+Pj4g
+Kwo+Pj4+ICsvKiBRdWV1ZSBub3RpZmllciAtIFdyaXRlIE9ubHkgKi8KPj4+PiArI2RlZmluZSBW
+SVJUSU9fTURFVl9RVUVVRV9OT1RJRlkJMHgwNTAKPj4+PiArCj4+Pj4gKy8qIERldmljZSBzdGF0
+dXMgcmVnaXN0ZXIgLSBSZWFkIFdyaXRlICovCj4+Pj4gKyNkZWZpbmUgVklSVElPX01ERVZfU1RB
+VFVTCQkweDA2MAo+Pj4+ICsKPj4+PiArLyogU2VsZWN0ZWQgcXVldWUncyBEZXNjcmlwdG9yIFRh
+YmxlIGFkZHJlc3MsIDY0IGJpdHMgaW4gdHdvIGhhbHZlcyAqLwo+Pj4+ICsjZGVmaW5lIFZJUlRJ
+T19NREVWX1FVRVVFX0RFU0NfTE9XCTB4MDgwCj4+Pj4gKyNkZWZpbmUgVklSVElPX01ERVZfUVVF
+VUVfREVTQ19ISUdICTB4MDg0Cj4+Pj4gKwo+Pj4+ICsvKiBTZWxlY3RlZCBxdWV1ZSdzIEF2YWls
+YWJsZSBSaW5nIGFkZHJlc3MsIDY0IGJpdHMgaW4gdHdvIGhhbHZlcyAqLwo+Pj4+ICsjZGVmaW5l
+IFZJUlRJT19NREVWX1FVRVVFX0FWQUlMX0xPVwkweDA5MAo+Pj4+ICsjZGVmaW5lIFZJUlRJT19N
+REVWX1FVRVVFX0FWQUlMX0hJR0gJMHgwOTQKPj4+PiArCj4+Pj4gKy8qIFNlbGVjdGVkIHF1ZXVl
+J3MgVXNlZCBSaW5nIGFkZHJlc3MsIDY0IGJpdHMgaW4gdHdvIGhhbHZlcyAqLwo+Pj4+ICsjZGVm
+aW5lIFZJUlRJT19NREVWX1FVRVVFX1VTRURfTE9XCTB4MGEwCj4+Pj4gKyNkZWZpbmUgVklSVElP
+X01ERVZfUVVFVUVfVVNFRF9ISUdICTB4MGE0Cj4+Pj4gKwo+Pj4+ICsvKiBDb25maWd1cmF0aW9u
+IGF0b21pY2l0eSB2YWx1ZSAqLwo+Pj4+ICsjZGVmaW5lIFZJUlRJT19NREVWX0NPTkZJR19HRU5F
+UkFUSU9OCTB4MGZjCj4+Pj4gKwo+Pj4+ICsvKiBUaGUgY29uZmlnIHNwYWNlIGlzIGRlZmluZWQg
+YnkgZWFjaCBkcml2ZXIgYXMKPj4+PiArICogdGhlIHBlci1kcml2ZXIgY29uZmlndXJhdGlvbiBz
+cGFjZSAtIFJlYWQgV3JpdGUgKi8KPj4+PiArI2RlZmluZSBWSVJUSU9fTURFVl9DT05GSUcJCTB4
+MTAwCj4+PiBNaXhpbmcgZGV2aWNlIGFuZCBnZW5lcmljIGNvbmZpZyBzcGFjZSBpcyB3aGF0IHZp
+cnRpbyBwY2kgZGlkLAo+Pj4gY2F1c2VkIGxvdHMgb2YgcHJvYmxlbXMgd2l0aCBleHRlbnNpb25z
+Lgo+Pj4gSXQgd291bGQgYmUgYmV0dGVyIHRvIHJlc2VydmUgbXVjaCBtb3JlIHNwYWNlLgo+Pgo+
+PiBJIHNlZSwgd2lsbCBkbyB0aGlzLgo+Pgo+PiBUaGFua3MKPj4KPj4KPj4+Cj4+Pj4gKwo+Pj4+
+ICsjZW5kaWYKPj4+PiArCj4+Pj4gKwo+Pj4+ICsvKiBSZWFkeSBiaXQgZm9yIHRoZSBjdXJyZW50
+bHkgc2VsZWN0ZWQgcXVldWUgLSBSZWFkIFdyaXRlICovCj4+Pj4gLS0gCj4+Pj4gMi4xOS4xCl9f
+X19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fClZpcnR1YWxpemF0
+aW9uIG1haWxpbmcgbGlzdApWaXJ0dWFsaXphdGlvbkBsaXN0cy5saW51eC1mb3VuZGF0aW9uLm9y
+ZwpodHRwczovL2xpc3RzLmxpbnV4Zm91bmRhdGlvbi5vcmcvbWFpbG1hbi9saXN0aW5mby92aXJ0
+dWFsaXphdGlvbg==
