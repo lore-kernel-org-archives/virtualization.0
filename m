@@ -1,16 +1,17 @@
-From: Michal Hocko <mhocko@kernel.org>
+From: "Michael S. Tsirkin" <mst@redhat.com>
 Subject: Re: [PATCH v2] vhost: block speculation of translated descriptors
-Date: Wed, 11 Sep 2019 14:33:16 +0200
-Message-ID: <20190911123316.GX4023__10144.524501969$1568205210$gmane$org@dhcp22.suse.cz>
+Date: Wed, 11 Sep 2019 09:03:10 -0400
+Message-ID: <20190911085807-mutt-send-email-mst__11057.4733511143$1568207007$gmane$org@kernel.org>
 References: <20190911120908.28410-1-mst@redhat.com>
 	<20190911121628.GT4023@dhcp22.suse.cz>
 	<20190911082236-mutt-send-email-mst@kernel.org>
+	<20190911123316.GX4023@dhcp22.suse.cz>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
 Content-Disposition: inline
-In-Reply-To: <20190911082236-mutt-send-email-mst@kernel.org>
+In-Reply-To: <20190911123316.GX4023@dhcp22.suse.cz>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -20,43 +21,46 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: "Michael S. Tsirkin" <mst@redhat.com>
+To: Michal Hocko <mhocko@kernel.org>
 Cc: netdev@vger.kernel.org, linux-kernel@vger.kernel.org, kvm@vger.kernel.org, virtualization@lists.linux-foundation.org
 List-Id: virtualization@lists.linuxfoundation.org
 
-On Wed 11-09-19 08:25:03, Michael S. Tsirkin wrote:
-> On Wed, Sep 11, 2019 at 02:16:28PM +0200, Michal Hocko wrote:
-> > On Wed 11-09-19 08:10:00, Michael S. Tsirkin wrote:
-> > > iovec addresses coming from vhost are assumed to be
-> > > pre-validated, but in fact can be speculated to a value
-> > > out of range.
+On Wed, Sep 11, 2019 at 02:33:16PM +0200, Michal Hocko wrote:
+> On Wed 11-09-19 08:25:03, Michael S. Tsirkin wrote:
+> > On Wed, Sep 11, 2019 at 02:16:28PM +0200, Michal Hocko wrote:
+> > > On Wed 11-09-19 08:10:00, Michael S. Tsirkin wrote:
+> > > > iovec addresses coming from vhost are assumed to be
+> > > > pre-validated, but in fact can be speculated to a value
+> > > > out of range.
+> > > > 
+> > > > Userspace address are later validated with array_index_nospec so we can
+> > > > be sure kernel info does not leak through these addresses, but vhost
+> > > > must also not leak userspace info outside the allowed memory table to
+> > > > guests.
+> > > > 
+> > > > Following the defence in depth principle, make sure
+> > > > the address is not validated out of node range.
+> > > > 
+> > > > Signed-off-by: Michael S. Tsirkin <mst@redhat.com>
+> > > > Acked-by: Jason Wang <jasowang@redhat.com>
+> > > > Tested-by: Jason Wang <jasowang@redhat.com>
 > > > 
-> > > Userspace address are later validated with array_index_nospec so we can
-> > > be sure kernel info does not leak through these addresses, but vhost
-> > > must also not leak userspace info outside the allowed memory table to
-> > > guests.
-> > > 
-> > > Following the defence in depth principle, make sure
-> > > the address is not validated out of node range.
-> > > 
-> > > Signed-off-by: Michael S. Tsirkin <mst@redhat.com>
-> > > Acked-by: Jason Wang <jasowang@redhat.com>
-> > > Tested-by: Jason Wang <jasowang@redhat.com>
+> > > no need to mark fo stable? Other spectre fixes tend to be backported
+> > > even when the security implications are not really clear. The risk
+> > > should be low and better to be covered in case.
 > > 
-> > no need to mark fo stable? Other spectre fixes tend to be backported
-> > even when the security implications are not really clear. The risk
-> > should be low and better to be covered in case.
+> > This is not really a fix - more a defence in depth thing,
+> > quite similar to e.g.  commit b3bbfb3fb5d25776b8e3f361d2eedaabb0b496cd
+> > x86: Introduce __uaccess_begin_nospec() and uaccess_try_nospec
+> > in scope.
+> >
+> > That one doesn't seem to be tagged for stable. Was it queued
+> > there in practice?
 > 
-> This is not really a fix - more a defence in depth thing,
-> quite similar to e.g.  commit b3bbfb3fb5d25776b8e3f361d2eedaabb0b496cd
-> x86: Introduce __uaccess_begin_nospec() and uaccess_try_nospec
-> in scope.
->
-> That one doesn't seem to be tagged for stable. Was it queued
-> there in practice?
+> not marked for stable but it went in. At least to 4.4.
 
-not marked for stable but it went in. At least to 4.4.
+So I guess the answer is I don't know. If you feel it's
+justified, then sure, feel free to forward.
 
 -- 
-Michal Hocko
-SUSE Labs
+MST
