@@ -1,13 +1,15 @@
-From: David Riley <davidriley@chromium.org>
-Subject: [PATCH v3 2/2] drm/virtio: Use vmalloc for command buffer allocations.
-Date: Tue, 10 Sep 2019 13:06:51 -0700
-Message-ID: <20190910200651.118628-2-davidriley__37557.7438435116$1568146355$gmane$org@chromium.org>
-References: <20190829212417.257397-1-davidriley@chromium.org>
+From: Tiwei Bie <tiwei.bie@intel.com>
+Subject: Re: [RFC PATCH 3/4] virtio: introudce a mdev based transport
+Date: Wed, 11 Sep 2019 09:47:26 +0800
+Message-ID: <20190911014726.GA14798@___>
+References: <20190910081935.30516-1-jasowang@redhat.com>
+	<20190910081935.30516-4-jasowang@redhat.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <20190829212417.257397-1-davidriley@chromium.org>
+Content-Disposition: inline
+In-Reply-To: <20190910081935.30516-4-jasowang@redhat.com>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -17,173 +19,205 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: dri-devel@lists.freedesktop.org, virtualization@lists.linux-foundation.org
-Cc: David Airlie <airlied@linux.ie>, linux-kernel@vger.kernel.org, Gurchetan Singh <gurchetansingh@chromium.org>, Daniel Vetter <daniel@ffwll.ch>, =?UTF-8?q?St=C3=A9phane=20Marchesin?= <marcheu@chromium.org>
+To: Jason Wang <jasowang@redhat.com>
+Cc: idos@mellanox.com, kvm@vger.kernel.org, mst@redhat.com, netdev@vger.kernel.org, cohuck@redhat.com, linux-kernel@vger.kernel.org, virtualization@lists.linux-foundation.org, kwankhede@nvidia.com, xiao.w.wang@intel.com, zhihong.wang@intel.com, maxime.coquelin@redhat.com, haotian.wang@sifive.com, rob.miller@broadcom.com
 List-Id: virtualization@lists.linuxfoundation.org
 
-Userspace requested command buffer allocations could be too large
-to make as a contiguous allocation.  Use vmalloc if necessary to
-satisfy those allocations.
+On Tue, Sep 10, 2019 at 04:19:34PM +0800, Jason Wang wrote:
+> This path introduces a new mdev transport for virtio. This is used to
+> use kernel virtio driver to drive the mediated device that is capable
+> of populating virtqueue directly.
+> 
+> A new virtio-mdev driver will be registered to the mdev bus, when a
+> new virtio-mdev device is probed, it will register the device with
+> mdev based config ops. This means, unlike the exist hardware
+> transport, this is a software transport between mdev driver and mdev
+> device. The transport was implemented through:
+> 
+> - configuration access was implemented through parent_ops->read()/write()
+> - vq/config callback was implemented through parent_ops->ioctl()
+> 
+> This transport is derived from virtio MMIO protocol and was wrote for
+> kernel driver. But for the transport itself, but the design goal is to
+> be generic enough to support userspace driver (this part will be added
+> in the future).
+> 
+> Note:
+> - current mdev assume all the parameter of parent_ops was from
+>   userspace. This prevents us from implementing the kernel mdev
+>   driver. For a quick POC, this patch just abuse those parameter and
+>   assume the mdev device implementation will treat them as kernel
+>   pointer. This should be addressed in the formal series by extending
+>   mdev_parent_ops.
+> - for a quick POC, I just drive the transport from MMIO, I'm pretty
+>   there's lot of optimization space for this.
+> 
+> Signed-off-by: Jason Wang <jasowang@redhat.com>
+> ---
+>  drivers/vfio/mdev/Kconfig        |   7 +
+>  drivers/vfio/mdev/Makefile       |   1 +
+>  drivers/vfio/mdev/virtio_mdev.c  | 500 +++++++++++++++++++++++++++++++
+>  include/uapi/linux/virtio_mdev.h | 131 ++++++++
+>  4 files changed, 639 insertions(+)
+>  create mode 100644 drivers/vfio/mdev/virtio_mdev.c
+>  create mode 100644 include/uapi/linux/virtio_mdev.h
+> 
+[...]
+> diff --git a/include/uapi/linux/virtio_mdev.h b/include/uapi/linux/virtio_mdev.h
+> new file mode 100644
+> index 000000000000..8040de6b960a
+> --- /dev/null
+> +++ b/include/uapi/linux/virtio_mdev.h
+> @@ -0,0 +1,131 @@
+> +/*
+> + * Virtio mediated device driver
+> + *
+> + * Copyright 2019, Red Hat Corp.
+> + *
+> + * Based on Virtio MMIO driver by ARM Ltd, copyright ARM Ltd. 2011
+> + *
+> + * This header is BSD licensed so anyone can use the definitions to implement
+> + * compatible drivers/servers.
+> + *
+> + * Redistribution and use in source and binary forms, with or without
+> + * modification, are permitted provided that the following conditions
+> + * are met:
+> + * 1. Redistributions of source code must retain the above copyright
+> + *    notice, this list of conditions and the following disclaimer.
+> + * 2. Redistributions in binary form must reproduce the above copyright
+> + *    notice, this list of conditions and the following disclaimer in the
+> + *    documentation and/or other materials provided with the distribution.
+> + * 3. Neither the name of IBM nor the names of its contributors
+> + *    may be used to endorse or promote products derived from this software
+> + *    without specific prior written permission.
+> + * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS ``AS IS'' AND
+> + * ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
+> + * IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE
+> + * ARE DISCLAIMED.  IN NO EVENT SHALL IBM OR CONTRIBUTORS BE LIABLE
+> + * FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL
+> + * DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS
+> + * OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION)
+> + * HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT
+> + * LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY
+> + * OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
+> + * SUCH DAMAGE.
+> + */
+> +#ifndef _LINUX_VIRTIO_MDEV_H
+> +#define _LINUX_VIRTIO_MDEV_H
+> +
+> +#include <linux/interrupt.h>
+> +#include <linux/vringh.h>
+> +#include <uapi/linux/virtio_net.h>
+> +
+> +/*
+> + * Ioctls
+> + */
+> +
+> +struct virtio_mdev_callback {
+> +	irqreturn_t (*callback)(void *);
+> +	void *private;
+> +};
+> +
+> +#define VIRTIO_MDEV 0xAF
+> +#define VIRTIO_MDEV_SET_VQ_CALLBACK _IOW(VIRTIO_MDEV, 0x00, \
+> +					 struct virtio_mdev_callback)
+> +#define VIRTIO_MDEV_SET_CONFIG_CALLBACK _IOW(VIRTIO_MDEV, 0x01, \
+> +					struct virtio_mdev_callback)
+> +
+> +#define VIRTIO_MDEV_DEVICE_API_STRING		"virtio-mdev"
+> +
+> +/*
+> + * Control registers
+> + */
+> +
+> +/* Magic value ("virt" string) - Read Only */
+> +#define VIRTIO_MDEV_MAGIC_VALUE		0x000
+> +
+> +/* Virtio device version - Read Only */
+> +#define VIRTIO_MDEV_VERSION		0x004
+> +
+> +/* Virtio device ID - Read Only */
+> +#define VIRTIO_MDEV_DEVICE_ID		0x008
+> +
+> +/* Virtio vendor ID - Read Only */
+> +#define VIRTIO_MDEV_VENDOR_ID		0x00c
+> +
+> +/* Bitmask of the features supported by the device (host)
+> + * (32 bits per set) - Read Only */
+> +#define VIRTIO_MDEV_DEVICE_FEATURES	0x010
+> +
+> +/* Device (host) features set selector - Write Only */
+> +#define VIRTIO_MDEV_DEVICE_FEATURES_SEL	0x014
+> +
+> +/* Bitmask of features activated by the driver (guest)
+> + * (32 bits per set) - Write Only */
+> +#define VIRTIO_MDEV_DRIVER_FEATURES	0x020
+> +
+> +/* Activated features set selector - Write Only */
+> +#define VIRTIO_MDEV_DRIVER_FEATURES_SEL	0x024
+> +
+> +/* Queue selector - Write Only */
+> +#define VIRTIO_MDEV_QUEUE_SEL		0x030
+> +
+> +/* Maximum size of the currently selected queue - Read Only */
+> +#define VIRTIO_MDEV_QUEUE_NUM_MAX	0x034
+> +
+> +/* Queue size for the currently selected queue - Write Only */
+> +#define VIRTIO_MDEV_QUEUE_NUM		0x038
+> +
+> +/* Ready bit for the currently selected queue - Read Write */
+> +#define VIRTIO_MDEV_QUEUE_READY		0x044
+> +
+> +/* Alignment of virtqueue - Read Only */
+> +#define VIRTIO_MDEV_QUEUE_ALIGN		0x048
+> +
+> +/* Queue notifier - Write Only */
+> +#define VIRTIO_MDEV_QUEUE_NOTIFY	0x050
+> +
+> +/* Device status register - Read Write */
+> +#define VIRTIO_MDEV_STATUS		0x060
+> +
+> +/* Selected queue's Descriptor Table address, 64 bits in two halves */
+> +#define VIRTIO_MDEV_QUEUE_DESC_LOW	0x080
+> +#define VIRTIO_MDEV_QUEUE_DESC_HIGH	0x084
+> +
+> +/* Selected queue's Available Ring address, 64 bits in two halves */
+> +#define VIRTIO_MDEV_QUEUE_AVAIL_LOW	0x090
+> +#define VIRTIO_MDEV_QUEUE_AVAIL_HIGH	0x094
+> +
+> +/* Selected queue's Used Ring address, 64 bits in two halves */
+> +#define VIRTIO_MDEV_QUEUE_USED_LOW	0x0a0
+> +#define VIRTIO_MDEV_QUEUE_USED_HIGH	0x0a4
+> +
+> +/* Configuration atomicity value */
+> +#define VIRTIO_MDEV_CONFIG_GENERATION	0x0fc
+> +
+> +/* The config space is defined by each driver as
+> + * the per-driver configuration space - Read Write */
+> +#define VIRTIO_MDEV_CONFIG		0x100
 
-Signed-off-by: David Riley <davidriley@chromium.org>
----
- drivers/gpu/drm/virtio/virtgpu_ioctl.c |  4 +-
- drivers/gpu/drm/virtio/virtgpu_vq.c    | 79 +++++++++++++++++++++++---
- 2 files changed, 73 insertions(+), 10 deletions(-)
+IIUC, we can use above registers with virtio-mdev parent's
+read()/write() to access the mdev device from kernel driver.
+As you suggested, it's a choice to build vhost-mdev on top
+of this abstraction as well. But virtio is the frontend
+device which lacks some vhost backend features, e.g. get
+vring base, set vring base, negotiate vhost features, etc.
+So I'm wondering, does it make sense to reserve some space
+for vhost-mdev in kernel to do vhost backend specific setups?
+Or do you have any other thoughts?
 
-diff --git a/drivers/gpu/drm/virtio/virtgpu_ioctl.c b/drivers/gpu/drm/virtio/virtgpu_ioctl.c
-index ac60be9b5c19..a8732a8af766 100644
---- a/drivers/gpu/drm/virtio/virtgpu_ioctl.c
-+++ b/drivers/gpu/drm/virtio/virtgpu_ioctl.c
-@@ -195,7 +195,7 @@ static int virtio_gpu_execbuffer_ioctl(struct drm_device *dev, void *data,
- 	if (ret)
- 		goto out_free;
- 
--	buf = memdup_user(u64_to_user_ptr(exbuf->command), exbuf->size);
-+	buf = vmemdup_user(u64_to_user_ptr(exbuf->command), exbuf->size);
- 	if (IS_ERR(buf)) {
- 		ret = PTR_ERR(buf);
- 		goto out_unresv;
-@@ -230,7 +230,7 @@ static int virtio_gpu_execbuffer_ioctl(struct drm_device *dev, void *data,
- 	return 0;
- 
- out_memdup:
--	kfree(buf);
-+	kvfree(buf);
- out_unresv:
- 	ttm_eu_backoff_reservation(&ticket, &validate_list);
- out_free:
-diff --git a/drivers/gpu/drm/virtio/virtgpu_vq.c b/drivers/gpu/drm/virtio/virtgpu_vq.c
-index bf5a4a50b002..76cf2b9d5d1d 100644
---- a/drivers/gpu/drm/virtio/virtgpu_vq.c
-+++ b/drivers/gpu/drm/virtio/virtgpu_vq.c
-@@ -154,7 +154,7 @@ static void free_vbuf(struct virtio_gpu_device *vgdev,
- {
- 	if (vbuf->resp_size > MAX_INLINE_RESP_SIZE)
- 		kfree(vbuf->resp_buf);
--	kfree(vbuf->data_buf);
-+	kvfree(vbuf->data_buf);
- 	kmem_cache_free(vgdev->vbufs, vbuf);
- }
- 
-@@ -251,13 +251,54 @@ void virtio_gpu_dequeue_cursor_func(struct work_struct *work)
- 	wake_up(&vgdev->cursorq.ack_queue);
- }
- 
-+/* Create sg_table from a vmalloc'd buffer. */
-+static struct sg_table *vmalloc_to_sgt(char *data, uint32_t size, int *sg_ents)
-+{
-+	int ret, s, i;
-+	struct sg_table *sgt;
-+	struct scatterlist *sg;
-+	struct page *pg;
-+
-+	if (WARN_ON(!PAGE_ALIGNED(data)))
-+		return NULL;
-+
-+	sgt = kmalloc(sizeof(*sgt), GFP_KERNEL);
-+	if (!sgt)
-+		return NULL;
-+
-+	*sg_ents = DIV_ROUND_UP(size, PAGE_SIZE);
-+	ret = sg_alloc_table(sgt, *sg_ents, GFP_KERNEL);
-+	if (ret) {
-+		kfree(sgt);
-+		return NULL;
-+	}
-+
-+	for_each_sg(sgt->sgl, sg, *sg_ents, i) {
-+		pg = vmalloc_to_page(data);
-+		if (!pg) {
-+			sg_free_table(sgt);
-+			kfree(sgt);
-+			return NULL;
-+		}
-+
-+		s = min_t(int, PAGE_SIZE, size);
-+		sg_set_page(sg, pg, s, 0);
-+
-+		size -= s;
-+		data += s;
-+	}
-+
-+	return sgt;
-+}
-+
- static int virtio_gpu_queue_ctrl_buffer_locked(struct virtio_gpu_device *vgdev,
--					       struct virtio_gpu_vbuffer *vbuf)
-+					       struct virtio_gpu_vbuffer *vbuf,
-+					       struct scatterlist *vout)
- 		__releases(&vgdev->ctrlq.qlock)
- 		__acquires(&vgdev->ctrlq.qlock)
- {
- 	struct virtqueue *vq = vgdev->ctrlq.vq;
--	struct scatterlist *sgs[3], vcmd, vout, vresp;
-+	struct scatterlist *sgs[3], vcmd, vresp;
- 	int outcnt = 0, incnt = 0;
- 	int ret;
- 
-@@ -268,9 +309,8 @@ static int virtio_gpu_queue_ctrl_buffer_locked(struct virtio_gpu_device *vgdev,
- 	sgs[outcnt + incnt] = &vcmd;
- 	outcnt++;
- 
--	if (vbuf->data_size) {
--		sg_init_one(&vout, vbuf->data_buf, vbuf->data_size);
--		sgs[outcnt + incnt] = &vout;
-+	if (vout) {
-+		sgs[outcnt + incnt] = vout;
- 		outcnt++;
- 	}
- 
-@@ -305,7 +345,24 @@ static int virtio_gpu_queue_fenced_ctrl_buffer(struct virtio_gpu_device *vgdev,
- 					       struct virtio_gpu_fence *fence)
- {
- 	struct virtqueue *vq = vgdev->ctrlq.vq;
-+	struct scatterlist *vout = NULL, sg;
-+	struct sg_table *sgt = NULL;
- 	int rc;
-+	int outcnt = 0;
-+
-+	if (vbuf->data_size) {
-+		if (is_vmalloc_addr(vbuf->data_buf)) {
-+			sgt = vmalloc_to_sgt(vbuf->data_buf, vbuf->data_size,
-+					     &outcnt);
-+			if (!sgt)
-+				return -ENOMEM;
-+			vout = sgt->sgl;
-+		} else {
-+			sg_init_one(&sg, vbuf->data_buf, vbuf->data_size);
-+			vout = &sg;
-+			outcnt = 1;
-+		}
-+	}
- 
- again:
- 	spin_lock(&vgdev->ctrlq.qlock);
-@@ -318,7 +375,7 @@ static int virtio_gpu_queue_fenced_ctrl_buffer(struct virtio_gpu_device *vgdev,
- 	 * to wait for free space, which can result in fence ids being
- 	 * submitted out-of-order.
- 	 */
--	if (vq->num_free < 3) {
-+	if (vq->num_free < 2 + outcnt) {
- 		spin_unlock(&vgdev->ctrlq.qlock);
- 		wait_event(vgdev->ctrlq.ack_queue, vq->num_free >= 3);
- 		goto again;
-@@ -326,8 +383,14 @@ static int virtio_gpu_queue_fenced_ctrl_buffer(struct virtio_gpu_device *vgdev,
- 
- 	if (hdr && fence)
- 		virtio_gpu_fence_emit(vgdev, hdr, fence);
--	rc = virtio_gpu_queue_ctrl_buffer_locked(vgdev, vbuf);
-+	rc = virtio_gpu_queue_ctrl_buffer_locked(vgdev, vbuf, vout);
- 	spin_unlock(&vgdev->ctrlq.qlock);
-+
-+	if (sgt) {
-+		sg_free_table(sgt);
-+		kfree(sgt);
-+	}
-+
- 	return rc;
- }
- 
--- 
-2.23.0.162.g0b9fbb3734-goog
+Besides, I'm also wondering, what's the purpose of making
+above registers part of UAPI? And if we make them part
+of UAPI, do we also need to make them part of virtio spec?
+
+Thanks!
+Tiwei
+
+> +
+> +#endif
+> +
+> +
+> +/* Ready bit for the currently selected queue - Read Write */
+> -- 
+> 2.19.1
+> 
