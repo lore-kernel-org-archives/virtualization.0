@@ -1,13 +1,12 @@
-From: Frediano Ziglio <fziglio@redhat.com>
-Subject: Re: [PATCH v2] drm/qxl: get vga ioports
-Date: Wed, 11 Sep 2019 11:40:34 -0400 (EDT)
-Message-ID: <964578816.11586547.1568216434638.JavaMail.zimbra__39003.7907216296$1568216447$gmane$org@redhat.com>
-References: <20190805105401.29874-1-kraxel@redhat.com>
+From: Stefan Hajnoczi <stefanha@redhat.com>
+Subject: Re: [PATCH v5 0/4] virtio-fs: shared file system for virtual machines
+Date: Wed, 11 Sep 2019 17:52:08 +0200
+Message-ID: <20190911155208.GA20527__19043.1090466276$1568217174$gmane$org@stefanha-x1.localdomain>
+References: <20190910151206.4671-1-mszeredi@redhat.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
-Content-Transfer-Encoding: 7bit
+Content-Type: multipart/mixed; boundary="===============7373355730591513927=="
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <20190805105401.29874-1-kraxel@redhat.com>
+In-Reply-To: <20190910151206.4671-1-mszeredi@redhat.com>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -17,90 +16,103 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Gerd Hoffmann <kraxel@redhat.com>
-Cc: David Airlie <airlied@linux.ie>, open list <linux-kernel@vger.kernel.org>, dri-devel@lists.freedesktop.org, "open list:DRM DRIVER FOR QXL VIRTUAL GPU" <virtualization@lists.linux-foundation.org>, Daniel Vetter <daniel@ffwll.ch>, "open list:DRM DRIVER FOR QXL VIRTUAL GPU" <spice-devel@lists.freedesktop.org>, Dave Airlie <airlied@redhat.com>
+To: Miklos Szeredi <mszeredi@redhat.com>
+Cc: "Michael S. Tsirkin" <mst@redhat.com>, "Dr. David Alan Gilbert" <dgilbert@redhat.com>, linux-kernel@vger.kernel.org, linux-fsdevel@vger.kernel.org, virtualization@lists.linux-foundation.org, Vivek Goyal <vgoyal@redhat.com>
 List-Id: virtualization@lists.linuxfoundation.org
 
-> 
-> qxl has two modes: "native" (used by the drm driver) and "vga" (vga
-> compatibility mode, typically used for boot display and firmware
-> framebuffers).
-> 
-> Accessing any vga ioport will switch the qxl device into vga mode.
-> The qxl driver never does that, but other drivers accessing vga ports
-> can trigger that too and therefore disturb qxl operation.  So aquire
-> the legacy vga ioports from vgaarb to avoid that.
-> 
-> Reproducer: Boot kvm guest with both qxl and i915 vgpu, with qxl being
-> first in pci scan order.
-> 
-> v2: Skip this for secondary qxl cards which don't have vga mode in the
->     first place (Frediano).
-> 
-> Cc: Frediano Ziglio <fziglio@redhat.com>
-> Signed-off-by: Gerd Hoffmann <kraxel@redhat.com>
 
-Acked-by: Frediano Ziglio <fziglio@redhat.com>
+--===============7373355730591513927==
+Content-Type: multipart/signed; micalg=pgp-sha256;
+	protocol="application/pgp-signature"; boundary="3V7upXqbjpZ4EhLz"
+Content-Disposition: inline
 
-> ---
->  drivers/gpu/drm/qxl/qxl_drv.c | 20 +++++++++++++++++++-
->  1 file changed, 19 insertions(+), 1 deletion(-)
-> 
-> diff --git a/drivers/gpu/drm/qxl/qxl_drv.c b/drivers/gpu/drm/qxl/qxl_drv.c
-> index b57a37543613..fcb48ac60598 100644
-> --- a/drivers/gpu/drm/qxl/qxl_drv.c
-> +++ b/drivers/gpu/drm/qxl/qxl_drv.c
-> @@ -63,6 +63,11 @@ module_param_named(num_heads, qxl_num_crtc, int, 0400);
->  static struct drm_driver qxl_driver;
->  static struct pci_driver qxl_pci_driver;
->  
-> +static bool is_vga(struct pci_dev *pdev)
-> +{
-> +	return pdev->class == PCI_CLASS_DISPLAY_VGA << 8;
-> +}
-> +
->  static int
->  qxl_pci_probe(struct pci_dev *pdev, const struct pci_device_id *ent)
->  {
-> @@ -87,9 +92,17 @@ qxl_pci_probe(struct pci_dev *pdev, const struct
-> pci_device_id *ent)
->  	if (ret)
->  		goto disable_pci;
->  
-> +	if (is_vga(pdev)) {
-> +		ret = vga_get_interruptible(pdev, VGA_RSRC_LEGACY_IO);
-> +		if (ret) {
-> +			DRM_ERROR("can't get legacy vga ioports\n");
-> +			goto disable_pci;
-> +		}
-> +	}
-> +
->  	ret = qxl_device_init(qdev, &qxl_driver, pdev);
->  	if (ret)
-> -		goto disable_pci;
-> +		goto put_vga;
->  
->  	ret = qxl_modeset_init(qdev);
->  	if (ret)
-> @@ -109,6 +122,9 @@ qxl_pci_probe(struct pci_dev *pdev, const struct
-> pci_device_id *ent)
->  	qxl_modeset_fini(qdev);
->  unload:
->  	qxl_device_fini(qdev);
-> +put_vga:
-> +	if (is_vga(pdev))
-> +		vga_put(pdev, VGA_RSRC_LEGACY_IO);
->  disable_pci:
->  	pci_disable_device(pdev);
->  free_dev:
-> @@ -126,6 +142,8 @@ qxl_pci_remove(struct pci_dev *pdev)
->  
->  	qxl_modeset_fini(qdev);
->  	qxl_device_fini(qdev);
-> +	if (is_vga(pdev))
-> +		vga_put(pdev, VGA_RSRC_LEGACY_IO);
->  
->  	dev->dev_private = NULL;
->  	kfree(qdev);
 
-Frediano
+--3V7upXqbjpZ4EhLz
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+
+On Tue, Sep 10, 2019 at 05:12:02PM +0200, Miklos Szeredi wrote:
+> I've folded the series from Vivek and fixed a couple of TODO comments
+> myself.  AFAICS two issues remain that need to be resolved in the short
+> term, one way or the other: freeze/restore and full virtqueue.
+
+I have researched freeze/restore and come to the conclusion that it
+needs to be a future feature.  It will probably come together with live
+migration support for reasons mentioned below.
+
+Most virtio devices have fairly simply power management freeze/restore
+functions that shut down the device and bring it back to the state held
+in memory, respectively.  virtio-fs, as well as virtio-9p and
+virtio-gpu, are different because they contain session state.  It is not
+easily possible to bring back the state held in memory after the device
+has been reset.
+
+The following areas of the FUSE protocol are stateful and need special
+attention:
+
+ * FUSE_INIT - this is pretty easy, we must re-negotiate the same
+   settings as before.
+
+ * FUSE_LOOKUP -> fuse_inode (inode_map)
+
+   The session contains a set of inode numbers that have been looked up
+   using FUSE_LOOKUP.  They are ephemeral in the current virtiofsd
+   implementation and vary across device reset.  Therefore we are unable
+   to restore the same inode numbers upon restore.
+
+   The solution is persistent inode numbers in virtiofsd.  This is also
+   needed to make open_by_handle_at(2) work and probably for live
+   migration.
+
+ * FUSE_OPEN -> fh (fd_map)
+
+   The session contains FUSE file handles for open files.  There is
+   currently no way of re-opening a file so that a specific fh is
+   returned.  A mechanism to do so probably isn't necessary if the
+   driver can update the fh to the new one produced by the device for
+   all open files instead.
+
+ * FUSE_OPENDIR -> fh (dirp_map)
+
+   Same story as for FUSE_OPEN but for open directories.
+
+ * FUSE_GETLK/SETLK/SETLKW -> (inode->posix_locks and fcntl(F_OFD_GET/SETLK))
+
+   The session contains file locks.  The driver must reacquire them upon
+   restore.  It's unclear what to do when locking fails.
+
+Live migration has the same problem since the FUSE session will be moved
+to a new virtio-fs device instance.  It makes sense to tackle both
+features together.  This is something that can be implemented in the
+next year, but it's not a quick fix.
+
+Stefan
+
+--3V7upXqbjpZ4EhLz
+Content-Type: application/pgp-signature; name="signature.asc"
+
+-----BEGIN PGP SIGNATURE-----
+
+iQEzBAEBCAAdFiEEhpWov9P5fNqsNXdanKSrs4Grc8gFAl15GCgACgkQnKSrs4Gr
+c8igAgf/aNAbXEnx1hxe1ARrpZRbdhkuuHJ/eV/iEWLUuRcNmDT2c7mrvoekWt5L
+j6w1ePRZfFn0FEZrpLNo45HfKfnfPwazWm7NTi1vlz2EdrRXKibFEjMwqZuFlkSO
+iVIpS5k3LHEk2P587Kye/Tek1JnevDKOOCZB1PIpxuQ3aRZXZKcYmWECp5dC+hR1
+PGt2w5O9L4qbiAFF32Gn5Y4DWxi3N+p6dcdtH09Zlh8AONhiH/z8rag5ZPQaMWhS
+HcWhqpxgBo3MHs0Da+PrWZ8U81DmuRXirLYcr5HaeDqM7mMow2hxF12KWiZ/ovP2
+7mjCdT/9OGlWNyES9XYexdsEM4fsyw==
+=41cO
+-----END PGP SIGNATURE-----
+
+--3V7upXqbjpZ4EhLz--
+
+--===============7373355730591513927==
+Content-Type: text/plain; charset="us-ascii"
+MIME-Version: 1.0
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+
+_______________________________________________
+Virtualization mailing list
+Virtualization@lists.linux-foundation.org
+https://lists.linuxfoundation.org/mailman/listinfo/virtualization
+--===============7373355730591513927==--
