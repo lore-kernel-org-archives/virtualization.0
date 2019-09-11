@@ -1,11 +1,13 @@
 From: Thomas Zimmermann <tzimmermann@suse.de>
-Subject: [PATCH v2 0/4] Merge VRAM MM and GEM VRAM source files
-Date: Wed, 11 Sep 2019 13:09:06 +0200
-Message-ID: <20190911110910.30698-1-tzimmermann@suse.de>
+Subject: [PATCH v2 4/4] drm/vram: Unconditonally set BO call-back functions
+Date: Wed, 11 Sep 2019 13:09:10 +0200
+Message-ID: <20190911110910.30698-5-tzimmermann@suse.de>
+References: <20190911110910.30698-1-tzimmermann@suse.de>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
+In-Reply-To: <20190911110910.30698-1-tzimmermann@suse.de>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -19,44 +21,27 @@ To: daniel@ffwll.ch, kraxel@redhat.com, airlied@linux.ie, corbet@lwn.net, z.liux
 Cc: virtualization@lists.linux-foundation.org, Thomas Zimmermann <tzimmermann@suse.de>, dri-devel@lists.freedesktop.org, linux-doc@vger.kernel.org
 List-Id: virtualization@lists.linuxfoundation.org
 
-VRAM MM and GEM VRAM are only used with each other. This patch set
-moves VRAM MM into GEM VRAM source files and cleans up the helper's
-public interface.
+The statement's condition is always true.
 
-Version 2 of the patch set doesn't contain functional changes. I'm
-reposting due to the rebasing onto the debugfs patches.
+Signed-off-by: Thomas Zimmermann <tzimmermann@suse.de>
+Acked-by: Gerd Hoffmann <kraxel@redhat.com>
+---
+ drivers/gpu/drm/drm_gem_vram_helper.c | 3 +--
+ 1 file changed, 1 insertion(+), 2 deletions(-)
 
-v2:
-	* updated for debugfs support
-	* fixed typos in comments
-
-Thomas Zimmermann (4):
-  drm/vram: Move VRAM memory manager to GEM VRAM implementation
-  drm/vram: Have VRAM MM call GEM VRAM functions directly
-  drm/vram: Unexport internal functions of VRAM MM
-  drm/vram: Unconditonally set BO call-back functions
-
- Documentation/gpu/drm-mm.rst                  |  12 -
- drivers/gpu/drm/Makefile                      |   3 +-
- drivers/gpu/drm/ast/ast_drv.c                 |   1 -
- drivers/gpu/drm/ast/ast_main.c                |   1 -
- drivers/gpu/drm/ast/ast_ttm.c                 |   3 +-
- drivers/gpu/drm/bochs/bochs.h                 |   1 -
- drivers/gpu/drm/bochs/bochs_mm.c              |   3 +-
- drivers/gpu/drm/drm_gem_vram_helper.c         | 406 +++++++++++++++---
- drivers/gpu/drm/drm_vram_helper_common.c      |   8 +-
- drivers/gpu/drm/drm_vram_mm_helper.c          | 353 ---------------
- .../gpu/drm/hisilicon/hibmc/hibmc_drm_drv.c   |   1 -
- drivers/gpu/drm/hisilicon/hibmc/hibmc_ttm.c   |   3 +-
- drivers/gpu/drm/mgag200/mgag200_drv.h         |   1 -
- drivers/gpu/drm/mgag200/mgag200_ttm.c         |   3 +-
- drivers/gpu/drm/vboxvideo/vbox_drv.h          |   2 -
- drivers/gpu/drm/vboxvideo/vbox_ttm.c          |   3 +-
- include/drm/drm_gem_vram_helper.h             |  92 +++-
- include/drm/drm_vram_mm_helper.h              | 109 -----
- 18 files changed, 421 insertions(+), 584 deletions(-)
- delete mode 100644 drivers/gpu/drm/drm_vram_mm_helper.c
- delete mode 100644 include/drm/drm_vram_mm_helper.h
-
---
+diff --git a/drivers/gpu/drm/drm_gem_vram_helper.c b/drivers/gpu/drm/drm_gem_vram_helper.c
+index 1a05e2a97b93..ab9f8523d887 100644
+--- a/drivers/gpu/drm/drm_gem_vram_helper.c
++++ b/drivers/gpu/drm/drm_gem_vram_helper.c
+@@ -93,8 +93,7 @@ static int drm_gem_vram_init(struct drm_device *dev,
+ 	int ret;
+ 	size_t acc_size;
+ 
+-	if (!gbo->bo.base.funcs)
+-		gbo->bo.base.funcs = &drm_gem_vram_object_funcs;
++	gbo->bo.base.funcs = &drm_gem_vram_object_funcs;
+ 
+ 	ret = drm_gem_object_init(dev, &gbo->bo.base, size);
+ 	if (ret)
+-- 
 2.23.0
