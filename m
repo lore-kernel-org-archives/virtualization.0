@@ -1,7 +1,7 @@
 From: "Michael S. Tsirkin" <mst@redhat.com>
 Subject: Re: [PATCH v2] virtio: add VIRTIO_RING_NO_LEGACY
-Date: Wed, 11 Sep 2019 05:29:50 -0400
-Message-ID: <20190911052825-mutt-send-email-mst__5146.21859635867$1568194206$gmane$org@kernel.org>
+Date: Wed, 11 Sep 2019 05:31:25 -0400
+Message-ID: <20190911053030-mutt-send-email-mst@kernel.org>
 References: <20190910175335.231660-1-matej.genci@nutanix.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
@@ -26,6 +26,13 @@ On Tue, Sep 10, 2019 at 05:53:44PM +0000, Matej Genci wrote:
 > Add macro to disable legacy functions vring_init and vring_size.
 > 
 > Signed-off-by: Matej Genci <matej.genci@nutanix.com>
+
+And I guess we should be able to define this macro in
+drivers/virtio/virtio_pci_modern.c
+?
+
+Will be handy to make sure we don't mask too much.
+
 > ---
 > 
 > V2: Put all legacy APIs inside guards.
@@ -74,9 +81,6 @@ On Tue, Sep 10, 2019 at 05:53:44PM +0000, Matej Genci wrote:
 >  struct vring_packed_desc_event {
 >  	/* Descriptor Ring Change Event Offset/Wrap Counter. */
 >  	__le16 off_wrap;
-
-OK almost but vring_need_event is actually useful for all variants
-so should be outside the guards :) Sorry about it.
-
--- 
-MST
+> -- 
+> 2.22.0
+> 
