@@ -1,14 +1,12 @@
-From: Michal Hocko <mhocko@kernel.org>
-Subject: Re: [PATCH v2] vhost: block speculation of translated descriptors
-Date: Wed, 11 Sep 2019 14:16:28 +0200
-Message-ID: <20190911121628.GT4023@dhcp22.suse.cz>
-References: <20190911120908.28410-1-mst@redhat.com>
+From: Stefan Hajnoczi <stefanha@redhat.com>
+Subject: Re: [PATCH v5 0/4] virtio-fs: shared file system for virtual machines
+Date: Wed, 11 Sep 2019 14:24:58 +0200
+Message-ID: <20190911122458.GA8859__32411.8381877028$1568204720$gmane$org@stefanha-x1.localdomain>
+References: <20190910151206.4671-1-mszeredi@redhat.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
-Content-Transfer-Encoding: 7bit
+Content-Type: multipart/mixed; boundary="===============1214283376661723893=="
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-Content-Disposition: inline
-In-Reply-To: <20190911120908.28410-1-mst@redhat.com>
+In-Reply-To: <20190910151206.4671-1-mszeredi@redhat.com>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -18,58 +16,64 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: "Michael S. Tsirkin" <mst@redhat.com>
-Cc: netdev@vger.kernel.org, linux-kernel@vger.kernel.org, kvm@vger.kernel.org, virtualization@lists.linux-foundation.org
+To: Miklos Szeredi <mszeredi@redhat.com>
+Cc: "Michael S. Tsirkin" <mst@redhat.com>, "Dr. David Alan Gilbert" <dgilbert@redhat.com>, linux-kernel@vger.kernel.org, linux-fsdevel@vger.kernel.org, virtualization@lists.linux-foundation.org, Vivek Goyal <vgoyal@redhat.com>
 List-Id: virtualization@lists.linuxfoundation.org
 
-On Wed 11-09-19 08:10:00, Michael S. Tsirkin wrote:
-> iovec addresses coming from vhost are assumed to be
-> pre-validated, but in fact can be speculated to a value
-> out of range.
-> 
-> Userspace address are later validated with array_index_nospec so we can
-> be sure kernel info does not leak through these addresses, but vhost
-> must also not leak userspace info outside the allowed memory table to
-> guests.
-> 
-> Following the defence in depth principle, make sure
-> the address is not validated out of node range.
-> 
-> Signed-off-by: Michael S. Tsirkin <mst@redhat.com>
-> Acked-by: Jason Wang <jasowang@redhat.com>
-> Tested-by: Jason Wang <jasowang@redhat.com>
 
-no need to mark fo stable? Other spectre fixes tend to be backported
-even when the security implications are not really clear. The risk
-should be low and better to be covered in case.
+--===============1214283376661723893==
+Content-Type: multipart/signed; micalg=pgp-sha256;
+	protocol="application/pgp-signature"; boundary="AhhlLboLdkugWU4S"
+Content-Disposition: inline
 
-> ---
-> 
-> changes from v1: fix build on 32 bit
-> 
->  drivers/vhost/vhost.c | 6 ++++--
->  1 file changed, 4 insertions(+), 2 deletions(-)
-> 
-> diff --git a/drivers/vhost/vhost.c b/drivers/vhost/vhost.c
-> index 5dc174ac8cac..34ea219936e3 100644
-> --- a/drivers/vhost/vhost.c
-> +++ b/drivers/vhost/vhost.c
-> @@ -2071,8 +2071,10 @@ static int translate_desc(struct vhost_virtqueue *vq, u64 addr, u32 len,
->  		_iov = iov + ret;
->  		size = node->size - addr + node->start;
->  		_iov->iov_len = min((u64)len - s, size);
-> -		_iov->iov_base = (void __user *)(unsigned long)
-> -			(node->userspace_addr + addr - node->start);
-> +		_iov->iov_base = (void __user *)
-> +			((unsigned long)node->userspace_addr +
-> +			 array_index_nospec((unsigned long)(addr - node->start),
-> +					    node->size));
->  		s += size;
->  		addr += size;
->  		++ret;
-> -- 
-> MST
 
--- 
-Michal Hocko
-SUSE Labs
+--AhhlLboLdkugWU4S
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+Content-Transfer-Encoding: quoted-printable
+
+On Tue, Sep 10, 2019 at 05:12:02PM +0200, Miklos Szeredi wrote:
+> Git tree for this version is available here:
+>=20
+> git://git.kernel.org/pub/scm/linux/kernel/git/mszeredi/fuse.git#virtiofs-=
+v5
+>=20
+> Only post patches that actually add virtiofs (virtiofs-v5-base..virtiofs-=
+v5).
+>=20
+> I've folded the series from Vivek and fixed a couple of TODO comments
+> myself.  AFAICS two issues remain that need to be resolved in the short
+> term, one way or the other: freeze/restore and full virtqueue.
+
+Thank you!  I am investigating freeze/restore.
+
+Stefan
+
+--AhhlLboLdkugWU4S
+Content-Type: application/pgp-signature; name="signature.asc"
+
+-----BEGIN PGP SIGNATURE-----
+
+iQEzBAEBCAAdFiEEhpWov9P5fNqsNXdanKSrs4Grc8gFAl1455oACgkQnKSrs4Gr
+c8hWrggArzr0OOPSTmdQ2dbddY7tmvuQTZgyaLYh1W0gffJZH8gkHIH2rod4htHq
+AWYZ7UxNWmHEdY4JHvMZCuxHMT8NScXWjGrkYbyE9amgj0b7PjtgRMiTJDFp2AMf
+pr5rza+XUKxkeoVjdSHMThZEGXWn2PP3zEA/IftMSyL7XEHSVS47NRFTFScGDDwW
+HpuWwzul31EFYU6ciPAGbAYPOcvDZCZv51ViJdnCcUMnzP3JMpdYyQy/2pcTauzm
+1cvyoMStnkMl3uqTswNRCwRFGU5YVqjnxAWg6Gyqu4TyEa5hp96f97XKcFZRbBjv
+LFwvgwMzPdO3dZqn3kBILCi/ZSR6MA==
+=TbXq
+-----END PGP SIGNATURE-----
+
+--AhhlLboLdkugWU4S--
+
+--===============1214283376661723893==
+Content-Type: text/plain; charset="us-ascii"
+MIME-Version: 1.0
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+
+_______________________________________________
+Virtualization mailing list
+Virtualization@lists.linux-foundation.org
+https://lists.linuxfoundation.org/mailman/listinfo/virtualization
+--===============1214283376661723893==--
