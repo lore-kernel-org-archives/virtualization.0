@@ -1,12 +1,11 @@
-From: "Michael S. Tsirkin" <mst@redhat.com>
-Subject: [PULL] virtio: last minute bugfixes
-Date: Thu, 12 Sep 2019 05:22:24 -0400
-Message-ID: <20190912052224-mutt-send-email-mst@kernel.org>
+From: Jason Wang <jasowang@redhat.com>
+Subject: [RFC PATCH 0/2] Mdev: support mutiple kinds of devices
+Date: Thu, 12 Sep 2019 17:40:10 +0800
+Message-ID: <20190912094012.29653-1-jasowang__29177.0216239215$1568281244$gmane$org@redhat.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-Content-Disposition: inline
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -16,43 +15,43 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Linus Torvalds <torvalds@linux-foundation.org>
-Cc: kvm@vger.kernel.org, mst@redhat.com, ruippan@tencent.com, netdev@vger.kernel.org, linux-kernel@vger.kernel.org, stable@vger.kernel.org, virtualization@lists.linux-foundation.org, yongduan@tencent.com, matthias.lange@kernkonzept.com
+To: kvm@vger.kernel.org, linux-s390@vger.kernel.org, linux-kernel@vger.kernel.org, dri-devel@lists.freedesktop.org, intel-gfx@lists.freedesktop.org, intel-gvt-dev@lists.freedesktop.org, kwankhede@nvidia.com, alex.williamson@redhat.com
+Cc: sebott@linux.ibm.com, mst@redhat.com, airlied@linux.ie, joonas.lahtinen@linux.intel.com, heiko.carstens@de.ibm.com, virtualization@lists.linux-foundation.org, rob.miller@broadcom.com, pasic@linux.ibm.com, borntraeger@de.ibm.com, zhi.a.wang@intel.com, farman@linux.ibm.com, idos@mellanox.com, gor@linux.ibm.com, jani.nikula@linux.intel.com, xiao.w.wang@intel.com, freude@linux.ibm.com, zhenyuw@linux.intel.com, rodrigo.vivi@intel.com, lingshan.zhu@intel.com, akrowiak@linux.ibm.com, pmorel@linux.ibm.com, cohuck@redhat.com, oberpar@linux.ibm.com, maxime.coquelin@redhat.com, daniel@ffwll.ch, zhihong.wang@intel.com
 List-Id: virtualization@lists.linuxfoundation.org
 
-The following changes since commit 02fa5d7b17a761f53ef1eedfc254e1f33bd226b0:
+Hi all:
 
-  mm/balloon_compaction: suppress allocation warnings (2019-09-04 07:42:01 -0400)
+During the development of virtio-mdev[1]. I find that mdev needs to be
+extended to support devices other than vfio mdev device. So this
+series tries to extend the mdev to be able to differ from different
+devices by:
 
-are available in the Git repository at:
+- device id and matching for mdev bus
+- device speicfic callbacks and move vfio callbacks there
 
-  https://git.kernel.org/pub/scm/linux/kernel/git/mst/vhost.git tags/for_linus
+Sent for early reivew, compile test only!
 
-for you to fetch changes up to 060423bfdee3f8bc6e2c1bac97de24d5415e2bc4:
+Thanks
 
-  vhost: make sure log_num < in_num (2019-09-11 15:15:26 -0400)
+[1] https://lkml.org/lkml/2019/9/10/135
 
-----------------------------------------------------------------
-virtio: last minute bugfixes
+Jason Wang (2):
+  mdev: device id support
+  mdev: introduce device specific ops
 
-A couple of security things.
+ drivers/gpu/drm/i915/gvt/kvmgt.c  | 16 ++++---
+ drivers/s390/cio/vfio_ccw_ops.c   | 16 ++++---
+ drivers/s390/crypto/vfio_ap_ops.c | 13 ++++--
+ drivers/vfio/mdev/mdev_core.c     | 14 +++++-
+ drivers/vfio/mdev/mdev_driver.c   | 14 ++++++
+ drivers/vfio/mdev/mdev_private.h  |  1 +
+ drivers/vfio/mdev/vfio_mdev.c     | 36 ++++++++++-----
+ include/linux/mdev.h              | 76 +++++++++++++++++++------------
+ include/linux/mod_devicetable.h   |  6 +++
+ samples/vfio-mdev/mbochs.c        | 18 +++++---
+ samples/vfio-mdev/mdpy.c          | 18 +++++---
+ samples/vfio-mdev/mtty.c          | 16 ++++---
+ 12 files changed, 163 insertions(+), 81 deletions(-)
 
-And an error handling bugfix that is never encountered by most people,
-but that also makes it kind of safe to push at the last minute, and it
-helps push the fix to stable a bit sooner.
-
-Signed-off-by: Michael S. Tsirkin <mst@redhat.com>
-
-----------------------------------------------------------------
-Matthias Lange (1):
-      virtio_ring: fix unmap of indirect descriptors
-
-Michael S. Tsirkin (1):
-      vhost: block speculation of translated descriptors
-
-yongduan (1):
-      vhost: make sure log_num < in_num
-
- drivers/vhost/vhost.c        | 10 ++++++----
- drivers/virtio/virtio_ring.c |  8 ++++++--
- 2 files changed, 12 insertions(+), 6 deletions(-)
+-- 
+2.19.1
