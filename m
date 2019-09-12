@@ -1,14 +1,13 @@
 From: Chia-I Wu <olvaffe@gmail.com>
-Subject: Re: [PATCH] drm/virtio: Fix warning in
-	virtio_gpu_queue_fenced_ctrl_buffer.
-Date: Thu, 12 Sep 2019 14:46:28 -0700
-Message-ID: <CAPaKu7RcJC-rZiYhqGeLeyu45ML6ymiycmWA+RjOq02u=PsK9Q__22368.8982938015$1568324816$gmane$org@mail.gmail.com>
-References: <20190912160048.212495-1-davidriley@chromium.org>
+Subject: Re: [PATCH] drm/virtio: enable prime mmap support
+Date: Thu, 12 Sep 2019 14:47:47 -0700
+Message-ID: <CAPaKu7T_TrCUEyjthshTjr_=uDQs+iJuPV68QYmmDJ7vodR35Q__11966.9426394225$1568324889$gmane$org@mail.gmail.com>
+References: <20190912114627.20176-1-kraxel@redhat.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <20190912160048.212495-1-davidriley@chromium.org>
+In-Reply-To: <20190912114627.20176-1-kraxel@redhat.com>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -18,38 +17,32 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: David Riley <davidriley@chromium.org>
-Cc: David Airlie <airlied@linux.ie>, open list <linux-kernel@vger.kernel.org>, ML dri-devel <dri-devel@lists.freedesktop.org>, "open list:VIRTIO CORE,
-	NET AND BLOCK DRIVERS" <virtualization@lists.linux-foundation.org>
+To: Gerd Hoffmann <kraxel@redhat.com>
+Cc: David Airlie <airlied@linux.ie>, open list <linux-kernel@vger.kernel.org>, ML dri-devel <dri-devel@lists.freedesktop.org>, "open list:VIRTIO GPU DRIVER" <virtualization@lists.linux-foundation.org>
 List-Id: virtualization@lists.linuxfoundation.org
 
-On Thu, Sep 12, 2019 at 9:00 AM David Riley <davidriley@chromium.org> wrote:
+On Thu, Sep 12, 2019 at 4:46 AM Gerd Hoffmann <kraxel@redhat.com> wrote:
 >
-> Fix warning introduced with commit e1218b8c0cc1
-> ("drm/virtio: Use vmalloc for command buffer allocations.")
-> from drm-misc-next.
->
-> Signed-off-by: David Riley <davidriley@chromium.org>
+> Signed-off-by: Gerd Hoffmann <kraxel@redhat.com>
 Reviewed-by: Chia-I Wu <olvaffe@gmail.com>
 > ---
->  drivers/gpu/drm/virtio/virtgpu_vq.c | 2 +-
->  1 file changed, 1 insertion(+), 1 deletion(-)
+>  drivers/gpu/drm/virtio/virtgpu_drv.c | 1 +
+>  1 file changed, 1 insertion(+)
 >
-> diff --git a/drivers/gpu/drm/virtio/virtgpu_vq.c b/drivers/gpu/drm/virtio/virtgpu_vq.c
-> index 9f9b782dd332..80176f379ad5 100644
-> --- a/drivers/gpu/drm/virtio/virtgpu_vq.c
-> +++ b/drivers/gpu/drm/virtio/virtgpu_vq.c
-> @@ -358,7 +358,7 @@ static void virtio_gpu_queue_fenced_ctrl_buffer(struct virtio_gpu_device *vgdev,
->                         sgt = vmalloc_to_sgt(vbuf->data_buf, vbuf->data_size,
->                                              &outcnt);
->                         if (!sgt)
-> -                               return -ENOMEM;
-> +                               return;
->                         vout = sgt->sgl;
->                 } else {
->                         sg_init_one(&sg, vbuf->data_buf, vbuf->data_size);
+> diff --git a/drivers/gpu/drm/virtio/virtgpu_drv.c b/drivers/gpu/drm/virtio/virtgpu_drv.c
+> index 0c9553ea9f3f..96c240dbf452 100644
+> --- a/drivers/gpu/drm/virtio/virtgpu_drv.c
+> +++ b/drivers/gpu/drm/virtio/virtgpu_drv.c
+> @@ -200,6 +200,7 @@ static struct drm_driver driver = {
+>  #endif
+>         .prime_handle_to_fd = drm_gem_prime_handle_to_fd,
+>         .prime_fd_to_handle = drm_gem_prime_fd_to_handle,
+> +       .gem_prime_mmap = drm_gem_prime_mmap,
+>         .gem_prime_import_sg_table = virtgpu_gem_prime_import_sg_table,
+>
+>         .gem_create_object = virtio_gpu_create_object,
 > --
-> 2.23.0.162.g0b9fbb3734-goog
+> 2.18.1
 >
 > _______________________________________________
 > dri-devel mailing list
