@@ -1,18 +1,14 @@
 From: Gerd Hoffmann <kraxel@redhat.com>
-Subject: Re: [RFC PATCH] drm/virtio: Export resource handles via DMA-buf API
-Date: Fri, 13 Sep 2019 13:05:44 +0200
-Message-ID: <20190913110544.htmslqt4yzejugs4__16171.2558286794$1568372757$gmane$org@sirius.home.kraxel.org>
-References: <20190912094121.228435-1-tfiga@chromium.org>
-	<20190912123821.rraib5entkcxt5p5@sirius.home.kraxel.org>
-	<CAAFQd5AFXfu7ysFCi1XQS61DK8nbSk5-=UHkvpYWDtFae5YQ6Q@mail.gmail.com>
-	<20190913080707.unhyoezesvfhx5np@sirius.home.kraxel.org>
-	<CAAFQd5BUKdWkp7zvhLHyY+rjcwVLYXk1NKsrrfhoOHT_68T==Q@mail.gmail.com>
+Subject: [PATCH 2/8] drm/shmem: switch shmem helper to
+	&drm_gem_object_funcs.mmap
+Date: Fri, 13 Sep 2019 14:29:02 +0200
+Message-ID: <20190913122908.784-3-kraxel__38819.1405030497$1568377769$gmane$org@redhat.com>
+References: <20190913122908.784-1-kraxel@redhat.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-Content-Disposition: inline
-In-Reply-To: <CAAFQd5BUKdWkp7zvhLHyY+rjcwVLYXk1NKsrrfhoOHT_68T==Q@mail.gmail.com>
+In-Reply-To: <20190913122908.784-1-kraxel@redhat.com>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -22,88 +18,154 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Tomasz Figa <tfiga@chromium.org>
-Cc: Zach Reizner <zachr@chromium.org>, David Airlie <airlied@linux.ie>, Linux Kernel Mailing List <linux-kernel@vger.kernel.org>, dri-devel <dri-devel@lists.freedesktop.org>, virtualization@lists.linux-foundation.org, Keiichi Watanabe <keiichiw@chromium.org>, stevensd@chromium.org, Daniel Vetter <daniel@ffwll.ch>, =?utf-8?B?U3TDqXBoYW5l?= Marchesin <marcheu@chromium.org>, Pawel Osciak <posciak@chromium.org>
+To: dri-devel@lists.freedesktop.org
+Cc: Rob Herring <robh@kernel.org>, Daniel Vetter <daniel@ffwll.ch>, Tomeu Vizoso <tomeu.vizoso@collabora.com>, Eric Anholt <eric@anholt.net>, Maxime Ripard <maxime.ripard@bootlin.com>, Daniel Vetter <daniel.vetter@ffwll.ch>, Maarten Lankhorst <maarten.lankhorst@linux.intel.com>, open list <linux-kernel@vger.kernel.org>, Steven Price <steven.price@arm.com>, David Airlie <airlied@linux.ie>, Thomas Zimmermann <tzimmermann@suse.de>, "open list:VIRTIO GPU DRIVER" <virtualization@lists.linux-foundation.org>, Sean Paul <sean@poorly.run>, Alyssa Rosenzweig <alyssa.rosenzweig@collabora.com>
 List-Id: virtualization@lists.linuxfoundation.org
 
-  Hi,
+Switch gem shmem helper to the new mmap() workflow,
+from &gem_driver.fops.mmap to &drm_gem_object_funcs.mmap.
 
-> > No.  DMA master address space in virtual machines is pretty much the
-> > same it is on physical machines.  So, on x86 without iommu, identical
-> > to (guest) physical address space.  You can't re-define it like that.
-> 
-> That's not true. Even on x86 without iommu the DMA address space can
-> be different from the physical address space.
+Signed-off-by: Gerd Hoffmann <kraxel@redhat.com>
+---
+ include/drm/drm_gem_shmem_helper.h      |  6 ++----
+ drivers/gpu/drm/drm_gem_shmem_helper.c  | 26 ++++++++-----------------
+ drivers/gpu/drm/panfrost/panfrost_gem.c |  2 +-
+ drivers/gpu/drm/v3d/v3d_bo.c            |  2 +-
+ drivers/gpu/drm/virtio/virtgpu_object.c |  2 +-
+ 5 files changed, 13 insertions(+), 25 deletions(-)
 
-On a standard pc (like the ones emulated by qemu) that is the case.
-It's different on !x86, it also changes with a iommu being present.
-
-But that is not the main point here.  The point is the dma master
-address already has a definition and you can't simply change that.
-
-> That could be still just
-> a simple addition/subtraction by constant, but still, the two are
-> explicitly defined without any guarantees about a simple mapping
-> between one or another existing.
-
-Sure.
-
-> "A CPU cannot reference a dma_addr_t directly because there may be
-> translation between its physical
-> address space and the DMA address space."
-
-Also note that dma address space is device-specific.  In case a iommu
-is present in the system you can have *multiple* dma address spaces,
-separating (groups of) devices from each other.  So passing a dma
-address from one device to another isn't going to work.
-
-> > > However, we could as well introduce a separate DMA address
-> > > space if resource handles are not the right way to refer to the memory
-> > > from other virtio devices.
-> >
-> > s/other virtio devices/other devices/
-> >
-> > dma-bufs are for buffer sharing between devices, not limited to virtio.
-> > You can't re-define that in some virtio-specific way.
-> >
-> 
-> We don't need to limit this to virtio devices only. In fact I actually
-> foresee this having a use case with the emulated USB host controller,
-> which isn't a virtio device.
-
-What exactly?
-
-> That said, I deliberately referred to virtio to keep the scope of the
-> problem in control. If there is a solution that could work without
-> such assumption, I'm more than open to discuss it, of course.
-
-But it might lead to taking virtio-specific (or virtualization-specific)
-shortcuts which will hurt in the long run ...
-
-> As per my understanding of the DMA address, anything that lets the DMA
-> master access the target memory would qualify and there would be no
-> need for an IOMMU in between.
-
-Yes.  But that DMA address is already defined by the platform, you can't
-freely re-define it.  Well, you sort-of can when you design your own
-virtual iommu for qemu.  But even then you can't just pass around magic
-cookies masqueraded as dma address.  You have to make sure they actually
-form an address space, without buffers overlapping, ...
-
-> Exactly. The very specific first scenario that we want to start with
-> is allocating host memory through virtio-gpu and using that memory
-> both as output of a video decoder and as input (texture) to Virgil3D.
-> The memory needs to be specifically allocated by the host as only the
-> host can know the requirements for memory allocation of the video
-> decode accelerator hardware.
-
-So you probably have some virtio-video-decoder.  You allocate a gpu
-buffer, export it as dma-buf, import it into the decoder, then let the
-video decoder render to it.  Right?
-
-Using dmabufs makes sense for sure.  But we need an separate field in
-struct dma_buf for an (optional) host dmabuf identifier, we can't just
-hijack the dma address.
-
-cheers,
-  Gerd
+diff --git a/include/drm/drm_gem_shmem_helper.h b/include/drm/drm_gem_shmem_helper.h
+index 01f514521687..d89f2116c8ab 100644
+--- a/include/drm/drm_gem_shmem_helper.h
++++ b/include/drm/drm_gem_shmem_helper.h
+@@ -111,7 +111,7 @@ struct drm_gem_shmem_object {
+ 		.poll		= drm_poll,\
+ 		.read		= drm_read,\
+ 		.llseek		= noop_llseek,\
+-		.mmap		= drm_gem_shmem_mmap, \
++		.mmap		= drm_gem_mmap, \
+ 	}
+ 
+ struct drm_gem_shmem_object *drm_gem_shmem_create(struct drm_device *dev, size_t size);
+@@ -143,9 +143,7 @@ drm_gem_shmem_create_with_handle(struct drm_file *file_priv,
+ int drm_gem_shmem_dumb_create(struct drm_file *file, struct drm_device *dev,
+ 			      struct drm_mode_create_dumb *args);
+ 
+-int drm_gem_shmem_mmap(struct file *filp, struct vm_area_struct *vma);
+-
+-extern const struct vm_operations_struct drm_gem_shmem_vm_ops;
++int drm_gem_shmem_mmap(struct drm_gem_object *obj, struct vm_area_struct *vma);
+ 
+ void drm_gem_shmem_print_info(struct drm_printer *p, unsigned int indent,
+ 			      const struct drm_gem_object *obj);
+diff --git a/drivers/gpu/drm/drm_gem_shmem_helper.c b/drivers/gpu/drm/drm_gem_shmem_helper.c
+index f5918707672f..a104140154bb 100644
+--- a/drivers/gpu/drm/drm_gem_shmem_helper.c
++++ b/drivers/gpu/drm/drm_gem_shmem_helper.c
+@@ -32,7 +32,7 @@ static const struct drm_gem_object_funcs drm_gem_shmem_funcs = {
+ 	.get_sg_table = drm_gem_shmem_get_sg_table,
+ 	.vmap = drm_gem_shmem_vmap,
+ 	.vunmap = drm_gem_shmem_vunmap,
+-	.vm_ops = &drm_gem_shmem_vm_ops,
++	.mmap = drm_gem_shmem_mmap,
+ };
+ 
+ /**
+@@ -505,39 +505,30 @@ static void drm_gem_shmem_vm_close(struct vm_area_struct *vma)
+ 	drm_gem_vm_close(vma);
+ }
+ 
+-const struct vm_operations_struct drm_gem_shmem_vm_ops = {
++static const struct vm_operations_struct drm_gem_shmem_vm_ops = {
+ 	.fault = drm_gem_shmem_fault,
+ 	.open = drm_gem_shmem_vm_open,
+ 	.close = drm_gem_shmem_vm_close,
+ };
+-EXPORT_SYMBOL_GPL(drm_gem_shmem_vm_ops);
+ 
+ /**
+  * drm_gem_shmem_mmap - Memory-map a shmem GEM object
+- * @filp: File object
++ * @obj: gem object
+  * @vma: VMA for the area to be mapped
+  *
+  * This function implements an augmented version of the GEM DRM file mmap
+  * operation for shmem objects. Drivers which employ the shmem helpers should
+- * use this function as their &file_operations.mmap handler in the DRM device file's
+- * file_operations structure.
+- *
+- * Instead of directly referencing this function, drivers should use the
+- * DEFINE_DRM_GEM_SHMEM_FOPS() macro.
++ * use this function as their &drm_gem_object_funcs.mmap handler.
+  *
+  * Returns:
+  * 0 on success or a negative error code on failure.
+  */
+-int drm_gem_shmem_mmap(struct file *filp, struct vm_area_struct *vma)
++int drm_gem_shmem_mmap(struct drm_gem_object *obj, struct vm_area_struct *vma)
+ {
+ 	struct drm_gem_shmem_object *shmem;
+ 	int ret;
+ 
+-	ret = drm_gem_mmap(filp, vma);
+-	if (ret)
+-		return ret;
+-
+-	shmem = to_drm_gem_shmem_obj(vma->vm_private_data);
++	shmem = to_drm_gem_shmem_obj(obj);
+ 
+ 	ret = drm_gem_shmem_get_pages(shmem);
+ 	if (ret) {
+@@ -545,9 +536,8 @@ int drm_gem_shmem_mmap(struct file *filp, struct vm_area_struct *vma)
+ 		return ret;
+ 	}
+ 
+-	/* VM_PFNMAP was set by drm_gem_mmap() */
+-	vma->vm_flags &= ~VM_PFNMAP;
+-	vma->vm_flags |= VM_MIXEDMAP;
++	vma->vm_flags |= (VM_MIXEDMAP|VM_DONTEXPAND);
++	vma->vm_ops = &drm_gem_shmem_vm_ops;
+ 
+ 	/* Remove the fake offset */
+ 	vma->vm_pgoff -= drm_vma_node_start(&shmem->base.vma_node);
+diff --git a/drivers/gpu/drm/panfrost/panfrost_gem.c b/drivers/gpu/drm/panfrost/panfrost_gem.c
+index acb07fe06580..deca0c30bbd4 100644
+--- a/drivers/gpu/drm/panfrost/panfrost_gem.c
++++ b/drivers/gpu/drm/panfrost/panfrost_gem.c
+@@ -112,7 +112,7 @@ static const struct drm_gem_object_funcs panfrost_gem_funcs = {
+ 	.get_sg_table = drm_gem_shmem_get_sg_table,
+ 	.vmap = drm_gem_shmem_vmap,
+ 	.vunmap = drm_gem_shmem_vunmap,
+-	.vm_ops = &drm_gem_shmem_vm_ops,
++	.mmap = drm_gem_shmem_mmap,
+ };
+ 
+ /**
+diff --git a/drivers/gpu/drm/v3d/v3d_bo.c b/drivers/gpu/drm/v3d/v3d_bo.c
+index a22b75a3a533..edd299ab53d8 100644
+--- a/drivers/gpu/drm/v3d/v3d_bo.c
++++ b/drivers/gpu/drm/v3d/v3d_bo.c
+@@ -58,7 +58,7 @@ static const struct drm_gem_object_funcs v3d_gem_funcs = {
+ 	.get_sg_table = drm_gem_shmem_get_sg_table,
+ 	.vmap = drm_gem_shmem_vmap,
+ 	.vunmap = drm_gem_shmem_vunmap,
+-	.vm_ops = &drm_gem_shmem_vm_ops,
++	.mmap = drm_gem_shmem_mmap,
+ };
+ 
+ /* gem_create_object function for allocating a BO struct and doing
+diff --git a/drivers/gpu/drm/virtio/virtgpu_object.c b/drivers/gpu/drm/virtio/virtgpu_object.c
+index 69a3d310ff70..017a9e0fc3bb 100644
+--- a/drivers/gpu/drm/virtio/virtgpu_object.c
++++ b/drivers/gpu/drm/virtio/virtgpu_object.c
+@@ -86,7 +86,7 @@ static const struct drm_gem_object_funcs virtio_gpu_gem_funcs = {
+ 	.get_sg_table = drm_gem_shmem_get_sg_table,
+ 	.vmap = drm_gem_shmem_vmap,
+ 	.vunmap = drm_gem_shmem_vunmap,
+-	.vm_ops = &drm_gem_shmem_vm_ops,
++	.mmap = &drm_gem_shmem_mmap,
+ };
+ 
+ struct drm_gem_object *virtio_gpu_create_object(struct drm_device *dev,
+-- 
+2.18.1
