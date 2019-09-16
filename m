@@ -1,14 +1,14 @@
-From: Auger Eric <eric.auger@redhat.com>
-Subject: Re: [PATCH 0/5] iommu: Implement iommu_put_resv_regions_simple()
-Date: Mon, 16 Sep 2019 11:14:22 +0200
-Message-ID: <6254f754-eb37-6b1e-deea-7443d185d49b__33618.7440248736$1568625278$gmane$org@redhat.com>
-References: <20190829111752.17513-1-thierry.reding@gmail.com>
+From: Rob Herring <robh@kernel.org>
+Subject: Re: [PATCH 3/8] drm/shmem: drop DEFINE_DRM_GEM_SHMEM_FOPS
+Date: Mon, 16 Sep 2019 17:07:14 -0500
+Message-ID: <CAL_JsqJajCtM=vRgSDX2DQ6iJzDgMHicXgXgGqF7Bc-KdTUUQA__30478.9889649086$1568671658$gmane$org@mail.gmail.com>
+References: <20190913122908.784-1-kraxel@redhat.com>
+	<20190913122908.784-4-kraxel@redhat.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <20190829111752.17513-1-thierry.reding@gmail.com>
-Content-Language: en-US
+In-Reply-To: <20190913122908.784-4-kraxel@redhat.com>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -18,43 +18,26 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Thierry Reding <thierry.reding@gmail.com>, Joerg Roedel <joro@8bytes.org>
-Cc: Jean-Philippe Brucker <jean-philippe@linaro.org>, Will Deacon <will@kernel.org>, linux-kernel@vger.kernel.org, virtualization@lists.linux-foundation.org, iommu@lists.linux-foundation.org, Robin Murphy <robin.murphy@arm.com>, David Woodhouse <dwmw2@infradead.org>, linux-arm-kernel@lists.infradead.org
+To: Gerd Hoffmann <kraxel@redhat.com>
+Cc: Maxime Ripard <maxime.ripard@bootlin.com>, Thomas Zimmermann <tzimmermann@suse.de>, Tomeu Vizoso <tomeu.vizoso@collabora.com>, Eric Anholt <eric@anholt.net>, David Airlie <airlied@linux.ie>, Daniel Vetter <daniel.vetter@ffwll.ch>, Maarten Lankhorst <maarten.lankhorst@linux.intel.com>, open list <linux-kernel@vger.kernel.org>, dri-devel <dri-devel@lists.freedesktop.org>, Steven Price <steven.price@arm.com>, Hans de Goede <hdegoede@redhat.com>, Alyssa Rosenzweig <alyssa.rosenzweig@collabora.com>, Daniel Vetter <daniel@ffwll.ch>, Dave Airlie <airlied@redhat.com>, "open list:DRM DRIVER FOR QEMU'S CIRRUS DEVICE" <virtualization@lists.linux-foundation.org>, Sean Paul <sean@poorly.run>
 List-Id: virtualization@lists.linuxfoundation.org
 
-Hi Thierry,
+On Fri, Sep 13, 2019 at 7:29 AM Gerd Hoffmann <kraxel@redhat.com> wrote:
+>
 
-On 8/29/19 1:17 PM, Thierry Reding wrote:
-> From: Thierry Reding <treding@nvidia.com>
-> 
-> Most IOMMU drivers only need to free the memory allocated for each
-> reserved region. Instead of open-coding the loop to do this in each
-> driver, extract the code into a common function that can be used by
-> all these drivers.
+Version? Pretty sure this is not v1.
 
-If I am not wrong, all the drivers now use the
-iommu_put_resv_regions_simple helper. So we can wonder if the callback
-is still relevant?
+> DEFINE_DRM_GEM_SHMEM_FOPS is identical
+> to DEFINE_DRM_GEM_FOPS now, drop it.
+>
+> Signed-off-by: Gerd Hoffmann <kraxel@redhat.com>
+> ---
+>  include/drm/drm_gem_shmem_helper.h      | 26 -------------------------
+>  drivers/gpu/drm/cirrus/cirrus.c         |  2 +-
+>  drivers/gpu/drm/panfrost/panfrost_drv.c |  2 +-
+>  drivers/gpu/drm/tiny/gm12u320.c         |  2 +-
+>  drivers/gpu/drm/v3d/v3d_drv.c           |  2 +-
+>  drivers/gpu/drm/virtio/virtgpu_drv.c    |  2 +-
+>  6 files changed, 5 insertions(+), 31 deletions(-)
 
-Thanks
-
-Eric
-> 
-> Thierry
-> 
-> Thierry Reding (5):
->   iommu: Implement iommu_put_resv_regions_simple()
->   iommu: arm: Use iommu_put_resv_regions_simple()
->   iommu: amd: Use iommu_put_resv_regions_simple()
->   iommu: intel: Use iommu_put_resv_regions_simple()
->   iommu: virt: Use iommu_put_resv_regions_simple()
-> 
->  drivers/iommu/amd_iommu.c    | 11 +----------
->  drivers/iommu/arm-smmu-v3.c  | 11 +----------
->  drivers/iommu/arm-smmu.c     | 11 +----------
->  drivers/iommu/intel-iommu.c  | 11 +----------
->  drivers/iommu/iommu.c        | 19 +++++++++++++++++++
->  drivers/iommu/virtio-iommu.c | 14 +++-----------
->  include/linux/iommu.h        |  2 ++
->  7 files changed, 28 insertions(+), 51 deletions(-)
-> 
+Acked-by: Rob Herring <robh@kernel.org>
