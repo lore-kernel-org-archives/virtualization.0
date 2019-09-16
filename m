@@ -1,14 +1,13 @@
-From: David Hildenbrand <david@redhat.com>
-Subject: Re: VIRTIO_BALLOON_F_FREE_PAGE_HINT
-Date: Mon, 16 Sep 2019 09:26:49 +0200
-Message-ID: <09257686-90df-5c31-c35f-9d16fc77fee1@redhat.com>
-References: <CAJuQAmpQmNN1EJHm4RinZnBven9Bx4GGqd-8Mt+L=3Z-3pd+zg@mail.gmail.com>
-	<5D7EE856.2080602@intel.com>
+From: Auger Eric <eric.auger@redhat.com>
+Subject: Re: [PATCH 0/5] iommu: Implement iommu_put_resv_regions_simple()
+Date: Mon, 16 Sep 2019 11:14:22 +0200
+Message-ID: <6254f754-eb37-6b1e-deea-7443d185d49b__33618.7440248736$1568625278$gmane$org@redhat.com>
+References: <20190829111752.17513-1-thierry.reding@gmail.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <5D7EE856.2080602@intel.com>
+In-Reply-To: <20190829111752.17513-1-thierry.reding@gmail.com>
 Content-Language: en-US
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
@@ -19,76 +18,43 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Wei Wang <wei.w.wang@intel.com>, Tyler Sanderson <tysand@google.com>, virtualization@lists.linux-foundation.org, mst@redhat.com
+To: Thierry Reding <thierry.reding@gmail.com>, Joerg Roedel <joro@8bytes.org>
+Cc: Jean-Philippe Brucker <jean-philippe@linaro.org>, Will Deacon <will@kernel.org>, linux-kernel@vger.kernel.org, virtualization@lists.linux-foundation.org, iommu@lists.linux-foundation.org, Robin Murphy <robin.murphy@arm.com>, David Woodhouse <dwmw2@infradead.org>, linux-arm-kernel@lists.infradead.org
 List-Id: virtualization@lists.linuxfoundation.org
 
-On 16.09.19 03:41, Wei Wang wrote:
-> On 09/14/2019 02:36 AM, Tyler Sanderson wrote:
->> Hello, I'm curious about the intent of VIRTIO_BALLOON_F_FREE_PAGE_HINT 
->> (commit 
->> <https://github.com/torvalds/linux/commit/86a559787e6f5cf662c081363f64a20cad654195#diff-fd202acf694d9eba19c8c64da3e480c9>). 
->>
->>
->> My understanding is that this mechanism works similarly to the 
->> existing inflate/deflate queues. Pages are allocated by the guest and 
->> then reported on VQ_FREE_PAGE.
->>
->> Question: Is there a limit to how many pages will be allocated? What 
->> controls the amount of memory pressure applied?
-> 
-> No control for the limit currently. The implementation reports all the 
-> guest free pages to host.
-> The main usage for this feature so far is to have guest skip sending 
-> those guest free pages
-> (the more, the better) during live migration.
-> 
-> 
->>
->> In my experience with virtio balloon there are problems with the 
->> mechanisms that are supposed to deflate the balloon in response to 
->> memory pressure (e.g. OOM notifier).
-> 
-> What problem did you see? We've also changed balloon to use memory shrinker,
-> did you see the problem with shrinker as well?
-> 
->>
->> It seems an ideal balloon interface would allow the guest to round 
->> robin through free guest physical pages, allowing the host to unback 
->> them, but never having more than a few pages allocated to the balloon 
->> at any one time. For example:
->> 1. Guest allocates 1 page and notifies balloon device of this page's 
->> address.
->> 2. Host debacks the received page.
->> 3. Guest frees the page.
->> 4. Repeat at #1, but ensure that different pages are allocated each time.
-> 
-> Probably you need a mechanism to "ensure" different pages to be allocated.
-> The current implementation (having balloon hold the allocated pages) could
-> be thought of as one mechanism (it is simple).
-> 
->>
->> This way the "balloon size" is never more than a few pages and does 
->> not create memory pressure. However the difficulty is in ensuring each 
->> set of sent pages is disjoint from previously sent pages. Is there a 
->> mechanism to round-robin allocations through all of guest physical 
->> memory? Does VIRTIO_BALLOON_F_FREE_PAGE_HINT enable this?
+Hi Thierry,
 
-There are use cases where you really want memory pressure (page cache is
-the prime example). Anyhow, I think the use case you want the
-"round-robin allocations" for is better tackled by "free page reporting"
-(used to be called "free page hinting") currently discussed on various
-lists.
+On 8/29/19 1:17 PM, Thierry Reding wrote:
+> From: Thierry Reding <treding@nvidia.com>
+> 
+> Most IOMMU drivers only need to free the memory allocated for each
+> reserved region. Instead of open-coding the loop to do this in each
+> driver, extract the code into a common function that can be used by
+> all these drivers.
 
-"allowing the host to unback them, but never having more than a few
-pages allocated to the balloon at any one time." is similar to what
-"free page reporting" does. We decided to only report bigger pages
-(avoid splitting up THP in the hypervisor, overhead) and only
-temporarily pull out a fixed amount of pages (16) from the page
-allocator to avoid false-OOM. Guaranteeing forward progress (similar to
-what you describe) is one important key concept.
+If I am not wrong, all the drivers now use the
+iommu_put_resv_regions_simple helper. So we can wonder if the callback
+is still relevant?
 
--- 
+Thanks
 
-Thanks,
-
-David / dhildenb
+Eric
+> 
+> Thierry
+> 
+> Thierry Reding (5):
+>   iommu: Implement iommu_put_resv_regions_simple()
+>   iommu: arm: Use iommu_put_resv_regions_simple()
+>   iommu: amd: Use iommu_put_resv_regions_simple()
+>   iommu: intel: Use iommu_put_resv_regions_simple()
+>   iommu: virt: Use iommu_put_resv_regions_simple()
+> 
+>  drivers/iommu/amd_iommu.c    | 11 +----------
+>  drivers/iommu/arm-smmu-v3.c  | 11 +----------
+>  drivers/iommu/arm-smmu.c     | 11 +----------
+>  drivers/iommu/intel-iommu.c  | 11 +----------
+>  drivers/iommu/iommu.c        | 19 +++++++++++++++++++
+>  drivers/iommu/virtio-iommu.c | 14 +++-----------
+>  include/linux/iommu.h        |  2 ++
+>  7 files changed, 28 insertions(+), 51 deletions(-)
+> 
