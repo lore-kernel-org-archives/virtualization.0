@@ -1,7 +1,7 @@
 From: Tiwei Bie <tiwei.bie@intel.com>
-Subject: [RFC v4 1/3] vfio: support getting vfio device from device fd
-Date: Tue, 17 Sep 2019 09:02:02 +0800
-Message-ID: <20190917010204.30376-2-tiwei.bie__39320.9975374461$1568682317$gmane$org@intel.com>
+Subject: [RFC v4 2/3] vfio: support checking vfio driver by device ops
+Date: Tue, 17 Sep 2019 09:02:03 +0800
+Message-ID: <20190917010204.30376-3-tiwei.bie__46530.193223019$1568682334$gmane$org@intel.com>
 References: <20190917010204.30376-1-tiwei.bie@intel.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
@@ -21,74 +21,79 @@ To: mst@redhat.com, jasowang@redhat.com, alex.williamson@redhat.com, maxime.coqu
 Cc: kvm@vger.kernel.org, netdev@vger.kernel.org, linux-kernel@vger.kernel.org, virtualization@lists.linux-foundation.org, zhihong.wang@intel.com, lingshan.zhu@intel.com
 List-Id: virtualization@lists.linuxfoundation.org
 
-This patch introduces the support for getting VFIO device
-from VFIO device fd. With this support, it's possible for
-vhost to get VFIO device from the group fd and device fd
-set by the userspace.
+This patch introduces the support for checking the VFIO driver
+by device ops. And vfio-mdev's device ops is also exported to
+make it possible to check whether a VFIO device is based on a
+mdev device.
 
 Signed-off-by: Tiwei Bie <tiwei.bie@intel.com>
 ---
- drivers/vfio/vfio.c  | 25 +++++++++++++++++++++++++
- include/linux/vfio.h |  4 ++++
- 2 files changed, 29 insertions(+)
+ drivers/vfio/mdev/vfio_mdev.c | 3 ++-
+ drivers/vfio/vfio.c           | 7 +++++++
+ include/linux/vfio.h          | 7 +++++++
+ 3 files changed, 16 insertions(+), 1 deletion(-)
 
-diff --git a/drivers/vfio/vfio.c b/drivers/vfio/vfio.c
-index 388597930b64..697fd079bb3f 100644
---- a/drivers/vfio/vfio.c
-+++ b/drivers/vfio/vfio.c
-@@ -890,6 +890,31 @@ static struct vfio_device *vfio_device_get_from_name(struct vfio_group *group,
- 	return device;
+diff --git a/drivers/vfio/mdev/vfio_mdev.c b/drivers/vfio/mdev/vfio_mdev.c
+index 30964a4e0a28..e0f31c5a5db2 100644
+--- a/drivers/vfio/mdev/vfio_mdev.c
++++ b/drivers/vfio/mdev/vfio_mdev.c
+@@ -98,7 +98,7 @@ static int vfio_mdev_mmap(void *device_data, struct vm_area_struct *vma)
+ 	return parent->ops->mmap(mdev, vma);
  }
  
-+struct vfio_device *vfio_device_get_from_fd(struct vfio_group *group,
-+					    int device_fd)
-+{
-+	struct fd f;
-+	struct vfio_device *it, *device = ERR_PTR(-ENODEV);
-+
-+	f = fdget(device_fd);
-+	if (!f.file)
-+		return ERR_PTR(-EBADF);
-+
-+	mutex_lock(&group->device_lock);
-+	list_for_each_entry(it, &group->device_list, group_next) {
-+		if (it == f.file->private_data) {
-+			device = it;
-+			vfio_device_get(device);
-+			break;
-+		}
-+	}
-+	mutex_unlock(&group->device_lock);
-+
-+	fdput(f);
-+	return device;
-+}
-+EXPORT_SYMBOL_GPL(vfio_device_get_from_fd);
-+
- /*
-  * Caller must hold a reference to the vfio_device
-  */
-diff --git a/include/linux/vfio.h b/include/linux/vfio.h
-index e42a711a2800..e75b24fd7c5c 100644
---- a/include/linux/vfio.h
-+++ b/include/linux/vfio.h
-@@ -15,6 +15,8 @@
- #include <linux/poll.h>
- #include <uapi/linux/vfio.h>
+-static const struct vfio_device_ops vfio_mdev_dev_ops = {
++const struct vfio_device_ops vfio_mdev_dev_ops = {
+ 	.name		= "vfio-mdev",
+ 	.open		= vfio_mdev_open,
+ 	.release	= vfio_mdev_release,
+@@ -107,6 +107,7 @@ static const struct vfio_device_ops vfio_mdev_dev_ops = {
+ 	.write		= vfio_mdev_write,
+ 	.mmap		= vfio_mdev_mmap,
+ };
++EXPORT_SYMBOL_GPL(vfio_mdev_dev_ops);
  
-+struct vfio_group;
+ static int vfio_mdev_probe(struct device *dev)
+ {
+diff --git a/drivers/vfio/vfio.c b/drivers/vfio/vfio.c
+index 697fd079bb3f..1145110909e4 100644
+--- a/drivers/vfio/vfio.c
++++ b/drivers/vfio/vfio.c
+@@ -1806,6 +1806,13 @@ long vfio_external_check_extension(struct vfio_group *group, unsigned long arg)
+ }
+ EXPORT_SYMBOL_GPL(vfio_external_check_extension);
+ 
++bool vfio_device_ops_match(struct vfio_device *device,
++			   const struct vfio_device_ops *ops)
++{
++	return device->ops == ops;
++}
++EXPORT_SYMBOL_GPL(vfio_device_ops_match);
 +
  /**
-  * struct vfio_device_ops - VFIO bus driver device callbacks
-  *
-@@ -50,6 +52,8 @@ extern int vfio_add_group_dev(struct device *dev,
- 
- extern void *vfio_del_group_dev(struct device *dev);
- extern struct vfio_device *vfio_device_get_from_dev(struct device *dev);
-+extern struct vfio_device *vfio_device_get_from_fd(struct vfio_group *group,
-+						   int device_fd);
+  * Sub-module support
+  */
+diff --git a/include/linux/vfio.h b/include/linux/vfio.h
+index e75b24fd7c5c..741c5bb567a8 100644
+--- a/include/linux/vfio.h
++++ b/include/linux/vfio.h
+@@ -56,6 +56,8 @@ extern struct vfio_device *vfio_device_get_from_fd(struct vfio_group *group,
+ 						   int device_fd);
  extern void vfio_device_put(struct vfio_device *device);
  extern void *vfio_device_data(struct vfio_device *device);
++extern bool vfio_device_ops_match(struct vfio_device *device,
++				  const struct vfio_device_ops *ops);
  
+ /**
+  * struct vfio_iommu_driver_ops - VFIO IOMMU driver callbacks
+@@ -199,4 +201,9 @@ extern int vfio_virqfd_enable(void *opaque,
+ 			      void *data, struct virqfd **pvirqfd, int fd);
+ extern void vfio_virqfd_disable(struct virqfd **pvirqfd);
+ 
++/*
++ * VFIO device ops
++ */
++extern const struct vfio_device_ops vfio_mdev_dev_ops;
++
+ #endif /* VFIO_H */
 -- 
 2.17.1
