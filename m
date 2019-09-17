@@ -1,8 +1,7 @@
 From: Gerd Hoffmann <kraxel@redhat.com>
-Subject: [PATCH v2 02/11] drm/shmem: switch shmem helper to
-	&drm_gem_object_funcs.mmap
-Date: Tue, 17 Sep 2019 11:23:55 +0200
-Message-ID: <20190917092404.9982-3-kraxel__34020.3771994979$1568712266$gmane$org@redhat.com>
+Subject: [PATCH v2 11/11] drm/vram: drop DRM_VRAM_MM_FILE_OPERATIONS
+Date: Tue, 17 Sep 2019 11:24:04 +0200
+Message-ID: <20190917092404.9982-12-kraxel__13577.9786434554$1568712280$gmane$org@redhat.com>
 References: <20190917092404.9982-1-kraxel@redhat.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
@@ -19,157 +18,129 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
 To: dri-devel@lists.freedesktop.org
-Cc: Rob Herring <robh@kernel.org>, Daniel Vetter <daniel@ffwll.ch>, Tomeu Vizoso <tomeu.vizoso@collabora.com>, Eric Anholt <eric@anholt.net>, Maxime Ripard <maxime.ripard@bootlin.com>, Daniel Vetter <daniel.vetter@ffwll.ch>, Maarten Lankhorst <maarten.lankhorst@linux.intel.com>, open list <linux-kernel@vger.kernel.org>, Steven Price <steven.price@arm.com>, David Airlie <airlied@linux.ie>, Thomas Zimmermann <tzimmermann@suse.de>, "open list:VIRTIO GPU DRIVER" <virtualization@lists.linux-foundation.org>, Sean Paul <sean@poorly.run>, Alyssa Rosenzweig <alyssa.rosenzweig@collabora.com>
+Cc: Maxime Ripard <maxime.ripard@bootlin.com>, Thomas Zimmermann <tzimmermann@suse.de>, David Airlie <airlied@linux.ie>, Daniel Vetter <daniel.vetter@ffwll.ch>, Maarten Lankhorst <maarten.lankhorst@linux.intel.com>, open list <linux-kernel@vger.kernel.org>, "open list:DRM DRIVER FOR BOCHS VIRTUAL GPU" <virtualization@lists.linux-foundation.org>, Xinliang Liu <z.liuxinliang@hisilicon.com>, Hans de Goede <hdegoede@redhat.com>, Xinwei Kong <kong.kongxinwei@hisilicon.com>, Daniel Vetter <daniel@ffwll.ch>, Chen Feng <puck.chen@hisilicon.com>, Rongrong Zou <zourongrong@gmail.com>, Dave Airlie <airlied@redhat.com>, Sean Paul <sean@poorly.run>
 List-Id: virtualization@lists.linuxfoundation.org
 
-Switch gem shmem helper to the new mmap() workflow,
-from &gem_driver.fops.mmap to &drm_gem_object_funcs.mmap.
-
-v2: Fix vm_flags and vm_page_prot handling.
+Not needed any more because we don't have vram specific fops
+any more.  DEFINE_DRM_GEM_FOPS() can be used instead.
 
 Signed-off-by: Gerd Hoffmann <kraxel@redhat.com>
+Reviewed-by: Thomas Zimmermann <tzimmermann@suse.de>
 ---
- include/drm/drm_gem_shmem_helper.h      |  6 ++----
- drivers/gpu/drm/drm_gem_shmem_helper.c  | 28 +++++++++----------------
- drivers/gpu/drm/panfrost/panfrost_gem.c |  2 +-
- drivers/gpu/drm/v3d/v3d_bo.c            |  2 +-
- drivers/gpu/drm/virtio/virtgpu_object.c |  2 +-
- 5 files changed, 15 insertions(+), 25 deletions(-)
+ include/drm/drm_gem_vram_helper.h              | 18 ------------------
+ drivers/gpu/drm/ast/ast_drv.c                  |  5 +----
+ drivers/gpu/drm/bochs/bochs_drv.c              |  5 +----
+ .../gpu/drm/hisilicon/hibmc/hibmc_drm_drv.c    |  5 +----
+ drivers/gpu/drm/mgag200/mgag200_drv.c          |  5 +----
+ drivers/gpu/drm/vboxvideo/vbox_drv.c           |  5 +----
+ 6 files changed, 5 insertions(+), 38 deletions(-)
 
-diff --git a/include/drm/drm_gem_shmem_helper.h b/include/drm/drm_gem_shmem_helper.h
-index 01f514521687..d89f2116c8ab 100644
---- a/include/drm/drm_gem_shmem_helper.h
-+++ b/include/drm/drm_gem_shmem_helper.h
-@@ -111,7 +111,7 @@ struct drm_gem_shmem_object {
- 		.poll		= drm_poll,\
- 		.read		= drm_read,\
- 		.llseek		= noop_llseek,\
--		.mmap		= drm_gem_shmem_mmap, \
-+		.mmap		= drm_gem_mmap, \
- 	}
+diff --git a/include/drm/drm_gem_vram_helper.h b/include/drm/drm_gem_vram_helper.h
+index 9d5526650291..3503ff784803 100644
+--- a/include/drm/drm_gem_vram_helper.h
++++ b/include/drm/drm_gem_vram_helper.h
+@@ -180,22 +180,4 @@ struct drm_vram_mm *drm_vram_helper_alloc_mm(
+ 	struct drm_device *dev, uint64_t vram_base, size_t vram_size);
+ void drm_vram_helper_release_mm(struct drm_device *dev);
  
- struct drm_gem_shmem_object *drm_gem_shmem_create(struct drm_device *dev, size_t size);
-@@ -143,9 +143,7 @@ drm_gem_shmem_create_with_handle(struct drm_file *file_priv,
- int drm_gem_shmem_dumb_create(struct drm_file *file, struct drm_device *dev,
- 			      struct drm_mode_create_dumb *args);
- 
--int drm_gem_shmem_mmap(struct file *filp, struct vm_area_struct *vma);
+-/**
+- * define DRM_VRAM_MM_FILE_OPERATIONS - default callback functions for \
+-	&struct file_operations
+- *
+- * Drivers that use VRAM MM can use this macro to initialize
+- * &struct file_operations with default functions.
+- */
+-#define DRM_VRAM_MM_FILE_OPERATIONS \
+-	.llseek		= no_llseek, \
+-	.read		= drm_read, \
+-	.poll		= drm_poll, \
+-	.unlocked_ioctl = drm_ioctl, \
+-	.compat_ioctl	= drm_compat_ioctl, \
+-	.mmap		= drm_gem_mmap, \
+-	.open		= drm_open, \
+-	.release	= drm_release \
 -
--extern const struct vm_operations_struct drm_gem_shmem_vm_ops;
-+int drm_gem_shmem_mmap(struct drm_gem_object *obj, struct vm_area_struct *vma);
- 
- void drm_gem_shmem_print_info(struct drm_printer *p, unsigned int indent,
- 			      const struct drm_gem_object *obj);
-diff --git a/drivers/gpu/drm/drm_gem_shmem_helper.c b/drivers/gpu/drm/drm_gem_shmem_helper.c
-index f5918707672f..a9a586630517 100644
---- a/drivers/gpu/drm/drm_gem_shmem_helper.c
-+++ b/drivers/gpu/drm/drm_gem_shmem_helper.c
-@@ -32,7 +32,7 @@ static const struct drm_gem_object_funcs drm_gem_shmem_funcs = {
- 	.get_sg_table = drm_gem_shmem_get_sg_table,
- 	.vmap = drm_gem_shmem_vmap,
- 	.vunmap = drm_gem_shmem_vunmap,
--	.vm_ops = &drm_gem_shmem_vm_ops,
-+	.mmap = drm_gem_shmem_mmap,
+-
+ #endif
+diff --git a/drivers/gpu/drm/ast/ast_drv.c b/drivers/gpu/drm/ast/ast_drv.c
+index e0e8770462bc..1f17794b0890 100644
+--- a/drivers/gpu/drm/ast/ast_drv.c
++++ b/drivers/gpu/drm/ast/ast_drv.c
+@@ -200,10 +200,7 @@ static struct pci_driver ast_pci_driver = {
+ 	.driver.pm = &ast_pm_ops,
  };
  
- /**
-@@ -505,39 +505,30 @@ static void drm_gem_shmem_vm_close(struct vm_area_struct *vma)
- 	drm_gem_vm_close(vma);
+-static const struct file_operations ast_fops = {
+-	.owner = THIS_MODULE,
+-	DRM_VRAM_MM_FILE_OPERATIONS
+-};
++DEFINE_DRM_GEM_FOPS(ast_fops);
+ 
+ static struct drm_driver driver = {
+ 	.driver_features = DRIVER_MODESET | DRIVER_GEM,
+diff --git a/drivers/gpu/drm/bochs/bochs_drv.c b/drivers/gpu/drm/bochs/bochs_drv.c
+index 3b9b0d9bbc14..10460878414e 100644
+--- a/drivers/gpu/drm/bochs/bochs_drv.c
++++ b/drivers/gpu/drm/bochs/bochs_drv.c
+@@ -58,10 +58,7 @@ static int bochs_load(struct drm_device *dev)
+ 	return ret;
  }
  
--const struct vm_operations_struct drm_gem_shmem_vm_ops = {
-+static const struct vm_operations_struct drm_gem_shmem_vm_ops = {
- 	.fault = drm_gem_shmem_fault,
- 	.open = drm_gem_shmem_vm_open,
- 	.close = drm_gem_shmem_vm_close,
- };
--EXPORT_SYMBOL_GPL(drm_gem_shmem_vm_ops);
+-static const struct file_operations bochs_fops = {
+-	.owner		= THIS_MODULE,
+-	DRM_VRAM_MM_FILE_OPERATIONS
+-};
++DEFINE_DRM_GEM_FOPS(bochs_fops);
  
- /**
-  * drm_gem_shmem_mmap - Memory-map a shmem GEM object
-- * @filp: File object
-+ * @obj: gem object
-  * @vma: VMA for the area to be mapped
-  *
-  * This function implements an augmented version of the GEM DRM file mmap
-  * operation for shmem objects. Drivers which employ the shmem helpers should
-- * use this function as their &file_operations.mmap handler in the DRM device file's
-- * file_operations structure.
-- *
-- * Instead of directly referencing this function, drivers should use the
-- * DEFINE_DRM_GEM_SHMEM_FOPS() macro.
-+ * use this function as their &drm_gem_object_funcs.mmap handler.
-  *
-  * Returns:
-  * 0 on success or a negative error code on failure.
-  */
--int drm_gem_shmem_mmap(struct file *filp, struct vm_area_struct *vma)
-+int drm_gem_shmem_mmap(struct drm_gem_object *obj, struct vm_area_struct *vma)
+ static struct drm_driver bochs_driver = {
+ 	.driver_features	= DRIVER_GEM | DRIVER_MODESET | DRIVER_ATOMIC,
+diff --git a/drivers/gpu/drm/hisilicon/hibmc/hibmc_drm_drv.c b/drivers/gpu/drm/hisilicon/hibmc/hibmc_drm_drv.c
+index f5b35fdef6f3..b6fdac91e502 100644
+--- a/drivers/gpu/drm/hisilicon/hibmc/hibmc_drm_drv.c
++++ b/drivers/gpu/drm/hisilicon/hibmc/hibmc_drm_drv.c
+@@ -26,10 +26,7 @@
+ #include "hibmc_drm_drv.h"
+ #include "hibmc_drm_regs.h"
+ 
+-static const struct file_operations hibmc_fops = {
+-	.owner		= THIS_MODULE,
+-	DRM_VRAM_MM_FILE_OPERATIONS
+-};
++DEFINE_DRM_GEM_FOPS(hibmc_fops);
+ 
+ static irqreturn_t hibmc_drm_interrupt(int irq, void *arg)
  {
- 	struct drm_gem_shmem_object *shmem;
- 	int ret;
+diff --git a/drivers/gpu/drm/mgag200/mgag200_drv.c b/drivers/gpu/drm/mgag200/mgag200_drv.c
+index 4f9df3b93598..397f8b0a9af8 100644
+--- a/drivers/gpu/drm/mgag200/mgag200_drv.c
++++ b/drivers/gpu/drm/mgag200/mgag200_drv.c
+@@ -58,10 +58,7 @@ static void mga_pci_remove(struct pci_dev *pdev)
+ 	drm_put_dev(dev);
+ }
  
--	ret = drm_gem_mmap(filp, vma);
--	if (ret)
--		return ret;
--
--	shmem = to_drm_gem_shmem_obj(vma->vm_private_data);
-+	shmem = to_drm_gem_shmem_obj(obj);
+-static const struct file_operations mgag200_driver_fops = {
+-	.owner = THIS_MODULE,
+-	DRM_VRAM_MM_FILE_OPERATIONS
+-};
++DEFINE_DRM_GEM_FOPS(mgag200_driver_fops);
  
- 	ret = drm_gem_shmem_get_pages(shmem);
- 	if (ret) {
-@@ -545,9 +536,10 @@ int drm_gem_shmem_mmap(struct file *filp, struct vm_area_struct *vma)
- 		return ret;
- 	}
- 
--	/* VM_PFNMAP was set by drm_gem_mmap() */
--	vma->vm_flags &= ~VM_PFNMAP;
--	vma->vm_flags |= VM_MIXEDMAP;
-+	vma->vm_flags |= VM_IO | VM_MIXEDMAP | VM_DONTEXPAND | VM_DONTDUMP;
-+	vma->vm_page_prot = pgprot_writecombine(vm_get_page_prot(vma->vm_flags));
-+	vma->vm_page_prot = pgprot_decrypted(vma->vm_page_prot);
-+	vma->vm_ops = &drm_gem_shmem_vm_ops;
- 
- 	/* Remove the fake offset */
- 	vma->vm_pgoff -= drm_vma_node_start(&shmem->base.vma_node);
-diff --git a/drivers/gpu/drm/panfrost/panfrost_gem.c b/drivers/gpu/drm/panfrost/panfrost_gem.c
-index acb07fe06580..deca0c30bbd4 100644
---- a/drivers/gpu/drm/panfrost/panfrost_gem.c
-+++ b/drivers/gpu/drm/panfrost/panfrost_gem.c
-@@ -112,7 +112,7 @@ static const struct drm_gem_object_funcs panfrost_gem_funcs = {
- 	.get_sg_table = drm_gem_shmem_get_sg_table,
- 	.vmap = drm_gem_shmem_vmap,
- 	.vunmap = drm_gem_shmem_vunmap,
--	.vm_ops = &drm_gem_shmem_vm_ops,
-+	.mmap = drm_gem_shmem_mmap,
+ static struct drm_driver driver = {
+ 	.driver_features = DRIVER_GEM | DRIVER_MODESET,
+diff --git a/drivers/gpu/drm/vboxvideo/vbox_drv.c b/drivers/gpu/drm/vboxvideo/vbox_drv.c
+index 862db495d111..0c37032c8b65 100644
+--- a/drivers/gpu/drm/vboxvideo/vbox_drv.c
++++ b/drivers/gpu/drm/vboxvideo/vbox_drv.c
+@@ -189,10 +189,7 @@ static struct pci_driver vbox_pci_driver = {
+ #endif
  };
  
- /**
-diff --git a/drivers/gpu/drm/v3d/v3d_bo.c b/drivers/gpu/drm/v3d/v3d_bo.c
-index a22b75a3a533..edd299ab53d8 100644
---- a/drivers/gpu/drm/v3d/v3d_bo.c
-+++ b/drivers/gpu/drm/v3d/v3d_bo.c
-@@ -58,7 +58,7 @@ static const struct drm_gem_object_funcs v3d_gem_funcs = {
- 	.get_sg_table = drm_gem_shmem_get_sg_table,
- 	.vmap = drm_gem_shmem_vmap,
- 	.vunmap = drm_gem_shmem_vunmap,
--	.vm_ops = &drm_gem_shmem_vm_ops,
-+	.mmap = drm_gem_shmem_mmap,
- };
+-static const struct file_operations vbox_fops = {
+-	.owner = THIS_MODULE,
+-	DRM_VRAM_MM_FILE_OPERATIONS
+-};
++DEFINE_DRM_GEM_FOPS(vbox_fops);
  
- /* gem_create_object function for allocating a BO struct and doing
-diff --git a/drivers/gpu/drm/virtio/virtgpu_object.c b/drivers/gpu/drm/virtio/virtgpu_object.c
-index 69a3d310ff70..017a9e0fc3bb 100644
---- a/drivers/gpu/drm/virtio/virtgpu_object.c
-+++ b/drivers/gpu/drm/virtio/virtgpu_object.c
-@@ -86,7 +86,7 @@ static const struct drm_gem_object_funcs virtio_gpu_gem_funcs = {
- 	.get_sg_table = drm_gem_shmem_get_sg_table,
- 	.vmap = drm_gem_shmem_vmap,
- 	.vunmap = drm_gem_shmem_vunmap,
--	.vm_ops = &drm_gem_shmem_vm_ops,
-+	.mmap = &drm_gem_shmem_mmap,
- };
- 
- struct drm_gem_object *virtio_gpu_create_object(struct drm_device *dev,
+ static struct drm_driver driver = {
+ 	.driver_features =
 -- 
 2.18.1
