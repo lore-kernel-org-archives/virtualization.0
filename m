@@ -1,14 +1,11 @@
-From: Rob Herring <robh@kernel.org>
-Subject: Re: [PATCH 3/8] drm/shmem: drop DEFINE_DRM_GEM_SHMEM_FOPS
-Date: Mon, 16 Sep 2019 17:07:14 -0500
-Message-ID: <CAL_JsqJajCtM=vRgSDX2DQ6iJzDgMHicXgXgGqF7Bc-KdTUUQA__30478.9889649086$1568671658$gmane$org@mail.gmail.com>
-References: <20190913122908.784-1-kraxel@redhat.com>
-	<20190913122908.784-4-kraxel@redhat.com>
+From: Tiwei Bie <tiwei.bie@intel.com>
+Subject: [RFC v4 0/3] vhost: introduce mdev based hardware backend
+Date: Tue, 17 Sep 2019 09:02:01 +0800
+Message-ID: <20190917010204.30376-1-tiwei.bie__31656.6691546299$1568682310$gmane$org@intel.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <20190913122908.784-4-kraxel@redhat.com>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -18,26 +15,55 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Gerd Hoffmann <kraxel@redhat.com>
-Cc: Maxime Ripard <maxime.ripard@bootlin.com>, Thomas Zimmermann <tzimmermann@suse.de>, Tomeu Vizoso <tomeu.vizoso@collabora.com>, Eric Anholt <eric@anholt.net>, David Airlie <airlied@linux.ie>, Daniel Vetter <daniel.vetter@ffwll.ch>, Maarten Lankhorst <maarten.lankhorst@linux.intel.com>, open list <linux-kernel@vger.kernel.org>, dri-devel <dri-devel@lists.freedesktop.org>, Steven Price <steven.price@arm.com>, Hans de Goede <hdegoede@redhat.com>, Alyssa Rosenzweig <alyssa.rosenzweig@collabora.com>, Daniel Vetter <daniel@ffwll.ch>, Dave Airlie <airlied@redhat.com>, "open list:DRM DRIVER FOR QEMU'S CIRRUS DEVICE" <virtualization@lists.linux-foundation.org>, Sean Paul <sean@poorly.run>
+To: mst@redhat.com, jasowang@redhat.com, alex.williamson@redhat.com, maxime.coquelin@redhat.com
+Cc: kvm@vger.kernel.org, netdev@vger.kernel.org, linux-kernel@vger.kernel.org, virtualization@lists.linux-foundation.org, zhihong.wang@intel.com, lingshan.zhu@intel.com
 List-Id: virtualization@lists.linuxfoundation.org
 
-On Fri, Sep 13, 2019 at 7:29 AM Gerd Hoffmann <kraxel@redhat.com> wrote:
->
+This RFC is to demonstrate below ideas,
 
-Version? Pretty sure this is not v1.
+a) Build vhost-mdev on top of the same abstraction defined in
+   the virtio-mdev series [1];
 
-> DEFINE_DRM_GEM_SHMEM_FOPS is identical
-> to DEFINE_DRM_GEM_FOPS now, drop it.
->
-> Signed-off-by: Gerd Hoffmann <kraxel@redhat.com>
-> ---
->  include/drm/drm_gem_shmem_helper.h      | 26 -------------------------
->  drivers/gpu/drm/cirrus/cirrus.c         |  2 +-
->  drivers/gpu/drm/panfrost/panfrost_drv.c |  2 +-
->  drivers/gpu/drm/tiny/gm12u320.c         |  2 +-
->  drivers/gpu/drm/v3d/v3d_drv.c           |  2 +-
->  drivers/gpu/drm/virtio/virtgpu_drv.c    |  2 +-
->  6 files changed, 5 insertions(+), 31 deletions(-)
+b) Introduce /dev/vhost-mdev to do vhost ioctls and support
+   setting mdev device as backend;
 
-Acked-by: Rob Herring <robh@kernel.org>
+Now the userspace API looks like this:
+
+- Userspace generates a compatible mdev device;
+
+- Userspace opens this mdev device with VFIO API (including
+  doing IOMMU programming for this mdev device with VFIO's
+  container/group based interface);
+
+- Userspace opens /dev/vhost-mdev and gets vhost fd;
+
+- Userspace uses vhost ioctls to setup vhost (userspace should
+  do VHOST_MDEV_SET_BACKEND ioctl with VFIO group fd and device
+  fd first before doing other vhost ioctls);
+
+Only compile test has been done for this series for now.
+
+RFCv3: https://patchwork.kernel.org/patch/11117785/
+
+[1] https://lkml.org/lkml/2019/9/10/135
+
+Tiwei Bie (3):
+  vfio: support getting vfio device from device fd
+  vfio: support checking vfio driver by device ops
+  vhost: introduce mdev based hardware backend
+
+ drivers/vfio/mdev/vfio_mdev.c    |   3 +-
+ drivers/vfio/vfio.c              |  32 +++
+ drivers/vhost/Kconfig            |   9 +
+ drivers/vhost/Makefile           |   3 +
+ drivers/vhost/mdev.c             | 462 +++++++++++++++++++++++++++++++
+ drivers/vhost/vhost.c            |  39 ++-
+ drivers/vhost/vhost.h            |   6 +
+ include/linux/vfio.h             |  11 +
+ include/uapi/linux/vhost.h       |  10 +
+ include/uapi/linux/vhost_types.h |   5 +
+ 10 files changed, 573 insertions(+), 7 deletions(-)
+ create mode 100644 drivers/vhost/mdev.c
+
+-- 
+2.17.1
