@@ -1,14 +1,14 @@
-From: Cornelia Huck <cohuck@redhat.com>
-Subject: Re: [RFC PATCH 2/2] mdev: introduce device specific ops
-Date: Tue, 17 Sep 2019 14:42:40 +0200
-Message-ID: <20190917144240.6a59b65f.cohuck__6896.20936043269$1568724189$gmane$org@redhat.com>
-References: <20190912094012.29653-1-jasowang@redhat.com>
-	<20190912094012.29653-3-jasowang@redhat.com>
+From: Daniel Vetter <daniel@ffwll.ch>
+Subject: Re: [RFC PATCH] drm/virtio: Export resource handles via DMA-buf API
+Date: Tue, 17 Sep 2019 15:23:05 +0200
+Message-ID: <20190917132305.GV3958__16362.9564851121$1568726603$gmane$org@phenom.ffwll.local>
+References: <20190912094121.228435-1-tfiga@chromium.org>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <20190912094012.29653-3-jasowang@redhat.com>
+Content-Disposition: inline
+In-Reply-To: <20190912094121.228435-1-tfiga@chromium.org>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -18,133 +18,245 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Jason Wang <jasowang@redhat.com>
-Cc: sebott@linux.ibm.com, mst@redhat.com, airlied@linux.ie, joonas.lahtinen@linux.intel.com, heiko.carstens@de.ibm.com, dri-devel@lists.freedesktop.org, oberpar@linux.ibm.com, kwankhede@nvidia.com, rob.miller@broadcom.com, linux-s390@vger.kernel.org, kvm@vger.kernel.org, pasic@linux.ibm.com, borntraeger@de.ibm.com, zhi.a.wang@intel.com, farman@linux.ibm.com, idos@mellanox.com, gor@linux.ibm.com, intel-gfx@lists.freedesktop.org, jani.nikula@linux.intel.com, xiao.w.wang@intel.com, freude@linux.ibm.com, zhenyuw@linux.intel.com, rodrigo.vivi@intel.com, virtualization@lists.linux-foundation.org, intel-gvt-dev@lists.freedesktop.org, lingshan.zhu@intel.com, akrowiak@linux.ibm.com, pmorel@linux.ibm.com, linux-kernel@vger.kernel.org, maxime.coquelin@redhat.com, daniel@ffwll.ch, zhihong.wang@intel.com
+To: Tomasz Figa <tfiga@chromium.org>
+Cc: zachr@chromium.org, David Airlie <airlied@linux.ie>, linux-kernel@vger.kernel.org, dri-devel@lists.freedesktop.org, virtualization@lists.linux-foundation.org, keiichiw@chromium.org, Daniel Vetter <daniel@ffwll.ch>, marcheu@chromium.org, posciak@chromium.org, stevensd@chromium.org
 List-Id: virtualization@lists.linuxfoundation.org
 
-On Thu, 12 Sep 2019 17:40:12 +0800
-Jason Wang <jasowang@redhat.com> wrote:
-
-> Currently, except for the crate and remove. The rest fields of
-> mdev_parent_ops is just designed for vfio-mdev driver and may not help
-> for kernel mdev driver. So follow the device id support by previous
-> patch, this patch introduces device specific ops which points to
-> device specific ops (e.g vfio ops). This allows the future drivers
-> like virtio-mdev to implement its own device specific ops.
+On Thu, Sep 12, 2019 at 06:41:21PM +0900, Tomasz Figa wrote:
+> This patch is an early RFC to judge the direction we are following in
+> our virtualization efforts in Chrome OS. The purpose is to start a
+> discussion on how to handle buffer sharing between multiple virtio
+> devices.
 > 
-> Signed-off-by: Jason Wang <jasowang@redhat.com>
-> ---
->  drivers/gpu/drm/i915/gvt/kvmgt.c  | 14 +++---
->  drivers/s390/cio/vfio_ccw_ops.c   | 14 +++---
->  drivers/s390/crypto/vfio_ap_ops.c | 10 +++--
->  drivers/vfio/mdev/vfio_mdev.c     | 30 +++++++------
->  include/linux/mdev.h              | 72 ++++++++++++++++++-------------
->  samples/vfio-mdev/mbochs.c        | 16 ++++---
->  samples/vfio-mdev/mdpy.c          | 16 ++++---
->  samples/vfio-mdev/mtty.c          | 14 +++---
->  8 files changed, 113 insertions(+), 73 deletions(-)
+> On a side note, we are also working on a virtio video decoder interface
+> and implementation, with a V4L2 driver for Linux. Those will be posted
+> for review in the near future as well.
+> 
+> Any feedback will be appreciated! Thanks in advance.
+> 
+> ===
+> 
+> With the range of use cases for virtualization expanding, there is going
+> to be more virtio devices added to the ecosystem. Devices such as video
+> decoders, encoders, cameras, etc. typically work together with the
+> display and GPU in a pipeline manner, which can only be implemented
+> efficiently by sharing the buffers between producers and consumers.
+> 
+> Existing buffer management framework in Linux, such as the videobuf2
+> framework in V4L2, implements all the DMA-buf handling inside generic
+> code and do not expose any low level information about the buffers to
+> the drivers.
+> 
+> To seamlessly enable buffer sharing with drivers using such frameworks,
+> make the virtio-gpu driver expose the resource handle as the DMA address
+> of the buffer returned from the DMA-buf mapping operation. Arguably, the
+> resource handle is a kind of DMA address already, as it is the buffer
+> identifier that the device needs to access the backing memory, which is
+> exactly the same role a DMA address provides for native devices.
+> 
+> A virtio driver that does memory management fully on its own would have
+> code similar to following. The code is identical to what a regular
+> driver for real hardware would do to import a DMA-buf.
+> 
+> static int virtio_foo_get_resource_handle(struct virtio_foo *foo,
+> 					  struct dma_buf *dma_buf, u32 *id)
+> {
+> 	struct dma_buf_attachment *attach;
+> 	struct sg_table *sgt;
+> 	int ret = 0;
+> 
+> 	attach = dma_buf_attach(dma_buf, foo->dev);
+> 	if (IS_ERR(attach))
+> 		return PTR_ERR(attach);
+> 
+> 	sgt = dma_buf_map_attachment(attach, DMA_BIDIRECTIONAL);
+> 	if (IS_ERR(sgt)) {
+> 		ret = PTR_ERR(sgt);
+> 		goto err_detach;
+> 	}
+> 
+> 	if (sgt->nents != 1) {
+> 		ret = -EINVAL;
+> 		goto err_unmap;
+> 	}
+> 
+> 	*id = sg_dma_address(sgt->sgl);
 
-> diff --git a/include/linux/mdev.h b/include/linux/mdev.h
-> index f85045392120..3b8a76bc69cf 100644
-> --- a/include/linux/mdev.h
-> +++ b/include/linux/mdev.h
-> @@ -27,27 +27,9 @@ int mdev_set_iommu_device(struct device *dev, struct device *iommu_device);
->  struct device *mdev_get_iommu_device(struct device *dev);
+I agree with Gerd, this looks pretty horrible to me.
+
+The usual way we've done these kind of special dma-bufs is:
+
+- They all get allocated at the same place, through some library or
+  whatever.
+
+- You add a dma_buf_is_virtio(dma_buf) function, or maybe something that
+  also upcasts or returns NULL, which checks for dma_buf->ops.
+
+- Once you've upcasted at runtime by checking for ->ops, you can add
+  whatever fancy interfaces you want. Including a real&proper interface to
+  get at whatever underlying id you need to for real buffer sharing
+  between virtio devices.
+
+In a way virtio buffer/memory ids are a kind of private bus, entirely
+distinct from the dma_addr_t bus. So can't really stuff them under this
+same thing like we e.g. do with pci peer2peer.
+-Daniel
+
+> 
+> err_unmap:
+> 	dma_buf_unmap_attachment(attach, sgt, DMA_BIDIRECTIONAL);
+> err_detach:
+> 	dma_buf_detach(dma_buf, attach);
+> 
+> 	return ret;
+> }
+> 
+> On the other hand, a virtio driver that uses an existing kernel
+> framework to manage buffers would not need to explicitly handle anything
+> at all, as the framework part responsible for importing DMA-bufs would
+> already do the work. For example, a V4L2 driver using the videobuf2
+> framework would just call thee vb2_dma_contig_plane_dma_addr() function
+> to get what the above open-coded function would return.
+> 
+> Signed-off-by: Tomasz Figa <tfiga@chromium.org>
+> ---
+>  drivers/gpu/drm/virtio/virtgpu_drv.c   |  2 +
+>  drivers/gpu/drm/virtio/virtgpu_drv.h   |  4 ++
+>  drivers/gpu/drm/virtio/virtgpu_prime.c | 81 ++++++++++++++++++++++++++
+>  3 files changed, 87 insertions(+)
+> 
+> diff --git a/drivers/gpu/drm/virtio/virtgpu_drv.c b/drivers/gpu/drm/virtio/virtgpu_drv.c
+> index 0fc32fa0b3c0..ac095f813134 100644
+> --- a/drivers/gpu/drm/virtio/virtgpu_drv.c
+> +++ b/drivers/gpu/drm/virtio/virtgpu_drv.c
+> @@ -210,6 +210,8 @@ static struct drm_driver driver = {
+>  #endif
+>  	.prime_handle_to_fd = drm_gem_prime_handle_to_fd,
+>  	.prime_fd_to_handle = drm_gem_prime_fd_to_handle,
+> +	.gem_prime_export = virtgpu_gem_prime_export,
+> +	.gem_prime_import = virtgpu_gem_prime_import,
+>  	.gem_prime_get_sg_table = virtgpu_gem_prime_get_sg_table,
+>  	.gem_prime_import_sg_table = virtgpu_gem_prime_import_sg_table,
+>  	.gem_prime_vmap = virtgpu_gem_prime_vmap,
+> diff --git a/drivers/gpu/drm/virtio/virtgpu_drv.h b/drivers/gpu/drm/virtio/virtgpu_drv.h
+> index e28829661724..687cfce91885 100644
+> --- a/drivers/gpu/drm/virtio/virtgpu_drv.h
+> +++ b/drivers/gpu/drm/virtio/virtgpu_drv.h
+> @@ -367,6 +367,10 @@ void virtio_gpu_object_free_sg_table(struct virtio_gpu_object *bo);
+>  int virtio_gpu_object_wait(struct virtio_gpu_object *bo, bool no_wait);
 >  
->  /**
-> - * struct mdev_parent_ops - Structure to be registered for each parent device to
-> - * register the device to mdev module.
-> + * struct vfio_mdev_parent_ops - Structure to be registered for each
-> + * parent device to register the device to vfio-mdev module.
->   *
-> - * @owner:		The module owner.
-> - * @dev_attr_groups:	Attributes of the parent device.
-> - * @mdev_attr_groups:	Attributes of the mediated device.
-> - * @supported_type_groups: Attributes to define supported types. It is mandatory
-> - *			to provide supported types.
-> - * @create:		Called to allocate basic resources in parent device's
-> - *			driver for a particular mediated device. It is
-> - *			mandatory to provide create ops.
-> - *			@kobj: kobject of type for which 'create' is called.
-> - *			@mdev: mdev_device structure on of mediated device
-> - *			      that is being created
-> - *			Returns integer: success (0) or error (< 0)
-> - * @remove:		Called to free resources in parent device's driver for a
-> - *			a mediated device. It is mandatory to provide 'remove'
-> - *			ops.
-> - *			@mdev: mdev_device device structure which is being
-> - *			       destroyed
-> - *			Returns integer: success (0) or error (< 0)
->   * @open:		Open mediated device.
->   *			@mdev: mediated device.
->   *			Returns integer: success (0) or error (< 0)
-> @@ -72,6 +54,43 @@ struct device *mdev_get_iommu_device(struct device *dev);
->   * @mmap:		mmap callback
->   *			@mdev: mediated device structure
->   *			@vma: vma structure
-> + */
-> +struct vfio_mdev_parent_ops {
-> +	int     (*open)(struct mdev_device *mdev);
-> +	void    (*release)(struct mdev_device *mdev);
-> +	ssize_t (*read)(struct mdev_device *mdev, char __user *buf,
-> +			size_t count, loff_t *ppos);
-> +	ssize_t (*write)(struct mdev_device *mdev, const char __user *buf,
-> +			 size_t count, loff_t *ppos);
-> +	long	(*ioctl)(struct mdev_device *mdev, unsigned int cmd,
-> +			 unsigned long arg);
-> +	int	(*mmap)(struct mdev_device *mdev, struct vm_area_struct *vma);
+>  /* virtgpu_prime.c */
+> +struct dma_buf *virtgpu_gem_prime_export(struct drm_gem_object *obj,
+> +					 int flags);
+> +struct drm_gem_object *virtgpu_gem_prime_import(struct drm_device *dev,
+> +						struct dma_buf *buf);
+>  struct sg_table *virtgpu_gem_prime_get_sg_table(struct drm_gem_object *obj);
+>  struct drm_gem_object *virtgpu_gem_prime_import_sg_table(
+>  	struct drm_device *dev, struct dma_buf_attachment *attach,
+> diff --git a/drivers/gpu/drm/virtio/virtgpu_prime.c b/drivers/gpu/drm/virtio/virtgpu_prime.c
+> index dc642a884b88..562eb1a2ed5b 100644
+> --- a/drivers/gpu/drm/virtio/virtgpu_prime.c
+> +++ b/drivers/gpu/drm/virtio/virtgpu_prime.c
+> @@ -22,6 +22,9 @@
+>   * Authors: Andreas Pokorny
+>   */
+>  
+> +#include <linux/dma-buf.h>
+> +#include <linux/dma-direction.h>
+> +
+>  #include <drm/drm_prime.h>
+>  
+>  #include "virtgpu_drv.h"
+> @@ -30,6 +33,84 @@
+>   * device that might share buffers with virtgpu
+>   */
+>  
+> +static struct sg_table *
+> +virtgpu_gem_map_dma_buf(struct dma_buf_attachment *attach,
+> +			enum dma_data_direction dir)
+> +{
+> +	struct drm_gem_object *obj = attach->dmabuf->priv;
+> +	struct virtio_gpu_object *bo = gem_to_virtio_gpu_obj(obj);
+> +	struct sg_table *sgt;
+> +	int ret;
+> +
+> +	sgt = kzalloc(sizeof(*sgt), GFP_KERNEL);
+> +	if (!sgt)
+> +		return ERR_PTR(-ENOMEM);
+> +
+> +	ret = sg_alloc_table(sgt, 1, GFP_KERNEL);
+> +	if (ret) {
+> +		kfree(sgt);
+> +		return ERR_PTR(-ENOMEM);
+> +	}
+> +
+> +	sg_dma_address(sgt->sgl) = bo->hw_res_handle;
+> +	sg_dma_len(sgt->sgl) = obj->size;
+> +	sgt->nents = 1;
+> +
+> +	return sgt;
+> +}
+> +
+> +static void virtgpu_gem_unmap_dma_buf(struct dma_buf_attachment *attach,
+> +				      struct sg_table *sgt,
+> +				      enum dma_data_direction dir)
+> +{
+> +	sg_free_table(sgt);
+> +	kfree(sgt);
+> +}
+> +
+> +static const struct dma_buf_ops virtgpu_dmabuf_ops =  {
+> +	.cache_sgt_mapping = true,
+> +	.attach = drm_gem_map_attach,
+> +	.detach = drm_gem_map_detach,
+> +	.map_dma_buf = virtgpu_gem_map_dma_buf,
+> +	.unmap_dma_buf = virtgpu_gem_unmap_dma_buf,
+> +	.release = drm_gem_dmabuf_release,
+> +	.mmap = drm_gem_dmabuf_mmap,
+> +	.vmap = drm_gem_dmabuf_vmap,
+> +	.vunmap = drm_gem_dmabuf_vunmap,
 > +};
 > +
-> +/**
-> + * struct mdev_parent_ops - Structure to be registered for each parent device to
-> + * register the device to mdev module.
-> + *
-> + * @owner:		The module owner.
-> + * @dev_attr_groups:	Attributes of the parent device.
-> + * @mdev_attr_groups:	Attributes of the mediated device.
-> + * @supported_type_groups: Attributes to define supported types. It is mandatory
-> + *			to provide supported types.
-> + * @create:		Called to allocate basic resources in parent device's
-> + *			driver for a particular mediated device. It is
-> + *			mandatory to provide create ops.
-> + *			@kobj: kobject of type for which 'create' is called.
-> + *			@mdev: mdev_device structure on of mediated device
-> + *			      that is being created
-> + *			Returns integer: success (0) or error (< 0)
-> + * @remove:		Called to free resources in parent device's driver for a
-> + *			a mediated device. It is mandatory to provide 'remove'
-> + *			ops.
-> + *			@mdev: mdev_device device structure which is being
-> + *			       destroyed
-> + *			Returns integer: success (0) or error (< 0)
-> + * @device_ops:         Device specific emulation callback.
-> + *
->   * Parent device that support mediated device should be registered with mdev
->   * module with mdev_parent_ops structure.
->   **/
-> @@ -83,15 +102,7 @@ struct mdev_parent_ops {
->  
->  	int     (*create)(struct kobject *kobj, struct mdev_device *mdev);
->  	int     (*remove)(struct mdev_device *mdev);
-> -	int     (*open)(struct mdev_device *mdev);
-> -	void    (*release)(struct mdev_device *mdev);
-> -	ssize_t (*read)(struct mdev_device *mdev, char __user *buf,
-> -			size_t count, loff_t *ppos);
-> -	ssize_t (*write)(struct mdev_device *mdev, const char __user *buf,
-> -			 size_t count, loff_t *ppos);
-> -	long	(*ioctl)(struct mdev_device *mdev, unsigned int cmd,
-> -			 unsigned long arg);
-> -	int	(*mmap)(struct mdev_device *mdev, struct vm_area_struct *vma);
-> +	const void *device_ops;
->  };
->  
->  /* interface for exporting mdev supported type attributes */
+> +struct dma_buf *virtgpu_gem_prime_export(struct drm_gem_object *obj,
+> +					 int flags)
+> +{
+> +	struct dma_buf *buf;
+> +
+> +	buf = drm_gem_prime_export(obj, flags);
+> +	if (!IS_ERR(buf))
+> +		buf->ops = &virtgpu_dmabuf_ops;
+> +
+> +	return buf;
+> +}
+> +
+> +struct drm_gem_object *virtgpu_gem_prime_import(struct drm_device *dev,
+> +						struct dma_buf *buf)
+> +{
+> +	struct drm_gem_object *obj;
+> +
+> +	if (buf->ops == &virtgpu_dmabuf_ops) {
+> +		obj = buf->priv;
+> +		if (obj->dev == dev) {
+> +			/*
+> +			 * Importing dmabuf exported from our own gem increases
+> +			 * refcount on gem itself instead of f_count of dmabuf.
+> +			 */
+> +			drm_gem_object_get(obj);
+> +			return obj;
+> +		}
+> +	}
+> +
+> +	return drm_gem_prime_import(dev, buf);
+> +}
+> +
+>  struct sg_table *virtgpu_gem_prime_get_sg_table(struct drm_gem_object *obj)
+>  {
+>  	struct virtio_gpu_object *bo = gem_to_virtio_gpu_obj(obj);
+> -- 
+> 2.23.0.237.gc6a4ce50a0-goog
+> 
 
-This basically looks like a split between stuff that is always
-triggered from userspace (create and the like) and stuff that is
-triggered from userspace for vfio mdevs, but not necessarily for other
-mdevs. Seems reasonable at a glance.
-
-If we decide to go forward with this, we should also update the
-documentation (split out stuff from driver-api/vfio-mediated-device.rst
-etc.)
+-- 
+Daniel Vetter
+Software Engineer, Intel Corporation
+http://blog.ffwll.ch
