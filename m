@@ -1,17 +1,15 @@
-From: "Michael S. Tsirkin" <mst@redhat.com>
-Subject: Re: [RFC v4 0/3] vhost: introduce mdev based hardware backend
-Date: Wed, 18 Sep 2019 10:32:00 -0400
-Message-ID: <20190918102923-mutt-send-email-mst__42020.5195712455$1568817146$gmane$org@kernel.org>
-References: <20190917010204.30376-1-tiwei.bie@intel.com>
-	<993841ed-942e-c90b-8016-8e7dc76bf13a@redhat.com>
-	<20190917105801.GA24855@___>
-	<fa6957f3-19ad-f351-8c43-65bc8342b82e@redhat.com>
+From: Will Deacon <will@kernel.org>
+Subject: Re: [PATCH 1/5] iommu: Implement iommu_put_resv_regions_simple()
+Date: Wed, 18 Sep 2019 16:37:38 +0100
+Message-ID: <20190918153737.dea2z5dddhuus25g__27343.9145459392$1568821075$gmane$org@willie-the-truck>
+References: <20190829111752.17513-1-thierry.reding@gmail.com>
+	<20190829111752.17513-2-thierry.reding@gmail.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="utf-8"
-Content-Transfer-Encoding: base64
+Content-Type: text/plain; charset="us-ascii"
+Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
 Content-Disposition: inline
-In-Reply-To: <fa6957f3-19ad-f351-8c43-65bc8342b82e@redhat.com>
+In-Reply-To: <20190829111752.17513-2-thierry.reding@gmail.com>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -21,147 +19,52 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Jason Wang <jasowang@redhat.com>
-Cc: kvm@vger.kernel.org, linux-kernel@vger.kernel.org, zhihong.wang@intel.com, maxime.coquelin@redhat.com, virtualization@lists.linux-foundation.org, netdev@vger.kernel.org, lingshan.zhu@intel.com
+To: Thierry Reding <thierry.reding@gmail.com>
+Cc: Jean-Philippe Brucker <jean-philippe@linaro.org>, Robin Murphy <robin.murphy@arm.com>, Joerg Roedel <joro@8bytes.org>, linux-kernel@vger.kernel.org, virtualization@lists.linux-foundation.org, iommu@lists.linux-foundation.org, David Woodhouse <dwmw2@infradead.org>, linux-arm-kernel@lists.infradead.org
 List-Id: virtualization@lists.linuxfoundation.org
 
-T24gV2VkLCBTZXAgMTgsIDIwMTkgYXQgMDE6NTE6MjFQTSArMDgwMCwgSmFzb24gV2FuZyB3cm90
-ZToKPiAKPiBPbiAyMDE5LzkvMTcg5LiL5Y2INjo1OCwgVGl3ZWkgQmllIHdyb3RlOgo+ID4gT24g
-VHVlLCBTZXAgMTcsIDIwMTkgYXQgMTE6MzI6MDNBTSArMDgwMCwgSmFzb24gV2FuZyB3cm90ZToK
-PiA+ID4gT24gMjAxOS85LzE3IOS4iuWNiDk6MDIsIFRpd2VpIEJpZSB3cm90ZToKPiA+ID4gPiBU
-aGlzIFJGQyBpcyB0byBkZW1vbnN0cmF0ZSBiZWxvdyBpZGVhcywKPiA+ID4gPiAKPiA+ID4gPiBh
-KSBCdWlsZCB2aG9zdC1tZGV2IG9uIHRvcCBvZiB0aGUgc2FtZSBhYnN0cmFjdGlvbiBkZWZpbmVk
-IGluCj4gPiA+ID4gICAgICB0aGUgdmlydGlvLW1kZXYgc2VyaWVzIFsxXTsKPiA+ID4gPiAKPiA+
-ID4gPiBiKSBJbnRyb2R1Y2UgL2Rldi92aG9zdC1tZGV2IHRvIGRvIHZob3N0IGlvY3RscyBhbmQg
-c3VwcG9ydAo+ID4gPiA+ICAgICAgc2V0dGluZyBtZGV2IGRldmljZSBhcyBiYWNrZW5kOwo+ID4g
-PiA+IAo+ID4gPiA+IE5vdyB0aGUgdXNlcnNwYWNlIEFQSSBsb29rcyBsaWtlIHRoaXM6Cj4gPiA+
-ID4gCj4gPiA+ID4gLSBVc2Vyc3BhY2UgZ2VuZXJhdGVzIGEgY29tcGF0aWJsZSBtZGV2IGRldmlj
-ZTsKPiA+ID4gPiAKPiA+ID4gPiAtIFVzZXJzcGFjZSBvcGVucyB0aGlzIG1kZXYgZGV2aWNlIHdp
-dGggVkZJTyBBUEkgKGluY2x1ZGluZwo+ID4gPiA+ICAgICBkb2luZyBJT01NVSBwcm9ncmFtbWlu
-ZyBmb3IgdGhpcyBtZGV2IGRldmljZSB3aXRoIFZGSU8ncwo+ID4gPiA+ICAgICBjb250YWluZXIv
-Z3JvdXAgYmFzZWQgaW50ZXJmYWNlKTsKPiA+ID4gPiAKPiA+ID4gPiAtIFVzZXJzcGFjZSBvcGVu
-cyAvZGV2L3Zob3N0LW1kZXYgYW5kIGdldHMgdmhvc3QgZmQ7Cj4gPiA+ID4gCj4gPiA+ID4gLSBV
-c2Vyc3BhY2UgdXNlcyB2aG9zdCBpb2N0bHMgdG8gc2V0dXAgdmhvc3QgKHVzZXJzcGFjZSBzaG91
-bGQKPiA+ID4gPiAgICAgZG8gVkhPU1RfTURFVl9TRVRfQkFDS0VORCBpb2N0bCB3aXRoIFZGSU8g
-Z3JvdXAgZmQgYW5kIGRldmljZQo+ID4gPiA+ICAgICBmZCBmaXJzdCBiZWZvcmUgZG9pbmcgb3Ro
-ZXIgdmhvc3QgaW9jdGxzKTsKPiA+ID4gPiAKPiA+ID4gPiBPbmx5IGNvbXBpbGUgdGVzdCBoYXMg
-YmVlbiBkb25lIGZvciB0aGlzIHNlcmllcyBmb3Igbm93Lgo+ID4gPiAKPiA+ID4gSGF2ZSBhIGhh
-cmQgdGhvdWdodCBvbiB0aGUgYXJjaGl0ZWN0dXJlOgo+ID4gVGhhbmtzIGEgbG90ISBEbyBhcHBy
-ZWNpYXRlIGl0IQo+ID4gCj4gPiA+IDEpIENyZWF0ZSBhIHZob3N0IGNoYXIgZGV2aWNlIGFuZCBw
-YXNzIHZmaW8gbWRldiBkZXZpY2UgZmQgdG8gaXQgYXMgYQo+ID4gPiBiYWNrZW5kIGFuZCB0cmFu
-c2xhdGUgdmhvc3QtbWRldiBpb2N0bCB0byB2aXJ0aW8gbWRldiB0cmFuc3BvcnQgKGUuZwo+ID4g
-PiByZWFkL3dyaXRlKS4gRE1BIHdhcyBkb25lIHRocm91Z2ggdGhlIFZGSU8gRE1BIG1hcHBpbmcg
-b24gdGhlIGNvbnRhaW5lciB0aGF0Cj4gPiA+IGlzIGF0dGFjaGVkLgo+ID4gWWVhaCwgdGhhdCdz
-IHdoYXQgd2UgYXJlIGRvaW5nIGluIHRoaXMgc2VyaWVzLgo+ID4gCj4gPiA+IFdlIGhhdmUgdHdv
-IG1vcmUgY2hvaWNlczoKPiA+ID4gCj4gPiA+IDIpIFVzZSB2ZmlvLW1kZXYgYnV0IGRvIG5vdCBj
-cmVhdGUgdmhvc3QtbWRldiBkZXZpY2UsIGluc3RlYWQsIGp1c3QKPiA+ID4gaW1wbGVtZW50IHZo
-b3N0IGlvY3RsIG9uIHZmaW9fZGV2aWNlX29wcywgYW5kIHRyYW5zbGF0ZSB0aGVtIGludG8KPiA+
-ID4gdmlydGlvLW1kZXYgdHJhbnNwb3J0IG9yIGp1c3QgcGFzcyBpb2N0bCB0byBwYXJlbnQuCj4g
-PiBZZWFoLiBJbnN0ZWFkIG9mIGludHJvZHVjaW5nIC9kZXYvdmhvc3QtbWRldiBjaGFyIGRldmlj
-ZSwgZG8KPiA+IHZob3N0IGlvY3RscyBvbiBWRklPIGRldmljZSBmZCBkaXJlY3RseS4gVGhhdCdz
-IHdoYXQgd2UgZGlkCj4gPiBpbiBSRkMgdjMuCj4gPiAKPiA+ID4gMykgRG9uJ3QgdXNlIHZmaW8t
-bWRldiwgY3JlYXRlIGEgbmV3IHZob3N0LW1kZXYgZHJpdmVyLCBkdXJpbmcgcHJvYmUgc3RpbGwK
-PiA+ID4gdHJ5IHRvIGFkZCBkZXYgdG8gdmZpbyBncm91cCBhbmQgdGFsayB0byBwYXJlbnQgd2l0
-aCBkZXZpY2Ugc3BlY2lmaWMgb3BzCj4gPiBJZiBteSB1bmRlcnN0YW5kaW5nIGlzIGNvcnJlY3Qs
-IHRoaXMgbWVhbnMgd2UgbmVlZCB0byBpbnRyb2R1Y2UKPiA+IGEgbmV3IFZGSU8gZGV2aWNlIGRy
-aXZlciB0byByZXBsYWNlIHRoZSBleGlzdGluZyB2ZmlvLW1kZXYgZHJpdmVyCj4gPiBpbiBvdXIg
-Y2FzZS4gQmVsb3cgaXMgYSBxdWljayBkcmFmdCBqdXN0IHRvIHNob3cgbXkgdW5kZXJzdGFuZGlu
-ZzoKPiA+IAo+ID4gI2luY2x1ZGUgPGxpbnV4L2luaXQuaD4KPiA+ICNpbmNsdWRlIDxsaW51eC9t
-b2R1bGUuaD4KPiA+ICNpbmNsdWRlIDxsaW51eC9kZXZpY2UuaD4KPiA+ICNpbmNsdWRlIDxsaW51
-eC9rZXJuZWwuaD4KPiA+ICNpbmNsdWRlIDxsaW51eC9zbGFiLmg+Cj4gPiAjaW5jbHVkZSA8bGlu
-dXgvdmZpby5oPgo+ID4gI2luY2x1ZGUgPGxpbnV4L21kZXYuaD4KPiA+IAo+ID4gI2luY2x1ZGUg
-Im1kZXZfcHJpdmF0ZS5oIgo+ID4gCj4gPiAvKiBYWFg6IHdlIG5lZWQgYSBwcm9wZXIgd2F5IHRv
-IGluY2x1ZGUgYmVsb3cgdmhvc3QgaGVhZGVyLiAqLwo+ID4gI2luY2x1ZGUgIi4uLy4uL3Zob3N0
-L3Zob3N0LmgiCj4gPiAKPiA+IHN0YXRpYyBpbnQgdmZpb192aG9zdF9tZGV2X29wZW4odm9pZCAq
-ZGV2aWNlX2RhdGEpCj4gPiB7Cj4gPiAJaWYgKCF0cnlfbW9kdWxlX2dldChUSElTX01PRFVMRSkp
-Cj4gPiAJCXJldHVybiAtRU5PREVWOwo+ID4gCj4gPiAJLyogLi4uICovCj4gPiAJdmhvc3RfZGV2
-X2luaXQoLi4uKTsKPiA+IAo+ID4gCXJldHVybiAwOwo+ID4gfQo+ID4gCj4gPiBzdGF0aWMgdm9p
-ZCB2ZmlvX3Zob3N0X21kZXZfcmVsZWFzZSh2b2lkICpkZXZpY2VfZGF0YSkKPiA+IHsKPiA+IAkv
-KiAuLi4gKi8KPiA+IAltb2R1bGVfcHV0KFRISVNfTU9EVUxFKTsKPiA+IH0KPiA+IAo+ID4gc3Rh
-dGljIGxvbmcgdmZpb192aG9zdF9tZGV2X3VubG9ja2VkX2lvY3RsKHZvaWQgKmRldmljZV9kYXRh
-LAo+ID4gCQkJCQkgICB1bnNpZ25lZCBpbnQgY21kLCB1bnNpZ25lZCBsb25nIGFyZykKPiA+IHsK
-PiA+IAlzdHJ1Y3QgbWRldl9kZXZpY2UgKm1kZXYgPSBkZXZpY2VfZGF0YTsKPiA+IAlzdHJ1Y3Qg
-bWRldl9wYXJlbnQgKnBhcmVudCA9IG1kZXYtPnBhcmVudDsKPiA+IAo+ID4gCS8qCj4gPiAJICog
-VXNlIHZob3N0IGlvY3Rscy4KPiA+IAkgKgo+ID4gCSAqIFdlIHdpbGwgaGF2ZSBhIGRpZmZlcmVu
-dCBwYXJlbnRfb3BzIGRlc2lnbi4KPiA+IAkgKiBBbmQgcG90ZW50aWFsbHksIHdlIGNhbiBzaGFy
-ZSB0aGUgc2FtZSBwYXJlbnRfb3BzCj4gPiAJICogd2l0aCB2aXJ0aW9fbWRldi4KPiA+IAkgKi8K
-PiA+IAlzd2l0Y2ggKGNtZCkgewo+ID4gCWNhc2UgVkhPU1RfR0VUX0ZFQVRVUkVTOgo+ID4gCQlw
-YXJlbnQtPm9wcy0+Z2V0X2ZlYXR1cmVzKG1kZXYsIC4uLik7Cj4gPiAJCWJyZWFrOwo+ID4gCS8q
-IC4uLiAqLwo+ID4gCX0KPiA+IAo+ID4gCXJldHVybiAwOwo+ID4gfQo+ID4gCj4gPiBzdGF0aWMg
-c3NpemVfdCB2ZmlvX3Zob3N0X21kZXZfcmVhZCh2b2lkICpkZXZpY2VfZGF0YSwgY2hhciBfX3Vz
-ZXIgKmJ1ZiwKPiA+IAkJCQkgICAgc2l6ZV90IGNvdW50LCBsb2ZmX3QgKnBwb3MpCj4gPiB7Cj4g
-PiAJLyogLi4uICovCj4gPiAJcmV0dXJuIDA7Cj4gPiB9Cj4gPiAKPiA+IHN0YXRpYyBzc2l6ZV90
-IHZmaW9fdmhvc3RfbWRldl93cml0ZSh2b2lkICpkZXZpY2VfZGF0YSwgY29uc3QgY2hhciBfX3Vz
-ZXIgKmJ1ZiwKPiA+IAkJCQkgICAgIHNpemVfdCBjb3VudCwgbG9mZl90ICpwcG9zKQo+ID4gewo+
-ID4gCS8qIC4uLiAqLwo+ID4gCXJldHVybiAwOwo+ID4gfQo+ID4gCj4gPiBzdGF0aWMgaW50IHZm
-aW9fdmhvc3RfbWRldl9tbWFwKHZvaWQgKmRldmljZV9kYXRhLCBzdHJ1Y3Qgdm1fYXJlYV9zdHJ1
-Y3QgKnZtYSkKPiA+IHsKPiA+IAkvKiAuLi4gKi8KPiA+IAlyZXR1cm4gMDsKPiA+IH0KPiA+IAo+
-ID4gc3RhdGljIGNvbnN0IHN0cnVjdCB2ZmlvX2RldmljZV9vcHMgdmZpb192aG9zdF9tZGV2X2Rl
-dl9vcHMgPSB7Cj4gPiAJLm5hbWUJCT0gInZmaW8tdmhvc3QtbWRldiIsCj4gPiAJLm9wZW4JCT0g
-dmZpb192aG9zdF9tZGV2X29wZW4sCj4gPiAJLnJlbGVhc2UJPSB2ZmlvX3Zob3N0X21kZXZfcmVs
-ZWFzZSwKPiA+IAkuaW9jdGwJCT0gdmZpb192aG9zdF9tZGV2X3VubG9ja2VkX2lvY3RsLAo+ID4g
-CS5yZWFkCQk9IHZmaW9fdmhvc3RfbWRldl9yZWFkLAo+ID4gCS53cml0ZQkJPSB2ZmlvX3Zob3N0
-X21kZXZfd3JpdGUsCj4gPiAJLm1tYXAJCT0gdmZpb192aG9zdF9tZGV2X21tYXAsCj4gPiB9Owo+
-ID4gCj4gPiBzdGF0aWMgaW50IHZmaW9fdmhvc3RfbWRldl9wcm9iZShzdHJ1Y3QgZGV2aWNlICpk
-ZXYpCj4gPiB7Cj4gPiAJc3RydWN0IG1kZXZfZGV2aWNlICptZGV2ID0gdG9fbWRldl9kZXZpY2Uo
-ZGV2KTsKPiA+IAo+ID4gCS8qIC4uLiAqLwo+ID4gCXJldHVybiB2ZmlvX2FkZF9ncm91cF9kZXYo
-ZGV2LCAmdmZpb192aG9zdF9tZGV2X2Rldl9vcHMsIG1kZXYpOwo+ID4gfQo+ID4gCj4gPiBzdGF0
-aWMgdm9pZCB2ZmlvX3Zob3N0X21kZXZfcmVtb3ZlKHN0cnVjdCBkZXZpY2UgKmRldikKPiA+IHsK
-PiA+IAkvKiAuLi4gKi8KPiA+IAl2ZmlvX2RlbF9ncm91cF9kZXYoZGV2KTsKPiA+IH0KPiA+IAo+
-ID4gc3RhdGljIHN0cnVjdCBtZGV2X2RyaXZlciB2ZmlvX3Zob3N0X21kZXZfZHJpdmVyID0gewo+
-ID4gCS5uYW1lCT0gInZmaW9fdmhvc3RfbWRldiIsCj4gPiAJLnByb2JlCT0gdmZpb192aG9zdF9t
-ZGV2X3Byb2JlLAo+ID4gCS5yZW1vdmUJPSB2ZmlvX3Zob3N0X21kZXZfcmVtb3ZlLAo+ID4gfTsK
-PiA+IAo+ID4gc3RhdGljIGludCBfX2luaXQgdmZpb192aG9zdF9tZGV2X2luaXQodm9pZCkKPiA+
-IHsKPiA+IAlyZXR1cm4gbWRldl9yZWdpc3Rlcl9kcml2ZXIoJnZmaW9fdmhvc3RfbWRldl9kcml2
-ZXIsIFRISVNfTU9EVUxFKTsKPiA+IH0KPiA+IG1vZHVsZV9pbml0KHZmaW9fdmhvc3RfbWRldl9p
-bml0KQo+ID4gCj4gPiBzdGF0aWMgdm9pZCBfX2V4aXQgdmZpb192aG9zdF9tZGV2X2V4aXQodm9p
-ZCkKPiA+IHsKPiA+IAltZGV2X3VucmVnaXN0ZXJfZHJpdmVyKCZ2ZmlvX3Zob3N0X21kZXZfZHJp
-dmVyKTsKPiA+IH0KPiA+IG1vZHVsZV9leGl0KHZmaW9fdmhvc3RfbWRldl9leGl0KQo+IAo+IAo+
-IFllcywgc29tZXRoaW5nIGxpa2UgdGhpcyBiYXNpY2FsbHkuCj4gCj4gCj4gPiA+IFNvIEkgaGF2
-ZSBzb21lIHF1ZXN0aW9uczoKPiA+ID4gCj4gPiA+IDEpIENvbXBhcmVkIHRvIG1ldGhvZCAyLCB3
-aGF0J3MgdGhlIGFkdmFudGFnZSBvZiBjcmVhdGluZyBhIG5ldyB2aG9zdCBjaGFyCj4gPiA+IGRl
-dmljZT8gSSBndWVzcyBpdCdzIGZvciBrZWVwIHRoZSBBUEkgY29tcGF0aWJpbGl0eT8KPiA+IE9u
-ZSBiZW5lZml0IGlzIHRoYXQgd2UgY2FuIGF2b2lkIGRvaW5nIHZob3N0IGlvY3RscyBvbgo+ID4g
-VkZJTyBkZXZpY2UgZmQuCj4gCj4gCj4gWWVzLCBidXQgYW55IGJlbmVmaXQgZnJvbSBkb2luZyB0
-aGlzPwoKSXQgZG9lcyBzZWVtIGEgYml0IG1vcmUgbW9kdWxhciwgYnV0IGl0J3MgY2VydGFpbmx5
-IG5vdCBhIGJpZyBkZWFsLgoKPiA+IAo+ID4gPiAyKSBGb3IgbWV0aG9kIDIsIGlzIHRoZXJlIGFu
-eSBlYXN5IHdheSBmb3IgdXNlci9hZG1pbiB0byBkaXN0aW5ndWlzaCBlLmcKPiA+ID4gb3JkaW5h
-cnkgdmZpby1tZGV2IGZvciB2aG9zdCBmcm9tIG9yZGluYXJ5IHZmaW8tbWRldj8KPiA+IEkgdGhp
-bmsgZGV2aWNlLWFwaSBjb3VsZCBiZSBhIGNob2ljZS4KPiAKPiAKPiBPay4KPiAKPiAKPiA+IAo+
-ID4gPiBJIHNhdyB5b3UgaW50cm9kdWNlCj4gPiA+IG9wcyBtYXRjaGluZyBoZWxwZXIgYnV0IGl0
-J3Mgbm90IGZyaWVuZGx5IHRvIG1hbmFnZW1lbnQuCj4gPiBUaGUgb3BzIG1hdGNoaW5nIGhlbHBl
-ciBpcyBqdXN0IHRvIGNoZWNrIHdoZXRoZXIgYSBnaXZlbgo+ID4gdmZpby1kZXZpY2UgaXMgYmFz
-ZWQgb24gYSBtZGV2IGRldmljZS4KPiA+IAo+ID4gPiAzKSBBIGRyYXdiYWNrIG9mIDEpIGFuZCAy
-KSBpcyB0aGF0IGl0IG11c3QgZm9sbG93IHZmaW9fZGV2aWNlX29wcyB0aGF0Cj4gPiA+IGFzc3Vt
-ZXMgdGhlIHBhcmFtZXRlciBjb21lcyBmcm9tIHVzZXJzcGFjZSwgaXQgcHJldmVudHMgc3VwcG9y
-dCBrZXJuZWwKPiA+ID4gdmlydGlvIGRyaXZlcnMuCj4gPiA+IAo+ID4gPiA0KSBTbyBjb21lcyB0
-aGUgaWRlYSBvZiBtZXRob2QgMywgc2luY2UgaXQgcmVnaXN0ZXIgYSBuZXcgdmhvc3QtbWRldiBk
-cml2ZXIsCj4gPiA+IHdlIGNhbiB1c2UgZGV2aWNlIHNwZWNpZmljIG9wcyBpbnN0ZWFkIG9mIFZG
-SU8gb25lcywgdGhlbiB3ZSBjYW4gaGF2ZSBhCj4gPiA+IGNvbW1vbiBBUEkgYmV0d2VlbiB2RFBB
-IHBhcmVudCBhbmQgdmhvc3QtbWRldi92aXJ0aW8tbWRldiBkcml2ZXJzLgo+ID4gQXMgdGhlIGFi
-b3ZlIGRyYWZ0IHNob3dzLCB0aGlzIHJlcXVpcmVzIGludHJvZHVjaW5nIGEgbmV3Cj4gPiBWRklP
-IGRldmljZSBkcml2ZXIuIEkgdGhpbmsgQWxleCdzIG9waW5pb24gbWF0dGVycyBoZXJlLgo+IAo+
-IAo+IFllcywgaXQgaXMuCj4gCj4gVGhhbmtzCj4gCj4gCj4gPiBUaGFua3MsCj4gPiBUaXdlaQo+
-ID4gCj4gPiA+IFdoYXQncyB5b3VyIHRob3VnaHRzPwo+ID4gPiAKPiA+ID4gVGhhbmtzCj4gPiA+
-IAo+ID4gPiAKPiA+ID4gPiBSRkN2MzogaHR0cHM6Ly9wYXRjaHdvcmsua2VybmVsLm9yZy9wYXRj
-aC8xMTExNzc4NS8KPiA+ID4gPiAKPiA+ID4gPiBbMV0gaHR0cHM6Ly9sa21sLm9yZy9sa21sLzIw
-MTkvOS8xMC8xMzUKPiA+ID4gPiAKPiA+ID4gPiBUaXdlaSBCaWUgKDMpOgo+ID4gPiA+ICAgICB2
-ZmlvOiBzdXBwb3J0IGdldHRpbmcgdmZpbyBkZXZpY2UgZnJvbSBkZXZpY2UgZmQKPiA+ID4gPiAg
-ICAgdmZpbzogc3VwcG9ydCBjaGVja2luZyB2ZmlvIGRyaXZlciBieSBkZXZpY2Ugb3BzCj4gPiA+
-ID4gICAgIHZob3N0OiBpbnRyb2R1Y2UgbWRldiBiYXNlZCBoYXJkd2FyZSBiYWNrZW5kCj4gPiA+
-ID4gCj4gPiA+ID4gICAgZHJpdmVycy92ZmlvL21kZXYvdmZpb19tZGV2LmMgICAgfCAgIDMgKy0K
-PiA+ID4gPiAgICBkcml2ZXJzL3ZmaW8vdmZpby5jICAgICAgICAgICAgICB8ICAzMiArKysKPiA+
-ID4gPiAgICBkcml2ZXJzL3Zob3N0L0tjb25maWcgICAgICAgICAgICB8ICAgOSArCj4gPiA+ID4g
-ICAgZHJpdmVycy92aG9zdC9NYWtlZmlsZSAgICAgICAgICAgfCAgIDMgKwo+ID4gPiA+ICAgIGRy
-aXZlcnMvdmhvc3QvbWRldi5jICAgICAgICAgICAgIHwgNDYyICsrKysrKysrKysrKysrKysrKysr
-KysrKysrKysrKysKPiA+ID4gPiAgICBkcml2ZXJzL3Zob3N0L3Zob3N0LmMgICAgICAgICAgICB8
-ICAzOSArKy0KPiA+ID4gPiAgICBkcml2ZXJzL3Zob3N0L3Zob3N0LmggICAgICAgICAgICB8ICAg
-NiArCj4gPiA+ID4gICAgaW5jbHVkZS9saW51eC92ZmlvLmggICAgICAgICAgICAgfCAgMTEgKwo+
-ID4gPiA+ICAgIGluY2x1ZGUvdWFwaS9saW51eC92aG9zdC5oICAgICAgIHwgIDEwICsKPiA+ID4g
-PiAgICBpbmNsdWRlL3VhcGkvbGludXgvdmhvc3RfdHlwZXMuaCB8ICAgNSArCj4gPiA+ID4gICAg
-MTAgZmlsZXMgY2hhbmdlZCwgNTczIGluc2VydGlvbnMoKyksIDcgZGVsZXRpb25zKC0pCj4gPiA+
-ID4gICAgY3JlYXRlIG1vZGUgMTAwNjQ0IGRyaXZlcnMvdmhvc3QvbWRldi5jCj4gPiA+ID4gCl9f
-X19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fClZpcnR1YWxpemF0
-aW9uIG1haWxpbmcgbGlzdApWaXJ0dWFsaXphdGlvbkBsaXN0cy5saW51eC1mb3VuZGF0aW9uLm9y
-ZwpodHRwczovL2xpc3RzLmxpbnV4Zm91bmRhdGlvbi5vcmcvbWFpbG1hbi9saXN0aW5mby92aXJ0
-dWFsaXphdGlvbg==
+On Thu, Aug 29, 2019 at 01:17:48PM +0200, Thierry Reding wrote:
+> From: Thierry Reding <treding@nvidia.com>
+> 
+> Implement a generic function for removing reserved regions. This can be
+> used by drivers that don't do anything fancy with these regions other
+> than allocating memory for them.
+> 
+> Signed-off-by: Thierry Reding <treding@nvidia.com>
+> ---
+>  drivers/iommu/iommu.c | 19 +++++++++++++++++++
+>  include/linux/iommu.h |  2 ++
+>  2 files changed, 21 insertions(+)
+> 
+> diff --git a/drivers/iommu/iommu.c b/drivers/iommu/iommu.c
+> index 0f585b614657..73a2a6b13507 100644
+> --- a/drivers/iommu/iommu.c
+> +++ b/drivers/iommu/iommu.c
+> @@ -2170,6 +2170,25 @@ void iommu_put_resv_regions(struct device *dev, struct list_head *list)
+>  		ops->put_resv_regions(dev, list);
+>  }
+>  
+> +/**
+> + * iommu_put_resv_regions_simple - Reserved region driver helper
+> + * @dev: device for which to free reserved regions
+> + * @list: reserved region list for device
+> + *
+> + * IOMMU drivers can use this to implement their .put_resv_regions() callback
+> + * for simple reservations. Memory allocated for each reserved region will be
+> + * freed. If an IOMMU driver allocates additional resources per region, it is
+> + * going to have to implement a custom callback.
+> + */
+> +void iommu_put_resv_regions_simple(struct device *dev, struct list_head *list)
+> +{
+> +	struct iommu_resv_region *entry, *next;
+> +
+> +	list_for_each_entry_safe(entry, next, list, list)
+> +		kfree(entry);
+> +}
+> +EXPORT_SYMBOL(iommu_put_resv_regions_simple);
+
+Can you call this directly from iommu_put_resv_regions() if the function
+pointer in ops is NULL? That would save having to plumb the default callback
+into a bunch of drivers.
+
+Will
