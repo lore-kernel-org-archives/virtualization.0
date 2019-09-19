@@ -1,13 +1,18 @@
-From: Gerd Hoffmann <kraxel@redhat.com>
-Subject: [PATCH v3 05/11] drm/shmem: drop DEFINE_DRM_GEM_SHMEM_FOPS
-Date: Thu, 19 Sep 2019 12:02:17 +0200
-Message-ID: <20190919100223.13309-6-kraxel__847.48199894733$1568887390$gmane$org@redhat.com>
-References: <20190919100223.13309-1-kraxel@redhat.com>
+From: Jason Wang <jasowang@redhat.com>
+Subject: Re: [RFC v4 0/3] vhost: introduce mdev based hardware backend
+Date: Thu, 19 Sep 2019 21:08:11 +0800
+Message-ID: <d2efe7e4-cf13-437d-e2dc-e2779fac7d2f__39495.4511242517$1568898533$gmane$org@redhat.com>
+References: <20190917010204.30376-1-tiwei.bie@intel.com>
+	<993841ed-942e-c90b-8016-8e7dc76bf13a@redhat.com>
+	<20190917105801.GA24855@___>
+	<fa6957f3-19ad-f351-8c43-65bc8342b82e@redhat.com>
+	<20190918102923-mutt-send-email-mst@kernel.org>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset="utf-8"; Format="flowed"
+Content-Transfer-Encoding: base64
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <20190919100223.13309-1-kraxel@redhat.com>
+In-Reply-To: <20190918102923-mutt-send-email-mst@kernel.org>
+Content-Language: en-US
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -17,125 +22,40 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: dri-devel@lists.freedesktop.org
-Cc: Rob Herring <robh@kernel.org>, Maxime Ripard <maxime.ripard@bootlin.com>, Thomas Zimmermann <tzimmermann@suse.de>, Tomeu Vizoso <tomeu.vizoso@collabora.com>, Eric Anholt <eric@anholt.net>, David Airlie <airlied@linux.ie>, Daniel Vetter <daniel.vetter@ffwll.ch>, Maarten Lankhorst <maarten.lankhorst@linux.intel.com>, open list <linux-kernel@vger.kernel.org>, Steven Price <steven.price@arm.com>, Hans de Goede <hdegoede@redhat.com>, Daniel Vetter <daniel@ffwll.ch>, Dave Airlie <airlied@redhat.com>, "open list:DRM DRIVER FOR QEMU'S CIRRUS DEVICE" <virtualization@lists.linux-foundation.org>, Sean Paul <sean@poorly.run>, Alyssa Rosenzweig <alyssa.rosenzweig@collabora.com>
+To: "Michael S. Tsirkin" <mst@redhat.com>
+Cc: kvm@vger.kernel.org, linux-kernel@vger.kernel.org, zhihong.wang@intel.com, maxime.coquelin@redhat.com, virtualization@lists.linux-foundation.org, netdev@vger.kernel.org, lingshan.zhu@intel.com
 List-Id: virtualization@lists.linuxfoundation.org
 
-DEFINE_DRM_GEM_SHMEM_FOPS is identical
-to DEFINE_DRM_GEM_FOPS now, drop it.
-
-Signed-off-by: Gerd Hoffmann <kraxel@redhat.com>
-Acked-by: Rob Herring <robh@kernel.org>
----
- include/drm/drm_gem_shmem_helper.h      | 26 -------------------------
- drivers/gpu/drm/cirrus/cirrus.c         |  2 +-
- drivers/gpu/drm/panfrost/panfrost_drv.c |  2 +-
- drivers/gpu/drm/tiny/gm12u320.c         |  2 +-
- drivers/gpu/drm/v3d/v3d_drv.c           |  2 +-
- drivers/gpu/drm/virtio/virtgpu_drv.c    |  2 +-
- 6 files changed, 5 insertions(+), 31 deletions(-)
-
-diff --git a/include/drm/drm_gem_shmem_helper.h b/include/drm/drm_gem_shmem_helper.h
-index d89f2116c8ab..6748379a0b44 100644
---- a/include/drm/drm_gem_shmem_helper.h
-+++ b/include/drm/drm_gem_shmem_helper.h
-@@ -88,32 +88,6 @@ struct drm_gem_shmem_object {
- #define to_drm_gem_shmem_obj(obj) \
- 	container_of(obj, struct drm_gem_shmem_object, base)
- 
--/**
-- * DEFINE_DRM_GEM_SHMEM_FOPS() - Macro to generate file operations for shmem drivers
-- * @name: name for the generated structure
-- *
-- * This macro autogenerates a suitable &struct file_operations for shmem based
-- * drivers, which can be assigned to &drm_driver.fops. Note that this structure
-- * cannot be shared between drivers, because it contains a reference to the
-- * current module using THIS_MODULE.
-- *
-- * Note that the declaration is already marked as static - if you need a
-- * non-static version of this you're probably doing it wrong and will break the
-- * THIS_MODULE reference by accident.
-- */
--#define DEFINE_DRM_GEM_SHMEM_FOPS(name) \
--	static const struct file_operations name = {\
--		.owner		= THIS_MODULE,\
--		.open		= drm_open,\
--		.release	= drm_release,\
--		.unlocked_ioctl	= drm_ioctl,\
--		.compat_ioctl	= drm_compat_ioctl,\
--		.poll		= drm_poll,\
--		.read		= drm_read,\
--		.llseek		= noop_llseek,\
--		.mmap		= drm_gem_mmap, \
--	}
--
- struct drm_gem_shmem_object *drm_gem_shmem_create(struct drm_device *dev, size_t size);
- void drm_gem_shmem_free_object(struct drm_gem_object *obj);
- 
-diff --git a/drivers/gpu/drm/cirrus/cirrus.c b/drivers/gpu/drm/cirrus/cirrus.c
-index 89d9e6fdeb8c..7d08d067e1a4 100644
---- a/drivers/gpu/drm/cirrus/cirrus.c
-+++ b/drivers/gpu/drm/cirrus/cirrus.c
-@@ -510,7 +510,7 @@ static void cirrus_mode_config_init(struct cirrus_device *cirrus)
- 
- /* ------------------------------------------------------------------ */
- 
--DEFINE_DRM_GEM_SHMEM_FOPS(cirrus_fops);
-+DEFINE_DRM_GEM_FOPS(cirrus_fops);
- 
- static struct drm_driver cirrus_driver = {
- 	.driver_features = DRIVER_MODESET | DRIVER_GEM | DRIVER_ATOMIC,
-diff --git a/drivers/gpu/drm/panfrost/panfrost_drv.c b/drivers/gpu/drm/panfrost/panfrost_drv.c
-index d74442d71048..a78ce21594d7 100644
---- a/drivers/gpu/drm/panfrost/panfrost_drv.c
-+++ b/drivers/gpu/drm/panfrost/panfrost_drv.c
-@@ -470,7 +470,7 @@ static const struct drm_ioctl_desc panfrost_drm_driver_ioctls[] = {
- 	PANFROST_IOCTL(MADVISE,		madvise,	DRM_RENDER_ALLOW),
- };
- 
--DEFINE_DRM_GEM_SHMEM_FOPS(panfrost_drm_driver_fops);
-+DEFINE_DRM_GEM_FOPS(panfrost_drm_driver_fops);
- 
- /*
-  * Panfrost driver version:
-diff --git a/drivers/gpu/drm/tiny/gm12u320.c b/drivers/gpu/drm/tiny/gm12u320.c
-index 03d0e2df6774..94fb1f593564 100644
---- a/drivers/gpu/drm/tiny/gm12u320.c
-+++ b/drivers/gpu/drm/tiny/gm12u320.c
-@@ -649,7 +649,7 @@ static void gm12u320_driver_release(struct drm_device *dev)
- 	kfree(gm12u320);
- }
- 
--DEFINE_DRM_GEM_SHMEM_FOPS(gm12u320_fops);
-+DEFINE_DRM_GEM_FOPS(gm12u320_fops);
- 
- static struct drm_driver gm12u320_drm_driver = {
- 	.driver_features = DRIVER_MODESET | DRIVER_GEM | DRIVER_ATOMIC,
-diff --git a/drivers/gpu/drm/v3d/v3d_drv.c b/drivers/gpu/drm/v3d/v3d_drv.c
-index 3506ae2723ae..03e4fbe1b92b 100644
---- a/drivers/gpu/drm/v3d/v3d_drv.c
-+++ b/drivers/gpu/drm/v3d/v3d_drv.c
-@@ -169,7 +169,7 @@ v3d_postclose(struct drm_device *dev, struct drm_file *file)
- 	kfree(v3d_priv);
- }
- 
--DEFINE_DRM_GEM_SHMEM_FOPS(v3d_drm_fops);
-+DEFINE_DRM_GEM_FOPS(v3d_drm_fops);
- 
- /* DRM_AUTH is required on SUBMIT_CL for now, while we don't have GMP
-  * protection between clients.  Note that render nodes would be be
-diff --git a/drivers/gpu/drm/virtio/virtgpu_drv.c b/drivers/gpu/drm/virtio/virtgpu_drv.c
-index a5cb58754f7d..8dee698c90ff 100644
---- a/drivers/gpu/drm/virtio/virtgpu_drv.c
-+++ b/drivers/gpu/drm/virtio/virtgpu_drv.c
-@@ -184,7 +184,7 @@ MODULE_AUTHOR("Dave Airlie <airlied@redhat.com>");
- MODULE_AUTHOR("Gerd Hoffmann <kraxel@redhat.com>");
- MODULE_AUTHOR("Alon Levy");
- 
--DEFINE_DRM_GEM_SHMEM_FOPS(virtio_gpu_driver_fops);
-+DEFINE_DRM_GEM_FOPS(virtio_gpu_driver_fops);
- 
- static struct drm_driver driver = {
- 	.driver_features = DRIVER_MODESET | DRIVER_GEM | DRIVER_RENDER | DRIVER_ATOMIC,
--- 
-2.18.1
+Ck9uIDIwMTkvOS8xOCDkuIvljYgxMDozMiwgTWljaGFlbCBTLiBUc2lya2luIHdyb3RlOgo+Pj4+
+IFNvIEkgaGF2ZSBzb21lIHF1ZXN0aW9uczoKPj4+Pgo+Pj4+IDEpIENvbXBhcmVkIHRvIG1ldGhv
+ZCAyLCB3aGF0J3MgdGhlIGFkdmFudGFnZSBvZiBjcmVhdGluZyBhIG5ldyB2aG9zdCBjaGFyCj4+
+Pj4gZGV2aWNlPyBJIGd1ZXNzIGl0J3MgZm9yIGtlZXAgdGhlIEFQSSBjb21wYXRpYmlsaXR5Pwo+
+Pj4gT25lIGJlbmVmaXQgaXMgdGhhdCB3ZSBjYW4gYXZvaWQgZG9pbmcgdmhvc3QgaW9jdGxzIG9u
+Cj4+PiBWRklPIGRldmljZSBmZC4KPj4gWWVzLCBidXQgYW55IGJlbmVmaXQgZnJvbSBkb2luZyB0
+aGlzPwo+IEl0IGRvZXMgc2VlbSBhIGJpdCBtb3JlIG1vZHVsYXIsIGJ1dCBpdCdzIGNlcnRhaW5s
+eSBub3QgYSBiaWcgZGVhbC4KCgpPaywgaWYgd2UgZ28gdGhpcyB3YXksIGl0IGNvdWxkIGJlIGFz
+IHNpbXBsZSBhcyBwcm92aWRlIHNvbWUgY2FsbGJhY2sgdG8gCnZob3N0LCB0aGVuIHZob3N0IGNh
+biBqdXN0IGZvcndhcmQgdGhlIGlvY3RsIHRocm91Z2ggcGFyZW50X29wcy4KCgo+Cj4+Pj4gMikg
+Rm9yIG1ldGhvZCAyLCBpcyB0aGVyZSBhbnkgZWFzeSB3YXkgZm9yIHVzZXIvYWRtaW4gdG8gZGlz
+dGluZ3Vpc2ggZS5nCj4+Pj4gb3JkaW5hcnkgdmZpby1tZGV2IGZvciB2aG9zdCBmcm9tIG9yZGlu
+YXJ5IHZmaW8tbWRldj8KPj4+IEkgdGhpbmsgZGV2aWNlLWFwaSBjb3VsZCBiZSBhIGNob2ljZS4K
+Pj4gT2suCj4+Cj4+Cj4+Pj4gSSBzYXcgeW91IGludHJvZHVjZQo+Pj4+IG9wcyBtYXRjaGluZyBo
+ZWxwZXIgYnV0IGl0J3Mgbm90IGZyaWVuZGx5IHRvIG1hbmFnZW1lbnQuCj4+PiBUaGUgb3BzIG1h
+dGNoaW5nIGhlbHBlciBpcyBqdXN0IHRvIGNoZWNrIHdoZXRoZXIgYSBnaXZlbgo+Pj4gdmZpby1k
+ZXZpY2UgaXMgYmFzZWQgb24gYSBtZGV2IGRldmljZS4KPj4+Cj4+Pj4gMykgQSBkcmF3YmFjayBv
+ZiAxKSBhbmQgMikgaXMgdGhhdCBpdCBtdXN0IGZvbGxvdyB2ZmlvX2RldmljZV9vcHMgdGhhdAo+
+Pj4+IGFzc3VtZXMgdGhlIHBhcmFtZXRlciBjb21lcyBmcm9tIHVzZXJzcGFjZSwgaXQgcHJldmVu
+dHMgc3VwcG9ydCBrZXJuZWwKPj4+PiB2aXJ0aW8gZHJpdmVycy4KPj4+Pgo+Pj4+IDQpIFNvIGNv
+bWVzIHRoZSBpZGVhIG9mIG1ldGhvZCAzLCBzaW5jZSBpdCByZWdpc3RlciBhIG5ldyB2aG9zdC1t
+ZGV2IGRyaXZlciwKPj4+PiB3ZSBjYW4gdXNlIGRldmljZSBzcGVjaWZpYyBvcHMgaW5zdGVhZCBv
+ZiBWRklPIG9uZXMsIHRoZW4gd2UgY2FuIGhhdmUgYQo+Pj4+IGNvbW1vbiBBUEkgYmV0d2VlbiB2
+RFBBIHBhcmVudCBhbmQgdmhvc3QtbWRldi92aXJ0aW8tbWRldiBkcml2ZXJzLgo+Pj4gQXMgdGhl
+IGFib3ZlIGRyYWZ0IHNob3dzLCB0aGlzIHJlcXVpcmVzIGludHJvZHVjaW5nIGEgbmV3Cj4+PiBW
+RklPIGRldmljZSBkcml2ZXIuIEkgdGhpbmsgQWxleCdzIG9waW5pb24gbWF0dGVycyBoZXJlLgoK
+Ckp1c3QgdG8gY2xhcmlmeSwgYSBuZXcgdHlwZSBvZiBtZGV2IGRyaXZlciBidXQgcHJvdmlkZXMg
+ZHVtbXkgCnZmaW9fZGV2aWNlX29wcyBmb3IgVkZJTyB0byBtYWtlIGNvbnRhaW5lciBETUEgaW9j
+dGwgd29yay4KClRoYW5rcwoKCj4+IFllcywgaXQgaXMuCj4+Cj4+IFRoYW5rcwo+Pgo+PgpfX19f
+X19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fXwpWaXJ0dWFsaXphdGlv
+biBtYWlsaW5nIGxpc3QKVmlydHVhbGl6YXRpb25AbGlzdHMubGludXgtZm91bmRhdGlvbi5vcmcK
+aHR0cHM6Ly9saXN0cy5saW51eGZvdW5kYXRpb24ub3JnL21haWxtYW4vbGlzdGluZm8vdmlydHVh
+bGl6YXRpb24=
