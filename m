@@ -1,14 +1,19 @@
-From: David Hildenbrand <david@redhat.com>
-Subject: [PATCH RFC v3 9/9] virtio-mem: Offline and remove completely
-	unplugged memory blocks
-Date: Thu, 19 Sep 2019 16:22:28 +0200
-Message-ID: <20190919142228.5483-10-david__37913.3821510308$1568903069$gmane$org@redhat.com>
-References: <20190919142228.5483-1-david@redhat.com>
+From: Tiwei Bie <tiwei.bie@intel.com>
+Subject: Re: [RFC v4 0/3] vhost: introduce mdev based hardware backend
+Date: Thu, 19 Sep 2019 23:45:52 +0800
+Message-ID: <20190919154552.GA27657__27363.212201611$1568908132$gmane$org@___>
+References: <20190917010204.30376-1-tiwei.bie@intel.com>
+	<993841ed-942e-c90b-8016-8e7dc76bf13a@redhat.com>
+	<20190917105801.GA24855@___>
+	<fa6957f3-19ad-f351-8c43-65bc8342b82e@redhat.com>
+	<20190918102923-mutt-send-email-mst@kernel.org>
+	<d2efe7e4-cf13-437d-e2dc-e2779fac7d2f@redhat.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset="utf-8"
+Content-Transfer-Encoding: base64
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <20190919142228.5483-1-david@redhat.com>
+Content-Disposition: inline
+In-Reply-To: <d2efe7e4-cf13-437d-e2dc-e2779fac7d2f@redhat.com>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -18,96 +23,66 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: linux-kernel@vger.kernel.org
-Cc: Andrea Arcangeli <aarcange@redhat.com>, Pavel Tatashin <pasha.tatashin@soleen.com>, "Michael S. Tsirkin" <mst@redhat.com>, virtualization@lists.linux-foundation.org, linux-mm@kvack.org, Stefan Hajnoczi <stefanha@redhat.com>, Igor Mammedov <imammedo@redhat.com>, Andrew Morton <akpm@linux-foundation.org>, Michal Hocko <mhocko@kernel.org>, Dave Young <dyoung@redhat.com>, Dan Williams <dan.j.williams@intel.com>, Vlastimil Babka <vbabka@suse.cz>, Oscar Salvador <osalvador@suse.de>
+To: Jason Wang <jasowang@redhat.com>
+Cc: kvm@vger.kernel.org, "Michael S. Tsirkin" <mst@redhat.com>, netdev@vger.kernel.org, linux-kernel@vger.kernel.org, virtualization@lists.linux-foundation.org, zhihong.wang@intel.com, maxime.coquelin@redhat.com, lingshan.zhu@intel.com
 List-Id: virtualization@lists.linuxfoundation.org
 
-Let's offline+remove memory blocks once all subblocks are unplugged. We
-can use the new Linux MM interface for that. As no memory is in use
-anymore, this shouldn't take a long time and shouldn't fail. There might
-be corner cases where the offlining could still fail (especially, if
-another notifier NACKs the offlining request).
-
-Cc: "Michael S. Tsirkin" <mst@redhat.com>
-Cc: Jason Wang <jasowang@redhat.com>
-Cc: Oscar Salvador <osalvador@suse.de>
-Cc: Michal Hocko <mhocko@kernel.org>
-Cc: Igor Mammedov <imammedo@redhat.com>
-Cc: Dave Young <dyoung@redhat.com>
-Cc: Andrew Morton <akpm@linux-foundation.org>
-Cc: Dan Williams <dan.j.williams@intel.com>
-Cc: Pavel Tatashin <pasha.tatashin@soleen.com>
-Cc: Stefan Hajnoczi <stefanha@redhat.com>
-Cc: Vlastimil Babka <vbabka@suse.cz>
-Signed-off-by: David Hildenbrand <david@redhat.com>
----
- drivers/virtio/virtio_mem.c | 39 ++++++++++++++++++++++++++++++++++---
- 1 file changed, 36 insertions(+), 3 deletions(-)
-
-diff --git a/drivers/virtio/virtio_mem.c b/drivers/virtio/virtio_mem.c
-index 9cb31459b211..01d5fc784d5d 100644
---- a/drivers/virtio/virtio_mem.c
-+++ b/drivers/virtio/virtio_mem.c
-@@ -433,6 +433,28 @@ static int virtio_mem_mb_remove(struct virtio_mem *vm, unsigned long mb_id)
- 	return remove_memory(nid, addr, memory_block_size_bytes());
- }
- 
-+/*
-+ * Try to offline and remove a memory block from Linux.
-+ *
-+ * Must not be called with the vm->hotplug_mutex held (possible deadlock with
-+ * onlining code).
-+ *
-+ * Will not modify the state of the memory block.
-+ */
-+static int virtio_mem_mb_offline_and_remove(struct virtio_mem *vm,
-+					    unsigned long mb_id)
-+{
-+	const uint64_t addr = virtio_mem_mb_id_to_phys(mb_id);
-+	int nid = vm->nid;
-+
-+	if (nid == NUMA_NO_NODE)
-+		nid = memory_add_physaddr_to_nid(addr);
-+
-+	dev_dbg(&vm->vdev->dev, "offlining and removing memory block: %lu\n",
-+		mb_id);
-+	return offline_and_remove_memory(nid, addr, memory_block_size_bytes());
-+}
-+
- /*
-  * Trigger the workqueue so the device can perform its magic.
-  */
-@@ -1263,7 +1285,8 @@ static int virtio_mem_mb_unplug_any_sb_offline(struct virtio_mem *vm,
-  * Unplug the desired number of plugged subblocks of an online memory block.
-  * Will skip subblock that are busy.
-  *
-- * Will modify the state of the memory block.
-+ * Will modify the state of the memory block. Might temporarily drop the
-+ * hotplug_mutex.
-  *
-  * Note: Can fail after some subblocks were successfully unplugged. Can
-  *       return 0 even if subblocks were busy and could not get unplugged.
-@@ -1319,9 +1342,19 @@ static int virtio_mem_mb_unplug_any_sb_online(struct virtio_mem *vm,
- 	}
- 
- 	/*
--	 * TODO: Once all subblocks of a memory block were unplugged, we want
--	 * to offline the memory block and remove it.
-+	 * Once all subblocks of a memory block were unplugged, offline and
-+	 * remove it. This will usually not fail, as no memory is in use
-+	 * anymore - however some other notifiers might NACK the request.
- 	 */
-+	if (virtio_mem_mb_test_sb_unplugged(vm, mb_id, 0, vm->nb_sb_per_mb)) {
-+		mutex_unlock(&vm->hotplug_mutex);
-+		rc = virtio_mem_mb_offline_and_remove(vm, mb_id);
-+		mutex_lock(&vm->hotplug_mutex);
-+		if (!rc)
-+			virtio_mem_mb_set_state(vm, mb_id,
-+						VIRTIO_MEM_MB_STATE_UNUSED);
-+	}
-+
- 	return 0;
- }
- 
--- 
-2.21.0
+T24gVGh1LCBTZXAgMTksIDIwMTkgYXQgMDk6MDg6MTFQTSArMDgwMCwgSmFzb24gV2FuZyB3cm90
+ZToKPiBPbiAyMDE5LzkvMTgg5LiL5Y2IMTA6MzIsIE1pY2hhZWwgUy4gVHNpcmtpbiB3cm90ZToK
+PiA+ID4gPiA+IFNvIEkgaGF2ZSBzb21lIHF1ZXN0aW9uczoKPiA+ID4gPiA+IAo+ID4gPiA+ID4g
+MSkgQ29tcGFyZWQgdG8gbWV0aG9kIDIsIHdoYXQncyB0aGUgYWR2YW50YWdlIG9mIGNyZWF0aW5n
+IGEgbmV3IHZob3N0IGNoYXIKPiA+ID4gPiA+IGRldmljZT8gSSBndWVzcyBpdCdzIGZvciBrZWVw
+IHRoZSBBUEkgY29tcGF0aWJpbGl0eT8KPiA+ID4gPiBPbmUgYmVuZWZpdCBpcyB0aGF0IHdlIGNh
+biBhdm9pZCBkb2luZyB2aG9zdCBpb2N0bHMgb24KPiA+ID4gPiBWRklPIGRldmljZSBmZC4KPiA+
+ID4gWWVzLCBidXQgYW55IGJlbmVmaXQgZnJvbSBkb2luZyB0aGlzPwo+ID4gSXQgZG9lcyBzZWVt
+IGEgYml0IG1vcmUgbW9kdWxhciwgYnV0IGl0J3MgY2VydGFpbmx5IG5vdCBhIGJpZyBkZWFsLgo+
+IAo+IE9rLCBpZiB3ZSBnbyB0aGlzIHdheSwgaXQgY291bGQgYmUgYXMgc2ltcGxlIGFzIHByb3Zp
+ZGUgc29tZSBjYWxsYmFjayB0bwo+IHZob3N0LCB0aGVuIHZob3N0IGNhbiBqdXN0IGZvcndhcmQg
+dGhlIGlvY3RsIHRocm91Z2ggcGFyZW50X29wcy4KPiAKPiA+IAo+ID4gPiA+ID4gMikgRm9yIG1l
+dGhvZCAyLCBpcyB0aGVyZSBhbnkgZWFzeSB3YXkgZm9yIHVzZXIvYWRtaW4gdG8gZGlzdGluZ3Vp
+c2ggZS5nCj4gPiA+ID4gPiBvcmRpbmFyeSB2ZmlvLW1kZXYgZm9yIHZob3N0IGZyb20gb3JkaW5h
+cnkgdmZpby1tZGV2Pwo+ID4gPiA+IEkgdGhpbmsgZGV2aWNlLWFwaSBjb3VsZCBiZSBhIGNob2lj
+ZS4KPiA+ID4gT2suCj4gPiA+IAo+ID4gPiAKPiA+ID4gPiA+IEkgc2F3IHlvdSBpbnRyb2R1Y2UK
+PiA+ID4gPiA+IG9wcyBtYXRjaGluZyBoZWxwZXIgYnV0IGl0J3Mgbm90IGZyaWVuZGx5IHRvIG1h
+bmFnZW1lbnQuCj4gPiA+ID4gVGhlIG9wcyBtYXRjaGluZyBoZWxwZXIgaXMganVzdCB0byBjaGVj
+ayB3aGV0aGVyIGEgZ2l2ZW4KPiA+ID4gPiB2ZmlvLWRldmljZSBpcyBiYXNlZCBvbiBhIG1kZXYg
+ZGV2aWNlLgo+ID4gPiA+IAo+ID4gPiA+ID4gMykgQSBkcmF3YmFjayBvZiAxKSBhbmQgMikgaXMg
+dGhhdCBpdCBtdXN0IGZvbGxvdyB2ZmlvX2RldmljZV9vcHMgdGhhdAo+ID4gPiA+ID4gYXNzdW1l
+cyB0aGUgcGFyYW1ldGVyIGNvbWVzIGZyb20gdXNlcnNwYWNlLCBpdCBwcmV2ZW50cyBzdXBwb3J0
+IGtlcm5lbAo+ID4gPiA+ID4gdmlydGlvIGRyaXZlcnMuCj4gPiA+ID4gPiAKPiA+ID4gPiA+IDQp
+IFNvIGNvbWVzIHRoZSBpZGVhIG9mIG1ldGhvZCAzLCBzaW5jZSBpdCByZWdpc3RlciBhIG5ldyB2
+aG9zdC1tZGV2IGRyaXZlciwKPiA+ID4gPiA+IHdlIGNhbiB1c2UgZGV2aWNlIHNwZWNpZmljIG9w
+cyBpbnN0ZWFkIG9mIFZGSU8gb25lcywgdGhlbiB3ZSBjYW4gaGF2ZSBhCj4gPiA+ID4gPiBjb21t
+b24gQVBJIGJldHdlZW4gdkRQQSBwYXJlbnQgYW5kIHZob3N0LW1kZXYvdmlydGlvLW1kZXYgZHJp
+dmVycy4KPiA+ID4gPiBBcyB0aGUgYWJvdmUgZHJhZnQgc2hvd3MsIHRoaXMgcmVxdWlyZXMgaW50
+cm9kdWNpbmcgYSBuZXcKPiA+ID4gPiBWRklPIGRldmljZSBkcml2ZXIuIEkgdGhpbmsgQWxleCdz
+IG9waW5pb24gbWF0dGVycyBoZXJlLgo+IAo+IEp1c3QgdG8gY2xhcmlmeSwgYSBuZXcgdHlwZSBv
+ZiBtZGV2IGRyaXZlciBidXQgcHJvdmlkZXMgZHVtbXkKPiB2ZmlvX2RldmljZV9vcHMgZm9yIFZG
+SU8gdG8gbWFrZSBjb250YWluZXIgRE1BIGlvY3RsIHdvcmsuCgpJIHNlZS4gVGhhbmtzISBJSVVD
+LCB5b3UgbWVhbiB3ZSBjYW4gcHJvdmlkZSBhIHZlcnkgdGlueQpWRklPIGRldmljZSBkcml2ZXIg
+aW4gZHJpdmVycy92aG9zdC9tZGV2LmMsIGUuZy46CgpzdGF0aWMgaW50IHZmaW9fdmhvc3RfbWRl
+dl9vcGVuKHZvaWQgKmRldmljZV9kYXRhKQp7CglpZiAoIXRyeV9tb2R1bGVfZ2V0KFRISVNfTU9E
+VUxFKSkKCQlyZXR1cm4gLUVOT0RFVjsKCXJldHVybiAwOwp9CgpzdGF0aWMgdm9pZCB2ZmlvX3Zo
+b3N0X21kZXZfcmVsZWFzZSh2b2lkICpkZXZpY2VfZGF0YSkKewoJbW9kdWxlX3B1dChUSElTX01P
+RFVMRSk7Cn0KCnN0YXRpYyBjb25zdCBzdHJ1Y3QgdmZpb19kZXZpY2Vfb3BzIHZmaW9fdmhvc3Rf
+bWRldl9kZXZfb3BzID0gewoJLm5hbWUJCT0gInZmaW8tdmhvc3QtbWRldiIsCgkub3BlbgkJPSB2
+ZmlvX3Zob3N0X21kZXZfb3BlbiwKCS5yZWxlYXNlCT0gdmZpb192aG9zdF9tZGV2X3JlbGVhc2Us
+Cn07CgpzdGF0aWMgaW50IHZob3N0X21kZXZfcHJvYmUoc3RydWN0IGRldmljZSAqZGV2KQp7Cglz
+dHJ1Y3QgbWRldl9kZXZpY2UgKm1kZXYgPSB0b19tZGV2X2RldmljZShkZXYpOwoKCS4uLiBDaGVj
+ayB0aGUgbWRldiBkZXZpY2VfaWQgcHJvcG9zZWQgaW4gLi4uCgkuLi4gaHR0cHM6Ly9sa21sLm9y
+Zy9sa21sLzIwMTkvOS8xMi8xNTEgLi4uCgoJcmV0dXJuIHZmaW9fYWRkX2dyb3VwX2RldihkZXYs
+ICZ2ZmlvX3Zob3N0X21kZXZfZGV2X29wcywgbWRldik7Cn0KCnN0YXRpYyB2b2lkIHZob3N0X21k
+ZXZfcmVtb3ZlKHN0cnVjdCBkZXZpY2UgKmRldikKewoJdmZpb19kZWxfZ3JvdXBfZGV2KGRldik7
+Cn0KCnN0YXRpYyBzdHJ1Y3QgbWRldl9kcml2ZXIgdmhvc3RfbWRldl9kcml2ZXIgPSB7CgkubmFt
+ZQk9ICJ2aG9zdF9tZGV2IiwKCS5wcm9iZQk9IHZob3N0X21kZXZfcHJvYmUsCgkucmVtb3ZlCT0g
+dmhvc3RfbWRldl9yZW1vdmUsCn07CgpTbyB3ZSBjYW4gYmluZCBhYm92ZSBtZGV2IGRyaXZlciB0
+byB0aGUgdmlydGlvLW1kZXYgY29tcGF0aWJsZQptZGV2IGRldmljZXMgd2hlbiB3ZSB3YW50IHRv
+IHVzZSB2aG9zdC1tZGV2LgoKQWZ0ZXIgYmluZGluZyBhYm92ZSBkcml2ZXIgdG8gdGhlIG1kZXYg
+ZGV2aWNlLCB3ZSBjYW4gc2V0dXAgSU9NTVUKdmlhIFZGSU8gYW5kIGdldCBWRklPIGRldmljZSBm
+ZCBvZiB0aGlzIG1kZXYgZGV2aWNlLCBhbmQgcGFzcyBpdAp0byB2aG9zdCBmZCAoL2Rldi92aG9z
+dC1tZGV2KSB3aXRoIGEgU0VUX0JBQ0tFTkQgaW9jdGwuCgpUaGFua3MsClRpd2VpCgo+IAo+IFRo
+YW5rcwo+IAo+IAo+ID4gPiBZZXMsIGl0IGlzLgo+ID4gPiAKPiA+ID4gVGhhbmtzCj4gPiA+IAo+
+ID4gPiAKX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX18KVmly
+dHVhbGl6YXRpb24gbWFpbGluZyBsaXN0ClZpcnR1YWxpemF0aW9uQGxpc3RzLmxpbnV4LWZvdW5k
+YXRpb24ub3JnCmh0dHBzOi8vbGlzdHMubGludXhmb3VuZGF0aW9uLm9yZy9tYWlsbWFuL2xpc3Rp
+bmZvL3ZpcnR1YWxpemF0aW9u
