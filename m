@@ -1,8 +1,8 @@
 From: David Hildenbrand <david@redhat.com>
-Subject: [PATCH RFC v3 8/9] mm/memory_hotplug: Introduce
-	offline_and_remove_memory()
-Date: Thu, 19 Sep 2019 16:22:27 +0200
-Message-ID: <20190919142228.5483-9-david__46767.9055918538$1568903059$gmane$org@redhat.com>
+Subject: [PATCH RFC v3 9/9] virtio-mem: Offline and remove completely
+	unplugged memory blocks
+Date: Thu, 19 Sep 2019 16:22:28 +0200
+Message-ID: <20190919142228.5483-10-david__37913.3821510308$1568903069$gmane$org@redhat.com>
 References: <20190919142228.5483-1-david@redhat.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
@@ -19,92 +19,95 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
 To: linux-kernel@vger.kernel.org
-Cc: Andrea Arcangeli <aarcange@redhat.com>, Oscar Salvador <osalvador@suse.com>, Michal Hocko <mhocko@suse.com>, Pavel Tatashin <pasha.tatashin@soleen.com>, virtualization@lists.linux-foundation.org, linux-mm@kvack.org, Qian Cai <cai@lca.pw>, Andrew Morton <akpm@linux-foundation.org>, Wei Yang <richard.weiyang@gmail.com>, Dan Williams <dan.j.williams@intel.com>
+Cc: Andrea Arcangeli <aarcange@redhat.com>, Pavel Tatashin <pasha.tatashin@soleen.com>, "Michael S. Tsirkin" <mst@redhat.com>, virtualization@lists.linux-foundation.org, linux-mm@kvack.org, Stefan Hajnoczi <stefanha@redhat.com>, Igor Mammedov <imammedo@redhat.com>, Andrew Morton <akpm@linux-foundation.org>, Michal Hocko <mhocko@kernel.org>, Dave Young <dyoung@redhat.com>, Dan Williams <dan.j.williams@intel.com>, Vlastimil Babka <vbabka@suse.cz>, Oscar Salvador <osalvador@suse.de>
 List-Id: virtualization@lists.linuxfoundation.org
 
-virtio-mem wants to offline and remove a memory block once it unplugged
-all subblocks (e.g., using alloc_contig_range()). Let's provide
-an interface to do that from a driver. virtio-mem already supports to
-offline partially unplugged memory blocks. Offlining a fully unplugged
-memory block will not require to migrate any pages. All unplugged
-subblocks are PageOffline() and have a reference count of 0 - so
-offlining code will simply skip them.
+Let's offline+remove memory blocks once all subblocks are unplugged. We
+can use the new Linux MM interface for that. As no memory is in use
+anymore, this shouldn't take a long time and shouldn't fail. There might
+be corner cases where the offlining could still fail (especially, if
+another notifier NACKs the offlining request).
 
-All we need an interface to trigger the "offlining" and the removing in a
-single operation - to make sure the memory block cannot get onlined by
-user space again before it gets removed.
-
-To keep things simple, allow to only work on a single memory block.
-
+Cc: "Michael S. Tsirkin" <mst@redhat.com>
+Cc: Jason Wang <jasowang@redhat.com>
+Cc: Oscar Salvador <osalvador@suse.de>
+Cc: Michal Hocko <mhocko@kernel.org>
+Cc: Igor Mammedov <imammedo@redhat.com>
+Cc: Dave Young <dyoung@redhat.com>
 Cc: Andrew Morton <akpm@linux-foundation.org>
-Cc: David Hildenbrand <david@redhat.com>
-Cc: Oscar Salvador <osalvador@suse.com>
-Cc: Michal Hocko <mhocko@suse.com>
-Cc: Pavel Tatashin <pasha.tatashin@soleen.com>
-Cc: Wei Yang <richard.weiyang@gmail.com>
 Cc: Dan Williams <dan.j.williams@intel.com>
-Cc: Qian Cai <cai@lca.pw>
+Cc: Pavel Tatashin <pasha.tatashin@soleen.com>
+Cc: Stefan Hajnoczi <stefanha@redhat.com>
+Cc: Vlastimil Babka <vbabka@suse.cz>
 Signed-off-by: David Hildenbrand <david@redhat.com>
 ---
- include/linux/memory_hotplug.h |  1 +
- mm/memory_hotplug.c            | 35 ++++++++++++++++++++++++++++++++++
- 2 files changed, 36 insertions(+)
+ drivers/virtio/virtio_mem.c | 39 ++++++++++++++++++++++++++++++++++---
+ 1 file changed, 36 insertions(+), 3 deletions(-)
 
-diff --git a/include/linux/memory_hotplug.h b/include/linux/memory_hotplug.h
-index 384ffb3d69ab..a1bf868aaeba 100644
---- a/include/linux/memory_hotplug.h
-+++ b/include/linux/memory_hotplug.h
-@@ -313,6 +313,7 @@ extern void try_offline_node(int nid);
- extern int offline_pages(unsigned long start_pfn, unsigned long nr_pages);
- extern int remove_memory(int nid, u64 start, u64 size);
- extern void __remove_memory(int nid, u64 start, u64 size);
-+extern int offline_and_remove_memory(int nid, u64 start, u64 size);
- 
- #else
- static inline bool is_mem_section_removable(unsigned long pfn,
-diff --git a/mm/memory_hotplug.c b/mm/memory_hotplug.c
-index d23ff7c5c96b..caf3c93f5f7c 100644
---- a/mm/memory_hotplug.c
-+++ b/mm/memory_hotplug.c
-@@ -1742,4 +1742,39 @@ int remove_memory(int nid, u64 start, u64 size)
- 	return rc;
+diff --git a/drivers/virtio/virtio_mem.c b/drivers/virtio/virtio_mem.c
+index 9cb31459b211..01d5fc784d5d 100644
+--- a/drivers/virtio/virtio_mem.c
++++ b/drivers/virtio/virtio_mem.c
+@@ -433,6 +433,28 @@ static int virtio_mem_mb_remove(struct virtio_mem *vm, unsigned long mb_id)
+ 	return remove_memory(nid, addr, memory_block_size_bytes());
  }
- EXPORT_SYMBOL_GPL(remove_memory);
-+
+ 
 +/*
-+ * Try to offline and remove a memory block. Might take a long time to
-+ * finish in case memory is still in use. Primarily useful for memory devices
-+ * that logically unplugged all memory (so it's no longer in use) and want to
-+ * offline + remove the memory block.
++ * Try to offline and remove a memory block from Linux.
++ *
++ * Must not be called with the vm->hotplug_mutex held (possible deadlock with
++ * onlining code).
++ *
++ * Will not modify the state of the memory block.
 + */
-+int offline_and_remove_memory(int nid, u64 start, u64 size)
++static int virtio_mem_mb_offline_and_remove(struct virtio_mem *vm,
++					    unsigned long mb_id)
 +{
-+	struct memory_block *mem;
-+	int rc = -EINVAL;
++	const uint64_t addr = virtio_mem_mb_id_to_phys(mb_id);
++	int nid = vm->nid;
 +
-+	if (!IS_ALIGNED(start, memory_block_size_bytes()) ||
-+	    size != memory_block_size_bytes())
-+		return rc;
++	if (nid == NUMA_NO_NODE)
++		nid = memory_add_physaddr_to_nid(addr);
 +
-+	lock_device_hotplug();
-+	mem = find_memory_block(__pfn_to_section(PFN_DOWN(start)));
-+	if (mem)
-+		rc = device_offline(&mem->dev);
-+	/* Ignore if the device is already offline. */
-+	if (rc > 0)
-+		rc = 0;
-+
-+	/*
-+	 * In case we succeeded to offline the memory block, remove it.
-+	 * This cannot fail as it cannot get onlined in the meantime.
-+	 */
-+	if (!rc && try_remove_memory(nid, start, size))
-+		BUG();
-+	unlock_device_hotplug();
-+
-+	return rc;
++	dev_dbg(&vm->vdev->dev, "offlining and removing memory block: %lu\n",
++		mb_id);
++	return offline_and_remove_memory(nid, addr, memory_block_size_bytes());
 +}
-+EXPORT_SYMBOL_GPL(offline_and_remove_memory);
- #endif /* CONFIG_MEMORY_HOTREMOVE */
++
+ /*
+  * Trigger the workqueue so the device can perform its magic.
+  */
+@@ -1263,7 +1285,8 @@ static int virtio_mem_mb_unplug_any_sb_offline(struct virtio_mem *vm,
+  * Unplug the desired number of plugged subblocks of an online memory block.
+  * Will skip subblock that are busy.
+  *
+- * Will modify the state of the memory block.
++ * Will modify the state of the memory block. Might temporarily drop the
++ * hotplug_mutex.
+  *
+  * Note: Can fail after some subblocks were successfully unplugged. Can
+  *       return 0 even if subblocks were busy and could not get unplugged.
+@@ -1319,9 +1342,19 @@ static int virtio_mem_mb_unplug_any_sb_online(struct virtio_mem *vm,
+ 	}
+ 
+ 	/*
+-	 * TODO: Once all subblocks of a memory block were unplugged, we want
+-	 * to offline the memory block and remove it.
++	 * Once all subblocks of a memory block were unplugged, offline and
++	 * remove it. This will usually not fail, as no memory is in use
++	 * anymore - however some other notifiers might NACK the request.
+ 	 */
++	if (virtio_mem_mb_test_sb_unplugged(vm, mb_id, 0, vm->nb_sb_per_mb)) {
++		mutex_unlock(&vm->hotplug_mutex);
++		rc = virtio_mem_mb_offline_and_remove(vm, mb_id);
++		mutex_lock(&vm->hotplug_mutex);
++		if (!rc)
++			virtio_mem_mb_set_state(vm, mb_id,
++						VIRTIO_MEM_MB_STATE_UNUSED);
++	}
++
+ 	return 0;
+ }
+ 
 -- 
 2.21.0
