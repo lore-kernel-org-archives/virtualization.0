@@ -1,14 +1,14 @@
-From: Jason Wang <jasowang@redhat.com>
-Subject: Re: [RFC PATCH V2 0/6] mdev based hardware virtio offloading support
-Date: Mon, 23 Sep 2019 09:06:36 +0800
-Message-ID: <0cea96a3-f941-3181-d320-7c15b33ad552__21306.7020334833$1569200840$gmane$org@redhat.com>
-References: <20190920082050.19352-1-jasowang@redhat.com>
+From: Stefano Garzarella <sgarzare@redhat.com>
+Subject: Re: [RFC] VSOCK: add support for MSG_PEEK
+Date: Mon, 23 Sep 2019 09:58:30 +0200
+Message-ID: <20190923075830.a6sjwffnkljmyyqm__35328.26410826$1569225527$gmane$org@steredhat>
+References: <1569174507-15267-1-git-send-email-matiasevara@gmail.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="utf-8"; Format="flowed"
-Content-Transfer-Encoding: base64
+Content-Type: text/plain; charset="us-ascii"
+Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <20190920082050.19352-1-jasowang@redhat.com>
-Content-Language: en-US
+Content-Disposition: inline
+In-Reply-To: <1569174507-15267-1-git-send-email-matiasevara@gmail.com>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -18,75 +18,130 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: kvm@vger.kernel.org, linux-s390@vger.kernel.org, linux-kernel@vger.kernel.org, dri-devel@lists.freedesktop.org, intel-gfx@lists.freedesktop.org, intel-gvt-dev@lists.freedesktop.org, kwankhede@nvidia.com, alex.williamson@redhat.com, mst@redhat.com, tiwei.bie@intel.com
-Cc: sebott@linux.ibm.com, airlied@linux.ie, joonas.lahtinen@linux.intel.com, heiko.carstens@de.ibm.com, virtualization@lists.linux-foundation.org, rob.miller@broadcom.com, lulu@redhat.com, eperezma@redhat.com, pasic@linux.ibm.com, borntraeger@de.ibm.com, haotian.wang@sifive.com, zhi.a.wang@intel.com, farman@linux.ibm.com, idos@mellanox.com, gor@linux.ibm.com, zhenyuw@linux.intel.com, rodrigo.vivi@intel.com, xiao.w.wang@intel.com, freude@linux.ibm.com, jani.nikula@linux.intel.com, parav@mellanox.com, zhihong.wang@intel.com, akrowiak@linux.ibm.com, pmorel@linux.ibm.com, netdev@vger.kernel.org, cohuck@redhat.com, oberpar@linux.ibm.com, maxime.coquelin@redhat.com, daniel@ffwll.ch, lingshan.zhu@intel.com
+To: Matias Ezequiel Vara Larsen <matiasevara@gmail.com>
+Cc: kvm@vger.kernel.org, netdev@vger.kernel.org, linux-kernel@vger.kernel.org, virtualization@lists.linux-foundation.org, stefanha@redhat.com, davem@davemloft.net
 List-Id: virtualization@lists.linuxfoundation.org
 
-Ck9uIDIwMTkvOS8yMCDkuIvljYg0OjIwLCBKYXNvbiBXYW5nIHdyb3RlOgo+IEhpIGFsbDoKPgo+
-IFRoZXJlIGFyZSBoYXJkd2FyZSB0aGF0IGNhbiBkbyB2aXJ0aW8gZGF0YXBhdGggb2ZmbG9hZGlu
-ZyB3aGlsZSBoYXZpbmcKPiBpdHMgb3duIGNvbnRyb2wgcGF0aC4gVGhpcyBwYXRoIHRyaWVzIHRv
-IGltcGxlbWVudCBhIG1kZXYgYmFzZWQKPiB1bmlmaWVkIEFQSSB0byBzdXBwb3J0IHVzaW5nIGtl
-cm5lbCB2aXJ0aW8gZHJpdmVyIHRvIGRyaXZlIHRob3NlCj4gZGV2aWNlcy4gVGhpcyBpcyBkb25l
-IGJ5IGludHJvZHVjaW5nIGEgbmV3IG1kZXYgdHJhbnNwb3J0IGZvciB2aXJ0aW8KPiAodmlydGlv
-X21kZXYpIGFuZCByZWdpc3RlciBpdHNlbGYgYXMgYSBuZXcga2luZCBvZiBtZGV2IGRyaXZlci4g
-VGhlbgo+IGl0IHByb3ZpZGVzIGEgdW5pZmllZCB3YXkgZm9yIGtlcm5lbCB2aXJ0aW8gZHJpdmVy
-IHRvIHRhbGsgd2l0aCBtZGV2Cj4gZGV2aWNlIGltcGxlbWVudGF0aW9uLgo+Cj4gVGhvdWdoIHRo
-ZSBzZXJpZXMgb25seSBjb250YWluIGtlcm5lbCBkcml2ZXIgc3VwcG9ydCwgdGhlIGdvYWwgaXMg
-dG8KPiBtYWtlIHRoZSB0cmFuc3BvcnQgZ2VuZXJpYyBlbm91Z2ggdG8gc3VwcG9ydCB1c2Vyc3Bh
-Y2UgZHJpdmVycy4gVGhpcwo+IG1lYW5zIHZob3N0LW1kZXZbMV0gY291bGQgYmUgYnVpbHQgb24g
-dG9wIGFzIHdlbGwgYnkgcmVzdWluZyB0aGUKPiB0cmFuc3BvcnQuCj4KPiBBIHNhbXBsZSBkcml2
-ZXIgaXMgYWxzbyBpbXBsZW1lbnRlZCB3aGljaCBzaW11bGF0ZSBhIHZpcml0by1uZXQKPiBsb29w
-YmFjayBldGhlcm5ldCBkZXZpY2Ugb24gdG9wIG9mIHZyaW5naCArIHdvcmtxdWV1ZS4gVGhpcyBj
-b3VsZCBiZQo+IHVzZWQgYXMgYSByZWZlcmVuY2UgaW1wbGVtZW50YXRpb24gZm9yIHJlYWwgaGFy
-ZHdhcmUgZHJpdmVyLgo+Cj4gQ29uc2lkZXIgbWRldiBmcmFtZXdvcmsgb25seSBzdXBwb3J0IFZG
-SU8gZGV2aWNlIGFuZCBkcml2ZXIgcmlnaHQgbm93LAo+IHRoaXMgc2VyaWVzIGFsc28gZXh0ZW5k
-IGl0IHRvIHN1cHBvcnQgb3RoZXIgdHlwZXMuIFRoaXMgaXMgZG9uZQo+IHRocm91Z2ggaW50cm9k
-dWNpbmcgY2xhc3MgaWQgdG8gdGhlIGRldmljZSBhbmQgcGFpcmluZyBpdCB3aXRoCj4gaWRfdGFs
-YmUgY2xhaW1lZCBieSB0aGUgZHJpdmVyLiBPbiB0b3AsIHRoaXMgc2VyaXMgYWxzbyBkZWNvdXBs
-ZQo+IGRldmljZSBzcGVjaWZpYyBwYXJlbnRzIG9wcyBvdXQgb2YgdGhlIGNvbW1vbiBvbmVzLgo+
-Cj4gUGt0Z2VuIHRlc3Qgd2FzIGRvbmUgd2l0aCB2aXJpdG8tbmV0ICsgbXZuZXQgbG9vcCBiYWNr
-IGRldmljZS4KPgo+IFBsZWFzZSByZXZpZXcuCgoKQ0MgUGFyYXYuCgpUaGFua3MKCgo+Cj4gQ2hh
-bmdlcyBmcm9tIFYxOgo+Cj4gLSByZW5hbWUgZGV2aWNlIGlkIHRvIGNsYXNzIGlkCj4gLSBhZGQg
-ZG9jcyBmb3IgY2xhc3MgaWQgYW5kIGRldmljZSBzcGVjaWZpYyBvcHMgKGRldmljZV9vcHMpCj4g
-LSBzcGxpdCBkZXZpY2Vfb3BzIGludG8gc2VwZXJhdGUgaGVhZGVycwo+IC0gZHJvcCB0aGUgbWRl
-dl9zZXRfZG1hX29wcygpCj4gLSB1c2UgZGV2aWNlX29wcyB0byBpbXBsZW1lbnQgdGhlIHRyYW5z
-cG9ydCBBUEksIHRoZW4gaXQncyBub3QgYSBwYXJ0Cj4gICAgb2YgVUFQSSBhbnkgbW9yZQo+IC0g
-dXNlIEdGUF9BVE9NSUMgaW4gbXZuZXQgc2FtcGxlIGRldmljZSBhbmQgb3RoZXIgdHdlYWtzCj4g
-LSBzZXRfdnJpbmdfYmFzZS9nZXRfdnJpbmdfYmFzZSBzdXBwb3J0IGZvciBtdm5ldCBkZXZpY2UK
-Pgo+IEphc29uIFdhbmcgKDYpOgo+ICAgIG1kZXY6IGNsYXNzIGlkIHN1cHBvcnQKPiAgICBtZGV2
-OiBpbnRyb2R1Y2UgZGV2aWNlIHNwZWNpZmljIG9wcwo+ICAgIG1kZXY6IGludHJvZHVjZSB2aXJ0
-aW8gZGV2aWNlIGFuZCBpdHMgZGV2aWNlIG9wcwo+ICAgIHZpcnRpbzogaW50cm91ZGNlIGEgbWRl
-diBiYXNlZCB0cmFuc3BvcnQKPiAgICB2cmluZ2g6IGZpeCBjb3B5IGRpcmVjdGlvbiBvZiB2cmlu
-Z2hfaW92X3B1c2hfa2VybigpCj4gICAgZG9jczogU2FtcGxlIGRyaXZlciB0byBkZW1vbnN0cmF0
-ZSBob3cgdG8gaW1wbGVtZW50IHZpcnRpby1tZGV2Cj4gICAgICBmcmFtZXdvcmsKPgo+ICAgLi4u
-L2RyaXZlci1hcGkvdmZpby1tZWRpYXRlZC1kZXZpY2UucnN0ICAgICAgIHwgIDExICstCj4gICBk
-cml2ZXJzL2dwdS9kcm0vaTkxNS9ndnQva3ZtZ3QuYyAgICAgICAgICAgICAgfCAgMTcgKy0KPiAg
-IGRyaXZlcnMvczM5MC9jaW8vdmZpb19jY3dfb3BzLmMgICAgICAgICAgICAgICB8ICAxNyArLQo+
-ICAgZHJpdmVycy9zMzkwL2NyeXB0by92ZmlvX2FwX29wcy5jICAgICAgICAgICAgIHwgIDE0ICst
-Cj4gICBkcml2ZXJzL3ZmaW8vbWRldi9LY29uZmlnICAgICAgICAgICAgICAgICAgICAgfCAgIDcg
-Kwo+ICAgZHJpdmVycy92ZmlvL21kZXYvTWFrZWZpbGUgICAgICAgICAgICAgICAgICAgIHwgICAx
-ICsKPiAgIGRyaXZlcnMvdmZpby9tZGV2L21kZXZfY29yZS5jICAgICAgICAgICAgICAgICB8ICAy
-MSArLQo+ICAgZHJpdmVycy92ZmlvL21kZXYvbWRldl9kcml2ZXIuYyAgICAgICAgICAgICAgIHwg
-IDE0ICsKPiAgIGRyaXZlcnMvdmZpby9tZGV2L21kZXZfcHJpdmF0ZS5oICAgICAgICAgICAgICB8
-ICAgMSArCj4gICBkcml2ZXJzL3ZmaW8vbWRldi92ZmlvX21kZXYuYyAgICAgICAgICAgICAgICAg
-fCAgMzcgKy0KPiAgIGRyaXZlcnMvdmZpby9tZGV2L3ZpcnRpb19tZGV2LmMgICAgICAgICAgICAg
-ICB8IDQxOCArKysrKysrKysrKwo+ICAgZHJpdmVycy92aG9zdC92cmluZ2guYyAgICAgICAgICAg
-ICAgICAgICAgICAgIHwgICA4ICstCj4gICBpbmNsdWRlL2xpbnV4L21kZXYuaCAgICAgICAgICAg
-ICAgICAgICAgICAgICAgfCAgNDYgKy0KPiAgIGluY2x1ZGUvbGludXgvbW9kX2RldmljZXRhYmxl
-LmggICAgICAgICAgICAgICB8ICAgOCArCj4gICBpbmNsdWRlL2xpbnV4L3ZmaW9fbWRldi5oICAg
-ICAgICAgICAgICAgICAgICAgfCAgNTAgKysKPiAgIGluY2x1ZGUvbGludXgvdmlydGlvX21kZXYu
-aCAgICAgICAgICAgICAgICAgICB8IDE0MSArKysrCj4gICBzYW1wbGVzL0tjb25maWcgICAgICAg
-ICAgICAgICAgICAgICAgICAgICAgICAgfCAgIDcgKwo+ICAgc2FtcGxlcy92ZmlvLW1kZXYvTWFr
-ZWZpbGUgICAgICAgICAgICAgICAgICAgIHwgICAxICsKPiAgIHNhbXBsZXMvdmZpby1tZGV2L21i
-b2Nocy5jICAgICAgICAgICAgICAgICAgICB8ICAxOSArLQo+ICAgc2FtcGxlcy92ZmlvLW1kZXYv
-bWRweS5jICAgICAgICAgICAgICAgICAgICAgIHwgIDE5ICstCj4gICBzYW1wbGVzL3ZmaW8tbWRl
-di9tdHR5LmMgICAgICAgICAgICAgICAgICAgICAgfCAgMTcgKy0KPiAgIHNhbXBsZXMvdmZpby1t
-ZGV2L212bmV0LmMgICAgICAgICAgICAgICAgICAgICB8IDY4OCArKysrKysrKysrKysrKysrKysK
-PiAgIDIyIGZpbGVzIGNoYW5nZWQsIDE0NzMgaW5zZXJ0aW9ucygrKSwgODkgZGVsZXRpb25zKC0p
-Cj4gICBjcmVhdGUgbW9kZSAxMDA2NDQgZHJpdmVycy92ZmlvL21kZXYvdmlydGlvX21kZXYuYwo+
-ICAgY3JlYXRlIG1vZGUgMTAwNjQ0IGluY2x1ZGUvbGludXgvdmZpb19tZGV2LmgKPiAgIGNyZWF0
-ZSBtb2RlIDEwMDY0NCBpbmNsdWRlL2xpbnV4L3ZpcnRpb19tZGV2LmgKPiAgIGNyZWF0ZSBtb2Rl
-IDEwMDY0NCBzYW1wbGVzL3ZmaW8tbWRldi9tdm5ldC5jCj4KX19fX19fX19fX19fX19fX19fX19f
-X19fX19fX19fX19fX19fX19fX19fX19fX18KVmlydHVhbGl6YXRpb24gbWFpbGluZyBsaXN0ClZp
-cnR1YWxpemF0aW9uQGxpc3RzLmxpbnV4LWZvdW5kYXRpb24ub3JnCmh0dHBzOi8vbGlzdHMubGlu
-dXhmb3VuZGF0aW9uLm9yZy9tYWlsbWFuL2xpc3RpbmZvL3ZpcnR1YWxpemF0aW9u
+Hi Matias,
+thanks for this patch!
+
+Since this patch only concerns virtio_transport,
+I'd use the 'vsock/virtio' prefix in the commit title:
+"vsock/virtio: add support for MSG_PEEK"
+
+Some comments below:
+
+On Sun, Sep 22, 2019 at 05:48:27PM +0000, Matias Ezequiel Vara Larsen wrote:
+> This patch adds support for MSG_PEEK. In such a case, packets are not
+> removed from the rx_queue and credit updates are not sent.
+> 
+> Signed-off-by: Matias Ezequiel Vara Larsen <matiasevara@gmail.com>
+> ---
+>  net/vmw_vsock/virtio_transport_common.c | 59 +++++++++++++++++++++++++++++++--
+>  1 file changed, 56 insertions(+), 3 deletions(-)
+> 
+> diff --git a/net/vmw_vsock/virtio_transport_common.c b/net/vmw_vsock/virtio_transport_common.c
+> index 94cc0fa..830e890 100644
+> --- a/net/vmw_vsock/virtio_transport_common.c
+> +++ b/net/vmw_vsock/virtio_transport_common.c
+> @@ -264,6 +264,59 @@ static int virtio_transport_send_credit_update(struct vsock_sock *vsk,
+>  }
+>  
+>  static ssize_t
+> +virtio_transport_stream_do_peek(struct vsock_sock *vsk,
+> +				struct msghdr *msg,
+> +				size_t len)
+> +{
+> +	struct virtio_vsock_sock *vvs = vsk->trans;
+> +	struct virtio_vsock_pkt *pkt;
+> +	size_t bytes, off = 0, total = 0;
+> +	int err = -EFAULT;
+> +
+> +	spin_lock_bh(&vvs->rx_lock);
+> +
+
+What about using list_for_each_entry() to cycle through the queued packets?
+
+> +	if (list_empty(&vvs->rx_queue)) {
+> +		spin_unlock_bh(&vvs->rx_lock);
+> +		return 0;
+> +	}
+> +
+> +	pkt = list_first_entry(&vvs->rx_queue,
+> +			       struct virtio_vsock_pkt, list);
+> +	do {
+
+pkt->off contains the offset inside the packet where the unread data starts.
+So here we should initialize 'off':
+
+		off = pkt->off;
+
+Or just use pkt->off later (without increasing it as in the dequeue).
+
+> +		bytes = len - total;
+> +		if (bytes > pkt->len - off)
+> +			bytes = pkt->len - off;
+> +
+> +		/* sk_lock is held by caller so no one else can dequeue.
+> +		 * Unlock rx_lock since memcpy_to_msg() may sleep.
+> +		 */
+> +		spin_unlock_bh(&vvs->rx_lock);
+> +
+> +		err = memcpy_to_msg(msg, pkt->buf + off, bytes);
+> +		if (err)
+> +			goto out;
+> +
+> +		spin_lock_bh(&vvs->rx_lock);
+> +
+> +		total += bytes;
+
+Using list_for_each_entry(), here we can just do:
+(or better, at the beginning of the cycle)
+
+		if (total == len)
+			break;
+
+removing the next part...
+
+> +		off += bytes;
+> +		if (off == pkt->len) {
+> +			pkt = list_next_entry(pkt, list);
+> +			off = 0;
+> +		}
+> +	} while ((total < len) && !list_is_first(&pkt->list, &vvs->rx_queue));
+
+...until here.
+
+> +
+> +	spin_unlock_bh(&vvs->rx_lock);
+> +
+> +	return total;
+> +
+> +out:
+> +	if (total)
+> +		err = total;
+> +	return err;
+> +}
+> +
+> +static ssize_t
+>  virtio_transport_stream_do_dequeue(struct vsock_sock *vsk,
+>  				   struct msghdr *msg,
+>  				   size_t len)
+> @@ -330,9 +383,9 @@ virtio_transport_stream_dequeue(struct vsock_sock *vsk,
+>  				size_t len, int flags)
+>  {
+>  	if (flags & MSG_PEEK)
+> -		return -EOPNOTSUPP;
+> -
+> -	return virtio_transport_stream_do_dequeue(vsk, msg, len);
+> +		return virtio_transport_stream_do_peek(vsk, msg, len);
+> +	else
+> +		return virtio_transport_stream_do_dequeue(vsk, msg, len);
+>  }
+>  EXPORT_SYMBOL_GPL(virtio_transport_stream_dequeue);
+>  
+
+The rest looks good to me!
+
+Thanks,
+Stefano
