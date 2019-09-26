@@ -1,11 +1,14 @@
-From: Tiwei Bie <tiwei.bie@intel.com>
-Subject: [PATCH] vhost: introduce mdev based hardware backend
-Date: Thu, 26 Sep 2019 12:54:27 +0800
-Message-ID: <20190926045427.4973-1-tiwei.bie__16756.9992992625$1569473896$gmane$org@intel.com>
+From: Stefano Garzarella <sgarzare@redhat.com>
+Subject: Re: [PATCH net v2] vsock: Fix a lockdep warning in __vsock_release()
+Date: Thu, 26 Sep 2019 09:47:49 +0200
+Message-ID: <20190926074749.sltehhkcgfduu7n2__48184.8797340476$1569484087$gmane$org@steredhat.homenet.telecomitalia.it>
+References: <1569460241-57800-1-git-send-email-decui@microsoft.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
+Content-Disposition: inline
+In-Reply-To: <1569460241-57800-1-git-send-email-decui@microsoft.com>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -15,490 +18,175 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: mst@redhat.com, jasowang@redhat.com, alex.williamson@redhat.com, maxime.coquelin@redhat.com
-Cc: kvm@vger.kernel.org, netdev@vger.kernel.org, linux-kernel@vger.kernel.org, virtualization@lists.linux-foundation.org, zhihong.wang@intel.com, lingshan.zhu@intel.com
+To: Dexuan Cui <decui@microsoft.com>
+Cc: "sashal@kernel.org" <sashal@kernel.org>, "linux-hyperv@vger.kernel.org" <linux-hyperv@vger.kernel.org>, Stephen Hemminger <sthemmin@microsoft.com>, "kvm@vger.kernel.org" <kvm@vger.kernel.org>, "arnd@arndb.de" <arnd@arndb.de>, "gregkh@linuxfoundation.org" <gregkh@linuxfoundation.org>, Haiyang Zhang <haiyangz@microsoft.com>, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>, "ytht.net@gmail.com" <ytht.net@gmail.com>, "deepa.kernel@gmail.com" <deepa.kernel@gmail.com>, "stefanha@redhat.com" <stefanha@redhat.com>, "netdev@vger.kernel.org" <netdev@vger.kernel.org>, "tglx@linutronix.de" <tglx@linutronix.de>, "virtualization@lists.linux-foundation.org" <virtualization@lists.linux-foundation.org>, "davem@davemloft.net" <davem@davemloft.net>, "jhansen@vmware.com" <jhansen@vmware.com>, Michael Kelley <mikelley@microsoft.com>
 List-Id: virtualization@lists.linuxfoundation.org
 
-This patch introduces a mdev based hardware vhost backend.
-This backend is built on top of the same abstraction used
-in virtio-mdev and provides a generic vhost interface for
-userspace to accelerate the virtio devices in guest.
+Hi Dexuan,
 
-This backend is implemented as a mdev device driver on top
-of the same mdev device ops used in virtio-mdev but using
-a different mdev class id, and it will register the device
-as a VFIO device for userspace to use. Userspace can setup
-the IOMMU with the existing VFIO container/group APIs and
-then get the device fd with the device name. After getting
-the device fd of this device, userspace can use vhost ioctls
-to setup the backend.
+On Thu, Sep 26, 2019 at 01:11:27AM +0000, Dexuan Cui wrote:
+> Lockdep is unhappy if two locks from the same class are held.
+> 
+> Fix the below warning for hyperv and virtio sockets (vmci socket code
+> doesn't have the issue) by using lock_sock_nested() when __vsock_release()
+> is called recursively:
+> 
+> ============================================
+> WARNING: possible recursive locking detected
+> 5.3.0+ #1 Not tainted
+> --------------------------------------------
+> server/1795 is trying to acquire lock:
+> ffff8880c5158990 (sk_lock-AF_VSOCK){+.+.}, at: hvs_release+0x10/0x120 [hv_sock]
+> 
+> but task is already holding lock:
+> ffff8880c5158150 (sk_lock-AF_VSOCK){+.+.}, at: __vsock_release+0x2e/0xf0 [vsock]
+> 
+> other info that might help us debug this:
+>  Possible unsafe locking scenario:
+> 
+>        CPU0
+>        ----
+>   lock(sk_lock-AF_VSOCK);
+>   lock(sk_lock-AF_VSOCK);
+> 
+>  *** DEADLOCK ***
+> 
+>  May be due to missing lock nesting notation
+> 
+> 2 locks held by server/1795:
+>  #0: ffff8880c5d05ff8 (&sb->s_type->i_mutex_key#10){+.+.}, at: __sock_release+0x2d/0xa0
+>  #1: ffff8880c5158150 (sk_lock-AF_VSOCK){+.+.}, at: __vsock_release+0x2e/0xf0 [vsock]
+> 
+> stack backtrace:
+> CPU: 5 PID: 1795 Comm: server Not tainted 5.3.0+ #1
+> Call Trace:
+>  dump_stack+0x67/0x90
+>  __lock_acquire.cold.67+0xd2/0x20b
+>  lock_acquire+0xb5/0x1c0
+>  lock_sock_nested+0x6d/0x90
+>  hvs_release+0x10/0x120 [hv_sock]
+>  __vsock_release+0x24/0xf0 [vsock]
+>  __vsock_release+0xa0/0xf0 [vsock]
+>  vsock_release+0x12/0x30 [vsock]
+>  __sock_release+0x37/0xa0
+>  sock_close+0x14/0x20
+>  __fput+0xc1/0x250
+>  task_work_run+0x98/0xc0
+>  do_exit+0x344/0xc60
+>  do_group_exit+0x47/0xb0
+>  get_signal+0x15c/0xc50
+>  do_signal+0x30/0x720
+>  exit_to_usermode_loop+0x50/0xa0
+>  do_syscall_64+0x24e/0x270
+>  entry_SYSCALL_64_after_hwframe+0x49/0xbe
+> RIP: 0033:0x7f4184e85f31
+> 
+> Signed-off-by: Dexuan Cui <decui@microsoft.com>
+> ---
+> 
+> NOTE: I only tested the code on Hyper-V. I can not test the code for
+> virtio socket, as I don't have a KVM host. :-( Sorry.
+> 
+> @Stefan, @Stefano: please review & test the patch for virtio socket,
+> and let me know if the patch breaks anything. Thanks!
 
-Signed-off-by: Tiwei Bie <tiwei.bie@intel.com>
----
-This patch depends on below series:
-https://lkml.org/lkml/2019/9/24/357
+Comment below, I'll test it ASAP!
 
-RFC v4 -> v1:
-- Implement vhost-mdev as a mdev device driver directly and
-  connect it to VFIO container/group. (Jason);
-- Pass ring addresses as GPAs/IOVAs in vhost-mdev to avoid
-  meaningless HVA->GPA translations (Jason);
+> 
+> Changes in v2:
+>   Avoid the duplication of code in v1: https://lkml.org/lkml/2019/8/19/1361
+>   Also fix virtio socket code.
+> 
+>  net/vmw_vsock/af_vsock.c                | 19 +++++++++++++++----
+>  net/vmw_vsock/hyperv_transport.c        |  2 +-
+>  net/vmw_vsock/virtio_transport_common.c |  2 +-
+>  3 files changed, 17 insertions(+), 6 deletions(-)
+> 
+> diff --git a/net/vmw_vsock/af_vsock.c b/net/vmw_vsock/af_vsock.c
+> index ab47bf3ab66e..dbae4373cbab 100644
+> --- a/net/vmw_vsock/af_vsock.c
+> +++ b/net/vmw_vsock/af_vsock.c
+> @@ -638,8 +638,10 @@ struct sock *__vsock_create(struct net *net,
+>  }
+>  EXPORT_SYMBOL_GPL(__vsock_create);
+>  
+> -static void __vsock_release(struct sock *sk)
+> +static void __vsock_release(struct sock *sk, int level)
+>  {
+> +	WARN_ON(level != 1 && level != 2);
+> +
+>  	if (sk) {
+>  		struct sk_buff *skb;
+>  		struct sock *pending;
+> @@ -648,9 +650,18 @@ static void __vsock_release(struct sock *sk)
+>  		vsk = vsock_sk(sk);
+>  		pending = NULL;	/* Compiler warning. */
+>  
+> +		/* The release call is supposed to use lock_sock_nested()
+> +		 * rather than lock_sock(), if a sock lock should be acquired.
+> +		 */
+>  		transport->release(vsk);
+>  
+> -		lock_sock(sk);
+> +		/* When "level" is 2, use the nested version to avoid the
+> +		 * warning "possible recursive locking detected".
+> +		 */
+> +		if (level == 1)
+> +			lock_sock(sk);
 
-RFC v3 -> RFC v4:
-- Build vhost-mdev on top of the same abstraction used by
-  virtio-mdev (Jason);
-- Introduce vhost fd and pass VFIO fd via SET_BACKEND ioctl (MST);
+Since lock_sock() calls lock_sock_nested(sk, 0), could we use directly
+lock_sock_nested(sk, level) with level = 0 in vsock_release() and
+level = SINGLE_DEPTH_NESTING here in the while loop?
 
-RFC v2 -> RFC v3:
-- Reuse vhost's ioctls instead of inventing a VFIO regions/irqs
-  based vhost protocol on top of vfio-mdev (Jason);
+> +		else
+> +			lock_sock_nested(sk, SINGLE_DEPTH_NESTING);
+>  		sock_orphan(sk);
+>  		sk->sk_shutdown = SHUTDOWN_MASK;
+>  
+> @@ -659,7 +670,7 @@ static void __vsock_release(struct sock *sk)
+>  
+>  		/* Clean up any sockets that never were accepted. */
+>  		while ((pending = vsock_dequeue_accept(sk)) != NULL) {
+> -			__vsock_release(pending);
+> +			__vsock_release(pending, 2);
+>  			sock_put(pending);
+>  		}
+>  
+> @@ -708,7 +719,7 @@ EXPORT_SYMBOL_GPL(vsock_stream_has_space);
+>  
+>  static int vsock_release(struct socket *sock)
+>  {
+> -	__vsock_release(sock->sk);
+> +	__vsock_release(sock->sk, 1);
+>  	sock->sk = NULL;
+>  	sock->state = SS_FREE;
+>  
+> diff --git a/net/vmw_vsock/hyperv_transport.c b/net/vmw_vsock/hyperv_transport.c
+> index 261521d286d6..c443db7af8d4 100644
+> --- a/net/vmw_vsock/hyperv_transport.c
+> +++ b/net/vmw_vsock/hyperv_transport.c
+> @@ -559,7 +559,7 @@ static void hvs_release(struct vsock_sock *vsk)
+>  	struct sock *sk = sk_vsock(vsk);
+>  	bool remove_sock;
+>  
+> -	lock_sock(sk);
+> +	lock_sock_nested(sk, SINGLE_DEPTH_NESTING);
+>  	remove_sock = hvs_close_lock_held(vsk);
+>  	release_sock(sk);
+>  	if (remove_sock)
+> diff --git a/net/vmw_vsock/virtio_transport_common.c b/net/vmw_vsock/virtio_transport_common.c
+> index 5bb70c692b1e..a666ef8fc54e 100644
+> --- a/net/vmw_vsock/virtio_transport_common.c
+> +++ b/net/vmw_vsock/virtio_transport_common.c
+> @@ -820,7 +820,7 @@ void virtio_transport_release(struct vsock_sock *vsk)
+>  	struct sock *sk = &vsk->sk;
+>  	bool remove_sock = true;
+>  
+> -	lock_sock(sk);
+> +	lock_sock_nested(sk, SINGLE_DEPTH_NESTING);
+>  	if (sk->sk_type == SOCK_STREAM)
+>  		remove_sock = virtio_transport_close(vsk);
+>  
 
-RFC v1 -> RFC v2:
-- Introduce a new VFIO device type to build a vhost protocol
-  on top of vfio-mdev;
-
- drivers/vhost/Kconfig      |   9 +
- drivers/vhost/Makefile     |   3 +
- drivers/vhost/mdev.c       | 381 +++++++++++++++++++++++++++++++++++++
- include/uapi/linux/vhost.h |   8 +
- 4 files changed, 401 insertions(+)
- create mode 100644 drivers/vhost/mdev.c
-
-diff --git a/drivers/vhost/Kconfig b/drivers/vhost/Kconfig
-index 3d03ccbd1adc..decf0be8efe9 100644
---- a/drivers/vhost/Kconfig
-+++ b/drivers/vhost/Kconfig
-@@ -34,6 +34,15 @@ config VHOST_VSOCK
- 	To compile this driver as a module, choose M here: the module will be called
- 	vhost_vsock.
- 
-+config VHOST_MDEV
-+	tristate "Vhost driver for Mediated devices"
-+	depends on EVENTFD && VFIO && VFIO_MDEV
-+	select VHOST
-+	default n
-+	---help---
-+	Say M here to enable the vhost_mdev module for use with
-+	the mediated device based hardware vhost accelerators
-+
- config VHOST
- 	tristate
- 	---help---
-diff --git a/drivers/vhost/Makefile b/drivers/vhost/Makefile
-index 6c6df24f770c..ad9c0f8c6d8c 100644
---- a/drivers/vhost/Makefile
-+++ b/drivers/vhost/Makefile
-@@ -10,4 +10,7 @@ vhost_vsock-y := vsock.o
- 
- obj-$(CONFIG_VHOST_RING) += vringh.o
- 
-+obj-$(CONFIG_VHOST_MDEV) += vhost_mdev.o
-+vhost_mdev-y := mdev.o
-+
- obj-$(CONFIG_VHOST)	+= vhost.o
-diff --git a/drivers/vhost/mdev.c b/drivers/vhost/mdev.c
-new file mode 100644
-index 000000000000..1c12a25b86a2
---- /dev/null
-+++ b/drivers/vhost/mdev.c
-@@ -0,0 +1,381 @@
-+// SPDX-License-Identifier: GPL-2.0
-+/*
-+ * Copyright (C) 2018-2019 Intel Corporation.
-+ */
-+
-+#include <linux/compat.h>
-+#include <linux/kernel.h>
-+#include <linux/miscdevice.h>
-+#include <linux/mdev.h>
-+#include <linux/module.h>
-+#include <linux/vfio.h>
-+#include <linux/vhost.h>
-+#include <linux/virtio_mdev.h>
-+
-+#include "vhost.h"
-+
-+struct vhost_mdev {
-+	/* The lock is to protect this structure. */
-+	struct mutex mutex;
-+	struct vhost_dev dev;
-+	struct vhost_virtqueue *vqs;
-+	int nvqs;
-+	u64 state;
-+	u64 features;
-+	u64 acked_features;
-+	bool opened;
-+	struct mdev_device *mdev;
-+};
-+
-+static u8 mdev_get_status(struct mdev_device *mdev)
-+{
-+	const struct virtio_mdev_device_ops *ops = mdev_get_dev_ops(mdev);
-+
-+	return ops->get_status(mdev);
-+}
-+
-+static void mdev_set_status(struct mdev_device *mdev, u8 status)
-+{
-+	const struct virtio_mdev_device_ops *ops = mdev_get_dev_ops(mdev);
-+
-+	return ops->set_status(mdev, status);
-+}
-+
-+static void mdev_add_status(struct mdev_device *mdev, u8 status)
-+{
-+	status |= mdev_get_status(mdev);
-+	mdev_set_status(mdev, status);
-+}
-+
-+static void mdev_reset(struct mdev_device *mdev)
-+{
-+	mdev_set_status(mdev, 0);
-+}
-+
-+static void handle_vq_kick(struct vhost_work *work)
-+{
-+	struct vhost_virtqueue *vq = container_of(work, struct vhost_virtqueue,
-+						  poll.work);
-+	struct vhost_mdev *m = container_of(vq->dev, struct vhost_mdev, dev);
-+	const struct virtio_mdev_device_ops *ops = mdev_get_dev_ops(m->mdev);
-+
-+	ops->kick_vq(m->mdev, vq - m->vqs);
-+}
-+
-+static irqreturn_t vhost_mdev_virtqueue_cb(void *private)
-+{
-+	struct vhost_virtqueue *vq = private;
-+	struct eventfd_ctx *call_ctx = vq->call_ctx;
-+
-+	if (call_ctx)
-+		eventfd_signal(call_ctx, 1);
-+	return IRQ_HANDLED;
-+}
-+
-+static long vhost_mdev_reset(struct vhost_mdev *m)
-+{
-+	struct mdev_device *mdev = m->mdev;
-+
-+	mdev_reset(mdev);
-+	mdev_add_status(mdev, VIRTIO_CONFIG_S_ACKNOWLEDGE);
-+	mdev_add_status(mdev, VIRTIO_CONFIG_S_DRIVER);
-+	return 0;
-+}
-+
-+static long vhost_mdev_start(struct vhost_mdev *m)
-+{
-+	struct mdev_device *mdev = m->mdev;
-+	const struct virtio_mdev_device_ops *ops = mdev_get_dev_ops(mdev);
-+	struct virtio_mdev_callback cb;
-+	struct vhost_virtqueue *vq;
-+	int idx;
-+
-+	ops->set_features(mdev, m->acked_features);
-+
-+	mdev_add_status(mdev, VIRTIO_CONFIG_S_FEATURES_OK);
-+	if (!(mdev_get_status(mdev) & VIRTIO_CONFIG_S_FEATURES_OK))
-+		goto reset;
-+
-+	for (idx = 0; idx < m->nvqs; idx++) {
-+		vq = &m->vqs[idx];
-+
-+		if (!vq->desc || !vq->avail || !vq->used)
-+			break;
-+
-+		if (ops->set_vq_state(mdev, idx, vq->last_avail_idx))
-+			goto reset;
-+
-+		/*
-+		 * In vhost-mdev, userspace should pass ring addresses
-+		 * in guest physical addresses when IOMMU is disabled or
-+		 * IOVAs when IOMMU is enabled.
-+		 */
-+		if (ops->set_vq_address(mdev, idx, (u64)vq->desc,
-+					(u64)vq->avail, (u64)vq->used))
-+			goto reset;
-+
-+		ops->set_vq_num(mdev, idx, vq->num);
-+
-+		cb.callback = vhost_mdev_virtqueue_cb;
-+		cb.private = vq;
-+		ops->set_vq_cb(mdev, idx, &cb);
-+
-+		ops->set_vq_ready(mdev, idx, 1);
-+	}
-+
-+	mdev_add_status(mdev, VIRTIO_CONFIG_S_DRIVER_OK);
-+	if (mdev_get_status(mdev) & VIRTIO_CONFIG_S_NEEDS_RESET)
-+		goto reset;
-+	return 0;
-+
-+reset:
-+	vhost_mdev_reset(m);
-+	return -ENODEV;
-+}
-+
-+static long vhost_set_state(struct vhost_mdev *m, u64 __user *statep)
-+{
-+	u64 state;
-+	long r;
-+
-+	if (copy_from_user(&state, statep, sizeof(state)))
-+		return -EFAULT;
-+
-+	if (state >= VHOST_MDEV_S_MAX)
-+		return -EINVAL;
-+
-+	if (m->state == state)
-+		return 0;
-+
-+	m->state = state;
-+
-+	switch (m->state) {
-+	case VHOST_MDEV_S_RUNNING:
-+		r = vhost_mdev_start(m);
-+		break;
-+	case VHOST_MDEV_S_STOPPED:
-+		r = vhost_mdev_reset(m);
-+		break;
-+	default:
-+		r = -EINVAL;
-+		break;
-+	}
-+
-+	return r;
-+}
-+
-+static long vhost_get_features(struct vhost_mdev *m, u64 __user *featurep)
-+{
-+	if (copy_to_user(featurep, &m->features, sizeof(m->features)))
-+		return -EFAULT;
-+	return 0;
-+}
-+
-+static long vhost_set_features(struct vhost_mdev *m, u64 __user *featurep)
-+{
-+	u64 features;
-+
-+	if (copy_from_user(&features, featurep, sizeof(features)))
-+		return -EFAULT;
-+
-+	if (features & ~m->features)
-+		return -EINVAL;
-+
-+	m->acked_features = features;
-+
-+	return 0;
-+}
-+
-+static long vhost_get_vring_base(struct vhost_mdev *m, void __user *argp)
-+{
-+	const struct virtio_mdev_device_ops *ops = mdev_get_dev_ops(m->mdev);
-+	struct vhost_virtqueue *vq;
-+	u32 idx;
-+	long r;
-+
-+	r = get_user(idx, (u32 __user *)argp);
-+	if (r < 0)
-+		return r;
-+	if (idx >= m->nvqs)
-+		return -ENOBUFS;
-+
-+	vq = &m->vqs[idx];
-+	vq->last_avail_idx = ops->get_vq_state(m->mdev, idx);
-+
-+	return vhost_vring_ioctl(&m->dev, VHOST_GET_VRING_BASE, argp);
-+}
-+
-+static int vhost_mdev_open(void *device_data)
-+{
-+	struct vhost_mdev *m = device_data;
-+	struct vhost_dev *dev;
-+	struct vhost_virtqueue **vqs;
-+	int nvqs, i, r;
-+
-+	if (!try_module_get(THIS_MODULE))
-+		return -ENODEV;
-+
-+	mutex_lock(&m->mutex);
-+
-+	if (m->opened) {
-+		r = -EBUSY;
-+		goto err;
-+	}
-+
-+	nvqs = m->nvqs;
-+	vhost_mdev_reset(m);
-+
-+	memset(&m->dev, 0, sizeof(m->dev));
-+	memset(m->vqs, 0, nvqs * sizeof(struct vhost_virtqueue));
-+
-+	vqs = kmalloc_array(nvqs, sizeof(*vqs), GFP_KERNEL);
-+	if (!vqs) {
-+		r = -ENOMEM;
-+		goto err;
-+	}
-+
-+	dev = &m->dev;
-+	for (i = 0; i < nvqs; i++) {
-+		vqs[i] = &m->vqs[i];
-+		vqs[i]->handle_kick = handle_vq_kick;
-+	}
-+	vhost_dev_init(dev, vqs, nvqs, 0, 0, 0);
-+	m->opened = true;
-+	mutex_unlock(&m->mutex);
-+
-+	return 0;
-+
-+err:
-+	mutex_unlock(&m->mutex);
-+	module_put(THIS_MODULE);
-+	return r;
-+}
-+
-+static void vhost_mdev_release(void *device_data)
-+{
-+	struct vhost_mdev *m = device_data;
-+
-+	mutex_lock(&m->mutex);
-+	vhost_mdev_reset(m);
-+	vhost_dev_stop(&m->dev);
-+	vhost_dev_cleanup(&m->dev);
-+
-+	kfree(m->dev.vqs);
-+	m->opened = false;
-+	mutex_unlock(&m->mutex);
-+	module_put(THIS_MODULE);
-+}
-+
-+static long vhost_mdev_unlocked_ioctl(void *device_data,
-+				      unsigned int cmd, unsigned long arg)
-+{
-+	struct vhost_mdev *m = device_data;
-+	void __user *argp = (void __user *)arg;
-+	long r;
-+
-+	mutex_lock(&m->mutex);
-+
-+	switch (cmd) {
-+	case VHOST_MDEV_SET_STATE:
-+		r = vhost_set_state(m, argp);
-+		break;
-+	case VHOST_GET_FEATURES:
-+		r = vhost_get_features(m, argp);
-+		break;
-+	case VHOST_SET_FEATURES:
-+		r = vhost_set_features(m, argp);
-+		break;
-+	case VHOST_GET_VRING_BASE:
-+		r = vhost_get_vring_base(m, argp);
-+		break;
-+	default:
-+		r = vhost_dev_ioctl(&m->dev, cmd, argp);
-+		if (r == -ENOIOCTLCMD)
-+			r = vhost_vring_ioctl(&m->dev, cmd, argp);
-+	}
-+
-+	mutex_unlock(&m->mutex);
-+	return r;
-+}
-+
-+static const struct vfio_device_ops vfio_vhost_mdev_dev_ops = {
-+	.name		= "vfio-vhost-mdev",
-+	.open		= vhost_mdev_open,
-+	.release	= vhost_mdev_release,
-+	.ioctl		= vhost_mdev_unlocked_ioctl,
-+};
-+
-+static int vhost_mdev_probe(struct device *dev)
-+{
-+	struct mdev_device *mdev = mdev_from_dev(dev);
-+	const struct virtio_mdev_device_ops *ops = mdev_get_dev_ops(mdev);
-+	struct vhost_mdev *m;
-+	int nvqs, r;
-+
-+	m = kzalloc(sizeof(*m), GFP_KERNEL | __GFP_RETRY_MAYFAIL);
-+	if (!m)
-+		return -ENOMEM;
-+
-+	mutex_init(&m->mutex);
-+
-+	nvqs = ops->get_queue_max(mdev);
-+	m->nvqs = nvqs;
-+
-+	m->vqs = kmalloc_array(nvqs, sizeof(struct vhost_virtqueue),
-+			       GFP_KERNEL);
-+	if (!m->vqs) {
-+		r = -ENOMEM;
-+		goto err;
-+	}
-+
-+	r = vfio_add_group_dev(dev, &vfio_vhost_mdev_dev_ops, m);
-+	if (r)
-+		goto err;
-+
-+	m->features = ops->get_features(mdev);
-+	m->mdev = mdev;
-+	return 0;
-+
-+err:
-+	kfree(m->vqs);
-+	kfree(m);
-+	return r;
-+}
-+
-+static void vhost_mdev_remove(struct device *dev)
-+{
-+	struct vhost_mdev *m;
-+
-+	m = vfio_del_group_dev(dev);
-+	mutex_destroy(&m->mutex);
-+	kfree(m->vqs);
-+	kfree(m);
-+}
-+
-+static struct mdev_class_id id_table[] = {
-+	{ MDEV_ID_VHOST },
-+	{ 0 },
-+};
-+
-+static struct mdev_driver vhost_mdev_driver = {
-+	.name	= "vhost_mdev",
-+	.probe	= vhost_mdev_probe,
-+	.remove	= vhost_mdev_remove,
-+	.id_table = id_table,
-+};
-+
-+static int __init vhost_mdev_init(void)
-+{
-+	return mdev_register_driver(&vhost_mdev_driver, THIS_MODULE);
-+}
-+module_init(vhost_mdev_init);
-+
-+static void __exit vhost_mdev_exit(void)
-+{
-+	mdev_unregister_driver(&vhost_mdev_driver);
-+}
-+module_exit(vhost_mdev_exit);
-+
-+MODULE_VERSION("0.0.1");
-+MODULE_LICENSE("GPL v2");
-+MODULE_DESCRIPTION("Mediated device based accelerator for virtio");
-diff --git a/include/uapi/linux/vhost.h b/include/uapi/linux/vhost.h
-index 40d028eed645..5afbc2f08fa3 100644
---- a/include/uapi/linux/vhost.h
-+++ b/include/uapi/linux/vhost.h
-@@ -116,4 +116,12 @@
- #define VHOST_VSOCK_SET_GUEST_CID	_IOW(VHOST_VIRTIO, 0x60, __u64)
- #define VHOST_VSOCK_SET_RUNNING		_IOW(VHOST_VIRTIO, 0x61, int)
- 
-+/* VHOST_MDEV specific defines */
-+
-+#define VHOST_MDEV_SET_STATE	_IOW(VHOST_VIRTIO, 0x70, __u64)
-+
-+#define VHOST_MDEV_S_STOPPED	0
-+#define VHOST_MDEV_S_RUNNING	1
-+#define VHOST_MDEV_S_MAX	2
-+
- #endif
--- 
-2.17.1
+Thanks,
+Stefano
