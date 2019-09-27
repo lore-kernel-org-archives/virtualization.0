@@ -1,8 +1,8 @@
 From: Stefano Garzarella <sgarzare@redhat.com>
-Subject: [RFC PATCH 08/13] vsock: move vsock_insert_unbound() in the
-	vsock_create()
-Date: Fri, 27 Sep 2019 13:26:58 +0200
-Message-ID: <20190927112703.17745-9-sgarzare__38779.1853559733$1569583735$gmane$org@redhat.com>
+Subject: [RFC PATCH 09/13] hv_sock: set VMADDR_CID_HOST in the
+	hvs_remote_addr_init()
+Date: Fri, 27 Sep 2019 13:26:59 +0200
+Message-ID: <20190927112703.17745-10-sgarzare__47876.4881541551$1569583743$gmane$org@redhat.com>
 References: <20190927112703.17745-1-sgarzare@redhat.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
@@ -22,55 +22,27 @@ To: netdev@vger.kernel.org
 Cc: Sasha Levin <sashal@kernel.org>, linux-hyperv@vger.kernel.org, Stephen Hemminger <sthemmin@microsoft.com>, kvm@vger.kernel.org, "Michael S. Tsirkin" <mst@redhat.com>, Dexuan Cui <decui@microsoft.com>, Haiyang Zhang <haiyangz@microsoft.com>, linux-kernel@vger.kernel.org, virtualization@lists.linux-foundation.org, Stefan Hajnoczi <stefanha@redhat.com>, "David S. Miller" <davem@davemloft.net>, Jorgen Hansen <jhansen@vmware.com>
 List-Id: virtualization@lists.linuxfoundation.org
 
-vsock_insert_unbound() was called only when 'sock' parameter of
-__vsock_create() was not null. This only happened when
-__vsock_create() was called by vsock_create().
-
-In order to simplify the multi-transports support, this patch
-moves vsock_insert_unbound() at the end of vsock_create().
+Remote peer is always the host, so we set VMADDR_CID_HOST as
+remote CID instead of VMADDR_CID_ANY.
 
 Signed-off-by: Stefano Garzarella <sgarzare@redhat.com>
 ---
- net/vmw_vsock/af_vsock.c | 13 +++++++++----
- 1 file changed, 9 insertions(+), 4 deletions(-)
+ net/vmw_vsock/hyperv_transport.c | 3 ++-
+ 1 file changed, 2 insertions(+), 1 deletion(-)
 
-diff --git a/net/vmw_vsock/af_vsock.c b/net/vmw_vsock/af_vsock.c
-index dee69d7ee148..95e6db21e7e1 100644
---- a/net/vmw_vsock/af_vsock.c
-+++ b/net/vmw_vsock/af_vsock.c
-@@ -634,9 +634,6 @@ struct sock *__vsock_create(struct net *net,
- 		return NULL;
- 	}
+diff --git a/net/vmw_vsock/hyperv_transport.c b/net/vmw_vsock/hyperv_transport.c
+index 4f47af2054dd..306310794522 100644
+--- a/net/vmw_vsock/hyperv_transport.c
++++ b/net/vmw_vsock/hyperv_transport.c
+@@ -186,7 +186,8 @@ static void hvs_remote_addr_init(struct sockaddr_vm *remote,
+ 	static u32 host_ephemeral_port = MIN_HOST_EPHEMERAL_PORT;
+ 	struct sock *sk;
  
--	if (sock)
--		vsock_insert_unbound(vsk);
--
- 	return sk;
- }
- EXPORT_SYMBOL_GPL(__vsock_create);
-@@ -1875,6 +1872,8 @@ static const struct proto_ops vsock_stream_ops = {
- static int vsock_create(struct net *net, struct socket *sock,
- 			int protocol, int kern)
- {
-+	struct sock *sk;
-+
- 	if (!sock)
- 		return -EINVAL;
+-	vsock_addr_init(remote, VMADDR_CID_ANY, VMADDR_PORT_ANY);
++	/* Remote peer is always the host */
++	vsock_addr_init(remote, VMADDR_CID_HOST, VMADDR_PORT_ANY);
  
-@@ -1894,7 +1893,13 @@ static int vsock_create(struct net *net, struct socket *sock,
- 
- 	sock->state = SS_UNCONNECTED;
- 
--	return __vsock_create(net, sock, NULL, GFP_KERNEL, 0, kern) ? 0 : -ENOMEM;
-+	sk = __vsock_create(net, sock, NULL, GFP_KERNEL, 0, kern);
-+	if (!sk)
-+		return -ENOMEM;
-+
-+	vsock_insert_unbound(vsock_sk(sk));
-+
-+	return 0;
- }
- 
- static const struct net_proto_family vsock_family_ops = {
+ 	while (1) {
+ 		/* Wrap around ? */
 -- 
 2.21.0
