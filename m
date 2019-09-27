@@ -1,16 +1,16 @@
-From: Stefano Garzarella <sgarzare@redhat.com>
-Subject: Re: [PATCH net v2] vsock: Fix a lockdep warning in __vsock_release()
-Date: Fri, 27 Sep 2019 10:32:59 +0200
-Message-ID: <20190927083259.zpzseatncogfdrv4__10503.6868060537$1569573198$gmane$org@steredhat.homenet.telecomitalia.it>
-References: <1569460241-57800-1-git-send-email-decui@microsoft.com>
-	<20190926074749.sltehhkcgfduu7n2@steredhat.homenet.telecomitalia.it>
-	<PU1P153MB01698C46C9348B9762D5E122BF810@PU1P153MB0169.APCP153.PROD.OUTLOOK.COM>
+From: Jason Wang <jasowang@redhat.com>
+Subject: Re: [PATCH V2 6/8] mdev: introduce virtio device and its device ops
+Date: Fri, 27 Sep 2019 16:37:06 +0800
+Message-ID: <baa742f5-8d4e-f1f1-1194-f362cdf51fea__46703.3613867656$1569573470$gmane$org@redhat.com>
+References: <20190924135332.14160-1-jasowang@redhat.com>
+	<20190924135332.14160-7-jasowang@redhat.com>
+	<20190924170640.1da03bae@x1.home>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset="utf-8"; Format="flowed"
+Content-Transfer-Encoding: base64
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-Content-Disposition: inline
-In-Reply-To: <PU1P153MB01698C46C9348B9762D5E122BF810@PU1P153MB0169.APCP153.PROD.OUTLOOK.COM>
+In-Reply-To: <20190924170640.1da03bae@x1.home>
+Content-Language: en-US
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -20,108 +20,34 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Dexuan Cui <decui@microsoft.com>
-Cc: "sashal@kernel.org" <sashal@kernel.org>, "linux-hyperv@vger.kernel.org" <linux-hyperv@vger.kernel.org>, Stephen Hemminger <sthemmin@microsoft.com>, "kvm@vger.kernel.org" <kvm@vger.kernel.org>, "arnd@arndb.de" <arnd@arndb.de>, "gregkh@linuxfoundation.org" <gregkh@linuxfoundation.org>, Haiyang Zhang <haiyangz@microsoft.com>, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>, "ytht.net@gmail.com" <ytht.net@gmail.com>, "deepa.kernel@gmail.com" <deepa.kernel@gmail.com>, "stefanha@redhat.com" <stefanha@redhat.com>, "netdev@vger.kernel.org" <netdev@vger.kernel.org>, "tglx@linutronix.de" <tglx@linutronix.de>, "virtualization@lists.linux-foundation.org" <virtualization@lists.linux-foundation.org>, "davem@davemloft.net" <davem@davemloft.net>, "jhansen@vmware.com" <jhansen@vmware.com>, Michael Kelley <mikelley@microsoft.com>
+To: Alex Williamson <alex.williamson@redhat.com>
+Cc: christophe.de.dinechin@gmail.com, kvm@vger.kernel.org, mst@redhat.com, airlied@linux.ie, joonas.lahtinen@linux.intel.com, heiko.carstens@de.ibm.com, dri-devel@lists.freedesktop.org, virtualization@lists.linux-foundation.org, kwankhede@nvidia.com, rob.miller@broadcom.com, linux-s390@vger.kernel.org, sebott@linux.ibm.com, lulu@redhat.com, eperezma@redhat.com, pasic@linux.ibm.com, borntraeger@de.ibm.com, haotian.wang@sifive.com, zhi.a.wang@intel.com, farman@linux.ibm.com, idos@mellanox.com, gor@linux.ibm.com, intel-gfx@lists.freedesktop.org, jani.nikula@linux.intel.com, rodrigo.vivi@intel.com, xiao.w.wang@intel.com, freude@linux.ibm.com, zhenyuw@linux.intel.com, parav@mellanox.com, zhihong.wang@intel.com, intel-gvt-dev@lists.freedesktop.org, akrowiak@linux.ibm.com, oberpar@linux.ibm.com, netdev@vger.kernel.org, cohuck@redhat.com, linux-kernel@vger.kernel.org, maxime.coque
 List-Id: virtualization@lists.linuxfoundation.org
 
-On Fri, Sep 27, 2019 at 05:37:20AM +0000, Dexuan Cui wrote:
-> > From: linux-hyperv-owner@vger.kernel.org
-> > <linux-hyperv-owner@vger.kernel.org> On Behalf Of Stefano Garzarella
-> > Sent: Thursday, September 26, 2019 12:48 AM
-> > 
-> > Hi Dexuan,
-> > 
-> > On Thu, Sep 26, 2019 at 01:11:27AM +0000, Dexuan Cui wrote:
-> > > ...
-> > > NOTE: I only tested the code on Hyper-V. I can not test the code for
-> > > virtio socket, as I don't have a KVM host. :-( Sorry.
-> > >
-> > > @Stefan, @Stefano: please review & test the patch for virtio socket,
-> > > and let me know if the patch breaks anything. Thanks!
-> > 
-> > Comment below, I'll test it ASAP!
-> 
-> Stefano, Thank you!
-> 
-> BTW, this is how I tested the patch:
-> 1. write a socket server program in the guest. The program calls listen()
-> and then calls sleep(10000 seconds). Note: accept() is not called.
-> 
-> 2. create some connections to the server program in the guest.
-> 
-> 3. kill the server program by Ctrl+C, and "dmesg" will show the scary
-> call-trace, if the kernel is built with 
-> 	CONFIG_LOCKDEP=y
-> 	CONFIG_LOCKDEP_SUPPORT=y
-> 
-> 4. Apply the patch, do the same test and we should no longer see the call-trace.
-
-Thanks very useful! I'll follow these steps!
-
-> 
-> > > -		lock_sock(sk);
-> > > +		/* When "level" is 2, use the nested version to avoid the
-> > > +		 * warning "possible recursive locking detected".
-> > > +		 */
-> > > +		if (level == 1)
-> > > +			lock_sock(sk);
-> > 
-> > Since lock_sock() calls lock_sock_nested(sk, 0), could we use directly
-> > lock_sock_nested(sk, level) with level = 0 in vsock_release() and
-> > level = SINGLE_DEPTH_NESTING here in the while loop?
-> > 
-> > Thanks,
-> > Stefano
-> 
-> IMHO it's better to make the lock usage more explicit, as the patch does.
-> 
-> lock_sock_nested(sk, level) or lock_sock_nested(sk, 0) seems a little
-> odd to me. But I'm open to your suggestion: if any of the network
-> maintainers, e.g. davem, also agrees with you, I'll change the code 
-> as you suggested. :-)
-
-Sure!
-
-Just to be clear, I'm proposing this (plus the changes in the transports
-and yours useful comments):
-
---- a/net/vmw_vsock/af_vsock.c
-+++ b/net/vmw_vsock/af_vsock.c
-@@ -638,7 +638,7 @@ struct sock *__vsock_create(struct net *net,
- }
- EXPORT_SYMBOL_GPL(__vsock_create);
-
--static void __vsock_release(struct sock *sk)
-+static void __vsock_release(struct sock *sk, int level)
- {
-        if (sk) {
-                struct sk_buff *skb;
-@@ -650,7 +650,7 @@ static void __vsock_release(struct sock *sk)
-
-                transport->release(vsk);
-
--               lock_sock(sk);
-+               lock_sock_nested(sk, level);
-                sock_orphan(sk);
-                sk->sk_shutdown = SHUTDOWN_MASK;
-
-@@ -659,7 +659,7 @@ static void __vsock_release(struct sock *sk)
-
-                /* Clean up any sockets that never were accepted. */
-                while ((pending = vsock_dequeue_accept(sk)) != NULL) {
--                       __vsock_release(pending);
-+                       __vsock_release(pending, SINGLE_DEPTH_NESTING);
-                        sock_put(pending);
-                }
-
-@@ -708,7 +708,7 @@ EXPORT_SYMBOL_GPL(vsock_stream_has_space);
-
- static int vsock_release(struct socket *sock)
- {
--       __vsock_release(sock->sk);
-+       __vsock_release(sock->sk, 0);
-        sock->sk = NULL;
-        sock->state = SS_FREE;
-
-Thanks,
-Stefano
+Ck9uIDIwMTkvOS8yNSDkuIrljYg3OjA2LCBBbGV4IFdpbGxpYW1zb24gd3JvdGU6Cj4gT24gVHVl
+LCAyNCBTZXAgMjAxOSAyMTo1MzozMCArMDgwMAo+IEphc29uIFdhbmc8amFzb3dhbmdAcmVkaGF0
+LmNvbT4gIHdyb3RlOgo+Cj4+IFRoaXMgcGF0Y2ggaW1wbGVtZW50cyBiYXNpYyBzdXBwb3J0IGZv
+ciBtZGV2IGRyaXZlciB0aGF0IHN1cHBvcnRzCj4+IHZpcnRpbyB0cmFuc3BvcnQgZm9yIGtlcm5l
+bCB2aXJ0aW8gZHJpdmVyLgo+Pgo+PiBTaWduZWQtb2ZmLWJ5OiBKYXNvbiBXYW5nPGphc293YW5n
+QHJlZGhhdC5jb20+Cj4+IC0tLQo+PiAgIGluY2x1ZGUvbGludXgvbWRldi5oICAgICAgICB8ICAg
+MiArCj4+ICAgaW5jbHVkZS9saW51eC92aXJ0aW9fbWRldi5oIHwgMTQ1ICsrKysrKysrKysrKysr
+KysrKysrKysrKysrKysrKysrKysrKwo+PiAgIDIgZmlsZXMgY2hhbmdlZCwgMTQ3IGluc2VydGlv
+bnMoKykKPj4gICBjcmVhdGUgbW9kZSAxMDA2NDQgaW5jbHVkZS9saW51eC92aXJ0aW9fbWRldi5o
+Cj4+Cj4+IGRpZmYgLS1naXQgYS9pbmNsdWRlL2xpbnV4L21kZXYuaCBiL2luY2x1ZGUvbGludXgv
+bWRldi5oCj4+IGluZGV4IDM0MTQzMDczMTFmMS4uNzNhYzI3YjNiODY4IDEwMDY0NAo+PiAtLS0g
+YS9pbmNsdWRlL2xpbnV4L21kZXYuaAo+PiArKysgYi9pbmNsdWRlL2xpbnV4L21kZXYuaAo+PiBA
+QCAtMTI2LDYgKzEyNiw4IEBAIHN0cnVjdCBtZGV2X2RldmljZSAqbWRldl9mcm9tX2RldihzdHJ1
+Y3QgZGV2aWNlICpkZXYpOwo+PiAgIAo+PiAgIGVudW0gewo+PiAgIAlNREVWX0lEX1ZGSU8gPSAx
+LAo+PiArCU1ERVZfSURfVklSVElPID0gMiwKPj4gKwlNREVWX0lEX1ZIT1NUID0gMywKPiBNREVW
+X0lEX1ZIT1NUIGlzbid0IHVzZWQgeWV0IGhlcmUuICBBbHNvLCBnaXZlbiB0aGUgc3Ryb25nCj4g
+aW50ZXJkZXBlbmRlbmNlIGJldHdlZW4gdGhlIGNsYXNzX2lkIGFuZCB0aGUgb3BzIHN0cnVjdHVy
+ZSwgd2UgbWlnaHQKPiB3YW5kIHRvIGRlZmluZSB0aGVtIGluIHRoZSBzYW1lIHBsYWNlLiAgVGhh
+bmtzLAo+Cj4gQWxleAo+CgpSZXRoaW5rIGFib3V0IHRoaXMswqAgSSBiZWxpZXZlIGl0J3MgYmV0
+dGVyIHRvIGRlZmluZSB0aGUgZGV2aWNlIG9wcyBpbiAKdGhlaXIgb3duIGhlYWRlcnMsIGFuZCBv
+bmUgc2V0IG9mIGRldmljZSBvcHMgY291bGQgYmUgdXNlZCBmb3IgdHdvIApjbGFzc2VzIChlLmcg
+Ym90aCB2aXJ0aW8gYW5kIHZob3N0KS4gQW5kIHRvIGF2b2lkIGEgZHVwbGljYXRlZCBJRCAKZGVm
+aW5pdGlvbi4gSSB0ZW5kIHRvIGtlZXAgdGhpcyBpbiB0aGUgY29tbW9uIG1kZXYuaCBoZWFkZXIu
+CgpUaGFua3MKCl9fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19f
+ClZpcnR1YWxpemF0aW9uIG1haWxpbmcgbGlzdApWaXJ0dWFsaXphdGlvbkBsaXN0cy5saW51eC1m
+b3VuZGF0aW9uLm9yZwpodHRwczovL2xpc3RzLmxpbnV4Zm91bmRhdGlvbi5vcmcvbWFpbG1hbi9s
+aXN0aW5mby92aXJ0dWFsaXphdGlvbg==
