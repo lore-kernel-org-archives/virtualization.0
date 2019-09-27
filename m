@@ -1,13 +1,16 @@
-From: "=?UTF-8?q?Christian=20K=C3=B6nig?=" <ckoenig.leichtzumerken@gmail.com>
-Subject: [PATCH 2/2] drm/ttm: stop exporting ttm_mem_io_* functions
-Date: Fri, 27 Sep 2019 15:24:58 +0200
-Message-ID: <20190927132458.4359-2-christian.koenig__868.345254433223$1569590717$gmane$org@amd.com>
-References: <20190927132458.4359-1-christian.koenig@amd.com>
+From: Eric Dumazet <eric.dumazet@gmail.com>
+Subject: Re: [PATCH] vsock/virtio: add support for MSG_PEEK
+Date: Fri, 27 Sep 2019 06:37:00 -0700
+Message-ID: <a7a77f0b-a658-6e46-3381-3dfea55b14d1__395.448196080395$1569591435$gmane$org@gmail.com>
+References: <1569522214-28223-1-git-send-email-matiasevara@gmail.com>
+	<f069a65d-33b9-1fa8-d26e-b76cc51fc7cb@gmail.com>
+	<20190927085513.tdiofiisrpyehfe5@steredhat.homenet.telecomitalia.it>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="utf-8"
-Content-Transfer-Encoding: base64
+Content-Type: text/plain; charset="us-ascii"
+Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <20190927132458.4359-1-christian.koenig@amd.com>
+In-Reply-To: <20190927085513.tdiofiisrpyehfe5@steredhat.homenet.telecomitalia.it>
+Content-Language: en-US
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -17,32 +20,34 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: airlied@redhat.com, kraxel@redhat.com, daniel@ffwll.ch, virtualization@lists.linux-foundation.org, spice-devel@lists.freedesktop.org, dri-devel@lists.freedesktop.org
+To: Stefano Garzarella <sgarzare@redhat.com>, Eric Dumazet <eric.dumazet@gmail.com>, Matias Ezequiel Vara Larsen <matiasevara@gmail.com>
+Cc: kvm@vger.kernel.org, netdev@vger.kernel.org, linux-kernel@vger.kernel.org, virtualization@lists.linux-foundation.org, stefanha@redhat.com, davem@davemloft.net
 List-Id: virtualization@lists.linuxfoundation.org
 
-VGhvc2UgYXJlIG5vdCBzdXBwb3NlZCB0byBiZSB1c2VkIGJ5IGRyaXZlcnMuCgpTaWduZWQtb2Zm
-LWJ5OiBDaHJpc3RpYW4gS8O2bmlnIDxjaHJpc3RpYW4ua29lbmlnQGFtZC5jb20+Ci0tLQogZHJp
-dmVycy9ncHUvZHJtL3R0bS90dG1fYm9fdXRpbC5jIHwgNCAtLS0tCiAxIGZpbGUgY2hhbmdlZCwg
-NCBkZWxldGlvbnMoLSkKCmRpZmYgLS1naXQgYS9kcml2ZXJzL2dwdS9kcm0vdHRtL3R0bV9ib191
-dGlsLmMgYi9kcml2ZXJzL2dwdS9kcm0vdHRtL3R0bV9ib191dGlsLmMKaW5kZXggMDg2YmEyYzJm
-NjBiLi4yZWNhNzUyYzM5ZTkgMTAwNjQ0Ci0tLSBhL2RyaXZlcnMvZ3B1L2RybS90dG0vdHRtX2Jv
-X3V0aWwuYworKysgYi9kcml2ZXJzL2dwdS9kcm0vdHRtL3R0bV9ib191dGlsLmMKQEAgLTEwMiw3
-ICsxMDIsNiBAQCBpbnQgdHRtX21lbV9pb19sb2NrKHN0cnVjdCB0dG1fbWVtX3R5cGVfbWFuYWdl
-ciAqbWFuLCBib29sIGludGVycnVwdGlibGUpCiAJbXV0ZXhfbG9jaygmbWFuLT5pb19yZXNlcnZl
-X211dGV4KTsKIAlyZXR1cm4gMDsKIH0KLUVYUE9SVF9TWU1CT0wodHRtX21lbV9pb19sb2NrKTsK
-IAogdm9pZCB0dG1fbWVtX2lvX3VubG9jayhzdHJ1Y3QgdHRtX21lbV90eXBlX21hbmFnZXIgKm1h
-bikKIHsKQEAgLTExMSw3ICsxMTAsNiBAQCB2b2lkIHR0bV9tZW1faW9fdW5sb2NrKHN0cnVjdCB0
-dG1fbWVtX3R5cGVfbWFuYWdlciAqbWFuKQogCiAJbXV0ZXhfdW5sb2NrKCZtYW4tPmlvX3Jlc2Vy
-dmVfbXV0ZXgpOwogfQotRVhQT1JUX1NZTUJPTCh0dG1fbWVtX2lvX3VubG9jayk7CiAKIHN0YXRp
-YyBpbnQgdHRtX21lbV9pb19ldmljdChzdHJ1Y3QgdHRtX21lbV90eXBlX21hbmFnZXIgKm1hbikK
-IHsKQEAgLTE1Myw3ICsxNTEsNiBAQCBpbnQgdHRtX21lbV9pb19yZXNlcnZlKHN0cnVjdCB0dG1f
-Ym9fZGV2aWNlICpiZGV2LAogCX0KIAlyZXR1cm4gcmV0OwogfQotRVhQT1JUX1NZTUJPTCh0dG1f
-bWVtX2lvX3Jlc2VydmUpOwogCiB2b2lkIHR0bV9tZW1faW9fZnJlZShzdHJ1Y3QgdHRtX2JvX2Rl
-dmljZSAqYmRldiwKIAkJICAgICBzdHJ1Y3QgdHRtX21lbV9yZWcgKm1lbSkKQEAgLTE2OSw3ICsx
-NjYsNiBAQCB2b2lkIHR0bV9tZW1faW9fZnJlZShzdHJ1Y3QgdHRtX2JvX2RldmljZSAqYmRldiwK
-IAkJYmRldi0+ZHJpdmVyLT5pb19tZW1fZnJlZShiZGV2LCBtZW0pOwogCiB9Ci1FWFBPUlRfU1lN
-Qk9MKHR0bV9tZW1faW9fZnJlZSk7CiAKIGludCB0dG1fbWVtX2lvX3Jlc2VydmVfdm0oc3RydWN0
-IHR0bV9idWZmZXJfb2JqZWN0ICpibykKIHsKLS0gCjIuMTQuMQoKX19fX19fX19fX19fX19fX19f
-X19fX19fX19fX19fX19fX19fX19fX19fX19fX18KVmlydHVhbGl6YXRpb24gbWFpbGluZyBsaXN0
-ClZpcnR1YWxpemF0aW9uQGxpc3RzLmxpbnV4LWZvdW5kYXRpb24ub3JnCmh0dHBzOi8vbGlzdHMu
-bGludXhmb3VuZGF0aW9uLm9yZy9tYWlsbWFuL2xpc3RpbmZvL3ZpcnR1YWxpemF0aW9u
+
+
+On 9/27/19 1:55 AM, Stefano Garzarella wrote:
+
+> Good catch!
+> 
+> Maybe we can solve in this way:
+> 
+> 	list_for_each_entry(pkt, &vvs->rx_queue, list) {
+> 		size_t off = pkt->off;
+> 
+> 		if (total == len)
+> 			break;
+> 
+> 		while (total < len && off < pkt->len) {
+> 			/* using 'off' instead of 'pkt->off' */
+> 			...
+> 
+> 			total += bytes;
+> 			off += bytes;
+> 		}
+> 	}
+> 
+> What do you think?
+>
+
+Maybe, but I need to see a complete patch, evil is in the details :)
