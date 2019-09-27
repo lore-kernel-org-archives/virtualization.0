@@ -1,13 +1,15 @@
-From: Eric Dumazet <eric.dumazet@gmail.com>
-Subject: Re: [PATCH] vsock/virtio: add support for MSG_PEEK
-Date: Thu, 26 Sep 2019 12:33:36 -0700
-Message-ID: <f069a65d-33b9-1fa8-d26e-b76cc51fc7cb__48660.2792677999$1569526428$gmane$org@gmail.com>
-References: <1569522214-28223-1-git-send-email-matiasevara@gmail.com>
+From: Jason Wang <jasowang@redhat.com>
+Subject: Re: [PATCH] vhost: introduce mdev based hardware backend
+Date: Fri, 27 Sep 2019 11:27:12 +0800
+Message-ID: <8ab5a8d9-284d-bba5-803d-08523c0814e1__30481.4105665841$1569554858$gmane$org@redhat.com>
+References: <20190926045427.4973-1-tiwei.bie@intel.com>
+	<20190926042156-mutt-send-email-mst@kernel.org>
+	<20190926131439.GA11652@___>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset="utf-8"; Format="flowed"
+Content-Transfer-Encoding: base64
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <1569522214-28223-1-git-send-email-matiasevara@gmail.com>
+In-Reply-To: <20190926131439.GA11652@___>
 Content-Language: en-US
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
@@ -18,78 +20,41 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Matias Ezequiel Vara Larsen <matiasevara@gmail.com>, stefanha@redhat.com
-Cc: kvm@vger.kernel.org, netdev@vger.kernel.org, linux-kernel@vger.kernel.org, virtualization@lists.linux-foundation.org, davem@davemloft.net, sgarzare@redhat.com
+To: Tiwei Bie <tiwei.bie@intel.com>, "Michael S. Tsirkin" <mst@redhat.com>
+Cc: kvm@vger.kernel.org, netdev@vger.kernel.org, maxime.coquelin@redhat.com, virtualization@lists.linux-foundation.org, zhihong.wang@intel.com, lingshan.zhu@intel.com, linux-kernel@vger.kernel.org
 List-Id: virtualization@lists.linuxfoundation.org
 
-
-
-On 9/26/19 11:23 AM, Matias Ezequiel Vara Larsen wrote:
-> This patch adds support for MSG_PEEK. In such a case, packets are not
-> removed from the rx_queue and credit updates are not sent.
-> 
-> Signed-off-by: Matias Ezequiel Vara Larsen <matiasevara@gmail.com>
-> ---
->  net/vmw_vsock/virtio_transport_common.c | 50 +++++++++++++++++++++++++++++++--
->  1 file changed, 47 insertions(+), 3 deletions(-)
-> 
-> diff --git a/net/vmw_vsock/virtio_transport_common.c b/net/vmw_vsock/virtio_transport_common.c
-> index 94cc0fa..938f2ed 100644
-> --- a/net/vmw_vsock/virtio_transport_common.c
-> +++ b/net/vmw_vsock/virtio_transport_common.c
-> @@ -264,6 +264,50 @@ static int virtio_transport_send_credit_update(struct vsock_sock *vsk,
->  }
->  
->  static ssize_t
-> +virtio_transport_stream_do_peek(struct vsock_sock *vsk,
-> +				struct msghdr *msg,
-> +				size_t len)
-> +{
-> +	struct virtio_vsock_sock *vvs = vsk->trans;
-> +	struct virtio_vsock_pkt *pkt;
-> +	size_t bytes, total = 0;
-> +	int err = -EFAULT;
-> +
-> +	spin_lock_bh(&vvs->rx_lock);
-> +
-> +	list_for_each_entry(pkt, &vvs->rx_queue, list) {
-> +		if (total == len)
-> +			break;
-> +
-> +		bytes = len - total;
-> +		if (bytes > pkt->len - pkt->off)
-> +			bytes = pkt->len - pkt->off;
-> +
-> +		/* sk_lock is held by caller so no one else can dequeue.
-> +		 * Unlock rx_lock since memcpy_to_msg() may sleep.
-> +		 */
-> +		spin_unlock_bh(&vvs->rx_lock);
-> +
-> +		err = memcpy_to_msg(msg, pkt->buf + pkt->off, bytes);
-> +		if (err)
-> +			goto out;
-> +
-> +		spin_lock_bh(&vvs->rx_lock);
-> +
-> +		total += bytes;
-> +	}
-> +
-> +	spin_unlock_bh(&vvs->rx_lock);
-> +
-> +	return total;
-> +
-> +out:
-> +	if (total)
-> +		err = total;
-> +	return err;
-> +}
->
-
-This seems buggy to me.
-
-virtio_transport_recv_enqueue() seems to be able to add payload to the last packet in the queue.
-
-The loop you wrote here would miss newly added chunks while the vvs->rx_lock spinlock has been released.
-
-virtio_transport_stream_do_dequeue() is ok, because it makes sure pkt->off == pkt->len
-before cleaning the packet from the queue.
+Ck9uIDIwMTkvOS8yNiDkuIvljYg5OjE0LCBUaXdlaSBCaWUgd3JvdGU6Cj4gT24gVGh1LCBTZXAg
+MjYsIDIwMTkgYXQgMDQ6MzU6MThBTSAtMDQwMCwgTWljaGFlbCBTLiBUc2lya2luIHdyb3RlOgo+
+PiBPbiBUaHUsIFNlcCAyNiwgMjAxOSBhdCAxMjo1NDoyN1BNICswODAwLCBUaXdlaSBCaWUgd3Jv
+dGU6Cj4gWy4uLl0KPj4+IGRpZmYgLS1naXQgYS9pbmNsdWRlL3VhcGkvbGludXgvdmhvc3QuaCBi
+L2luY2x1ZGUvdWFwaS9saW51eC92aG9zdC5oCj4+PiBpbmRleCA0MGQwMjhlZWQ2NDUuLjVhZmJj
+MmYwOGZhMyAxMDA2NDQKPj4+IC0tLSBhL2luY2x1ZGUvdWFwaS9saW51eC92aG9zdC5oCj4+PiAr
+KysgYi9pbmNsdWRlL3VhcGkvbGludXgvdmhvc3QuaAo+Pj4gQEAgLTExNiw0ICsxMTYsMTIgQEAK
+Pj4+ICAgI2RlZmluZSBWSE9TVF9WU09DS19TRVRfR1VFU1RfQ0lECV9JT1coVkhPU1RfVklSVElP
+LCAweDYwLCBfX3U2NCkKPj4+ICAgI2RlZmluZSBWSE9TVF9WU09DS19TRVRfUlVOTklORwkJX0lP
+VyhWSE9TVF9WSVJUSU8sIDB4NjEsIGludCkKPj4+ICAgCj4+PiArLyogVkhPU1RfTURFViBzcGVj
+aWZpYyBkZWZpbmVzICovCj4+PiArCj4+PiArI2RlZmluZSBWSE9TVF9NREVWX1NFVF9TVEFURQlf
+SU9XKFZIT1NUX1ZJUlRJTywgMHg3MCwgX191NjQpCj4+PiArCj4+PiArI2RlZmluZSBWSE9TVF9N
+REVWX1NfU1RPUFBFRAkwCj4+PiArI2RlZmluZSBWSE9TVF9NREVWX1NfUlVOTklORwkxCj4+PiAr
+I2RlZmluZSBWSE9TVF9NREVWX1NfTUFYCTIKPj4+ICsKPj4+ICAgI2VuZGlmCj4+IFNvIGFzc3Vt
+aW5nIHdlIGhhdmUgYW4gdW5kZXJseWluZyBkZXZpY2UgdGhhdCBiZWhhdmVzIGxpa2UgdmlydGlv
+Ogo+IEkgdGhpbmsgdGhleSBhcmUgcmVhbGx5IGdvb2QgcXVlc3Rpb25zL3N1Z2dlc3Rpb25zLiBU
+aGFua3MhCj4KPj4gMS4gU2hvdWxkIHdlIHVzZSBTRVRfU1RBVFVTIG1heWJlPwo+IEkgbGlrZSB0
+aGlzIGlkZWEuIEkgd2lsbCBnaXZlIGl0IGEgdHJ5Lgo+Cj4+IDIuIERvIHdlIHdhbnQgYSByZXNl
+dCBpb2N0bD8KPiBJIHRoaW5rIGl0IGlzIGhlbHBmdWwuIElmIHdlIHVzZSBTRVRfU1RBVFVTLCBt
+YXliZSB3ZQo+IGNhbiB1c2UgaXQgdG8gc3VwcG9ydCB0aGUgcmVzZXQuCj4KPj4gMy4gRG8gd2Ug
+d2FudCBhYmlsaXR5IHRvIGVuYWJsZSByaW5ncyBpbmRpdmlkdWFsbHk/Cj4gSSB3aWxsIG1ha2Ug
+aXQgcG9zc2libGUgYXQgbGVhc3QgaW4gdGhlIHZob3N0IGxheWVyLgoKCk5vdGUgdGhlIEFQSSBz
+dXBwb3J0IGUuZyBzZXRfdnFfcmVhZHkoKS4KCgo+Cj4+IDQuIERvZXMgZGV2aWNlIG5lZWQgdG8g
+bGltaXQgbWF4IHJpbmcgc2l6ZT8KPj4gNS4gRG9lcyBkZXZpY2UgbmVlZCB0byBsaW1pdCBtYXgg
+bnVtYmVyIG9mIHF1ZXVlcz8KPiBJIHRoaW5rIHNvLiBJdCdzIGhlbHBmdWwgdG8gaGF2ZSBpb2N0
+bHMgdG8gcmVwb3J0IHRoZSBtYXgKPiByaW5nIHNpemUgYW5kIG1heCBudW1iZXIgb2YgcXVldWVz
+LgoKCkFuIGlzc3VlIGlzIHRoZSBtYXggbnVtYmVyIG9mIHF1ZXVlcyBpcyBkb25lIHRocm91Z2gg
+YSBkZXZpY2Ugc3BlY2lmaWMgCndheSwgdXN1YWxseSBkZXZpY2UgY29uZmlndXJhdGlvbiBzcGFj
+ZS4gVGhpcyBpcyBzdXBwb3J0ZWQgYnkgdGhlIAp0cmFuc3BvcnQgQVBJLCBidXQgaG93IHRvIGV4
+cG9zZSBpdCB0byB1c2Vyc3BhY2UgbWF5IG5lZWQgbW9yZSB0aG91Z2h0LgoKVGhhbmtzCgoKPgo+
+IFRoYW5rcyEKX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX18K
+VmlydHVhbGl6YXRpb24gbWFpbGluZyBsaXN0ClZpcnR1YWxpemF0aW9uQGxpc3RzLmxpbnV4LWZv
+dW5kYXRpb24ub3JnCmh0dHBzOi8vbGlzdHMubGludXhmb3VuZGF0aW9uLm9yZy9tYWlsbWFuL2xp
+c3RpbmZvL3ZpcnR1YWxpemF0aW9u
