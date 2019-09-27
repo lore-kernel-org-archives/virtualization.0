@@ -1,8 +1,7 @@
 From: Stefano Garzarella <sgarzare@redhat.com>
-Subject: [RFC PATCH 01/13] vsock/vmci: remove unused
-	VSOCK_DEFAULT_CONNECT_TIMEOUT
-Date: Fri, 27 Sep 2019 13:26:51 +0200
-Message-ID: <20190927112703.17745-2-sgarzare@redhat.com>
+Subject: [RFC PATCH 02/13] vsock: remove vm_sockets_get_local_cid()
+Date: Fri, 27 Sep 2019 13:26:52 +0200
+Message-ID: <20190927112703.17745-3-sgarzare__24081.5524173499$1569583664$gmane$org@redhat.com>
 References: <20190927112703.17745-1-sgarzare@redhat.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
@@ -22,33 +21,61 @@ To: netdev@vger.kernel.org
 Cc: Sasha Levin <sashal@kernel.org>, linux-hyperv@vger.kernel.org, Stephen Hemminger <sthemmin@microsoft.com>, kvm@vger.kernel.org, "Michael S. Tsirkin" <mst@redhat.com>, Dexuan Cui <decui@microsoft.com>, Haiyang Zhang <haiyangz@microsoft.com>, linux-kernel@vger.kernel.org, virtualization@lists.linux-foundation.org, Stefan Hajnoczi <stefanha@redhat.com>, "David S. Miller" <davem@davemloft.net>, Jorgen Hansen <jhansen@vmware.com>
 List-Id: virtualization@lists.linuxfoundation.org
 
-The VSOCK_DEFAULT_CONNECT_TIMEOUT definition was introduced with
-commit d021c344051af ("VSOCK: Introduce VM Sockets"), but it is
-never used in the net/vmw_vsock/vmci_transport.c.
-
-VSOCK_DEFAULT_CONNECT_TIMEOUT is used and defined in
-net/vmw_vsock/af_vsock.c
+vm_sockets_get_local_cid() is only used in virtio_transport_common.c.
+We can replace it calling the virtio_transport_get_ops() and
+using the get_local_cid() callback registered by the transport.
 
 Signed-off-by: Stefano Garzarella <sgarzare@redhat.com>
 ---
- net/vmw_vsock/vmci_transport.c | 5 -----
- 1 file changed, 5 deletions(-)
+ include/linux/vm_sockets.h              |  2 --
+ net/vmw_vsock/af_vsock.c                | 10 ----------
+ net/vmw_vsock/virtio_transport_common.c |  2 +-
+ 3 files changed, 1 insertion(+), 13 deletions(-)
 
-diff --git a/net/vmw_vsock/vmci_transport.c b/net/vmw_vsock/vmci_transport.c
-index 8c9c4ed90fa7..f8e3131ac480 100644
---- a/net/vmw_vsock/vmci_transport.c
-+++ b/net/vmw_vsock/vmci_transport.c
-@@ -78,11 +78,6 @@ static int PROTOCOL_OVERRIDE = -1;
- #define VMCI_TRANSPORT_DEFAULT_QP_SIZE       262144
- #define VMCI_TRANSPORT_DEFAULT_QP_SIZE_MAX   262144
+diff --git a/include/linux/vm_sockets.h b/include/linux/vm_sockets.h
+index 33f1a2ecd905..7dd899ccb920 100644
+--- a/include/linux/vm_sockets.h
++++ b/include/linux/vm_sockets.h
+@@ -10,6 +10,4 @@
  
--/* The default peer timeout indicates how long we will wait for a peer response
-- * to a control message.
-- */
--#define VSOCK_DEFAULT_CONNECT_TIMEOUT (2 * HZ)
+ #include <uapi/linux/vm_sockets.h>
+ 
+-int vm_sockets_get_local_cid(void);
 -
- /* Helper function to convert from a VMCI error code to a VSock error code. */
+ #endif /* _VM_SOCKETS_H */
+diff --git a/net/vmw_vsock/af_vsock.c b/net/vmw_vsock/af_vsock.c
+index ab47bf3ab66e..f609434b2794 100644
+--- a/net/vmw_vsock/af_vsock.c
++++ b/net/vmw_vsock/af_vsock.c
+@@ -129,16 +129,6 @@ static struct proto vsock_proto = {
+ static const struct vsock_transport *transport;
+ static DEFINE_MUTEX(vsock_register_mutex);
  
- static s32 vmci_transport_error_to_vsock_error(s32 vmci_error)
+-/**** EXPORTS ****/
+-
+-/* Get the ID of the local context.  This is transport dependent. */
+-
+-int vm_sockets_get_local_cid(void)
+-{
+-	return transport->get_local_cid();
+-}
+-EXPORT_SYMBOL_GPL(vm_sockets_get_local_cid);
+-
+ /**** UTILS ****/
+ 
+ /* Each bound VSocket is stored in the bind hash table and each connected
+diff --git a/net/vmw_vsock/virtio_transport_common.c b/net/vmw_vsock/virtio_transport_common.c
+index 5bb70c692b1e..ed1ad5289164 100644
+--- a/net/vmw_vsock/virtio_transport_common.c
++++ b/net/vmw_vsock/virtio_transport_common.c
+@@ -168,7 +168,7 @@ static int virtio_transport_send_pkt_info(struct vsock_sock *vsk,
+ 	struct virtio_vsock_pkt *pkt;
+ 	u32 pkt_len = info->pkt_len;
+ 
+-	src_cid = vm_sockets_get_local_cid();
++	src_cid = virtio_transport_get_ops()->transport.get_local_cid();
+ 	src_port = vsk->local_addr.svm_port;
+ 	if (!info->remote_cid) {
+ 		dst_cid	= vsk->remote_addr.svm_cid;
 -- 
 2.21.0
