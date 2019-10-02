@@ -1,13 +1,14 @@
-From: David Miller <davem@davemloft.net>
-Subject: Re: [PATCH net-next v2] vsock/virtio: add support for MSG_PEEK
-Date: Tue, 01 Oct 2019 21:27:28 -0400 (EDT)
-Message-ID: <20191001.212728.1087995517897062240.davem__46623.4420122177$1569979662$gmane$org@davemloft.net>
-References: <1569867923-28200-1-git-send-email-matiasevara@gmail.com>
+From: Vivek Goyal <vgoyal@redhat.com>
+Subject: Re: virtq questions
+Date: Wed, 2 Oct 2019 09:27:34 -0400
+Message-ID: <20191002132734.GA6972@redhat.com>
+References: <CAJfpegsGNoT4NUai-=HHkqOrmjgMb=4TDk79EgxDBCd8fxCGZA@mail.gmail.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <1569867923-28200-1-git-send-email-matiasevara@gmail.com>
+Content-Disposition: inline
+In-Reply-To: <CAJfpegsGNoT4NUai-=HHkqOrmjgMb=4TDk79EgxDBCd8fxCGZA@mail.gmail.com>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -17,18 +18,38 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: matiasevara@gmail.com
-Cc: eric.dumazet@gmail.com, kvm@vger.kernel.org, netdev@vger.kernel.org, linux-kernel@vger.kernel.org, virtualization@lists.linux-foundation.org, stefanha@redhat.com, sgarzare@redhat.com
+To: Miklos Szeredi <miklos@szeredi.hu>
+Cc: "Dr. David Alan Gilbert" <dgilbert@redhat.com>, Stefan Hajnoczi <stefanha@redhat.com>, virtualization@lists.linux-foundation.org
 List-Id: virtualization@lists.linuxfoundation.org
 
-From: Matias Ezequiel Vara Larsen <matiasevara@gmail.com>
-Date: Mon, 30 Sep 2019 18:25:23 +0000
+On Wed, Oct 02, 2019 at 09:40:11AM +0200, Miklos Szeredi wrote:
+> Looking at the ugly retry logic in virtiofs and have some questions.
 
-> This patch adds support for MSG_PEEK. In such a case, packets are not
-> removed from the rx_queue and credit updates are not sent.
+Hi Miklos,
+
+What are you thinking w.r.t cleanup of retry logic. As of now we put
+requests in a list and retry later with the help of a worker.
+
+Other option will probably be block the submitter if queue is full. Make
+it sleep, wake up after a while and retry submission.
+
+> First one is, where do these features come from:
 > 
-> Signed-off-by: Matias Ezequiel Vara Larsen <matiasevara@gmail.com>
-> Reviewed-by: Stefano Garzarella <sgarzare@redhat.com>
-> Tested-by: Stefano Garzarella <sgarzare@redhat.com>
+> VIRTIO_F_RING_PACKED
+> VIRTIO_RING_F_INDIRECT_DESC
 
-Applied.
+Looks like these feature bits are supposed to be advertised by the device
+if device supports these capabilities.
+
+I see in qemu code that bunch of drivers are advertisig this capability.
+(virtio_scsi, virtio_blk etc).
+
+> 
+> I see that in virtiofs "packed" is off and "indirect" is on.  Is this
+> guaranteed?
+
+I can't find specifying any feature bits in vhost-user-fs.c. So we
+probably are getting a default value.
+
+Thanks
+Vivek
