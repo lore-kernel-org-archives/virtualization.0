@@ -1,16 +1,12 @@
-From: Vivek Goyal <vgoyal@redhat.com>
-Subject: Re: virtq questions
-Date: Thu, 3 Oct 2019 15:45:15 -0400
-Message-ID: <20191003194515.GA13783@redhat.com>
-References: <CAJfpegsGNoT4NUai-=HHkqOrmjgMb=4TDk79EgxDBCd8fxCGZA@mail.gmail.com>
-	<20191002132734.GA6972@redhat.com>
-	<CAJfpegvJGTFiJh5MFRNQF8dQQo7KS5f0Ei7vEYOBTw4RzVtA2w@mail.gmail.com>
+From: Alexey Dobriyan <adobriyan@gmail.com>
+Subject: [PATCH net-next] net, uapi: fix -Wpointer-arith warnings
+Date: Thu, 3 Oct 2019 23:29:24 +0300
+Message-ID: <20191003202924.GA21016__41203.9387317904$1570134579$gmane$org@avx2>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
 Content-Disposition: inline
-In-Reply-To: <CAJfpegvJGTFiJh5MFRNQF8dQQo7KS5f0Ei7vEYOBTw4RzVtA2w@mail.gmail.com>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -20,84 +16,106 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Miklos Szeredi <miklos@szeredi.hu>
-Cc: "Dr. David Alan Gilbert" <dgilbert@redhat.com>, Stefan Hajnoczi <stefanha@redhat.com>, virtualization@lists.linux-foundation.org
+To: davem@davemloft.net
+Cc: jon.maloy@ericsson.com, mst@redhat.com, netdev@vger.kernel.org, fw@strlen.de, kadlec@netfilter.org, netfilter-devel@vger.kernel.org, ying.xue@windriver.com, virtualization@lists.linux-foundation.org, pablo@netfilter.org
 List-Id: virtualization@lists.linuxfoundation.org
 
-On Thu, Oct 03, 2019 at 10:42:44AM +0200, Miklos Szeredi wrote:
-> On Wed, Oct 2, 2019 at 3:27 PM Vivek Goyal <vgoyal@redhat.com> wrote:
-> >
-> > On Wed, Oct 02, 2019 at 09:40:11AM +0200, Miklos Szeredi wrote:
-> > > Looking at the ugly retry logic in virtiofs and have some questions.
-> >
-> > Hi Miklos,
-> >
-> > What are you thinking w.r.t cleanup of retry logic. As of now we put
-> > requests in a list and retry later with the help of a worker.
-> 
-> Two things:
-> 
->  - don't use a timeout for retrying
->  - try to preserve order of requests submitted vs. order of requests queued
+Add casts to fix these warnings:
 
-Hi Miklos,
+./usr/include/linux/netfilter_arp/arp_tables.h:200:19: error: pointer of type 'void *' used in arithmetic [-Werror=pointer-arith]
+./usr/include/linux/netfilter_bridge/ebtables.h:197:19: error: pointer of type 'void *' used in arithmetic [-Werror=pointer-arith]
+./usr/include/linux/netfilter_ipv4/ip_tables.h:223:19: error: pointer of type 'void *' used in arithmetic [-Werror=pointer-arith]
+./usr/include/linux/netfilter_ipv6/ip6_tables.h:263:19: error: pointer of type 'void *' used in arithmetic [-Werror=pointer-arith]
+./usr/include/linux/tipc_config.h:310:28: error: pointer of type 'void *' used in arithmetic [-Werror=pointer-arith]
+./usr/include/linux/tipc_config.h:410:24: error: pointer of type 'void *' used in arithmetic [-Werror=pointer-arith]
+./usr/include/linux/virtio_ring.h:170:16: error: pointer of type 'void *' used in arithmetic [-Werror=pointer-arith]
 
-I understand first point but no the second one. Can you elaborate a bit
-more that why it is important. Device does not provide any guarantees
-that requests will be completed in order of submission. If that's the
-case, then submitter can't assume any order in request completion anyway.
+Those are theoretical probably but kernel doesn't control compiler flags
+in userspace.
 
-> 
-> This is complicated by the fact that we call virtqueue_add_sgs() under
-> spinlock, which is the reason GFP_ATOMIC is used.  However GFP_ATOMIC
-> can easily fail and that means even if the "indirect_desc" feature is
-> turned on a request may use several slots of the ring buffer for a
-> single request.
+Signed-off-by: Alexey Dobriyan <adobriyan@gmail.com>
+---
 
-Aha, you are referring to the case where indirect_desc feature is enabled
-but memory allocation fails, so it falls back to using regular
-descriptors.
+ include/uapi/linux/netfilter_arp/arp_tables.h  |    2 +-
+ include/uapi/linux/netfilter_bridge/ebtables.h |    2 +-
+ include/uapi/linux/netfilter_ipv4/ip_tables.h  |    2 +-
+ include/uapi/linux/netfilter_ipv6/ip6_tables.h |    2 +-
+ include/uapi/linux/tipc_config.h               |    4 ++--
+ include/uapi/linux/virtio_ring.h               |    2 +-
+ 6 files changed, 7 insertions(+), 7 deletions(-)
 
-> Worst case is that a request has lots of pages,
-> resulting in total_sgs > vring.num, which is bad, because we'll get
-> ENOSPC thinking that the operation needs to be retried once some
-> pending requests are done, but that's not actually the case...
-
-Got it. So if we always allocate memory for total_sgs (which could
-be more than vring.num) and are in a position to wait for memory
-allocation, then this problem will not be there.
-
-Alternate solution probably is to query queue size in the beginning
-and make sure number of pages attached to a request are less then 
-that.
-
-> 
-> So my proposed solution is to turn fsvq->lock into a mutex; call
-> virtqueue_add_sgs() with whatever gfp flags are used to allocate the
-> request and add __GFP_NOFAIL for good measure.  This means that the
-> request is guaranteed to use a single slot IF "indirect_desc" is on.
-> And there should be some way to verify from the virtiofs code that
-> this feature is indeed on, otherwise things can get messy (as noted
-> above).
-
-Sounds reasonable.
-
-So if system is under memory pressure, currently we will fall back to
-using pre-allocated descriptors instead of waiting for memory to become
-free. IOW, virtio-fs can continue to make progress. But with GFP_NOFAIL
-we will wait for memory to be allocated for indirect descriptor and
-then make progress. It probably is fine, I am just thinking loud.
-
-I noticed that all the virtio drivers currently seem to be using
-GFP_ATOMIC. Interesting...
-
-Anyway, it probably is worth trying it. It also solves the problem of
-retrying as we will block for resources to be allocated and should
-not get -ENOSPC or -ENOMEM.
-
-BTW, I have few cleanup/improvement patches lined up internally to
-use better method to wait for draining of request. Will post these
-separately. They probably can go in next merge window.
-
-Thanks
-Vivek
+--- a/include/uapi/linux/netfilter_arp/arp_tables.h
++++ b/include/uapi/linux/netfilter_arp/arp_tables.h
+@@ -199,7 +199,7 @@ struct arpt_get_entries {
+ /* Helper functions */
+ static __inline__ struct xt_entry_target *arpt_get_target(struct arpt_entry *e)
+ {
+-	return (void *)e + e->target_offset;
++	return (struct xt_entry_target *)((char *)e + e->target_offset);
+ }
+ 
+ /*
+--- a/include/uapi/linux/netfilter_bridge/ebtables.h
++++ b/include/uapi/linux/netfilter_bridge/ebtables.h
+@@ -194,7 +194,7 @@ struct ebt_entry {
+ static __inline__ struct ebt_entry_target *
+ ebt_get_target(struct ebt_entry *e)
+ {
+-	return (void *)e + e->target_offset;
++	return (struct ebt_entry_target *)((char *)e + e->target_offset);
+ }
+ 
+ /* {g,s}etsockopt numbers */
+--- a/include/uapi/linux/netfilter_ipv4/ip_tables.h
++++ b/include/uapi/linux/netfilter_ipv4/ip_tables.h
+@@ -222,7 +222,7 @@ struct ipt_get_entries {
+ static __inline__ struct xt_entry_target *
+ ipt_get_target(struct ipt_entry *e)
+ {
+-	return (void *)e + e->target_offset;
++	return (struct xt_entry_target *)((char *)e + e->target_offset);
+ }
+ 
+ /*
+--- a/include/uapi/linux/netfilter_ipv6/ip6_tables.h
++++ b/include/uapi/linux/netfilter_ipv6/ip6_tables.h
+@@ -262,7 +262,7 @@ struct ip6t_get_entries {
+ static __inline__ struct xt_entry_target *
+ ip6t_get_target(struct ip6t_entry *e)
+ {
+-	return (void *)e + e->target_offset;
++	return (struct xt_entry_target *)((char *)e + e->target_offset);
+ }
+ 
+ /*
+--- a/include/uapi/linux/tipc_config.h
++++ b/include/uapi/linux/tipc_config.h
+@@ -309,7 +309,7 @@ static inline int TLV_SET(void *tlv, __u16 type, void *data, __u16 len)
+ 	tlv_ptr->tlv_len  = htons(tlv_len);
+ 	if (len && data) {
+ 		memcpy(TLV_DATA(tlv_ptr), data, len);
+-		memset(TLV_DATA(tlv_ptr) + len, 0, TLV_SPACE(len) - tlv_len);
++		memset((char *)TLV_DATA(tlv_ptr) + len, 0, TLV_SPACE(len) - tlv_len);
+ 	}
+ 	return TLV_SPACE(len);
+ }
+@@ -409,7 +409,7 @@ static inline int TCM_SET(void *msg, __u16 cmd, __u16 flags,
+ 	tcm_hdr->tcm_flags = htons(flags);
+ 	if (data_len && data) {
+ 		memcpy(TCM_DATA(msg), data, data_len);
+-		memset(TCM_DATA(msg) + data_len, 0, TCM_SPACE(data_len) - msg_len);
++		memset((char *)TCM_DATA(msg) + data_len, 0, TCM_SPACE(data_len) - msg_len);
+ 	}
+ 	return TCM_SPACE(data_len);
+ }
+--- a/include/uapi/linux/virtio_ring.h
++++ b/include/uapi/linux/virtio_ring.h
+@@ -169,7 +169,7 @@ static inline void vring_init(struct vring *vr, unsigned int num, void *p,
+ {
+ 	vr->num = num;
+ 	vr->desc = p;
+-	vr->avail = p + num*sizeof(struct vring_desc);
++	vr->avail = (struct vring_avail *)((char *)p + num * sizeof(struct vring_desc));
+ 	vr->used = (void *)(((uintptr_t)&vr->avail->ring[num] + sizeof(__virtio16)
+ 		+ align-1) & ~(align - 1));
+ }
