@@ -1,12 +1,14 @@
-From: Alexey Dobriyan <adobriyan@gmail.com>
-Subject: [PATCH net-next] net, uapi: fix -Wpointer-arith warnings
-Date: Thu, 3 Oct 2019 23:29:24 +0300
-Message-ID: <20191003202924.GA21016__41203.9387317904$1570134579$gmane$org@avx2>
+From: Davidlohr Bueso <dave@stgolabs.net>
+Subject: [PATCH 07/11] vhost: convert vhost_umem_interval_tree to half closed
+	intervals
+Date: Thu,  3 Oct 2019 13:18:54 -0700
+Message-ID: <20191003201858.11666-8-dave__4335.05750713579$1570134839$gmane$org@stgolabs.net>
+References: <20191003201858.11666-1-dave@stgolabs.net>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-Content-Disposition: inline
+In-Reply-To: <20191003201858.11666-1-dave@stgolabs.net>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -16,106 +18,130 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: davem@davemloft.net
-Cc: jon.maloy@ericsson.com, mst@redhat.com, netdev@vger.kernel.org, fw@strlen.de, kadlec@netfilter.org, netfilter-devel@vger.kernel.org, ying.xue@windriver.com, virtualization@lists.linux-foundation.org, pablo@netfilter.org
+To: akpm@linux-foundation.org
+Cc: dave@stgolabs.net, Davidlohr Bueso <dbueso@suse.de>, peterz@infradead.org, Michael@mail.linuxfoundation.org, linux-kernel@vger.kernel.org, dri-devel@lists.freedesktop.org, virtualization@lists.linux-foundation.org, linux-mm@kvack.org, walken@google.com, linux-rdma@vger.kernel.org
 List-Id: virtualization@lists.linuxfoundation.org
 
-Add casts to fix these warnings:
+The vhost_umem interval tree really wants [a, b) intervals,
+not fully closed as currently. As such convert it to use the
+new interval_tree_gen.h, and also rename the 'last' endpoint
+in the node to 'end', which both a more suitable name for
+the half closed interval and also reduces the chances of some
+caller being missed.
 
-./usr/include/linux/netfilter_arp/arp_tables.h:200:19: error: pointer of type 'void *' used in arithmetic [-Werror=pointer-arith]
-./usr/include/linux/netfilter_bridge/ebtables.h:197:19: error: pointer of type 'void *' used in arithmetic [-Werror=pointer-arith]
-./usr/include/linux/netfilter_ipv4/ip_tables.h:223:19: error: pointer of type 'void *' used in arithmetic [-Werror=pointer-arith]
-./usr/include/linux/netfilter_ipv6/ip6_tables.h:263:19: error: pointer of type 'void *' used in arithmetic [-Werror=pointer-arith]
-./usr/include/linux/tipc_config.h:310:28: error: pointer of type 'void *' used in arithmetic [-Werror=pointer-arith]
-./usr/include/linux/tipc_config.h:410:24: error: pointer of type 'void *' used in arithmetic [-Werror=pointer-arith]
-./usr/include/linux/virtio_ring.h:170:16: error: pointer of type 'void *' used in arithmetic [-Werror=pointer-arith]
-
-Those are theoretical probably but kernel doesn't control compiler flags
-in userspace.
-
-Signed-off-by: Alexey Dobriyan <adobriyan@gmail.com>
+Cc: Michael S. Tsirkin" <mst@redhat.com>
+Cc: Jason Wang <jasowang@redhat.com>
+Cc: virtualization@lists.linux-foundation.org
+Signed-off-by: Davidlohr Bueso <dbueso@suse.de>
 ---
+ drivers/vhost/vhost.c | 19 +++++++++----------
+ drivers/vhost/vhost.h |  4 ++--
+ 2 files changed, 11 insertions(+), 12 deletions(-)
 
- include/uapi/linux/netfilter_arp/arp_tables.h  |    2 +-
- include/uapi/linux/netfilter_bridge/ebtables.h |    2 +-
- include/uapi/linux/netfilter_ipv4/ip_tables.h  |    2 +-
- include/uapi/linux/netfilter_ipv6/ip6_tables.h |    2 +-
- include/uapi/linux/tipc_config.h               |    4 ++--
- include/uapi/linux/virtio_ring.h               |    2 +-
- 6 files changed, 7 insertions(+), 7 deletions(-)
-
---- a/include/uapi/linux/netfilter_arp/arp_tables.h
-+++ b/include/uapi/linux/netfilter_arp/arp_tables.h
-@@ -199,7 +199,7 @@ struct arpt_get_entries {
- /* Helper functions */
- static __inline__ struct xt_entry_target *arpt_get_target(struct arpt_entry *e)
- {
--	return (void *)e + e->target_offset;
-+	return (struct xt_entry_target *)((char *)e + e->target_offset);
- }
+diff --git a/drivers/vhost/vhost.c b/drivers/vhost/vhost.c
+index 36ca2cf419bf..80c3cca24dc7 100644
+--- a/drivers/vhost/vhost.c
++++ b/drivers/vhost/vhost.c
+@@ -28,7 +28,7 @@
+ #include <linux/sort.h>
+ #include <linux/sched/mm.h>
+ #include <linux/sched/signal.h>
+-#include <linux/interval_tree_generic.h>
++#include <linux/interval_tree_gen.h>
+ #include <linux/nospec.h>
  
- /*
---- a/include/uapi/linux/netfilter_bridge/ebtables.h
-+++ b/include/uapi/linux/netfilter_bridge/ebtables.h
-@@ -194,7 +194,7 @@ struct ebt_entry {
- static __inline__ struct ebt_entry_target *
- ebt_get_target(struct ebt_entry *e)
- {
--	return (void *)e + e->target_offset;
-+	return (struct ebt_entry_target *)((char *)e + e->target_offset);
- }
+ #include "vhost.h"
+@@ -51,7 +51,7 @@ enum {
  
- /* {g,s}etsockopt numbers */
---- a/include/uapi/linux/netfilter_ipv4/ip_tables.h
-+++ b/include/uapi/linux/netfilter_ipv4/ip_tables.h
-@@ -222,7 +222,7 @@ struct ipt_get_entries {
- static __inline__ struct xt_entry_target *
- ipt_get_target(struct ipt_entry *e)
- {
--	return (void *)e + e->target_offset;
-+	return (struct xt_entry_target *)((char *)e + e->target_offset);
- }
+ INTERVAL_TREE_DEFINE(struct vhost_umem_node,
+ 		     rb, __u64, __subtree_last,
+-		     START, LAST, static inline, vhost_umem_interval_tree);
++		     START, END, static inline, vhost_umem_interval_tree);
  
- /*
---- a/include/uapi/linux/netfilter_ipv6/ip6_tables.h
-+++ b/include/uapi/linux/netfilter_ipv6/ip6_tables.h
-@@ -262,7 +262,7 @@ struct ip6t_get_entries {
- static __inline__ struct xt_entry_target *
- ip6t_get_target(struct ip6t_entry *e)
- {
--	return (void *)e + e->target_offset;
-+	return (struct xt_entry_target *)((char *)e + e->target_offset);
- }
+ #ifdef CONFIG_VHOST_CROSS_ENDIAN_LEGACY
+ static void vhost_disable_cross_endian(struct vhost_virtqueue *vq)
+@@ -1034,7 +1034,7 @@ static int vhost_new_umem_range(struct vhost_umem *umem,
  
- /*
---- a/include/uapi/linux/tipc_config.h
-+++ b/include/uapi/linux/tipc_config.h
-@@ -309,7 +309,7 @@ static inline int TLV_SET(void *tlv, __u16 type, void *data, __u16 len)
- 	tlv_ptr->tlv_len  = htons(tlv_len);
- 	if (len && data) {
- 		memcpy(TLV_DATA(tlv_ptr), data, len);
--		memset(TLV_DATA(tlv_ptr) + len, 0, TLV_SPACE(len) - tlv_len);
-+		memset((char *)TLV_DATA(tlv_ptr) + len, 0, TLV_SPACE(len) - tlv_len);
- 	}
- 	return TLV_SPACE(len);
- }
-@@ -409,7 +409,7 @@ static inline int TCM_SET(void *msg, __u16 cmd, __u16 flags,
- 	tcm_hdr->tcm_flags = htons(flags);
- 	if (data_len && data) {
- 		memcpy(TCM_DATA(msg), data, data_len);
--		memset(TCM_DATA(msg) + data_len, 0, TCM_SPACE(data_len) - msg_len);
-+		memset((char *)TCM_DATA(msg) + data_len, 0, TCM_SPACE(data_len) - msg_len);
- 	}
- 	return TCM_SPACE(data_len);
- }
---- a/include/uapi/linux/virtio_ring.h
-+++ b/include/uapi/linux/virtio_ring.h
-@@ -169,7 +169,7 @@ static inline void vring_init(struct vring *vr, unsigned int num, void *p,
+ 	node->start = start;
+ 	node->size = size;
+-	node->last = end;
++	node->end = end;
+ 	node->userspace_addr = userspace_addr;
+ 	node->perm = perm;
+ 	INIT_LIST_HEAD(&node->link);
+@@ -1112,7 +1112,7 @@ static int vhost_process_iotlb_msg(struct vhost_dev *dev,
+ 		}
+ 		vhost_vq_meta_reset(dev);
+ 		if (vhost_new_umem_range(dev->iotlb, msg->iova, msg->size,
+-					 msg->iova + msg->size - 1,
++					 msg->iova + msg->size,
+ 					 msg->uaddr, msg->perm)) {
+ 			ret = -ENOMEM;
+ 			break;
+@@ -1126,7 +1126,7 @@ static int vhost_process_iotlb_msg(struct vhost_dev *dev,
+ 		}
+ 		vhost_vq_meta_reset(dev);
+ 		vhost_del_umem_range(dev->iotlb, msg->iova,
+-				     msg->iova + msg->size - 1);
++				     msg->iova + msg->size);
+ 		break;
+ 	default:
+ 		ret = -EINVAL;
+@@ -1320,15 +1320,14 @@ static bool iotlb_access_ok(struct vhost_virtqueue *vq,
  {
- 	vr->num = num;
- 	vr->desc = p;
--	vr->avail = p + num*sizeof(struct vring_desc);
-+	vr->avail = (struct vring_avail *)((char *)p + num * sizeof(struct vring_desc));
- 	vr->used = (void *)(((uintptr_t)&vr->avail->ring[num] + sizeof(__virtio16)
- 		+ align-1) & ~(align - 1));
- }
+ 	const struct vhost_umem_node *node;
+ 	struct vhost_umem *umem = vq->iotlb;
+-	u64 s = 0, size, orig_addr = addr, last = addr + len - 1;
++	u64 s = 0, size, orig_addr = addr, last = addr + len;
+ 
+ 	if (vhost_vq_meta_fetch(vq, addr, len, type))
+ 		return true;
+ 
+ 	while (len > s) {
+ 		node = vhost_umem_interval_tree_iter_first(&umem->umem_tree,
+-							   addr,
+-							   last);
++							   addr, last);
+ 		if (node == NULL || node->start > addr) {
+ 			vhost_iotlb_miss(vq, addr, access);
+ 			return false;
+@@ -1455,7 +1454,7 @@ static long vhost_set_memory(struct vhost_dev *d, struct vhost_memory __user *m)
+ 					 region->guest_phys_addr,
+ 					 region->memory_size,
+ 					 region->guest_phys_addr +
+-					 region->memory_size - 1,
++					 region->memory_size,
+ 					 region->userspace_addr,
+ 					 VHOST_ACCESS_RW))
+ 			goto err;
+@@ -2055,7 +2054,7 @@ static int translate_desc(struct vhost_virtqueue *vq, u64 addr, u32 len,
+ 		}
+ 
+ 		node = vhost_umem_interval_tree_iter_first(&umem->umem_tree,
+-							addr, addr + len - 1);
++							   addr, addr + len);
+ 		if (node == NULL || node->start > addr) {
+ 			if (umem != dev->iotlb) {
+ 				ret = -EFAULT;
+diff --git a/drivers/vhost/vhost.h b/drivers/vhost/vhost.h
+index e9ed2722b633..bb36cb9ed5ec 100644
+--- a/drivers/vhost/vhost.h
++++ b/drivers/vhost/vhost.h
+@@ -53,13 +53,13 @@ struct vhost_log {
+ };
+ 
+ #define START(node) ((node)->start)
+-#define LAST(node) ((node)->last)
++#define END(node) ((node)->end)
+ 
+ struct vhost_umem_node {
+ 	struct rb_node rb;
+ 	struct list_head link;
+ 	__u64 start;
+-	__u64 last;
++	__u64 end;
+ 	__u64 size;
+ 	__u64 userspace_addr;
+ 	__u32 perm;
+-- 
+2.16.4
