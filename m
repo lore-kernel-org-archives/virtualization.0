@@ -1,14 +1,19 @@
-From: Davidlohr Bueso <dave@stgolabs.net>
-Subject: [PATCH 07/11] vhost: convert vhost_umem_interval_tree to half closed
-	intervals
-Date: Thu,  3 Oct 2019 13:18:54 -0700
-Message-ID: <20191003201858.11666-8-dave__4335.05750713579$1570134839$gmane$org@stgolabs.net>
-References: <20191003201858.11666-1-dave@stgolabs.net>
+From: David Hildenbrand <david@redhat.com>
+Subject: Re: VIRTIO_BALLOON_F_FREE_PAGE_HINT
+Date: Fri, 4 Oct 2019 10:06:03 +0200
+Message-ID: <0df87f00-5102-973b-3a7a-735e44f4ac3f@redhat.com>
+References: <CAJuQAmpQmNN1EJHm4RinZnBven9Bx4GGqd-8Mt+L=3Z-3pd+zg@mail.gmail.com>
+	<5D7EE856.2080602@intel.com>
+	<09257686-90df-5c31-c35f-9d16fc77fee1@redhat.com>
+	<CAJuQAmpQV26kb9vTyoW-Q7PsD0SOfX+otkiQZAks1L6k7rgdig@mail.gmail.com>
+	<20191003142854-mutt-send-email-mst@kernel.org>
+	<CAJuQAmrCiPsofYpDvm8=i32d9c9yCmKpJRBSRFkeubP_2=XKtw@mail.gmail.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <20191003201858.11666-1-dave@stgolabs.net>
+In-Reply-To: <CAJuQAmrCiPsofYpDvm8=i32d9c9yCmKpJRBSRFkeubP_2=XKtw@mail.gmail.com>
+Content-Language: en-US
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -18,130 +23,26 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: akpm@linux-foundation.org
-Cc: dave@stgolabs.net, Davidlohr Bueso <dbueso@suse.de>, peterz@infradead.org, Michael@mail.linuxfoundation.org, linux-kernel@vger.kernel.org, dri-devel@lists.freedesktop.org, virtualization@lists.linux-foundation.org, linux-mm@kvack.org, walken@google.com, linux-rdma@vger.kernel.org
+To: Tyler Sanderson <tysand@google.com>, "Michael S. Tsirkin" <mst@redhat.com>
+Cc: virtualization@lists.linux-foundation.org
 List-Id: virtualization@lists.linuxfoundation.org
 
-The vhost_umem interval tree really wants [a, b) intervals,
-not fully closed as currently. As such convert it to use the
-new interval_tree_gen.h, and also rename the 'last' endpoint
-in the node to 'end', which both a more suitable name for
-the half closed interval and also reduces the chances of some
-caller being missed.
+On 04.10.19 01:15, Tyler Sanderson wrote:
+> I was mistaken, the problem with overcommit accounting is not fixed by
+> the change to shrinker interface.
+> This means that large allocations are stopped even if they could succeed
+> by deflating the balloon.
 
-Cc: Michael S. Tsirkin" <mst@redhat.com>
-Cc: Jason Wang <jasowang@redhat.com>
-Cc: virtualization@lists.linux-foundation.org
-Signed-off-by: Davidlohr Bueso <dbueso@suse.de>
----
- drivers/vhost/vhost.c | 19 +++++++++----------
- drivers/vhost/vhost.h |  4 ++--
- 2 files changed, 11 insertions(+), 12 deletions(-)
+Please note that some people use the balloon for actual memory unplug -
+so initiating to deflate the balloon under any circumstances is
+undesired. It's different with "VIRTIO_BALLOON_F_DEFLATE_ON_OOM" being
+set - however that is barely the case (at least in the setups I know :) ).
 
-diff --git a/drivers/vhost/vhost.c b/drivers/vhost/vhost.c
-index 36ca2cf419bf..80c3cca24dc7 100644
---- a/drivers/vhost/vhost.c
-+++ b/drivers/vhost/vhost.c
-@@ -28,7 +28,7 @@
- #include <linux/sort.h>
- #include <linux/sched/mm.h>
- #include <linux/sched/signal.h>
--#include <linux/interval_tree_generic.h>
-+#include <linux/interval_tree_gen.h>
- #include <linux/nospec.h>
- 
- #include "vhost.h"
-@@ -51,7 +51,7 @@ enum {
- 
- INTERVAL_TREE_DEFINE(struct vhost_umem_node,
- 		     rb, __u64, __subtree_last,
--		     START, LAST, static inline, vhost_umem_interval_tree);
-+		     START, END, static inline, vhost_umem_interval_tree);
- 
- #ifdef CONFIG_VHOST_CROSS_ENDIAN_LEGACY
- static void vhost_disable_cross_endian(struct vhost_virtqueue *vq)
-@@ -1034,7 +1034,7 @@ static int vhost_new_umem_range(struct vhost_umem *umem,
- 
- 	node->start = start;
- 	node->size = size;
--	node->last = end;
-+	node->end = end;
- 	node->userspace_addr = userspace_addr;
- 	node->perm = perm;
- 	INIT_LIST_HEAD(&node->link);
-@@ -1112,7 +1112,7 @@ static int vhost_process_iotlb_msg(struct vhost_dev *dev,
- 		}
- 		vhost_vq_meta_reset(dev);
- 		if (vhost_new_umem_range(dev->iotlb, msg->iova, msg->size,
--					 msg->iova + msg->size - 1,
-+					 msg->iova + msg->size,
- 					 msg->uaddr, msg->perm)) {
- 			ret = -ENOMEM;
- 			break;
-@@ -1126,7 +1126,7 @@ static int vhost_process_iotlb_msg(struct vhost_dev *dev,
- 		}
- 		vhost_vq_meta_reset(dev);
- 		vhost_del_umem_range(dev->iotlb, msg->iova,
--				     msg->iova + msg->size - 1);
-+				     msg->iova + msg->size);
- 		break;
- 	default:
- 		ret = -EINVAL;
-@@ -1320,15 +1320,14 @@ static bool iotlb_access_ok(struct vhost_virtqueue *vq,
- {
- 	const struct vhost_umem_node *node;
- 	struct vhost_umem *umem = vq->iotlb;
--	u64 s = 0, size, orig_addr = addr, last = addr + len - 1;
-+	u64 s = 0, size, orig_addr = addr, last = addr + len;
- 
- 	if (vhost_vq_meta_fetch(vq, addr, len, type))
- 		return true;
- 
- 	while (len > s) {
- 		node = vhost_umem_interval_tree_iter_first(&umem->umem_tree,
--							   addr,
--							   last);
-+							   addr, last);
- 		if (node == NULL || node->start > addr) {
- 			vhost_iotlb_miss(vq, addr, access);
- 			return false;
-@@ -1455,7 +1454,7 @@ static long vhost_set_memory(struct vhost_dev *d, struct vhost_memory __user *m)
- 					 region->guest_phys_addr,
- 					 region->memory_size,
- 					 region->guest_phys_addr +
--					 region->memory_size - 1,
-+					 region->memory_size,
- 					 region->userspace_addr,
- 					 VHOST_ACCESS_RW))
- 			goto err;
-@@ -2055,7 +2054,7 @@ static int translate_desc(struct vhost_virtqueue *vq, u64 addr, u32 len,
- 		}
- 
- 		node = vhost_umem_interval_tree_iter_first(&umem->umem_tree,
--							addr, addr + len - 1);
-+							   addr, addr + len);
- 		if (node == NULL || node->start > addr) {
- 			if (umem != dev->iotlb) {
- 				ret = -EFAULT;
-diff --git a/drivers/vhost/vhost.h b/drivers/vhost/vhost.h
-index e9ed2722b633..bb36cb9ed5ec 100644
---- a/drivers/vhost/vhost.h
-+++ b/drivers/vhost/vhost.h
-@@ -53,13 +53,13 @@ struct vhost_log {
- };
- 
- #define START(node) ((node)->start)
--#define LAST(node) ((node)->last)
-+#define END(node) ((node)->end)
- 
- struct vhost_umem_node {
- 	struct rb_node rb;
- 	struct list_head link;
- 	__u64 start;
--	__u64 last;
-+	__u64 end;
- 	__u64 size;
- 	__u64 userspace_addr;
- 	__u32 perm;
+So yes, free page reporting is a different thing, because it really is
+used to "hint" and not to "agree to unplug" in any scenario.
+
 -- 
-2.16.4
+
+Thanks,
+
+David / dhildenb
