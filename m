@@ -1,9 +1,8 @@
-From: David Hildenbrand <david@redhat.com>
+From: "Michael S. Tsirkin" <mst@redhat.com>
 Subject: Re: VIRTIO_BALLOON_F_FREE_PAGE_HINT
-Date: Sun, 6 Oct 2019 10:30:40 +0200
-Message-ID: <859eada9-d3e2-8f28-ebd6-a8cb562dbff5@redhat.com>
-References: <CAJuQAmpQmNN1EJHm4RinZnBven9Bx4GGqd-8Mt+L=3Z-3pd+zg@mail.gmail.com>
-	<5D7EE856.2080602@intel.com>
+Date: Sun, 6 Oct 2019 07:48:45 -0400
+Message-ID: <20191006073919-mutt-send-email-mst@kernel.org>
+References: <5D7EE856.2080602@intel.com>
 	<09257686-90df-5c31-c35f-9d16fc77fee1@redhat.com>
 	<CAJuQAmpQV26kb9vTyoW-Q7PsD0SOfX+otkiQZAks1L6k7rgdig@mail.gmail.com>
 	<20191003142854-mutt-send-email-mst@kernel.org>
@@ -12,12 +11,13 @@ References: <CAJuQAmpQmNN1EJHm4RinZnBven9Bx4GGqd-8Mt+L=3Z-3pd+zg@mail.gmail.com>
 	<20191004043446-mutt-send-email-mst@kernel.org>
 	<30c6feba-7037-b52f-3ef4-4a5c50be0aff@redhat.com>
 	<CAJuQAmpwQ4guGtHTTWC60EAYBuJ264d6CgWmWEHSnb8-CRtWBw@mail.gmail.com>
+	<859eada9-d3e2-8f28-ebd6-a8cb562dbff5@redhat.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="utf-8"
-Content-Transfer-Encoding: base64
+Content-Type: text/plain; charset="us-ascii"
+Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <CAJuQAmpwQ4guGtHTTWC60EAYBuJ264d6CgWmWEHSnb8-CRtWBw@mail.gmail.com>
-Content-Language: en-US
+Content-Disposition: inline
+In-Reply-To: <859eada9-d3e2-8f28-ebd6-a8cb562dbff5@redhat.com>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -27,59 +27,16 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Tyler Sanderson <tysand@google.com>
-Cc: virtualization@lists.linux-foundation.org, "Michael S. Tsirkin" <mst@redhat.com>
+To: David Hildenbrand <david@redhat.com>
+Cc: Tyler Sanderson <tysand@google.com>, virtualization@lists.linux-foundation.org
 List-Id: virtualization@lists.linuxfoundation.org
 
-T24gMDQuMTAuMTkgMjE6MDMsIFR5bGVyIFNhbmRlcnNvbiB3cm90ZToKPiBJIHRoaW5rIERFRkxB
-VEVfT05fT09NIG1ha2VzIHNlbnNlIGNvbmNlcHR1YWxseSwgaXQncyBqdXN0IHRoYXQgdGhlCj4g
-aW1wbGVtZW50YXRpb24gZG9lc24ndCBwbGF5IHdlbGwgd2l0aCB0aGUgcmVzdCBvZiBtZW1vcnkg
-bWFuYWdlbWVudAo+IHVuZGVyIG1lbW9yeSBwcmVzc3VyZS4KPiBJdCBjb3VsZCBwcm9iYWJseSBi
-ZSBmaXhlZCB3aXRoIGVub3VnaCBlZmZvcnQsIGJ1dCBJTU8gZnJlZSBwYWdlIGhpbnRpbmcKPiBn
-ZXRzIDkwJSBvZiB0aGUgYmVuZWZpdCB3aXRob3V0IHBva2luZyB0aGUgZGFyayBjb3JuZXJzIG9m
-IG1lbW9yeQo+IG1hbmFnZW1lbnQgYW5kIHNvIGlzIGEgbmV0IHdpbi4KPiAKPiBUaGUgb2J2aW91
-cyBwbGFjZSB3aGVyZSBmcmVlIHBhZ2UgaGludGluZyBmYWxscyBzaG9ydCAoYXMgRGF2aWQgcG9p
-bnRlZAo+IG91dCBhYm92ZSkgaXMgdGhhdCBpdCBjYW4ndCBwcmVzc3VyZSB0aGUgcGFnZSBjYWNo
-ZS4KCk9uZSBzb2x1dGlvbiBpcyB0byBtb3ZlIHRoZSBwYWdlIGNhY2hlIHRvIHRoZSBoeXBlcnZp
-c29yLCBlLmcuLCB1c2luZwplbXVsYXRlZCBOVkRJTU1zIG9yIHZpcnRpby1wbWVtLgoKPiBXb3Vs
-ZCBpdCBiZSBwb3NzaWJsZcKgdG8gYWRkIGEgbWVjaGFuaXNtIHRoYXQgZXhwbGljaXRseSBjYXVz
-ZXMgcGFnZQo+IGNhY2hlIHRvIHNocmluayB3aXRob3V0IHJlcXVpcmluZyB0aGUgc3lzdGVtIHRv
-IGJlIHVuZGVyIG1lbW9yeSBwcmVzc3VyZT8KPiAKCldlIGRvIGhhdmUgYSBzeXNjdGwgImRyb3Bf
-Y2FjaGVzIiB3aGljaCBjYWxscwppdGVyYXRlX3N1cGVycyhkcm9wX3BhZ2VjYWNoZV9zYiwgTlVM
-TCkgYW5kIGRyb3Bfc2xhYigpLgoKZG9jL0RvY3VtZW50YXRpb24vc3lzY3RsL3ZtLnR4dDoKPT09
-PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09
-PT0KCmRyb3BfY2FjaGVzCgpXcml0aW5nIHRvIHRoaXMgd2lsbCBjYXVzZSB0aGUga2VybmVsIHRv
-IGRyb3AgY2xlYW4gY2FjaGVzLCBhcyB3ZWxsIGFzCnJlY2xhaW1hYmxlIHNsYWIgb2JqZWN0cyBs
-aWtlIGRlbnRyaWVzIGFuZCBpbm9kZXMuICBPbmNlIGRyb3BwZWQsIHRoZWlyCm1lbW9yeSBiZWNv
-bWVzIGZyZWUuCgpUbyBmcmVlIHBhZ2VjYWNoZToKCWVjaG8gMSA+IC9wcm9jL3N5cy92bS9kcm9w
-X2NhY2hlcwpUbyBmcmVlIHJlY2xhaW1hYmxlIHNsYWIgb2JqZWN0cyAoaW5jbHVkZXMgZGVudHJp
-ZXMgYW5kIGlub2Rlcyk6CgllY2hvIDIgPiAvcHJvYy9zeXMvdm0vZHJvcF9jYWNoZXMKVG8gZnJl
-ZSBzbGFiIG9iamVjdHMgYW5kIHBhZ2VjYWNoZToKCWVjaG8gMyA+IC9wcm9jL3N5cy92bS9kcm9w
-X2NhY2hlcwoKVGhpcyBpcyBhIG5vbi1kZXN0cnVjdGl2ZSBvcGVyYXRpb24gYW5kIHdpbGwgbm90
-IGZyZWUgYW55IGRpcnR5IG9iamVjdHMuClRvIGluY3JlYXNlIHRoZSBudW1iZXIgb2Ygb2JqZWN0
-cyBmcmVlZCBieSB0aGlzIG9wZXJhdGlvbiwgdGhlIHVzZXIgbWF5IHJ1bgpgc3luYycgcHJpb3Ig
-dG8gd3JpdGluZyB0byAvcHJvYy9zeXMvdm0vZHJvcF9jYWNoZXMuICBUaGlzIHdpbGwgbWluaW1p
-emUgdGhlCm51bWJlciBvZiBkaXJ0eSBvYmplY3RzIG9uIHRoZSBzeXN0ZW0gYW5kIGNyZWF0ZSBt
-b3JlIGNhbmRpZGF0ZXMgdG8gYmUKZHJvcHBlZC4KClRoaXMgZmlsZSBpcyBub3QgYSBtZWFucyB0
-byBjb250cm9sIHRoZSBncm93dGggb2YgdGhlIHZhcmlvdXMga2VybmVsIGNhY2hlcwooaW5vZGVz
-LCBkZW50cmllcywgcGFnZWNhY2hlLCBldGMuLi4pICBUaGVzZSBvYmplY3RzIGFyZSBhdXRvbWF0
-aWNhbGx5CnJlY2xhaW1lZCBieSB0aGUga2VybmVsIHdoZW4gbWVtb3J5IGlzIG5lZWRlZCBlbHNl
-d2hlcmUgb24gdGhlIHN5c3RlbS4KClVzZSBvZiB0aGlzIGZpbGUgY2FuIGNhdXNlIHBlcmZvcm1h
-bmNlIHByb2JsZW1zLiAgU2luY2UgaXQgZGlzY2FyZHMgY2FjaGVkCm9iamVjdHMsIGl0IG1heSBj
-b3N0IGEgc2lnbmlmaWNhbnQgYW1vdW50IG9mIEkvTyBhbmQgQ1BVIHRvIHJlY3JlYXRlIHRoZQpk
-cm9wcGVkIG9iamVjdHMsIGVzcGVjaWFsbHkgaWYgdGhleSB3ZXJlIHVuZGVyIGhlYXZ5IHVzZS4g
-IEJlY2F1c2Ugb2YgdGhpcywKdXNlIG91dHNpZGUgb2YgYSB0ZXN0aW5nIG9yIGRlYnVnZ2luZyBl
-bnZpcm9ubWVudCBpcyBub3QgcmVjb21tZW5kZWQuCgpZb3UgbWF5IHNlZSBpbmZvcm1hdGlvbmFs
-IG1lc3NhZ2VzIGluIHlvdXIga2VybmVsIGxvZyB3aGVuIHRoaXMgZmlsZSBpcwp1c2VkOgoKCWNh
-dCAoMTIzNCk6IGRyb3BfY2FjaGVzOiAzCgpUaGVzZSBhcmUgaW5mb3JtYXRpb25hbCBvbmx5LiAg
-VGhleSBkbyBub3QgbWVhbiB0aGF0IGFueXRoaW5nIGlzIHdyb25nCndpdGggeW91ciBzeXN0ZW0u
-ICBUbyBkaXNhYmxlIHRoZW0sIGVjaG8gNCAoYml0IDIpIGludG8gZHJvcF9jYWNoZXMuCgo9PT09
-PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09
-PQoKUGxlYXNlIG5vdGUgdGhlICJ1c2Ugb3V0c2lkZSBvZiBhIHRlc3Rpbmcgb3IgZGVidWdnaW5n
-IGVudmlyb25tZW50IGlzCm5vdCByZWNvbW1lbmRlZCIuIFVzdWFsbHkgeW91IHdhbnQgYSAic29m
-dCIgdmVyc2lvbiBvZiB0aGlzLCBlLmcuLCB2aWEKdGhlIE9PTSBoYW5kbGVyIChzbyBvbmx5IGRy
-b3AgcGFydHMgb2YgdGhlIGNhY2hlLCBub3QgYWxsKS4KCi0tIAoKVGhhbmtzLAoKRGF2aWQgLyBk
-aGlsZGVuYgpfX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fXwpW
-aXJ0dWFsaXphdGlvbiBtYWlsaW5nIGxpc3QKVmlydHVhbGl6YXRpb25AbGlzdHMubGludXgtZm91
-bmRhdGlvbi5vcmcKaHR0cHM6Ly9saXN0cy5saW51eGZvdW5kYXRpb24ub3JnL21haWxtYW4vbGlz
-dGluZm8vdmlydHVhbGl6YXRpb24=
+On Sun, Oct 06, 2019 at 10:30:40AM +0200, David Hildenbrand wrote:
+> Please note the "use outside of a testing or debugging environment is
+> not recommended". Usually you want a "soft" version of this, e.g., via
+> the OOM handler (so only drop parts of the cache, not all).
+
+Right. We'll need something softer I guess. By how much, I don't know.
+
+-- 
+MST
