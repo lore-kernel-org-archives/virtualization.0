@@ -1,8 +1,8 @@
 From: jcfaracco@gmail.com
-Subject: [PATCH RFC net-next 1/2] drivers: net: virtio_net: Add tx_timeout
-	stats field
-Date: Sun,  6 Oct 2019 15:45:14 -0300
-Message-ID: <20191006184515.23048-2-jcfaracco@gmail.com>
+Subject: [PATCH RFC net-next 2/2] drivers: net: virtio_net: Add tx_timeout
+	function
+Date: Sun,  6 Oct 2019 15:45:15 -0300
+Message-ID: <20191006184515.23048-3-jcfaracco__10720.1309454226$1570387546$gmane$org@gmail.com>
 References: <20191006184515.23048-1-jcfaracco@gmail.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
@@ -24,62 +24,70 @@ List-Id: virtualization@lists.linuxfoundation.org
 
 From: Julio Faracco <jcfaracco@gmail.com>
 
-For debug purpose of TX timeout events, a tx_timeout entry was added to
-monitor this special case: when dev_watchdog identifies a tx_timeout and
-throw an exception. We can both consider this event as an error, but
-driver should report as a tx_timeout statistic.
+To enable dev_watchdog, virtio_net should have a tx_timeout defined 
+(.ndo_tx_timeout). This is only a skeleton to throw a warn message. It 
+notifies the event in some specific queue of device. This function 
+still counts tx_timeout statistic and consider this event as an error 
+(one error per queue), reporting it.
 
 Signed-off-by: Julio Faracco <jcfaracco@gmail.com>
 Signed-off-by: Daiane Mendes <dnmendes76@gmail.com>
 Cc: Jason Wang <jasowang@redhat.com>
 ---
- drivers/net/virtio_net.c | 6 +++++-
- 1 file changed, 5 insertions(+), 1 deletion(-)
+ drivers/net/virtio_net.c | 27 +++++++++++++++++++++++++++
+ 1 file changed, 27 insertions(+)
 
 diff --git a/drivers/net/virtio_net.c b/drivers/net/virtio_net.c
-index 4f3de0ac8b0b..27f9b212c9f5 100644
+index 27f9b212c9f5..4b703b4b9441 100644
 --- a/drivers/net/virtio_net.c
 +++ b/drivers/net/virtio_net.c
-@@ -75,6 +75,7 @@ struct virtnet_sq_stats {
- 	u64 xdp_tx;
- 	u64 xdp_tx_drops;
- 	u64 kicks;
-+	u64 tx_timeouts;
+@@ -2585,6 +2585,29 @@ static int virtnet_set_features(struct net_device *dev,
+ 	return 0;
+ }
+ 
++static void virtnet_tx_timeout(struct net_device *dev)
++{
++	struct virtnet_info *vi = netdev_priv(dev);
++	u32 i;
++
++	/* find the stopped queue the same way dev_watchdog() does */
++	for (i = 0; i < vi->curr_queue_pairs; i++) {
++		struct send_queue *sq = &vi->sq[i];
++
++		if (!netif_xmit_stopped(netdev_get_tx_queue(dev, i)))
++			continue;
++
++		u64_stats_update_begin(&sq->stats.syncp);
++		sq->stats.tx_timeouts++;
++		u64_stats_update_end(&sq->stats.syncp);
++
++		netdev_warn(dev, "TX timeout on send queue: %d, sq: %s, vq: %d, name: %s\n",
++			    i, sq->name, sq->vq->index, sq->vq->name);
++
++		dev->stats.tx_errors++;
++	}
++}
++
+ static const struct net_device_ops virtnet_netdev = {
+ 	.ndo_open            = virtnet_open,
+ 	.ndo_stop   	     = virtnet_close,
+@@ -2600,6 +2623,7 @@ static const struct net_device_ops virtnet_netdev = {
+ 	.ndo_features_check	= passthru_features_check,
+ 	.ndo_get_phys_port_name	= virtnet_get_phys_port_name,
+ 	.ndo_set_features	= virtnet_set_features,
++	.ndo_tx_timeout		= virtnet_tx_timeout,
  };
  
- struct virtnet_rq_stats {
-@@ -98,6 +99,7 @@ static const struct virtnet_stat_desc virtnet_sq_stats_desc[] = {
- 	{ "xdp_tx",		VIRTNET_SQ_STAT(xdp_tx) },
- 	{ "xdp_tx_drops",	VIRTNET_SQ_STAT(xdp_tx_drops) },
- 	{ "kicks",		VIRTNET_SQ_STAT(kicks) },
-+	{ "tx_timeouts",	VIRTNET_SQ_STAT(tx_timeouts) },
- };
+ static void virtnet_config_changed_work(struct work_struct *work)
+@@ -3018,6 +3042,9 @@ static int virtnet_probe(struct virtio_device *vdev)
+ 	dev->netdev_ops = &virtnet_netdev;
+ 	dev->features = NETIF_F_HIGHDMA;
  
- static const struct virtnet_stat_desc virtnet_rq_stats_desc[] = {
-@@ -1721,7 +1723,7 @@ static void virtnet_stats(struct net_device *dev,
- 	int i;
++	/* Set up dev_watchdog cycle. */
++	dev->watchdog_timeo = 5 * HZ;
++
+ 	dev->ethtool_ops = &virtnet_ethtool_ops;
+ 	SET_NETDEV_DEV(dev, &vdev->dev);
  
- 	for (i = 0; i < vi->max_queue_pairs; i++) {
--		u64 tpackets, tbytes, rpackets, rbytes, rdrops;
-+		u64 tpackets, tbytes, terrors, rpackets, rbytes, rdrops;
- 		struct receive_queue *rq = &vi->rq[i];
- 		struct send_queue *sq = &vi->sq[i];
- 
-@@ -1729,6 +1731,7 @@ static void virtnet_stats(struct net_device *dev,
- 			start = u64_stats_fetch_begin_irq(&sq->stats.syncp);
- 			tpackets = sq->stats.packets;
- 			tbytes   = sq->stats.bytes;
-+			terrors  = sq->stats.tx_timeouts;
- 		} while (u64_stats_fetch_retry_irq(&sq->stats.syncp, start));
- 
- 		do {
-@@ -1743,6 +1746,7 @@ static void virtnet_stats(struct net_device *dev,
- 		tot->rx_bytes   += rbytes;
- 		tot->tx_bytes   += tbytes;
- 		tot->rx_dropped += rdrops;
-+		tot->tx_errors  += terrors;
- 	}
- 
- 	tot->tx_dropped = dev->stats.tx_dropped;
 -- 
 2.21.0
