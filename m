@@ -1,7 +1,7 @@
-From: "Michael S. Tsirkin" <mst@redhat.com>
+From: David Hildenbrand <david@redhat.com>
 Subject: Re: VIRTIO_BALLOON_F_FREE_PAGE_HINT
-Date: Sat, 5 Oct 2019 17:03:11 -0400
-Message-ID: <20191005170200-mutt-send-email-mst@kernel.org>
+Date: Sun, 6 Oct 2019 10:30:40 +0200
+Message-ID: <859eada9-d3e2-8f28-ebd6-a8cb562dbff5@redhat.com>
 References: <CAJuQAmpQmNN1EJHm4RinZnBven9Bx4GGqd-8Mt+L=3Z-3pd+zg@mail.gmail.com>
 	<5D7EE856.2080602@intel.com>
 	<09257686-90df-5c31-c35f-9d16fc77fee1@redhat.com>
@@ -13,11 +13,11 @@ References: <CAJuQAmpQmNN1EJHm4RinZnBven9Bx4GGqd-8Mt+L=3Z-3pd+zg@mail.gmail.com>
 	<30c6feba-7037-b52f-3ef4-4a5c50be0aff@redhat.com>
 	<CAJuQAmpwQ4guGtHTTWC60EAYBuJ264d6CgWmWEHSnb8-CRtWBw@mail.gmail.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="iso-8859-1"
-Content-Transfer-Encoding: quoted-printable
+Content-Type: text/plain; charset="utf-8"
+Content-Transfer-Encoding: base64
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-Content-Disposition: inline
 In-Reply-To: <CAJuQAmpwQ4guGtHTTWC60EAYBuJ264d6CgWmWEHSnb8-CRtWBw@mail.gmail.com>
+Content-Language: en-US
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -28,80 +28,58 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
 To: Tyler Sanderson <tysand@google.com>
-Cc: virtualization@lists.linux-foundation.org
+Cc: virtualization@lists.linux-foundation.org, "Michael S. Tsirkin" <mst@redhat.com>
 List-Id: virtualization@lists.linuxfoundation.org
 
-On Fri, Oct 04, 2019 at 12:03:43PM -0700, Tyler Sanderson wrote:
-> I think DEFLATE_ON_OOM makes sense conceptually, it's just that the
-> implementation doesn't play well with the rest of memory management under
-> memory pressure.
-> It could probably be fixed with enough effort, but IMO free page hinting =
-gets
-> 90% of the benefit without poking the dark corners of memory management a=
-nd so
-> is a net win.
-> =
-
-> The obvious place where free page hinting falls short (as David pointed o=
-ut
-> above) is that it can't pressure the page cache.
-> Would it be possible=A0to add a mechanism that explicitly causes page cac=
-he to
-> shrink without requiring the system to be under memory pressure?
-
-Which API would you call to shrink it?
-
-
-> On Fri, Oct 4, 2019 at 1:56 AM David Hildenbrand <david@redhat.com> wrote:
-> =
-
->     On 04.10.19 10:35, Michael S. Tsirkin wrote:
->     > On Fri, Oct 04, 2019 at 10:06:03AM +0200, David Hildenbrand wrote:
->     >> On 04.10.19 01:15, Tyler Sanderson wrote:
->     >>> I was mistaken, the problem with overcommit accounting is not fix=
-ed by
->     >>> the change to shrinker interface.
->     >>> This means that large allocations are stopped even if they could
->     succeed
->     >>> by deflating the balloon.
->     >>
->     >> Please note that some people use the balloon for actual memory unp=
-lug -
->     >> so initiating to deflate the balloon under any circumstances is
->     >> undesired. It's different with "VIRTIO_BALLOON_F_DEFLATE_ON_OOM" b=
-eing
->     >> set - however that is barely the case (at least in the setups I kn=
-ow :)
->     ).
->     >>
->     >> So yes, free page reporting is a different thing, because it reall=
-y is
->     >> used to "hint" and not to "agree to unplug" in any scenario.
->     >>
->     >> --
->     >>
->     >> Thanks,
->     >>
->     >
->     >
->     > VIRTIO_BALLOON_F_DEFLATE_ON_OOM isn't really well thought through
->     > at the spec level either. For example, when will we inflate again?
->     > Current code does this at the next interrupt, which requires
->     > host to somehow know it's time to inflate.
->     >
-> =
-
->     The host has access to memory stats of the guest, so it could come up
->     with some heuristics - but I do agree that is not well thought throug=
-h -
->     one reason why it is barely used :)
-> =
-
->     --
-> =
-
->     Thanks,
-> =
-
->     David / dhildenb
-> =
+T24gMDQuMTAuMTkgMjE6MDMsIFR5bGVyIFNhbmRlcnNvbiB3cm90ZToKPiBJIHRoaW5rIERFRkxB
+VEVfT05fT09NIG1ha2VzIHNlbnNlIGNvbmNlcHR1YWxseSwgaXQncyBqdXN0IHRoYXQgdGhlCj4g
+aW1wbGVtZW50YXRpb24gZG9lc24ndCBwbGF5IHdlbGwgd2l0aCB0aGUgcmVzdCBvZiBtZW1vcnkg
+bWFuYWdlbWVudAo+IHVuZGVyIG1lbW9yeSBwcmVzc3VyZS4KPiBJdCBjb3VsZCBwcm9iYWJseSBi
+ZSBmaXhlZCB3aXRoIGVub3VnaCBlZmZvcnQsIGJ1dCBJTU8gZnJlZSBwYWdlIGhpbnRpbmcKPiBn
+ZXRzIDkwJSBvZiB0aGUgYmVuZWZpdCB3aXRob3V0IHBva2luZyB0aGUgZGFyayBjb3JuZXJzIG9m
+IG1lbW9yeQo+IG1hbmFnZW1lbnQgYW5kIHNvIGlzIGEgbmV0IHdpbi4KPiAKPiBUaGUgb2J2aW91
+cyBwbGFjZSB3aGVyZSBmcmVlIHBhZ2UgaGludGluZyBmYWxscyBzaG9ydCAoYXMgRGF2aWQgcG9p
+bnRlZAo+IG91dCBhYm92ZSkgaXMgdGhhdCBpdCBjYW4ndCBwcmVzc3VyZSB0aGUgcGFnZSBjYWNo
+ZS4KCk9uZSBzb2x1dGlvbiBpcyB0byBtb3ZlIHRoZSBwYWdlIGNhY2hlIHRvIHRoZSBoeXBlcnZp
+c29yLCBlLmcuLCB1c2luZwplbXVsYXRlZCBOVkRJTU1zIG9yIHZpcnRpby1wbWVtLgoKPiBXb3Vs
+ZCBpdCBiZSBwb3NzaWJsZcKgdG8gYWRkIGEgbWVjaGFuaXNtIHRoYXQgZXhwbGljaXRseSBjYXVz
+ZXMgcGFnZQo+IGNhY2hlIHRvIHNocmluayB3aXRob3V0IHJlcXVpcmluZyB0aGUgc3lzdGVtIHRv
+IGJlIHVuZGVyIG1lbW9yeSBwcmVzc3VyZT8KPiAKCldlIGRvIGhhdmUgYSBzeXNjdGwgImRyb3Bf
+Y2FjaGVzIiB3aGljaCBjYWxscwppdGVyYXRlX3N1cGVycyhkcm9wX3BhZ2VjYWNoZV9zYiwgTlVM
+TCkgYW5kIGRyb3Bfc2xhYigpLgoKZG9jL0RvY3VtZW50YXRpb24vc3lzY3RsL3ZtLnR4dDoKPT09
+PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09
+PT0KCmRyb3BfY2FjaGVzCgpXcml0aW5nIHRvIHRoaXMgd2lsbCBjYXVzZSB0aGUga2VybmVsIHRv
+IGRyb3AgY2xlYW4gY2FjaGVzLCBhcyB3ZWxsIGFzCnJlY2xhaW1hYmxlIHNsYWIgb2JqZWN0cyBs
+aWtlIGRlbnRyaWVzIGFuZCBpbm9kZXMuICBPbmNlIGRyb3BwZWQsIHRoZWlyCm1lbW9yeSBiZWNv
+bWVzIGZyZWUuCgpUbyBmcmVlIHBhZ2VjYWNoZToKCWVjaG8gMSA+IC9wcm9jL3N5cy92bS9kcm9w
+X2NhY2hlcwpUbyBmcmVlIHJlY2xhaW1hYmxlIHNsYWIgb2JqZWN0cyAoaW5jbHVkZXMgZGVudHJp
+ZXMgYW5kIGlub2Rlcyk6CgllY2hvIDIgPiAvcHJvYy9zeXMvdm0vZHJvcF9jYWNoZXMKVG8gZnJl
+ZSBzbGFiIG9iamVjdHMgYW5kIHBhZ2VjYWNoZToKCWVjaG8gMyA+IC9wcm9jL3N5cy92bS9kcm9w
+X2NhY2hlcwoKVGhpcyBpcyBhIG5vbi1kZXN0cnVjdGl2ZSBvcGVyYXRpb24gYW5kIHdpbGwgbm90
+IGZyZWUgYW55IGRpcnR5IG9iamVjdHMuClRvIGluY3JlYXNlIHRoZSBudW1iZXIgb2Ygb2JqZWN0
+cyBmcmVlZCBieSB0aGlzIG9wZXJhdGlvbiwgdGhlIHVzZXIgbWF5IHJ1bgpgc3luYycgcHJpb3Ig
+dG8gd3JpdGluZyB0byAvcHJvYy9zeXMvdm0vZHJvcF9jYWNoZXMuICBUaGlzIHdpbGwgbWluaW1p
+emUgdGhlCm51bWJlciBvZiBkaXJ0eSBvYmplY3RzIG9uIHRoZSBzeXN0ZW0gYW5kIGNyZWF0ZSBt
+b3JlIGNhbmRpZGF0ZXMgdG8gYmUKZHJvcHBlZC4KClRoaXMgZmlsZSBpcyBub3QgYSBtZWFucyB0
+byBjb250cm9sIHRoZSBncm93dGggb2YgdGhlIHZhcmlvdXMga2VybmVsIGNhY2hlcwooaW5vZGVz
+LCBkZW50cmllcywgcGFnZWNhY2hlLCBldGMuLi4pICBUaGVzZSBvYmplY3RzIGFyZSBhdXRvbWF0
+aWNhbGx5CnJlY2xhaW1lZCBieSB0aGUga2VybmVsIHdoZW4gbWVtb3J5IGlzIG5lZWRlZCBlbHNl
+d2hlcmUgb24gdGhlIHN5c3RlbS4KClVzZSBvZiB0aGlzIGZpbGUgY2FuIGNhdXNlIHBlcmZvcm1h
+bmNlIHByb2JsZW1zLiAgU2luY2UgaXQgZGlzY2FyZHMgY2FjaGVkCm9iamVjdHMsIGl0IG1heSBj
+b3N0IGEgc2lnbmlmaWNhbnQgYW1vdW50IG9mIEkvTyBhbmQgQ1BVIHRvIHJlY3JlYXRlIHRoZQpk
+cm9wcGVkIG9iamVjdHMsIGVzcGVjaWFsbHkgaWYgdGhleSB3ZXJlIHVuZGVyIGhlYXZ5IHVzZS4g
+IEJlY2F1c2Ugb2YgdGhpcywKdXNlIG91dHNpZGUgb2YgYSB0ZXN0aW5nIG9yIGRlYnVnZ2luZyBl
+bnZpcm9ubWVudCBpcyBub3QgcmVjb21tZW5kZWQuCgpZb3UgbWF5IHNlZSBpbmZvcm1hdGlvbmFs
+IG1lc3NhZ2VzIGluIHlvdXIga2VybmVsIGxvZyB3aGVuIHRoaXMgZmlsZSBpcwp1c2VkOgoKCWNh
+dCAoMTIzNCk6IGRyb3BfY2FjaGVzOiAzCgpUaGVzZSBhcmUgaW5mb3JtYXRpb25hbCBvbmx5LiAg
+VGhleSBkbyBub3QgbWVhbiB0aGF0IGFueXRoaW5nIGlzIHdyb25nCndpdGggeW91ciBzeXN0ZW0u
+ICBUbyBkaXNhYmxlIHRoZW0sIGVjaG8gNCAoYml0IDIpIGludG8gZHJvcF9jYWNoZXMuCgo9PT09
+PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09
+PQoKUGxlYXNlIG5vdGUgdGhlICJ1c2Ugb3V0c2lkZSBvZiBhIHRlc3Rpbmcgb3IgZGVidWdnaW5n
+IGVudmlyb25tZW50IGlzCm5vdCByZWNvbW1lbmRlZCIuIFVzdWFsbHkgeW91IHdhbnQgYSAic29m
+dCIgdmVyc2lvbiBvZiB0aGlzLCBlLmcuLCB2aWEKdGhlIE9PTSBoYW5kbGVyIChzbyBvbmx5IGRy
+b3AgcGFydHMgb2YgdGhlIGNhY2hlLCBub3QgYWxsKS4KCi0tIAoKVGhhbmtzLAoKRGF2aWQgLyBk
+aGlsZGVuYgpfX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fXwpW
+aXJ0dWFsaXphdGlvbiBtYWlsaW5nIGxpc3QKVmlydHVhbGl6YXRpb25AbGlzdHMubGludXgtZm91
+bmRhdGlvbi5vcmcKaHR0cHM6Ly9saXN0cy5saW51eGZvdW5kYXRpb24ub3JnL21haWxtYW4vbGlz
+dGluZm8vdmlydHVhbGl6YXRpb24=
