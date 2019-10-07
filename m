@@ -1,12 +1,15 @@
-From: "Michael S. Tsirkin" <mst@redhat.com>
-Subject: [PATCH] vhost/test: stop device before reset
-Date: Mon, 7 Oct 2019 14:30:23 -0400
-Message-ID: <20191007183019.12522-1-mst__16764.1894005769$1570473039$gmane$org@redhat.com>
+From: Thomas Hellstrom via Virtualization
+	<virtualization@lists.linux-foundation.org>
+Subject: Re: [PATCH] x86/cpu/vmware: use the full form of inl in VMWARE_PORT
+Date: Mon, 7 Oct 2019 19:29:25 +0000
+Message-ID: <MN2PR05MB61419440A3C9FF9CB920BCD5A19B0__14889.5800275326$1570476580$gmane$org@MN2PR05MB6141.namprd05.prod.outlook.com>
+References: <20191007192129.104336-1-samitolvanen@google.com>
+Reply-To: Thomas Hellstrom <thellstrom@vmware.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-Content-Disposition: inline
+Content-Language: en-US
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -16,39 +19,39 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: linux-kernel@vger.kernel.org
-Cc: netdev@vger.kernel.org, kvm@vger.kernel.org, virtualization@lists.linux-foundation.org
+To: Sami Tolvanen <samitolvanen@google.com>, Pv-drivers <Pv-drivers@vmware.com>, Thomas Gleixner <tglx@linutronix.de>, Ingo Molnar <mingo@redhat.com>, Borislav Petkov <bp@alien8.de>
+Cc: Kees Cook <keescook@chromium.org>, "x86@kernel.org" <x86@kernel.org>, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>, "virtualization@lists.linux-foundation.org" <virtualization@lists.linux-foundation.org>, "clang-built-linux@googlegroups.com" <clang-built-linux@googlegroups.com>, "hpa@zytor.com" <hpa@zytor.com>
 List-Id: virtualization@lists.linuxfoundation.org
 
-When device stop was moved out of reset, test device wasn't updated to
-stop before reset, this resulted in a use after free.  Fix by invoking
-stop appropriately.
+On 10/7/19 9:21 PM, Sami Tolvanen wrote:
+> LLVM's assembler doesn't accept the short form inl (%%dx) instruction,
+> but instead insists on the output register to be explicitly specified:
+>
+>   <inline asm>:1:7: error: invalid operand for instruction
+>           inl (%dx)
+>              ^
+>   LLVM ERROR: Error parsing inline asm
+>
+> Use the full form of the instruction to fix the build.
+>
+> Signed-off-by: Sami Tolvanen <samitolvanen@google.com>
 
-Fixes: b211616d7125 ("vhost: move -net specific code out")
-Signed-off-by: Michael S. Tsirkin <mst@redhat.com>
----
- drivers/vhost/test.c | 2 ++
- 1 file changed, 2 insertions(+)
+Acked-by: Thomas Hellstrom <thellstrom@vmware.com>
 
-diff --git a/drivers/vhost/test.c b/drivers/vhost/test.c
-index 04edd8db62fc..e3a8e9db22cd 100644
---- a/drivers/vhost/test.c
-+++ b/drivers/vhost/test.c
-@@ -170,6 +170,7 @@ static int vhost_test_release(struct inode *inode, struct file *f)
- 
- 	vhost_test_stop(n, &private);
- 	vhost_test_flush(n);
-+	vhost_dev_stop(&n->dev);
- 	vhost_dev_cleanup(&n->dev);
- 	/* We do an extra flush before freeing memory,
- 	 * since jobs can re-queue themselves. */
-@@ -246,6 +247,7 @@ static long vhost_test_reset_owner(struct vhost_test *n)
- 	}
- 	vhost_test_stop(n, &priv);
- 	vhost_test_flush(n);
-+	vhost_dev_stop(&n->dev);
- 	vhost_dev_reset_owner(&n->dev, umem);
- done:
- 	mutex_unlock(&n->dev.mutex);
--- 
-MST
+> ---
+>  arch/x86/kernel/cpu/vmware.c | 2 +-
+>  1 file changed, 1 insertion(+), 1 deletion(-)
+>
+> diff --git a/arch/x86/kernel/cpu/vmware.c b/arch/x86/kernel/cpu/vmware.c
+> index 9735139cfdf8..46d732696c1c 100644
+> --- a/arch/x86/kernel/cpu/vmware.c
+> +++ b/arch/x86/kernel/cpu/vmware.c
+> @@ -49,7 +49,7 @@
+>  #define VMWARE_CMD_VCPU_RESERVED 31
+>  
+>  #define VMWARE_PORT(cmd, eax, ebx, ecx, edx)				\
+> -	__asm__("inl (%%dx)" :						\
+> +	__asm__("inl (%%dx), %%eax" :					\
+>  		"=a"(eax), "=c"(ecx), "=d"(edx), "=b"(ebx) :		\
+>  		"a"(VMWARE_HYPERVISOR_MAGIC),				\
+>  		"c"(VMWARE_CMD_##cmd),					\
