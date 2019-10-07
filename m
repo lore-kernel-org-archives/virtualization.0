@@ -1,17 +1,12 @@
-From: Julio Faracco <jcfaracco@gmail.com>
-Subject: Re: [PATCH RFC net-next 2/2] drivers: net: virtio_net: Add tx_timeout
-	function
-Date: Mon, 7 Oct 2019 13:03:34 -0300
-Message-ID: <CAENf94Kamcd4TSy4wLGWLVCESiZr6q9+Kj2+3TFbFy2XncXOOw__31128.7803387799$1570464240$gmane$org@mail.gmail.com>
-References: <20191006184515.23048-1-jcfaracco@gmail.com>
-	<20191006184515.23048-3-jcfaracco@gmail.com>
-	<20191007034402-mutt-send-email-mst@kernel.org>
-	<CAENf94L+KNJgq1V6kgcwnT0hyTZMDX5Jh6kYRCaeMHDU4GGHCg@mail.gmail.com>
+From: "Michael S. Tsirkin" <mst@redhat.com>
+Subject: [PATCH] vhost/test: stop device before reset
+Date: Mon, 7 Oct 2019 14:30:23 -0400
+Message-ID: <20191007183019.12522-1-mst__16764.1894005769$1570473039$gmane$org@redhat.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="utf-8"
-Content-Transfer-Encoding: base64
+Content-Type: text/plain; charset="us-ascii"
+Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <CAENf94L+KNJgq1V6kgcwnT0hyTZMDX5Jh6kYRCaeMHDU4GGHCg@mail.gmail.com>
+Content-Disposition: inline
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -21,82 +16,39 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: "Michael S. Tsirkin" <mst@redhat.com>
-Cc: Daiane Mendes <dnmendes76@gmail.com>, netdev@vger.kernel.org, linux-kernel@vger.kernel.org, virtualization@lists.linux-foundation.org, davem@davemloft.net
+To: linux-kernel@vger.kernel.org
+Cc: netdev@vger.kernel.org, kvm@vger.kernel.org, virtualization@lists.linux-foundation.org
 List-Id: virtualization@lists.linuxfoundation.org
 
-RW0gc2VnLCA3IGRlIG91dCBkZSAyMDE5IMOgcyAxMTowMywgSnVsaW8gRmFyYWNjbyA8amNmYXJh
-Y2NvQGdtYWlsLmNvbT4gZXNjcmV2ZXU6Cj4KPiBFbSBzZWcsIDcgZGUgb3V0IGRlIDIwMTkgw6Bz
-IDA0OjUxLCBNaWNoYWVsIFMuIFRzaXJraW4gPG1zdEByZWRoYXQuY29tPiBlc2NyZXZldToKPiA+
-Cj4gPiBPbiBTdW4sIE9jdCAwNiwgMjAxOSBhdCAwMzo0NToxNVBNIC0wMzAwLCBqY2ZhcmFjY29A
-Z21haWwuY29tIHdyb3RlOgo+ID4gPiBGcm9tOiBKdWxpbyBGYXJhY2NvIDxqY2ZhcmFjY29AZ21h
-aWwuY29tPgo+ID4gPgo+ID4gPiBUbyBlbmFibGUgZGV2X3dhdGNoZG9nLCB2aXJ0aW9fbmV0IHNo
-b3VsZCBoYXZlIGEgdHhfdGltZW91dCBkZWZpbmVkCj4gPiA+ICgubmRvX3R4X3RpbWVvdXQpLiBU
-aGlzIGlzIG9ubHkgYSBza2VsZXRvbiB0byB0aHJvdyBhIHdhcm4gbWVzc2FnZS4gSXQKPiA+ID4g
-bm90aWZpZXMgdGhlIGV2ZW50IGluIHNvbWUgc3BlY2lmaWMgcXVldWUgb2YgZGV2aWNlLiBUaGlz
-IGZ1bmN0aW9uCj4gPiA+IHN0aWxsIGNvdW50cyB0eF90aW1lb3V0IHN0YXRpc3RpYyBhbmQgY29u
-c2lkZXIgdGhpcyBldmVudCBhcyBhbiBlcnJvcgo+ID4gPiAob25lIGVycm9yIHBlciBxdWV1ZSks
-IHJlcG9ydGluZyBpdC4KPiA+ID4KPiA+ID4gU2lnbmVkLW9mZi1ieTogSnVsaW8gRmFyYWNjbyA8
-amNmYXJhY2NvQGdtYWlsLmNvbT4KPiA+ID4gU2lnbmVkLW9mZi1ieTogRGFpYW5lIE1lbmRlcyA8
-ZG5tZW5kZXM3NkBnbWFpbC5jb20+Cj4gPiA+IENjOiBKYXNvbiBXYW5nIDxqYXNvd2FuZ0ByZWRo
-YXQuY29tPgo+ID4gPiAtLS0KPiA+ID4gIGRyaXZlcnMvbmV0L3ZpcnRpb19uZXQuYyB8IDI3ICsr
-KysrKysrKysrKysrKysrKysrKysrKysrKwo+ID4gPiAgMSBmaWxlIGNoYW5nZWQsIDI3IGluc2Vy
-dGlvbnMoKykKPiA+ID4KPiA+ID4gZGlmZiAtLWdpdCBhL2RyaXZlcnMvbmV0L3ZpcnRpb19uZXQu
-YyBiL2RyaXZlcnMvbmV0L3ZpcnRpb19uZXQuYwo+ID4gPiBpbmRleCAyN2Y5YjIxMmM5ZjUuLjRi
-NzAzYjRiOTQ0MSAxMDA2NDQKPiA+ID4gLS0tIGEvZHJpdmVycy9uZXQvdmlydGlvX25ldC5jCj4g
-PiA+ICsrKyBiL2RyaXZlcnMvbmV0L3ZpcnRpb19uZXQuYwo+ID4gPiBAQCAtMjU4NSw2ICsyNTg1
-LDI5IEBAIHN0YXRpYyBpbnQgdmlydG5ldF9zZXRfZmVhdHVyZXMoc3RydWN0IG5ldF9kZXZpY2Ug
-KmRldiwKPiA+ID4gICAgICAgcmV0dXJuIDA7Cj4gPiA+ICB9Cj4gPiA+Cj4gPiA+ICtzdGF0aWMg
-dm9pZCB2aXJ0bmV0X3R4X3RpbWVvdXQoc3RydWN0IG5ldF9kZXZpY2UgKmRldikKPiA+ID4gK3sK
-PiA+ID4gKyAgICAgc3RydWN0IHZpcnRuZXRfaW5mbyAqdmkgPSBuZXRkZXZfcHJpdihkZXYpOwo+
-ID4gPiArICAgICB1MzIgaTsKPiA+ID4gKwo+ID4gPiArICAgICAvKiBmaW5kIHRoZSBzdG9wcGVk
-IHF1ZXVlIHRoZSBzYW1lIHdheSBkZXZfd2F0Y2hkb2coKSBkb2VzICovCj4gPgo+ID4gbm90IHJl
-YWxseSAtIHRoZSB3YXRjaGRvZyBhY3R1YWxseSBsb29rcyBhdCB0cmFuc19zdGFydC4KPgo+IFRo
-ZSBjb21tZW50cyBhcmUgd3JvbmcuIEl0IGlzIHRoZSBuZWdhdGl2ZSBsb2dpYyBmcm9tIGRldl93
-YXRjaGRvZy4KPiBXYXRjaGRvZyByZXF1aXJlcyBxdWV1ZSBzdG9wcGVkIEFORCB0aW1lb3V0Lgo+
-Cj4gSWYgdGhlIHF1ZXVlIGlzIG5vdCBzdG9wcGVkLCB0aGlzIHF1ZXVlIGRvZXMgbm90IHJlYWNo
-ZWQgYSB0aW1lb3V0IGV2ZW50Lgo+IFNvLCBjb250aW51ZS4uLiBEbyBub3QgcmVwb3J0IGEgdGlt
-ZW91dC4KPgo+ID4KPiA+ID4gKyAgICAgZm9yIChpID0gMDsgaSA8IHZpLT5jdXJyX3F1ZXVlX3Bh
-aXJzOyBpKyspIHsKPiA+ID4gKyAgICAgICAgICAgICBzdHJ1Y3Qgc2VuZF9xdWV1ZSAqc3EgPSAm
-dmktPnNxW2ldOwo+ID4gPiArCj4gPiA+ICsgICAgICAgICAgICAgaWYgKCFuZXRpZl94bWl0X3N0
-b3BwZWQobmV0ZGV2X2dldF90eF9xdWV1ZShkZXYsIGkpKSkKPiA+ID4gKyAgICAgICAgICAgICAg
-ICAgICAgIGNvbnRpbnVlOwo+ID4gPiArCj4gPiA+ICsgICAgICAgICAgICAgdTY0X3N0YXRzX3Vw
-ZGF0ZV9iZWdpbigmc3EtPnN0YXRzLnN5bmNwKTsKPiA+ID4gKyAgICAgICAgICAgICBzcS0+c3Rh
-dHMudHhfdGltZW91dHMrKzsKPiA+ID4gKyAgICAgICAgICAgICB1NjRfc3RhdHNfdXBkYXRlX2Vu
-ZCgmc3EtPnN0YXRzLnN5bmNwKTsKPiA+ID4gKwo+ID4gPiArICAgICAgICAgICAgIG5ldGRldl93
-YXJuKGRldiwgIlRYIHRpbWVvdXQgb24gc2VuZCBxdWV1ZTogJWQsIHNxOiAlcywgdnE6ICVkLCBu
-YW1lOiAlc1xuIiwKPiA+ID4gKyAgICAgICAgICAgICAgICAgICAgICAgICBpLCBzcS0+bmFtZSwg
-c3EtPnZxLT5pbmRleCwgc3EtPnZxLT5uYW1lKTsKPiA+Cj4gPiB0aGlzIHNlZW1zIHRvIGFzc3Vt
-ZSBhbnkgcnVubmluZyBxdWV1ZSBpcyB0aW1lZCBvdXQuCj4gPiBkb2Vzbid0IGxvb2sgcmlnaHQu
-Cj4gPgo+ID4gYWxzbyAtIHRoZXJlJ3MgYWxyZWFkeSBhIHdhcm5pbmcgaW4gdGhpcyBjYXNlIGlu
-IHRoZSBjb3JlLiBkbyB3ZSBuZWVkIGFub3RoZXIgb25lPwo+Cj4gSGVyZSwgaXQgY2FuIGJlIGEg
-ZGVidWcgbWVzc2FnZSBpZiB0aGUgaWRlYSBpcyBlbmhhbmNlIGRlYnVnZ2luZyBpbmZvcm1hdGlv
-bi4KPiBPdGhlciBlbmhhbmNlbWVudHMgY2FuIGJlIGRvbmUgdG8gZW5hYmxlIG9yIGRpc2FibGUg
-ZGVidWcgbWVzc2FnZXMuCj4gVXNpbmcgZXRodG9vbCBtZXRob2RzIGZvciBpbnN0YW5jZS4KCk9i
-c2VydmF0aW9uLi4uCkFub3RoZXIgaW1wb3J0YW50IHBvaW50LCBrZXJuZWwgd2lsbCB0aHJvd24g
-V0FSTl9PTkNFLCBvbmx5IGlmCm5kb190eF90aW1lb3V0KCkgaXMgaW1wbGVtZW50ZWQuCkV2ZW4g
-aWYgd2UgYXJlIGFkZGluZyBhbiBleHRyYS91bm5lY2Vzc2FyeSBuZXRkZXZfd2FybigpIHdlIG5l
-ZWQgdGhpcwpmdW5jdGlvbiB0byBlbmFibGUgZGV2X3dhdGNoZG9nKCkuCgo+Cj4gPgo+ID4gPiAr
-ICAgICAgICAgICAgIGRldi0+c3RhdHMudHhfZXJyb3JzKys7Cj4gPgo+ID4KPiA+Cj4gPiA+ICsg
-ICAgIH0KPiA+ID4gK30KPiA+ID4gKwo+ID4gPiAgc3RhdGljIGNvbnN0IHN0cnVjdCBuZXRfZGV2
-aWNlX29wcyB2aXJ0bmV0X25ldGRldiA9IHsKPiA+ID4gICAgICAgLm5kb19vcGVuICAgICAgICAg
-ICAgPSB2aXJ0bmV0X29wZW4sCj4gPiA+ICAgICAgIC5uZG9fc3RvcCAgICAgICAgICAgID0gdmly
-dG5ldF9jbG9zZSwKPiA+ID4gQEAgLTI2MDAsNiArMjYyMyw3IEBAIHN0YXRpYyBjb25zdCBzdHJ1
-Y3QgbmV0X2RldmljZV9vcHMgdmlydG5ldF9uZXRkZXYgPSB7Cj4gPiA+ICAgICAgIC5uZG9fZmVh
-dHVyZXNfY2hlY2sgICAgID0gcGFzc3RocnVfZmVhdHVyZXNfY2hlY2ssCj4gPiA+ICAgICAgIC5u
-ZG9fZ2V0X3BoeXNfcG9ydF9uYW1lID0gdmlydG5ldF9nZXRfcGh5c19wb3J0X25hbWUsCj4gPiA+
-ICAgICAgIC5uZG9fc2V0X2ZlYXR1cmVzICAgICAgID0gdmlydG5ldF9zZXRfZmVhdHVyZXMsCj4g
-PiA+ICsgICAgIC5uZG9fdHhfdGltZW91dCAgICAgICAgID0gdmlydG5ldF90eF90aW1lb3V0LAo+
-ID4gPiAgfTsKPiA+ID4KPiA+ID4gIHN0YXRpYyB2b2lkIHZpcnRuZXRfY29uZmlnX2NoYW5nZWRf
-d29yayhzdHJ1Y3Qgd29ya19zdHJ1Y3QgKndvcmspCj4gPiA+IEBAIC0zMDE4LDYgKzMwNDIsOSBA
-QCBzdGF0aWMgaW50IHZpcnRuZXRfcHJvYmUoc3RydWN0IHZpcnRpb19kZXZpY2UgKnZkZXYpCj4g
-PiA+ICAgICAgIGRldi0+bmV0ZGV2X29wcyA9ICZ2aXJ0bmV0X25ldGRldjsKPiA+ID4gICAgICAg
-ZGV2LT5mZWF0dXJlcyA9IE5FVElGX0ZfSElHSERNQTsKPiA+ID4KPiA+ID4gKyAgICAgLyogU2V0
-IHVwIGRldl93YXRjaGRvZyBjeWNsZS4gKi8KPiA+ID4gKyAgICAgZGV2LT53YXRjaGRvZ190aW1l
-byA9IDUgKiBIWjsKPiA+ID4gKwo+ID4KPiA+IFNlZW1zIHRvIGJlIHN0aWxsIGJyb2tlbiB3aXRo
-IG5hcGlfdHggPSBmYWxzZS4KPiA+Cj4gPiA+ICAgICAgIGRldi0+ZXRodG9vbF9vcHMgPSAmdmly
-dG5ldF9ldGh0b29sX29wczsKPiA+ID4gICAgICAgU0VUX05FVERFVl9ERVYoZGV2LCAmdmRldi0+
-ZGV2KTsKPiA+ID4KPiA+ID4gLS0KPiA+ID4gMi4yMS4wCl9fX19fX19fX19fX19fX19fX19fX19f
-X19fX19fX19fX19fX19fX19fX19fX19fClZpcnR1YWxpemF0aW9uIG1haWxpbmcgbGlzdApWaXJ0
-dWFsaXphdGlvbkBsaXN0cy5saW51eC1mb3VuZGF0aW9uLm9yZwpodHRwczovL2xpc3RzLmxpbnV4
-Zm91bmRhdGlvbi5vcmcvbWFpbG1hbi9saXN0aW5mby92aXJ0dWFsaXphdGlvbg==
+When device stop was moved out of reset, test device wasn't updated to
+stop before reset, this resulted in a use after free.  Fix by invoking
+stop appropriately.
+
+Fixes: b211616d7125 ("vhost: move -net specific code out")
+Signed-off-by: Michael S. Tsirkin <mst@redhat.com>
+---
+ drivers/vhost/test.c | 2 ++
+ 1 file changed, 2 insertions(+)
+
+diff --git a/drivers/vhost/test.c b/drivers/vhost/test.c
+index 04edd8db62fc..e3a8e9db22cd 100644
+--- a/drivers/vhost/test.c
++++ b/drivers/vhost/test.c
+@@ -170,6 +170,7 @@ static int vhost_test_release(struct inode *inode, struct file *f)
+ 
+ 	vhost_test_stop(n, &private);
+ 	vhost_test_flush(n);
++	vhost_dev_stop(&n->dev);
+ 	vhost_dev_cleanup(&n->dev);
+ 	/* We do an extra flush before freeing memory,
+ 	 * since jobs can re-queue themselves. */
+@@ -246,6 +247,7 @@ static long vhost_test_reset_owner(struct vhost_test *n)
+ 	}
+ 	vhost_test_stop(n, &priv);
+ 	vhost_test_flush(n);
++	vhost_dev_stop(&n->dev);
+ 	vhost_dev_reset_owner(&n->dev, umem);
+ done:
+ 	mutex_unlock(&n->dev.mutex);
+-- 
+MST
