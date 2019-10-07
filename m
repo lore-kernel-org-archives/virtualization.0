@@ -1,16 +1,14 @@
-From: "Michael S. Tsirkin" <mst@redhat.com>
-Subject: Re: [PATCH RFC net-next 2/2] drivers: net: virtio_net: Add
-	tx_timeout function
-Date: Mon, 7 Oct 2019 03:51:40 -0400
-Message-ID: <20191007034402-mutt-send-email-mst@kernel.org>
+From: Julio Faracco <jcfaracco@gmail.com>
+Subject: Re: [PATCH RFC net-next 0/2] drivers: net: virtio_net: Implement
+Date: Mon, 7 Oct 2019 10:58:27 -0300
+Message-ID: <CAENf94Ky4Hrf+CyCTcKE8KXuVPECHc01OKRpKHGgykfeLe-jEg__37235.7950474665$1570456731$gmane$org@mail.gmail.com>
 References: <20191006184515.23048-1-jcfaracco@gmail.com>
-	<20191006184515.23048-3-jcfaracco@gmail.com>
+	<20191007034208-mutt-send-email-mst@kernel.org>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset="utf-8"
+Content-Transfer-Encoding: base64
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-Content-Disposition: inline
-In-Reply-To: <20191006184515.23048-3-jcfaracco@gmail.com>
+In-Reply-To: <20191007034208-mutt-send-email-mst@kernel.org>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -20,91 +18,36 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: jcfaracco@gmail.com
-Cc: dnmendes76@gmail.com, netdev@vger.kernel.org, linux-kernel@vger.kernel.org, virtualization@lists.linux-foundation.org, davem@davemloft.net
+To: "Michael S. Tsirkin" <mst@redhat.com>
+Cc: Daiane Mendes <dnmendes76@gmail.com>, netdev@vger.kernel.org, linux-kernel@vger.kernel.org, virtualization@lists.linux-foundation.org, davem@davemloft.net
 List-Id: virtualization@lists.linuxfoundation.org
 
-On Sun, Oct 06, 2019 at 03:45:15PM -0300, jcfaracco@gmail.com wrote:
-> From: Julio Faracco <jcfaracco@gmail.com>
-> 
-> To enable dev_watchdog, virtio_net should have a tx_timeout defined 
-> (.ndo_tx_timeout). This is only a skeleton to throw a warn message. It 
-> notifies the event in some specific queue of device. This function 
-> still counts tx_timeout statistic and consider this event as an error 
-> (one error per queue), reporting it.
-> 
-> Signed-off-by: Julio Faracco <jcfaracco@gmail.com>
-> Signed-off-by: Daiane Mendes <dnmendes76@gmail.com>
-> Cc: Jason Wang <jasowang@redhat.com>
-> ---
->  drivers/net/virtio_net.c | 27 +++++++++++++++++++++++++++
->  1 file changed, 27 insertions(+)
-> 
-> diff --git a/drivers/net/virtio_net.c b/drivers/net/virtio_net.c
-> index 27f9b212c9f5..4b703b4b9441 100644
-> --- a/drivers/net/virtio_net.c
-> +++ b/drivers/net/virtio_net.c
-> @@ -2585,6 +2585,29 @@ static int virtnet_set_features(struct net_device *dev,
->  	return 0;
->  }
->  
-> +static void virtnet_tx_timeout(struct net_device *dev)
-> +{
-> +	struct virtnet_info *vi = netdev_priv(dev);
-> +	u32 i;
-> +
-> +	/* find the stopped queue the same way dev_watchdog() does */
-
-not really - the watchdog actually looks at trans_start.
-
-> +	for (i = 0; i < vi->curr_queue_pairs; i++) {
-> +		struct send_queue *sq = &vi->sq[i];
-> +
-> +		if (!netif_xmit_stopped(netdev_get_tx_queue(dev, i)))
-> +			continue;
-> +
-> +		u64_stats_update_begin(&sq->stats.syncp);
-> +		sq->stats.tx_timeouts++;
-> +		u64_stats_update_end(&sq->stats.syncp);
-> +
-> +		netdev_warn(dev, "TX timeout on send queue: %d, sq: %s, vq: %d, name: %s\n",
-> +			    i, sq->name, sq->vq->index, sq->vq->name);
-
-this seems to assume any running queue is timed out.
-doesn't look right.
-
-also - there's already a warning in this case in the core. do we need another one?
-
-> +		dev->stats.tx_errors++;
-
-
-
-> +	}
-> +}
-> +
->  static const struct net_device_ops virtnet_netdev = {
->  	.ndo_open            = virtnet_open,
->  	.ndo_stop   	     = virtnet_close,
-> @@ -2600,6 +2623,7 @@ static const struct net_device_ops virtnet_netdev = {
->  	.ndo_features_check	= passthru_features_check,
->  	.ndo_get_phys_port_name	= virtnet_get_phys_port_name,
->  	.ndo_set_features	= virtnet_set_features,
-> +	.ndo_tx_timeout		= virtnet_tx_timeout,
->  };
->  
->  static void virtnet_config_changed_work(struct work_struct *work)
-> @@ -3018,6 +3042,9 @@ static int virtnet_probe(struct virtio_device *vdev)
->  	dev->netdev_ops = &virtnet_netdev;
->  	dev->features = NETIF_F_HIGHDMA;
->  
-> +	/* Set up dev_watchdog cycle. */
-> +	dev->watchdog_timeo = 5 * HZ;
-> +
-
-Seems to be still broken with napi_tx = false.
-
->  	dev->ethtool_ops = &virtnet_ethtool_ops;
->  	SET_NETDEV_DEV(dev, &vdev->dev);
->  
-> -- 
-> 2.21.0
+RW0gc2VnLCA3IGRlIG91dCBkZSAyMDE5IMOgcyAwNDo0MywgTWljaGFlbCBTLiBUc2lya2luIDxt
+c3RAcmVkaGF0LmNvbT4gZXNjcmV2ZXU6Cj4KPiBPbiBTdW4sIE9jdCAwNiwgMjAxOSBhdCAwMzo0
+NToxM1BNIC0wMzAwLCBqY2ZhcmFjY29AZ21haWwuY29tIHdyb3RlOgo+ID4gRnJvbTogSnVsaW8g
+RmFyYWNjbyA8amNmYXJhY2NvQGdtYWlsLmNvbT4KPiA+Cj4gPiBEcml2ZXIgdmlydGlvX25ldCBp
+cyBub3QgaGFuZGxpbmcgZXJyb3IgZXZlbnRzIGZvciBUWCBwcm92aWRlZCBieQo+ID4gZGV2X3dh
+dGNoZG9nLiBUaGlzIGV2ZW50IGlzIHJlYWNoZWQgd2hlbiB0cmFuc21pc3Npb24gcXVldWUgaXMg
+aGF2aW5nCj4gPiBwcm9ibGVtcyB0byB0cmFuc21pdCBwYWNrZXRzLiBUbyBlbmFibGUgaXQsIGRy
+aXZlciBzaG91bGQgaGF2ZQo+ID4gLm5kb190eF90aW1lb3V0IGltcGxlbWVudGVkLiBUaGlzIHNl
+cmllIGhhcyB0d28gY29tbWl0czoKPiA+Cj4gPiBJbiB0aGUgcGFzdCwgd2UgaW1wbGVtZW50ZWQg
+YSBmdW5jdGlvbiB0byByZWNvdmVyIGRyaXZlciBzdGF0ZSB3aGVuIHRoaXMKPiA+IGtpbmQgb2Yg
+ZXZlbnQgaGFwcGVucywgYnV0IHRoZSBzdHJ1Y3R1cmUgd2FzIHRvIGNvbXBsZXggZm9yIHZpcnRp
+b19uZXQKPiA+IHRoYXQgbW9tZW50Lgo+Cj4gSXQncyBtb3JlIHRoYXQgaXQgd2FzIG1pc3Npbmcg
+YSBidW5jaCBvZiBsb2Nrcy4KCkFjdHVhbGx5LCB3ZSBzdWJtaXR0ZWQgdGhpcyBwYXRjaCBhcyBh
+IFJGQyB0byB1bmRlcnN0YW5kIHRoZSBjb21tdW5pdHkKcGVyc3BlY3RpdmUgYWJvdXQgdGhpcyBt
+aXNzaW5nIGZlYXR1cmU6CkNvbXBsZXhpdHkgdmVyc3VzIHBlcmZvcm1hbmNlIHZlcnN1cyBzb2x1
+dGlvbi4KCj4KPiA+IEFsdGVybmF0aXZlbGx5LCB0aGlzIHNrZWxldG9uIHNob3VsZCBiZSBlbm91
+Z2ggZm9yIG5vdy4KPiA+Cj4gPiBGb3IgZnVydGhlciBkZXRhaWxzLCBzZWUgdGhyZWFkOgo+ID4g
+aHR0cHM6Ly9sa21sLm9yZy9sa21sLzIwMTUvNi8yMy82OTEKPiA+Cj4gPiBQYXRjaCAxLzI6Cj4g
+PiAgIEFkZCBzdGF0aXN0aWMgZmllbGQgZm9yIFRYIHRpbWVvdXQgZXZlbnRzLgo+ID4KPiA+IFBh
+dGNoIDIvMjoKPiA+ICAgSW1wbGVtZW50IGEgc2tlbGV0b24gZnVuY3Rpb24gdG8gZGVidWcgVFgg
+dGltZW91dCBldmVudHMuCj4gPgo+ID4gSnVsaW8gRmFyYWNjbyAoMik6Cj4gPiAgIGRyaXZlcnM6
+IG5ldDogdmlydGlvX25ldDogQWRkIHR4X3RpbWVvdXQgc3RhdHMgZmllbGQKPiA+ICAgZHJpdmVy
+czogbmV0OiB2aXJ0aW9fbmV0OiBBZGQgdHhfdGltZW91dCBmdW5jdGlvbgo+ID4KPiA+ICBkcml2
+ZXJzL25ldC92aXJ0aW9fbmV0LmMgfCAzMyArKysrKysrKysrKysrKysrKysrKysrKysrKysrKysr
+Ky0KPiA+ICAxIGZpbGUgY2hhbmdlZCwgMzIgaW5zZXJ0aW9ucygrKSwgMSBkZWxldGlvbigtKQo+
+ID4KPiA+IC0tCj4gPiAyLjIxLjAKX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19f
+X19fX19fX19fX18KVmlydHVhbGl6YXRpb24gbWFpbGluZyBsaXN0ClZpcnR1YWxpemF0aW9uQGxp
+c3RzLmxpbnV4LWZvdW5kYXRpb24ub3JnCmh0dHBzOi8vbGlzdHMubGludXhmb3VuZGF0aW9uLm9y
+Zy9tYWlsbWFuL2xpc3RpbmZvL3ZpcnR1YWxpemF0aW9u
