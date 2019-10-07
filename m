@@ -1,15 +1,15 @@
-From: Thomas Hellstrom via Virtualization
+From: Nick Desaulniers via Virtualization
 	<virtualization@lists.linux-foundation.org>
 Subject: Re: [PATCH] x86/cpu/vmware: use the full form of inl in VMWARE_PORT
-Date: Mon, 7 Oct 2019 19:29:25 +0000
-Message-ID: <MN2PR05MB61419440A3C9FF9CB920BCD5A19B0__14889.5800275326$1570476580$gmane$org@MN2PR05MB6141.namprd05.prod.outlook.com>
+Date: Mon, 7 Oct 2019 12:57:42 -0700
+Message-ID: <CAKwvOd=hjxJYhU=C4wqkKKnLwuQjjL=wPAh6uBj-M8r8AtDdFA__7335.87026349909$1570478288$gmane$org@mail.gmail.com>
 References: <20191007192129.104336-1-samitolvanen@google.com>
-Reply-To: Thomas Hellstrom <thellstrom@vmware.com>
+Reply-To: Nick Desaulniers <ndesaulniers@google.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-Content-Language: en-US
+In-Reply-To: <20191007192129.104336-1-samitolvanen@google.com>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -19,11 +19,13 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Sami Tolvanen <samitolvanen@google.com>, Pv-drivers <Pv-drivers@vmware.com>, Thomas Gleixner <tglx@linutronix.de>, Ingo Molnar <mingo@redhat.com>, Borislav Petkov <bp@alien8.de>
-Cc: Kees Cook <keescook@chromium.org>, "x86@kernel.org" <x86@kernel.org>, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>, "virtualization@lists.linux-foundation.org" <virtualization@lists.linux-foundation.org>, "clang-built-linux@googlegroups.com" <clang-built-linux@googlegroups.com>, "hpa@zytor.com" <hpa@zytor.com>
+To: Sami Tolvanen <samitolvanen@google.com>
+Cc: Thomas Hellstrom <thellstrom@vmware.com>, Kees Cook <keescook@chromium.org>, pv-drivers@vmware.com, "maintainer:X86 ARCHITECTURE (32-BIT AND 64-BIT)" <x86@kernel.org>, LKML <linux-kernel@vger.kernel.org>, virtualization@lists.linux-foundation.org, clang-built-linux <clang-built-linux@googlegroups.com>, Ingo Molnar <mingo@redhat.com>, Borislav Petkov <bp@alien8.de>, "H. Peter Anvin" <hpa@zytor.com>, Thomas Gleixner <tglx@linutronix.de>
 List-Id: virtualization@lists.linuxfoundation.org
 
-On 10/7/19 9:21 PM, Sami Tolvanen wrote:
+On Mon, Oct 7, 2019 at 12:21 PM 'Sami Tolvanen' via Clang Built Linux
+<clang-built-linux@googlegroups.com> wrote:
+>
 > LLVM's assembler doesn't accept the short form inl (%%dx) instruction,
 > but instead insists on the output register to be explicitly specified:
 >
@@ -36,7 +38,28 @@ On 10/7/19 9:21 PM, Sami Tolvanen wrote:
 >
 > Signed-off-by: Sami Tolvanen <samitolvanen@google.com>
 
-Acked-by: Thomas Hellstrom <thellstrom@vmware.com>
+Thanks Sami, this looks like it addresses:
+Link: https://github.com/ClangBuiltLinux/linux/issues/734
+Looks like GAS' testsuite has some cases where the second operand is
+indeed implicitly %eax if unspecified. (This should still be fixed in
+Clang).
+Just to triple check that they're equivalent:
+$ cat inl.s
+  inl (%dx)
+  inl (%dx), %eax
+$ as inl.s
+$ objdump -d a.out
+
+a.out:     file format elf64-x86-64
+
+
+Disassembly of section .text:
+
+0000000000000000 <.text>:
+   0: ed                    in     (%dx),%eax
+   1: ed                    in     (%dx),%eax
+
+Reviewed-by: Nick Desaulniers <ndesaulniers@google.com>
 
 > ---
 >  arch/x86/kernel/cpu/vmware.c | 2 +-
@@ -48,10 +71,14 @@ Acked-by: Thomas Hellstrom <thellstrom@vmware.com>
 > +++ b/arch/x86/kernel/cpu/vmware.c
 > @@ -49,7 +49,7 @@
 >  #define VMWARE_CMD_VCPU_RESERVED 31
->  
->  #define VMWARE_PORT(cmd, eax, ebx, ecx, edx)				\
-> -	__asm__("inl (%%dx)" :						\
-> +	__asm__("inl (%%dx), %%eax" :					\
->  		"=a"(eax), "=c"(ecx), "=d"(edx), "=b"(ebx) :		\
->  		"a"(VMWARE_HYPERVISOR_MAGIC),				\
->  		"c"(VMWARE_CMD_##cmd),					\
+>
+>  #define VMWARE_PORT(cmd, eax, ebx, ecx, edx)                           \
+> -       __asm__("inl (%%dx)" :                                          \
+> +       __asm__("inl (%%dx), %%eax" :                                   \
+>                 "=a"(eax), "=c"(ecx), "=d"(edx), "=b"(ebx) :            \
+>                 "a"(VMWARE_HYPERVISOR_MAGIC),                           \
+>                 "c"(VMWARE_CMD_##cmd),                                  \
+
+-- 
+Thanks,
+~Nick Desaulniers
