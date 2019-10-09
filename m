@@ -1,14 +1,13 @@
 From: Stefan Hajnoczi <stefanha@gmail.com>
-Subject: Re: [RFC PATCH 11/13] vsock: add 'transport_hg' to handle g2h\h2g
-	transports
-Date: Wed, 9 Oct 2019 14:16:43 +0100
-Message-ID: <20191009131643.GL5747__31875.6359441736$1570627019$gmane$org@stefanha-x1.localdomain>
+Subject: Re: [RFC PATCH 12/13] vsock: prevent transport modules unloading
+Date: Wed, 9 Oct 2019 14:28:33 +0100
+Message-ID: <20191009132833.GM5747__43724.3086214707$1570627730$gmane$org@stefanha-x1.localdomain>
 References: <20190927112703.17745-1-sgarzare@redhat.com>
-	<20190927112703.17745-12-sgarzare@redhat.com>
+	<20190927112703.17745-13-sgarzare@redhat.com>
 Mime-Version: 1.0
-Content-Type: multipart/mixed; boundary="===============2003499781538441833=="
+Content-Type: multipart/mixed; boundary="===============1159089283140870608=="
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <20190927112703.17745-12-sgarzare@redhat.com>
+In-Reply-To: <20190927112703.17745-13-sgarzare@redhat.com>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -23,49 +22,54 @@ Cc: Sasha Levin <sashal@kernel.org>, linux-hyperv@vger.kernel.org, Stephen Hemmi
 List-Id: virtualization@lists.linuxfoundation.org
 
 
---===============2003499781538441833==
+--===============1159089283140870608==
 Content-Type: multipart/signed; micalg=pgp-sha256;
-	protocol="application/pgp-signature"; boundary="1hKfHPzOXWu1rh0v"
+	protocol="application/pgp-signature"; boundary="kunpHVz1op/+13PW"
 Content-Disposition: inline
 
 
---1hKfHPzOXWu1rh0v
+--kunpHVz1op/+13PW
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
+Content-Transfer-Encoding: quoted-printable
 
-On Fri, Sep 27, 2019 at 01:27:01PM +0200, Stefano Garzarella wrote:
-> VMCI transport provides both g2h and h2g behaviors in a single
-> transport.
-> We are able to set (or not) the g2h behavior, detecting if we
-> are in a VMware guest (or not), but the h2g feature is always set.
-> This prevents to load other h2g transports while we are in a
-> VMware guest.
+On Fri, Sep 27, 2019 at 01:27:02PM +0200, Stefano Garzarella wrote:
+> diff --git a/net/vmw_vsock/af_vsock.c b/net/vmw_vsock/af_vsock.c
+> index c5f46b8242ce..750b62711b01 100644
+> --- a/net/vmw_vsock/af_vsock.c
+> +++ b/net/vmw_vsock/af_vsock.c
+> @@ -416,13 +416,28 @@ int vsock_assign_transport(struct vsock_sock *vsk, =
+struct vsock_sock *psk)
+>  		return -ESOCKTNOSUPPORT;
+>  	}
+> =20
+> -	if (!vsk->transport)
+> +	/* We increase the module refcnt to prevent the tranport unloading
 
-In the vhost_vsock.ko case we only register the h2g transport when
-userspace has loaded the module (by opening /dev/vhost-vsock).
+s/tranport/transport/
 
-VMCI has something kind of similar: /dev/vmci and the
-vmci_host_active_users counter.  Maybe we can use this instead of
-introducing the transport_hg concept?
+Otherwise:
 
---1hKfHPzOXWu1rh0v
+Reviewed-by: Stefan Hajnoczi <stefanha@redhat.com>
+
+--kunpHVz1op/+13PW
 Content-Type: application/pgp-signature; name="signature.asc"
 
 -----BEGIN PGP SIGNATURE-----
 
-iQEzBAEBCAAdFiEEhpWov9P5fNqsNXdanKSrs4Grc8gFAl2d3bsACgkQnKSrs4Gr
-c8iGmQf8CrTUBmiSd3MH3EamjJ8bZk3tA9Ej+1ywL//u+F4Qx3lKOoX+rWnMK5O0
-pkoMAUGpvkKpC23xoV8gFfS9jtRax71aGCjFHnCDj6AoIOu/EwdqWTN28DjF0pF/
-v2D3y2FJtItZeyB2JxnV/ouq9wnglcYDXuvVzwlIGvQi7cV2pj4TyVUzo55Qbtqb
-+pbmGCQ845YsfBrmNGA28L7r7OiGp0XCXkrNiTpmgBvQpkUiYg5sKxbWZQj13dKU
-UMBAQV8O4rNjJuEW/9oGehzTzq7JqwiA0TPRGlqkdfovgqA3m0dvSAVbZm/D74al
-Y7NuoOX5k8zZlatP7hk+KQoph/MKrg==
-=Wk8M
+iQEzBAEBCAAdFiEEhpWov9P5fNqsNXdanKSrs4Grc8gFAl2d4IEACgkQnKSrs4Gr
+c8gJ2gf/fEP3ucMouPO/fhEeGplHc1JeWTI82mmjT2/LiJgxHaNqylqpIMASW19q
+7nn9yxlVS1rBu7D/Os+q4CtQwAc3ea5KvmwwHgFa4v/N1Sm25jklsw/zWMyus6gw
+0xc5zcifHOfttIiSKldJuRCc1nYYUnUrakwm1MJjlzB+LEIYUm2/264mLBbyxWqa
+TxQBVZSI0BlpISSAry9LKNQIqZU/3gWBa1sIHT3PElSZQ5Z9be7XQciuLi84Hfag
+uOky8F3zdmzG2REAu8mKuF0thOyFpPP05O2qo6GML9+ERqf1PwR2qenlTO/cMBzS
+KwNQ3ydpast9dLj7idIKHuiQgTIxcQ==
+=qIxu
 -----END PGP SIGNATURE-----
 
---1hKfHPzOXWu1rh0v--
+--kunpHVz1op/+13PW--
 
---===============2003499781538441833==
+--===============1159089283140870608==
 Content-Type: text/plain; charset="us-ascii"
 MIME-Version: 1.0
 Content-Transfer-Encoding: 7bit
@@ -75,4 +79,4 @@ _______________________________________________
 Virtualization mailing list
 Virtualization@lists.linux-foundation.org
 https://lists.linuxfoundation.org/mailman/listinfo/virtualization
---===============2003499781538441833==--
+--===============1159089283140870608==--
