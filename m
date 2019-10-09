@@ -1,13 +1,14 @@
 From: Stefan Hajnoczi <stefanha@gmail.com>
-Subject: Re: [RFC PATCH 07/13] vsock: handle buffer_size sockopts in the core
-Date: Wed, 9 Oct 2019 13:30:26 +0100
-Message-ID: <20191009123026.GH5747__39921.3711543538$1570624246$gmane$org@stefanha-x1.localdomain>
+Subject: Re: [RFC PATCH 08/13] vsock: move vsock_insert_unbound() in the
+	vsock_create()
+Date: Wed, 9 Oct 2019 13:34:23 +0100
+Message-ID: <20191009123423.GI5747__22477.9371799499$1570624478$gmane$org@stefanha-x1.localdomain>
 References: <20190927112703.17745-1-sgarzare@redhat.com>
-	<20190927112703.17745-8-sgarzare@redhat.com>
+	<20190927112703.17745-9-sgarzare@redhat.com>
 Mime-Version: 1.0
-Content-Type: multipart/mixed; boundary="===============0514097252430143775=="
+Content-Type: multipart/mixed; boundary="===============5868878294701454401=="
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <20190927112703.17745-8-sgarzare@redhat.com>
+In-Reply-To: <20190927112703.17745-9-sgarzare@redhat.com>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -22,96 +23,57 @@ Cc: Sasha Levin <sashal@kernel.org>, linux-hyperv@vger.kernel.org, Stephen Hemmi
 List-Id: virtualization@lists.linuxfoundation.org
 
 
---===============0514097252430143775==
+--===============5868878294701454401==
 Content-Type: multipart/signed; micalg=pgp-sha256;
-	protocol="application/pgp-signature"; boundary="0XhtP95kHFp3KGBe"
+	protocol="application/pgp-signature"; boundary="+PbGPm1eXpwOoWkI"
 Content-Disposition: inline
 
 
---0XhtP95kHFp3KGBe
+--+PbGPm1eXpwOoWkI
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
 Content-Transfer-Encoding: quoted-printable
 
-On Fri, Sep 27, 2019 at 01:26:57PM +0200, Stefano Garzarella wrote:
-> @@ -140,18 +145,11 @@ struct vsock_transport {
->  		struct vsock_transport_send_notify_data *);
->  	int (*notify_send_post_enqueue)(struct vsock_sock *, ssize_t,
->  		struct vsock_transport_send_notify_data *);
-> +	int (*notify_buffer_size)(struct vsock_sock *, u64 *);
+On Fri, Sep 27, 2019 at 01:26:58PM +0200, Stefano Garzarella wrote:
+> vsock_insert_unbound() was called only when 'sock' parameter of
+> __vsock_create() was not null. This only happened when
+> __vsock_create() was called by vsock_create().
+>=20
+> In order to simplify the multi-transports support, this patch
+> moves vsock_insert_unbound() at the end of vsock_create().
+>=20
+> Signed-off-by: Stefano Garzarella <sgarzare@redhat.com>
+> ---
+>  net/vmw_vsock/af_vsock.c | 13 +++++++++----
+>  1 file changed, 9 insertions(+), 4 deletions(-)
 
-Is ->notify_buffer_size() called under lock_sock(sk)?  If yes, please
-document it.
+Maybe transports shouldn't call __vsock_create() directly.  They always
+pass NULL as the parent socket, so we could have a more specific
+function that transports call without a parent sock argument.  This
+would eliminate any concern over moving vsock_insert_unbound() out of
+this function.  In any case, I've checked the code and this patch is
+correct.
 
-> +static void vsock_update_buffer_size(struct vsock_sock *vsk,
-> +				     const struct vsock_transport *transport,
-> +				     u64 val)
-> +{
-> +	if (val > vsk->buffer_max_size)
-> +		val =3D vsk->buffer_max_size;
-> +
-> +	if (val < vsk->buffer_min_size)
-> +		val =3D vsk->buffer_min_size;
-> +
-> +	if (val !=3D vsk->buffer_size &&
-> +	    transport && transport->notify_buffer_size)
-> +		transport->notify_buffer_size(vsk, &val);
+Reviewed-by: Stefan Hajnoczi <stefanha@redhat.com>
 
-Why does this function return an int if we don't check the return value?
-
-> diff --git a/net/vmw_vsock/virtio_transport_common.c b/net/vmw_vsock/virt=
-io_transport_common.c
-> index fc046c071178..bac9e7430a2e 100644
-> --- a/net/vmw_vsock/virtio_transport_common.c
-> +++ b/net/vmw_vsock/virtio_transport_common.c
-> @@ -403,17 +403,13 @@ int virtio_transport_do_socket_init(struct vsock_so=
-ck *vsk,
->  	if (psk) {
->  		struct virtio_vsock_sock *ptrans =3D psk->trans;
-> =20
-> -		vvs->buf_size	=3D ptrans->buf_size;
-> -		vvs->buf_size_min =3D ptrans->buf_size_min;
-> -		vvs->buf_size_max =3D ptrans->buf_size_max;
->  		vvs->peer_buf_alloc =3D ptrans->peer_buf_alloc;
-> -	} else {
-> -		vvs->buf_size =3D VIRTIO_VSOCK_DEFAULT_BUF_SIZE;
-> -		vvs->buf_size_min =3D VIRTIO_VSOCK_DEFAULT_MIN_BUF_SIZE;
-> -		vvs->buf_size_max =3D VIRTIO_VSOCK_DEFAULT_MAX_BUF_SIZE;
->  	}
-> =20
-> -	vvs->buf_alloc =3D vvs->buf_size;
-> +	if (vsk->buffer_size > VIRTIO_VSOCK_MAX_BUF_SIZE)
-> +		vsk->buffer_size =3D VIRTIO_VSOCK_MAX_BUF_SIZE;
-
-Hmm...this could be outside the [min, max] range.  I'm not sure how much
-it matters.
-
-Another issue is that this patch drops the VIRTIO_VSOCK_MAX_BUF_SIZE
-limit that used to be enforced by virtio_transport_set_buffer_size().
-Now the limit is only applied at socket init time.  If the buffer size
-is changed later then VIRTIO_VSOCK_MAX_BUF_SIZE can be exceeded.  If
-that doesn't matter, why even bother with VIRTIO_VSOCK_MAX_BUF_SIZE
-here?
-
-
---0XhtP95kHFp3KGBe
+--+PbGPm1eXpwOoWkI
 Content-Type: application/pgp-signature; name="signature.asc"
 
 -----BEGIN PGP SIGNATURE-----
 
-iQEzBAEBCAAdFiEEhpWov9P5fNqsNXdanKSrs4Grc8gFAl2d0uEACgkQnKSrs4Gr
-c8gO1gf/Vraalf45FT85Jz4M4KTdl8jmHbCz4Q+gxBtfD8s3Wzm9XCdztbebJ5lD
-OmU/wCuporLHCeVao4GUpQzpN25FoSogf5cH8jHIGU3pJOkLd7pF0KNMvpWjcETw
-KwF3Kl5HHrayPHagzXF5JGb/B31pXZOpLBhs4KasERFqwOeZDDvBgsgVhrt936Jj
-/w6KEb1J0i8dJ7KgM6VLynvT2gudUhmp4BFFChNacJnk1xduOIAK/rBPVL4FDKPg
-pTwuT0zC8zGmmMGnnTRCmAOupCnMo8KRfkrydiJ6v093blyJ7N8sRDbKPDdU/4AD
-K76VCRMrxnjuOnWPRlo2ERDIH/67qw==
-=DYWp
+iQEzBAEBCAAdFiEEhpWov9P5fNqsNXdanKSrs4Grc8gFAl2d088ACgkQnKSrs4Gr
+c8jGUgf/flGT/To2png0jPgQV5oe1jDDk+0D39ubcCGjdMLuOwLdwey4BUbOWK3I
+KFEzw7U6CmXNnW15vqqckacUNgL6OXgHKrOxKpiwYvonz2/C0JNLMaTIbsSfcR8u
+sXWnnoihq8NTRIJhSxHFaWgqBLWFW8G3sAfFA2oCIiNI8HQhewIy0Sfh2vfuyypU
+SjCHAwlodeIMuEmeIlTUEd4RKWqZ3dDAOs5xnl87OWUdzTtgmKEccQLZSvJ/t2Qi
+QVVO07S3r7ASe2bpjmTgQuV1ZZ3iz/jyFOYAD3WmE6D6a+afcU+4gUTa9Tbu1TL4
+en7c7jB5XF98CqjwO5kjMLozykqVWg==
+=Fgki
 -----END PGP SIGNATURE-----
 
---0XhtP95kHFp3KGBe--
+--+PbGPm1eXpwOoWkI--
 
---===============0514097252430143775==
+--===============5868878294701454401==
 Content-Type: text/plain; charset="us-ascii"
 MIME-Version: 1.0
 Content-Transfer-Encoding: 7bit
@@ -121,4 +83,4 @@ _______________________________________________
 Virtualization mailing list
 Virtualization@lists.linux-foundation.org
 https://lists.linuxfoundation.org/mailman/listinfo/virtualization
---===============0514097252430143775==--
+--===============5868878294701454401==--
