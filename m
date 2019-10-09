@@ -1,13 +1,14 @@
 From: Stefan Hajnoczi <stefanha@gmail.com>
-Subject: Re: [RFC PATCH 03/13] vsock: remove include/linux/vm_sockets.h file
-Date: Wed, 9 Oct 2019 12:43:11 +0100
-Message-ID: <20191009114311.GD5747__37444.1330599197$1570621406$gmane$org@stefanha-x1.localdomain>
+Subject: Re: [RFC PATCH 04/13] vsock: add 'transport' member in the struct
+	vsock_sock
+Date: Wed, 9 Oct 2019 12:46:41 +0100
+Message-ID: <20191009114641.GE5747__23129.0936748096$1570621615$gmane$org@stefanha-x1.localdomain>
 References: <20190927112703.17745-1-sgarzare@redhat.com>
-	<20190927112703.17745-4-sgarzare@redhat.com>
+	<20190927112703.17745-5-sgarzare@redhat.com>
 Mime-Version: 1.0
-Content-Type: multipart/mixed; boundary="===============3212301308155736846=="
+Content-Type: multipart/mixed; boundary="===============1895690195600032825=="
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <20190927112703.17745-4-sgarzare@redhat.com>
+In-Reply-To: <20190927112703.17745-5-sgarzare@redhat.com>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -22,50 +23,53 @@ Cc: Sasha Levin <sashal@kernel.org>, linux-hyperv@vger.kernel.org, Stephen Hemmi
 List-Id: virtualization@lists.linuxfoundation.org
 
 
---===============3212301308155736846==
+--===============1895690195600032825==
 Content-Type: multipart/signed; micalg=pgp-sha256;
-	protocol="application/pgp-signature"; boundary="/unnNtmY43mpUSKx"
+	protocol="application/pgp-signature"; boundary="OZkY3AIuv2LYvjdk"
 Content-Disposition: inline
 
 
---/unnNtmY43mpUSKx
+--OZkY3AIuv2LYvjdk
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
 Content-Transfer-Encoding: quoted-printable
 
-On Fri, Sep 27, 2019 at 01:26:53PM +0200, Stefano Garzarella wrote:
-> This header file now only includes the "uapi/linux/vm_sockets.h".
-> We can include directly it when needed.
+On Fri, Sep 27, 2019 at 01:26:54PM +0200, Stefano Garzarella wrote:
+> As a preparation to support multiple transports, this patch adds
+> the 'transport' member at the 'struct vsock_sock'.
+> This new field is initialized during the creation in the
+> __vsock_create() function.
+>=20
+> This patch also renames the global 'transport' pointer to
+> 'transport_single', since for now we're only supporting a single
+> transport registered at run-time.
 >=20
 > Signed-off-by: Stefano Garzarella <sgarzare@redhat.com>
 > ---
->  include/linux/vm_sockets.h            | 13 -------------
->  include/net/af_vsock.h                |  2 +-
->  include/net/vsock_addr.h              |  2 +-
->  net/vmw_vsock/vmci_transport_notify.h |  1 -
->  4 files changed, 2 insertions(+), 16 deletions(-)
->  delete mode 100644 include/linux/vm_sockets.h
+>  include/net/af_vsock.h   |  1 +
+>  net/vmw_vsock/af_vsock.c | 56 +++++++++++++++++++++++++++-------------
+>  2 files changed, 39 insertions(+), 18 deletions(-)
 
 Reviewed-by: Stefan Hajnoczi <stefanha@redhat.com>
 
---/unnNtmY43mpUSKx
+--OZkY3AIuv2LYvjdk
 Content-Type: application/pgp-signature; name="signature.asc"
 
 -----BEGIN PGP SIGNATURE-----
 
-iQEzBAEBCAAdFiEEhpWov9P5fNqsNXdanKSrs4Grc8gFAl2dx88ACgkQnKSrs4Gr
-c8g54wf+PL7xAZ3eI74ytwJozmNe/9DWAw5l7bnOPC5lh3yi3O6H/afVtuNy65xz
-NYAwGHyFqaMtLm4reJeETuun6duQ7+ZKHr8NJHdUkQJFCQIfHJLI7JXfjDD2VSbp
-xn9tbLC2eFnCvlnT7Ke8Er9e1KOI2IBGggkOVvn4HbowDVF8/aeCh0aoPt6bYBVf
-FXFaWL0WeGoaalzf14LEf3uDMQptQaMFfcXudbWsv4Xfdmtu9EULADXwa2o4rNVx
-1c7Iiu7NOXS7jiD/2NzveQvH0lxrPvUQtgNth9abPF1XA+6yJev9DrLnlYTKCn5q
-rmIv4DoNGcc8wrcQ6ZB+Quid23UtAg==
-=13TI
+iQEzBAEBCAAdFiEEhpWov9P5fNqsNXdanKSrs4Grc8gFAl2dyKEACgkQnKSrs4Gr
+c8gl2wf9GDmxHYnnuV/4iY/UGudKy+Um/JJ6pvLVFrUG/VRJTTs7M23YLemIGqSr
+G8h+cAEog9/59utW/OavWSSiV6dn3b84u74m7VrMCp4SYrYO8XbdUy0adjFAi6CT
++CeNnNORBhdA98Z8vMb4Z7oRjNF6i93S2Qb/ShDZX1K9zq1OhMNKstoZ+nrCbTOD
+PP8heokQ0sC2Gh6+QOMFmG/yPufk9Yp3Ld1FN4jzxZuLnj7vS/qq8w6/m33qdkKs
+O59qSocNgs90h6x7IP8dxTzfyjPIL76Pd8YeER0+WKvMubbc2tp1fyAZFXGHCf8p
+8MPdEyjQYwluu8naEZY7Xp29OVNOnQ==
+=2nON
 -----END PGP SIGNATURE-----
 
---/unnNtmY43mpUSKx--
+--OZkY3AIuv2LYvjdk--
 
---===============3212301308155736846==
+--===============1895690195600032825==
 Content-Type: text/plain; charset="us-ascii"
 MIME-Version: 1.0
 Content-Transfer-Encoding: 7bit
@@ -75,4 +79,4 @@ _______________________________________________
 Virtualization mailing list
 Virtualization@lists.linux-foundation.org
 https://lists.linuxfoundation.org/mailman/listinfo/virtualization
---===============3212301308155736846==--
+--===============1895690195600032825==--
