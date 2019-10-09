@@ -1,14 +1,14 @@
 From: Stefan Hajnoczi <stefanha@gmail.com>
-Subject: Re: [RFC PATCH 05/13] vsock/virtio: add transport parameter to the
-	virtio_transport_reset_no_sock()
-Date: Wed, 9 Oct 2019 12:52:31 +0100
-Message-ID: <20191009115231.GF5747__23391.9895182893$1570621971$gmane$org@stefanha-x1.localdomain>
+Subject: Re: [RFC PATCH 06/13] vsock: add 'struct vsock_sock *' param to
+	vsock_core_get_transport()
+Date: Wed, 9 Oct 2019 12:54:33 +0100
+Message-ID: <20191009115433.GG5747__45944.4462483347$1570622089$gmane$org@stefanha-x1.localdomain>
 References: <20190927112703.17745-1-sgarzare@redhat.com>
-	<20190927112703.17745-6-sgarzare@redhat.com>
+	<20190927112703.17745-7-sgarzare@redhat.com>
 Mime-Version: 1.0
-Content-Type: multipart/mixed; boundary="===============9004108802409798419=="
+Content-Type: multipart/mixed; boundary="===============6907763690376517684=="
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <20190927112703.17745-6-sgarzare@redhat.com>
+In-Reply-To: <20190927112703.17745-7-sgarzare@redhat.com>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -23,61 +23,50 @@ Cc: Sasha Levin <sashal@kernel.org>, linux-hyperv@vger.kernel.org, Stephen Hemmi
 List-Id: virtualization@lists.linuxfoundation.org
 
 
---===============9004108802409798419==
+--===============6907763690376517684==
 Content-Type: multipart/signed; micalg=pgp-sha256;
-	protocol="application/pgp-signature"; boundary="yRA+Bmk8aPhU85Qt"
+	protocol="application/pgp-signature"; boundary="S5HS5MvDw4DmbRmb"
 Content-Disposition: inline
 
 
---yRA+Bmk8aPhU85Qt
+--S5HS5MvDw4DmbRmb
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
 
-On Fri, Sep 27, 2019 at 01:26:55PM +0200, Stefano Garzarella wrote:
-> We are going to add 'struct vsock_sock *' parameter to
-> virtio_transport_get_ops().
->=20
-> In some cases, like in the virtio_transport_reset_no_sock(),
-> we don't have any socket assigned to the packet received,
-> so we can't use the virtio_transport_get_ops().
->=20
-> In order to allow virtio_transport_reset_no_sock() to use the
-> '.send_pkt' callback from the 'vhost_transport' or 'virtio_transport',
-> we add the 'struct virtio_transport *' to it and to its caller:
-> virtio_transport_recv_pkt().
->=20
-> We moved the 'vhost_transport' and 'virtio_transport' definition,
-> to pass their address to the virtio_transport_recv_pkt().
->=20
-> Signed-off-by: Stefano Garzarella <sgarzare@redhat.com>
-> ---
->  drivers/vhost/vsock.c                   |  94 +++++++-------
->  include/linux/virtio_vsock.h            |   3 +-
->  net/vmw_vsock/virtio_transport.c        | 160 ++++++++++++------------
->  net/vmw_vsock/virtio_transport_common.c |  12 +-
->  4 files changed, 135 insertions(+), 134 deletions(-)
+On Fri, Sep 27, 2019 at 01:26:56PM +0200, Stefano Garzarella wrote:
+> -const struct vsock_transport *vsock_core_get_transport(void)
+> +const struct vsock_transport *vsock_core_get_transport(struct vsock_sock *vsk)
+>  {
+>  	/* vsock_register_mutex not taken since only the transport uses this
+>  	 * function and only while registered.
+>  	 */
+> -	return transport_single;
+
+This comment is about protecting transport_single.  It no longer applies
+when using vsk->transport.  Please drop it.
+
+Otherwise:
 
 Reviewed-by: Stefan Hajnoczi <stefanha@redhat.com>
 
---yRA+Bmk8aPhU85Qt
+--S5HS5MvDw4DmbRmb
 Content-Type: application/pgp-signature; name="signature.asc"
 
 -----BEGIN PGP SIGNATURE-----
 
-iQEzBAEBCAAdFiEEhpWov9P5fNqsNXdanKSrs4Grc8gFAl2dyf8ACgkQnKSrs4Gr
-c8ipQAf+N9DOIP9BQ9hDc3C/yWPRdpws712iHQbOHVNiBXDKyxZsYFY51fCC7KyF
-9YxSDHJ+9RDm2jzHdItNAwmxXaSpULxrORIVG2c67hxwahN9r90kpWe+yp90NJR9
-WPk9aEgIxgSbypf1nzAbI4ZqJDmTXq7zd3yG6QngmvRhrYF0s81JSSYeVo+rN96G
-qFFiYYEEA7nlESBV9INveLYF1W9qtNIyy0IgxM3gCrWOkNbRYTWDNAnBEipM/siE
-apf48ghnlNeD77gwbjk0SREQStWdle319cCM03Fw1kYT4WoUOOulI2B2opJ2N0qt
-eDpkxHTBrmJpGg+NU9sLUblRs7Rikg==
-=d4Pb
+iQEzBAEBCAAdFiEEhpWov9P5fNqsNXdanKSrs4Grc8gFAl2dyngACgkQnKSrs4Gr
+c8jpGwf+OKGaK9OPf0rceIKo+5pdDJMkf+lhw9ooooqK7bZFZkqZFYhUYOP9qYqk
+iPKeaY6YWLpuWMJRuh2EObxLrC1VrmfYA1lPcNXDEq6yVOloX43zrBM5Zec2GVq3
+GVJHTW2tw1bTyRAtLI/zSYy9hblQlWcG6BKmK1WBNFIyQ9JLGvRqFGKobpJPP2LS
+/7z3MWkRsZkFTUnJGocbhjbkZk2dLUwY9cy/IrOzfPAgX79WB7DSl7RpjH/hx7+b
+M8cDi9WDJ53vRN81sXNSHg8JQA3x+DoErU3TdY1sTxSyHqcZiPgI13LXZmIw3wSS
+W8aTJLNML/vAaTn6rvoGHkQXwt3Izw==
+=2X/V
 -----END PGP SIGNATURE-----
 
---yRA+Bmk8aPhU85Qt--
+--S5HS5MvDw4DmbRmb--
 
---===============9004108802409798419==
+--===============6907763690376517684==
 Content-Type: text/plain; charset="us-ascii"
 MIME-Version: 1.0
 Content-Transfer-Encoding: 7bit
@@ -87,4 +76,4 @@ _______________________________________________
 Virtualization mailing list
 Virtualization@lists.linux-foundation.org
 https://lists.linuxfoundation.org/mailman/listinfo/virtualization
---===============9004108802409798419==--
+--===============6907763690376517684==--
