@@ -1,14 +1,14 @@
 From: Stefan Hajnoczi <stefanha@gmail.com>
-Subject: Re: [RFC PATCH 08/13] vsock: move vsock_insert_unbound() in the
-	vsock_create()
-Date: Wed, 9 Oct 2019 13:34:23 +0100
-Message-ID: <20191009123423.GI5747__22477.9371799499$1570624478$gmane$org@stefanha-x1.localdomain>
+Subject: Re: [RFC PATCH 09/13] hv_sock: set VMADDR_CID_HOST in the
+	hvs_remote_addr_init()
+Date: Wed, 9 Oct 2019 13:35:24 +0100
+Message-ID: <20191009123524.GJ5747@stefanha-x1.localdomain>
 References: <20190927112703.17745-1-sgarzare@redhat.com>
-	<20190927112703.17745-9-sgarzare@redhat.com>
+	<20190927112703.17745-10-sgarzare@redhat.com>
 Mime-Version: 1.0
-Content-Type: multipart/mixed; boundary="===============5868878294701454401=="
+Content-Type: multipart/mixed; boundary="===============5339365623878655763=="
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <20190927112703.17745-9-sgarzare@redhat.com>
+In-Reply-To: <20190927112703.17745-10-sgarzare@redhat.com>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -23,57 +23,46 @@ Cc: Sasha Levin <sashal@kernel.org>, linux-hyperv@vger.kernel.org, Stephen Hemmi
 List-Id: virtualization@lists.linuxfoundation.org
 
 
---===============5868878294701454401==
+--===============5339365623878655763==
 Content-Type: multipart/signed; micalg=pgp-sha256;
-	protocol="application/pgp-signature"; boundary="+PbGPm1eXpwOoWkI"
+	protocol="application/pgp-signature"; boundary="5me2qT3T17SWzdxI"
 Content-Disposition: inline
 
 
---+PbGPm1eXpwOoWkI
+--5me2qT3T17SWzdxI
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
 Content-Transfer-Encoding: quoted-printable
 
-On Fri, Sep 27, 2019 at 01:26:58PM +0200, Stefano Garzarella wrote:
-> vsock_insert_unbound() was called only when 'sock' parameter of
-> __vsock_create() was not null. This only happened when
-> __vsock_create() was called by vsock_create().
->=20
-> In order to simplify the multi-transports support, this patch
-> moves vsock_insert_unbound() at the end of vsock_create().
+On Fri, Sep 27, 2019 at 01:26:59PM +0200, Stefano Garzarella wrote:
+> Remote peer is always the host, so we set VMADDR_CID_HOST as
+> remote CID instead of VMADDR_CID_ANY.
 >=20
 > Signed-off-by: Stefano Garzarella <sgarzare@redhat.com>
 > ---
->  net/vmw_vsock/af_vsock.c | 13 +++++++++----
->  1 file changed, 9 insertions(+), 4 deletions(-)
-
-Maybe transports shouldn't call __vsock_create() directly.  They always
-pass NULL as the parent socket, so we could have a more specific
-function that transports call without a parent sock argument.  This
-would eliminate any concern over moving vsock_insert_unbound() out of
-this function.  In any case, I've checked the code and this patch is
-correct.
+>  net/vmw_vsock/hyperv_transport.c | 3 ++-
+>  1 file changed, 2 insertions(+), 1 deletion(-)
 
 Reviewed-by: Stefan Hajnoczi <stefanha@redhat.com>
 
---+PbGPm1eXpwOoWkI
+--5me2qT3T17SWzdxI
 Content-Type: application/pgp-signature; name="signature.asc"
 
 -----BEGIN PGP SIGNATURE-----
 
-iQEzBAEBCAAdFiEEhpWov9P5fNqsNXdanKSrs4Grc8gFAl2d088ACgkQnKSrs4Gr
-c8jGUgf/flGT/To2png0jPgQV5oe1jDDk+0D39ubcCGjdMLuOwLdwey4BUbOWK3I
-KFEzw7U6CmXNnW15vqqckacUNgL6OXgHKrOxKpiwYvonz2/C0JNLMaTIbsSfcR8u
-sXWnnoihq8NTRIJhSxHFaWgqBLWFW8G3sAfFA2oCIiNI8HQhewIy0Sfh2vfuyypU
-SjCHAwlodeIMuEmeIlTUEd4RKWqZ3dDAOs5xnl87OWUdzTtgmKEccQLZSvJ/t2Qi
-QVVO07S3r7ASe2bpjmTgQuV1ZZ3iz/jyFOYAD3WmE6D6a+afcU+4gUTa9Tbu1TL4
-en7c7jB5XF98CqjwO5kjMLozykqVWg==
-=Fgki
+iQEzBAEBCAAdFiEEhpWov9P5fNqsNXdanKSrs4Grc8gFAl2d1AwACgkQnKSrs4Gr
+c8jb5wf/RiXbiexvEEg0hOVPHCNYSDBNEehuU8/ZUOo11ueiWzI9+b5rFidWUcc9
+4VZ3SCtzOW/3meXooyF42QP97QPJ0sQO3jpPZjCECe9McxAbm0zum+N3Cb/0AbjT
+xrpQ1FHtTgGBHydsxFcsyIcZMvp91o4Q7qNtExg/CB7vbOEJXFkSmh5968GD3o1f
+uK0Rqjqgx1Fm30mT41uRe41JvrE7QtJr8yc/uFB2h2JL7RgxRa+G+mIV1+66P2t+
+xIwq8Nj/JyQBfvD82Bvezuvf6ITNloJ7/97xTnHgg2U0YcslB/cU8gArZJlWHAKv
+O9b3imMu/xyzY1oO4yJ+mmOM3cEtFQ==
+=ktlx
 -----END PGP SIGNATURE-----
 
---+PbGPm1eXpwOoWkI--
+--5me2qT3T17SWzdxI--
 
---===============5868878294701454401==
+--===============5339365623878655763==
 Content-Type: text/plain; charset="us-ascii"
 MIME-Version: 1.0
 Content-Transfer-Encoding: 7bit
@@ -83,4 +72,4 @@ _______________________________________________
 Virtualization mailing list
 Virtualization@lists.linux-foundation.org
 https://lists.linuxfoundation.org/mailman/listinfo/virtualization
---===============5868878294701454401==--
+--===============5339365623878655763==--
