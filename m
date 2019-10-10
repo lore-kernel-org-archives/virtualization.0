@@ -1,14 +1,18 @@
-From: Stefan Hajnoczi <stefanha@redhat.com>
-Subject: Re: [PATCH v2 07/11] VSOCK: add AF_VSOCK test cases
-Date: Wed, 9 Oct 2019 16:15:03 +0100
-Message-ID: <20191009151503.GA13568__46237.0710958325$1570634118$gmane$org@stefanha-x1.localdomain>
-References: <20190801152541.245833-1-sgarzare@redhat.com>
-	<20190801152541.245833-8-sgarzare@redhat.com>
-	<CAGxU2F4N5ACePf6YLQCBFMHPu8wDLScF+AGQ2==JAuBUj0GB-A@mail.gmail.com>
+From: Jason Wang <jasowang@redhat.com>
+Subject: Re: [PATCH V2 6/8] mdev: introduce virtio device and its device ops
+Date: Thu, 10 Oct 2019 13:00:59 +0800
+Message-ID: <12280951-52dc-0863-8146-807fc0c71e81@redhat.com>
+References: <20190924135332.14160-1-jasowang@redhat.com>
+	<20190924135332.14160-7-jasowang@redhat.com>
+	<20190924170640.1da03bae@x1.home>
+	<AM0PR05MB48662BA1D397D74DF4F5B9AFD1810@AM0PR05MB4866.eurprd05.prod.outlook.com>
+	<20190930153601.31e29f7e@x1.home>
 Mime-Version: 1.0
-Content-Type: multipart/mixed; boundary="===============1999454677069219780=="
+Content-Type: text/plain; charset="utf-8"; Format="flowed"
+Content-Transfer-Encoding: base64
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <CAGxU2F4N5ACePf6YLQCBFMHPu8wDLScF+AGQ2==JAuBUj0GB-A@mail.gmail.com>
+In-Reply-To: <20190930153601.31e29f7e@x1.home>
+Content-Language: en-US
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -18,57 +22,82 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Stefano Garzarella <sgarzare@redhat.com>
-Cc: kvm <kvm@vger.kernel.org>, netdev@vger.kernel.org, Dexuan Cui <decui@microsoft.com>, linux-kernel@vger.kernel.org, virtualization@lists.linux-foundation.org, "David S. Miller" <davem@davemloft.net>, Jorgen Hansen <jhansen@vmware.com>
+To: Alex Williamson <alex.williamson@redhat.com>, Parav Pandit <parav@mellanox.com>
+Cc: "christophe.de.dinechin@gmail.com" <christophe.de.dinechin@gmail.com>, "kvm@vger.kernel.org" <kvm@vger.kernel.org>, "mst@redhat.com" <mst@redhat.com>, "airlied@linux.ie" <airlied@linux.ie>, "joonas.lahtinen@linux.intel.com" <joonas.lahtinen@linux.intel.com>, "heiko.carstens@de.ibm.com" <heiko.carstens@de.ibm.com>, "dri-devel@lists.freedesktop.org" <dri-devel@lists.freedesktop.org>, "virtualization@lists.linux-foundation.org" <virtualization@lists.linux-foundation.org>, "kwankhede@nvidia.com" <kwankhede@nvidia.com>, "rob.miller@broadcom.com" <rob.miller@broadcom.com>, "linux-s390@vger.kernel.org" <linux-s390@vger.kernel.org>, "sebott@linux.ibm.com" <sebott@linux.ibm.com>, "lulu@redhat.com" <lulu@redhat.com>, "eperezma@redhat.com" <eperezma@redhat.com>, "pasic@linux.ibm.com" <pasic@linux.ibm.com>, "borntraeger@de.ibm.com" <borntraeger@de.ibm.com>, haotian.wang@sifive.c
 List-Id: virtualization@lists.linuxfoundation.org
 
-
---===============1999454677069219780==
-Content-Type: multipart/signed; micalg=pgp-sha256;
-	protocol="application/pgp-signature"; boundary="x+6KMIRAuhnl3hBn"
-Content-Disposition: inline
-
-
---x+6KMIRAuhnl3hBn
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-
-On Wed, Oct 09, 2019 at 12:03:53PM +0200, Stefano Garzarella wrote:
-> Hi Stefan,
-> I'm thinking about dividing this test into single applications, one
-> for each test, do you think it makes sense?
-> Or is it just a useless complication?
-
-I don't mind either way but personally I would leave it as a single
-program.
-
-Stefan
-
---x+6KMIRAuhnl3hBn
-Content-Type: application/pgp-signature; name="signature.asc"
-
------BEGIN PGP SIGNATURE-----
-
-iQEzBAEBCAAdFiEEhpWov9P5fNqsNXdanKSrs4Grc8gFAl2d+XcACgkQnKSrs4Gr
-c8iLyQf/Zhb+RZJm3omrM8JeMvDADeG1HsilYyQHLlWrpKPJHyQVtNqGNx9bJxd+
-Eq68BTkMmICqtmYwilCPPVlrx8et8zehRq871XzI6O/sXIme49zDJ056dPX1R1Gb
-+HAyhD9QD3YqFicOy1eA7YAtT8/VsQdXMQTUVkwcv/Nzi37O0xyd7KVV0TJvBVka
-0NwoQYWegJqj48HghPtJrhr6xjOjj2xbBgW2AI9SFwSYNW9asQeEgfWbYAZZU/Ri
-Q2/xQjZbaaEKRhiIw+WoWJ4eXSZXzAzqh4cnyHVvJnoyLnO0Ed7qEUf4tcwFS1Eu
-KaaYezbOhj4tIKbacDvJ5+HM6M2QYA==
-=fCBd
------END PGP SIGNATURE-----
-
---x+6KMIRAuhnl3hBn--
-
---===============1999454677069219780==
-Content-Type: text/plain; charset="us-ascii"
-MIME-Version: 1.0
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-
-_______________________________________________
-Virtualization mailing list
-Virtualization@lists.linux-foundation.org
-https://lists.linuxfoundation.org/mailman/listinfo/virtualization
---===============1999454677069219780==--
+Ck9uIDIwMTkvMTAvMSDkuIrljYg1OjM2LCBBbGV4IFdpbGxpYW1zb24gd3JvdGU6Cj4gT24gRnJp
+LCAyNyBTZXAgMjAxOSAxNjoyNToxMyArMDAwMAo+IFBhcmF2IFBhbmRpdCA8cGFyYXZAbWVsbGFu
+b3guY29tPiB3cm90ZToKPgo+PiBIaSBBbGV4LAo+Pgo+Pgo+Pj4gLS0tLS1PcmlnaW5hbCBNZXNz
+YWdlLS0tLS0KPj4+IEZyb206IEFsZXggV2lsbGlhbXNvbiA8YWxleC53aWxsaWFtc29uQHJlZGhh
+dC5jb20+Cj4+PiBTZW50OiBUdWVzZGF5LCBTZXB0ZW1iZXIgMjQsIDIwMTkgNjowNyBQTQo+Pj4g
+VG86IEphc29uIFdhbmcgPGphc293YW5nQHJlZGhhdC5jb20+Cj4+PiBDYzoga3ZtQHZnZXIua2Vy
+bmVsLm9yZzsgbGludXgtczM5MEB2Z2VyLmtlcm5lbC5vcmc7IGxpbnV4LQo+Pj4ga2VybmVsQHZn
+ZXIua2VybmVsLm9yZzsgZHJpLWRldmVsQGxpc3RzLmZyZWVkZXNrdG9wLm9yZzsgaW50ZWwtCj4+
+PiBnZnhAbGlzdHMuZnJlZWRlc2t0b3Aub3JnOyBpbnRlbC1ndnQtZGV2QGxpc3RzLmZyZWVkZXNr
+dG9wLm9yZzsKPj4+IGt3YW5raGVkZUBudmlkaWEuY29tOyBtc3RAcmVkaGF0LmNvbTsgdGl3ZWku
+YmllQGludGVsLmNvbTsKPj4+IHZpcnR1YWxpemF0aW9uQGxpc3RzLmxpbnV4LWZvdW5kYXRpb24u
+b3JnOyBuZXRkZXZAdmdlci5rZXJuZWwub3JnOwo+Pj4gY29odWNrQHJlZGhhdC5jb207IG1heGlt
+ZS5jb3F1ZWxpbkByZWRoYXQuY29tOwo+Pj4gY3VubWluZy5saWFuZ0BpbnRlbC5jb207IHpoaWhv
+bmcud2FuZ0BpbnRlbC5jb207Cj4+PiByb2IubWlsbGVyQGJyb2FkY29tLmNvbTsgeGlhby53Lndh
+bmdAaW50ZWwuY29tOwo+Pj4gaGFvdGlhbi53YW5nQHNpZml2ZS5jb207IHpoZW55dXdAbGludXgu
+aW50ZWwuY29tOyB6aGkuYS53YW5nQGludGVsLmNvbTsKPj4+IGphbmkubmlrdWxhQGxpbnV4Lmlu
+dGVsLmNvbTsgam9vbmFzLmxhaHRpbmVuQGxpbnV4LmludGVsLmNvbTsKPj4+IHJvZHJpZ28udml2
+aUBpbnRlbC5jb207IGFpcmxpZWRAbGludXguaWU7IGRhbmllbEBmZndsbC5jaDsKPj4+IGZhcm1h
+bkBsaW51eC5pYm0uY29tOyBwYXNpY0BsaW51eC5pYm0uY29tOyBzZWJvdHRAbGludXguaWJtLmNv
+bTsKPj4+IG9iZXJwYXJAbGludXguaWJtLmNvbTsgaGVpa28uY2Fyc3RlbnNAZGUuaWJtLmNvbTsg
+Z29yQGxpbnV4LmlibS5jb207Cj4+PiBib3JudHJhZWdlckBkZS5pYm0uY29tOyBha3Jvd2lha0Bs
+aW51eC5pYm0uY29tOyBmcmV1ZGVAbGludXguaWJtLmNvbTsKPj4+IGxpbmdzaGFuLnpodUBpbnRl
+bC5jb207IElkbyBTaGFtYXkgPGlkb3NAbWVsbGFub3guY29tPjsKPj4+IGVwZXJlem1hQHJlZGhh
+dC5jb207IGx1bHVAcmVkaGF0LmNvbTsgUGFyYXYgUGFuZGl0Cj4+PiA8cGFyYXZAbWVsbGFub3gu
+Y29tPjsgY2hyaXN0b3BoZS5kZS5kaW5lY2hpbkBnbWFpbC5jb207Cj4+PiBrZXZpbi50aWFuQGlu
+dGVsLmNvbQo+Pj4gU3ViamVjdDogUmU6IFtQQVRDSCBWMiA2LzhdIG1kZXY6IGludHJvZHVjZSB2
+aXJ0aW8gZGV2aWNlIGFuZCBpdHMgZGV2aWNlIG9wcwo+Pj4KPj4+IE9uIFR1ZSwgMjQgU2VwIDIw
+MTkgMjE6NTM6MzAgKzA4MDAKPj4+IEphc29uIFdhbmcgPGphc293YW5nQHJlZGhhdC5jb20+IHdy
+b3RlOgo+Pj4gICAgCj4+Pj4gVGhpcyBwYXRjaCBpbXBsZW1lbnRzIGJhc2ljIHN1cHBvcnQgZm9y
+IG1kZXYgZHJpdmVyIHRoYXQgc3VwcG9ydHMKPj4+PiB2aXJ0aW8gdHJhbnNwb3J0IGZvciBrZXJu
+ZWwgdmlydGlvIGRyaXZlci4KPj4+Pgo+Pj4+IFNpZ25lZC1vZmYtYnk6IEphc29uIFdhbmcgPGph
+c293YW5nQHJlZGhhdC5jb20+Cj4+Pj4gLS0tCj4+Pj4gICBpbmNsdWRlL2xpbnV4L21kZXYuaCAg
+ICAgICAgfCAgIDIgKwo+Pj4+ICAgaW5jbHVkZS9saW51eC92aXJ0aW9fbWRldi5oIHwgMTQ1Cj4+
+Pj4gKysrKysrKysrKysrKysrKysrKysrKysrKysrKysrKysrKysrCj4+Pj4gICAyIGZpbGVzIGNo
+YW5nZWQsIDE0NyBpbnNlcnRpb25zKCspCj4+Pj4gICBjcmVhdGUgbW9kZSAxMDA2NDQgaW5jbHVk
+ZS9saW51eC92aXJ0aW9fbWRldi5oCj4+Pj4KPj4+PiBkaWZmIC0tZ2l0IGEvaW5jbHVkZS9saW51
+eC9tZGV2LmggYi9pbmNsdWRlL2xpbnV4L21kZXYuaCBpbmRleAo+Pj4+IDM0MTQzMDczMTFmMS4u
+NzNhYzI3YjNiODY4IDEwMDY0NAo+Pj4+IC0tLSBhL2luY2x1ZGUvbGludXgvbWRldi5oCj4+Pj4g
+KysrIGIvaW5jbHVkZS9saW51eC9tZGV2LmgKPj4+PiBAQCAtMTI2LDYgKzEyNiw4IEBAIHN0cnVj
+dCBtZGV2X2RldmljZSAqbWRldl9mcm9tX2RldihzdHJ1Y3QgZGV2aWNlCj4+Pj4gKmRldik7Cj4+
+Pj4KPj4+PiAgIGVudW0gewo+Pj4+ICAgCU1ERVZfSURfVkZJTyA9IDEsCj4+Pj4gKwlNREVWX0lE
+X1ZJUlRJTyA9IDIsCj4+Pj4gKwlNREVWX0lEX1ZIT1NUID0gMywKPj4+IE1ERVZfSURfVkhPU1Qg
+aXNuJ3QgdXNlZCB5ZXQgaGVyZS4gIEFsc28sIGdpdmVuIHRoZSBzdHJvbmcgaW50ZXJkZXBlbmRl
+bmNlCj4+PiBiZXR3ZWVuIHRoZSBjbGFzc19pZCBhbmQgdGhlIG9wcyBzdHJ1Y3R1cmUsIHdlIG1p
+Z2h0IHdhbmQgdG8gZGVmaW5lIHRoZW0gaW4KPj4+IHRoZSBzYW1lIHBsYWNlLiAgVGhhbmtzLAo+
+Pj4gICAgCj4+IFdoZW4gbWx4NV9jb3JlIGNyZWF0ZXMgbWRldnMgKHBhcmVudC0+b3BzLT5jcmVh
+dGUoKSBhbmQgaXQgd2FudHMgdG8KPj4gYmluZCB0byBtbHg1IG1kZXYgZHJpdmVyICh3aGljaCBk
+b2VzIG1kZXZfcmVnaXN0ZXJfZHJpdmVyKCkpLCBtbHg1Cj4+IGNvcmUgZHJpdmVyIHdpbGwgcHVi
+bGlzaCBNREVWX0lEX01MWDVfTkVUIGRlZmluZWQgaW4gY2VudHJhbCBwbGFjZSBhcwo+PiBpbmNs
+dWRlL2xpbnV4L21kZXYuaCB3aXRob3V0IGFueSBvcHMgc3RydWN0dXJlLiBCZWNhdXNlIHN1Y2gg
+b3BzIGFyZQo+PiBub3QgcmVsZXZhbnQuIEl0IHVzZXMgdXN1YWwsIHN0YW5kYXJkIG9wcyBwcm9i
+ZSgpIHJlbW92ZSgpIG9uIHRoZQo+PiBtZGV2IChzaW1pbGFyIHRvIGEgcmVndWxhciBQQ0kgZGV2
+aWNlKS4gU28gZm9yIFZIT1NUIGNhc2Ugb3BzIG1heSBiZQo+PiBjbG9zZWx5IHJlbGF0ZWQgdG8g
+SUQsIGJ1dCBub3QgZm9yIG90aGVyIHR5cGUgb2YgSUQuCj4+Cj4+IEp1c3Qgd2FudCB0byBtYWtl
+IHN1cmUsIHRoYXQgc2NvcGUgb2YgSUQgY292ZXJzIHRoaXMgY2FzZS4KPiBBSVVJLCB0aGVzZSBk
+ZXZpY2Utb3BzIGFyZSBwcmltYXJpbHkgbWVhbnQgdG8gaGF2ZSAxOk4gbXVsdGlwbGV4aW5nIG9m
+Cj4gdGhlIG1kZXYgYnVzIGRyaXZlci4gIE9uZSBtZGV2IGJ1cyBkcml2ZXIgc3VwcG9ydHMgTiB2
+ZW5kb3IgZHJpdmVycyB2aWEKPiBhIGNvbW1vbiAicHJvdG9jb2wiIGRlZmluZWQgYnkgdGhpcyBz
+dHJ1Y3R1cmUuICB2ZmlvLW1kZXYgc3VwcG9ydHMKPiBHVlQtZywgR1JJRCwgYW5kIHNldmVyYWwg
+c2FtcGxlIGRyaXZlcnMuICBJIHRoaW5rIEphc29uIGFuZCBUaXdlaSBhcmUKPiBhdHRlbXB0aW5n
+IHNvbWV0aGluZyBzaW1pbGFyIGlmIHdlIGhhdmUgbXVsdGlwbGUgdmVuZG9ycyB0aGF0IG1heQo+
+IHByb3ZpZGUgdmlydGlvL3Zob3N0IHBhcmVudCBkcml2ZXJzLgoKCkV4YWN0bHkuCgoKPiAgIElm
+IHlvdSBoYXZlIGEgMToxIG1vZGVsIHdpdGgKPiBtbHg1IHdoZXJlIHlvdSdyZSBub3QgdHJ5aW5n
+IHRvIGFic3RyYWN0IGEgY29tbW9uIGNoYW5uZWwgYmV0d2VlbiB0aGUKPiBtZGV2IGJ1cyBkcml2
+ZXIgYW5kIHRoZSBtZGV2IHZlbmRvciBkcml2ZXIsIHRoZW4gSSBzdXBwb3NlIHlvdSBtaWdodAo+
+IG5vdCB1c2UgdGhlIGRldmljZS1vcHMgY2FwYWJpbGl0aWVzIG9mIHRoZSBtZGV2LWNvcmUuCgoK
+WWVzLCBjdXJyZW50IHByb3Bvc2VkIEFQSSBhbGxvd3MgTlVMTCB0byBiZSBwYXNzZWQgYXMgZGV2
+aWNlIG9wcy4KClRoYW5rcwoKCj4gICBEaWQgSSBpbnRlcnByZXQKPiB0aGUgcXVlc3Rpb24gY29y
+cmVjdGx5PyAgSSB0aGluayB0aGF0J3MgcHJvYmFibHkgZmluZSwgbWRldi1jb3JlCj4gc2hvdWxk
+bid0IGhhdmUgYW55IGRlcGVuZGVuY2llcyBvbiB0aGUgZGV2aWNlLW9wcyBhbmQgd2Ugc2hvdWxk
+bid0Cj4gcmVhbGx5IGJlIGRpY3RhdGluZyB0aGUgYnVzL3ZlbmRvciBsaW5rIHRocm91Z2ggbWRl
+di4gIFRoYW5rcywKPgo+IEFsZXgKX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19f
+X19fX19fX19fX18KVmlydHVhbGl6YXRpb24gbWFpbGluZyBsaXN0ClZpcnR1YWxpemF0aW9uQGxp
+c3RzLmxpbnV4LWZvdW5kYXRpb24ub3JnCmh0dHBzOi8vbGlzdHMubGludXhmb3VuZGF0aW9uLm9y
+Zy9tYWlsbWFuL2xpc3RpbmZvL3ZpcnR1YWxpemF0aW9u
