@@ -1,12 +1,14 @@
 From: Stefano Garzarella <sgarzare@redhat.com>
-Subject: [PATCH net 0/2] vsock: don't allow half-closed socket in the host
-	transports
-Date: Fri, 11 Oct 2019 15:07:56 +0200
-Message-ID: <20191011130758.22134-1-sgarzare__33475.099939254$1570799978$gmane$org@redhat.com>
+Subject: [PATCH net 1/2] vsock: add half-closed socket details in the
+	implementation notes
+Date: Fri, 11 Oct 2019 15:07:57 +0200
+Message-ID: <20191011130758.22134-2-sgarzare__44459.8469812021$1570799985$gmane$org@redhat.com>
+References: <20191011130758.22134-1-sgarzare@redhat.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
+In-Reply-To: <20191011130758.22134-1-sgarzare@redhat.com>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -20,24 +22,31 @@ To: netdev@vger.kernel.org
 Cc: kvm@vger.kernel.org, "Michael S. Tsirkin" <mst@redhat.com>, linux-kernel@vger.kernel.org, Adit Ranadive <aditr@vmware.com>, Stefan Hajnoczi <stefanha@redhat.com>, virtualization@lists.linux-foundation.org, "David S. Miller" <davem@davemloft.net>, Jorgen Hansen <jhansen@vmware.com>
 List-Id: virtualization@lists.linuxfoundation.org
 
-We are implementing a test suite for the VSOCK sockets and we discovered
-that vmci_transport never allowed half-closed socket on the host side.
+vmci_transport never allowed half-closed socket on the host side.
+Since we want to have the same behaviour across all transports, we
+add a section in the "Implementation notes".
 
-As Jorgen explained [1] this is due to the implementation of VMCI.
+Cc: Jorgen Hansen <jhansen@vmware.com>
+Cc: Adit Ranadive <aditr@vmware.com>
+Signed-off-by: Stefano Garzarella <sgarzare@redhat.com>
+---
+ net/vmw_vsock/af_vsock.c | 4 ++++
+ 1 file changed, 4 insertions(+)
 
-Since we want to have the same behaviour across all transports, this
-series adds a section in the "Implementation notes" to exaplain this
-behaviour, and changes the vhost_transport to behave the same way.
-
-[1] https://patchwork.ozlabs.org/cover/847998/#1831400
-
-Stefano Garzarella (2):
-  vsock: add half-closed socket details in the implementation notes
-  vhost/vsock: don't allow half-closed socket in the host
-
- drivers/vhost/vsock.c    | 17 ++++++++++++++++-
- net/vmw_vsock/af_vsock.c |  4 ++++
- 2 files changed, 20 insertions(+), 1 deletion(-)
-
+diff --git a/net/vmw_vsock/af_vsock.c b/net/vmw_vsock/af_vsock.c
+index 2ab43b2bba31..27df57c2024b 100644
+--- a/net/vmw_vsock/af_vsock.c
++++ b/net/vmw_vsock/af_vsock.c
+@@ -83,6 +83,10 @@
+  *   TCP_ESTABLISHED - connected
+  *   TCP_CLOSING - disconnecting
+  *   TCP_LISTEN - listening
++ *
++ * - Half-closed socket is supported only on the guest side. recv() on the host
++ * side should return EOF when the guest closes a connection, also if some
++ * data is still in the receive queue.
+  */
+ 
+ #include <linux/types.h>
 -- 
 2.21.0
