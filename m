@@ -1,16 +1,17 @@
-From: "Michael S. Tsirkin" <mst@redhat.com>
-Subject: Re: [PATCH net 2/2] vhost/vsock: don't allow half-closed socket in
-	the host
-Date: Fri, 11 Oct 2019 10:26:34 -0400
-Message-ID: <20191011102246-mutt-send-email-mst__36847.4573873513$1570804482$gmane$org@kernel.org>
+From: Stefano Garzarella <sgarzare@redhat.com>
+Subject: Re: [PATCH net 1/2] vsock: add half-closed socket details in the
+	implementation notes
+Date: Fri, 11 Oct 2019 16:37:41 +0200
+Message-ID: <20191011143741.frgdjcyee25wpcmf__44679.1987212904$1570805216$gmane$org@steredhat>
 References: <20191011130758.22134-1-sgarzare@redhat.com>
-	<20191011130758.22134-3-sgarzare@redhat.com>
+	<20191011130758.22134-2-sgarzare@redhat.com>
+	<20191011101936-mutt-send-email-mst@kernel.org>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
 Content-Disposition: inline
-In-Reply-To: <20191011130758.22134-3-sgarzare@redhat.com>
+In-Reply-To: <20191011101936-mutt-send-email-mst@kernel.org>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -20,67 +21,50 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Stefano Garzarella <sgarzare@redhat.com>
+To: "Michael S. Tsirkin" <mst@redhat.com>
 Cc: kvm@vger.kernel.org, netdev@vger.kernel.org, linux-kernel@vger.kernel.org, Adit Ranadive <aditr@vmware.com>, Stefan Hajnoczi <stefanha@redhat.com>, virtualization@lists.linux-foundation.org, "David S. Miller" <davem@davemloft.net>, Jorgen Hansen <jhansen@vmware.com>
 List-Id: virtualization@lists.linuxfoundation.org
 
-On Fri, Oct 11, 2019 at 03:07:58PM +0200, Stefano Garzarella wrote:
-> vmci_transport never allowed half-closed socket on the host side.
-> In order to provide the same behaviour, we changed the
-> vhost_transport_stream_has_data() to return 0 (no data available)
-> if the peer (guest) closed the connection.
+On Fri, Oct 11, 2019 at 10:22:30AM -0400, Michael S. Tsirkin wrote:
+> On Fri, Oct 11, 2019 at 03:07:57PM +0200, Stefano Garzarella wrote:
+> > vmci_transport never allowed half-closed socket on the host side.
+> > Since we want to have the same behaviour across all transports, we
+> > add a section in the "Implementation notes".
+> > 
+> > Cc: Jorgen Hansen <jhansen@vmware.com>
+> > Cc: Adit Ranadive <aditr@vmware.com>
+> > Signed-off-by: Stefano Garzarella <sgarzare@redhat.com>
+> > ---
+> >  net/vmw_vsock/af_vsock.c | 4 ++++
+> >  1 file changed, 4 insertions(+)
+> > 
+> > diff --git a/net/vmw_vsock/af_vsock.c b/net/vmw_vsock/af_vsock.c
+> > index 2ab43b2bba31..27df57c2024b 100644
+> > --- a/net/vmw_vsock/af_vsock.c
+> > +++ b/net/vmw_vsock/af_vsock.c
+> > @@ -83,6 +83,10 @@
+> >   *   TCP_ESTABLISHED - connected
+> >   *   TCP_CLOSING - disconnecting
+> >   *   TCP_LISTEN - listening
+> > + *
+> > + * - Half-closed socket is supported only on the guest side. recv() on the host
+> > + * side should return EOF when the guest closes a connection, also if some
+> > + * data is still in the receive queue.
+> >   */
+> >  
+> >  #include <linux/types.h>
 > 
-> Signed-off-by: Stefano Garzarella <sgarzare@redhat.com>
-
-I don't think we should copy bugs like this.
-Applications don't actually depend on this VMCI limitation, in fact
-it looks like a working application can get broken by this.
-
-So this looks like a userspace visible ABI change
-which we can't really do.
-
-If it turns out some application cares, it can always
-fully close the connection. Or add an ioctl so the application
-can find out whether half close works.
-
-> ---
->  drivers/vhost/vsock.c | 17 ++++++++++++++++-
->  1 file changed, 16 insertions(+), 1 deletion(-)
+> That's a great way to lose data in a way that's hard to debug.
 > 
-> diff --git a/drivers/vhost/vsock.c b/drivers/vhost/vsock.c
-> index 9f57736fe15e..754120aa4478 100644
-> --- a/drivers/vhost/vsock.c
-> +++ b/drivers/vhost/vsock.c
-> @@ -58,6 +58,21 @@ static u32 vhost_transport_get_local_cid(void)
->  	return VHOST_VSOCK_DEFAULT_HOST_CID;
->  }
->  
-> +static s64 vhost_transport_stream_has_data(struct vsock_sock *vsk)
-> +{
-> +	/* vmci_transport doesn't allow half-closed socket on the host side.
-> +	 * recv() on the host side returns EOF when the guest closes a
-> +	 * connection, also if some data is still in the receive queue.
-> +	 *
-> +	 * In order to provide the same behaviour, we always return 0
-> +	 * (no data available) if the peer (guest) closed the connection.
-> +	 */
-> +	if (vsk->peer_shutdown == SHUTDOWN_MASK)
-> +		return 0;
-> +
-> +	return virtio_transport_stream_has_data(vsk);
-> +}
-> +
->  /* Callers that dereference the return value must hold vhost_vsock_mutex or the
->   * RCU read lock.
->   */
-> @@ -804,7 +819,7 @@ static struct virtio_transport vhost_transport = {
->  
->  		.stream_enqueue           = virtio_transport_stream_enqueue,
->  		.stream_dequeue           = virtio_transport_stream_dequeue,
-> -		.stream_has_data          = virtio_transport_stream_has_data,
-> +		.stream_has_data          = vhost_transport_stream_has_data,
->  		.stream_has_space         = virtio_transport_stream_has_space,
->  		.stream_rcvhiwat          = virtio_transport_stream_rcvhiwat,
->  		.stream_is_active         = virtio_transport_stream_is_active,
-> -- 
-> 2.21.0
+> VMCI sockets connect to a hypervisor so there's tight control
+> of what the hypervisor can do.
+> 
+> But vhost vsocks connect to a fully fledged Linux, so
+> you can't assume this is safe. And application authors do not read
+> kernel source.
+
+Thanks for explaining.
+Discard this patch, I'll try to add a getsockopt() to allow the tests
+(and applications) to understand if half-closed socket is supported or not.
+
+Stefano
