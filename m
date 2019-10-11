@@ -1,18 +1,12 @@
 From: Stefano Garzarella <sgarzare@redhat.com>
-Subject: Re: [RFC PATCH 07/13] vsock: handle buffer_size sockopts in the core
-Date: Fri, 11 Oct 2019 10:51:58 +0200
-Message-ID: <20191011085158.wiiv4av5fgipm4k7__19659.3729125865$1570784453$gmane$org@steredhat>
-References: <20190927112703.17745-1-sgarzare@redhat.com>
-	<20190927112703.17745-8-sgarzare@redhat.com>
-	<20191009123026.GH5747@stefanha-x1.localdomain>
-	<20191010093254.aluys4hpsfcepb42@steredhat>
-	<20191011082714.GF12360@stefanha-x1.localdomain>
+Subject: [PATCH net 0/2] vsock: don't allow half-closed socket in the host
+	transports
+Date: Fri, 11 Oct 2019 15:07:56 +0200
+Message-ID: <20191011130758.22134-1-sgarzare__33475.099939254$1570799978$gmane$org@redhat.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-Content-Disposition: inline
-In-Reply-To: <20191011082714.GF12360@stefanha-x1.localdomain>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -22,43 +16,28 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Stefan Hajnoczi <stefanha@redhat.com>
-Cc: Sasha Levin <sashal@kernel.org>, linux-hyperv@vger.kernel.org, Stephen Hemminger <sthemmin@microsoft.com>, kvm@vger.kernel.org, "Michael S. Tsirkin" <mst@redhat.com>, Haiyang Zhang <haiyangz@microsoft.com>, Dexuan Cui <decui@microsoft.com>, linux-kernel@vger.kernel.org, virtualization@lists.linux-foundation.org, netdev@vger.kernel.org, "David S. Miller" <davem@davemloft.net>, Jorgen Hansen <jhansen@vmware.com>
+To: netdev@vger.kernel.org
+Cc: kvm@vger.kernel.org, "Michael S. Tsirkin" <mst@redhat.com>, linux-kernel@vger.kernel.org, Adit Ranadive <aditr@vmware.com>, Stefan Hajnoczi <stefanha@redhat.com>, virtualization@lists.linux-foundation.org, "David S. Miller" <davem@davemloft.net>, Jorgen Hansen <jhansen@vmware.com>
 List-Id: virtualization@lists.linuxfoundation.org
 
-On Fri, Oct 11, 2019 at 09:27:14AM +0100, Stefan Hajnoczi wrote:
-> On Thu, Oct 10, 2019 at 11:32:54AM +0200, Stefano Garzarella wrote:
-> > On Wed, Oct 09, 2019 at 01:30:26PM +0100, Stefan Hajnoczi wrote:
-> > > On Fri, Sep 27, 2019 at 01:26:57PM +0200, Stefano Garzarella wrote:
-> > > Another issue is that this patch drops the VIRTIO_VSOCK_MAX_BUF_SIZE
-> > > limit that used to be enforced by virtio_transport_set_buffer_size().
-> > > Now the limit is only applied at socket init time.  If the buffer size
-> > > is changed later then VIRTIO_VSOCK_MAX_BUF_SIZE can be exceeded.  If
-> > > that doesn't matter, why even bother with VIRTIO_VSOCK_MAX_BUF_SIZE
-> > > here?
-> > > 
-> > 
-> > The .notify_buffer_size() should avoid this issue, since it allows the
-> > transport to limit the buffer size requested after the initialization.
-> > 
-> > But again the min set by the user can not be respected and in the
-> > previous implementation we forced it to VIRTIO_VSOCK_MAX_BUF_SIZE.
-> > 
-> > Now we don't limit the min, but we guarantee only that vsk->buffer_size
-> > is lower than VIRTIO_VSOCK_MAX_BUF_SIZE.
-> > 
-> > Can that be an acceptable compromise?
-> 
-> I think so.
-> 
-> Setting buffer sizes was never tested or used much by userspace
-> applications that I'm aware of.  We should probably include tests for
-> changing buffer sizes in the test suite.
+We are implementing a test suite for the VSOCK sockets and we discovered
+that vmci_transport never allowed half-closed socket on the host side.
 
-Good idea! We should add a test to check if min/max are respected,
-playing a bit with these sockopt.
+As Jorgen explained [1] this is due to the implementation of VMCI.
 
-I'll do it in the test series!
+Since we want to have the same behaviour across all transports, this
+series adds a section in the "Implementation notes" to exaplain this
+behaviour, and changes the vhost_transport to behave the same way.
 
-Thanks,
-Stefano
+[1] https://patchwork.ozlabs.org/cover/847998/#1831400
+
+Stefano Garzarella (2):
+  vsock: add half-closed socket details in the implementation notes
+  vhost/vsock: don't allow half-closed socket in the host
+
+ drivers/vhost/vsock.c    | 17 ++++++++++++++++-
+ net/vmw_vsock/af_vsock.c |  4 ++++
+ 2 files changed, 20 insertions(+), 1 deletion(-)
+
+-- 
+2.21.0
