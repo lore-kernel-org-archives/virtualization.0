@@ -1,7 +1,7 @@
 From: Jason Wang <jasowang@redhat.com>
-Subject: [PATCH V3 2/7] mdev: bus uevent support
-Date: Fri, 11 Oct 2019 16:15:52 +0800
-Message-ID: <20191011081557.28302-3-jasowang__30896.6629950859$1570782313$gmane$org@redhat.com>
+Subject: [PATCH V3 3/7] modpost: add support for mdev class id
+Date: Fri, 11 Oct 2019 16:15:53 +0800
+Message-ID: <20191011081557.28302-4-jasowang__17186.629567162$1570782639$gmane$org@redhat.com>
 References: <20191011081557.28302-1-jasowang@redhat.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
@@ -21,35 +21,68 @@ To: kvm@vger.kernel.org, linux-s390@vger.kernel.org, linux-kernel@vger.kernel.or
 Cc: christophe.de.dinechin@gmail.com, sebott@linux.ibm.com, airlied@linux.ie, joonas.lahtinen@linux.intel.com, heiko.carstens@de.ibm.com, virtualization@lists.linux-foundation.org, rob.miller@broadcom.com, lulu@redhat.com, eperezma@redhat.com, pasic@linux.ibm.com, borntraeger@de.ibm.com, haotian.wang@sifive.com, zhi.a.wang@intel.com, farman@linux.ibm.com, idos@mellanox.com, gor@linux.ibm.com, zhenyuw@linux.intel.com, rodrigo.vivi@intel.com, xiao.w.wang@intel.com, freude@linux.ibm.com, jani.nikula@linux.intel.com, parav@mellanox.com, zhihong.wang@intel.com, akrowiak@linux.ibm.com, netdev@vger.kernel.org, cohuck@redhat.com, oberpar@linux.ibm.com, maxime.coquelin@redhat.com, daniel@ffwll.ch, lingshan.zhu@intel.com
 List-Id: virtualization@lists.linuxfoundation.org
 
-This patch adds bus uevent support for mdev bus in order to allow
-cooperation with userspace.
+Add support to parse mdev class id table.
 
 Signed-off-by: Jason Wang <jasowang@redhat.com>
 ---
- drivers/vfio/mdev/mdev_driver.c | 8 ++++++++
- 1 file changed, 8 insertions(+)
+ drivers/vfio/mdev/vfio_mdev.c     |  2 ++
+ scripts/mod/devicetable-offsets.c |  3 +++
+ scripts/mod/file2alias.c          | 10 ++++++++++
+ 3 files changed, 15 insertions(+)
 
-diff --git a/drivers/vfio/mdev/mdev_driver.c b/drivers/vfio/mdev/mdev_driver.c
-index b7c40ce86ee3..319d886ffaf7 100644
---- a/drivers/vfio/mdev/mdev_driver.c
-+++ b/drivers/vfio/mdev/mdev_driver.c
-@@ -82,9 +82,17 @@ static int mdev_match(struct device *dev, struct device_driver *drv)
+diff --git a/drivers/vfio/mdev/vfio_mdev.c b/drivers/vfio/mdev/vfio_mdev.c
+index fd2a4d9a3f26..891cf83a2d9a 100644
+--- a/drivers/vfio/mdev/vfio_mdev.c
++++ b/drivers/vfio/mdev/vfio_mdev.c
+@@ -125,6 +125,8 @@ static struct mdev_class_id id_table[] = {
+ 	{ 0 },
+ };
+ 
++MODULE_DEVICE_TABLE(mdev, id_table);
++
+ static struct mdev_driver vfio_mdev_driver = {
+ 	.name	= "vfio_mdev",
+ 	.probe	= vfio_mdev_probe,
+diff --git a/scripts/mod/devicetable-offsets.c b/scripts/mod/devicetable-offsets.c
+index 054405b90ba4..6cbb1062488a 100644
+--- a/scripts/mod/devicetable-offsets.c
++++ b/scripts/mod/devicetable-offsets.c
+@@ -231,5 +231,8 @@ int main(void)
+ 	DEVID(wmi_device_id);
+ 	DEVID_FIELD(wmi_device_id, guid_string);
+ 
++	DEVID(mdev_class_id);
++	DEVID_FIELD(mdev_class_id, id);
++
  	return 0;
  }
+diff --git a/scripts/mod/file2alias.c b/scripts/mod/file2alias.c
+index c91eba751804..d365dfe7c718 100644
+--- a/scripts/mod/file2alias.c
++++ b/scripts/mod/file2alias.c
+@@ -1335,6 +1335,15 @@ static int do_wmi_entry(const char *filename, void *symval, char *alias)
+ 	return 1;
+ }
  
-+static int mdev_uevent(struct device *dev, struct kobj_uevent_env *env)
++/* looks like: "mdev:cN" */
++static int do_mdev_entry(const char *filename, void *symval, char *alias)
 +{
-+	struct mdev_device *mdev = to_mdev_device(dev);
++	DEF_FIELD(symval, mdev_class_id, id);
 +
-+	return add_uevent_var(env, "MODALIAS=mdev:c%02X", mdev->class_id);
++	sprintf(alias, "mdev:c%02X", id);
++	return 1;
 +}
 +
- struct bus_type mdev_bus_type = {
- 	.name		= "mdev",
- 	.match		= mdev_match,
-+	.uevent		= mdev_uevent,
- 	.probe		= mdev_probe,
- 	.remove		= mdev_remove,
+ /* Does namelen bytes of name exactly match the symbol? */
+ static bool sym_is(const char *name, unsigned namelen, const char *symbol)
+ {
+@@ -1407,6 +1416,7 @@ static const struct devtable devtable[] = {
+ 	{"typec", SIZE_typec_device_id, do_typec_entry},
+ 	{"tee", SIZE_tee_client_device_id, do_tee_entry},
+ 	{"wmi", SIZE_wmi_device_id, do_wmi_entry},
++	{"mdev", SIZE_mdev_class_id, do_mdev_entry},
  };
+ 
+ /* Create MODULE_ALIAS() statements.
 -- 
 2.19.1
