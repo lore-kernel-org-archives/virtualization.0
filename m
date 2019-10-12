@@ -1,13 +1,14 @@
 From: Ram Pai <linuxram@us.ibm.com>
-Subject: [PATCH 1/2] dma-mapping: Add dma_addr_is_phys_addr()
-Date: Fri, 11 Oct 2019 18:25:18 -0700
-Message-ID: <1570843519-8696-2-git-send-email-linuxram__42609.1452407249$1570844096$gmane$org@us.ibm.com>
+Subject: [PATCH 2/2] virtio_ring: Use DMA API if memory is encrypted
+Date: Fri, 11 Oct 2019 18:25:19 -0700
+Message-ID: <1570843519-8696-3-git-send-email-linuxram__14821.2468646065$1570844113$gmane$org@us.ibm.com>
 References: <1570843519-8696-1-git-send-email-linuxram@us.ibm.com>
+	<1570843519-8696-2-git-send-email-linuxram@us.ibm.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <1570843519-8696-1-git-send-email-linuxram@us.ibm.com>
+In-Reply-To: <1570843519-8696-2-git-send-email-linuxram@us.ibm.com>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -23,9 +24,17 @@ List-Id: virtualization@lists.linuxfoundation.org
 
 From: Thiago Jung Bauermann <bauerman@linux.ibm.com>
 
-In order to safely use the DMA API, virtio needs to know whether DMA
-addresses are in fact physical addresses and for that purpose,
-dma_addr_is_phys_addr() is introduced.
+Normally, virtio enables DMA API with VIRTIO_F_IOMMU_PLATFORM, which must
+be set by both device and guest driver. However, as a hack, when DMA API
+returns physical addresses, guest driver can use the DMA API; even though
+device does not set VIRTIO_F_IOMMU_PLATFORM and just uses physical
+addresses.
+
+Doing this works-around POWER secure guests for which only the bounce
+buffer is accessible to the device, but which don't set
+VIRTIO_F_IOMMU_PLATFORM due to a set of hypervisor and architectural bugs.
+To guard against platform changes, breaking any of these assumptions down
+the road, we check at probe time and fail if that's not the case.
 
 cc: Benjamin Herrenschmidt <benh@kernel.crashing.org>
 cc: David Gibson <david@gibson.dropbear.id.au>
@@ -33,114 +42,103 @@ cc: Michael Ellerman <mpe@ellerman.id.au>
 cc: Paul Mackerras <paulus@ozlabs.org>
 cc: Michael Roth <mdroth@linux.vnet.ibm.com>
 cc: Alexey Kardashevskiy <aik@linux.ibm.com>
-cc: Paul Burton <paul.burton@mips.com>
-cc: Robin Murphy <robin.murphy@arm.com>
-cc: Bartlomiej Zolnierkiewicz <b.zolnierkie@samsung.com>
-cc: Marek Szyprowski <m.szyprowski@samsung.com>
+cc: Jason Wang <jasowang@redhat.com>
 cc: Christoph Hellwig <hch@lst.de>
 Suggested-by: Michael S. Tsirkin <mst@redhat.com>
 Signed-off-by: Ram Pai <linuxram@us.ibm.com>
 Signed-off-by: Thiago Jung Bauermann <bauerman@linux.ibm.com>
 ---
- arch/powerpc/include/asm/dma-mapping.h | 21 +++++++++++++++++++++
- arch/powerpc/platforms/pseries/Kconfig |  1 +
- include/linux/dma-mapping.h            | 20 ++++++++++++++++++++
- kernel/dma/Kconfig                     |  3 +++
- 4 files changed, 45 insertions(+)
+ drivers/virtio/virtio.c       | 18 ++++++++++++++++++
+ drivers/virtio/virtio_ring.c  |  8 ++++++++
+ include/linux/virtio_config.h | 14 ++++++++++++++
+ 3 files changed, 40 insertions(+)
 
-diff --git a/arch/powerpc/include/asm/dma-mapping.h b/arch/powerpc/include/asm/dma-mapping.h
-index 565d6f7..f92c0a4b 100644
---- a/arch/powerpc/include/asm/dma-mapping.h
-+++ b/arch/powerpc/include/asm/dma-mapping.h
-@@ -5,6 +5,8 @@
- #ifndef _ASM_DMA_MAPPING_H
- #define _ASM_DMA_MAPPING_H
+diff --git a/drivers/virtio/virtio.c b/drivers/virtio/virtio.c
+index a977e32..77a3baf 100644
+--- a/drivers/virtio/virtio.c
++++ b/drivers/virtio/virtio.c
+@@ -4,6 +4,7 @@
+ #include <linux/virtio_config.h>
+ #include <linux/module.h>
+ #include <linux/idr.h>
++#include <linux/dma-mapping.h>
+ #include <uapi/linux/virtio_ids.h>
  
-+#include <asm/svm.h>
+ /* Unique numbering for virtio devices. */
+@@ -245,6 +246,23 @@ static int virtio_dev_probe(struct device *_d)
+ 	if (err)
+ 		goto err;
+ 
++	/*
++	 * If memory is encrypted, but VIRTIO_F_IOMMU_PLATFORM is not set, then
++	 * the device is broken: DMA API is required for these platforms, but
++	 * the only way using the DMA API is going to work at all is if the
++	 * device is ready for it. So we need a flag on the virtio device,
++	 * exposed by the hypervisor (or hardware for hw virtio devices) that
++	 * says: hey, I'm real, don't take a shortcut.
++	 *
++	 * There's one exception where guest can make things work, and that is
++	 * when DMA API is guaranteed to always return physical addresses.
++	 */
++	if (mem_encrypt_active() && !virtio_can_use_dma_api(dev)) {
++		dev_err(_d, "virtio: device unable to access encrypted memory\n");
++		err = -EINVAL;
++		goto err;
++	}
 +
- static inline const struct dma_map_ops *get_arch_dma_ops(struct bus_type *bus)
- {
- 	/* We don't handle the NULL dev case for ISA for now. We could
-@@ -15,4 +17,23 @@ static inline const struct dma_map_ops *get_arch_dma_ops(struct bus_type *bus)
- 	return NULL;
+ 	err = drv->probe(dev);
+ 	if (err)
+ 		goto err;
+diff --git a/drivers/virtio/virtio_ring.c b/drivers/virtio/virtio_ring.c
+index c8be1c4..9c56b61 100644
+--- a/drivers/virtio/virtio_ring.c
++++ b/drivers/virtio/virtio_ring.c
+@@ -255,6 +255,14 @@ static bool vring_use_dma_api(struct virtio_device *vdev)
+ 	if (xen_domain())
+ 		return true;
+ 
++	/*
++	 * Also, if guest memory is encrypted the host can't access it
++	 * directly. We need to either use an IOMMU or do bounce buffering.
++	 * Both are done via the DMA API.
++	 */
++	if (mem_encrypt_active() && virtio_can_use_dma_api(vdev))
++		return true;
++
+ 	return false;
  }
  
-+#ifdef CONFIG_ARCH_HAS_DMA_ADDR_IS_PHYS_ADDR
-+/**
-+ * dma_addr_is_phys_addr - check whether a device DMA address is a physical
-+ *		address
-+ * @dev:	device to check
-+ *
-+ * Returns %true if any DMA address for this device happens to also be a valid
-+ * physical address (not necessarily of the same page).
-+ */
-+static inline bool dma_addr_is_phys_addr(struct device *dev)
-+{
-+	/*
-+	 * Secure guests always use the SWIOTLB, therefore DMA addresses are
-+	 * actually the physical address of the bounce buffer.
-+	 */
-+	return is_secure_guest();
-+}
-+#endif
-+
- #endif	/* _ASM_DMA_MAPPING_H */
-diff --git a/arch/powerpc/platforms/pseries/Kconfig b/arch/powerpc/platforms/pseries/Kconfig
-index 9e35cdd..0108150 100644
---- a/arch/powerpc/platforms/pseries/Kconfig
-+++ b/arch/powerpc/platforms/pseries/Kconfig
-@@ -152,6 +152,7 @@ config PPC_SVM
- 	select SWIOTLB
- 	select ARCH_HAS_MEM_ENCRYPT
- 	select ARCH_HAS_FORCE_DMA_UNENCRYPTED
-+	select ARCH_HAS_DMA_ADDR_IS_PHYS_ADDR
- 	help
- 	 There are certain POWER platforms which support secure guests using
- 	 the Protected Execution Facility, with the help of an Ultravisor
-diff --git a/include/linux/dma-mapping.h b/include/linux/dma-mapping.h
-index f7d1eea..6df5664 100644
---- a/include/linux/dma-mapping.h
-+++ b/include/linux/dma-mapping.h
-@@ -693,6 +693,26 @@ static inline bool dma_addressing_limited(struct device *dev)
- 			    dma_get_required_mask(dev);
+diff --git a/include/linux/virtio_config.h b/include/linux/virtio_config.h
+index bb4cc49..57bc25c 100644
+--- a/include/linux/virtio_config.h
++++ b/include/linux/virtio_config.h
+@@ -4,6 +4,7 @@
+ 
+ #include <linux/err.h>
+ #include <linux/bug.h>
++#include <linux/dma-mapping.h>
+ #include <linux/virtio.h>
+ #include <linux/virtio_byteorder.h>
+ #include <uapi/linux/virtio_config.h>
+@@ -174,6 +175,19 @@ static inline bool virtio_has_iommu_quirk(const struct virtio_device *vdev)
+ 	return !virtio_has_feature(vdev, VIRTIO_F_IOMMU_PLATFORM);
  }
  
-+#ifndef CONFIG_ARCH_HAS_DMA_ADDR_IS_PHYS_ADDR
 +/**
-+ * dma_addr_is_phys_addr - check whether a device DMA address is a physical
-+ *		address
-+ * @dev:	device to check
++ * virtio_can_use_dma_api - determine whether the DMA API can be used
++ * @vdev: the device
 + *
-+ * Returns %true if any DMA address for this device happens to also be a valid
-+ * physical address (not necessarily of the same page).
++ * The DMA API can be used either when the device doesn't have the IOMMU quirk,
++ * or when the DMA API is guaranteed to always return physical addresses.
 + */
-+static inline bool dma_addr_is_phys_addr(struct device *dev)
++static inline bool virtio_can_use_dma_api(const struct virtio_device *vdev)
 +{
-+	/*
-+	 * Except in very specific setups, DMA addresses exist in a different
-+	 * address space from CPU physical addresses and cannot be directly used
-+	 * to reference system memory.
-+	 */
-+	return false;
++	return !virtio_has_iommu_quirk(vdev) ||
++	       dma_addr_is_phys_addr(vdev->dev.parent);
 +}
-+#endif
 +
- #ifdef CONFIG_ARCH_HAS_SETUP_DMA_OPS
- void arch_setup_dma_ops(struct device *dev, u64 dma_base, u64 size,
- 		const struct iommu_ops *iommu, bool coherent);
-diff --git a/kernel/dma/Kconfig b/kernel/dma/Kconfig
-index 9decbba..6209b46 100644
---- a/kernel/dma/Kconfig
-+++ b/kernel/dma/Kconfig
-@@ -51,6 +51,9 @@ config ARCH_HAS_DMA_MMAP_PGPROT
- config ARCH_HAS_FORCE_DMA_UNENCRYPTED
- 	bool
- 
-+config ARCH_HAS_DMA_ADDR_IS_PHYS_ADDR
-+	bool
-+
- config DMA_NONCOHERENT_CACHE_SYNC
- 	bool
- 
+ static inline
+ struct virtqueue *virtio_find_single_vq(struct virtio_device *vdev,
+ 					vq_callback_t *c, const char *n)
 -- 
 1.8.3.1
