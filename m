@@ -1,14 +1,12 @@
-From: "Michael S. Tsirkin" <mst@redhat.com>
-Subject: [PATCH RFC v3 4/4] vhost/net: add an option to test new code
-Date: Sun, 13 Oct 2019 04:08:13 -0400
-Message-ID: <20191013080742.16211-5-mst__35907.191589807$1570954731$gmane$org@redhat.com>
-References: <20191013080742.16211-1-mst@redhat.com>
+From: Jan Kiszka <jan.kiszka@web.de>
+Subject: [PATCH] tools/virtio: Fix build
+Date: Sun, 13 Oct 2019 11:03:30 +0200
+Message-ID: <4b686914-075b-a0a9-c97b-9def82ee0336__49966.0782910482$1570957937$gmane$org@web.de>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-Content-Disposition: inline
-In-Reply-To: <20191013080742.16211-1-mst@redhat.com>
+Content-Language: en-US
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -18,84 +16,47 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: linux-kernel@vger.kernel.org
-Cc: netdev@vger.kernel.org, kvm@vger.kernel.org, virtualization@lists.linux-foundation.org
+To: "Michael S. Tsirkin" <mst@redhat.com>, Jason Wang <jasowang@redhat.com>, "virtualization@lists.linux-foundation.org" <virtualization@lists.linux-foundation.org>
+Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
 List-Id: virtualization@lists.linuxfoundation.org
 
-Add a writeable module parameter that tests
-the new code. Note: no effort was made to ensure
-things work correctly if the parameter is changed
-while the device is open. Make sure to
-close the device before changing its value.
+From: Jan Kiszka <jan.kiszka@siemens.com>
 
-Signed-off-by: Michael S. Tsirkin <mst@redhat.com>
+Various changes in the recent kernel versions broke the build due to
+missing function and header stubs.
+
+Signed-off-by: Jan Kiszka <jan.kiszka@siemens.com>
 ---
- drivers/vhost/net.c | 32 +++++++++++++++++++++++++-------
- 1 file changed, 25 insertions(+), 7 deletions(-)
+ tools/virtio/crypto/hash.h       | 0
+ tools/virtio/linux/dma-mapping.h | 2 ++
+ tools/virtio/linux/kernel.h      | 2 ++
+ 3 files changed, 4 insertions(+)
+ create mode 100644 tools/virtio/crypto/hash.h
 
-diff --git a/drivers/vhost/net.c b/drivers/vhost/net.c
-index 1a2dd53caade..122b666ec1f2 100644
---- a/drivers/vhost/net.c
-+++ b/drivers/vhost/net.c
-@@ -35,6 +35,9 @@
- 
- #include "vhost.h"
- 
-+static int newcode = 0;
-+module_param(newcode, int, 0644);
+diff --git a/tools/virtio/crypto/hash.h b/tools/virtio/crypto/hash.h
+new file mode 100644
+index 000000000000..e69de29bb2d1
+diff --git a/tools/virtio/linux/dma-mapping.h b/tools/virtio/linux/dma-mapping.h
+index f91aeb5fe571..db96cb4bf877 100644
+--- a/tools/virtio/linux/dma-mapping.h
++++ b/tools/virtio/linux/dma-mapping.h
+@@ -29,4 +29,6 @@ enum dma_data_direction {
+ #define dma_unmap_single(...) do { } while (0)
+ #define dma_unmap_page(...) do { } while (0)
+
++#define dma_max_mapping_size(d)	0
 +
- static int experimental_zcopytx = 0;
- module_param(experimental_zcopytx, int, 0444);
- MODULE_PARM_DESC(experimental_zcopytx, "Enable Zero Copy TX;"
-@@ -565,8 +568,14 @@ static int vhost_net_tx_get_vq_desc(struct vhost_net *net,
- 	struct vhost_virtqueue *rvq = &rnvq->vq;
- 	struct vhost_virtqueue *tvq = &tnvq->vq;
- 
--	int r = vhost_get_vq_desc(tvq, tvq->iov, ARRAY_SIZE(tvq->iov),
--				  out_num, in_num, NULL, NULL);
-+	int r;
+ #endif
+diff --git a/tools/virtio/linux/kernel.h b/tools/virtio/linux/kernel.h
+index 6683b4a70b05..ccf321173210 100644
+--- a/tools/virtio/linux/kernel.h
++++ b/tools/virtio/linux/kernel.h
+@@ -141,4 +141,6 @@ static inline void free_page(unsigned long addr)
+ #define list_for_each_entry(a, b, c) while (0)
+ /* end of stubs */
+
++#define xen_domain() 0
 +
-+	if (newcode)
-+		r = vhost_get_vq_desc_batch(tvq, tvq->iov, ARRAY_SIZE(tvq->iov),
-+					    out_num, in_num, NULL, NULL);
-+	else
-+		r = vhost_get_vq_desc(tvq, tvq->iov, ARRAY_SIZE(tvq->iov),
-+				      out_num, in_num, NULL, NULL);
- 
- 	if (r == tvq->num && tvq->busyloop_timeout) {
- 		/* Flush batched packets first */
-@@ -575,8 +584,12 @@ static int vhost_net_tx_get_vq_desc(struct vhost_net *net,
- 
- 		vhost_net_busy_poll(net, rvq, tvq, busyloop_intr, false);
- 
--		r = vhost_get_vq_desc(tvq, tvq->iov, ARRAY_SIZE(tvq->iov),
--				      out_num, in_num, NULL, NULL);
-+		if (newcode)
-+			r = vhost_get_vq_desc_batch(tvq, tvq->iov, ARRAY_SIZE(tvq->iov),
-+						    out_num, in_num, NULL, NULL);
-+		else
-+			r = vhost_get_vq_desc(tvq, tvq->iov, ARRAY_SIZE(tvq->iov),
-+					      out_num, in_num, NULL, NULL);
- 	}
- 
- 	return r;
-@@ -1046,9 +1059,14 @@ static int get_rx_bufs(struct vhost_virtqueue *vq,
- 			r = -ENOBUFS;
- 			goto err;
- 		}
--		r = vhost_get_vq_desc(vq, vq->iov + seg,
--				      ARRAY_SIZE(vq->iov) - seg, &out,
--				      &in, log, log_num);
-+		if (newcode)
-+			r = vhost_get_vq_desc_batch(vq, vq->iov + seg,
-+						    ARRAY_SIZE(vq->iov) - seg, &out,
-+						    &in, log, log_num);
-+		else
-+			r = vhost_get_vq_desc(vq, vq->iov + seg,
-+					      ARRAY_SIZE(vq->iov) - seg, &out,
-+					      &in, log, log_num);
- 		if (unlikely(r < 0))
- 			goto err;
- 
--- 
-MST
+ #endif /* KERNEL_H */
+--
+2.16.4
