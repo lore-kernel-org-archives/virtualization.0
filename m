@@ -1,16 +1,13 @@
-From: Robin Murphy <robin.murphy@arm.com>
-Subject: Re: [PATCH 1/2] dma-mapping: Add dma_addr_is_phys_addr()
-Date: Mon, 14 Oct 2019 11:29:24 +0100
-Message-ID: <37609731-5539-b906-aa94-2ef0242795ac__15278.3168175787$1571049928$gmane$org@arm.com>
-References: <1570843519-8696-1-git-send-email-linuxram@us.ibm.com>
-	<1570843519-8696-2-git-send-email-linuxram@us.ibm.com>
-	<20191014045139.GN4080@umbus.fritz.box>
+From: Ard Biesheuvel <ard.biesheuvel@linaro.org>
+Subject: [PATCH 02/25] crypto: virtio - deal with unsupported input sizes
+Date: Mon, 14 Oct 2019 14:18:47 +0200
+Message-ID: <20191014121910.7264-3-ard.biesheuvel__31822.8367528476$1571056174$gmane$org@linaro.org>
+References: <20191014121910.7264-1-ard.biesheuvel@linaro.org>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"; Format="flowed"
+Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <20191014045139.GN4080@umbus.fritz.box>
-Content-Language: en-GB
+In-Reply-To: <20191014121910.7264-1-ard.biesheuvel@linaro.org>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -20,152 +17,62 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: David Gibson <david@gibson.dropbear.id.au>, Ram Pai <linuxram@us.ibm.com>
-Cc: andmike@us.ibm.com, b.zolnierkie@samsung.com, mpe@ellerman.id.au, aik@linux.ibm.com, linux-kernel@vger.kernel.org, virtualization@lists.linux-foundation.org, paulus@ozlabs.org, iommu@lists.linux-foundation.org, paul.burton@mips.com, benh@kernel.crashing.org, sukadev@linux.vnet.ibm.com, linuxppc-dev@lists.ozlabs.org, hch@lst.de, m.szyprowski@samsung.com
+To: linux-crypto@vger.kernel.org
+Cc: Ard Biesheuvel <ard.biesheuvel@linaro.org>, Herbert Xu <herbert@gondor.apana.org.au>, "Michael S. Tsirkin" <mst@redhat.com>, Eric Biggers <ebiggers@google.com>, virtualization@lists.linux-foundation.org, "David S. Miller" <davem@davemloft.net>, linux-arm-kernel@lists.infradead.org
 List-Id: virtualization@lists.linuxfoundation.org
 
-On 14/10/2019 05:51, David Gibson wrote:
-> On Fri, Oct 11, 2019 at 06:25:18PM -0700, Ram Pai wrote:
->> From: Thiago Jung Bauermann <bauerman@linux.ibm.com>
->>
->> In order to safely use the DMA API, virtio needs to know whether DMA
->> addresses are in fact physical addresses and for that purpose,
->> dma_addr_is_phys_addr() is introduced.
->>
->> cc: Benjamin Herrenschmidt <benh@kernel.crashing.org>
->> cc: David Gibson <david@gibson.dropbear.id.au>
->> cc: Michael Ellerman <mpe@ellerman.id.au>
->> cc: Paul Mackerras <paulus@ozlabs.org>
->> cc: Michael Roth <mdroth@linux.vnet.ibm.com>
->> cc: Alexey Kardashevskiy <aik@linux.ibm.com>
->> cc: Paul Burton <paul.burton@mips.com>
->> cc: Robin Murphy <robin.murphy@arm.com>
->> cc: Bartlomiej Zolnierkiewicz <b.zolnierkie@samsung.com>
->> cc: Marek Szyprowski <m.szyprowski@samsung.com>
->> cc: Christoph Hellwig <hch@lst.de>
->> Suggested-by: Michael S. Tsirkin <mst@redhat.com>
->> Signed-off-by: Ram Pai <linuxram@us.ibm.com>
->> Signed-off-by: Thiago Jung Bauermann <bauerman@linux.ibm.com>
-> 
-> The change itself looks ok, so
-> 
-> Reviewed-by: David Gibson <david@gibson.dropbear.id.au>
-> 
-> However, I would like to see the commit message (and maybe the inline
-> comments) expanded a bit on what the distinction here is about.  Some
-> of the text from the next patch would be suitable, about DMA addresses
-> usually being in a different address space but not in the case of
-> bounce buffering.
+Return -EINVAL for input sizes that are not a multiple of the AES
+block size, since they are not supported by our CBC chaining mode.
 
-Right, this needs a much tighter definition. "DMA address happens to be 
-a valid physical address" is true of various IOMMU setups too, but I 
-can't believe it's meaningful in such cases.
+While at it, remove the pr_err() that reports unsupported key sizes
+being used: we shouldn't spam the kernel log with that.
 
-If what you actually want is "DMA is direct or SWIOTLB" - i.e. "DMA 
-address is physical address of DMA data (not necessarily the original 
-buffer)" - wouldn't dma_is_direct() suffice?
+Fixes: dbaf0624ffa5 ("crypto: add virtio-crypto driver")
+Cc: "Michael S. Tsirkin" <mst@redhat.com>
+Cc: Jason Wang <jasowang@redhat.com>
+Cc: Gonglei <arei.gonglei@huawei.com>
+Cc: virtualization@lists.linux-foundation.org
+Signed-off-by: Ard Biesheuvel <ard.biesheuvel@linaro.org>
+---
+ drivers/crypto/virtio/virtio_crypto_algs.c | 12 ++++++++++--
+ 1 file changed, 10 insertions(+), 2 deletions(-)
 
-Robin.
-
->> ---
->>   arch/powerpc/include/asm/dma-mapping.h | 21 +++++++++++++++++++++
->>   arch/powerpc/platforms/pseries/Kconfig |  1 +
->>   include/linux/dma-mapping.h            | 20 ++++++++++++++++++++
->>   kernel/dma/Kconfig                     |  3 +++
->>   4 files changed, 45 insertions(+)
->>
->> diff --git a/arch/powerpc/include/asm/dma-mapping.h b/arch/powerpc/include/asm/dma-mapping.h
->> index 565d6f7..f92c0a4b 100644
->> --- a/arch/powerpc/include/asm/dma-mapping.h
->> +++ b/arch/powerpc/include/asm/dma-mapping.h
->> @@ -5,6 +5,8 @@
->>   #ifndef _ASM_DMA_MAPPING_H
->>   #define _ASM_DMA_MAPPING_H
->>   
->> +#include <asm/svm.h>
->> +
->>   static inline const struct dma_map_ops *get_arch_dma_ops(struct bus_type *bus)
->>   {
->>   	/* We don't handle the NULL dev case for ISA for now. We could
->> @@ -15,4 +17,23 @@ static inline const struct dma_map_ops *get_arch_dma_ops(struct bus_type *bus)
->>   	return NULL;
->>   }
->>   
->> +#ifdef CONFIG_ARCH_HAS_DMA_ADDR_IS_PHYS_ADDR
->> +/**
->> + * dma_addr_is_phys_addr - check whether a device DMA address is a physical
->> + *		address
->> + * @dev:	device to check
->> + *
->> + * Returns %true if any DMA address for this device happens to also be a valid
->> + * physical address (not necessarily of the same page).
->> + */
->> +static inline bool dma_addr_is_phys_addr(struct device *dev)
->> +{
->> +	/*
->> +	 * Secure guests always use the SWIOTLB, therefore DMA addresses are
->> +	 * actually the physical address of the bounce buffer.
->> +	 */
->> +	return is_secure_guest();
->> +}
->> +#endif
->> +
->>   #endif	/* _ASM_DMA_MAPPING_H */
->> diff --git a/arch/powerpc/platforms/pseries/Kconfig b/arch/powerpc/platforms/pseries/Kconfig
->> index 9e35cdd..0108150 100644
->> --- a/arch/powerpc/platforms/pseries/Kconfig
->> +++ b/arch/powerpc/platforms/pseries/Kconfig
->> @@ -152,6 +152,7 @@ config PPC_SVM
->>   	select SWIOTLB
->>   	select ARCH_HAS_MEM_ENCRYPT
->>   	select ARCH_HAS_FORCE_DMA_UNENCRYPTED
->> +	select ARCH_HAS_DMA_ADDR_IS_PHYS_ADDR
->>   	help
->>   	 There are certain POWER platforms which support secure guests using
->>   	 the Protected Execution Facility, with the help of an Ultravisor
->> diff --git a/include/linux/dma-mapping.h b/include/linux/dma-mapping.h
->> index f7d1eea..6df5664 100644
->> --- a/include/linux/dma-mapping.h
->> +++ b/include/linux/dma-mapping.h
->> @@ -693,6 +693,26 @@ static inline bool dma_addressing_limited(struct device *dev)
->>   			    dma_get_required_mask(dev);
->>   }
->>   
->> +#ifndef CONFIG_ARCH_HAS_DMA_ADDR_IS_PHYS_ADDR
->> +/**
->> + * dma_addr_is_phys_addr - check whether a device DMA address is a physical
->> + *		address
->> + * @dev:	device to check
->> + *
->> + * Returns %true if any DMA address for this device happens to also be a valid
->> + * physical address (not necessarily of the same page).
->> + */
->> +static inline bool dma_addr_is_phys_addr(struct device *dev)
->> +{
->> +	/*
->> +	 * Except in very specific setups, DMA addresses exist in a different
->> +	 * address space from CPU physical addresses and cannot be directly used
->> +	 * to reference system memory.
->> +	 */
->> +	return false;
->> +}
->> +#endif
->> +
->>   #ifdef CONFIG_ARCH_HAS_SETUP_DMA_OPS
->>   void arch_setup_dma_ops(struct device *dev, u64 dma_base, u64 size,
->>   		const struct iommu_ops *iommu, bool coherent);
->> diff --git a/kernel/dma/Kconfig b/kernel/dma/Kconfig
->> index 9decbba..6209b46 100644
->> --- a/kernel/dma/Kconfig
->> +++ b/kernel/dma/Kconfig
->> @@ -51,6 +51,9 @@ config ARCH_HAS_DMA_MMAP_PGPROT
->>   config ARCH_HAS_FORCE_DMA_UNENCRYPTED
->>   	bool
->>   
->> +config ARCH_HAS_DMA_ADDR_IS_PHYS_ADDR
->> +	bool
->> +
->>   config DMA_NONCOHERENT_CACHE_SYNC
->>   	bool
->>   
-> 
+diff --git a/drivers/crypto/virtio/virtio_crypto_algs.c b/drivers/crypto/virtio/virtio_crypto_algs.c
+index 65ec10800137..82b316b2f537 100644
+--- a/drivers/crypto/virtio/virtio_crypto_algs.c
++++ b/drivers/crypto/virtio/virtio_crypto_algs.c
+@@ -105,8 +105,6 @@ virtio_crypto_alg_validate_key(int key_len, uint32_t *alg)
+ 		*alg = VIRTIO_CRYPTO_CIPHER_AES_CBC;
+ 		break;
+ 	default:
+-		pr_err("virtio_crypto: Unsupported key length: %d\n",
+-			key_len);
+ 		return -EINVAL;
+ 	}
+ 	return 0;
+@@ -489,6 +487,11 @@ static int virtio_crypto_ablkcipher_encrypt(struct ablkcipher_request *req)
+ 	/* Use the first data virtqueue as default */
+ 	struct data_queue *data_vq = &vcrypto->data_vq[0];
+ 
++	if (!req->nbytes)
++		return 0;
++	if (req->nbytes % AES_BLOCK_SIZE)
++		return -EINVAL;
++
+ 	vc_req->dataq = data_vq;
+ 	vc_req->alg_cb = virtio_crypto_dataq_sym_callback;
+ 	vc_sym_req->ablkcipher_ctx = ctx;
+@@ -509,6 +512,11 @@ static int virtio_crypto_ablkcipher_decrypt(struct ablkcipher_request *req)
+ 	/* Use the first data virtqueue as default */
+ 	struct data_queue *data_vq = &vcrypto->data_vq[0];
+ 
++	if (!req->nbytes)
++		return 0;
++	if (req->nbytes % AES_BLOCK_SIZE)
++		return -EINVAL;
++
+ 	vc_req->dataq = data_vq;
+ 	vc_req->alg_cb = virtio_crypto_dataq_sym_callback;
+ 	vc_sym_req->ablkcipher_ctx = ctx;
+-- 
+2.20.1
