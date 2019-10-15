@@ -1,12 +1,14 @@
-From: Stefan Hajnoczi <stefanha@gmail.com>
-Subject: Re: [PATCH V3 0/7] mdev based hardware virtio offloading support
-Date: Mon, 14 Oct 2019 18:49:46 +0100
-Message-ID: <20191014174946.GC5359__9401.13268313638$1571075541$gmane$org@stefanha-x1.localdomain>
-References: <20191011081557.28302-1-jasowang@redhat.com>
+From: Jason Wang <jasowang@redhat.com>
+Subject: Re: [PATCH RFC v4 0/5] vhost: ring format independence
+Date: Tue, 15 Oct 2019 10:58:13 +0800
+Message-ID: <6c54460c-d958-78fb-cd6e-eac97cc2c00f__45099.4520726212$1571108314$gmane$org@redhat.com>
+References: <20191013113940.2863-1-mst@redhat.com>
 Mime-Version: 1.0
-Content-Type: multipart/mixed; boundary="===============6480184366919298761=="
+Content-Type: text/plain; charset="utf-8"; Format="flowed"
+Content-Transfer-Encoding: base64
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <20191011081557.28302-1-jasowang@redhat.com>
+In-Reply-To: <20191013113940.2863-1-mst@redhat.com>
+Content-Language: en-US
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -16,82 +18,44 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Jason Wang <jasowang@redhat.com>
-Cc: christophe.de.dinechin@gmail.com, kvm@vger.kernel.org, mst@redhat.com, airlied@linux.ie, joonas.lahtinen@linux.intel.com, heiko.carstens@de.ibm.com, dri-devel@lists.freedesktop.org, virtualization@lists.linux-foundation.org, kwankhede@nvidia.com, rob.miller@broadcom.com, linux-s390@vger.kernel.org, sebott@linux.ibm.com, lulu@redhat.com, eperezma@redhat.com, pasic@linux.ibm.com, borntraeger@de.ibm.com, haotian.wang@sifive.com, zhi.a.wang@intel.com, farman@linux.ibm.com, idos@mellanox.com, gor@linux.ibm.com, intel-gfx@lists.freedesktop.org, jani.nikula@linux.intel.com, xiao.w.wang@intel.com, freude@linux.ibm.com, zhenyuw@linux.intel.com, parav@mellanox.com, zhihong.wang@intel.com, rodrigo.vivi@intel.com, intel-gvt-dev@lists.freedesktop.org, akrowiak@linux.ibm.com, oberpar@linux.ibm.com, netdev@vger.kernel.org, cohuck@redhat.com, linux-kernel@vger.kernel.org, maxime.coque
+To: "Michael S. Tsirkin" <mst@redhat.com>, linux-kernel@vger.kernel.org
+Cc: netdev@vger.kernel.org, kvm@vger.kernel.org, virtualization@lists.linux-foundation.org
 List-Id: virtualization@lists.linuxfoundation.org
 
-
---===============6480184366919298761==
-Content-Type: multipart/signed; micalg=pgp-sha256;
-	protocol="application/pgp-signature"; boundary="XMCwj5IQnwKtuyBG"
-Content-Disposition: inline
-
-
---XMCwj5IQnwKtuyBG
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
-
-On Fri, Oct 11, 2019 at 04:15:50PM +0800, Jason Wang wrote:
-> There are hardware that can do virtio datapath offloading while having
-> its own control path. This path tries to implement a mdev based
-> unified API to support using kernel virtio driver to drive those
-> devices. This is done by introducing a new mdev transport for virtio
-> (virtio_mdev) and register itself as a new kind of mdev driver. Then
-> it provides a unified way for kernel virtio driver to talk with mdev
-> device implementation.
->=20
-> Though the series only contains kernel driver support, the goal is to
-> make the transport generic enough to support userspace drivers. This
-> means vhost-mdev[1] could be built on top as well by resuing the
-> transport.
->=20
-> A sample driver is also implemented which simulate a virito-net
-> loopback ethernet device on top of vringh + workqueue. This could be
-> used as a reference implementation for real hardware driver.
->=20
-> Consider mdev framework only support VFIO device and driver right now,
-> this series also extend it to support other types. This is done
-> through introducing class id to the device and pairing it with
-> id_talbe claimed by the driver. On top, this seris also decouple
-> device specific parents ops out of the common ones.
-
-I was curious so I took a quick look and posted comments.
-
-I guess this driver runs inside the guest since it registers virtio
-devices?
-
-If this is used with physical PCI devices that support datapath
-offloading then how are physical devices presented to the guest without
-SR-IOV?
-
-Stefan
-
---XMCwj5IQnwKtuyBG
-Content-Type: application/pgp-signature; name="signature.asc"
-
------BEGIN PGP SIGNATURE-----
-
-iQEzBAEBCAAdFiEEhpWov9P5fNqsNXdanKSrs4Grc8gFAl2ktToACgkQnKSrs4Gr
-c8jgRgf/WWO5uJxyZLwosUbr+PGHcqci4COe1VGy3Aveab34yl0NQekiPT6CEG5k
-PLqiRN9UlPXnMq5H6tsIptfG1mBTxJpF0H7FVRGvwKnV+NizCllURp1Eb1y6ucTd
-j3Rg8JZAwDCdJsZ8d2o4JXQKv9CIavomjp0ZQNIdRiKJ8gOueiWydBgCOSO/l0dh
-t/YI7ENprVpSg56pZba9Y3eueA6Gt4oSfHZbgtQWXBueHkyN90em9JoDAktAOu1m
-PZAQykFnCUGV7RwfK2jUW+WIgh8mSrhu36zoyl9OAASnmHeiMBCTqpvHTKzRH180
-fEnf2WwIaOxFvEnbfxu/3ljKyhjEaA==
-=X6sM
------END PGP SIGNATURE-----
-
---XMCwj5IQnwKtuyBG--
-
---===============6480184366919298761==
-Content-Type: text/plain; charset="us-ascii"
-MIME-Version: 1.0
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-
-_______________________________________________
-Virtualization mailing list
-Virtualization@lists.linux-foundation.org
-https://lists.linuxfoundation.org/mailman/listinfo/virtualization
---===============6480184366919298761==--
+Ck9uIDIwMTkvMTAvMTMg5LiL5Y2INzo0MSwgTWljaGFlbCBTLiBUc2lya2luIHdyb3RlOgo+IFRo
+aXMgYWRkcyBpbmZyYXN0cnVjdHVyZSByZXF1aXJlZCBmb3Igc3VwcG9ydGluZwo+IG11bHRpcGxl
+IHJpbmcgZm9ybWF0cy4KPgo+IFRoZSBpZGVhIGlzIGFzIGZvbGxvd3M6IHdlIGNvbnZlcnQgZGVz
+Y3JpcHRvcnMgdG8gYW4KPiBpbmRlcGVuZGVudCBmb3JtYXQgZmlyc3QsIGFuZCBwcm9jZXNzIHRo
+YXQgY29udmVydGluZyB0bwo+IGlvdiBsYXRlci4KPgo+IFRoZSBwb2ludCBpcyB0aGF0IHdlIGhh
+dmUgYSB0aWdodCBsb29wIHRoYXQgZmV0Y2hlcwo+IGRlc2NyaXB0b3JzLCB3aGljaCBpcyBnb29k
+IGZvciBjYWNoZSB1dGlsaXphdGlvbi4KPiBUaGlzIHdpbGwgYWxzbyBhbGxvdyBhbGwga2luZCBv
+ZiBiYXRjaGluZyB0cmlja3MgLQo+IGUuZy4gaXQgc2VlbXMgcG9zc2libGUgdG8ga2VlcCBTTUFQ
+IGRpc2FibGVkIHdoaWxlCj4gd2UgYXJlIGZldGNoaW5nIG11bHRpcGxlIGRlc2NyaXB0b3JzLgo+
+Cj4gVGhpcyBzZWVtcyB0byBwZXJmb3JtIGV4YWN0bHkgdGhlIHNhbWUgYXMgdGhlIG9yaWdpbmFs
+Cj4gY29kZSBhbHJlYWR5IGJhc2VkIG9uIGEgbWljcm9iZW5jaG1hcmsuCj4gTGlnaHRseSB0ZXN0
+ZWQuCj4gTW9yZSB0ZXN0aW5nIHdvdWxkIGJlIHZlcnkgbXVjaCBhcHByZWNpYXRlZC4KPgo+IFRv
+IHVzZSBuZXcgY29kZToKPiAJZWNobyAxID4gL3N5cy9tb2R1bGUvdmhvc3RfdGVzdC9wYXJhbWV0
+ZXJzL25ld2NvZGUKPiBvcgo+IAllY2hvIDEgPiAvc3lzL21vZHVsZS92aG9zdF9uZXQvcGFyYW1l
+dGVycy9uZXdjb2RlCj4KPiBjaGFuZ2VzIGZyb20gdjM6Cj4gICAgICAgICAgLSBmaXhlZCBlcnJv
+ciBoYW5kbGluZyBpbiBjYXNlIG9mIGluZGlyZWN0IGRlc2NyaXB0b3JzCj4gICAgICAgICAgLSBh
+ZGQgQlVHX09OIHRvIGRldGVjdCBidWZmZXIgb3ZlcmZsb3cgaW4gY2FzZSBvZiBidWdzCj4gICAg
+ICAgICAgICAgICAgICBpbiByZXNwb25zZSB0byBjb21tZW50IGJ5IEphc29uIFdhbmcKPiAgICAg
+ICAgICAtIG1pbm9yIGNvZGUgdHdlYWtzCj4KPiBDaGFuZ2VzIGZyb20gdjI6Cj4gCS0gZml4ZWQg
+aW5kaXJlY3QgZGVzY3JpcHRvciBiYXRjaGluZwo+ICAgICAgICAgICAgICAgICAgcmVwb3J0ZWQg
+YnkgSmFzb24gV2FuZwo+Cj4gQ2hhbmdlcyBmcm9tIHYxOgo+IAktIHR5cG8gZml4ZXMKCgpJJ3Zl
+IGp1c3QgZG9uZSBzb21lIHF1aWNrIGJlbmNobWFyayB3aXRoIHRlc3RwbWQgKyB2aG9zdF9uZXQg
+dHhvbmx5LgoKV2l0aCAyNTYgcXVldWUgc2l6ZSwgbm8gZGlmZmVyZW5jZSBidXQgaW4gMTAyNCBx
+dWV1ZSBzaXplIDElIHJlZ3Jlc3Npb24gCm9mIFBQUyB3ZXJlIGZvdW5kLgoKVGhhbmtzCgoKPgo+
+Cj4gTWljaGFlbCBTLiBUc2lya2luICg1KToKPiAgICB2aG9zdDogb3B0aW9uIHRvIGZldGNoIGRl
+c2NyaXB0b3JzIHRocm91Z2ggYW4gaW5kZXBlbmRlbnQgc3RydWN0Cj4gICAgdmhvc3QvdGVzdDog
+YWRkIGFuIG9wdGlvbiB0byB0ZXN0IG5ldyBjb2RlCj4gICAgdmhvc3Q6IGJhdGNoaW5nIGZldGNo
+ZXMKPiAgICB2aG9zdC9uZXQ6IGFkZCBhbiBvcHRpb24gdG8gdGVzdCBuZXcgY29kZQo+ICAgIHZo
+b3N0OiBsYXN0IGRlc2NyaXB0b3IgbXVzdCBoYXZlIE5FWFQgY2xlYXIKPgo+ICAgZHJpdmVycy92
+aG9zdC9uZXQuYyAgIHwgIDMyICsrKystCj4gICBkcml2ZXJzL3Zob3N0L3Rlc3QuYyAgfCAgMTkg
+KystCj4gICBkcml2ZXJzL3Zob3N0L3Zob3N0LmMgfCAzMjggKysrKysrKysrKysrKysrKysrKysr
+KysrKysrKysrKysrKysrKysrKystCj4gICBkcml2ZXJzL3Zob3N0L3Zob3N0LmggfCAgMjAgKyst
+Cj4gICA0IGZpbGVzIGNoYW5nZWQsIDM4NSBpbnNlcnRpb25zKCspLCAxNCBkZWxldGlvbnMoLSkK
+PgpfX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fXwpWaXJ0dWFs
+aXphdGlvbiBtYWlsaW5nIGxpc3QKVmlydHVhbGl6YXRpb25AbGlzdHMubGludXgtZm91bmRhdGlv
+bi5vcmcKaHR0cHM6Ly9saXN0cy5saW51eGZvdW5kYXRpb24ub3JnL21haWxtYW4vbGlzdGluZm8v
+dmlydHVhbGl6YXRpb24=
