@@ -1,16 +1,16 @@
-From: Stefan Hajnoczi <stefanha@redhat.com>
-Subject: Re: [PATCH net 0/2] vsock: don't allow half-closed socket in the
-	host transports
-Date: Tue, 15 Oct 2019 12:56:37 +0100
-Message-ID: <20191015115637.GA1346__22709.1503840469$1571140616$gmane$org@stefanha-x1.localdomain>
-References: <20191011130758.22134-1-sgarzare@redhat.com>
-	<20191011101408-mutt-send-email-mst@kernel.org>
-	<20191011143457.4ujt3gg7oxco6gld@steredhat>
-	<20191012183838-mutt-send-email-mst@kernel.org>
+From: Jason Wang <jasowang@redhat.com>
+Subject: Re: [PATCH V3 1/7] mdev: class id support
+Date: Tue, 15 Oct 2019 20:12:33 +0800
+Message-ID: <084c7e28-8578-51f3-7b31-2231de8c636d__5059.3839537882$1571141594$gmane$org@redhat.com>
+References: <20191011081557.28302-1-jasowang@redhat.com>
+	<20191011081557.28302-2-jasowang@redhat.com>
+	<20191015122607.126e3960.cohuck@redhat.com>
 Mime-Version: 1.0
-Content-Type: multipart/mixed; boundary="===============7560174157302438320=="
+Content-Type: text/plain; charset="utf-8"; Format="flowed"
+Content-Transfer-Encoding: base64
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <20191012183838-mutt-send-email-mst@kernel.org>
+In-Reply-To: <20191015122607.126e3960.cohuck@redhat.com>
+Content-Language: en-US
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -20,110 +20,72 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: "Michael S. Tsirkin" <mst@redhat.com>
-Cc: kvm@vger.kernel.org, netdev@vger.kernel.org, linux-kernel@vger.kernel.org, virtualization@lists.linux-foundation.org, Adit Ranadive <aditr@vmware.com>, "David S. Miller" <davem@davemloft.net>, Jorgen Hansen <jhansen@vmware.com>, Stefano Garzarella <sgarzare@redhat.com>
+To: Cornelia Huck <cohuck@redhat.com>
+Cc: christophe.de.dinechin@gmail.com, kvm@vger.kernel.org, mst@redhat.com, airlied@linux.ie, joonas.lahtinen@linux.intel.com, heiko.carstens@de.ibm.com, dri-devel@lists.freedesktop.org, virtualization@lists.linux-foundation.org, kwankhede@nvidia.com, rob.miller@broadcom.com, linux-s390@vger.kernel.org, sebott@linux.ibm.com, lulu@redhat.com, eperezma@redhat.com, pasic@linux.ibm.com, borntraeger@de.ibm.com, haotian.wang@sifive.com, zhi.a.wang@intel.com, farman@linux.ibm.com, idos@mellanox.com, gor@linux.ibm.com, intel-gfx@lists.freedesktop.org, jani.nikula@linux.intel.com, xiao.w.wang@intel.com, freude@linux.ibm.com, zhenyuw@linux.intel.com, parav@mellanox.com, zhihong.wang@intel.com, rodrigo.vivi@intel.com, intel-gvt-dev@lists.freedesktop.org, akrowiak@linux.ibm.com, oberpar@linux.ibm.com, netdev@vger.kernel.org, linux-kernel@vger.kernel.org, maxime.coquelin@redhat.comda
 List-Id: virtualization@lists.linuxfoundation.org
 
-
---===============7560174157302438320==
-Content-Type: multipart/signed; micalg=pgp-sha256;
-	protocol="application/pgp-signature"; boundary="CE+1k2dSO48ffgeK"
-Content-Disposition: inline
-
-
---CE+1k2dSO48ffgeK
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
-
-On Sat, Oct 12, 2019 at 06:38:46PM -0400, Michael S. Tsirkin wrote:
-> On Fri, Oct 11, 2019 at 04:34:57PM +0200, Stefano Garzarella wrote:
-> > On Fri, Oct 11, 2019 at 10:19:13AM -0400, Michael S. Tsirkin wrote:
-> > > On Fri, Oct 11, 2019 at 03:07:56PM +0200, Stefano Garzarella wrote:
-> > > > We are implementing a test suite for the VSOCK sockets and we disco=
-vered
-> > > > that vmci_transport never allowed half-closed socket on the host si=
-de.
-> > > >=20
-> > > > As Jorgen explained [1] this is due to the implementation of VMCI.
-> > > >=20
-> > > > Since we want to have the same behaviour across all transports, this
-> > > > series adds a section in the "Implementation notes" to exaplain this
-> > > > behaviour, and changes the vhost_transport to behave the same way.
-> > > >=20
-> > > > [1] https://patchwork.ozlabs.org/cover/847998/#1831400
-> > >=20
-> > > Half closed sockets are very useful, and lots of
-> > > applications use tricks to swap a vsock for a tcp socket,
-> > > which might as a result break.
-> >=20
-> > Got it!
-> >=20
-> > >=20
-> > > If VMCI really cares it can implement an ioctl to
-> > > allow applications to detect that half closed sockets aren't supporte=
-d.
-> > >=20
-> > > It does not look like VMCI wants to bother (users do not read
-> > > kernel implementation notes) so it does not really care.
-> > > So why do we want to cripple other transports intentionally?
-> >=20
-> > The main reason is that we are developing the test suite and we noticed
-> > the miss match. Since we want to make sure that applications behave in
-> > the same way on different transports, we thought we would solve it that
-> > way.
-> >=20
-> > But what you are saying (also in the reply of the patches) is actually
-> > quite right. Not being publicized, applications do not expect this beha=
-vior,
-> > so please discard this series.
-> >=20
-> > My problem during the tests, was trying to figure out if half-closed
-> > sockets were supported or not, so as you say adding an IOCTL or maybe
-> > better a getsockopt() could solve the problem.
-> >=20
-> > What do you think?
-> >=20
-> > Thanks,
-> > Stefano
->=20
-> Sure, why not.
-
-The aim is for applications using AF_VSOCK sockets to run on any
-transport.  When the semantics differ between transports it creates a
-compatibility problem.
-
-That said, I do think keeping the standard sockets behavior is
-reasonable.  If applications have problems on VMCI a sockopt may be
-necessary :(.
-
-Stefan
-
---CE+1k2dSO48ffgeK
-Content-Type: application/pgp-signature; name="signature.asc"
-
------BEGIN PGP SIGNATURE-----
-
-iQEzBAEBCAAdFiEEhpWov9P5fNqsNXdanKSrs4Grc8gFAl2ls/UACgkQnKSrs4Gr
-c8hXfQf8DmC3BVfNYClaxCwUaQbqYFilievM4mTXLUF9Hf5yhcrEeaXDL3MDuzba
-vCMXFtTonmxmoMMRYtU+HmWKQP/02aBLgym3JOuiedb8QADkYIhPo1xtppIeC43U
-D9G+/UzHiVKOfHm2XmVpjdOGbY4xmD/J6qAOPKlFdju2ateq5Bj8AawcuuXmMewK
-ZuwZiIDK3GditH12SUl2PA9u10321wXpIhjZ5MeydxSviL91A0HN5xfwJxwxZmlR
-ddc+4gBPdGWmz5XpDutchJ4mQbcc4NA6nUvzBG43+0JhhQiAR8nvzPlTcN4mTQmw
-oGdDYLLcMdYh3HG0E6UrCOwaRlB0DQ==
-=2zm7
------END PGP SIGNATURE-----
-
---CE+1k2dSO48ffgeK--
-
---===============7560174157302438320==
-Content-Type: text/plain; charset="us-ascii"
-MIME-Version: 1.0
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-
-_______________________________________________
-Virtualization mailing list
-Virtualization@lists.linux-foundation.org
-https://lists.linuxfoundation.org/mailman/listinfo/virtualization
---===============7560174157302438320==--
+Ck9uIDIwMTkvMTAvMTUg5LiL5Y2INjoyNiwgQ29ybmVsaWEgSHVjayB3cm90ZToKPiBPbiBGcmks
+IDExIE9jdCAyMDE5IDE2OjE1OjUxICswODAwCj4gSmFzb24gV2FuZyA8amFzb3dhbmdAcmVkaGF0
+LmNvbT4gd3JvdGU6Cj4KPj4gTWRldiBidXMgb25seSBzdXBwb3J0cyB2ZmlvIGRyaXZlciByaWdo
+dCBub3csIHNvIGl0IGRvZXNuJ3QgaW1wbGVtZW50Cj4+IG1hdGNoIG1ldGhvZC4gQnV0IGluIHRo
+ZSBmdXR1cmUsIHdlIG1heSBhZGQgZHJpdmVycyBvdGhlciB0aGFuIHZmaW8sCj4+IHRoZSBmaXJz
+dCBkcml2ZXIgY291bGQgYmUgdmlydGlvLW1kZXYuIFRoaXMgbWVhbnMgd2UgbmVlZCB0byBhZGQK
+Pj4gZGV2aWNlIGNsYXNzIGlkIHN1cHBvcnQgaW4gYnVzIG1hdGNoIG1ldGhvZCB0byBwYWlyIHRo
+ZSBtZGV2IGRldmljZQo+PiBhbmQgbWRldiBkcml2ZXIgY29ycmVjdGx5Lgo+Pgo+PiBTbyB0aGlz
+IHBhdGNoIGFkZHMgaWRfdGFibGUgdG8gbWRldl9kcml2ZXIgYW5kIGNsYXNzX2lkIGZvciBtZGV2
+Cj4+IGRldmljZSB3aXRoIHRoZSBtYXRjaCBtZXRob2QgZm9yIG1kZXYgYnVzLgo+Pgo+PiBTaWdu
+ZWQtb2ZmLWJ5OiBKYXNvbiBXYW5nIDxqYXNvd2FuZ0ByZWRoYXQuY29tPgo+PiAtLS0KPj4gICBE
+b2N1bWVudGF0aW9uL2RyaXZlci1hcGkvdmZpby1tZWRpYXRlZC1kZXZpY2UucnN0IHwgIDcgKysr
+KysrLQo+PiAgIGRyaXZlcnMvZ3B1L2RybS9pOTE1L2d2dC9rdm1ndC5jICAgICAgICAgICAgICAg
+ICAgfCAgMSArCj4+ICAgZHJpdmVycy9zMzkwL2Npby92ZmlvX2Njd19vcHMuYyAgICAgICAgICAg
+ICAgICAgICB8ICAxICsKPj4gICBkcml2ZXJzL3MzOTAvY3J5cHRvL3ZmaW9fYXBfb3BzLmMgICAg
+ICAgICAgICAgICAgIHwgIDEgKwo+PiAgIGRyaXZlcnMvdmZpby9tZGV2L21kZXZfY29yZS5jICAg
+ICAgICAgICAgICAgICAgICAgfCAxMSArKysrKysrKysrKwo+PiAgIGRyaXZlcnMvdmZpby9tZGV2
+L21kZXZfZHJpdmVyLmMgICAgICAgICAgICAgICAgICAgfCAxNCArKysrKysrKysrKysrKwo+PiAg
+IGRyaXZlcnMvdmZpby9tZGV2L21kZXZfcHJpdmF0ZS5oICAgICAgICAgICAgICAgICAgfCAgMSAr
+Cj4+ICAgZHJpdmVycy92ZmlvL21kZXYvdmZpb19tZGV2LmMgICAgICAgICAgICAgICAgICAgICB8
+ICA2ICsrKysrKwo+PiAgIGluY2x1ZGUvbGludXgvbWRldi5oICAgICAgICAgICAgICAgICAgICAg
+ICAgICAgICAgfCAgOCArKysrKysrKwo+PiAgIGluY2x1ZGUvbGludXgvbW9kX2RldmljZXRhYmxl
+LmggICAgICAgICAgICAgICAgICAgfCAgOCArKysrKysrKwo+PiAgIHNhbXBsZXMvdmZpby1tZGV2
+L21ib2Nocy5jICAgICAgICAgICAgICAgICAgICAgICAgfCAgMSArCj4+ICAgc2FtcGxlcy92Zmlv
+LW1kZXYvbWRweS5jICAgICAgICAgICAgICAgICAgICAgICAgICB8ICAxICsKPj4gICBzYW1wbGVz
+L3ZmaW8tbWRldi9tdHR5LmMgICAgICAgICAgICAgICAgICAgICAgICAgIHwgIDEgKwo+PiAgIDEz
+IGZpbGVzIGNoYW5nZWQsIDYwIGluc2VydGlvbnMoKyksIDEgZGVsZXRpb24oLSkKPj4KPj4gZGlm
+ZiAtLWdpdCBhL0RvY3VtZW50YXRpb24vZHJpdmVyLWFwaS92ZmlvLW1lZGlhdGVkLWRldmljZS5y
+c3QgYi9Eb2N1bWVudGF0aW9uL2RyaXZlci1hcGkvdmZpby1tZWRpYXRlZC1kZXZpY2UucnN0Cj4+
+IGluZGV4IDI1ZWI3ZDViODM0Yi4uMjAzNWU0OGRhN2IyIDEwMDY0NAo+PiAtLS0gYS9Eb2N1bWVu
+dGF0aW9uL2RyaXZlci1hcGkvdmZpby1tZWRpYXRlZC1kZXZpY2UucnN0Cj4+ICsrKyBiL0RvY3Vt
+ZW50YXRpb24vZHJpdmVyLWFwaS92ZmlvLW1lZGlhdGVkLWRldmljZS5yc3QKPj4gQEAgLTEwMiwx
+MiArMTAyLDE0IEBAIHN0cnVjdHVyZSB0byByZXByZXNlbnQgYSBtZWRpYXRlZCBkZXZpY2UncyBk
+cml2ZXI6Ogo+PiAgICAgICAgICogQHByb2JlOiBjYWxsZWQgd2hlbiBuZXcgZGV2aWNlIGNyZWF0
+ZWQKPj4gICAgICAgICAqIEByZW1vdmU6IGNhbGxlZCB3aGVuIGRldmljZSByZW1vdmVkCj4+ICAg
+ICAgICAgKiBAZHJpdmVyOiBkZXZpY2UgZHJpdmVyIHN0cnVjdHVyZQo+PiArICAgICAgKiBAaWRf
+dGFibGU6IHRoZSBpZHMgc2VydmljZWQgYnkgdGhpcyBkcml2ZXIKPj4gICAgICAgICAqLwo+PiAg
+ICAgICAgc3RydWN0IG1kZXZfZHJpdmVyIHsKPj4gICAJICAgICBjb25zdCBjaGFyICpuYW1lOwo+
+PiAgIAkgICAgIGludCAgKCpwcm9iZSkgIChzdHJ1Y3QgZGV2aWNlICpkZXYpOwo+PiAgIAkgICAg
+IHZvaWQgKCpyZW1vdmUpIChzdHJ1Y3QgZGV2aWNlICpkZXYpOwo+PiAgIAkgICAgIHN0cnVjdCBk
+ZXZpY2VfZHJpdmVyICAgIGRyaXZlcjsKPj4gKwkgICAgIGNvbnN0IHN0cnVjdCBtZGV2X2NsYXNz
+X2lkICppZF90YWJsZTsKPj4gICAgICAgIH07Cj4+ICAgCj4+ICAgQSBtZWRpYXRlZCBidXMgZHJp
+dmVyIGZvciBtZGV2IHNob3VsZCB1c2UgdGhpcyBzdHJ1Y3R1cmUgaW4gdGhlIGZ1bmN0aW9uIGNh
+bGxzCj4+IEBAIC0xNjUsMTIgKzE2NywxNSBAQCByZWdpc3RlciBpdHNlbGYgd2l0aCB0aGUgbWRl
+diBjb3JlIGRyaXZlcjo6Cj4+ICAgCWV4dGVybiBpbnQgIG1kZXZfcmVnaXN0ZXJfZGV2aWNlKHN0
+cnVjdCBkZXZpY2UgKmRldiwKPj4gICAJICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAg
+Y29uc3Qgc3RydWN0IG1kZXZfcGFyZW50X29wcyAqb3BzKTsKPj4gICAKPj4gK0l0IGlzIGFsc28g
+cmVxdWlyZWQgdG8gc3BlY2lmeSB0aGUgY2xhc3NfaWQgdGhyb3VnaDo6Cj4+ICsKPj4gKwlleHRl
+cm4gaW50IG1kZXZfc2V0X2NsYXNzKHN0cnVjdCBkZXZpY2UgKmRldiwgdTE2IGlkKTsKPiBTaG91
+bGQgdGhlIGRvY3VtZW50IHN0YXRlIGV4cGxpY2l0bHkgdGhhdCB0aGlzIHNob3VsZCBiZSBkb25l
+IGluIHRoZQo+IC0+Y3JlYXRlKCkgY2FsbGJhY2s/CgoKWWVzLCBpdCdzIGJldHRlci4KCgo+IEFs
+c28sIEkgdGhpbmsgdGhhdCB0aGUgY2xhc3NfaWQgbWlnaHQgYmUgZGlmZmVyZW50Cj4gZm9yIGRp
+ZmZlcmVudCBtZGV2cyAoZXZlbiBpZiB0aGUgcGFyZW50IGlzIHRoZSBzYW1lKSAtLSBzaG91bGQg
+dGhhdCBiZQo+IG1lbnRpb25lZCBleHBsaWNpdGx5PwoKClllcywgZGVwZW5kcyBvbiB0aGUgbWRl
+dl9zdXBwb3J0ZWRfdHlwZS4KClRoYW5rcwoKCj4KPj4gKwo+PiAgIEhvd2V2ZXIsIHRoZSBtZGV2
+X3BhcmVudF9vcHMgc3RydWN0dXJlIGlzIG5vdCByZXF1aXJlZCBpbiB0aGUgZnVuY3Rpb24gY2Fs
+bAo+PiAgIHRoYXQgYSBkcml2ZXIgc2hvdWxkIHVzZSB0byB1bnJlZ2lzdGVyIGl0c2VsZiB3aXRo
+IHRoZSBtZGV2IGNvcmUgZHJpdmVyOjoKPj4gICAKPj4gICAJZXh0ZXJuIHZvaWQgbWRldl91bnJl
+Z2lzdGVyX2RldmljZShzdHJ1Y3QgZGV2aWNlICpkZXYpOwo+PiAgIAo+PiAtCj4+ICAgTWVkaWF0
+ZWQgRGV2aWNlIE1hbmFnZW1lbnQgSW50ZXJmYWNlIFRocm91Z2ggc3lzZnMKPj4gICA9PT09PT09
+PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PQo+PiAgIAo+ICguLi4p
+Cj4KPiBMb29rcyByZWFzb25hYmxlIHRvIG1lLgpfX19fX19fX19fX19fX19fX19fX19fX19fX19f
+X19fX19fX19fX19fX19fX19fXwpWaXJ0dWFsaXphdGlvbiBtYWlsaW5nIGxpc3QKVmlydHVhbGl6
+YXRpb25AbGlzdHMubGludXgtZm91bmRhdGlvbi5vcmcKaHR0cHM6Ly9saXN0cy5saW51eGZvdW5k
+YXRpb24ub3JnL21haWxtYW4vbGlzdGluZm8vdmlydHVhbGl6YXRpb24=
