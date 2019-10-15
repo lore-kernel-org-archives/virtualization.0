@@ -1,16 +1,13 @@
-From: Alex Williamson <alex.williamson@redhat.com>
-Subject: Re: [PATCH V3 4/7] mdev: introduce device specific ops
-Date: Tue, 15 Oct 2019 11:26:46 -0600
-Message-ID: <20191015112646.3776dc29__6513.9119558566$1571160433$gmane$org@x1.home>
-References: <20191011081557.28302-1-jasowang@redhat.com>
-	<20191011081557.28302-5-jasowang@redhat.com>
-	<20191015124137.4f948bd2.cohuck@redhat.com>
-	<eb7ecd99-7465-6be4-7ecd-84c11f66e0ac@redhat.com>
+From: Vivek Goyal <vgoyal@redhat.com>
+Subject: [PATCH 4/5] virtiofs: Count pending forgets as in_flight forgets
+Date: Tue, 15 Oct 2019 13:46:25 -0400
+Message-ID: <20191015174626.11593-5-vgoyal@redhat.com>
+References: <20191015174626.11593-1-vgoyal@redhat.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="utf-8"
-Content-Transfer-Encoding: base64
+Content-Type: text/plain; charset="us-ascii"
+Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <eb7ecd99-7465-6be4-7ecd-84c11f66e0ac@redhat.com>
+In-Reply-To: <20191015174626.11593-1-vgoyal@redhat.com>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -20,112 +17,157 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Jason Wang <jasowang@redhat.com>
-Cc: christophe.de.dinechin@gmail.com, kvm@vger.kernel.org, mst@redhat.com, airlied@linux.ie, joonas.lahtinen@linux.intel.com, heiko.carstens@de.ibm.com, dri-devel@lists.freedesktop.org, virtualization@lists.linux-foundation.org, kwankhede@nvidia.com, rob.miller@broadcom.com, linux-s390@vger.kernel.org, sebott@linux.ibm.com, lulu@redhat.com, eperezma@redhat.com, pasic@linux.ibm.com, borntraeger@de.ibm.com, haotian.wang@sifive.com, zhi.a.wang@intel.com, farman@linux.ibm.com, idos@mellanox.com, gor@linux.ibm.com, intel-gfx@lists.freedesktop.org, jani.nikula@linux.intel.com, rodrigo.vivi@intel.com, xiao.w.wang@intel.com, freude@linux.ibm.com, zhenyuw@linux.intel.com, parav@mellanox.com, zhihong.wang@intel.com, intel-gvt-dev@lists.freedesktop.org, akrowiak@linux.ibm.com, oberpar@linux.ibm.com, netdev@vger.kernel.org, Cornelia Huck <cohuck@redhat.com>, linux-kernel@vger.kernel.o
+To: linux-fsdevel@vger.kernel.org, virtio-fs@redhat.com
+Cc: miklos@szeredi.hu, chirantan@chromium.org, dgilbert@redhat.com, virtualization@lists.linux-foundation.org, stefanha@redhat.com, vgoyal@redhat.com
 List-Id: virtualization@lists.linuxfoundation.org
 
-T24gVHVlLCAxNSBPY3QgMjAxOSAyMDoxNzowMSArMDgwMApKYXNvbiBXYW5nIDxqYXNvd2FuZ0By
-ZWRoYXQuY29tPiB3cm90ZToKCj4gT24gMjAxOS8xMC8xNSDkuIvljYg2OjQxLCBDb3JuZWxpYSBI
-dWNrIHdyb3RlOgo+ID4gT24gRnJpLCAxMSBPY3QgMjAxOSAxNjoxNTo1NCArMDgwMAo+ID4gSmFz
-b24gV2FuZyA8amFzb3dhbmdAcmVkaGF0LmNvbT4gd3JvdGU6Cj4gPiAgCj4gPj4gQ3VycmVudGx5
-LCBleGNlcHQgZm9yIHRoZSBjcmVhdGUgYW5kIHJlbW92ZSwgdGhlIHJlc3Qgb2YKPiA+PiBtZGV2
-X3BhcmVudF9vcHMgaXMgZGVzaWduZWQgZm9yIHZmaW8tbWRldiBkcml2ZXIgb25seSBhbmQgbWF5
-IG5vdCBoZWxwCj4gPj4gZm9yIGtlcm5lbCBtZGV2IGRyaXZlci4gV2l0aCB0aGUgaGVscCBvZiBj
-bGFzcyBpZCwgdGhpcyBwYXRjaAo+ID4+IGludHJvZHVjZXMgZGV2aWNlIHNwZWNpZmljIGNhbGxi
-YWNrcyBpbnNpZGUgbWRldl9kZXZpY2UKPiA+PiBzdHJ1Y3R1cmUuIFRoaXMgYWxsb3dzIGRpZmZl
-cmVudCBzZXQgb2YgY2FsbGJhY2sgdG8gYmUgdXNlZCBieQo+ID4+IHZmaW8tbWRldiBhbmQgdmly
-dGlvLW1kZXYuCj4gPj4KPiA+PiBTaWduZWQtb2ZmLWJ5OiBKYXNvbiBXYW5nIDxqYXNvd2FuZ0By
-ZWRoYXQuY29tPgo+ID4+IC0tLQo+ID4+ICAgLi4uL2RyaXZlci1hcGkvdmZpby1tZWRpYXRlZC1k
-ZXZpY2UucnN0ICAgICAgIHwgMjIgKysrKystLS0KPiA+PiAgIE1BSU5UQUlORVJTICAgICAgICAg
-ICAgICAgICAgICAgICAgICAgICAgICAgICB8ICAxICsKPiA+PiAgIGRyaXZlcnMvZ3B1L2RybS9p
-OTE1L2d2dC9rdm1ndC5jICAgICAgICAgICAgICB8IDE4ICsrKystLS0KPiA+PiAgIGRyaXZlcnMv
-czM5MC9jaW8vdmZpb19jY3dfb3BzLmMgICAgICAgICAgICAgICB8IDE4ICsrKystLS0KPiA+PiAg
-IGRyaXZlcnMvczM5MC9jcnlwdG8vdmZpb19hcF9vcHMuYyAgICAgICAgICAgICB8IDE0ICsrKy0t
-Cj4gPj4gICBkcml2ZXJzL3ZmaW8vbWRldi9tZGV2X2NvcmUuYyAgICAgICAgICAgICAgICAgfCAg
-OSArKystCj4gPj4gICBkcml2ZXJzL3ZmaW8vbWRldi9tZGV2X3ByaXZhdGUuaCAgICAgICAgICAg
-ICAgfCAgMSArCj4gPj4gICBkcml2ZXJzL3ZmaW8vbWRldi92ZmlvX21kZXYuYyAgICAgICAgICAg
-ICAgICAgfCAzNyArKysrKystLS0tLS0tCj4gPj4gICBpbmNsdWRlL2xpbnV4L21kZXYuaCAgICAg
-ICAgICAgICAgICAgICAgICAgICAgfCA0MiArKystLS0tLS0tLS0tLS0KPiA+PiAgIGluY2x1ZGUv
-bGludXgvdmZpb19tZGV2LmggICAgICAgICAgICAgICAgICAgICB8IDUyICsrKysrKysrKysrKysr
-KysrKysKPiA+PiAgIHNhbXBsZXMvdmZpby1tZGV2L21ib2Nocy5jICAgICAgICAgICAgICAgICAg
-ICB8IDIwICsrKystLS0KPiA+PiAgIHNhbXBsZXMvdmZpby1tZGV2L21kcHkuYyAgICAgICAgICAg
-ICAgICAgICAgICB8IDIxICsrKysrLS0tCj4gPj4gICBzYW1wbGVzL3ZmaW8tbWRldi9tdHR5LmMg
-ICAgICAgICAgICAgICAgICAgICAgfCAxOCArKysrLS0tCj4gPj4gICAxMyBmaWxlcyBjaGFuZ2Vk
-LCAxNzcgaW5zZXJ0aW9ucygrKSwgOTYgZGVsZXRpb25zKC0pCj4gPj4gICBjcmVhdGUgbW9kZSAx
-MDA2NDQgaW5jbHVkZS9saW51eC92ZmlvX21kZXYuaAo+ID4+Cj4gPj4gZGlmZiAtLWdpdCBhL0Rv
-Y3VtZW50YXRpb24vZHJpdmVyLWFwaS92ZmlvLW1lZGlhdGVkLWRldmljZS5yc3QgYi9Eb2N1bWVu
-dGF0aW9uL2RyaXZlci1hcGkvdmZpby1tZWRpYXRlZC1kZXZpY2UucnN0Cj4gPj4gaW5kZXggMjAz
-NWU0OGRhN2IyLi41NTM1NzRlYmJhNzMgMTAwNjQ0Cj4gPj4gLS0tIGEvRG9jdW1lbnRhdGlvbi9k
-cml2ZXItYXBpL3ZmaW8tbWVkaWF0ZWQtZGV2aWNlLnJzdAo+ID4+ICsrKyBiL0RvY3VtZW50YXRp
-b24vZHJpdmVyLWFwaS92ZmlvLW1lZGlhdGVkLWRldmljZS5yc3QKPiA+PiBAQCAtMTUyLDExICsx
-NTIsMjAgQEAgY2FsbGJhY2tzIHBlciBtZGV2IHBhcmVudCBkZXZpY2UsIHBlciBtZGV2IHR5cGUs
-IG9yIGFueSBvdGhlciBjYXRlZ29yaXphdGlvbi4KPiA+PiAgIFZlbmRvciBkcml2ZXJzIGFyZSBl
-eHBlY3RlZCB0byBiZSBmdWxseSBhc3luY2hyb25vdXMgaW4gdGhpcyByZXNwZWN0IG9yCj4gPj4g
-ICBwcm92aWRlIHRoZWlyIG93biBpbnRlcm5hbCByZXNvdXJjZSBwcm90ZWN0aW9uLikKPiA+PiAg
-IAo+ID4+IC1UaGUgY2FsbGJhY2tzIGluIHRoZSBtZGV2X3BhcmVudF9vcHMgc3RydWN0dXJlIGFy
-ZSBhcyBmb2xsb3dzOgo+ID4+ICtJbiBvcmRlciB0byBzdXBwb3J0IG11bHRpcGxlIHR5cGVzIG9m
-IGRldmljZS9kcml2ZXIsIGRldmljZSBuZWVkcyB0bwo+ID4+ICtwcm92aWRlIGJvdGggY2xhc3Nf
-aWQgYW5kIGRldmljZV9vcHMgdGhyb3VnaDogIAo+ID4gIkFzIG11bHRpcGxlIHR5cGVzIG9mIG1l
-ZGlhdGVkIGRldmljZXMgbWF5IGJlIHN1cHBvcnRlZCwgdGhlIGRldmljZQo+ID4gbmVlZHMgdG8g
-c2V0IHVwIHRoZSBjbGFzcyBpZCBhbmQgdGhlIGRldmljZSBzcGVjaWZpYyBjYWxsYmFja3Mgdmlh
-OiIKPiA+Cj4gPiA/Cj4gPiAgCj4gPj4gICAKPiA+PiAtKiBvcGVuOiBvcGVuIGNhbGxiYWNrIG9m
-IG1lZGlhdGVkIGRldmljZQo+ID4+IC0qIGNsb3NlOiBjbG9zZSBjYWxsYmFjayBvZiBtZWRpYXRl
-ZCBkZXZpY2UKPiA+PiAtKiBpb2N0bDogaW9jdGwgY2FsbGJhY2sgb2YgbWVkaWF0ZWQgZGV2aWNl
-Cj4gPj4gKyAgICB2b2lkIG1kZXZfc2V0X2NsYXNzKHN0cnVjdCBtZGV2X2RldmljZSAqbWRldiwg
-dTE2IGlkLCBjb25zdCB2b2lkICpvcHMpOwo+ID4+ICsKPiA+PiArVGhlIGNsYXNzX2lkIGlzIHVz
-ZWQgdG8gYmUgcGFpcmVkIHdpdGggaWRzIGluIGlkX3RhYmxlIGluIG1kZXZfZHJpdmVyCj4gPj4g
-K3N0cnVjdHVyZSBmb3IgcHJvYmluZyB0aGUgY29ycmVjdCBkcml2ZXIuICAKPiA+ICJUaGUgY2xh
-c3MgaWQgIChzcGVjaWZpZWQgaW4gaWQpIGlzIHVzZWQgdG8gbWF0Y2ggYSBkZXZpY2Ugd2l0aCBh
-biBtZGV2Cj4gPiBkcml2ZXIgdmlhIGl0cyBpZCB0YWJsZS4iCj4gPgo+ID4gPwo+ID4gIAo+ID4+
-IFRoZSBkZXZpY2Vfb3BzIGlzIGRldmljZQo+ID4+ICtzcGVjaWZpYyBjYWxsYmFja3Mgd2hpY2gg
-Y2FuIGJlIGdldCB0aHJvdWdoIG1kZXZfZ2V0X2Rldl9vcHMoKQo+ID4+ICtmdW5jdGlvbiBieSBt
-ZGV2IGJ1cyBkcml2ZXIuICAKPiA+ICJUaGUgZGV2aWNlIHNwZWNpZmljIGNhbGxiYWNrcyAoc3Bl
-Y2lmaWVkIGluICpvcHMpIGFyZSBvYnRhaW5hYmxlIHZpYQo+ID4gbWRldl9nZXRfZGV2X29wcygp
-IChmb3IgdXNlIGJ5IHRoZSBtZGV2IGJ1cyBkcml2ZXIuKSIKPiA+Cj4gPiA/Cj4gPiAgCj4gPj4g
-Rm9yIHZmaW8tbWRldiBkZXZpY2UsIGl0cyBkZXZpY2Ugc3BlY2lmaWMKPiA+PiArb3BzIGFyZSBh
-cyBmb2xsb3dzOiAgCj4gPiAiQSB2ZmlvLW1kZXYgZGV2aWNlIChjbGFzcyBpZCBNREVWX0lEX1ZG
-SU8pIHVzZXMgdGhlIGZvbGxvd2luZwo+ID4gZGV2aWNlLXNwZWNpZmljIG9wczoiCj4gPgo+ID4g
-PyAgCj4gCj4gCj4gQWxsIHlvdSBwcm9wb3NlIGlzIGJldHRlciB0aGFuIHdoYXQgSSB3cm90ZSwg
-d2lsbCBjaGFuZ2UgdGhlIGRvY3MuCj4gCj4gCj4gPiAgCj4gPj4gKwo+ID4+ICsqIG9wZW46IG9w
-ZW4gY2FsbGJhY2sgb2YgdmZpbyBtZWRpYXRlZCBkZXZpY2UKPiA+PiArKiBjbG9zZTogY2xvc2Ug
-Y2FsbGJhY2sgb2YgdmZpbyBtZWRpYXRlZCBkZXZpY2UKPiA+PiArKiBpb2N0bDogaW9jdGwgY2Fs
-bGJhY2sgb2YgdmZpbyBtZWRpYXRlZCBkZXZpY2UKPiA+PiAgICogcmVhZCA6IHJlYWQgZW11bGF0
-aW9uIGNhbGxiYWNrCj4gPj4gICAqIHdyaXRlOiB3cml0ZSBlbXVsYXRpb24gY2FsbGJhY2sKPiA+
-PiAgICogbW1hcDogbW1hcCBlbXVsYXRpb24gY2FsbGJhY2sKPiA+PiBAQCAtMTY3LDkgKzE3Niwx
-MCBAQCByZWdpc3RlciBpdHNlbGYgd2l0aCB0aGUgbWRldiBjb3JlIGRyaXZlcjo6Cj4gPj4gICAJ
-ZXh0ZXJuIGludCAgbWRldl9yZWdpc3Rlcl9kZXZpY2Uoc3RydWN0IGRldmljZSAqZGV2LAo+ID4+
-ICAgCSAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgIGNvbnN0IHN0cnVjdCBtZGV2X3Bh
-cmVudF9vcHMgKm9wcyk7Cj4gPj4gICAKPiA+PiAtSXQgaXMgYWxzbyByZXF1aXJlZCB0byBzcGVj
-aWZ5IHRoZSBjbGFzc19pZCB0aHJvdWdoOjoKPiA+PiArSXQgaXMgYWxzbyByZXF1aXJlZCB0byBz
-cGVjaWZ5IHRoZSBjbGFzc19pZCBhbmQgZGV2aWNlIHNwZWNpZmljIG9wcyB0aHJvdWdoOjoKPiA+
-PiAgIAo+ID4+IC0JZXh0ZXJuIGludCBtZGV2X3NldF9jbGFzcyhzdHJ1Y3QgZGV2aWNlICpkZXYs
-IHUxNiBpZCk7Cj4gPj4gKwlleHRlcm4gaW50IG1kZXZfc2V0X2NsYXNzKHN0cnVjdCBkZXZpY2Ug
-KmRldiwgdTE2IGlkLAo+ID4+ICsJICAgICAgICAgICAgICAgICAgICAgICAgICBjb25zdCB2b2lk
-ICpvcHMpOyAgCj4gPiBBcG9sb2dpZXMgaWYgdGhhdCBoYXMgYWxyZWFkeSBiZWVuIGRpc2N1c3Nl
-ZCwgYnV0IGRvIHdlIHdhbnQgYSAxOjEKPiA+IHJlbGF0aW9uc2hpcCBiZXR3ZWVuIGlkIGFuZCBv
-cHMsIG9yIGNhbiBkaWZmZXJlbnQgZGV2aWNlcyB3aXRoIHRoZSBzYW1lCj4gPiBpZCByZWdpc3Rl
-ciBkaWZmZXJlbnQgb3BzPyAgCj4gCj4gCj4gSSB0aGluayB3ZSBoYXZlIGEgTjoxIG1hcHBpbmcg
-YmV0d2VlbiBpZCBhbmQgb3BzLCBlLmcgd2Ugd2FudCBib3RoIAo+IHZpcnRpby1tZGV2IGFuZCB2
-aG9zdC1tZGV2IHVzZSBhIHNpbmdsZSBzZXQgb2YgZGV2aWNlIG9wcy4KClRoZSBjb250ZW50cyBv
-ZiB0aGUgb3BzIHN0cnVjdHVyZSBpcyBlc3NlbnRpYWxseSBkZWZpbmVkIGJ5IHRoZSBpZCwKd2hp
-Y2ggaXMgd2h5IEkgd2FzIGxlYW5pbmcgdG93YXJkcyB0aGVtIGJlaW5nIGRlZmluZWQgdG9nZXRo
-ZXIuICBUaGV5CmFyZSBlZmZlY3RpdmVseSBpbnRlcmxvY2tlZCwgdGhlIGlkIGRlZmluZXMgd2hp
-Y2ggbWRldiAiZW5kcG9pbnQiCmRyaXZlciBpcyBsb2FkZWQgYW5kIHRoYXQgZHJpdmVyIHJlcXVp
-cmVzIG1kZXZfZ2V0X2Rldl9vcHMoKSB0byByZXR1cm4KdGhlIHN0cnVjdHVyZSByZXF1aXJlZCBi
-eSB0aGUgZHJpdmVyLiAgSSB3aXNoIHRoZXJlIHdhcyBhIHdheSB3ZSBjb3VsZAppbmNvcnBvcmF0
-ZSB0eXBlIGNoZWNraW5nIGhlcmUuICBXZSB0b3llZCB3aXRoIHRoZSBpZGVhIG9mIGhhdmluZyB0
-aGUKY2xhc3MgaW4gdGhlIHNhbWUgc3RydWN0dXJlIGFzIHRoZSBvcHMsIGJ1dCBJIHRoaW5rIHRo
-aXMgYXBwcm9hY2ggd2FzCmNob3NlbiBmb3Igc2ltcGxpY2l0eS4gIFdlIGNvdWxkIHN0aWxsIGRv
-IHNvbWV0aGluZyBsaWtlOgoKaW50IG1kZXZfc2V0X2NsYXNzX3N0cnVjdChzdHJ1Y3QgZGV2aWNl
-ICpkZXYsIGNvbnN0IHN0cnVjdCBtZGV2X2NsYXNzX3N0cnVjdCAqY2xhc3MpOwoKc3RydWN0IG1k
-ZXZfY2xhc3Nfc3RydWN0IHsKCXUxNglpZDsKCXVuaW9uIHsKCQlzdHJ1Y3QgdmZpb19tZGV2X29w
-cyB2ZmlvX29wczsKCQlzdHJ1Y3QgdmlydGlvX21kZXZfb3BzIHZpcnRpb19vcHM7Cgl9Owp9OwoK
-TWF5YmUgZXZlbjoKCnN0cnVjdCB2ZmlvX21kZXZfb3BzICptZGV2X2dldF92ZmlvX29wcyhzdHJ1
-Y3QgbWRldl9kZXZpY2UgKm1kZXYpIHsKCUJVR19PTihtZGV2LT5jbGFzcy5pZCAhPSBNREVWX0lE
-X1ZGSU8pOwoJcmV0dXJuICZtZGV2LT5jbGFzcy52ZmlvX29wczsKfQoKVGhlIG1hdGNoIGNhbGxi
-YWNrIHdvdWxkIG9mIGNvdXJzZSBqdXN0IHVzZSB0aGUgbWRldi0+Y2xhc3MuaWQgdmFsdWUuCkZ1
-bmN0aW9uYWxseSBlcXVpdmFsZW50LCBidXQgbWF5YmUgYmV0dGVyIHR5cGUgY2hhcmFjdGVyaXN0
-aWNzLiAgVGhhbmtzLAoKQWxleApfX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19f
-X19fX19fX19fXwpWaXJ0dWFsaXphdGlvbiBtYWlsaW5nIGxpc3QKVmlydHVhbGl6YXRpb25AbGlz
-dHMubGludXgtZm91bmRhdGlvbi5vcmcKaHR0cHM6Ly9saXN0cy5saW51eGZvdW5kYXRpb24ub3Jn
-L21haWxtYW4vbGlzdGluZm8vdmlydHVhbGl6YXRpb24=
+If virtqueue is full, we put forget requests on a list and these forgets
+are dispatched later using a worker. As of now we don't count these
+forgets in fsvq->in_flight variable. This means when queue is being drained,
+we have to have special logic to first drain these pending requests and
+then wait for fsvq->in_flight to go to zero.
+
+By counting pending forgets in fsvq->in_flight, we can get rid of special
+logic and just wait for in_flight to go to zero. Worker thread will
+kick and drain all the forgets anyway, leading in_flight to zero.
+
+I also need similar logic for normal request queue in next patch where
+I am about to defer request submission in the worker context if queue is
+full.
+
+This simplifies the code a bit.
+
+Also add two helper functions to inc/dec in_flight. Decrement in_flight
+helper will later used to call completion when in_flight reaches zero.
+
+Signed-off-by: Vivek Goyal <vgoyal@redhat.com>
+---
+ fs/fuse/virtio_fs.c | 44 ++++++++++++++++++++------------------------
+ 1 file changed, 20 insertions(+), 24 deletions(-)
+
+diff --git a/fs/fuse/virtio_fs.c b/fs/fuse/virtio_fs.c
+index e0fcf3030951..625de45fa471 100644
+--- a/fs/fuse/virtio_fs.c
++++ b/fs/fuse/virtio_fs.c
+@@ -67,6 +67,19 @@ static inline struct fuse_pqueue *vq_to_fpq(struct virtqueue *vq)
+ 	return &vq_to_fsvq(vq)->fud->pq;
+ }
+ 
++/* Should be called with fsvq->lock held. */
++static inline void inc_in_flight_req(struct virtio_fs_vq *fsvq)
++{
++	fsvq->in_flight++;
++}
++
++/* Should be called with fsvq->lock held. */
++static inline void dec_in_flight_req(struct virtio_fs_vq *fsvq)
++{
++	WARN_ON(fsvq->in_flight <= 0);
++	fsvq->in_flight--;
++}
++
+ static void release_virtio_fs_obj(struct kref *ref)
+ {
+ 	struct virtio_fs *vfs = container_of(ref, struct virtio_fs, refcount);
+@@ -110,22 +123,6 @@ static void virtio_fs_drain_queue(struct virtio_fs_vq *fsvq)
+ 	flush_delayed_work(&fsvq->dispatch_work);
+ }
+ 
+-static inline void drain_hiprio_queued_reqs(struct virtio_fs_vq *fsvq)
+-{
+-	struct virtio_fs_forget *forget;
+-
+-	spin_lock(&fsvq->lock);
+-	while (1) {
+-		forget = list_first_entry_or_null(&fsvq->queued_reqs,
+-						struct virtio_fs_forget, list);
+-		if (!forget)
+-			break;
+-		list_del(&forget->list);
+-		kfree(forget);
+-	}
+-	spin_unlock(&fsvq->lock);
+-}
+-
+ static void virtio_fs_drain_all_queues(struct virtio_fs *fs)
+ {
+ 	struct virtio_fs_vq *fsvq;
+@@ -133,9 +130,6 @@ static void virtio_fs_drain_all_queues(struct virtio_fs *fs)
+ 
+ 	for (i = 0; i < fs->nvqs; i++) {
+ 		fsvq = &fs->vqs[i];
+-		if (i == VQ_HIPRIO)
+-			drain_hiprio_queued_reqs(fsvq);
+-
+ 		virtio_fs_drain_queue(fsvq);
+ 	}
+ }
+@@ -254,7 +248,7 @@ static void virtio_fs_hiprio_done_work(struct work_struct *work)
+ 
+ 		while ((req = virtqueue_get_buf(vq, &len)) != NULL) {
+ 			kfree(req);
+-			fsvq->in_flight--;
++			dec_in_flight_req(fsvq);
+ 		}
+ 	} while (!virtqueue_enable_cb(vq) && likely(!virtqueue_is_broken(vq)));
+ 	spin_unlock(&fsvq->lock);
+@@ -306,6 +300,7 @@ static void virtio_fs_hiprio_dispatch_work(struct work_struct *work)
+ 
+ 		list_del(&forget->list);
+ 		if (!fsvq->connected) {
++			dec_in_flight_req(fsvq);
+ 			spin_unlock(&fsvq->lock);
+ 			kfree(forget);
+ 			continue;
+@@ -327,13 +322,13 @@ static void virtio_fs_hiprio_dispatch_work(struct work_struct *work)
+ 			} else {
+ 				pr_debug("virtio-fs: Could not queue FORGET: err=%d. Dropping it.\n",
+ 					 ret);
++				dec_in_flight_req(fsvq);
+ 				kfree(forget);
+ 			}
+ 			spin_unlock(&fsvq->lock);
+ 			return;
+ 		}
+ 
+-		fsvq->in_flight++;
+ 		notify = virtqueue_kick_prepare(vq);
+ 		spin_unlock(&fsvq->lock);
+ 
+@@ -472,7 +467,7 @@ static void virtio_fs_requests_done_work(struct work_struct *work)
+ 
+ 		fuse_request_end(fc, req);
+ 		spin_lock(&fsvq->lock);
+-		fsvq->in_flight--;
++		dec_in_flight_req(fsvq);
+ 		spin_unlock(&fsvq->lock);
+ 	}
+ }
+@@ -730,6 +725,7 @@ __releases(fiq->lock)
+ 			list_add_tail(&forget->list, &fsvq->queued_reqs);
+ 			schedule_delayed_work(&fsvq->dispatch_work,
+ 					msecs_to_jiffies(1));
++			inc_in_flight_req(fsvq);
+ 		} else {
+ 			pr_debug("virtio-fs: Could not queue FORGET: err=%d. Dropping it.\n",
+ 				 ret);
+@@ -739,7 +735,7 @@ __releases(fiq->lock)
+ 		goto out;
+ 	}
+ 
+-	fsvq->in_flight++;
++	inc_in_flight_req(fsvq);
+ 	notify = virtqueue_kick_prepare(vq);
+ 
+ 	spin_unlock(&fsvq->lock);
+@@ -921,7 +917,7 @@ static int virtio_fs_enqueue_req(struct virtio_fs_vq *fsvq,
+ 	/* matches barrier in request_wait_answer() */
+ 	smp_mb__after_atomic();
+ 
+-	fsvq->in_flight++;
++	inc_in_flight_req(fsvq);
+ 	notify = virtqueue_kick_prepare(vq);
+ 
+ 	spin_unlock(&fsvq->lock);
+-- 
+2.20.1
