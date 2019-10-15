@@ -1,15 +1,18 @@
-From: Jason Wang <jasowang@redhat.com>
-Subject: Re: [PATCH V3 0/7] mdev based hardware virtio offloading support
-Date: Tue, 15 Oct 2019 11:37:17 +0800
-Message-ID: <6d12ad8f-8137-e07d-d735-da59a326e8ed__34527.4239008845$1571110681$gmane$org@redhat.com>
-References: <20191011081557.28302-1-jasowang@redhat.com>
-	<20191014174946.GC5359@stefanha-x1.localdomain>
+From: Ram Pai <linuxram@us.ibm.com>
+Subject: RE: [PATCH 1/2] dma-mapping: Add dma_addr_is_phys_addr()
+Date: Tue, 15 Oct 2019 00:30:03 -0700
+Message-ID: <20191015073003.GA5355@oc0525413822.ibm.com>
+References: <1570843519-8696-1-git-send-email-linuxram@us.ibm.com>
+	<1570843519-8696-2-git-send-email-linuxram@us.ibm.com>
+	<20191014045139.GN4080@umbus.fritz.box>
+	<37609731-5539-b906-aa94-2ef0242795ac@arm.com>
+Reply-To: Ram Pai <linuxram@us.ibm.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="utf-8"; Format="flowed"
-Content-Transfer-Encoding: base64
+Content-Type: text/plain; charset="us-ascii"
+Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <20191014174946.GC5359@stefanha-x1.localdomain>
-Content-Language: en-US
+Content-Disposition: inline
+In-Reply-To: <37609731-5539-b906-aa94-2ef0242795ac@arm.com>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -19,48 +22,66 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Stefan Hajnoczi <stefanha@gmail.com>
-Cc: christophe.de.dinechin@gmail.com, kvm@vger.kernel.org, mst@redhat.com, airlied@linux.ie, joonas.lahtinen@linux.intel.com, heiko.carstens@de.ibm.com, dri-devel@lists.freedesktop.org, virtualization@lists.linux-foundation.org, kwankhede@nvidia.com, rob.miller@broadcom.com, linux-s390@vger.kernel.org, sebott@linux.ibm.com, lulu@redhat.com, eperezma@redhat.com, pasic@linux.ibm.com, borntraeger@de.ibm.com, haotian.wang@sifive.com, zhi.a.wang@intel.com, farman@linux.ibm.com, idos@mellanox.com, gor@linux.ibm.com, intel-gfx@lists.freedesktop.org, jani.nikula@linux.intel.com, xiao.w.wang@intel.com, freude@linux.ibm.com, zhenyuw@linux.intel.com, parav@mellanox.com, zhihong.wang@intel.com, rodrigo.vivi@intel.com, intel-gvt-dev@lists.freedesktop.org, akrowiak@linux.ibm.com, oberpar@linux.ibm.com, netdev@vger.kernel.org, cohuck@redhat.com, linux-kernel@vger.kernel.org, maxime.coque
+To: Robin Murphy <robin.murphy@arm.com>
+Cc: andmike@us.ibm.com, sukadev@linux.vnet.ibm.com, b.zolnierkie@samsung.com, benh@kernel.crashing.org, aik@linux.ibm.com, linux-kernel@vger.kernel.org, virtualization@lists.linux-foundation.org, paulus@ozlabs.org, iommu@lists.linux-foundation.org, mst@redhat.com, paul.burton@mips.com, mpe@ellerman.id.au, m.szyprowski@samsung.com, linuxppc-dev@lists.ozlabs.org, hch@lst.de, David Gibson <david@gibson.dropbear.id.au>
 List-Id: virtualization@lists.linuxfoundation.org
 
-Ck9uIDIwMTkvMTAvMTUg5LiK5Y2IMTo0OSwgU3RlZmFuIEhham5vY3ppIHdyb3RlOgo+IE9uIEZy
-aSwgT2N0IDExLCAyMDE5IGF0IDA0OjE1OjUwUE0gKzA4MDAsIEphc29uIFdhbmcgd3JvdGU6Cj4+
-IFRoZXJlIGFyZSBoYXJkd2FyZSB0aGF0IGNhbiBkbyB2aXJ0aW8gZGF0YXBhdGggb2ZmbG9hZGlu
-ZyB3aGlsZSBoYXZpbmcKPj4gaXRzIG93biBjb250cm9sIHBhdGguIFRoaXMgcGF0aCB0cmllcyB0
-byBpbXBsZW1lbnQgYSBtZGV2IGJhc2VkCj4+IHVuaWZpZWQgQVBJIHRvIHN1cHBvcnQgdXNpbmcg
-a2VybmVsIHZpcnRpbyBkcml2ZXIgdG8gZHJpdmUgdGhvc2UKPj4gZGV2aWNlcy4gVGhpcyBpcyBk
-b25lIGJ5IGludHJvZHVjaW5nIGEgbmV3IG1kZXYgdHJhbnNwb3J0IGZvciB2aXJ0aW8KPj4gKHZp
-cnRpb19tZGV2KSBhbmQgcmVnaXN0ZXIgaXRzZWxmIGFzIGEgbmV3IGtpbmQgb2YgbWRldiBkcml2
-ZXIuIFRoZW4KPj4gaXQgcHJvdmlkZXMgYSB1bmlmaWVkIHdheSBmb3Iga2VybmVsIHZpcnRpbyBk
-cml2ZXIgdG8gdGFsayB3aXRoIG1kZXYKPj4gZGV2aWNlIGltcGxlbWVudGF0aW9uLgo+Pgo+PiBU
-aG91Z2ggdGhlIHNlcmllcyBvbmx5IGNvbnRhaW5zIGtlcm5lbCBkcml2ZXIgc3VwcG9ydCwgdGhl
-IGdvYWwgaXMgdG8KPj4gbWFrZSB0aGUgdHJhbnNwb3J0IGdlbmVyaWMgZW5vdWdoIHRvIHN1cHBv
-cnQgdXNlcnNwYWNlIGRyaXZlcnMuIFRoaXMKPj4gbWVhbnMgdmhvc3QtbWRldlsxXSBjb3VsZCBi
-ZSBidWlsdCBvbiB0b3AgYXMgd2VsbCBieSByZXN1aW5nIHRoZQo+PiB0cmFuc3BvcnQuCj4+Cj4+
-IEEgc2FtcGxlIGRyaXZlciBpcyBhbHNvIGltcGxlbWVudGVkIHdoaWNoIHNpbXVsYXRlIGEgdmly
-aXRvLW5ldAo+PiBsb29wYmFjayBldGhlcm5ldCBkZXZpY2Ugb24gdG9wIG9mIHZyaW5naCArIHdv
-cmtxdWV1ZS4gVGhpcyBjb3VsZCBiZQo+PiB1c2VkIGFzIGEgcmVmZXJlbmNlIGltcGxlbWVudGF0
-aW9uIGZvciByZWFsIGhhcmR3YXJlIGRyaXZlci4KPj4KPj4gQ29uc2lkZXIgbWRldiBmcmFtZXdv
-cmsgb25seSBzdXBwb3J0IFZGSU8gZGV2aWNlIGFuZCBkcml2ZXIgcmlnaHQgbm93LAo+PiB0aGlz
-IHNlcmllcyBhbHNvIGV4dGVuZCBpdCB0byBzdXBwb3J0IG90aGVyIHR5cGVzLiBUaGlzIGlzIGRv
-bmUKPj4gdGhyb3VnaCBpbnRyb2R1Y2luZyBjbGFzcyBpZCB0byB0aGUgZGV2aWNlIGFuZCBwYWly
-aW5nIGl0IHdpdGgKPj4gaWRfdGFsYmUgY2xhaW1lZCBieSB0aGUgZHJpdmVyLiBPbiB0b3AsIHRo
-aXMgc2VyaXMgYWxzbyBkZWNvdXBsZQo+PiBkZXZpY2Ugc3BlY2lmaWMgcGFyZW50cyBvcHMgb3V0
-IG9mIHRoZSBjb21tb24gb25lcy4KPiBJIHdhcyBjdXJpb3VzIHNvIEkgdG9vayBhIHF1aWNrIGxv
-b2sgYW5kIHBvc3RlZCBjb21tZW50cy4KPgo+IEkgZ3Vlc3MgdGhpcyBkcml2ZXIgcnVucyBpbnNp
-ZGUgdGhlIGd1ZXN0IHNpbmNlIGl0IHJlZ2lzdGVycyB2aXJ0aW8KPiBkZXZpY2VzPwoKCkl0IGNv
-dWxkIHJ1biBpbiBlaXRoZXIgZ3Vlc3Qgb3IgaG9zdC4gQnV0IHRoZSBtYWluIGZvY3VzIGlzIHRv
-IHJ1biBpbiAKdGhlIGhvc3QgdGhlbiB3ZSBjYW4gdXNlIHZpcnRpbyBkcml2ZXJzIGluIGNvbnRh
-aW5lcnMuCgoKPgo+IElmIHRoaXMgaXMgdXNlZCB3aXRoIHBoeXNpY2FsIFBDSSBkZXZpY2VzIHRo
-YXQgc3VwcG9ydCBkYXRhcGF0aAo+IG9mZmxvYWRpbmcgdGhlbiBob3cgYXJlIHBoeXNpY2FsIGRl
-dmljZXMgcHJlc2VudGVkIHRvIHRoZSBndWVzdCB3aXRob3V0Cj4gU1ItSU9WPwoKCldlIHdpbGwg
-ZG8gY29udHJvbCBwYXRoIG1lZGl0YXRpb24gdGhyb3VnaCB2aG9zdC1tZGV2WzFdIGFuZCAKdmhv
-c3QtdmZpb1syXS4gVGhlbiB3ZSB3aWxsIHByZXNlbnQgYSBmdWxsIHZpcnRpbyBjb21wYXRpYmxl
-IGV0aGVybmV0IApkZXZpY2UgZm9yIGd1ZXN0LgoKU1ItSU9WIGlzIG5vdCBhIG11c3QsIGFueSBt
-ZGV2IGRldmljZSB0aGF0IGltcGxlbWVudHMgdGhlIEFQSSBkZWZpbmVkIGluIApwYXRjaCA1IGNh
-biBiZSB1c2VkIGJ5IHRoaXMgZnJhbWV3b3JrLgoKVGhhbmtzCgpbMV0gaHR0cHM6Ly9sa21sLm9y
-Zy9sa21sLzIwMTkvOS8yNi8xNQoKWzJdIGh0dHBzOi8vcGF0Y2h3b3JrLm96bGFicy5vcmcvY292
-ZXIvOTg0NzYzLwoKCj4KPiBTdGVmYW4KX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19f
-X19fX19fX19fX19fX18KVmlydHVhbGl6YXRpb24gbWFpbGluZyBsaXN0ClZpcnR1YWxpemF0aW9u
-QGxpc3RzLmxpbnV4LWZvdW5kYXRpb24ub3JnCmh0dHBzOi8vbGlzdHMubGludXhmb3VuZGF0aW9u
-Lm9yZy9tYWlsbWFuL2xpc3RpbmZvL3ZpcnR1YWxpemF0aW9u
+On Mon, Oct 14, 2019 at 11:29:24AM +0100, Robin Murphy wrote:
+> On 14/10/2019 05:51, David Gibson wrote:
+> >On Fri, Oct 11, 2019 at 06:25:18PM -0700, Ram Pai wrote:
+> >>From: Thiago Jung Bauermann <bauerman@linux.ibm.com>
+> >>
+> >>In order to safely use the DMA API, virtio needs to know whether DMA
+> >>addresses are in fact physical addresses and for that purpose,
+> >>dma_addr_is_phys_addr() is introduced.
+> >>
+> >>cc: Benjamin Herrenschmidt <benh@kernel.crashing.org>
+> >>cc: David Gibson <david@gibson.dropbear.id.au>
+> >>cc: Michael Ellerman <mpe@ellerman.id.au>
+> >>cc: Paul Mackerras <paulus@ozlabs.org>
+> >>cc: Michael Roth <mdroth@linux.vnet.ibm.com>
+> >>cc: Alexey Kardashevskiy <aik@linux.ibm.com>
+> >>cc: Paul Burton <paul.burton@mips.com>
+> >>cc: Robin Murphy <robin.murphy@arm.com>
+> >>cc: Bartlomiej Zolnierkiewicz <b.zolnierkie@samsung.com>
+> >>cc: Marek Szyprowski <m.szyprowski@samsung.com>
+> >>cc: Christoph Hellwig <hch@lst.de>
+> >>Suggested-by: Michael S. Tsirkin <mst@redhat.com>
+> >>Signed-off-by: Ram Pai <linuxram@us.ibm.com>
+> >>Signed-off-by: Thiago Jung Bauermann <bauerman@linux.ibm.com>
+> >
+> >The change itself looks ok, so
+> >
+> >Reviewed-by: David Gibson <david@gibson.dropbear.id.au>
+> >
+> >However, I would like to see the commit message (and maybe the inline
+> >comments) expanded a bit on what the distinction here is about.  Some
+> >of the text from the next patch would be suitable, about DMA addresses
+> >usually being in a different address space but not in the case of
+> >bounce buffering.
+> 
+> Right, this needs a much tighter definition. "DMA address happens to
+> be a valid physical address" is true of various IOMMU setups too,
+> but I can't believe it's meaningful in such cases.
+
+The definition by itself is meaningful AFAICT. At its core its just
+indicating whether DMA addresses are physical addresses or not.
+
+However its up to the caller to use it meaningfully. For non-virtio caller,
+dma_addr_is_phys_addr() by itself may or may not be meaningful.
+
+But for a virtio caller, this information when paired with
+mem_encrypt_active() is meaningful.
+
+For IOMMU setups DMA API will get used regardless of "DMA address
+happens to be a valid physical address"
+
+
+> 
+> If what you actually want is "DMA is direct or SWIOTLB" - i.e. "DMA
+> address is physical address of DMA data (not necessarily the
+> original buffer)" - wouldn't dma_is_direct() suffice?
+
+This may also work, I think.  MST: thoughts?
+
+RP
