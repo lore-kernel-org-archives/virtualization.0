@@ -1,13 +1,19 @@
-From: Vivek Goyal <vgoyal@redhat.com>
-Subject: [PATCH 5/5] virtiofs: Retry request submission from worker context
-Date: Tue, 15 Oct 2019 13:46:26 -0400
-Message-ID: <20191015174626.11593-6-vgoyal@redhat.com>
-References: <20191015174626.11593-1-vgoyal@redhat.com>
+From: "Michael S. Tsirkin" <mst@redhat.com>
+Subject: Re: [PATCH RFC v1 1/2] vhost: option to fetch descriptors through an
+	independent struct
+Date: Tue, 15 Oct 2019 16:20:41 -0400
+Message-ID: <20191014085806-mutt-send-email-mst__3909.43324180029$1571170865$gmane$org@kernel.org>
+References: <20191011134358.16912-1-mst@redhat.com>
+	<20191011134358.16912-2-mst@redhat.com>
+	<3b2a6309-9d21-7172-a581-9f0f1d5c1427@redhat.com>
+	<20191012162445-mutt-send-email-mst@kernel.org>
+	<fea337ec-7c09-508b-3efa-b75afd6fe33b@redhat.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset="utf-8"
+Content-Transfer-Encoding: base64
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <20191015174626.11593-1-vgoyal@redhat.com>
+Content-Disposition: inline
+In-Reply-To: <fea337ec-7c09-508b-3efa-b75afd6fe33b@redhat.com>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -17,144 +23,93 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: linux-fsdevel@vger.kernel.org, virtio-fs@redhat.com
-Cc: miklos@szeredi.hu, chirantan@chromium.org, dgilbert@redhat.com, virtualization@lists.linux-foundation.org, stefanha@redhat.com, vgoyal@redhat.com
+To: Jason Wang <jasowang@redhat.com>
+Cc: netdev@vger.kernel.org, linux-kernel@vger.kernel.org, kvm@vger.kernel.org, virtualization@lists.linux-foundation.org
 List-Id: virtualization@lists.linuxfoundation.org
 
-If regular request queue gets full, currently we sleep for a bit and
-retrying submission in submitter's context. This assumes submitter is
-not holding any spin lock. But this assumption is not true for background
-requests. For background requests, we are called with fc->bg_lock held.
-
-This can lead to deadlock where one thread is trying submission with
-fc->bg_lock held while request completion thread has called fuse_request_end()
-which tries to acquire fc->bg_lock and gets blocked. As request completion
-thread gets blocked, it does not make further progress and that means queue
-does not get empty and submitter can't submit more requests.
-
-To solve this issue, retry submission with the help of a worker, instead of
-retrying in submitter's context. We already do this for hiprio/forget
-requests.
-
-Reported-by: Chirantan Ekbote <chirantan@chromium.org>
-Signed-off-by: Vivek Goyal <vgoyal@redhat.com>
----
- fs/fuse/virtio_fs.c | 59 ++++++++++++++++++++++++++++++++++++++-------
- 1 file changed, 50 insertions(+), 9 deletions(-)
-
-diff --git a/fs/fuse/virtio_fs.c b/fs/fuse/virtio_fs.c
-index 625de45fa471..58e568ef54ef 100644
---- a/fs/fuse/virtio_fs.c
-+++ b/fs/fuse/virtio_fs.c
-@@ -55,6 +55,9 @@ struct virtio_fs_forget {
- 	struct list_head list;
- };
- 
-+static int virtio_fs_enqueue_req(struct virtio_fs_vq *fsvq,
-+				 struct fuse_req *req, bool in_flight);
-+
- static inline struct virtio_fs_vq *vq_to_fsvq(struct virtqueue *vq)
- {
- 	struct virtio_fs *fs = vq->vdev->priv;
-@@ -260,6 +263,7 @@ static void virtio_fs_request_dispatch_work(struct work_struct *work)
- 	struct virtio_fs_vq *fsvq = container_of(work, struct virtio_fs_vq,
- 						 dispatch_work.work);
- 	struct fuse_conn *fc = fsvq->fud->fc;
-+	int ret;
- 
- 	pr_debug("virtio-fs: worker %s called.\n", __func__);
- 	while (1) {
-@@ -268,13 +272,43 @@ static void virtio_fs_request_dispatch_work(struct work_struct *work)
- 					       list);
- 		if (!req) {
- 			spin_unlock(&fsvq->lock);
--			return;
-+			break;
- 		}
- 
- 		list_del_init(&req->list);
- 		spin_unlock(&fsvq->lock);
- 		fuse_request_end(fc, req);
- 	}
-+
-+	/* Dispatch pending requests */
-+	while (1) {
-+		spin_lock(&fsvq->lock);
-+		req = list_first_entry_or_null(&fsvq->queued_reqs,
-+					       struct fuse_req, list);
-+		if (!req) {
-+			spin_unlock(&fsvq->lock);
-+			return;
-+		}
-+		list_del_init(&req->list);
-+		spin_unlock(&fsvq->lock);
-+
-+		ret = virtio_fs_enqueue_req(fsvq, req, true);
-+		if (ret < 0) {
-+			if (ret == -ENOMEM || ret == -ENOSPC) {
-+				spin_lock(&fsvq->lock);
-+				list_add_tail(&req->list, &fsvq->queued_reqs);
-+				schedule_delayed_work(&fsvq->dispatch_work,
-+						      msecs_to_jiffies(1));
-+				spin_unlock(&fsvq->lock);
-+				return;
-+			}
-+			req->out.h.error = ret;
-+			dec_in_flight_req(fsvq);
-+			pr_err("virtio-fs: virtio_fs_enqueue_req() failed %d\n",
-+			       ret);
-+			fuse_request_end(fc, req);
-+		}
-+	}
- }
- 
- static void virtio_fs_hiprio_dispatch_work(struct work_struct *work)
-@@ -837,7 +871,7 @@ static unsigned int sg_init_fuse_args(struct scatterlist *sg,
- 
- /* Add a request to a virtqueue and kick the device */
- static int virtio_fs_enqueue_req(struct virtio_fs_vq *fsvq,
--				 struct fuse_req *req)
-+				 struct fuse_req *req, bool in_flight)
- {
- 	/* requests need at least 4 elements */
- 	struct scatterlist *stack_sgs[6];
-@@ -917,7 +951,8 @@ static int virtio_fs_enqueue_req(struct virtio_fs_vq *fsvq,
- 	/* matches barrier in request_wait_answer() */
- 	smp_mb__after_atomic();
- 
--	inc_in_flight_req(fsvq);
-+	if (!in_flight)
-+		inc_in_flight_req(fsvq);
- 	notify = virtqueue_kick_prepare(vq);
- 
- 	spin_unlock(&fsvq->lock);
-@@ -963,15 +998,21 @@ __releases(fiq->lock)
- 		 req->in.h.nodeid, req->in.h.len,
- 		 fuse_len_args(req->args->out_numargs, req->args->out_args));
- 
--retry:
- 	fsvq = &fs->vqs[queue_id];
--	ret = virtio_fs_enqueue_req(fsvq, req);
-+	ret = virtio_fs_enqueue_req(fsvq, req, false);
- 	if (ret < 0) {
- 		if (ret == -ENOMEM || ret == -ENOSPC) {
--			/* Virtqueue full. Retry submission */
--			/* TODO use completion instead of timeout */
--			usleep_range(20, 30);
--			goto retry;
-+			/*
-+			 * Virtqueue full. Retry submission from worker
-+			 * context as we might be holding fc->bg_lock.
-+			 */
-+			spin_lock(&fsvq->lock);
-+			list_add_tail(&req->list, &fsvq->queued_reqs);
-+			inc_in_flight_req(fsvq);
-+			schedule_delayed_work(&fsvq->dispatch_work,
-+						msecs_to_jiffies(1));
-+			spin_unlock(&fsvq->lock);
-+			return;
- 		}
- 		req->out.h.error = ret;
- 		pr_err("virtio-fs: virtio_fs_enqueue_req() failed %d\n", ret);
--- 
-2.20.1
+T24gTW9uLCBPY3QgMTQsIDIwMTkgYXQgMDk6NDM6MjVBTSArMDgwMCwgSmFzb24gV2FuZyB3cm90
+ZToKPiAKPiBPbiAyMDE5LzEwLzEzIOS4iuWNiDQ6MjcsIE1pY2hhZWwgUy4gVHNpcmtpbiB3cm90
+ZToKPiA+IE9uIFNhdCwgT2N0IDEyLCAyMDE5IGF0IDAzOjI4OjQ5UE0gKzA4MDAsIEphc29uIFdh
+bmcgd3JvdGU6Cj4gPiA+IE9uIDIwMTkvMTAvMTEg5LiL5Y2IOTo0NSwgTWljaGFlbCBTLiBUc2ly
+a2luIHdyb3RlOgo+ID4gPiA+IFRoZSBpZGVhIGlzIHRvIHN1cHBvcnQgbXVsdGlwbGUgcmluZyBm
+b3JtYXRzIGJ5IGNvbnZlcnRpbmcKPiA+ID4gPiB0byBhIGZvcm1hdC1pbmRlcGVuZGVudCBhcnJh
+eSBvZiBkZXNjcmlwdG9ycy4KPiA+ID4gPiAKPiA+ID4gPiBUaGlzIGNvc3RzIGV4dHJhIGN5Y2xl
+cywgYnV0IHdlIGdhaW4gaW4gYWJpbGl0eQo+ID4gPiA+IHRvIGZldGNoIGEgYmF0Y2ggb2YgZGVz
+Y3JpcHRvcnMgaW4gb25lIGdvLCB3aGljaAo+ID4gPiA+IGlzIGdvb2QgZm9yIGNvZGUgY2FjaGUg
+bG9jYWxpdHkuCj4gPiA+ID4gCj4gPiA+ID4gVG8gc2ltcGxpZnkgYmVuY2htYXJraW5nLCBJIGtl
+cHQgdGhlIG9sZCBjb2RlCj4gPiA+ID4gYXJvdW5kIHNvIG9uZSBjYW4gc3dpdGNoIGJhY2sgYW5k
+IGZvcnRoIGJ5Cj4gPiA+ID4gd3JpdGluZyBpbnRvIGEgbW9kdWxlIHBhcmFtZXRlci4KPiA+ID4g
+PiBUaGlzIHdpbGwgZ28gYXdheSBpbiB0aGUgZmluYWwgc3VibWlzc2lvbi4KPiA+ID4gPiAKPiA+
+ID4gPiBUaGlzIHBhdGNoIGNhdXNlcyBhIG1pbm9yIHBlcmZvcm1hbmNlIGRlZ3JhZGF0aW9uLAo+
+ID4gPiA+IGl0J3MgYmVlbiBrZXB0IGFzIHNpbXBsZSBhcyBwb3NzaWJsZSBmb3IgZWFzZSBvZiBy
+ZXZpZXcuCj4gPiA+ID4gTmV4dCBwYXRjaCBnZXRzIHVzIGJhY2sgdGhlIHBlcmZvcm1hbmNlIGJ5
+IGFkZGluZyBiYXRjaGluZy4KPiA+ID4gPiAKPiA+ID4gPiBTaWduZWQtb2ZmLWJ5OiBNaWNoYWVs
+IFMuIFRzaXJraW4gPG1zdEByZWRoYXQuY29tPgo+ID4gPiA+IC0tLQo+ID4gPiA+ICAgIGRyaXZl
+cnMvdmhvc3QvdGVzdC5jICB8ICAxNyArKy0KPiA+ID4gPiAgICBkcml2ZXJzL3Zob3N0L3Zob3N0
+LmMgfCAyOTkgKysrKysrKysrKysrKysrKysrKysrKysrKysrKysrKysrKysrKysrKystCj4gPiA+
+ID4gICAgZHJpdmVycy92aG9zdC92aG9zdC5oIHwgIDE2ICsrKwo+ID4gPiA+ICAgIDMgZmlsZXMg
+Y2hhbmdlZCwgMzI3IGluc2VydGlvbnMoKyksIDUgZGVsZXRpb25zKC0pCj4gPiA+ID4gCj4gPiA+
+ID4gZGlmZiAtLWdpdCBhL2RyaXZlcnMvdmhvc3QvdGVzdC5jIGIvZHJpdmVycy92aG9zdC90ZXN0
+LmMKPiA+ID4gPiBpbmRleCAwNTYzMDgwMDgyODguLjM5YTAxOGE3YWYyZCAxMDA2NDQKPiA+ID4g
+PiAtLS0gYS9kcml2ZXJzL3Zob3N0L3Rlc3QuYwo+ID4gPiA+ICsrKyBiL2RyaXZlcnMvdmhvc3Qv
+dGVzdC5jCj4gPiA+ID4gQEAgLTE4LDYgKzE4LDkgQEAKPiA+ID4gPiAgICAjaW5jbHVkZSAidGVz
+dC5oIgo+ID4gPiA+ICAgICNpbmNsdWRlICJ2aG9zdC5oIgo+ID4gPiA+ICtzdGF0aWMgaW50IG5l
+d2NvZGUgPSAwOwo+ID4gPiA+ICttb2R1bGVfcGFyYW0obmV3Y29kZSwgaW50LCAwNjQ0KTsKPiA+
+ID4gPiArCj4gPiA+ID4gICAgLyogTWF4IG51bWJlciBvZiBieXRlcyB0cmFuc2ZlcnJlZCBiZWZv
+cmUgcmVxdWV1ZWluZyB0aGUgam9iLgo+ID4gPiA+ICAgICAqIFVzaW5nIHRoaXMgbGltaXQgcHJl
+dmVudHMgb25lIHZpcnRxdWV1ZSBmcm9tIHN0YXJ2aW5nIG90aGVycy4gKi8KPiA+ID4gPiAgICAj
+ZGVmaW5lIFZIT1NUX1RFU1RfV0VJR0hUIDB4ODAwMDAKPiA+ID4gPiBAQCAtNTgsMTAgKzYxLDE2
+IEBAIHN0YXRpYyB2b2lkIGhhbmRsZV92cShzdHJ1Y3Qgdmhvc3RfdGVzdCAqbikKPiA+ID4gPiAg
+ICAJdmhvc3RfZGlzYWJsZV9ub3RpZnkoJm4tPmRldiwgdnEpOwo+ID4gPiA+ICAgIAlmb3IgKDs7
+KSB7Cj4gPiA+ID4gLQkJaGVhZCA9IHZob3N0X2dldF92cV9kZXNjKHZxLCB2cS0+aW92LAo+ID4g
+PiA+IC0JCQkJCSBBUlJBWV9TSVpFKHZxLT5pb3YpLAo+ID4gPiA+IC0JCQkJCSAmb3V0LCAmaW4s
+Cj4gPiA+ID4gLQkJCQkJIE5VTEwsIE5VTEwpOwo+ID4gPiA+ICsJCWlmIChuZXdjb2RlKQo+ID4g
+PiA+ICsJCQloZWFkID0gdmhvc3RfZ2V0X3ZxX2Rlc2NfYmF0Y2godnEsIHZxLT5pb3YsCj4gPiA+
+ID4gKwkJCQkJCSAgICAgICBBUlJBWV9TSVpFKHZxLT5pb3YpLAo+ID4gPiA+ICsJCQkJCQkgICAg
+ICAgJm91dCwgJmluLAo+ID4gPiA+ICsJCQkJCQkgICAgICAgTlVMTCwgTlVMTCk7Cj4gPiA+ID4g
+KwkJZWxzZQo+ID4gPiA+ICsJCQloZWFkID0gdmhvc3RfZ2V0X3ZxX2Rlc2ModnEsIHZxLT5pb3Ys
+Cj4gPiA+ID4gKwkJCQkJCSBBUlJBWV9TSVpFKHZxLT5pb3YpLAo+ID4gPiA+ICsJCQkJCQkgJm91
+dCwgJmluLAo+ID4gPiA+ICsJCQkJCQkgTlVMTCwgTlVMTCk7Cj4gPiA+ID4gICAgCQkvKiBPbiBl
+cnJvciwgc3RvcCBoYW5kbGluZyB1bnRpbCB0aGUgbmV4dCBraWNrLiAqLwo+ID4gPiA+ICAgIAkJ
+aWYgKHVubGlrZWx5KGhlYWQgPCAwKSkKPiA+ID4gPiAgICAJCQlicmVhazsKPiA+ID4gPiBkaWZm
+IC0tZ2l0IGEvZHJpdmVycy92aG9zdC92aG9zdC5jIGIvZHJpdmVycy92aG9zdC92aG9zdC5jCj4g
+PiA+ID4gaW5kZXggMzZjYTJjZjQxOWJmLi4zNjY2MWQ2Y2I1MWYgMTAwNjQ0Cj4gPiA+ID4gLS0t
+IGEvZHJpdmVycy92aG9zdC92aG9zdC5jCj4gPiA+ID4gKysrIGIvZHJpdmVycy92aG9zdC92aG9z
+dC5jCj4gPiA+ID4gQEAgLTMwMSw2ICszMDEsNyBAQCBzdGF0aWMgdm9pZCB2aG9zdF92cV9yZXNl
+dChzdHJ1Y3Qgdmhvc3RfZGV2ICpkZXYsCj4gPiA+ID4gICAgCQkJICAgc3RydWN0IHZob3N0X3Zp
+cnRxdWV1ZSAqdnEpCj4gPiA+ID4gICAgewo+ID4gPiA+ICAgIAl2cS0+bnVtID0gMTsKPiA+ID4g
+PiArCXZxLT5uZGVzY3MgPSAwOwo+ID4gPiA+ICAgIAl2cS0+ZGVzYyA9IE5VTEw7Cj4gPiA+ID4g
+ICAgCXZxLT5hdmFpbCA9IE5VTEw7Cj4gPiA+ID4gICAgCXZxLT51c2VkID0gTlVMTDsKPiA+ID4g
+PiBAQCAtMzY5LDYgKzM3MCw5IEBAIHN0YXRpYyBpbnQgdmhvc3Rfd29ya2VyKHZvaWQgKmRhdGEp
+Cj4gPiA+ID4gICAgc3RhdGljIHZvaWQgdmhvc3RfdnFfZnJlZV9pb3ZlY3Moc3RydWN0IHZob3N0
+X3ZpcnRxdWV1ZSAqdnEpCj4gPiA+ID4gICAgewo+ID4gPiA+ICsJa2ZyZWUodnEtPmRlc2NzKTsK
+PiA+ID4gPiArCXZxLT5kZXNjcyA9IE5VTEw7Cj4gPiA+ID4gKwl2cS0+bWF4X2Rlc2NzID0gMDsK
+PiA+ID4gPiAgICAJa2ZyZWUodnEtPmluZGlyZWN0KTsKPiA+ID4gPiAgICAJdnEtPmluZGlyZWN0
+ID0gTlVMTDsKPiA+ID4gPiAgICAJa2ZyZWUodnEtPmxvZyk7Cj4gPiA+ID4gQEAgLTM4NSw2ICsz
+ODksMTAgQEAgc3RhdGljIGxvbmcgdmhvc3RfZGV2X2FsbG9jX2lvdmVjcyhzdHJ1Y3Qgdmhvc3Rf
+ZGV2ICpkZXYpCj4gPiA+ID4gICAgCWZvciAoaSA9IDA7IGkgPCBkZXYtPm52cXM7ICsraSkgewo+
+ID4gPiA+ICAgIAkJdnEgPSBkZXYtPnZxc1tpXTsKPiA+ID4gPiArCQl2cS0+bWF4X2Rlc2NzID0g
+ZGV2LT5pb3ZfbGltaXQ7Cj4gPiA+ID4gKwkJdnEtPmRlc2NzID0ga21hbGxvY19hcnJheSh2cS0+
+bWF4X2Rlc2NzLAo+ID4gPiA+ICsJCQkJCSAgc2l6ZW9mKCp2cS0+ZGVzY3MpLAo+ID4gPiA+ICsJ
+CQkJCSAgR0ZQX0tFUk5FTCk7Cj4gPiA+IAo+ID4gPiBJcyBpb3ZfbGltaXQgdG9vIG11Y2ggaGVy
+ZT8gSXQgY2FuIG9idmlvdXNseSBpbmNyZWFzZSB0aGUgZm9vdHByaW50LiBJIGd1ZXNzCj4gPiA+
+IHRoZSBiYXRjaGluZyBjYW4gb25seSBiZSBkb25lIGZvciBkZXNjcmlwdG9yIHdpdGhvdXQgaW5k
+aXJlY3Qgb3IgbmV4dCBzZXQuCj4gPiA+IFRoZW4gd2UgbWF5IGJhdGNoIDE2IG9yIDY0Lgo+ID4g
+PiAKPiA+ID4gVGhhbmtzCj4gPiBZZXMsIG5leHQgcGF0Y2ggb25seSBiYXRjaGVzIHVwIHRvIDY0
+LiAgQnV0IHdlIGRvIG5lZWQgaW92X2xpbWl0IGJlY2F1c2UKPiA+IGd1ZXN0IGNhbiBwYXNzIGEg
+bG9uZyBjaGFpbiBvZiBzY2F0dGVyL2dhdGhlci4KPiA+IFdlIGFscmVhZHkgaGF2ZSBpb3ZlY3Mg
+aW4gYSBodWdlIGFycmF5IHNvIHRoaXMgZG9lcyBub3QgbG9vayBsaWtlCj4gPiBhIGJpZyBkZWFs
+LiBJZiB3ZSBldmVyIHRlYWNoIHRoZSBjb2RlIHRvIGF2b2lkIHRoZSBodWdlCj4gPiBpb3YgYXJy
+YXlzIGJ5IGhhbmRsaW5nIGh1Z2Ugcy9nIGxpc3RzIHBpZWNlIGJ5IHBpZWNlLAo+ID4gd2UgY2Fu
+IG1ha2UgdGhlIGRlc2MgYXJyYXkgc21hbGxlciBhdCB0aGUgc2FtZSBwb2ludC4KPiA+IAo+IAo+
+IEFub3RoZXIgcG9zc2libGUgaXNzdWUsIGlmIHdlIHRyeSB0byBiYXRjaCBkZXNjcmlwdG9yIGNo
+YWluIHdoZW4gd2UndmUKPiBhbHJlYWR5IGJhdGNoZWQgc29tZSBkZXNjcmlwdG9ycywgd2UgbWF5
+IHJlYWNoIHRoZSBsaW1pdCB0aGVuIHNvbWUgb2YgdGhlCj4gZGVzY3JpcHRvcnMgbWlnaHQgbmVl
+ZCByZS1yZWFkLgo+IAo+IE9yIHdlIG1heSBuZWVkIGNpcmN1bGFyIGluZGV4IChoZWFkLCB0YWls
+KSBpbiB0aGlzIGNhc2U/Cj4gCj4gVGhhbmtzCgpXZSBuZXZlciBzdXBwb3J0ZWQgbW9yZSB0aGFu
+IElPVl9NQVggZGVzY3JpcHRvcnMuCkFuZCB3ZSBkb24ndCBiYXRjaCBtb3JlIHRoYW4gaW92X2xp
+bWl0IC0gSU9WX01BWC4KCnNvIGJ1ZmZlciBuZXZlciBvdmVyZmxvd3MuCgotLSAKTVNUCl9fX19f
+X19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fClZpcnR1YWxpemF0aW9u
+IG1haWxpbmcgbGlzdApWaXJ0dWFsaXphdGlvbkBsaXN0cy5saW51eC1mb3VuZGF0aW9uLm9yZwpo
+dHRwczovL2xpc3RzLmxpbnV4Zm91bmRhdGlvbi5vcmcvbWFpbG1hbi9saXN0aW5mby92aXJ0dWFs
+aXphdGlvbg==
