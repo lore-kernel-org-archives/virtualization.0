@@ -1,14 +1,16 @@
-From: Cornelia Huck <cohuck@redhat.com>
-Subject: Re: [PATCH V3 4/7] mdev: introduce device specific ops
-Date: Tue, 15 Oct 2019 12:41:37 +0200
-Message-ID: <20191015124137.4f948bd2.cohuck__9593.30361090309$1571136127$gmane$org@redhat.com>
-References: <20191011081557.28302-1-jasowang@redhat.com>
-	<20191011081557.28302-5-jasowang@redhat.com>
+From: Stefan Hajnoczi <stefanha@redhat.com>
+Subject: Re: [PATCH net 0/2] vsock: don't allow half-closed socket in the
+	host transports
+Date: Tue, 15 Oct 2019 12:56:37 +0100
+Message-ID: <20191015115637.GA1346__22709.1503840469$1571140616$gmane$org@stefanha-x1.localdomain>
+References: <20191011130758.22134-1-sgarzare@redhat.com>
+	<20191011101408-mutt-send-email-mst@kernel.org>
+	<20191011143457.4ujt3gg7oxco6gld@steredhat>
+	<20191012183838-mutt-send-email-mst@kernel.org>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
-Content-Transfer-Encoding: 7bit
+Content-Type: multipart/mixed; boundary="===============7560174157302438320=="
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <20191011081557.28302-5-jasowang@redhat.com>
+In-Reply-To: <20191012183838-mutt-send-email-mst@kernel.org>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -18,110 +20,110 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Jason Wang <jasowang@redhat.com>
-Cc: christophe.de.dinechin@gmail.com, kvm@vger.kernel.org, mst@redhat.com, airlied@linux.ie, joonas.lahtinen@linux.intel.com, heiko.carstens@de.ibm.com, dri-devel@lists.freedesktop.org, virtualization@lists.linux-foundation.org, kwankhede@nvidia.com, rob.miller@broadcom.com, linux-s390@vger.kernel.org, sebott@linux.ibm.com, lulu@redhat.com, eperezma@redhat.com, pasic@linux.ibm.com, borntraeger@de.ibm.com, haotian.wang@sifive.com, zhi.a.wang@intel.com, farman@linux.ibm.com, idos@mellanox.com, gor@linux.ibm.com, intel-gfx@lists.freedesktop.org, jani.nikula@linux.intel.com, xiao.w.wang@intel.com, freude@linux.ibm.com, zhenyuw@linux.intel.com, parav@mellanox.com, zhihong.wang@intel.com, rodrigo.vivi@intel.com, intel-gvt-dev@lists.freedesktop.org, akrowiak@linux.ibm.com, oberpar@linux.ibm.com, netdev@vger.kernel.org, linux-kernel@vger.kernel.org, maxime.coquelin@redhat.comda
+To: "Michael S. Tsirkin" <mst@redhat.com>
+Cc: kvm@vger.kernel.org, netdev@vger.kernel.org, linux-kernel@vger.kernel.org, virtualization@lists.linux-foundation.org, Adit Ranadive <aditr@vmware.com>, "David S. Miller" <davem@davemloft.net>, Jorgen Hansen <jhansen@vmware.com>, Stefano Garzarella <sgarzare@redhat.com>
 List-Id: virtualization@lists.linuxfoundation.org
 
-On Fri, 11 Oct 2019 16:15:54 +0800
-Jason Wang <jasowang@redhat.com> wrote:
 
-> Currently, except for the create and remove, the rest of
-> mdev_parent_ops is designed for vfio-mdev driver only and may not help
-> for kernel mdev driver. With the help of class id, this patch
-> introduces device specific callbacks inside mdev_device
-> structure. This allows different set of callback to be used by
-> vfio-mdev and virtio-mdev.
-> 
-> Signed-off-by: Jason Wang <jasowang@redhat.com>
-> ---
->  .../driver-api/vfio-mediated-device.rst       | 22 +++++---
->  MAINTAINERS                                   |  1 +
->  drivers/gpu/drm/i915/gvt/kvmgt.c              | 18 ++++---
->  drivers/s390/cio/vfio_ccw_ops.c               | 18 ++++---
->  drivers/s390/crypto/vfio_ap_ops.c             | 14 +++--
->  drivers/vfio/mdev/mdev_core.c                 |  9 +++-
->  drivers/vfio/mdev/mdev_private.h              |  1 +
->  drivers/vfio/mdev/vfio_mdev.c                 | 37 ++++++-------
->  include/linux/mdev.h                          | 42 +++------------
->  include/linux/vfio_mdev.h                     | 52 +++++++++++++++++++
->  samples/vfio-mdev/mbochs.c                    | 20 ++++---
->  samples/vfio-mdev/mdpy.c                      | 21 +++++---
->  samples/vfio-mdev/mtty.c                      | 18 ++++---
->  13 files changed, 177 insertions(+), 96 deletions(-)
->  create mode 100644 include/linux/vfio_mdev.h
-> 
-> diff --git a/Documentation/driver-api/vfio-mediated-device.rst b/Documentation/driver-api/vfio-mediated-device.rst
-> index 2035e48da7b2..553574ebba73 100644
-> --- a/Documentation/driver-api/vfio-mediated-device.rst
-> +++ b/Documentation/driver-api/vfio-mediated-device.rst
-> @@ -152,11 +152,20 @@ callbacks per mdev parent device, per mdev type, or any other categorization.
->  Vendor drivers are expected to be fully asynchronous in this respect or
->  provide their own internal resource protection.)
->  
-> -The callbacks in the mdev_parent_ops structure are as follows:
-> +In order to support multiple types of device/driver, device needs to
-> +provide both class_id and device_ops through:
+--===============7560174157302438320==
+Content-Type: multipart/signed; micalg=pgp-sha256;
+	protocol="application/pgp-signature"; boundary="CE+1k2dSO48ffgeK"
+Content-Disposition: inline
 
-"As multiple types of mediated devices may be supported, the device
-needs to set up the class id and the device specific callbacks via:"
 
-?
+--CE+1k2dSO48ffgeK
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+Content-Transfer-Encoding: quoted-printable
 
->  
-> -* open: open callback of mediated device
-> -* close: close callback of mediated device
-> -* ioctl: ioctl callback of mediated device
-> +    void mdev_set_class(struct mdev_device *mdev, u16 id, const void *ops);
-> +
-> +The class_id is used to be paired with ids in id_table in mdev_driver
-> +structure for probing the correct driver.
+On Sat, Oct 12, 2019 at 06:38:46PM -0400, Michael S. Tsirkin wrote:
+> On Fri, Oct 11, 2019 at 04:34:57PM +0200, Stefano Garzarella wrote:
+> > On Fri, Oct 11, 2019 at 10:19:13AM -0400, Michael S. Tsirkin wrote:
+> > > On Fri, Oct 11, 2019 at 03:07:56PM +0200, Stefano Garzarella wrote:
+> > > > We are implementing a test suite for the VSOCK sockets and we disco=
+vered
+> > > > that vmci_transport never allowed half-closed socket on the host si=
+de.
+> > > >=20
+> > > > As Jorgen explained [1] this is due to the implementation of VMCI.
+> > > >=20
+> > > > Since we want to have the same behaviour across all transports, this
+> > > > series adds a section in the "Implementation notes" to exaplain this
+> > > > behaviour, and changes the vhost_transport to behave the same way.
+> > > >=20
+> > > > [1] https://patchwork.ozlabs.org/cover/847998/#1831400
+> > >=20
+> > > Half closed sockets are very useful, and lots of
+> > > applications use tricks to swap a vsock for a tcp socket,
+> > > which might as a result break.
+> >=20
+> > Got it!
+> >=20
+> > >=20
+> > > If VMCI really cares it can implement an ioctl to
+> > > allow applications to detect that half closed sockets aren't supporte=
+d.
+> > >=20
+> > > It does not look like VMCI wants to bother (users do not read
+> > > kernel implementation notes) so it does not really care.
+> > > So why do we want to cripple other transports intentionally?
+> >=20
+> > The main reason is that we are developing the test suite and we noticed
+> > the miss match. Since we want to make sure that applications behave in
+> > the same way on different transports, we thought we would solve it that
+> > way.
+> >=20
+> > But what you are saying (also in the reply of the patches) is actually
+> > quite right. Not being publicized, applications do not expect this beha=
+vior,
+> > so please discard this series.
+> >=20
+> > My problem during the tests, was trying to figure out if half-closed
+> > sockets were supported or not, so as you say adding an IOCTL or maybe
+> > better a getsockopt() could solve the problem.
+> >=20
+> > What do you think?
+> >=20
+> > Thanks,
+> > Stefano
+>=20
+> Sure, why not.
 
-"The class id  (specified in id) is used to match a device with an mdev
-driver via its id table."
+The aim is for applications using AF_VSOCK sockets to run on any
+transport.  When the semantics differ between transports it creates a
+compatibility problem.
 
-?
+That said, I do think keeping the standard sockets behavior is
+reasonable.  If applications have problems on VMCI a sockopt may be
+necessary :(.
 
-> The device_ops is device
-> +specific callbacks which can be get through mdev_get_dev_ops()
-> +function by mdev bus driver. 
+Stefan
 
-"The device specific callbacks (specified in *ops) are obtainable via
-mdev_get_dev_ops() (for use by the mdev bus driver.)"
+--CE+1k2dSO48ffgeK
+Content-Type: application/pgp-signature; name="signature.asc"
 
-?
+-----BEGIN PGP SIGNATURE-----
 
-> For vfio-mdev device, its device specific
-> +ops are as follows:
+iQEzBAEBCAAdFiEEhpWov9P5fNqsNXdanKSrs4Grc8gFAl2ls/UACgkQnKSrs4Gr
+c8hXfQf8DmC3BVfNYClaxCwUaQbqYFilievM4mTXLUF9Hf5yhcrEeaXDL3MDuzba
+vCMXFtTonmxmoMMRYtU+HmWKQP/02aBLgym3JOuiedb8QADkYIhPo1xtppIeC43U
+D9G+/UzHiVKOfHm2XmVpjdOGbY4xmD/J6qAOPKlFdju2ateq5Bj8AawcuuXmMewK
+ZuwZiIDK3GditH12SUl2PA9u10321wXpIhjZ5MeydxSviL91A0HN5xfwJxwxZmlR
+ddc+4gBPdGWmz5XpDutchJ4mQbcc4NA6nUvzBG43+0JhhQiAR8nvzPlTcN4mTQmw
+oGdDYLLcMdYh3HG0E6UrCOwaRlB0DQ==
+=2zm7
+-----END PGP SIGNATURE-----
 
-"A vfio-mdev device (class id MDEV_ID_VFIO) uses the following
-device-specific ops:"
+--CE+1k2dSO48ffgeK--
 
-?
+--===============7560174157302438320==
+Content-Type: text/plain; charset="us-ascii"
+MIME-Version: 1.0
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
 
-> +
-> +* open: open callback of vfio mediated device
-> +* close: close callback of vfio mediated device
-> +* ioctl: ioctl callback of vfio mediated device
->  * read : read emulation callback
->  * write: write emulation callback
->  * mmap: mmap emulation callback
-> @@ -167,9 +176,10 @@ register itself with the mdev core driver::
->  	extern int  mdev_register_device(struct device *dev,
->  	                                 const struct mdev_parent_ops *ops);
->  
-> -It is also required to specify the class_id through::
-> +It is also required to specify the class_id and device specific ops through::
->  
-> -	extern int mdev_set_class(struct device *dev, u16 id);
-> +	extern int mdev_set_class(struct device *dev, u16 id,
-> +	                          const void *ops);
-
-Apologies if that has already been discussed, but do we want a 1:1
-relationship between id and ops, or can different devices with the same
-id register different ops? If the former, would it make sense to first
-register the ops for an id (once), and then have the ->create callback
-only set the class id (with the core doing the lookup of the ops)?
-
->  
->  However, the mdev_parent_ops structure is not required in the function call
->  that a driver should use to unregister itself with the mdev core driver::
+_______________________________________________
+Virtualization mailing list
+Virtualization@lists.linux-foundation.org
+https://lists.linuxfoundation.org/mailman/listinfo/virtualization
+--===============7560174157302438320==--
