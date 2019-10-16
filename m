@@ -1,21 +1,13 @@
-From: David Hildenbrand <david@redhat.com>
-Subject: Re: [PATCH RFC v3 6/9] mm: Allow to offline PageOffline() pages with
-	a reference count of 0
-Date: Wed, 16 Oct 2019 16:16:09 +0200
-Message-ID: <f2ca2396-8aae-842c-91f5-84c3e0fae70e__21366.3932796166$1571235422$gmane$org@redhat.com>
-References: <20190919142228.5483-1-david@redhat.com>
-	<20190919142228.5483-7-david@redhat.com>
-	<20191016114321.GX317@dhcp22.suse.cz>
-	<bd38d88d-19a7-275a-386d-f37cb76a3390@redhat.com>
-	<20191016134519.GC317@dhcp22.suse.cz>
-	<2aef8477-7d12-63a8-e273-9eae8712d5c2@redhat.com>
-	<20191016140958.GE317@dhcp22.suse.cz>
+From: Stefan Hajnoczi <stefanha@redhat.com>
+Subject: Re: [PATCH] vsock/virtio: remove unused 'work' field from 'struct
+	virtio_vsock_pkt'
+Date: Wed, 16 Oct 2019 15:50:38 +0100
+Message-ID: <20191016145038.GH5487__13063.836439845$1571237452$gmane$org@stefanha-x1.localdomain>
+References: <20191015150051.104631-1-sgarzare@redhat.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"; Format="flowed"
-Content-Transfer-Encoding: 7bit
+Content-Type: multipart/mixed; boundary="===============3943229247751328346=="
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <20191016140958.GE317@dhcp22.suse.cz>
-Content-Language: en-US
+In-Reply-To: <20191015150051.104631-1-sgarzare@redhat.com>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -25,47 +17,61 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Michal Hocko <mhocko@kernel.org>
-Cc: Pingfan Liu <kernelfans@gmail.com>, virtualization@lists.linux-foundation.org, linux-mm@kvack.org, Alexander Potapenko <glider@google.com>, Mauro Carvalho Chehab <mchehab+samsung@kernel.org>, Alexander Duyck <alexander.h.duyck@linux.intel.com>, Ira Weiny <ira.weiny@intel.com>, Andrea Arcangeli <aarcange@redhat.com>, Stephen Rothwell <sfr@canb.auug.org.au>, Yu Zhao <yuzhao@google.com>, Matthew Wilcox <willy@infradead.org>, Jason Gunthorpe <jgg@ziepe.ca>, Anthony Yznaga <anthony.yznaga@oracle.com>, Pavel Tatashin <pavel.tatashin@microsoft.com>, Anshuman Khandual <anshuman.khandual@arm.com>, Mike Rapoport <rppt@linux.vnet.ibm.com>, Qian Cai <cai@lca.pw>, Andrey Ryabinin <aryabinin@virtuozzo.com>, Dan Williams <dan.j.williams@intel.com>, Vlastimil Babka <vbabka@suse.cz>, Oscar Salvador <osalvador@suse.de>, Juergen Gross <jgross@suse.com>, Yang Shi <yang.shi@linux.alibaba.c>
+To: Stefano Garzarella <sgarzare@redhat.com>
+Cc: kvm@vger.kernel.org, "Michael S. Tsirkin" <mst@redhat.com>, netdev@vger.kernel.org, linux-kernel@vger.kernel.org, virtualization@lists.linux-foundation.org
 List-Id: virtualization@lists.linuxfoundation.org
 
-On 16.10.19 16:09, Michal Hocko wrote:
-> On Wed 16-10-19 15:55:00, David Hildenbrand wrote:
->> On 16.10.19 15:45, Michal Hocko wrote:
-> [...]
->>> There is state stored in the struct page. In other words this shouldn't
->>> be really different from HWPoison pages. I cannot find the code that is
->>> doing that and maybe we don't handle that. But we cannot simply online
->>> hwpoisoned page. Offlining the range will not make a broken memory OK
->>> all of the sudden. And your usecase sounds similar to me.
->>
->> Sorry to say, but whenever we online memory the memmap is overwritten,
->> because there is no way you could tell it contains garbage or not. You have
->> to assume it is garbage. (my recent patch even poisons the memmap when
->> offlining, which helped to find a lot of these "garbage memmap" BUGs)
->>
->> online_pages()
->> 	...
->> 	move_pfn_range_to_zone(zone, pfn, nr_pages, NULL);
->> 	...
->> 		memmap_init_zone()
->> 			-> memmap initialized
->>
->> So yes, offlining memory with HWPoison and re-onlining it effectively drops
->> HWPoison markers. On the next access, you will trigger a new HWPoison.
-> 
-> Right you are! I need to sit on this much more and think about it with a
-> clean head.
-> 
 
-Sure, take your time and let me know if you need any details on how 
-virtio-mem works, how it uses these interfaces, and how the mm internals 
-it uses play along.
+--===============3943229247751328346==
+Content-Type: multipart/signed; micalg=pgp-sha256;
+	protocol="application/pgp-signature"; boundary="EemXnrF2ob+xzFeB"
+Content-Disposition: inline
 
-Thanks Michal!
 
--- 
+--EemXnrF2ob+xzFeB
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+Content-Transfer-Encoding: quoted-printable
 
-Thanks,
+On Tue, Oct 15, 2019 at 05:00:51PM +0200, Stefano Garzarella wrote:
+> The 'work' field was introduced with commit 06a8fc78367d0
+> ("VSOCK: Introduce virtio_vsock_common.ko")
+> but it is never used in the code, so we can remove it to save
+> memory allocated in the per-packet 'struct virtio_vsock_pkt'
+>=20
+> Suggested-by: Michael S. Tsirkin <mst@redhat.com>
+> Signed-off-by: Stefano Garzarella <sgarzare@redhat.com>
+> ---
+>  include/linux/virtio_vsock.h | 1 -
+>  1 file changed, 1 deletion(-)
 
-David / dhildenb
+Reviewed-by: Stefan Hajnoczi <stefanha@redhat.com>
+
+--EemXnrF2ob+xzFeB
+Content-Type: application/pgp-signature; name="signature.asc"
+
+-----BEGIN PGP SIGNATURE-----
+
+iQEzBAEBCAAdFiEEhpWov9P5fNqsNXdanKSrs4Grc8gFAl2nLj4ACgkQnKSrs4Gr
+c8hxgQf/fJM59TTkQU6f/aLvKMLRivTzsa1Yz/4hy25NeYI++lHojSBwzdtd1BxY
+PF945mWrEnCumX+FOqHdpwX6oRU4bnJ0pc3kzHPrxnLYoyHT1NYNPnEHnaZERFfP
+7OdE3RMXooLx+JM7MrIn8Fh/ElR2Bi4JhUw+zOUMEO96aY+HIJ7cAPsDG3QTHinj
+TL4WUjSRZEqwfZKvJ0TiydqJR/RKjpNEi1bYrTV9TzW84/5AmWternJ3sS76dH3w
+2Qb9yLIBpDSbOnohYQQunrl8VuYdeCw2w0NZc9jsbslAgs6yc5EIE/6PoX//fwOn
+Tf1ER5hbSetx0Lk+7Jaw3eVDH5r6Uw==
+=GpdO
+-----END PGP SIGNATURE-----
+
+--EemXnrF2ob+xzFeB--
+
+--===============3943229247751328346==
+Content-Type: text/plain; charset="us-ascii"
+MIME-Version: 1.0
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+
+_______________________________________________
+Virtualization mailing list
+Virtualization@lists.linux-foundation.org
+https://lists.linuxfoundation.org/mailman/listinfo/virtualization
+--===============3943229247751328346==--
