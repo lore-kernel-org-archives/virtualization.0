@@ -1,8 +1,8 @@
 From: David Hildenbrand <david@redhat.com>
 Subject: Re: [PATCH RFC v3 6/9] mm: Allow to offline PageOffline() pages with
 	a reference count of 0
-Date: Wed, 16 Oct 2019 15:55:00 +0200
-Message-ID: <2aef8477-7d12-63a8-e273-9eae8712d5c2__33247.0018927538$1571234119$gmane$org@redhat.com>
+Date: Wed, 16 Oct 2019 15:59:00 +0200
+Message-ID: <50ee63c0-9d0b-0479-a5b9-494e4bc00446@redhat.com>
 References: <20190919142228.5483-1-david@redhat.com>
 	<20190919142228.5483-7-david@redhat.com>
 	<20191016114321.GX317@dhcp22.suse.cz>
@@ -76,108 +76,13 @@ On 16.10.19 15:45, Michal Hocko wrote:
 > But we can skip those pages when onlining and keep them in the offline
 > state right? We do not poison offlined pages.
 
-Right now, I do that via the online_page_callback_t call (similar to 
-HyperV), as the memmap is basically garbage and not trustworthy.
+https://lkml.org/lkml/2019/10/6/60
 
-> 
-> There is state stored in the struct page. In other words this shouldn't
-> be really different from HWPoison pages. I cannot find the code that is
-> doing that and maybe we don't handle that. But we cannot simply online
-> hwpoisoned page. Offlining the range will not make a broken memory OK
-> all of the sudden. And your usecase sounds similar to me.
+But  again, onlining will overwrite the whole memmap right now and there 
+is no way to identify if a memmap contains garbage or not.
 
-Sorry to say, but whenever we online memory the memmap is overwritten, 
-because there is no way you could tell it contains garbage or not. You 
-have to assume it is garbage. (my recent patch even poisons the memmap 
-when offlining, which helped to find a lot of these "garbage memmap" BUGs)
-
-online_pages()
-	...
-	move_pfn_range_to_zone(zone, pfn, nr_pages, NULL);
-	...
-		memmap_init_zone()
-			-> memmap initialized
-
-So yes, offlining memory with HWPoison and re-onlining it effectively 
-drops HWPoison markers. On the next access, you will trigger a new HWPoison.
-
-> 
->> The driver that marked these pages to be skipped when offlining is
->> responsible for registering the online_page_callback_t callback where these
->> pages will get excluded.
->>
->> This is exactly the same as when onling a memory block that is partially
->> populated (e.g., HpyerV balloon right now).
->>
->> So it's effectively "re-initializing the memmap using the driver knowledge"
->> when onlining.
-> 
-> I am not sure I follow. So you exclude those pages when onlining?
-
-Exactly, using the online_page callback. The pages will - again - be 
-marked PG_offline with a refcount of 0. They will not be put to the buddy.
-
-> 
->>> Should we allow to try_remove_memory to succeed with these pages?
->>
->> I think we should first properly offline them (mark sections offline and
->> memory blocks, fixup numbers, shrink zones ...). The we can cleanly remove
->> the memory. (see [PATCH RFC v3 8/9] mm/memory_hotplug: Introduce
->> offline_and_remove_memory())
-> 
-> I will have a look, but just to quick question. try_remove_memory would
-> fail if the range is offline (via user interface) but there are still some
-> pages in the driver Offline state?
-
-try_remove_memory() does not check any memmap (because it is garbage), 
-it only makes sure that the memory blocks are properly marked as 
-offline. (IOW, device_offline() was called on the memory block).
-
-> 
->> Once offline, the memmap is irrelevant and try_remove_memory() can do its
->> job.
->>
->>> Do we really have hook into __put_page? Why do we even care about the
->>> reference count of those pages? Wouldn't it be just more consistent to
->>> elevate the reference count (I guess this is what you suggest in the
->>> last paragraph) and the virtio driver would return that page to the
->>> buddy by regular put_page. This is also related to the above question
->>> about the physical memory remove.
->>
->> Returning them to the buddy is problematic for various reasons. Let's have a
->> look at __offline_pages():
->>
->> 1) start_isolate_page_range()
->> -> offline pages with a reference count of one will be detected as unmovable
->> -> BAD, we abort right away. We could hack around that.
->>
->> 2) memory_notify(MEM_GOING_OFFLINE, &arg);
->> -> Here, we could release all pages to the buddy, clearing PG_offline
->> -> BAD, PF_offline must not be cleared so dumping tools will not touch
->>     these pages. I don't see a way to hack around that.
->>
->> 3) scan_movable_pages() ...
->>
->> 4a) memory_notify(MEM_OFFLINE, &arg);
->>
->> Perfect, it worked. Sections are offline.
->>
->> 4b) undo_isolate_page_range(start_pfn, end_pfn, MIGRATE_MOVABLE);
->>      memory_notify(MEM_CANCEL_OFFLINE, &arg);
->>
->> -> Offlining failed for whatever reason.
->> -> Pages are in the buddy, but we already un-isolated them. BAD.
->>
->> By not going via the buddy we avoid these issues and can leave PG_offline
->> set until the section is fully offline. Something that is very desirable for
->> virtio-mem (and as far as I can tell also HyperV in the future).
-> 
-> I am not sure I follow. Maybe my original question was confusing. Let me
-> ask again. Why do we need to hook into __put_page?
-
-Just replied again answering this question, before I read this mail :)
-
-Thanks!
+We would have to identify/remember if re-onlining, but I am not yet sure 
+if re-using memmaps when onlining is such a good idea ...
 
 -- 
 
