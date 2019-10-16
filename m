@@ -1,18 +1,20 @@
-From: Cornelia Huck <cohuck@redhat.com>
-Subject: Re: [PATCH V3 4/7] mdev: introduce device specific ops
-Date: Wed, 16 Oct 2019 10:52:32 +0200
-Message-ID: <20191016105232.663dd3c9.cohuck@redhat.com>
-References: <20191011081557.28302-1-jasowang@redhat.com>
-	<20191011081557.28302-5-jasowang@redhat.com>
-	<20191015124137.4f948bd2.cohuck@redhat.com>
-	<eb7ecd99-7465-6be4-7ecd-84c11f66e0ac@redhat.com>
-	<20191015112646.3776dc29@x1.home>
-	<AM0PR05MB4866954855AF080639ED2384D1920@AM0PR05MB4866.eurprd05.prod.outlook.com>
+From: Daniel Vetter <daniel@ffwll.ch>
+Subject: Re: [RFC PATCH] drm/virtio: Export resource handles via DMA-buf API
+Date: Wed, 16 Oct 2019 11:18:22 +0200
+Message-ID: <20191016091822.GR11828__33307.0472277299$1571217551$gmane$org@phenom.ffwll.local>
+References: <20190912094121.228435-1-tfiga@chromium.org>
+	<20190917132305.GV3958@phenom.ffwll.local>
+	<CAAFQd5ADmObo1yVnFGaWDU=DHF+tex3tWJxTZLkxv=EdGNNM7A@mail.gmail.com>
+	<20191008100328.GN16989@phenom.ffwll.local>
+	<CAAFQd5CR2YhyNoSv7=nUhPQ7Nap6n36DrtsCfqS+-iWydAqbNA@mail.gmail.com>
+	<20191008150435.GO16989@phenom.ffwll.local>
+	<CAAFQd5DhKn_2uSA=1JDSj0H98aT8X9UjxWaTBwZCDfOC7YR5Sg@mail.gmail.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="utf-8"
-Content-Transfer-Encoding: base64
+Content-Type: text/plain; charset="us-ascii"
+Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <AM0PR05MB4866954855AF080639ED2384D1920@AM0PR05MB4866.eurprd05.prod.outlook.com>
+Content-Disposition: inline
+In-Reply-To: <CAAFQd5DhKn_2uSA=1JDSj0H98aT8X9UjxWaTBwZCDfOC7YR5Sg@mail.gmail.com>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -22,115 +24,349 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Parav Pandit <parav@mellanox.com>
-Cc: "christophe.de.dinechin@gmail.com" <christophe.de.dinechin@gmail.com>, "kvm@vger.kernel.org" <kvm@vger.kernel.org>, "mst@redhat.com" <mst@redhat.com>, "airlied@linux.ie" <airlied@linux.ie>, "joonas.lahtinen@linux.intel.com" <joonas.lahtinen@linux.intel.com>, "heiko.carstens@de.ibm.com" <heiko.carstens@de.ibm.com>, "dri-devel@lists.freedesktop.org" <dri-devel@lists.freedesktop.org>, "virtualization@lists.linux-foundation.org" <virtualization@lists.linux-foundation.org>, "kwankhede@nvidia.com" <kwankhede@nvidia.com>, "rob.miller@broadcom.com" <rob.miller@broadcom.com>, "linux-s390@vger.kernel.org" <linux-s390@vger.kernel.org>, "sebott@linux.ibm.com" <sebott@linux.ibm.com>, "lulu@redhat.com" <lulu@redhat.com>, "eperezma@redhat.com" <eperezma@redhat.com>, "pasic@linux.ibm.com" <pasic@linux.ibm.com>, "borntraeger@de.ibm.com" <borntraeger@de.ibm.com>, haotian.wang@sifive.c
+To: Tomasz Figa <tfiga@chromium.org>
+Cc: Zach Reizner <zachr@chromium.org>, David Airlie <airlied@linux.ie>, Linux Kernel Mailing List <linux-kernel@vger.kernel.org>, dri-devel <dri-devel@lists.freedesktop.org>, virtualization@lists.linux-foundation.org, Keiichi Watanabe <keiichiw@chromium.org>, Daniel Vetter <daniel@ffwll.ch>, =?iso-8859-1?Q?St=E9phane?= Marchesin <marcheu@chromium.org>, Pawel Osciak <posciak@chromium.org>, stevensd@chromium.org
 List-Id: virtualization@lists.linuxfoundation.org
 
-T24gV2VkLCAxNiBPY3QgMjAxOSAwNTo1MDowOCArMDAwMApQYXJhdiBQYW5kaXQgPHBhcmF2QG1l
-bGxhbm94LmNvbT4gd3JvdGU6Cgo+IEhpIEFsZXgsCj4gCj4gPiAtLS0tLU9yaWdpbmFsIE1lc3Nh
-Z2UtLS0tLQo+ID4gRnJvbTogQWxleCBXaWxsaWFtc29uIDxhbGV4LndpbGxpYW1zb25AcmVkaGF0
-LmNvbT4KPiA+IFNlbnQ6IFR1ZXNkYXksIE9jdG9iZXIgMTUsIDIwMTkgMTI6MjcgUE0KPiA+IFRv
-OiBKYXNvbiBXYW5nIDxqYXNvd2FuZ0ByZWRoYXQuY29tPgo+ID4gQ2M6IENvcm5lbGlhIEh1Y2sg
-PGNvaHVja0ByZWRoYXQuY29tPjsga3ZtQHZnZXIua2VybmVsLm9yZzsgbGludXgtCj4gPiBzMzkw
-QHZnZXIua2VybmVsLm9yZzsgbGludXgta2VybmVsQHZnZXIua2VybmVsLm9yZzsgZHJpLQo+ID4g
-ZGV2ZWxAbGlzdHMuZnJlZWRlc2t0b3Aub3JnOyBpbnRlbC1nZnhAbGlzdHMuZnJlZWRlc2t0b3Au
-b3JnOyBpbnRlbC1ndnQtCj4gPiBkZXZAbGlzdHMuZnJlZWRlc2t0b3Aub3JnOyBrd2Fua2hlZGVA
-bnZpZGlhLmNvbTsgbXN0QHJlZGhhdC5jb207Cj4gPiB0aXdlaS5iaWVAaW50ZWwuY29tOyB2aXJ0
-dWFsaXphdGlvbkBsaXN0cy5saW51eC1mb3VuZGF0aW9uLm9yZzsKPiA+IG5ldGRldkB2Z2VyLmtl
-cm5lbC5vcmc7IG1heGltZS5jb3F1ZWxpbkByZWRoYXQuY29tOwo+ID4gY3VubWluZy5saWFuZ0Bp
-bnRlbC5jb207IHpoaWhvbmcud2FuZ0BpbnRlbC5jb207Cj4gPiByb2IubWlsbGVyQGJyb2FkY29t
-LmNvbTsgeGlhby53LndhbmdAaW50ZWwuY29tOwo+ID4gaGFvdGlhbi53YW5nQHNpZml2ZS5jb207
-IHpoZW55dXdAbGludXguaW50ZWwuY29tOyB6aGkuYS53YW5nQGludGVsLmNvbTsKPiA+IGphbmku
-bmlrdWxhQGxpbnV4LmludGVsLmNvbTsgam9vbmFzLmxhaHRpbmVuQGxpbnV4LmludGVsLmNvbTsK
-PiA+IHJvZHJpZ28udml2aUBpbnRlbC5jb207IGFpcmxpZWRAbGludXguaWU7IGRhbmllbEBmZnds
-bC5jaDsKPiA+IGZhcm1hbkBsaW51eC5pYm0uY29tOyBwYXNpY0BsaW51eC5pYm0uY29tOyBzZWJv
-dHRAbGludXguaWJtLmNvbTsKPiA+IG9iZXJwYXJAbGludXguaWJtLmNvbTsgaGVpa28uY2Fyc3Rl
-bnNAZGUuaWJtLmNvbTsgZ29yQGxpbnV4LmlibS5jb207Cj4gPiBib3JudHJhZWdlckBkZS5pYm0u
-Y29tOyBha3Jvd2lha0BsaW51eC5pYm0uY29tOyBmcmV1ZGVAbGludXguaWJtLmNvbTsKPiA+IGxp
-bmdzaGFuLnpodUBpbnRlbC5jb207IElkbyBTaGFtYXkgPGlkb3NAbWVsbGFub3guY29tPjsKPiA+
-IGVwZXJlem1hQHJlZGhhdC5jb207IGx1bHVAcmVkaGF0LmNvbTsgUGFyYXYgUGFuZGl0Cj4gPiA8
-cGFyYXZAbWVsbGFub3guY29tPjsgY2hyaXN0b3BoZS5kZS5kaW5lY2hpbkBnbWFpbC5jb207Cj4g
-PiBrZXZpbi50aWFuQGludGVsLmNvbQo+ID4gU3ViamVjdDogUmU6IFtQQVRDSCBWMyA0LzddIG1k
-ZXY6IGludHJvZHVjZSBkZXZpY2Ugc3BlY2lmaWMgb3BzCj4gPiAKPiA+IE9uIFR1ZSwgMTUgT2N0
-IDIwMTkgMjA6MTc6MDEgKzA4MDAKPiA+IEphc29uIFdhbmcgPGphc293YW5nQHJlZGhhdC5jb20+
-IHdyb3RlOgo+ID4gICAKPiA+ID4gT24gMjAxOS8xMC8xNSDkuIvljYg2OjQxLCBDb3JuZWxpYSBI
-dWNrIHdyb3RlOiAgCj4gPiA+ID4gT24gRnJpLCAxMSBPY3QgMjAxOSAxNjoxNTo1NCArMDgwMAo+
-ID4gPiA+IEphc29uIFdhbmcgPGphc293YW5nQHJlZGhhdC5jb20+IHdyb3RlOgoKPiA+ID4gPj4g
-QEAgLTE2Nyw5ICsxNzYsMTAgQEAgcmVnaXN0ZXIgaXRzZWxmIHdpdGggdGhlIG1kZXYgY29yZSBk
-cml2ZXI6Ogo+ID4gPiA+PiAgIAlleHRlcm4gaW50ICBtZGV2X3JlZ2lzdGVyX2RldmljZShzdHJ1
-Y3QgZGV2aWNlICpkZXYsCj4gPiA+ID4+ICAgCSAgICAgICAgICAgICAgICAgICAgICAgICAgICAg
-ICAgIGNvbnN0IHN0cnVjdCBtZGV2X3BhcmVudF9vcHMKPiA+ID4gPj4gKm9wcyk7Cj4gPiA+ID4+
-Cj4gPiA+ID4+IC1JdCBpcyBhbHNvIHJlcXVpcmVkIHRvIHNwZWNpZnkgdGhlIGNsYXNzX2lkIHRo
-cm91Z2g6Ogo+ID4gPiA+PiArSXQgaXMgYWxzbyByZXF1aXJlZCB0byBzcGVjaWZ5IHRoZSBjbGFz
-c19pZCBhbmQgZGV2aWNlIHNwZWNpZmljIG9wcyAgCj4gPiB0aHJvdWdoOjogIAo+ID4gPiA+Pgo+
-ID4gPiA+PiAtCWV4dGVybiBpbnQgbWRldl9zZXRfY2xhc3Moc3RydWN0IGRldmljZSAqZGV2LCB1
-MTYgaWQpOwo+ID4gPiA+PiArCWV4dGVybiBpbnQgbWRldl9zZXRfY2xhc3Moc3RydWN0IGRldmlj
-ZSAqZGV2LCB1MTYgaWQsCj4gPiA+ID4+ICsJICAgICAgICAgICAgICAgICAgICAgICAgICBjb25z
-dCB2b2lkICpvcHMpOyAgCj4gPiA+ID4gQXBvbG9naWVzIGlmIHRoYXQgaGFzIGFscmVhZHkgYmVl
-biBkaXNjdXNzZWQsIGJ1dCBkbyB3ZSB3YW50IGEgMToxCj4gPiA+ID4gcmVsYXRpb25zaGlwIGJl
-dHdlZW4gaWQgYW5kIG9wcywgb3IgY2FuIGRpZmZlcmVudCBkZXZpY2VzIHdpdGggdGhlCj4gPiA+
-ID4gc2FtZSBpZCByZWdpc3RlciBkaWZmZXJlbnQgb3BzPyAgCj4gPiA+Cj4gPiA+Cj4gPiA+IEkg
-dGhpbmsgd2UgaGF2ZSBhIE46MSBtYXBwaW5nIGJldHdlZW4gaWQgYW5kIG9wcywgZS5nIHdlIHdh
-bnQgYm90aAo+ID4gPiB2aXJ0aW8tbWRldiBhbmQgdmhvc3QtbWRldiB1c2UgYSBzaW5nbGUgc2V0
-IG9mIGRldmljZSBvcHMuICAKPiA+IAo+ID4gVGhlIGNvbnRlbnRzIG9mIHRoZSBvcHMgc3RydWN0
-dXJlIGlzIGVzc2VudGlhbGx5IGRlZmluZWQgYnkgdGhlIGlkLCB3aGljaCBpcwo+ID4gd2h5IEkg
-d2FzIGxlYW5pbmcgdG93YXJkcyB0aGVtIGJlaW5nIGRlZmluZWQgdG9nZXRoZXIuICBUaGV5IGFy
-ZSBlZmZlY3RpdmVseQo+ID4gaW50ZXJsb2NrZWQsIHRoZSBpZCBkZWZpbmVzIHdoaWNoIG1kZXYg
-ImVuZHBvaW50Igo+ID4gZHJpdmVyIGlzIGxvYWRlZCBhbmQgdGhhdCBkcml2ZXIgcmVxdWlyZXMg
-bWRldl9nZXRfZGV2X29wcygpIHRvIHJldHVybiB0aGUKPiA+IHN0cnVjdHVyZSByZXF1aXJlZCBi
-eSB0aGUgZHJpdmVyLiAgSSB3aXNoIHRoZXJlIHdhcyBhIHdheSB3ZSBjb3VsZAo+ID4gaW5jb3Jw
-b3JhdGUgdHlwZSBjaGVja2luZyBoZXJlLiAgV2UgdG95ZWQgd2l0aCB0aGUgaWRlYSBvZiBoYXZp
-bmcgdGhlIGNsYXNzCj4gPiBpbiB0aGUgc2FtZSBzdHJ1Y3R1cmUgYXMgdGhlIG9wcywgYnV0IEkg
-dGhpbmsgdGhpcyBhcHByb2FjaCB3YXMgY2hvc2VuIGZvcgo+ID4gc2ltcGxpY2l0eS4gIFdlIGNv
-dWxkIHN0aWxsIGRvIHNvbWV0aGluZyBsaWtlOgo+ID4gCj4gPiBpbnQgbWRldl9zZXRfY2xhc3Nf
-c3RydWN0KHN0cnVjdCBkZXZpY2UgKmRldiwgY29uc3Qgc3RydWN0IG1kZXZfY2xhc3Nfc3RydWN0
-Cj4gPiAqY2xhc3MpOwo+ID4gCj4gPiBzdHJ1Y3QgbWRldl9jbGFzc19zdHJ1Y3Qgewo+ID4gCXUx
-NglpZDsKPiA+IAl1bmlvbiB7Cj4gPiAJCXN0cnVjdCB2ZmlvX21kZXZfb3BzIHZmaW9fb3BzOwo+
-ID4gCQlzdHJ1Y3QgdmlydGlvX21kZXZfb3BzIHZpcnRpb19vcHM7Cj4gPiAJfTsKPiA+IH07Cj4g
-PiAKPiA+IE1heWJlIGV2ZW46Cj4gPiAKPiA+IHN0cnVjdCB2ZmlvX21kZXZfb3BzICptZGV2X2dl
-dF92ZmlvX29wcyhzdHJ1Y3QgbWRldl9kZXZpY2UgKm1kZXYpIHsKPiA+IAlCVUdfT04obWRldi0+
-Y2xhc3MuaWQgIT0gTURFVl9JRF9WRklPKTsKPiA+IAlyZXR1cm4gJm1kZXYtPmNsYXNzLnZmaW9f
-b3BzOwo+ID4gfQo+ID4gCj4gPiBUaGUgbWF0Y2ggY2FsbGJhY2sgd291bGQgb2YgY291cnNlIGp1
-c3QgdXNlIHRoZSBtZGV2LT5jbGFzcy5pZCB2YWx1ZS4KPiA+IEZ1bmN0aW9uYWxseSBlcXVpdmFs
-ZW50LCBidXQgbWF5YmUgYmV0dGVyIHR5cGUgY2hhcmFjdGVyaXN0aWNzLiAgVGhhbmtzLAo+ID4g
-Cj4gPiBBbGV4ICAKPiAKPiBXZSBoYXZlIDMgdXNlIGNhc2VzIG9mIG1kZXYuCj4gMS4gY3VycmVu
-dCBtZGV2IGJpbmRpbmcgdG8gdmZpb19tZGV2Cj4gMi4gbWRldiBiaW5kaW5nIHRvIHZpcnRpbwo+
-IDMuIG1kZXYgYmluZGluZyB0byBtbHg1X2NvcmUgd2l0aG91dCBkZXZfb3BzCj4gCj4gQWxzbyAK
-PiAoYSkgYSBnaXZlbiBwYXJlbnQgbWF5IHNlcnZlIG11bHRpcGxlIHR5cGVzIG9mIGNsYXNzZXMg
-aW4gZnV0dXJlLgo+IChiKSBudW1iZXIgb2YgY2xhc3NlcyBtYXkgbm90IGxpa2VseSBleHBsb2Rl
-LCB0aGV5IHdpbGwgYmUgaGFuZGZ1bCBvZiB0aGVtLiAodmZpb19tZGV2LCB2aXJ0aW8pCj4gCj4g
-U28sIGluc3RlYWQgb2YgbWFraW5nIGNvcGllcyBvZiB0aGlzIGRldl9vcHMgcG9pbnRlciBpbiBl
-YWNoIG1kZXYsIGl0IGlzIGJldHRlciB0byBrZWVwIGNvbnN0IG11bHRpcGxlIG9wcyBpbiB0aGVp
-ciBwYXJlbnQgZGV2aWNlLgo+IFNvbWV0aGluZyBsaWtlIGJlbG93LAo+IAo+IHN0cnVjdCBtZGV2
-X3BhcmVudCB7Cj4gCVsuLl0KPiAJc3RydWN0IG1kZXZfcGFyZW50X29wcyAqcGFyZW50X29wczsg
-LyogY3JlYXRlLCByZW1vdmUgKi8KPiAJc3RydWN0IHZmaW9fbWRldl9vcHMgKnZmaW9fb3BzOyAv
-KiByZWFkLHdyaXRlLCBpb2N0bCBldGMgKi8KPiAJc3RydWN0IHZpcnRpb19tZGV2X29wcyAqdmly
-dGlvX29wczsgLyogdmlydGlvIG9wcyAqLwo+IH07CgpUaGF0IGZlZWxzIGEgYml0IG9kZC4gV2h5
-IHNob3VsZCB0aGUgcGFyZW50IGNhcnJ5IHBvaW50ZXJzIHRvIGV2ZXJ5CnBvc3NpYmxlIHZlcnNp
-b24gb2Ygb3BzPwoKPiAKPiBjb25zdCBzdHJ1Y3QgdmZpb19tZGV2X29wcyAqbWRldl9nZXRfdmZp
-b19vcHMoc3RydWN0IG1kZXZfcGFyZW50ICpwYXJlbnQpOwo+IGNvbnN0IHN0cnVjdCB2aXJ0aW9f
-bWRldl9vcHMgKm1kZXZfZ2V0X3ZpcnRpb19vcHMoc3RydWN0IG1kZXZfcGFyZW50ICpwYXJlbnQp
-Owo+IAo+IFRoaXMgd2F5LCAKPiAoYSkgd2UgaGF2ZSBzdHJvbmcgdHlwZSBjaGVjayBzdXBwb3J0
-Cj4gKGIpIG9wcyBwb2ludGVyIGlzIG5vdCBkdXBsaWNhdGVkIGFjcm9zcyBzZXZlcmFsIGh1bmRy
-ZWQgbWRldiBkZXZpY2VzLCBhbmQgZG9uJ3QgaGF2ZSB0byBzZXQgb24gZXZlcnkgbWRldiBjcmVh
-dGlvbgo+IChjKSBhbGwgMyBjbGFzc2VzIG9mIG1kZXYgYXJlIHN1cHBvcnRlZAo+IChkKSBvbmUg
-ZXh0cmEgc3ltYm9sIHRhYmxlIGVudHJ5IHVzZWQgcGVyIG9wcyB0eXBlLCBidXQgdGhlcmUgYXJl
-IG5vdCBleHBlY3RlZCB0byBncm93IGEgbG90Lgo+IChlKSBtdWx0aXBsZSBjbGFzc2VzIHBlciBz
-aW5nbGUgcGFyZW50IGlzIHN0aWxsIHN1cHBvcnRlZAo+IChmKSBzdGlsbCBleHRlbmRpYmxlIGZv
-ciBtdWx0aXBsZSBjbGFzc2VzICh3ZWxsIGRlZmluZWQgY2xhc3NlcyA9IHZmaW8sIHZpcnRpbywg
-YW5kIHZlbmRvciBjbGFzcykKCllldCBhbm90aGVyIHN1Z2dlc3Rpb246IGhhdmUgdGhlIGNsYXNz
-IGlkIGRlcml2ZSBmcm9tIHRoZSBmdW5jdGlvbiB5b3UKdXNlIHRvIHNldCB1cCB0aGUgb3BzLgoK
-dm9pZCBtZGV2X3NldF92ZmlvX29wcyhzdHJ1Y3QgbWRldl9kZXZpY2UgKm1kZXYsIGNvbnN0IHN0
-cnVjdCB2ZmlvX21kZXZfb3BzICp2ZmlvX29wcykKewoJbWRldi0+ZGV2aWNlX29wcyA9IHZmaW9f
-b3BzOwoJbWRldi0+Y2xhc3NfaWQgPSBNREVWX0lEX1ZGSU87Cn0KCnZvaWQgbWRldl9zZXRfdmly
-dGlvX29wcyhzdHJ1Y3QgbWRldl9kZXZpY2UgKm1kZXYsIGNvbnN0IHN0cnVjdCB2aXJ0aW9fbWRl
-dl9vcHMgKnZpcnRpb19vcHMpCnsKCW1kZXYtPmRldmljZV9vcHMgPSB2aXJ0aW9fb3BzOwoJbWRl
-di0+Y2xhc3NfaWQgPSBNREVWX0lEX1ZJUlRJTzsKfQoKdm9pZCBtZGV2X3NldF92aG9zdF9vcHMo
-c3RydWN0IG1kZXZfZGV2aWNlICptZGV2LCBjb25zdCBzdHJ1Y3QgdmlydGlvX21kZXZfb3BzICp2
-aXJ0aW9fb3BzKQp7CgltZGV2LT5kZXZpY2Vfb3BzID0gdmlydGlvX29wczsKCW1kZXYtPmNsYXNz
-X2lkID0gTURFVl9JRF9WSE9TVDsKfQoKdm9pZCBtZGV2X3NldF92ZW5kb3Jfb3BzKHN0cnVjdCBt
-ZGV2X2RldmljZSAqbWRldikgLyogbm8gb3BzICovCnsKCW1kZXYtPmNsYXNzX2lkID0gTURFVl9J
-RF9WRU5ET1I7Cn0KX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19f
-X18KVmlydHVhbGl6YXRpb24gbWFpbGluZyBsaXN0ClZpcnR1YWxpemF0aW9uQGxpc3RzLmxpbnV4
-LWZvdW5kYXRpb24ub3JnCmh0dHBzOi8vbGlzdHMubGludXhmb3VuZGF0aW9uLm9yZy9tYWlsbWFu
-L2xpc3RpbmZvL3ZpcnR1YWxpemF0aW9u
+On Wed, Oct 16, 2019 at 12:19:02PM +0900, Tomasz Figa wrote:
+> On Wed, Oct 9, 2019 at 12:04 AM Daniel Vetter <daniel@ffwll.ch> wrote:
+> >
+> > On Tue, Oct 08, 2019 at 07:49:39PM +0900, Tomasz Figa wrote:
+> > > On Tue, Oct 8, 2019 at 7:03 PM Daniel Vetter <daniel@ffwll.ch> wrote:
+> > > >
+> > > > On Sat, Oct 05, 2019 at 02:41:54PM +0900, Tomasz Figa wrote:
+> > > > > Hi Daniel, Gerd,
+> > > > >
+> > > > > On Tue, Sep 17, 2019 at 10:23 PM Daniel Vetter <daniel@ffwll.ch> wrote:
+> > > > > >
+> > > > > > On Thu, Sep 12, 2019 at 06:41:21PM +0900, Tomasz Figa wrote:
+> > > > > > > This patch is an early RFC to judge the direction we are following in
+> > > > > > > our virtualization efforts in Chrome OS. The purpose is to start a
+> > > > > > > discussion on how to handle buffer sharing between multiple virtio
+> > > > > > > devices.
+> > > > > > >
+> > > > > > > On a side note, we are also working on a virtio video decoder interface
+> > > > > > > and implementation, with a V4L2 driver for Linux. Those will be posted
+> > > > > > > for review in the near future as well.
+> > > > > > >
+> > > > > > > Any feedback will be appreciated! Thanks in advance.
+> > > > > > >
+> > > > > > > ===
+> > > > > > >
+> > > > > > > With the range of use cases for virtualization expanding, there is going
+> > > > > > > to be more virtio devices added to the ecosystem. Devices such as video
+> > > > > > > decoders, encoders, cameras, etc. typically work together with the
+> > > > > > > display and GPU in a pipeline manner, which can only be implemented
+> > > > > > > efficiently by sharing the buffers between producers and consumers.
+> > > > > > >
+> > > > > > > Existing buffer management framework in Linux, such as the videobuf2
+> > > > > > > framework in V4L2, implements all the DMA-buf handling inside generic
+> > > > > > > code and do not expose any low level information about the buffers to
+> > > > > > > the drivers.
+> > > > > > >
+> > > > > > > To seamlessly enable buffer sharing with drivers using such frameworks,
+> > > > > > > make the virtio-gpu driver expose the resource handle as the DMA address
+> > > > > > > of the buffer returned from the DMA-buf mapping operation. Arguably, the
+> > > > > > > resource handle is a kind of DMA address already, as it is the buffer
+> > > > > > > identifier that the device needs to access the backing memory, which is
+> > > > > > > exactly the same role a DMA address provides for native devices.
+> > > > > > >
+> > > > > > > A virtio driver that does memory management fully on its own would have
+> > > > > > > code similar to following. The code is identical to what a regular
+> > > > > > > driver for real hardware would do to import a DMA-buf.
+> > > > > > >
+> > > > > > > static int virtio_foo_get_resource_handle(struct virtio_foo *foo,
+> > > > > > >                                         struct dma_buf *dma_buf, u32 *id)
+> > > > > > > {
+> > > > > > >       struct dma_buf_attachment *attach;
+> > > > > > >       struct sg_table *sgt;
+> > > > > > >       int ret = 0;
+> > > > > > >
+> > > > > > >       attach = dma_buf_attach(dma_buf, foo->dev);
+> > > > > > >       if (IS_ERR(attach))
+> > > > > > >               return PTR_ERR(attach);
+> > > > > > >
+> > > > > > >       sgt = dma_buf_map_attachment(attach, DMA_BIDIRECTIONAL);
+> > > > > > >       if (IS_ERR(sgt)) {
+> > > > > > >               ret = PTR_ERR(sgt);
+> > > > > > >               goto err_detach;
+> > > > > > >       }
+> > > > > > >
+> > > > > > >       if (sgt->nents != 1) {
+> > > > > > >               ret = -EINVAL;
+> > > > > > >               goto err_unmap;
+> > > > > > >       }
+> > > > > > >
+> > > > > > >       *id = sg_dma_address(sgt->sgl);
+> > > > > >
+> > > > > > I agree with Gerd, this looks pretty horrible to me.
+> > > > > >
+> > > > > > The usual way we've done these kind of special dma-bufs is:
+> > > > > >
+> > > > > > - They all get allocated at the same place, through some library or
+> > > > > >   whatever.
+> > > > > >
+> > > > > > - You add a dma_buf_is_virtio(dma_buf) function, or maybe something that
+> > > > > >   also upcasts or returns NULL, which checks for dma_buf->ops.
+> > > > > >
+> > > > >
+> > > > > Thanks for a lot of valuable feedback and sorry for the late reply.
+> > > > >
+> > > > > While I agree that stuffing the resource ID in sg_dma_address() is
+> > > > > quite ugly (for example, the regular address arithmetic doesn't work),
+> > > > > I still believe we need to convey information about these buffers
+> > > > > using regular kernel interfaces.
+> > > > >
+> > > > > Drivers in some subsystems like DRM tend to open code any buffer
+> > > > > management and then it wouldn't be any problem to do what you
+> > > > > suggested. However, other subsystems have generic frameworks for
+> > > > > buffer management, like videobuf2 for V4L2. Those assume regular
+> > > > > DMA-bufs that can be handled with regular dma_buf_() API and described
+> > > > > using sgtables and/or pfn vectors and/or DMA addresses.
+> > > >
+> > > > "other subsystem sucks" doesn't sound like a good design paradigm to me.
+> > > > Forced midlayers are a bad design decision isn't really new at all ...
+> > > >
+> > >
+> > > Sorry, I don't think that's an argument. There are various design
+> > > aspects and for the scenarios for which V4L2 was designed, the other
+> > > subsystems may actually "suck". Let's not derail the discussion into
+> > > judging which subsystems are better or worse.
+> > >
+> > > Those mid layers are not forced, you don't have to use videobuf2, but
+> > > it saves you a lot of open coding, potential security issues and so
+> > > on.
+> >
+> > Oh, it sounded like they're forced. If they're not then we should still be
+> > able to do whatever special handling we want/need to do.
+> 
+> They aren't forced, but if one doesn't use them, they need to
+> reimplement the buffer queues in the driver. That's quite a big
+> effort, especially given the subtleties of stateful (i.e. fully
+> hardware-based) video decoding, such as frame buffer reordering,
+> dynamic resolution changes and so on.
+> 
+> That said, we could still grab the DMA-buf FD directly in the V4L2
+> QBUF callback of the driver and save it in some map, so we can look it
+> up later when given a buffer index. But we would still need to make
+> the DMA-buf itself importable. For virtio-gpu I guess that would mean
+> returning an sg_table backed by the shadow buffer pages.
+> 
+> By the way, have you received the emails from the other thread?
+> ([PATCH] [RFC] vdec: Add virtio video decode device specification)
+
+Yeah I've seen something fly by. Didn't look like I could contribute
+anything useful there.
+-Daniel
+
+> 
+> Best regards,
+> Tomasz
+> 
+> 
+> > -Daniel
+> >
+> > >
+> > > > > > - Once you've upcasted at runtime by checking for ->ops, you can add
+> > > > > >   whatever fancy interfaces you want. Including a real&proper interface to
+> > > > > >   get at whatever underlying id you need to for real buffer sharing
+> > > > > >   between virtio devices.
+> > > > > >
+> > > > > > In a way virtio buffer/memory ids are a kind of private bus, entirely
+> > > > > > distinct from the dma_addr_t bus. So can't really stuff them under this
+> > > > > > same thing like we e.g. do with pci peer2peer.
+> > > > >
+> > > > > As I mentioned earlier, there is no single "dma_addr_t bus". Each
+> > > > > device (as in struct device) can be on its own different DMA bus, with
+> > > > > a different DMA address space. There is not even a guarantee that a
+> > > > > DMA address obtained for one PCI device will be valid for another if
+> > > > > they are on different buses, which could have different address
+> > > > > mappings.
+> > > > >
+> > > > > Putting that aside, we're thinking about a different approach, as Gerd
+> > > > > suggested in another thread, the one about the Virtio Video Decoder
+> > > > > protocol. I'm going to reply there, making sure to CC everyone
+> > > > > involved here.
+> > > >
+> > > > ok.
+> > > > -Daniel
+> > > >
+> > > > >
+> > > > > Best regards,
+> > > > > Tomasz
+> > > > >
+> > > > > > -Daniel
+> > > > > >
+> > > > > > >
+> > > > > > > err_unmap:
+> > > > > > >       dma_buf_unmap_attachment(attach, sgt, DMA_BIDIRECTIONAL);
+> > > > > > > err_detach:
+> > > > > > >       dma_buf_detach(dma_buf, attach);
+> > > > > > >
+> > > > > > >       return ret;
+> > > > > > > }
+> > > > > > >
+> > > > > > > On the other hand, a virtio driver that uses an existing kernel
+> > > > > > > framework to manage buffers would not need to explicitly handle anything
+> > > > > > > at all, as the framework part responsible for importing DMA-bufs would
+> > > > > > > already do the work. For example, a V4L2 driver using the videobuf2
+> > > > > > > framework would just call thee vb2_dma_contig_plane_dma_addr() function
+> > > > > > > to get what the above open-coded function would return.
+> > > > > > >
+> > > > > > > Signed-off-by: Tomasz Figa <tfiga@chromium.org>
+> > > > > > > ---
+> > > > > > >  drivers/gpu/drm/virtio/virtgpu_drv.c   |  2 +
+> > > > > > >  drivers/gpu/drm/virtio/virtgpu_drv.h   |  4 ++
+> > > > > > >  drivers/gpu/drm/virtio/virtgpu_prime.c | 81 ++++++++++++++++++++++++++
+> > > > > > >  3 files changed, 87 insertions(+)
+> > > > > > >
+> > > > > > > diff --git a/drivers/gpu/drm/virtio/virtgpu_drv.c b/drivers/gpu/drm/virtio/virtgpu_drv.c
+> > > > > > > index 0fc32fa0b3c0..ac095f813134 100644
+> > > > > > > --- a/drivers/gpu/drm/virtio/virtgpu_drv.c
+> > > > > > > +++ b/drivers/gpu/drm/virtio/virtgpu_drv.c
+> > > > > > > @@ -210,6 +210,8 @@ static struct drm_driver driver = {
+> > > > > > >  #endif
+> > > > > > >       .prime_handle_to_fd = drm_gem_prime_handle_to_fd,
+> > > > > > >       .prime_fd_to_handle = drm_gem_prime_fd_to_handle,
+> > > > > > > +     .gem_prime_export = virtgpu_gem_prime_export,
+> > > > > > > +     .gem_prime_import = virtgpu_gem_prime_import,
+> > > > > > >       .gem_prime_get_sg_table = virtgpu_gem_prime_get_sg_table,
+> > > > > > >       .gem_prime_import_sg_table = virtgpu_gem_prime_import_sg_table,
+> > > > > > >       .gem_prime_vmap = virtgpu_gem_prime_vmap,
+> > > > > > > diff --git a/drivers/gpu/drm/virtio/virtgpu_drv.h b/drivers/gpu/drm/virtio/virtgpu_drv.h
+> > > > > > > index e28829661724..687cfce91885 100644
+> > > > > > > --- a/drivers/gpu/drm/virtio/virtgpu_drv.h
+> > > > > > > +++ b/drivers/gpu/drm/virtio/virtgpu_drv.h
+> > > > > > > @@ -367,6 +367,10 @@ void virtio_gpu_object_free_sg_table(struct virtio_gpu_object *bo);
+> > > > > > >  int virtio_gpu_object_wait(struct virtio_gpu_object *bo, bool no_wait);
+> > > > > > >
+> > > > > > >  /* virtgpu_prime.c */
+> > > > > > > +struct dma_buf *virtgpu_gem_prime_export(struct drm_gem_object *obj,
+> > > > > > > +                                      int flags);
+> > > > > > > +struct drm_gem_object *virtgpu_gem_prime_import(struct drm_device *dev,
+> > > > > > > +                                             struct dma_buf *buf);
+> > > > > > >  struct sg_table *virtgpu_gem_prime_get_sg_table(struct drm_gem_object *obj);
+> > > > > > >  struct drm_gem_object *virtgpu_gem_prime_import_sg_table(
+> > > > > > >       struct drm_device *dev, struct dma_buf_attachment *attach,
+> > > > > > > diff --git a/drivers/gpu/drm/virtio/virtgpu_prime.c b/drivers/gpu/drm/virtio/virtgpu_prime.c
+> > > > > > > index dc642a884b88..562eb1a2ed5b 100644
+> > > > > > > --- a/drivers/gpu/drm/virtio/virtgpu_prime.c
+> > > > > > > +++ b/drivers/gpu/drm/virtio/virtgpu_prime.c
+> > > > > > > @@ -22,6 +22,9 @@
+> > > > > > >   * Authors: Andreas Pokorny
+> > > > > > >   */
+> > > > > > >
+> > > > > > > +#include <linux/dma-buf.h>
+> > > > > > > +#include <linux/dma-direction.h>
+> > > > > > > +
+> > > > > > >  #include <drm/drm_prime.h>
+> > > > > > >
+> > > > > > >  #include "virtgpu_drv.h"
+> > > > > > > @@ -30,6 +33,84 @@
+> > > > > > >   * device that might share buffers with virtgpu
+> > > > > > >   */
+> > > > > > >
+> > > > > > > +static struct sg_table *
+> > > > > > > +virtgpu_gem_map_dma_buf(struct dma_buf_attachment *attach,
+> > > > > > > +                     enum dma_data_direction dir)
+> > > > > > > +{
+> > > > > > > +     struct drm_gem_object *obj = attach->dmabuf->priv;
+> > > > > > > +     struct virtio_gpu_object *bo = gem_to_virtio_gpu_obj(obj);
+> > > > > > > +     struct sg_table *sgt;
+> > > > > > > +     int ret;
+> > > > > > > +
+> > > > > > > +     sgt = kzalloc(sizeof(*sgt), GFP_KERNEL);
+> > > > > > > +     if (!sgt)
+> > > > > > > +             return ERR_PTR(-ENOMEM);
+> > > > > > > +
+> > > > > > > +     ret = sg_alloc_table(sgt, 1, GFP_KERNEL);
+> > > > > > > +     if (ret) {
+> > > > > > > +             kfree(sgt);
+> > > > > > > +             return ERR_PTR(-ENOMEM);
+> > > > > > > +     }
+> > > > > > > +
+> > > > > > > +     sg_dma_address(sgt->sgl) = bo->hw_res_handle;
+> > > > > > > +     sg_dma_len(sgt->sgl) = obj->size;
+> > > > > > > +     sgt->nents = 1;
+> > > > > > > +
+> > > > > > > +     return sgt;
+> > > > > > > +}
+> > > > > > > +
+> > > > > > > +static void virtgpu_gem_unmap_dma_buf(struct dma_buf_attachment *attach,
+> > > > > > > +                                   struct sg_table *sgt,
+> > > > > > > +                                   enum dma_data_direction dir)
+> > > > > > > +{
+> > > > > > > +     sg_free_table(sgt);
+> > > > > > > +     kfree(sgt);
+> > > > > > > +}
+> > > > > > > +
+> > > > > > > +static const struct dma_buf_ops virtgpu_dmabuf_ops =  {
+> > > > > > > +     .cache_sgt_mapping = true,
+> > > > > > > +     .attach = drm_gem_map_attach,
+> > > > > > > +     .detach = drm_gem_map_detach,
+> > > > > > > +     .map_dma_buf = virtgpu_gem_map_dma_buf,
+> > > > > > > +     .unmap_dma_buf = virtgpu_gem_unmap_dma_buf,
+> > > > > > > +     .release = drm_gem_dmabuf_release,
+> > > > > > > +     .mmap = drm_gem_dmabuf_mmap,
+> > > > > > > +     .vmap = drm_gem_dmabuf_vmap,
+> > > > > > > +     .vunmap = drm_gem_dmabuf_vunmap,
+> > > > > > > +};
+> > > > > > > +
+> > > > > > > +struct dma_buf *virtgpu_gem_prime_export(struct drm_gem_object *obj,
+> > > > > > > +                                      int flags)
+> > > > > > > +{
+> > > > > > > +     struct dma_buf *buf;
+> > > > > > > +
+> > > > > > > +     buf = drm_gem_prime_export(obj, flags);
+> > > > > > > +     if (!IS_ERR(buf))
+> > > > > > > +             buf->ops = &virtgpu_dmabuf_ops;
+> > > > > > > +
+> > > > > > > +     return buf;
+> > > > > > > +}
+> > > > > > > +
+> > > > > > > +struct drm_gem_object *virtgpu_gem_prime_import(struct drm_device *dev,
+> > > > > > > +                                             struct dma_buf *buf)
+> > > > > > > +{
+> > > > > > > +     struct drm_gem_object *obj;
+> > > > > > > +
+> > > > > > > +     if (buf->ops == &virtgpu_dmabuf_ops) {
+> > > > > > > +             obj = buf->priv;
+> > > > > > > +             if (obj->dev == dev) {
+> > > > > > > +                     /*
+> > > > > > > +                      * Importing dmabuf exported from our own gem increases
+> > > > > > > +                      * refcount on gem itself instead of f_count of dmabuf.
+> > > > > > > +                      */
+> > > > > > > +                     drm_gem_object_get(obj);
+> > > > > > > +                     return obj;
+> > > > > > > +             }
+> > > > > > > +     }
+> > > > > > > +
+> > > > > > > +     return drm_gem_prime_import(dev, buf);
+> > > > > > > +}
+> > > > > > > +
+> > > > > > >  struct sg_table *virtgpu_gem_prime_get_sg_table(struct drm_gem_object *obj)
+> > > > > > >  {
+> > > > > > >       struct virtio_gpu_object *bo = gem_to_virtio_gpu_obj(obj);
+> > > > > > > --
+> > > > > > > 2.23.0.237.gc6a4ce50a0-goog
+> > > > > > >
+> > > > > >
+> > > > > > --
+> > > > > > Daniel Vetter
+> > > > > > Software Engineer, Intel Corporation
+> > > > > > http://blog.ffwll.ch
+> > > >
+> > > > --
+> > > > Daniel Vetter
+> > > > Software Engineer, Intel Corporation
+> > > > http://blog.ffwll.ch
+> >
+> > --
+> > Daniel Vetter
+> > Software Engineer, Intel Corporation
+> > http://blog.ffwll.ch
+
+-- 
+Daniel Vetter
+Software Engineer, Intel Corporation
+http://blog.ffwll.ch
