@@ -1,7 +1,7 @@
 From: Stephen Hemminger <stephen@networkplumber.org>
 Subject: Re: [RFC 1/2] vhost: IFC VF hardware operation layer
-Date: Tue, 15 Oct 2019 19:04:55 -0700
-Message-ID: <20191015190455.0d79b836__41259.7046162531$1571191519$gmane$org@hermes.lan>
+Date: Tue, 15 Oct 2019 19:06:49 -0700
+Message-ID: <20191015190649.54ddc91c__31445.0740510196$1571191622$gmane$org@hermes.lan>
 References: <20191016010318.3199-1-lingshan.zhu@intel.com>
 	<20191016010318.3199-2-lingshan.zhu@intel.com>
 Mime-Version: 1.0
@@ -25,13 +25,21 @@ List-Id: virtualization@lists.linuxfoundation.org
 On Wed, 16 Oct 2019 09:03:17 +0800
 Zhu Lingshan <lingshan.zhu@intel.com> wrote:
 
-> +int ifcvf_init_hw(struct ifcvf_hw *hw, struct pci_dev *dev)
-> +{
-> +	int ret;
-> +	u8 pos;
-> +	struct virtio_pci_cap cap;
-> +	u32 i;
-> +	u16 notify_off;
+> +	IFC_INFO(&dev->dev, "PCI capability mapping:\n"
+> +				"common cfg: %p\n"
+> +				"notify base: %p\n"
+> +				"isr cfg: %p\n"
+> +				"device cfg: %p\n"
+> +				"multiplier: %u\n",
+> +				hw->common_cfg,
+> +				hw->notify_base,
+> +				hw->isr,
+> +				hw->dev_cfg,
+> +				hw->notify_off_multiplier);
 
-For network code, the preferred declaration style is
-reverse christmas tree.
+Since kernel messages go to syslog, syslog does not handle multi-line
+messages very well. This should be a single line.
+
+Also, this is the kind of message that should be at the debug
+level; something that is useful to the driver developers
+but not something that needs to be filling up every end users log.
