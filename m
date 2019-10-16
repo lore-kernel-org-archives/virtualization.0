@@ -1,13 +1,14 @@
-From: pr-tracker-bot@kernel.org
-Subject: Re: [PULL] vhost: cleanups and fixes
-Date: Tue, 15 Oct 2019 22:25:07 +0000
-Message-ID: <157117830785.470.239830549616573165.pr-tracker-bot__47182.6328242727$1571178342$gmane$org@kernel.org>
-References: <20191015171908-mutt-send-email-mst@kernel.org>
+From: Stephen Hemminger <stephen@networkplumber.org>
+Subject: Re: [RFC 1/2] vhost: IFC VF hardware operation layer
+Date: Tue, 15 Oct 2019 19:04:55 -0700
+Message-ID: <20191015190455.0d79b836__41259.7046162531$1571191519$gmane$org@hermes.lan>
+References: <20191016010318.3199-1-lingshan.zhu@intel.com>
+	<20191016010318.3199-2-lingshan.zhu@intel.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <20191015171908-mutt-send-email-mst@kernel.org>
+In-Reply-To: <20191016010318.3199-2-lingshan.zhu@intel.com>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -17,18 +18,20 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-Cc: kvm@vger.kernel.org, mst@redhat.com, netdev@vger.kernel.org, linux-kernel@vger.kernel.org, virtualization@lists.linux-foundation.org, jan.kiszka@web.de, Linus Torvalds <torvalds@linux-foundation.org>
+To: Zhu Lingshan <lingshan.zhu@intel.com>
+Cc: mst@redhat.com, netdev@vger.kernel.org, linux-kernel@vger.kernel.org, virtualization@lists.linux-foundation.org, zhiyuan.lv@intel.com, jason.zeng@intel.com
 List-Id: virtualization@lists.linuxfoundation.org
 
-The pull request you sent on Tue, 15 Oct 2019 17:19:08 -0400:
+On Wed, 16 Oct 2019 09:03:17 +0800
+Zhu Lingshan <lingshan.zhu@intel.com> wrote:
 
-> https://git.kernel.org/pub/scm/linux/kernel/git/mst/vhost.git tags/for_linus
+> +int ifcvf_init_hw(struct ifcvf_hw *hw, struct pci_dev *dev)
+> +{
+> +	int ret;
+> +	u8 pos;
+> +	struct virtio_pci_cap cap;
+> +	u32 i;
+> +	u16 notify_off;
 
-has been merged into torvalds/linux.git:
-https://git.kernel.org/torvalds/c/3b1f00aceb7a67bf079a5a64aa5c6baf78a8f442
-
-Thank you!
-
--- 
-Deet-doot-dot, I am a bot.
-https://korg.wiki.kernel.org/userdoc/prtracker
+For network code, the preferred declaration style is
+reverse christmas tree.
