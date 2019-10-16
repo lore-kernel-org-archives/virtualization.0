@@ -1,16 +1,16 @@
 From: Michal Hocko <mhocko@kernel.org>
-Subject: Re: [PATCH RFC v3 4/9] mm: Export alloc_contig_range() /
-	free_contig_range()
-Date: Wed, 16 Oct 2019 13:20:51 +0200
-Message-ID: <20191016112051.GW317__9189.83063181571$1571224865$gmane$org@dhcp22.suse.cz>
+Subject: Re: [PATCH RFC v3 6/9] mm: Allow to offline PageOffline() pages with
+	a reference count of 0
+Date: Wed, 16 Oct 2019 13:43:21 +0200
+Message-ID: <20191016114321.GX317__19106.2642306619$1571226216$gmane$org@dhcp22.suse.cz>
 References: <20190919142228.5483-1-david@redhat.com>
-	<20190919142228.5483-5-david@redhat.com>
+	<20190919142228.5483-7-david@redhat.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
 Content-Disposition: inline
-In-Reply-To: <20190919142228.5483-5-david@redhat.com>
+In-Reply-To: <20190919142228.5483-7-david@redhat.com>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -21,85 +21,77 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
 To: David Hildenbrand <david@redhat.com>
-Cc: Andrea Arcangeli <aarcange@redhat.com>, Pavel Tatashin <pavel.tatashin@microsoft.com>, Alexander Duyck <alexander.h.duyck@linux.intel.com>, linux-kernel@vger.kernel.org, virtualization@lists.linux-foundation.org, linux-mm@kvack.org, Alexander Potapenko <glider@google.com>, Andrew Morton <akpm@linux-foundation.org>, Mike Rapoport <rppt@linux.ibm.com>, Mel Gorman <mgorman@techsingularity.net>, Dan Williams <dan.j.williams@intel.com>, Vlastimil Babka <vbabka@suse.cz>, Oscar Salvador <osalvador@suse.de>
+Cc: Pingfan Liu <kernelfans@gmail.com>, virtualization@lists.linux-foundation.org, linux-mm@kvack.org, Alexander Potapenko <glider@google.com>, Mauro Carvalho Chehab <mchehab+samsung@kernel.org>, Alexander Duyck <alexander.h.duyck@linux.intel.com>, Ira Weiny <ira.weiny@intel.com>, Andrea Arcangeli <aarcange@redhat.com>, Stephen Rothwell <sfr@canb.auug.org.au>, Yu Zhao <yuzhao@google.com>, Matthew Wilcox <willy@infradead.org>, Jason Gunthorpe <jgg@ziepe.ca>, Anthony Yznaga <anthony.yznaga@oracle.com>, Pavel Tatashin <pavel.tatashin@microsoft.com>, Anshuman Khandual <anshuman.khandual@arm.com>, Mike Rapoport <rppt@linux.vnet.ibm.com>, Qian Cai <cai@lca.pw>, Andrey Ryabinin <aryabinin@virtuozzo.com>, Dan Williams <dan.j.williams@intel.com>, Vlastimil Babka <vbabka@suse.cz>, Oscar Salvador <osalvador@suse.de>, Juergen Gross <jgross@suse.com>, Yang Shi <yang.shi@linux.alibaba.c>
 List-Id: virtualization@lists.linuxfoundation.org
 
-On Thu 19-09-19 16:22:23, David Hildenbrand wrote:
-> A virtio-mem device wants to allocate memory from the memory region it
-> manages in order to unplug it in the hypervisor - similar to
-> a balloon driver. Also, it might want to plug previously unplugged
-> (allocated) memory and give it back to Linux. alloc_contig_range() /
-> free_contig_range() seem to be the perfect interface for this task.
+On Thu 19-09-19 16:22:25, David Hildenbrand wrote:
+> virtio-mem wants to allow to offline memory blocks of which some parts
+> were unplugged, especially, to later offline and remove completely
+> unplugged memory blocks. The important part is that PageOffline() has
+> to remain set until the section is offline, so these pages will never
+> get accessed (e.g., when dumping). The pages should not be handed
+> back to the buddy (which would require clearing PageOffline() and
+> result in issues if offlining fails and the pages are suddenly in the
+> buddy).
 > 
-> In contrast to existing balloon devices, a virtio-mem device operates
-> on bigger chunks (e.g., 4MB) and only on physical memory it manages. It
-> tracks which chunks (subblocks) are still plugged, so it can go ahead
-> and try to alloc_contig_range()+unplug them on unplug request, or
-> plug+free_contig_range() unplugged chunks on plug requests.
+> Let's use "PageOffline() + reference count = 0" as a sign to
+> memory offlining code that these pages can simply be skipped when
+> offlining, similar to free or HWPoison pages.
 > 
-> A virtio-mem device will use alloc_contig_range() / free_contig_range()
-> only on ranges that belong to the same node/zone in at least
-> MAX(MAX_ORDER - 1, pageblock_order) order granularity - e.g., 4MB on
-> x86-64. The virtio-mem device added that memory, so the memory
-> exists and does not contain any holes. virtio-mem will only try to allocate
-> on ZONE_NORMAL, never on ZONE_MOVABLE, just like when allocating
-> gigantic pages (we don't put unmovable data into the movable zone).
-
-Is there any real reason to export as GPL rather than generic
-EXPORT_SYMBOL? In other words do we need to restrict the usage this
-interface only to GPL modules and why if so. All other allocator APIs
-are EXPORT_SYMBOL so there should better be a good reason for this one
-to differ. I can understand that this one is slightly different by
-requesting a specific range of the memory but it is still under a full
-control of the core MM to say no.
-
-> Cc: Andrew Morton <akpm@linux-foundation.org>
-> Cc: Michal Hocko <mhocko@suse.com>
-> Cc: Vlastimil Babka <vbabka@suse.cz>
-> Cc: Oscar Salvador <osalvador@suse.de>
-> Cc: Mel Gorman <mgorman@techsingularity.net>
-> Cc: Mike Rapoport <rppt@linux.ibm.com>
-> Cc: Dan Williams <dan.j.williams@intel.com>
-> Cc: Alexander Duyck <alexander.h.duyck@linux.intel.com>
-> Cc: Pavel Tatashin <pavel.tatashin@microsoft.com>
-> Cc: Alexander Potapenko <glider@google.com>
-> Signed-off-by: David Hildenbrand <david@redhat.com>
-
-Other than that, I do not think exporting this function is harmful. It
-would be worse to reinvent it and do it wrong.
-
-I usually prefer to add a caller in the same patch, though, because it
-makes the usage explicit and clear.
-
-Acked-by: Michal Hocko <mhocko@suse.com> # to export contig range allocator API
-
-> ---
->  mm/page_alloc.c | 2 ++
->  1 file changed, 2 insertions(+)
+> Pass flags to test_pages_isolated(), similar as already done for
+> has_unmovable_pages(). Use a new flag to indicate the
+> requirement of memory offlining to skip over these special pages.
 > 
+> In has_unmovable_pages(), make sure the pages won't be detected as
+> movable. This is not strictly necessary, however makes e.g.,
+> alloc_contig_range() stop early, trying to isolate such page blocks -
+> compared to failing later when testing if all pages were isolated.
+> 
+> Also, make sure that when a reference to a PageOffline() page is
+> dropped, that the page will not be returned to the buddy.
+> 
+> memory devices (like virtio-mem) that want to make use of this
+> functionality have to make sure to synchronize against memory offlining,
+> using the memory hotplug notifier.
+> 
+> Alternative: Allow to offline with a reference count of 1
+> and use some other sign in the struct page that offlining is permitted.
+
+Few questions. I do not see onlining code to take care of this special
+case. What should happen when offline && online?
+Should we allow to try_remove_memory to succeed with these pages?
+Do we really have hook into __put_page? Why do we even care about the
+reference count of those pages? Wouldn't it be just more consistent to
+elevate the reference count (I guess this is what you suggest in the
+last paragraph) and the virtio driver would return that page to the
+buddy by regular put_page. This is also related to the above question
+about the physical memory remove.
+
+[...]
 > diff --git a/mm/page_alloc.c b/mm/page_alloc.c
-> index 3334a769eb91..d5d7944954b3 100644
+> index d5d7944954b3..fef74720d8b4 100644
 > --- a/mm/page_alloc.c
 > +++ b/mm/page_alloc.c
-> @@ -8469,6 +8469,7 @@ int alloc_contig_range(unsigned long start, unsigned long end,
->  				pfn_max_align_up(end), migratetype);
->  	return ret;
->  }
-> +EXPORT_SYMBOL_GPL(alloc_contig_range);
->  #endif /* CONFIG_CONTIG_ALLOC */
->  
->  void free_contig_range(unsigned long pfn, unsigned int nr_pages)
-> @@ -8483,6 +8484,7 @@ void free_contig_range(unsigned long pfn, unsigned int nr_pages)
->  	}
->  	WARN(count != 0, "%d pages are still in use!\n", count);
->  }
-> +EXPORT_SYMBOL_GPL(free_contig_range);
->  
->  #ifdef CONFIG_MEMORY_HOTPLUG
->  /*
-> -- 
-> 2.21.0
+> @@ -8221,6 +8221,15 @@ bool has_unmovable_pages(struct zone *zone, struct page *page, int count,
+>  		if (!page_ref_count(page)) {
+>  			if (PageBuddy(page))
+>  				iter += (1 << page_order(page)) - 1;
+> +			/*
+> +			* Memory devices allow to offline a page if it is
+> +			* marked PG_offline and has a reference count of 0.
+> +			* However, the pages are not movable as it would be
+> +			* required e.g., for alloc_contig_range().
+> +			*/
+> +			if (PageOffline(page) && !(flags & SKIP_OFFLINE))
+> +				if (++found > count)
+> +					goto unmovable;
+>  			continue;
+>  		}
 
+Do we really need to distinguish offline and hwpoison pages? They are
+both unmovable for allocator purposes and offlineable for the hotplug,
+right? Should we just hide them behind a helper and use it rather than
+an explicit SKIP_$FOO?
 -- 
 Michal Hocko
 SUSE Labs
