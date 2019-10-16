@@ -1,14 +1,17 @@
-From: Thierry Reding <thierry.reding@gmail.com>
-Subject: Re: [PATCH 1/5] iommu: Implement iommu_put_resv_regions_simple()
-Date: Wed, 16 Oct 2019 14:46:40 +0200
-Message-ID: <20191016124640.GA1772382__25745.5998960481$1571230018$gmane$org@ulmo>
-References: <20190829111752.17513-1-thierry.reding@gmail.com>
-	<20190829111752.17513-2-thierry.reding@gmail.com>
-	<20190918153737.dea2z5dddhuus25g@willie-the-truck>
+From: David Hildenbrand <david@redhat.com>
+Subject: Re: [PATCH RFC v3 6/9] mm: Allow to offline PageOffline() pages with
+	a reference count of 0
+Date: Wed, 16 Oct 2019 14:50:30 +0200
+Message-ID: <bd38d88d-19a7-275a-386d-f37cb76a3390__15717.2271677823$1571230396$gmane$org@redhat.com>
+References: <20190919142228.5483-1-david@redhat.com>
+	<20190919142228.5483-7-david@redhat.com>
+	<20191016114321.GX317@dhcp22.suse.cz>
 Mime-Version: 1.0
-Content-Type: multipart/mixed; boundary="===============2040086399292798659=="
+Content-Type: text/plain; charset="us-ascii"; Format="flowed"
+Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <20190918153737.dea2z5dddhuus25g@willie-the-truck>
+In-Reply-To: <20191016114321.GX317@dhcp22.suse.cz>
+Content-Language: en-US
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -18,112 +21,144 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Will Deacon <will@kernel.org>
-Cc: Jean-Philippe Brucker <jean-philippe@linaro.org>, Robin Murphy <robin.murphy@arm.com>, Joerg Roedel <joro@8bytes.org>, linux-kernel@vger.kernel.org, virtualization@lists.linux-foundation.org, iommu@lists.linux-foundation.org, David Woodhouse <dwmw2@infradead.org>, linux-arm-kernel@lists.infradead.org
+To: Michal Hocko <mhocko@kernel.org>
+Cc: Pingfan Liu <kernelfans@gmail.com>, virtualization@lists.linux-foundation.org, linux-mm@kvack.org, Alexander Potapenko <glider@google.com>, Mauro Carvalho Chehab <mchehab+samsung@kernel.org>, Alexander Duyck <alexander.h.duyck@linux.intel.com>, Ira Weiny <ira.weiny@intel.com>, Andrea Arcangeli <aarcange@redhat.com>, Stephen Rothwell <sfr@canb.auug.org.au>, Yu Zhao <yuzhao@google.com>, Matthew Wilcox <willy@infradead.org>, Jason Gunthorpe <jgg@ziepe.ca>, Anthony Yznaga <anthony.yznaga@oracle.com>, Pavel Tatashin <pavel.tatashin@microsoft.com>, Anshuman Khandual <anshuman.khandual@arm.com>, Mike Rapoport <rppt@linux.vnet.ibm.com>, Qian Cai <cai@lca.pw>, Andrey Ryabinin <aryabinin@virtuozzo.com>, Dan Williams <dan.j.williams@intel.com>, Vlastimil Babka <vbabka@suse.cz>, Oscar Salvador <osalvador@suse.de>, Juergen Gross <jgross@suse.com>, Yang Shi <yang.shi@linux.alibaba.c>
 List-Id: virtualization@lists.linuxfoundation.org
 
+On 16.10.19 13:43, Michal Hocko wrote:
+> On Thu 19-09-19 16:22:25, David Hildenbrand wrote:
+>> virtio-mem wants to allow to offline memory blocks of which some parts
+>> were unplugged, especially, to later offline and remove completely
+>> unplugged memory blocks. The important part is that PageOffline() has
+>> to remain set until the section is offline, so these pages will never
+>> get accessed (e.g., when dumping). The pages should not be handed
+>> back to the buddy (which would require clearing PageOffline() and
+>> result in issues if offlining fails and the pages are suddenly in the
+>> buddy).
+>>
+>> Let's use "PageOffline() + reference count = 0" as a sign to
+>> memory offlining code that these pages can simply be skipped when
+>> offlining, similar to free or HWPoison pages.
+>>
+>> Pass flags to test_pages_isolated(), similar as already done for
+>> has_unmovable_pages(). Use a new flag to indicate the
+>> requirement of memory offlining to skip over these special pages.
+>>
+>> In has_unmovable_pages(), make sure the pages won't be detected as
+>> movable. This is not strictly necessary, however makes e.g.,
+>> alloc_contig_range() stop early, trying to isolate such page blocks -
+>> compared to failing later when testing if all pages were isolated.
+>>
+>> Also, make sure that when a reference to a PageOffline() page is
+>> dropped, that the page will not be returned to the buddy.
+>>
+>> memory devices (like virtio-mem) that want to make use of this
+>> functionality have to make sure to synchronize against memory offlining,
+>> using the memory hotplug notifier.
+>>
+>> Alternative: Allow to offline with a reference count of 1
+>> and use some other sign in the struct page that offlining is permitted.
+> 
+> Few questions. I do not see onlining code to take care of this special
+> case. What should happen when offline && online?
 
---===============2040086399292798659==
-Content-Type: multipart/signed; micalg=pgp-sha256;
-	protocol="application/pgp-signature"; boundary="gKMricLos+KVdGMg"
-Content-Disposition: inline
+Once offline, the memmap is garbage. When onlining again:
+
+a) memmap will be re-initialized
+b) online_page_callback_t will be called for every page in the section. 
+The driver can mark them offline again and not give them to the buddy.
+c) section will be marked online.
+
+The driver that marked these pages to be skipped when offlining is 
+responsible for registering the online_page_callback_t callback where 
+these pages will get excluded.
+
+This is exactly the same as when onling a memory block that is partially 
+populated (e.g., HpyerV balloon right now).
+
+So it's effectively "re-initializing the memmap using the driver 
+knowledge" when onlining.
+
+> Should we allow to try_remove_memory to succeed with these pages?
+
+I think we should first properly offline them (mark sections offline and 
+memory blocks, fixup numbers, shrink zones ...). The we can cleanly 
+remove the memory. (see [PATCH RFC v3 8/9] mm/memory_hotplug: Introduce 
+offline_and_remove_memory())
+
+Once offline, the memmap is irrelevant and try_remove_memory() can do 
+its job.
+
+> Do we really have hook into __put_page? Why do we even care about the
+> reference count of those pages? Wouldn't it be just more consistent to
+> elevate the reference count (I guess this is what you suggest in the
+> last paragraph) and the virtio driver would return that page to the
+> buddy by regular put_page. This is also related to the above question
+> about the physical memory remove.
+
+Returning them to the buddy is problematic for various reasons. Let's 
+have a look at __offline_pages():
+
+1) start_isolate_page_range()
+-> offline pages with a reference count of one will be detected as 
+unmovable -> BAD, we abort right away. We could hack around that.
+
+2) memory_notify(MEM_GOING_OFFLINE, &arg);
+-> Here, we could release all pages to the buddy, clearing PG_offline
+-> BAD, PF_offline must not be cleared so dumping tools will not touch
+    these pages. I don't see a way to hack around that.
+
+3) scan_movable_pages() ...
+
+4a) memory_notify(MEM_OFFLINE, &arg);
+
+Perfect, it worked. Sections are offline.
+
+4b) undo_isolate_page_range(start_pfn, end_pfn, MIGRATE_MOVABLE);
+     memory_notify(MEM_CANCEL_OFFLINE, &arg);
+
+-> Offlining failed for whatever reason.
+-> Pages are in the buddy, but we already un-isolated them. BAD.
+
+By not going via the buddy we avoid these issues and can leave 
+PG_offline set until the section is fully offline. Something that is 
+very desirable for virtio-mem (and as far as I can tell also HyperV in 
+the future).
+
+> 
+> [...]
+>> diff --git a/mm/page_alloc.c b/mm/page_alloc.c
+>> index d5d7944954b3..fef74720d8b4 100644
+>> --- a/mm/page_alloc.c
+>> +++ b/mm/page_alloc.c
+>> @@ -8221,6 +8221,15 @@ bool has_unmovable_pages(struct zone *zone, struct page *page, int count,
+>>   		if (!page_ref_count(page)) {
+>>   			if (PageBuddy(page))
+>>   				iter += (1 << page_order(page)) - 1;
+>> +			/*
+>> +			* Memory devices allow to offline a page if it is
+>> +			* marked PG_offline and has a reference count of 0.
+>> +			* However, the pages are not movable as it would be
+>> +			* required e.g., for alloc_contig_range().
+>> +			*/
+>> +			if (PageOffline(page) && !(flags & SKIP_OFFLINE))
+>> +				if (++found > count)
+>> +					goto unmovable;
+>>   			continue;
+>>   		}
+> 
+> Do we really need to distinguish offline and hwpoison pages? They are
+> both unmovable for allocator purposes and offlineable for the hotplug,
+> right? Should we just hide them behind a helper and use it rather than
+> an explicit SKIP_$FOO?
+
+Makes sense. It really boils down to "offline" vs. "allocate" use cases.
+
+So maybe instead of "SKIP_FOO" something like "MEMORY_OFFLINE". ?
 
 
---gKMricLos+KVdGMg
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
+-- 
 
-On Wed, Sep 18, 2019 at 04:37:38PM +0100, Will Deacon wrote:
-> On Thu, Aug 29, 2019 at 01:17:48PM +0200, Thierry Reding wrote:
-> > From: Thierry Reding <treding@nvidia.com>
-> >=20
-> > Implement a generic function for removing reserved regions. This can be
-> > used by drivers that don't do anything fancy with these regions other
-> > than allocating memory for them.
-> >=20
-> > Signed-off-by: Thierry Reding <treding@nvidia.com>
-> > ---
-> >  drivers/iommu/iommu.c | 19 +++++++++++++++++++
-> >  include/linux/iommu.h |  2 ++
-> >  2 files changed, 21 insertions(+)
-> >=20
-> > diff --git a/drivers/iommu/iommu.c b/drivers/iommu/iommu.c
-> > index 0f585b614657..73a2a6b13507 100644
-> > --- a/drivers/iommu/iommu.c
-> > +++ b/drivers/iommu/iommu.c
-> > @@ -2170,6 +2170,25 @@ void iommu_put_resv_regions(struct device *dev, =
-struct list_head *list)
-> >  		ops->put_resv_regions(dev, list);
-> >  }
-> > =20
-> > +/**
-> > + * iommu_put_resv_regions_simple - Reserved region driver helper
-> > + * @dev: device for which to free reserved regions
-> > + * @list: reserved region list for device
-> > + *
-> > + * IOMMU drivers can use this to implement their .put_resv_regions() c=
-allback
-> > + * for simple reservations. Memory allocated for each reserved region =
-will be
-> > + * freed. If an IOMMU driver allocates additional resources per region=
-, it is
-> > + * going to have to implement a custom callback.
-> > + */
-> > +void iommu_put_resv_regions_simple(struct device *dev, struct list_hea=
-d *list)
-> > +{
-> > +	struct iommu_resv_region *entry, *next;
-> > +
-> > +	list_for_each_entry_safe(entry, next, list, list)
-> > +		kfree(entry);
-> > +}
-> > +EXPORT_SYMBOL(iommu_put_resv_regions_simple);
->=20
-> Can you call this directly from iommu_put_resv_regions() if the function
-> pointer in ops is NULL? That would save having to plumb the default callb=
-ack
-> into a bunch of drivers.
+Thanks,
 
-I probably could, but I don't think that necessarily improves things.
-The reason is that that would cause the helper to get called even if the
-driver doesn't support reserved regions. That's likely harmless because
-in that case the list of regions passed to it would be empty. However, I
-think the current way to do this, where we have to implement both hooks
-for ->get_resv_regions() and ->put_resv_regions() is nicely symmetric.
-
-Thierry
-
---gKMricLos+KVdGMg
-Content-Type: application/pgp-signature; name="signature.asc"
-
------BEGIN PGP SIGNATURE-----
-
-iQIzBAABCAAdFiEEiOrDCAFJzPfAjcif3SOs138+s6EFAl2nES4ACgkQ3SOs138+
-s6EONg//ZrYWm5ShwdyQ9XivGxuuU1NxmrAJMtWHz2z0xMVhLv8vVlvNeGNNepm/
-AYozw/NMlEZokXfJVW9zNHDpOdr+MB6EchafhOZo9kK592CE18NhVrpVDptMvf29
-K1QsQvgCq5Lu9EHBeDMxpx6Kn9VNBFJuAeYCIVzD5GOm80sHdAp1eKMwu/od+oTQ
-IwZLB0K82tKdvnwYDYjN/JUW0dbrthH+fW843oOxAqQgrJYApL64k6WuPn6evN11
-V7xbw3/Yk3LMqxmBzve7b7ATYXdGRuN7TdMX7aZmLX8xyu11L6LbK+Lss10BbBKi
-Vja3MbZgoD54Eam3zOvj+b7tfdiRry4jhqqVksJ/Q2U7KOygrzLORgYR6wTgtz9g
-opzD+i9cGdaSj1k8kvVeFPqX9TL/er2hy05MIEWYYTuVh3Y6xiPekH988bHvxf9X
-bcl8I5YARin8U2n5R9kaS+drtuo3HvgeQMfszEf9UDNLQc+Pl5niTQPJzljWiZ36
-zI8Tq7Sq8Fph33gOGbpcZMTDux4cjlYtGWle7U5tkS38Xte7+IgRxmpwWDC6Y0jX
-muP1UNGkXJMLvJtssGseFZZw9qkJcq0NPRdjaN4k+LTdbrw0B10f1CDST8g/9Z4H
-xvmbe6SyeWzgcBc43Fs4V3YjZXAYWxf66eD2B9h9AdAEHSmCgD4=
-=LljU
------END PGP SIGNATURE-----
-
---gKMricLos+KVdGMg--
-
---===============2040086399292798659==
-Content-Type: text/plain; charset="us-ascii"
-MIME-Version: 1.0
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-
-_______________________________________________
-Virtualization mailing list
-Virtualization@lists.linux-foundation.org
-https://lists.linuxfoundation.org/mailman/listinfo/virtualization
---===============2040086399292798659==--
+David / dhildenb
