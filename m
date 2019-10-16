@@ -1,17 +1,14 @@
-From: David Hildenbrand <david@redhat.com>
-Subject: Re: [PATCH RFC v3 4/9] mm: Export alloc_contig_range() /
-	free_contig_range()
-Date: Wed, 16 Oct 2019 14:31:14 +0200
-Message-ID: <ef8b47c6-45ad-1b32-c54d-829b44a12131__4476.08198025904$1571229089$gmane$org@redhat.com>
-References: <20190919142228.5483-1-david@redhat.com>
-	<20190919142228.5483-5-david@redhat.com>
-	<20191016112051.GW317@dhcp22.suse.cz>
+From: Thierry Reding <thierry.reding@gmail.com>
+Subject: Re: [PATCH 1/5] iommu: Implement iommu_put_resv_regions_simple()
+Date: Wed, 16 Oct 2019 14:46:40 +0200
+Message-ID: <20191016124640.GA1772382__25745.5998960481$1571230018$gmane$org@ulmo>
+References: <20190829111752.17513-1-thierry.reding@gmail.com>
+	<20190829111752.17513-2-thierry.reding@gmail.com>
+	<20190918153737.dea2z5dddhuus25g@willie-the-truck>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"; Format="flowed"
-Content-Transfer-Encoding: 7bit
+Content-Type: multipart/mixed; boundary="===============2040086399292798659=="
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <20191016112051.GW317@dhcp22.suse.cz>
-Content-Language: en-US
+In-Reply-To: <20190918153737.dea2z5dddhuus25g@willie-the-truck>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -21,74 +18,112 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Michal Hocko <mhocko@kernel.org>
-Cc: Andrea Arcangeli <aarcange@redhat.com>, Pavel Tatashin <pavel.tatashin@microsoft.com>, Alexander Duyck <alexander.h.duyck@linux.intel.com>, linux-kernel@vger.kernel.org, virtualization@lists.linux-foundation.org, linux-mm@kvack.org, Alexander Potapenko <glider@google.com>, Andrew Morton <akpm@linux-foundation.org>, Mike Rapoport <rppt@linux.ibm.com>, Mel Gorman <mgorman@techsingularity.net>, Dan Williams <dan.j.williams@intel.com>, Vlastimil Babka <vbabka@suse.cz>, Oscar Salvador <osalvador@suse.de>
+To: Will Deacon <will@kernel.org>
+Cc: Jean-Philippe Brucker <jean-philippe@linaro.org>, Robin Murphy <robin.murphy@arm.com>, Joerg Roedel <joro@8bytes.org>, linux-kernel@vger.kernel.org, virtualization@lists.linux-foundation.org, iommu@lists.linux-foundation.org, David Woodhouse <dwmw2@infradead.org>, linux-arm-kernel@lists.infradead.org
 List-Id: virtualization@lists.linuxfoundation.org
 
-On 16.10.19 13:20, Michal Hocko wrote:
-> On Thu 19-09-19 16:22:23, David Hildenbrand wrote:
->> A virtio-mem device wants to allocate memory from the memory region it
->> manages in order to unplug it in the hypervisor - similar to
->> a balloon driver. Also, it might want to plug previously unplugged
->> (allocated) memory and give it back to Linux. alloc_contig_range() /
->> free_contig_range() seem to be the perfect interface for this task.
->>
->> In contrast to existing balloon devices, a virtio-mem device operates
->> on bigger chunks (e.g., 4MB) and only on physical memory it manages. It
->> tracks which chunks (subblocks) are still plugged, so it can go ahead
->> and try to alloc_contig_range()+unplug them on unplug request, or
->> plug+free_contig_range() unplugged chunks on plug requests.
->>
->> A virtio-mem device will use alloc_contig_range() / free_contig_range()
->> only on ranges that belong to the same node/zone in at least
->> MAX(MAX_ORDER - 1, pageblock_order) order granularity - e.g., 4MB on
->> x86-64. The virtio-mem device added that memory, so the memory
->> exists and does not contain any holes. virtio-mem will only try to allocate
->> on ZONE_NORMAL, never on ZONE_MOVABLE, just like when allocating
->> gigantic pages (we don't put unmovable data into the movable zone).
-> 
-> Is there any real reason to export as GPL rather than generic
-> EXPORT_SYMBOL? In other words do we need to restrict the usage this
-> interface only to GPL modules and why if so. All other allocator APIs
-> are EXPORT_SYMBOL so there should better be a good reason for this one
-> to differ. I can understand that this one is slightly different by
-> requesting a specific range of the memory but it is still under a full
-> control of the core MM to say no.
 
-I thought that we might - at least initially - might want to know all 
-users. If you prefer, I can drop the GPL.
+--===============2040086399292798659==
+Content-Type: multipart/signed; micalg=pgp-sha256;
+	protocol="application/pgp-signature"; boundary="gKMricLos+KVdGMg"
+Content-Disposition: inline
 
-> 
->> Cc: Andrew Morton <akpm@linux-foundation.org>
->> Cc: Michal Hocko <mhocko@suse.com>
->> Cc: Vlastimil Babka <vbabka@suse.cz>
->> Cc: Oscar Salvador <osalvador@suse.de>
->> Cc: Mel Gorman <mgorman@techsingularity.net>
->> Cc: Mike Rapoport <rppt@linux.ibm.com>
->> Cc: Dan Williams <dan.j.williams@intel.com>
->> Cc: Alexander Duyck <alexander.h.duyck@linux.intel.com>
->> Cc: Pavel Tatashin <pavel.tatashin@microsoft.com>
->> Cc: Alexander Potapenko <glider@google.com>
->> Signed-off-by: David Hildenbrand <david@redhat.com>
-> 
-> Other than that, I do not think exporting this function is harmful. It
-> would be worse to reinvent it and do it wrong.
-> 
-> I usually prefer to add a caller in the same patch, though, because it
-> makes the usage explicit and clear.
-> 
 
-It's the next patch in this series (I prefer to split this from the 
-actual driver):
+--gKMricLos+KVdGMg
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+Content-Transfer-Encoding: quoted-printable
 
-https://lkml.org/lkml/2019/9/19/486
+On Wed, Sep 18, 2019 at 04:37:38PM +0100, Will Deacon wrote:
+> On Thu, Aug 29, 2019 at 01:17:48PM +0200, Thierry Reding wrote:
+> > From: Thierry Reding <treding@nvidia.com>
+> >=20
+> > Implement a generic function for removing reserved regions. This can be
+> > used by drivers that don't do anything fancy with these regions other
+> > than allocating memory for them.
+> >=20
+> > Signed-off-by: Thierry Reding <treding@nvidia.com>
+> > ---
+> >  drivers/iommu/iommu.c | 19 +++++++++++++++++++
+> >  include/linux/iommu.h |  2 ++
+> >  2 files changed, 21 insertions(+)
+> >=20
+> > diff --git a/drivers/iommu/iommu.c b/drivers/iommu/iommu.c
+> > index 0f585b614657..73a2a6b13507 100644
+> > --- a/drivers/iommu/iommu.c
+> > +++ b/drivers/iommu/iommu.c
+> > @@ -2170,6 +2170,25 @@ void iommu_put_resv_regions(struct device *dev, =
+struct list_head *list)
+> >  		ops->put_resv_regions(dev, list);
+> >  }
+> > =20
+> > +/**
+> > + * iommu_put_resv_regions_simple - Reserved region driver helper
+> > + * @dev: device for which to free reserved regions
+> > + * @list: reserved region list for device
+> > + *
+> > + * IOMMU drivers can use this to implement their .put_resv_regions() c=
+allback
+> > + * for simple reservations. Memory allocated for each reserved region =
+will be
+> > + * freed. If an IOMMU driver allocates additional resources per region=
+, it is
+> > + * going to have to implement a custom callback.
+> > + */
+> > +void iommu_put_resv_regions_simple(struct device *dev, struct list_hea=
+d *list)
+> > +{
+> > +	struct iommu_resv_region *entry, *next;
+> > +
+> > +	list_for_each_entry_safe(entry, next, list, list)
+> > +		kfree(entry);
+> > +}
+> > +EXPORT_SYMBOL(iommu_put_resv_regions_simple);
+>=20
+> Can you call this directly from iommu_put_resv_regions() if the function
+> pointer in ops is NULL? That would save having to plumb the default callb=
+ack
+> into a bunch of drivers.
 
-> Acked-by: Michal Hocko <mhocko@suse.com> # to export contig range allocator API
+I probably could, but I don't think that necessarily improves things.
+The reason is that that would cause the helper to get called even if the
+driver doesn't support reserved regions. That's likely harmless because
+in that case the list of regions passed to it would be empty. However, I
+think the current way to do this, where we have to implement both hooks
+for ->get_resv_regions() and ->put_resv_regions() is nicely symmetric.
 
-Thanks!
+Thierry
 
--- 
+--gKMricLos+KVdGMg
+Content-Type: application/pgp-signature; name="signature.asc"
 
-Thanks,
+-----BEGIN PGP SIGNATURE-----
 
-David / dhildenb
+iQIzBAABCAAdFiEEiOrDCAFJzPfAjcif3SOs138+s6EFAl2nES4ACgkQ3SOs138+
+s6EONg//ZrYWm5ShwdyQ9XivGxuuU1NxmrAJMtWHz2z0xMVhLv8vVlvNeGNNepm/
+AYozw/NMlEZokXfJVW9zNHDpOdr+MB6EchafhOZo9kK592CE18NhVrpVDptMvf29
+K1QsQvgCq5Lu9EHBeDMxpx6Kn9VNBFJuAeYCIVzD5GOm80sHdAp1eKMwu/od+oTQ
+IwZLB0K82tKdvnwYDYjN/JUW0dbrthH+fW843oOxAqQgrJYApL64k6WuPn6evN11
+V7xbw3/Yk3LMqxmBzve7b7ATYXdGRuN7TdMX7aZmLX8xyu11L6LbK+Lss10BbBKi
+Vja3MbZgoD54Eam3zOvj+b7tfdiRry4jhqqVksJ/Q2U7KOygrzLORgYR6wTgtz9g
+opzD+i9cGdaSj1k8kvVeFPqX9TL/er2hy05MIEWYYTuVh3Y6xiPekH988bHvxf9X
+bcl8I5YARin8U2n5R9kaS+drtuo3HvgeQMfszEf9UDNLQc+Pl5niTQPJzljWiZ36
+zI8Tq7Sq8Fph33gOGbpcZMTDux4cjlYtGWle7U5tkS38Xte7+IgRxmpwWDC6Y0jX
+muP1UNGkXJMLvJtssGseFZZw9qkJcq0NPRdjaN4k+LTdbrw0B10f1CDST8g/9Z4H
+xvmbe6SyeWzgcBc43Fs4V3YjZXAYWxf66eD2B9h9AdAEHSmCgD4=
+=LljU
+-----END PGP SIGNATURE-----
+
+--gKMricLos+KVdGMg--
+
+--===============2040086399292798659==
+Content-Type: text/plain; charset="us-ascii"
+MIME-Version: 1.0
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+
+_______________________________________________
+Virtualization mailing list
+Virtualization@lists.linux-foundation.org
+https://lists.linuxfoundation.org/mailman/listinfo/virtualization
+--===============2040086399292798659==--
