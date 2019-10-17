@@ -1,14 +1,11 @@
-From: Gerd Hoffmann <kraxel@redhat.com>
-Subject: Re: [PATCH -next] drm/qxl: Fix randbuild error
-Date: Thu, 17 Oct 2019 14:32:48 +0200
-Message-ID: <20191017123248.b4d4jd6wfu7np25n__33632.7665181429$1571315586$gmane$org@sirius.home.kraxel.org>
-References: <20191008024054.32368-1-yuehaibing@huawei.com>
+From: Stefano Garzarella <sgarzare@redhat.com>
+Subject: [PATCH net 0/2] vsock/virtio: make the credit mechanism more robust
+Date: Thu, 17 Oct 2019 14:44:01 +0200
+Message-ID: <20191017124403.266242-1-sgarzare@redhat.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-Content-Disposition: inline
-In-Reply-To: <20191008024054.32368-1-yuehaibing@huawei.com>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -18,18 +15,24 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: YueHaibing <yuehaibing@huawei.com>
-Cc: airlied@linux.ie, linux-kernel@vger.kernel.org, dri-devel@lists.freedesktop.org, virtualization@lists.linux-foundation.org, daniel@ffwll.ch, spice-devel@lists.freedesktop.org, airlied@redhat.com
+To: netdev@vger.kernel.org
+Cc: virtualization@lists.linux-foundation.org, Stefan Hajnoczi <stefanha@redhat.com>, linux-kernel@vger.kernel.org, kvm@vger.kernel.org, "David S. Miller" <davem@davemloft.net>
 List-Id: virtualization@lists.linuxfoundation.org
 
-On Tue, Oct 08, 2019 at 10:40:54AM +0800, YueHaibing wrote:
-> If DEM_QXL is y and DRM_TTM_HELPER is m, building fails:
-> 
-> drivers/gpu/drm/qxl/qxl_object.o: undefined reference to `drm_gem_ttm_print_info'
-> 
-> Select DRM_TTM_HELPER to fix this.
+This series makes the credit mechanism implemented in the
+virtio-vsock devices more robust.
+Patch 1 sends an update to the remote peer when the buf_alloc
+change.
+Patch 2 prevents a malicious peer (especially the guest) can
+consume all the memory of the other peer, discarding packets
+when the credit available is not respected.
 
-Queued up for drm-misc-next.
+Stefano Garzarella (2):
+  vsock/virtio: send a credit update when buffer size is changed
+  vsock/virtio: discard packets if credit is not respected
 
-thanks,
-  Gerd
+ net/vmw_vsock/virtio_transport_common.c | 17 ++++++++++++++---
+ 1 file changed, 14 insertions(+), 3 deletions(-)
+
+-- 
+2.21.0
