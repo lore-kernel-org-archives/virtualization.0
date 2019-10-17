@@ -1,7 +1,7 @@
 From: Gerd Hoffmann <kraxel@redhat.com>
-Subject: [PATCH 3/5] drm/qxl: drop verify_access
-Date: Thu, 17 Oct 2019 15:26:36 +0200
-Message-ID: <20191017132638.9693-4-kraxel@redhat.com>
+Subject: [PATCH 1/5] drm/qxl: drop qxl_ttm_fault
+Date: Thu, 17 Oct 2019 15:26:34 +0200
+Message-ID: <20191017132638.9693-2-kraxel__21272.2683603474$1571318820$gmane$org@redhat.com>
 References: <20191017132638.9693-1-kraxel@redhat.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
@@ -21,39 +21,63 @@ To: dri-devel@lists.freedesktop.org
 Cc: David Airlie <airlied@linux.ie>, open list <linux-kernel@vger.kernel.org>, "open list:DRM DRIVER FOR QXL VIRTUAL GPU" <virtualization@lists.linux-foundation.org>, Daniel Vetter <daniel@ffwll.ch>, "open list:DRM DRIVER FOR QXL VIRTUAL GPU" <spice-devel@lists.freedesktop.org>, Dave Airlie <airlied@redhat.com>
 List-Id: virtualization@lists.linuxfoundation.org
 
-Not needed any more.
+Not sure what this hook is supposed to do.  vmf->vma->vm_private_data
+should never be NULL, so the extra check in qxl_ttm_fault should have no
+effect.
+
+Drop it.
 
 Signed-off-by: Gerd Hoffmann <kraxel@redhat.com>
 ---
- drivers/gpu/drm/qxl/qxl_ttm.c | 9 ---------
- 1 file changed, 9 deletions(-)
+ drivers/gpu/drm/qxl/qxl_ttm.c | 27 +--------------------------
+ 1 file changed, 1 insertion(+), 26 deletions(-)
 
 diff --git a/drivers/gpu/drm/qxl/qxl_ttm.c b/drivers/gpu/drm/qxl/qxl_ttm.c
-index 629ac8e77a21..54cc5a5b607e 100644
+index cbc6c2ba8630..dba925589e17 100644
 --- a/drivers/gpu/drm/qxl/qxl_ttm.c
 +++ b/drivers/gpu/drm/qxl/qxl_ttm.c
-@@ -110,14 +110,6 @@ static void qxl_evict_flags(struct ttm_buffer_object *bo,
- 	*placement = qbo->placement;
+@@ -48,24 +48,8 @@ static struct qxl_device *qxl_get_qdev(struct ttm_bo_device *bdev)
+ 	return qdev;
  }
  
--static int qxl_verify_access(struct ttm_buffer_object *bo, struct file *filp)
--{
--	struct qxl_bo *qbo = to_qxl_bo(bo);
+-static struct vm_operations_struct qxl_ttm_vm_ops;
+-static const struct vm_operations_struct *ttm_vm_ops;
 -
--	return drm_vma_node_verify_access(&qbo->tbo.base.vma_node,
--					  filp->private_data);
+-static vm_fault_t qxl_ttm_fault(struct vm_fault *vmf)
+-{
+-	struct ttm_buffer_object *bo;
+-	vm_fault_t ret;
+-
+-	bo = (struct ttm_buffer_object *)vmf->vma->vm_private_data;
+-	if (bo == NULL)
+-		return VM_FAULT_NOPAGE;
+-	ret = ttm_vm_ops->fault(vmf);
+-	return ret;
 -}
 -
- static int qxl_ttm_io_mem_reserve(struct ttm_bo_device *bdev,
- 				  struct ttm_mem_reg *mem)
+ int qxl_mmap(struct file *filp, struct vm_area_struct *vma)
  {
-@@ -269,7 +261,6 @@ static struct ttm_bo_driver qxl_bo_driver = {
- 	.eviction_valuable = ttm_bo_eviction_valuable,
- 	.evict_flags = &qxl_evict_flags,
- 	.move = &qxl_bo_move,
--	.verify_access = &qxl_verify_access,
- 	.io_mem_reserve = &qxl_ttm_io_mem_reserve,
- 	.io_mem_free = &qxl_ttm_io_mem_free,
- 	.move_notify = &qxl_bo_move_notify,
+-	int r;
+ 	struct drm_file *file_priv = filp->private_data;
+ 	struct qxl_device *qdev = file_priv->minor->dev->dev_private;
+ 
+@@ -77,16 +61,7 @@ int qxl_mmap(struct file *filp, struct vm_area_struct *vma)
+ 	DRM_DEBUG_DRIVER("filp->private_data = 0x%p, vma->vm_pgoff = %lx\n",
+ 		  filp->private_data, vma->vm_pgoff);
+ 
+-	r = ttm_bo_mmap(filp, vma, &qdev->mman.bdev);
+-	if (unlikely(r != 0))
+-		return r;
+-	if (unlikely(ttm_vm_ops == NULL)) {
+-		ttm_vm_ops = vma->vm_ops;
+-		qxl_ttm_vm_ops = *ttm_vm_ops;
+-		qxl_ttm_vm_ops.fault = &qxl_ttm_fault;
+-	}
+-	vma->vm_ops = &qxl_ttm_vm_ops;
+-	return 0;
++	return ttm_bo_mmap(filp, vma, &qdev->mman.bdev);
+ }
+ 
+ static int qxl_invalidate_caches(struct ttm_bo_device *bdev, uint32_t flags)
 -- 
 2.18.1
