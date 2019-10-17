@@ -1,14 +1,13 @@
-From: Stefano Garzarella <sgarzare@redhat.com>
-Subject: [PATCH net 2/2] vsock/virtio: discard packets if credit is not
-	respected
-Date: Thu, 17 Oct 2019 14:44:03 +0200
-Message-ID: <20191017124403.266242-3-sgarzare__5158.57824809558$1571316274$gmane$org@redhat.com>
-References: <20191017124403.266242-1-sgarzare@redhat.com>
+From: Gerd Hoffmann <kraxel@redhat.com>
+Subject: [PATCH 3/5] drm/qxl: drop verify_access
+Date: Thu, 17 Oct 2019 15:26:36 +0200
+Message-ID: <20191017132638.9693-4-kraxel@redhat.com>
+References: <20191017132638.9693-1-kraxel@redhat.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <20191017124403.266242-1-sgarzare@redhat.com>
+In-Reply-To: <20191017132638.9693-1-kraxel@redhat.com>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -18,64 +17,43 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: netdev@vger.kernel.org
-Cc: virtualization@lists.linux-foundation.org, Stefan Hajnoczi <stefanha@redhat.com>, linux-kernel@vger.kernel.org, kvm@vger.kernel.org, "David S. Miller" <davem@davemloft.net>
+To: dri-devel@lists.freedesktop.org
+Cc: David Airlie <airlied@linux.ie>, open list <linux-kernel@vger.kernel.org>, "open list:DRM DRIVER FOR QXL VIRTUAL GPU" <virtualization@lists.linux-foundation.org>, Daniel Vetter <daniel@ffwll.ch>, "open list:DRM DRIVER FOR QXL VIRTUAL GPU" <spice-devel@lists.freedesktop.org>, Dave Airlie <airlied@redhat.com>
 List-Id: virtualization@lists.linuxfoundation.org
 
-If the remote peer doesn't respect the credit information
-(buf_alloc, fwd_cnt), sending more data than it can send,
-we should drop the packets to prevent a malicious peer
-from using all of our memory.
+Not needed any more.
 
-This is patch follows the VIRTIO spec: "VIRTIO_VSOCK_OP_RW data
-packets MUST only be transmitted when the peer has sufficient
-free buffer space for the payload"
-
-Signed-off-by: Stefano Garzarella <sgarzare@redhat.com>
+Signed-off-by: Gerd Hoffmann <kraxel@redhat.com>
 ---
- net/vmw_vsock/virtio_transport_common.c | 14 +++++++++++---
- 1 file changed, 11 insertions(+), 3 deletions(-)
+ drivers/gpu/drm/qxl/qxl_ttm.c | 9 ---------
+ 1 file changed, 9 deletions(-)
 
-diff --git a/net/vmw_vsock/virtio_transport_common.c b/net/vmw_vsock/virtio_transport_common.c
-index db127a69f5c3..481f7f8a1655 100644
---- a/net/vmw_vsock/virtio_transport_common.c
-+++ b/net/vmw_vsock/virtio_transport_common.c
-@@ -204,10 +204,14 @@ static int virtio_transport_send_pkt_info(struct vsock_sock *vsk,
- 	return virtio_transport_get_ops()->send_pkt(pkt);
+diff --git a/drivers/gpu/drm/qxl/qxl_ttm.c b/drivers/gpu/drm/qxl/qxl_ttm.c
+index 629ac8e77a21..54cc5a5b607e 100644
+--- a/drivers/gpu/drm/qxl/qxl_ttm.c
++++ b/drivers/gpu/drm/qxl/qxl_ttm.c
+@@ -110,14 +110,6 @@ static void qxl_evict_flags(struct ttm_buffer_object *bo,
+ 	*placement = qbo->placement;
  }
  
--static void virtio_transport_inc_rx_pkt(struct virtio_vsock_sock *vvs,
-+static bool virtio_transport_inc_rx_pkt(struct virtio_vsock_sock *vvs,
- 					struct virtio_vsock_pkt *pkt)
+-static int qxl_verify_access(struct ttm_buffer_object *bo, struct file *filp)
+-{
+-	struct qxl_bo *qbo = to_qxl_bo(bo);
+-
+-	return drm_vma_node_verify_access(&qbo->tbo.base.vma_node,
+-					  filp->private_data);
+-}
+-
+ static int qxl_ttm_io_mem_reserve(struct ttm_bo_device *bdev,
+ 				  struct ttm_mem_reg *mem)
  {
-+	if (vvs->rx_bytes + pkt->len > vvs->buf_alloc)
-+		return false;
-+
- 	vvs->rx_bytes += pkt->len;
-+	return true;
- }
- 
- static void virtio_transport_dec_rx_pkt(struct virtio_vsock_sock *vvs,
-@@ -879,14 +883,18 @@ virtio_transport_recv_enqueue(struct vsock_sock *vsk,
- 			      struct virtio_vsock_pkt *pkt)
- {
- 	struct virtio_vsock_sock *vvs = vsk->trans;
--	bool free_pkt = false;
-+	bool can_enqueue, free_pkt = false;
- 
- 	pkt->len = le32_to_cpu(pkt->hdr.len);
- 	pkt->off = 0;
- 
- 	spin_lock_bh(&vvs->rx_lock);
- 
--	virtio_transport_inc_rx_pkt(vvs, pkt);
-+	can_enqueue = virtio_transport_inc_rx_pkt(vvs, pkt);
-+	if (!can_enqueue) {
-+		free_pkt = true;
-+		goto out;
-+	}
- 
- 	/* Try to copy small packets into the buffer of last packet queued,
- 	 * to avoid wasting memory queueing the entire buffer with a small
+@@ -269,7 +261,6 @@ static struct ttm_bo_driver qxl_bo_driver = {
+ 	.eviction_valuable = ttm_bo_eviction_valuable,
+ 	.evict_flags = &qxl_evict_flags,
+ 	.move = &qxl_bo_move,
+-	.verify_access = &qxl_verify_access,
+ 	.io_mem_reserve = &qxl_ttm_io_mem_reserve,
+ 	.io_mem_free = &qxl_ttm_io_mem_free,
+ 	.move_notify = &qxl_bo_move_notify,
 -- 
-2.21.0
+2.18.1
