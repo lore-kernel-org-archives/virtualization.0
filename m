@@ -1,14 +1,15 @@
-From: Alex Williamson <alex.williamson@redhat.com>
-Subject: Re: [PATCH V4 4/6] mdev: introduce virtio device and its device ops
-Date: Thu, 17 Oct 2019 11:53:29 -0600
-Message-ID: <20191017115329.47d4a165__15534.4850661763$1571334837$gmane$org@x1.home>
-References: <20191017104836.32464-1-jasowang@redhat.com>
-	<20191017104836.32464-5-jasowang@redhat.com>
+From: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Subject: Re: [PATCH RFC 3/3] vhost, kcov: collect coverage from vhost_worker
+Date: Thu, 17 Oct 2019 11:18:00 -0700
+Message-ID: <20191017181800.GB1094415@kroah.com>
+References: <cover.1571333592.git.andreyknvl@google.com>
+	<af26317c0efd412dd660e81d548a173942f8a0ad.1571333592.git.andreyknvl@google.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <20191017104836.32464-5-jasowang@redhat.com>
+Content-Disposition: inline
+In-Reply-To: <af26317c0efd412dd660e81d548a173942f8a0ad.1571333592.git.andreyknvl@google.com>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -18,235 +19,88 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Jason Wang <jasowang@redhat.com>
-Cc: stefanha@redhat.com, christophe.de.dinechin@gmail.com, kvm@vger.kernel.org, mst@redhat.com, airlied@linux.ie, joonas.lahtinen@linux.intel.com, heiko.carstens@de.ibm.com, dri-devel@lists.freedesktop.org, virtualization@lists.linux-foundation.org, kwankhede@nvidia.com, rob.miller@broadcom.com, linux-s390@vger.kernel.org, sebott@linux.ibm.com, lulu@redhat.com, eperezma@redhat.com, pasic@linux.ibm.com, borntraeger@de.ibm.com, haotian.wang@sifive.com, zhi.a.wang@intel.com, farman@linux.ibm.com, idos@mellanox.com, gor@linux.ibm.com, intel-gfx@lists.freedesktop.org, jani.nikula@linux.intel.com, rodrigo.vivi@intel.com, xiao.w.wang@intel.com, freude@linux.ibm.com, zhenyuw@linux.intel.com, parav@mellanox.com, zhihong.wang@intel.com, intel-gvt-dev@lists.freedesktop.org, akrowiak@linux.ibm.com, oberpar@linux.ibm.com, netdev@vger.kernel.org, cohuck@redhat.com, linux-kernel@vger.ke
+To: Andrey Konovalov <andreyknvl@google.com>
+Cc: Anders Roxell <anders.roxell@linaro.org>, Arnd Bergmann <arnd@arndb.de>, kvm@vger.kernel.org, "Michael S . Tsirkin" <mst@redhat.com>, netdev@vger.kernel.org, linux-usb@vger.kernel.org, linux-kernel@vger.kernel.org, Steven Rostedt <rostedt@goodmis.org>, virtualization@lists.linux-foundation.org, Alan Stern <stern@rowland.harvard.edu>, Elena Reshetova <elena.reshetova@intel.com>, Andrew Morton <akpm@linux-foundation.org>, Dmitry Vyukov <dvyukov@google.com>, David Windsor <dwindsor@gmail.com>
 List-Id: virtualization@lists.linuxfoundation.org
 
-On Thu, 17 Oct 2019 18:48:34 +0800
-Jason Wang <jasowang@redhat.com> wrote:
-
-> This patch implements basic support for mdev driver that supports
-> virtio transport for kernel virtio driver.
+On Thu, Oct 17, 2019 at 07:44:15PM +0200, Andrey Konovalov wrote:
+> This patch adds kcov_remote_start/kcov_remote_stop annotations to the
+> vhost_worker function, which is responsible for processing vhost works.
+> Since vhost_worker is spawned when a vhost device instance is created,
+> the common kcov handle is used for kcov_remote_start/stop annotations.
 > 
-> Signed-off-by: Jason Wang <jasowang@redhat.com>
+> Signed-off-by: Andrey Konovalov <andreyknvl@google.com>
 > ---
->  drivers/vfio/mdev/mdev_core.c |  12 +++
->  include/linux/mdev.h          |   4 +
->  include/linux/virtio_mdev.h   | 151 ++++++++++++++++++++++++++++++++++
->  3 files changed, 167 insertions(+)
->  create mode 100644 include/linux/virtio_mdev.h
+>  drivers/vhost/vhost.c | 15 +++++++++++++++
+>  drivers/vhost/vhost.h |  3 +++
+>  2 files changed, 18 insertions(+)
 > 
-> diff --git a/drivers/vfio/mdev/mdev_core.c b/drivers/vfio/mdev/mdev_core.c
-> index d0f3113c8071..5834f6b7c7a5 100644
-> --- a/drivers/vfio/mdev/mdev_core.c
-> +++ b/drivers/vfio/mdev/mdev_core.c
-> @@ -57,6 +57,18 @@ void mdev_set_vfio_ops(struct mdev_device *mdev,
->  }
->  EXPORT_SYMBOL(mdev_set_vfio_ops);
->  
-> +/* Specify the virtio device ops for the mdev device, this
-> + * must be called during create() callback for virtio mdev device.
-> + */
-> +void mdev_set_virtio_ops(struct mdev_device *mdev,
-> +			 const struct virtio_mdev_device_ops *virtio_ops)
-> +{
-> +	BUG_ON(mdev->class_id);
-
-Nit, this one is a BUG_ON, but the vfio one is a WARN_ON.  Thanks,
-
-Alex
-
-> +	mdev->class_id = MDEV_CLASS_ID_VIRTIO;
-> +	mdev->device_ops = virtio_ops;
-> +}
-> +EXPORT_SYMBOL(mdev_set_virtio_ops);
-> +
->  const void *mdev_get_dev_ops(struct mdev_device *mdev)
->  {
->  	return mdev->device_ops;
-> diff --git a/include/linux/mdev.h b/include/linux/mdev.h
-> index 3d29e09e20c9..13e045e09d3b 100644
-> --- a/include/linux/mdev.h
-> +++ b/include/linux/mdev.h
-> @@ -17,6 +17,7 @@
->  
->  struct mdev_device;
->  struct vfio_mdev_device_ops;
-> +struct virtio_mdev_device_ops;
->  
->  /*
->   * Called by the parent device driver to set the device which represents
-> @@ -111,6 +112,8 @@ void mdev_set_drvdata(struct mdev_device *mdev, void *data);
->  const guid_t *mdev_uuid(struct mdev_device *mdev);
->  void mdev_set_vfio_ops(struct mdev_device *mdev,
->  		       const struct vfio_mdev_device_ops *vfio_ops);
-> +void mdev_set_virtio_ops(struct mdev_device *mdev,
-> +                         const struct virtio_mdev_device_ops *virtio_ops);
->  const void *mdev_get_dev_ops(struct mdev_device *mdev);
->  
->  extern struct bus_type mdev_bus_type;
-> @@ -127,6 +130,7 @@ struct mdev_device *mdev_from_dev(struct device *dev);
->  
->  enum {
->  	MDEV_CLASS_ID_VFIO = 1,
-> +	MDEV_CLASS_ID_VIRTIO = 2,
->  	/* New entries must be added here */
->  };
->  
-> diff --git a/include/linux/virtio_mdev.h b/include/linux/virtio_mdev.h
-> new file mode 100644
-> index 000000000000..b965b50f9b24
-> --- /dev/null
-> +++ b/include/linux/virtio_mdev.h
-> @@ -0,0 +1,151 @@
-> +/* SPDX-License-Identifier: GPL-2.0-only */
-> +/*
-> + * Virtio mediated device driver
-> + *
-> + * Copyright 2019, Red Hat Corp.
-> + *     Author: Jason Wang <jasowang@redhat.com>
-> + */
-> +#ifndef _LINUX_VIRTIO_MDEV_H
-> +#define _LINUX_VIRTIO_MDEV_H
-> +
-> +#include <linux/interrupt.h>
-> +#include <linux/mdev.h>
-> +#include <uapi/linux/vhost.h>
-> +
-> +#define VIRTIO_MDEV_DEVICE_API_STRING		"virtio-mdev"
-> +#define VIRTIO_MDEV_F_VERSION_1 0x1
-> +
-> +struct virtio_mdev_callback {
-> +	irqreturn_t (*callback)(void *data);
-> +	void *private;
-> +};
-> +
-> +/**
-> + * struct vfio_mdev_device_ops - Structure to be registered for each
-> + * mdev device to register the device to virtio-mdev module.
-> + *
-> + * @set_vq_address:		Set the address of virtqueue
-> + *				@mdev: mediated device
-> + *				@idx: virtqueue index
-> + *				@desc_area: address of desc area
-> + *				@driver_area: address of driver area
-> + *				@device_area: address of device area
-> + *				Returns integer: success (0) or error (< 0)
-> + * @set_vq_num:		Set the size of virtqueue
-> + *				@mdev: mediated device
-> + *				@idx: virtqueue index
-> + *				@num: the size of virtqueue
-> + * @kick_vq:			Kick the virtqueue
-> + *				@mdev: mediated device
-> + *				@idx: virtqueue index
-> + * @set_vq_cb:			Set the interrupt callback function for
-> + *				a virtqueue
-> + *				@mdev: mediated device
-> + *				@idx: virtqueue index
-> + *				@cb: virtio-mdev interrupt callback structure
-> + * @set_vq_ready:		Set ready status for a virtqueue
-> + *				@mdev: mediated device
-> + *				@idx: virtqueue index
-> + *				@ready: ready (true) not ready(false)
-> + * @get_vq_ready:		Get ready status for a virtqueue
-> + *				@mdev: mediated device
-> + *				@idx: virtqueue index
-> + *				Returns boolean: ready (true) or not (false)
-> + * @set_vq_state:		Set the state for a virtqueue
-> + *				@mdev: mediated device
-> + *				@idx: virtqueue index
-> + *				@state: virtqueue state (last_avail_idx)
-> + *				Returns integer: success (0) or error (< 0)
-> + * @get_vq_state:		Get the state for a virtqueue
-> + *				@mdev: mediated device
-> + *				@idx: virtqueue index
-> + *				Returns virtqueue state (last_avail_idx)
-> + * @get_vq_align:		Get the virtqueue align requirement
-> + *				for the device
-> + *				@mdev: mediated device
-> + *				Returns virtqueue algin requirement
-> + * @get_features:		Get virtio features supported by the device
-> + *				@mdev: mediated device
-> + *				Returns the virtio features support by the
-> + *				device
-> + * @get_features:		Set virtio features supported by the driver
-> + *				@mdev: mediated device
-> + *				@features: feature support by the driver
-> + *				Returns integer: success (0) or error (< 0)
-> + * @set_config_cb:		Set the config interrupt callback
-> + *				@mdev: mediated device
-> + *				@cb: virtio-mdev interrupt callback structure
-> + * @get_vq_num_max:		Get the max size of virtqueue
-> + *				@mdev: mediated device
-> + *				Returns u16: max size of virtqueue
-> + * @get_device_id:		Get virtio device id
-> + *				@mdev: mediated device
-> + *				Returns u32: virtio device id
-> + * @get_vendor_id:		Get virtio vendor id
-> + *				@mdev: mediated device
-> + *				Returns u32: virtio vendor id
-> + * @get_status: 		Get the device status
-> + *				@mdev: mediated device
-> + *				Returns u8: virtio device status
-> + * @set_status: 		Set the device status
-> + *				@mdev: mediated device
-> + *				@status: virtio device status
-> + * @get_config: 		Read from device specific configuration space
-> + *				@mdev: mediated device
-> + *				@offset: offset from the beginning of
-> + *				configuration space
-> + *				@buf: buffer used to read to
-> + *				@len: the length to read from
-> + *				configration space
-> + * @set_config: 		Write to device specific configuration space
-> + *				@mdev: mediated device
-> + *				@offset: offset from the beginning of
-> + *				configuration space
-> + *				@buf: buffer used to write from
-> + *				@len: the length to write to
-> + *				configration space
-> + * @get_mdev_features:		Get the feature of virtio mdev device
-> + *				@mdev: mediated device
-> + *				Returns the mdev features (API) support by
-> + *				the device.
-> + * @get_generation:		Get device generaton
-> + *				@mdev: mediated device
-> + *				Returns u32: device generation
-> + */
-> +struct virtio_mdev_device_ops {
-> +	/* Virtqueue ops */
-> +	int (*set_vq_address)(struct mdev_device *mdev,
-> +			      u16 idx, u64 desc_area, u64 driver_area,
-> +			      u64 device_area);
-> +	void (*set_vq_num)(struct mdev_device *mdev, u16 idx, u32 num);
-> +	void (*kick_vq)(struct mdev_device *mdev, u16 idx);
-> +	void (*set_vq_cb)(struct mdev_device *mdev, u16 idx,
-> +			  struct virtio_mdev_callback *cb);
-> +	void (*set_vq_ready)(struct mdev_device *mdev, u16 idx, bool ready);
-> +	bool (*get_vq_ready)(struct mdev_device *mdev, u16 idx);
-> +	int (*set_vq_state)(struct mdev_device *mdev, u16 idx, u64 state);
-> +	u64 (*get_vq_state)(struct mdev_device *mdev, u16 idx);
-> +
-> +	/* Device ops */
-> +	u16 (*get_vq_align)(struct mdev_device *mdev);
-> +	u64 (*get_features)(struct mdev_device *mdev);
-> +	int (*set_features)(struct mdev_device *mdev, u64 features);
-> +	void (*set_config_cb)(struct mdev_device *mdev,
-> +			      struct virtio_mdev_callback *cb);
-> +	u16 (*get_vq_num_max)(struct mdev_device *mdev);
-> +	u32 (*get_device_id)(struct mdev_device *mdev);
-> +	u32 (*get_vendor_id)(struct mdev_device *mdev);
-> +	u8 (*get_status)(struct mdev_device *mdev);
-> +	void (*set_status)(struct mdev_device *mdev, u8 status);
-> +	void (*get_config)(struct mdev_device *mdev, unsigned int offset,
-> +			   void *buf, unsigned int len);
-> +	void (*set_config)(struct mdev_device *mdev, unsigned int offset,
-> +			   const void *buf, unsigned int len);
-> +	u64 (*get_mdev_features)(struct mdev_device *mdev);
-> +	u32 (*get_generation)(struct mdev_device *mdev);
-> +};
-> +
-> +void mdev_set_virtio_ops(struct mdev_device *mdev,
-> +			 const struct virtio_mdev_device_ops *virtio_ops);
-> +
+> diff --git a/drivers/vhost/vhost.c b/drivers/vhost/vhost.c
+> index 36ca2cf419bf..71a349f6b352 100644
+> --- a/drivers/vhost/vhost.c
+> +++ b/drivers/vhost/vhost.c
+> @@ -357,7 +357,13 @@ static int vhost_worker(void *data)
+>  		llist_for_each_entry_safe(work, work_next, node, node) {
+>  			clear_bit(VHOST_WORK_QUEUED, &work->flags);
+>  			__set_current_state(TASK_RUNNING);
+> +#ifdef CONFIG_KCOV
+> +			kcov_remote_start(dev->kcov_handle);
 > +#endif
+
+Shouldn't you hide these #ifdefs in a .h file?  This is not a "normal"
+kernel coding style at all.
+
+>  			work->fn(work);
+> +#ifdef CONFIG_KCOV
+> +			kcov_remote_stop();
+> +#endif
+>  			if (need_resched())
+>  				schedule();
+>  		}
+> @@ -546,6 +552,9 @@ long vhost_dev_set_owner(struct vhost_dev *dev)
+>  
+>  	/* No owner, become one */
+>  	dev->mm = get_task_mm(current);
+> +#ifdef CONFIG_KCOV
+> +	dev->kcov_handle = current->kcov_handle;
+> +#endif
+>  	worker = kthread_create(vhost_worker, dev, "vhost-%d", current->pid);
+>  	if (IS_ERR(worker)) {
+>  		err = PTR_ERR(worker);
+> @@ -571,6 +580,9 @@ long vhost_dev_set_owner(struct vhost_dev *dev)
+>  	if (dev->mm)
+>  		mmput(dev->mm);
+>  	dev->mm = NULL;
+> +#ifdef CONFIG_KCOV
+> +	dev->kcov_handle = 0;
+> +#endif
+>  err_mm:
+>  	return err;
+>  }
+> @@ -682,6 +694,9 @@ void vhost_dev_cleanup(struct vhost_dev *dev)
+>  	if (dev->worker) {
+>  		kthread_stop(dev->worker);
+>  		dev->worker = NULL;
+> +#ifdef CONFIG_KCOV
+> +		dev->kcov_handle = 0;
+> +#endif
+>  	}
+>  	if (dev->mm)
+>  		mmput(dev->mm);
+> diff --git a/drivers/vhost/vhost.h b/drivers/vhost/vhost.h
+> index e9ed2722b633..010ca1ebcbd5 100644
+> --- a/drivers/vhost/vhost.h
+> +++ b/drivers/vhost/vhost.h
+> @@ -173,6 +173,9 @@ struct vhost_dev {
+>  	int iov_limit;
+>  	int weight;
+>  	int byte_weight;
+> +#ifdef CONFIG_KCOV
+> +	u64 kcov_handle;
+> +#endif
+
+Why is this a #ifdef at all here?
+
+thanks,
+
+greg k-h
