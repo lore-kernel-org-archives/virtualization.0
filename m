@@ -1,16 +1,16 @@
-From: Jason Wang <jasowang@redhat.com>
-Subject: Re: [PATCH V4 4/6] mdev: introduce virtio device and its device ops
-Date: Fri, 18 Oct 2019 15:35:34 +0800
-Message-ID: <24a96fca-926d-38ee-4dab-5f3715ef1433__22522.7882548765$1571384191$gmane$org@redhat.com>
+From: Cornelia Huck <cohuck@redhat.com>
+Subject: Re: [PATCH V4 3/6] mdev: introduce device specific ops
+Date: Fri, 18 Oct 2019 09:44:07 +0200
+Message-ID: <20191018094407.1a91e843.cohuck@redhat.com>
 References: <20191017104836.32464-1-jasowang@redhat.com>
-	<20191017104836.32464-5-jasowang@redhat.com>
-	<20191017115329.47d4a165@x1.home>
+	<20191017104836.32464-4-jasowang@redhat.com>
+	<20191017170755.15506ada.cohuck@redhat.com>
+	<20191017115310.0481cc52@x1.home>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="utf-8"; Format="flowed"
-Content-Transfer-Encoding: base64
+Content-Type: text/plain; charset="us-ascii"
+Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <20191017115329.47d4a165@x1.home>
-Content-Language: en-US
+In-Reply-To: <20191017115310.0481cc52@x1.home>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -21,32 +21,108 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
 To: Alex Williamson <alex.williamson@redhat.com>
-Cc: stefanha@redhat.com, christophe.de.dinechin@gmail.com, kvm@vger.kernel.org, mst@redhat.com, airlied@linux.ie, joonas.lahtinen@linux.intel.com, heiko.carstens@de.ibm.com, dri-devel@lists.freedesktop.org, virtualization@lists.linux-foundation.org, kwankhede@nvidia.com, rob.miller@broadcom.com, linux-s390@vger.kernel.org, sebott@linux.ibm.com, lulu@redhat.com, eperezma@redhat.com, pasic@linux.ibm.com, borntraeger@de.ibm.com, haotian.wang@sifive.com, zhi.a.wang@intel.com, farman@linux.ibm.com, idos@mellanox.com, gor@linux.ibm.com, intel-gfx@lists.freedesktop.org, jani.nikula@linux.intel.com, rodrigo.vivi@intel.com, xiao.w.wang@intel.com, freude@linux.ibm.com, zhenyuw@linux.intel.com, parav@mellanox.com, zhihong.wang@intel.com, intel-gvt-dev@lists.freedesktop.org, akrowiak@linux.ibm.com, oberpar@linux.ibm.com, netdev@vger.kernel.org, cohuck@redhat.com, linux-kernel@vger.ke
+Cc: stefanha@redhat.com, christophe.de.dinechin@gmail.com, kvm@vger.kernel.org, mst@redhat.com, airlied@linux.ie, joonas.lahtinen@linux.intel.com, heiko.carstens@de.ibm.com, dri-devel@lists.freedesktop.org, virtualization@lists.linux-foundation.org, kwankhede@nvidia.com, rob.miller@broadcom.com, linux-s390@vger.kernel.org, sebott@linux.ibm.com, lulu@redhat.com, eperezma@redhat.com, pasic@linux.ibm.com, borntraeger@de.ibm.com, haotian.wang@sifive.com, intel-gfx@lists.freedesktop.org, zhi.a.wang@intel.com, farman@linux.ibm.com, idos@mellanox.com, gor@linux.ibm.com, jani.nikula@linux.intel.com, rodrigo.vivi@intel.com, xiao.w.wang@intel.com, freude@linux.ibm.com, zhenyuw@linux.intel.com, parav@mellanox.com, zhihong.wang@intel.com, intel-gvt-dev@lists.freedesktop.org, akrowiak@linux.ibm.com, oberpar@linux.ibm.com, netdev@vger.kernel.org, linux-kernel@vger.kernel.org, maxime.co
 List-Id: virtualization@lists.linuxfoundation.org
 
-Ck9uIDIwMTkvMTAvMTgg5LiK5Y2IMTo1MywgQWxleCBXaWxsaWFtc29uIHdyb3RlOgo+IE9uIFRo
-dSwgMTcgT2N0IDIwMTkgMTg6NDg6MzQgKzA4MDAKPiBKYXNvbiBXYW5nPGphc293YW5nQHJlZGhh
-dC5jb20+ICB3cm90ZToKPgo+PiBUaGlzIHBhdGNoIGltcGxlbWVudHMgYmFzaWMgc3VwcG9ydCBm
-b3IgbWRldiBkcml2ZXIgdGhhdCBzdXBwb3J0cwo+PiB2aXJ0aW8gdHJhbnNwb3J0IGZvciBrZXJu
-ZWwgdmlydGlvIGRyaXZlci4KPj4KPj4gU2lnbmVkLW9mZi1ieTogSmFzb24gV2FuZzxqYXNvd2Fu
-Z0ByZWRoYXQuY29tPgo+PiAtLS0KPj4gICBkcml2ZXJzL3ZmaW8vbWRldi9tZGV2X2NvcmUuYyB8
-ICAxMiArKysKPj4gICBpbmNsdWRlL2xpbnV4L21kZXYuaCAgICAgICAgICB8ICAgNCArCj4+ICAg
-aW5jbHVkZS9saW51eC92aXJ0aW9fbWRldi5oICAgfCAxNTEgKysrKysrKysrKysrKysrKysrKysr
-KysrKysrKysrKysrKwo+PiAgIDMgZmlsZXMgY2hhbmdlZCwgMTY3IGluc2VydGlvbnMoKykKPj4g
-ICBjcmVhdGUgbW9kZSAxMDA2NDQgaW5jbHVkZS9saW51eC92aXJ0aW9fbWRldi5oCj4+Cj4+IGRp
-ZmYgLS1naXQgYS9kcml2ZXJzL3ZmaW8vbWRldi9tZGV2X2NvcmUuYyBiL2RyaXZlcnMvdmZpby9t
-ZGV2L21kZXZfY29yZS5jCj4+IGluZGV4IGQwZjMxMTNjODA3MS4uNTgzNGY2YjdjN2E1IDEwMDY0
-NAo+PiAtLS0gYS9kcml2ZXJzL3ZmaW8vbWRldi9tZGV2X2NvcmUuYwo+PiArKysgYi9kcml2ZXJz
-L3ZmaW8vbWRldi9tZGV2X2NvcmUuYwo+PiBAQCAtNTcsNiArNTcsMTggQEAgdm9pZCBtZGV2X3Nl
-dF92ZmlvX29wcyhzdHJ1Y3QgbWRldl9kZXZpY2UgKm1kZXYsCj4+ICAgfQo+PiAgIEVYUE9SVF9T
-WU1CT0wobWRldl9zZXRfdmZpb19vcHMpOwo+PiAgIAo+PiArLyogU3BlY2lmeSB0aGUgdmlydGlv
-IGRldmljZSBvcHMgZm9yIHRoZSBtZGV2IGRldmljZSwgdGhpcwo+PiArICogbXVzdCBiZSBjYWxs
-ZWQgZHVyaW5nIGNyZWF0ZSgpIGNhbGxiYWNrIGZvciB2aXJ0aW8gbWRldiBkZXZpY2UuCj4+ICsg
-Ki8KPj4gK3ZvaWQgbWRldl9zZXRfdmlydGlvX29wcyhzdHJ1Y3QgbWRldl9kZXZpY2UgKm1kZXYs
-Cj4+ICsJCQkgY29uc3Qgc3RydWN0IHZpcnRpb19tZGV2X2RldmljZV9vcHMgKnZpcnRpb19vcHMp
-Cj4+ICt7Cj4+ICsJQlVHX09OKG1kZXYtPmNsYXNzX2lkKTsKPiBOaXQsIHRoaXMgb25lIGlzIGEg
-QlVHX09OLCBidXQgdGhlIHZmaW8gb25lIGlzIGEgV0FSTl9PTi4gIFRoYW5rcywKPgo+IEFsZXgK
-CgpMZXQgbWUgZml4IGluIG5leHQgdmVyc2lvbi4KClRoYW5rcwoKX19fX19fX19fX19fX19fX19f
-X19fX19fX19fX19fX19fX19fX19fX19fX19fX18KVmlydHVhbGl6YXRpb24gbWFpbGluZyBsaXN0
-ClZpcnR1YWxpemF0aW9uQGxpc3RzLmxpbnV4LWZvdW5kYXRpb24ub3JnCmh0dHBzOi8vbGlzdHMu
-bGludXhmb3VuZGF0aW9uLm9yZy9tYWlsbWFuL2xpc3RpbmZvL3ZpcnR1YWxpemF0aW9u
+On Thu, 17 Oct 2019 11:53:10 -0600
+Alex Williamson <alex.williamson@redhat.com> wrote:
+
+> On Thu, 17 Oct 2019 17:07:55 +0200
+> Cornelia Huck <cohuck@redhat.com> wrote:
+> 
+> > On Thu, 17 Oct 2019 18:48:33 +0800
+> > Jason Wang <jasowang@redhat.com> wrote:
+> >   
+> > > Currently, except for the create and remove, the rest of
+> > > mdev_parent_ops is designed for vfio-mdev driver only and may not help
+> > > for kernel mdev driver. With the help of class id, this patch
+> > > introduces device specific callbacks inside mdev_device
+> > > structure. This allows different set of callback to be used by
+> > > vfio-mdev and virtio-mdev.
+> > > 
+> > > Signed-off-by: Jason Wang <jasowang@redhat.com>
+> > > ---
+> > >  .../driver-api/vfio-mediated-device.rst       | 25 +++++----
+> > >  MAINTAINERS                                   |  1 +
+> > >  drivers/gpu/drm/i915/gvt/kvmgt.c              | 18 ++++---
+> > >  drivers/s390/cio/vfio_ccw_ops.c               | 18 ++++---
+> > >  drivers/s390/crypto/vfio_ap_ops.c             | 14 +++--
+> > >  drivers/vfio/mdev/mdev_core.c                 | 18 +++++--
+> > >  drivers/vfio/mdev/mdev_private.h              |  1 +
+> > >  drivers/vfio/mdev/vfio_mdev.c                 | 37 ++++++-------
+> > >  include/linux/mdev.h                          | 45 ++++------------
+> > >  include/linux/vfio_mdev.h                     | 52 +++++++++++++++++++
+> > >  samples/vfio-mdev/mbochs.c                    | 20 ++++---
+> > >  samples/vfio-mdev/mdpy.c                      | 20 ++++---
+> > >  samples/vfio-mdev/mtty.c                      | 18 ++++---
+> > >  13 files changed, 184 insertions(+), 103 deletions(-)
+> > >  create mode 100644 include/linux/vfio_mdev.h
+> > > 
+> > > diff --git a/Documentation/driver-api/vfio-mediated-device.rst b/Documentation/driver-api/vfio-mediated-device.rst
+> > > index f9a78d75a67a..0cca84d19603 100644
+> > > --- a/Documentation/driver-api/vfio-mediated-device.rst
+> > > +++ b/Documentation/driver-api/vfio-mediated-device.rst
+> > > @@ -152,11 +152,22 @@ callbacks per mdev parent device, per mdev type, or any other categorization.
+> > >  Vendor drivers are expected to be fully asynchronous in this respect or
+> > >  provide their own internal resource protection.)
+> > >  
+> > > -The callbacks in the mdev_parent_ops structure are as follows:
+> > > -
+> > > -* open: open callback of mediated device
+> > > -* close: close callback of mediated device
+> > > -* ioctl: ioctl callback of mediated device
+> > > +As multiple types of mediated devices may be supported, the device
+> > > +must set up the class id and the device specific callbacks in create()    
+> > 
+> > s/in create()/in the create()/
+> >   
+> > > +callback. E.g for vfio-mdev device it needs to be done through:    
+> > 
+> > "Each class provides a helper function to do so; e.g. for vfio-mdev
+> > devices, the function to be called is:"
+> > 
+> > ?
+> >   
+> > > +
+> > > +    int mdev_set_vfio_ops(struct mdev_device *mdev,
+> > > +                          const struct vfio_mdev_ops *vfio_ops);
+> > > +
+> > > +The class id (set to MDEV_CLASS_ID_VFIO) is used to match a device    
+> > 
+> > "(set by this helper function to MDEV_CLASS_ID_VFIO)" ?
+> >   
+> > > +with an mdev driver via its id table. The device specific callbacks
+> > > +(specified in *ops) are obtainable via mdev_get_dev_ops() (for use by    
+> > 
+> > "(specified in *vfio_ops by the caller)" ?
+> >   
+> > > +the mdev bus driver). A vfio-mdev device (class id MDEV_CLASS_ID_VFIO)
+> > > +uses the following device-specific ops:
+> > > +
+> > > +* open: open callback of vfio mediated device
+> > > +* close: close callback of vfio mediated device
+> > > +* ioctl: ioctl callback of vfio mediated device
+> > >  * read : read emulation callback
+> > >  * write: write emulation callback
+> > >  * mmap: mmap emulation callback
+> > > @@ -167,10 +178,6 @@ register itself with the mdev core driver::
+> > >  	extern int  mdev_register_device(struct device *dev,
+> > >  	                                 const struct mdev_parent_ops *ops);
+> > >  
+> > > -It is also required to specify the class_id in create() callback through::
+> > > -
+> > > -	int mdev_set_class(struct mdev_device *mdev, u16 id);
+> > > -    
+> > 
+> > I'm wondering if this patch set should start out with introducing
+> > helper functions already (i.e. don't introduce mdev_set_class(), but
+> > start out with mdev_set_class_vfio() which will gain the *vfio_ops
+> > argument in this patch.)  
+> 
+> Yes, it would be cleaner, but is it really worth the churn?  Correct me
+> if I'm wrong, but I think we get to the same point after this patch and
+> aside from the function name itself, the difference is really just that
+> the class_id is briefly exposed to the parent driver, right?  Thanks,
+
+Yes, it does not really matter much. If there's no other reason to
+rework things, I'd just keep this as it is now.
