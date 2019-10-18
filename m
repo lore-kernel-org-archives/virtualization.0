@@ -1,12 +1,14 @@
-From: Laurent Vivier <lvivier@redhat.com>
-Subject: [PATCH] virtio_console: allocate inbufs in add_port() only if it is
-	needed
-Date: Fri, 18 Oct 2019 18:47:18 +0200
-Message-ID: <20191018164718.15999-1-lvivier@redhat.com>
+From: David Miller <davem@davemloft.net>
+Subject: Re: [PATCH net 0/2] vsock/virtio: make the credit mechanism more
+	robust
+Date: Fri, 18 Oct 2019 13:20:04 -0400 (EDT)
+Message-ID: <20191018.132004.44442251462291428.davem__31869.1911803157$1571419218$gmane$org@davemloft.net>
+References: <20191017124403.266242-1-sgarzare@redhat.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
+In-Reply-To: <20191017124403.266242-1-sgarzare@redhat.com>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -16,71 +18,19 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: linux-kernel@vger.kernel.org
-Cc: Laurent Vivier <lvivier@redhat.com>, Arnd Bergmann <arnd@arndb.de>, "Michael S . Tsirkin" <mst@redhat.com>, Greg Kroah-Hartman <gregkh@linuxfoundation.org>, Amit Shah <amit@kernel.org>, virtualization@lists.linux-foundation.org
+To: sgarzare@redhat.com
+Cc: netdev@vger.kernel.org, stefanha@redhat.com, linux-kernel@vger.kernel.org, kvm@vger.kernel.org, virtualization@lists.linux-foundation.org
 List-Id: virtualization@lists.linuxfoundation.org
 
-When we hot unplug a virtserialport and then try to hot plug again,
-it fails:
+From: Stefano Garzarella <sgarzare@redhat.com>
+Date: Thu, 17 Oct 2019 14:44:01 +0200
 
-(qemu) chardev-add socket,id=serial0,path=/tmp/serial0,server,nowait
-(qemu) device_add virtserialport,bus=virtio-serial0.0,nr=2,\
-                  chardev=serial0,id=serial0,name=serial0
-(qemu) device_del serial0
-(qemu) device_add virtserialport,bus=virtio-serial0.0,nr=2,\
-                  chardev=serial0,id=serial0,name=serial0
-kernel error:
-  virtio-ports vport2p2: Error allocating inbufs
-qemu error:
-  virtio-serial-bus: Guest failure in adding port 2 for device \
-                     virtio-serial0.0
+> This series makes the credit mechanism implemented in the
+> virtio-vsock devices more robust.
+> Patch 1 sends an update to the remote peer when the buf_alloc
+> change.
+> Patch 2 prevents a malicious peer (especially the guest) can
+> consume all the memory of the other peer, discarding packets
+> when the credit available is not respected.
 
-This happens because buffers for the in_vq are allocated when the port is
-added but are not released when the port is unplugged.
-
-They are only released when virtconsole is removed (see a7a69ec0d8e4)
-
-To avoid the problem and to be symmetric, we could allocate all the buffers
-in init_vqs() as they are released in remove_vqs(), but it sounds like
-a waste of memory.
-
-Rather than that, this patch changes add_port() logic to only allocate the
-buffers if the in_vq has available free slots.
-
-Fixes: a7a69ec0d8e4 ("virtio_console: free buffers after reset")
-Cc: mst@redhat.com
-Signed-off-by: Laurent Vivier <lvivier@redhat.com>
----
- drivers/char/virtio_console.c | 17 +++++++++++------
- 1 file changed, 11 insertions(+), 6 deletions(-)
-
-diff --git a/drivers/char/virtio_console.c b/drivers/char/virtio_console.c
-index 7270e7b69262..77105166fe01 100644
---- a/drivers/char/virtio_console.c
-+++ b/drivers/char/virtio_console.c
-@@ -1421,12 +1421,17 @@ static int add_port(struct ports_device *portdev, u32 id)
- 	spin_lock_init(&port->outvq_lock);
- 	init_waitqueue_head(&port->waitqueue);
- 
--	/* Fill the in_vq with buffers so the host can send us data. */
--	nr_added_bufs = fill_queue(port->in_vq, &port->inbuf_lock);
--	if (!nr_added_bufs) {
--		dev_err(port->dev, "Error allocating inbufs\n");
--		err = -ENOMEM;
--		goto free_device;
-+	/* if the in_vq has not already been filled (the port has already been
-+	 * used and unplugged), fill the in_vq with buffers so the host can
-+	 * send us data.
-+	 */
-+	if (port->in_vq->num_free != 0) {
-+		nr_added_bufs = fill_queue(port->in_vq, &port->inbuf_lock);
-+		if (!nr_added_bufs) {
-+			dev_err(port->dev, "Error allocating inbufs\n");
-+			err = -ENOMEM;
-+			goto free_device;
-+		}
- 	}
- 
- 	if (is_rproc_serial(port->portdev->vdev))
--- 
-2.21.0
+Series applied, thanks.
