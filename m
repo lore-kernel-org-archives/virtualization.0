@@ -1,14 +1,12 @@
-From: Cornelia Huck <cohuck@redhat.com>
-Subject: Re: [PATCH V4 5/6] virtio: introduce a mdev based transport
-Date: Fri, 18 Oct 2019 16:20:07 +0200
-Message-ID: <20191018162007.31631039.cohuck__49512.67197482$1571408441$gmane$org@redhat.com>
-References: <20191017104836.32464-1-jasowang@redhat.com>
-	<20191017104836.32464-6-jasowang@redhat.com>
+From: Laurent Vivier <lvivier@redhat.com>
+Subject: [PATCH] virtio_console: allocate inbufs in add_port() only if it is
+	needed
+Date: Fri, 18 Oct 2019 18:47:18 +0200
+Message-ID: <20191018164718.15999-1-lvivier@redhat.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <20191017104836.32464-6-jasowang@redhat.com>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -18,76 +16,71 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Jason Wang <jasowang@redhat.com>
-Cc: stefanha@redhat.com, christophe.de.dinechin@gmail.com, kvm@vger.kernel.org, mst@redhat.com, airlied@linux.ie, joonas.lahtinen@linux.intel.com, heiko.carstens@de.ibm.com, dri-devel@lists.freedesktop.org, virtualization@lists.linux-foundation.org, kwankhede@nvidia.com, rob.miller@broadcom.com, linux-s390@vger.kernel.org, sebott@linux.ibm.com, lulu@redhat.com, eperezma@redhat.com, pasic@linux.ibm.com, borntraeger@de.ibm.com, haotian.wang@sifive.com, zhi.a.wang@intel.com, farman@linux.ibm.com, idos@mellanox.com, gor@linux.ibm.com, intel-gfx@lists.freedesktop.org, jani.nikula@linux.intel.com, xiao.w.wang@intel.com, freude@linux.ibm.com, zhenyuw@linux.intel.com, parav@mellanox.com, zhihong.wang@intel.com, rodrigo.vivi@intel.com, intel-gvt-dev@lists.freedesktop.org, akrowiak@linux.ibm.com, oberpar@linux.ibm.com, netdev@vger.kernel.org, linux-kernel@vger.kernel.org, maxime.co
+To: linux-kernel@vger.kernel.org
+Cc: Laurent Vivier <lvivier@redhat.com>, Arnd Bergmann <arnd@arndb.de>, "Michael S . Tsirkin" <mst@redhat.com>, Greg Kroah-Hartman <gregkh@linuxfoundation.org>, Amit Shah <amit@kernel.org>, virtualization@lists.linux-foundation.org
 List-Id: virtualization@lists.linuxfoundation.org
 
-On Thu, 17 Oct 2019 18:48:35 +0800
-Jason Wang <jasowang@redhat.com> wrote:
+When we hot unplug a virtserialport and then try to hot plug again,
+it fails:
 
-> This patch introduces a new mdev transport for virtio. This is used to
-> use kernel virtio driver to drive the mediated device that is capable
-> of populating virtqueue directly.
-> 
-> A new virtio-mdev driver will be registered to the mdev bus, when a
-> new virtio-mdev device is probed, it will register the device with
-> mdev based config ops. This means it is a software transport between
-> mdev driver and mdev device. The transport was implemented through
-> device specific ops which is a part of mdev_parent_ops now.
-> 
-> Signed-off-by: Jason Wang <jasowang@redhat.com>
-> ---
->  drivers/virtio/Kconfig       |   7 +
->  drivers/virtio/Makefile      |   1 +
->  drivers/virtio/virtio_mdev.c | 409 +++++++++++++++++++++++++++++++++++
->  3 files changed, 417 insertions(+)
+(qemu) chardev-add socket,id=serial0,path=/tmp/serial0,server,nowait
+(qemu) device_add virtserialport,bus=virtio-serial0.0,nr=2,\
+                  chardev=serial0,id=serial0,name=serial0
+(qemu) device_del serial0
+(qemu) device_add virtserialport,bus=virtio-serial0.0,nr=2,\
+                  chardev=serial0,id=serial0,name=serial0
+kernel error:
+  virtio-ports vport2p2: Error allocating inbufs
+qemu error:
+  virtio-serial-bus: Guest failure in adding port 2 for device \
+                     virtio-serial0.0
 
-(...)
+This happens because buffers for the in_vq are allocated when the port is
+added but are not released when the port is unplugged.
 
-> +static int virtio_mdev_probe(struct device *dev)
-> +{
-> +	struct mdev_device *mdev = mdev_from_dev(dev);
-> +	const struct virtio_mdev_device_ops *ops = mdev_get_dev_ops(mdev);
-> +	struct virtio_mdev_device *vm_dev;
-> +	int rc;
-> +
-> +	vm_dev = devm_kzalloc(dev, sizeof(*vm_dev), GFP_KERNEL);
-> +	if (!vm_dev)
-> +		return -ENOMEM;
-> +
-> +	vm_dev->vdev.dev.parent = dev;
-> +	vm_dev->vdev.dev.release = virtio_mdev_release_dev;
-> +	vm_dev->vdev.config = &virtio_mdev_config_ops;
-> +	vm_dev->mdev = mdev;
-> +	INIT_LIST_HEAD(&vm_dev->virtqueues);
-> +	spin_lock_init(&vm_dev->lock);
-> +
-> +	vm_dev->version = ops->get_mdev_features(mdev);
-> +	if (vm_dev->version != VIRTIO_MDEV_F_VERSION_1) {
-> +		dev_err(dev, "VIRTIO_MDEV_F_VERSION_1 is mandatory\n");
-> +		return -ENXIO;
-> +	}
+They are only released when virtconsole is removed (see a7a69ec0d8e4)
 
-Hm, so how is that mdev features interface supposed to work? If
-VIRTIO_MDEV_F_VERSION_1 is a bit, I would expect this code to test for
-its presence, and not for identity.
+To avoid the problem and to be symmetric, we could allocate all the buffers
+in init_vqs() as they are released in remove_vqs(), but it sounds like
+a waste of memory.
 
-What will happen if we come up with a version 2? If this is backwards
-compatible, will both version 2 and version 1 be set?
+Rather than that, this patch changes add_port() logic to only allocate the
+buffers if the in_vq has available free slots.
 
-> +
-> +	vm_dev->vdev.id.device = ops->get_device_id(mdev);
-> +	if (vm_dev->vdev.id.device == 0)
-> +		return -ENODEV;
-> +
-> +	vm_dev->vdev.id.vendor = ops->get_vendor_id(mdev);
-> +	rc = register_virtio_device(&vm_dev->vdev);
-> +	if (rc)
-> +		put_device(dev);
-> +	else
-> +		dev_set_drvdata(dev, vm_dev);
-> +
-> +	return rc;
-> +}
+Fixes: a7a69ec0d8e4 ("virtio_console: free buffers after reset")
+Cc: mst@redhat.com
+Signed-off-by: Laurent Vivier <lvivier@redhat.com>
+---
+ drivers/char/virtio_console.c | 17 +++++++++++------
+ 1 file changed, 11 insertions(+), 6 deletions(-)
 
-(...)
+diff --git a/drivers/char/virtio_console.c b/drivers/char/virtio_console.c
+index 7270e7b69262..77105166fe01 100644
+--- a/drivers/char/virtio_console.c
++++ b/drivers/char/virtio_console.c
+@@ -1421,12 +1421,17 @@ static int add_port(struct ports_device *portdev, u32 id)
+ 	spin_lock_init(&port->outvq_lock);
+ 	init_waitqueue_head(&port->waitqueue);
+ 
+-	/* Fill the in_vq with buffers so the host can send us data. */
+-	nr_added_bufs = fill_queue(port->in_vq, &port->inbuf_lock);
+-	if (!nr_added_bufs) {
+-		dev_err(port->dev, "Error allocating inbufs\n");
+-		err = -ENOMEM;
+-		goto free_device;
++	/* if the in_vq has not already been filled (the port has already been
++	 * used and unplugged), fill the in_vq with buffers so the host can
++	 * send us data.
++	 */
++	if (port->in_vq->num_free != 0) {
++		nr_added_bufs = fill_queue(port->in_vq, &port->inbuf_lock);
++		if (!nr_added_bufs) {
++			dev_err(port->dev, "Error allocating inbufs\n");
++			err = -ENOMEM;
++			goto free_device;
++		}
+ 	}
+ 
+ 	if (is_rproc_serial(port->portdev->vdev))
+-- 
+2.21.0
