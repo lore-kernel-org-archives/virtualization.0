@@ -1,17 +1,16 @@
-From: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-Subject: Re: [PATCH RFC 2/3] usb, kcov: collect coverage from hub_event
-Date: Thu, 17 Oct 2019 13:29:53 -0700
-Message-ID: <20191017202953.GB1103978__48003.0150081561$1571344222$gmane$org@kroah.com>
-References: <cover.1571333592.git.andreyknvl@google.com>
-	<1b30d1c9e7f86c25425c5ee53d7facede289608e.1571333592.git.andreyknvl@google.com>
-	<20191017181943.GC1094415@kroah.com>
-	<CAAeHK+zEoEbtk62raCU_10V_K97VAeebfJfuCRaf5DskT5yVhw@mail.gmail.com>
+From: Jason Wang <jasowang@redhat.com>
+Subject: Re: [PATCH V4 3/6] mdev: introduce device specific ops
+Date: Fri, 18 Oct 2019 15:34:44 +0800
+Message-ID: <a15f2cde-925a-cff0-d959-4a0cd510323a__15260.926801578$1571384147$gmane$org@redhat.com>
+References: <20191017104836.32464-1-jasowang@redhat.com>
+	<20191017104836.32464-4-jasowang@redhat.com>
+	<20191017170755.15506ada.cohuck@redhat.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset="utf-8"; Format="flowed"
+Content-Transfer-Encoding: base64
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-Content-Disposition: inline
-In-Reply-To: <CAAeHK+zEoEbtk62raCU_10V_K97VAeebfJfuCRaf5DskT5yVhw@mail.gmail.com>
+In-Reply-To: <20191017170755.15506ada.cohuck@redhat.com>
+Content-Language: en-US
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -21,102 +20,115 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Andrey Konovalov <andreyknvl@google.com>
-Cc: Anders Roxell <anders.roxell@linaro.org>, Arnd Bergmann <arnd@arndb.de>, kvm@vger.kernel.org, "Michael S . Tsirkin" <mst@redhat.com>, netdev <netdev@vger.kernel.org>, USB list <linux-usb@vger.kernel.org>, LKML <linux-kernel@vger.kernel.org>, Steven Rostedt <rostedt@goodmis.org>, virtualization@lists.linux-foundation.org, Alan Stern <stern@rowland.harvard.edu>, Elena Reshetova <elena.reshetova@intel.com>, Andrew Morton <akpm@linux-foundation.org>, Dmitry Vyukov <dvyukov@google.com>, David Windsor <dwindsor@gmail.com>
+To: Cornelia Huck <cohuck@redhat.com>
+Cc: stefanha@redhat.com, christophe.de.dinechin@gmail.com, kvm@vger.kernel.org, mst@redhat.com, airlied@linux.ie, joonas.lahtinen@linux.intel.com, heiko.carstens@de.ibm.com, dri-devel@lists.freedesktop.org, virtualization@lists.linux-foundation.org, kwankhede@nvidia.com, rob.miller@broadcom.com, linux-s390@vger.kernel.org, sebott@linux.ibm.com, lulu@redhat.com, eperezma@redhat.com, pasic@linux.ibm.com, borntraeger@de.ibm.com, haotian.wang@sifive.com, zhi.a.wang@intel.com, farman@linux.ibm.com, idos@mellanox.com, gor@linux.ibm.com, intel-gfx@lists.freedesktop.org, jani.nikula@linux.intel.com, xiao.w.wang@intel.com, freude@linux.ibm.com, zhenyuw@linux.intel.com, parav@mellanox.com, zhihong.wang@intel.com, rodrigo.vivi@intel.com, intel-gvt-dev@lists.freedesktop.org, akrowiak@linux.ibm.com, oberpar@linux.ibm.com, netdev@vger.kernel.org, linux-kernel@vger.kernel.org, maxime.co
 List-Id: virtualization@lists.linuxfoundation.org
 
-On Thu, Oct 17, 2019 at 09:06:56PM +0200, Andrey Konovalov wrote:
-> On Thu, Oct 17, 2019 at 8:19 PM Greg Kroah-Hartman
-> <gregkh@linuxfoundation.org> wrote:
-> >
-> > On Thu, Oct 17, 2019 at 07:44:14PM +0200, Andrey Konovalov wrote:
-> > > This patch adds kcov_remote_start/kcov_remote_stop annotations to the
-> > > hub_event function, which is responsible for processing events on USB
-> > > buses, in particular events that happen during USB device enumeration.
-> > > Each USB bus gets a unique id, which can be used to attach a kcov device
-> > > to a particular USB bus for coverage collection.
-> > >
-> > > Signed-off-by: Andrey Konovalov <andreyknvl@google.com>
-> > > ---
-> > >  drivers/usb/core/hub.c    | 4 ++++
-> > >  include/linux/kcov.h      | 1 +
-> > >  include/uapi/linux/kcov.h | 7 +++++++
-> > >  3 files changed, 12 insertions(+)
-> > >
-> > > diff --git a/drivers/usb/core/hub.c b/drivers/usb/core/hub.c
-> > > index 236313f41f4a..03a40e41b099 100644
-> > > --- a/drivers/usb/core/hub.c
-> > > +++ b/drivers/usb/core/hub.c
-> > > @@ -5374,6 +5374,8 @@ static void hub_event(struct work_struct *work)
-> > >       hub_dev = hub->intfdev;
-> > >       intf = to_usb_interface(hub_dev);
-> > >
-> > > +     kcov_remote_start(kcov_remote_handle_usb(hdev->bus->busnum));
-> > > +
-> > >       dev_dbg(hub_dev, "state %d ports %d chg %04x evt %04x\n",
-> > >                       hdev->state, hdev->maxchild,
-> > >                       /* NOTE: expects max 15 ports... */
-> > > @@ -5480,6 +5482,8 @@ static void hub_event(struct work_struct *work)
-> > >       /* Balance the stuff in kick_hub_wq() and allow autosuspend */
-> > >       usb_autopm_put_interface(intf);
-> > >       kref_put(&hub->kref, hub_release);
-> > > +
-> > > +     kcov_remote_stop();
-> > >  }
-> > >
-> > >  static const struct usb_device_id hub_id_table[] = {
-> > > diff --git a/include/linux/kcov.h b/include/linux/kcov.h
-> > > index 702672d98d35..38a47e0b67c2 100644
-> > > --- a/include/linux/kcov.h
-> > > +++ b/include/linux/kcov.h
-> > > @@ -30,6 +30,7 @@ void kcov_task_exit(struct task_struct *t);
-> > >  /*
-> > >   * Reserved handle ranges:
-> > >   * 0000000000000000 - 0000ffffffffffff : common handles
-> > > + * 0001000000000000 - 0001ffffffffffff : USB subsystem handles
-> >
-> > So how many bits are you going to have for any in-kernel tasks?  Aren't
-> > you going to run out quickly?
-> 
-> With these patches we only collect coverage from hub_event threads,
-> and we need one ID per USB bus, the number of which is quite limited.
-> But then we might want to collect coverage from other parts of the USB
-> subsystem, so we might need more IDs. I don't expect the number of
-> different subsystem from which we want to collect coverage to be
-> large, so the idea here is to use 2 bytes of an ID to denote the
-> subsystem, and the other 6 to denote different coverage collection
-> sections within it.
-> 
-> But overall, which encoding scheme to use here is a good question.
-> Ideas are welcome.
-> 
-> > >   */
-> > >  void kcov_remote_start(u64 handle);
-> > >  void kcov_remote_stop(void);
-> > > diff --git a/include/uapi/linux/kcov.h b/include/uapi/linux/kcov.h
-> > > index 46f78f716ca9..45c9ae59cebc 100644
-> > > --- a/include/uapi/linux/kcov.h
-> > > +++ b/include/uapi/linux/kcov.h
-> > > @@ -43,4 +43,11 @@ enum {
-> > >  #define KCOV_CMP_SIZE(n)        ((n) << 1)
-> > >  #define KCOV_CMP_MASK           KCOV_CMP_SIZE(3)
-> > >
-> > > +#define KCOV_REMOTE_HANDLE_USB  0x0001000000000000ull
-> > > +
-> > > +static inline __u64 kcov_remote_handle_usb(unsigned int bus)
-> > > +{
-> > > +     return KCOV_REMOTE_HANDLE_USB + (__u64)bus;
-> > > +}
-> >
-> > Why is this function in a uapi .h file?  What userspace code would call
-> > this?
-> 
-> A userspace process that wants to collect coverage from USB bus # N
-> needs to pass kcov_remote_handle_usb(N) into KCOV_REMOTE_ENABLE ioctl.
-
-Ugh, ok.  Then you should make "unsigned int bus" a __u64 so that this
-actually will work on all kernels properly.
-
-thanks,
-
-greg k-h
+Ck9uIDIwMTkvMTAvMTcg5LiL5Y2IMTE6MDcsIENvcm5lbGlhIEh1Y2sgd3JvdGU6Cj4gT24gVGh1
+LCAxNyBPY3QgMjAxOSAxODo0ODozMyArMDgwMAo+IEphc29uIFdhbmcgPGphc293YW5nQHJlZGhh
+dC5jb20+IHdyb3RlOgo+Cj4+IEN1cnJlbnRseSwgZXhjZXB0IGZvciB0aGUgY3JlYXRlIGFuZCBy
+ZW1vdmUsIHRoZSByZXN0IG9mCj4+IG1kZXZfcGFyZW50X29wcyBpcyBkZXNpZ25lZCBmb3IgdmZp
+by1tZGV2IGRyaXZlciBvbmx5IGFuZCBtYXkgbm90IGhlbHAKPj4gZm9yIGtlcm5lbCBtZGV2IGRy
+aXZlci4gV2l0aCB0aGUgaGVscCBvZiBjbGFzcyBpZCwgdGhpcyBwYXRjaAo+PiBpbnRyb2R1Y2Vz
+IGRldmljZSBzcGVjaWZpYyBjYWxsYmFja3MgaW5zaWRlIG1kZXZfZGV2aWNlCj4+IHN0cnVjdHVy
+ZS4gVGhpcyBhbGxvd3MgZGlmZmVyZW50IHNldCBvZiBjYWxsYmFjayB0byBiZSB1c2VkIGJ5Cj4+
+IHZmaW8tbWRldiBhbmQgdmlydGlvLW1kZXYuCj4+Cj4+IFNpZ25lZC1vZmYtYnk6IEphc29uIFdh
+bmcgPGphc293YW5nQHJlZGhhdC5jb20+Cj4+IC0tLQo+PiAgIC4uLi9kcml2ZXItYXBpL3ZmaW8t
+bWVkaWF0ZWQtZGV2aWNlLnJzdCAgICAgICB8IDI1ICsrKysrLS0tLQo+PiAgIE1BSU5UQUlORVJT
+ICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICB8ICAxICsKPj4gICBkcml2ZXJzL2dw
+dS9kcm0vaTkxNS9ndnQva3ZtZ3QuYyAgICAgICAgICAgICAgfCAxOCArKysrLS0tCj4+ICAgZHJp
+dmVycy9zMzkwL2Npby92ZmlvX2Njd19vcHMuYyAgICAgICAgICAgICAgIHwgMTggKysrKy0tLQo+
+PiAgIGRyaXZlcnMvczM5MC9jcnlwdG8vdmZpb19hcF9vcHMuYyAgICAgICAgICAgICB8IDE0ICsr
+Ky0tCj4+ICAgZHJpdmVycy92ZmlvL21kZXYvbWRldl9jb3JlLmMgICAgICAgICAgICAgICAgIHwg
+MTggKysrKystLQo+PiAgIGRyaXZlcnMvdmZpby9tZGV2L21kZXZfcHJpdmF0ZS5oICAgICAgICAg
+ICAgICB8ICAxICsKPj4gICBkcml2ZXJzL3ZmaW8vbWRldi92ZmlvX21kZXYuYyAgICAgICAgICAg
+ICAgICAgfCAzNyArKysrKystLS0tLS0tCj4+ICAgaW5jbHVkZS9saW51eC9tZGV2LmggICAgICAg
+ICAgICAgICAgICAgICAgICAgIHwgNDUgKysrKy0tLS0tLS0tLS0tLQo+PiAgIGluY2x1ZGUvbGlu
+dXgvdmZpb19tZGV2LmggICAgICAgICAgICAgICAgICAgICB8IDUyICsrKysrKysrKysrKysrKysr
+KysKPj4gICBzYW1wbGVzL3ZmaW8tbWRldi9tYm9jaHMuYyAgICAgICAgICAgICAgICAgICAgfCAy
+MCArKysrLS0tCj4+ICAgc2FtcGxlcy92ZmlvLW1kZXYvbWRweS5jICAgICAgICAgICAgICAgICAg
+ICAgIHwgMjAgKysrKy0tLQo+PiAgIHNhbXBsZXMvdmZpby1tZGV2L210dHkuYyAgICAgICAgICAg
+ICAgICAgICAgICB8IDE4ICsrKystLS0KPj4gICAxMyBmaWxlcyBjaGFuZ2VkLCAxODQgaW5zZXJ0
+aW9ucygrKSwgMTAzIGRlbGV0aW9ucygtKQo+PiAgIGNyZWF0ZSBtb2RlIDEwMDY0NCBpbmNsdWRl
+L2xpbnV4L3ZmaW9fbWRldi5oCj4+Cj4+IGRpZmYgLS1naXQgYS9Eb2N1bWVudGF0aW9uL2RyaXZl
+ci1hcGkvdmZpby1tZWRpYXRlZC1kZXZpY2UucnN0IGIvRG9jdW1lbnRhdGlvbi9kcml2ZXItYXBp
+L3ZmaW8tbWVkaWF0ZWQtZGV2aWNlLnJzdAo+PiBpbmRleCBmOWE3OGQ3NWE2N2EuLjBjY2E4NGQx
+OTYwMyAxMDA2NDQKPj4gLS0tIGEvRG9jdW1lbnRhdGlvbi9kcml2ZXItYXBpL3ZmaW8tbWVkaWF0
+ZWQtZGV2aWNlLnJzdAo+PiArKysgYi9Eb2N1bWVudGF0aW9uL2RyaXZlci1hcGkvdmZpby1tZWRp
+YXRlZC1kZXZpY2UucnN0Cj4+IEBAIC0xNTIsMTEgKzE1MiwyMiBAQCBjYWxsYmFja3MgcGVyIG1k
+ZXYgcGFyZW50IGRldmljZSwgcGVyIG1kZXYgdHlwZSwgb3IgYW55IG90aGVyIGNhdGVnb3JpemF0
+aW9uLgo+PiAgIFZlbmRvciBkcml2ZXJzIGFyZSBleHBlY3RlZCB0byBiZSBmdWxseSBhc3luY2hy
+b25vdXMgaW4gdGhpcyByZXNwZWN0IG9yCj4+ICAgcHJvdmlkZSB0aGVpciBvd24gaW50ZXJuYWwg
+cmVzb3VyY2UgcHJvdGVjdGlvbi4pCj4+ICAgCj4+IC1UaGUgY2FsbGJhY2tzIGluIHRoZSBtZGV2
+X3BhcmVudF9vcHMgc3RydWN0dXJlIGFyZSBhcyBmb2xsb3dzOgo+PiAtCj4+IC0qIG9wZW46IG9w
+ZW4gY2FsbGJhY2sgb2YgbWVkaWF0ZWQgZGV2aWNlCj4+IC0qIGNsb3NlOiBjbG9zZSBjYWxsYmFj
+ayBvZiBtZWRpYXRlZCBkZXZpY2UKPj4gLSogaW9jdGw6IGlvY3RsIGNhbGxiYWNrIG9mIG1lZGlh
+dGVkIGRldmljZQo+PiArQXMgbXVsdGlwbGUgdHlwZXMgb2YgbWVkaWF0ZWQgZGV2aWNlcyBtYXkg
+YmUgc3VwcG9ydGVkLCB0aGUgZGV2aWNlCj4+ICttdXN0IHNldCB1cCB0aGUgY2xhc3MgaWQgYW5k
+IHRoZSBkZXZpY2Ugc3BlY2lmaWMgY2FsbGJhY2tzIGluIGNyZWF0ZSgpCj4gcy9pbiBjcmVhdGUo
+KS9pbiB0aGUgY3JlYXRlKCkvCgoKV2lsbCBmaXguCgoKPgo+PiArY2FsbGJhY2suIEUuZyBmb3Ig
+dmZpby1tZGV2IGRldmljZSBpdCBuZWVkcyB0byBiZSBkb25lIHRocm91Z2g6Cj4gIkVhY2ggY2xh
+c3MgcHJvdmlkZXMgYSBoZWxwZXIgZnVuY3Rpb24gdG8gZG8gc287IGUuZy4gZm9yIHZmaW8tbWRl
+dgo+IGRldmljZXMsIHRoZSBmdW5jdGlvbiB0byBiZSBjYWxsZWQgaXM6Igo+Cj4gPwoKClRoaXMg
+bG9va3MgYmV0dGVyLgoKCj4KPj4gKwo+PiArICAgIGludCBtZGV2X3NldF92ZmlvX29wcyhzdHJ1
+Y3QgbWRldl9kZXZpY2UgKm1kZXYsCj4+ICsgICAgICAgICAgICAgICAgICAgICAgICAgIGNvbnN0
+IHN0cnVjdCB2ZmlvX21kZXZfb3BzICp2ZmlvX29wcyk7Cj4+ICsKPj4gK1RoZSBjbGFzcyBpZCAo
+c2V0IHRvIE1ERVZfQ0xBU1NfSURfVkZJTykgaXMgdXNlZCB0byBtYXRjaCBhIGRldmljZQo+ICIo
+c2V0IGJ5IHRoaXMgaGVscGVyIGZ1bmN0aW9uIHRvIE1ERVZfQ0xBU1NfSURfVkZJTykiID8KCgpZ
+ZXMuCgoKPj4gK3dpdGggYW4gbWRldiBkcml2ZXIgdmlhIGl0cyBpZCB0YWJsZS4gVGhlIGRldmlj
+ZSBzcGVjaWZpYyBjYWxsYmFja3MKPj4gKyhzcGVjaWZpZWQgaW4gKm9wcykgYXJlIG9idGFpbmFi
+bGUgdmlhIG1kZXZfZ2V0X2Rldl9vcHMoKSAoZm9yIHVzZSBieQo+ICIoc3BlY2lmaWVkIGluICp2
+ZmlvX29wcyBieSB0aGUgY2FsbGVyKSIgPwoKClllcy4KCgo+PiArdGhlIG1kZXYgYnVzIGRyaXZl
+cikuIEEgdmZpby1tZGV2IGRldmljZSAoY2xhc3MgaWQgTURFVl9DTEFTU19JRF9WRklPKQo+PiAr
+dXNlcyB0aGUgZm9sbG93aW5nIGRldmljZS1zcGVjaWZpYyBvcHM6Cj4+ICsKPj4gKyogb3Blbjog
+b3BlbiBjYWxsYmFjayBvZiB2ZmlvIG1lZGlhdGVkIGRldmljZQo+PiArKiBjbG9zZTogY2xvc2Ug
+Y2FsbGJhY2sgb2YgdmZpbyBtZWRpYXRlZCBkZXZpY2UKPj4gKyogaW9jdGw6IGlvY3RsIGNhbGxi
+YWNrIG9mIHZmaW8gbWVkaWF0ZWQgZGV2aWNlCj4+ICAgKiByZWFkIDogcmVhZCBlbXVsYXRpb24g
+Y2FsbGJhY2sKPj4gICAqIHdyaXRlOiB3cml0ZSBlbXVsYXRpb24gY2FsbGJhY2sKPj4gICAqIG1t
+YXA6IG1tYXAgZW11bGF0aW9uIGNhbGxiYWNrCj4+IEBAIC0xNjcsMTAgKzE3OCw2IEBAIHJlZ2lz
+dGVyIGl0c2VsZiB3aXRoIHRoZSBtZGV2IGNvcmUgZHJpdmVyOjoKPj4gICAJZXh0ZXJuIGludCAg
+bWRldl9yZWdpc3Rlcl9kZXZpY2Uoc3RydWN0IGRldmljZSAqZGV2LAo+PiAgIAkgICAgICAgICAg
+ICAgICAgICAgICAgICAgICAgICAgICBjb25zdCBzdHJ1Y3QgbWRldl9wYXJlbnRfb3BzICpvcHMp
+Owo+PiAgIAo+PiAtSXQgaXMgYWxzbyByZXF1aXJlZCB0byBzcGVjaWZ5IHRoZSBjbGFzc19pZCBp
+biBjcmVhdGUoKSBjYWxsYmFjayB0aHJvdWdoOjoKPj4gLQo+PiAtCWludCBtZGV2X3NldF9jbGFz
+cyhzdHJ1Y3QgbWRldl9kZXZpY2UgKm1kZXYsIHUxNiBpZCk7Cj4+IC0KPiBJJ20gd29uZGVyaW5n
+IGlmIHRoaXMgcGF0Y2ggc2V0IHNob3VsZCBzdGFydCBvdXQgd2l0aCBpbnRyb2R1Y2luZwo+IGhl
+bHBlciBmdW5jdGlvbnMgYWxyZWFkeSAoaS5lLiBkb24ndCBpbnRyb2R1Y2UgbWRldl9zZXRfY2xh
+c3MoKSwgYnV0Cj4gc3RhcnQgb3V0IHdpdGggbWRldl9zZXRfY2xhc3NfdmZpbygpIHdoaWNoIHdp
+bGwgZ2FpbiB0aGUgKnZmaW9fb3BzCj4gYXJndW1lbnQgaW4gdGhpcyBwYXRjaC4pCgoKSSB0aGlu
+ayBpdCBkb2Vzbid0IGhhcm0gdG8ga2VlcCBpdCBhcyBpcyBzaW5jZSBpbiBwYXRjaCAxIHdlIGlu
+dHJvZHVjZSAKY2xhc3NfaWQgYW5kIGJ1cyBtYXRjaCBtZXRob2QgYmFzZWQgb24gdGhhdCB3aXRo
+b3V0IGRldmljZSBvcHMgdGhlcmUuwqAgCkJ1dCBpZiB5b3Ugc3RpY2sgSSBjYW4gY2hhbmdlLgoK
+VGhhbmtzCgoKPgo+PiAgIEhvd2V2ZXIsIHRoZSBtZGV2X3BhcmVudF9vcHMgc3RydWN0dXJlIGlz
+IG5vdCByZXF1aXJlZCBpbiB0aGUgZnVuY3Rpb24gY2FsbAo+PiAgIHRoYXQgYSBkcml2ZXIgc2hv
+dWxkIHVzZSB0byB1bnJlZ2lzdGVyIGl0c2VsZiB3aXRoIHRoZSBtZGV2IGNvcmUgZHJpdmVyOjoK
+Pj4gICAKPiAoLi4uKQo+Cj4+IGRpZmYgLS1naXQgYS9kcml2ZXJzL3ZmaW8vbWRldi9tZGV2X2Nv
+cmUuYyBiL2RyaXZlcnMvdmZpby9tZGV2L21kZXZfY29yZS5jCj4+IGluZGV4IDNhOWM1MmQ3MWI0
+ZS4uZDBmMzExM2M4MDcxIDEwMDY0NAo+PiAtLS0gYS9kcml2ZXJzL3ZmaW8vbWRldi9tZGV2X2Nv
+cmUuYwo+PiArKysgYi9kcml2ZXJzL3ZmaW8vbWRldi9tZGV2X2NvcmUuYwo+PiBAQCAtNDUsMTUg
+KzQ1LDIzIEBAIHZvaWQgbWRldl9zZXRfZHJ2ZGF0YShzdHJ1Y3QgbWRldl9kZXZpY2UgKm1kZXYs
+IHZvaWQgKmRhdGEpCj4+ICAgfQo+PiAgIEVYUE9SVF9TWU1CT0wobWRldl9zZXRfZHJ2ZGF0YSk7
+Cj4+ICAgCj4+IC0vKiBTcGVjaWZ5IHRoZSBjbGFzcyBmb3IgdGhlIG1kZXYgZGV2aWNlLCB0aGlz
+IG11c3QgYmUgY2FsbGVkIGR1cmluZwo+PiAtICogY3JlYXRlKCkgY2FsbGJhY2suCj4+ICsvKiBT
+cGVjaWZ5IHRoZSBWRklPIGRldmljZSBvcHMgZm9yIHRoZSBtZGV2IGRldmljZSwgdGhpcwo+PiAr
+ICogbXVzdCBiZSBjYWxsZWQgZHVyaW5nIGNyZWF0ZSgpIGNhbGxiYWNrIGZvciBWRklPIG1kZXYg
+ZGV2aWNlLgo+PiAgICAqLwo+IC8qCj4gICAqIFNwZWNpZnkgdGhlIG1kZXYgZGV2aWNlIHRvIGJl
+IGEgVkZJTyBtZGV2IGRldmljZSwgYW5kIHNldCB0aGUKPiAgICogVkZJTyBkZXZpY2VzIG9wcyBm
+b3IgaXQuIFRoaXMgbXVzdCBiZSBjYWxsZWQgZnJvbSB0aGUgY3JlYXRlKCkKPiAgICogY2FsbGJh
+Y2sgZm9yIFZGSU8gbWRldiBkZXZpY2VzLgo+ICAgKi8KPgo+ID8KPgo+PiAtdm9pZCBtZGV2X3Nl
+dF9jbGFzcyhzdHJ1Y3QgbWRldl9kZXZpY2UgKm1kZXYsIHUxNiBpZCkKPj4gK3ZvaWQgbWRldl9z
+ZXRfdmZpb19vcHMoc3RydWN0IG1kZXZfZGV2aWNlICptZGV2LAo+PiArCQkgICAgICAgY29uc3Qg
+c3RydWN0IHZmaW9fbWRldl9kZXZpY2Vfb3BzICp2ZmlvX29wcykKPj4gICB7Cj4+ICAgCVdBUk5f
+T04obWRldi0+Y2xhc3NfaWQpOwo+PiAtCW1kZXYtPmNsYXNzX2lkID0gaWQ7Cj4+ICsJbWRldi0+
+Y2xhc3NfaWQgPSBNREVWX0NMQVNTX0lEX1ZGSU87Cj4+ICsJbWRldi0+ZGV2aWNlX29wcyA9IHZm
+aW9fb3BzOwo+PiAgIH0KPj4gLUVYUE9SVF9TWU1CT0wobWRldl9zZXRfY2xhc3MpOwo+PiArRVhQ
+T1JUX1NZTUJPTChtZGV2X3NldF92ZmlvX29wcyk7Cj4+ICsKPj4gK2NvbnN0IHZvaWQgKm1kZXZf
+Z2V0X2Rldl9vcHMoc3RydWN0IG1kZXZfZGV2aWNlICptZGV2KQo+PiArewo+PiArCXJldHVybiBt
+ZGV2LT5kZXZpY2Vfb3BzOwo+PiArfQo+PiArRVhQT1JUX1NZTUJPTChtZGV2X2dldF9kZXZfb3Bz
+KTsKPj4gICAKPj4gICBzdHJ1Y3QgZGV2aWNlICptZGV2X2RldihzdHJ1Y3QgbWRldl9kZXZpY2Ug
+Km1kZXYpCj4+ICAgewo+ICguLi4pCj4KPiBUaGUgY29kZSBjaGFuZ2UgbG9va3MgZ29vZCB0byBt
+ZTsgSSdtIGp1c3Qgd29uZGVyaW5nIGlmIHdlIHNob3VsZAo+IGludHJvZHVjZSBtZGV2X3NldF9j
+bGFzcygpIGF0IGFsbCAoc2VlIGFib3ZlKS4KX19fX19fX19fX19fX19fX19fX19fX19fX19fX19f
+X19fX19fX19fX19fX19fX18KVmlydHVhbGl6YXRpb24gbWFpbGluZyBsaXN0ClZpcnR1YWxpemF0
+aW9uQGxpc3RzLmxpbnV4LWZvdW5kYXRpb24ub3JnCmh0dHBzOi8vbGlzdHMubGludXhmb3VuZGF0
+aW9uLm9yZy9tYWlsbWFuL2xpc3RpbmZvL3ZpcnR1YWxpemF0aW9u
