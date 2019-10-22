@@ -1,8 +1,8 @@
 From: Gerd Hoffmann <kraxel@redhat.com>
-Subject: [PATCH 2/5] drm/virtio: move byteorder handling into
-	virtio_gpu_cmd_transfer_to_host_2d function
-Date: Tue, 22 Oct 2019 10:05:43 +0200
-Message-ID: <20191022080546.19769-3-kraxel__24899.8676821188$1571731589$gmane$org@redhat.com>
+Subject: [PATCH 4/5] drm/virtio: Simplify virtio_gpu_primary_plane_update
+	workflow.
+Date: Tue, 22 Oct 2019 10:05:45 +0200
+Message-ID: <20191022080546.19769-5-kraxel__45846.6542464279$1571731597$gmane$org@redhat.com>
 References: <20191022080546.19769-1-kraxel@redhat.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
@@ -22,90 +22,107 @@ To: dri-devel@lists.freedesktop.org
 Cc: David Airlie <airlied@linux.ie>, open list <linux-kernel@vger.kernel.org>, "open list:VIRTIO GPU DRIVER" <virtualization@lists.linux-foundation.org>, Daniel Vetter <daniel@ffwll.ch>, Gurchetan Singh <gurchetansingh@chromium.org>
 List-Id: virtualization@lists.linuxfoundation.org
 
-Be consistent with the rest of the code base.
+Return early for the no framebuffer (or disabled output) case.
+Results in a simpler code flow for the remaining cases.
 No functional change.
 
 Signed-off-by: Gerd Hoffmann <kraxel@redhat.com>
 ---
- drivers/gpu/drm/virtio/virtgpu_drv.h   |  4 ++--
- drivers/gpu/drm/virtio/virtgpu_plane.c | 12 ++++++------
- drivers/gpu/drm/virtio/virtgpu_vq.c    | 12 ++++++------
- 3 files changed, 14 insertions(+), 14 deletions(-)
+ drivers/gpu/drm/virtio/virtgpu_plane.c | 62 ++++++++++++++------------
+ 1 file changed, 33 insertions(+), 29 deletions(-)
 
-diff --git a/drivers/gpu/drm/virtio/virtgpu_drv.h b/drivers/gpu/drm/virtio/virtgpu_drv.h
-index 314e02f94d9c..0b56ba005e25 100644
---- a/drivers/gpu/drm/virtio/virtgpu_drv.h
-+++ b/drivers/gpu/drm/virtio/virtgpu_drv.h
-@@ -267,8 +267,8 @@ void virtio_gpu_cmd_unref_resource(struct virtio_gpu_device *vgdev,
- 				   uint32_t resource_id);
- void virtio_gpu_cmd_transfer_to_host_2d(struct virtio_gpu_device *vgdev,
- 					uint64_t offset,
--					__le32 width, __le32 height,
--					__le32 x, __le32 y,
-+					uint32_t width, uint32_t height,
-+					uint32_t x, uint32_t y,
- 					struct virtio_gpu_object_array *objs,
- 					struct virtio_gpu_fence *fence);
- void virtio_gpu_cmd_resource_flush(struct virtio_gpu_device *vgdev,
 diff --git a/drivers/gpu/drm/virtio/virtgpu_plane.c b/drivers/gpu/drm/virtio/virtgpu_plane.c
-index f4b7360282ce..390524143139 100644
+index 390524143139..0b5a760bc293 100644
 --- a/drivers/gpu/drm/virtio/virtgpu_plane.c
 +++ b/drivers/gpu/drm/virtio/virtgpu_plane.c
-@@ -132,10 +132,10 @@ static void virtio_gpu_primary_plane_update(struct drm_plane *plane,
- 			virtio_gpu_array_add_obj(objs, vgfb->base.obj[0]);
- 			virtio_gpu_cmd_transfer_to_host_2d
- 				(vgdev, 0,
--				 cpu_to_le32(plane->state->src_w >> 16),
--				 cpu_to_le32(plane->state->src_h >> 16),
--				 cpu_to_le32(plane->state->src_x >> 16),
--				 cpu_to_le32(plane->state->src_y >> 16),
-+				 plane->state->src_w >> 16,
-+				 plane->state->src_h >> 16,
-+				 plane->state->src_x >> 16,
-+				 plane->state->src_y >> 16,
- 				 objs, NULL);
- 		}
- 	} else {
-@@ -234,8 +234,8 @@ static void virtio_gpu_cursor_plane_update(struct drm_plane *plane,
- 		virtio_gpu_array_add_obj(objs, vgfb->base.obj[0]);
- 		virtio_gpu_cmd_transfer_to_host_2d
- 			(vgdev, 0,
--			 cpu_to_le32(plane->state->crtc_w),
--			 cpu_to_le32(plane->state->crtc_h),
-+			 plane->state->crtc_w,
-+			 plane->state->crtc_h,
- 			 0, 0, objs, vgfb->fence);
- 		dma_fence_wait(&vgfb->fence->f, true);
- 		dma_fence_put(&vgfb->fence->f);
-diff --git a/drivers/gpu/drm/virtio/virtgpu_vq.c b/drivers/gpu/drm/virtio/virtgpu_vq.c
-index 80176f379ad5..74ad3bc3ebe8 100644
---- a/drivers/gpu/drm/virtio/virtgpu_vq.c
-+++ b/drivers/gpu/drm/virtio/virtgpu_vq.c
-@@ -549,8 +549,8 @@ void virtio_gpu_cmd_resource_flush(struct virtio_gpu_device *vgdev,
+@@ -110,7 +110,6 @@ static void virtio_gpu_primary_plane_update(struct drm_plane *plane,
+ 	struct virtio_gpu_output *output = NULL;
+ 	struct virtio_gpu_framebuffer *vgfb;
+ 	struct virtio_gpu_object *bo;
+-	uint32_t handle;
  
- void virtio_gpu_cmd_transfer_to_host_2d(struct virtio_gpu_device *vgdev,
- 					uint64_t offset,
--					__le32 width, __le32 height,
--					__le32 x, __le32 y,
-+					uint32_t width, uint32_t height,
-+					uint32_t x, uint32_t y,
- 					struct virtio_gpu_object_array *objs,
- 					struct virtio_gpu_fence *fence)
- {
-@@ -571,10 +571,10 @@ void virtio_gpu_cmd_transfer_to_host_2d(struct virtio_gpu_device *vgdev,
- 	cmd_p->hdr.type = cpu_to_le32(VIRTIO_GPU_CMD_TRANSFER_TO_HOST_2D);
- 	cmd_p->resource_id = cpu_to_le32(bo->hw_res_handle);
- 	cmd_p->offset = cpu_to_le64(offset);
--	cmd_p->r.width = width;
--	cmd_p->r.height = height;
--	cmd_p->r.x = x;
--	cmd_p->r.y = y;
-+	cmd_p->r.width = cpu_to_le32(width);
-+	cmd_p->r.height = cpu_to_le32(height);
-+	cmd_p->r.x = cpu_to_le32(x);
-+	cmd_p->r.y = cpu_to_le32(y);
+ 	if (plane->state->crtc)
+ 		output = drm_crtc_to_virtio_gpu_output(plane->state->crtc);
+@@ -119,47 +118,52 @@ static void virtio_gpu_primary_plane_update(struct drm_plane *plane,
+ 	if (WARN_ON(!output))
+ 		return;
  
- 	virtio_gpu_queue_fenced_ctrl_buffer(vgdev, vbuf, &cmd_p->hdr, fence);
+-	if (plane->state->fb && output->enabled) {
+-		vgfb = to_virtio_gpu_framebuffer(plane->state->fb);
+-		bo = gem_to_virtio_gpu_obj(vgfb->base.obj[0]);
+-		handle = bo->hw_res_handle;
+-		if (bo->dumb) {
+-			struct virtio_gpu_object_array *objs;
++	if (!plane->state->fb || !output->enabled) {
++		DRM_DEBUG("nofb\n");
++		virtio_gpu_cmd_set_scanout(vgdev, output->index, 0,
++					   plane->state->src_w >> 16,
++					   plane->state->src_h >> 16,
++					   0, 0);
++		return;
++	}
++
++	vgfb = to_virtio_gpu_framebuffer(plane->state->fb);
++	bo = gem_to_virtio_gpu_obj(vgfb->base.obj[0]);
++	if (bo->dumb) {
++		struct virtio_gpu_object_array *objs;
+ 
+-			objs = virtio_gpu_array_alloc(1);
+-			if (!objs)
+-				return;
+-			virtio_gpu_array_add_obj(objs, vgfb->base.obj[0]);
+-			virtio_gpu_cmd_transfer_to_host_2d
+-				(vgdev, 0,
+-				 plane->state->src_w >> 16,
+-				 plane->state->src_h >> 16,
+-				 plane->state->src_x >> 16,
+-				 plane->state->src_y >> 16,
+-				 objs, NULL);
+-		}
+-	} else {
+-		handle = 0;
++		objs = virtio_gpu_array_alloc(1);
++		if (!objs)
++			return;
++		virtio_gpu_array_add_obj(objs, vgfb->base.obj[0]);
++		virtio_gpu_cmd_transfer_to_host_2d
++			(vgdev, 0,
++			 plane->state->src_w >> 16,
++			 plane->state->src_h >> 16,
++			 plane->state->src_x >> 16,
++			 plane->state->src_y >> 16,
++			 objs, NULL);
+ 	}
+ 
+-	DRM_DEBUG("handle 0x%x, crtc %dx%d+%d+%d, src %dx%d+%d+%d\n", handle,
++	DRM_DEBUG("handle 0x%x, crtc %dx%d+%d+%d, src %dx%d+%d+%d\n",
++		  bo->hw_res_handle,
+ 		  plane->state->crtc_w, plane->state->crtc_h,
+ 		  plane->state->crtc_x, plane->state->crtc_y,
+ 		  plane->state->src_w >> 16,
+ 		  plane->state->src_h >> 16,
+ 		  plane->state->src_x >> 16,
+ 		  plane->state->src_y >> 16);
+-	virtio_gpu_cmd_set_scanout(vgdev, output->index, handle,
++	virtio_gpu_cmd_set_scanout(vgdev, output->index,
++				   bo->hw_res_handle,
+ 				   plane->state->src_w >> 16,
+ 				   plane->state->src_h >> 16,
+ 				   plane->state->src_x >> 16,
+ 				   plane->state->src_y >> 16);
+-	if (handle)
+-		virtio_gpu_cmd_resource_flush(vgdev, handle,
+-					      plane->state->src_x >> 16,
+-					      plane->state->src_y >> 16,
+-					      plane->state->src_w >> 16,
+-					      plane->state->src_h >> 16);
++	virtio_gpu_cmd_resource_flush(vgdev, bo->hw_res_handle,
++				      plane->state->src_x >> 16,
++				      plane->state->src_y >> 16,
++				      plane->state->src_w >> 16,
++				      plane->state->src_h >> 16);
  }
+ 
+ static int virtio_gpu_cursor_prepare_fb(struct drm_plane *plane,
 -- 
 2.18.1
