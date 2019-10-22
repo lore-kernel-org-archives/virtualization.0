@@ -1,14 +1,13 @@
-From: Jason Wang <jasowang@redhat.com>
-Subject: Re: [PATCH] virtio_ring: fix packed ring event may missing
-Date: Tue, 22 Oct 2019 10:44:56 +0800
-Message-ID: <78d15397-984d-8679-383d-fb20dc63b449@redhat.com>
-References: <20191021171004.18729-1-yong.liu@intel.com>
+From: Gerd Hoffmann <kraxel@redhat.com>
+Subject: [PATCH 1/5] drm/virtio: print a single line with device features
+Date: Tue, 22 Oct 2019 10:05:42 +0200
+Message-ID: <20191022080546.19769-2-kraxel__48375.9208860405$1571731565$gmane$org@redhat.com>
+References: <20191022080546.19769-1-kraxel@redhat.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="utf-8"; Format="flowed"
-Content-Transfer-Encoding: base64
+Content-Type: text/plain; charset="us-ascii"
+Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <20191021171004.18729-1-yong.liu@intel.com>
-Content-Language: en-US
+In-Reply-To: <20191022080546.19769-1-kraxel@redhat.com>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -18,41 +17,39 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Marvin Liu <yong.liu@intel.com>, mst@redhat.com, tiwei.bie@intel.com
-Cc: virtualization@lists.linux-foundation.org
+To: dri-devel@lists.freedesktop.org
+Cc: David Airlie <airlied@linux.ie>, open list <linux-kernel@vger.kernel.org>, "open list:VIRTIO GPU DRIVER" <virtualization@lists.linux-foundation.org>, Daniel Vetter <daniel@ffwll.ch>, Gurchetan Singh <gurchetansingh@chromium.org>
 List-Id: virtualization@lists.linuxfoundation.org
 
-Ck9uIDIwMTkvMTAvMjIg5LiK5Y2IMToxMCwgTWFydmluIExpdSB3cm90ZToKPiBXaGVuIGNhbGxi
-YWNrIGlzIGRlbGF5ZWQsIHZpcnRpbyBleHBlY3QgdGhhdCB2aG9zdCB3aWxsIGtpY2sgd2hlbgo+
-IHJvbGxpbmcgb3ZlciBldmVudCBvZmZzZXQuIFJlY2hlY2sgc2hvdWxkIGJlIHRha2VuIGFzIHVz
-ZWQgaW5kZXggbWF5Cj4gZXhjZWVkIGV2ZW50IG9mZnNldCBiZXR3ZWVuIHN0YXR1cyBjaGVjayBh
-bmQgZHJpdmVyIGV2ZW50IHVwZGF0ZS4KPgo+IEhvd2V2ZXIsIGl0IGlzIHBvc3NpYmxlIHRoYXQg
-ZmxhZ3Mgd2FzIG5vdCBtb2RpZmllZCBpZiBkZXNjcmlwdG9ycyBhcmUKPiBjaGFpbmVkIG9yIGlu
-X29yZGVyIGZlYXR1cmUgd2FzIG5lZ290aWF0ZWQuIFNvIGZsYWdzIGF0IGV2ZW50IG9mZnNldAo+
-IG1heSBub3QgYmUgdmFsaWQgZm9yIGRlc2NyaXB0b3IncyBzdGF0dXMgY2hlY2tpbmcuIEZpeCBp
-dCBieSB1c2luZyBsYXN0Cj4gdXNlZCBpbmRleCBhcyByZXBsYWNlbWVudC4gVHggcXVldWUgd2ls
-bCBiZSBzdG9wcGVkIGlmIHRoZXJlJ3Mgbm90Cj4gZW5vdWdoIGZyZWVkIGJ1ZmZlcnMgYWZ0ZXIg
-cmVjaGVjay4KPgo+IFNpZ25lZC1vZmYtYnk6IE1hcnZpbiBMaXUgPHlvbmcubGl1QGludGVsLmNv
-bT4KPgo+IGRpZmYgLS1naXQgYS9kcml2ZXJzL3ZpcnRpby92aXJ0aW9fcmluZy5jIGIvZHJpdmVy
-cy92aXJ0aW8vdmlydGlvX3JpbmcuYwo+IGluZGV4IGJkYzA4MjQ0YTY0OC4uYTgwNDFlNDUxZTll
-IDEwMDY0NAo+IC0tLSBhL2RyaXZlcnMvdmlydGlvL3ZpcnRpb19yaW5nLmMKPiArKysgYi9kcml2
-ZXJzL3ZpcnRpby92aXJ0aW9fcmluZy5jCj4gQEAgLTE0OTksOSArMTQ5OSw2IEBAIHN0YXRpYyBi
-b29sIHZpcnRxdWV1ZV9lbmFibGVfY2JfZGVsYXllZF9wYWNrZWQoc3RydWN0IHZpcnRxdWV1ZSAq
-X3ZxKQo+ICAgCQkgKiBjb3VudGVyIGZpcnN0IGJlZm9yZSB1cGRhdGluZyBldmVudCBmbGFncy4K
-PiAgIAkJICovCj4gICAJCXZpcnRpb193bWIodnEtPndlYWtfYmFycmllcnMpOwo+IC0JfSBlbHNl
-IHsKPiAtCQl1c2VkX2lkeCA9IHZxLT5sYXN0X3VzZWRfaWR4Owo+IC0JCXdyYXBfY291bnRlciA9
-IHZxLT5wYWNrZWQudXNlZF93cmFwX2NvdW50ZXI7Cj4gICAJfQo+ICAgCj4gICAJaWYgKHZxLT5w
-YWNrZWQuZXZlbnRfZmxhZ3Nfc2hhZG93ID09IFZSSU5HX1BBQ0tFRF9FVkVOVF9GTEFHX0RJU0FC
-TEUpIHsKPiBAQCAtMTUxOCw3ICsxNTE1LDkgQEAgc3RhdGljIGJvb2wgdmlydHF1ZXVlX2VuYWJs
-ZV9jYl9kZWxheWVkX3BhY2tlZChzdHJ1Y3QgdmlydHF1ZXVlICpfdnEpCj4gICAJICovCj4gICAJ
-dmlydGlvX21iKHZxLT53ZWFrX2JhcnJpZXJzKTsKPiAgIAo+IC0JaWYgKGlzX3VzZWRfZGVzY19w
-YWNrZWQodnEsIHVzZWRfaWR4LCB3cmFwX2NvdW50ZXIpKSB7Cj4gKwlpZiAoaXNfdXNlZF9kZXNj
-X3BhY2tlZCh2cSwKPiArCQkJCXZxLT5sYXN0X3VzZWRfaWR4LAo+ICsJCQkJdnEtPnBhY2tlZC51
-c2VkX3dyYXBfY291bnRlcikpIHsKPiAgIAkJRU5EX1VTRSh2cSk7Cj4gICAJCXJldHVybiBmYWxz
-ZTsKPiAgIAl9CgoKSGkgTWFydmluOgoKVHdvIHF1ZXN0aW9uczoKCjEpIERvIHdlIHN1cHBvcnQg
-SU5fT1JERVIgaW4ga2VybmVsIGRyaXZlcj8KCjIpIFNob3VsZCB3ZSBjaGVjayBJTl9PUkRFUiBp
-biB0aGlzIGNhc2Ugb3RoZXJ3aXNlIHdlIG1heSBlbmQgdXAgd2l0aCAKaW50ZXJydXB0IHN0b3Jt
-IHdoZW4gSU5fT1JERVIgaXMgbm90IG5lZ290aWF0ZWQ/CgpUaGFua3MKCgpfX19fX19fX19fX19f
-X19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fXwpWaXJ0dWFsaXphdGlvbiBtYWlsaW5n
-IGxpc3QKVmlydHVhbGl6YXRpb25AbGlzdHMubGludXgtZm91bmRhdGlvbi5vcmcKaHR0cHM6Ly9s
-aXN0cy5saW51eGZvdW5kYXRpb24ub3JnL21haWxtYW4vbGlzdGluZm8vdmlydHVhbGl6YXRpb24=
+Signed-off-by: Gerd Hoffmann <kraxel@redhat.com>
+---
+ drivers/gpu/drm/virtio/virtgpu_kms.c | 9 ++++-----
+ 1 file changed, 4 insertions(+), 5 deletions(-)
+
+diff --git a/drivers/gpu/drm/virtio/virtgpu_kms.c b/drivers/gpu/drm/virtio/virtgpu_kms.c
+index 0b3cdb0d83b0..2f5773e43557 100644
+--- a/drivers/gpu/drm/virtio/virtgpu_kms.c
++++ b/drivers/gpu/drm/virtio/virtgpu_kms.c
+@@ -155,16 +155,15 @@ int virtio_gpu_init(struct drm_device *dev)
+ #ifdef __LITTLE_ENDIAN
+ 	if (virtio_has_feature(vgdev->vdev, VIRTIO_GPU_F_VIRGL))
+ 		vgdev->has_virgl_3d = true;
+-	DRM_INFO("virgl 3d acceleration %s\n",
+-		 vgdev->has_virgl_3d ? "enabled" : "not supported by host");
+-#else
+-	DRM_INFO("virgl 3d acceleration not supported by guest\n");
+ #endif
+ 	if (virtio_has_feature(vgdev->vdev, VIRTIO_GPU_F_EDID)) {
+ 		vgdev->has_edid = true;
+-		DRM_INFO("EDID support available.\n");
+ 	}
+ 
++	DRM_INFO("features: %cvirgl %cedid\n",
++		 vgdev->has_virgl_3d ? '+' : '-',
++		 vgdev->has_edid     ? '+' : '-');
++
+ 	ret = virtio_find_vqs(vgdev->vdev, 2, vqs, callbacks, names, NULL);
+ 	if (ret) {
+ 		DRM_ERROR("failed to find virt queues\n");
+-- 
+2.18.1
