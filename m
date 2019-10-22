@@ -1,13 +1,14 @@
-From: Gerd Hoffmann <kraxel@redhat.com>
-Subject: [PATCH 5/5] drm/virtio: factor out virtio_gpu_update_dumb_bo
-Date: Tue, 22 Oct 2019 10:05:46 +0200
-Message-ID: <20191022080546.19769-6-kraxel__42512.9813420185$1571731603$gmane$org@redhat.com>
-References: <20191022080546.19769-1-kraxel@redhat.com>
+From: Daniel Vetter <daniel@ffwll.ch>
+Subject: Re: [PATCH] drm/virtio: print a single line with device features
+Date: Tue, 22 Oct 2019 11:05:33 +0200
+Message-ID: <20191022090533.GB11828__48052.9063659318$1571735172$gmane$org@phenom.ffwll.local>
+References: <20191018113832.5460-1-kraxel@redhat.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <20191022080546.19769-1-kraxel@redhat.com>
+Content-Disposition: inline
+In-Reply-To: <20191018113832.5460-1-kraxel@redhat.com>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -17,70 +18,51 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: dri-devel@lists.freedesktop.org
-Cc: David Airlie <airlied@linux.ie>, open list <linux-kernel@vger.kernel.org>, "open list:VIRTIO GPU DRIVER" <virtualization@lists.linux-foundation.org>, Daniel Vetter <daniel@ffwll.ch>, Gurchetan Singh <gurchetansingh@chromium.org>
+To: Gerd Hoffmann <kraxel@redhat.com>
+Cc: David Airlie <airlied@linux.ie>, open list <linux-kernel@vger.kernel.org>, Daniel Vetter <daniel@ffwll.ch>, dri-devel@lists.freedesktop.org, "open list:VIRTIO GPU DRIVER" <virtualization@lists.linux-foundation.org>
 List-Id: virtualization@lists.linuxfoundation.org
 
-No functional change.
+On Fri, Oct 18, 2019 at 01:38:32PM +0200, Gerd Hoffmann wrote:
+> Signed-off-by: Gerd Hoffmann <kraxel@redhat.com>
+> ---
+>  drivers/gpu/drm/virtio/virtgpu_kms.c | 9 ++++-----
+>  1 file changed, 4 insertions(+), 5 deletions(-)
+> 
+> diff --git a/drivers/gpu/drm/virtio/virtgpu_kms.c b/drivers/gpu/drm/virtio/virtgpu_kms.c
+> index 0b3cdb0d83b0..2f5773e43557 100644
+> --- a/drivers/gpu/drm/virtio/virtgpu_kms.c
+> +++ b/drivers/gpu/drm/virtio/virtgpu_kms.c
+> @@ -155,16 +155,15 @@ int virtio_gpu_init(struct drm_device *dev)
+>  #ifdef __LITTLE_ENDIAN
+>  	if (virtio_has_feature(vgdev->vdev, VIRTIO_GPU_F_VIRGL))
+>  		vgdev->has_virgl_3d = true;
+> -	DRM_INFO("virgl 3d acceleration %s\n",
+> -		 vgdev->has_virgl_3d ? "enabled" : "not supported by host");
+> -#else
+> -	DRM_INFO("virgl 3d acceleration not supported by guest\n");
+>  #endif
+>  	if (virtio_has_feature(vgdev->vdev, VIRTIO_GPU_F_EDID)) {
+>  		vgdev->has_edid = true;
+> -		DRM_INFO("EDID support available.\n");
+>  	}
+>  
+> +	DRM_INFO("features: %cvirgl %cedid\n",
+> +		 vgdev->has_virgl_3d ? '+' : '-',
+> +		 vgdev->has_edid     ? '+' : '-');
 
-Signed-off-by: Gerd Hoffmann <kraxel@redhat.com>
----
- drivers/gpu/drm/virtio/virtgpu_plane.c | 36 +++++++++++++++-----------
- 1 file changed, 21 insertions(+), 15 deletions(-)
+Maybe we should move the various yesno/onoff/enableddisabled helpers from
+i915_utils.h to drm_utils.h and use them more widely?
 
-diff --git a/drivers/gpu/drm/virtio/virtgpu_plane.c b/drivers/gpu/drm/virtio/virtgpu_plane.c
-index 0b5a760bc293..bc4bc4475a8c 100644
---- a/drivers/gpu/drm/virtio/virtgpu_plane.c
-+++ b/drivers/gpu/drm/virtio/virtgpu_plane.c
-@@ -102,6 +102,25 @@ static int virtio_gpu_plane_atomic_check(struct drm_plane *plane,
- 	return ret;
- }
- 
-+static void virtio_gpu_update_dumb_bo(struct virtio_gpu_device *vgdev,
-+				      struct virtio_gpu_object *bo,
-+				      struct drm_plane_state *state)
-+{
-+	struct virtio_gpu_object_array *objs;
-+
-+	objs = virtio_gpu_array_alloc(1);
-+	if (!objs)
-+		return;
-+	virtio_gpu_array_add_obj(objs, &bo->base.base);
-+	virtio_gpu_cmd_transfer_to_host_2d
-+		(vgdev, 0,
-+		 state->src_w >> 16,
-+		 state->src_h >> 16,
-+		 state->src_x >> 16,
-+		 state->src_y >> 16,
-+		 objs, NULL);
-+}
-+
- static void virtio_gpu_primary_plane_update(struct drm_plane *plane,
- 					    struct drm_plane_state *old_state)
- {
-@@ -129,21 +148,8 @@ static void virtio_gpu_primary_plane_update(struct drm_plane *plane,
- 
- 	vgfb = to_virtio_gpu_framebuffer(plane->state->fb);
- 	bo = gem_to_virtio_gpu_obj(vgfb->base.obj[0]);
--	if (bo->dumb) {
--		struct virtio_gpu_object_array *objs;
--
--		objs = virtio_gpu_array_alloc(1);
--		if (!objs)
--			return;
--		virtio_gpu_array_add_obj(objs, vgfb->base.obj[0]);
--		virtio_gpu_cmd_transfer_to_host_2d
--			(vgdev, 0,
--			 plane->state->src_w >> 16,
--			 plane->state->src_h >> 16,
--			 plane->state->src_x >> 16,
--			 plane->state->src_y >> 16,
--			 objs, NULL);
--	}
-+	if (bo->dumb)
-+		virtio_gpu_update_dumb_bo(vgdev, bo, plane->state);
- 
- 	DRM_DEBUG("handle 0x%x, crtc %dx%d+%d+%d, src %dx%d+%d+%d\n",
- 		  bo->hw_res_handle,
+Anyway Reviewed-by: Daniel Vetter <daniel.vetter@ffwll.ch>
+> +
+>  	ret = virtio_find_vqs(vgdev->vdev, 2, vqs, callbacks, names, NULL);
+>  	if (ret) {
+>  		DRM_ERROR("failed to find virt queues\n");
+> -- 
+> 2.18.1
+> 
+
 -- 
-2.18.1
+Daniel Vetter
+Software Engineer, Intel Corporation
+http://blog.ffwll.ch
