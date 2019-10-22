@@ -1,8 +1,8 @@
 From: Gerd Hoffmann <kraxel@redhat.com>
-Subject: [PATCH 3/5] drm/virtio: fix byteorder handling in
-	virtio_gpu_cmd_transfer_{from, to}_host_3d functions
-Date: Tue, 22 Oct 2019 10:05:44 +0200
-Message-ID: <20191022080546.19769-4-kraxel__40160.0447062933$1571731581$gmane$org@redhat.com>
+Subject: [PATCH 2/5] drm/virtio: move byteorder handling into
+	virtio_gpu_cmd_transfer_to_host_2d function
+Date: Tue, 22 Oct 2019 10:05:43 +0200
+Message-ID: <20191022080546.19769-3-kraxel__24899.8676821188$1571731589$gmane$org@redhat.com>
 References: <20191022080546.19769-1-kraxel@redhat.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
@@ -25,47 +25,87 @@ List-Id: virtualization@lists.linuxfoundation.org
 Be consistent with the rest of the code base.
 No functional change.
 
-In theory this change is incompatible on bigendian machines,
-but in practice 3d acceleration is supported only on little
-endian machines, so the affected code paths never run on
-bigendian machines.
-
 Signed-off-by: Gerd Hoffmann <kraxel@redhat.com>
 ---
- drivers/gpu/drm/virtio/virtgpu_vq.c | 14 ++++++++++++--
- 1 file changed, 12 insertions(+), 2 deletions(-)
+ drivers/gpu/drm/virtio/virtgpu_drv.h   |  4 ++--
+ drivers/gpu/drm/virtio/virtgpu_plane.c | 12 ++++++------
+ drivers/gpu/drm/virtio/virtgpu_vq.c    | 12 ++++++------
+ 3 files changed, 14 insertions(+), 14 deletions(-)
 
+diff --git a/drivers/gpu/drm/virtio/virtgpu_drv.h b/drivers/gpu/drm/virtio/virtgpu_drv.h
+index 314e02f94d9c..0b56ba005e25 100644
+--- a/drivers/gpu/drm/virtio/virtgpu_drv.h
++++ b/drivers/gpu/drm/virtio/virtgpu_drv.h
+@@ -267,8 +267,8 @@ void virtio_gpu_cmd_unref_resource(struct virtio_gpu_device *vgdev,
+ 				   uint32_t resource_id);
+ void virtio_gpu_cmd_transfer_to_host_2d(struct virtio_gpu_device *vgdev,
+ 					uint64_t offset,
+-					__le32 width, __le32 height,
+-					__le32 x, __le32 y,
++					uint32_t width, uint32_t height,
++					uint32_t x, uint32_t y,
+ 					struct virtio_gpu_object_array *objs,
+ 					struct virtio_gpu_fence *fence);
+ void virtio_gpu_cmd_resource_flush(struct virtio_gpu_device *vgdev,
+diff --git a/drivers/gpu/drm/virtio/virtgpu_plane.c b/drivers/gpu/drm/virtio/virtgpu_plane.c
+index f4b7360282ce..390524143139 100644
+--- a/drivers/gpu/drm/virtio/virtgpu_plane.c
++++ b/drivers/gpu/drm/virtio/virtgpu_plane.c
+@@ -132,10 +132,10 @@ static void virtio_gpu_primary_plane_update(struct drm_plane *plane,
+ 			virtio_gpu_array_add_obj(objs, vgfb->base.obj[0]);
+ 			virtio_gpu_cmd_transfer_to_host_2d
+ 				(vgdev, 0,
+-				 cpu_to_le32(plane->state->src_w >> 16),
+-				 cpu_to_le32(plane->state->src_h >> 16),
+-				 cpu_to_le32(plane->state->src_x >> 16),
+-				 cpu_to_le32(plane->state->src_y >> 16),
++				 plane->state->src_w >> 16,
++				 plane->state->src_h >> 16,
++				 plane->state->src_x >> 16,
++				 plane->state->src_y >> 16,
+ 				 objs, NULL);
+ 		}
+ 	} else {
+@@ -234,8 +234,8 @@ static void virtio_gpu_cursor_plane_update(struct drm_plane *plane,
+ 		virtio_gpu_array_add_obj(objs, vgfb->base.obj[0]);
+ 		virtio_gpu_cmd_transfer_to_host_2d
+ 			(vgdev, 0,
+-			 cpu_to_le32(plane->state->crtc_w),
+-			 cpu_to_le32(plane->state->crtc_h),
++			 plane->state->crtc_w,
++			 plane->state->crtc_h,
+ 			 0, 0, objs, vgfb->fence);
+ 		dma_fence_wait(&vgfb->fence->f, true);
+ 		dma_fence_put(&vgfb->fence->f);
 diff --git a/drivers/gpu/drm/virtio/virtgpu_vq.c b/drivers/gpu/drm/virtio/virtgpu_vq.c
-index 74ad3bc3ebe8..0bf60914ece2 100644
+index 80176f379ad5..74ad3bc3ebe8 100644
 --- a/drivers/gpu/drm/virtio/virtgpu_vq.c
 +++ b/drivers/gpu/drm/virtio/virtgpu_vq.c
-@@ -987,7 +987,12 @@ void virtio_gpu_cmd_transfer_to_host_3d(struct virtio_gpu_device *vgdev,
- 	cmd_p->hdr.type = cpu_to_le32(VIRTIO_GPU_CMD_TRANSFER_TO_HOST_3D);
- 	cmd_p->hdr.ctx_id = cpu_to_le32(ctx_id);
- 	cmd_p->resource_id = cpu_to_le32(bo->hw_res_handle);
--	cmd_p->box = *box;
-+	cmd_p->box.x = cpu_to_le32(box->x);
-+	cmd_p->box.y = cpu_to_le32(box->y);
-+	cmd_p->box.z = cpu_to_le32(box->z);
-+	cmd_p->box.w = cpu_to_le32(box->w);
-+	cmd_p->box.h = cpu_to_le32(box->h);
-+	cmd_p->box.d = cpu_to_le32(box->d);
- 	cmd_p->offset = cpu_to_le64(offset);
- 	cmd_p->level = cpu_to_le32(level);
+@@ -549,8 +549,8 @@ void virtio_gpu_cmd_resource_flush(struct virtio_gpu_device *vgdev,
  
-@@ -1013,7 +1018,12 @@ void virtio_gpu_cmd_transfer_from_host_3d(struct virtio_gpu_device *vgdev,
- 	cmd_p->hdr.type = cpu_to_le32(VIRTIO_GPU_CMD_TRANSFER_FROM_HOST_3D);
- 	cmd_p->hdr.ctx_id = cpu_to_le32(ctx_id);
+ void virtio_gpu_cmd_transfer_to_host_2d(struct virtio_gpu_device *vgdev,
+ 					uint64_t offset,
+-					__le32 width, __le32 height,
+-					__le32 x, __le32 y,
++					uint32_t width, uint32_t height,
++					uint32_t x, uint32_t y,
+ 					struct virtio_gpu_object_array *objs,
+ 					struct virtio_gpu_fence *fence)
+ {
+@@ -571,10 +571,10 @@ void virtio_gpu_cmd_transfer_to_host_2d(struct virtio_gpu_device *vgdev,
+ 	cmd_p->hdr.type = cpu_to_le32(VIRTIO_GPU_CMD_TRANSFER_TO_HOST_2D);
  	cmd_p->resource_id = cpu_to_le32(bo->hw_res_handle);
--	cmd_p->box = *box;
-+	cmd_p->box.x = cpu_to_le32(box->x);
-+	cmd_p->box.y = cpu_to_le32(box->y);
-+	cmd_p->box.z = cpu_to_le32(box->z);
-+	cmd_p->box.w = cpu_to_le32(box->w);
-+	cmd_p->box.h = cpu_to_le32(box->h);
-+	cmd_p->box.d = cpu_to_le32(box->d);
  	cmd_p->offset = cpu_to_le64(offset);
- 	cmd_p->level = cpu_to_le32(level);
+-	cmd_p->r.width = width;
+-	cmd_p->r.height = height;
+-	cmd_p->r.x = x;
+-	cmd_p->r.y = y;
++	cmd_p->r.width = cpu_to_le32(width);
++	cmd_p->r.height = cpu_to_le32(height);
++	cmd_p->r.x = cpu_to_le32(x);
++	cmd_p->r.y = cpu_to_le32(y);
  
+ 	virtio_gpu_queue_fenced_ctrl_buffer(vgdev, vbuf, &cmd_p->hdr, fence);
+ }
 -- 
 2.18.1
