@@ -1,13 +1,24 @@
-From: Jason Wang <jasowang@redhat.com>
-Subject: Re: [PATCH v2] vhost: introduce mdev based hardware backend
-Date: Tue, 22 Oct 2019 21:30:16 +0800
-Message-ID: <47a572fd-5597-1972-e177-8ee25ca51247__25904.2534556769$1571751076$gmane$org@redhat.com>
-References: <20191022095230.2514-1-tiwei.bie@intel.com>
+From: David Hildenbrand <david@redhat.com>
+Subject: Re: [PATCH RFC v3 6/9] mm: Allow to offline PageOffline() pages with
+	a reference count of 0
+Date: Tue, 22 Oct 2019 16:02:09 +0200
+Message-ID: <b4be42a4-cbfc-8706-cc94-26211ddcbe4a@redhat.com>
+References: <20190919142228.5483-1-david@redhat.com>
+	<20190919142228.5483-7-david@redhat.com>
+	<20191016114321.GX317@dhcp22.suse.cz>
+	<36fef317-78e3-0500-43ba-f537f9a6fea4@redhat.com>
+	<20191016140350.GD317@dhcp22.suse.cz>
+	<7c7bef01-f904-904a-b0a7-f7b514b8bda8@redhat.com>
+	<20191018081524.GD5017@dhcp22.suse.cz>
+	<83d0a961-952d-21e4-74df-267912b7b6fa@redhat.com>
+	<20191018111843.GH5017@dhcp22.suse.cz>
+	<709d39aa-a7ba-97aa-e66b-e2fec2fdf3c4@redhat.com>
+	<20191022122326.GL9379@dhcp22.suse.cz>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="utf-8"; Format="flowed"
-Content-Transfer-Encoding: base64
+Content-Type: text/plain; charset="us-ascii"
+Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <20191022095230.2514-1-tiwei.bie@intel.com>
+In-Reply-To: <20191022122326.GL9379@dhcp22.suse.cz>
 Content-Language: en-US
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
@@ -18,324 +29,208 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Tiwei Bie <tiwei.bie@intel.com>, mst@redhat.com, alex.williamson@redhat.com, maxime.coquelin@redhat.com
-Cc: kvm@vger.kernel.org, netdev@vger.kernel.org, linux-kernel@vger.kernel.org, virtualization@lists.linux-foundation.org, zhihong.wang@intel.com, lingshan.zhu@intel.com
+To: Michal Hocko <mhocko@kernel.org>
+Cc: Pingfan Liu <kernelfans@gmail.com>, virtualization@lists.linux-foundation.org, linux-mm@kvack.org, Alexander Potapenko <glider@google.com>, Mauro Carvalho Chehab <mchehab+samsung@kernel.org>, Alexander Duyck <alexander.h.duyck@linux.intel.com>, Ira Weiny <ira.weiny@intel.com>, Andrea Arcangeli <aarcange@redhat.com>, Stephen Rothwell <sfr@canb.auug.org.au>, Yu Zhao <yuzhao@google.com>, Matthew Wilcox <willy@infradead.org>, Jason Gunthorpe <jgg@ziepe.ca>, Anthony Yznaga <anthony.yznaga@oracle.com>, Pavel Tatashin <pavel.tatashin@microsoft.com>, Anshuman Khandual <anshuman.khandual@arm.com>, Mike Rapoport <rppt@linux.vnet.ibm.com>, Qian Cai <cai@lca.pw>, Andrey Ryabinin <aryabinin@virtuozzo.com>, Dan Williams <dan.j.williams@intel.com>, Vlastimil Babka <vbabka@suse.cz>, Oscar Salvador <osalvador@suse.de>, Juergen Gross <jgross@suse.com>, Yang Shi <yang.shi@linux.alibaba.c>
 List-Id: virtualization@lists.linuxfoundation.org
 
-Ck9uIDIwMTkvMTAvMjIg5LiL5Y2INTo1MiwgVGl3ZWkgQmllIHdyb3RlOgo+IFRoaXMgcGF0Y2gg
-aW50cm9kdWNlcyBhIG1kZXYgYmFzZWQgaGFyZHdhcmUgdmhvc3QgYmFja2VuZC4KPiBUaGlzIGJh
-Y2tlbmQgaXMgYnVpbHQgb24gdG9wIG9mIHRoZSBzYW1lIGFic3RyYWN0aW9uIHVzZWQKPiBpbiB2
-aXJ0aW8tbWRldiBhbmQgcHJvdmlkZXMgYSBnZW5lcmljIHZob3N0IGludGVyZmFjZSBmb3IKPiB1
-c2Vyc3BhY2UgdG8gYWNjZWxlcmF0ZSB0aGUgdmlydGlvIGRldmljZXMgaW4gZ3Vlc3QuCj4KPiBU
-aGlzIGJhY2tlbmQgaXMgaW1wbGVtZW50ZWQgYXMgYSBtZGV2IGRldmljZSBkcml2ZXIgb24gdG9w
-Cj4gb2YgdGhlIHNhbWUgbWRldiBkZXZpY2Ugb3BzIHVzZWQgaW4gdmlydGlvLW1kZXYgYnV0IHVz
-aW5nCj4gYSBkaWZmZXJlbnQgbWRldiBjbGFzcyBpZCwgYW5kIGl0IHdpbGwgcmVnaXN0ZXIgdGhl
-IGRldmljZQo+IGFzIGEgVkZJTyBkZXZpY2UgZm9yIHVzZXJzcGFjZSB0byB1c2UuIFVzZXJzcGFj
-ZSBjYW4gc2V0dXAKPiB0aGUgSU9NTVUgd2l0aCB0aGUgZXhpc3RpbmcgVkZJTyBjb250YWluZXIv
-Z3JvdXAgQVBJcyBhbmQKPiB0aGVuIGdldCB0aGUgZGV2aWNlIGZkIHdpdGggdGhlIGRldmljZSBu
-YW1lLiBBZnRlciBnZXR0aW5nCj4gdGhlIGRldmljZSBmZCBvZiB0aGlzIGRldmljZSwgdXNlcnNw
-YWNlIGNhbiB1c2Ugdmhvc3QgaW9jdGxzCj4gdG8gc2V0dXAgdGhlIGJhY2tlbmQuCj4KPiBTaWdu
-ZWQtb2ZmLWJ5OiBUaXdlaSBCaWUgPHRpd2VpLmJpZUBpbnRlbC5jb20+Cj4gLS0tCj4gVGhpcyBw
-YXRjaCBkZXBlbmRzIG9uIGJlbG93IHNlcmllczoKPiBodHRwczovL2xrbWwub3JnL2xrbWwvMjAx
-OS8xMC8xNy8yODYKPgo+IHYxIC0+IHYyOgo+IC0gUmVwbGFjZSBfU0VUX1NUQVRFIHdpdGggX1NF
-VF9TVEFUVVMgKE1TVCk7Cj4gLSBDaGVjayBzdGF0dXMgYml0cyBhdCBlYWNoIHN0ZXAgKE1TVCk7
-Cj4gLSBSZXBvcnQgdGhlIG1heCByaW5nIHNpemUgYW5kIG1heCBudW1iZXIgb2YgcXVldWVzIChN
-U1QpOwo+IC0gQWRkIG1pc3NpbmcgTU9EVUxFX0RFVklDRV9UQUJMRSAoSmFzb24pOwo+IC0gT25s
-eSBzdXBwb3J0IHRoZSBuZXR3b3JrIGJhY2tlbmQgdy9vIG11bHRpcXVldWUgZm9yIG5vdzsKCgpB
-bnkgaWRlYSBvbiBob3cgdG8gZXh0ZW5kIGl0IHRvIHN1cHBvcnQgZGV2aWNlcyBvdGhlciB0aGFu
-IG5ldD8gSSB0aGluayAKd2Ugd2FudCBhIGdlbmVyaWMgQVBJIG9yIGFuIEFQSSB0aGF0IGNvdWxk
-IGJlIG1hZGUgZ2VuZXJpYyBpbiB0aGUgZnV0dXJlLgoKRG8gd2Ugd2FudCB0byBlLmcgaGF2aW5n
-IGEgZ2VuZXJpYyB2aG9zdCBtZGV2IGZvciBhbGwga2luZHMgb2YgZGV2aWNlcyAKb3IgaW50cm9k
-dWNpbmcgZS5nIHZob3N0LW5ldC1tZGV2IGFuZCB2aG9zdC1zY3NpLW1kZXY/CgoKPiAtIFNvbWUg
-bWlub3IgZml4ZXMgYW5kIGltcHJvdmVtZW50czsKPiAtIFJlYmFzZSBvbiB0b3Agb2YgdmlydGlv
-LW1kZXYgc2VyaWVzIHY0Owo+Cj4gUkZDIHY0IC0+IHYxOgo+IC0gSW1wbGVtZW50IHZob3N0LW1k
-ZXYgYXMgYSBtZGV2IGRldmljZSBkcml2ZXIgZGlyZWN0bHkgYW5kCj4gICAgY29ubmVjdCBpdCB0
-byBWRklPIGNvbnRhaW5lci9ncm91cC4gKEphc29uKTsKPiAtIFBhc3MgcmluZyBhZGRyZXNzZXMg
-YXMgR1BBcy9JT1ZBcyBpbiB2aG9zdC1tZGV2IHRvIGF2b2lkCj4gICAgbWVhbmluZ2xlc3MgSFZB
-LT5HUEEgdHJhbnNsYXRpb25zIChKYXNvbik7Cj4KPiBSRkMgdjMgLT4gUkZDIHY0Ogo+IC0gQnVp
-bGQgdmhvc3QtbWRldiBvbiB0b3Agb2YgdGhlIHNhbWUgYWJzdHJhY3Rpb24gdXNlZCBieQo+ICAg
-IHZpcnRpby1tZGV2IChKYXNvbik7Cj4gLSBJbnRyb2R1Y2Ugdmhvc3QgZmQgYW5kIHBhc3MgVkZJ
-TyBmZCB2aWEgU0VUX0JBQ0tFTkQgaW9jdGwgKE1TVCk7Cj4KPiBSRkMgdjIgLT4gUkZDIHYzOgo+
-IC0gUmV1c2Ugdmhvc3QncyBpb2N0bHMgaW5zdGVhZCBvZiBpbnZlbnRpbmcgYSBWRklPIHJlZ2lv
-bnMvaXJxcwo+ICAgIGJhc2VkIHZob3N0IHByb3RvY29sIG9uIHRvcCBvZiB2ZmlvLW1kZXYgKEph
-c29uKTsKPgo+IFJGQyB2MSAtPiBSRkMgdjI6Cj4gLSBJbnRyb2R1Y2UgYSBuZXcgVkZJTyBkZXZp
-Y2UgdHlwZSB0byBidWlsZCBhIHZob3N0IHByb3RvY29sCj4gICAgb24gdG9wIG9mIHZmaW8tbWRl
-djsKPgo+ICAgZHJpdmVycy92ZmlvL21kZXYvbWRldl9jb3JlLmMgfCAgMTIgKwo+ICAgZHJpdmVy
-cy92aG9zdC9LY29uZmlnICAgICAgICAgfCAgIDkgKwo+ICAgZHJpdmVycy92aG9zdC9NYWtlZmls
-ZSAgICAgICAgfCAgIDMgKwo+ICAgZHJpdmVycy92aG9zdC9tZGV2LmMgICAgICAgICAgfCA0MTUg
-KysrKysrKysrKysrKysrKysrKysrKysrKysrKysrKysrKwo+ICAgaW5jbHVkZS9saW51eC9tZGV2
-LmggICAgICAgICAgfCAgIDMgKwo+ICAgaW5jbHVkZS91YXBpL2xpbnV4L3Zob3N0LmggICAgfCAg
-MTMgKysKPiAgIDYgZmlsZXMgY2hhbmdlZCwgNDU1IGluc2VydGlvbnMoKykKPiAgIGNyZWF0ZSBt
-b2RlIDEwMDY0NCBkcml2ZXJzL3Zob3N0L21kZXYuYwo+Cj4gZGlmZiAtLWdpdCBhL2RyaXZlcnMv
-dmZpby9tZGV2L21kZXZfY29yZS5jIGIvZHJpdmVycy92ZmlvL21kZXYvbWRldl9jb3JlLmMKPiBp
-bmRleCA1ODM0ZjZiN2M3YTUuLjI5NjNmNjVlNjY0OCAxMDA2NDQKPiAtLS0gYS9kcml2ZXJzL3Zm
-aW8vbWRldi9tZGV2X2NvcmUuYwo+ICsrKyBiL2RyaXZlcnMvdmZpby9tZGV2L21kZXZfY29yZS5j
-Cj4gQEAgLTY5LDYgKzY5LDE4IEBAIHZvaWQgbWRldl9zZXRfdmlydGlvX29wcyhzdHJ1Y3QgbWRl
-dl9kZXZpY2UgKm1kZXYsCj4gICB9Cj4gICBFWFBPUlRfU1lNQk9MKG1kZXZfc2V0X3ZpcnRpb19v
-cHMpOwo+ICAgCj4gKy8qIFNwZWNpZnkgdGhlIHZob3N0IGRldmljZSBvcHMgZm9yIHRoZSBtZGV2
-IGRldmljZSwgdGhpcwo+ICsgKiBtdXN0IGJlIGNhbGxlZCBkdXJpbmcgY3JlYXRlKCkgY2FsbGJh
-Y2sgZm9yIHZob3N0IG1kZXYgZGV2aWNlLgo+ICsgKi8KPiArdm9pZCBtZGV2X3NldF92aG9zdF9v
-cHMoc3RydWN0IG1kZXZfZGV2aWNlICptZGV2LAo+ICsJCQljb25zdCBzdHJ1Y3QgdmlydGlvX21k
-ZXZfZGV2aWNlX29wcyAqdmhvc3Rfb3BzKQo+ICt7Cj4gKwlXQVJOX09OKG1kZXYtPmNsYXNzX2lk
-KTsKPiArCW1kZXYtPmNsYXNzX2lkID0gTURFVl9DTEFTU19JRF9WSE9TVDsKPiArCW1kZXYtPmRl
-dmljZV9vcHMgPSB2aG9zdF9vcHM7Cj4gK30KPiArRVhQT1JUX1NZTUJPTChtZGV2X3NldF92aG9z
-dF9vcHMpOwo+ICsKPiAgIGNvbnN0IHZvaWQgKm1kZXZfZ2V0X2Rldl9vcHMoc3RydWN0IG1kZXZf
-ZGV2aWNlICptZGV2KQo+ICAgewo+ICAgCXJldHVybiBtZGV2LT5kZXZpY2Vfb3BzOwo+IGRpZmYg
-LS1naXQgYS9kcml2ZXJzL3Zob3N0L0tjb25maWcgYi9kcml2ZXJzL3Zob3N0L0tjb25maWcKPiBp
-bmRleCAzZDAzY2NiZDFhZGMuLjdiNWMyZjY1NWFmNyAxMDA2NDQKPiAtLS0gYS9kcml2ZXJzL3Zo
-b3N0L0tjb25maWcKPiArKysgYi9kcml2ZXJzL3Zob3N0L0tjb25maWcKPiBAQCAtMzQsNiArMzQs
-MTUgQEAgY29uZmlnIFZIT1NUX1ZTT0NLCj4gICAJVG8gY29tcGlsZSB0aGlzIGRyaXZlciBhcyBh
-IG1vZHVsZSwgY2hvb3NlIE0gaGVyZTogdGhlIG1vZHVsZSB3aWxsIGJlIGNhbGxlZAo+ICAgCXZo
-b3N0X3Zzb2NrLgo+ICAgCj4gK2NvbmZpZyBWSE9TVF9NREVWCj4gKwl0cmlzdGF0ZSAiVmhvc3Qg
-ZHJpdmVyIGZvciBNZWRpYXRlZCBkZXZpY2VzIgo+ICsJZGVwZW5kcyBvbiBFVkVOVEZEICYmIFZG
-SU8gJiYgVkZJT19NREVWCj4gKwlzZWxlY3QgVkhPU1QKPiArCWRlZmF1bHQgbgo+ICsJLS0taGVs
-cC0tLQo+ICsJU2F5IE0gaGVyZSB0byBlbmFibGUgdGhlIHZob3N0X21kZXYgbW9kdWxlIGZvciB1
-c2Ugd2l0aAo+ICsJdGhlIG1lZGlhdGVkIGRldmljZSBiYXNlZCBoYXJkd2FyZSB2aG9zdCBhY2Nl
-bGVyYXRvcnMuCj4gKwo+ICAgY29uZmlnIFZIT1NUCj4gICAJdHJpc3RhdGUKPiAgIAktLS1oZWxw
-LS0tCj4gZGlmZiAtLWdpdCBhL2RyaXZlcnMvdmhvc3QvTWFrZWZpbGUgYi9kcml2ZXJzL3Zob3N0
-L01ha2VmaWxlCj4gaW5kZXggNmM2ZGYyNGY3NzBjLi5hZDljMGY4YzZkOGMgMTAwNjQ0Cj4gLS0t
-IGEvZHJpdmVycy92aG9zdC9NYWtlZmlsZQo+ICsrKyBiL2RyaXZlcnMvdmhvc3QvTWFrZWZpbGUK
-PiBAQCAtMTAsNCArMTAsNyBAQCB2aG9zdF92c29jay15IDo9IHZzb2NrLm8KPiAgIAo+ICAgb2Jq
-LSQoQ09ORklHX1ZIT1NUX1JJTkcpICs9IHZyaW5naC5vCj4gICAKPiArb2JqLSQoQ09ORklHX1ZI
-T1NUX01ERVYpICs9IHZob3N0X21kZXYubwo+ICt2aG9zdF9tZGV2LXkgOj0gbWRldi5vCj4gKwo+
-ICAgb2JqLSQoQ09ORklHX1ZIT1NUKQkrPSB2aG9zdC5vCj4gZGlmZiAtLWdpdCBhL2RyaXZlcnMv
-dmhvc3QvbWRldi5jIGIvZHJpdmVycy92aG9zdC9tZGV2LmMKPiBuZXcgZmlsZSBtb2RlIDEwMDY0
-NAo+IGluZGV4IDAwMDAwMDAwMDAwMC4uNWY5Y2FlNjEwMThjCj4gLS0tIC9kZXYvbnVsbAo+ICsr
-KyBiL2RyaXZlcnMvdmhvc3QvbWRldi5jCj4gQEAgLTAsMCArMSw0MTUgQEAKPiArLy8gU1BEWC1M
-aWNlbnNlLUlkZW50aWZpZXI6IEdQTC0yLjAKPiArLyoKPiArICogQ29weXJpZ2h0IChDKSAyMDE4
-LTIwMTkgSW50ZWwgQ29ycG9yYXRpb24uCj4gKyAqLwo+ICsKPiArI2luY2x1ZGUgPGxpbnV4L2Nv
-bXBhdC5oPgo+ICsjaW5jbHVkZSA8bGludXgva2VybmVsLmg+Cj4gKyNpbmNsdWRlIDxsaW51eC9t
-aXNjZGV2aWNlLmg+Cj4gKyNpbmNsdWRlIDxsaW51eC9tZGV2Lmg+Cj4gKyNpbmNsdWRlIDxsaW51
-eC9tb2R1bGUuaD4KPiArI2luY2x1ZGUgPGxpbnV4L3ZmaW8uaD4KPiArI2luY2x1ZGUgPGxpbnV4
-L3Zob3N0Lmg+Cj4gKyNpbmNsdWRlIDxsaW51eC92aXJ0aW9fbWRldi5oPgo+ICsjaW5jbHVkZSA8
-bGludXgvdmlydGlvX2lkcy5oPgo+ICsKPiArI2luY2x1ZGUgInZob3N0LmgiCj4gKwo+ICsvKiBD
-dXJyZW50bHksIG9ubHkgbmV0d29yayBiYWNrZW5kIHcvbyBtdWx0aXF1ZXVlIGlzIHN1cHBvcnRl
-ZC4gKi8KPiArI2RlZmluZSBWSE9TVF9NREVWX1ZRX01BWAkyCj4gKwo+ICtzdHJ1Y3Qgdmhvc3Rf
-bWRldiB7Cj4gKwkvKiBUaGUgbG9jayBpcyB0byBwcm90ZWN0IHRoaXMgc3RydWN0dXJlLiAqLwo+
-ICsJc3RydWN0IG11dGV4IG11dGV4Owo+ICsJc3RydWN0IHZob3N0X2RldiBkZXY7Cj4gKwlzdHJ1
-Y3Qgdmhvc3RfdmlydHF1ZXVlICp2cXM7Cj4gKwlpbnQgbnZxczsKPiArCXU2NCBzdGF0dXM7Cj4g
-Kwl1NjQgZmVhdHVyZXM7Cj4gKwl1NjQgYWNrZWRfZmVhdHVyZXM7Cj4gKwlib29sIG9wZW5lZDsK
-PiArCXN0cnVjdCBtZGV2X2RldmljZSAqbWRldjsKPiArfTsKPiArCj4gK3N0YXRpYyB2b2lkIGhh
-bmRsZV92cV9raWNrKHN0cnVjdCB2aG9zdF93b3JrICp3b3JrKQo+ICt7Cj4gKwlzdHJ1Y3Qgdmhv
-c3RfdmlydHF1ZXVlICp2cSA9IGNvbnRhaW5lcl9vZih3b3JrLCBzdHJ1Y3Qgdmhvc3RfdmlydHF1
-ZXVlLAo+ICsJCQkJCQkgIHBvbGwud29yayk7Cj4gKwlzdHJ1Y3Qgdmhvc3RfbWRldiAqbSA9IGNv
-bnRhaW5lcl9vZih2cS0+ZGV2LCBzdHJ1Y3Qgdmhvc3RfbWRldiwgZGV2KTsKPiArCWNvbnN0IHN0
-cnVjdCB2aXJ0aW9fbWRldl9kZXZpY2Vfb3BzICpvcHMgPSBtZGV2X2dldF9kZXZfb3BzKG0tPm1k
-ZXYpOwo+ICsKPiArCW9wcy0+a2lja192cShtLT5tZGV2LCB2cSAtIG0tPnZxcyk7Cj4gK30KPiAr
-Cj4gK3N0YXRpYyBpcnFyZXR1cm5fdCB2aG9zdF9tZGV2X3ZpcnRxdWV1ZV9jYih2b2lkICpwcml2
-YXRlKQo+ICt7Cj4gKwlzdHJ1Y3Qgdmhvc3RfdmlydHF1ZXVlICp2cSA9IHByaXZhdGU7Cj4gKwlz
-dHJ1Y3QgZXZlbnRmZF9jdHggKmNhbGxfY3R4ID0gdnEtPmNhbGxfY3R4Owo+ICsKPiArCWlmIChj
-YWxsX2N0eCkKPiArCQlldmVudGZkX3NpZ25hbChjYWxsX2N0eCwgMSk7Cj4gKwlyZXR1cm4gSVJR
-X0hBTkRMRUQ7Cj4gK30KPiArCj4gK3N0YXRpYyB2b2lkIHZob3N0X21kZXZfcmVzZXQoc3RydWN0
-IHZob3N0X21kZXYgKm0pCj4gK3sKPiArCXN0cnVjdCBtZGV2X2RldmljZSAqbWRldiA9IG0tPm1k
-ZXY7Cj4gKwljb25zdCBzdHJ1Y3QgdmlydGlvX21kZXZfZGV2aWNlX29wcyAqb3BzID0gbWRldl9n
-ZXRfZGV2X29wcyhtZGV2KTsKPiArCj4gKwltLT5zdGF0dXMgPSAwOwo+ICsJcmV0dXJuIG9wcy0+
-c2V0X3N0YXR1cyhtZGV2LCBtLT5zdGF0dXMpOwo+ICt9Cj4gKwo+ICtzdGF0aWMgbG9uZyB2aG9z
-dF9tZGV2X2dldF9zdGF0dXMoc3RydWN0IHZob3N0X21kZXYgKm0sIHU4IF9fdXNlciAqc3RhdHVz
-cCkKPiArewo+ICsJY29uc3Qgc3RydWN0IHZpcnRpb19tZGV2X2RldmljZV9vcHMgKm9wcyA9IG1k
-ZXZfZ2V0X2Rldl9vcHMobS0+bWRldik7Cj4gKwlzdHJ1Y3QgbWRldl9kZXZpY2UgKm1kZXYgPSBt
-LT5tZGV2Owo+ICsJdTggc3RhdHVzOwo+ICsKPiArCXN0YXR1cyA9IG9wcy0+Z2V0X3N0YXR1cyht
-ZGV2KTsKPiArCW0tPnN0YXR1cyA9IHN0YXR1czsKPiArCj4gKwlpZiAoY29weV90b191c2VyKHN0
-YXR1c3AsICZzdGF0dXMsIHNpemVvZihzdGF0dXMpKSkKPiArCQlyZXR1cm4gLUVGQVVMVDsKPiAr
-Cj4gKwlyZXR1cm4gMDsKPiArfQo+ICsKPiArc3RhdGljIGxvbmcgdmhvc3RfbWRldl9zZXRfc3Rh
-dHVzKHN0cnVjdCB2aG9zdF9tZGV2ICptLCB1OCBfX3VzZXIgKnN0YXR1c3ApCj4gK3sKPiArCWNv
-bnN0IHN0cnVjdCB2aXJ0aW9fbWRldl9kZXZpY2Vfb3BzICpvcHMgPSBtZGV2X2dldF9kZXZfb3Bz
-KG0tPm1kZXYpOwo+ICsJc3RydWN0IG1kZXZfZGV2aWNlICptZGV2ID0gbS0+bWRldjsKPiArCXU4
-IHN0YXR1czsKPiArCj4gKwlpZiAoY29weV9mcm9tX3VzZXIoJnN0YXR1cywgc3RhdHVzcCwgc2l6
-ZW9mKHN0YXR1cykpKQo+ICsJCXJldHVybiAtRUZBVUxUOwo+ICsKPiArCS8qCj4gKwkgKiBVc2Vy
-c3BhY2Ugc2hvdWxkbid0IHJlbW92ZSBzdGF0dXMgYml0cyB1bmxlc3MgcmVzZXQgdGhlCj4gKwkg
-KiBzdGF0dXMgdG8gMC4KPiArCSAqLwo+ICsJaWYgKHN0YXR1cyAhPSAwICYmIChtLT5zdGF0dXMg
-JiB+c3RhdHVzKSAhPSAwKQo+ICsJCXJldHVybiAtRUlOVkFMOwoKCldlIGRvbid0IGNhY2hlIHZx
-IHJlYWR5IGluZm9ybWF0aW9uIGJ1dCB3ZSBjYWNoZSBzdGF0dXMgYW5kIGZlYXR1cmVzIApoZXJl
-LCBhbnkgcmVhc29uIGZvciB0aGlzPwoKCj4gKwo+ICsJb3BzLT5zZXRfc3RhdHVzKG1kZXYsIHN0
-YXR1cyk7Cj4gKwltLT5zdGF0dXMgPSBvcHMtPmdldF9zdGF0dXMobWRldik7Cj4gKwo+ICsJcmV0
-dXJuIDA7Cj4gK30KPiArCj4gK3N0YXRpYyBsb25nIHZob3N0X21kZXZfZ2V0X2ZlYXR1cmVzKHN0
-cnVjdCB2aG9zdF9tZGV2ICptLCB1NjQgX191c2VyICpmZWF0dXJlcCkKPiArewo+ICsJaWYgKGNv
-cHlfdG9fdXNlcihmZWF0dXJlcCwgJm0tPmZlYXR1cmVzLCBzaXplb2YobS0+ZmVhdHVyZXMpKSkK
-PiArCQlyZXR1cm4gLUVGQVVMVDsKCgpBcyBkaXNjdXNzZWQgaW4gcHJldmlvdXMgdmVyc2lvbiBk
-byB3ZSBuZWVkIHRvIGZpbHRlciBvdXQgTVEgZmVhdHVyZSBoZXJlPwoKCj4gKwlyZXR1cm4gMDsK
-PiArfQo+ICsKPiArc3RhdGljIGxvbmcgdmhvc3RfbWRldl9zZXRfZmVhdHVyZXMoc3RydWN0IHZo
-b3N0X21kZXYgKm0sIHU2NCBfX3VzZXIgKmZlYXR1cmVwKQo+ICt7Cj4gKwljb25zdCBzdHJ1Y3Qg
-dmlydGlvX21kZXZfZGV2aWNlX29wcyAqb3BzID0gbWRldl9nZXRfZGV2X29wcyhtLT5tZGV2KTsK
-PiArCXN0cnVjdCBtZGV2X2RldmljZSAqbWRldiA9IG0tPm1kZXY7Cj4gKwl1NjQgZmVhdHVyZXM7
-Cj4gKwo+ICsJLyoKPiArCSAqIEl0J3Mgbm90IGFsbG93ZWQgdG8gY2hhbmdlIHRoZSBmZWF0dXJl
-cyBhZnRlciB0aGV5IGhhdmUKPiArCSAqIGJlZW4gbmVnb3RpYXRlZC4KPiArCSAqLwo+ICsJaWYg
-KG0tPnN0YXR1cyAmIFZJUlRJT19DT05GSUdfU19GRUFUVVJFU19PSykKPiArCQlyZXR1cm4gLUVQ
-RVJNOwoKCi1FQlVTWT8KCgo+ICsKPiArCWlmIChjb3B5X2Zyb21fdXNlcigmZmVhdHVyZXMsIGZl
-YXR1cmVwLCBzaXplb2YoZmVhdHVyZXMpKSkKPiArCQlyZXR1cm4gLUVGQVVMVDsKPiArCj4gKwlp
-ZiAoZmVhdHVyZXMgJiB+bS0+ZmVhdHVyZXMpCj4gKwkJcmV0dXJuIC1FSU5WQUw7Cj4gKwo+ICsJ
-bS0+YWNrZWRfZmVhdHVyZXMgPSBmZWF0dXJlczsKPiArCWlmIChvcHMtPnNldF9mZWF0dXJlcyht
-ZGV2LCBtLT5hY2tlZF9mZWF0dXJlcykpCj4gKwkJcmV0dXJuIC1FTk9ERVY7CgoKLUVJTlZBTCBz
-aG91bGQgYmUgYmV0dGVyLCB0aGlzIHdvdWxkIGJlIG1vcmUgb2J2aW91cyBmb3IgcGFyZW50IHRo
-YXQgCndhbnRzIHRvIGZvcmNlIGFueSBmZWF0dXJlLgoKCj4gKwo+ICsJcmV0dXJuIDA7Cj4gK30K
-PiArCj4gK3N0YXRpYyBsb25nIHZob3N0X21kZXZfZ2V0X3ZyaW5nX251bShzdHJ1Y3Qgdmhvc3Rf
-bWRldiAqbSwgdTE2IF9fdXNlciAqYXJncCkKPiArewo+ICsJY29uc3Qgc3RydWN0IHZpcnRpb19t
-ZGV2X2RldmljZV9vcHMgKm9wcyA9IG1kZXZfZ2V0X2Rldl9vcHMobS0+bWRldik7Cj4gKwlzdHJ1
-Y3QgbWRldl9kZXZpY2UgKm1kZXYgPSBtLT5tZGV2Owo+ICsJdTE2IG51bTsKPiArCj4gKwludW0g
-PSBvcHMtPmdldF92cV9udW1fbWF4KG1kZXYpOwo+ICsKPiArCWlmIChjb3B5X3RvX3VzZXIoYXJn
-cCwgJm51bSwgc2l6ZW9mKG51bSkpKQo+ICsJCXJldHVybiAtRUZBVUxUOwo+ICsJcmV0dXJuIDA7
-Cj4gK30KPiArCj4gK3N0YXRpYyBsb25nIHZob3N0X21kZXZfZ2V0X3F1ZXVlX251bShzdHJ1Y3Qg
-dmhvc3RfbWRldiAqbSwgdTMyIF9fdXNlciAqYXJncCkKPiArewo+ICsJdTMyIG52cXMgPSBtLT5u
-dnFzOwo+ICsKPiArCWlmIChjb3B5X3RvX3VzZXIoYXJncCwgJm52cXMsIHNpemVvZihudnFzKSkp
-Cj4gKwkJcmV0dXJuIC1FRkFVTFQ7Cj4gKwlyZXR1cm4gMDsKPiArfQo+ICsKPiArc3RhdGljIGxv
-bmcgdmhvc3RfbWRldl92cmluZ19pb2N0bChzdHJ1Y3Qgdmhvc3RfbWRldiAqbSwgdW5zaWduZWQg
-aW50IGNtZCwKPiArCQkJCSAgIHZvaWQgX191c2VyICphcmdwKQo+ICt7Cj4gKwljb25zdCBzdHJ1
-Y3QgdmlydGlvX21kZXZfZGV2aWNlX29wcyAqb3BzID0gbWRldl9nZXRfZGV2X29wcyhtLT5tZGV2
-KTsKPiArCXN0cnVjdCBtZGV2X2RldmljZSAqbWRldiA9IG0tPm1kZXY7Cj4gKwlzdHJ1Y3Qgdmly
-dGlvX21kZXZfY2FsbGJhY2sgY2I7Cj4gKwlzdHJ1Y3Qgdmhvc3RfdmlydHF1ZXVlICp2cTsKPiAr
-CXN0cnVjdCB2aG9zdF92cmluZ19zdGF0ZSBzOwo+ICsJdTMyIGlkeDsKPiArCWxvbmcgcjsKPiAr
-Cj4gKwlyID0gZ2V0X3VzZXIoaWR4LCAodTMyIF9fdXNlciAqKWFyZ3ApOwo+ICsJaWYgKHIgPCAw
-KQo+ICsJCXJldHVybiByOwo+ICsJaWYgKGlkeCA+PSBtLT5udnFzKQo+ICsJCXJldHVybiAtRU5P
-QlVGUzsKPiArCj4gKwkvKgo+ICsJICogSXQncyBub3QgYWxsb3dlZCB0byBkZXRlY3QgYW5kIHBy
-b2dyYW0gdnFzIGJlZm9yZQo+ICsJICogZmVhdHVyZXMgbmVnb3RpYXRpb24gb3IgYWZ0ZXIgZW5h
-YmxpbmcgZHJpdmVyLgo+ICsJICovCj4gKwlpZiAoIShtLT5zdGF0dXMgJiBWSVJUSU9fQ09ORklH
-X1NfRkVBVFVSRVNfT0spIHx8Cj4gKwkgICAgKG0tPnN0YXR1cyAmIFZJUlRJT19DT05GSUdfU19E
-UklWRVJfT0spKQo+ICsJCXJldHVybiAtRVBFUk07CgoKU28gdGhlIHF1ZXN0aW9uIGlzOiBpcyBp
-dCBiZXR0ZXIgdG8gZG8gdGhpcyBpbiBwYXJlbnQgb3Igbm90PwoKCj4gKwo+ICsJdnEgPSAmbS0+
-dnFzW2lkeF07Cj4gKwo+ICsJaWYgKGNtZCA9PSBWSE9TVF9NREVWX1NFVF9WUklOR19FTkFCTEUp
-IHsKPiArCQlpZiAoY29weV9mcm9tX3VzZXIoJnMsIGFyZ3AsIHNpemVvZihzKSkpCj4gKwkJCXJl
-dHVybiAtRUZBVUxUOwo+ICsJCW9wcy0+c2V0X3ZxX3JlYWR5KG1kZXYsIGlkeCwgcy5udW0pOwo+
-ICsJCXJldHVybiAwOwo+ICsJfQo+ICsKPiArCS8qCj4gKwkgKiBJdCdzIG5vdCBhbGxvd2VkIHRv
-IGRldGVjdCBhbmQgcHJvZ3JhbSB2cXMgd2l0aAo+ICsJICogdnFzIGVuYWJsZWQuCj4gKwkgKi8K
-PiArCWlmIChvcHMtPmdldF92cV9yZWFkeShtZGV2LCBpZHgpKQo+ICsJCXJldHVybiAtRVBFUk07
-Cj4gKwo+ICsJaWYgKGNtZCA9PSBWSE9TVF9HRVRfVlJJTkdfQkFTRSkKPiArCQl2cS0+bGFzdF9h
-dmFpbF9pZHggPSBvcHMtPmdldF92cV9zdGF0ZShtLT5tZGV2LCBpZHgpOwo+ICsKPiArCXIgPSB2
-aG9zdF92cmluZ19pb2N0bCgmbS0+ZGV2LCBjbWQsIGFyZ3ApOwo+ICsJaWYgKHIpCj4gKwkJcmV0
-dXJuIHI7Cj4gKwo+ICsJc3dpdGNoIChjbWQpIHsKPiArCWNhc2UgVkhPU1RfU0VUX1ZSSU5HX0FE
-RFI6Cj4gKwkJLyoKPiArCQkgKiBJbiB2aG9zdC1tZGV2LCB0aGUgcmluZyBhZGRyZXNzZXMgc2V0
-IGJ5IHVzZXJzcGFjZSBzaG91bGQKPiArCQkgKiBiZSB0aGUgRE1BIGFkZHJlc3NlcyB3aXRoaW4g
-dGhlIFZGSU8gY29udGFpbmVyL2dyb3VwLgo+ICsJCSAqLwo+ICsJCWlmIChvcHMtPnNldF92cV9h
-ZGRyZXNzKG1kZXYsIGlkeCwgKHU2NCl2cS0+ZGVzYywKPiArCQkJCQkodTY0KXZxLT5hdmFpbCwg
-KHU2NCl2cS0+dXNlZCkpCj4gKwkJCXIgPSAtRU5PREVWOwo+ICsJCWJyZWFrOwo+ICsKPiArCWNh
-c2UgVkhPU1RfU0VUX1ZSSU5HX0JBU0U6Cj4gKwkJaWYgKG9wcy0+c2V0X3ZxX3N0YXRlKG1kZXYs
-IGlkeCwgdnEtPmxhc3RfYXZhaWxfaWR4KSkKPiArCQkJciA9IC1FTk9ERVY7Cj4gKwkJYnJlYWs7
-Cj4gKwo+ICsJY2FzZSBWSE9TVF9TRVRfVlJJTkdfQ0FMTDoKPiArCQlpZiAodnEtPmNhbGxfY3R4
-KSB7Cj4gKwkJCWNiLmNhbGxiYWNrID0gdmhvc3RfbWRldl92aXJ0cXVldWVfY2I7Cj4gKwkJCWNi
-LnByaXZhdGUgPSB2cTsKPiArCQl9IGVsc2Ugewo+ICsJCQljYi5jYWxsYmFjayA9IE5VTEw7Cj4g
-KwkJCWNiLnByaXZhdGUgPSBOVUxMOwo+ICsJCX0KPiArCQlvcHMtPnNldF92cV9jYihtZGV2LCBp
-ZHgsICZjYik7Cj4gKwkJYnJlYWs7Cj4gKwo+ICsJY2FzZSBWSE9TVF9TRVRfVlJJTkdfTlVNOgo+
-ICsJCW9wcy0+c2V0X3ZxX251bShtZGV2LCBpZHgsIHZxLT5udW0pOwo+ICsJCWJyZWFrOwo+ICsJ
-fQo+ICsKPiArCXJldHVybiByOwo+ICt9Cj4gKwo+ICtzdGF0aWMgaW50IHZob3N0X21kZXZfb3Bl
-bih2b2lkICpkZXZpY2VfZGF0YSkKPiArewo+ICsJc3RydWN0IHZob3N0X21kZXYgKm0gPSBkZXZp
-Y2VfZGF0YTsKPiArCXN0cnVjdCB2aG9zdF9kZXYgKmRldjsKPiArCXN0cnVjdCB2aG9zdF92aXJ0
-cXVldWUgKip2cXM7Cj4gKwlpbnQgbnZxcywgaSwgcjsKPiArCj4gKwlpZiAoIXRyeV9tb2R1bGVf
-Z2V0KFRISVNfTU9EVUxFKSkKPiArCQlyZXR1cm4gLUVOT0RFVjsKPiArCj4gKwltdXRleF9sb2Nr
-KCZtLT5tdXRleCk7Cj4gKwo+ICsJaWYgKG0tPm9wZW5lZCkgewo+ICsJCXIgPSAtRUJVU1k7Cj4g
-KwkJZ290byBlcnI7Cj4gKwl9Cj4gKwo+ICsJbnZxcyA9IG0tPm52cXM7Cj4gKwl2aG9zdF9tZGV2
-X3Jlc2V0KG0pOwo+ICsKPiArCW1lbXNldCgmbS0+ZGV2LCAwLCBzaXplb2YobS0+ZGV2KSk7Cj4g
-KwltZW1zZXQobS0+dnFzLCAwLCBudnFzICogc2l6ZW9mKHN0cnVjdCB2aG9zdF92aXJ0cXVldWUp
-KTsKPiArCj4gKwl2cXMgPSBrbWFsbG9jX2FycmF5KG52cXMsIHNpemVvZigqdnFzKSwgR0ZQX0tF
-Uk5FTCk7Cj4gKwlpZiAoIXZxcykgewo+ICsJCXIgPSAtRU5PTUVNOwo+ICsJCWdvdG8gZXJyOwo+
-ICsJfQo+ICsKPiArCWRldiA9ICZtLT5kZXY7Cj4gKwlmb3IgKGkgPSAwOyBpIDwgbnZxczsgaSsr
-KSB7Cj4gKwkJdnFzW2ldID0gJm0tPnZxc1tpXTsKPiArCQl2cXNbaV0tPmhhbmRsZV9raWNrID0g
-aGFuZGxlX3ZxX2tpY2s7Cj4gKwl9Cj4gKwl2aG9zdF9kZXZfaW5pdChkZXYsIHZxcywgbnZxcywg
-MCwgMCwgMCk7Cj4gKwltLT5vcGVuZWQgPSB0cnVlOwo+ICsJbXV0ZXhfdW5sb2NrKCZtLT5tdXRl
-eCk7Cj4gKwo+ICsJcmV0dXJuIDA7Cj4gKwo+ICtlcnI6Cj4gKwltdXRleF91bmxvY2soJm0tPm11
-dGV4KTsKPiArCW1vZHVsZV9wdXQoVEhJU19NT0RVTEUpOwo+ICsJcmV0dXJuIHI7Cj4gK30KPiAr
-Cj4gK3N0YXRpYyB2b2lkIHZob3N0X21kZXZfcmVsZWFzZSh2b2lkICpkZXZpY2VfZGF0YSkKPiAr
-ewo+ICsJc3RydWN0IHZob3N0X21kZXYgKm0gPSBkZXZpY2VfZGF0YTsKPiArCj4gKwltdXRleF9s
-b2NrKCZtLT5tdXRleCk7Cj4gKwl2aG9zdF9tZGV2X3Jlc2V0KG0pOwo+ICsJdmhvc3RfZGV2X3N0
-b3AoJm0tPmRldik7Cj4gKwl2aG9zdF9kZXZfY2xlYW51cCgmbS0+ZGV2KTsKPiArCj4gKwlrZnJl
-ZShtLT5kZXYudnFzKTsKPiArCW0tPm9wZW5lZCA9IGZhbHNlOwo+ICsJbXV0ZXhfdW5sb2NrKCZt
-LT5tdXRleCk7Cj4gKwltb2R1bGVfcHV0KFRISVNfTU9EVUxFKTsKPiArfQo+ICsKPiArc3RhdGlj
-IGxvbmcgdmhvc3RfbWRldl91bmxvY2tlZF9pb2N0bCh2b2lkICpkZXZpY2VfZGF0YSwKPiArCQkJ
-CSAgICAgIHVuc2lnbmVkIGludCBjbWQsIHVuc2lnbmVkIGxvbmcgYXJnKQo+ICt7Cj4gKwlzdHJ1
-Y3Qgdmhvc3RfbWRldiAqbSA9IGRldmljZV9kYXRhOwo+ICsJdm9pZCBfX3VzZXIgKmFyZ3AgPSAo
-dm9pZCBfX3VzZXIgKilhcmc7Cj4gKwlsb25nIHI7Cj4gKwo+ICsJbXV0ZXhfbG9jaygmbS0+bXV0
-ZXgpOwo+ICsKPiArCXN3aXRjaCAoY21kKSB7Cj4gKwljYXNlIFZIT1NUX01ERVZfR0VUX1NUQVRV
-UzoKPiArCQlyID0gdmhvc3RfbWRldl9nZXRfc3RhdHVzKG0sIGFyZ3ApOwo+ICsJCWJyZWFrOwo+
-ICsJY2FzZSBWSE9TVF9NREVWX1NFVF9TVEFUVVM6Cj4gKwkJciA9IHZob3N0X21kZXZfc2V0X3N0
-YXR1cyhtLCBhcmdwKTsKPiArCQlicmVhazsKPiArCWNhc2UgVkhPU1RfR0VUX0ZFQVRVUkVTOgo+
-ICsJCXIgPSB2aG9zdF9tZGV2X2dldF9mZWF0dXJlcyhtLCBhcmdwKTsKPiArCQlicmVhazsKPiAr
-CWNhc2UgVkhPU1RfU0VUX0ZFQVRVUkVTOgo+ICsJCXIgPSB2aG9zdF9tZGV2X3NldF9mZWF0dXJl
-cyhtLCBhcmdwKTsKPiArCQlicmVhazsKPiArCWNhc2UgVkhPU1RfTURFVl9HRVRfVlJJTkdfTlVN
-Ogo+ICsJCXIgPSB2aG9zdF9tZGV2X2dldF92cmluZ19udW0obSwgYXJncCk7Cj4gKwkJYnJlYWs7
-Cj4gKwljYXNlIFZIT1NUX01ERVZfR0VUX1FVRVVFX05VTToKPiArCQlyID0gdmhvc3RfbWRldl9n
-ZXRfcXVldWVfbnVtKG0sIGFyZ3ApOwo+ICsJCWJyZWFrOwoKCkl0J3Mgbm90IGNsZWFyIHRvIG1l
-IHRoYXQgaG93IHRoaXMgQVBJIHdpbGwgYmUgdXNlZCBieSB1c2Vyc3BhY2U/IEkgCnRoaW5rIGUu
-ZyBmZWF0dXJlcyB3aXRob3V0IE1RIGltcGxpZXMgdGhlIHF1ZXVlIG51bSBoZXJlLgoKCj4gKwlk
-ZWZhdWx0Ogo+ICsJCXIgPSB2aG9zdF9kZXZfaW9jdGwoJm0tPmRldiwgY21kLCBhcmdwKTsKCgpJ
-IGJlbGlldmUgaGF2aW5nIFNFVF9NRU1fVEFCTEUvU0VUX0xPR19CQVNFL1NFVF9MT0dfRkTCoCBp
-cyBmb3IgZnV0dXJlIApzdXBwb3J0IG9mIHRob3NlIGZlYXR1cmVzLiBJZiBpdCdzIHRydWUgbmVl
-ZCBhZGQgc29tZSBjb21tZW50cyBvbiB0aGlzLgoKCj4gKwkJaWYgKHIgPT0gLUVOT0lPQ1RMQ01E
-KQo+ICsJCQlyID0gdmhvc3RfbWRldl92cmluZ19pb2N0bChtLCBjbWQsIGFyZ3ApOwo+ICsJfQo+
-ICsKPiArCW11dGV4X3VubG9jaygmbS0+bXV0ZXgpOwo+ICsJcmV0dXJuIHI7Cj4gK30KPiArCj4g
-K3N0YXRpYyBjb25zdCBzdHJ1Y3QgdmZpb19kZXZpY2Vfb3BzIHZmaW9fdmhvc3RfbWRldl9kZXZf
-b3BzID0gewo+ICsJLm5hbWUJCT0gInZmaW8tdmhvc3QtbWRldiIsCj4gKwkub3BlbgkJPSB2aG9z
-dF9tZGV2X29wZW4sCj4gKwkucmVsZWFzZQk9IHZob3N0X21kZXZfcmVsZWFzZSwKPiArCS5pb2N0
-bAkJPSB2aG9zdF9tZGV2X3VubG9ja2VkX2lvY3RsLAo+ICt9Owo+ICsKPiArc3RhdGljIGludCB2
-aG9zdF9tZGV2X3Byb2JlKHN0cnVjdCBkZXZpY2UgKmRldikKPiArewo+ICsJc3RydWN0IG1kZXZf
-ZGV2aWNlICptZGV2ID0gbWRldl9mcm9tX2RldihkZXYpOwo+ICsJY29uc3Qgc3RydWN0IHZpcnRp
-b19tZGV2X2RldmljZV9vcHMgKm9wcyA9IG1kZXZfZ2V0X2Rldl9vcHMobWRldik7Cj4gKwlzdHJ1
-Y3Qgdmhvc3RfbWRldiAqbTsKPiArCWludCBudnFzLCByOwo+ICsKPiArCS8qIEN1cnJlbnRseSwg
-b25seSBuZXR3b3JrIGJhY2tlbmQgaXMgc3VwcG9ydGVkLiAqLwo+ICsJaWYgKG9wcy0+Z2V0X2Rl
-dmljZV9pZChtZGV2KSAhPSBWSVJUSU9fSURfTkVUKQo+ICsJCXJldHVybiAtRU5PVFNVUFA7CgoK
-SWYgd2UgZGVjaWRlIHRvIGdvIHdpdGggdGhlIHdheSBvZiB2aG9zdC1uZXQtbWRldiwgcHJvYmFi
-bHkgbmVlZCAKc29tZXRoaW5nIHNtYXJ0ZXIuIEUuZyBhIHZob3N0IGJ1cyBldGMuCgoKPiArCj4g
-KwlpZiAob3BzLT5nZXRfbWRldl9mZWF0dXJlcyhtZGV2KSAhPSBWSVJUSU9fTURFVl9GX1ZFUlNJ
-T05fMSkKPiArCQlyZXR1cm4gLUVOT1RTVVBQOwo+ICsKPiArCW0gPSBkZXZtX2t6YWxsb2MoZGV2
-LCBzaXplb2YoKm0pLCBHRlBfS0VSTkVMIHwgX19HRlBfUkVUUllfTUFZRkFJTCk7Cj4gKwlpZiAo
-IW0pCj4gKwkJcmV0dXJuIC1FTk9NRU07Cj4gKwo+ICsJbnZxcyA9IFZIT1NUX01ERVZfVlFfTUFY
-Owo+ICsJbS0+bnZxcyA9IG52cXM7Cj4gKwo+ICsJbS0+dnFzID0gZGV2bV9rbWFsbG9jX2FycmF5
-KGRldiwgbnZxcywgc2l6ZW9mKHN0cnVjdCB2aG9zdF92aXJ0cXVldWUpLAo+ICsJCQkJICAgIEdG
-UF9LRVJORUwpOwo+ICsJaWYgKCFtLT52cXMpCj4gKwkJcmV0dXJuIC1FTk9NRU07CgoKSXMgaXQg
-YmV0dGVyIHRvIG1vdmUgdGhvc2UgYWxsb2NhdGlvbiB0byBvcGVuPyBPdGhlcndpc2UgdGhlIG1l
-bXNldCAKdGhlcmUgc2VlbXMgc3RyYW5nZS4KCgo+ICsKPiArCXIgPSB2ZmlvX2FkZF9ncm91cF9k
-ZXYoZGV2LCAmdmZpb192aG9zdF9tZGV2X2Rldl9vcHMsIG0pOwo+ICsJaWYgKHIpCj4gKwkJcmV0
-dXJuIHI7Cj4gKwo+ICsJbXV0ZXhfaW5pdCgmbS0+bXV0ZXgpOwo+ICsJbS0+ZmVhdHVyZXMgPSBv
-cHMtPmdldF9mZWF0dXJlcyhtZGV2KTsKPiArCW0tPm1kZXYgPSBtZGV2Owo+ICsJcmV0dXJuIDA7
-Cj4gK30KPiArCj4gK3N0YXRpYyB2b2lkIHZob3N0X21kZXZfcmVtb3ZlKHN0cnVjdCBkZXZpY2Ug
-KmRldikKPiArewo+ICsJc3RydWN0IHZob3N0X21kZXYgKm07Cj4gKwo+ICsJbSA9IHZmaW9fZGVs
-X2dyb3VwX2RldihkZXYpOwo+ICsJbXV0ZXhfZGVzdHJveSgmbS0+bXV0ZXgpOwo+ICt9Cj4gKwo+
-ICtzdGF0aWMgY29uc3Qgc3RydWN0IG1kZXZfY2xhc3NfaWQgdmhvc3RfbWRldl9tYXRjaFtdID0g
-ewo+ICsJeyBNREVWX0NMQVNTX0lEX1ZIT1NUIH0sCj4gKwl7IDAgfSwKPiArfTsKPiArTU9EVUxF
-X0RFVklDRV9UQUJMRShtZGV2LCB2aG9zdF9tZGV2X21hdGNoKTsKPiArCj4gK3N0YXRpYyBzdHJ1
-Y3QgbWRldl9kcml2ZXIgdmhvc3RfbWRldl9kcml2ZXIgPSB7Cj4gKwkubmFtZQk9ICJ2aG9zdF9t
-ZGV2IiwKPiArCS5wcm9iZQk9IHZob3N0X21kZXZfcHJvYmUsCj4gKwkucmVtb3ZlCT0gdmhvc3Rf
-bWRldl9yZW1vdmUsCj4gKwkuaWRfdGFibGUgPSB2aG9zdF9tZGV2X21hdGNoLAo+ICt9Owo+ICsK
-PiArc3RhdGljIGludCBfX2luaXQgdmhvc3RfbWRldl9pbml0KHZvaWQpCj4gK3sKPiArCXJldHVy
-biBtZGV2X3JlZ2lzdGVyX2RyaXZlcigmdmhvc3RfbWRldl9kcml2ZXIsIFRISVNfTU9EVUxFKTsK
-PiArfQo+ICttb2R1bGVfaW5pdCh2aG9zdF9tZGV2X2luaXQpOwo+ICsKPiArc3RhdGljIHZvaWQg
-X19leGl0IHZob3N0X21kZXZfZXhpdCh2b2lkKQo+ICt7Cj4gKwltZGV2X3VucmVnaXN0ZXJfZHJp
-dmVyKCZ2aG9zdF9tZGV2X2RyaXZlcik7Cj4gK30KPiArbW9kdWxlX2V4aXQodmhvc3RfbWRldl9l
-eGl0KTsKPiArCj4gK01PRFVMRV9WRVJTSU9OKCIwLjAuMSIpOwo+ICtNT0RVTEVfTElDRU5TRSgi
-R1BMIHYyIik7Cj4gK01PRFVMRV9ERVNDUklQVElPTigiTWVkaWF0ZWQgZGV2aWNlIGJhc2VkIGFj
-Y2VsZXJhdG9yIGZvciB2aXJ0aW8iKTsKPiBkaWZmIC0tZ2l0IGEvaW5jbHVkZS9saW51eC9tZGV2
-LmggYi9pbmNsdWRlL2xpbnV4L21kZXYuaAo+IGluZGV4IDEzZTA0NWUwOWQzYi4uNjA2MGNkYmU2
-ZDNlIDEwMDY0NAo+IC0tLSBhL2luY2x1ZGUvbGludXgvbWRldi5oCj4gKysrIGIvaW5jbHVkZS9s
-aW51eC9tZGV2LmgKPiBAQCAtMTE0LDYgKzExNCw4IEBAIHZvaWQgbWRldl9zZXRfdmZpb19vcHMo
-c3RydWN0IG1kZXZfZGV2aWNlICptZGV2LAo+ICAgCQkgICAgICAgY29uc3Qgc3RydWN0IHZmaW9f
-bWRldl9kZXZpY2Vfb3BzICp2ZmlvX29wcyk7Cj4gICB2b2lkIG1kZXZfc2V0X3ZpcnRpb19vcHMo
-c3RydWN0IG1kZXZfZGV2aWNlICptZGV2LAo+ICAgICAgICAgICAgICAgICAgICAgICAgICAgIGNv
-bnN0IHN0cnVjdCB2aXJ0aW9fbWRldl9kZXZpY2Vfb3BzICp2aXJ0aW9fb3BzKTsKPiArdm9pZCBt
-ZGV2X3NldF92aG9zdF9vcHMoc3RydWN0IG1kZXZfZGV2aWNlICptZGV2LAo+ICsJCQljb25zdCBz
-dHJ1Y3QgdmlydGlvX21kZXZfZGV2aWNlX29wcyAqdmhvc3Rfb3BzKTsKPiAgIGNvbnN0IHZvaWQg
-Km1kZXZfZ2V0X2Rldl9vcHMoc3RydWN0IG1kZXZfZGV2aWNlICptZGV2KTsKPiAgIAo+ICAgZXh0
-ZXJuIHN0cnVjdCBidXNfdHlwZSBtZGV2X2J1c190eXBlOwo+IEBAIC0xMzEsNiArMTMzLDcgQEAg
-c3RydWN0IG1kZXZfZGV2aWNlICptZGV2X2Zyb21fZGV2KHN0cnVjdCBkZXZpY2UgKmRldik7Cj4g
-ICBlbnVtIHsKPiAgIAlNREVWX0NMQVNTX0lEX1ZGSU8gPSAxLAo+ICAgCU1ERVZfQ0xBU1NfSURf
-VklSVElPID0gMiwKPiArCU1ERVZfQ0xBU1NfSURfVkhPU1QgPSAzLAo+ICAgCS8qIE5ldyBlbnRy
-aWVzIG11c3QgYmUgYWRkZWQgaGVyZSAqLwo+ICAgfTsKPiAgIAo+IGRpZmYgLS1naXQgYS9pbmNs
-dWRlL3VhcGkvbGludXgvdmhvc3QuaCBiL2luY2x1ZGUvdWFwaS9saW51eC92aG9zdC5oCj4gaW5k
-ZXggNDBkMDI4ZWVkNjQ1Li5kYWQzYzYyYmQ5MWIgMTAwNjQ0Cj4gLS0tIGEvaW5jbHVkZS91YXBp
-L2xpbnV4L3Zob3N0LmgKPiArKysgYi9pbmNsdWRlL3VhcGkvbGludXgvdmhvc3QuaAo+IEBAIC0x
-MTYsNCArMTE2LDE3IEBACj4gICAjZGVmaW5lIFZIT1NUX1ZTT0NLX1NFVF9HVUVTVF9DSUQJX0lP
-VyhWSE9TVF9WSVJUSU8sIDB4NjAsIF9fdTY0KQo+ICAgI2RlZmluZSBWSE9TVF9WU09DS19TRVRf
-UlVOTklORwkJX0lPVyhWSE9TVF9WSVJUSU8sIDB4NjEsIGludCkKPiAgIAo+ICsvKiBWSE9TVF9N
-REVWIHNwZWNpZmljIGRlZmluZXMgKi8KPiArCj4gKy8qIEdldCBhbmQgc2V0IHRoZSBzdGF0dXMg
-b2YgdGhlIGJhY2tlbmQuIFRoZSBzdGF0dXMgYml0cyBmb2xsb3cgdGhlCj4gKyAqIHNhbWUgZGVm
-aW5pdGlvbiBvZiB0aGUgZGV2aWNlIHN0YXR1cyBkZWZpbmVkIGluIHZpcnRpby1zcGVjLiAqLwo+
-ICsjZGVmaW5lIFZIT1NUX01ERVZfR0VUX1NUQVRVUwkJX0lPVyhWSE9TVF9WSVJUSU8sIDB4NzAs
-IF9fdTgpCj4gKyNkZWZpbmUgVkhPU1RfTURFVl9TRVRfU1RBVFVTCQlfSU9XKFZIT1NUX1ZJUlRJ
-TywgMHg3MSwgX191OCkKPiArLyogRW5hYmxlL2Rpc2FibGUgdGhlIHJpbmcuICovCj4gKyNkZWZp
-bmUgVkhPU1RfTURFVl9TRVRfVlJJTkdfRU5BQkxFCV9JT1coVkhPU1RfVklSVElPLCAweDcyLCBz
-dHJ1Y3Qgdmhvc3RfdnJpbmdfc3RhdGUpCj4gKy8qIEdldCB0aGUgbWF4IHJpbmcgc2l6ZS4gKi8K
-PiArI2RlZmluZSBWSE9TVF9NREVWX0dFVF9WUklOR19OVU0JX0lPVyhWSE9TVF9WSVJUSU8sIDB4
-NzMsIF9fdTE2KQo+ICsvKiBHZXQgdGhlIG1heCBudW1iZXIgb2YgcXVldWVzLiAqLwo+ICsjZGVm
-aW5lIFZIT1NUX01ERVZfR0VUX1FVRVVFX05VTQlfSU9XKFZIT1NUX1ZJUlRJTywgMHg3NCwgX191
-MzIpCgoKRG8gd2UgbmVlZCBBUEkgZm9yIHVzZXJzcGFjZSB0byBnZXQgYmFja2VuZCBjYXBhYmls
-aXR5PyAodGhhdCBjYWxscyAKZ2V0X21kZXZfZGV2aWNlX2ZlYXR1cmVzKCkpCgpUaGFua3MKCgo+
-ICsKPiAgICNlbmRpZgoKX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19f
-X19fX18KVmlydHVhbGl6YXRpb24gbWFpbGluZyBsaXN0ClZpcnR1YWxpemF0aW9uQGxpc3RzLmxp
-bnV4LWZvdW5kYXRpb24ub3JnCmh0dHBzOi8vbGlzdHMubGludXhmb3VuZGF0aW9uLm9yZy9tYWls
-bWFuL2xpc3RpbmZvL3ZpcnR1YWxpemF0aW9u
+>> Please note that we have other users that use PG_offline + refcount >= 1
+>> (HyperV balloon, XEN). We should not affect these users (IOW,
+>> has_unmovable_pages() has to stop right there if we see one of these pages).
+> 
+> OK, this is exactly what I was worried about. I can see why you might
+> want to go an easier way and rule those users out but wouldn't be it
+> actually more reasonable to explicitly request PageOffline users to
+> implement MEM_GOING_OFFLINE and prepare their offlined pages for the
+> offlining operation or fail right there if that is not possible.
+> If you fail right there during the isolation phase then there is no way
+> to allow the offlining to proceed from that context.
+
+I am not sure I agree. But let's discuss the details. See below.
+
+>   
+>>>> 2) memory_notify(MEM_GOING_OFFLINE, &arg);
+>>>> -> Here, we could release all pages to the buddy, clearing PG_offline
+>>>> -> PF_offline must not be cleared so dumping tools will not touch
+>>>>      these pages. There is a time where pages are !PageBuddy() and
+>>>>      !PageOffline().
+>>>
+>>> Well, this is fully under control of the driver, no? Reference count
+>>> shouldn't play any role here AFAIU.
+>>
+>> Yes, this is more a PG_offline issue. The reference count is an issue of
+>> reaching this call :) If we want to go via the buddy:
+>>
+>> 1. Clear PG_offline
+>> 2. Free page (gets set PG_buddy)
+>>
+>> Between 1 and 2, a dumping tool could not exclude these pages and therefore
+>> try to read from these pages. That is an issue IFF we want to return the
+>> pages back to the buddy instead of doing what I propose here.
+> 
+> If the driver is going to free page to the allocator then it would have
+> to claim the page back and so it is usable again. If it cannot free it
+> then it would simply set the reference count to 0. It can even keep the
+> PG_offline if necessary although I have to admit I am not really sure it
+> is necessary.
+
+Yes it is necessary to keep PG_offline set to avoid anybody touching the
+page until the section is offline. (especially, dumping tools)
+But that's another discussion. The important part is to not go via the buddy.
+
+> 
+>>>> 3) scan_movable_pages() ...
+>>
+>> Please note that when we don't put the pages back to the buddy and don't
+>> implement something like I have in this patch, we'll loop/fail here.
+>> Especially if we have pages with PG_offline + refcount >= 1 .
+> 
+> You should have your reference count 0 at this stage as it is after
+> MEM_GOING_OFFLINE.
+>   
+>>> MEM_CANCEL_OFFLINE could gain the reference back to balance the
+>>> MEM_GOING_OFFLINE step.
+>>
+>> The pages are already unisolated and could be used by the buddy. But again,
+>> I think you have an idea that tries to avoid putting pages to the buddy.
+> 
+> Yeah, set_page_count(page, 0) if you do not want to release that page
+> from the notifier context to reflect that the page is ok to be offlined
+> with the rest.
+>   
+
+I neither see how you deal with __test_page_isolated_in_pageblock() nor with
+__offline_isolated_pages(). Sorry, but what I read is incomplete and you
+probably have a full proposal in your head. Please read below how I think
+you want to solve it.
+
+> 
+>>> explicit control via the reference count which is the standard way to
+>>> control the struct page life cycle.
+>>>
+>>> Anyway hooking into __put_page (which tends to be a hot path with
+>>> something that is barely used on most systems) doesn't sound nice to me.
+>>> This is the whole point which made me think about the whole reference
+>>> count approach in the first place.
+>>
+>> Again, the race I think that is possible
+>>
+>> somebody: get_page_unless_zero(page)
+>> virtio_mem: page_ref_dec(pfn_to_page(pfn)
+>> somebody: put_page() -> straight to the buddy
+> 
+> Who is that somebody? I thought that it is only the owner/driver to have
+> a control over the page. Also the above is not possible as long as the
+> owner/driver keeps a reference to the PageOffline page throughout the
+> time it is marked that way.
+>   
+
+I was reading
+
+include/linux/mm_types.h:
+
+"If you want to use the refcount field, it must be used in such a way
+ that other CPUs temporarily incrementing and then decrementing the
+ refcount does not cause problems"
+
+And that made me think "anybody can go ahead and try get_page_unless_zero()".
+
+If I am missing something here and this can indeed not happen (e.g.,
+because PageOffline() pages are never mapped to user space), then I'll
+happily remove this code.
+
+> 
+>>>>> If you can let the page go then just drop the reference count. The page
+>>>>> is isolated already by that time. If you cannot let it go for whatever
+>>>>> reason you can fail the offlining.
+>>>>
+>>>> We do have one hack in current MM code, which is the memory isolation
+>>>> notifier only used by CMM on PPC. It allows to "cheat" has_unmovable_pages()
+>>>> to skip over unmovable pages. But quite frankly, I rather want to get rid of
+>>>> that crap (something I am working on right now) than introduce new users.
+>>>> This stuff is racy as hell and for CMM, if memory offlining fails, the
+>>>> ballooned pages are suddenly part of the buddy. Fragile.
+>>>
+>>> Could you be more specific please?
+>>
+>> Let's take a look at how arch/powerpc/platforms/pseries/cmm.c handles it:
+>>
+>> cmm_memory_isolate_cb() -> cmm_count_pages(arg):
+>> - Memory Isolation notifier callback
+>> - Count how many pages in the range to be isolated are in the ballooon
+>> - This makes has_unmovable_pages() succeed. Pages can be isolated.
+>>
+>> cmm_memory_cb -> cmm_mem_going_offline(arg):
+>> - Memory notifier (online/offline)
+>> - Release all pages in the range to the buddy
+>>
+>> If offlining fails, the pages are now in the buddy, no longer in the
+>> balloon. MEM_CANCEL_ONLINE is too late, because the range is already
+>> unisolated again and the pages might be in use.
+>>
+>> For CMM it might not be that bad, because it can actually "reloan" any
+>> pages. In contrast, virtio-mem cannot simply go ahead and reuse random
+>> memory in unplugged. Any access to these pages would be evil. Giving them
+>> back to the buddy is dangerous.
+> 
+> Thanks, I was not aware of that code. But from what I understood this is
+> an outright bug in this code because cmm_mem_going_offline releases
+> pages to the buddy allocator which is something that is not recoverable
+> on a later failure.
+> 
+
+Yes, and that should be gone if we switch to balloon compaction.
+
+
+
+Let's recap what I suggest:
+
+"PageOffline() pages that have a reference count of 0 will be treated
+ like free pages when offlining pages, allowing the containing memory
+ block to get offlined. In case a driver wants to revive such a page, it
+ has to synchronize against memory onlining/offlining (e.g., using memory
+ notifiers) while incrementing the reference count. Also, a driver that
+ relies in this feature is aware that re-onlining the memory will require
+ to re-set the pages PageOffline() - e.g., via the online_page_callback_t."
+
+a) has_unmovable_pages() already skips over pages with a refcount of zero.
+   The code I add to not skip over these pages when !MEMORY_OFFLINE is a pure
+   optimization to fail early when trying to allocate from that range.
+
+b) __test_page_isolated_in_pageblock() is modified to skip over
+   PageOffline() pages with a refcount of zero
+
+c) __offline_isolated_pages() is modified to skip over
+   PageOffline() pages with a refcount of zero
+
+d) __put_page() is modified to not return pages to the buddy in any
+   case as a safety net. We might be able to get rid of that.
+
+
+
+What I think you suggest:
+
+a) has_unmovable_pages() skips over all PageOffline() pages.
+   This results in a lot of false negatives when trying to offline. Might be ok.
+
+b) The driver decrements the reference count of the PageOffline pages
+   in MEM_GOING_OFFLINE.
+
+c) The driver increments the reference count of the PageOffline pages
+   in MEM_CANCEL_OFFLINE. One issue might be that the pages are no longer
+   isolated once we get that call. Might be ok.
+
+d) How to make __test_page_isolated_in_pageblock() succeed?
+   Like I propose in this patch (PageOffline() + refcount == 0)?
+
+e) How to make __offline_isolated_pages() succeed?
+   Like I propose in this patch (PageOffline() + refcount == 0)?
+
+In summary, is what you suggest simply delaying setting the reference count to 0
+in MEM_GOING_OFFLINE instead of right away when the driver unpluggs the pages?
+What's the big benefit you see and I fail to see?
+
+-- 
+
+Thanks,
+
+David / dhildenb
