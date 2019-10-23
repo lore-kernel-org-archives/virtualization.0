@@ -1,18 +1,16 @@
-From: Jason Wang <jasowang@redhat.com>
-Subject: Re: [PATCH v2] vhost: introduce mdev based hardware backend
-Date: Wed, 23 Oct 2019 15:25:00 +0800
-Message-ID: <106834b5-dae5-82b2-0f97-16951709d075@redhat.com>
-References: <20191022095230.2514-1-tiwei.bie@intel.com>
-	<47a572fd-5597-1972-e177-8ee25ca51247@redhat.com>
-	<20191023030253.GA15401@___>
-	<ac36f1e3-b972-71ac-fe0c-3db03e016dcf@redhat.com>
-	<20191023070747.GA30533@___>
+From: Dmitry Vyukov via Virtualization
+	<virtualization@lists.linux-foundation.org>
+Subject: Re: [PATCH 3/3] vhost, kcov: collect coverage from vhost_worker
+Date: Wed, 23 Oct 2019 10:36:20 +0200
+Message-ID: <CACT4Y+YntxT+cpESOBvbg+h=g-84ECJwQrFg7LM5tbq_zaMd3A__40405.8552974433$1571819804$gmane$org@mail.gmail.com>
+References: <cover.1571762488.git.andreyknvl@google.com>
+	<26e088ae3ebcaa30afe957aeabaa9f0c653df7d0.1571762488.git.andreyknvl@google.com>
+Reply-To: Dmitry Vyukov <dvyukov@google.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="utf-8"; Format="flowed"
-Content-Transfer-Encoding: base64
+Content-Type: text/plain; charset="us-ascii"
+Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <20191023070747.GA30533@___>
-Content-Language: en-US
+In-Reply-To: <26e088ae3ebcaa30afe957aeabaa9f0c653df7d0.1571762488.git.andreyknvl@google.com>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -22,121 +20,99 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Tiwei Bie <tiwei.bie@intel.com>
-Cc: kvm@vger.kernel.org, mst@redhat.com, netdev@vger.kernel.org, linux-kernel@vger.kernel.org, virtualization@lists.linux-foundation.org, zhihong.wang@intel.com, maxime.coquelin@redhat.com, lingshan.zhu@intel.com
+To: Andrey Konovalov <andreyknvl@google.com>
+Cc: Anders Roxell <anders.roxell@linaro.org>, Arnd Bergmann <arnd@arndb.de>, KVM list <kvm@vger.kernel.org>, "Michael S . Tsirkin" <mst@redhat.com>, netdev <netdev@vger.kernel.org>, USB list <linux-usb@vger.kernel.org>, LKML <linux-kernel@vger.kernel.org>, Steven Rostedt <rostedt@goodmis.org>, virtualization@lists.linux-foundation.org, Alan Stern <stern@rowland.harvard.edu>, Greg Kroah-Hartman <gregkh@linuxfoundation.org>, Andrew Morton <akpm@linux-foundation.org>, Elena Reshetova <elena.reshetova@intel.com>, David Windsor <dwindsor@gmail.com>
 List-Id: virtualization@lists.linuxfoundation.org
 
-Ck9uIDIwMTkvMTAvMjMg5LiL5Y2IMzowNywgVGl3ZWkgQmllIHdyb3RlOgo+IE9uIFdlZCwgT2N0
-IDIzLCAyMDE5IGF0IDAxOjQ2OjIzUE0gKzA4MDAsIEphc29uIFdhbmcgd3JvdGU6Cj4+IE9uIDIw
-MTkvMTAvMjMg5LiK5Y2IMTE6MDIsIFRpd2VpIEJpZSB3cm90ZToKPj4+IE9uIFR1ZSwgT2N0IDIy
-LCAyMDE5IGF0IDA5OjMwOjE2UE0gKzA4MDAsIEphc29uIFdhbmcgd3JvdGU6Cj4+Pj4gT24gMjAx
-OS8xMC8yMiDkuIvljYg1OjUyLCBUaXdlaSBCaWUgd3JvdGU6Cj4+Pj4+IFRoaXMgcGF0Y2ggaW50
-cm9kdWNlcyBhIG1kZXYgYmFzZWQgaGFyZHdhcmUgdmhvc3QgYmFja2VuZC4KPj4+Pj4gVGhpcyBi
-YWNrZW5kIGlzIGJ1aWx0IG9uIHRvcCBvZiB0aGUgc2FtZSBhYnN0cmFjdGlvbiB1c2VkCj4+Pj4+
-IGluIHZpcnRpby1tZGV2IGFuZCBwcm92aWRlcyBhIGdlbmVyaWMgdmhvc3QgaW50ZXJmYWNlIGZv
-cgo+Pj4+PiB1c2Vyc3BhY2UgdG8gYWNjZWxlcmF0ZSB0aGUgdmlydGlvIGRldmljZXMgaW4gZ3Vl
-c3QuCj4+Pj4+Cj4+Pj4+IFRoaXMgYmFja2VuZCBpcyBpbXBsZW1lbnRlZCBhcyBhIG1kZXYgZGV2
-aWNlIGRyaXZlciBvbiB0b3AKPj4+Pj4gb2YgdGhlIHNhbWUgbWRldiBkZXZpY2Ugb3BzIHVzZWQg
-aW4gdmlydGlvLW1kZXYgYnV0IHVzaW5nCj4+Pj4+IGEgZGlmZmVyZW50IG1kZXYgY2xhc3MgaWQs
-IGFuZCBpdCB3aWxsIHJlZ2lzdGVyIHRoZSBkZXZpY2UKPj4+Pj4gYXMgYSBWRklPIGRldmljZSBm
-b3IgdXNlcnNwYWNlIHRvIHVzZS4gVXNlcnNwYWNlIGNhbiBzZXR1cAo+Pj4+PiB0aGUgSU9NTVUg
-d2l0aCB0aGUgZXhpc3RpbmcgVkZJTyBjb250YWluZXIvZ3JvdXAgQVBJcyBhbmQKPj4+Pj4gdGhl
-biBnZXQgdGhlIGRldmljZSBmZCB3aXRoIHRoZSBkZXZpY2UgbmFtZS4gQWZ0ZXIgZ2V0dGluZwo+
-Pj4+PiB0aGUgZGV2aWNlIGZkIG9mIHRoaXMgZGV2aWNlLCB1c2Vyc3BhY2UgY2FuIHVzZSB2aG9z
-dCBpb2N0bHMKPj4+Pj4gdG8gc2V0dXAgdGhlIGJhY2tlbmQuCj4+Pj4+Cj4+Pj4+IFNpZ25lZC1v
-ZmYtYnk6IFRpd2VpIEJpZSA8dGl3ZWkuYmllQGludGVsLmNvbT4KPj4+Pj4gLS0tCj4+Pj4+IFRo
-aXMgcGF0Y2ggZGVwZW5kcyBvbiBiZWxvdyBzZXJpZXM6Cj4+Pj4+IGh0dHBzOi8vbGttbC5vcmcv
-bGttbC8yMDE5LzEwLzE3LzI4Ngo+Pj4+Pgo+Pj4+PiB2MSAtPiB2MjoKPj4+Pj4gLSBSZXBsYWNl
-IF9TRVRfU1RBVEUgd2l0aCBfU0VUX1NUQVRVUyAoTVNUKTsKPj4+Pj4gLSBDaGVjayBzdGF0dXMg
-Yml0cyBhdCBlYWNoIHN0ZXAgKE1TVCk7Cj4+Pj4+IC0gUmVwb3J0IHRoZSBtYXggcmluZyBzaXpl
-IGFuZCBtYXggbnVtYmVyIG9mIHF1ZXVlcyAoTVNUKTsKPj4+Pj4gLSBBZGQgbWlzc2luZyBNT0RV
-TEVfREVWSUNFX1RBQkxFIChKYXNvbik7Cj4+Pj4+IC0gT25seSBzdXBwb3J0IHRoZSBuZXR3b3Jr
-IGJhY2tlbmQgdy9vIG11bHRpcXVldWUgZm9yIG5vdzsKPj4+PiBBbnkgaWRlYSBvbiBob3cgdG8g
-ZXh0ZW5kIGl0IHRvIHN1cHBvcnQgZGV2aWNlcyBvdGhlciB0aGFuIG5ldD8gSSB0aGluayB3ZQo+
-Pj4+IHdhbnQgYSBnZW5lcmljIEFQSSBvciBhbiBBUEkgdGhhdCBjb3VsZCBiZSBtYWRlIGdlbmVy
-aWMgaW4gdGhlIGZ1dHVyZS4KPj4+Pgo+Pj4+IERvIHdlIHdhbnQgdG8gZS5nIGhhdmluZyBhIGdl
-bmVyaWMgdmhvc3QgbWRldiBmb3IgYWxsIGtpbmRzIG9mIGRldmljZXMgb3IKPj4+PiBpbnRyb2R1
-Y2luZyBlLmcgdmhvc3QtbmV0LW1kZXYgYW5kIHZob3N0LXNjc2ktbWRldj8KPj4+IE9uZSBwb3Nz
-aWJsZSB3YXkgaXMgdG8gZG8gd2hhdCB2aG9zdC11c2VyIGRvZXMuIEkuZS4gQXBhcnQgZnJvbQo+
-Pj4gdGhlIGdlbmVyaWMgcmluZywgZmVhdHVyZXMsIC4uLiByZWxhdGVkIGlvY3Rscywgd2UgYWxz
-byBpbnRyb2R1Y2UKPj4+IGRldmljZSBzcGVjaWZpYyBpb2N0bHMgd2hlbiB3ZSBuZWVkIHRoZW0u
-IEFzIHZob3N0LW1kZXYganVzdCBuZWVkcwo+Pj4gdG8gZm9yd2FyZCBjb25maWdzIGJldHdlZW4g
-cGFyZW50IGFuZCB1c2Vyc3BhY2UgYW5kIGV2ZW4gd29uJ3QKPj4+IGNhY2hlIGFueSBpbmZvIHdo
-ZW4gcG9zc2libGUsCj4+Cj4+IFNvIGl0IGxvb2tzIHRvIG1lIHRoaXMgaXMgb25seSBwb3NzaWJs
-ZSBpZiB3ZSBleHBvc2UgZS5nIHNldF9jb25maWcgYW5kCj4+IGdldF9jb25maWcgdG8gdXNlcnNw
-YWNlLgo+IFRoZSBzZXRfY29uZmlnIGFuZCBnZXRfY29uZmlnIGludGVyZmFjZSBpc24ndCByZWFs
-bHkgZXZlcnl0aGluZwo+IG9mIGRldmljZSBzcGVjaWZpYyBzZXR0aW5ncy4gV2UgYWxzbyBoYXZl
-IGN0cmxxIGluIHZpcnRpby1uZXQuCgoKWWVzLCBidXQgaXQgY291bGQgYmUgcHJvY2Vzc2VkIGJ5
-IHRoZSBleGlzdCBBUEkuIElzbid0IGl0PyBKdXN0IHNldCBjdHJsIAp2cSBhZGRyZXNzIGFuZCBs
-ZXQgcGFyZW50IHRvIGRlYWwgd2l0aCB0aGF0LgoKCj4KPj4KPj4+IEkgdGhpbmsgaXQgbWlnaHQg
-YmUgYmV0dGVyIHRvIGRvCj4+PiB0aGlzIGluIG9uZSBnZW5lcmljIHZob3N0LW1kZXYgbW9kdWxl
-Lgo+Pgo+PiBMb29raW5nIGF0IGRlZmluaXRpb25zIG9mIFZob3N0VXNlclJlcXVlc3QgaW4gcWVt
-dSwgaXQgbWl4ZWQgZ2VuZXJpYyBBUEkKPj4gd2l0aCBkZXZpY2Ugc3BlY2lmaWMgQVBJLiBJZiB3
-ZSB3YW50IGdvIHRoaXMgd2F5cyAoYSBnZW5lcmljIHZob3N0LW1kZXYpLAo+PiBtb3JlIHF1ZXN0
-aW9ucyBuZWVkcyB0byBiZSBhbnN3ZXJlZDoKPj4KPj4gMSkgSG93IGNvdWxkIHVzZXJzcGFjZSBr
-bm93IHdoaWNoIHR5cGUgb2Ygdmhvc3QgaXQgd291bGQgdXNlPyBEbyB3ZSBuZWVkIHRvCj4+IGV4
-cG9zZSB2aXJ0aW8gc3Vic3lzdGVtIGRldmljZSBpbiBmb3IgdXNlcnNwYWNlIHRoaXMgY2FzZT8K
-Pj4KPj4gMikgVGhhdCBnZW5lcmljIHZob3N0LW1kZXYgbW9kdWxlIHN0aWxsIG5lZWQgdG8gZmls
-dGVyIG91dCB1bnN1cHBvcnRlZAo+PiBpb2N0bHMgZm9yIGEgc3BlY2lmaWMgdHlwZS4gRS5nIGlm
-IGl0IHByb2JlcyBhIG5ldCBkZXZpY2UsIGl0IHNob3VsZCByZWZ1c2UKPj4gQVBJIGZvciBvdGhl
-ciB0eXBlLiBUaGlzIGluIGZhY3QgYSB2aG9zdC1tZGV2LW5ldCBidXQganVzdCBub3QgbW9kdWxh
-cml6ZSBpdAo+PiBvbiB0b3Agb2Ygdmhvc3QtbWRldi4KPj4KPj4KPj4+Pj4gLSBTb21lIG1pbm9y
-IGZpeGVzIGFuZCBpbXByb3ZlbWVudHM7Cj4+Pj4+IC0gUmViYXNlIG9uIHRvcCBvZiB2aXJ0aW8t
-bWRldiBzZXJpZXMgdjQ7Cj4gWy4uLl0KPj4+Pj4gKwo+Pj4+PiArc3RhdGljIGxvbmcgdmhvc3Rf
-bWRldl9nZXRfZmVhdHVyZXMoc3RydWN0IHZob3N0X21kZXYgKm0sIHU2NCBfX3VzZXIgKmZlYXR1
-cmVwKQo+Pj4+PiArewo+Pj4+PiArCWlmIChjb3B5X3RvX3VzZXIoZmVhdHVyZXAsICZtLT5mZWF0
-dXJlcywgc2l6ZW9mKG0tPmZlYXR1cmVzKSkpCj4+Pj4+ICsJCXJldHVybiAtRUZBVUxUOwo+Pj4+
-IEFzIGRpc2N1c3NlZCBpbiBwcmV2aW91cyB2ZXJzaW9uIGRvIHdlIG5lZWQgdG8gZmlsdGVyIG91
-dCBNUSBmZWF0dXJlIGhlcmU/Cj4+PiBJIHRoaW5rIGl0J3MgbW9yZSBzdHJhaWdodGZvcndhcmQg
-dG8gbGV0IHRoZSBwYXJlbnQgZHJpdmVycyB0bwo+Pj4gZmlsdGVyIG91dCB0aGUgdW5zdXBwb3J0
-ZWQgZmVhdHVyZXMuIE90aGVyd2lzZSBpdCB3b3VsZCBiZSB0cmlja3kKPj4+IHdoZW4gd2Ugd2Fu
-dCB0byBhZGQgbW9yZSBmZWF0dXJlcyBpbiB2aG9zdC1tZGV2IG1vZHVsZSwKPj4KPj4gSXQncyBh
-cyBzaW1wbGUgYXMgcmVtb3ZlIHRoZSBmZWF0dXJlIGZyb20gYmxhY2tsaXN0Pwo+IEl0J3Mgbm90
-IHJlYWxseSB0aGF0IGVhc3kuIEl0IG1heSBicmVhayB0aGUgb2xkIGRyaXZlcnMuCgoKSSdtIG5v
-dCBzdXJlIEkgdW5kZXJzdGFuZCBoZXJlLCB3ZSBkbyBmZWF0dXJlIG5lZ290aWF0aW9uIGFueWhv
-dy4gRm9yIApvbGQgZHJpdmVycyBkbyB5b3UgbWVhbiB0aGUgZ3Vlc3QgZHJpdmVycyB3aXRob3V0
-IE1RPwoKCj4KPj4KPj4+IGkuZS4gaWYKPj4+IHRoZSBwYXJlbnQgZHJpdmVycyBtYXkgZXhwb3Nl
-IHVuc3VwcG9ydGVkIGZlYXR1cmVzIGFuZCByZWxheSBvbgo+Pj4gdmhvc3QtbWRldiB0byBmaWx0
-ZXIgdGhlbSBvdXQsIHRoZXNlIGZlYXR1cmVzIHdpbGwgYmUgZXhwb3NlZAo+Pj4gdG8gdXNlcnNw
-YWNlIGF1dG9tYXRpY2FsbHkgd2hlbiB0aGV5IGFyZSBlbmFibGVkIGluIHZob3N0LW1kZXYKPj4+
-IGluIHRoZSBmdXR1cmUuCj4+Cj4+IFRoZSBpc3N1ZSBpcywgaXQncyBvbmx5IHRoYXQgdmhvc3Qt
-bWRldiBrbm93cyBpdHMgb3duIGxpbWl0YXRpb24uIEUuZyBpbgo+PiB0aGlzIHBhdGNoLCB2aG9z
-dC1tZGV2IG9ubHkgaW1wbGVtZW50cyBhIHN1YnNldCBvZiB0cmFuc3BvcnQgQVBJLCBidXQgcGFy
-ZW50Cj4+IGRvZXNuJ3Qga25vdyBhYm91dCB0aGF0Lgo+Pgo+PiBTdGlsbCBNUSBhcyBhbiBleGFt
-cGxlLCB0aGVyZSdzIG5vIHdheSAob3Igbm8gbmVlZCkgZm9yIHBhcmVudCB0byBrbm93IHRoYXQK
-Pj4gdmhvc3QtbWRldiBkb2VzIG5vdCBzdXBwb3J0IE1RLgo+IFRoZSBtZGV2IGlzIGEgTURFVl9D
-TEFTU19JRF9WSE9TVCBtZGV2IGRldmljZS4gV2hlbiB0aGUgcGFyZW50Cj4gaXMgYmVpbmcgZGV2
-ZWxvcGVkLCBpdCBzaG91bGQga25vdyB0aGUgY3VycmVudGx5IHN1cHBvcnRlZCBmZWF0dXJlcwo+
-IG9mIHZob3N0LW1kZXYuCgoKSG93IGNhbiBwYXJlbnQga25vdyBNUSBpcyBub3Qgc3VwcG9ydGVk
-IGJ5IHZob3N0LW1kZXY/CgoKPgo+PiBBbmQgdGhpcyBhbGxvd3Mgb2xkIGtlbnJlbCB0byB3b3Jr
-IHdpdGggbmV3Cj4+IHBhcmVudCBkcml2ZXJzLgo+IFRoZSBuZXcgZHJpdmVycyBzaG91bGQgcHJv
-dmlkZSB0aGluZ3MgbGlrZSBWSVJUSU9fTURFVl9GX1ZFUlNJT05fMQo+IHRvIGJlIGNvbXBhdGli
-bGUgd2l0aCB0aGUgb2xkIGtlcm5lbHMuIFdoZW4gVklSVElPX01ERVZfRl9WRVJTSU9OXzEKPiBp
-cyBwcm92aWRlZC9uZWdvdGlhdGVkLCB0aGUgYmVoYXZpb3VycyBzaG91bGQgYmUgY29uc2lzdGVu
-dC4KCgpUbyBiZSBjbGVhciwgSSBkaWRuJ3QgbWVhbiBhIGNoYW5nZSBpbiB2aXJ0aW8tbWRldiBB
-UEksIEkgbWVhbnQ6CgoxKSBvbGQgdmhvc3QtbWRldiBrZXJuZWwgZHJpdmVyIHRoYXQgZmlsdGVy
-cyBvdXQgTVEKCjIpIG5ldyBwYXJlbnQgZHJpdmVyIHRoYXQgc3VwcG9ydCBNUQoKCj4KPj4gU28g
-YmFzaWNhbGx5IHdlIGhhdmUgdGhyZWUgY2hvaWNlcyBoZXJlOgo+Pgo+PiAxKSBJbXBsZW1lbnQg
-d2hhdCB2aG9zdC11c2VyIGRpZCBhbmQgaW1wbGVtZW50IGEgZ2VuZXJpYyB2aG9zdC1tZGV2IChi
-dXQgbWF5Cj4+IHN0aWxsIGhhdmUgbG90cyBvZiBkZXZpY2Ugc3BlY2lmaWMgY29kZSkuIFRvIHN1
-cHBvcnQgYWR2YW5jZWQgZmVhdHVyZSB3aGljaAo+PiByZXF1aXJlcyB0aGUgYWNjZXNzIHRvIGNv
-bmZpZywgc3RpbGwgbG90cyBvZiBBUEkgdGhhdCBuZWVkcyB0byBiZSBhZGRlZC4KPj4KPj4gMikg
-SW1wbGVtZW50IHdoYXQgdmhvc3Qta2VybmVsIGRpZCwgaGF2ZSBhIGdlbmVyaWMgdmhvc3QtbWRl
-diBkcml2ZXIgYW5kIGEKPj4gdmhvc3QgYnVzIG9uIHRvcCBmb3IgbWF0Y2ggYSBkZXZpY2Ugc3Bl
-Y2lmaWMgQVBJIGUuZyB2aG9zdC1tZGV2LW5ldC4gV2UKPj4gc3RpbGwgaGF2ZSBkZXZpY2Ugc3Bl
-Y2lmaWMgQVBJIGJ1dCBsaW1pdCB0aGVtIG9ubHkgdG8gZGV2aWNlIHNwZWNpZmljCj4+IG1vZHVs
-ZS4gU3RpbGwgcmVxdWlyZSBuZXcgaW9jdGxzIGZvciBhZHZhbmNlZCBmZWF0dXJlIGxpa2UgTVEu
-Cj4+Cj4+IDMpIFNpbXBseSBleHBvc2UgYWxsIHZpcnRpby1tZGV2IHRyYW5zcG9ydCB0byB1c2Vy
-c3BhY2UuCj4gQ3VycmVudGx5LCB2aXJ0aW8tbWRldiB0cmFuc3BvcnQgaXMgYSBzZXQgb2YgZnVu
-Y3Rpb24gY2FsbGJhY2tzCj4gZGVmaW5lZCBpbiBrZXJuZWwuIEhvdyB0byBzaW1wbHkgZXhwb3Nl
-IHZpcnRpby1tZGV2IHRyYW5zcG9ydCB0bwo+IHVzZXJzcGFjZT8KCgpUaGUgbW9zdCBzdHJhaWdo
-dGZvcndhcmQgd2F5IGlzIHRvIGhhdmUgYW4gMToxIG1hcHBpbmcgYmV0d2VlbiBpb2N0bCBhbmQg
-CnZpcml0b19tZGV2X2RldmljZV9vcHMuCgpUaGFua3MKCgo+Cj4KPj4gQSBnZW5lcmljIG1vZHVs
-ZQo+PiB3aXRob3V0IGFueSB0eXBlIHNwZWNpZmljIGNvZGUgKGxpa2UgdmlydGlvLW1kZXYpLiBO
-byBuZWVkIGRlZGljYXRlZCBBUEkgZm9yCj4+IGUuZyBNUS4gQnV0IHRoZW4gdGhlIEFQSSB3aWxs
-IGxvb2sgbXVjaCBkaWZmZXJlbnQgdGhhbiBjdXJyZW50IHZob3N0IGRpZC4KPj4KPj4gQ29uc2lk
-ZXIgdGhlIGxpbWl0YXRpb24gb2YgMSkgSSB0ZW5kIHRvIGNob29zZSAyIG9yIDMuIFdoYXQncyB5
-b3Ugb3Bpbmlvbj8KPj4KPj4KCl9fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19f
-X19fX19fX19fClZpcnR1YWxpemF0aW9uIG1haWxpbmcgbGlzdApWaXJ0dWFsaXphdGlvbkBsaXN0
-cy5saW51eC1mb3VuZGF0aW9uLm9yZwpodHRwczovL2xpc3RzLmxpbnV4Zm91bmRhdGlvbi5vcmcv
-bWFpbG1hbi9saXN0aW5mby92aXJ0dWFsaXphdGlvbg==
+On Tue, Oct 22, 2019 at 6:46 PM Andrey Konovalov <andreyknvl@google.com> wrote:
+>
+> This patch adds kcov_remote_start()/kcov_remote_stop() annotations to the
+> vhost_worker() function, which is responsible for processing vhost works.
+> Since vhost_worker() threads are spawned per vhost device instance
+> the common kcov handle is used for kcov_remote_start()/stop() annotations
+> (see Documentation/dev-tools/kcov.rst for details). As the result kcov can
+> now be used to collect coverage from vhost worker threads.
+>
+> Signed-off-by: Andrey Konovalov <andreyknvl@google.com>
+> ---
+>  drivers/vhost/vhost.c | 6 ++++++
+>  drivers/vhost/vhost.h | 1 +
+>  2 files changed, 7 insertions(+)
+>
+> diff --git a/drivers/vhost/vhost.c b/drivers/vhost/vhost.c
+> index 36ca2cf419bf..a5a557c4b67f 100644
+> --- a/drivers/vhost/vhost.c
+> +++ b/drivers/vhost/vhost.c
+> @@ -30,6 +30,7 @@
+>  #include <linux/sched/signal.h>
+>  #include <linux/interval_tree_generic.h>
+>  #include <linux/nospec.h>
+> +#include <linux/kcov.h>
+>
+>  #include "vhost.h"
+>
+> @@ -357,7 +358,9 @@ static int vhost_worker(void *data)
+>                 llist_for_each_entry_safe(work, work_next, node, node) {
+>                         clear_bit(VHOST_WORK_QUEUED, &work->flags);
+>                         __set_current_state(TASK_RUNNING);
+> +                       kcov_remote_start(dev->kcov_handle);
+>                         work->fn(work);
+> +                       kcov_remote_stop();
+>                         if (need_resched())
+>                                 schedule();
+>                 }
+> @@ -546,6 +549,7 @@ long vhost_dev_set_owner(struct vhost_dev *dev)
+>
+>         /* No owner, become one */
+>         dev->mm = get_task_mm(current);
+> +       dev->kcov_handle = current->kcov_handle;
+
+kcov_handle is not present in task_struct if !CONFIG_KCOV
+
+Also this does not use KCOV_SUBSYSTEM_COMMON.
+We discussed something along the following lines:
+
+u64 kcov_remote_handle(u64 subsys, u64 id)
+{
+  WARN_ON(subsys or id has wrong bits set).
+  return ...;
+}
+
+kcov_remote_handle(KCOV_SUBSYSTEM_USB, bus);
+kcov_remote_handle(KCOV_SUBSYSTEM_COMMON, current->kcov_handle);
+
+
+>         worker = kthread_create(vhost_worker, dev, "vhost-%d", current->pid);
+>         if (IS_ERR(worker)) {
+>                 err = PTR_ERR(worker);
+> @@ -571,6 +575,7 @@ long vhost_dev_set_owner(struct vhost_dev *dev)
+>         if (dev->mm)
+>                 mmput(dev->mm);
+>         dev->mm = NULL;
+> +       dev->kcov_handle = 0;
+>  err_mm:
+>         return err;
+>  }
+> @@ -682,6 +687,7 @@ void vhost_dev_cleanup(struct vhost_dev *dev)
+>         if (dev->worker) {
+>                 kthread_stop(dev->worker);
+>                 dev->worker = NULL;
+> +               dev->kcov_handle = 0;
+>         }
+>         if (dev->mm)
+>                 mmput(dev->mm);
+> diff --git a/drivers/vhost/vhost.h b/drivers/vhost/vhost.h
+> index e9ed2722b633..a123fd70847e 100644
+> --- a/drivers/vhost/vhost.h
+> +++ b/drivers/vhost/vhost.h
+> @@ -173,6 +173,7 @@ struct vhost_dev {
+>         int iov_limit;
+>         int weight;
+>         int byte_weight;
+> +       u64 kcov_handle;
+>  };
+>
+>  bool vhost_exceeds_weight(struct vhost_virtqueue *vq, int pkts, int total_len);
+> --
+> 2.23.0.866.gb869b98d4c-goog
+>
