@@ -1,25 +1,11 @@
-From: David Hildenbrand <david@redhat.com>
-Subject: Re: [PATCH RFC v3 6/9] mm: Allow to offline PageOffline() pages with
-	a reference count of 0
-Date: Wed, 23 Oct 2019 12:03:51 +0200
-Message-ID: <ad2aef12-61ac-f019-90d1-59637255f9e3__16076.5757014573$1571825057$gmane$org@redhat.com>
-References: <20191016114321.GX317@dhcp22.suse.cz>
-	<36fef317-78e3-0500-43ba-f537f9a6fea4@redhat.com>
-	<20191016140350.GD317@dhcp22.suse.cz>
-	<7c7bef01-f904-904a-b0a7-f7b514b8bda8@redhat.com>
-	<20191018081524.GD5017@dhcp22.suse.cz>
-	<83d0a961-952d-21e4-74df-267912b7b6fa@redhat.com>
-	<20191018111843.GH5017@dhcp22.suse.cz>
-	<709d39aa-a7ba-97aa-e66b-e2fec2fdf3c4@redhat.com>
-	<20191022122326.GL9379@dhcp22.suse.cz>
-	<b4be42a4-cbfc-8706-cc94-26211ddcbe4a@redhat.com>
-	<20191023094345.GL754@dhcp22.suse.cz>
+From: Daniel Vetter <daniel.vetter@ffwll.ch>
+Subject: [PATCH] drm/simple-kms: Standardize arguments for callbacks
+Date: Wed, 23 Oct 2019 12:12:56 +0200
+Message-ID: <20191023101256.20509-1-daniel.vetter@ffwll.ch>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"; Format="flowed"
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset="utf-8"
+Content-Transfer-Encoding: base64
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <20191023094345.GL754@dhcp22.suse.cz>
-Content-Language: en-US
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -29,138 +15,81 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Michal Hocko <mhocko@kernel.org>
-Cc: Pingfan Liu <kernelfans@gmail.com>, virtualization@lists.linux-foundation.org, linux-mm@kvack.org, Alexander Potapenko <glider@google.com>, Mauro Carvalho Chehab <mchehab+samsung@kernel.org>, Alexander Duyck <alexander.h.duyck@linux.intel.com>, Ira Weiny <ira.weiny@intel.com>, Andrea Arcangeli <aarcange@redhat.com>, Stephen Rothwell <sfr@canb.auug.org.au>, Yu Zhao <yuzhao@google.com>, Matthew Wilcox <willy@infradead.org>, Jason Gunthorpe <jgg@ziepe.ca>, Anthony Yznaga <anthony.yznaga@oracle.com>, Pavel Tatashin <pavel.tatashin@microsoft.com>, Anshuman Khandual <anshuman.khandual@arm.com>, Mike Rapoport <rppt@linux.vnet.ibm.com>, Qian Cai <cai@lca.pw>, Andrey Ryabinin <aryabinin@virtuozzo.com>, Dan Williams <dan.j.williams@intel.com>, Vlastimil Babka <vbabka@suse.cz>, Oscar Salvador <osalvador@suse.de>, Juergen Gross <jgross@suse.com>, Yang Shi <yang.shi@linux.alibaba.c>
+To: DRI Development <dri-devel@lists.freedesktop.org>
+Cc: Daniel Vetter <daniel.vetter@ffwll.ch>, Intel Graphics Development <intel-gfx@lists.freedesktop.org>, virtualization@lists.linux-foundation.org, Eric Anholt <eric@anholt.net>, =?UTF-8?q?Noralf=20Tr=C3=B8nnes?= <noralf@tronnes.org>, Thomas Zimmermann <tzimmermann@suse.de>, Daniel Vetter <daniel.vetter@intel.com>, Linus Walleij <linus.walleij@linaro.org>, Emil Velikov <emil.velikov@collabora.com>
 List-Id: virtualization@lists.linuxfoundation.org
 
-On 23.10.19 11:43, Michal Hocko wrote:
-> On Tue 22-10-19 16:02:09, David Hildenbrand wrote:
-> [...]
->>>>> MEM_CANCEL_OFFLINE could gain the reference back to balance the
->>>>> MEM_GOING_OFFLINE step.
->>>>
->>>> The pages are already unisolated and could be used by the buddy. But again,
->>>> I think you have an idea that tries to avoid putting pages to the buddy.
->>>
->>> Yeah, set_page_count(page, 0) if you do not want to release that page
->>> from the notifier context to reflect that the page is ok to be offlined
->>> with the rest.
->>>    
->>
->> I neither see how you deal with __test_page_isolated_in_pageblock() nor with
->> __offline_isolated_pages(). Sorry, but what I read is incomplete and you
->> probably have a full proposal in your head. Please read below how I think
->> you want to solve it.
-> 
-> Yeah, sorry that I am throwing incomplete ideas at you. I am just trying
-> to really nail down how to deal with reference counting here because it
-> is an important aspect.
-
-I think we collected all the missing pieces now :) Thanks!
-
-[...]
-
->>
->> I was reading
->>
->> include/linux/mm_types.h:
->>
->> "If you want to use the refcount field, it must be used in such a way
->>   that other CPUs temporarily incrementing and then decrementing the
->>   refcount does not cause problems"
->>
->> And that made me think "anybody can go ahead and try get_page_unless_zero()".
->>
->> If I am missing something here and this can indeed not happen (e.g.,
->> because PageOffline() pages are never mapped to user space), then I'll
->> happily remove this code.
-> 
-> The point is that if the owner of the page is holding the only reference
-> to the page then it is clear that nothing like that's happened.
-
-Right, and I think the race I described won't happen in practice. Nobody 
-should be trying to do a get_page_unless_zero() on random pages that are 
-not even mapped to user space. I was (as so often) very careful :)
-
->> Let's recap what I suggest:
->>
->> "PageOffline() pages that have a reference count of 0 will be treated
->>   like free pages when offlining pages, allowing the containing memory
->>   block to get offlined. In case a driver wants to revive such a page, it
->>   has to synchronize against memory onlining/offlining (e.g., using memory
->>   notifiers) while incrementing the reference count. Also, a driver that
->>   relies in this feature is aware that re-onlining the memory will require
->>   to re-set the pages PageOffline() - e.g., via the online_page_callback_t."
-> 
-> OK
-> 
-> [...]
->> d) __put_page() is modified to not return pages to the buddy in any
->>     case as a safety net. We might be able to get rid of that.
-> 
-> I do not like exactly this part
-
-Yeah, and I think I can drop it from this patch.
-
->   
->> What I think you suggest:
->>
->> a) has_unmovable_pages() skips over all PageOffline() pages.
->>     This results in a lot of false negatives when trying to offline. Might be ok.
->>
->> b) The driver decrements the reference count of the PageOffline pages
->>     in MEM_GOING_OFFLINE.
-> 
-> Well, driver should make the page unreferenced or fail. What is done
-> really depends on the specific driver
-> 
->> c) The driver increments the reference count of the PageOffline pages
->>     in MEM_CANCEL_OFFLINE. One issue might be that the pages are no longer
->>     isolated once we get that call. Might be ok.
-> 
-> Only previous PageBuddy pages are returned to the allocator IIRC. Mostly
-> because of MovablePage()
-> 
->> d) How to make __test_page_isolated_in_pageblock() succeed?
->>     Like I propose in this patch (PageOffline() + refcount == 0)?
-> 
-> Yep
-> 
->> e) How to make __offline_isolated_pages() succeed?
->>     Like I propose in this patch (PageOffline() + refcount == 0)?
-> 
-> Simply skip over PageOffline pages. Reference count should never be != 0
-> at this stage.
-
-Right, that should be guaranteed by d). (as long as people play by the 
-rules) Same applies to my current patch.
-
->   
->> In summary, is what you suggest simply delaying setting the reference count to 0
->> in MEM_GOING_OFFLINE instead of right away when the driver unpluggs the pages?
-> 
-> Yes
-> 
->> What's the big benefit you see and I fail to see?
-> 
-> Aparat from no hooks into __put_page it is also an explicit control over
-> the page via reference counting. Do you see any downsides?
-
-The only downside I see is that we get more false negatives on 
-has_unmovable_pages(), eventually resulting in the offlining stage after 
-isolation to loop forever (as some PageOffline() pages are not movable 
-(especially, XEN balloon, HyperV balloon), there won't be progress).
-
-I somewhat don't like forcing everybody that uses PageOffline() 
-(especially all users of balloon compaction) to implement memory 
-notifiers just to avoid that. Maybe, we even want to use PageOffline() 
-in the future in the core (e.g., for memory holes instead of PG_reserved 
-or similar).
-
-Thanks!
-
--- 
-
-Thanks,
-
-David / dhildenb
+UGFzc2luZyB0aGUgd3JvbmcgdHlwZSBmZWVscyBpY2t5LCBldmVyeXdoZXJlIGVsc2Ugd2UgdXNl
+IHRoZSBwaXBlIGFzCnRoZSBmaXJzdCBwYXJhbWV0ZXIuIFNwb3R0ZWQgd2hpbGUgZGlzY3Vzc2lu
+ZyBwYXRjaGVzIHdpdGggVGhvbWFzClppbW1lcm1hbm4uCgp2MjogTWFrZSB4ZW4gY29tcGlsZSBj
+b3JyZWN0bHkKCkFja2VkLUJ5OiBUaG9tYXMgWmltbWVybWFubiA8dHppbW1lcm1hbm5Ac3VzZS5k
+ZT4gKHYxKQpDYzogVGhvbWFzIFppbW1lcm1hbm4gPHR6aW1tZXJtYW5uQHN1c2UuZGU+CkNjOiBO
+b3JhbGYgVHLDuG5uZXMgPG5vcmFsZkB0cm9ubmVzLm9yZz4KQ2M6IEdlcmQgSG9mZm1hbm4gPGty
+YXhlbEByZWRoYXQuY29tPgpDYzogRXJpYyBBbmhvbHQgPGVyaWNAYW5ob2x0Lm5ldD4KQ2M6IEVt
+aWwgVmVsaWtvdiA8ZW1pbC52ZWxpa292QGNvbGxhYm9yYS5jb20+CkNjOiB2aXJ0dWFsaXphdGlv
+bkBsaXN0cy5saW51eC1mb3VuZGF0aW9uLm9yZwpDYzogTGludXMgV2FsbGVpaiA8bGludXMud2Fs
+bGVpakBsaW5hcm8ub3JnPgpTaWduZWQtb2ZmLWJ5OiBEYW5pZWwgVmV0dGVyIDxkYW5pZWwudmV0
+dGVyQGludGVsLmNvbT4KLS0tCiBkcml2ZXJzL2dwdS9kcm0vY2lycnVzL2NpcnJ1cy5jICAgICAg
+ICAgfCAyICstCiBkcml2ZXJzL2dwdS9kcm0vZHJtX3NpbXBsZV9rbXNfaGVscGVyLmMgfCAyICst
+CiBkcml2ZXJzL2dwdS9kcm0vcGwxMTEvcGwxMTFfZGlzcGxheS5jICAgfCA0ICsrLS0KIGRyaXZl
+cnMvZ3B1L2RybS94ZW4veGVuX2RybV9mcm9udF9rbXMuYyB8IDcgKysrKy0tLQogaW5jbHVkZS9k
+cm0vZHJtX3NpbXBsZV9rbXNfaGVscGVyLmggICAgIHwgMiArLQogNSBmaWxlcyBjaGFuZ2VkLCA5
+IGluc2VydGlvbnMoKyksIDggZGVsZXRpb25zKC0pCgpkaWZmIC0tZ2l0IGEvZHJpdmVycy9ncHUv
+ZHJtL2NpcnJ1cy9jaXJydXMuYyBiL2RyaXZlcnMvZ3B1L2RybS9jaXJydXMvY2lycnVzLmMKaW5k
+ZXggN2QwOGQwNjdlMWE0Li4yNDhjOWY3NjVjNDUgMTAwNjQ0Ci0tLSBhL2RyaXZlcnMvZ3B1L2Ry
+bS9jaXJydXMvY2lycnVzLmMKKysrIGIvZHJpdmVycy9ncHUvZHJtL2NpcnJ1cy9jaXJydXMuYwpA
+QCAtMzkwLDcgKzM5MCw3IEBAIHN0YXRpYyBpbnQgY2lycnVzX2Nvbm5faW5pdChzdHJ1Y3QgY2ly
+cnVzX2RldmljZSAqY2lycnVzKQogLyogLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0t
+LS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tICovCiAvKiBjaXJydXMgKHNpbXBsZSkg
+ZGlzcGxheSBwaXBlCQkJCQkgICAgICAqLwogCi1zdGF0aWMgZW51bSBkcm1fbW9kZV9zdGF0dXMg
+Y2lycnVzX3BpcGVfbW9kZV92YWxpZChzdHJ1Y3QgZHJtX2NydGMgKmNydGMsCitzdGF0aWMgZW51
+bSBkcm1fbW9kZV9zdGF0dXMgY2lycnVzX3BpcGVfbW9kZV92YWxpZChzdHJ1Y3QgZHJtX3NpbXBs
+ZV9kaXNwbGF5X3BpcGUgKnBpcGUsCiAJCQkJCQkgICBjb25zdCBzdHJ1Y3QgZHJtX2Rpc3BsYXlf
+bW9kZSAqbW9kZSkKIHsKIAlpZiAoY2lycnVzX2NoZWNrX3NpemUobW9kZS0+aGRpc3BsYXksIG1v
+ZGUtPnZkaXNwbGF5LCBOVUxMKSA8IDApCmRpZmYgLS1naXQgYS9kcml2ZXJzL2dwdS9kcm0vZHJt
+X3NpbXBsZV9rbXNfaGVscGVyLmMgYi9kcml2ZXJzL2dwdS9kcm0vZHJtX3NpbXBsZV9rbXNfaGVs
+cGVyLmMKaW5kZXggMDQ2MDU1NzE5MjQ1Li4xNWZiNTE2YWUyZDggMTAwNjQ0Ci0tLSBhL2RyaXZl
+cnMvZ3B1L2RybS9kcm1fc2ltcGxlX2ttc19oZWxwZXIuYworKysgYi9kcml2ZXJzL2dwdS9kcm0v
+ZHJtX3NpbXBsZV9rbXNfaGVscGVyLmMKQEAgLTQzLDcgKzQzLDcgQEAgZHJtX3NpbXBsZV9rbXNf
+Y3J0Y19tb2RlX3ZhbGlkKHN0cnVjdCBkcm1fY3J0YyAqY3J0YywKIAkJLyogQW55dGhpbmcgZ29l
+cyAqLwogCQlyZXR1cm4gTU9ERV9PSzsKIAotCXJldHVybiBwaXBlLT5mdW5jcy0+bW9kZV92YWxp
+ZChjcnRjLCBtb2RlKTsKKwlyZXR1cm4gcGlwZS0+ZnVuY3MtPm1vZGVfdmFsaWQocGlwZSwgbW9k
+ZSk7CiB9CiAKIHN0YXRpYyBpbnQgZHJtX3NpbXBsZV9rbXNfY3J0Y19jaGVjayhzdHJ1Y3QgZHJt
+X2NydGMgKmNydGMsCmRpZmYgLS1naXQgYS9kcml2ZXJzL2dwdS9kcm0vcGwxMTEvcGwxMTFfZGlz
+cGxheS5jIGIvZHJpdmVycy9ncHUvZHJtL3BsMTExL3BsMTExX2Rpc3BsYXkuYwppbmRleCAwMjQ3
+NzFhNDA4M2UuLjcwM2RkYzgwM2M1NSAxMDA2NDQKLS0tIGEvZHJpdmVycy9ncHUvZHJtL3BsMTEx
+L3BsMTExX2Rpc3BsYXkuYworKysgYi9kcml2ZXJzL2dwdS9kcm0vcGwxMTEvcGwxMTFfZGlzcGxh
+eS5jCkBAIC00OCwxMCArNDgsMTAgQEAgaXJxcmV0dXJuX3QgcGwxMTFfaXJxKGludCBpcnEsIHZv
+aWQgKmRhdGEpCiB9CiAKIHN0YXRpYyBlbnVtIGRybV9tb2RlX3N0YXR1cwotcGwxMTFfbW9kZV92
+YWxpZChzdHJ1Y3QgZHJtX2NydGMgKmNydGMsCitwbDExMV9tb2RlX3ZhbGlkKHN0cnVjdCBkcm1f
+c2ltcGxlX2Rpc3BsYXlfcGlwZSAqcGlwZSwKIAkJIGNvbnN0IHN0cnVjdCBkcm1fZGlzcGxheV9t
+b2RlICptb2RlKQogewotCXN0cnVjdCBkcm1fZGV2aWNlICpkcm0gPSBjcnRjLT5kZXY7CisJc3Ry
+dWN0IGRybV9kZXZpY2UgKmRybSA9IHBpcGUtPmNydGMuZGV2OwogCXN0cnVjdCBwbDExMV9kcm1f
+ZGV2X3ByaXZhdGUgKnByaXYgPSBkcm0tPmRldl9wcml2YXRlOwogCXUzMiBjcHAgPSBwcml2LT52
+YXJpYW50LT5mYl9icHAgLyA4OwogCXU2NCBidzsKZGlmZiAtLWdpdCBhL2RyaXZlcnMvZ3B1L2Ry
+bS94ZW4veGVuX2RybV9mcm9udF9rbXMuYyBiL2RyaXZlcnMvZ3B1L2RybS94ZW4veGVuX2RybV9m
+cm9udF9rbXMuYwppbmRleCAyMWFkMWMzNTliNjEuLmZmNTA2YmM5OTQxNCAxMDA2NDQKLS0tIGEv
+ZHJpdmVycy9ncHUvZHJtL3hlbi94ZW5fZHJtX2Zyb250X2ttcy5jCisrKyBiL2RyaXZlcnMvZ3B1
+L2RybS94ZW4veGVuX2RybV9mcm9udF9rbXMuYwpAQCAtMjcwLDExICsyNzAsMTIgQEAgc3RhdGlj
+IHZvaWQgZGlzcGxheV91cGRhdGUoc3RydWN0IGRybV9zaW1wbGVfZGlzcGxheV9waXBlICpwaXBl
+LAogfQogCiBzdGF0aWMgZW51bSBkcm1fbW9kZV9zdGF0dXMKLWRpc3BsYXlfbW9kZV92YWxpZChz
+dHJ1Y3QgZHJtX2NydGMgKmNydGMsIGNvbnN0IHN0cnVjdCBkcm1fZGlzcGxheV9tb2RlICptb2Rl
+KQorZGlzcGxheV9tb2RlX3ZhbGlkKHN0cnVjdCBkcm1fc2ltcGxlX2Rpc3BsYXlfcGlwZSAqcGlw
+ZSwKKwkJICAgY29uc3Qgc3RydWN0IGRybV9kaXNwbGF5X21vZGUgKm1vZGUpCiB7CiAJc3RydWN0
+IHhlbl9kcm1fZnJvbnRfZHJtX3BpcGVsaW5lICpwaXBlbGluZSA9Ci0JCQljb250YWluZXJfb2Yo
+Y3J0Yywgc3RydWN0IHhlbl9kcm1fZnJvbnRfZHJtX3BpcGVsaW5lLAotCQkJCSAgICAgcGlwZS5j
+cnRjKTsKKwkJCWNvbnRhaW5lcl9vZihwaXBlLCBzdHJ1Y3QgeGVuX2RybV9mcm9udF9kcm1fcGlw
+ZWxpbmUsCisJCQkJICAgICBwaXBlKTsKIAogCWlmIChtb2RlLT5oZGlzcGxheSAhPSBwaXBlbGlu
+ZS0+d2lkdGgpCiAJCXJldHVybiBNT0RFX0VSUk9SOwpkaWZmIC0tZ2l0IGEvaW5jbHVkZS9kcm0v
+ZHJtX3NpbXBsZV9rbXNfaGVscGVyLmggYi9pbmNsdWRlL2RybS9kcm1fc2ltcGxlX2ttc19oZWxw
+ZXIuaAppbmRleCA0ZDg5Y2QwYTYwZGIuLjE1YWZlZTljZjA0OSAxMDA2NDQKLS0tIGEvaW5jbHVk
+ZS9kcm0vZHJtX3NpbXBsZV9rbXNfaGVscGVyLmgKKysrIGIvaW5jbHVkZS9kcm0vZHJtX3NpbXBs
+ZV9rbXNfaGVscGVyLmgKQEAgLTQ5LDcgKzQ5LDcgQEAgc3RydWN0IGRybV9zaW1wbGVfZGlzcGxh
+eV9waXBlX2Z1bmNzIHsKIAkgKgogCSAqIGRybV9tb2RlX3N0YXR1cyBFbnVtCiAJICovCi0JZW51
+bSBkcm1fbW9kZV9zdGF0dXMgKCptb2RlX3ZhbGlkKShzdHJ1Y3QgZHJtX2NydGMgKmNydGMsCisJ
+ZW51bSBkcm1fbW9kZV9zdGF0dXMgKCptb2RlX3ZhbGlkKShzdHJ1Y3QgZHJtX3NpbXBsZV9kaXNw
+bGF5X3BpcGUgKnBpcGUsCiAJCQkJCSAgIGNvbnN0IHN0cnVjdCBkcm1fZGlzcGxheV9tb2RlICpt
+b2RlKTsKIAogCS8qKgotLSAKMi4yMy4wCgpfX19fX19fX19fX19fX19fX19fX19fX19fX19fX19f
+X19fX19fX19fX19fX19fXwpWaXJ0dWFsaXphdGlvbiBtYWlsaW5nIGxpc3QKVmlydHVhbGl6YXRp
+b25AbGlzdHMubGludXgtZm91bmRhdGlvbi5vcmcKaHR0cHM6Ly9saXN0cy5saW51eGZvdW5kYXRp
+b24ub3JnL21haWxtYW4vbGlzdGluZm8vdmlydHVhbGl6YXRpb24=
