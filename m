@@ -1,13 +1,14 @@
-From: Jason Wang <jasowang@redhat.com>
-Subject: [PATCH V5 2/6] modpost: add support for mdev class id
-Date: Wed, 23 Oct 2019 21:07:48 +0800
-Message-ID: <20191023130752.18980-3-jasowang__4897.25824897818$1571836620$gmane$org@redhat.com>
-References: <20191023130752.18980-1-jasowang@redhat.com>
+From: Jani Nikula <jani.nikula@linux.intel.com>
+Subject: Re: [PATCH] drm/virtio: print a single line with device features
+Date: Wed, 23 Oct 2019 16:18:06 +0300
+Message-ID: <87mudreh2p.fsf__8962.72483966953$1571836710$gmane$org@intel.com>
+References: <20191018113832.5460-1-kraxel@redhat.com>
+	<20191022090533.GB11828@phenom.ffwll.local>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <20191023130752.18980-1-jasowang@redhat.com>
+In-Reply-To: <20191022090533.GB11828@phenom.ffwll.local>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -17,73 +18,50 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: kvm@vger.kernel.org, linux-s390@vger.kernel.org, linux-kernel@vger.kernel.org, dri-devel@lists.freedesktop.org, intel-gfx@lists.freedesktop.org, intel-gvt-dev@lists.freedesktop.org, kwankhede@nvidia.com, alex.williamson@redhat.com, mst@redhat.com, tiwei.bie@intel.com
-Cc: christophe.de.dinechin@gmail.com, sebott@linux.ibm.com, airlied@linux.ie, joonas.lahtinen@linux.intel.com, heiko.carstens@de.ibm.com, virtualization@lists.linux-foundation.org, rob.miller@broadcom.com, lulu@redhat.com, eperezma@redhat.com, pasic@linux.ibm.com, borntraeger@de.ibm.com, haotian.wang@sifive.com, zhi.a.wang@intel.com, farman@linux.ibm.com, idos@mellanox.com, gor@linux.ibm.com, zhenyuw@linux.intel.com, rodrigo.vivi@intel.com, xiao.w.wang@intel.com, freude@linux.ibm.com, jani.nikula@linux.intel.com, parav@mellanox.com, zhihong.wang@intel.com, stefanha@redhat.com, akrowiak@linux.ibm.com, netdev@vger.kernel.org, cohuck@redhat.com, oberpar@linux.ibm.com, maxime.coquelin@redhat.com, daniel@ffwll.ch, lingshan.zhu@intel.com
+To: Daniel Vetter <daniel@ffwll.ch>, Gerd Hoffmann <kraxel@redhat.com>
+Cc: David Airlie <airlied@linux.ie>, open list <linux-kernel@vger.kernel.org>, dri-devel@lists.freedesktop.org, "open list:VIRTIO GPU DRIVER" <virtualization@lists.linux-foundation.org>
 List-Id: virtualization@lists.linuxfoundation.org
 
-Add support to parse mdev class id table.
+On Tue, 22 Oct 2019, Daniel Vetter <daniel@ffwll.ch> wrote:
+> On Fri, Oct 18, 2019 at 01:38:32PM +0200, Gerd Hoffmann wrote:
+>> Signed-off-by: Gerd Hoffmann <kraxel@redhat.com>
+>> ---
+>>  drivers/gpu/drm/virtio/virtgpu_kms.c | 9 ++++-----
+>>  1 file changed, 4 insertions(+), 5 deletions(-)
+>> 
+>> diff --git a/drivers/gpu/drm/virtio/virtgpu_kms.c b/drivers/gpu/drm/virtio/virtgpu_kms.c
+>> index 0b3cdb0d83b0..2f5773e43557 100644
+>> --- a/drivers/gpu/drm/virtio/virtgpu_kms.c
+>> +++ b/drivers/gpu/drm/virtio/virtgpu_kms.c
+>> @@ -155,16 +155,15 @@ int virtio_gpu_init(struct drm_device *dev)
+>>  #ifdef __LITTLE_ENDIAN
+>>  	if (virtio_has_feature(vgdev->vdev, VIRTIO_GPU_F_VIRGL))
+>>  		vgdev->has_virgl_3d = true;
+>> -	DRM_INFO("virgl 3d acceleration %s\n",
+>> -		 vgdev->has_virgl_3d ? "enabled" : "not supported by host");
+>> -#else
+>> -	DRM_INFO("virgl 3d acceleration not supported by guest\n");
+>>  #endif
+>>  	if (virtio_has_feature(vgdev->vdev, VIRTIO_GPU_F_EDID)) {
+>>  		vgdev->has_edid = true;
+>> -		DRM_INFO("EDID support available.\n");
+>>  	}
+>>  
+>> +	DRM_INFO("features: %cvirgl %cedid\n",
+>> +		 vgdev->has_virgl_3d ? '+' : '-',
+>> +		 vgdev->has_edid     ? '+' : '-');
+>
+> Maybe we should move the various yesno/onoff/enableddisabled helpers from
+> i915_utils.h to drm_utils.h and use them more widely?
 
-Reviewed-by: Parav Pandit <parav@mellanox.com>
-Signed-off-by: Jason Wang <jasowang@redhat.com>
----
- drivers/vfio/mdev/vfio_mdev.c     |  2 ++
- scripts/mod/devicetable-offsets.c |  3 +++
- scripts/mod/file2alias.c          | 10 ++++++++++
- 3 files changed, 15 insertions(+)
+I'm trying to take it one step further by adding them to
+include/linux/string-choice.h [1]. Maybe, uh, fourth time's the charm?
 
-diff --git a/drivers/vfio/mdev/vfio_mdev.c b/drivers/vfio/mdev/vfio_mdev.c
-index 7b24ee9cb8dd..cb701cd646f0 100644
---- a/drivers/vfio/mdev/vfio_mdev.c
-+++ b/drivers/vfio/mdev/vfio_mdev.c
-@@ -125,6 +125,8 @@ static const struct mdev_class_id id_table[] = {
- 	{ 0 },
- };
- 
-+MODULE_DEVICE_TABLE(mdev, id_table);
-+
- static struct mdev_driver vfio_mdev_driver = {
- 	.name	= "vfio_mdev",
- 	.probe	= vfio_mdev_probe,
-diff --git a/scripts/mod/devicetable-offsets.c b/scripts/mod/devicetable-offsets.c
-index 054405b90ba4..6cbb1062488a 100644
---- a/scripts/mod/devicetable-offsets.c
-+++ b/scripts/mod/devicetable-offsets.c
-@@ -231,5 +231,8 @@ int main(void)
- 	DEVID(wmi_device_id);
- 	DEVID_FIELD(wmi_device_id, guid_string);
- 
-+	DEVID(mdev_class_id);
-+	DEVID_FIELD(mdev_class_id, id);
-+
- 	return 0;
- }
-diff --git a/scripts/mod/file2alias.c b/scripts/mod/file2alias.c
-index c91eba751804..d365dfe7c718 100644
---- a/scripts/mod/file2alias.c
-+++ b/scripts/mod/file2alias.c
-@@ -1335,6 +1335,15 @@ static int do_wmi_entry(const char *filename, void *symval, char *alias)
- 	return 1;
- }
- 
-+/* looks like: "mdev:cN" */
-+static int do_mdev_entry(const char *filename, void *symval, char *alias)
-+{
-+	DEF_FIELD(symval, mdev_class_id, id);
-+
-+	sprintf(alias, "mdev:c%02X", id);
-+	return 1;
-+}
-+
- /* Does namelen bytes of name exactly match the symbol? */
- static bool sym_is(const char *name, unsigned namelen, const char *symbol)
- {
-@@ -1407,6 +1416,7 @@ static const struct devtable devtable[] = {
- 	{"typec", SIZE_typec_device_id, do_typec_entry},
- 	{"tee", SIZE_tee_client_device_id, do_tee_entry},
- 	{"wmi", SIZE_wmi_device_id, do_wmi_entry},
-+	{"mdev", SIZE_mdev_class_id, do_mdev_entry},
- };
- 
- /* Create MODULE_ALIAS() statements.
+BR,
+Jani.
+
+[1] http://lore.kernel.org/r/20191023131308.9420-1-jani.nikula@intel.com
+
+
 -- 
-2.19.1
+Jani Nikula, Intel Open Source Graphics Center
