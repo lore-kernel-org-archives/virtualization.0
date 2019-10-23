@@ -1,21 +1,14 @@
-From: Jason Wang <jasowang@redhat.com>
-Subject: Re: [RFC 2/2] vhost: IFC VF vdpa layer
-Date: Wed, 23 Oct 2019 14:39:15 +0800
-Message-ID: <02d44f0a-687f-ed87-518b-7a4d3e83c5d3__33435.9964168229$1571812787$gmane$org@redhat.com>
-References: <20191016013050.3918-1-lingshan.zhu@intel.com>
-	<20191016013050.3918-3-lingshan.zhu@intel.com>
-	<9495331d-3c65-6f49-dcd9-bfdb17054cf0@redhat.com>
-	<f65358e9-6728-8260-74f7-176d7511e989@intel.com>
-	<1cae60b6-938d-e2df-2dca-fbf545f06853@redhat.com>
-	<ddf412c6-69e2-b3ca-d0c8-75de1db78ed9@linux.intel.com>
-	<b2adaab0-bbc3-b7f0-77da-e1e3cab93b76@redhat.com>
-	<6588d9f4-f357-ec78-16a4-ccaf0e3768e7@intel.com>
+From: Thomas Zimmermann <tzimmermann@suse.de>
+Subject: Re: [PATCH] drm/simple-kms: Standardize arguments for callbacks
+Date: Wed, 23 Oct 2019 08:47:57 +0200
+Message-ID: <64a4e824-f730-2ac4-0b02-4ead2bce4b69__3913.81360111467$1571813296$gmane$org@suse.de>
+References: <20191022155536.27939-1-daniel.vetter@ffwll.ch>
+	<56867554-5169-e249-8e55-043d07be3e99@suse.de>
+	<CAKMK7uHo2L8m+VT1vSMjOdScJmuSQP032HyAFj_aYiCJu+gaRQ@mail.gmail.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="utf-8"; Format="flowed"
-Content-Transfer-Encoding: base64
+Content-Type: multipart/mixed; boundary="===============4008987601348081600=="
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <6588d9f4-f357-ec78-16a4-ccaf0e3768e7@intel.com>
-Content-Language: en-US
+In-Reply-To: <CAKMK7uHo2L8m+VT1vSMjOdScJmuSQP032HyAFj_aYiCJu+gaRQ@mail.gmail.com>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -25,47 +18,265 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: "Zhu, Lingshan" <lingshan.zhu@intel.com>, Zhu Lingshan <lingshan.zhu@linux.intel.com>, mst@redhat.com, alex.williamson@redhat.com
-Cc: kvm@vger.kernel.org, netdev@vger.kernel.org, linux-kernel@vger.kernel.org, virtualization@lists.linux-foundation.org, zhiyuan.lv@intel.com, jason.zeng@intel.com
+To: Daniel Vetter <daniel.vetter@ffwll.ch>
+Cc: Daniel Vetter <daniel.vetter@intel.com>, Emil Velikov <emil.velikov@collabora.com>, DRI Development <dri-devel@lists.freedesktop.org>, "open list:VIRTIO CORE,
+	NET..." <virtualization@lists.linux-foundation.org>
 List-Id: virtualization@lists.linuxfoundation.org
 
-Ck9uIDIwMTkvMTAvMjMg5LiL5Y2IMjoxOSwgWmh1LCBMaW5nc2hhbiB3cm90ZToKPgo+IE9uIDEw
-LzIyLzIwMTkgOTowNSBQTSwgSmFzb24gV2FuZyB3cm90ZToKPj4KPj4gT24gMjAxOS8xMC8yMiDk
-uIvljYgyOjUzLCBaaHUgTGluZ3NoYW4gd3JvdGU6Cj4+Pgo+Pj4gT24gMTAvMjEvMjAxOSA2OjE5
-IFBNLCBKYXNvbiBXYW5nIHdyb3RlOgo+Pj4+Cj4+Pj4gT24gMjAxOS8xMC8yMSDkuIvljYg1OjUz
-LCBaaHUsIExpbmdzaGFuIHdyb3RlOgo+Pj4+Pgo+Pj4+PiBPbiAxMC8xNi8yMDE5IDY6MTkgUE0s
-IEphc29uIFdhbmcgd3JvdGU6Cj4+Pj4+Pgo+Pj4+Pj4gT24gMjAxOS8xMC8xNiDkuIrljYg5OjMw
-LCBaaHUgTGluZ3NoYW4gd3JvdGU6Cj4+Pj4+Pj4gVGhpcyBjb21taXQgaW50cm9kdWNlZCBJRkMg
-VkYgb3BlcmF0aW9ucyBmb3IgdmRwYSwgd2hpY2ggY29tcGx5cyB0bwo+Pj4+Pj4+IHZob3N0X21k
-ZXYgaW50ZXJmYWNlcywgaGFuZGxlcyBJRkMgVkYgaW5pdGlhbGl6YXRpb24sCj4+Pj4+Pj4gY29u
-ZmlndXJhdGlvbiBhbmQgcmVtb3ZhbC4KPj4+Pj4+Pgo+Pj4+Pj4+IFNpZ25lZC1vZmYtYnk6IFpo
-dSBMaW5nc2hhbiA8bGluZ3NoYW4uemh1QGludGVsLmNvbT4KPj4+Pj4+PiAtLS0KPj4KPj4KPj4g
-Wy4uLl0KPj4KPj4KPj4+Pgo+Pj4+Cj4+Pj4+Cj4+Pj4+Pgo+Pj4+Pj4KPj4+Pj4+PiArfQo+Pj4+
-Pj4+ICsKPj4+Pj4+PiArc3RhdGljIGludCBpZmN2Zl9tZGV2X3NldF9mZWF0dXJlcyhzdHJ1Y3Qg
-bWRldl9kZXZpY2UgKm1kZXYsIAo+Pj4+Pj4+IHU2NCBmZWF0dXJlcykKPj4+Pj4+PiArewo+Pj4+
-Pj4+ICvCoMKgwqAgc3RydWN0IGlmY3ZmX2FkYXB0ZXIgKmFkYXB0ZXIgPSBtZGV2X2dldF9kcnZk
-YXRhKG1kZXYpOwo+Pj4+Pj4+ICvCoMKgwqAgc3RydWN0IGlmY3ZmX2h3ICp2ZiA9IElGQ19QUklW
-QVRFX1RPX1ZGKGFkYXB0ZXIpOwo+Pj4+Pj4+ICsKPj4+Pj4+PiArwqDCoMKgIHZmLT5yZXFfZmVh
-dHVyZXMgPSBmZWF0dXJlczsKPj4+Pj4+PiArCj4+Pj4+Pj4gK8KgwqDCoCByZXR1cm4gMDsKPj4+
-Pj4+PiArfQo+Pj4+Pj4+ICsKPj4+Pj4+PiArc3RhdGljIHU2NCBpZmN2Zl9tZGV2X2dldF92cV9z
-dGF0ZShzdHJ1Y3QgbWRldl9kZXZpY2UgKm1kZXYsIAo+Pj4+Pj4+IHUxNiBxaWQpCj4+Pj4+Pj4g
-K3sKPj4+Pj4+PiArwqDCoMKgIHN0cnVjdCBpZmN2Zl9hZGFwdGVyICphZGFwdGVyID0gbWRldl9n
-ZXRfZHJ2ZGF0YShtZGV2KTsKPj4+Pj4+PiArwqDCoMKgIHN0cnVjdCBpZmN2Zl9odyAqdmYgPSBJ
-RkNfUFJJVkFURV9UT19WRihhZGFwdGVyKTsKPj4+Pj4+PiArCj4+Pj4+Pj4gK8KgwqDCoCByZXR1
-cm4gdmYtPnZyaW5nW3FpZF0ubGFzdF9hdmFpbF9pZHg7Cj4+Pj4+Pgo+Pj4+Pj4KPj4+Pj4+IERv
-ZXMgdGhpcyByZWFsbHkgd29yaz8gSSdkIGV4cGVjdCBpdCBzaG91bGQgYmUgZmV0Y2hlZCBmcm9t
-IGh3IAo+Pj4+Pj4gc2luY2UgaXQncyBhbiBpbnRlcm5hbCBzdGF0ZS4KPj4+Pj4gZm9yIG5vdywg
-aXQncyB3b3JraW5nLCB3ZSBpbnRlbmQgdG8gc3VwcG9ydCBMTSBpbiBuZXh0IHZlcnNpb24gCj4+
-Pj4+IGRyaXZlcnMuCj4+Pj4KPj4+Pgo+Pj4+IEknbSBub3Qgc3VyZSBJIHVuZGVyc3RhbmQgaGVy
-ZSwgSSBkb24ndCBzZWUgYW55IHN5bmNocm9uaXphdGlvbiAKPj4+PiBiZXR3ZWVuIHRoZSBoYXJk
-d2FyZSBhbmQgbGFzdF9hdmFpbF9pZHgsIHNvIGxhc3RfYXZhaWxfaWR4IHNob3VsZCAKPj4+PiBu
-b3QgY2hhbmdlLgo+Pj4+Cj4+Pj4gQnR3LCB3aGF0IGRpZCAiTE0iIG1lYW4gOikgPwo+Pj4KPj4+
-IEkgY2FuIGFkZCBiYXIgSU8gb3BlcmF0aW9ucyBoZXJlLCBMTSA9IGxpdmUgbWlncmF0aW9uLCBz
-b3JyeSBmb3IgdGhlIAo+Pj4gYWJicmV2aWF0aW9uLgo+Pgo+Pgo+PiBKdXN0IG1ha2Ugc3VyZSBJ
-IHVuZGVyc3RhbmQgaGVyZSwgSSBiZWxpZXZlIHlvdSBtZWFuIHJlYWRpbmcgCj4+IGxhc3RfYXZh
-aWxfaWR4IHRocm91Z2ggSU8gYmFyIGhlcmU/Cj4+Cj4+IFRoYW5rcwo+Cj4gSGkgSmFzb24sCj4K
-PiBZZXMsIEkgbWVhbiBsYXN0X2F2YWlsX2lkeC4gaXMgdGhhdCBjb3JyZWN0Pwo+Cj4gVEhhbmtz
-CgoKWWVzLgoKVGhhbmtzCgoKPgo+Pgo+PgoKX19fX19fX19fX19fX19fX19fX19fX19fX19fX19f
-X19fX19fX19fX19fX19fX18KVmlydHVhbGl6YXRpb24gbWFpbGluZyBsaXN0ClZpcnR1YWxpemF0
-aW9uQGxpc3RzLmxpbnV4LWZvdW5kYXRpb24ub3JnCmh0dHBzOi8vbGlzdHMubGludXhmb3VuZGF0
-aW9uLm9yZy9tYWlsbWFuL2xpc3RpbmZvL3ZpcnR1YWxpemF0aW9u
+This is an OpenPGP/MIME signed message (RFC 4880 and 3156)
+--===============4008987601348081600==
+Content-Type: multipart/signed; micalg=pgp-sha256;
+ protocol="application/pgp-signature";
+ boundary="3738eZazcuctdTVEnimlhMqC7srKkdmvs"
+
+This is an OpenPGP/MIME signed message (RFC 4880 and 3156)
+--3738eZazcuctdTVEnimlhMqC7srKkdmvs
+Content-Type: multipart/mixed; boundary="IDpWwrnJOX80L69oW7hJJsPBaVOSySCT3";
+ protected-headers="v1"
+From: Thomas Zimmermann <tzimmermann@suse.de>
+To: Daniel Vetter <daniel.vetter@ffwll.ch>
+Cc: DRI Development <dri-devel@lists.freedesktop.org>,
+ "open list:VIRTIO CORE, NET..." <virtualization@lists.linux-foundation.org>,
+ Gerd Hoffmann <kraxel@redhat.com>, Daniel Vetter <daniel.vetter@intel.com>,
+ Emil Velikov <emil.velikov@collabora.com>
+Message-ID: <64a4e824-f730-2ac4-0b02-4ead2bce4b69@suse.de>
+Subject: Re: [PATCH] drm/simple-kms: Standardize arguments for callbacks
+References: <20191022155536.27939-1-daniel.vetter@ffwll.ch>
+ <56867554-5169-e249-8e55-043d07be3e99@suse.de>
+ <CAKMK7uHo2L8m+VT1vSMjOdScJmuSQP032HyAFj_aYiCJu+gaRQ@mail.gmail.com>
+In-Reply-To: <CAKMK7uHo2L8m+VT1vSMjOdScJmuSQP032HyAFj_aYiCJu+gaRQ@mail.gmail.com>
+
+--IDpWwrnJOX80L69oW7hJJsPBaVOSySCT3
+Content-Type: text/plain; charset=utf-8
+Content-Language: en-US
+Content-Transfer-Encoding: quoted-printable
+
+Hi
+
+Am 22.10.19 um 21:03 schrieb Daniel Vetter:
+> On Tue, Oct 22, 2019 at 7:16 PM Thomas Zimmermann <tzimmermann@suse.de>=
+ wrote:
+>>
+>> Hi,
+>>
+>> there are two types of callbacks in struct
+>> drm_simple_display_pipe_funcs: functions that are genuine to simple KM=
+S,
+>> and functions that are merely forwarded from another structure (crtc,
+>> plane, etc).
+>>
+>> In the former category are enable(), disable(), check(), and update().=
+
+>> Those should probably receive a simple display pipe as their first arg=
+ument.
+>=20
+> mode_valid _very_ much belongs to this category too, since there's
+> mode_valid hooks also on other objects. But simple pipe helper
+> condenses that down to one mode_valid hook (we could also put the
+> mode_valid onto encoder, wouldn't change anything).
+>=20
+>> In the latter category are mode_valid(), prepare_fb(), cleanup_fb(),
+>> enable_vblank(), and disable_vblank(). IMHO those functions should
+>> receive a pointer to the original structure as their first argument.
+>> This type provides the context in which the operations make sense. (Ev=
+en
+>> their documentation already refers to the original structure.)
+>=20
+> Now on those you can maybe make a case that they only exist in one
+> object. But the entire point of simple helpers was to condense the zoo
+> of drm types down to one. Only reason you don't also get a
+> drm_simple_display_pipe_state is that this one would be a bit more
+> work to make work correctly. If we full on leak all the underlying
+> objects, then you might as well set them up yourself and set up all
+> the hooks, it's just a few more lines of code.
+>=20
+> Imo for simple pipe we should go more into that direction, not less.
+>=20
+>> I admit that not all are as shareable as prepare_fb() and enable_fb().=
+
+>> But what else than boiler-plate wrappers do we get from simple display=
+
+>> pipe here?
+>=20
+> Boiler plate wrappers is pretty much the entire point of simple pipe
+> helpers. Anytime you're interested in the things it abstracts away
+> (crtc, plane, encoder) you probably want your own atomic
+> implementation.
+
+I was speaking of boiler-plate code in drivers and other helpers (e.g.,
+drm_gem_fb_simple_display_pipe_prepare_fb() )
+
+TBH I don't think it is possible to build and use simple pipe without
+exposing the underlying primitives (crtc, plane, connector). This would
+require a completely separate set of atomic helpers. IMHO the current
+simple pipe is a mid-layer and comes with typical mid-layer problems.
+
+Anyway, given your rational for the current design, I'll update my
+recent patches for prepare_fb() to support simple pipe.
+
+For this patch
+
+  Acked-By: Thomas Zimmermann <tzimmermann@suse.de>
+
+Best regards
+Thomas
+
+> conversion is a good fit, it's not meant to be useful for all small
+> drivers. Only for the _really_ simple ones.
+>=20
+> Otherwise if we readd all the bells and whistles to simple pipe
+> helpers, then we just end back where we started. That's also why I
+> personally think explicit simple wrappers would fit better, instead of
+> wrestling the prepare/cleanup_fb functions to match full atomic
+> helpers.
+> -Daniel
+>=20
+>>
+>> Best regards
+>> Thomas
+>>
+>> Am 22.10.19 um 17:55 schrieb Daniel Vetter:
+>>> Passing the wrong type feels icky, everywhere else we use the pipe as=
+
+>>> the first parameter. Spotted while discussing patches with Thomas
+>>> Zimmermann.
+>>>
+>>> Cc: Thomas Zimmermann <tzimmermann@suse.de>
+>>> Cc: Noralf Tr=C3=B8nnes <noralf@tronnes.org>
+>>> Cc: Gerd Hoffmann <kraxel@redhat.com>
+>>> Cc: Eric Anholt <eric@anholt.net>
+>>> Cc: Emil Velikov <emil.velikov@collabora.com>
+>>> Cc: virtualization@lists.linux-foundation.org
+>>> Cc: Linus Walleij <linus.walleij@linaro.org>
+>>> Signed-off-by: Daniel Vetter <daniel.vetter@intel.com>
+>>> ---
+>>>  drivers/gpu/drm/cirrus/cirrus.c         | 2 +-
+>>>  drivers/gpu/drm/drm_simple_kms_helper.c | 2 +-
+>>>  drivers/gpu/drm/pl111/pl111_display.c   | 4 ++--
+>>>  include/drm/drm_simple_kms_helper.h     | 2 +-
+>>>  4 files changed, 5 insertions(+), 5 deletions(-)
+>>>
+>>> diff --git a/drivers/gpu/drm/cirrus/cirrus.c b/drivers/gpu/drm/cirrus=
+/cirrus.c
+>>> index 7d08d067e1a4..248c9f765c45 100644
+>>> --- a/drivers/gpu/drm/cirrus/cirrus.c
+>>> +++ b/drivers/gpu/drm/cirrus/cirrus.c
+>>> @@ -390,7 +390,7 @@ static int cirrus_conn_init(struct cirrus_device =
+*cirrus)
+>>>  /* -----------------------------------------------------------------=
+- */
+>>>  /* cirrus (simple) display pipe                                     =
+       */
+>>>
+>>> -static enum drm_mode_status cirrus_pipe_mode_valid(struct drm_crtc *=
+crtc,
+>>> +static enum drm_mode_status cirrus_pipe_mode_valid(struct drm_simple=
+_display_pipe *pipe,
+>>>                                                  const struct drm_dis=
+play_mode *mode)
+>>>  {
+>>>       if (cirrus_check_size(mode->hdisplay, mode->vdisplay, NULL) < 0=
+)
+>>> diff --git a/drivers/gpu/drm/drm_simple_kms_helper.c b/drivers/gpu/dr=
+m/drm_simple_kms_helper.c
+>>> index 046055719245..15fb516ae2d8 100644
+>>> --- a/drivers/gpu/drm/drm_simple_kms_helper.c
+>>> +++ b/drivers/gpu/drm/drm_simple_kms_helper.c
+>>> @@ -43,7 +43,7 @@ drm_simple_kms_crtc_mode_valid(struct drm_crtc *crt=
+c,
+>>>               /* Anything goes */
+>>>               return MODE_OK;
+>>>
+>>> -     return pipe->funcs->mode_valid(crtc, mode);
+>>> +     return pipe->funcs->mode_valid(pipe, mode);
+>>>  }
+>>>
+>>>  static int drm_simple_kms_crtc_check(struct drm_crtc *crtc,
+>>> diff --git a/drivers/gpu/drm/pl111/pl111_display.c b/drivers/gpu/drm/=
+pl111/pl111_display.c
+>>> index 024771a4083e..703ddc803c55 100644
+>>> --- a/drivers/gpu/drm/pl111/pl111_display.c
+>>> +++ b/drivers/gpu/drm/pl111/pl111_display.c
+>>> @@ -48,10 +48,10 @@ irqreturn_t pl111_irq(int irq, void *data)
+>>>  }
+>>>
+>>>  static enum drm_mode_status
+>>> -pl111_mode_valid(struct drm_crtc *crtc,
+>>> +pl111_mode_valid(struct drm_simple_display_pipe *pipe,
+>>>                const struct drm_display_mode *mode)
+>>>  {
+>>> -     struct drm_device *drm =3D crtc->dev;
+>>> +     struct drm_device *drm =3D pipe->crtc.dev;
+>>>       struct pl111_drm_dev_private *priv =3D drm->dev_private;
+>>>       u32 cpp =3D priv->variant->fb_bpp / 8;
+>>>       u64 bw;
+>>> diff --git a/include/drm/drm_simple_kms_helper.h b/include/drm/drm_si=
+mple_kms_helper.h
+>>> index 4d89cd0a60db..15afee9cf049 100644
+>>> --- a/include/drm/drm_simple_kms_helper.h
+>>> +++ b/include/drm/drm_simple_kms_helper.h
+>>> @@ -49,7 +49,7 @@ struct drm_simple_display_pipe_funcs {
+>>>        *
+>>>        * drm_mode_status Enum
+>>>        */
+>>> -     enum drm_mode_status (*mode_valid)(struct drm_crtc *crtc,
+>>> +     enum drm_mode_status (*mode_valid)(struct drm_simple_display_pi=
+pe *pipe,
+>>>                                          const struct drm_display_mod=
+e *mode);
+>>>
+>>>       /**
+>>>
+>>
+>> --
+>> Thomas Zimmermann
+>> Graphics Driver Developer
+>> SUSE Software Solutions Germany GmbH
+>> Maxfeldstr. 5, 90409 N=C3=BCrnberg, Germany
+>> (HRB 36809, AG N=C3=BCrnberg)
+>> Gesch=C3=A4ftsf=C3=BChrer: Felix Imend=C3=B6rffer
+>>
+>=20
+>=20
+
+--=20
+Thomas Zimmermann
+Graphics Driver Developer
+SUSE Software Solutions Germany GmbH
+Maxfeldstr. 5, 90409 N=C3=BCrnberg, Germany
+(HRB 36809, AG N=C3=BCrnberg)
+Gesch=C3=A4ftsf=C3=BChrer: Felix Imend=C3=B6rffer
+
+
+--IDpWwrnJOX80L69oW7hJJsPBaVOSySCT3--
+
+--3738eZazcuctdTVEnimlhMqC7srKkdmvs
+Content-Type: application/pgp-signature; name="signature.asc"
+Content-Description: OpenPGP digital signature
+Content-Disposition: attachment; filename="signature.asc"
+
+-----BEGIN PGP SIGNATURE-----
+
+iQEzBAEBCAAdFiEEchf7rIzpz2NEoWjlaA3BHVMLeiMFAl2v96AACgkQaA3BHVML
+eiNyQAf/bHb3V1RDufKDc3sepf4QTxO+0RDoM9lloJKdcVq9t26IfQAMinzjluEk
+zxwOy0pdI1VjWMdqnKNeTuUpmndh6kSsDhLkSB/zJtZme5ORRrfovA7/I5pkGwiQ
+Oc9wLEv5OlVv8Q0b08eNeaN6WE3UrurKXL4y8nt7uuuBVyQEu84xkVlw4+4PuHFo
+Oz19wOwkIhPhUQLlI/9+KyNWo4wEZfElWB9c8+FXk2IzoD1UlAFxbELQR+KWpqfS
+1W7LPRboFODusOuCa9jt9p+yR3qGWjkasJu4Wna7gxLBi+bmyZ/v6lLB3fEFRnA2
+oSuy2HOjtF/3pVjRMv3ceTn40o88QA==
+=ZgIZ
+-----END PGP SIGNATURE-----
+
+--3738eZazcuctdTVEnimlhMqC7srKkdmvs--
+
+--===============4008987601348081600==
+Content-Type: text/plain; charset="us-ascii"
+MIME-Version: 1.0
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+
+_______________________________________________
+Virtualization mailing list
+Virtualization@lists.linux-foundation.org
+https://lists.linuxfoundation.org/mailman/listinfo/virtualization
+--===============4008987601348081600==--
