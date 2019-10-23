@@ -1,16 +1,15 @@
 From: Dmitry Vyukov via Virtualization
 	<virtualization@lists.linux-foundation.org>
-Subject: Re: [PATCH 3/3] vhost, kcov: collect coverage from vhost_worker
-Date: Wed, 23 Oct 2019 10:36:20 +0200
-Message-ID: <CACT4Y+YntxT+cpESOBvbg+h=g-84ECJwQrFg7LM5tbq_zaMd3A__40405.8552974433$1571819804$gmane$org@mail.gmail.com>
+Subject: Re: [PATCH 0/3] kcov: collect coverage from usb and vhost
+Date: Wed, 23 Oct 2019 10:37:12 +0200
+Message-ID: <CACT4Y+aUf5_+U90BD=1FsS1vVFrH=kskkUJWFyg2cdeRjL1LVw@mail.gmail.com>
 References: <cover.1571762488.git.andreyknvl@google.com>
-	<26e088ae3ebcaa30afe957aeabaa9f0c653df7d0.1571762488.git.andreyknvl@google.com>
 Reply-To: Dmitry Vyukov <dvyukov@google.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <26e088ae3ebcaa30afe957aeabaa9f0c653df7d0.1571762488.git.andreyknvl@google.com>
+In-Reply-To: <cover.1571762488.git.andreyknvl@google.com>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -26,93 +25,51 @@ List-Id: virtualization@lists.linuxfoundation.org
 
 On Tue, Oct 22, 2019 at 6:46 PM Andrey Konovalov <andreyknvl@google.com> wrote:
 >
-> This patch adds kcov_remote_start()/kcov_remote_stop() annotations to the
-> vhost_worker() function, which is responsible for processing vhost works.
-> Since vhost_worker() threads are spawned per vhost device instance
-> the common kcov handle is used for kcov_remote_start()/stop() annotations
-> (see Documentation/dev-tools/kcov.rst for details). As the result kcov can
-> now be used to collect coverage from vhost worker threads.
+> This patchset extends kcov to allow collecting coverage from the USB
+> subsystem and vhost workers. See the first patch description for details
+> about the kcov extension. The other two patches apply this kcov extension
+> to USB and vhost.
 >
-> Signed-off-by: Andrey Konovalov <andreyknvl@google.com>
-> ---
->  drivers/vhost/vhost.c | 6 ++++++
->  drivers/vhost/vhost.h | 1 +
->  2 files changed, 7 insertions(+)
+> These patches have been used to enable coverage-guided USB fuzzing with
+> syzkaller for the last few years, see the details here:
 >
-> diff --git a/drivers/vhost/vhost.c b/drivers/vhost/vhost.c
-> index 36ca2cf419bf..a5a557c4b67f 100644
-> --- a/drivers/vhost/vhost.c
-> +++ b/drivers/vhost/vhost.c
-> @@ -30,6 +30,7 @@
->  #include <linux/sched/signal.h>
->  #include <linux/interval_tree_generic.h>
->  #include <linux/nospec.h>
-> +#include <linux/kcov.h>
+> https://github.com/google/syzkaller/blob/master/docs/linux/external_fuzzing_usb.md
 >
->  #include "vhost.h"
+> This patchset has been pushed to the public Linux kernel Gerrit instance:
 >
-> @@ -357,7 +358,9 @@ static int vhost_worker(void *data)
->                 llist_for_each_entry_safe(work, work_next, node, node) {
->                         clear_bit(VHOST_WORK_QUEUED, &work->flags);
->                         __set_current_state(TASK_RUNNING);
-> +                       kcov_remote_start(dev->kcov_handle);
->                         work->fn(work);
-> +                       kcov_remote_stop();
->                         if (need_resched())
->                                 schedule();
->                 }
-> @@ -546,6 +549,7 @@ long vhost_dev_set_owner(struct vhost_dev *dev)
+> https://linux-review.googlesource.com/c/linux/kernel/git/torvalds/linux/+/1524
+
+Oh, so much easier to review with side-by-side diffs, context and
+smart in-line colouring!
+
+> Changes from RFC v1:
+> - Remove unnecessary #ifdef's from drivers/vhost/vhost.c.
+> - Reset t->kcov when area allocation fails in kcov_remote_start().
+> - Use struct_size to calculate array size in kcov_ioctl().
+> - Add a limit on area_size in kcov_remote_arg.
+> - Added kcov_disable() helper.
+> - Changed encoding of kcov remote handle ids, see the documentation.
+> - Added a comment reference for kcov_sequence task_struct field.
+> - Change common_handle type to u32.
+> - Add checks for handle validity into kcov_ioctl_locked() and
+>     kcov_remote_start().
+> - Updated documentation to reflect the changes.
 >
->         /* No owner, become one */
->         dev->mm = get_task_mm(current);
-> +       dev->kcov_handle = current->kcov_handle;
-
-kcov_handle is not present in task_struct if !CONFIG_KCOV
-
-Also this does not use KCOV_SUBSYSTEM_COMMON.
-We discussed something along the following lines:
-
-u64 kcov_remote_handle(u64 subsys, u64 id)
-{
-  WARN_ON(subsys or id has wrong bits set).
-  return ...;
-}
-
-kcov_remote_handle(KCOV_SUBSYSTEM_USB, bus);
-kcov_remote_handle(KCOV_SUBSYSTEM_COMMON, current->kcov_handle);
-
-
->         worker = kthread_create(vhost_worker, dev, "vhost-%d", current->pid);
->         if (IS_ERR(worker)) {
->                 err = PTR_ERR(worker);
-> @@ -571,6 +575,7 @@ long vhost_dev_set_owner(struct vhost_dev *dev)
->         if (dev->mm)
->                 mmput(dev->mm);
->         dev->mm = NULL;
-> +       dev->kcov_handle = 0;
->  err_mm:
->         return err;
->  }
-> @@ -682,6 +687,7 @@ void vhost_dev_cleanup(struct vhost_dev *dev)
->         if (dev->worker) {
->                 kthread_stop(dev->worker);
->                 dev->worker = NULL;
-> +               dev->kcov_handle = 0;
->         }
->         if (dev->mm)
->                 mmput(dev->mm);
-> diff --git a/drivers/vhost/vhost.h b/drivers/vhost/vhost.h
-> index e9ed2722b633..a123fd70847e 100644
-> --- a/drivers/vhost/vhost.h
-> +++ b/drivers/vhost/vhost.h
-> @@ -173,6 +173,7 @@ struct vhost_dev {
->         int iov_limit;
->         int weight;
->         int byte_weight;
-> +       u64 kcov_handle;
->  };
+> Andrey Konovalov (3):
+>   kcov: remote coverage support
+>   usb, kcov: collect coverage from hub_event
+>   vhost, kcov: collect coverage from vhost_worker
 >
->  bool vhost_exceeds_weight(struct vhost_virtqueue *vq, int pkts, int total_len);
+>  Documentation/dev-tools/kcov.rst | 120 ++++++++
+>  drivers/usb/core/hub.c           |   5 +
+>  drivers/vhost/vhost.c            |   6 +
+>  drivers/vhost/vhost.h            |   1 +
+>  include/linux/kcov.h             |   6 +
+>  include/linux/sched.h            |   6 +
+>  include/uapi/linux/kcov.h        |  20 ++
+>  kernel/kcov.c                    | 464 ++++++++++++++++++++++++++++---
+>  8 files changed, 593 insertions(+), 35 deletions(-)
+>
 > --
 > 2.23.0.866.gb869b98d4c-goog
 >
