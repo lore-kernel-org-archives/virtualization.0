@@ -1,24 +1,15 @@
-From: Jason Wang <jasowang@redhat.com>
-Subject: Re: [PATCH v2] vhost: introduce mdev based hardware backend
-Date: Thu, 24 Oct 2019 18:42:50 +0800
-Message-ID: <fefc82a3-a137-bc03-e1c3-8de79b238080@redhat.com>
-References: <47a572fd-5597-1972-e177-8ee25ca51247@redhat.com>
-	<20191023030253.GA15401@___>
-	<ac36f1e3-b972-71ac-fe0c-3db03e016dcf@redhat.com>
-	<20191023070747.GA30533@___>
-	<106834b5-dae5-82b2-0f97-16951709d075@redhat.com>
-	<20191023101135.GA6367@___>
-	<5a7bc5da-d501-2750-90bf-545dd55f85fa@redhat.com>
-	<20191024042155.GA21090@___>
-	<d37529e1-5147-bbe5-cb9d-299bd6d4aa1a@redhat.com>
-	<d4cc4f4e-2635-4041-2f68-cd043a97f25a@redhat.com>
-	<20191024091839.GA17463@___>
+From: Daniel Vetter <daniel@ffwll.ch>
+Subject: Re: [PATCH] drm/simple-kms: Standardize arguments for callbacks
+Date: Thu, 24 Oct 2019 13:55:47 +0200
+Message-ID: <20191024115547.GA11828__21821.0951004707$1571918167$gmane$org@phenom.ffwll.local>
+References: <20191023101256.20509-1-daniel.vetter@ffwll.ch>
+	<CACRpkdYfh=9oextiC1rtQ2UQ72OW_0TqjCe4AmvRtXKVv_ZazQ@mail.gmail.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="utf-8"; Format="flowed"
-Content-Transfer-Encoding: base64
+Content-Type: text/plain; charset="iso-8859-1"
+Content-Transfer-Encoding: quoted-printable
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <20191024091839.GA17463@___>
-Content-Language: en-US
+Content-Disposition: inline
+In-Reply-To: <CACRpkdYfh=9oextiC1rtQ2UQ72OW_0TqjCe4AmvRtXKVv_ZazQ@mail.gmail.com>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -28,101 +19,39 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Tiwei Bie <tiwei.bie@intel.com>
-Cc: kvm@vger.kernel.org, mst@redhat.com, netdev@vger.kernel.org, linux-kernel@vger.kernel.org, virtualization@lists.linux-foundation.org, zhihong.wang@intel.com, maxime.coquelin@redhat.com, lingshan.zhu@intel.com
+To: Linus Walleij <linus.walleij@linaro.org>
+Cc: Daniel Vetter <daniel.vetter@ffwll.ch>, Intel Graphics Development <intel-gfx@lists.freedesktop.org>, DRI Development <dri-devel@lists.freedesktop.org>, virtualization@lists.linux-foundation.org, Eric Anholt <eric@anholt.net>, Noralf =?iso-8859-1?Q?Tr=F8nnes?= <noralf@tronnes.org>, Thomas Zimmermann <tzimmermann@suse.de>, Daniel Vetter <daniel.vetter@intel.com>, Emil Velikov <emil.velikov@collabora.com>
 List-Id: virtualization@lists.linuxfoundation.org
 
-Ck9uIDIwMTkvMTAvMjQg5LiL5Y2INToxOCwgVGl3ZWkgQmllIHdyb3RlOgo+IE9uIFRodSwgT2N0
-IDI0LCAyMDE5IGF0IDA0OjMyOjQyUE0gKzA4MDAsIEphc29uIFdhbmcgd3JvdGU6Cj4+IE9uIDIw
-MTkvMTAvMjQg5LiL5Y2INDowMywgSmFzb24gV2FuZyB3cm90ZToKPj4+IE9uIDIwMTkvMTAvMjQg
-5LiL5Y2IMTI6MjEsIFRpd2VpIEJpZSB3cm90ZToKPj4+PiBPbiBXZWQsIE9jdCAyMywgMjAxOSBh
-dCAwNjoyOToyMVBNICswODAwLCBKYXNvbiBXYW5nIHdyb3RlOgo+Pj4+PiBPbiAyMDE5LzEwLzIz
-IOS4i+WNiDY6MTEsIFRpd2VpIEJpZSB3cm90ZToKPj4+Pj4+IE9uIFdlZCwgT2N0IDIzLCAyMDE5
-IGF0IDAzOjI1OjAwUE0gKzA4MDAsIEphc29uIFdhbmcgd3JvdGU6Cj4+Pj4+Pj4gT24gMjAxOS8x
-MC8yMyDkuIvljYgzOjA3LCBUaXdlaSBCaWUgd3JvdGU6Cj4+Pj4+Pj4+IE9uIFdlZCwgT2N0IDIz
-LCAyMDE5IGF0IDAxOjQ2OjIzUE0gKzA4MDAsIEphc29uIFdhbmcgd3JvdGU6Cj4+Pj4+Pj4+PiBP
-biAyMDE5LzEwLzIzIOS4iuWNiDExOjAyLCBUaXdlaSBCaWUgd3JvdGU6Cj4+Pj4+Pj4+Pj4gT24g
-VHVlLCBPY3QgMjIsIDIwMTkgYXQgMDk6MzA6MTZQTSArMDgwMCwgSmFzb24gV2FuZyB3cm90ZToK
-Pj4+Pj4+Pj4+Pj4gT24gMjAxOS8xMC8yMiDkuIvljYg1OjUyLCBUaXdlaSBCaWUgd3JvdGU6Cj4+
-Pj4+Pj4+Pj4+PiBUaGlzIHBhdGNoIGludHJvZHVjZXMgYSBtZGV2IGJhc2VkIGhhcmR3YXJlIHZo
-b3N0IGJhY2tlbmQuCj4+Pj4+Pj4+Pj4+PiBUaGlzIGJhY2tlbmQgaXMgYnVpbHQgb24gdG9wIG9m
-IHRoZSBzYW1lIGFic3RyYWN0aW9uIHVzZWQKPj4+Pj4+Pj4+Pj4+IGluIHZpcnRpby1tZGV2IGFu
-ZCBwcm92aWRlcyBhIGdlbmVyaWMgdmhvc3QgaW50ZXJmYWNlIGZvcgo+Pj4+Pj4+Pj4+Pj4gdXNl
-cnNwYWNlIHRvIGFjY2VsZXJhdGUgdGhlIHZpcnRpbyBkZXZpY2VzIGluIGd1ZXN0Lgo+Pj4+Pj4+
-Pj4+Pj4KPj4+Pj4+Pj4+Pj4+IFRoaXMgYmFja2VuZCBpcyBpbXBsZW1lbnRlZCBhcyBhIG1kZXYg
-ZGV2aWNlIGRyaXZlciBvbiB0b3AKPj4+Pj4+Pj4+Pj4+IG9mIHRoZSBzYW1lIG1kZXYgZGV2aWNl
-IG9wcyB1c2VkIGluIHZpcnRpby1tZGV2IGJ1dCB1c2luZwo+Pj4+Pj4+Pj4+Pj4gYSBkaWZmZXJl
-bnQgbWRldiBjbGFzcyBpZCwgYW5kIGl0IHdpbGwgcmVnaXN0ZXIgdGhlIGRldmljZQo+Pj4+Pj4+
-Pj4+Pj4gYXMgYSBWRklPIGRldmljZSBmb3IgdXNlcnNwYWNlIHRvIHVzZS4gVXNlcnNwYWNlIGNh
-biBzZXR1cAo+Pj4+Pj4+Pj4+Pj4gdGhlIElPTU1VIHdpdGggdGhlIGV4aXN0aW5nIFZGSU8gY29u
-dGFpbmVyL2dyb3VwIEFQSXMgYW5kCj4+Pj4+Pj4+Pj4+PiB0aGVuIGdldCB0aGUgZGV2aWNlIGZk
-IHdpdGggdGhlIGRldmljZSBuYW1lLiBBZnRlciBnZXR0aW5nCj4+Pj4+Pj4+Pj4+PiB0aGUgZGV2
-aWNlIGZkIG9mIHRoaXMgZGV2aWNlLCB1c2Vyc3BhY2UgY2FuIHVzZSB2aG9zdCBpb2N0bHMKPj4+
-Pj4+Pj4+Pj4+IHRvIHNldHVwIHRoZSBiYWNrZW5kLgo+Pj4+Pj4+Pj4+Pj4KPj4+Pj4+Pj4+Pj4+
-IFNpZ25lZC1vZmYtYnk6IFRpd2VpIEJpZSA8dGl3ZWkuYmllQGludGVsLmNvbT4KPj4+Pj4+Pj4+
-Pj4+IC0tLQo+Pj4+Pj4+Pj4+Pj4gVGhpcyBwYXRjaCBkZXBlbmRzIG9uIGJlbG93IHNlcmllczoK
-Pj4+Pj4+Pj4+Pj4+IGh0dHBzOi8vbGttbC5vcmcvbGttbC8yMDE5LzEwLzE3LzI4Ngo+Pj4+Pj4+
-Pj4+Pj4KPj4+Pj4+Pj4+Pj4+IHYxIC0+IHYyOgo+Pj4+Pj4+Pj4+Pj4gLSBSZXBsYWNlIF9TRVRf
-U1RBVEUgd2l0aCBfU0VUX1NUQVRVUyAoTVNUKTsKPj4+Pj4+Pj4+Pj4+IC0gQ2hlY2sgc3RhdHVz
-IGJpdHMgYXQgZWFjaCBzdGVwIChNU1QpOwo+Pj4+Pj4+Pj4+Pj4gLSBSZXBvcnQgdGhlIG1heCBy
-aW5nIHNpemUgYW5kIG1heCBudW1iZXIgb2YgcXVldWVzIChNU1QpOwo+Pj4+Pj4+Pj4+Pj4gLSBB
-ZGQgbWlzc2luZyBNT0RVTEVfREVWSUNFX1RBQkxFIChKYXNvbik7Cj4+Pj4+Pj4+Pj4+PiAtIE9u
-bHkgc3VwcG9ydCB0aGUgbmV0d29yayBiYWNrZW5kIHcvbyBtdWx0aXF1ZXVlIGZvciBub3c7Cj4+
-Pj4+Pj4+Pj4+IEFueSBpZGVhIG9uIGhvdyB0byBleHRlbmQgaXQgdG8gc3VwcG9ydAo+Pj4+Pj4+
-Pj4+PiBkZXZpY2VzIG90aGVyIHRoYW4gbmV0PyBJIHRoaW5rIHdlCj4+Pj4+Pj4+Pj4+IHdhbnQg
-YSBnZW5lcmljIEFQSSBvciBhbiBBUEkgdGhhdCBjb3VsZAo+Pj4+Pj4+Pj4+PiBiZSBtYWRlIGdl
-bmVyaWMgaW4gdGhlIGZ1dHVyZS4KPj4+Pj4+Pj4+Pj4KPj4+Pj4+Pj4+Pj4gRG8gd2Ugd2FudCB0
-byBlLmcgaGF2aW5nIGEgZ2VuZXJpYyB2aG9zdAo+Pj4+Pj4+Pj4+PiBtZGV2IGZvciBhbGwga2lu
-ZHMgb2YgZGV2aWNlcyBvcgo+Pj4+Pj4+Pj4+PiBpbnRyb2R1Y2luZyBlLmcgdmhvc3QtbmV0LW1k
-ZXYgYW5kIHZob3N0LXNjc2ktbWRldj8KPj4+Pj4+Pj4+PiBPbmUgcG9zc2libGUgd2F5IGlzIHRv
-IGRvIHdoYXQgdmhvc3QtdXNlciBkb2VzLiBJLmUuIEFwYXJ0IGZyb20KPj4+Pj4+Pj4+PiB0aGUg
-Z2VuZXJpYyByaW5nLCBmZWF0dXJlcywgLi4uIHJlbGF0ZWQgaW9jdGxzLCB3ZSBhbHNvIGludHJv
-ZHVjZQo+Pj4+Pj4+Pj4+IGRldmljZSBzcGVjaWZpYyBpb2N0bHMgd2hlbiB3ZSBuZWVkIHRoZW0u
-IEFzIHZob3N0LW1kZXYganVzdCBuZWVkcwo+Pj4+Pj4+Pj4+IHRvIGZvcndhcmQgY29uZmlncyBi
-ZXR3ZWVuIHBhcmVudCBhbmQgdXNlcnNwYWNlIGFuZCBldmVuIHdvbid0Cj4+Pj4+Pj4+Pj4gY2Fj
-aGUgYW55IGluZm8gd2hlbiBwb3NzaWJsZSwKPj4+Pj4+Pj4+IFNvIGl0IGxvb2tzIHRvIG1lIHRo
-aXMgaXMgb25seSBwb3NzaWJsZSBpZiB3ZQo+Pj4+Pj4+Pj4gZXhwb3NlIGUuZyBzZXRfY29uZmln
-IGFuZAo+Pj4+Pj4+Pj4gZ2V0X2NvbmZpZyB0byB1c2Vyc3BhY2UuCj4+Pj4+Pj4+IFRoZSBzZXRf
-Y29uZmlnIGFuZCBnZXRfY29uZmlnIGludGVyZmFjZSBpc24ndCByZWFsbHkgZXZlcnl0aGluZwo+
-Pj4+Pj4+PiBvZiBkZXZpY2Ugc3BlY2lmaWMgc2V0dGluZ3MuIFdlIGFsc28gaGF2ZSBjdHJscSBp
-biB2aXJ0aW8tbmV0Lgo+Pj4+Pj4+IFllcywgYnV0IGl0IGNvdWxkIGJlIHByb2Nlc3NlZCBieSB0
-aGUgZXhpc3QgQVBJLiBJc24ndAo+Pj4+Pj4+IGl0PyBKdXN0IHNldCBjdHJsIHZxCj4+Pj4+Pj4g
-YWRkcmVzcyBhbmQgbGV0IHBhcmVudCB0byBkZWFsIHdpdGggdGhhdC4KPj4+Pj4+IEkgbWVhbiBo
-b3cgdG8gZXhwb3NlIGN0cmxxIHJlbGF0ZWQgc2V0dGluZ3MgdG8gdXNlcnNwYWNlPwo+Pj4+PiBJ
-IHRoaW5rIGl0IHdvcmtzIGxpa2U6Cj4+Pj4+Cj4+Pj4+IDEpIHVzZXJzcGFjZSBmaW5kIGN0cmxf
-dnEgaXMgc3VwcG9ydGVkCj4+Pj4+Cj4+Pj4+IDIpIHRoZW4gaXQgY2FuIGFsbG9jYXRlIG1lbW9y
-eSBmb3IgY3RybCB2cSBhbmQgc2V0IGl0cyBhZGRyZXNzIHRocm91Z2gKPj4+Pj4gdmhvc3QtbWRl
-dgo+Pj4+Pgo+Pj4+PiAzKSB1c2Vyc3BhY2UgY2FuIHBvcHVsYXRlIGN0cmwgdnEgaXRzZWxmCj4+
-Pj4gSSBzZWUuIFRoYXQgaXMgdG8gc2F5LCB1c2Vyc3BhY2UgZS5nLiBRRU1VIHdpbGwgcHJvZ3Jh
-bSB0aGUKPj4+PiBjdHJsIHZxIHdpdGggdGhlIGV4aXN0aW5nIFZIT1NUXypfVlJJTkdfKiBpb2N0
-bHMsIGFuZCBwYXJlbnQKPj4+PiBkcml2ZXJzIHNob3VsZCBrbm93IHRoYXQgdGhlIGFkZHJlc3Nl
-cyB1c2VkIGluIGN0cmwgdnEgYXJlCj4+Pj4gaG9zdCB2aXJ0dWFsIGFkZHJlc3NlcyBpbiB2aG9z
-dC1tZGV2J3MgY2FzZS4KPj4+Cj4+PiBUaGF0J3MgcmVhbGx5IGdvb2QgcG9pbnQuIEFuZCB0aGF0
-IG1lYW5zIHBhcmVudCBuZWVkcyB0byBkaWZmZXIgdmhvc3QKPj4+IGZyb20gdmlydGlvLiBJdCBz
-aG91bGQgd29yay4KPj4KPj4gSFZBIG1heSBvbmx5IHdvcmsgd2hlbiB3ZSBoYXZlIHNvbWV0aGlu
-ZyBzaW1pbGFyIHRvIFZIT1NUX1NFVF9PV05FUiB3aGljaAo+PiBjYW4gcmV1c2UgTU0gb2YgaXRz
-IG93bmVyLgo+IFdlIGFscmVhZHkgaGF2ZSBWSE9TVF9TRVRfT1dORVIgaW4gdmhvc3Qgbm93LCBw
-YXJlbnQgY2FuIGhhbmRsZQo+IHRoZSBjb21tYW5kcyBpbiBpdHMgLmtpY2tfdnEoKSB3aGljaCBp
-cyBjYWxsZWQgYnkgdnEncyAuaGFuZGxlX2tpY2sKPiBjYWxsYmFjay4gVmlydGlvLXVzZXIgZGlk
-IHNvbWV0aGluZyBzaW1pbGFyOgo+Cj4gaHR0cHM6Ly9naXRodWIuY29tL0RQREsvZHBkay9ibG9i
-LzBkYTdmNDQ1ZGY0NDU2MzBjNzk0ODk3MzQ3ZWUzNjBkNmZlNjM0OGIvZHJpdmVycy9uZXQvdmly
-dGlvL3ZpcnRpb191c2VyX2V0aGRldi5jI0wzMTMtTDMyMgoKClRoaXMgcHJvYmFibHkgbWVhbnMg
-YSBwcm9jZXNzIGNvbnRleHQgaXMgcmVxdWlyZWQsIHNvbWV0aGluZyBsaWtlIAprdGhyZWFkIHRo
-YXQgaXMgdXNlZCBieSB2aG9zdCB3aGljaCBzZWVtcyBhIGJ1cmRlbiBmb3IgcGFyZW50LiBPciB3
-ZSBjYW4gCmV4dGVuZCBpb2N0bCB0byBwcm9jZXNzaW5nIGtpY2sgaW4gdGhlIHN5c3RlbSBjYWxs
-IGNvbnRleHQuCgoKPgo+Pgo+Pj4gQnV0IGlzIHRoZXJlIGFueSBjaGFuY2UgdG8gdXNlIERNQSBh
-ZGRyZXNzPyBJJ20gYXNraW5nIHNpbmNlIHRoZSBBUEkKPj4+IHRoZW4gdGVuZHMgdG8gYmUgZGV2
-aWNlIHNwZWNpZmljLgo+Pgo+PiBJIHdvbmRlciB3aGV0aGVyIHdlIGNhbiBpbnRyb2R1Y2UgTUFQ
-IElPTU1VIG5vdGlmaWVyIGFuZCBnZXQgRE1BIG1hcHBpbmdzCj4+IGZyb20gdGhhdC4KPiBJIHRo
-aW5rIHRoaXMgd2lsbCBjb21wbGljYXRlIHRoaW5ncyB1bm5lY2Vzc2FyaWx5IGFuZCBtYXkKPiBi
-cmluZyBwYWlucy4gQmVjYXVzZSwgaW4gdmhvc3QtbWRldiwgbWRldidzIGN0cmwgdnEgaXMKPiBz
-dXBwb3NlZCB0byBiZSBtYW5hZ2VkIGJ5IGhvc3QuCgoKWWVzLgoKCj4gICBBbmQgd2Ugc2hvdWxk
-IHRyeSB0byBhdm9pZAo+IHB1dHRpbmcgY3RybCB2cSBhbmQgUngvVHggdnFzIGluIHRoZSBzYW1l
-IERNQSBzcGFjZSB0byBwcmV2ZW50Cj4gZ3Vlc3RzIGhhdmluZyB0aGUgY2hhbmNlIHRvIGJ5cGFz
-cyB0aGUgaG9zdCAoZS5nLiBRRU1VKSB0bwo+IHNldHVwIHRoZSBiYWNrZW5kIGFjY2VsZXJhdG9y
-IGRpcmVjdGx5LgoKClRoYXQncyByZWFsbHkgZ29vZCBwb2ludC7CoCBTbyB3aGVuICJ2aG9zdCIg
-dHlwZSBpcyBjcmVhdGVkLCBwYXJlbnQgCnNob3VsZCBhc3N1bWUgYWRkciBvZiBjdHJsX3ZxIGlz
-IGh2YS4KClRoYW5rcwoKCj4KPj4gVGhhbmtzCj4+CgpfX19fX19fX19fX19fX19fX19fX19fX19f
-X19fX19fX19fX19fX19fX19fX19fXwpWaXJ0dWFsaXphdGlvbiBtYWlsaW5nIGxpc3QKVmlydHVh
-bGl6YXRpb25AbGlzdHMubGludXgtZm91bmRhdGlvbi5vcmcKaHR0cHM6Ly9saXN0cy5saW51eGZv
-dW5kYXRpb24ub3JnL21haWxtYW4vbGlzdGluZm8vdmlydHVhbGl6YXRpb24=
+On Wed, Oct 23, 2019 at 05:40:32PM +0200, Linus Walleij wrote:
+> On Wed, Oct 23, 2019 at 12:13 PM Daniel Vetter <daniel.vetter@ffwll.ch> w=
+rote:
+> =
+
+> > Passing the wrong type feels icky, everywhere else we use the pipe as
+> > the first parameter. Spotted while discussing patches with Thomas
+> > Zimmermann.
+> >
+> > v2: Make xen compile correctly
+> >
+> > Acked-By: Thomas Zimmermann <tzimmermann@suse.de> (v1)
+> > Cc: Thomas Zimmermann <tzimmermann@suse.de>
+> > Cc: Noralf Tr=F8nnes <noralf@tronnes.org>
+> > Cc: Gerd Hoffmann <kraxel@redhat.com>
+> > Cc: Eric Anholt <eric@anholt.net>
+> > Cc: Emil Velikov <emil.velikov@collabora.com>
+> > Cc: virtualization@lists.linux-foundation.org
+> > Cc: Linus Walleij <linus.walleij@linaro.org>
+> > Signed-off-by: Daniel Vetter <daniel.vetter@intel.com>
+> =
+
+> Makes perfect sense.
+> Reviewed-by: Linus Walleij <linus.walleij@linaro.org>
+
+Thanks for taking a look, applied.
+-Daniel
+-- =
+
+Daniel Vetter
+Software Engineer, Intel Corporation
+http://blog.ffwll.ch
