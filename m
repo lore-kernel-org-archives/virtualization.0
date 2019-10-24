@@ -1,25 +1,23 @@
-From: David Hildenbrand <david@redhat.com>
-Subject: Re: [PATCH RFC v3 6/9] mm: Allow to offline PageOffline() pages with
-	a reference count of 0
-Date: Thu, 24 Oct 2019 10:51:28 +0200
-Message-ID: <ba7164c9-b98e-0ce1-358e-8b0d45fe3f48@redhat.com>
-References: <20191016140350.GD317@dhcp22.suse.cz>
-	<7c7bef01-f904-904a-b0a7-f7b514b8bda8@redhat.com>
-	<20191018081524.GD5017@dhcp22.suse.cz>
-	<83d0a961-952d-21e4-74df-267912b7b6fa@redhat.com>
-	<20191018111843.GH5017@dhcp22.suse.cz>
-	<709d39aa-a7ba-97aa-e66b-e2fec2fdf3c4@redhat.com>
-	<20191022122326.GL9379@dhcp22.suse.cz>
-	<b4be42a4-cbfc-8706-cc94-26211ddcbe4a@redhat.com>
-	<20191023094345.GL754@dhcp22.suse.cz>
-	<ad2aef12-61ac-f019-90d1-59637255f9e3@redhat.com>
-	<20191024084241.GV17610@dhcp22.suse.cz>
+From: Tiwei Bie <tiwei.bie@intel.com>
+Subject: Re: [PATCH v2] vhost: introduce mdev based hardware backend
+Date: Thu, 24 Oct 2019 17:18:39 +0800
+Message-ID: <20191024091839.GA17463__48805.9163022385$1571908681$gmane$org@___>
+References: <47a572fd-5597-1972-e177-8ee25ca51247@redhat.com>
+	<20191023030253.GA15401@___>
+	<ac36f1e3-b972-71ac-fe0c-3db03e016dcf@redhat.com>
+	<20191023070747.GA30533@___>
+	<106834b5-dae5-82b2-0f97-16951709d075@redhat.com>
+	<20191023101135.GA6367@___>
+	<5a7bc5da-d501-2750-90bf-545dd55f85fa@redhat.com>
+	<20191024042155.GA21090@___>
+	<d37529e1-5147-bbe5-cb9d-299bd6d4aa1a@redhat.com>
+	<d4cc4f4e-2635-4041-2f68-cd043a97f25a@redhat.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"; Format="flowed"
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset="utf-8"
+Content-Transfer-Encoding: base64
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <20191024084241.GV17610@dhcp22.suse.cz>
-Content-Language: en-US
+Content-Disposition: inline
+In-Reply-To: <d4cc4f4e-2635-4041-2f68-cd043a97f25a@redhat.com>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -29,55 +27,102 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Michal Hocko <mhocko@kernel.org>
-Cc: Pingfan Liu <kernelfans@gmail.com>, virtualization@lists.linux-foundation.org, linux-mm@kvack.org, Alexander Potapenko <glider@google.com>, Mauro Carvalho Chehab <mchehab+samsung@kernel.org>, Alexander Duyck <alexander.h.duyck@linux.intel.com>, Ira Weiny <ira.weiny@intel.com>, Andrea Arcangeli <aarcange@redhat.com>, Stephen Rothwell <sfr@canb.auug.org.au>, Yu Zhao <yuzhao@google.com>, Matthew Wilcox <willy@infradead.org>, Jason Gunthorpe <jgg@ziepe.ca>, Anthony Yznaga <anthony.yznaga@oracle.com>, Pavel Tatashin <pavel.tatashin@microsoft.com>, Anshuman Khandual <anshuman.khandual@arm.com>, Mike Rapoport <rppt@linux.vnet.ibm.com>, Qian Cai <cai@lca.pw>, Andrey Ryabinin <aryabinin@virtuozzo.com>, Dan Williams <dan.j.williams@intel.com>, Vlastimil Babka <vbabka@suse.cz>, Oscar Salvador <osalvador@suse.de>, Juergen Gross <jgross@suse.com>, Yang Shi <yang.shi@linux.alibaba.c>
+To: Jason Wang <jasowang@redhat.com>
+Cc: kvm@vger.kernel.org, mst@redhat.com, netdev@vger.kernel.org, linux-kernel@vger.kernel.org, virtualization@lists.linux-foundation.org, zhihong.wang@intel.com, maxime.coquelin@redhat.com, lingshan.zhu@intel.com
 List-Id: virtualization@lists.linuxfoundation.org
 
-On 24.10.19 10:42, Michal Hocko wrote:
-> On Wed 23-10-19 12:03:51, David Hildenbrand wrote:
->>> Do you see any downsides?
->>
->> The only downside I see is that we get more false negatives on
->> has_unmovable_pages(), eventually resulting in the offlining stage after
->> isolation to loop forever (as some PageOffline() pages are not movable
->> (especially, XEN balloon, HyperV balloon), there won't be progress).
->>
->> I somewhat don't like forcing everybody that uses PageOffline() (especially
->> all users of balloon compaction) to implement memory notifiers just to avoid
->> that. Maybe, we even want to use PageOffline() in the future in the core
->> (e.g., for memory holes instead of PG_reserved or similar).
-> 
-> There is only a handful of those and we need to deal with them anyway.
-> If you do not want to enforce them to create their own notifiers then we
-> can accomodate the hotplug code. __test_page_isolated_in_pageblock resp.
-
-Yeah, I would prefer offlining code to be able to deal with that without 
-notifier changes for all users.
-
-> the call chain up can distinguish temporary and permanent failures
-> (EAGAIN vs. EBUSY). The current state when we always return EBUSY and
-> keep retrying for ever is not optimal at all, right? A referenced PageOffline
-
-Very right!
-
-> could be an example of EBUSY all other failures where we are effectively
-> waiting for pages to get freed finaly would be EAGAIN.
-
-We have to watch out for PageOffline() pages that are actually movable 
-(balloon compaction). But that doesn't sound too hard.
-> 
-> It is a bit late in the process because a large portion of the work has
-> been done already but this doesn't sound like something to lose sleep
-> over.
-> 
-
-Right. I'll look into that to find out if this would work. And see if I 
-can reproduce what I described at all (theoretical thoughts) :)
-
-Again, thanks for looking into this Michal!
-
--- 
-
-Thanks,
-
-David / dhildenb
+T24gVGh1LCBPY3QgMjQsIDIwMTkgYXQgMDQ6MzI6NDJQTSArMDgwMCwgSmFzb24gV2FuZyB3cm90
+ZToKPiBPbiAyMDE5LzEwLzI0IOS4i+WNiDQ6MDMsIEphc29uIFdhbmcgd3JvdGU6Cj4gPiBPbiAy
+MDE5LzEwLzI0IOS4i+WNiDEyOjIxLCBUaXdlaSBCaWUgd3JvdGU6Cj4gPiA+IE9uIFdlZCwgT2N0
+IDIzLCAyMDE5IGF0IDA2OjI5OjIxUE0gKzA4MDAsIEphc29uIFdhbmcgd3JvdGU6Cj4gPiA+ID4g
+T24gMjAxOS8xMC8yMyDkuIvljYg2OjExLCBUaXdlaSBCaWUgd3JvdGU6Cj4gPiA+ID4gPiBPbiBX
+ZWQsIE9jdCAyMywgMjAxOSBhdCAwMzoyNTowMFBNICswODAwLCBKYXNvbiBXYW5nIHdyb3RlOgo+
+ID4gPiA+ID4gPiBPbiAyMDE5LzEwLzIzIOS4i+WNiDM6MDcsIFRpd2VpIEJpZSB3cm90ZToKPiA+
+ID4gPiA+ID4gPiBPbiBXZWQsIE9jdCAyMywgMjAxOSBhdCAwMTo0NjoyM1BNICswODAwLCBKYXNv
+biBXYW5nIHdyb3RlOgo+ID4gPiA+ID4gPiA+ID4gT24gMjAxOS8xMC8yMyDkuIrljYgxMTowMiwg
+VGl3ZWkgQmllIHdyb3RlOgo+ID4gPiA+ID4gPiA+ID4gPiBPbiBUdWUsIE9jdCAyMiwgMjAxOSBh
+dCAwOTozMDoxNlBNICswODAwLCBKYXNvbiBXYW5nIHdyb3RlOgo+ID4gPiA+ID4gPiA+ID4gPiA+
+IE9uIDIwMTkvMTAvMjIg5LiL5Y2INTo1MiwgVGl3ZWkgQmllIHdyb3RlOgo+ID4gPiA+ID4gPiA+
+ID4gPiA+ID4gVGhpcyBwYXRjaCBpbnRyb2R1Y2VzIGEgbWRldiBiYXNlZCBoYXJkd2FyZSB2aG9z
+dCBiYWNrZW5kLgo+ID4gPiA+ID4gPiA+ID4gPiA+ID4gVGhpcyBiYWNrZW5kIGlzIGJ1aWx0IG9u
+IHRvcCBvZiB0aGUgc2FtZSBhYnN0cmFjdGlvbiB1c2VkCj4gPiA+ID4gPiA+ID4gPiA+ID4gPiBp
+biB2aXJ0aW8tbWRldiBhbmQgcHJvdmlkZXMgYSBnZW5lcmljIHZob3N0IGludGVyZmFjZSBmb3IK
+PiA+ID4gPiA+ID4gPiA+ID4gPiA+IHVzZXJzcGFjZSB0byBhY2NlbGVyYXRlIHRoZSB2aXJ0aW8g
+ZGV2aWNlcyBpbiBndWVzdC4KPiA+ID4gPiA+ID4gPiA+ID4gPiA+IAo+ID4gPiA+ID4gPiA+ID4g
+PiA+ID4gVGhpcyBiYWNrZW5kIGlzIGltcGxlbWVudGVkIGFzIGEgbWRldiBkZXZpY2UgZHJpdmVy
+IG9uIHRvcAo+ID4gPiA+ID4gPiA+ID4gPiA+ID4gb2YgdGhlIHNhbWUgbWRldiBkZXZpY2Ugb3Bz
+IHVzZWQgaW4gdmlydGlvLW1kZXYgYnV0IHVzaW5nCj4gPiA+ID4gPiA+ID4gPiA+ID4gPiBhIGRp
+ZmZlcmVudCBtZGV2IGNsYXNzIGlkLCBhbmQgaXQgd2lsbCByZWdpc3RlciB0aGUgZGV2aWNlCj4g
+PiA+ID4gPiA+ID4gPiA+ID4gPiBhcyBhIFZGSU8gZGV2aWNlIGZvciB1c2Vyc3BhY2UgdG8gdXNl
+LiBVc2Vyc3BhY2UgY2FuIHNldHVwCj4gPiA+ID4gPiA+ID4gPiA+ID4gPiB0aGUgSU9NTVUgd2l0
+aCB0aGUgZXhpc3RpbmcgVkZJTyBjb250YWluZXIvZ3JvdXAgQVBJcyBhbmQKPiA+ID4gPiA+ID4g
+PiA+ID4gPiA+IHRoZW4gZ2V0IHRoZSBkZXZpY2UgZmQgd2l0aCB0aGUgZGV2aWNlIG5hbWUuIEFm
+dGVyIGdldHRpbmcKPiA+ID4gPiA+ID4gPiA+ID4gPiA+IHRoZSBkZXZpY2UgZmQgb2YgdGhpcyBk
+ZXZpY2UsIHVzZXJzcGFjZSBjYW4gdXNlIHZob3N0IGlvY3Rscwo+ID4gPiA+ID4gPiA+ID4gPiA+
+ID4gdG8gc2V0dXAgdGhlIGJhY2tlbmQuCj4gPiA+ID4gPiA+ID4gPiA+ID4gPiAKPiA+ID4gPiA+
+ID4gPiA+ID4gPiA+IFNpZ25lZC1vZmYtYnk6IFRpd2VpIEJpZSA8dGl3ZWkuYmllQGludGVsLmNv
+bT4KPiA+ID4gPiA+ID4gPiA+ID4gPiA+IC0tLQo+ID4gPiA+ID4gPiA+ID4gPiA+ID4gVGhpcyBw
+YXRjaCBkZXBlbmRzIG9uIGJlbG93IHNlcmllczoKPiA+ID4gPiA+ID4gPiA+ID4gPiA+IGh0dHBz
+Oi8vbGttbC5vcmcvbGttbC8yMDE5LzEwLzE3LzI4Ngo+ID4gPiA+ID4gPiA+ID4gPiA+ID4gCj4g
+PiA+ID4gPiA+ID4gPiA+ID4gPiB2MSAtPiB2MjoKPiA+ID4gPiA+ID4gPiA+ID4gPiA+IC0gUmVw
+bGFjZSBfU0VUX1NUQVRFIHdpdGggX1NFVF9TVEFUVVMgKE1TVCk7Cj4gPiA+ID4gPiA+ID4gPiA+
+ID4gPiAtIENoZWNrIHN0YXR1cyBiaXRzIGF0IGVhY2ggc3RlcCAoTVNUKTsKPiA+ID4gPiA+ID4g
+PiA+ID4gPiA+IC0gUmVwb3J0IHRoZSBtYXggcmluZyBzaXplIGFuZCBtYXggbnVtYmVyIG9mIHF1
+ZXVlcyAoTVNUKTsKPiA+ID4gPiA+ID4gPiA+ID4gPiA+IC0gQWRkIG1pc3NpbmcgTU9EVUxFX0RF
+VklDRV9UQUJMRSAoSmFzb24pOwo+ID4gPiA+ID4gPiA+ID4gPiA+ID4gLSBPbmx5IHN1cHBvcnQg
+dGhlIG5ldHdvcmsgYmFja2VuZCB3L28gbXVsdGlxdWV1ZSBmb3Igbm93Owo+ID4gPiA+ID4gPiA+
+ID4gPiA+IEFueSBpZGVhIG9uIGhvdyB0byBleHRlbmQgaXQgdG8gc3VwcG9ydAo+ID4gPiA+ID4g
+PiA+ID4gPiA+IGRldmljZXMgb3RoZXIgdGhhbiBuZXQ/IEkgdGhpbmsgd2UKPiA+ID4gPiA+ID4g
+PiA+ID4gPiB3YW50IGEgZ2VuZXJpYyBBUEkgb3IgYW4gQVBJIHRoYXQgY291bGQKPiA+ID4gPiA+
+ID4gPiA+ID4gPiBiZSBtYWRlIGdlbmVyaWMgaW4gdGhlIGZ1dHVyZS4KPiA+ID4gPiA+ID4gPiA+
+ID4gPiAKPiA+ID4gPiA+ID4gPiA+ID4gPiBEbyB3ZSB3YW50IHRvIGUuZyBoYXZpbmcgYSBnZW5l
+cmljIHZob3N0Cj4gPiA+ID4gPiA+ID4gPiA+ID4gbWRldiBmb3IgYWxsIGtpbmRzIG9mIGRldmlj
+ZXMgb3IKPiA+ID4gPiA+ID4gPiA+ID4gPiBpbnRyb2R1Y2luZyBlLmcgdmhvc3QtbmV0LW1kZXYg
+YW5kIHZob3N0LXNjc2ktbWRldj8KPiA+ID4gPiA+ID4gPiA+ID4gT25lIHBvc3NpYmxlIHdheSBp
+cyB0byBkbyB3aGF0IHZob3N0LXVzZXIgZG9lcy4gSS5lLiBBcGFydCBmcm9tCj4gPiA+ID4gPiA+
+ID4gPiA+IHRoZSBnZW5lcmljIHJpbmcsIGZlYXR1cmVzLCAuLi4gcmVsYXRlZCBpb2N0bHMsIHdl
+IGFsc28gaW50cm9kdWNlCj4gPiA+ID4gPiA+ID4gPiA+IGRldmljZSBzcGVjaWZpYyBpb2N0bHMg
+d2hlbiB3ZSBuZWVkIHRoZW0uIEFzIHZob3N0LW1kZXYganVzdCBuZWVkcwo+ID4gPiA+ID4gPiA+
+ID4gPiB0byBmb3J3YXJkIGNvbmZpZ3MgYmV0d2VlbiBwYXJlbnQgYW5kIHVzZXJzcGFjZSBhbmQg
+ZXZlbiB3b24ndAo+ID4gPiA+ID4gPiA+ID4gPiBjYWNoZSBhbnkgaW5mbyB3aGVuIHBvc3NpYmxl
+LAo+ID4gPiA+ID4gPiA+ID4gU28gaXQgbG9va3MgdG8gbWUgdGhpcyBpcyBvbmx5IHBvc3NpYmxl
+IGlmIHdlCj4gPiA+ID4gPiA+ID4gPiBleHBvc2UgZS5nIHNldF9jb25maWcgYW5kCj4gPiA+ID4g
+PiA+ID4gPiBnZXRfY29uZmlnIHRvIHVzZXJzcGFjZS4KPiA+ID4gPiA+ID4gPiBUaGUgc2V0X2Nv
+bmZpZyBhbmQgZ2V0X2NvbmZpZyBpbnRlcmZhY2UgaXNuJ3QgcmVhbGx5IGV2ZXJ5dGhpbmcKPiA+
+ID4gPiA+ID4gPiBvZiBkZXZpY2Ugc3BlY2lmaWMgc2V0dGluZ3MuIFdlIGFsc28gaGF2ZSBjdHJs
+cSBpbiB2aXJ0aW8tbmV0Lgo+ID4gPiA+ID4gPiBZZXMsIGJ1dCBpdCBjb3VsZCBiZSBwcm9jZXNz
+ZWQgYnkgdGhlIGV4aXN0IEFQSS4gSXNuJ3QKPiA+ID4gPiA+ID4gaXQ/IEp1c3Qgc2V0IGN0cmwg
+dnEKPiA+ID4gPiA+ID4gYWRkcmVzcyBhbmQgbGV0IHBhcmVudCB0byBkZWFsIHdpdGggdGhhdC4K
+PiA+ID4gPiA+IEkgbWVhbiBob3cgdG8gZXhwb3NlIGN0cmxxIHJlbGF0ZWQgc2V0dGluZ3MgdG8g
+dXNlcnNwYWNlPwo+ID4gPiA+IAo+ID4gPiA+IEkgdGhpbmsgaXQgd29ya3MgbGlrZToKPiA+ID4g
+PiAKPiA+ID4gPiAxKSB1c2Vyc3BhY2UgZmluZCBjdHJsX3ZxIGlzIHN1cHBvcnRlZAo+ID4gPiA+
+IAo+ID4gPiA+IDIpIHRoZW4gaXQgY2FuIGFsbG9jYXRlIG1lbW9yeSBmb3IgY3RybCB2cSBhbmQg
+c2V0IGl0cyBhZGRyZXNzIHRocm91Z2gKPiA+ID4gPiB2aG9zdC1tZGV2Cj4gPiA+ID4gCj4gPiA+
+ID4gMykgdXNlcnNwYWNlIGNhbiBwb3B1bGF0ZSBjdHJsIHZxIGl0c2VsZgo+ID4gPiBJIHNlZS4g
+VGhhdCBpcyB0byBzYXksIHVzZXJzcGFjZSBlLmcuIFFFTVUgd2lsbCBwcm9ncmFtIHRoZQo+ID4g
+PiBjdHJsIHZxIHdpdGggdGhlIGV4aXN0aW5nIFZIT1NUXypfVlJJTkdfKiBpb2N0bHMsIGFuZCBw
+YXJlbnQKPiA+ID4gZHJpdmVycyBzaG91bGQga25vdyB0aGF0IHRoZSBhZGRyZXNzZXMgdXNlZCBp
+biBjdHJsIHZxIGFyZQo+ID4gPiBob3N0IHZpcnR1YWwgYWRkcmVzc2VzIGluIHZob3N0LW1kZXYn
+cyBjYXNlLgo+ID4gCj4gPiAKPiA+IFRoYXQncyByZWFsbHkgZ29vZCBwb2ludC4gQW5kIHRoYXQg
+bWVhbnMgcGFyZW50IG5lZWRzIHRvIGRpZmZlciB2aG9zdAo+ID4gZnJvbSB2aXJ0aW8uIEl0IHNo
+b3VsZCB3b3JrLgo+IAo+IAo+IEhWQSBtYXkgb25seSB3b3JrIHdoZW4gd2UgaGF2ZSBzb21ldGhp
+bmcgc2ltaWxhciB0byBWSE9TVF9TRVRfT1dORVIgd2hpY2gKPiBjYW4gcmV1c2UgTU0gb2YgaXRz
+IG93bmVyLgoKV2UgYWxyZWFkeSBoYXZlIFZIT1NUX1NFVF9PV05FUiBpbiB2aG9zdCBub3csIHBh
+cmVudCBjYW4gaGFuZGxlCnRoZSBjb21tYW5kcyBpbiBpdHMgLmtpY2tfdnEoKSB3aGljaCBpcyBj
+YWxsZWQgYnkgdnEncyAuaGFuZGxlX2tpY2sKY2FsbGJhY2suIFZpcnRpby11c2VyIGRpZCBzb21l
+dGhpbmcgc2ltaWxhcjoKCmh0dHBzOi8vZ2l0aHViLmNvbS9EUERLL2RwZGsvYmxvYi8wZGE3ZjQ0
+NWRmNDQ1NjMwYzc5NDg5NzM0N2VlMzYwZDZmZTYzNDhiL2RyaXZlcnMvbmV0L3ZpcnRpby92aXJ0
+aW9fdXNlcl9ldGhkZXYuYyNMMzEzLUwzMjIKCj4gCj4gCj4gPiBCdXQgaXMgdGhlcmUgYW55IGNo
+YW5jZSB0byB1c2UgRE1BIGFkZHJlc3M/IEknbSBhc2tpbmcgc2luY2UgdGhlIEFQSQo+ID4gdGhl
+biB0ZW5kcyB0byBiZSBkZXZpY2Ugc3BlY2lmaWMuCj4gCj4gCj4gSSB3b25kZXIgd2hldGhlciB3
+ZSBjYW4gaW50cm9kdWNlIE1BUCBJT01NVSBub3RpZmllciBhbmQgZ2V0IERNQSBtYXBwaW5ncwo+
+IGZyb20gdGhhdC4KCkkgdGhpbmsgdGhpcyB3aWxsIGNvbXBsaWNhdGUgdGhpbmdzIHVubmVjZXNz
+YXJpbHkgYW5kIG1heQpicmluZyBwYWlucy4gQmVjYXVzZSwgaW4gdmhvc3QtbWRldiwgbWRldidz
+IGN0cmwgdnEgaXMKc3VwcG9zZWQgdG8gYmUgbWFuYWdlZCBieSBob3N0LiBBbmQgd2Ugc2hvdWxk
+IHRyeSB0byBhdm9pZApwdXR0aW5nIGN0cmwgdnEgYW5kIFJ4L1R4IHZxcyBpbiB0aGUgc2FtZSBE
+TUEgc3BhY2UgdG8gcHJldmVudApndWVzdHMgaGF2aW5nIHRoZSBjaGFuY2UgdG8gYnlwYXNzIHRo
+ZSBob3N0IChlLmcuIFFFTVUpIHRvCnNldHVwIHRoZSBiYWNrZW5kIGFjY2VsZXJhdG9yIGRpcmVj
+dGx5LgoKPiAKPiBUaGFua3MKPiAKX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19f
+X19fX19fX19fX18KVmlydHVhbGl6YXRpb24gbWFpbGluZyBsaXN0ClZpcnR1YWxpemF0aW9uQGxp
+c3RzLmxpbnV4LWZvdW5kYXRpb24ub3JnCmh0dHBzOi8vbGlzdHMubGludXhmb3VuZGF0aW9uLm9y
+Zy9tYWlsbWFuL2xpc3RpbmZvL3ZpcnR1YWxpemF0aW9u
