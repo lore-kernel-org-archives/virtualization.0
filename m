@@ -1,23 +1,24 @@
-From: Jason Wang <jasowang@redhat.com>
-Subject: Re: [PATCH v2] vhost: introduce mdev based hardware backend
-Date: Thu, 24 Oct 2019 16:32:42 +0800
-Message-ID: <d4cc4f4e-2635-4041-2f68-cd043a97f25a__37084.6352701605$1571905998$gmane$org@redhat.com>
-References: <20191022095230.2514-1-tiwei.bie@intel.com>
-	<47a572fd-5597-1972-e177-8ee25ca51247@redhat.com>
-	<20191023030253.GA15401@___>
-	<ac36f1e3-b972-71ac-fe0c-3db03e016dcf@redhat.com>
-	<20191023070747.GA30533@___>
-	<106834b5-dae5-82b2-0f97-16951709d075@redhat.com>
-	<20191023101135.GA6367@___>
-	<5a7bc5da-d501-2750-90bf-545dd55f85fa@redhat.com>
-	<20191024042155.GA21090@___>
-	<d37529e1-5147-bbe5-cb9d-299bd6d4aa1a@redhat.com>
+From: Michal Hocko <mhocko@kernel.org>
+Subject: Re: [PATCH RFC v3 6/9] mm: Allow to offline PageOffline() pages with
+	a reference count of 0
+Date: Thu, 24 Oct 2019 10:42:41 +0200
+Message-ID: <20191024084241.GV17610__25491.4393344492$1571906580$gmane$org@dhcp22.suse.cz>
+References: <20191016140350.GD317@dhcp22.suse.cz>
+	<7c7bef01-f904-904a-b0a7-f7b514b8bda8@redhat.com>
+	<20191018081524.GD5017@dhcp22.suse.cz>
+	<83d0a961-952d-21e4-74df-267912b7b6fa@redhat.com>
+	<20191018111843.GH5017@dhcp22.suse.cz>
+	<709d39aa-a7ba-97aa-e66b-e2fec2fdf3c4@redhat.com>
+	<20191022122326.GL9379@dhcp22.suse.cz>
+	<b4be42a4-cbfc-8706-cc94-26211ddcbe4a@redhat.com>
+	<20191023094345.GL754@dhcp22.suse.cz>
+	<ad2aef12-61ac-f019-90d1-59637255f9e3@redhat.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="utf-8"; Format="flowed"
-Content-Transfer-Encoding: base64
+Content-Type: text/plain; charset="us-ascii"
+Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <d37529e1-5147-bbe5-cb9d-299bd6d4aa1a@redhat.com>
-Content-Language: en-US
+Content-Disposition: inline
+In-Reply-To: <ad2aef12-61ac-f019-90d1-59637255f9e3@redhat.com>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -27,79 +28,35 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Tiwei Bie <tiwei.bie@intel.com>
-Cc: kvm@vger.kernel.org, mst@redhat.com, netdev@vger.kernel.org, linux-kernel@vger.kernel.org, virtualization@lists.linux-foundation.org, zhihong.wang@intel.com, maxime.coquelin@redhat.com, lingshan.zhu@intel.com
+To: David Hildenbrand <david@redhat.com>
+Cc: Pingfan Liu <kernelfans@gmail.com>, virtualization@lists.linux-foundation.org, linux-mm@kvack.org, Alexander Potapenko <glider@google.com>, Mauro Carvalho Chehab <mchehab+samsung@kernel.org>, Alexander Duyck <alexander.h.duyck@linux.intel.com>, Ira Weiny <ira.weiny@intel.com>, Andrea Arcangeli <aarcange@redhat.com>, Stephen Rothwell <sfr@canb.auug.org.au>, Yu Zhao <yuzhao@google.com>, Matthew Wilcox <willy@infradead.org>, Jason Gunthorpe <jgg@ziepe.ca>, Anthony Yznaga <anthony.yznaga@oracle.com>, Pavel Tatashin <pavel.tatashin@microsoft.com>, Anshuman Khandual <anshuman.khandual@arm.com>, Mike Rapoport <rppt@linux.vnet.ibm.com>, Qian Cai <cai@lca.pw>, Andrey Ryabinin <aryabinin@virtuozzo.com>, Dan Williams <dan.j.williams@intel.com>, Vlastimil Babka <vbabka@suse.cz>, Oscar Salvador <osalvador@suse.de>, Juergen Gross <jgross@suse.com>, Yang Shi <yang.shi@linux.alibaba.c>
 List-Id: virtualization@lists.linuxfoundation.org
 
-Ck9uIDIwMTkvMTAvMjQg5LiL5Y2INDowMywgSmFzb24gV2FuZyB3cm90ZToKPgo+IE9uIDIwMTkv
-MTAvMjQg5LiL5Y2IMTI6MjEsIFRpd2VpIEJpZSB3cm90ZToKPj4gT24gV2VkLCBPY3QgMjMsIDIw
-MTkgYXQgMDY6Mjk6MjFQTSArMDgwMCwgSmFzb24gV2FuZyB3cm90ZToKPj4+IE9uIDIwMTkvMTAv
-MjMg5LiL5Y2INjoxMSwgVGl3ZWkgQmllIHdyb3RlOgo+Pj4+IE9uIFdlZCwgT2N0IDIzLCAyMDE5
-IGF0IDAzOjI1OjAwUE0gKzA4MDAsIEphc29uIFdhbmcgd3JvdGU6Cj4+Pj4+IE9uIDIwMTkvMTAv
-MjMg5LiL5Y2IMzowNywgVGl3ZWkgQmllIHdyb3RlOgo+Pj4+Pj4gT24gV2VkLCBPY3QgMjMsIDIw
-MTkgYXQgMDE6NDY6MjNQTSArMDgwMCwgSmFzb24gV2FuZyB3cm90ZToKPj4+Pj4+PiBPbiAyMDE5
-LzEwLzIzIOS4iuWNiDExOjAyLCBUaXdlaSBCaWUgd3JvdGU6Cj4+Pj4+Pj4+IE9uIFR1ZSwgT2N0
-IDIyLCAyMDE5IGF0IDA5OjMwOjE2UE0gKzA4MDAsIEphc29uIFdhbmcgd3JvdGU6Cj4+Pj4+Pj4+
-PiBPbiAyMDE5LzEwLzIyIOS4i+WNiDU6NTIsIFRpd2VpIEJpZSB3cm90ZToKPj4+Pj4+Pj4+PiBU
-aGlzIHBhdGNoIGludHJvZHVjZXMgYSBtZGV2IGJhc2VkIGhhcmR3YXJlIHZob3N0IGJhY2tlbmQu
-Cj4+Pj4+Pj4+Pj4gVGhpcyBiYWNrZW5kIGlzIGJ1aWx0IG9uIHRvcCBvZiB0aGUgc2FtZSBhYnN0
-cmFjdGlvbiB1c2VkCj4+Pj4+Pj4+Pj4gaW4gdmlydGlvLW1kZXYgYW5kIHByb3ZpZGVzIGEgZ2Vu
-ZXJpYyB2aG9zdCBpbnRlcmZhY2UgZm9yCj4+Pj4+Pj4+Pj4gdXNlcnNwYWNlIHRvIGFjY2VsZXJh
-dGUgdGhlIHZpcnRpbyBkZXZpY2VzIGluIGd1ZXN0Lgo+Pj4+Pj4+Pj4+Cj4+Pj4+Pj4+Pj4gVGhp
-cyBiYWNrZW5kIGlzIGltcGxlbWVudGVkIGFzIGEgbWRldiBkZXZpY2UgZHJpdmVyIG9uIHRvcAo+
-Pj4+Pj4+Pj4+IG9mIHRoZSBzYW1lIG1kZXYgZGV2aWNlIG9wcyB1c2VkIGluIHZpcnRpby1tZGV2
-IGJ1dCB1c2luZwo+Pj4+Pj4+Pj4+IGEgZGlmZmVyZW50IG1kZXYgY2xhc3MgaWQsIGFuZCBpdCB3
-aWxsIHJlZ2lzdGVyIHRoZSBkZXZpY2UKPj4+Pj4+Pj4+PiBhcyBhIFZGSU8gZGV2aWNlIGZvciB1
-c2Vyc3BhY2UgdG8gdXNlLiBVc2Vyc3BhY2UgY2FuIHNldHVwCj4+Pj4+Pj4+Pj4gdGhlIElPTU1V
-IHdpdGggdGhlIGV4aXN0aW5nIFZGSU8gY29udGFpbmVyL2dyb3VwIEFQSXMgYW5kCj4+Pj4+Pj4+
-Pj4gdGhlbiBnZXQgdGhlIGRldmljZSBmZCB3aXRoIHRoZSBkZXZpY2UgbmFtZS4gQWZ0ZXIgZ2V0
-dGluZwo+Pj4+Pj4+Pj4+IHRoZSBkZXZpY2UgZmQgb2YgdGhpcyBkZXZpY2UsIHVzZXJzcGFjZSBj
-YW4gdXNlIHZob3N0IGlvY3Rscwo+Pj4+Pj4+Pj4+IHRvIHNldHVwIHRoZSBiYWNrZW5kLgo+Pj4+
-Pj4+Pj4+Cj4+Pj4+Pj4+Pj4gU2lnbmVkLW9mZi1ieTogVGl3ZWkgQmllIDx0aXdlaS5iaWVAaW50
-ZWwuY29tPgo+Pj4+Pj4+Pj4+IC0tLQo+Pj4+Pj4+Pj4+IFRoaXMgcGF0Y2ggZGVwZW5kcyBvbiBi
-ZWxvdyBzZXJpZXM6Cj4+Pj4+Pj4+Pj4gaHR0cHM6Ly9sa21sLm9yZy9sa21sLzIwMTkvMTAvMTcv
-Mjg2Cj4+Pj4+Pj4+Pj4KPj4+Pj4+Pj4+PiB2MSAtPiB2MjoKPj4+Pj4+Pj4+PiAtIFJlcGxhY2Ug
-X1NFVF9TVEFURSB3aXRoIF9TRVRfU1RBVFVTIChNU1QpOwo+Pj4+Pj4+Pj4+IC0gQ2hlY2sgc3Rh
-dHVzIGJpdHMgYXQgZWFjaCBzdGVwIChNU1QpOwo+Pj4+Pj4+Pj4+IC0gUmVwb3J0IHRoZSBtYXgg
-cmluZyBzaXplIGFuZCBtYXggbnVtYmVyIG9mIHF1ZXVlcyAoTVNUKTsKPj4+Pj4+Pj4+PiAtIEFk
-ZCBtaXNzaW5nIE1PRFVMRV9ERVZJQ0VfVEFCTEUgKEphc29uKTsKPj4+Pj4+Pj4+PiAtIE9ubHkg
-c3VwcG9ydCB0aGUgbmV0d29yayBiYWNrZW5kIHcvbyBtdWx0aXF1ZXVlIGZvciBub3c7Cj4+Pj4+
-Pj4+PiBBbnkgaWRlYSBvbiBob3cgdG8gZXh0ZW5kIGl0IHRvIHN1cHBvcnQgZGV2aWNlcyBvdGhl
-ciB0aGFuIAo+Pj4+Pj4+Pj4gbmV0PyBJIHRoaW5rIHdlCj4+Pj4+Pj4+PiB3YW50IGEgZ2VuZXJp
-YyBBUEkgb3IgYW4gQVBJIHRoYXQgY291bGQgYmUgbWFkZSBnZW5lcmljIGluIHRoZSAKPj4+Pj4+
-Pj4+IGZ1dHVyZS4KPj4+Pj4+Pj4+Cj4+Pj4+Pj4+PiBEbyB3ZSB3YW50IHRvIGUuZyBoYXZpbmcg
-YSBnZW5lcmljIHZob3N0IG1kZXYgZm9yIGFsbCBraW5kcyBvZiAKPj4+Pj4+Pj4+IGRldmljZXMg
-b3IKPj4+Pj4+Pj4+IGludHJvZHVjaW5nIGUuZyB2aG9zdC1uZXQtbWRldiBhbmQgdmhvc3Qtc2Nz
-aS1tZGV2Pwo+Pj4+Pj4+PiBPbmUgcG9zc2libGUgd2F5IGlzIHRvIGRvIHdoYXQgdmhvc3QtdXNl
-ciBkb2VzLiBJLmUuIEFwYXJ0IGZyb20KPj4+Pj4+Pj4gdGhlIGdlbmVyaWMgcmluZywgZmVhdHVy
-ZXMsIC4uLiByZWxhdGVkIGlvY3Rscywgd2UgYWxzbyBpbnRyb2R1Y2UKPj4+Pj4+Pj4gZGV2aWNl
-IHNwZWNpZmljIGlvY3RscyB3aGVuIHdlIG5lZWQgdGhlbS4gQXMgdmhvc3QtbWRldiBqdXN0IG5l
-ZWRzCj4+Pj4+Pj4+IHRvIGZvcndhcmQgY29uZmlncyBiZXR3ZWVuIHBhcmVudCBhbmQgdXNlcnNw
-YWNlIGFuZCBldmVuIHdvbid0Cj4+Pj4+Pj4+IGNhY2hlIGFueSBpbmZvIHdoZW4gcG9zc2libGUs
-Cj4+Pj4+Pj4gU28gaXQgbG9va3MgdG8gbWUgdGhpcyBpcyBvbmx5IHBvc3NpYmxlIGlmIHdlIGV4
-cG9zZSBlLmcgCj4+Pj4+Pj4gc2V0X2NvbmZpZyBhbmQKPj4+Pj4+PiBnZXRfY29uZmlnIHRvIHVz
-ZXJzcGFjZS4KPj4+Pj4+IFRoZSBzZXRfY29uZmlnIGFuZCBnZXRfY29uZmlnIGludGVyZmFjZSBp
-c24ndCByZWFsbHkgZXZlcnl0aGluZwo+Pj4+Pj4gb2YgZGV2aWNlIHNwZWNpZmljIHNldHRpbmdz
-LiBXZSBhbHNvIGhhdmUgY3RybHEgaW4gdmlydGlvLW5ldC4KPj4+Pj4gWWVzLCBidXQgaXQgY291
-bGQgYmUgcHJvY2Vzc2VkIGJ5IHRoZSBleGlzdCBBUEkuIElzbid0IGl0PyBKdXN0IAo+Pj4+PiBz
-ZXQgY3RybCB2cQo+Pj4+PiBhZGRyZXNzIGFuZCBsZXQgcGFyZW50IHRvIGRlYWwgd2l0aCB0aGF0
-Lgo+Pj4+IEkgbWVhbiBob3cgdG8gZXhwb3NlIGN0cmxxIHJlbGF0ZWQgc2V0dGluZ3MgdG8gdXNl
-cnNwYWNlPwo+Pj4KPj4+IEkgdGhpbmsgaXQgd29ya3MgbGlrZToKPj4+Cj4+PiAxKSB1c2Vyc3Bh
-Y2UgZmluZCBjdHJsX3ZxIGlzIHN1cHBvcnRlZAo+Pj4KPj4+IDIpIHRoZW4gaXQgY2FuIGFsbG9j
-YXRlIG1lbW9yeSBmb3IgY3RybCB2cSBhbmQgc2V0IGl0cyBhZGRyZXNzIHRocm91Z2gKPj4+IHZo
-b3N0LW1kZXYKPj4+Cj4+PiAzKSB1c2Vyc3BhY2UgY2FuIHBvcHVsYXRlIGN0cmwgdnEgaXRzZWxm
-Cj4+IEkgc2VlLiBUaGF0IGlzIHRvIHNheSwgdXNlcnNwYWNlIGUuZy4gUUVNVSB3aWxsIHByb2dy
-YW0gdGhlCj4+IGN0cmwgdnEgd2l0aCB0aGUgZXhpc3RpbmcgVkhPU1RfKl9WUklOR18qIGlvY3Rs
-cywgYW5kIHBhcmVudAo+PiBkcml2ZXJzIHNob3VsZCBrbm93IHRoYXQgdGhlIGFkZHJlc3NlcyB1
-c2VkIGluIGN0cmwgdnEgYXJlCj4+IGhvc3QgdmlydHVhbCBhZGRyZXNzZXMgaW4gdmhvc3QtbWRl
-didzIGNhc2UuCj4KPgo+IFRoYXQncyByZWFsbHkgZ29vZCBwb2ludC4gQW5kIHRoYXQgbWVhbnMg
-cGFyZW50IG5lZWRzIHRvIGRpZmZlciB2aG9zdCAKPiBmcm9tIHZpcnRpby4gSXQgc2hvdWxkIHdv
-cmsuIAoKCkhWQSBtYXkgb25seSB3b3JrIHdoZW4gd2UgaGF2ZSBzb21ldGhpbmcgc2ltaWxhciB0
-byBWSE9TVF9TRVRfT1dORVIgCndoaWNoIGNhbiByZXVzZSBNTSBvZiBpdHMgb3duZXIuCgoKPiBC
-dXQgaXMgdGhlcmUgYW55IGNoYW5jZSB0byB1c2UgRE1BIGFkZHJlc3M/IEknbSBhc2tpbmcgc2lu
-Y2UgdGhlIEFQSSAKPiB0aGVuIHRlbmRzIHRvIGJlIGRldmljZSBzcGVjaWZpYy4gCgoKSSB3b25k
-ZXIgd2hldGhlciB3ZSBjYW4gaW50cm9kdWNlIE1BUCBJT01NVSBub3RpZmllciBhbmQgZ2V0IERN
-QSAKbWFwcGluZ3MgZnJvbSB0aGF0LgoKVGhhbmtzCgpfX19fX19fX19fX19fX19fX19fX19fX19f
-X19fX19fX19fX19fX19fX19fX19fXwpWaXJ0dWFsaXphdGlvbiBtYWlsaW5nIGxpc3QKVmlydHVh
-bGl6YXRpb25AbGlzdHMubGludXgtZm91bmRhdGlvbi5vcmcKaHR0cHM6Ly9saXN0cy5saW51eGZv
-dW5kYXRpb24ub3JnL21haWxtYW4vbGlzdGluZm8vdmlydHVhbGl6YXRpb24=
+On Wed 23-10-19 12:03:51, David Hildenbrand wrote:
+> >Do you see any downsides?
+> 
+> The only downside I see is that we get more false negatives on
+> has_unmovable_pages(), eventually resulting in the offlining stage after
+> isolation to loop forever (as some PageOffline() pages are not movable
+> (especially, XEN balloon, HyperV balloon), there won't be progress).
+> 
+> I somewhat don't like forcing everybody that uses PageOffline() (especially
+> all users of balloon compaction) to implement memory notifiers just to avoid
+> that. Maybe, we even want to use PageOffline() in the future in the core
+> (e.g., for memory holes instead of PG_reserved or similar).
+
+There is only a handful of those and we need to deal with them anyway.
+If you do not want to enforce them to create their own notifiers then we
+can accomodate the hotplug code. __test_page_isolated_in_pageblock resp.
+the call chain up can distinguish temporary and permanent failures
+(EAGAIN vs. EBUSY). The current state when we always return EBUSY and
+keep retrying for ever is not optimal at all, right? A referenced PageOffline
+could be an example of EBUSY all other failures where we are effectively
+waiting for pages to get freed finaly would be EAGAIN.
+
+It is a bit late in the process because a large portion of the work has
+been done already but this doesn't sound like something to lose sleep
+over.
+-- 
+Michal Hocko
+SUSE Labs
