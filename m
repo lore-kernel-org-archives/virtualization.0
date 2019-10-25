@@ -1,18 +1,14 @@
-From: Jason Wang <jasowang@redhat.com>
-Subject: Re: [PATCH V5 4/6] mdev: introduce virtio device and its device ops
-Date: Fri, 25 Oct 2019 09:54:20 +0800
-Message-ID: <d1a1b65e-75b4-2e04-2484-cd0a305cef7e__10598.3939183474$1571968509$gmane$org@redhat.com>
-References: <20191023130752.18980-1-jasowang@redhat.com>
-	<20191023130752.18980-5-jasowang@redhat.com>
-	<20191023155728.2a55bc71@x1.home>
-	<1699cc4e-7d52-b2dc-8016-358a36a4f4ea@redhat.com>
-	<20191024144449.626d560b@x1.home>
+From: "Michael S. Tsirkin" <mst@redhat.com>
+Subject: Re: [PATCH] virtio_ring: fix packed ring event may missing
+Date: Fri, 25 Oct 2019 05:32:49 -0400
+Message-ID: <20191025052401-mutt-send-email-mst@kernel.org>
+References: <20191021171004.18729-1-yong.liu@intel.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="utf-8"; Format="flowed"
-Content-Transfer-Encoding: base64
+Content-Type: text/plain; charset="us-ascii"
+Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <20191024144449.626d560b@x1.home>
-Content-Language: en-US
+Content-Disposition: inline
+In-Reply-To: <20191021171004.18729-1-yong.liu@intel.com>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -22,154 +18,91 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Alex Williamson <alex.williamson@redhat.com>
-Cc: stefanha@redhat.com, christophe.de.dinechin@gmail.com, kvm@vger.kernel.org, mst@redhat.com, airlied@linux.ie, joonas.lahtinen@linux.intel.com, heiko.carstens@de.ibm.com, dri-devel@lists.freedesktop.org, virtualization@lists.linux-foundation.org, kwankhede@nvidia.com, rob.miller@broadcom.com, linux-s390@vger.kernel.org, sebott@linux.ibm.com, lulu@redhat.com, eperezma@redhat.com, pasic@linux.ibm.com, borntraeger@de.ibm.com, haotian.wang@sifive.com, zhi.a.wang@intel.com, farman@linux.ibm.com, idos@mellanox.com, gor@linux.ibm.com, intel-gfx@lists.freedesktop.org, jani.nikula@linux.intel.com, rodrigo.vivi@intel.com, xiao.w.wang@intel.com, freude@linux.ibm.com, zhenyuw@linux.intel.com, parav@mellanox.com, zhihong.wang@intel.com, intel-gvt-dev@lists.freedesktop.org, akrowiak@linux.ibm.com, oberpar@linux.ibm.com, netdev@vger.kernel.org, cohuck@redhat.com, linux-kernel@vger.ke
+To: Marvin Liu <yong.liu@intel.com>
+Cc: virtualization@lists.linux-foundation.org
 List-Id: virtualization@lists.linuxfoundation.org
 
-Ck9uIDIwMTkvMTAvMjUg5LiK5Y2INDo0NCwgQWxleCBXaWxsaWFtc29uIHdyb3RlOgo+IE9uIFRo
-dSwgMjQgT2N0IDIwMTkgMTE6NTE6MzUgKzA4MDAKPiBKYXNvbiBXYW5nPGphc293YW5nQHJlZGhh
-dC5jb20+ICB3cm90ZToKPgo+PiBPbiAyMDE5LzEwLzI0IOS4iuWNiDU6NTcsIEFsZXggV2lsbGlh
-bXNvbiB3cm90ZToKPj4+IE9uIFdlZCwgMjMgT2N0IDIwMTkgMjE6MDc6NTAgKzA4MDAKPj4+IEph
-c29uIFdhbmc8amFzb3dhbmdAcmVkaGF0LmNvbT4gIHdyb3RlOgo+Pj4gICAKPj4+PiBUaGlzIHBh
-dGNoIGltcGxlbWVudHMgYmFzaWMgc3VwcG9ydCBmb3IgbWRldiBkcml2ZXIgdGhhdCBzdXBwb3J0
-cwo+Pj4+IHZpcnRpbyB0cmFuc3BvcnQgZm9yIGtlcm5lbCB2aXJ0aW8gZHJpdmVyLgo+Pj4+Cj4+
-Pj4gU2lnbmVkLW9mZi1ieTogSmFzb24gV2FuZzxqYXNvd2FuZ0ByZWRoYXQuY29tPgo+Pj4+IC0t
-LQo+Pj4+ICAgIGRyaXZlcnMvdmZpby9tZGV2L21kZXZfY29yZS5jICAgIHwgIDIwICsrKysKPj4+
-PiAgICBkcml2ZXJzL3ZmaW8vbWRldi9tZGV2X3ByaXZhdGUuaCB8ICAgMiArCj4+Pj4gICAgaW5j
-bHVkZS9saW51eC9tZGV2LmggICAgICAgICAgICAgfCAgIDYgKysKPj4+PiAgICBpbmNsdWRlL2xp
-bnV4L3ZpcnRpb19tZGV2X29wcy5oICB8IDE1OSArKysrKysrKysrKysrKysrKysrKysrKysrKysr
-KysrCj4+Pj4gICAgNCBmaWxlcyBjaGFuZ2VkLCAxODcgaW5zZXJ0aW9ucygrKQo+Pj4+ICAgIGNy
-ZWF0ZSBtb2RlIDEwMDY0NCBpbmNsdWRlL2xpbnV4L3ZpcnRpb19tZGV2X29wcy5oCj4+Pj4KPj4+
-PiBkaWZmIC0tZ2l0IGEvZHJpdmVycy92ZmlvL21kZXYvbWRldl9jb3JlLmMgYi9kcml2ZXJzL3Zm
-aW8vbWRldi9tZGV2X2NvcmUuYwo+Pj4+IGluZGV4IDU1NWJkNjFkOGMzOC4uOWIwMGMzNTEzMTIw
-IDEwMDY0NAo+Pj4+IC0tLSBhL2RyaXZlcnMvdmZpby9tZGV2L21kZXZfY29yZS5jCj4+Pj4gKysr
-IGIvZHJpdmVycy92ZmlvL21kZXYvbWRldl9jb3JlLmMKPj4+PiBAQCAtNzYsNiArNzYsMjYgQEAg
-Y29uc3Qgc3RydWN0IHZmaW9fbWRldl9kZXZpY2Vfb3BzICptZGV2X2dldF92ZmlvX29wcyhzdHJ1
-Y3QgbWRldl9kZXZpY2UgKm1kZXYpCj4+Pj4gICAgfQo+Pj4+ICAgIEVYUE9SVF9TWU1CT0wobWRl
-dl9nZXRfdmZpb19vcHMpOwo+Pj4+ICAgIAo+Pj4+ICsvKiBTcGVjaWZ5IHRoZSB2aXJ0aW8gZGV2
-aWNlIG9wcyBmb3IgdGhlIG1kZXYgZGV2aWNlLCB0aGlzCj4+Pj4gKyAqIG11c3QgYmUgY2FsbGVk
-IGR1cmluZyBjcmVhdGUoKSBjYWxsYmFjayBmb3IgdmlydGlvIG1kZXYgZGV2aWNlLgo+Pj4+ICsg
-Ki8KPj4+PiArdm9pZCBtZGV2X3NldF92aXJ0aW9fb3BzKHN0cnVjdCBtZGV2X2RldmljZSAqbWRl
-diwKPj4+PiArCQkJIGNvbnN0IHN0cnVjdCB2aXJ0aW9fbWRldl9kZXZpY2Vfb3BzICp2aXJ0aW9f
-b3BzKQo+Pj4+ICt7Cj4+Pj4gKwltZGV2X3NldF9jbGFzcyhtZGV2LCBNREVWX0NMQVNTX0lEX1ZJ
-UlRJTyk7Cj4+Pj4gKwltZGV2LT52aXJ0aW9fb3BzID0gdmlydGlvX29wczsKPj4+PiArfQo+Pj4+
-ICtFWFBPUlRfU1lNQk9MKG1kZXZfc2V0X3ZpcnRpb19vcHMpOwo+Pj4+ICsKPj4+PiArLyogR2V0
-IHRoZSB2aXJ0aW8gZGV2aWNlIG9wcyBmb3IgdGhlIG1kZXYgZGV2aWNlLiAqLwo+Pj4+ICtjb25z
-dCBzdHJ1Y3QgdmlydGlvX21kZXZfZGV2aWNlX29wcyAqCj4+Pj4gK21kZXZfZ2V0X3ZpcnRpb19v
-cHMoc3RydWN0IG1kZXZfZGV2aWNlICptZGV2KQo+Pj4+ICt7Cj4+Pj4gKwlXQVJOX09OKG1kZXYt
-PmNsYXNzX2lkICE9IE1ERVZfQ0xBU1NfSURfVklSVElPKTsKPj4+PiArCXJldHVybiBtZGV2LT52
-aXJ0aW9fb3BzOwo+Pj4+ICt9Cj4+Pj4gK0VYUE9SVF9TWU1CT0wobWRldl9nZXRfdmlydGlvX29w
-cyk7Cj4+Pj4gKwo+Pj4+ICAgIHN0cnVjdCBkZXZpY2UgKm1kZXZfZGV2KHN0cnVjdCBtZGV2X2Rl
-dmljZSAqbWRldikKPj4+PiAgICB7Cj4+Pj4gICAgCXJldHVybiAmbWRldi0+ZGV2Owo+Pj4+IGRp
-ZmYgLS1naXQgYS9kcml2ZXJzL3ZmaW8vbWRldi9tZGV2X3ByaXZhdGUuaCBiL2RyaXZlcnMvdmZp
-by9tZGV2L21kZXZfcHJpdmF0ZS5oCj4+Pj4gaW5kZXggMDc3MDQxMGRlZDJhLi43YjQ3ODkwYzM0
-ZTcgMTAwNjQ0Cj4+Pj4gLS0tIGEvZHJpdmVycy92ZmlvL21kZXYvbWRldl9wcml2YXRlLmgKPj4+
-PiArKysgYi9kcml2ZXJzL3ZmaW8vbWRldi9tZGV2X3ByaXZhdGUuaAo+Pj4+IEBAIC0xMSw2ICsx
-MSw3IEBACj4+Pj4gICAgI2RlZmluZSBNREVWX1BSSVZBVEVfSAo+Pj4+ICAgIAo+Pj4+ICAgICNp
-bmNsdWRlIDxsaW51eC92ZmlvX21kZXZfb3BzLmg+Cj4+Pj4gKyNpbmNsdWRlIDxsaW51eC92aXJ0
-aW9fbWRldl9vcHMuaD4KPj4+PiAgICAKPj4+PiAgICBpbnQgIG1kZXZfYnVzX3JlZ2lzdGVyKHZv
-aWQpOwo+Pj4+ICAgIHZvaWQgbWRldl9idXNfdW5yZWdpc3Rlcih2b2lkKTsKPj4+PiBAQCAtMzgs
-NiArMzksNyBAQCBzdHJ1Y3QgbWRldl9kZXZpY2Ugewo+Pj4+ICAgIAl1MTYgY2xhc3NfaWQ7Cj4+
-Pj4gICAgCXVuaW9uIHsKPj4+PiAgICAJCWNvbnN0IHN0cnVjdCB2ZmlvX21kZXZfZGV2aWNlX29w
-cyAqdmZpb19vcHM7Cj4+Pj4gKwkJY29uc3Qgc3RydWN0IHZpcnRpb19tZGV2X2RldmljZV9vcHMg
-KnZpcnRpb19vcHM7Cj4+Pj4gICAgCX07Cj4+Pj4gICAgfTsKPj4+PiAgICAKPj4+PiBkaWZmIC0t
-Z2l0IGEvaW5jbHVkZS9saW51eC9tZGV2LmggYi9pbmNsdWRlL2xpbnV4L21kZXYuaAo+Pj4+IGlu
-ZGV4IDQ2MjVmMWExMTAxNC4uOWI2OWIwYmJlYmZkIDEwMDY0NAo+Pj4+IC0tLSBhL2luY2x1ZGUv
-bGludXgvbWRldi5oCj4+Pj4gKysrIGIvaW5jbHVkZS9saW51eC9tZGV2LmgKPj4+PiBAQCAtMTcs
-NiArMTcsNyBAQAo+Pj4+ICAgIAo+Pj4+ICAgIHN0cnVjdCBtZGV2X2RldmljZTsKPj4+PiAgICBz
-dHJ1Y3QgdmZpb19tZGV2X2RldmljZV9vcHM7Cj4+Pj4gK3N0cnVjdCB2aXJ0aW9fbWRldl9kZXZp
-Y2Vfb3BzOwo+Pj4+ICAgIAo+Pj4+ICAgIC8qCj4+Pj4gICAgICogQ2FsbGVkIGJ5IHRoZSBwYXJl
-bnQgZGV2aWNlIGRyaXZlciB0byBzZXQgdGhlIGRldmljZSB3aGljaCByZXByZXNlbnRzCj4+Pj4g
-QEAgLTExMiw2ICsxMTMsMTAgQEAgdm9pZCBtZGV2X3NldF9jbGFzcyhzdHJ1Y3QgbWRldl9kZXZp
-Y2UgKm1kZXYsIHUxNiBpZCk7Cj4+Pj4gICAgdm9pZCBtZGV2X3NldF92ZmlvX29wcyhzdHJ1Y3Qg
-bWRldl9kZXZpY2UgKm1kZXYsCj4+Pj4gICAgCQkgICAgICAgY29uc3Qgc3RydWN0IHZmaW9fbWRl
-dl9kZXZpY2Vfb3BzICp2ZmlvX29wcyk7Cj4+Pj4gICAgY29uc3Qgc3RydWN0IHZmaW9fbWRldl9k
-ZXZpY2Vfb3BzICptZGV2X2dldF92ZmlvX29wcyhzdHJ1Y3QgbWRldl9kZXZpY2UgKm1kZXYpOwo+
-Pj4+ICt2b2lkIG1kZXZfc2V0X3ZpcnRpb19vcHMoc3RydWN0IG1kZXZfZGV2aWNlICptZGV2LAo+
-Pj4+ICsJCQkgY29uc3Qgc3RydWN0IHZpcnRpb19tZGV2X2RldmljZV9vcHMgKnZpcnRpb19vcHMp
-Owo+Pj4+ICtjb25zdCBzdHJ1Y3QgdmlydGlvX21kZXZfZGV2aWNlX29wcyAqCj4+Pj4gK21kZXZf
-Z2V0X3ZpcnRpb19vcHMoc3RydWN0IG1kZXZfZGV2aWNlICptZGV2KTsKPj4+PiAgICAKPj4+PiAg
-ICBleHRlcm4gc3RydWN0IGJ1c190eXBlIG1kZXZfYnVzX3R5cGU7Cj4+Pj4gICAgCj4+Pj4gQEAg
-LTEyNyw2ICsxMzIsNyBAQCBzdHJ1Y3QgbWRldl9kZXZpY2UgKm1kZXZfZnJvbV9kZXYoc3RydWN0
-IGRldmljZSAqZGV2KTsKPj4+PiAgICAKPj4+PiAgICBlbnVtIHsKPj4+PiAgICAJTURFVl9DTEFT
-U19JRF9WRklPID0gMSwKPj4+PiArCU1ERVZfQ0xBU1NfSURfVklSVElPID0gMiwKPj4+PiAgICAJ
-LyogTmV3IGVudHJpZXMgbXVzdCBiZSBhZGRlZCBoZXJlICovCj4+Pj4gICAgfTsKPj4+PiAgICAK
-Pj4+PiBkaWZmIC0tZ2l0IGEvaW5jbHVkZS9saW51eC92aXJ0aW9fbWRldl9vcHMuaCBiL2luY2x1
-ZGUvbGludXgvdmlydGlvX21kZXZfb3BzLmgKPj4+PiBuZXcgZmlsZSBtb2RlIDEwMDY0NAo+Pj4+
-IGluZGV4IDAwMDAwMDAwMDAwMC4uZDQxN2I0MWYyODQ1Cj4+Pj4gLS0tIC9kZXYvbnVsbAo+Pj4+
-ICsrKyBiL2luY2x1ZGUvbGludXgvdmlydGlvX21kZXZfb3BzLmgKPj4+PiBAQCAtMCwwICsxLDE1
-OSBAQAo+Pj4+ICsvKiBTUERYLUxpY2Vuc2UtSWRlbnRpZmllcjogR1BMLTIuMC1vbmx5ICovCj4+
-Pj4gKy8qCj4+Pj4gKyAqIFZpcnRpbyBtZWRpYXRlZCBkZXZpY2UgZHJpdmVyCj4+Pj4gKyAqCj4+
-Pj4gKyAqIENvcHlyaWdodCAyMDE5LCBSZWQgSGF0IENvcnAuCj4+Pj4gKyAqICAgICBBdXRob3I6
-IEphc29uIFdhbmc8amFzb3dhbmdAcmVkaGF0LmNvbT4KPj4+PiArICovCj4+Pj4gKyNpZm5kZWYg
-X0xJTlVYX1ZJUlRJT19NREVWX0gKPj4+PiArI2RlZmluZSBfTElOVVhfVklSVElPX01ERVZfSAo+
-Pj4+ICsKPj4+PiArI2luY2x1ZGUgPGxpbnV4L2ludGVycnVwdC5oPgo+Pj4+ICsjaW5jbHVkZSA8
-bGludXgvbWRldi5oPgo+Pj4+ICsjaW5jbHVkZSA8dWFwaS9saW51eC92aG9zdC5oPgo+Pj4+ICsK
-Pj4+PiArI2RlZmluZSBWSVJUSU9fTURFVl9ERVZJQ0VfQVBJX1NUUklORwkJInZpcnRpby1tZGV2
-Igo+Pj4+ICsjZGVmaW5lIFZJUlRJT19NREVWX0ZfVkVSU0lPTl8xIDB4MQo+Pj4+ICsKPj4+PiAr
-c3RydWN0IHZpcnRpb19tZGV2X2NhbGxiYWNrIHsKPj4+PiArCWlycXJldHVybl90ICgqY2FsbGJh
-Y2spKHZvaWQgKmRhdGEpOwo+Pj4+ICsJdm9pZCAqcHJpdmF0ZTsKPj4+PiArfTsKPj4+PiArCj4+
-Pj4gKy8qKgo+Pj4+ICsgKiBzdHJ1Y3QgdmZpb19tZGV2X2RldmljZV9vcHMgLSBTdHJ1Y3R1cmUg
-dG8gYmUgcmVnaXN0ZXJlZCBmb3IgZWFjaAo+Pj4+ICsgKiBtZGV2IGRldmljZSB0byByZWdpc3Rl
-ciB0aGUgZGV2aWNlIGZvciB2aXJ0aW8vdmhvc3QgZHJpdmVycy4KPj4+PiArICoKPj4+PiArICog
-VGhlIGRldmljZSBvcHMgdGhhdCBpcyBzdXBwb3J0ZWQgYnkgVklSVElPX01ERVZfRl9WRVJTSU9O
-XzEsIHRoZQo+Pj4+ICsgKiBjYWxsYmFja3MgYXJlIG1hbmRhdG9yeSB1bmxlc3MgZXhwbGljaXR5
-IG1lbnRpb25lZC4KPj4+IElmIHRoZSB2ZXJzaW9uIG9mIHRoZSBjYWxsYmFja3MgaXMgcmV0dXJu
-ZWQgYnkgYSBjYWxsYmFjayB3aXRoaW4gdGhlCj4+PiBzdHJ1Y3R1cmUgZGVmaW5lZCBieSB0aGUg
-dmVyc2lvbi4uLiBpc24ndCB0aGF0IGEgYml0IGNpcmN1bGFyPyAgVGhpcwo+Pj4gc2VlbXMgcmVk
-dW5kYW50IHRvIG1lIHZlcnN1cyB0aGUgY2xhc3MgaWQuICBUaGUgZmFjdCB0aGF0IHRoZSBwYXJl
-bnQKPj4+IGRyaXZlciBkZWZpbmVzIHRoZSBkZXZpY2UgYXMgTURFVl9DTEFTU19JRF9WSVJUSU8g
-c2hvdWxkIHRlbGwgdXMgdGhpcwo+Pj4gYWxyZWFkeS4gIElmIGl0IHdhcyBpbmNyZW1lbnRlZCwg
-d2UnZCBuZWVkIGFuIE1ERVZfQ0xBU1NfSURfVklSVElPdjIsCj4+PiB3aGljaCB0aGUgdmlydGlv
-LW1kZXYgYnVzIGRyaXZlciBjb3VsZCBhZGQgdG8gaXRzIGlkIHRhYmxlIGFuZCBoYW5kbGUKPj4+
-IGRpZmZlcmVudGx5Lgo+PiBNeSB1bmRlcnN0YW5kaW5nIGlzIHZlcnNpb25zIGFyZSBvbmx5IGFs
-bG93ZWQgdG8gaW5jcmVhc2UgbW9ub3RvbmljYWxseSwKPj4gdGhpcyBzZWVtcyBsZXNzIGZsZXhp
-YmxlIHRoYW4gZmVhdHVyZXMuIEUuZyB3ZSBoYXZlIGZlYXR1cmVzIEEsIEIsIEMsCj4+IG1kZXYg
-ZGV2aWNlIGNhbiBjaG9vc2UgdG8gc3VwcG9ydCBvbmx5IGEgc3Vic2V0LiBFLmcgd2hlbiBtZGV2
-IGRldmljZQo+PiBjYW4gc3VwcG9ydCBkaXJ0eSBwYWdlIGxvZ2dpbmcsIGl0IGNhbiBhZGQgYSBu
-ZXcgZmVhdHVyZSBiaXQgZm9yIGRyaXZlcgo+PiB0byBrbm93IHRoYXQgaXQgc3VwcG9ydCBuZXcg
-ZGV2aWNlIG9wcy4gTURFVl9DTEFTU19JRF9WSVJUSU92MiBtYXkgb25seQo+PiBiZSB1c2VmdWwg
-d2hlbiB3ZSB3aWxsIGludmVudCBhIGNvbXBsZXRlIG5ldyBBUEkuCj4gQnV0IHRoaXMgaW50ZXJm
-YWNlIHJhdGhlciBjb25mbGF0ZXMgZmVhdHVyZXMgYW5kIHZlcnNpb25zIGJ5IHJldHVybmluZwo+
-IGEgdmVyc2lvbiBhcyBhIGZlYXR1cmUuICBJZiB3ZSBzaW1wbHkgd2FudCB0byBzYXkgdGhhdCB0
-aGVyZSBhcmUgbm8KPiBhZGRpdGlvbmFsIGZlYXR1cmVzLCB0aGVuIGdldF9tZGV2X2ZlYXR1cmVz
-KCkgc2hvdWxkIHJldHVybiBhbiBlbXB0eQo+IHNldC4gIElmIGRpcnR5IHBhZ2UgbG9nZ2luZyBp
-cyBhIGZlYXR1cmUsIHRoZW4gSSdkIGV4cGVjdCBhIGJpdCBpbiB0aGUKPiBnZXRfbWRldl9mZWF0
-dXJlcygpIHJldHVybiB2YWx1ZSB0byBpZGVudGlmeSB0aGF0IGZlYXR1cmUuCj4KPiBIb3dldmVy
-LCBJJ3ZlIGJlZW4gdW5kZXIgdGhlIGltcHJlc3Npb24gKHBlcmhhcHMgd3JvbmdseSkgdGhhdCB0
-aGUKPiBjbGFzcy1pZCBoYXMgYSAxOjEgY29ycmVsYXRpb24gdG8gdGhlIGRldmljZS1vcHMgZXhw
-b3NlZCB0byB0aGUgYnVzCj4gZHJpdmVyLCBzbyBpZiBkaXJ0eSBwYWdlIGxvZ2dpbmcgcmVxdWly
-ZXMgZXh0cmEgY2FsbGJhY2tzLCB0aGF0IHdvdWxkCj4gaW1wbHkgYSBuZXcgZGV2aWNlLW9wcywg
-d2hpY2ggcmVxdWlyZXMgYSBuZXcgY2xhc3MtaWQuICBJbiB0aGF0IGNhc2UKPiB2aXJ0aW8tbWRl
-diB3b3VsZCBjbGFpbSBib3RoIGNsYXNzLWlkcyBhbmQgd291bGQgbmVlZCBzb21lIHdheSB0bwo+
-IGRpZmZlcmVudGlhdGUgdGhlbS4gIEJ1dCBJIGFsc28gc2VlIHRoYXQgc3VjaCBhIHNvbHV0aW9u
-IGNhbiBiZWNvbWUKPiB1bm1hbmFnZWFibGUgYXMgdGhlIHNldCBvZiBjbGFzcy1pZHMgd291bGQg
-bmVlZCB0byBlbmNvbXBhc3MgZXZlcnkKPiBjb21iaW5hdGlvbiBvZiBmZWF0dXJlcy4KPgo+IFNv
-IEkgdGhpbmsgd2hhdCdzIHN1Z2dlc3RlZCBieSB0aGlzIGlzIHRoYXQgdGhlIGluaXRpYWwgc3Ry
-dWN0Cj4gdmlydGlvX21kZXZfZGV2aWNlX29wcyBpcyBhIGJhc2Ugc2V0IG9mIGNhbGxiYWNrcyB3
-aGljaCB3b3VsZCBiZQo+IGV4dGVuZGVkIHZpYSBmZWF0dXJlcz8KCgpZZXMuCgoKPiBCdXQgdGhl
-biB3aHkgZG9lcyBnZXRfZ2VuZXJhdGlvbigpIG5vdCBtYWtlIHVzZQo+IG9mIHRoaXM/ICBBbmQg
-aWYgd2UgY2FuIGRlZmluZSBnZXRfZ2VuZXJhdGlvbigpIGFzIG9wdGlvbmFsIGFuZCBzaW1wbHkK
-PiB0ZXN0IGlmIGl0J3MgaW1wbGVtZW50ZWQsIHRoZW4gaXQgc2VlbXMgd2UgZG9uJ3QgbmVlZCBh
-bnkgZmVhdHVyZSBiaXRzCj4gdG8gZXh0ZW5kIHRoZSBzdHJ1Y3R1cmUgKHVubGVzcyB3ZSdyZSBs
-b29raW5nIGF0IGJpbmFyeSBjb21wYXRpYmlsaXR5KS4KCgpJIHRoaW5rIHRoZSBtYXBwaW5nIGJl
-dHdlZW4gb3BzIGFuZCBmZWF0dXJlcyBpcyBOOjEuIFdlIHN0YXJ0IHdpdGggYSAKYmFzZSBmZWF0
-dXJlIGxpa2UgVklSVElPX01ERVZfVkVSU0lPTl8xLCB0aGlzIGFsbG93cyB1cyB0byBkbyBzaW1w
-bHkgCmNoZWNraW5nIGR1cmluZyBwcm9iZSB3aXRob3V0IHRoZSBuZWVkIHRvIGNoZWNraW5nIHRo
-ZSBleGlzdGVuY2Ugb2YgZWFjaCAKb3AuIFRlc3RpbmcgdGhlIGV4aXN0ZW5jZSBvZiBhIHNwZWNp
-ZmljIG9wIHNob3VsZCB3b3JrIGJ1dCBsZXNzIApjb252ZW5pZW50IHdoZW4gYSBmZWF0dXJlIHJl
-cXVpcmVzIHNldmVyYWwgbmV3IG9wcy4gRm9yIHRoZSBjYXNlIG9mIApnZXRfZ2VuZXJhdGlvbigp
-LCBpdCB3b3JrcyBiZWNhdXNlIHRoZSBidXMgZHJpdmVyIGhhdmUgd29ya2Fyb3VuZCB3aGVuIApw
-YXJlbnQgZG9lc24ndCBwcm92aWRlIHRoYXQuIFRoaXMgbWF5IG5vdCB3b3JrIGZvciBhIHJlYWwg
-ZmVhdHVyZS4KCgo+IFNvIG1heWJlIGdldF9tZGV2X2ZlYXR1cmVzKCkgaXMgbWVhbnQgdG8gZXhw
-b3NlIHVuZGVybHlpbmcgZmVhdHVyZXMKPiB1bnJlbGF0ZWQgdG8gdGhlIGNhbGxiYWNrcz8gIFdo
-aWNoIGlzIG5vdCBpbiBsaW5lIHdpdGggdGhlIGRlc2NyaXB0aW9uPwoKCkF0IGxlYXN0IG5vdCBm
-b3IgY3VycmVudCB2aXJ0aW8tbWRldi92aG9zdC1tZGV2LiBWaXJ0aW8gc3BlY2lmaWMgCmZlYXR1
-cmVzIHNob3VsZCBiZSBkb25lIHZpYSBnZXRfZmVhdHVyZXMoKS4KCgo+IEhvcGVmdWxseSB5b3Ug
-Y2FuIHNlZSBteSBjb25mdXNpb24gaW4gd2hhdCB3ZSdyZSB0cnlpbmcgdG8gZG8gaGVyZS4KCgpJ
-IHRoaW5rIEkgZ2V0IHlvdSBhbmQgaG9wZSBteSBhbnN3ZXIgbWFrZSBzZW5zZS4gU3VnZ2VzdGlv
-bnMgYXJlIHdlbGNvbWVkLgoKVGhhbmtzCgoKPiBUaGFua3MsCj4KPiBBbGV4Cj4KCl9fX19fX19f
-X19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fClZpcnR1YWxpemF0aW9uIG1h
-aWxpbmcgbGlzdApWaXJ0dWFsaXphdGlvbkBsaXN0cy5saW51eC1mb3VuZGF0aW9uLm9yZwpodHRw
-czovL2xpc3RzLmxpbnV4Zm91bmRhdGlvbi5vcmcvbWFpbG1hbi9saXN0aW5mby92aXJ0dWFsaXph
-dGlvbg==
+On Tue, Oct 22, 2019 at 01:10:04AM +0800, Marvin Liu wrote:
+> When callback is delayed, virtio expect that vhost will kick when
+> rolling over event offset. Recheck should be taken as used index may
+> exceed event offset between status check and driver event update.
+> 
+> However, it is possible that flags was not modified if descriptors are
+> chained or in_order feature was negotiated. So flags at event offset
+
+This mention of event offset I don't understand: your patch
+only affects code that runs when !event. So how can it
+affect event offset?
+
+
+
+> may not be valid for descriptor's status checking. Fix it by using last
+> used index as replacement. Tx queue will be stopped if there's not
+> enough freed buffers after recheck.
+> 
+> Signed-off-by: Marvin Liu <yong.liu@intel.com>
+> 
+> diff --git a/drivers/virtio/virtio_ring.c b/drivers/virtio/virtio_ring.c
+> index bdc08244a648..a8041e451e9e 100644
+> --- a/drivers/virtio/virtio_ring.c
+> +++ b/drivers/virtio/virtio_ring.c
+> @@ -1499,9 +1499,6 @@ static bool virtqueue_enable_cb_delayed_packed(struct virtqueue *_vq)
+>  		 * counter first before updating event flags.
+>  		 */
+>  		virtio_wmb(vq->weak_barriers);
+> -	} else {
+> -		used_idx = vq->last_used_idx;
+> -		wrap_counter = vq->packed.used_wrap_counter;
+>  	}
+
+
+Is all this theorectical? Or did you actually see a problem
+and then fixed it?
+Because as far as I could see after this patch and with
+event index off, used_idx and wrap_counter will be used
+without being initialized.
+
+OTOH the behaviour with event index on is completely unaffected.
+
+
+>  
+>  	if (vq->packed.event_flags_shadow == VRING_PACKED_EVENT_FLAG_DISABLE) {
+
+OK so trying to unpack the scenario.
+
+First you patch only affects code running when EVENT_IDX is off, so
+legal values for flags are enable and disable.
+
+
+Next point, this calculates the index at which we are going
+to look for the flags to change, in other words
+it affects the line
+        if (is_used_desc_packed(vq, used_idx, wrap_counter)) {
+below.
+
+Without your patch, we simply look at the next descriptor.
+This is exactly what the spec says we should do:
+
+	Writes of device and driver descriptors can generally be
+	reordered, but each side (driver and device) are only required to
+	poll (or test) a single location in memory: the next device descriptor after
+	the one they processed previously, in circular order.
+
+
+
+
+
+
+> @@ -1518,7 +1515,9 @@ static bool virtqueue_enable_cb_delayed_packed(struct virtqueue *_vq)
+>  	 */
+>  	virtio_mb(vq->weak_barriers);
+>  
+> -	if (is_used_desc_packed(vq, used_idx, wrap_counter)) {
+> +	if (is_used_desc_packed(vq,
+> +				vq->last_used_idx,
+> +				vq->packed.used_wrap_counter)) {
+>  		END_USE(vq);
+>  		return false;
+>  	}
+> -- 
+> 2.17.1
