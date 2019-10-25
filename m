@@ -1,14 +1,23 @@
-From: David Hildenbrand <david@redhat.com>
-Subject: [PATCH RFC] mm: Allow to offline unmovable PageOffline() pages if the
-	driver agrees
-Date: Fri, 25 Oct 2019 13:28:22 +0200
-Message-ID: <20191025112822.7552-1-david@redhat.com>
-References: <ba7164c9-b98e-0ce1-358e-8b0d45fe3f48@redhat.com>
+From: "Michael S. Tsirkin" <mst@redhat.com>
+Subject: Re: [PATCH v2] vhost: introduce mdev based hardware backend
+Date: Fri, 25 Oct 2019 08:16:26 -0400
+Message-ID: <20191025080143-mutt-send-email-mst__46565.5464258575$1572005810$gmane$org@kernel.org>
+References: <20191023070747.GA30533@___>
+	<106834b5-dae5-82b2-0f97-16951709d075@redhat.com>
+	<20191023101135.GA6367@___>
+	<5a7bc5da-d501-2750-90bf-545dd55f85fa@redhat.com>
+	<20191024042155.GA21090@___>
+	<d37529e1-5147-bbe5-cb9d-299bd6d4aa1a@redhat.com>
+	<d4cc4f4e-2635-4041-2f68-cd043a97f25a@redhat.com>
+	<20191024091839.GA17463@___>
+	<fefc82a3-a137-bc03-e1c3-8de79b238080@redhat.com>
+	<e7e239ba-2461-4f8d-7dd7-0f557ac7f4bf@redhat.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset="utf-8"
+Content-Transfer-Encoding: base64
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <ba7164c9-b98e-0ce1-358e-8b0d45fe3f48@redhat.com>
+Content-Disposition: inline
+In-Reply-To: <e7e239ba-2461-4f8d-7dd7-0f557ac7f4bf@redhat.com>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -18,252 +27,45 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: linux-kernel@vger.kernel.org
-Cc: Juergen Gross <jgross@suse.com>, Pavel Tatashin <pavel.tatashin@microsoft.com>, Michal Hocko <mhocko@suse.com>, Anshuman Khandual <anshuman.khandual@arm.com>, Konrad Rzeszutek Wilk <konrad.wilk@oracle.com>, Dan Williams <dan.j.williams@intel.com>, Pingfan Liu <kernelfans@gmail.com>, virtualization@lists.linux-foundation.org, linux-mm@kvack.org, Qian Cai <cai@lca.pw>, Johannes Weiner <hannes@cmpxchg.org>, Anthony Yznaga <anthony.yznaga@oracle.com>, Andrew Morton <akpm@linux-foundation.org>, Mike Rapoport <rppt@linux.ibm.com>, Mel Gorman <mgorman@techsingularity.net>, Alexander Duyck <alexander.h.duyck@linux.intel.com>, Vlastimil Babka <vbabka@suse.cz>, Oscar Salvador <osalvador@suse.de>
+To: Jason Wang <jasowang@redhat.com>
+Cc: kvm@vger.kernel.org, linux-kernel@vger.kernel.org, zhihong.wang@intel.com, maxime.coquelin@redhat.com, virtualization@lists.linux-foundation.org, netdev@vger.kernel.org, lingshan.zhu@intel.com
 List-Id: virtualization@lists.linuxfoundation.org
 
-virtio-mem wants to allow to offline memory blocks of which some parts
-were unplugged, especially, to later offline and remove completely
-unplugged memory blocks. The important part is that PageOffline() has
-to remain set until the section is offline, so these pages will never
-get accessed (e.g., when dumping). The pages should not be handed
-back to the buddy (which would require clearing PageOffline() and
-result in issues if offlining fails and the pages are suddenly in the
-buddy).
-
-Let's allow to do that by allowing to isolate any PageOffline() page
-when offlining. This way, we can reach the memory hotplug notifier
-MEM_GOING_OFFLINE, where the driver can signal that he is fine with
-offlining this page by dropping its reference count. PageOffline() pages
-with a reference count of 0 can then be skipped when offlining the
-pages (like if they were free, however they are not in the buddy).
-
-Anybody who uses PageOffline() pages and does not agree to offline them
-(e.g., Hyper-V balloon, XEN balloon, VMWare balloon for 2MB pages) will not
-decrement the reference count and make offlining fail when trying to
-migrate such an unmovable page. So there should be no observerable change.
-Same applies to balloon compaction users (movable PageOffline() pages), the
-pages will simply be migrated.
-
-Note 1: If offlining fails, a driver has to increment the reference
-	count again in MEM_CANCEL_OFFLINE.
-
-Note 2: A driver that makes use of this has to be aware that re-onlining
-	the memory block has to be handled by hooking into onlining code
-	(online_page_callback_t), resetting the page PageOffline() and
-	not giving them to the buddy.
-
-Cc: Andrew Morton <akpm@linux-foundation.org>
-Cc: Juergen Gross <jgross@suse.com>
-Cc: Konrad Rzeszutek Wilk <konrad.wilk@oracle.com>
-Cc: Pavel Tatashin <pavel.tatashin@microsoft.com>
-Cc: Alexander Duyck <alexander.h.duyck@linux.intel.com>
-Cc: Vlastimil Babka <vbabka@suse.cz>
-Cc: Johannes Weiner <hannes@cmpxchg.org>
-Cc: Anthony Yznaga <anthony.yznaga@oracle.com>
-Cc: Michal Hocko <mhocko@suse.com>
-Cc: Oscar Salvador <osalvador@suse.de>
-Cc: Mel Gorman <mgorman@techsingularity.net>
-Cc: Mike Rapoport <rppt@linux.ibm.com>
-Cc: Dan Williams <dan.j.williams@intel.com>
-Cc: Anshuman Khandual <anshuman.khandual@arm.com>
-Cc: Qian Cai <cai@lca.pw>
-Cc: Pingfan Liu <kernelfans@gmail.com>
-Signed-off-by: David Hildenbrand <david@redhat.com>
----
-
-Michal,
-
-this is the approach where we allow has_unmovable_pages() to succeed to
-reach MEM_GOING_OFFLINE and fail later in case the driver did not agree.
-
-Thoughts?
-
----
- include/linux/page-flags.h | 10 ++++++++++
- mm/memory_hotplug.c        | 41 ++++++++++++++++++++++++++++----------
- mm/page_alloc.c            | 24 ++++++++++++++++++++++
- mm/page_isolation.c        |  9 +++++++++
- 4 files changed, 74 insertions(+), 10 deletions(-)
-
-diff --git a/include/linux/page-flags.h b/include/linux/page-flags.h
-index 3b8e5c5f7e1f..4897cc585af6 100644
---- a/include/linux/page-flags.h
-+++ b/include/linux/page-flags.h
-@@ -757,6 +757,16 @@ PAGE_TYPE_OPS(Buddy, buddy)
-  * not onlined when onlining the section).
-  * The content of these pages is effectively stale. Such pages should not
-  * be touched (read/write/dump/save) except by their owner.
-+ *
-+ * If a driver wants to allow to offline unmovable PageOffline() pages without
-+ * putting them back to the buddy, it can do so via the memory notifier by
-+ * decrementing the reference count in MEM_GOING_OFFLINE and incrementing the
-+ * reference count in MEM_CANCEL_OFFLINE. When offlining, the PageOffline()
-+ * pages (now with a reference count of zero) are treated like free pages,
-+ * allowing the containing memory block to get offlined. A driver that
-+ * relies on this feature is aware that re-onlining the memory block will
-+ * require to re-set the pages PageOffline() and not giving them to the
-+ * buddy via online_page_callback_t.
-  */
- PAGE_TYPE_OPS(Offline, offline)
- 
-diff --git a/mm/memory_hotplug.c b/mm/memory_hotplug.c
-index 561371ead39a..7a18b0bba045 100644
---- a/mm/memory_hotplug.c
-+++ b/mm/memory_hotplug.c
-@@ -1223,11 +1223,15 @@ int test_pages_in_a_zone(unsigned long start_pfn, unsigned long end_pfn,
- 
- /*
-  * Scan pfn range [start,end) to find movable/migratable pages (LRU pages,
-- * non-lru movable pages and hugepages). We scan pfn because it's much
-- * easier than scanning over linked list. This function returns the pfn
-- * of the first found movable page if it's found, otherwise 0.
-+ * non-lru movable pages and hugepages).
-+ *
-+ * Returns:
-+ *	0 in case a movable page is found and movable_pfn was updated.
-+ *	-ENOENT in case no movable page was found.
-+ *	-EBUSY in case a definetly unmovable page was found.
-  */
--static unsigned long scan_movable_pages(unsigned long start, unsigned long end)
-+static int scan_movable_pages(unsigned long start, unsigned long end,
-+			      unsigned long *movable_pfn)
- {
- 	unsigned long pfn;
- 
-@@ -1239,18 +1243,29 @@ static unsigned long scan_movable_pages(unsigned long start, unsigned long end)
- 			continue;
- 		page = pfn_to_page(pfn);
- 		if (PageLRU(page))
--			return pfn;
-+			goto found;
- 		if (__PageMovable(page))
--			return pfn;
-+			goto found;
-+
-+		/*
-+		 * Unmovable PageOffline() pages where somebody still holds
-+		 * a reference count (after MEM_GOING_OFFLINE) can definetly
-+		 * not be offlined.
-+		 */
-+		if (PageOffline(page) && page_count(page))
-+			return -EBUSY;
- 
- 		if (!PageHuge(page))
- 			continue;
- 		head = compound_head(page);
- 		if (page_huge_active(head))
--			return pfn;
-+			goto found;
- 		skip = compound_nr(head) - (page - head);
- 		pfn += skip - 1;
- 	}
-+	return -ENOENT;
-+found:
-+	*movable_pfn = pfn;
- 	return 0;
- }
- 
-@@ -1496,7 +1511,8 @@ static int __ref __offline_pages(unsigned long start_pfn,
- 	}
- 
- 	do {
--		for (pfn = start_pfn; pfn;) {
-+		pfn = start_pfn;
-+		do {
- 			if (signal_pending(current)) {
- 				ret = -EINTR;
- 				reason = "signal backoff";
-@@ -1506,14 +1522,19 @@ static int __ref __offline_pages(unsigned long start_pfn,
- 			cond_resched();
- 			lru_add_drain_all();
- 
--			pfn = scan_movable_pages(pfn, end_pfn);
--			if (pfn) {
-+			ret = scan_movable_pages(pfn, end_pfn, &pfn);
-+			if (!ret) {
- 				/*
- 				 * TODO: fatal migration failures should bail
- 				 * out
- 				 */
- 				do_migrate_range(pfn, end_pfn);
- 			}
-+		} while (!ret);
-+
-+		if (ret != -ENOENT) {
-+			reason = "unmovable page";
-+			goto failed_removal_isolated;
- 		}
- 
- 		/*
-diff --git a/mm/page_alloc.c b/mm/page_alloc.c
-index e2b0bdfdd586..1594f480532a 100644
---- a/mm/page_alloc.c
-+++ b/mm/page_alloc.c
-@@ -8273,6 +8273,19 @@ bool has_unmovable_pages(struct zone *zone, struct page *page, int count,
- 		if ((flags & MEMORY_OFFLINE) && PageHWPoison(page))
- 			continue;
- 
-+		/*
-+		 * We treat all PageOffline() pages as movable when offlining
-+		 * to give drivers a chance to decrement their reference count
-+		 * in MEM_GOING_OFFLINE in order to signalize that these pages
-+		 * can be offlined as there are no direct references anymore.
-+		 * For actually unmovable PageOffline() where the driver does
-+		 * not support this, we will fail later when trying to actually
-+		 * move these pages that still have a reference count > 0.
-+		 * (false negatives in this function only)
-+		 */
-+		if ((flags & MEMORY_OFFLINE) && PageOffline(page))
-+			continue;
-+
- 		if (__PageMovable(page))
- 			continue;
- 
-@@ -8702,6 +8715,17 @@ __offline_isolated_pages(unsigned long start_pfn, unsigned long end_pfn)
- 			offlined_pages++;
- 			continue;
- 		}
-+		/*
-+		 * At this point all remaining PageOffline() pages have a
-+		 * reference count of 0 and can simply be skipped.
-+		 */
-+		if (PageOffline(page)) {
-+			BUG_ON(page_count(page));
-+			BUG_ON(PageBuddy(page));
-+			pfn++;
-+			offlined_pages++;
-+			continue;
-+		}
- 
- 		BUG_ON(page_count(page));
- 		BUG_ON(!PageBuddy(page));
-diff --git a/mm/page_isolation.c b/mm/page_isolation.c
-index 04ee1663cdbe..43b4dabfedc8 100644
---- a/mm/page_isolation.c
-+++ b/mm/page_isolation.c
-@@ -170,6 +170,7 @@ __first_valid_page(unsigned long pfn, unsigned long nr_pages)
-  *			a bit mask)
-  *			MEMORY_OFFLINE - isolate to offline (!allocate) memory
-  *					 e.g., skip over PageHWPoison() pages
-+ *					 and PageOffline() pages.
-  *			REPORT_FAILURE - report details about the failure to
-  *			isolate the range
-  *
-@@ -278,6 +279,14 @@ __test_page_isolated_in_pageblock(unsigned long pfn, unsigned long end_pfn,
- 		else if ((flags & MEMORY_OFFLINE) && PageHWPoison(page))
- 			/* A HWPoisoned page cannot be also PageBuddy */
- 			pfn++;
-+		else if ((flags & MEMORY_OFFLINE) && PageOffline(page) &&
-+			 !page_count(page))
-+			/*
-+			 * The responsible driver agreed to offline
-+			 * PageOffline() pages by dropping its reference in
-+			 * MEM_GOING_OFFLINE.
-+			 */
-+			pfn++;
- 		else
- 			break;
- 	}
--- 
-2.21.0
+T24gRnJpLCBPY3QgMjUsIDIwMTkgYXQgMDU6NTQ6NTVQTSArMDgwMCwgSmFzb24gV2FuZyB3cm90
+ZToKPiAKPiBPbiAyMDE5LzEwLzI0IOS4i+WNiDY6NDIsIEphc29uIFdhbmcgd3JvdGU6Cj4gPiAK
+PiA+IFllcy4KPiA+IAo+ID4gCj4gPiA+IMKgIEFuZCB3ZSBzaG91bGQgdHJ5IHRvIGF2b2lkCj4g
+PiA+IHB1dHRpbmcgY3RybCB2cSBhbmQgUngvVHggdnFzIGluIHRoZSBzYW1lIERNQSBzcGFjZSB0
+byBwcmV2ZW50Cj4gPiA+IGd1ZXN0cyBoYXZpbmcgdGhlIGNoYW5jZSB0byBieXBhc3MgdGhlIGhv
+c3QgKGUuZy4gUUVNVSkgdG8KPiA+ID4gc2V0dXAgdGhlIGJhY2tlbmQgYWNjZWxlcmF0b3IgZGly
+ZWN0bHkuCj4gPiAKPiA+IAo+ID4gVGhhdCdzIHJlYWxseSBnb29kIHBvaW50LsKgIFNvIHdoZW4g
+InZob3N0IiB0eXBlIGlzIGNyZWF0ZWQsIHBhcmVudAo+ID4gc2hvdWxkIGFzc3VtZSBhZGRyIG9m
+IGN0cmxfdnEgaXMgaHZhLgo+ID4gCj4gPiBUaGFua3MKPiAKPiAKPiBUaGlzIHdvcmtzIGZvciB2
+aG9zdCBidXQgbm90IHZpcnRpbyBzaW5jZSB0aGVyZSdzIG5vIHdheSBmb3IgdmlydGlvIGtlcm5l
+bAo+IGRyaXZlciB0byBkaWZmZXIgY3RybF92cSB3aXRoIHRoZSByZXN0IHdoZW4gZG9pbmcgRE1B
+IG1hcC4gT25lIHBvc3NpYmxlCj4gc29sdXRpb24gaXMgdG8gcHJvdmlkZSBETUEgZG9tYWluIGlz
+b2xhdGlvbiBiZXR3ZWVuIHZpcnRxdWV1ZXMuIFRoZW4gY3RybCB2cQo+IGNhbiB1c2UgaXRzIGRl
+ZGljYXRlZCBETUEgZG9tYWluIGZvciB0aGUgd29yay4KPiAKPiBBbnl3YXksIHRoaXMgY291bGQg
+YmUgZG9uZSBpbiB0aGUgZnV0dXJlLiBXZSBjYW4gaGF2ZSBhIHZlcnNpb24gZmlyc3QgdGhhdAo+
+IGRvZXNuJ3Qgc3VwcG9ydCBjdHJsX3ZxLgo+IAo+IFRoYW5rcwoKV2VsbCBubyBjdHJsX3ZxIGlt
+cGxpZXMgZWl0aGVyIG5vIG9mZmxvYWRzLCBvciBubyBYRFAgKHNpbmNlIFhEUCBuZWVkcwp0byBk
+aXNhYmxlIG9mZmxvYWRzIGR5bmFtaWNhbGx5KS4KCiAgICAgICAgaWYgKCF2aXJ0aW9faGFzX2Zl
+YXR1cmUodmktPnZkZXYsIFZJUlRJT19ORVRfRl9DVFJMX0dVRVNUX09GRkxPQURTKQogICAgICAg
+ICAgICAmJiAodmlydGlvX2hhc19mZWF0dXJlKHZpLT52ZGV2LCBWSVJUSU9fTkVUX0ZfR1VFU1Rf
+VFNPNCkgfHwKICAgICAgICAgICAgICAgIHZpcnRpb19oYXNfZmVhdHVyZSh2aS0+dmRldiwgVklS
+VElPX05FVF9GX0dVRVNUX1RTTzYpIHx8CiAgICAgICAgICAgICAgICB2aXJ0aW9faGFzX2ZlYXR1
+cmUodmktPnZkZXYsIFZJUlRJT19ORVRfRl9HVUVTVF9FQ04pIHx8CiAgICAgICAgICAgICAgICB2
+aXJ0aW9faGFzX2ZlYXR1cmUodmktPnZkZXYsIFZJUlRJT19ORVRfRl9HVUVTVF9VRk8pIHx8CiAg
+ICAgICAgICAgICAgICB2aXJ0aW9faGFzX2ZlYXR1cmUodmktPnZkZXYsIFZJUlRJT19ORVRfRl9H
+VUVTVF9DU1VNKSkpIHsKICAgICAgICAgICAgICAgIE5MX1NFVF9FUlJfTVNHX01PRChleHRhY2ss
+ICJDYW4ndCBzZXQgWERQIHdoaWxlIGhvc3QgaXMgaW1wbGVtZW50aW5nIExSTy9DU1VNLCBkaXNh
+YmxlIExSTy9DU1VNIGZpcnN0Iik7CiAgICAgICAgICAgICAgICByZXR1cm4gLUVPUE5PVFNVUFA7
+CiAgICAgICAgfQoKbmVpdGhlciBpcyB2ZXJ5IGF0dHJhY3RpdmUuCgpTbyB5ZXMgb2sganVzdCBm
+b3IgZGV2ZWxvcG1lbnQgYnV0IHdlIGRvIG5lZWQgdG8gZmlndXJlIG91dCBob3cgaXQgd2lsbAp3
+b3JrIGRvd24gdGhlIHJvYWQgaW4gcHJvZHVjdGlvbi4KClNvIHJlYWxseSB0aGlzIHNwZWNpZmlj
+IHZpcnRpbyBuZXQgZGV2aWNlIGRvZXMgbm90IHN1cHBvcnQgY29udHJvbCB2cSwKaW5zdGVhZCBp
+dCBzdXBwb3J0cyBhIGRpZmZlcmVudCB0cmFuc3BvcnQgc3BlY2lmaWMgd2F5IHRvIHNlbmQgY29t
+bWFuZHMKdG8gZGV2aWNlLgoKU29tZSBraW5kIG9mIGV4dGVuc2lvbiB0byB0aGUgdHJhbnNwb3J0
+PyBJZGVhcz8KCgotLSAKTVNUCl9fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19f
+X19fX19fX19fClZpcnR1YWxpemF0aW9uIG1haWxpbmcgbGlzdApWaXJ0dWFsaXphdGlvbkBsaXN0
+cy5saW51eC1mb3VuZGF0aW9uLm9yZwpodHRwczovL2xpc3RzLmxpbnV4Zm91bmRhdGlvbi5vcmcv
+bWFpbG1hbi9saXN0aW5mby92aXJ0dWFsaXphdGlvbg==
