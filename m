@@ -1,14 +1,25 @@
-From: "Michael S. Tsirkin" <mst@redhat.com>
-Subject: Re: [PATCH] virtio_ring: fix packed ring event may missing
-Date: Fri, 25 Oct 2019 05:32:49 -0400
-Message-ID: <20191025052401-mutt-send-email-mst@kernel.org>
-References: <20191021171004.18729-1-yong.liu@intel.com>
+From: Jason Wang <jasowang@redhat.com>
+Subject: Re: [PATCH v2] vhost: introduce mdev based hardware backend
+Date: Fri, 25 Oct 2019 17:54:55 +0800
+Message-ID: <e7e239ba-2461-4f8d-7dd7-0f557ac7f4bf__22591.4370080986$1571997330$gmane$org@redhat.com>
+References: <47a572fd-5597-1972-e177-8ee25ca51247@redhat.com>
+	<20191023030253.GA15401@___>
+	<ac36f1e3-b972-71ac-fe0c-3db03e016dcf@redhat.com>
+	<20191023070747.GA30533@___>
+	<106834b5-dae5-82b2-0f97-16951709d075@redhat.com>
+	<20191023101135.GA6367@___>
+	<5a7bc5da-d501-2750-90bf-545dd55f85fa@redhat.com>
+	<20191024042155.GA21090@___>
+	<d37529e1-5147-bbe5-cb9d-299bd6d4aa1a@redhat.com>
+	<d4cc4f4e-2635-4041-2f68-cd043a97f25a@redhat.com>
+	<20191024091839.GA17463@___>
+	<fefc82a3-a137-bc03-e1c3-8de79b238080@redhat.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset="utf-8"; Format="flowed"
+Content-Transfer-Encoding: base64
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-Content-Disposition: inline
-In-Reply-To: <20191021171004.18729-1-yong.liu@intel.com>
+In-Reply-To: <fefc82a3-a137-bc03-e1c3-8de79b238080@redhat.com>
+Content-Language: en-US
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -18,91 +29,24 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Marvin Liu <yong.liu@intel.com>
-Cc: virtualization@lists.linux-foundation.org
+To: Tiwei Bie <tiwei.bie@intel.com>
+Cc: kvm@vger.kernel.org, mst@redhat.com, netdev@vger.kernel.org, linux-kernel@vger.kernel.org, virtualization@lists.linux-foundation.org, zhihong.wang@intel.com, maxime.coquelin@redhat.com, lingshan.zhu@intel.com
 List-Id: virtualization@lists.linuxfoundation.org
 
-On Tue, Oct 22, 2019 at 01:10:04AM +0800, Marvin Liu wrote:
-> When callback is delayed, virtio expect that vhost will kick when
-> rolling over event offset. Recheck should be taken as used index may
-> exceed event offset between status check and driver event update.
-> 
-> However, it is possible that flags was not modified if descriptors are
-> chained or in_order feature was negotiated. So flags at event offset
-
-This mention of event offset I don't understand: your patch
-only affects code that runs when !event. So how can it
-affect event offset?
-
-
-
-> may not be valid for descriptor's status checking. Fix it by using last
-> used index as replacement. Tx queue will be stopped if there's not
-> enough freed buffers after recheck.
-> 
-> Signed-off-by: Marvin Liu <yong.liu@intel.com>
-> 
-> diff --git a/drivers/virtio/virtio_ring.c b/drivers/virtio/virtio_ring.c
-> index bdc08244a648..a8041e451e9e 100644
-> --- a/drivers/virtio/virtio_ring.c
-> +++ b/drivers/virtio/virtio_ring.c
-> @@ -1499,9 +1499,6 @@ static bool virtqueue_enable_cb_delayed_packed(struct virtqueue *_vq)
->  		 * counter first before updating event flags.
->  		 */
->  		virtio_wmb(vq->weak_barriers);
-> -	} else {
-> -		used_idx = vq->last_used_idx;
-> -		wrap_counter = vq->packed.used_wrap_counter;
->  	}
-
-
-Is all this theorectical? Or did you actually see a problem
-and then fixed it?
-Because as far as I could see after this patch and with
-event index off, used_idx and wrap_counter will be used
-without being initialized.
-
-OTOH the behaviour with event index on is completely unaffected.
-
-
->  
->  	if (vq->packed.event_flags_shadow == VRING_PACKED_EVENT_FLAG_DISABLE) {
-
-OK so trying to unpack the scenario.
-
-First you patch only affects code running when EVENT_IDX is off, so
-legal values for flags are enable and disable.
-
-
-Next point, this calculates the index at which we are going
-to look for the flags to change, in other words
-it affects the line
-        if (is_used_desc_packed(vq, used_idx, wrap_counter)) {
-below.
-
-Without your patch, we simply look at the next descriptor.
-This is exactly what the spec says we should do:
-
-	Writes of device and driver descriptors can generally be
-	reordered, but each side (driver and device) are only required to
-	poll (or test) a single location in memory: the next device descriptor after
-	the one they processed previously, in circular order.
-
-
-
-
-
-
-> @@ -1518,7 +1515,9 @@ static bool virtqueue_enable_cb_delayed_packed(struct virtqueue *_vq)
->  	 */
->  	virtio_mb(vq->weak_barriers);
->  
-> -	if (is_used_desc_packed(vq, used_idx, wrap_counter)) {
-> +	if (is_used_desc_packed(vq,
-> +				vq->last_used_idx,
-> +				vq->packed.used_wrap_counter)) {
->  		END_USE(vq);
->  		return false;
->  	}
-> -- 
-> 2.17.1
+Ck9uIDIwMTkvMTAvMjQg5LiL5Y2INjo0MiwgSmFzb24gV2FuZyB3cm90ZToKPgo+IFllcy4KPgo+
+Cj4+IMKgIEFuZCB3ZSBzaG91bGQgdHJ5IHRvIGF2b2lkCj4+IHB1dHRpbmcgY3RybCB2cSBhbmQg
+UngvVHggdnFzIGluIHRoZSBzYW1lIERNQSBzcGFjZSB0byBwcmV2ZW50Cj4+IGd1ZXN0cyBoYXZp
+bmcgdGhlIGNoYW5jZSB0byBieXBhc3MgdGhlIGhvc3QgKGUuZy4gUUVNVSkgdG8KPj4gc2V0dXAg
+dGhlIGJhY2tlbmQgYWNjZWxlcmF0b3IgZGlyZWN0bHkuCj4KPgo+IFRoYXQncyByZWFsbHkgZ29v
+ZCBwb2ludC7CoCBTbyB3aGVuICJ2aG9zdCIgdHlwZSBpcyBjcmVhdGVkLCBwYXJlbnQgCj4gc2hv
+dWxkIGFzc3VtZSBhZGRyIG9mIGN0cmxfdnEgaXMgaHZhLgo+Cj4gVGhhbmtzCgoKVGhpcyB3b3Jr
+cyBmb3Igdmhvc3QgYnV0IG5vdCB2aXJ0aW8gc2luY2UgdGhlcmUncyBubyB3YXkgZm9yIHZpcnRp
+byAKa2VybmVsIGRyaXZlciB0byBkaWZmZXIgY3RybF92cSB3aXRoIHRoZSByZXN0IHdoZW4gZG9p
+bmcgRE1BIG1hcC4gT25lIApwb3NzaWJsZSBzb2x1dGlvbiBpcyB0byBwcm92aWRlIERNQSBkb21h
+aW4gaXNvbGF0aW9uIGJldHdlZW4gdmlydHF1ZXVlcy4gClRoZW4gY3RybCB2cSBjYW4gdXNlIGl0
+cyBkZWRpY2F0ZWQgRE1BIGRvbWFpbiBmb3IgdGhlIHdvcmsuCgpBbnl3YXksIHRoaXMgY291bGQg
+YmUgZG9uZSBpbiB0aGUgZnV0dXJlLiBXZSBjYW4gaGF2ZSBhIHZlcnNpb24gZmlyc3QgCnRoYXQg
+ZG9lc24ndCBzdXBwb3J0IGN0cmxfdnEuCgpUaGFua3MKCl9fX19fX19fX19fX19fX19fX19fX19f
+X19fX19fX19fX19fX19fX19fX19fX19fClZpcnR1YWxpemF0aW9uIG1haWxpbmcgbGlzdApWaXJ0
+dWFsaXphdGlvbkBsaXN0cy5saW51eC1mb3VuZGF0aW9uLm9yZwpodHRwczovL2xpc3RzLmxpbnV4
+Zm91bmRhdGlvbi5vcmcvbWFpbG1hbi9saXN0aW5mby92aXJ0dWFsaXphdGlvbg==
