@@ -1,13 +1,13 @@
 From: Sasha Levin <sashal@kernel.org>
-Subject: [PATCH AUTOSEL 5.3 57/99] vhost/test: stop device before reset
-Date: Sat, 26 Oct 2019 09:15:18 -0400
-Message-ID: <20191026131600.2507-57-sashal__18525.7516031683$1572095882$gmane$org@kernel.org>
-References: <20191026131600.2507-1-sashal@kernel.org>
+Subject: [PATCH AUTOSEL 4.19 39/59] vhost/test: stop device before reset
+Date: Sat, 26 Oct 2019 09:18:50 -0400
+Message-ID: <20191026131910.3435-39-sashal@kernel.org>
+References: <20191026131910.3435-1-sashal@kernel.org>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <20191026131600.2507-1-sashal@kernel.org>
+In-Reply-To: <20191026131910.3435-1-sashal@kernel.org>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -37,10 +37,10 @@ Signed-off-by: Sasha Levin <sashal@kernel.org>
  1 file changed, 2 insertions(+)
 
 diff --git a/drivers/vhost/test.c b/drivers/vhost/test.c
-index 7804869c6a313..056308008288c 100644
+index a9be2d8e98df7..55090d9f9de0d 100644
 --- a/drivers/vhost/test.c
 +++ b/drivers/vhost/test.c
-@@ -161,6 +161,7 @@ static int vhost_test_release(struct inode *inode, struct file *f)
+@@ -162,6 +162,7 @@ static int vhost_test_release(struct inode *inode, struct file *f)
  
  	vhost_test_stop(n, &private);
  	vhost_test_flush(n);
@@ -48,7 +48,7 @@ index 7804869c6a313..056308008288c 100644
  	vhost_dev_cleanup(&n->dev);
  	/* We do an extra flush before freeing memory,
  	 * since jobs can re-queue themselves. */
-@@ -237,6 +238,7 @@ static long vhost_test_reset_owner(struct vhost_test *n)
+@@ -238,6 +239,7 @@ static long vhost_test_reset_owner(struct vhost_test *n)
  	}
  	vhost_test_stop(n, &priv);
  	vhost_test_flush(n);
