@@ -1,15 +1,12 @@
 From: "Michael S. Tsirkin" <mst@redhat.com>
-Subject: Re: [PATCH net-next] vringh: fix copy direction of
-	vringh_iov_push_kern()
-Date: Sun, 27 Oct 2019 06:04:10 -0400
-Message-ID: <20191027060328-mutt-send-email-mst__17816.2137091689$1572170668$gmane$org@kernel.org>
-References: <20191024035718.7690-1-jasowang@redhat.com>
+Subject: [PATCH] virtio_ring: fix stalls for packed rings
+Date: Sun, 27 Oct 2019 06:08:07 -0400
+Message-ID: <20191027100705.11644-1-mst__6038.37839314423$1572170903$gmane$org@redhat.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
 Content-Disposition: inline
-In-Reply-To: <20191024035718.7690-1-jasowang@redhat.com>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -19,50 +16,85 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Jason Wang <jasowang@redhat.com>
-Cc: netdev@vger.kernel.org, linux-kernel@vger.kernel.org, kvm@vger.kernel.org, virtualization@lists.linux-foundation.org
+To: linux-kernel@vger.kernel.org
+Cc: Marvin Liu <yong.liu@intel.com>, stable@vger.kernel.org, virtualization@lists.linux-foundation.org
 List-Id: virtualization@lists.linuxfoundation.org
 
-On Thu, Oct 24, 2019 at 11:57:18AM +0800, Jason Wang wrote:
-> We want to copy from iov to buf, so the direction was wrong.
-> 
-> Note: no real user for the helper, but it will be used by future
-> features.
-> 
-> Signed-off-by: Jason Wang <jasowang@redhat.com>
+From: Marvin Liu <yong.liu@intel.com>
 
-I'm still inclined to merge it now, incorrect code tends to
-proliferate.
+When VIRTIO_F_RING_EVENT_IDX is negotiated, virtio devices can
+use virtqueue_enable_cb_delayed_packed to reduce the number of device
+interrupts.  At the moment, this is the case for virtio-net when the
+napi_tx module parameter is set to false.
 
-> ---
->  drivers/vhost/vringh.c | 8 +++++++-
->  1 file changed, 7 insertions(+), 1 deletion(-)
-> 
-> diff --git a/drivers/vhost/vringh.c b/drivers/vhost/vringh.c
-> index 08ad0d1f0476..a0a2d74967ef 100644
-> --- a/drivers/vhost/vringh.c
-> +++ b/drivers/vhost/vringh.c
-> @@ -852,6 +852,12 @@ static inline int xfer_kern(void *src, void *dst, size_t len)
->  	return 0;
->  }
->  
-> +static inline int kern_xfer(void *dst, void *src, size_t len)
-> +{
-> +	memcpy(dst, src, len);
-> +	return 0;
-> +}
-> +
->  /**
->   * vringh_init_kern - initialize a vringh for a kernelspace vring.
->   * @vrh: the vringh to initialize.
-> @@ -958,7 +964,7 @@ EXPORT_SYMBOL(vringh_iov_pull_kern);
->  ssize_t vringh_iov_push_kern(struct vringh_kiov *wiov,
->  			     const void *src, size_t len)
->  {
-> -	return vringh_iov_xfer(wiov, (void *)src, len, xfer_kern);
-> +	return vringh_iov_xfer(wiov, (void *)src, len, kern_xfer);
->  }
->  EXPORT_SYMBOL(vringh_iov_push_kern);
->  
-> -- 
-> 2.19.1
+In this case, the virtio driver selects an event offset and expects that
+the device will send a notification when rolling over the event offset
+in the ring.  However, if this roll-over happens before the event
+suppression structure update, the notification won't be sent. To address
+this race condition the driver needs to check wether the device rolled
+over the offset after updating the event suppression structure.
+
+With VIRTIO_F_RING_PACKED, the virtio driver did this by reading the
+flags field of the descriptor at the specified offset.
+
+Unfortunately, checking at the event offset isn't reliable: if
+descriptors are chained (e.g. when INDIRECT is off) not all descriptors
+are overwritten by the device, so it's possible that the device skipped
+the specific descriptor driver is checking when writing out used
+descriptors. If this happens, the driver won't detect the race condition
+and will incorrectly expect the device to send a notification.
+
+For virtio-net, the result will be a TX queue stall, with the
+transmission getting blocked forever.
+
+With the packed ring, it isn't easy to find a location which is
+guaranteed to change upon the roll-over, except the next device
+descriptor, as described in the spec:
+
+        Writes of device and driver descriptors can generally be
+        reordered, but each side (driver and device) are only required to
+        poll (or test) a single location in memory: the next device descriptor after
+        the one they processed previously, in circular order.
+
+while this might be sub-optimal, let's do exactly this for now.
+
+Cc: stable@vger.kernel.org
+Cc: Jason Wang <jasowang@redhat.com>
+Signed-off-by: Marvin Liu <yong.liu@intel.com>
+Signed-off-by: Michael S. Tsirkin <mst@redhat.com>
+---
+
+So this is what I have in my tree now - this is just Marvin's patch
+with a tweaked description.
+
+
+ drivers/virtio/virtio_ring.c | 7 +++----
+ 1 file changed, 3 insertions(+), 4 deletions(-)
+
+diff --git a/drivers/virtio/virtio_ring.c b/drivers/virtio/virtio_ring.c
+index bdc08244a648..a8041e451e9e 100644
+--- a/drivers/virtio/virtio_ring.c
++++ b/drivers/virtio/virtio_ring.c
+@@ -1499,9 +1499,6 @@ static bool virtqueue_enable_cb_delayed_packed(struct virtqueue *_vq)
+ 		 * counter first before updating event flags.
+ 		 */
+ 		virtio_wmb(vq->weak_barriers);
+-	} else {
+-		used_idx = vq->last_used_idx;
+-		wrap_counter = vq->packed.used_wrap_counter;
+ 	}
+ 
+ 	if (vq->packed.event_flags_shadow == VRING_PACKED_EVENT_FLAG_DISABLE) {
+@@ -1518,7 +1515,9 @@ static bool virtqueue_enable_cb_delayed_packed(struct virtqueue *_vq)
+ 	 */
+ 	virtio_mb(vq->weak_barriers);
+ 
+-	if (is_used_desc_packed(vq, used_idx, wrap_counter)) {
++	if (is_used_desc_packed(vq,
++				vq->last_used_idx,
++				vq->packed.used_wrap_counter)) {
+ 		END_USE(vq);
+ 		return false;
+ 	}
+-- 
+MST
