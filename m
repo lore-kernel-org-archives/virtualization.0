@@ -1,12 +1,14 @@
 From: Stefan Hajnoczi <stefanha@gmail.com>
-Subject: Re: [PATCH net-next 00/14] vsock: add multi-transports support
-Date: Sun, 27 Oct 2019 09:01:46 +0100
-Message-ID: <20191027080146.GA4472@stefanha-x1.localdomain>
+Subject: Re: [PATCH net-next 07/14] vsock: handle buffer_size sockopts in the
+	core
+Date: Sun, 27 Oct 2019 09:08:23 +0100
+Message-ID: <20191027080823.GB4472@stefanha-x1.localdomain>
 References: <20191023095554.11340-1-sgarzare@redhat.com>
+	<20191023095554.11340-8-sgarzare@redhat.com>
 Mime-Version: 1.0
-Content-Type: multipart/mixed; boundary="===============7542246376614576319=="
+Content-Type: multipart/mixed; boundary="===============2813262763275677183=="
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <20191023095554.11340-1-sgarzare@redhat.com>
+In-Reply-To: <20191023095554.11340-8-sgarzare@redhat.com>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -21,66 +23,68 @@ Cc: Sasha Levin <sashal@kernel.org>, linux-hyperv@vger.kernel.org, Stephen Hemmi
 List-Id: virtualization@lists.linuxfoundation.org
 
 
---===============7542246376614576319==
+--===============2813262763275677183==
 Content-Type: multipart/signed; micalg=pgp-sha256;
-	protocol="application/pgp-signature"; boundary="1yeeQ81UyVL57Vl7"
+	protocol="application/pgp-signature"; boundary="rS8CxjVDS/+yyDmU"
 Content-Disposition: inline
 
 
---1yeeQ81UyVL57Vl7
+--rS8CxjVDS/+yyDmU
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
 Content-Transfer-Encoding: quoted-printable
 
-On Wed, Oct 23, 2019 at 11:55:40AM +0200, Stefano Garzarella wrote:
-> This series adds the multi-transports support to vsock, following
-> this proposal: https://www.spinics.net/lists/netdev/msg575792.html
+On Wed, Oct 23, 2019 at 11:55:47AM +0200, Stefano Garzarella wrote:
+> virtio_transport and vmci_transport handle the buffer_size
+> sockopts in a very similar way.
 >=20
-> With the multi-transports support, we can use VSOCK with nested VMs
-> (using also different hypervisors) loading both guest->host and
-> host->guest transports at the same time.
-> Before this series, vmci-transport supported this behavior but only
-> using VMware hypervisor on L0, L1, etc.
+> In order to support multiple transports, this patch moves this
+> handling in the core to allow the user to change the options
+> also if the socket is not yet assigned to any transport.
 >=20
-> RFC: https://patchwork.ozlabs.org/cover/1168442/
+> This patch also adds the '.notify_buffer_size' callback in the
+> 'struct virtio_transport' in order to inform the transport,
+> when the buffer_size is changed by the user. It is also useful
+> to limit the 'buffer_size' requested (e.g. virtio transports).
+>=20
+> Acked-by: Dexuan Cui <decui@microsoft.com>
+> Signed-off-by: Stefano Garzarella <sgarzare@redhat.com>
+> ---
 > RFC -> v1:
-> - Added R-b/A-b from Dexuan and Stefan
-> - Fixed comments and typos in several patches (Stefan)
-> - Patch 7: changed .notify_buffer_size return to void (Stefan)
-> - Added patch 8 to simplify the API exposed to the transports (Stefan)
-> - Patch 11:
->   + documented VSOCK_TRANSPORT_F_* flags (Stefan)
->   + fixed vsock_assign_transport() when the socket is already assigned
->   + moved features outside of struct vsock_transport, and used as
->     parameter of vsock_core_register() as a preparation of Patch 12
-> - Removed "vsock: add 'transport_hg' to handle g2h\h2g transports" patch
-> - Added patch 12 to register vmci_transport only when VMCI guest/host
->   are active
+> - changed .notify_buffer_size return to void (Stefan)
+> - documented that .notify_buffer_size is called with sk_lock held (Stefan)
+> ---
+>  drivers/vhost/vsock.c                   |  7 +-
+>  include/linux/virtio_vsock.h            | 15 +----
+>  include/net/af_vsock.h                  | 15 ++---
+>  net/vmw_vsock/af_vsock.c                | 43 ++++++++++---
+>  net/vmw_vsock/hyperv_transport.c        | 36 -----------
+>  net/vmw_vsock/virtio_transport.c        |  8 +--
+>  net/vmw_vsock/virtio_transport_common.c | 79 ++++-------------------
+>  net/vmw_vsock/vmci_transport.c          | 86 +++----------------------
+>  net/vmw_vsock/vmci_transport.h          |  3 -
+>  9 files changed, 65 insertions(+), 227 deletions(-)
 
-Has there been feedback from Jorgen or someone else from VMware?  A
-Reviewed-by or Acked-by would be nice since this patch series affects
-VMCI AF_VSOCK.
+Reviewed-by: Stefan Hajnoczi <stefanha@redhat.com>
 
-Stefan
-
---1yeeQ81UyVL57Vl7
+--rS8CxjVDS/+yyDmU
 Content-Type: application/pgp-signature; name="signature.asc"
 
 -----BEGIN PGP SIGNATURE-----
 
-iQEzBAEBCAAdFiEEhpWov9P5fNqsNXdanKSrs4Grc8gFAl21TucACgkQnKSrs4Gr
-c8jY1wf9G0k0TNCkBEFILNq2f7qw5oF5+pTf1Of9V+p/S4tsTcWiHPLrYThBzZui
-QJ/Zws7KFQcXB/7+e8RQ4SXI/iMLoPtaEFK3euKQg0N48xlULtw2XuiMVuaAsTsl
-iaEmsyI21PQlM7zeMFTfqt0wxt2H6MebdP4DyrfhbKvFKmzAAy7v0Xq3vtv6/ZX6
-AIVIDuKDo19J9oe9ZKF51lvMe4Ndd7ynKNDD+2s2ZrrF31/uuQkE6K2ZUMjTDQVR
-zcK2K/aHtAnz+98XtneyrQAlc4JV0lTIZOMB2aTS4ZQ1sHssYiwGbF/j4fR2Dj0n
-iFHeCiwo4mQ5+1RKCoFZbtObs2ilQw==
-=wYuh
+iQEzBAEBCAAdFiEEhpWov9P5fNqsNXdanKSrs4Grc8gFAl21UHcACgkQnKSrs4Gr
+c8jf5wf6ArMyUiMMsXentQxUSlbUpCtIRf1HllqzAAYdsb4/GngX/TcZHaVU4JYg
+vnMxPnYs9IatdJgEmJ2oV7Xemt2KdT67eqeqpeUuvOXzwCFTqx7gmCq0GYXPobTW
+5Km+oVwrDxfzrUNVK5ZmeFhOSQuB09zbY1JhuwXTiX+nXOVOBP91Mt3i5wijc6a1
+M6W2KtgysSkW1K4tf+8/c12QdNlB5bwL6HX2Tgop6bE+yTFpxmykopRkXonrLSQ7
+2Ba02wkFAOakw0f9AlF0xBCJfY8OvHUNPYRvnh5g9OJc9DjvZPl2p2PLTpMv7DLm
+XF8KeD/VWkSjA8RIYlUYmzUdVvshGA==
+=oEzi
 -----END PGP SIGNATURE-----
 
---1yeeQ81UyVL57Vl7--
+--rS8CxjVDS/+yyDmU--
 
---===============7542246376614576319==
+--===============2813262763275677183==
 Content-Type: text/plain; charset="us-ascii"
 MIME-Version: 1.0
 Content-Transfer-Encoding: 7bit
@@ -90,4 +94,4 @@ _______________________________________________
 Virtualization mailing list
 Virtualization@lists.linux-foundation.org
 https://lists.linuxfoundation.org/mailman/listinfo/virtualization
---===============7542246376614576319==--
+--===============2813262763275677183==--
