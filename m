@@ -1,15 +1,14 @@
 From: "Michael S. Tsirkin" <mst@redhat.com>
 Subject: Re: [PATCH] virtio_ring: fix packed ring event may missing
-Date: Sun, 27 Oct 2019 05:12:34 -0400
-Message-ID: <20191027051044-mutt-send-email-mst@kernel.org>
+Date: Sun, 27 Oct 2019 05:51:31 -0400
+Message-ID: <20191027051015-mutt-send-email-mst@kernel.org>
 References: <20191021171004.18729-1-yong.liu@intel.com>
-	<20191025063511-mutt-send-email-mst@kernel.org>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
 Content-Disposition: inline
-In-Reply-To: <20191025063511-mutt-send-email-mst@kernel.org>
+In-Reply-To: <20191021171004.18729-1-yong.liu@intel.com>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -23,84 +22,85 @@ To: Marvin Liu <yong.liu@intel.com>
 Cc: virtualization@lists.linux-foundation.org
 List-Id: virtualization@lists.linuxfoundation.org
 
-On Fri, Oct 25, 2019 at 06:53:55AM -0400, Michael S. Tsirkin wrote:
-> On Tue, Oct 22, 2019 at 01:10:04AM +0800, Marvin Liu wrote:
-> > When callback is delayed, virtio expect that vhost will kick when
-> > rolling over event offset. Recheck should be taken as used index may
-> > exceed event offset between status check and driver event update.
-> > 
-> > However, it is possible that flags was not modified if descriptors are
-> > chained or in_order feature was negotiated. So flags at event offset
-> > may not be valid for descriptor's status checking. Fix it by using last
-> > used index as replacement. Tx queue will be stopped if there's not
-> > enough freed buffers after recheck.
-> > 
-> > Signed-off-by: Marvin Liu <yong.liu@intel.com>
+On Tue, Oct 22, 2019 at 01:10:04AM +0800, Marvin Liu wrote:
+> When callback is delayed, virtio expect that vhost will kick when
+> rolling over event offset. Recheck should be taken as used index may
+> exceed event offset between status check and driver event update.
 > 
-> So as I wrote separately, I don't think the patch is correct.  And it
-> doesn't look like it was tested properly.
+> However, it is possible that flags was not modified if descriptors are
+> chained or in_order feature was negotiated. So flags at event offset
+> may not be valid for descriptor's status checking. Fix it by using last
+> used index as replacement. Tx queue will be stopped if there's not
+> enough freed buffers after recheck.
+> 
+> Signed-off-by: Marvin Liu <yong.liu@intel.com>
 
-I was wrong to say this: the patch is correct.
+OK I rewrote the commit log slightly:
+	When VIRTIO_F_RING_EVENT_IDX is negotiated, virtio devices can
+use virtqueue_enable_cb_delayed_packed to reduce the number of device
+interrupts.  At the moment, this is the case for virtio-net when
+the napi_tx module parameter is set to false.
 
-Thanks for working on this, and sorry about creating the confusion.
+In this case, the virtio driver selects an event offset in the ring and expects
+that the device will send a notification when rolling over the event
+offset in the ring.  However, if this roll-over happens before the event
+suppression structure update, the notification won't be sent. To address
+this race condition the driver needs to check wether the
+device rolled over this offset after updating the event suppression structure.
 
-It might not be the
-optimal thing to do but it fixes a real bug, so I think it's
-a good idea to merge it for now, and implement optimizations on top.
+With VIRTIO_F_RING_PACKED, the virtio driver did this by reading the the
+flags field at the specified offset in the descriptor.
 
->  However, I do think
-> virtqueue_enable_cb_delayed_packed is implemented incorrectly in case of
-> chained s/g and ring that is close to being full.  It's just that
-> chained only happens on OOM at the moment, so it's hard to trigger.
-> virtio_ring.c can be hacked to force chained to make it trigger more.
-> And with napi_tx the default this function is barely used at all.
-> 
-> So it's hard to test, and I think in this area we really should include
-> info on how patch was tested before applying.
-> 
-> 
-> But just theoretically speaking I agree: the trick
-> virtqueue_enable_cb_delayed_packed is using to check that 3/4 of the
-> ring has been used just by looking at a single s/g entry can't work
-> reliably.
-> 
-> We generally really need to scan the ring.  How much to scan?  If we
-> want to implement this efficiently, I propose that we track the number
-> of outstanding bufs.  Then # of s/g - # of bufs is the max number of
-> entries we need to scan. For the common case of a single s/g this will
-> give exactly 0.
-> 
-> 
-> Alternatively, we can just scan the whole ring up to the index using the
-> standard logic. virtqueue_enable_cb_delayed_packed is rare enough.
-> 
-> 
-> 
-> > 
-> > diff --git a/drivers/virtio/virtio_ring.c b/drivers/virtio/virtio_ring.c
-> > index bdc08244a648..a8041e451e9e 100644
-> > --- a/drivers/virtio/virtio_ring.c
-> > +++ b/drivers/virtio/virtio_ring.c
-> > @@ -1499,9 +1499,6 @@ static bool virtqueue_enable_cb_delayed_packed(struct virtqueue *_vq)
-> >  		 * counter first before updating event flags.
-> >  		 */
-> >  		virtio_wmb(vq->weak_barriers);
-> > -	} else {
-> > -		used_idx = vq->last_used_idx;
-> > -		wrap_counter = vq->packed.used_wrap_counter;
-> >  	}
-> >  
-> >  	if (vq->packed.event_flags_shadow == VRING_PACKED_EVENT_FLAG_DISABLE) {
-> > @@ -1518,7 +1515,9 @@ static bool virtqueue_enable_cb_delayed_packed(struct virtqueue *_vq)
-> >  	 */
-> >  	virtio_mb(vq->weak_barriers);
-> >  
-> > -	if (is_used_desc_packed(vq, used_idx, wrap_counter)) {
-> > +	if (is_used_desc_packed(vq,
-> > +				vq->last_used_idx,
-> > +				vq->packed.used_wrap_counter)) {
-> >  		END_USE(vq);
-> >  		return false;
-> >  	}
-> > -- 
-> > 2.17.1
+	Unfortunately, checking at the event offset isn't reliable: if
+descriptors are chained (e.g. when INDIRECT is off) not all descriptors
+are overwritten by the device, so it's possible that the device skipped
+the specific descriptor driver is checking when writing out used
+descriptors. If this happens, the driver won't detect the race condition and will
+incorrectly expect the device to send a notification.
+
+For virtio-net, the result will be TX queue stall, and transmission
+getting blocked forever.
+
+	With the packed ring, it isn't easy to find a location which is
+guaranteed to change upon the roll-over, except the next device
+descriptor, as described in the spec:
+
+	Writes of device and driver descriptors can generally be
+	reordered, but each side (driver and device) are only required to
+	poll (or test) a single location in memory: the next device descriptor after
+	the one they processed previously, in circular order.
+
+while this might be sub-optimal, let's do exactly this for now.
+
+And applied this.
+
+Thanks a lot for working on this, and sorry again for not understanding
+the patch originally and thinking it was not tested!
+
+> diff --git a/drivers/virtio/virtio_ring.c b/drivers/virtio/virtio_ring.c
+> index bdc08244a648..a8041e451e9e 100644
+> --- a/drivers/virtio/virtio_ring.c
+> +++ b/drivers/virtio/virtio_ring.c
+> @@ -1499,9 +1499,6 @@ static bool virtqueue_enable_cb_delayed_packed(struct virtqueue *_vq)
+>  		 * counter first before updating event flags.
+>  		 */
+>  		virtio_wmb(vq->weak_barriers);
+> -	} else {
+> -		used_idx = vq->last_used_idx;
+> -		wrap_counter = vq->packed.used_wrap_counter;
+>  	}
+>  
+>  	if (vq->packed.event_flags_shadow == VRING_PACKED_EVENT_FLAG_DISABLE) {
+> @@ -1518,7 +1515,9 @@ static bool virtqueue_enable_cb_delayed_packed(struct virtqueue *_vq)
+>  	 */
+>  	virtio_mb(vq->weak_barriers);
+>  
+> -	if (is_used_desc_packed(vq, used_idx, wrap_counter)) {
+> +	if (is_used_desc_packed(vq,
+> +				vq->last_used_idx,
+> +				vq->packed.used_wrap_counter)) {
+>  		END_USE(vq);
+>  		return false;
+>  	}
+> -- 
+> 2.17.1
