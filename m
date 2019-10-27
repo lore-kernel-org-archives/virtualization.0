@@ -1,14 +1,14 @@
 From: Stefan Hajnoczi <stefanha@gmail.com>
-Subject: Re: [PATCH net-next 08/14] vsock: add vsock_create_connected()
-	called by transports
-Date: Sun, 27 Oct 2019 09:12:13 +0100
-Message-ID: <20191027081213.GC4472__23315.9891025693$1572187438$gmane$org@stefanha-x1.localdomain>
+Subject: Re: [PATCH net-next 12/14] vsock/vmci: register vmci_transport only
+	when VMCI guest/host are active
+Date: Sun, 27 Oct 2019 09:17:52 +0100
+Message-ID: <20191027081752.GD4472__45828.6377879389$1572187446$gmane$org@stefanha-x1.localdomain>
 References: <20191023095554.11340-1-sgarzare@redhat.com>
-	<20191023095554.11340-9-sgarzare@redhat.com>
+	<20191023095554.11340-13-sgarzare@redhat.com>
 Mime-Version: 1.0
-Content-Type: multipart/mixed; boundary="===============4026023754936226677=="
+Content-Type: multipart/mixed; boundary="===============0117337910579865229=="
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <20191023095554.11340-9-sgarzare@redhat.com>
+In-Reply-To: <20191023095554.11340-13-sgarzare@redhat.com>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -23,55 +23,41 @@ Cc: Sasha Levin <sashal@kernel.org>, linux-hyperv@vger.kernel.org, Stephen Hemmi
 List-Id: virtualization@lists.linuxfoundation.org
 
 
---===============4026023754936226677==
+--===============0117337910579865229==
 Content-Type: multipart/signed; micalg=pgp-sha256;
-	protocol="application/pgp-signature"; boundary="DSayHWYpDlRfCAAQ"
+	protocol="application/pgp-signature"; boundary="C1iGAkRnbeBonpVg"
 Content-Disposition: inline
 
 
---DSayHWYpDlRfCAAQ
+--C1iGAkRnbeBonpVg
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
 
-On Wed, Oct 23, 2019 at 11:55:48AM +0200, Stefano Garzarella wrote:
-> All transports call __vsock_create() with the same parameters,
-> most of them depending on the parent socket. In order to simplify
-> the VSOCK core APIs exposed to the transports, this patch adds
-> the vsock_create_connected() callable from transports to create
-> a new socket when a connection request is received.
-> We also unexported the __vsock_create().
->=20
-> Suggested-by: Stefan Hajnoczi <stefanha@redhat.com>
-> Signed-off-by: Stefano Garzarella <sgarzare@redhat.com>
-> ---
->  include/net/af_vsock.h                  |  5 +----
->  net/vmw_vsock/af_vsock.c                | 20 +++++++++++++-------
->  net/vmw_vsock/hyperv_transport.c        |  3 +--
->  net/vmw_vsock/virtio_transport_common.c |  3 +--
->  net/vmw_vsock/vmci_transport.c          |  3 +--
->  5 files changed, 17 insertions(+), 17 deletions(-)
+On Wed, Oct 23, 2019 at 11:55:52AM +0200, Stefano Garzarella wrote:
+> +static int __init vmci_transport_init(void)
+> +{
+> +	int features = VSOCK_TRANSPORT_F_DGRAM;
 
-Reviewed-by: Stefan Hajnoczi <stefanha@redhat.com>
+Where is this variable used?
 
---DSayHWYpDlRfCAAQ
+--C1iGAkRnbeBonpVg
 Content-Type: application/pgp-signature; name="signature.asc"
 
 -----BEGIN PGP SIGNATURE-----
 
-iQEzBAEBCAAdFiEEhpWov9P5fNqsNXdanKSrs4Grc8gFAl21UV0ACgkQnKSrs4Gr
-c8j8/ggAyDA6UkgCfi0daj2HF5HCXYLlJ9/XXtklusGF1Wc9tWjzw/GXPdNlYum9
-SqWtDu4YlWC3HH5TXKiMuTFjsumU6qJOSXKbPTFOmHdsQAnYeBMB1LZZRAd1O85T
-LeBzRaNJjd+3qcjEeGf4gy7TuHGk49qnJaaP9n+SvheaN6DRf4cVJYhVYHf15xnI
-qyhbT8cq5YcgszT/mp/D4guFPl9gYFPT7IqFvN8FOhELWmj7q6noJqAlEiUMsOSW
-fg8L76b1v8h04Q7iF2lmvUMFu3q9POIgkxqCQcYZzxJUMFLJez2y8nWnRIbNLJnJ
-l70AGpwkVMKXrJfa8DwyCI39cmT1Hg==
-=06uZ
+iQEzBAEBCAAdFiEEhpWov9P5fNqsNXdanKSrs4Grc8gFAl21UrAACgkQnKSrs4Gr
+c8iGGgf/YjP9kPT916spdjeVdu2Wg8PPuw60Kt/da2i6Qp1hdl0CTXaK1RJxoH8F
+FYtdWNROfs6CPSHEP5xVD4xBeHvZEST4BgeVr/hFZYbw4F5vVb9OIDpSln7JkN/r
+zldMb0Q+UjbvTUZm9buMeb08nbzn9CdeaCJDGPIRHOZjDNw+wL0cilfVm5NMDR4L
+pNbLtyJJliiIZeh2CxCu0k8Kd25OUlwDfqHHuFvDn/kmcNyQlVOUwb0VRnDts8mW
+ian+XNpRXDY24xdyZ9F2UxA6wvwOleFhEN/La2euNs8Iv38liHKNgiCDHe/+br/t
+vuMWadKe9tonhgk7iUlCA5hNDKgKiQ==
+=CXM0
 -----END PGP SIGNATURE-----
 
---DSayHWYpDlRfCAAQ--
+--C1iGAkRnbeBonpVg--
 
---===============4026023754936226677==
+--===============0117337910579865229==
 Content-Type: text/plain; charset="us-ascii"
 MIME-Version: 1.0
 Content-Transfer-Encoding: 7bit
@@ -81,4 +67,4 @@ _______________________________________________
 Virtualization mailing list
 Virtualization@lists.linux-foundation.org
 https://lists.linuxfoundation.org/mailman/listinfo/virtualization
---===============4026023754936226677==--
+--===============0117337910579865229==--
