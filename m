@@ -1,14 +1,14 @@
 From: Stefan Hajnoczi <stefanha@gmail.com>
-Subject: Re: [PATCH net-next 07/14] vsock: handle buffer_size sockopts in the
-	core
-Date: Sun, 27 Oct 2019 09:08:23 +0100
-Message-ID: <20191027080823.GB4472@stefanha-x1.localdomain>
+Subject: Re: [PATCH net-next 08/14] vsock: add vsock_create_connected()
+	called by transports
+Date: Sun, 27 Oct 2019 09:12:13 +0100
+Message-ID: <20191027081213.GC4472__23315.9891025693$1572187438$gmane$org@stefanha-x1.localdomain>
 References: <20191023095554.11340-1-sgarzare@redhat.com>
-	<20191023095554.11340-8-sgarzare@redhat.com>
+	<20191023095554.11340-9-sgarzare@redhat.com>
 Mime-Version: 1.0
-Content-Type: multipart/mixed; boundary="===============2813262763275677183=="
+Content-Type: multipart/mixed; boundary="===============4026023754936226677=="
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <20191023095554.11340-8-sgarzare@redhat.com>
+In-Reply-To: <20191023095554.11340-9-sgarzare@redhat.com>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -23,68 +23,55 @@ Cc: Sasha Levin <sashal@kernel.org>, linux-hyperv@vger.kernel.org, Stephen Hemmi
 List-Id: virtualization@lists.linuxfoundation.org
 
 
---===============2813262763275677183==
+--===============4026023754936226677==
 Content-Type: multipart/signed; micalg=pgp-sha256;
-	protocol="application/pgp-signature"; boundary="rS8CxjVDS/+yyDmU"
+	protocol="application/pgp-signature"; boundary="DSayHWYpDlRfCAAQ"
 Content-Disposition: inline
 
 
---rS8CxjVDS/+yyDmU
+--DSayHWYpDlRfCAAQ
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
 Content-Transfer-Encoding: quoted-printable
 
-On Wed, Oct 23, 2019 at 11:55:47AM +0200, Stefano Garzarella wrote:
-> virtio_transport and vmci_transport handle the buffer_size
-> sockopts in a very similar way.
+On Wed, Oct 23, 2019 at 11:55:48AM +0200, Stefano Garzarella wrote:
+> All transports call __vsock_create() with the same parameters,
+> most of them depending on the parent socket. In order to simplify
+> the VSOCK core APIs exposed to the transports, this patch adds
+> the vsock_create_connected() callable from transports to create
+> a new socket when a connection request is received.
+> We also unexported the __vsock_create().
 >=20
-> In order to support multiple transports, this patch moves this
-> handling in the core to allow the user to change the options
-> also if the socket is not yet assigned to any transport.
->=20
-> This patch also adds the '.notify_buffer_size' callback in the
-> 'struct virtio_transport' in order to inform the transport,
-> when the buffer_size is changed by the user. It is also useful
-> to limit the 'buffer_size' requested (e.g. virtio transports).
->=20
-> Acked-by: Dexuan Cui <decui@microsoft.com>
+> Suggested-by: Stefan Hajnoczi <stefanha@redhat.com>
 > Signed-off-by: Stefano Garzarella <sgarzare@redhat.com>
 > ---
-> RFC -> v1:
-> - changed .notify_buffer_size return to void (Stefan)
-> - documented that .notify_buffer_size is called with sk_lock held (Stefan)
-> ---
->  drivers/vhost/vsock.c                   |  7 +-
->  include/linux/virtio_vsock.h            | 15 +----
->  include/net/af_vsock.h                  | 15 ++---
->  net/vmw_vsock/af_vsock.c                | 43 ++++++++++---
->  net/vmw_vsock/hyperv_transport.c        | 36 -----------
->  net/vmw_vsock/virtio_transport.c        |  8 +--
->  net/vmw_vsock/virtio_transport_common.c | 79 ++++-------------------
->  net/vmw_vsock/vmci_transport.c          | 86 +++----------------------
->  net/vmw_vsock/vmci_transport.h          |  3 -
->  9 files changed, 65 insertions(+), 227 deletions(-)
+>  include/net/af_vsock.h                  |  5 +----
+>  net/vmw_vsock/af_vsock.c                | 20 +++++++++++++-------
+>  net/vmw_vsock/hyperv_transport.c        |  3 +--
+>  net/vmw_vsock/virtio_transport_common.c |  3 +--
+>  net/vmw_vsock/vmci_transport.c          |  3 +--
+>  5 files changed, 17 insertions(+), 17 deletions(-)
 
 Reviewed-by: Stefan Hajnoczi <stefanha@redhat.com>
 
---rS8CxjVDS/+yyDmU
+--DSayHWYpDlRfCAAQ
 Content-Type: application/pgp-signature; name="signature.asc"
 
 -----BEGIN PGP SIGNATURE-----
 
-iQEzBAEBCAAdFiEEhpWov9P5fNqsNXdanKSrs4Grc8gFAl21UHcACgkQnKSrs4Gr
-c8jf5wf6ArMyUiMMsXentQxUSlbUpCtIRf1HllqzAAYdsb4/GngX/TcZHaVU4JYg
-vnMxPnYs9IatdJgEmJ2oV7Xemt2KdT67eqeqpeUuvOXzwCFTqx7gmCq0GYXPobTW
-5Km+oVwrDxfzrUNVK5ZmeFhOSQuB09zbY1JhuwXTiX+nXOVOBP91Mt3i5wijc6a1
-M6W2KtgysSkW1K4tf+8/c12QdNlB5bwL6HX2Tgop6bE+yTFpxmykopRkXonrLSQ7
-2Ba02wkFAOakw0f9AlF0xBCJfY8OvHUNPYRvnh5g9OJc9DjvZPl2p2PLTpMv7DLm
-XF8KeD/VWkSjA8RIYlUYmzUdVvshGA==
-=oEzi
+iQEzBAEBCAAdFiEEhpWov9P5fNqsNXdanKSrs4Grc8gFAl21UV0ACgkQnKSrs4Gr
+c8j8/ggAyDA6UkgCfi0daj2HF5HCXYLlJ9/XXtklusGF1Wc9tWjzw/GXPdNlYum9
+SqWtDu4YlWC3HH5TXKiMuTFjsumU6qJOSXKbPTFOmHdsQAnYeBMB1LZZRAd1O85T
+LeBzRaNJjd+3qcjEeGf4gy7TuHGk49qnJaaP9n+SvheaN6DRf4cVJYhVYHf15xnI
+qyhbT8cq5YcgszT/mp/D4guFPl9gYFPT7IqFvN8FOhELWmj7q6noJqAlEiUMsOSW
+fg8L76b1v8h04Q7iF2lmvUMFu3q9POIgkxqCQcYZzxJUMFLJez2y8nWnRIbNLJnJ
+l70AGpwkVMKXrJfa8DwyCI39cmT1Hg==
+=06uZ
 -----END PGP SIGNATURE-----
 
---rS8CxjVDS/+yyDmU--
+--DSayHWYpDlRfCAAQ--
 
---===============2813262763275677183==
+--===============4026023754936226677==
 Content-Type: text/plain; charset="us-ascii"
 MIME-Version: 1.0
 Content-Transfer-Encoding: 7bit
@@ -94,4 +81,4 @@ _______________________________________________
 Virtualization mailing list
 Virtualization@lists.linux-foundation.org
 https://lists.linuxfoundation.org/mailman/listinfo/virtualization
---===============2813262763275677183==--
+--===============4026023754936226677==--
