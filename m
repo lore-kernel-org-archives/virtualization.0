@@ -1,14 +1,12 @@
-From: Jason Wang <jasowang@redhat.com>
-Subject: Re: [PATCH] virtio_ring: fix stalls for packed rings
-Date: Mon, 28 Oct 2019 15:13:44 +0800
-Message-ID: <efe3c06f-0a80-c266-c7fc-ac33901f51c7__43830.0506489881$1572246850$gmane$org@redhat.com>
-References: <20191027100705.11644-1-mst@redhat.com>
+From: "Michael S. Tsirkin" <mst@redhat.com>
+Subject: [PULL] vhost: cleanups and fixes
+Date: Mon, 28 Oct 2019 04:29:00 -0400
+Message-ID: <20191028042900-mutt-send-email-mst@kernel.org>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="utf-8"; Format="flowed"
-Content-Transfer-Encoding: base64
+Content-Type: text/plain; charset="us-ascii"
+Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <20191027100705.11644-1-mst@redhat.com>
-Content-Language: en-US
+Content-Disposition: inline
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -18,70 +16,40 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: "Michael S. Tsirkin" <mst@redhat.com>, linux-kernel@vger.kernel.org
-Cc: Marvin Liu <yong.liu@intel.com>, stable@vger.kernel.org, virtualization@lists.linux-foundation.org
+To: Linus Torvalds <torvalds@linux-foundation.org>
+Cc: kvm@vger.kernel.org, mst@redhat.com, netdev@vger.kernel.org, linux-kernel@vger.kernel.org, stable@vger.kernel.org, virtualization@lists.linux-foundation.org, yong.liu@intel.com
 List-Id: virtualization@lists.linuxfoundation.org
 
-Ck9uIDIwMTkvMTAvMjcg5LiL5Y2INjowOCwgTWljaGFlbCBTLiBUc2lya2luIHdyb3RlOgo+IEZy
-b206IE1hcnZpbiBMaXUgPHlvbmcubGl1QGludGVsLmNvbT4KPgo+IFdoZW4gVklSVElPX0ZfUklO
-R19FVkVOVF9JRFggaXMgbmVnb3RpYXRlZCwgdmlydGlvIGRldmljZXMgY2FuCj4gdXNlIHZpcnRx
-dWV1ZV9lbmFibGVfY2JfZGVsYXllZF9wYWNrZWQgdG8gcmVkdWNlIHRoZSBudW1iZXIgb2YgZGV2
-aWNlCj4gaW50ZXJydXB0cy4gIEF0IHRoZSBtb21lbnQsIHRoaXMgaXMgdGhlIGNhc2UgZm9yIHZp
-cnRpby1uZXQgd2hlbiB0aGUKPiBuYXBpX3R4IG1vZHVsZSBwYXJhbWV0ZXIgaXMgc2V0IHRvIGZh
-bHNlLgo+Cj4gSW4gdGhpcyBjYXNlLCB0aGUgdmlydGlvIGRyaXZlciBzZWxlY3RzIGFuIGV2ZW50
-IG9mZnNldCBhbmQgZXhwZWN0cyB0aGF0Cj4gdGhlIGRldmljZSB3aWxsIHNlbmQgYSBub3RpZmlj
-YXRpb24gd2hlbiByb2xsaW5nIG92ZXIgdGhlIGV2ZW50IG9mZnNldAo+IGluIHRoZSByaW5nLiAg
-SG93ZXZlciwgaWYgdGhpcyByb2xsLW92ZXIgaGFwcGVucyBiZWZvcmUgdGhlIGV2ZW50Cj4gc3Vw
-cHJlc3Npb24gc3RydWN0dXJlIHVwZGF0ZSwgdGhlIG5vdGlmaWNhdGlvbiB3b24ndCBiZSBzZW50
-LiBUbyBhZGRyZXNzCj4gdGhpcyByYWNlIGNvbmRpdGlvbiB0aGUgZHJpdmVyIG5lZWRzIHRvIGNo
-ZWNrIHdldGhlciB0aGUgZGV2aWNlIHJvbGxlZAo+IG92ZXIgdGhlIG9mZnNldCBhZnRlciB1cGRh
-dGluZyB0aGUgZXZlbnQgc3VwcHJlc3Npb24gc3RydWN0dXJlLgo+Cj4gV2l0aCBWSVJUSU9fRl9S
-SU5HX1BBQ0tFRCwgdGhlIHZpcnRpbyBkcml2ZXIgZGlkIHRoaXMgYnkgcmVhZGluZyB0aGUKPiBm
-bGFncyBmaWVsZCBvZiB0aGUgZGVzY3JpcHRvciBhdCB0aGUgc3BlY2lmaWVkIG9mZnNldC4KPgo+
-IFVuZm9ydHVuYXRlbHksIGNoZWNraW5nIGF0IHRoZSBldmVudCBvZmZzZXQgaXNuJ3QgcmVsaWFi
-bGU6IGlmCj4gZGVzY3JpcHRvcnMgYXJlIGNoYWluZWQgKGUuZy4gd2hlbiBJTkRJUkVDVCBpcyBv
-ZmYpIG5vdCBhbGwgZGVzY3JpcHRvcnMKPiBhcmUgb3ZlcndyaXR0ZW4gYnkgdGhlIGRldmljZSwg
-c28gaXQncyBwb3NzaWJsZSB0aGF0IHRoZSBkZXZpY2Ugc2tpcHBlZAo+IHRoZSBzcGVjaWZpYyBk
-ZXNjcmlwdG9yIGRyaXZlciBpcyBjaGVja2luZyB3aGVuIHdyaXRpbmcgb3V0IHVzZWQKPiBkZXNj
-cmlwdG9ycy4gSWYgdGhpcyBoYXBwZW5zLCB0aGUgZHJpdmVyIHdvbid0IGRldGVjdCB0aGUgcmFj
-ZSBjb25kaXRpb24KPiBhbmQgd2lsbCBpbmNvcnJlY3RseSBleHBlY3QgdGhlIGRldmljZSB0byBz
-ZW5kIGEgbm90aWZpY2F0aW9uLgo+Cj4gRm9yIHZpcnRpby1uZXQsIHRoZSByZXN1bHQgd2lsbCBi
-ZSBhIFRYIHF1ZXVlIHN0YWxsLCB3aXRoIHRoZQo+IHRyYW5zbWlzc2lvbiBnZXR0aW5nIGJsb2Nr
-ZWQgZm9yZXZlci4KPgo+IFdpdGggdGhlIHBhY2tlZCByaW5nLCBpdCBpc24ndCBlYXN5IHRvIGZp
-bmQgYSBsb2NhdGlvbiB3aGljaCBpcwo+IGd1YXJhbnRlZWQgdG8gY2hhbmdlIHVwb24gdGhlIHJv
-bGwtb3ZlciwgZXhjZXB0IHRoZSBuZXh0IGRldmljZQo+IGRlc2NyaXB0b3IsIGFzIGRlc2NyaWJl
-ZCBpbiB0aGUgc3BlYzoKPgo+ICAgICAgICAgIFdyaXRlcyBvZiBkZXZpY2UgYW5kIGRyaXZlciBk
-ZXNjcmlwdG9ycyBjYW4gZ2VuZXJhbGx5IGJlCj4gICAgICAgICAgcmVvcmRlcmVkLCBidXQgZWFj
-aCBzaWRlIChkcml2ZXIgYW5kIGRldmljZSkgYXJlIG9ubHkgcmVxdWlyZWQgdG8KPiAgICAgICAg
-ICBwb2xsIChvciB0ZXN0KSBhIHNpbmdsZSBsb2NhdGlvbiBpbiBtZW1vcnk6IHRoZSBuZXh0IGRl
-dmljZSBkZXNjcmlwdG9yIGFmdGVyCj4gICAgICAgICAgdGhlIG9uZSB0aGV5IHByb2Nlc3NlZCBw
-cmV2aW91c2x5LCBpbiBjaXJjdWxhciBvcmRlci4KPgo+IHdoaWxlIHRoaXMgbWlnaHQgYmUgc3Vi
-LW9wdGltYWwsIGxldCdzIGRvIGV4YWN0bHkgdGhpcyBmb3Igbm93Lgo+Cj4gQ2M6IHN0YWJsZUB2
-Z2VyLmtlcm5lbC5vcmcKRml4ZXM6IGY1MWY5ODI2ODJlMmEgKCJ2aXJ0aW9fcmluZzogbGV2ZXJh
-Z2UgZXZlbnQgaWR4IGluIHBhY2tlZCByaW5nIikKPiBDYzogSmFzb24gV2FuZyA8amFzb3dhbmdA
-cmVkaGF0LmNvbT4KPiBTaWduZWQtb2ZmLWJ5OiBNYXJ2aW4gTGl1IDx5b25nLmxpdUBpbnRlbC5j
-b20+Cj4gU2lnbmVkLW9mZi1ieTogTWljaGFlbCBTLiBUc2lya2luIDxtc3RAcmVkaGF0LmNvbT4K
-PiAtLS0KPgo+IFNvIHRoaXMgaXMgd2hhdCBJIGhhdmUgaW4gbXkgdHJlZSBub3cgLSB0aGlzIGlz
-IGp1c3QgTWFydmluJ3MgcGF0Y2gKPiB3aXRoIGEgdHdlYWtlZCBkZXNjcmlwdGlvbi4KPgo+Cj4g
-ICBkcml2ZXJzL3ZpcnRpby92aXJ0aW9fcmluZy5jIHwgNyArKystLS0tCj4gICAxIGZpbGUgY2hh
-bmdlZCwgMyBpbnNlcnRpb25zKCspLCA0IGRlbGV0aW9ucygtKQo+Cj4gZGlmZiAtLWdpdCBhL2Ry
-aXZlcnMvdmlydGlvL3ZpcnRpb19yaW5nLmMgYi9kcml2ZXJzL3ZpcnRpby92aXJ0aW9fcmluZy5j
-Cj4gaW5kZXggYmRjMDgyNDRhNjQ4Li5hODA0MWU0NTFlOWUgMTAwNjQ0Cj4gLS0tIGEvZHJpdmVy
-cy92aXJ0aW8vdmlydGlvX3JpbmcuYwo+ICsrKyBiL2RyaXZlcnMvdmlydGlvL3ZpcnRpb19yaW5n
-LmMKPiBAQCAtMTQ5OSw5ICsxNDk5LDYgQEAgc3RhdGljIGJvb2wgdmlydHF1ZXVlX2VuYWJsZV9j
-Yl9kZWxheWVkX3BhY2tlZChzdHJ1Y3QgdmlydHF1ZXVlICpfdnEpCj4gICAJCSAqIGNvdW50ZXIg
-Zmlyc3QgYmVmb3JlIHVwZGF0aW5nIGV2ZW50IGZsYWdzLgo+ICAgCQkgKi8KPiAgIAkJdmlydGlv
-X3dtYih2cS0+d2Vha19iYXJyaWVycyk7Cj4gLQl9IGVsc2Ugewo+IC0JCXVzZWRfaWR4ID0gdnEt
-Pmxhc3RfdXNlZF9pZHg7Cj4gLQkJd3JhcF9jb3VudGVyID0gdnEtPnBhY2tlZC51c2VkX3dyYXBf
-Y291bnRlcjsKPiAgIAl9Cj4gICAKPiAgIAlpZiAodnEtPnBhY2tlZC5ldmVudF9mbGFnc19zaGFk
-b3cgPT0gVlJJTkdfUEFDS0VEX0VWRU5UX0ZMQUdfRElTQUJMRSkgewo+IEBAIC0xNTE4LDcgKzE1
-MTUsOSBAQCBzdGF0aWMgYm9vbCB2aXJ0cXVldWVfZW5hYmxlX2NiX2RlbGF5ZWRfcGFja2VkKHN0
-cnVjdCB2aXJ0cXVldWUgKl92cSkKPiAgIAkgKi8KPiAgIAl2aXJ0aW9fbWIodnEtPndlYWtfYmFy
-cmllcnMpOwo+ICAgCj4gLQlpZiAoaXNfdXNlZF9kZXNjX3BhY2tlZCh2cSwgdXNlZF9pZHgsIHdy
-YXBfY291bnRlcikpIHsKPiArCWlmIChpc191c2VkX2Rlc2NfcGFja2VkKHZxLAo+ICsJCQkJdnEt
-Pmxhc3RfdXNlZF9pZHgsCj4gKwkJCQl2cS0+cGFja2VkLnVzZWRfd3JhcF9jb3VudGVyKSkgewo+
-ICAgCQlFTkRfVVNFKHZxKTsKPiAgIAkJcmV0dXJuIGZhbHNlOwo+ICAgCX0KCl9fX19fX19fX19f
-X19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fClZpcnR1YWxpemF0aW9uIG1haWxp
-bmcgbGlzdApWaXJ0dWFsaXphdGlvbkBsaXN0cy5saW51eC1mb3VuZGF0aW9uLm9yZwpodHRwczov
-L2xpc3RzLmxpbnV4Zm91bmRhdGlvbi5vcmcvbWFpbG1hbi9saXN0aW5mby92aXJ0dWFsaXphdGlv
-bg==
+The following changes since commit 7d194c2100ad2a6dded545887d02754948ca5241:
+
+  Linux 5.4-rc4 (2019-10-20 15:56:22 -0400)
+
+are available in the Git repository at:
+
+  https://git.kernel.org/pub/scm/linux/kernel/git/mst/vhost.git tags/for_linus
+
+for you to fetch changes up to b3683dee840274e9997d958b9d82e5de95950f0b:
+
+  vringh: fix copy direction of vringh_iov_push_kern() (2019-10-28 04:25:04 -0400)
+
+----------------------------------------------------------------
+virtio: fixes
+
+Some minor fixes
+
+Signed-off-by: Michael S. Tsirkin <mst@redhat.com>
+
+----------------------------------------------------------------
+Jason Wang (1):
+      vringh: fix copy direction of vringh_iov_push_kern()
+
+Marvin Liu (1):
+      virtio_ring: fix stalls for packed rings
+
+Stefano Garzarella (1):
+      vsock/virtio: remove unused 'work' field from 'struct virtio_vsock_pkt'
+
+ drivers/vhost/vringh.c       | 8 +++++++-
+ drivers/virtio/virtio_ring.c | 7 +++----
+ include/linux/virtio_vsock.h | 1 -
+ 3 files changed, 10 insertions(+), 6 deletions(-)
