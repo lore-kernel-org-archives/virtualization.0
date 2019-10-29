@@ -1,13 +1,15 @@
-From: Jason Wang <jasowang@redhat.com>
-Subject: [RFC PATCH 2/2] virtio: allow query vq parent device
-Date: Tue, 29 Oct 2019 18:58:43 +0800
-Message-ID: <20191029105843.12061-3-jasowang__365.065403615006$1572346798$gmane$org@redhat.com>
-References: <20191029105843.12061-1-jasowang@redhat.com>
+From: Stefano Garzarella <sgarzare@redhat.com>
+Subject: Re: [PATCH net-next 00/14] vsock: add multi-transports support
+Date: Tue, 29 Oct 2019 17:27:12 +0100
+Message-ID: <20191029162712.fn5rgxrwdrbxuehw__43324.6854737931$1572366461$gmane$org@steredhat>
+References: <20191023095554.11340-1-sgarzare@redhat.com>
+	<20191027080146.GA4472@stefanha-x1.localdomain>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <20191029105843.12061-1-jasowang@redhat.com>
+Content-Disposition: inline
+In-Reply-To: <20191027080146.GA4472@stefanha-x1.localdomain>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -17,90 +19,45 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: mst@redhat.com, jasowang@redhat.com, virtualization@lists.linux-foundation.org, linux-kernel@vger.kernel.org
-Cc: lingshan.zhu@intel.com, lulu@redhat.com, zhihong.wang@intel.com
+To: Stefan Hajnoczi <stefanha@gmail.com>, Adit Ranadive <aditr@vmware.com>, Vishnu Dasa <vdasa@vmware.com>, Andy king <acking@vmware.com>, Aditya Sarwade <asarwade@vmware.com>, George Zhang <georgezhang@vmware.com>, Jorgen Hansen <jhansen@vmware.com>
+Cc: Sasha Levin <sashal@kernel.org>, linux-hyperv@vger.kernel.org, Stephen Hemminger <sthemmin@microsoft.com>, Arnd Bergmann <arnd@arndb.de>, kvm@vger.kernel.org, "Michael S. Tsirkin" <mst@redhat.com>, netdev@vger.kernel.org, Haiyang Zhang <haiyangz@microsoft.com>, Dexuan Cui <decui@microsoft.com>, linux-kernel@vger.kernel.org, virtualization@lists.linux-foundation.org, Stefan Hajnoczi <stefanha@redhat.com>, Greg Kroah-Hartman <gregkh@linuxfoundation.org>, "David S. Miller" <davem@davemloft.net>
 List-Id: virtualization@lists.linuxfoundation.org
 
-Signed-off-by: Jason Wang <jasowang@redhat.com>
----
- drivers/virtio/virtio_ring.c  | 16 ++++++++++++++--
- include/linux/virtio_config.h |  2 ++
- 2 files changed, 16 insertions(+), 2 deletions(-)
+On Sun, Oct 27, 2019 at 09:01:46AM +0100, Stefan Hajnoczi wrote:
+> On Wed, Oct 23, 2019 at 11:55:40AM +0200, Stefano Garzarella wrote:
+> > This series adds the multi-transports support to vsock, following
+> > this proposal: https://www.spinics.net/lists/netdev/msg575792.html
+> > 
+> > With the multi-transports support, we can use VSOCK with nested VMs
+> > (using also different hypervisors) loading both guest->host and
+> > host->guest transports at the same time.
+> > Before this series, vmci-transport supported this behavior but only
+> > using VMware hypervisor on L0, L1, etc.
+> > 
+> > RFC: https://patchwork.ozlabs.org/cover/1168442/
+> > RFC -> v1:
+> > - Added R-b/A-b from Dexuan and Stefan
+> > - Fixed comments and typos in several patches (Stefan)
+> > - Patch 7: changed .notify_buffer_size return to void (Stefan)
+> > - Added patch 8 to simplify the API exposed to the transports (Stefan)
+> > - Patch 11:
+> >   + documented VSOCK_TRANSPORT_F_* flags (Stefan)
+> >   + fixed vsock_assign_transport() when the socket is already assigned
+> >   + moved features outside of struct vsock_transport, and used as
+> >     parameter of vsock_core_register() as a preparation of Patch 12
+> > - Removed "vsock: add 'transport_hg' to handle g2h\h2g transports" patch
+> > - Added patch 12 to register vmci_transport only when VMCI guest/host
+> >   are active
+> 
+> Has there been feedback from Jorgen or someone else from VMware?  A
+> Reviewed-by or Acked-by would be nice since this patch series affects
+> VMCI AF_VSOCK.
+> 
 
-diff --git a/drivers/virtio/virtio_ring.c b/drivers/virtio/virtio_ring.c
-index 51d83f4d7c32..ddeef7421d4d 100644
---- a/drivers/virtio/virtio_ring.c
-+++ b/drivers/virtio/virtio_ring.c
-@@ -183,6 +183,9 @@ struct vring_virtqueue {
- 	/* DMA, allocation, and size information */
- 	bool we_own_ring;
- 
-+	/* Parent device for doing DMA */
-+	struct device *parent;
-+
- #ifdef DEBUG
- 	/* They're supposed to lock for us. */
- 	unsigned int in_use;
-@@ -318,7 +321,7 @@ static void vring_free_queue(struct virtio_device *vdev, size_t size,
-  */
- static inline struct device *vring_dma_dev(const struct vring_virtqueue *vq)
- {
--	return vq->vq.vdev->dev.parent;
-+	return vq->parent;
- }
- 
- /* Map one sg entry. */
-@@ -1554,6 +1557,14 @@ static void *virtqueue_detach_unused_buf_packed(struct virtqueue *_vq)
- 	return NULL;
- }
- 
-+static struct device *vring_get_parent(struct virtio_device *vdev, int index)
-+{
-+	if (vdev->config->get_vq_parent)
-+		return vdev->config->get_vq_parent(vdev, index);
-+	else
-+		return vdev->dev.parent;
-+}
-+
- static struct virtqueue *vring_create_virtqueue_packed(
- 	unsigned int index,
- 	unsigned int num,
-@@ -1572,7 +1583,7 @@ static struct virtqueue *vring_create_virtqueue_packed(
- 	dma_addr_t ring_dma_addr, driver_event_dma_addr, device_event_dma_addr;
- 	size_t ring_size_in_bytes, event_size_in_bytes;
- 	unsigned int i;
--	struct device *parent = vdev->dev.parent;
-+	struct device *parent = vring_get_parent(vdev, index);
- 
- 	ring_size_in_bytes = num * sizeof(struct vring_packed_desc);
- 
-@@ -1613,6 +1624,7 @@ static struct virtqueue *vring_create_virtqueue_packed(
- 	vq->num_added = 0;
- 	vq->packed_ring = true;
- 	vq->use_dma_api = vring_use_dma_api(vdev);
-+	vq->parent = parent;
- 	list_add_tail(&vq->vq.list, &vdev->vqs);
- #ifdef DEBUG
- 	vq->in_use = false;
-diff --git a/include/linux/virtio_config.h b/include/linux/virtio_config.h
-index bb4cc4910750..a95af83aad9f 100644
---- a/include/linux/virtio_config.h
-+++ b/include/linux/virtio_config.h
-@@ -65,6 +65,7 @@ struct irq_affinity;
-  *      the caller can then copy.
-  * @set_vq_affinity: set the affinity for a virtqueue (optional).
-  * @get_vq_affinity: get the affinity for a virtqueue (optional).
-+ * @get_vq_parent: get the parent device for a virtqueue (optional).
-  */
- typedef void vq_callback_t(struct virtqueue *);
- struct virtio_config_ops {
-@@ -88,6 +89,7 @@ struct virtio_config_ops {
- 			       const struct cpumask *cpu_mask);
- 	const struct cpumask *(*get_vq_affinity)(struct virtio_device *vdev,
- 			int index);
-+	struct device *(*get_vq_parent)(struct virtio_device *vdev, int index);
- };
- 
- /* If driver didn't advertise the feature, it will never appear. */
--- 
-2.19.1
+Unfortunately not for now, I'm adding to this thread some VMware guys that
+reviewed latest vmci patches.
+
+Would be nice to have your feedback for these changes.
+
+Thanks in advance,
+Stefano
