@@ -1,18 +1,14 @@
-From: Jorgen Hansen via Virtualization
-	<virtualization@lists.linux-foundation.org>
-Subject: RE: [PATCH net-next 06/14] vsock: add 'struct vsock_sock *' param to
-	vsock_core_get_transport()
-Date: Wed, 30 Oct 2019 15:01:39 +0000
-Message-ID: <MWHPR05MB3376B7BEE1400BDEFCC64EDDDA600@MWHPR05MB3376.namprd05.prod.outlook.com>
-References: <20191023095554.11340-1-sgarzare@redhat.com>
-	<20191023095554.11340-7-sgarzare@redhat.com>
-Reply-To: Jorgen Hansen <jhansen@vmware.com>
+From: Vivek Goyal <vgoyal@redhat.com>
+Subject: [PATCH 3/3] virtiofs: Use completions while waiting for queue to be
+	drained
+Date: Wed, 30 Oct 2019 11:07:19 -0400
+Message-ID: <20191030150719.29048-4-vgoyal@redhat.com>
+References: <20191030150719.29048-1-vgoyal@redhat.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <20191023095554.11340-7-sgarzare@redhat.com>
-Content-Language: en-US
+In-Reply-To: <20191030150719.29048-1-vgoyal@redhat.com>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -22,105 +18,116 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: 'Stefano Garzarella' <sgarzare@redhat.com>
-Cc: Sasha Levin <sashal@kernel.org>, "linux-hyperv@vger.kernel.org" <linux-hyperv@vger.kernel.org>, Stephen Hemminger <sthemmin@microsoft.com>, Arnd Bergmann <arnd@arndb.de>, "kvm@vger.kernel.org" <kvm@vger.kernel.org>, "Michael S. Tsirkin" <mst@redhat.com>, Greg Kroah-Hartman <gregkh@linuxfoundation.org>, Dexuan Cui <decui@microsoft.com>, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>, "virtualization@lists.linux-foundation.org" <virtualization@lists.linux-foundation.org>, Haiyang Zhang <haiyangz@microsoft.com>, Stefan Hajnoczi <stefanha@redhat.com>, "netdev@vger.kernel.org" <netdev@vger.kernel.org>, "David S. Miller" <davem@davemloft.net>
+To: linux-fsdevel@vger.kernel.org, linux-kernel@vger.kernel.org, virtio-fs@redhat.com
+Cc: dgilbert@redhat.com, miklos@szeredi.hu, stefanha@redhat.com, vgoyal@redhat.com, virtualization@lists.linux-foundation.org
 List-Id: virtualization@lists.linuxfoundation.org
 
-> From: Stefano Garzarella [mailto:sgarzare@redhat.com]
-> Sent: Wednesday, October 23, 2019 11:56 AM
-> Subject: [PATCH net-next 06/14] vsock: add 'struct vsock_sock *' param to
-> vsock_core_get_transport()
-> 
-> Since now the 'struct vsock_sock' object contains a pointer to the transport,
-> this patch adds a parameter to the
-> vsock_core_get_transport() to return the right transport assigned to the
-> socket.
-> 
-> This patch modifies also the virtio_transport_get_ops(), that uses the
-> vsock_core_get_transport(), adding the 'struct vsock_sock *' parameter.
-> 
-> Reviewed-by: Stefan Hajnoczi <stefanha@redhat.com>
-> Signed-off-by: Stefano Garzarella <sgarzare@redhat.com>
-> ---
-> RFC -> v1:
-> - Removed comment about protecting transport_single (Stefan)
-> ---
->  include/net/af_vsock.h                  | 2 +-
->  net/vmw_vsock/af_vsock.c                | 7 ++-----
->  net/vmw_vsock/virtio_transport_common.c | 9 +++++----
->  3 files changed, 8 insertions(+), 10 deletions(-)
-> 
-> diff --git a/include/net/af_vsock.h b/include/net/af_vsock.h index
-> a5e1e134261d..2ca67d048de4 100644
-> --- a/include/net/af_vsock.h
-> +++ b/include/net/af_vsock.h
-> @@ -166,7 +166,7 @@ static inline int vsock_core_init(const struct
-> vsock_transport *t)  void vsock_core_exit(void);
-> 
->  /* The transport may downcast this to access transport-specific functions */
-> -const struct vsock_transport *vsock_core_get_transport(void);
-> +const struct vsock_transport *vsock_core_get_transport(struct
-> +vsock_sock *vsk);
-> 
->  /**** UTILS ****/
-> 
-> diff --git a/net/vmw_vsock/af_vsock.c b/net/vmw_vsock/af_vsock.c index
-> c3a14f853eb0..eaea159006c8 100644
-> --- a/net/vmw_vsock/af_vsock.c
-> +++ b/net/vmw_vsock/af_vsock.c
-> @@ -2001,12 +2001,9 @@ void vsock_core_exit(void)  }
-> EXPORT_SYMBOL_GPL(vsock_core_exit);
-> 
-> -const struct vsock_transport *vsock_core_get_transport(void)
-> +const struct vsock_transport *vsock_core_get_transport(struct
-> +vsock_sock *vsk)
->  {
-> -	/* vsock_register_mutex not taken since only the transport uses this
-> -	 * function and only while registered.
-> -	 */
-> -	return transport_single;
-> +	return vsk->transport;
->  }
->  EXPORT_SYMBOL_GPL(vsock_core_get_transport);
-> 
-> diff --git a/net/vmw_vsock/virtio_transport_common.c
-> b/net/vmw_vsock/virtio_transport_common.c
-> index 9763394f7a61..37a1c7e7c7fe 100644
-> --- a/net/vmw_vsock/virtio_transport_common.c
-> +++ b/net/vmw_vsock/virtio_transport_common.c
-> @@ -29,9 +29,10 @@
->  /* Threshold for detecting small packets to copy */  #define
-> GOOD_COPY_LEN  128
-> 
-> -static const struct virtio_transport *virtio_transport_get_ops(void)
-> +static const struct virtio_transport *
-> +virtio_transport_get_ops(struct vsock_sock *vsk)
->  {
-> -	const struct vsock_transport *t = vsock_core_get_transport();
-> +	const struct vsock_transport *t = vsock_core_get_transport(vsk);
-> 
->  	return container_of(t, struct virtio_transport, transport);  } @@ -
-> 168,7 +169,7 @@ static int virtio_transport_send_pkt_info(struct vsock_sock
-> *vsk,
->  	struct virtio_vsock_pkt *pkt;
->  	u32 pkt_len = info->pkt_len;
-> 
-> -	src_cid = virtio_transport_get_ops()->transport.get_local_cid();
-> +	src_cid = virtio_transport_get_ops(vsk)->transport.get_local_cid();
->  	src_port = vsk->local_addr.svm_port;
->  	if (!info->remote_cid) {
->  		dst_cid	= vsk->remote_addr.svm_cid;
-> @@ -201,7 +202,7 @@ static int virtio_transport_send_pkt_info(struct
-> vsock_sock *vsk,
-> 
->  	virtio_transport_inc_tx_pkt(vvs, pkt);
-> 
-> -	return virtio_transport_get_ops()->send_pkt(pkt);
-> +	return virtio_transport_get_ops(vsk)->send_pkt(pkt);
->  }
-> 
->  static bool virtio_transport_inc_rx_pkt(struct virtio_vsock_sock *vvs,
-> --
-> 2.21.0
+While we wait for queue to finish draining, use completions instead of
+uslee_range(). This is better way of waiting for event.
 
-Reviewed-by: Jorgen Hansen <jhansen@vmware.com>
+Signed-off-by: Vivek Goyal <vgoyal@redhat.com>
+---
+ fs/fuse/virtio_fs.c | 39 +++++++++++++++++++++++++++++----------
+ 1 file changed, 29 insertions(+), 10 deletions(-)
+
+diff --git a/fs/fuse/virtio_fs.c b/fs/fuse/virtio_fs.c
+index 43224db8d9ed..b5ba83ef1914 100644
+--- a/fs/fuse/virtio_fs.c
++++ b/fs/fuse/virtio_fs.c
+@@ -35,6 +35,7 @@ struct virtio_fs_vq {
+ 	struct fuse_dev *fud;
+ 	bool connected;
+ 	long in_flight;
++	struct completion in_flight_zero; /* No inflight requests */
+ 	char name[24];
+ } ____cacheline_aligned_in_smp;
+ 
+@@ -85,6 +86,8 @@ static inline void dec_in_flight_req(struct virtio_fs_vq *fsvq)
+ {
+ 	WARN_ON(fsvq->in_flight <= 0);
+ 	fsvq->in_flight--;
++	if (!fsvq->in_flight)
++		complete(&fsvq->in_flight_zero);
+ }
+ 
+ static void release_virtio_fs_obj(struct kref *ref)
+@@ -115,22 +118,23 @@ static void virtio_fs_drain_queue(struct virtio_fs_vq *fsvq)
+ 	WARN_ON(fsvq->in_flight < 0);
+ 
+ 	/* Wait for in flight requests to finish.*/
+-	while (1) {
+-		spin_lock(&fsvq->lock);
+-		if (!fsvq->in_flight) {
+-			spin_unlock(&fsvq->lock);
+-			break;
+-		}
++	spin_lock(&fsvq->lock);
++	if (fsvq->in_flight) {
++		/* We are holding virtio_fs_mutex. There should not be any
++		 * waiters waiting for completion.
++		 */
++		reinit_completion(&fsvq->in_flight_zero);
++		spin_unlock(&fsvq->lock);
++		wait_for_completion(&fsvq->in_flight_zero);
++	} else {
+ 		spin_unlock(&fsvq->lock);
+-		/* TODO use completion instead of timeout */
+-		usleep_range(1000, 2000);
+ 	}
+ 
+ 	flush_work(&fsvq->done_work);
+ 	flush_delayed_work(&fsvq->dispatch_work);
+ }
+ 
+-static void virtio_fs_drain_all_queues(struct virtio_fs *fs)
++static void virtio_fs_drain_all_queues_locked(struct virtio_fs *fs)
+ {
+ 	struct virtio_fs_vq *fsvq;
+ 	int i;
+@@ -141,6 +145,19 @@ static void virtio_fs_drain_all_queues(struct virtio_fs *fs)
+ 	}
+ }
+ 
++static void virtio_fs_drain_all_queues(struct virtio_fs *fs)
++{
++	/* Provides mutual exclusion between ->remove and ->kill_sb
++	 * paths. We don't want both of these draining queue at the
++	 * same time. Current completion logic reinits completion
++	 * and that means there should not be any other thread
++	 * doing reinit or waiting for completion already.
++	 */
++	mutex_lock(&virtio_fs_mutex);
++	virtio_fs_drain_all_queues_locked(fs);
++	mutex_unlock(&virtio_fs_mutex);
++}
++
+ static void virtio_fs_start_all_queues(struct virtio_fs *fs)
+ {
+ 	struct virtio_fs_vq *fsvq;
+@@ -581,6 +598,7 @@ static int virtio_fs_setup_vqs(struct virtio_device *vdev,
+ 	INIT_LIST_HEAD(&fs->vqs[VQ_HIPRIO].end_reqs);
+ 	INIT_DELAYED_WORK(&fs->vqs[VQ_HIPRIO].dispatch_work,
+ 			virtio_fs_hiprio_dispatch_work);
++	init_completion(&fs->vqs[VQ_HIPRIO].in_flight_zero);
+ 	spin_lock_init(&fs->vqs[VQ_HIPRIO].lock);
+ 
+ 	/* Initialize the requests virtqueues */
+@@ -591,6 +609,7 @@ static int virtio_fs_setup_vqs(struct virtio_device *vdev,
+ 				  virtio_fs_request_dispatch_work);
+ 		INIT_LIST_HEAD(&fs->vqs[i].queued_reqs);
+ 		INIT_LIST_HEAD(&fs->vqs[i].end_reqs);
++		init_completion(&fs->vqs[i].in_flight_zero);
+ 		snprintf(fs->vqs[i].name, sizeof(fs->vqs[i].name),
+ 			 "requests.%u", i - VQ_REQUEST);
+ 		callbacks[i] = virtio_fs_vq_done;
+@@ -684,7 +703,7 @@ static void virtio_fs_remove(struct virtio_device *vdev)
+ 	/* This device is going away. No one should get new reference */
+ 	list_del_init(&fs->list);
+ 	virtio_fs_stop_all_queues(fs);
+-	virtio_fs_drain_all_queues(fs);
++	virtio_fs_drain_all_queues_locked(fs);
+ 	vdev->config->reset(vdev);
+ 	virtio_fs_cleanup_vqs(vdev, fs);
+ 
+-- 
+2.20.1
