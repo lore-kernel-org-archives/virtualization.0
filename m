@@ -1,18 +1,17 @@
-From: Jorgen Hansen via Virtualization
-	<virtualization@lists.linux-foundation.org>
-Subject: RE: [PATCH net-next 11/14] vsock: add multi-transports support
-Date: Wed, 30 Oct 2019 15:40:05 +0000
-Message-ID: <MWHPR05MB3376E623764F54D39D8135A9DA600__33099.2077988171$1572450026$gmane$org@MWHPR05MB3376.namprd05.prod.outlook.com>
-References: <20191023095554.11340-1-sgarzare@redhat.com>
-	<20191023095554.11340-12-sgarzare@redhat.com>
-	<CAGxU2F7n48kBy_y2GB=mcvraK=mw_2Jn8=2hvQnEOWqWuT9OjA@mail.gmail.com>
-Reply-To: Jorgen Hansen <jhansen@vmware.com>
+From: Will Deacon <will@kernel.org>
+Subject: Re: read_barrier_depends() usage in vhost.c
+Date: Wed, 30 Oct 2019 16:13:17 +0000
+Message-ID: <20191030161317.GA20094@willie-the-truck>
+References: <20191016233340.djrr7o7dwueqccac@willie-the-truck>
+	<2429dbbc-ec80-3a76-82ff-481c0523f68a@redhat.com>
+	<20191018205814.nbawp3btlpr5p2rf@willie-the-truck>
+	<d0219a18-b7be-1e43-559f-ab6c58483115@redhat.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset="utf-8"
+Content-Transfer-Encoding: base64
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <CAGxU2F7n48kBy_y2GB=mcvraK=mw_2Jn8=2hvQnEOWqWuT9OjA@mail.gmail.com>
-Content-Language: en-US
+Content-Disposition: inline
+In-Reply-To: <d0219a18-b7be-1e43-559f-ab6c58483115@redhat.com>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -22,50 +21,31 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: 'Stefano Garzarella' <sgarzare@redhat.com>
-Cc: Sasha Levin <sashal@kernel.org>, "linux-hyperv@vger.kernel.org" <linux-hyperv@vger.kernel.org>, Stephen Hemminger <sthemmin@microsoft.com>, Arnd Bergmann <arnd@arndb.de>, kvm <kvm@vger.kernel.org>, "Michael S.
-	Tsirkin" <mst@redhat.com>, Greg Kroah-Hartman <gregkh@linuxfoundation.org>, Haiyang Zhang <haiyangz@microsoft.com>, Dexuan Cui <decui@microsoft.com>, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>, "virtualization@lists.linux-foundation.org" <virtualization@lists.linux-foundation.org>, Stefan Hajnoczi <stefanha@redhat.com>, "netdev@vger.kernel.org" <netdev@vger.kernel.org>, "David S.
-	Miller" <davem@davemloft.net>
+To: Jason Wang <jasowang@redhat.com>
+Cc: linux-kernel@lists.infradead.org, paulmck@kernel.org, mst@redhat.com, peterz@infradead.org, virtualization@lists.linux-foundation.org, stern@rowland.harvard.edu
 List-Id: virtualization@lists.linuxfoundation.org
 
-> From: Stefano Garzarella [mailto:sgarzare@redhat.com]
-> > +/* Assign a transport to a socket and call the .init transport callback.
-> > + *
-> > + * Note: for stream socket this must be called when vsk->remote_addr
-> > +is set
-> > + * (e.g. during the connect() or when a connection request on a
-> > +listener
-> > + * socket is received).
-> > + * The vsk->remote_addr is used to decide which transport to use:
-> > + *  - remote CID > VMADDR_CID_HOST will use host->guest transport
-> > + *  - remote CID <= VMADDR_CID_HOST will use guest->host transport
-> > +*/ int vsock_assign_transport(struct vsock_sock *vsk, struct
-> > +vsock_sock *psk) {
-> > +       const struct vsock_transport *new_transport;
-> > +       struct sock *sk = sk_vsock(vsk);
-> > +
-> > +       switch (sk->sk_type) {
-> > +       case SOCK_DGRAM:
-> > +               new_transport = transport_dgram;
-> > +               break;
-> > +       case SOCK_STREAM:
-> > +               if (vsk->remote_addr.svm_cid > VMADDR_CID_HOST)
-> > +                       new_transport = transport_h2g;
-> > +               else
-> > +                       new_transport = transport_g2h;
-> 
-> I just noticed that this break the loopback in the guest.
-> As a fix, we should use 'transport_g2h' when remote_cid <=
-> VMADDR_CID_HOST or remote_cid is the id of 'transport_g2h'.
-> 
-> To do that we also need to avoid that L2 guests can have the same CID of L1.
-> For vhost_vsock I can call vsock_find_cid() in vhost_vsock_set_cid()
-> 
-> @Jorgen: for vmci we need to do the same? or it is guaranteed, since it's
-> already support nested VMs, that a L2 guests cannot have the same CID as
-> the L1.
-
-As far as I can tell, we have the same issue with the current support for nested VMs in
-VMCI. If we have an L2 guest with the same CID as the L1 guest, we will always send to
-the L2 guest, and we may assign an L2 guest the same CID as L1. It should be straight
-forward to avoid this, though.
+SGkgSmFzb24sCgpPbiBNb24sIE9jdCAyMSwgMjAxOSBhdCAwMTo0ODo1M1BNICswODAwLCBKYXNv
+biBXYW5nIHdyb3RlOgo+IE9uIDIwMTkvMTAvMTkg5LiK5Y2INDo1OCwgV2lsbCBEZWFjb24gd3Jv
+dGU6Cj4gPiBTdGFyaW5nIGF0IHRoZSBjb2RlIHNvbWUgbW9yZSwgbXkgYmVzdCBiZXQgYXQgdGhl
+IG1vbWVudAo+ID4gaXMgdGhhdCB0aGUgbG9hZCBvZiAnaW5kaXJlY3QtPmFkZHInIGlzIHByb2Jh
+Ymx5IHRoZSBvbmUgdG8gd29ycnkgYWJvdXQsCj4gPiBzaW5jZSBpdCdzIHBhcnQgb2YgdGhlIHZy
+aW5nIGFuZCBjYW4gYmUgdXBkYXRlZCBjb25jdXJyZW50bHkuCj4gCj4gSSdtIGFsc28gY29uZnVz
+ZWQgYWJvdXQgdGhlIGJhcnJpZXIgaGVyZSwgYmFzaWNhbGx5IGluIGRyaXZlciBzaWRlIHdlIGRp
+ZDoKPiAKPiAxKSBhbGxvY2F0ZSBwYWdlcwo+IAo+IDIpIHN0b3JlIHBhZ2VzIGluIGluZGlyZWN0
+LT5hZGRyCj4gCj4gMykgc21wX3dtYigpCj4gCj4gNCkgaW5jcmVhc2UgdGhlIGF2YWlsIGlkeCAo
+c29tZWhvdyBhIHRhaWwgcG9pbnRlciBvZiB2cmluZykKPiAKPiBpbiB2aG9zdCB3ZSBkaWQ6Cj4g
+Cj4gMSkgcmVhZCBhdmFpbCBpZHgKPiAKPiAyKSBzbXBfcm1iKCkKPiAKPiAzKSByZWFkIGluZGly
+ZWN0LT5hZGRyCj4gCj4gNCkgcmVhZCBmcm9tIGluZGlyZWN0LT5hZGRyCj4gCj4gSXQgbG9va3Mg
+dG8gbWUgZXZlbiB0aGUgZGF0YSBkZXBlbmRlbmN5IGJhcnJpZXIgaXMgbm90IG5lY2Vzc2FyeSBz
+aW5jZSB3ZQo+IGhhdmUgcm1iKCkgd2hpY2ggaXMgc3VmZmljaWVudCBmb3IgdXMgdG8gdGhlIGNv
+cnJlY3QgaW5kaXJlY3QtPmFkZHIgYW5kCj4gZHJpdmVyIGFyZSBub3QgZXhwZWN0ZWQgdG8gZG8g
+YW55IHdyaXRpbmcgdG8gaW5kaXJlY3QtPmFkZHIgYWZ0ZXIgYXZhaWwgaWR4Cj4gaXMgaW5jcmVh
+c2VkID8KClRoYXQgbWFrZXMgc2Vuc2UgdG8gbWU6IHRoZSBzeW5jaHJvbml6YXRpb24gaXMgZG9u
+ZSB2aWEgdnEtPmF2YWlsX2lkeCgpCmFuZCBzbyB0aGUgc3Vic2VxdWVudCBhY2Nlc3Mgb2YgdGhl
+IGluZGlyZWN0IHBhZ2VzIGRvZXNuJ3QgbmVlZCBhZGRpdGlvbmFsCmJhcnJpZXJzLCBldmVuIG9u
+IEFscGhhLiBUaGFua3MuCgpJJ2xsIHdyaXRlIHVwIGEgcGF0Y2ggYW5kIGFkb3B0IHlvdXIgZXhw
+bGFuYXRpb24gYWJvdmUuCgpXaWxsCl9fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19f
+X19fX19fX19fX19fClZpcnR1YWxpemF0aW9uIG1haWxpbmcgbGlzdApWaXJ0dWFsaXphdGlvbkBs
+aXN0cy5saW51eC1mb3VuZGF0aW9uLm9yZwpodHRwczovL2xpc3RzLmxpbnV4Zm91bmRhdGlvbi5v
+cmcvbWFpbG1hbi9saXN0aW5mby92aXJ0dWFsaXphdGlvbg==
