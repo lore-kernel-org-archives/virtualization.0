@@ -1,17 +1,16 @@
-From: Will Deacon <will@kernel.org>
-Subject: Re: read_barrier_depends() usage in vhost.c
-Date: Wed, 30 Oct 2019 16:13:17 +0000
-Message-ID: <20191030161317.GA20094@willie-the-truck>
-References: <20191016233340.djrr7o7dwueqccac@willie-the-truck>
-	<2429dbbc-ec80-3a76-82ff-481c0523f68a@redhat.com>
-	<20191018205814.nbawp3btlpr5p2rf@willie-the-truck>
-	<d0219a18-b7be-1e43-559f-ab6c58483115@redhat.com>
+From: Christoph Hellwig <hch@infradead.org>
+Subject: Re: [PATCH V6 6/6] docs: sample driver to demonstrate how to
+	implement virtio-mdev framework
+Date: Wed, 30 Oct 2019 14:23:12 -0700
+Message-ID: <20191030212312.GA4251__42442.7683743247$1572470686$gmane$org@infradead.org>
+References: <20191030064444.21166-1-jasowang@redhat.com>
+	<20191030064444.21166-7-jasowang@redhat.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="utf-8"
-Content-Transfer-Encoding: base64
+Content-Type: text/plain; charset="us-ascii"
+Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
 Content-Disposition: inline
-In-Reply-To: <d0219a18-b7be-1e43-559f-ab6c58483115@redhat.com>
+In-Reply-To: <20191030064444.21166-7-jasowang@redhat.com>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -22,30 +21,20 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
 To: Jason Wang <jasowang@redhat.com>
-Cc: linux-kernel@lists.infradead.org, paulmck@kernel.org, mst@redhat.com, peterz@infradead.org, virtualization@lists.linux-foundation.org, stern@rowland.harvard.edu
+Cc: stefanha@redhat.com, christophe.de.dinechin@gmail.com, kvm@vger.kernel.org, mst@redhat.com, airlied@linux.ie, joonas.lahtinen@linux.intel.com, heiko.carstens@de.ibm.com, dri-devel@lists.freedesktop.org, virtualization@lists.linux-foundation.org, kwankhede@nvidia.com, rob.miller@broadcom.com, linux-s390@vger.kernel.org, sebott@linux.ibm.com, lulu@redhat.com, eperezma@redhat.com, pasic@linux.ibm.com, borntraeger@de.ibm.com, haotian.wang@sifive.com, zhi.a.wang@intel.com, farman@linux.ibm.com, idos@mellanox.com, gor@linux.ibm.com, intel-gfx@lists.freedesktop.org, jani.nikula@linux.intel.com, xiao.w.wang@intel.com, freude@linux.ibm.com, zhenyuw@linux.intel.com, parav@mellanox.com, zhihong.wang@intel.com, rodrigo.vivi@intel.com, intel-gvt-dev@lists.freedesktop.org, akrowiak@linux.ibm.com, oberpar@linux.ibm.com, netdev@vger.kernel.org, cohuck@redhat.com, linux-kernel@vger.ke
 List-Id: virtualization@lists.linuxfoundation.org
 
-SGkgSmFzb24sCgpPbiBNb24sIE9jdCAyMSwgMjAxOSBhdCAwMTo0ODo1M1BNICswODAwLCBKYXNv
-biBXYW5nIHdyb3RlOgo+IE9uIDIwMTkvMTAvMTkg5LiK5Y2INDo1OCwgV2lsbCBEZWFjb24gd3Jv
-dGU6Cj4gPiBTdGFyaW5nIGF0IHRoZSBjb2RlIHNvbWUgbW9yZSwgbXkgYmVzdCBiZXQgYXQgdGhl
-IG1vbWVudAo+ID4gaXMgdGhhdCB0aGUgbG9hZCBvZiAnaW5kaXJlY3QtPmFkZHInIGlzIHByb2Jh
-Ymx5IHRoZSBvbmUgdG8gd29ycnkgYWJvdXQsCj4gPiBzaW5jZSBpdCdzIHBhcnQgb2YgdGhlIHZy
-aW5nIGFuZCBjYW4gYmUgdXBkYXRlZCBjb25jdXJyZW50bHkuCj4gCj4gSSdtIGFsc28gY29uZnVz
-ZWQgYWJvdXQgdGhlIGJhcnJpZXIgaGVyZSwgYmFzaWNhbGx5IGluIGRyaXZlciBzaWRlIHdlIGRp
-ZDoKPiAKPiAxKSBhbGxvY2F0ZSBwYWdlcwo+IAo+IDIpIHN0b3JlIHBhZ2VzIGluIGluZGlyZWN0
-LT5hZGRyCj4gCj4gMykgc21wX3dtYigpCj4gCj4gNCkgaW5jcmVhc2UgdGhlIGF2YWlsIGlkeCAo
-c29tZWhvdyBhIHRhaWwgcG9pbnRlciBvZiB2cmluZykKPiAKPiBpbiB2aG9zdCB3ZSBkaWQ6Cj4g
-Cj4gMSkgcmVhZCBhdmFpbCBpZHgKPiAKPiAyKSBzbXBfcm1iKCkKPiAKPiAzKSByZWFkIGluZGly
-ZWN0LT5hZGRyCj4gCj4gNCkgcmVhZCBmcm9tIGluZGlyZWN0LT5hZGRyCj4gCj4gSXQgbG9va3Mg
-dG8gbWUgZXZlbiB0aGUgZGF0YSBkZXBlbmRlbmN5IGJhcnJpZXIgaXMgbm90IG5lY2Vzc2FyeSBz
-aW5jZSB3ZQo+IGhhdmUgcm1iKCkgd2hpY2ggaXMgc3VmZmljaWVudCBmb3IgdXMgdG8gdGhlIGNv
-cnJlY3QgaW5kaXJlY3QtPmFkZHIgYW5kCj4gZHJpdmVyIGFyZSBub3QgZXhwZWN0ZWQgdG8gZG8g
-YW55IHdyaXRpbmcgdG8gaW5kaXJlY3QtPmFkZHIgYWZ0ZXIgYXZhaWwgaWR4Cj4gaXMgaW5jcmVh
-c2VkID8KClRoYXQgbWFrZXMgc2Vuc2UgdG8gbWU6IHRoZSBzeW5jaHJvbml6YXRpb24gaXMgZG9u
-ZSB2aWEgdnEtPmF2YWlsX2lkeCgpCmFuZCBzbyB0aGUgc3Vic2VxdWVudCBhY2Nlc3Mgb2YgdGhl
-IGluZGlyZWN0IHBhZ2VzIGRvZXNuJ3QgbmVlZCBhZGRpdGlvbmFsCmJhcnJpZXJzLCBldmVuIG9u
-IEFscGhhLiBUaGFua3MuCgpJJ2xsIHdyaXRlIHVwIGEgcGF0Y2ggYW5kIGFkb3B0IHlvdXIgZXhw
-bGFuYXRpb24gYWJvdmUuCgpXaWxsCl9fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19f
-X19fX19fX19fX19fClZpcnR1YWxpemF0aW9uIG1haWxpbmcgbGlzdApWaXJ0dWFsaXphdGlvbkBs
-aXN0cy5saW51eC1mb3VuZGF0aW9uLm9yZwpodHRwczovL2xpc3RzLmxpbnV4Zm91bmRhdGlvbi5v
-cmcvbWFpbG1hbi9saXN0aW5mby92aXJ0dWFsaXphdGlvbg==
+On Wed, Oct 30, 2019 at 02:44:44PM +0800, Jason Wang wrote:
+> This sample driver creates mdev device that simulate virtio net device
+> over virtio mdev transport. The device is implemented through vringh
+> and workqueue. A device specific dma ops is to make sure HVA is used
+> directly as the IOVA. This should be sufficient for kernel virtio
+> driver to work.
+> 
+> Only 'virtio' type is supported right now. I plan to add 'vhost' type
+> on top which requires some virtual IOMMU implemented in this sample
+> driver.
+
+Can we please submit a real driver for it?  A more or less useless
+sample driver doesn't really qualify for our normal kernel requirements
+that infrastructure should have a real user.
