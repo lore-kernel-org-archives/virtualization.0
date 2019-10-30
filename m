@@ -1,8 +1,7 @@
 From: Vivek Goyal <vgoyal@redhat.com>
-Subject: [PATCH 2/3] virtiofs: Do not send forget request "struct list_head"
-	element
-Date: Wed, 30 Oct 2019 11:07:18 -0400
-Message-ID: <20191030150719.29048-3-vgoyal__13860.7577116758$1572448095$gmane$org@redhat.com>
+Subject: [PATCH 1/3] virtiofs: Use a common function to send forget
+Date: Wed, 30 Oct 2019 11:07:17 -0400
+Message-ID: <20191030150719.29048-2-vgoyal__28663.9947373018$1572448099$gmane$org@redhat.com>
 References: <20191030150719.29048-1-vgoyal@redhat.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
@@ -22,79 +21,207 @@ To: linux-fsdevel@vger.kernel.org, linux-kernel@vger.kernel.org, virtio-fs@redha
 Cc: dgilbert@redhat.com, miklos@szeredi.hu, stefanha@redhat.com, vgoyal@redhat.com, virtualization@lists.linux-foundation.org
 List-Id: virtualization@lists.linuxfoundation.org
 
-We are sending whole of virtio_fs_foreget struct to the other end over
-virtqueue. Other end does not need to see elements like "struct list".
-That's internal detail of guest kernel. Fix it.
+Currently we are duplicating logic to send forgets at two places. Consolidate
+the code by calling one helper function.
+
+This also uses virtqueue_add_outbuf() instead of virtqueue_add_sgs(). Former
+is simpler to call.
 
 Signed-off-by: Vivek Goyal <vgoyal@redhat.com>
 ---
- fs/fuse/virtio_fs.c | 17 ++++++++++++-----
- 1 file changed, 12 insertions(+), 5 deletions(-)
+ fs/fuse/virtio_fs.c | 150 +++++++++++++++++++-------------------------
+ 1 file changed, 63 insertions(+), 87 deletions(-)
 
 diff --git a/fs/fuse/virtio_fs.c b/fs/fuse/virtio_fs.c
-index 6cc7be170cb8..43224db8d9ed 100644
+index a5c86048b96e..6cc7be170cb8 100644
 --- a/fs/fuse/virtio_fs.c
 +++ b/fs/fuse/virtio_fs.c
-@@ -48,11 +48,15 @@ struct virtio_fs {
- 	unsigned int num_request_queues; /* number of request queues */
- };
- 
--struct virtio_fs_forget {
-+struct virtio_fs_forget_req {
- 	struct fuse_in_header ih;
- 	struct fuse_forget_in arg;
-+};
-+
-+struct virtio_fs_forget {
- 	/* This request can be temporarily queued on virt queue */
- 	struct list_head list;
-+	struct virtio_fs_forget_req req;
- };
- 
- static int virtio_fs_enqueue_req(struct virtio_fs_vq *fsvq,
-@@ -325,6 +329,7 @@ static int send_forget_request(struct virtio_fs_vq *fsvq,
- 	struct virtqueue *vq;
- 	int ret = 0;
- 	bool notify;
-+	struct virtio_fs_forget_req *req = &forget->req;
- 
- 	spin_lock(&fsvq->lock);
- 	if (!fsvq->connected) {
-@@ -334,7 +339,7 @@ static int send_forget_request(struct virtio_fs_vq *fsvq,
- 		goto out;
+@@ -313,17 +313,71 @@ static void virtio_fs_request_dispatch_work(struct work_struct *work)
  	}
+ }
  
--	sg_init_one(&sg, forget, sizeof(*forget));
-+	sg_init_one(&sg, req, sizeof(*req));
- 	vq = fsvq->vq;
- 	dev_dbg(&vq->vdev->dev, "%s\n", __func__);
++/*
++ * Returns 1 if queue is full and sender should wait a bit before sending
++ * next request, 0 otherwise.
++ */
++static int send_forget_request(struct virtio_fs_vq *fsvq,
++			       struct virtio_fs_forget *forget,
++			       bool in_flight)
++{
++	struct scatterlist sg;
++	struct virtqueue *vq;
++	int ret = 0;
++	bool notify;
++
++	spin_lock(&fsvq->lock);
++	if (!fsvq->connected) {
++		if (in_flight)
++			dec_in_flight_req(fsvq);
++		kfree(forget);
++		goto out;
++	}
++
++	sg_init_one(&sg, forget, sizeof(*forget));
++	vq = fsvq->vq;
++	dev_dbg(&vq->vdev->dev, "%s\n", __func__);
++
++	ret = virtqueue_add_outbuf(vq, &sg, 1, forget, GFP_ATOMIC);
++	if (ret < 0) {
++		if (ret == -ENOMEM || ret == -ENOSPC) {
++			pr_debug("virtio-fs: Could not queue FORGET: err=%d."
++				 " Will try later\n", ret);
++			list_add_tail(&forget->list, &fsvq->queued_reqs);
++			schedule_delayed_work(&fsvq->dispatch_work,
++					      msecs_to_jiffies(1));
++			if (!in_flight)
++				inc_in_flight_req(fsvq);
++			/* Queue is full */
++			ret = 1;
++		} else {
++			pr_debug("virtio-fs: Could not queue FORGET: err=%d."
++				 " Dropping it.\n", ret);
++			kfree(forget);
++			if (in_flight)
++				dec_in_flight_req(fsvq);
++		}
++		goto out;
++	}
++
++	if (!in_flight)
++		inc_in_flight_req(fsvq);
++	notify = virtqueue_kick_prepare(vq);
++	spin_unlock(&fsvq->lock);
++
++	if (notify)
++		virtqueue_notify(vq);
++	return ret;
++out:
++	spin_unlock(&fsvq->lock);
++	return ret;
++}
++
+ static void virtio_fs_hiprio_dispatch_work(struct work_struct *work)
+ {
+ 	struct virtio_fs_forget *forget;
+ 	struct virtio_fs_vq *fsvq = container_of(work, struct virtio_fs_vq,
+ 						 dispatch_work.work);
+-	struct virtqueue *vq = fsvq->vq;
+-	struct scatterlist sg;
+-	struct scatterlist *sgs[] = {&sg};
+-	bool notify;
+-	int ret;
+-
+ 	pr_debug("virtio-fs: worker %s called.\n", __func__);
+ 	while (1) {
+ 		spin_lock(&fsvq->lock);
+@@ -335,43 +389,9 @@ static void virtio_fs_hiprio_dispatch_work(struct work_struct *work)
+ 		}
  
-@@ -730,6 +735,7 @@ __releases(fiq->lock)
+ 		list_del(&forget->list);
+-		if (!fsvq->connected) {
+-			dec_in_flight_req(fsvq);
+-			spin_unlock(&fsvq->lock);
+-			kfree(forget);
+-			continue;
+-		}
+-
+-		sg_init_one(&sg, forget, sizeof(*forget));
+-
+-		/* Enqueue the request */
+-		dev_dbg(&vq->vdev->dev, "%s\n", __func__);
+-		ret = virtqueue_add_sgs(vq, sgs, 1, 0, forget, GFP_ATOMIC);
+-		if (ret < 0) {
+-			if (ret == -ENOMEM || ret == -ENOSPC) {
+-				pr_debug("virtio-fs: Could not queue FORGET: err=%d. Will try later\n",
+-					 ret);
+-				list_add_tail(&forget->list,
+-						&fsvq->queued_reqs);
+-				schedule_delayed_work(&fsvq->dispatch_work,
+-						msecs_to_jiffies(1));
+-			} else {
+-				pr_debug("virtio-fs: Could not queue FORGET: err=%d. Dropping it.\n",
+-					 ret);
+-				dec_in_flight_req(fsvq);
+-				kfree(forget);
+-			}
+-			spin_unlock(&fsvq->lock);
+-			return;
+-		}
+-
+-		notify = virtqueue_kick_prepare(vq);
+ 		spin_unlock(&fsvq->lock);
+-
+-		if (notify)
+-			virtqueue_notify(vq);
+-		pr_debug("virtio-fs: worker %s dispatched one forget request.\n",
+-			 __func__);
++		if (send_forget_request(fsvq, forget, true))
++			return;
+ 	}
+ }
+ 
+@@ -710,14 +730,9 @@ __releases(fiq->lock)
  {
  	struct fuse_forget_link *link;
  	struct virtio_fs_forget *forget;
-+	struct virtio_fs_forget_req *req;
+-	struct scatterlist sg;
+-	struct scatterlist *sgs[] = {&sg};
  	struct virtio_fs *fs;
+-	struct virtqueue *vq;
  	struct virtio_fs_vq *fsvq;
+-	bool notify;
  	u64 unique;
-@@ -743,14 +749,15 @@ __releases(fiq->lock)
+-	int ret;
  
- 	/* Allocate a buffer for the request */
- 	forget = kmalloc(sizeof(*forget), GFP_NOFS | __GFP_NOFAIL);
-+	req = &forget->req;
- 
--	forget->ih = (struct fuse_in_header){
-+	req->ih = (struct fuse_in_header){
- 		.opcode = FUSE_FORGET,
- 		.nodeid = link->forget_one.nodeid,
- 		.unique = unique,
--		.len = sizeof(*forget),
-+		.len = sizeof(*req),
- 	};
--	forget->arg = (struct fuse_forget_in){
-+	req->arg = (struct fuse_forget_in){
+ 	link = fuse_dequeue_forget(fiq, 1, NULL);
+ 	unique = fuse_get_unique(fiq);
+@@ -739,46 +754,7 @@ __releases(fiq->lock)
  		.nlookup = link->forget_one.nlookup,
  	};
+ 
+-	sg_init_one(&sg, forget, sizeof(*forget));
+-
+-	/* Enqueue the request */
+-	spin_lock(&fsvq->lock);
+-
+-	if (!fsvq->connected) {
+-		kfree(forget);
+-		spin_unlock(&fsvq->lock);
+-		goto out;
+-	}
+-
+-	vq = fsvq->vq;
+-	dev_dbg(&vq->vdev->dev, "%s\n", __func__);
+-
+-	ret = virtqueue_add_sgs(vq, sgs, 1, 0, forget, GFP_ATOMIC);
+-	if (ret < 0) {
+-		if (ret == -ENOMEM || ret == -ENOSPC) {
+-			pr_debug("virtio-fs: Could not queue FORGET: err=%d. Will try later.\n",
+-				 ret);
+-			list_add_tail(&forget->list, &fsvq->queued_reqs);
+-			schedule_delayed_work(&fsvq->dispatch_work,
+-					msecs_to_jiffies(1));
+-			inc_in_flight_req(fsvq);
+-		} else {
+-			pr_debug("virtio-fs: Could not queue FORGET: err=%d. Dropping it.\n",
+-				 ret);
+-			kfree(forget);
+-		}
+-		spin_unlock(&fsvq->lock);
+-		goto out;
+-	}
+-
+-	inc_in_flight_req(fsvq);
+-	notify = virtqueue_kick_prepare(vq);
+-
+-	spin_unlock(&fsvq->lock);
+-
+-	if (notify)
+-		virtqueue_notify(vq);
+-out:
++	send_forget_request(fsvq, forget, false);
+ 	kfree(link);
+ }
  
 -- 
 2.20.1
