@@ -1,15 +1,11 @@
-From: Tiwei Bie <tiwei.bie@intel.com>
-Subject: Re: [RFC] vhost_mdev: add network control vq support
-Date: Wed, 30 Oct 2019 14:17:11 +0800
-Message-ID: <20191030061711.GA11968__49468.9878587209$1572416195$gmane$org@___>
-References: <20191029101726.12699-1-tiwei.bie@intel.com>
-	<59474431-9e77-567c-9a46-a3965f587f65@redhat.com>
+From: Jason Wang <jasowang@redhat.com>
+Subject: [PATCH V6 0/6] mdev based hardware virtio offloading support
+Date: Wed, 30 Oct 2019 14:44:38 +0800
+Message-ID: <20191030064444.21166-1-jasowang__12649.4332378329$1572417951$gmane$org@redhat.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="utf-8"
-Content-Transfer-Encoding: base64
+Content-Type: text/plain; charset="us-ascii"
+Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-Content-Disposition: inline
-In-Reply-To: <59474431-9e77-567c-9a46-a3965f587f65@redhat.com>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -19,109 +15,173 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Jason Wang <jasowang@redhat.com>
-Cc: kvm@vger.kernel.org, mst@redhat.com, netdev@vger.kernel.org, linux-kernel@vger.kernel.org, virtualization@lists.linux-foundation.org, zhihong.wang@intel.com, lingshan.zhu@intel.com
+To: kvm@vger.kernel.org, linux-s390@vger.kernel.org, linux-kernel@vger.kernel.org, dri-devel@lists.freedesktop.org, intel-gfx@lists.freedesktop.org, intel-gvt-dev@lists.freedesktop.org, kwankhede@nvidia.com, alex.williamson@redhat.com, mst@redhat.com, tiwei.bie@intel.com
+Cc: christophe.de.dinechin@gmail.com, sebott@linux.ibm.com, airlied@linux.ie, joonas.lahtinen@linux.intel.com, heiko.carstens@de.ibm.com, virtualization@lists.linux-foundation.org, rob.miller@broadcom.com, lulu@redhat.com, eperezma@redhat.com, pasic@linux.ibm.com, borntraeger@de.ibm.com, haotian.wang@sifive.com, zhi.a.wang@intel.com, farman@linux.ibm.com, idos@mellanox.com, gor@linux.ibm.com, zhenyuw@linux.intel.com, rodrigo.vivi@intel.com, xiao.w.wang@intel.com, freude@linux.ibm.com, jani.nikula@linux.intel.com, parav@mellanox.com, zhihong.wang@intel.com, stefanha@redhat.com, akrowiak@linux.ibm.com, netdev@vger.kernel.org, cohuck@redhat.com, oberpar@linux.ibm.com, maxime.coquelin@redhat.com, daniel@ffwll.ch, lingshan.zhu@intel.com
 List-Id: virtualization@lists.linuxfoundation.org
 
-T24gVHVlLCBPY3QgMjksIDIwMTkgYXQgMDY6NTE6MzJQTSArMDgwMCwgSmFzb24gV2FuZyB3cm90
-ZToKPiBPbiAyMDE5LzEwLzI5IOS4i+WNiDY6MTcsIFRpd2VpIEJpZSB3cm90ZToKPiA+IFRoaXMg
-cGF0Y2ggYWRkcyB0aGUgbmV0d29yayBjb250cm9sIHZxIHN1cHBvcnQgaW4gdmhvc3QtbWRldi4K
-PiA+IEEgdmhvc3QtbWRldiBzcGVjaWZpYyBvcCBpcyBpbnRyb2R1Y2VkIHRvIGFsbG93IHBhcmVu
-dCBkcml2ZXJzCj4gPiB0byBoYW5kbGUgdGhlIG5ldHdvcmsgY29udHJvbCBjb21tYW5kcyBjb21l
-IGZyb20gdXNlcnNwYWNlLgo+IAo+IFByb2JhYmx5IHdvcmsgZm9yIHVzZXJzcGFjZSBkcml2ZXIg
-YnV0IG5vdCBrZXJuZWwgZHJpdmVyLgoKRXhhY3RseS4gVGhpcyBpcyBvbmx5IGZvciB1c2Vyc3Bh
-Y2UuCgpJIGdvdCB5b3VyIHBvaW50IG5vdy4gSW4gdmlydGlvLW1kZXYga2VybmVsIGRyaXZlciBj
-YXNlLAp0aGUgY3RybC12cSBjYW4gYmUgc3BlY2lhbCBhcyB3ZWxsLgoKPiAKPiAKPiA+Cj4gPiBT
-aWduZWQtb2ZmLWJ5OiBUaXdlaSBCaWUgPHRpd2VpLmJpZUBpbnRlbC5jb20+Cj4gPiAtLS0KPiA+
-IFRoaXMgcGF0Y2ggZGVwZW5kcyBvbiBiZWxvdyBwYXRjaDoKPiA+IGh0dHBzOi8vbGttbC5vcmcv
-bGttbC8yMDE5LzEwLzI5LzMzNQo+ID4KPiA+ICBkcml2ZXJzL3Zob3N0L21kZXYuYyAgICAgICAg
-ICAgICB8IDM3ICsrKysrKysrKysrKysrKysrKysrKysrKysrKysrKy0tCj4gPiAgaW5jbHVkZS9s
-aW51eC92aXJ0aW9fbWRldl9vcHMuaCAgfCAxMCArKysrKysrKysKPiA+ICBpbmNsdWRlL3VhcGkv
-bGludXgvdmhvc3QuaCAgICAgICB8ICA3ICsrKysrKwo+ID4gIGluY2x1ZGUvdWFwaS9saW51eC92
-aG9zdF90eXBlcy5oIHwgIDYgKysrKysrCj4gPiAgNCBmaWxlcyBjaGFuZ2VkLCA1OCBpbnNlcnRp
-b25zKCspLCAyIGRlbGV0aW9ucygtKQo+ID4KPiA+IGRpZmYgLS1naXQgYS9kcml2ZXJzL3Zob3N0
-L21kZXYuYyBiL2RyaXZlcnMvdmhvc3QvbWRldi5jCj4gPiBpbmRleCAzNWIyZmIzM2U2ODYuLmM5
-YjNlYWE3NzQwNSAxMDA2NDQKPiA+IC0tLSBhL2RyaXZlcnMvdmhvc3QvbWRldi5jCj4gPiArKysg
-Yi9kcml2ZXJzL3Zob3N0L21kZXYuYwo+ID4gQEAgLTQ3LDYgKzQ3LDEzIEBAIGVudW0gewo+ID4g
-IAkJKDFVTEwgPDwgVklSVElPX05FVF9GX0hPU1RfVUZPKSB8Cj4gPiAgCQkoMVVMTCA8PCBWSVJU
-SU9fTkVUX0ZfTVJHX1JYQlVGKSB8Cj4gPiAgCQkoMVVMTCA8PCBWSVJUSU9fTkVUX0ZfU1RBVFVT
-KSB8Cj4gPiArCQkoMVVMTCA8PCBWSVJUSU9fTkVUX0ZfQ1RSTF9HVUVTVF9PRkZMT0FEUykgfAo+
-ID4gKwkJKDFVTEwgPDwgVklSVElPX05FVF9GX0NUUkxfVlEpIHwKPiA+ICsJCSgxVUxMIDw8IFZJ
-UlRJT19ORVRfRl9DVFJMX1JYKSB8Cj4gPiArCQkoMVVMTCA8PCBWSVJUSU9fTkVUX0ZfQ1RSTF9W
-TEFOKSB8Cj4gPiArCQkoMVVMTCA8PCBWSVJUSU9fTkVUX0ZfQ1RSTF9SWF9FWFRSQSkgfAo+ID4g
-KwkJKDFVTEwgPDwgVklSVElPX05FVF9GX0dVRVNUX0FOTk9VTkNFKSB8Cj4gPiArCQkoMVVMTCA8
-PCBWSVJUSU9fTkVUX0ZfQ1RSTF9NQUNfQUREUikgfAo+ID4gIAkJKDFVTEwgPDwgVklSVElPX05F
-VF9GX1NQRUVEX0RVUExFWCksCj4gPiAgfTsKPiA+ICAKPiA+IEBAIC0zNjIsNiArMzY5LDI5IEBA
-IHN0YXRpYyBsb25nIHZob3N0X21kZXZfdnJpbmdfaW9jdGwoc3RydWN0IHZob3N0X21kZXYgKm0s
-IHVuc2lnbmVkIGludCBjbWQsCj4gPiAgCXJldHVybiByOwo+ID4gIH0KPiA+ICAKPiA+ICsvKgo+
-ID4gKyAqIERldmljZSBzcGVjaWZpYyAoZS5nLiBuZXR3b3JrKSBpb2N0bHMuCj4gPiArICovCj4g
-PiArc3RhdGljIGxvbmcgdmhvc3RfbWRldl9kZXZfaW9jdGwoc3RydWN0IHZob3N0X21kZXYgKm0s
-IHVuc2lnbmVkIGludCBjbWQsCj4gPiArCQkJCSB2b2lkIF9fdXNlciAqYXJncCkKPiA+ICt7Cj4g
-PiArCXN0cnVjdCBtZGV2X2RldmljZSAqbWRldiA9IG0tPm1kZXY7Cj4gPiArCWNvbnN0IHN0cnVj
-dCB2aXJ0aW9fbWRldl9kZXZpY2Vfb3BzICpvcHMgPSBtZGV2X2dldF92aG9zdF9vcHMobWRldik7
-Cj4gPiArCj4gPiArCXN3aXRjaCAobS0+dmlydGlvX2lkKSB7Cj4gPiArCWNhc2UgVklSVElPX0lE
-X05FVDoKPiA+ICsJCXN3aXRjaCAoY21kKSB7Cj4gPiArCQljYXNlIFZIT1NUX01ERVZfTkVUX0NU
-Ukw6Cj4gPiArCQkJaWYgKCFvcHMtPm5ldC5jdHJsKQo+ID4gKwkJCQlyZXR1cm4gLUVOT1RTVVBQ
-Owo+ID4gKwkJCXJldHVybiBvcHMtPm5ldC5jdHJsKG1kZXYsIGFyZ3ApOwo+ID4gKwkJfQo+ID4g
-KwkJYnJlYWs7Cj4gPiArCX0KPiA+ICsKPiA+ICsJcmV0dXJuIC1FTk9JT0NUTENNRDsKPiA+ICt9
-Cj4gCj4gQXMgeW91IGNvbW1lbnQgYWJvdmUsIHRoZW4gdmhvc3QtbWRldiBuZWVkIGRldmljZSBz
-cGVjaWZpYyBzdHVmZnMuCgpZZWFoLiBCdXQgdGhpcyBkZXZpY2Ugc3BlY2lmaWMgc3R1ZmYgaXMg
-cXVpdGUgc21hbGwgYW5kCnNpbXBsZS4gSXQncyBqdXN0IHRvIGZvcndhcmQgdGhlIHNldHRpbmdz
-IGJldHdlZW4gcGFyZW50CmFuZCB1c2Vyc3BhY2UuIEJ1dCBJIHRvdGFsbHkgYWdyZWUgaXQgd291
-bGQgYmUgcmVhbGx5CmdyZWF0IGlmIHdlIGNvdWxkIGF2b2lkIGl0IGluIGFuIGVsZWdhbnQgd2F5
-LgoKPiAKPiAKPiA+ICsKPiA+ICBzdGF0aWMgaW50IHZob3N0X21kZXZfb3Blbih2b2lkICpkZXZp
-Y2VfZGF0YSkKPiA+ICB7Cj4gPiAgCXN0cnVjdCB2aG9zdF9tZGV2ICptID0gZGV2aWNlX2RhdGE7
-Cj4gPiBAQCAtNDYwLDggKzQ5MCwxMSBAQCBzdGF0aWMgbG9uZyB2aG9zdF9tZGV2X3VubG9ja2Vk
-X2lvY3RsKHZvaWQgKmRldmljZV9kYXRhLAo+ID4gIAkJICogVkhPU1RfU0VUX0xPR19GRCBhcmUg
-bm90IHVzZWQgeWV0Lgo+ID4gIAkJICovCj4gPiAgCQlyID0gdmhvc3RfZGV2X2lvY3RsKCZtLT5k
-ZXYsIGNtZCwgYXJncCk7Cj4gPiAtCQlpZiAociA9PSAtRU5PSU9DVExDTUQpCj4gPiAtCQkJciA9
-IHZob3N0X21kZXZfdnJpbmdfaW9jdGwobSwgY21kLCBhcmdwKTsKPiA+ICsJCWlmIChyID09IC1F
-Tk9JT0NUTENNRCkgewo+ID4gKwkJCXIgPSB2aG9zdF9tZGV2X2Rldl9pb2N0bChtLCBjbWQsIGFy
-Z3ApOwo+ID4gKwkJCWlmIChyID09IC1FTk9JT0NUTENNRCkKPiA+ICsJCQkJciA9IHZob3N0X21k
-ZXZfdnJpbmdfaW9jdGwobSwgY21kLCBhcmdwKTsKPiA+ICsJCX0KPiA+ICAJfQo+ID4gIAo+ID4g
-IAltdXRleF91bmxvY2soJm0tPm11dGV4KTsKPiA+IGRpZmYgLS1naXQgYS9pbmNsdWRlL2xpbnV4
-L3ZpcnRpb19tZGV2X29wcy5oIGIvaW5jbHVkZS9saW51eC92aXJ0aW9fbWRldl9vcHMuaAo+ID4g
-aW5kZXggZDQxN2I0MWYyODQ1Li42MjI4NjE4MDRlYmQgMTAwNjQ0Cj4gPiAtLS0gYS9pbmNsdWRl
-L2xpbnV4L3ZpcnRpb19tZGV2X29wcy5oCj4gPiArKysgYi9pbmNsdWRlL2xpbnV4L3ZpcnRpb19t
-ZGV2X29wcy5oCj4gPiBAQCAtMjAsNiArMjAsOCBAQCBzdHJ1Y3QgdmlydGlvX21kZXZfY2FsbGJh
-Y2sgewo+ID4gIAl2b2lkICpwcml2YXRlOwo+ID4gIH07Cj4gPiAgCj4gPiArc3RydWN0IHZob3N0
-X21kZXZfbmV0X2N0cmw7Cj4gPiArCj4gPiAgLyoqCj4gPiAgICogc3RydWN0IHZmaW9fbWRldl9k
-ZXZpY2Vfb3BzIC0gU3RydWN0dXJlIHRvIGJlIHJlZ2lzdGVyZWQgZm9yIGVhY2gKPiA+ICAgKiBt
-ZGV2IGRldmljZSB0byByZWdpc3RlciB0aGUgZGV2aWNlIGZvciB2aXJ0aW8vdmhvc3QgZHJpdmVy
-cy4KPiA+IEBAIC0xNTEsNiArMTUzLDE0IEBAIHN0cnVjdCB2aXJ0aW9fbWRldl9kZXZpY2Vfb3Bz
-IHsKPiA+ICAKPiA+ICAJLyogTWRldiBkZXZpY2Ugb3BzICovCj4gPiAgCXU2NCAoKmdldF9tZGV2
-X2ZlYXR1cmVzKShzdHJ1Y3QgbWRldl9kZXZpY2UgKm1kZXYpOwo+ID4gKwo+ID4gKwkvKiBWaG9z
-dC1tZGV2IChNREVWX0NMQVNTX0lEX1ZIT1NUKSBzcGVjaWZpYyBvcHMgKi8KPiA+ICsJdW5pb24g
-ewo+ID4gKwkJc3RydWN0IHsKPiA+ICsJCQlpbnQgKCpjdHJsKShzdHJ1Y3QgbWRldl9kZXZpY2Ug
-Km1kZXYsCj4gPiArCQkJCSAgICBzdHJ1Y3Qgdmhvc3RfbWRldl9uZXRfY3RybCBfX3VzZXIgKmN0
-cmwpOwo+ID4gKwkJfSBuZXQ7Cj4gPiArCX07Cj4gCj4gQW5kIHNvIGRpZCBkZXZpY2Vfb3BzLiBJ
-IHN0aWxsIHRoaW5rIHdlJ2QgdHJ5IG91dCBiZXN0IHRvIGF2b2lkIHN1Y2ggdGhpbmcuCgpJIHRv
-dGFsbHkgYWdyZWUgd2Ugc2hvdWxkIHRyeSBvdXIgYmVzdCB0byBhdm9pZCBpdC4KQnV0IGluIHRo
-aXMgY2FzZSwgSSB0aGluayBpdCBtYXkgYmUgd29ydGggY29uc2lkZXJpbmcKYXMgaXQgZG9lcyBz
-aW1wbGlmeSB0aGUgdXNlcnNwYWNlIEFQSSBhbmQgdGhlIHBhcmVudApkcml2ZXIgaW1wbGVtZW50
-YXRpb24gYSBsb3QuLgoKCj4gCj4gVGhhbmtzCj4gCj4gCj4gPiAgfTsKPiA+ICAKPiA+ICB2b2lk
-IG1kZXZfc2V0X3ZpcnRpb19vcHMoc3RydWN0IG1kZXZfZGV2aWNlICptZGV2LAo+ID4gZGlmZiAt
-LWdpdCBhL2luY2x1ZGUvdWFwaS9saW51eC92aG9zdC5oIGIvaW5jbHVkZS91YXBpL2xpbnV4L3Zo
-b3N0LmgKPiA+IGluZGV4IDA2MWEyODI0YTFiMy4uMzY5M2IyY2JhMGM0IDEwMDY0NAo+ID4gLS0t
-IGEvaW5jbHVkZS91YXBpL2xpbnV4L3Zob3N0LmgKPiA+ICsrKyBiL2luY2x1ZGUvdWFwaS9saW51
-eC92aG9zdC5oCj4gPiBAQCAtMTM0LDQgKzEzNCwxMSBAQAo+ID4gIC8qIEdldCB0aGUgbWF4IHJp
-bmcgc2l6ZS4gKi8KPiA+ICAjZGVmaW5lIFZIT1NUX01ERVZfR0VUX1ZSSU5HX05VTQlfSU9SKFZI
-T1NUX1ZJUlRJTywgMHg3NiwgX191MTYpCj4gPiAgCj4gPiArLyogVkhPU1RfTURFViBkZXZpY2Ug
-c3BlY2lmaWMgZGVmaW5lcyAqLwo+ID4gKwo+ID4gKy8qIFNlbmQgdmlydGlvLW5ldCBjb21tYW5k
-cy4gVGhlIGNvbW1hbmRzIGZvbGxvdyB0aGUgc2FtZSBkZWZpbml0aW9uCj4gPiArICogb2YgdGhl
-IHZpcnRpby1uZXQgY29tbWFuZHMgZGVmaW5lZCBpbiB2aXJ0aW8tc3BlYy4KPiA+ICsgKi8KPiA+
-ICsjZGVmaW5lIFZIT1NUX01ERVZfTkVUX0NUUkwJCV9JT1coVkhPU1RfVklSVElPLCAweDc3LCBz
-dHJ1Y3Qgdmhvc3RfbWRldl9uZXRfY3RybCAqKQo+ID4gKwo+ID4gICNlbmRpZgo+ID4gZGlmZiAt
-LWdpdCBhL2luY2x1ZGUvdWFwaS9saW51eC92aG9zdF90eXBlcy5oIGIvaW5jbHVkZS91YXBpL2xp
-bnV4L3Zob3N0X3R5cGVzLmgKPiA+IGluZGV4IDdiMTA1ZDBiMmZiOS4uZTc2YjRkOGUzNWU1IDEw
-MDY0NAo+ID4gLS0tIGEvaW5jbHVkZS91YXBpL2xpbnV4L3Zob3N0X3R5cGVzLmgKPiA+ICsrKyBi
-L2luY2x1ZGUvdWFwaS9saW51eC92aG9zdF90eXBlcy5oCj4gPiBAQCAtMTI3LDYgKzEyNywxMiBA
-QCBzdHJ1Y3Qgdmhvc3RfbWRldl9jb25maWcgewo+ID4gIAlfX3U4IGJ1ZlswXTsKPiA+ICB9Owo+
-ID4gIAo+ID4gK3N0cnVjdCB2aG9zdF9tZGV2X25ldF9jdHJsIHsKPiA+ICsJX191OCBjbGFzczsK
-PiA+ICsJX191OCBjbWQ7Cj4gPiArCV9fdTggY21kX2RhdGFbMF07Cj4gPiArfSBfX2F0dHJpYnV0
-ZV9fKChwYWNrZWQpKTsKPiA+ICsKPiA+ICAvKiBGZWF0dXJlIGJpdHMgKi8KPiA+ICAvKiBMb2cg
-YWxsIHdyaXRlIGRlc2NyaXB0b3JzLiBDYW4gYmUgY2hhbmdlZCB3aGlsZSBkZXZpY2UgaXMgYWN0
-aXZlLiAqLwo+ID4gICNkZWZpbmUgVkhPU1RfRl9MT0dfQUxMIDI2Cj4gCl9fX19fX19fX19fX19f
-X19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fClZpcnR1YWxpemF0aW9uIG1haWxpbmcg
-bGlzdApWaXJ0dWFsaXphdGlvbkBsaXN0cy5saW51eC1mb3VuZGF0aW9uLm9yZwpodHRwczovL2xp
-c3RzLmxpbnV4Zm91bmRhdGlvbi5vcmcvbWFpbG1hbi9saXN0aW5mby92aXJ0dWFsaXphdGlvbg==
+Hi all:
+
+There are hardwares that can do virtio datapath offloading while
+having its own control path. This path tries to implement a mdev based
+unified API to support using kernel virtio driver to drive those
+devices. This is done by introducing a new mdev transport for virtio
+(virtio_mdev) and register itself as a new kind of mdev driver. Then
+it provides a unified way for kernel virtio driver to talk with mdev
+device implementation.
+
+Though the series only contains kernel driver support, the goal is to
+make the transport generic enough to support userspace drivers. This
+means vhost-mdev[1] could be built on top as well by resuing the
+transport.
+
+A sample driver is also implemented which simulate a virito-net
+loopback ethernet device on top of vringh + workqueue. This could be
+used as a reference implementation for real hardware driver.
+
+Also a real ICF VF driver was also posted here[2] which is a good
+reference for vendors who is interested in their own virtio datapath
+offloading product.
+
+Consider mdev framework only support VFIO device and driver right now,
+this series also extend it to support other types. This is done
+through introducing class id to the device and pairing it with
+id_talbe claimed by the driver. On top, this seris also decouple
+device specific parents ops out of the common ones.
+
+Pktgen test was done with virito-net + mvnet loop back device.
+
+Please review.
+
+[1] https://lkml.org/lkml/2019/10/29/335
+[2] https://lkml.org/lkml/2019/10/15/1226
+
+Changes from V5:
+
+- use dev_warn() instead of WARN(1) when class id is not set
+- validate id_table before trying to do matching between device and
+  driver
+- add wildcard for modpost script
+- use unique name for id_table
+- move get_mdev_features() to be the first member of virtio_device_ops
+  and more comments for it
+- typo fixes for the comments above virtio_mdev_ops
+
+Changes from V4:
+
+- keep mdev_set_class() for the device that doesn't use device ops
+- use union for device ops pointer in mdev_device
+- introduce class specific helper for getting is device ops
+- use WARN_ON instead of BUG_ON in mdev_set_virtio_ops
+- explain details of get_mdev_features() and get_vendor_id()
+- distinguish the optional virito device ops from mandatory ones and
+  make get_generation() optional
+- rename vfio_mdev.h to vfio_mdev_ops.h, rename virito_mdev.h to
+  virtio_mdev_ops.h
+- don't abuse version fileds in virtio_mdev structure, use features
+  instead
+- fix warning during device remove
+- style & docs tweaks and typo fixes
+
+Changes from V3:
+
+- document that class id (device ops) must be specified in create()
+- add WARN() when trying to set class_id when it has already set
+- add WARN() when class_id is not specified in create() and correctly
+  return an error in this case
+- correct the prototype of mdev_set_class() in the doc
+- add documention of mdev_set_class()
+- remove the unnecessary "class_id_fail" label when class id is not
+  specified in create()
+- convert id_table in vfio_mdev to const
+- move mdev_set_class and its friends after mdev_uuid()
+- suqash the patch of bus uevent into patch of introducing class id
+- tweak the words in the docs per Cornelia suggestion
+- tie class_id and device ops through class specific initialization
+  routine like mdev_set_vfio_ops()
+- typos fixes in the docs of virtio-mdev callbacks
+- document the usage of virtqueues in struct virtio_mdev_device
+- remove the useless vqs array in struct virtio_mdev_device
+- rename MDEV_ID_XXX to MDEV_CLASS_ID_XXX
+
+Changes from V2:
+
+- fail when class_id is not specified
+- drop the vringh patch
+- match the doc to the code
+- tweak the commit log
+- move device_ops from parent to mdev device
+- remove the unused MDEV_ID_VHOST
+
+Changes from V1:
+
+- move virtio_mdev.c to drivers/virtio
+- store class_id in mdev_device instead of mdev_parent
+- store device_ops in mdev_device instead of mdev_parent
+- reorder the patch, vringh fix comes first
+- really silent compiling warnings
+- really switch to use u16 for class_id
+- uevent and modpost support for mdev class_id
+- vraious tweaks per comments from Parav
+
+Changes from RFC-V2:
+
+- silent compile warnings on some specific configuration
+- use u16 instead u8 for class id
+- reseve MDEV_ID_VHOST for future vhost-mdev work
+- introduce "virtio" type for mvnet and make "vhost" type for future
+  work
+- add entries in MAINTAINER
+- tweak and typos fixes in commit log
+
+Changes from RFC-V1:
+
+- rename device id to class id
+- add docs for class id and device specific ops (device_ops)
+- split device_ops into seperate headers
+- drop the mdev_set_dma_ops()
+- use device_ops to implement the transport API, then it's not a part
+  of UAPI any more
+- use GFP_ATOMIC in mvnet sample device and other tweaks
+- set_vring_base/get_vring_base support for mvnet device
+
+Jason Wang (6):
+  mdev: class id support
+  modpost: add support for mdev class id
+  mdev: introduce device specific ops
+  mdev: introduce virtio device and its device ops
+  virtio: introduce a mdev based transport
+  docs: sample driver to demonstrate how to implement virtio-mdev
+    framework
+
+ .../driver-api/vfio-mediated-device.rst       |  38 +-
+ MAINTAINERS                                   |   2 +
+ drivers/gpu/drm/i915/gvt/kvmgt.c              |  17 +-
+ drivers/s390/cio/vfio_ccw_ops.c               |  17 +-
+ drivers/s390/crypto/vfio_ap_ops.c             |  13 +-
+ drivers/vfio/mdev/mdev_core.c                 |  57 ++
+ drivers/vfio/mdev/mdev_driver.c               |  25 +
+ drivers/vfio/mdev/mdev_private.h              |   8 +
+ drivers/vfio/mdev/vfio_mdev.c                 |  45 +-
+ drivers/virtio/Kconfig                        |   7 +
+ drivers/virtio/Makefile                       |   1 +
+ drivers/virtio/virtio_mdev.c                  | 413 +++++++++++
+ include/linux/mdev.h                          |  57 +-
+ include/linux/mod_devicetable.h               |   8 +
+ include/linux/vfio_mdev_ops.h                 |  52 ++
+ include/linux/virtio_mdev_ops.h               | 161 ++++
+ samples/Kconfig                               |   7 +
+ samples/vfio-mdev/Makefile                    |   1 +
+ samples/vfio-mdev/mbochs.c                    |  19 +-
+ samples/vfio-mdev/mdpy.c                      |  19 +-
+ samples/vfio-mdev/mtty.c                      |  17 +-
+ samples/vfio-mdev/mvnet.c                     | 691 ++++++++++++++++++
+ scripts/mod/devicetable-offsets.c             |   3 +
+ scripts/mod/file2alias.c                      |  11 +
+ 24 files changed, 1598 insertions(+), 91 deletions(-)
+ create mode 100644 drivers/virtio/virtio_mdev.c
+ create mode 100644 include/linux/vfio_mdev_ops.h
+ create mode 100644 include/linux/virtio_mdev_ops.h
+ create mode 100644 samples/vfio-mdev/mvnet.c
+
+-- 
+2.19.1
