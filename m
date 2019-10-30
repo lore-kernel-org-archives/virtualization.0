@@ -1,17 +1,18 @@
-From: Tiwei Bie <tiwei.bie@intel.com>
-Subject: Re: [RFC] vhost_mdev: add network control vq support
-Date: Wed, 30 Oct 2019 19:54:33 +0800
-Message-ID: <20191030115433.GA27220__19770.2004270226$1572436437$gmane$org@___>
-References: <20191029101726.12699-1-tiwei.bie@intel.com>
-	<59474431-9e77-567c-9a46-a3965f587f65@redhat.com>
-	<20191030061711.GA11968@___>
-	<39aa9f66-8e58-ea63-5795-7df8861ff3a0@redhat.com>
+From: Jorgen Hansen via Virtualization
+	<virtualization@lists.linux-foundation.org>
+Subject: RE: [PATCH net-next 01/14] vsock/vmci: remove unused
+	VSOCK_DEFAULT_CONNECT_TIMEOUT
+Date: Wed, 30 Oct 2019 14:54:32 +0000
+Message-ID: <MWHPR05MB3376646861BD8B349E0AE0A1DA600__48137.5919118122$1572447579$gmane$org@MWHPR05MB3376.namprd05.prod.outlook.com>
+References: <20191023095554.11340-1-sgarzare@redhat.com>
+	<20191023095554.11340-2-sgarzare@redhat.com>
+Reply-To: Jorgen Hansen <jhansen@vmware.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="utf-8"
-Content-Transfer-Encoding: base64
+Content-Type: text/plain; charset="us-ascii"
+Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-Content-Disposition: inline
-In-Reply-To: <39aa9f66-8e58-ea63-5795-7df8861ff3a0@redhat.com>
+In-Reply-To: <20191023095554.11340-2-sgarzare@redhat.com>
+Content-Language: en-US
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -21,41 +22,49 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Jason Wang <jasowang@redhat.com>
-Cc: kvm@vger.kernel.org, mst@redhat.com, netdev@vger.kernel.org, linux-kernel@vger.kernel.org, virtualization@lists.linux-foundation.org, zhihong.wang@intel.com, lingshan.zhu@intel.com
+To: 'Stefano Garzarella' <sgarzare@redhat.com>, "netdev@vger.kernel.org" <netdev@vger.kernel.org>
+Cc: Sasha Levin <sashal@kernel.org>, "linux-hyperv@vger.kernel.org" <linux-hyperv@vger.kernel.org>, Stephen Hemminger <sthemmin@microsoft.com>, Arnd Bergmann <arnd@arndb.de>, "kvm@vger.kernel.org" <kvm@vger.kernel.org>, "Michael S. Tsirkin" <mst@redhat.com>, Greg Kroah-Hartman <gregkh@linuxfoundation.org>, Dexuan Cui <decui@microsoft.com>, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>, "virtualization@lists.linux-foundation.org" <virtualization@lists.linux-foundation.org>, Haiyang Zhang <haiyangz@microsoft.com>, Stefan Hajnoczi <stefanha@redhat.com>, "David S. Miller" <davem@davemloft.net>
 List-Id: virtualization@lists.linuxfoundation.org
 
-T24gV2VkLCBPY3QgMzAsIDIwMTkgYXQgMDM6MDQ6MzdQTSArMDgwMCwgSmFzb24gV2FuZyB3cm90
-ZToKPiBPbiAyMDE5LzEwLzMwIOS4i+WNiDI6MTcsIFRpd2VpIEJpZSB3cm90ZToKPiA+IE9uIFR1
-ZSwgT2N0IDI5LCAyMDE5IGF0IDA2OjUxOjMyUE0gKzA4MDAsIEphc29uIFdhbmcgd3JvdGU6Cj4g
-Pj4gT24gMjAxOS8xMC8yOSDkuIvljYg2OjE3LCBUaXdlaSBCaWUgd3JvdGU6Cj4gPj4+IFRoaXMg
-cGF0Y2ggYWRkcyB0aGUgbmV0d29yayBjb250cm9sIHZxIHN1cHBvcnQgaW4gdmhvc3QtbWRldi4K
-PiA+Pj4gQSB2aG9zdC1tZGV2IHNwZWNpZmljIG9wIGlzIGludHJvZHVjZWQgdG8gYWxsb3cgcGFy
-ZW50IGRyaXZlcnMKPiA+Pj4gdG8gaGFuZGxlIHRoZSBuZXR3b3JrIGNvbnRyb2wgY29tbWFuZHMg
-Y29tZSBmcm9tIHVzZXJzcGFjZS4KPiA+PiBQcm9iYWJseSB3b3JrIGZvciB1c2Vyc3BhY2UgZHJp
-dmVyIGJ1dCBub3Qga2VybmVsIGRyaXZlci4KPiA+IEV4YWN0bHkuIFRoaXMgaXMgb25seSBmb3Ig
-dXNlcnNwYWNlLgo+ID4KPiA+IEkgZ290IHlvdXIgcG9pbnQgbm93LiBJbiB2aXJ0aW8tbWRldiBr
-ZXJuZWwgZHJpdmVyIGNhc2UsCj4gPiB0aGUgY3RybC12cSBjYW4gYmUgc3BlY2lhbCBhcyB3ZWxs
-Lgo+ID4KPiAKPiBUaGVuIG1heWJlIGl0J3MgYmV0dGVyIHRvIGludHJvZHVjZSB2aG9zdC1tZGV2
-LW5ldCBvbiB0b3A/Cj4gCj4gTG9va2luZyBhdCB0aGUgb3RoZXIgdHlwZSBvZiB2aXJ0aW8gZGV2
-aWNlOgo+IAo+IC0gY29uc29sZSBoYXZlIHR3byBjb250cm9sIHZpcnRxdWV1ZXMgd2hlbiBtdWx0
-aXF1ZXVlIHBvcnQgaXMgZW5hYmxlZAo+IAo+IC0gU0NTSSBoYXMgY29udHJvbHEgKyBldmVudHEK
-PiAKPiAtIEdQVSBoYXMgY29udHJvbHEKPiAKPiAtIENyeXB0byBkZXZpY2UgaGFzIG9uZSBjb250
-cm9scQo+IAo+IC0gU29ja2V0IGhhcyBldmVudHEKPiAKPiAuLi4KClRoYW5rcyBmb3IgdGhlIGxp
-c3QhIEl0IGxvb2tzIGRpcnR5IHRvIGRlZmluZSBzcGVjaWZpYwpjb21tYW5kcyBhbmQgdHlwZXMg
-aW4gdmhvc3QgVUFQSSBmb3IgZWFjaCBvZiB0aGVtIGluIHRoZQpmdXR1cmUuIEl0J3MgZGVmaW5p
-dGVseSBtdWNoIGJldHRlciB0byBmaW5kIGFuIGFwcHJvYWNoCnRvIHNvbHZlIGl0IG9uY2UgZm9y
-IGFsbCBpZiBwb3NzaWJsZS4uCgpKdXN0IGEgcXVpY2sgdGhvdWdodCwgY29uc2lkZXJpbmcgYWxs
-IHZob3N0LW1kZXYgZG9lcwppcyBqdXN0IHRvIGZvcndhcmQgc2V0dGluZ3MgYmV0d2VlbiBwYXJl
-bnQgYW5kIHVzZXJzcGFjZSwKSSdtIHdvbmRlcmluZyB3aGV0aGVyIGl0J3MgcG9zc2libGUgdG8g
-bWFrZSB0aGUgYXJncApvcGFxdWUgaW4gdmhvc3QtbWRldiBVQVBJIGFuZCBqdXN0IGludHJvZHVj
-ZSBvbmUgZ2VuZXJpYwppb2N0bCBjb21tYW5kIHRvIGRlbGl2ZXIgdGhlc2UgZGV2aWNlIHNwZWNp
-ZmljIGNvbW1hbmRzCih3aGljaCBhcmUgb3BhcXVlIGluIHZob3N0LW1kZXYgYXMgdmhvc3QtbWRl
-diBqdXN0IHBhc3MKdGhlIHBvaW50ZXIgLS0gYXJncCkgZGVmaW5lZCBieSBzcGVjLgoKSSdtIGFs
-c28gZmluZSB3aXRoIGV4cG9zaW5nIGN0cmxxIHRvIHVzZXJzcGFjZSBkaXJlY3RseS4KUFMuIEl0
-J3MgaW50ZXJlc3RpbmcgdGhhdCBzb21lIGRldmljZXMgaGF2ZSBtb3JlIHRoYW4Kb25lIGN0cmxx
-LiBJIG5lZWQgdG8gdGFrZSBhIGNsb3NlIGxvb2sgZmlyc3QuLgoKCj4gCj4gVGhhbmtzCj4gCl9f
-X19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fClZpcnR1YWxpemF0
-aW9uIG1haWxpbmcgbGlzdApWaXJ0dWFsaXphdGlvbkBsaXN0cy5saW51eC1mb3VuZGF0aW9uLm9y
-ZwpodHRwczovL2xpc3RzLmxpbnV4Zm91bmRhdGlvbi5vcmcvbWFpbG1hbi9saXN0aW5mby92aXJ0
-dWFsaXphdGlvbg==
+> From: Stefano Garzarella [mailto:sgarzare@redhat.com]
+> Sent: Wednesday, October 23, 2019 11:56 AM
+> Subject: [PATCH net-next 01/14] vsock/vmci: remove unused
+> VSOCK_DEFAULT_CONNECT_TIMEOUT
+> 
+> The VSOCK_DEFAULT_CONNECT_TIMEOUT definition was introduced with
+> commit d021c344051af ("VSOCK: Introduce VM Sockets"), but it is never used
+> in the net/vmw_vsock/vmci_transport.c.
+> 
+> VSOCK_DEFAULT_CONNECT_TIMEOUT is used and defined in
+> net/vmw_vsock/af_vsock.c
+> 
+> Cc: Jorgen Hansen <jhansen@vmware.com>
+> Reviewed-by: Stefan Hajnoczi <stefanha@redhat.com>
+> Signed-off-by: Stefano Garzarella <sgarzare@redhat.com>
+> ---
+>  net/vmw_vsock/vmci_transport.c | 5 -----
+>  1 file changed, 5 deletions(-)
+> 
+> diff --git a/net/vmw_vsock/vmci_transport.c
+> b/net/vmw_vsock/vmci_transport.c index 8c9c4ed90fa7..f8e3131ac480
+> 100644
+> --- a/net/vmw_vsock/vmci_transport.c
+> +++ b/net/vmw_vsock/vmci_transport.c
+> @@ -78,11 +78,6 @@ static int PROTOCOL_OVERRIDE = -1;
+>  #define VMCI_TRANSPORT_DEFAULT_QP_SIZE       262144
+>  #define VMCI_TRANSPORT_DEFAULT_QP_SIZE_MAX   262144
+> 
+> -/* The default peer timeout indicates how long we will wait for a peer
+> response
+> - * to a control message.
+> - */
+> -#define VSOCK_DEFAULT_CONNECT_TIMEOUT (2 * HZ)
+> -
+>  /* Helper function to convert from a VMCI error code to a VSock error code.
+> */
+> 
+>  static s32 vmci_transport_error_to_vsock_error(s32 vmci_error)
+> --
+> 2.21.0
+
+Reviewed-by: Jorgen Hansen <jhansen@vmware.com>
