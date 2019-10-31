@@ -1,16 +1,18 @@
-From: Christoph Hellwig <hch@infradead.org>
-Subject: Re: [PATCH V6 6/6] docs: sample driver to demonstrate how to
-	implement virtio-mdev framework
-Date: Wed, 30 Oct 2019 14:23:12 -0700
-Message-ID: <20191030212312.GA4251__42442.7683743247$1572470686$gmane$org@infradead.org>
-References: <20191030064444.21166-1-jasowang@redhat.com>
-	<20191030064444.21166-7-jasowang@redhat.com>
+From: Jason Wang <jasowang@redhat.com>
+Subject: Re: [RFC] vhost_mdev: add network control vq support
+Date: Thu, 31 Oct 2019 09:44:11 +0800
+Message-ID: <b1ab03ec-edb0-f955-2719-beb0653feed1__23121.0999818117$1572486274$gmane$org@redhat.com>
+References: <20191029101726.12699-1-tiwei.bie@intel.com>
+	<59474431-9e77-567c-9a46-a3965f587f65@redhat.com>
+	<20191030061711.GA11968@___>
+	<39aa9f66-8e58-ea63-5795-7df8861ff3a0@redhat.com>
+	<20191030115433.GA27220@___>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset="utf-8"; Format="flowed"
+Content-Transfer-Encoding: base64
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-Content-Disposition: inline
-In-Reply-To: <20191030064444.21166-7-jasowang@redhat.com>
+In-Reply-To: <20191030115433.GA27220@___>
+Content-Language: en-US
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -20,21 +22,44 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Jason Wang <jasowang@redhat.com>
-Cc: stefanha@redhat.com, christophe.de.dinechin@gmail.com, kvm@vger.kernel.org, mst@redhat.com, airlied@linux.ie, joonas.lahtinen@linux.intel.com, heiko.carstens@de.ibm.com, dri-devel@lists.freedesktop.org, virtualization@lists.linux-foundation.org, kwankhede@nvidia.com, rob.miller@broadcom.com, linux-s390@vger.kernel.org, sebott@linux.ibm.com, lulu@redhat.com, eperezma@redhat.com, pasic@linux.ibm.com, borntraeger@de.ibm.com, haotian.wang@sifive.com, zhi.a.wang@intel.com, farman@linux.ibm.com, idos@mellanox.com, gor@linux.ibm.com, intel-gfx@lists.freedesktop.org, jani.nikula@linux.intel.com, xiao.w.wang@intel.com, freude@linux.ibm.com, zhenyuw@linux.intel.com, parav@mellanox.com, zhihong.wang@intel.com, rodrigo.vivi@intel.com, intel-gvt-dev@lists.freedesktop.org, akrowiak@linux.ibm.com, oberpar@linux.ibm.com, netdev@vger.kernel.org, cohuck@redhat.com, linux-kernel@vger.ke
+To: Tiwei Bie <tiwei.bie@intel.com>
+Cc: kvm@vger.kernel.org, mst@redhat.com, netdev@vger.kernel.org, linux-kernel@vger.kernel.org, virtualization@lists.linux-foundation.org, zhihong.wang@intel.com, lingshan.zhu@intel.com
 List-Id: virtualization@lists.linuxfoundation.org
 
-On Wed, Oct 30, 2019 at 02:44:44PM +0800, Jason Wang wrote:
-> This sample driver creates mdev device that simulate virtio net device
-> over virtio mdev transport. The device is implemented through vringh
-> and workqueue. A device specific dma ops is to make sure HVA is used
-> directly as the IOVA. This should be sufficient for kernel virtio
-> driver to work.
-> 
-> Only 'virtio' type is supported right now. I plan to add 'vhost' type
-> on top which requires some virtual IOMMU implemented in this sample
-> driver.
-
-Can we please submit a real driver for it?  A more or less useless
-sample driver doesn't really qualify for our normal kernel requirements
-that infrastructure should have a real user.
+Ck9uIDIwMTkvMTAvMzAg5LiL5Y2INzo1NCwgVGl3ZWkgQmllIHdyb3RlOgo+IE9uIFdlZCwgT2N0
+IDMwLCAyMDE5IGF0IDAzOjA0OjM3UE0gKzA4MDAsIEphc29uIFdhbmcgd3JvdGU6Cj4+IE9uIDIw
+MTkvMTAvMzAg5LiL5Y2IMjoxNywgVGl3ZWkgQmllIHdyb3RlOgo+Pj4gT24gVHVlLCBPY3QgMjks
+IDIwMTkgYXQgMDY6NTE6MzJQTSArMDgwMCwgSmFzb24gV2FuZyB3cm90ZToKPj4+PiBPbiAyMDE5
+LzEwLzI5IOS4i+WNiDY6MTcsIFRpd2VpIEJpZSB3cm90ZToKPj4+Pj4gVGhpcyBwYXRjaCBhZGRz
+IHRoZSBuZXR3b3JrIGNvbnRyb2wgdnEgc3VwcG9ydCBpbiB2aG9zdC1tZGV2Lgo+Pj4+PiBBIHZo
+b3N0LW1kZXYgc3BlY2lmaWMgb3AgaXMgaW50cm9kdWNlZCB0byBhbGxvdyBwYXJlbnQgZHJpdmVy
+cwo+Pj4+PiB0byBoYW5kbGUgdGhlIG5ldHdvcmsgY29udHJvbCBjb21tYW5kcyBjb21lIGZyb20g
+dXNlcnNwYWNlLgo+Pj4+IFByb2JhYmx5IHdvcmsgZm9yIHVzZXJzcGFjZSBkcml2ZXIgYnV0IG5v
+dCBrZXJuZWwgZHJpdmVyLgo+Pj4gRXhhY3RseS4gVGhpcyBpcyBvbmx5IGZvciB1c2Vyc3BhY2Uu
+Cj4+Pgo+Pj4gSSBnb3QgeW91ciBwb2ludCBub3cuIEluIHZpcnRpby1tZGV2IGtlcm5lbCBkcml2
+ZXIgY2FzZSwKPj4+IHRoZSBjdHJsLXZxIGNhbiBiZSBzcGVjaWFsIGFzIHdlbGwuCj4+Pgo+PiBU
+aGVuIG1heWJlIGl0J3MgYmV0dGVyIHRvIGludHJvZHVjZSB2aG9zdC1tZGV2LW5ldCBvbiB0b3A/
+Cj4+Cj4+IExvb2tpbmcgYXQgdGhlIG90aGVyIHR5cGUgb2YgdmlydGlvIGRldmljZToKPj4KPj4g
+LSBjb25zb2xlIGhhdmUgdHdvIGNvbnRyb2wgdmlydHF1ZXVlcyB3aGVuIG11bHRpcXVldWUgcG9y
+dCBpcyBlbmFibGVkCj4+Cj4+IC0gU0NTSSBoYXMgY29udHJvbHEgKyBldmVudHEKPj4KPj4gLSBH
+UFUgaGFzIGNvbnRyb2xxCj4+Cj4+IC0gQ3J5cHRvIGRldmljZSBoYXMgb25lIGNvbnRyb2xxCj4+
+Cj4+IC0gU29ja2V0IGhhcyBldmVudHEKPj4KPj4gLi4uCj4gVGhhbmtzIGZvciB0aGUgbGlzdCEg
+SXQgbG9va3MgZGlydHkgdG8gZGVmaW5lIHNwZWNpZmljCj4gY29tbWFuZHMgYW5kIHR5cGVzIGlu
+IHZob3N0IFVBUEkgZm9yIGVhY2ggb2YgdGhlbSBpbiB0aGUKPiBmdXR1cmUuIEl0J3MgZGVmaW5p
+dGVseSBtdWNoIGJldHRlciB0byBmaW5kIGFuIGFwcHJvYWNoCj4gdG8gc29sdmUgaXQgb25jZSBm
+b3IgYWxsIGlmIHBvc3NpYmxlLi4KPgo+IEp1c3QgYSBxdWljayB0aG91Z2h0LCBjb25zaWRlcmlu
+ZyBhbGwgdmhvc3QtbWRldiBkb2VzCj4gaXMganVzdCB0byBmb3J3YXJkIHNldHRpbmdzIGJldHdl
+ZW4gcGFyZW50IGFuZCB1c2Vyc3BhY2UsCj4gSSdtIHdvbmRlcmluZyB3aGV0aGVyIGl0J3MgcG9z
+c2libGUgdG8gbWFrZSB0aGUgYXJncAo+IG9wYXF1ZSBpbiB2aG9zdC1tZGV2IFVBUEkgYW5kIGp1
+c3QgaW50cm9kdWNlIG9uZSBnZW5lcmljCj4gaW9jdGwgY29tbWFuZCB0byBkZWxpdmVyIHRoZXNl
+IGRldmljZSBzcGVjaWZpYyBjb21tYW5kcwo+ICh3aGljaCBhcmUgb3BhcXVlIGluIHZob3N0LW1k
+ZXYgYXMgdmhvc3QtbWRldiBqdXN0IHBhc3MKPiB0aGUgcG9pbnRlciAtLSBhcmdwKSBkZWZpbmVk
+IGJ5IHNwZWMuCgoKSXQgbG9va3MgdGhhdCB1c2luZyBvcGFxdWUgcG9pbnRlciBpcyBwcm9iYWJs
+eSBub3QgZ29vZCBmb3IgVUFQSS4gQW5kIHdlIApuZWVkIGFsc28gaW52ZW50IEFQSSBmb3IgZXZl
+bnRxLgoKCj4KPiBJJ20gYWxzbyBmaW5lIHdpdGggZXhwb3NpbmcgY3RybHEgdG8gdXNlcnNwYWNl
+IGRpcmVjdGx5Lgo+IFBTLiBJdCdzIGludGVyZXN0aW5nIHRoYXQgc29tZSBkZXZpY2VzIGhhdmUg
+bW9yZSB0aGFuCj4gb25lIGN0cmxxLiBJIG5lZWQgdG8gdGFrZSBhIGNsb3NlIGxvb2sgZmlyc3Qu
+LgoKClRoYW5rcy4KCgo+Cj4KPj4gVGhhbmtzCj4+CgpfX19fX19fX19fX19fX19fX19fX19fX19f
+X19fX19fX19fX19fX19fX19fX19fXwpWaXJ0dWFsaXphdGlvbiBtYWlsaW5nIGxpc3QKVmlydHVh
+bGl6YXRpb25AbGlzdHMubGludXgtZm91bmRhdGlvbi5vcmcKaHR0cHM6Ly9saXN0cy5saW51eGZv
+dW5kYXRpb24ub3JnL21haWxtYW4vbGlzdGluZm8vdmlydHVhbGl6YXRpb24=
