@@ -1,12 +1,14 @@
-From: "Michael S. Tsirkin" <mst@redhat.com>
-Subject: Re: presentation at kvm forum and pagefaults
-Date: Fri, 1 Nov 2019 00:06:56 -0400
-Message-ID: <20191031234601-mutt-send-email-mst__25631.466861681$1572581248$gmane$org@kernel.org>
+From: Jason Wang <jasowang@redhat.com>
+Subject: Re: [PATCH v4] vhost: introduce mdev based hardware backend
+Date: Fri, 1 Nov 2019 15:17:39 +0800
+Message-ID: <f9036643-7aaf-7107-8bf0-85975ab95d4b__45990.1841402584$1572592697$gmane$org@redhat.com>
+References: <20191031140114.25615-1-tiwei.bie@intel.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset="utf-8"; Format="flowed"
+Content-Transfer-Encoding: base64
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-Content-Disposition: inline
+In-Reply-To: <20191031140114.25615-1-tiwei.bie@intel.com>
+Content-Language: en-US
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -16,55 +18,90 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: virtio-dev@lists.oasis-open.org, qemu-devel@nongnu.org, virtualization@lists.linux-foundation.org
+To: Tiwei Bie <tiwei.bie@intel.com>, mst@redhat.com, alex.williamson@redhat.com, maxime.coquelin@redhat.com
+Cc: kvm@vger.kernel.org, netdev@vger.kernel.org, linux-kernel@vger.kernel.org, virtualization@lists.linux-foundation.org, zhihong.wang@intel.com, lingshan.zhu@intel.com
 List-Id: virtualization@lists.linuxfoundation.org
 
-Regarding the presentation I gave at the kvm forum
-on pagefaults.
-
-Two points:
-
-
-1. pagefaults are important not just for migration.
-They are important for performance features such as
-autonuma and huge pages, since this relies on moving
-pages around.
-Migration can maybe be solved by switch to software but
-this is not a good solution for numa and thp  since
-at a given time some page is likely being moved.
-
-
-
-
-2.  For devices such as networking RX order in which buffers are
-used *does not matter*.
-Thus if a device gets a fault in response to attempt to store a buffer
-into memory, it can just re-try, using the next buffer in queue instead.
-
-This works because normally buffers can be used out of order by device.
-
-The faulted buffer will be reused by another buffer when driver notifies
-device page has been faulted in.
-
-Note buffers are processed by buffer in the order in which they have
-been used, *not* the order in which they have been put in the queue.  So
-this will *not* cause any packet reordering for the driver.
-
-Packets will only get dropped if all buffers are swapped
-out, which should be rare with a large RX queue.
-
-
-As I said at the forum, a side buffer for X packets
-to be stored temporarily is also additionally possible. But with the above
-it is no longer strictly required.
-
-
-This conflicts with the IN_ORDER feature flag, I guess we will have to
-re-think this flag then. If we do feel we need to salvage IN_ORDER as is,
-maybe device can use the buffer with length 0 and driver will re-post it
-later, but I am not I am not sure about this since involving the VF
-driver seems inelegant.
-
-
--- 
-MST
+Ck9uIDIwMTkvMTAvMzEg5LiL5Y2IMTA6MDEsIFRpd2VpIEJpZSB3cm90ZToKPiBUaGlzIHBhdGNo
+IGludHJvZHVjZXMgYSBtZGV2IGJhc2VkIGhhcmR3YXJlIHZob3N0IGJhY2tlbmQuCj4gVGhpcyBi
+YWNrZW5kIGlzIGJ1aWx0IG9uIHRvcCBvZiB0aGUgc2FtZSBhYnN0cmFjdGlvbiB1c2VkCj4gaW4g
+dmlydGlvLW1kZXYgYW5kIHByb3ZpZGVzIGEgZ2VuZXJpYyB2aG9zdCBpbnRlcmZhY2UgZm9yCj4g
+dXNlcnNwYWNlIHRvIGFjY2VsZXJhdGUgdGhlIHZpcnRpbyBkZXZpY2VzIGluIGd1ZXN0Lgo+Cj4g
+VGhpcyBiYWNrZW5kIGlzIGltcGxlbWVudGVkIGFzIGEgbWRldiBkZXZpY2UgZHJpdmVyIG9uIHRv
+cAo+IG9mIHRoZSBzYW1lIG1kZXYgZGV2aWNlIG9wcyB1c2VkIGluIHZpcnRpby1tZGV2IGJ1dCB1
+c2luZwo+IGEgZGlmZmVyZW50IG1kZXYgY2xhc3MgaWQsIGFuZCBpdCB3aWxsIHJlZ2lzdGVyIHRo
+ZSBkZXZpY2UKPiBhcyBhIFZGSU8gZGV2aWNlIGZvciB1c2Vyc3BhY2UgdG8gdXNlLiBVc2Vyc3Bh
+Y2UgY2FuIHNldHVwCj4gdGhlIElPTU1VIHdpdGggdGhlIGV4aXN0aW5nIFZGSU8gY29udGFpbmVy
+L2dyb3VwIEFQSXMgYW5kCj4gdGhlbiBnZXQgdGhlIGRldmljZSBmZCB3aXRoIHRoZSBkZXZpY2Ug
+bmFtZS4gQWZ0ZXIgZ2V0dGluZwo+IHRoZSBkZXZpY2UgZmQgb2YgdGhpcyBkZXZpY2UsIHVzZXJz
+cGFjZSBjYW4gdXNlIHZob3N0IGlvY3Rscwo+IHRvIHNldHVwIHRoZSBiYWNrZW5kLgo+Cj4gU2ln
+bmVkLW9mZi1ieTogVGl3ZWkgQmllIDx0aXdlaS5iaWVAaW50ZWwuY29tPgo+IC0tLQo+IFRoaXMg
+cGF0Y2ggZGVwZW5kcyBvbiBiZWxvdyBzZXJpZXM6Cj4gaHR0cHM6Ly9sa21sLm9yZy9sa21sLzIw
+MTkvMTAvMzAvNjIKPgo+IHYzIC0+IHY0Ogo+IC0gUmViYXNlIG9uIHRvcCBvZiB2aXJ0aW8tbWRl
+diBzZXJpZXMgdjY7Cj4gLSBTb21lIG1pbm9yIHR3ZWFrcyBhbmQgaW1wcm92ZW1lbnRzOwo+Cj4g
+djIgLT4gdjM6Cj4gLSBGaXggdGhlIHJldHVybiB2YWx1ZSAoSmFzb24pOwo+IC0gRG9uJ3QgY2Fj
+aGUgdW5uZWNlc3NhcnkgaW5mb3JtYXRpb24gaW4gdmhvc3QtbWRldiAoSmFzb24pOwo+IC0gR2V0
+IHJpZCBvZiB0aGUgbWVtc2V0IGluIG9wZW4gKEphc29uKTsKPiAtIEFkZCBjb21tZW50cyBmb3Ig
+VkhPU1RfU0VUX01FTV9UQUJMRSwgLi4uIChKYXNvbik7Cj4gLSBGaWx0ZXIgb3V0IHVuc3VwcG9y
+dGVkIGZlYXR1cmVzIGluIHZob3N0LW1kZXYgKEphc29uKTsKPiAtIEFkZCBfR0VUX0RFVklDRV9J
+RCBpb2N0bCAoSmFzb24pOwo+IC0gQWRkIF9HRVRfQ09ORklHL19TRVRfQ09ORklHIGlvY3RscyAo
+SmFzb24pOwo+IC0gRHJvcCBfR0VUX1FVRVVFX05VTSBpb2N0bCAoSmFzb24pOwo+IC0gRml4IHRo
+ZSBjb3B5LXBhc3RlIGVycm9ycyBpbiBfSU9XL19JT1IgdXNhZ2U7Cj4gLSBTb21lIG1pbm9yIGZp
+eGVzIGFuZCBpbXByb3ZlbWVudHM7Cj4KPiB2MSAtPiB2MjoKPiAtIFJlcGxhY2UgX1NFVF9TVEFU
+RSB3aXRoIF9TRVRfU1RBVFVTIChNU1QpOwo+IC0gQ2hlY2sgc3RhdHVzIGJpdHMgYXQgZWFjaCBz
+dGVwIChNU1QpOwo+IC0gUmVwb3J0IHRoZSBtYXggcmluZyBzaXplIGFuZCBtYXggbnVtYmVyIG9m
+IHF1ZXVlcyAoTVNUKTsKPiAtIEFkZCBtaXNzaW5nIE1PRFVMRV9ERVZJQ0VfVEFCTEUgKEphc29u
+KTsKPiAtIE9ubHkgc3VwcG9ydCB0aGUgbmV0d29yayBiYWNrZW5kIHcvbyBtdWx0aXF1ZXVlIGZv
+ciBub3c7Cj4gLSBTb21lIG1pbm9yIGZpeGVzIGFuZCBpbXByb3ZlbWVudHM7Cj4gLSBSZWJhc2Ug
+b24gdG9wIG9mIHZpcnRpby1tZGV2IHNlcmllcyB2NDsKPgo+IFJGQyB2NCAtPiB2MToKPiAtIElt
+cGxlbWVudCB2aG9zdC1tZGV2IGFzIGEgbWRldiBkZXZpY2UgZHJpdmVyIGRpcmVjdGx5IGFuZAo+
+ICAgIGNvbm5lY3QgaXQgdG8gVkZJTyBjb250YWluZXIvZ3JvdXAuIChKYXNvbik7Cj4gLSBQYXNz
+IHJpbmcgYWRkcmVzc2VzIGFzIEdQQXMvSU9WQXMgaW4gdmhvc3QtbWRldiB0byBhdm9pZAo+ICAg
+IG1lYW5pbmdsZXNzIEhWQS0+R1BBIHRyYW5zbGF0aW9ucyAoSmFzb24pOwo+Cj4gUkZDIHYzIC0+
+IFJGQyB2NDoKPiAtIEJ1aWxkIHZob3N0LW1kZXYgb24gdG9wIG9mIHRoZSBzYW1lIGFic3RyYWN0
+aW9uIHVzZWQgYnkKPiAgICB2aXJ0aW8tbWRldiAoSmFzb24pOwo+IC0gSW50cm9kdWNlIHZob3N0
+IGZkIGFuZCBwYXNzIFZGSU8gZmQgdmlhIFNFVF9CQUNLRU5EIGlvY3RsIChNU1QpOwo+Cj4gUkZD
+IHYyIC0+IFJGQyB2MzoKPiAtIFJldXNlIHZob3N0J3MgaW9jdGxzIGluc3RlYWQgb2YgaW52ZW50
+aW5nIGEgVkZJTyByZWdpb25zL2lycXMKPiAgICBiYXNlZCB2aG9zdCBwcm90b2NvbCBvbiB0b3Ag
+b2YgdmZpby1tZGV2IChKYXNvbik7Cj4KPiBSRkMgdjEgLT4gUkZDIHYyOgo+IC0gSW50cm9kdWNl
+IGEgbmV3IFZGSU8gZGV2aWNlIHR5cGUgdG8gYnVpbGQgYSB2aG9zdCBwcm90b2NvbAo+ICAgIG9u
+IHRvcCBvZiB2ZmlvLW1kZXY7Cj4KPiAgIGRyaXZlcnMvdmZpby9tZGV2L21kZXZfY29yZS5jICAg
+IHwgIDIwICsrCj4gICBkcml2ZXJzL3ZmaW8vbWRldi9tZGV2X3ByaXZhdGUuaCB8ICAgMSArCj4g
+ICBkcml2ZXJzL3Zob3N0L0tjb25maWcgICAgICAgICAgICB8ICAxMiArCj4gICBkcml2ZXJzL3Zo
+b3N0L01ha2VmaWxlICAgICAgICAgICB8ICAgMyArCj4gICBkcml2ZXJzL3Zob3N0L21kZXYuYyAg
+ICAgICAgICAgICB8IDU1NiArKysrKysrKysrKysrKysrKysrKysrKysrKysrKysrCj4gICBpbmNs
+dWRlL2xpbnV4L21kZXYuaCAgICAgICAgICAgICB8ICAgNSArCj4gICBpbmNsdWRlL3VhcGkvbGlu
+dXgvdmhvc3QuaCAgICAgICB8ICAxOCArCj4gICBpbmNsdWRlL3VhcGkvbGludXgvdmhvc3RfdHlw
+ZXMuaCB8ICAgOCArCj4gICA4IGZpbGVzIGNoYW5nZWQsIDYyMyBpbnNlcnRpb25zKCspCj4gICBj
+cmVhdGUgbW9kZSAxMDA2NDQgZHJpdmVycy92aG9zdC9tZGV2LmMKPgo+IGRpZmYgLS1naXQgYS9k
+cml2ZXJzL3ZmaW8vbWRldi9tZGV2X2NvcmUuYyBiL2RyaXZlcnMvdmZpby9tZGV2L21kZXZfY29y
+ZS5jCj4gaW5kZXggMjJjYTU4OTc1MGQ4Li4xMDlkYmFjMDFhOGYgMTAwNjQ0Cj4gLS0tIGEvZHJp
+dmVycy92ZmlvL21kZXYvbWRldl9jb3JlLmMKPiArKysgYi9kcml2ZXJzL3ZmaW8vbWRldi9tZGV2
+X2NvcmUuYwo+IEBAIC05Niw2ICs5NiwyNiBAQCBtZGV2X2dldF92aXJ0aW9fb3BzKHN0cnVjdCBt
+ZGV2X2RldmljZSAqbWRldikKPiAgIH0KPiAgIEVYUE9SVF9TWU1CT0wobWRldl9nZXRfdmlydGlv
+X29wcyk7Cj4gICAKPiArLyogU3BlY2lmeSB0aGUgdmhvc3QgZGV2aWNlIG9wcyBmb3IgdGhlIG1k
+ZXYgZGV2aWNlLCB0aGlzCj4gKyAqIG11c3QgYmUgY2FsbGVkIGR1cmluZyBjcmVhdGUoKSBjYWxs
+YmFjayBmb3Igdmhvc3QgbWRldiBkZXZpY2UuCj4gKyAqLwo+ICt2b2lkIG1kZXZfc2V0X3Zob3N0
+X29wcyhzdHJ1Y3QgbWRldl9kZXZpY2UgKm1kZXYsCj4gKwkJCWNvbnN0IHN0cnVjdCB2aXJ0aW9f
+bWRldl9kZXZpY2Vfb3BzICp2aG9zdF9vcHMpCj4gK3sKPiArCW1kZXZfc2V0X2NsYXNzKG1kZXYs
+IE1ERVZfQ0xBU1NfSURfVkhPU1QpOwo+ICsJbWRldi0+dmhvc3Rfb3BzID0gdmhvc3Rfb3BzOwo+
+ICt9Cj4gK0VYUE9SVF9TWU1CT0wobWRldl9zZXRfdmhvc3Rfb3BzKTsKPiArCj4gKy8qIEdldCB0
+aGUgdmhvc3QgZGV2aWNlIG9wcyBmb3IgdGhlIG1kZXYgZGV2aWNlLiAqLwo+ICtjb25zdCBzdHJ1
+Y3QgdmlydGlvX21kZXZfZGV2aWNlX29wcyAqCj4gK21kZXZfZ2V0X3Zob3N0X29wcyhzdHJ1Y3Qg
+bWRldl9kZXZpY2UgKm1kZXYpCj4gK3sKPiArCVdBUk5fT04obWRldi0+Y2xhc3NfaWQgIT0gTURF
+Vl9DTEFTU19JRF9WSE9TVCk7Cj4gKwlyZXR1cm4gbWRldi0+dmhvc3Rfb3BzOwo+ICt9Cj4gK0VY
+UE9SVF9TWU1CT0wobWRldl9nZXRfdmhvc3Rfb3BzKTsKPiArCj4gICBzdHJ1Y3QgZGV2aWNlICpt
+ZGV2X2RldihzdHJ1Y3QgbWRldl9kZXZpY2UgKm1kZXYpCj4gICB7Cj4gICAJcmV0dXJuICZtZGV2
+LT5kZXY7Cj4gZGlmZiAtLWdpdCBhL2RyaXZlcnMvdmZpby9tZGV2L21kZXZfcHJpdmF0ZS5oIGIv
+ZHJpdmVycy92ZmlvL21kZXYvbWRldl9wcml2YXRlLmgKPiBpbmRleCA3YjQ3ODkwYzM0ZTcuLjU1
+OTdjODQ2ZTUyZiAxMDA2NDQKPiAtLS0gYS9kcml2ZXJzL3ZmaW8vbWRldi9tZGV2X3ByaXZhdGUu
+aAo+ICsrKyBiL2RyaXZlcnMvdmZpby9tZGV2L21kZXZfcHJpdmF0ZS5oCj4gQEAgLTQwLDYgKzQw
+LDcgQEAgc3RydWN0IG1kZXZfZGV2aWNlIHsKPiAgIAl1bmlvbiB7Cj4gICAJCWNvbnN0IHN0cnVj
+dCB2ZmlvX21kZXZfZGV2aWNlX29wcyAqdmZpb19vcHM7Cj4gICAJCWNvbnN0IHN0cnVjdCB2aXJ0
+aW9fbWRldl9kZXZpY2Vfb3BzICp2aXJ0aW9fb3BzOwo+ICsJCWNvbnN0IHN0cnVjdCB2aXJ0aW9f
+bWRldl9kZXZpY2Vfb3BzICp2aG9zdF9vcHM7CgoKQW55IHJlYXNvbiB3aHkgdmlydGlvX29wcyBp
+cyBub3QgdXNlZCBmb3Igdmhvc3QgaGVyZT8KCk90aGVyIGxvb2tzIGdvb2QuCgpUaGFua3MKCgpf
+X19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fXwpWaXJ0dWFsaXph
+dGlvbiBtYWlsaW5nIGxpc3QKVmlydHVhbGl6YXRpb25AbGlzdHMubGludXgtZm91bmRhdGlvbi5v
+cmcKaHR0cHM6Ly9saXN0cy5saW51eGZvdW5kYXRpb24ub3JnL21haWxtYW4vbGlzdGluZm8vdmly
+dHVhbGl6YXRpb24=
