@@ -1,16 +1,16 @@
-From: Jason Wang <jasowang@redhat.com>
-Subject: Re: [PATCH V6 3/6] mdev: introduce device specific ops
-Date: Mon, 4 Nov 2019 10:51:53 +0800
-Message-ID: <495efacd-4898-fb89-2599-dce3a5a277f0__13744.78680534$1572835966$gmane$org@redhat.com>
-References: <20191030064444.21166-1-jasowang@redhat.com>
-	<20191030064444.21166-4-jasowang@redhat.com>
-	<AM0PR05MB4866E91139617C9F2380BBAFD1620@AM0PR05MB4866.eurprd05.prod.outlook.com>
+From: Stefano Garzarella <sgarzare@redhat.com>
+Subject: Re: [PATCH net-next 12/14] vsock/vmci: register vmci_transport only
+	when VMCI guest/host are active
+Date: Mon, 4 Nov 2019 11:10:10 +0100
+Message-ID: <20191104101010.we3nsgh4gxiu4vh5__44393.5015167639$1572862227$gmane$org@steredhat.homenet.telecomitalia.it>
+References: <20191023095554.11340-1-sgarzare@redhat.com>
+	<20191023095554.11340-13-sgarzare@redhat.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="utf-8"; Format="flowed"
-Content-Transfer-Encoding: base64
+Content-Type: text/plain; charset="us-ascii"
+Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <AM0PR05MB4866E91139617C9F2380BBAFD1620@AM0PR05MB4866.eurprd05.prod.outlook.com>
-Content-Language: en-US
+Content-Disposition: inline
+In-Reply-To: <20191023095554.11340-13-sgarzare@redhat.com>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -20,61 +20,251 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Parav Pandit <parav@mellanox.com>, "kvm@vger.kernel.org" <kvm@vger.kernel.org>, "linux-s390@vger.kernel.org" <linux-s390@vger.kernel.org>, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>, "dri-devel@lists.freedesktop.org" <dri-devel@lists.freedesktop.org>, "intel-gfx@lists.freedesktop.org" <intel-gfx@lists.freedesktop.org>, "intel-gvt-dev@lists.freedesktop.org" <intel-gvt-dev@lists.freedesktop.org>, "kwankhede@nvidia.com" <kwankhede@nvidia.com>, "alex.williamson@redhat.com" <alex.williamson@redhat.com>, "mst@redhat.com" <mst@redhat.com>, "tiwei.bie@intel.com" <tiwei.bie@intel.com>
-Cc: "christophe.de.dinechin@gmail.com" <christophe.de.dinechin@gmail.com>, "sebott@linux.ibm.com" <sebott@linux.ibm.com>, "airlied@linux.ie" <airlied@linux.ie>, "joonas.lahtinen@linux.intel.com" <joonas.lahtinen@linux.intel.com>, "heiko.carstens@de.ibm.com" <heiko.carstens@de.ibm.com>, "virtualization@lists.linux-foundation.org" <virtualization@lists.linux-foundation.org>, "rob.miller@broadcom.com" <rob.miller@broadcom.com>, "lulu@redhat.com" <lulu@redhat.com>, "eperezma@redhat.com" <eperezma@redhat.com>, "pasic@linux.ibm.com" <pasic@linux.ibm.com>, "borntraeger@de.ibm.com" <borntraeger@de.ibm.com>, "haotian.wang@sifive.com" <haotian.wang@sifive.com>, "zhi.a.wang@intel.com" <zhi.a.wang@intel.com>, "farman@linux.ibm.com" <farman@linux.ibm.com>, Ido Shamay <idos@mellanox.com>, "gor@linux.ibm.com" <gor@linux.ibm.com>, "zhenyuw@linux.intel.com" <zhenyuw@linux.intel.com>ro
+To: Jorgen Hansen <jhansen@vmware.com>
+Cc: Sasha Levin <sashal@kernel.org>, linux-hyperv@vger.kernel.org, Stephen Hemminger <sthemmin@microsoft.com>, Arnd Bergmann <arnd@arndb.de>, kvm@vger.kernel.org, "Michael S. Tsirkin" <mst@redhat.com>, Greg Kroah-Hartman <gregkh@linuxfoundation.org>, Dexuan Cui <decui@microsoft.com>, linux-kernel@vger.kernel.org, virtualization@lists.linux-foundation.org, Haiyang Zhang <haiyangz@microsoft.com>, Stefan Hajnoczi <stefanha@redhat.com>, netdev@vger.kernel.org, "David S. Miller" <davem@davemloft.net>
 List-Id: virtualization@lists.linuxfoundation.org
 
-Ck9uIDIwMTkvMTEvMiDkuIrljYg0OjExLCBQYXJhdiBQYW5kaXQgd3JvdGU6Cj4KPj4gLS0tLS1P
-cmlnaW5hbCBNZXNzYWdlLS0tLS0KPj4gRnJvbTogSmFzb24gV2FuZyA8amFzb3dhbmdAcmVkaGF0
-LmNvbT4KPj4gU2VudDogV2VkbmVzZGF5LCBPY3RvYmVyIDMwLCAyMDE5IDE6NDUgQU0KPj4gVG86
-IGt2bUB2Z2VyLmtlcm5lbC5vcmc7IGxpbnV4LXMzOTBAdmdlci5rZXJuZWwub3JnOyBsaW51eC0K
-Pj4ga2VybmVsQHZnZXIua2VybmVsLm9yZzsgZHJpLWRldmVsQGxpc3RzLmZyZWVkZXNrdG9wLm9y
-ZzsgaW50ZWwtCj4+IGdmeEBsaXN0cy5mcmVlZGVza3RvcC5vcmc7IGludGVsLWd2dC1kZXZAbGlz
-dHMuZnJlZWRlc2t0b3Aub3JnOwo+PiBrd2Fua2hlZGVAbnZpZGlhLmNvbTsgYWxleC53aWxsaWFt
-c29uQHJlZGhhdC5jb207IG1zdEByZWRoYXQuY29tOwo+PiB0aXdlaS5iaWVAaW50ZWwuY29tCj4+
-IENjOiB2aXJ0dWFsaXphdGlvbkBsaXN0cy5saW51eC1mb3VuZGF0aW9uLm9yZzsgbmV0ZGV2QHZn
-ZXIua2VybmVsLm9yZzsKPj4gY29odWNrQHJlZGhhdC5jb207IG1heGltZS5jb3F1ZWxpbkByZWRo
-YXQuY29tOwo+PiBjdW5taW5nLmxpYW5nQGludGVsLmNvbTsgemhpaG9uZy53YW5nQGludGVsLmNv
-bTsKPj4gcm9iLm1pbGxlckBicm9hZGNvbS5jb207IHhpYW8udy53YW5nQGludGVsLmNvbTsKPj4g
-aGFvdGlhbi53YW5nQHNpZml2ZS5jb207IHpoZW55dXdAbGludXguaW50ZWwuY29tOyB6aGkuYS53
-YW5nQGludGVsLmNvbTsKPj4gamFuaS5uaWt1bGFAbGludXguaW50ZWwuY29tOyBqb29uYXMubGFo
-dGluZW5AbGludXguaW50ZWwuY29tOwo+PiByb2RyaWdvLnZpdmlAaW50ZWwuY29tOyBhaXJsaWVk
-QGxpbnV4LmllOyBkYW5pZWxAZmZ3bGwuY2g7Cj4+IGZhcm1hbkBsaW51eC5pYm0uY29tOyBwYXNp
-Y0BsaW51eC5pYm0uY29tOyBzZWJvdHRAbGludXguaWJtLmNvbTsKPj4gb2JlcnBhckBsaW51eC5p
-Ym0uY29tOyBoZWlrby5jYXJzdGVuc0BkZS5pYm0uY29tOyBnb3JAbGludXguaWJtLmNvbTsKPj4g
-Ym9ybnRyYWVnZXJAZGUuaWJtLmNvbTsgYWtyb3dpYWtAbGludXguaWJtLmNvbTsgZnJldWRlQGxp
-bnV4LmlibS5jb207Cj4+IGxpbmdzaGFuLnpodUBpbnRlbC5jb207IElkbyBTaGFtYXkgPGlkb3NA
-bWVsbGFub3guY29tPjsKPj4gZXBlcmV6bWFAcmVkaGF0LmNvbTsgbHVsdUByZWRoYXQuY29tOyBQ
-YXJhdiBQYW5kaXQKPj4gPHBhcmF2QG1lbGxhbm94LmNvbT47IGNocmlzdG9waGUuZGUuZGluZWNo
-aW5AZ21haWwuY29tOwo+PiBrZXZpbi50aWFuQGludGVsLmNvbTsgc3RlZmFuaGFAcmVkaGF0LmNv
-bTsgSmFzb24gV2FuZwo+PiA8amFzb3dhbmdAcmVkaGF0LmNvbT4KPj4gU3ViamVjdDogW1BBVENI
-IFY2IDMvNl0gbWRldjogaW50cm9kdWNlIGRldmljZSBzcGVjaWZpYyBvcHMKPj4KPj4gQ3VycmVu
-dGx5LCBleGNlcHQgZm9yIHRoZSBjcmVhdGUgYW5kIHJlbW92ZSwgdGhlIHJlc3Qgb2YgbWRldl9w
-YXJlbnRfb3BzIGlzCj4+IGRlc2lnbmVkIGZvciB2ZmlvLW1kZXYgZHJpdmVyIG9ubHkgYW5kIG1h
-eSBub3QgaGVscCBmb3Iga2VybmVsIG1kZXYgZHJpdmVyLgo+PiBXaXRoIHRoZSBoZWxwIG9mIGNs
-YXNzIGlkLCB0aGlzIHBhdGNoIGludHJvZHVjZXMgZGV2aWNlIHNwZWNpZmljIGNhbGxiYWNrcyBp
-bnNpZGUKPj4gbWRldl9kZXZpY2Ugc3RydWN0dXJlLiBUaGlzIGFsbG93cyBkaWZmZXJlbnQgc2V0
-IG9mIGNhbGxiYWNrIHRvIGJlIHVzZWQgYnkgdmZpby0KPj4gbWRldiBhbmQgdmlydGlvLW1kZXYu
-Cj4+Cj4+IFNpZ25lZC1vZmYtYnk6IEphc29uIFdhbmcgPGphc293YW5nQHJlZGhhdC5jb20+Cj4+
-IC0tLQo+IFsgLi5dCj4KPj4gZGlmZiAtLWdpdCBhL2luY2x1ZGUvbGludXgvdmZpb19tZGV2X29w
-cy5oIGIvaW5jbHVkZS9saW51eC92ZmlvX21kZXZfb3BzLmgKPj4gbmV3IGZpbGUgbW9kZSAxMDA2
-NDQgaW5kZXggMDAwMDAwMDAwMDAwLi4zOTA3YzUzNzFjMmIKPj4gLS0tIC9kZXYvbnVsbAo+PiAr
-KysgYi9pbmNsdWRlL2xpbnV4L3ZmaW9fbWRldl9vcHMuaAo+PiBAQCAtMCwwICsxLDUyIEBACj4+
-ICsvKiBTUERYLUxpY2Vuc2UtSWRlbnRpZmllcjogR1BMLTIuMC1vbmx5ICovCj4+ICsvKgo+PiAr
-ICogVkZJTyBNZWRpYXRlZCBkZXZpY2UgZGVmaW5pdGlvbgo+PiArICovCj4+ICsKPj4gKyNpZm5k
-ZWYgVkZJT19NREVWX0gKPj4gKyNkZWZpbmUgVkZJT19NREVWX0gKPj4gKwo+IEkgc2hvdWxkIGhh
-dmUgbm90aWNlZCB0aGlzIGJlZm9yZS4gOi0oCj4gQVBJcyBleHBvc2VkIGFyZSBieSB0aGUgbWRl
-diBtb2R1bGUgYW5kIG5hbWVkIHdpdGggbWRldl8gcHJlZml4Lgo+IEFuZCBmaWxlIG5hbWUgaXMg
-X29wcy5oLAo+Cj4gV2Ugc2hvdWxkIG5hbWUgdGhpcyBmaWxlIGFzIG1kZXZfdmZpb19vcHMuaAo+
-Cj4gQW5kICNkZWZpbmUgc2hvdWxkIGJlIE1ERVZfVkZJT19PUFNfSAo+Cj4+ICsjaW5jbHVkZSA8
-bGludXgvbWRldi5oPgo+PiArCj4+ICsvKioKPj4gKyAqIHN0cnVjdCB2ZmlvX21kZXZfZGV2aWNl
-X29wcyAtIFN0cnVjdHVyZSB0byBiZSByZWdpc3RlcmVkIGZvciBlYWNoCj4gcy92ZmlvX21kZXZf
-ZGV2aWNlX29wcy9tZGV2X3ZmaW9fZGV2aWNlX29wcy8KPgo+IFNpbWlsYXJseSBmb3IgdmlydGlv
-IGluIGZ1dHVyZSBwYXRjaGVzLgo+CgpXaWxsIGZpeCBpbiBWNy4KCgo+ICAgc3RhdGljIHZvaWQg
-bXR0eV9kZXZpY2VfcmVsZWFzZShzdHJ1Y3QgZGV2aWNlICpkZXYpCj4gLS0KPiAyLjE5LjEKPiBX
-aXRoIGFib3ZlIHNtYWxsIG5pdCBjaGFuZ2VzIHRvIHJlbmFtZSB0aGUgZmllbGRzIGFuZCBmaWxl
-LAo+Cj4gUmV2aWV3ZWQtYnk6IFBhcmF2IFBhbmRpdCA8cGFyYXZAbWVsbGFub3guY29tPgoKCkFw
-cHJlY2lhdGUgdGhhdCwgdGhhbmtzLgoKCl9fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19f
-X19fX19fX19fX19fX19fClZpcnR1YWxpemF0aW9uIG1haWxpbmcgbGlzdApWaXJ0dWFsaXphdGlv
-bkBsaXN0cy5saW51eC1mb3VuZGF0aW9uLm9yZwpodHRwczovL2xpc3RzLmxpbnV4Zm91bmRhdGlv
-bi5vcmcvbWFpbG1hbi9saXN0aW5mby92aXJ0dWFsaXphdGlvbg==
+Hi Jorgen,
+I'm preparing the v2, but first, if you have time, I'd like to have
+a comment from you on this patch that modifies a bit vmci.
+
+Thank you very much,
+Stefano
+
+On Wed, Oct 23, 2019 at 11:55:52AM +0200, Stefano Garzarella wrote:
+> To allow other transports to be loaded with vmci_transport,
+> we register the vmci_transport as G2H or H2G only when a VMCI guest
+> or host is active.
+> 
+> To do that, this patch adds a callback registered in the vmci driver
+> that will be called when a new host or guest become active.
+> This callback will register the vmci_transport in the VSOCK core.
+> If the transport is already registered, we ignore the error coming
+> from vsock_core_register().
+> 
+> Cc: Jorgen Hansen <jhansen@vmware.com>
+> Signed-off-by: Stefano Garzarella <sgarzare@redhat.com>
+> ---
+>  drivers/misc/vmw_vmci/vmci_driver.c | 50 +++++++++++++++++++++++++++++
+>  drivers/misc/vmw_vmci/vmci_driver.h |  2 ++
+>  drivers/misc/vmw_vmci/vmci_guest.c  |  2 ++
+>  drivers/misc/vmw_vmci/vmci_host.c   |  7 ++++
+>  include/linux/vmw_vmci_api.h        |  2 ++
+>  net/vmw_vsock/vmci_transport.c      | 29 +++++++++++------
+>  6 files changed, 82 insertions(+), 10 deletions(-)
+> 
+> diff --git a/drivers/misc/vmw_vmci/vmci_driver.c b/drivers/misc/vmw_vmci/vmci_driver.c
+> index 819e35995d32..195afbd7edc1 100644
+> --- a/drivers/misc/vmw_vmci/vmci_driver.c
+> +++ b/drivers/misc/vmw_vmci/vmci_driver.c
+> @@ -28,6 +28,9 @@ MODULE_PARM_DESC(disable_guest,
+>  static bool vmci_guest_personality_initialized;
+>  static bool vmci_host_personality_initialized;
+>  
+> +static DEFINE_MUTEX(vmci_vsock_mutex); /* protects vmci_vsock_transport_cb */
+> +static vmci_vsock_cb vmci_vsock_transport_cb;
+> +
+>  /*
+>   * vmci_get_context_id() - Gets the current context ID.
+>   *
+> @@ -45,6 +48,53 @@ u32 vmci_get_context_id(void)
+>  }
+>  EXPORT_SYMBOL_GPL(vmci_get_context_id);
+>  
+> +/*
+> + * vmci_register_vsock_callback() - Register the VSOCK vmci_transport callback.
+> + *
+> + * The callback will be called every time a new host or guest become active,
+> + * or if they are already active when this function is called.
+> + * To unregister the callback, call this function with NULL parameter.
+> + *
+> + * Returns 0 on success. -EBUSY if a callback is already registered.
+> + */
+> +int vmci_register_vsock_callback(vmci_vsock_cb callback)
+> +{
+> +	int err = 0;
+> +
+> +	mutex_lock(&vmci_vsock_mutex);
+> +
+> +	if (vmci_vsock_transport_cb && callback) {
+> +		err = -EBUSY;
+> +		goto out;
+> +	}
+> +
+> +	vmci_vsock_transport_cb = callback;
+> +
+> +	if (!vmci_vsock_transport_cb)
+> +		goto out;
+> +
+> +	if (vmci_guest_code_active())
+> +		vmci_vsock_transport_cb(false);
+> +
+> +	if (vmci_host_users() > 0)
+> +		vmci_vsock_transport_cb(true);
+> +
+> +out:
+> +	mutex_unlock(&vmci_vsock_mutex);
+> +	return err;
+> +}
+> +EXPORT_SYMBOL_GPL(vmci_register_vsock_callback);
+> +
+> +void vmci_call_vsock_callback(bool is_host)
+> +{
+> +	mutex_lock(&vmci_vsock_mutex);
+> +
+> +	if (vmci_vsock_transport_cb)
+> +		vmci_vsock_transport_cb(is_host);
+> +
+> +	mutex_unlock(&vmci_vsock_mutex);
+> +}
+> +
+>  static int __init vmci_drv_init(void)
+>  {
+>  	int vmci_err;
+> diff --git a/drivers/misc/vmw_vmci/vmci_driver.h b/drivers/misc/vmw_vmci/vmci_driver.h
+> index aab81b67670c..990682480bf6 100644
+> --- a/drivers/misc/vmw_vmci/vmci_driver.h
+> +++ b/drivers/misc/vmw_vmci/vmci_driver.h
+> @@ -36,10 +36,12 @@ extern struct pci_dev *vmci_pdev;
+>  
+>  u32 vmci_get_context_id(void);
+>  int vmci_send_datagram(struct vmci_datagram *dg);
+> +void vmci_call_vsock_callback(bool is_host);
+>  
+>  int vmci_host_init(void);
+>  void vmci_host_exit(void);
+>  bool vmci_host_code_active(void);
+> +int vmci_host_users(void);
+>  
+>  int vmci_guest_init(void);
+>  void vmci_guest_exit(void);
+> diff --git a/drivers/misc/vmw_vmci/vmci_guest.c b/drivers/misc/vmw_vmci/vmci_guest.c
+> index 7a84a48c75da..cc8eeb361fcd 100644
+> --- a/drivers/misc/vmw_vmci/vmci_guest.c
+> +++ b/drivers/misc/vmw_vmci/vmci_guest.c
+> @@ -637,6 +637,8 @@ static int vmci_guest_probe_device(struct pci_dev *pdev,
+>  		  vmci_dev->iobase + VMCI_CONTROL_ADDR);
+>  
+>  	pci_set_drvdata(pdev, vmci_dev);
+> +
+> +	vmci_call_vsock_callback(false);
+>  	return 0;
+>  
+>  err_free_irq:
+> diff --git a/drivers/misc/vmw_vmci/vmci_host.c b/drivers/misc/vmw_vmci/vmci_host.c
+> index 833e2bd248a5..ff3c396146ff 100644
+> --- a/drivers/misc/vmw_vmci/vmci_host.c
+> +++ b/drivers/misc/vmw_vmci/vmci_host.c
+> @@ -108,6 +108,11 @@ bool vmci_host_code_active(void)
+>  	     atomic_read(&vmci_host_active_users) > 0);
+>  }
+>  
+> +int vmci_host_users(void)
+> +{
+> +	return atomic_read(&vmci_host_active_users);
+> +}
+> +
+>  /*
+>   * Called on open of /dev/vmci.
+>   */
+> @@ -338,6 +343,8 @@ static int vmci_host_do_init_context(struct vmci_host_dev *vmci_host_dev,
+>  	vmci_host_dev->ct_type = VMCIOBJ_CONTEXT;
+>  	atomic_inc(&vmci_host_active_users);
+>  
+> +	vmci_call_vsock_callback(true);
+> +
+>  	retval = 0;
+>  
+>  out:
+> diff --git a/include/linux/vmw_vmci_api.h b/include/linux/vmw_vmci_api.h
+> index acd9fafe4fc6..f28907345c80 100644
+> --- a/include/linux/vmw_vmci_api.h
+> +++ b/include/linux/vmw_vmci_api.h
+> @@ -19,6 +19,7 @@
+>  struct msghdr;
+>  typedef void (vmci_device_shutdown_fn) (void *device_registration,
+>  					void *user_data);
+> +typedef void (*vmci_vsock_cb) (bool is_host);
+>  
+>  int vmci_datagram_create_handle(u32 resource_id, u32 flags,
+>  				vmci_datagram_recv_cb recv_cb,
+> @@ -37,6 +38,7 @@ int vmci_doorbell_destroy(struct vmci_handle handle);
+>  int vmci_doorbell_notify(struct vmci_handle handle, u32 priv_flags);
+>  u32 vmci_get_context_id(void);
+>  bool vmci_is_context_owner(u32 context_id, kuid_t uid);
+> +int vmci_register_vsock_callback(vmci_vsock_cb callback);
+>  
+>  int vmci_event_subscribe(u32 event,
+>  			 vmci_event_cb callback, void *callback_data,
+> diff --git a/net/vmw_vsock/vmci_transport.c b/net/vmw_vsock/vmci_transport.c
+> index 2eb3f16d53e7..04437f822d82 100644
+> --- a/net/vmw_vsock/vmci_transport.c
+> +++ b/net/vmw_vsock/vmci_transport.c
+> @@ -2053,19 +2053,22 @@ static bool vmci_check_transport(struct vsock_sock *vsk)
+>  	return vsk->transport == &vmci_transport;
+>  }
+>  
+> -static int __init vmci_transport_init(void)
+> +void vmci_vsock_transport_cb(bool is_host)
+>  {
+> -	int features = VSOCK_TRANSPORT_F_DGRAM | VSOCK_TRANSPORT_F_H2G;
+> -	int cid;
+> -	int err;
+> +	int features;
+>  
+> -	cid = vmci_get_context_id();
+> +	if (is_host)
+> +		features = VSOCK_TRANSPORT_F_H2G;
+> +	else
+> +		features = VSOCK_TRANSPORT_F_G2H;
+>  
+> -	if (cid == VMCI_INVALID_ID)
+> -		return -EINVAL;
+> +	vsock_core_register(&vmci_transport, features);
+> +}
+>  
+> -	if (cid != VMCI_HOST_CONTEXT_ID)
+> -		features |= VSOCK_TRANSPORT_F_G2H;
+> +static int __init vmci_transport_init(void)
+> +{
+> +	int features = VSOCK_TRANSPORT_F_DGRAM;
+> +	int err;
+>  
+>  	/* Create the datagram handle that we will use to send and receive all
+>  	 * VSocket control messages for this context.
+> @@ -2079,7 +2082,6 @@ static int __init vmci_transport_init(void)
+>  		pr_err("Unable to create datagram handle. (%d)\n", err);
+>  		return vmci_transport_error_to_vsock_error(err);
+>  	}
+> -
+>  	err = vmci_event_subscribe(VMCI_EVENT_QP_RESUMED,
+>  				   vmci_transport_qp_resumed_cb,
+>  				   NULL, &vmci_transport_qp_resumed_sub_id);
+> @@ -2094,8 +2096,14 @@ static int __init vmci_transport_init(void)
+>  	if (err < 0)
+>  		goto err_unsubscribe;
+>  
+> +	err = vmci_register_vsock_callback(vmci_vsock_transport_cb);
+> +	if (err < 0)
+> +		goto err_unregister;
+> +
+>  	return 0;
+>  
+> +err_unregister:
+> +	vsock_core_unregister(&vmci_transport);
+>  err_unsubscribe:
+>  	vmci_event_unsubscribe(vmci_transport_qp_resumed_sub_id);
+>  err_destroy_stream_handle:
+> @@ -2121,6 +2129,7 @@ static void __exit vmci_transport_exit(void)
+>  		vmci_transport_qp_resumed_sub_id = VMCI_INVALID_ID;
+>  	}
+>  
+> +	vmci_register_vsock_callback(NULL);
+>  	vsock_core_unregister(&vmci_transport);
+>  }
+>  module_exit(vmci_transport_exit);
+> -- 
+> 2.21.0
+> 
+
+-- 
