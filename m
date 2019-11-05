@@ -1,15 +1,11 @@
-From: "Michael S. Tsirkin" <mst@redhat.com>
-Subject: Re: [PATCH 1/2] IFC hardware operation layer
-Date: Tue, 5 Nov 2019 06:29:52 -0500
-Message-ID: <20191105061635-mutt-send-email-mst__22725.8272281446$1572953418$gmane$org@kernel.org>
-References: <1572946660-26265-1-git-send-email-lingshan.zhu@intel.com>
-	<1572946660-26265-2-git-send-email-lingshan.zhu@intel.com>
+From: Tiwei Bie <tiwei.bie@intel.com>
+Subject: [PATCH v5] vhost: introduce mdev based hardware backend
+Date: Tue,  5 Nov 2019 19:53:32 +0800
+Message-ID: <20191105115332.11026-1-tiwei.bie@intel.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-Content-Disposition: inline
-In-Reply-To: <1572946660-26265-2-git-send-email-lingshan.zhu@intel.com>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -19,547 +15,782 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Zhu Lingshan <lingshan.zhu@intel.com>
-Cc: kvm@vger.kernel.org, netdev@vger.kernel.org, linux-kernel@vger.kernel.org, virtualization@lists.linux-foundation.org, jason.zeng@intel.com
+To: mst@redhat.com, jasowang@redhat.com, alex.williamson@redhat.com, maxime.coquelin@redhat.com
+Cc: kvm@vger.kernel.org, netdev@vger.kernel.org, linux-kernel@vger.kernel.org, virtualization@lists.linux-foundation.org, zhihong.wang@intel.com, lingshan.zhu@intel.com
 List-Id: virtualization@lists.linuxfoundation.org
 
-On Tue, Nov 05, 2019 at 05:37:39PM +0800, Zhu Lingshan wrote:
-> This commit introduced ifcvf_base layer, which handles hardware
-> operations and configurations.
-> 
-> Signed-off-by: Zhu Lingshan <lingshan.zhu@intel.com>
-> ---
->  drivers/vhost/ifcvf/ifcvf_base.c | 344 +++++++++++++++++++++++++++++++++++++++
->  drivers/vhost/ifcvf/ifcvf_base.h | 132 +++++++++++++++
->  2 files changed, 476 insertions(+)
->  create mode 100644 drivers/vhost/ifcvf/ifcvf_base.c
->  create mode 100644 drivers/vhost/ifcvf/ifcvf_base.h
-> 
-> diff --git a/drivers/vhost/ifcvf/ifcvf_base.c b/drivers/vhost/ifcvf/ifcvf_base.c
-> new file mode 100644
-> index 0000000..0659f41
-> --- /dev/null
-> +++ b/drivers/vhost/ifcvf/ifcvf_base.c
-> @@ -0,0 +1,344 @@
-> +// SPDX-License-Identifier: GPL-2.0-only
-> +/*
-> + * Copyright (C) 2019 Intel Corporation.
-> + */
-> +
-> +#include "ifcvf_base.h"
-> +
-> +static void *get_cap_addr(struct ifcvf_hw *hw, struct virtio_pci_cap *cap)
-> +{
-> +	struct ifcvf_adapter *ifcvf;
-> +	u32 length, offset;
-> +	u8 bar;
-> +
-> +	length = le32_to_cpu(cap->length);
-> +	offset = le32_to_cpu(cap->offset);
-> +	bar = le32_to_cpu(cap->bar);
-> +
-> +	ifcvf = container_of(hw, struct ifcvf_adapter, vf);
-> +
-> +	if (bar >= IFCVF_PCI_MAX_RESOURCE) {
-> +		IFC_DBG(ifcvf->dev,
-> +			"Invalid bar number %u to get capabilities.\n", bar);
-> +		return NULL;
-> +	}
-> +
-> +	if (offset + length < offset) {
-> +		IFC_DBG(ifcvf->dev, "offset(%u) + length(%u) overflows\n",
-> +			offset, length);
-> +		return NULL;
-> +	}
-> +
-> +	if (offset + length > hw->mem_resource[cap->bar].len) {
-> +		IFC_DBG(ifcvf->dev,
-> +			"offset(%u) + len(%u) overflows bar%u to get capabilities.\n",
-> +			offset, length, bar);
-> +		return NULL;
-> +	}
-> +
-> +	return hw->mem_resource[bar].addr + offset;
-> +}
-> +
-> +int ifcvf_read_config_range(struct pci_dev *dev,
-> +			uint32_t *val, int size, int where)
-> +{
-> +	int ret, i;
-> +
-> +	for (i = 0; i < size; i += 4) {
-> +		ret = pci_read_config_dword(dev, where + i, val + i / 4);
-> +		if (ret < 0)
-> +			return ret;
-> +	}
-> +
-> +	return 0;
-> +}
-> +
-> +int ifcvf_init_hw(struct ifcvf_hw *hw, struct pci_dev *dev)
-> +{
-> +	struct virtio_pci_cap cap;
-> +	u16 notify_off;
-> +	int ret;
-> +	u8 pos;
-> +	u32 i;
-> +
-> +	ret = pci_read_config_byte(dev, PCI_CAPABILITY_LIST, &pos);
-> +
-> +	if (ret < 0) {
-> +		IFC_ERR(&dev->dev, "Failed to read PCI capability list.\n");
-> +		return -EIO;
-> +	}
-> +
-> +	while (pos) {
-> +		ret = ifcvf_read_config_range(dev, (u32 *)&cap,
-> +					      sizeof(cap), pos);
-> +
-> +		if (ret < 0) {
-> +			IFC_ERR(&dev->dev, "Failed to get PCI capability at %x",
-> +				pos);
-> +			break;
-> +		}
-> +
-> +		if (cap.cap_vndr != PCI_CAP_ID_VNDR)
-> +			goto next;
-> +
-> +		IFC_DBG(&dev->dev, "read PCI config: config type: %u, PCI bar: %u,\
-> +			 PCI bar offset: %u, PCI config len: %u.\n",
-> +			cap.cfg_type, cap.bar, cap.offset, cap.length);
-> +
-> +		switch (cap.cfg_type) {
-> +		case VIRTIO_PCI_CAP_COMMON_CFG:
-> +			hw->common_cfg = get_cap_addr(hw, &cap);
-> +			IFC_INFO(&dev->dev, "hw->common_cfg = %p.\n",
-> +				 hw->common_cfg);
-> +			break;
-> +		case VIRTIO_PCI_CAP_NOTIFY_CFG:
-> +			pci_read_config_dword(dev, pos + sizeof(cap),
-> +					      &hw->notify_off_multiplier);
-> +			hw->notify_bar = cap.bar;
-> +			hw->notify_base = get_cap_addr(hw, &cap);
-> +			IFC_INFO(&dev->dev, "hw->notify_base = %p.\n",
-> +				 hw->notify_base);
-> +			break;
-> +		case VIRTIO_PCI_CAP_ISR_CFG:
-> +			hw->isr = get_cap_addr(hw, &cap);
-> +			IFC_INFO(&dev->dev, "hw->isr = %p.\n", hw->isr);
-> +			break;
-> +		case VIRTIO_PCI_CAP_DEVICE_CFG:
-> +			hw->net_cfg = get_cap_addr(hw, &cap);
-> +			IFC_INFO(&dev->dev, "hw->net_cfg = %p.\n", hw->net_cfg);
-> +			break;
-> +		}
-> +next:
-> +		pos = cap.cap_next;
-> +	}
-> +
-> +	if (hw->common_cfg == NULL || hw->notify_base == NULL ||
-> +	    hw->isr == NULL || hw->net_cfg == NULL) {
-> +		IFC_DBG(&dev->dev, "Incomplete PCI capabilities.\n");
-> +		return -1;
-> +	}
-> +
-> +	for (i = 0; i < IFCVF_MAX_QUEUE_PAIRS * 2; i++) {
-> +		iowrite16(i, &hw->common_cfg->queue_select);
-> +		notify_off = ioread16(&hw->common_cfg->queue_notify_off);
-> +		hw->notify_addr[i] = (void *)((u8 *)hw->notify_base +
-> +				     notify_off * hw->notify_off_multiplier);
-> +	}
-> +
-> +	hw->lm_cfg = hw->mem_resource[IFCVF_LM_BAR].addr;
-> +
-> +	IFC_DBG(&dev->dev, "PCI capability mapping: common cfg: %p,\
-> +		notify base: %p\n, isr cfg: %p, device cfg: %p,\
-> +		multiplier: %u\n",
-> +		hw->common_cfg, hw->notify_base, hw->isr,
-> +		hw->net_cfg, hw->notify_off_multiplier);
-> +
-> +	return 0;
-> +}
-> +
-> +u8 ifcvf_get_status(struct ifcvf_hw *hw)
-> +{
-> +	u8 old_gen, new_gen, status;
-> +
-> +	do {
-> +		old_gen = ioread8(&hw->common_cfg->config_generation);
-> +		status = ioread8(&hw->common_cfg->device_status);
-> +		new_gen = ioread8(&hw->common_cfg->config_generation);
-> +	} while (old_gen != new_gen);
-> +
-> +	return status;
-> +}
-> +
-> +void ifcvf_set_status(struct ifcvf_hw *hw, u8 status)
-> +{
-> +	iowrite8(status, &hw->common_cfg->device_status);
-> +}
-> +
-> +void ifcvf_reset(struct ifcvf_hw *hw)
-> +{
-> +	ifcvf_set_status(hw, 0);
-> +	ifcvf_get_status(hw);
-> +}
-> +
-> +static void ifcvf_add_status(struct ifcvf_hw *hw, u8 status)
-> +{
-> +	if (status != 0)
-> +		status |= ifcvf_get_status(hw);
-> +
-> +	ifcvf_set_status(hw, status);
-> +	ifcvf_get_status(hw);
-> +}
-> +
-> +u64 ifcvf_get_features(struct ifcvf_hw *hw)
-> +{
-> +	struct virtio_pci_common_cfg *cfg = hw->common_cfg;
-> +	u32 features_lo, features_hi;
-> +
-> +	iowrite32(0, &cfg->device_feature_select);
-> +	features_lo = ioread32(&cfg->device_feature);
-> +
-> +	iowrite32(1, &cfg->device_feature_select);
-> +	features_hi = ioread32(&cfg->device_feature);
-> +
-> +	return ((u64)features_hi << 32) | features_lo;
-> +}
-> +
-> +void ifcvf_read_net_config(struct ifcvf_hw *hw, u64 offset,
-> +		       void *dst, int length)
-> +{
-> +	u8 old_gen, new_gen, *p;
-> +	int i;
-> +
-> +	WARN_ON(offset + length > sizeof (struct ifcvf_net_config));
-> +
-> +	do {
-> +		old_gen = ioread8(&hw->common_cfg->config_generation);
-> +		p = dst;
-> +
-> +		for (i = 0; i < length; i++)
-> +			*p++ = ioread8((u8 *)hw->net_cfg + offset + i);
-> +
-> +		new_gen = ioread8(&hw->common_cfg->config_generation);
-> +	} while (old_gen != new_gen);
-> +}
-> +
-> +void ifcvf_write_net_config(struct ifcvf_hw *hw, u64 offset,
-> +			    const void *src, int length)
-> +{
-> +	const u8 *p;
-> +	int i;
-> +
-> +	p = src;
-> +	WARN_ON(offset + length > sizeof (struct ifcvf_net_config));
-> +
-> +	for (i = 0; i < length; i++)
-> +		iowrite8(*p++, (u8 *)hw->net_cfg + offset + i);
-> +}
-> +
-> +static void ifcvf_set_features(struct ifcvf_hw *hw, u64 features)
-> +{
-> +	struct virtio_pci_common_cfg *cfg = hw->common_cfg;
-> +
-> +	iowrite32(0, &cfg->guest_feature_select);
-> +	iowrite32(features & ((1ULL << 32) - 1), &cfg->guest_feature);
-> +
-> +	iowrite32(1, &cfg->guest_feature_select);
-> +	iowrite32(features >> 32, &cfg->guest_feature);
-> +}
-> +
-> +static int ifcvf_config_features(struct ifcvf_hw *hw)
-> +{
-> +	struct ifcvf_adapter *ifcvf;
-> +
-> +	ifcvf =	container_of(hw, struct ifcvf_adapter, vf);
-> +	ifcvf_set_features(hw, hw->req_features);
-> +	ifcvf_add_status(hw, VIRTIO_CONFIG_S_FEATURES_OK);
-> +
-> +	if (!(ifcvf_get_status(hw) & VIRTIO_CONFIG_S_FEATURES_OK)) {
-> +		IFC_ERR(ifcvf->dev, "Failed to set FEATURES_OK status\n");
-> +		return -EIO;
-> +	}
-> +
-> +	return 0;
-> +}
-> +
-> +void io_write64_twopart(u64 val, u32 *lo, u32 *hi)
-> +{
-> +	iowrite32(val & ((1ULL << 32) - 1), lo);
-> +	iowrite32(val >> 32, hi);
-> +}
-> +
-> +static int ifcvf_hw_enable(struct ifcvf_hw *hw)
-> +{
-> +	struct virtio_pci_common_cfg *cfg;
-> +	struct ifcvf_adapter *ifcvf;
-> +	u8 *lm_cfg;
-> +	u32 i;
-> +
-> +	ifcvf = container_of(hw, struct ifcvf_adapter, vf);
-> +	cfg = hw->common_cfg;
-> +	lm_cfg = hw->lm_cfg;
-> +	iowrite16(IFCVF_MSI_CONFIG_OFF, &cfg->msix_config);
-> +
-> +	if (ioread16(&cfg->msix_config) == VIRTIO_MSI_NO_VECTOR) {
-> +		IFC_ERR(ifcvf->dev, "No msix vector for device config.\n");
-> +		return -1;
-> +	}
-> +
-> +	for (i = 0; i < hw->nr_vring; i++) {
-> +		iowrite16(i, &cfg->queue_select);
-> +		io_write64_twopart(hw->vring[i].desc, &cfg->queue_desc_lo,
-> +				&cfg->queue_desc_hi);
-> +		io_write64_twopart(hw->vring[i].avail, &cfg->queue_avail_lo,
-> +				&cfg->queue_avail_hi);
-> +		io_write64_twopart(hw->vring[i].used, &cfg->queue_used_lo,
-> +				&cfg->queue_used_hi);
-> +		iowrite16(hw->vring[i].size, &cfg->queue_size);
-> +
-> +		*(u32 *)(lm_cfg + IFCVF_LM_RING_STATE_OFFSET +
-> +				(i / 2) * IFCVF_LM_CFG_SIZE + (i % 2) * 4) =
-> +			(u32)hw->vring[i].last_avail_idx |
-> +			((u32)hw->vring[i].last_used_idx << 16);
+This patch introduces a mdev based hardware vhost backend.
+This backend is built on top of the same abstraction used
+in virtio-mdev and provides a generic vhost interface for
+userspace to accelerate the virtio devices in guest.
 
-Is this trying to store data into part of device memory BAR?
-If yes doing it like this isn't portable I think.
+This backend is implemented as a mdev device driver on top
+of the same mdev device ops used in virtio-mdev but using
+a different mdev class id, and it will register the device
+as a VFIO device for userspace to use. Userspace can setup
+the IOMMU with the existing VFIO container/group APIs and
+then get the device fd with the device name. After getting
+the device fd, userspace can use vhost ioctls on top of it
+to setup the backend.
 
+Signed-off-by: Tiwei Bie <tiwei.bie@intel.com>
+---
+This patch depends on below series:
+https://lkml.org/lkml/2019/11/5/217
 
-> +
-> +		iowrite16(i + IFCVF_MSI_QUEUE_OFF, &cfg->queue_msix_vector);
-> +		if (ioread16(&cfg->queue_msix_vector) ==
-> +		    VIRTIO_MSI_NO_VECTOR) {
-> +			IFC_ERR(ifcvf->dev,
-> +				"No msix vector for queue %u.\n", i);
-> +			return -1;
-> +		}
-> +
-> +		iowrite16(1, &cfg->queue_enable);
-> +	}
-> +
-> +	return 0;
-> +}
-> +
-> +static void ifcvf_hw_disable(struct ifcvf_hw *hw)
-> +{
-> +	struct virtio_pci_common_cfg *cfg;
-> +	u32 i;
-> +
-> +	cfg = hw->common_cfg;
-> +	iowrite16(VIRTIO_MSI_NO_VECTOR, &cfg->msix_config);
-> +
-> +	for (i = 0; i < hw->nr_vring; i++) {
-> +		iowrite16(i, &cfg->queue_select);
-> +		iowrite16(0, &cfg->queue_enable);
-> +		iowrite16(VIRTIO_MSI_NO_VECTOR, &cfg->queue_msix_vector);
-> +	}
+v4 -> v5:
+- Rebase on top of virtio-mdev series v8;
+- Use the virtio_ops of mdev_device in vhost-mdev (Jason);
+- Some minor improvements on commit log;
 
-Is it enough to write like this? don't you need to read
-in order to flush outstanding MSI?
+v3 -> v4:
+- Rebase on top of virtio-mdev series v6;
+- Some minor tweaks and improvements;
 
+v2 -> v3:
+- Fix the return value (Jason);
+- Don't cache unnecessary information in vhost-mdev (Jason);
+- Get rid of the memset in open (Jason);
+- Add comments for VHOST_SET_MEM_TABLE, ... (Jason);
+- Filter out unsupported features in vhost-mdev (Jason);
+- Add _GET_DEVICE_ID ioctl (Jason);
+- Add _GET_CONFIG/_SET_CONFIG ioctls (Jason);
+- Drop _GET_QUEUE_NUM ioctl (Jason);
+- Fix the copy-paste errors in _IOW/_IOR usage;
+- Some minor fixes and improvements;
 
-> +}
-> +
-> +int ifcvf_start_hw(struct ifcvf_hw *hw)
-> +{
-> +	ifcvf_reset(hw);
-> +	ifcvf_add_status(hw, VIRTIO_CONFIG_S_ACKNOWLEDGE);
-> +	ifcvf_add_status(hw, VIRTIO_CONFIG_S_DRIVER);
-> +
-> +	if (ifcvf_config_features(hw) < 0)
-> +		return -1;
-> +
-> +	if (ifcvf_hw_enable(hw) < 0)
-> +		return -1;
-> +
-> +	ifcvf_add_status(hw, VIRTIO_CONFIG_S_DRIVER_OK);
-> +
-> +	return 0;
-> +}
-> +
-> +void ifcvf_stop_hw(struct ifcvf_hw *hw)
-> +{
-> +	ifcvf_hw_disable(hw);
-> +	ifcvf_reset(hw);
-> +}
-> +
-> +void ifcvf_notify_queue(struct ifcvf_hw *hw, u16 qid)
-> +{
-> +	iowrite16(qid, hw->notify_addr[qid]);
+v1 -> v2:
+- Replace _SET_STATE with _SET_STATUS (MST);
+- Check status bits at each step (MST);
+- Report the max ring size and max number of queues (MST);
+- Add missing MODULE_DEVICE_TABLE (Jason);
+- Only support the network backend w/o multiqueue for now;
+- Some minor fixes and improvements;
+- Rebase on top of virtio-mdev series v4;
 
-I suspect you didn't validate this driver with sparse, did you?
-Otherwise I think you would have noticed some warnings
-as e.g. iowrite16 requires a __iomem address.
+RFC v4 -> v1:
+- Implement vhost-mdev as a mdev device driver directly and
+  connect it to VFIO container/group. (Jason);
+- Pass ring addresses as GPAs/IOVAs in vhost-mdev to avoid
+  meaningless HVA->GPA translations (Jason);
 
+RFC v3 -> RFC v4:
+- Build vhost-mdev on top of the same abstraction used by
+  virtio-mdev (Jason);
+- Introduce vhost fd and pass VFIO fd via SET_BACKEND ioctl (MST);
 
-> +}
-> +
-> +u64 ifcvf_get_queue_notify_off(struct ifcvf_hw *hw, int qid)
-> +{
-> +	return (u8 *)hw->notify_addr[qid] -
-> +		(u8 *)hw->mem_resource[hw->notify_bar].addr;
+RFC v2 -> RFC v3:
+- Reuse vhost's ioctls instead of inventing a VFIO regions/irqs
+  based vhost protocol on top of vfio-mdev (Jason);
 
-why is the cast of addr need?
+RFC v1 -> RFC v2:
+- Introduce a new VFIO device type to build a vhost protocol
+  on top of vfio-mdev;
 
-> +}
-> diff --git a/drivers/vhost/ifcvf/ifcvf_base.h b/drivers/vhost/ifcvf/ifcvf_base.h
-> new file mode 100644
-> index 0000000..c97f0eb
-> --- /dev/null
-> +++ b/drivers/vhost/ifcvf/ifcvf_base.h
-> @@ -0,0 +1,132 @@
-> +/* SPDX-License-Identifier: GPL-2.0 WITH Linux-syscall-note */
-> +/*
-> + * Copyright (C) 2019 Intel Corporation.
-> + */
-> +
-> +#ifndef _IFCVF_H_
-> +#define _IFCVF_H_
-> +
-> +#include <linux/virtio_mdev_ops.h>
-> +#include <linux/mdev.h>
-> +#include <linux/pci.h>
-> +#include <linux/pci_regs.h>
-> +#include <uapi/linux/virtio_net.h>
-> +#include <uapi/linux/virtio_config.h>
-> +#include <uapi/linux/virtio_pci.h>
-> +
-> +#define IFCVF_VENDOR_ID         0x1AF4
-> +#define IFCVF_DEVICE_ID         0x1041
+ drivers/vfio/mdev/mdev_core.c    |  21 ++
+ drivers/vhost/Kconfig            |  12 +
+ drivers/vhost/Makefile           |   3 +
+ drivers/vhost/mdev.c             | 553 +++++++++++++++++++++++++++++++
+ include/linux/mdev.h             |   5 +
+ include/uapi/linux/vhost.h       |  18 +
+ include/uapi/linux/vhost_types.h |   8 +
+ 7 files changed, 620 insertions(+)
+ create mode 100644 drivers/vhost/mdev.c
 
-
-I am confused by the above.
-
-They are used by the virtio layer right?
-
-So why isn't the id VIRTIO_ID_NET then?
-
-> +#define IFCVF_SUBSYS_VENDOR_ID  0x8086
-> +#define IFCVF_SUBSYS_DEVICE_ID  0x001A
-> +
-> +#define IFCVF_MDEV_LIMIT	1
-> +
-> +/*
-> + * Some ifcvf feature bits (currently bits 28 through 31) are
-> + * reserved for the transport being used (eg. ifcvf_ring), the
-> + * rest are per-device feature bits.
-> + */
-> +#define IFCVF_TRANSPORT_F_START 28
-> +#define IFCVF_TRANSPORT_F_END   34
-> +
-> +#define IFC_SUPPORTED_FEATURES \
-> +		((1ULL << VIRTIO_NET_F_MAC)			| \
-> +		 (1ULL << VIRTIO_F_ANY_LAYOUT)			| \
-> +		 (1ULL << VIRTIO_F_VERSION_1)			| \
-> +		 (1ULL << VIRTIO_F_ORDER_PLATFORM)			| \
-> +		 (1ULL << VIRTIO_NET_F_GUEST_ANNOUNCE)		| \
-> +		 (1ULL << VIRTIO_NET_F_CTRL_VQ)			| \
-> +		 (1ULL << VIRTIO_NET_F_STATUS)			| \
-> +		 (1ULL << VIRTIO_NET_F_MRG_RXBUF)) /* not fully supported */
-
-what does this last one mean?
-shouldn't we clear the bit if it's incomplete?
-
-> +
-> +//Not support MQ, only one queue pair for now.
-
-/* comments like this pls */
-
-> +#define IFCVF_MAX_QUEUE_PAIRS		1
-> +#define IFCVF_MAX_QUEUES		2
-> +
-> +#define IFCVF_QUEUE_ALIGNMENT		PAGE_SIZE
-> +
-> +#define IFCVF_MSI_CONFIG_OFF	0
-> +#define IFCVF_MSI_QUEUE_OFF	1
-> +#define IFCVF_PCI_MAX_RESOURCE	6
-> +
-> +#define IFCVF_LM_CFG_SIZE		0x40
-> +#define IFCVF_LM_RING_STATE_OFFSET	0x20
-> +#define IFCVF_LM_BAR	4
-> +
-> +#define IFCVF_32_BIT_MASK		0xffffffff
-> +
-> +#define IFC_ERR(dev, fmt, ...)	dev_err(dev, fmt, ##__VA_ARGS__)
-> +#define IFC_DBG(dev, fmt, ...)	dev_dbg(dev, fmt, ##__VA_ARGS__)
-> +#define IFC_INFO(dev, fmt, ...)	dev_info(dev, fmt, ##__VA_ARGS__)
-> +
-> +#define IFC_PRIVATE_TO_VF(adapter) \
-> +	(&((struct ifcvf_adapter *)adapter)->vf)
-> +
-> +#define IFCVF_MAX_INTR (IFCVF_MAX_QUEUE_PAIRS * 2 + 1)
-> +
-> +struct ifcvf_net_config {
-> +	u8    mac[6];
-> +	u16   status;
-> +	u16   max_virtqueue_pairs;
-> +} __packed;
-
-Looks like a partial copy of virtio_net_config - reuse that one instead?
-
-
-> +
-> +struct ifcvf_pci_mem_resource {
-> +	/* Physical address, 0 if not resource. */
-> +	u64      phys_addr;
-> +	/* Length of the resource. */
-> +	u64      len;
-> +	/* Virtual address, NULL when not mapped. */
-> +	u8       *addr;
-> +};
-> +
-> +struct vring_info {
-> +	u64 desc;
-> +	u64 avail;
-> +	u64 used;
-> +	u16 size;
-> +	u16 last_avail_idx;
-> +	u16 last_used_idx;
-> +	bool ready;
-> +	char msix_name[256];
-> +	struct virtio_mdev_callback cb;
-> +};
-> +
-> +struct ifcvf_hw {
-> +	u8	*isr;
-> +	u8	notify_bar;
-> +	u8	*lm_cfg;
-> +	u8	nr_vring;
-> +	u16	*notify_base;
-> +	u16	*notify_addr[IFCVF_MAX_QUEUE_PAIRS * 2];
-> +	u32	notify_off_multiplier;
-> +	u64	req_features;
-> +	struct	virtio_pci_common_cfg *common_cfg;
-> +	struct	ifcvf_net_config *net_cfg;
-> +	struct	vring_info vring[IFCVF_MAX_QUEUE_PAIRS * 2];
-> +	struct	ifcvf_pci_mem_resource mem_resource[IFCVF_PCI_MAX_RESOURCE];
-> +};
-> +
-> +struct ifcvf_adapter {
-> +	struct	device *dev;
-> +	struct	mutex mdev_lock;
-> +	int	mdev_count;
-> +	int	vectors;
-> +	struct	ifcvf_hw vf;
-> +};
-> +
-> +int ifcvf_init_hw(struct ifcvf_hw *hw, struct pci_dev *dev);
-> +int ifcvf_start_hw(struct ifcvf_hw *hw);
-> +void ifcvf_stop_hw(struct ifcvf_hw *hw);
-> +void ifcvf_notify_queue(struct ifcvf_hw *hw, u16 qid);
-> +u8 ifcvf_get_linkstatus(struct ifcvf_hw *hw);
-> +void ifcvf_read_net_config(struct ifcvf_hw *hw, u64 offset,
-> +			   void *dst, int length);
-> +void ifcvf_write_net_config(struct ifcvf_hw *hw, u64 offset,
-> +			    const void *src, int length);
-> +u8 ifcvf_get_status(struct ifcvf_hw *hw);
-> +void ifcvf_set_status(struct ifcvf_hw *hw, u8 status);
-> +void io_write64_twopart(u64 val, u32 *lo, u32 *hi);
-> +void ifcvf_reset(struct ifcvf_hw *hw);
-> +u64 ifcvf_get_features(struct ifcvf_hw *hw);
-> +
-> +#endif /* _IFCVF_H_ */
-> -- 
-> 1.8.3.1
+diff --git a/drivers/vfio/mdev/mdev_core.c b/drivers/vfio/mdev/mdev_core.c
+index c58253404ed5..d855be5afbae 100644
+--- a/drivers/vfio/mdev/mdev_core.c
++++ b/drivers/vfio/mdev/mdev_core.c
+@@ -99,6 +99,27 @@ mdev_get_virtio_ops(struct mdev_device *mdev)
+ }
+ EXPORT_SYMBOL(mdev_get_virtio_ops);
+ 
++/*
++ * Specify the vhost device ops for the mdev device, this
++ * must be called during create() callback for vhost mdev device.
++ */
++void mdev_set_vhost_ops(struct mdev_device *mdev,
++			const struct mdev_virtio_device_ops *vhost_ops)
++{
++	mdev_set_class(mdev, MDEV_CLASS_ID_VHOST);
++	mdev->virtio_ops = vhost_ops;
++}
++EXPORT_SYMBOL(mdev_set_vhost_ops);
++
++/* Get the vhost device ops for the mdev device. */
++const struct mdev_virtio_device_ops *
++mdev_get_vhost_ops(struct mdev_device *mdev)
++{
++	WARN_ON(mdev->class_id != MDEV_CLASS_ID_VHOST);
++	return mdev->virtio_ops;
++}
++EXPORT_SYMBOL(mdev_get_vhost_ops);
++
+ struct device *mdev_dev(struct mdev_device *mdev)
+ {
+ 	return &mdev->dev;
+diff --git a/drivers/vhost/Kconfig b/drivers/vhost/Kconfig
+index 3d03ccbd1adc..062cada28f89 100644
+--- a/drivers/vhost/Kconfig
++++ b/drivers/vhost/Kconfig
+@@ -34,6 +34,18 @@ config VHOST_VSOCK
+ 	To compile this driver as a module, choose M here: the module will be called
+ 	vhost_vsock.
+ 
++config VHOST_MDEV
++	tristate "Vhost driver for Mediated devices"
++	depends on EVENTFD && VFIO && VFIO_MDEV
++	select VHOST
++	default n
++	---help---
++	This kernel module can be loaded in host kernel to accelerate
++	guest virtio devices with the mediated device based backends.
++
++	To compile this driver as a module, choose M here: the module will
++	be called vhost_mdev.
++
+ config VHOST
+ 	tristate
+ 	---help---
+diff --git a/drivers/vhost/Makefile b/drivers/vhost/Makefile
+index 6c6df24f770c..ad9c0f8c6d8c 100644
+--- a/drivers/vhost/Makefile
++++ b/drivers/vhost/Makefile
+@@ -10,4 +10,7 @@ vhost_vsock-y := vsock.o
+ 
+ obj-$(CONFIG_VHOST_RING) += vringh.o
+ 
++obj-$(CONFIG_VHOST_MDEV) += vhost_mdev.o
++vhost_mdev-y := mdev.o
++
+ obj-$(CONFIG_VHOST)	+= vhost.o
+diff --git a/drivers/vhost/mdev.c b/drivers/vhost/mdev.c
+new file mode 100644
+index 000000000000..0bcde0f3a9cd
+--- /dev/null
++++ b/drivers/vhost/mdev.c
+@@ -0,0 +1,553 @@
++// SPDX-License-Identifier: GPL-2.0
++/*
++ * Vhost driver for mediated device based backends.
++ *
++ * Copyright (C) 2018-2019 Intel Corporation.
++ *
++ * Author: Tiwei Bie <tiwei.bie@intel.com>
++ *
++ * Thanks to Jason Wang and Michael S. Tsirkin for the valuable
++ * comments and suggestions.  And thanks to Cunming Liang and
++ * Zhihong Wang for all their supports.
++ */
++
++#include <linux/kernel.h>
++#include <linux/module.h>
++#include <linux/mdev.h>
++#include <linux/mdev_virtio_ops.h>
++#include <linux/nospec.h>
++#include <linux/vfio.h>
++#include <linux/vhost.h>
++#include <linux/virtio_net.h>
++
++#include "vhost.h"
++
++enum {
++	VHOST_MDEV_FEATURES =
++		(1ULL << VIRTIO_F_NOTIFY_ON_EMPTY) |
++		(1ULL << VIRTIO_F_ANY_LAYOUT) |
++		(1ULL << VIRTIO_F_VERSION_1) |
++		(1ULL << VIRTIO_F_IOMMU_PLATFORM) |
++		(1ULL << VIRTIO_F_RING_PACKED) |
++		(1ULL << VIRTIO_F_ORDER_PLATFORM) |
++		(1ULL << VIRTIO_RING_F_INDIRECT_DESC) |
++		(1ULL << VIRTIO_RING_F_EVENT_IDX),
++
++	VHOST_MDEV_NET_FEATURES = VHOST_MDEV_FEATURES |
++		(1ULL << VIRTIO_NET_F_CSUM) |
++		(1ULL << VIRTIO_NET_F_GUEST_CSUM) |
++		(1ULL << VIRTIO_NET_F_MTU) |
++		(1ULL << VIRTIO_NET_F_MAC) |
++		(1ULL << VIRTIO_NET_F_GUEST_TSO4) |
++		(1ULL << VIRTIO_NET_F_GUEST_TSO6) |
++		(1ULL << VIRTIO_NET_F_GUEST_ECN) |
++		(1ULL << VIRTIO_NET_F_GUEST_UFO) |
++		(1ULL << VIRTIO_NET_F_HOST_TSO4) |
++		(1ULL << VIRTIO_NET_F_HOST_TSO6) |
++		(1ULL << VIRTIO_NET_F_HOST_ECN) |
++		(1ULL << VIRTIO_NET_F_HOST_UFO) |
++		(1ULL << VIRTIO_NET_F_MRG_RXBUF) |
++		(1ULL << VIRTIO_NET_F_STATUS) |
++		(1ULL << VIRTIO_NET_F_SPEED_DUPLEX),
++};
++
++/* Currently, only network backend w/o multiqueue is supported. */
++#define VHOST_MDEV_VQ_MAX	2
++
++struct vhost_mdev {
++	/* The lock is to protect this structure. */
++	struct mutex mutex;
++	struct vhost_dev dev;
++	struct vhost_virtqueue *vqs;
++	int nvqs;
++	int virtio_id;
++	bool opened;
++	struct mdev_device *mdev;
++};
++
++static const u64 vhost_mdev_features[] = {
++	[VIRTIO_ID_NET] = VHOST_MDEV_NET_FEATURES,
++};
++
++static void handle_vq_kick(struct vhost_work *work)
++{
++	struct vhost_virtqueue *vq = container_of(work, struct vhost_virtqueue,
++						  poll.work);
++	struct vhost_mdev *m = container_of(vq->dev, struct vhost_mdev, dev);
++	const struct mdev_virtio_device_ops *ops = mdev_get_vhost_ops(m->mdev);
++
++	ops->kick_vq(m->mdev, vq - m->vqs);
++}
++
++static irqreturn_t vhost_mdev_virtqueue_cb(void *private)
++{
++	struct vhost_virtqueue *vq = private;
++	struct eventfd_ctx *call_ctx = vq->call_ctx;
++
++	if (call_ctx)
++		eventfd_signal(call_ctx, 1);
++
++	return IRQ_HANDLED;
++}
++
++static void vhost_mdev_reset(struct vhost_mdev *m)
++{
++	struct mdev_device *mdev = m->mdev;
++	const struct mdev_virtio_device_ops *ops = mdev_get_vhost_ops(mdev);
++
++	ops->set_status(mdev, 0);
++}
++
++static long vhost_mdev_get_device_id(struct vhost_mdev *m, u8 __user *argp)
++{
++	struct mdev_device *mdev = m->mdev;
++	const struct mdev_virtio_device_ops *ops = mdev_get_vhost_ops(mdev);
++	u32 device_id;
++
++	device_id = ops->get_device_id(mdev);
++
++	if (copy_to_user(argp, &device_id, sizeof(device_id)))
++		return -EFAULT;
++
++	return 0;
++}
++
++static long vhost_mdev_get_status(struct vhost_mdev *m, u8 __user *statusp)
++{
++	struct mdev_device *mdev = m->mdev;
++	const struct mdev_virtio_device_ops *ops = mdev_get_vhost_ops(mdev);
++	u8 status;
++
++	status = ops->get_status(mdev);
++
++	if (copy_to_user(statusp, &status, sizeof(status)))
++		return -EFAULT;
++
++	return 0;
++}
++
++static long vhost_mdev_set_status(struct vhost_mdev *m, u8 __user *statusp)
++{
++	struct mdev_device *mdev = m->mdev;
++	const struct mdev_virtio_device_ops *ops = mdev_get_vhost_ops(mdev);
++	u8 status;
++
++	if (copy_from_user(&status, statusp, sizeof(status)))
++		return -EFAULT;
++
++	/*
++	 * Userspace shouldn't remove status bits unless reset the
++	 * status to 0.
++	 */
++	if (status != 0 && (ops->get_status(mdev) & ~status) != 0)
++		return -EINVAL;
++
++	ops->set_status(mdev, status);
++
++	return 0;
++}
++
++static int vhost_mdev_config_validate(struct vhost_mdev *m,
++				      struct vhost_mdev_config *c)
++{
++	long size = 0;
++
++	switch (m->virtio_id) {
++	case VIRTIO_ID_NET:
++		size = sizeof(struct virtio_net_config);
++		break;
++	}
++
++	if (c->len == 0)
++		return -EINVAL;
++
++	if (c->off >= size || c->len > size || c->off + c->len > size)
++		return -E2BIG;
++
++	return 0;
++}
++
++static long vhost_mdev_get_config(struct vhost_mdev *m,
++				  struct vhost_mdev_config __user *c)
++{
++	struct mdev_device *mdev = m->mdev;
++	const struct mdev_virtio_device_ops *ops = mdev_get_vhost_ops(mdev);
++	struct vhost_mdev_config config;
++	unsigned long size = offsetof(struct vhost_mdev_config, buf);
++	u8 *buf;
++
++	if (copy_from_user(&config, c, size))
++		return -EFAULT;
++	if (vhost_mdev_config_validate(m, &config))
++		return -EINVAL;
++	buf = kvzalloc(config.len, GFP_KERNEL);
++	if (!buf)
++		return -ENOMEM;
++
++	ops->get_config(mdev, config.off, buf, config.len);
++
++	if (copy_to_user(c->buf, buf, config.len)) {
++		kvfree(buf);
++		return -EFAULT;
++	}
++
++	kvfree(buf);
++	return 0;
++}
++
++static long vhost_mdev_set_config(struct vhost_mdev *m,
++				  struct vhost_mdev_config __user *c)
++{
++	struct mdev_device *mdev = m->mdev;
++	const struct mdev_virtio_device_ops *ops = mdev_get_vhost_ops(mdev);
++	struct vhost_mdev_config config;
++	unsigned long size = offsetof(struct vhost_mdev_config, buf);
++	u8 *buf;
++
++	if (copy_from_user(&config, c, size))
++		return -EFAULT;
++	if (vhost_mdev_config_validate(m, &config))
++		return -EINVAL;
++	buf = kvzalloc(config.len, GFP_KERNEL);
++	if (!buf)
++		return -ENOMEM;
++
++	if (copy_from_user(buf, c->buf, config.len)) {
++		kvfree(buf);
++		return -EFAULT;
++	}
++
++	ops->set_config(mdev, config.off, buf, config.len);
++
++	kvfree(buf);
++	return 0;
++}
++
++static long vhost_mdev_get_features(struct vhost_mdev *m, u64 __user *featurep)
++{
++	struct mdev_device *mdev = m->mdev;
++	const struct mdev_virtio_device_ops *ops = mdev_get_vhost_ops(mdev);
++	u64 features;
++
++	features = ops->get_features(mdev);
++	features &= vhost_mdev_features[m->virtio_id];
++
++	if (copy_to_user(featurep, &features, sizeof(features)))
++		return -EFAULT;
++
++	return 0;
++}
++
++static long vhost_mdev_set_features(struct vhost_mdev *m, u64 __user *featurep)
++{
++	struct mdev_device *mdev = m->mdev;
++	const struct mdev_virtio_device_ops *ops = mdev_get_vhost_ops(mdev);
++	u64 features;
++
++	/*
++	 * It's not allowed to change the features after they have
++	 * been negotiated.
++	 */
++	if (ops->get_status(mdev) & VIRTIO_CONFIG_S_FEATURES_OK)
++		return -EBUSY;
++
++	if (copy_from_user(&features, featurep, sizeof(features)))
++		return -EFAULT;
++
++	if (features & ~vhost_mdev_features[m->virtio_id])
++		return -EINVAL;
++
++	if (ops->set_features(mdev, features))
++		return -EINVAL;
++
++	return 0;
++}
++
++static long vhost_mdev_get_vring_num(struct vhost_mdev *m, u16 __user *argp)
++{
++	struct mdev_device *mdev = m->mdev;
++	const struct mdev_virtio_device_ops *ops = mdev_get_vhost_ops(mdev);
++	u16 num;
++
++	num = ops->get_vq_num_max(mdev);
++
++	if (copy_to_user(argp, &num, sizeof(num)))
++		return -EFAULT;
++
++	return 0;
++}
++
++static long vhost_mdev_vring_ioctl(struct vhost_mdev *m, unsigned int cmd,
++				   void __user *argp)
++{
++	struct mdev_device *mdev = m->mdev;
++	const struct mdev_virtio_device_ops *ops = mdev_get_vhost_ops(mdev);
++	struct virtio_mdev_callback cb;
++	struct vhost_virtqueue *vq;
++	struct vhost_vring_state s;
++	u8 status;
++	u32 idx;
++	long r;
++
++	r = get_user(idx, (u32 __user *)argp);
++	if (r < 0)
++		return r;
++	if (idx >= m->nvqs)
++		return -ENOBUFS;
++
++	idx = array_index_nospec(idx, m->nvqs);
++	vq = &m->vqs[idx];
++
++	status = ops->get_status(mdev);
++
++	/*
++	 * It's not allowed to detect and program vqs before
++	 * features negotiation or after enabling driver.
++	 */
++	if (!(status & VIRTIO_CONFIG_S_FEATURES_OK) ||
++	    (status & VIRTIO_CONFIG_S_DRIVER_OK))
++		return -EBUSY;
++
++	if (cmd == VHOST_MDEV_SET_VRING_ENABLE) {
++		if (copy_from_user(&s, argp, sizeof(s)))
++			return -EFAULT;
++		ops->set_vq_ready(mdev, idx, s.num);
++		return 0;
++	}
++
++	/*
++	 * It's not allowed to detect and program vqs with
++	 * vqs enabled.
++	 */
++	if (ops->get_vq_ready(mdev, idx))
++		return -EBUSY;
++
++	if (cmd == VHOST_GET_VRING_BASE)
++		vq->last_avail_idx = ops->get_vq_state(m->mdev, idx);
++
++	r = vhost_vring_ioctl(&m->dev, cmd, argp);
++	if (r)
++		return r;
++
++	switch (cmd) {
++	case VHOST_SET_VRING_ADDR:
++		/*
++		 * In vhost-mdev, the ring addresses set by userspace should
++		 * be the DMA addresses within the VFIO container/group.
++		 */
++		if (ops->set_vq_address(mdev, idx, (u64)vq->desc,
++					(u64)vq->avail, (u64)vq->used))
++			r = -EINVAL;
++		break;
++
++	case VHOST_SET_VRING_BASE:
++		if (ops->set_vq_state(mdev, idx, vq->last_avail_idx))
++			r = -EINVAL;
++		break;
++
++	case VHOST_SET_VRING_CALL:
++		if (vq->call_ctx) {
++			cb.callback = vhost_mdev_virtqueue_cb;
++			cb.private = vq;
++		} else {
++			cb.callback = NULL;
++			cb.private = NULL;
++		}
++		ops->set_vq_cb(mdev, idx, &cb);
++		break;
++
++	case VHOST_SET_VRING_NUM:
++		ops->set_vq_num(mdev, idx, vq->num);
++		break;
++	}
++
++	return r;
++}
++
++static int vhost_mdev_open(void *device_data)
++{
++	struct vhost_mdev *m = device_data;
++	struct vhost_dev *dev;
++	struct vhost_virtqueue **vqs;
++	int nvqs, i, r;
++
++	if (!try_module_get(THIS_MODULE))
++		return -ENODEV;
++
++	mutex_lock(&m->mutex);
++
++	if (m->opened) {
++		r = -EBUSY;
++		goto err;
++	}
++
++	nvqs = m->nvqs;
++	vhost_mdev_reset(m);
++
++	vqs = kmalloc_array(nvqs, sizeof(*vqs), GFP_KERNEL);
++	if (!vqs) {
++		r = -ENOMEM;
++		goto err;
++	}
++
++	dev = &m->dev;
++	for (i = 0; i < nvqs; i++) {
++		vqs[i] = &m->vqs[i];
++		vqs[i]->handle_kick = handle_vq_kick;
++	}
++	vhost_dev_init(dev, vqs, nvqs, 0, 0, 0);
++	m->opened = true;
++	mutex_unlock(&m->mutex);
++
++	return 0;
++
++err:
++	mutex_unlock(&m->mutex);
++	module_put(THIS_MODULE);
++	return r;
++}
++
++static void vhost_mdev_release(void *device_data)
++{
++	struct vhost_mdev *m = device_data;
++
++	mutex_lock(&m->mutex);
++	vhost_mdev_reset(m);
++	vhost_dev_stop(&m->dev);
++	vhost_dev_cleanup(&m->dev);
++
++	kfree(m->dev.vqs);
++	m->opened = false;
++	mutex_unlock(&m->mutex);
++	module_put(THIS_MODULE);
++}
++
++static long vhost_mdev_unlocked_ioctl(void *device_data,
++				      unsigned int cmd, unsigned long arg)
++{
++	struct vhost_mdev *m = device_data;
++	void __user *argp = (void __user *)arg;
++	long r;
++
++	mutex_lock(&m->mutex);
++
++	switch (cmd) {
++	case VHOST_MDEV_GET_DEVICE_ID:
++		r = vhost_mdev_get_device_id(m, argp);
++		break;
++	case VHOST_MDEV_GET_STATUS:
++		r = vhost_mdev_get_status(m, argp);
++		break;
++	case VHOST_MDEV_SET_STATUS:
++		r = vhost_mdev_set_status(m, argp);
++		break;
++	case VHOST_MDEV_GET_CONFIG:
++		r = vhost_mdev_get_config(m, argp);
++		break;
++	case VHOST_MDEV_SET_CONFIG:
++		r = vhost_mdev_set_config(m, argp);
++		break;
++	case VHOST_GET_FEATURES:
++		r = vhost_mdev_get_features(m, argp);
++		break;
++	case VHOST_SET_FEATURES:
++		r = vhost_mdev_set_features(m, argp);
++		break;
++	case VHOST_MDEV_GET_VRING_NUM:
++		r = vhost_mdev_get_vring_num(m, argp);
++		break;
++	default:
++		/*
++		 * VHOST_SET_MEM_TABLE, VHOST_SET_LOG_BASE, and
++		 * VHOST_SET_LOG_FD are not used yet.
++		 */
++		r = vhost_dev_ioctl(&m->dev, cmd, argp);
++		if (r == -ENOIOCTLCMD)
++			r = vhost_mdev_vring_ioctl(m, cmd, argp);
++	}
++
++	mutex_unlock(&m->mutex);
++	return r;
++}
++
++static const struct vfio_device_ops vfio_vhost_mdev_dev_ops = {
++	.name		= "vfio-vhost-mdev",
++	.open		= vhost_mdev_open,
++	.release	= vhost_mdev_release,
++	.ioctl		= vhost_mdev_unlocked_ioctl,
++};
++
++static int vhost_mdev_probe(struct device *dev)
++{
++	struct mdev_device *mdev = mdev_from_dev(dev);
++	const struct mdev_virtio_device_ops *ops = mdev_get_vhost_ops(mdev);
++	struct vhost_mdev *m;
++	int nvqs, r;
++
++	/* Currently, we only accept the network devices. */
++	if (ops->get_device_id(mdev) != VIRTIO_ID_NET)
++		return -ENOTSUPP;
++
++	m = devm_kzalloc(dev, sizeof(*m), GFP_KERNEL | __GFP_RETRY_MAYFAIL);
++	if (!m)
++		return -ENOMEM;
++
++	nvqs = VHOST_MDEV_VQ_MAX;
++
++	m->vqs = devm_kmalloc_array(dev, nvqs, sizeof(struct vhost_virtqueue),
++				    GFP_KERNEL);
++	if (!m->vqs)
++		return -ENOMEM;
++
++	mutex_init(&m->mutex);
++
++	m->mdev = mdev;
++	m->nvqs = nvqs;
++	m->virtio_id = ops->get_device_id(mdev);
++
++	r = vfio_add_group_dev(dev, &vfio_vhost_mdev_dev_ops, m);
++	if (r) {
++		mutex_destroy(&m->mutex);
++		return r;
++	}
++
++	return 0;
++}
++
++static void vhost_mdev_remove(struct device *dev)
++{
++	struct vhost_mdev *m;
++
++	m = vfio_del_group_dev(dev);
++	mutex_destroy(&m->mutex);
++}
++
++static const struct mdev_class_id vhost_mdev_match[] = {
++	{ MDEV_CLASS_ID_VHOST },
++	{ 0 },
++};
++MODULE_DEVICE_TABLE(mdev, vhost_mdev_match);
++
++static struct mdev_driver vhost_mdev_driver = {
++	.name	= "vhost_mdev",
++	.probe	= vhost_mdev_probe,
++	.remove	= vhost_mdev_remove,
++	.id_table = vhost_mdev_match,
++};
++
++static int __init vhost_mdev_init(void)
++{
++	return mdev_register_driver(&vhost_mdev_driver, THIS_MODULE);
++}
++module_init(vhost_mdev_init);
++
++static void __exit vhost_mdev_exit(void)
++{
++	mdev_unregister_driver(&vhost_mdev_driver);
++}
++module_exit(vhost_mdev_exit);
++
++MODULE_VERSION("0.0.1");
++MODULE_LICENSE("GPL v2");
++MODULE_AUTHOR("Intel Corporation");
++MODULE_DESCRIPTION("Mediated device based accelerator for virtio");
+diff --git a/include/linux/mdev.h b/include/linux/mdev.h
+index f3d75a60c2b5..8af7fb9e0149 100644
+--- a/include/linux/mdev.h
++++ b/include/linux/mdev.h
+@@ -117,6 +117,10 @@ void mdev_set_virtio_ops(struct mdev_device *mdev,
+ 			 const struct mdev_virtio_device_ops *virtio_ops);
+ const struct mdev_virtio_device_ops *
+ mdev_get_virtio_ops(struct mdev_device *mdev);
++void mdev_set_vhost_ops(struct mdev_device *mdev,
++			const struct mdev_virtio_device_ops *vhost_ops);
++const struct mdev_virtio_device_ops *
++mdev_get_vhost_ops(struct mdev_device *mdev);
+ 
+ extern struct bus_type mdev_bus_type;
+ 
+@@ -133,6 +137,7 @@ struct mdev_device *mdev_from_dev(struct device *dev);
+ enum {
+ 	MDEV_CLASS_ID_VFIO = 1,
+ 	MDEV_CLASS_ID_VIRTIO = 2,
++	MDEV_CLASS_ID_VHOST = 3,
+ 	/* New entries must be added here */
+ };
+ 
+diff --git a/include/uapi/linux/vhost.h b/include/uapi/linux/vhost.h
+index 40d028eed645..061a2824a1b3 100644
+--- a/include/uapi/linux/vhost.h
++++ b/include/uapi/linux/vhost.h
+@@ -116,4 +116,22 @@
+ #define VHOST_VSOCK_SET_GUEST_CID	_IOW(VHOST_VIRTIO, 0x60, __u64)
+ #define VHOST_VSOCK_SET_RUNNING		_IOW(VHOST_VIRTIO, 0x61, int)
+ 
++/* VHOST_MDEV specific defines */
++
++/* Get the device id. The device ids follow the same definition of
++ * the device id defined in virtio-spec. */
++#define VHOST_MDEV_GET_DEVICE_ID	_IOR(VHOST_VIRTIO, 0x70, __u32)
++/* Get and set the status. The status bits follow the same definition
++ * of the device status defined in virtio-spec. */
++#define VHOST_MDEV_GET_STATUS		_IOR(VHOST_VIRTIO, 0x71, __u8)
++#define VHOST_MDEV_SET_STATUS		_IOW(VHOST_VIRTIO, 0x72, __u8)
++/* Get and set the device config. The device config follows the same
++ * definition of the device config defined in virtio-spec. */
++#define VHOST_MDEV_GET_CONFIG		_IOR(VHOST_VIRTIO, 0x73, struct vhost_mdev_config)
++#define VHOST_MDEV_SET_CONFIG		_IOW(VHOST_VIRTIO, 0x74, struct vhost_mdev_config)
++/* Enable/disable the ring. */
++#define VHOST_MDEV_SET_VRING_ENABLE	_IOW(VHOST_VIRTIO, 0x75, struct vhost_vring_state)
++/* Get the max ring size. */
++#define VHOST_MDEV_GET_VRING_NUM	_IOR(VHOST_VIRTIO, 0x76, __u16)
++
+ #endif
+diff --git a/include/uapi/linux/vhost_types.h b/include/uapi/linux/vhost_types.h
+index c907290ff065..7b105d0b2fb9 100644
+--- a/include/uapi/linux/vhost_types.h
++++ b/include/uapi/linux/vhost_types.h
+@@ -119,6 +119,14 @@ struct vhost_scsi_target {
+ 	unsigned short reserved;
+ };
+ 
++/* VHOST_MDEV specific definitions */
++
++struct vhost_mdev_config {
++	__u32 off;
++	__u32 len;
++	__u8 buf[0];
++};
++
+ /* Feature bits */
+ /* Log all write descriptors. Can be changed while device is active. */
+ #define VHOST_F_LOG_ALL 26
+-- 
+2.23.0
