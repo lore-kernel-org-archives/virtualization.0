@@ -1,14 +1,14 @@
 From: Jason Wang <jasowang@redhat.com>
-Subject: Re: [PATCH 1/2] IFC hardware operation layer
-Date: Wed, 6 Nov 2019 05:09:44 -0500 (EST)
-Message-ID: <485376113.12775534.1573034984498.JavaMail.zimbra__22551.4311737911$1573035006$gmane$org@redhat.com>
+Subject: Re: [PATCH 2/2] IFC VDPA layer
+Date: Wed, 6 Nov 2019 05:39:52 -0500 (EST)
+Message-ID: <567342941.12778452.1573036792388.JavaMail.zimbra__6905.99601236812$1573036815$gmane$org@redhat.com>
 References: <1572946660-26265-1-git-send-email-lingshan.zhu@intel.com>
-	<1572946660-26265-2-git-send-email-lingshan.zhu@intel.com>
+	<1572946660-26265-3-git-send-email-lingshan.zhu@intel.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="utf-8"
-Content-Transfer-Encoding: base64
+Content-Type: text/plain; charset="us-ascii"
+Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <1572946660-26265-2-git-send-email-lingshan.zhu@intel.com>
+In-Reply-To: <1572946660-26265-3-git-send-email-lingshan.zhu@intel.com>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -22,277 +22,691 @@ To: Zhu Lingshan <lingshan.zhu@intel.com>
 Cc: kvm@vger.kernel.org, mst@redhat.com, netdev@vger.kernel.org, linux-kernel@vger.kernel.org, virtualization@lists.linux-foundation.org, jason zeng <jason.zeng@intel.com>
 List-Id: virtualization@lists.linuxfoundation.org
 
-T24gMjAxOS8xMS81IOS4i+WNiDU6MzcsIFpodSBMaW5nc2hhbiB3cm90ZToKPiBUaGlzIGNvbW1p
-dCBpbnRyb2R1Y2VkIGlmY3ZmX2Jhc2UgbGF5ZXIsIHdoaWNoIGhhbmRsZXMgaGFyZHdhcmUKPiBv
-cGVyYXRpb25zIGFuZCBjb25maWd1cmF0aW9ucy4KCkl0IGxvb2tzIGxpa2UgdGhlIFBDSSBsYXlv
-dXQgaXMgcHJldHR5IHNpbWlsYXIgdG8gdmlydGlvLiBDYW4gd2UgcmV1c2UKZS5nIHZpcnRpb19w
-Y2lfbW9kZXJuX3Byb2JlKCkgKG9yIGhlbHBlcnMgaW4gdmlydGlvX3BjaV9tb2Rlcm4uYykgdG8K
-ZG8gdGhlIHByb2Jpbmc/Cgo+Cj4gU2lnbmVkLW9mZi1ieTogWmh1IExpbmdzaGFuIDxsaW5nc2hh
-bi56aHVAaW50ZWwuY29tPgo+IC0tLQo+ICBkcml2ZXJzL3Zob3N0L2lmY3ZmL2lmY3ZmX2Jhc2Uu
-YyB8IDM0NCArKysrKysrKysrKysrKysrKysrKysrKysrKysrKysrKysrKysrKysKPiAgZHJpdmVy
-cy92aG9zdC9pZmN2Zi9pZmN2Zl9iYXNlLmggfCAxMzIgKysrKysrKysrKysrKysrCj4gIDIgZmls
-ZXMgY2hhbmdlZCwgNDc2IGluc2VydGlvbnMoKykKPiAgY3JlYXRlIG1vZGUgMTAwNjQ0IGRyaXZl
-cnMvdmhvc3QvaWZjdmYvaWZjdmZfYmFzZS5jCj4gIGNyZWF0ZSBtb2RlIDEwMDY0NCBkcml2ZXJz
-L3Zob3N0L2lmY3ZmL2lmY3ZmX2Jhc2UuaAo+Cj4gZGlmZiAtLWdpdCBhL2RyaXZlcnMvdmhvc3Qv
-aWZjdmYvaWZjdmZfYmFzZS5jIGIvZHJpdmVycy92aG9zdC9pZmN2Zi9pZmN2Zl9iYXNlLmMKPiBu
-ZXcgZmlsZSBtb2RlIDEwMDY0NAo+IGluZGV4IDAwMDAwMDAuLjA2NTlmNDEKPiAtLS0gL2Rldi9u
-dWxsCj4gKysrIGIvZHJpdmVycy92aG9zdC9pZmN2Zi9pZmN2Zl9iYXNlLmMKPiBAQCAtMCwwICsx
-LDM0NCBAQAo+ICsvLyBTUERYLUxpY2Vuc2UtSWRlbnRpZmllcjogR1BMLTIuMC1vbmx5Cj4gKy8q
-Cj4gKyAqIENvcHlyaWdodCAoQykgMjAxOSBJbnRlbCBDb3Jwb3JhdGlvbi4KPiArICovCj4gKwo+
-ICsjaW5jbHVkZSAiaWZjdmZfYmFzZS5oIgo+ICsKPiArc3RhdGljIHZvaWQgKmdldF9jYXBfYWRk
-cihzdHJ1Y3QgaWZjdmZfaHcgKmh3LCBzdHJ1Y3QgdmlydGlvX3BjaV9jYXAgKmNhcCkKPiArewo+
-ICsJc3RydWN0IGlmY3ZmX2FkYXB0ZXIgKmlmY3ZmOwo+ICsJdTMyIGxlbmd0aCwgb2Zmc2V0Owo+
-ICsJdTggYmFyOwo+ICsKPiArCWxlbmd0aCA9IGxlMzJfdG9fY3B1KGNhcC0+bGVuZ3RoKTsKPiAr
-CW9mZnNldCA9IGxlMzJfdG9fY3B1KGNhcC0+b2Zmc2V0KTsKPiArCWJhciA9IGxlMzJfdG9fY3B1
-KGNhcC0+YmFyKTsKPiArCj4gKwlpZmN2ZiA9IGNvbnRhaW5lcl9vZihodywgc3RydWN0IGlmY3Zm
-X2FkYXB0ZXIsIHZmKTsKPiArCj4gKwlpZiAoYmFyID49IElGQ1ZGX1BDSV9NQVhfUkVTT1VSQ0Up
-IHsKPiArCQlJRkNfREJHKGlmY3ZmLT5kZXYsCj4gKwkJCSJJbnZhbGlkIGJhciBudW1iZXIgJXUg
-dG8gZ2V0IGNhcGFiaWxpdGllcy5cbiIsIGJhcik7Cj4gKwkJcmV0dXJuIE5VTEw7Cj4gKwl9Cj4g
-Kwo+ICsJaWYgKG9mZnNldCArIGxlbmd0aCA8IG9mZnNldCkgewoKQ2FuIHRoaXMgcmVhbGx5IGhh
-cHBlbj8gQm90aCBvZmZzZXQgYW5kIGxlbmd0aCBhcmUgdTMyLgoKPiArCQlJRkNfREJHKGlmY3Zm
-LT5kZXYsICJvZmZzZXQoJXUpICsgbGVuZ3RoKCV1KSBvdmVyZmxvd3NcbiIsCj4gKwkJCW9mZnNl
-dCwgbGVuZ3RoKTsKPiArCQlyZXR1cm4gTlVMTDsKPiArCX0KPiArCj4gKwlpZiAob2Zmc2V0ICsg
-bGVuZ3RoID4gaHctPm1lbV9yZXNvdXJjZVtjYXAtPmJhcl0ubGVuKSB7Cj4gKwkJSUZDX0RCRyhp
-ZmN2Zi0+ZGV2LAo+ICsJCQkib2Zmc2V0KCV1KSArIGxlbigldSkgb3ZlcmZsb3dzIGJhciV1IHRv
-IGdldCBjYXBhYmlsaXRpZXMuXG4iLAo+ICsJCQlvZmZzZXQsIGxlbmd0aCwgYmFyKTsKPiArCQly
-ZXR1cm4gTlVMTDsKPiArCX0KPiArCj4gKwlyZXR1cm4gaHctPm1lbV9yZXNvdXJjZVtiYXJdLmFk
-ZHIgKyBvZmZzZXQ7CgpJIGRvbid0IHNlZSB0aGUgaW5pdGlhbGl6YXRpb24gb2YgbWVtX3Jlc291
-cmNlIGluIHRoZSBwYXRjaCwgSSB3b25kZXIKd2hldGhlciBpdCdzIGJldHRlciB0byBzcXVhc2gg
-dGhpcyBwYXRjaCBqdXN0IGludG8gcGF0Y2ggMi4KCj4gK30KPiArCj4gK2ludCBpZmN2Zl9yZWFk
-X2NvbmZpZ19yYW5nZShzdHJ1Y3QgcGNpX2RldiAqZGV2LAo+ICsJCQl1aW50MzJfdCAqdmFsLCBp
-bnQgc2l6ZSwgaW50IHdoZXJlKQo+ICt7Cj4gKwlpbnQgcmV0LCBpOwo+ICsKPiArCWZvciAoaSA9
-IDA7IGkgPCBzaXplOyBpICs9IDQpIHsKPiArCQlyZXQgPSBwY2lfcmVhZF9jb25maWdfZHdvcmQo
-ZGV2LCB3aGVyZSArIGksIHZhbCArIGkgLyA0KTsKPiArCQlpZiAocmV0IDwgMCkKPiArCQkJcmV0
-dXJuIHJldDsKPiArCX0KPiArCj4gKwlyZXR1cm4gMDsKPiArfQo+ICsKPiAraW50IGlmY3ZmX2lu
-aXRfaHcoc3RydWN0IGlmY3ZmX2h3ICpodywgc3RydWN0IHBjaV9kZXYgKmRldikKPiArewo+ICsJ
-c3RydWN0IHZpcnRpb19wY2lfY2FwIGNhcDsKPiArCXUxNiBub3RpZnlfb2ZmOwo+ICsJaW50IHJl
-dDsKPiArCXU4IHBvczsKPiArCXUzMiBpOwo+ICsKPiArCXJldCA9IHBjaV9yZWFkX2NvbmZpZ19i
-eXRlKGRldiwgUENJX0NBUEFCSUxJVFlfTElTVCwgJnBvcyk7Cj4gKwo+ICsJaWYgKHJldCA8IDAp
-IHsKPiArCQlJRkNfRVJSKCZkZXYtPmRldiwgIkZhaWxlZCB0byByZWFkIFBDSSBjYXBhYmlsaXR5
-IGxpc3QuXG4iKTsKPiArCQlyZXR1cm4gLUVJTzsKPiArCX0KPiArCj4gKwl3aGlsZSAocG9zKSB7
-Cj4gKwkJcmV0ID0gaWZjdmZfcmVhZF9jb25maWdfcmFuZ2UoZGV2LCAodTMyICopJmNhcCwKPiAr
-CQkJCQkgICAgICBzaXplb2YoY2FwKSwgcG9zKTsKPiArCj4gKwkJaWYgKHJldCA8IDApIHsKPiAr
-CQkJSUZDX0VSUigmZGV2LT5kZXYsICJGYWlsZWQgdG8gZ2V0IFBDSSBjYXBhYmlsaXR5IGF0ICV4
-IiwKPiArCQkJCXBvcyk7Cj4gKwkJCWJyZWFrOwo+ICsJCX0KPiArCj4gKwkJaWYgKGNhcC5jYXBf
-dm5kciAhPSBQQ0lfQ0FQX0lEX1ZORFIpCj4gKwkJCWdvdG8gbmV4dDsKPiArCj4gKwkJSUZDX0RC
-RygmZGV2LT5kZXYsICJyZWFkIFBDSSBjb25maWc6IGNvbmZpZyB0eXBlOiAldSwgUENJIGJhcjog
-JXUsXAo+ICsJCQkgUENJIGJhciBvZmZzZXQ6ICV1LCBQQ0kgY29uZmlnIGxlbjogJXUuXG4iLAo+
-ICsJCQljYXAuY2ZnX3R5cGUsIGNhcC5iYXIsIGNhcC5vZmZzZXQsIGNhcC5sZW5ndGgpOwo+ICsK
-PiArCQlzd2l0Y2ggKGNhcC5jZmdfdHlwZSkgewo+ICsJCWNhc2UgVklSVElPX1BDSV9DQVBfQ09N
-TU9OX0NGRzoKPiArCQkJaHctPmNvbW1vbl9jZmcgPSBnZXRfY2FwX2FkZHIoaHcsICZjYXApOwo+
-ICsJCQlJRkNfSU5GTygmZGV2LT5kZXYsICJody0+Y29tbW9uX2NmZyA9ICVwLlxuIiwKPiArCQkJ
-CSBody0+Y29tbW9uX2NmZyk7Cj4gKwkJCWJyZWFrOwo+ICsJCWNhc2UgVklSVElPX1BDSV9DQVBf
-Tk9USUZZX0NGRzoKPiArCQkJcGNpX3JlYWRfY29uZmlnX2R3b3JkKGRldiwgcG9zICsgc2l6ZW9m
-KGNhcCksCj4gKwkJCQkJICAgICAgJmh3LT5ub3RpZnlfb2ZmX211bHRpcGxpZXIpOwo+ICsJCQlo
-dy0+bm90aWZ5X2JhciA9IGNhcC5iYXI7Cj4gKwkJCWh3LT5ub3RpZnlfYmFzZSA9IGdldF9jYXBf
-YWRkcihodywgJmNhcCk7Cj4gKwkJCUlGQ19JTkZPKCZkZXYtPmRldiwgImh3LT5ub3RpZnlfYmFz
-ZSA9ICVwLlxuIiwKPiArCQkJCSBody0+bm90aWZ5X2Jhc2UpOwo+ICsJCQlicmVhazsKPiArCQlj
-YXNlIFZJUlRJT19QQ0lfQ0FQX0lTUl9DRkc6Cj4gKwkJCWh3LT5pc3IgPSBnZXRfY2FwX2FkZHIo
-aHcsICZjYXApOwo+ICsJCQlJRkNfSU5GTygmZGV2LT5kZXYsICJody0+aXNyID0gJXAuXG4iLCBo
-dy0+aXNyKTsKPiArCQkJYnJlYWs7Cj4gKwkJY2FzZSBWSVJUSU9fUENJX0NBUF9ERVZJQ0VfQ0ZH
-Ogo+ICsJCQlody0+bmV0X2NmZyA9IGdldF9jYXBfYWRkcihodywgJmNhcCk7Cj4gKwkJCUlGQ19J
-TkZPKCZkZXYtPmRldiwgImh3LT5uZXRfY2ZnID0gJXAuXG4iLCBody0+bmV0X2NmZyk7Cj4gKwkJ
-CWJyZWFrOwoKSSB0aGluayBhdCBsZWFzdCB5b3UgY2FuIHRyeSB0byByZXVzZSBlLmc6CnZpcnRp
-b19wY2lfZmluZF9jYXBhYmlsaXR5KCkgdG8gYW92aWQgZHVwbGljYXRpbmcgY29kZXMuCgo+ICsJ
-CX0KPiArbmV4dDoKPiArCQlwb3MgPSBjYXAuY2FwX25leHQ7Cj4gKwl9Cj4gKwo+ICsJaWYgKGh3
-LT5jb21tb25fY2ZnID09IE5VTEwgfHwgaHctPm5vdGlmeV9iYXNlID09IE5VTEwgfHwKPiArCSAg
-ICBody0+aXNyID09IE5VTEwgfHwgaHctPm5ldF9jZmcgPT0gTlVMTCkgewo+ICsJCUlGQ19EQkco
-JmRldi0+ZGV2LCAiSW5jb21wbGV0ZSBQQ0kgY2FwYWJpbGl0aWVzLlxuIik7Cj4gKwkJcmV0dXJu
-IC0xOwoKTWF5YmUgaXQncyBiZXR0ZXIgdG8gZmFpbCBlYWlsaWVyLgoKPiArCX0KPiArCj4gKwlm
-b3IgKGkgPSAwOyBpIDwgSUZDVkZfTUFYX1FVRVVFX1BBSVJTICogMjsgaSsrKSB7Cj4gKwkJaW93
-cml0ZTE2KGksICZody0+Y29tbW9uX2NmZy0+cXVldWVfc2VsZWN0KTsKPiArCQlub3RpZnlfb2Zm
-ID0gaW9yZWFkMTYoJmh3LT5jb21tb25fY2ZnLT5xdWV1ZV9ub3RpZnlfb2ZmKTsKPiArCQlody0+
-bm90aWZ5X2FkZHJbaV0gPSAodm9pZCAqKSgodTggKilody0+bm90aWZ5X2Jhc2UgKwo+ICsJCQkJ
-ICAgICBub3RpZnlfb2ZmICogaHctPm5vdGlmeV9vZmZfbXVsdGlwbGllcik7CgpJdCBtaWdodCBi
-ZSBiZXR0ZXIgdG8gc3RvcmUgbm90aWZ5X2FkZHIgaW5zaWRlIHRoZSB2cmluZ19pbmZvIGZvcgpi
-ZXR0ZXIgbG9jYWxpdHkuCgo+ICsJfQo+ICsKPiArCWh3LT5sbV9jZmcgPSBody0+bWVtX3Jlc291
-cmNlW0lGQ1ZGX0xNX0JBUl0uYWRkcjsKPiArCj4gKwlJRkNfREJHKCZkZXYtPmRldiwgIlBDSSBj
-YXBhYmlsaXR5IG1hcHBpbmc6IGNvbW1vbiBjZmc6ICVwLFwKPiArCQlub3RpZnkgYmFzZTogJXBc
-biwgaXNyIGNmZzogJXAsIGRldmljZSBjZmc6ICVwLFwKPiArCQltdWx0aXBsaWVyOiAldVxuIiwK
-PiArCQlody0+Y29tbW9uX2NmZywgaHctPm5vdGlmeV9iYXNlLCBody0+aXNyLAo+ICsJCWh3LT5u
-ZXRfY2ZnLCBody0+bm90aWZ5X29mZl9tdWx0aXBsaWVyKTsKPiArCj4gKwlyZXR1cm4gMDsKPiAr
-fQo+ICsKPiArdTggaWZjdmZfZ2V0X3N0YXR1cyhzdHJ1Y3QgaWZjdmZfaHcgKmh3KQo+ICt7Cj4g
-Kwl1OCBvbGRfZ2VuLCBuZXdfZ2VuLCBzdGF0dXM7Cj4gKwo+ICsJZG8gewo+ICsJCW9sZF9nZW4g
-PSBpb3JlYWQ4KCZody0+Y29tbW9uX2NmZy0+Y29uZmlnX2dlbmVyYXRpb24pOwo+ICsJCXN0YXR1
-cyA9IGlvcmVhZDgoJmh3LT5jb21tb25fY2ZnLT5kZXZpY2Vfc3RhdHVzKTsKPiArCQluZXdfZ2Vu
-ID0gaW9yZWFkOCgmaHctPmNvbW1vbl9jZmctPmNvbmZpZ19nZW5lcmF0aW9uKTsKCmNvbmZpZyBn
-ZW5lcmF0aW9uIHNob3VsZCBiZSBvbmx5IHVzZWQgZm9yIGNvbmZpZyBhY2Nlc3Mgbm90IHN0YXR1
-cywKYW5kIGV2ZW4gaXQgZGlkLCBpdCBzaG91bGQgYmUgY2FsbGVkIGZyb20gdmlydGlvIGNvcmUu
-Cgo+ICsJfSB3aGlsZSAob2xkX2dlbiAhPSBuZXdfZ2VuKTsKPiArCj4gKwlyZXR1cm4gc3RhdHVz
-Owo+ICt9Cj4gKwo+ICt2b2lkIGlmY3ZmX3NldF9zdGF0dXMoc3RydWN0IGlmY3ZmX2h3ICpodywg
-dTggc3RhdHVzKQo+ICt7Cj4gKwlpb3dyaXRlOChzdGF0dXMsICZody0+Y29tbW9uX2NmZy0+ZGV2
-aWNlX3N0YXR1cyk7Cj4gK30KPiArCj4gK3ZvaWQgaWZjdmZfcmVzZXQoc3RydWN0IGlmY3ZmX2h3
-ICpodykKPiArewo+ICsJaWZjdmZfc2V0X3N0YXR1cyhodywgMCk7Cj4gKwlpZmN2Zl9nZXRfc3Rh
-dHVzKGh3KTsKPiArfQo+ICsKPiArc3RhdGljIHZvaWQgaWZjdmZfYWRkX3N0YXR1cyhzdHJ1Y3Qg
-aWZjdmZfaHcgKmh3LCB1OCBzdGF0dXMpCj4gK3sKPiArCWlmIChzdGF0dXMgIT0gMCkKPiArCQlz
-dGF0dXMgfD0gaWZjdmZfZ2V0X3N0YXR1cyhodyk7Cj4gKwo+ICsJaWZjdmZfc2V0X3N0YXR1cyho
-dywgc3RhdHVzKTsKPiArCWlmY3ZmX2dldF9zdGF0dXMoaHcpOwo+ICt9Cj4gKwo+ICt1NjQgaWZj
-dmZfZ2V0X2ZlYXR1cmVzKHN0cnVjdCBpZmN2Zl9odyAqaHcpCj4gK3sKPiArCXN0cnVjdCB2aXJ0
-aW9fcGNpX2NvbW1vbl9jZmcgKmNmZyA9IGh3LT5jb21tb25fY2ZnOwo+ICsJdTMyIGZlYXR1cmVz
-X2xvLCBmZWF0dXJlc19oaTsKPiArCj4gKwlpb3dyaXRlMzIoMCwgJmNmZy0+ZGV2aWNlX2ZlYXR1
-cmVfc2VsZWN0KTsKPiArCWZlYXR1cmVzX2xvID0gaW9yZWFkMzIoJmNmZy0+ZGV2aWNlX2ZlYXR1
-cmUpOwo+ICsKPiArCWlvd3JpdGUzMigxLCAmY2ZnLT5kZXZpY2VfZmVhdHVyZV9zZWxlY3QpOwo+
-ICsJZmVhdHVyZXNfaGkgPSBpb3JlYWQzMigmY2ZnLT5kZXZpY2VfZmVhdHVyZSk7Cj4gKwo+ICsJ
-cmV0dXJuICgodTY0KWZlYXR1cmVzX2hpIDw8IDMyKSB8IGZlYXR1cmVzX2xvOwo+ICt9Cj4gKwo+
-ICt2b2lkIGlmY3ZmX3JlYWRfbmV0X2NvbmZpZyhzdHJ1Y3QgaWZjdmZfaHcgKmh3LCB1NjQgb2Zm
-c2V0LAo+ICsJCSAgICAgICB2b2lkICpkc3QsIGludCBsZW5ndGgpCj4gK3sKPiArCXU4IG9sZF9n
-ZW4sIG5ld19nZW4sICpwOwo+ICsJaW50IGk7Cj4gKwo+ICsJV0FSTl9PTihvZmZzZXQgKyBsZW5n
-dGggPiBzaXplb2YgKHN0cnVjdCBpZmN2Zl9uZXRfY29uZmlnKSk7Cj4gKwo+ICsJZG8gewo+ICsJ
-CW9sZF9nZW4gPSBpb3JlYWQ4KCZody0+Y29tbW9uX2NmZy0+Y29uZmlnX2dlbmVyYXRpb24pOwoK
-U2FtZSBoZXJlLCB2aXJ0aW8gY29yZSBoYXMgZGlkIHRoZSBjYWxsIGZvciBnZW5lcmF0aW9uLCBz
-byBubyBuZWVkIGRvCmRvIGl0IGFnYWluIGhlcmUuCgo+ICsJCXAgPSBkc3Q7Cj4gKwo+ICsJCWZv
-ciAoaSA9IDA7IGkgPCBsZW5ndGg7IGkrKykKPiArCQkJKnArKyA9IGlvcmVhZDgoKHU4ICopaHct
-Pm5ldF9jZmcgKyBvZmZzZXQgKyBpKTsKPiArCj4gKwkJbmV3X2dlbiA9IGlvcmVhZDgoJmh3LT5j
-b21tb25fY2ZnLT5jb25maWdfZ2VuZXJhdGlvbik7Cj4gKwl9IHdoaWxlIChvbGRfZ2VuICE9IG5l
-d19nZW4pOwo+ICt9Cj4gKwo+ICt2b2lkIGlmY3ZmX3dyaXRlX25ldF9jb25maWcoc3RydWN0IGlm
-Y3ZmX2h3ICpodywgdTY0IG9mZnNldCwKPiArCQkJICAgIGNvbnN0IHZvaWQgKnNyYywgaW50IGxl
-bmd0aCkKPiArewo+ICsJY29uc3QgdTggKnA7Cj4gKwlpbnQgaTsKPiArCj4gKwlwID0gc3JjOwo+
-ICsJV0FSTl9PTihvZmZzZXQgKyBsZW5ndGggPiBzaXplb2YgKHN0cnVjdCBpZmN2Zl9uZXRfY29u
-ZmlnKSk7Cj4gKwo+ICsJZm9yIChpID0gMDsgaSA8IGxlbmd0aDsgaSsrKQo+ICsJCWlvd3JpdGU4
-KCpwKyssICh1OCAqKWh3LT5uZXRfY2ZnICsgb2Zmc2V0ICsgaSk7Cj4gK30KPiArCj4gK3N0YXRp
-YyB2b2lkIGlmY3ZmX3NldF9mZWF0dXJlcyhzdHJ1Y3QgaWZjdmZfaHcgKmh3LCB1NjQgZmVhdHVy
-ZXMpCj4gK3sKPiArCXN0cnVjdCB2aXJ0aW9fcGNpX2NvbW1vbl9jZmcgKmNmZyA9IGh3LT5jb21t
-b25fY2ZnOwo+ICsKPiArCWlvd3JpdGUzMigwLCAmY2ZnLT5ndWVzdF9mZWF0dXJlX3NlbGVjdCk7
-Cj4gKwlpb3dyaXRlMzIoZmVhdHVyZXMgJiAoKDFVTEwgPDwgMzIpIC0gMSksICZjZmctPmd1ZXN0
-X2ZlYXR1cmUpOwoKKHUzMilmZWF0dXJlcyA/Cgo+ICsKPiArCWlvd3JpdGUzMigxLCAmY2ZnLT5n
-dWVzdF9mZWF0dXJlX3NlbGVjdCk7Cj4gKwlpb3dyaXRlMzIoZmVhdHVyZXMgPj4gMzIsICZjZmct
-Pmd1ZXN0X2ZlYXR1cmUpOwo+ICt9Cj4gKwo+ICtzdGF0aWMgaW50IGlmY3ZmX2NvbmZpZ19mZWF0
-dXJlcyhzdHJ1Y3QgaWZjdmZfaHcgKmh3KQo+ICt7Cj4gKwlzdHJ1Y3QgaWZjdmZfYWRhcHRlciAq
-aWZjdmY7Cj4gKwo+ICsJaWZjdmYgPQljb250YWluZXJfb2YoaHcsIHN0cnVjdCBpZmN2Zl9hZGFw
-dGVyLCB2Zik7Cj4gKwlpZmN2Zl9zZXRfZmVhdHVyZXMoaHcsIGh3LT5yZXFfZmVhdHVyZXMpOwo+
-ICsJaWZjdmZfYWRkX3N0YXR1cyhodywgVklSVElPX0NPTkZJR19TX0ZFQVRVUkVTX09LKTsKPiAr
-Cj4gKwlpZiAoIShpZmN2Zl9nZXRfc3RhdHVzKGh3KSAmIFZJUlRJT19DT05GSUdfU19GRUFUVVJF
-U19PSykpIHsKPiArCQlJRkNfRVJSKGlmY3ZmLT5kZXYsICJGYWlsZWQgdG8gc2V0IEZFQVRVUkVT
-X09LIHN0YXR1c1xuIik7Cj4gKwkJcmV0dXJuIC1FSU87Cj4gKwl9Cj4gKwo+ICsJcmV0dXJuIDA7
-Cj4gK30KPiArCj4gK3ZvaWQgaW9fd3JpdGU2NF90d29wYXJ0KHU2NCB2YWwsIHUzMiAqbG8sIHUz
-MiAqaGkpCj4gK3sKPiArCWlvd3JpdGUzMih2YWwgJiAoKDFVTEwgPDwgMzIpIC0gMSksIGxvKTsK
-PiArCWlvd3JpdGUzMih2YWwgPj4gMzIsIGhpKTsKPiArfQo+ICsKPiArc3RhdGljIGludCBpZmN2
-Zl9od19lbmFibGUoc3RydWN0IGlmY3ZmX2h3ICpodykKPiArewo+ICsJc3RydWN0IHZpcnRpb19w
-Y2lfY29tbW9uX2NmZyAqY2ZnOwo+ICsJc3RydWN0IGlmY3ZmX2FkYXB0ZXIgKmlmY3ZmOwo+ICsJ
-dTggKmxtX2NmZzsKPiArCXUzMiBpOwo+ICsKPiArCWlmY3ZmID0gY29udGFpbmVyX29mKGh3LCBz
-dHJ1Y3QgaWZjdmZfYWRhcHRlciwgdmYpOwo+ICsJY2ZnID0gaHctPmNvbW1vbl9jZmc7Cj4gKwls
-bV9jZmcgPSBody0+bG1fY2ZnOwo+ICsJaW93cml0ZTE2KElGQ1ZGX01TSV9DT05GSUdfT0ZGLCAm
-Y2ZnLT5tc2l4X2NvbmZpZyk7Cj4gKwo+ICsJaWYgKGlvcmVhZDE2KCZjZmctPm1zaXhfY29uZmln
-KSA9PSBWSVJUSU9fTVNJX05PX1ZFQ1RPUikgewo+ICsJCUlGQ19FUlIoaWZjdmYtPmRldiwgIk5v
-IG1zaXggdmVjdG9yIGZvciBkZXZpY2UgY29uZmlnLlxuIik7Cj4gKwkJcmV0dXJuIC0xOwo+ICsJ
-fQo+ICsKPiArCWZvciAoaSA9IDA7IGkgPCBody0+bnJfdnJpbmc7IGkrKykgewo+ICsJCWlvd3Jp
-dGUxNihpLCAmY2ZnLT5xdWV1ZV9zZWxlY3QpOwo+ICsJCWlvX3dyaXRlNjRfdHdvcGFydChody0+
-dnJpbmdbaV0uZGVzYywgJmNmZy0+cXVldWVfZGVzY19sbywKPiArCQkJCSZjZmctPnF1ZXVlX2Rl
-c2NfaGkpOwo+ICsJCWlvX3dyaXRlNjRfdHdvcGFydChody0+dnJpbmdbaV0uYXZhaWwsICZjZmct
-PnF1ZXVlX2F2YWlsX2xvLAo+ICsJCQkJJmNmZy0+cXVldWVfYXZhaWxfaGkpOwo+ICsJCWlvX3dy
-aXRlNjRfdHdvcGFydChody0+dnJpbmdbaV0udXNlZCwgJmNmZy0+cXVldWVfdXNlZF9sbywKPiAr
-CQkJCSZjZmctPnF1ZXVlX3VzZWRfaGkpOwo+ICsJCWlvd3JpdGUxNihody0+dnJpbmdbaV0uc2l6
-ZSwgJmNmZy0+cXVldWVfc2l6ZSk7Cj4gKwo+ICsJCSoodTMyICopKGxtX2NmZyArIElGQ1ZGX0xN
-X1JJTkdfU1RBVEVfT0ZGU0VUICsKPiArCQkJCShpIC8gMikgKiBJRkNWRl9MTV9DRkdfU0laRSAr
-IChpICUgMikgKiA0KSA9Cj4gKwkJCSh1MzIpaHctPnZyaW5nW2ldLmxhc3RfYXZhaWxfaWR4IHwK
-PiArCQkJKCh1MzIpaHctPnZyaW5nW2ldLmxhc3RfdXNlZF9pZHggPDwgMTYpOwoKQXMgcG9pbnRl
-ZCBvdXQgYnkgTWljaGFlbCwgaXQncyBiZXR0ZXIgdG8gZm9ybWFsaXplIGxtX2NmZyBhcyBhCnN0
-cnVjdHVyZSBpbnN0ZWFkIG9mIGRvaW5nIG1hdGggaGVyZS4KCj4gKwo+ICsJCWlvd3JpdGUxNihp
-ICsgSUZDVkZfTVNJX1FVRVVFX09GRiwgJmNmZy0+cXVldWVfbXNpeF92ZWN0b3IpOwo+ICsJCWlm
-IChpb3JlYWQxNigmY2ZnLT5xdWV1ZV9tc2l4X3ZlY3RvcikgPT0KPiArCQkgICAgVklSVElPX01T
-SV9OT19WRUNUT1IpIHsKPiArCQkJSUZDX0VSUihpZmN2Zi0+ZGV2LAo+ICsJCQkJIk5vIG1zaXgg
-dmVjdG9yIGZvciBxdWV1ZSAldS5cbiIsIGkpOwo+ICsJCQlyZXR1cm4gLTE7Cj4gKwkJfQo+ICsK
-PiArCQlpb3dyaXRlMTYoMSwgJmNmZy0+cXVldWVfZW5hYmxlKTsKClRoaXMgcXVldWVfZW5hYmxl
-IHNob3VsZCBiZSBkb25lIHRocm91Z2ggc2V0X3ZxX3JlYWR5KCkgZnJvbSB2aXJ0aW8gY29yZS4K
-Cj4gKwl9Cj4gKwo+ICsJcmV0dXJuIDA7Cj4gK30KPiArCj4gK3N0YXRpYyB2b2lkIGlmY3ZmX2h3
-X2Rpc2FibGUoc3RydWN0IGlmY3ZmX2h3ICpodykKPiArewo+ICsJc3RydWN0IHZpcnRpb19wY2lf
-Y29tbW9uX2NmZyAqY2ZnOwo+ICsJdTMyIGk7Cj4gKwo+ICsJY2ZnID0gaHctPmNvbW1vbl9jZmc7
-Cj4gKwlpb3dyaXRlMTYoVklSVElPX01TSV9OT19WRUNUT1IsICZjZmctPm1zaXhfY29uZmlnKTsK
-PiArCj4gKwlmb3IgKGkgPSAwOyBpIDwgaHctPm5yX3ZyaW5nOyBpKyspIHsKPiArCQlpb3dyaXRl
-MTYoaSwgJmNmZy0+cXVldWVfc2VsZWN0KTsKPiArCQlpb3dyaXRlMTYoMCwgJmNmZy0+cXVldWVf
-ZW5hYmxlKTsKPiArCQlpb3dyaXRlMTYoVklSVElPX01TSV9OT19WRUNUT1IsICZjZmctPnF1ZXVl
-X21zaXhfdmVjdG9yKTsKPiArCX0KPiArfQo+ICsKPiAraW50IGlmY3ZmX3N0YXJ0X2h3KHN0cnVj
-dCBpZmN2Zl9odyAqaHcpCj4gK3sKPiArCWlmY3ZmX3Jlc2V0KGh3KTsKPiArCWlmY3ZmX2FkZF9z
-dGF0dXMoaHcsIFZJUlRJT19DT05GSUdfU19BQ0tOT1dMRURHRSk7Cj4gKwlpZmN2Zl9hZGRfc3Rh
-dHVzKGh3LCBWSVJUSU9fQ09ORklHX1NfRFJJVkVSKTsKPiArCj4gKwlpZiAoaWZjdmZfY29uZmln
-X2ZlYXR1cmVzKGh3KSA8IDApCj4gKwkJcmV0dXJuIC0xOwoKSXQncyBiZXR0ZXIgdG8gc2V0IHN0
-YXR1cyB0byBDT05GSUdfU19GQUlMRUQgd2hlbiBmYWlsLgoKPiArCj4gKwlpZiAoaWZjdmZfaHdf
-ZW5hYmxlKGh3KSA8IDApCj4gKwkJcmV0dXJuIC0xOwo+ICsKPiArCWlmY3ZmX2FkZF9zdGF0dXMo
-aHcsIFZJUlRJT19DT05GSUdfU19EUklWRVJfT0spOwo+ICsKPiArCXJldHVybiAwOwo+ICt9Cj4g
-Kwo+ICt2b2lkIGlmY3ZmX3N0b3BfaHcoc3RydWN0IGlmY3ZmX2h3ICpodykKPiArewo+ICsJaWZj
-dmZfaHdfZGlzYWJsZShodyk7Cj4gKwlpZmN2Zl9yZXNldChodyk7Cj4gK30KPiArCj4gK3ZvaWQg
-aWZjdmZfbm90aWZ5X3F1ZXVlKHN0cnVjdCBpZmN2Zl9odyAqaHcsIHUxNiBxaWQpCj4gK3sKPiAr
-CWlvd3JpdGUxNihxaWQsIGh3LT5ub3RpZnlfYWRkcltxaWRdKTsKPiArfQo+ICsKPiArdTY0IGlm
-Y3ZmX2dldF9xdWV1ZV9ub3RpZnlfb2ZmKHN0cnVjdCBpZmN2Zl9odyAqaHcsIGludCBxaWQpCj4g
-K3sKPiArCXJldHVybiAodTggKilody0+bm90aWZ5X2FkZHJbcWlkXSAtCj4gKwkJKHU4ICopaHct
-Pm1lbV9yZXNvdXJjZVtody0+bm90aWZ5X2Jhcl0uYWRkcjsKPiArfQo+IGRpZmYgLS1naXQgYS9k
-cml2ZXJzL3Zob3N0L2lmY3ZmL2lmY3ZmX2Jhc2UuaCBiL2RyaXZlcnMvdmhvc3QvaWZjdmYvaWZj
-dmZfYmFzZS5oCj4gbmV3IGZpbGUgbW9kZSAxMDA2NDQKPiBpbmRleCAwMDAwMDAwLi5jOTdmMGVi
-Cj4gLS0tIC9kZXYvbnVsbAo+ICsrKyBiL2RyaXZlcnMvdmhvc3QvaWZjdmYvaWZjdmZfYmFzZS5o
-Cj4gQEAgLTAsMCArMSwxMzIgQEAKPiArLyogU1BEWC1MaWNlbnNlLUlkZW50aWZpZXI6IEdQTC0y
-LjAgV0lUSCBMaW51eC1zeXNjYWxsLW5vdGUgKi8KPiArLyoKPiArICogQ29weXJpZ2h0IChDKSAy
-MDE5IEludGVsIENvcnBvcmF0aW9uLgo+ICsgKi8KPiArCj4gKyNpZm5kZWYgX0lGQ1ZGX0hfCj4g
-KyNkZWZpbmUgX0lGQ1ZGX0hfCj4gKwo+ICsjaW5jbHVkZSA8bGludXgvdmlydGlvX21kZXZfb3Bz
-Lmg+Cj4gKyNpbmNsdWRlIDxsaW51eC9tZGV2Lmg+Cj4gKyNpbmNsdWRlIDxsaW51eC9wY2kuaD4K
-PiArI2luY2x1ZGUgPGxpbnV4L3BjaV9yZWdzLmg+Cj4gKyNpbmNsdWRlIDx1YXBpL2xpbnV4L3Zp
-cnRpb19uZXQuaD4KPiArI2luY2x1ZGUgPHVhcGkvbGludXgvdmlydGlvX2NvbmZpZy5oPgo+ICsj
-aW5jbHVkZSA8dWFwaS9saW51eC92aXJ0aW9fcGNpLmg+Cj4gKwo+ICsjZGVmaW5lIElGQ1ZGX1ZF
-TkRPUl9JRCAgICAgICAgIDB4MUFGNAo+ICsjZGVmaW5lIElGQ1ZGX0RFVklDRV9JRCAgICAgICAg
-IDB4MTA0MQo+ICsjZGVmaW5lIElGQ1ZGX1NVQlNZU19WRU5ET1JfSUQgIDB4ODA4Ngo+ICsjZGVm
-aW5lIElGQ1ZGX1NVQlNZU19ERVZJQ0VfSUQgIDB4MDAxQQo+ICsKPiArI2RlZmluZSBJRkNWRl9N
-REVWX0xJTUlUCTEKPiArCj4gKy8qCj4gKyAqIFNvbWUgaWZjdmYgZmVhdHVyZSBiaXRzIChjdXJy
-ZW50bHkgYml0cyAyOCB0aHJvdWdoIDMxKSBhcmUKPiArICogcmVzZXJ2ZWQgZm9yIHRoZSB0cmFu
-c3BvcnQgYmVpbmcgdXNlZCAoZWcuIGlmY3ZmX3JpbmcpLCB0aGUKPiArICogcmVzdCBhcmUgcGVy
-LWRldmljZSBmZWF0dXJlIGJpdHMuCj4gKyAqLwo+ICsjZGVmaW5lIElGQ1ZGX1RSQU5TUE9SVF9G
-X1NUQVJUIDI4Cj4gKyNkZWZpbmUgSUZDVkZfVFJBTlNQT1JUX0ZfRU5EICAgMzQKPiArCj4gKyNk
-ZWZpbmUgSUZDX1NVUFBPUlRFRF9GRUFUVVJFUyBcCj4gKwkJKCgxVUxMIDw8IFZJUlRJT19ORVRf
-Rl9NQUMpCQkJfCBcCj4gKwkJICgxVUxMIDw8IFZJUlRJT19GX0FOWV9MQVlPVVQpCQkJfCBcCj4g
-KwkJICgxVUxMIDw8IFZJUlRJT19GX1ZFUlNJT05fMSkJCQl8IFwKPiArCQkgKDFVTEwgPDwgVklS
-VElPX0ZfT1JERVJfUExBVEZPUk0pCQkJfCBcCj4gKwkJICgxVUxMIDw8IFZJUlRJT19ORVRfRl9H
-VUVTVF9BTk5PVU5DRSkJCXwgXAo+ICsJCSAoMVVMTCA8PCBWSVJUSU9fTkVUX0ZfQ1RSTF9WUSkJ
-CQl8IFwKPiArCQkgKDFVTEwgPDwgVklSVElPX05FVF9GX1NUQVRVUykJCQl8IFwKPiArCQkgKDFV
-TEwgPDwgVklSVElPX05FVF9GX01SR19SWEJVRikpIC8qIG5vdCBmdWxseSBzdXBwb3J0ZWQgKi8K
-CklmIGl0IHdhcyBub3QgZnVsbHkgc3VwcG9ydGVkLCB3ZSBuZWVkIHRvIHJlbW92ZSBpdC4KCj4g
-Kwo+ICsvL05vdCBzdXBwb3J0IE1RLCBvbmx5IG9uZSBxdWV1ZSBwYWlyIGZvciBub3cuCj4gKyNk
-ZWZpbmUgSUZDVkZfTUFYX1FVRVVFX1BBSVJTCQkxCj4gKyNkZWZpbmUgSUZDVkZfTUFYX1FVRVVF
-UwkJMgo+ICsKPiArI2RlZmluZSBJRkNWRl9RVUVVRV9BTElHTk1FTlQJCVBBR0VfU0laRQo+ICsK
-PiArI2RlZmluZSBJRkNWRl9NU0lfQ09ORklHX09GRgkwCj4gKyNkZWZpbmUgSUZDVkZfTVNJX1FV
-RVVFX09GRgkxCj4gKyNkZWZpbmUgSUZDVkZfUENJX01BWF9SRVNPVVJDRQk2Cj4gKwo+ICsjZGVm
-aW5lIElGQ1ZGX0xNX0NGR19TSVpFCQkweDQwCj4gKyNkZWZpbmUgSUZDVkZfTE1fUklOR19TVEFU
-RV9PRkZTRVQJMHgyMAo+ICsjZGVmaW5lIElGQ1ZGX0xNX0JBUgk0Cj4gKwo+ICsjZGVmaW5lIElG
-Q1ZGXzMyX0JJVF9NQVNLCQkweGZmZmZmZmZmCj4gKwo+ICsjZGVmaW5lIElGQ19FUlIoZGV2LCBm
-bXQsIC4uLikJZGV2X2VycihkZXYsIGZtdCwgIyNfX1ZBX0FSR1NfXykKPiArI2RlZmluZSBJRkNf
-REJHKGRldiwgZm10LCAuLi4pCWRldl9kYmcoZGV2LCBmbXQsICMjX19WQV9BUkdTX18pCj4gKyNk
-ZWZpbmUgSUZDX0lORk8oZGV2LCBmbXQsIC4uLikJZGV2X2luZm8oZGV2LCBmbXQsICMjX19WQV9B
-UkdTX18pCj4gKwo+ICsjZGVmaW5lIElGQ19QUklWQVRFX1RPX1ZGKGFkYXB0ZXIpIFwKPiArCSgm
-KChzdHJ1Y3QgaWZjdmZfYWRhcHRlciAqKWFkYXB0ZXIpLT52ZikKPiArCj4gKyNkZWZpbmUgSUZD
-VkZfTUFYX0lOVFIgKElGQ1ZGX01BWF9RVUVVRV9QQUlSUyAqIDIgKyAxKQo+ICsKPiArc3RydWN0
-IGlmY3ZmX25ldF9jb25maWcgewo+ICsJdTggICAgbWFjWzZdOwo+ICsJdTE2ICAgc3RhdHVzOwo+
-ICsJdTE2ICAgbWF4X3ZpcnRxdWV1ZV9wYWlyczsKPiArfSBfX3BhY2tlZDsKCldoeSBub3QganVz
-dCB1c2UgdmlydGlvX25ldF9jb25maWc/Cgo+ICsKPiArc3RydWN0IGlmY3ZmX3BjaV9tZW1fcmVz
-b3VyY2Ugewo+ICsJLyogUGh5c2ljYWwgYWRkcmVzcywgMCBpZiBub3QgcmVzb3VyY2UuICovCj4g
-Kwl1NjQgICAgICBwaHlzX2FkZHI7Cj4gKwkvKiBMZW5ndGggb2YgdGhlIHJlc291cmNlLiAqLwo+
-ICsJdTY0ICAgICAgbGVuOwo+ICsJLyogVmlydHVhbCBhZGRyZXNzLCBOVUxMIHdoZW4gbm90IG1h
-cHBlZC4gKi8KPiArCXU4ICAgICAgICphZGRyOwo+ICt9Owo+ICsKPiArc3RydWN0IHZyaW5nX2lu
-Zm8gewo+ICsJdTY0IGRlc2M7Cj4gKwl1NjQgYXZhaWw7Cj4gKwl1NjQgdXNlZDsKPiArCXUxNiBz
-aXplOwo+ICsJdTE2IGxhc3RfYXZhaWxfaWR4Owo+ICsJdTE2IGxhc3RfdXNlZF9pZHg7Cj4gKwli
-b29sIHJlYWR5Owo+ICsJY2hhciBtc2l4X25hbWVbMjU2XTsKPiArCXN0cnVjdCB2aXJ0aW9fbWRl
-dl9jYWxsYmFjayBjYjsKPiArfTsKPiArCj4gK3N0cnVjdCBpZmN2Zl9odyB7Cj4gKwl1OAkqaXNy
-Owo+ICsJdTgJbm90aWZ5X2JhcjsKPiArCXU4CSpsbV9jZmc7Cj4gKwl1OAlucl92cmluZzsKPiAr
-CXUxNgkqbm90aWZ5X2Jhc2U7Cj4gKwl1MTYJKm5vdGlmeV9hZGRyW0lGQ1ZGX01BWF9RVUVVRV9Q
-QUlSUyAqIDJdOwo+ICsJdTMyCW5vdGlmeV9vZmZfbXVsdGlwbGllcjsKPiArCXU2NAlyZXFfZmVh
-dHVyZXM7Cj4gKwlzdHJ1Y3QJdmlydGlvX3BjaV9jb21tb25fY2ZnICpjb21tb25fY2ZnOwo+ICsJ
-c3RydWN0CWlmY3ZmX25ldF9jb25maWcgKm5ldF9jZmc7Cj4gKwlzdHJ1Y3QJdnJpbmdfaW5mbyB2
-cmluZ1tJRkNWRl9NQVhfUVVFVUVfUEFJUlMgKiAyXTsKPiArCXN0cnVjdAlpZmN2Zl9wY2lfbWVt
-X3Jlc291cmNlIG1lbV9yZXNvdXJjZVtJRkNWRl9QQ0lfTUFYX1JFU09VUkNFXTsKPiArfTsKCkl0
-J3MgYmV0dGVyIHRvIGFkZCBjb21tZW50cyB0byBleHBsYWluIGVhY2ggZmllbGQuCgo+ICsKPiAr
-c3RydWN0IGlmY3ZmX2FkYXB0ZXIgewo+ICsJc3RydWN0CWRldmljZSAqZGV2Owo+ICsJc3RydWN0
-CW11dGV4IG1kZXZfbG9jazsKPiArCWludAltZGV2X2NvdW50Owo+ICsJaW50CXZlY3RvcnM7Cj4g
-KwlzdHJ1Y3QJaWZjdmZfaHcgdmY7Cj4gK307Cj4gKwo+ICtpbnQgaWZjdmZfaW5pdF9odyhzdHJ1
-Y3QgaWZjdmZfaHcgKmh3LCBzdHJ1Y3QgcGNpX2RldiAqZGV2KTsKPiAraW50IGlmY3ZmX3N0YXJ0
-X2h3KHN0cnVjdCBpZmN2Zl9odyAqaHcpOwo+ICt2b2lkIGlmY3ZmX3N0b3BfaHcoc3RydWN0IGlm
-Y3ZmX2h3ICpodyk7Cj4gK3ZvaWQgaWZjdmZfbm90aWZ5X3F1ZXVlKHN0cnVjdCBpZmN2Zl9odyAq
-aHcsIHUxNiBxaWQpOwo+ICt1OCBpZmN2Zl9nZXRfbGlua3N0YXR1cyhzdHJ1Y3QgaWZjdmZfaHcg
-Kmh3KTsKPiArdm9pZCBpZmN2Zl9yZWFkX25ldF9jb25maWcoc3RydWN0IGlmY3ZmX2h3ICpodywg
-dTY0IG9mZnNldCwKPiArCQkJICAgdm9pZCAqZHN0LCBpbnQgbGVuZ3RoKTsKPiArdm9pZCBpZmN2
-Zl93cml0ZV9uZXRfY29uZmlnKHN0cnVjdCBpZmN2Zl9odyAqaHcsIHU2NCBvZmZzZXQsCj4gKwkJ
-CSAgICBjb25zdCB2b2lkICpzcmMsIGludCBsZW5ndGgpOwo+ICt1OCBpZmN2Zl9nZXRfc3RhdHVz
-KHN0cnVjdCBpZmN2Zl9odyAqaHcpOwo+ICt2b2lkIGlmY3ZmX3NldF9zdGF0dXMoc3RydWN0IGlm
-Y3ZmX2h3ICpodywgdTggc3RhdHVzKTsKPiArdm9pZCBpb193cml0ZTY0X3R3b3BhcnQodTY0IHZh
-bCwgdTMyICpsbywgdTMyICpoaSk7Cj4gK3ZvaWQgaWZjdmZfcmVzZXQoc3RydWN0IGlmY3ZmX2h3
-ICpodyk7Cj4gK3U2NCBpZmN2Zl9nZXRfZmVhdHVyZXMoc3RydWN0IGlmY3ZmX2h3ICpodyk7Cj4g
-Kwo+ICsjZW5kaWYgLyogX0lGQ1ZGX0hfICovCj4gLS0gCj4gMS44LjMuMQo+CgpfX19fX19fX19f
-X19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fXwpWaXJ0dWFsaXphdGlvbiBtYWls
-aW5nIGxpc3QKVmlydHVhbGl6YXRpb25AbGlzdHMubGludXgtZm91bmRhdGlvbi5vcmcKaHR0cHM6
-Ly9saXN0cy5saW51eGZvdW5kYXRpb24ub3JnL21haWxtYW4vbGlzdGluZm8vdmlydHVhbGl6YXRp
-b24=
+
+
+----- Original Message -----
+> This commit introduced IFC operations for vdpa, which complys to
+> virtio_mdev and vhost_mdev interfaces, handles IFC VF
+> initialization, configuration and removal.
+> 
+> Signed-off-by: Zhu Lingshan <lingshan.zhu@intel.com>
+> ---
+>  drivers/vhost/ifcvf/ifcvf_main.c | 605
+>  +++++++++++++++++++++++++++++++++++++++
+>  1 file changed, 605 insertions(+)
+>  create mode 100644 drivers/vhost/ifcvf/ifcvf_main.c
+> 
+> diff --git a/drivers/vhost/ifcvf/ifcvf_main.c
+> b/drivers/vhost/ifcvf/ifcvf_main.c
+> new file mode 100644
+> index 0000000..7165457
+> --- /dev/null
+> +++ b/drivers/vhost/ifcvf/ifcvf_main.c
+> @@ -0,0 +1,605 @@
+> +// SPDX-License-Identifier: GPL-2.0-only
+> +/*
+> + * Copyright (C) 2019 Intel Corporation.
+> + */
+> +
+> +#include <linux/interrupt.h>
+> +#include <linux/module.h>
+> +#include <linux/mdev.h>
+> +#include <linux/pci.h>
+> +#include <linux/sysfs.h>
+> +#include "ifcvf_base.h"
+> +
+> +#define VERSION_STRING	"0.1"
+> +#define DRIVER_AUTHOR	"Intel Corporation"
+> +#define IFCVF_DRIVER_NAME	"ifcvf"
+> +
+> +static struct ifcvf_hw *mdev_to_vf(struct mdev_device *mdev)
+> +{
+> +	struct ifcvf_asapter *adapter = mdev_get_drvdata(mdev);
+> +	struct ifcvf_hw *vf = IFC_PRIVATE_TO_VF(adapter);
+> +
+> +	return vf;
+> +}
+> +
+> +static irqreturn_t ifcvf_intr_handler(int irq, void *arg)
+> +{
+> +	struct vring_info *vring = arg;
+> +
+> +	if (vring->cb.callback)
+> +		return vring->cb.callback(vring->cb.private);
+> +
+> +	return IRQ_HANDLED;
+> +}
+> +
+> +static u64 ifcvf_mdev_get_features(struct mdev_device *mdev)
+> +{
+> +	struct ifcvf_hw *vf = mdev_to_vf(mdev);
+> +
+> +	return ifcvf_get_features(vf);
+> +}
+> +
+> +static int ifcvf_mdev_set_features(struct mdev_device *mdev, u64 features)
+> +{
+> +	struct ifcvf_hw *vf = mdev_to_vf(mdev);
+> +
+> +	vf->req_features = features;
+> +
+> +	return 0;
+> +}
+> +
+> +static u64 ifcvf_mdev_get_vq_state(struct mdev_device *mdev, u16 qid)
+> +{
+> +	struct ifcvf_hw *vf = mdev_to_vf(mdev);
+> +	u16 last_avail_idx;
+> +
+> +	last_avail_idx = *(u16 *)(vf->lm_cfg + IFCVF_LM_RING_STATE_OFFSET +
+> +			 (qid / 2) * IFCVF_LM_CFG_SIZE + (qid % 2) * 4);
+> +
+
+Similar to the comment of previous patch, it's better to have a
+structure for lm_cfg.
+
+> +	return last_avail_idx;
+> +}
+> +
+> +static int ifcvf_mdev_set_vq_state(struct mdev_device *mdev, u16 qid, u64
+> num)
+> +{
+> +	struct ifcvf_hw *vf = mdev_to_vf(mdev);
+> +
+> +	vf->vring[qid].last_avail_idx = num;
+> +
+> +	return 0;
+> +}
+> +
+> +static int ifcvf_mdev_set_vq_address(struct mdev_device *mdev, u16 idx,
+> +				     u64 desc_area, u64 driver_area,
+> +				     u64 device_area)
+> +{
+> +	struct ifcvf_hw *vf = mdev_to_vf(mdev);
+> +
+> +	vf->vring[idx].desc = desc_area;
+> +	vf->vring[idx].avail = driver_area;
+> +	vf->vring[idx].used = device_area;
+> +
+> +	return 0;
+> +}
+> +
+> +static void ifcvf_mdev_set_vq_num(struct mdev_device *mdev, u16 qid, u32
+> num)
+> +{
+> +	struct ifcvf_hw *vf = mdev_to_vf(mdev);
+> +
+> +	vf->vring[qid].size = num;
+> +}
+> +
+> +static void ifcvf_mdev_set_vq_ready(struct mdev_device *mdev,
+> +				    u16 qid, bool ready)
+> +{
+> +	struct ifcvf_hw *vf = mdev_to_vf(mdev);
+> +
+> +	vf->vring[qid].ready = ready;
+
+There should be a "iowrite16(1, &cfg->queue_enable)" here. And there's
+probably no need to store ready in vring in this case.
+
+> +}
+> +
+> +static bool ifcvf_mdev_get_vq_ready(struct mdev_device *mdev, u16 qid)
+> +{
+> +	struct ifcvf_hw *vf = mdev_to_vf(mdev);
+> +
+> +	return vf->vring[qid].ready;
+
+And the status should be read from cfg->queue_enable.
+
+> +}
+> +
+> +static void ifcvf_mdev_set_vq_cb(struct mdev_device *mdev, u16 idx,
+> +				 struct virtio_mdev_callback *cb)
+> +{
+> +	struct ifcvf_hw *vf = mdev_to_vf(mdev);
+> +
+> +	vf->vring[idx].cb = *cb;
+> +}
+> +
+> +static void ifcvf_mdev_kick_vq(struct mdev_device *mdev, u16 idx)
+> +{
+> +	struct ifcvf_hw *vf = mdev_to_vf(mdev);
+> +
+> +	ifcvf_notify_queue(vf, idx);
+> +}
+> +
+> +static u8 ifcvf_mdev_get_status(struct mdev_device *mdev)
+> +{
+> +	struct ifcvf_hw *vf = mdev_to_vf(mdev);
+> +
+> +	return ifcvf_get_status(vf);
+> +}
+> +
+> +static u32 ifcvf_mdev_get_generation(struct mdev_device *mdev)
+> +{
+> +	struct ifcvf_hw *vf = mdev_to_vf(mdev);
+> +
+> +	return ioread8(&vf->common_cfg->config_generation);
+> +}
+> +
+> +static u32 ifcvf_mdev_get_device_id(struct mdev_device *mdev)
+> +{
+> +	return VIRTIO_ID_NET;
+> +}
+> +
+> +static u32 ifcvf_mdev_get_vendor_id(struct mdev_device *mdev)
+> +{
+> +	return IFCVF_VENDOR_ID;
+> +}
+> +
+> +static u16 ifcvf_mdev_get_vq_align(struct mdev_device *mdev)
+> +{
+> +	return IFCVF_QUEUE_ALIGNMENT;
+> +}
+> +
+> +static u64 ifcvf_mdev_get_mdev_features(struct mdev_device *mdev)
+> +{
+> +	return VIRTIO_MDEV_F_VERSION_1;
+> +}
+
+We've decide to remove this API.
+
+> +
+> +static int ifcvf_start_datapath(void *private)
+> +{
+> +	struct ifcvf_hw *vf = IFC_PRIVATE_TO_VF(private);
+> +	struct ifcvf_adapter *ifcvf;
+> +	int i, ret = 0;
+> +
+> +	ifcvf = container_of(vf, struct ifcvf_adapter, vf);
+> +
+> +	for (i = 0; i < IFCVF_MAX_QUEUE_PAIRS * 2; i++) {
+> +		if (!vf->vring[i].ready) {
+> +			IFC_ERR(ifcvf->dev,
+> +				"Failed to start datapath, vring %d not ready.\n", i);
+> +			return -EINVAL;
+> +		}
+
+This should be not related. Driver can choose to not start a virtqueue.
+
+> +
+> +		if (!vf->vring[i].size) {
+> +			IFC_ERR(ifcvf->dev,
+> +				"Failed to start datapath, vring %d size is zero.\n", i);
+> +			return -EINVAL;
+> +		}
+> +
+> +		if (!vf->vring[i].desc || !vf->vring[i].avail ||
+> +			!vf->vring[i].used) {
+> +			IFC_ERR(ifcvf->dev,
+> +				"Failed to start datapath, "
+> +				"invaild value for vring %d desc,"
+> +				"avail_idx or usex_idx.\n", i);
+> +			return -EINVAL;
+> +		}
+> +	}
+> +
+> +	vf->nr_vring = i;
+> +	ret = ifcvf_start_hw(vf);
+
+So basically there's no need for ifcvf_start_hw() to care about vq
+enablement, virtio core will take care of that through set_vq_ready().
+
+> +
+> +	return ret;
+> +}
+> +
+> +static int ifcvf_stop_datapath(void *private)
+> +{
+> +	struct ifcvf_hw *vf = IFC_PRIVATE_TO_VF(private);
+> +	int i;
+> +
+> +	for (i = 0; i < IFCVF_MAX_QUEUES; i++)
+> +		vf->vring[i].cb.callback = NULL;
+> +
+> +	ifcvf_stop_hw(vf);
+> +
+> +	return 0;
+> +}
+> +
+> +static void ifcvf_reset_vring(struct ifcvf_adapter *adapter)
+> +{
+> +	struct ifcvf_hw *vf = IFC_PRIVATE_TO_VF(adapter);
+> +	struct virtio_pci_common_cfg *cfg;
+> +	u8 *lm_cfg;
+> +	int i;
+> +
+> +	cfg = vf->common_cfg;
+> +	lm_cfg = vf->lm_cfg;
+> +
+> +	for (i = 0; i < IFCVF_MAX_QUEUE_PAIRS * 2; i++) {
+> +		vf->vring[i].last_used_idx = 0;
+> +		vf->vring[i].last_avail_idx = 0;
+> +		vf->vring[i].desc = 0;
+> +		vf->vring[i].avail = 0;
+> +		vf->vring[i].used = 0;
+> +		vf->vring[i].ready = 0;
+> +		vf->vring->cb.callback = NULL;
+> +		vf->vring->cb.private = NULL;
+> +
+> +	}
+> +
+> +	ifcvf_reset(vf);
+
+So virtio-pci call vp_synchornize_vectors(), do need someting similar
+here (I mean in ifcvf_reset())?
+
+> +}
+> +
+> +static void ifcvf_mdev_set_status(struct mdev_device *mdev, u8 status)
+> +{
+> +	struct ifcvf_adapter *adapter = mdev_get_drvdata(mdev);
+> +	struct ifcvf_hw *vf = IFC_PRIVATE_TO_VF(adapter);
+> +	int ret = 0;
+> +
+> +	if (status == 0) {
+> +		ifcvf_stop_datapath(adapter);
+> +		ifcvf_reset_vring(adapter);
+> +		return;
+> +	}
+> +
+> +	if (status & VIRTIO_CONFIG_S_DRIVER_OK) {
+> +		ret = ifcvf_start_datapath(adapter);
+
+If device support VIRTIO_CONFIG_S_DRIVER_OK, having something like
+start_datapath here looks wired.
+
+If it just to setup the virtqueue etc, can we simply move them to e.g
+set_vq_num, set_vq_address, etc?
+
+> +
+> +		if (ret)
+> +			IFC_ERR(adapter->dev, "Failed to set mdev status %u.\n",
+> +				status);
+> +	}
+> +
+> +	ifcvf_set_status(vf, status);
+> +}
+> +
+> +static u16 ifcvf_mdev_get_vq_num_max(struct mdev_device *mdev)
+> +{
+> +	struct ifcvf_hw *vf = mdev_to_vf(mdev);
+> +
+> +	return vf->vring[0].size;
+
+It looks to me the only case that size is set is from
+ifcvf_mdev_set_vq_num()? So I don't get how is this supposed to
+work. I belive this should be a query for the hardware or a at least a
+macro?
+
+
+> +}
+> +static void ifcvf_mdev_get_config(struct mdev_device *mdev, unsigned int
+> offset,
+> +			     void *buf, unsigned int len)
+> +{
+> +	struct ifcvf_hw *vf = mdev_to_vf(mdev);
+> +
+> +	WARN_ON(offset + len > sizeof(struct ifcvf_net_config));
+> +	ifcvf_read_net_config(vf, offset, buf, len);
+> +}
+> +
+> +static void ifcvf_mdev_set_config(struct mdev_device *mdev, unsigned int
+> offset,
+> +			     const void *buf, unsigned int len)
+> +{
+> +	struct ifcvf_hw *vf = mdev_to_vf(mdev);
+> +
+> +	WARN_ON(offset + len > sizeof(struct ifcvf_net_config));
+> +	ifcvf_write_net_config(vf, offset, buf, len);
+> +}
+> +
+> +static struct virtio_mdev_device_ops ifc_mdev_ops = {
+> +	.get_features  = ifcvf_mdev_get_features,
+> +	.set_features  = ifcvf_mdev_set_features,
+> +	.get_status    = ifcvf_mdev_get_status,
+> +	.set_status    = ifcvf_mdev_set_status,
+> +	.get_vq_num_max = ifcvf_mdev_get_vq_num_max,
+> +	.get_vq_state   = ifcvf_mdev_get_vq_state,
+> +	.set_vq_state   = ifcvf_mdev_set_vq_state,
+> +	.set_vq_cb      = ifcvf_mdev_set_vq_cb,
+> +	.set_vq_ready   = ifcvf_mdev_set_vq_ready,
+> +	.get_vq_ready	= ifcvf_mdev_get_vq_ready,
+> +	.set_vq_num     = ifcvf_mdev_set_vq_num,
+> +	.set_vq_address = ifcvf_mdev_set_vq_address,
+> +	.kick_vq        = ifcvf_mdev_kick_vq,
+> +	.get_generation	= ifcvf_mdev_get_generation,
+> +	.get_device_id	= ifcvf_mdev_get_device_id,
+> +	.get_vendor_id	= ifcvf_mdev_get_vendor_id,
+> +	.get_vq_align	= ifcvf_mdev_get_vq_align,
+> +	.get_config	= ifcvf_mdev_get_config,
+> +	.set_config	= ifcvf_mdev_set_config,
+> +	.get_mdev_features = ifcvf_mdev_get_mdev_features,
+
+set_config_cb needs to be implemented since you claim to support VIRTIO_NET_F_STATUS.
+
+> +};
+> +
+> +static int ifcvf_init_msix(struct ifcvf_adapter *adapter)
+> +{
+> +	struct pci_dev *pdev = to_pci_dev(adapter->dev);
+> +	struct ifcvf_hw *vf = &adapter->vf;
+> +	int vector, i, ret, irq;
+> +
+> +	ret = pci_alloc_irq_vectors(pdev, IFCVF_MAX_INTR,
+> +				    IFCVF_MAX_INTR, PCI_IRQ_MSIX);
+> +	if (ret < 0) {
+> +		IFC_ERR(adapter->dev, "Failed to alloc irq vectors.\n");
+> +		return ret;
+> +	}
+> +
+> +	for (i = 0; i < IFCVF_MAX_QUEUE_PAIRS * 2; i++) {
+> +		vector = i + IFCVF_MSI_QUEUE_OFF;
+> +		irq = pci_irq_vector(pdev, vector);
+> +		ret = request_irq(irq, ifcvf_intr_handler, 0,
+> +				pci_name(pdev), &vf->vring[i]);
+> +		if (ret) {
+> +			IFC_ERR(adapter->dev,
+> +				"Failed to request irq for vq %d.\n", i);
+> +			return ret;
+> +		}
+> +	}
+
+Need allocate config interrupt here as well.
+
+> +
+> +	return 0;
+> +}
+> +
+> +static void ifcvf_destroy_adapter(struct ifcvf_adapter *adapter)
+> +{
+> +	struct ifcvf_hw *vf = IFC_PRIVATE_TO_VF(adapter);
+> +	struct pci_dev *pdev = to_pci_dev(adapter->dev);
+> +	int i, vector, irq;
+> +
+> +	for (i = 0; i < IFCVF_MAX_QUEUE_PAIRS * 2; i++) {
+> +		vector = i + IFCVF_MSI_QUEUE_OFF;
+> +		irq = pci_irq_vector(pdev, vector);
+> +		free_irq(irq, &vf->vring[i]);
+> +	}
+> +}
+> +
+> +static ssize_t name_show(struct kobject *kobj, struct device *dev, char
+> *buf)
+> +{
+> +	const char *name = "vhost accelerator (virtio ring compatible)";
+> +
+
+I believe something like "IFCVF vhost/virtio accelerator" is better?
+
+> +	return sprintf(buf, "%s\n", name);
+> +}
+> +MDEV_TYPE_ATTR_RO(name);
+> +
+> +static ssize_t device_api_show(struct kobject *kobj, struct device *dev,
+> +			       char *buf)
+> +{
+> +	return sprintf(buf, "%s\n", VIRTIO_MDEV_DEVICE_API_STRING);
+> +}
+> +MDEV_TYPE_ATTR_RO(device_api);
+> +
+> +static ssize_t available_instances_show(struct kobject *kobj,
+> +					struct device *dev, char *buf)
+> +{
+> +	struct pci_dev *pdev;
+> +	struct ifcvf_adapter *adapter;
+> +
+> +	pdev = to_pci_dev(dev);
+> +	adapter = pci_get_drvdata(pdev);
+> +
+> +	return sprintf(buf, "%d\n", adapter->mdev_count);
+> +}
+> +
+> +MDEV_TYPE_ATTR_RO(available_instances);
+> +
+> +static ssize_t type_show(struct kobject *kobj,
+> +			struct device *dev, char *buf)
+> +{
+> +	return sprintf(buf, "%s\n", "net");
+> +}
+> +
+> +MDEV_TYPE_ATTR_RO(type);
+> +
+> +
+> +static struct attribute *mdev_types_attrs[] = {
+> +	&mdev_type_attr_name.attr,
+> +	&mdev_type_attr_device_api.attr,
+> +	&mdev_type_attr_available_instances.attr,
+> +	&mdev_type_attr_type.attr,
+> +	NULL,
+> +};
+> +
+> +static struct attribute_group mdev_type_group_virtio = {
+> +	.name  = "virtio_mdev",
+> +	.attrs = mdev_types_attrs,
+> +};
+> +
+> +static struct attribute_group mdev_type_group_vhost = {
+> +	.name  = "vhost_mdev",
+> +	.attrs = mdev_types_attrs,
+> +};
+> +
+> +static struct attribute_group *mdev_type_groups[] = {
+> +	&mdev_type_group_virtio,
+> +	&mdev_type_group_vhost,
+> +	NULL,
+> +};
+> +
+> +const struct attribute_group *mdev_dev_groups[] = {
+> +	NULL,
+> +};
+> +
+> +static int ifcvf_mdev_create(struct kobject *kobj, struct mdev_device *mdev)
+> +{
+> +	struct device *dev = mdev_parent_dev(mdev);
+> +	struct pci_dev *pdev = to_pci_dev(dev);
+> +	struct ifcvf_adapter *adapter = pci_get_drvdata(pdev);
+> +	int ret = 0;
+> +
+> +	mutex_lock(&adapter->mdev_lock);
+> +
+> +	if (adapter->mdev_count < IFCVF_MDEV_LIMIT) {
+> +		IFC_ERR(&pdev->dev,
+> +			"Can not create mdev, reached limitation %d.\n",
+> +			IFCVF_MDEV_LIMIT);
+> +		ret = -EINVAL;
+> +		goto out;
+> +	}
+> +
+> +	if (!strcmp(kobj->name, "ifcvf-virtio_mdev"))
+> +		mdev_set_virtio_ops(mdev, &ifc_mdev_ops);
+> +
+> +	if (!strcmp(kobj->name, "ifcvf-vhost_mdev"))
+> +		mdev_set_vhost_ops(mdev, &ifc_mdev_ops);
+> +
+> +	mdev_set_drvdata(mdev, adapter);
+> +	mdev_set_iommu_device(mdev_dev(mdev), dev);
+> +	adapter->mdev_count--;
+> +
+> +out:
+> +	mutex_unlock(&adapter->mdev_lock);
+> +	return ret;
+> +}
+> +
+> +static int ifcvf_mdev_remove(struct mdev_device *mdev)
+> +{
+> +	struct device *dev = mdev_parent_dev(mdev);
+> +	struct pci_dev *pdev = to_pci_dev(dev);
+> +	struct ifcvf_adapter *adapter = pci_get_drvdata(pdev);
+> +
+> +	mutex_lock(&adapter->mdev_lock);
+> +	adapter->mdev_count++;
+> +	mutex_unlock(&adapter->mdev_lock);
+> +
+> +	return 0;
+> +}
+> +
+> +static struct mdev_parent_ops ifcvf_mdev_fops = {
+> +	.owner			= THIS_MODULE,
+> +	.supported_type_groups	= mdev_type_groups,
+> +	.mdev_attr_groups	= mdev_dev_groups,
+> +	.create			= ifcvf_mdev_create,
+> +	.remove			= ifcvf_mdev_remove,
+> +};
+> +
+> +static int ifcvf_probe(struct pci_dev *pdev, const struct pci_device_id *id)
+> +{
+> +	struct device *dev = &pdev->dev;
+> +	struct ifcvf_adapter *adapter;
+> +	struct ifcvf_hw *vf;
+> +	int ret, i;
+> +
+> +	adapter = kzalloc(sizeof(struct ifcvf_adapter), GFP_KERNEL);
+> +
+> +	if (adapter == NULL) {
+> +		ret = -ENOMEM;
+> +		goto fail;
+> +	}
+> +
+> +	mutex_init(&adapter->mdev_lock);
+> +	adapter->mdev_count = IFCVF_MDEV_LIMIT;
+> +	adapter->dev = dev;
+> +	pci_set_drvdata(pdev, adapter);
+> +	ret = pci_enable_device(pdev);
+> +
+> +	if (ret) {
+> +		IFC_ERR(adapter->dev, "Failed to enable device.\n");
+> +		goto free_adapter;
+> +	}
+> +
+> +	ret = pci_request_regions(pdev, IFCVF_DRIVER_NAME);
+> +
+> +	if (ret) {
+> +		IFC_ERR(adapter->dev, "Failed to request MMIO region.\n");
+> +		goto disable_device;
+> +	}
+> +
+> +	pci_set_master(pdev);
+> +	ret = ifcvf_init_msix(adapter);
+> +
+> +	if (ret) {
+> +		IFC_ERR(adapter->dev, "Failed to initialize MSIX.\n");
+> +		goto free_msix;
+> +	}
+> +
+> +	vf = &adapter->vf;
+> +
+> +	for (i = 0; i < IFCVF_PCI_MAX_RESOURCE; i++) {
+> +		vf->mem_resource[i].phys_addr = pci_resource_start(pdev, i);
+> +		vf->mem_resource[i].len = pci_resource_len(pdev, i);
+> +		if (!vf->mem_resource[i].len) {
+> +			vf->mem_resource[i].addr = NULL;
+> +			continue;
+> +		}
+> +
+> +		vf->mem_resource[i].addr = pci_iomap_range(pdev, i, 0,
+> +				vf->mem_resource[i].len);
+> +		if (!vf->mem_resource[i].addr) {
+> +			IFC_ERR(adapter->dev, "Failed to map IO resource %d\n",
+> +				i);
+> +			ret = -1;
+> +			goto free_msix;
+> +		}
+> +	}
+> +
+> +	if (ifcvf_init_hw(vf, pdev) < 0) {
+> +		ret = -1;
+> +		goto destroy_adapter;
+> +	}
+> +
+> +	ret = mdev_register_device(dev, &ifcvf_mdev_fops);
+> +
+> +	if (ret) {
+> +		IFC_ERR(adapter->dev,  "Failed to register mdev device\n");
+> +		goto destroy_adapter;
+> +	}
+> +
+> +	return 0;
+> +
+> +destroy_adapter:
+> +	ifcvf_destroy_adapter(adapter);
+> +free_msix:
+> +	pci_free_irq_vectors(pdev);
+> +	pci_release_regions(pdev);
+> +disable_device:
+> +	pci_disable_device(pdev);
+> +free_adapter:
+> +	kfree(adapter);
+> +fail:
+> +	return ret;
+> +}
+> +
+> +static void ifcvf_remove(struct pci_dev *pdev)
+> +{
+> +	struct ifcvf_adapter *adapter = pci_get_drvdata(pdev);
+> +	struct device *dev = &pdev->dev;
+> +	struct ifcvf_hw *vf;
+> +	int i;
+> +
+> +	mdev_unregister_device(dev);
+> +
+> +	vf = &adapter->vf;
+> +	for (i = 0; i < IFCVF_PCI_MAX_RESOURCE; i++) {
+> +		if (vf->mem_resource[i].addr) {
+> +			pci_iounmap(pdev, vf->mem_resource[i].addr);
+> +			vf->mem_resource[i].addr = NULL;
+> +		}
+> +	}
+> +
+> +	ifcvf_destroy_adapter(adapter);
+> +	pci_free_irq_vectors(pdev);
+> +	pci_release_regions(pdev);
+> +	pci_disable_device(pdev);
+> +	kfree(adapter);
+> +}
+> +
+> +static struct pci_device_id ifcvf_pci_ids[] = {
+> +	{ PCI_DEVICE_SUB(IFCVF_VENDOR_ID,
+> +			IFCVF_DEVICE_ID,
+> +			IFCVF_SUBSYS_VENDOR_ID,
+> +			IFCVF_SUBSYS_DEVICE_ID) },
+> +	{ 0 },
+> +};
+> +MODULE_DEVICE_TABLE(pci, ifcvf_pci_ids);
+> +
+> +static struct pci_driver ifcvf_driver = {
+> +	.name     = IFCVF_DRIVER_NAME,
+> +	.id_table = ifcvf_pci_ids,
+> +	.probe    = ifcvf_probe,
+> +	.remove   = ifcvf_remove,
+> +};
+> +
+> +static int __init ifcvf_init_module(void)
+> +{
+> +	int ret;
+> +
+> +	ret = pci_register_driver(&ifcvf_driver);
+> +	return ret;
+> +}
+> +
+> +static void __exit ifcvf_exit_module(void)
+> +{
+> +	pci_unregister_driver(&ifcvf_driver);
+> +}
+
+You probably can do something simpler thorugh module_pci_driver().
+
+Thanks
+
+> +
+> +module_init(ifcvf_init_module);
+> +module_exit(ifcvf_exit_module);
+> +
+> +MODULE_LICENSE("GPL v2");
+> +MODULE_VERSION(VERSION_STRING);
+> +MODULE_AUTHOR(DRIVER_AUTHOR);
+> --
+> 1.8.3.1
+> 
+> 
