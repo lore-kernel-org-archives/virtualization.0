@@ -1,17 +1,16 @@
-From: Alex Williamson <alex.williamson@redhat.com>
-Subject: Re: [PATCH V8 0/6] mdev based hardware virtio offloading support
-Date: Wed, 6 Nov 2019 14:13:18 -0700
-Message-ID: <20191106141318.150f3b9b__32868.7329239742$1573074839$gmane$org@x1.home>
-References: <20191105093240.5135-1-jasowang@redhat.com>
-	<20191105105834.469675f0@x1.home>
-	<393f2dc9-8c67-d3c9-6553-640b80c15aaf@redhat.com>
-	<20191106120312.77a6a318@x1.home>
-	<20191106142449-mutt-send-email-mst@kernel.org>
+From: Randy Dunlap <rdunlap@infradead.org>
+Subject: Re: [PATCH V9 6/6] docs: sample driver to demonstrate how to
+	implement virtio-mdev framework
+Date: Wed, 6 Nov 2019 14:50:30 -0800
+Message-ID: <88efad07-70aa-3879-31e7-ace4d2ad63a1__40054.6657548816$1573080649$gmane$org@infradead.org>
+References: <20191106070548.18980-1-jasowang@redhat.com>
+	<20191106070548.18980-7-jasowang@redhat.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="utf-8"
-Content-Transfer-Encoding: base64
+Content-Type: text/plain; charset="us-ascii"
+Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <20191106142449-mutt-send-email-mst@kernel.org>
+In-Reply-To: <20191106070548.18980-7-jasowang@redhat.com>
+Content-Language: en-US
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -21,69 +20,37 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: "Michael S. Tsirkin" <mst@redhat.com>
-Cc: stefanha@redhat.com, christophe.de.dinechin@gmail.com, kvm@vger.kernel.org, airlied@linux.ie, joonas.lahtinen@linux.intel.com, heiko.carstens@de.ibm.com, dri-devel@lists.freedesktop.org, virtualization@lists.linux-foundation.org, kwankhede@nvidia.com, rob.miller@broadcom.com, linux-s390@vger.kernel.org, sebott@linux.ibm.com, lulu@redhat.com, eperezma@redhat.com, pasic@linux.ibm.com, borntraeger@de.ibm.com, haotian.wang@sifive.com, intel-gfx@lists.freedesktop.org, zhi.a.wang@intel.com, farman@linux.ibm.com, idos@mellanox.com, gor@linux.ibm.com, jani.nikula@linux.intel.com, rodrigo.vivi@intel.com, xiao.w.wang@intel.com, freude@linux.ibm.com, zhenyuw@linux.intel.com, parav@mellanox.com, zhihong.wang@intel.com, intel-gvt-dev@lists.freedesktop.org, akrowiak@linux.ibm.com, oberpar@linux.ibm.com, netdev@vger.kernel.org, cohuck@redhat.com, linux-kernel@vger.kernel.org, maxime.
+To: Jason Wang <jasowang@redhat.com>, kvm@vger.kernel.org, linux-s390@vger.kernel.org, linux-kernel@vger.kernel.org, dri-devel@lists.freedesktop.org, intel-gfx@lists.freedesktop.org, intel-gvt-dev@lists.freedesktop.org, kwankhede@nvidia.com, alex.williamson@redhat.com, mst@redhat.com, tiwei.bie@intel.com
+Cc: christophe.de.dinechin@gmail.com, sebott@linux.ibm.com, airlied@linux.ie, joonas.lahtinen@linux.intel.com, heiko.carstens@de.ibm.com, virtualization@lists.linux-foundation.org, rob.miller@broadcom.com, lulu@redhat.com, eperezma@redhat.com, pasic@linux.ibm.com, borntraeger@de.ibm.com, haotian.wang@sifive.com, zhi.a.wang@intel.com, farman@linux.ibm.com, idos@mellanox.com, gor@linux.ibm.com, zhenyuw@linux.intel.com, rodrigo.vivi@intel.com, xiao.w.wang@intel.com, freude@linux.ibm.com, jani.nikula@linux.intel.com, parav@mellanox.com, zhihong.wang@intel.com, stefanha@redhat.com, akrowiak@linux.ibm.com, netdev@vger.kernel.org, cohuck@redhat.com, oberpar@linux.ibm.com, maxime.coquelin@redhat.com, daniel@ffwll.ch, lingshan.zhu@intel.com
 List-Id: virtualization@lists.linuxfoundation.org
 
-T24gV2VkLCA2IE5vdiAyMDE5IDE0OjI1OjIzIC0wNTAwCiJNaWNoYWVsIFMuIFRzaXJraW4iIDxt
-c3RAcmVkaGF0LmNvbT4gd3JvdGU6Cgo+IE9uIFdlZCwgTm92IDA2LCAyMDE5IGF0IDEyOjAzOjEy
-UE0gLTA3MDAsIEFsZXggV2lsbGlhbXNvbiB3cm90ZToKPiA+IE9uIFdlZCwgNiBOb3YgMjAxOSAx
-MTo1Njo0NiArMDgwMAo+ID4gSmFzb24gV2FuZyA8amFzb3dhbmdAcmVkaGF0LmNvbT4gd3JvdGU6
-Cj4gPiAgIAo+ID4gPiBPbiAyMDE5LzExLzYg5LiK5Y2IMTo1OCwgQWxleCBXaWxsaWFtc29uIHdy
-b3RlOiAgCj4gPiA+ID4gT24gVHVlLCAgNSBOb3YgMjAxOSAxNzozMjozNCArMDgwMAo+ID4gPiA+
-IEphc29uIFdhbmcgPGphc293YW5nQHJlZGhhdC5jb20+IHdyb3RlOgo+ID4gPiA+ICAgIAo+ID4g
-PiA+PiBIaSBhbGw6Cj4gPiA+ID4+Cj4gPiA+ID4+IFRoZXJlIGFyZSBoYXJkd2FyZXMgdGhhdCBj
-YW4gZG8gdmlydGlvIGRhdGFwYXRoIG9mZmxvYWRpbmcgd2hpbGUKPiA+ID4gPj4gaGF2aW5nIGl0
-cyBvd24gY29udHJvbCBwYXRoLiBUaGlzIHBhdGggdHJpZXMgdG8gaW1wbGVtZW50IGEgbWRldiBi
-YXNlZAo+ID4gPiA+PiB1bmlmaWVkIEFQSSB0byBzdXBwb3J0IHVzaW5nIGtlcm5lbCB2aXJ0aW8g
-ZHJpdmVyIHRvIGRyaXZlIHRob3NlCj4gPiA+ID4+IGRldmljZXMuIFRoaXMgaXMgZG9uZSBieSBp
-bnRyb2R1Y2luZyBhIG5ldyBtZGV2IHRyYW5zcG9ydCBmb3IgdmlydGlvCj4gPiA+ID4+ICh2aXJ0
-aW9fbWRldikgYW5kIHJlZ2lzdGVyIGl0c2VsZiBhcyBhIG5ldyBraW5kIG9mIG1kZXYgZHJpdmVy
-LiBUaGVuCj4gPiA+ID4+IGl0IHByb3ZpZGVzIGEgdW5pZmllZCB3YXkgZm9yIGtlcm5lbCB2aXJ0
-aW8gZHJpdmVyIHRvIHRhbGsgd2l0aCBtZGV2Cj4gPiA+ID4+IGRldmljZSBpbXBsZW1lbnRhdGlv
-bi4KPiA+ID4gPj4KPiA+ID4gPj4gVGhvdWdoIHRoZSBzZXJpZXMgb25seSBjb250YWlucyBrZXJu
-ZWwgZHJpdmVyIHN1cHBvcnQsIHRoZSBnb2FsIGlzIHRvCj4gPiA+ID4+IG1ha2UgdGhlIHRyYW5z
-cG9ydCBnZW5lcmljIGVub3VnaCB0byBzdXBwb3J0IHVzZXJzcGFjZSBkcml2ZXJzLiBUaGlzCj4g
-PiA+ID4+IG1lYW5zIHZob3N0LW1kZXZbMV0gY291bGQgYmUgYnVpbHQgb24gdG9wIGFzIHdlbGwg
-YnkgcmVzdWluZyB0aGUKPiA+ID4gPj4gdHJhbnNwb3J0Lgo+ID4gPiA+Pgo+ID4gPiA+PiBBIHNh
-bXBsZSBkcml2ZXIgaXMgYWxzbyBpbXBsZW1lbnRlZCB3aGljaCBzaW11bGF0ZSBhIHZpcml0by1u
-ZXQKPiA+ID4gPj4gbG9vcGJhY2sgZXRoZXJuZXQgZGV2aWNlIG9uIHRvcCBvZiB2cmluZ2ggKyB3
-b3JrcXVldWUuIFRoaXMgY291bGQgYmUKPiA+ID4gPj4gdXNlZCBhcyBhIHJlZmVyZW5jZSBpbXBs
-ZW1lbnRhdGlvbiBmb3IgcmVhbCBoYXJkd2FyZSBkcml2ZXIuCj4gPiA+ID4+Cj4gPiA+ID4+IEFs
-c28gYSByZWFsIElDRiBWRiBkcml2ZXIgd2FzIGFsc28gcG9zdGVkIGhlcmVbMl0gd2hpY2ggaXMg
-YSBnb29kCj4gPiA+ID4+IHJlZmVyZW5jZSBmb3IgdmVuZG9ycyB3aG8gaXMgaW50ZXJlc3RlZCBp
-biB0aGVpciBvd24gdmlydGlvIGRhdGFwYXRoCj4gPiA+ID4+IG9mZmxvYWRpbmcgcHJvZHVjdC4K
-PiA+ID4gPj4KPiA+ID4gPj4gQ29uc2lkZXIgbWRldiBmcmFtZXdvcmsgb25seSBzdXBwb3J0IFZG
-SU8gZGV2aWNlIGFuZCBkcml2ZXIgcmlnaHQgbm93LAo+ID4gPiA+PiB0aGlzIHNlcmllcyBhbHNv
-IGV4dGVuZCBpdCB0byBzdXBwb3J0IG90aGVyIHR5cGVzLiBUaGlzIGlzIGRvbmUKPiA+ID4gPj4g
-dGhyb3VnaCBpbnRyb2R1Y2luZyBjbGFzcyBpZCB0byB0aGUgZGV2aWNlIGFuZCBwYWlyaW5nIGl0
-IHdpdGgKPiA+ID4gPj4gaWRfdGFsYmUgY2xhaW1lZCBieSB0aGUgZHJpdmVyLiBPbiB0b3AsIHRo
-aXMgc2VyaXMgYWxzbyBkZWNvdXBsZQo+ID4gPiA+PiBkZXZpY2Ugc3BlY2lmaWMgcGFyZW50cyBv
-cHMgb3V0IG9mIHRoZSBjb21tb24gb25lcy4KPiA+ID4gPj4KPiA+ID4gPj4gUGt0Z2VuIHRlc3Qg
-d2FzIGRvbmUgd2l0aCB2aXJpdG8tbmV0ICsgbXZuZXQgbG9vcCBiYWNrIGRldmljZS4KPiA+ID4g
-Pj4KPiA+ID4gPj4gUGxlYXNlIHJldmlldy4KPiA+ID4gPj4KPiA+ID4gPj4gWzFdIGh0dHBzOi8v
-bGttbC5vcmcvbGttbC8yMDE5LzEwLzMxLzQ0MAo+ID4gPiA+PiBbMl0gaHR0cHM6Ly9sa21sLm9y
-Zy9sa21sLzIwMTkvMTAvMTUvMTIyNgo+ID4gPiA+Pgo+ID4gPiA+PiBDaGFuZ2VzIGZyb20gVjc6
-Cj4gPiA+ID4+IC0gZHJvcCB7c2V0fGdldH1fbWRldl9mZWF0dXJlcyBmb3IgdmlydGlvCj4gPiA+
-ID4+IC0gdHlwbyBhbmQgY29tbWVudCBzdHlsZSBmaXhlcyAgICAKPiA+ID4gPgo+ID4gPiA+IFNl
-ZW1zIHdlJ3JlIG5lYXJseSB0aGVyZSwgYWxsIHRoZSByZW1haW5pbmcgY29tbWVudHMgYXJlIHJl
-bGF0aXZlbHkKPiA+ID4gPiBzdXBlcmZpY2lhbCwgdGhvdWdoIEkgd291bGQgYXBwcmVjaWF0ZSBh
-IHY5IGFkZHJlc3NpbmcgdGhlbSBhcyB3ZWxsIGFzCj4gPiA+ID4gdGhlIGNoZWNrcGF0Y2ggd2Fy
-bmluZ3M6Cj4gPiA+ID4KPiA+ID4gPiBodHRwczovL3BhdGNod29yay5mcmVlZGVza3RvcC5vcmcv
-c2VyaWVzLzY4OTc3LyAgICAKPiA+ID4gCj4gPiA+IAo+ID4gPiBXaWxsIGRvLgo+ID4gPiAKPiA+
-ID4gQnR3LCBkbyB5b3UgcGxhbiB0byBtZXJnZSB2aG9zdC1tZGV2IHBhdGNoIG9uIHRvcD8gT3Ig
-eW91IHByZWZlciBpdCB0byAKPiA+ID4gZ28gdGhyb3VnaCBNaWNoYWVsJ3Mgdmhvc3QgdHJlZT8g
-IAo+ID4gCj4gPiBJIGNhbiBpbmNsdWRlIGl0IGlmIHlvdSB3aXNoLiAgVGhlIG1kZXYgY2hhbmdl
-cyBhcmUgaXNvbGF0ZWQgZW5vdWdoIGluCj4gPiB0aGF0IHBhdGNoIHRoYXQgSSB3b3VsZG4ndCBw
-cmVzdW1lIGl0LCBidXQgY2xlYXJseSBpdCB3b3VsZCByZXF1aXJlCj4gPiBsZXNzIG1lcmdlIGNv
-b3JkaW5hdGlvbiB0byBkcm9wIGl0IGluIG15IHRyZWUuICBMZXQgbWUga25vdy4gIFRoYW5rcywK
-PiA+IAo+ID4gQWxleCAgCj4gCj4gSSdtIGZpbmUgd2l0aCBtZXJnaW5nIHRocm91Z2ggeW91ciB0
-cmVlLiBJZiB5b3UgZG8sIGZlZWwgZnJlZSB0bwo+IGluY2x1ZGUKPiAKPiBBY2tlZC1ieTogTWlj
-aGFlbCBTLiBUc2lya2luIDxtc3RAcmVkaGF0LmNvbT4KCkFGQUlDVCwgaXQgbG9va3MgbGlrZSB3
-ZSdyZSBleHBlY3RpbmcgYXQgbGVhc3Qgb25lIG1vcmUgdmVyc2lvbiBvZgpUaXdlaSdzIHBhdGNo
-IGFmdGVyIFY1LCBzbyBpdCdkIHByb2JhYmx5IGJlIGJlc3QgdG8gcHJvdmlkZSB0aGUgYWNrIGFu
-ZApnby1haGVhZCBvbiB0aGF0IG5leHQgdmVyc2lvbiBzbyB0aGVyZSdzIG5vIGNvbmZ1c2lvbi4g
-IFRoYW5rcywKCkFsZXgKCl9fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19f
-X19fX19fClZpcnR1YWxpemF0aW9uIG1haWxpbmcgbGlzdApWaXJ0dWFsaXphdGlvbkBsaXN0cy5s
-aW51eC1mb3VuZGF0aW9uLm9yZwpodHRwczovL2xpc3RzLmxpbnV4Zm91bmRhdGlvbi5vcmcvbWFp
-bG1hbi9saXN0aW5mby92aXJ0dWFsaXphdGlvbg==
+On 11/5/19 11:05 PM, Jason Wang wrote:
+> diff --git a/samples/Kconfig b/samples/Kconfig
+> index c8dacb4dda80..13a2443e18e0 100644
+> --- a/samples/Kconfig
+> +++ b/samples/Kconfig
+> @@ -131,6 +131,16 @@ config SAMPLE_VFIO_MDEV_MDPY
+>  	  mediated device.  It is a simple framebuffer and supports
+>  	  the region display interface (VFIO_GFX_PLANE_TYPE_REGION).
+>  
+> +config SAMPLE_VIRTIO_MDEV_NET
+> +	tristate "Build VIRTIO net example mediated device sample code -- loadable modules only"
+> +	depends on VIRTIO_MDEV && VHOST_RING && m
+> +	help
+> +	  Build a networking sample device for use as a virtio
+> +	  mediated device. The device coopreates with virtio-mdev bus
+
+typo here:
+	                              cooperates
+
+> +	  driver to present an virtio ethernet driver for
+> +	  kernel. It simply loopbacks all packets from its TX
+> +	  virtqueue to its RX virtqueue.
+> +
+>  config SAMPLE_VFIO_MDEV_MDPY_FB
+>  	tristate "Build VFIO mdpy example guest fbdev driver -- loadable module only"
+>  	depends on FB && m
+
+ciao.
+-- 
+~Randy
