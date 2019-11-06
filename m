@@ -1,16 +1,13 @@
-From: Laurent Vivier <lvivier@redhat.com>
-Subject: Re: [PATCH] virtio_console: allocate inbufs in add_port() only if it
-	is needed
-Date: Wed, 6 Nov 2019 15:02:25 +0100
-Message-ID: <83d88904-1626-8dd6-9e5c-7abcee27bcd0__24330.2077915118$1573048977$gmane$org@redhat.com>
-References: <20191018164718.15999-1-lvivier@redhat.com>
-	<20191106085548-mutt-send-email-mst@kernel.org>
+From: Cornelia Huck <cohuck@redhat.com>
+Subject: Re: [PATCH V10 0/6] mdev based hardware virtio offloading support
+Date: Wed, 6 Nov 2019 15:16:35 +0100
+Message-ID: <20191106151635.0d1cb3bc.cohuck__19914.3655876227$1573049838$gmane$org@redhat.com>
+References: <20191106133531.693-1-jasowang@redhat.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <20191106085548-mutt-send-email-mst@kernel.org>
-Content-Language: en-US
+In-Reply-To: <20191106133531.693-1-jasowang@redhat.com>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -20,80 +17,49 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: "Michael S. Tsirkin" <mst@redhat.com>
-Cc: Greg Kroah-Hartman <gregkh@linuxfoundation.org>, virtualization@lists.linux-foundation.org, linux-kernel@vger.kernel.org, Arnd Bergmann <arnd@arndb.de>, Amit Shah <amit@kernel.org>
+To: Jason Wang <jasowang@redhat.com>
+Cc: stefanha@redhat.com, christophe.de.dinechin@gmail.com, kvm@vger.kernel.org, mst@redhat.com, airlied@linux.ie, joonas.lahtinen@linux.intel.com, heiko.carstens@de.ibm.com, dri-devel@lists.freedesktop.org, virtualization@lists.linux-foundation.org, kwankhede@nvidia.com, rob.miller@broadcom.com, linux-s390@vger.kernel.org, sebott@linux.ibm.com, lulu@redhat.com, eperezma@redhat.com, pasic@linux.ibm.com, borntraeger@de.ibm.com, haotian.wang@sifive.com, zhi.a.wang@intel.com, farman@linux.ibm.com, idos@mellanox.com, gor@linux.ibm.com, intel-gfx@lists.freedesktop.org, jani.nikula@linux.intel.com, xiao.w.wang@intel.com, freude@linux.ibm.com, zhenyuw@linux.intel.com, parav@mellanox.com, zhihong.wang@intel.com, rodrigo.vivi@intel.com, intel-gvt-dev@lists.freedesktop.org, akrowiak@linux.ibm.com, oberpar@linux.ibm.com, netdev@vger.kernel.org, linux-kernel@vger.kernel.org, maxime.co
 List-Id: virtualization@lists.linuxfoundation.org
 
-On 06/11/2019 14:56, Michael S. Tsirkin wrote:
-> On Fri, Oct 18, 2019 at 06:47:18PM +0200, Laurent Vivier wrote:
->> When we hot unplug a virtserialport and then try to hot plug again,
->> it fails:
->>
->> (qemu) chardev-add socket,id=serial0,path=/tmp/serial0,server,nowait
->> (qemu) device_add virtserialport,bus=virtio-serial0.0,nr=2,\
->>                   chardev=serial0,id=serial0,name=serial0
->> (qemu) device_del serial0
->> (qemu) device_add virtserialport,bus=virtio-serial0.0,nr=2,\
->>                   chardev=serial0,id=serial0,name=serial0
->> kernel error:
->>   virtio-ports vport2p2: Error allocating inbufs
->> qemu error:
->>   virtio-serial-bus: Guest failure in adding port 2 for device \
->>                      virtio-serial0.0
->>
->> This happens because buffers for the in_vq are allocated when the port is
->> added but are not released when the port is unplugged.
->>
->> They are only released when virtconsole is removed (see a7a69ec0d8e4)
->>
->> To avoid the problem and to be symmetric, we could allocate all the buffers
->> in init_vqs() as they are released in remove_vqs(), but it sounds like
->> a waste of memory.
->>
->> Rather than that, this patch changes add_port() logic to only allocate the
->> buffers if the in_vq has available free slots.
->>
->> Fixes: a7a69ec0d8e4 ("virtio_console: free buffers after reset")
->> Cc: mst@redhat.com
->> Signed-off-by: Laurent Vivier <lvivier@redhat.com>
->> ---
->>  drivers/char/virtio_console.c | 17 +++++++++++------
->>  1 file changed, 11 insertions(+), 6 deletions(-)
->>
->> diff --git a/drivers/char/virtio_console.c b/drivers/char/virtio_console.c
->> index 7270e7b69262..77105166fe01 100644
->> --- a/drivers/char/virtio_console.c
->> +++ b/drivers/char/virtio_console.c
->> @@ -1421,12 +1421,17 @@ static int add_port(struct ports_device *portdev, u32 id)
->>  	spin_lock_init(&port->outvq_lock);
->>  	init_waitqueue_head(&port->waitqueue);
->>  
->> -	/* Fill the in_vq with buffers so the host can send us data. */
->> -	nr_added_bufs = fill_queue(port->in_vq, &port->inbuf_lock);
->> -	if (!nr_added_bufs) {
->> -		dev_err(port->dev, "Error allocating inbufs\n");
->> -		err = -ENOMEM;
->> -		goto free_device;
->> +	/* if the in_vq has not already been filled (the port has already been
->> +	 * used and unplugged), fill the in_vq with buffers so the host can
->> +	 * send us data.
->> +	 */
->> +	if (port->in_vq->num_free != 0) {
->> +		nr_added_bufs = fill_queue(port->in_vq, &port->inbuf_lock);
->> +		if (!nr_added_bufs) {
->> +			dev_err(port->dev, "Error allocating inbufs\n");
->> +			err = -ENOMEM;
->> +			goto free_device;
->> +		}
->>  	}
->>  
->>  	if (is_rproc_serial(port->portdev->vdev))
+On Wed,  6 Nov 2019 21:35:25 +0800
+Jason Wang <jasowang@redhat.com> wrote:
+
+> Hi all:
 > 
-> Well fill_queue will just add slots as long as it can.
-> So on a full queue it does nothing. How does this patch help?
+> There are hardwares that can do virtio datapath offloading while
+> having its own control path. This path tries to implement a mdev based
+> unified API to support using kernel virtio driver to drive those
+> devices. This is done by introducing a new mdev transport for virtio
+> (virtio_mdev) and register itself as a new kind of mdev driver. Then
+> it provides a unified way for kernel virtio driver to talk with mdev
+> device implementation.
+> 
+> Though the series only contains kernel driver support, the goal is to
+> make the transport generic enough to support userspace drivers. This
+> means vhost-mdev[1] could be built on top as well by resuing the
+> transport.
+> 
+> A sample driver is also implemented which simulate a virito-net
+> loopback ethernet device on top of vringh + workqueue. This could be
+> used as a reference implementation for real hardware driver.
+> 
+> Also a real IFC VF driver was also posted here[2] which is a good
+> reference for vendors who is interested in their own virtio datapath
+> offloading product.
+> 
+> Consider mdev framework only support VFIO device and driver right now,
+> this series also extend it to support other types. This is done
+> through introducing class id to the device and pairing it with
+> id_talbe claimed by the driver. On top, this seris also decouple
+> device specific ops out of the common ones for implementing class
+> specific operations over mdev bus.
+> 
+> Pktgen test was done with virito-net + mvnet loop back device.
+> 
+> Please review.
 
-Yes, but in this case it returns 0 and so add_port() fails and exits
-with -ENOMEM and the device is freed. It's what this patch tries to avoid.
+All looking good to me now.
 
-Thanks,
-Laurent
+> 
+> [1] https://lkml.org/lkml/2019/11/5/424
+> [2] https://lkml.org/lkml/2019/11/5/227
