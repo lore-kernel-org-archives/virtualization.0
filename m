@@ -1,15 +1,15 @@
-From: Laurent Vivier <lvivier@redhat.com>
+From: "Michael S. Tsirkin" <mst@redhat.com>
 Subject: Re: [PATCH] virtio_console: allocate inbufs in add_port() only if it
 	is needed
-Date: Wed, 6 Nov 2019 14:53:06 +0100
-Message-ID: <ac1cad60-dd5e-532a-8a35-a8dfa2a586a0__2498.30523259646$1573048410$gmane$org@redhat.com>
+Date: Wed, 6 Nov 2019 08:56:31 -0500
+Message-ID: <20191106085548-mutt-send-email-mst@kernel.org>
 References: <20191018164718.15999-1-lvivier@redhat.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
+Content-Disposition: inline
 In-Reply-To: <20191018164718.15999-1-lvivier@redhat.com>
-Content-Language: en-US
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -19,16 +19,11 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: linux-kernel@vger.kernel.org
-Cc: Greg Kroah-Hartman <gregkh@linuxfoundation.org>, virtualization@lists.linux-foundation.org, "Michael S . Tsirkin" <mst@redhat.com>, Arnd Bergmann <arnd@arndb.de>, Amit Shah <amit@kernel.org>
+To: Laurent Vivier <lvivier@redhat.com>
+Cc: Greg Kroah-Hartman <gregkh@linuxfoundation.org>, virtualization@lists.linux-foundation.org, linux-kernel@vger.kernel.org, Arnd Bergmann <arnd@arndb.de>, Amit Shah <amit@kernel.org>
 List-Id: virtualization@lists.linuxfoundation.org
 
-Any comments?
-
-Thanks,
-Laurent
-
-On 18/10/2019 18:47, Laurent Vivier wrote:
+On Fri, Oct 18, 2019 at 06:47:18PM +0200, Laurent Vivier wrote:
 > When we hot unplug a virtserialport and then try to hot plug again,
 > it fails:
 > 
@@ -91,4 +86,9 @@ On 18/10/2019 18:47, Laurent Vivier wrote:
 >  	}
 >  
 >  	if (is_rproc_serial(port->portdev->vdev))
-> 
+
+Well fill_queue will just add slots as long as it can.
+So on a full queue it does nothing. How does this patch help?
+
+> -- 
+> 2.21.0
