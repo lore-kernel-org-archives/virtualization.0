@@ -1,16 +1,19 @@
-From: Alex Williamson <alex.williamson@redhat.com>
-Subject: Re: [PATCH V9 6/6] docs: sample driver to demonstrate how to
-	implement virtio-mdev framework
-Date: Wed, 6 Nov 2019 15:58:00 -0700
-Message-ID: <20191106155800.0b8418ec__22866.5009768278$1573081113$gmane$org@x1.home>
-References: <20191106070548.18980-1-jasowang@redhat.com>
-	<20191106070548.18980-7-jasowang@redhat.com>
-	<88efad07-70aa-3879-31e7-ace4d2ad63a1@infradead.org>
+From: Jason Wang <jasowang@redhat.com>
+Subject: Re: [PATCH v5] vhost: introduce mdev based hardware backend
+Date: Thu, 7 Nov 2019 12:08:08 +0800
+Message-ID: <914081d6-40ee-f184-ff43-c3d4cd885fba__39873.8039586291$1573099749$gmane$org@redhat.com>
+References: <20191105115332.11026-1-tiwei.bie@intel.com>
+	<16f31c27-3a0e-09d7-3925-dc9777f5e229@redhat.com>
+	<20191106122249.GA3235@___>
+	<20191106075607-mutt-send-email-mst@kernel.org>
+	<580dfa2c-f1ff-2f6f-bbc8-1c4b0a829a3d@redhat.com>
+	<20191106144952.GA10926@___>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset="utf-8"; Format="flowed"
+Content-Transfer-Encoding: base64
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <88efad07-70aa-3879-31e7-ace4d2ad63a1@infradead.org>
+In-Reply-To: <20191106144952.GA10926@___>
+Content-Language: en-US
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -20,49 +23,40 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Randy Dunlap <rdunlap@infradead.org>
-Cc: stefanha@redhat.com, christophe.de.dinechin@gmail.com, kvm@vger.kernel.org, mst@redhat.com, airlied@linux.ie, joonas.lahtinen@linux.intel.com, heiko.carstens@de.ibm.com, dri-devel@lists.freedesktop.org, virtualization@lists.linux-foundation.org, kwankhede@nvidia.com, rob.miller@broadcom.com, linux-s390@vger.kernel.org, sebott@linux.ibm.com, lulu@redhat.com, eperezma@redhat.com, pasic@linux.ibm.com, borntraeger@de.ibm.com, haotian.wang@sifive.com, intel-gfx@lists.freedesktop.org, zhi.a.wang@intel.com, farman@linux.ibm.com, idos@mellanox.com, gor@linux.ibm.com, jani.nikula@linux.intel.com, rodrigo.vivi@intel.com, xiao.w.wang@intel.com, freude@linux.ibm.com, zhenyuw@linux.intel.com, parav@mellanox.com, zhihong.wang@intel.com, intel-gvt-dev@lists.freedesktop.org, akrowiak@linux.ibm.com, oberpar@linux.ibm.com, netdev@vger.kernel.org, cohuck@redhat.com, linux-kernel@vger.ke
+To: Tiwei Bie <tiwei.bie@intel.com>
+Cc: kvm@vger.kernel.org, "Michael S. Tsirkin" <mst@redhat.com>, netdev@vger.kernel.org, linux-kernel@vger.kernel.org, virtualization@lists.linux-foundation.org, zhihong.wang@intel.com, maxime.coquelin@redhat.com, lingshan.zhu@intel.com
 List-Id: virtualization@lists.linuxfoundation.org
 
-On Wed, 6 Nov 2019 14:50:30 -0800
-Randy Dunlap <rdunlap@infradead.org> wrote:
-
-> On 11/5/19 11:05 PM, Jason Wang wrote:
-> > diff --git a/samples/Kconfig b/samples/Kconfig
-> > index c8dacb4dda80..13a2443e18e0 100644
-> > --- a/samples/Kconfig
-> > +++ b/samples/Kconfig
-> > @@ -131,6 +131,16 @@ config SAMPLE_VFIO_MDEV_MDPY
-> >  	  mediated device.  It is a simple framebuffer and supports
-> >  	  the region display interface (VFIO_GFX_PLANE_TYPE_REGION).
-> >  
-> > +config SAMPLE_VIRTIO_MDEV_NET
-> > +	tristate "Build VIRTIO net example mediated device sample code -- loadable modules only"
-> > +	depends on VIRTIO_MDEV && VHOST_RING && m
-> > +	help
-> > +	  Build a networking sample device for use as a virtio
-> > +	  mediated device. The device coopreates with virtio-mdev bus  
-> 
-> typo here:
-> 	                              cooperates
-> 
-
-I can fix this on commit relative to V10 if there are no other issues
-raised:
-
-diff --git a/samples/Kconfig b/samples/Kconfig
-index 13a2443e18e0..b7116d97cbbe 100644
---- a/samples/Kconfig
-+++ b/samples/Kconfig
-@@ -136,7 +136,7 @@ config SAMPLE_VIRTIO_MDEV_NET
-        depends on VIRTIO_MDEV && VHOST_RING && m
-        help
-          Build a networking sample device for use as a virtio
--         mediated device. The device coopreates with virtio-mdev bus
-+         mediated device. The device cooperates with virtio-mdev bus
-          driver to present an virtio ethernet driver for
-          kernel. It simply loopbacks all packets from its TX
-          virtqueue to its RX virtqueue.
-
-Thanks,
-Alex
+Ck9uIDIwMTkvMTEvNiDkuIvljYgxMDo0OSwgVGl3ZWkgQmllIHdyb3RlOgo+Pj4+Pj4gKwlkZWZh
+dWx0Ogo+Pj4+Pj4gKwkJLyoKPj4+Pj4+ICsJCSAqIFZIT1NUX1NFVF9NRU1fVEFCTEUsIFZIT1NU
+X1NFVF9MT0dfQkFTRSwgYW5kCj4+Pj4+PiArCQkgKiBWSE9TVF9TRVRfTE9HX0ZEIGFyZSBub3Qg
+dXNlZCB5ZXQuCj4+Pj4+PiArCQkgKi8KPj4+Pj4gSWYgd2UgZG9uJ3QgZXZlbiB1c2UgdGhlbSwg
+dGhlcmUncyBwcm9iYWJseSBubyBuZWVkIHRvIGNhbGwKPj4+Pj4gdmhvc3RfZGV2X2lvY3RsKCku
+IFRoaXMgbWF5IGhlbHAgdG8gYXZvaWQgY29uZnVzaW9uIHdoZW4gd2Ugd2FudCB0byBkZXZlbG9w
+Cj4+Pj4+IG5ldyBBUEkgZm9yIGUuZyBkaXJ0eSBwYWdlIHRyYWNraW5nLgo+Pj4+IEdvb2QgcG9p
+bnQuIEl0J3MgYmV0dGVyIHRvIHJlamVjdCB0aGVzZSBpb2N0bHMgZm9yIG5vdy4KPj4+Pgo+Pj4+
+IFBTLiBPbmUgdGhpbmcgSSBtYXkgbmVlZCB0byBjbGFyaWZ5IGlzIHRoYXQsIHdlIG5lZWQgdGhl
+Cj4+Pj4gVkhPU1RfU0VUX09XTkVSIGlvY3RsIHRvIGdldCB0aGUgdnEtPmhhbmRsZV9raWNrIHRv
+IHdvcmsuCj4+Pj4gU28gaWYgd2UgZG9uJ3QgY2FsbCB2aG9zdF9kZXZfaW9jdGwoKSwgd2Ugd2ls
+bCBuZWVkIHRvCj4+Pj4gY2FsbCB2aG9zdF9kZXZfc2V0X293bmVyKCkgZGlyZWN0bHkuCj4+IEkg
+bWF5IG1pc3Mgc29tZXRoaW5nLCBpdCBsb29rcyB0byBtZSB0aGUgdGhlcmUncyBubyBvd25lciBj
+aGVjayBpbgo+PiB2aG9zdF92cmluZ19pb2N0bCgpIGFuZCB0aGUgdmhvc3RfcG9sbF9zdGFydCgp
+IGNhbiBtYWtlIHN1cmUgaGFuZGxlX2tpY2sKPj4gd29ya3M/Cj4gWWVhaCwgdGhlcmUgaXMgbm8g
+b3duZXIgY2hlY2sgaW4gdmhvc3RfdnJpbmdfaW9jdGwoKS4KPiBJSVVDLCB2aG9zdF9wb2xsX3N0
+YXJ0KCkgd2lsbCBzdGFydCBwb2xsaW5nIHRoZSBmaWxlLiBBbmQgd2hlbgo+IGV2ZW50IGFycml2
+ZXMsIHZob3N0X3BvbGxfd2FrZXVwKCkgd2lsbCBiZSBjYWxsZWQsIGFuZCBpdCB3aWxsCj4gcXVl
+dWUgd29yayB0byB3b3JrX2xpc3QgYW5kIHdha2V1cCB3b3JrZXIgdG8gZmluaXNoIHRoZSB3b3Jr
+Lgo+IEFuZCB0aGUgd29ya2VyIGlzIGNyZWF0ZWQgYnkgdmhvc3RfZGV2X3NldF9vd25lcigpLgo+
+CgpSaWdodCwgcmV0aGluayBhYm91dCB0aGlzLiBJdCBsb29rcyB0byBtZSB3ZSBuZWVkOgoKLSBL
+ZWVwIFZIT1NUX1NFVF9PV05FUiwgdGhpcyBjb3VsZCBiZSB1c2VkIGZvciBmdXR1cmUgY29udHJv
+bCB2cSB3aGVyZSAKaXQgbmVlZHMgYSBrdGhyZWFkIHRvIGFjY2VzcyB0aGUgdXNlcnNwYWNlIG1l
+bW9yeQoKLSBUZW1wb3JhcmlseSBmaWx0ZXLCoCBTRVRfTE9HX0JBU0UgYW5kIFNFVF9MT0dfRkQg
+dW50aWwgd2UgZmluYWxpemUgdGhlIApBUEkgZm9yIGRpcnR5IHBhZ2UgdHJhY2tpbmcuCgotIEZv
+ciBraWNrIHRocm91Z2gga3RocmVhZCwgaXQgbG9va3Mgc3ViLW9wdGltYWwgYnV0IHdlIGNhbiBh
+ZGRyZXNzIHRoaXMgCmluIHRoZSBmdXR1cmUsIGUuZyBjYWxsIGhhbmRsZV92cV9raWNrIGRpcmVj
+dGx5IGluIHZob3N0X3BvbGxfcXVldWUgCihwcm9iYWJseSBhIGZsYWcgZm9yIHZob3N0X3BvbGwp
+IGFuZCBkZWFsIHdpdGggdGhlIHN5bmNocm9uaXphdGlvbiBpbiAKdmhvc3RfcG9sbF9mbHVzaCBj
+YXJlZnVsbHkuCgpUaGFua3MKCgpfX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19f
+X19fX19fX19fXwpWaXJ0dWFsaXphdGlvbiBtYWlsaW5nIGxpc3QKVmlydHVhbGl6YXRpb25AbGlz
+dHMubGludXgtZm91bmRhdGlvbi5vcmcKaHR0cHM6Ly9saXN0cy5saW51eGZvdW5kYXRpb24ub3Jn
+L21haWxtYW4vbGlzdGluZm8vdmlydHVhbGl6YXRpb24=
