@@ -1,11 +1,14 @@
 From: Will Deacon <will@kernel.org>
-Subject: [PATCH 00/13] Finish off [smp_]read_barrier_depends()
-Date: Fri,  8 Nov 2019 17:01:07 +0000
-Message-ID: <20191108170120.22331-1-will__47976.9197454274$1573232506$gmane$org@kernel.org>
+Subject: [PATCH 01/13] compiler.h: Split {READ,
+	WRITE}_ONCE definitions out into rwonce.h
+Date: Fri,  8 Nov 2019 17:01:08 +0000
+Message-ID: <20191108170120.22331-2-will__10885.035821569$1573232507$gmane$org@kernel.org>
+References: <20191108170120.22331-1-will@kernel.org>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
+In-Reply-To: <20191108170120.22331-1-will@kernel.org>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -19,98 +22,296 @@ To: linux-kernel@vger.kernel.org
 Cc: Arnd Bergmann <arnd@arndb.de>, "Paul E. McKenney" <paulmck@kernel.org>, "Michael S. Tsirkin" <mst@redhat.com>, Peter Zijlstra <peterz@infradead.org>, Michael Ellerman <mpe@ellerman.id.au>, Josh Triplett <josh@joshtriplett.org>, Yunjae Lee <lyj7694@gmail.com>, SeongJae Park <sj38.park@gmail.com>, Ivan Kokshaysky <ink@jurassic.park.msu.ru>, linux-alpha@vger.kernel.org, Joe Perches <joe@perches.com>, Alan Stern <stern@rowland.harvard.edu>, Matt Turner <mattst88@gmail.com>, virtualization@lists.linux-foundation.org, Will Deacon <will@kernel.org>, Boqun Feng <boqun.feng@gmail.com>, Richard Henderson <rth@twiddle.net>
 List-Id: virtualization@lists.linuxfoundation.org
 
-Hi all,
+In preparation for allowing architectures to define their own
+implementation of the 'READ_ONCE()' macro, move the generic
+'{READ,WRITE}_ONCE()' definitions out of the unwieldy 'linux/compiler.h'
+and into a new 'rwonce.h' header under 'asm-generic'.
 
-Although [smp_]read_barrier_depends() became part of READ_ONCE() in
-commit 76ebbe78f739 ("locking/barriers: Add implicit
-smp_read_barrier_depends() to READ_ONCE()"), it still limps on in the
-Linux memory model with the sinister hope of attracting innocent new
-users so that it becomes impossible to remove altogether.
-
-Let's strike before it's too late: there's only one user outside of
-arch/alpha/ and that lives in the vhost code which I don't think you
-can actually compile for Alpha. Even if you could, it appears to be
-redundant. The rest of these patches remove any mention of the barrier
-from Documentation and comments, as well as removing its use from the
-Alpha backend and finally dropping it from the memory model completely.
-
-After this series, there are still two places where it is mentioned:
-
-  1. The Korean translation of memory-barriers.txt. I'd appreciate some
-     help fixing this because it's not entirely a straightforward
-     deletion.
-
-  2. The virtio vring tests under tools/. This is userspace code so I'm
-     not too fussed about it.
-
-There's a chunk of header reshuffling at the start of the series so that
-READ_ONCE() can sensibly be overridden by arch code.
-
-Feedback welcome.
-
-Cheers,
-
-Will
-
-Cc: Yunjae Lee <lyj7694@gmail.com>
-Cc: SeongJae Park <sj38.park@gmail.com>
-Cc: "Paul E. McKenney" <paulmck@kernel.org>
-Cc: Josh Triplett <josh@joshtriplett.org>
-Cc: Matt Turner <mattst88@gmail.com>
-Cc: Ivan Kokshaysky <ink@jurassic.park.msu.ru>
-Cc: Richard Henderson <rth@twiddle.net>
-Cc: Peter Zijlstra <peterz@infradead.org>
-Cc: Alan Stern <stern@rowland.harvard.edu>
-Cc: Michael Ellerman <mpe@ellerman.id.au>
-Cc: "Michael S. Tsirkin" <mst@redhat.com>
-Cc: Jason Wang <jasowang@redhat.com>
-Cc: Arnd Bergmann <arnd@arndb.de>
-Cc: Joe Perches <joe@perches.com>
-Cc: Boqun Feng <boqun.feng@gmail.com>
-Cc: linux-alpha@vger.kernel.org
-Cc: virtualization@lists.linux-foundation.org
-
---->8
-
-Will Deacon (13):
-  compiler.h: Split {READ,WRITE}_ONCE definitions out into rwonce.h
-  READ_ONCE: Undefine internal __READ_ONCE_SIZE macro after use
-  READ_ONCE: Allow __READ_ONCE_SIZE cases to be overridden by the
-    architecture
-  vhost: Remove redundant use of read_barrier_depends() barrier
-  alpha: Override READ_ONCE() with barriered implementation
-  READ_ONCE: Remove smp_read_barrier_depends() invocation
-  alpha: Replace smp_read_barrier_depends() usage with smp_[r]mb()
-  locking/barriers: Remove definitions for [smp_]read_barrier_depends()
-  Documentation/barriers: Remove references to
-    [smp_]read_barrier_depends()
-  tools/memory-model: Remove smp_read_barrier_depends() from informal
-    doc
-  powerpc: Remove comment about read_barrier_depends()
-  include/linux: Remove smp_read_barrier_depends() from comments
-  checkpatch: Remove checks relating to [smp_]read_barrier_depends()
-
- .../RCU/Design/Requirements/Requirements.html |  11 +-
- Documentation/memory-barriers.txt             | 156 +-----------------
- arch/alpha/include/asm/atomic.h               |  16 +-
- arch/alpha/include/asm/barrier.h              |  61 +------
- arch/alpha/include/asm/pgtable.h              |  10 +-
- arch/alpha/include/asm/rwonce.h               |  22 +++
- arch/powerpc/include/asm/barrier.h            |   2 -
- drivers/vhost/vhost.c                         |   5 -
- include/asm-generic/Kbuild                    |   1 +
- include/asm-generic/barrier.h                 |  17 --
- include/asm-generic/rwonce.h                  | 131 +++++++++++++++
- include/linux/compiler.h                      | 114 +------------
- include/linux/compiler_attributes.h           |  12 ++
- include/linux/percpu-refcount.h               |   2 +-
- include/linux/ptr_ring.h                      |   2 +-
- mm/memory.c                                   |   2 +-
- scripts/checkpatch.pl                         |   9 +-
- .../Documentation/explanation.txt             |  26 ++-
- 18 files changed, 217 insertions(+), 382 deletions(-)
- create mode 100644 arch/alpha/include/asm/rwonce.h
+Signed-off-by: Will Deacon <will@kernel.org>
+---
+ include/asm-generic/Kbuild          |   1 +
+ include/asm-generic/rwonce.h        | 110 +++++++++++++++++++++++++++
+ include/linux/compiler.h            | 114 +---------------------------
+ include/linux/compiler_attributes.h |  12 +++
+ 4 files changed, 125 insertions(+), 112 deletions(-)
  create mode 100644 include/asm-generic/rwonce.h
 
+diff --git a/include/asm-generic/Kbuild b/include/asm-generic/Kbuild
+index adff14fcb8e4..2a7a1e94d4cb 100644
+--- a/include/asm-generic/Kbuild
++++ b/include/asm-generic/Kbuild
+@@ -4,4 +4,5 @@
+ # (This file is not included when SRCARCH=um since UML borrows several
+ # asm headers from the host architecutre.)
+ 
++mandatory-y += rwonce.h
+ mandatory-y += simd.h
+diff --git a/include/asm-generic/rwonce.h b/include/asm-generic/rwonce.h
+new file mode 100644
+index 000000000000..d189455ae038
+--- /dev/null
++++ b/include/asm-generic/rwonce.h
+@@ -0,0 +1,110 @@
++/* SPDX-License-Identifier: GPL-2.0 */
++/*
++ * Prevent the compiler from merging or refetching reads or writes. The
++ * compiler is also forbidden from reordering successive instances of
++ * READ_ONCE and WRITE_ONCE, but only when the compiler is aware of some
++ * particular ordering. One way to make the compiler aware of ordering is to
++ * put the two invocations of READ_ONCE or WRITE_ONCE in different C
++ * statements.
++ *
++ * These two macros will also work on aggregate data types like structs or
++ * unions. If the size of the accessed data type exceeds the word size of
++ * the machine (e.g., 32 bits or 64 bits) READ_ONCE() and WRITE_ONCE() will
++ * fall back to memcpy(). There's at least two memcpy()s: one for the
++ * __builtin_memcpy() and then one for the macro doing the copy of variable
++ * - '__u' allocated on the stack.
++ *
++ * Their two major use cases are: (1) Mediating communication between
++ * process-level code and irq/NMI handlers, all running on the same CPU,
++ * and (2) Ensuring that the compiler does not fold, spindle, or otherwise
++ * mutilate accesses that either do not require ordering or that interact
++ * with an explicit memory barrier or atomic instruction that provides the
++ * required ordering.
++ */
++#ifndef __ASM_GENERIC_RWONCE_H
++#define __ASM_GENERIC_RWONCE_H
++
++#ifndef __ASSEMBLY__
++
++#include <linux/compiler_attributes.h>
++#include <linux/kasan-checks.h>
++
++#include <uapi/linux/types.h>
++
++#include <asm/barrier.h>
++
++#define __READ_ONCE_SIZE						\
++({									\
++	switch (size) {							\
++	case 1: *(__u8 *)res = *(volatile __u8 *)p; break;		\
++	case 2: *(__u16 *)res = *(volatile __u16 *)p; break;		\
++	case 4: *(__u32 *)res = *(volatile __u32 *)p; break;		\
++	case 8: *(__u64 *)res = *(volatile __u64 *)p; break;		\
++	default:							\
++		barrier();						\
++		__builtin_memcpy((void *)res, (const void *)p, size);	\
++		barrier();						\
++	}								\
++})
++
++static __always_inline
++void __read_once_size(const volatile void *p, void *res, int size)
++{
++	__READ_ONCE_SIZE;
++}
++
++static __no_kasan_or_inline
++void __read_once_size_nocheck(const volatile void *p, void *res, int size)
++{
++	__READ_ONCE_SIZE;
++}
++
++static __always_inline void __write_once_size(volatile void *p, void *res, int size)
++{
++	switch (size) {
++	case 1: *(volatile __u8 *)p = *(__u8 *)res; break;
++	case 2: *(volatile __u16 *)p = *(__u16 *)res; break;
++	case 4: *(volatile __u32 *)p = *(__u32 *)res; break;
++	case 8: *(volatile __u64 *)p = *(__u64 *)res; break;
++	default:
++		barrier();
++		__builtin_memcpy((void *)p, (const void *)res, size);
++		barrier();
++	}
++}
++
++#define __READ_ONCE(x, check)						\
++({									\
++	union { typeof(x) __val; char __c[1]; } __u;			\
++	if (check)							\
++		__read_once_size(&(x), __u.__c, sizeof(x));		\
++	else								\
++		__read_once_size_nocheck(&(x), __u.__c, sizeof(x));	\
++	smp_read_barrier_depends(); /* Enforce dependency ordering from x */ \
++	__u.__val;							\
++})
++#define READ_ONCE(x) __READ_ONCE(x, 1)
++
++/*
++ * Use READ_ONCE_NOCHECK() instead of READ_ONCE() if you need
++ * to hide memory access from KASAN.
++ */
++#define READ_ONCE_NOCHECK(x) __READ_ONCE(x, 0)
++
++static __no_kasan_or_inline
++unsigned long read_word_at_a_time(const void *addr)
++{
++	kasan_check_read(addr, 1);
++	return *(unsigned long *)addr;
++}
++
++#define WRITE_ONCE(x, val) \
++({							\
++	union { typeof(x) __val; char __c[1]; } __u =	\
++		{ .__val = (__force typeof(x)) (val) }; \
++	__write_once_size(&(x), __u.__c, sizeof(x));	\
++	__u.__val;					\
++})
++
++#endif /* __ASSEMBLY__ */
++#endif	/* __ASM_GENERIC_RWONCE_H */
+diff --git a/include/linux/compiler.h b/include/linux/compiler.h
+index 5e88e7e33abe..6de09d2f42ad 100644
+--- a/include/linux/compiler.h
++++ b/include/linux/compiler.h
+@@ -177,118 +177,6 @@ void ftrace_likely_update(struct ftrace_likely_data *f, int val,
+ # define __UNIQUE_ID(prefix) __PASTE(__PASTE(__UNIQUE_ID_, prefix), __LINE__)
+ #endif
+ 
+-#include <uapi/linux/types.h>
+-
+-#define __READ_ONCE_SIZE						\
+-({									\
+-	switch (size) {							\
+-	case 1: *(__u8 *)res = *(volatile __u8 *)p; break;		\
+-	case 2: *(__u16 *)res = *(volatile __u16 *)p; break;		\
+-	case 4: *(__u32 *)res = *(volatile __u32 *)p; break;		\
+-	case 8: *(__u64 *)res = *(volatile __u64 *)p; break;		\
+-	default:							\
+-		barrier();						\
+-		__builtin_memcpy((void *)res, (const void *)p, size);	\
+-		barrier();						\
+-	}								\
+-})
+-
+-static __always_inline
+-void __read_once_size(const volatile void *p, void *res, int size)
+-{
+-	__READ_ONCE_SIZE;
+-}
+-
+-#ifdef CONFIG_KASAN
+-/*
+- * We can't declare function 'inline' because __no_sanitize_address confilcts
+- * with inlining. Attempt to inline it may cause a build failure.
+- * 	https://gcc.gnu.org/bugzilla/show_bug.cgi?id=67368
+- * '__maybe_unused' allows us to avoid defined-but-not-used warnings.
+- */
+-# define __no_kasan_or_inline __no_sanitize_address notrace __maybe_unused
+-#else
+-# define __no_kasan_or_inline __always_inline
+-#endif
+-
+-static __no_kasan_or_inline
+-void __read_once_size_nocheck(const volatile void *p, void *res, int size)
+-{
+-	__READ_ONCE_SIZE;
+-}
+-
+-static __always_inline void __write_once_size(volatile void *p, void *res, int size)
+-{
+-	switch (size) {
+-	case 1: *(volatile __u8 *)p = *(__u8 *)res; break;
+-	case 2: *(volatile __u16 *)p = *(__u16 *)res; break;
+-	case 4: *(volatile __u32 *)p = *(__u32 *)res; break;
+-	case 8: *(volatile __u64 *)p = *(__u64 *)res; break;
+-	default:
+-		barrier();
+-		__builtin_memcpy((void *)p, (const void *)res, size);
+-		barrier();
+-	}
+-}
+-
+-/*
+- * Prevent the compiler from merging or refetching reads or writes. The
+- * compiler is also forbidden from reordering successive instances of
+- * READ_ONCE and WRITE_ONCE, but only when the compiler is aware of some
+- * particular ordering. One way to make the compiler aware of ordering is to
+- * put the two invocations of READ_ONCE or WRITE_ONCE in different C
+- * statements.
+- *
+- * These two macros will also work on aggregate data types like structs or
+- * unions. If the size of the accessed data type exceeds the word size of
+- * the machine (e.g., 32 bits or 64 bits) READ_ONCE() and WRITE_ONCE() will
+- * fall back to memcpy(). There's at least two memcpy()s: one for the
+- * __builtin_memcpy() and then one for the macro doing the copy of variable
+- * - '__u' allocated on the stack.
+- *
+- * Their two major use cases are: (1) Mediating communication between
+- * process-level code and irq/NMI handlers, all running on the same CPU,
+- * and (2) Ensuring that the compiler does not fold, spindle, or otherwise
+- * mutilate accesses that either do not require ordering or that interact
+- * with an explicit memory barrier or atomic instruction that provides the
+- * required ordering.
+- */
+-#include <asm/barrier.h>
+-#include <linux/kasan-checks.h>
+-
+-#define __READ_ONCE(x, check)						\
+-({									\
+-	union { typeof(x) __val; char __c[1]; } __u;			\
+-	if (check)							\
+-		__read_once_size(&(x), __u.__c, sizeof(x));		\
+-	else								\
+-		__read_once_size_nocheck(&(x), __u.__c, sizeof(x));	\
+-	smp_read_barrier_depends(); /* Enforce dependency ordering from x */ \
+-	__u.__val;							\
+-})
+-#define READ_ONCE(x) __READ_ONCE(x, 1)
+-
+-/*
+- * Use READ_ONCE_NOCHECK() instead of READ_ONCE() if you need
+- * to hide memory access from KASAN.
+- */
+-#define READ_ONCE_NOCHECK(x) __READ_ONCE(x, 0)
+-
+-static __no_kasan_or_inline
+-unsigned long read_word_at_a_time(const void *addr)
+-{
+-	kasan_check_read(addr, 1);
+-	return *(unsigned long *)addr;
+-}
+-
+-#define WRITE_ONCE(x, val) \
+-({							\
+-	union { typeof(x) __val; char __c[1]; } __u =	\
+-		{ .__val = (__force typeof(x)) (val) }; \
+-	__write_once_size(&(x), __u.__c, sizeof(x));	\
+-	__u.__val;					\
+-})
+-
+ #endif /* __KERNEL__ */
+ 
+ /*
+@@ -356,4 +244,6 @@ static inline void *offset_to_ptr(const int *off)
+ /* &a[0] degrades to a pointer: a different type from an array */
+ #define __must_be_array(a)	BUILD_BUG_ON_ZERO(__same_type((a), &(a)[0]))
+ 
++#include <asm/rwonce.h>
++
+ #endif /* __LINUX_COMPILER_H */
+diff --git a/include/linux/compiler_attributes.h b/include/linux/compiler_attributes.h
+index cdf016596659..7cb92286de9f 100644
+--- a/include/linux/compiler_attributes.h
++++ b/include/linux/compiler_attributes.h
+@@ -270,4 +270,16 @@
+  */
+ #define __weak                          __attribute__((__weak__))
+ 
++#ifdef CONFIG_KASAN
++/*
++ * We can't declare function 'inline' because __no_sanitize_address confilcts
++ * with inlining. Attempt to inline it may cause a build failure.
++ * 	https://gcc.gnu.org/bugzilla/show_bug.cgi?id=67368
++ * '__maybe_unused' allows us to avoid defined-but-not-used warnings.
++ */
++# define __no_kasan_or_inline __no_sanitize_address notrace __maybe_unused
++#else
++# define __no_kasan_or_inline __always_inline
++#endif
++
+ #endif /* __LINUX_COMPILER_ATTRIBUTES_H */
 -- 
 2.24.0.rc1.363.gb1bccd3e3d-goog
