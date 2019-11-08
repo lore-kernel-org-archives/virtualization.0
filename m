@@ -1,11 +1,13 @@
-From: Chuhong Yuan <hslester96@gmail.com>
-Subject: [PATCH] drm/virtgpu: fix double unregistration
-Date: Sat,  9 Nov 2019 15:54:17 +0800
-Message-ID: <20191109075417.29808-1-hslester96@gmail.com>
+From: David Miller <davem@davemloft.net>
+Subject: Re: [PATCH] vsock/virtio: fix sock refcnt holding during the shutdown
+Date: Fri, 08 Nov 2019 12:19:46 -0800 (PST)
+Message-ID: <20191108.121946.1084660860645163442.davem@davemloft.net>
+References: <20191108160850.51278-1-sgarzare@redhat.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
+In-Reply-To: <20191108160850.51278-1-sgarzare@redhat.com>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -15,30 +17,28 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-Cc: David Airlie <airlied@linux.ie>, Chuhong Yuan <hslester96@gmail.com>, linux-kernel@vger.kernel.org, dri-devel@lists.freedesktop.org, virtualization@lists.linux-foundation.org, Daniel Vetter <daniel@ffwll.ch>
+To: sgarzare@redhat.com
+Cc: kvm@vger.kernel.org, netdev@vger.kernel.org, linux-kernel@vger.kernel.org, virtualization@lists.linux-foundation.org, stefanha@redhat.com
 List-Id: virtualization@lists.linuxfoundation.org
 
-drm_put_dev also calls drm_dev_unregister, so dev will be unregistered
-twice.
-Replace it with drm_dev_put to fix it.
+From: Stefano Garzarella <sgarzare@redhat.com>
+Date: Fri,  8 Nov 2019 17:08:50 +0100
 
-Signed-off-by: Chuhong Yuan <hslester96@gmail.com>
----
- drivers/gpu/drm/virtio/virtgpu_drv.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+> The "42f5cda5eaf4" commit rightly set SOCK_DONE on peer shutdown,
+> but there is an issue if we receive the SHUTDOWN(RDWR) while the
+> virtio_transport_close_timeout() is scheduled.
+> In this case, when the timeout fires, the SOCK_DONE is already
+> set and the virtio_transport_close_timeout() will not call
+> virtio_transport_reset() and virtio_transport_do_close().
+> This causes that both sockets remain open and will never be released,
+> preventing the unloading of [virtio|vhost]_transport modules.
+> 
+> This patch fixes this issue, calling virtio_transport_reset() and
+> virtio_transport_do_close() when we receive the SHUTDOWN(RDWR)
+> and there is nothing left to read.
+> 
+> Fixes: 42f5cda5eaf4 ("vsock/virtio: set SOCK_DONE on peer shutdown")
+> Cc: Stephen Barber <smbarber@chromium.org>
+> Signed-off-by: Stefano Garzarella <sgarzare@redhat.com>
 
-diff --git a/drivers/gpu/drm/virtio/virtgpu_drv.c b/drivers/gpu/drm/virtio/virtgpu_drv.c
-index 0fc32fa0b3c0..fccc24e21af8 100644
---- a/drivers/gpu/drm/virtio/virtgpu_drv.c
-+++ b/drivers/gpu/drm/virtio/virtgpu_drv.c
-@@ -138,7 +138,7 @@ static void virtio_gpu_remove(struct virtio_device *vdev)
- 
- 	drm_dev_unregister(dev);
- 	virtio_gpu_deinit(dev);
--	drm_put_dev(dev);
-+	drm_dev_put(dev);
- }
- 
- static void virtio_gpu_config_changed(struct virtio_device *vdev)
--- 
-2.23.0
+Applied and queued up for -stable, thanks.
