@@ -1,14 +1,15 @@
-From: Alan Stern <stern@rowland.harvard.edu>
-Subject: Re: [PATCH 10/13] tools/memory-model: Remove
-	smp_read_barrier_depends() from informal doc
-Date: Fri, 8 Nov 2019 12:42:05 -0500 (EST)
-Message-ID: <Pine.LNX.4.44L0.1911081241460.1498-100000__33114.9063816824$1573235340$gmane$org@iolanthe.rowland.org>
-References: <20191108170120.22331-11-will@kernel.org>
+From: Arnd Bergmann <arnd@arndb.de>
+Subject: Re: [PATCH 01/13] compiler.h: Split {READ, WRITE}_ONCE definitions out
+	into rwonce.h
+Date: Fri, 8 Nov 2019 20:57:14 +0100
+Message-ID: <CAK8P3a0f=WvSQSBQ4t0FmEkcFE_mC3oARxaeTviTSkSa-D2qhg__26844.4957489677$1573243369$gmane$org@mail.gmail.com>
+References: <20191108170120.22331-1-will@kernel.org>
+	<20191108170120.22331-2-will@kernel.org>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset="utf-8"
+Content-Transfer-Encoding: base64
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <20191108170120.22331-11-will@kernel.org>
+In-Reply-To: <20191108170120.22331-2-will@kernel.org>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -19,63 +20,23 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
 To: Will Deacon <will@kernel.org>
-Cc: Arnd Bergmann <arnd@arndb.de>, "Paul E. McKenney" <paulmck@kernel.org>, "Michael S. Tsirkin" <mst@redhat.com>, Peter Zijlstra <peterz@infradead.org>, Michael Ellerman <mpe@ellerman.id.au>, Josh Triplett <josh@joshtriplett.org>, linux-kernel@vger.kernel.org, SeongJae Park <sj38.park@gmail.com>, Ivan Kokshaysky <ink@jurassic.park.msu.ru>, linux-alpha@vger.kernel.org, Joe Perches <joe@perches.com>, Matt Turner <mattst88@gmail.com>, Yunjae Lee <lyj7694@gmail.com>, virtualization@lists.linux-foundation.org, Boqun Feng <boqun.feng@gmail.com>, Richard Henderson <rth@twiddle.net>
+Cc: "Paul E. McKenney" <paulmck@kernel.org>, "Michael S. Tsirkin" <mst@redhat.com>, Peter Zijlstra <peterz@infradead.org>, Michael Ellerman <mpe@ellerman.id.au>, Josh Triplett <josh@joshtriplett.org>, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>, SeongJae Park <sj38.park@gmail.com>, Christian Borntraeger <borntraeger@de.ibm.com>, Ivan Kokshaysky <ink@jurassic.park.msu.ru>, alpha <linux-alpha@vger.kernel.org>, Joe Perches <joe@perches.com>, Alan Stern <stern@rowland.harvard.edu>, Matt Turner <mattst88@gmail.com>, Yunjae Lee <lyj7694@gmail.com>, virtualization@lists.linux-foundation.org, Boqun Feng <boqun.feng@gmail.com>, Richard Henderson <rth@twiddle.net>
 List-Id: virtualization@lists.linuxfoundation.org
 
-On Fri, 8 Nov 2019, Will Deacon wrote:
-
-> 'smp_read_barrier_depends()' has gone the way of mmiowb() and so many
-> esoteric memory barriers before it. Drop the two mentions of this
-> deceased barrier from the LKMM informal explanation document.
-> 
-> Signed-off-by: Will Deacon <will@kernel.org>
-> ---
->  .../Documentation/explanation.txt             | 26 +++++++++----------
->  1 file changed, 12 insertions(+), 14 deletions(-)
-> 
-> diff --git a/tools/memory-model/Documentation/explanation.txt b/tools/memory-model/Documentation/explanation.txt
-> index 488f11f6c588..3050bf67b8d0 100644
-> --- a/tools/memory-model/Documentation/explanation.txt
-> +++ b/tools/memory-model/Documentation/explanation.txt
-> @@ -1118,12 +1118,10 @@ maintain at least the appearance of FIFO order.
->  In practice, this difficulty is solved by inserting a special fence
->  between P1's two loads when the kernel is compiled for the Alpha
->  architecture.  In fact, as of version 4.15, the kernel automatically
-> -adds this fence (called smp_read_barrier_depends() and defined as
-> -nothing at all on non-Alpha builds) after every READ_ONCE() and atomic
-> -load.  The effect of the fence is to cause the CPU not to execute any
-> -po-later instructions until after the local cache has finished
-> -processing all the stores it has already received.  Thus, if the code
-> -was changed to:
-> +adds this fence after every READ_ONCE() and atomic load on Alpha.  The
-> +effect of the fence is to cause the CPU not to execute any po-later
-> +instructions until after the local cache has finished processing all
-> +the stores it has already received.  Thus, if the code was changed to:
->  
->  	P1()
->  	{
-> @@ -1142,14 +1140,14 @@ READ_ONCE() or another synchronization primitive rather than accessed
->  directly.
->  
->  The LKMM requires that smp_rmb(), acquire fences, and strong fences
-> -share this property with smp_read_barrier_depends(): They do not allow
-> -the CPU to execute any po-later instructions (or po-later loads in the
-> -case of smp_rmb()) until all outstanding stores have been processed by
-> -the local cache.  In the case of a strong fence, the CPU first has to
-> -wait for all of its po-earlier stores to propagate to every other CPU
-> -in the system; then it has to wait for the local cache to process all
-> -the stores received as of that time -- not just the stores received
-> -when the strong fence began.
-> +share this property: They do not allow the CPU to execute any po-later
-> +instructions (or po-later loads in the case of smp_rmb()) until all
-> +outstanding stores have been processed by the local cache.  In the
-> +case of a strong fence, the CPU first has to wait for all of its
-> +po-earlier stores to propagate to every other CPU in the system; then
-> +it has to wait for the local cache to process all the stores received
-> +as of that time -- not just the stores received when the strong fence
-> +began.
->  
->  And of course, none of this matters for any architecture other than
->  Alpha.
-
-Acked-by: Alan Stern <stern@rowland.harvard.edu>
+T24gRnJpLCBOb3YgOCwgMjAxOSBhdCA2OjAxIFBNIFdpbGwgRGVhY29uIDx3aWxsQGtlcm5lbC5v
+cmc+IHdyb3RlOgo+Cj4gSW4gcHJlcGFyYXRpb24gZm9yIGFsbG93aW5nIGFyY2hpdGVjdHVyZXMg
+dG8gZGVmaW5lIHRoZWlyIG93bgo+IGltcGxlbWVudGF0aW9uIG9mIHRoZSAnUkVBRF9PTkNFKCkn
+IG1hY3JvLCBtb3ZlIHRoZSBnZW5lcmljCj4gJ3tSRUFELFdSSVRFfV9PTkNFKCknIGRlZmluaXRp
+b25zIG91dCBvZiB0aGUgdW53aWVsZHkgJ2xpbnV4L2NvbXBpbGVyLmgnCj4gYW5kIGludG8gYSBu
+ZXcgJ3J3b25jZS5oJyBoZWFkZXIgdW5kZXIgJ2FzbS1nZW5lcmljJy4KCkFkZGluZyBDaHJpc3Rp
+YW4gQm9ybnRyw6RnZXIgdG8gQ2MsIGhlIG9yaWdpbmFsbHkgYWRkZWQgdGhlClJFQURfT05DRSgp
+L1dSSVRFX09OQ0UoKQpjb2RlLgoKSSB3b25kZXIgaWYgaXQgd291bGQgYmUgYXBwcm9wcmlhdGUg
+bm93IHRvIHJldmVydCBiYWNrIHRvIGEgbXVjaCBzaW1wbGVyIHZlcnNpb24Kb2YgdGhlc2UgaGVs
+cGVycyBmb3IgYW55IG1vZGVybiBjb21waWxlci4gQXMgSSB1bmRlcnN0YW5kLCBvbmx5IGdjYy00
+LjYgYW5kCmdjYzQuNyBhY3R1YWxseSBuZWVkIHRoZSBzb25nLWFuZC1kYW5jZSB2ZXJzaW9uIHdp
+dGggdGhlIHVuaW9uIGFuZCBzd2l0Y2gvY2FzZSwKd2hpbGUgZm9yIG90aGVycywgd2UgY2FuIG1p
+Z2h0IGJlIGFibGUgYmFjayB0byBhIG1hY3JvIGRvaW5nIGEgdm9sYXRpbGUgYWNjZXNzLgoKICAg
+ICBBcm5kCl9fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fClZp
+cnR1YWxpemF0aW9uIG1haWxpbmcgbGlzdApWaXJ0dWFsaXphdGlvbkBsaXN0cy5saW51eC1mb3Vu
+ZGF0aW9uLm9yZwpodHRwczovL2xpc3RzLmxpbnV4Zm91bmRhdGlvbi5vcmcvbWFpbG1hbi9saXN0
+aW5mby92aXJ0dWFsaXphdGlvbg==
