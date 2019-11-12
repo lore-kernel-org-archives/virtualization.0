@@ -1,19 +1,14 @@
-From: Stefano Garzarella <sgarzare@redhat.com>
-Subject: Re: [PATCH net-next 12/14] vsock/vmci: register vmci_transport only
-	when VMCI guest/host are active
-Date: Tue, 12 Nov 2019 11:42:01 +0100
-Message-ID: <20191112104201.abt7h37df24h3n7p__8721.58747385896$1573555341$gmane$org@steredhat>
-References: <20191023095554.11340-1-sgarzare@redhat.com>
-	<20191023095554.11340-13-sgarzare@redhat.com>
-	<MWHPR05MB3376266BC6AE9E6E0B75F1A1DA740@MWHPR05MB3376.namprd05.prod.outlook.com>
-	<20191111173053.erwfzawioxje635o@steredhat>
-	<MWHPR05MB33769FD52B833FC1C82F0A80DA770@MWHPR05MB3376.namprd05.prod.outlook.com>
+From: Chuhong Yuan <hslester96@gmail.com>
+Subject: Re: [PATCH] drm/virtgpu: fix double unregistration
+Date: Tue, 12 Nov 2019 19:03:05 +0800
+Message-ID: <CANhBUQ1HRe4FNWo0o18zxV2ZoANRdNd3PaTeeBZ6dG__0quDUA__14177.3607277841$1573556615$gmane$org@mail.gmail.com>
+References: <20191109075417.29808-1-hslester96@gmail.com>
+	<20191112094031.GF23790@phenom.ffwll.local>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <MWHPR05MB33769FD52B833FC1C82F0A80DA770@MWHPR05MB3376.namprd05.prod.outlook.com>
-Content-Disposition: inline
+In-Reply-To: <20191112094031.GF23790@phenom.ffwll.local>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -23,84 +18,69 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Jorgen Hansen <jhansen@vmware.com>
-Cc: Sasha Levin <sashal@kernel.org>, "linux-hyperv@vger.kernel.org" <linux-hyperv@vger.kernel.org>, Stephen Hemminger <sthemmin@microsoft.com>, Arnd Bergmann <arnd@arndb.de>, "kvm@vger.kernel.org" <kvm@vger.kernel.org>, "Michael S. Tsirkin" <mst@redhat.com>, "netdev@vger.kernel.org" <netdev@vger.kernel.org>, Dexuan Cui <decui@microsoft.com>, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>, "virtualization@lists.linux-foundation.org" <virtualization@lists.linux-foundation.org>, Haiyang Zhang <haiyangz@microsoft.com>, Stefan Hajnoczi <stefanha@redhat.com>, Greg Kroah-Hartman <gregkh@linuxfoundation.org>, "David S. Miller" <davem@davemloft.net>
+To: Chuhong Yuan <hslester96@gmail.com>, David Airlie <airlied@linux.ie>, Gerd Hoffmann <kraxel@redhat.com>, dri-devel@lists.freedesktop.org, virtualization@lists.linux-foundation.org, LKML <linux-kernel@vger.kernel.org>
+Cc: Daniel Vetter <daniel@ffwll.ch>
 List-Id: virtualization@lists.linuxfoundation.org
 
-On Tue, Nov 12, 2019 at 10:03:54AM +0000, Jorgen Hansen wrote:
-> > From: Stefano Garzarella [mailto:sgarzare@redhat.com]
-> > Sent: Monday, November 11, 2019 6:31 PM
-> > On Mon, Nov 11, 2019 at 04:27:28PM +0000, Jorgen Hansen wrote:
-> > > > From: Stefano Garzarella [mailto:sgarzare@redhat.com]
-> > > > Sent: Wednesday, October 23, 2019 11:56 AM
-> > > >
-> > > > To allow other transports to be loaded with vmci_transport,
-> > > > we register the vmci_transport as G2H or H2G only when a VMCI guest
-> > > > or host is active.
-> > > >
-> > > > To do that, this patch adds a callback registered in the vmci driver
-> > > > that will be called when a new host or guest become active.
-> > > > This callback will register the vmci_transport in the VSOCK core.
-> > > > If the transport is already registered, we ignore the error coming
-> > > > from vsock_core_register().
-> > >
-> > > So today this is mainly an issue for the VMCI vsock transport, because
-> > > VMCI autoloads with vsock (and with this solution it can continue to
-> > > do that, so none of our old products break due to changed behavior,
-> > > which is great).
-> > 
-> > I tried to not break anything :-)
-> > 
-> > >                  Shouldn't vhost behave similar, so that any module
-> > > that registers a h2g transport only does so if it is in active use?
-> > >
-> > 
-> > The vhost-vsock module will load when the first hypervisor open
-> > /dev/vhost-vsock, so in theory, when there's at least one active user.
-> 
-> Ok, sounds good then. 
-> 
-> > 
-> > >
-> > > > --- a/drivers/misc/vmw_vmci/vmci_host.c
-> > > > +++ b/drivers/misc/vmw_vmci/vmci_host.c
-> > > > @@ -108,6 +108,11 @@ bool vmci_host_code_active(void)
-> > > >  	     atomic_read(&vmci_host_active_users) > 0);
-> > > >  }
-> > > >
-> > > > +int vmci_host_users(void)
-> > > > +{
-> > > > +	return atomic_read(&vmci_host_active_users);
-> > > > +}
-> > > > +
-> > > >  /*
-> > > >   * Called on open of /dev/vmci.
-> > > >   */
-> > > > @@ -338,6 +343,8 @@ static int vmci_host_do_init_context(struct
-> > > > vmci_host_dev *vmci_host_dev,
-> > > >  	vmci_host_dev->ct_type = VMCIOBJ_CONTEXT;
-> > > >  	atomic_inc(&vmci_host_active_users);
-> > > >
-> > > > +	vmci_call_vsock_callback(true);
-> > > > +
-> > >
-> > > Since we don't unregister the transport if user count drops back to 0, we
-> > could
-> > > just call this the first time, a VM is powered on after the module is loaded.
-> > 
-> > Yes, make sense. can I use the 'vmci_host_active_users' or is better to
-> > add a new 'vmci_host_vsock_loaded'?
-> > 
-> > My doubt is that vmci_host_active_users can return to 0, so when it returns
-> > to 1, we call vmci_call_vsock_callback() again.
-> 
-> vmci_host_active_users can drop to 0 and then increase again, so having a flag
-> indicating whether the callback has been invoked would ensure that it is only
-> called once.
+On Tue, Nov 12, 2019 at 5:40 PM Daniel Vetter <daniel@ffwll.ch> wrote:
+>
+> On Sat, Nov 09, 2019 at 03:54:17PM +0800, Chuhong Yuan wrote:
+> > drm_put_dev also calls drm_dev_unregister, so dev will be unregistered
+> > twice.
+> > Replace it with drm_dev_put to fix it.
+> >
+> > Signed-off-by: Chuhong Yuan <hslester96@gmail.com>
+>
+> Nice catch, I'll apply.
+>
+> Since this is so confusing, we actually have a todo to remove drm_put_dev
+> completely from the codebase (and open-code it with explicit
+> unregister+put). Want to do that little patch series to update the
+> remaining few drivers and then remove drm_put_dev from core code?
+>
+> Thanks, Daniel
+>
 
-I agree, I will use a dedicated flag, maybe in the
-vmci_call_vsock_callback(), since it can be called or during the
-vmci_host_do_init_context() or when the callback is registered.
+I am sorry that I have to focus on my current project in recent days.
+But since this is a problem, I have written a Coccinelle script just now
+to find drm_put_dev and open-code it.
+I hope this helps.
+The script is:
 
-Thanks,
-Stefano
+virtual patch
+
+@ drm_put_dev depends on patch exists @
+expression dev;
+@@
+
+- drm_put_dev(dev);
++ drm_dev_unregister(dev);
++ drm_dev_put(dev);
+
+Regards,
+Chuhong
+> > ---
+> >  drivers/gpu/drm/virtio/virtgpu_drv.c | 2 +-
+> >  1 file changed, 1 insertion(+), 1 deletion(-)
+> >
+> > diff --git a/drivers/gpu/drm/virtio/virtgpu_drv.c b/drivers/gpu/drm/virtio/virtgpu_drv.c
+> > index 0fc32fa0b3c0..fccc24e21af8 100644
+> > --- a/drivers/gpu/drm/virtio/virtgpu_drv.c
+> > +++ b/drivers/gpu/drm/virtio/virtgpu_drv.c
+> > @@ -138,7 +138,7 @@ static void virtio_gpu_remove(struct virtio_device *vdev)
+> >
+> >       drm_dev_unregister(dev);
+> >       virtio_gpu_deinit(dev);
+> > -     drm_put_dev(dev);
+> > +     drm_dev_put(dev);
+> >  }
+> >
+> >  static void virtio_gpu_config_changed(struct virtio_device *vdev)
+> > --
+> > 2.23.0
+> >
+>
+> --
+> Daniel Vetter
+> Software Engineer, Intel Corporation
+> http://blog.ffwll.ch
