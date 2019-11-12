@@ -1,14 +1,19 @@
-From: Daniel Vetter <daniel@ffwll.ch>
-Subject: Re: [PATCH] drm/virtgpu: fix double unregistration
-Date: Tue, 12 Nov 2019 10:40:31 +0100
-Message-ID: <20191112094031.GF23790__44981.2202876032$1573551646$gmane$org@phenom.ffwll.local>
-References: <20191109075417.29808-1-hslester96@gmail.com>
+From: Jorgen Hansen via Virtualization
+	<virtualization@lists.linux-foundation.org>
+Subject: RE: [PATCH net-next 11/14] vsock: add multi-transports support
+Date: Tue, 12 Nov 2019 09:59:12 +0000
+Message-ID: <MWHPR05MB33764F82AFA882B921A11E56DA770@MWHPR05MB3376.namprd05.prod.outlook.com>
+References: <20191023095554.11340-1-sgarzare@redhat.com>
+	<20191023095554.11340-12-sgarzare@redhat.com>
+	<MWHPR05MB33761FE4DA27130C72FC5048DA740@MWHPR05MB3376.namprd05.prod.outlook.com>
+	<20191111171740.xwo7isdmtt7ywibo@steredhat>
+Reply-To: Jorgen Hansen <jhansen@vmware.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-Content-Disposition: inline
-In-Reply-To: <20191109075417.29808-1-hslester96@gmail.com>
+In-Reply-To: <20191111171740.xwo7isdmtt7ywibo@steredhat>
+Content-Language: en-US
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -18,48 +23,268 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Chuhong Yuan <hslester96@gmail.com>
-Cc: David Airlie <airlied@linux.ie>, linux-kernel@vger.kernel.org, dri-devel@lists.freedesktop.org, virtualization@lists.linux-foundation.org, Daniel Vetter <daniel@ffwll.ch>
+To: 'Stefano Garzarella' <sgarzare@redhat.com>
+Cc: Sasha Levin <sashal@kernel.org>, "linux-hyperv@vger.kernel.org" <linux-hyperv@vger.kernel.org>, Stephen Hemminger <sthemmin@microsoft.com>, Arnd Bergmann <arnd@arndb.de>, "kvm@vger.kernel.org" <kvm@vger.kernel.org>, "Michael S. Tsirkin" <mst@redhat.com>, "netdev@vger.kernel.org" <netdev@vger.kernel.org>, Dexuan Cui <decui@microsoft.com>, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>, "virtualization@lists.linux-foundation.org" <virtualization@lists.linux-foundation.org>, Haiyang Zhang <haiyangz@microsoft.com>, Stefan Hajnoczi <stefanha@redhat.com>, Greg Kroah-Hartman <gregkh@linuxfoundation.org>, "David S. Miller" <davem@davemloft.net>
 List-Id: virtualization@lists.linuxfoundation.org
 
-On Sat, Nov 09, 2019 at 03:54:17PM +0800, Chuhong Yuan wrote:
-> drm_put_dev also calls drm_dev_unregister, so dev will be unregistered
-> twice.
-> Replace it with drm_dev_put to fix it.
+> From: Stefano Garzarella [mailto:sgarzare@redhat.com]
+> Sent: Monday, November 11, 2019 6:18 PM
+> To: Jorgen Hansen <jhansen@vmware.com>
+> Subject: Re: [PATCH net-next 11/14] vsock: add multi-transports support
 > 
-> Signed-off-by: Chuhong Yuan <hslester96@gmail.com>
-
-Nice catch, I'll apply.
-
-Since this is so confusing, we actually have a todo to remove drm_put_dev
-completely from the codebase (and open-code it with explicit
-unregister+put). Want to do that little patch series to update the
-remaining few drivers and then remove drm_put_dev from core code?
-
-Thanks, Daniel
-
-> ---
->  drivers/gpu/drm/virtio/virtgpu_drv.c | 2 +-
->  1 file changed, 1 insertion(+), 1 deletion(-)
+> On Mon, Nov 11, 2019 at 01:53:39PM +0000, Jorgen Hansen wrote:
+> > > From: Stefano Garzarella [mailto:sgarzare@redhat.com]
+> > > Sent: Wednesday, October 23, 2019 11:56 AM
+> >
+> > Thanks a lot for working on this!
+> >
 > 
-> diff --git a/drivers/gpu/drm/virtio/virtgpu_drv.c b/drivers/gpu/drm/virtio/virtgpu_drv.c
-> index 0fc32fa0b3c0..fccc24e21af8 100644
-> --- a/drivers/gpu/drm/virtio/virtgpu_drv.c
-> +++ b/drivers/gpu/drm/virtio/virtgpu_drv.c
-> @@ -138,7 +138,7 @@ static void virtio_gpu_remove(struct virtio_device *vdev)
->  
->  	drm_dev_unregister(dev);
->  	virtio_gpu_deinit(dev);
-> -	drm_put_dev(dev);
-> +	drm_dev_put(dev);
->  }
->  
->  static void virtio_gpu_config_changed(struct virtio_device *vdev)
-> -- 
-> 2.23.0
+> Thanks to you for the reviews!
 > 
+> > > With the multi-transports support, we can use vsock with nested VMs
+> (using
+> > > also different hypervisors) loading both guest->host and
+> > > host->guest transports at the same time.
+> > >
+> > > Major changes:
+> > > - vsock core module can be loaded regardless of the transports
+> > > - vsock_core_init() and vsock_core_exit() are renamed to
+> > >   vsock_core_register() and vsock_core_unregister()
+> > > - vsock_core_register() has a feature parameter (H2G, G2H, DGRAM)
+> > >   to identify which directions the transport can handle and if it's
+> > >   support DGRAM (only vmci)
+> > > - each stream socket is assigned to a transport when the remote CID
+> > >   is set (during the connect() or when we receive a connection request
+> > >   on a listener socket).
+> >
+> > How about allowing the transport to be set during bind as well? That
+> > would allow an application to ensure that it is using a specific transport,
+> > i.e., if it binds to the host CID, it will use H2G, and if it binds to something
+> > else it will use G2H? You can still use VMADDR_CID_ANY if you want to
+> > initially listen to both transports.
+> 
+> Do you mean for socket that will call the connect()?
 
--- 
-Daniel Vetter
-Software Engineer, Intel Corporation
-http://blog.ffwll.ch
+I was just thinking that in general we know the transport at that point, so we
+could ensure that the socket would only see traffic from the relevant transport,
+but as you mention below -  the updated bind lookup, and the added checks
+when selecting transport should also take care of this, so that is fine.
+ 
+> For listener socket the "[PATCH net-next 14/14] vsock: fix bind() behaviour
+> taking care of CID" provides this behaviour.
+> Since the listener sockets don't use any transport specific callback
+> (they don't send any data to the remote peer), but they are used as
+> placeholder,
+> we don't need to assign them to a transport.
+> 
+> >
+> >
+> > >   The remote CID is used to decide which transport to use:
+> > >   - remote CID > VMADDR_CID_HOST will use host->guest transport
+> > >   - remote CID <= VMADDR_CID_HOST will use guest->host transport
+> > > - listener sockets are not bound to any transports since no transport
+> > >   operations are done on it. In this way we can create a listener
+> > >   socket, also if the transports are not loaded or with VMADDR_CID_ANY
+> > >   to listen on all transports.
+> > > - DGRAM sockets are handled as before, since only the vmci_transport
+> > >   provides this feature.
+> > >
+> > > Signed-off-by: Stefano Garzarella <sgarzare@redhat.com>
+> > > ---
+> > > RFC -> v1:
+> > > - documented VSOCK_TRANSPORT_F_* flags
+> > > - fixed vsock_assign_transport() when the socket is already assigned
+> > >   (e.g connection failed)
+> > > - moved features outside of struct vsock_transport, and used as
+> > >   parameter of vsock_core_register()
+> > > ---
+> > >  drivers/vhost/vsock.c                   |   5 +-
+> > >  include/net/af_vsock.h                  |  17 +-
+> > >  net/vmw_vsock/af_vsock.c                | 237 ++++++++++++++++++------
+> > >  net/vmw_vsock/hyperv_transport.c        |  26 ++-
+> > >  net/vmw_vsock/virtio_transport.c        |   7 +-
+> > >  net/vmw_vsock/virtio_transport_common.c |  28 ++-
+> > >  net/vmw_vsock/vmci_transport.c          |  31 +++-
+> > >  7 files changed, 270 insertions(+), 81 deletions(-)
+> > >
+> >
+> >
+> > > diff --git a/net/vmw_vsock/af_vsock.c b/net/vmw_vsock/af_vsock.c
+> index
+> > > d89381166028..dddd85d9a147 100644
+> > > --- a/net/vmw_vsock/af_vsock.c
+> > > +++ b/net/vmw_vsock/af_vsock.c
+> > > @@ -130,7 +130,12 @@ static struct proto vsock_proto = {  #define
+> > > VSOCK_DEFAULT_BUFFER_MAX_SIZE (1024 * 256)  #define
+> > > VSOCK_DEFAULT_BUFFER_MIN_SIZE 128
+> > >
+> > > -static const struct vsock_transport *transport_single;
+> > > +/* Transport used for host->guest communication */ static const struct
+> > > +vsock_transport *transport_h2g;
+> > > +/* Transport used for guest->host communication */ static const struct
+> > > +vsock_transport *transport_g2h;
+> > > +/* Transport used for DGRAM communication */ static const struct
+> > > +vsock_transport *transport_dgram;
+> > >  static DEFINE_MUTEX(vsock_register_mutex);
+> > >
+> > >  /**** UTILS ****/
+> > > @@ -182,7 +187,7 @@ static int vsock_auto_bind(struct vsock_sock *vsk)
+> > >  	return __vsock_bind(sk, &local_addr);
+> > >  }
+> > >
+> > > -static int __init vsock_init_tables(void)
+> > > +static void vsock_init_tables(void)
+> > >  {
+> > >  	int i;
+> > >
+> > > @@ -191,7 +196,6 @@ static int __init vsock_init_tables(void)
+> > >
+> > >  	for (i = 0; i < ARRAY_SIZE(vsock_connected_table); i++)
+> > >  		INIT_LIST_HEAD(&vsock_connected_table[i]);
+> > > -	return 0;
+> > >  }
+> > >
+> > >  static void __vsock_insert_bound(struct list_head *list, @@ -376,6
+> +380,62
+> > > @@ void vsock_enqueue_accept(struct sock *listener, struct sock
+> > > *connected)  }  EXPORT_SYMBOL_GPL(vsock_enqueue_accept);
+> > >
+> > > +/* Assign a transport to a socket and call the .init transport callback.
+> > > + *
+> > > + * Note: for stream socket this must be called when vsk->remote_addr
+> is
+> > > +set
+> > > + * (e.g. during the connect() or when a connection request on a
+> > > +listener
+> > > + * socket is received).
+> > > + * The vsk->remote_addr is used to decide which transport to use:
+> > > + *  - remote CID > VMADDR_CID_HOST will use host->guest transport
+> > > + *  - remote CID <= VMADDR_CID_HOST will use guest->host transport
+> */
+> > > +int vsock_assign_transport(struct vsock_sock *vsk, struct vsock_sock
+> > > +*psk) {
+> > > +	const struct vsock_transport *new_transport;
+> > > +	struct sock *sk = sk_vsock(vsk);
+> > > +
+> > > +	switch (sk->sk_type) {
+> > > +	case SOCK_DGRAM:
+> > > +		new_transport = transport_dgram;
+> > > +		break;
+> > > +	case SOCK_STREAM:
+> > > +		if (vsk->remote_addr.svm_cid > VMADDR_CID_HOST)
+> > > +			new_transport = transport_h2g;
+> > > +		else
+> > > +			new_transport = transport_g2h;
+> > > +		break;
+> >
+> > You already mentioned that you are working on a fix for loopback
+> > here for the guest, but presumably a host could also do loopback.
+> 
+> IIUC we don't support loopback in the host, because in this case the
+> application will use the CID_HOST as address, but if we are in a nested
+> VM environment we are in trouble.
+
+If both src and dst CID are CID_HOST, we should be fairly sure that this
+Is host loopback, no? If src is anything else, we would do G2H.
+
+> 
+> Since several people asked about this feature at the KVM Forum, I would like
+> to add a new VMADDR_CID_LOCAL (i.e. using the reserved 1) and implement
+> loopback in the core.
+> 
+> What do you think?
+
+What kind of use cases are mentioned in the KVM forum for loopback? One concern
+is that we have to maintain yet another interprocess communication mechanism,
+even though other choices exist already  (and those are likely to be more efficient
+given the development time and specific focus that went into those). To me, the
+local connections are mainly useful as a way to sanity test the protocol and transports.
+However, if loopback is compelling, it would make sense have it in the core, since it
+shouldn't need a specific transport. 
+
+> 
+> > If we select transport during bind to a specific CID, this comment
+> 
+> Also in this case, are you talking about the peer that will call
+> connect()?
+
+The same thought as mentioned in the beginning - but as mentioned
+above, I agree that your updated bind and transport selection should
+handle this as well.
+ 
+> > Isn't relevant, but otherwise, we should look at the local addr as
+> > well, since a socket with local addr of host CID shouldn't use
+> > the guest to host transport, and a socket with local addr > host CID
+> > shouldn't use host to guest.
+> 
+> Yes, I agree, in my fix I'm looking at the local addr, and in L1 I'll
+> not allow to assign a CID to a nested L2 equal to the CID of L1 (in
+> vhost-vsock)
+> 
+> Maybe we can allow the host loopback (using CID_HOST), only if there isn't
+> G2H loaded, but also in this case I'd like to move the loopback in the vsock
+> core, since we can do that, also if there are no transports loaded.
+> >
+> >
+> > > +	default:
+> > > +		return -ESOCKTNOSUPPORT;
+> > > +	}
+> > > +
+> > > +	if (vsk->transport) {
+> > > +		if (vsk->transport == new_transport)
+> > > +			return 0;
+> > > +
+> > > +		vsk->transport->release(vsk);
+> > > +		vsk->transport->destruct(vsk);
+> > > +	}
+> > > +
+> > > +	if (!new_transport)
+> > > +		return -ENODEV;
+> > > +
+> > > +	vsk->transport = new_transport;
+> > > +
+> > > +	return vsk->transport->init(vsk, psk); }
+> > > +EXPORT_SYMBOL_GPL(vsock_assign_transport);
+> > > +
+> > > +static bool vsock_find_cid(unsigned int cid) {
+> > > +	if (transport_g2h && cid == transport_g2h->get_local_cid())
+> > > +		return true;
+> > > +
+> > > +	if (transport_h2g && cid == VMADDR_CID_HOST)
+> > > +		return true;
+> > > +
+> > > +	return false;
+> > > +}
+> > > +
+> > >  static struct sock *vsock_dequeue_accept(struct sock *listener)  {
+> > >  	struct vsock_sock *vlistener;
+> >
+> >
+> > > diff --git a/net/vmw_vsock/vmci_transport.c
+> > > b/net/vmw_vsock/vmci_transport.c index 5955238ffc13..2eb3f16d53e7
+> > > 100644
+> > > --- a/net/vmw_vsock/vmci_transport.c
+> > > +++ b/net/vmw_vsock/vmci_transport.c
+> >
+> > > @@ -1017,6 +1018,15 @@ static int vmci_transport_recv_listen(struct
+> sock
+> > > *sk,
+> > >  	vsock_addr_init(&vpending->remote_addr, pkt->dg.src.context,
+> > >  			pkt->src_port);
+> > >
+> > > +	err = vsock_assign_transport(vpending, vsock_sk(sk));
+> > > +	/* Transport assigned (looking at remote_addr) must be the same
+> > > +	 * where we received the request.
+> > > +	 */
+> > > +	if (err || !vmci_check_transport(vpending)) {
+> >
+> > We need to send a reset on error, i.e.,
+> >   vmci_transport_send_reset(sk, pkt);
+> 
+> Good catch, I'll fix in the v2.
+> 
+> Thanks,
+> Stefano
+
+Thanks,
+Jorgen
