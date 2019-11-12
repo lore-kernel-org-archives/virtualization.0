@@ -1,19 +1,14 @@
-From: Will Deacon <will@kernel.org>
-Subject: Re: [PATCH 01/13] compiler.h: Split {READ,WRITE}_ONCE definitions
-	out into rwonce.h
-Date: Tue, 12 Nov 2019 11:36:47 +0000
-Message-ID: <20191112113646.GC17835__20868.1624078721$1573558624$gmane$org@willie-the-truck>
-References: <20191108170120.22331-1-will@kernel.org>
-	<20191108170120.22331-2-will@kernel.org>
-	<CAK8P3a0f=WvSQSBQ4t0FmEkcFE_mC3oARxaeTviTSkSa-D2qhg@mail.gmail.com>
-	<93f80017-d65e-7c3a-29b0-d9a568d08f58@de.ibm.com>
-	<CAK8P3a21KdGKMDDPs3jc9XEg3=LbzFnGwVm+xDTB+EqGXiZorA@mail.gmail.com>
+From: Vivek Goyal <vgoyal@redhat.com>
+Subject: Re: [PATCH v2] virtiofs: Use static const, not const static
+Date: Tue, 12 Nov 2019 08:18:41 -0500
+Message-ID: <20191112131841.GA5501@redhat.com>
+References: <1573474545-37037-1-git-send-email-zhengbin13@huawei.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="iso-8859-1"
-Content-Transfer-Encoding: quoted-printable
+Content-Type: text/plain; charset="utf-8"
+Content-Transfer-Encoding: base64
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
+In-Reply-To: <1573474545-37037-1-git-send-email-zhengbin13@huawei.com>
 Content-Disposition: inline
-In-Reply-To: <CAK8P3a21KdGKMDDPs3jc9XEg3=LbzFnGwVm+xDTB+EqGXiZorA@mail.gmail.com>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -23,58 +18,46 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Arnd Bergmann <arnd@arndb.de>
-Cc: "Paul E. McKenney" <paulmck@kernel.org>, "Michael S. Tsirkin" <mst@redhat.com>, Peter Zijlstra <peterz@infradead.org>, Michael Ellerman <mpe@ellerman.id.au>, Josh Triplett <josh@joshtriplett.org>, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>, SeongJae Park <sj38.park@gmail.com>, Christian Borntraeger <borntraeger@de.ibm.com>, Ivan Kokshaysky <ink@jurassic.park.msu.ru>, alpha <linux-alpha@vger.kernel.org>, Joe Perches <joe@perches.com>, Alan Stern <stern@rowland.harvard.edu>, Matt Turner <mattst88@gmail.com>, Yunjae Lee <lyj7694@gmail.com>, virtualization@lists.linux-foundation.org, Boqun Feng <boqun.feng@gmail.com>, Richard Henderson <rth@twiddle.net>
+To: zhengbin <zhengbin13@huawei.com>
+Cc: linux-fsdevel@vger.kernel.org, mszeredi@redhat.com, stefanha@redhat.com, virtualization@lists.linux-foundation.org
 List-Id: virtualization@lists.linuxfoundation.org
 
-On Mon, Nov 11, 2019 at 10:32:46AM +0100, Arnd Bergmann wrote:
-> On Mon, Nov 11, 2019 at 9:10 AM Christian Borntraeger
-> <borntraeger@de.ibm.com> wrote:
-> > On 08.11.19 20:57, Arnd Bergmann wrote:
-> > > On Fri, Nov 8, 2019 at 6:01 PM Will Deacon <will@kernel.org> wrote:
-> > >>
-> > >> In preparation for allowing architectures to define their own
-> > >> implementation of the 'READ_ONCE()' macro, move the generic
-> > >> '{READ,WRITE}_ONCE()' definitions out of the unwieldy 'linux/compile=
-r.h'
-> > >> and into a new 'rwonce.h' header under 'asm-generic'.
-> > >
-> > > Adding Christian Borntr=E4ger to Cc, he originally added the
-> > > READ_ONCE()/WRITE_ONCE()
-> > > code.
-> > >
-> > > I wonder if it would be appropriate now to revert back to a much simp=
-ler version
-> > > of these helpers for any modern compiler. As I understand, only gcc-4=
-.6 and
-> > > gcc4.7 actually need the song-and-dance version with the union and sw=
-itch/case,
-> > > while for others, we can might be able back to a macro doing a volati=
-le access.
-> >
-> > As far as I know this particular issue with  volatile access on aggrega=
-te types
-> > was fixed in gcc 4.8. On the other hand we know that the current constr=
-uct will
-> > work on all compilers. Not so sure about the orignal ACCESS_ONCE implem=
-entation.
-> =
-
-> I've seen problems with clang on the current version, leading to unnecess=
-ary
-> temporaries being spilled to the stack in some cases, so I think it would=
- still
-> help to simplify it.
-> =
-
-> We probably don't want the exact ACCESS_ONCE() implementation back
-> that existed before, but rather something that implements the stricter
-> READ_ONCE() and WRITE_ONCE(). I'd probably also want to avoid the
-> __builtin_memcpy() exception for odd-sized accesses and instead have
-> a separate way to do those.
-
-If you have a patch, I'm happy to carry it at the end of the series to
-avoid conflicts. It's not completely clear to me what you're after, so if
-you need me to adjust anything here then please shout!
-
-Will
+T24gTW9uLCBOb3YgMTEsIDIwMTkgYXQgMDg6MTU6NDVQTSArMDgwMCwgemhlbmdiaW4gd3JvdGU6
+Cj4gTW92ZSB0aGUgc3RhdGljIGtleXdvcmQgdG8gdGhlIGZyb250IG9mIGRlY2xhcmF0aW9ucywg
+d2hpY2ggcmVzb2x2ZXMKPiBjb21waWxlciB3YXJuaW5ncyB3aGVuIGJ1aWxkaW5nIHdpdGggIlc9
+MSI6Cj4gCj4gZnMvZnVzZS92aXJ0aW9fZnMuYzo2ODc6MTogd2FybmluZzog4oCYc3RhdGlj4oCZ
+IGlzIG5vdCBhdCBiZWdpbm5pbmcgb2YgZGVjbGFyYXRpb24gWy1Xb2xkLXN0eWxlLWRlY2xhcmF0
+aW9uXQo+ICBjb25zdCBzdGF0aWMgc3RydWN0IHZpcnRpb19kZXZpY2VfaWQgaWRfdGFibGVbXSA9
+IHsKPiAgXgo+IGZzL2Z1c2UvdmlydGlvX2ZzLmM6NjkyOjE6IHdhcm5pbmc6IOKAmHN0YXRpY+KA
+mSBpcyBub3QgYXQgYmVnaW5uaW5nIG9mIGRlY2xhcmF0aW9uIFstV29sZC1zdHlsZS1kZWNsYXJh
+dGlvbl0KPiAgY29uc3Qgc3RhdGljIHVuc2lnbmVkIGludCBmZWF0dXJlX3RhYmxlW10gPSB7fTsK
+PiAgXgo+IGZzL2Z1c2UvdmlydGlvX2ZzLmM6MTAyOToxOiB3YXJuaW5nOiDigJhzdGF0aWPigJkg
+aXMgbm90IGF0IGJlZ2lubmluZyBvZiBkZWNsYXJhdGlvbiBbLVdvbGQtc3R5bGUtZGVjbGFyYXRp
+b25dCj4gIGNvbnN0IHN0YXRpYyBzdHJ1Y3QgZnVzZV9pcXVldWVfb3BzIHZpcnRpb19mc19maXFf
+b3BzID0gewo+IAo+IFJlcG9ydGVkLWJ5OiBIdWxrIFJvYm90IDxodWxrY2lAaHVhd2VpLmNvbT4K
+PiBTaWduZWQtb2ZmLWJ5OiB6aGVuZ2JpbiA8emhlbmdiaW4xM0BodWF3ZWkuY29tPgoKQWNrZWQt
+Ynk6IFZpdmVrIEdveWFsIDx2Z295YWxAcmVkaGF0LmNvbT4KClZpdmVrCj4gLS0tCj4gdjEtPnYy
+OiBtb2RpZnkgY29tbWVudAo+ICBmcy9mdXNlL3ZpcnRpb19mcy5jIHwgNiArKystLS0KPiAgMSBm
+aWxlIGNoYW5nZWQsIDMgaW5zZXJ0aW9ucygrKSwgMyBkZWxldGlvbnMoLSkKPiAKPiBkaWZmIC0t
+Z2l0IGEvZnMvZnVzZS92aXJ0aW9fZnMuYyBiL2ZzL2Z1c2UvdmlydGlvX2ZzLmMKPiBpbmRleCBi
+NzdhY2VhLi4yYWM2ODE4IDEwMDY0NAo+IC0tLSBhL2ZzL2Z1c2UvdmlydGlvX2ZzLmMKPiArKysg
+Yi9mcy9mdXNlL3ZpcnRpb19mcy5jCj4gQEAgLTY4NCwxMiArNjg0LDEyIEBAIHN0YXRpYyBpbnQg
+dmlydGlvX2ZzX3Jlc3RvcmUoc3RydWN0IHZpcnRpb19kZXZpY2UgKnZkZXYpCj4gIH0KPiAgI2Vu
+ZGlmIC8qIENPTkZJR19QTV9TTEVFUCAqLwo+IAo+IC1jb25zdCBzdGF0aWMgc3RydWN0IHZpcnRp
+b19kZXZpY2VfaWQgaWRfdGFibGVbXSA9IHsKPiArc3RhdGljIGNvbnN0IHN0cnVjdCB2aXJ0aW9f
+ZGV2aWNlX2lkIGlkX3RhYmxlW10gPSB7Cj4gIAl7IFZJUlRJT19JRF9GUywgVklSVElPX0RFVl9B
+TllfSUQgfSwKPiAgCXt9LAo+ICB9Owo+IAo+IC1jb25zdCBzdGF0aWMgdW5zaWduZWQgaW50IGZl
+YXR1cmVfdGFibGVbXSA9IHt9Owo+ICtzdGF0aWMgY29uc3QgdW5zaWduZWQgaW50IGZlYXR1cmVf
+dGFibGVbXSA9IHt9Owo+IAo+ICBzdGF0aWMgc3RydWN0IHZpcnRpb19kcml2ZXIgdmlydGlvX2Zz
+X2RyaXZlciA9IHsKPiAgCS5kcml2ZXIubmFtZQkJPSBLQlVJTERfTU9ETkFNRSwKPiBAQCAtMTAy
+Niw3ICsxMDI2LDcgQEAgX19yZWxlYXNlcyhmaXEtPmxvY2spCj4gIAl9Cj4gIH0KPiAKPiAtY29u
+c3Qgc3RhdGljIHN0cnVjdCBmdXNlX2lxdWV1ZV9vcHMgdmlydGlvX2ZzX2ZpcV9vcHMgPSB7Cj4g
+K3N0YXRpYyBjb25zdCBzdHJ1Y3QgZnVzZV9pcXVldWVfb3BzIHZpcnRpb19mc19maXFfb3BzID0g
+ewo+ICAJLndha2VfZm9yZ2V0X2FuZF91bmxvY2sJCT0gdmlydGlvX2ZzX3dha2VfZm9yZ2V0X2Fu
+ZF91bmxvY2ssCj4gIAkud2FrZV9pbnRlcnJ1cHRfYW5kX3VubG9jawk9IHZpcnRpb19mc193YWtl
+X2ludGVycnVwdF9hbmRfdW5sb2NrLAo+ICAJLndha2VfcGVuZGluZ19hbmRfdW5sb2NrCT0gdmly
+dGlvX2ZzX3dha2VfcGVuZGluZ19hbmRfdW5sb2NrLAo+IC0tCj4gMi43LjQKPiAKCl9fX19fX19f
+X19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fClZpcnR1YWxpemF0aW9uIG1h
+aWxpbmcgbGlzdApWaXJ0dWFsaXphdGlvbkBsaXN0cy5saW51eC1mb3VuZGF0aW9uLm9yZwpodHRw
+czovL2xpc3RzLmxpbnV4Zm91bmRhdGlvbi5vcmcvbWFpbG1hbi9saXN0aW5mby92aXJ0dWFsaXph
+dGlvbg==
