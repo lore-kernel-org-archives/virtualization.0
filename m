@@ -1,14 +1,19 @@
-From: Chuhong Yuan <hslester96@gmail.com>
-Subject: Re: [PATCH] drm/virtgpu: fix double unregistration
-Date: Tue, 12 Nov 2019 19:03:05 +0800
-Message-ID: <CANhBUQ1HRe4FNWo0o18zxV2ZoANRdNd3PaTeeBZ6dG__0quDUA__14177.3607277841$1573556615$gmane$org@mail.gmail.com>
-References: <20191109075417.29808-1-hslester96@gmail.com>
-	<20191112094031.GF23790@phenom.ffwll.local>
+From: Will Deacon <will@kernel.org>
+Subject: Re: [PATCH 01/13] compiler.h: Split {READ,WRITE}_ONCE definitions
+	out into rwonce.h
+Date: Tue, 12 Nov 2019 11:36:47 +0000
+Message-ID: <20191112113646.GC17835__20868.1624078721$1573558624$gmane$org@willie-the-truck>
+References: <20191108170120.22331-1-will@kernel.org>
+	<20191108170120.22331-2-will@kernel.org>
+	<CAK8P3a0f=WvSQSBQ4t0FmEkcFE_mC3oARxaeTviTSkSa-D2qhg@mail.gmail.com>
+	<93f80017-d65e-7c3a-29b0-d9a568d08f58@de.ibm.com>
+	<CAK8P3a21KdGKMDDPs3jc9XEg3=LbzFnGwVm+xDTB+EqGXiZorA@mail.gmail.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset="iso-8859-1"
+Content-Transfer-Encoding: quoted-printable
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <20191112094031.GF23790@phenom.ffwll.local>
+Content-Disposition: inline
+In-Reply-To: <CAK8P3a21KdGKMDDPs3jc9XEg3=LbzFnGwVm+xDTB+EqGXiZorA@mail.gmail.com>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -18,69 +23,58 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Chuhong Yuan <hslester96@gmail.com>, David Airlie <airlied@linux.ie>, Gerd Hoffmann <kraxel@redhat.com>, dri-devel@lists.freedesktop.org, virtualization@lists.linux-foundation.org, LKML <linux-kernel@vger.kernel.org>
-Cc: Daniel Vetter <daniel@ffwll.ch>
+To: Arnd Bergmann <arnd@arndb.de>
+Cc: "Paul E. McKenney" <paulmck@kernel.org>, "Michael S. Tsirkin" <mst@redhat.com>, Peter Zijlstra <peterz@infradead.org>, Michael Ellerman <mpe@ellerman.id.au>, Josh Triplett <josh@joshtriplett.org>, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>, SeongJae Park <sj38.park@gmail.com>, Christian Borntraeger <borntraeger@de.ibm.com>, Ivan Kokshaysky <ink@jurassic.park.msu.ru>, alpha <linux-alpha@vger.kernel.org>, Joe Perches <joe@perches.com>, Alan Stern <stern@rowland.harvard.edu>, Matt Turner <mattst88@gmail.com>, Yunjae Lee <lyj7694@gmail.com>, virtualization@lists.linux-foundation.org, Boqun Feng <boqun.feng@gmail.com>, Richard Henderson <rth@twiddle.net>
 List-Id: virtualization@lists.linuxfoundation.org
 
-On Tue, Nov 12, 2019 at 5:40 PM Daniel Vetter <daniel@ffwll.ch> wrote:
->
-> On Sat, Nov 09, 2019 at 03:54:17PM +0800, Chuhong Yuan wrote:
-> > drm_put_dev also calls drm_dev_unregister, so dev will be unregistered
-> > twice.
-> > Replace it with drm_dev_put to fix it.
+On Mon, Nov 11, 2019 at 10:32:46AM +0100, Arnd Bergmann wrote:
+> On Mon, Nov 11, 2019 at 9:10 AM Christian Borntraeger
+> <borntraeger@de.ibm.com> wrote:
+> > On 08.11.19 20:57, Arnd Bergmann wrote:
+> > > On Fri, Nov 8, 2019 at 6:01 PM Will Deacon <will@kernel.org> wrote:
+> > >>
+> > >> In preparation for allowing architectures to define their own
+> > >> implementation of the 'READ_ONCE()' macro, move the generic
+> > >> '{READ,WRITE}_ONCE()' definitions out of the unwieldy 'linux/compile=
+r.h'
+> > >> and into a new 'rwonce.h' header under 'asm-generic'.
+> > >
+> > > Adding Christian Borntr=E4ger to Cc, he originally added the
+> > > READ_ONCE()/WRITE_ONCE()
+> > > code.
+> > >
+> > > I wonder if it would be appropriate now to revert back to a much simp=
+ler version
+> > > of these helpers for any modern compiler. As I understand, only gcc-4=
+.6 and
+> > > gcc4.7 actually need the song-and-dance version with the union and sw=
+itch/case,
+> > > while for others, we can might be able back to a macro doing a volati=
+le access.
 > >
-> > Signed-off-by: Chuhong Yuan <hslester96@gmail.com>
->
-> Nice catch, I'll apply.
->
-> Since this is so confusing, we actually have a todo to remove drm_put_dev
-> completely from the codebase (and open-code it with explicit
-> unregister+put). Want to do that little patch series to update the
-> remaining few drivers and then remove drm_put_dev from core code?
->
-> Thanks, Daniel
->
+> > As far as I know this particular issue with  volatile access on aggrega=
+te types
+> > was fixed in gcc 4.8. On the other hand we know that the current constr=
+uct will
+> > work on all compilers. Not so sure about the orignal ACCESS_ONCE implem=
+entation.
+> =
 
-I am sorry that I have to focus on my current project in recent days.
-But since this is a problem, I have written a Coccinelle script just now
-to find drm_put_dev and open-code it.
-I hope this helps.
-The script is:
+> I've seen problems with clang on the current version, leading to unnecess=
+ary
+> temporaries being spilled to the stack in some cases, so I think it would=
+ still
+> help to simplify it.
+> =
 
-virtual patch
+> We probably don't want the exact ACCESS_ONCE() implementation back
+> that existed before, but rather something that implements the stricter
+> READ_ONCE() and WRITE_ONCE(). I'd probably also want to avoid the
+> __builtin_memcpy() exception for odd-sized accesses and instead have
+> a separate way to do those.
 
-@ drm_put_dev depends on patch exists @
-expression dev;
-@@
+If you have a patch, I'm happy to carry it at the end of the series to
+avoid conflicts. It's not completely clear to me what you're after, so if
+you need me to adjust anything here then please shout!
 
-- drm_put_dev(dev);
-+ drm_dev_unregister(dev);
-+ drm_dev_put(dev);
-
-Regards,
-Chuhong
-> > ---
-> >  drivers/gpu/drm/virtio/virtgpu_drv.c | 2 +-
-> >  1 file changed, 1 insertion(+), 1 deletion(-)
-> >
-> > diff --git a/drivers/gpu/drm/virtio/virtgpu_drv.c b/drivers/gpu/drm/virtio/virtgpu_drv.c
-> > index 0fc32fa0b3c0..fccc24e21af8 100644
-> > --- a/drivers/gpu/drm/virtio/virtgpu_drv.c
-> > +++ b/drivers/gpu/drm/virtio/virtgpu_drv.c
-> > @@ -138,7 +138,7 @@ static void virtio_gpu_remove(struct virtio_device *vdev)
-> >
-> >       drm_dev_unregister(dev);
-> >       virtio_gpu_deinit(dev);
-> > -     drm_put_dev(dev);
-> > +     drm_dev_put(dev);
-> >  }
-> >
-> >  static void virtio_gpu_config_changed(struct virtio_device *vdev)
-> > --
-> > 2.23.0
-> >
->
-> --
-> Daniel Vetter
-> Software Engineer, Intel Corporation
-> http://blog.ffwll.ch
+Will
