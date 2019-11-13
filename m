@@ -1,14 +1,14 @@
-From: Vivek Goyal <vgoyal@redhat.com>
-Subject: Re: [PATCH v2] virtiofs: Use static const, not const static
-Date: Tue, 12 Nov 2019 08:18:41 -0500
-Message-ID: <20191112131841.GA5501@redhat.com>
-References: <1573474545-37037-1-git-send-email-zhengbin13@huawei.com>
+From: Stefan Hajnoczi <stefanha@redhat.com>
+Subject: Re: [PATCH 2/3] virtiofs: Do not send forget request "struct
+	list_head" element
+Date: Wed, 13 Nov 2019 14:30:09 +0000
+Message-ID: <20191113143009.GA554680__24344.0575477265$1573655446$gmane$org@stefanha-x1.localdomain>
+References: <20191030150719.29048-1-vgoyal@redhat.com>
+	<20191030150719.29048-3-vgoyal@redhat.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="utf-8"
-Content-Transfer-Encoding: base64
+Content-Type: multipart/mixed; boundary="===============9092154227302714950=="
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <1573474545-37037-1-git-send-email-zhengbin13@huawei.com>
-Content-Disposition: inline
+In-Reply-To: <20191030150719.29048-3-vgoyal@redhat.com>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -18,46 +18,50 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: zhengbin <zhengbin13@huawei.com>
-Cc: linux-fsdevel@vger.kernel.org, mszeredi@redhat.com, stefanha@redhat.com, virtualization@lists.linux-foundation.org
+To: Vivek Goyal <vgoyal@redhat.com>
+Cc: miklos@szeredi.hu, linux-kernel@vger.kernel.org, dgilbert@redhat.com, virtio-fs@redhat.com, linux-fsdevel@vger.kernel.org, virtualization@lists.linux-foundation.org
 List-Id: virtualization@lists.linuxfoundation.org
 
-T24gTW9uLCBOb3YgMTEsIDIwMTkgYXQgMDg6MTU6NDVQTSArMDgwMCwgemhlbmdiaW4gd3JvdGU6
-Cj4gTW92ZSB0aGUgc3RhdGljIGtleXdvcmQgdG8gdGhlIGZyb250IG9mIGRlY2xhcmF0aW9ucywg
-d2hpY2ggcmVzb2x2ZXMKPiBjb21waWxlciB3YXJuaW5ncyB3aGVuIGJ1aWxkaW5nIHdpdGggIlc9
-MSI6Cj4gCj4gZnMvZnVzZS92aXJ0aW9fZnMuYzo2ODc6MTogd2FybmluZzog4oCYc3RhdGlj4oCZ
-IGlzIG5vdCBhdCBiZWdpbm5pbmcgb2YgZGVjbGFyYXRpb24gWy1Xb2xkLXN0eWxlLWRlY2xhcmF0
-aW9uXQo+ICBjb25zdCBzdGF0aWMgc3RydWN0IHZpcnRpb19kZXZpY2VfaWQgaWRfdGFibGVbXSA9
-IHsKPiAgXgo+IGZzL2Z1c2UvdmlydGlvX2ZzLmM6NjkyOjE6IHdhcm5pbmc6IOKAmHN0YXRpY+KA
-mSBpcyBub3QgYXQgYmVnaW5uaW5nIG9mIGRlY2xhcmF0aW9uIFstV29sZC1zdHlsZS1kZWNsYXJh
-dGlvbl0KPiAgY29uc3Qgc3RhdGljIHVuc2lnbmVkIGludCBmZWF0dXJlX3RhYmxlW10gPSB7fTsK
-PiAgXgo+IGZzL2Z1c2UvdmlydGlvX2ZzLmM6MTAyOToxOiB3YXJuaW5nOiDigJhzdGF0aWPigJkg
-aXMgbm90IGF0IGJlZ2lubmluZyBvZiBkZWNsYXJhdGlvbiBbLVdvbGQtc3R5bGUtZGVjbGFyYXRp
-b25dCj4gIGNvbnN0IHN0YXRpYyBzdHJ1Y3QgZnVzZV9pcXVldWVfb3BzIHZpcnRpb19mc19maXFf
-b3BzID0gewo+IAo+IFJlcG9ydGVkLWJ5OiBIdWxrIFJvYm90IDxodWxrY2lAaHVhd2VpLmNvbT4K
-PiBTaWduZWQtb2ZmLWJ5OiB6aGVuZ2JpbiA8emhlbmdiaW4xM0BodWF3ZWkuY29tPgoKQWNrZWQt
-Ynk6IFZpdmVrIEdveWFsIDx2Z295YWxAcmVkaGF0LmNvbT4KClZpdmVrCj4gLS0tCj4gdjEtPnYy
-OiBtb2RpZnkgY29tbWVudAo+ICBmcy9mdXNlL3ZpcnRpb19mcy5jIHwgNiArKystLS0KPiAgMSBm
-aWxlIGNoYW5nZWQsIDMgaW5zZXJ0aW9ucygrKSwgMyBkZWxldGlvbnMoLSkKPiAKPiBkaWZmIC0t
-Z2l0IGEvZnMvZnVzZS92aXJ0aW9fZnMuYyBiL2ZzL2Z1c2UvdmlydGlvX2ZzLmMKPiBpbmRleCBi
-NzdhY2VhLi4yYWM2ODE4IDEwMDY0NAo+IC0tLSBhL2ZzL2Z1c2UvdmlydGlvX2ZzLmMKPiArKysg
-Yi9mcy9mdXNlL3ZpcnRpb19mcy5jCj4gQEAgLTY4NCwxMiArNjg0LDEyIEBAIHN0YXRpYyBpbnQg
-dmlydGlvX2ZzX3Jlc3RvcmUoc3RydWN0IHZpcnRpb19kZXZpY2UgKnZkZXYpCj4gIH0KPiAgI2Vu
-ZGlmIC8qIENPTkZJR19QTV9TTEVFUCAqLwo+IAo+IC1jb25zdCBzdGF0aWMgc3RydWN0IHZpcnRp
-b19kZXZpY2VfaWQgaWRfdGFibGVbXSA9IHsKPiArc3RhdGljIGNvbnN0IHN0cnVjdCB2aXJ0aW9f
-ZGV2aWNlX2lkIGlkX3RhYmxlW10gPSB7Cj4gIAl7IFZJUlRJT19JRF9GUywgVklSVElPX0RFVl9B
-TllfSUQgfSwKPiAgCXt9LAo+ICB9Owo+IAo+IC1jb25zdCBzdGF0aWMgdW5zaWduZWQgaW50IGZl
-YXR1cmVfdGFibGVbXSA9IHt9Owo+ICtzdGF0aWMgY29uc3QgdW5zaWduZWQgaW50IGZlYXR1cmVf
-dGFibGVbXSA9IHt9Owo+IAo+ICBzdGF0aWMgc3RydWN0IHZpcnRpb19kcml2ZXIgdmlydGlvX2Zz
-X2RyaXZlciA9IHsKPiAgCS5kcml2ZXIubmFtZQkJPSBLQlVJTERfTU9ETkFNRSwKPiBAQCAtMTAy
-Niw3ICsxMDI2LDcgQEAgX19yZWxlYXNlcyhmaXEtPmxvY2spCj4gIAl9Cj4gIH0KPiAKPiAtY29u
-c3Qgc3RhdGljIHN0cnVjdCBmdXNlX2lxdWV1ZV9vcHMgdmlydGlvX2ZzX2ZpcV9vcHMgPSB7Cj4g
-K3N0YXRpYyBjb25zdCBzdHJ1Y3QgZnVzZV9pcXVldWVfb3BzIHZpcnRpb19mc19maXFfb3BzID0g
-ewo+ICAJLndha2VfZm9yZ2V0X2FuZF91bmxvY2sJCT0gdmlydGlvX2ZzX3dha2VfZm9yZ2V0X2Fu
-ZF91bmxvY2ssCj4gIAkud2FrZV9pbnRlcnJ1cHRfYW5kX3VubG9jawk9IHZpcnRpb19mc193YWtl
-X2ludGVycnVwdF9hbmRfdW5sb2NrLAo+ICAJLndha2VfcGVuZGluZ19hbmRfdW5sb2NrCT0gdmly
-dGlvX2ZzX3dha2VfcGVuZGluZ19hbmRfdW5sb2NrLAo+IC0tCj4gMi43LjQKPiAKCl9fX19fX19f
-X19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fClZpcnR1YWxpemF0aW9uIG1h
-aWxpbmcgbGlzdApWaXJ0dWFsaXphdGlvbkBsaXN0cy5saW51eC1mb3VuZGF0aW9uLm9yZwpodHRw
-czovL2xpc3RzLmxpbnV4Zm91bmRhdGlvbi5vcmcvbWFpbG1hbi9saXN0aW5mby92aXJ0dWFsaXph
-dGlvbg==
+--===============9092154227302714950==
+Content-Type: multipart/signed; micalg=pgp-sha256;
+	protocol="application/pgp-signature"; boundary="GvXjxJ+pjyke8COw"
+Content-Disposition: inline
+
+--GvXjxJ+pjyke8COw
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+
+On Wed, Oct 30, 2019 at 11:07:18AM -0400, Vivek Goyal wrote:
+> We are sending whole of virtio_fs_foreget struct to the other end over
+
+s/foreget/forget/
+
+--GvXjxJ+pjyke8COw
+Content-Type: application/pgp-signature; name="signature.asc"
+
+-----BEGIN PGP SIGNATURE-----
+
+iQEzBAEBCAAdFiEEhpWov9P5fNqsNXdanKSrs4Grc8gFAl3ME3EACgkQnKSrs4Gr
+c8hq0Af/Y6T9m3AkYVL7WhS7dEeOaSsP/EYzLga/CaHn7C6d180GQxMyYGpCcf0D
+UQwdoH+qnfkDEwUOrF2VkJGMkpHERcoKAJhq9o5sUZgHtLx01mCt4T5nQYbCpbar
+DtLxySRfhqeya6Zf2kkRtpz28Th4PHK7k2qT/v3bKxIxM6PiSv3gDO0TFbdRAflr
+gRlpFE59+jlOv8zFbGpgVqklwqNEYYG3BO0NM+yYgpsxUXm68rFktSceJTCRLZsQ
+RJW6hIqEsBh8o4ewE2WIafyqHNKU1TWJLDlwWQrDmv9+jokNzB1LTKOac1AqlwH6
+6+Q7/AHk8zVeY6A6O1ApBtgabXPA6w==
+=OR0s
+-----END PGP SIGNATURE-----
+
+--GvXjxJ+pjyke8COw--
+
+
+--===============9092154227302714950==
+Content-Type: text/plain; charset="us-ascii"
+MIME-Version: 1.0
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+
+_______________________________________________
+Virtualization mailing list
+Virtualization@lists.linux-foundation.org
+https://lists.linuxfoundation.org/mailman/listinfo/virtualization
+--===============9092154227302714950==--
