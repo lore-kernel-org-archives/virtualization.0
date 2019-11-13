@@ -1,19 +1,17 @@
-From: Stefano Garzarella <sgarzare@redhat.com>
-Subject: Re: [PATCH net-next 11/14] vsock: add multi-transports support
-Date: Wed, 13 Nov 2019 17:38:42 +0100
-Message-ID: <20191113163842.6byl2qul4nbjf5no__10157.2687782877$1573663141$gmane$org@steredhat>
-References: <20191023095554.11340-1-sgarzare@redhat.com>
-	<20191023095554.11340-12-sgarzare@redhat.com>
-	<MWHPR05MB33761FE4DA27130C72FC5048DA740@MWHPR05MB3376.namprd05.prod.outlook.com>
-	<20191111171740.xwo7isdmtt7ywibo@steredhat>
-	<MWHPR05MB33764F82AFA882B921A11E56DA770@MWHPR05MB3376.namprd05.prod.outlook.com>
-	<20191112103630.vd3kbk7xnplv6rey@steredhat>
-	<MWHPR05MB3376560CFD2A710723843828DA760@MWHPR05MB3376.namprd05.prod.outlook.com>
+From: "Michael S. Tsirkin" <mst@redhat.com>
+Subject: Re: [PATCH v2] virtio_console: allocate inbufs in add_port() only if
+	it is needed
+Date: Wed, 13 Nov 2019 14:28:42 -0500
+Message-ID: <20191113142757-mutt-send-email-mst__33583.8092303433$1573673353$gmane$org@kernel.org>
+References: <20191113150056.9990-1-lvivier@redhat.com>
+	<20191113101929-mutt-send-email-mst@kernel.org>
+	<20191113102126-mutt-send-email-mst@kernel.org>
+	<7bd34d61-146f-8edb-d82d-7285a83437b4@redhat.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <MWHPR05MB3376560CFD2A710723843828DA760@MWHPR05MB3376.namprd05.prod.outlook.com>
+In-Reply-To: <7bd34d61-146f-8edb-d82d-7285a83437b4@redhat.com>
 Content-Disposition: inline
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
@@ -24,92 +22,95 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Jorgen Hansen <jhansen@vmware.com>
-Cc: Sasha Levin <sashal@kernel.org>, "linux-hyperv@vger.kernel.org" <linux-hyperv@vger.kernel.org>, Stephen Hemminger <sthemmin@microsoft.com>, Arnd Bergmann <arnd@arndb.de>, "kvm@vger.kernel.org" <kvm@vger.kernel.org>, "Michael S. Tsirkin" <mst@redhat.com>, "netdev@vger.kernel.org" <netdev@vger.kernel.org>, Dexuan Cui <decui@microsoft.com>, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>, "virtualization@lists.linux-foundation.org" <virtualization@lists.linux-foundation.org>, Haiyang Zhang <haiyangz@microsoft.com>, Stefan Hajnoczi <stefanha@redhat.com>, Greg Kroah-Hartman <gregkh@linuxfoundation.org>, "David S. Miller" <davem@davemloft.net>
+To: Laurent Vivier <lvivier@redhat.com>
+Cc: Arnd Bergmann <arnd@arndb.de>, Amit Shah <amit@kernel.org>, Greg Kroah-Hartman <gregkh@linuxfoundation.org>, linux-kernel@vger.kernel.org, stable@vger.kernel.org, virtualization@lists.linux-foundation.org
 List-Id: virtualization@lists.linuxfoundation.org
 
-On Wed, Nov 13, 2019 at 02:30:24PM +0000, Jorgen Hansen wrote:
-> > From: Stefano Garzarella [mailto:sgarzare@redhat.com]
-> > Sent: Tuesday, November 12, 2019 11:37 AM
+On Wed, Nov 13, 2019 at 05:37:34PM +0100, Laurent Vivier wrote:
+> On 13/11/2019 16:22, Michael S. Tsirkin wrote:
+> > On Wed, Nov 13, 2019 at 10:21:11AM -0500, Michael S. Tsirkin wrote:
+> >> On Wed, Nov 13, 2019 at 04:00:56PM +0100, Laurent Vivier wrote:
+> >>> When we hot unplug a virtserialport and then try to hot plug again,
+> >>> it fails:
+> >>>
+> >>> (qemu) chardev-add socket,id=serial0,path=/tmp/serial0,server,nowait
+> >>> (qemu) device_add virtserialport,bus=virtio-serial0.0,nr=2,\
+> >>>                   chardev=serial0,id=serial0,name=serial0
+> >>> (qemu) device_del serial0
+> >>> (qemu) device_add virtserialport,bus=virtio-serial0.0,nr=2,\
+> >>>                   chardev=serial0,id=serial0,name=serial0
+> >>> kernel error:
+> >>>   virtio-ports vport2p2: Error allocating inbufs
+> >>> qemu error:
+> >>>   virtio-serial-bus: Guest failure in adding port 2 for device \
+> >>>                      virtio-serial0.0
+> >>>
+> >>> This happens because buffers for the in_vq are allocated when the port is
+> >>> added but are not released when the port is unplugged.
+> >>>
+> >>> They are only released when virtconsole is removed (see a7a69ec0d8e4)
+> >>>
+> >>> To avoid the problem and to be symmetric, we could allocate all the buffers
+> >>> in init_vqs() as they are released in remove_vqs(), but it sounds like
+> >>> a waste of memory.
+> >>>
+> >>> Rather than that, this patch changes add_port() logic to ignore ENOSPC
+> >>> error in fill_queue(), which means queue has already been filled.
+> >>>
+> >>> Fixes: a7a69ec0d8e4 ("virtio_console: free buffers after reset")
+> >>> Cc: mst@redhat.com
+> >>> Cc: stable@vger.kernel.org
+> >>> Signed-off-by: Laurent Vivier <lvivier@redhat.com>
+> >>> ---
+> >>>
+> >>> Notes:
+> >>>     v2: making fill_queue return int and testing return code for -ENOSPC
+> >>>
+> >>>  drivers/char/virtio_console.c | 24 +++++++++---------------
+> >>>  1 file changed, 9 insertions(+), 15 deletions(-)
+> >>>
+> >>> diff --git a/drivers/char/virtio_console.c b/drivers/char/virtio_console.c
+> >>> index 7270e7b69262..9e6534fd1aa4 100644
+> >>> --- a/drivers/char/virtio_console.c
+> >>> +++ b/drivers/char/virtio_console.c
+> >>> @@ -1325,24 +1325,24 @@ static void set_console_size(struct port *port, u16 rows, u16 cols)
+> >>>  	port->cons.ws.ws_col = cols;
+> >>>  }
+> >>>  
+> >>> -static unsigned int fill_queue(struct virtqueue *vq, spinlock_t *lock)
+> >>> +static int fill_queue(struct virtqueue *vq, spinlock_t *lock)
+> >>>  {
+> >>>  	struct port_buffer *buf;
+> >>> -	unsigned int nr_added_bufs;
+> >>> +	int nr_added_bufs;
+> >>>  	int ret;
+> >>>  
+> >>>  	nr_added_bufs = 0;
+> >>>  	do {
+> >>>  		buf = alloc_buf(vq->vdev, PAGE_SIZE, 0);
+> >>>  		if (!buf)
+> >>> -			break;
+> >>> +			return -ENOMEM;
+> >>>  
+> >>>  		spin_lock_irq(lock);
+> >>>  		ret = add_inbuf(vq, buf);
+> >>>  		if (ret < 0) {
+> >>>  			spin_unlock_irq(lock);
+> >>>  			free_buf(buf, true);
+> >>> -			break;
+> >>> +			return ret;
+> >>>  		}
+> >>>  		nr_added_bufs++;
+> >>>  		spin_unlock_irq(lock);
+> > 
+> > So actually, how about handling ENOSPC specially here, and
+> > returning success? After all queue is full as requested ...
 > 
-> > > > > You already mentioned that you are working on a fix for loopback
-> > > > > here for the guest, but presumably a host could also do loopback.
-> > > >
-> > > > IIUC we don't support loopback in the host, because in this case the
-> > > > application will use the CID_HOST as address, but if we are in a nested
-> > > > VM environment we are in trouble.
-> > >
-> > > If both src and dst CID are CID_HOST, we should be fairly sure that this
-> > > Is host loopback, no? If src is anything else, we would do G2H.
-> > >
-> > 
-> > The problem is that we don't know the src until we assign a transport
-> > looking at the dst. (or if the user bound the socket to CID_HOST before
-> > the connect(), but it is not very common)
-> > 
-> > So if we are in a L1 and the user uses the local guest CID, it works, but if
-> > it uses the HOST_CID, the packet will go to the L0.
-> > 
-> > If we are in L0, it could be simple, because we can simply check if G2H
-> > is not loaded, so any packet to CID_HOST, is host loopback.
-> > 
-> > I think that if the user uses the IOCTL_VM_SOCKETS_GET_LOCAL_CID, to set
-> > the dest CID for the loopback, it works in both cases because we return the
-> > HOST_CID in L0, and always the guest CID in L1, also if a H2G is loaded to
-> > handle the L2.
-> > 
-> > Maybe we should document this in the man page.
+> I think it's interesting to return -ENOSPC to manage it as a real error
+> in virtcons_probe() as in this function the queue should not be already
+> full (is this right?) and to return the real error code.
 > 
-> Yeah, it seems like a good idea to flesh out the routing behavior for nested
-> VMs in the man page.
+> Thanks,
+> Laurent
 
-I'll do it.
-
-> 
-> > 
-> > But I have a question: Does vmci support the host loopback?
-> > I've tried, and it seems not.
-> 
-> Only for datagrams - not for stream sockets.
->  
-
-Ok, I'll leave the datagram loopback as before.
-
-> > Also vhost-vsock doesn't support it, but virtio-vsock does.
-> > 
-> > > >
-> > > > Since several people asked about this feature at the KVM Forum, I would
-> > like
-> > > > to add a new VMADDR_CID_LOCAL (i.e. using the reserved 1) and
-> > implement
-> > > > loopback in the core.
-> > > >
-> > > > What do you think?
-> > >
-> > > What kind of use cases are mentioned in the KVM forum for loopback?
-> > One concern
-> > > is that we have to maintain yet another interprocess communication
-> > mechanism,
-> > > even though other choices exist already  (and those are likely to be more
-> > efficient
-> > > given the development time and specific focus that went into those). To
-> > me, the
-> > > local connections are mainly useful as a way to sanity test the protocol and
-> > transports.
-> > > However, if loopback is compelling, it would make sense have it in the core,
-> > since it
-> > > shouldn't need a specific transport.
-> > 
-> > The common use cases is for developer point of view, and to test the
-> > protocol and transports as you said.
-> > 
-> > People that are introducing VSOCK support in their projects, would like to
-> > test them on their own PC without starting a VM.
-> > 
-> > The idea is to move the code to handle loopback from the virtio-vsock,
-> > in the core, but in another series :-)
-> 
-> OK, that makes sense.
-
-Thanks,
-Stefano
+OK then. Pls add comments.
