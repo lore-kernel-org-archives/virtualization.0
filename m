@@ -1,14 +1,12 @@
 From: Stefan Hajnoczi <stefanha@redhat.com>
-Subject: Re: [PATCH 3/3] virtiofs: Use completions while waiting for queue to
-	be drained
-Date: Wed, 13 Nov 2019 14:40:02 +0000
-Message-ID: <20191113144002.GB554680__45522.9334229202$1573656029$gmane$org@stefanha-x1.localdomain>
+Subject: Re: [PATCH 0/3] virtiofs: Small Cleanups for 5.5
+Date: Wed, 13 Nov 2019 14:40:18 +0000
+Message-ID: <20191113144018.GC554680__36352.4160509527$1573656036$gmane$org@stefanha-x1.localdomain>
 References: <20191030150719.29048-1-vgoyal@redhat.com>
-	<20191030150719.29048-4-vgoyal@redhat.com>
 Mime-Version: 1.0
-Content-Type: multipart/mixed; boundary="===============1496840029369470473=="
+Content-Type: multipart/mixed; boundary="===============8759589861265519034=="
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <20191030150719.29048-4-vgoyal@redhat.com>
+In-Reply-To: <20191030150719.29048-1-vgoyal@redhat.com>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -22,40 +20,61 @@ To: Vivek Goyal <vgoyal@redhat.com>
 Cc: miklos@szeredi.hu, linux-kernel@vger.kernel.org, dgilbert@redhat.com, virtio-fs@redhat.com, linux-fsdevel@vger.kernel.org, virtualization@lists.linux-foundation.org
 List-Id: virtualization@lists.linuxfoundation.org
 
---===============1496840029369470473==
+--===============8759589861265519034==
 Content-Type: multipart/signed; micalg=pgp-sha256;
-	protocol="application/pgp-signature"; boundary="8P1HSweYDcXXzwPJ"
+	protocol="application/pgp-signature"; boundary="UPT3ojh+0CqEDtpF"
 Content-Disposition: inline
 
---8P1HSweYDcXXzwPJ
+--UPT3ojh+0CqEDtpF
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
+Content-Transfer-Encoding: quoted-printable
 
-On Wed, Oct 30, 2019 at 11:07:19AM -0400, Vivek Goyal wrote:
-> While we wait for queue to finish draining, use completions instead of
-> uslee_range(). This is better way of waiting for event.
+On Wed, Oct 30, 2019 at 11:07:16AM -0400, Vivek Goyal wrote:
+> Hi Miklos,
+>=20
+> Here are few small cleanups for virtiofs for 5.5. I had received some
+> comments from Michael Tsirkin on original virtiofs patches and these
+> cleanups are result of these comments.
+>=20
+> Thanks
+> Vivek
+>=20
+> Vivek Goyal (3):
+>   virtiofs: Use a common function to send forget
+>   virtiofs: Do not send forget request "struct list_head" element
+>   virtiofs: Use completions while waiting for queue to be drained
+>=20
+>  fs/fuse/virtio_fs.c | 204 ++++++++++++++++++++++----------------------
+>  1 file changed, 103 insertions(+), 101 deletions(-)
+>=20
+> --=20
+> 2.20.1
+>=20
 
-s/uslee_range()/usleep_range()/
+There are typos in the commit descriptions but the code looks fine:
 
---8P1HSweYDcXXzwPJ
+Reviewed-by: Stefan Hajnoczi <stefanha@redhat.com>
+
+--UPT3ojh+0CqEDtpF
 Content-Type: application/pgp-signature; name="signature.asc"
 
 -----BEGIN PGP SIGNATURE-----
 
-iQEzBAEBCAAdFiEEhpWov9P5fNqsNXdanKSrs4Grc8gFAl3MFcIACgkQnKSrs4Gr
-c8iVMQgAlnZ9d6GvnmORD+LRCvqgvHMMUlFoZS9nF/QBnEG7N4Pqr8BPRJw7Gi0D
-uBdcZjReMZY2fG9ZNXoMA0ivvPUPa3eDEBeuXlQrp8Qw4yx32ciL9VYvKly8vvV2
-2SMpOnsiuxDhldW2norjAP2piC7VCt+ni8x0yMTECQbaIfvrMhAxR/be/NWOj3pa
-RIFzuyeB4yqi73m0yRXtuN4AwL8Fzq/R0NFAfZDlGSiDmhWJ+xIJpPiL4ZfwVBaK
-hwzVPIkrA6TmDNNLtI7aCmVrQiA8lpnMH5FbKLmobmXjhedf4PwtiUEMSa3ESC6Y
-lBzMsJ4gnruQmDefdEdC1G7ohBHzSg==
-=47Ie
+iQEzBAEBCAAdFiEEhpWov9P5fNqsNXdanKSrs4Grc8gFAl3MFdIACgkQnKSrs4Gr
+c8gz9gf8C1ie4Xi0WRMLEPRPpIjZue0W+WRJNTMJheJ+0d2dyTylZl1EOFrRI9Mz
+tlQtH/MUeJ999e1bX14gngArSdq5yrBMmk2OVngHa9CoPJlJ7CAT8R0uJFa0ca1X
+6QWdtDLTlcyKJGGl75bFqwT32R/iReCoQuzXRdO0h/tKPykm6NDDFhJJPtDeO4GM
+F+4C+1faPh0nMUp7lSGwIAJ4pgKYGc3URDSJpHj8X0mouYDBnoHtVErX6dMnxyw2
+jKGthgQDd2Ynx7NYecWmD+qfSMiBa7JUWgFpAreyVxnzONAKKUqAxmVShzdRdNm8
+zBAVkR0zFJEJljlOj9jfknJxGlecIg==
+=traL
 -----END PGP SIGNATURE-----
 
---8P1HSweYDcXXzwPJ--
+--UPT3ojh+0CqEDtpF--
 
 
---===============1496840029369470473==
+--===============8759589861265519034==
 Content-Type: text/plain; charset="us-ascii"
 MIME-Version: 1.0
 Content-Transfer-Encoding: 7bit
@@ -65,4 +84,4 @@ _______________________________________________
 Virtualization mailing list
 Virtualization@lists.linux-foundation.org
 https://lists.linuxfoundation.org/mailman/listinfo/virtualization
---===============1496840029369470473==--
+--===============8759589861265519034==--
