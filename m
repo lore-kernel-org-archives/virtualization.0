@@ -1,21 +1,14 @@
-From: Jorgen Hansen via Virtualization
-	<virtualization@lists.linux-foundation.org>
-Subject: RE: [PATCH net-next 11/14] vsock: add multi-transports support
-Date: Wed, 13 Nov 2019 14:30:24 +0000
-Message-ID: <MWHPR05MB3376560CFD2A710723843828DA760__32296.6915716947$1573655466$gmane$org@MWHPR05MB3376.namprd05.prod.outlook.com>
-References: <20191023095554.11340-1-sgarzare@redhat.com>
-	<20191023095554.11340-12-sgarzare@redhat.com>
-	<MWHPR05MB33761FE4DA27130C72FC5048DA740@MWHPR05MB3376.namprd05.prod.outlook.com>
-	<20191111171740.xwo7isdmtt7ywibo@steredhat>
-	<MWHPR05MB33764F82AFA882B921A11E56DA770@MWHPR05MB3376.namprd05.prod.outlook.com>
-	<20191112103630.vd3kbk7xnplv6rey@steredhat>
-Reply-To: Jorgen Hansen <jhansen@vmware.com>
+From: Stefan Hajnoczi <stefanha@redhat.com>
+Subject: Re: [PATCH 3/3] virtiofs: Use completions while waiting for queue to
+	be drained
+Date: Wed, 13 Nov 2019 14:40:02 +0000
+Message-ID: <20191113144002.GB554680__45522.9334229202$1573656029$gmane$org@stefanha-x1.localdomain>
+References: <20191030150719.29048-1-vgoyal@redhat.com>
+	<20191030150719.29048-4-vgoyal@redhat.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
-Content-Transfer-Encoding: 7bit
+Content-Type: multipart/mixed; boundary="===============1496840029369470473=="
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <20191112103630.vd3kbk7xnplv6rey@steredhat>
-Content-Language: en-US
+In-Reply-To: <20191030150719.29048-4-vgoyal@redhat.com>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -25,85 +18,51 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: 'Stefano Garzarella' <sgarzare@redhat.com>
-Cc: Sasha Levin <sashal@kernel.org>, "linux-hyperv@vger.kernel.org" <linux-hyperv@vger.kernel.org>, Stephen Hemminger <sthemmin@microsoft.com>, Arnd Bergmann <arnd@arndb.de>, "kvm@vger.kernel.org" <kvm@vger.kernel.org>, "Michael S. Tsirkin" <mst@redhat.com>, "netdev@vger.kernel.org" <netdev@vger.kernel.org>, Dexuan Cui <decui@microsoft.com>, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>, "virtualization@lists.linux-foundation.org" <virtualization@lists.linux-foundation.org>, Haiyang Zhang <haiyangz@microsoft.com>, Stefan Hajnoczi <stefanha@redhat.com>, Greg Kroah-Hartman <gregkh@linuxfoundation.org>, "David S. Miller" <davem@davemloft.net>
+To: Vivek Goyal <vgoyal@redhat.com>
+Cc: miklos@szeredi.hu, linux-kernel@vger.kernel.org, dgilbert@redhat.com, virtio-fs@redhat.com, linux-fsdevel@vger.kernel.org, virtualization@lists.linux-foundation.org
 List-Id: virtualization@lists.linuxfoundation.org
 
-> From: Stefano Garzarella [mailto:sgarzare@redhat.com]
-> Sent: Tuesday, November 12, 2019 11:37 AM
+--===============1496840029369470473==
+Content-Type: multipart/signed; micalg=pgp-sha256;
+	protocol="application/pgp-signature"; boundary="8P1HSweYDcXXzwPJ"
+Content-Disposition: inline
 
-> > > > You already mentioned that you are working on a fix for loopback
-> > > > here for the guest, but presumably a host could also do loopback.
-> > >
-> > > IIUC we don't support loopback in the host, because in this case the
-> > > application will use the CID_HOST as address, but if we are in a nested
-> > > VM environment we are in trouble.
-> >
-> > If both src and dst CID are CID_HOST, we should be fairly sure that this
-> > Is host loopback, no? If src is anything else, we would do G2H.
-> >
-> 
-> The problem is that we don't know the src until we assign a transport
-> looking at the dst. (or if the user bound the socket to CID_HOST before
-> the connect(), but it is not very common)
-> 
-> So if we are in a L1 and the user uses the local guest CID, it works, but if
-> it uses the HOST_CID, the packet will go to the L0.
-> 
-> If we are in L0, it could be simple, because we can simply check if G2H
-> is not loaded, so any packet to CID_HOST, is host loopback.
-> 
-> I think that if the user uses the IOCTL_VM_SOCKETS_GET_LOCAL_CID, to set
-> the dest CID for the loopback, it works in both cases because we return the
-> HOST_CID in L0, and always the guest CID in L1, also if a H2G is loaded to
-> handle the L2.
-> 
-> Maybe we should document this in the man page.
+--8P1HSweYDcXXzwPJ
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
 
-Yeah, it seems like a good idea to flesh out the routing behavior for nested
-VMs in the man page.
+On Wed, Oct 30, 2019 at 11:07:19AM -0400, Vivek Goyal wrote:
+> While we wait for queue to finish draining, use completions instead of
+> uslee_range(). This is better way of waiting for event.
 
-> 
-> But I have a question: Does vmci support the host loopback?
-> I've tried, and it seems not.
+s/uslee_range()/usleep_range()/
 
-Only for datagrams - not for stream sockets.
- 
-> Also vhost-vsock doesn't support it, but virtio-vsock does.
-> 
-> > >
-> > > Since several people asked about this feature at the KVM Forum, I would
-> like
-> > > to add a new VMADDR_CID_LOCAL (i.e. using the reserved 1) and
-> implement
-> > > loopback in the core.
-> > >
-> > > What do you think?
-> >
-> > What kind of use cases are mentioned in the KVM forum for loopback?
-> One concern
-> > is that we have to maintain yet another interprocess communication
-> mechanism,
-> > even though other choices exist already  (and those are likely to be more
-> efficient
-> > given the development time and specific focus that went into those). To
-> me, the
-> > local connections are mainly useful as a way to sanity test the protocol and
-> transports.
-> > However, if loopback is compelling, it would make sense have it in the core,
-> since it
-> > shouldn't need a specific transport.
-> 
-> The common use cases is for developer point of view, and to test the
-> protocol and transports as you said.
-> 
-> People that are introducing VSOCK support in their projects, would like to
-> test them on their own PC without starting a VM.
-> 
-> The idea is to move the code to handle loopback from the virtio-vsock,
-> in the core, but in another series :-)
+--8P1HSweYDcXXzwPJ
+Content-Type: application/pgp-signature; name="signature.asc"
 
-OK, that makes sense.
+-----BEGIN PGP SIGNATURE-----
 
-Thanks,
-Jorgen
+iQEzBAEBCAAdFiEEhpWov9P5fNqsNXdanKSrs4Grc8gFAl3MFcIACgkQnKSrs4Gr
+c8iVMQgAlnZ9d6GvnmORD+LRCvqgvHMMUlFoZS9nF/QBnEG7N4Pqr8BPRJw7Gi0D
+uBdcZjReMZY2fG9ZNXoMA0ivvPUPa3eDEBeuXlQrp8Qw4yx32ciL9VYvKly8vvV2
+2SMpOnsiuxDhldW2norjAP2piC7VCt+ni8x0yMTECQbaIfvrMhAxR/be/NWOj3pa
+RIFzuyeB4yqi73m0yRXtuN4AwL8Fzq/R0NFAfZDlGSiDmhWJ+xIJpPiL4ZfwVBaK
+hwzVPIkrA6TmDNNLtI7aCmVrQiA8lpnMH5FbKLmobmXjhedf4PwtiUEMSa3ESC6Y
+lBzMsJ4gnruQmDefdEdC1G7ohBHzSg==
+=47Ie
+-----END PGP SIGNATURE-----
+
+--8P1HSweYDcXXzwPJ--
+
+
+--===============1496840029369470473==
+Content-Type: text/plain; charset="us-ascii"
+MIME-Version: 1.0
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+
+_______________________________________________
+Virtualization mailing list
+Virtualization@lists.linux-foundation.org
+https://lists.linuxfoundation.org/mailman/listinfo/virtualization
+--===============1496840029369470473==--
