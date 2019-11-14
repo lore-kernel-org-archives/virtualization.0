@@ -1,8 +1,7 @@
 From: Stefano Garzarella <sgarzare@redhat.com>
-Subject: [PATCH net-next v2 12/15] vsock/vmci: register vmci_transport only
-	when VMCI guest/host are active
-Date: Thu, 14 Nov 2019 10:57:47 +0100
-Message-ID: <20191114095750.59106-13-sgarzare__45153.0167412543$1573725680$gmane$org@redhat.com>
+Subject: [PATCH net-next v2 13/15] vsock: prevent transport modules unloading
+Date: Thu, 14 Nov 2019 10:57:48 +0100
+Message-ID: <20191114095750.59106-14-sgarzare__47139.2796303675$1573725695$gmane$org@redhat.com>
 References: <20191114095750.59106-1-sgarzare@redhat.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
@@ -22,262 +21,136 @@ To: netdev@vger.kernel.org
 Cc: Sasha Levin <sashal@kernel.org>, linux-hyperv@vger.kernel.org, Stephen Hemminger <sthemmin@microsoft.com>, kvm@vger.kernel.org, Arnd Bergmann <arnd@arndb.de>, "Michael S. Tsirkin" <mst@redhat.com>, Greg Kroah-Hartman <gregkh@linuxfoundation.org>, Dexuan Cui <decui@microsoft.com>, linux-kernel@vger.kernel.org, "David S. Miller" <davem@davemloft.net>, Stefan Hajnoczi <stefanha@redhat.com>, virtualization@lists.linux-foundation.org, Haiyang Zhang <haiyangz@microsoft.com>, Jorgen Hansen <jhansen@vmware.com>
 List-Id: virtualization@lists.linuxfoundation.org
 
-To allow other transports to be loaded with vmci_transport,
-we register the vmci_transport as G2H or H2G only when a VMCI guest
-or host is active.
+This patch adds 'module' member in the 'struct vsock_transport'
+in order to get/put the transport module. This prevents the
+module unloading while sockets are assigned to it.
 
-To do that, this patch adds a callback registered in the vmci driver
-that will be called when the host or guest becomes active.
-This callback will register the vmci_transport in the VSOCK core.
+We increase the module refcnt when a socket is assigned to a
+transport, and we decrease the module refcnt when the socket
+is destructed.
 
-Cc: Jorgen Hansen <jhansen@vmware.com>
+Reviewed-by: Stefan Hajnoczi <stefanha@redhat.com>
+Reviewed-by: Jorgen Hansen <jhansen@vmware.com>
 Signed-off-by: Stefano Garzarella <sgarzare@redhat.com>
 ---
-v1 -> v2
-- removed features variable in vmci_transport_init() [Stefan]
-- added a flag to register only once the host [Jorgen]
----
- drivers/misc/vmw_vmci/vmci_driver.c | 67 +++++++++++++++++++++++++++++
- drivers/misc/vmw_vmci/vmci_driver.h |  2 +
- drivers/misc/vmw_vmci/vmci_guest.c  |  2 +
- drivers/misc/vmw_vmci/vmci_host.c   |  7 +++
- include/linux/vmw_vmci_api.h        |  2 +
- net/vmw_vsock/vmci_transport.c      | 33 +++++++++-----
- 6 files changed, 102 insertions(+), 11 deletions(-)
+ drivers/vhost/vsock.c            |  2 ++
+ include/net/af_vsock.h           |  2 ++
+ net/vmw_vsock/af_vsock.c         | 20 ++++++++++++++++----
+ net/vmw_vsock/hyperv_transport.c |  2 ++
+ net/vmw_vsock/virtio_transport.c |  2 ++
+ net/vmw_vsock/vmci_transport.c   |  1 +
+ 6 files changed, 25 insertions(+), 4 deletions(-)
 
-diff --git a/drivers/misc/vmw_vmci/vmci_driver.c b/drivers/misc/vmw_vmci/vmci_driver.c
-index 819e35995d32..95fed4664a2d 100644
---- a/drivers/misc/vmw_vmci/vmci_driver.c
-+++ b/drivers/misc/vmw_vmci/vmci_driver.c
-@@ -28,6 +28,10 @@ MODULE_PARM_DESC(disable_guest,
- static bool vmci_guest_personality_initialized;
- static bool vmci_host_personality_initialized;
+diff --git a/drivers/vhost/vsock.c b/drivers/vhost/vsock.c
+index b235f4bbe8ea..fdda9ec625ad 100644
+--- a/drivers/vhost/vsock.c
++++ b/drivers/vhost/vsock.c
+@@ -386,6 +386,8 @@ static bool vhost_vsock_more_replies(struct vhost_vsock *vsock)
  
-+static DEFINE_MUTEX(vmci_vsock_mutex); /* protects vmci_vsock_transport_cb */
-+static vmci_vsock_cb vmci_vsock_transport_cb;
-+bool vmci_vsock_cb_host_called;
+ static struct virtio_transport vhost_transport = {
+ 	.transport = {
++		.module                   = THIS_MODULE,
 +
- /*
-  * vmci_get_context_id() - Gets the current context ID.
+ 		.get_local_cid            = vhost_transport_get_local_cid,
+ 
+ 		.init                     = virtio_transport_do_socket_init,
+diff --git a/include/net/af_vsock.h b/include/net/af_vsock.h
+index cf5c3691251b..4206dc6d813f 100644
+--- a/include/net/af_vsock.h
++++ b/include/net/af_vsock.h
+@@ -100,6 +100,8 @@ struct vsock_transport_send_notify_data {
+ #define VSOCK_TRANSPORT_F_DGRAM		0x00000004
+ 
+ struct vsock_transport {
++	struct module *module;
++
+ 	/* Initialize/tear-down socket. */
+ 	int (*init)(struct vsock_sock *, struct vsock_sock *);
+ 	void (*destruct)(struct vsock_sock *);
+diff --git a/net/vmw_vsock/af_vsock.c b/net/vmw_vsock/af_vsock.c
+index 5357714b6104..5cb0ae42d916 100644
+--- a/net/vmw_vsock/af_vsock.c
++++ b/net/vmw_vsock/af_vsock.c
+@@ -380,6 +380,16 @@ void vsock_enqueue_accept(struct sock *listener, struct sock *connected)
+ }
+ EXPORT_SYMBOL_GPL(vsock_enqueue_accept);
+ 
++static void vsock_deassign_transport(struct vsock_sock *vsk)
++{
++	if (!vsk->transport)
++		return;
++
++	vsk->transport->destruct(vsk);
++	module_put(vsk->transport->module);
++	vsk->transport = NULL;
++}
++
+ /* Assign a transport to a socket and call the .init transport callback.
   *
-@@ -45,6 +49,69 @@ u32 vmci_get_context_id(void)
- }
- EXPORT_SYMBOL_GPL(vmci_get_context_id);
+  * Note: for stream socket this must be called when vsk->remote_addr is set
+@@ -418,10 +428,13 @@ int vsock_assign_transport(struct vsock_sock *vsk, struct vsock_sock *psk)
+ 			return 0;
  
-+/*
-+ * vmci_register_vsock_callback() - Register the VSOCK vmci_transport callback.
-+ *
-+ * The callback will be called when the first host or guest becomes active,
-+ * or if they are already active when this function is called.
-+ * To unregister the callback, call this function with NULL parameter.
-+ *
-+ * Returns 0 on success. -EBUSY if a callback is already registered.
-+ */
-+int vmci_register_vsock_callback(vmci_vsock_cb callback)
-+{
-+	int err = 0;
-+
-+	mutex_lock(&vmci_vsock_mutex);
-+
-+	if (vmci_vsock_transport_cb && callback) {
-+		err = -EBUSY;
-+		goto out;
-+	}
-+
-+	vmci_vsock_transport_cb = callback;
-+
-+	if (!vmci_vsock_transport_cb) {
-+		vmci_vsock_cb_host_called = false;
-+		goto out;
-+	}
-+
-+	if (vmci_guest_code_active())
-+		vmci_vsock_transport_cb(false);
-+
-+	if (vmci_host_users() > 0) {
-+		vmci_vsock_cb_host_called = true;
-+		vmci_vsock_transport_cb(true);
-+	}
-+
-+out:
-+	mutex_unlock(&vmci_vsock_mutex);
-+	return err;
-+}
-+EXPORT_SYMBOL_GPL(vmci_register_vsock_callback);
-+
-+void vmci_call_vsock_callback(bool is_host)
-+{
-+	mutex_lock(&vmci_vsock_mutex);
-+
-+	if (!vmci_vsock_transport_cb)
-+		goto out;
-+
-+	/* In the host, this function could be called multiple times,
-+	 * but we want to register it only once.
+ 		vsk->transport->release(vsk);
+-		vsk->transport->destruct(vsk);
++		vsock_deassign_transport(vsk);
+ 	}
+ 
+-	if (!new_transport)
++	/* We increase the module refcnt to prevent the transport unloading
++	 * while there are open sockets assigned to it.
 +	 */
-+	if (is_host) {
-+		if (vmci_vsock_cb_host_called)
-+			goto out;
-+
-+		vmci_vsock_cb_host_called = true;
-+	}
-+
-+	vmci_vsock_transport_cb(is_host);
-+out:
-+	mutex_unlock(&vmci_vsock_mutex);
-+}
-+
- static int __init vmci_drv_init(void)
++	if (!new_transport || !try_module_get(new_transport->module))
+ 		return -ENODEV;
+ 
+ 	vsk->transport = new_transport;
+@@ -741,8 +754,7 @@ static void vsock_sk_destruct(struct sock *sk)
  {
- 	int vmci_err;
-diff --git a/drivers/misc/vmw_vmci/vmci_driver.h b/drivers/misc/vmw_vmci/vmci_driver.h
-index aab81b67670c..990682480bf6 100644
---- a/drivers/misc/vmw_vmci/vmci_driver.h
-+++ b/drivers/misc/vmw_vmci/vmci_driver.h
-@@ -36,10 +36,12 @@ extern struct pci_dev *vmci_pdev;
+ 	struct vsock_sock *vsk = vsock_sk(sk);
  
- u32 vmci_get_context_id(void);
- int vmci_send_datagram(struct vmci_datagram *dg);
-+void vmci_call_vsock_callback(bool is_host);
+-	if (vsk->transport)
+-		vsk->transport->destruct(vsk);
++	vsock_deassign_transport(vsk);
  
- int vmci_host_init(void);
- void vmci_host_exit(void);
- bool vmci_host_code_active(void);
-+int vmci_host_users(void);
- 
- int vmci_guest_init(void);
- void vmci_guest_exit(void);
-diff --git a/drivers/misc/vmw_vmci/vmci_guest.c b/drivers/misc/vmw_vmci/vmci_guest.c
-index 7a84a48c75da..cc8eeb361fcd 100644
---- a/drivers/misc/vmw_vmci/vmci_guest.c
-+++ b/drivers/misc/vmw_vmci/vmci_guest.c
-@@ -637,6 +637,8 @@ static int vmci_guest_probe_device(struct pci_dev *pdev,
- 		  vmci_dev->iobase + VMCI_CONTROL_ADDR);
- 
- 	pci_set_drvdata(pdev, vmci_dev);
-+
-+	vmci_call_vsock_callback(false);
- 	return 0;
- 
- err_free_irq:
-diff --git a/drivers/misc/vmw_vmci/vmci_host.c b/drivers/misc/vmw_vmci/vmci_host.c
-index 833e2bd248a5..ff3c396146ff 100644
---- a/drivers/misc/vmw_vmci/vmci_host.c
-+++ b/drivers/misc/vmw_vmci/vmci_host.c
-@@ -108,6 +108,11 @@ bool vmci_host_code_active(void)
- 	     atomic_read(&vmci_host_active_users) > 0);
+ 	/* When clearing these addresses, there's no need to set the family and
+ 	 * possibly register the address family with the kernel.
+diff --git a/net/vmw_vsock/hyperv_transport.c b/net/vmw_vsock/hyperv_transport.c
+index 1c9e65d7d94d..3c7d07a99fc5 100644
+--- a/net/vmw_vsock/hyperv_transport.c
++++ b/net/vmw_vsock/hyperv_transport.c
+@@ -857,6 +857,8 @@ int hvs_notify_send_post_enqueue(struct vsock_sock *vsk, ssize_t written,
  }
  
-+int vmci_host_users(void)
-+{
-+	return atomic_read(&vmci_host_active_users);
-+}
+ static struct vsock_transport hvs_transport = {
++	.module                   = THIS_MODULE,
 +
- /*
-  * Called on open of /dev/vmci.
-  */
-@@ -338,6 +343,8 @@ static int vmci_host_do_init_context(struct vmci_host_dev *vmci_host_dev,
- 	vmci_host_dev->ct_type = VMCIOBJ_CONTEXT;
- 	atomic_inc(&vmci_host_active_users);
+ 	.get_local_cid            = hvs_get_local_cid,
  
-+	vmci_call_vsock_callback(true);
+ 	.init                     = hvs_sock_init,
+diff --git a/net/vmw_vsock/virtio_transport.c b/net/vmw_vsock/virtio_transport.c
+index 83ad85050384..1458c5c8b64d 100644
+--- a/net/vmw_vsock/virtio_transport.c
++++ b/net/vmw_vsock/virtio_transport.c
+@@ -462,6 +462,8 @@ static void virtio_vsock_rx_done(struct virtqueue *vq)
+ 
+ static struct virtio_transport virtio_transport = {
+ 	.transport = {
++		.module                   = THIS_MODULE,
 +
- 	retval = 0;
+ 		.get_local_cid            = virtio_transport_get_local_cid,
  
- out:
-diff --git a/include/linux/vmw_vmci_api.h b/include/linux/vmw_vmci_api.h
-index acd9fafe4fc6..f28907345c80 100644
---- a/include/linux/vmw_vmci_api.h
-+++ b/include/linux/vmw_vmci_api.h
-@@ -19,6 +19,7 @@
- struct msghdr;
- typedef void (vmci_device_shutdown_fn) (void *device_registration,
- 					void *user_data);
-+typedef void (*vmci_vsock_cb) (bool is_host);
- 
- int vmci_datagram_create_handle(u32 resource_id, u32 flags,
- 				vmci_datagram_recv_cb recv_cb,
-@@ -37,6 +38,7 @@ int vmci_doorbell_destroy(struct vmci_handle handle);
- int vmci_doorbell_notify(struct vmci_handle handle, u32 priv_flags);
- u32 vmci_get_context_id(void);
- bool vmci_is_context_owner(u32 context_id, kuid_t uid);
-+int vmci_register_vsock_callback(vmci_vsock_cb callback);
- 
- int vmci_event_subscribe(u32 event,
- 			 vmci_event_cb callback, void *callback_data,
+ 		.init                     = virtio_transport_do_socket_init,
 diff --git a/net/vmw_vsock/vmci_transport.c b/net/vmw_vsock/vmci_transport.c
-index 86030ecb53dd..d9c9c834ad6f 100644
+index d9c9c834ad6f..644d32e43d23 100644
 --- a/net/vmw_vsock/vmci_transport.c
 +++ b/net/vmw_vsock/vmci_transport.c
-@@ -2054,19 +2054,21 @@ static bool vmci_check_transport(struct vsock_sock *vsk)
- 	return vsk->transport == &vmci_transport;
+@@ -2020,6 +2020,7 @@ static u32 vmci_transport_get_local_cid(void)
  }
  
--static int __init vmci_transport_init(void)
-+void vmci_vsock_transport_cb(bool is_host)
- {
--	int features = VSOCK_TRANSPORT_F_DGRAM | VSOCK_TRANSPORT_F_H2G;
--	int cid;
--	int err;
-+	int features;
- 
--	cid = vmci_get_context_id();
-+	if (is_host)
-+		features = VSOCK_TRANSPORT_F_H2G;
-+	else
-+		features = VSOCK_TRANSPORT_F_G2H;
- 
--	if (cid == VMCI_INVALID_ID)
--		return -EINVAL;
-+	vsock_core_register(&vmci_transport, features);
-+}
- 
--	if (cid != VMCI_HOST_CONTEXT_ID)
--		features |= VSOCK_TRANSPORT_F_G2H;
-+static int __init vmci_transport_init(void)
-+{
-+	int err;
- 
- 	/* Create the datagram handle that we will use to send and receive all
- 	 * VSocket control messages for this context.
-@@ -2080,7 +2082,6 @@ static int __init vmci_transport_init(void)
- 		pr_err("Unable to create datagram handle. (%d)\n", err);
- 		return vmci_transport_error_to_vsock_error(err);
- 	}
--
- 	err = vmci_event_subscribe(VMCI_EVENT_QP_RESUMED,
- 				   vmci_transport_qp_resumed_cb,
- 				   NULL, &vmci_transport_qp_resumed_sub_id);
-@@ -2091,12 +2092,21 @@ static int __init vmci_transport_init(void)
- 		goto err_destroy_stream_handle;
- 	}
- 
--	err = vsock_core_register(&vmci_transport, features);
-+	/* Register only with dgram feature, other features (H2G, G2H) will be
-+	 * registered when the first host or guest becomes active.
-+	 */
-+	err = vsock_core_register(&vmci_transport, VSOCK_TRANSPORT_F_DGRAM);
- 	if (err < 0)
- 		goto err_unsubscribe;
- 
-+	err = vmci_register_vsock_callback(vmci_vsock_transport_cb);
-+	if (err < 0)
-+		goto err_unregister;
-+
- 	return 0;
- 
-+err_unregister:
-+	vsock_core_unregister(&vmci_transport);
- err_unsubscribe:
- 	vmci_event_unsubscribe(vmci_transport_qp_resumed_sub_id);
- err_destroy_stream_handle:
-@@ -2122,6 +2132,7 @@ static void __exit vmci_transport_exit(void)
- 		vmci_transport_qp_resumed_sub_id = VMCI_INVALID_ID;
- 	}
- 
-+	vmci_register_vsock_callback(NULL);
- 	vsock_core_unregister(&vmci_transport);
- }
- module_exit(vmci_transport_exit);
+ static struct vsock_transport vmci_transport = {
++	.module = THIS_MODULE,
+ 	.init = vmci_transport_socket_init,
+ 	.destruct = vmci_transport_destruct,
+ 	.release = vmci_transport_release,
 -- 
 2.21.0
