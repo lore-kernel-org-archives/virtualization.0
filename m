@@ -1,7 +1,8 @@
 From: Stefano Garzarella <sgarzare@redhat.com>
-Subject: [PATCH net-next v2 02/15] vsock: remove vm_sockets_get_local_cid()
-Date: Thu, 14 Nov 2019 10:57:37 +0100
-Message-ID: <20191114095750.59106-3-sgarzare__12696.4880082355$1573725510$gmane$org@redhat.com>
+Subject: [PATCH net-next v2 03/15] vsock: remove include/linux/vm_sockets.h
+	file
+Date: Thu, 14 Nov 2019 10:57:38 +0100
+Message-ID: <20191114095750.59106-4-sgarzare__46289.1886987322$1573725573$gmane$org@redhat.com>
 References: <20191114095750.59106-1-sgarzare@redhat.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
@@ -21,63 +22,76 @@ To: netdev@vger.kernel.org
 Cc: Sasha Levin <sashal@kernel.org>, linux-hyperv@vger.kernel.org, Stephen Hemminger <sthemmin@microsoft.com>, kvm@vger.kernel.org, Arnd Bergmann <arnd@arndb.de>, "Michael S. Tsirkin" <mst@redhat.com>, Greg Kroah-Hartman <gregkh@linuxfoundation.org>, Dexuan Cui <decui@microsoft.com>, linux-kernel@vger.kernel.org, "David S. Miller" <davem@davemloft.net>, Stefan Hajnoczi <stefanha@redhat.com>, virtualization@lists.linux-foundation.org, Haiyang Zhang <haiyangz@microsoft.com>, Jorgen Hansen <jhansen@vmware.com>
 List-Id: virtualization@lists.linuxfoundation.org
 
-vm_sockets_get_local_cid() is only used in virtio_transport_common.c.
-We can replace it calling the virtio_transport_get_ops() and
-using the get_local_cid() callback registered by the transport.
+This header file now only includes the "uapi/linux/vm_sockets.h".
+We can include directly it when needed.
 
 Reviewed-by: Stefan Hajnoczi <stefanha@redhat.com>
 Reviewed-by: Jorgen Hansen <jhansen@vmware.com>
 Signed-off-by: Stefano Garzarella <sgarzare@redhat.com>
 ---
- include/linux/vm_sockets.h              |  2 --
- net/vmw_vsock/af_vsock.c                | 10 ----------
- net/vmw_vsock/virtio_transport_common.c |  2 +-
- 3 files changed, 1 insertion(+), 13 deletions(-)
+ include/linux/vm_sockets.h            | 13 -------------
+ include/net/af_vsock.h                |  2 +-
+ include/net/vsock_addr.h              |  2 +-
+ net/vmw_vsock/vmci_transport_notify.h |  1 -
+ 4 files changed, 2 insertions(+), 16 deletions(-)
+ delete mode 100644 include/linux/vm_sockets.h
 
 diff --git a/include/linux/vm_sockets.h b/include/linux/vm_sockets.h
-index 33f1a2ecd905..7dd899ccb920 100644
+deleted file mode 100644
+index 7dd899ccb920..000000000000
 --- a/include/linux/vm_sockets.h
-+++ b/include/linux/vm_sockets.h
-@@ -10,6 +10,4 @@
- 
- #include <uapi/linux/vm_sockets.h>
- 
--int vm_sockets_get_local_cid(void);
++++ /dev/null
+@@ -1,13 +0,0 @@
+-/* SPDX-License-Identifier: GPL-2.0-only */
+-/*
+- * VMware vSockets Driver
+- *
+- * Copyright (C) 2007-2013 VMware, Inc. All rights reserved.
+- */
 -
- #endif /* _VM_SOCKETS_H */
-diff --git a/net/vmw_vsock/af_vsock.c b/net/vmw_vsock/af_vsock.c
-index 1f4fde4711b6..eb13693e9d04 100644
---- a/net/vmw_vsock/af_vsock.c
-+++ b/net/vmw_vsock/af_vsock.c
-@@ -129,16 +129,6 @@ static struct proto vsock_proto = {
- static const struct vsock_transport *transport;
- static DEFINE_MUTEX(vsock_register_mutex);
- 
--/**** EXPORTS ****/
+-#ifndef _VM_SOCKETS_H
+-#define _VM_SOCKETS_H
 -
--/* Get the ID of the local context.  This is transport dependent. */
+-#include <uapi/linux/vm_sockets.h>
 -
--int vm_sockets_get_local_cid(void)
--{
--	return transport->get_local_cid();
--}
--EXPORT_SYMBOL_GPL(vm_sockets_get_local_cid);
--
- /**** UTILS ****/
+-#endif /* _VM_SOCKETS_H */
+diff --git a/include/net/af_vsock.h b/include/net/af_vsock.h
+index 80ea0f93d3f7..c660402b10f2 100644
+--- a/include/net/af_vsock.h
++++ b/include/net/af_vsock.h
+@@ -10,7 +10,7 @@
  
- /* Each bound VSocket is stored in the bind hash table and each connected
-diff --git a/net/vmw_vsock/virtio_transport_common.c b/net/vmw_vsock/virtio_transport_common.c
-index 828edd88488c..3edc373d2acc 100644
---- a/net/vmw_vsock/virtio_transport_common.c
-+++ b/net/vmw_vsock/virtio_transport_common.c
-@@ -168,7 +168,7 @@ static int virtio_transport_send_pkt_info(struct vsock_sock *vsk,
- 	struct virtio_vsock_pkt *pkt;
- 	u32 pkt_len = info->pkt_len;
+ #include <linux/kernel.h>
+ #include <linux/workqueue.h>
+-#include <linux/vm_sockets.h>
++#include <uapi/linux/vm_sockets.h>
  
--	src_cid = vm_sockets_get_local_cid();
-+	src_cid = virtio_transport_get_ops()->transport.get_local_cid();
- 	src_port = vsk->local_addr.svm_port;
- 	if (!info->remote_cid) {
- 		dst_cid	= vsk->remote_addr.svm_cid;
+ #include "vsock_addr.h"
+ 
+diff --git a/include/net/vsock_addr.h b/include/net/vsock_addr.h
+index 57d2db5c4bdf..cf8cc140d68d 100644
+--- a/include/net/vsock_addr.h
++++ b/include/net/vsock_addr.h
+@@ -8,7 +8,7 @@
+ #ifndef _VSOCK_ADDR_H_
+ #define _VSOCK_ADDR_H_
+ 
+-#include <linux/vm_sockets.h>
++#include <uapi/linux/vm_sockets.h>
+ 
+ void vsock_addr_init(struct sockaddr_vm *addr, u32 cid, u32 port);
+ int vsock_addr_validate(const struct sockaddr_vm *addr);
+diff --git a/net/vmw_vsock/vmci_transport_notify.h b/net/vmw_vsock/vmci_transport_notify.h
+index 7843f08d4290..a1aa5a998c0e 100644
+--- a/net/vmw_vsock/vmci_transport_notify.h
++++ b/net/vmw_vsock/vmci_transport_notify.h
+@@ -11,7 +11,6 @@
+ #include <linux/types.h>
+ #include <linux/vmw_vmci_defs.h>
+ #include <linux/vmw_vmci_api.h>
+-#include <linux/vm_sockets.h>
+ 
+ #include "vmci_transport.h"
+ 
 -- 
 2.21.0
