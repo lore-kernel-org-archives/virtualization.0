@@ -1,8 +1,7 @@
 From: Stefano Garzarella <sgarzare@redhat.com>
-Subject: [PATCH net-next v2 01/15] vsock/vmci: remove unused
-	VSOCK_DEFAULT_CONNECT_TIMEOUT
-Date: Thu, 14 Nov 2019 10:57:36 +0100
-Message-ID: <20191114095750.59106-2-sgarzare__33975.2373330825$1573725502$gmane$org@redhat.com>
+Subject: [PATCH net-next v2 02/15] vsock: remove vm_sockets_get_local_cid()
+Date: Thu, 14 Nov 2019 10:57:37 +0100
+Message-ID: <20191114095750.59106-3-sgarzare__12696.4880082355$1573725510$gmane$org@redhat.com>
 References: <20191114095750.59106-1-sgarzare@redhat.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
@@ -22,36 +21,63 @@ To: netdev@vger.kernel.org
 Cc: Sasha Levin <sashal@kernel.org>, linux-hyperv@vger.kernel.org, Stephen Hemminger <sthemmin@microsoft.com>, kvm@vger.kernel.org, Arnd Bergmann <arnd@arndb.de>, "Michael S. Tsirkin" <mst@redhat.com>, Greg Kroah-Hartman <gregkh@linuxfoundation.org>, Dexuan Cui <decui@microsoft.com>, linux-kernel@vger.kernel.org, "David S. Miller" <davem@davemloft.net>, Stefan Hajnoczi <stefanha@redhat.com>, virtualization@lists.linux-foundation.org, Haiyang Zhang <haiyangz@microsoft.com>, Jorgen Hansen <jhansen@vmware.com>
 List-Id: virtualization@lists.linuxfoundation.org
 
-The VSOCK_DEFAULT_CONNECT_TIMEOUT definition was introduced with
-commit d021c344051af ("VSOCK: Introduce VM Sockets"), but it is
-never used in the net/vmw_vsock/vmci_transport.c.
+vm_sockets_get_local_cid() is only used in virtio_transport_common.c.
+We can replace it calling the virtio_transport_get_ops() and
+using the get_local_cid() callback registered by the transport.
 
-VSOCK_DEFAULT_CONNECT_TIMEOUT is used and defined in
-net/vmw_vsock/af_vsock.c
-
-Cc: Jorgen Hansen <jhansen@vmware.com>
 Reviewed-by: Stefan Hajnoczi <stefanha@redhat.com>
 Reviewed-by: Jorgen Hansen <jhansen@vmware.com>
 Signed-off-by: Stefano Garzarella <sgarzare@redhat.com>
 ---
- net/vmw_vsock/vmci_transport.c | 5 -----
- 1 file changed, 5 deletions(-)
+ include/linux/vm_sockets.h              |  2 --
+ net/vmw_vsock/af_vsock.c                | 10 ----------
+ net/vmw_vsock/virtio_transport_common.c |  2 +-
+ 3 files changed, 1 insertion(+), 13 deletions(-)
 
-diff --git a/net/vmw_vsock/vmci_transport.c b/net/vmw_vsock/vmci_transport.c
-index 6ba98a1efe2e..cf3b78f0038f 100644
---- a/net/vmw_vsock/vmci_transport.c
-+++ b/net/vmw_vsock/vmci_transport.c
-@@ -78,11 +78,6 @@ static int PROTOCOL_OVERRIDE = -1;
- #define VMCI_TRANSPORT_DEFAULT_QP_SIZE       262144
- #define VMCI_TRANSPORT_DEFAULT_QP_SIZE_MAX   262144
+diff --git a/include/linux/vm_sockets.h b/include/linux/vm_sockets.h
+index 33f1a2ecd905..7dd899ccb920 100644
+--- a/include/linux/vm_sockets.h
++++ b/include/linux/vm_sockets.h
+@@ -10,6 +10,4 @@
  
--/* The default peer timeout indicates how long we will wait for a peer response
-- * to a control message.
-- */
--#define VSOCK_DEFAULT_CONNECT_TIMEOUT (2 * HZ)
+ #include <uapi/linux/vm_sockets.h>
+ 
+-int vm_sockets_get_local_cid(void);
 -
- /* Helper function to convert from a VMCI error code to a VSock error code. */
+ #endif /* _VM_SOCKETS_H */
+diff --git a/net/vmw_vsock/af_vsock.c b/net/vmw_vsock/af_vsock.c
+index 1f4fde4711b6..eb13693e9d04 100644
+--- a/net/vmw_vsock/af_vsock.c
++++ b/net/vmw_vsock/af_vsock.c
+@@ -129,16 +129,6 @@ static struct proto vsock_proto = {
+ static const struct vsock_transport *transport;
+ static DEFINE_MUTEX(vsock_register_mutex);
  
- static s32 vmci_transport_error_to_vsock_error(s32 vmci_error)
+-/**** EXPORTS ****/
+-
+-/* Get the ID of the local context.  This is transport dependent. */
+-
+-int vm_sockets_get_local_cid(void)
+-{
+-	return transport->get_local_cid();
+-}
+-EXPORT_SYMBOL_GPL(vm_sockets_get_local_cid);
+-
+ /**** UTILS ****/
+ 
+ /* Each bound VSocket is stored in the bind hash table and each connected
+diff --git a/net/vmw_vsock/virtio_transport_common.c b/net/vmw_vsock/virtio_transport_common.c
+index 828edd88488c..3edc373d2acc 100644
+--- a/net/vmw_vsock/virtio_transport_common.c
++++ b/net/vmw_vsock/virtio_transport_common.c
+@@ -168,7 +168,7 @@ static int virtio_transport_send_pkt_info(struct vsock_sock *vsk,
+ 	struct virtio_vsock_pkt *pkt;
+ 	u32 pkt_len = info->pkt_len;
+ 
+-	src_cid = vm_sockets_get_local_cid();
++	src_cid = virtio_transport_get_ops()->transport.get_local_cid();
+ 	src_port = vsk->local_addr.svm_port;
+ 	if (!info->remote_cid) {
+ 		dst_cid	= vsk->remote_addr.svm_cid;
 -- 
 2.21.0
