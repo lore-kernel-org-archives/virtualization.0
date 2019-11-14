@@ -1,14 +1,12 @@
-From: Stefano Garzarella <sgarzare@redhat.com>
-Subject: [PATCH net-next v2 15/15] vhost/vsock: refuse CID assigned to the
-	guest->host transport
-Date: Thu, 14 Nov 2019 10:57:50 +0100
-Message-ID: <20191114095750.59106-16-sgarzare__30630.2509315842$1573725719$gmane$org@redhat.com>
-References: <20191114095750.59106-1-sgarzare@redhat.com>
+From: Laurent Vivier <lvivier@redhat.com>
+Subject: [PATCH v3] virtio_console: allocate inbufs in add_port() only if it
+	is needed
+Date: Thu, 14 Nov 2019 13:25:48 +0100
+Message-ID: <20191114122548.24364-1-lvivier__18003.1894402177$1573734373$gmane$org@redhat.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <20191114095750.59106-1-sgarzare@redhat.com>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -18,35 +16,134 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: netdev@vger.kernel.org
-Cc: Sasha Levin <sashal@kernel.org>, linux-hyperv@vger.kernel.org, Stephen Hemminger <sthemmin@microsoft.com>, kvm@vger.kernel.org, Arnd Bergmann <arnd@arndb.de>, "Michael S. Tsirkin" <mst@redhat.com>, Greg Kroah-Hartman <gregkh@linuxfoundation.org>, Dexuan Cui <decui@microsoft.com>, linux-kernel@vger.kernel.org, "David S. Miller" <davem@davemloft.net>, Stefan Hajnoczi <stefanha@redhat.com>, virtualization@lists.linux-foundation.org, Haiyang Zhang <haiyangz@microsoft.com>, Jorgen Hansen <jhansen@vmware.com>
+To: linux-kernel@vger.kernel.org
+Cc: Laurent Vivier <lvivier@redhat.com>, Arnd Bergmann <arnd@arndb.de>, Amit Shah <amit@kernel.org>, Greg Kroah-Hartman <gregkh@linuxfoundation.org>, "Michael S . Tsirkin" <mst@redhat.com>, stable@vger.kernel.org, virtualization@lists.linux-foundation.org
 List-Id: virtualization@lists.linuxfoundation.org
 
-In a nested VM environment, we have to refuse to assign to a nested
-guest the same CID assigned to our guest->host transport.
-In this way, the user can use the local CID for loopback.
+When we hot unplug a virtserialport and then try to hot plug again,
+it fails:
 
-Signed-off-by: Stefano Garzarella <sgarzare@redhat.com>
+(qemu) chardev-add socket,id=serial0,path=/tmp/serial0,server,nowait
+(qemu) device_add virtserialport,bus=virtio-serial0.0,nr=2,\
+                  chardev=serial0,id=serial0,name=serial0
+(qemu) device_del serial0
+(qemu) device_add virtserialport,bus=virtio-serial0.0,nr=2,\
+                  chardev=serial0,id=serial0,name=serial0
+kernel error:
+  virtio-ports vport2p2: Error allocating inbufs
+qemu error:
+  virtio-serial-bus: Guest failure in adding port 2 for device \
+                     virtio-serial0.0
+
+This happens because buffers for the in_vq are allocated when the port is
+added but are not released when the port is unplugged.
+
+They are only released when virtconsole is removed (see a7a69ec0d8e4)
+
+To avoid the problem and to be symmetric, we could allocate all the buffers
+in init_vqs() as they are released in remove_vqs(), but it sounds like
+a waste of memory.
+
+Rather than that, this patch changes add_port() logic to ignore ENOSPC
+error in fill_queue(), which means queue has already been filled.
+
+Fixes: a7a69ec0d8e4 ("virtio_console: free buffers after reset")
+Cc: mst@redhat.com
+Cc: stable@vger.kernel.org
+Signed-off-by: Laurent Vivier <lvivier@redhat.com>
 ---
- drivers/vhost/vsock.c | 6 ++++++
- 1 file changed, 6 insertions(+)
 
-diff --git a/drivers/vhost/vsock.c b/drivers/vhost/vsock.c
-index fdda9ec625ad..dde392b91bb3 100644
---- a/drivers/vhost/vsock.c
-+++ b/drivers/vhost/vsock.c
-@@ -718,6 +718,12 @@ static int vhost_vsock_set_cid(struct vhost_vsock *vsock, u64 guest_cid)
- 	if (guest_cid > U32_MAX)
- 		return -EINVAL;
+Notes:
+    v3: add a comment about ENOSPC error
+    v2: making fill_queue return int and testing return code for -ENOSPC
+
+ drivers/char/virtio_console.c | 28 +++++++++++++---------------
+ 1 file changed, 13 insertions(+), 15 deletions(-)
+
+diff --git a/drivers/char/virtio_console.c b/drivers/char/virtio_console.c
+index 7270e7b69262..3259426f01dc 100644
+--- a/drivers/char/virtio_console.c
++++ b/drivers/char/virtio_console.c
+@@ -1325,24 +1325,24 @@ static void set_console_size(struct port *port, u16 rows, u16 cols)
+ 	port->cons.ws.ws_col = cols;
+ }
  
-+	/* Refuse if CID is assigned to the guest->host transport (i.e. nested
-+	 * VM), to make the loopback work.
+-static unsigned int fill_queue(struct virtqueue *vq, spinlock_t *lock)
++static int fill_queue(struct virtqueue *vq, spinlock_t *lock)
+ {
+ 	struct port_buffer *buf;
+-	unsigned int nr_added_bufs;
++	int nr_added_bufs;
+ 	int ret;
+ 
+ 	nr_added_bufs = 0;
+ 	do {
+ 		buf = alloc_buf(vq->vdev, PAGE_SIZE, 0);
+ 		if (!buf)
+-			break;
++			return -ENOMEM;
+ 
+ 		spin_lock_irq(lock);
+ 		ret = add_inbuf(vq, buf);
+ 		if (ret < 0) {
+ 			spin_unlock_irq(lock);
+ 			free_buf(buf, true);
+-			break;
++			return ret;
+ 		}
+ 		nr_added_bufs++;
+ 		spin_unlock_irq(lock);
+@@ -1362,7 +1362,6 @@ static int add_port(struct ports_device *portdev, u32 id)
+ 	char debugfs_name[16];
+ 	struct port *port;
+ 	dev_t devt;
+-	unsigned int nr_added_bufs;
+ 	int err;
+ 
+ 	port = kmalloc(sizeof(*port), GFP_KERNEL);
+@@ -1421,11 +1420,13 @@ static int add_port(struct ports_device *portdev, u32 id)
+ 	spin_lock_init(&port->outvq_lock);
+ 	init_waitqueue_head(&port->waitqueue);
+ 
+-	/* Fill the in_vq with buffers so the host can send us data. */
+-	nr_added_bufs = fill_queue(port->in_vq, &port->inbuf_lock);
+-	if (!nr_added_bufs) {
++	/* We can safely ignore ENOSPC because it means
++	 * the queue already has buffers. Buffers are removed
++	 * only by virtcons_remove(), not by unplug_port()
 +	 */
-+	if (vsock_find_cid(guest_cid))
-+		return -EADDRINUSE;
-+
- 	/* Refuse if CID is already in use */
- 	mutex_lock(&vhost_vsock_mutex);
- 	other = vhost_vsock_get(guest_cid);
++	err = fill_queue(port->in_vq, &port->inbuf_lock);
++	if (err < 0 && err != -ENOSPC) {
+ 		dev_err(port->dev, "Error allocating inbufs\n");
+-		err = -ENOMEM;
+ 		goto free_device;
+ 	}
+ 
+@@ -2059,14 +2060,11 @@ static int virtcons_probe(struct virtio_device *vdev)
+ 	INIT_WORK(&portdev->control_work, &control_work_handler);
+ 
+ 	if (multiport) {
+-		unsigned int nr_added_bufs;
+-
+ 		spin_lock_init(&portdev->c_ivq_lock);
+ 		spin_lock_init(&portdev->c_ovq_lock);
+ 
+-		nr_added_bufs = fill_queue(portdev->c_ivq,
+-					   &portdev->c_ivq_lock);
+-		if (!nr_added_bufs) {
++		err = fill_queue(portdev->c_ivq, &portdev->c_ivq_lock);
++		if (err < 0) {
+ 			dev_err(&vdev->dev,
+ 				"Error allocating buffers for control queue\n");
+ 			/*
+@@ -2077,7 +2075,7 @@ static int virtcons_probe(struct virtio_device *vdev)
+ 					   VIRTIO_CONSOLE_DEVICE_READY, 0);
+ 			/* Device was functional: we need full cleanup. */
+ 			virtcons_remove(vdev);
+-			return -ENOMEM;
++			return err;
+ 		}
+ 	} else {
+ 		/*
 -- 
-2.21.0
+2.23.0
