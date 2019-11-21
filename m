@@ -1,15 +1,15 @@
 From: Stefano Garzarella <sgarzare@redhat.com>
-Subject: Re: [PATCH net-next 4/6] vsock: add vsock_loopback transport
-Date: Thu, 21 Nov 2019 10:59:48 +0100
-Message-ID: <20191121095948.bc7lc3ptsh6jxizw__46257.9513595969$1574330413$gmane$org@steredhat>
+Subject: Re: [PATCH net-next 5/6] vsock: use local transport when it is loaded
+Date: Thu, 21 Nov 2019 11:01:56 +0100
+Message-ID: <20191121100156.v4ehwmstlhujrviv__16991.4460320555$1574330536$gmane$org@steredhat>
 References: <20191119110121.14480-1-sgarzare@redhat.com>
- <20191119110121.14480-5-sgarzare@redhat.com>
- <20191121093458.GB439743@stefanha-x1.localdomain>
+ <20191119110121.14480-6-sgarzare@redhat.com>
+ <20191121094614.GC439743@stefanha-x1.localdomain>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <20191121093458.GB439743@stefanha-x1.localdomain>
+In-Reply-To: <20191121094614.GC439743@stefanha-x1.localdomain>
 Content-Disposition: inline
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
  <mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
@@ -24,108 +24,31 @@ To: Stefan Hajnoczi <stefanha@gmail.com>
 Cc: kvm@vger.kernel.org, netdev@vger.kernel.org, Dexuan Cui <decui@microsoft.com>, linux-kernel@vger.kernel.org, virtualization@lists.linux-foundation.org, Stefan Hajnoczi <stefanha@redhat.com>, "David S. Miller" <davem@davemloft.net>, Jorgen Hansen <jhansen@vmware.com>
 List-Id: virtualization@lists.linuxfoundation.org
 
-On Thu, Nov 21, 2019 at 09:34:58AM +0000, Stefan Hajnoczi wrote:
-> On Tue, Nov 19, 2019 at 12:01:19PM +0100, Stefano Garzarella wrote:
+On Thu, Nov 21, 2019 at 09:46:14AM +0000, Stefan Hajnoczi wrote:
+> On Tue, Nov 19, 2019 at 12:01:20PM +0100, Stefano Garzarella wrote:
+> > @@ -420,9 +436,10 @@ int vsock_assign_transport(struct vsock_sock *vsk, struct vsock_sock *psk)
+> >  		new_transport = transport_dgram;
+> >  		break;
+> >  	case SOCK_STREAM:
+> > -		if (remote_cid <= VMADDR_CID_HOST ||
+> > -		    (transport_g2h &&
+> > -		     remote_cid == transport_g2h->get_local_cid()))
+> > +		if (vsock_use_local_transport(remote_cid))
+> > +			new_transport = transport_local;
+> > +		else if (remote_cid == VMADDR_CID_HOST ||
+> > +			 remote_cid == VMADDR_CID_HYPERVISOR)
+> >  			new_transport = transport_g2h;
+> >  		else
+> >  			new_transport = transport_h2g;
 > 
-> Ideas for long-term changes below.
+> We used to send VMADDR_CID_RESERVED to the host.  Now we send
+> VMADDR_CID_RESERVED (LOCAL) to the guest when there is no
+> transport_local loaded?
 > 
-> Reviewed-by: Stefan Hajnoczi <stefanha@redhat.com>
-> 
+> If this is correct, is there a justification for this change?  It seems
+> safest to retain existing behavior.
 
-Thanks for reviewing!
-
-> > diff --git a/MAINTAINERS b/MAINTAINERS
-> > index 760049454a23..c2a3dc3113ba 100644
-> > --- a/MAINTAINERS
-> > +++ b/MAINTAINERS
-> > @@ -17239,6 +17239,7 @@ F:	net/vmw_vsock/diag.c
-> >  F:	net/vmw_vsock/af_vsock_tap.c
-> >  F:	net/vmw_vsock/virtio_transport_common.c
-> >  F:	net/vmw_vsock/virtio_transport.c
-> > +F:	net/vmw_vsock/vsock_loopback.c
-> >  F:	drivers/net/vsockmon.c
-> >  F:	drivers/vhost/vsock.c
-> >  F:	tools/testing/vsock/
-> 
-> At this point you are most active in virtio-vsock and I am reviewing
-> patches on a best-effort basis.  Feel free to add yourself as
-> maintainer.
-> 
-
-Sure, I'd be happy to maintain it.
-
-> > diff --git a/net/vmw_vsock/vsock_loopback.c b/net/vmw_vsock/vsock_loopback.c
-> > new file mode 100644
-> > index 000000000000..3d1c1a88305f
-> > --- /dev/null
-> > +++ b/net/vmw_vsock/vsock_loopback.c
-> > @@ -0,0 +1,217 @@
-> > +// SPDX-License-Identifier: GPL-2.0-only
-> > +/*
-> > + * loopback transport for vsock using virtio_transport_common APIs
-> > + *
-> > + * Copyright (C) 2013-2019 Red Hat, Inc.
-> > + * Author: Asias He <asias@redhat.com>
-> > + *         Stefan Hajnoczi <stefanha@redhat.com>
-> > + *         Stefano Garzarella <sgarzare@redhat.com>
-> > + *
-> > + */
-> > +#include <linux/spinlock.h>
-> > +#include <linux/module.h>
-> > +#include <linux/list.h>
-> > +#include <linux/virtio_vsock.h>
-> 
-> Is it time to rename the generic functionality in
-> virtio_transport_common.c?  This doesn't have anything to do with virtio
-> :).
-> 
-
-Completely agree, new transports could use it to handle the protocol without
-reimplementing things already done.
-
-> > +
-> > +static struct workqueue_struct *vsock_loopback_workqueue;
-> > +static struct vsock_loopback *the_vsock_loopback;
-> 
-> the_vsock_loopback could be a static global variable (not a pointer) and
-> vsock_loopback_workqueue could also be included in the struct.
-> 
-> The RCU pointer is really a way to synchronize vsock_loopback_send_pkt()
-> and vsock_loopback_cancel_pkt() with module exit.  There is no other
-> reason for using a pointer.
-> 
-> It's cleaner to implement the synchronization once in af_vsock.c (or
-> virtio_transport_common.c) instead of making each transport do it.
-> Maybe try_module_get() and related APIs provide the necessary semantics
-> so that core vsock code can hold the transport module while it's being
-> used to send/cancel a packet.
-
-Right, the module cannot be unloaded until open sockets, so here the
-synchronization is not needed.
-
-The synchronization come from virtio-vsock device that can be
-hot-unplugged while sockets are still open, but that can't happen here.
-
-I will remove the pointers and RCU in the v2.
-
-Can I keep your R-b or do you prefer to watch v2 first?
-
-> 
-> > +MODULE_ALIAS_NETPROTO(PF_VSOCK);
-> 
-> Why does this module define the alias for PF_VSOCK?  Doesn't another
-> module already define this alias?
-
-It is a way to load this module when PF_VSOCK is starting to be used.
-MODULE_ALIAS_NETPROTO(PF_VSOCK) is already defined in vmci_transport
-and hyperv_transport. IIUC it is used for the same reason.
-
-In virtio_transport we don't need it because it will be loaded when
-the PCI device is discovered.
-
-Do you think there's a better way?
-Should I include the vsock_loopback transport directly in af_vsock
-without creating a new module?
+You're right, I'll revert this change in v2.
 
 Thanks,
 Stefano
