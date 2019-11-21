@@ -1,12 +1,16 @@
-From: Stefan Hajnoczi <stefanha@gmail.com>
-Subject: Re: [PATCH net-next 0/6] vsock: add local transport support
-Date: Thu, 21 Nov 2019 09:46:43 +0000
-Message-ID: <20191121094643.GD439743__20223.8780607999$1574329618$gmane$org@stefanha-x1.localdomain>
+From: Stefano Garzarella <sgarzare@redhat.com>
+Subject: Re: [PATCH net-next 4/6] vsock: add vsock_loopback transport
+Date: Thu, 21 Nov 2019 10:59:48 +0100
+Message-ID: <20191121095948.bc7lc3ptsh6jxizw__46257.9513595969$1574330413$gmane$org@steredhat>
 References: <20191119110121.14480-1-sgarzare@redhat.com>
+ <20191119110121.14480-5-sgarzare@redhat.com>
+ <20191121093458.GB439743@stefanha-x1.localdomain>
 Mime-Version: 1.0
-Content-Type: multipart/mixed; boundary="===============8339820992161836083=="
+Content-Type: text/plain; charset="us-ascii"
+Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <20191119110121.14480-1-sgarzare@redhat.com>
+In-Reply-To: <20191121093458.GB439743@stefanha-x1.localdomain>
+Content-Disposition: inline
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
  <mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -16,106 +20,112 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
  <mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Errors-To: virtualization-bounces@lists.linux-foundation.org
 Sender: "Virtualization" <virtualization-bounces@lists.linux-foundation.org>
-To: Stefano Garzarella <sgarzare@redhat.com>
+To: Stefan Hajnoczi <stefanha@gmail.com>
 Cc: kvm@vger.kernel.org, netdev@vger.kernel.org, Dexuan Cui <decui@microsoft.com>, linux-kernel@vger.kernel.org, virtualization@lists.linux-foundation.org, Stefan Hajnoczi <stefanha@redhat.com>, "David S. Miller" <davem@davemloft.net>, Jorgen Hansen <jhansen@vmware.com>
 List-Id: virtualization@lists.linuxfoundation.org
 
+On Thu, Nov 21, 2019 at 09:34:58AM +0000, Stefan Hajnoczi wrote:
+> On Tue, Nov 19, 2019 at 12:01:19PM +0100, Stefano Garzarella wrote:
+> 
+> Ideas for long-term changes below.
+> 
+> Reviewed-by: Stefan Hajnoczi <stefanha@redhat.com>
+> 
 
---===============8339820992161836083==
-Content-Type: multipart/signed; micalg=pgp-sha256;
-	protocol="application/pgp-signature"; boundary="eqp4TxRxnD4KrmFZ"
-Content-Disposition: inline
+Thanks for reviewing!
 
+> > diff --git a/MAINTAINERS b/MAINTAINERS
+> > index 760049454a23..c2a3dc3113ba 100644
+> > --- a/MAINTAINERS
+> > +++ b/MAINTAINERS
+> > @@ -17239,6 +17239,7 @@ F:	net/vmw_vsock/diag.c
+> >  F:	net/vmw_vsock/af_vsock_tap.c
+> >  F:	net/vmw_vsock/virtio_transport_common.c
+> >  F:	net/vmw_vsock/virtio_transport.c
+> > +F:	net/vmw_vsock/vsock_loopback.c
+> >  F:	drivers/net/vsockmon.c
+> >  F:	drivers/vhost/vsock.c
+> >  F:	tools/testing/vsock/
+> 
+> At this point you are most active in virtio-vsock and I am reviewing
+> patches on a best-effort basis.  Feel free to add yourself as
+> maintainer.
+> 
 
---eqp4TxRxnD4KrmFZ
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
+Sure, I'd be happy to maintain it.
 
-On Tue, Nov 19, 2019 at 12:01:15PM +0100, Stefano Garzarella wrote:
-> This series introduces a new transport (vsock_loopback) to handle
-> local communication.
-> This could be useful to test vsock core itself and to allow developers
-> to test their applications without launching a VM.
->=20
-> Before this series, vmci and virtio transports allowed this behavior,
-> but only in the guest.
-> We are moving the loopback handling in a new transport, because it
-> might be useful to provide this feature also in the host or when
-> no H2G/G2H transports (hyperv, virtio, vmci) are loaded.
->=20
-> The user can use the loopback with the new VMADDR_CID_LOCAL (that
-> replaces VMADDR_CID_RESERVED) in any condition.
-> Otherwise, if the G2H transport is loaded, it can also use the guest
-> local CID as previously supported by vmci and virtio transports.
-> If G2H transport is not loaded, the user can also use VMADDR_CID_HOST
-> for local communication.
->=20
-> Patch 1 is a cleanup to build virtio_transport_common without virtio
-> Patch 2 adds the new VMADDR_CID_LOCAL, replacing VMADDR_CID_RESERVED
-> Patch 3 adds a new feature flag to register a loopback transport
-> Patch 4 adds the new vsock_loopback transport based on the loopback
->         implementation of virtio_transport
-> Patch 5 implements the logic to use the local transport for loopback
->         communication
-> Patch 6 removes the loopback from virtio_transport
->=20
-> @Jorgen: Do you think it might be a problem to replace
-> VMADDR_CID_RESERVED with VMADDR_CID_LOCAL?
->=20
-> Thanks,
-> Stefano
->=20
-> Stefano Garzarella (6):
->   vsock/virtio_transport_common: remove unused virtio header includes
->   vsock: add VMADDR_CID_LOCAL definition
->   vsock: add local transport support in the vsock core
->   vsock: add vsock_loopback transport
->   vsock: use local transport when it is loaded
->   vsock/virtio: remove loopback handling
->=20
->  MAINTAINERS                             |   1 +
->  include/net/af_vsock.h                  |   2 +
->  include/uapi/linux/vm_sockets.h         |   8 +-
->  net/vmw_vsock/Kconfig                   |  12 ++
->  net/vmw_vsock/Makefile                  |   1 +
->  net/vmw_vsock/af_vsock.c                |  49 +++++-
->  net/vmw_vsock/virtio_transport.c        |  61 +------
->  net/vmw_vsock/virtio_transport_common.c |   3 -
->  net/vmw_vsock/vmci_transport.c          |   2 +-
->  net/vmw_vsock/vsock_loopback.c          | 217 ++++++++++++++++++++++++
->  10 files changed, 283 insertions(+), 73 deletions(-)
->  create mode 100644 net/vmw_vsock/vsock_loopback.c
+> > diff --git a/net/vmw_vsock/vsock_loopback.c b/net/vmw_vsock/vsock_loopback.c
+> > new file mode 100644
+> > index 000000000000..3d1c1a88305f
+> > --- /dev/null
+> > +++ b/net/vmw_vsock/vsock_loopback.c
+> > @@ -0,0 +1,217 @@
+> > +// SPDX-License-Identifier: GPL-2.0-only
+> > +/*
+> > + * loopback transport for vsock using virtio_transport_common APIs
+> > + *
+> > + * Copyright (C) 2013-2019 Red Hat, Inc.
+> > + * Author: Asias He <asias@redhat.com>
+> > + *         Stefan Hajnoczi <stefanha@redhat.com>
+> > + *         Stefano Garzarella <sgarzare@redhat.com>
+> > + *
+> > + */
+> > +#include <linux/spinlock.h>
+> > +#include <linux/module.h>
+> > +#include <linux/list.h>
+> > +#include <linux/virtio_vsock.h>
+> 
+> Is it time to rename the generic functionality in
+> virtio_transport_common.c?  This doesn't have anything to do with virtio
+> :).
+> 
 
-Please see my comments.  Otherwise:
+Completely agree, new transports could use it to handle the protocol without
+reimplementing things already done.
 
-Reviewed-by: Stefan Hajnoczi <stefanha@redhat.com>
+> > +
+> > +static struct workqueue_struct *vsock_loopback_workqueue;
+> > +static struct vsock_loopback *the_vsock_loopback;
+> 
+> the_vsock_loopback could be a static global variable (not a pointer) and
+> vsock_loopback_workqueue could also be included in the struct.
+> 
+> The RCU pointer is really a way to synchronize vsock_loopback_send_pkt()
+> and vsock_loopback_cancel_pkt() with module exit.  There is no other
+> reason for using a pointer.
+> 
+> It's cleaner to implement the synchronization once in af_vsock.c (or
+> virtio_transport_common.c) instead of making each transport do it.
+> Maybe try_module_get() and related APIs provide the necessary semantics
+> so that core vsock code can hold the transport module while it's being
+> used to send/cancel a packet.
 
---eqp4TxRxnD4KrmFZ
-Content-Type: application/pgp-signature; name="signature.asc"
+Right, the module cannot be unloaded until open sockets, so here the
+synchronization is not needed.
 
------BEGIN PGP SIGNATURE-----
+The synchronization come from virtio-vsock device that can be
+hot-unplugged while sockets are still open, but that can't happen here.
 
-iQEzBAEBCAAdFiEEhpWov9P5fNqsNXdanKSrs4Grc8gFAl3WXQMACgkQnKSrs4Gr
-c8h4aQf5ATKD+2md5rF2gaJHwaBfEiLqsK5/ciPJv0qtYXlnZi9wionMXyFbAmo+
-tWchVmMP8gpdCf9qsWBQo6beDMWJdZSCZCZ0kiAgoHXGWK50lFhtFBqXjngopcXJ
-Hr9IgWPWoobZR0Z0p98tHj0ToumHaFtopLL+rrtCAwkGHxNnVTgv0HRWcAsEORQc
-o3AI3/+6a6ESmP8dtcRZ7fY628un7VcdFVrD6mnyxPTX3CVqulPLPLC7Y+DpYtFa
-ZqU04KBPp/8t8HtsZZYjGv60H58qzwPDAwwEIpFZ9gYl3cKRGRvUXs3t7vKdzZGA
-gu9P/McerEE+0vQCtysTkHsIzrgUvg==
-=c63q
------END PGP SIGNATURE-----
+I will remove the pointers and RCU in the v2.
 
---eqp4TxRxnD4KrmFZ--
+Can I keep your R-b or do you prefer to watch v2 first?
 
---===============8339820992161836083==
-Content-Type: text/plain; charset="us-ascii"
-MIME-Version: 1.0
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
+> 
+> > +MODULE_ALIAS_NETPROTO(PF_VSOCK);
+> 
+> Why does this module define the alias for PF_VSOCK?  Doesn't another
+> module already define this alias?
 
-_______________________________________________
-Virtualization mailing list
-Virtualization@lists.linux-foundation.org
-https://lists.linuxfoundation.org/mailman/listinfo/virtualization
---===============8339820992161836083==--
+It is a way to load this module when PF_VSOCK is starting to be used.
+MODULE_ALIAS_NETPROTO(PF_VSOCK) is already defined in vmci_transport
+and hyperv_transport. IIUC it is used for the same reason.
+
+In virtio_transport we don't need it because it will be loaded when
+the PCI device is discovered.
+
+Do you think there's a better way?
+Should I include the vsock_loopback transport directly in af_vsock
+without creating a new module?
+
+Thanks,
+Stefano
