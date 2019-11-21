@@ -1,13 +1,12 @@
 From: Stefan Hajnoczi <stefanha@gmail.com>
-Subject: Re: [PATCH net-next 5/6] vsock: use local transport when it is loaded
-Date: Thu, 21 Nov 2019 09:46:14 +0000
-Message-ID: <20191121094614.GC439743__30078.429651779$1574329594$gmane$org@stefanha-x1.localdomain>
+Subject: Re: [PATCH net-next 0/6] vsock: add local transport support
+Date: Thu, 21 Nov 2019 09:46:43 +0000
+Message-ID: <20191121094643.GD439743__20223.8780607999$1574329618$gmane$org@stefanha-x1.localdomain>
 References: <20191119110121.14480-1-sgarzare@redhat.com>
- <20191119110121.14480-6-sgarzare@redhat.com>
 Mime-Version: 1.0
-Content-Type: multipart/mixed; boundary="===============4133274744528085402=="
+Content-Type: multipart/mixed; boundary="===============8339820992161836083=="
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <20191119110121.14480-6-sgarzare@redhat.com>
+In-Reply-To: <20191119110121.14480-1-sgarzare@redhat.com>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
  <mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -22,57 +21,94 @@ Cc: kvm@vger.kernel.org, netdev@vger.kernel.org, Dexuan Cui <decui@microsoft.com
 List-Id: virtualization@lists.linuxfoundation.org
 
 
---===============4133274744528085402==
+--===============8339820992161836083==
 Content-Type: multipart/signed; micalg=pgp-sha256;
-	protocol="application/pgp-signature"; boundary="+nBD6E3TurpgldQp"
+	protocol="application/pgp-signature"; boundary="eqp4TxRxnD4KrmFZ"
 Content-Disposition: inline
 
 
---+nBD6E3TurpgldQp
+--eqp4TxRxnD4KrmFZ
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
+Content-Transfer-Encoding: quoted-printable
 
-On Tue, Nov 19, 2019 at 12:01:20PM +0100, Stefano Garzarella wrote:
-> @@ -420,9 +436,10 @@ int vsock_assign_transport(struct vsock_sock *vsk, struct vsock_sock *psk)
->  		new_transport = transport_dgram;
->  		break;
->  	case SOCK_STREAM:
-> -		if (remote_cid <= VMADDR_CID_HOST ||
-> -		    (transport_g2h &&
-> -		     remote_cid == transport_g2h->get_local_cid()))
-> +		if (vsock_use_local_transport(remote_cid))
-> +			new_transport = transport_local;
-> +		else if (remote_cid == VMADDR_CID_HOST ||
-> +			 remote_cid == VMADDR_CID_HYPERVISOR)
->  			new_transport = transport_g2h;
->  		else
->  			new_transport = transport_h2g;
+On Tue, Nov 19, 2019 at 12:01:15PM +0100, Stefano Garzarella wrote:
+> This series introduces a new transport (vsock_loopback) to handle
+> local communication.
+> This could be useful to test vsock core itself and to allow developers
+> to test their applications without launching a VM.
+>=20
+> Before this series, vmci and virtio transports allowed this behavior,
+> but only in the guest.
+> We are moving the loopback handling in a new transport, because it
+> might be useful to provide this feature also in the host or when
+> no H2G/G2H transports (hyperv, virtio, vmci) are loaded.
+>=20
+> The user can use the loopback with the new VMADDR_CID_LOCAL (that
+> replaces VMADDR_CID_RESERVED) in any condition.
+> Otherwise, if the G2H transport is loaded, it can also use the guest
+> local CID as previously supported by vmci and virtio transports.
+> If G2H transport is not loaded, the user can also use VMADDR_CID_HOST
+> for local communication.
+>=20
+> Patch 1 is a cleanup to build virtio_transport_common without virtio
+> Patch 2 adds the new VMADDR_CID_LOCAL, replacing VMADDR_CID_RESERVED
+> Patch 3 adds a new feature flag to register a loopback transport
+> Patch 4 adds the new vsock_loopback transport based on the loopback
+>         implementation of virtio_transport
+> Patch 5 implements the logic to use the local transport for loopback
+>         communication
+> Patch 6 removes the loopback from virtio_transport
+>=20
+> @Jorgen: Do you think it might be a problem to replace
+> VMADDR_CID_RESERVED with VMADDR_CID_LOCAL?
+>=20
+> Thanks,
+> Stefano
+>=20
+> Stefano Garzarella (6):
+>   vsock/virtio_transport_common: remove unused virtio header includes
+>   vsock: add VMADDR_CID_LOCAL definition
+>   vsock: add local transport support in the vsock core
+>   vsock: add vsock_loopback transport
+>   vsock: use local transport when it is loaded
+>   vsock/virtio: remove loopback handling
+>=20
+>  MAINTAINERS                             |   1 +
+>  include/net/af_vsock.h                  |   2 +
+>  include/uapi/linux/vm_sockets.h         |   8 +-
+>  net/vmw_vsock/Kconfig                   |  12 ++
+>  net/vmw_vsock/Makefile                  |   1 +
+>  net/vmw_vsock/af_vsock.c                |  49 +++++-
+>  net/vmw_vsock/virtio_transport.c        |  61 +------
+>  net/vmw_vsock/virtio_transport_common.c |   3 -
+>  net/vmw_vsock/vmci_transport.c          |   2 +-
+>  net/vmw_vsock/vsock_loopback.c          | 217 ++++++++++++++++++++++++
+>  10 files changed, 283 insertions(+), 73 deletions(-)
+>  create mode 100644 net/vmw_vsock/vsock_loopback.c
 
-We used to send VMADDR_CID_RESERVED to the host.  Now we send
-VMADDR_CID_RESERVED (LOCAL) to the guest when there is no
-transport_local loaded?
+Please see my comments.  Otherwise:
 
-If this is correct, is there a justification for this change?  It seems
-safest to retain existing behavior.
+Reviewed-by: Stefan Hajnoczi <stefanha@redhat.com>
 
---+nBD6E3TurpgldQp
+--eqp4TxRxnD4KrmFZ
 Content-Type: application/pgp-signature; name="signature.asc"
 
 -----BEGIN PGP SIGNATURE-----
 
-iQEzBAEBCAAdFiEEhpWov9P5fNqsNXdanKSrs4Grc8gFAl3WXOYACgkQnKSrs4Gr
-c8iT+Qf9ESuEFX++6Sq/wJtYnpiX6cvGw7bvw+fxkdiksMzIPBWT6ZbC/ZrRv87z
-zBMNmGrLElTPu3lN4ISYgd1gjrLn1iTTnkj/A42X5VvjEqfQYXNz84gBMP7jRcxo
-XufjkgajBvxcssZgAPOAMjx/4BbGlW3cwUNoTa7oy9PCQlhBPVDvqPWSM4sQ61cP
-GJ2hFaCeYTmCbYKnyrvqmoXIewMF1XAjAuuXSHz7zVlCpbHL21piJByTKAUnqL7N
-6W6nMibNjso9qI0AYAOsCkFRnhIshBqRhRhO96/1ZEBmLe7kH6gXYpgScRs4IRYD
-V7w4kz76mzwiZZZLiW4/K5FOBe8v9Q==
-=HSd8
+iQEzBAEBCAAdFiEEhpWov9P5fNqsNXdanKSrs4Grc8gFAl3WXQMACgkQnKSrs4Gr
+c8h4aQf5ATKD+2md5rF2gaJHwaBfEiLqsK5/ciPJv0qtYXlnZi9wionMXyFbAmo+
+tWchVmMP8gpdCf9qsWBQo6beDMWJdZSCZCZ0kiAgoHXGWK50lFhtFBqXjngopcXJ
+Hr9IgWPWoobZR0Z0p98tHj0ToumHaFtopLL+rrtCAwkGHxNnVTgv0HRWcAsEORQc
+o3AI3/+6a6ESmP8dtcRZ7fY628un7VcdFVrD6mnyxPTX3CVqulPLPLC7Y+DpYtFa
+ZqU04KBPp/8t8HtsZZYjGv60H58qzwPDAwwEIpFZ9gYl3cKRGRvUXs3t7vKdzZGA
+gu9P/McerEE+0vQCtysTkHsIzrgUvg==
+=c63q
 -----END PGP SIGNATURE-----
 
---+nBD6E3TurpgldQp--
+--eqp4TxRxnD4KrmFZ--
 
---===============4133274744528085402==
+--===============8339820992161836083==
 Content-Type: text/plain; charset="us-ascii"
 MIME-Version: 1.0
 Content-Transfer-Encoding: 7bit
@@ -82,4 +118,4 @@ _______________________________________________
 Virtualization mailing list
 Virtualization@lists.linux-foundation.org
 https://lists.linuxfoundation.org/mailman/listinfo/virtualization
---===============4133274744528085402==--
+--===============8339820992161836083==--
