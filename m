@@ -1,18 +1,15 @@
-From: Jorgen Hansen via Virtualization
- <virtualization@lists.linux-foundation.org>
-Subject: RE: [PATCH net-next 3/6] vsock: add local transport support in the
- vsock core
-Date: Thu, 21 Nov 2019 15:04:18 +0000
-Message-ID: <MWHPR05MB3376F4452F0CF38C1AFABA2EDA4E0__2156.52449276007$1574348676$gmane$org@MWHPR05MB3376.namprd05.prod.outlook.com>
+From: Stefano Garzarella <sgarzare@redhat.com>
+Subject: Re: [PATCH net-next 0/6] vsock: add local transport support
+Date: Thu, 21 Nov 2019 16:13:55 +0100
+Message-ID: <20191121151355.grgfbte6xniqe6xo__26488.7668936112$1574349257$gmane$org@steredhat>
 References: <20191119110121.14480-1-sgarzare@redhat.com>
- <20191119110121.14480-4-sgarzare@redhat.com>
-Reply-To: Jorgen Hansen <jhansen@vmware.com>
+ <MWHPR05MB3376B8241546664BBCA6FC37DA4E0@MWHPR05MB3376.namprd05.prod.outlook.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <20191119110121.14480-4-sgarzare@redhat.com>
-Content-Language: en-US
+In-Reply-To: <MWHPR05MB3376B8241546664BBCA6FC37DA4E0@MWHPR05MB3376.namprd05.prod.outlook.com>
+Content-Disposition: inline
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
  <mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -22,103 +19,51 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
  <mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Errors-To: virtualization-bounces@lists.linux-foundation.org
 Sender: "Virtualization" <virtualization-bounces@lists.linux-foundation.org>
-To: 'Stefano Garzarella' <sgarzare@redhat.com>, "netdev@vger.kernel.org" <netdev@vger.kernel.org>
-Cc: "kvm@vger.kernel.org" <kvm@vger.kernel.org>, Dexuan Cui <decui@microsoft.com>, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>, "virtualization@lists.linux-foundation.org" <virtualization@lists.linux-foundation.org>, Stefan Hajnoczi <stefanha@redhat.com>, "David S. Miller" <davem@davemloft.net>
+To: Jorgen Hansen <jhansen@vmware.com>
+Cc: "kvm@vger.kernel.org" <kvm@vger.kernel.org>, "netdev@vger.kernel.org" <netdev@vger.kernel.org>, Dexuan Cui <decui@microsoft.com>, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>, "virtualization@lists.linux-foundation.org" <virtualization@lists.linux-foundation.org>, Stefan Hajnoczi <stefanha@redhat.com>, "David S. Miller" <davem@davemloft.net>
 List-Id: virtualization@lists.linuxfoundation.org
 
-> From: Stefano Garzarella [mailto:sgarzare@redhat.com]
-> Sent: Tuesday, November 19, 2019 12:01 PM
-> To: netdev@vger.kernel.org
->
-> This patch allows to register a transport able to handle
-> local communication (loopback).
+On Thu, Nov 21, 2019 at 02:45:32PM +0000, Jorgen Hansen wrote:
+> > From: Stefano Garzarella [mailto:sgarzare@redhat.com]
+> > Sent: Tuesday, November 19, 2019 12:01 PM
+> > This series introduces a new transport (vsock_loopback) to handle
+> > local communication.
+> > This could be useful to test vsock core itself and to allow developers
+> > to test their applications without launching a VM.
+> > 
+> > Before this series, vmci and virtio transports allowed this behavior,
+> > but only in the guest.
+> > We are moving the loopback handling in a new transport, because it
+> > might be useful to provide this feature also in the host or when
+> > no H2G/G2H transports (hyperv, virtio, vmci) are loaded.
+> > 
+> > The user can use the loopback with the new VMADDR_CID_LOCAL (that
+> > replaces VMADDR_CID_RESERVED) in any condition.
+> > Otherwise, if the G2H transport is loaded, it can also use the guest
+> > local CID as previously supported by vmci and virtio transports.
+> > If G2H transport is not loaded, the user can also use VMADDR_CID_HOST
+> > for local communication.
+> > 
+> > Patch 1 is a cleanup to build virtio_transport_common without virtio
+> > Patch 2 adds the new VMADDR_CID_LOCAL, replacing
+> > VMADDR_CID_RESERVED
+> > Patch 3 adds a new feature flag to register a loopback transport
+> > Patch 4 adds the new vsock_loopback transport based on the loopback
+> >         implementation of virtio_transport
+> > Patch 5 implements the logic to use the local transport for loopback
+> >         communication
+> > Patch 6 removes the loopback from virtio_transport
+> > 
+> > @Jorgen: Do you think it might be a problem to replace
+> > VMADDR_CID_RESERVED with VMADDR_CID_LOCAL?
 > 
-> Signed-off-by: Stefano Garzarella <sgarzare@redhat.com>
-> ---
->  include/net/af_vsock.h   |  2 ++
->  net/vmw_vsock/af_vsock.c | 17 ++++++++++++++++-
->  2 files changed, 18 insertions(+), 1 deletion(-)
+> No, that should be fine. It has never allowed for use with stream sockets in
+> AF_VSOCK. The only potential use would be for datagram sockets, but that
+> side appears to be unaffected by your changes, since loopback is only
+> introduced for SOCK_STREAM.
 > 
-> diff --git a/include/net/af_vsock.h b/include/net/af_vsock.h
-> index 4206dc6d813f..b1c717286993 100644
-> --- a/include/net/af_vsock.h
-> +++ b/include/net/af_vsock.h
-> @@ -98,6 +98,8 @@ struct vsock_transport_send_notify_data {
->  #define VSOCK_TRANSPORT_F_G2H		0x00000002
->  /* Transport provides DGRAM communication */
->  #define VSOCK_TRANSPORT_F_DGRAM		0x00000004
-> +/* Transport provides local (loopback) communication */
-> +#define VSOCK_TRANSPORT_F_LOCAL		0x00000008
-> 
->  struct vsock_transport {
->  	struct module *module;
-> diff --git a/net/vmw_vsock/af_vsock.c b/net/vmw_vsock/af_vsock.c
-> index cc8659838bf2..c9e5bad59dc1 100644
-> --- a/net/vmw_vsock/af_vsock.c
-> +++ b/net/vmw_vsock/af_vsock.c
-> @@ -136,6 +136,8 @@ static const struct vsock_transport *transport_h2g;
->  static const struct vsock_transport *transport_g2h;
->  /* Transport used for DGRAM communication */
->  static const struct vsock_transport *transport_dgram;
-> +/* Transport used for local communication */
-> +static const struct vsock_transport *transport_local;
->  static DEFINE_MUTEX(vsock_register_mutex);
-> 
->  /**** UTILS ****/
-> @@ -2130,7 +2132,7 @@ EXPORT_SYMBOL_GPL(vsock_core_get_transport);
-> 
->  int vsock_core_register(const struct vsock_transport *t, int features)
->  {
-> -	const struct vsock_transport *t_h2g, *t_g2h, *t_dgram;
-> +	const struct vsock_transport *t_h2g, *t_g2h, *t_dgram, *t_local;
->  	int err = mutex_lock_interruptible(&vsock_register_mutex);
-> 
->  	if (err)
-> @@ -2139,6 +2141,7 @@ int vsock_core_register(const struct
-> vsock_transport *t, int features)
->  	t_h2g = transport_h2g;
->  	t_g2h = transport_g2h;
->  	t_dgram = transport_dgram;
-> +	t_local = transport_local;
-> 
->  	if (features & VSOCK_TRANSPORT_F_H2G) {
->  		if (t_h2g) {
-> @@ -2164,9 +2167,18 @@ int vsock_core_register(const struct
-> vsock_transport *t, int features)
->  		t_dgram = t;
->  	}
-> 
-> +	if (features & VSOCK_TRANSPORT_F_LOCAL) {
-> +		if (t_local) {
-> +			err = -EBUSY;
-> +			goto err_busy;
-> +		}
-> +		t_local = t;
-> +	}
-> +
->  	transport_h2g = t_h2g;
->  	transport_g2h = t_g2h;
->  	transport_dgram = t_dgram;
-> +	transport_local = t_local;
-> 
->  err_busy:
->  	mutex_unlock(&vsock_register_mutex);
-> @@ -2187,6 +2199,9 @@ void vsock_core_unregister(const struct
-> vsock_transport *t)
->  	if (transport_dgram == t)
->  		transport_dgram = NULL;
-> 
-> +	if (transport_local == t)
-> +		transport_local = NULL;
-> +
->  	mutex_unlock(&vsock_register_mutex);
->  }
->  EXPORT_SYMBOL_GPL(vsock_core_unregister);
-> --
-> 2.21.0
 
-Having loopback support as a separate transport fits nicely, but do we need to support
-different variants of loopback? It could just be built in.
+Yes, datagram sockets are not affected.
 
-Thanks,
-Jorgen
+Thanks for the clarification,
+Stefano
