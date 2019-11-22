@@ -1,15 +1,15 @@
-From: "Michael S. Tsirkin" <mst@redhat.com>
-Subject: Re: [RFC 13/13] iommu/virtio: Add topology description to
-Date: Fri, 22 Nov 2019 07:53:19 -0500
-Message-ID: <20191122072753-mutt-send-email-mst__5821.44021043263$1574427231$gmane$org@kernel.org>
-References: <20191122105000.800410-1-jean-philippe@linaro.org>
- <20191122105000.800410-14-jean-philippe@linaro.org>
+From: Julio Faracco <jcfaracco@gmail.com>
+Subject: Re: [PATCH net-next v2] drivers: net: virtio_net: Implement a
+ dev_watchdog handler
+Date: Fri, 22 Nov 2019 09:59:58 -0300
+Message-ID: <CAENf94KX1XR4_KXz9KLZQ09Ngeaq2qzYY5OE68xJMXMu13SuEg__48450.3536064707$1574427624$gmane$org@mail.gmail.com>
+References: <20191122013636.1041-1-jcfaracco@gmail.com>
+ <20191122052506-mutt-send-email-mst@kernel.org>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset="utf-8"
+Content-Transfer-Encoding: base64
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <20191122105000.800410-14-jean-philippe@linaro.org>
-Content-Disposition: inline
+In-Reply-To: <20191122052506-mutt-send-email-mst@kernel.org>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
  <mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -19,659 +19,170 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
  <mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Errors-To: virtualization-bounces@lists.linux-foundation.org
 Sender: "Virtualization" <virtualization-bounces@lists.linux-foundation.org>
-To: Jean-Philippe Brucker <jean-philippe@linaro.org>
-Cc: virtio-dev@lists.oasis-open.org, lorenzo.pieralisi@arm.com, gregkh@linuxfoundation.org, linux-pci@vger.kernel.org, joro@8bytes.org, sudeep.holla@arm.com, rjw@rjwysocki.net, virtualization@lists.linux-foundation.org, linux-acpi@vger.kernel.org, iommu@lists.linux-foundation.org, sebastien.boeuf@intel.com, jacob.jun.pan@intel.com, eric.auger@redhat.com, guohanjun@huawei.com, bhelgaas@google.com, linux-arm-kernel@lists.infradead.org, lenb@kernel.org
+To: "Michael S. Tsirkin" <mst@redhat.com>
+Cc: Daiane Mendes <dnmendes76@gmail.com>, netdev@vger.kernel.org, linux-kernel@vger.kernel.org, virtualization@lists.linux-foundation.org, "David S. Miller" <davem@davemloft.net>
 List-Id: virtualization@lists.linuxfoundation.org
 
-On Fri, Nov 22, 2019 at 11:50:00AM +0100, Jean-Philippe Brucker wrote:
-> Some hypervisors don't implement either device-tree or ACPI, but still
-> need a method to describe the IOMMU topology. Read the virtio-iommu
-> config early and parse the topology description. Hook into the
-> dma_setup() callbacks to initialize the IOMMU before probing endpoints.
-> 
-> If the virtio-iommu uses the virtio-pci transport, this will only work
-> if the PCI root complex is the first device probed. We don't currently
-> support virtio-mmio.
-> 
-> Initially I tried to generate a fake IORT table and feed it to the IORT
-> driver, in order to avoid rewriting the whole DMA code, but it wouldn't
-> work with platform endpoints, which are references to items in the ACPI
-> table on IORT.
-> 
-> Signed-off-by: Eric Auger <eric.auger@redhat.com>
-> Signed-off-by: Jean-Philippe Brucker <jean-philippe@linaro.org>
-
-Overall this looks good to me. The only point is that
-I think the way the interface is designed makes writing
-the driver a bit too difficult. Idea: if instead we just
-have a length field and then an array of records
-(preferably unions so we don't need to work hard),
-we can shadow that into memory, then iterate over
-the unions.
-
-Maybe add a uniform record length + number of records field.
-Then just skip types you do not know how to handle.
-This will also help make sure it's within bounds.
-
-What do you think?
-
-
-You will need to do something to address the TODO I think.
-
-> ---
-> Note that we only call virt_dma_configure() if the host didn't provide
-> either DT or ACPI method. If you want to test this with QEMU, you'll
-> need to manually disable the acpi_dma_configure() part in pci-driver.c
-> ---
->  drivers/base/platform.c               |   3 +
->  drivers/iommu/Kconfig                 |   9 +
->  drivers/iommu/Makefile                |   1 +
->  drivers/iommu/virtio-iommu-topology.c | 410 ++++++++++++++++++++++++++
->  drivers/iommu/virtio-iommu.c          |   3 +
->  drivers/pci/pci-driver.c              |   3 +
->  include/linux/virtio_iommu.h          |  18 ++
->  include/uapi/linux/virtio_iommu.h     |  26 ++
->  8 files changed, 473 insertions(+)
->  create mode 100644 drivers/iommu/virtio-iommu-topology.c
->  create mode 100644 include/linux/virtio_iommu.h
-> 
-> diff --git a/drivers/base/platform.c b/drivers/base/platform.c
-> index b230beb6ccb4..70b12c8ef2fb 100644
-> --- a/drivers/base/platform.c
-> +++ b/drivers/base/platform.c
-> @@ -27,6 +27,7 @@
->  #include <linux/limits.h>
->  #include <linux/property.h>
->  #include <linux/kmemleak.h>
-> +#include <linux/virtio_iommu.h>
->  
->  #include "base.h"
->  #include "power/power.h"
-> @@ -1257,6 +1258,8 @@ int platform_dma_configure(struct device *dev)
->  	} else if (has_acpi_companion(dev)) {
->  		attr = acpi_get_dma_attr(to_acpi_device_node(dev->fwnode));
->  		ret = acpi_dma_configure(dev, attr);
-> +	} else if (IS_ENABLED(CONFIG_VIRTIO_IOMMU_TOPOLOGY)) {
-> +		ret = virt_dma_configure(dev);
->  	}
->  
->  	return ret;
-> diff --git a/drivers/iommu/Kconfig b/drivers/iommu/Kconfig
-> index e6eb4f238d1a..d02c0d36019d 100644
-> --- a/drivers/iommu/Kconfig
-> +++ b/drivers/iommu/Kconfig
-> @@ -486,4 +486,13 @@ config VIRTIO_IOMMU
->  
->  	  Say Y here if you intend to run this kernel as a guest.
->  
-> +config VIRTIO_IOMMU_TOPOLOGY
-> +	bool "Topology properties for the virtio-iommu"
-> +	depends on VIRTIO_IOMMU
-> +	help
-> +	  Enable early probing of the virtio-iommu device, to detect the
-> +	  topology description.
-> +
-> +	  Say Y here if you intend to run this kernel as a guest.
-> +
->  endif # IOMMU_SUPPORT
-> diff --git a/drivers/iommu/Makefile b/drivers/iommu/Makefile
-> index 4f405f926e73..6b51c4186ebc 100644
-> --- a/drivers/iommu/Makefile
-> +++ b/drivers/iommu/Makefile
-> @@ -35,3 +35,4 @@ obj-$(CONFIG_S390_IOMMU) += s390-iommu.o
->  obj-$(CONFIG_QCOM_IOMMU) += qcom_iommu.o
->  obj-$(CONFIG_HYPERV_IOMMU) += hyperv-iommu.o
->  obj-$(CONFIG_VIRTIO_IOMMU) += virtio-iommu.o
-> +obj-$(CONFIG_VIRTIO_IOMMU_TOPOLOGY) += virtio-iommu-topology.o
-> diff --git a/drivers/iommu/virtio-iommu-topology.c b/drivers/iommu/virtio-iommu-topology.c
-> new file mode 100644
-> index 000000000000..ec22510ace3d
-> --- /dev/null
-> +++ b/drivers/iommu/virtio-iommu-topology.c
-> @@ -0,0 +1,410 @@
-> +// SPDX-License-Identifier: GPL-2.0
-> +#include <linux/acpi.h>
-> +#include <linux/acpi_iort.h>
-> +#include <linux/dma-iommu.h>
-> +#include <linux/iommu.h>
-> +#include <linux/list.h>
-> +#include <linux/pci.h>
-> +#include <linux/printk.h>
-> +#include <linux/virtio_config.h>
-> +#include <linux/virtio_iommu.h>
-> +#include <linux/virtio_pci.h>
-> +#include <uapi/linux/virtio_iommu.h>
-> +
-> +struct viommu_cap_config {
-> +	u8 pos; /* PCI capability position */
-> +	u8 bar;
-> +	u32 length; /* structure size */
-> +	u32 offset; /* structure offset within the bar */
-> +};
-> +
-> +struct viommu_spec {
-> +	struct device		*dev; /* transport device */
-> +	struct fwnode_handle	*fwnode;
-> +	struct iommu_ops	*ops;
-> +	struct list_head	topology;
-> +	struct list_head	list;
-> +};
-> +
-> +struct viommu_topology {
-> +	union {
-> +		struct virtio_iommu_topo_head head;
-> +		struct virtio_iommu_topo_pci_range pci;
-> +		struct virtio_iommu_topo_endpoint ep;
-> +	};
-> +	/* Index into viommu_spec->topology */
-> +	struct list_head list;
-> +};
-> +
-> +static LIST_HEAD(viommus);
-> +static DEFINE_MUTEX(viommus_lock);
-> +
-> +#define VPCI_FIELD(field) offsetof(struct virtio_pci_cap, field)
-> +
-> +static inline int viommu_find_capability(struct pci_dev *dev, u8 cfg_type,
-> +					 struct viommu_cap_config *cap)
-> +{
-> +	int pos;
-> +	u8 bar;
-> +
-> +	for (pos = pci_find_capability(dev, PCI_CAP_ID_VNDR);
-> +	     pos > 0;
-> +	     pos = pci_find_next_capability(dev, pos, PCI_CAP_ID_VNDR)) {
-> +		u8 type;
-> +
-> +		pci_read_config_byte(dev, pos + VPCI_FIELD(cfg_type), &type);
-> +		if (type != cfg_type)
-> +			continue;
-> +
-> +		pci_read_config_byte(dev, pos + VPCI_FIELD(bar), &bar);
-> +
-> +		/* Ignore structures with reserved BAR values */
-> +		if (type != VIRTIO_PCI_CAP_PCI_CFG && bar > 0x5)
-> +			continue;
-> +
-> +		cap->bar = bar;
-> +		cap->pos = pos;
-> +		pci_read_config_dword(dev, pos + VPCI_FIELD(length),
-> +				      &cap->length);
-> +		pci_read_config_dword(dev, pos + VPCI_FIELD(offset),
-> +				      &cap->offset);
-> +
-> +		return pos;
-> +	}
-> +	return 0;
-> +}
-> +
-> +/*
-> + * Setup the special virtio PCI capability to read one of the config registers
-> + */
-> +static int viommu_switch_pci_cfg(struct pci_dev *dev, int cfg,
-> +				 struct viommu_cap_config *cap, u32 length,
-> +				 u32 offset)
-> +{
-> +	offset += cap->offset;
-> +
-> +	if (offset + length > cap->offset + cap->length) {
-> +		dev_warn(&dev->dev,
-> +			 "read of %d bytes at offset 0x%x overflows cap of size %d\n",
-> +			 length, offset, cap->length);
-> +		return -EOVERFLOW;
-> +	}
-> +
-> +	pci_write_config_byte(dev, cfg + VPCI_FIELD(bar), cap->bar);
-> +	pci_write_config_dword(dev, cfg + VPCI_FIELD(length), length);
-> +	pci_write_config_dword(dev, cfg + VPCI_FIELD(offset), offset);
-> +	return 0;
-> +}
-> +
-> +static u32 viommu_cread(struct pci_dev *dev, int cfg,
-> +			struct viommu_cap_config *cap, u32 length, u32 offset)
-> +{
-> +	u8 val8;
-> +	u16 val16;
-> +	u32 val32;
-> +	int out = cfg + sizeof(struct virtio_pci_cap);
-> +
-> +	if (viommu_switch_pci_cfg(dev, cfg, cap, length, offset))
-> +		return 0;
-> +
-> +	switch (length) {
-> +	case 1:
-> +		pci_read_config_byte(dev, out, &val8);
-> +		return val8;
-> +	case 2:
-> +		pci_read_config_word(dev, out, &val16);
-> +		return val16;
-> +	case 4:
-> +		pci_read_config_dword(dev, out, &val32);
-> +		return val32;
-> +	default:
-> +		WARN_ON(1);
-> +		return 0;
-> +	}
-> +}
-> +
-> +static void viommu_cwrite(struct pci_dev *dev, int cfg,
-> +			  struct viommu_cap_config *cap, u32 length, u32 offset,
-> +			  u32 val)
-
-A single user with 4 byte parameter. Just open-code?
-
-> +{
-> +	int out = cfg + sizeof(struct virtio_pci_cap);
-> +
-> +	if (viommu_switch_pci_cfg(dev, cfg, cap, length, offset))
-> +		return;
-> +
-> +	switch (length) {
-> +	case 1:
-> +		pci_write_config_byte(dev, out, (u8)val);
-> +		break;
-> +	case 2:
-> +		pci_write_config_word(dev, out, (u16)val);
-> +		break;
-> +	case 4:
-> +		pci_write_config_dword(dev, out, val);
-> +		break;
-> +	default:
-> +		WARN_ON(1);
-> +	}
-> +}
-> +
-> +static int viommu_add_topology(struct viommu_spec *viommu_spec,
-> +			       struct viommu_topology *cap)
-> +{
-> +	struct viommu_topology *new = kmemdup(cap, sizeof(*cap), GFP_KERNEL);
-> +
-> +	if (!new)
-> +		return -ENOMEM;
-> +
-> +	mutex_lock(&viommus_lock);
-> +	list_add(&new->list, &viommu_spec->topology);
-> +	mutex_unlock(&viommus_lock);
-> +	return 0;
-> +}
-> +
-> +static int viommu_parse_topology(struct pci_dev *dev, int pci_cfg,
-> +				 struct viommu_cap_config *dev_cfg)
-> +{
-> +	u32 offset;
-> +	struct viommu_topology cap;
-> +	struct viommu_spec *viommu_spec;
-> +	int iter = 0; /* Protects against config loop */
-> +
-> +	offset = viommu_cread(dev, pci_cfg, dev_cfg, 2,
-> +			      offsetof(struct virtio_iommu_config,
-> +				       topo_offset));
-> +	if (!offset)
-> +		return 0;
-> +
-> +	viommu_spec = kzalloc(sizeof(*viommu_spec), GFP_KERNEL);
-> +	if (!viommu_spec)
-> +		return -ENOMEM;
-> +
-> +	INIT_LIST_HEAD(&viommu_spec->topology);
-> +	viommu_spec->dev = &dev->dev;
-> +
-> +	while (offset >= sizeof(struct virtio_iommu_config) && ++iter < 0x10000) {
-> +		memset(&cap, 0, sizeof(cap));
-> +
-> +		cap.head.type = viommu_cread(dev, pci_cfg, dev_cfg, 2, offset);
-> +		cap.head.next = viommu_cread(dev, pci_cfg, dev_cfg, 2, offset + 2);
-
-All of this doesn't seem to be endian-clean. Try running sparse I think
-it will complain.
-
-> +
-> +		switch (cap.head.type) {
-> +		case VIRTIO_IOMMU_TOPO_PCI_RANGE:
-> +			cap.pci.endpoint_start = viommu_cread(dev, pci_cfg,
-> +							      dev_cfg, 2, offset
-> +							      + 4);
-> +			cap.pci.hierarchy = viommu_cread(dev, pci_cfg, dev_cfg,
-> +							 2, offset + 8);
-> +			cap.pci.requester_start = viommu_cread(dev, pci_cfg,
-> +							       dev_cfg, 2,
-> +							       offset + 10);
-> +			cap.pci.requester_end = viommu_cread(dev, pci_cfg,
-> +							     dev_cfg, 2, offset +
-> +							     12);
-> +			dev_info(&dev->dev,
-> +				 "topology: adding PCI range 0x%x [0x%x:0x%x] -> 0x%x\n",
-> +				 cap.pci.hierarchy, cap.pci.requester_start,
-> +				 cap.pci.requester_end, cap.pci.endpoint_start);
-> +			if (viommu_add_topology(viommu_spec, &cap))
-> +				return -ENOMEM;
-> +			break;
-> +		case VIRTIO_IOMMU_TOPO_ENDPOINT:
-> +			cap.ep.endpoint = viommu_cread(dev, pci_cfg, dev_cfg, 2,
-> +						       offset + 4);
-> +			cap.ep.address = viommu_cread(dev, pci_cfg, dev_cfg, 2,
-> +						      offset + 8);
-> +			dev_info(&dev->dev,
-> +				 "topology: adding endpoint 0x%llx -> 0x%x\n",
-> +				 cap.ep.address, cap.ep.endpoint);
-> +			if (viommu_add_topology(viommu_spec, &cap))
-> +				return -ENOMEM;
-> +			break;
-> +		default:
-> +			dev_warn(&dev->dev, "Unknown topo structure 0x%x\n",
-> +				 cap.head.type);
-> +			break;
-> +		}
-> +
-> +		offset = cap.head.next;
-> +	}
-> +
-> +	/* TODO: handle device removal */
-> +	mutex_lock(&viommus_lock);
-> +	list_add(&viommu_spec->list, &viommus);
-> +	mutex_unlock(&viommus_lock);
-> +
-> +	return 0;
-> +}
-> +
-> +static void viommu_pci_parse_topology(struct pci_dev *dev)
-> +{
-> +	int pos;
-> +	u32 features;
-> +	struct viommu_cap_config common = {0};
-> +	struct viommu_cap_config pci_cfg = {0};
-> +	struct viommu_cap_config dev_cfg = {0};
-> +
-> +	pos = viommu_find_capability(dev, VIRTIO_PCI_CAP_COMMON_CFG, &common);
-> +	if (!pos) {
-> +		dev_warn(&dev->dev, "common capability not found\n");
-> +		return;
-> +	}
-> +	pos = viommu_find_capability(dev, VIRTIO_PCI_CAP_DEVICE_CFG, &dev_cfg);
-> +	if (!pos) {
-> +		dev_warn(&dev->dev, "device config capability not found\n");
-> +		return;
-> +	}
-> +	pos = viommu_find_capability(dev, VIRTIO_PCI_CAP_PCI_CFG, &pci_cfg);
-> +	if (!pos) {
-> +		dev_warn(&dev->dev, "PCI config capability not found\n");
-> +		return;
-> +	}
-> +
-> +	/* Find out if the device supports topology description */
-> +	viommu_cwrite(dev, pos, &common, 4,
-> +		      offsetof(struct virtio_pci_common_cfg,
-> +			       device_feature_select),
-> +		      0);
-> +	features = viommu_cread(dev, pos, &common, 4,
-> +				offsetof(struct virtio_pci_common_cfg,
-> +					 device_feature));
-> +	if (!(features & VIRTIO_IOMMU_F_TOPOLOGY)) {
-> +		dev_dbg(&dev->dev, "device doesn't have topology description");
-> +		return;
-> +	}
-> +
-> +	viommu_parse_topology(dev, pos, &dev_cfg);
-> +}
-> +
-> +DECLARE_PCI_FIXUP_EARLY(PCI_VENDOR_ID_REDHAT_QUMRANET, 0x1014,
-> +			viommu_pci_parse_topology);
-> +
-> +static const struct iommu_ops *virt_iommu_setup(struct device *dev)
-> +{
-> +	struct iommu_fwspec *fwspec = dev_iommu_fwspec_get(dev);
-> +	const struct iommu_ops *viommu_ops = NULL;
-> +	struct fwnode_handle *viommu_fwnode;
-> +	struct viommu_spec *viommu_spec;
-> +	struct viommu_topology *topo;
-> +	struct pci_dev *pdev = NULL;
-> +	struct device *viommu_dev;
-> +	bool found = false;
-> +	u16 devid;
-> +	u32 eid;
-> +	int ret;
-> +
-> +	/* Already translated? */
-> +	if (fwspec && fwspec->ops)
-> +		return fwspec->ops;
-> +
-> +	if (dev_is_pci(dev)) {
-> +		pdev = to_pci_dev(dev);
-> +		devid = pci_dev_id(pdev);
-> +	} else {
-> +		/* TODO: Do something with devres */
-> +		return NULL;
-> +	}
-> +
-> +	mutex_lock(&viommus_lock);
-> +	list_for_each_entry(viommu_spec, &viommus, list) {
-> +		list_for_each_entry(topo, &viommu_spec->topology, list) {
-> +			if (pdev &&
-> +			    topo->head.type == VIRTIO_IOMMU_TOPO_PCI_RANGE &&
-> +			    pci_domain_nr(pdev->bus) == topo->pci.hierarchy &&
-> +			    devid >= topo->pci.requester_start &&
-> +			    devid <= topo->pci.requester_end) {
-> +				found = true;
-> +				eid = devid - topo->pci.requester_start +
-> +					topo->pci.endpoint_start;
-> +				break;
-> +			} else if (!pdev) {
-> +				/* TODO: compare address with devres */
-> +			}
-> +		}
-> +		if (found) {
-> +			viommu_ops = viommu_spec->ops;
-> +			viommu_fwnode = viommu_spec->fwnode;
-> +			viommu_dev = viommu_spec->dev;
-> +			break;
-> +		}
-> +	}
-> +	mutex_unlock(&viommus_lock);
-> +	if (!found)
-> +		return NULL;
-> +
-> +	/* We're not translating ourselves, that would be silly. */
-> +	if (viommu_dev == dev)
-> +		return NULL;
-> +
-> +	if (!viommu_ops)
-> +		return ERR_PTR(-EPROBE_DEFER);
-> +
-> +	ret = iommu_fwspec_init(dev, viommu_fwnode, viommu_ops);
-> +	if (ret)
-> +		return ERR_PTR(ret);
-> +
-> +	iommu_fwspec_add_ids(dev, &eid, 1);
-> +
-> +	return viommu_ops;
-> +}
-> +
-> +/**
-> + * virt_dma_configure - Configure DMA of virtualized devices
-> + * @dev: the endpoint
-> + *
-> + * An alternative to the ACPI and DT methods to setup DMA and the IOMMU ops of a
-> + * virtual device.
-> + *
-> + * Return: -EPROBE_DEFER if the IOMMU hasn't been loaded yet, 0 otherwise
-> + */
-> +int virt_dma_configure(struct device *dev)
-> +{
-> +	const struct iommu_ops *iommu_ops;
-> +
-> +	/* TODO: do we need to mess about with the dma_mask as well? */
-> +	WARN_ON(!dev->dma_mask);
-> +
-> +	iommu_ops = virt_iommu_setup(dev);
-> +	if (IS_ERR(iommu_ops)) {
-> +		if (PTR_ERR(iommu_ops) == -EPROBE_DEFER)
-> +			return -EPROBE_DEFER;
-> +		iommu_ops = NULL;
-> +	}
-> +
-> +	/*
-> +	 * If we have reason to believe the IOMMU driver missed the initial
-> +	 * add_device callback for dev, replay it to get things in order.
-> +	 */
-> +	if (iommu_ops && dev->bus && !device_iommu_mapped(dev))
-> +		iommu_probe_device(dev);
-> +
-> +#ifdef CONFIG_ARCH_HAS_SETUP_DMA_OPS
-> +	/* Assume coherent, as well as full 64-bit addresses. */
-> +	arch_setup_dma_ops(dev, 0, ~0UL, iommu_ops, true);
-> +#else
-> +	if (iommu_ops)
-> +		iommu_setup_dma_ops(dev, 0, ~0UL);
-> +#endif
-> +	return 0;
-> +}
-> +
-> +/**
-> + * virt_set_iommu_ops - Set the IOMMU ops of a virtual IOMMU device
-> + *
-> + * Setup the iommu_ops associated to a viommu_spec, once the driver is loaded
-> + * and the device probed.
-> + */
-> +void virt_set_iommu_ops(struct device *dev, struct iommu_ops *ops)
-> +{
-> +	struct viommu_spec *viommu_spec;
-> +
-> +	mutex_lock(&viommus_lock);
-> +	list_for_each_entry(viommu_spec, &viommus, list) {
-> +		if (viommu_spec->dev == dev) {
-> +			viommu_spec->ops = ops;
-> +			viommu_spec->fwnode = ops ? dev->fwnode : NULL;
-> +			break;
-> +		}
-> +	}
-> +	mutex_unlock(&viommus_lock);
-> +}
-> diff --git a/drivers/iommu/virtio-iommu.c b/drivers/iommu/virtio-iommu.c
-> index 9847552faecc..f68ee9615b38 100644
-> --- a/drivers/iommu/virtio-iommu.c
-> +++ b/drivers/iommu/virtio-iommu.c
-> @@ -22,6 +22,7 @@
->  #include <linux/virtio.h>
->  #include <linux/virtio_config.h>
->  #include <linux/virtio_ids.h>
-> +#include <linux/virtio_iommu.h>
->  #include <linux/wait.h>
->  
->  #include <uapi/linux/virtio_iommu.h>
-> @@ -1134,6 +1135,7 @@ static int viommu_probe(struct virtio_device *vdev)
->  	if (ret)
->  		goto err_sysfs_remove;
->  
-> +	virt_set_iommu_ops(dev->parent, &viommu_ops);
->  	iommu_device_set_ops(&viommu->iommu, &viommu_ops);
->  	iommu_device_register(&viommu->iommu);
->  
-> @@ -1182,6 +1184,7 @@ static void viommu_remove(struct virtio_device *vdev)
->  	struct viommu_dev *viommu = vdev->priv;
->  
->  	iommu_device_unregister(&viommu->iommu);
-> +	virt_set_iommu_ops(vdev->dev.parent, NULL);
->  	viommu_clear_fwnode(viommu);
->  	iommu_device_sysfs_remove(&viommu->iommu);
->  
-> diff --git a/drivers/pci/pci-driver.c b/drivers/pci/pci-driver.c
-> index a8124e47bf6e..d9b5e902ad18 100644
-> --- a/drivers/pci/pci-driver.c
-> +++ b/drivers/pci/pci-driver.c
-> @@ -17,6 +17,7 @@
->  #include <linux/suspend.h>
->  #include <linux/kexec.h>
->  #include <linux/of_device.h>
-> +#include <linux/virtio_iommu.h>
->  #include <linux/acpi.h>
->  #include "pci.h"
->  #include "pcie/portdrv.h"
-> @@ -1633,6 +1634,8 @@ static int pci_dma_configure(struct device *dev)
->  		struct acpi_device *adev = to_acpi_device_node(bridge->fwnode);
->  
->  		ret = acpi_dma_configure(dev, acpi_get_dma_attr(adev));
-> +	} else if (IS_ENABLED(CONFIG_VIRTIO_IOMMU_TOPOLOGY)) {
-> +		ret = virt_dma_configure(dev);
->  	}
->  
->  	pci_put_host_bridge_device(bridge);
-> diff --git a/include/linux/virtio_iommu.h b/include/linux/virtio_iommu.h
-> new file mode 100644
-> index 000000000000..b700256f1063
-> --- /dev/null
-> +++ b/include/linux/virtio_iommu.h
-> @@ -0,0 +1,18 @@
-> +/* SPDX-License-Identifier: GPL-2.0 */
-> +#ifndef VIRTIO_IOMMU_H_
-> +#define VIRTIO_IOMMU_H_
-> +
-> +#if IS_ENABLED(CONFIG_VIRTIO_IOMMU_TOPOLOGY)
-> +int virt_dma_configure(struct device *dev);
-> +void virt_set_iommu_ops(struct device *dev, struct iommu_ops *ops);
-> +#else /* !CONFIG_VIRTIO_IOMMU_TOPOLOGY */
-> +static inline int virt_dma_configure(struct device *dev)
-> +{
-> +	return -ENODEV;
-> +}
-> +
-> +static inline void virt_set_iommu_ops(struct device *dev, struct iommu_ops *ops)
-> +{ }
-> +#endif /* !CONFIG_VIRTIO_IOMMU_TOPOLOGY */
-> +
-> +#endif /* VIRTIO_IOMMU_H_ */
-> diff --git a/include/uapi/linux/virtio_iommu.h b/include/uapi/linux/virtio_iommu.h
-> index 237e36a280cb..d3b7cd2a076f 100644
-> --- a/include/uapi/linux/virtio_iommu.h
-> +++ b/include/uapi/linux/virtio_iommu.h
-> @@ -16,6 +16,7 @@
->  #define VIRTIO_IOMMU_F_BYPASS			3
->  #define VIRTIO_IOMMU_F_PROBE			4
->  #define VIRTIO_IOMMU_F_MMIO			5
-> +#define VIRTIO_IOMMU_F_TOPOLOGY			6
->  
->  struct virtio_iommu_range_64 {
->  	__le64					start;
-> @@ -36,6 +37,31 @@ struct virtio_iommu_config {
->  	struct virtio_iommu_range_32		domain_range;
->  	/* Probe buffer size */
->  	__le32					probe_size;
-> +	/* Offset to the beginning of the topology table */
-> +	__le16					topo_offset;
-
-why do we need an offset?
-
-> +};
-> +
-> +struct virtio_iommu_topo_head {
-> +	__le16					type;
-> +	__le16					next;
-> +};
-
-So this linked list makes things harder than necessary imho.
-It will be easier to just have a counter with # of records.
-Then make all records the same size.
-Then just read each record out into a buffer, and
-handle it there.
-
-> +
-> +#define VIRTIO_IOMMU_TOPO_PCI_RANGE		0x0
-> +#define VIRTIO_IOMMU_TOPO_ENDPOINT		0x1
-> +
-> +struct virtio_iommu_topo_pci_range {
-> +	struct virtio_iommu_topo_head		head;
-> +	__le32					endpoint_start;
-> +	__le16					hierarchy;
-> +	__le16					requester_start;
-> +	__le16					requester_end;
-> +	__le16					reserved;
-> +};
-> +
-> +struct virtio_iommu_topo_endpoint {
-> +	struct virtio_iommu_topo_head		head;
-> +	__le32					endpoint;
-> +	__le64					address;
->  };
->  
->  /* Request types */
-> -- 
-> 2.24.0
+SGkgTWljaGFlbCwKCkVtIHNleC4sIDIyIGRlIG5vdi4gZGUgMjAxOSDDoHMgMDc6MzEsIE1pY2hh
+ZWwgUy4gVHNpcmtpbgo8bXN0QHJlZGhhdC5jb20+IGVzY3JldmV1Ogo+Cj4gT24gVGh1LCBOb3Yg
+MjEsIDIwMTkgYXQgMTA6MzY6MzZQTSAtMDMwMCwgSnVsaW8gRmFyYWNjbyB3cm90ZToKPiA+IERy
+aXZlciB2aXJ0aW9fbmV0IGlzIG5vdCBoYW5kbGluZyBlcnJvciBldmVudHMgZm9yIFRYIHByb3Zp
+ZGVkIGJ5Cj4gPiBkZXZfd2F0Y2hkb2cuIFRoaXMgZXZlbnQgaXMgcmVhY2hlZCB3aGVuIHRyYW5z
+bWlzc2lvbiBxdWV1ZSBpcyBoYXZpbmcKPiA+IHByb2JsZW1zIHRvIHRyYW5zbWl0IHBhY2tldHMu
+IFRoaXMgY291bGQgaGFwcGVuIGZvciBhbnkgcmVhc29uLiBUbwo+ID4gZW5hYmxlIGl0LCBkcml2
+ZXIgc2hvdWxkIGhhdmUgLm5kb190eF90aW1lb3V0IGltcGxlbWVudGVkLgo+ID4KPiA+IFRoaXMg
+Y29tbWl0IGJyaW5ncyBiYWNrIHZpcnRuZXRfcmVzZXQgbWV0aG9kIHRvIHJlY292ZXIgVFggcXVl
+dWVzIGZyb20gYQo+ID4gZXJyb3Igc3RhdGUuIFRoYXQgZnVuY3Rpb24gaXMgY2FsbGVkIGJ5IHNj
+aGVkdWxlX3dvcmsgbWV0aG9kIGFuZCBpdCBwdXRzCj4gPiB0aGUgcmVzZXQgZnVuY3Rpb24gaW50
+byB3b3JrIHF1ZXVlLgo+ID4KPiA+IEFzIHRoZSBlcnJvciBjYXVzZSBpcyB1bmtub3duIGF0IHRo
+aXMgbW9tZW50LCBpdCB3b3VsZCBiZSBiZXR0ZXIgdG8KPiA+IHJlc2V0IGFsbCBxdWV1ZXMuCj4g
+Pgo+ID4gU2lnbmVkLW9mZi1ieTogSnVsaW8gRmFyYWNjbyA8amNmYXJhY2NvQGdtYWlsLmNvbT4K
+PiA+IFNpZ25lZC1vZmYtYnk6IERhaWFuZSBNZW5kZXMgPGRubWVuZGVzNzZAZ21haWwuY29tPgo+
+ID4gQ2M6IEphc29uIFdhbmcgPGphc293YW5nQHJlZGhhdC5jb20+Cj4gPiAtLS0KPiA+IHYxLXYy
+OiBUYWcgYG5ldC1uZXh0YCB3YXMgaW5jbHVkZWQgdG8gaW5kZW50aWZ5IHdoZXJlIHBhdGNoIHdv
+dWxkIGJlCj4gPiBhcHBsaWVkLgo+ID4gLS0tCj4gPiAgZHJpdmVycy9uZXQvdmlydGlvX25ldC5j
+IHwgOTUgKysrKysrKysrKysrKysrKysrKysrKysrKysrKysrKysrKysrKysrLQo+ID4gIDEgZmls
+ZSBjaGFuZ2VkLCA5NCBpbnNlcnRpb25zKCspLCAxIGRlbGV0aW9uKC0pCj4gPgo+ID4gZGlmZiAt
+LWdpdCBhL2RyaXZlcnMvbmV0L3ZpcnRpb19uZXQuYyBiL2RyaXZlcnMvbmV0L3ZpcnRpb19uZXQu
+Ywo+ID4gaW5kZXggNGQ3ZDU0MzRjYzVkLi4zMTg5MGQ3N2VhZjIgMTAwNjQ0Cj4gPiAtLS0gYS9k
+cml2ZXJzL25ldC92aXJ0aW9fbmV0LmMKPiA+ICsrKyBiL2RyaXZlcnMvbmV0L3ZpcnRpb19uZXQu
+Ywo+ID4gQEAgLTc1LDYgKzc1LDcgQEAgc3RydWN0IHZpcnRuZXRfc3Ffc3RhdHMgewo+ID4gICAg
+ICAgdTY0IHhkcF90eDsKPiA+ICAgICAgIHU2NCB4ZHBfdHhfZHJvcHM7Cj4gPiAgICAgICB1NjQg
+a2lja3M7Cj4gPiArICAgICB1NjQgdHhfdGltZW91dHM7Cj4gPiAgfTsKPiA+Cj4gPiAgc3RydWN0
+IHZpcnRuZXRfcnFfc3RhdHMgewo+ID4gQEAgLTk4LDYgKzk5LDcgQEAgc3RhdGljIGNvbnN0IHN0
+cnVjdCB2aXJ0bmV0X3N0YXRfZGVzYyB2aXJ0bmV0X3NxX3N0YXRzX2Rlc2NbXSA9IHsKPiA+ICAg
+ICAgIHsgInhkcF90eCIsICAgICAgICAgICAgIFZJUlRORVRfU1FfU1RBVCh4ZHBfdHgpIH0sCj4g
+PiAgICAgICB7ICJ4ZHBfdHhfZHJvcHMiLCAgICAgICBWSVJUTkVUX1NRX1NUQVQoeGRwX3R4X2Ry
+b3BzKSB9LAo+ID4gICAgICAgeyAia2lja3MiLCAgICAgICAgICAgICAgVklSVE5FVF9TUV9TVEFU
+KGtpY2tzKSB9LAo+ID4gKyAgICAgeyAidHhfdGltZW91dHMiLCAgICAgICAgVklSVE5FVF9TUV9T
+VEFUKHR4X3RpbWVvdXRzKSB9LAo+ID4gIH07Cj4gPgo+ID4gIHN0YXRpYyBjb25zdCBzdHJ1Y3Qg
+dmlydG5ldF9zdGF0X2Rlc2MgdmlydG5ldF9ycV9zdGF0c19kZXNjW10gPSB7Cj4gPiBAQCAtMjEx
+LDYgKzIxMyw5IEBAIHN0cnVjdCB2aXJ0bmV0X2luZm8gewo+ID4gICAgICAgLyogV29yayBzdHJ1
+Y3QgZm9yIGNvbmZpZyBzcGFjZSB1cGRhdGVzICovCj4gPiAgICAgICBzdHJ1Y3Qgd29ya19zdHJ1
+Y3QgY29uZmlnX3dvcms7Cj4gPgo+ID4gKyAgICAgLyogV29yayBzdHJ1Y3QgZm9yIHJlc2V0dGlu
+ZyB0aGUgdmlydGlvLW5ldCBkcml2ZXIuICovCj4gPiArICAgICBzdHJ1Y3Qgd29ya19zdHJ1Y3Qg
+cmVzZXRfd29yazsKPiA+ICsKPiA+ICAgICAgIC8qIERvZXMgdGhlIGFmZmluaXR5IGhpbnQgaXMg
+c2V0IGZvciB2aXJ0cXVldWVzPyAqLwo+ID4gICAgICAgYm9vbCBhZmZpbml0eV9oaW50X3NldDsK
+PiA+Cj4gPiBAQCAtMTcyMSw3ICsxNzI2LDcgQEAgc3RhdGljIHZvaWQgdmlydG5ldF9zdGF0cyhz
+dHJ1Y3QgbmV0X2RldmljZSAqZGV2LAo+ID4gICAgICAgaW50IGk7Cj4gPgo+ID4gICAgICAgZm9y
+IChpID0gMDsgaSA8IHZpLT5tYXhfcXVldWVfcGFpcnM7IGkrKykgewo+ID4gLSAgICAgICAgICAg
+ICB1NjQgdHBhY2tldHMsIHRieXRlcywgcnBhY2tldHMsIHJieXRlcywgcmRyb3BzOwo+ID4gKyAg
+ICAgICAgICAgICB1NjQgdHBhY2tldHMsIHRieXRlcywgdGVycm9ycywgcnBhY2tldHMsIHJieXRl
+cywgcmRyb3BzOwo+ID4gICAgICAgICAgICAgICBzdHJ1Y3QgcmVjZWl2ZV9xdWV1ZSAqcnEgPSAm
+dmktPnJxW2ldOwo+ID4gICAgICAgICAgICAgICBzdHJ1Y3Qgc2VuZF9xdWV1ZSAqc3EgPSAmdmkt
+PnNxW2ldOwo+ID4KPiA+IEBAIC0xNzI5LDYgKzE3MzQsNyBAQCBzdGF0aWMgdm9pZCB2aXJ0bmV0
+X3N0YXRzKHN0cnVjdCBuZXRfZGV2aWNlICpkZXYsCj4gPiAgICAgICAgICAgICAgICAgICAgICAg
+c3RhcnQgPSB1NjRfc3RhdHNfZmV0Y2hfYmVnaW5faXJxKCZzcS0+c3RhdHMuc3luY3ApOwo+ID4g
+ICAgICAgICAgICAgICAgICAgICAgIHRwYWNrZXRzID0gc3EtPnN0YXRzLnBhY2tldHM7Cj4gPiAg
+ICAgICAgICAgICAgICAgICAgICAgdGJ5dGVzICAgPSBzcS0+c3RhdHMuYnl0ZXM7Cj4gPiArICAg
+ICAgICAgICAgICAgICAgICAgdGVycm9ycyAgPSBzcS0+c3RhdHMudHhfdGltZW91dHM7Cj4gPiAg
+ICAgICAgICAgICAgIH0gd2hpbGUgKHU2NF9zdGF0c19mZXRjaF9yZXRyeV9pcnEoJnNxLT5zdGF0
+cy5zeW5jcCwgc3RhcnQpKTsKPiA+Cj4gPiAgICAgICAgICAgICAgIGRvIHsKPiA+IEBAIC0xNzQz
+LDYgKzE3NDksNyBAQCBzdGF0aWMgdm9pZCB2aXJ0bmV0X3N0YXRzKHN0cnVjdCBuZXRfZGV2aWNl
+ICpkZXYsCj4gPiAgICAgICAgICAgICAgIHRvdC0+cnhfYnl0ZXMgICArPSByYnl0ZXM7Cj4gPiAg
+ICAgICAgICAgICAgIHRvdC0+dHhfYnl0ZXMgICArPSB0Ynl0ZXM7Cj4gPiAgICAgICAgICAgICAg
+IHRvdC0+cnhfZHJvcHBlZCArPSByZHJvcHM7Cj4gPiArICAgICAgICAgICAgIHRvdC0+dHhfZXJy
+b3JzICArPSB0ZXJyb3JzOwo+ID4gICAgICAgfQo+ID4KPiA+ICAgICAgIHRvdC0+dHhfZHJvcHBl
+ZCA9IGRldi0+c3RhdHMudHhfZHJvcHBlZDsKPiA+IEBAIC0yNTc4LDYgKzI1ODUsMzMgQEAgc3Rh
+dGljIGludCB2aXJ0bmV0X3NldF9mZWF0dXJlcyhzdHJ1Y3QgbmV0X2RldmljZSAqZGV2LAo+ID4g
+ICAgICAgcmV0dXJuIDA7Cj4gPiAgfQo+ID4KPiA+ICtzdGF0aWMgdm9pZCB2aXJ0bmV0X3R4X3Rp
+bWVvdXQoc3RydWN0IG5ldF9kZXZpY2UgKmRldikKPiA+ICt7Cj4gPiArICAgICBzdHJ1Y3Qgdmly
+dG5ldF9pbmZvICp2aSA9IG5ldGRldl9wcml2KGRldik7Cj4gPiArICAgICB1MzIgaTsKPiA+ICsK
+PiA+ICsgICAgIG5ldGRldl93YXJuKGRldiwgIlRYIHRpbWVvdXQgc3RhdHM6XG4iKTsKPiA+ICsg
+ICAgIC8qIGZpbmQgdGhlIHN0b3BwZWQgcXVldWUgdGhlIHNhbWUgd2F5IGRldl93YXRjaGRvZygp
+IGRvZXMgKi8KPiA+ICsgICAgIGZvciAoaSA9IDA7IGkgPCB2aS0+Y3Vycl9xdWV1ZV9wYWlyczsg
+aSsrKSB7Cj4gPiArICAgICAgICAgICAgIHN0cnVjdCBzZW5kX3F1ZXVlICpzcSA9ICZ2aS0+c3Fb
+aV07Cj4gPiArCj4gPiArICAgICAgICAgICAgIGlmICghbmV0aWZfeG1pdF9zdG9wcGVkKG5ldGRl
+dl9nZXRfdHhfcXVldWUoZGV2LCBpKSkpIHsKPiA+ICsgICAgICAgICAgICAgICAgICAgICBuZXRk
+ZXZfd2FybihkZXYsICIgQXZhaWxhYmxlIHNlbmQgcXVldWU6ICVkLCBzcTogJXMsIHZxOiAlZCwg
+bmFtZTogJXNcbiIsCj4gPiArICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgaSwgc3Et
+Pm5hbWUsIHNxLT52cS0+aW5kZXgsIHNxLT52cS0+bmFtZSk7Cj4KPiBXaGF0IGRvZXMgdGhpcyBt
+ZWFuPwo+Cj4gPiArICAgICAgICAgICAgICAgICAgICAgY29udGludWU7Cj4gPiArICAgICAgICAg
+ICAgIH0KPiA+ICsKPiA+ICsgICAgICAgICAgICAgdTY0X3N0YXRzX3VwZGF0ZV9iZWdpbigmc3Et
+PnN0YXRzLnN5bmNwKTsKPiA+ICsgICAgICAgICAgICAgc3EtPnN0YXRzLnR4X3RpbWVvdXRzKys7
+Cj4gPiArICAgICAgICAgICAgIHU2NF9zdGF0c191cGRhdGVfZW5kKCZzcS0+c3RhdHMuc3luY3Ap
+Owo+ID4gKwo+ID4gKyAgICAgICAgICAgICBuZXRkZXZfd2FybihkZXYsICIgVW5hdmFpbGFibGUg
+c2VuZCBxdWV1ZTogJWQsIHNxOiAlcywgdnE6ICVkLCBuYW1lOiAlc1xuIiwKPiA+ICsgICAgICAg
+ICAgICAgICAgICAgICAgICAgaSwgc3EtPm5hbWUsIHNxLT52cS0+aW5kZXgsIHNxLT52cS0+bmFt
+ZSk7Cj4gPiArICAgICB9Cj4KPiBDYW4gd2UgbWFrZSB0aGUgd2FybmluZyBsZXNzIGNyeXB0aWM/
+Cj4gSSB3b25kZXIgd2h5IGRvbid0IHdlIGdldCB0aGUgc3EgZnJvbSB0aW1lb3V0IGRpcmVjdGx5
+Pwo+IFdvdWxkIHNlZW0gY2xlYW5lci4KCkkgbmVlZCB5b3VyIGhlbHAgd2l0aCBkZWJidWdpbmcg
+aW5mb3JtYXRpb24uIFdoYXQga2luZCBvZiBmaWVsZCBzaG91ZAppdCBub3RpZnkgd2hlbiBhIFRY
+IHRpbWVvdXQgb2NjdXJzPwpPciB3ZSBjYW4ga2VlcCB0aGUgZGVmYXVsdCBXQVJOX09OQ0UsIGJ1
+dCB3ZSBuZWVkIGEgbWluaW11bSBtZXRob2QgaW1wbGVtZW50ZWQuCldlIGNhbm5vdCBnZXQgdGlt
+ZW91dCBkaXJlY3RseSBiZWNhdXNlIGl0IG5lZWRzIHRvIGJlIGltcGxlbWVudGVkIHRvCmdldCBp
+dCBkaXJlY3RseS4KTmV0IGNvcmUgc2NoZWR1bGVyIGNoZWNrcyBpZiB0aGlzIGhhbmRsZXIgd2Fz
+IGltcGxlbWVudGVkIHRvIHRocm93IGEKVFggdGltZW91dC4gU2VlOgoKICAgIHZvaWQgX19uZXRk
+ZXZfd2F0Y2hkb2dfdXAoc3RydWN0IG5ldF9kZXZpY2UgKmRldikKICAgIHsKICAgICAgICAgICBp
+ZiAoZGV2LT5uZXRkZXZfb3BzLT5uZG9fdHhfdGltZW91dCkgewogICAgICAgICAgICAgICAgICAg
+aWYgKGRldi0+d2F0Y2hkb2dfdGltZW8gPD0gMCkKICAgICAgICAgICAgICAgICAgICAgICAgZGV2
+LT53YXRjaGRvZ190aW1lbyA9IDUqSFo7CiAgICAgICAgICAgICAgICAgICBpZiAoIW1vZF90aW1l
+cigmZGV2LT53YXRjaGRvZ190aW1lciwKICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAg
+IHJvdW5kX2ppZmZpZXMoamlmZmllcyArIGRldi0+d2F0Y2hkb2dfdGltZW8pKSkKICAgICAgICAg
+ICAgICAgICAgICAgICAgICAgZGV2X2hvbGQoZGV2KTsKICAgICAgICAgICB9CiAgICB9Cgo+Cj4g
+PiArCj4gPiArICAgICBzY2hlZHVsZV93b3JrKCZ2aS0+cmVzZXRfd29yayk7Cj4gPiArfQo+ID4g
+Kwo+ID4gIHN0YXRpYyBjb25zdCBzdHJ1Y3QgbmV0X2RldmljZV9vcHMgdmlydG5ldF9uZXRkZXYg
+PSB7Cj4gPiAgICAgICAubmRvX29wZW4gICAgICAgICAgICA9IHZpcnRuZXRfb3BlbiwKPiA+ICAg
+ICAgIC5uZG9fc3RvcCAgICAgICAgICAgID0gdmlydG5ldF9jbG9zZSwKPiA+IEBAIC0yNTkzLDYg
+KzI2MjcsNyBAQCBzdGF0aWMgY29uc3Qgc3RydWN0IG5ldF9kZXZpY2Vfb3BzIHZpcnRuZXRfbmV0
+ZGV2ID0gewo+ID4gICAgICAgLm5kb19mZWF0dXJlc19jaGVjayAgICAgPSBwYXNzdGhydV9mZWF0
+dXJlc19jaGVjaywKPiA+ICAgICAgIC5uZG9fZ2V0X3BoeXNfcG9ydF9uYW1lID0gdmlydG5ldF9n
+ZXRfcGh5c19wb3J0X25hbWUsCj4gPiAgICAgICAubmRvX3NldF9mZWF0dXJlcyAgICAgICA9IHZp
+cnRuZXRfc2V0X2ZlYXR1cmVzLAo+ID4gKyAgICAgLm5kb190eF90aW1lb3V0ICAgICAgICAgPSB2
+aXJ0bmV0X3R4X3RpbWVvdXQsCj4gPiAgfTsKPiA+Cj4gPiAgc3RhdGljIHZvaWQgdmlydG5ldF9j
+b25maWdfY2hhbmdlZF93b3JrKHN0cnVjdCB3b3JrX3N0cnVjdCAqd29yaykKPiA+IEBAIC0yOTgy
+LDYgKzMwMTcsNjIgQEAgc3RhdGljIGludCB2aXJ0bmV0X3ZhbGlkYXRlKHN0cnVjdCB2aXJ0aW9f
+ZGV2aWNlICp2ZGV2KQo+ID4gICAgICAgcmV0dXJuIDA7Cj4gPiAgfQo+ID4KPiA+ICtzdGF0aWMg
+dm9pZCBfcmVtb3ZlX3ZxX2NvbW1vbihzdHJ1Y3QgdmlydG5ldF9pbmZvICp2aSkKPiA+ICt7Cj4g
+PiArICAgICB2aS0+dmRldi0+Y29uZmlnLT5yZXNldCh2aS0+dmRldik7Cj4gPiArCj4gPiArICAg
+ICAvKiBGcmVlIHVudXNlZCBidWZmZXJzIGluIGJvdGggc2VuZCBhbmQgcmVjdiwgaWYgYW55LiAq
+Lwo+ID4gKyAgICAgZnJlZV91bnVzZWRfYnVmcyh2aSk7Cj4gPiArCj4gPiArICAgICBfZnJlZV9y
+ZWNlaXZlX2J1ZnModmkpOwo+ID4gKwo+ID4gKyAgICAgZnJlZV9yZWNlaXZlX3BhZ2VfZnJhZ3Mo
+dmkpOwo+ID4gKwo+ID4gKyAgICAgdmlydG5ldF9kZWxfdnFzKHZpKTsKPiA+ICt9Cj4gPiArCj4g
+PiArc3RhdGljIGludCBfdmlydG5ldF9yZXNldChzdHJ1Y3QgdmlydG5ldF9pbmZvICp2aSkKPiA+
+ICt7Cj4gPiArICAgICBzdHJ1Y3QgdmlydGlvX2RldmljZSAqdmRldiA9IHZpLT52ZGV2Owo+ID4g
+KyAgICAgaW50IHJldDsKPiA+ICsKPiA+ICsgICAgIHZpcnRpb19jb25maWdfZGlzYWJsZSh2ZGV2
+KTsKPiA+ICsgICAgIHZkZXYtPmZhaWxlZCA9IHZkZXYtPmNvbmZpZy0+Z2V0X3N0YXR1cyh2ZGV2
+KSAmIFZJUlRJT19DT05GSUdfU19GQUlMRUQ7Cj4gPiArCj4gPiArICAgICB2aXJ0bmV0X2ZyZWV6
+ZV9kb3duKHZkZXYpOwo+ID4gKyAgICAgX3JlbW92ZV92cV9jb21tb24odmkpOwo+ID4gKwo+ID4g
+KyAgICAgdmlydGlvX2FkZF9zdGF0dXModmRldiwgVklSVElPX0NPTkZJR19TX0FDS05PV0xFREdF
+KTsKPiA+ICsgICAgIHZpcnRpb19hZGRfc3RhdHVzKHZkZXYsIFZJUlRJT19DT05GSUdfU19EUklW
+RVIpOwo+ID4gKwo+ID4gKyAgICAgcmV0ID0gdmlydGlvX2ZpbmFsaXplX2ZlYXR1cmVzKHZkZXYp
+Owo+ID4gKyAgICAgaWYgKHJldCkKPiA+ICsgICAgICAgICAgICAgZ290byBlcnI7Cj4gPiArCj4g
+PiArICAgICByZXQgPSB2aXJ0bmV0X3Jlc3RvcmVfdXAodmRldik7Cj4gPiArICAgICBpZiAocmV0
+KQo+ID4gKyAgICAgICAgICAgICBnb3RvIGVycjsKPiA+ICsKPiA+ICsgICAgIHJldCA9IF92aXJ0
+bmV0X3NldF9xdWV1ZXModmksIHZpLT5jdXJyX3F1ZXVlX3BhaXJzKTsKPiA+ICsgICAgIGlmIChy
+ZXQpCj4gPiArICAgICAgICAgICAgIGdvdG8gZXJyOwo+ID4gKwo+ID4gKyAgICAgdmlydGlvX2Fk
+ZF9zdGF0dXModmRldiwgVklSVElPX0NPTkZJR19TX0RSSVZFUl9PSyk7Cj4gPiArICAgICB2aXJ0
+aW9fY29uZmlnX2VuYWJsZSh2ZGV2KTsKPgo+Cj4gSXMgdGhpcyBlbm91Z2g/IEUuZy4gYWxsIFJY
+IG1vZGUgcHJvZ3JhbW1pbmcgaGFzIGJlZW4gbG9zdC4KCklNSE8gdmlydGlvIG5ldCBoYXMgYSBu
+aWNlIHBlcmZvcm1hbmNlLiBZb3UgY2FuIHRha2UgZGF5cyB0byBzZWUgYSBUWCB0aW1lb3V0LgpJ
+ZiBpdCBpcyBoYXBwZW5pbmcgZnJlcXVlbnRseSwgdGhlcmUgaXMgc29tZXRoaW5nIHdyb25nIHdp
+dGggZGV2aWNlLgpTbywgYWdhaW4sIElNSE8gSSBkb24ndCB0aGluayBpdCB3b3VsZCBiZSB0b28g
+cHJvYmxlbWF0aWMuCgo+Cj4KPgo+ID4gKyAgICAgcmV0dXJuIDA7Cj4gPiArZXJyOgo+ID4gKyAg
+ICAgdmlydGlvX2FkZF9zdGF0dXModmRldiwgVklSVElPX0NPTkZJR19TX0ZBSUxFRCk7Cj4gPiAr
+ICAgICByZXR1cm4gcmV0Owo+ID4gK30KPiA+ICsKPiA+ICtzdGF0aWMgdm9pZCB2aXJ0bmV0X3Jl
+c2V0KHN0cnVjdCB3b3JrX3N0cnVjdCAqd29yaykKPiA+ICt7Cj4gPiArICAgICBzdHJ1Y3Qgdmly
+dG5ldF9pbmZvICp2aSA9Cj4gPiArICAgICAgICAgICAgIGNvbnRhaW5lcl9vZih3b3JrLCBzdHJ1
+Y3QgdmlydG5ldF9pbmZvLCByZXNldF93b3JrKTsKPiA+ICsKPiA+ICsgICAgIF92aXJ0bmV0X3Jl
+c2V0KHZpKTsKPiA+ICt9Cj4gPiArCj4gPiAgc3RhdGljIGludCB2aXJ0bmV0X3Byb2JlKHN0cnVj
+dCB2aXJ0aW9fZGV2aWNlICp2ZGV2KQo+ID4gIHsKPiA+ICAgICAgIGludCBpLCBlcnIgPSAtRU5P
+TUVNOwo+ID4gQEAgLTMwMTEsNiArMzEwMiw3IEBAIHN0YXRpYyBpbnQgdmlydG5ldF9wcm9iZShz
+dHJ1Y3QgdmlydGlvX2RldmljZSAqdmRldikKPiA+ICAgICAgIGRldi0+bmV0ZGV2X29wcyA9ICZ2
+aXJ0bmV0X25ldGRldjsKPiA+ICAgICAgIGRldi0+ZmVhdHVyZXMgPSBORVRJRl9GX0hJR0hETUE7
+Cj4gPgo+ID4gKyAgICAgZGV2LT53YXRjaGRvZ190aW1lbyA9IDUgKiBIWjsKPiA+ICAgICAgIGRl
+di0+ZXRodG9vbF9vcHMgPSAmdmlydG5ldF9ldGh0b29sX29wczsKPiA+ICAgICAgIFNFVF9ORVRE
+RVZfREVWKGRldiwgJnZkZXYtPmRldik7Cj4gPgo+Cj4gSXMgdGhlcmUgYSB3YXkgdG8gbWFrZSB0
+aGlzIHR1bmVhYmxlIGZyb20gZXRodG9vbD8KClllcyBhbmQgbm8uCllvdSBjYW4gZG8gdGhhdCBv
+YnZpb3VzbHksIGJ1dCBpdCBpcyBub3QgYSBjb21tb24gZmllbGQgdG8gdHVuLiBJZiB5b3UKY29t
+cGFyZSB3aXRoIG90aGVyIGRyaXZlcnMuCgo+Cj4gPiBAQCAtMzA2OCw2ICszMTYwLDcgQEAgc3Rh
+dGljIGludCB2aXJ0bmV0X3Byb2JlKHN0cnVjdCB2aXJ0aW9fZGV2aWNlICp2ZGV2KQo+ID4gICAg
+ICAgdmRldi0+cHJpdiA9IHZpOwo+ID4KPiA+ICAgICAgIElOSVRfV09SSygmdmktPmNvbmZpZ193
+b3JrLCB2aXJ0bmV0X2NvbmZpZ19jaGFuZ2VkX3dvcmspOwo+ID4gKyAgICAgSU5JVF9XT1JLKCZ2
+aS0+cmVzZXRfd29yaywgdmlydG5ldF9yZXNldCk7Cj4gPgo+ID4gICAgICAgLyogSWYgd2UgY2Fu
+IHJlY2VpdmUgQU5ZIEdTTyBwYWNrZXRzLCB3ZSBtdXN0IGFsbG9jYXRlIGxhcmdlIG9uZXMuICov
+Cj4gPiAgICAgICBpZiAodmlydGlvX2hhc19mZWF0dXJlKHZkZXYsIFZJUlRJT19ORVRfRl9HVUVT
+VF9UU080KSB8fAo+ID4gLS0KPiA+IDIuMTcuMQo+Cl9fX19fX19fX19fX19fX19fX19fX19fX19f
+X19fX19fX19fX19fX19fX19fX19fClZpcnR1YWxpemF0aW9uIG1haWxpbmcgbGlzdApWaXJ0dWFs
+aXphdGlvbkBsaXN0cy5saW51eC1mb3VuZGF0aW9uLm9yZwpodHRwczovL2xpc3RzLmxpbnV4Zm91
+bmRhdGlvbi5vcmcvbWFpbG1hbi9saXN0aW5mby92aXJ0dWFsaXphdGlvbg==
