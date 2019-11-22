@@ -1,7 +1,7 @@
 From: Jean-Philippe Brucker <jean-philippe@linaro.org>
-Subject: [RFC 11/13] ACPI: Add VIOT table
-Date: Fri, 22 Nov 2019 11:49:58 +0100
-Message-ID: <20191122105000.800410-12-jean-philippe__39221.5190966212$1574419899$gmane$org@linaro.org>
+Subject: [RFC 04/13] ACPI/IORT: Add node categories
+Date: Fri, 22 Nov 2019 11:49:51 +0100
+Message-ID: <20191122105000.800410-5-jean-philippe__32411.6026911483$1574420177$gmane$org@linaro.org>
 References: <20191122105000.800410-1-jean-philippe@linaro.org>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
@@ -21,168 +21,94 @@ To: linux-acpi@vger.kernel.org, linux-arm-kernel@lists.infradead.org, iommu@list
 Cc: lorenzo.pieralisi@arm.com, mst@redhat.com, gregkh@linuxfoundation.org, joro@8bytes.org, sudeep.holla@arm.com, rjw@rjwysocki.net, eric.auger@redhat.com, sebastien.boeuf@intel.com, jacob.jun.pan@intel.com, guohanjun@huawei.com, bhelgaas@google.com, lenb@kernel.org
 List-Id: virtualization@lists.linuxfoundation.org
 
-Add support for a new ACPI table that embeds other tables describing a
-platform's IOMMU topology. Currently the only supported base table is
-IORT. The VIOT contains an IORT with additional node types, that
-describe a virtio-iommu.
+The current node filtering won't work when introducing node types
+greater than 63 (such as the virtio-iommu nodes). Add
+node_type_matches() to filter nodes by category.
 
 Signed-off-by: Jean-Philippe Brucker <jean-philippe@linaro.org>
 ---
- drivers/acpi/Kconfig      |  4 ++++
- drivers/acpi/Makefile     |  1 +
- drivers/acpi/bus.c        |  2 ++
- drivers/acpi/tables.c     |  2 +-
- drivers/acpi/viot.c       | 44 +++++++++++++++++++++++++++++++++++++++
- drivers/iommu/Kconfig     |  1 +
- include/linux/acpi_viot.h | 20 ++++++++++++++++++
- 7 files changed, 73 insertions(+), 1 deletion(-)
- create mode 100644 drivers/acpi/viot.c
- create mode 100644 include/linux/acpi_viot.h
+ drivers/acpi/iort.c | 34 ++++++++++++++++++++++++----------
+ 1 file changed, 24 insertions(+), 10 deletions(-)
 
-diff --git a/drivers/acpi/Kconfig b/drivers/acpi/Kconfig
-index 548976c8b2b0..513a5e4d3526 100644
---- a/drivers/acpi/Kconfig
-+++ b/drivers/acpi/Kconfig
-@@ -579,6 +579,10 @@ config TPS68470_PMIC_OPREGION
- config ACPI_IORT
- 	bool
+diff --git a/drivers/acpi/iort.c b/drivers/acpi/iort.c
+index 9c6c91e06f8f..1d43fbc0001f 100644
+--- a/drivers/acpi/iort.c
++++ b/drivers/acpi/iort.c
+@@ -18,10 +18,10 @@
+ #include <linux/platform_device.h>
+ #include <linux/slab.h>
  
-+config ACPI_VIOT
-+	bool
-+	select ACPI_IORT
-+
- endif	# ACPI
+-#define IORT_TYPE_MASK(type)	(1 << (type))
+-#define IORT_MSI_TYPE		(1 << ACPI_IORT_NODE_ITS_GROUP)
+-#define IORT_IOMMU_TYPE		((1 << ACPI_IORT_NODE_SMMU) |	\
+-				(1 << ACPI_IORT_NODE_SMMU_V3))
++enum iort_node_category {
++	IORT_MSI_TYPE,
++	IORT_IOMMU_TYPE,
++};
  
- config X86_PM_TIMER
-diff --git a/drivers/acpi/Makefile b/drivers/acpi/Makefile
-index 9d1792165713..6abdc6cc32c7 100644
---- a/drivers/acpi/Makefile
-+++ b/drivers/acpi/Makefile
-@@ -124,3 +124,4 @@ obj-y				+= dptf/
+ struct iort_its_msi_chip {
+ 	struct list_head	list;
+@@ -38,6 +38,20 @@ struct iort_fwnode {
+ static LIST_HEAD(iort_fwnode_list);
+ static DEFINE_SPINLOCK(iort_fwnode_lock);
  
- obj-$(CONFIG_ARM64)		+= arm64/
- obj-$(CONFIG_ACPI_IORT) 	+= iort.o
-+obj-$(CONFIG_ACPI_VIOT)		+= viot.o
-diff --git a/drivers/acpi/bus.c b/drivers/acpi/bus.c
-index 48bc96d45bab..6f364e0c9240 100644
---- a/drivers/acpi/bus.c
-+++ b/drivers/acpi/bus.c
-@@ -25,6 +25,7 @@
- #include <linux/dmi.h>
- #endif
- #include <linux/acpi_iort.h>
-+#include <linux/acpi_viot.h>
- #include <linux/pci.h>
- #include <acpi/apei.h>
- #include <linux/suspend.h>
-@@ -1246,6 +1247,7 @@ static int __init acpi_init(void)
- 
- 	pci_mmcfg_late_init();
- 	acpi_iort_init();
-+	acpi_viot_init();
- 	acpi_scan_init();
- 	acpi_ec_init();
- 	acpi_debugfs_init();
-diff --git a/drivers/acpi/tables.c b/drivers/acpi/tables.c
-index 180ac4329763..9662ea5e1064 100644
---- a/drivers/acpi/tables.c
-+++ b/drivers/acpi/tables.c
-@@ -501,7 +501,7 @@ static const char * const table_sigs[] = {
- 	ACPI_SIG_WDDT, ACPI_SIG_WDRT, ACPI_SIG_DSDT, ACPI_SIG_FADT,
- 	ACPI_SIG_PSDT, ACPI_SIG_RSDT, ACPI_SIG_XSDT, ACPI_SIG_SSDT,
- 	ACPI_SIG_IORT, ACPI_SIG_NFIT, ACPI_SIG_HMAT, ACPI_SIG_PPTT,
--	NULL };
-+	ACPI_SIG_VIOT, NULL };
- 
- #define ACPI_HEADER_SIZE sizeof(struct acpi_table_header)
- 
-diff --git a/drivers/acpi/viot.c b/drivers/acpi/viot.c
-new file mode 100644
-index 000000000000..ab9a6e43ad9b
---- /dev/null
-+++ b/drivers/acpi/viot.c
-@@ -0,0 +1,44 @@
-+// SPDX-License-Identifier: GPL-2.0-only
-+/*
-+ * Copyright (C) 2019 Linaro
-+ *
-+ * Virtual IOMMU table
-+ */
-+#define pr_fmt(fmt)	"ACPI: VIOT: " fmt
-+
-+#include <linux/acpi.h>
-+#include <linux/acpi_iort.h>
-+#include <linux/acpi_viot.h>
-+
-+int __init acpi_viot_init(void)
++static bool iort_type_matches(u8 type, enum iort_node_category category)
 +{
-+	struct acpi_table_viot *viot;
-+	struct acpi_table_header *acpi_header;
-+	acpi_status status;
-+
-+	status = acpi_get_table(ACPI_SIG_VIOT, 0, &acpi_header);
-+	if (ACPI_FAILURE(status)) {
-+		if (status != AE_NOT_FOUND) {
-+			const char *msg = acpi_format_exception(status);
-+
-+			pr_err("Failed to get table, %s\n", msg);
-+			return -EINVAL;
-+		}
-+
-+		return 0;
++	switch (category) {
++	case IORT_IOMMU_TYPE:
++		return type == ACPI_IORT_NODE_SMMU ||
++		       type == ACPI_IORT_NODE_SMMU_V3;
++	case IORT_MSI_TYPE:
++		return type == ACPI_IORT_NODE_ITS_GROUP;
++	default:
++		WARN_ON(1);
++		return false;
 +	}
-+
-+	if (acpi_header->length < sizeof(*viot)) {
-+		pr_err("VIOT table overflow, bad table!\n");
-+		return -EINVAL;
-+	}
-+
-+	viot = (struct acpi_table_viot *)acpi_header;
-+	if (ACPI_COMPARE_NAMESEG(viot->base_table.signature, ACPI_SIG_IORT)) {
-+		acpi_iort_register_table(&viot->base_table, IORT_SOURCE_VIOT);
-+		return 0;
-+	}
-+
-+	pr_err("Unknown base table header\n");
-+	return -EINVAL;
 +}
-diff --git a/drivers/iommu/Kconfig b/drivers/iommu/Kconfig
-index e3842eabcfdd..e6eb4f238d1a 100644
---- a/drivers/iommu/Kconfig
-+++ b/drivers/iommu/Kconfig
-@@ -480,6 +480,7 @@ config VIRTIO_IOMMU
- 	depends on ARM64
- 	select IOMMU_API
- 	select INTERVAL_TREE
-+	select ACPI_VIOT if ACPI
- 	help
- 	  Para-virtualised IOMMU driver with virtio.
++
+ /**
+  * iort_set_fwnode() - Create iort_fwnode and use it to register
+  *		       iommu data in the iort_fwnode_list
+@@ -397,7 +411,7 @@ static int iort_get_id_mapping_index(struct acpi_iort_node *node)
  
-diff --git a/include/linux/acpi_viot.h b/include/linux/acpi_viot.h
-new file mode 100644
-index 000000000000..6c282d5eb793
---- /dev/null
-+++ b/include/linux/acpi_viot.h
-@@ -0,0 +1,20 @@
-+/* SPDX-License-Identifier: GPL-2.0-only */
-+/*
-+ * Copyright (C) 2019 Linaro
-+ */
-+
-+#ifndef __ACPI_VIOT_H__
-+#define __ACPI_VIOT_H__
-+
-+#ifdef CONFIG_ACPI_VIOT
-+
-+int acpi_viot_init(void);
-+
-+#else /* !CONFIG_ACPI_VIOT */
-+
-+static inline int acpi_viot_init(void)
-+{}
-+
-+#endif /* !CONFIG_ACPI_VIOT */
-+
-+#endif /* __ACPI_VIOT_H__ */
+ static struct acpi_iort_node *iort_node_map_id(struct acpi_iort_node *node,
+ 					       u32 id_in, u32 *id_out,
+-					       u8 type_mask)
++					       enum iort_node_category category)
+ {
+ 	u32 id = id_in;
+ 
+@@ -406,7 +420,7 @@ static struct acpi_iort_node *iort_node_map_id(struct acpi_iort_node *node,
+ 		struct acpi_iort_id_mapping *map;
+ 		int i, index;
+ 
+-		if (IORT_TYPE_MASK(node->type) & type_mask) {
++		if (iort_type_matches(node->type, category)) {
+ 			if (id_out)
+ 				*id_out = id;
+ 			return node;
+@@ -458,8 +472,8 @@ static struct acpi_iort_node *iort_node_map_id(struct acpi_iort_node *node,
+ }
+ 
+ static struct acpi_iort_node *iort_node_map_platform_id(
+-		struct acpi_iort_node *node, u32 *id_out, u8 type_mask,
+-		int index)
++		struct acpi_iort_node *node, u32 *id_out,
++		enum iort_node_category category, int index)
+ {
+ 	struct acpi_iort_node *parent;
+ 	u32 id;
+@@ -475,8 +489,8 @@ static struct acpi_iort_node *iort_node_map_platform_id(
+ 	 * as NC (named component) -> SMMU -> ITS. If the type is matched,
+ 	 * return the initial dev id and its parent pointer directly.
+ 	 */
+-	if (!(IORT_TYPE_MASK(parent->type) & type_mask))
+-		parent = iort_node_map_id(parent, id, id_out, type_mask);
++	if (!iort_type_matches(parent->type, category))
++		parent = iort_node_map_id(parent, id, id_out, category);
+ 	else
+ 		if (id_out)
+ 			*id_out = id;
 -- 
 2.24.0
