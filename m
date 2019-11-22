@@ -1,12 +1,14 @@
-From: Julio Faracco <jcfaracco@gmail.com>
-Subject: [PATCH net-next v2] drivers: net: virtio_net: Implement a
- dev_watchdog handler
-Date: Thu, 21 Nov 2019 22:36:36 -0300
-Message-ID: <20191122013636.1041-1-jcfaracco__48156.2787362904$1574386613$gmane$org@gmail.com>
+From: Sasha Levin <sashal@kernel.org>
+Subject: Re: [PATCH v3] virtio_console: allocate inbufs in add_port() only if
+ it is needed
+Date: Fri, 22 Nov 2019 07:00:08 +0000
+Message-ID: <20191122070009.5CE442068E@mail.kernel.org>
+References: <20191114122548.24364-1-lvivier@redhat.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
+In-Reply-To: <20191114122548.24364-1-lvivier@redhat.com>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
  <mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -16,207 +18,33 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
  <mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Errors-To: virtualization-bounces@lists.linux-foundation.org
 Sender: "Virtualization" <virtualization-bounces@lists.linux-foundation.org>
-To: netdev@vger.kernel.org
-Cc: dnmendes76@gmail.com, "Michael S. Tsirkin" <mst@redhat.com>, linux-kernel@vger.kernel.org, virtualization@lists.linux-foundation.org, "David S. Miller" <davem@davemloft.net>
+To: Sasha Levin <sashal@kernel.org>, Laurent Vivier <lvivier@redhat.com>, linux-kernel@vger.kernel.org
+Cc: mst@redhat.com, stable@vger.kernel.org, virtualization@lists.linux-foundation.org
 List-Id: virtualization@lists.linuxfoundation.org
 
-Driver virtio_net is not handling error events for TX provided by
-dev_watchdog. This event is reached when transmission queue is having
-problems to transmit packets. This could happen for any reason. To
-enable it, driver should have .ndo_tx_timeout implemented.
+Hi,
 
-This commit brings back virtnet_reset method to recover TX queues from a
-error state. That function is called by schedule_work method and it puts
-the reset function into work queue.
+[This is an automated email]
 
-As the error cause is unknown at this moment, it would be better to
-reset all queues.
+This commit has been processed because it contains a "Fixes:" tag,
+fixing commit: a7a69ec0d8e4 ("virtio_console: free buffers after reset").
 
-Signed-off-by: Julio Faracco <jcfaracco@gmail.com>
-Signed-off-by: Daiane Mendes <dnmendes76@gmail.com>
-Cc: Jason Wang <jasowang@redhat.com>
----
-v1-v2: Tag `net-next` was included to indentify where patch would be
-applied.
----
- drivers/net/virtio_net.c | 95 +++++++++++++++++++++++++++++++++++++++-
- 1 file changed, 94 insertions(+), 1 deletion(-)
+The bot has tested the following trees: v5.3.11, v4.19.84, v4.14.154, v4.9.201, v4.4.201.
 
-diff --git a/drivers/net/virtio_net.c b/drivers/net/virtio_net.c
-index 4d7d5434cc5d..31890d77eaf2 100644
---- a/drivers/net/virtio_net.c
-+++ b/drivers/net/virtio_net.c
-@@ -75,6 +75,7 @@ struct virtnet_sq_stats {
- 	u64 xdp_tx;
- 	u64 xdp_tx_drops;
- 	u64 kicks;
-+	u64 tx_timeouts;
- };
- 
- struct virtnet_rq_stats {
-@@ -98,6 +99,7 @@ static const struct virtnet_stat_desc virtnet_sq_stats_desc[] = {
- 	{ "xdp_tx",		VIRTNET_SQ_STAT(xdp_tx) },
- 	{ "xdp_tx_drops",	VIRTNET_SQ_STAT(xdp_tx_drops) },
- 	{ "kicks",		VIRTNET_SQ_STAT(kicks) },
-+	{ "tx_timeouts",	VIRTNET_SQ_STAT(tx_timeouts) },
- };
- 
- static const struct virtnet_stat_desc virtnet_rq_stats_desc[] = {
-@@ -211,6 +213,9 @@ struct virtnet_info {
- 	/* Work struct for config space updates */
- 	struct work_struct config_work;
- 
-+	/* Work struct for resetting the virtio-net driver. */
-+	struct work_struct reset_work;
-+
- 	/* Does the affinity hint is set for virtqueues? */
- 	bool affinity_hint_set;
- 
-@@ -1721,7 +1726,7 @@ static void virtnet_stats(struct net_device *dev,
- 	int i;
- 
- 	for (i = 0; i < vi->max_queue_pairs; i++) {
--		u64 tpackets, tbytes, rpackets, rbytes, rdrops;
-+		u64 tpackets, tbytes, terrors, rpackets, rbytes, rdrops;
- 		struct receive_queue *rq = &vi->rq[i];
- 		struct send_queue *sq = &vi->sq[i];
- 
-@@ -1729,6 +1734,7 @@ static void virtnet_stats(struct net_device *dev,
- 			start = u64_stats_fetch_begin_irq(&sq->stats.syncp);
- 			tpackets = sq->stats.packets;
- 			tbytes   = sq->stats.bytes;
-+			terrors  = sq->stats.tx_timeouts;
- 		} while (u64_stats_fetch_retry_irq(&sq->stats.syncp, start));
- 
- 		do {
-@@ -1743,6 +1749,7 @@ static void virtnet_stats(struct net_device *dev,
- 		tot->rx_bytes   += rbytes;
- 		tot->tx_bytes   += tbytes;
- 		tot->rx_dropped += rdrops;
-+		tot->tx_errors  += terrors;
- 	}
- 
- 	tot->tx_dropped = dev->stats.tx_dropped;
-@@ -2578,6 +2585,33 @@ static int virtnet_set_features(struct net_device *dev,
- 	return 0;
- }
- 
-+static void virtnet_tx_timeout(struct net_device *dev)
-+{
-+	struct virtnet_info *vi = netdev_priv(dev);
-+	u32 i;
-+
-+	netdev_warn(dev, "TX timeout stats:\n");
-+	/* find the stopped queue the same way dev_watchdog() does */
-+	for (i = 0; i < vi->curr_queue_pairs; i++) {
-+		struct send_queue *sq = &vi->sq[i];
-+
-+		if (!netif_xmit_stopped(netdev_get_tx_queue(dev, i))) {
-+			netdev_warn(dev, " Available send queue: %d, sq: %s, vq: %d, name: %s\n",
-+				    i, sq->name, sq->vq->index, sq->vq->name);
-+			continue;
-+		}
-+
-+		u64_stats_update_begin(&sq->stats.syncp);
-+		sq->stats.tx_timeouts++;
-+		u64_stats_update_end(&sq->stats.syncp);
-+
-+		netdev_warn(dev, " Unavailable send queue: %d, sq: %s, vq: %d, name: %s\n",
-+			    i, sq->name, sq->vq->index, sq->vq->name);
-+	}
-+
-+	schedule_work(&vi->reset_work);
-+}
-+
- static const struct net_device_ops virtnet_netdev = {
- 	.ndo_open            = virtnet_open,
- 	.ndo_stop   	     = virtnet_close,
-@@ -2593,6 +2627,7 @@ static const struct net_device_ops virtnet_netdev = {
- 	.ndo_features_check	= passthru_features_check,
- 	.ndo_get_phys_port_name	= virtnet_get_phys_port_name,
- 	.ndo_set_features	= virtnet_set_features,
-+	.ndo_tx_timeout		= virtnet_tx_timeout,
- };
- 
- static void virtnet_config_changed_work(struct work_struct *work)
-@@ -2982,6 +3017,62 @@ static int virtnet_validate(struct virtio_device *vdev)
- 	return 0;
- }
- 
-+static void _remove_vq_common(struct virtnet_info *vi)
-+{
-+	vi->vdev->config->reset(vi->vdev);
-+
-+	/* Free unused buffers in both send and recv, if any. */
-+	free_unused_bufs(vi);
-+
-+	_free_receive_bufs(vi);
-+
-+	free_receive_page_frags(vi);
-+
-+	virtnet_del_vqs(vi);
-+}
-+
-+static int _virtnet_reset(struct virtnet_info *vi)
-+{
-+	struct virtio_device *vdev = vi->vdev;
-+	int ret;
-+
-+	virtio_config_disable(vdev);
-+	vdev->failed = vdev->config->get_status(vdev) & VIRTIO_CONFIG_S_FAILED;
-+
-+	virtnet_freeze_down(vdev);
-+	_remove_vq_common(vi);
-+
-+	virtio_add_status(vdev, VIRTIO_CONFIG_S_ACKNOWLEDGE);
-+	virtio_add_status(vdev, VIRTIO_CONFIG_S_DRIVER);
-+
-+	ret = virtio_finalize_features(vdev);
-+	if (ret)
-+		goto err;
-+
-+	ret = virtnet_restore_up(vdev);
-+	if (ret)
-+		goto err;
-+
-+	ret = _virtnet_set_queues(vi, vi->curr_queue_pairs);
-+	if (ret)
-+		goto err;
-+
-+	virtio_add_status(vdev, VIRTIO_CONFIG_S_DRIVER_OK);
-+	virtio_config_enable(vdev);
-+	return 0;
-+err:
-+	virtio_add_status(vdev, VIRTIO_CONFIG_S_FAILED);
-+	return ret;
-+}
-+
-+static void virtnet_reset(struct work_struct *work)
-+{
-+	struct virtnet_info *vi =
-+		container_of(work, struct virtnet_info, reset_work);
-+
-+	_virtnet_reset(vi);
-+}
-+
- static int virtnet_probe(struct virtio_device *vdev)
- {
- 	int i, err = -ENOMEM;
-@@ -3011,6 +3102,7 @@ static int virtnet_probe(struct virtio_device *vdev)
- 	dev->netdev_ops = &virtnet_netdev;
- 	dev->features = NETIF_F_HIGHDMA;
- 
-+	dev->watchdog_timeo = 5 * HZ;
- 	dev->ethtool_ops = &virtnet_ethtool_ops;
- 	SET_NETDEV_DEV(dev, &vdev->dev);
- 
-@@ -3068,6 +3160,7 @@ static int virtnet_probe(struct virtio_device *vdev)
- 	vdev->priv = vi;
- 
- 	INIT_WORK(&vi->config_work, virtnet_config_changed_work);
-+	INIT_WORK(&vi->reset_work, virtnet_reset);
- 
- 	/* If we can receive ANY GSO packets, we must allocate large ones. */
- 	if (virtio_has_feature(vdev, VIRTIO_NET_F_GUEST_TSO4) ||
+v5.3.11: Build OK!
+v4.19.84: Build OK!
+v4.14.154: Build OK!
+v4.9.201: Failed to apply! Possible dependencies:
+    5c60300d68da ("virtio_console: reset on out of memory")
+
+v4.4.201: Failed to apply! Possible dependencies:
+    5c60300d68da ("virtio_console: reset on out of memory")
+
+
+NOTE: The patch will not be queued to stable trees until it is upstream.
+
+How should we proceed with this patch?
+
 -- 
-2.17.1
+Thanks,
+Sasha
