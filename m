@@ -1,8 +1,7 @@
 From: Jean-Philippe Brucker <jean-philippe@linaro.org>
-Subject: [RFC 07/13] ACPI/IORT: Defer probe until virtio-iommu-pci has
- registered a fwnode
-Date: Fri, 22 Nov 2019 11:49:54 +0100
-Message-ID: <20191122105000.800410-8-jean-philippe__11158.3812440344$1574420204$gmane$org@linaro.org>
+Subject: [RFC 09/13] iommu/virtio: Create fwnode if necessary
+Date: Fri, 22 Nov 2019 11:49:56 +0100
+Message-ID: <20191122105000.800410-10-jean-philippe__20748.2088053197$1574420288$gmane$org@linaro.org>
 References: <20191122105000.800410-1-jean-philippe@linaro.org>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
@@ -22,121 +21,114 @@ To: linux-acpi@vger.kernel.org, linux-arm-kernel@lists.infradead.org, iommu@list
 Cc: lorenzo.pieralisi@arm.com, mst@redhat.com, gregkh@linuxfoundation.org, joro@8bytes.org, sudeep.holla@arm.com, rjw@rjwysocki.net, eric.auger@redhat.com, sebastien.boeuf@intel.com, jacob.jun.pan@intel.com, guohanjun@huawei.com, bhelgaas@google.com, lenb@kernel.org
 List-Id: virtualization@lists.linuxfoundation.org
 
-When the IOMMU is PCI-based, IORT doesn't know the fwnode until the
-driver has had a chance to register it. In addition to deferring the
-probe until the IOMMU ops are set, also defer the probe until the fwspec
-is available.
+The presence of a fwnode on a PCI device depends on the platform. QEMU
+q35, for example, creates an ACPI description for each PCI slot, but
+QEMU virt (aarch64) doesn't. Since the IOMMU subsystem relies heavily on
+fwnode to discover the DMA topology, create a fwnode for the
+virtio-iommu if necessary, using the software_node framework.
 
 Signed-off-by: Jean-Philippe Brucker <jean-philippe@linaro.org>
 ---
- drivers/acpi/iort.c | 54 ++++++++++++++++++++++++++-------------------
- 1 file changed, 31 insertions(+), 23 deletions(-)
+ drivers/iommu/virtio-iommu.c | 56 ++++++++++++++++++++++++++++++++----
+ 1 file changed, 51 insertions(+), 5 deletions(-)
 
-diff --git a/drivers/acpi/iort.c b/drivers/acpi/iort.c
-index b517aa4e83ba..f08f72d8af78 100644
---- a/drivers/acpi/iort.c
-+++ b/drivers/acpi/iort.c
-@@ -61,6 +61,22 @@ static bool iort_type_matches(u8 type, enum iort_node_category category)
- 	}
- }
+diff --git a/drivers/iommu/virtio-iommu.c b/drivers/iommu/virtio-iommu.c
+index 3ea9d7682999..8efa368134c0 100644
+--- a/drivers/iommu/virtio-iommu.c
++++ b/drivers/iommu/virtio-iommu.c
+@@ -966,6 +966,48 @@ static struct iommu_ops viommu_ops = {
+ 	.of_xlate		= viommu_of_xlate,
+ };
  
-+static inline bool iort_iommu_driver_enabled(u8 type)
++static int viommu_set_fwnode(struct viommu_dev *viommu)
 +{
-+	switch (type) {
-+	case ACPI_IORT_NODE_SMMU_V3:
-+		return IS_BUILTIN(CONFIG_ARM_SMMU_V3);
-+	case ACPI_IORT_NODE_SMMU:
-+		return IS_BUILTIN(CONFIG_ARM_SMMU);
-+	case ACPI_VIOT_IORT_NODE_VIRTIO_MMIO_IOMMU:
-+	case ACPI_VIOT_IORT_NODE_VIRTIO_PCI_IOMMU:
-+		return IS_ENABLED(CONFIG_VIRTIO_IOMMU);
-+	default:
-+		pr_warn("IORT node type %u does not describe an IOMMU\n", type);
-+		return false;
++	/*
++	 * viommu->dev is the virtio device, its parent is the associated
++	 * transport device.
++	 */
++	struct device *dev = viommu->dev->parent;
++
++	/*
++	 * With device tree a fwnode is always present. With ACPI, on some
++	 * platforms a PCI device has a DSDT node describing the slot. On other
++	 * platforms, no fwnode is created and we have to do it ourselves.
++	 */
++	if (!dev->fwnode) {
++		struct fwnode_handle *fwnode;
++
++		fwnode = fwnode_create_software_node(NULL, NULL);
++		if (IS_ERR(fwnode))
++			return PTR_ERR(fwnode);
++
++		set_primary_fwnode(dev, fwnode);
++	}
++
++	iommu_device_set_fwnode(&viommu->iommu, dev->fwnode);
++	return 0;
++}
++
++static void viommu_clear_fwnode(struct viommu_dev *viommu)
++{
++	struct device *dev = viommu->dev->parent;
++
++	if (!dev->fwnode)
++		return;
++
++	if (is_software_node(dev->fwnode)) {
++		struct fwnode_handle *fwnode = dev->fwnode;
++
++		set_primary_fwnode(dev, NULL);
++		fwnode_remove_software_node(fwnode);
 +	}
 +}
 +
- /**
-  * iort_set_fwnode() - Create iort_fwnode and use it to register
-  *		       iommu data in the iort_fwnode_list
-@@ -102,9 +118,9 @@ static inline int iort_set_fwnode(struct acpi_iort_node *iort_node,
-  *
-  * Returns: fwnode_handle pointer on success, NULL on failure
-  */
--static inline struct fwnode_handle *iort_get_fwnode(
--			struct acpi_iort_node *node)
-+static inline struct fwnode_handle *iort_get_fwnode(struct acpi_iort_node *node)
+ static int viommu_init_vqs(struct viommu_dev *viommu)
  {
-+	int err = -ENODEV;
- 	struct iort_fwnode *curr;
- 	struct fwnode_handle *fwnode = NULL;
+ 	struct virtio_device *vdev = dev_to_virtio(viommu->dev);
+@@ -1004,7 +1046,6 @@ static int viommu_fill_evtq(struct viommu_dev *viommu)
  
-@@ -112,12 +128,20 @@ static inline struct fwnode_handle *iort_get_fwnode(
- 	list_for_each_entry(curr, &iort_fwnode_list, list) {
- 		if (curr->iort_node == node) {
- 			fwnode = curr->fwnode;
-+			if (!fwnode && curr->pci_devid) {
-+				/*
-+				 * Postpone probe until virtio-iommu has
-+				 * registered its fwnode.
-+				 */
-+				err = iort_iommu_driver_enabled(node->type) ?
-+					-EPROBE_DEFER : -ENODEV;
-+			}
- 			break;
- 		}
- 	}
- 	spin_unlock(&iort_fwnode_lock);
+ static int viommu_probe(struct virtio_device *vdev)
+ {
+-	struct device *parent_dev = vdev->dev.parent;
+ 	struct viommu_dev *viommu = NULL;
+ 	struct device *dev = &vdev->dev;
+ 	u64 input_start = 0;
+@@ -1084,9 +1125,11 @@ static int viommu_probe(struct virtio_device *vdev)
+ 	if (ret)
+ 		goto err_free_vqs;
  
--	return fwnode;
-+	return fwnode ?: ERR_PTR(err);
- }
+-	iommu_device_set_ops(&viommu->iommu, &viommu_ops);
+-	iommu_device_set_fwnode(&viommu->iommu, parent_dev->fwnode);
++	ret = viommu_set_fwnode(viommu);
++	if (ret)
++		goto err_sysfs_remove;
  
- /**
-@@ -874,22 +898,6 @@ int iort_iommu_msi_get_resv_regions(struct device *dev, struct list_head *head)
- 	return (resv == its->its_count) ? resv : -ENODEV;
- }
++	iommu_device_set_ops(&viommu->iommu, &viommu_ops);
+ 	iommu_device_register(&viommu->iommu);
  
--static inline bool iort_iommu_driver_enabled(u8 type)
--{
--	switch (type) {
--	case ACPI_IORT_NODE_SMMU_V3:
--		return IS_BUILTIN(CONFIG_ARM_SMMU_V3);
--	case ACPI_IORT_NODE_SMMU:
--		return IS_BUILTIN(CONFIG_ARM_SMMU);
--	case ACPI_VIOT_IORT_NODE_VIRTIO_MMIO_IOMMU:
--	case ACPI_VIOT_IORT_NODE_VIRTIO_PCI_IOMMU:
--		return IS_ENABLED(CONFIG_VIRTIO_IOMMU);
--	default:
--		pr_warn("IORT node type %u does not describe an IOMMU\n", type);
--		return false;
--	}
--}
--
- static int arm_smmu_iort_xlate(struct device *dev, u32 streamid,
- 			       struct fwnode_handle *fwnode,
- 			       const struct iommu_ops *ops)
-@@ -920,8 +928,8 @@ static int iort_iommu_xlate(struct device *dev, struct acpi_iort_node *node,
- 		return -ENODEV;
+ #ifdef CONFIG_PCI
+@@ -1119,8 +1162,10 @@ static int viommu_probe(struct virtio_device *vdev)
+ 	return 0;
  
- 	iort_fwnode = iort_get_fwnode(node);
--	if (!iort_fwnode)
--		return -ENODEV;
-+	if (IS_ERR(iort_fwnode))
-+		return PTR_ERR(iort_fwnode);
+ err_unregister:
+-	iommu_device_sysfs_remove(&viommu->iommu);
+ 	iommu_device_unregister(&viommu->iommu);
++	viommu_clear_fwnode(viommu);
++err_sysfs_remove:
++	iommu_device_sysfs_remove(&viommu->iommu);
+ err_free_vqs:
+ 	vdev->config->del_vqs(vdev);
  
- 	/*
- 	 * If the ops look-up fails, this means that either
-@@ -1618,8 +1626,8 @@ static int __init iort_add_platform_device(struct acpi_iort_node *node,
+@@ -1131,8 +1176,9 @@ static void viommu_remove(struct virtio_device *vdev)
+ {
+ 	struct viommu_dev *viommu = vdev->priv;
  
- 	fwnode = iort_get_fwnode(node);
+-	iommu_device_sysfs_remove(&viommu->iommu);
+ 	iommu_device_unregister(&viommu->iommu);
++	viommu_clear_fwnode(viommu);
++	iommu_device_sysfs_remove(&viommu->iommu);
  
--	if (!fwnode) {
--		ret = -ENODEV;
-+	if (IS_ERR(fwnode)) {
-+		ret = PTR_ERR(fwnode);
- 		goto dev_put;
- 	}
- 
+ 	/* Stop all virtqueues */
+ 	vdev->config->reset(vdev);
 -- 
 2.24.0
