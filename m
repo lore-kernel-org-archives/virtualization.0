@@ -1,7 +1,7 @@
 From: Jean-Philippe Brucker <jean-philippe@linaro.org>
-Subject: [RFC 09/13] iommu/virtio: Create fwnode if necessary
-Date: Fri, 22 Nov 2019 11:49:56 +0100
-Message-ID: <20191122105000.800410-10-jean-philippe__20748.2088053197$1574420288$gmane$org@linaro.org>
+Subject: [RFC 01/13] ACPI/IORT: Move IORT to the ACPI folder
+Date: Fri, 22 Nov 2019 11:49:48 +0100
+Message-ID: <20191122105000.800410-2-jean-philippe__25982.4044814863$1574420291$gmane$org@linaro.org>
 References: <20191122105000.800410-1-jean-philippe@linaro.org>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
@@ -21,114 +21,91 @@ To: linux-acpi@vger.kernel.org, linux-arm-kernel@lists.infradead.org, iommu@list
 Cc: lorenzo.pieralisi@arm.com, mst@redhat.com, gregkh@linuxfoundation.org, joro@8bytes.org, sudeep.holla@arm.com, rjw@rjwysocki.net, eric.auger@redhat.com, sebastien.boeuf@intel.com, jacob.jun.pan@intel.com, guohanjun@huawei.com, bhelgaas@google.com, lenb@kernel.org
 List-Id: virtualization@lists.linuxfoundation.org
 
-The presence of a fwnode on a PCI device depends on the platform. QEMU
-q35, for example, creates an ACPI description for each PCI slot, but
-QEMU virt (aarch64) doesn't. Since the IOMMU subsystem relies heavily on
-fwnode to discover the DMA topology, create a fwnode for the
-virtio-iommu if necessary, using the software_node framework.
+IORT can be used (by QEMU) to describe a virtual topology containing an
+architecture-agnostic paravirtualized device.
 
-Signed-off-by: Jean-Philippe Brucker <jean-philippe@linaro.org>
+In order to build IORT for x86 systems, the driver has to be moved outside
+of arm64/. Since there is nothing specific to arm64 in the driver, it
+simply requires moving Makefile and Kconfig entries.
+
+Signed-off-by: Jean-Philippe Brucker <jean-philippe.brucker@arm.com>
 ---
- drivers/iommu/virtio-iommu.c | 56 ++++++++++++++++++++++++++++++++----
- 1 file changed, 51 insertions(+), 5 deletions(-)
+ MAINTAINERS                     | 9 +++++++++
+ drivers/acpi/Kconfig            | 3 +++
+ drivers/acpi/Makefile           | 1 +
+ drivers/acpi/arm64/Kconfig      | 3 ---
+ drivers/acpi/arm64/Makefile     | 1 -
+ drivers/acpi/{arm64 => }/iort.c | 0
+ 6 files changed, 13 insertions(+), 4 deletions(-)
+ rename drivers/acpi/{arm64 => }/iort.c (100%)
 
-diff --git a/drivers/iommu/virtio-iommu.c b/drivers/iommu/virtio-iommu.c
-index 3ea9d7682999..8efa368134c0 100644
---- a/drivers/iommu/virtio-iommu.c
-+++ b/drivers/iommu/virtio-iommu.c
-@@ -966,6 +966,48 @@ static struct iommu_ops viommu_ops = {
- 	.of_xlate		= viommu_of_xlate,
- };
+diff --git a/MAINTAINERS b/MAINTAINERS
+index eb19fad370d7..9153d278f67e 100644
+--- a/MAINTAINERS
++++ b/MAINTAINERS
+@@ -377,6 +377,15 @@ L:	platform-driver-x86@vger.kernel.org
+ S:	Maintained
+ F:	drivers/platform/x86/i2c-multi-instantiate.c
  
-+static int viommu_set_fwnode(struct viommu_dev *viommu)
-+{
-+	/*
-+	 * viommu->dev is the virtio device, its parent is the associated
-+	 * transport device.
-+	 */
-+	struct device *dev = viommu->dev->parent;
++ACPI IORT DRIVER
++M:	Lorenzo Pieralisi <lorenzo.pieralisi@arm.com>
++M:	Hanjun Guo <guohanjun@huawei.com>
++M:	Sudeep Holla <sudeep.holla@arm.com>
++L:	linux-acpi@vger.kernel.org
++L:	linux-arm-kernel@lists.infradead.org (moderated for non-subscribers)
++S:	Maintained
++F:	drivers/acpi/iort.c
 +
-+	/*
-+	 * With device tree a fwnode is always present. With ACPI, on some
-+	 * platforms a PCI device has a DSDT node describing the slot. On other
-+	 * platforms, no fwnode is created and we have to do it ourselves.
-+	 */
-+	if (!dev->fwnode) {
-+		struct fwnode_handle *fwnode;
-+
-+		fwnode = fwnode_create_software_node(NULL, NULL);
-+		if (IS_ERR(fwnode))
-+			return PTR_ERR(fwnode);
-+
-+		set_primary_fwnode(dev, fwnode);
-+	}
-+
-+	iommu_device_set_fwnode(&viommu->iommu, dev->fwnode);
-+	return 0;
-+}
-+
-+static void viommu_clear_fwnode(struct viommu_dev *viommu)
-+{
-+	struct device *dev = viommu->dev->parent;
-+
-+	if (!dev->fwnode)
-+		return;
-+
-+	if (is_software_node(dev->fwnode)) {
-+		struct fwnode_handle *fwnode = dev->fwnode;
-+
-+		set_primary_fwnode(dev, NULL);
-+		fwnode_remove_software_node(fwnode);
-+	}
-+}
-+
- static int viommu_init_vqs(struct viommu_dev *viommu)
- {
- 	struct virtio_device *vdev = dev_to_virtio(viommu->dev);
-@@ -1004,7 +1046,6 @@ static int viommu_fill_evtq(struct viommu_dev *viommu)
+ ACPI PMIC DRIVERS
+ M:	"Rafael J. Wysocki" <rjw@rjwysocki.net>
+ M:	Len Brown <lenb@kernel.org>
+diff --git a/drivers/acpi/Kconfig b/drivers/acpi/Kconfig
+index ebe1e9e5fd81..548976c8b2b0 100644
+--- a/drivers/acpi/Kconfig
++++ b/drivers/acpi/Kconfig
+@@ -576,6 +576,9 @@ config TPS68470_PMIC_OPREGION
+ 	  region, which must be available before any of the devices
+ 	  using this, are probed.
  
- static int viommu_probe(struct virtio_device *vdev)
- {
--	struct device *parent_dev = vdev->dev.parent;
- 	struct viommu_dev *viommu = NULL;
- 	struct device *dev = &vdev->dev;
- 	u64 input_start = 0;
-@@ -1084,9 +1125,11 @@ static int viommu_probe(struct virtio_device *vdev)
- 	if (ret)
- 		goto err_free_vqs;
++config ACPI_IORT
++	bool
++
+ endif	# ACPI
  
--	iommu_device_set_ops(&viommu->iommu, &viommu_ops);
--	iommu_device_set_fwnode(&viommu->iommu, parent_dev->fwnode);
-+	ret = viommu_set_fwnode(viommu);
-+	if (ret)
-+		goto err_sysfs_remove;
+ config X86_PM_TIMER
+diff --git a/drivers/acpi/Makefile b/drivers/acpi/Makefile
+index 5d361e4e3405..9d1792165713 100644
+--- a/drivers/acpi/Makefile
++++ b/drivers/acpi/Makefile
+@@ -123,3 +123,4 @@ video-objs			+= acpi_video.o video_detect.o
+ obj-y				+= dptf/
  
-+	iommu_device_set_ops(&viommu->iommu, &viommu_ops);
- 	iommu_device_register(&viommu->iommu);
+ obj-$(CONFIG_ARM64)		+= arm64/
++obj-$(CONFIG_ACPI_IORT) 	+= iort.o
+diff --git a/drivers/acpi/arm64/Kconfig b/drivers/acpi/arm64/Kconfig
+index 6dba187f4f2e..d0902c85d46e 100644
+--- a/drivers/acpi/arm64/Kconfig
++++ b/drivers/acpi/arm64/Kconfig
+@@ -3,8 +3,5 @@
+ # ACPI Configuration for ARM64
+ #
  
- #ifdef CONFIG_PCI
-@@ -1119,8 +1162,10 @@ static int viommu_probe(struct virtio_device *vdev)
- 	return 0;
- 
- err_unregister:
--	iommu_device_sysfs_remove(&viommu->iommu);
- 	iommu_device_unregister(&viommu->iommu);
-+	viommu_clear_fwnode(viommu);
-+err_sysfs_remove:
-+	iommu_device_sysfs_remove(&viommu->iommu);
- err_free_vqs:
- 	vdev->config->del_vqs(vdev);
- 
-@@ -1131,8 +1176,9 @@ static void viommu_remove(struct virtio_device *vdev)
- {
- 	struct viommu_dev *viommu = vdev->priv;
- 
--	iommu_device_sysfs_remove(&viommu->iommu);
- 	iommu_device_unregister(&viommu->iommu);
-+	viommu_clear_fwnode(viommu);
-+	iommu_device_sysfs_remove(&viommu->iommu);
- 
- 	/* Stop all virtqueues */
- 	vdev->config->reset(vdev);
+-config ACPI_IORT
+-	bool
+-
+ config ACPI_GTDT
+ 	bool
+diff --git a/drivers/acpi/arm64/Makefile b/drivers/acpi/arm64/Makefile
+index 6ff50f4ed947..38771a816caf 100644
+--- a/drivers/acpi/arm64/Makefile
++++ b/drivers/acpi/arm64/Makefile
+@@ -1,3 +1,2 @@
+ # SPDX-License-Identifier: GPL-2.0-only
+-obj-$(CONFIG_ACPI_IORT) 	+= iort.o
+ obj-$(CONFIG_ACPI_GTDT) 	+= gtdt.o
+diff --git a/drivers/acpi/arm64/iort.c b/drivers/acpi/iort.c
+similarity index 100%
+rename from drivers/acpi/arm64/iort.c
+rename to drivers/acpi/iort.c
 -- 
 2.24.0
