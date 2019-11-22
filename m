@@ -1,7 +1,8 @@
 From: Julio Faracco <jcfaracco@gmail.com>
-Subject: [PATCH] drivers: net: virtio_net: Implement a dev_watchdog handler
-Date: Thu, 21 Nov 2019 22:34:19 -0300
-Message-ID: <20191122013419.980-1-jcfaracco__36018.5247541935$1574386478$gmane$org@gmail.com>
+Subject: [PATCH net-next v2] drivers: net: virtio_net: Implement a
+ dev_watchdog handler
+Date: Thu, 21 Nov 2019 22:36:36 -0300
+Message-ID: <20191122013636.1041-1-jcfaracco__48156.2787362904$1574386613$gmane$org@gmail.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
@@ -34,6 +35,9 @@ reset all queues.
 Signed-off-by: Julio Faracco <jcfaracco@gmail.com>
 Signed-off-by: Daiane Mendes <dnmendes76@gmail.com>
 Cc: Jason Wang <jasowang@redhat.com>
+---
+v1-v2: Tag `net-next` was included to indentify where patch would be
+applied.
 ---
  drivers/net/virtio_net.c | 95 +++++++++++++++++++++++++++++++++++++++-
  1 file changed, 94 insertions(+), 1 deletion(-)
