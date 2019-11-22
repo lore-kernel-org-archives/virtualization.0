@@ -1,7 +1,7 @@
 From: Jean-Philippe Brucker <jean-philippe@linaro.org>
-Subject: [RFC 01/13] ACPI/IORT: Move IORT to the ACPI folder
-Date: Fri, 22 Nov 2019 11:49:48 +0100
-Message-ID: <20191122105000.800410-2-jean-philippe__25982.4044814863$1574420291$gmane$org@linaro.org>
+Subject: [RFC 05/13] ACPI/IORT: Support VIOT virtio-mmio node
+Date: Fri, 22 Nov 2019 11:49:52 +0100
+Message-ID: <20191122105000.800410-6-jean-philippe__37632.6604093023$1574420316$gmane$org@linaro.org>
 References: <20191122105000.800410-1-jean-philippe@linaro.org>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
@@ -21,91 +21,121 @@ To: linux-acpi@vger.kernel.org, linux-arm-kernel@lists.infradead.org, iommu@list
 Cc: lorenzo.pieralisi@arm.com, mst@redhat.com, gregkh@linuxfoundation.org, joro@8bytes.org, sudeep.holla@arm.com, rjw@rjwysocki.net, eric.auger@redhat.com, sebastien.boeuf@intel.com, jacob.jun.pan@intel.com, guohanjun@huawei.com, bhelgaas@google.com, lenb@kernel.org
 List-Id: virtualization@lists.linuxfoundation.org
 
-IORT can be used (by QEMU) to describe a virtual topology containing an
-architecture-agnostic paravirtualized device.
-
-In order to build IORT for x86 systems, the driver has to be moved outside
-of arm64/. Since there is nothing specific to arm64 in the driver, it
-simply requires moving Makefile and Kconfig entries.
+Add a new type of node to the IORT driver, that describes a virtio-iommu
+device based on the virtio-mmio transport. The node is only available
+when the IORT is a sub-table of the VIOT.
 
 Signed-off-by: Jean-Philippe Brucker <jean-philippe.brucker@arm.com>
 ---
- MAINTAINERS                     | 9 +++++++++
- drivers/acpi/Kconfig            | 3 +++
- drivers/acpi/Makefile           | 1 +
- drivers/acpi/arm64/Kconfig      | 3 ---
- drivers/acpi/arm64/Makefile     | 1 -
- drivers/acpi/{arm64 => }/iort.c | 0
- 6 files changed, 13 insertions(+), 4 deletions(-)
- rename drivers/acpi/{arm64 => }/iort.c (100%)
+ drivers/acpi/iort.c | 66 ++++++++++++++++++++++++++++++++++++++++++---
+ 1 file changed, 62 insertions(+), 4 deletions(-)
 
-diff --git a/MAINTAINERS b/MAINTAINERS
-index eb19fad370d7..9153d278f67e 100644
---- a/MAINTAINERS
-+++ b/MAINTAINERS
-@@ -377,6 +377,15 @@ L:	platform-driver-x86@vger.kernel.org
- S:	Maintained
- F:	drivers/platform/x86/i2c-multi-instantiate.c
+diff --git a/drivers/acpi/iort.c b/drivers/acpi/iort.c
+index 1d43fbc0001f..adc5953fffa5 100644
+--- a/drivers/acpi/iort.c
++++ b/drivers/acpi/iort.c
+@@ -43,7 +43,8 @@ static bool iort_type_matches(u8 type, enum iort_node_category category)
+ 	switch (category) {
+ 	case IORT_IOMMU_TYPE:
+ 		return type == ACPI_IORT_NODE_SMMU ||
+-		       type == ACPI_IORT_NODE_SMMU_V3;
++		       type == ACPI_IORT_NODE_SMMU_V3 ||
++		       type == ACPI_VIOT_IORT_NODE_VIRTIO_MMIO_IOMMU;
+ 	case IORT_MSI_TYPE:
+ 		return type == ACPI_IORT_NODE_ITS_GROUP;
+ 	default:
+@@ -868,8 +869,10 @@ static inline bool iort_iommu_driver_enabled(u8 type)
+ 		return IS_BUILTIN(CONFIG_ARM_SMMU_V3);
+ 	case ACPI_IORT_NODE_SMMU:
+ 		return IS_BUILTIN(CONFIG_ARM_SMMU);
++	case ACPI_VIOT_IORT_NODE_VIRTIO_MMIO_IOMMU:
++		return IS_ENABLED(CONFIG_VIRTIO_IOMMU);
+ 	default:
+-		pr_warn("IORT node type %u does not describe an SMMU\n", type);
++		pr_warn("IORT node type %u does not describe an IOMMU\n", type);
+ 		return false;
+ 	}
+ }
+@@ -1408,6 +1411,46 @@ static int __init arm_smmu_v3_pmcg_add_platdata(struct platform_device *pdev)
+ 	return platform_device_add_data(pdev, &model, sizeof(model));
+ }
  
-+ACPI IORT DRIVER
-+M:	Lorenzo Pieralisi <lorenzo.pieralisi@arm.com>
-+M:	Hanjun Guo <guohanjun@huawei.com>
-+M:	Sudeep Holla <sudeep.holla@arm.com>
-+L:	linux-acpi@vger.kernel.org
-+L:	linux-arm-kernel@lists.infradead.org (moderated for non-subscribers)
-+S:	Maintained
-+F:	drivers/acpi/iort.c
++static int __init viommu_mmio_count_resources(struct acpi_iort_node *node)
++{
++	/* Mem + IRQ */
++	return 2;
++}
 +
- ACPI PMIC DRIVERS
- M:	"Rafael J. Wysocki" <rjw@rjwysocki.net>
- M:	Len Brown <lenb@kernel.org>
-diff --git a/drivers/acpi/Kconfig b/drivers/acpi/Kconfig
-index ebe1e9e5fd81..548976c8b2b0 100644
---- a/drivers/acpi/Kconfig
-+++ b/drivers/acpi/Kconfig
-@@ -576,6 +576,9 @@ config TPS68470_PMIC_OPREGION
- 	  region, which must be available before any of the devices
- 	  using this, are probed.
- 
-+config ACPI_IORT
-+	bool
++static void __init viommu_mmio_init_resources(struct resource *res,
++					   struct acpi_iort_node *node)
++{
++	int hw_irq, trigger;
++	struct acpi_viot_iort_virtio_mmio_iommu *viommu;
 +
- endif	# ACPI
++	viommu = (struct acpi_viot_iort_virtio_mmio_iommu *)node->node_data;
++
++	res[0].start = viommu->base_address;
++	res[0].end = viommu->base_address + viommu->span - 1;
++	res[0].flags = IORESOURCE_MEM;
++
++	hw_irq = IORT_IRQ_MASK(viommu->interrupt);
++	trigger = IORT_IRQ_TRIGGER_MASK(viommu->interrupt);
++	acpi_iort_register_irq(hw_irq, "viommu", trigger, res + 1);
++}
++
++static void __init viommu_mmio_dma_configure(struct device *dev,
++					  struct acpi_iort_node *node)
++{
++	enum dev_dma_attr attr;
++	struct acpi_viot_iort_virtio_mmio_iommu *viommu;
++
++	viommu = (struct acpi_viot_iort_virtio_mmio_iommu *)node->node_data;
++
++	attr = (viommu->flags & ACPI_VIOT_IORT_VIRTIO_MMIO_IOMMU_CACHE_COHERENT) ?
++		DEV_DMA_COHERENT : DEV_DMA_NON_COHERENT;
++
++	dev->dma_mask = &dev->coherent_dma_mask;
++
++	/* Configure DMA for the page table walker */
++	acpi_dma_configure(dev, attr);
++}
++
+ struct iort_dev_config {
+ 	const char *name;
+ 	int (*dev_init)(struct acpi_iort_node *node);
+@@ -1443,6 +1486,14 @@ static const struct iort_dev_config iort_arm_smmu_v3_pmcg_cfg __initconst = {
+ 	.dev_add_platdata = arm_smmu_v3_pmcg_add_platdata,
+ };
  
- config X86_PM_TIMER
-diff --git a/drivers/acpi/Makefile b/drivers/acpi/Makefile
-index 5d361e4e3405..9d1792165713 100644
---- a/drivers/acpi/Makefile
-+++ b/drivers/acpi/Makefile
-@@ -123,3 +123,4 @@ video-objs			+= acpi_video.o video_detect.o
- obj-y				+= dptf/
++static const struct iort_dev_config iort_viommu_mmio_cfg __initconst = {
++	/* Probe with the generic virtio-mmio driver */
++	.name = "virtio-mmio",
++	.dev_dma_configure = viommu_mmio_dma_configure,
++	.dev_count_resources = viommu_mmio_count_resources,
++	.dev_init_resources = viommu_mmio_init_resources,
++};
++
+ static __init const struct iort_dev_config *iort_get_dev_cfg(
+ 			struct acpi_iort_node *node)
+ {
+@@ -1453,9 +1504,16 @@ static __init const struct iort_dev_config *iort_get_dev_cfg(
+ 		return &iort_arm_smmu_cfg;
+ 	case ACPI_IORT_NODE_PMCG:
+ 		return &iort_arm_smmu_v3_pmcg_cfg;
+-	default:
+-		return NULL;
+ 	}
++
++	if (iort_table_source == IORT_SOURCE_VIOT) {
++		switch (node->type) {
++		case ACPI_VIOT_IORT_NODE_VIRTIO_MMIO_IOMMU:
++			return &iort_viommu_mmio_cfg;
++		}
++	}
++
++	return NULL;
+ }
  
- obj-$(CONFIG_ARM64)		+= arm64/
-+obj-$(CONFIG_ACPI_IORT) 	+= iort.o
-diff --git a/drivers/acpi/arm64/Kconfig b/drivers/acpi/arm64/Kconfig
-index 6dba187f4f2e..d0902c85d46e 100644
---- a/drivers/acpi/arm64/Kconfig
-+++ b/drivers/acpi/arm64/Kconfig
-@@ -3,8 +3,5 @@
- # ACPI Configuration for ARM64
- #
- 
--config ACPI_IORT
--	bool
--
- config ACPI_GTDT
- 	bool
-diff --git a/drivers/acpi/arm64/Makefile b/drivers/acpi/arm64/Makefile
-index 6ff50f4ed947..38771a816caf 100644
---- a/drivers/acpi/arm64/Makefile
-+++ b/drivers/acpi/arm64/Makefile
-@@ -1,3 +1,2 @@
- # SPDX-License-Identifier: GPL-2.0-only
--obj-$(CONFIG_ACPI_IORT) 	+= iort.o
- obj-$(CONFIG_ACPI_GTDT) 	+= gtdt.o
-diff --git a/drivers/acpi/arm64/iort.c b/drivers/acpi/iort.c
-similarity index 100%
-rename from drivers/acpi/arm64/iort.c
-rename to drivers/acpi/iort.c
+ /**
 -- 
 2.24.0
