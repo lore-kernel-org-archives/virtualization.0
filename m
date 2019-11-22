@@ -1,15 +1,14 @@
-From: Julio Faracco <jcfaracco@gmail.com>
-Subject: Re: [PATCH net-next v2] drivers: net: virtio_net: Implement a
- dev_watchdog handler
-Date: Fri, 22 Nov 2019 09:59:58 -0300
-Message-ID: <CAENf94KX1XR4_KXz9KLZQ09Ngeaq2qzYY5OE68xJMXMu13SuEg__48450.3536064707$1574427624$gmane$org@mail.gmail.com>
-References: <20191122013636.1041-1-jcfaracco@gmail.com>
- <20191122052506-mutt-send-email-mst@kernel.org>
+From: "Michael S. Tsirkin" <mst@redhat.com>
+Subject: Re: [RFC 00/13] virtio-iommu on non-devicetree platforms
+Date: Fri, 22 Nov 2019 08:00:46 -0500
+Message-ID: <20191122075438-mutt-send-email-mst__41237.0842693903$1574427675$gmane$org@kernel.org>
+References: <20191122105000.800410-1-jean-philippe@linaro.org>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="utf-8"
-Content-Transfer-Encoding: base64
+Content-Type: text/plain; charset="us-ascii"
+Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <20191122052506-mutt-send-email-mst@kernel.org>
+In-Reply-To: <20191122105000.800410-1-jean-philippe@linaro.org>
+Content-Disposition: inline
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
  <mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -19,170 +18,152 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
  <mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Errors-To: virtualization-bounces@lists.linux-foundation.org
 Sender: "Virtualization" <virtualization-bounces@lists.linux-foundation.org>
-To: "Michael S. Tsirkin" <mst@redhat.com>
-Cc: Daiane Mendes <dnmendes76@gmail.com>, netdev@vger.kernel.org, linux-kernel@vger.kernel.org, virtualization@lists.linux-foundation.org, "David S. Miller" <davem@davemloft.net>
+To: Jean-Philippe Brucker <jean-philippe@linaro.org>
+Cc: virtio-dev@lists.oasis-open.org, lorenzo.pieralisi@arm.com, gregkh@linuxfoundation.org, linux-pci@vger.kernel.org, joro@8bytes.org, sudeep.holla@arm.com, rjw@rjwysocki.net, virtualization@lists.linux-foundation.org, linux-acpi@vger.kernel.org, iommu@lists.linux-foundation.org, sebastien.boeuf@intel.com, jacob.jun.pan@intel.com, eric.auger@redhat.com, guohanjun@huawei.com, bhelgaas@google.com, linux-arm-kernel@lists.infradead.org, lenb@kernel.org
 List-Id: virtualization@lists.linuxfoundation.org
 
-SGkgTWljaGFlbCwKCkVtIHNleC4sIDIyIGRlIG5vdi4gZGUgMjAxOSDDoHMgMDc6MzEsIE1pY2hh
-ZWwgUy4gVHNpcmtpbgo8bXN0QHJlZGhhdC5jb20+IGVzY3JldmV1Ogo+Cj4gT24gVGh1LCBOb3Yg
-MjEsIDIwMTkgYXQgMTA6MzY6MzZQTSAtMDMwMCwgSnVsaW8gRmFyYWNjbyB3cm90ZToKPiA+IERy
-aXZlciB2aXJ0aW9fbmV0IGlzIG5vdCBoYW5kbGluZyBlcnJvciBldmVudHMgZm9yIFRYIHByb3Zp
-ZGVkIGJ5Cj4gPiBkZXZfd2F0Y2hkb2cuIFRoaXMgZXZlbnQgaXMgcmVhY2hlZCB3aGVuIHRyYW5z
-bWlzc2lvbiBxdWV1ZSBpcyBoYXZpbmcKPiA+IHByb2JsZW1zIHRvIHRyYW5zbWl0IHBhY2tldHMu
-IFRoaXMgY291bGQgaGFwcGVuIGZvciBhbnkgcmVhc29uLiBUbwo+ID4gZW5hYmxlIGl0LCBkcml2
-ZXIgc2hvdWxkIGhhdmUgLm5kb190eF90aW1lb3V0IGltcGxlbWVudGVkLgo+ID4KPiA+IFRoaXMg
-Y29tbWl0IGJyaW5ncyBiYWNrIHZpcnRuZXRfcmVzZXQgbWV0aG9kIHRvIHJlY292ZXIgVFggcXVl
-dWVzIGZyb20gYQo+ID4gZXJyb3Igc3RhdGUuIFRoYXQgZnVuY3Rpb24gaXMgY2FsbGVkIGJ5IHNj
-aGVkdWxlX3dvcmsgbWV0aG9kIGFuZCBpdCBwdXRzCj4gPiB0aGUgcmVzZXQgZnVuY3Rpb24gaW50
-byB3b3JrIHF1ZXVlLgo+ID4KPiA+IEFzIHRoZSBlcnJvciBjYXVzZSBpcyB1bmtub3duIGF0IHRo
-aXMgbW9tZW50LCBpdCB3b3VsZCBiZSBiZXR0ZXIgdG8KPiA+IHJlc2V0IGFsbCBxdWV1ZXMuCj4g
-Pgo+ID4gU2lnbmVkLW9mZi1ieTogSnVsaW8gRmFyYWNjbyA8amNmYXJhY2NvQGdtYWlsLmNvbT4K
-PiA+IFNpZ25lZC1vZmYtYnk6IERhaWFuZSBNZW5kZXMgPGRubWVuZGVzNzZAZ21haWwuY29tPgo+
-ID4gQ2M6IEphc29uIFdhbmcgPGphc293YW5nQHJlZGhhdC5jb20+Cj4gPiAtLS0KPiA+IHYxLXYy
-OiBUYWcgYG5ldC1uZXh0YCB3YXMgaW5jbHVkZWQgdG8gaW5kZW50aWZ5IHdoZXJlIHBhdGNoIHdv
-dWxkIGJlCj4gPiBhcHBsaWVkLgo+ID4gLS0tCj4gPiAgZHJpdmVycy9uZXQvdmlydGlvX25ldC5j
-IHwgOTUgKysrKysrKysrKysrKysrKysrKysrKysrKysrKysrKysrKysrKysrLQo+ID4gIDEgZmls
-ZSBjaGFuZ2VkLCA5NCBpbnNlcnRpb25zKCspLCAxIGRlbGV0aW9uKC0pCj4gPgo+ID4gZGlmZiAt
-LWdpdCBhL2RyaXZlcnMvbmV0L3ZpcnRpb19uZXQuYyBiL2RyaXZlcnMvbmV0L3ZpcnRpb19uZXQu
-Ywo+ID4gaW5kZXggNGQ3ZDU0MzRjYzVkLi4zMTg5MGQ3N2VhZjIgMTAwNjQ0Cj4gPiAtLS0gYS9k
-cml2ZXJzL25ldC92aXJ0aW9fbmV0LmMKPiA+ICsrKyBiL2RyaXZlcnMvbmV0L3ZpcnRpb19uZXQu
-Ywo+ID4gQEAgLTc1LDYgKzc1LDcgQEAgc3RydWN0IHZpcnRuZXRfc3Ffc3RhdHMgewo+ID4gICAg
-ICAgdTY0IHhkcF90eDsKPiA+ICAgICAgIHU2NCB4ZHBfdHhfZHJvcHM7Cj4gPiAgICAgICB1NjQg
-a2lja3M7Cj4gPiArICAgICB1NjQgdHhfdGltZW91dHM7Cj4gPiAgfTsKPiA+Cj4gPiAgc3RydWN0
-IHZpcnRuZXRfcnFfc3RhdHMgewo+ID4gQEAgLTk4LDYgKzk5LDcgQEAgc3RhdGljIGNvbnN0IHN0
-cnVjdCB2aXJ0bmV0X3N0YXRfZGVzYyB2aXJ0bmV0X3NxX3N0YXRzX2Rlc2NbXSA9IHsKPiA+ICAg
-ICAgIHsgInhkcF90eCIsICAgICAgICAgICAgIFZJUlRORVRfU1FfU1RBVCh4ZHBfdHgpIH0sCj4g
-PiAgICAgICB7ICJ4ZHBfdHhfZHJvcHMiLCAgICAgICBWSVJUTkVUX1NRX1NUQVQoeGRwX3R4X2Ry
-b3BzKSB9LAo+ID4gICAgICAgeyAia2lja3MiLCAgICAgICAgICAgICAgVklSVE5FVF9TUV9TVEFU
-KGtpY2tzKSB9LAo+ID4gKyAgICAgeyAidHhfdGltZW91dHMiLCAgICAgICAgVklSVE5FVF9TUV9T
-VEFUKHR4X3RpbWVvdXRzKSB9LAo+ID4gIH07Cj4gPgo+ID4gIHN0YXRpYyBjb25zdCBzdHJ1Y3Qg
-dmlydG5ldF9zdGF0X2Rlc2MgdmlydG5ldF9ycV9zdGF0c19kZXNjW10gPSB7Cj4gPiBAQCAtMjEx
-LDYgKzIxMyw5IEBAIHN0cnVjdCB2aXJ0bmV0X2luZm8gewo+ID4gICAgICAgLyogV29yayBzdHJ1
-Y3QgZm9yIGNvbmZpZyBzcGFjZSB1cGRhdGVzICovCj4gPiAgICAgICBzdHJ1Y3Qgd29ya19zdHJ1
-Y3QgY29uZmlnX3dvcms7Cj4gPgo+ID4gKyAgICAgLyogV29yayBzdHJ1Y3QgZm9yIHJlc2V0dGlu
-ZyB0aGUgdmlydGlvLW5ldCBkcml2ZXIuICovCj4gPiArICAgICBzdHJ1Y3Qgd29ya19zdHJ1Y3Qg
-cmVzZXRfd29yazsKPiA+ICsKPiA+ICAgICAgIC8qIERvZXMgdGhlIGFmZmluaXR5IGhpbnQgaXMg
-c2V0IGZvciB2aXJ0cXVldWVzPyAqLwo+ID4gICAgICAgYm9vbCBhZmZpbml0eV9oaW50X3NldDsK
-PiA+Cj4gPiBAQCAtMTcyMSw3ICsxNzI2LDcgQEAgc3RhdGljIHZvaWQgdmlydG5ldF9zdGF0cyhz
-dHJ1Y3QgbmV0X2RldmljZSAqZGV2LAo+ID4gICAgICAgaW50IGk7Cj4gPgo+ID4gICAgICAgZm9y
-IChpID0gMDsgaSA8IHZpLT5tYXhfcXVldWVfcGFpcnM7IGkrKykgewo+ID4gLSAgICAgICAgICAg
-ICB1NjQgdHBhY2tldHMsIHRieXRlcywgcnBhY2tldHMsIHJieXRlcywgcmRyb3BzOwo+ID4gKyAg
-ICAgICAgICAgICB1NjQgdHBhY2tldHMsIHRieXRlcywgdGVycm9ycywgcnBhY2tldHMsIHJieXRl
-cywgcmRyb3BzOwo+ID4gICAgICAgICAgICAgICBzdHJ1Y3QgcmVjZWl2ZV9xdWV1ZSAqcnEgPSAm
-dmktPnJxW2ldOwo+ID4gICAgICAgICAgICAgICBzdHJ1Y3Qgc2VuZF9xdWV1ZSAqc3EgPSAmdmkt
-PnNxW2ldOwo+ID4KPiA+IEBAIC0xNzI5LDYgKzE3MzQsNyBAQCBzdGF0aWMgdm9pZCB2aXJ0bmV0
-X3N0YXRzKHN0cnVjdCBuZXRfZGV2aWNlICpkZXYsCj4gPiAgICAgICAgICAgICAgICAgICAgICAg
-c3RhcnQgPSB1NjRfc3RhdHNfZmV0Y2hfYmVnaW5faXJxKCZzcS0+c3RhdHMuc3luY3ApOwo+ID4g
-ICAgICAgICAgICAgICAgICAgICAgIHRwYWNrZXRzID0gc3EtPnN0YXRzLnBhY2tldHM7Cj4gPiAg
-ICAgICAgICAgICAgICAgICAgICAgdGJ5dGVzICAgPSBzcS0+c3RhdHMuYnl0ZXM7Cj4gPiArICAg
-ICAgICAgICAgICAgICAgICAgdGVycm9ycyAgPSBzcS0+c3RhdHMudHhfdGltZW91dHM7Cj4gPiAg
-ICAgICAgICAgICAgIH0gd2hpbGUgKHU2NF9zdGF0c19mZXRjaF9yZXRyeV9pcnEoJnNxLT5zdGF0
-cy5zeW5jcCwgc3RhcnQpKTsKPiA+Cj4gPiAgICAgICAgICAgICAgIGRvIHsKPiA+IEBAIC0xNzQz
-LDYgKzE3NDksNyBAQCBzdGF0aWMgdm9pZCB2aXJ0bmV0X3N0YXRzKHN0cnVjdCBuZXRfZGV2aWNl
-ICpkZXYsCj4gPiAgICAgICAgICAgICAgIHRvdC0+cnhfYnl0ZXMgICArPSByYnl0ZXM7Cj4gPiAg
-ICAgICAgICAgICAgIHRvdC0+dHhfYnl0ZXMgICArPSB0Ynl0ZXM7Cj4gPiAgICAgICAgICAgICAg
-IHRvdC0+cnhfZHJvcHBlZCArPSByZHJvcHM7Cj4gPiArICAgICAgICAgICAgIHRvdC0+dHhfZXJy
-b3JzICArPSB0ZXJyb3JzOwo+ID4gICAgICAgfQo+ID4KPiA+ICAgICAgIHRvdC0+dHhfZHJvcHBl
-ZCA9IGRldi0+c3RhdHMudHhfZHJvcHBlZDsKPiA+IEBAIC0yNTc4LDYgKzI1ODUsMzMgQEAgc3Rh
-dGljIGludCB2aXJ0bmV0X3NldF9mZWF0dXJlcyhzdHJ1Y3QgbmV0X2RldmljZSAqZGV2LAo+ID4g
-ICAgICAgcmV0dXJuIDA7Cj4gPiAgfQo+ID4KPiA+ICtzdGF0aWMgdm9pZCB2aXJ0bmV0X3R4X3Rp
-bWVvdXQoc3RydWN0IG5ldF9kZXZpY2UgKmRldikKPiA+ICt7Cj4gPiArICAgICBzdHJ1Y3Qgdmly
-dG5ldF9pbmZvICp2aSA9IG5ldGRldl9wcml2KGRldik7Cj4gPiArICAgICB1MzIgaTsKPiA+ICsK
-PiA+ICsgICAgIG5ldGRldl93YXJuKGRldiwgIlRYIHRpbWVvdXQgc3RhdHM6XG4iKTsKPiA+ICsg
-ICAgIC8qIGZpbmQgdGhlIHN0b3BwZWQgcXVldWUgdGhlIHNhbWUgd2F5IGRldl93YXRjaGRvZygp
-IGRvZXMgKi8KPiA+ICsgICAgIGZvciAoaSA9IDA7IGkgPCB2aS0+Y3Vycl9xdWV1ZV9wYWlyczsg
-aSsrKSB7Cj4gPiArICAgICAgICAgICAgIHN0cnVjdCBzZW5kX3F1ZXVlICpzcSA9ICZ2aS0+c3Fb
-aV07Cj4gPiArCj4gPiArICAgICAgICAgICAgIGlmICghbmV0aWZfeG1pdF9zdG9wcGVkKG5ldGRl
-dl9nZXRfdHhfcXVldWUoZGV2LCBpKSkpIHsKPiA+ICsgICAgICAgICAgICAgICAgICAgICBuZXRk
-ZXZfd2FybihkZXYsICIgQXZhaWxhYmxlIHNlbmQgcXVldWU6ICVkLCBzcTogJXMsIHZxOiAlZCwg
-bmFtZTogJXNcbiIsCj4gPiArICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgaSwgc3Et
-Pm5hbWUsIHNxLT52cS0+aW5kZXgsIHNxLT52cS0+bmFtZSk7Cj4KPiBXaGF0IGRvZXMgdGhpcyBt
-ZWFuPwo+Cj4gPiArICAgICAgICAgICAgICAgICAgICAgY29udGludWU7Cj4gPiArICAgICAgICAg
-ICAgIH0KPiA+ICsKPiA+ICsgICAgICAgICAgICAgdTY0X3N0YXRzX3VwZGF0ZV9iZWdpbigmc3Et
-PnN0YXRzLnN5bmNwKTsKPiA+ICsgICAgICAgICAgICAgc3EtPnN0YXRzLnR4X3RpbWVvdXRzKys7
-Cj4gPiArICAgICAgICAgICAgIHU2NF9zdGF0c191cGRhdGVfZW5kKCZzcS0+c3RhdHMuc3luY3Ap
-Owo+ID4gKwo+ID4gKyAgICAgICAgICAgICBuZXRkZXZfd2FybihkZXYsICIgVW5hdmFpbGFibGUg
-c2VuZCBxdWV1ZTogJWQsIHNxOiAlcywgdnE6ICVkLCBuYW1lOiAlc1xuIiwKPiA+ICsgICAgICAg
-ICAgICAgICAgICAgICAgICAgaSwgc3EtPm5hbWUsIHNxLT52cS0+aW5kZXgsIHNxLT52cS0+bmFt
-ZSk7Cj4gPiArICAgICB9Cj4KPiBDYW4gd2UgbWFrZSB0aGUgd2FybmluZyBsZXNzIGNyeXB0aWM/
-Cj4gSSB3b25kZXIgd2h5IGRvbid0IHdlIGdldCB0aGUgc3EgZnJvbSB0aW1lb3V0IGRpcmVjdGx5
-Pwo+IFdvdWxkIHNlZW0gY2xlYW5lci4KCkkgbmVlZCB5b3VyIGhlbHAgd2l0aCBkZWJidWdpbmcg
-aW5mb3JtYXRpb24uIFdoYXQga2luZCBvZiBmaWVsZCBzaG91ZAppdCBub3RpZnkgd2hlbiBhIFRY
-IHRpbWVvdXQgb2NjdXJzPwpPciB3ZSBjYW4ga2VlcCB0aGUgZGVmYXVsdCBXQVJOX09OQ0UsIGJ1
-dCB3ZSBuZWVkIGEgbWluaW11bSBtZXRob2QgaW1wbGVtZW50ZWQuCldlIGNhbm5vdCBnZXQgdGlt
-ZW91dCBkaXJlY3RseSBiZWNhdXNlIGl0IG5lZWRzIHRvIGJlIGltcGxlbWVudGVkIHRvCmdldCBp
-dCBkaXJlY3RseS4KTmV0IGNvcmUgc2NoZWR1bGVyIGNoZWNrcyBpZiB0aGlzIGhhbmRsZXIgd2Fz
-IGltcGxlbWVudGVkIHRvIHRocm93IGEKVFggdGltZW91dC4gU2VlOgoKICAgIHZvaWQgX19uZXRk
-ZXZfd2F0Y2hkb2dfdXAoc3RydWN0IG5ldF9kZXZpY2UgKmRldikKICAgIHsKICAgICAgICAgICBp
-ZiAoZGV2LT5uZXRkZXZfb3BzLT5uZG9fdHhfdGltZW91dCkgewogICAgICAgICAgICAgICAgICAg
-aWYgKGRldi0+d2F0Y2hkb2dfdGltZW8gPD0gMCkKICAgICAgICAgICAgICAgICAgICAgICAgZGV2
-LT53YXRjaGRvZ190aW1lbyA9IDUqSFo7CiAgICAgICAgICAgICAgICAgICBpZiAoIW1vZF90aW1l
-cigmZGV2LT53YXRjaGRvZ190aW1lciwKICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAg
-IHJvdW5kX2ppZmZpZXMoamlmZmllcyArIGRldi0+d2F0Y2hkb2dfdGltZW8pKSkKICAgICAgICAg
-ICAgICAgICAgICAgICAgICAgZGV2X2hvbGQoZGV2KTsKICAgICAgICAgICB9CiAgICB9Cgo+Cj4g
-PiArCj4gPiArICAgICBzY2hlZHVsZV93b3JrKCZ2aS0+cmVzZXRfd29yayk7Cj4gPiArfQo+ID4g
-Kwo+ID4gIHN0YXRpYyBjb25zdCBzdHJ1Y3QgbmV0X2RldmljZV9vcHMgdmlydG5ldF9uZXRkZXYg
-PSB7Cj4gPiAgICAgICAubmRvX29wZW4gICAgICAgICAgICA9IHZpcnRuZXRfb3BlbiwKPiA+ICAg
-ICAgIC5uZG9fc3RvcCAgICAgICAgICAgID0gdmlydG5ldF9jbG9zZSwKPiA+IEBAIC0yNTkzLDYg
-KzI2MjcsNyBAQCBzdGF0aWMgY29uc3Qgc3RydWN0IG5ldF9kZXZpY2Vfb3BzIHZpcnRuZXRfbmV0
-ZGV2ID0gewo+ID4gICAgICAgLm5kb19mZWF0dXJlc19jaGVjayAgICAgPSBwYXNzdGhydV9mZWF0
-dXJlc19jaGVjaywKPiA+ICAgICAgIC5uZG9fZ2V0X3BoeXNfcG9ydF9uYW1lID0gdmlydG5ldF9n
-ZXRfcGh5c19wb3J0X25hbWUsCj4gPiAgICAgICAubmRvX3NldF9mZWF0dXJlcyAgICAgICA9IHZp
-cnRuZXRfc2V0X2ZlYXR1cmVzLAo+ID4gKyAgICAgLm5kb190eF90aW1lb3V0ICAgICAgICAgPSB2
-aXJ0bmV0X3R4X3RpbWVvdXQsCj4gPiAgfTsKPiA+Cj4gPiAgc3RhdGljIHZvaWQgdmlydG5ldF9j
-b25maWdfY2hhbmdlZF93b3JrKHN0cnVjdCB3b3JrX3N0cnVjdCAqd29yaykKPiA+IEBAIC0yOTgy
-LDYgKzMwMTcsNjIgQEAgc3RhdGljIGludCB2aXJ0bmV0X3ZhbGlkYXRlKHN0cnVjdCB2aXJ0aW9f
-ZGV2aWNlICp2ZGV2KQo+ID4gICAgICAgcmV0dXJuIDA7Cj4gPiAgfQo+ID4KPiA+ICtzdGF0aWMg
-dm9pZCBfcmVtb3ZlX3ZxX2NvbW1vbihzdHJ1Y3QgdmlydG5ldF9pbmZvICp2aSkKPiA+ICt7Cj4g
-PiArICAgICB2aS0+dmRldi0+Y29uZmlnLT5yZXNldCh2aS0+dmRldik7Cj4gPiArCj4gPiArICAg
-ICAvKiBGcmVlIHVudXNlZCBidWZmZXJzIGluIGJvdGggc2VuZCBhbmQgcmVjdiwgaWYgYW55LiAq
-Lwo+ID4gKyAgICAgZnJlZV91bnVzZWRfYnVmcyh2aSk7Cj4gPiArCj4gPiArICAgICBfZnJlZV9y
-ZWNlaXZlX2J1ZnModmkpOwo+ID4gKwo+ID4gKyAgICAgZnJlZV9yZWNlaXZlX3BhZ2VfZnJhZ3Mo
-dmkpOwo+ID4gKwo+ID4gKyAgICAgdmlydG5ldF9kZWxfdnFzKHZpKTsKPiA+ICt9Cj4gPiArCj4g
-PiArc3RhdGljIGludCBfdmlydG5ldF9yZXNldChzdHJ1Y3QgdmlydG5ldF9pbmZvICp2aSkKPiA+
-ICt7Cj4gPiArICAgICBzdHJ1Y3QgdmlydGlvX2RldmljZSAqdmRldiA9IHZpLT52ZGV2Owo+ID4g
-KyAgICAgaW50IHJldDsKPiA+ICsKPiA+ICsgICAgIHZpcnRpb19jb25maWdfZGlzYWJsZSh2ZGV2
-KTsKPiA+ICsgICAgIHZkZXYtPmZhaWxlZCA9IHZkZXYtPmNvbmZpZy0+Z2V0X3N0YXR1cyh2ZGV2
-KSAmIFZJUlRJT19DT05GSUdfU19GQUlMRUQ7Cj4gPiArCj4gPiArICAgICB2aXJ0bmV0X2ZyZWV6
-ZV9kb3duKHZkZXYpOwo+ID4gKyAgICAgX3JlbW92ZV92cV9jb21tb24odmkpOwo+ID4gKwo+ID4g
-KyAgICAgdmlydGlvX2FkZF9zdGF0dXModmRldiwgVklSVElPX0NPTkZJR19TX0FDS05PV0xFREdF
-KTsKPiA+ICsgICAgIHZpcnRpb19hZGRfc3RhdHVzKHZkZXYsIFZJUlRJT19DT05GSUdfU19EUklW
-RVIpOwo+ID4gKwo+ID4gKyAgICAgcmV0ID0gdmlydGlvX2ZpbmFsaXplX2ZlYXR1cmVzKHZkZXYp
-Owo+ID4gKyAgICAgaWYgKHJldCkKPiA+ICsgICAgICAgICAgICAgZ290byBlcnI7Cj4gPiArCj4g
-PiArICAgICByZXQgPSB2aXJ0bmV0X3Jlc3RvcmVfdXAodmRldik7Cj4gPiArICAgICBpZiAocmV0
-KQo+ID4gKyAgICAgICAgICAgICBnb3RvIGVycjsKPiA+ICsKPiA+ICsgICAgIHJldCA9IF92aXJ0
-bmV0X3NldF9xdWV1ZXModmksIHZpLT5jdXJyX3F1ZXVlX3BhaXJzKTsKPiA+ICsgICAgIGlmIChy
-ZXQpCj4gPiArICAgICAgICAgICAgIGdvdG8gZXJyOwo+ID4gKwo+ID4gKyAgICAgdmlydGlvX2Fk
-ZF9zdGF0dXModmRldiwgVklSVElPX0NPTkZJR19TX0RSSVZFUl9PSyk7Cj4gPiArICAgICB2aXJ0
-aW9fY29uZmlnX2VuYWJsZSh2ZGV2KTsKPgo+Cj4gSXMgdGhpcyBlbm91Z2g/IEUuZy4gYWxsIFJY
-IG1vZGUgcHJvZ3JhbW1pbmcgaGFzIGJlZW4gbG9zdC4KCklNSE8gdmlydGlvIG5ldCBoYXMgYSBu
-aWNlIHBlcmZvcm1hbmNlLiBZb3UgY2FuIHRha2UgZGF5cyB0byBzZWUgYSBUWCB0aW1lb3V0LgpJ
-ZiBpdCBpcyBoYXBwZW5pbmcgZnJlcXVlbnRseSwgdGhlcmUgaXMgc29tZXRoaW5nIHdyb25nIHdp
-dGggZGV2aWNlLgpTbywgYWdhaW4sIElNSE8gSSBkb24ndCB0aGluayBpdCB3b3VsZCBiZSB0b28g
-cHJvYmxlbWF0aWMuCgo+Cj4KPgo+ID4gKyAgICAgcmV0dXJuIDA7Cj4gPiArZXJyOgo+ID4gKyAg
-ICAgdmlydGlvX2FkZF9zdGF0dXModmRldiwgVklSVElPX0NPTkZJR19TX0ZBSUxFRCk7Cj4gPiAr
-ICAgICByZXR1cm4gcmV0Owo+ID4gK30KPiA+ICsKPiA+ICtzdGF0aWMgdm9pZCB2aXJ0bmV0X3Jl
-c2V0KHN0cnVjdCB3b3JrX3N0cnVjdCAqd29yaykKPiA+ICt7Cj4gPiArICAgICBzdHJ1Y3Qgdmly
-dG5ldF9pbmZvICp2aSA9Cj4gPiArICAgICAgICAgICAgIGNvbnRhaW5lcl9vZih3b3JrLCBzdHJ1
-Y3QgdmlydG5ldF9pbmZvLCByZXNldF93b3JrKTsKPiA+ICsKPiA+ICsgICAgIF92aXJ0bmV0X3Jl
-c2V0KHZpKTsKPiA+ICt9Cj4gPiArCj4gPiAgc3RhdGljIGludCB2aXJ0bmV0X3Byb2JlKHN0cnVj
-dCB2aXJ0aW9fZGV2aWNlICp2ZGV2KQo+ID4gIHsKPiA+ICAgICAgIGludCBpLCBlcnIgPSAtRU5P
-TUVNOwo+ID4gQEAgLTMwMTEsNiArMzEwMiw3IEBAIHN0YXRpYyBpbnQgdmlydG5ldF9wcm9iZShz
-dHJ1Y3QgdmlydGlvX2RldmljZSAqdmRldikKPiA+ICAgICAgIGRldi0+bmV0ZGV2X29wcyA9ICZ2
-aXJ0bmV0X25ldGRldjsKPiA+ICAgICAgIGRldi0+ZmVhdHVyZXMgPSBORVRJRl9GX0hJR0hETUE7
-Cj4gPgo+ID4gKyAgICAgZGV2LT53YXRjaGRvZ190aW1lbyA9IDUgKiBIWjsKPiA+ICAgICAgIGRl
-di0+ZXRodG9vbF9vcHMgPSAmdmlydG5ldF9ldGh0b29sX29wczsKPiA+ICAgICAgIFNFVF9ORVRE
-RVZfREVWKGRldiwgJnZkZXYtPmRldik7Cj4gPgo+Cj4gSXMgdGhlcmUgYSB3YXkgdG8gbWFrZSB0
-aGlzIHR1bmVhYmxlIGZyb20gZXRodG9vbD8KClllcyBhbmQgbm8uCllvdSBjYW4gZG8gdGhhdCBv
-YnZpb3VzbHksIGJ1dCBpdCBpcyBub3QgYSBjb21tb24gZmllbGQgdG8gdHVuLiBJZiB5b3UKY29t
-cGFyZSB3aXRoIG90aGVyIGRyaXZlcnMuCgo+Cj4gPiBAQCAtMzA2OCw2ICszMTYwLDcgQEAgc3Rh
-dGljIGludCB2aXJ0bmV0X3Byb2JlKHN0cnVjdCB2aXJ0aW9fZGV2aWNlICp2ZGV2KQo+ID4gICAg
-ICAgdmRldi0+cHJpdiA9IHZpOwo+ID4KPiA+ICAgICAgIElOSVRfV09SSygmdmktPmNvbmZpZ193
-b3JrLCB2aXJ0bmV0X2NvbmZpZ19jaGFuZ2VkX3dvcmspOwo+ID4gKyAgICAgSU5JVF9XT1JLKCZ2
-aS0+cmVzZXRfd29yaywgdmlydG5ldF9yZXNldCk7Cj4gPgo+ID4gICAgICAgLyogSWYgd2UgY2Fu
-IHJlY2VpdmUgQU5ZIEdTTyBwYWNrZXRzLCB3ZSBtdXN0IGFsbG9jYXRlIGxhcmdlIG9uZXMuICov
-Cj4gPiAgICAgICBpZiAodmlydGlvX2hhc19mZWF0dXJlKHZkZXYsIFZJUlRJT19ORVRfRl9HVUVT
-VF9UU080KSB8fAo+ID4gLS0KPiA+IDIuMTcuMQo+Cl9fX19fX19fX19fX19fX19fX19fX19fX19f
-X19fX19fX19fX19fX19fX19fX19fClZpcnR1YWxpemF0aW9uIG1haWxpbmcgbGlzdApWaXJ0dWFs
-aXphdGlvbkBsaXN0cy5saW51eC1mb3VuZGF0aW9uLm9yZwpodHRwczovL2xpc3RzLmxpbnV4Zm91
-bmRhdGlvbi5vcmcvbWFpbG1hbi9saXN0aW5mby92aXJ0dWFsaXphdGlvbg==
+On Fri, Nov 22, 2019 at 11:49:47AM +0100, Jean-Philippe Brucker wrote:
+> I'm seeking feedback on multi-platform support for virtio-iommu. At the
+> moment only devicetree (DT) is supported and we don't have a pleasant
+> solution for other platforms. Once we figure out the topology
+> description, x86 support is trivial.
+> 
+> Since the IOMMU manages memory accesses from other devices, the guest
+> kernel needs to initialize the IOMMU before endpoints start issuing DMA.
+> It's a solved problem: firmware or hypervisor describes through DT or
+> ACPI tables the device dependencies, and probe of endpoints is deferred
+> until the IOMMU is probed. But:
+> 
+> (1) ACPI has one table per vendor (DMAR for Intel, IVRS for AMD and IORT
+>     for Arm). From my point of view IORT is easier to extend, since we
+>     just need to introduce a new node type. There are no dependencies to
+>     Arm in the Linux IORT driver, so it works well with CONFIG_X86.
+> 
+>     However, there are concerns about other OS vendors feeling obligated
+>     to implement this new node, so Arm proposed introducing another ACPI
+>     table, that can wrap any of DMAR, IVRS and IORT to extend it with
+>     new virtual nodes. A draft of this VIOT table specification is
+>     available at http://jpbrucker.net/virtio-iommu/viot/viot-v5.pdf
+> 
+>     I'm afraid this could increase fragmentation as guests would need to
+>     implement or modify their support for all of DMAR, IVRS and IORT. If
+>     we end up doing VIOT, I suggest limiting it to IORT.
+> 
+> (2) In addition, there are some concerns about having virtio depend on
+>     ACPI or DT. Some hypervisors (Firecracker, QEMU microvm, kvmtool x86
+>     [1])
+
+power?
+
+> don't currently implement those methods.
+> 
+>     It was suggested to embed the topology description into the device.
+>     It can work, as demonstrated at the end of this RFC, with the
+>     following limitations:
+> 
+>     - The topology description must be read before any endpoint managed
+>       by the IOMMU is probed, and even before the virtio module is
+>       loaded. This RFC uses a PCI quirk to manually parse the virtio
+>       configuration. It assumes that all endpoints managed by the IOMMU
+>       are under this same PCI host.
+> 
+>     - I don't have a solution for the virtio-mmio transport at the
+>       moment, because I haven't had time to modify a host to test it. I
+>       think it could either use a notifier on the platform bus, or
+>       better, a new 'iommu' command-line argument to the virtio-mmio
+>       driver.
+
+	A notifier seems easier for users. What are the disadvantages of
+	that?
+
+>	So the current prototype doesn't work for firecracker and
+>       microvm, which rely on virtio-mmio.
+> 
+>     - For Arm, if the platform has an ITS, the hypervisor needs IORT or
+>       DT to describe it anyway. More generally, not using either ACPI or
+>       DT might prevent from supporting other features as well. I suspect
+>       the above users will have to implement a standard method sooner or
+>       later.
+> 
+>     - Even when reusing as much existing code as possible, guest support
+>       is still going to be around a few hundred lines since we can't
+>       rely on the normal virtio infrastructure to be loaded at that
+>       point. As you can see below, the diffstat for the incomplete
+>       topology implementation is already bigger than the exhaustive IORT
+>       support, even when jumping through the VIOT hoop.
+> 
+>     So it's a lightweight solution for very specific use-cases, and we
+>     should still support ACPI for the general case. Multi-platform
+>     guests such as Linux will then need to support three topology
+>     descriptions instead of two.
+> 
+> In this RFC I present both solutions, but I'd rather not keep all of it.
+> Please see the individual patches for details:
+> 
+> (1) Patches 1, 3-10 add support for virtio-iommu to the Linux IORT
+>     driver and patches 2, 11 add the VIOT glue.
+> 
+> (2) Patch 12 adds the built-in topology description to the virtio-iommu
+>     specification. Patch 13 is a partial implementation for the Linux
+>     virtio-iommu driver. It only supports PCI, not platform devices.
+> 
+> You can find Linux and QEMU code on my virtio-iommu/devel branches at
+> http://jpbrucker.net/git/linux and http://jpbrucker.net/git/qemu
+> 
+> 
+> I split the diffstat since there are two independent features. The first
+> one is for patches 1-11, and the second one for patch 13.
+> 
+> Jean-Philippe Brucker (11):
+>   ACPI/IORT: Move IORT to the ACPI folder
+>   ACPI: Add VIOT definitions
+>   ACPI/IORT: Allow registration of external tables
+>   ACPI/IORT: Add node categories
+>   ACPI/IORT: Support VIOT virtio-mmio node
+>   ACPI/IORT: Support VIOT virtio-pci node
+>   ACPI/IORT: Defer probe until virtio-iommu-pci has registered a fwnode
+>   ACPI/IORT: Add callback to update a device's fwnode
+>   iommu/virtio: Create fwnode if necessary
+>   iommu/virtio: Update IORT fwnode
+>   ACPI: Add VIOT table
+> 
+>  MAINTAINERS                     |   9 +
+>  drivers/acpi/Kconfig            |   7 +
+>  drivers/acpi/Makefile           |   2 +
+>  drivers/acpi/arm64/Kconfig      |   3 -
+>  drivers/acpi/arm64/Makefile     |   1 -
+>  drivers/acpi/bus.c              |   2 +
+>  drivers/acpi/{arm64 => }/iort.c | 317 ++++++++++++++++++++++++++------
+>  drivers/acpi/tables.c           |   2 +-
+>  drivers/acpi/viot.c             |  44 +++++
+>  drivers/iommu/Kconfig           |   1 +
+>  drivers/iommu/virtio-iommu.c    |  61 +++++-
+>  include/acpi/actbl2.h           |  31 ++++
+>  include/linux/acpi_iort.h       |  14 ++
+>  include/linux/acpi_viot.h       |  20 ++
+>  14 files changed, 448 insertions(+), 66 deletions(-)
+>  rename drivers/acpi/{arm64 => }/iort.c (86%)
+>  create mode 100644 drivers/acpi/viot.c
+>  create mode 100644 include/linux/acpi_viot.h
+> 
+> Jean-Philippe Brucker (1):
+>   iommu/virtio: Add topology description to virtio-iommu config space
+> 
+>  drivers/base/platform.c               |   3 +
+>  drivers/iommu/Kconfig                 |   9 +
+>  drivers/iommu/Makefile                |   1 +
+>  drivers/iommu/virtio-iommu-topology.c | 410 ++++++++++++++++++++++++++
+>  drivers/iommu/virtio-iommu.c          |   3 +
+>  drivers/pci/pci-driver.c              |   3 +
+>  include/linux/virtio_iommu.h          |  18 ++
+>  include/uapi/linux/virtio_iommu.h     |  26 ++
+>  8 files changed, 473 insertions(+)
+>  create mode 100644 drivers/iommu/virtio-iommu-topology.c
+>  create mode 100644 include/linux/virtio_iommu.h
+> 
+> 
+> [1] firecracker: https://github.com/firecracker-microvm/firecracker
+>     microvm: https://github.com/qemu/qemu/blob/master/docs/microvm.rst
+>     kvmtool: https://git.kernel.org/pub/scm/linux/kernel/git/will/kvmtool.git/
+> -- 
+> 2.24.0
