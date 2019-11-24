@@ -1,18 +1,20 @@
 From: Jakub Kicinski <jakub.kicinski@netronome.com>
 Subject: Re: [PATCH net-next v2] drivers: net: virtio_net: Implement a
  dev_watchdog handler
-Date: Sun, 24 Nov 2019 15:03:52 -0800
-Message-ID: <20191124150352.5cab3209__7238.89841917611$1574638311$gmane$org@cakuba.netronome.com>
+Date: Sun, 24 Nov 2019 15:37:17 -0800
+Message-ID: <20191124153717.6edefa85__41332.1323854447$1574638656$gmane$org@cakuba.netronome.com>
 References: <20191122013636.1041-1-jcfaracco@gmail.com>
  <20191122052506-mutt-send-email-mst@kernel.org>
  <CAENf94KX1XR4_KXz9KLZQ09Ngeaq2qzYY5OE68xJMXMu13SuEg@mail.gmail.com>
  <20191124100157-mutt-send-email-mst@kernel.org>
  <20191124164411-mutt-send-email-mst@kernel.org>
+ <20191124150352.5cab3209@cakuba.netronome.com>
+ <20191124182426-mutt-send-email-mst@kernel.org>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <20191124164411-mutt-send-email-mst@kernel.org>
+In-Reply-To: <20191124182426-mutt-send-email-mst@kernel.org>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
  <mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -27,23 +29,12 @@ Cc: Daiane Mendes <dnmendes76@gmail.com>, netdev@vger.kernel.org, linux-kernel@v
  Miller" <davem@davemloft.net>
 List-Id: virtualization@lists.linuxfoundation.org
 
-On Sun, 24 Nov 2019 16:48:35 -0500, Michael S. Tsirkin wrote:
-> diff --git a/arch/m68k/emu/nfeth.c b/arch/m68k/emu/nfeth.c
-> index a4ebd2445eda..8e06e7407854 100644
-> --- a/arch/m68k/emu/nfeth.c
-> +++ b/arch/m68k/emu/nfeth.c
-> @@ -167,7 +167,7 @@ static int nfeth_xmit(struct sk_buff *skb, struct net_device *dev)
->  	return 0;
->  }
->  
-> -static void nfeth_tx_timeout(struct net_device *dev)
-> +static void nfeth_tx_timeout(struct net_device *dev, int txqueue)
+On Sun, 24 Nov 2019 18:29:49 -0500, Michael S. Tsirkin wrote:
+> netdev: pass the stuck queue to the timeout handler
+> 
+> This allows incrementing the correct timeout statistic without any mess.
+> Down the road, devices can learn to reset just the specific queue.
 
-Given the recent vf ndo problems, I wonder if it's worth making the
-queue id unsigned from the start? Since it's coming from the stack
-there should be no range checking required, but also signed doesn't
-help anything so why not?
+FWIW
 
->  {
->  	dev->stats.tx_errors++;
->  	netif_wake_queue(dev);
+Acked-by: Jakub Kicinski <jakub.kicinski@netronome.com>
