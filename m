@@ -1,11 +1,14 @@
 From: Julio Faracco <jcfaracco@gmail.com>
-Subject: [net-next V3 0/2] drivers: net: virtio_net: implement
-Date: Tue, 26 Nov 2019 17:06:26 -0300
-Message-ID: <20191126200628.22251-1-jcfaracco__36942.4451537029$1574798812$gmane$org@gmail.com>
+Subject: [net-next V3 2/2] drivers: net: virtio_net: Implement a dev_watchdog
+ handler
+Date: Tue, 26 Nov 2019 17:06:28 -0300
+Message-ID: <20191126200628.22251-3-jcfaracco__19073.5120371514$1574798819$gmane$org@gmail.com>
+References: <20191126200628.22251-1-jcfaracco@gmail.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
+In-Reply-To: <20191126200628.22251-1-jcfaracco@gmail.com>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
  <mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -19,261 +22,188 @@ To: netdev@vger.kernel.org
 Cc: dnmendes76@gmail.com, virtualization@lists.linux-foundation.org, davem@davemloft.net, mst@redhat.com
 List-Id: virtualization@lists.linuxfoundation.org
 
-This series add two important features. One of them changes the
-.ndo_tx_timeout to include an extra parameter to identify the stuck
-queue. Many drivers are using a nester loop to identify which queue is
-stooped/stucked. This is a redundant work since dev_watchdog is doing
-exactly the same thing. This is so interesting for other drivers to in
-terms of code optimization.
+Driver virtio_net is not handling error events for TX provided by
+dev_watchdog. This event is reached when transmission queue is having
+problems to transmit packets. This could happen for any reason. To
+enable it, driver should have .ndo_tx_timeout implemented.
 
-The second part (second commit) introduces a virtnet_tx_timeout function
-to reset virtio_net driver when a TX timeout happens. The main idea of
-this implementation is related to a QEMU device issue. So, in this case,
-resetting driver would be the best option to cover this scenario instead
-of "soft recovery".
+This commit brings back virtnet_reset method to recover TX queues from a
+error state. That function is called by schedule_work method and it puts
+the reset function into work queue.
 
-Changes from v1:
-    - Missing net-next tag.
-Changes from v2:
-    - Adding the netdev patch produced by Michael (many thanks).
-    - Using this stucture into virtnet and remove some stupid warn
-      messages.
+As the error cause is unknown at this moment, it would be better to
+reset all queues, including RX (because we don't have control of this).
 
-Julio Faracco (2):
-  netdev: pass the stuck queue to the timeout handler
-  drivers: net: virtio_net: Implement a dev_watchdog handler
+Signed-off-by: Julio Faracco <jcfaracco@gmail.com>
+Signed-off-by: Daiane Mendes <dnmendes76@gmail.com>
+Cc: Jason Wang <jasowang@redhat.com>
+---
+ drivers/net/virtio_net.c | 83 +++++++++++++++++++++++++++++++++++++++-
+ 1 file changed, 82 insertions(+), 1 deletion(-)
 
- arch/m68k/emu/nfeth.c                         |  2 +-
- arch/um/drivers/net_kern.c                    |  2 +-
- arch/um/drivers/vector_kern.c                 |  2 +-
- arch/xtensa/platforms/iss/network.c           |  2 +-
- drivers/char/pcmcia/synclink_cs.c             |  2 +-
- drivers/infiniband/ulp/ipoib/ipoib_main.c     |  2 +-
- drivers/message/fusion/mptlan.c               |  2 +-
- drivers/misc/sgi-xp/xpnet.c                   |  2 +-
- drivers/net/appletalk/cops.c                  |  4 +-
- drivers/net/arcnet/arcdevice.h                |  2 +-
- drivers/net/arcnet/arcnet.c                   |  2 +-
- drivers/net/ethernet/3com/3c509.c             |  4 +-
- drivers/net/ethernet/3com/3c515.c             |  4 +-
- drivers/net/ethernet/3com/3c574_cs.c          |  4 +-
- drivers/net/ethernet/3com/3c589_cs.c          |  4 +-
- drivers/net/ethernet/3com/3c59x.c             |  4 +-
- drivers/net/ethernet/3com/typhoon.c           |  2 +-
- drivers/net/ethernet/8390/8390.c              |  4 +-
- drivers/net/ethernet/8390/8390.h              |  4 +-
- drivers/net/ethernet/8390/8390p.c             |  4 +-
- drivers/net/ethernet/8390/axnet_cs.c          |  4 +-
- drivers/net/ethernet/8390/lib8390.c           |  2 +-
- drivers/net/ethernet/adaptec/starfire.c       |  4 +-
- drivers/net/ethernet/agere/et131x.c           |  2 +-
- drivers/net/ethernet/allwinner/sun4i-emac.c   |  2 +-
- drivers/net/ethernet/alteon/acenic.c          |  4 +-
- drivers/net/ethernet/amazon/ena/ena_netdev.c  |  2 +-
- drivers/net/ethernet/amd/7990.c               |  2 +-
- drivers/net/ethernet/amd/7990.h               |  2 +-
- drivers/net/ethernet/amd/a2065.c              |  2 +-
- drivers/net/ethernet/amd/am79c961a.c          |  2 +-
- drivers/net/ethernet/amd/amd8111e.c           |  2 +-
- drivers/net/ethernet/amd/ariadne.c            |  2 +-
- drivers/net/ethernet/amd/atarilance.c         |  4 +-
- drivers/net/ethernet/amd/au1000_eth.c         |  2 +-
- drivers/net/ethernet/amd/declance.c           |  2 +-
- drivers/net/ethernet/amd/lance.c              |  4 +-
- drivers/net/ethernet/amd/ni65.c               |  4 +-
- drivers/net/ethernet/amd/nmclan_cs.c          |  4 +-
- drivers/net/ethernet/amd/pcnet32.c            |  4 +-
- drivers/net/ethernet/amd/sunlance.c           |  2 +-
- drivers/net/ethernet/amd/xgbe/xgbe-drv.c      |  2 +-
- drivers/net/ethernet/apm/xgene-v2/main.c      |  2 +-
- .../net/ethernet/apm/xgene/xgene_enet_main.c  |  2 +-
- drivers/net/ethernet/apple/macmace.c          |  4 +-
- drivers/net/ethernet/atheros/ag71xx.c         |  2 +-
- drivers/net/ethernet/atheros/alx/main.c       |  2 +-
- .../net/ethernet/atheros/atl1c/atl1c_main.c   |  2 +-
- .../net/ethernet/atheros/atl1e/atl1e_main.c   |  2 +-
- drivers/net/ethernet/atheros/atlx/atl2.c      |  2 +-
- drivers/net/ethernet/broadcom/b44.c           |  2 +-
- drivers/net/ethernet/broadcom/bcmsysport.c    |  2 +-
- drivers/net/ethernet/broadcom/bnx2.c          |  2 +-
- .../net/ethernet/broadcom/bnx2x/bnx2x_cmn.c   |  2 +-
- .../net/ethernet/broadcom/bnx2x/bnx2x_cmn.h   |  2 +-
- drivers/net/ethernet/broadcom/bnxt/bnxt.c     |  2 +-
- .../net/ethernet/broadcom/genet/bcmgenet.c    |  2 +-
- drivers/net/ethernet/broadcom/sb1250-mac.c    |  4 +-
- drivers/net/ethernet/broadcom/tg3.c           |  2 +-
- drivers/net/ethernet/calxeda/xgmac.c          |  2 +-
- .../net/ethernet/cavium/liquidio/lio_main.c   |  2 +-
- .../ethernet/cavium/liquidio/lio_vf_main.c    |  2 +-
- .../net/ethernet/cavium/liquidio/lio_vf_rep.c |  5 +-
- .../net/ethernet/cavium/thunder/nicvf_main.c  |  2 +-
- drivers/net/ethernet/cirrus/cs89x0.c          |  2 +-
- drivers/net/ethernet/cisco/enic/enic_main.c   |  2 +-
- drivers/net/ethernet/cortina/gemini.c         |  2 +-
- drivers/net/ethernet/davicom/dm9000.c         |  2 +-
- drivers/net/ethernet/dec/tulip/de2104x.c      |  2 +-
- drivers/net/ethernet/dec/tulip/tulip_core.c   |  4 +-
- drivers/net/ethernet/dec/tulip/winbond-840.c  |  4 +-
- drivers/net/ethernet/dlink/dl2k.c             |  4 +-
- drivers/net/ethernet/dlink/sundance.c         |  4 +-
- drivers/net/ethernet/emulex/benet/be_main.c   |  2 +-
- drivers/net/ethernet/ethoc.c                  |  2 +-
- drivers/net/ethernet/faraday/ftgmac100.c      |  3 +-
- drivers/net/ethernet/fealnx.c                 |  4 +-
- drivers/net/ethernet/freescale/fec_main.c     |  2 +-
- drivers/net/ethernet/freescale/fec_mpc52xx.c  |  2 +-
- .../ethernet/freescale/fs_enet/fs_enet-main.c |  2 +-
- drivers/net/ethernet/freescale/gianfar.c      |  2 +-
- drivers/net/ethernet/freescale/ucc_geth.c     |  2 +-
- drivers/net/ethernet/fujitsu/fmvj18x_cs.c     |  4 +-
- drivers/net/ethernet/google/gve/gve_main.c    |  2 +-
- drivers/net/ethernet/hisilicon/hip04_eth.c    |  2 +-
- drivers/net/ethernet/hisilicon/hix5hd2_gmac.c |  2 +-
- drivers/net/ethernet/hisilicon/hns/hns_enet.c |  2 +-
- .../net/ethernet/hisilicon/hns3/hns3_enet.c   |  2 +-
- .../net/ethernet/huawei/hinic/hinic_main.c    |  2 +-
- drivers/net/ethernet/i825xx/82596.c           |  4 +-
- drivers/net/ethernet/i825xx/ether1.c          |  4 +-
- drivers/net/ethernet/i825xx/lib82596.c        |  4 +-
- drivers/net/ethernet/i825xx/sun3_82586.c      |  4 +-
- drivers/net/ethernet/ibm/ehea/ehea_main.c     |  2 +-
- drivers/net/ethernet/ibm/emac/core.c          |  2 +-
- drivers/net/ethernet/ibm/ibmvnic.c            |  2 +-
- drivers/net/ethernet/intel/e100.c             |  2 +-
- drivers/net/ethernet/intel/e1000/e1000_main.c |  4 +-
- drivers/net/ethernet/intel/e1000e/netdev.c    |  2 +-
- .../net/ethernet/intel/fm10k/fm10k_netdev.c   |  2 +-
- drivers/net/ethernet/intel/i40e/i40e_main.c   |  2 +-
- drivers/net/ethernet/intel/iavf/iavf_main.c   |  2 +-
- drivers/net/ethernet/intel/ice/ice_main.c     |  2 +-
- drivers/net/ethernet/intel/igb/igb_main.c     |  4 +-
- drivers/net/ethernet/intel/igbvf/netdev.c     |  2 +-
- drivers/net/ethernet/intel/ixgb/ixgb_main.c   |  4 +-
- .../net/ethernet/intel/ixgbe/ixgbe_debugfs.c  |  4 +-
- drivers/net/ethernet/intel/ixgbe/ixgbe_main.c |  2 +-
- .../net/ethernet/intel/ixgbevf/ixgbevf_main.c |  2 +-
- drivers/net/ethernet/jme.c                    |  2 +-
- drivers/net/ethernet/korina.c                 |  2 +-
- drivers/net/ethernet/lantiq_etop.c            |  2 +-
- drivers/net/ethernet/marvell/mv643xx_eth.c    |  2 +-
- drivers/net/ethernet/marvell/pxa168_eth.c     |  2 +-
- drivers/net/ethernet/marvell/skge.c           |  2 +-
- drivers/net/ethernet/marvell/sky2.c           |  2 +-
- drivers/net/ethernet/mediatek/mtk_eth_soc.c   |  2 +-
- .../net/ethernet/mellanox/mlx4/en_netdev.c    |  2 +-
- .../net/ethernet/mellanox/mlx5/core/en_main.c |  2 +-
- drivers/net/ethernet/micrel/ks8842.c          |  2 +-
- drivers/net/ethernet/micrel/ksz884x.c         |  2 +-
- drivers/net/ethernet/microchip/enc28j60.c     |  2 +-
- drivers/net/ethernet/microchip/encx24j600.c   |  2 +-
- drivers/net/ethernet/natsemi/natsemi.c        |  4 +-
- drivers/net/ethernet/natsemi/ns83820.c        |  2 +-
- drivers/net/ethernet/natsemi/sonic.c          |  2 +-
- drivers/net/ethernet/natsemi/sonic.h          |  2 +-
- drivers/net/ethernet/neterion/s2io.c          |  2 +-
- drivers/net/ethernet/neterion/s2io.h          |  2 +-
- .../net/ethernet/neterion/vxge/vxge-main.c    |  2 +-
- .../ethernet/netronome/nfp/nfp_net_common.c   |  2 +-
- drivers/net/ethernet/nvidia/forcedeth.c       |  2 +-
- .../ethernet/oki-semi/pch_gbe/pch_gbe_main.c  |  2 +-
- drivers/net/ethernet/packetengines/hamachi.c  |  4 +-
- .../net/ethernet/packetengines/yellowfin.c    |  4 +-
- .../net/ethernet/pensando/ionic/ionic_lif.c   |  2 +-
- .../ethernet/qlogic/netxen/netxen_nic_main.c  |  4 +-
- drivers/net/ethernet/qlogic/qla3xxx.c         |  2 +-
- .../net/ethernet/qlogic/qlcnic/qlcnic_main.c  |  4 +-
- drivers/net/ethernet/qualcomm/emac/emac.c     |  2 +-
- drivers/net/ethernet/qualcomm/qca_spi.c       |  2 +-
- drivers/net/ethernet/qualcomm/qca_uart.c      |  3 +-
- drivers/net/ethernet/rdc/r6040.c              |  2 +-
- drivers/net/ethernet/realtek/8139cp.c         |  2 +-
- drivers/net/ethernet/realtek/8139too.c        |  4 +-
- drivers/net/ethernet/realtek/atp.c            |  4 +-
- drivers/net/ethernet/realtek/r8169_main.c     |  2 +-
- drivers/net/ethernet/renesas/ravb_main.c      |  2 +-
- drivers/net/ethernet/renesas/sh_eth.c         |  2 +-
- .../net/ethernet/samsung/sxgbe/sxgbe_main.c   |  2 +-
- drivers/net/ethernet/seeq/ether3.c            |  4 +-
- drivers/net/ethernet/seeq/sgiseeq.c           |  2 +-
- drivers/net/ethernet/sgi/ioc3-eth.c           |  4 +-
- drivers/net/ethernet/sgi/meth.c               |  4 +-
- drivers/net/ethernet/silan/sc92031.c          |  2 +-
- drivers/net/ethernet/sis/sis190.c             |  2 +-
- drivers/net/ethernet/smsc/epic100.c           |  4 +-
- drivers/net/ethernet/smsc/smc911x.c           |  2 +-
- drivers/net/ethernet/smsc/smc9194.c           |  4 +-
- drivers/net/ethernet/smsc/smc91c92_cs.c       |  4 +-
- drivers/net/ethernet/smsc/smc91x.c            |  2 +-
- .../net/ethernet/stmicro/stmmac/stmmac_main.c |  2 +-
- drivers/net/ethernet/sun/cassini.c            |  2 +-
- drivers/net/ethernet/sun/niu.c                |  2 +-
- drivers/net/ethernet/sun/sunbmac.c            |  2 +-
- drivers/net/ethernet/sun/sungem.c             |  2 +-
- drivers/net/ethernet/sun/sunhme.c             |  2 +-
- drivers/net/ethernet/sun/sunqe.c              |  2 +-
- drivers/net/ethernet/sun/sunvnet_common.c     |  2 +-
- drivers/net/ethernet/sun/sunvnet_common.h     |  2 +-
- .../net/ethernet/synopsys/dwc-xlgmac-net.c    |  2 +-
- drivers/net/ethernet/ti/cpmac.c               |  2 +-
- drivers/net/ethernet/ti/cpsw_priv.c           |  2 +-
- drivers/net/ethernet/ti/davinci_emac.c        |  2 +-
- drivers/net/ethernet/ti/netcp_core.c          |  2 +-
- drivers/net/ethernet/ti/tlan.c                |  4 +-
- drivers/net/ethernet/toshiba/ps3_gelic_net.c  |  2 +-
- drivers/net/ethernet/toshiba/ps3_gelic_net.h  |  2 +-
- drivers/net/ethernet/toshiba/spider_net.c     |  2 +-
- drivers/net/ethernet/toshiba/tc35815.c        |  5 +-
- drivers/net/ethernet/via/via-rhine.c          |  4 +-
- drivers/net/ethernet/wiznet/w5100.c           |  2 +-
- drivers/net/ethernet/wiznet/w5300.c           |  2 +-
- drivers/net/ethernet/xilinx/xilinx_emaclite.c |  2 +-
- drivers/net/ethernet/xircom/xirc2ps_cs.c      |  4 +-
- drivers/net/fjes/fjes_main.c                  |  4 +-
- drivers/net/slip/slip.c                       |  2 +-
- drivers/net/usb/catc.c                        |  2 +-
- drivers/net/usb/hso.c                         |  2 +-
- drivers/net/usb/ipheth.c                      |  2 +-
- drivers/net/usb/kaweth.c                      |  2 +-
- drivers/net/usb/lan78xx.c                     |  2 +-
- drivers/net/usb/pegasus.c                     |  2 +-
- drivers/net/usb/r8152.c                       |  2 +-
- drivers/net/usb/rtl8150.c                     |  2 +-
- drivers/net/usb/usbnet.c                      |  2 +-
- drivers/net/virtio_net.c                      | 83 ++++++++++++++++++-
- drivers/net/vmxnet3/vmxnet3_drv.c             |  2 +-
- drivers/net/wan/cosa.c                        |  4 +-
- drivers/net/wan/farsync.c                     |  2 +-
- drivers/net/wan/fsl_ucc_hdlc.c                |  2 +-
- drivers/net/wan/lmc/lmc_main.c                |  4 +-
- drivers/net/wan/x25_asy.c                     |  2 +-
- drivers/net/wireless/intel/ipw2x00/ipw2100.c  |  2 +-
- .../wireless/intersil/hostap/hostap_main.c    |  2 +-
- drivers/net/wireless/intersil/orinoco/main.c  |  2 +-
- .../net/wireless/intersil/orinoco/orinoco.h   |  2 +-
- .../wireless/intersil/prism54/islpci_eth.c    |  2 +-
- .../wireless/intersil/prism54/islpci_eth.h    |  2 +-
- drivers/net/wireless/marvell/mwifiex/main.c   |  2 +-
- drivers/net/wireless/quantenna/qtnfmac/core.c |  3 +-
- drivers/net/wireless/wl3501_cs.c              |  2 +-
- drivers/net/wireless/zydas/zd1201.c           |  2 +-
- drivers/s390/net/qeth_core.h                  |  2 +-
- drivers/s390/net/qeth_core_main.c             |  2 +-
- drivers/staging/ks7010/ks_wlan_net.c          |  4 +-
- drivers/staging/qlge/qlge_main.c              |  2 +-
- drivers/staging/rtl8192e/rtl8192e/rtl_core.c  |  2 +-
- drivers/staging/rtl8192u/r8192U_core.c        |  2 +-
- .../staging/unisys/visornic/visornic_main.c   |  3 +-
- drivers/staging/wlan-ng/p80211netdev.c        |  6 +-
- drivers/tty/n_gsm.c                           |  2 +-
- drivers/tty/synclink.c                        |  2 +-
- drivers/tty/synclink_gt.c                     |  2 +-
- drivers/tty/synclinkmp.c                      |  2 +-
- include/linux/netdevice.h                     |  5 +-
- include/linux/usb/usbnet.h                    |  2 +-
- net/atm/lec.c                                 |  2 +-
- net/bluetooth/bnep/netdev.c                   |  2 +-
- net/sched/sch_generic.c                       |  2 +-
- 230 files changed, 378 insertions(+), 286 deletions(-)
-
+diff --git a/drivers/net/virtio_net.c b/drivers/net/virtio_net.c
+index 4d7d5434cc5d..fbe1dfde3a4b 100644
+--- a/drivers/net/virtio_net.c
++++ b/drivers/net/virtio_net.c
+@@ -75,6 +75,7 @@ struct virtnet_sq_stats {
+ 	u64 xdp_tx;
+ 	u64 xdp_tx_drops;
+ 	u64 kicks;
++	u64 tx_timeouts;
+ };
+ 
+ struct virtnet_rq_stats {
+@@ -98,6 +99,7 @@ static const struct virtnet_stat_desc virtnet_sq_stats_desc[] = {
+ 	{ "xdp_tx",		VIRTNET_SQ_STAT(xdp_tx) },
+ 	{ "xdp_tx_drops",	VIRTNET_SQ_STAT(xdp_tx_drops) },
+ 	{ "kicks",		VIRTNET_SQ_STAT(kicks) },
++	{ "tx_timeouts",        VIRTNET_SQ_STAT(tx_timeouts) },
+ };
+ 
+ static const struct virtnet_stat_desc virtnet_rq_stats_desc[] = {
+@@ -211,6 +213,9 @@ struct virtnet_info {
+ 	/* Work struct for config space updates */
+ 	struct work_struct config_work;
+ 
++	/* Work struct for resetting the virtio-net driver. */
++	struct work_struct reset_work;
++
+ 	/* Does the affinity hint is set for virtqueues? */
+ 	bool affinity_hint_set;
+ 
+@@ -1721,7 +1726,7 @@ static void virtnet_stats(struct net_device *dev,
+ 	int i;
+ 
+ 	for (i = 0; i < vi->max_queue_pairs; i++) {
+-		u64 tpackets, tbytes, rpackets, rbytes, rdrops;
++		u64 tpackets, tbytes, terrors, rpackets, rbytes, rdrops;
+ 		struct receive_queue *rq = &vi->rq[i];
+ 		struct send_queue *sq = &vi->sq[i];
+ 
+@@ -1729,6 +1734,7 @@ static void virtnet_stats(struct net_device *dev,
+ 			start = u64_stats_fetch_begin_irq(&sq->stats.syncp);
+ 			tpackets = sq->stats.packets;
+ 			tbytes   = sq->stats.bytes;
++			terrors  = sq->stats.tx_timeouts;
+ 		} while (u64_stats_fetch_retry_irq(&sq->stats.syncp, start));
+ 
+ 		do {
+@@ -1743,6 +1749,7 @@ static void virtnet_stats(struct net_device *dev,
+ 		tot->rx_bytes   += rbytes;
+ 		tot->tx_bytes   += tbytes;
+ 		tot->rx_dropped += rdrops;
++		tot->tx_errors  += terrors;
+ 	}
+ 
+ 	tot->tx_dropped = dev->stats.tx_dropped;
+@@ -2578,6 +2585,21 @@ static int virtnet_set_features(struct net_device *dev,
+ 	return 0;
+ }
+ 
++static void virtnet_tx_timeout(struct net_device *dev, unsigned int txqueue)
++{
++	struct virtnet_info *vi = netdev_priv(dev);
++	struct send_queue *sq = &vi->sq[txqueue];
++
++	netdev_warn(dev, "TX timeout on queue: %d, sq: %s, vq: %d, name: %s\n",
++		    txqueue, sq->name, sq->vq->index, sq->vq->name);
++
++	u64_stats_update_begin(&sq->stats.syncp);
++	sq->stats.tx_timeouts++;
++	u64_stats_update_end(&sq->stats.syncp);
++
++	schedule_work(&vi->reset_work);
++}
++
+ static const struct net_device_ops virtnet_netdev = {
+ 	.ndo_open            = virtnet_open,
+ 	.ndo_stop   	     = virtnet_close,
+@@ -2593,6 +2615,7 @@ static const struct net_device_ops virtnet_netdev = {
+ 	.ndo_features_check	= passthru_features_check,
+ 	.ndo_get_phys_port_name	= virtnet_get_phys_port_name,
+ 	.ndo_set_features	= virtnet_set_features,
++	.ndo_tx_timeout         = virtnet_tx_timeout,
+ };
+ 
+ static void virtnet_config_changed_work(struct work_struct *work)
+@@ -2982,6 +3005,62 @@ static int virtnet_validate(struct virtio_device *vdev)
+ 	return 0;
+ }
+ 
++static void _remove_vq_common(struct virtnet_info *vi)
++{
++	vi->vdev->config->reset(vi->vdev);
++
++	/* Free unused buffers in both send and recv, if any. */
++	free_unused_bufs(vi);
++
++	_free_receive_bufs(vi);
++
++	free_receive_page_frags(vi);
++
++	virtnet_del_vqs(vi);
++}
++
++static int _virtnet_reset(struct virtnet_info *vi)
++{
++	struct virtio_device *vdev = vi->vdev;
++	int ret;
++
++	virtio_config_disable(vdev);
++	vdev->failed = vdev->config->get_status(vdev) & VIRTIO_CONFIG_S_FAILED;
++
++	virtnet_freeze_down(vdev);
++	_remove_vq_common(vi);
++
++	virtio_add_status(vdev, VIRTIO_CONFIG_S_ACKNOWLEDGE);
++	virtio_add_status(vdev, VIRTIO_CONFIG_S_DRIVER);
++
++	ret = virtio_finalize_features(vdev);
++	if (ret)
++		goto err;
++
++	ret = virtnet_restore_up(vdev);
++	if (ret)
++		goto err;
++
++	ret = _virtnet_set_queues(vi, vi->curr_queue_pairs);
++	if (ret)
++		goto err;
++
++	virtio_add_status(vdev, VIRTIO_CONFIG_S_DRIVER_OK);
++	virtio_config_enable(vdev);
++	return 0;
++err:
++	virtio_add_status(vdev, VIRTIO_CONFIG_S_FAILED);
++	return ret;
++}
++
++static void virtnet_reset(struct work_struct *work)
++{
++	struct virtnet_info *vi =
++		container_of(work, struct virtnet_info, reset_work);
++
++	_virtnet_reset(vi);
++}
++
+ static int virtnet_probe(struct virtio_device *vdev)
+ {
+ 	int i, err = -ENOMEM;
+@@ -3011,6 +3090,7 @@ static int virtnet_probe(struct virtio_device *vdev)
+ 	dev->netdev_ops = &virtnet_netdev;
+ 	dev->features = NETIF_F_HIGHDMA;
+ 
++	dev->watchdog_timeo = 5 * HZ;
+ 	dev->ethtool_ops = &virtnet_ethtool_ops;
+ 	SET_NETDEV_DEV(dev, &vdev->dev);
+ 
+@@ -3068,6 +3148,7 @@ static int virtnet_probe(struct virtio_device *vdev)
+ 	vdev->priv = vi;
+ 
+ 	INIT_WORK(&vi->config_work, virtnet_config_changed_work);
++	INIT_WORK(&vi->reset_work, virtnet_reset);
+ 
+ 	/* If we can receive ANY GSO packets, we must allocate large ones. */
+ 	if (virtio_has_feature(vdev, VIRTIO_NET_F_GUEST_TSO4) ||
 -- 
 2.17.1
