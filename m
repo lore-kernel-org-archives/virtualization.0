@@ -1,7 +1,8 @@
 From: Stefano Garzarella <sgarzare@redhat.com>
-Subject: [RFC PATCH 1/3] vsock: add network namespace support
-Date: Thu, 28 Nov 2019 18:15:17 +0100
-Message-ID: <20191128171519.203979-2-sgarzare__32033.1791228213$1574961349$gmane$org@redhat.com>
+Subject: [RFC PATCH 3/3] vhost/vsock: use netns of process that opens the
+ vhost-vsock device
+Date: Thu, 28 Nov 2019 18:15:19 +0100
+Message-ID: <20191128171519.203979-4-sgarzare__49906.9674102188$1574961358$gmane$org@redhat.com>
 References: <20191128171519.203979-1-sgarzare@redhat.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
@@ -21,231 +22,129 @@ To: netdev@vger.kernel.org
 Cc: linux-hyperv@vger.kernel.org, kvm@vger.kernel.org, "Michael S. Tsirkin" <mst@redhat.com>, Dexuan Cui <decui@microsoft.com>, linux-kernel@vger.kernel.org, virtualization@lists.linux-foundation.org, Stefan Hajnoczi <stefanha@redhat.com>, "David S. Miller" <davem@davemloft.net>, Jorgen Hansen <jhansen@vmware.com>
 List-Id: virtualization@lists.linuxfoundation.org
 
-This patch adds a check of the "net" assigned to a socket during
-the vsock_find_bound_socket() and vsock_find_connected_socket()
-to support network namespace, allowing to share the same address
-(cid, port) across different network namespaces.
+This patch assigns the network namespace of the process that opened
+vhost-vsock device (e.g. VMM) to the packets coming from the guest,
+allowing only host sockets in the same network namespace to
+communicate with the guest.
 
-G2H transports will use the default network namepsace (init_net).
-H2G transports can use different network namespace for different
-VMs.
-
-This patch uses default network namepsace (init_net) in all
-transports.
+This patch also allows to have different VMs, running in different
+network namespace, with the same CID.
 
 Signed-off-by: Stefano Garzarella <sgarzare@redhat.com>
 ---
- include/net/af_vsock.h                  |  6 +++--
- net/vmw_vsock/af_vsock.c                | 31 ++++++++++++++++++-------
- net/vmw_vsock/hyperv_transport.c        |  5 ++--
- net/vmw_vsock/virtio_transport_common.c |  5 ++--
- net/vmw_vsock/vmci_transport.c          |  5 ++--
- 5 files changed, 35 insertions(+), 17 deletions(-)
+ drivers/vhost/vsock.c | 30 +++++++++++++++++++++---------
+ 1 file changed, 21 insertions(+), 9 deletions(-)
 
-diff --git a/include/net/af_vsock.h b/include/net/af_vsock.h
-index b1c717286993..fb7dcf73af5b 100644
---- a/include/net/af_vsock.h
-+++ b/include/net/af_vsock.h
-@@ -193,13 +193,15 @@ void vsock_enqueue_accept(struct sock *listener, struct sock *connected);
- void vsock_insert_connected(struct vsock_sock *vsk);
- void vsock_remove_bound(struct vsock_sock *vsk);
- void vsock_remove_connected(struct vsock_sock *vsk);
--struct sock *vsock_find_bound_socket(struct sockaddr_vm *addr);
-+struct sock *vsock_find_bound_socket(struct sockaddr_vm *addr, struct net *net);
- struct sock *vsock_find_connected_socket(struct sockaddr_vm *src,
--					 struct sockaddr_vm *dst);
-+					 struct sockaddr_vm *dst,
-+					 struct net *net);
- void vsock_remove_sock(struct vsock_sock *vsk);
- void vsock_for_each_connected_socket(void (*fn)(struct sock *sk));
- int vsock_assign_transport(struct vsock_sock *vsk, struct vsock_sock *psk);
- bool vsock_find_cid(unsigned int cid);
-+struct net *vsock_default_net(void);
+diff --git a/drivers/vhost/vsock.c b/drivers/vhost/vsock.c
+index 31b0f3608752..e162b3604302 100644
+--- a/drivers/vhost/vsock.c
++++ b/drivers/vhost/vsock.c
+@@ -40,6 +40,7 @@ static DEFINE_READ_MOSTLY_HASHTABLE(vhost_vsock_hash, 8);
+ struct vhost_vsock {
+ 	struct vhost_dev dev;
+ 	struct vhost_virtqueue vqs[2];
++	struct net *net;
  
- /**** TAP ****/
- 
-diff --git a/net/vmw_vsock/af_vsock.c b/net/vmw_vsock/af_vsock.c
-index 9c5b2a91baad..b485b4a4e3e9 100644
---- a/net/vmw_vsock/af_vsock.c
-+++ b/net/vmw_vsock/af_vsock.c
-@@ -226,15 +226,18 @@ static void __vsock_remove_connected(struct vsock_sock *vsk)
- 	sock_put(&vsk->sk);
- }
- 
--static struct sock *__vsock_find_bound_socket(struct sockaddr_vm *addr)
-+static struct sock *__vsock_find_bound_socket(struct sockaddr_vm *addr,
-+					      struct net *net)
+ 	/* Link to global vhost_vsock_hash, writes use vhost_vsock_mutex */
+ 	struct hlist_node hash;
+@@ -61,7 +62,7 @@ static u32 vhost_transport_get_local_cid(void)
+ /* Callers that dereference the return value must hold vhost_vsock_mutex or the
+  * RCU read lock.
+  */
+-static struct vhost_vsock *vhost_vsock_get(u32 guest_cid)
++static struct vhost_vsock *vhost_vsock_get(u32 guest_cid, struct net *net)
  {
- 	struct vsock_sock *vsk;
+ 	struct vhost_vsock *vsock;
  
- 	list_for_each_entry(vsk, vsock_bound_sockets(addr), bound_table) {
--		if (vsock_addr_equals_addr(addr, &vsk->local_addr))
-+		if (vsock_addr_equals_addr(addr, &vsk->local_addr) &&
-+		    net_eq(net, sock_net(sk_vsock(vsk))))
- 			return sk_vsock(vsk);
+@@ -72,7 +73,7 @@ static struct vhost_vsock *vhost_vsock_get(u32 guest_cid)
+ 		if (other_cid == 0)
+ 			continue;
  
- 		if (addr->svm_port == vsk->local_addr.svm_port &&
-+		    net_eq(net, sock_net(sk_vsock(vsk))) &&
- 		    (vsk->local_addr.svm_cid == VMADDR_CID_ANY ||
- 		     addr->svm_cid == VMADDR_CID_ANY))
- 			return sk_vsock(vsk);
-@@ -244,13 +247,15 @@ static struct sock *__vsock_find_bound_socket(struct sockaddr_vm *addr)
- }
+-		if (other_cid == guest_cid)
++		if (other_cid == guest_cid && net_eq(net, vsock->net))
+ 			return vsock;
  
- static struct sock *__vsock_find_connected_socket(struct sockaddr_vm *src,
--						  struct sockaddr_vm *dst)
-+						  struct sockaddr_vm *dst,
-+						  struct net *net)
- {
- 	struct vsock_sock *vsk;
+ 	}
+@@ -245,7 +246,7 @@ vhost_transport_send_pkt(struct virtio_vsock_pkt *pkt)
+ 	rcu_read_lock();
  
- 	list_for_each_entry(vsk, vsock_connected_sockets(src, dst),
- 			    connected_table) {
- 		if (vsock_addr_equals_addr(src, &vsk->remote_addr) &&
-+		    net_eq(net, sock_net(sk_vsock(vsk))) &&
- 		    dst->svm_port == vsk->local_addr.svm_port) {
- 			return sk_vsock(vsk);
+ 	/* Find the vhost_vsock according to guest context id  */
+-	vsock = vhost_vsock_get(le64_to_cpu(pkt->hdr.dst_cid));
++	vsock = vhost_vsock_get(le64_to_cpu(pkt->hdr.dst_cid), pkt->net);
+ 	if (!vsock) {
+ 		rcu_read_unlock();
+ 		virtio_transport_free_pkt(pkt);
+@@ -277,7 +278,8 @@ vhost_transport_cancel_pkt(struct vsock_sock *vsk)
+ 	rcu_read_lock();
+ 
+ 	/* Find the vhost_vsock according to guest context id  */
+-	vsock = vhost_vsock_get(vsk->remote_addr.svm_cid);
++	vsock = vhost_vsock_get(vsk->remote_addr.svm_cid,
++				sock_net(sk_vsock(vsk)));
+ 	if (!vsock)
+ 		goto out;
+ 
+@@ -474,7 +476,7 @@ static void vhost_vsock_handle_tx_kick(struct vhost_work *work)
+ 			continue;
  		}
-@@ -295,12 +300,12 @@ void vsock_remove_connected(struct vsock_sock *vsk)
- }
- EXPORT_SYMBOL_GPL(vsock_remove_connected);
  
--struct sock *vsock_find_bound_socket(struct sockaddr_vm *addr)
-+struct sock *vsock_find_bound_socket(struct sockaddr_vm *addr, struct net *net)
- {
- 	struct sock *sk;
+-		pkt->net = vsock_default_net();
++		pkt->net = vsock->net;
+ 		len = pkt->len;
  
- 	spin_lock_bh(&vsock_table_lock);
--	sk = __vsock_find_bound_socket(addr);
-+	sk = __vsock_find_bound_socket(addr, net);
- 	if (sk)
- 		sock_hold(sk);
- 
-@@ -311,12 +316,13 @@ struct sock *vsock_find_bound_socket(struct sockaddr_vm *addr)
- EXPORT_SYMBOL_GPL(vsock_find_bound_socket);
- 
- struct sock *vsock_find_connected_socket(struct sockaddr_vm *src,
--					 struct sockaddr_vm *dst)
-+					 struct sockaddr_vm *dst,
-+					 struct net *net)
- {
- 	struct sock *sk;
- 
- 	spin_lock_bh(&vsock_table_lock);
--	sk = __vsock_find_connected_socket(src, dst);
-+	sk = __vsock_find_connected_socket(src, dst, net);
- 	if (sk)
- 		sock_hold(sk);
- 
-@@ -488,6 +494,12 @@ bool vsock_find_cid(unsigned int cid)
- }
- EXPORT_SYMBOL_GPL(vsock_find_cid);
- 
-+struct net *vsock_default_net(void)
-+{
-+	return &init_net;
-+}
-+EXPORT_SYMBOL_GPL(vsock_default_net);
+ 		/* Deliver to monitoring devices all received packets */
+@@ -606,7 +608,14 @@ static int vhost_vsock_dev_open(struct inode *inode, struct file *file)
+ 	vqs = kmalloc_array(ARRAY_SIZE(vsock->vqs), sizeof(*vqs), GFP_KERNEL);
+ 	if (!vqs) {
+ 		ret = -ENOMEM;
+-		goto out;
++		goto out_vsock;
++	}
 +
- static struct sock *vsock_dequeue_accept(struct sock *listener)
- {
- 	struct vsock_sock *vlistener;
-@@ -586,6 +598,7 @@ static int __vsock_bind_stream(struct vsock_sock *vsk,
- {
- 	static u32 port;
- 	struct sockaddr_vm new_addr;
-+	struct net *net = sock_net(sk_vsock(vsk));
- 
- 	if (!port)
- 		port = LAST_RESERVED_PORT + 1 +
-@@ -603,7 +616,7 @@ static int __vsock_bind_stream(struct vsock_sock *vsk,
- 
- 			new_addr.svm_port = port++;
- 
--			if (!__vsock_find_bound_socket(&new_addr)) {
-+			if (!__vsock_find_bound_socket(&new_addr, net)) {
- 				found = true;
- 				break;
- 			}
-@@ -620,7 +633,7 @@ static int __vsock_bind_stream(struct vsock_sock *vsk,
- 			return -EACCES;
- 		}
- 
--		if (__vsock_find_bound_socket(&new_addr))
-+		if (__vsock_find_bound_socket(&new_addr, net))
- 			return -EADDRINUSE;
++	/* Derive the network namespace from the pid opening the device */
++	vsock->net = get_net_ns_by_pid(current->pid);
++	if (IS_ERR(vsock->net)) {
++		ret = PTR_ERR(vsock->net);
++		goto out_vqs;
  	}
  
-diff --git a/net/vmw_vsock/hyperv_transport.c b/net/vmw_vsock/hyperv_transport.c
-index 3c7d07a99fc5..fc48a861a0bc 100644
---- a/net/vmw_vsock/hyperv_transport.c
-+++ b/net/vmw_vsock/hyperv_transport.c
-@@ -201,7 +201,8 @@ static void hvs_remote_addr_init(struct sockaddr_vm *remote,
+ 	vsock->guest_cid = 0; /* no CID assigned yet */
+@@ -628,7 +637,9 @@ static int vhost_vsock_dev_open(struct inode *inode, struct file *file)
+ 	vhost_work_init(&vsock->send_pkt_work, vhost_transport_send_pkt_work);
+ 	return 0;
  
- 		remote->svm_port = host_ephemeral_port++;
- 
--		sk = vsock_find_connected_socket(remote, local);
-+		sk = vsock_find_connected_socket(remote, local,
-+						 vsock_default_net());
- 		if (!sk) {
- 			/* Found an available ephemeral port */
- 			return;
-@@ -350,7 +351,7 @@ static void hvs_open_connection(struct vmbus_channel *chan)
- 		return;
- 
- 	hvs_addr_init(&addr, conn_from_host ? if_type : if_instance);
--	sk = vsock_find_bound_socket(&addr);
-+	sk = vsock_find_bound_socket(&addr, vsock_default_net());
- 	if (!sk)
- 		return;
- 
-diff --git a/net/vmw_vsock/virtio_transport_common.c b/net/vmw_vsock/virtio_transport_common.c
-index 0e20b0f6eb65..10a8cbe39f61 100644
---- a/net/vmw_vsock/virtio_transport_common.c
-+++ b/net/vmw_vsock/virtio_transport_common.c
-@@ -1075,6 +1075,7 @@ virtio_transport_recv_listen(struct sock *sk, struct virtio_vsock_pkt *pkt,
- void virtio_transport_recv_pkt(struct virtio_transport *t,
- 			       struct virtio_vsock_pkt *pkt)
- {
-+	struct net *net = vsock_default_net();
- 	struct sockaddr_vm src, dst;
- 	struct vsock_sock *vsk;
- 	struct sock *sk;
-@@ -1102,9 +1103,9 @@ void virtio_transport_recv_pkt(struct virtio_transport *t,
- 	/* The socket must be in connected or bound table
- 	 * otherwise send reset back
+-out:
++out_vqs:
++	kfree(vqs);
++out_vsock:
+ 	vhost_vsock_free(vsock);
+ 	return ret;
+ }
+@@ -653,7 +664,7 @@ static void vhost_vsock_reset_orphans(struct sock *sk)
  	 */
--	sk = vsock_find_connected_socket(&src, &dst);
-+	sk = vsock_find_connected_socket(&src, &dst, net);
- 	if (!sk) {
--		sk = vsock_find_bound_socket(&dst);
-+		sk = vsock_find_bound_socket(&dst, net);
- 		if (!sk) {
- 			(void)virtio_transport_reset_no_sock(t, pkt);
- 			goto free_pkt;
-diff --git a/net/vmw_vsock/vmci_transport.c b/net/vmw_vsock/vmci_transport.c
-index 4b8b1150a738..3ad15d51b30b 100644
---- a/net/vmw_vsock/vmci_transport.c
-+++ b/net/vmw_vsock/vmci_transport.c
-@@ -669,6 +669,7 @@ static bool vmci_transport_stream_allow(u32 cid, u32 port)
  
- static int vmci_transport_recv_stream_cb(void *data, struct vmci_datagram *dg)
- {
-+	struct net *net = vsock_default_net();
- 	struct sock *sk;
- 	struct sockaddr_vm dst;
- 	struct sockaddr_vm src;
-@@ -702,9 +703,9 @@ static int vmci_transport_recv_stream_cb(void *data, struct vmci_datagram *dg)
- 	vsock_addr_init(&src, pkt->dg.src.context, pkt->src_port);
- 	vsock_addr_init(&dst, pkt->dg.dst.context, pkt->dst_port);
+ 	/* If the peer is still valid, no need to reset connection */
+-	if (vhost_vsock_get(vsk->remote_addr.svm_cid))
++	if (vhost_vsock_get(vsk->remote_addr.svm_cid, sock_net(sk)))
+ 		return;
  
--	sk = vsock_find_connected_socket(&src, &dst);
-+	sk = vsock_find_connected_socket(&src, &dst, net);
- 	if (!sk) {
--		sk = vsock_find_bound_socket(&dst);
-+		sk = vsock_find_bound_socket(&dst, net);
- 		if (!sk) {
- 			/* We could not find a socket for this specified
- 			 * address.  If this packet is a RST, we just drop it.
+ 	/* If the close timeout is pending, let it expire.  This avoids races
+@@ -701,6 +712,7 @@ static int vhost_vsock_dev_release(struct inode *inode, struct file *file)
+ 	spin_unlock_bh(&vsock->send_pkt_list_lock);
+ 
+ 	vhost_dev_cleanup(&vsock->dev);
++	put_net(vsock->net);
+ 	kfree(vsock->dev.vqs);
+ 	vhost_vsock_free(vsock);
+ 	return 0;
+@@ -727,7 +739,7 @@ static int vhost_vsock_set_cid(struct vhost_vsock *vsock, u64 guest_cid)
+ 
+ 	/* Refuse if CID is already in use */
+ 	mutex_lock(&vhost_vsock_mutex);
+-	other = vhost_vsock_get(guest_cid);
++	other = vhost_vsock_get(guest_cid, vsock->net);
+ 	if (other && other != vsock) {
+ 		mutex_unlock(&vhost_vsock_mutex);
+ 		return -EADDRINUSE;
 -- 
 2.23.0
