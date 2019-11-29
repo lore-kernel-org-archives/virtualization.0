@@ -1,14 +1,18 @@
-From: Gerd Hoffmann <kraxel@redhat.com>
-Subject: Re: [PATCH] drm/qxl: Complete exception handling in qxl_device_init()
-Date: Fri, 29 Nov 2019 13:24:54 +0100
-Message-ID: <20191129122454.2xoi43kaowmqppm5@sirius.home.kraxel.org>
-References: <5e5ef9c4-4d85-3c93-cf28-42cfcb5b0649@web.de>
+From: Halil Pasic <pasic@linux.ibm.com>
+Subject: Re: [PATCH 1/1] virtio_ring: fix return code on DMA mapping fails
+Date: Fri, 29 Nov 2019 15:09:41 +0100
+Message-ID: <20191129150941.34cab07a.pasic__13111.3877099537$1575036610$gmane$org@linux.ibm.com>
+References: <20191114124646.74790-1-pasic@linux.ibm.com>
+ <20191119121022.03aed69a.pasic@linux.ibm.com>
+ <20191119080420-mutt-send-email-mst@kernel.org>
+ <20191122140827.0ead345c.pasic@linux.ibm.com>
+ <1ec7c229-6c4f-9351-efda-ed2df20f95f6@amd.com>
+ <20191126184527.GA10481@lst.de>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="utf-8"
 Content-Transfer-Encoding: base64
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <5e5ef9c4-4d85-3c93-cf28-42cfcb5b0649@web.de>
-Content-Disposition: inline
+In-Reply-To: <20191126184527.GA10481@lst.de>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
  <mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -18,26 +22,42 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
  <mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Errors-To: virtualization-bounces@lists.linux-foundation.org
 Sender: "Virtualization" <virtualization-bounces@lists.linux-foundation.org>
-To: Markus Elfring <Markus.Elfring@web.de>
-Cc: David Airlie <airlied@linux.ie>, Kangjie Lu <kjlu@umn.edu>, Stephen McCamant <smccaman@umn.edu>, kernel-janitors@vger.kernel.org, LKML <linux-kernel@vger.kernel.org>, dri-devel@lists.freedesktop.org, virtualization@lists.linux-foundation.org, Navid Emamdoost <emamd001@umn.edu>, Daniel Vetter <daniel@ffwll.ch>, Dave Airlie <airlied@redhat.com>, spice-devel@lists.freedesktop.org, Anton Vasilyev <vasilyev@ispras.ru>
+To: Christoph Hellwig <hch@lst.de>
+Cc: Tom Lendacky <thomas.lendacky@amd.com>, "Kalra,
+ Ashish" <Ashish.Kalra@amd.com>, Brijesh Singh <brijesh.singh@amd.com>, Janosch Frank <frankja@linux.ibm.com>, "Michael S. Tsirkin" <mst@redhat.com>, linux-s390@vger.kernel.org, Cornelia Huck <cohuck@redhat.com>, Ram Pai <linuxram@us.ibm.com>, linux-kernel@vger.kernel.org, virtualization@lists.linux-foundation.org, Christian Borntraeger <borntraeger@de.ibm.com>, Andy Lutomirski <luto@kernel.org>, Michael Mueller <mimu@linux.ibm.com>
 List-Id: virtualization@lists.linuxfoundation.org
 
-T24gVGh1LCBOb3YgMDcsIDIwMTkgYXQgMDY6MTg6MTRQTSArMDEwMCwgTWFya3VzIEVsZnJpbmcg
-d3JvdGU6Cj4gRnJvbTogTWFya3VzIEVsZnJpbmcgPGVsZnJpbmdAdXNlcnMuc291cmNlZm9yZ2Uu
-bmV0Pgo+IERhdGU6IFRodSwgNyBOb3YgMjAxOSAxODowNTowOCArMDEwMAo+IAo+IEEgY29jY2lj
-aGVjayBydW4gcHJvdmlkZWQgaW5mb3JtYXRpb24gbGlrZSB0aGUgZm9sbG93aW5nLgo+IAo+IGRy
-aXZlcnMvZ3B1L2RybS9xeGwvcXhsX2ttcy5jOjI5NToxLTc6IEVSUk9SOiBtaXNzaW5nIGlvdW5t
-YXA7Cj4gaW9yZW1hcCBvbiBsaW5lIDE3OCBhbmQgZXhlY3V0aW9uIHZpYSBjb25kaXRpb25hbCBv
-biBsaW5lIDE4NQo+IAo+IEdlbmVyYXRlZCBieTogc2NyaXB0cy9jb2NjaW5lbGxlL2ZyZWUvaW91
-bm1hcC5jb2NjaQo+IAo+IEEganVtcCB0YXJnZXQgd2FzIHNwZWNpZmllZCBpbiBhbiBpZiBicmFu
-Y2guIFRoZSBjb3JyZXNwb25kaW5nIGZ1bmN0aW9uCj4gY2FsbCBkaWQgbm90IHJlbGVhc2UgdGhl
-IGRlc2lyZWQgc3lzdGVtIHJlc291cmNlIHRoZW4uCj4gVGh1cyB1c2UgdGhlIGxhYmVsIOKAnHJv
-bV91bm1hcOKAnSBpbnN0ZWFkIHRvIGZpeCB0aGUgZXhjZXB0aW9uIGhhbmRsaW5nCj4gZm9yIHRo
-aXMgZnVuY3Rpb24gaW1wbGVtZW50YXRpb24uCj4gCj4gRml4ZXM6IDUwNDMzNDhhNDk2OWFlMTY2
-MWMwMDhlZmU5MjlhYmQwZDc2ZTM3OTIgKCJkcm06IHF4bDogRml4IGVycm9yIGhhbmRsaW5nIGF0
-IHF4bF9kZXZpY2VfaW5pdCIpCj4gU2lnbmVkLW9mZi1ieTogTWFya3VzIEVsZnJpbmcgPGVsZnJp
-bmdAdXNlcnMuc291cmNlZm9yZ2UubmV0PgoKUHVzaGVkIHRvIGRybS1taXNjLW5leHQuCgp0aGFu
-a3MsCiAgR2VyZAoKX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19f
-X18KVmlydHVhbGl6YXRpb24gbWFpbGluZyBsaXN0ClZpcnR1YWxpemF0aW9uQGxpc3RzLmxpbnV4
-LWZvdW5kYXRpb24ub3JnCmh0dHBzOi8vbGlzdHMubGludXhmb3VuZGF0aW9uLm9yZy9tYWlsbWFu
-L2xpc3RpbmZvL3ZpcnR1YWxpemF0aW9u
+T24gVHVlLCAyNiBOb3YgMjAxOSAxOTo0NToyNyArMDEwMApDaHJpc3RvcGggSGVsbHdpZyA8aGNo
+QGxzdC5kZT4gd3JvdGU6Cgo+IE9uIFNhdCwgTm92IDIzLCAyMDE5IGF0IDA5OjM5OjA4QU0gLTA2
+MDAsIFRvbSBMZW5kYWNreSB3cm90ZToKPiA+IElkZWFsbHksIGhhdmluZyBhIHBvb2wgb2Ygc2hh
+cmVkIHBhZ2VzIGZvciBETUEsIG91dHNpZGUgb2Ygc3RhbmRhcmQKPiA+IFNXSU9UTEIsIG1pZ2h0
+IGJlIGEgZ29vZCB0aGluZy4gIE9uIHg4NiwgU1dJT1RMQiByZWFsbHkgc2VlbXMgZ2VhcmVkCj4g
+PiB0b3dhcmRzIGRldmljZXMgdGhhdCBkb24ndCBzdXBwb3J0IDY0LWJpdCBETUEuIElmIGEgZGV2
+aWNlIHN1cHBvcnRzIDY0LWJpdAo+ID4gRE1BIHRoZW4gaXQgY2FuIHVzZSBzaGFyZWQgcGFnZXMg
+dGhhdCByZXNpZGUgYW55d2hlcmUgdG8gcGVyZm9ybSB0aGUgRE1BCj4gPiBhbmQgYm91bmNlIGJ1
+ZmZlcmluZy4gSSB3b25kZXIgaWYgdGhlIFNXSU9UTEIgc3VwcG9ydCBjYW4gYmUgZW5oYW5jZWQg
+dG8KPiA+IHN1cHBvcnQgc29tZXRoaW5nIGxpa2UgdGhpcywgdXNpbmcgdG9kYXkncyBsb3cgU1dJ
+T1RMQiBidWZmZXJzIGlmIHRoZSBETUEKPiA+IG1hc2sgbmVjZXNzaXRhdGVzIGl0LCBvdGhlcndp
+c2UgdXNpbmcgYSBkeW5hbWljYWxseSBzaXplZCBwb29sIG9mIHNoYXJlZAo+ID4gcGFnZXMgdGhh
+dCBjYW4gbGl2ZSBhbnl3aGVyZS4KPiAKPiBJIHRoaW5rIHRoYXQgY2FuIGJlIGRvbmUgcmVsYXRp
+dmVseSBlYXNpbHkuICBJJ3ZlIGFjdHVhbGx5IGJlZW4gdGhpbmtpbmcKPiBvZiBtdWx0aXBsZSBw
+b29sIHN1cHBvcnQgZm9yIGEgd2jRlmxlIHRvIHJlcGxhY2UgdGhlIGJvdW5jZSBidWZmZXJpbmcK
+PiBpbiB0aGUgYmxvY2sgbGF5ZXIgZm9yIElTQSBkZXZpY2VzICgyNC1iaXQgYWRkcmVzc2luZyku
+Cj4gCj4gSSd2ZSBhbHNvIGJlZW4gbG9va2luZyBpbnRvIGEgZG1hX2FsbG9jX3BhZ2VzIGludGVy
+ZmFjZSB0byBoZWxwIHBlb3BsZQo+IGp1c3QgYWxsb2NhdGUgcGFnZXMgdGhhdCBhcmUgYWx3YXlz
+IGRtYSBhZGRyZXNzYWJsZSwgYnV0IGRvbid0IG5lZWQKPiBhIGNvaGVyZW50IGFsbG9jYXRpb24u
+ICBNeSBsYXN0IHZlcnNpb24gSSBzaGFyZWQgaXMgaGVyZToKPiAKPiBodHRwOi8vZ2l0LmluZnJh
+ZGVhZC5vcmcvdXNlcnMvaGNoL21pc2MuZ2l0L3Nob3J0bG9nL3JlZnMvaGVhZHMvZG1hX2FsbG9j
+X3BhZ2VzCj4gCj4gQnV0IGl0IHR1cm5zIG91dCB0aGlzIHN0aWxsIGRvZXNuJ3Qgd29yayB3aXRo
+IFNFViBhcyB3ZSdsbCBhbHdheXMKPiBib3VuY2UuICBBbmQgSSd2ZSBiZWVuIGtpbmRhIGxvc3Qg
+b24gZmlndXJpbmcgb3V0IGEgd2F5IGhvdyB0bwo+IGFsbG9jYXRlIHVuZW5jcnlwdGVkIHBhZ2Vz
+IHRoYXQgd2Ugd2UgY2FuIGZlZWQgaW50byB0aGUgbm9ybWFsCj4gZG1hX21hcF9wYWdlICYgY28g
+aW50ZXJmYWNlcyBkdWUgdG8gdGhlIG1hZ2ljIGVuY3J5cHRpb24gYml0IGluCj4gdGhlIGFkZHJl
+c3MuICBJIGd1ZXNzIHdlIGNvdWxkIGhhdmUgYSBmYWxsYmFjayBwYXRoIGluIHRoZSBtYXBwaW5n
+Cj4gcGF0aCBhbmQganVzdCB1bmNvbmRpdGlvbmFsbHkgY2xlYXIgdGhhdCBiaXQgaW4gdGhlIGRt
+YV90b19waHlzCj4gcGF0aC4KClRoYW5rcyBDaHJpc3RvcGghIFRoYW5rcyBUb20hIEkgd2lsbCBk
+byBzb21lIGxvb2tpbmcgYW5kIHRoaW5raW5nIGFuZApyZXBvcnQgYmFjay4KClJlZ2FyZHMsCkhh
+bGlsCgpfX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fXwpWaXJ0
+dWFsaXphdGlvbiBtYWlsaW5nIGxpc3QKVmlydHVhbGl6YXRpb25AbGlzdHMubGludXgtZm91bmRh
+dGlvbi5vcmcKaHR0cHM6Ly9saXN0cy5saW51eGZvdW5kYXRpb24ub3JnL21haWxtYW4vbGlzdGlu
+Zm8vdmlydHVhbGl6YXRpb24=
