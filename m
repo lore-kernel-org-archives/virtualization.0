@@ -1,14 +1,14 @@
-From: Stefano Garzarella <sgarzare@redhat.com>
-Subject: [RFC PATCH 2/3] vsock/virtio_transport_common: handle netns of
- received packets
-Date: Thu, 28 Nov 2019 18:15:18 +0100
-Message-ID: <20191128171519.203979-3-sgarzare__13275.2795981773$1574961360$gmane$org@redhat.com>
-References: <20191128171519.203979-1-sgarzare@redhat.com>
+From: Gerd Hoffmann <kraxel@redhat.com>
+Subject: Re: [PATCH] drm/qxl: Complete exception handling in qxl_device_init()
+Date: Fri, 29 Nov 2019 13:24:54 +0100
+Message-ID: <20191129122454.2xoi43kaowmqppm5@sirius.home.kraxel.org>
+References: <5e5ef9c4-4d85-3c93-cf28-42cfcb5b0649@web.de>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset="utf-8"
+Content-Transfer-Encoding: base64
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <20191128171519.203979-1-sgarzare@redhat.com>
+In-Reply-To: <5e5ef9c4-4d85-3c93-cf28-42cfcb5b0649@web.de>
+Content-Disposition: inline
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
  <mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -18,159 +18,26 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
  <mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Errors-To: virtualization-bounces@lists.linux-foundation.org
 Sender: "Virtualization" <virtualization-bounces@lists.linux-foundation.org>
-To: netdev@vger.kernel.org
-Cc: linux-hyperv@vger.kernel.org, kvm@vger.kernel.org, "Michael S. Tsirkin" <mst@redhat.com>, Dexuan Cui <decui@microsoft.com>, linux-kernel@vger.kernel.org, virtualization@lists.linux-foundation.org, Stefan Hajnoczi <stefanha@redhat.com>, "David S. Miller" <davem@davemloft.net>, Jorgen Hansen <jhansen@vmware.com>
+To: Markus Elfring <Markus.Elfring@web.de>
+Cc: David Airlie <airlied@linux.ie>, Kangjie Lu <kjlu@umn.edu>, Stephen McCamant <smccaman@umn.edu>, kernel-janitors@vger.kernel.org, LKML <linux-kernel@vger.kernel.org>, dri-devel@lists.freedesktop.org, virtualization@lists.linux-foundation.org, Navid Emamdoost <emamd001@umn.edu>, Daniel Vetter <daniel@ffwll.ch>, Dave Airlie <airlied@redhat.com>, spice-devel@lists.freedesktop.org, Anton Vasilyev <vasilyev@ispras.ru>
 List-Id: virtualization@lists.linuxfoundation.org
 
-This patch allows transports that use virtio_transport_common
-to specify the network namespace where a received packet is to
-be delivered.
-
-virtio_transport and vhost_transport, for now, use the default
-network namespace.
-
-vsock_loopback uses the same network namespace of the trasmitter.
-
-Signed-off-by: Stefano Garzarella <sgarzare@redhat.com>
----
- drivers/vhost/vsock.c                   |  1 +
- include/linux/virtio_vsock.h            |  2 ++
- net/vmw_vsock/virtio_transport.c        |  2 ++
- net/vmw_vsock/virtio_transport_common.c | 13 ++++++++++---
- 4 files changed, 15 insertions(+), 3 deletions(-)
-
-diff --git a/drivers/vhost/vsock.c b/drivers/vhost/vsock.c
-index dde392b91bb3..31b0f3608752 100644
---- a/drivers/vhost/vsock.c
-+++ b/drivers/vhost/vsock.c
-@@ -474,6 +474,7 @@ static void vhost_vsock_handle_tx_kick(struct vhost_work *work)
- 			continue;
- 		}
- 
-+		pkt->net = vsock_default_net();
- 		len = pkt->len;
- 
- 		/* Deliver to monitoring devices all received packets */
-diff --git a/include/linux/virtio_vsock.h b/include/linux/virtio_vsock.h
-index 71c81e0dc8f2..a025d105a456 100644
---- a/include/linux/virtio_vsock.h
-+++ b/include/linux/virtio_vsock.h
-@@ -43,6 +43,7 @@ struct virtio_vsock_pkt {
- 	struct list_head list;
- 	/* socket refcnt not held, only use for cancellation */
- 	struct vsock_sock *vsk;
-+	struct net *net;
- 	void *buf;
- 	u32 buf_len;
- 	u32 len;
-@@ -53,6 +54,7 @@ struct virtio_vsock_pkt {
- struct virtio_vsock_pkt_info {
- 	u32 remote_cid, remote_port;
- 	struct vsock_sock *vsk;
-+	struct net *net;
- 	struct msghdr *msg;
- 	u32 pkt_len;
- 	u16 type;
-diff --git a/net/vmw_vsock/virtio_transport.c b/net/vmw_vsock/virtio_transport.c
-index dfbaf6bd8b1c..fb03a1535c21 100644
---- a/net/vmw_vsock/virtio_transport.c
-+++ b/net/vmw_vsock/virtio_transport.c
-@@ -527,6 +527,8 @@ static void virtio_transport_rx_work(struct work_struct *work)
- 			}
- 
- 			pkt->len = len - sizeof(pkt->hdr);
-+			pkt->net = vsock_default_net();
-+
- 			virtio_transport_deliver_tap_pkt(pkt);
- 			virtio_transport_recv_pkt(&virtio_transport, pkt);
- 		}
-diff --git a/net/vmw_vsock/virtio_transport_common.c b/net/vmw_vsock/virtio_transport_common.c
-index 10a8cbe39f61..f249dc099c38 100644
---- a/net/vmw_vsock/virtio_transport_common.c
-+++ b/net/vmw_vsock/virtio_transport_common.c
-@@ -60,6 +60,7 @@ virtio_transport_alloc_pkt(struct virtio_vsock_pkt_info *info,
- 	pkt->hdr.len		= cpu_to_le32(len);
- 	pkt->reply		= info->reply;
- 	pkt->vsk		= info->vsk;
-+	pkt->net		= info->net;
- 
- 	if (info->msg && len > 0) {
- 		pkt->buf = kmalloc(len, GFP_KERNEL);
-@@ -260,6 +261,7 @@ static int virtio_transport_send_credit_update(struct vsock_sock *vsk,
- 		.op = VIRTIO_VSOCK_OP_CREDIT_UPDATE,
- 		.type = type,
- 		.vsk = vsk,
-+		.net = sock_net(sk_vsock(vsk)),
- 	};
- 
- 	return virtio_transport_send_pkt_info(vsk, &info);
-@@ -609,6 +611,7 @@ int virtio_transport_connect(struct vsock_sock *vsk)
- 		.op = VIRTIO_VSOCK_OP_REQUEST,
- 		.type = VIRTIO_VSOCK_TYPE_STREAM,
- 		.vsk = vsk,
-+		.net = sock_net(sk_vsock(vsk)),
- 	};
- 
- 	return virtio_transport_send_pkt_info(vsk, &info);
-@@ -625,6 +628,7 @@ int virtio_transport_shutdown(struct vsock_sock *vsk, int mode)
- 			 (mode & SEND_SHUTDOWN ?
- 			  VIRTIO_VSOCK_SHUTDOWN_SEND : 0),
- 		.vsk = vsk,
-+		.net = sock_net(sk_vsock(vsk)),
- 	};
- 
- 	return virtio_transport_send_pkt_info(vsk, &info);
-@@ -652,6 +656,7 @@ virtio_transport_stream_enqueue(struct vsock_sock *vsk,
- 		.msg = msg,
- 		.pkt_len = len,
- 		.vsk = vsk,
-+		.net = sock_net(sk_vsock(vsk)),
- 	};
- 
- 	return virtio_transport_send_pkt_info(vsk, &info);
-@@ -674,6 +679,7 @@ static int virtio_transport_reset(struct vsock_sock *vsk,
- 		.type = VIRTIO_VSOCK_TYPE_STREAM,
- 		.reply = !!pkt,
- 		.vsk = vsk,
-+		.net = sock_net(sk_vsock(vsk)),
- 	};
- 
- 	/* Send RST only if the original pkt is not a RST pkt */
-@@ -694,6 +700,7 @@ static int virtio_transport_reset_no_sock(const struct virtio_transport *t,
- 		.op = VIRTIO_VSOCK_OP_RST,
- 		.type = le16_to_cpu(pkt->hdr.type),
- 		.reply = true,
-+		.net = pkt->net,
- 	};
- 
- 	/* Send RST only if the original pkt is not a RST pkt */
-@@ -978,6 +985,7 @@ virtio_transport_send_response(struct vsock_sock *vsk,
- 		.remote_port = le32_to_cpu(pkt->hdr.src_port),
- 		.reply = true,
- 		.vsk = vsk,
-+		.net = sock_net(sk_vsock(vsk)),
- 	};
- 
- 	return virtio_transport_send_pkt_info(vsk, &info);
-@@ -1075,7 +1083,6 @@ virtio_transport_recv_listen(struct sock *sk, struct virtio_vsock_pkt *pkt,
- void virtio_transport_recv_pkt(struct virtio_transport *t,
- 			       struct virtio_vsock_pkt *pkt)
- {
--	struct net *net = vsock_default_net();
- 	struct sockaddr_vm src, dst;
- 	struct vsock_sock *vsk;
- 	struct sock *sk;
-@@ -1103,9 +1110,9 @@ void virtio_transport_recv_pkt(struct virtio_transport *t,
- 	/* The socket must be in connected or bound table
- 	 * otherwise send reset back
- 	 */
--	sk = vsock_find_connected_socket(&src, &dst, net);
-+	sk = vsock_find_connected_socket(&src, &dst, pkt->net);
- 	if (!sk) {
--		sk = vsock_find_bound_socket(&dst, net);
-+		sk = vsock_find_bound_socket(&dst, pkt->net);
- 		if (!sk) {
- 			(void)virtio_transport_reset_no_sock(t, pkt);
- 			goto free_pkt;
--- 
-2.23.0
+T24gVGh1LCBOb3YgMDcsIDIwMTkgYXQgMDY6MTg6MTRQTSArMDEwMCwgTWFya3VzIEVsZnJpbmcg
+d3JvdGU6Cj4gRnJvbTogTWFya3VzIEVsZnJpbmcgPGVsZnJpbmdAdXNlcnMuc291cmNlZm9yZ2Uu
+bmV0Pgo+IERhdGU6IFRodSwgNyBOb3YgMjAxOSAxODowNTowOCArMDEwMAo+IAo+IEEgY29jY2lj
+aGVjayBydW4gcHJvdmlkZWQgaW5mb3JtYXRpb24gbGlrZSB0aGUgZm9sbG93aW5nLgo+IAo+IGRy
+aXZlcnMvZ3B1L2RybS9xeGwvcXhsX2ttcy5jOjI5NToxLTc6IEVSUk9SOiBtaXNzaW5nIGlvdW5t
+YXA7Cj4gaW9yZW1hcCBvbiBsaW5lIDE3OCBhbmQgZXhlY3V0aW9uIHZpYSBjb25kaXRpb25hbCBv
+biBsaW5lIDE4NQo+IAo+IEdlbmVyYXRlZCBieTogc2NyaXB0cy9jb2NjaW5lbGxlL2ZyZWUvaW91
+bm1hcC5jb2NjaQo+IAo+IEEganVtcCB0YXJnZXQgd2FzIHNwZWNpZmllZCBpbiBhbiBpZiBicmFu
+Y2guIFRoZSBjb3JyZXNwb25kaW5nIGZ1bmN0aW9uCj4gY2FsbCBkaWQgbm90IHJlbGVhc2UgdGhl
+IGRlc2lyZWQgc3lzdGVtIHJlc291cmNlIHRoZW4uCj4gVGh1cyB1c2UgdGhlIGxhYmVsIOKAnHJv
+bV91bm1hcOKAnSBpbnN0ZWFkIHRvIGZpeCB0aGUgZXhjZXB0aW9uIGhhbmRsaW5nCj4gZm9yIHRo
+aXMgZnVuY3Rpb24gaW1wbGVtZW50YXRpb24uCj4gCj4gRml4ZXM6IDUwNDMzNDhhNDk2OWFlMTY2
+MWMwMDhlZmU5MjlhYmQwZDc2ZTM3OTIgKCJkcm06IHF4bDogRml4IGVycm9yIGhhbmRsaW5nIGF0
+IHF4bF9kZXZpY2VfaW5pdCIpCj4gU2lnbmVkLW9mZi1ieTogTWFya3VzIEVsZnJpbmcgPGVsZnJp
+bmdAdXNlcnMuc291cmNlZm9yZ2UubmV0PgoKUHVzaGVkIHRvIGRybS1taXNjLW5leHQuCgp0aGFu
+a3MsCiAgR2VyZAoKX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19f
+X18KVmlydHVhbGl6YXRpb24gbWFpbGluZyBsaXN0ClZpcnR1YWxpemF0aW9uQGxpc3RzLmxpbnV4
+LWZvdW5kYXRpb24ub3JnCmh0dHBzOi8vbGlzdHMubGludXhmb3VuZGF0aW9uLm9yZy9tYWlsbWFu
+L2xpc3RpbmZvL3ZpcnR1YWxpemF0aW9u
