@@ -1,15 +1,14 @@
-From: Stefano Garzarella <sgarzare@redhat.com>
-Subject: Re: [RFC PATCH 0/3] vsock: support network namespace
-Date: Tue, 3 Dec 2019 12:17:39 +0100
-Message-ID: <20191203111739.jbxptcpmvtwg7j2g__16687.1794311859$1575371882$gmane$org@steredhat>
-References: <20191128171519.203979-1-sgarzare@redhat.com>
- <20191203092649.GB153510@stefanha-x1.localdomain>
+From: Amit Shah <amit@infradead.org>
+Subject: Re: [PATCH v3] virtio_console: allocate inbufs in add_port() only
+ if it is needed
+Date: Tue, 03 Dec 2019 15:46:50 +0100
+Message-ID: <ae3451423c18f2e408245d745d1f28e311a2845c.camel__21390.4855236009$1575387203$gmane$org@infradead.org>
+References: <20191114122548.24364-1-lvivier@redhat.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <20191203092649.GB153510@stefanha-x1.localdomain>
-Content-Disposition: inline
+In-Reply-To: <20191114122548.24364-1-lvivier@redhat.com>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
  <mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -19,75 +18,153 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
  <mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Errors-To: virtualization-bounces@lists.linux-foundation.org
 Sender: "Virtualization" <virtualization-bounces@lists.linux-foundation.org>
-To: Stefan Hajnoczi <stefanha@gmail.com>
-Cc: linux-hyperv@vger.kernel.org, kvm@vger.kernel.org, "Michael S. Tsirkin" <mst@redhat.com>, netdev@vger.kernel.org, Dexuan Cui <decui@microsoft.com>, linux-kernel@vger.kernel.org, virtualization@lists.linux-foundation.org, Stefan Hajnoczi <stefanha@redhat.com>, "David S. Miller" <davem@davemloft.net>, Jorgen Hansen <jhansen@vmware.com>
+To: Laurent Vivier <lvivier@redhat.com>, linux-kernel@vger.kernel.org
+Cc: Arnd Bergmann <arnd@arndb.de>, Amit Shah <amit@kernel.org>, Greg Kroah-Hartman <gregkh@linuxfoundation.org>, "Michael S . Tsirkin" <mst@redhat.com>, stable@vger.kernel.org, virtualization@lists.linux-foundation.org
 List-Id: virtualization@lists.linuxfoundation.org
 
-On Tue, Dec 03, 2019 at 09:26:49AM +0000, Stefan Hajnoczi wrote:
-> On Thu, Nov 28, 2019 at 06:15:16PM +0100, Stefano Garzarella wrote:
-> > Hi,
-> > now that we have multi-transport upstream, I started to take a look to
-> > support network namespace (netns) in vsock.
-> > 
-> > As we partially discussed in the multi-transport proposal [1], it could
-> > be nice to support network namespace in vsock to reach the following
-> > goals:
-> > - isolate host applications from guest applications using the same ports
-> >   with CID_ANY
-> > - assign the same CID of VMs running in different network namespaces
-> > - partition VMs between VMMs or at finer granularity
-> > 
-> > This preliminary implementation provides the following behavior:
-> > - packets received from the host (received by G2H transports) are
-> >   assigned to the default netns (init_net)
-> > - packets received from the guest (received by H2G - vhost-vsock) are
-> >   assigned to the netns of the process that opens /dev/vhost-vsock
-> >   (usually the VMM, qemu in my tests, opens the /dev/vhost-vsock)
-> >     - for vmci I need some suggestions, because I don't know how to do
-> >       and test the same in the vmci driver, for now vmci uses the
-> >       init_net
-> > - loopback packets are exchanged only in the same netns
-> > 
-> > Questions:
-> > 1. Should we make configurable the netns (now it is init_net) where
-> >    packets from the host should be delivered?
+On Thu, 2019-11-14 at 13:25 +0100, Laurent Vivier wrote:
+> When we hot unplug a virtserialport and then try to hot plug again,
+> it fails:
 > 
-> Yes, it should be possible to have multiple G2H (e.g. virtio-vsock)
-> devices and to assign them to different net namespaces.  Something like
-> net/core/dev.c:dev_change_net_namespace() will eventually be needed.
+> (qemu) chardev-add socket,id=serial0,path=/tmp/serial0,server,nowait
+> (qemu) device_add virtserialport,bus=virtio-serial0.0,nr=2,\
+>                   chardev=serial0,id=serial0,name=serial0
+> (qemu) device_del serial0
+> (qemu) device_add virtserialport,bus=virtio-serial0.0,nr=2,\
+>                   chardev=serial0,id=serial0,name=serial0
+> kernel error:
+>   virtio-ports vport2p2: Error allocating inbufs
+> qemu error:
+>   virtio-serial-bus: Guest failure in adding port 2 for device \
+>                      virtio-serial0.0
 > 
-
-Make sense, but for now we support only one G2H.
-How we can provide this feature to the userspace?
-Should we interface vsock with ip-link(8)?
-
-I don't know if initially we can provide through sysfs a way to set the
-netns of the only G2H loaded.
-
-> > 2. Should we provide an ioctl in vhost-vsock to configure the netns
-> >    to use? (instead of using the netns of the process that opens
-> >    /dev/vhost-vsock)
+> This happens because buffers for the in_vq are allocated when the
+> port is
+> added but are not released when the port is unplugged.
 > 
-> Creating the vhost-vsock instance in the process' net namespace makes
-> sense.  Maybe wait for a use case before adding an ioctl.
+> They are only released when virtconsole is removed (see a7a69ec0d8e4)
 > 
-
-Agree.
-
-> > 3. Should we provide a way to disable the netns support in vsock?
+> To avoid the problem and to be symmetric, we could allocate all the
+> buffers
+> in init_vqs() as they are released in remove_vqs(), but it sounds
+> like
+> a waste of memory.
 > 
-> The code should follow CONFIG_NET_NS semantics.  I'm not sure what they
-> are exactly since struct net is always defined, regardless of whether
-> network namespaces are enabled.
+> Rather than that, this patch changes add_port() logic to ignore
+> ENOSPC
+> error in fill_queue(), which means queue has already been filled.
+> 
+> Fixes: a7a69ec0d8e4 ("virtio_console: free buffers after reset")
+> Cc: mst@redhat.com
+> Cc: stable@vger.kernel.org
+> Signed-off-by: Laurent Vivier <lvivier@redhat.com>
 
-I think that if CONFIG_NET_NS is not defined, all sockets and processes
-are assigned to init_net and this RFC should work in this case, but I'll
-try this case before v1.
+Reviewed-by: Amit Shah <amit@kernel.org>
 
-I was thinking about the Kata's use case, I don't know if they launch the
-VM in a netns and even the runtime in the host runs inside the same netns.
+Thanks!
 
-I'll send an e-mail to kata mailing list.
-
-Thanks,
-Stefano
+> ---
+> 
+> Notes:
+>     v3: add a comment about ENOSPC error
+>     v2: making fill_queue return int and testing return code for
+> -ENOSPC
+> 
+>  drivers/char/virtio_console.c | 28 +++++++++++++---------------
+>  1 file changed, 13 insertions(+), 15 deletions(-)
+> 
+> diff --git a/drivers/char/virtio_console.c
+> b/drivers/char/virtio_console.c
+> index 7270e7b69262..3259426f01dc 100644
+> --- a/drivers/char/virtio_console.c
+> +++ b/drivers/char/virtio_console.c
+> @@ -1325,24 +1325,24 @@ static void set_console_size(struct port
+> *port, u16 rows, u16 cols)
+>  	port->cons.ws.ws_col = cols;
+>  }
+>  
+> -static unsigned int fill_queue(struct virtqueue *vq, spinlock_t
+> *lock)
+> +static int fill_queue(struct virtqueue *vq, spinlock_t *lock)
+>  {
+>  	struct port_buffer *buf;
+> -	unsigned int nr_added_bufs;
+> +	int nr_added_bufs;
+>  	int ret;
+>  
+>  	nr_added_bufs = 0;
+>  	do {
+>  		buf = alloc_buf(vq->vdev, PAGE_SIZE, 0);
+>  		if (!buf)
+> -			break;
+> +			return -ENOMEM;
+>  
+>  		spin_lock_irq(lock);
+>  		ret = add_inbuf(vq, buf);
+>  		if (ret < 0) {
+>  			spin_unlock_irq(lock);
+>  			free_buf(buf, true);
+> -			break;
+> +			return ret;
+>  		}
+>  		nr_added_bufs++;
+>  		spin_unlock_irq(lock);
+> @@ -1362,7 +1362,6 @@ static int add_port(struct ports_device
+> *portdev, u32 id)
+>  	char debugfs_name[16];
+>  	struct port *port;
+>  	dev_t devt;
+> -	unsigned int nr_added_bufs;
+>  	int err;
+>  
+>  	port = kmalloc(sizeof(*port), GFP_KERNEL);
+> @@ -1421,11 +1420,13 @@ static int add_port(struct ports_device
+> *portdev, u32 id)
+>  	spin_lock_init(&port->outvq_lock);
+>  	init_waitqueue_head(&port->waitqueue);
+>  
+> -	/* Fill the in_vq with buffers so the host can send us data. */
+> -	nr_added_bufs = fill_queue(port->in_vq, &port->inbuf_lock);
+> -	if (!nr_added_bufs) {
+> +	/* We can safely ignore ENOSPC because it means
+> +	 * the queue already has buffers. Buffers are removed
+> +	 * only by virtcons_remove(), not by unplug_port()
+> +	 */
+> +	err = fill_queue(port->in_vq, &port->inbuf_lock);
+> +	if (err < 0 && err != -ENOSPC) {
+>  		dev_err(port->dev, "Error allocating inbufs\n");
+> -		err = -ENOMEM;
+>  		goto free_device;
+>  	}
+>  
+> @@ -2059,14 +2060,11 @@ static int virtcons_probe(struct
+> virtio_device *vdev)
+>  	INIT_WORK(&portdev->control_work, &control_work_handler);
+>  
+>  	if (multiport) {
+> -		unsigned int nr_added_bufs;
+> -
+>  		spin_lock_init(&portdev->c_ivq_lock);
+>  		spin_lock_init(&portdev->c_ovq_lock);
+>  
+> -		nr_added_bufs = fill_queue(portdev->c_ivq,
+> -					   &portdev->c_ivq_lock);
+> -		if (!nr_added_bufs) {
+> +		err = fill_queue(portdev->c_ivq, &portdev->c_ivq_lock);
+> +		if (err < 0) {
+>  			dev_err(&vdev->dev,
+>  				"Error allocating buffers for control
+> queue\n");
+>  			/*
+> @@ -2077,7 +2075,7 @@ static int virtcons_probe(struct virtio_device
+> *vdev)
+>  					   VIRTIO_CONSOLE_DEVICE_READY,
+> 0);
+>  			/* Device was functional: we need full cleanup.
+> */
+>  			virtcons_remove(vdev);
+> -			return -ENOMEM;
+> +			return err;
+>  		}
+>  	} else {
+>  		/*
