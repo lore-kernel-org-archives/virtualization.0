@@ -1,8 +1,7 @@
-From: David Hildenbrand <david@redhat.com>
-Subject: [PATCH] virtio-balloon: fix managed page counts when migrating pages
- between zones
-Date: Wed,  4 Dec 2019 21:48:07 +0100
-Message-ID: <20191204204807.8025-1-david__26673.7688843691$1575492512$gmane$org@redhat.com>
+From: Thomas Garnier <thgarnie@chromium.org>
+Subject: [PATCH v10 00/11] x86: PIE support to extend KASLR randomization
+Date: Wed,  4 Dec 2019 16:09:37 -0800
+Message-ID: <20191205000957.112719-1-thgarnie__11216.4010921092$1575505063$gmane$org@chromium.org>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
@@ -16,143 +15,111 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
  <mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Errors-To: virtualization-bounces@lists.linux-foundation.org
 Sender: "Virtualization" <virtualization-bounces@lists.linux-foundation.org>
-To: linux-kernel@vger.kernel.org
-Cc: Yumei Huang <yuhuang@redhat.com>, "Michael S. Tsirkin" <mst@redhat.com>, stable@vger.kernel.org, virtualization@lists.linux-foundation.org, linux-mm@kvack.org, Andrew Morton <akpm@linux-foundation.org>, Jiang Liu <liuj97@gmail.com>
+To: kernel-hardening@lists.openwall.com
+Cc: kristen@linux.intel.com, Thomas Garnier <thgarnie@chromium.org>, "VMware,
+ Inc." <pv-drivers@vmware.com>, Rasmus Villemoes <linux@rasmusvillemoes.dk>, virtualization@lists.linux-foundation.org, Pavel Machek <pavel@ucw.cz>, "H. Peter Anvin" <hpa@zytor.com>, Jiri Slaby <jslaby@suse.cz>, Boris Ostrovsky <boris.ostrovsky@oracle.com>, Thomas Hellstrom <thellstrom@vmware.com>, Herbert Xu <herbert@gondor.apana.org.au>, Will Deacon <will@kernel.org>, x86@kernel.org, Peter Zijlstra <peterz@infradead.org>, Ingo Molnar <mingo@redhat.com>, linux-crypto@vger.kernel.org, Len Brown <len.brown@intel.com>, keescook@chromium.org, linux-pm@vger.kernel.org, Alexios Zavras <alexios.zavras@intel.com>, Borislav Petkov <bp@alien8.de>, Andy Lutomirski <luto@kernel.org>, Thomas Gleixner <tglx@linutronix.de>, Allison Randal <allison@lohutok.net>, Juergen Gross <jgross@suse.com>, Greg
 List-Id: virtualization@lists.linuxfoundation.org
 
-In case we have to migrate a ballon page to a newpage of another zone, the
-managed page count of both zones is wrong. Paired with memory offlining
-(which will adjust the managed page count), we can trigger kernel crashes
-and all kinds of different symptoms.
+Minor changes based on feedback and rebase from v9.
 
-One way to reproduce:
-1. Start a QEMU guest with 4GB, no NUMA
-2. Hotplug a 1GB DIMM and only the memory to ZONE_NORMAL
-3. Inflate the balloon to 1GB
-4. Unplug the DIMM (be quick, otherwise unmovable data ends up on it)
-5. Observe /proc/zoneinfo
-  Node 0, zone   Normal
-    pages free     16810
-          min      24848885473806
-          low      18471592959183339
-          high     36918337032892872
-          spanned  262144
-          present  262144
-          managed  18446744073709533486
-6. Do anything that requires some memory (e.g., inflate the balloon some
-more). The OOM goes crazy and the system crashes
-  [  238.324946] Out of memory: Killed process 537 (login) total-vm:27584kB, anon-rss:860kB, file-rss:0kB, shmem-rss:00
-  [  238.338585] systemd invoked oom-killer: gfp_mask=0x100cca(GFP_HIGHUSER_MOVABLE), order=0, oom_score_adj=0
-  [  238.339420] CPU: 0 PID: 1 Comm: systemd Tainted: G      D W         5.4.0-next-20191204+ #75
-  [  238.340139] Hardware name: QEMU Standard PC (i440FX + PIIX, 1996), BIOS rel-1.12.0-59-gc9ba5276e321-prebuilt.qemu4
-  [  238.341121] Call Trace:
-  [  238.341337]  dump_stack+0x8f/0xd0
-  [  238.341630]  dump_header+0x61/0x5ea
-  [  238.341942]  oom_kill_process.cold+0xb/0x10
-  [  238.342299]  out_of_memory+0x24d/0x5a0
-  [  238.342625]  __alloc_pages_slowpath+0xd12/0x1020
-  [  238.343024]  __alloc_pages_nodemask+0x391/0x410
-  [  238.343407]  pagecache_get_page+0xc3/0x3a0
-  [  238.343757]  filemap_fault+0x804/0xc30
-  [  238.344083]  ? ext4_filemap_fault+0x28/0x42
-  [  238.344444]  ext4_filemap_fault+0x30/0x42
-  [  238.344789]  __do_fault+0x37/0x1a0
-  [  238.345087]  __handle_mm_fault+0x104d/0x1ab0
-  [  238.345450]  handle_mm_fault+0x169/0x360
-  [  238.345790]  do_user_addr_fault+0x20d/0x490
-  [  238.346154]  do_page_fault+0x31/0x210
-  [  238.346468]  async_page_fault+0x43/0x50
-  [  238.346797] RIP: 0033:0x7f47eba4197e
-  [  238.347110] Code: Bad RIP value.
-  [  238.347387] RSP: 002b:00007ffd7c0c1890 EFLAGS: 00010293
-  [  238.347834] RAX: 0000000000000002 RBX: 000055d196a20a20 RCX: 00007f47eba4197e
-  [  238.348437] RDX: 0000000000000033 RSI: 00007ffd7c0c18c0 RDI: 0000000000000004
-  [  238.349047] RBP: 00007ffd7c0c1c20 R08: 0000000000000000 R09: 0000000000000033
-  [  238.349660] R10: 00000000ffffffff R11: 0000000000000293 R12: 0000000000000001
-  [  238.350261] R13: ffffffffffffffff R14: 0000000000000000 R15: 00007ffd7c0c18c0
-  [  238.350878] Mem-Info:
-  [  238.351085] active_anon:3121 inactive_anon:51 isolated_anon:0
-  [  238.351085]  active_file:12 inactive_file:7 isolated_file:0
-  [  238.351085]  unevictable:0 dirty:0 writeback:0 unstable:0
-  [  238.351085]  slab_reclaimable:5565 slab_unreclaimable:10170
-  [  238.351085]  mapped:3 shmem:111 pagetables:155 bounce:0
-  [  238.351085]  free:720717 free_pcp:2 free_cma:0
-  [  238.353757] Node 0 active_anon:12484kB inactive_anon:204kB active_file:48kB inactive_file:28kB unevictable:0kB iss
-  [  238.355979] Node 0 DMA free:11556kB min:36kB low:48kB high:60kB reserved_highatomic:0KB active_anon:152kB inactivB
-  [  238.358345] lowmem_reserve[]: 0 2955 2884 2884 2884
-  [  238.358761] Node 0 DMA32 free:2677864kB min:7004kB low:10028kB high:13052kB reserved_highatomic:0KB active_anon:0B
-  [  238.361202] lowmem_reserve[]: 0 0 72057594037927865 72057594037927865 72057594037927865
-  [  238.361888] Node 0 Normal free:193448kB min:99395541895224kB low:73886371836733356kB high:147673348131571488kB reB
-  [  238.364765] lowmem_reserve[]: 0 0 0 0 0
-  [  238.365101] Node 0 DMA: 7*4kB (U) 5*8kB (UE) 6*16kB (UME) 2*32kB (UM) 1*64kB (U) 2*128kB (UE) 3*256kB (UME) 2*512B
-  [  238.366379] Node 0 DMA32: 0*4kB 1*8kB (U) 2*16kB (UM) 2*32kB (UM) 2*64kB (UM) 1*128kB (U) 1*256kB (U) 1*512kB (U)B
-  [  238.367654] Node 0 Normal: 1985*4kB (UME) 1321*8kB (UME) 844*16kB (UME) 524*32kB (UME) 300*64kB (UME) 138*128kB (B
-  [  238.369184] Node 0 hugepages_total=0 hugepages_free=0 hugepages_surp=0 hugepages_size=2048kB
-  [  238.369915] 130 total pagecache pages
-  [  238.370241] 0 pages in swap cache
-  [  238.370533] Swap cache stats: add 0, delete 0, find 0/0
-  [  238.370981] Free swap  = 0kB
-  [  238.371239] Total swap = 0kB
-  [  238.371488] 1048445 pages RAM
-  [  238.371756] 0 pages HighMem/MovableOnly
-  [  238.372090] 306992 pages reserved
-  [  238.372376] 0 pages cma reserved
-  [  238.372661] 0 pages hwpoisoned
+Splitting the previous serie in two. This part contains assembly code
+changes required for PIE but without any direct dependencies with the
+rest of the patchset.
 
-In another instance (older kernel), I was able to observe this
-(negative page count :/):
-  [  180.896971] Offlined Pages 32768
-  [  182.667462] Offlined Pages 32768
-  [  184.408117] Offlined Pages 32768
-  [  186.026321] Offlined Pages 32768
-  [  187.684861] Offlined Pages 32768
-  [  189.227013] Offlined Pages 32768
-  [  190.830303] Offlined Pages 32768
-  [  190.833071] Built 1 zonelists, mobility grouping on.  Total pages: -36920272750453009
+Changes:
+ - patch v10 (assembly):
+   - Swap rax for rdx on entry/64 changes based on feedback.
+   - Addressed feedback from Borislav Petkov on boot, paravirt, alternatives
+     and globally.
+   - Rebased the patchset and ensure it works with large kaslr (not included).
+ - patch v9 (assembly):
+   - Moved to relative reference for sync_core based on feedback.
+   - x86/crypto had multiple algorithms deleted, removed PIE changes to them.
+   - fix typo on comment end line.
+ - patch v8 (assembly):
+   - Fix issues in crypto changes (thanks to Eric Biggers).
+   - Remove unnecessary jump table change.
+   - Change author and signoff to chromium email address.
+ - patch v7 (assembly):
+   - Split patchset and reorder changes.
+ - patch v6:
+   - Rebase on latest changes in jump tables and crypto.
+   - Fix wording on couple commits.
+   - Revisit checkpatch warnings.
+   - Moving to @chromium.org.
+ - patch v5:
+   - Adapt new crypto modules for PIE.
+   - Improve per-cpu commit message.
+   - Fix xen 32-bit build error with .quad.
+   - Remove extra code for ftrace.
+ - patch v4:
+   - Simplify early boot by removing global variables.
+   - Modify the mcount location script for __mcount_loc intead of the address
+     read in the ftrace implementation.
+   - Edit commit description to explain better where the kernel can be located.
+   - Streamlined the testing done on each patch proposal. Always testing
+     hibernation, suspend, ftrace and kprobe to ensure no regressions.
+ - patch v3:
+   - Update on message to describe longer term PIE goal.
+   - Minor change on ftrace if condition.
+   - Changed code using xchgq.
+ - patch v2:
+   - Adapt patch to work post KPTI and compiler changes
+   - Redo all performance testing with latest configs and compilers
+   - Simplify mov macro on PIE (MOVABS now)
+   - Reduce GOT footprint
+ - patch v1:
+   - Simplify ftrace implementation.
+   - Use gcc mstack-protector-guard-reg=%gs with PIE when possible.
+ - rfc v3:
+   - Use --emit-relocs instead of -pie to reduce dynamic relocation space on
+     mapped memory. It also simplifies the relocation process.
+   - Move the start the module section next to the kernel. Remove the need for
+     -mcmodel=large on modules. Extends module space from 1 to 2G maximum.
+   - Support for XEN PVH as 32-bit relocations can be ignored with
+     --emit-relocs.
+   - Support for GOT relocations previously done automatically with -pie.
+   - Remove need for dynamic PLT in modules.
+   - Support dymamic GOT for modules.
+ - rfc v2:
+   - Add support for global stack cookie while compiler default to fs without
+     mcmodel=kernel
+   - Change patch 7 to correctly jump out of the identity mapping on kexec load
+     preserve.
 
-In another instance (older kernel), I was no longer able to start any
-process:
-  [root@vm ~]# [  214.348068] Offlined Pages 32768
-  [  215.973009] Offlined Pages 32768
-  cat /proc/meminfo
-  -bash: fork: Cannot allocate memory
-  [root@vm ~]# cat /proc/meminfo
-  -bash: fork: Cannot allocate memory
+These patches make some of the changes necessary to build the kernel as
+Position Independent Executable (PIE) on x86_64. Another patchset will
+add the PIE option and larger architecture changes. PIE allows the kernel to be
+placed below the 0xffffffff80000000 increasing the range of KASLR.
 
-Fix it by properly adjusting the managed page count when migrating. The
-managed page count of the zones now looks after unplug of the DIMM
-(and after deflating the balloon) just like before inflating the balloon
-(and plugging+onlining the DIMM).
+The patches:
+ - 1, 3-11: Change in assembly code to be PIE compliant.
+ - 2: Add a new _ASM_MOVABS macro to fetch a symbol address generically.
 
-Reported-by: Yumei Huang <yuhuang@redhat.com>
-Fixes: 3dcc0571cd64 ("mm: correctly update zone->managed_pages")
-Cc: <stable@vger.kernel.org> # v3.11+
-Cc: "Michael S. Tsirkin" <mst@redhat.com>
-Cc: Jason Wang <jasowang@redhat.com>
-Cc: Jiang Liu <liuj97@gmail.com>
-Cc: Andrew Morton <akpm@linux-foundation.org>
-Cc: virtualization@lists.linux-foundation.org
-Signed-off-by: David Hildenbrand <david@redhat.com>
----
- drivers/virtio/virtio_balloon.c | 6 ++++++
- 1 file changed, 6 insertions(+)
+diffstat:
+ crypto/aegis128-aesni-asm.S         |    6 +-
+ crypto/aesni-intel_asm.S            |    8 +--
+ crypto/aesni-intel_avx-x86_64.S     |    3 -
+ crypto/camellia-aesni-avx-asm_64.S  |   42 +++++++--------
+ crypto/camellia-aesni-avx2-asm_64.S |   44 ++++++++--------
+ crypto/camellia-x86_64-asm_64.S     |    8 +--
+ crypto/cast5-avx-x86_64-asm_64.S    |   50 ++++++++++--------
+ crypto/cast6-avx-x86_64-asm_64.S    |   44 +++++++++-------
+ crypto/des3_ede-asm_64.S            |   96 ++++++++++++++++++++++++------------
+ crypto/ghash-clmulni-intel_asm.S    |    4 -
+ crypto/glue_helper-asm-avx.S        |    4 -
+ crypto/glue_helper-asm-avx2.S       |    6 +-
+ crypto/sha256-avx2-asm.S            |   18 ++++--
+ entry/entry_64.S                    |   16 ++++--
+ include/asm/alternative.h           |    6 +-
+ include/asm/asm.h                   |    1 
+ include/asm/paravirt_types.h        |   32 ++++++++++--
+ include/asm/pm-trace.h              |    2 
+ include/asm/processor.h             |    6 +-
+ kernel/acpi/wakeup_64.S             |   31 ++++++-----
+ kernel/head_64.S                    |   15 +++--
+ kernel/relocate_kernel_64.S         |    2 
+ power/hibernate_asm_64.S            |    4 -
+ 23 files changed, 267 insertions(+), 181 deletions(-)
 
-diff --git a/drivers/virtio/virtio_balloon.c b/drivers/virtio/virtio_balloon.c
-index 15b7f1d8c334..1089b07679cf 100644
---- a/drivers/virtio/virtio_balloon.c
-+++ b/drivers/virtio/virtio_balloon.c
-@@ -742,6 +742,12 @@ static int virtballoon_migratepage(struct balloon_dev_info *vb_dev_info,
- 
- 	mutex_unlock(&vb->balloon_lock);
- 
-+	/* fixup the managed page count (esp. of the zone) */
-+	if (!virtio_has_feature(vb->vdev, VIRTIO_BALLOON_F_DEFLATE_ON_OOM)) {
-+		adjust_managed_page_count(page, 1);
-+		adjust_managed_page_count(newpage, -1);
-+	}
-+
- 	put_page(page); /* balloon reference */
- 
- 	return MIGRATEPAGE_SUCCESS;
--- 
-2.21.0
+Patchset is based on next-20191203.
