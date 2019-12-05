@@ -1,16 +1,16 @@
-From: David Hildenbrand <david@redhat.com>
-Subject: Re: [PATCH] virtio-balloon: fix managed page counts when migrating
- pages between zones
-Date: Thu, 5 Dec 2019 11:13:11 +0100
-Message-ID: <940e5d03-dc20-da0b-17e0-6f11cf480ec6__34306.343917136$1575540815$gmane$org@redhat.com>
-References: <20191204204807.8025-1-david@redhat.com>
- <20191205110823.6479c3b2@redhat.com>
+From: David Howells <dhowells@redhat.com>
+Subject: Re: kernel BUG at fs/pipe.c:LINE!
+Date: Thu, 05 Dec 2019 13:06:30 +0000
+Message-ID: <27081.1575551190__37074.9148003355$1575551214$gmane$org@warthog.procyon.org.uk>
+References: <20191205072838.GA3237@sol.localdomain>
+ <000000000000a376820598b2eb97@google.com>
+ <20191205054023.GA772@sol.localdomain>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <20191205110823.6479c3b2@redhat.com>
-Content-Language: en-US
+In-Reply-To: <20191205072838.GA3237@sol.localdomain>
+Content-ID: <27080.1575551190.1@warthog.procyon.org.uk>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
  <mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -20,53 +20,41 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
  <mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Errors-To: virtualization-bounces@lists.linux-foundation.org
 Sender: "Virtualization" <virtualization-bounces@lists.linux-foundation.org>
-To: Igor Mammedov <imammedo@redhat.com>
-Cc: Yumei Huang <yuhuang@redhat.com>, "Michael S. Tsirkin" <mst@redhat.com>, linux-kernel@vger.kernel.org, stable@vger.kernel.org, virtualization@lists.linux-foundation.org, linux-mm@kvack.org, Andrew Morton <akpm@linux-foundation.org>, Jiang Liu <liuj97@gmail.com>
+To: Eric Biggers <ebiggers@kernel.org>
+Cc: willy@infradead.org, arnd@arndb.de, jannh@google.com, syzbot <syzbot+d37abaade33a934f16f2@syzkaller.appspotmail.com>, amit@kernel.org, syzkaller-bugs@googlegroups.com, linux-kernel@vger.kernel.org, rostedt@goodmis.org, virtualization@lists.linux-foundation.org, dhowells@redhat.com, miklos@szeredi.hu, viro@zeniv.linux.org.uk, gregkh@linuxfoundation.org, linux-fsdevel@vger.kernel.org
 List-Id: virtualization@lists.linuxfoundation.org
 
-On 05.12.19 11:08, Igor Mammedov wrote:
-> On Wed,  4 Dec 2019 21:48:07 +0100
-> David Hildenbrand <david@redhat.com> wrote:
+Eric Biggers <ebiggers@kernel.org> wrote:
+
+> static __poll_t
+> pipe_poll(struct file *filp, poll_table *wait)
+> {
+>         __poll_t mask;
+>         struct pipe_inode_info *pipe = filp->private_data;
+>         unsigned int head = READ_ONCE(pipe->head);
+>         unsigned int tail = READ_ONCE(pipe->tail);
 > 
->> In case we have to migrate a ballon page to a newpage of another zone, the
->> managed page count of both zones is wrong. Paired with memory offlining
->> (which will adjust the managed page count), we can trigger kernel crashes
->> and all kinds of different symptoms.
->>
->> One way to reproduce:
->> 1. Start a QEMU guest with 4GB, no NUMA
->> 2. Hotplug a 1GB DIMM and only the memory to ZONE_NORMAL
->                             ^^^^
-> should it be "online" ?
-
-Very right!
-[...]
-
->>  	mutex_unlock(&vb->balloon_lock);
->>  
->> +	/* fixup the managed page count (esp. of the zone) */
->> +	if (!virtio_has_feature(vb->vdev, VIRTIO_BALLOON_F_DEFLATE_ON_OOM)) {
-> what happens when balloon has the feature?
-
-With that feature we don't touch the managed page counts at all (see the
-other 2 adjust_managed_page_count() callers in this file).
-
+>         poll_wait(filp, &pipe->wait, wait);
 > 
->> +		adjust_managed_page_count(page, 1);
->> +		adjust_managed_page_count(newpage, -1);
->> +	}
->> +
->>  	put_page(page); /* balloon reference */
->>  
->>  	return MIGRATEPAGE_SUCCESS;
+>         BUG_ON(pipe_occupancy(head, tail) > pipe->ring_size);
 > 
+> It's not holding the pipe mutex, right?  So 'head', 'tail' and 'ring_size' can
+> all be changed concurrently, and they aren't read atomically with respect to
+> each other.
+> 
+> How do you propose to implement poll() correctly with the new head + tail
+> approach?  Just take the mutex?
 
-BTW, I posted a v2 just some minutes ago
-(https://lkml.kernel.org/r/20191205092420.6934-1-david@redhat.com)
+Firstly, the BUG_ON() check probably isn't necessary here - the same issue
+with occupancy being seen to be greater than the queue depth existed
+previously (there was no locking around the read of pipe->nrbufs and
+pipe->buffers).  I added a sanity check.
 
-Thanks!
+Secondly, it should be possible to make it such that just the spinlock
+suffices.  The following few patches make the main pipe read/write routines
+use the spinlock so as not to be interfered with by notification insertion.
 
--- 
-Thanks,
+I didn't roll the spinlock out to splice and suchlike since I prohibit
+splicing to a notifications pipe because of the iov_iter_revert() fun.
 
-David / dhildenb
+David
