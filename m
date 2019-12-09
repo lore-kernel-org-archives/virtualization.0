@@ -1,15 +1,11 @@
-From: Geert Uytterhoeven <geert@linux-m68k.org>
-Subject: Re: [PATCH RFC net-next v8 1/3] netdev: pass the stuck queue to the
- timeout handler
-Date: Mon, 9 Dec 2019 08:40:06 +0100
-Message-ID: <CAMuHMdXDm0NiCk1pD_-wS9c-ErmRKkrqnPc_pGKzG=QB35mj9A__32077.1765125514$1575877237$gmane$org@mail.gmail.com>
-References: <20191203201804.662066-1-mst@redhat.com>
- <20191203201804.662066-2-mst@redhat.com>
+From: anton.ivanov@cambridgegreys.com
+Subject: [PATCH] virtio: Work around frames incorrectly marked as gso
+Date: Mon,  9 Dec 2019 10:48:24 +0000
+Message-ID: <20191209104824.17059-1-anton.ivanov__1570.09332194633$1575890491$gmane$org@cambridgegreys.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <20191203201804.662066-2-mst@redhat.com>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
  <mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -19,70 +15,49 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
  <mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Errors-To: virtualization-bounces@lists.linux-foundation.org
 Sender: "Virtualization" <virtualization-bounces@lists.linux-foundation.org>
-To: "Michael S. Tsirkin" <mst@redhat.com>
-Cc: dnmendes76@gmail.com, Jakub Kicinski <jakub.kicinski@netronome.com>, netdev <netdev@vger.kernel.org>, Linux Kernel Mailing List <linux-kernel@vger.kernel.org>, virtualization@lists.linux-foundation.org, Martin Habets <mhabets@solarflare.com>, Julio Faracco <jcfaracco@gmail.com>, Shannon Nelson <snelson@pensando.io>, "David S. Miller" <davem@davemloft.net>, Heiner Kallweit <hkallweit1@gmail.com>
+To: netdev@vger.kernel.org
+Cc: virtualization@lists.linux-foundation.org, linux-um@lists.infradead.org, Anton Ivanov <anton.ivanov@cambridgegreys.com>, mst@redhat.com
 List-Id: virtualization@lists.linuxfoundation.org
 
-Hi Michael,
+From: Anton Ivanov <anton.ivanov@cambridgegreys.com>
 
-On Tue, Dec 3, 2019 at 9:21 PM Michael S. Tsirkin <mst@redhat.com> wrote:
-> This allows incrementing the correct timeout statistic without any mess.
-> Down the road, devices can learn to reset just the specific queue.
->
-> The patch was generated with the following script:
+Some of the frames marked as GSO which arrive at
+virtio_net_hdr_from_skb() have no GSO_TYPE, no
+fragments (data_len = 0) and length significantly shorter
+than the MTU (752 in my experiments).
 
-[...]
+This is observed on raw sockets reading off vEth interfaces
+in all 4.x and 5.x kernels I tested.
 
-> Signed-off-by: Michael S. Tsirkin <mst@redhat.com>
+These frames are reported as invalid while they are in fact
+gso-less frames.
 
-> --- a/drivers/net/ethernet/8390/8390p.c
-> +++ b/drivers/net/ethernet/8390/8390p.c
-> @@ -41,9 +41,9 @@ void eip_set_multicast_list(struct net_device *dev)
->  }
->  EXPORT_SYMBOL(eip_set_multicast_list);
->
-> -void eip_tx_timeout(struct net_device *dev)
-> +void eip_tx_timeout(struct net_device *dev, unsigned int txqueue)
->  {
-> -       __ei_tx_timeout(dev);
-> +       __ei_tx_timeout(dev, txqueue);
->  }
->  EXPORT_SYMBOL(eip_tx_timeout);
+This patch marks the vnet header as no-GSO for them instead
+of reporting it as invalid.
 
-On Mon, Dec 9, 2019 at 6:37 AM <noreply@ellerman.id.au> wrote:
-> FAILED linux-next/m68k-defconfig/m68k Mon Dec 09, 16:34
->
-> http://kisskb.ellerman.id.au/kisskb/buildresult/14060060/
->
-> Commit:   Add linux-next specific files for 20191209
->           6cf8298daad041cd15dc514d8a4f93ca3636c84e
-> Compiler: m68k-linux-gcc (GCC) 4.6.3 / GNU ld (GNU Binutils) 2.22
->
-> Possible errors
-> ---------------
->
-> drivers/net/ethernet/8390/8390p.c:44:6: error: conflicting types for 'eip_tx_timeout'
-> drivers/net/ethernet/8390/8390p.c:48:1: error: conflicting types for 'eip_tx_timeout'
-> make[5]: *** [scripts/Makefile.build:266: drivers/net/ethernet/8390/8390p.o] Error 1
-> make[4]: *** [scripts/Makefile.build:503: drivers/net/ethernet/8390] Error 2
-> make[3]: *** [scripts/Makefile.build:503: drivers/net/ethernet] Error 2
-> make[2]: *** [scripts/Makefile.build:503: drivers/net] Error 2
-> make[1]: *** [Makefile:1693: drivers] Error 2
-> make: *** [Makefile:179: sub-make] Error 2
+Signed-off-by: Anton Ivanov <anton.ivanov@cambridgegreys.com>
+---
+ include/linux/virtio_net.h | 8 ++++++--
+ 1 file changed, 6 insertions(+), 2 deletions(-)
 
-Looks like you forgot to update the forward declaration in
-drivers/net/ethernet/8390/8390.h
-
-There may be others...
-http://kisskb.ellerman.id.au/kisskb/head/6cf8298daad041cd15dc514d8a4f93ca3636c84e/
-
-Gr{oetje,eeting}s,
-
-                        Geert
-
+diff --git a/include/linux/virtio_net.h b/include/linux/virtio_net.h
+index 0d1fe9297ac6..d90d5cff1b9a 100644
+--- a/include/linux/virtio_net.h
++++ b/include/linux/virtio_net.h
+@@ -112,8 +112,12 @@ static inline int virtio_net_hdr_from_skb(const struct sk_buff *skb,
+ 			hdr->gso_type = VIRTIO_NET_HDR_GSO_TCPV4;
+ 		else if (sinfo->gso_type & SKB_GSO_TCPV6)
+ 			hdr->gso_type = VIRTIO_NET_HDR_GSO_TCPV6;
+-		else
+-			return -EINVAL;
++		else {
++			if (skb->data_len == 0)
++				hdr->gso_type = VIRTIO_NET_HDR_GSO_NONE;
++			else
++				return -EINVAL;
++		}
+ 		if (sinfo->gso_type & SKB_GSO_TCP_ECN)
+ 			hdr->gso_type |= VIRTIO_NET_HDR_GSO_ECN;
+ 	} else
 -- 
-Geert Uytterhoeven -- There's lots of Linux beyond ia32 -- geert@linux-m68k.org
-
-In personal conversations with technical people, I call myself a hacker. But
-when I'm talking to journalists I just say "programmer" or something like that.
-                                -- Linus Torvalds
+2.20.1
