@@ -1,7 +1,7 @@
 From: Thierry Reding <thierry.reding@gmail.com>
-Subject: [PATCH v2 4/5] iommu: intel: Use iommu_put_resv_regions_simple()
-Date: Mon,  9 Dec 2019 15:50:06 +0100
-Message-ID: <20191209145007.2433144-5-thierry.reding__31094.1776771628$1575903048$gmane$org@gmail.com>
+Subject: [PATCH v2 5/5] iommu: virtio: Use iommu_put_resv_regions_simple()
+Date: Mon,  9 Dec 2019 15:50:07 +0100
+Message-ID: <20191209145007.2433144-6-thierry.reding__3657.46597978927$1575903077$gmane$org@gmail.com>
 References: <20191209145007.2433144-1-thierry.reding@gmail.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
@@ -25,22 +25,25 @@ From: Thierry Reding <treding@nvidia.com>
 
 Use the new standard function instead of open-coding it.
 
-Cc: David Woodhouse <dwmw2@infradead.org>
+Cc: Jean-Philippe Brucker <jean-philippe@linaro.org>
+Cc: virtualization@lists.linux-foundation.org
 Signed-off-by: Thierry Reding <treding@nvidia.com>
 ---
- drivers/iommu/intel-iommu.c | 11 +----------
- 1 file changed, 1 insertion(+), 10 deletions(-)
+Changes in v2:
+- change subject prefix to 'iommu: virt:' to 'iommu: virtio:'
 
-diff --git a/drivers/iommu/intel-iommu.c b/drivers/iommu/intel-iommu.c
-index 0c8d81f56a30..480f424f6a47 100644
---- a/drivers/iommu/intel-iommu.c
-+++ b/drivers/iommu/intel-iommu.c
-@@ -5752,15 +5752,6 @@ static void intel_iommu_get_resv_regions(struct device *device,
- 	list_add_tail(&reg->list, head);
+ drivers/iommu/virtio-iommu.c | 14 +++-----------
+ 1 file changed, 3 insertions(+), 11 deletions(-)
+
+diff --git a/drivers/iommu/virtio-iommu.c b/drivers/iommu/virtio-iommu.c
+index 315c7cc4f99d..834e56a28d4d 100644
+--- a/drivers/iommu/virtio-iommu.c
++++ b/drivers/iommu/virtio-iommu.c
+@@ -837,14 +837,6 @@ static void viommu_get_resv_regions(struct device *dev, struct list_head *head)
+ 	iommu_dma_get_resv_regions(dev, head);
  }
  
--static void intel_iommu_put_resv_regions(struct device *dev,
--					 struct list_head *head)
+-static void viommu_put_resv_regions(struct device *dev, struct list_head *head)
 -{
 -	struct iommu_resv_region *entry, *next;
 -
@@ -48,17 +51,35 @@ index 0c8d81f56a30..480f424f6a47 100644
 -		kfree(entry);
 -}
 -
- int intel_iommu_enable_pasid(struct intel_iommu *iommu, struct device *dev)
- {
- 	struct device_domain_info *info;
-@@ -5995,7 +5986,7 @@ const struct iommu_ops intel_iommu_ops = {
- 	.add_device		= intel_iommu_add_device,
- 	.remove_device		= intel_iommu_remove_device,
- 	.get_resv_regions	= intel_iommu_get_resv_regions,
--	.put_resv_regions	= intel_iommu_put_resv_regions,
+ static struct iommu_ops viommu_ops;
+ static struct virtio_driver virtio_iommu_drv;
+ 
+@@ -914,7 +906,7 @@ static int viommu_add_device(struct device *dev)
+ err_unlink_dev:
+ 	iommu_device_unlink(&viommu->iommu, dev);
+ err_free_dev:
+-	viommu_put_resv_regions(dev, &vdev->resv_regions);
++	iommu_put_resv_regions_simple(dev, &vdev->resv_regions);
+ 	kfree(vdev);
+ 
+ 	return ret;
+@@ -932,7 +924,7 @@ static void viommu_remove_device(struct device *dev)
+ 
+ 	iommu_group_remove_device(dev);
+ 	iommu_device_unlink(&vdev->viommu->iommu, dev);
+-	viommu_put_resv_regions(dev, &vdev->resv_regions);
++	iommu_put_resv_regions_simple(dev, &vdev->resv_regions);
+ 	kfree(vdev);
+ }
+ 
+@@ -961,7 +953,7 @@ static struct iommu_ops viommu_ops = {
+ 	.remove_device		= viommu_remove_device,
+ 	.device_group		= viommu_device_group,
+ 	.get_resv_regions	= viommu_get_resv_regions,
+-	.put_resv_regions	= viommu_put_resv_regions,
 +	.put_resv_regions	= iommu_put_resv_regions_simple,
- 	.apply_resv_region	= intel_iommu_apply_resv_region,
- 	.device_group		= pci_device_group,
- 	.dev_has_feat		= intel_iommu_dev_has_feat,
+ 	.of_xlate		= viommu_of_xlate,
+ };
+ 
 -- 
 2.23.0
