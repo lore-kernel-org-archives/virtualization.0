@@ -1,13 +1,11 @@
-From: Johannes Berg <johannes@sipsolutions.net>
-Subject: Re: [PATCH] virtio: Work around frames incorrectly marked as gso
-Date: Mon, 09 Dec 2019 11:54:46 +0100
-Message-ID: <db33800253f071a1cfbb91f413af59e73faa6775.camel__24131.1826788419$1575891600$gmane$org@sipsolutions.net>
-References: <20191209104824.17059-1-anton.ivanov@cambridgegreys.com>
+From: Thierry Reding <thierry.reding@gmail.com>
+Subject: [PATCH v2 0/5] iommu: Implement iommu_put_resv_regions_simple()
+Date: Mon,  9 Dec 2019 15:50:02 +0100
+Message-ID: <20191209145007.2433144-1-thierry.reding@gmail.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <20191209104824.17059-1-anton.ivanov@cambridgegreys.com>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
  <mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -17,21 +15,37 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
  <mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Errors-To: virtualization-bounces@lists.linux-foundation.org
 Sender: "Virtualization" <virtualization-bounces@lists.linux-foundation.org>
-To: anton.ivanov@cambridgegreys.com, netdev@vger.kernel.org
-Cc: mst@redhat.com, linux-um@lists.infradead.org, virtualization@lists.linux-foundation.org
+To: Joerg Roedel <joro@8bytes.org>
+Cc: Jean-Philippe Brucker <jean-philippe@linaro.org>, Will Deacon <will@kernel.org>, linux-kernel@vger.kernel.org, virtualization@lists.linux-foundation.org, Christoph Hellwig <hch@infradead.org>, iommu@lists.linux-foundation.org, Robin Murphy <robin.murphy@arm.com>, David Woodhouse <dwmw2@infradead.org>, linux-arm-kernel@lists.infradead.org
 List-Id: virtualization@lists.linuxfoundation.org
 
+From: Thierry Reding <treding@nvidia.com>
 
->  		else if (sinfo->gso_type & SKB_GSO_TCPV6)
->  			hdr->gso_type = VIRTIO_NET_HDR_GSO_TCPV6;
-> -		else
-> -			return -EINVAL;
-> +		else {
-> +			if (skb->data_len == 0)
-> +				hdr->gso_type = VIRTIO_NET_HDR_GSO_NONE;
+Most IOMMU drivers only need to free the memory allocated for each
+reserved region. Instead of open-coding the loop to do this in each
+driver, extract the code into a common function that can be used by
+all these drivers.
 
+Changes in v2:
+- change subject prefix to "iommu: virtio: " for virtio-iommu.c driver
 
-maybe use "else if" like in the before? yes, it's a different type of
-condition, but braces look a bit unnatural here to me at least
+Thierry
 
-johannes
+Thierry Reding (5):
+  iommu: Implement iommu_put_resv_regions_simple()
+  iommu: arm: Use iommu_put_resv_regions_simple()
+  iommu: amd: Use iommu_put_resv_regions_simple()
+  iommu: intel: Use iommu_put_resv_regions_simple()
+  iommu: virtio: Use iommu_put_resv_regions_simple()
+
+ drivers/iommu/amd_iommu.c    | 11 +----------
+ drivers/iommu/arm-smmu-v3.c  | 11 +----------
+ drivers/iommu/arm-smmu.c     | 11 +----------
+ drivers/iommu/intel-iommu.c  | 11 +----------
+ drivers/iommu/iommu.c        | 19 +++++++++++++++++++
+ drivers/iommu/virtio-iommu.c | 14 +++-----------
+ include/linux/iommu.h        |  2 ++
+ 7 files changed, 28 insertions(+), 51 deletions(-)
+
+-- 
+2.23.0
