@@ -1,7 +1,7 @@
 From: Thierry Reding <thierry.reding@gmail.com>
-Subject: [PATCH v2 2/5] iommu: arm: Use iommu_put_resv_regions_simple()
-Date: Mon,  9 Dec 2019 15:50:04 +0100
-Message-ID: <20191209145007.2433144-3-thierry.reding__23103.5264719807$1575903032$gmane$org@gmail.com>
+Subject: [PATCH v2 1/5] iommu: Implement iommu_put_resv_regions_simple()
+Date: Mon,  9 Dec 2019 15:50:03 +0100
+Message-ID: <20191209145007.2433144-2-thierry.reding__33419.0161478304$1575903039$gmane$org@gmail.com>
 References: <20191209145007.2433144-1-thierry.reding@gmail.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
@@ -23,73 +23,58 @@ List-Id: virtualization@lists.linuxfoundation.org
 
 From: Thierry Reding <treding@nvidia.com>
 
-Use the new standard function instead of open-coding it.
+Implement a generic function for removing reserved regions. This can be
+used by drivers that don't do anything fancy with these regions other
+than allocating memory for them.
 
-Cc: Will Deacon <will@kernel.org>
-Cc: Robin Murphy <robin.murphy@arm.com>
 Signed-off-by: Thierry Reding <treding@nvidia.com>
 ---
- drivers/iommu/arm-smmu-v3.c | 11 +----------
- drivers/iommu/arm-smmu.c    | 11 +----------
- 2 files changed, 2 insertions(+), 20 deletions(-)
+ drivers/iommu/iommu.c | 19 +++++++++++++++++++
+ include/linux/iommu.h |  2 ++
+ 2 files changed, 21 insertions(+)
 
-diff --git a/drivers/iommu/arm-smmu-v3.c b/drivers/iommu/arm-smmu-v3.c
-index effe72eb89e7..eebf6086080f 100644
---- a/drivers/iommu/arm-smmu-v3.c
-+++ b/drivers/iommu/arm-smmu-v3.c
-@@ -2710,15 +2710,6 @@ static void arm_smmu_get_resv_regions(struct device *dev,
- 	iommu_dma_get_resv_regions(dev, head);
+diff --git a/drivers/iommu/iommu.c b/drivers/iommu/iommu.c
+index db7bfd4f2d20..a46d3bcafa06 100644
+--- a/drivers/iommu/iommu.c
++++ b/drivers/iommu/iommu.c
+@@ -2229,6 +2229,25 @@ void iommu_put_resv_regions(struct device *dev, struct list_head *list)
+ 		ops->put_resv_regions(dev, list);
  }
  
--static void arm_smmu_put_resv_regions(struct device *dev,
--				      struct list_head *head)
--{
--	struct iommu_resv_region *entry, *next;
--
--	list_for_each_entry_safe(entry, next, head, list)
--		kfree(entry);
--}
--
- static struct iommu_ops arm_smmu_ops = {
- 	.capable		= arm_smmu_capable,
- 	.domain_alloc		= arm_smmu_domain_alloc,
-@@ -2736,7 +2727,7 @@ static struct iommu_ops arm_smmu_ops = {
- 	.domain_set_attr	= arm_smmu_domain_set_attr,
- 	.of_xlate		= arm_smmu_of_xlate,
- 	.get_resv_regions	= arm_smmu_get_resv_regions,
--	.put_resv_regions	= arm_smmu_put_resv_regions,
-+	.put_resv_regions	= iommu_put_resv_regions_simple,
- 	.pgsize_bitmap		= -1UL, /* Restricted during device attach */
- };
++/**
++ * iommu_put_resv_regions_simple - Reserved region driver helper
++ * @dev: device for which to free reserved regions
++ * @list: reserved region list for device
++ *
++ * IOMMU drivers can use this to implement their .put_resv_regions() callback
++ * for simple reservations. Memory allocated for each reserved region will be
++ * freed. If an IOMMU driver allocates additional resources per region, it is
++ * going to have to implement a custom callback.
++ */
++void iommu_put_resv_regions_simple(struct device *dev, struct list_head *list)
++{
++	struct iommu_resv_region *entry, *next;
++
++	list_for_each_entry_safe(entry, next, list, list)
++		kfree(entry);
++}
++EXPORT_SYMBOL(iommu_put_resv_regions_simple);
++
+ struct iommu_resv_region *iommu_alloc_resv_region(phys_addr_t start,
+ 						  size_t length, int prot,
+ 						  enum iommu_resv_type type)
+diff --git a/include/linux/iommu.h b/include/linux/iommu.h
+index 1b4fbe703950..a249aa55596b 100644
+--- a/include/linux/iommu.h
++++ b/include/linux/iommu.h
+@@ -477,6 +477,8 @@ extern void iommu_set_fault_handler(struct iommu_domain *domain,
  
-diff --git a/drivers/iommu/arm-smmu.c b/drivers/iommu/arm-smmu.c
-index 31ad3fe9a6d1..d1aef07bb784 100644
---- a/drivers/iommu/arm-smmu.c
-+++ b/drivers/iommu/arm-smmu.c
-@@ -1576,15 +1576,6 @@ static void arm_smmu_get_resv_regions(struct device *dev,
- 	iommu_dma_get_resv_regions(dev, head);
- }
- 
--static void arm_smmu_put_resv_regions(struct device *dev,
--				      struct list_head *head)
--{
--	struct iommu_resv_region *entry, *next;
--
--	list_for_each_entry_safe(entry, next, head, list)
--		kfree(entry);
--}
--
- static struct iommu_ops arm_smmu_ops = {
- 	.capable		= arm_smmu_capable,
- 	.domain_alloc		= arm_smmu_domain_alloc,
-@@ -1602,7 +1593,7 @@ static struct iommu_ops arm_smmu_ops = {
- 	.domain_set_attr	= arm_smmu_domain_set_attr,
- 	.of_xlate		= arm_smmu_of_xlate,
- 	.get_resv_regions	= arm_smmu_get_resv_regions,
--	.put_resv_regions	= arm_smmu_put_resv_regions,
-+	.put_resv_regions	= iommu_put_resv_regions_simple,
- 	.pgsize_bitmap		= -1UL, /* Restricted during device attach */
- };
- 
+ extern void iommu_get_resv_regions(struct device *dev, struct list_head *list);
+ extern void iommu_put_resv_regions(struct device *dev, struct list_head *list);
++extern void iommu_put_resv_regions_simple(struct device *dev,
++					  struct list_head *list);
+ extern int iommu_request_dm_for_dev(struct device *dev);
+ extern int iommu_request_dma_domain_for_dev(struct device *dev);
+ extern void iommu_set_default_passthrough(bool cmd_line);
 -- 
 2.23.0
