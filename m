@@ -1,13 +1,14 @@
-From: David Miller <davem@davemloft.net>
-Subject: Re: [PATCH net-next v11 0/3] netdev: ndo_tx_timeout cleanup
-Date: Tue, 10 Dec 2019 11:32:16 -0800 (PST)
-Message-ID: <20191210.113216.1897128321839303084.davem__45267.3704757885$1576006352$gmane$org@davemloft.net>
-References: <20191210130837.47913-1-mst@redhat.com>
+From: Sasha Levin <sashal@kernel.org>
+Subject: [PATCH AUTOSEL 5.4 002/350] drm/virtio: switch
+ virtio_gpu_wait_ioctl() to gem helper.
+Date: Tue, 10 Dec 2019 15:58:14 -0500
+Message-ID: <20191210210402.8367-2-sashal__12532.6542578236$1576011860$gmane$org@kernel.org>
+References: <20191210210402.8367-1-sashal@kernel.org>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <20191210130837.47913-1-mst@redhat.com>
+In-Reply-To: <20191210210402.8367-1-sashal@kernel.org>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
  <mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -17,17 +18,75 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
  <mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Errors-To: virtualization-bounces@lists.linux-foundation.org
 Sender: "Virtualization" <virtualization-bounces@lists.linux-foundation.org>
-To: mst@redhat.com
-Cc: dnmendes76@gmail.com, netdev@vger.kernel.org, linux-kernel@vger.kernel.org, virtualization@lists.linux-foundation.org, jcfaracco@gmail.com
+To: linux-kernel@vger.kernel.org, stable@vger.kernel.org
+Cc: Sasha Levin <sashal@kernel.org>, Daniel Vetter <daniel.vetter@ffwll.ch>, dri-devel@lists.freedesktop.org, virtualization@lists.linux-foundation.org, Chia-I Wu <olvaffe@gmail.com>
 List-Id: virtualization@lists.linuxfoundation.org
 
-From: "Michael S. Tsirkin" <mst@redhat.com>
-Date: Tue, 10 Dec 2019 08:08:58 -0500
+From: Gerd Hoffmann <kraxel@redhat.com>
 
-> Sorry about the churn, v10 was based on net - not on net-next
-> by mistake.
+[ Upstream commit 29cf12394c0565d7eb1685bf0c1b4749aa6a8b66 ]
 
-Ugh sorry, I just saw this.  vger is sending postings massively out of
-order today.
+Use drm_gem_reservation_object_wait() in virtio_gpu_wait_ioctl().
+This also makes the ioctl run lockless.
 
-Ignore my previous reply to #1 :-)
+v9: fix return value.
+v5: handle lookup failure.
+v2: use reservation_object_test_signaled_rcu for VIRTGPU_WAIT_NOWAIT.
+
+Signed-off-by: Gerd Hoffmann <kraxel@redhat.com>
+Reviewed-by: Daniel Vetter <daniel.vetter@ffwll.ch>
+Reviewed-by: Chia-I Wu <olvaffe@gmail.com>
+Link: http://patchwork.freedesktop.org/patch/msgid/20190829103301.3539-3-kraxel@redhat.com
+Signed-off-by: Sasha Levin <sashal@kernel.org>
+---
+ drivers/gpu/drm/virtio/virtgpu_ioctl.c | 28 +++++++++++++++-----------
+ 1 file changed, 16 insertions(+), 12 deletions(-)
+
+diff --git a/drivers/gpu/drm/virtio/virtgpu_ioctl.c b/drivers/gpu/drm/virtio/virtgpu_ioctl.c
+index 0a88ef11b9d3f..a662394f68921 100644
+--- a/drivers/gpu/drm/virtio/virtgpu_ioctl.c
++++ b/drivers/gpu/drm/virtio/virtgpu_ioctl.c
+@@ -463,25 +463,29 @@ out:
+ }
+ 
+ static int virtio_gpu_wait_ioctl(struct drm_device *dev, void *data,
+-			    struct drm_file *file)
++				 struct drm_file *file)
+ {
+ 	struct drm_virtgpu_3d_wait *args = data;
+-	struct drm_gem_object *gobj = NULL;
+-	struct virtio_gpu_object *qobj = NULL;
++	struct drm_gem_object *obj;
++	long timeout = 15 * HZ;
+ 	int ret;
+-	bool nowait = false;
+ 
+-	gobj = drm_gem_object_lookup(file, args->handle);
+-	if (gobj == NULL)
++	obj = drm_gem_object_lookup(file, args->handle);
++	if (obj == NULL)
+ 		return -ENOENT;
+ 
+-	qobj = gem_to_virtio_gpu_obj(gobj);
+-
+-	if (args->flags & VIRTGPU_WAIT_NOWAIT)
+-		nowait = true;
+-	ret = virtio_gpu_object_wait(qobj, nowait);
++	if (args->flags & VIRTGPU_WAIT_NOWAIT) {
++		ret = dma_resv_test_signaled_rcu(obj->resv, true);
++	} else {
++		ret = dma_resv_wait_timeout_rcu(obj->resv, true, true,
++						timeout);
++	}
++	if (ret == 0)
++		ret = -EBUSY;
++	else if (ret > 0)
++		ret = 0;
+ 
+-	drm_gem_object_put_unlocked(gobj);
++	drm_gem_object_put_unlocked(obj);
+ 	return ret;
+ }
+ 
+-- 
+2.20.1
