@@ -1,14 +1,14 @@
 From: Sasha Levin <sashal@kernel.org>
-Subject: [PATCH AUTOSEL 5.4 002/350] drm/virtio: switch
- virtio_gpu_wait_ioctl() to gem helper.
-Date: Tue, 10 Dec 2019 15:58:14 -0500
-Message-ID: <20191210210402.8367-2-sashal__12532.6542578236$1576011860$gmane$org@kernel.org>
-References: <20191210210402.8367-1-sashal@kernel.org>
+Subject: [PATCH AUTOSEL 5.4 297/350] crypto: virtio - deal with unsupported
+ input sizes
+Date: Tue, 10 Dec 2019 16:06:42 -0500
+Message-ID: <20191210210735.9077-258-sashal__27232.7395201259$1576012384$gmane$org@kernel.org>
+References: <20191210210735.9077-1-sashal@kernel.org>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <20191210210402.8367-1-sashal@kernel.org>
+In-Reply-To: <20191210210735.9077-1-sashal@kernel.org>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
  <mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -19,74 +19,67 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 Errors-To: virtualization-bounces@lists.linux-foundation.org
 Sender: "Virtualization" <virtualization-bounces@lists.linux-foundation.org>
 To: linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc: Sasha Levin <sashal@kernel.org>, Daniel Vetter <daniel.vetter@ffwll.ch>, dri-devel@lists.freedesktop.org, virtualization@lists.linux-foundation.org, Chia-I Wu <olvaffe@gmail.com>
+Cc: Sasha Levin <sashal@kernel.org>, Herbert Xu <herbert@gondor.apana.org.au>, "Michael S. Tsirkin" <mst@redhat.com>, virtualization@lists.linux-foundation.org, linux-crypto@vger.kernel.org, Ard Biesheuvel <ardb@kernel.org>
 List-Id: virtualization@lists.linuxfoundation.org
 
-From: Gerd Hoffmann <kraxel@redhat.com>
+From: Ard Biesheuvel <ardb@kernel.org>
 
-[ Upstream commit 29cf12394c0565d7eb1685bf0c1b4749aa6a8b66 ]
+[ Upstream commit 19c5da7d4a2662e85ea67d2d81df57e038fde3ab ]
 
-Use drm_gem_reservation_object_wait() in virtio_gpu_wait_ioctl().
-This also makes the ioctl run lockless.
+Return -EINVAL for input sizes that are not a multiple of the AES
+block size, since they are not supported by our CBC chaining mode.
 
-v9: fix return value.
-v5: handle lookup failure.
-v2: use reservation_object_test_signaled_rcu for VIRTGPU_WAIT_NOWAIT.
+While at it, remove the pr_err() that reports unsupported key sizes
+being used: we shouldn't spam the kernel log with that.
 
-Signed-off-by: Gerd Hoffmann <kraxel@redhat.com>
-Reviewed-by: Daniel Vetter <daniel.vetter@ffwll.ch>
-Reviewed-by: Chia-I Wu <olvaffe@gmail.com>
-Link: http://patchwork.freedesktop.org/patch/msgid/20190829103301.3539-3-kraxel@redhat.com
+Fixes: dbaf0624ffa5 ("crypto: add virtio-crypto driver")
+Cc: "Michael S. Tsirkin" <mst@redhat.com>
+Cc: Jason Wang <jasowang@redhat.com>
+Cc: Gonglei <arei.gonglei@huawei.com>
+Cc: virtualization@lists.linux-foundation.org
+Signed-off-by: Ard Biesheuvel <ardb@kernel.org>
+Signed-off-by: Herbert Xu <herbert@gondor.apana.org.au>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/gpu/drm/virtio/virtgpu_ioctl.c | 28 +++++++++++++++-----------
- 1 file changed, 16 insertions(+), 12 deletions(-)
+ drivers/crypto/virtio/virtio_crypto_algs.c | 12 ++++++++++--
+ 1 file changed, 10 insertions(+), 2 deletions(-)
 
-diff --git a/drivers/gpu/drm/virtio/virtgpu_ioctl.c b/drivers/gpu/drm/virtio/virtgpu_ioctl.c
-index 0a88ef11b9d3f..a662394f68921 100644
---- a/drivers/gpu/drm/virtio/virtgpu_ioctl.c
-+++ b/drivers/gpu/drm/virtio/virtgpu_ioctl.c
-@@ -463,25 +463,29 @@ out:
- }
+diff --git a/drivers/crypto/virtio/virtio_crypto_algs.c b/drivers/crypto/virtio/virtio_crypto_algs.c
+index 42d19205166b0..673fb29fda53c 100644
+--- a/drivers/crypto/virtio/virtio_crypto_algs.c
++++ b/drivers/crypto/virtio/virtio_crypto_algs.c
+@@ -105,8 +105,6 @@ virtio_crypto_alg_validate_key(int key_len, uint32_t *alg)
+ 		*alg = VIRTIO_CRYPTO_CIPHER_AES_CBC;
+ 		break;
+ 	default:
+-		pr_err("virtio_crypto: Unsupported key length: %d\n",
+-			key_len);
+ 		return -EINVAL;
+ 	}
+ 	return 0;
+@@ -484,6 +482,11 @@ static int virtio_crypto_ablkcipher_encrypt(struct ablkcipher_request *req)
+ 	/* Use the first data virtqueue as default */
+ 	struct data_queue *data_vq = &vcrypto->data_vq[0];
  
- static int virtio_gpu_wait_ioctl(struct drm_device *dev, void *data,
--			    struct drm_file *file)
-+				 struct drm_file *file)
- {
- 	struct drm_virtgpu_3d_wait *args = data;
--	struct drm_gem_object *gobj = NULL;
--	struct virtio_gpu_object *qobj = NULL;
-+	struct drm_gem_object *obj;
-+	long timeout = 15 * HZ;
- 	int ret;
--	bool nowait = false;
++	if (!req->nbytes)
++		return 0;
++	if (req->nbytes % AES_BLOCK_SIZE)
++		return -EINVAL;
++
+ 	vc_req->dataq = data_vq;
+ 	vc_req->alg_cb = virtio_crypto_dataq_sym_callback;
+ 	vc_sym_req->ablkcipher_ctx = ctx;
+@@ -504,6 +507,11 @@ static int virtio_crypto_ablkcipher_decrypt(struct ablkcipher_request *req)
+ 	/* Use the first data virtqueue as default */
+ 	struct data_queue *data_vq = &vcrypto->data_vq[0];
  
--	gobj = drm_gem_object_lookup(file, args->handle);
--	if (gobj == NULL)
-+	obj = drm_gem_object_lookup(file, args->handle);
-+	if (obj == NULL)
- 		return -ENOENT;
- 
--	qobj = gem_to_virtio_gpu_obj(gobj);
--
--	if (args->flags & VIRTGPU_WAIT_NOWAIT)
--		nowait = true;
--	ret = virtio_gpu_object_wait(qobj, nowait);
-+	if (args->flags & VIRTGPU_WAIT_NOWAIT) {
-+		ret = dma_resv_test_signaled_rcu(obj->resv, true);
-+	} else {
-+		ret = dma_resv_wait_timeout_rcu(obj->resv, true, true,
-+						timeout);
-+	}
-+	if (ret == 0)
-+		ret = -EBUSY;
-+	else if (ret > 0)
-+		ret = 0;
- 
--	drm_gem_object_put_unlocked(gobj);
-+	drm_gem_object_put_unlocked(obj);
- 	return ret;
- }
- 
++	if (!req->nbytes)
++		return 0;
++	if (req->nbytes % AES_BLOCK_SIZE)
++		return -EINVAL;
++
+ 	vc_req->dataq = data_vq;
+ 	vc_req->alg_cb = virtio_crypto_dataq_sym_callback;
+ 	vc_sym_req->ablkcipher_ctx = ctx;
 -- 
 2.20.1
