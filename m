@@ -1,17 +1,11 @@
-From: David Hildenbrand <david@redhat.com>
-Subject: Re: [PATCH v2] virtio-balloon: fix managed page counts when migrating
- pages between zones
-Date: Tue, 10 Dec 2019 16:36:44 +0100
-Message-ID: <e4f2eef1-b75c-6c40-0dfd-44a076ada260__5264.52092906169$1575992228$gmane$org@redhat.com>
-References: <20191205092420.6934-1-david@redhat.com>
- <13e33ff9-22f2-c02a-811e-2d087e42e1ce@redhat.com>
- <20191210102353-mutt-send-email-mst@kernel.org>
+From: "Maria Lemos" <marialemos72@gmail.com>
+Subject: Call for Papers - MICRADS 2020, Quito, Ecuador | Deadline: December 23
+Date: Tue, 10 Dec 2019 18:23:42 +0000
+Message-ID: <8440529573140@gmail-com>
+Reply-To: micradsmail@gmail.com
 Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
-Content-Transfer-Encoding: 7bit
+Content-Type: multipart/mixed; boundary="===============6573320705567479548=="
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <20191210102353-mutt-send-email-mst@kernel.org>
-Content-Language: en-US
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
  <mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -21,205 +15,348 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
  <mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Errors-To: virtualization-bounces@lists.linux-foundation.org
 Sender: "Virtualization" <virtualization-bounces@lists.linux-foundation.org>
-To: "Michael S. Tsirkin" <mst@redhat.com>
-Cc: Yumei Huang <yuhuang@redhat.com>, linux-kernel@vger.kernel.org, stable@vger.kernel.org, virtualization@lists.linux-foundation.org, linux-mm@kvack.org, Igor Mammedov <imammedo@redhat.com>, Andrew Morton <akpm@linux-foundation.org>, Jiang Liu <liuj97@gmail.com>
+To: virtualization@lists.linux-foundation.org
 List-Id: virtualization@lists.linuxfoundation.org
 
-On 10.12.19 16:24, Michael S. Tsirkin wrote:
-> On Tue, Dec 10, 2019 at 02:44:38PM +0100, David Hildenbrand wrote:
->> On 05.12.19 10:24, David Hildenbrand wrote:
->>> In case we have to migrate a ballon page to a newpage of another zone, the
->>> managed page count of both zones is wrong. Paired with memory offlining
->>> (which will adjust the managed page count), we can trigger kernel crashes
->>> and all kinds of different symptoms.
->>>
->>> One way to reproduce:
->>> 1. Start a QEMU guest with 4GB, no NUMA
->>> 2. Hotplug a 1GB DIMM and only the memory to ZONE_NORMAL
->>
->> s/only/online/
->>
->> as requested by Igor.
->>
->>> 3. Inflate the balloon to 1GB
->>> 4. Unplug the DIMM (be quick, otherwise unmovable data ends up on it)
->>> 5. Observe /proc/zoneinfo
->>>   Node 0, zone   Normal
->>>     pages free     16810
->>>           min      24848885473806
->>>           low      18471592959183339
->>>           high     36918337032892872
->>>           spanned  262144
->>>           present  262144
->>>           managed  18446744073709533486
->>> 6. Do anything that requires some memory (e.g., inflate the balloon some
->>> more). The OOM goes crazy and the system crashes
->>>   [  238.324946] Out of memory: Killed process 537 (login) total-vm:27584kB, anon-rss:860kB, file-rss:0kB, shmem-rss:00
->>>   [  238.338585] systemd invoked oom-killer: gfp_mask=0x100cca(GFP_HIGHUSER_MOVABLE), order=0, oom_score_adj=0
->>>   [  238.339420] CPU: 0 PID: 1 Comm: systemd Tainted: G      D W         5.4.0-next-20191204+ #75
->>>   [  238.340139] Hardware name: QEMU Standard PC (i440FX + PIIX, 1996), BIOS rel-1.12.0-59-gc9ba5276e321-prebuilt.qemu4
->>>   [  238.341121] Call Trace:
->>>   [  238.341337]  dump_stack+0x8f/0xd0
->>>   [  238.341630]  dump_header+0x61/0x5ea
->>>   [  238.341942]  oom_kill_process.cold+0xb/0x10
->>>   [  238.342299]  out_of_memory+0x24d/0x5a0
->>>   [  238.342625]  __alloc_pages_slowpath+0xd12/0x1020
->>>   [  238.343024]  __alloc_pages_nodemask+0x391/0x410
->>>   [  238.343407]  pagecache_get_page+0xc3/0x3a0
->>>   [  238.343757]  filemap_fault+0x804/0xc30
->>>   [  238.344083]  ? ext4_filemap_fault+0x28/0x42
->>>   [  238.344444]  ext4_filemap_fault+0x30/0x42
->>>   [  238.344789]  __do_fault+0x37/0x1a0
->>>   [  238.345087]  __handle_mm_fault+0x104d/0x1ab0
->>>   [  238.345450]  handle_mm_fault+0x169/0x360
->>>   [  238.345790]  do_user_addr_fault+0x20d/0x490
->>>   [  238.346154]  do_page_fault+0x31/0x210
->>>   [  238.346468]  async_page_fault+0x43/0x50
->>>   [  238.346797] RIP: 0033:0x7f47eba4197e
->>>   [  238.347110] Code: Bad RIP value.
->>>   [  238.347387] RSP: 002b:00007ffd7c0c1890 EFLAGS: 00010293
->>>   [  238.347834] RAX: 0000000000000002 RBX: 000055d196a20a20 RCX: 00007f47eba4197e
->>>   [  238.348437] RDX: 0000000000000033 RSI: 00007ffd7c0c18c0 RDI: 0000000000000004
->>>   [  238.349047] RBP: 00007ffd7c0c1c20 R08: 0000000000000000 R09: 0000000000000033
->>>   [  238.349660] R10: 00000000ffffffff R11: 0000000000000293 R12: 0000000000000001
->>>   [  238.350261] R13: ffffffffffffffff R14: 0000000000000000 R15: 00007ffd7c0c18c0
->>>   [  238.350878] Mem-Info:
->>>   [  238.351085] active_anon:3121 inactive_anon:51 isolated_anon:0
->>>   [  238.351085]  active_file:12 inactive_file:7 isolated_file:0
->>>   [  238.351085]  unevictable:0 dirty:0 writeback:0 unstable:0
->>>   [  238.351085]  slab_reclaimable:5565 slab_unreclaimable:10170
->>>   [  238.351085]  mapped:3 shmem:111 pagetables:155 bounce:0
->>>   [  238.351085]  free:720717 free_pcp:2 free_cma:0
->>>   [  238.353757] Node 0 active_anon:12484kB inactive_anon:204kB active_file:48kB inactive_file:28kB unevictable:0kB iss
->>>   [  238.355979] Node 0 DMA free:11556kB min:36kB low:48kB high:60kB reserved_highatomic:0KB active_anon:152kB inactivB
->>>   [  238.358345] lowmem_reserve[]: 0 2955 2884 2884 2884
->>>   [  238.358761] Node 0 DMA32 free:2677864kB min:7004kB low:10028kB high:13052kB reserved_highatomic:0KB active_anon:0B
->>>   [  238.361202] lowmem_reserve[]: 0 0 72057594037927865 72057594037927865 72057594037927865
->>>   [  238.361888] Node 0 Normal free:193448kB min:99395541895224kB low:73886371836733356kB high:147673348131571488kB reB
->>>   [  238.364765] lowmem_reserve[]: 0 0 0 0 0
->>>   [  238.365101] Node 0 DMA: 7*4kB (U) 5*8kB (UE) 6*16kB (UME) 2*32kB (UM) 1*64kB (U) 2*128kB (UE) 3*256kB (UME) 2*512B
->>>   [  238.366379] Node 0 DMA32: 0*4kB 1*8kB (U) 2*16kB (UM) 2*32kB (UM) 2*64kB (UM) 1*128kB (U) 1*256kB (U) 1*512kB (U)B
->>>   [  238.367654] Node 0 Normal: 1985*4kB (UME) 1321*8kB (UME) 844*16kB (UME) 524*32kB (UME) 300*64kB (UME) 138*128kB (B
->>>   [  238.369184] Node 0 hugepages_total=0 hugepages_free=0 hugepages_surp=0 hugepages_size=2048kB
->>>   [  238.369915] 130 total pagecache pages
->>>   [  238.370241] 0 pages in swap cache
->>>   [  238.370533] Swap cache stats: add 0, delete 0, find 0/0
->>>   [  238.370981] Free swap  = 0kB
->>>   [  238.371239] Total swap = 0kB
->>>   [  238.371488] 1048445 pages RAM
->>>   [  238.371756] 0 pages HighMem/MovableOnly
->>>   [  238.372090] 306992 pages reserved
->>>   [  238.372376] 0 pages cma reserved
->>>   [  238.372661] 0 pages hwpoisoned
->>>
->>> In another instance (older kernel), I was able to observe this
->>> (negative page count :/):
->>>   [  180.896971] Offlined Pages 32768
->>>   [  182.667462] Offlined Pages 32768
->>>   [  184.408117] Offlined Pages 32768
->>>   [  186.026321] Offlined Pages 32768
->>>   [  187.684861] Offlined Pages 32768
->>>   [  189.227013] Offlined Pages 32768
->>>   [  190.830303] Offlined Pages 32768
->>>   [  190.833071] Built 1 zonelists, mobility grouping on.  Total pages: -36920272750453009
->>>
->>> In another instance (older kernel), I was no longer able to start any
->>> process:
->>>   [root@vm ~]# [  214.348068] Offlined Pages 32768
->>>   [  215.973009] Offlined Pages 32768
->>>   cat /proc/meminfo
->>>   -bash: fork: Cannot allocate memory
->>>   [root@vm ~]# cat /proc/meminfo
->>>   -bash: fork: Cannot allocate memory
->>>
->>> Fix it by properly adjusting the managed page count when migrating if
->>> the zone changed. The managed page count of the zones now looks after
->>> unplug of the DIMM (and after deflating the balloon) just like before
->>> inflating the balloon (and plugging+onlining the DIMM).
->>>
->>> We'll temporarily modify the totalram page count. If this ever becomes a
->>> problem, we can fine tune by providing helpers that don't touch
->>> the totalram pages (e.g., adjust_zone_managed_page_count()).
->>>
->>> Reported-by: Yumei Huang <yuhuang@redhat.com>
->>> Fixes: 3dcc0571cd64 ("mm: correctly update zone->managed_pages")
->>> Cc: <stable@vger.kernel.org> # v3.11+
->>> Cc: "Michael S. Tsirkin" <mst@redhat.com>
->>> Cc: Jason Wang <jasowang@redhat.com>
->>> Cc: Jiang Liu <liuj97@gmail.com>
->>> Cc: Andrew Morton <akpm@linux-foundation.org>
->>> Cc: virtualization@lists.linux-foundation.org
->>> Signed-off-by: David Hildenbrand <david@redhat.com>
->>> ---
->>>
->>> v1 -> v2:
->>> - Adjust count before enquing newpage (and it possibly gets free form the
->>>   balloon)
->>> - Check if the zone changed
->>>
->>> ---
->>>  drivers/virtio/virtio_balloon.c | 7 +++++++
->>>  1 file changed, 7 insertions(+)
->>>
->>> diff --git a/drivers/virtio/virtio_balloon.c b/drivers/virtio/virtio_balloon.c
->>> index 15b7f1d8c334..3078e1ac2a8f 100644
->>> --- a/drivers/virtio/virtio_balloon.c
->>> +++ b/drivers/virtio/virtio_balloon.c
->>> @@ -722,6 +722,13 @@ static int virtballoon_migratepage(struct balloon_dev_info *vb_dev_info,
->>>  
->>>  	get_page(newpage); /* balloon reference */
->>>  
->>> +	/* fixup the managed page count (esp. of the zone) */
->>
->> /*
->>  * When we migrate to a different zone, we have to adjust the managed
->>  * page count of both involved zones.
->>  */
->>
->> as requested by Michael.
->>
->>
->> @Michael, if there are no further comments, shall I resend?
-> 
-> Also, what does it have to do with deflate on oom?
-> Why is it true we don't need to do it then?
+This is a multi-part message in MIME format
 
-Let's have a look at the other users in this file:
+--===============6573320705567479548==
+Content-Type: multipart/alternative; charset=utf-8; boundary="N3d=_kqGyly5ccM9AfMesEolwkiu7M3f4k"
 
-t460s: ~/git/linux memory_holes $ git grep -C3 adjust_man drivers/virtio/virtio_balloon.c
-drivers/virtio/virtio_balloon.c-                vb->num_pages += VIRTIO_BALLOON_PAGES_PER_PAGE;
-drivers/virtio/virtio_balloon.c-                if (!virtio_has_feature(vb->vdev,
-drivers/virtio/virtio_balloon.c-                                        VIRTIO_BALLOON_F_DEFLATE_ON_OOM))
-drivers/virtio/virtio_balloon.c:                        adjust_managed_page_count(page, -1);
-drivers/virtio/virtio_balloon.c-                vb->num_pfns += VIRTIO_BALLOON_PAGES_PER_PAGE;
-drivers/virtio/virtio_balloon.c-        }
-drivers/virtio/virtio_balloon.c-
---
-drivers/virtio/virtio_balloon.c-        list_for_each_entry_safe(page, next, pages, lru) {
-drivers/virtio/virtio_balloon.c-                if (!virtio_has_feature(vb->vdev,
-drivers/virtio/virtio_balloon.c-                                        VIRTIO_BALLOON_F_DEFLATE_ON_OOM))
-drivers/virtio/virtio_balloon.c:                        adjust_managed_page_count(page, 1);
-drivers/virtio/virtio_balloon.c-                list_del(&page->lru);
-drivers/virtio/virtio_balloon.c-                put_page(page); /* balloon reference */
-drivers/virtio/virtio_balloon.c-        }
+This is a multi-part message in MIME format
 
-In case we don't have VIRTIO_BALLOON_F_DEFLATE_ON_OOM, we don't touch the managed
-page count when inflating/deflating, therefore, there is nothing to do when migrating
-a page between zones.
+--N3d=_kqGyly5ccM9AfMesEolwkiu7M3f4k
+Content-Type: text/plain; charset="utf-8"
+Content-Transfer-Encoding: quoted-printable
+Content-Disposition: inline
 
-Why? Because the designers of VIRTIO_BALLOON_F_DEFLATE_ON_OOM decided to make
-it look like the VM has all RAM available (and make it look like it's only
-allocated, not "unplugged"). With VIRTIO_BALLOON_F_DEFLATE_ON_OOM, the system
-will reclaim memory from the balloon when OOM and, therefore, "shrink" the
-balloon automatically.
+* Proceedings by Springer, indexed by Scopus, ISI, EI-Compendex, Googl=
+e Scholar, etc.
 
-E.g., with VIRTIO_BALLOON_F_DEFLATE_ON_OOM neither "MemToal" under
-/proc/meminfo, nor the managed page count under /proc/zoneinfo will change.
-Without VIRTIO_BALLOON_F_DEFLATE_ON_OOM, it will, therefore we have to fixup
-only without VIRTIO_BALLOON_F_DEFLATE_ON_OOM.
+=20
+
+--------------------------------------
+
+MICRADS=C2=B420 - The 2020 Multidisciplinary International Conference =
+of Research Applied to Defense and Security
+
+Quito, Ecuador, 13 - 15 May 2020
+
+http://www.micrads.org/ <http://www.micrads.org/>
+
+----------------------------------------------------------------------=
+--------------------------------------------------------
+
+=20
+
+Scope
+
+MICRADS=C2=B420 - The 2020 Multidisciplinary International Conference =
+of Research Applied to Defense and Security, to be held at Quito, Ecua=
+dor, 13-15 May 2020, is an international forum for researchers and pra=
+ctitioners to present and discuss the most recent innovations, trends,=
+ results, experiences and concerns in the several perspectives of Defe=
+nse and Security.
+
+We are pleased to invite you to submit your papers to MICRADS=C2=B420.=
+ They can be written in English, Spanish or Portuguese. All submission=
+s will be reviewed on the basis of relevance, originality, importance =
+and clarity.
+
+=20
+
+Topics
+
+Submitted papers should be related with one or more of the main themes=
+ proposed for the Conference:
+
+=20
+
+Area A: Systems, Communication and Defense
+
+A1) Information and Communication Technology in Education
+A2) Simulation and computer vision in military applications
+A3) Analysis and Signal Processing
+A4) Cybersecurity and Cyberdefense
+A5) Computer Networks, Mobility and Pervasive Systems
+
+ =20
+
+Area B: Strategy and political-administrative vision in Defense
+
+B1) Safety and Maritime Protection
+B2) Strategy, Geopolitics and Oceanopolitics
+B3) Planning, economy and logistics applied to Defense
+B4) Leadership and e-leadership
+B5) Military Marketing
+B6) Health informatics in military applications
+
+=20
+
+Area C: Engineering and technologies applied to Defense
+
+C1) Wearable Technology and Assistance Devices
+C2) Military Naval Engineering
+C3) Weapons and Combat Systems
+C4) Chemical, Biological and Nuclear Defense
+C5) Defense Engineering (General)
+
+ =20
+
+Submission and Decision
+
+Submitted papers written in English (until 10-page limit) must comply =
+with the format of Smart Innovation, Systems and Technologies series (=
+see Instructions for Authors at Springer Website <https://www.springer=
+=2Ecom/us/authors-editors/conference-proceedings/conference-proceeding=
+s-guidelines>), must not have been published before, not be under revi=
+ew for any other conference or publication and not include any informa=
+tion leading to the authors=E2=80=99 identification. Therefore, the au=
+thors=E2=80=99 names, affiliations and e-mails should not be included =
+in the version for evaluation by the Scientific Committee. This inform=
+ation should only be included in the camera-ready version, saved in Wo=
+rd or Latex format and also in PDF format. These files must be accompa=
+nied by the Consent to Publish form <http://www.micrads.org/consent.do=
+c> filled out, in a ZIP file, and uploaded at the conference managemen=
+t system.
+
+Submitted papers written in Spanish or Portuguese (until 15-page limit=
+) must comply with the format of RISTI <http://www.risti.xyz/> - Revis=
+ta Ib=C3=A9rica de Sistemas e Tecnologias de Informa=C3=A7=C3=A3o (dow=
+nload instructions/template for authors in Spanish <http://www.risti.x=
+yz/formato-es.doc> or Portuguese <http://www.risti.xyz/formato-pt.doc>=
+), must not have been published before, not be under review for any ot=
+her conference or publication and not include any information leading =
+to the authors=E2=80=99 identification. Therefore, the authors=E2=80=99=
+ names, affiliations and e-mails should not be included in the version=
+ for evaluation by the Scientific Committee. This information should o=
+nly be included in the camera-ready version, saved in Word. These file=
+ must be uploaded at the conference management system in a ZIP file.
+
+All papers will be subjected to a =E2=80=9Cblind review=E2=80=9D by at=
+ least two members of the Scientific Committee.
+
+Based on Scientific Committee evaluation, a paper can be rejected or a=
+ccepted by the Conference Chairs. In the later case, it can be accepte=
+d as paper or poster.
+
+The authors of papers accepted as posters must build and print a poste=
+r to be exhibited during the Conference. This poster must follow an A1=
+ or A2 vertical format. The Conference can includes Work Sessions wher=
+e these posters are presented and orally discussed, with a 7 minute li=
+mit per poster.
+
+The authors of accepted papers will have 15 minutes to present their w=
+ork in a Conference Work Session; approximately 5 minutes of discussio=
+n will follow each presentation.
+
+=20
+
+Publication and Indexing
+
+To ensure that an accepted paper is published, at least one of the aut=
+hors must be fully registered by the 18 of February 2020, and the pape=
+r must comply with the suggested layout and page-limit (until 10 pages=
+). Additionally, all recommended changes must be addressed by the auth=
+ors before they submit the camera-ready version.
+
+No more than one paper per registration will be published. An extra fe=
+e must be paid for publication of additional papers, with a maximum of=
+ one additional paper per registration. One registration permits only =
+the participation of one author in the conference.
+
+Papers can be written in English, Spanish or Portuguese. Accepted and =
+registered papers written in English will be published in Proceedings =
+by Springer, in a book of its SIST series, and will be submitted for i=
+ndexing by ISI, SCOPUS, EI-Compendex, SpringerLink, and Google Scholar=
+=2E
+
+=20
+
+Important Dates
+
+Paper Submission: December 23, 2019
 
 
--- 
-Thanks,
+Notification of Acceptance: January 31, 2020
 
-David / dhildenb
+Payment of Registration, to ensure the inclusion of an accepted paper =
+in the conference proceedings: February 18, 2020
+
+Camera-ready Submission: February 18, 2020
+
+=20
+
+Website of MICRADS'20: http://www.micrads.org/ <http://www.micrads.org=
+/>
+
+=20
+
+--N3d=_kqGyly5ccM9AfMesEolwkiu7M3f4k
+Content-Type: text/html; charset="utf-8"
+Content-Transfer-Encoding: quoted-printable
+Content-Disposition: inline
+
+<html>
+  <head>
+    <title></title>
+    <meta content=3D"text/html; charset=3Dutf-8" http-equiv=3D"Content=
+-Type" />
+  </head>
+  <body>
+    <div itemprop=3D"articleBody">
+      <p>* Proceedings by Springer, indexed&nbsp;by Scopus, ISI, EI-Co=
+mpendex, Google Scholar, etc.</p>
+      <p>&nbsp;</p>
+      <p>--------------------------------------</p>
+      <p><strong>MICRADS&acute;20 - The 2020 Multidisciplinary Interna=
+tional Conference of Research Applied to Defense and Security</strong>=
+</p>
+      <p><strong>Quito, Ecuador,&nbsp;13 - 15 May 2020</strong></p>
+      <p><a href=3D"http://www.micrads.org/"><strong>http://www.micrad=
+s.org/</strong></a></p>
+      <p>-------------------------------------------------------------=
+-----------------------------------------------------------------</p>
+      <p>&nbsp;</p>
+      <div itemprop=3D"articleBody">
+        <div itemprop=3D"articleBody">
+          <p><strong>Scope</strong></p>
+          <p style=3D"text-align: justify">MICRADS&acute;20 - The 2020=
+ Multidisciplinary International Conference of Research Applied to Def=
+ense and Security, to be held at Quito, Ecuador, 13-15 May 2020, is an=
+ international forum for researchers and practitioners to present and =
+discuss the most recent innovations, trends, results, experiences and =
+concerns in the several perspectives of Defense and Security.</p>
+          <p style=3D"text-align: justify">We are pleased to invite yo=
+u to submit your papers to MICRADS&acute;20. They can be written in En=
+glish, Spanish or Portuguese. All submissions will be reviewed on the =
+basis of relevance, originality, importance and clarity.</p>
+          <p>&nbsp;</p>
+          <p><strong>Topics</strong></p>
+          <p>Submitted papers should be related with one or more of th=
+e main themes proposed for the Conference:</p>
+          <p>&nbsp;</p>
+          <p><strong>Area A: Systems, Communication and Defense</stron=
+g><br /><br />A1) Information and Communication Technology in Educatio=
+n<br />A2) Simulation and computer vision in military applications<br =
+/>A3) Analysis and Signal Processing<br />A4) Cybersecurity and Cyberd=
+efense<br />A5) Computer Networks, Mobility and Pervasive Systems</p>
+          <p>&nbsp;&nbsp;</p>
+          <p><strong>Area B: Strategy and political-administrative vis=
+ion in Defense</strong><br /><br />B1) Safety and Maritime Protection<=
+br />B2) Strategy, Geopolitics and Oceanopolitics<br />B3) Planning, e=
+conomy and logistics applied to Defense<br />B4) Leadership and e-lead=
+ership<br />B5) Military Marketing<br />B6) Health informatics in mili=
+tary applications</p>
+          <p>&nbsp;</p>
+          <p><strong>Area C: Engineering and technologies applied to D=
+efense</strong><br /><br />C1) Wearable Technology and Assistance Devi=
+ces<br />C2) Military Naval Engineering<br />C3) Weapons and Combat Sy=
+stems<br />C4) Chemical, Biological and Nuclear Defense<br />C5) Defen=
+se Engineering (General)</p>
+          <p>&nbsp;&nbsp;</p>
+          <p><strong>Submission and Decision</strong></p>
+          <p>Submitted papers written in English (until 10-page limit)=
+ must comply with the format of Smart Innovation, Systems and Technolo=
+gies series (see&nbsp;<strong><a href=3D"https://www.springer.com/us/a=
+uthors-editors/conference-proceedings/conference-proceedings-guideline=
+s" rel=3D"noopener noreferrer" target=3D"_blank">Instructions for Auth=
+ors at Springer Website</a></strong>), must not have been published be=
+fore, not be under review for any other conference or publication and =
+not include any information leading to the authors&rsquo; identificati=
+on. Therefore, the authors&rsquo; names, affiliations and e-mails shou=
+ld not be included in the version for evaluation by the Scientific Com=
+mittee. This information should only be included in the camera-ready v=
+ersion, saved in Word or Latex format and also in PDF format.&nbsp;<sp=
+an lang=3D"en" id=3D"result_box">These files&nbsp;must&nbsp;be accompa=
+nied by the&nbsp;<strong><a href=3D"http://www.micrads.org/consent.doc=
+" rel=3D"noopener noreferrer" target=3D"_blank">Consent to Publish for=
+m</a></strong>&nbsp;filled out,&nbsp;</span><span lang=3D"en" id=3D"re=
+sult_box">in a ZIP file, and uploaded at the conference management sys=
+tem.</span></p>
+          <p><span lang=3D"en">Submitted papers written in Spanish or =
+Portuguese (until 15-page limit) must comply with the format of <stron=
+g><a href=3D"http://www.risti.xyz/" rel=3D"noopener noreferrer" target=
+=3D"_blank">RISTI</a></strong> - Revista Ib&eacute;rica de Sistemas e =
+Tecnologias de Informa&ccedil;&atilde;o (download instructions/templat=
+e for authors in <strong><a href=3D"http://www.risti.xyz/formato-es.do=
+c" rel=3D"noopener noreferrer" target=3D"_blank">Spanish</a></strong> =
+or <strong><a href=3D"http://www.risti.xyz/formato-pt.doc" rel=3D"noop=
+ener noreferrer" target=3D"_blank">Portuguese</a></strong>), must not =
+have been published before, not be under review for any other conferen=
+ce or publication and not include any information leading to the autho=
+rs&rsquo; identification. Therefore, the authors&rsquo; names, affilia=
+tions and e-mails should not be included in the version for evaluation=
+ by the Scientific Committee. This information should only be included=
+ in the camera-ready version, saved in Word.&nbsp;<span lang=3D"en" id=
+=3D"result_box">These file must&nbsp;be </span><span lang=3D"en" id=3D=
+"result_box">uploaded at the conference management system in a ZIP fil=
+e.</span></span></p>
+          <p style=3D"text-align: justify">All papers will be subjecte=
+d to a &ldquo;blind review&rdquo; by at least two members of the Scien=
+tific Committee.</p>
+          <p style=3D"text-align: justify">Based on Scientific Committ=
+ee evaluation, a paper can be rejected or accepted by the Conference C=
+hairs. In the later case, it can be accepted as paper or poster.</p>
+          <p style=3D"text-align: justify">The authors of papers accep=
+ted as posters must build and print a poster to be exhibited during th=
+e Conference. This poster must follow an A1 or A2 vertical format. The=
+ Conference can includes Work Sessions where these posters are present=
+ed and orally discussed, with a 7 minute limit per poster.</p>
+          <p style=3D"text-align: justify">The authors of accepted pap=
+ers will have 15 minutes to present their work in a Conference Work Se=
+ssion; approximately 5 minutes of discussion will follow each presenta=
+tion.</p>
+          <p>&nbsp;</p>
+          <p><strong>Publication and Indexing</strong></p>
+          <p style=3D"text-align: justify">To ensure that an accepted =
+paper is published, at least one of the authors must be fully register=
+ed by the 18 of February 2020, and the paper must comply with the sugg=
+ested layout and page-limit (until 10 pages). Additionally, all recomm=
+ended changes must be addressed by the authors before they submit the =
+camera-ready version.</p>
+          <p style=3D"text-align: justify">No more than one paper per =
+registration will be published. An extra fee must be paid for publicat=
+ion of additional papers, with a maximum of one additional paper per r=
+egistration. One registration permits only the participation of one au=
+thor in the conference.</p>
+          <p style=3D"text-align: justify"><span lang=3D"EN-US" style=3D=
+"font-size: 11pt; font-family: 'Calibri',sans-serif; line-height: 107%=
+">Papers can be written in English, Spanish or Portuguese. Accepted an=
+d registered papers written in English will be published in Proceeding=
+s by Springer, in a book of its <span style=3D"color: black">SIST seri=
+es, </span>and will be submitted for indexing by ISI, SCOPUS, EI-Compe=
+ndex, SpringerLink, and Google Scholar</span>.</p>
+          <p>&nbsp;</p>
+          <p><strong>Important Dates</strong></p>
+          <p>Paper Submission: December 23, 2019<span style=3D"text-de=
+coration: line-through"><br /></span></p>
+          <p>Notification of Acceptance: January 31, 2020</p>
+          <p>Payment of Registration,&nbsp;to ensure the inclusion of =
+an accepted paper in the conference proceedings: February 18, 2020</p>=
+
+          <p>Camera-ready Submission: February 18, 2020</p>
+          <p>&nbsp;</p>
+        </div>
+      </div>
+      <p><strong>Website of MICRADS'20</strong>: <a href=3D"http://www=
+=2Emicrads.org/">http://www.micrads.org/</a></p>
+      <p>&nbsp;</p>
+    </div>
+  </body>
+</html>
+
+--N3d=_kqGyly5ccM9AfMesEolwkiu7M3f4k--
+
+
+--===============6573320705567479548==
+Content-Type: text/plain; charset="us-ascii"
+MIME-Version: 1.0
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+
+_______________________________________________
+Virtualization mailing list
+Virtualization@lists.linux-foundation.org
+https://lists.linuxfoundation.org/mailman/listinfo/virtualization
+--===============6573320705567479548==--
