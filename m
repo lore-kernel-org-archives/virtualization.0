@@ -1,16 +1,14 @@
-From: "Michael S. Tsirkin" <mst@redhat.com>
-Subject: Re: [PATCH RFC net-next v8 1/3] netdev: pass the stuck queue to the
- timeout handler
-Date: Tue, 10 Dec 2019 09:27:27 -0500
-Message-ID: <20191210092623-mutt-send-email-mst__19312.1128411562$1575988074$gmane$org@kernel.org>
-References: <20191203201804.662066-1-mst@redhat.com>
- <20191203201804.662066-2-mst@redhat.com>
- <CAMuHMdXDm0NiCk1pD_-wS9c-ErmRKkrqnPc_pGKzG=QB35mj9A@mail.gmail.com>
+From: Stefano Garzarella <sgarzare@redhat.com>
+Subject: Re: [PATCH] vhost/vsock: accept only packets with the right dst_cid
+Date: Tue, 10 Dec 2019 15:32:51 +0100
+Message-ID: <20191210143251.szkicty23b6pojxh__8838.47929523967$1575988394$gmane$org@steredhat>
+References: <20191206143912.153583-1-sgarzare@redhat.com>
+ <20191210090505-mutt-send-email-mst@kernel.org>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <CAMuHMdXDm0NiCk1pD_-wS9c-ErmRKkrqnPc_pGKzG=QB35mj9A@mail.gmail.com>
+In-Reply-To: <20191210090505-mutt-send-email-mst@kernel.org>
 Content-Disposition: inline
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
  <mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
@@ -21,76 +19,32 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
  <mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Errors-To: virtualization-bounces@lists.linux-foundation.org
 Sender: "Virtualization" <virtualization-bounces@lists.linux-foundation.org>
-To: Geert Uytterhoeven <geert@linux-m68k.org>
-Cc: dnmendes76@gmail.com, Jakub Kicinski <jakub.kicinski@netronome.com>, netdev <netdev@vger.kernel.org>, Linux Kernel Mailing List <linux-kernel@vger.kernel.org>, virtualization@lists.linux-foundation.org, Martin Habets <mhabets@solarflare.com>, Julio Faracco <jcfaracco@gmail.com>, Shannon Nelson <snelson@pensando.io>, "David S. Miller" <davem@davemloft.net>, Heiner Kallweit <hkallweit1@gmail.com>
+To: "Michael S. Tsirkin" <mst@redhat.com>
+Cc: kvm@vger.kernel.org, netdev@vger.kernel.org, linux-kernel@vger.kernel.org, virtualization@lists.linux-foundation.org, Stefan Hajnoczi <stefanha@redhat.com>
 List-Id: virtualization@lists.linuxfoundation.org
 
-On Mon, Dec 09, 2019 at 08:40:06AM +0100, Geert Uytterhoeven wrote:
-> Hi Michael,
+On Tue, Dec 10, 2019 at 09:05:58AM -0500, Michael S. Tsirkin wrote:
+> On Fri, Dec 06, 2019 at 03:39:12PM +0100, Stefano Garzarella wrote:
+> > When we receive a new packet from the guest, we check if the
+> > src_cid is correct, but we forgot to check the dst_cid.
+> > 
+> > The host should accept only packets where dst_cid is
+> > equal to the host CID.
+> > 
+> > Signed-off-by: Stefano Garzarella <sgarzare@redhat.com>
 > 
-> On Tue, Dec 3, 2019 at 9:21 PM Michael S. Tsirkin <mst@redhat.com> wrote:
-> > This allows incrementing the correct timeout statistic without any mess.
-> > Down the road, devices can learn to reset just the specific queue.
-> >
-> > The patch was generated with the following script:
-> 
-> [...]
-> 
-> > Signed-off-by: Michael S. Tsirkin <mst@redhat.com>
-> 
-> > --- a/drivers/net/ethernet/8390/8390p.c
-> > +++ b/drivers/net/ethernet/8390/8390p.c
-> > @@ -41,9 +41,9 @@ void eip_set_multicast_list(struct net_device *dev)
-> >  }
-> >  EXPORT_SYMBOL(eip_set_multicast_list);
-> >
-> > -void eip_tx_timeout(struct net_device *dev)
-> > +void eip_tx_timeout(struct net_device *dev, unsigned int txqueue)
-> >  {
-> > -       __ei_tx_timeout(dev);
-> > +       __ei_tx_timeout(dev, txqueue);
-> >  }
-> >  EXPORT_SYMBOL(eip_tx_timeout);
-> 
-> On Mon, Dec 9, 2019 at 6:37 AM <noreply@ellerman.id.au> wrote:
-> > FAILED linux-next/m68k-defconfig/m68k Mon Dec 09, 16:34
-> >
-> > http://kisskb.ellerman.id.au/kisskb/buildresult/14060060/
-> >
-> > Commit:   Add linux-next specific files for 20191209
-> >           6cf8298daad041cd15dc514d8a4f93ca3636c84e
-> > Compiler: m68k-linux-gcc (GCC) 4.6.3 / GNU ld (GNU Binutils) 2.22
-> >
-> > Possible errors
-> > ---------------
-> >
-> > drivers/net/ethernet/8390/8390p.c:44:6: error: conflicting types for 'eip_tx_timeout'
-> > drivers/net/ethernet/8390/8390p.c:48:1: error: conflicting types for 'eip_tx_timeout'
-> > make[5]: *** [scripts/Makefile.build:266: drivers/net/ethernet/8390/8390p.o] Error 1
-> > make[4]: *** [scripts/Makefile.build:503: drivers/net/ethernet/8390] Error 2
-> > make[3]: *** [scripts/Makefile.build:503: drivers/net/ethernet] Error 2
-> > make[2]: *** [scripts/Makefile.build:503: drivers/net] Error 2
-> > make[1]: *** [Makefile:1693: drivers] Error 2
-> > make: *** [Makefile:179: sub-make] Error 2
-> 
-> Looks like you forgot to update the forward declaration in
-> drivers/net/ethernet/8390/8390.h
+> what's the implication of processing incorrect dst cid?
+> I think mostly it's malformed guests, right?
 
-Fixed now.
+Exaclty, as for the src_cid.
 
-> There may be others...
+In both cases the packet may be delivered to the wrong socket in the
+host, because in the virtio_transport_recv_pkt() we are using the
+src_cid and dst_cid to look for the socket where to queue the packet.
 
-Could not find any but pls do let me know.
+> Everyone else just passes the known host cid ...
 
-> http://kisskb.ellerman.id.au/kisskb/head/6cf8298daad041cd15dc514d8a4f93ca3636c84e/
-> 
-> Gr{oetje,eeting}s,
-> 
->                         Geert
-> 
-> -- 
-> Geert Uytterhoeven -- There's lots of Linux beyond ia32 -- geert@linux-m68k.org
-> 
-> In personal conversations with technical people, I call myself a hacker. But
-> when I'm talking to journalists I just say "programmer" or something like that.
->                                 -- Linus Torvalds
+Yes, good guests should do it, and we do it :-)
+
+Thanks,
+Stefano
