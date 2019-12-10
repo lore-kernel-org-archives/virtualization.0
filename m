@@ -1,8 +1,7 @@
 From: "Michael S. Tsirkin" <mst@redhat.com>
-Subject: [PATCH net-next v11 3/3] netronome: use the new txqueue timeout
- argument
-Date: Tue, 10 Dec 2019 08:09:32 -0500
-Message-ID: <20191210130837.47913-4-mst__16938.2382578746$1575983402$gmane$org@redhat.com>
+Subject: [PATCH net-next v11 2/3] mlx4: use new txqueue timeout argument
+Date: Tue, 10 Dec 2019 08:09:40 -0500
+Message-ID: <20191210130837.47913-3-mst__19395.5359560036$1575983404$gmane$org@redhat.com>
 References: <20191210130837.47913-1-mst@redhat.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
@@ -20,34 +19,42 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 Errors-To: virtualization-bounces@lists.linux-foundation.org
 Sender: "Virtualization" <virtualization-bounces@lists.linux-foundation.org>
 To: linux-kernel@vger.kernel.org, Julio Faracco <jcfaracco@gmail.com>
-Cc: dnmendes76@gmail.com, Jakub Kicinski <jakub.kicinski@netronome.com>, mst@redhat.com, netdev@vger.kernel.org, virtualization@lists.linux-foundation.org, davem@davemloft.net
+Cc: dnmendes76@gmail.com, mst@redhat.com, netdev@vger.kernel.org, virtualization@lists.linux-foundation.org, davem@davemloft.net
 List-Id: virtualization@lists.linuxfoundation.org
 
 Signed-off-by: Michael S. Tsirkin <mst@redhat.com>
-Acked-by: Jakub Kicinski <jakub.kicinski@netronome.com>
 ---
- drivers/net/ethernet/netronome/nfp/nfp_net_common.c | 8 +-------
- 1 file changed, 1 insertion(+), 7 deletions(-)
+ drivers/net/ethernet/mellanox/mlx4/en_netdev.c | 14 ++++----------
+ 1 file changed, 4 insertions(+), 10 deletions(-)
 
-diff --git a/drivers/net/ethernet/netronome/nfp/nfp_net_common.c b/drivers/net/ethernet/netronome/nfp/nfp_net_common.c
-index bd305fc6ed5a..d4eeb3b3cf35 100644
---- a/drivers/net/ethernet/netronome/nfp/nfp_net_common.c
-+++ b/drivers/net/ethernet/netronome/nfp/nfp_net_common.c
-@@ -1324,14 +1324,8 @@ nfp_net_tx_ring_reset(struct nfp_net_dp *dp, struct nfp_net_tx_ring *tx_ring)
- static void nfp_net_tx_timeout(struct net_device *netdev, unsigned int txqueue)
+diff --git a/drivers/net/ethernet/mellanox/mlx4/en_netdev.c b/drivers/net/ethernet/mellanox/mlx4/en_netdev.c
+index 71c083960a87..43dcbd8214c6 100644
+--- a/drivers/net/ethernet/mellanox/mlx4/en_netdev.c
++++ b/drivers/net/ethernet/mellanox/mlx4/en_netdev.c
+@@ -1367,20 +1367,14 @@ static void mlx4_en_tx_timeout(struct net_device *dev, unsigned int txqueue)
  {
- 	struct nfp_net *nn = netdev_priv(netdev);
+ 	struct mlx4_en_priv *priv = netdev_priv(dev);
+ 	struct mlx4_en_dev *mdev = priv->mdev;
 -	int i;
++	struct mlx4_en_tx_ring *tx_ring = priv->tx_ring[TX][txqueue];
  
--	for (i = 0; i < nn->dp.netdev->real_num_tx_queues; i++) {
--		if (!netif_tx_queue_stopped(netdev_get_tx_queue(netdev, i)))
+ 	if (netif_msg_timer(priv))
+ 		en_warn(priv, "Tx timeout called on port:%d\n", priv->port);
+ 
+-	for (i = 0; i < priv->tx_ring_num[TX]; i++) {
+-		struct mlx4_en_tx_ring *tx_ring = priv->tx_ring[TX][i];
+-
+-		if (!netif_tx_queue_stopped(netdev_get_tx_queue(dev, i)))
 -			continue;
--		nn_warn(nn, "TX timeout on ring: %d\n", i);
+-		en_warn(priv, "TX timeout on queue: %d, QP: 0x%x, CQ: 0x%x, Cons: 0x%x, Prod: 0x%x\n",
+-			i, tx_ring->qpn, tx_ring->sp_cqn,
+-			tx_ring->cons, tx_ring->prod);
 -	}
--	nn_warn(nn, "TX watchdog timeout\n");
-+	nn_warn(nn, "TX watchdog timeout on ring: %u\n", txqueue);
- }
++	en_warn(priv, "TX timeout on queue: %d, QP: 0x%x, CQ: 0x%x, Cons: 0x%x, Prod: 0x%x\n",
++		txqueue, tx_ring->qpn, tx_ring->sp_cqn,
++		tx_ring->cons, tx_ring->prod);
  
- /* Receive processing
+ 	priv->port_stats.tx_timeout++;
+ 	en_dbg(DRV, priv, "Scheduling watchdog\n");
 -- 
 MST
