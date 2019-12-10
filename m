@@ -1,13 +1,13 @@
 From: "Michael S. Tsirkin" <mst@redhat.com>
-Subject: Re: [PATCH] vhost/vsock: accept only packets with the right dst_cid
-Date: Tue, 10 Dec 2019 09:05:58 -0500
-Message-ID: <20191210090505-mutt-send-email-mst__15262.1464616217$1575986780$gmane$org@kernel.org>
-References: <20191206143912.153583-1-sgarzare@redhat.com>
+Subject: [PATCH net-next v12 2/3] mlx4: use new txqueue timeout argument
+Date: Tue, 10 Dec 2019 09:23:55 -0500
+Message-ID: <20191210142305.52171-3-mst__391.903454304554$1575987853$gmane$org@redhat.com>
+References: <20191210142305.52171-1-mst@redhat.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <20191206143912.153583-1-sgarzare@redhat.com>
+In-Reply-To: <20191210142305.52171-1-mst@redhat.com>
 Content-Disposition: inline
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
  <mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
@@ -18,41 +18,43 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
  <mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Errors-To: virtualization-bounces@lists.linux-foundation.org
 Sender: "Virtualization" <virtualization-bounces@lists.linux-foundation.org>
-To: Stefano Garzarella <sgarzare@redhat.com>
-Cc: kvm@vger.kernel.org, netdev@vger.kernel.org, linux-kernel@vger.kernel.org, virtualization@lists.linux-foundation.org, Stefan Hajnoczi <stefanha@redhat.com>
+To: linux-kernel@vger.kernel.org, Julio Faracco <jcfaracco@gmail.com>
+Cc: dnmendes76@gmail.com, mst@redhat.com, netdev@vger.kernel.org, virtualization@lists.linux-foundation.org, davem@davemloft.net
 List-Id: virtualization@lists.linuxfoundation.org
 
-On Fri, Dec 06, 2019 at 03:39:12PM +0100, Stefano Garzarella wrote:
-> When we receive a new packet from the guest, we check if the
-> src_cid is correct, but we forgot to check the dst_cid.
-> 
-> The host should accept only packets where dst_cid is
-> equal to the host CID.
-> 
-> Signed-off-by: Stefano Garzarella <sgarzare@redhat.com>
+Signed-off-by: Michael S. Tsirkin <mst@redhat.com>
+---
+ drivers/net/ethernet/mellanox/mlx4/en_netdev.c | 14 ++++----------
+ 1 file changed, 4 insertions(+), 10 deletions(-)
 
-what's the implication of processing incorrect dst cid?
-I think mostly it's malformed guests, right?
-Everyone else just passes the known host cid ...
-
-> ---
->  drivers/vhost/vsock.c | 4 +++-
->  1 file changed, 3 insertions(+), 1 deletion(-)
-> 
-> diff --git a/drivers/vhost/vsock.c b/drivers/vhost/vsock.c
-> index 50de0642dea6..c2d7d57e98cf 100644
-> --- a/drivers/vhost/vsock.c
-> +++ b/drivers/vhost/vsock.c
-> @@ -480,7 +480,9 @@ static void vhost_vsock_handle_tx_kick(struct vhost_work *work)
->  		virtio_transport_deliver_tap_pkt(pkt);
->  
->  		/* Only accept correctly addressed packets */
-> -		if (le64_to_cpu(pkt->hdr.src_cid) == vsock->guest_cid)
-> +		if (le64_to_cpu(pkt->hdr.src_cid) == vsock->guest_cid &&
-> +		    le64_to_cpu(pkt->hdr.dst_cid) ==
-> +		    vhost_transport_get_local_cid())
->  			virtio_transport_recv_pkt(&vhost_transport, pkt);
->  		else
->  			virtio_transport_free_pkt(pkt);
-> -- 
-> 2.23.0
+diff --git a/drivers/net/ethernet/mellanox/mlx4/en_netdev.c b/drivers/net/ethernet/mellanox/mlx4/en_netdev.c
+index 71c083960a87..43dcbd8214c6 100644
+--- a/drivers/net/ethernet/mellanox/mlx4/en_netdev.c
++++ b/drivers/net/ethernet/mellanox/mlx4/en_netdev.c
+@@ -1367,20 +1367,14 @@ static void mlx4_en_tx_timeout(struct net_device *dev, unsigned int txqueue)
+ {
+ 	struct mlx4_en_priv *priv = netdev_priv(dev);
+ 	struct mlx4_en_dev *mdev = priv->mdev;
+-	int i;
++	struct mlx4_en_tx_ring *tx_ring = priv->tx_ring[TX][txqueue];
+ 
+ 	if (netif_msg_timer(priv))
+ 		en_warn(priv, "Tx timeout called on port:%d\n", priv->port);
+ 
+-	for (i = 0; i < priv->tx_ring_num[TX]; i++) {
+-		struct mlx4_en_tx_ring *tx_ring = priv->tx_ring[TX][i];
+-
+-		if (!netif_tx_queue_stopped(netdev_get_tx_queue(dev, i)))
+-			continue;
+-		en_warn(priv, "TX timeout on queue: %d, QP: 0x%x, CQ: 0x%x, Cons: 0x%x, Prod: 0x%x\n",
+-			i, tx_ring->qpn, tx_ring->sp_cqn,
+-			tx_ring->cons, tx_ring->prod);
+-	}
++	en_warn(priv, "TX timeout on queue: %d, QP: 0x%x, CQ: 0x%x, Cons: 0x%x, Prod: 0x%x\n",
++		txqueue, tx_ring->qpn, tx_ring->sp_cqn,
++		tx_ring->cons, tx_ring->prod);
+ 
+ 	priv->port_stats.tx_timeout++;
+ 	en_dbg(DRV, priv, "Scheduling watchdog\n");
+-- 
+MST
