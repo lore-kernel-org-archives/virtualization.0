@@ -1,13 +1,11 @@
-From: David Miller <davem@davemloft.net>
-Subject: Re: [PATCH net-next v9 0/3] netdev: ndo_tx_timeout cleanup
-Date: Mon, 09 Dec 2019 14:43:41 -0800 (PST)
-Message-ID: <20191209.144341.154593651924539444.davem__10291.1345473089$1575931439$gmane$org@davemloft.net>
-References: <20191209162727.10113-1-mst@redhat.com>
+From: Gerd Hoffmann <kraxel@redhat.com>
+Subject: [PATCH] drm/virtio: fix mmap page attributes
+Date: Tue, 10 Dec 2019 09:57:59 +0100
+Message-ID: <20191210085759.14763-1-kraxel__21461.4638056204$1575968302$gmane$org@redhat.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <20191209162727.10113-1-mst@redhat.com>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
  <mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -17,19 +15,55 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
  <mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Errors-To: virtualization-bounces@lists.linux-foundation.org
 Sender: "Virtualization" <virtualization-bounces@lists.linux-foundation.org>
-To: mst@redhat.com
-Cc: dnmendes76@gmail.com, netdev@vger.kernel.org, linux-kernel@vger.kernel.org, virtualization@lists.linux-foundation.org, jcfaracco@gmail.com
+To: dri-devel@lists.freedesktop.org
+Cc: David Airlie <airlied@linux.ie>, open list <linux-kernel@vger.kernel.org>, "open list:VIRTIO GPU DRIVER" <virtualization@lists.linux-foundation.org>, Daniel Vetter <daniel@ffwll.ch>, gurchetansingh@chromium.org
 List-Id: virtualization@lists.linuxfoundation.org
 
-From: "Michael S. Tsirkin" <mst@redhat.com>
-Date: Mon, 9 Dec 2019 11:28:57 -0500
+virtio-gpu uses cached mappings.  shmem helpers use writecombine though.
+So roll our own mmap function, wrapping drm_gem_shmem_mmap(), to tweak
+vm_page_prot accordingly.
 
-> A bunch of drivers want to know which tx queue triggered a timeout,
-> and virtio wants to do the same.
-> We actually have the info to hand, let's just pass it on to drivers.
-> Note: tested with an experimental virtio patch by Julio.
-> That patch itself isn't ready yet though, so not included.
-> Other drivers compiled only.
+Reported-by: Gurchetan Singh <gurchetansingh@chromium.org>
+Signed-off-by: Gerd Hoffmann <kraxel@redhat.com>
+---
+ drivers/gpu/drm/virtio/virtgpu_object.c | 18 +++++++++++++++++-
+ 1 file changed, 17 insertions(+), 1 deletion(-)
 
-Besides the "int" --> "unsigned int" typing issue, I never saw patch #2
-neither on the mailing list nor directly sent to me.
+diff --git a/drivers/gpu/drm/virtio/virtgpu_object.c b/drivers/gpu/drm/virtio/virtgpu_object.c
+index 017a9e0fc3bb..158610902054 100644
+--- a/drivers/gpu/drm/virtio/virtgpu_object.c
++++ b/drivers/gpu/drm/virtio/virtgpu_object.c
+@@ -75,6 +75,22 @@ static void virtio_gpu_free_object(struct drm_gem_object *obj)
+ 	drm_gem_shmem_free_object(obj);
+ }
+ 
++static int virtio_gpu_gem_mmap(struct drm_gem_object *obj, struct vm_area_struct *vma)
++{
++	pgprot_t prot;
++	int ret;
++
++	ret = drm_gem_shmem_mmap(obj, vma);
++	if (ret < 0)
++		return ret;
++
++	/* virtio-gpu needs normal caching, so clear writecombine */
++	prot = vm_get_page_prot(vma->vm_flags);
++	prot = pgprot_decrypted(prot);
++	vma->vm_page_prot = prot;
++	return 0;
++}
++
+ static const struct drm_gem_object_funcs virtio_gpu_gem_funcs = {
+ 	.free = virtio_gpu_free_object,
+ 	.open = virtio_gpu_gem_object_open,
+@@ -86,7 +102,7 @@ static const struct drm_gem_object_funcs virtio_gpu_gem_funcs = {
+ 	.get_sg_table = drm_gem_shmem_get_sg_table,
+ 	.vmap = drm_gem_shmem_vmap,
+ 	.vunmap = drm_gem_shmem_vunmap,
+-	.mmap = &drm_gem_shmem_mmap,
++	.mmap = &virtio_gpu_gem_mmap,
+ };
+ 
+ struct drm_gem_object *virtio_gpu_create_object(struct drm_device *dev,
+-- 
+2.18.1
