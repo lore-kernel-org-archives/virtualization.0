@@ -1,14 +1,15 @@
-From: "Michael S. Tsirkin" <mst@redhat.com>
-Subject: Re: [PATCH] vhost/vsock: accept only packets with the right dst_cid
-Date: Wed, 11 Dec 2019 11:03:07 -0500
-Message-ID: <20191211110235-mutt-send-email-mst@kernel.org>
-References: <20191206143912.153583-1-sgarzare@redhat.com>
+From: Chia-I Wu <olvaffe@gmail.com>
+Subject: Re: [PATCH 1/3] drm/virtio: skip set_scanout if framebuffer didn't
+ change
+Date: Wed, 11 Dec 2019 10:27:39 -0800
+Message-ID: <CAPaKu7TyMPt4Wpq9FoWyTJSppURrz9XuFqD4fmFg6aX_9p+jtw__3553.67503814108$1576088884$gmane$org@mail.gmail.com>
+References: <20191211084216.25405-1-kraxel@redhat.com>
+ <20191211084216.25405-2-kraxel@redhat.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <20191206143912.153583-1-sgarzare@redhat.com>
-Content-Disposition: inline
+In-Reply-To: <20191211084216.25405-2-kraxel@redhat.com>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
  <mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -18,42 +19,64 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
  <mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Errors-To: virtualization-bounces@lists.linux-foundation.org
 Sender: "Virtualization" <virtualization-bounces@lists.linux-foundation.org>
-To: Stefano Garzarella <sgarzare@redhat.com>
-Cc: kvm@vger.kernel.org, netdev@vger.kernel.org, linux-kernel@vger.kernel.org, virtualization@lists.linux-foundation.org, Stefan Hajnoczi <stefanha@redhat.com>
+To: Gerd Hoffmann <kraxel@redhat.com>
+Cc: David Airlie <airlied@linux.ie>, Gurchetan Singh <gurchetansingh@chromium.org>, open list <linux-kernel@vger.kernel.org>, ML dri-devel <dri-devel@lists.freedesktop.org>, "open list:VIRTIO GPU DRIVER" <virtualization@lists.linux-foundation.org>
 List-Id: virtualization@lists.linuxfoundation.org
 
-On Fri, Dec 06, 2019 at 03:39:12PM +0100, Stefano Garzarella wrote:
-> When we receive a new packet from the guest, we check if the
-> src_cid is correct, but we forgot to check the dst_cid.
-> 
-> The host should accept only packets where dst_cid is
-> equal to the host CID.
-> 
-> Signed-off-by: Stefano Garzarella <sgarzare@redhat.com>
-
-Stefano can you clarify the impact pls?
-E.g. is this needed on stable? Etc.
-
-Thanks!
-
+On Wed, Dec 11, 2019 at 12:42 AM Gerd Hoffmann <kraxel@redhat.com> wrote:
+>
+> Signed-off-by: Gerd Hoffmann <kraxel@redhat.com>
 > ---
->  drivers/vhost/vsock.c | 4 +++-
->  1 file changed, 3 insertions(+), 1 deletion(-)
-> 
-> diff --git a/drivers/vhost/vsock.c b/drivers/vhost/vsock.c
-> index 50de0642dea6..c2d7d57e98cf 100644
-> --- a/drivers/vhost/vsock.c
-> +++ b/drivers/vhost/vsock.c
-> @@ -480,7 +480,9 @@ static void vhost_vsock_handle_tx_kick(struct vhost_work *work)
->  		virtio_transport_deliver_tap_pkt(pkt);
->  
->  		/* Only accept correctly addressed packets */
-> -		if (le64_to_cpu(pkt->hdr.src_cid) == vsock->guest_cid)
-> +		if (le64_to_cpu(pkt->hdr.src_cid) == vsock->guest_cid &&
-> +		    le64_to_cpu(pkt->hdr.dst_cid) ==
-> +		    vhost_transport_get_local_cid())
->  			virtio_transport_recv_pkt(&vhost_transport, pkt);
->  		else
->  			virtio_transport_free_pkt(pkt);
-> -- 
-> 2.23.0
+>  drivers/gpu/drm/virtio/virtgpu_plane.c | 31 ++++++++++++++------------
+>  1 file changed, 17 insertions(+), 14 deletions(-)
+>
+> diff --git a/drivers/gpu/drm/virtio/virtgpu_plane.c b/drivers/gpu/drm/virtio/virtgpu_plane.c
+> index bc4bc4475a8c..a0f91658c2bc 100644
+> --- a/drivers/gpu/drm/virtio/virtgpu_plane.c
+> +++ b/drivers/gpu/drm/virtio/virtgpu_plane.c
+> @@ -151,20 +151,23 @@ static void virtio_gpu_primary_plane_update(struct drm_plane *plane,
+>         if (bo->dumb)
+>                 virtio_gpu_update_dumb_bo(vgdev, bo, plane->state);
+>
+> -       DRM_DEBUG("handle 0x%x, crtc %dx%d+%d+%d, src %dx%d+%d+%d\n",
+> -                 bo->hw_res_handle,
+> -                 plane->state->crtc_w, plane->state->crtc_h,
+> -                 plane->state->crtc_x, plane->state->crtc_y,
+> -                 plane->state->src_w >> 16,
+> -                 plane->state->src_h >> 16,
+> -                 plane->state->src_x >> 16,
+> -                 plane->state->src_y >> 16);
+> -       virtio_gpu_cmd_set_scanout(vgdev, output->index,
+> -                                  bo->hw_res_handle,
+> -                                  plane->state->src_w >> 16,
+> -                                  plane->state->src_h >> 16,
+> -                                  plane->state->src_x >> 16,
+> -                                  plane->state->src_y >> 16);
+> +       if (plane->state->fb != old_state->fb) {
+Should we check src_{w,h,x,y} as well?
+> +               DRM_DEBUG("handle 0x%x, crtc %dx%d+%d+%d, src %dx%d+%d+%d\n",
+> +                         bo->hw_res_handle,
+> +                         plane->state->crtc_w, plane->state->crtc_h,
+> +                         plane->state->crtc_x, plane->state->crtc_y,
+> +                         plane->state->src_w >> 16,
+> +                         plane->state->src_h >> 16,
+> +                         plane->state->src_x >> 16,
+> +                         plane->state->src_y >> 16);
+> +               virtio_gpu_cmd_set_scanout(vgdev, output->index,
+> +                                          bo->hw_res_handle,
+> +                                          plane->state->src_w >> 16,
+> +                                          plane->state->src_h >> 16,
+> +                                          plane->state->src_x >> 16,
+> +                                          plane->state->src_y >> 16);
+> +       }
+> +
+>         virtio_gpu_cmd_resource_flush(vgdev, bo->hw_res_handle,
+>                                       plane->state->src_x >> 16,
+>                                       plane->state->src_y >> 16,
+> --
+> 2.18.1
+>
+> _______________________________________________
+> dri-devel mailing list
+> dri-devel@lists.freedesktop.org
+> https://lists.freedesktop.org/mailman/listinfo/dri-devel
