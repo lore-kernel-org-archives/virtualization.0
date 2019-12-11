@@ -1,13 +1,15 @@
-From: Gurchetan Singh <gurchetansingh@chromium.org>
+From: Gerd Hoffmann <kraxel@redhat.com>
 Subject: Re: [PATCH] drm/virtio: fix mmap page attributes
-Date: Tue, 10 Dec 2019 17:06:42 -0800
-Message-ID: <CAAfnVB=prUDgkPjZdB9QcA9XHdcBCQSPcf4mBL75LG8QJ4D=0Q__12742.0495309465$1576026435$gmane$org@mail.gmail.com>
+Date: Wed, 11 Dec 2019 09:15:41 +0100
+Message-ID: <20191211081541.ejofg4uxo6poss6v__2240.33407155133$1576052165$gmane$org@sirius.home.kraxel.org>
 References: <20191210085759.14763-1-kraxel@redhat.com>
+ <e8915378-df67-e6f4-f40c-599797e16e9c@suse.de>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <20191210085759.14763-1-kraxel@redhat.com>
+In-Reply-To: <e8915378-df67-e6f4-f40c-599797e16e9c@suse.de>
+Content-Disposition: inline
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
  <mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -17,66 +19,31 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
  <mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Errors-To: virtualization-bounces@lists.linux-foundation.org
 Sender: "Virtualization" <virtualization-bounces@lists.linux-foundation.org>
-To: Gerd Hoffmann <kraxel@redhat.com>
-Cc: David Airlie <airlied@linux.ie>, open list <linux-kernel@vger.kernel.org>, Daniel Vetter <daniel@ffwll.ch>, ML dri-devel <dri-devel@lists.freedesktop.org>, "open list:VIRTIO GPU DRIVER" <virtualization@lists.linux-foundation.org>
+To: Thomas Zimmermann <tzimmermann@suse.de>
+Cc: David Airlie <airlied@linux.ie>, gurchetansingh@chromium.org, open list <linux-kernel@vger.kernel.org>, dri-devel@lists.freedesktop.org, "open list:VIRTIO GPU DRIVER" <virtualization@lists.linux-foundation.org>
 List-Id: virtualization@lists.linuxfoundation.org
 
-On Tue, Dec 10, 2019 at 12:58 AM Gerd Hoffmann <kraxel@redhat.com> wrote:
->
-> virtio-gpu uses cached mappings.  shmem helpers use writecombine though.
-> So roll our own mmap function, wrapping drm_gem_shmem_mmap(), to tweak
-> vm_page_prot accordingly.
->
-> Reported-by: Gurchetan Singh <gurchetansingh@chromium.org>
-> Signed-off-by: Gerd Hoffmann <kraxel@redhat.com>
-> ---
->  drivers/gpu/drm/virtio/virtgpu_object.c | 18 +++++++++++++++++-
->  1 file changed, 17 insertions(+), 1 deletion(-)
->
-> diff --git a/drivers/gpu/drm/virtio/virtgpu_object.c b/drivers/gpu/drm/virtio/virtgpu_object.c
-> index 017a9e0fc3bb..158610902054 100644
-> --- a/drivers/gpu/drm/virtio/virtgpu_object.c
-> +++ b/drivers/gpu/drm/virtio/virtgpu_object.c
-> @@ -75,6 +75,22 @@ static void virtio_gpu_free_object(struct drm_gem_object *obj)
->         drm_gem_shmem_free_object(obj);
->  }
->
-> +static int virtio_gpu_gem_mmap(struct drm_gem_object *obj, struct vm_area_struct *vma)
-> +{
-> +       pgprot_t prot;
-> +       int ret;
-> +
-> +       ret = drm_gem_shmem_mmap(obj, vma);
-> +       if (ret < 0)
-> +               return ret;
-> +
-> +       /* virtio-gpu needs normal caching, so clear writecombine */
-> +       prot = vm_get_page_prot(vma->vm_flags);
-> +       prot = pgprot_decrypted(prot);
-> +       vma->vm_page_prot = prot;
-> +       return 0;
-> +}
-> +
->  static const struct drm_gem_object_funcs virtio_gpu_gem_funcs = {
->         .free = virtio_gpu_free_object,
->         .open = virtio_gpu_gem_object_open,
-> @@ -86,7 +102,7 @@ static const struct drm_gem_object_funcs virtio_gpu_gem_funcs = {
->         .get_sg_table = drm_gem_shmem_get_sg_table,
->         .vmap = drm_gem_shmem_vmap,
+  Hi,
 
-Do we need vmap/vmunap?  It seems optionable and also uses non-cacheable memory?
+> There's similar code in udl, [1] which still uses writecombine for
+> imported buffers. Virtio does not need this?
 
->         .vunmap = drm_gem_shmem_vunmap,
-> -       .mmap = &drm_gem_shmem_mmap,
-> +       .mmap = &virtio_gpu_gem_mmap,
+virtio doesn't support dma-buf imports (yet).
+So no worries for now.
 
-Why the &virtio_gpu_gem_mmap?  Shouldn't just virtio_gpu_gem_mmap work?
+Why pick writecombine for the imported buffer btw?
+It'll probably be correct for the majority of imports, but it still
+looks like a educated guess to me.  What if you import from vgem?
 
+I guess we should either ...
+  (1) Ask the exporting driver to handle things, simliar to how it is
+      done for vmaps already, probably by calling dma_buf_mmap(), or
+  (2) Refuse to mmap imported objects via drm api.
 
+> Aside from this, do you think we could handle all special cases within
+> shmem?
 
->  };
->
->  struct drm_gem_object *virtio_gpu_create_object(struct drm_device *dev,
-> --
-> 2.18.1
->
+Probably makes sense to teach shmem helpers about caching.
+
+cheers,
+  Gerd
