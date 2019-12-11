@@ -1,14 +1,11 @@
-From: Chia-I Wu <olvaffe@gmail.com>
-Subject: Re: [PATCH 3/3] virtio-gpu: use damage info for display updates.
-Date: Wed, 11 Dec 2019 11:03:59 -0800
-Message-ID: <CAPaKu7Tv2tGOW+Ns9yRQ0t9-Bk43wtV5KEh72fZuvPaX7Dy_gQ__8305.51424748904$1576091067$gmane$org@mail.gmail.com>
-References: <20191211084216.25405-1-kraxel@redhat.com>
- <20191211084216.25405-4-kraxel@redhat.com>
+From: Arnd Bergmann <arnd@arndb.de>
+Subject: [PATCH 00/24] block, scsi: final compat_ioctl cleanup
+Date: Wed, 11 Dec 2019 21:42:34 +0100
+Message-ID: <20191211204306.1207817-1-arnd__36216.1022074119$1576097157$gmane$org@arndb.de>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <20191211084216.25405-4-kraxel@redhat.com>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
  <mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -18,115 +15,177 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
  <mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Errors-To: virtualization-bounces@lists.linux-foundation.org
 Sender: "Virtualization" <virtualization-bounces@lists.linux-foundation.org>
-To: Gerd Hoffmann <kraxel@redhat.com>
-Cc: David Airlie <airlied@linux.ie>, Gurchetan Singh <gurchetansingh@chromium.org>, open list <linux-kernel@vger.kernel.org>, ML dri-devel <dri-devel@lists.freedesktop.org>, "open list:VIRTIO GPU DRIVER" <virtualization@lists.linux-foundation.org>
+To: Jens Axboe <axboe@kernel.dk>, "James E.J. Bottomley" <jejb@linux.ibm.com>, "Martin K. Petersen" <martin.petersen@oracle.com>, Alexander Viro <viro@zeniv.linux.org.uk>
+Cc: justin@coraid.com, mst@redhat.com, catalin.marinas@arm.com, Kai.Makisara@kolumbus.fi, linux-ide@vger.kernel.org, artur.paszkiewicz@intel.com, will@kernel.org, tim@cyberelk.net, anton.ivanov@cambridgegreys.com, hare@suse.com, sstabellini@kernel.org, linux-scsi@vger.kernel.org, corbet@lwn.net, y2038@lists.linaro.org, richard@nod.at, linux-doc@vger.kernel.org, dgilbert@interlog.com, xen-devel@lists.xenproject.org, jinpu.wang@cloud.ionos.com, intel-linux-scu@intel.com, Arnd Bergmann <arnd@arndb.de>, konrad.wilk@oracle.com, jdike@addtoit.com, john.garry@huawei.com, linux-um@lists.infradead.org, efremov@linux.com, linux-block@vger.kernel.org, brking@us.ibm.com, bp@alien8.de, stefanha@redhat.com, boris.ostrovsky@oracle.com, virtualization@lists.linux-foundation.org, linux-arm-kernel@lists.infradead.org, jgross@suse.com, linux-kernel@vger.kernel.org, fujita.tomonori@lab.ntt.co.j
 List-Id: virtualization@lists.linuxfoundation.org
 
-On Wed, Dec 11, 2019 at 12:42 AM Gerd Hoffmann <kraxel@redhat.com> wrote:
->
-> Signed-off-by: Gerd Hoffmann <kraxel@redhat.com>
-> ---
->  drivers/gpu/drm/virtio/virtgpu_plane.c | 41 +++++++++++++++-----------
->  1 file changed, 24 insertions(+), 17 deletions(-)
->
-> diff --git a/drivers/gpu/drm/virtio/virtgpu_plane.c b/drivers/gpu/drm/virtio/virtgpu_plane.c
-> index 2e0d14e005db..1a0fbbb91ec7 100644
-> --- a/drivers/gpu/drm/virtio/virtgpu_plane.c
-> +++ b/drivers/gpu/drm/virtio/virtgpu_plane.c
-> @@ -24,6 +24,7 @@
->   */
->
->  #include <drm/drm_atomic_helper.h>
-> +#include <drm/drm_damage_helper.h>
->  #include <drm/drm_fourcc.h>
->  #include <drm/drm_plane_helper.h>
->
-> @@ -103,22 +104,26 @@ static int virtio_gpu_plane_atomic_check(struct drm_plane *plane,
->  }
->
->  static void virtio_gpu_update_dumb_bo(struct virtio_gpu_device *vgdev,
-> -                                     struct virtio_gpu_object *bo,
-> -                                     struct drm_plane_state *state)
-> +                                     struct drm_plane_state *state,
-> +                                     struct drm_rect *rect)
->  {
-> +       struct virtio_gpu_object *bo =
-> +               gem_to_virtio_gpu_obj(state->fb->obj[0]);
->         struct virtio_gpu_object_array *objs;
-> +       uint32_t w = rect->x2 - rect->x1;
-> +       uint32_t h = rect->y2 - rect->y1;
-> +       uint32_t x = rect->x1 + (state->src_x >> 16);
-> +       uint32_t y = rect->y1 + (state->src_y >> 16);
-> +       uint32_t off = x * state->fb->format->cpp[0] +
-> +               y * state->fb->pitches[0];
->
->         objs = virtio_gpu_array_alloc(1);
->         if (!objs)
->                 return;
->         virtio_gpu_array_add_obj(objs, &bo->base.base);
-> -       virtio_gpu_cmd_transfer_to_host_2d
-> -               (vgdev, 0,
-> -                state->src_w >> 16,
-> -                state->src_h >> 16,
-> -                state->src_x >> 16,
-> -                state->src_y >> 16,
-> -                objs, NULL);
-> +
-> +       virtio_gpu_cmd_transfer_to_host_2d(vgdev, off, w, h, x, y,
-> +                                          objs, NULL);
->  }
->
->  static void virtio_gpu_primary_plane_update(struct drm_plane *plane,
-> @@ -127,8 +132,8 @@ static void virtio_gpu_primary_plane_update(struct drm_plane *plane,
->         struct drm_device *dev = plane->dev;
->         struct virtio_gpu_device *vgdev = dev->dev_private;
->         struct virtio_gpu_output *output = NULL;
-> -       struct virtio_gpu_framebuffer *vgfb;
->         struct virtio_gpu_object *bo;
-> +       struct drm_rect rect;
->
->         if (plane->state->crtc)
->                 output = drm_crtc_to_virtio_gpu_output(plane->state->crtc);
-> @@ -146,12 +151,14 @@ static void virtio_gpu_primary_plane_update(struct drm_plane *plane,
->                 return;
->         }
->
-> +       if (!drm_atomic_helper_damage_merged(old_state, plane->state, &rect))
-> +               return;
-> +
->         virtio_gpu_disable_notify(vgdev);
->
-> -       vgfb = to_virtio_gpu_framebuffer(plane->state->fb);
-> -       bo = gem_to_virtio_gpu_obj(vgfb->base.obj[0]);
-> +       bo = gem_to_virtio_gpu_obj(plane->state->fb->obj[0]);
->         if (bo->dumb)
-> -               virtio_gpu_update_dumb_bo(vgdev, bo, plane->state);
-> +               virtio_gpu_update_dumb_bo(vgdev, plane->state, &rect);
->
->         if (plane->state->fb != old_state->fb) {
->                 DRM_DEBUG("handle 0x%x, crtc %dx%d+%d+%d, src %dx%d+%d+%d\n",
-> @@ -171,10 +178,10 @@ static void virtio_gpu_primary_plane_update(struct drm_plane *plane,
->         }
->
->         virtio_gpu_cmd_resource_flush(vgdev, bo->hw_res_handle,
-> -                                     plane->state->src_x >> 16,
-> -                                     plane->state->src_y >> 16,
-> -                                     plane->state->src_w >> 16,
-> -                                     plane->state->src_h >> 16);
-> +                                     (plane->state->src_x >> 16) + rect.x1,
-> +                                     (plane->state->src_y >> 16) + rect.y1,
-Digging into drm_atomic_helper_damage_merged, it seems rect uses
-absolute values and is not relative to src_{x,y}.
+Hi Jens, James and Martin,
 
-> +                                     rect.x2 - rect.x1,
-> +                                     rect.y2 - rect.y1);
->
->         virtio_gpu_enable_notify(vgdev);
->  }
-> --
-> 2.18.1
->
-> _______________________________________________
-> dri-devel mailing list
-> dri-devel@lists.freedesktop.org
-> https://lists.freedesktop.org/mailman/listinfo/dri-devel
+This series concludes the work I did for linux-5.5 on the compat_ioctl()
+cleanup, killing off fs/compat_ioctl.c and block/compat_ioctl.c by moving
+everything into drivers.
+
+Overall this would be a reduction both in complexity and line count, but
+as I'm also adding documentation the overall number of lines increases
+in the end.
+
+My plan was originally to keep the SCSI and block parts separate.
+This did not work easily because of interdependencies: I cannot
+do the final SCSI cleanup in a good way without first addressing the
+CDROM ioctls, so this is one series that I hope could be merged through
+either the block or the scsi git trees, or possibly both if you can
+pull in the same branch.
+
+The series comes in these steps:
+
+1. clean up the sg v3 interface as suggested by Linus. I have
+   talked about this with Doug Gilbert as well, and he would
+   rebase his sg v4 patches on top of "compat: scsi: sg: fix v3
+   compat read/write interface"
+
+2. Four patches for missing block compat_ioctl handlers, to be
+   backported into stable kernels. Separate patches because they
+   are needed in different stable versions.
+
+3. Actually moving handlers out of block/compat_ioctl.c and
+   block/scsi_ioctl.c into drivers, mixed in with cleanup
+   patches
+
+4. Document how to do this right. I keep getting asked about this,
+   and it helps to point to some documentation file.
+
+The series is avaialable for testing at [1].
+
+       Arnd
+
+[1] https://git.kernel.org/pub/scm/linux/kernel/git/arnd/playground.git/log/?h=compat-ioctl-endgame
+
+Arnd Bergmann (24):
+  compat: ARM64: always include asm-generic/compat.h
+  compat: scsi: sg: fix v3 compat read/write interface
+  compat_ioctl: block: handle BLKREPORTZONE/BLKRESETZONE
+  compat_ioctl: block: handle BLKGETZONESZ/BLKGETNRZONES
+  compat_ioctl: block: handle add zone open, close and finish ioctl
+  compat_ioctl: block: handle Persistent Reservations
+  compaT_ioctl: ubd, aoe: use blkdev_compat_ptr_ioctl
+  compat_ioctl: move CDROM_SEND_PACKET handling into scsi
+  compat_ioctl: move CDROMREADADIO to cdrom.c
+  compat_ioctl: cdrom: handle CDROM_LAST_WRITTEN
+  compat_ioctl: block: handle cdrom compat ioctl in non-cdrom drivers
+  compat_ioctl: add scsi_compat_ioctl
+  compat_ioctl: bsg: add handler
+  compat_ioctl: ide: floppy: add handler
+  compat_ioctl: scsi: move ioctl handling into drivers
+  compat_ioctl: move sys_compat_ioctl() to ioctl.c
+  compat_ioctl: simplify the implementation
+  compat_ioctl: move cdrom commands into cdrom.c
+  compat_ioctl: scsi: handle HDIO commands from drivers
+  compat_ioctl: move HDIO ioctl handling into drivers/ide
+  compat_ioctl: block: move blkdev_compat_ioctl() into ioctl.c
+  compat_ioctl: block: simplify compat_blkpg_ioctl()
+  compat_ioctl: simplify up block/ioctl.c
+  Documentation: document ioctl interfaces better
+
+ Documentation/core-api/index.rst       |   1 +
+ Documentation/core-api/ioctl.rst       | 250 +++++++++++++++
+ arch/arm64/include/asm/compat.h        |   5 +-
+ arch/um/drivers/ubd_kern.c             |   1 +
+ block/Makefile                         |   1 -
+ block/bsg.c                            |   1 +
+ block/compat_ioctl.c                   | 411 -------------------------
+ block/ioctl.c                          | 319 +++++++++++++++----
+ block/scsi_ioctl.c                     | 214 ++++++++-----
+ drivers/ata/libata-scsi.c              |   9 +
+ drivers/block/aoe/aoeblk.c             |   1 +
+ drivers/block/floppy.c                 |   3 +
+ drivers/block/paride/pcd.c             |   3 +
+ drivers/block/paride/pd.c              |   1 +
+ drivers/block/paride/pf.c              |   1 +
+ drivers/block/pktcdvd.c                |  26 +-
+ drivers/block/sunvdc.c                 |   1 +
+ drivers/block/virtio_blk.c             |   3 +
+ drivers/block/xen-blkfront.c           |   1 +
+ drivers/cdrom/cdrom.c                  |  35 ++-
+ drivers/cdrom/gdrom.c                  |   3 +
+ drivers/ide/ide-cd.c                   |  40 +++
+ drivers/ide/ide-disk.c                 |   3 +
+ drivers/ide/ide-floppy.c               |   4 +
+ drivers/ide/ide-floppy.h               |   2 +
+ drivers/ide/ide-floppy_ioctl.c         |  35 +++
+ drivers/ide/ide-gd.c                   |  14 +
+ drivers/ide/ide-ioctls.c               |  47 ++-
+ drivers/ide/ide-tape.c                 |  14 +
+ drivers/scsi/aic94xx/aic94xx_init.c    |   3 +
+ drivers/scsi/ch.c                      |   9 +-
+ drivers/scsi/hisi_sas/hisi_sas_v1_hw.c |   3 +
+ drivers/scsi/hisi_sas/hisi_sas_v2_hw.c |   3 +
+ drivers/scsi/hisi_sas/hisi_sas_v3_hw.c |   3 +
+ drivers/scsi/ipr.c                     |   3 +
+ drivers/scsi/isci/init.c               |   3 +
+ drivers/scsi/mvsas/mv_init.c           |   3 +
+ drivers/scsi/pm8001/pm8001_init.c      |   3 +
+ drivers/scsi/scsi_ioctl.c              |  54 +++-
+ drivers/scsi/sd.c                      |  50 ++-
+ drivers/scsi/sg.c                      | 169 +++++-----
+ drivers/scsi/sr.c                      |  53 +++-
+ drivers/scsi/st.c                      |  51 +--
+ fs/Makefile                            |   2 +-
+ fs/compat_ioctl.c                      | 261 ----------------
+ fs/internal.h                          |   6 -
+ fs/ioctl.c                             | 131 +++++---
+ include/linux/blkdev.h                 |   7 +
+ include/linux/falloc.h                 |   2 -
+ include/linux/fs.h                     |   4 -
+ include/linux/ide.h                    |   2 +
+ include/linux/libata.h                 |   6 +
+ include/scsi/scsi_ioctl.h              |   1 +
+ include/scsi/sg.h                      |  30 ++
+ 54 files changed, 1249 insertions(+), 1062 deletions(-)
+ create mode 100644 Documentation/core-api/ioctl.rst
+ delete mode 100644 block/compat_ioctl.c
+ delete mode 100644 fs/compat_ioctl.c
+
+-- 
+2.20.0
+
+Cc: corbet@lwn.net
+Cc: catalin.marinas@arm.com
+Cc: will@kernel.org
+Cc: jdike@addtoit.com
+Cc: richard@nod.at
+Cc: anton.ivanov@cambridgegreys.com
+Cc: fujita.tomonori@lab.ntt.co.jp
+Cc: justin@coraid.com
+Cc: efremov@linux.com
+Cc: tim@cyberelk.net
+Cc: mst@redhat.com
+Cc: jasowang@redhat.com
+Cc: pbonzini@redhat.com
+Cc: stefanha@redhat.com
+Cc: boris.ostrovsky@oracle.com
+Cc: jgross@suse.com
+Cc: sstabellini@kernel.org
+Cc: konrad.wilk@oracle.com
+Cc: roger.pau@citrix.com
+Cc: bp@alien8.de
+Cc: davem@davemloft.net
+Cc: john.garry@huawei.com
+Cc: brking@us.ibm.com
+Cc: intel-linux-scu@intel.com
+Cc: artur.paszkiewicz@intel.com
+Cc: jinpu.wang@cloud.ionos.com
+Cc: dgilbert@interlog.com
+Cc: Kai.Makisara@kolumbus.fi
+Cc: arnd@arndb.de
+Cc: damien.lemoal@hgst.com
+Cc: hare@suse.com
+Cc: linux-doc@vger.kernel.org
+Cc: linux-kernel@vger.kernel.org
+Cc: linux-block@vger.kernel.org
+Cc: linux-arm-kernel@lists.infradead.org
+Cc: linux-um@lists.infradead.org
+Cc: linux-scsi@vger.kernel.org
+Cc: linux-ide@vger.kernel.org
+Cc: virtualization@lists.linux-foundation.org
+Cc: xen-devel@lists.xenproject.org
+Cc: linux-fsdevel@vger.kernel.org
