@@ -1,14 +1,13 @@
-From: Sasha Levin <sashal@kernel.org>
-Subject: [PATCH AUTOSEL 4.14 113/130] crypto: virtio - deal with unsupported
- input sizes
-Date: Tue, 10 Dec 2019 17:02:44 -0500
-Message-ID: <20191210220301.13262-113-sashal__35455.4542385571$1576015530$gmane$org@kernel.org>
-References: <20191210220301.13262-1-sashal@kernel.org>
+From: Gurchetan Singh <gurchetansingh@chromium.org>
+Subject: Re: [PATCH] drm/virtio: fix mmap page attributes
+Date: Tue, 10 Dec 2019 17:06:42 -0800
+Message-ID: <CAAfnVB=prUDgkPjZdB9QcA9XHdcBCQSPcf4mBL75LG8QJ4D=0Q__12742.0495309465$1576026435$gmane$org@mail.gmail.com>
+References: <20191210085759.14763-1-kraxel@redhat.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <20191210220301.13262-1-sashal@kernel.org>
+In-Reply-To: <20191210085759.14763-1-kraxel@redhat.com>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
  <mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -18,68 +17,66 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
  <mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Errors-To: virtualization-bounces@lists.linux-foundation.org
 Sender: "Virtualization" <virtualization-bounces@lists.linux-foundation.org>
-To: linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc: Sasha Levin <sashal@kernel.org>, Herbert Xu <herbert@gondor.apana.org.au>, "Michael S. Tsirkin" <mst@redhat.com>, virtualization@lists.linux-foundation.org, linux-crypto@vger.kernel.org, Ard Biesheuvel <ardb@kernel.org>
+To: Gerd Hoffmann <kraxel@redhat.com>
+Cc: David Airlie <airlied@linux.ie>, open list <linux-kernel@vger.kernel.org>, Daniel Vetter <daniel@ffwll.ch>, ML dri-devel <dri-devel@lists.freedesktop.org>, "open list:VIRTIO GPU DRIVER" <virtualization@lists.linux-foundation.org>
 List-Id: virtualization@lists.linuxfoundation.org
 
-From: Ard Biesheuvel <ardb@kernel.org>
+On Tue, Dec 10, 2019 at 12:58 AM Gerd Hoffmann <kraxel@redhat.com> wrote:
+>
+> virtio-gpu uses cached mappings.  shmem helpers use writecombine though.
+> So roll our own mmap function, wrapping drm_gem_shmem_mmap(), to tweak
+> vm_page_prot accordingly.
+>
+> Reported-by: Gurchetan Singh <gurchetansingh@chromium.org>
+> Signed-off-by: Gerd Hoffmann <kraxel@redhat.com>
+> ---
+>  drivers/gpu/drm/virtio/virtgpu_object.c | 18 +++++++++++++++++-
+>  1 file changed, 17 insertions(+), 1 deletion(-)
+>
+> diff --git a/drivers/gpu/drm/virtio/virtgpu_object.c b/drivers/gpu/drm/virtio/virtgpu_object.c
+> index 017a9e0fc3bb..158610902054 100644
+> --- a/drivers/gpu/drm/virtio/virtgpu_object.c
+> +++ b/drivers/gpu/drm/virtio/virtgpu_object.c
+> @@ -75,6 +75,22 @@ static void virtio_gpu_free_object(struct drm_gem_object *obj)
+>         drm_gem_shmem_free_object(obj);
+>  }
+>
+> +static int virtio_gpu_gem_mmap(struct drm_gem_object *obj, struct vm_area_struct *vma)
+> +{
+> +       pgprot_t prot;
+> +       int ret;
+> +
+> +       ret = drm_gem_shmem_mmap(obj, vma);
+> +       if (ret < 0)
+> +               return ret;
+> +
+> +       /* virtio-gpu needs normal caching, so clear writecombine */
+> +       prot = vm_get_page_prot(vma->vm_flags);
+> +       prot = pgprot_decrypted(prot);
+> +       vma->vm_page_prot = prot;
+> +       return 0;
+> +}
+> +
+>  static const struct drm_gem_object_funcs virtio_gpu_gem_funcs = {
+>         .free = virtio_gpu_free_object,
+>         .open = virtio_gpu_gem_object_open,
+> @@ -86,7 +102,7 @@ static const struct drm_gem_object_funcs virtio_gpu_gem_funcs = {
+>         .get_sg_table = drm_gem_shmem_get_sg_table,
+>         .vmap = drm_gem_shmem_vmap,
 
-[ Upstream commit 19c5da7d4a2662e85ea67d2d81df57e038fde3ab ]
+Do we need vmap/vmunap?  It seems optionable and also uses non-cacheable memory?
 
-Return -EINVAL for input sizes that are not a multiple of the AES
-block size, since they are not supported by our CBC chaining mode.
+>         .vunmap = drm_gem_shmem_vunmap,
+> -       .mmap = &drm_gem_shmem_mmap,
+> +       .mmap = &virtio_gpu_gem_mmap,
 
-While at it, remove the pr_err() that reports unsupported key sizes
-being used: we shouldn't spam the kernel log with that.
+Why the &virtio_gpu_gem_mmap?  Shouldn't just virtio_gpu_gem_mmap work?
 
-Fixes: dbaf0624ffa5 ("crypto: add virtio-crypto driver")
-Cc: "Michael S. Tsirkin" <mst@redhat.com>
-Cc: Jason Wang <jasowang@redhat.com>
-Cc: Gonglei <arei.gonglei@huawei.com>
-Cc: virtualization@lists.linux-foundation.org
-Signed-off-by: Ard Biesheuvel <ardb@kernel.org>
-Signed-off-by: Herbert Xu <herbert@gondor.apana.org.au>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
----
- drivers/crypto/virtio/virtio_crypto_algs.c | 12 ++++++++++--
- 1 file changed, 10 insertions(+), 2 deletions(-)
 
-diff --git a/drivers/crypto/virtio/virtio_crypto_algs.c b/drivers/crypto/virtio/virtio_crypto_algs.c
-index 5035b0dc1e40c..e2231a1a05a12 100644
---- a/drivers/crypto/virtio/virtio_crypto_algs.c
-+++ b/drivers/crypto/virtio/virtio_crypto_algs.c
-@@ -110,8 +110,6 @@ virtio_crypto_alg_validate_key(int key_len, uint32_t *alg)
- 		*alg = VIRTIO_CRYPTO_CIPHER_AES_CBC;
- 		break;
- 	default:
--		pr_err("virtio_crypto: Unsupported key length: %d\n",
--			key_len);
- 		return -EINVAL;
- 	}
- 	return 0;
-@@ -485,6 +483,11 @@ static int virtio_crypto_ablkcipher_encrypt(struct ablkcipher_request *req)
- 	/* Use the first data virtqueue as default */
- 	struct data_queue *data_vq = &vcrypto->data_vq[0];
- 
-+	if (!req->nbytes)
-+		return 0;
-+	if (req->nbytes % AES_BLOCK_SIZE)
-+		return -EINVAL;
-+
- 	vc_req->dataq = data_vq;
- 	vc_req->alg_cb = virtio_crypto_dataq_sym_callback;
- 	vc_sym_req->ablkcipher_ctx = ctx;
-@@ -505,6 +508,11 @@ static int virtio_crypto_ablkcipher_decrypt(struct ablkcipher_request *req)
- 	/* Use the first data virtqueue as default */
- 	struct data_queue *data_vq = &vcrypto->data_vq[0];
- 
-+	if (!req->nbytes)
-+		return 0;
-+	if (req->nbytes % AES_BLOCK_SIZE)
-+		return -EINVAL;
-+
- 	vc_req->dataq = data_vq;
- 	vc_req->alg_cb = virtio_crypto_dataq_sym_callback;
- 	vc_sym_req->ablkcipher_ctx = ctx;
--- 
-2.20.1
+
+>  };
+>
+>  struct drm_gem_object *virtio_gpu_create_object(struct drm_device *dev,
+> --
+> 2.18.1
+>
