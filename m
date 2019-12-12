@@ -1,14 +1,18 @@
-From: David Hildenbrand <david@redhat.com>
-Subject: [PATCH RFC v4 12/13] mm/vmscan: Export drop_slab() and
- drop_slab_node()
-Date: Thu, 12 Dec 2019 18:11:36 +0100
-Message-ID: <20191212171137.13872-13-david__31730.9402556688$1576170831$gmane$org@redhat.com>
-References: <20191212171137.13872-1-david@redhat.com>
+From: Stefano Garzarella <sgarzare@redhat.com>
+Subject: Re: [PATCH] vhost/vsock: accept only packets with the right dst_cid
+Date: Thu, 12 Dec 2019 18:18:32 +0100
+Message-ID: <CAGxU2F5KYABXjATchcqw_rA13cyUzug0zrGX6TJX2CLqj9ZwGw__25981.5410756104$1576171132$gmane$org@mail.gmail.com>
+References: <20191206143912.153583-1-sgarzare@redhat.com>
+ <20191211110235-mutt-send-email-mst@kernel.org>
+ <20191212123624.ahyhrny7u6ntn3xt@steredhat>
+ <20191212075356-mutt-send-email-mst@kernel.org>
+ <20191212131453.yocx6wckoluwofbb@steredhat>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <20191212171137.13872-1-david@redhat.com>
+In-Reply-To: <20191212131453.yocx6wckoluwofbb@steredhat>
+Content-Disposition: inline
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
  <mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -18,68 +22,66 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
  <mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Errors-To: virtualization-bounces@lists.linux-foundation.org
 Sender: "Virtualization" <virtualization-bounces@lists.linux-foundation.org>
-To: linux-kernel@vger.kernel.org
-Cc: virtio-dev@lists.oasis-open.org, kvm@vger.kernel.org, "Michael S . Tsirkin" <mst@redhat.com>, Michal Hocko <mhocko@kernel.org>, linux-mm@kvack.org, Andrew Morton <akpm@linux-foundation.org>, virtualization@lists.linux-foundation.org
+To: "Michael S. Tsirkin" <mst@redhat.com>, "David S. Miller" <davem@davemloft.net>
+Cc: kvm <kvm@vger.kernel.org>, netdev@vger.kernel.org, linux-kernel@vger.kernel.org, virtualization@lists.linux-foundation.org, Stefan Hajnoczi <stefanha@redhat.com>
 List-Id: virtualization@lists.linuxfoundation.org
 
-We already have a way to trigger reclaiming of all reclaimable slab objects
-from user space (echo 2 > /proc/sys/vm/drop_caches). Let's allow drivers
-to also trigger this when they really want to make progress and know what
-they are doing.
+On Thu, Dec 12, 2019 at 2:14 PM Stefano Garzarella <sgarzare@redhat.com> wrote:
+> On Thu, Dec 12, 2019 at 07:56:26AM -0500, Michael S. Tsirkin wrote:
+> > On Thu, Dec 12, 2019 at 01:36:24PM +0100, Stefano Garzarella wrote:
+> > > On Wed, Dec 11, 2019 at 11:03:07AM -0500, Michael S. Tsirkin wrote:
+> > > > On Fri, Dec 06, 2019 at 03:39:12PM +0100, Stefano Garzarella wrote:
+> > > > > When we receive a new packet from the guest, we check if the
+> > > > > src_cid is correct, but we forgot to check the dst_cid.
+> > > > >
+> > > > > The host should accept only packets where dst_cid is
+> > > > > equal to the host CID.
+> > > > >
+> > > > > Signed-off-by: Stefano Garzarella <sgarzare@redhat.com>
+> > > >
+> > > > Stefano can you clarify the impact pls?
+> > >
+> > > Sure, I'm sorry I didn't do it earlier.
+> > >
+> > > > E.g. is this needed on stable? Etc.
+> > >
+> > > This is a better analysis (I hope) when there is a malformed guest
+> > > that sends a packet with a wrong dst_cid:
+> > > - before v5.4 we supported only one transport at runtime, so the sockets
+> > >   in the host can only receive packets from guests. In this case, if
+> > >   the dst_cid is wrong, maybe the only issue is that the getsockname()
+> > >   returns an inconsistent address (the cid returned is the one received
+> > >   from the guest)
+> > >
+> > > - from v5.4 we support multi-transport, so the L1 VM (e.g. L0 assigned
+> > >   cid 5 to this VM) can have both Guest2Host and Host2Guest transports.
+> > >   In this case, we have these possible issues:
+> > >   - L2 (or L1) guest can use cid 0, 1, and 2 to reach L1 (or L0),
+> > >     instead we should allow only CID_HOST (2) to reach the level below.
+> > >     Note: this happens also with not malformed guest that runs Linux v5.4
+> > >   - if a malformed L2 guest sends a packet with the wrong dst_cid, for example
+> > >     instead of CID_HOST, it uses the cid assigned by L0 to L1 (5 in this
+> > >     example), this packets can wrongly queued to a socket on L1 bound to cid 5,
+> > >     that only expects connections from L0.
+> >
+> > Oh so a security issue?
+> >
+>
+> It seems so, I'll try to see if I can get a real example,
+> maybe I missed a few checks.
 
-virtio-mem wants to use these functions when it failed to unplug memory
-for quite some time (e.g., after 30 minutes). It will then try to
-free up reclaimable objects by dropping the slab caches every now and
-then (e.g., every 30 minutes) as long as necessary. There will be a way to
-disable this feature and info messages will be logged.
+I was wrong!
+Multi-transport will be released with v5.5, which will contain this patch.
 
-In the future, we want to have a drop_slab_range() functionality
-instead. Memory offlining code has similar demands and also other
-alloc_contig_range() users (e.g., gigantic pages) could make good use of
-this feature. Adding it, however, requires more work/thought.
+Linux <= v5.4 are safe, with the exception of the potential wrong
+address returned by getsockname().
 
-Cc: Andrew Morton <akpm@linux-foundation.org>
-Cc: Michal Hocko <mhocko@kernel.org>
-Signed-off-by: David Hildenbrand <david@redhat.com>
----
- include/linux/mm.h | 4 ++--
- mm/vmscan.c        | 2 ++
- 2 files changed, 4 insertions(+), 2 deletions(-)
+In addition, trying Linux <= v5.4 (both guests and host), I found that
+userspace applications can use any dst_cid to reach the host.
 
-diff --git a/include/linux/mm.h b/include/linux/mm.h
-index 64799c5cb39f..483300f58be8 100644
---- a/include/linux/mm.h
-+++ b/include/linux/mm.h
-@@ -2706,8 +2706,8 @@ int drop_caches_sysctl_handler(struct ctl_table *, int,
- 					void __user *, size_t *, loff_t *);
- #endif
- 
--void drop_slab(void);
--void drop_slab_node(int nid);
-+extern void drop_slab(void);
-+extern void drop_slab_node(int nid);
- 
- #ifndef CONFIG_MMU
- #define randomize_va_space 0
-diff --git a/mm/vmscan.c b/mm/vmscan.c
-index c3e53502a84a..4e1cdaaec5e6 100644
---- a/mm/vmscan.c
-+++ b/mm/vmscan.c
-@@ -719,6 +719,7 @@ void drop_slab_node(int nid)
- 		} while ((memcg = mem_cgroup_iter(NULL, memcg, NULL)) != NULL);
- 	} while (freed > 10);
- }
-+EXPORT_SYMBOL(drop_slab_node);
- 
- void drop_slab(void)
- {
-@@ -728,6 +729,7 @@ void drop_slab(void)
- 		drop_slab_node(nid);
- 	count_vm_event(DROP_SLAB);
- }
-+EXPORT_SYMBOL(drop_slab);
- 
- static inline int is_page_cache_freeable(struct page *page)
- {
--- 
-2.23.0
+It is not a security issue but for sure a wrong semantics.
+Maybe we should still consider to backport this patch on stables to get
+the right semantics.
+
+Thanks,
+Stefano
