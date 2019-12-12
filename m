@@ -1,8 +1,8 @@
 From: David Hildenbrand <david@redhat.com>
-Subject: [PATCH RFC v4 09/13] virtio-mem: Offline and remove completely
- unplugged memory blocks
-Date: Thu, 12 Dec 2019 18:11:33 +0100
-Message-ID: <20191212171137.13872-10-david__35476.8727019959$1576170809$gmane$org@redhat.com>
+Subject: [PATCH RFC v4 11/13] mm/vmscan: Move count_vm_event(DROP_SLAB) into
+ drop_slab()
+Date: Thu, 12 Dec 2019 18:11:35 +0100
+Message-ID: <20191212171137.13872-12-david__20523.0934823462$1576170818$gmane$org@redhat.com>
 References: <20191212171137.13872-1-david@redhat.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
@@ -19,110 +19,48 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 Errors-To: virtualization-bounces@lists.linux-foundation.org
 Sender: "Virtualization" <virtualization-bounces@lists.linux-foundation.org>
 To: linux-kernel@vger.kernel.org
-Cc: virtio-dev@lists.oasis-open.org, Pavel Tatashin <pasha.tatashin@soleen.com>, kvm@vger.kernel.org, "Michael S . Tsirkin" <mst@redhat.com>, Michal Hocko <mhocko@kernel.org>, linux-mm@kvack.org, Stefan Hajnoczi <stefanha@redhat.com>, Igor Mammedov <imammedo@redhat.com>, Andrew Morton <akpm@linux-foundation.org>, virtualization@lists.linux-foundation.org, Dave Young <dyoung@redhat.com>, Dan Williams <dan.j.williams@intel.com>, Vlastimil Babka <vbabka@suse.cz>, Oscar Salvador <osalvador@suse.de>
+Cc: virtio-dev@lists.oasis-open.org, kvm@vger.kernel.org, "Michael S . Tsirkin" <mst@redhat.com>, Michal Hocko <mhocko@kernel.org>, linux-mm@kvack.org, Alexander Viro <viro@zeniv.linux.org.uk>, linux-fsdevel@vger.kernel.org, Andrew Morton <akpm@linux-foundation.org>, virtualization@lists.linux-foundation.org
 List-Id: virtualization@lists.linuxfoundation.org
 
-Let's offline+remove memory blocks once all subblocks are unplugged. We
-can use the new Linux MM interface for that. As no memory is in use
-anymore, this shouldn't take a long time and shouldn't fail. There might
-be corner cases where the offlining could still fail (especially, if
-another notifier NACKs the offlining request).
+Let's count within the function itself, so every invocation (of future
+users) will be counted.
 
-Cc: "Michael S. Tsirkin" <mst@redhat.com>
-Cc: Jason Wang <jasowang@redhat.com>
-Cc: Oscar Salvador <osalvador@suse.de>
-Cc: Michal Hocko <mhocko@kernel.org>
-Cc: Igor Mammedov <imammedo@redhat.com>
-Cc: Dave Young <dyoung@redhat.com>
+Cc: Alexander Viro <viro@zeniv.linux.org.uk>
 Cc: Andrew Morton <akpm@linux-foundation.org>
-Cc: Dan Williams <dan.j.williams@intel.com>
-Cc: Pavel Tatashin <pasha.tatashin@soleen.com>
-Cc: Stefan Hajnoczi <stefanha@redhat.com>
-Cc: Vlastimil Babka <vbabka@suse.cz>
+Cc: linux-fsdevel@vger.kernel.org
 Signed-off-by: David Hildenbrand <david@redhat.com>
 ---
- drivers/virtio/virtio_mem.c | 47 +++++++++++++++++++++++++++++++++----
- 1 file changed, 43 insertions(+), 4 deletions(-)
+ fs/drop_caches.c | 4 +---
+ mm/vmscan.c      | 1 +
+ 2 files changed, 2 insertions(+), 3 deletions(-)
 
-diff --git a/drivers/virtio/virtio_mem.c b/drivers/virtio/virtio_mem.c
-index a12a0f9c076b..807d4e393427 100644
---- a/drivers/virtio/virtio_mem.c
-+++ b/drivers/virtio/virtio_mem.c
-@@ -436,6 +436,28 @@ static int virtio_mem_mb_remove(struct virtio_mem *vm, unsigned long mb_id)
- 	return remove_memory(nid, addr, memory_block_size_bytes());
+diff --git a/fs/drop_caches.c b/fs/drop_caches.c
+index d31b6c72b476..a042da782fcd 100644
+--- a/fs/drop_caches.c
++++ b/fs/drop_caches.c
+@@ -61,10 +61,8 @@ int drop_caches_sysctl_handler(struct ctl_table *table, int write,
+ 			iterate_supers(drop_pagecache_sb, NULL);
+ 			count_vm_event(DROP_PAGECACHE);
+ 		}
+-		if (sysctl_drop_caches & 2) {
++		if (sysctl_drop_caches & 2)
+ 			drop_slab();
+-			count_vm_event(DROP_SLAB);
+-		}
+ 		if (!stfu) {
+ 			pr_info("%s (%d): drop_caches: %d\n",
+ 				current->comm, task_pid_nr(current),
+diff --git a/mm/vmscan.c b/mm/vmscan.c
+index 5a6445e86328..c3e53502a84a 100644
+--- a/mm/vmscan.c
++++ b/mm/vmscan.c
+@@ -726,6 +726,7 @@ void drop_slab(void)
+ 
+ 	for_each_online_node(nid)
+ 		drop_slab_node(nid);
++	count_vm_event(DROP_SLAB);
  }
  
-+/*
-+ * Try to offline and remove a memory block from Linux.
-+ *
-+ * Must not be called with the vm->hotplug_mutex held (possible deadlock with
-+ * onlining code).
-+ *
-+ * Will not modify the state of the memory block.
-+ */
-+static int virtio_mem_mb_offline_and_remove(struct virtio_mem *vm,
-+					    unsigned long mb_id)
-+{
-+	const uint64_t addr = virtio_mem_mb_id_to_phys(mb_id);
-+	int nid = vm->nid;
-+
-+	if (nid == NUMA_NO_NODE)
-+		nid = memory_add_physaddr_to_nid(addr);
-+
-+	dev_dbg(&vm->vdev->dev, "offlining and removing memory block: %lu\n",
-+		mb_id);
-+	return offline_and_remove_memory(nid, addr, memory_block_size_bytes());
-+}
-+
- /*
-  * Trigger the workqueue so the device can perform its magic.
-  */
-@@ -529,7 +551,13 @@ static void virtio_mem_notify_offline(struct virtio_mem *vm,
- 		break;
- 	}
- 
--	/* trigger the workqueue, maybe we can now unplug memory. */
-+	/*
-+	 * Trigger the workqueue, maybe we can now unplug memory. Also,
-+	 * when we offline and remove a memory block, this will re-trigger
-+	 * us immediately - which is often nice because the removal of
-+	 * the memory block (e.g., memmap) might have freed up memory
-+	 * on other memory blocks we manage.
-+	 */
- 	virtio_mem_retry(vm);
- }
- 
-@@ -1275,7 +1303,8 @@ static int virtio_mem_mb_unplug_any_sb_offline(struct virtio_mem *vm,
-  * Unplug the desired number of plugged subblocks of an online memory block.
-  * Will skip subblock that are busy.
-  *
-- * Will modify the state of the memory block.
-+ * Will modify the state of the memory block. Might temporarily drop the
-+ * hotplug_mutex.
-  *
-  * Note: Can fail after some subblocks were successfully unplugged. Can
-  *       return 0 even if subblocks were busy and could not get unplugged.
-@@ -1331,9 +1360,19 @@ static int virtio_mem_mb_unplug_any_sb_online(struct virtio_mem *vm,
- 	}
- 
- 	/*
--	 * TODO: Once all subblocks of a memory block were unplugged, we want
--	 * to offline the memory block and remove it.
-+	 * Once all subblocks of a memory block were unplugged, offline and
-+	 * remove it. This will usually not fail, as no memory is in use
-+	 * anymore - however some other notifiers might NACK the request.
- 	 */
-+	if (virtio_mem_mb_test_sb_unplugged(vm, mb_id, 0, vm->nb_sb_per_mb)) {
-+		mutex_unlock(&vm->hotplug_mutex);
-+		rc = virtio_mem_mb_offline_and_remove(vm, mb_id);
-+		mutex_lock(&vm->hotplug_mutex);
-+		if (!rc)
-+			virtio_mem_mb_set_state(vm, mb_id,
-+						VIRTIO_MEM_MB_STATE_UNUSED);
-+	}
-+
- 	return 0;
- }
- 
+ static inline int is_page_cache_freeable(struct page *page)
 -- 
 2.23.0
