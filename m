@@ -1,16 +1,14 @@
-From: "Rafael J. Wysocki" <rafael@kernel.org>
-Subject: Re: [PATCH RFC v4 01/13] ACPI: NUMA: export pxm_to_node
-Date: Fri, 13 Dec 2019 10:47:07 +0100
-Message-ID: <CAJZ5v0iqgnhOF1UQQBfv7C_b5RyoAz=U3JYLt3a0U+UnZ48DUA__21973.1514154532$1576230451$gmane$org@mail.gmail.com>
-References: <20191212171137.13872-1-david@redhat.com>
- <20191212171137.13872-2-david@redhat.com>
- <5687328.t4MNS9KDDX@kreacher>
- <ec81db03-b970-420a-9c1b-29849b5e8902@redhat.com>
+From: Hannes Reinecke <hare@suse.de>
+Subject: Re: [PATCH] virtio-blk: remove VIRTIO_BLK_F_SCSI support
+Date: Fri, 13 Dec 2019 10:55:35 +0100
+Message-ID: <f6b110d8-2f13-94e9-0b11-92e2c103f7d6@suse.de>
+References: <20191212163719.28432-1-hch@lst.de>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset="utf-8"; Format="flowed"
+Content-Transfer-Encoding: base64
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <ec81db03-b970-420a-9c1b-29849b5e8902@redhat.com>
+In-Reply-To: <20191212163719.28432-1-hch@lst.de>
+Content-Language: en-US
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
  <mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -20,40 +18,29 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
  <mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Errors-To: virtualization-bounces@lists.linux-foundation.org
 Sender: "Virtualization" <virtualization-bounces@lists.linux-foundation.org>
-To: David Hildenbrand <david@redhat.com>
-Cc: virtio-dev@lists.oasis-open.org, ACPI Devel Maling List <linux-acpi@vger.kernel.org>, kvm-devel <kvm@vger.kernel.org>, "Michael S . Tsirkin" <mst@redhat.com>, "Rafael J. Wysocki" <rjw@rjwysocki.net>, Linux Kernel Mailing List <linux-kernel@vger.kernel.org>, virtualization@lists.linux-foundation.org, Linux Memory Management List <linux-mm@kvack.org>, Andrew Morton <akpm@linux-foundation.org>, Michal Hocko <mhocko@kernel.org>, Len Brown <lenb@kernel.org>
+To: Christoph Hellwig <hch@lst.de>, axboe@kernel.dk, mst@redhat.com, jasowang@redhat.com, pbonzini@redhat.com, stefanha@redhat.com
+Cc: linux-block@vger.kernel.org, virtualization@lists.linux-foundation.org
 List-Id: virtualization@lists.linuxfoundation.org
 
-On Fri, Dec 13, 2019 at 10:41 AM David Hildenbrand <david@redhat.com> wrote:
->
-> On 12.12.19 22:43, Rafael J. Wysocki wrote:
-> > On Thursday, December 12, 2019 6:11:25 PM CET David Hildenbrand wrote:
-> >> Will be needed by virtio-mem to identify the node from a pxm.
-> >>
-> >> Cc: "Rafael J. Wysocki" <rjw@rjwysocki.net>
-> >> Cc: Len Brown <lenb@kernel.org>
-> >> Cc: linux-acpi@vger.kernel.org
-> >> Signed-off-by: David Hildenbrand <david@redhat.com>
-> >> ---
-> >>  drivers/acpi/numa/srat.c | 1 +
-> >>  1 file changed, 1 insertion(+)
-> >>
-> >> diff --git a/drivers/acpi/numa/srat.c b/drivers/acpi/numa/srat.c
-> >> index eadbf90e65d1..d5847fa7ac69 100644
-> >> --- a/drivers/acpi/numa/srat.c
-> >> +++ b/drivers/acpi/numa/srat.c
-> >> @@ -35,6 +35,7 @@ int pxm_to_node(int pxm)
-> >>              return NUMA_NO_NODE;
-> >>      return pxm_to_node_map[pxm];
-> >>  }
-> >> +EXPORT_SYMBOL(pxm_to_node);
-> >>
-> >>  int node_to_pxm(int node)
-> >>  {
-> >>
-> >
-> > This is fine by me FWIW.
->
-> Can I count that as an Acked-by and carry it along? Thanks!
-
-Yes, please.
+T24gMTIvMTIvMTkgNTozNyBQTSwgQ2hyaXN0b3BoIEhlbGx3aWcgd3JvdGU6Cj4gU2luY2UgdGhl
+IG5lZWQgZm9yIGEgc3BlY2lhbCBmbGFnIHRvIHN1cHBvcnQgU0NTSSBwYXNzdGhyb3VnaCBvbiBh
+Cj4gYmxvY2sgZGV2aWNlIHdhcyBhZGRlZCBpbiBNYXkgMjAxNyB0aGUgU0NTSSBwYXNzdGhyb3Vn
+aCBzdXBwb3J0IGluCj4gdmlydGlvLWJsayBoYXMgYmVlbiBkaXNhYmxlZC4gIEl0IGhhcyBhbHdh
+eXMgYmVlbiBhIGJhZCBpZGVhCj4gKGp1c3QgYXNrIHRoZSBvcmlnaW5hbCBhdXRob3IuLikgYW5k
+IHdlIGhhdmUgdmlydGlvLXNjc2kgZm9yIHByb3Blcgo+IHBhc3N0aHJvdWdoLiAgVGhlIGZlYXR1
+cmUgYWxzbyBuZXZlciBtYWRlIGl0IGludG8gdGhlIHZpcnRpbyAxLjAKPiBvciBsYXRlciBzcGVj
+aWZpY2F0aW9ucy4KPiAKPiBTaWduZWQtb2ZmLWJ5OiBDaHJpc3RvcGggSGVsbHdpZyA8aGNoQGxz
+dC5kZT4KPiAtLS0KPiAgIGFyY2gvcG93ZXJwYy9jb25maWdzL2d1ZXN0LmNvbmZpZyB8ICAgMSAt
+Cj4gICBkcml2ZXJzL2Jsb2NrL0tjb25maWcgICAgICAgICAgICAgfCAgMTAgLS0tCj4gICBkcml2
+ZXJzL2Jsb2NrL3ZpcnRpb19ibGsuYyAgICAgICAgfCAxMTUgKy0tLS0tLS0tLS0tLS0tLS0tLS0t
+LS0tLS0tLS0tCj4gICAzIGZpbGVzIGNoYW5nZWQsIDEgaW5zZXJ0aW9uKCspLCAxMjUgZGVsZXRp
+b25zKC0pCj4gCkknbSBhbGwgZm9yIGl0LgoKUmV2aWV3ZWQtYnk6IEhhbm5lcyBSZWluZWNrZSA8
+aGFyZUBzdXNlLmRlPgoKQ2hlZXJzLAoKSGFubmVzCi0tIApEci4gSGFubmVzIFJlaW5lY2tlICAg
+ICAgICAgICAgVGVhbWxlYWQgU3RvcmFnZSAmIE5ldHdvcmtpbmcKaGFyZUBzdXNlLmRlICAgICAg
+ICAgICAgICAgICAgICAgICAgICAgICAgICs0OSA5MTEgNzQwNTMgNjg4ClNVU0UgU29mdHdhcmUg
+U29sdXRpb25zIEdtYkgsIE1heGZlbGRzdHIuIDUsIDkwNDA5IE7DvHJuYmVyZwpIUkIgMzY4MDkg
+KEFHIE7DvHJuYmVyZyksIEdlc2Now6RmdHNmw7xocmVyOiBGZWxpeCBJbWVuZMO2cmZmZXIKX19f
+X19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX18KVmlydHVhbGl6YXRp
+b24gbWFpbGluZyBsaXN0ClZpcnR1YWxpemF0aW9uQGxpc3RzLmxpbnV4LWZvdW5kYXRpb24ub3Jn
+Cmh0dHBzOi8vbGlzdHMubGludXhmb3VuZGF0aW9uLm9yZy9tYWlsbWFuL2xpc3RpbmZvL3ZpcnR1
+YWxpemF0aW9u
