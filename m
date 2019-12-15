@@ -1,8 +1,8 @@
 From: <gregkh@linuxfoundation.org>
 Subject: Patch "virtio-balloon: fix managed page counts when migrating pages
- between zones" has been added to the 5.3-stable tree
-Date: Sun, 15 Dec 2019 13:13:47 +0100
-Message-ID: <15764120273623@kroah.com>
+ between zones" has been added to the 5.4-stable tree
+Date: Sun, 15 Dec 2019 13:14:17 +0100
+Message-ID: <157641205724470@kroah.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
@@ -25,12 +25,12 @@ This is a note to let you know that I've just added the patch titled
 
     virtio-balloon: fix managed page counts when migrating pages between zones
 
-to the 5.3-stable tree which can be found at:
+to the 5.4-stable tree which can be found at:
     http://www.kernel.org/git/?p=linux/kernel/git/stable/stable-queue.git;a=summary
 
 The filename of the patch is:
      virtio-balloon-fix-managed-page-counts-when-migrating-pages-between-zones.patch
-and it can be found in the queue-5.3 subdirectory.
+and it can be found in the queue-5.4 subdirectory.
 
 If you, or anyone else, feels it should not be added to the stable tree,
 please let <stable@vger.kernel.org> know about it.
@@ -199,4 +199,4 @@ Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 Patches currently in stable-queue which might be from david@redhat.com are
 
-queue-5.3/virtio-balloon-fix-managed-page-counts-when-migrating-pages-between-zones.patch
+queue-5.4/virtio-balloon-fix-managed-page-counts-when-migrating-pages-between-zones.patch
