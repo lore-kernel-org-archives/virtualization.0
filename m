@@ -1,8 +1,8 @@
 From: <gregkh@linuxfoundation.org>
 Subject: Patch "virtio-balloon: fix managed page counts when migrating pages
- between zones" has been added to the 4.4-stable tree
-Date: Sun, 15 Dec 2019 12:21:52 +0100
-Message-ID: <157640891212896@kroah.com>
+ between zones" has been added to the 4.9-stable tree
+Date: Sun, 15 Dec 2019 13:12:28 +0100
+Message-ID: <157641194814771@kroah.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
@@ -25,12 +25,12 @@ This is a note to let you know that I've just added the patch titled
 
     virtio-balloon: fix managed page counts when migrating pages between zones
 
-to the 4.4-stable tree which can be found at:
+to the 4.9-stable tree which can be found at:
     http://www.kernel.org/git/?p=linux/kernel/git/stable/stable-queue.git;a=summary
 
 The filename of the patch is:
      virtio-balloon-fix-managed-page-counts-when-migrating-pages-between-zones.patch
-and it can be found in the queue-4.4 subdirectory.
+and it can be found in the queue-4.9 subdirectory.
 
 If you, or anyone else, feels it should not be added to the stable tree,
 please let <stable@vger.kernel.org> know about it.
@@ -177,7 +177,7 @@ Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 --- a/drivers/virtio/virtio_balloon.c
 +++ b/drivers/virtio/virtio_balloon.c
-@@ -468,6 +468,17 @@ static int virtballoon_migratepage(struc
+@@ -482,6 +482,17 @@ static int virtballoon_migratepage(struc
  
  	get_page(newpage); /* balloon reference */
  
@@ -199,4 +199,4 @@ Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 Patches currently in stable-queue which might be from david@redhat.com are
 
-queue-4.4/virtio-balloon-fix-managed-page-counts-when-migrating-pages-between-zones.patch
+queue-4.9/virtio-balloon-fix-managed-page-counts-when-migrating-pages-between-zones.patch
