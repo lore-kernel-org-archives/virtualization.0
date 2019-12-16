@@ -1,14 +1,14 @@
 From: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-Subject: [PATCH 4.19 031/140] virtio-balloon: fix managed page counts when
+Subject: [PATCH 5.3 047/180] virtio-balloon: fix managed page counts when
  migrating pages between zones
-Date: Mon, 16 Dec 2019 18:48:19 +0100
-Message-ID: <20191216174757.958746219__38019.6485713654$1576519368$gmane$org@linuxfoundation.org>
-References: <20191216174747.111154704@linuxfoundation.org>
+Date: Mon, 16 Dec 2019 18:48:07 +0100
+Message-ID: <20191216174820.203177802@linuxfoundation.org>
+References: <20191216174806.018988360@linuxfoundation.org>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <20191216174747.111154704@linuxfoundation.org>
+In-Reply-To: <20191216174806.018988360@linuxfoundation.org>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
  <mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -158,7 +158,7 @@ Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 --- a/drivers/virtio/virtio_balloon.c
 +++ b/drivers/virtio/virtio_balloon.c
-@@ -468,6 +468,17 @@ static int virtballoon_migratepage(struc
+@@ -721,6 +721,17 @@ static int virtballoon_migratepage(struc
  
  	get_page(newpage); /* balloon reference */
  
