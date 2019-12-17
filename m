@@ -1,7 +1,7 @@
 From: <yezengruan@huawei.com>
-Subject: [PATCH 4/5] KVM: arm64: Add interface to support vcpu preempted check
-Date: Tue, 17 Dec 2019 21:55:48 +0800
-Message-ID: <20191217135549.3240-5-yezengruan__30234.1969612584$1576591020$gmane$org@huawei.com>
+Subject: [PATCH 1/5] KVM: arm64: Document PV-lock interface
+Date: Tue, 17 Dec 2019 21:55:45 +0800
+Message-ID: <20191217135549.3240-2-yezengruan__36231.8060871743$1576591022$gmane$org@huawei.com>
 References: <20191217135549.3240-1-yezengruan@huawei.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
@@ -23,122 +23,55 @@ List-Id: virtualization@lists.linuxfoundation.org
 
 From: Zengruan Ye <yezengruan@huawei.com>
 
-This is to fix some lock holder preemption issues. Some other locks
-implementation do a spin loop before acquiring the lock itself.
-Currently kernel has an interface of bool vcpu_is_preempted(int cpu). It
-takes the cpu as parameter and return true if the cpu is preempted.
-Then kernel can break the spin loops upon the retval of vcpu_is_preempted.
+Introduce a paravirtualization interface for KVM/arm64 to obtain the vcpu
+is currently running or not.
 
-As kernel has used this interface, So lets support it.
+A hypercall interface is provided for the guest to interrogate the
+hypervisor's support for this interface and the location of the shared
+memory structures.
 
 Signed-off-by: Zengruan Ye <yezengruan@huawei.com>
 ---
- arch/arm64/include/asm/paravirt.h      | 12 ++++++++++++
- arch/arm64/include/asm/spinlock.h      |  7 +++++++
- arch/arm64/kernel/Makefile             |  2 +-
- arch/arm64/kernel/paravirt-spinlocks.c | 13 +++++++++++++
- arch/arm64/kernel/paravirt.c           |  4 +++-
- 5 files changed, 36 insertions(+), 2 deletions(-)
- create mode 100644 arch/arm64/kernel/paravirt-spinlocks.c
+ Documentation/virt/kvm/arm/pvlock.rst | 31 +++++++++++++++++++++++++++
+ 1 file changed, 31 insertions(+)
+ create mode 100644 Documentation/virt/kvm/arm/pvlock.rst
 
-diff --git a/arch/arm64/include/asm/paravirt.h b/arch/arm64/include/asm/paravirt.h
-index cf3a0fd7c1a7..7b1c81b544bb 100644
---- a/arch/arm64/include/asm/paravirt.h
-+++ b/arch/arm64/include/asm/paravirt.h
-@@ -11,8 +11,13 @@ struct pv_time_ops {
- 	unsigned long long (*steal_clock)(int cpu);
- };
- 
-+struct pv_lock_ops {
-+	bool (*vcpu_is_preempted)(int cpu);
-+};
-+
- struct paravirt_patch_template {
- 	struct pv_time_ops time;
-+	struct pv_lock_ops lock;
- };
- 
- extern struct paravirt_patch_template pv_ops;
-@@ -24,6 +29,13 @@ static inline u64 paravirt_steal_clock(int cpu)
- 
- int __init pv_time_init(void);
- 
-+__visible bool __native_vcpu_is_preempted(int cpu);
-+
-+static inline bool pv_vcpu_is_preempted(int cpu)
-+{
-+	return pv_ops.lock.vcpu_is_preempted(cpu);
-+}
-+
- #else
- 
- #define pv_time_init() do {} while (0)
-diff --git a/arch/arm64/include/asm/spinlock.h b/arch/arm64/include/asm/spinlock.h
-index b093b287babf..45ff1b2949a6 100644
---- a/arch/arm64/include/asm/spinlock.h
-+++ b/arch/arm64/include/asm/spinlock.h
-@@ -7,8 +7,15 @@
- 
- #include <asm/qrwlock.h>
- #include <asm/qspinlock.h>
-+#include <asm/paravirt.h>
- 
- /* See include/linux/spinlock.h */
- #define smp_mb__after_spinlock()	smp_mb()
- 
-+#define vcpu_is_preempted vcpu_is_preempted
-+static inline bool vcpu_is_preempted(long cpu)
-+{
-+	return pv_vcpu_is_preempted(cpu);
-+}
-+
- #endif /* __ASM_SPINLOCK_H */
-diff --git a/arch/arm64/kernel/Makefile b/arch/arm64/kernel/Makefile
-index fc6488660f64..b23cdae433a4 100644
---- a/arch/arm64/kernel/Makefile
-+++ b/arch/arm64/kernel/Makefile
-@@ -50,7 +50,7 @@ obj-$(CONFIG_ARMV8_DEPRECATED)		+= armv8_deprecated.o
- obj-$(CONFIG_ACPI)			+= acpi.o
- obj-$(CONFIG_ACPI_NUMA)			+= acpi_numa.o
- obj-$(CONFIG_ARM64_ACPI_PARKING_PROTOCOL)	+= acpi_parking_protocol.o
--obj-$(CONFIG_PARAVIRT)			+= paravirt.o
-+obj-$(CONFIG_PARAVIRT)			+= paravirt.o paravirt-spinlocks.o
- obj-$(CONFIG_RANDOMIZE_BASE)		+= kaslr.o
- obj-$(CONFIG_HIBERNATION)		+= hibernate.o hibernate-asm.o
- obj-$(CONFIG_KEXEC_CORE)		+= machine_kexec.o relocate_kernel.o	\
-diff --git a/arch/arm64/kernel/paravirt-spinlocks.c b/arch/arm64/kernel/paravirt-spinlocks.c
+diff --git a/Documentation/virt/kvm/arm/pvlock.rst b/Documentation/virt/kvm/arm/pvlock.rst
 new file mode 100644
-index 000000000000..718aa773d45c
+index 000000000000..eec0c36edf17
 --- /dev/null
-+++ b/arch/arm64/kernel/paravirt-spinlocks.c
-@@ -0,0 +1,13 @@
-+/* SPDX-License-Identifier: GPL-2.0-only */
-+/*
-+ * Copyright(c) 2019 Huawei Technologies Co., Ltd
-+ * Author: Zengruan Ye <yezengruan@huawei.com>
-+ */
++++ b/Documentation/virt/kvm/arm/pvlock.rst
+@@ -0,0 +1,31 @@
++.. SPDX-License-Identifier: GPL-2.0
 +
-+#include <linux/spinlock.h>
-+#include <asm/paravirt.h>
++Paravirtualized lock support for arm64
++======================================
 +
-+__visible bool __native_vcpu_is_preempted(int cpu)
-+{
-+	return false;
-+}
-diff --git a/arch/arm64/kernel/paravirt.c b/arch/arm64/kernel/paravirt.c
-index 1ef702b0be2d..d8f1ba8c22ce 100644
---- a/arch/arm64/kernel/paravirt.c
-+++ b/arch/arm64/kernel/paravirt.c
-@@ -26,7 +26,9 @@
- struct static_key paravirt_steal_enabled;
- struct static_key paravirt_steal_rq_enabled;
- 
--struct paravirt_patch_template pv_ops;
-+struct paravirt_patch_template pv_ops = {
-+	.lock.vcpu_is_preempted		= __native_vcpu_is_preempted,
-+};
- EXPORT_SYMBOL_GPL(pv_ops);
- 
- struct pv_time_stolen_time_region {
++KVM/arm64 provids some hypervisor service calls to support a paravirtualized
++guest obtaining the vcpu is currently running or not.
++
++Two new SMCCC compatible hypercalls are defined:
++
++* PV_LOCK_FEATURES:   0xC5000040
++* PV_LOCK_PREEMPTED:  0xC5000041
++
++The existence of the PV_LOCK hypercall should be probed using the SMCCC 1.1
++ARCH_FEATURES mechanism before calling it.
++
++PV_LOCK_FEATURES
++    ============= ========    ==========
++    Function ID:  (uint32)    0xC5000040
++    PV_call_id:   (uint32)    The function to query for support.
++    Return value: (int64)     NOT_SUPPORTED (-1) or SUCCESS (0) if the relevant
++                              PV-lock feature is supported by the hypervisor.
++    ============= ========    ==========
++
++PV_LOCK_PREEMPTED
++    ============= ========    ==========
++    Function ID:  (uint32)    0xC5000041
++    Return value: (int64)     NOT_SUPPORTED (-1) or SUCCESS (0) if the IPA of
++                              this vcpu's pv data structure is configured by
++                              the hypervisor.
++    ============= ========    ==========
 -- 
 2.19.1
