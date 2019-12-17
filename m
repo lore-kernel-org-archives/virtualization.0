@@ -1,7 +1,7 @@
 From: <yezengruan@huawei.com>
-Subject: [PATCH 2/5] KVM: arm64: Implement PV_LOCK_FEATURES call
-Date: Tue, 17 Dec 2019 21:55:46 +0800
-Message-ID: <20191217135549.3240-3-yezengruan__23919.0685608023$1576591007$gmane$org@huawei.com>
+Subject: [PATCH 5/5] KVM: arm64: Support the vcpu preemption check
+Date: Tue, 17 Dec 2019 21:55:49 +0800
+Message-ID: <20191217135549.3240-6-yezengruan__20843.9840747573$1576591018$gmane$org@huawei.com>
 References: <20191217135549.3240-1-yezengruan@huawei.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
@@ -23,78 +23,191 @@ List-Id: virtualization@lists.linuxfoundation.org
 
 From: Zengruan Ye <yezengruan@huawei.com>
 
-This provides a mechanism for querying which paravirtualized lock
-features are available in this hypervisor.
+Support the vcpu_is_preempted() functionality under KVM/arm64. This will
+enhance lock performance on overcommitted hosts (more runnable vcpus
+than physical cpus in the system) as doing busy waits for preempted
+vcpus will hurt system performance far worse than early yielding.
 
-Also add the header file which defines the ABI for the paravirtualized
-lock features we're about to add.
+unix benchmark result:
+  host:  kernel 5.5.0-rc1, HiSilicon Kunpeng920, 8 cpus
+  guest: kernel 5.5.0-rc1, 16 vcpus
+
+               test-case                |    after-patch    |   before-patch
+----------------------------------------+-------------------+------------------
+ Dhrystone 2 using register variables   | 334600751.0 lps   | 335319028.3 lps
+ Double-Precision Whetstone             |     32856.1 MWIPS |     32849.6 MWIPS
+ Execl Throughput                       |      3662.1 lps   |      2718.0 lps
+ File Copy 1024 bufsize 2000 maxblocks  |    432906.4 KBps  |    158011.8 KBps
+ File Copy 256 bufsize 500 maxblocks    |    116023.0 KBps  |     37664.0 KBps
+ File Copy 4096 bufsize 8000 maxblocks  |   1432769.8 KBps  |    441108.8 KBps
+ Pipe Throughput                        |   6405029.6 lps   |   6021457.6 lps
+ Pipe-based Context Switching           |    185872.7 lps   |    184255.3 lps
+ Process Creation                       |      4025.7 lps   |      3706.6 lps
+ Shell Scripts (1 concurrent)           |      6745.6 lpm   |      6436.1 lpm
+ Shell Scripts (8 concurrent)           |       998.7 lpm   |       931.1 lpm
+ System Call Overhead                   |   3913363.1 lps   |   3883287.8 lps
+----------------------------------------+-------------------+------------------
+ System Benchmarks Index Score          |      1835.1       |      1327.6
 
 Signed-off-by: Zengruan Ye <yezengruan@huawei.com>
 ---
- arch/arm64/include/asm/pvlock-abi.h | 16 ++++++++++++++++
- include/linux/arm-smccc.h           | 13 +++++++++++++
- virt/kvm/arm/hypercalls.c           |  3 +++
- 3 files changed, 32 insertions(+)
- create mode 100644 arch/arm64/include/asm/pvlock-abi.h
+ arch/arm64/include/asm/paravirt.h |  3 +
+ arch/arm64/kernel/paravirt.c      | 91 +++++++++++++++++++++++++++++++
+ arch/arm64/kernel/setup.c         |  2 +
+ include/linux/cpuhotplug.h        |  1 +
+ 4 files changed, 97 insertions(+)
 
-diff --git a/arch/arm64/include/asm/pvlock-abi.h b/arch/arm64/include/asm/pvlock-abi.h
-new file mode 100644
-index 000000000000..06e0c3d7710a
---- /dev/null
-+++ b/arch/arm64/include/asm/pvlock-abi.h
-@@ -0,0 +1,16 @@
-+/* SPDX-License-Identifier: GPL-2.0 */
-+/*
-+ * Copyright(c) 2019 Huawei Technologies Co., Ltd
-+ * Author: Zengruan Ye <yezengruan@huawei.com>
-+ */
-+
-+#ifndef __ASM_PVLOCK_ABI_H
-+#define __ASM_PVLOCK_ABI_H
-+
-+struct pvlock_vcpu_state {
-+	__le64 preempted;
-+	/* Structure must be 64 byte aligned, pad to that size */
-+	u8 padding[56];
-+} __packed;
-+
-+#endif
-diff --git a/include/linux/arm-smccc.h b/include/linux/arm-smccc.h
-index 59494df0f55b..59e65a951959 100644
---- a/include/linux/arm-smccc.h
-+++ b/include/linux/arm-smccc.h
-@@ -377,5 +377,18 @@ asmlinkage void __arm_smccc_hvc(unsigned long a0, unsigned long a1,
- 			   ARM_SMCCC_OWNER_STANDARD_HYP,	\
- 			   0x21)
+diff --git a/arch/arm64/include/asm/paravirt.h b/arch/arm64/include/asm/paravirt.h
+index 7b1c81b544bb..a2cd0183bbef 100644
+--- a/arch/arm64/include/asm/paravirt.h
++++ b/arch/arm64/include/asm/paravirt.h
+@@ -29,6 +29,8 @@ static inline u64 paravirt_steal_clock(int cpu)
  
-+/* Paravirtualised lock calls */
-+#define ARM_SMCCC_HV_PV_LOCK_FEATURES				\
-+	ARM_SMCCC_CALL_VAL(ARM_SMCCC_FAST_CALL,			\
-+			   ARM_SMCCC_SMC_64,			\
-+			   ARM_SMCCC_OWNER_STANDARD_HYP,	\
-+			   0x40)
+ int __init pv_time_init(void);
+ 
++int __init kvm_guest_init(void);
 +
-+#define ARM_SMCCC_HV_PV_LOCK_PREEMPTED				\
-+	ARM_SMCCC_CALL_VAL(ARM_SMCCC_FAST_CALL,			\
-+			   ARM_SMCCC_SMC_64,			\
-+			   ARM_SMCCC_OWNER_STANDARD_HYP,	\
-+			   0x41)
+ __visible bool __native_vcpu_is_preempted(int cpu);
+ 
+ static inline bool pv_vcpu_is_preempted(int cpu)
+@@ -39,6 +41,7 @@ static inline bool pv_vcpu_is_preempted(int cpu)
+ #else
+ 
+ #define pv_time_init() do {} while (0)
++#define kvm_guest_init() do {} while (0)
+ 
+ #endif // CONFIG_PARAVIRT
+ 
+diff --git a/arch/arm64/kernel/paravirt.c b/arch/arm64/kernel/paravirt.c
+index d8f1ba8c22ce..a86dead40473 100644
+--- a/arch/arm64/kernel/paravirt.c
++++ b/arch/arm64/kernel/paravirt.c
+@@ -22,6 +22,7 @@
+ #include <asm/paravirt.h>
+ #include <asm/pvclock-abi.h>
+ #include <asm/smp_plat.h>
++#include <asm/pvlock-abi.h>
+ 
+ struct static_key paravirt_steal_enabled;
+ struct static_key paravirt_steal_rq_enabled;
+@@ -158,3 +159,93 @@ int __init pv_time_init(void)
+ 
+ 	return 0;
+ }
 +
- #endif /*__ASSEMBLY__*/
- #endif /*__LINUX_ARM_SMCCC_H*/
-diff --git a/virt/kvm/arm/hypercalls.c b/virt/kvm/arm/hypercalls.c
-index 550dfa3e53cd..ff13871fd85a 100644
---- a/virt/kvm/arm/hypercalls.c
-+++ b/virt/kvm/arm/hypercalls.c
-@@ -52,6 +52,9 @@ int kvm_hvc_call_handler(struct kvm_vcpu *vcpu)
- 		case ARM_SMCCC_HV_PV_TIME_FEATURES:
- 			val = SMCCC_RET_SUCCESS;
- 			break;
-+		case ARM_SMCCC_HV_PV_LOCK_FEATURES:
-+			val = SMCCC_RET_SUCCESS;
-+			break;
- 		}
- 		break;
- 	case ARM_SMCCC_HV_PV_TIME_FEATURES:
++DEFINE_PER_CPU(struct pvlock_vcpu_state, pvlock_vcpu_region) __aligned(64);
++EXPORT_PER_CPU_SYMBOL(pvlock_vcpu_region);
++
++static int pvlock_vcpu_state_dying_cpu(unsigned int cpu)
++{
++	struct pvlock_vcpu_state *reg;
++
++	reg = this_cpu_ptr(&pvlock_vcpu_region);
++	if (!reg)
++		return -EFAULT;
++
++	memset(reg, 0, sizeof(*reg));
++
++	return 0;
++}
++
++static int init_pvlock_vcpu_state(unsigned int cpu)
++{
++	struct pvlock_vcpu_state *reg;
++	struct arm_smccc_res res;
++
++	reg = this_cpu_ptr(&pvlock_vcpu_region);
++	if (!reg)
++		return -EFAULT;
++
++	/* Pass the memory address to host via hypercall */
++	arm_smccc_1_1_invoke(ARM_SMCCC_HV_PV_LOCK_PREEMPTED,
++			     virt_to_phys(reg), &res);
++
++	return 0;
++}
++
++static bool kvm_vcpu_is_preempted(int cpu)
++{
++	struct pvlock_vcpu_state *reg = &per_cpu(pvlock_vcpu_region, cpu);
++
++	if (reg)
++		return !!(reg->preempted & 1);
++
++	return false;
++}
++
++static int kvm_arm_init_pvlock(void)
++{
++	int ret;
++
++	ret = cpuhp_setup_state(CPUHP_AP_ARM_KVM_PVLOCK_STARTING,
++				"hypervisor/arm/pvlock:starting",
++				init_pvlock_vcpu_state,
++				pvlock_vcpu_state_dying_cpu);
++	if (ret < 0)
++		return ret;
++
++	pv_ops.lock.vcpu_is_preempted = kvm_vcpu_is_preempted;
++
++	pr_info("using PV-lock preempted\n");
++
++	return 0;
++}
++
++static bool has_kvm_pvlock(void)
++{
++	struct arm_smccc_res res;
++
++	/* To detect the presence of PV lock support we require SMCCC 1.1+ */
++	if (psci_ops.smccc_version < SMCCC_VERSION_1_1)
++		return false;
++
++	arm_smccc_1_1_invoke(ARM_SMCCC_ARCH_FEATURES_FUNC_ID,
++			     ARM_SMCCC_HV_PV_LOCK_FEATURES, &res);
++
++	if (res.a0 != SMCCC_RET_SUCCESS)
++		return false;
++
++	return true;
++}
++
++int __init kvm_guest_init(void)
++{
++	if (is_hyp_mode_available())
++		return 0;
++
++	if (!has_kvm_pvlock())
++		return 0;
++
++	kvm_arm_init_pvlock();
++
++	return 0;
++}
+diff --git a/arch/arm64/kernel/setup.c b/arch/arm64/kernel/setup.c
+index 56f664561754..64c4d515ba2d 100644
+--- a/arch/arm64/kernel/setup.c
++++ b/arch/arm64/kernel/setup.c
+@@ -341,6 +341,8 @@ void __init setup_arch(char **cmdline_p)
+ 	smp_init_cpus();
+ 	smp_build_mpidr_hash();
+ 
++	kvm_guest_init();
++
+ 	/* Init percpu seeds for random tags after cpus are set up. */
+ 	kasan_init_tags();
+ 
+diff --git a/include/linux/cpuhotplug.h b/include/linux/cpuhotplug.h
+index e51ee772b9f5..f72ff95ab63a 100644
+--- a/include/linux/cpuhotplug.h
++++ b/include/linux/cpuhotplug.h
+@@ -138,6 +138,7 @@ enum cpuhp_state {
+ 	CPUHP_AP_DUMMY_TIMER_STARTING,
+ 	CPUHP_AP_ARM_XEN_STARTING,
+ 	CPUHP_AP_ARM_KVMPV_STARTING,
++	CPUHP_AP_ARM_KVM_PVLOCK_STARTING,
+ 	CPUHP_AP_ARM_CORESIGHT_STARTING,
+ 	CPUHP_AP_ARM64_ISNDEP_STARTING,
+ 	CPUHP_AP_SMPCFD_DYING,
 -- 
 2.19.1
