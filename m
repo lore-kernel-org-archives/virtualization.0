@@ -1,7 +1,7 @@
 From: Thierry Reding <thierry.reding@gmail.com>
-Subject: [PATCH v3 3/5] iommu: amd: Use generic_iommu_put_resv_regions()
-Date: Wed, 18 Dec 2019 14:42:03 +0100
-Message-ID: <20191218134205.1271740-4-thierry.reding__2142.0814957068$1576676555$gmane$org@gmail.com>
+Subject: [PATCH v3 5/5] iommu: virtio: Use generic_iommu_put_resv_regions()
+Date: Wed, 18 Dec 2019 14:42:05 +0100
+Message-ID: <20191218134205.1271740-6-thierry.reding@gmail.com>
 References: <20191218134205.1271740-1-thierry.reding@gmail.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
@@ -25,21 +25,23 @@ From: Thierry Reding <treding@nvidia.com>
 
 Use the new standard function instead of open-coding it.
 
+Cc: Jean-Philippe Brucker <jean-philippe@linaro.org>
+Cc: virtualization@lists.linux-foundation.org
+Reviewed-by: Jean-Philippe Brucker <jean-philippe@linaro.org>
 Signed-off-by: Thierry Reding <treding@nvidia.com>
 ---
- drivers/iommu/amd_iommu.c | 11 +----------
- 1 file changed, 1 insertion(+), 10 deletions(-)
+ drivers/iommu/virtio-iommu.c | 14 +++-----------
+ 1 file changed, 3 insertions(+), 11 deletions(-)
 
-diff --git a/drivers/iommu/amd_iommu.c b/drivers/iommu/amd_iommu.c
-index 7a6c056b9b9c..9ea6c4b8e402 100644
---- a/drivers/iommu/amd_iommu.c
-+++ b/drivers/iommu/amd_iommu.c
-@@ -2638,15 +2638,6 @@ static void amd_iommu_get_resv_regions(struct device *dev,
- 	list_add_tail(&region->list, head);
+diff --git a/drivers/iommu/virtio-iommu.c b/drivers/iommu/virtio-iommu.c
+index 315c7cc4f99d..cce329d71fba 100644
+--- a/drivers/iommu/virtio-iommu.c
++++ b/drivers/iommu/virtio-iommu.c
+@@ -837,14 +837,6 @@ static void viommu_get_resv_regions(struct device *dev, struct list_head *head)
+ 	iommu_dma_get_resv_regions(dev, head);
  }
  
--static void amd_iommu_put_resv_regions(struct device *dev,
--				     struct list_head *head)
+-static void viommu_put_resv_regions(struct device *dev, struct list_head *head)
 -{
 -	struct iommu_resv_region *entry, *next;
 -
@@ -47,17 +49,35 @@ index 7a6c056b9b9c..9ea6c4b8e402 100644
 -		kfree(entry);
 -}
 -
- static bool amd_iommu_is_attach_deferred(struct iommu_domain *domain,
- 					 struct device *dev)
- {
-@@ -2685,7 +2676,7 @@ const struct iommu_ops amd_iommu_ops = {
- 	.device_group = amd_iommu_device_group,
- 	.domain_get_attr = amd_iommu_domain_get_attr,
- 	.get_resv_regions = amd_iommu_get_resv_regions,
--	.put_resv_regions = amd_iommu_put_resv_regions,
-+	.put_resv_regions = generic_iommu_put_resv_regions,
- 	.is_attach_deferred = amd_iommu_is_attach_deferred,
- 	.pgsize_bitmap	= AMD_IOMMU_PGSIZES,
- 	.flush_iotlb_all = amd_iommu_flush_iotlb_all,
+ static struct iommu_ops viommu_ops;
+ static struct virtio_driver virtio_iommu_drv;
+ 
+@@ -914,7 +906,7 @@ static int viommu_add_device(struct device *dev)
+ err_unlink_dev:
+ 	iommu_device_unlink(&viommu->iommu, dev);
+ err_free_dev:
+-	viommu_put_resv_regions(dev, &vdev->resv_regions);
++	generic_iommu_put_resv_regions(dev, &vdev->resv_regions);
+ 	kfree(vdev);
+ 
+ 	return ret;
+@@ -932,7 +924,7 @@ static void viommu_remove_device(struct device *dev)
+ 
+ 	iommu_group_remove_device(dev);
+ 	iommu_device_unlink(&vdev->viommu->iommu, dev);
+-	viommu_put_resv_regions(dev, &vdev->resv_regions);
++	generic_iommu_put_resv_regions(dev, &vdev->resv_regions);
+ 	kfree(vdev);
+ }
+ 
+@@ -961,7 +953,7 @@ static struct iommu_ops viommu_ops = {
+ 	.remove_device		= viommu_remove_device,
+ 	.device_group		= viommu_device_group,
+ 	.get_resv_regions	= viommu_get_resv_regions,
+-	.put_resv_regions	= viommu_put_resv_regions,
++	.put_resv_regions	= generic_iommu_put_resv_regions,
+ 	.of_xlate		= viommu_of_xlate,
+ };
+ 
 -- 
 2.24.1
