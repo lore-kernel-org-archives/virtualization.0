@@ -1,14 +1,14 @@
-From: Cornelia Huck <cohuck@redhat.com>
-Subject: Re: [PATCH 2/2] virtio-pci: check name when counting MSI-X vectors
-Date: Wed, 18 Dec 2019 10:30:36 +0100
-Message-ID: <20191218103036.1ec596ff.cohuck@redhat.com>
-References: <20191217190610.248061-1-dverkamp@chromium.org>
- <20191217190610.248061-2-dverkamp@chromium.org>
+From: Herbert Xu <herbert@gondor.apana.org.au>
+Subject: Re: read_barrier_depends() usage in vhost.c
+Date: Wed, 18 Dec 2019 17:19:07 +0800
+Message-ID: <20191218091906.cmzgqnwyekak5dzv__45589.8803238355$1576662059$gmane$org@gondor.apana.org.au>
+References: <20191016233602.i2afxb5mb465laq6@willie-the-truck>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <20191217190610.248061-2-dverkamp@chromium.org>
+Content-Disposition: inline
+In-Reply-To: <20191016233602.i2afxb5mb465laq6@willie-the-truck>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
  <mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -18,40 +18,43 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
  <mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Errors-To: virtualization-bounces@lists.linux-foundation.org
 Sender: "Virtualization" <virtualization-bounces@lists.linux-foundation.org>
-To: Daniel Verkamp <dverkamp@chromium.org>
-Cc: "Michael S. Tsirkin" <mst@redhat.com>, virtualization@lists.linux-foundation.org
+To: Will Deacon <will@kernel.org>
+Cc: paulmck@kernel.org, mst@redhat.com, peterz@infradead.org, linux-kernel@vger.kernel.org, virtualization@lists.linux-foundation.org, stern@rowland.harvard.edu
 List-Id: virtualization@lists.linuxfoundation.org
 
-On Tue, 17 Dec 2019 11:06:10 -0800
-Daniel Verkamp <dverkamp@chromium.org> wrote:
+Will Deacon <will@kernel.org> wrote:
+>
+>> --->8
+>> 
+>> // drivers/vhost/vhost.c
+>> static int get_indirect(struct vhost_virtqueue *vq,
+>>                       struct iovec iov[], unsigned int iov_size,
+>>                       unsigned int *out_num, unsigned int *in_num,
+>>                       struct vhost_log *log, unsigned int *log_num,
+>>                       struct vring_desc *indirect)
+>> {
+>>       [...]
+>> 
+>>       /* We will use the result as an address to read from, so most
+>>        * architectures only need a compiler barrier here. */
+>>       read_barrier_depends();
+>> 
+>> --->8
+>> 
+>> Unfortunately, although the barrier is commented (hurrah!), it's not
+>> particularly enlightening about the accesses making up the dependency
+>> chain, and I don't understand the supposed need for a compiler barrier
+>> either (read_barrier_depends() doesn't generally provide this).
+>> 
+>> Does anybody know which accesses are being ordered here? Usually you'd need
+>> a READ_ONCE()/rcu_dereference() beginning the chain, but I haven't managed
+>> to find one...
 
-> VQs without a name specified are not valid; they are skipped in the
-> later loop that assigns MSI-X vectors to queues, but the per_vq_vectors
-> loop above that counts the required number of vectors previously still
-> counted any queue with a non-NULL callback as needing a vector.
-> 
-> Add a check to the per_vq_vectors loop so that vectors with no name are
-> not counted to make the two loops consistent.  This prevents
-> over-counting unnecessary vectors (e.g. for features which were not
-> negotiated with the device).
-> 
-> Signed-off-by: Daniel Verkamp <dverkamp@chromium.org>
-> ---
->  drivers/virtio/virtio_pci_common.c | 2 +-
->  1 file changed, 1 insertion(+), 1 deletion(-)
-> 
-> diff --git a/drivers/virtio/virtio_pci_common.c b/drivers/virtio/virtio_pci_common.c
-> index f2862f66c2ac..222d630c41fc 100644
-> --- a/drivers/virtio/virtio_pci_common.c
-> +++ b/drivers/virtio/virtio_pci_common.c
-> @@ -294,7 +294,7 @@ static int vp_find_vqs_msix(struct virtio_device *vdev, unsigned nvqs,
->  		/* Best option: one for change interrupt, one per vq. */
->  		nvectors = 1;
->  		for (i = 0; i < nvqs; ++i)
-> -			if (callbacks[i])
-> +			if (names[i] && callbacks[i])
->  				++nvectors;
->  	} else {
->  		/* Second best: one for change, shared for all vqs. */
+I think what it's trying to separate is using indirect->addr as a
+base and then reading from that through copy_from_iter.
 
-Reviewed-by: Cornelia Huck <cohuck@redhat.com>
+Cheers,
+-- 
+Email: Herbert Xu <herbert@gondor.apana.org.au>
+Home Page: http://gondor.apana.org.au/~herbert/
+PGP Key: http://gondor.apana.org.au/~herbert/pubkey.txt
