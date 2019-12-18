@@ -1,13 +1,11 @@
-From: Gerd Hoffmann <kraxel@redhat.com>
-Subject: [PATCH v4 2/3] drm/virtio: fix mmap page attributes
-Date: Wed, 18 Dec 2019 13:56:44 +0100
-Message-ID: <20191218125645.9211-3-kraxel__11666.5719937131$1576673827$gmane$org@redhat.com>
-References: <20191218125645.9211-1-kraxel@redhat.com>
+From: Thierry Reding <thierry.reding@gmail.com>
+Subject: [PATCH v3 0/5] iommu: Implement generic_iommu_put_resv_regions()
+Date: Wed, 18 Dec 2019 14:42:00 +0100
+Message-ID: <20191218134205.1271740-1-thierry.reding__19276.7310467147$1576676548$gmane$org@gmail.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <20191218125645.9211-1-kraxel@redhat.com>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
  <mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -17,32 +15,42 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
  <mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Errors-To: virtualization-bounces@lists.linux-foundation.org
 Sender: "Virtualization" <virtualization-bounces@lists.linux-foundation.org>
-To: dri-devel@lists.freedesktop.org
-Cc: tzimmermann@suse.de, David Airlie <airlied@linux.ie>, open list <linux-kernel@vger.kernel.org>, "open list:VIRTIO GPU DRIVER" <virtualization@lists.linux-foundation.org>, Daniel Vetter <daniel@ffwll.ch>, gurchetansingh@chromium.org
+To: Joerg Roedel <joro@8bytes.org>
+Cc: Jean-Philippe Brucker <jean-philippe@linaro.org>, Will Deacon <will@kernel.org>, linux-kernel@vger.kernel.org, virtualization@lists.linux-foundation.org, Christoph Hellwig <hch@infradead.org>, iommu@lists.linux-foundation.org, Robin Murphy <robin.murphy@arm.com>, linux-arm-kernel@lists.infradead.org
 List-Id: virtualization@lists.linuxfoundation.org
 
-virtio-gpu uses cached mappings, set
-drm_gem_shmem_object.map_cached accordingly.
+From: Thierry Reding <treding@nvidia.com>
 
-Reported-by: Gurchetan Singh <gurchetansingh@chromium.org>
-Signed-off-by: Gerd Hoffmann <kraxel@redhat.com>
+Most IOMMU drivers only need to free the memory allocated for each
+reserved region. Instead of open-coding the loop to do this in each
+driver, extract the code into a common function that can be used by
+all these drivers.
 
-virtio fixup
----
- drivers/gpu/drm/virtio/virtgpu_object.c | 1 +
- 1 file changed, 1 insertion(+)
+Changes in v3:
+- add Reviewed-by from Jean-Philippe Brucker on virtio patch
+- add Acked-by from Will Deacon on ARM SMMU patch
+- rename to generic_iommu_put_resv_regions()
 
-diff --git a/drivers/gpu/drm/virtio/virtgpu_object.c b/drivers/gpu/drm/virtio/virtgpu_object.c
-index 017a9e0fc3bb..7f991e03ea2c 100644
---- a/drivers/gpu/drm/virtio/virtgpu_object.c
-+++ b/drivers/gpu/drm/virtio/virtgpu_object.c
-@@ -99,6 +99,7 @@ struct drm_gem_object *virtio_gpu_create_object(struct drm_device *dev,
- 		return NULL;
- 
- 	bo->base.base.funcs = &virtio_gpu_gem_funcs;
-+	bo->base.map_cached = true;
- 	return &bo->base.base;
- }
- 
+Changes in v2:
+- change subject prefix to "iommu: virtio: " for virtio-iommu.c driver
+
+Thierry
+
+Thierry Reding (5):
+  iommu: Implement generic_iommu_put_resv_regions()
+  iommu: arm: Use generic_iommu_put_resv_regions()
+  iommu: amd: Use generic_iommu_put_resv_regions()
+  iommu: intel: Use generic_iommu_put_resv_regions()
+  iommu: virtio: Use generic_iommu_put_resv_regions()
+
+ drivers/iommu/amd_iommu.c    | 11 +----------
+ drivers/iommu/arm-smmu-v3.c  | 11 +----------
+ drivers/iommu/arm-smmu.c     | 11 +----------
+ drivers/iommu/intel-iommu.c  | 11 +----------
+ drivers/iommu/iommu.c        | 19 +++++++++++++++++++
+ drivers/iommu/virtio-iommu.c | 14 +++-----------
+ include/linux/iommu.h        |  2 ++
+ 7 files changed, 28 insertions(+), 51 deletions(-)
+
 -- 
-2.18.1
+2.24.1
