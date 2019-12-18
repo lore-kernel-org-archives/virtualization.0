@@ -1,7 +1,7 @@
 From: Thierry Reding <thierry.reding@gmail.com>
-Subject: [PATCH v3 5/5] iommu: virtio: Use generic_iommu_put_resv_regions()
-Date: Wed, 18 Dec 2019 14:42:05 +0100
-Message-ID: <20191218134205.1271740-6-thierry.reding@gmail.com>
+Subject: [PATCH v3 1/5] iommu: Implement generic_iommu_put_resv_regions()
+Date: Wed, 18 Dec 2019 14:42:01 +0100
+Message-ID: <20191218134205.1271740-2-thierry.reding__35949.8851046496$1576676556$gmane$org@gmail.com>
 References: <20191218134205.1271740-1-thierry.reding@gmail.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
@@ -23,61 +23,58 @@ List-Id: virtualization@lists.linuxfoundation.org
 
 From: Thierry Reding <treding@nvidia.com>
 
-Use the new standard function instead of open-coding it.
+Implement a generic function for removing reserved regions. This can be
+used by drivers that don't do anything fancy with these regions other
+than allocating memory for them.
 
-Cc: Jean-Philippe Brucker <jean-philippe@linaro.org>
-Cc: virtualization@lists.linux-foundation.org
-Reviewed-by: Jean-Philippe Brucker <jean-philippe@linaro.org>
 Signed-off-by: Thierry Reding <treding@nvidia.com>
 ---
- drivers/iommu/virtio-iommu.c | 14 +++-----------
- 1 file changed, 3 insertions(+), 11 deletions(-)
+ drivers/iommu/iommu.c | 19 +++++++++++++++++++
+ include/linux/iommu.h |  2 ++
+ 2 files changed, 21 insertions(+)
 
-diff --git a/drivers/iommu/virtio-iommu.c b/drivers/iommu/virtio-iommu.c
-index 315c7cc4f99d..cce329d71fba 100644
---- a/drivers/iommu/virtio-iommu.c
-+++ b/drivers/iommu/virtio-iommu.c
-@@ -837,14 +837,6 @@ static void viommu_get_resv_regions(struct device *dev, struct list_head *head)
- 	iommu_dma_get_resv_regions(dev, head);
+diff --git a/drivers/iommu/iommu.c b/drivers/iommu/iommu.c
+index fdd40756dbc1..101f2d68eb6e 100644
+--- a/drivers/iommu/iommu.c
++++ b/drivers/iommu/iommu.c
+@@ -2229,6 +2229,25 @@ void iommu_put_resv_regions(struct device *dev, struct list_head *list)
+ 		ops->put_resv_regions(dev, list);
  }
  
--static void viommu_put_resv_regions(struct device *dev, struct list_head *head)
--{
--	struct iommu_resv_region *entry, *next;
--
--	list_for_each_entry_safe(entry, next, head, list)
--		kfree(entry);
--}
--
- static struct iommu_ops viommu_ops;
- static struct virtio_driver virtio_iommu_drv;
++/**
++ * generic_iommu_put_resv_regions - Reserved region driver helper
++ * @dev: device for which to free reserved regions
++ * @list: reserved region list for device
++ *
++ * IOMMU drivers can use this to implement their .put_resv_regions() callback
++ * for simple reservations. Memory allocated for each reserved region will be
++ * freed. If an IOMMU driver allocates additional resources per region, it is
++ * going to have to implement a custom callback.
++ */
++void generic_iommu_put_resv_regions(struct device *dev, struct list_head *list)
++{
++	struct iommu_resv_region *entry, *next;
++
++	list_for_each_entry_safe(entry, next, list, list)
++		kfree(entry);
++}
++EXPORT_SYMBOL(generic_iommu_put_resv_regions);
++
+ struct iommu_resv_region *iommu_alloc_resv_region(phys_addr_t start,
+ 						  size_t length, int prot,
+ 						  enum iommu_resv_type type)
+diff --git a/include/linux/iommu.h b/include/linux/iommu.h
+index 1b4fbe703950..2e06b31579c2 100644
+--- a/include/linux/iommu.h
++++ b/include/linux/iommu.h
+@@ -477,6 +477,8 @@ extern void iommu_set_fault_handler(struct iommu_domain *domain,
  
-@@ -914,7 +906,7 @@ static int viommu_add_device(struct device *dev)
- err_unlink_dev:
- 	iommu_device_unlink(&viommu->iommu, dev);
- err_free_dev:
--	viommu_put_resv_regions(dev, &vdev->resv_regions);
-+	generic_iommu_put_resv_regions(dev, &vdev->resv_regions);
- 	kfree(vdev);
- 
- 	return ret;
-@@ -932,7 +924,7 @@ static void viommu_remove_device(struct device *dev)
- 
- 	iommu_group_remove_device(dev);
- 	iommu_device_unlink(&vdev->viommu->iommu, dev);
--	viommu_put_resv_regions(dev, &vdev->resv_regions);
-+	generic_iommu_put_resv_regions(dev, &vdev->resv_regions);
- 	kfree(vdev);
- }
- 
-@@ -961,7 +953,7 @@ static struct iommu_ops viommu_ops = {
- 	.remove_device		= viommu_remove_device,
- 	.device_group		= viommu_device_group,
- 	.get_resv_regions	= viommu_get_resv_regions,
--	.put_resv_regions	= viommu_put_resv_regions,
-+	.put_resv_regions	= generic_iommu_put_resv_regions,
- 	.of_xlate		= viommu_of_xlate,
- };
- 
+ extern void iommu_get_resv_regions(struct device *dev, struct list_head *list);
+ extern void iommu_put_resv_regions(struct device *dev, struct list_head *list);
++extern void generic_iommu_put_resv_regions(struct device *dev,
++					   struct list_head *list);
+ extern int iommu_request_dm_for_dev(struct device *dev);
+ extern int iommu_request_dma_domain_for_dev(struct device *dev);
+ extern void iommu_set_default_passthrough(bool cmd_line);
 -- 
 2.24.1
