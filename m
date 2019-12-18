@@ -1,13 +1,11 @@
 From: Stefano Garzarella <sgarzare@redhat.com>
-Subject: [PATCH net-next v3 01/11] VSOCK: fix header include in vsock_diag_test
-Date: Wed, 18 Dec 2019 19:06:58 +0100
-Message-ID: <20191218180708.120337-2-sgarzare__28817.0670204394$1576692456$gmane$org@redhat.com>
-References: <20191218180708.120337-1-sgarzare@redhat.com>
+Subject: [PATCH net-next v3 00/11] VSOCK: add vsock_test test suite
+Date: Wed, 18 Dec 2019 19:06:57 +0100
+Message-ID: <20191218180708.120337-1-sgarzare@redhat.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <20191218180708.120337-1-sgarzare@redhat.com>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
  <mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -21,66 +19,58 @@ To: davem@davemloft.net
 Cc: kvm@vger.kernel.org, netdev@vger.kernel.org, Dexuan Cui <decui@microsoft.com>, linux-kernel@vger.kernel.org, virtualization@lists.linux-foundation.org, Stefan Hajnoczi <stefanha@redhat.com>, Jorgen Hansen <jhansen@vmware.com>
 List-Id: virtualization@lists.linuxfoundation.org
 
-From: Stefan Hajnoczi <stefanha@redhat.com>
+The vsock_diag.ko module already has a test suite but the core AF_VSOCK
+functionality has no tests. This patch series adds several test cases that
+exercise AF_VSOCK SOCK_STREAM socket semantics (send/recv, connect/accept,
+half-closed connections, simultaneous connections).
 
-The vsock_diag_test program directly included ../../../include/uapi/
-headers from the source tree.  Tests are supposed to use the
-usr/include/linux/ headers that have been prepared with make
-headers_install instead.
+The v1 of this series was originally sent by Stefan.
 
-Suggested-by: David S. Miller <davem@davemloft.net>
-Signed-off-by: Stefan Hajnoczi <stefanha@redhat.com>
-Signed-off-by: Stefano Garzarella <sgarzare@redhat.com>
----
- tools/testing/vsock/Makefile          | 2 +-
- tools/testing/vsock/README            | 2 +-
- tools/testing/vsock/vsock_diag_test.c | 5 ++---
- 3 files changed, 4 insertions(+), 5 deletions(-)
+v3:
+- Patch 6:
+  * check the byte received in the recv_byte()
+  * use send(2)/recv(2) instead of write(2)/read(2) to test also flags
+    (e.g. MSG_PEEK)
+- Patch 8:
+  * removed unnecessary control_expectln("CLOSED") [Stefan].
+- removed patches 9,10,11 added in the v2
+- new Patch 9 add parameters to list and skip tests (e.g. useful for vmci
+  that doesn't support half-closed socket in the host)
+- new Patch 10 prints a list of options in the help
+- new Patch 11 tests MSG_PEEK flags of recv(2)
 
-diff --git a/tools/testing/vsock/Makefile b/tools/testing/vsock/Makefile
-index 5be687b1e16c..d41a4e13960a 100644
---- a/tools/testing/vsock/Makefile
-+++ b/tools/testing/vsock/Makefile
-@@ -3,7 +3,7 @@ all: test
- test: vsock_diag_test
- vsock_diag_test: vsock_diag_test.o timeout.o control.o
- 
--CFLAGS += -g -O2 -Werror -Wall -I. -I../../include/uapi -I../../include -Wno-pointer-sign -fno-strict-overflow -fno-strict-aliasing -fno-common -MMD -U_FORTIFY_SOURCE -D_GNU_SOURCE
-+CFLAGS += -g -O2 -Werror -Wall -I. -I../../include -I../../../usr/include -Wno-pointer-sign -fno-strict-overflow -fno-strict-aliasing -fno-common -MMD -U_FORTIFY_SOURCE -D_GNU_SOURCE
- .PHONY: all test clean
- clean:
- 	${RM} *.o *.d vsock_diag_test
-diff --git a/tools/testing/vsock/README b/tools/testing/vsock/README
-index 2cc6d7302db6..cf7dc64273bf 100644
---- a/tools/testing/vsock/README
-+++ b/tools/testing/vsock/README
-@@ -10,7 +10,7 @@ The following tests are available:
- The following prerequisite steps are not automated and must be performed prior
- to running tests:
- 
--1. Build the kernel and these tests.
-+1. Build the kernel, make headers_install, and build these tests.
- 2. Install the kernel and tests on the host.
- 3. Install the kernel and tests inside the guest.
- 4. Boot the guest and ensure that the AF_VSOCK transport is enabled.
-diff --git a/tools/testing/vsock/vsock_diag_test.c b/tools/testing/vsock/vsock_diag_test.c
-index c481101364a4..fc391e041954 100644
---- a/tools/testing/vsock/vsock_diag_test.c
-+++ b/tools/testing/vsock/vsock_diag_test.c
-@@ -21,12 +21,11 @@
- #include <linux/list.h>
- #include <linux/net.h>
- #include <linux/netlink.h>
-+#include <linux/vm_sockets.h>
- #include <linux/sock_diag.h>
-+#include <linux/vm_sockets_diag.h>
- #include <netinet/tcp.h>
- 
--#include "../../../include/uapi/linux/vm_sockets.h"
--#include "../../../include/uapi/linux/vm_sockets_diag.h"
--
- #include "timeout.h"
- #include "control.h"
- 
+v2: https://patchwork.ozlabs.org/cover/1140538/
+v1: https://patchwork.ozlabs.org/cover/847998/
+
+Stefan Hajnoczi (7):
+  VSOCK: fix header include in vsock_diag_test
+  VSOCK: add SPDX identifiers to vsock tests
+  VSOCK: extract utility functions from vsock_diag_test.c
+  VSOCK: extract connect/accept functions from vsock_diag_test.c
+  VSOCK: add full barrier between test cases
+  VSOCK: add send_byte()/recv_byte() test utilities
+  VSOCK: add AF_VSOCK test cases
+
+Stefano Garzarella (4):
+  vsock_test: wait for the remote to close the connection
+  testing/vsock: add parameters to list and skip tests
+  testing/vsock: print list of options and description
+  vsock_test: add SOCK_STREAM MSG_PEEK test
+
+ tools/testing/vsock/.gitignore        |   1 +
+ tools/testing/vsock/Makefile          |   9 +-
+ tools/testing/vsock/README            |   3 +-
+ tools/testing/vsock/control.c         |  15 +-
+ tools/testing/vsock/control.h         |   2 +
+ tools/testing/vsock/timeout.h         |   1 +
+ tools/testing/vsock/util.c            | 376 +++++++++++++++++++++++++
+ tools/testing/vsock/util.h            |  49 ++++
+ tools/testing/vsock/vsock_diag_test.c | 202 ++++----------
+ tools/testing/vsock/vsock_test.c      | 379 ++++++++++++++++++++++++++
+ 10 files changed, 883 insertions(+), 154 deletions(-)
+ create mode 100644 tools/testing/vsock/util.c
+ create mode 100644 tools/testing/vsock/util.h
+ create mode 100644 tools/testing/vsock/vsock_test.c
+
 -- 
 2.24.1
