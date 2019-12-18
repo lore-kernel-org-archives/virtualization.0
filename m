@@ -1,13 +1,14 @@
 From: Cornelia Huck <cohuck@redhat.com>
-Subject: Re: [PATCH 1/2] virtio-balloon: initialize all vq callbacks
-Date: Wed, 18 Dec 2019 10:28:23 +0100
-Message-ID: <20191218102823.790d88fa.cohuck@redhat.com>
+Subject: Re: [PATCH 2/2] virtio-pci: check name when counting MSI-X vectors
+Date: Wed, 18 Dec 2019 10:30:36 +0100
+Message-ID: <20191218103036.1ec596ff.cohuck@redhat.com>
 References: <20191217190610.248061-1-dverkamp@chromium.org>
+ <20191217190610.248061-2-dverkamp@chromium.org>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <20191217190610.248061-1-dverkamp@chromium.org>
+In-Reply-To: <20191217190610.248061-2-dverkamp@chromium.org>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
  <mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -21,44 +22,36 @@ To: Daniel Verkamp <dverkamp@chromium.org>
 Cc: "Michael S. Tsirkin" <mst@redhat.com>, virtualization@lists.linux-foundation.org
 List-Id: virtualization@lists.linuxfoundation.org
 
-On Tue, 17 Dec 2019 11:06:09 -0800
+On Tue, 17 Dec 2019 11:06:10 -0800
 Daniel Verkamp <dverkamp@chromium.org> wrote:
 
-> Ensure that elements of the array that correspond to unavailable
-
-s/array/callbacks array/ ?
-
-> features are set to NULL; previously, they would be left uninitialized.
+> VQs without a name specified are not valid; they are skipped in the
+> later loop that assigns MSI-X vectors to queues, but the per_vq_vectors
+> loop above that counts the required number of vectors previously still
+> counted any queue with a non-NULL callback as needing a vector.
 > 
-> Since the corresponding names array elements were explicitly set to
-> NULL, the uninitialized callback pointers would not actually be
-> dereferenced; however, the uninitialized callbacks elements would still
-> be read in vp_find_vqs_msix() and used to calculate the number of MSI-X
-> vectors required.
+> Add a check to the per_vq_vectors loop so that vectors with no name are
+> not counted to make the two loops consistent.  This prevents
+> over-counting unnecessary vectors (e.g. for features which were not
+> negotiated with the device).
 > 
-> Fixes: 86a559787e6f ("virtio-balloon: VIRTIO_BALLOON_F_FREE_PAGE_HINT")
 > Signed-off-by: Daniel Verkamp <dverkamp@chromium.org>
 > ---
->  drivers/virtio/virtio_balloon.c | 2 ++
->  1 file changed, 2 insertions(+)
+>  drivers/virtio/virtio_pci_common.c | 2 +-
+>  1 file changed, 1 insertion(+), 1 deletion(-)
 > 
-> diff --git a/drivers/virtio/virtio_balloon.c b/drivers/virtio/virtio_balloon.c
-> index 93f995f6cf36..8e400ece9273 100644
-> --- a/drivers/virtio/virtio_balloon.c
-> +++ b/drivers/virtio/virtio_balloon.c
-> @@ -475,7 +475,9 @@ static int init_vqs(struct virtio_balloon *vb)
->  	names[VIRTIO_BALLOON_VQ_INFLATE] = "inflate";
->  	callbacks[VIRTIO_BALLOON_VQ_DEFLATE] = balloon_ack;
->  	names[VIRTIO_BALLOON_VQ_DEFLATE] = "deflate";
-> +	callbacks[VIRTIO_BALLOON_VQ_STATS] = NULL;
->  	names[VIRTIO_BALLOON_VQ_STATS] = NULL;
-> +	callbacks[VIRTIO_BALLOON_VQ_FREE_PAGE] = NULL;
->  	names[VIRTIO_BALLOON_VQ_FREE_PAGE] = NULL;
->  
->  	if (virtio_has_feature(vb->vdev, VIRTIO_BALLOON_F_STATS_VQ)) {
-
-Alternatively, it might make sense to zero the whole array and drop the
-explicit NULL assignments, which would also be a bit more future
-proof... but this one fixes things as well, of course.
+> diff --git a/drivers/virtio/virtio_pci_common.c b/drivers/virtio/virtio_pci_common.c
+> index f2862f66c2ac..222d630c41fc 100644
+> --- a/drivers/virtio/virtio_pci_common.c
+> +++ b/drivers/virtio/virtio_pci_common.c
+> @@ -294,7 +294,7 @@ static int vp_find_vqs_msix(struct virtio_device *vdev, unsigned nvqs,
+>  		/* Best option: one for change interrupt, one per vq. */
+>  		nvectors = 1;
+>  		for (i = 0; i < nvqs; ++i)
+> -			if (callbacks[i])
+> +			if (names[i] && callbacks[i])
+>  				++nvectors;
+>  	} else {
+>  		/* Second best: one for change, shared for all vqs. */
 
 Reviewed-by: Cornelia Huck <cohuck@redhat.com>
