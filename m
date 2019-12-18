@@ -1,11 +1,13 @@
 From: Thierry Reding <thierry.reding@gmail.com>
-Subject: [PATCH v3 0/5] iommu: Implement generic_iommu_put_resv_regions()
-Date: Wed, 18 Dec 2019 14:42:00 +0100
-Message-ID: <20191218134205.1271740-1-thierry.reding__19276.7310467147$1576676548$gmane$org@gmail.com>
+Subject: [PATCH v3 3/5] iommu: amd: Use generic_iommu_put_resv_regions()
+Date: Wed, 18 Dec 2019 14:42:03 +0100
+Message-ID: <20191218134205.1271740-4-thierry.reding__2142.0814957068$1576676555$gmane$org@gmail.com>
+References: <20191218134205.1271740-1-thierry.reding@gmail.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
+In-Reply-To: <20191218134205.1271740-1-thierry.reding@gmail.com>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
  <mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -21,36 +23,41 @@ List-Id: virtualization@lists.linuxfoundation.org
 
 From: Thierry Reding <treding@nvidia.com>
 
-Most IOMMU drivers only need to free the memory allocated for each
-reserved region. Instead of open-coding the loop to do this in each
-driver, extract the code into a common function that can be used by
-all these drivers.
+Use the new standard function instead of open-coding it.
 
-Changes in v3:
-- add Reviewed-by from Jean-Philippe Brucker on virtio patch
-- add Acked-by from Will Deacon on ARM SMMU patch
-- rename to generic_iommu_put_resv_regions()
+Signed-off-by: Thierry Reding <treding@nvidia.com>
+---
+ drivers/iommu/amd_iommu.c | 11 +----------
+ 1 file changed, 1 insertion(+), 10 deletions(-)
 
-Changes in v2:
-- change subject prefix to "iommu: virtio: " for virtio-iommu.c driver
-
-Thierry
-
-Thierry Reding (5):
-  iommu: Implement generic_iommu_put_resv_regions()
-  iommu: arm: Use generic_iommu_put_resv_regions()
-  iommu: amd: Use generic_iommu_put_resv_regions()
-  iommu: intel: Use generic_iommu_put_resv_regions()
-  iommu: virtio: Use generic_iommu_put_resv_regions()
-
- drivers/iommu/amd_iommu.c    | 11 +----------
- drivers/iommu/arm-smmu-v3.c  | 11 +----------
- drivers/iommu/arm-smmu.c     | 11 +----------
- drivers/iommu/intel-iommu.c  | 11 +----------
- drivers/iommu/iommu.c        | 19 +++++++++++++++++++
- drivers/iommu/virtio-iommu.c | 14 +++-----------
- include/linux/iommu.h        |  2 ++
- 7 files changed, 28 insertions(+), 51 deletions(-)
-
+diff --git a/drivers/iommu/amd_iommu.c b/drivers/iommu/amd_iommu.c
+index 7a6c056b9b9c..9ea6c4b8e402 100644
+--- a/drivers/iommu/amd_iommu.c
++++ b/drivers/iommu/amd_iommu.c
+@@ -2638,15 +2638,6 @@ static void amd_iommu_get_resv_regions(struct device *dev,
+ 	list_add_tail(&region->list, head);
+ }
+ 
+-static void amd_iommu_put_resv_regions(struct device *dev,
+-				     struct list_head *head)
+-{
+-	struct iommu_resv_region *entry, *next;
+-
+-	list_for_each_entry_safe(entry, next, head, list)
+-		kfree(entry);
+-}
+-
+ static bool amd_iommu_is_attach_deferred(struct iommu_domain *domain,
+ 					 struct device *dev)
+ {
+@@ -2685,7 +2676,7 @@ const struct iommu_ops amd_iommu_ops = {
+ 	.device_group = amd_iommu_device_group,
+ 	.domain_get_attr = amd_iommu_domain_get_attr,
+ 	.get_resv_regions = amd_iommu_get_resv_regions,
+-	.put_resv_regions = amd_iommu_put_resv_regions,
++	.put_resv_regions = generic_iommu_put_resv_regions,
+ 	.is_attach_deferred = amd_iommu_is_attach_deferred,
+ 	.pgsize_bitmap	= AMD_IOMMU_PGSIZES,
+ 	.flush_iotlb_all = amd_iommu_flush_iotlb_all,
 -- 
 2.24.1
