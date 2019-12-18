@@ -1,8 +1,8 @@
 From: Stefano Garzarella <sgarzare@redhat.com>
-Subject: [PATCH net-next v3 04/11] VSOCK: extract connect/accept functions
- from vsock_diag_test.c
-Date: Wed, 18 Dec 2019 19:07:01 +0100
-Message-ID: <20191218180708.120337-5-sgarzare__14795.5560287059$1576692474$gmane$org@redhat.com>
+Subject: [PATCH net-next v3 06/11] VSOCK: add send_byte()/recv_byte() test
+ utilities
+Date: Wed, 18 Dec 2019 19:07:03 +0100
+Message-ID: <20191218180708.120337-7-sgarzare__25156.9868925557$1576692479$gmane$org@redhat.com>
 References: <20191218180708.120337-1-sgarzare@redhat.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
@@ -24,301 +24,154 @@ List-Id: virtualization@lists.linuxfoundation.org
 
 From: Stefan Hajnoczi <stefanha@redhat.com>
 
-Many test cases will need to connect to the server or accept incoming
-connections.  This patch extracts these operations into utility
-functions that can be reused.
+Test cases will want to transfer data.  This patch adds utility
+functions to do this.
 
 Signed-off-by: Stefan Hajnoczi <stefanha@redhat.com>
 Signed-off-by: Stefano Garzarella <sgarzare@redhat.com>
 ---
- tools/testing/vsock/util.c            | 108 ++++++++++++++++++++++++++
- tools/testing/vsock/util.h            |   6 ++
- tools/testing/vsock/vsock_diag_test.c |  81 ++-----------------
- 3 files changed, 119 insertions(+), 76 deletions(-)
+v3:
+ * check the byte received in the recv_byte()
+ * use send(2)/recv(2) instead of write(2)/read(2) to test also flags
+   (e.g. MSG_PEEK)
+---
+ tools/testing/vsock/util.c | 103 +++++++++++++++++++++++++++++++++++++
+ tools/testing/vsock/util.h |   2 +
+ 2 files changed, 105 insertions(+)
 
 diff --git a/tools/testing/vsock/util.c b/tools/testing/vsock/util.c
-index f40f45b36d2f..f838bcee3589 100644
+index 4280a56ba677..6026ef3ce512 100644
 --- a/tools/testing/vsock/util.c
 +++ b/tools/testing/vsock/util.c
-@@ -11,8 +11,10 @@
+@@ -9,6 +9,7 @@
+ 
+ #include <errno.h>
  #include <stdio.h>
++#include <stdint.h>
  #include <stdlib.h>
  #include <signal.h>
-+#include <unistd.h>
- 
- #include "timeout.h"
-+#include "control.h"
- #include "util.h"
- 
- /* Install signal handlers */
-@@ -41,6 +43,112 @@ unsigned int parse_cid(const char *str)
- 	return n;
+ #include <unistd.h>
+@@ -149,6 +150,108 @@ int vsock_stream_accept(unsigned int cid, unsigned int port,
+ 	return client_fd;
  }
  
-+/* Connect to <cid, port> and return the file descriptor. */
-+int vsock_stream_connect(unsigned int cid, unsigned int port)
++/* Transmit one byte and check the return value.
++ *
++ * expected_ret:
++ *  <0 Negative errno (for testing errors)
++ *   0 End-of-file
++ *   1 Success
++ */
++void send_byte(int fd, int expected_ret, int flags)
 +{
-+	union {
-+		struct sockaddr sa;
-+		struct sockaddr_vm svm;
-+	} addr = {
-+		.svm = {
-+			.svm_family = AF_VSOCK,
-+			.svm_port = port,
-+			.svm_cid = cid,
-+		},
-+	};
-+	int ret;
-+	int fd;
-+
-+	control_expectln("LISTENING");
-+
-+	fd = socket(AF_VSOCK, SOCK_STREAM, 0);
++	const uint8_t byte = 'A';
++	ssize_t nwritten;
 +
 +	timeout_begin(TIMEOUT);
 +	do {
-+		ret = connect(fd, &addr.sa, sizeof(addr.svm));
-+		timeout_check("connect");
-+	} while (ret < 0 && errno == EINTR);
++		nwritten = send(fd, &byte, sizeof(byte), flags);
++		timeout_check("write");
++	} while (nwritten < 0 && errno == EINTR);
 +	timeout_end();
 +
-+	if (ret < 0) {
-+		int old_errno = errno;
-+
-+		close(fd);
-+		fd = -1;
-+		errno = old_errno;
++	if (expected_ret < 0) {
++		if (nwritten != -1) {
++			fprintf(stderr, "bogus send(2) return value %zd\n",
++				nwritten);
++			exit(EXIT_FAILURE);
++		}
++		if (errno != -expected_ret) {
++			perror("write");
++			exit(EXIT_FAILURE);
++		}
++		return;
 +	}
-+	return fd;
++
++	if (nwritten < 0) {
++		perror("write");
++		exit(EXIT_FAILURE);
++	}
++	if (nwritten == 0) {
++		if (expected_ret == 0)
++			return;
++
++		fprintf(stderr, "unexpected EOF while sending byte\n");
++		exit(EXIT_FAILURE);
++	}
++	if (nwritten != sizeof(byte)) {
++		fprintf(stderr, "bogus send(2) return value %zd\n", nwritten);
++		exit(EXIT_FAILURE);
++	}
 +}
 +
-+/* Listen on <cid, port> and return the first incoming connection.  The remote
-+ * address is stored to clientaddrp.  clientaddrp may be NULL.
++/* Receive one byte and check the return value.
++ *
++ * expected_ret:
++ *  <0 Negative errno (for testing errors)
++ *   0 End-of-file
++ *   1 Success
 + */
-+int vsock_stream_accept(unsigned int cid, unsigned int port,
-+			struct sockaddr_vm *clientaddrp)
++void recv_byte(int fd, int expected_ret, int flags)
 +{
-+	union {
-+		struct sockaddr sa;
-+		struct sockaddr_vm svm;
-+	} addr = {
-+		.svm = {
-+			.svm_family = AF_VSOCK,
-+			.svm_port = port,
-+			.svm_cid = cid,
-+		},
-+	};
-+	union {
-+		struct sockaddr sa;
-+		struct sockaddr_vm svm;
-+	} clientaddr;
-+	socklen_t clientaddr_len = sizeof(clientaddr.svm);
-+	int fd;
-+	int client_fd;
-+	int old_errno;
-+
-+	fd = socket(AF_VSOCK, SOCK_STREAM, 0);
-+
-+	if (bind(fd, &addr.sa, sizeof(addr.svm)) < 0) {
-+		perror("bind");
-+		exit(EXIT_FAILURE);
-+	}
-+
-+	if (listen(fd, 1) < 0) {
-+		perror("listen");
-+		exit(EXIT_FAILURE);
-+	}
-+
-+	control_writeln("LISTENING");
++	uint8_t byte;
++	ssize_t nread;
 +
 +	timeout_begin(TIMEOUT);
 +	do {
-+		client_fd = accept(fd, &clientaddr.sa, &clientaddr_len);
-+		timeout_check("accept");
-+	} while (client_fd < 0 && errno == EINTR);
++		nread = recv(fd, &byte, sizeof(byte), flags);
++		timeout_check("read");
++	} while (nread < 0 && errno == EINTR);
 +	timeout_end();
 +
-+	old_errno = errno;
-+	close(fd);
-+	errno = old_errno;
-+
-+	if (client_fd < 0)
-+		return client_fd;
-+
-+	if (clientaddr_len != sizeof(clientaddr.svm)) {
-+		fprintf(stderr, "unexpected addrlen from accept(2), %zu\n",
-+			(size_t)clientaddr_len);
-+		exit(EXIT_FAILURE);
-+	}
-+	if (clientaddr.sa.sa_family != AF_VSOCK) {
-+		fprintf(stderr, "expected AF_VSOCK from accept(2), got %d\n",
-+			clientaddr.sa.sa_family);
-+		exit(EXIT_FAILURE);
++	if (expected_ret < 0) {
++		if (nread != -1) {
++			fprintf(stderr, "bogus recv(2) return value %zd\n",
++				nread);
++			exit(EXIT_FAILURE);
++		}
++		if (errno != -expected_ret) {
++			perror("read");
++			exit(EXIT_FAILURE);
++		}
++		return;
 +	}
 +
-+	if (clientaddrp)
-+		*clientaddrp = clientaddr.svm;
-+	return client_fd;
++	if (nread < 0) {
++		perror("read");
++		exit(EXIT_FAILURE);
++	}
++	if (nread == 0) {
++		if (expected_ret == 0)
++			return;
++
++		fprintf(stderr, "unexpected EOF while receiving byte\n");
++		exit(EXIT_FAILURE);
++	}
++	if (nread != sizeof(byte)) {
++		fprintf(stderr, "bogus recv(2) return value %zd\n", nread);
++		exit(EXIT_FAILURE);
++	}
++	if (byte != 'A') {
++		fprintf(stderr, "unexpected byte read %c\n", byte);
++		exit(EXIT_FAILURE);
++	}
 +}
 +
  /* Run test cases.  The program terminates if a failure occurs. */
  void run_tests(const struct test_case *test_cases,
  	       const struct test_opts *opts)
 diff --git a/tools/testing/vsock/util.h b/tools/testing/vsock/util.h
-index 033e7d59a42a..1786305cfddd 100644
+index 1786305cfddd..4df12e4b5ebe 100644
 --- a/tools/testing/vsock/util.h
 +++ b/tools/testing/vsock/util.h
-@@ -2,6 +2,9 @@
- #ifndef UTIL_H
- #define UTIL_H
- 
-+#include <sys/socket.h>
-+#include <linux/vm_sockets.h>
-+
- /* Tests can either run as the client or the server */
- enum test_mode {
- 	TEST_MODE_UNSET,
-@@ -30,6 +33,9 @@ struct test_case {
- 
- void init_signals(void);
- unsigned int parse_cid(const char *str);
-+int vsock_stream_connect(unsigned int cid, unsigned int port);
-+int vsock_stream_accept(unsigned int cid, unsigned int port,
-+			struct sockaddr_vm *clientaddrp);
+@@ -36,6 +36,8 @@ unsigned int parse_cid(const char *str);
+ int vsock_stream_connect(unsigned int cid, unsigned int port);
+ int vsock_stream_accept(unsigned int cid, unsigned int port,
+ 			struct sockaddr_vm *clientaddrp);
++void send_byte(int fd, int expected_ret, int flags);
++void recv_byte(int fd, int expected_ret, int flags);
  void run_tests(const struct test_case *test_cases,
  	       const struct test_opts *opts);
- 
-diff --git a/tools/testing/vsock/vsock_diag_test.c b/tools/testing/vsock/vsock_diag_test.c
-index 944c8a72eed7..abd7dc2a9631 100644
---- a/tools/testing/vsock/vsock_diag_test.c
-+++ b/tools/testing/vsock/vsock_diag_test.c
-@@ -13,13 +13,11 @@
- #include <string.h>
- #include <errno.h>
- #include <unistd.h>
--#include <sys/socket.h>
- #include <sys/stat.h>
- #include <sys/types.h>
- #include <linux/list.h>
- #include <linux/net.h>
- #include <linux/netlink.h>
--#include <linux/vm_sockets.h>
- #include <linux/sock_diag.h>
- #include <linux/vm_sockets_diag.h>
- #include <netinet/tcp.h>
-@@ -378,33 +376,12 @@ static void test_listen_socket_server(const struct test_opts *opts)
- 
- static void test_connect_client(const struct test_opts *opts)
- {
--	union {
--		struct sockaddr sa;
--		struct sockaddr_vm svm;
--	} addr = {
--		.svm = {
--			.svm_family = AF_VSOCK,
--			.svm_port = 1234,
--			.svm_cid = opts->peer_cid,
--		},
--	};
- 	int fd;
--	int ret;
- 	LIST_HEAD(sockets);
- 	struct vsock_stat *st;
- 
--	control_expectln("LISTENING");
--
--	fd = socket(AF_VSOCK, SOCK_STREAM, 0);
--
--	timeout_begin(TIMEOUT);
--	do {
--		ret = connect(fd, &addr.sa, sizeof(addr.svm));
--		timeout_check("connect");
--	} while (ret < 0 && errno == EINTR);
--	timeout_end();
--
--	if (ret < 0) {
-+	fd = vsock_stream_connect(opts->peer_cid, 1234);
-+	if (fd < 0) {
- 		perror("connect");
- 		exit(EXIT_FAILURE);
- 	}
-@@ -424,66 +401,19 @@ static void test_connect_client(const struct test_opts *opts)
- 
- static void test_connect_server(const struct test_opts *opts)
- {
--	union {
--		struct sockaddr sa;
--		struct sockaddr_vm svm;
--	} addr = {
--		.svm = {
--			.svm_family = AF_VSOCK,
--			.svm_port = 1234,
--			.svm_cid = VMADDR_CID_ANY,
--		},
--	};
--	union {
--		struct sockaddr sa;
--		struct sockaddr_vm svm;
--	} clientaddr;
--	socklen_t clientaddr_len = sizeof(clientaddr.svm);
--	LIST_HEAD(sockets);
- 	struct vsock_stat *st;
--	int fd;
-+	LIST_HEAD(sockets);
- 	int client_fd;
- 
--	fd = socket(AF_VSOCK, SOCK_STREAM, 0);
--
--	if (bind(fd, &addr.sa, sizeof(addr.svm)) < 0) {
--		perror("bind");
--		exit(EXIT_FAILURE);
--	}
--
--	if (listen(fd, 1) < 0) {
--		perror("listen");
--		exit(EXIT_FAILURE);
--	}
--
--	control_writeln("LISTENING");
--
--	timeout_begin(TIMEOUT);
--	do {
--		client_fd = accept(fd, &clientaddr.sa, &clientaddr_len);
--		timeout_check("accept");
--	} while (client_fd < 0 && errno == EINTR);
--	timeout_end();
--
-+	client_fd = vsock_stream_accept(VMADDR_CID_ANY, 1234, NULL);
- 	if (client_fd < 0) {
- 		perror("accept");
- 		exit(EXIT_FAILURE);
- 	}
--	if (clientaddr.sa.sa_family != AF_VSOCK) {
--		fprintf(stderr, "expected AF_VSOCK from accept(2), got %d\n",
--			clientaddr.sa.sa_family);
--		exit(EXIT_FAILURE);
--	}
--	if (clientaddr.svm.svm_cid != opts->peer_cid) {
--		fprintf(stderr, "expected peer CID %u from accept(2), got %u\n",
--			opts->peer_cid, clientaddr.svm.svm_cid);
--		exit(EXIT_FAILURE);
--	}
- 
- 	read_vsock_stat(&sockets);
- 
--	check_num_sockets(&sockets, 2);
--	find_vsock_stat(&sockets, fd);
-+	check_num_sockets(&sockets, 1);
- 	st = find_vsock_stat(&sockets, client_fd);
- 	check_socket_state(st, TCP_ESTABLISHED);
- 
-@@ -491,7 +421,6 @@ static void test_connect_server(const struct test_opts *opts)
- 	control_expectln("DONE");
- 
- 	close(client_fd);
--	close(fd);
- 	free_sock_stat(&sockets);
- }
  
 -- 
 2.24.1
