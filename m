@@ -1,16 +1,13 @@
-From: Christian Borntraeger <borntraeger@de.ibm.com>
-Subject: Re: vhost changes (batched) in linux-next after 12/13 trigger random
- crashes in KVM guests after reboot
-Date: Wed, 18 Dec 2019 16:59:02 +0100
-Message-ID: <2ffdbd95-e375-a627-55a1-6990b0a0e37a__27172.7349770785$1576684767$gmane$org@de.ibm.com>
-References: <c022e1d6-0d57-ae07-5e6b-8e40d3b01f4b@de.ibm.com>
- <20191218100926-mutt-send-email-mst@kernel.org>
+From: Stefano Garzarella <sgarzare@redhat.com>
+Subject: [PATCH net-next v3 01/11] VSOCK: fix header include in vsock_diag_test
+Date: Wed, 18 Dec 2019 19:06:58 +0100
+Message-ID: <20191218180708.120337-2-sgarzare__28817.0670204394$1576692456$gmane$org@redhat.com>
+References: <20191218180708.120337-1-sgarzare@redhat.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <20191218100926-mutt-send-email-mst@kernel.org>
-Content-Language: en-US
+In-Reply-To: <20191218180708.120337-1-sgarzare@redhat.com>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
  <mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -20,37 +17,70 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
  <mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Errors-To: virtualization-bounces@lists.linux-foundation.org
 Sender: "Virtualization" <virtualization-bounces@lists.linux-foundation.org>
-To: "Michael S. Tsirkin" <mst@redhat.com>
-Cc: Stephen Rothwell <sfr@canb.auug.org.au>, kvm list <kvm@vger.kernel.org>, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>, "virtualization@lists.linux-foundation.org" <virtualization@lists.linux-foundation.org>, Halil Pasic <pasic@linux.ibm.com>, Linux Next Mailing List <linux-next@vger.kernel.org>
+To: davem@davemloft.net
+Cc: kvm@vger.kernel.org, netdev@vger.kernel.org, Dexuan Cui <decui@microsoft.com>, linux-kernel@vger.kernel.org, virtualization@lists.linux-foundation.org, Stefan Hajnoczi <stefanha@redhat.com>, Jorgen Hansen <jhansen@vmware.com>
 List-Id: virtualization@lists.linuxfoundation.org
 
-On 18.12.19 16:10, Michael S. Tsirkin wrote:
-> On Wed, Dec 18, 2019 at 03:43:43PM +0100, Christian Borntraeger wrote:
->> Michael,
->>
->> with 
->> commit db7286b100b503ef80612884453bed53d74c9a16 (refs/bisect/skip-db7286b100b503ef80612884453bed53d74c9a16)
->>     vhost: use batched version by default
->> plus
->> commit 6bd262d5eafcdf8cdfae491e2e748e4e434dcda6 (HEAD, refs/bisect/bad)
->>     Revert "vhost/net: add an option to test new code"
->> to make things compile (your next tree is not easily bisectable, can you fix that as well?).
-> 
-> I'll try.
-> 
->>
->> I get random crashes in my s390 KVM guests after reboot.
->> Reverting both patches together with commit decd9b8 "vhost: use vhost_desc instead of vhost_log" to
->> make it compile again) on top of linux-next-1218 makes the problem go away.
->>
->> Looks like the batched version is not yet ready for prime time. Can you drop these patches until
->> we have fixed the issues?
->>
->> Christian
->>
-> 
-> Will do, thanks for letting me know.
+From: Stefan Hajnoczi <stefanha@redhat.com>
 
-I have confirmed with the initial reporter (internal test team) that <driver name='qemu'/> 
-with a known to be broken linux next kernel also fixes the problem, so it is really the
-vhost changes.
+The vsock_diag_test program directly included ../../../include/uapi/
+headers from the source tree.  Tests are supposed to use the
+usr/include/linux/ headers that have been prepared with make
+headers_install instead.
+
+Suggested-by: David S. Miller <davem@davemloft.net>
+Signed-off-by: Stefan Hajnoczi <stefanha@redhat.com>
+Signed-off-by: Stefano Garzarella <sgarzare@redhat.com>
+---
+ tools/testing/vsock/Makefile          | 2 +-
+ tools/testing/vsock/README            | 2 +-
+ tools/testing/vsock/vsock_diag_test.c | 5 ++---
+ 3 files changed, 4 insertions(+), 5 deletions(-)
+
+diff --git a/tools/testing/vsock/Makefile b/tools/testing/vsock/Makefile
+index 5be687b1e16c..d41a4e13960a 100644
+--- a/tools/testing/vsock/Makefile
++++ b/tools/testing/vsock/Makefile
+@@ -3,7 +3,7 @@ all: test
+ test: vsock_diag_test
+ vsock_diag_test: vsock_diag_test.o timeout.o control.o
+ 
+-CFLAGS += -g -O2 -Werror -Wall -I. -I../../include/uapi -I../../include -Wno-pointer-sign -fno-strict-overflow -fno-strict-aliasing -fno-common -MMD -U_FORTIFY_SOURCE -D_GNU_SOURCE
++CFLAGS += -g -O2 -Werror -Wall -I. -I../../include -I../../../usr/include -Wno-pointer-sign -fno-strict-overflow -fno-strict-aliasing -fno-common -MMD -U_FORTIFY_SOURCE -D_GNU_SOURCE
+ .PHONY: all test clean
+ clean:
+ 	${RM} *.o *.d vsock_diag_test
+diff --git a/tools/testing/vsock/README b/tools/testing/vsock/README
+index 2cc6d7302db6..cf7dc64273bf 100644
+--- a/tools/testing/vsock/README
++++ b/tools/testing/vsock/README
+@@ -10,7 +10,7 @@ The following tests are available:
+ The following prerequisite steps are not automated and must be performed prior
+ to running tests:
+ 
+-1. Build the kernel and these tests.
++1. Build the kernel, make headers_install, and build these tests.
+ 2. Install the kernel and tests on the host.
+ 3. Install the kernel and tests inside the guest.
+ 4. Boot the guest and ensure that the AF_VSOCK transport is enabled.
+diff --git a/tools/testing/vsock/vsock_diag_test.c b/tools/testing/vsock/vsock_diag_test.c
+index c481101364a4..fc391e041954 100644
+--- a/tools/testing/vsock/vsock_diag_test.c
++++ b/tools/testing/vsock/vsock_diag_test.c
+@@ -21,12 +21,11 @@
+ #include <linux/list.h>
+ #include <linux/net.h>
+ #include <linux/netlink.h>
++#include <linux/vm_sockets.h>
+ #include <linux/sock_diag.h>
++#include <linux/vm_sockets_diag.h>
+ #include <netinet/tcp.h>
+ 
+-#include "../../../include/uapi/linux/vm_sockets.h"
+-#include "../../../include/uapi/linux/vm_sockets_diag.h"
+-
+ #include "timeout.h"
+ #include "control.h"
+ 
+-- 
+2.24.1
