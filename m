@@ -1,7 +1,7 @@
 From: Thierry Reding <thierry.reding@gmail.com>
-Subject: [PATCH v3 4/5] iommu: intel: Use generic_iommu_put_resv_regions()
-Date: Wed, 18 Dec 2019 14:42:04 +0100
-Message-ID: <20191218134205.1271740-5-thierry.reding__37139.3661409215$1576676558$gmane$org@gmail.com>
+Subject: [PATCH v3 2/5] iommu: arm: Use generic_iommu_put_resv_regions()
+Date: Wed, 18 Dec 2019 14:42:02 +0100
+Message-ID: <20191218134205.1271740-3-thierry.reding__18045.6487274327$1576676560$gmane$org@gmail.com>
 References: <20191218134205.1271740-1-thierry.reding@gmail.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
@@ -18,29 +18,32 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 Errors-To: virtualization-bounces@lists.linux-foundation.org
 Sender: "Virtualization" <virtualization-bounces@lists.linux-foundation.org>
 To: Joerg Roedel <joro@8bytes.org>
-Cc: Jean-Philippe Brucker <jean-philippe@linaro.org>, Will Deacon <will@kernel.org>, linux-kernel@vger.kernel.org, virtualization@lists.linux-foundation.org, Christoph Hellwig <hch@infradead.org>, iommu@lists.linux-foundation.org, Robin Murphy <robin.murphy@arm.com>, David Woodhouse <dwmw2@infradead.org>, linux-arm-kernel@lists.infradead.org
+Cc: Jean-Philippe Brucker <jean-philippe@linaro.org>, Will Deacon <will@kernel.org>, linux-kernel@vger.kernel.org, virtualization@lists.linux-foundation.org, Christoph Hellwig <hch@infradead.org>, iommu@lists.linux-foundation.org, Robin Murphy <robin.murphy@arm.com>, linux-arm-kernel@lists.infradead.org
 List-Id: virtualization@lists.linuxfoundation.org
 
 From: Thierry Reding <treding@nvidia.com>
 
 Use the new standard function instead of open-coding it.
 
-Cc: David Woodhouse <dwmw2@infradead.org>
+Cc: Will Deacon <will@kernel.org>
+Cc: Robin Murphy <robin.murphy@arm.com>
+Acked-by: Will Deacon <will@kernel.org>
 Signed-off-by: Thierry Reding <treding@nvidia.com>
 ---
- drivers/iommu/intel-iommu.c | 11 +----------
- 1 file changed, 1 insertion(+), 10 deletions(-)
+ drivers/iommu/arm-smmu-v3.c | 11 +----------
+ drivers/iommu/arm-smmu.c    | 11 +----------
+ 2 files changed, 2 insertions(+), 20 deletions(-)
 
-diff --git a/drivers/iommu/intel-iommu.c b/drivers/iommu/intel-iommu.c
-index 42966611a192..a6d5b7cf9183 100644
---- a/drivers/iommu/intel-iommu.c
-+++ b/drivers/iommu/intel-iommu.c
-@@ -5744,15 +5744,6 @@ static void intel_iommu_get_resv_regions(struct device *device,
- 	list_add_tail(&reg->list, head);
+diff --git a/drivers/iommu/arm-smmu-v3.c b/drivers/iommu/arm-smmu-v3.c
+index effe72eb89e7..7f5b74a418de 100644
+--- a/drivers/iommu/arm-smmu-v3.c
++++ b/drivers/iommu/arm-smmu-v3.c
+@@ -2710,15 +2710,6 @@ static void arm_smmu_get_resv_regions(struct device *dev,
+ 	iommu_dma_get_resv_regions(dev, head);
  }
  
--static void intel_iommu_put_resv_regions(struct device *dev,
--					 struct list_head *head)
+-static void arm_smmu_put_resv_regions(struct device *dev,
+-				      struct list_head *head)
 -{
 -	struct iommu_resv_region *entry, *next;
 -
@@ -48,17 +51,46 @@ index 42966611a192..a6d5b7cf9183 100644
 -		kfree(entry);
 -}
 -
- int intel_iommu_enable_pasid(struct intel_iommu *iommu, struct device *dev)
- {
- 	struct device_domain_info *info;
-@@ -5987,7 +5978,7 @@ const struct iommu_ops intel_iommu_ops = {
- 	.add_device		= intel_iommu_add_device,
- 	.remove_device		= intel_iommu_remove_device,
- 	.get_resv_regions	= intel_iommu_get_resv_regions,
--	.put_resv_regions	= intel_iommu_put_resv_regions,
+ static struct iommu_ops arm_smmu_ops = {
+ 	.capable		= arm_smmu_capable,
+ 	.domain_alloc		= arm_smmu_domain_alloc,
+@@ -2736,7 +2727,7 @@ static struct iommu_ops arm_smmu_ops = {
+ 	.domain_set_attr	= arm_smmu_domain_set_attr,
+ 	.of_xlate		= arm_smmu_of_xlate,
+ 	.get_resv_regions	= arm_smmu_get_resv_regions,
+-	.put_resv_regions	= arm_smmu_put_resv_regions,
 +	.put_resv_regions	= generic_iommu_put_resv_regions,
- 	.apply_resv_region	= intel_iommu_apply_resv_region,
- 	.device_group		= pci_device_group,
- 	.dev_has_feat		= intel_iommu_dev_has_feat,
+ 	.pgsize_bitmap		= -1UL, /* Restricted during device attach */
+ };
+ 
+diff --git a/drivers/iommu/arm-smmu.c b/drivers/iommu/arm-smmu.c
+index 31ad3fe9a6d1..7a5978bbeca8 100644
+--- a/drivers/iommu/arm-smmu.c
++++ b/drivers/iommu/arm-smmu.c
+@@ -1576,15 +1576,6 @@ static void arm_smmu_get_resv_regions(struct device *dev,
+ 	iommu_dma_get_resv_regions(dev, head);
+ }
+ 
+-static void arm_smmu_put_resv_regions(struct device *dev,
+-				      struct list_head *head)
+-{
+-	struct iommu_resv_region *entry, *next;
+-
+-	list_for_each_entry_safe(entry, next, head, list)
+-		kfree(entry);
+-}
+-
+ static struct iommu_ops arm_smmu_ops = {
+ 	.capable		= arm_smmu_capable,
+ 	.domain_alloc		= arm_smmu_domain_alloc,
+@@ -1602,7 +1593,7 @@ static struct iommu_ops arm_smmu_ops = {
+ 	.domain_set_attr	= arm_smmu_domain_set_attr,
+ 	.of_xlate		= arm_smmu_of_xlate,
+ 	.get_resv_regions	= arm_smmu_get_resv_regions,
+-	.put_resv_regions	= arm_smmu_put_resv_regions,
++	.put_resv_regions	= generic_iommu_put_resv_regions,
+ 	.pgsize_bitmap		= -1UL, /* Restricted during device attach */
+ };
+ 
 -- 
 2.24.1
