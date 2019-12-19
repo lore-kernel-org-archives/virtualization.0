@@ -1,14 +1,14 @@
-From: Thierry Reding <thierry.reding@gmail.com>
-Subject: Re: [PATCH v3 4/5] iommu: intel: Use generic_iommu_put_resv_regions()
-Date: Thu, 19 Dec 2019 13:47:47 +0100
-Message-ID: <20191219124747.GA1440537__2224.09100258432$1576759685$gmane$org@ulmo>
-References: <20191218134205.1271740-1-thierry.reding@gmail.com>
- <20191218134205.1271740-5-thierry.reding@gmail.com>
- <2b3020a1-221c-f86b-6440-e9ef65f0c12e@linux.intel.com>
+From: Peter Zijlstra <peterz@infradead.org>
+Subject: Re: [PATCH v10 00/11] x86: PIE support to extend KASLR randomization
+Date: Thu, 19 Dec 2019 14:34:52 +0100
+Message-ID: <20191219133452.GM2827__38654.0391411231$1576766005$gmane$org@hirez.programming.kicks-ass.net>
+References: <20191205000957.112719-1-thgarnie@chromium.org>
 Mime-Version: 1.0
-Content-Type: multipart/mixed; boundary="===============2227956216585943089=="
+Content-Type: text/plain; charset="us-ascii"
+Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <2b3020a1-221c-f86b-6440-e9ef65f0c12e@linux.intel.com>
+Content-Disposition: inline
+In-Reply-To: <20191205000957.112719-1-thgarnie@chromium.org>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
  <mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -18,112 +18,18 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
  <mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Errors-To: virtualization-bounces@lists.linux-foundation.org
 Sender: "Virtualization" <virtualization-bounces@lists.linux-foundation.org>
-To: Lu Baolu <baolu.lu@linux.intel.com>, Joerg Roedel <joro@8bytes.org>
-Cc: Jean-Philippe Brucker <jean-philippe@linaro.org>, Will Deacon <will@kernel.org>, linux-kernel@vger.kernel.org, virtualization@lists.linux-foundation.org, iommu@lists.linux-foundation.org, Robin Murphy <robin.murphy@arm.com>, David Woodhouse <dwmw2@infradead.org>, linux-arm-kernel@lists.infradead.org
+To: Thomas Garnier <thgarnie@chromium.org>
+Cc: kristen@linux.intel.com, kernel-hardening@lists.openwall.com, "VMware,
+ Inc." <pv-drivers@vmware.com>, Rasmus Villemoes <linux@rasmusvillemoes.dk>, virtualization@lists.linux-foundation.org, Pavel Machek <pavel@ucw.cz>, "H. Peter Anvin" <hpa@zytor.com>, Jiri Slaby <jslaby@suse.cz>, Thomas Gleixner <tglx@linutronix.de>, Thomas Hellstrom <thellstrom@vmware.com>, Herbert Xu <herbert@gondor.apana.org.au>, Will Deacon <will@kernel.org>, x86@kernel.org, Ingo Molnar <mingo@redhat.com>, linux-crypto@vger.kernel.org, Len Brown <len.brown@intel.com>, keescook@chromium.org, linux-pm@vger.kernel.org, Alexios Zavras <alexios.zavras@intel.com>, Borislav Petkov <bp@alien8.de>, Andy Lutomirski <luto@kernel.org>, Boris Ostrovsky <boris.ostrovsky@oracle.com>, Allison Randal <allison@lohutok.net>, Juergen Gross <jgross@suse.com>, Greg Kroah-Hartman <gregkh@linuxfoundation.org>, Rafael J. W
 List-Id: virtualization@lists.linuxfoundation.org
 
+On Wed, Dec 04, 2019 at 04:09:37PM -0800, Thomas Garnier wrote:
+> Minor changes based on feedback and rebase from v9.
+> 
+> Splitting the previous serie in two. This part contains assembly code
+> changes required for PIE but without any direct dependencies with the
+> rest of the patchset.
 
---===============2227956216585943089==
-Content-Type: multipart/signed; micalg=pgp-sha256;
-	protocol="application/pgp-signature"; boundary="Q68bSM7Ycu6FN28Q"
-Content-Disposition: inline
-
-
---Q68bSM7Ycu6FN28Q
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
-
-On Thu, Dec 19, 2019 at 09:53:22AM +0800, Lu Baolu wrote:
-> Please tweak the title to
->=20
-> "iommu/vt-d: Use generic_iommu_put_resv_regions()"
->=20
-> then,
->=20
-> Acked-by: Lu Baolu <baolu.lu@linux.intel.com>
->=20
-> Best regards,
-> baolu
-
-Joerg, do you want me to resend with this change or is it more efficient
-if you fix up the subject while applying?
-
-Thierry
-
-> On 12/18/19 9:42 PM, Thierry Reding wrote:
-> > From: Thierry Reding <treding@nvidia.com>
-> >=20
-> > Use the new standard function instead of open-coding it.
-> >=20
-> > Cc: David Woodhouse <dwmw2@infradead.org>
-> > Signed-off-by: Thierry Reding <treding@nvidia.com>
-> > ---
-> >   drivers/iommu/intel-iommu.c | 11 +----------
-> >   1 file changed, 1 insertion(+), 10 deletions(-)
-> >=20
-> > diff --git a/drivers/iommu/intel-iommu.c b/drivers/iommu/intel-iommu.c
-> > index 42966611a192..a6d5b7cf9183 100644
-> > --- a/drivers/iommu/intel-iommu.c
-> > +++ b/drivers/iommu/intel-iommu.c
-> > @@ -5744,15 +5744,6 @@ static void intel_iommu_get_resv_regions(struct =
-device *device,
-> >   	list_add_tail(&reg->list, head);
-> >   }
-> > -static void intel_iommu_put_resv_regions(struct device *dev,
-> > -					 struct list_head *head)
-> > -{
-> > -	struct iommu_resv_region *entry, *next;
-> > -
-> > -	list_for_each_entry_safe(entry, next, head, list)
-> > -		kfree(entry);
-> > -}
-> > -
-> >   int intel_iommu_enable_pasid(struct intel_iommu *iommu, struct device=
- *dev)
-> >   {
-> >   	struct device_domain_info *info;
-> > @@ -5987,7 +5978,7 @@ const struct iommu_ops intel_iommu_ops =3D {
-> >   	.add_device		=3D intel_iommu_add_device,
-> >   	.remove_device		=3D intel_iommu_remove_device,
-> >   	.get_resv_regions	=3D intel_iommu_get_resv_regions,
-> > -	.put_resv_regions	=3D intel_iommu_put_resv_regions,
-> > +	.put_resv_regions	=3D generic_iommu_put_resv_regions,
-> >   	.apply_resv_region	=3D intel_iommu_apply_resv_region,
-> >   	.device_group		=3D pci_device_group,
-> >   	.dev_has_feat		=3D intel_iommu_dev_has_feat,
-> >=20
-
---Q68bSM7Ycu6FN28Q
-Content-Type: application/pgp-signature; name="signature.asc"
-
------BEGIN PGP SIGNATURE-----
-
-iQIzBAABCAAdFiEEiOrDCAFJzPfAjcif3SOs138+s6EFAl37cW8ACgkQ3SOs138+
-s6HwMg//QTaq9qdL6boTSg1EAx8bgcGx/ElOv3yPZusDHrNbEG7C19YElgpyGquj
-7x+Amfj9QD/8vIKJg+w2Z7VpKwUgrVyteYw+dOyFzSx5gjqLE7/r5klBFwR32/Uz
-pGffIE2X3N6xtCfdzYrFt1ay9wM+cHJA0lvMy7oFX+XEOxc/eAorwm68g+UgkYAm
-QigqZ/5cjjlkIkQL2FThNHnwpwd9zAhOMchjlyz+4UZv/4AvQqX0YSilx72T4JP0
-3LOCto7pCGTmvv/4/E0bCOzIa+FOMZf56LLqOstqBhIoPeBWGuGNXUerZ5iV22E0
-ah5RgWxHM0YwGufRGyHiJ8niUQlIuuIzFsJmjvXbDHdaIM7/tZMGRVRGNcZuINBb
-5Addl123iKthkOTBBqNMoZwg9Y30E3mG07wZbH8tkZj91CRJPJ1Ui5uQsEtxlwvS
-jwGcb9kVFk3PJO0AuKvDC9VTi40K1MDYW8NLAtTYV4UhLKA5XGuOWawKZWC20Q+X
-88ie9W4l5+HhW9hgpSfawGdKAlOeeCzXTVmqzm8o5vaAIZ6qGnaf4peVVZ59YF70
-HSty77b43BATtE0oL3ps6hzLgNMNQYSAd8hOnA1cqEwK4+wyCsRgfzx64jxyMOSB
-vCaXjNxdpNsgZWqwqw5NVrsV2z3Jn/f11Wvsob4EMM5C3/ZDuVE=
-=lKCJ
------END PGP SIGNATURE-----
-
---Q68bSM7Ycu6FN28Q--
-
---===============2227956216585943089==
-Content-Type: text/plain; charset="us-ascii"
-MIME-Version: 1.0
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-
-_______________________________________________
-Virtualization mailing list
-Virtualization@lists.linux-foundation.org
-https://lists.linuxfoundation.org/mailman/listinfo/virtualization
---===============2227956216585943089==--
+ISTR suggestion you add an objtool pass that verifies there are no
+absolute text references left. Otherwise we'll forever be chasing that
+last one..
