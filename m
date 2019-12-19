@@ -1,16 +1,14 @@
-From: yezengruan <yezengruan@huawei.com>
-Subject: Re: [PATCH 2/5] KVM: arm64: Implement PV_LOCK_FEATURES call
-Date: Thu, 19 Dec 2019 19:59:04 +0800
-Message-ID: <21910175-c89a-7a14-66a9-7b53d72a4543__9301.3850085967$1576756765$gmane$org@huawei.com>
-References: <20191217135549.3240-1-yezengruan@huawei.com>
- <20191217135549.3240-3-yezengruan@huawei.com>
- <20191217142848.GB38811@arm.com>
+From: Thierry Reding <thierry.reding@gmail.com>
+Subject: Re: [PATCH v3 4/5] iommu: intel: Use generic_iommu_put_resv_regions()
+Date: Thu, 19 Dec 2019 13:47:47 +0100
+Message-ID: <20191219124747.GA1440537__2224.09100258432$1576759685$gmane$org@ulmo>
+References: <20191218134205.1271740-1-thierry.reding@gmail.com>
+ <20191218134205.1271740-5-thierry.reding@gmail.com>
+ <2b3020a1-221c-f86b-6440-e9ef65f0c12e@linux.intel.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
-Content-Transfer-Encoding: 7bit
+Content-Type: multipart/mixed; boundary="===============2227956216585943089=="
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <20191217142848.GB38811@arm.com>
-Content-Language: en-US
+In-Reply-To: <2b3020a1-221c-f86b-6440-e9ef65f0c12e@linux.intel.com>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
  <mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -20,113 +18,112 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
  <mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Errors-To: virtualization-bounces@lists.linux-foundation.org
 Sender: "Virtualization" <virtualization-bounces@lists.linux-foundation.org>
-To: Steven Price <steven.price@arm.com>
-Cc: Mark Rutland <Mark.Rutland@arm.com>, "daniel.lezcano@linaro.org" <daniel.lezcano@linaro.org>, "kvm@vger.kernel.org" <kvm@vger.kernel.org>, "linux-doc@vger.kernel.org" <linux-doc@vger.kernel.org>, "maz@kernel.org" <maz@kernel.org>, Suzuki Poulose <Suzuki.Poulose@arm.com>, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>, "virtualization@lists.linux-foundation.org" <virtualization@lists.linux-foundation.org>, James Morse <James.Morse@arm.com>, "julien.thierry.kdev@gmail.com" <julien.thierry.kdev@gmail.com>, Catalin Marinas <Catalin.Marinas@arm.com>, "linux@armlinux.org.uk" <linux@armlinux.org.uk>, "will@kernel.org" <will@kernel.org>, "kvmarm@lists.cs.columbia.edu" <kvmarm@lists.cs.columbia.edu>, "linux-arm-kernel@lists.infradead.org" <linux-arm-kernel@lists.infradead.org>
+To: Lu Baolu <baolu.lu@linux.intel.com>, Joerg Roedel <joro@8bytes.org>
+Cc: Jean-Philippe Brucker <jean-philippe@linaro.org>, Will Deacon <will@kernel.org>, linux-kernel@vger.kernel.org, virtualization@lists.linux-foundation.org, iommu@lists.linux-foundation.org, Robin Murphy <robin.murphy@arm.com>, David Woodhouse <dwmw2@infradead.org>, linux-arm-kernel@lists.infradead.org
 List-Id: virtualization@lists.linuxfoundation.org
 
-Hi Steve,
 
-On 2019/12/17 22:28, Steven Price wrote:
-> On Tue, Dec 17, 2019 at 01:55:46PM +0000, yezengruan@huawei.com wrote:
->> From: Zengruan Ye <yezengruan@huawei.com>
->>
->> This provides a mechanism for querying which paravirtualized lock
->> features are available in this hypervisor.
->>
->> Also add the header file which defines the ABI for the paravirtualized
->> lock features we're about to add.
->>
->> Signed-off-by: Zengruan Ye <yezengruan@huawei.com>
->> ---
->>  arch/arm64/include/asm/pvlock-abi.h | 16 ++++++++++++++++
->>  include/linux/arm-smccc.h           | 13 +++++++++++++
->>  virt/kvm/arm/hypercalls.c           |  3 +++
->>  3 files changed, 32 insertions(+)
->>  create mode 100644 arch/arm64/include/asm/pvlock-abi.h
->>
->> diff --git a/arch/arm64/include/asm/pvlock-abi.h b/arch/arm64/include/asm/pvlock-abi.h
->> new file mode 100644
->> index 000000000000..06e0c3d7710a
->> --- /dev/null
->> +++ b/arch/arm64/include/asm/pvlock-abi.h
->> @@ -0,0 +1,16 @@
->> +/* SPDX-License-Identifier: GPL-2.0 */
->> +/*
->> + * Copyright(c) 2019 Huawei Technologies Co., Ltd
->> + * Author: Zengruan Ye <yezengruan@huawei.com>
->> + */
->> +
->> +#ifndef __ASM_PVLOCK_ABI_H
->> +#define __ASM_PVLOCK_ABI_H
->> +
->> +struct pvlock_vcpu_state {
->> +	__le64 preempted;
-> 
-> Somewhere we need to document when 'preempted' is. It looks like it's a
-> 1-bit field from the later patches.
+--===============2227956216585943089==
+Content-Type: multipart/signed; micalg=pgp-sha256;
+	protocol="application/pgp-signature"; boundary="Q68bSM7Ycu6FN28Q"
+Content-Disposition: inline
 
-Good point, I'll document this in the pvlock doc.
 
-> 
->> +	/* Structure must be 64 byte aligned, pad to that size */
->> +	u8 padding[56];
->> +} __packed;
->> +
->> +#endif
->> diff --git a/include/linux/arm-smccc.h b/include/linux/arm-smccc.h
->> index 59494df0f55b..59e65a951959 100644
->> --- a/include/linux/arm-smccc.h
->> +++ b/include/linux/arm-smccc.h
->> @@ -377,5 +377,18 @@ asmlinkage void __arm_smccc_hvc(unsigned long a0, unsigned long a1,
->>  			   ARM_SMCCC_OWNER_STANDARD_HYP,	\
->>  			   0x21)
->>  
->> +/* Paravirtualised lock calls */
->> +#define ARM_SMCCC_HV_PV_LOCK_FEATURES				\
->> +	ARM_SMCCC_CALL_VAL(ARM_SMCCC_FAST_CALL,			\
->> +			   ARM_SMCCC_SMC_64,			\
->> +			   ARM_SMCCC_OWNER_STANDARD_HYP,	\
->> +			   0x40)
->> +
->> +#define ARM_SMCCC_HV_PV_LOCK_PREEMPTED				\
->> +	ARM_SMCCC_CALL_VAL(ARM_SMCCC_FAST_CALL,			\
->> +			   ARM_SMCCC_SMC_64,			\
->> +			   ARM_SMCCC_OWNER_STANDARD_HYP,	\
->> +			   0x41)
->> +
->>  #endif /*__ASSEMBLY__*/
->>  #endif /*__LINUX_ARM_SMCCC_H*/
->> diff --git a/virt/kvm/arm/hypercalls.c b/virt/kvm/arm/hypercalls.c
->> index 550dfa3e53cd..ff13871fd85a 100644
->> --- a/virt/kvm/arm/hypercalls.c
->> +++ b/virt/kvm/arm/hypercalls.c
->> @@ -52,6 +52,9 @@ int kvm_hvc_call_handler(struct kvm_vcpu *vcpu)
->>  		case ARM_SMCCC_HV_PV_TIME_FEATURES:
->>  			val = SMCCC_RET_SUCCESS;
->>  			break;
->> +		case ARM_SMCCC_HV_PV_LOCK_FEATURES:
->> +			val = SMCCC_RET_SUCCESS;
->> +			break;
-> 
-> Ideally you wouldn't report that PV_LOCK_FEATURES exists until the
-> actual hypercalls are wired up to avoid breaking a bisect.
+--Q68bSM7Ycu6FN28Q
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+Content-Transfer-Encoding: quoted-printable
 
-Thanks for pointing it out to me! I'll update the code.
+On Thu, Dec 19, 2019 at 09:53:22AM +0800, Lu Baolu wrote:
+> Please tweak the title to
+>=20
+> "iommu/vt-d: Use generic_iommu_put_resv_regions()"
+>=20
+> then,
+>=20
+> Acked-by: Lu Baolu <baolu.lu@linux.intel.com>
+>=20
+> Best regards,
+> baolu
 
-> 
-> Steve
-> 
->>  		}
->>  		break;
->>  	case ARM_SMCCC_HV_PV_TIME_FEATURES:
->> -- 
->> 2.19.1
->>
->>
-> 
-> .
-> 
+Joerg, do you want me to resend with this change or is it more efficient
+if you fix up the subject while applying?
 
-Thanks,
+Thierry
 
-Zengruan
+> On 12/18/19 9:42 PM, Thierry Reding wrote:
+> > From: Thierry Reding <treding@nvidia.com>
+> >=20
+> > Use the new standard function instead of open-coding it.
+> >=20
+> > Cc: David Woodhouse <dwmw2@infradead.org>
+> > Signed-off-by: Thierry Reding <treding@nvidia.com>
+> > ---
+> >   drivers/iommu/intel-iommu.c | 11 +----------
+> >   1 file changed, 1 insertion(+), 10 deletions(-)
+> >=20
+> > diff --git a/drivers/iommu/intel-iommu.c b/drivers/iommu/intel-iommu.c
+> > index 42966611a192..a6d5b7cf9183 100644
+> > --- a/drivers/iommu/intel-iommu.c
+> > +++ b/drivers/iommu/intel-iommu.c
+> > @@ -5744,15 +5744,6 @@ static void intel_iommu_get_resv_regions(struct =
+device *device,
+> >   	list_add_tail(&reg->list, head);
+> >   }
+> > -static void intel_iommu_put_resv_regions(struct device *dev,
+> > -					 struct list_head *head)
+> > -{
+> > -	struct iommu_resv_region *entry, *next;
+> > -
+> > -	list_for_each_entry_safe(entry, next, head, list)
+> > -		kfree(entry);
+> > -}
+> > -
+> >   int intel_iommu_enable_pasid(struct intel_iommu *iommu, struct device=
+ *dev)
+> >   {
+> >   	struct device_domain_info *info;
+> > @@ -5987,7 +5978,7 @@ const struct iommu_ops intel_iommu_ops =3D {
+> >   	.add_device		=3D intel_iommu_add_device,
+> >   	.remove_device		=3D intel_iommu_remove_device,
+> >   	.get_resv_regions	=3D intel_iommu_get_resv_regions,
+> > -	.put_resv_regions	=3D intel_iommu_put_resv_regions,
+> > +	.put_resv_regions	=3D generic_iommu_put_resv_regions,
+> >   	.apply_resv_region	=3D intel_iommu_apply_resv_region,
+> >   	.device_group		=3D pci_device_group,
+> >   	.dev_has_feat		=3D intel_iommu_dev_has_feat,
+> >=20
+
+--Q68bSM7Ycu6FN28Q
+Content-Type: application/pgp-signature; name="signature.asc"
+
+-----BEGIN PGP SIGNATURE-----
+
+iQIzBAABCAAdFiEEiOrDCAFJzPfAjcif3SOs138+s6EFAl37cW8ACgkQ3SOs138+
+s6HwMg//QTaq9qdL6boTSg1EAx8bgcGx/ElOv3yPZusDHrNbEG7C19YElgpyGquj
+7x+Amfj9QD/8vIKJg+w2Z7VpKwUgrVyteYw+dOyFzSx5gjqLE7/r5klBFwR32/Uz
+pGffIE2X3N6xtCfdzYrFt1ay9wM+cHJA0lvMy7oFX+XEOxc/eAorwm68g+UgkYAm
+QigqZ/5cjjlkIkQL2FThNHnwpwd9zAhOMchjlyz+4UZv/4AvQqX0YSilx72T4JP0
+3LOCto7pCGTmvv/4/E0bCOzIa+FOMZf56LLqOstqBhIoPeBWGuGNXUerZ5iV22E0
+ah5RgWxHM0YwGufRGyHiJ8niUQlIuuIzFsJmjvXbDHdaIM7/tZMGRVRGNcZuINBb
+5Addl123iKthkOTBBqNMoZwg9Y30E3mG07wZbH8tkZj91CRJPJ1Ui5uQsEtxlwvS
+jwGcb9kVFk3PJO0AuKvDC9VTi40K1MDYW8NLAtTYV4UhLKA5XGuOWawKZWC20Q+X
+88ie9W4l5+HhW9hgpSfawGdKAlOeeCzXTVmqzm8o5vaAIZ6qGnaf4peVVZ59YF70
+HSty77b43BATtE0oL3ps6hzLgNMNQYSAd8hOnA1cqEwK4+wyCsRgfzx64jxyMOSB
+vCaXjNxdpNsgZWqwqw5NVrsV2z3Jn/f11Wvsob4EMM5C3/ZDuVE=
+=lKCJ
+-----END PGP SIGNATURE-----
+
+--Q68bSM7Ycu6FN28Q--
+
+--===============2227956216585943089==
+Content-Type: text/plain; charset="us-ascii"
+MIME-Version: 1.0
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+
+_______________________________________________
+Virtualization mailing list
+Virtualization@lists.linux-foundation.org
+https://lists.linuxfoundation.org/mailman/listinfo/virtualization
+--===============2227956216585943089==--
