@@ -1,12 +1,16 @@
-From: Stefan Hajnoczi <stefanha@gmail.com>
-Subject: Re: [PATCH net-next v3 00/11] VSOCK: add vsock_test test suite
-Date: Thu, 19 Dec 2019 11:11:24 +0000
-Message-ID: <20191219111124.GA1624084__64.362892747738$1576753906$gmane$org@stefanha-x1.localdomain>
-References: <20191218180708.120337-1-sgarzare@redhat.com>
+From: yezengruan <yezengruan@huawei.com>
+Subject: Re: [PATCH 1/5] KVM: arm64: Document PV-lock interface
+Date: Thu, 19 Dec 2019 19:45:55 +0800
+Message-ID: <49120a3c-405d-d2e3-2a88-ba590feccbcc__4812.08004509739$1576755982$gmane$org@huawei.com>
+References: <20191217135549.3240-1-yezengruan@huawei.com>
+ <20191217135549.3240-2-yezengruan@huawei.com>
+ <20191217142138.GA38811@arm.com>
 Mime-Version: 1.0
-Content-Type: multipart/mixed; boundary="===============5221010736501477228=="
+Content-Type: text/plain; charset="us-ascii"
+Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <20191218180708.120337-1-sgarzare@redhat.com>
+In-Reply-To: <20191217142138.GA38811@arm.com>
+Content-Language: en-US
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
  <mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -16,111 +20,101 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
  <mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Errors-To: virtualization-bounces@lists.linux-foundation.org
 Sender: "Virtualization" <virtualization-bounces@lists.linux-foundation.org>
-To: Stefano Garzarella <sgarzare@redhat.com>
-Cc: kvm@vger.kernel.org, netdev@vger.kernel.org, Dexuan Cui <decui@microsoft.com>, linux-kernel@vger.kernel.org, virtualization@lists.linux-foundation.org, Stefan Hajnoczi <stefanha@redhat.com>, davem@davemloft.net, Jorgen Hansen <jhansen@vmware.com>
+To: Steven Price <steven.price@arm.com>
+Cc: Mark Rutland <Mark.Rutland@arm.com>, "daniel.lezcano@linaro.org" <daniel.lezcano@linaro.org>, "kvm@vger.kernel.org" <kvm@vger.kernel.org>, "linux-doc@vger.kernel.org" <linux-doc@vger.kernel.org>, "maz@kernel.org" <maz@kernel.org>, Suzuki Poulose <Suzuki.Poulose@arm.com>, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>, "virtualization@lists.linux-foundation.org" <virtualization@lists.linux-foundation.org>, James Morse <James.Morse@arm.com>, "julien.thierry.kdev@gmail.com" <julien.thierry.kdev@gmail.com>, Catalin Marinas <Catalin.Marinas@arm.com>, "linux@armlinux.org.uk" <linux@armlinux.org.uk>, "will@kernel.org" <will@kernel.org>, "kvmarm@lists.cs.columbia.edu" <kvmarm@lists.cs.columbia.edu>, "linux-arm-kernel@lists.infradead.org" <linux-arm-kernel@lists.infradead.org>
 List-Id: virtualization@lists.linuxfoundation.org
 
+Hi Steve,
 
---===============5221010736501477228==
-Content-Type: multipart/signed; micalg=pgp-sha256;
-	protocol="application/pgp-signature"; boundary="UugvWAfsgieZRqgk"
-Content-Disposition: inline
+On 2019/12/17 22:21, Steven Price wrote:
+> On Tue, Dec 17, 2019 at 01:55:45PM +0000, yezengruan@huawei.com wrote:
+>> From: Zengruan Ye <yezengruan@huawei.com>
+>>
+>> Introduce a paravirtualization interface for KVM/arm64 to obtain the vcpu
+>> is currently running or not.
+>>
+>> A hypercall interface is provided for the guest to interrogate the
+>> hypervisor's support for this interface and the location of the shared
+>> memory structures.
+>>
+>> Signed-off-by: Zengruan Ye <yezengruan@huawei.com>
+>> ---
+>>  Documentation/virt/kvm/arm/pvlock.rst | 31 +++++++++++++++++++++++++++
+>>  1 file changed, 31 insertions(+)
+>>  create mode 100644 Documentation/virt/kvm/arm/pvlock.rst
+>>
+>> diff --git a/Documentation/virt/kvm/arm/pvlock.rst b/Documentation/virt/kvm/arm/pvlock.rst
+>> new file mode 100644
+>> index 000000000000..eec0c36edf17
+>> --- /dev/null
+>> +++ b/Documentation/virt/kvm/arm/pvlock.rst
+>> @@ -0,0 +1,31 @@
+>> +.. SPDX-License-Identifier: GPL-2.0
+>> +
+>> +Paravirtualized lock support for arm64
+>> +======================================
+>> +
+>> +KVM/arm64 provids some hypervisor service calls to support a paravirtualized
+>> +guest obtaining the vcpu is currently running or not.
+>> +
+>> +Two new SMCCC compatible hypercalls are defined:
+>> +
+>> +* PV_LOCK_FEATURES:   0xC5000040
+>> +* PV_LOCK_PREEMPTED:  0xC5000041
+> 
+> These values are in the "Standard Hypervisor Service Calls" section of
+> SMCCC - so is there a document that describes this features such that
+> other OSes or hypervisors can implement it? I'm also not entirely sure
+> of the process of ensuring that the IDs picked are non-conflicting.
+> 
+> Otherwise if this is a KVM specific interface this should probably
+> belong within the "Vendor Specific Hypervisor Service Calls" section
+> along with some probing that the hypervisor is actually KVM. Although I
+> don't see anything KVM specific.
 
+Thanks for pointing it out to me! Actually, I also don't see any documents
+or KVM specific that describes this features. The values in the "Vendor
+Specific Hypervisor Service Calls" section may be more appropriate, such as
+the following
 
---UugvWAfsgieZRqgk
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
+* PV_LOCK_FEATURES:   0xC6000020
+* PV_LOCK_PREEMPTED:  0xC6000021
 
-On Wed, Dec 18, 2019 at 07:06:57PM +0100, Stefano Garzarella wrote:
-> The vsock_diag.ko module already has a test suite but the core AF_VSOCK
-> functionality has no tests. This patch series adds several test cases that
-> exercise AF_VSOCK SOCK_STREAM socket semantics (send/recv, connect/accept,
-> half-closed connections, simultaneous connections).
->=20
-> The v1 of this series was originally sent by Stefan.
->=20
-> v3:
-> - Patch 6:
->   * check the byte received in the recv_byte()
->   * use send(2)/recv(2) instead of write(2)/read(2) to test also flags
->     (e.g. MSG_PEEK)
-> - Patch 8:
->   * removed unnecessary control_expectln("CLOSED") [Stefan].
-> - removed patches 9,10,11 added in the v2
-> - new Patch 9 add parameters to list and skip tests (e.g. useful for vmci
->   that doesn't support half-closed socket in the host)
-> - new Patch 10 prints a list of options in the help
-> - new Patch 11 tests MSG_PEEK flags of recv(2)
->=20
-> v2: https://patchwork.ozlabs.org/cover/1140538/
-> v1: https://patchwork.ozlabs.org/cover/847998/
->=20
-> Stefan Hajnoczi (7):
->   VSOCK: fix header include in vsock_diag_test
->   VSOCK: add SPDX identifiers to vsock tests
->   VSOCK: extract utility functions from vsock_diag_test.c
->   VSOCK: extract connect/accept functions from vsock_diag_test.c
->   VSOCK: add full barrier between test cases
->   VSOCK: add send_byte()/recv_byte() test utilities
->   VSOCK: add AF_VSOCK test cases
->=20
-> Stefano Garzarella (4):
->   vsock_test: wait for the remote to close the connection
->   testing/vsock: add parameters to list and skip tests
->   testing/vsock: print list of options and description
->   vsock_test: add SOCK_STREAM MSG_PEEK test
->=20
->  tools/testing/vsock/.gitignore        |   1 +
->  tools/testing/vsock/Makefile          |   9 +-
->  tools/testing/vsock/README            |   3 +-
->  tools/testing/vsock/control.c         |  15 +-
->  tools/testing/vsock/control.h         |   2 +
->  tools/testing/vsock/timeout.h         |   1 +
->  tools/testing/vsock/util.c            | 376 +++++++++++++++++++++++++
->  tools/testing/vsock/util.h            |  49 ++++
->  tools/testing/vsock/vsock_diag_test.c | 202 ++++----------
->  tools/testing/vsock/vsock_test.c      | 379 ++++++++++++++++++++++++++
->  10 files changed, 883 insertions(+), 154 deletions(-)
->  create mode 100644 tools/testing/vsock/util.c
->  create mode 100644 tools/testing/vsock/util.h
->  create mode 100644 tools/testing/vsock/vsock_test.c
->=20
-> --=20
-> 2.24.1
->=20
-> _______________________________________________
-> Virtualization mailing list
-> Virtualization@lists.linux-foundation.org
-> https://lists.linuxfoundation.org/mailman/listinfo/virtualization
+Please let me know if you have any suggestions.
 
-Reviewed-by: Stefan Hajnoczi <stefanha@redhat.com>
+> 
+>> +
+>> +The existence of the PV_LOCK hypercall should be probed using the SMCCC 1.1
+>> +ARCH_FEATURES mechanism before calling it.
+>> +
+>> +PV_LOCK_FEATURES
+>> +    ============= ========    ==========
+>> +    Function ID:  (uint32)    0xC5000040
+>> +    PV_call_id:   (uint32)    The function to query for support.
+>> +    Return value: (int64)     NOT_SUPPORTED (-1) or SUCCESS (0) if the relevant
+>> +                              PV-lock feature is supported by the hypervisor.
+>> +    ============= ========    ==========
+>> +
+>> +PV_LOCK_PREEMPTED
+>> +    ============= ========    ==========
+>> +    Function ID:  (uint32)    0xC5000041
+>> +    Return value: (int64)     NOT_SUPPORTED (-1) or SUCCESS (0) if the IPA of
+>> +                              this vcpu's pv data structure is configured by
+>> +                              the hypervisor.
+>> +    ============= ========    ==========
+> 
+>>From the code it looks like there's another argument for this SMC - the
+> physical address (or IPA) of a struct pvlock_vcpu_state. This structure
+> also needs to be described as it is part of the ABI.
 
---UugvWAfsgieZRqgk
-Content-Type: application/pgp-signature; name="signature.asc"
+Will update.
 
------BEGIN PGP SIGNATURE-----
+> 
+> Steve
+> 
+> .
+> 
 
-iQEzBAEBCAAdFiEEhpWov9P5fNqsNXdanKSrs4Grc8gFAl37WtwACgkQnKSrs4Gr
-c8ghowf8CLQjydPRjm3F7iQ8iS7EhFcrctrj96QbH/gFGwkxcSiXqC0mwtLprUzL
-sbzvy6lfKd7nfmXz2O4fJkyKa3qF8/xm3j04fg+6m5WbLNtKMHGE9nyH0NUttTiH
-chth84d78ZFP1m+KV0spdJQBoHFi3pHh3eZWdzNaEEkCdEU0sTI37W4CsJjBw1AF
-PeJFTmO/sGi8c8f8lvBTb8TipXM7THMhr0O+ypUYXFBG6IuNXsKkXcPOjzd9qKFd
-DGr/Ecd6BMIHdNjGgJ707hxsmOooJv9DT4MZQ58KcEzGR9fmtM+E4hnugMt40upL
-3ysZQApGZuQOWqxa7oYNLe86Az04uw==
-=JzCU
------END PGP SIGNATURE-----
+Thanks,
 
---UugvWAfsgieZRqgk--
-
---===============5221010736501477228==
-Content-Type: text/plain; charset="us-ascii"
-MIME-Version: 1.0
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-
-_______________________________________________
-Virtualization mailing list
-Virtualization@lists.linux-foundation.org
-https://lists.linuxfoundation.org/mailman/listinfo/virtualization
---===============5221010736501477228==--
+Zengruan
