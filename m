@@ -1,14 +1,13 @@
-From: Jason Wang <jasowang@redhat.com>
-Subject: Re: read_barrier_depends() usage in vhost.c
-Date: Fri, 20 Dec 2019 11:40:16 +0800
-Message-ID: <9de4e853-3230-bd2c-c109-07d41b4ff6d6__28551.1863812403$1576813245$gmane$org@redhat.com>
-References: <20191218091906.cmzgqnwyekak5dzv@gondor.apana.org.au>
+From: Gerd Hoffmann <kraxel@redhat.com>
+Subject: [PATCH 2/4] drm/cirrus: add drm_driver.release callback.
+Date: Fri, 20 Dec 2019 12:59:33 +0100
+Message-ID: <20191220115935.15152-3-kraxel__38596.6789604694$1576843195$gmane$org@redhat.com>
+References: <20191220115935.15152-1-kraxel@redhat.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="utf-8"; Format="flowed"
-Content-Transfer-Encoding: base64
+Content-Type: text/plain; charset="us-ascii"
+Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <20191218091906.cmzgqnwyekak5dzv@gondor.apana.org.au>
-Content-Language: en-US
+In-Reply-To: <20191220115935.15152-1-kraxel@redhat.com>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
  <mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -18,35 +17,62 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
  <mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Errors-To: virtualization-bounces@lists.linux-foundation.org
 Sender: "Virtualization" <virtualization-bounces@lists.linux-foundation.org>
-To: Herbert Xu <herbert@gondor.apana.org.au>, Will Deacon <will@kernel.org>
-Cc: paulmck@kernel.org, mst@redhat.com, peterz@infradead.org, linux-kernel@vger.kernel.org, virtualization@lists.linux-foundation.org, stern@rowland.harvard.edu
+To: dri-devel@lists.freedesktop.org
+Cc: David Airlie <airlied@linux.ie>, open list <linux-kernel@vger.kernel.org>, "open list:DRM DRIVER FOR QEMU'S CIRRUS DEVICE" <virtualization@lists.linux-foundation.org>, Daniel Vetter <daniel@ffwll.ch>, Dave Airlie <airlied@redhat.com>
 List-Id: virtualization@lists.linuxfoundation.org
 
-Ck9uIDIwMTkvMTIvMTgg5LiL5Y2INToxOSwgSGVyYmVydCBYdSB3cm90ZToKPiBXaWxsIERlYWNv
-biA8d2lsbEBrZXJuZWwub3JnPiB3cm90ZToKPj4+IC0tLT44Cj4+Pgo+Pj4gLy8gZHJpdmVycy92
-aG9zdC92aG9zdC5jCj4+PiBzdGF0aWMgaW50IGdldF9pbmRpcmVjdChzdHJ1Y3Qgdmhvc3Rfdmly
-dHF1ZXVlICp2cSwKPj4+ICAgICAgICAgICAgICAgICAgICAgICAgc3RydWN0IGlvdmVjIGlvdltd
-LCB1bnNpZ25lZCBpbnQgaW92X3NpemUsCj4+PiAgICAgICAgICAgICAgICAgICAgICAgIHVuc2ln
-bmVkIGludCAqb3V0X251bSwgdW5zaWduZWQgaW50ICppbl9udW0sCj4+PiAgICAgICAgICAgICAg
-ICAgICAgICAgIHN0cnVjdCB2aG9zdF9sb2cgKmxvZywgdW5zaWduZWQgaW50ICpsb2dfbnVtLAo+
-Pj4gICAgICAgICAgICAgICAgICAgICAgICBzdHJ1Y3QgdnJpbmdfZGVzYyAqaW5kaXJlY3QpCj4+
-PiB7Cj4+PiAgICAgICAgWy4uLl0KPj4+Cj4+PiAgICAgICAgLyogV2Ugd2lsbCB1c2UgdGhlIHJl
-c3VsdCBhcyBhbiBhZGRyZXNzIHRvIHJlYWQgZnJvbSwgc28gbW9zdAo+Pj4gICAgICAgICAqIGFy
-Y2hpdGVjdHVyZXMgb25seSBuZWVkIGEgY29tcGlsZXIgYmFycmllciBoZXJlLiAqLwo+Pj4gICAg
-ICAgIHJlYWRfYmFycmllcl9kZXBlbmRzKCk7Cj4+Pgo+Pj4gLS0tPjgKPj4+Cj4+PiBVbmZvcnR1
-bmF0ZWx5LCBhbHRob3VnaCB0aGUgYmFycmllciBpcyBjb21tZW50ZWQgKGh1cnJhaCEpLCBpdCdz
-IG5vdAo+Pj4gcGFydGljdWxhcmx5IGVubGlnaHRlbmluZyBhYm91dCB0aGUgYWNjZXNzZXMgbWFr
-aW5nIHVwIHRoZSBkZXBlbmRlbmN5Cj4+PiBjaGFpbiwgYW5kIEkgZG9uJ3QgdW5kZXJzdGFuZCB0
-aGUgc3VwcG9zZWQgbmVlZCBmb3IgYSBjb21waWxlciBiYXJyaWVyCj4+PiBlaXRoZXIgKHJlYWRf
-YmFycmllcl9kZXBlbmRzKCkgZG9lc24ndCBnZW5lcmFsbHkgcHJvdmlkZSB0aGlzKS4KPj4+Cj4+
-PiBEb2VzIGFueWJvZHkga25vdyB3aGljaCBhY2Nlc3NlcyBhcmUgYmVpbmcgb3JkZXJlZCBoZXJl
-PyBVc3VhbGx5IHlvdSdkIG5lZWQKPj4+IGEgUkVBRF9PTkNFKCkvcmN1X2RlcmVmZXJlbmNlKCkg
-YmVnaW5uaW5nIHRoZSBjaGFpbiwgYnV0IEkgaGF2ZW4ndCBtYW5hZ2VkCj4+PiB0byBmaW5kIG9u
-ZS4uLgo+IEkgdGhpbmsgd2hhdCBpdCdzIHRyeWluZyB0byBzZXBhcmF0ZSBpcyB1c2luZyBpbmRp
-cmVjdC0+YWRkciBhcyBhCj4gYmFzZSBhbmQgdGhlbiByZWFkaW5nIGZyb20gdGhhdCB0aHJvdWdo
-IGNvcHlfZnJvbV9pdGVyLgo+Cj4gQ2hlZXJzLAoKClRoZSBxdWVzdGlvbiBpcyB0aGF0IHRoZXJl
-J3MgYSBzbXBfcm1iKCkgYmVmb3JlIGluIHZob3N0X2dldF92cV9kZXNjKCksIAppc24ndCBpdCBz
-dWZmaWNpZW50IHRvIGRvIHRoaXM/CgpUaGFua3MKCl9fX19fX19fX19fX19fX19fX19fX19fX19f
-X19fX19fX19fX19fX19fX19fX19fClZpcnR1YWxpemF0aW9uIG1haWxpbmcgbGlzdApWaXJ0dWFs
-aXphdGlvbkBsaXN0cy5saW51eC1mb3VuZGF0aW9uLm9yZwpodHRwczovL2xpc3RzLmxpbnV4Zm91
-bmRhdGlvbi5vcmcvbWFpbG1hbi9saXN0aW5mby92aXJ0dWFsaXphdGlvbg==
+Move final cleanups from cirrus_pci_remove() to the new callback.
+Add drm_atomic_helper_shutdown() call to cirrus_pci_remove().
+
+Signed-off-by: Gerd Hoffmann <kraxel@redhat.com>
+---
+ drivers/gpu/drm/cirrus/cirrus.c | 17 ++++++++++++-----
+ 1 file changed, 12 insertions(+), 5 deletions(-)
+
+diff --git a/drivers/gpu/drm/cirrus/cirrus.c b/drivers/gpu/drm/cirrus/cirrus.c
+index 248c9f765c45..a4ca66f9a423 100644
+--- a/drivers/gpu/drm/cirrus/cirrus.c
++++ b/drivers/gpu/drm/cirrus/cirrus.c
+@@ -510,6 +510,16 @@ static void cirrus_mode_config_init(struct cirrus_device *cirrus)
+ 
+ /* ------------------------------------------------------------------ */
+ 
++static void cirrus_release(struct drm_device *dev)
++{
++	struct cirrus_device *cirrus = dev->dev_private;
++
++	drm_mode_config_cleanup(dev);
++	iounmap(cirrus->mmio);
++	iounmap(cirrus->vram);
++	kfree(cirrus);
++}
++
+ DEFINE_DRM_GEM_FOPS(cirrus_fops);
+ 
+ static struct drm_driver cirrus_driver = {
+@@ -523,6 +533,7 @@ static struct drm_driver cirrus_driver = {
+ 
+ 	.fops		 = &cirrus_fops,
+ 	DRM_GEM_SHMEM_DRIVER_OPS,
++	.release         = cirrus_release,
+ };
+ 
+ static int cirrus_pci_probe(struct pci_dev *pdev,
+@@ -604,14 +615,10 @@ static int cirrus_pci_probe(struct pci_dev *pdev,
+ static void cirrus_pci_remove(struct pci_dev *pdev)
+ {
+ 	struct drm_device *dev = pci_get_drvdata(pdev);
+-	struct cirrus_device *cirrus = dev->dev_private;
+ 
+ 	drm_dev_unregister(dev);
+-	drm_mode_config_cleanup(dev);
+-	iounmap(cirrus->mmio);
+-	iounmap(cirrus->vram);
++	drm_atomic_helper_shutdown(dev);
+ 	drm_dev_put(dev);
+-	kfree(cirrus);
+ 	pci_release_regions(pdev);
+ }
+ 
+-- 
+2.18.1
