@@ -1,13 +1,11 @@
-From: Tom Murphy <murphyt7@tcd.ie>
-Subject: [PATCH 6/8] iommu: allow the dma-iommu api to use bounce buffers
-Date: Sat, 21 Dec 2019 15:03:58 +0000
-Message-ID: <20191221150402.13868-7-murphyt7__9241.06530599005$1576942286$gmane$org@tcd.ie>
-References: <20191221150402.13868-1-murphyt7@tcd.ie>
+From: "Maria Lemos" <marialemos72@gmail.com>
+Subject: MICRADS 2020, Quito, Ecuador | Deadline: December 31
+Date: Sat, 21 Dec 2019 21:42:03 +0000
+Message-ID: <17296903460328@gmail-com>
+Reply-To: micradsmail@gmail.com
 Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
-Content-Transfer-Encoding: 7bit
+Content-Type: multipart/mixed; boundary="===============3033377115233360929=="
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <20191221150402.13868-1-murphyt7@tcd.ie>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
  <mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -17,260 +15,348 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
  <mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Errors-To: virtualization-bounces@lists.linux-foundation.org
 Sender: "Virtualization" <virtualization-bounces@lists.linux-foundation.org>
-To: iommu@lists.linux-foundation.org
-Cc: Heiko Stuebner <heiko@sntech.de>, kvm@vger.kernel.org, David Airlie <airlied@linux.ie>, Joonas Lahtinen <joonas.lahtinen@linux.intel.com>, dri-devel@lists.freedesktop.org, Bjorn Andersson <bjorn.andersson@linaro.org>, linux-tegra@vger.kernel.org, Julien Grall <julien.grall@arm.com>, Thierry Reding <thierry.reding@gmail.com>, Will Deacon <will@kernel.org>, Marek Szyprowski <m.szyprowski@samsung.com>, Jean-Philippe Brucker <jean-philippe@linaro.org>, linux-samsung-soc@vger.kernel.org, Marc Zyngier <maz@kernel.org>, Joerg Roedel <joro@8bytes.org>, Krzysztof Kozlowski <krzk@kernel.org>, Jonathan Hunter <jonathanh@nvidia.com>, linux-rockchip@lists.infradead.org, Andy Gross <agross@kernel.org>, linux-arm-kernel@lists.infradead.org, linux-s390@vger.kernel.org, linux-arm-msm@vger.kernel.org, intel-gfx@lists.freedesktop.org, Jani Nikula <jani.nikula@linux.intel.com>, Eric
+To: virtualization@lists.linux-foundation.org
 List-Id: virtualization@lists.linuxfoundation.org
 
-Allow the dma-iommu api to use bounce buffers for untrusted devices.
-This is a copy of the intel bounce buffer code.
+This is a multi-part message in MIME format
 
-Signed-off-by: Tom Murphy <murphyt7@tcd.ie>
----
- drivers/iommu/dma-iommu.c | 93 ++++++++++++++++++++++++++++++++-------
- drivers/iommu/iommu.c     | 10 +++++
- include/linux/iommu.h     |  9 +++-
- 3 files changed, 95 insertions(+), 17 deletions(-)
+--===============3033377115233360929==
+Content-Type: multipart/alternative; charset=utf-8; boundary="SyjcjCnIIj2ZQXWxSbgh9l3EWC=_Sb7Sk9"
 
-diff --git a/drivers/iommu/dma-iommu.c b/drivers/iommu/dma-iommu.c
-index 4eac3cd35443..cf778db7d84d 100644
---- a/drivers/iommu/dma-iommu.c
-+++ b/drivers/iommu/dma-iommu.c
-@@ -20,9 +20,11 @@
- #include <linux/irq.h>
- #include <linux/mm.h>
- #include <linux/pci.h>
-+#include <linux/swiotlb.h>
- #include <linux/scatterlist.h>
- #include <linux/vmalloc.h>
- #include <linux/crash_dump.h>
-+#include <linux/dma-direct.h>
- 
- struct iommu_dma_msi_page {
- 	struct list_head	list;
-@@ -505,29 +507,89 @@ static void __iommu_dma_unmap(struct device *dev, dma_addr_t dma_addr,
- 			iommu_tlb_sync(domain, &iotlb_gather);
- 	}
- 
-+
- 	iommu_dma_free_iova(cookie, dma_addr, size, freelist);
- }
- 
-+static void __iommu_dma_unmap_swiotlb(struct device *dev, dma_addr_t dma_addr,
-+		size_t size, enum dma_data_direction dir,
-+		unsigned long attrs)
-+{
-+	struct iommu_domain *domain = iommu_get_dma_domain(dev);
-+	struct iommu_dma_cookie *cookie = domain->iova_cookie;
-+	struct iova_domain *iovad = &cookie->iovad;
-+	size_t iova_off = iova_offset(iovad, dma_addr);
-+	size_t aligned_size = iova_align(iovad, size + iova_off);
-+	phys_addr_t phys;
-+
-+	phys = iommu_iova_to_phys(domain, dma_addr);
-+	if (WARN_ON(!phys))
-+		return;
-+
-+	__iommu_dma_unmap(dev, dma_addr, size);
-+
-+#ifdef CONFIG_SWIOTLB
-+	if (unlikely(is_swiotlb_buffer(phys)))
-+		swiotlb_tbl_unmap_single(dev, phys, size,
-+				aligned_size, dir, attrs);
-+#endif
-+}
-+
- static dma_addr_t __iommu_dma_map(struct device *dev, phys_addr_t phys,
--		size_t size, int prot, dma_addr_t dma_mask)
-+		size_t org_size, dma_addr_t dma_mask, bool coherent,
-+		enum dma_data_direction dir, unsigned long attrs)
- {
-+	int prot = dma_info_to_prot(dir, coherent, attrs);
- 	struct iommu_domain *domain = iommu_get_dma_domain(dev);
- 	struct iommu_dma_cookie *cookie = domain->iova_cookie;
- 	struct iova_domain *iovad = &cookie->iovad;
- 	size_t iova_off = iova_offset(iovad, phys);
-+	size_t aligned_size = iova_align(iovad, org_size + iova_off);
- 	dma_addr_t iova;
- 
- 	if (unlikely(iommu_dma_deferred_attach(dev, domain)))
- 		return DMA_MAPPING_ERROR;
- 
--	size = iova_align(iovad, size + iova_off);
-+#ifdef CONFIG_SWIOTLB
-+	/*
-+	 * If both the physical buffer start address and size are
-+	 * page aligned, we don't need to use a bounce page.
-+	 */
-+	if (iommu_needs_bounce_buffer(dev)
-+			&& !iova_offset(iovad, phys | org_size)) {
-+		phys = swiotlb_tbl_map_single(dev,
-+				__phys_to_dma(dev, io_tlb_start),
-+				phys, org_size, aligned_size, dir, attrs);
-+
-+		if (phys == DMA_MAPPING_ERROR)
-+			return DMA_MAPPING_ERROR;
-+
-+		/* Cleanup the padding area. */
-+		void *padding_start = phys_to_virt(phys);
-+		size_t padding_size = aligned_size;
-+
-+		if (!(attrs & DMA_ATTR_SKIP_CPU_SYNC) &&
-+		    (dir == DMA_TO_DEVICE ||
-+		     dir == DMA_BIDIRECTIONAL)) {
-+			padding_start += org_size;
-+			padding_size -= org_size;
-+		}
- 
--	iova = iommu_dma_alloc_iova(domain, size, dma_mask, dev);
-+		memset(padding_start, 0, padding_size);
-+	}
-+#endif
-+
-+	iova = iommu_dma_alloc_iova(domain, aligned_size, dma_mask, dev);
- 	if (!iova)
- 		return DMA_MAPPING_ERROR;
- 
--	if (iommu_map_atomic(domain, iova, phys - iova_off, size, prot)) {
--		iommu_dma_free_iova(cookie, iova, size, NULL);
-+	if (iommu_map_atomic(domain, iova, phys - iova_off, aligned_size,
-+				prot)) {
-+
-+		if (unlikely(is_swiotlb_buffer(phys)))
-+			swiotlb_tbl_unmap_single(dev, phys, aligned_size,
-+					aligned_size, dir, attrs);
-+		iommu_dma_free_iova(cookie, iova, aligned_size, NULL);
- 		return DMA_MAPPING_ERROR;
- 	}
- 	return iova + iova_off;
-@@ -761,10 +823,10 @@ static dma_addr_t iommu_dma_map_page(struct device *dev, struct page *page,
- {
- 	phys_addr_t phys = page_to_phys(page) + offset;
- 	bool coherent = dev_is_dma_coherent(dev);
--	int prot = dma_info_to_prot(dir, coherent, attrs);
- 	dma_addr_t dma_handle;
- 
--	dma_handle = __iommu_dma_map(dev, phys, size, prot, dma_get_mask(dev));
-+	dma_handle = __iommu_dma_map(dev, phys, size, dma_get_mask(dev),
-+			coherent, dir, attrs);
- 	if (!coherent && !(attrs & DMA_ATTR_SKIP_CPU_SYNC) &&
- 	    dma_handle != DMA_MAPPING_ERROR)
- 		arch_sync_dma_for_device(phys, size, dir);
-@@ -776,7 +838,7 @@ static void iommu_dma_unmap_page(struct device *dev, dma_addr_t dma_handle,
- {
- 	if (!(attrs & DMA_ATTR_SKIP_CPU_SYNC))
- 		iommu_dma_sync_single_for_cpu(dev, dma_handle, size, dir);
--	__iommu_dma_unmap(dev, dma_handle, size);
-+	__iommu_dma_unmap_swiotlb(dev, dma_handle, size, dir, attrs);
- }
- 
- /*
-@@ -960,21 +1022,20 @@ static void iommu_dma_unmap_sg(struct device *dev, struct scatterlist *sg,
- 		sg = tmp;
- 	}
- 	end = sg_dma_address(sg) + sg_dma_len(sg);
--	__iommu_dma_unmap(dev, start, end - start);
-+	__iommu_dma_unmap_swiotlb(dev, start, end - start, dir, attrs);
- }
- 
- static dma_addr_t iommu_dma_map_resource(struct device *dev, phys_addr_t phys,
- 		size_t size, enum dma_data_direction dir, unsigned long attrs)
- {
--	return __iommu_dma_map(dev, phys, size,
--			dma_info_to_prot(dir, false, attrs) | IOMMU_MMIO,
--			dma_get_mask(dev));
-+	return __iommu_dma_map(dev, phys, size, dma_get_mask(dev), false, dir,
-+			attrs);
- }
- 
- static void iommu_dma_unmap_resource(struct device *dev, dma_addr_t handle,
- 		size_t size, enum dma_data_direction dir, unsigned long attrs)
- {
--	__iommu_dma_unmap(dev, handle, size);
-+	__iommu_dma_unmap_swiotlb(dev, handle, size, dir, attrs);
- }
- 
- static void __iommu_dma_free(struct device *dev, size_t size, void *cpu_addr)
-@@ -1056,7 +1117,6 @@ static void *iommu_dma_alloc(struct device *dev, size_t size,
- 		dma_addr_t *handle, gfp_t gfp, unsigned long attrs)
- {
- 	bool coherent = dev_is_dma_coherent(dev);
--	int ioprot = dma_info_to_prot(DMA_BIDIRECTIONAL, coherent, attrs);
- 	struct page *page = NULL;
- 	void *cpu_addr;
- 
-@@ -1074,8 +1134,9 @@ static void *iommu_dma_alloc(struct device *dev, size_t size,
- 	if (!cpu_addr)
- 		return NULL;
- 
--	*handle = __iommu_dma_map(dev, page_to_phys(page), size, ioprot,
--			dev->coherent_dma_mask);
-+	*handle = __iommu_dma_map(dev, page_to_phys(page), size,
-+			dev->coherent_dma_mask, coherent, DMA_BIDIRECTIONAL,
-+			attrs);
- 	if (*handle == DMA_MAPPING_ERROR) {
- 		__iommu_dma_free(dev, size, cpu_addr);
- 		return NULL;
-diff --git a/drivers/iommu/iommu.c b/drivers/iommu/iommu.c
-index cec728f40d9c..e5653cb20c83 100644
---- a/drivers/iommu/iommu.c
-+++ b/drivers/iommu/iommu.c
-@@ -2236,6 +2236,16 @@ void iommu_get_resv_regions(struct device *dev, struct list_head *list)
- 		ops->get_resv_regions(dev, list);
- }
- 
-+int iommu_needs_bounce_buffer(struct device *dev)
-+{
-+	const struct iommu_ops *ops = dev->bus->iommu_ops;
-+
-+	if (ops && ops->needs_bounce_buffer)
-+		return ops->needs_bounce_buffer(dev);
-+
-+	return 0;
-+}
-+
- void iommu_put_resv_regions(struct device *dev, struct list_head *list)
- {
- 	const struct iommu_ops *ops = dev->bus->iommu_ops;
-diff --git a/include/linux/iommu.h b/include/linux/iommu.h
-index 61cac25410b5..d377ffa362a7 100644
---- a/include/linux/iommu.h
-+++ b/include/linux/iommu.h
-@@ -280,6 +280,7 @@ struct iommu_ops {
- 			       enum iommu_attr attr, void *data);
- 	int (*domain_set_attr)(struct iommu_domain *domain,
- 			       enum iommu_attr attr, void *data);
-+	int (*needs_bounce_buffer)(struct device *dev);
- 
- 	/* Request/Free a list of reserved regions for a device */
- 	void (*get_resv_regions)(struct device *dev, struct list_head *list);
-@@ -460,6 +461,7 @@ extern phys_addr_t iommu_iova_to_phys(struct iommu_domain *domain, dma_addr_t io
- extern void iommu_set_fault_handler(struct iommu_domain *domain,
- 			iommu_fault_handler_t handler, void *token);
- 
-+extern int iommu_needs_bounce_buffer(struct device *dev);
- extern void iommu_get_resv_regions(struct device *dev, struct list_head *list);
- extern void iommu_put_resv_regions(struct device *dev, struct list_head *list);
- extern int iommu_request_dm_for_dev(struct device *dev);
-@@ -530,7 +532,7 @@ static inline void iommu_flush_iotlb_all(struct iommu_domain *domain)
- 		domain->ops->flush_iotlb_all(domain);
- }
- 
--static inline void flush_iotlb_range(struct iommu_domain *domain,
-+static inline void iommu_flush_iotlb_range(struct iommu_domain *domain,
- 			unsigned long iova, size_t size,
- 			struct page *freelist)
- {
-@@ -764,6 +766,11 @@ static inline void iommu_set_fault_handler(struct iommu_domain *domain,
- {
- }
- 
-+static inline int iommu_needs_bounce_buffer(struct device *dev)
-+{
-+	return 0;
-+}
-+
- static inline void iommu_get_resv_regions(struct device *dev,
- 					struct list_head *list)
- {
--- 
-2.20.1
+This is a multi-part message in MIME format
+
+--SyjcjCnIIj2ZQXWxSbgh9l3EWC=_Sb7Sk9
+Content-Type: text/plain; charset="utf-8"
+Content-Transfer-Encoding: quoted-printable
+Content-Disposition: inline
+
+* Proceedings by Springer, indexed by Scopus, ISI, EI-Compendex, Googl=
+e Scholar, etc.
+
+=20
+
+--------------------------------------
+
+MICRADS=C2=B420 - The 2020 Multidisciplinary International Conference =
+of Research Applied to Defense and Security
+
+Quito, Ecuador, 13 - 15 May 2020
+
+http://www.micrads.org/ <http://www.micrads.org/>
+
+----------------------------------------------------------------------=
+--------------------------------------------------------
+
+=20
+
+Scope
+
+MICRADS=C2=B420 - The 2020 Multidisciplinary International Conference =
+of Research Applied to Defense and Security, to be held at Quito, Ecua=
+dor, 13-15 May 2020, is an international forum for researchers and pra=
+ctitioners to present and discuss the most recent innovations, trends,=
+ results, experiences and concerns in the several perspectives of Defe=
+nse and Security.
+
+We are pleased to invite you to submit your papers to MICRADS=C2=B420.=
+ They can be written in English, Spanish or Portuguese. All submission=
+s will be reviewed on the basis of relevance, originality, importance =
+and clarity.
+
+=20
+
+Topics
+
+Submitted papers should be related with one or more of the main themes=
+ proposed for the Conference:
+
+=20
+
+Area A: Systems, Communication and Defense
+
+A1) Information and Communication Technology in Education
+A2) Simulation and computer vision in military applications
+A3) Analysis and Signal Processing
+A4) Cybersecurity and Cyberdefense
+A5) Computer Networks, Mobility and Pervasive Systems
+
+ =20
+
+Area B: Strategy and political-administrative vision in Defense
+
+B1) Safety and Maritime Protection
+B2) Strategy, Geopolitics and Oceanopolitics
+B3) Planning, economy and logistics applied to Defense
+B4) Leadership and e-leadership
+B5) Military Marketing
+B6) Health informatics in military applications
+
+=20
+
+Area C: Engineering and technologies applied to Defense
+
+C1) Wearable Technology and Assistance Devices
+C2) Military Naval Engineering
+C3) Weapons and Combat Systems
+C4) Chemical, Biological and Nuclear Defense
+C5) Defense Engineering (General)
+
+ =20
+
+Submission and Decision
+
+Submitted papers written in English (until 10-page limit) must comply =
+with the format of Smart Innovation, Systems and Technologies series (=
+see Instructions for Authors at Springer Website <https://www.springer=
+=2Ecom/us/authors-editors/conference-proceedings/conference-proceeding=
+s-guidelines>), must not have been published before, not be under revi=
+ew for any other conference or publication and not include any informa=
+tion leading to the authors=E2=80=99 identification. Therefore, the au=
+thors=E2=80=99 names, affiliations and e-mails should not be included =
+in the version for evaluation by the Scientific Committee. This inform=
+ation should only be included in the camera-ready version, saved in Wo=
+rd or Latex format and also in PDF format. These files must be accompa=
+nied by the Consent to Publish form <http://www.micrads.org/consent.do=
+c> filled out, in a ZIP file, and uploaded at the conference managemen=
+t system.
+
+Submitted papers written in Spanish or Portuguese (until 15-page limit=
+) must comply with the format of RISTI <http://www.risti.xyz/> - Revis=
+ta Ib=C3=A9rica de Sistemas e Tecnologias de Informa=C3=A7=C3=A3o (dow=
+nload instructions/template for authors in Spanish <http://www.risti.x=
+yz/formato-es.doc> or Portuguese <http://www.risti.xyz/formato-pt.doc>=
+), must not have been published before, not be under review for any ot=
+her conference or publication and not include any information leading =
+to the authors=E2=80=99 identification. Therefore, the authors=E2=80=99=
+ names, affiliations and e-mails should not be included in the version=
+ for evaluation by the Scientific Committee. This information should o=
+nly be included in the camera-ready version, saved in Word. These file=
+ must be uploaded at the conference management system in a ZIP file.
+
+All papers will be subjected to a =E2=80=9Cblind review=E2=80=9D by at=
+ least two members of the Scientific Committee.
+
+Based on Scientific Committee evaluation, a paper can be rejected or a=
+ccepted by the Conference Chairs. In the later case, it can be accepte=
+d as paper or poster.
+
+The authors of papers accepted as posters must build and print a poste=
+r to be exhibited during the Conference. This poster must follow an A1=
+ or A2 vertical format. The Conference can includes Work Sessions wher=
+e these posters are presented and orally discussed, with a 7 minute li=
+mit per poster.
+
+The authors of accepted papers will have 15 minutes to present their w=
+ork in a Conference Work Session; approximately 5 minutes of discussio=
+n will follow each presentation.
+
+=20
+
+Publication and Indexing
+
+To ensure that an accepted paper is published, at least one of the aut=
+hors must be fully registered by the 18 of February 2020, and the pape=
+r must comply with the suggested layout and page-limit (until 10 pages=
+). Additionally, all recommended changes must be addressed by the auth=
+ors before they submit the camera-ready version.
+
+No more than one paper per registration will be published. An extra fe=
+e must be paid for publication of additional papers, with a maximum of=
+ one additional paper per registration. One registration permits only =
+the participation of one author in the conference.
+
+Papers can be written in English, Spanish or Portuguese. Accepted and =
+registered papers written in English will be published in Proceedings =
+by Springer, in a book of its SIST series, and will be submitted for i=
+ndexing by ISI, SCOPUS, EI-Compendex, SpringerLink, and Google Scholar=
+=2E
+
+=20
+
+Important Dates
+
+Paper Submission: December 31, 2019
+
+
+Notification of Acceptance: January 31, 2020
+
+Payment of Registration, to ensure the inclusion of an accepted paper =
+in the conference proceedings: February 18, 2020
+
+Camera-ready Submission: February 18, 2020
+
+=20
+
+Website of MICRADS'20: http://www.micrads.org/ <http://www.micrads.org=
+/>
+
+=20
+
+--SyjcjCnIIj2ZQXWxSbgh9l3EWC=_Sb7Sk9
+Content-Type: text/html; charset="utf-8"
+Content-Transfer-Encoding: quoted-printable
+Content-Disposition: inline
+
+<html>
+  <head>
+    <title></title>
+    <meta content=3D"text/html; charset=3Dutf-8" http-equiv=3D"Content=
+-Type" />
+  </head>
+  <body>
+    <div itemprop=3D"articleBody">
+      <p>* Proceedings by Springer, indexed&nbsp;by Scopus, ISI, EI-Co=
+mpendex, Google Scholar, etc.</p>
+      <p>&nbsp;</p>
+      <p>--------------------------------------</p>
+      <p><strong>MICRADS&acute;20 - The 2020 Multidisciplinary Interna=
+tional Conference of Research Applied to Defense and Security</strong>=
+</p>
+      <p><strong>Quito, Ecuador,&nbsp;13 - 15 May 2020</strong></p>
+      <p><a href=3D"http://www.micrads.org/"><strong>http://www.micrad=
+s.org/</strong></a></p>
+      <p>-------------------------------------------------------------=
+-----------------------------------------------------------------</p>
+      <p>&nbsp;</p>
+      <div itemprop=3D"articleBody">
+        <div itemprop=3D"articleBody">
+          <p><strong>Scope</strong></p>
+          <p style=3D"text-align: justify">MICRADS&acute;20 - The 2020=
+ Multidisciplinary International Conference of Research Applied to Def=
+ense and Security, to be held at Quito, Ecuador, 13-15 May 2020, is an=
+ international forum for researchers and practitioners to present and =
+discuss the most recent innovations, trends, results, experiences and =
+concerns in the several perspectives of Defense and Security.</p>
+          <p style=3D"text-align: justify">We are pleased to invite yo=
+u to submit your papers to MICRADS&acute;20. They can be written in En=
+glish, Spanish or Portuguese. All submissions will be reviewed on the =
+basis of relevance, originality, importance and clarity.</p>
+          <p>&nbsp;</p>
+          <p><strong>Topics</strong></p>
+          <p>Submitted papers should be related with one or more of th=
+e main themes proposed for the Conference:</p>
+          <p>&nbsp;</p>
+          <p><strong>Area A: Systems, Communication and Defense</stron=
+g><br /><br />A1) Information and Communication Technology in Educatio=
+n<br />A2) Simulation and computer vision in military applications<br =
+/>A3) Analysis and Signal Processing<br />A4) Cybersecurity and Cyberd=
+efense<br />A5) Computer Networks, Mobility and Pervasive Systems</p>
+          <p>&nbsp;&nbsp;</p>
+          <p><strong>Area B: Strategy and political-administrative vis=
+ion in Defense</strong><br /><br />B1) Safety and Maritime Protection<=
+br />B2) Strategy, Geopolitics and Oceanopolitics<br />B3) Planning, e=
+conomy and logistics applied to Defense<br />B4) Leadership and e-lead=
+ership<br />B5) Military Marketing<br />B6) Health informatics in mili=
+tary applications</p>
+          <p>&nbsp;</p>
+          <p><strong>Area C: Engineering and technologies applied to D=
+efense</strong><br /><br />C1) Wearable Technology and Assistance Devi=
+ces<br />C2) Military Naval Engineering<br />C3) Weapons and Combat Sy=
+stems<br />C4) Chemical, Biological and Nuclear Defense<br />C5) Defen=
+se Engineering (General)</p>
+          <p>&nbsp;&nbsp;</p>
+          <p><strong>Submission and Decision</strong></p>
+          <p>Submitted papers written in English (until 10-page limit)=
+ must comply with the format of Smart Innovation, Systems and Technolo=
+gies series (see&nbsp;<strong><a href=3D"https://www.springer.com/us/a=
+uthors-editors/conference-proceedings/conference-proceedings-guideline=
+s" rel=3D"noopener noreferrer" target=3D"_blank">Instructions for Auth=
+ors at Springer Website</a></strong>), must not have been published be=
+fore, not be under review for any other conference or publication and =
+not include any information leading to the authors&rsquo; identificati=
+on. Therefore, the authors&rsquo; names, affiliations and e-mails shou=
+ld not be included in the version for evaluation by the Scientific Com=
+mittee. This information should only be included in the camera-ready v=
+ersion, saved in Word or Latex format and also in PDF format.&nbsp;<sp=
+an lang=3D"en" id=3D"result_box">These files&nbsp;must&nbsp;be accompa=
+nied by the&nbsp;<strong><a href=3D"http://www.micrads.org/consent.doc=
+" rel=3D"noopener noreferrer" target=3D"_blank">Consent to Publish for=
+m</a></strong>&nbsp;filled out,&nbsp;</span><span lang=3D"en" id=3D"re=
+sult_box">in a ZIP file, and uploaded at the conference management sys=
+tem.</span></p>
+          <p><span lang=3D"en">Submitted papers written in Spanish or =
+Portuguese (until 15-page limit) must comply with the format of <stron=
+g><a href=3D"http://www.risti.xyz/" rel=3D"noopener noreferrer" target=
+=3D"_blank">RISTI</a></strong> - Revista Ib&eacute;rica de Sistemas e =
+Tecnologias de Informa&ccedil;&atilde;o (download instructions/templat=
+e for authors in <strong><a href=3D"http://www.risti.xyz/formato-es.do=
+c" rel=3D"noopener noreferrer" target=3D"_blank">Spanish</a></strong> =
+or <strong><a href=3D"http://www.risti.xyz/formato-pt.doc" rel=3D"noop=
+ener noreferrer" target=3D"_blank">Portuguese</a></strong>), must not =
+have been published before, not be under review for any other conferen=
+ce or publication and not include any information leading to the autho=
+rs&rsquo; identification. Therefore, the authors&rsquo; names, affilia=
+tions and e-mails should not be included in the version for evaluation=
+ by the Scientific Committee. This information should only be included=
+ in the camera-ready version, saved in Word.&nbsp;<span lang=3D"en" id=
+=3D"result_box">These file must&nbsp;be </span><span lang=3D"en" id=3D=
+"result_box">uploaded at the conference management system in a ZIP fil=
+e.</span></span></p>
+          <p style=3D"text-align: justify">All papers will be subjecte=
+d to a &ldquo;blind review&rdquo; by at least two members of the Scien=
+tific Committee.</p>
+          <p style=3D"text-align: justify">Based on Scientific Committ=
+ee evaluation, a paper can be rejected or accepted by the Conference C=
+hairs. In the later case, it can be accepted as paper or poster.</p>
+          <p style=3D"text-align: justify">The authors of papers accep=
+ted as posters must build and print a poster to be exhibited during th=
+e Conference. This poster must follow an A1 or A2 vertical format. The=
+ Conference can includes Work Sessions where these posters are present=
+ed and orally discussed, with a 7 minute limit per poster.</p>
+          <p style=3D"text-align: justify">The authors of accepted pap=
+ers will have 15 minutes to present their work in a Conference Work Se=
+ssion; approximately 5 minutes of discussion will follow each presenta=
+tion.</p>
+          <p>&nbsp;</p>
+          <p><strong>Publication and Indexing</strong></p>
+          <p style=3D"text-align: justify">To ensure that an accepted =
+paper is published, at least one of the authors must be fully register=
+ed by the 18 of February 2020, and the paper must comply with the sugg=
+ested layout and page-limit (until 10 pages). Additionally, all recomm=
+ended changes must be addressed by the authors before they submit the =
+camera-ready version.</p>
+          <p style=3D"text-align: justify">No more than one paper per =
+registration will be published. An extra fee must be paid for publicat=
+ion of additional papers, with a maximum of one additional paper per r=
+egistration. One registration permits only the participation of one au=
+thor in the conference.</p>
+          <p style=3D"text-align: justify"><span lang=3D"EN-US" style=3D=
+"font-size: 11pt; font-family: 'Calibri',sans-serif; line-height: 107%=
+">Papers can be written in English, Spanish or Portuguese. Accepted an=
+d registered papers written in English will be published in Proceeding=
+s by Springer, in a book of its <span style=3D"color: black">SIST seri=
+es, </span>and will be submitted for indexing by ISI, SCOPUS, EI-Compe=
+ndex, SpringerLink, and Google Scholar</span>.</p>
+          <p>&nbsp;</p>
+          <p><strong>Important Dates</strong></p>
+          <p>Paper Submission: December 31, 2019<span style=3D"text-de=
+coration: line-through"><br /></span></p>
+          <p>Notification of Acceptance: January 31, 2020</p>
+          <p>Payment of Registration,&nbsp;to ensure the inclusion of =
+an accepted paper in the conference proceedings: February 18, 2020</p>=
+
+          <p>Camera-ready Submission: February 18, 2020</p>
+          <p>&nbsp;</p>
+        </div>
+      </div>
+      <p><strong>Website of MICRADS'20</strong>: <a href=3D"http://www=
+=2Emicrads.org/">http://www.micrads.org/</a></p>
+      <p>&nbsp;</p>
+    </div>
+  </body>
+</html>
+
+--SyjcjCnIIj2ZQXWxSbgh9l3EWC=_Sb7Sk9--
+
+
+--===============3033377115233360929==
+Content-Type: text/plain; charset="us-ascii"
+MIME-Version: 1.0
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+
+_______________________________________________
+Virtualization mailing list
+Virtualization@lists.linux-foundation.org
+https://lists.linuxfoundation.org/mailman/listinfo/virtualization
+--===============3033377115233360929==--
