@@ -1,7 +1,7 @@
 From: Tom Murphy <murphyt7@tcd.ie>
-Subject: [PATCH 1/8] iommu/vt-d: clean up 32bit si_domain assignment
-Date: Sat, 21 Dec 2019 15:03:53 +0000
-Message-ID: <20191221150402.13868-2-murphyt7__34342.9381422297$1576941153$gmane$org@tcd.ie>
+Subject: [PATCH 6/8] iommu: allow the dma-iommu api to use bounce buffers
+Date: Sat, 21 Dec 2019 15:03:58 +0000
+Message-ID: <20191221150402.13868-7-murphyt7__9241.06530599005$1576942286$gmane$org@tcd.ie>
 References: <20191221150402.13868-1-murphyt7@tcd.ie>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
@@ -21,195 +21,256 @@ To: iommu@lists.linux-foundation.org
 Cc: Heiko Stuebner <heiko@sntech.de>, kvm@vger.kernel.org, David Airlie <airlied@linux.ie>, Joonas Lahtinen <joonas.lahtinen@linux.intel.com>, dri-devel@lists.freedesktop.org, Bjorn Andersson <bjorn.andersson@linaro.org>, linux-tegra@vger.kernel.org, Julien Grall <julien.grall@arm.com>, Thierry Reding <thierry.reding@gmail.com>, Will Deacon <will@kernel.org>, Marek Szyprowski <m.szyprowski@samsung.com>, Jean-Philippe Brucker <jean-philippe@linaro.org>, linux-samsung-soc@vger.kernel.org, Marc Zyngier <maz@kernel.org>, Joerg Roedel <joro@8bytes.org>, Krzysztof Kozlowski <krzk@kernel.org>, Jonathan Hunter <jonathanh@nvidia.com>, linux-rockchip@lists.infradead.org, Andy Gross <agross@kernel.org>, linux-arm-kernel@lists.infradead.org, linux-s390@vger.kernel.org, linux-arm-msm@vger.kernel.org, intel-gfx@lists.freedesktop.org, Jani Nikula <jani.nikula@linux.intel.com>, Eric
 List-Id: virtualization@lists.linuxfoundation.org
 
-In the intel iommu driver devices which only support 32bit DMA can't be
-direct mapped. The implementation of this is weird. Currently we assign
-it a direct mapped domain and then remove the domain later and replace
-it with a domain of type IOMMU_DOMAIN_IDENTITY. We should just assign it
-a domain of type IOMMU_DOMAIN_IDENTITY from the begging rather than
-needlessly swapping domains.
+Allow the dma-iommu api to use bounce buffers for untrusted devices.
+This is a copy of the intel bounce buffer code.
 
 Signed-off-by: Tom Murphy <murphyt7@tcd.ie>
 ---
- drivers/iommu/intel-iommu.c | 88 +++++++++++++------------------------
- 1 file changed, 31 insertions(+), 57 deletions(-)
+ drivers/iommu/dma-iommu.c | 93 ++++++++++++++++++++++++++++++++-------
+ drivers/iommu/iommu.c     | 10 +++++
+ include/linux/iommu.h     |  9 +++-
+ 3 files changed, 95 insertions(+), 17 deletions(-)
 
-diff --git a/drivers/iommu/intel-iommu.c b/drivers/iommu/intel-iommu.c
-index 0c8d81f56a30..c1ea66467918 100644
---- a/drivers/iommu/intel-iommu.c
-+++ b/drivers/iommu/intel-iommu.c
-@@ -3462,46 +3462,9 @@ static struct dmar_domain *get_private_domain_for_dev(struct device *dev)
- }
+diff --git a/drivers/iommu/dma-iommu.c b/drivers/iommu/dma-iommu.c
+index 4eac3cd35443..cf778db7d84d 100644
+--- a/drivers/iommu/dma-iommu.c
++++ b/drivers/iommu/dma-iommu.c
+@@ -20,9 +20,11 @@
+ #include <linux/irq.h>
+ #include <linux/mm.h>
+ #include <linux/pci.h>
++#include <linux/swiotlb.h>
+ #include <linux/scatterlist.h>
+ #include <linux/vmalloc.h>
+ #include <linux/crash_dump.h>
++#include <linux/dma-direct.h>
  
- /* Check if the dev needs to go through non-identity map and unmap process.*/
--static bool iommu_need_mapping(struct device *dev)
-+static bool iommu_no_mapping(struct device *dev)
- {
--	int ret;
--
--	if (iommu_dummy(dev))
--		return false;
--
--	ret = identity_mapping(dev);
--	if (ret) {
--		u64 dma_mask = *dev->dma_mask;
--
--		if (dev->coherent_dma_mask && dev->coherent_dma_mask < dma_mask)
--			dma_mask = dev->coherent_dma_mask;
--
--		if (dma_mask >= dma_direct_get_required_mask(dev))
--			return false;
--
--		/*
--		 * 32 bit DMA is removed from si_domain and fall back to
--		 * non-identity mapping.
--		 */
--		dmar_remove_one_dev_info(dev);
--		ret = iommu_request_dma_domain_for_dev(dev);
--		if (ret) {
--			struct iommu_domain *domain;
--			struct dmar_domain *dmar_domain;
--
--			domain = iommu_get_domain_for_dev(dev);
--			if (domain) {
--				dmar_domain = to_dmar_domain(domain);
--				dmar_domain->flags |= DOMAIN_FLAG_LOSE_CHILDREN;
--			}
--			dmar_remove_one_dev_info(dev);
--			get_private_domain_for_dev(dev);
--		}
--
--		dev_info(dev, "32bit DMA uses non-identity mapping\n");
--	}
--
--	return true;
-+	return iommu_dummy(dev) || identity_mapping(dev);
- }
+ struct iommu_dma_msi_page {
+ 	struct list_head	list;
+@@ -505,29 +507,89 @@ static void __iommu_dma_unmap(struct device *dev, dma_addr_t dma_addr,
+ 			iommu_tlb_sync(domain, &iotlb_gather);
+ 	}
  
- static dma_addr_t __intel_map_single(struct device *dev, phys_addr_t paddr,
-@@ -3568,20 +3531,22 @@ static dma_addr_t intel_map_page(struct device *dev, struct page *page,
- 				 enum dma_data_direction dir,
- 				 unsigned long attrs)
- {
--	if (iommu_need_mapping(dev))
--		return __intel_map_single(dev, page_to_phys(page) + offset,
--				size, dir, *dev->dma_mask);
--	return dma_direct_map_page(dev, page, offset, size, dir, attrs);
-+	if (iommu_no_mapping(dev))
-+		return dma_direct_map_page(dev, page, offset, size, dir, attrs);
 +
-+	return __intel_map_single(dev, page_to_phys(page) + offset, size, dir,
-+			*dev->dma_mask);
+ 	iommu_dma_free_iova(cookie, dma_addr, size, freelist);
  }
  
- static dma_addr_t intel_map_resource(struct device *dev, phys_addr_t phys_addr,
- 				     size_t size, enum dma_data_direction dir,
- 				     unsigned long attrs)
- {
--	if (iommu_need_mapping(dev))
--		return __intel_map_single(dev, phys_addr, size, dir,
--				*dev->dma_mask);
--	return dma_direct_map_resource(dev, phys_addr, size, dir, attrs);
-+	if (iommu_no_mapping(dev))
-+		return dma_direct_map_resource(dev, phys_addr, size, dir,
-+				attrs);
++static void __iommu_dma_unmap_swiotlb(struct device *dev, dma_addr_t dma_addr,
++		size_t size, enum dma_data_direction dir,
++		unsigned long attrs)
++{
++	struct iommu_domain *domain = iommu_get_dma_domain(dev);
++	struct iommu_dma_cookie *cookie = domain->iova_cookie;
++	struct iova_domain *iovad = &cookie->iovad;
++	size_t iova_off = iova_offset(iovad, dma_addr);
++	size_t aligned_size = iova_align(iovad, size + iova_off);
++	phys_addr_t phys;
 +
-+	return __intel_map_single(dev, phys_addr, size, dir, *dev->dma_mask);
- }
- 
- static void intel_unmap(struct device *dev, dma_addr_t dev_addr, size_t size)
-@@ -3632,16 +3597,16 @@ static void intel_unmap_page(struct device *dev, dma_addr_t dev_addr,
- 			     size_t size, enum dma_data_direction dir,
- 			     unsigned long attrs)
++	phys = iommu_iova_to_phys(domain, dma_addr);
++	if (WARN_ON(!phys))
++		return;
++
++	__iommu_dma_unmap(dev, dma_addr, size);
++
++#ifdef CONFIG_SWIOTLB
++	if (unlikely(is_swiotlb_buffer(phys)))
++		swiotlb_tbl_unmap_single(dev, phys, size,
++				aligned_size, dir, attrs);
++#endif
++}
++
+ static dma_addr_t __iommu_dma_map(struct device *dev, phys_addr_t phys,
+-		size_t size, int prot, dma_addr_t dma_mask)
++		size_t org_size, dma_addr_t dma_mask, bool coherent,
++		enum dma_data_direction dir, unsigned long attrs)
  {
--	if (iommu_need_mapping(dev))
--		intel_unmap(dev, dev_addr, size);
--	else
-+	if (iommu_no_mapping(dev))
- 		dma_direct_unmap_page(dev, dev_addr, size, dir, attrs);
-+	else
-+		intel_unmap(dev, dev_addr, size);
++	int prot = dma_info_to_prot(dir, coherent, attrs);
+ 	struct iommu_domain *domain = iommu_get_dma_domain(dev);
+ 	struct iommu_dma_cookie *cookie = domain->iova_cookie;
+ 	struct iova_domain *iovad = &cookie->iovad;
+ 	size_t iova_off = iova_offset(iovad, phys);
++	size_t aligned_size = iova_align(iovad, org_size + iova_off);
+ 	dma_addr_t iova;
+ 
+ 	if (unlikely(iommu_dma_deferred_attach(dev, domain)))
+ 		return DMA_MAPPING_ERROR;
+ 
+-	size = iova_align(iovad, size + iova_off);
++#ifdef CONFIG_SWIOTLB
++	/*
++	 * If both the physical buffer start address and size are
++	 * page aligned, we don't need to use a bounce page.
++	 */
++	if (iommu_needs_bounce_buffer(dev)
++			&& !iova_offset(iovad, phys | org_size)) {
++		phys = swiotlb_tbl_map_single(dev,
++				__phys_to_dma(dev, io_tlb_start),
++				phys, org_size, aligned_size, dir, attrs);
++
++		if (phys == DMA_MAPPING_ERROR)
++			return DMA_MAPPING_ERROR;
++
++		/* Cleanup the padding area. */
++		void *padding_start = phys_to_virt(phys);
++		size_t padding_size = aligned_size;
++
++		if (!(attrs & DMA_ATTR_SKIP_CPU_SYNC) &&
++		    (dir == DMA_TO_DEVICE ||
++		     dir == DMA_BIDIRECTIONAL)) {
++			padding_start += org_size;
++			padding_size -= org_size;
++		}
+ 
+-	iova = iommu_dma_alloc_iova(domain, size, dma_mask, dev);
++		memset(padding_start, 0, padding_size);
++	}
++#endif
++
++	iova = iommu_dma_alloc_iova(domain, aligned_size, dma_mask, dev);
+ 	if (!iova)
+ 		return DMA_MAPPING_ERROR;
+ 
+-	if (iommu_map_atomic(domain, iova, phys - iova_off, size, prot)) {
+-		iommu_dma_free_iova(cookie, iova, size, NULL);
++	if (iommu_map_atomic(domain, iova, phys - iova_off, aligned_size,
++				prot)) {
++
++		if (unlikely(is_swiotlb_buffer(phys)))
++			swiotlb_tbl_unmap_single(dev, phys, aligned_size,
++					aligned_size, dir, attrs);
++		iommu_dma_free_iova(cookie, iova, aligned_size, NULL);
+ 		return DMA_MAPPING_ERROR;
+ 	}
+ 	return iova + iova_off;
+@@ -761,10 +823,10 @@ static dma_addr_t iommu_dma_map_page(struct device *dev, struct page *page,
+ {
+ 	phys_addr_t phys = page_to_phys(page) + offset;
+ 	bool coherent = dev_is_dma_coherent(dev);
+-	int prot = dma_info_to_prot(dir, coherent, attrs);
+ 	dma_addr_t dma_handle;
+ 
+-	dma_handle = __iommu_dma_map(dev, phys, size, prot, dma_get_mask(dev));
++	dma_handle = __iommu_dma_map(dev, phys, size, dma_get_mask(dev),
++			coherent, dir, attrs);
+ 	if (!coherent && !(attrs & DMA_ATTR_SKIP_CPU_SYNC) &&
+ 	    dma_handle != DMA_MAPPING_ERROR)
+ 		arch_sync_dma_for_device(phys, size, dir);
+@@ -776,7 +838,7 @@ static void iommu_dma_unmap_page(struct device *dev, dma_addr_t dma_handle,
+ {
+ 	if (!(attrs & DMA_ATTR_SKIP_CPU_SYNC))
+ 		iommu_dma_sync_single_for_cpu(dev, dma_handle, size, dir);
+-	__iommu_dma_unmap(dev, dma_handle, size);
++	__iommu_dma_unmap_swiotlb(dev, dma_handle, size, dir, attrs);
  }
  
- static void intel_unmap_resource(struct device *dev, dma_addr_t dev_addr,
+ /*
+@@ -960,21 +1022,20 @@ static void iommu_dma_unmap_sg(struct device *dev, struct scatterlist *sg,
+ 		sg = tmp;
+ 	}
+ 	end = sg_dma_address(sg) + sg_dma_len(sg);
+-	__iommu_dma_unmap(dev, start, end - start);
++	__iommu_dma_unmap_swiotlb(dev, start, end - start, dir, attrs);
+ }
+ 
+ static dma_addr_t iommu_dma_map_resource(struct device *dev, phys_addr_t phys,
  		size_t size, enum dma_data_direction dir, unsigned long attrs)
  {
--	if (iommu_need_mapping(dev))
-+	if (!iommu_no_mapping(dev))
- 		intel_unmap(dev, dev_addr, size);
+-	return __iommu_dma_map(dev, phys, size,
+-			dma_info_to_prot(dir, false, attrs) | IOMMU_MMIO,
+-			dma_get_mask(dev));
++	return __iommu_dma_map(dev, phys, size, dma_get_mask(dev), false, dir,
++			attrs);
  }
  
-@@ -3652,7 +3617,7 @@ static void *intel_alloc_coherent(struct device *dev, size_t size,
- 	struct page *page = NULL;
- 	int order;
- 
--	if (!iommu_need_mapping(dev))
-+	if (iommu_no_mapping(dev))
- 		return dma_direct_alloc(dev, size, dma_handle, flags, attrs);
- 
- 	size = PAGE_ALIGN(size);
-@@ -3688,7 +3653,7 @@ static void intel_free_coherent(struct device *dev, size_t size, void *vaddr,
- 	int order;
- 	struct page *page = virt_to_page(vaddr);
- 
--	if (!iommu_need_mapping(dev))
-+	if (iommu_no_mapping(dev))
- 		return dma_direct_free(dev, size, vaddr, dma_handle, attrs);
- 
- 	size = PAGE_ALIGN(size);
-@@ -3708,7 +3673,7 @@ static void intel_unmap_sg(struct device *dev, struct scatterlist *sglist,
- 	struct scatterlist *sg;
- 	int i;
- 
--	if (!iommu_need_mapping(dev))
-+	if (iommu_no_mapping(dev))
- 		return dma_direct_unmap_sg(dev, sglist, nelems, dir, attrs);
- 
- 	for_each_sg(sglist, sg, nelems, i) {
-@@ -3734,7 +3699,7 @@ static int intel_map_sg(struct device *dev, struct scatterlist *sglist, int nele
- 	struct intel_iommu *iommu;
- 
- 	BUG_ON(dir == DMA_NONE);
--	if (!iommu_need_mapping(dev))
-+	if (iommu_no_mapping(dev))
- 		return dma_direct_map_sg(dev, sglist, nelems, dir, attrs);
- 
- 	domain = deferred_attach_domain(dev);
-@@ -3782,7 +3747,7 @@ static int intel_map_sg(struct device *dev, struct scatterlist *sglist, int nele
- 
- static u64 intel_get_required_mask(struct device *dev)
+ static void iommu_dma_unmap_resource(struct device *dev, dma_addr_t handle,
+ 		size_t size, enum dma_data_direction dir, unsigned long attrs)
  {
--	if (!iommu_need_mapping(dev))
-+	if (iommu_no_mapping(dev))
- 		return dma_direct_get_required_mask(dev);
- 	return DMA_BIT_MASK(32);
+-	__iommu_dma_unmap(dev, handle, size);
++	__iommu_dma_unmap_swiotlb(dev, handle, size, dir, attrs);
  }
-@@ -5618,9 +5583,13 @@ static int intel_iommu_add_device(struct device *dev)
- 	struct iommu_domain *domain;
- 	struct intel_iommu *iommu;
- 	struct iommu_group *group;
-+	u64 dma_mask = *dev->dma_mask;
- 	u8 bus, devfn;
- 	int ret;
  
-+	if (dev->coherent_dma_mask && dev->coherent_dma_mask < dma_mask)
-+		dma_mask = dev->coherent_dma_mask;
+ static void __iommu_dma_free(struct device *dev, size_t size, void *cpu_addr)
+@@ -1056,7 +1117,6 @@ static void *iommu_dma_alloc(struct device *dev, size_t size,
+ 		dma_addr_t *handle, gfp_t gfp, unsigned long attrs)
+ {
+ 	bool coherent = dev_is_dma_coherent(dev);
+-	int ioprot = dma_info_to_prot(DMA_BIDIRECTIONAL, coherent, attrs);
+ 	struct page *page = NULL;
+ 	void *cpu_addr;
+ 
+@@ -1074,8 +1134,9 @@ static void *iommu_dma_alloc(struct device *dev, size_t size,
+ 	if (!cpu_addr)
+ 		return NULL;
+ 
+-	*handle = __iommu_dma_map(dev, page_to_phys(page), size, ioprot,
+-			dev->coherent_dma_mask);
++	*handle = __iommu_dma_map(dev, page_to_phys(page), size,
++			dev->coherent_dma_mask, coherent, DMA_BIDIRECTIONAL,
++			attrs);
+ 	if (*handle == DMA_MAPPING_ERROR) {
+ 		__iommu_dma_free(dev, size, cpu_addr);
+ 		return NULL;
+diff --git a/drivers/iommu/iommu.c b/drivers/iommu/iommu.c
+index cec728f40d9c..e5653cb20c83 100644
+--- a/drivers/iommu/iommu.c
++++ b/drivers/iommu/iommu.c
+@@ -2236,6 +2236,16 @@ void iommu_get_resv_regions(struct device *dev, struct list_head *list)
+ 		ops->get_resv_regions(dev, list);
+ }
+ 
++int iommu_needs_bounce_buffer(struct device *dev)
++{
++	const struct iommu_ops *ops = dev->bus->iommu_ops;
 +
- 	iommu = device_to_iommu(dev, &bus, &devfn);
- 	if (!iommu)
- 		return -ENODEV;
-@@ -5640,7 +5609,12 @@ static int intel_iommu_add_device(struct device *dev)
- 	domain = iommu_get_domain_for_dev(dev);
- 	dmar_domain = to_dmar_domain(domain);
- 	if (domain->type == IOMMU_DOMAIN_DMA) {
--		if (device_def_domain_type(dev) == IOMMU_DOMAIN_IDENTITY) {
-+		/*
-+		 * We check dma_mask >= dma_get_required_mask(dev) because
-+		 * 32 bit DMA falls back to non-identity mapping.
-+		 */
-+		if (device_def_domain_type(dev) == IOMMU_DOMAIN_IDENTITY &&
-+				dma_mask >= dma_get_required_mask(dev)) {
- 			ret = iommu_request_dm_for_dev(dev);
- 			if (ret) {
- 				dmar_remove_one_dev_info(dev);
++	if (ops && ops->needs_bounce_buffer)
++		return ops->needs_bounce_buffer(dev);
++
++	return 0;
++}
++
+ void iommu_put_resv_regions(struct device *dev, struct list_head *list)
+ {
+ 	const struct iommu_ops *ops = dev->bus->iommu_ops;
+diff --git a/include/linux/iommu.h b/include/linux/iommu.h
+index 61cac25410b5..d377ffa362a7 100644
+--- a/include/linux/iommu.h
++++ b/include/linux/iommu.h
+@@ -280,6 +280,7 @@ struct iommu_ops {
+ 			       enum iommu_attr attr, void *data);
+ 	int (*domain_set_attr)(struct iommu_domain *domain,
+ 			       enum iommu_attr attr, void *data);
++	int (*needs_bounce_buffer)(struct device *dev);
+ 
+ 	/* Request/Free a list of reserved regions for a device */
+ 	void (*get_resv_regions)(struct device *dev, struct list_head *list);
+@@ -460,6 +461,7 @@ extern phys_addr_t iommu_iova_to_phys(struct iommu_domain *domain, dma_addr_t io
+ extern void iommu_set_fault_handler(struct iommu_domain *domain,
+ 			iommu_fault_handler_t handler, void *token);
+ 
++extern int iommu_needs_bounce_buffer(struct device *dev);
+ extern void iommu_get_resv_regions(struct device *dev, struct list_head *list);
+ extern void iommu_put_resv_regions(struct device *dev, struct list_head *list);
+ extern int iommu_request_dm_for_dev(struct device *dev);
+@@ -530,7 +532,7 @@ static inline void iommu_flush_iotlb_all(struct iommu_domain *domain)
+ 		domain->ops->flush_iotlb_all(domain);
+ }
+ 
+-static inline void flush_iotlb_range(struct iommu_domain *domain,
++static inline void iommu_flush_iotlb_range(struct iommu_domain *domain,
+ 			unsigned long iova, size_t size,
+ 			struct page *freelist)
+ {
+@@ -764,6 +766,11 @@ static inline void iommu_set_fault_handler(struct iommu_domain *domain,
+ {
+ }
+ 
++static inline int iommu_needs_bounce_buffer(struct device *dev)
++{
++	return 0;
++}
++
+ static inline void iommu_get_resv_regions(struct device *dev,
+ 					struct list_head *list)
+ {
 -- 
 2.20.1
