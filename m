@@ -1,8 +1,7 @@
 From: Tom Murphy <murphyt7@tcd.ie>
-Subject: [PATCH 3/8] iommu/vt-d: Remove IOVA handling code from non-dma_ops
- path
-Date: Sat, 21 Dec 2019 15:03:55 +0000
-Message-ID: <20191221150402.13868-4-murphyt7__21666.3933287904$1576941083$gmane$org@tcd.ie>
+Subject: [PATCH 8/8] DO NOT MERGE: iommu: disable list appending in dma-iommu
+Date: Sat, 21 Dec 2019 15:04:00 +0000
+Message-ID: <20191221150402.13868-9-murphyt7__33476.0579675034$1576941091$gmane$org@tcd.ie>
 References: <20191221150402.13868-1-murphyt7@tcd.ie>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
@@ -22,189 +21,81 @@ To: iommu@lists.linux-foundation.org
 Cc: Heiko Stuebner <heiko@sntech.de>, kvm@vger.kernel.org, David Airlie <airlied@linux.ie>, Joonas Lahtinen <joonas.lahtinen@linux.intel.com>, dri-devel@lists.freedesktop.org, Bjorn Andersson <bjorn.andersson@linaro.org>, linux-tegra@vger.kernel.org, Julien Grall <julien.grall@arm.com>, Thierry Reding <thierry.reding@gmail.com>, Will Deacon <will@kernel.org>, Marek Szyprowski <m.szyprowski@samsung.com>, Jean-Philippe Brucker <jean-philippe@linaro.org>, linux-samsung-soc@vger.kernel.org, Marc Zyngier <maz@kernel.org>, Joerg Roedel <joro@8bytes.org>, Krzysztof Kozlowski <krzk@kernel.org>, Jonathan Hunter <jonathanh@nvidia.com>, linux-rockchip@lists.infradead.org, Andy Gross <agross@kernel.org>, linux-arm-kernel@lists.infradead.org, linux-s390@vger.kernel.org, linux-arm-msm@vger.kernel.org, intel-gfx@lists.freedesktop.org, Jani Nikula <jani.nikula@linux.intel.com>, Eric
 List-Id: virtualization@lists.linuxfoundation.org
 
-Remove all IOVA handling code from the non-dma_ops path in the intel
-iommu driver.
+ops __finalise_sg
 
-There's no need for the non-dma_ops path to keep track of IOVAs. The
-whole point of the non-dma_ops path is that it allows the IOVAs to be
-handled separately. The IOVA handling code removed in this patch is
-pointless.
+Disable combining sg segments in the dma-iommu api.
+Combining the sg segments exposes a bug in the intel i915 driver which
+causes visual artifacts and the screen to freeze. This is most likely
+because of how the i915 handles the returned list. It probably doesn't
+respect the returned value specifying the number of elements in the list
+and instead depends on the previous behaviour of the intel iommu driver
+which would return the same number of elements in the output list as in
+the input list.
 
 Signed-off-by: Tom Murphy <murphyt7@tcd.ie>
 ---
- drivers/iommu/intel-iommu.c | 89 ++++++++++++++-----------------------
- 1 file changed, 33 insertions(+), 56 deletions(-)
+ drivers/iommu/dma-iommu.c | 38 +++++++-------------------------------
+ 1 file changed, 7 insertions(+), 31 deletions(-)
 
-diff --git a/drivers/iommu/intel-iommu.c b/drivers/iommu/intel-iommu.c
-index 64b1a9793daa..8d72ea0fb843 100644
---- a/drivers/iommu/intel-iommu.c
-+++ b/drivers/iommu/intel-iommu.c
-@@ -1908,7 +1908,8 @@ static void domain_exit(struct dmar_domain *domain)
- 	domain_remove_dev_info(domain);
- 
- 	/* destroy iovas */
--	put_iova_domain(&domain->iovad);
-+	if (domain->domain.type == IOMMU_DOMAIN_DMA)
-+		put_iova_domain(&domain->iovad);
- 
- 	if (domain->pgd) {
- 		struct page *freelist;
-@@ -2671,19 +2672,9 @@ static struct dmar_domain *set_domain_for_dev(struct device *dev,
- }
- 
- static int iommu_domain_identity_map(struct dmar_domain *domain,
--				     unsigned long long start,
--				     unsigned long long end)
-+				     unsigned long first_vpfn,
-+				     unsigned long last_vpfn)
+diff --git a/drivers/iommu/dma-iommu.c b/drivers/iommu/dma-iommu.c
+index cf778db7d84d..d7547b912c87 100644
+--- a/drivers/iommu/dma-iommu.c
++++ b/drivers/iommu/dma-iommu.c
+@@ -853,8 +853,7 @@ static int __finalise_sg(struct device *dev, struct scatterlist *sg, int nents,
  {
--	unsigned long first_vpfn = start >> VTD_PAGE_SHIFT;
--	unsigned long last_vpfn = end >> VTD_PAGE_SHIFT;
--
--	if (!reserve_iova(&domain->iovad, dma_to_mm_pfn(first_vpfn),
--			  dma_to_mm_pfn(last_vpfn))) {
--		pr_err("Reserving iova failed\n");
--		return -ENOMEM;
--	}
--
--	pr_debug("Mapping reserved region %llx-%llx\n", start, end);
- 	/*
- 	 * RMRR range might have overlap with physical memory range,
- 	 * clear it first
-@@ -2760,7 +2751,8 @@ static int __init si_domain_init(int hw)
+ 	struct scatterlist *s, *cur = sg;
+ 	unsigned long seg_mask = dma_get_seg_boundary(dev);
+-	unsigned int cur_len = 0, max_len = dma_get_max_seg_size(dev);
+-	int i, count = 0;
++	int i;
  
- 		for_each_mem_pfn_range(i, nid, &start_pfn, &end_pfn, NULL) {
- 			ret = iommu_domain_identity_map(si_domain,
--					PFN_PHYS(start_pfn), PFN_PHYS(end_pfn));
-+					mm_to_dma_pfn(start_pfn),
-+					mm_to_dma_pfn(end_pfn));
- 			if (ret)
- 				return ret;
- 		}
-@@ -4593,58 +4585,37 @@ static int intel_iommu_memory_notifier(struct notifier_block *nb,
- 				       unsigned long val, void *v)
- {
- 	struct memory_notify *mhp = v;
--	unsigned long long start, end;
--	unsigned long start_vpfn, last_vpfn;
-+	unsigned long start_vpfn = mm_to_dma_pfn(mhp->start_pfn);
-+	unsigned long last_vpfn = mm_to_dma_pfn(mhp->start_pfn +
-+			mhp->nr_pages - 1);
+ 	for_each_sg(sg, s, nents, i) {
+ 		/* Restore this segment's original unaligned fields first */
+@@ -862,39 +861,16 @@ static int __finalise_sg(struct device *dev, struct scatterlist *sg, int nents,
+ 		unsigned int s_length = sg_dma_len(s);
+ 		unsigned int s_iova_len = s->length;
  
- 	switch (val) {
- 	case MEM_GOING_ONLINE:
--		start = mhp->start_pfn << PAGE_SHIFT;
--		end = ((mhp->start_pfn + mhp->nr_pages) << PAGE_SHIFT) - 1;
--		if (iommu_domain_identity_map(si_domain, start, end)) {
--			pr_warn("Failed to build identity map for [%llx-%llx]\n",
--				start, end);
-+		if (iommu_domain_identity_map(si_domain, start_vpfn,
-+					last_vpfn)) {
-+			pr_warn("Failed to build identity map for [%lx-%lx]\n",
-+				start_vpfn, last_vpfn);
- 			return NOTIFY_BAD;
- 		}
- 		break;
- 
- 	case MEM_OFFLINE:
- 	case MEM_CANCEL_ONLINE:
--		start_vpfn = mm_to_dma_pfn(mhp->start_pfn);
--		last_vpfn = mm_to_dma_pfn(mhp->start_pfn + mhp->nr_pages - 1);
--		while (start_vpfn <= last_vpfn) {
--			struct iova *iova;
-+		{
- 			struct dmar_drhd_unit *drhd;
- 			struct intel_iommu *iommu;
- 			struct page *freelist;
- 
--			iova = find_iova(&si_domain->iovad, start_vpfn);
--			if (iova == NULL) {
--				pr_debug("Failed get IOVA for PFN %lx\n",
--					 start_vpfn);
--				break;
--			}
--
--			iova = split_and_remove_iova(&si_domain->iovad, iova,
--						     start_vpfn, last_vpfn);
--			if (iova == NULL) {
--				pr_warn("Failed to split IOVA PFN [%lx-%lx]\n",
--					start_vpfn, last_vpfn);
--				return NOTIFY_BAD;
--			}
--
--			freelist = domain_unmap(si_domain, iova->pfn_lo,
--					       iova->pfn_hi);
-+			freelist = domain_unmap(si_domain, start_vpfn,
-+					last_vpfn);
- 
- 			rcu_read_lock();
- 			for_each_active_iommu(iommu, drhd)
- 				iommu_flush_iotlb_psi(iommu, si_domain,
--					iova->pfn_lo, iova_size(iova),
-+					start_vpfn, mhp->nr_pages,
- 					!freelist, 0);
- 			rcu_read_unlock();
- 			dma_free_pagelist(freelist);
--
--			start_vpfn = iova->pfn_hi + 1;
--			free_iova_mem(iova);
- 		}
- 		break;
- 	}
-@@ -4672,8 +4643,9 @@ static void free_all_cpu_cached_iovas(unsigned int cpu)
- 		for (did = 0; did < cap_ndoms(iommu->cap); did++) {
- 			domain = get_iommu_domain(iommu, (u16)did);
- 
--			if (!domain)
-+			if (!domain || domain->domain.type != IOMMU_DOMAIN_DMA)
- 				continue;
++		if (i > 0)
++			cur = sg_next(cur);
 +
- 			free_cpu_cached_iovas(cpu, &domain->iovad);
- 		}
- 	}
-@@ -5095,9 +5067,6 @@ static int md_domain_init(struct dmar_domain *domain, int guest_width)
- {
- 	int adjust_width;
- 
--	init_iova_domain(&domain->iovad, VTD_PAGE_SIZE, IOVA_START_PFN);
--	domain_reserve_special_ranges(domain);
+ 		s->offset += s_iova_off;
+ 		s->length = s_length;
+-		sg_dma_address(s) = DMA_MAPPING_ERROR;
+-		sg_dma_len(s) = 0;
 -
- 	/* calculate AGAW */
- 	domain->gaw = guest_width;
- 	adjust_width = guestwidth_to_adjustwidth(guest_width);
-@@ -5116,6 +5085,18 @@ static int md_domain_init(struct dmar_domain *domain, int guest_width)
- 	return 0;
- }
- 
-+static void intel_init_iova_domain(struct dmar_domain *dmar_domain)
-+{
-+	init_iova_domain(&dmar_domain->iovad, VTD_PAGE_SIZE, IOVA_START_PFN);
-+	copy_reserved_iova(&reserved_iova_list, &dmar_domain->iovad);
-+
-+	if (init_iova_flush_queue(&dmar_domain->iovad, iommu_flush_iova,
-+				iova_entry_free)) {
-+		pr_warn("iova flush queue initialization failed\n");
-+		intel_iommu_strict = 1;
-+	}
-+}
-+
- static struct iommu_domain *intel_iommu_domain_alloc(unsigned type)
- {
- 	struct dmar_domain *dmar_domain;
-@@ -5136,12 +5117,8 @@ static struct iommu_domain *intel_iommu_domain_alloc(unsigned type)
- 			return NULL;
- 		}
- 
--		if (type == IOMMU_DOMAIN_DMA &&
--		    init_iova_flush_queue(&dmar_domain->iovad,
--					  iommu_flush_iova, iova_entry_free)) {
--			pr_warn("iova flush queue initialization failed\n");
--			intel_iommu_strict = 1;
+-		/*
+-		 * Now fill in the real DMA data. If...
+-		 * - there is a valid output segment to append to
+-		 * - and this segment starts on an IOVA page boundary
+-		 * - but doesn't fall at a segment boundary
+-		 * - and wouldn't make the resulting output segment too long
+-		 */
+-		if (cur_len && !s_iova_off && (dma_addr & seg_mask) &&
+-		    (max_len - cur_len >= s_length)) {
+-			/* ...then concatenate it with the previous one */
+-			cur_len += s_length;
+-		} else {
+-			/* Otherwise start the next output segment */
+-			if (i > 0)
+-				cur = sg_next(cur);
+-			cur_len = s_length;
+-			count++;
+-
+-			sg_dma_address(cur) = dma_addr + s_iova_off;
 -		}
-+		if (type == IOMMU_DOMAIN_DMA)
-+			intel_init_iova_domain(dmar_domain);
+-
+-		sg_dma_len(cur) = cur_len;
++		sg_dma_address(cur) = dma_addr + s_iova_off;
++		sg_dma_len(cur) = s_length;
+ 		dma_addr += s_iova_len;
+-
+-		if (s_length + s_iova_off < s_iova_len)
+-			cur_len = 0;
+ 	}
+-	return count;
++	return nents;
+ }
  
- 		domain_update_iommu_cap(dmar_domain);
- 
+ /*
 -- 
 2.20.1
