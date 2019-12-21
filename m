@@ -1,7 +1,7 @@
-From: Stephen Barber <smbarber@chromium.org>
+From: Willem de Bruijn <willemdebruijn.kernel@gmail.com>
 Subject: Re: [PATCH net] virtio-net: Skip set_features on non-cvq devices
-Date: Fri, 20 Dec 2019 14:40:12 -0800
-Message-ID: <CADR9n4__Tjev_q+-f=GqPWs4_bo3dnBe7htnbogCQbqWArQV6g__8041.6028898739$1576882039$gmane$org@mail.gmail.com>
+Date: Fri, 20 Dec 2019 22:08:41 -0500
+Message-ID: <CA+FuTSewMaRTe51jOJtD-VHcp4Ct+c=11-9SxenULHwQuokamw__24760.1052092918$1576897776$gmane$org@mail.gmail.com>
 References: <20191220212207.76726-1-adelva@google.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
@@ -18,26 +18,14 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 Errors-To: virtualization-bounces@lists.linux-foundation.org
 Sender: "Virtualization" <virtualization-bounces@lists.linux-foundation.org>
 To: Alistair Delva <adelva@google.com>
-Cc: "Michael S . Tsirkin" <mst@redhat.com>, netdev@vger.kernel.org, open list <linux-kernel@vger.kernel.org>, stable@vger.kernel.org, virtualization@lists.linux-foundation.org, kernel-team@android.com, "David S . Miller" <davem@davemloft.net>
+Cc: "Michael S . Tsirkin" <mst@redhat.com>, Network Development <netdev@vger.kernel.org>, linux-kernel <linux-kernel@vger.kernel.org>, stable <stable@vger.kernel.org>, virtualization@lists.linux-foundation.org, kernel-team@android.com, "David S . Miller" <davem@davemloft.net>
 List-Id: virtualization@lists.linuxfoundation.org
 
-On Fri, Dec 20, 2019 at 1:22 PM Alistair Delva <adelva@google.com> wrote:
+On Fri, Dec 20, 2019 at 4:22 PM Alistair Delva <adelva@google.com> wrote:
 >
 > On devices without control virtqueue support, such as the virtio_net
 > implementation in crosvm[1], attempting to configure LRO will panic the
 > kernel:
-
-If you'd like to try using the control virtqueue, I have a WIP patch
-at crrev.com/c/1968200
-
-The downside there is that when enabling IP forwarding the guest
-successfully disables LRO,
-which AFAIK (please correct me if I'm wrong!) is generally safe when
-using virtio-net. My iperf
-tests showed a ~90% bandwidth reduction, so we'd need to force LRO
-back on after enabling
-IP forwarding if the control queue offload patch lands.
-
 >
 > kernel BUG at drivers/net/virtio_net.c:1591!
 > invalid opcode: 0000 [#1] PREEMPT SMP PTI
@@ -85,54 +73,6 @@ IP forwarding if the control queue offload patch lands.
 > missing. This should be OK for any future feature that is added, as
 > presumably all of them would require control virtqueue support to notify
 > the endpoint that offload etc. should begin.
-
-This sounds okay to me. This does end up hitting a netdev_WARN later on though:
-[    1.885957] ------------[ cut here ]------------
-[    1.888398] netdevice: eth0: failed to disable LRO!
-[    1.890369] WARNING: CPU: 0 PID: 163 at
-/mnt/host/source/src/third_party/kernel/v5.4/net/core/dev.c:1483
-dev_disable_lro+0x91/0x95
-[    1.894761] CPU: 0 PID: 163 Comm: lxd Not tainted 5.4.5 #2
-[    1.896698] Hardware name: ChromiumOS crosvm, BIOS 0
-[    1.898387] RIP: 0010:dev_disable_lro+0x91/0x95
-[    1.899877] Code: a6 4d 0f 44 f7 eb 07 49 c7 c6 af 78 60 a6 4c 89
-ff e8 6a 00 00 00 48 c7 c7 dd 73 60 a6 4c 89 f6 48 89 c2 31 c0 e8 36
-e2 a5 ff <0f> 0b eb 8a 53 48 83 ec 18 48 89 fb 65 48 8b 04 25 28 00 00
-00 48
-[    1.905701] RSP: 0018:ffffae0fc0427d78 EFLAGS: 00010246
-[    1.907282] RAX: fe766977dd14fb00 RBX: 0000000000000001 RCX: ffffffffa683aa50
-[    1.909391] RDX: fffffffffffffe6d RSI: 0000000000000082 RDI: ffffffffa683aa20
-[    1.911503] RBP: ffff990bd3f8e050 R08: ffff0a1000000600 R09: 0000004000000000
-[    1.913613] R10: 0000000000000193 R11: ffffffffa5af56a5 R12: ffffffffa6882690
-[    1.915729] R13: ffff990bd3ec2248 R14: ffff990bd3f8e000 R15: ffff990bd3f8e000
-[    1.918555] FS:  00007ca813fff700(0000) GS:ffff990bd4c00000(0000)
-knlGS:0000000000000000
-[    1.920648] CS:  0010 DS: 0000 ES: 0000 CR0: 0000000080050033
-[    1.922039] CR2: 00005ba0e1789990 CR3: 00000001d1716003 CR4: 00000000003606b0
-[    1.923716] Call Trace:
-[    1.924356]  devinet_sysctl_forward+0x15a/0x1b9
-[    1.925444]  proc_sys_call_handler+0xc3/0xe0
-[    1.926491]  __vfs_write+0x3d/0x19b
-[    1.927351]  ? selinux_file_permission+0x8c/0x124
-[    1.928482]  vfs_write+0xea/0x17f
-[    1.929329]  ksys_write+0x68/0xc9
-[    1.930178]  do_syscall_64+0x4a/0x5d
-[    1.931063]  entry_SYSCALL_64_after_hwframe+0x44/0xa9
-[    1.932272] RIP: 0033:0x5ba0e10655c0
-[    1.933159] Code: 8b 7c 24 10 48 8b 74 24 18 48 8b 54 24 20 49 c7
-c2 00 00 00 00 49 c7 c0 00 00 00 00 49 c7 c1 00 00 00 00 48 8b 44 24
-08 0f 05 <48> 3d 01 f0 ff ff 76 20 48 c7 44 24 28 ff ff ff ff 48 c7 44
-24 30
-[    1.937440] RSP: 002b:000000c00041e258 EFLAGS: 00000216 ORIG_RAX:
-0000000000000001
-[    1.939224] RAX: ffffffffffffffda RBX: 0000000000000000 RCX: 00005ba0e10655c0
-[    1.940897] RDX: 0000000000000001 RSI: 000000c00041e4d8 RDI: 0000000000000018
-[    1.942600] RBP: 000000c00041e2a8 R08: 0000000000000000 R09: 0000000000000000
-[    1.944310] R10: 0000000000000000 R11: 0000000000000216 R12: 000000000000000c
-[    1.946007] R13: 0000000000000032 R14: 00005ba0e0fa01e8 R15: 0000000000000000
-[    1.947706] ---[ end trace 9ac0c921383f98c0 ]---
-
-
 >
 > [1] https://chromium.googlesource.com/chromiumos/platform/crosvm/
 >
@@ -146,7 +86,7 @@ c2 00 00 00 00 49 c7 c0 00 00 00 00 49 c7 c1 00 00 00 00 48 8b 44 24
 > Cc: linux-kernel@vger.kernel.org
 > Signed-off-by: Alistair Delva <adelva@google.com>
 
-Tested-by: Stephen Barber <smbarber@chromium.org>
+Thanks for debugging this, Alistair.
 
 > ---
 >  drivers/net/virtio_net.c | 3 +++
@@ -163,9 +103,16 @@ Tested-by: Stephen Barber <smbarber@chromium.org>
 > +       if (!vi->has_cvq)
 > +               return 0;
 > +
->         if ((dev->features ^ features) & NETIF_F_LRO) {
->                 if (vi->xdp_queue_pairs)
->                         return -EBUSY;
-> --
-> 2.24.1.735.g03f4e72817-goog
->
+
+Instead of checking for this in virtnet_set_features, how about we
+make configurability contingent on cvq in virtnet_probe:
+
+-       if (virtio_has_feature(vdev, VIRTIO_NET_F_CTRL_GUEST_OFFLOADS))
++       if (virtio_has_feature(vdev, VIRTIO_NET_F_CTRL_GUEST_OFFLOADS) &&
++           virtio_has_feature(vdev, VIRTIO_NET_F_CTRL_VQ))
+                dev->hw_features |= NETIF_F_LRO;
+
+Based on this logic a little below in the same function
+
+        if (virtio_has_feature(vdev, VIRTIO_NET_F_CTRL_VQ))
+                vi->has_cvq = true;
