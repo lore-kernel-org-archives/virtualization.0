@@ -1,11 +1,15 @@
-From: "Maria Lemos" <marialemos72@gmail.com>
-Subject: MICRADS 2020, Quito, Ecuador | Deadline: December 31
-Date: Sat, 21 Dec 2019 21:42:03 +0000
-Message-ID: <17296903460328@gmail-com>
-Reply-To: micradsmail@gmail.com
+From: "Michael S. Tsirkin" <mst@redhat.com>
+Subject: Re: [PATCH net] virtio-net: Skip set_features on non-cvq devices
+Date: Sun, 22 Dec 2019 08:11:15 -0500
+Message-ID: <20191222080754-mutt-send-email-mst@kernel.org>
+References: <20191220212207.76726-1-adelva@google.com>
+ <CA+FuTSewMaRTe51jOJtD-VHcp4Ct+c=11-9SxenULHwQuokamw@mail.gmail.com>
 Mime-Version: 1.0
-Content-Type: multipart/mixed; boundary="===============3033377115233360929=="
+Content-Type: text/plain; charset="us-ascii"
+Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
+In-Reply-To: <CA+FuTSewMaRTe51jOJtD-VHcp4Ct+c=11-9SxenULHwQuokamw@mail.gmail.com>
+Content-Disposition: inline
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
  <mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -15,348 +19,110 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
  <mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Errors-To: virtualization-bounces@lists.linux-foundation.org
 Sender: "Virtualization" <virtualization-bounces@lists.linux-foundation.org>
-To: virtualization@lists.linux-foundation.org
+To: Willem de Bruijn <willemdebruijn.kernel@gmail.com>
+Cc: Alistair Delva <adelva@google.com>, Network Development <netdev@vger.kernel.org>, linux-kernel <linux-kernel@vger.kernel.org>, stable <stable@vger.kernel.org>, virtualization@lists.linux-foundation.org, kernel-team@android.com, "David S . Miller" <davem@davemloft.net>
 List-Id: virtualization@lists.linuxfoundation.org
 
-This is a multi-part message in MIME format
-
---===============3033377115233360929==
-Content-Type: multipart/alternative; charset=utf-8; boundary="SyjcjCnIIj2ZQXWxSbgh9l3EWC=_Sb7Sk9"
-
-This is a multi-part message in MIME format
-
---SyjcjCnIIj2ZQXWxSbgh9l3EWC=_Sb7Sk9
-Content-Type: text/plain; charset="utf-8"
-Content-Transfer-Encoding: quoted-printable
-Content-Disposition: inline
-
-* Proceedings by Springer, indexed by Scopus, ISI, EI-Compendex, Googl=
-e Scholar, etc.
-
-=20
-
---------------------------------------
-
-MICRADS=C2=B420 - The 2020 Multidisciplinary International Conference =
-of Research Applied to Defense and Security
-
-Quito, Ecuador, 13 - 15 May 2020
-
-http://www.micrads.org/ <http://www.micrads.org/>
-
-----------------------------------------------------------------------=
---------------------------------------------------------
-
-=20
-
-Scope
-
-MICRADS=C2=B420 - The 2020 Multidisciplinary International Conference =
-of Research Applied to Defense and Security, to be held at Quito, Ecua=
-dor, 13-15 May 2020, is an international forum for researchers and pra=
-ctitioners to present and discuss the most recent innovations, trends,=
- results, experiences and concerns in the several perspectives of Defe=
-nse and Security.
-
-We are pleased to invite you to submit your papers to MICRADS=C2=B420.=
- They can be written in English, Spanish or Portuguese. All submission=
-s will be reviewed on the basis of relevance, originality, importance =
-and clarity.
-
-=20
-
-Topics
-
-Submitted papers should be related with one or more of the main themes=
- proposed for the Conference:
-
-=20
-
-Area A: Systems, Communication and Defense
-
-A1) Information and Communication Technology in Education
-A2) Simulation and computer vision in military applications
-A3) Analysis and Signal Processing
-A4) Cybersecurity and Cyberdefense
-A5) Computer Networks, Mobility and Pervasive Systems
-
- =20
-
-Area B: Strategy and political-administrative vision in Defense
-
-B1) Safety and Maritime Protection
-B2) Strategy, Geopolitics and Oceanopolitics
-B3) Planning, economy and logistics applied to Defense
-B4) Leadership and e-leadership
-B5) Military Marketing
-B6) Health informatics in military applications
-
-=20
-
-Area C: Engineering and technologies applied to Defense
-
-C1) Wearable Technology and Assistance Devices
-C2) Military Naval Engineering
-C3) Weapons and Combat Systems
-C4) Chemical, Biological and Nuclear Defense
-C5) Defense Engineering (General)
-
- =20
-
-Submission and Decision
-
-Submitted papers written in English (until 10-page limit) must comply =
-with the format of Smart Innovation, Systems and Technologies series (=
-see Instructions for Authors at Springer Website <https://www.springer=
-=2Ecom/us/authors-editors/conference-proceedings/conference-proceeding=
-s-guidelines>), must not have been published before, not be under revi=
-ew for any other conference or publication and not include any informa=
-tion leading to the authors=E2=80=99 identification. Therefore, the au=
-thors=E2=80=99 names, affiliations and e-mails should not be included =
-in the version for evaluation by the Scientific Committee. This inform=
-ation should only be included in the camera-ready version, saved in Wo=
-rd or Latex format and also in PDF format. These files must be accompa=
-nied by the Consent to Publish form <http://www.micrads.org/consent.do=
-c> filled out, in a ZIP file, and uploaded at the conference managemen=
-t system.
-
-Submitted papers written in Spanish or Portuguese (until 15-page limit=
-) must comply with the format of RISTI <http://www.risti.xyz/> - Revis=
-ta Ib=C3=A9rica de Sistemas e Tecnologias de Informa=C3=A7=C3=A3o (dow=
-nload instructions/template for authors in Spanish <http://www.risti.x=
-yz/formato-es.doc> or Portuguese <http://www.risti.xyz/formato-pt.doc>=
-), must not have been published before, not be under review for any ot=
-her conference or publication and not include any information leading =
-to the authors=E2=80=99 identification. Therefore, the authors=E2=80=99=
- names, affiliations and e-mails should not be included in the version=
- for evaluation by the Scientific Committee. This information should o=
-nly be included in the camera-ready version, saved in Word. These file=
- must be uploaded at the conference management system in a ZIP file.
-
-All papers will be subjected to a =E2=80=9Cblind review=E2=80=9D by at=
- least two members of the Scientific Committee.
-
-Based on Scientific Committee evaluation, a paper can be rejected or a=
-ccepted by the Conference Chairs. In the later case, it can be accepte=
-d as paper or poster.
-
-The authors of papers accepted as posters must build and print a poste=
-r to be exhibited during the Conference. This poster must follow an A1=
- or A2 vertical format. The Conference can includes Work Sessions wher=
-e these posters are presented and orally discussed, with a 7 minute li=
-mit per poster.
-
-The authors of accepted papers will have 15 minutes to present their w=
-ork in a Conference Work Session; approximately 5 minutes of discussio=
-n will follow each presentation.
-
-=20
-
-Publication and Indexing
-
-To ensure that an accepted paper is published, at least one of the aut=
-hors must be fully registered by the 18 of February 2020, and the pape=
-r must comply with the suggested layout and page-limit (until 10 pages=
-). Additionally, all recommended changes must be addressed by the auth=
-ors before they submit the camera-ready version.
-
-No more than one paper per registration will be published. An extra fe=
-e must be paid for publication of additional papers, with a maximum of=
- one additional paper per registration. One registration permits only =
-the participation of one author in the conference.
-
-Papers can be written in English, Spanish or Portuguese. Accepted and =
-registered papers written in English will be published in Proceedings =
-by Springer, in a book of its SIST series, and will be submitted for i=
-ndexing by ISI, SCOPUS, EI-Compendex, SpringerLink, and Google Scholar=
-=2E
-
-=20
-
-Important Dates
-
-Paper Submission: December 31, 2019
+On Fri, Dec 20, 2019 at 10:08:41PM -0500, Willem de Bruijn wrote:
+> On Fri, Dec 20, 2019 at 4:22 PM Alistair Delva <adelva@google.com> wrote:
+> >
+> > On devices without control virtqueue support, such as the virtio_net
+> > implementation in crosvm[1], attempting to configure LRO will panic the
+> > kernel:
+> >
+> > kernel BUG at drivers/net/virtio_net.c:1591!
+> > invalid opcode: 0000 [#1] PREEMPT SMP PTI
+> > CPU: 1 PID: 483 Comm: Binder:330_1 Not tainted 5.4.5-01326-g19463e9acaac #1
+> > Hardware name: ChromiumOS crosvm, BIOS 0
+> > RIP: 0010:virtnet_send_command+0x15d/0x170 [virtio_net]
+> > Code: d8 00 00 00 80 78 02 00 0f 94 c0 65 48 8b 0c 25 28 00 00 00 48 3b 4c 24 70 75 11 48 8d 65 d8 5b 41 5c 41 5d 41 5e 41 5f 5d c3 <0f> 0b e8 ec a4 12 c8 66 90 66 2e 0f 1f 84 00 00 00 00 00 55 48 89
+> > RSP: 0018:ffffb97940e7bb50 EFLAGS: 00010246
+> > RAX: ffffffffc0596020 RBX: ffffa0e1fc8ea840 RCX: 0000000000000017
+> > RDX: ffffffffc0596110 RSI: 0000000000000011 RDI: 000000000000000d
+> > RBP: ffffb97940e7bbf8 R08: ffffa0e1fc8ea0b0 R09: ffffa0e1fc8ea0b0
+> > R10: ffffffffffffffff R11: ffffffffc0590940 R12: 0000000000000005
+> > R13: ffffa0e1ffad2c00 R14: ffffb97940e7bc08 R15: 0000000000000000
+> > FS:  0000000000000000(0000) GS:ffffa0e1fd100000(006b) knlGS:00000000e5ef7494
+> > CS:  0010 DS: 002b ES: 002b CR0: 0000000080050033
+> > CR2: 00000000e5eeb82c CR3: 0000000079b06001 CR4: 0000000000360ee0
+> > DR0: 0000000000000000 DR1: 0000000000000000 DR2: 0000000000000000
+> > DR3: 0000000000000000 DR6: 00000000fffe0ff0 DR7: 0000000000000400
+> > Call Trace:
+> >  ? preempt_count_add+0x58/0xb0
+> >  ? _raw_spin_lock_irqsave+0x36/0x70
+> >  ? _raw_spin_unlock_irqrestore+0x1a/0x40
+> >  ? __wake_up+0x70/0x190
+> >  virtnet_set_features+0x90/0xf0 [virtio_net]
+> >  __netdev_update_features+0x271/0x980
+> >  ? nlmsg_notify+0x5b/0xa0
+> >  dev_disable_lro+0x2b/0x190
+> >  ? inet_netconf_notify_devconf+0xe2/0x120
+> >  devinet_sysctl_forward+0x176/0x1e0
+> >  proc_sys_call_handler+0x1f0/0x250
+> >  proc_sys_write+0xf/0x20
+> >  __vfs_write+0x3e/0x190
+> >  ? __sb_start_write+0x6d/0xd0
+> >  vfs_write+0xd3/0x190
+> >  ksys_write+0x68/0xd0
+> >  __ia32_sys_write+0x14/0x20
+> >  do_fast_syscall_32+0x86/0xe0
+> >  entry_SYSENTER_compat+0x7c/0x8e
+> >
+> > This happens because virtio_set_features() does not check the presence
+> > of the control virtqueue feature, which is sanity checked by a BUG_ON
+> > in virtnet_send_command().
+> >
+> > Fix this by skipping any feature processing if the control virtqueue is
+> > missing. This should be OK for any future feature that is added, as
+> > presumably all of them would require control virtqueue support to notify
+> > the endpoint that offload etc. should begin.
+> >
+> > [1] https://chromium.googlesource.com/chromiumos/platform/crosvm/
+> >
+> > Fixes: a02e8964eaf9 ("virtio-net: ethtool configurable LRO")
+> > Cc: stable@vger.kernel.org [4.20+]
+> > Cc: Michael S. Tsirkin <mst@redhat.com>
+> > Cc: Jason Wang <jasowang@redhat.com>
+> > Cc: David S. Miller <davem@davemloft.net>
+> > Cc: kernel-team@android.com
+> > Cc: virtualization@lists.linux-foundation.org
+> > Cc: linux-kernel@vger.kernel.org
+> > Signed-off-by: Alistair Delva <adelva@google.com>
+> 
+> Thanks for debugging this, Alistair.
+> 
+> > ---
+> >  drivers/net/virtio_net.c | 3 +++
+> >  1 file changed, 3 insertions(+)
+> >
+> > diff --git a/drivers/net/virtio_net.c b/drivers/net/virtio_net.c
+> > index 4d7d5434cc5d..709bcd34e485 100644
+> > --- a/drivers/net/virtio_net.c
+> > +++ b/drivers/net/virtio_net.c
+> > @@ -2560,6 +2560,9 @@ static int virtnet_set_features(struct net_device *dev,
+> >         u64 offloads;
+> >         int err;
+> >
+> > +       if (!vi->has_cvq)
+> > +               return 0;
+> > +
+> 
+> Instead of checking for this in virtnet_set_features, how about we
+> make configurability contingent on cvq in virtnet_probe:
+> 
+> -       if (virtio_has_feature(vdev, VIRTIO_NET_F_CTRL_GUEST_OFFLOADS))
+> +       if (virtio_has_feature(vdev, VIRTIO_NET_F_CTRL_GUEST_OFFLOADS) &&
+> +           virtio_has_feature(vdev, VIRTIO_NET_F_CTRL_VQ))
+>                 dev->hw_features |= NETIF_F_LRO;
+> 
+> Based on this logic a little below in the same function
+> 
+>         if (virtio_has_feature(vdev, VIRTIO_NET_F_CTRL_VQ))
+>                 vi->has_cvq = true;
 
 
-Notification of Acceptance: January 31, 2020
+This would be a regression on old hypervisors which didn't have
+CTL VQ - suddenly they will lose offloads.
 
-Payment of Registration, to ensure the inclusion of an accepted paper =
-in the conference proceedings: February 18, 2020
-
-Camera-ready Submission: February 18, 2020
-
-=20
-
-Website of MICRADS'20: http://www.micrads.org/ <http://www.micrads.org=
-/>
-
-=20
-
---SyjcjCnIIj2ZQXWxSbgh9l3EWC=_Sb7Sk9
-Content-Type: text/html; charset="utf-8"
-Content-Transfer-Encoding: quoted-printable
-Content-Disposition: inline
-
-<html>
-  <head>
-    <title></title>
-    <meta content=3D"text/html; charset=3Dutf-8" http-equiv=3D"Content=
--Type" />
-  </head>
-  <body>
-    <div itemprop=3D"articleBody">
-      <p>* Proceedings by Springer, indexed&nbsp;by Scopus, ISI, EI-Co=
-mpendex, Google Scholar, etc.</p>
-      <p>&nbsp;</p>
-      <p>--------------------------------------</p>
-      <p><strong>MICRADS&acute;20 - The 2020 Multidisciplinary Interna=
-tional Conference of Research Applied to Defense and Security</strong>=
-</p>
-      <p><strong>Quito, Ecuador,&nbsp;13 - 15 May 2020</strong></p>
-      <p><a href=3D"http://www.micrads.org/"><strong>http://www.micrad=
-s.org/</strong></a></p>
-      <p>-------------------------------------------------------------=
------------------------------------------------------------------</p>
-      <p>&nbsp;</p>
-      <div itemprop=3D"articleBody">
-        <div itemprop=3D"articleBody">
-          <p><strong>Scope</strong></p>
-          <p style=3D"text-align: justify">MICRADS&acute;20 - The 2020=
- Multidisciplinary International Conference of Research Applied to Def=
-ense and Security, to be held at Quito, Ecuador, 13-15 May 2020, is an=
- international forum for researchers and practitioners to present and =
-discuss the most recent innovations, trends, results, experiences and =
-concerns in the several perspectives of Defense and Security.</p>
-          <p style=3D"text-align: justify">We are pleased to invite yo=
-u to submit your papers to MICRADS&acute;20. They can be written in En=
-glish, Spanish or Portuguese. All submissions will be reviewed on the =
-basis of relevance, originality, importance and clarity.</p>
-          <p>&nbsp;</p>
-          <p><strong>Topics</strong></p>
-          <p>Submitted papers should be related with one or more of th=
-e main themes proposed for the Conference:</p>
-          <p>&nbsp;</p>
-          <p><strong>Area A: Systems, Communication and Defense</stron=
-g><br /><br />A1) Information and Communication Technology in Educatio=
-n<br />A2) Simulation and computer vision in military applications<br =
-/>A3) Analysis and Signal Processing<br />A4) Cybersecurity and Cyberd=
-efense<br />A5) Computer Networks, Mobility and Pervasive Systems</p>
-          <p>&nbsp;&nbsp;</p>
-          <p><strong>Area B: Strategy and political-administrative vis=
-ion in Defense</strong><br /><br />B1) Safety and Maritime Protection<=
-br />B2) Strategy, Geopolitics and Oceanopolitics<br />B3) Planning, e=
-conomy and logistics applied to Defense<br />B4) Leadership and e-lead=
-ership<br />B5) Military Marketing<br />B6) Health informatics in mili=
-tary applications</p>
-          <p>&nbsp;</p>
-          <p><strong>Area C: Engineering and technologies applied to D=
-efense</strong><br /><br />C1) Wearable Technology and Assistance Devi=
-ces<br />C2) Military Naval Engineering<br />C3) Weapons and Combat Sy=
-stems<br />C4) Chemical, Biological and Nuclear Defense<br />C5) Defen=
-se Engineering (General)</p>
-          <p>&nbsp;&nbsp;</p>
-          <p><strong>Submission and Decision</strong></p>
-          <p>Submitted papers written in English (until 10-page limit)=
- must comply with the format of Smart Innovation, Systems and Technolo=
-gies series (see&nbsp;<strong><a href=3D"https://www.springer.com/us/a=
-uthors-editors/conference-proceedings/conference-proceedings-guideline=
-s" rel=3D"noopener noreferrer" target=3D"_blank">Instructions for Auth=
-ors at Springer Website</a></strong>), must not have been published be=
-fore, not be under review for any other conference or publication and =
-not include any information leading to the authors&rsquo; identificati=
-on. Therefore, the authors&rsquo; names, affiliations and e-mails shou=
-ld not be included in the version for evaluation by the Scientific Com=
-mittee. This information should only be included in the camera-ready v=
-ersion, saved in Word or Latex format and also in PDF format.&nbsp;<sp=
-an lang=3D"en" id=3D"result_box">These files&nbsp;must&nbsp;be accompa=
-nied by the&nbsp;<strong><a href=3D"http://www.micrads.org/consent.doc=
-" rel=3D"noopener noreferrer" target=3D"_blank">Consent to Publish for=
-m</a></strong>&nbsp;filled out,&nbsp;</span><span lang=3D"en" id=3D"re=
-sult_box">in a ZIP file, and uploaded at the conference management sys=
-tem.</span></p>
-          <p><span lang=3D"en">Submitted papers written in Spanish or =
-Portuguese (until 15-page limit) must comply with the format of <stron=
-g><a href=3D"http://www.risti.xyz/" rel=3D"noopener noreferrer" target=
-=3D"_blank">RISTI</a></strong> - Revista Ib&eacute;rica de Sistemas e =
-Tecnologias de Informa&ccedil;&atilde;o (download instructions/templat=
-e for authors in <strong><a href=3D"http://www.risti.xyz/formato-es.do=
-c" rel=3D"noopener noreferrer" target=3D"_blank">Spanish</a></strong> =
-or <strong><a href=3D"http://www.risti.xyz/formato-pt.doc" rel=3D"noop=
-ener noreferrer" target=3D"_blank">Portuguese</a></strong>), must not =
-have been published before, not be under review for any other conferen=
-ce or publication and not include any information leading to the autho=
-rs&rsquo; identification. Therefore, the authors&rsquo; names, affilia=
-tions and e-mails should not be included in the version for evaluation=
- by the Scientific Committee. This information should only be included=
- in the camera-ready version, saved in Word.&nbsp;<span lang=3D"en" id=
-=3D"result_box">These file must&nbsp;be </span><span lang=3D"en" id=3D=
-"result_box">uploaded at the conference management system in a ZIP fil=
-e.</span></span></p>
-          <p style=3D"text-align: justify">All papers will be subjecte=
-d to a &ldquo;blind review&rdquo; by at least two members of the Scien=
-tific Committee.</p>
-          <p style=3D"text-align: justify">Based on Scientific Committ=
-ee evaluation, a paper can be rejected or accepted by the Conference C=
-hairs. In the later case, it can be accepted as paper or poster.</p>
-          <p style=3D"text-align: justify">The authors of papers accep=
-ted as posters must build and print a poster to be exhibited during th=
-e Conference. This poster must follow an A1 or A2 vertical format. The=
- Conference can includes Work Sessions where these posters are present=
-ed and orally discussed, with a 7 minute limit per poster.</p>
-          <p style=3D"text-align: justify">The authors of accepted pap=
-ers will have 15 minutes to present their work in a Conference Work Se=
-ssion; approximately 5 minutes of discussion will follow each presenta=
-tion.</p>
-          <p>&nbsp;</p>
-          <p><strong>Publication and Indexing</strong></p>
-          <p style=3D"text-align: justify">To ensure that an accepted =
-paper is published, at least one of the authors must be fully register=
-ed by the 18 of February 2020, and the paper must comply with the sugg=
-ested layout and page-limit (until 10 pages). Additionally, all recomm=
-ended changes must be addressed by the authors before they submit the =
-camera-ready version.</p>
-          <p style=3D"text-align: justify">No more than one paper per =
-registration will be published. An extra fee must be paid for publicat=
-ion of additional papers, with a maximum of one additional paper per r=
-egistration. One registration permits only the participation of one au=
-thor in the conference.</p>
-          <p style=3D"text-align: justify"><span lang=3D"EN-US" style=3D=
-"font-size: 11pt; font-family: 'Calibri',sans-serif; line-height: 107%=
-">Papers can be written in English, Spanish or Portuguese. Accepted an=
-d registered papers written in English will be published in Proceeding=
-s by Springer, in a book of its <span style=3D"color: black">SIST seri=
-es, </span>and will be submitted for indexing by ISI, SCOPUS, EI-Compe=
-ndex, SpringerLink, and Google Scholar</span>.</p>
-          <p>&nbsp;</p>
-          <p><strong>Important Dates</strong></p>
-          <p>Paper Submission: December 31, 2019<span style=3D"text-de=
-coration: line-through"><br /></span></p>
-          <p>Notification of Acceptance: January 31, 2020</p>
-          <p>Payment of Registration,&nbsp;to ensure the inclusion of =
-an accepted paper in the conference proceedings: February 18, 2020</p>=
-
-          <p>Camera-ready Submission: February 18, 2020</p>
-          <p>&nbsp;</p>
-        </div>
-      </div>
-      <p><strong>Website of MICRADS'20</strong>: <a href=3D"http://www=
-=2Emicrads.org/">http://www.micrads.org/</a></p>
-      <p>&nbsp;</p>
-    </div>
-  </body>
-</html>
-
---SyjcjCnIIj2ZQXWxSbgh9l3EWC=_Sb7Sk9--
-
-
---===============3033377115233360929==
-Content-Type: text/plain; charset="us-ascii"
-MIME-Version: 1.0
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-
-_______________________________________________
-Virtualization mailing list
-Virtualization@lists.linux-foundation.org
-https://lists.linuxfoundation.org/mailman/listinfo/virtualization
---===============3033377115233360929==--
+-- 
+MST
