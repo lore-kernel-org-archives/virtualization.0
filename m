@@ -1,7 +1,8 @@
 From: Yangtao Li <tiny.windzz@gmail.com>
-Subject: [PATCH 3/6] iommu/qcom: convert to devm_platform_ioremap_resource
-Date: Mon, 23 Dec 2019 18:59:15 +0000
-Message-ID: <20191223185918.9877-4-tiny.windzz@gmail.com>
+Subject: [PATCH 4/6] iommu/ipmmu-vmsa: convert to
+ devm_platform_ioremap_resource
+Date: Mon, 23 Dec 2019 18:59:16 +0000
+Message-ID: <20191223185918.9877-5-tiny.windzz@gmail.com>
 References: <20191223185918.9877-1-tiny.windzz@gmail.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
@@ -25,30 +26,30 @@ Use devm_platform_ioremap_resource() to simplify code.
 
 Signed-off-by: Yangtao Li <tiny.windzz@gmail.com>
 ---
- drivers/iommu/qcom_iommu.c | 4 +---
+ drivers/iommu/ipmmu-vmsa.c | 4 +---
  1 file changed, 1 insertion(+), 3 deletions(-)
 
-diff --git a/drivers/iommu/qcom_iommu.c b/drivers/iommu/qcom_iommu.c
-index 52f38292df5b..bf94d4d67da4 100644
---- a/drivers/iommu/qcom_iommu.c
-+++ b/drivers/iommu/qcom_iommu.c
-@@ -709,7 +709,6 @@ static int qcom_iommu_ctx_probe(struct platform_device *pdev)
- 	struct qcom_iommu_ctx *ctx;
- 	struct device *dev = &pdev->dev;
- 	struct qcom_iommu_dev *qcom_iommu = dev_get_drvdata(dev->parent);
+diff --git a/drivers/iommu/ipmmu-vmsa.c b/drivers/iommu/ipmmu-vmsa.c
+index d02edd2751f3..3124e28fee85 100644
+--- a/drivers/iommu/ipmmu-vmsa.c
++++ b/drivers/iommu/ipmmu-vmsa.c
+@@ -1015,7 +1015,6 @@ static const struct of_device_id ipmmu_of_ids[] = {
+ static int ipmmu_probe(struct platform_device *pdev)
+ {
+ 	struct ipmmu_vmsa_device *mmu;
 -	struct resource *res;
- 	int ret, irq;
+ 	int irq;
+ 	int ret;
  
- 	ctx = devm_kzalloc(dev, sizeof(*ctx), GFP_KERNEL);
-@@ -719,8 +718,7 @@ static int qcom_iommu_ctx_probe(struct platform_device *pdev)
- 	ctx->dev = dev;
- 	platform_set_drvdata(pdev, ctx);
+@@ -1033,8 +1032,7 @@ static int ipmmu_probe(struct platform_device *pdev)
+ 	dma_set_mask_and_coherent(&pdev->dev, DMA_BIT_MASK(40));
  
+ 	/* Map I/O memory and request IRQ. */
 -	res = platform_get_resource(pdev, IORESOURCE_MEM, 0);
--	ctx->base = devm_ioremap_resource(dev, res);
-+	ctx->base = devm_platform_ioremap_resource(pdev, 0);
- 	if (IS_ERR(ctx->base))
- 		return PTR_ERR(ctx->base);
+-	mmu->base = devm_ioremap_resource(&pdev->dev, res);
++	mmu->base = devm_platform_ioremap_resource(pdev, 0);
+ 	if (IS_ERR(mmu->base))
+ 		return PTR_ERR(mmu->base);
  
 -- 
 2.17.1
