@@ -1,11 +1,13 @@
 From: Yangtao Li <tiny.windzz@gmail.com>
-Subject: [PATCH 1/6] iommu/omap: convert to devm_platform_ioremap_resource
-Date: Mon, 23 Dec 2019 18:59:12 +0000
-Message-ID: <20191223185918.9877-1-tiny.windzz__44256.1590157979$1577127577$gmane$org@gmail.com>
+Subject: [PATCH 2/6] iommu/exynos: convert to devm_platform_ioremap_resource
+Date: Mon, 23 Dec 2019 18:59:14 +0000
+Message-ID: <20191223185918.9877-3-tiny.windzz@gmail.com>
+References: <20191223185918.9877-1-tiny.windzz@gmail.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
+In-Reply-To: <20191223185918.9877-1-tiny.windzz@gmail.com>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
  <mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -23,30 +25,28 @@ Use devm_platform_ioremap_resource() to simplify code.
 
 Signed-off-by: Yangtao Li <tiny.windzz@gmail.com>
 ---
- drivers/iommu/omap-iommu.c | 4 +---
+ drivers/iommu/exynos-iommu.c | 4 +---
  1 file changed, 1 insertion(+), 3 deletions(-)
 
-diff --git a/drivers/iommu/omap-iommu.c b/drivers/iommu/omap-iommu.c
-index be551cc34be4..297c1be7ecb0 100644
---- a/drivers/iommu/omap-iommu.c
-+++ b/drivers/iommu/omap-iommu.c
-@@ -1175,7 +1175,6 @@ static int omap_iommu_probe(struct platform_device *pdev)
- 	int err = -ENODEV;
- 	int irq;
- 	struct omap_iommu *obj;
+diff --git a/drivers/iommu/exynos-iommu.c b/drivers/iommu/exynos-iommu.c
+index 186ff5cc975c..42d8407267ef 100644
+--- a/drivers/iommu/exynos-iommu.c
++++ b/drivers/iommu/exynos-iommu.c
+@@ -571,14 +571,12 @@ static int exynos_sysmmu_probe(struct platform_device *pdev)
+ 	int irq, ret;
+ 	struct device *dev = &pdev->dev;
+ 	struct sysmmu_drvdata *data;
 -	struct resource *res;
- 	struct device_node *of = pdev->dev.of_node;
- 	struct orphan_dev *orphan_dev, *tmp;
  
-@@ -1218,8 +1217,7 @@ static int omap_iommu_probe(struct platform_device *pdev)
- 	spin_lock_init(&obj->iommu_lock);
- 	spin_lock_init(&obj->page_table_lock);
+ 	data = devm_kzalloc(dev, sizeof(*data), GFP_KERNEL);
+ 	if (!data)
+ 		return -ENOMEM;
  
 -	res = platform_get_resource(pdev, IORESOURCE_MEM, 0);
--	obj->regbase = devm_ioremap_resource(obj->dev, res);
-+	obj->regbase = devm_platform_ioremap_resource(pdev, 0);
- 	if (IS_ERR(obj->regbase))
- 		return PTR_ERR(obj->regbase);
+-	data->sfrbase = devm_ioremap_resource(dev, res);
++	data->sfrbase = devm_platform_ioremap_resource(pdev, 0);
+ 	if (IS_ERR(data->sfrbase))
+ 		return PTR_ERR(data->sfrbase);
  
 -- 
 2.17.1
