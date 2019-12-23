@@ -1,13 +1,11 @@
 From: Yangtao Li <tiny.windzz@gmail.com>
-Subject: [PATCH] virtio-mmio: convert to devm_platform_ioremap_resource
-Date: Mon, 23 Dec 2019 18:59:13 +0000
-Message-ID: <20191223185918.9877-2-tiny.windzz__39188.6430721328$1577127576$gmane$org@gmail.com>
-References: <20191223185918.9877-1-tiny.windzz@gmail.com>
+Subject: [PATCH 1/6] iommu/omap: convert to devm_platform_ioremap_resource
+Date: Mon, 23 Dec 2019 18:59:12 +0000
+Message-ID: <20191223185918.9877-1-tiny.windzz__44256.1590157979$1577127577$gmane$org@gmail.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <20191223185918.9877-1-tiny.windzz@gmail.com>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
  <mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -21,50 +19,34 @@ To: m.szyprowski@samsung.com, joro@8bytes.org, kgene@kernel.org, krzk@kernel.org
 Cc: Yangtao Li <tiny.windzz@gmail.com>
 List-Id: virtualization@lists.linuxfoundation.org
 
-Use devm_platform_ioremap_resource() to simplify code, which
-contains platform_get_resource, devm_request_mem_region and
-devm_ioremap.
+Use devm_platform_ioremap_resource() to simplify code.
 
 Signed-off-by: Yangtao Li <tiny.windzz@gmail.com>
 ---
- drivers/virtio/virtio_mmio.c | 15 +++------------
- 1 file changed, 3 insertions(+), 12 deletions(-)
+ drivers/iommu/omap-iommu.c | 4 +---
+ 1 file changed, 1 insertion(+), 3 deletions(-)
 
-diff --git a/drivers/virtio/virtio_mmio.c b/drivers/virtio/virtio_mmio.c
-index e09edb5c5e06..97d5725fd9a2 100644
---- a/drivers/virtio/virtio_mmio.c
-+++ b/drivers/virtio/virtio_mmio.c
-@@ -531,18 +531,9 @@ static void virtio_mmio_release_dev(struct device *_d)
- static int virtio_mmio_probe(struct platform_device *pdev)
- {
- 	struct virtio_mmio_device *vm_dev;
--	struct resource *mem;
- 	unsigned long magic;
- 	int rc;
+diff --git a/drivers/iommu/omap-iommu.c b/drivers/iommu/omap-iommu.c
+index be551cc34be4..297c1be7ecb0 100644
+--- a/drivers/iommu/omap-iommu.c
++++ b/drivers/iommu/omap-iommu.c
+@@ -1175,7 +1175,6 @@ static int omap_iommu_probe(struct platform_device *pdev)
+ 	int err = -ENODEV;
+ 	int irq;
+ 	struct omap_iommu *obj;
+-	struct resource *res;
+ 	struct device_node *of = pdev->dev.of_node;
+ 	struct orphan_dev *orphan_dev, *tmp;
  
--	mem = platform_get_resource(pdev, IORESOURCE_MEM, 0);
--	if (!mem)
--		return -EINVAL;
--
--	if (!devm_request_mem_region(&pdev->dev, mem->start,
--			resource_size(mem), pdev->name))
--		return -EBUSY;
--
- 	vm_dev = devm_kzalloc(&pdev->dev, sizeof(*vm_dev), GFP_KERNEL);
- 	if (!vm_dev)
- 		return -ENOMEM;
-@@ -554,9 +545,9 @@ static int virtio_mmio_probe(struct platform_device *pdev)
- 	INIT_LIST_HEAD(&vm_dev->virtqueues);
- 	spin_lock_init(&vm_dev->lock);
+@@ -1218,8 +1217,7 @@ static int omap_iommu_probe(struct platform_device *pdev)
+ 	spin_lock_init(&obj->iommu_lock);
+ 	spin_lock_init(&obj->page_table_lock);
  
--	vm_dev->base = devm_ioremap(&pdev->dev, mem->start, resource_size(mem));
--	if (vm_dev->base == NULL)
--		return -EFAULT;
-+	vm_dev->base = devm_platform_ioremap_resource(pdev, 0);
-+	if (IS_ERR(vm_dev->base))
-+		return PTR_ERR(vm_dev->base);
+-	res = platform_get_resource(pdev, IORESOURCE_MEM, 0);
+-	obj->regbase = devm_ioremap_resource(obj->dev, res);
++	obj->regbase = devm_platform_ioremap_resource(pdev, 0);
+ 	if (IS_ERR(obj->regbase))
+ 		return PTR_ERR(obj->regbase);
  
- 	/* Check magic value */
- 	magic = readl(vm_dev->base + VIRTIO_MMIO_MAGIC_VALUE);
 -- 
 2.17.1
