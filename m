@@ -1,7 +1,7 @@
 From: Yangtao Li <tiny.windzz@gmail.com>
-Subject: [PATCH 2/6] iommu/exynos: convert to devm_platform_ioremap_resource
-Date: Mon, 23 Dec 2019 18:59:14 +0000
-Message-ID: <20191223185918.9877-3-tiny.windzz@gmail.com>
+Subject: [PATCH 3/6] iommu/qcom: convert to devm_platform_ioremap_resource
+Date: Mon, 23 Dec 2019 18:59:15 +0000
+Message-ID: <20191223185918.9877-4-tiny.windzz@gmail.com>
 References: <20191223185918.9877-1-tiny.windzz@gmail.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
@@ -25,28 +25,30 @@ Use devm_platform_ioremap_resource() to simplify code.
 
 Signed-off-by: Yangtao Li <tiny.windzz@gmail.com>
 ---
- drivers/iommu/exynos-iommu.c | 4 +---
+ drivers/iommu/qcom_iommu.c | 4 +---
  1 file changed, 1 insertion(+), 3 deletions(-)
 
-diff --git a/drivers/iommu/exynos-iommu.c b/drivers/iommu/exynos-iommu.c
-index 186ff5cc975c..42d8407267ef 100644
---- a/drivers/iommu/exynos-iommu.c
-+++ b/drivers/iommu/exynos-iommu.c
-@@ -571,14 +571,12 @@ static int exynos_sysmmu_probe(struct platform_device *pdev)
- 	int irq, ret;
+diff --git a/drivers/iommu/qcom_iommu.c b/drivers/iommu/qcom_iommu.c
+index 52f38292df5b..bf94d4d67da4 100644
+--- a/drivers/iommu/qcom_iommu.c
++++ b/drivers/iommu/qcom_iommu.c
+@@ -709,7 +709,6 @@ static int qcom_iommu_ctx_probe(struct platform_device *pdev)
+ 	struct qcom_iommu_ctx *ctx;
  	struct device *dev = &pdev->dev;
- 	struct sysmmu_drvdata *data;
+ 	struct qcom_iommu_dev *qcom_iommu = dev_get_drvdata(dev->parent);
 -	struct resource *res;
+ 	int ret, irq;
  
- 	data = devm_kzalloc(dev, sizeof(*data), GFP_KERNEL);
- 	if (!data)
- 		return -ENOMEM;
+ 	ctx = devm_kzalloc(dev, sizeof(*ctx), GFP_KERNEL);
+@@ -719,8 +718,7 @@ static int qcom_iommu_ctx_probe(struct platform_device *pdev)
+ 	ctx->dev = dev;
+ 	platform_set_drvdata(pdev, ctx);
  
 -	res = platform_get_resource(pdev, IORESOURCE_MEM, 0);
--	data->sfrbase = devm_ioremap_resource(dev, res);
-+	data->sfrbase = devm_platform_ioremap_resource(pdev, 0);
- 	if (IS_ERR(data->sfrbase))
- 		return PTR_ERR(data->sfrbase);
+-	ctx->base = devm_ioremap_resource(dev, res);
++	ctx->base = devm_platform_ioremap_resource(pdev, 0);
+ 	if (IS_ERR(ctx->base))
+ 		return PTR_ERR(ctx->base);
  
 -- 
 2.17.1
