@@ -1,15 +1,13 @@
-From: Borislav Petkov <bp@alien8.de>
-Subject: Re: [PATCH v10 10/11] x86/paravirt: Adapt assembly for PIE support
-Date: Mon, 23 Dec 2019 18:23:50 +0100
-Message-ID: <20191223172350.GH16710__32894.0281224035$1577122231$gmane$org@zn.tnic>
-References: <20191205000957.112719-1-thgarnie@chromium.org>
- <20191205000957.112719-11-thgarnie@chromium.org>
+From: Yangtao Li <tiny.windzz@gmail.com>
+Subject: [PATCH] virtio-mmio: convert to devm_platform_ioremap_resource
+Date: Mon, 23 Dec 2019 18:59:13 +0000
+Message-ID: <20191223185918.9877-2-tiny.windzz__39188.6430721328$1577127576$gmane$org@gmail.com>
+References: <20191223185918.9877-1-tiny.windzz@gmail.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-Content-Disposition: inline
-In-Reply-To: <20191205000957.112719-11-thgarnie@chromium.org>
+In-Reply-To: <20191223185918.9877-1-tiny.windzz@gmail.com>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
  <mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -19,31 +17,54 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
  <mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Errors-To: virtualization-bounces@lists.linux-foundation.org
 Sender: "Virtualization" <virtualization-bounces@lists.linux-foundation.org>
-To: Thomas Garnier <thgarnie@chromium.org>
-Cc: Juergen Gross <jgross@suse.com>, Thomas Hellstrom <thellstrom@vmware.com>, keescook@chromium.org, kernel-hardening@lists.openwall.com, "VMware,
- Inc." <pv-drivers@vmware.com>, x86@kernel.org, linux-kernel@vger.kernel.org, virtualization@lists.linux-foundation.org, Ingo Molnar <mingo@redhat.com>, kristen@linux.intel.com, "H. Peter Anvin" <hpa@zytor.com>, Thomas Gleixner <tglx@linutronix.de>
+To: m.szyprowski@samsung.com, joro@8bytes.org, kgene@kernel.org, krzk@kernel.org, matthias.bgg@gmail.com, agross@kernel.org, bjorn.andersson@linaro.org, robdclark@gmail.com, heiko@sntech.de, mst@redhat.com, jasowang@redhat.com, iommu@lists.linux-foundation.org, linux-arm-kernel@lists.infradead.org, linux-samsung-soc@vger.kernel.org, linux-kernel@vger.kernel.org, linux-mediatek@lists.infradead.org, linux-arm-msm@vger.kernel.org, linux-rockchip@lists.infradead.org, virtualization@lists.linux-foundation.org
+Cc: Yangtao Li <tiny.windzz@gmail.com>
 List-Id: virtualization@lists.linuxfoundation.org
 
-On Wed, Dec 04, 2019 at 04:09:47PM -0800, Thomas Garnier wrote:
-> If PIE is enabled, switch the paravirt assembly constraints to be
-> compatible. The %c/i constrains generate smaller code so is kept by
-> default.
-> 
-> Position Independent Executable (PIE) support will allow to extend the
-> KASLR randomization range below 0xffffffff80000000.
-> 
-> Signed-off-by: Thomas Garnier <thgarnie@chromium.org>
-> Acked-by: Juergen Gross <jgross@suse.com>
-> ---
->  arch/x86/include/asm/paravirt_types.h | 32 +++++++++++++++++++++++----
->  1 file changed, 28 insertions(+), 4 deletions(-)
+Use devm_platform_ioremap_resource() to simplify code, which
+contains platform_get_resource, devm_request_mem_region and
+devm_ioremap.
 
-More missed feedback:
+Signed-off-by: Yangtao Li <tiny.windzz@gmail.com>
+---
+ drivers/virtio/virtio_mmio.c | 15 +++------------
+ 1 file changed, 3 insertions(+), 12 deletions(-)
 
-https://lkml.kernel.org/r/CAJcbSZG-JhBC9b1JMv1zq2r5uRQipYLtkNjM67sd7=eqy_iOaA@mail.gmail.com
-
+diff --git a/drivers/virtio/virtio_mmio.c b/drivers/virtio/virtio_mmio.c
+index e09edb5c5e06..97d5725fd9a2 100644
+--- a/drivers/virtio/virtio_mmio.c
++++ b/drivers/virtio/virtio_mmio.c
+@@ -531,18 +531,9 @@ static void virtio_mmio_release_dev(struct device *_d)
+ static int virtio_mmio_probe(struct platform_device *pdev)
+ {
+ 	struct virtio_mmio_device *vm_dev;
+-	struct resource *mem;
+ 	unsigned long magic;
+ 	int rc;
+ 
+-	mem = platform_get_resource(pdev, IORESOURCE_MEM, 0);
+-	if (!mem)
+-		return -EINVAL;
+-
+-	if (!devm_request_mem_region(&pdev->dev, mem->start,
+-			resource_size(mem), pdev->name))
+-		return -EBUSY;
+-
+ 	vm_dev = devm_kzalloc(&pdev->dev, sizeof(*vm_dev), GFP_KERNEL);
+ 	if (!vm_dev)
+ 		return -ENOMEM;
+@@ -554,9 +545,9 @@ static int virtio_mmio_probe(struct platform_device *pdev)
+ 	INIT_LIST_HEAD(&vm_dev->virtqueues);
+ 	spin_lock_init(&vm_dev->lock);
+ 
+-	vm_dev->base = devm_ioremap(&pdev->dev, mem->start, resource_size(mem));
+-	if (vm_dev->base == NULL)
+-		return -EFAULT;
++	vm_dev->base = devm_platform_ioremap_resource(pdev, 0);
++	if (IS_ERR(vm_dev->base))
++		return PTR_ERR(vm_dev->base);
+ 
+ 	/* Check magic value */
+ 	magic = readl(vm_dev->base + VIRTIO_MMIO_MAGIC_VALUE);
 -- 
-Regards/Gruss,
-    Boris.
-
-https://people.kernel.org/tglx/notes-about-netiquette
+2.17.1
