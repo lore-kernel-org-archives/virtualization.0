@@ -1,15 +1,18 @@
-From: Willem de Bruijn <willemdebruijn.kernel@gmail.com>
+From: Jason Wang <jasowang@redhat.com>
 Subject: Re: [PATCH net] virtio_net: CTRL_GUEST_OFFLOADS depends on CTRL_VQ
-Date: Mon, 23 Dec 2019 15:12:20 -0500
-Message-ID: <CA+FuTScwwajN2ny2w8EBkBQd191Eb1ZsrRhbh3=5eQervArnEA__41367.162861728$1577131990$gmane$org@mail.gmail.com>
+Date: Tue, 24 Dec 2019 10:49:13 +0800
+Message-ID: <ea5131fc-cda6-c773-73fc-c862be6ecb7b__21047.7764181391$1577155788$gmane$org@redhat.com>
 References: <20191223140322.20013-1-mst@redhat.com>
  <CANDihLHPk5khpv-f-M+qhkzgTkygAts38GGb-HChg-VL2bo+Uw@mail.gmail.com>
  <CA+FuTSfq5v3-0VYmTG7YFFUqT8uG53eXXhqc8WvVvMbp3s0nvA@mail.gmail.com>
+ <CA+FuTScwwajN2ny2w8EBkBQd191Eb1ZsrRhbh3=5eQervArnEA@mail.gmail.com>
+ <CANDihLFv+DJYOD1m_Z3CKuxoXG-z4zPy_Tc2eoggq1KRo+GeWw@mail.gmail.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset="utf-8"; Format="flowed"
+Content-Transfer-Encoding: base64
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <CA+FuTSfq5v3-0VYmTG7YFFUqT8uG53eXXhqc8WvVvMbp3s0nvA@mail.gmail.com>
+In-Reply-To: <CANDihLFv+DJYOD1m_Z3CKuxoXG-z4zPy_Tc2eoggq1KRo+GeWw@mail.gmail.com>
+Content-Language: en-US
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
  <mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -19,76 +22,90 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
  <mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Errors-To: virtualization-bounces@lists.linux-foundation.org
 Sender: "Virtualization" <virtualization-bounces@lists.linux-foundation.org>
-To: Willem de Bruijn <willemdebruijn.kernel@gmail.com>
-Cc: Alistair Delva <adelva@google.com>, "Michael S. Tsirkin" <mst@redhat.com>, Network Development <netdev@vger.kernel.org>, LKML <linux-kernel@vger.kernel.org>, virtualization@lists.linux-foundation.org, "David S. Miller" <davem@davemloft.net>
+To: Alistair Delva <adelva@google.com>, Willem de Bruijn <willemdebruijn.kernel@gmail.com>
+Cc: Network Development <netdev@vger.kernel.org>, "David S. Miller" <davem@davemloft.net>, virtualization@lists.linux-foundation.org, LKML <linux-kernel@vger.kernel.org>, "Michael S. Tsirkin" <mst@redhat.com>
 List-Id: virtualization@lists.linuxfoundation.org
 
-On Mon, Dec 23, 2019 at 2:56 PM Willem de Bruijn
-<willemdebruijn.kernel@gmail.com> wrote:
->
-> 00fffe0ff0 DR7: 0000000000000400
-> > > Call Trace:
-> > >  ? preempt_count_add+0x58/0xb0
-> > >  ? _raw_spin_lock_irqsave+0x36/0x70
-> > >  ? _raw_spin_unlock_irqrestore+0x1a/0x40
-> > >  ? __wake_up+0x70/0x190
-> > >  virtnet_set_features+0x90/0xf0 [virtio_net]
-> > >  __netdev_update_features+0x271/0x980
-> > >  ? nlmsg_notify+0x5b/0xa0
-> > >  dev_disable_lro+0x2b/0x190
-> > >  ? inet_netconf_notify_devconf+0xe2/0x120
-> > >  devinet_sysctl_forward+0x176/0x1e0
-> > >  proc_sys_call_handler+0x1f0/0x250
-> > >  proc_sys_write+0xf/0x20
-> > >  __vfs_write+0x3e/0x190
-> > >  ? __sb_start_write+0x6d/0xd0
-> > >  vfs_write+0xd3/0x190
-> > >  ksys_write+0x68/0xd0
-> > >  __ia32_sys_write+0x14/0x20
-> > >  do_fast_syscall_32+0x86/0xe0
-> > >  entry_SYSENTER_compat+0x7c/0x8e
-> > >
-> > > A similar crash will likely trigger when enabling XDP.
-> > >
-> > > Reported-by: Alistair Delva <adelva@google.com>
-> > > Reported-by: Willem de Bruijn <willemdebruijn.kernel@gmail.com>
-> > > Fixes: 3f93522ffab2 ("virtio-net: switch off offloads on demand if possible on XDP set")
-> > > Signed-off-by: Michael S. Tsirkin <mst@redhat.com>
-> > > ---
-> > >
-> > > Lightly tested.
-> > >
-> > > Alistair, could you please test and confirm that this resolves the
-> > > crash for you?
-> >
-> > This patch doesn't work. The reason is that NETIF_F_LRO is also turned
-> > on by TSO4/TSO6, which your patch didn't check for. So it ends up
-> > going through the same path and crashing in the same way.
-> >
-> >         if (virtio_has_feature(vdev, VIRTIO_NET_F_GUEST_TSO4) ||
-> >             virtio_has_feature(vdev, VIRTIO_NET_F_GUEST_TSO6))
-> >                 dev->features |= NETIF_F_LRO;
-> >
-> > It sounds like this patch is fixing something slightly differently to
-> > my patch fixed. virtnet_set_features() doesn't care about
-> > GUEST_OFFLOADS, it only tests against NETIF_F_LRO. Even if "offloads"
-> > is zero, it will call virtnet_set_guest_offloads(), which triggers the
-> > crash.
->
->
-> Interesting. It's surprising that it is trying to configure a flag
-> that is not configurable, i.e., absent from dev->hw_features
-> after Michael's change.
->
-> > So either we need to ensure NETIF_F_LRO is never set, or
->
-> LRO might be available, just not configurable. Indeed this was what I
-> observed in the past.
-
-dev_disable_lro expects that NETIF_F_LRO is always configurable. Which
-I guess is a reasonable assumption, just not necessarily the case in
-virtio_net.
-
-So I think we need both patches. Correctly mark the feature as fixed
-by removing from dev->hw_features and also ignore the request from
-dev_disable_lro, which does not check for this.
+Ck9uIDIwMTkvMTIvMjQg5LiK5Y2INDoyMSwgQWxpc3RhaXIgRGVsdmEgd3JvdGU6Cj4gT24gTW9u
+LCBEZWMgMjMsIDIwMTkgYXQgMTI6MTIgUE0gV2lsbGVtIGRlIEJydWlqbgo+IDx3aWxsZW1kZWJy
+dWlqbi5rZXJuZWxAZ21haWwuY29tPiB3cm90ZToKPj4gT24gTW9uLCBEZWMgMjMsIDIwMTkgYXQg
+Mjo1NiBQTSBXaWxsZW0gZGUgQnJ1aWpuCj4+IDx3aWxsZW1kZWJydWlqbi5rZXJuZWxAZ21haWwu
+Y29tPiB3cm90ZToKPj4+IDAwZmZmZTBmZjAgRFI3OiAwMDAwMDAwMDAwMDAwNDAwCj4+Pj4+IENh
+bGwgVHJhY2U6Cj4+Pj4+ICAgPyBwcmVlbXB0X2NvdW50X2FkZCsweDU4LzB4YjAKPj4+Pj4gICA/
+IF9yYXdfc3Bpbl9sb2NrX2lycXNhdmUrMHgzNi8weDcwCj4+Pj4+ICAgPyBfcmF3X3NwaW5fdW5s
+b2NrX2lycXJlc3RvcmUrMHgxYS8weDQwCj4+Pj4+ICAgPyBfX3dha2VfdXArMHg3MC8weDE5MAo+
+Pj4+PiAgIHZpcnRuZXRfc2V0X2ZlYXR1cmVzKzB4OTAvMHhmMCBbdmlydGlvX25ldF0KPj4+Pj4g
+ICBfX25ldGRldl91cGRhdGVfZmVhdHVyZXMrMHgyNzEvMHg5ODAKPj4+Pj4gICA/IG5sbXNnX25v
+dGlmeSsweDViLzB4YTAKPj4+Pj4gICBkZXZfZGlzYWJsZV9scm8rMHgyYi8weDE5MAo+Pj4+PiAg
+ID8gaW5ldF9uZXRjb25mX25vdGlmeV9kZXZjb25mKzB4ZTIvMHgxMjAKPj4+Pj4gICBkZXZpbmV0
+X3N5c2N0bF9mb3J3YXJkKzB4MTc2LzB4MWUwCj4+Pj4+ICAgcHJvY19zeXNfY2FsbF9oYW5kbGVy
+KzB4MWYwLzB4MjUwCj4+Pj4+ICAgcHJvY19zeXNfd3JpdGUrMHhmLzB4MjAKPj4+Pj4gICBfX3Zm
+c193cml0ZSsweDNlLzB4MTkwCj4+Pj4+ICAgPyBfX3NiX3N0YXJ0X3dyaXRlKzB4NmQvMHhkMAo+
+Pj4+PiAgIHZmc193cml0ZSsweGQzLzB4MTkwCj4+Pj4+ICAga3N5c193cml0ZSsweDY4LzB4ZDAK
+Pj4+Pj4gICBfX2lhMzJfc3lzX3dyaXRlKzB4MTQvMHgyMAo+Pj4+PiAgIGRvX2Zhc3Rfc3lzY2Fs
+bF8zMisweDg2LzB4ZTAKPj4+Pj4gICBlbnRyeV9TWVNFTlRFUl9jb21wYXQrMHg3Yy8weDhlCj4+
+Pj4+Cj4+Pj4+IEEgc2ltaWxhciBjcmFzaCB3aWxsIGxpa2VseSB0cmlnZ2VyIHdoZW4gZW5hYmxp
+bmcgWERQLgo+Pj4+Pgo+Pj4+PiBSZXBvcnRlZC1ieTogQWxpc3RhaXIgRGVsdmEgPGFkZWx2YUBn
+b29nbGUuY29tPgo+Pj4+PiBSZXBvcnRlZC1ieTogV2lsbGVtIGRlIEJydWlqbiA8d2lsbGVtZGVi
+cnVpam4ua2VybmVsQGdtYWlsLmNvbT4KPj4+Pj4gRml4ZXM6IDNmOTM1MjJmZmFiMiAoInZpcnRp
+by1uZXQ6IHN3aXRjaCBvZmYgb2ZmbG9hZHMgb24gZGVtYW5kIGlmIHBvc3NpYmxlIG9uIFhEUCBz
+ZXQiKQo+Pj4+PiBTaWduZWQtb2ZmLWJ5OiBNaWNoYWVsIFMuIFRzaXJraW4gPG1zdEByZWRoYXQu
+Y29tPgo+Pj4+PiAtLS0KPj4+Pj4KPj4+Pj4gTGlnaHRseSB0ZXN0ZWQuCj4+Pj4+Cj4+Pj4+IEFs
+aXN0YWlyLCBjb3VsZCB5b3UgcGxlYXNlIHRlc3QgYW5kIGNvbmZpcm0gdGhhdCB0aGlzIHJlc29s
+dmVzIHRoZQo+Pj4+PiBjcmFzaCBmb3IgeW91Pwo+Pj4+IFRoaXMgcGF0Y2ggZG9lc24ndCB3b3Jr
+LiBUaGUgcmVhc29uIGlzIHRoYXQgTkVUSUZfRl9MUk8gaXMgYWxzbyB0dXJuZWQKPj4+PiBvbiBi
+eSBUU080L1RTTzYsIHdoaWNoIHlvdXIgcGF0Y2ggZGlkbid0IGNoZWNrIGZvci4gU28gaXQgZW5k
+cyB1cAo+Pj4+IGdvaW5nIHRocm91Z2ggdGhlIHNhbWUgcGF0aCBhbmQgY3Jhc2hpbmcgaW4gdGhl
+IHNhbWUgd2F5Lgo+Pj4+Cj4+Pj4gICAgICAgICAgaWYgKHZpcnRpb19oYXNfZmVhdHVyZSh2ZGV2
+LCBWSVJUSU9fTkVUX0ZfR1VFU1RfVFNPNCkgfHwKPj4+PiAgICAgICAgICAgICAgdmlydGlvX2hh
+c19mZWF0dXJlKHZkZXYsIFZJUlRJT19ORVRfRl9HVUVTVF9UU082KSkKPj4+PiAgICAgICAgICAg
+ICAgICAgIGRldi0+ZmVhdHVyZXMgfD0gTkVUSUZfRl9MUk87Cj4+Pj4KPj4+PiBJdCBzb3VuZHMg
+bGlrZSB0aGlzIHBhdGNoIGlzIGZpeGluZyBzb21ldGhpbmcgc2xpZ2h0bHkgZGlmZmVyZW50bHkg
+dG8KPj4+PiBteSBwYXRjaCBmaXhlZC4gdmlydG5ldF9zZXRfZmVhdHVyZXMoKSBkb2Vzbid0IGNh
+cmUgYWJvdXQKPj4+PiBHVUVTVF9PRkZMT0FEUywgaXQgb25seSB0ZXN0cyBhZ2FpbnN0IE5FVElG
+X0ZfTFJPLiBFdmVuIGlmICJvZmZsb2FkcyIKPj4+PiBpcyB6ZXJvLCBpdCB3aWxsIGNhbGwgdmly
+dG5ldF9zZXRfZ3Vlc3Rfb2ZmbG9hZHMoKSwgd2hpY2ggdHJpZ2dlcnMgdGhlCj4+Pj4gY3Jhc2gu
+Cj4+Pgo+Pj4gSW50ZXJlc3RpbmcuIEl0J3Mgc3VycHJpc2luZyB0aGF0IGl0IGlzIHRyeWluZyB0
+byBjb25maWd1cmUgYSBmbGFnCj4+PiB0aGF0IGlzIG5vdCBjb25maWd1cmFibGUsIGkuZS4sIGFi
+c2VudCBmcm9tIGRldi0+aHdfZmVhdHVyZXMKPj4+IGFmdGVyIE1pY2hhZWwncyBjaGFuZ2UuCj4+
+Pgo+Pj4+IFNvIGVpdGhlciB3ZSBuZWVkIHRvIGVuc3VyZSBORVRJRl9GX0xSTyBpcyBuZXZlciBz
+ZXQsIG9yCj4+PiBMUk8gbWlnaHQgYmUgYXZhaWxhYmxlLCBqdXN0IG5vdCBjb25maWd1cmFibGUu
+IEluZGVlZCB0aGlzIHdhcyB3aGF0IEkKPj4+IG9ic2VydmVkIGluIHRoZSBwYXN0Lgo+PiBkZXZf
+ZGlzYWJsZV9scm8gZXhwZWN0cyB0aGF0IE5FVElGX0ZfTFJPIGlzIGFsd2F5cyBjb25maWd1cmFi
+bGUuIFdoaWNoCj4+IEkgZ3Vlc3MgaXMgYSByZWFzb25hYmxlIGFzc3VtcHRpb24sIGp1c3Qgbm90
+IG5lY2Vzc2FyaWx5IHRoZSBjYXNlIGluCj4+IHZpcnRpb19uZXQuCj4+Cj4+IFNvIEkgdGhpbmsg
+d2UgbmVlZCBib3RoIHBhdGNoZXMuIENvcnJlY3RseSBtYXJrIHRoZSBmZWF0dXJlIGFzIGZpeGVk
+Cj4+IGJ5IHJlbW92aW5nIGZyb20gZGV2LT5od19mZWF0dXJlcyBhbmQgYWxzbyBpZ25vcmUgdGhl
+IHJlcXVlc3QgZnJvbQo+PiBkZXZfZGlzYWJsZV9scm8sIHdoaWNoIGRvZXMgbm90IGNoZWNrIGZv
+ciB0aGlzLgo+IFNvbWV0aGluZyBsaWtlIHRoaXMgbWF5YmU6Cj4KPiBkaWZmIC0tZ2l0IGEvZHJp
+dmVycy9uZXQvdmlydGlvX25ldC5jIGIvZHJpdmVycy9uZXQvdmlydGlvX25ldC5jCj4gaW5kZXgg
+NGQ3ZDU0MzRjYzVkLi4wNTU2ZjQyYjBmYjUgMTAwNjQ0Cj4gLS0tIGEvZHJpdmVycy9uZXQvdmly
+dGlvX25ldC5jCj4gKysrIGIvZHJpdmVycy9uZXQvdmlydGlvX25ldC5jCj4gQEAgLTI1NjAsNiAr
+MjU2MCw5IEBAIHN0YXRpYyBpbnQgdmlydG5ldF9zZXRfZmVhdHVyZXMoc3RydWN0IG5ldF9kZXZp
+Y2UgKmRldiwKPiAgICAgICAgICB1NjQgb2ZmbG9hZHM7Cj4gICAgICAgICAgaW50IGVycjsKPgo+
+ICsgICAgICAgaWYgKCF2aXJ0aW9faGFzX2ZlYXR1cmUodmktPnZkZXYsIFZJUlRJT19ORVRfRl9D
+VFJMX0dVRVNUX09GRkxPQURTKSkKPiArICAgICAgICAgICAgICAgcmV0dXJuIDA7Cj4gKwo+ICAg
+ICAgICAgIGlmICgoZGV2LT5mZWF0dXJlcyBeIGZlYXR1cmVzKSAmIE5FVElGX0ZfTFJPKSB7Cj4g
+ICAgICAgICAgICAgICAgICBpZiAodmktPnhkcF9xdWV1ZV9wYWlycykKPiAgICAgICAgICAgICAg
+ICAgICAgICAgICAgcmV0dXJuIC1FQlVTWTsKPiBAQCAtMjk3MSw2ICsyOTc0LDE1IEBAIHN0YXRp
+YyBpbnQgdmlydG5ldF92YWxpZGF0ZShzdHJ1Y3QgdmlydGlvX2RldmljZSAqdmRldikKPiAgICAg
+ICAgICBpZiAoIXZpcnRuZXRfdmFsaWRhdGVfZmVhdHVyZXModmRldikpCj4gICAgICAgICAgICAg
+ICAgICByZXR1cm4gLUVJTlZBTDsKPgo+ICsgICAgICAgLyogVklSVElPX05FVF9GX0NUUkxfR1VF
+U1RfT0ZGTE9BRFMgZG9lcyBub3Qgd29yayB3aXRob3V0Cj4gKyAgICAgICAgKiBWSVJUSU9fTkVU
+X0ZfQ1RSTF9WUS4gSG93ZXZlciB0aGUgdmlydGlvIHNwZWMgZG9lcyBub3QKPiArICAgICAgICAq
+IHNwZWNpZnkgdGhhdCBWSVJUSU9fTkVUX0ZfQ1RSTF9HVUVTVF9PRkZMT0FEUyBkZXBlbmRzCj4g
+KyAgICAgICAgKiBvbiBWSVJUSU9fTkVUX0ZfQ1RSTF9WUSBzbyBkZXZpY2VzIGNhbiBzZXQgdGhl
+IGxhdGVyIGJ1dAo+ICsgICAgICAgICogbm90IHRoZSBmb3JtZXIuCj4gKyAgICAgICAgKi8KPiAr
+ICAgICAgIGlmICghdmlydGlvX2hhc19mZWF0dXJlKHZkZXYsIFZJUlRJT19ORVRfRl9DVFJMX1ZR
+KSkKPiArICAgICAgICAgICAgICAgX192aXJ0aW9fY2xlYXJfYml0KHZkZXYsIFZJUlRJT19ORVRf
+Rl9DVFJMX0dVRVNUX09GRkxPQURTKTsKPiArCj4gICAgICAgICAgaWYgKHZpcnRpb19oYXNfZmVh
+dHVyZSh2ZGV2LCBWSVJUSU9fTkVUX0ZfTVRVKSkgewo+ICAgICAgICAgICAgICAgICAgaW50IG10
+dSA9IHZpcnRpb19jcmVhZDE2KHZkZXYsCj4gICAgICAgICAgICAgICAgICAgICAgICAgICAgICAg
+ICAgICAgICAgICAgb2Zmc2V0b2Yoc3RydWN0IHZpcnRpb19uZXRfY29uZmlnLAo+CgpXZSBjaGVj
+ayBmZWF0dXJlIGRlcGVuZGVuY3kgYW5kIGZhaWwgdGhlIHByb2JlIGluIAp2aXJ0bmV0X3ZhbGlk
+YXRlX2ZlYXR1cmVzKCkuCgpJcyBpdCBtb3JlIHN0cmFpZ2h0Zm9yd2FyZCB0byBmYWlsIHRoZSBw
+cm9iZSB0aGVyZSB3aGVuIApDVFJMX0dVRVNUX09GRkxPQURTIHdhcyBzZXQgYnV0IENUUkxfVlEg
+d2Fzbid0PwoKVGhhbmtzCgpfX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19f
+X19fX19fXwpWaXJ0dWFsaXphdGlvbiBtYWlsaW5nIGxpc3QKVmlydHVhbGl6YXRpb25AbGlzdHMu
+bGludXgtZm91bmRhdGlvbi5vcmcKaHR0cHM6Ly9saXN0cy5saW51eGZvdW5kYXRpb24ub3JnL21h
+aWxtYW4vbGlzdGluZm8vdmlydHVhbGl6YXRpb24=
