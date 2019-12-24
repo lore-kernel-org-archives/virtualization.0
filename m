@@ -1,13 +1,16 @@
-From: David Hildenbrand <david@redhat.com>
-Subject: Re: [PATCH RFC v4 00/13] virtio-mem: paravirtualized memory
-Date: Tue, 24 Dec 2019 10:28:20 +0100
-Message-ID: <2828152B-D0EB-4802-A304-4A90CA5C4B6C__2361.27370023809$1577179720$gmane$org@redhat.com>
-References: <91ED8152-61FC-4E87-9F7B-44CD05C77279@linux.alibaba.com>
-Mime-Version: 1.0 (1.0)
-Content-Type: text/plain; charset="utf-8"
-Content-Transfer-Encoding: base64
+From: Borislav Petkov <bp@alien8.de>
+Subject: Re: [PATCH v10 10/11] x86/paravirt: Adapt assembly for PIE support
+Date: Tue, 24 Dec 2019 11:04:23 +0100
+Message-ID: <20191224100423.GC21017__15828.4032180504$1577181892$gmane$org@zn.tnic>
+References: <20191205000957.112719-1-thgarnie@chromium.org>
+ <20191205000957.112719-11-thgarnie@chromium.org>
+ <20191223172350.GH16710@zn.tnic>
+Mime-Version: 1.0
+Content-Type: text/plain; charset="us-ascii"
+Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <91ED8152-61FC-4E87-9F7B-44CD05C77279@linux.alibaba.com>
+Content-Disposition: inline
+In-Reply-To: <20191223172350.GH16710@zn.tnic>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
  <mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -17,37 +20,37 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
  <mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Errors-To: virtualization-bounces@lists.linux-foundation.org
 Sender: "Virtualization" <virtualization-bounces@lists.linux-foundation.org>
-To: teawater <teawaterz@linux.alibaba.com>
-Cc: Oscar Salvador <osalvador@suse.com>, Michal Hocko <mhocko@suse.com>, Robert Bradford <robert.bradford@intel.com>, Pingfan Liu <kernelfans@gmail.com>, Luiz Capitulino <lcapitulino@redhat.com>, Linux MM <linux-mm@kvack.org>, Alexander Potapenko <glider@google.com>, Alexander Duyck <alexander.h.duyck@linux.intel.com>, virtio-dev@lists.oasis-open.org, kvm@vger.kernel.org, "Michael S . Tsirkin" <mst@redhat.com>, Mike Rapoport <rppt@linux.ibm.com>, Michal Hocko <mhocko@kernel.org>, Wei Yang <richard.weiyang@gmail.com>, Anthony Yznaga <anthony.yznaga@oracle.com>, Dave Young <dyoung@redhat.com>, Len Brown <lenb@kernel.org>, Pavel Tatashin <pavel.tatashin@microsoft.com>, Pavel Tatashin <pasha.tatashin@soleen.com>, Anshuman Khandual <anshuman.khandual@arm.com>, Qian Cai <cai@lca.pw>, Alexander Viro <viro@zeniv.linux.org.uk>, Stefan Hajnoczi <stefanha@redhat.com>, Samuel Ortiz <sam>
+To: Thomas Garnier <thgarnie@chromium.org>
+Cc: Juergen Gross <jgross@suse.com>, Thomas Hellstrom <thellstrom@vmware.com>, keescook@chromium.org, kernel-hardening@lists.openwall.com, "VMware,
+ Inc." <pv-drivers@vmware.com>, x86@kernel.org, linux-kernel@vger.kernel.org, virtualization@lists.linux-foundation.org, Ingo Molnar <mingo@redhat.com>, kristen@linux.intel.com, "H. Peter Anvin" <hpa@zytor.com>, Thomas Gleixner <tglx@linutronix.de>
 List-Id: virtualization@lists.linuxfoundation.org
 
-Cgo+IEFtIDI0LjEyLjIwMTkgdW0gMDg6MDQgc2NocmllYiB0ZWF3YXRlciA8dGVhd2F0ZXJ6QGxp
-bnV4LmFsaWJhYmEuY29tPjoKPiAKPiDvu79IaSBEYXZpZCwKPiAKPiBUaGFua3MgZm9yIHlvdXIg
-d29yay4KPiAKPiBJIEdvdCBmb2xsb3dpbmcgYnVpbGQgZmFpbCBpZiBYODZfNjRfQUNQSV9OVU1B
-IGlzIG4gd2l0aCByZmMzIGFuZCByZmM0Ogo+IG1ha2UgLWo4IGJ6SW1hZ2UKPiAgR0VOICAgICBN
-YWtlZmlsZQo+ICBERVNDRU5EICBvYmp0b29sCj4gIENBTEwgICAgL2hvbWUvdGVhd2F0ZXIva2Vy
-bmVsL2xpbnV4LXVwc3RyZWFtMy9zY3JpcHRzL2F0b21pYy9jaGVjay1hdG9taWNzLnNoCj4gIENB
-TEwgICAgL2hvbWUvdGVhd2F0ZXIva2VybmVsL2xpbnV4LXVwc3RyZWFtMy9zY3JpcHRzL2NoZWNr
-c3lzY2FsbHMuc2gKPiAgQ0hLICAgICBpbmNsdWRlL2dlbmVyYXRlZC9jb21waWxlLmgKPiAgQ0Mg
-ICAgICBkcml2ZXJzL3ZpcnRpby92aXJ0aW9fbWVtLm8KPiAvaG9tZS90ZWF3YXRlci9rZXJuZWwv
-bGludXgtdXBzdHJlYW0zL2RyaXZlcnMvdmlydGlvL3ZpcnRpb19tZW0uYzogSW4gZnVuY3Rpb24g
-4oCYdmlydGlvX21lbV90cmFuc2xhdGVfbm9kZV9pZOKAmToKPiAvaG9tZS90ZWF3YXRlci9rZXJu
-ZWwvbGludXgtdXBzdHJlYW0zL2RyaXZlcnMvdmlydGlvL3ZpcnRpb19tZW0uYzo0Nzg6MTA6IGVy
-cm9yOiBpbXBsaWNpdCBkZWNsYXJhdGlvbiBvZiBmdW5jdGlvbiDigJhweG1fdG9fbm9kZeKAmSBb
-LVdlcnJvcj1pbXBsaWNpdC1mdW5jdGlvbi1kZWNsYXJhdGlvbl0KPiAgIG5vZGUgPSBweG1fdG9f
-bm9kZShub2RlX2lkKTsKPiAgICAgICAgICBefn5+fn5+fn5+fgo+IGNjMTogc29tZSB3YXJuaW5n
-cyBiZWluZyB0cmVhdGVkIGFzIGVycm9ycwo+IC9ob21lL3RlYXdhdGVyL2tlcm5lbC9saW51eC11
-cHN0cmVhbTMvc2NyaXB0cy9NYWtlZmlsZS5idWlsZDoyNjU6IHJlY2lwZSBmb3IgdGFyZ2V0ICdk
-cml2ZXJzL3ZpcnRpby92aXJ0aW9fbWVtLm8nIGZhaWxlZAo+IG1ha2VbM106ICoqKiBbZHJpdmVy
-cy92aXJ0aW8vdmlydGlvX21lbS5vXSBFcnJvciAxCj4gL2hvbWUvdGVhd2F0ZXIva2VybmVsL2xp
-bnV4LXVwc3RyZWFtMy9zY3JpcHRzL01ha2VmaWxlLmJ1aWxkOjUwMzogcmVjaXBlIGZvciB0YXJn
-ZXQgJ2RyaXZlcnMvdmlydGlvJyBmYWlsZWQKPiBtYWtlWzJdOiAqKiogW2RyaXZlcnMvdmlydGlv
-XSBFcnJvciAyCj4gL2hvbWUvdGVhd2F0ZXIva2VybmVsL2xpbnV4LXVwc3RyZWFtMy9NYWtlZmls
-ZToxNjQ5OiByZWNpcGUgZm9yIHRhcmdldCAnZHJpdmVycycgZmFpbGVkCj4gbWFrZVsxXTogKioq
-IFtkcml2ZXJzXSBFcnJvciAyCj4gL2hvbWUvdGVhd2F0ZXIva2VybmVsL2xpbnV4LXVwc3RyZWFt
-My9NYWtlZmlsZToxNzk6IHJlY2lwZSBmb3IgdGFyZ2V0ICdzdWItbWFrZScgZmFpbGVkCj4gbWFr
-ZTogKioqIFtzdWItbWFrZV0gRXJyb3IgMgo+IAoKVGhhbmtzIEh1aSwKClNvIGl0IGhhcyB0byBi
-ZSB3cmFwcGVkIGluIGFuIGlmZGVmLCB0aGFua3MhCgpDaGVlcnMhCgpfX19fX19fX19fX19fX19f
-X19fX19fX19fX19fX19fX19fX19fX19fX19fX19fXwpWaXJ0dWFsaXphdGlvbiBtYWlsaW5nIGxp
-c3QKVmlydHVhbGl6YXRpb25AbGlzdHMubGludXgtZm91bmRhdGlvbi5vcmcKaHR0cHM6Ly9saXN0
-cy5saW51eGZvdW5kYXRpb24ub3JnL21haWxtYW4vbGlzdGluZm8vdmlydHVhbGl6YXRpb24=
+On Mon, Dec 23, 2019 at 06:23:50PM +0100, Borislav Petkov wrote:
+> On Wed, Dec 04, 2019 at 04:09:47PM -0800, Thomas Garnier wrote:
+> > If PIE is enabled, switch the paravirt assembly constraints to be
+> > compatible. The %c/i constrains generate smaller code so is kept by
+> > default.
+> > 
+> > Position Independent Executable (PIE) support will allow to extend the
+> > KASLR randomization range below 0xffffffff80000000.
+> > 
+> > Signed-off-by: Thomas Garnier <thgarnie@chromium.org>
+> > Acked-by: Juergen Gross <jgross@suse.com>
+> > ---
+> >  arch/x86/include/asm/paravirt_types.h | 32 +++++++++++++++++++++++----
+> >  1 file changed, 28 insertions(+), 4 deletions(-)
+> 
+> More missed feedback:
+> 
+> https://lkml.kernel.org/r/CAJcbSZG-JhBC9b1JMv1zq2r5uRQipYLtkNjM67sd7=eqy_iOaA@mail.gmail.com
+
+Whoops, it is in the comment above PARAVIRT_CALL_POST. I must've been
+blind yesterday. Forget what I said and sorry.
+
+Thx.
+
+-- 
+Regards/Gruss,
+    Boris.
+
+https://people.kernel.org/tglx/notes-about-netiquette
