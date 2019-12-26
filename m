@@ -1,7 +1,7 @@
 From: Zengruan Ye <yezengruan@huawei.com>
-Subject: [PATCH v2 4/6] KVM: arm64: Provide VCPU attributes for PV lock
-Date: Thu, 26 Dec 2019 21:58:31 +0800
-Message-ID: <20191226135833.1052-5-yezengruan@huawei.com>
+Subject: [PATCH v2 6/6] KVM: arm64: Support the VCPU preemption check
+Date: Thu, 26 Dec 2019 21:58:33 +0800
+Message-ID: <20191226135833.1052-7-yezengruan__2414.95878888003$1577368770$gmane$org@huawei.com>
 References: <20191226135833.1052-1-yezengruan@huawei.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
@@ -21,170 +21,224 @@ To: linux-kernel@vger.kernel.org, linux-arm-kernel@lists.infradead.org, kvmarm@l
 Cc: mark.rutland@arm.com, suzuki.poulose@arm.com, maz@kernel.org, daniel.lezcano@linaro.org, linux@armlinux.org.uk, steven.price@arm.com, yezengruan@huawei.com, james.morse@arm.com, catalin.marinas@arm.com, will@kernel.org, julien.thierry.kdev@gmail.com
 List-Id: virtualization@lists.linuxfoundation.org
 
-Allow user space to inform the KVM host where in the physical memory
-map the paravirtualized lock structures should be located.
+Support the vcpu_is_preempted() functionality under KVM/arm64. This will
+enhance lock performance on overcommitted hosts (more runnable VCPUs
+than physical CPUs in the system) as doing busy waits for preempted
+VCPUs will hurt system performance far worse than early yielding.
 
-User space can set an attribute on the VCPU providing the IPA base
-address of the PV lock structure for that VCPU. This must be
-repeated for every VCPU in the VM.
+unix benchmark result:
+  host:  kernel 5.5.0-rc1, HiSilicon Kunpeng920, 8 CPUs
+  guest: kernel 5.5.0-rc1, 16 VCPUs
 
-The address is given in terms of the physical address visible to
-the guest and must be 64 byte aligned. The guest will discover the
-address via a hypercall.
+               test-case                |    after-patch    |   before-patch
+----------------------------------------+-------------------+------------------
+ Dhrystone 2 using register variables   | 334600751.0 lps   | 335319028.3 lps
+ Double-Precision Whetstone             |     32856.1 MWIPS |     32849.6 MWIPS
+ Execl Throughput                       |      3662.1 lps   |      2718.0 lps
+ File Copy 1024 bufsize 2000 maxblocks  |    432906.4 KBps  |    158011.8 KBps
+ File Copy 256 bufsize 500 maxblocks    |    116023.0 KBps  |     37664.0 KBps
+ File Copy 4096 bufsize 8000 maxblocks  |   1432769.8 KBps  |    441108.8 KBps
+ Pipe Throughput                        |   6405029.6 lps   |   6021457.6 lps
+ Pipe-based Context Switching           |    185872.7 lps   |    184255.3 lps
+ Process Creation                       |      4025.7 lps   |      3706.6 lps
+ Shell Scripts (1 concurrent)           |      6745.6 lpm   |      6436.1 lpm
+ Shell Scripts (8 concurrent)           |       998.7 lpm   |       931.1 lpm
+ System Call Overhead                   |   3913363.1 lps   |   3883287.8 lps
+----------------------------------------+-------------------+------------------
+ System Benchmarks Index Score          |      1835.1       |      1327.6
 
 Signed-off-by: Zengruan Ye <yezengruan@huawei.com>
 ---
- arch/arm64/include/asm/kvm_host.h |  9 +++++
- arch/arm64/include/uapi/asm/kvm.h |  2 ++
- arch/arm64/kvm/guest.c            |  9 +++++
- include/uapi/linux/kvm.h          |  2 ++
- virt/kvm/arm/pvlock.c             | 57 +++++++++++++++++++++++++++++++
- 5 files changed, 79 insertions(+)
+ arch/arm64/include/asm/paravirt.h |   3 +
+ arch/arm64/kernel/paravirt.c      | 117 ++++++++++++++++++++++++++++++
+ arch/arm64/kernel/setup.c         |   2 +
+ include/linux/cpuhotplug.h        |   1 +
+ 4 files changed, 123 insertions(+)
 
-diff --git a/arch/arm64/include/asm/kvm_host.h b/arch/arm64/include/asm/kvm_host.h
-index 2818a2330f92..63b6e204676b 100644
---- a/arch/arm64/include/asm/kvm_host.h
-+++ b/arch/arm64/include/asm/kvm_host.h
-@@ -521,6 +521,15 @@ static inline bool kvm_arm_is_pvtime_enabled(struct kvm_vcpu_arch *vcpu_arch)
- 	return (vcpu_arch->steal.base != GPA_INVALID);
- }
+diff --git a/arch/arm64/include/asm/paravirt.h b/arch/arm64/include/asm/paravirt.h
+index 7b1c81b544bb..ca3a2c7881f3 100644
+--- a/arch/arm64/include/asm/paravirt.h
++++ b/arch/arm64/include/asm/paravirt.h
+@@ -29,6 +29,8 @@ static inline u64 paravirt_steal_clock(int cpu)
  
-+int kvm_arm_pvlock_set_attr(struct kvm_vcpu *vcpu,
-+			    struct kvm_device_attr *attr);
-+
-+int kvm_arm_pvlock_get_attr(struct kvm_vcpu *vcpu,
-+			    struct kvm_device_attr *attr);
-+
-+int kvm_arm_pvlock_has_attr(struct kvm_vcpu *vcpu,
-+			    struct kvm_device_attr *attr);
-+
- static inline void kvm_arm_pvlock_preempted_init(struct kvm_vcpu_arch *vcpu_arch)
- {
- 	vcpu_arch->pv.base = GPA_INVALID;
-diff --git a/arch/arm64/include/uapi/asm/kvm.h b/arch/arm64/include/uapi/asm/kvm.h
-index 820e5751ada7..137d966b57c7 100644
---- a/arch/arm64/include/uapi/asm/kvm.h
-+++ b/arch/arm64/include/uapi/asm/kvm.h
-@@ -326,6 +326,8 @@ struct kvm_vcpu_events {
- #define   KVM_ARM_VCPU_TIMER_IRQ_PTIMER		1
- #define KVM_ARM_VCPU_PVTIME_CTRL	2
- #define   KVM_ARM_VCPU_PVTIME_IPA	0
-+#define KVM_ARM_VCPU_PVLOCK_CTRL	3
-+#define   KVM_ARM_VCPU_PVLOCK_IPA	0
+ int __init pv_time_init(void);
  
- /* KVM_IRQ_LINE irq field index values */
- #define KVM_ARM_IRQ_VCPU2_SHIFT		28
-diff --git a/arch/arm64/kvm/guest.c b/arch/arm64/kvm/guest.c
-index 2fff06114a8f..6a5c12f3b08b 100644
---- a/arch/arm64/kvm/guest.c
-+++ b/arch/arm64/kvm/guest.c
-@@ -875,6 +875,9 @@ int kvm_arm_vcpu_arch_set_attr(struct kvm_vcpu *vcpu,
- 	case KVM_ARM_VCPU_PVTIME_CTRL:
- 		ret = kvm_arm_pvtime_set_attr(vcpu, attr);
- 		break;
-+	case KVM_ARM_VCPU_PVLOCK_CTRL:
-+		ret = kvm_arm_pvlock_set_attr(vcpu, attr);
-+		break;
- 	default:
- 		ret = -ENXIO;
- 		break;
-@@ -898,6 +901,9 @@ int kvm_arm_vcpu_arch_get_attr(struct kvm_vcpu *vcpu,
- 	case KVM_ARM_VCPU_PVTIME_CTRL:
- 		ret = kvm_arm_pvtime_get_attr(vcpu, attr);
- 		break;
-+	case KVM_ARM_VCPU_PVLOCK_CTRL:
-+		ret = kvm_arm_pvlock_get_attr(vcpu, attr);
-+		break;
- 	default:
- 		ret = -ENXIO;
- 		break;
-@@ -921,6 +927,9 @@ int kvm_arm_vcpu_arch_has_attr(struct kvm_vcpu *vcpu,
- 	case KVM_ARM_VCPU_PVTIME_CTRL:
- 		ret = kvm_arm_pvtime_has_attr(vcpu, attr);
- 		break;
-+	case KVM_ARM_VCPU_PVLOCK_CTRL:
-+		ret = kvm_arm_pvlock_has_attr(vcpu, attr);
-+		break;
- 	default:
- 		ret = -ENXIO;
- 		break;
-diff --git a/include/uapi/linux/kvm.h b/include/uapi/linux/kvm.h
-index f0a16b4adbbd..bfc628c580d4 100644
---- a/include/uapi/linux/kvm.h
-+++ b/include/uapi/linux/kvm.h
-@@ -1238,6 +1238,8 @@ enum kvm_device_type {
- #define KVM_DEV_TYPE_XIVE		KVM_DEV_TYPE_XIVE
- 	KVM_DEV_TYPE_ARM_PV_TIME,
- #define KVM_DEV_TYPE_ARM_PV_TIME	KVM_DEV_TYPE_ARM_PV_TIME
-+	KVM_DEV_TYPE_ARM_PV_LOCK,
-+#define KVM_DEV_TYPE_ARM_PV_LOCK	KVM_DEV_TYPE_ARM_PV_LOCK
- 	KVM_DEV_TYPE_MAX,
++int __init pv_lock_init(void);
++
+ __visible bool __native_vcpu_is_preempted(int cpu);
+ 
+ static inline bool pv_vcpu_is_preempted(int cpu)
+@@ -39,6 +41,7 @@ static inline bool pv_vcpu_is_preempted(int cpu)
+ #else
+ 
+ #define pv_time_init() do {} while (0)
++#define pv_lock_init() do {} while (0)
+ 
+ #endif // CONFIG_PARAVIRT
+ 
+diff --git a/arch/arm64/kernel/paravirt.c b/arch/arm64/kernel/paravirt.c
+index d8f1ba8c22ce..bd2ad6a17a26 100644
+--- a/arch/arm64/kernel/paravirt.c
++++ b/arch/arm64/kernel/paravirt.c
+@@ -22,6 +22,7 @@
+ #include <asm/paravirt.h>
+ #include <asm/pvclock-abi.h>
+ #include <asm/smp_plat.h>
++#include <asm/pvlock-abi.h>
+ 
+ struct static_key paravirt_steal_enabled;
+ struct static_key paravirt_steal_rq_enabled;
+@@ -35,6 +36,10 @@ struct pv_time_stolen_time_region {
+ 	struct pvclock_vcpu_stolen_time *kaddr;
  };
  
-diff --git a/virt/kvm/arm/pvlock.c b/virt/kvm/arm/pvlock.c
-index cdfd30a903b9..cbc562274e5e 100644
---- a/virt/kvm/arm/pvlock.c
-+++ b/virt/kvm/arm/pvlock.c
-@@ -44,3 +44,60 @@ void kvm_update_pvlock_preempted(struct kvm_vcpu *vcpu, u64 preempted)
- 	kvm_put_guest(kvm, base + offset, preempted_le, u64);
- 	srcu_read_unlock(&kvm->srcu, idx);
++struct pv_lock_state_region {
++	struct pvlock_vcpu_state *kaddr;
++};
++
+ static DEFINE_PER_CPU(struct pv_time_stolen_time_region, stolen_time_region);
+ 
+ static bool steal_acc = true;
+@@ -158,3 +163,115 @@ int __init pv_time_init(void)
+ 
+ 	return 0;
  }
 +
-+int kvm_arm_pvlock_set_attr(struct kvm_vcpu *vcpu,
-+			    struct kvm_device_attr *attr)
++static DEFINE_PER_CPU(struct pv_lock_state_region, lock_state_region);
++
++static bool kvm_vcpu_is_preempted(int cpu)
 +{
-+	u64 __user *user = (u64 __user *)attr->addr;
-+	struct kvm *kvm = vcpu->kvm;
-+	u64 ipa;
-+	int ret = 0;
-+	int idx;
++	struct pv_lock_state_region *reg;
++	__le64 preempted_le;
 +
-+	if (attr->attr != KVM_ARM_VCPU_PVLOCK_IPA)
-+		return -ENXIO;
++	reg = per_cpu_ptr(&lock_state_region, cpu);
++	if (!reg->kaddr) {
++		pr_warn_once("PV lock enabled but not configured for cpu %d\n",
++			     cpu);
++		return false;
++	}
 +
-+	if (get_user(ipa, user))
-+		return -EFAULT;
-+	if (!IS_ALIGNED(ipa, 64))
-+		return -EINVAL;
-+	if (vcpu->arch.pv.base != GPA_INVALID)
-+		return -EEXIST;
++	preempted_le = le64_to_cpu(READ_ONCE(reg->kaddr->preempted));
 +
-+	/* Check the address is in a valid memslot */
-+	idx = srcu_read_lock(&kvm->srcu);
-+	if (kvm_is_error_hva(gfn_to_hva(kvm, ipa >> PAGE_SHIFT)))
-+		ret = -EINVAL;
-+	srcu_read_unlock(&kvm->srcu, idx);
-+
-+	if (!ret)
-+		vcpu->arch.pv.base = ipa;
-+
-+	return ret;
++	return !!(preempted_le & 1);
 +}
 +
-+int kvm_arm_pvlock_get_attr(struct kvm_vcpu *vcpu,
-+			    struct kvm_device_attr *attr)
++static int pvlock_vcpu_state_dying_cpu(unsigned int cpu)
 +{
-+	u64 __user *user = (u64 __user *)attr->addr;
-+	u64 ipa;
++	struct pv_lock_state_region *reg;
 +
-+	if (attr->attr != KVM_ARM_VCPU_PVLOCK_IPA)
-+		return -ENXIO;
++	reg = this_cpu_ptr(&lock_state_region);
++	if (!reg->kaddr)
++		return 0;
 +
-+	ipa = vcpu->arch.pv.base;
++	memunmap(reg->kaddr);
++	memset(reg, 0, sizeof(*reg));
 +
-+	if (put_user(ipa, user))
-+		return -EFAULT;
 +	return 0;
 +}
 +
-+int kvm_arm_pvlock_has_attr(struct kvm_vcpu *vcpu,
-+			    struct kvm_device_attr *attr)
++static int init_pvlock_vcpu_state(unsigned int cpu)
 +{
-+	switch (attr->attr) {
-+	case KVM_ARM_VCPU_PVLOCK_IPA:
-+		return 0;
++	struct pv_lock_state_region *reg;
++	struct arm_smccc_res res;
++
++	reg = this_cpu_ptr(&lock_state_region);
++
++	arm_smccc_1_1_invoke(ARM_SMCCC_HV_PV_LOCK_PREEMPTED, &res);
++
++	if (res.a0 == SMCCC_RET_NOT_SUPPORTED) {
++		pr_warn("Failed to init PV lock data structure\n");
++		return -EINVAL;
 +	}
-+	return -ENXIO;
++
++	reg->kaddr = memremap(res.a0,
++			      sizeof(struct pvlock_vcpu_state),
++			      MEMREMAP_WB);
++
++	if (!reg->kaddr) {
++		pr_warn("Failed to map PV lock data structure\n");
++		return -ENOMEM;
++	}
++
++	return 0;
 +}
++
++static int kvm_arm_init_pvlock(void)
++{
++	int ret;
++
++	ret = cpuhp_setup_state(CPUHP_AP_ARM_KVM_PVLOCK_STARTING,
++				"hypervisor/arm/pvlock:starting",
++				init_pvlock_vcpu_state,
++				pvlock_vcpu_state_dying_cpu);
++	if (ret < 0) {
++		pr_warn("PV-lock init failed\n");
++		return ret;
++	}
++
++	return 0;
++}
++
++static bool has_kvm_pvlock(void)
++{
++	struct arm_smccc_res res;
++
++	/* To detect the presence of PV lock support we require SMCCC 1.1+ */
++	if (psci_ops.smccc_version < SMCCC_VERSION_1_1)
++		return false;
++
++	arm_smccc_1_1_invoke(ARM_SMCCC_ARCH_FEATURES_FUNC_ID,
++			     ARM_SMCCC_HV_PV_LOCK_FEATURES, &res);
++
++	if (res.a0 != SMCCC_RET_SUCCESS)
++		return false;
++
++	return true;
++}
++
++int __init pv_lock_init(void)
++{
++	int ret;
++
++	if (is_hyp_mode_available())
++		return 0;
++
++	if (!has_kvm_pvlock())
++		return 0;
++
++	ret = kvm_arm_init_pvlock();
++	if (ret)
++		return ret;
++
++	pv_ops.lock.vcpu_is_preempted = kvm_vcpu_is_preempted;
++	pr_info("using PV-lock preempted\n");
++
++	return 0;
++}
+diff --git a/arch/arm64/kernel/setup.c b/arch/arm64/kernel/setup.c
+index 56f664561754..aa3a8b9e710f 100644
+--- a/arch/arm64/kernel/setup.c
++++ b/arch/arm64/kernel/setup.c
+@@ -341,6 +341,8 @@ void __init setup_arch(char **cmdline_p)
+ 	smp_init_cpus();
+ 	smp_build_mpidr_hash();
+ 
++	pv_lock_init();
++
+ 	/* Init percpu seeds for random tags after cpus are set up. */
+ 	kasan_init_tags();
+ 
+diff --git a/include/linux/cpuhotplug.h b/include/linux/cpuhotplug.h
+index e51ee772b9f5..f72ff95ab63a 100644
+--- a/include/linux/cpuhotplug.h
++++ b/include/linux/cpuhotplug.h
+@@ -138,6 +138,7 @@ enum cpuhp_state {
+ 	CPUHP_AP_DUMMY_TIMER_STARTING,
+ 	CPUHP_AP_ARM_XEN_STARTING,
+ 	CPUHP_AP_ARM_KVMPV_STARTING,
++	CPUHP_AP_ARM_KVM_PVLOCK_STARTING,
+ 	CPUHP_AP_ARM_CORESIGHT_STARTING,
+ 	CPUHP_AP_ARM64_ISNDEP_STARTING,
+ 	CPUHP_AP_SMPCFD_DYING,
 -- 
 2.19.1
