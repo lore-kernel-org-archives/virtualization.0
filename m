@@ -1,14 +1,14 @@
 From: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-Subject: [PATCH 4.14 121/161] crypto: virtio - deal with unsupported input
+Subject: [PATCH 4.19 167/219] crypto: virtio - deal with unsupported input
  sizes
 Date: Sun, 29 Dec 2019 18:19:29 +0100
-Message-ID: <20191229162435.357748745@linuxfoundation.org>
-References: <20191229162355.500086350@linuxfoundation.org>
+Message-ID: <20191229162534.140940341@linuxfoundation.org>
+References: <20191229162508.458551679@linuxfoundation.org>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <20191229162355.500086350@linuxfoundation.org>
+In-Reply-To: <20191229162508.458551679@linuxfoundation.org>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
  <mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -45,10 +45,10 @@ Signed-off-by: Sasha Levin <sashal@kernel.org>
  1 file changed, 10 insertions(+), 2 deletions(-)
 
 diff --git a/drivers/crypto/virtio/virtio_crypto_algs.c b/drivers/crypto/virtio/virtio_crypto_algs.c
-index 5035b0dc1e40..e2231a1a05a1 100644
+index 2c573d1aaa64..523b712770ac 100644
 --- a/drivers/crypto/virtio/virtio_crypto_algs.c
 +++ b/drivers/crypto/virtio/virtio_crypto_algs.c
-@@ -110,8 +110,6 @@ virtio_crypto_alg_validate_key(int key_len, uint32_t *alg)
+@@ -117,8 +117,6 @@ virtio_crypto_alg_validate_key(int key_len, uint32_t *alg)
  		*alg = VIRTIO_CRYPTO_CIPHER_AES_CBC;
  		break;
  	default:
@@ -57,7 +57,7 @@ index 5035b0dc1e40..e2231a1a05a1 100644
  		return -EINVAL;
  	}
  	return 0;
-@@ -485,6 +483,11 @@ static int virtio_crypto_ablkcipher_encrypt(struct ablkcipher_request *req)
+@@ -498,6 +496,11 @@ static int virtio_crypto_ablkcipher_encrypt(struct ablkcipher_request *req)
  	/* Use the first data virtqueue as default */
  	struct data_queue *data_vq = &vcrypto->data_vq[0];
  
@@ -69,7 +69,7 @@ index 5035b0dc1e40..e2231a1a05a1 100644
  	vc_req->dataq = data_vq;
  	vc_req->alg_cb = virtio_crypto_dataq_sym_callback;
  	vc_sym_req->ablkcipher_ctx = ctx;
-@@ -505,6 +508,11 @@ static int virtio_crypto_ablkcipher_decrypt(struct ablkcipher_request *req)
+@@ -518,6 +521,11 @@ static int virtio_crypto_ablkcipher_decrypt(struct ablkcipher_request *req)
  	/* Use the first data virtqueue as default */
  	struct data_queue *data_vq = &vcrypto->data_vq[0];
  
