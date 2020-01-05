@@ -1,11 +1,14 @@
 From: "Michael S. Tsirkin" <mst@redhat.com>
-Subject: [PATCH v2] virtio_net: CTRL_GUEST_OFFLOADS depends on CTRL_VQ
-Date: Sun, 5 Jan 2020 08:22:07 -0500
-Message-ID: <20200105132120.92370-1-mst__42528.4326005325$1578230548$gmane$org@redhat.com>
+Subject: Re: [PATCH v2 1/2] virtio-balloon: initialize all vq callbacks
+Date: Sun, 5 Jan 2020 08:25:16 -0500
+Message-ID: <20200105082433-mutt-send-email-mst__46557.7084616356$1578230740$gmane$org@kernel.org>
+References: <20200103184044.73568-1-dverkamp@chromium.org>
+ <286AC319A985734F985F78AFA26841F73E39205A@shsmsx102.ccr.corp.intel.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
+In-Reply-To: <286AC319A985734F985F78AFA26841F73E39205A@shsmsx102.ccr.corp.intel.com>
 Content-Disposition: inline
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
  <mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
@@ -16,53 +19,61 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
  <mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Errors-To: virtualization-bounces@lists.linux-foundation.org
 Sender: "Virtualization" <virtualization-bounces@lists.linux-foundation.org>
-To: linux-kernel@vger.kernel.org
-Cc: Alistair Delva <adelva@google.com>, Willem de Bruijn <willemdebruijn.kernel@gmail.com>, netdev@vger.kernel.org, virtualization@lists.linux-foundation.org, "David S. Miller" <davem@davemloft.net>
+To: "Wang, Wei W" <wei.w.wang@intel.com>
+Cc: Cornelia Huck <cohuck@redhat.com>, "stable@vger.kernel.org" <stable@vger.kernel.org>, "virtualization@lists.linux-foundation.org" <virtualization@lists.linux-foundation.org>
 List-Id: virtualization@lists.linuxfoundation.org
 
-The only way for guest to control offloads (as enabled by
-VIRTIO_NET_F_CTRL_GUEST_OFFLOADS) is by sending commands
-through CTRL_VQ. So it does not make sense to
-acknowledge VIRTIO_NET_F_CTRL_GUEST_OFFLOADS without
-VIRTIO_NET_F_CTRL_VQ.
+On Sun, Jan 05, 2020 at 12:24:11PM +0000, Wang, Wei W wrote:
+> On Saturday, January 4, 2020 2:41 AM, Daniel Verkamp wrote:
+> > Subject: [PATCH v2 1/2] virtio-balloon: initialize all vq callbacks
+> > 
+> > Ensure that elements of the callbacks array that correspond to unavailable
+> > features are set to NULL; previously, they would be left uninitialized.
+> > 
+> > Since the corresponding names array elements were explicitly set to NULL,
+> > the uninitialized callback pointers would not actually be dereferenced;
+> > however, the uninitialized callbacks elements would still be read in 
+> > vp_find_vqs_msix() and used to calculate the number of MSI-X vectors
+> > required.
+> 
+> The above description doesn't seem true after your second patch gets applied.
+>  
+> > Cc: stable@vger.kernel.org
+> > Fixes: 86a559787e6f ("virtio-balloon:
+> > VIRTIO_BALLOON_F_FREE_PAGE_HINT")
+> > Reviewed-by: Cornelia Huck <cohuck@redhat.com>
+> > Signed-off-by: Daniel Verkamp <dverkamp@chromium.org>
+> > ---
+> > 
+> > v1:
+> > https://lists.linuxfoundation.org/pipermail/virtualization/2019-December/04
+> > 4829.html
+> > 
+> > Changes from v1:
+> > - Clarified "array" in commit message to "callbacks array"
+> > 
+> >  drivers/virtio/virtio_balloon.c | 2 ++
+> >  1 file changed, 2 insertions(+)
+> > 
+> > diff --git a/drivers/virtio/virtio_balloon.c b/drivers/virtio/virtio_balloon.c
+> > index 93f995f6cf36..8e400ece9273 100644
+> > --- a/drivers/virtio/virtio_balloon.c
+> > +++ b/drivers/virtio/virtio_balloon.c
+> > @@ -475,7 +475,9 @@ static int init_vqs(struct virtio_balloon *vb)
+> >  	names[VIRTIO_BALLOON_VQ_INFLATE] = "inflate";
+> >  	callbacks[VIRTIO_BALLOON_VQ_DEFLATE] = balloon_ack;
+> >  	names[VIRTIO_BALLOON_VQ_DEFLATE] = "deflate";
+> > +	callbacks[VIRTIO_BALLOON_VQ_STATS] = NULL;
+> >  	names[VIRTIO_BALLOON_VQ_STATS] = NULL;
+> > +	callbacks[VIRTIO_BALLOON_VQ_FREE_PAGE] = NULL;
+> 
+> Could you remove other redundant NULL initialization well?
+> https://lists.linuxfoundation.org/pipermail/virtualization/2019-December/044837.html
+> 
+> Best,
+> Wei
 
-The spec does not outlaw devices with such a configuration, so we have
-to support it. Simply clear VIRTIO_NET_F_CTRL_GUEST_OFFLOADS.
-Note that Linux is still crashing if it tries to
-change the offloads when there's no control vq.
-That needs to be fixed by another patch.
+I queued as is, can be tweaked by a patch on top.
 
-Reported-by: Alistair Delva <adelva@google.com>
-Reported-by: Willem de Bruijn <willemdebruijn.kernel@gmail.com>
-Fixes: 3f93522ffab2 ("virtio-net: switch off offloads on demand if possible on XDP set")
-Signed-off-by: Michael S. Tsirkin <mst@redhat.com>
----
-
-Same patch as v1 but update documentation so it's clear it's not
-enough to fix the crash.
-
- drivers/net/virtio_net.c | 9 +++++++++
- 1 file changed, 9 insertions(+)
-
-diff --git a/drivers/net/virtio_net.c b/drivers/net/virtio_net.c
-index 4d7d5434cc5d..7b8805b47f0d 100644
---- a/drivers/net/virtio_net.c
-+++ b/drivers/net/virtio_net.c
-@@ -2971,6 +2971,15 @@ static int virtnet_validate(struct virtio_device *vdev)
- 	if (!virtnet_validate_features(vdev))
- 		return -EINVAL;
- 
-+	/* VIRTIO_NET_F_CTRL_GUEST_OFFLOADS does not work without
-+	 * VIRTIO_NET_F_CTRL_VQ. Unfortunately spec forgot to
-+	 * specify that VIRTIO_NET_F_CTRL_GUEST_OFFLOADS depends
-+	 * on VIRTIO_NET_F_CTRL_VQ so devices can set the later but
-+	 * not the former.
-+	 */
-+	if (!virtio_has_feature(vdev, VIRTIO_NET_F_CTRL_VQ))
-+			__virtio_clear_bit(vdev, VIRTIO_NET_F_CTRL_GUEST_OFFLOADS);
-+
- 	if (virtio_has_feature(vdev, VIRTIO_NET_F_MTU)) {
- 		int mtu = virtio_cread16(vdev,
- 					 offsetof(struct virtio_net_config,
 -- 
 MST
