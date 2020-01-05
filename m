@@ -1,19 +1,14 @@
-From: "Michael S. Tsirkin" <mst@redhat.com>
-Subject: Re: [PATCH net] virtio_net: CTRL_GUEST_OFFLOADS depends on CTRL_VQ
-Date: Sun, 5 Jan 2020 06:16:30 -0500
-Message-ID: <20200105061532-mutt-send-email-mst@kernel.org>
-References: <20191223140322.20013-1-mst@redhat.com>
- <CANDihLHPk5khpv-f-M+qhkzgTkygAts38GGb-HChg-VL2bo+Uw@mail.gmail.com>
- <CA+FuTSfq5v3-0VYmTG7YFFUqT8uG53eXXhqc8WvVvMbp3s0nvA@mail.gmail.com>
- <CA+FuTScwwajN2ny2w8EBkBQd191Eb1ZsrRhbh3=5eQervArnEA@mail.gmail.com>
- <CANDihLFv+DJYOD1m_Z3CKuxoXG-z4zPy_Tc2eoggq1KRo+GeWw@mail.gmail.com>
- <ea5131fc-cda6-c773-73fc-c862be6ecb7b@redhat.com>
+From: "Wang, Wei W" <wei.w.wang@intel.com>
+Subject: RE: [PATCH v2 1/2] virtio-balloon: initialize all vq callbacks
+Date: Sun, 5 Jan 2020 12:24:11 +0000
+Message-ID: <286AC319A985734F985F78AFA26841F73E39205A__28045.1654851035$1578227068$gmane$org@shsmsx102.ccr.corp.intel.com>
+References: <20200103184044.73568-1-dverkamp@chromium.org>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="utf-8"
-Content-Transfer-Encoding: base64
+Content-Type: text/plain; charset="us-ascii"
+Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <ea5131fc-cda6-c773-73fc-c862be6ecb7b@redhat.com>
-Content-Disposition: inline
+In-Reply-To: <20200103184044.73568-1-dverkamp@chromium.org>
+Content-Language: en-US
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
  <mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -23,101 +18,55 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
  <mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Errors-To: virtualization-bounces@lists.linux-foundation.org
 Sender: "Virtualization" <virtualization-bounces@lists.linux-foundation.org>
-To: Jason Wang <jasowang@redhat.com>
-Cc: Alistair Delva <adelva@google.com>, Willem de Bruijn <willemdebruijn.kernel@gmail.com>, Network Development <netdev@vger.kernel.org>, LKML <linux-kernel@vger.kernel.org>, virtualization@lists.linux-foundation.org, "David S. Miller" <davem@davemloft.net>
+To: Daniel Verkamp <dverkamp@chromium.org>, "virtualization@lists.linux-foundation.org" <virtualization@lists.linux-foundation.org>
+Cc: Cornelia Huck <cohuck@redhat.com>, "stable@vger.kernel.org" <stable@vger.kernel.org>, "Michael S. Tsirkin" <mst@redhat.com>
 List-Id: virtualization@lists.linuxfoundation.org
 
-T24gVHVlLCBEZWMgMjQsIDIwMTkgYXQgMTA6NDk6MTNBTSArMDgwMCwgSmFzb24gV2FuZyB3cm90
-ZToKPiAKPiBPbiAyMDE5LzEyLzI0IOS4iuWNiDQ6MjEsIEFsaXN0YWlyIERlbHZhIHdyb3RlOgo+
-ID4gT24gTW9uLCBEZWMgMjMsIDIwMTkgYXQgMTI6MTIgUE0gV2lsbGVtIGRlIEJydWlqbgo+ID4g
-PHdpbGxlbWRlYnJ1aWpuLmtlcm5lbEBnbWFpbC5jb20+IHdyb3RlOgo+ID4gPiBPbiBNb24sIERl
-YyAyMywgMjAxOSBhdCAyOjU2IFBNIFdpbGxlbSBkZSBCcnVpam4KPiA+ID4gPHdpbGxlbWRlYnJ1
-aWpuLmtlcm5lbEBnbWFpbC5jb20+IHdyb3RlOgo+ID4gPiA+IDAwZmZmZTBmZjAgRFI3OiAwMDAw
-MDAwMDAwMDAwNDAwCj4gPiA+ID4gPiA+IENhbGwgVHJhY2U6Cj4gPiA+ID4gPiA+ICAgPyBwcmVl
-bXB0X2NvdW50X2FkZCsweDU4LzB4YjAKPiA+ID4gPiA+ID4gICA/IF9yYXdfc3Bpbl9sb2NrX2ly
-cXNhdmUrMHgzNi8weDcwCj4gPiA+ID4gPiA+ICAgPyBfcmF3X3NwaW5fdW5sb2NrX2lycXJlc3Rv
-cmUrMHgxYS8weDQwCj4gPiA+ID4gPiA+ICAgPyBfX3dha2VfdXArMHg3MC8weDE5MAo+ID4gPiA+
-ID4gPiAgIHZpcnRuZXRfc2V0X2ZlYXR1cmVzKzB4OTAvMHhmMCBbdmlydGlvX25ldF0KPiA+ID4g
-PiA+ID4gICBfX25ldGRldl91cGRhdGVfZmVhdHVyZXMrMHgyNzEvMHg5ODAKPiA+ID4gPiA+ID4g
-ICA/IG5sbXNnX25vdGlmeSsweDViLzB4YTAKPiA+ID4gPiA+ID4gICBkZXZfZGlzYWJsZV9scm8r
-MHgyYi8weDE5MAo+ID4gPiA+ID4gPiAgID8gaW5ldF9uZXRjb25mX25vdGlmeV9kZXZjb25mKzB4
-ZTIvMHgxMjAKPiA+ID4gPiA+ID4gICBkZXZpbmV0X3N5c2N0bF9mb3J3YXJkKzB4MTc2LzB4MWUw
-Cj4gPiA+ID4gPiA+ICAgcHJvY19zeXNfY2FsbF9oYW5kbGVyKzB4MWYwLzB4MjUwCj4gPiA+ID4g
-PiA+ICAgcHJvY19zeXNfd3JpdGUrMHhmLzB4MjAKPiA+ID4gPiA+ID4gICBfX3Zmc193cml0ZSsw
-eDNlLzB4MTkwCj4gPiA+ID4gPiA+ICAgPyBfX3NiX3N0YXJ0X3dyaXRlKzB4NmQvMHhkMAo+ID4g
-PiA+ID4gPiAgIHZmc193cml0ZSsweGQzLzB4MTkwCj4gPiA+ID4gPiA+ICAga3N5c193cml0ZSsw
-eDY4LzB4ZDAKPiA+ID4gPiA+ID4gICBfX2lhMzJfc3lzX3dyaXRlKzB4MTQvMHgyMAo+ID4gPiA+
-ID4gPiAgIGRvX2Zhc3Rfc3lzY2FsbF8zMisweDg2LzB4ZTAKPiA+ID4gPiA+ID4gICBlbnRyeV9T
-WVNFTlRFUl9jb21wYXQrMHg3Yy8weDhlCj4gPiA+ID4gPiA+IAo+ID4gPiA+ID4gPiBBIHNpbWls
-YXIgY3Jhc2ggd2lsbCBsaWtlbHkgdHJpZ2dlciB3aGVuIGVuYWJsaW5nIFhEUC4KPiA+ID4gPiA+
-ID4gCj4gPiA+ID4gPiA+IFJlcG9ydGVkLWJ5OiBBbGlzdGFpciBEZWx2YSA8YWRlbHZhQGdvb2ds
-ZS5jb20+Cj4gPiA+ID4gPiA+IFJlcG9ydGVkLWJ5OiBXaWxsZW0gZGUgQnJ1aWpuIDx3aWxsZW1k
-ZWJydWlqbi5rZXJuZWxAZ21haWwuY29tPgo+ID4gPiA+ID4gPiBGaXhlczogM2Y5MzUyMmZmYWIy
-ICgidmlydGlvLW5ldDogc3dpdGNoIG9mZiBvZmZsb2FkcyBvbiBkZW1hbmQgaWYgcG9zc2libGUg
-b24gWERQIHNldCIpCj4gPiA+ID4gPiA+IFNpZ25lZC1vZmYtYnk6IE1pY2hhZWwgUy4gVHNpcmtp
-biA8bXN0QHJlZGhhdC5jb20+Cj4gPiA+ID4gPiA+IC0tLQo+ID4gPiA+ID4gPiAKPiA+ID4gPiA+
-ID4gTGlnaHRseSB0ZXN0ZWQuCj4gPiA+ID4gPiA+IAo+ID4gPiA+ID4gPiBBbGlzdGFpciwgY291
-bGQgeW91IHBsZWFzZSB0ZXN0IGFuZCBjb25maXJtIHRoYXQgdGhpcyByZXNvbHZlcyB0aGUKPiA+
-ID4gPiA+ID4gY3Jhc2ggZm9yIHlvdT8KPiA+ID4gPiA+IFRoaXMgcGF0Y2ggZG9lc24ndCB3b3Jr
-LiBUaGUgcmVhc29uIGlzIHRoYXQgTkVUSUZfRl9MUk8gaXMgYWxzbyB0dXJuZWQKPiA+ID4gPiA+
-IG9uIGJ5IFRTTzQvVFNPNiwgd2hpY2ggeW91ciBwYXRjaCBkaWRuJ3QgY2hlY2sgZm9yLiBTbyBp
-dCBlbmRzIHVwCj4gPiA+ID4gPiBnb2luZyB0aHJvdWdoIHRoZSBzYW1lIHBhdGggYW5kIGNyYXNo
-aW5nIGluIHRoZSBzYW1lIHdheS4KPiA+ID4gPiA+IAo+ID4gPiA+ID4gICAgICAgICAgaWYgKHZp
-cnRpb19oYXNfZmVhdHVyZSh2ZGV2LCBWSVJUSU9fTkVUX0ZfR1VFU1RfVFNPNCkgfHwKPiA+ID4g
-PiA+ICAgICAgICAgICAgICB2aXJ0aW9faGFzX2ZlYXR1cmUodmRldiwgVklSVElPX05FVF9GX0dV
-RVNUX1RTTzYpKQo+ID4gPiA+ID4gICAgICAgICAgICAgICAgICBkZXYtPmZlYXR1cmVzIHw9IE5F
-VElGX0ZfTFJPOwo+ID4gPiA+ID4gCj4gPiA+ID4gPiBJdCBzb3VuZHMgbGlrZSB0aGlzIHBhdGNo
-IGlzIGZpeGluZyBzb21ldGhpbmcgc2xpZ2h0bHkgZGlmZmVyZW50bHkgdG8KPiA+ID4gPiA+IG15
-IHBhdGNoIGZpeGVkLiB2aXJ0bmV0X3NldF9mZWF0dXJlcygpIGRvZXNuJ3QgY2FyZSBhYm91dAo+
-ID4gPiA+ID4gR1VFU1RfT0ZGTE9BRFMsIGl0IG9ubHkgdGVzdHMgYWdhaW5zdCBORVRJRl9GX0xS
-Ty4gRXZlbiBpZiAib2ZmbG9hZHMiCj4gPiA+ID4gPiBpcyB6ZXJvLCBpdCB3aWxsIGNhbGwgdmly
-dG5ldF9zZXRfZ3Vlc3Rfb2ZmbG9hZHMoKSwgd2hpY2ggdHJpZ2dlcnMgdGhlCj4gPiA+ID4gPiBj
-cmFzaC4KPiA+ID4gPiAKPiA+ID4gPiBJbnRlcmVzdGluZy4gSXQncyBzdXJwcmlzaW5nIHRoYXQg
-aXQgaXMgdHJ5aW5nIHRvIGNvbmZpZ3VyZSBhIGZsYWcKPiA+ID4gPiB0aGF0IGlzIG5vdCBjb25m
-aWd1cmFibGUsIGkuZS4sIGFic2VudCBmcm9tIGRldi0+aHdfZmVhdHVyZXMKPiA+ID4gPiBhZnRl
-ciBNaWNoYWVsJ3MgY2hhbmdlLgo+ID4gPiA+IAo+ID4gPiA+ID4gU28gZWl0aGVyIHdlIG5lZWQg
-dG8gZW5zdXJlIE5FVElGX0ZfTFJPIGlzIG5ldmVyIHNldCwgb3IKPiA+ID4gPiBMUk8gbWlnaHQg
-YmUgYXZhaWxhYmxlLCBqdXN0IG5vdCBjb25maWd1cmFibGUuIEluZGVlZCB0aGlzIHdhcyB3aGF0
-IEkKPiA+ID4gPiBvYnNlcnZlZCBpbiB0aGUgcGFzdC4KPiA+ID4gZGV2X2Rpc2FibGVfbHJvIGV4
-cGVjdHMgdGhhdCBORVRJRl9GX0xSTyBpcyBhbHdheXMgY29uZmlndXJhYmxlLiBXaGljaAo+ID4g
-PiBJIGd1ZXNzIGlzIGEgcmVhc29uYWJsZSBhc3N1bXB0aW9uLCBqdXN0IG5vdCBuZWNlc3Nhcmls
-eSB0aGUgY2FzZSBpbgo+ID4gPiB2aXJ0aW9fbmV0Lgo+ID4gPiAKPiA+ID4gU28gSSB0aGluayB3
-ZSBuZWVkIGJvdGggcGF0Y2hlcy4gQ29ycmVjdGx5IG1hcmsgdGhlIGZlYXR1cmUgYXMgZml4ZWQK
-PiA+ID4gYnkgcmVtb3ZpbmcgZnJvbSBkZXYtPmh3X2ZlYXR1cmVzIGFuZCBhbHNvIGlnbm9yZSB0
-aGUgcmVxdWVzdCBmcm9tCj4gPiA+IGRldl9kaXNhYmxlX2xybywgd2hpY2ggZG9lcyBub3QgY2hl
-Y2sgZm9yIHRoaXMuCj4gPiBTb21ldGhpbmcgbGlrZSB0aGlzIG1heWJlOgo+ID4gCj4gPiBkaWZm
-IC0tZ2l0IGEvZHJpdmVycy9uZXQvdmlydGlvX25ldC5jIGIvZHJpdmVycy9uZXQvdmlydGlvX25l
-dC5jCj4gPiBpbmRleCA0ZDdkNTQzNGNjNWQuLjA1NTZmNDJiMGZiNSAxMDA2NDQKPiA+IC0tLSBh
-L2RyaXZlcnMvbmV0L3ZpcnRpb19uZXQuYwo+ID4gKysrIGIvZHJpdmVycy9uZXQvdmlydGlvX25l
-dC5jCj4gPiBAQCAtMjU2MCw2ICsyNTYwLDkgQEAgc3RhdGljIGludCB2aXJ0bmV0X3NldF9mZWF0
-dXJlcyhzdHJ1Y3QgbmV0X2RldmljZSAqZGV2LAo+ID4gICAgICAgICAgdTY0IG9mZmxvYWRzOwo+
-ID4gICAgICAgICAgaW50IGVycjsKPiA+IAo+ID4gKyAgICAgICBpZiAoIXZpcnRpb19oYXNfZmVh
-dHVyZSh2aS0+dmRldiwgVklSVElPX05FVF9GX0NUUkxfR1VFU1RfT0ZGTE9BRFMpKQo+ID4gKyAg
-ICAgICAgICAgICAgIHJldHVybiAwOwo+ID4gKwo+ID4gICAgICAgICAgaWYgKChkZXYtPmZlYXR1
-cmVzIF4gZmVhdHVyZXMpICYgTkVUSUZfRl9MUk8pIHsKPiA+ICAgICAgICAgICAgICAgICAgaWYg
-KHZpLT54ZHBfcXVldWVfcGFpcnMpCj4gPiAgICAgICAgICAgICAgICAgICAgICAgICAgcmV0dXJu
-IC1FQlVTWTsKPiA+IEBAIC0yOTcxLDYgKzI5NzQsMTUgQEAgc3RhdGljIGludCB2aXJ0bmV0X3Zh
-bGlkYXRlKHN0cnVjdCB2aXJ0aW9fZGV2aWNlICp2ZGV2KQo+ID4gICAgICAgICAgaWYgKCF2aXJ0
-bmV0X3ZhbGlkYXRlX2ZlYXR1cmVzKHZkZXYpKQo+ID4gICAgICAgICAgICAgICAgICByZXR1cm4g
-LUVJTlZBTDsKPiA+IAo+ID4gKyAgICAgICAvKiBWSVJUSU9fTkVUX0ZfQ1RSTF9HVUVTVF9PRkZM
-T0FEUyBkb2VzIG5vdCB3b3JrIHdpdGhvdXQKPiA+ICsgICAgICAgICogVklSVElPX05FVF9GX0NU
-UkxfVlEuIEhvd2V2ZXIgdGhlIHZpcnRpbyBzcGVjIGRvZXMgbm90Cj4gPiArICAgICAgICAqIHNw
-ZWNpZnkgdGhhdCBWSVJUSU9fTkVUX0ZfQ1RSTF9HVUVTVF9PRkZMT0FEUyBkZXBlbmRzCj4gPiAr
-ICAgICAgICAqIG9uIFZJUlRJT19ORVRfRl9DVFJMX1ZRIHNvIGRldmljZXMgY2FuIHNldCB0aGUg
-bGF0ZXIgYnV0Cj4gPiArICAgICAgICAqIG5vdCB0aGUgZm9ybWVyLgo+ID4gKyAgICAgICAgKi8K
-PiA+ICsgICAgICAgaWYgKCF2aXJ0aW9faGFzX2ZlYXR1cmUodmRldiwgVklSVElPX05FVF9GX0NU
-UkxfVlEpKQo+ID4gKyAgICAgICAgICAgICAgIF9fdmlydGlvX2NsZWFyX2JpdCh2ZGV2LCBWSVJU
-SU9fTkVUX0ZfQ1RSTF9HVUVTVF9PRkZMT0FEUyk7Cj4gPiArCj4gPiAgICAgICAgICBpZiAodmly
-dGlvX2hhc19mZWF0dXJlKHZkZXYsIFZJUlRJT19ORVRfRl9NVFUpKSB7Cj4gPiAgICAgICAgICAg
-ICAgICAgIGludCBtdHUgPSB2aXJ0aW9fY3JlYWQxNih2ZGV2LAo+ID4gICAgICAgICAgICAgICAg
-ICAgICAgICAgICAgICAgICAgICAgICAgICAgb2Zmc2V0b2Yoc3RydWN0IHZpcnRpb19uZXRfY29u
-ZmlnLAo+ID4gCj4gCj4gV2UgY2hlY2sgZmVhdHVyZSBkZXBlbmRlbmN5IGFuZCBmYWlsIHRoZSBw
-cm9iZSBpbgo+IHZpcnRuZXRfdmFsaWRhdGVfZmVhdHVyZXMoKS4KPiAKPiBJcyBpdCBtb3JlIHN0
-cmFpZ2h0Zm9yd2FyZCB0byBmYWlsIHRoZSBwcm9iZSB0aGVyZSB3aGVuIENUUkxfR1VFU1RfT0ZG
-TE9BRFMKPiB3YXMgc2V0IGJ1dCBDVFJMX1ZRIHdhc24ndD8KPiAKPiBUaGFua3MKCkV4cGFuZGlu
-ZyBvbiB3aGF0IHRoZSBjb21tZW50IGFib3ZlIHNheXMsIHdlIGNhbid0IGZhaWwgcHJvYmUKaW4g
-dGhpcyBjb25maWd1cmF0aW9uIHdpdGhvdXQgYnJlYWtpbmcgdGhlIGRyaXZlciBmb3IKc3BlYyBj
-b21wbGlhbnQgZGV2aWNlcy4KCi0tIApNU1QKCl9fX19fX19fX19fX19fX19fX19fX19fX19fX19f
-X19fX19fX19fX19fX19fX19fClZpcnR1YWxpemF0aW9uIG1haWxpbmcgbGlzdApWaXJ0dWFsaXph
-dGlvbkBsaXN0cy5saW51eC1mb3VuZGF0aW9uLm9yZwpodHRwczovL2xpc3RzLmxpbnV4Zm91bmRh
-dGlvbi5vcmcvbWFpbG1hbi9saXN0aW5mby92aXJ0dWFsaXphdGlvbg==
+On Saturday, January 4, 2020 2:41 AM, Daniel Verkamp wrote:
+> Subject: [PATCH v2 1/2] virtio-balloon: initialize all vq callbacks
+> 
+> Ensure that elements of the callbacks array that correspond to unavailable
+> features are set to NULL; previously, they would be left uninitialized.
+> 
+> Since the corresponding names array elements were explicitly set to NULL,
+> the uninitialized callback pointers would not actually be dereferenced;
+> however, the uninitialized callbacks elements would still be read in 
+> vp_find_vqs_msix() and used to calculate the number of MSI-X vectors
+> required.
+
+The above description doesn't seem true after your second patch gets applied.
+ 
+> Cc: stable@vger.kernel.org
+> Fixes: 86a559787e6f ("virtio-balloon:
+> VIRTIO_BALLOON_F_FREE_PAGE_HINT")
+> Reviewed-by: Cornelia Huck <cohuck@redhat.com>
+> Signed-off-by: Daniel Verkamp <dverkamp@chromium.org>
+> ---
+> 
+> v1:
+> https://lists.linuxfoundation.org/pipermail/virtualization/2019-December/04
+> 4829.html
+> 
+> Changes from v1:
+> - Clarified "array" in commit message to "callbacks array"
+> 
+>  drivers/virtio/virtio_balloon.c | 2 ++
+>  1 file changed, 2 insertions(+)
+> 
+> diff --git a/drivers/virtio/virtio_balloon.c b/drivers/virtio/virtio_balloon.c
+> index 93f995f6cf36..8e400ece9273 100644
+> --- a/drivers/virtio/virtio_balloon.c
+> +++ b/drivers/virtio/virtio_balloon.c
+> @@ -475,7 +475,9 @@ static int init_vqs(struct virtio_balloon *vb)
+>  	names[VIRTIO_BALLOON_VQ_INFLATE] = "inflate";
+>  	callbacks[VIRTIO_BALLOON_VQ_DEFLATE] = balloon_ack;
+>  	names[VIRTIO_BALLOON_VQ_DEFLATE] = "deflate";
+> +	callbacks[VIRTIO_BALLOON_VQ_STATS] = NULL;
+>  	names[VIRTIO_BALLOON_VQ_STATS] = NULL;
+> +	callbacks[VIRTIO_BALLOON_VQ_FREE_PAGE] = NULL;
+
+Could you remove other redundant NULL initialization well?
+https://lists.linuxfoundation.org/pipermail/virtualization/2019-December/044837.html
+
+Best,
+Wei
