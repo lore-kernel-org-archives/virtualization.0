@@ -1,14 +1,17 @@
-From: Jason Wang <jasowang@redhat.com>
-Subject: Re: [PATCH v2] virtio_net: CTRL_GUEST_OFFLOADS depends on CTRL_VQ
-Date: Mon, 6 Jan 2020 10:47:35 +0800
-Message-ID: <2d7053b5-295c-4051-a722-7656350bdb74__31161.1106431641$1578278885$gmane$org@redhat.com>
-References: <20200105132120.92370-1-mst@redhat.com>
+From: "Michael S. Tsirkin" <mst@redhat.com>
+Subject: Re: vhost changes (batched) in linux-next after 12/13 trigger random
+ crashes in KVM guests after reboot
+Date: Mon, 6 Jan 2020 05:50:34 -0500
+Message-ID: <20200106054041-mutt-send-email-mst__18044.017050282$1578307875$gmane$org@kernel.org>
+References: <c022e1d6-0d57-ae07-5e6b-8e40d3b01f4b@de.ibm.com>
+ <20191218100926-mutt-send-email-mst@kernel.org>
+ <2ffdbd95-e375-a627-55a1-6990b0a0e37a@de.ibm.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="utf-8"; Format="flowed"
-Content-Transfer-Encoding: base64
+Content-Type: text/plain; charset="us-ascii"
+Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <20200105132120.92370-1-mst@redhat.com>
-Content-Language: en-US
+In-Reply-To: <2ffdbd95-e375-a627-55a1-6990b0a0e37a@de.ibm.com>
+Content-Disposition: inline
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
  <mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -18,48 +21,75 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
  <mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Errors-To: virtualization-bounces@lists.linux-foundation.org
 Sender: "Virtualization" <virtualization-bounces@lists.linux-foundation.org>
-To: "Michael S. Tsirkin" <mst@redhat.com>, linux-kernel@vger.kernel.org
-Cc: Alistair Delva <adelva@google.com>, netdev@vger.kernel.org, Willem de Bruijn <willemdebruijn.kernel@gmail.com>, "David S. Miller" <davem@davemloft.net>, virtualization@lists.linux-foundation.org
+To: Christian Borntraeger <borntraeger@de.ibm.com>
+Cc: Stephen Rothwell <sfr@canb.auug.org.au>, kvm list <kvm@vger.kernel.org>, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>, "virtualization@lists.linux-foundation.org" <virtualization@lists.linux-foundation.org>, Halil Pasic <pasic@linux.ibm.com>, Linux Next Mailing List <linux-next@vger.kernel.org>
 List-Id: virtualization@lists.linuxfoundation.org
 
-Ck9uIDIwMjAvMS81IOS4i+WNiDk6MjIsIE1pY2hhZWwgUy4gVHNpcmtpbiB3cm90ZToKPiBUaGUg
-b25seSB3YXkgZm9yIGd1ZXN0IHRvIGNvbnRyb2wgb2ZmbG9hZHMgKGFzIGVuYWJsZWQgYnkKPiBW
-SVJUSU9fTkVUX0ZfQ1RSTF9HVUVTVF9PRkZMT0FEUykgaXMgYnkgc2VuZGluZyBjb21tYW5kcwo+
-IHRocm91Z2ggQ1RSTF9WUS4gU28gaXQgZG9lcyBub3QgbWFrZSBzZW5zZSB0bwo+IGFja25vd2xl
-ZGdlIFZJUlRJT19ORVRfRl9DVFJMX0dVRVNUX09GRkxPQURTIHdpdGhvdXQKPiBWSVJUSU9fTkVU
-X0ZfQ1RSTF9WUS4KPgo+IFRoZSBzcGVjIGRvZXMgbm90IG91dGxhdyBkZXZpY2VzIHdpdGggc3Vj
-aCBhIGNvbmZpZ3VyYXRpb24sIHNvIHdlIGhhdmUKPiB0byBzdXBwb3J0IGl0LiBTaW1wbHkgY2xl
-YXIgVklSVElPX05FVF9GX0NUUkxfR1VFU1RfT0ZGTE9BRFMuCj4gTm90ZSB0aGF0IExpbnV4IGlz
-IHN0aWxsIGNyYXNoaW5nIGlmIGl0IHRyaWVzIHRvCj4gY2hhbmdlIHRoZSBvZmZsb2FkcyB3aGVu
-IHRoZXJlJ3Mgbm8gY29udHJvbCB2cS4KPiBUaGF0IG5lZWRzIHRvIGJlIGZpeGVkIGJ5IGFub3Ro
-ZXIgcGF0Y2guCj4KPiBSZXBvcnRlZC1ieTogQWxpc3RhaXIgRGVsdmEgPGFkZWx2YUBnb29nbGUu
-Y29tPgo+IFJlcG9ydGVkLWJ5OiBXaWxsZW0gZGUgQnJ1aWpuIDx3aWxsZW1kZWJydWlqbi5rZXJu
-ZWxAZ21haWwuY29tPgo+IEZpeGVzOiAzZjkzNTIyZmZhYjIgKCJ2aXJ0aW8tbmV0OiBzd2l0Y2gg
-b2ZmIG9mZmxvYWRzIG9uIGRlbWFuZCBpZiBwb3NzaWJsZSBvbiBYRFAgc2V0IikKPiBTaWduZWQt
-b2ZmLWJ5OiBNaWNoYWVsIFMuIFRzaXJraW4gPG1zdEByZWRoYXQuY29tPgo+IC0tLQo+Cj4gU2Ft
-ZSBwYXRjaCBhcyB2MSBidXQgdXBkYXRlIGRvY3VtZW50YXRpb24gc28gaXQncyBjbGVhciBpdCdz
-IG5vdAo+IGVub3VnaCB0byBmaXggdGhlIGNyYXNoLgo+Cj4gICBkcml2ZXJzL25ldC92aXJ0aW9f
-bmV0LmMgfCA5ICsrKysrKysrKwo+ICAgMSBmaWxlIGNoYW5nZWQsIDkgaW5zZXJ0aW9ucygrKQo+
-Cj4gZGlmZiAtLWdpdCBhL2RyaXZlcnMvbmV0L3ZpcnRpb19uZXQuYyBiL2RyaXZlcnMvbmV0L3Zp
-cnRpb19uZXQuYwo+IGluZGV4IDRkN2Q1NDM0Y2M1ZC4uN2I4ODA1YjQ3ZjBkIDEwMDY0NAo+IC0t
-LSBhL2RyaXZlcnMvbmV0L3ZpcnRpb19uZXQuYwo+ICsrKyBiL2RyaXZlcnMvbmV0L3ZpcnRpb19u
-ZXQuYwo+IEBAIC0yOTcxLDYgKzI5NzEsMTUgQEAgc3RhdGljIGludCB2aXJ0bmV0X3ZhbGlkYXRl
-KHN0cnVjdCB2aXJ0aW9fZGV2aWNlICp2ZGV2KQo+ICAgCWlmICghdmlydG5ldF92YWxpZGF0ZV9m
-ZWF0dXJlcyh2ZGV2KSkKPiAgIAkJcmV0dXJuIC1FSU5WQUw7Cj4gICAKPiArCS8qIFZJUlRJT19O
-RVRfRl9DVFJMX0dVRVNUX09GRkxPQURTIGRvZXMgbm90IHdvcmsgd2l0aG91dAo+ICsJICogVklS
-VElPX05FVF9GX0NUUkxfVlEuIFVuZm9ydHVuYXRlbHkgc3BlYyBmb3Jnb3QgdG8KPiArCSAqIHNw
-ZWNpZnkgdGhhdCBWSVJUSU9fTkVUX0ZfQ1RSTF9HVUVTVF9PRkZMT0FEUyBkZXBlbmRzCj4gKwkg
-KiBvbiBWSVJUSU9fTkVUX0ZfQ1RSTF9WUSBzbyBkZXZpY2VzIGNhbiBzZXQgdGhlIGxhdGVyIGJ1
-dAo+ICsJICogbm90IHRoZSBmb3JtZXIuCj4gKwkgKi8KPiArCWlmICghdmlydGlvX2hhc19mZWF0
-dXJlKHZkZXYsIFZJUlRJT19ORVRfRl9DVFJMX1ZRKSkKPiArCQkJX192aXJ0aW9fY2xlYXJfYml0
-KHZkZXYsIFZJUlRJT19ORVRfRl9DVFJMX0dVRVNUX09GRkxPQURTKTsKCgpJZiBpdCdzIGp1c3Qg
-YmVjYXVzZSBhIGJ1ZyBvZiBzcGVjLCBzaG91bGQgd2Ugc2ltcGx5IGZpeCB0aGUgYnVnIGFuZCAK
-ZmFpbCB0aGUgbmVnb3RpYXRpb24gaW4gdmlydG5ldF92YWxpZGF0ZV9mZWF0dXJlKCk/CgpPdGhl
-cndpc2UgdGhlcmUgd291bGQgYmUgaW5jb25zaXN0ZW5jeSBpbiBoYW5kbGluZyBmZWF0dXJlIGRl
-cGVuZGVuY2llcyAKZm9yIGN0cmwgdnEuCgpUaGFua3MKCgo+ICsKPiAgIAlpZiAodmlydGlvX2hh
-c19mZWF0dXJlKHZkZXYsIFZJUlRJT19ORVRfRl9NVFUpKSB7Cj4gICAJCWludCBtdHUgPSB2aXJ0
-aW9fY3JlYWQxNih2ZGV2LAo+ICAgCQkJCQkgb2Zmc2V0b2Yoc3RydWN0IHZpcnRpb19uZXRfY29u
-ZmlnLAoKX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX18KVmly
-dHVhbGl6YXRpb24gbWFpbGluZyBsaXN0ClZpcnR1YWxpemF0aW9uQGxpc3RzLmxpbnV4LWZvdW5k
-YXRpb24ub3JnCmh0dHBzOi8vbGlzdHMubGludXhmb3VuZGF0aW9uLm9yZy9tYWlsbWFuL2xpc3Rp
-bmZvL3ZpcnR1YWxpemF0aW9u
+On Wed, Dec 18, 2019 at 04:59:02PM +0100, Christian Borntraeger wrote:
+> On 18.12.19 16:10, Michael S. Tsirkin wrote:
+> > On Wed, Dec 18, 2019 at 03:43:43PM +0100, Christian Borntraeger wrote:
+> >> Michael,
+> >>
+> >> with 
+> >> commit db7286b100b503ef80612884453bed53d74c9a16 (refs/bisect/skip-db7286b100b503ef80612884453bed53d74c9a16)
+> >>     vhost: use batched version by default
+> >> plus
+> >> commit 6bd262d5eafcdf8cdfae491e2e748e4e434dcda6 (HEAD, refs/bisect/bad)
+> >>     Revert "vhost/net: add an option to test new code"
+> >> to make things compile (your next tree is not easily bisectable, can you fix that as well?).
+> > 
+> > I'll try.
+> > 
+> >>
+> >> I get random crashes in my s390 KVM guests after reboot.
+> >> Reverting both patches together with commit decd9b8 "vhost: use vhost_desc instead of vhost_log" to
+> >> make it compile again) on top of linux-next-1218 makes the problem go away.
+> >>
+> >> Looks like the batched version is not yet ready for prime time. Can you drop these patches until
+> >> we have fixed the issues?
+> >>
+> >> Christian
+> >>
+> > 
+> > Will do, thanks for letting me know.
+> 
+> I have confirmed with the initial reporter (internal test team) that <driver name='qemu'/> 
+> with a known to be broken linux next kernel also fixes the problem, so it is really the
+> vhost changes.
+
+OK I'm back and trying to make it more bisectable.
+
+I pushed a new tag "batch-v2".
+It's same code but with this bisect should get more information.
+
+
+I suspect one of the following:
+
+commit 1414d7ee3d10d2ec2bc4ee652d1d90ec91da1c79
+Author: Michael S. Tsirkin <mst@redhat.com>
+Date:   Mon Oct 7 06:11:18 2019 -0400
+
+    vhost: batching fetches
+    
+    With this patch applied, new and old code perform identically.
+    
+    Lots of extra optimizations are now possible, e.g.
+    we can fetch multiple heads with copy_from/to_user now.
+    We can get rid of maintaining the log array.  Etc etc.
+    
+    Signed-off-by: Michael S. Tsirkin <mst@redhat.com>
+
+commit 50297a8480b439efc5f3f23088cb2d90b799acef
+Author: Michael S. Tsirkin <mst@redhat.com>
+Date:   Wed Dec 11 12:19:26 2019 -0500
+
+    vhost: use batched version by default
+    
+    As testing shows no performance change, switch to that now.
+    
+    Signed-off-by: Michael S. Tsirkin <mst@redhat.com>
+
+
+and would like to know which.
+
+Thanks!
