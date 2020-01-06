@@ -1,14 +1,14 @@
-From: "Michael S. Tsirkin" <mst@redhat.com>
-Subject: Re: [PATCH] virtio-blk: remove VIRTIO_BLK_F_SCSI support
-Date: Sun, 5 Jan 2020 08:27:27 -0500
-Message-ID: <20200105082652-mutt-send-email-mst@kernel.org>
-References: <20191212163719.28432-1-hch@lst.de>
+From: Jason Wang <jasowang@redhat.com>
+Subject: Re: [PATCH v2] virtio_net: CTRL_GUEST_OFFLOADS depends on CTRL_VQ
+Date: Mon, 6 Jan 2020 10:47:35 +0800
+Message-ID: <2d7053b5-295c-4051-a722-7656350bdb74__31161.1106431641$1578278885$gmane$org@redhat.com>
+References: <20200105132120.92370-1-mst@redhat.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset="utf-8"; Format="flowed"
+Content-Transfer-Encoding: base64
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <20191212163719.28432-1-hch@lst.de>
-Content-Disposition: inline
+In-Reply-To: <20200105132120.92370-1-mst@redhat.com>
+Content-Language: en-US
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
  <mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -18,253 +18,48 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
  <mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Errors-To: virtualization-bounces@lists.linux-foundation.org
 Sender: "Virtualization" <virtualization-bounces@lists.linux-foundation.org>
-To: Christoph Hellwig <hch@lst.de>
-Cc: axboe@kernel.dk, virtualization@lists.linux-foundation.org, linux-block@vger.kernel.org, stefanha@redhat.com, pbonzini@redhat.com
+To: "Michael S. Tsirkin" <mst@redhat.com>, linux-kernel@vger.kernel.org
+Cc: Alistair Delva <adelva@google.com>, netdev@vger.kernel.org, Willem de Bruijn <willemdebruijn.kernel@gmail.com>, "David S. Miller" <davem@davemloft.net>, virtualization@lists.linux-foundation.org
 List-Id: virtualization@lists.linuxfoundation.org
 
-On Thu, Dec 12, 2019 at 05:37:19PM +0100, Christoph Hellwig wrote:
-> Since the need for a special flag to support SCSI passthrough on a
-> block device was added in May 2017 the SCSI passthrough support in
-> virtio-blk has been disabled.  It has always been a bad idea
-> (just ask the original author..) and we have virtio-scsi for proper
-> passthrough.  The feature also never made it into the virtio 1.0
-> or later specifications.
-> 
-> Signed-off-by: Christoph Hellwig <hch@lst.de>
-
-OK but I'd rather not make such changes with merge window closed.
-I'll queue this for next window.
-
-> ---
->  arch/powerpc/configs/guest.config |   1 -
->  drivers/block/Kconfig             |  10 ---
->  drivers/block/virtio_blk.c        | 115 +-----------------------------
->  3 files changed, 1 insertion(+), 125 deletions(-)
-> 
-> diff --git a/arch/powerpc/configs/guest.config b/arch/powerpc/configs/guest.config
-> index 8b8cd18ecd7c..209f58515d88 100644
-> --- a/arch/powerpc/configs/guest.config
-> +++ b/arch/powerpc/configs/guest.config
-> @@ -1,5 +1,4 @@
->  CONFIG_VIRTIO_BLK=y
-> -CONFIG_VIRTIO_BLK_SCSI=y
->  CONFIG_SCSI_VIRTIO=y
->  CONFIG_VIRTIO_NET=y
->  CONFIG_NET_FAILOVER=y
-> diff --git a/drivers/block/Kconfig b/drivers/block/Kconfig
-> index 1bb8ec575352..025b1b77b11a 100644
-> --- a/drivers/block/Kconfig
-> +++ b/drivers/block/Kconfig
-> @@ -432,16 +432,6 @@ config VIRTIO_BLK
->  	  This is the virtual block driver for virtio.  It can be used with
->            QEMU based VMMs (like KVM or Xen).  Say Y or M.
->  
-> -config VIRTIO_BLK_SCSI
-> -	bool "SCSI passthrough request for the Virtio block driver"
-> -	depends on VIRTIO_BLK
-> -	select BLK_SCSI_REQUEST
-> -	---help---
-> -	  Enable support for SCSI passthrough (e.g. the SG_IO ioctl) on
-> -	  virtio-blk devices.  This is only supported for the legacy
-> -	  virtio protocol and not enabled by default by any hypervisor.
-> -	  You probably want to use virtio-scsi instead.
-> -
->  config BLK_DEV_RBD
->  	tristate "Rados block device (RBD)"
->  	depends on INET && BLOCK
-> diff --git a/drivers/block/virtio_blk.c b/drivers/block/virtio_blk.c
-> index 7ffd719d89de..54158766334b 100644
-> --- a/drivers/block/virtio_blk.c
-> +++ b/drivers/block/virtio_blk.c
-> @@ -11,7 +11,6 @@
->  #include <linux/virtio_blk.h>
->  #include <linux/scatterlist.h>
->  #include <linux/string_helpers.h>
-> -#include <scsi/scsi_cmnd.h>
->  #include <linux/idr.h>
->  #include <linux/blk-mq.h>
->  #include <linux/blk-mq-virtio.h>
-> @@ -56,11 +55,6 @@ struct virtio_blk {
->  };
->  
->  struct virtblk_req {
-> -#ifdef CONFIG_VIRTIO_BLK_SCSI
-> -	struct scsi_request sreq;	/* for SCSI passthrough, must be first */
-> -	u8 sense[SCSI_SENSE_BUFFERSIZE];
-> -	struct virtio_scsi_inhdr in_hdr;
-> -#endif
->  	struct virtio_blk_outhdr out_hdr;
->  	u8 status;
->  	struct scatterlist sg[];
-> @@ -78,80 +72,6 @@ static inline blk_status_t virtblk_result(struct virtblk_req *vbr)
->  	}
->  }
->  
-> -/*
-> - * If this is a packet command we need a couple of additional headers.  Behind
-> - * the normal outhdr we put a segment with the scsi command block, and before
-> - * the normal inhdr we put the sense data and the inhdr with additional status
-> - * information.
-> - */
-> -#ifdef CONFIG_VIRTIO_BLK_SCSI
-> -static int virtblk_add_req_scsi(struct virtqueue *vq, struct virtblk_req *vbr,
-> -		struct scatterlist *data_sg, bool have_data)
-> -{
-> -	struct scatterlist hdr, status, cmd, sense, inhdr, *sgs[6];
-> -	unsigned int num_out = 0, num_in = 0;
-> -
-> -	sg_init_one(&hdr, &vbr->out_hdr, sizeof(vbr->out_hdr));
-> -	sgs[num_out++] = &hdr;
-> -	sg_init_one(&cmd, vbr->sreq.cmd, vbr->sreq.cmd_len);
-> -	sgs[num_out++] = &cmd;
-> -
-> -	if (have_data) {
-> -		if (vbr->out_hdr.type & cpu_to_virtio32(vq->vdev, VIRTIO_BLK_T_OUT))
-> -			sgs[num_out++] = data_sg;
-> -		else
-> -			sgs[num_out + num_in++] = data_sg;
-> -	}
-> -
-> -	sg_init_one(&sense, vbr->sense, SCSI_SENSE_BUFFERSIZE);
-> -	sgs[num_out + num_in++] = &sense;
-> -	sg_init_one(&inhdr, &vbr->in_hdr, sizeof(vbr->in_hdr));
-> -	sgs[num_out + num_in++] = &inhdr;
-> -	sg_init_one(&status, &vbr->status, sizeof(vbr->status));
-> -	sgs[num_out + num_in++] = &status;
-> -
-> -	return virtqueue_add_sgs(vq, sgs, num_out, num_in, vbr, GFP_ATOMIC);
-> -}
-> -
-> -static inline void virtblk_scsi_request_done(struct request *req)
-> -{
-> -	struct virtblk_req *vbr = blk_mq_rq_to_pdu(req);
-> -	struct virtio_blk *vblk = req->q->queuedata;
-> -	struct scsi_request *sreq = &vbr->sreq;
-> -
-> -	sreq->resid_len = virtio32_to_cpu(vblk->vdev, vbr->in_hdr.residual);
-> -	sreq->sense_len = virtio32_to_cpu(vblk->vdev, vbr->in_hdr.sense_len);
-> -	sreq->result = virtio32_to_cpu(vblk->vdev, vbr->in_hdr.errors);
-> -}
-> -
-> -static int virtblk_ioctl(struct block_device *bdev, fmode_t mode,
-> -			     unsigned int cmd, unsigned long data)
-> -{
-> -	struct gendisk *disk = bdev->bd_disk;
-> -	struct virtio_blk *vblk = disk->private_data;
-> -
-> -	/*
-> -	 * Only allow the generic SCSI ioctls if the host can support it.
-> -	 */
-> -	if (!virtio_has_feature(vblk->vdev, VIRTIO_BLK_F_SCSI))
-> -		return -ENOTTY;
-> -
-> -	return scsi_cmd_blk_ioctl(bdev, mode, cmd,
-> -				  (void __user *)data);
-> -}
-> -#else
-> -static inline int virtblk_add_req_scsi(struct virtqueue *vq,
-> -		struct virtblk_req *vbr, struct scatterlist *data_sg,
-> -		bool have_data)
-> -{
-> -	return -EIO;
-> -}
-> -static inline void virtblk_scsi_request_done(struct request *req)
-> -{
-> -}
-> -#define virtblk_ioctl	NULL
-> -#endif /* CONFIG_VIRTIO_BLK_SCSI */
-> -
->  static int virtblk_add_req(struct virtqueue *vq, struct virtblk_req *vbr,
->  		struct scatterlist *data_sg, bool have_data)
->  {
-> @@ -216,13 +136,6 @@ static inline void virtblk_request_done(struct request *req)
->  		      req->special_vec.bv_offset);
->  	}
->  
-> -	switch (req_op(req)) {
-> -	case REQ_OP_SCSI_IN:
-> -	case REQ_OP_SCSI_OUT:
-> -		virtblk_scsi_request_done(req);
-> -		break;
-> -	}
-> -
->  	blk_mq_end_request(req, virtblk_result(vbr));
->  }
->  
-> @@ -299,10 +212,6 @@ static blk_status_t virtio_queue_rq(struct blk_mq_hw_ctx *hctx,
->  		type = VIRTIO_BLK_T_WRITE_ZEROES;
->  		unmap = !(req->cmd_flags & REQ_NOUNMAP);
->  		break;
-> -	case REQ_OP_SCSI_IN:
-> -	case REQ_OP_SCSI_OUT:
-> -		type = VIRTIO_BLK_T_SCSI_CMD;
-> -		break;
->  	case REQ_OP_DRV_IN:
->  		type = VIRTIO_BLK_T_GET_ID;
->  		break;
-> @@ -333,10 +242,7 @@ static blk_status_t virtio_queue_rq(struct blk_mq_hw_ctx *hctx,
->  	}
->  
->  	spin_lock_irqsave(&vblk->vqs[qid].lock, flags);
-> -	if (blk_rq_is_scsi(req))
-> -		err = virtblk_add_req_scsi(vblk->vqs[qid].vq, vbr, vbr->sg, num);
-> -	else
-> -		err = virtblk_add_req(vblk->vqs[qid].vq, vbr, vbr->sg, num);
-> +	err = virtblk_add_req(vblk->vqs[qid].vq, vbr, vbr->sg, num);
->  	if (err) {
->  		virtqueue_kick(vblk->vqs[qid].vq);
->  		blk_mq_stop_hw_queue(hctx);
-> @@ -404,7 +310,6 @@ static int virtblk_getgeo(struct block_device *bd, struct hd_geometry *geo)
->  }
->  
->  static const struct block_device_operations virtblk_fops = {
-> -	.ioctl  = virtblk_ioctl,
->  	.owner  = THIS_MODULE,
->  	.getgeo = virtblk_getgeo,
->  };
-> @@ -683,9 +588,6 @@ static int virtblk_init_request(struct blk_mq_tag_set *set, struct request *rq,
->  	struct virtio_blk *vblk = set->driver_data;
->  	struct virtblk_req *vbr = blk_mq_rq_to_pdu(rq);
->  
-> -#ifdef CONFIG_VIRTIO_BLK_SCSI
-> -	vbr->sreq.sense = vbr->sense;
-> -#endif
->  	sg_init_table(vbr->sg, vblk->sg_elems);
->  	return 0;
->  }
-> @@ -698,23 +600,11 @@ static int virtblk_map_queues(struct blk_mq_tag_set *set)
->  					vblk->vdev, 0);
->  }
->  
-> -#ifdef CONFIG_VIRTIO_BLK_SCSI
-> -static void virtblk_initialize_rq(struct request *req)
-> -{
-> -	struct virtblk_req *vbr = blk_mq_rq_to_pdu(req);
-> -
-> -	scsi_req_init(&vbr->sreq);
-> -}
-> -#endif
-> -
->  static const struct blk_mq_ops virtio_mq_ops = {
->  	.queue_rq	= virtio_queue_rq,
->  	.commit_rqs	= virtio_commit_rqs,
->  	.complete	= virtblk_request_done,
->  	.init_request	= virtblk_init_request,
-> -#ifdef CONFIG_VIRTIO_BLK_SCSI
-> -	.initialize_rq_fn = virtblk_initialize_rq,
-> -#endif
->  	.map_queues	= virtblk_map_queues,
->  };
->  
-> @@ -991,9 +881,6 @@ static const struct virtio_device_id id_table[] = {
->  static unsigned int features_legacy[] = {
->  	VIRTIO_BLK_F_SEG_MAX, VIRTIO_BLK_F_SIZE_MAX, VIRTIO_BLK_F_GEOMETRY,
->  	VIRTIO_BLK_F_RO, VIRTIO_BLK_F_BLK_SIZE,
-> -#ifdef CONFIG_VIRTIO_BLK_SCSI
-> -	VIRTIO_BLK_F_SCSI,
-> -#endif
->  	VIRTIO_BLK_F_FLUSH, VIRTIO_BLK_F_TOPOLOGY, VIRTIO_BLK_F_CONFIG_WCE,
->  	VIRTIO_BLK_F_MQ, VIRTIO_BLK_F_DISCARD, VIRTIO_BLK_F_WRITE_ZEROES,
->  }
-> -- 
-> 2.20.1
+Ck9uIDIwMjAvMS81IOS4i+WNiDk6MjIsIE1pY2hhZWwgUy4gVHNpcmtpbiB3cm90ZToKPiBUaGUg
+b25seSB3YXkgZm9yIGd1ZXN0IHRvIGNvbnRyb2wgb2ZmbG9hZHMgKGFzIGVuYWJsZWQgYnkKPiBW
+SVJUSU9fTkVUX0ZfQ1RSTF9HVUVTVF9PRkZMT0FEUykgaXMgYnkgc2VuZGluZyBjb21tYW5kcwo+
+IHRocm91Z2ggQ1RSTF9WUS4gU28gaXQgZG9lcyBub3QgbWFrZSBzZW5zZSB0bwo+IGFja25vd2xl
+ZGdlIFZJUlRJT19ORVRfRl9DVFJMX0dVRVNUX09GRkxPQURTIHdpdGhvdXQKPiBWSVJUSU9fTkVU
+X0ZfQ1RSTF9WUS4KPgo+IFRoZSBzcGVjIGRvZXMgbm90IG91dGxhdyBkZXZpY2VzIHdpdGggc3Vj
+aCBhIGNvbmZpZ3VyYXRpb24sIHNvIHdlIGhhdmUKPiB0byBzdXBwb3J0IGl0LiBTaW1wbHkgY2xl
+YXIgVklSVElPX05FVF9GX0NUUkxfR1VFU1RfT0ZGTE9BRFMuCj4gTm90ZSB0aGF0IExpbnV4IGlz
+IHN0aWxsIGNyYXNoaW5nIGlmIGl0IHRyaWVzIHRvCj4gY2hhbmdlIHRoZSBvZmZsb2FkcyB3aGVu
+IHRoZXJlJ3Mgbm8gY29udHJvbCB2cS4KPiBUaGF0IG5lZWRzIHRvIGJlIGZpeGVkIGJ5IGFub3Ro
+ZXIgcGF0Y2guCj4KPiBSZXBvcnRlZC1ieTogQWxpc3RhaXIgRGVsdmEgPGFkZWx2YUBnb29nbGUu
+Y29tPgo+IFJlcG9ydGVkLWJ5OiBXaWxsZW0gZGUgQnJ1aWpuIDx3aWxsZW1kZWJydWlqbi5rZXJu
+ZWxAZ21haWwuY29tPgo+IEZpeGVzOiAzZjkzNTIyZmZhYjIgKCJ2aXJ0aW8tbmV0OiBzd2l0Y2gg
+b2ZmIG9mZmxvYWRzIG9uIGRlbWFuZCBpZiBwb3NzaWJsZSBvbiBYRFAgc2V0IikKPiBTaWduZWQt
+b2ZmLWJ5OiBNaWNoYWVsIFMuIFRzaXJraW4gPG1zdEByZWRoYXQuY29tPgo+IC0tLQo+Cj4gU2Ft
+ZSBwYXRjaCBhcyB2MSBidXQgdXBkYXRlIGRvY3VtZW50YXRpb24gc28gaXQncyBjbGVhciBpdCdz
+IG5vdAo+IGVub3VnaCB0byBmaXggdGhlIGNyYXNoLgo+Cj4gICBkcml2ZXJzL25ldC92aXJ0aW9f
+bmV0LmMgfCA5ICsrKysrKysrKwo+ICAgMSBmaWxlIGNoYW5nZWQsIDkgaW5zZXJ0aW9ucygrKQo+
+Cj4gZGlmZiAtLWdpdCBhL2RyaXZlcnMvbmV0L3ZpcnRpb19uZXQuYyBiL2RyaXZlcnMvbmV0L3Zp
+cnRpb19uZXQuYwo+IGluZGV4IDRkN2Q1NDM0Y2M1ZC4uN2I4ODA1YjQ3ZjBkIDEwMDY0NAo+IC0t
+LSBhL2RyaXZlcnMvbmV0L3ZpcnRpb19uZXQuYwo+ICsrKyBiL2RyaXZlcnMvbmV0L3ZpcnRpb19u
+ZXQuYwo+IEBAIC0yOTcxLDYgKzI5NzEsMTUgQEAgc3RhdGljIGludCB2aXJ0bmV0X3ZhbGlkYXRl
+KHN0cnVjdCB2aXJ0aW9fZGV2aWNlICp2ZGV2KQo+ICAgCWlmICghdmlydG5ldF92YWxpZGF0ZV9m
+ZWF0dXJlcyh2ZGV2KSkKPiAgIAkJcmV0dXJuIC1FSU5WQUw7Cj4gICAKPiArCS8qIFZJUlRJT19O
+RVRfRl9DVFJMX0dVRVNUX09GRkxPQURTIGRvZXMgbm90IHdvcmsgd2l0aG91dAo+ICsJICogVklS
+VElPX05FVF9GX0NUUkxfVlEuIFVuZm9ydHVuYXRlbHkgc3BlYyBmb3Jnb3QgdG8KPiArCSAqIHNw
+ZWNpZnkgdGhhdCBWSVJUSU9fTkVUX0ZfQ1RSTF9HVUVTVF9PRkZMT0FEUyBkZXBlbmRzCj4gKwkg
+KiBvbiBWSVJUSU9fTkVUX0ZfQ1RSTF9WUSBzbyBkZXZpY2VzIGNhbiBzZXQgdGhlIGxhdGVyIGJ1
+dAo+ICsJICogbm90IHRoZSBmb3JtZXIuCj4gKwkgKi8KPiArCWlmICghdmlydGlvX2hhc19mZWF0
+dXJlKHZkZXYsIFZJUlRJT19ORVRfRl9DVFJMX1ZRKSkKPiArCQkJX192aXJ0aW9fY2xlYXJfYml0
+KHZkZXYsIFZJUlRJT19ORVRfRl9DVFJMX0dVRVNUX09GRkxPQURTKTsKCgpJZiBpdCdzIGp1c3Qg
+YmVjYXVzZSBhIGJ1ZyBvZiBzcGVjLCBzaG91bGQgd2Ugc2ltcGx5IGZpeCB0aGUgYnVnIGFuZCAK
+ZmFpbCB0aGUgbmVnb3RpYXRpb24gaW4gdmlydG5ldF92YWxpZGF0ZV9mZWF0dXJlKCk/CgpPdGhl
+cndpc2UgdGhlcmUgd291bGQgYmUgaW5jb25zaXN0ZW5jeSBpbiBoYW5kbGluZyBmZWF0dXJlIGRl
+cGVuZGVuY2llcyAKZm9yIGN0cmwgdnEuCgpUaGFua3MKCgo+ICsKPiAgIAlpZiAodmlydGlvX2hh
+c19mZWF0dXJlKHZkZXYsIFZJUlRJT19ORVRfRl9NVFUpKSB7Cj4gICAJCWludCBtdHUgPSB2aXJ0
+aW9fY3JlYWQxNih2ZGV2LAo+ICAgCQkJCQkgb2Zmc2V0b2Yoc3RydWN0IHZpcnRpb19uZXRfY29u
+ZmlnLAoKX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX18KVmly
+dHVhbGl6YXRpb24gbWFpbGluZyBsaXN0ClZpcnR1YWxpemF0aW9uQGxpc3RzLmxpbnV4LWZvdW5k
+YXRpb24ub3JnCmh0dHBzOi8vbGlzdHMubGludXhmb3VuZGF0aW9uLm9yZy9tYWlsbWFuL2xpc3Rp
+bmZvL3ZpcnR1YWxpemF0aW9u
