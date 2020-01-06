@@ -1,16 +1,14 @@
 From: "Michael S. Tsirkin" <mst@redhat.com>
-Subject: Re: vhost changes (batched) in linux-next after 12/13 trigger random
- crashes in KVM guests after reboot
-Date: Mon, 6 Jan 2020 05:50:34 -0500
-Message-ID: <20200106054041-mutt-send-email-mst__18044.017050282$1578307875$gmane$org@kernel.org>
-References: <c022e1d6-0d57-ae07-5e6b-8e40d3b01f4b@de.ibm.com>
- <20191218100926-mutt-send-email-mst@kernel.org>
- <2ffdbd95-e375-a627-55a1-6990b0a0e37a@de.ibm.com>
+Subject: Re: [PATCH v2] virtio_net: CTRL_GUEST_OFFLOADS depends on CTRL_VQ
+Date: Mon, 6 Jan 2020 07:54:53 -0500
+Message-ID: <20200106074426-mutt-send-email-mst__3140.85871666379$1578315317$gmane$org@kernel.org>
+References: <20200105132120.92370-1-mst@redhat.com>
+ <2d7053b5-295c-4051-a722-7656350bdb74@redhat.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset="utf-8"
+Content-Transfer-Encoding: base64
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <2ffdbd95-e375-a627-55a1-6990b0a0e37a@de.ibm.com>
+In-Reply-To: <2d7053b5-295c-4051-a722-7656350bdb74@redhat.com>
 Content-Disposition: inline
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
  <mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
@@ -21,75 +19,62 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
  <mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Errors-To: virtualization-bounces@lists.linux-foundation.org
 Sender: "Virtualization" <virtualization-bounces@lists.linux-foundation.org>
-To: Christian Borntraeger <borntraeger@de.ibm.com>
-Cc: Stephen Rothwell <sfr@canb.auug.org.au>, kvm list <kvm@vger.kernel.org>, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>, "virtualization@lists.linux-foundation.org" <virtualization@lists.linux-foundation.org>, Halil Pasic <pasic@linux.ibm.com>, Linux Next Mailing List <linux-next@vger.kernel.org>
+To: Jason Wang <jasowang@redhat.com>
+Cc: Alistair Delva <adelva@google.com>, Willem de Bruijn <willemdebruijn.kernel@gmail.com>, netdev@vger.kernel.org, linux-kernel@vger.kernel.org, virtualization@lists.linux-foundation.org, "David S. Miller" <davem@davemloft.net>
 List-Id: virtualization@lists.linuxfoundation.org
 
-On Wed, Dec 18, 2019 at 04:59:02PM +0100, Christian Borntraeger wrote:
-> On 18.12.19 16:10, Michael S. Tsirkin wrote:
-> > On Wed, Dec 18, 2019 at 03:43:43PM +0100, Christian Borntraeger wrote:
-> >> Michael,
-> >>
-> >> with 
-> >> commit db7286b100b503ef80612884453bed53d74c9a16 (refs/bisect/skip-db7286b100b503ef80612884453bed53d74c9a16)
-> >>     vhost: use batched version by default
-> >> plus
-> >> commit 6bd262d5eafcdf8cdfae491e2e748e4e434dcda6 (HEAD, refs/bisect/bad)
-> >>     Revert "vhost/net: add an option to test new code"
-> >> to make things compile (your next tree is not easily bisectable, can you fix that as well?).
-> > 
-> > I'll try.
-> > 
-> >>
-> >> I get random crashes in my s390 KVM guests after reboot.
-> >> Reverting both patches together with commit decd9b8 "vhost: use vhost_desc instead of vhost_log" to
-> >> make it compile again) on top of linux-next-1218 makes the problem go away.
-> >>
-> >> Looks like the batched version is not yet ready for prime time. Can you drop these patches until
-> >> we have fixed the issues?
-> >>
-> >> Christian
-> >>
-> > 
-> > Will do, thanks for letting me know.
-> 
-> I have confirmed with the initial reporter (internal test team) that <driver name='qemu'/> 
-> with a known to be broken linux next kernel also fixes the problem, so it is really the
-> vhost changes.
-
-OK I'm back and trying to make it more bisectable.
-
-I pushed a new tag "batch-v2".
-It's same code but with this bisect should get more information.
-
-
-I suspect one of the following:
-
-commit 1414d7ee3d10d2ec2bc4ee652d1d90ec91da1c79
-Author: Michael S. Tsirkin <mst@redhat.com>
-Date:   Mon Oct 7 06:11:18 2019 -0400
-
-    vhost: batching fetches
-    
-    With this patch applied, new and old code perform identically.
-    
-    Lots of extra optimizations are now possible, e.g.
-    we can fetch multiple heads with copy_from/to_user now.
-    We can get rid of maintaining the log array.  Etc etc.
-    
-    Signed-off-by: Michael S. Tsirkin <mst@redhat.com>
-
-commit 50297a8480b439efc5f3f23088cb2d90b799acef
-Author: Michael S. Tsirkin <mst@redhat.com>
-Date:   Wed Dec 11 12:19:26 2019 -0500
-
-    vhost: use batched version by default
-    
-    As testing shows no performance change, switch to that now.
-    
-    Signed-off-by: Michael S. Tsirkin <mst@redhat.com>
-
-
-and would like to know which.
-
-Thanks!
+T24gTW9uLCBKYW4gMDYsIDIwMjAgYXQgMTA6NDc6MzVBTSArMDgwMCwgSmFzb24gV2FuZyB3cm90
+ZToKPiAKPiBPbiAyMDIwLzEvNSDkuIvljYg5OjIyLCBNaWNoYWVsIFMuIFRzaXJraW4gd3JvdGU6
+Cj4gPiBUaGUgb25seSB3YXkgZm9yIGd1ZXN0IHRvIGNvbnRyb2wgb2ZmbG9hZHMgKGFzIGVuYWJs
+ZWQgYnkKPiA+IFZJUlRJT19ORVRfRl9DVFJMX0dVRVNUX09GRkxPQURTKSBpcyBieSBzZW5kaW5n
+IGNvbW1hbmRzCj4gPiB0aHJvdWdoIENUUkxfVlEuIFNvIGl0IGRvZXMgbm90IG1ha2Ugc2Vuc2Ug
+dG8KPiA+IGFja25vd2xlZGdlIFZJUlRJT19ORVRfRl9DVFJMX0dVRVNUX09GRkxPQURTIHdpdGhv
+dXQKPiA+IFZJUlRJT19ORVRfRl9DVFJMX1ZRLgo+ID4gCj4gPiBUaGUgc3BlYyBkb2VzIG5vdCBv
+dXRsYXcgZGV2aWNlcyB3aXRoIHN1Y2ggYSBjb25maWd1cmF0aW9uLCBzbyB3ZSBoYXZlCj4gPiB0
+byBzdXBwb3J0IGl0LiBTaW1wbHkgY2xlYXIgVklSVElPX05FVF9GX0NUUkxfR1VFU1RfT0ZGTE9B
+RFMuCj4gPiBOb3RlIHRoYXQgTGludXggaXMgc3RpbGwgY3Jhc2hpbmcgaWYgaXQgdHJpZXMgdG8K
+PiA+IGNoYW5nZSB0aGUgb2ZmbG9hZHMgd2hlbiB0aGVyZSdzIG5vIGNvbnRyb2wgdnEuCj4gPiBU
+aGF0IG5lZWRzIHRvIGJlIGZpeGVkIGJ5IGFub3RoZXIgcGF0Y2guCj4gPiAKPiA+IFJlcG9ydGVk
+LWJ5OiBBbGlzdGFpciBEZWx2YSA8YWRlbHZhQGdvb2dsZS5jb20+Cj4gPiBSZXBvcnRlZC1ieTog
+V2lsbGVtIGRlIEJydWlqbiA8d2lsbGVtZGVicnVpam4ua2VybmVsQGdtYWlsLmNvbT4KPiA+IEZp
+eGVzOiAzZjkzNTIyZmZhYjIgKCJ2aXJ0aW8tbmV0OiBzd2l0Y2ggb2ZmIG9mZmxvYWRzIG9uIGRl
+bWFuZCBpZiBwb3NzaWJsZSBvbiBYRFAgc2V0IikKPiA+IFNpZ25lZC1vZmYtYnk6IE1pY2hhZWwg
+Uy4gVHNpcmtpbiA8bXN0QHJlZGhhdC5jb20+Cj4gPiAtLS0KPiA+IAo+ID4gU2FtZSBwYXRjaCBh
+cyB2MSBidXQgdXBkYXRlIGRvY3VtZW50YXRpb24gc28gaXQncyBjbGVhciBpdCdzIG5vdAo+ID4g
+ZW5vdWdoIHRvIGZpeCB0aGUgY3Jhc2guCj4gPiAKPiA+ICAgZHJpdmVycy9uZXQvdmlydGlvX25l
+dC5jIHwgOSArKysrKysrKysKPiA+ICAgMSBmaWxlIGNoYW5nZWQsIDkgaW5zZXJ0aW9ucygrKQo+
+ID4gCj4gPiBkaWZmIC0tZ2l0IGEvZHJpdmVycy9uZXQvdmlydGlvX25ldC5jIGIvZHJpdmVycy9u
+ZXQvdmlydGlvX25ldC5jCj4gPiBpbmRleCA0ZDdkNTQzNGNjNWQuLjdiODgwNWI0N2YwZCAxMDA2
+NDQKPiA+IC0tLSBhL2RyaXZlcnMvbmV0L3ZpcnRpb19uZXQuYwo+ID4gKysrIGIvZHJpdmVycy9u
+ZXQvdmlydGlvX25ldC5jCj4gPiBAQCAtMjk3MSw2ICsyOTcxLDE1IEBAIHN0YXRpYyBpbnQgdmly
+dG5ldF92YWxpZGF0ZShzdHJ1Y3QgdmlydGlvX2RldmljZSAqdmRldikKPiA+ICAgCWlmICghdmly
+dG5ldF92YWxpZGF0ZV9mZWF0dXJlcyh2ZGV2KSkKPiA+ICAgCQlyZXR1cm4gLUVJTlZBTDsKPiA+
+ICsJLyogVklSVElPX05FVF9GX0NUUkxfR1VFU1RfT0ZGTE9BRFMgZG9lcyBub3Qgd29yayB3aXRo
+b3V0Cj4gPiArCSAqIFZJUlRJT19ORVRfRl9DVFJMX1ZRLiBVbmZvcnR1bmF0ZWx5IHNwZWMgZm9y
+Z290IHRvCj4gPiArCSAqIHNwZWNpZnkgdGhhdCBWSVJUSU9fTkVUX0ZfQ1RSTF9HVUVTVF9PRkZM
+T0FEUyBkZXBlbmRzCj4gPiArCSAqIG9uIFZJUlRJT19ORVRfRl9DVFJMX1ZRIHNvIGRldmljZXMg
+Y2FuIHNldCB0aGUgbGF0ZXIgYnV0Cj4gPiArCSAqIG5vdCB0aGUgZm9ybWVyLgo+ID4gKwkgKi8K
+PiA+ICsJaWYgKCF2aXJ0aW9faGFzX2ZlYXR1cmUodmRldiwgVklSVElPX05FVF9GX0NUUkxfVlEp
+KQo+ID4gKwkJCV9fdmlydGlvX2NsZWFyX2JpdCh2ZGV2LCBWSVJUSU9fTkVUX0ZfQ1RSTF9HVUVT
+VF9PRkZMT0FEUyk7Cj4gCj4gCj4gSWYgaXQncyBqdXN0IGJlY2F1c2UgYSBidWcgb2Ygc3BlYywg
+c2hvdWxkIHdlIHNpbXBseSBmaXggdGhlIGJ1ZyBhbmQgZmFpbAo+IHRoZSBuZWdvdGlhdGlvbiBp
+biB2aXJ0bmV0X3ZhbGlkYXRlX2ZlYXR1cmUoKT8KCk9uZSBtYW4ncyBidWcgaXMgYW5vdGhlciBt
+YW4ncyBmZWF0dXJlOiBhcmd1YWJseSBsZWF2aW5nIHRoZSBmZWF0dXJlcwppbmRlcGVuZGVudCBp
+biB0aGUgc3BlYyBtaWdodCBhbGxvdyByZXVzZSBvZiB0aGUgZmVhdHVyZSBiaXQgd2l0aG91dApi
+cmVha2luZyBndWVzdHMuCgpBbmQgZXZlbiBpZiB3ZSBzYXkgaXQncyBhIGJ1ZyB3ZSBjYW4ndCBz
+aW1wbHkgZml4IHRoZSBidWcgaW4gdGhlCnNwZWM6IGNoYW5naW5nIHRoZSB0ZXh0IGZvciBhIGZ1
+dHVyZSB2ZXJzaW9uIGRvZXMgbm90IGNoYW5nZSB0aGUgZmFjdAp0aGF0IGRldmljZXMgYmVoYXZp
+bmcgYWNjb3JkaW5nIHRvIHRoZSBzcGVjIGV4aXN0LgoKPiBPdGhlcndpc2UgdGhlcmUgd291bGQg
+YmUgaW5jb25zaXN0ZW5jeSBpbiBoYW5kbGluZyBmZWF0dXJlIGRlcGVuZGVuY2llcyBmb3IKPiBj
+dHJsIHZxLgo+IAo+IFRoYW5rcwoKVGhhdCdzIGEgY29zbWV0aWMgcHJvYmxlbSBBVE0uIEl0IG1p
+Z2h0IGJlIGEgZ29vZCBpZGVhIHRvIGdlbmVyYWxseQpjaGFuZ2Ugb3VyIGhhbmRsaW5nIG9mIGRl
+cGVuZGVuY2llcywgYW5kIGNsZWFyIGZlYXR1cmUgYml0cyBpbnN0ZWFkIG9mCmZhaWxpbmcgcHJv
+YmUgb24gYSBtaXNtYXRjaC4gSXQncyB3b3J0aCB0aGlua2luZyAgLSBhdCB0aGUgc3BlYyBsZXZl
+bCAtCmhvdyB3ZSBjYW4gYmVzdCBtYWtlIHRoZSBjb25maWd1cmF0aW9uIGV4dGVuc2libGUuCkJ1
+dCB0aGF0J3Mgbm90IHNvbWV0aGluZyBzcGVjIHNob3VsZCB3b3JyeSBhYm91dC4KCgo+IAo+ID4g
+Kwo+ID4gICAJaWYgKHZpcnRpb19oYXNfZmVhdHVyZSh2ZGV2LCBWSVJUSU9fTkVUX0ZfTVRVKSkg
+ewo+ID4gICAJCWludCBtdHUgPSB2aXJ0aW9fY3JlYWQxNih2ZGV2LAo+ID4gICAJCQkJCSBvZmZz
+ZXRvZihzdHJ1Y3QgdmlydGlvX25ldF9jb25maWcsCgpfX19fX19fX19fX19fX19fX19fX19fX19f
+X19fX19fX19fX19fX19fX19fX19fXwpWaXJ0dWFsaXphdGlvbiBtYWlsaW5nIGxpc3QKVmlydHVh
+bGl6YXRpb25AbGlzdHMubGludXgtZm91bmRhdGlvbi5vcmcKaHR0cHM6Ly9saXN0cy5saW51eGZv
+dW5kYXRpb24ub3JnL21haWxtYW4vbGlzdGluZm8vdmlydHVhbGl6YXRpb24=
