@@ -1,8 +1,8 @@
 From: Krzysztof Kozlowski <krzk@kernel.org>
-Subject: [RFT 10/13] net: wireless: ath5k: Constify ioreadX() iomem argument
+Subject: [RFT 11/13] net: wireless: rtl818x: Constify ioreadX() iomem argument
  (as in generic implementation)
-Date: Tue,  7 Jan 2020 17:53:09 +0100
-Message-ID: <1578415992-24054-13-git-send-email-krzk__31295.703204681$1578416130$gmane$org@kernel.org>
+Date: Tue,  7 Jan 2020 17:53:10 +0100
+Message-ID: <1578415992-24054-14-git-send-email-krzk__30298.035573081$1578416146$gmane$org@kernel.org>
 References: <1578415992-24054-1-git-send-email-krzk@kernel.org>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
@@ -31,49 +31,33 @@ consistency among architectures.
 
 Signed-off-by: Krzysztof Kozlowski <krzk@kernel.org>
 ---
- drivers/net/wireless/ath/ath5k/ahb.c | 10 +++++-----
- 1 file changed, 5 insertions(+), 5 deletions(-)
+ drivers/net/wireless/realtek/rtl818x/rtl8180/rtl8180.h | 6 +++---
+ 1 file changed, 3 insertions(+), 3 deletions(-)
 
-diff --git a/drivers/net/wireless/ath/ath5k/ahb.c b/drivers/net/wireless/ath/ath5k/ahb.c
-index 2c9cec8b53d9..8bd01df369fb 100644
---- a/drivers/net/wireless/ath/ath5k/ahb.c
-+++ b/drivers/net/wireless/ath/ath5k/ahb.c
-@@ -138,18 +138,18 @@ static int ath_ahb_probe(struct platform_device *pdev)
+diff --git a/drivers/net/wireless/realtek/rtl818x/rtl8180/rtl8180.h b/drivers/net/wireless/realtek/rtl818x/rtl8180/rtl8180.h
+index 7948a2da195a..2ff00800d45b 100644
+--- a/drivers/net/wireless/realtek/rtl818x/rtl8180/rtl8180.h
++++ b/drivers/net/wireless/realtek/rtl818x/rtl8180/rtl8180.h
+@@ -150,17 +150,17 @@ void rtl8180_write_phy(struct ieee80211_hw *dev, u8 addr, u32 data);
+ void rtl8180_set_anaparam(struct rtl8180_priv *priv, u32 anaparam);
+ void rtl8180_set_anaparam2(struct rtl8180_priv *priv, u32 anaparam2);
  
- 	if (bcfg->devid >= AR5K_SREV_AR2315_R6) {
- 		/* Enable WMAC AHB arbitration */
--		reg = ioread32((void __iomem *) AR5K_AR2315_AHB_ARB_CTL);
-+		reg = ioread32((const void __iomem *) AR5K_AR2315_AHB_ARB_CTL);
- 		reg |= AR5K_AR2315_AHB_ARB_CTL_WLAN;
- 		iowrite32(reg, (void __iomem *) AR5K_AR2315_AHB_ARB_CTL);
+-static inline u8 rtl818x_ioread8(struct rtl8180_priv *priv, u8 __iomem *addr)
++static inline u8 rtl818x_ioread8(struct rtl8180_priv *priv, const u8 __iomem *addr)
+ {
+ 	return ioread8(addr);
+ }
  
- 		/* Enable global WMAC swapping */
--		reg = ioread32((void __iomem *) AR5K_AR2315_BYTESWAP);
-+		reg = ioread32((const void __iomem *) AR5K_AR2315_BYTESWAP);
- 		reg |= AR5K_AR2315_BYTESWAP_WMAC;
- 		iowrite32(reg, (void __iomem *) AR5K_AR2315_BYTESWAP);
- 	} else {
- 		/* Enable WMAC DMA access (assuming 5312 or 231x*/
- 		/* TODO: check other platforms */
--		reg = ioread32((void __iomem *) AR5K_AR5312_ENABLE);
-+		reg = ioread32((const void __iomem *) AR5K_AR5312_ENABLE);
- 		if (to_platform_device(ah->dev)->id == 0)
- 			reg |= AR5K_AR5312_ENABLE_WLAN0;
- 		else
-@@ -202,12 +202,12 @@ static int ath_ahb_remove(struct platform_device *pdev)
+-static inline u16 rtl818x_ioread16(struct rtl8180_priv *priv, __le16 __iomem *addr)
++static inline u16 rtl818x_ioread16(struct rtl8180_priv *priv, const __le16 __iomem *addr)
+ {
+ 	return ioread16(addr);
+ }
  
- 	if (bcfg->devid >= AR5K_SREV_AR2315_R6) {
- 		/* Disable WMAC AHB arbitration */
--		reg = ioread32((void __iomem *) AR5K_AR2315_AHB_ARB_CTL);
-+		reg = ioread32((const void __iomem *) AR5K_AR2315_AHB_ARB_CTL);
- 		reg &= ~AR5K_AR2315_AHB_ARB_CTL_WLAN;
- 		iowrite32(reg, (void __iomem *) AR5K_AR2315_AHB_ARB_CTL);
- 	} else {
- 		/*Stop DMA access */
--		reg = ioread32((void __iomem *) AR5K_AR5312_ENABLE);
-+		reg = ioread32((const void __iomem *) AR5K_AR5312_ENABLE);
- 		if (to_platform_device(ah->dev)->id == 0)
- 			reg &= ~AR5K_AR5312_ENABLE_WLAN0;
- 		else
+-static inline u32 rtl818x_ioread32(struct rtl8180_priv *priv, __le32 __iomem *addr)
++static inline u32 rtl818x_ioread32(struct rtl8180_priv *priv, const __le32 __iomem *addr)
+ {
+ 	return ioread32(addr);
+ }
 -- 
 2.7.4
