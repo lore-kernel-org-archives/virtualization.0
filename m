@@ -1,8 +1,8 @@
-From: "Michael S. Tsirkin" <mst@redhat.com>
+From: Christian Borntraeger <borntraeger@de.ibm.com>
 Subject: Re: vhost changes (batched) in linux-next after 12/13 trigger random
  crashes in KVM guests after reboot
-Date: Tue, 7 Jan 2020 06:55:22 -0500
-Message-ID: <20200107065434-mutt-send-email-mst__11242.6588240609$1578398145$gmane$org@kernel.org>
+Date: Tue, 7 Jan 2020 13:16:50 +0100
+Message-ID: <fe6e7e90-3004-eb7a-9ed8-b53a7667959f__5598.00501666672$1578399433$gmane$org@de.ibm.com>
 References: <c022e1d6-0d57-ae07-5e6b-8e40d3b01f4b@de.ibm.com>
  <20191218100926-mutt-send-email-mst@kernel.org>
  <2ffdbd95-e375-a627-55a1-6990b0a0e37a@de.ibm.com>
@@ -10,12 +10,13 @@ References: <c022e1d6-0d57-ae07-5e6b-8e40d3b01f4b@de.ibm.com>
  <08ae8d28-3d8c-04e8-bdeb-0117d06c6dc7@de.ibm.com>
  <20200107042401-mutt-send-email-mst@kernel.org>
  <c6795e53-d12c-0709-c2e9-e35d9af1f693@de.ibm.com>
+ <20200107065434-mutt-send-email-mst@kernel.org>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="utf-8"
-Content-Transfer-Encoding: base64
+Content-Type: text/plain; charset="us-ascii"
+Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <c6795e53-d12c-0709-c2e9-e35d9af1f693@de.ibm.com>
-Content-Disposition: inline
+In-Reply-To: <20200107065434-mutt-send-email-mst@kernel.org>
+Content-Language: en-US
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
  <mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -25,79 +26,40 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
  <mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Errors-To: virtualization-bounces@lists.linux-foundation.org
 Sender: "Virtualization" <virtualization-bounces@lists.linux-foundation.org>
-To: Christian Borntraeger <borntraeger@de.ibm.com>
+To: "Michael S. Tsirkin" <mst@redhat.com>
 Cc: Stephen Rothwell <sfr@canb.auug.org.au>, kvm list <kvm@vger.kernel.org>, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>, "virtualization@lists.linux-foundation.org" <virtualization@lists.linux-foundation.org>, Halil Pasic <pasic@linux.ibm.com>, Linux Next Mailing List <linux-next@vger.kernel.org>
 List-Id: virtualization@lists.linuxfoundation.org
 
-T24gVHVlLCBKYW4gMDcsIDIwMjAgYXQgMTI6MzQ6NTBQTSArMDEwMCwgQ2hyaXN0aWFuIEJvcm50
-cmFlZ2VyIHdyb3RlOgo+IAo+IAo+IE9uIDA3LjAxLjIwIDEwOjM5LCBNaWNoYWVsIFMuIFRzaXJr
-aW4gd3JvdGU6Cj4gPiBPbiBUdWUsIEphbiAwNywgMjAyMCBhdCAwOTo1OToxNkFNICswMTAwLCBD
-aHJpc3RpYW4gQm9ybnRyYWVnZXIgd3JvdGU6Cj4gPj4KPiA+Pgo+ID4+IE9uIDA2LjAxLjIwIDEx
-OjUwLCBNaWNoYWVsIFMuIFRzaXJraW4gd3JvdGU6Cj4gPj4+IE9uIFdlZCwgRGVjIDE4LCAyMDE5
-IGF0IDA0OjU5OjAyUE0gKzAxMDAsIENocmlzdGlhbiBCb3JudHJhZWdlciB3cm90ZToKPiA+Pj4+
-IE9uIDE4LjEyLjE5IDE2OjEwLCBNaWNoYWVsIFMuIFRzaXJraW4gd3JvdGU6Cj4gPj4+Pj4gT24g
-V2VkLCBEZWMgMTgsIDIwMTkgYXQgMDM6NDM6NDNQTSArMDEwMCwgQ2hyaXN0aWFuIEJvcm50cmFl
-Z2VyIHdyb3RlOgo+ID4+Pj4+PiBNaWNoYWVsLAo+ID4+Pj4+Pgo+ID4+Pj4+PiB3aXRoIAo+ID4+
-Pj4+PiBjb21taXQgZGI3Mjg2YjEwMGI1MDNlZjgwNjEyODg0NDUzYmVkNTNkNzRjOWExNiAocmVm
-cy9iaXNlY3Qvc2tpcC1kYjcyODZiMTAwYjUwM2VmODA2MTI4ODQ0NTNiZWQ1M2Q3NGM5YTE2KQo+
-ID4+Pj4+PiAgICAgdmhvc3Q6IHVzZSBiYXRjaGVkIHZlcnNpb24gYnkgZGVmYXVsdAo+ID4+Pj4+
-PiBwbHVzCj4gPj4+Pj4+IGNvbW1pdCA2YmQyNjJkNWVhZmNkZjhjZGZhZTQ5MWUyZTc0OGU0ZTQz
-NGRjZGE2IChIRUFELCByZWZzL2Jpc2VjdC9iYWQpCj4gPj4+Pj4+ICAgICBSZXZlcnQgInZob3N0
-L25ldDogYWRkIGFuIG9wdGlvbiB0byB0ZXN0IG5ldyBjb2RlIgo+ID4+Pj4+PiB0byBtYWtlIHRo
-aW5ncyBjb21waWxlICh5b3VyIG5leHQgdHJlZSBpcyBub3QgZWFzaWx5IGJpc2VjdGFibGUsIGNh
-biB5b3UgZml4IHRoYXQgYXMgd2VsbD8pLgo+ID4+Pj4+Cj4gPj4+Pj4gSSdsbCB0cnkuCj4gPj4+
-Pj4KPiA+Pj4+Pj4KPiA+Pj4+Pj4gSSBnZXQgcmFuZG9tIGNyYXNoZXMgaW4gbXkgczM5MCBLVk0g
-Z3Vlc3RzIGFmdGVyIHJlYm9vdC4KPiA+Pj4+Pj4gUmV2ZXJ0aW5nIGJvdGggcGF0Y2hlcyB0b2dl
-dGhlciB3aXRoIGNvbW1pdCBkZWNkOWI4ICJ2aG9zdDogdXNlIHZob3N0X2Rlc2MgaW5zdGVhZCBv
-ZiB2aG9zdF9sb2ciIHRvCj4gPj4+Pj4+IG1ha2UgaXQgY29tcGlsZSBhZ2Fpbikgb24gdG9wIG9m
-IGxpbnV4LW5leHQtMTIxOCBtYWtlcyB0aGUgcHJvYmxlbSBnbyBhd2F5Lgo+ID4+Pj4+Pgo+ID4+
-Pj4+PiBMb29rcyBsaWtlIHRoZSBiYXRjaGVkIHZlcnNpb24gaXMgbm90IHlldCByZWFkeSBmb3Ig
-cHJpbWUgdGltZS4gQ2FuIHlvdSBkcm9wIHRoZXNlIHBhdGNoZXMgdW50aWwKPiA+Pj4+Pj4gd2Ug
-aGF2ZSBmaXhlZCB0aGUgaXNzdWVzPwo+ID4+Pj4+Pgo+ID4+Pj4+PiBDaHJpc3RpYW4KPiA+Pj4+
-Pj4KPiA+Pj4+Pgo+ID4+Pj4+IFdpbGwgZG8sIHRoYW5rcyBmb3IgbGV0dGluZyBtZSBrbm93Lgo+
-ID4+Pj4KPiA+Pj4+IEkgaGF2ZSBjb25maXJtZWQgd2l0aCB0aGUgaW5pdGlhbCByZXBvcnRlciAo
-aW50ZXJuYWwgdGVzdCB0ZWFtKSB0aGF0IDxkcml2ZXIgbmFtZT0ncWVtdScvPiAKPiA+Pj4+IHdp
-dGggYSBrbm93biB0byBiZSBicm9rZW4gbGludXggbmV4dCBrZXJuZWwgYWxzbyBmaXhlcyB0aGUg
-cHJvYmxlbSwgc28gaXQgaXMgcmVhbGx5IHRoZQo+ID4+Pj4gdmhvc3QgY2hhbmdlcy4KPiA+Pj4K
-PiA+Pj4gT0sgSSdtIGJhY2sgYW5kIHRyeWluZyB0byBtYWtlIGl0IG1vcmUgYmlzZWN0YWJsZS4K
-PiA+Pj4KPiA+Pj4gSSBwdXNoZWQgYSBuZXcgdGFnICJiYXRjaC12MiIuCj4gPj4+IEl0J3Mgc2Ft
-ZSBjb2RlIGJ1dCB3aXRoIHRoaXMgYmlzZWN0IHNob3VsZCBnZXQgbW9yZSBpbmZvcm1hdGlvbi4K
-PiA+Pgo+ID4+IEkgZ2V0IHRoZSBmb2xsb3dpbmcgd2l0aCB0aGlzIHRhZwo+ID4+Cj4gPj4gZHJp
-dmVycy92aG9zdC9uZXQuYzogSW4gZnVuY3Rpb24g4oCYdmhvc3RfbmV0X3R4X2dldF92cV9kZXNj
-4oCZOgo+ID4+IGRyaXZlcnMvdmhvc3QvbmV0LmM6NTc0Ojc6IGVycm9yOiBpbXBsaWNpdCBkZWNs
-YXJhdGlvbiBvZiBmdW5jdGlvbiDigJh2aG9zdF9nZXRfdnFfZGVzY19iYXRjaOKAmTsgZGlkIHlv
-dSBtZWFuIOKAmHZob3N0X2dldF92cV9kZXNj4oCZPyBbLVdlcnJvcj1pbXBsaWNpdC1mdW5jdGlv
-bi1kZWNsYXJhdGlvbl0KPiA+PiAgIDU3NCB8ICAgciA9IHZob3N0X2dldF92cV9kZXNjX2JhdGNo
-KHR2cSwgdHZxLT5pb3YsIEFSUkFZX1NJWkUodHZxLT5pb3YpLAo+ID4+ICAgICAgIHwgICAgICAg
-Xn5+fn5+fn5+fn5+fn5+fn5+fn5+fn4KPiA+PiAgICAgICB8ICAgICAgIHZob3N0X2dldF92cV9k
-ZXNjCj4gPj4KPiA+IAo+ID4gTm90IHN1cmUgd2h5IGJ1dCBJIHB1c2hlZCBhIHdyb25nIGNvbW1p
-dC4gU29ycnkuIFNob3VsZCBiZSBnb29kIG5vdy4KPiA+IAo+IAo+IGR1cmluZyBiaXNlY3Q6Cj4g
-Cj4gZHJpdmVycy92aG9zdC92aG9zdC5jOiBJbiBmdW5jdGlvbiDigJh2aG9zdF9nZXRfdnFfZGVz
-Y19iYXRjaOKAmToKPiBkcml2ZXJzL3Zob3N0L3Zob3N0LmM6MjYzNDo4OiBlcnJvcjog4oCYaWTi
-gJkgdW5kZWNsYXJlZCAoZmlyc3QgdXNlIGluIHRoaXMgZnVuY3Rpb24pOyBkaWQgeW91IG1lYW4g
-4oCYaeKAmT8KPiAgMjYzNCB8ICByZXQgPSBpZDsKPiAgICAgICB8ICAgICAgICBefgo+ICAgICAg
-IHwgICAgICAgIGkKPiAKPiBJIGNoYW5nZWQgdGhhdCB0byBpCj4gCj4gCj4gVGhlIGxhc3Qgc3Rl
-cCB0aGVuIGdhdmUgbWUgIChvbiBjb21taXQgNTAyOTdhODQ4MGI0MzllZmM1ZjNmMjMwODhjYjJk
-OTBiNzk5YWNlZiB2aG9zdDogdXNlIGJhdGNoZWQgdmVyc2lvbiBieSBkZWZhdWx0KQo+IG5ldCBl
-bmMxOiBVbmV4cGVjdGVkIFRYUSAoMCkgcXVldWUgZmFpbHVyZTogLTUKPiBpbiB0aGUgZ3Vlc3Qu
-Cj4gCj4gYmlzZWN0IGxvZyBzbyBmYXI6Cj4gW2Nib3JudHJhQG04M2xwNTIgbGludXhdJCBnaXQg
-YmlzZWN0IGxvZwo+IGdpdCBiaXNlY3Qgc3RhcnQKPiAjIGJhZDogWzMxMzFlNzliYjllOTg5MmE1
-YTZiZDMzNTEzZGU5YmM5MGIyMGU4NjddIHZob3N0OiB1c2Ugdmhvc3RfZGVzYyBpbnN0ZWFkIG9m
-IHZob3N0X2xvZwo+IGdpdCBiaXNlY3QgYmFkIDMxMzFlNzliYjllOTg5MmE1YTZiZDMzNTEzZGU5
-YmM5MGIyMGU4NjcKPiAjIGdvb2Q6IFtkMTI4MWUzYTU2MmVjNmEwOGY5NDRhODc2NDgxZGQwNDNi
-YTczOWI5XSB2aXJ0aW8tYmxrOiByZW1vdmUgVklSVElPX0JMS19GX1NDU0kgc3VwcG9ydAo+IGdp
-dCBiaXNlY3QgZ29vZCBkMTI4MWUzYTU2MmVjNmEwOGY5NDRhODc2NDgxZGQwNDNiYTczOWI5Cj4g
-IyBnb29kOiBbNWIwMGFhYjViNjMzMmE2N2UzMmRhY2UxZGNkM2ExOThhYjk0ZWQ1Nl0gdmhvc3Q6
-IG9wdGlvbiB0byBmZXRjaCBkZXNjcmlwdG9ycyB0aHJvdWdoIGFuIGluZGVwZW5kZW50IHN0cnVj
-dAo+IGdpdCBiaXNlY3QgZ29vZCA1YjAwYWFiNWI2MzMyYTY3ZTMyZGFjZTFkY2QzYTE5OGFiOTRl
-ZDU2Cj4gIyBnb29kOiBbNWIwMGFhYjViNjMzMmE2N2UzMmRhY2UxZGNkM2ExOThhYjk0ZWQ1Nl0g
-dmhvc3Q6IG9wdGlvbiB0byBmZXRjaCBkZXNjcmlwdG9ycyB0aHJvdWdoIGFuIGluZGVwZW5kZW50
-IHN0cnVjdAo+IGdpdCBiaXNlY3QgZ29vZCA1YjAwYWFiNWI2MzMyYTY3ZTMyZGFjZTFkY2QzYTE5
-OGFiOTRlZDU2Cj4gIyBiYWQ6IFsxNDE0ZDdlZTNkMTBkMmVjMmJjNGVlNjUyZDFkOTBlYzkxZGEx
-Yzc5XSB2aG9zdDogYmF0Y2hpbmcgZmV0Y2hlcwo+IGdpdCBiaXNlY3QgYmFkIDE0MTRkN2VlM2Qx
-MGQyZWMyYmM0ZWU2NTJkMWQ5MGVjOTFkYTFjNzkKPiAKPiAKCkkgcHVzaGVkIGJhdGNoZWQtdjMg
-LSBzYW1lIGhlYWQgYnV0IGJpc2VjdCBzaG91bGQgd29yayBub3cuCgotLSAKTVNUCgpfX19fX19f
-X19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fXwpWaXJ0dWFsaXphdGlvbiBt
-YWlsaW5nIGxpc3QKVmlydHVhbGl6YXRpb25AbGlzdHMubGludXgtZm91bmRhdGlvbi5vcmcKaHR0
-cHM6Ly9saXN0cy5saW51eGZvdW5kYXRpb24ub3JnL21haWxtYW4vbGlzdGluZm8vdmlydHVhbGl6
-YXRpb24=
+On 07.01.20 12:55, Michael S. Tsirkin wrote:
+
+> 
+> I pushed batched-v3 - same head but bisect should work now.
+> 
+
+With 
+commit 38ced0208491103b50f1056f0d1c8f28e2e13d08 (HEAD)
+Author:     Michael S. Tsirkin <mst@redhat.com>
+AuthorDate: Wed Dec 11 12:19:26 2019 -0500
+Commit:     Michael S. Tsirkin <mst@redhat.com>
+CommitDate: Tue Jan 7 06:52:42 2020 -0500
+
+    vhost: use batched version by default
+
+
+I have exactly one successful ping and then the network inside the guest is broken (no packet
+anymore).
+
+So you could consider this commit broken (but in a different way and also without any
+guest reboot necessary).
+
+
+bisect log:
+git bisect start
+# bad: [d2f6175f52062ee51ee69754a6925608213475d2] vhost: use vhost_desc instead of vhost_log
+git bisect bad d2f6175f52062ee51ee69754a6925608213475d2
+# good: [d1281e3a562ec6a08f944a876481dd043ba739b9] virtio-blk: remove VIRTIO_BLK_F_SCSI support
+git bisect good d1281e3a562ec6a08f944a876481dd043ba739b9
+# good: [fac7c0f46996e32d996f5c46121df24a6b95ec3b] vhost: option to fetch descriptors through an independent struct
+git bisect good fac7c0f46996e32d996f5c46121df24a6b95ec3b
+# bad: [539eb9d738f048cd7be61f404e8f9c7d9d2ff3cc] vhost: batching fetches
+git bisect bad 539eb9d738f048cd7be61f404e8f9c7d9d2ff3cc
