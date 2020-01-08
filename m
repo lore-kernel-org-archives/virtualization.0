@@ -1,14 +1,15 @@
 From: Geert Uytterhoeven <geert@linux-m68k.org>
-Subject: Re: [RFT 00/13] iomap: Constify ioreadX() iomem argument
-Date: Wed, 8 Jan 2020 09:12:47 +0100
-Message-ID: <CAMuHMdUBmYtJKtSYzS_5u67hVZOqcKSgFY1rDGme6gLNRBJ_gA__9314.43437454931$1578471353$gmane$org@mail.gmail.com>
+Subject: Re: [RFT 02/13] alpha: Constify ioreadX() iomem argument (as in
+ generic implementation)
+Date: Wed, 8 Jan 2020 09:10:06 +0100
+Message-ID: <CAMuHMdXHhF6GhS1W8qS4j7Jv5YnxXjcRopT5QSA=+trc8qwFng__17735.5280307651$1578471388$gmane$org@mail.gmail.com>
 References: <1578415992-24054-1-git-send-email-krzk@kernel.org>
- <CAMuHMdW4ek0OYQDrrbcpZjNUTTP04nSbwkmiZvBmKcU=PQM9qA@mail.gmail.com>
+ <1578415992-24054-3-git-send-email-krzk@kernel.org>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <CAMuHMdW4ek0OYQDrrbcpZjNUTTP04nSbwkmiZvBmKcU=PQM9qA@mail.gmail.com>
+In-Reply-To: <1578415992-24054-3-git-send-email-krzk@kernel.org>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
  <mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -24,23 +25,37 @@ List-Id: virtualization@lists.linuxfoundation.org
 
 Hi Krzysztof,
 
-On Wed, Jan 8, 2020 at 9:07 AM Geert Uytterhoeven <geert@linux-m68k.org> wrote:
-> On Tue, Jan 7, 2020 at 5:53 PM Krzysztof Kozlowski <krzk@kernel.org> wrote:
-> > The ioread8/16/32() and others have inconsistent interface among the
-> > architectures: some taking address as const, some not.
-> >
-> > It seems there is nothing really stopping all of them to take
-> > pointer to const.
+On Tue, Jan 7, 2020 at 5:53 PM Krzysztof Kozlowski <krzk@kernel.org> wrote:
+> The ioreadX() helpers have inconsistent interface.  On some architectures
+> void *__iomem address argument is a pointer to const, on some not.
 >
-> Shouldn't all of them take const volatile __iomem pointers?
-> It seems the "volatile" is missing from all but the implementations in
-> include/asm-generic/io.h.
+> Implementations of ioreadX() do not modify the memory under the address
+> so they can be converted to a "const" version for const-safety and
+> consistency among architectures.
+>
+> Signed-off-by: Krzysztof Kozlowski <krzk@kernel.org>
 
-As my "volatile" comment applies to iowrite*(), too, probably that should be
-done in a separate patch.
+> --- a/arch/alpha/include/asm/io.h
+> +++ b/arch/alpha/include/asm/io.h
+> @@ -151,9 +151,9 @@ static inline void generic_##NAME(TYPE b, QUAL void __iomem *addr)  \
+>         alpha_mv.mv_##NAME(b, addr);                                    \
+>  }
+>
+> -REMAP1(unsigned int, ioread8, /**/)
+> -REMAP1(unsigned int, ioread16, /**/)
+> -REMAP1(unsigned int, ioread32, /**/)
+> +REMAP1(unsigned int, ioread8, const)
+> +REMAP1(unsigned int, ioread16, const)
+> +REMAP1(unsigned int, ioread32, const)
 
-Hence with patches 1-5 squashed, and for patches 11-13:
-Reviewed-by: Geert Uytterhoeven <geert+renesas@glider.be>
+If these would become "const volatile", there would no longer be a need
+for the last parameter of the REMAP1() macro.
+
+>  REMAP1(u8, readb, const volatile)
+>  REMAP1(u16, readw, const volatile)
+>  REMAP1(u32, readl, const volatile)
+
+Same for REMAP2() macro below, for iowrite*().
 
 Gr{oetje,eeting}s,
 
