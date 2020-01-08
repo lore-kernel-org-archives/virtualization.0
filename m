@@ -1,11 +1,14 @@
 From: Krzysztof Kozlowski <krzk@kernel.org>
-Subject: [PATCH v2 0/9] iomap: Constify ioreadX() iomem argument
-Date: Wed,  8 Jan 2020 21:05:19 +0100
-Message-ID: <20200108200528.4614-1-krzk__32244.9029002868$1578513979$gmane$org@kernel.org>
+Subject: [PATCH v2 3/9] ntb: intel: Constify ioreadX() iomem argument (as in
+ generic implementation)
+Date: Wed,  8 Jan 2020 21:05:22 +0100
+Message-ID: <20200108200528.4614-4-krzk__18575.9524161526$1578514018$gmane$org@kernel.org>
+References: <20200108200528.4614-1-krzk@kernel.org>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
+In-Reply-To: <20200108200528.4614-1-krzk@kernel.org>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
  <mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -18,102 +21,64 @@ Sender: "Virtualization" <virtualization-bounces@lists.linux-foundation.org>
 To: Richard Henderson <rth@twiddle.net>, Ivan Kokshaysky <ink@jurassic.park.msu.ru>, Matt Turner <mattst88@gmail.com>, Alexey Brodkin <abrodkin@synopsys.com>, Vineet Gupta <vgupta@synopsys.com>, "James E.J. Bottomley" <James.Bottomley@HansenPartnership.com>, Helge Deller <deller@gmx.de>, Benjamin Herrenschmidt <benh@kernel.crashing.org>, Paul Mackerras <paulus@samba.org>, Michael Ellerman <mpe@ellerman.id.au>, Yoshinori Sato <ysato@users.sourceforge.jp>, Rich Felker <dalias@libc.org>, Dave Airlie <airlied@redhat.com>, David Airlie <airlied@linux.ie>, Daniel Vetter <daniel@ffwll.ch>, Ben Skeggs <bskeggs@redhat.com>, Mauro Carvalho Chehab <mchehab@kernel.org>, Jiri Slaby <jirislaby@gmail.com>, Nick Kossifidis <mickflemm@gmail.com>, Luis Chamberlain <mcgrof@kernel.org>, Kalle Valo <kvalo@codeaurora.org>, "David S. Miller" <davem@davemloft.net>, Dave Jiang <dave.jiang@intel.com>
 List-Id: virtualization@lists.linuxfoundation.org
 
-Hi,
+The ioreadX() helpers have inconsistent interface.  On some architectures
+void *__iomem address argument is a pointer to const, on some not.
 
+Implementations of ioreadX() do not modify the memory under the address
+so they can be converted to a "const" version for const-safety and
+consistency among architectures.
 
-Changes since v1
-================
-https://lore.kernel.org/lkml/1578415992-24054-1-git-send-email-krzk@kernel.org/
-1. Constify also ioreadX_rep() and mmio_insX(),
-2. Squash lib+alpha+powerpc+parisc+sh into one patch for bisectability,
-3. Add Geert's review,
-4. Re-order patches so all optional driver changes are at the end.
+Signed-off-by: Krzysztof Kozlowski <krzk@kernel.org>
+Reviewed-by: Geert Uytterhoeven <geert+renesas@glider.be>
 
+---
 
-Description
-===========
-The ioread8/16/32() and others have inconsistent interface among the
-architectures: some taking address as const, some not.
+Changes since v1:
+1. Add Geert's review.
+---
+ drivers/ntb/hw/intel/ntb_hw_gen1.c  | 2 +-
+ drivers/ntb/hw/intel/ntb_hw_gen3.h  | 2 +-
+ drivers/ntb/hw/intel/ntb_hw_intel.h | 2 +-
+ 3 files changed, 3 insertions(+), 3 deletions(-)
 
-It seems there is nothing really stopping all of them to take
-pointer to const.
-
-Patchset was not really tested on all affected architectures.
-Build testing is in progress - I hope auto-builders will point any issues.
-
-
-volatile
-========
-There is still interface inconsistency between architectures around
-"volatile" qualifier:
- - include/asm-generic/io.h:static inline u32 ioread32(const volatile void __iomem *addr)
- - include/asm-generic/iomap.h:extern unsigned int ioread32(const void __iomem *);
-
-This is still discussed and out of scope of this patchset.
-
-
-Merging
-=======
-Multiple architectures are affected in first patch so acks are welcomed.
-
-Patches 2-4 depend on first patch.
-The rest is optional cleanup, without actual impact.
-
-
-Best regards,
-Krzysztof
-
-
-Krzysztof Kozlowski (9):
-  iomap: Constify ioreadX() iomem argument (as in generic
-    implementation)
-  net: wireless: rtl818x: Constify ioreadX() iomem argument (as in
-    generic implementation)
-  ntb: intel: Constify ioreadX() iomem argument (as in generic
-    implementation)
-  virtio: pci: Constify ioreadX() iomem argument (as in generic
-    implementation)
-  arc: Constify ioreadX() iomem argument (as in generic implementation)
-  drm/mgag200: Constify ioreadX() iomem argument (as in generic
-    implementation)
-  drm/nouveau: Constify ioreadX() iomem argument (as in generic
-    implementation)
-  media: fsl-viu: Constify ioreadX() iomem argument (as in generic
-    implementation)
-  net: wireless: ath5k: Constify ioreadX() iomem argument (as in generic
-    implementation)
-
- arch/alpha/include/asm/core_apecs.h           |  6 +-
- arch/alpha/include/asm/core_cia.h             |  6 +-
- arch/alpha/include/asm/core_lca.h             |  6 +-
- arch/alpha/include/asm/core_marvel.h          |  4 +-
- arch/alpha/include/asm/core_mcpcia.h          |  6 +-
- arch/alpha/include/asm/core_t2.h              |  2 +-
- arch/alpha/include/asm/io.h                   | 12 ++--
- arch/alpha/include/asm/io_trivial.h           | 16 ++---
- arch/alpha/include/asm/jensen.h               |  2 +-
- arch/alpha/include/asm/machvec.h              |  6 +-
- arch/alpha/kernel/core_marvel.c               |  2 +-
- arch/alpha/kernel/io.c                        | 12 ++--
- arch/arc/plat-axs10x/axs10x.c                 |  4 +-
- arch/parisc/include/asm/io.h                  |  4 +-
- arch/parisc/lib/iomap.c                       | 72 +++++++++----------
- arch/powerpc/kernel/iomap.c                   | 28 ++++----
- arch/sh/kernel/iomap.c                        | 22 +++---
- drivers/gpu/drm/mgag200/mgag200_drv.h         |  4 +-
- drivers/gpu/drm/nouveau/nouveau_bo.c          |  2 +-
- drivers/media/platform/fsl-viu.c              |  2 +-
- drivers/net/wireless/ath/ath5k/ahb.c          | 10 +--
- .../realtek/rtl818x/rtl8180/rtl8180.h         |  6 +-
- drivers/ntb/hw/intel/ntb_hw_gen1.c            |  2 +-
- drivers/ntb/hw/intel/ntb_hw_gen3.h            |  2 +-
- drivers/ntb/hw/intel/ntb_hw_intel.h           |  2 +-
- drivers/virtio/virtio_pci_modern.c            |  6 +-
- include/asm-generic/iomap.h                   | 28 ++++----
- include/linux/io-64-nonatomic-hi-lo.h         |  4 +-
- include/linux/io-64-nonatomic-lo-hi.h         |  4 +-
- lib/iomap.c                                   | 30 ++++----
- 30 files changed, 156 insertions(+), 156 deletions(-)
-
+diff --git a/drivers/ntb/hw/intel/ntb_hw_gen1.c b/drivers/ntb/hw/intel/ntb_hw_gen1.c
+index bb57ec239029..9202502a9787 100644
+--- a/drivers/ntb/hw/intel/ntb_hw_gen1.c
++++ b/drivers/ntb/hw/intel/ntb_hw_gen1.c
+@@ -1202,7 +1202,7 @@ int intel_ntb_peer_spad_write(struct ntb_dev *ntb, int pidx, int sidx,
+ 			       ndev->peer_reg->spad);
+ }
+ 
+-static u64 xeon_db_ioread(void __iomem *mmio)
++static u64 xeon_db_ioread(const void __iomem *mmio)
+ {
+ 	return (u64)ioread16(mmio);
+ }
+diff --git a/drivers/ntb/hw/intel/ntb_hw_gen3.h b/drivers/ntb/hw/intel/ntb_hw_gen3.h
+index 75fb86ca27bb..d1455f24ec99 100644
+--- a/drivers/ntb/hw/intel/ntb_hw_gen3.h
++++ b/drivers/ntb/hw/intel/ntb_hw_gen3.h
+@@ -91,7 +91,7 @@
+ #define GEN3_DB_TOTAL_SHIFT		33
+ #define GEN3_SPAD_COUNT			16
+ 
+-static inline u64 gen3_db_ioread(void __iomem *mmio)
++static inline u64 gen3_db_ioread(const void __iomem *mmio)
+ {
+ 	return ioread64(mmio);
+ }
+diff --git a/drivers/ntb/hw/intel/ntb_hw_intel.h b/drivers/ntb/hw/intel/ntb_hw_intel.h
+index e071e28bca3f..3c0a5a2da241 100644
+--- a/drivers/ntb/hw/intel/ntb_hw_intel.h
++++ b/drivers/ntb/hw/intel/ntb_hw_intel.h
+@@ -102,7 +102,7 @@ struct intel_ntb_dev;
+ struct intel_ntb_reg {
+ 	int (*poll_link)(struct intel_ntb_dev *ndev);
+ 	int (*link_is_up)(struct intel_ntb_dev *ndev);
+-	u64 (*db_ioread)(void __iomem *mmio);
++	u64 (*db_ioread)(const void __iomem *mmio);
+ 	void (*db_iowrite)(u64 db_bits, void __iomem *mmio);
+ 	unsigned long			ntb_ctl;
+ 	resource_size_t			db_size;
 -- 
 2.17.1
