@@ -1,8 +1,8 @@
 From: Krzysztof Kozlowski <krzk@kernel.org>
-Subject: [PATCH v2 7/9] drm/nouveau: Constify ioreadX() iomem argument (as in
+Subject: [PATCH v2 4/9] virtio: pci: Constify ioreadX() iomem argument (as in
  generic implementation)
-Date: Wed,  8 Jan 2020 21:05:26 +0100
-Message-ID: <20200108200528.4614-8-krzk__29435.1352307544$1578514058$gmane$org@kernel.org>
+Date: Wed,  8 Jan 2020 21:05:23 +0100
+Message-ID: <20200108200528.4614-5-krzk__30367.6475816005$1578514065$gmane$org@kernel.org>
 References: <20200108200528.4614-1-krzk@kernel.org>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
@@ -29,22 +29,39 @@ so they can be converted to a "const" version for const-safety and
 consistency among architectures.
 
 Signed-off-by: Krzysztof Kozlowski <krzk@kernel.org>
----
- drivers/gpu/drm/nouveau/nouveau_bo.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+Reviewed-by: Geert Uytterhoeven <geert+renesas@glider.be>
 
-diff --git a/drivers/gpu/drm/nouveau/nouveau_bo.c b/drivers/gpu/drm/nouveau/nouveau_bo.c
-index f8015e0318d7..5120d062c2df 100644
---- a/drivers/gpu/drm/nouveau/nouveau_bo.c
-+++ b/drivers/gpu/drm/nouveau/nouveau_bo.c
-@@ -613,7 +613,7 @@ nouveau_bo_rd32(struct nouveau_bo *nvbo, unsigned index)
- 	mem += index;
+---
+
+Changes since v1:
+1. Add Geert's review.
+---
+ drivers/virtio/virtio_pci_modern.c | 6 +++---
+ 1 file changed, 3 insertions(+), 3 deletions(-)
+
+diff --git a/drivers/virtio/virtio_pci_modern.c b/drivers/virtio/virtio_pci_modern.c
+index 7abcc50838b8..fc58db4ab6c3 100644
+--- a/drivers/virtio/virtio_pci_modern.c
++++ b/drivers/virtio/virtio_pci_modern.c
+@@ -26,16 +26,16 @@
+  * method, i.e. 32-bit accesses for 32-bit fields, 16-bit accesses
+  * for 16-bit fields and 8-bit accesses for 8-bit fields.
+  */
+-static inline u8 vp_ioread8(u8 __iomem *addr)
++static inline u8 vp_ioread8(const u8 __iomem *addr)
+ {
+ 	return ioread8(addr);
+ }
+-static inline u16 vp_ioread16 (__le16 __iomem *addr)
++static inline u16 vp_ioread16 (const __le16 __iomem *addr)
+ {
+ 	return ioread16(addr);
+ }
  
- 	if (is_iomem)
--		return ioread32_native((void __force __iomem *)mem);
-+		return ioread32_native((const void __force __iomem *)mem);
- 	else
- 		return *mem;
+-static inline u32 vp_ioread32(__le32 __iomem *addr)
++static inline u32 vp_ioread32(const __le32 __iomem *addr)
+ {
+ 	return ioread32(addr);
  }
 -- 
 2.17.1
