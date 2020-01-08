@@ -1,15 +1,17 @@
-From: Krzysztof Kozlowski <krzk@kernel.org>
+From: Geert Uytterhoeven <geert@linux-m68k.org>
 Subject: Re: [RFT 00/13] iomap: Constify ioreadX() iomem argument
-Date: Wed, 8 Jan 2020 09:18:03 +0100
-Message-ID: <CAJKOXPfq9vS4kSyx1jOPHBvi9_HjviRv0LU2A8ZwdmqgUuebHQ__7917.61379675648$1578471724$gmane$org@mail.gmail.com>
+Date: Wed, 8 Jan 2020 09:43:04 +0100
+Message-ID: <CAMuHMdV=-m-eN4rOa=XQhk2oBDZZwgXXMU6RMVQRVsc6ALyeoA__30789.8290500574$1578473239$gmane$org@mail.gmail.com>
 References: <1578415992-24054-1-git-send-email-krzk@kernel.org>
  <CAMuHMdW4ek0OYQDrrbcpZjNUTTP04nSbwkmiZvBmKcU=PQM9qA@mail.gmail.com>
  <CAMuHMdUBmYtJKtSYzS_5u67hVZOqcKSgFY1rDGme6gLNRBJ_gA@mail.gmail.com>
+ <CAJKOXPfq9vS4kSyx1jOPHBvi9_HjviRv0LU2A8ZwdmqgUuebHQ@mail.gmail.com>
+ <2355489c-a207-1927-54cf-85c04b62f18f@c-s.fr>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset="utf-8"
+Content-Transfer-Encoding: base64
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <CAMuHMdUBmYtJKtSYzS_5u67hVZOqcKSgFY1rDGme6gLNRBJ_gA@mail.gmail.com>
+In-Reply-To: <2355489c-a207-1927-54cf-85c04b62f18f@c-s.fr>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
  <mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -19,35 +21,49 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
  <mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Errors-To: virtualization-bounces@lists.linux-foundation.org
 Sender: "Virtualization" <virtualization-bounces@lists.linux-foundation.org>
-To: Geert Uytterhoeven <geert@linux-m68k.org>
-Cc: Rich Felker <dalias@libc.org>, Jiri Slaby <jirislaby@gmail.com>, "Michael S. Tsirkin" <mst@redhat.com>, David Airlie <airlied@linux.ie>, Benjamin Herrenschmidt <benh@kernel.crashing.org>, DRI Development <dri-devel@lists.freedesktop.org>, virtualization@lists.linux-foundation.org, "James E.J. Bottomley" <James.Bottomley@hansenpartnership.com>, netdev <netdev@vger.kernel.org>, Paul Mackerras <paulus@samba.org>, Linux-Arch <linux-arch@vger.kernel.org>, Dave Jiang <dave.jiang@intel.com>, Yoshinori Sato <ysato@users.sourceforge.jp>, Michael Ellerman <mpe@ellerman.id.au>, Helge Deller <deller@gmx.de>, Linux-sh list <linux-sh@vger.kernel.org>, Alexey Brodkin <abrodkin@synopsys.com>, Ben Skeggs <bskeggs@redhat.com>, nouveau@lists.freedesktop.org, Dave Airlie <airlied@redhat.com>, Matt Turner <mattst88@gmail.com>, arcml <linux-snps-arc@lists.infradead.org>, Nick Kossifidis <mic>
+To: Christophe Leroy <christophe.leroy@c-s.fr>
+Cc: Rich Felker <dalias@libc.org>, Jiri Slaby <jirislaby@gmail.com>, "Michael S. Tsirkin" <mst@redhat.com>, David Airlie <airlied@linux.ie>, nouveau@lists.freedesktop.org, DRI Development <dri-devel@lists.freedesktop.org>, virtualization@lists.linux-foundation.org, "James E.J. Bottomley" <James.Bottomley@hansenpartnership.com>, Paul Mackerras <paulus@samba.org>, Linux-Arch <linux-arch@vger.kernel.org>, Dave Jiang <dave.jiang@intel.com>, Yoshinori Sato <ysato@users.sourceforge.jp>, Helge Deller <deller@gmx.de>, Linux-sh list <linux-sh@vger.kernel.org>, Alexey Brodkin <abrodkin@synopsys.com>, Krzysztof Kozlowski <krzk@kernel.org>, Ben Skeggs <bskeggs@redhat.com>, Dave Airlie <airlied@redhat.com>, Matt Turner <mattst88@gmail.com>, arcml <linux-snps-arc@lists.infradead.org>, Nick Kossifidis <mickflemm@gmail.com>, Allen Hubbe <allenbh@gmail.com>, Arnd Bergmann <arnd@arndb.de>, Jo
 List-Id: virtualization@lists.linuxfoundation.org
 
-On Wed, 8 Jan 2020 at 09:13, Geert Uytterhoeven <geert@linux-m68k.org> wrote:
->
-> Hi Krzysztof,
->
-> On Wed, Jan 8, 2020 at 9:07 AM Geert Uytterhoeven <geert@linux-m68k.org> wrote:
-> > On Tue, Jan 7, 2020 at 5:53 PM Krzysztof Kozlowski <krzk@kernel.org> wrote:
-> > > The ioread8/16/32() and others have inconsistent interface among the
-> > > architectures: some taking address as const, some not.
-> > >
-> > > It seems there is nothing really stopping all of them to take
-> > > pointer to const.
-> >
-> > Shouldn't all of them take const volatile __iomem pointers?
-> > It seems the "volatile" is missing from all but the implementations in
-> > include/asm-generic/io.h.
->
-> As my "volatile" comment applies to iowrite*(), too, probably that should be
-> done in a separate patch.
->
-> Hence with patches 1-5 squashed, and for patches 11-13:
-> Reviewed-by: Geert Uytterhoeven <geert+renesas@glider.be>
-
-I'll add to this one also changes to ioreadX_rep() and add another
-patch for volatile for reads and writes. I guess your review will be
-appreciated once more because of ioreadX_rep()
-
-Thanks,
-Krzysztof
+SGkgQ2hyaXN0b3BoZSwKCk9uIFdlZCwgSmFuIDgsIDIwMjAgYXQgOTozNSBBTSBDaHJpc3RvcGhl
+IExlcm95IDxjaHJpc3RvcGhlLmxlcm95QGMtcy5mcj4gd3JvdGU6Cj4gTGUgMDgvMDEvMjAyMCDD
+oCAwOToxOCwgS3J6eXN6dG9mIEtvemxvd3NraSBhIMOpY3JpdCA6Cj4gPiBPbiBXZWQsIDggSmFu
+IDIwMjAgYXQgMDk6MTMsIEdlZXJ0IFV5dHRlcmhvZXZlbiA8Z2VlcnRAbGludXgtbTY4ay5vcmc+
+IHdyb3RlOgo+ID4+IE9uIFdlZCwgSmFuIDgsIDIwMjAgYXQgOTowNyBBTSBHZWVydCBVeXR0ZXJo
+b2V2ZW4gPGdlZXJ0QGxpbnV4LW02OGsub3JnPiB3cm90ZToKPiA+Pj4gT24gVHVlLCBKYW4gNywg
+MjAyMCBhdCA1OjUzIFBNIEtyenlzenRvZiBLb3psb3dza2kgPGtyemtAa2VybmVsLm9yZz4gd3Jv
+dGU6Cj4gPj4+PiBUaGUgaW9yZWFkOC8xNi8zMigpIGFuZCBvdGhlcnMgaGF2ZSBpbmNvbnNpc3Rl
+bnQgaW50ZXJmYWNlIGFtb25nIHRoZQo+ID4+Pj4gYXJjaGl0ZWN0dXJlczogc29tZSB0YWtpbmcg
+YWRkcmVzcyBhcyBjb25zdCwgc29tZSBub3QuCj4gPj4+Pgo+ID4+Pj4gSXQgc2VlbXMgdGhlcmUg
+aXMgbm90aGluZyByZWFsbHkgc3RvcHBpbmcgYWxsIG9mIHRoZW0gdG8gdGFrZQo+ID4+Pj4gcG9p
+bnRlciB0byBjb25zdC4KPiA+Pj4KPiA+Pj4gU2hvdWxkbid0IGFsbCBvZiB0aGVtIHRha2UgY29u
+c3Qgdm9sYXRpbGUgX19pb21lbSBwb2ludGVycz8KPiA+Pj4gSXQgc2VlbXMgdGhlICJ2b2xhdGls
+ZSIgaXMgbWlzc2luZyBmcm9tIGFsbCBidXQgdGhlIGltcGxlbWVudGF0aW9ucyBpbgo+ID4+PiBp
+bmNsdWRlL2FzbS1nZW5lcmljL2lvLmguCj4gPj4KPiA+PiBBcyBteSAidm9sYXRpbGUiIGNvbW1l
+bnQgYXBwbGllcyB0byBpb3dyaXRlKigpLCB0b28sIHByb2JhYmx5IHRoYXQgc2hvdWxkIGJlCj4g
+Pj4gZG9uZSBpbiBhIHNlcGFyYXRlIHBhdGNoLgo+ID4+Cj4gPj4gSGVuY2Ugd2l0aCBwYXRjaGVz
+IDEtNSBzcXVhc2hlZCwgYW5kIGZvciBwYXRjaGVzIDExLTEzOgo+ID4+IFJldmlld2VkLWJ5OiBH
+ZWVydCBVeXR0ZXJob2V2ZW4gPGdlZXJ0K3JlbmVzYXNAZ2xpZGVyLmJlPgo+ID4KPiA+IEknbGwg
+YWRkIHRvIHRoaXMgb25lIGFsc28gY2hhbmdlcyB0byBpb3JlYWRYX3JlcCgpIGFuZCBhZGQgYW5v
+dGhlcgo+ID4gcGF0Y2ggZm9yIHZvbGF0aWxlIGZvciByZWFkcyBhbmQgd3JpdGVzLiBJIGd1ZXNz
+IHlvdXIgcmV2aWV3IHdpbGwgYmUKPiA+IGFwcHJlY2lhdGVkIG9uY2UgbW9yZSBiZWNhdXNlIG9m
+IGlvcmVhZFhfcmVwKCkKPgo+IHZvbGF0aWxlIHNob3VsZCByZWFsbHkgb25seSBiZSB1c2VkIHdo
+ZXJlIGRlZW1lZCBuZWNlc3Nhcnk6Cj4KPiBodHRwczovL3d3dy5rZXJuZWwub3JnL2RvYy9odG1s
+L2xhdGVzdC9wcm9jZXNzL3ZvbGF0aWxlLWNvbnNpZGVyZWQtaGFybWZ1bC5odG1sCj4KPiBJdCBp
+cyBzYWlkOiAiIC4uLiAgYWNjZXNzb3IgZnVuY3Rpb25zIG1pZ2h0IHVzZSB2b2xhdGlsZSBvbgo+
+IGFyY2hpdGVjdHVyZXMgd2hlcmUgZGlyZWN0IEkvTyBtZW1vcnkgYWNjZXNzIGRvZXMgd29yay4g
+RXNzZW50aWFsbHksCj4gZWFjaCBhY2Nlc3NvciBjYWxsIGJlY29tZXMgYSBsaXR0bGUgY3JpdGlj
+YWwgc2VjdGlvbiBvbiBpdHMgb3duIGFuZAo+IGVuc3VyZXMgdGhhdCB0aGUgYWNjZXNzIGhhcHBl
+bnMgYXMgZXhwZWN0ZWQgYnkgdGhlIHByb2dyYW1tZXIuIgoKVGhhdCBpcyBleGFjdGx5IHRoZSB1
+c2UgY2FzZSBoZXJlOiBhbGwgYWJvdmUgYXJlIGFjY2Vzc29yIGZ1bmN0aW9ucy4KCldoeSB3b3Vs
+ZCBpb3JlYWRYKCkgbm90IG5lZWQgdm9sYXRpbGUsIHdoaWxlIHJlYWRZKCkgZG9lcz8KCkdye29l
+dGplLGVldGluZ31zLAoKICAgICAgICAgICAgICAgICAgICAgICAgR2VlcnQKCi0tIApHZWVydCBV
+eXR0ZXJob2V2ZW4gLS0gVGhlcmUncyBsb3RzIG9mIExpbnV4IGJleW9uZCBpYTMyIC0tIGdlZXJ0
+QGxpbnV4LW02OGsub3JnCgpJbiBwZXJzb25hbCBjb252ZXJzYXRpb25zIHdpdGggdGVjaG5pY2Fs
+IHBlb3BsZSwgSSBjYWxsIG15c2VsZiBhIGhhY2tlci4gQnV0CndoZW4gSSdtIHRhbGtpbmcgdG8g
+am91cm5hbGlzdHMgSSBqdXN0IHNheSAicHJvZ3JhbW1lciIgb3Igc29tZXRoaW5nIGxpa2UgdGhh
+dC4KICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAtLSBMaW51cyBUb3J2YWxkcwpfX19f
+X19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fXwpWaXJ0dWFsaXphdGlv
+biBtYWlsaW5nIGxpc3QKVmlydHVhbGl6YXRpb25AbGlzdHMubGludXgtZm91bmRhdGlvbi5vcmcK
+aHR0cHM6Ly9saXN0cy5saW51eGZvdW5kYXRpb24ub3JnL21haWxtYW4vbGlzdGluZm8vdmlydHVh
+bGl6YXRpb24=
