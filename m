@@ -1,15 +1,11 @@
-From: "Michael S. Tsirkin" <mst@redhat.com>
-Subject: Re: [PATCH v2] virtio_net: CTRL_GUEST_OFFLOADS depends on CTRL_VQ
-Date: Fri, 10 Jan 2020 01:12:56 -0500
-Message-ID: <20200110011236-mutt-send-email-mst__15812.367647753$1578636838$gmane$org@kernel.org>
-References: <20200105132120.92370-1-mst@redhat.com>
- <20200109.183339.173768060466817001.davem@davemloft.net>
+From: Gerd Hoffmann <kraxel@redhat.com>
+Subject: [PATCH] drm/virtio: add missing virtio_gpu_array_lock_resv call
+Date: Fri, 10 Jan 2020 10:45:35 +0100
+Message-ID: <20200110094535.23472-1-kraxel__731.350707222589$1578649647$gmane$org@redhat.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <20200109.183339.173768060466817001.davem@davemloft.net>
-Content-Disposition: inline
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
  <mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -19,38 +15,31 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
  <mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Errors-To: virtualization-bounces@lists.linux-foundation.org
 Sender: "Virtualization" <virtualization-bounces@lists.linux-foundation.org>
-To: David Miller <davem@davemloft.net>
-Cc: adelva@google.com, willemdebruijn.kernel@gmail.com, netdev@vger.kernel.org, linux-kernel@vger.kernel.org, virtualization@lists.linux-foundation.org
+To: dri-devel@lists.freedesktop.org
+Cc: jannh@google.com, David Airlie <airlied@linux.ie>, open list <linux-kernel@vger.kernel.org>, gurchetansingh@chromium.org, Daniel Vetter <daniel@ffwll.ch>, "open list:VIRTIO GPU DRIVER" <virtualization@lists.linux-foundation.org>, olvaffe@gmail.com
 List-Id: virtualization@lists.linuxfoundation.org
 
-On Thu, Jan 09, 2020 at 06:33:39PM -0800, David Miller wrote:
-> From: "Michael S. Tsirkin" <mst@redhat.com>
-> Date: Sun, 5 Jan 2020 08:22:07 -0500
-> 
-> > The only way for guest to control offloads (as enabled by
-> > VIRTIO_NET_F_CTRL_GUEST_OFFLOADS) is by sending commands
-> > through CTRL_VQ. So it does not make sense to
-> > acknowledge VIRTIO_NET_F_CTRL_GUEST_OFFLOADS without
-> > VIRTIO_NET_F_CTRL_VQ.
-> > 
-> > The spec does not outlaw devices with such a configuration, so we have
-> > to support it. Simply clear VIRTIO_NET_F_CTRL_GUEST_OFFLOADS.
-> > Note that Linux is still crashing if it tries to
-> > change the offloads when there's no control vq.
-> > That needs to be fixed by another patch.
-> > 
-> > Reported-by: Alistair Delva <adelva@google.com>
-> > Reported-by: Willem de Bruijn <willemdebruijn.kernel@gmail.com>
-> > Fixes: 3f93522ffab2 ("virtio-net: switch off offloads on demand if possible on XDP set")
-> > Signed-off-by: Michael S. Tsirkin <mst@redhat.com>
-> > ---
-> > 
-> > Same patch as v1 but update documentation so it's clear it's not
-> > enough to fix the crash.
-> 
-> Where are we with this patch?  There seems to still be some unresolved
-> discussion about how we should actually handle this case.
-> 
-> Thanks.
+When submitting a fenced command we must lock the object reservations
+because virtio_gpu_queue_fenced_ctrl_buffer() unlocks after adding the
+fence.
 
-Once discussion is resolved I'll post v3 with updated commit log.
+Reported-by: Jann Horn <jannh@google.com>
+Signed-off-by: Gerd Hoffmann <kraxel@redhat.com>
+---
+ drivers/gpu/drm/virtio/virtgpu_plane.c | 1 +
+ 1 file changed, 1 insertion(+)
+
+diff --git a/drivers/gpu/drm/virtio/virtgpu_plane.c b/drivers/gpu/drm/virtio/virtgpu_plane.c
+index 390524143139..1635a9ff4794 100644
+--- a/drivers/gpu/drm/virtio/virtgpu_plane.c
++++ b/drivers/gpu/drm/virtio/virtgpu_plane.c
+@@ -232,6 +232,7 @@ static void virtio_gpu_cursor_plane_update(struct drm_plane *plane,
+ 		if (!objs)
+ 			return;
+ 		virtio_gpu_array_add_obj(objs, vgfb->base.obj[0]);
++		virtio_gpu_array_lock_resv(objs);
+ 		virtio_gpu_cmd_transfer_to_host_2d
+ 			(vgdev, 0,
+ 			 plane->state->crtc_w,
+-- 
+2.18.1
