@@ -1,11 +1,14 @@
-From: Thomas Zimmermann <tzimmermann@suse.de>
-Subject: [PATCH] drm/bochs: Let DRM core send VBLANK events
-Date: Fri, 10 Jan 2020 13:06:24 +0100
-Message-ID: <20200110120624.26864-1-tzimmermann__20363.2427308307$1578658184$gmane$org@suse.de>
+From: Jann Horn via Virtualization <virtualization@lists.linux-foundation.org>
+Subject: Re: [PATCH] drm/virtio: add missing virtio_gpu_array_lock_resv call
+Date: Fri, 10 Jan 2020 15:26:46 +0100
+Message-ID: <CAG48ez0wfLkTqdBtDBV4b1uUQMGeeAr09GPPi9WT++Fn8ph4rA@mail.gmail.com>
+References: <20200110094535.23472-1-kraxel@redhat.com>
+Reply-To: Jann Horn <jannh@google.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
+In-Reply-To: <20200110094535.23472-1-kraxel@redhat.com>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
  <mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -15,56 +18,22 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
  <mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Errors-To: virtualization-bounces@lists.linux-foundation.org
 Sender: "Virtualization" <virtualization-bounces@lists.linux-foundation.org>
-To: kraxel@redhat.com, airlied@linux.ie, daniel@ffwll.ch
-Cc: Thomas Zimmermann <tzimmermann@suse.de>, dri-devel@lists.freedesktop.org, virtualization@lists.linux-foundation.org
+To: Gerd Hoffmann <kraxel@redhat.com>
+Cc: David Airlie <airlied@linux.ie>, open list <linux-kernel@vger.kernel.org>, dri-devel@lists.freedesktop.org, "open list:VIRTIO GPU DRIVER" <virtualization@lists.linux-foundation.org>, Daniel Vetter <daniel@ffwll.ch>, gurchetansingh@chromium.org, Chia-I Wu <olvaffe@gmail.com>
 List-Id: virtualization@lists.linuxfoundation.org
 
-In drm_atomic_helper_fake_vblank() the DRM core sends out VBLANK
-events if struct drm_crtc_state.no_vblank is enabled. Replace bochs'
-VBLANK events with the DRM core's functionality.
+On Fri, Jan 10, 2020 at 10:45 AM Gerd Hoffmann <kraxel@redhat.com> wrote:
+> When submitting a fenced command we must lock the object reservations
+> because virtio_gpu_queue_fenced_ctrl_buffer() unlocks after adding the
+> fence.
 
-Signed-off-by: Thomas Zimmermann <tzimmermann@suse.de>
----
- drivers/gpu/drm/bochs/bochs_kms.c | 11 ++---------
- 1 file changed, 2 insertions(+), 9 deletions(-)
+Thanks a lot! With this patch applied, my VM doesn't throw lockdep
+warnings anymore. If you want, you can add:
 
-diff --git a/drivers/gpu/drm/bochs/bochs_kms.c b/drivers/gpu/drm/bochs/bochs_kms.c
-index 3f0006c2470d..14d78bd656c5 100644
---- a/drivers/gpu/drm/bochs/bochs_kms.c
-+++ b/drivers/gpu/drm/bochs/bochs_kms.c
-@@ -7,7 +7,6 @@
- #include <drm/drm_atomic_helper.h>
- #include <drm/drm_gem_framebuffer_helper.h>
- #include <drm/drm_probe_helper.h>
--#include <drm/drm_vblank.h>
- 
- #include "bochs.h"
- 
-@@ -49,6 +48,8 @@ static void bochs_pipe_enable(struct drm_simple_display_pipe *pipe,
- {
- 	struct bochs_device *bochs = pipe->crtc.dev->dev_private;
- 
-+	crtc_state->no_vblank = true;
-+
- 	bochs_hw_setmode(bochs, &crtc_state->mode);
- 	bochs_plane_update(bochs, plane_state);
- }
-@@ -57,16 +58,8 @@ static void bochs_pipe_update(struct drm_simple_display_pipe *pipe,
- 			      struct drm_plane_state *old_state)
- {
- 	struct bochs_device *bochs = pipe->crtc.dev->dev_private;
--	struct drm_crtc *crtc = &pipe->crtc;
- 
- 	bochs_plane_update(bochs, pipe->plane.state);
--
--	if (crtc->state->event) {
--		spin_lock_irq(&crtc->dev->event_lock);
--		drm_crtc_send_vblank_event(crtc, crtc->state->event);
--		crtc->state->event = NULL;
--		spin_unlock_irq(&crtc->dev->event_lock);
--	}
- }
- 
- static const struct drm_simple_display_pipe_funcs bochs_pipe_funcs = {
--- 
-2.24.1
+Tested-by: Jann Horn <jannh@google.com>
+
+> Reported-by: Jann Horn <jannh@google.com>
+> Signed-off-by: Gerd Hoffmann <kraxel@redhat.com>
+> ---
+>  drivers/gpu/drm/virtio/virtgpu_plane.c | 1 +
+>  1 file changed, 1 insertion(+)
