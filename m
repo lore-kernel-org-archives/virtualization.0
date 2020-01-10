@@ -1,13 +1,14 @@
-From: David Miller <davem@davemloft.net>
-Subject: Re: [PATCH v2] virtio_net: CTRL_GUEST_OFFLOADS depends on CTRL_VQ
-Date: Thu, 09 Jan 2020 18:33:39 -0800 (PST)
-Message-ID: <20200109.183339.173768060466817001.davem__15832.0955046051$1578623700$gmane$org@davemloft.net>
-References: <20200105132120.92370-1-mst@redhat.com>
+From: Gerd Hoffmann <kraxel@redhat.com>
+Subject: Re: bochs_drm: failed bochs_hw_init() results in panic
+Date: Fri, 10 Jan 2020 06:35:53 +0100
+Message-ID: <20200110053553.4gqlagjdpfi6pg3b@sirius.home.kraxel.org>
+References: <20200110013328.GA12596@mail-itl>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset="iso-8859-1"
+Content-Transfer-Encoding: quoted-printable
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <20200105132120.92370-1-mst@redhat.com>
+In-Reply-To: <20200110013328.GA12596@mail-itl>
+Content-Disposition: inline
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
  <mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -17,35 +18,35 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
  <mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Errors-To: virtualization-bounces@lists.linux-foundation.org
 Sender: "Virtualization" <virtualization-bounces@lists.linux-foundation.org>
-To: mst@redhat.com
-Cc: adelva@google.com, willemdebruijn.kernel@gmail.com, netdev@vger.kernel.org, linux-kernel@vger.kernel.org, virtualization@lists.linux-foundation.org
+To: Marek =?utf-8?Q?Marczykowski-G=C3=B3recki?= <marmarek@invisiblethingslab.com>
+Cc: virtualization@lists.linux-foundation.org
 List-Id: virtualization@lists.linuxfoundation.org
 
-From: "Michael S. Tsirkin" <mst@redhat.com>
-Date: Sun, 5 Jan 2020 08:22:07 -0500
+On Fri, Jan 10, 2020 at 02:33:28AM +0100, Marek Marczykowski-G=F3recki wrot=
+e:
+> Hi,
+> =
 
-> The only way for guest to control offloads (as enabled by
-> VIRTIO_NET_F_CTRL_GUEST_OFFLOADS) is by sending commands
-> through CTRL_VQ. So it does not make sense to
-> acknowledge VIRTIO_NET_F_CTRL_GUEST_OFFLOADS without
-> VIRTIO_NET_F_CTRL_VQ.
-> 
-> The spec does not outlaw devices with such a configuration, so we have
-> to support it. Simply clear VIRTIO_NET_F_CTRL_GUEST_OFFLOADS.
-> Note that Linux is still crashing if it tries to
-> change the offloads when there's no control vq.
-> That needs to be fixed by another patch.
-> 
-> Reported-by: Alistair Delva <adelva@google.com>
-> Reported-by: Willem de Bruijn <willemdebruijn.kernel@gmail.com>
-> Fixes: 3f93522ffab2 ("virtio-net: switch off offloads on demand if possible on XDP set")
-> Signed-off-by: Michael S. Tsirkin <mst@redhat.com>
-> ---
-> 
-> Same patch as v1 but update documentation so it's clear it's not
-> enough to fix the crash.
+> It looks like bochs_kms_fini() don't like being called if
+> bochs_kms_init() wasn't. Regardless of the reason for the
+> bochs_hw_init() failure (that's another story), it shouldn't cause a
+> panic. Any idea how to fix it?
 
-Where are we with this patch?  There seems to still be some unresolved
-discussion about how we should actually handle this case.
+maybe this?
 
-Thanks.
+diff --git a/drivers/gpu/drm/bochs/bochs_kms.c b/drivers/gpu/drm/bochs/boch=
+s_kms.c
+index 3f0006c2470d..322be68a238a 100644
+--- a/drivers/gpu/drm/bochs/bochs_kms.c
++++ b/drivers/gpu/drm/bochs/bochs_kms.c
+@@ -192,6 +192,9 @@ int bochs_kms_init(struct bochs_device *bochs)
+ =
+
+ void bochs_kms_fini(struct bochs_device *bochs)
+ {
++	if (!dev->mode_config.num_connector)
++		return;
++
+ 	drm_atomic_helper_shutdown(bochs->dev);
+ 	drm_mode_config_cleanup(bochs->dev);
+ }
