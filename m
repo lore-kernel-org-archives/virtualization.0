@@ -1,128 +1,146 @@
-From: Marek =?utf-8?Q?Marczykowski-G=C3=B3recki?=
- <marmarek@invisiblethingslab.com>
-Subject: Re: bochs_drm: failed bochs_hw_init() results in panic
-Date: Sat, 11 Jan 2020 01:07:45 +0100
-Message-ID: <20200111000745.GF2507@mail-itl>
-References: <20200110013328.GA12596@mail-itl>
- <20200110053553.4gqlagjdpfi6pg3b@sirius.home.kraxel.org>
+From: yezengruan <yezengruan@huawei.com>
+Subject: Re: [PATCH v2 1/6] KVM: arm64: Document PV-lock interface
+Date: Sat, 11 Jan 2020 14:51:47 +0800
+Message-ID: <e30649e0-c09f-8d16-a8a2-55e57420ad8d@huawei.com>
+References: <20191226135833.1052-1-yezengruan@huawei.com>
+ <20191226135833.1052-2-yezengruan@huawei.com>
+ <c26ebc8d-6a10-6bc4-0af8-cd4883addbf0@arm.com>
 Mime-Version: 1.0
-Content-Type: multipart/mixed; boundary="===============2746345514883671253=="
-Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <20200110053553.4gqlagjdpfi6pg3b@sirius.home.kraxel.org>
-List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
- <mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
-List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
-List-Post: <mailto:virtualization@lists.linux-foundation.org>
-List-Help: <mailto:virtualization-request@lists.linux-foundation.org?subject=help>
-List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualization>,
- <mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
-Errors-To: virtualization-bounces@lists.linux-foundation.org
-Sender: "Virtualization" <virtualization-bounces@lists.linux-foundation.org>
-To: Gerd Hoffmann <kraxel@redhat.com>
-Cc: virtualization@lists.linux-foundation.org
+Content-Type: text/plain; charset="utf-8"
+Content-Transfer-Encoding: base64
+Return-path: <kvmarm-bounces@lists.cs.columbia.edu>
+In-Reply-To: <c26ebc8d-6a10-6bc4-0af8-cd4883addbf0@arm.com>
+Content-Language: en-US
+List-Unsubscribe: <https://lists.cs.columbia.edu/mailman/options/kvmarm>,
+ <mailto:kvmarm-request@lists.cs.columbia.edu?subject=unsubscribe>
+List-Archive: <https://lists.cs.columbia.edu/pipermail/kvmarm>
+List-Post: <mailto:kvmarm@lists.cs.columbia.edu>
+List-Help: <mailto:kvmarm-request@lists.cs.columbia.edu?subject=help>
+List-Subscribe: <https://lists.cs.columbia.edu/mailman/listinfo/kvmarm>,
+ <mailto:kvmarm-request@lists.cs.columbia.edu?subject=subscribe>
+Errors-To: kvmarm-bounces@lists.cs.columbia.edu
+Sender: kvmarm-bounces@lists.cs.columbia.edu
+To: Steven Price <steven.price@arm.com>, linux-kernel@vger.kernel.org, linux-arm-kernel@lists.infradead.org, kvmarm@lists.cs.columbia.edu, kvm@vger.kernel.org, linux-doc@vger.kernel.org, virtualization@lists.linux-foundation.org
+Cc: catalin.marinas@arm.com, daniel.lezcano@linaro.org, linux@armlinux.org.uk, maz@kernel.org, will@kernel.org
 List-Id: virtualization@lists.linuxfoundation.org
 
-
---===============2746345514883671253==
-Content-Type: multipart/signed; micalg=pgp-sha256;
-	protocol="application/pgp-signature"; boundary="WlEyl6ow+jlIgNUh"
-Content-Disposition: inline
-
-
---WlEyl6ow+jlIgNUh
-Content-Type: text/plain; protected-headers=v1; charset=utf-8
-Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
-Subject: Re: bochs_drm: failed bochs_hw_init() results in panic
-
-On Fri, Jan 10, 2020 at 06:35:53AM +0100, Gerd Hoffmann wrote:
-> On Fri, Jan 10, 2020 at 02:33:28AM +0100, Marek Marczykowski-G=C3=B3recki=
- wrote:
-> > Hi,
-> >=20
-> > It looks like bochs_kms_fini() don't like being called if
-> > bochs_kms_init() wasn't. Regardless of the reason for the
-> > bochs_hw_init() failure (that's another story), it shouldn't cause a
-> > panic. Any idea how to fix it?
->=20
-> maybe this?
-
-Yes, it prevents the panic, with a little fix. Thanks!
-Of course(?) I don't have working framebuffer then, but I can interact
-with the system in other ways, at least to diagnose what's wrong.
-
-Now the messages looks like this:
-
-[   29.800835] bochs-drm 0000:00:02.0: remove_conflicting_pci_framebuffers:=
- bar 0: 0xc0000000 -> 0xc0ffffff
-[   29.800840] bochs-drm 0000:00:02.0: remove_conflicting_pci_framebuffers:=
- bar 2: 0xc1087000 -> 0xc1087fff
-[   29.800842] checking generic (c0000000 1000000) vs hw (c0000000 1000000)
-[   29.800843] fb0: switching to bochsdrmfb from EFI VGA
-[   29.805542] bochs-drm 0000:00:02.0: vgaarb: deactivate vga console
-[   29.805742] bochs-drm 0000:00:02.0: BAR 0: can't reserve [mem 0xc0000000=
--0xc0ffffff pref]
-[   29.805749] [drm:bochs_hw_init [bochs_drm]] *ERROR* Cannot request frame=
-buffer
-[   29.805781] bochs-drm: probe of 0000:00:02.0 failed with error -16
-[   30.129014] Trying to free nonexistent resource <00000000c0000000-000000=
-00c0ffffff>
-
-Is the last one an issue?
-
-
-> diff --git a/drivers/gpu/drm/bochs/bochs_kms.c b/drivers/gpu/drm/bochs/bo=
-chs_kms.c
-> index 3f0006c2470d..322be68a238a 100644
-> --- a/drivers/gpu/drm/bochs/bochs_kms.c
-> +++ b/drivers/gpu/drm/bochs/bochs_kms.c
-> @@ -192,6 +192,9 @@ int bochs_kms_init(struct bochs_device *bochs)
-> =20
->  void bochs_kms_fini(struct bochs_device *bochs)
->  {
-> +	if (!dev->mode_config.num_connector)
-
-bochs->dev->...
-
-> +		return;
-> +
->  	drm_atomic_helper_shutdown(bochs->dev);
->  	drm_mode_config_cleanup(bochs->dev);
->  }
->=20
-
---=20
-Best Regards,
-Marek Marczykowski-G=C3=B3recki
-Invisible Things Lab
-A: Because it messes up the order in which people normally read text.
-Q: Why is top-posting such a bad thing?
-
---WlEyl6ow+jlIgNUh
-Content-Type: application/pgp-signature; name="signature.asc"
-
------BEGIN PGP SIGNATURE-----
-
-iQEzBAEBCAAdFiEEhrpukzGPukRmQqkK24/THMrX1ywFAl4ZEdEACgkQ24/THMrX
-1yxgQAf7BNzQn/c4syB9SAklGnH8cluM8WfIbc8IsxTgdSly8M1RaEHY46mDrnlM
-7fyI76EFobSydNSOocQVMCSzXtzMNVnEAhAOiu11JsUmXyziAugauVz19f3gcbpa
-f+pJHqukT2H1lnTCcdmIK6muzKTHAWMmPgAG2ZM4YZvp3OF8ibDrjabOscLcEF/p
-62HOJSwAHur1A1o31+oaM59eGsY5O9ZZ0DSlphbkAuq9A8A/kUlRytE8KTzd7pM0
-5aKiIp7o7w0mEB7xCadwbhVNUFnkc1jwppkRru/wUt0cpYzJtx41fEM3tO9z1ln5
-SenB6MgyRTl3fHSDJDpwTZvzg6cibg==
-=Edtu
------END PGP SIGNATURE-----
-
---WlEyl6ow+jlIgNUh--
-
---===============2746345514883671253==
-Content-Type: text/plain; charset="us-ascii"
-MIME-Version: 1.0
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-
-_______________________________________________
-Virtualization mailing list
-Virtualization@lists.linux-foundation.org
-https://lists.linuxfoundation.org/mailman/listinfo/virtualization
---===============2746345514883671253==--
+SGkgU3RldmUsCgpPbiAyMDIwLzEvOSAyMjo1MywgU3RldmVuIFByaWNlIHdyb3RlOgo+IE9uIDI2
+LzEyLzIwMTkgMTM6NTgsIFplbmdydWFuIFllIHdyb3RlOgo+PiBJbnRyb2R1Y2UgYSBwYXJhdmly
+dHVhbGl6YXRpb24gaW50ZXJmYWNlIGZvciBLVk0vYXJtNjQgdG8gb2J0YWluIHRoZSBWQ1BVCj4+
+IGlzIGN1cnJlbnRseSBydW5uaW5nIG9yIG5vdC4KPj4KPj4gVGhlIFBWIGxvY2sgc3RydWN0dXJl
+IG9mIHRoZSBndWVzdCBpcyBhbGxvY2F0ZWQgYnkgdXNlciBzcGFjZS4KPj4KPj4gQSBoeXBlcmNh
+bGwgaW50ZXJmYWNlIGlzIHByb3ZpZGVkIGZvciB0aGUgZ3Vlc3QgdG8gaW50ZXJyb2dhdGUgdGhl
+Cj4+IGh5cGVydmlzb3IncyBzdXBwb3J0IGZvciB0aGlzIGludGVyZmFjZSBhbmQgdGhlIGxvY2F0
+aW9uIG9mIHRoZSBzaGFyZWQKPj4gbWVtb3J5IHN0cnVjdHVyZXMuCj4+Cj4+IFNpZ25lZC1vZmYt
+Ynk6IFplbmdydWFuIFllIDx5ZXplbmdydWFuQGh1YXdlaS5jb20+Cj4+IC0tLQo+PiDCoCBEb2N1
+bWVudGF0aW9uL3ZpcnQva3ZtL2FybS9wdmxvY2sucnN0wqDCoCB8IDYzICsrKysrKysrKysrKysr
+KysrKysrKysrKysKPj4gwqAgRG9jdW1lbnRhdGlvbi92aXJ0L2t2bS9kZXZpY2VzL3ZjcHUudHh0
+IHwgMTQgKysrKysrCj4+IMKgIDIgZmlsZXMgY2hhbmdlZCwgNzcgaW5zZXJ0aW9ucygrKQo+PiDC
+oCBjcmVhdGUgbW9kZSAxMDA2NDQgRG9jdW1lbnRhdGlvbi92aXJ0L2t2bS9hcm0vcHZsb2NrLnJz
+dAo+Pgo+PiBkaWZmIC0tZ2l0IGEvRG9jdW1lbnRhdGlvbi92aXJ0L2t2bS9hcm0vcHZsb2NrLnJz
+dCBiL0RvY3VtZW50YXRpb24vdmlydC9rdm0vYXJtL3B2bG9jay5yc3QKPj4gbmV3IGZpbGUgbW9k
+ZSAxMDA2NDQKPj4gaW5kZXggMDAwMDAwMDAwMDAwLi41OGIzYjhlZTc1MzcKPj4gLS0tIC9kZXYv
+bnVsbAo+PiArKysgYi9Eb2N1bWVudGF0aW9uL3ZpcnQva3ZtL2FybS9wdmxvY2sucnN0Cj4+IEBA
+IC0wLDAgKzEsNjMgQEAKPj4gKy4uIFNQRFgtTGljZW5zZS1JZGVudGlmaWVyOiBHUEwtMi4wCj4+
+ICsKPj4gK1BhcmF2aXJ0dWFsaXplZCBsb2NrIHN1cHBvcnQgZm9yIGFybTY0Cj4+ICs9PT09PT09
+PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PQo+PiArCj4+ICtLVk0vYXJtNjQgcHJvdmlk
+ZXMgc29tZSBoeXBlcnZpc29yIHNlcnZpY2UgY2FsbHMgdG8gc3VwcG9ydCBhIHBhcmF2aXJ0dWFs
+aXplZAo+PiArZ3Vlc3Qgb2J0YWluaW5nIHRoZSBWQ1BVIGlzIGN1cnJlbnRseSBydW5uaW5nIG9y
+IG5vdC4KPiBOSVQ6wqDCoMKgwqDCoMKgwqDCoMKgwqDCoMKgwqAgXiB3aGV0aGVyCgpUaGFua3Mg
+Zm9yIHBvc3RpbmcgdGhpcy4KCj4gCj4+ICsKPj4gK1R3byBuZXcgU01DQ0MgY29tcGF0aWJsZSBo
+eXBlcmNhbGxzIGFyZSBkZWZpbmVkOgo+PiArCj4+ICsqIFBWX0xPQ0tfRkVBVFVSRVM6wqDCoCAw
+eEM2MDAwMDIwCj4+ICsqIFBWX0xPQ0tfUFJFRU1QVEVEOsKgIDB4QzYwMDAwMjEKPj4gKwo+PiAr
+VGhlIGV4aXN0ZW5jZSBvZiB0aGUgUFZfTE9DSyBoeXBlcmNhbGwgc2hvdWxkIGJlIHByb2JlZCB1
+c2luZyB0aGUgU01DQ0MgMS4xCj4+ICtBUkNIX0ZFQVRVUkVTIG1lY2hhbmlzbSBiZWZvcmUgY2Fs
+bGluZyBpdC4KPiAKPiBTaW5jZSB0aGVzZSBhcmUgd2l0aGluIHRoZSAidmVuZG9yIHNwZWNpZmlj
+IiBTTUNDQyByZWdpb24gaWRlYWxseSB5b3Ugc2hvdWxkIGFsc28gY2hlY2sgdGhhdCB5b3UgYXJl
+IHRhbGtpbmcgdG8gS1ZNLiAoT3RoZXIgaHlwZXJ2aXNvcnMgY291bGQgYWxsb2NhdGUgU01DQ0Mg
+SURzIGRpZmZlcmVudGx5IHdpdGhpbiB0aGlzIGJsb2NrKS4gV2lsbCBoYXMgYSBwYXRjaCBvbiBh
+IGJyYW5jaCB3aGljaCBnaXZlcyBhbiBleGFtcGxlIG9mIGhvdyB0aGlzIGNvdWxkIHdvcmsgWzFd
+Cj4gCj4gWzFdIGh0dHBzOi8vZ2l0Lmtlcm5lbC5vcmcvcHViL3NjbS9saW51eC9rZXJuZWwvZ2l0
+L3dpbGwvbGludXguZ2l0L2NvbW1pdC8/aD1rdm0vaHZjJmlkPTQ2NGY1YTE3NDFlNTk1OWMzZTRk
+MmJlMTk2NmFlMDA5M2I0ZGNlMDYKCk9LLCBJIHdpbGwgYWRkICJ2ZW5kb3Igc3BlY2lmaWMiIGNo
+ZWNrIG5leHQgdmVyc2lvbi4KCj4gCj4+ICsKPj4gK1BWX0xPQ0tfRkVBVFVSRVMKPj4gK8KgwqDC
+oCA9PT09PT09PT09PT09ID09PT09PT09wqDCoMKgID09PT09PT09PT0KPj4gK8KgwqDCoCBGdW5j
+dGlvbiBJRDrCoCAodWludDMyKcKgwqDCoCAweEM2MDAwMDIwCj4+ICvCoMKgwqAgUFZfY2FsbF9p
+ZDrCoMKgICh1aW50MzIpwqDCoMKgIFRoZSBmdW5jdGlvbiB0byBxdWVyeSBmb3Igc3VwcG9ydC4K
+Pj4gK8KgwqDCoCBSZXR1cm4gdmFsdWU6IChpbnQ2NCnCoMKgwqDCoCBOT1RfU1VQUE9SVEVEICgt
+MSkgb3IgU1VDQ0VTUyAoMCkgaWYgdGhlIHJlbGV2YW50Cj4+ICvCoMKgwqDCoMKgwqDCoMKgwqDC
+oMKgwqDCoMKgwqDCoMKgwqDCoMKgwqDCoMKgwqDCoMKgwqDCoMKgIFBWLWxvY2sgZmVhdHVyZSBp
+cyBzdXBwb3J0ZWQgYnkgdGhlIGh5cGVydmlzb3IuCj4+ICvCoMKgwqAgPT09PT09PT09PT09PSA9
+PT09PT09PcKgwqDCoCA9PT09PT09PT09Cj4+ICsKPj4gK1BWX0xPQ0tfUFJFRU1QVEVECj4+ICvC
+oMKgwqAgPT09PT09PT09PT09PSA9PT09PT09PcKgwqDCoCA9PT09PT09PT09Cj4+ICvCoMKgwqAg
+RnVuY3Rpb24gSUQ6wqAgKHVpbnQzMinCoMKgwqAgMHhDNjAwMDAyMQo+PiArwqDCoMKgIFJldHVy
+biB2YWx1ZTogKGludDY0KcKgwqDCoMKgIE5PVF9TVVBQT1JURUQgKC0xKSBvciBTVUNDRVNTICgw
+KSBpZiB0aGUgSVBBIG9mCj4+ICvCoMKgwqDCoMKgwqDCoMKgwqDCoMKgwqDCoMKgwqDCoMKgwqDC
+oMKgwqDCoMKgwqDCoMKgwqDCoMKgIHRoaXMgVkNQVSdzIHB2IGRhdGEgc3RydWN0dXJlIGlzIGNv
+bmZpZ3VyZWQgYnkKPj4gK8KgwqDCoMKgwqDCoMKgwqDCoMKgwqDCoMKgwqDCoMKgwqDCoMKgwqDC
+oMKgwqDCoMKgwqDCoMKgwqAgdGhlIGh5cGVydmlzb3IuCj4+ICvCoMKgwqAgPT09PT09PT09PT09
+PSA9PT09PT09PcKgwqDCoCA9PT09PT09PT09Cj4gCj4gUFZfTE9DS19QUkVFTVBURUQgYWxzbyBu
+ZWVkcyB0byByZXR1cm4gdGhlIGFkZHJlc3Mgb2YgdGhpcyBkYXRhIHN0cnVjdHVyZS4gRWl0aGVy
+IGJ5IHJldHVybmluZyB0aGlzIGluIGFub3RoZXIgcmVnaXN0ZXIsIG9yIGJ5IGUuZy4gdHJlYXRp
+bmcgYSBwb3NpdGl2ZSByZXR1cm4gYXMgYW4gYWRkcmVzcyBhbmQgYSBuZWdhdGl2ZSB2YWx1ZSBh
+cyBhbiBlcnJvci4KClRoaXMgaXMgc29tZXdoYXQgZW1iYXJyYXNzaW5nLiBUaGUgY29kZSBkb2Vz
+IHdoYXQgeW91IHNheSwgYnV0IHRoZSBkb2MgZG9lc24ndC4gVGhhbmtzIGZvciBwb2ludGluZyBp
+dCBvdXQgdG8gbWUhIEknbGwgdXBkYXRlIHRoZSBkb2MgdG8gbWF0Y2guCgo+IAo+PiArCj4+ICtU
+aGUgSVBBIHJldHVybmVkIGJ5IFBWX0xPQ0tfUFJFRU1QVEVEIHNob3VsZCBiZSBtYXBwZWQgYnkg
+dGhlIGd1ZXN0IGFzIG5vcm1hbAo+PiArbWVtb3J5IHdpdGggaW5uZXIgYW5kIG91dGVyIHdyaXRl
+IGJhY2sgY2FjaGluZyBhdHRyaWJ1dGVzLCBpbiB0aGUgaW5uZXIKPj4gK3NoYXJlYWJsZSBkb21h
+aW4uCj4+ICsKPj4gK1BWX0xPQ0tfUFJFRU1QVEVEIHJldHVybnMgdGhlIHN0cnVjdHVyZSBmb3Ig
+dGhlIGNhbGxpbmcgVkNQVS4KPj4gKwo+PiArUFYgbG9jayBzdGF0ZQo+PiArLS0tLS0tLS0tLS0t
+LQo+PiArCj4+ICtUaGUgc3RydWN0dXJlIHBvaW50ZWQgdG8gYnkgdGhlIFBWX0xPQ0tfUFJFRU1Q
+VEVEIGh5cGVyY2FsbCBpcyBhcyBmb2xsb3dzOgo+PiArCj4+ICsrLS0tLS0tLS0tLS0rLS0tLS0t
+LS0tLS0tLSstLS0tLS0tLS0tLS0tKy0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLSsK
+Pj4gK3wgRmllbGTCoMKgwqDCoCB8IEJ5dGUgTGVuZ3RoIHwgQnl0ZSBPZmZzZXQgfCBEZXNjcmlw
+dGlvbsKgwqDCoMKgwqDCoMKgwqDCoMKgwqDCoMKgwqDCoMKgwqDCoMKgwqAgfAo+PiArKz09PT09
+PT09PT09Kz09PT09PT09PT09PT0rPT09PT09PT09PT09PSs9PT09PT09PT09PT09PT09PT09PT09
+PT09PT09PT09PT0rCj4+ICt8IHByZWVtcHRlZCB8wqDCoMKgwqDCoCA4wqDCoMKgwqDCoCB8wqDC
+oMKgwqDCoCAwwqDCoMKgwqDCoCB8IEluZGljYXRlIHRoZSBWQ1BVIHdobyBvd25zIHRoaXMgfAo+
+IAo+IE5JVDogcy9JbmRpY2F0ZS9JbmRpY2F0ZXMgdGhhdC8uIEFsc28gbW9yZSBjb21tb24gRW5n
+bGlzaCB3b3VsZCBiZSAidGhlIFZDUFUgKnRoYXQqIG93bnMiCgpXaWxsIHVwZGF0ZS4KCj4gCj4+
+ICt8wqDCoMKgwqDCoMKgwqDCoMKgwqAgfMKgwqDCoMKgwqDCoMKgwqDCoMKgwqDCoCB8wqDCoMKg
+wqDCoMKgwqDCoMKgwqDCoMKgIHwgc3RydWN0IGlzIHJ1bm5pbmcgb3Igbm90LsKgwqDCoMKgwqDC
+oCB8Cj4+ICt8wqDCoMKgwqDCoMKgwqDCoMKgwqAgfMKgwqDCoMKgwqDCoMKgwqDCoMKgwqDCoCB8
+wqDCoMKgwqDCoMKgwqDCoMKgwqDCoMKgIHwgTm9uLXplcm8gdmFsdWVzIG1lYW4gdGhlIFZDUFXC
+oMKgIHwKPj4gK3zCoMKgwqDCoMKgwqDCoMKgwqDCoCB8wqDCoMKgwqDCoMKgwqDCoMKgwqDCoMKg
+IHzCoMKgwqDCoMKgwqDCoMKgwqDCoMKgwqAgfCBoYXMgYmVlbiBwcmVlbXB0ZWQuIFplcm8gbWVh
+bnPCoCB8Cj4+ICt8wqDCoMKgwqDCoMKgwqDCoMKgwqAgfMKgwqDCoMKgwqDCoMKgwqDCoMKgwqDC
+oCB8wqDCoMKgwqDCoMKgwqDCoMKgwqDCoMKgIHwgdGhlIFZDUFUgaXMgbm90IHByZWVtcHRlZC7C
+oMKgwqDCoMKgIHwKPj4gKystLS0tLS0tLS0tLSstLS0tLS0tLS0tLS0tKy0tLS0tLS0tLS0tLS0r
+LS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tKwo+PiArCj4+ICtUaGUgcHJlZW1wdGVk
+IGZpZWxkIHdpbGwgYmUgdXBkYXRlZCB0byAxIGJ5IHRoZSBoeXBlcnZpc29yIHByaW9yIHRvIHNj
+aGVkdWxpbmcKPj4gK2EgVkNQVS4gV2hlbiB0aGUgVkNQVSBpcyBzY2hlZHVsZWQgb3V0LCB0aGUg
+cHJlZW1wdGVkIGZpZWxkIHdpbGwgYmUgdXBkYXRlZAo+PiArdG8gMCBieSB0aGUgaHlwZXJ2aXNv
+ci4KPj4gKwo+PiArVGhlIHN0cnVjdHVyZSB3aWxsIGJlIHByZXNlbnQgd2l0aGluIGEgcmVzZXJ2
+ZWQgcmVnaW9uIG9mIHRoZSBub3JtYWwgbWVtb3J5Cj4+ICtnaXZlbiB0byB0aGUgZ3Vlc3QuIFRo
+ZSBndWVzdCBzaG91bGQgbm90IGF0dGVtcHQgdG8gd3JpdGUgaW50byB0aGlzIG1lbW9yeS4KPj4g
+K1RoZXJlIGlzIGEgc3RydWN0dXJlIHBlciBWQ1BVIG9mIHRoZSBndWVzdC4KPiAKPiBJIHRoaW5r
+IGl0IHdvdWxkIGJlIHdvcnRoIG1lbnRpb25pbmcgaW4gdGhpcyBkb2N1bWVudCB0aGF0IHRoZSBz
+dHJ1Y3R1cmUgaXMgZ3VhcmFudGVlZCB0byBiZSA2NC1ieXRlIGFsaWduZWQuCgpHb29kIHBvaW50
+LCBJJ2xsIHVwZGF0ZSB0aGUgZG9jLgoKPiAKPiBTdGV2ZQo+IAo+PiArCj4+ICtGb3IgdGhlIHVz
+ZXIgc3BhY2UgaW50ZXJmYWNlIHNlZSBEb2N1bWVudGF0aW9uL3ZpcnQva3ZtL2RldmljZXMvdmNw
+dS50eHQKPj4gK3NlY3Rpb24gIjQuIEdST1VQOiBLVk1fQVJNX1ZDUFVfUFZMT0NLX0NUUkwiLgo+
+PiBkaWZmIC0tZ2l0IGEvRG9jdW1lbnRhdGlvbi92aXJ0L2t2bS9kZXZpY2VzL3ZjcHUudHh0IGIv
+RG9jdW1lbnRhdGlvbi92aXJ0L2t2bS9kZXZpY2VzL3ZjcHUudHh0Cj4+IGluZGV4IDZmM2JkNjRh
+MDViMC4uYzEwYTU5NDUwNzViIDEwMDY0NAo+PiAtLS0gYS9Eb2N1bWVudGF0aW9uL3ZpcnQva3Zt
+L2RldmljZXMvdmNwdS50eHQKPj4gKysrIGIvRG9jdW1lbnRhdGlvbi92aXJ0L2t2bS9kZXZpY2Vz
+L3ZjcHUudHh0Cj4+IEBAIC03NCwzICs3NCwxNyBAQCBTcGVjaWZpZXMgdGhlIGJhc2UgYWRkcmVz
+cyBvZiB0aGUgc3RvbGVuIHRpbWUgc3RydWN0dXJlIGZvciB0aGlzIFZDUFUuIFRoZQo+PiDCoCBi
+YXNlIGFkZHJlc3MgbXVzdCBiZSA2NCBieXRlIGFsaWduZWQgYW5kIGV4aXN0IHdpdGhpbiBhIHZh
+bGlkIGd1ZXN0IG1lbW9yeQo+PiDCoCByZWdpb24uIFNlZSBEb2N1bWVudGF0aW9uL3ZpcnQva3Zt
+L2FybS9wdnRpbWUudHh0IGZvciBtb3JlIGluZm9ybWF0aW9uCj4+IMKgIGluY2x1ZGluZyB0aGUg
+bGF5b3V0IG9mIHRoZSBzdG9sZW4gdGltZSBzdHJ1Y3R1cmUuCj4+ICsKPj4gKzQuIEdST1VQOiBL
+Vk1fQVJNX1ZDUFVfUFZMT0NLX0NUUkwKPj4gK0FyY2hpdGVjdHVyZXM6IEFSTTY0Cj4+ICsKPj4g
+KzQuMSBBVFRSSUJVVEU6IEtWTV9BUk1fVkNQVV9QVkxPQ0tfSVBBCj4+ICtQYXJhbWV0ZXJzOiA2
+NC1iaXQgYmFzZSBhZGRyZXNzCj4+ICtSZXR1cm5zOiAtRU5YSU86wqAgUFYgbG9jayBub3QgaW1w
+bGVtZW50ZWQKPj4gK8KgwqDCoMKgwqDCoMKgwqAgLUVFWElTVDogQmFzZSBhZGRyZXNzIGFscmVh
+ZHkgc2V0IGZvciB0aGlzIFZDUFUKPj4gK8KgwqDCoMKgwqDCoMKgwqAgLUVJTlZBTDogQmFzZSBh
+ZGRyZXNzIG5vdCA2NCBieXRlIGFsaWduZWQKPj4gKwo+PiArU3BlY2lmaWVzIHRoZSBiYXNlIGFk
+ZHJlc3Mgb2YgdGhlIFBWIGxvY2sgc3RydWN0dXJlIGZvciB0aGlzIFZDUFUuIFRoZQo+PiArYmFz
+ZSBhZGRyZXNzIG11c3QgYmUgNjQgYnl0ZSBhbGlnbmVkIGFuZCBleGlzdCB3aXRoaW4gYSB2YWxp
+ZCBndWVzdCBtZW1vcnkKPj4gK3JlZ2lvbi4gU2VlIERvY3VtZW50YXRpb24vdmlydC9rdm0vYXJt
+L3B2bG9jay5yc3QgZm9yIG1vcmUgaW5mb3JtYXRpb24KPj4gK2luY2x1ZGluZyB0aGUgbGF5b3V0
+IG9mIHRoZSBwdiBsb2NrIHN0cnVjdHVyZS4KPj4KPiAKPiAKPiAuCgpUaGFua3MsCgpaZW5ncnVh
+bgoKX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX18Ka3ZtYXJt
+IG1haWxpbmcgbGlzdAprdm1hcm1AbGlzdHMuY3MuY29sdW1iaWEuZWR1Cmh0dHBzOi8vbGlzdHMu
+Y3MuY29sdW1iaWEuZWR1L21haWxtYW4vbGlzdGluZm8va3ZtYXJtCg==
