@@ -1,176 +1,251 @@
 From: yezengruan <yezengruan@huawei.com>
-Subject: Re: [PATCH v2 3/6] KVM: arm64: Support pvlock preempted via shared
- structure
-Date: Sat, 11 Jan 2020 15:30:42 +0800
-Message-ID: <c479977c-3824-4b53-ef46-300d59ac35de@huawei.com>
+Subject: Re: [PATCH v2 6/6] KVM: arm64: Support the VCPU preemption check
+Date: Sat, 11 Jan 2020 15:33:16 +0800
+Message-ID: <f746a436-e8da-d263-c4b8-e5b73366d8e4@huawei.com>
 References: <20191226135833.1052-1-yezengruan@huawei.com>
- <20191226135833.1052-4-yezengruan@huawei.com>
- <468e2bb4-8986-5e1e-8c4a-31aa56a9ae4f@arm.com>
+ <20191226135833.1052-7-yezengruan@huawei.com>
+ <5a1f6745-2deb-253b-7022-f2725d8d40ba@arm.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="utf-8"
-Content-Transfer-Encoding: base64
-Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <468e2bb4-8986-5e1e-8c4a-31aa56a9ae4f@arm.com>
+Content-Transfer-Encoding: 8bit
+Return-path: <linux-kernel-owner@vger.kernel.org>
+In-Reply-To: <5a1f6745-2deb-253b-7022-f2725d8d40ba@arm.com>
 Content-Language: en-US
-List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
- <mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
-List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
-List-Post: <mailto:virtualization@lists.linux-foundation.org>
-List-Help: <mailto:virtualization-request@lists.linux-foundation.org?subject=help>
-List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualization>,
- <mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
-Errors-To: virtualization-bounces@lists.linux-foundation.org
-Sender: "Virtualization" <virtualization-bounces@lists.linux-foundation.org>
+Sender: linux-kernel-owner@vger.kernel.org
 To: Steven Price <steven.price@arm.com>, linux-kernel@vger.kernel.org, linux-arm-kernel@lists.infradead.org, kvmarm@lists.cs.columbia.edu, kvm@vger.kernel.org, linux-doc@vger.kernel.org, virtualization@lists.linux-foundation.org
-Cc: mark.rutland@arm.com, suzuki.poulose@arm.com, catalin.marinas@arm.com, daniel.lezcano@linaro.org, linux@armlinux.org.uk, james.morse@arm.com, maz@kernel.org, "Wanghaibin (D)" <wanghaibin.wang@huawei.com>, will@kernel.org, julien.thierry.kdev@gmail.com
+Cc: maz@kernel.org, james.morse@arm.com, linux@armlinux.org.uk, suzuki.poulose@arm.com, julien.thierry.kdev@gmail.com, catalin.marinas@arm.com, mark.rutland@arm.com, will@kernel.org, daniel.lezcano@linaro.org, "Wanghaibin (D)" <wanghaibin.wang@huawei.com>
 List-Id: virtualization@lists.linuxfoundation.org
 
-SGkgU3RldmUsCgpPbiAyMDIwLzEvOSAyMzowMiwgU3RldmVuIFByaWNlIHdyb3RlOgo+IE9uIDI2
-LzEyLzIwMTkgMTM6NTgsIFplbmdydWFuIFllIHdyb3RlOgo+PiBJbXBsZW1lbnQgdGhlIHNlcnZp
-Y2UgY2FsbCBmb3IgY29uZmlndXJpbmcgYSBzaGFyZWQgc3RydWN0dXJlIGJldHdlZW4gYQo+PiBW
-Q1BVIGFuZCB0aGUgaHlwZXJ2aXNvciBpbiB3aGljaCB0aGUgaHlwZXJ2aXNvciBjYW4gdGVsbCB0
-aGUgVkNQVSBpcwo+PiBydW5uaW5nIG9yIG5vdC4KPj4KPj4gVGhlIHByZWVtcHRlZCBmaWVsZCBp
-cyB6ZXJvIGlmIDEpIHNvbWUgb2xkIEtWTSBkZW9zIG5vdCBzdXBwb3J0IHRoaXMgZmlsZWQuCj4g
-Cj4gTklUOiBzL2Rlb3MvZG9lcy8KClRoYW5rcyBmb3IgcG9zdGluZyB0aGlzLgoKPiAKPiBIb3dl
-dmVyLCBJIHdvdWxkIGhvcGUgdGhhdCB0aGUgc2VydmljZSBjYWxsIHdpbGwgZmFpbCBpZiBpdCdz
-IGFuIG9sZCBLVk0gbm90IHNpbXBseSByZXR1cm4gemVyby4KClNvcnJ5LCBJJ20gbm90IHN1cmUg
-d2hhdCB5b3UgbWVhbi4gVGhlIHNlcnZpY2UgY2FsbCB3aWxsIGZhaWwgaWYgaXQncyBhbiBvbGQg
-S1ZNLCBhbmQgdGhlIEd1ZXN0IHdpbGwgdXNlIF9fbmF0aXZlX3ZjcHVfaXNfcHJlZW1wdGVkLgoK
-PiAKPj4gMikgdGhlIFZDUFUgaXMgbm90IHByZWVtcHRlZC4gT3RoZXIgdmFsdWVzIG1lYW5zIHRo
-ZSBWQ1BVIGhhcyBiZWVuIHByZWVtcHRlZC4KPj4KPj4gU2lnbmVkLW9mZi1ieTogWmVuZ3J1YW4g
-WWUgPHllemVuZ3J1YW5AaHVhd2VpLmNvbT4KPj4gLS0tCj4+IMKgIGFyY2gvYXJtL2luY2x1ZGUv
-YXNtL2t2bV9ob3N0LmjCoMKgIHwgMTggKysrKysrKysrKysrCj4+IMKgIGFyY2gvYXJtNjQvaW5j
-bHVkZS9hc20va3ZtX2hvc3QuaCB8IDE5ICsrKysrKysrKysrKysKPj4gwqAgYXJjaC9hcm02NC9r
-dm0vTWFrZWZpbGXCoMKgwqDCoMKgwqDCoMKgwqDCoCB8wqAgMSArCj4+IMKgIHZpcnQva3ZtL2Fy
-bS9hcm0uY8KgwqDCoMKgwqDCoMKgwqDCoMKgwqDCoMKgwqDCoCB8wqAgOCArKysrKysKPj4gwqAg
-dmlydC9rdm0vYXJtL2h5cGVyY2FsbHMuY8KgwqDCoMKgwqDCoMKgwqAgfMKgIDggKysrKysrCj4+
-IMKgIHZpcnQva3ZtL2FybS9wdmxvY2suY8KgwqDCoMKgwqDCoMKgwqDCoMKgwqDCoCB8IDQ2ICsr
-KysrKysrKysrKysrKysrKysrKysrKysrKysrKysKPj4gwqAgNiBmaWxlcyBjaGFuZ2VkLCAxMDAg
-aW5zZXJ0aW9ucygrKQo+PiDCoCBjcmVhdGUgbW9kZSAxMDA2NDQgdmlydC9rdm0vYXJtL3B2bG9j
-ay5jCj4+Cj4+IGRpZmYgLS1naXQgYS9hcmNoL2FybS9pbmNsdWRlL2FzbS9rdm1faG9zdC5oIGIv
-YXJjaC9hcm0vaW5jbHVkZS9hc20va3ZtX2hvc3QuaAo+PiBpbmRleCA1NTZjZDgxOGVjY2YuLmRm
-ZWFmOTIwNDg3NSAxMDA2NDQKPj4gLS0tIGEvYXJjaC9hcm0vaW5jbHVkZS9hc20va3ZtX2hvc3Qu
-aAo+PiArKysgYi9hcmNoL2FybS9pbmNsdWRlL2FzbS9rdm1faG9zdC5oCj4+IEBAIC0zNTYsNiAr
-MzU2LDI0IEBAIHN0YXRpYyBpbmxpbmUgYm9vbCBrdm1fYXJtX2lzX3B2dGltZV9lbmFibGVkKHN0
-cnVjdCBrdm1fdmNwdV9hcmNoICp2Y3B1X2FyY2gpCj4+IMKgwqDCoMKgwqAgcmV0dXJuIGZhbHNl
-Owo+PiDCoCB9Cj4+IMKgICtzdGF0aWMgaW5saW5lIHZvaWQga3ZtX2FybV9wdmxvY2tfcHJlZW1w
-dGVkX2luaXQoc3RydWN0IGt2bV92Y3B1X2FyY2ggKnZjcHVfYXJjaCkKPj4gK3sKPj4gK30KPj4g
-Kwo+PiArc3RhdGljIGlubGluZSBib29sIGt2bV9hcm1faXNfcHZsb2NrX3ByZWVtcHRlZF9yZWFk
-eShzdHJ1Y3Qga3ZtX3ZjcHVfYXJjaCAqdmNwdV9hcmNoKQo+PiArewo+PiArwqDCoMKgIHJldHVy
-biBmYWxzZTsKPj4gK30KPj4gKwo+PiArc3RhdGljIGlubGluZSBncGFfdCBrdm1faW5pdF9wdmxv
-Y2soc3RydWN0IGt2bV92Y3B1ICp2Y3B1KQo+PiArewo+PiArwqDCoMKgIHJldHVybiBHUEFfSU5W
-QUxJRDsKPj4gK30KPj4gKwo+PiArc3RhdGljIGlubGluZSB2b2lkIGt2bV91cGRhdGVfcHZsb2Nr
-X3ByZWVtcHRlZChzdHJ1Y3Qga3ZtX3ZjcHUgKnZjcHUsIHU2NCBwcmVlbXB0ZWQpCj4+ICt7Cj4+
-ICt9Cj4+ICsKPj4gwqAgdm9pZCBrdm1fbW11X3dwX21lbW9yeV9yZWdpb24oc3RydWN0IGt2bSAq
-a3ZtLCBpbnQgc2xvdCk7Cj4+IMKgIMKgIHN0cnVjdCBrdm1fdmNwdSAqa3ZtX21waWRyX3RvX3Zj
-cHUoc3RydWN0IGt2bSAqa3ZtLCB1bnNpZ25lZCBsb25nIG1waWRyKTsKPj4gZGlmZiAtLWdpdCBh
-L2FyY2gvYXJtNjQvaW5jbHVkZS9hc20va3ZtX2hvc3QuaCBiL2FyY2gvYXJtNjQvaW5jbHVkZS9h
-c20va3ZtX2hvc3QuaAo+PiBpbmRleCBjNjEyNjBjZjYzYzUuLjI4MThhMjMzMGY5MiAxMDA2NDQK
-Pj4gLS0tIGEvYXJjaC9hcm02NC9pbmNsdWRlL2FzbS9rdm1faG9zdC5oCj4+ICsrKyBiL2FyY2gv
-YXJtNjQvaW5jbHVkZS9hc20va3ZtX2hvc3QuaAo+PiBAQCAtMzU0LDYgKzM1NCwxMiBAQCBzdHJ1
-Y3Qga3ZtX3ZjcHVfYXJjaCB7Cj4+IMKgwqDCoMKgwqDCoMKgwqDCoCB1NjQgbGFzdF9zdGVhbDsK
-Pj4gwqDCoMKgwqDCoMKgwqDCoMKgIGdwYV90IGJhc2U7Cj4+IMKgwqDCoMKgwqAgfSBzdGVhbDsK
-Pj4gKwo+PiArwqDCoMKgIC8qIEd1ZXN0IFBWIGxvY2sgc3RhdGUgKi8KPj4gK8KgwqDCoCBzdHJ1
-Y3Qgewo+PiArwqDCoMKgwqDCoMKgwqAgdTY0IHByZWVtcHRlZDsKPiAKPiBJJ20gbm90IHN1cmUg
-d2h5IHRoZSBrZXJuZWwgbmVlZHMgdG8gKHNlcGFyYXRlbHkpIHRyYWNrIHRoaXMgcHJlZW1wdGVk
-IHN0YXRlPyBJdCBkb2Vzbid0IGFwcGVhciB0byBiZSB1c2VkIGZyb20gd2hhdCBJIGNhbiB0ZWxs
-LgoKR29vZCBwb2ludCwgdGhlIHByZWVtcHRlZCBzdGF0ZSBmaWVsZCBpcyBub3QgYWN0dWFsbHkg
-dXNlZCwgSSdsbCByZW1vdmUgaXQuCgo+IAo+IFN0ZXZlCj4gCj4+ICvCoMKgwqDCoMKgwqDCoCBn
-cGFfdCBiYXNlOwo+PiArwqDCoMKgIH0gcHY7Cj4+IMKgIH07Cj4+IMKgIMKgIC8qIFBvaW50ZXIg
-dG8gdGhlIHZjcHUncyBTVkUgRkZSIGZvciBzdmVfe3NhdmUsbG9hZH1fc3RhdGUoKSAqLwo+PiBA
-QCAtNTE1LDYgKzUyMSwxOSBAQCBzdGF0aWMgaW5saW5lIGJvb2wga3ZtX2FybV9pc19wdnRpbWVf
-ZW5hYmxlZChzdHJ1Y3Qga3ZtX3ZjcHVfYXJjaCAqdmNwdV9hcmNoKQo+PiDCoMKgwqDCoMKgIHJl
-dHVybiAodmNwdV9hcmNoLT5zdGVhbC5iYXNlICE9IEdQQV9JTlZBTElEKTsKPj4gwqAgfQo+PiDC
-oCArc3RhdGljIGlubGluZSB2b2lkIGt2bV9hcm1fcHZsb2NrX3ByZWVtcHRlZF9pbml0KHN0cnVj
-dCBrdm1fdmNwdV9hcmNoICp2Y3B1X2FyY2gpCj4+ICt7Cj4+ICvCoMKgwqAgdmNwdV9hcmNoLT5w
-di5iYXNlID0gR1BBX0lOVkFMSUQ7Cj4+ICt9Cj4+ICsKPj4gK3N0YXRpYyBpbmxpbmUgYm9vbCBr
-dm1fYXJtX2lzX3B2bG9ja19wcmVlbXB0ZWRfcmVhZHkoc3RydWN0IGt2bV92Y3B1X2FyY2ggKnZj
-cHVfYXJjaCkKPj4gK3sKPj4gK8KgwqDCoCByZXR1cm4gKHZjcHVfYXJjaC0+cHYuYmFzZSAhPSBH
-UEFfSU5WQUxJRCk7Cj4+ICt9Cj4+ICsKPj4gK2dwYV90IGt2bV9pbml0X3B2bG9jayhzdHJ1Y3Qg
-a3ZtX3ZjcHUgKnZjcHUpOwo+PiArdm9pZCBrdm1fdXBkYXRlX3B2bG9ja19wcmVlbXB0ZWQoc3Ry
-dWN0IGt2bV92Y3B1ICp2Y3B1LCB1NjQgcHJlZW1wdGVkKTsKPj4gKwo+PiDCoCB2b2lkIGt2bV9z
-ZXRfc2VpX2VzcihzdHJ1Y3Qga3ZtX3ZjcHUgKnZjcHUsIHU2NCBzeW5kcm9tZSk7Cj4+IMKgIMKg
-IHN0cnVjdCBrdm1fdmNwdSAqa3ZtX21waWRyX3RvX3ZjcHUoc3RydWN0IGt2bSAqa3ZtLCB1bnNp
-Z25lZCBsb25nIG1waWRyKTsKPj4gZGlmZiAtLWdpdCBhL2FyY2gvYXJtNjQva3ZtL01ha2VmaWxl
-IGIvYXJjaC9hcm02NC9rdm0vTWFrZWZpbGUKPj4gaW5kZXggNWZmYmRjMzllNzgwLi5lNDU5MWY1
-NmQ1ZjEgMTAwNjQ0Cj4+IC0tLSBhL2FyY2gvYXJtNjQva3ZtL01ha2VmaWxlCj4+ICsrKyBiL2Fy
-Y2gvYXJtNjQva3ZtL01ha2VmaWxlCj4+IEBAIC0xNSw2ICsxNSw3IEBAIGt2bS0kKENPTkZJR19L
-Vk1fQVJNX0hPU1QpICs9ICQoS1ZNKS9hcm0vYXJtLm8gJChLVk0pL2FybS9tbXUubyAkKEtWTSkv
-YXJtL21taW8uCj4+IMKgIGt2bS0kKENPTkZJR19LVk1fQVJNX0hPU1QpICs9ICQoS1ZNKS9hcm0v
-cHNjaS5vICQoS1ZNKS9hcm0vcGVyZi5vCj4+IMKgIGt2bS0kKENPTkZJR19LVk1fQVJNX0hPU1Qp
-ICs9ICQoS1ZNKS9hcm0vaHlwZXJjYWxscy5vCj4+IMKgIGt2bS0kKENPTkZJR19LVk1fQVJNX0hP
-U1QpICs9ICQoS1ZNKS9hcm0vcHZ0aW1lLm8KPj4gK2t2bS0kKENPTkZJR19LVk1fQVJNX0hPU1Qp
-ICs9ICQoS1ZNKS9hcm0vcHZsb2NrLm8KPj4gwqAgwqAga3ZtLSQoQ09ORklHX0tWTV9BUk1fSE9T
-VCkgKz0gaW5qZWN0X2ZhdWx0Lm8gcmVnbWFwLm8gdmFfbGF5b3V0Lm8KPj4gwqAga3ZtLSQoQ09O
-RklHX0tWTV9BUk1fSE9TVCkgKz0gaHlwLm8gaHlwLWluaXQubyBoYW5kbGVfZXhpdC5vCj4+IGRp
-ZmYgLS1naXQgYS92aXJ0L2t2bS9hcm0vYXJtLmMgYi92aXJ0L2t2bS9hcm0vYXJtLmMKPj4gaW5k
-ZXggOGRlNGRhZjI1MDk3Li4zNmQ1N2U3N2QzYzQgMTAwNjQ0Cj4+IC0tLSBhL3ZpcnQva3ZtL2Fy
-bS9hcm0uYwo+PiArKysgYi92aXJ0L2t2bS9hcm0vYXJtLmMKPj4gQEAgLTM4Myw2ICszODMsOCBA
-QCBpbnQga3ZtX2FyY2hfdmNwdV9pbml0KHN0cnVjdCBrdm1fdmNwdSAqdmNwdSkKPj4gwqAgwqDC
-oMKgwqDCoCBrdm1fYXJtX3B2dGltZV92Y3B1X2luaXQoJnZjcHUtPmFyY2gpOwo+PiDCoCArwqDC
-oMKgIGt2bV9hcm1fcHZsb2NrX3ByZWVtcHRlZF9pbml0KCZ2Y3B1LT5hcmNoKTsKPj4gKwo+PiDC
-oMKgwqDCoMKgIHJldHVybiBrdm1fdmdpY192Y3B1X2luaXQodmNwdSk7Cj4+IMKgIH0KPj4gwqAg
-QEAgLTQyMSw2ICs0MjMsOSBAQCB2b2lkIGt2bV9hcmNoX3ZjcHVfbG9hZChzdHJ1Y3Qga3ZtX3Zj
-cHUgKnZjcHUsIGludCBjcHUpCj4+IMKgwqDCoMKgwqDCoMKgwqDCoCB2Y3B1X3NldF93ZnhfdHJh
-cHModmNwdSk7Cj4+IMKgIMKgwqDCoMKgwqAgdmNwdV9wdHJhdXRoX3NldHVwX2xhenkodmNwdSk7
-Cj4+ICsKPj4gK8KgwqDCoCBpZiAoa3ZtX2FybV9pc19wdmxvY2tfcHJlZW1wdGVkX3JlYWR5KCZ2
-Y3B1LT5hcmNoKSkKPj4gK8KgwqDCoMKgwqDCoMKgIGt2bV91cGRhdGVfcHZsb2NrX3ByZWVtcHRl
-ZCh2Y3B1LCAwKTsKPj4gwqAgfQo+PiDCoCDCoCB2b2lkIGt2bV9hcmNoX3ZjcHVfcHV0KHN0cnVj
-dCBrdm1fdmNwdSAqdmNwdSkKPj4gQEAgLTQzNCw2ICs0MzksOSBAQCB2b2lkIGt2bV9hcmNoX3Zj
-cHVfcHV0KHN0cnVjdCBrdm1fdmNwdSAqdmNwdSkKPj4gwqDCoMKgwqDCoCB2Y3B1LT5jcHUgPSAt
-MTsKPj4gwqAgwqDCoMKgwqDCoCBrdm1fYXJtX3NldF9ydW5uaW5nX3ZjcHUoTlVMTCk7Cj4+ICsK
-Pj4gK8KgwqDCoCBpZiAoa3ZtX2FybV9pc19wdmxvY2tfcHJlZW1wdGVkX3JlYWR5KCZ2Y3B1LT5h
-cmNoKSkKPj4gK8KgwqDCoMKgwqDCoMKgIGt2bV91cGRhdGVfcHZsb2NrX3ByZWVtcHRlZCh2Y3B1
-LCAxKTsKPj4gwqAgfQo+PiDCoCDCoCBzdGF0aWMgdm9pZCB2Y3B1X3Bvd2VyX29mZihzdHJ1Y3Qg
-a3ZtX3ZjcHUgKnZjcHUpCj4+IGRpZmYgLS1naXQgYS92aXJ0L2t2bS9hcm0vaHlwZXJjYWxscy5j
-IGIvdmlydC9rdm0vYXJtL2h5cGVyY2FsbHMuYwo+PiBpbmRleCA1NTBkZmEzZTUzY2QuLjFjNmEx
-MWYyMWJiNCAxMDA2NDQKPj4gLS0tIGEvdmlydC9rdm0vYXJtL2h5cGVyY2FsbHMuYwo+PiArKysg
-Yi92aXJ0L2t2bS9hcm0vaHlwZXJjYWxscy5jCj4+IEBAIC01Miw2ICs1Miw5IEBAIGludCBrdm1f
-aHZjX2NhbGxfaGFuZGxlcihzdHJ1Y3Qga3ZtX3ZjcHUgKnZjcHUpCj4+IMKgwqDCoMKgwqDCoMKg
-wqDCoCBjYXNlIEFSTV9TTUNDQ19IVl9QVl9USU1FX0ZFQVRVUkVTOgo+PiDCoMKgwqDCoMKgwqDC
-oMKgwqDCoMKgwqDCoCB2YWwgPSBTTUNDQ19SRVRfU1VDQ0VTUzsKPj4gwqDCoMKgwqDCoMKgwqDC
-oMKgwqDCoMKgwqAgYnJlYWs7Cj4+ICvCoMKgwqDCoMKgwqDCoCBjYXNlIEFSTV9TTUNDQ19IVl9Q
-Vl9MT0NLX0ZFQVRVUkVTOgo+PiArwqDCoMKgwqDCoMKgwqDCoMKgwqDCoCB2YWwgPSBTTUNDQ19S
-RVRfU1VDQ0VTUzsKPj4gK8KgwqDCoMKgwqDCoMKgwqDCoMKgwqAgYnJlYWs7Cj4+IMKgwqDCoMKg
-wqDCoMKgwqDCoCB9Cj4+IMKgwqDCoMKgwqDCoMKgwqDCoCBicmVhazsKPj4gwqDCoMKgwqDCoCBj
-YXNlIEFSTV9TTUNDQ19IVl9QVl9USU1FX0ZFQVRVUkVTOgo+PiBAQCAtNjIsNiArNjUsMTEgQEAg
-aW50IGt2bV9odmNfY2FsbF9oYW5kbGVyKHN0cnVjdCBrdm1fdmNwdSAqdmNwdSkKPj4gwqDCoMKg
-wqDCoMKgwqDCoMKgIGlmIChncGEgIT0gR1BBX0lOVkFMSUQpCj4+IMKgwqDCoMKgwqDCoMKgwqDC
-oMKgwqDCoMKgIHZhbCA9IGdwYTsKPj4gwqDCoMKgwqDCoMKgwqDCoMKgIGJyZWFrOwo+PiArwqDC
-oMKgIGNhc2UgQVJNX1NNQ0NDX0hWX1BWX0xPQ0tfUFJFRU1QVEVEOgo+PiArwqDCoMKgwqDCoMKg
-wqAgZ3BhID0ga3ZtX2luaXRfcHZsb2NrKHZjcHUpOwo+PiArwqDCoMKgwqDCoMKgwqAgaWYgKGdw
-YSAhPSBHUEFfSU5WQUxJRCkKPj4gK8KgwqDCoMKgwqDCoMKgwqDCoMKgwqAgdmFsID0gZ3BhOwo+
-PiArwqDCoMKgwqDCoMKgwqAgYnJlYWs7Cj4+IMKgwqDCoMKgwqAgZGVmYXVsdDoKPj4gwqDCoMKg
-wqDCoMKgwqDCoMKgIHJldHVybiBrdm1fcHNjaV9jYWxsKHZjcHUpOwo+PiDCoMKgwqDCoMKgIH0K
-Pj4gZGlmZiAtLWdpdCBhL3ZpcnQva3ZtL2FybS9wdmxvY2suYyBiL3ZpcnQva3ZtL2FybS9wdmxv
-Y2suYwo+PiBuZXcgZmlsZSBtb2RlIDEwMDY0NAo+PiBpbmRleCAwMDAwMDAwMDAwMDAuLmNkZmQz
-MGE5MDNiOQo+PiAtLS0gL2Rldi9udWxsCj4+ICsrKyBiL3ZpcnQva3ZtL2FybS9wdmxvY2suYwo+
-PiBAQCAtMCwwICsxLDQ2IEBACj4+ICsvKiBTUERYLUxpY2Vuc2UtSWRlbnRpZmllcjogR1BMLTIu
-MC1vbmx5ICovCj4+ICsvKgo+PiArICogQ29weXJpZ2h0KGMpIDIwMTkgSHVhd2VpIFRlY2hub2xv
-Z2llcyBDby4sIEx0ZAo+PiArICogQXV0aG9yOiBaZW5ncnVhbiBZZSA8eWV6ZW5ncnVhbkBodWF3
-ZWkuY29tPgo+PiArICovCj4+ICsKPj4gKyNpbmNsdWRlIDxsaW51eC9hcm0tc21jY2MuaD4KPj4g
-KyNpbmNsdWRlIDxsaW51eC9rdm1faG9zdC5oPgo+PiArCj4+ICsjaW5jbHVkZSA8YXNtL3B2bG9j
-ay1hYmkuaD4KPj4gKwo+PiArI2luY2x1ZGUgPGt2bS9hcm1faHlwZXJjYWxscy5oPgo+PiArCj4+
-ICtncGFfdCBrdm1faW5pdF9wdmxvY2soc3RydWN0IGt2bV92Y3B1ICp2Y3B1KQo+PiArewo+PiAr
-wqDCoMKgIHN0cnVjdCBwdmxvY2tfdmNwdV9zdGF0ZSBpbml0X3ZhbHVlcyA9IHt9Owo+PiArwqDC
-oMKgIHN0cnVjdCBrdm0gKmt2bSA9IHZjcHUtPmt2bTsKPj4gK8KgwqDCoCB1NjQgYmFzZSA9IHZj
-cHUtPmFyY2gucHYuYmFzZTsKPj4gK8KgwqDCoCBpbnQgaWR4Owo+PiArCj4+ICvCoMKgwqAgaWYg
-KGJhc2UgPT0gR1BBX0lOVkFMSUQpCj4+ICvCoMKgwqDCoMKgwqDCoCByZXR1cm4gYmFzZTsKPj4g
-Kwo+PiArwqDCoMKgIGlkeCA9IHNyY3VfcmVhZF9sb2NrKCZrdm0tPnNyY3UpOwo+PiArwqDCoMKg
-IGt2bV93cml0ZV9ndWVzdChrdm0sIGJhc2UsICZpbml0X3ZhbHVlcywgc2l6ZW9mKGluaXRfdmFs
-dWVzKSk7Cj4+ICvCoMKgwqAgc3JjdV9yZWFkX3VubG9jaygma3ZtLT5zcmN1LCBpZHgpOwo+PiAr
-Cj4+ICvCoMKgwqAgcmV0dXJuIGJhc2U7Cj4+ICt9Cj4+ICsKPj4gK3ZvaWQga3ZtX3VwZGF0ZV9w
-dmxvY2tfcHJlZW1wdGVkKHN0cnVjdCBrdm1fdmNwdSAqdmNwdSwgdTY0IHByZWVtcHRlZCkKPj4g
-K3sKPj4gK8KgwqDCoCBpbnQgaWR4Owo+PiArwqDCoMKgIHU2NCBvZmZzZXQ7Cj4+ICvCoMKgwqAg
-X19sZTY0IHByZWVtcHRlZF9sZTsKPj4gK8KgwqDCoCBzdHJ1Y3Qga3ZtICprdm0gPSB2Y3B1LT5r
-dm07Cj4+ICvCoMKgwqAgdTY0IGJhc2UgPSB2Y3B1LT5hcmNoLnB2LmJhc2U7Cj4+ICsKPj4gK8Kg
-wqDCoCB2Y3B1LT5hcmNoLnB2LnByZWVtcHRlZCA9IHByZWVtcHRlZDsKPj4gK8KgwqDCoCBwcmVl
-bXB0ZWRfbGUgPSBjcHVfdG9fbGU2NChwcmVlbXB0ZWQpOwo+PiArCj4+ICvCoMKgwqAgaWR4ID0g
-c3JjdV9yZWFkX2xvY2soJmt2bS0+c3JjdSk7Cj4+ICvCoMKgwqAgb2Zmc2V0ID0gb2Zmc2V0b2Yo
-c3RydWN0IHB2bG9ja192Y3B1X3N0YXRlLCBwcmVlbXB0ZWQpOwo+PiArwqDCoMKgIGt2bV9wdXRf
-Z3Vlc3Qoa3ZtLCBiYXNlICsgb2Zmc2V0LCBwcmVlbXB0ZWRfbGUsIHU2NCk7Cj4+ICvCoMKgwqAg
-c3JjdV9yZWFkX3VubG9jaygma3ZtLT5zcmN1LCBpZHgpOwo+PiArfQo+Pgo+IAo+IAo+IC4KClRo
-YW5rcywKClplbmdydWFuCgpfX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19f
-X19fX19fXwpWaXJ0dWFsaXphdGlvbiBtYWlsaW5nIGxpc3QKVmlydHVhbGl6YXRpb25AbGlzdHMu
-bGludXgtZm91bmRhdGlvbi5vcmcKaHR0cHM6Ly9saXN0cy5saW51eGZvdW5kYXRpb24ub3JnL21h
-aWxtYW4vbGlzdGluZm8vdmlydHVhbGl6YXRpb24=
+Hi Steve,
+
+On 2020/1/9 23:09, Steven Price wrote:
+> On 26/12/2019 13:58, Zengruan Ye wrote:
+>> Support the vcpu_is_preempted() functionality under KVM/arm64. This will
+>> enhance lock performance on overcommitted hosts (more runnable VCPUs
+>> than physical CPUs in the system) as doing busy waits for preempted
+>> VCPUs will hurt system performance far worse than early yielding.
+>>
+>> unix benchmark result:
+>>    host:  kernel 5.5.0-rc1, HiSilicon Kunpeng920, 8 CPUs
+>>    guest: kernel 5.5.0-rc1, 16 VCPUs
+>>
+>>                 test-case                |    after-patch    |   before-patch
+>> ----------------------------------------+-------------------+------------------
+>>   Dhrystone 2 using register variables   | 334600751.0 lps   | 335319028.3 lps
+>>   Double-Precision Whetstone             |     32856.1 MWIPS |     32849.6 MWIPS
+>>   Execl Throughput                       |      3662.1 lps   |      2718.0 lps
+>>   File Copy 1024 bufsize 2000 maxblocks  |    432906.4 KBps  |    158011.8 KBps
+>>   File Copy 256 bufsize 500 maxblocks    |    116023.0 KBps  |     37664.0 KBps
+>>   File Copy 4096 bufsize 8000 maxblocks  |   1432769.8 KBps  |    441108.8 KBps
+>>   Pipe Throughput                        |   6405029.6 lps   |   6021457.6 lps
+>>   Pipe-based Context Switching           |    185872.7 lps   |    184255.3 lps
+>>   Process Creation                       |      4025.7 lps   |      3706.6 lps
+>>   Shell Scripts (1 concurrent)           |      6745.6 lpm   |      6436.1 lpm
+>>   Shell Scripts (8 concurrent)           |       998.7 lpm   |       931.1 lpm
+>>   System Call Overhead                   |   3913363.1 lps   |   3883287.8 lps
+>> ----------------------------------------+-------------------+------------------
+>>   System Benchmarks Index Score          |      1835.1       |      1327.6
+>>
+>> Signed-off-by: Zengruan Ye <yezengruan@huawei.com>
+>> ---
+>>   arch/arm64/include/asm/paravirt.h |   3 +
+>>   arch/arm64/kernel/paravirt.c      | 117 ++++++++++++++++++++++++++++++
+>>   arch/arm64/kernel/setup.c         |   2 +
+>>   include/linux/cpuhotplug.h        |   1 +
+>>   4 files changed, 123 insertions(+)
+>>
+>> diff --git a/arch/arm64/include/asm/paravirt.h b/arch/arm64/include/asm/paravirt.h
+>> index 7b1c81b544bb..ca3a2c7881f3 100644
+>> --- a/arch/arm64/include/asm/paravirt.h
+>> +++ b/arch/arm64/include/asm/paravirt.h
+>> @@ -29,6 +29,8 @@ static inline u64 paravirt_steal_clock(int cpu)
+>>     int __init pv_time_init(void);
+>>   +int __init pv_lock_init(void);
+>> +
+>>   __visible bool __native_vcpu_is_preempted(int cpu);
+>>     static inline bool pv_vcpu_is_preempted(int cpu)
+>> @@ -39,6 +41,7 @@ static inline bool pv_vcpu_is_preempted(int cpu)
+>>   #else
+>>     #define pv_time_init() do {} while (0)
+>> +#define pv_lock_init() do {} while (0)
+>>     #endif // CONFIG_PARAVIRT
+>>   diff --git a/arch/arm64/kernel/paravirt.c b/arch/arm64/kernel/paravirt.c
+>> index d8f1ba8c22ce..bd2ad6a17a26 100644
+>> --- a/arch/arm64/kernel/paravirt.c
+>> +++ b/arch/arm64/kernel/paravirt.c
+>> @@ -22,6 +22,7 @@
+>>   #include <asm/paravirt.h>
+>>   #include <asm/pvclock-abi.h>
+>>   #include <asm/smp_plat.h>
+>> +#include <asm/pvlock-abi.h>
+>>     struct static_key paravirt_steal_enabled;
+>>   struct static_key paravirt_steal_rq_enabled;
+>> @@ -35,6 +36,10 @@ struct pv_time_stolen_time_region {
+>>       struct pvclock_vcpu_stolen_time *kaddr;
+>>   };
+>>   +struct pv_lock_state_region {
+>> +    struct pvlock_vcpu_state *kaddr;
+>> +};
+>> +
+>>   static DEFINE_PER_CPU(struct pv_time_stolen_time_region, stolen_time_region);
+>>     static bool steal_acc = true;
+>> @@ -158,3 +163,115 @@ int __init pv_time_init(void)
+>>         return 0;
+>>   }
+>> +
+>> +static DEFINE_PER_CPU(struct pv_lock_state_region, lock_state_region);
+>> +
+>> +static bool kvm_vcpu_is_preempted(int cpu)
+>> +{
+>> +    struct pv_lock_state_region *reg;
+>> +    __le64 preempted_le;
+>> +
+>> +    reg = per_cpu_ptr(&lock_state_region, cpu);
+>> +    if (!reg->kaddr) {
+>> +        pr_warn_once("PV lock enabled but not configured for cpu %d\n",
+>> +                 cpu);
+>> +        return false;
+>> +    }
+>> +
+>> +    preempted_le = le64_to_cpu(READ_ONCE(reg->kaddr->preempted));
+>> +
+>> +    return !!(preempted_le & 1);
+> 
+> According to the documentation preempted != 0 means preempted, but here you are checking the LSB. You need to be consistent about the ABI.
+
+Thanks for posting this. I'll update the code.
+
+> 
+>> +}
+>> +
+>> +static int pvlock_vcpu_state_dying_cpu(unsigned int cpu)
+>> +{
+>> +    struct pv_lock_state_region *reg;
+>> +
+>> +    reg = this_cpu_ptr(&lock_state_region);
+>> +    if (!reg->kaddr)
+>> +        return 0;
+>> +
+>> +    memunmap(reg->kaddr);
+>> +    memset(reg, 0, sizeof(*reg));
+>> +
+>> +    return 0;
+>> +}
+>> +
+>> +static int init_pvlock_vcpu_state(unsigned int cpu)
+>> +{
+>> +    struct pv_lock_state_region *reg;
+>> +    struct arm_smccc_res res;
+>> +
+>> +    reg = this_cpu_ptr(&lock_state_region);
+>> +
+>> +    arm_smccc_1_1_invoke(ARM_SMCCC_HV_PV_LOCK_PREEMPTED, &res);
+>> +
+>> +    if (res.a0 == SMCCC_RET_NOT_SUPPORTED) {
+>> +        pr_warn("Failed to init PV lock data structure\n");
+>> +        return -EINVAL;
+>> +    }
+>> +
+>> +    reg->kaddr = memremap(res.a0,
+>> +                  sizeof(struct pvlock_vcpu_state),
+>> +                  MEMREMAP_WB);
+>> +
+>> +    if (!reg->kaddr) {
+>> +        pr_warn("Failed to map PV lock data structure\n");
+>> +        return -ENOMEM;
+>> +    }
+>> +
+>> +    return 0;
+>> +}
+>> +
+>> +static int kvm_arm_init_pvlock(void)
+>> +{
+>> +    int ret;
+>> +
+>> +    ret = cpuhp_setup_state(CPUHP_AP_ARM_KVM_PVLOCK_STARTING,
+>> +                "hypervisor/arm/pvlock:starting",
+>> +                init_pvlock_vcpu_state,
+>> +                pvlock_vcpu_state_dying_cpu);
+>> +    if (ret < 0) {
+>> +        pr_warn("PV-lock init failed\n");
+>> +        return ret;
+>> +    }
+>> +
+>> +    return 0;
+>> +}
+>> +
+>> +static bool has_kvm_pvlock(void)
+>> +{
+>> +    struct arm_smccc_res res;
+>> +
+>> +    /* To detect the presence of PV lock support we require SMCCC 1.1+ */
+>> +    if (psci_ops.smccc_version < SMCCC_VERSION_1_1)
+>> +        return false;
+>> +
+>> +    arm_smccc_1_1_invoke(ARM_SMCCC_ARCH_FEATURES_FUNC_ID,
+>> +                 ARM_SMCCC_HV_PV_LOCK_FEATURES, &res);
+> 
+> As mentioned previously we could do with something more robust to check that the hypervisor is actually KVM before assuming that vendor specific IDs are valid.
+
+Will update next version.
+
+> 
+> Steve
+> 
+>> +
+>> +    if (res.a0 != SMCCC_RET_SUCCESS)
+>> +        return false;
+>> +
+>> +    return true;
+>> +}
+>> +
+>> +int __init pv_lock_init(void)
+>> +{
+>> +    int ret;
+>> +
+>> +    if (is_hyp_mode_available())
+>> +        return 0;
+>> +
+>> +    if (!has_kvm_pvlock())
+>> +        return 0;
+>> +
+>> +    ret = kvm_arm_init_pvlock();
+>> +    if (ret)
+>> +        return ret;
+>> +
+>> +    pv_ops.lock.vcpu_is_preempted = kvm_vcpu_is_preempted;
+>> +    pr_info("using PV-lock preempted\n");
+>> +
+>> +    return 0;
+>> +}
+>> diff --git a/arch/arm64/kernel/setup.c b/arch/arm64/kernel/setup.c
+>> index 56f664561754..aa3a8b9e710f 100644
+>> --- a/arch/arm64/kernel/setup.c
+>> +++ b/arch/arm64/kernel/setup.c
+>> @@ -341,6 +341,8 @@ void __init setup_arch(char **cmdline_p)
+>>       smp_init_cpus();
+>>       smp_build_mpidr_hash();
+>>   +    pv_lock_init();
+>> +
+>>       /* Init percpu seeds for random tags after cpus are set up. */
+>>       kasan_init_tags();
+>>   diff --git a/include/linux/cpuhotplug.h b/include/linux/cpuhotplug.h
+>> index e51ee772b9f5..f72ff95ab63a 100644
+>> --- a/include/linux/cpuhotplug.h
+>> +++ b/include/linux/cpuhotplug.h
+>> @@ -138,6 +138,7 @@ enum cpuhp_state {
+>>       CPUHP_AP_DUMMY_TIMER_STARTING,
+>>       CPUHP_AP_ARM_XEN_STARTING,
+>>       CPUHP_AP_ARM_KVMPV_STARTING,
+>> +    CPUHP_AP_ARM_KVM_PVLOCK_STARTING,
+>>       CPUHP_AP_ARM_CORESIGHT_STARTING,
+>>       CPUHP_AP_ARM64_ISNDEP_STARTING,
+>>       CPUHP_AP_SMPCFD_DYING,
+>>
+> 
+> 
+> .
+
+Thanks,
+
+Zengruan
