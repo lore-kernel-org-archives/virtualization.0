@@ -1,14 +1,11 @@
 From: Thomas Zimmermann <tzimmermann@suse.de>
-Subject: [PATCH v2 1/4] drm: Document struct drm_crtc_state.no_vblank for
- faking VBLANK events
-Date: Mon, 13 Jan 2020 11:38:19 +0100
-Message-ID: <20200113103822.24473-2-tzimmermann@suse.de>
-References: <20200113103822.24473-1-tzimmermann@suse.de>
+Subject: [PATCH v2 0/4] Use no_vblank property for drivers without VBLANK
+Date: Mon, 13 Jan 2020 11:38:18 +0100
+Message-ID: <20200113103822.24473-1-tzimmermann@suse.de>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <20200113103822.24473-1-tzimmermann@suse.de>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
  <mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -22,77 +19,43 @@ To: airlied@linux.ie, daniel@ffwll.ch, kraxel@redhat.com, maarten.lankhorst@linu
 Cc: xen-devel@lists.xenproject.org, dri-devel@lists.freedesktop.or, Thomas Zimmermann <tzimmermann@suse.de>, virtualization@lists.linux-foundation.org
 List-Id: virtualization@lists.linuxfoundation.org
 
-Drivers for CRTC hardware without support for VBLANK interrupts can set
-struct drm_crtc_state.no_vblank and let DRM's atomic commit helpers
-generate the VBLANK events automatically. Document this in order to make
-it official.
+Instead of faking VBLANK events by themselves, drivers without VBLANK
+support can enable drm_crtc_vblank.no_vblank and let DRM do the rest.
+The patchset makes this official and converts over several drivers.
 
-Signed-off-by: Thomas Zimmermann <tzimmermann@suse.de>
----
- drivers/gpu/drm/drm_atomic_helper.c | 4 +++-
- include/drm/drm_crtc.h              | 9 +++++++--
- include/drm/drm_simple_kms_helper.h | 7 +++++--
- 3 files changed, 15 insertions(+), 5 deletions(-)
+Ast already uses the functionality and just needs a cleanup. Cirrus can
+be converted easily by setting the field in the check() callback and
+removing the existing VBLANK code. For most other simple-KMS drivers
+without enable_vblank() and check(), simple-KMS helpers can enable the
+faked VBLANK by default. The only exception is Xen, which comes with
+its own VBLANK logic and should rather to disable no_vblank.
 
-diff --git a/drivers/gpu/drm/drm_atomic_helper.c b/drivers/gpu/drm/drm_atomic_helper.c
-index 4511c2e07bb9..ce30a37971e4 100644
---- a/drivers/gpu/drm/drm_atomic_helper.c
-+++ b/drivers/gpu/drm/drm_atomic_helper.c
-@@ -2215,7 +2215,9 @@ EXPORT_SYMBOL(drm_atomic_helper_wait_for_dependencies);
-  * when a job is queued, and any change to the pipeline that does not touch the
-  * connector is leading to timeouts when calling
-  * drm_atomic_helper_wait_for_vblanks() or
-- * drm_atomic_helper_wait_for_flip_done().
-+ * drm_atomic_helper_wait_for_flip_done(). In addition to writeback
-+ * connectors, this function can also fake VBLANK events for CRTCs without
-+ * VBLANK interrupt.
-  *
-  * This is part of the atomic helper support for nonblocking commits, see
-  * drm_atomic_helper_setup_commit() for an overview.
-diff --git a/include/drm/drm_crtc.h b/include/drm/drm_crtc.h
-index 5e9b15a0e8c5..01caf5160596 100644
---- a/include/drm/drm_crtc.h
-+++ b/include/drm/drm_crtc.h
-@@ -179,7 +179,9 @@ struct drm_crtc_state {
- 	 * In this case the VBLANK event is only generated when a job is queued
- 	 * to the writeback connector, and we want the core to fake VBLANK
- 	 * events when this part of the pipeline hasn't changed but others had
--	 * or when the CRTC and connectors are being disabled.
-+	 * or when the CRTC and connectors are being disabled. In addition to
-+	 * writeback connectors, this function can also fake VBLANK events for
-+	 * CRTCs without VBLANK interrupt.
- 	 *
- 	 * __drm_atomic_helper_crtc_duplicate_state() will not reset the value
- 	 * from the current state, the CRTC driver is then responsible for
-@@ -335,7 +337,10 @@ struct drm_crtc_state {
- 	 *  - Events for disabled CRTCs are not allowed, and drivers can ignore
- 	 *    that case.
- 	 *
--	 * This can be handled by the drm_crtc_send_vblank_event() function,
-+	 * For very simple hardware without VBLANK interrupt, enabling
-+	 * &struct drm_crtc_state.no_vblank makes DRM's atomic commit helpers
-+	 * send the event at an appropriate time. For more complex hardware this
-+	 * can be handled by the drm_crtc_send_vblank_event() function,
- 	 * which the driver should call on the provided event upon completion of
- 	 * the atomic commit. Note that if the driver supports vblank signalling
- 	 * and timestamping the vblank counters and timestamps must agree with
-diff --git a/include/drm/drm_simple_kms_helper.h b/include/drm/drm_simple_kms_helper.h
-index 15afee9cf049..e253ba7bea9d 100644
---- a/include/drm/drm_simple_kms_helper.h
-+++ b/include/drm/drm_simple_kms_helper.h
-@@ -100,8 +100,11 @@ struct drm_simple_display_pipe_funcs {
- 	 * This is the function drivers should submit the
- 	 * &drm_pending_vblank_event from. Using either
- 	 * drm_crtc_arm_vblank_event(), when the driver supports vblank
--	 * interrupt handling, or drm_crtc_send_vblank_event() directly in case
--	 * the hardware lacks vblank support entirely.
-+	 * interrupt handling, or drm_crtc_send_vblank_event() for more
-+	 * complex case. In case the hardware lacks vblank support entirely,
-+	 * drivers can set &struct drm_crtc_state.no_vblank in
-+	 * &struct drm_simple_display_pipe_funcs.check and let DRM's
-+	 * atomic helper fake a vblank event.
- 	 */
- 	void (*update)(struct drm_simple_display_pipe *pipe,
- 		       struct drm_plane_state *old_plane_state);
--- 
+v2:
+	* document functionality (Daniel)
+	* cleanup ast (Daniel)
+	* let simple-kms handle no_vblank where possible
+
+Thomas Zimmermann (4):
+  drm: Document struct drm_crtc_state.no_vblank for faking VBLANK events
+  drm/ast: Set struct drm_crtc_state.no_vblank in atomic_check()
+  drm/cirrus: Let DRM core send VBLANK events
+  drm/simple-kms: Let DRM core send VBLANK events by default
+
+ drivers/gpu/drm/ast/ast_mode.c          |  4 ++--
+ drivers/gpu/drm/bochs/bochs_kms.c       |  9 ---------
+ drivers/gpu/drm/cirrus/cirrus.c         | 10 ++--------
+ drivers/gpu/drm/drm_atomic_helper.c     |  4 +++-
+ drivers/gpu/drm/drm_mipi_dbi.c          |  9 ---------
+ drivers/gpu/drm/drm_simple_kms_helper.c | 19 +++++++++++++++----
+ drivers/gpu/drm/tiny/gm12u320.c         |  9 ---------
+ drivers/gpu/drm/tiny/ili9225.c          |  9 ---------
+ drivers/gpu/drm/tiny/repaper.c          |  9 ---------
+ drivers/gpu/drm/tiny/st7586.c           |  9 ---------
+ drivers/gpu/drm/udl/udl_modeset.c       | 11 -----------
+ drivers/gpu/drm/xen/xen_drm_front_kms.c | 13 +++++++++++++
+ include/drm/drm_crtc.h                  |  9 +++++++--
+ include/drm/drm_simple_kms_helper.h     |  7 +++++--
+ 14 files changed, 47 insertions(+), 84 deletions(-)
+
+--
 2.24.1
