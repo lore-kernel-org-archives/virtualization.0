@@ -1,55 +1,59 @@
-From: Gerd Hoffmann <kraxel@redhat.com>
-Subject: Re: bochs_hw_init fails to request framebuffer on EFI boot with
- plymouth visible
-Date: Mon, 13 Jan 2020 08:19:39 +0100
-Message-ID: <20200113071939.rtqb7yw45zi63fqy@sirius.home.kraxel.org>
-References: <20200110163211.GB29736@mail-itl>
-Mime-Version: 1.0
-Content-Type: text/plain; charset="iso-8859-1"
-Content-Transfer-Encoding: quoted-printable
-Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <20200110163211.GB29736@mail-itl>
-Content-Disposition: inline
-List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
- <mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
-List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
-List-Post: <mailto:virtualization@lists.linux-foundation.org>
-List-Help: <mailto:virtualization-request@lists.linux-foundation.org?subject=help>
-List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualization>,
- <mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
-Errors-To: virtualization-bounces@lists.linux-foundation.org
-Sender: "Virtualization" <virtualization-bounces@lists.linux-foundation.org>
-To: Marek =?utf-8?Q?Marczykowski-G=C3=B3recki?= <marmarek@invisiblethingslab.com>
-Cc: virtualization@lists.linux-foundation.org
+From: Yuri Benditovich <yuri.benditovich@daynix.com>
+Subject: [PATCH v2] virtio-net: Introduce extended RSC feature
+Date: Mon, 13 Jan 2020 10:17:36 +0200
+Message-ID: <20200113081736.2340-1-yuri.benditovich@daynix.com>
+Return-path: <linux-kernel-owner@vger.kernel.org>
+Sender: linux-kernel-owner@vger.kernel.org
+To: mst@redhat.com, jasowang@redhat.com, virtualization@lists.linux-foundation.org, linux-kernel@vger.kernel.org
+Cc: yan@daynix.com
 List-Id: virtualization@lists.linuxfoundation.org
 
-On Fri, Jan 10, 2020 at 05:32:11PM +0100, Marek Marczykowski-G=F3recki wrot=
-e:
-> Hi,
-> =
+VIRTIO_NET_F_RSC_EXT feature bit indicates that the device
+is able to provide extended RSC information. When the feature
+is negotiatede and 'gso_type' field in received packet is not
+GSO_NONE, the device reports number of coalesced packets in
+'csum_start' field and number of duplicated acks in 'csum_offset'
+field and sets VIRTIO_NET_HDR_F_RSC_INFO in 'flags' field.
 
-> This is the context of "bochs_drm: failed bochs_hw_init() results in
-> panic". When I boot the system, if plymouth is visible, it crashes. But
-> if I press ESC to hide it, it boots fine. bochs_drm is build as module
-> and _not_ included in the initramfs, so it is loaded only after root
-> filesystem is mounted. And before that, efifb works just fine, including
-> nice graphical disk passphrase prompt.
+Signed-off-by: Yuri Benditovich <yuri.benditovich@daynix.com>
+---
+ include/uapi/linux/virtio_net.h | 10 +++++++++-
+ 1 file changed, 9 insertions(+), 1 deletion(-)
 
-> [   32.951345] fb0: switching to bochsdrmfb from EFI VGA
-[ ... ]
-> [   33.030158] bochs-drm 0000:00:02.0: BAR 0: can't reserve [mem 0xc00000=
-00-0xc0ffffff pref]
-
-Looks like efifb continues to claim the framebuffer resource
-(0xc0000000-0xc0ffffff) for some reason, so bochs-drm can't
-reserve it.
-
-No clue why, also doesn't reproduce here (standard fedora 31 5.4.7
-kernel).  I don't have an encrypted disk, so no passphrase prompt,
-maybe that makes a difference.
-
-How does /proc/iomem look after boot, specifically the 0000:00:02.0 pci
-bars?
-
-cheers,
-  Gerd
+diff --git a/include/uapi/linux/virtio_net.h b/include/uapi/linux/virtio_net.h
+index a3715a3224c1..2bdd26f8a4ed 100644
+--- a/include/uapi/linux/virtio_net.h
++++ b/include/uapi/linux/virtio_net.h
+@@ -56,7 +56,7 @@
+ #define VIRTIO_NET_F_MQ	22	/* Device supports Receive Flow
+ 					 * Steering */
+ #define VIRTIO_NET_F_CTRL_MAC_ADDR 23	/* Set MAC address */
+-
++#define VIRTIO_NET_F_RSC_EXT	  61	/* Provides extended RSC info */
+ #define VIRTIO_NET_F_STANDBY	  62	/* Act as standby for another device
+ 					 * with the same MAC.
+ 					 */
+@@ -104,6 +104,7 @@ struct virtio_net_config {
+ struct virtio_net_hdr_v1 {
+ #define VIRTIO_NET_HDR_F_NEEDS_CSUM	1	/* Use csum_start, csum_offset */
+ #define VIRTIO_NET_HDR_F_DATA_VALID	2	/* Csum is valid */
++#define VIRTIO_NET_HDR_F_RSC_INFO	4	/* rsc_ext data in csum_ fields */
+ 	__u8 flags;
+ #define VIRTIO_NET_HDR_GSO_NONE		0	/* Not a GSO frame */
+ #define VIRTIO_NET_HDR_GSO_TCPV4	1	/* GSO frame, IPv4 TCP (TSO) */
+@@ -118,6 +119,13 @@ struct virtio_net_hdr_v1 {
+ 	__virtio16 num_buffers;	/* Number of merged rx buffers */
+ };
+ 
++/*
++ * if VIRTIO_NET_F_RSC_EXT feature has been negotiated and
++ * VIRTIO_NET_HDR_F_RSC_INFO is set in RX packet
++ */
++#define virtio_net_rsc_ext_num_packets	csum_start
++#define virtio_net_rsc_ext_num_dupacks	csum_offset
++
+ #ifndef VIRTIO_NET_NO_LEGACY
+ /* This header comes first in the scatter-gather list.
+  * For legacy virtio, if VIRTIO_F_ANY_LAYOUT is not negotiated, it must
+-- 
+2.17.1
