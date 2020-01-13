@@ -1,97 +1,49 @@
-From: Daniel Vetter <daniel@ffwll.ch>
-Subject: Re: [PATCH] drm/cirrus: Let DRM core send VBLANK events
-Date: Mon, 13 Jan 2020 00:00:45 +0100
-Message-ID: <20200112230045.GE5340@dvetter-linux.ger.corp.intel.com>
-References: <20200110115707.14080-1-tzimmermann@suse.de>
+From: Gerd Hoffmann <kraxel@redhat.com>
+Subject: Re: bochs_drm: failed bochs_hw_init() results in panic
+Date: Mon, 13 Jan 2020 08:03:54 +0100
+Message-ID: <20200113070354.hwozz5zhkifn7ted@sirius.home.kraxel.org>
+References: <20200110013328.GA12596@mail-itl>
+ <20200110053553.4gqlagjdpfi6pg3b@sirius.home.kraxel.org>
+ <20200111000745.GF2507@mail-itl>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
-Return-path: <dri-devel-bounces@lists.freedesktop.org>
+Return-path: <virtualization-bounces@lists.linux-foundation.org>
+In-Reply-To: <20200111000745.GF2507@mail-itl>
 Content-Disposition: inline
-In-Reply-To: <20200110115707.14080-1-tzimmermann@suse.de>
-List-Unsubscribe: <https://lists.freedesktop.org/mailman/options/dri-devel>,
- <mailto:dri-devel-request@lists.freedesktop.org?subject=unsubscribe>
-List-Archive: <https://lists.freedesktop.org/archives/dri-devel>
-List-Post: <mailto:dri-devel@lists.freedesktop.org>
-List-Help: <mailto:dri-devel-request@lists.freedesktop.org?subject=help>
-List-Subscribe: <https://lists.freedesktop.org/mailman/listinfo/dri-devel>,
- <mailto:dri-devel-request@lists.freedesktop.org?subject=subscribe>
-Errors-To: dri-devel-bounces@lists.freedesktop.org
-Sender: "dri-devel" <dri-devel-bounces@lists.freedesktop.org>
-To: Thomas Zimmermann <tzimmermann@suse.de>
-Cc: airlied@redhat.com, dri-devel@lists.freedesktop.org, kraxel@redhat.com, virtualization@lists.linux-foundation.org
+List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
+ <mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
+List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
+List-Post: <mailto:virtualization@lists.linux-foundation.org>
+List-Help: <mailto:virtualization-request@lists.linux-foundation.org?subject=help>
+List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualization>,
+ <mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
+Errors-To: virtualization-bounces@lists.linux-foundation.org
+Sender: "Virtualization" <virtualization-bounces@lists.linux-foundation.org>
+To: Marek =?utf-8?Q?Marczykowski-G=C3=B3recki?= <marmarek@invisiblethingslab.com>
+Cc: virtualization@lists.linux-foundation.org
 List-Id: virtualization@lists.linuxfoundation.org
 
-On Fri, Jan 10, 2020 at 12:57:07PM +0100, Thomas Zimmermann wrote:
-> In drm_atomic_helper_fake_vblank() the DRM core sends out VBLANK
-> events if struct drm_crtc_state.no_vblank is enabled. Replace cirrus'
-> VBLANK events with the DRM core's functionality.
+> Now the messages looks like this:
 > 
-> Signed-off-by: Thomas Zimmermann <tzimmermann@suse.de>
-> ---
->  drivers/gpu/drm/cirrus/cirrus.c | 10 ++--------
->  1 file changed, 2 insertions(+), 8 deletions(-)
+> [   29.800835] bochs-drm 0000:00:02.0: remove_conflicting_pci_framebuffers: bar 0: 0xc0000000 -> 0xc0ffffff
+> [   29.800840] bochs-drm 0000:00:02.0: remove_conflicting_pci_framebuffers: bar 2: 0xc1087000 -> 0xc1087fff
+> [   29.800842] checking generic (c0000000 1000000) vs hw (c0000000 1000000)
+> [   29.800843] fb0: switching to bochsdrmfb from EFI VGA
+> [   29.805542] bochs-drm 0000:00:02.0: vgaarb: deactivate vga console
+> [   29.805742] bochs-drm 0000:00:02.0: BAR 0: can't reserve [mem 0xc0000000-0xc0ffffff pref]
+> [   29.805749] [drm:bochs_hw_init [bochs_drm]] *ERROR* Cannot request framebuffer
+
+This is the problem.
+
+> [   29.805781] bochs-drm: probe of 0000:00:02.0 failed with error -16
+> [   30.129014] Trying to free nonexistent resource <00000000c0000000-00000000c0ffffff>
 > 
-> diff --git a/drivers/gpu/drm/cirrus/cirrus.c b/drivers/gpu/drm/cirrus/cirrus.c
-> index 248c9f765c45..4a1729aa7e53 100644
-> --- a/drivers/gpu/drm/cirrus/cirrus.c
-> +++ b/drivers/gpu/drm/cirrus/cirrus.c
-> @@ -38,7 +38,6 @@
->  #include <drm/drm_modeset_helper_vtables.h>
->  #include <drm/drm_probe_helper.h>
->  #include <drm/drm_simple_kms_helper.h>
-> -#include <drm/drm_vblank.h>
->  
->  #define DRIVER_NAME "cirrus"
->  #define DRIVER_DESC "qemu cirrus vga"
-> @@ -415,6 +414,8 @@ static void cirrus_pipe_enable(struct drm_simple_display_pipe *pipe,
->  {
->  	struct cirrus_device *cirrus = pipe->crtc.dev->dev_private;
->  
-> +	crtc_state->no_vblank = true;
+> Is the last one an issue?
 
-Huh, nice untended use of this stuff ... We've added this for writeback,
-but I guess it can be used for anything that's a virtual connector ...
+Not critical.  Probably the pci_release_regions() call, trying to free
+all regions, including the one the driver could not request, so it warns
+about that one.
 
-I've also spotted that you've done this same trick for ast & udl already.
-But I think before we roll this out massively we should make this
-official. Can you pls do a patch to update the kerneldoc for @no_vblank
-that virtual hw can also use this stuff?
-
-Also, computing state values in atomic_commit code is kinda uncool and
-fraught with peril - design assumption is that with some very few
-exceptions (which are kinda awkward, would be nice to make state pointers
-const) all the core and helper codes that state structures stay unchanged
-after atomic_check completed. This should be computed in atomic_check (like vc4
-does). Can you pls also include patches to update ast and udl in this
-series?
-
-Thanks, Daniel
-
-
-> +
->  	cirrus_mode_set(cirrus, &crtc_state->mode, plane_state->fb);
->  	cirrus_fb_blit_fullscreen(plane_state->fb);
->  }
-> @@ -434,13 +435,6 @@ static void cirrus_pipe_update(struct drm_simple_display_pipe *pipe,
->  
->  	if (drm_atomic_helper_damage_merged(old_state, state, &rect))
->  		cirrus_fb_blit_rect(pipe->plane.state->fb, &rect);
-> -
-> -	if (crtc->state->event) {
-> -		spin_lock_irq(&crtc->dev->event_lock);
-> -		drm_crtc_send_vblank_event(crtc, crtc->state->event);
-> -		crtc->state->event = NULL;
-> -		spin_unlock_irq(&crtc->dev->event_lock);
-> -	}
->  }
->  
->  static const struct drm_simple_display_pipe_funcs cirrus_pipe_funcs = {
-> -- 
-> 2.24.1
-> 
-
--- 
-Daniel Vetter
-Software Engineer, Intel Corporation
-http://blog.ffwll.ch
+cheers,
+  Gerd
