@@ -1,8 +1,7 @@
 From: Thomas Zimmermann <tzimmermann@suse.de>
-Subject: [PATCH v2 2/4] drm/ast: Set struct drm_crtc_state.no_vblank in
- atomic_check()
-Date: Mon, 13 Jan 2020 11:38:20 +0100
-Message-ID: <20200113103822.24473-3-tzimmermann@suse.de>
+Subject: [PATCH v2 3/4] drm/cirrus: Let DRM core send VBLANK events
+Date: Mon, 13 Jan 2020 11:38:21 +0100
+Message-ID: <20200113103822.24473-4-tzimmermann@suse.de>
 References: <20200113103822.24473-1-tzimmermann@suse.de>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
@@ -22,35 +21,52 @@ To: airlied@linux.ie, daniel@ffwll.ch, kraxel@redhat.com, maarten.lankhorst@linu
 Cc: xen-devel@lists.xenproject.org, dri-devel@lists.freedesktop.or, Thomas Zimmermann <tzimmermann@suse.de>, virtualization@lists.linux-foundation.org
 List-Id: virtualization@lists.linuxfoundation.org
 
-CRTC state properties should be computed in atomic_check(). Do so for
-the no_vblank field.
+In drm_atomic_helper_fake_vblank(), the DRM core sends out VBLANK
+events if struct drm_crtc_state.no_vblank is enabled. Replace cirrus'
+VBLANK events with the DRM core's functionality.
+
+v2:
+	* set struct_drm_crtc_state.no_vblank in cirrus_pipe_check()
 
 Signed-off-by: Thomas Zimmermann <tzimmermann@suse.de>
 ---
- drivers/gpu/drm/ast/ast_mode.c | 4 ++--
- 1 file changed, 2 insertions(+), 2 deletions(-)
+ drivers/gpu/drm/cirrus/cirrus.c | 10 ++--------
+ 1 file changed, 2 insertions(+), 8 deletions(-)
 
-diff --git a/drivers/gpu/drm/ast/ast_mode.c b/drivers/gpu/drm/ast/ast_mode.c
-index 34608f0499eb..ef7a0b08cc05 100644
---- a/drivers/gpu/drm/ast/ast_mode.c
-+++ b/drivers/gpu/drm/ast/ast_mode.c
-@@ -800,6 +800,8 @@ static int ast_crtc_helper_atomic_check(struct drm_crtc *crtc,
- 		return -EINVAL;
- 	}
+diff --git a/drivers/gpu/drm/cirrus/cirrus.c b/drivers/gpu/drm/cirrus/cirrus.c
+index 248c9f765c45..5ff15e8a2a0a 100644
+--- a/drivers/gpu/drm/cirrus/cirrus.c
++++ b/drivers/gpu/drm/cirrus/cirrus.c
+@@ -38,7 +38,6 @@
+ #include <drm/drm_modeset_helper_vtables.h>
+ #include <drm/drm_probe_helper.h>
+ #include <drm/drm_simple_kms_helper.h>
+-#include <drm/drm_vblank.h>
  
-+	state->no_vblank = true;
+ #define DRIVER_NAME "cirrus"
+ #define DRIVER_DESC "qemu cirrus vga"
+@@ -404,6 +403,8 @@ static int cirrus_pipe_check(struct drm_simple_display_pipe *pipe,
+ {
+ 	struct drm_framebuffer *fb = plane_state->fb;
+ 
++	crtc_state->no_vblank = true;
 +
- 	ast_state = to_ast_crtc_state(state);
+ 	if (!fb)
+ 		return 0;
+ 	return cirrus_check_size(fb->width, fb->height, fb);
+@@ -434,13 +435,6 @@ static void cirrus_pipe_update(struct drm_simple_display_pipe *pipe,
  
- 	format = ast_state->format;
-@@ -833,8 +835,6 @@ static void ast_crtc_helper_atomic_flush(struct drm_crtc *crtc,
- 	struct ast_vbios_mode_info *vbios_mode_info;
- 	struct drm_display_mode *adjusted_mode;
- 
--	crtc->state->no_vblank = true;
+ 	if (drm_atomic_helper_damage_merged(old_state, state, &rect))
+ 		cirrus_fb_blit_rect(pipe->plane.state->fb, &rect);
 -
- 	ast_state = to_ast_crtc_state(crtc->state);
+-	if (crtc->state->event) {
+-		spin_lock_irq(&crtc->dev->event_lock);
+-		drm_crtc_send_vblank_event(crtc, crtc->state->event);
+-		crtc->state->event = NULL;
+-		spin_unlock_irq(&crtc->dev->event_lock);
+-	}
+ }
  
- 	format = ast_state->format;
+ static const struct drm_simple_display_pipe_funcs cirrus_pipe_funcs = {
 -- 
 2.24.1
