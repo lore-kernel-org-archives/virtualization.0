@@ -1,85 +1,103 @@
-From: Will Deacon <will@kernel.org>
-Subject: Re: [PATCH v2 0/6] KVM: arm64: VCPU preempted check support
-Date: Mon, 13 Jan 2020 12:12:41 +0000
-Message-ID: <20200113121240.GC3260@willie-the-truck>
-References: <20191226135833.1052-1-yezengruan@huawei.com>
+From: Yuri Benditovich <yuri.benditovich@daynix.com>
+Subject: Re: [PATCH v2] virtio-net: Introduce extended RSC feature
+Date: Mon, 13 Jan 2020 14:32:25 +0200
+Message-ID: <CAOEp5OfgSwsa63kgAUJW9E2C7FiWt7AFdPupQCaMb4CLgi4YXg@mail.gmail.com>
+References: <20200113081736.2340-1-yuri.benditovich@daynix.com> <bdc6cb05-30d1-b4fd-512e-740b2550c14e@redhat.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
-Content-Transfer-Encoding: 7bit
-Return-path: <virtualization-bounces@lists.linux-foundation.org>
-Content-Disposition: inline
-In-Reply-To: <20191226135833.1052-1-yezengruan@huawei.com>
-List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
- <mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
-List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
-List-Post: <mailto:virtualization@lists.linux-foundation.org>
-List-Help: <mailto:virtualization-request@lists.linux-foundation.org?subject=help>
-List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualization>,
- <mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
-Errors-To: virtualization-bounces@lists.linux-foundation.org
-Sender: "Virtualization" <virtualization-bounces@lists.linux-foundation.org>
-To: Zengruan Ye <yezengruan@huawei.com>
-Cc: mark.rutland@arm.com, daniel.lezcano@linaro.org, kvm@vger.kernel.org, linux-doc@vger.kernel.org, peterz@infradead.org, maz@kernel.org, suzuki.poulose@arm.com, linux-kernel@vger.kernel.org, virtualization@lists.linux-foundation.org, james.morse@arm.com, julien.thierry.kdev@gmail.com, catalin.marinas@arm.com, linux@armlinux.org.uk, steven.price@arm.com, kvmarm@lists.cs.columbia.edu, linux-arm-kernel@lists.infradead.org
+Content-Type: text/plain; charset="UTF-8"
+Content-Transfer-Encoding: quoted-printable
+Return-path: <linux-kernel-owner@vger.kernel.org>
+In-Reply-To: <bdc6cb05-30d1-b4fd-512e-740b2550c14e@redhat.com>
+Sender: linux-kernel-owner@vger.kernel.org
+To: Jason Wang <jasowang@redhat.com>
+Cc: "Michael S . Tsirkin" <mst@redhat.com>, virtualization@lists.linux-foundation.org, linux-kernel@vger.kernel.org, Yan Vugenfirer <yan@daynix.com>
 List-Id: virtualization@lists.linuxfoundation.org
 
-[+PeterZ]
+On Mon, Jan 13, 2020 at 1:08 PM Jason Wang <jasowang@redhat.com> wrote:
+>
+>
+> On 2020/1/13 =E4=B8=8B=E5=8D=884:17, Yuri Benditovich wrote:
+> > VIRTIO_NET_F_RSC_EXT feature bit indicates that the device
+> > is able to provide extended RSC information. When the feature
+> > is negotiatede and 'gso_type' field in received packet is not
+> > GSO_NONE, the device reports number of coalesced packets in
+> > 'csum_start' field and number of duplicated acks in 'csum_offset'
+> > field and sets VIRTIO_NET_HDR_F_RSC_INFO in 'flags' field.
+> >
+> > Signed-off-by: Yuri Benditovich <yuri.benditovich@daynix.com>
+>
+>
+> Hi Yuri:
+>
+> Is the feature used by Linux? If yes, it's better to include the real use=
+r.
+>
 
-On Thu, Dec 26, 2019 at 09:58:27PM +0800, Zengruan Ye wrote:
-> This patch set aims to support the vcpu_is_preempted() functionality
-> under KVM/arm64, which allowing the guest to obtain the VCPU is
-> currently running or not. This will enhance lock performance on
-> overcommitted hosts (more runnable VCPUs than physical CPUs in the
-> system) as doing busy waits for preempted VCPUs will hurt system
-> performance far worse than early yielding.
-> 
-> We have observed some performace improvements in uninx benchmark tests.
-> 
-> unix benchmark result:
->   host:  kernel 5.5.0-rc1, HiSilicon Kunpeng920, 8 CPUs
->   guest: kernel 5.5.0-rc1, 16 VCPUs
-> 
->                test-case                |    after-patch    |   before-patch
-> ----------------------------------------+-------------------+------------------
->  Dhrystone 2 using register variables   | 334600751.0 lps   | 335319028.3 lps
->  Double-Precision Whetstone             |     32856.1 MWIPS |     32849.6 MWIPS
->  Execl Throughput                       |      3662.1 lps   |      2718.0 lps
->  File Copy 1024 bufsize 2000 maxblocks  |    432906.4 KBps  |    158011.8 KBps
->  File Copy 256 bufsize 500 maxblocks    |    116023.0 KBps  |     37664.0 KBps
->  File Copy 4096 bufsize 8000 maxblocks  |   1432769.8 KBps  |    441108.8 KBps
->  Pipe Throughput                        |   6405029.6 lps   |   6021457.6 lps
->  Pipe-based Context Switching           |    185872.7 lps   |    184255.3 lps
->  Process Creation                       |      4025.7 lps   |      3706.6 lps
->  Shell Scripts (1 concurrent)           |      6745.6 lpm   |      6436.1 lpm
->  Shell Scripts (8 concurrent)           |       998.7 lpm   |       931.1 lpm
->  System Call Overhead                   |   3913363.1 lps   |   3883287.8 lps
-> ----------------------------------------+-------------------+------------------
->  System Benchmarks Index Score          |      1835.1       |      1327.6
+It is not used by Linux. Mainly needed for certification under Windows.
 
-Interesting, thanks for the numbers.
+>
+> > ---
+> >   include/uapi/linux/virtio_net.h | 10 +++++++++-
+> >   1 file changed, 9 insertions(+), 1 deletion(-)
+> >
+> > diff --git a/include/uapi/linux/virtio_net.h b/include/uapi/linux/virti=
+o_net.h
+> > index a3715a3224c1..2bdd26f8a4ed 100644
+> > --- a/include/uapi/linux/virtio_net.h
+> > +++ b/include/uapi/linux/virtio_net.h
+> > @@ -56,7 +56,7 @@
+> >   #define VIRTIO_NET_F_MQ     22      /* Device supports Receive Flow
+> >                                        * Steering */
+> >   #define VIRTIO_NET_F_CTRL_MAC_ADDR 23       /* Set MAC address */
+> > -
+> > +#define VIRTIO_NET_F_RSC_EXT   61    /* Provides extended RSC info */
+>
+>
+> Is this better to keep the newline around?
 
-So it looks like there is a decent improvement to be had from targetted vCPU
-wakeup, but I really dislike the explicit PV interface and it's already been
-shown to interact badly with the WFE-based polling in smp_cond_load_*().
+No problem, let's wait until the rest is accepted.
 
-Rather than expose a divergent interface, I would instead like to explore an
-improvement to smp_cond_load_*() and see how that performs before we commit
-to something more intrusive. Marc and I looked at this very briefly in the
-past, and the basic idea is to register all of the WFE sites with the
-hypervisor, indicating which register contains the address being spun on
-and which register contains the "bad" value. That way, you don't bother
-rescheduling a vCPU if the value at the address is still bad, because you
-know it will exit immediately.
+>
+>
+> >   #define VIRTIO_NET_F_STANDBY          62    /* Act as standby for ano=
+ther device
+> >                                        * with the same MAC.
+> >                                        */
+> > @@ -104,6 +104,7 @@ struct virtio_net_config {
+> >   struct virtio_net_hdr_v1 {
+> >   #define VIRTIO_NET_HDR_F_NEEDS_CSUM 1       /* Use csum_start, csum_o=
+ffset */
+> >   #define VIRTIO_NET_HDR_F_DATA_VALID 2       /* Csum is valid */
+> > +#define VIRTIO_NET_HDR_F_RSC_INFO    4       /* rsc_ext data in csum_ =
+fields */
+> >       __u8 flags;
+> >   #define VIRTIO_NET_HDR_GSO_NONE             0       /* Not a GSO fram=
+e */
+> >   #define VIRTIO_NET_HDR_GSO_TCPV4    1       /* GSO frame, IPv4 TCP (T=
+SO) */
+> > @@ -118,6 +119,13 @@ struct virtio_net_hdr_v1 {
+> >       __virtio16 num_buffers; /* Number of merged rx buffers */
+> >   };
+> >
+> > +/*
+> > + * if VIRTIO_NET_F_RSC_EXT feature has been negotiated and
+> > + * VIRTIO_NET_HDR_F_RSC_INFO is set in RX packet
+> > + */
+> > +#define virtio_net_rsc_ext_num_packets       csum_start
+> > +#define virtio_net_rsc_ext_num_dupacks       csum_offset
+>
+>
+> This looks sub-optimal, it looks to me union is better?
 
-Of course, the devil is in the details because when I say "address", that's
-a guest virtual address, so you need to play some tricks in the hypervisor
-so that you have a separate mapping for the lockword (it's enough to keep
-track of the physical address).
+This was discussed in v1, MST decided the define is better.
 
-Our hacks are here but we basically ran out of time to work on them beyond
-an unoptimised and hacky prototype:
-
-https://git.kernel.org/pub/scm/linux/kernel/git/maz/arm-platforms.git/log/?h=kvm-arm64/pvcy
-
-Marc -- how would you prefer to handle this?
-
-Will
+>
+> Thanks
+>
+>
+> > +
+> >   #ifndef VIRTIO_NET_NO_LEGACY
+> >   /* This header comes first in the scatter-gather list.
+> >    * For legacy virtio, if VIRTIO_F_ANY_LAYOUT is not negotiated, it mu=
+st
+>
