@@ -1,103 +1,106 @@
-From: Yuri Benditovich <yuri.benditovich@daynix.com>
-Subject: Re: [PATCH v2] virtio-net: Introduce extended RSC feature
-Date: Mon, 13 Jan 2020 14:32:25 +0200
-Message-ID: <CAOEp5OfgSwsa63kgAUJW9E2C7FiWt7AFdPupQCaMb4CLgi4YXg@mail.gmail.com>
-References: <20200113081736.2340-1-yuri.benditovich@daynix.com> <bdc6cb05-30d1-b4fd-512e-740b2550c14e@redhat.com>
+From: Daniel Vetter <daniel@ffwll.ch>
+Subject: Re: [PATCH] drm/cirrus: Let DRM core send VBLANK events
+Date: Tue, 14 Jan 2020 04:52:04 +0100
+Message-ID: <CAKMK7uEthyYuQpgmhp_YZbdOtFhLY2snARG6mEA1ZtQiKB6eag@mail.gmail.com>
+References: <20200110115707.14080-1-tzimmermann@suse.de>
+ <20200112230045.GE5340@dvetter-linux.ger.corp.intel.com>
+ <d74a1e5f-a815-979e-1bbb-412d195b3f75@suse.de>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="UTF-8"
-Content-Transfer-Encoding: quoted-printable
-Return-path: <linux-kernel-owner@vger.kernel.org>
-In-Reply-To: <bdc6cb05-30d1-b4fd-512e-740b2550c14e@redhat.com>
-Sender: linux-kernel-owner@vger.kernel.org
-To: Jason Wang <jasowang@redhat.com>
-Cc: "Michael S . Tsirkin" <mst@redhat.com>, virtualization@lists.linux-foundation.org, linux-kernel@vger.kernel.org, Yan Vugenfirer <yan@daynix.com>
+Content-Type: text/plain; charset="utf-8"
+Content-Transfer-Encoding: base64
+Return-path: <dri-devel-bounces@lists.freedesktop.org>
+In-Reply-To: <d74a1e5f-a815-979e-1bbb-412d195b3f75@suse.de>
+List-Unsubscribe: <https://lists.freedesktop.org/mailman/options/dri-devel>,
+ <mailto:dri-devel-request@lists.freedesktop.org?subject=unsubscribe>
+List-Archive: <https://lists.freedesktop.org/archives/dri-devel>
+List-Post: <mailto:dri-devel@lists.freedesktop.org>
+List-Help: <mailto:dri-devel-request@lists.freedesktop.org?subject=help>
+List-Subscribe: <https://lists.freedesktop.org/mailman/listinfo/dri-devel>,
+ <mailto:dri-devel-request@lists.freedesktop.org?subject=subscribe>
+Errors-To: dri-devel-bounces@lists.freedesktop.org
+Sender: "dri-devel" <dri-devel-bounces@lists.freedesktop.org>
+To: Thomas Zimmermann <tzimmermann@suse.de>
+Cc: Dave Airlie <airlied@redhat.com>, Gerd Hoffmann <kraxel@redhat.com>, dri-devel <dri-devel@lists.freedesktop.org>, "open list:VIRTIO CORE,
+ NET..." <virtualization@lists.linux-foundation.org>
 List-Id: virtualization@lists.linuxfoundation.org
 
-On Mon, Jan 13, 2020 at 1:08 PM Jason Wang <jasowang@redhat.com> wrote:
->
->
-> On 2020/1/13 =E4=B8=8B=E5=8D=884:17, Yuri Benditovich wrote:
-> > VIRTIO_NET_F_RSC_EXT feature bit indicates that the device
-> > is able to provide extended RSC information. When the feature
-> > is negotiatede and 'gso_type' field in received packet is not
-> > GSO_NONE, the device reports number of coalesced packets in
-> > 'csum_start' field and number of duplicated acks in 'csum_offset'
-> > field and sets VIRTIO_NET_HDR_F_RSC_INFO in 'flags' field.
-> >
-> > Signed-off-by: Yuri Benditovich <yuri.benditovich@daynix.com>
->
->
-> Hi Yuri:
->
-> Is the feature used by Linux? If yes, it's better to include the real use=
-r.
->
-
-It is not used by Linux. Mainly needed for certification under Windows.
-
->
-> > ---
-> >   include/uapi/linux/virtio_net.h | 10 +++++++++-
-> >   1 file changed, 9 insertions(+), 1 deletion(-)
-> >
-> > diff --git a/include/uapi/linux/virtio_net.h b/include/uapi/linux/virti=
-o_net.h
-> > index a3715a3224c1..2bdd26f8a4ed 100644
-> > --- a/include/uapi/linux/virtio_net.h
-> > +++ b/include/uapi/linux/virtio_net.h
-> > @@ -56,7 +56,7 @@
-> >   #define VIRTIO_NET_F_MQ     22      /* Device supports Receive Flow
-> >                                        * Steering */
-> >   #define VIRTIO_NET_F_CTRL_MAC_ADDR 23       /* Set MAC address */
-> > -
-> > +#define VIRTIO_NET_F_RSC_EXT   61    /* Provides extended RSC info */
->
->
-> Is this better to keep the newline around?
-
-No problem, let's wait until the rest is accepted.
-
->
->
-> >   #define VIRTIO_NET_F_STANDBY          62    /* Act as standby for ano=
-ther device
-> >                                        * with the same MAC.
-> >                                        */
-> > @@ -104,6 +104,7 @@ struct virtio_net_config {
-> >   struct virtio_net_hdr_v1 {
-> >   #define VIRTIO_NET_HDR_F_NEEDS_CSUM 1       /* Use csum_start, csum_o=
-ffset */
-> >   #define VIRTIO_NET_HDR_F_DATA_VALID 2       /* Csum is valid */
-> > +#define VIRTIO_NET_HDR_F_RSC_INFO    4       /* rsc_ext data in csum_ =
-fields */
-> >       __u8 flags;
-> >   #define VIRTIO_NET_HDR_GSO_NONE             0       /* Not a GSO fram=
-e */
-> >   #define VIRTIO_NET_HDR_GSO_TCPV4    1       /* GSO frame, IPv4 TCP (T=
-SO) */
-> > @@ -118,6 +119,13 @@ struct virtio_net_hdr_v1 {
-> >       __virtio16 num_buffers; /* Number of merged rx buffers */
-> >   };
-> >
-> > +/*
-> > + * if VIRTIO_NET_F_RSC_EXT feature has been negotiated and
-> > + * VIRTIO_NET_HDR_F_RSC_INFO is set in RX packet
-> > + */
-> > +#define virtio_net_rsc_ext_num_packets       csum_start
-> > +#define virtio_net_rsc_ext_num_dupacks       csum_offset
->
->
-> This looks sub-optimal, it looks to me union is better?
-
-This was discussed in v1, MST decided the define is better.
-
->
-> Thanks
->
->
-> > +
-> >   #ifndef VIRTIO_NET_NO_LEGACY
-> >   /* This header comes first in the scatter-gather list.
-> >    * For legacy virtio, if VIRTIO_F_ANY_LAYOUT is not negotiated, it mu=
-st
->
+T24gTW9uLCBKYW4gMTMsIDIwMjAgYXQgMTA6MDEgQU0gVGhvbWFzIFppbW1lcm1hbm4gPHR6aW1t
+ZXJtYW5uQHN1c2UuZGU+IHdyb3RlOgo+Cj4gSGkKPgo+IEFtIDEzLjAxLjIwIHVtIDAwOjAwIHNj
+aHJpZWIgRGFuaWVsIFZldHRlcjoKPiA+IE9uIEZyaSwgSmFuIDEwLCAyMDIwIGF0IDEyOjU3OjA3
+UE0gKzAxMDAsIFRob21hcyBaaW1tZXJtYW5uIHdyb3RlOgo+ID4+IEluIGRybV9hdG9taWNfaGVs
+cGVyX2Zha2VfdmJsYW5rKCkgdGhlIERSTSBjb3JlIHNlbmRzIG91dCBWQkxBTksKPiA+PiBldmVu
+dHMgaWYgc3RydWN0IGRybV9jcnRjX3N0YXRlLm5vX3ZibGFuayBpcyBlbmFibGVkLiBSZXBsYWNl
+IGNpcnJ1cycKPiA+PiBWQkxBTksgZXZlbnRzIHdpdGggdGhlIERSTSBjb3JlJ3MgZnVuY3Rpb25h
+bGl0eS4KPiA+Pgo+ID4+IFNpZ25lZC1vZmYtYnk6IFRob21hcyBaaW1tZXJtYW5uIDx0emltbWVy
+bWFubkBzdXNlLmRlPgo+ID4+IC0tLQo+ID4+ICBkcml2ZXJzL2dwdS9kcm0vY2lycnVzL2NpcnJ1
+cy5jIHwgMTAgKystLS0tLS0tLQo+ID4+ICAxIGZpbGUgY2hhbmdlZCwgMiBpbnNlcnRpb25zKCsp
+LCA4IGRlbGV0aW9ucygtKQo+ID4+Cj4gPj4gZGlmZiAtLWdpdCBhL2RyaXZlcnMvZ3B1L2RybS9j
+aXJydXMvY2lycnVzLmMgYi9kcml2ZXJzL2dwdS9kcm0vY2lycnVzL2NpcnJ1cy5jCj4gPj4gaW5k
+ZXggMjQ4YzlmNzY1YzQ1Li40YTE3MjlhYTdlNTMgMTAwNjQ0Cj4gPj4gLS0tIGEvZHJpdmVycy9n
+cHUvZHJtL2NpcnJ1cy9jaXJydXMuYwo+ID4+ICsrKyBiL2RyaXZlcnMvZ3B1L2RybS9jaXJydXMv
+Y2lycnVzLmMKPiA+PiBAQCAtMzgsNyArMzgsNiBAQAo+ID4+ICAjaW5jbHVkZSA8ZHJtL2RybV9t
+b2Rlc2V0X2hlbHBlcl92dGFibGVzLmg+Cj4gPj4gICNpbmNsdWRlIDxkcm0vZHJtX3Byb2JlX2hl
+bHBlci5oPgo+ID4+ICAjaW5jbHVkZSA8ZHJtL2RybV9zaW1wbGVfa21zX2hlbHBlci5oPgo+ID4+
+IC0jaW5jbHVkZSA8ZHJtL2RybV92YmxhbmsuaD4KPiA+Pgo+ID4+ICAjZGVmaW5lIERSSVZFUl9O
+QU1FICJjaXJydXMiCj4gPj4gICNkZWZpbmUgRFJJVkVSX0RFU0MgInFlbXUgY2lycnVzIHZnYSIK
+PiA+PiBAQCAtNDE1LDYgKzQxNCw4IEBAIHN0YXRpYyB2b2lkIGNpcnJ1c19waXBlX2VuYWJsZShz
+dHJ1Y3QgZHJtX3NpbXBsZV9kaXNwbGF5X3BpcGUgKnBpcGUsCj4gPj4gIHsKPiA+PiAgICAgIHN0
+cnVjdCBjaXJydXNfZGV2aWNlICpjaXJydXMgPSBwaXBlLT5jcnRjLmRldi0+ZGV2X3ByaXZhdGU7
+Cj4gPj4KPiA+PiArICAgIGNydGNfc3RhdGUtPm5vX3ZibGFuayA9IHRydWU7Cj4gPgo+ID4gSHVo
+LCBuaWNlIHVudGVuZGVkIHVzZSBvZiB0aGlzIHN0dWZmIC4uLiBXZSd2ZSBhZGRlZCB0aGlzIGZv
+ciB3cml0ZWJhY2ssCj4gPiBidXQgSSBndWVzcyBpdCBjYW4gYmUgdXNlZCBmb3IgYW55dGhpbmcg
+dGhhdCdzIGEgdmlydHVhbCBjb25uZWN0b3IgLi4uCj4KPiBPaCwgJ2ltcHJvdmVkIGJ5IGFjY2lk
+ZW50Jy4KPgo+IEknbSBub3QgcXVpdGUgc3VyZSB3aGF0IHlvdSBtZWFuIGJ5IHZpcnR1YWwgY29u
+bmVjdG9yLCBidXQgaXQgc2hvdWxkCj4gd29yayB3aXRoIGFueSBDUlRDIHdpdGhvdXQgVkJMQU5L
+IHN1cHBvcnQuIEF0IGxlYXN0IEkndmUgbmV2ZXIgc2VlbiBhbnkKPiBwcm9ibGVtIHdpdGggYXN0
+IGFuZCB1ZGwuIEknbGwgdXBkYXRlIHRoZSBkb2NzIGFjY29yZGluZ2x5LgoKVGhlcmUncyBhIHBy
+ZXR0eSBodWdlIGRpZmZlcmVuY2UgYmV0d2VlbiAicmVhbCB2Ymxhbmsgc3VwcG9ydCIsIHdoaWNo
+Cm1lYW5zIHRoZSB2YXJpb3VzIHZibGFuay9jcnRjX3NlcXVlbmNlIGlvY3RscyB3b3JrLCBhbmQg
+dGhlIGZha2UKdmJsYW5rIGV2ZW4gc3R1ZmYgd2Ugc2VuZCBvdXQgZm9yIGFsbCBkcml2ZXJzIHJp
+Z2h0IGF3YXkgdG8gZnVsZmlsbAp0aGUgYXRvbWljIHVhcGkgZXZlbnQgcmVxdWlyZW1lbnRzLiBX
+ZSdsbCBuZWVkIHRvIGhpZ2hsaWdodCB0aGF0IHN0dWZmCmluIHRoZSBkb2N1bWVudGF0aW9uIEkg
+dGhpbmsgLi4uIE9uIHNlY29uZCB0aG91Z2h0LCBtYXliZSB3ZSBjb3VsZApjaGFuZ2UgdGhlIGF0
+b21pYyBoZWxwZXJzIHRvIGF1dG9tYXRpY2FsbHkgc2V0IG5vX3ZibGFuayB3aGVuIHRoZQpkcml2
+ZXIvY3J0YyBkb2Vzbid0IHN1cHBvcnQgcmVhbCB2YmxhbmtzLiBCdXQgaXMgZXZlbiBtb3JlIGlu
+dm9sdmVkCihidXQgSSB0aGluayBtaWdodCBhbHNvIGJlIHRoZSBldmVuIG5lYXRlciBzb2x1YXRp
+b24sIGJ1dCBoYXJkIHRvIGJlCnN1cmUgd2l0aG91dCB0eXBpbmcgaXQgYWxsIHVwKS4gT2ggYW5k
+IGJlY2F1c2UgaGlsYXJpb3VzIGhpc3RvcmljYWwKYWNjZW50cyAibm8gcmVhbCB2YmxhbmsiID0g
+ZHJtX2Rldi0+bnVtX2NydGNzID09IDAsIHdoaWNoIHdlIG1pZ2h0CndhbnQgdG8gcHV0IGludG8g
+YSBoZWxwZXIgaWYgd2UgbGVhayB0aGlzIG91dCBvZiB0aGUgZHJtX3ZibGFuay5jCnNvdXJjZSBm
+aWxlcy4KCkNoZWVycywgRGFuaWVsCgo+Cj4gQmVzdCByZWdhcmRzCj4gVGhvbWFzCj4KPiA+Cj4g
+PiBJJ3ZlIGFsc28gc3BvdHRlZCB0aGF0IHlvdSd2ZSBkb25lIHRoaXMgc2FtZSB0cmljayBmb3Ig
+YXN0ICYgdWRsIGFscmVhZHkuCj4gPiBCdXQgSSB0aGluayBiZWZvcmUgd2Ugcm9sbCB0aGlzIG91
+dCBtYXNzaXZlbHkgd2Ugc2hvdWxkIG1ha2UgdGhpcwo+ID4gb2ZmaWNpYWwuIENhbiB5b3UgcGxz
+IGRvIGEgcGF0Y2ggdG8gdXBkYXRlIHRoZSBrZXJuZWxkb2MgZm9yIEBub192YmxhbmsKPiA+IHRo
+YXQgdmlydHVhbCBodyBjYW4gYWxzbyB1c2UgdGhpcyBzdHVmZj8KPiA+Cj4gPiBBbHNvLCBjb21w
+dXRpbmcgc3RhdGUgdmFsdWVzIGluIGF0b21pY19jb21taXQgY29kZSBpcyBraW5kYSB1bmNvb2wg
+YW5kCj4gPiBmcmF1Z2h0IHdpdGggcGVyaWwgLSBkZXNpZ24gYXNzdW1wdGlvbiBpcyB0aGF0IHdp
+dGggc29tZSB2ZXJ5IGZldwo+ID4gZXhjZXB0aW9ucyAod2hpY2ggYXJlIGtpbmRhIGF3a3dhcmQs
+IHdvdWxkIGJlIG5pY2UgdG8gbWFrZSBzdGF0ZSBwb2ludGVycwo+ID4gY29uc3QpIGFsbCB0aGUg
+Y29yZSBhbmQgaGVscGVyIGNvZGVzIHRoYXQgc3RhdGUgc3RydWN0dXJlcyBzdGF5IHVuY2hhbmdl
+ZAo+ID4gYWZ0ZXIgYXRvbWljX2NoZWNrIGNvbXBsZXRlZC4gVGhpcyBzaG91bGQgYmUgY29tcHV0
+ZWQgaW4gYXRvbWljX2NoZWNrIChsaWtlIHZjNAo+ID4gZG9lcykuIENhbiB5b3UgcGxzIGFsc28g
+aW5jbHVkZSBwYXRjaGVzIHRvIHVwZGF0ZSBhc3QgYW5kIHVkbCBpbiB0aGlzCj4gPiBzZXJpZXM/
+Cj4gPgo+ID4gVGhhbmtzLCBEYW5pZWwKPiA+Cj4gPgo+ID4+ICsKPiA+PiAgICAgIGNpcnJ1c19t
+b2RlX3NldChjaXJydXMsICZjcnRjX3N0YXRlLT5tb2RlLCBwbGFuZV9zdGF0ZS0+ZmIpOwo+ID4+
+ICAgICAgY2lycnVzX2ZiX2JsaXRfZnVsbHNjcmVlbihwbGFuZV9zdGF0ZS0+ZmIpOwo+ID4+ICB9
+Cj4gPj4gQEAgLTQzNCwxMyArNDM1LDYgQEAgc3RhdGljIHZvaWQgY2lycnVzX3BpcGVfdXBkYXRl
+KHN0cnVjdCBkcm1fc2ltcGxlX2Rpc3BsYXlfcGlwZSAqcGlwZSwKPiA+Pgo+ID4+ICAgICAgaWYg
+KGRybV9hdG9taWNfaGVscGVyX2RhbWFnZV9tZXJnZWQob2xkX3N0YXRlLCBzdGF0ZSwgJnJlY3Qp
+KQo+ID4+ICAgICAgICAgICAgICBjaXJydXNfZmJfYmxpdF9yZWN0KHBpcGUtPnBsYW5lLnN0YXRl
+LT5mYiwgJnJlY3QpOwo+ID4+IC0KPiA+PiAtICAgIGlmIChjcnRjLT5zdGF0ZS0+ZXZlbnQpIHsK
+PiA+PiAtICAgICAgICAgICAgc3Bpbl9sb2NrX2lycSgmY3J0Yy0+ZGV2LT5ldmVudF9sb2NrKTsK
+PiA+PiAtICAgICAgICAgICAgZHJtX2NydGNfc2VuZF92YmxhbmtfZXZlbnQoY3J0YywgY3J0Yy0+
+c3RhdGUtPmV2ZW50KTsKPiA+PiAtICAgICAgICAgICAgY3J0Yy0+c3RhdGUtPmV2ZW50ID0gTlVM
+TDsKPiA+PiAtICAgICAgICAgICAgc3Bpbl91bmxvY2tfaXJxKCZjcnRjLT5kZXYtPmV2ZW50X2xv
+Y2spOwo+ID4+IC0gICAgfQo+ID4+ICB9Cj4gPj4KPiA+PiAgc3RhdGljIGNvbnN0IHN0cnVjdCBk
+cm1fc2ltcGxlX2Rpc3BsYXlfcGlwZV9mdW5jcyBjaXJydXNfcGlwZV9mdW5jcyA9IHsKPiA+PiAt
+LQo+ID4+IDIuMjQuMQo+ID4+Cj4gPgo+Cj4gLS0KPiBUaG9tYXMgWmltbWVybWFubgo+IEdyYXBo
+aWNzIERyaXZlciBEZXZlbG9wZXIKPiBTVVNFIFNvZnR3YXJlIFNvbHV0aW9ucyBHZXJtYW55IEdt
+YkgKPiBNYXhmZWxkc3RyLiA1LCA5MDQwOSBOw7xybmJlcmcsIEdlcm1hbnkKPiAoSFJCIDM2ODA5
+LCBBRyBOw7xybmJlcmcpCj4gR2VzY2jDpGZ0c2bDvGhyZXI6IEZlbGl4IEltZW5kw7ZyZmZlcgo+
+CgoKLS0gCkRhbmllbCBWZXR0ZXIKU29mdHdhcmUgRW5naW5lZXIsIEludGVsIENvcnBvcmF0aW9u
+Cis0MSAoMCkgNzkgMzY1IDU3IDQ4IC0gaHR0cDovL2Jsb2cuZmZ3bGwuY2gKX19fX19fX19fX19f
+X19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX18KZHJpLWRldmVsIG1haWxpbmcgbGlz
+dApkcmktZGV2ZWxAbGlzdHMuZnJlZWRlc2t0b3Aub3JnCmh0dHBzOi8vbGlzdHMuZnJlZWRlc2t0
+b3Aub3JnL21haWxtYW4vbGlzdGluZm8vZHJpLWRldmVsCg==
