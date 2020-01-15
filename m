@@ -1,43 +1,119 @@
-From: Thomas Zimmermann <tzimmermann@suse.de>
-Subject: [PATCH v2 2/4] drm/ast: Set struct
- drm_crtc_state.no_vblank in atomic_check()
-Date: Wed, 15 Jan 2020 13:52:24 +0100
-Message-ID: <20200115125226.13843-3-tzimmermann@suse.de>
-References: <20200115125226.13843-1-tzimmermann@suse.de>
+From: =?utf-8?Q?Cl=C3=A9ment?= Leger <cleger@kalray.eu>
+Subject: Re: [PATCH] virtio_ring: Use workqueue to execute virtqueue
+ callback
+Date: Wed, 15 Jan 2020 14:56:40 +0100 (CET)
+Message-ID: <1473755958.12366773.1579096600598.JavaMail.zimbra@kalray.eu>
+References: <20200115120535.17454-1-cleger@kalray.eu> <20200115084601-mutt-send-email-mst@kernel.org>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="utf-8"
-Content-Transfer-Encoding: base64
-Return-path: <xen-devel-bounces@lists.xenproject.org>
-In-Reply-To: <20200115125226.13843-1-tzimmermann@suse.de>
-List-Unsubscribe: <https://lists.xenproject.org/mailman/options/xen-devel>,
- <mailto:xen-devel-request@lists.xenproject.org?subject=unsubscribe>
-List-Post: <mailto:xen-devel@lists.xenproject.org>
-List-Help: <mailto:xen-devel-request@lists.xenproject.org?subject=help>
-List-Subscribe: <https://lists.xenproject.org/mailman/listinfo/xen-devel>,
- <mailto:xen-devel-request@lists.xenproject.org?subject=subscribe>
-Errors-To: xen-devel-bounces@lists.xenproject.org
-Sender: "Xen-devel" <xen-devel-bounces@lists.xenproject.org>
-To: airlied@linux.ie, daniel@ffwll.ch, kraxel@redhat.com, maarten.lankhorst@linux.intel.com, mripard@kernel.org, hdegoede@redhat.com, david@lechnology.com, noralf@tronnes.org, sean@poorly.run, oleksandr_andrushchenko@epam.com, sam@ravnborg.org, laurent.pinchart@ideasonboard.com, emil.velikov@collabora.com
-Cc: xen-devel@lists.xenproject.org, Thomas Zimmermann <tzimmermann@suse.de>, dri-devel@lists.freedesktop.org, virtualization@lists.linux-foundation.org
+Content-Type: text/plain; charset=utf-8
+Content-Transfer-Encoding: 7bit
+Return-path: <linux-kernel-owner@vger.kernel.org>
+In-Reply-To: <20200115084601-mutt-send-email-mst@kernel.org>
+Sender: linux-kernel-owner@vger.kernel.org
+To: "Michael S. Tsirkin" <mst@redhat.com>
+Cc: Jason Wang <jasowang@redhat.com>, virtualization@lists.linux-foundation.org, linux-kernel <linux-kernel@vger.kernel.org>
 List-Id: virtualization@lists.linuxfoundation.org
 
-Q1JUQyBzdGF0ZSBwcm9wZXJ0aWVzIHNob3VsZCBiZSBjb21wdXRlZCBpbiBhdG9taWNfY2hlY2so
-KS4gRG8gc28gZm9yCnRoZSBub192YmxhbmsgZmllbGQuCgpTaWduZWQtb2ZmLWJ5OiBUaG9tYXMg
-WmltbWVybWFubiA8dHppbW1lcm1hbm5Ac3VzZS5kZT4KLS0tCiBkcml2ZXJzL2dwdS9kcm0vYXN0
-L2FzdF9tb2RlLmMgfCA0ICsrLS0KIDEgZmlsZSBjaGFuZ2VkLCAyIGluc2VydGlvbnMoKyksIDIg
-ZGVsZXRpb25zKC0pCgpkaWZmIC0tZ2l0IGEvZHJpdmVycy9ncHUvZHJtL2FzdC9hc3RfbW9kZS5j
-IGIvZHJpdmVycy9ncHUvZHJtL2FzdC9hc3RfbW9kZS5jCmluZGV4IDM0NjA4ZjA0OTllYi4uZWY3
-YTBiMDhjYzA1IDEwMDY0NAotLS0gYS9kcml2ZXJzL2dwdS9kcm0vYXN0L2FzdF9tb2RlLmMKKysr
-IGIvZHJpdmVycy9ncHUvZHJtL2FzdC9hc3RfbW9kZS5jCkBAIC04MDAsNiArODAwLDggQEAgc3Rh
-dGljIGludCBhc3RfY3J0Y19oZWxwZXJfYXRvbWljX2NoZWNrKHN0cnVjdCBkcm1fY3J0YyAqY3J0
-YywKIAkJcmV0dXJuIC1FSU5WQUw7CiAJfQogCisJc3RhdGUtPm5vX3ZibGFuayA9IHRydWU7CisK
-IAlhc3Rfc3RhdGUgPSB0b19hc3RfY3J0Y19zdGF0ZShzdGF0ZSk7CiAKIAlmb3JtYXQgPSBhc3Rf
-c3RhdGUtPmZvcm1hdDsKQEAgLTgzMyw4ICs4MzUsNiBAQCBzdGF0aWMgdm9pZCBhc3RfY3J0Y19o
-ZWxwZXJfYXRvbWljX2ZsdXNoKHN0cnVjdCBkcm1fY3J0YyAqY3J0YywKIAlzdHJ1Y3QgYXN0X3Zi
-aW9zX21vZGVfaW5mbyAqdmJpb3NfbW9kZV9pbmZvOwogCXN0cnVjdCBkcm1fZGlzcGxheV9tb2Rl
-ICphZGp1c3RlZF9tb2RlOwogCi0JY3J0Yy0+c3RhdGUtPm5vX3ZibGFuayA9IHRydWU7Ci0KIAlh
-c3Rfc3RhdGUgPSB0b19hc3RfY3J0Y19zdGF0ZShjcnRjLT5zdGF0ZSk7CiAKIAlmb3JtYXQgPSBh
-c3Rfc3RhdGUtPmZvcm1hdDsKLS0gCjIuMjQuMQoKCl9fX19fX19fX19fX19fX19fX19fX19fX19f
-X19fX19fX19fX19fX19fX19fX19fClhlbi1kZXZlbCBtYWlsaW5nIGxpc3QKWGVuLWRldmVsQGxp
-c3RzLnhlbnByb2plY3Qub3JnCmh0dHBzOi8vbGlzdHMueGVucHJvamVjdC5vcmcvbWFpbG1hbi9s
-aXN0aW5mby94ZW4tZGV2ZWw=
+
+
+----- On 15 Jan, 2020, at 14:49, Michael S. Tsirkin mst@redhat.com wrote:
+
+> On Wed, Jan 15, 2020 at 01:05:35PM +0100, Clement Leger wrote:
+>> Currently, in vring_interrupt, the vq callbacks are called directly.
+>> However, these callbacks are not meant to be executed in IRQ context.
+>> They do not return any irq_return_t value and some of them can do
+>> locking (rpmsg_recv_done -> rpmsg_recv_single -> mutex_lock).
+> 
+> That's a bug in rpmsg. Pls fix there.
+
+Ok.
+
+> 
+>> When compiled with DEBUG_ATOMIC_SLEEP, the kernel will spit out warnings
+>> when such case shappen.
+>> 
+>> In order to allow calling these callbacks safely (without sleeping in
+>> IRQ context), execute them in a workqueue if needed.
+>> 
+>> Signed-off-by: Clement Leger <cleger@kalray.eu>
+> 
+> If applied this would slow data path handling of VQ events
+> significantly. Teaching callbacks to return irqreturn_t
+> might be a good idea, though it's not an insignificant
+> amount of work.
+
+Yes, I was expecting that it would slow down VQ event handling.
+I was not completely sure of the criticality of that.
+
+Thanks for your answer.
+
+> 
+> 
+>> ---
+>>  drivers/virtio/virtio_ring.c | 20 ++++++++++++++++++--
+>>  1 file changed, 18 insertions(+), 2 deletions(-)
+>> 
+>> diff --git a/drivers/virtio/virtio_ring.c b/drivers/virtio/virtio_ring.c
+>> index 867c7ebd3f10..0e4d0e5ca227 100644
+>> --- a/drivers/virtio/virtio_ring.c
+>> +++ b/drivers/virtio/virtio_ring.c
+>> @@ -183,6 +183,9 @@ struct vring_virtqueue {
+>>  	/* DMA, allocation, and size information */
+>>  	bool we_own_ring;
+>>  
+>> +	/* Work struct for vq callback handling */
+>> +	struct work_struct work;
+>> +
+>>  #ifdef DEBUG
+>>  	/* They're supposed to lock for us. */
+>>  	unsigned int in_use;
+>> @@ -2029,6 +2032,16 @@ static inline bool more_used(const struct vring_virtqueue
+>> *vq)
+>>  	return vq->packed_ring ? more_used_packed(vq) : more_used_split(vq);
+>>  }
+>>  
+>> +static void vring_work_handler(struct work_struct *work_struct)
+>> +{
+>> +	struct vring_virtqueue *vq = container_of(work_struct,
+>> +						  struct vring_virtqueue,
+>> +						  work);
+>> +	pr_debug("virtqueue callback for %p (%p)\n", vq, vq->vq.callback);
+>> +
+>> +	vq->vq.callback(&vq->vq);
+>> +}
+>> +
+>>  irqreturn_t vring_interrupt(int irq, void *_vq)
+>>  {
+>>  	struct vring_virtqueue *vq = to_vvq(_vq);
+>> @@ -2041,9 +2054,8 @@ irqreturn_t vring_interrupt(int irq, void *_vq)
+>>  	if (unlikely(vq->broken))
+>>  		return IRQ_HANDLED;
+>>  
+>> -	pr_debug("virtqueue callback for %p (%p)\n", vq, vq->vq.callback);
+>>  	if (vq->vq.callback)
+>> -		vq->vq.callback(&vq->vq);
+>> +		schedule_work(&vq->work);
+>>  
+>>  	return IRQ_HANDLED;
+>>  }
+>> @@ -2110,6 +2122,8 @@ struct virtqueue *__vring_new_virtqueue(unsigned int
+>> index,
+>>  					vq->split.avail_flags_shadow);
+>>  	}
+>>  
+>> +	INIT_WORK(&vq->work, vring_work_handler);
+>> +
+>>  	vq->split.desc_state = kmalloc_array(vring.num,
+>>  			sizeof(struct vring_desc_state_split), GFP_KERNEL);
+>>  	if (!vq->split.desc_state) {
+>> @@ -2179,6 +2193,8 @@ void vring_del_virtqueue(struct virtqueue *_vq)
+>>  {
+>>  	struct vring_virtqueue *vq = to_vvq(_vq);
+>>  
+>> +	cancel_work_sync(&vq->work);
+>> +
+>>  	if (vq->we_own_ring) {
+>>  		if (vq->packed_ring) {
+>>  			vring_free_queue(vq->vq.vdev,
+>> --
+> > 2.15.0.276.g89ea799
