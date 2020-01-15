@@ -1,58 +1,72 @@
 From: Thomas Zimmermann <tzimmermann@suse.de>
-Subject: [PATCH v2 0/4] Use no_vblank property for drivers
- without VBLANK
-Date: Wed, 15 Jan 2020 13:52:22 +0100
-Message-ID: <20200115125226.13843-1-tzimmermann@suse.de>
+Subject: [PATCH v2 3/4] drm/cirrus: Let DRM core send VBLANK events
+Date: Wed, 15 Jan 2020 13:52:25 +0100
+Message-ID: <20200115125226.13843-4-tzimmermann@suse.de>
+References: <20200115125226.13843-1-tzimmermann@suse.de>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="utf-8"
-Content-Transfer-Encoding: base64
-Return-path: <xen-devel-bounces@lists.xenproject.org>
-List-Unsubscribe: <https://lists.xenproject.org/mailman/options/xen-devel>,
- <mailto:xen-devel-request@lists.xenproject.org?subject=unsubscribe>
-List-Post: <mailto:xen-devel@lists.xenproject.org>
-List-Help: <mailto:xen-devel-request@lists.xenproject.org?subject=help>
-List-Subscribe: <https://lists.xenproject.org/mailman/listinfo/xen-devel>,
- <mailto:xen-devel-request@lists.xenproject.org?subject=subscribe>
-Errors-To: xen-devel-bounces@lists.xenproject.org
-Sender: "Xen-devel" <xen-devel-bounces@lists.xenproject.org>
+Content-Type: text/plain; charset="us-ascii"
+Content-Transfer-Encoding: 7bit
+Return-path: <virtualization-bounces@lists.linux-foundation.org>
+In-Reply-To: <20200115125226.13843-1-tzimmermann@suse.de>
+List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
+ <mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
+List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
+List-Post: <mailto:virtualization@lists.linux-foundation.org>
+List-Help: <mailto:virtualization-request@lists.linux-foundation.org?subject=help>
+List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualization>,
+ <mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
+Errors-To: virtualization-bounces@lists.linux-foundation.org
+Sender: "Virtualization" <virtualization-bounces@lists.linux-foundation.org>
 To: airlied@linux.ie, daniel@ffwll.ch, kraxel@redhat.com, maarten.lankhorst@linux.intel.com, mripard@kernel.org, hdegoede@redhat.com, david@lechnology.com, noralf@tronnes.org, sean@poorly.run, oleksandr_andrushchenko@epam.com, sam@ravnborg.org, laurent.pinchart@ideasonboard.com, emil.velikov@collabora.com
 Cc: xen-devel@lists.xenproject.org, Thomas Zimmermann <tzimmermann@suse.de>, dri-devel@lists.freedesktop.org, virtualization@lists.linux-foundation.org
 List-Id: virtualization@lists.linuxfoundation.org
 
-KFJlc2VuZGluZyBiZWNhdXNlIEkgZGlkIG5vdCBjYyBkcmktZGV2ZWwgcHJvcGVybHkuKQoKSW5z
-dGVhZCBvZiBmYWtpbmcgVkJMQU5LIGV2ZW50cyBieSB0aGVtc2VsdmVzLCBkcml2ZXJzIHdpdGhv
-dXQgVkJMQU5LCnN1cHBvcnQgY2FuIGVuYWJsZSBkcm1fY3J0Y192Ymxhbmsubm9fdmJsYW5rIGFu
-ZCBsZXQgRFJNIGRvIHRoZSByZXN0LgpUaGUgcGF0Y2hzZXQgbWFrZXMgdGhpcyBvZmZpY2lhbCBh
-bmQgY29udmVydHMgb3ZlciBzZXZlcmFsIGRyaXZlcnMuCgpBc3QgYWxyZWFkeSB1c2VzIHRoZSBm
-dW5jdGlvbmFsaXR5IGFuZCBqdXN0IG5lZWRzIGEgY2xlYW51cC4gQ2lycnVzIGNhbgpiZSBjb252
-ZXJ0ZWQgZWFzaWx5IGJ5IHNldHRpbmcgdGhlIGZpZWxkIGluIHRoZSBjaGVjaygpIGNhbGxiYWNr
-IGFuZApyZW1vdmluZyB0aGUgZXhpc3RpbmcgVkJMQU5LIGNvZGUuIEZvciBtb3N0IG90aGVyIHNp
-bXBsZS1LTVMgZHJpdmVycwp3aXRob3V0IGVuYWJsZV92YmxhbmsoKSBhbmQgY2hlY2soKSwgc2lt
-cGxlLUtNUyBoZWxwZXJzIGNhbiBlbmFibGUgdGhlCmZha2VkIFZCTEFOSyBieSBkZWZhdWx0LiBU
-aGUgb25seSBleGNlcHRpb24gaXMgWGVuLCB3aGljaCBjb21lcyB3aXRoCml0cyBvd24gVkJMQU5L
-IGxvZ2ljIGFuZCBzaG91bGQgcmF0aGVyIHRvIGRpc2FibGUgbm9fdmJsYW5rLgoKdjI6CgkqIGRv
-Y3VtZW50IGZ1bmN0aW9uYWxpdHkgKERhbmllbCkKCSogY2xlYW51cCBhc3QgKERhbmllbCkKCSog
-bGV0IHNpbXBsZS1rbXMgaGFuZGxlIG5vX3ZibGFuayB3aGVyZSBwb3NzaWJsZQoKVGhvbWFzIFpp
-bW1lcm1hbm4gKDQpOgogIGRybTogRG9jdW1lbnQgc3RydWN0IGRybV9jcnRjX3N0YXRlLm5vX3Zi
-bGFuayBmb3IgZmFraW5nIFZCTEFOSyBldmVudHMKICBkcm0vYXN0OiBTZXQgc3RydWN0IGRybV9j
-cnRjX3N0YXRlLm5vX3ZibGFuayBpbiBhdG9taWNfY2hlY2soKQogIGRybS9jaXJydXM6IExldCBE
-Uk0gY29yZSBzZW5kIFZCTEFOSyBldmVudHMKICBkcm0vc2ltcGxlLWttczogTGV0IERSTSBjb3Jl
-IHNlbmQgVkJMQU5LIGV2ZW50cyBieSBkZWZhdWx0CgogZHJpdmVycy9ncHUvZHJtL2FzdC9hc3Rf
-bW9kZS5jICAgICAgICAgIHwgIDQgKystLQogZHJpdmVycy9ncHUvZHJtL2JvY2hzL2JvY2hzX2tt
-cy5jICAgICAgIHwgIDkgLS0tLS0tLS0tCiBkcml2ZXJzL2dwdS9kcm0vY2lycnVzL2NpcnJ1cy5j
-ICAgICAgICAgfCAxMCArKy0tLS0tLS0tCiBkcml2ZXJzL2dwdS9kcm0vZHJtX2F0b21pY19oZWxw
-ZXIuYyAgICAgfCAgNCArKystCiBkcml2ZXJzL2dwdS9kcm0vZHJtX21pcGlfZGJpLmMgICAgICAg
-ICAgfCAgOSAtLS0tLS0tLS0KIGRyaXZlcnMvZ3B1L2RybS9kcm1fc2ltcGxlX2ttc19oZWxwZXIu
-YyB8IDE5ICsrKysrKysrKysrKysrKy0tLS0KIGRyaXZlcnMvZ3B1L2RybS90aW55L2dtMTJ1MzIw
-LmMgICAgICAgICB8ICA5IC0tLS0tLS0tLQogZHJpdmVycy9ncHUvZHJtL3RpbnkvaWxpOTIyNS5j
-ICAgICAgICAgIHwgIDkgLS0tLS0tLS0tCiBkcml2ZXJzL2dwdS9kcm0vdGlueS9yZXBhcGVyLmMg
-ICAgICAgICAgfCAgOSAtLS0tLS0tLS0KIGRyaXZlcnMvZ3B1L2RybS90aW55L3N0NzU4Ni5jICAg
-ICAgICAgICB8ICA5IC0tLS0tLS0tLQogZHJpdmVycy9ncHUvZHJtL3VkbC91ZGxfbW9kZXNldC5j
-ICAgICAgIHwgMTEgLS0tLS0tLS0tLS0KIGRyaXZlcnMvZ3B1L2RybS94ZW4veGVuX2RybV9mcm9u
-dF9rbXMuYyB8IDEzICsrKysrKysrKysrKysKIGluY2x1ZGUvZHJtL2RybV9jcnRjLmggICAgICAg
-ICAgICAgICAgICB8ICA5ICsrKysrKystLQogaW5jbHVkZS9kcm0vZHJtX3NpbXBsZV9rbXNfaGVs
-cGVyLmggICAgIHwgIDcgKysrKystLQogMTQgZmlsZXMgY2hhbmdlZCwgNDcgaW5zZXJ0aW9ucygr
-KSwgODQgZGVsZXRpb25zKC0pCgotLQoyLjI0LjEKCgpfX19fX19fX19fX19fX19fX19fX19fX19f
-X19fX19fX19fX19fX19fX19fX19fXwpYZW4tZGV2ZWwgbWFpbGluZyBsaXN0Clhlbi1kZXZlbEBs
-aXN0cy54ZW5wcm9qZWN0Lm9yZwpodHRwczovL2xpc3RzLnhlbnByb2plY3Qub3JnL21haWxtYW4v
-bGlzdGluZm8veGVuLWRldmVs
+In drm_atomic_helper_fake_vblank(), the DRM core sends out VBLANK
+events if struct drm_crtc_state.no_vblank is enabled. Replace cirrus'
+VBLANK events with the DRM core's functionality.
+
+v2:
+	* set struct_drm_crtc_state.no_vblank in cirrus_pipe_check()
+
+Signed-off-by: Thomas Zimmermann <tzimmermann@suse.de>
+---
+ drivers/gpu/drm/cirrus/cirrus.c | 10 ++--------
+ 1 file changed, 2 insertions(+), 8 deletions(-)
+
+diff --git a/drivers/gpu/drm/cirrus/cirrus.c b/drivers/gpu/drm/cirrus/cirrus.c
+index 248c9f765c45..5ff15e8a2a0a 100644
+--- a/drivers/gpu/drm/cirrus/cirrus.c
++++ b/drivers/gpu/drm/cirrus/cirrus.c
+@@ -38,7 +38,6 @@
+ #include <drm/drm_modeset_helper_vtables.h>
+ #include <drm/drm_probe_helper.h>
+ #include <drm/drm_simple_kms_helper.h>
+-#include <drm/drm_vblank.h>
+ 
+ #define DRIVER_NAME "cirrus"
+ #define DRIVER_DESC "qemu cirrus vga"
+@@ -404,6 +403,8 @@ static int cirrus_pipe_check(struct drm_simple_display_pipe *pipe,
+ {
+ 	struct drm_framebuffer *fb = plane_state->fb;
+ 
++	crtc_state->no_vblank = true;
++
+ 	if (!fb)
+ 		return 0;
+ 	return cirrus_check_size(fb->width, fb->height, fb);
+@@ -434,13 +435,6 @@ static void cirrus_pipe_update(struct drm_simple_display_pipe *pipe,
+ 
+ 	if (drm_atomic_helper_damage_merged(old_state, state, &rect))
+ 		cirrus_fb_blit_rect(pipe->plane.state->fb, &rect);
+-
+-	if (crtc->state->event) {
+-		spin_lock_irq(&crtc->dev->event_lock);
+-		drm_crtc_send_vblank_event(crtc, crtc->state->event);
+-		crtc->state->event = NULL;
+-		spin_unlock_irq(&crtc->dev->event_lock);
+-	}
+ }
+ 
+ static const struct drm_simple_display_pipe_funcs cirrus_pipe_funcs = {
+-- 
+2.24.1
