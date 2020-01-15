@@ -1,113 +1,58 @@
-From: Marek =?utf-8?Q?Marczykowski-G=C3=B3recki?=
- <marmarek@invisiblethingslab.com>
-Subject: Re: bochs_hw_init fails to request framebuffer on EFI boot with
- plymouth visible
-Date: Wed, 15 Jan 2020 15:27:41 +0100
-Message-ID: <20200115142741.GM2507@mail-itl>
-References: <20200110163211.GB29736@mail-itl>
- <20200113071939.rtqb7yw45zi63fqy@sirius.home.kraxel.org>
- <20200115003356.GL2507@mail-itl>
- <20200115100821.qcdraolkoki6e5tz@sirius.home.kraxel.org>
- <20200115134119.GP1314@mail-itl>
- <20200115141353.3kse3uj2mg6ik6k5@sirius.home.kraxel.org>
+From: Thomas Zimmermann <tzimmermann@suse.de>
+Subject: [PATCH v2 0/4] Use no_vblank property for drivers
+ without VBLANK
+Date: Wed, 15 Jan 2020 13:52:22 +0100
+Message-ID: <20200115125226.13843-1-tzimmermann@suse.de>
 Mime-Version: 1.0
-Content-Type: multipart/mixed; boundary="===============0708393496682375683=="
-Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <20200115141353.3kse3uj2mg6ik6k5@sirius.home.kraxel.org>
-List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
- <mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
-List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
-List-Post: <mailto:virtualization@lists.linux-foundation.org>
-List-Help: <mailto:virtualization-request@lists.linux-foundation.org?subject=help>
-List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualization>,
- <mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
-Errors-To: virtualization-bounces@lists.linux-foundation.org
-Sender: "Virtualization" <virtualization-bounces@lists.linux-foundation.org>
-To: Gerd Hoffmann <kraxel@redhat.com>
-Cc: virtualization@lists.linux-foundation.org
+Content-Type: text/plain; charset="utf-8"
+Content-Transfer-Encoding: base64
+Return-path: <xen-devel-bounces@lists.xenproject.org>
+List-Unsubscribe: <https://lists.xenproject.org/mailman/options/xen-devel>,
+ <mailto:xen-devel-request@lists.xenproject.org?subject=unsubscribe>
+List-Post: <mailto:xen-devel@lists.xenproject.org>
+List-Help: <mailto:xen-devel-request@lists.xenproject.org?subject=help>
+List-Subscribe: <https://lists.xenproject.org/mailman/listinfo/xen-devel>,
+ <mailto:xen-devel-request@lists.xenproject.org?subject=subscribe>
+Errors-To: xen-devel-bounces@lists.xenproject.org
+Sender: "Xen-devel" <xen-devel-bounces@lists.xenproject.org>
+To: airlied@linux.ie, daniel@ffwll.ch, kraxel@redhat.com, maarten.lankhorst@linux.intel.com, mripard@kernel.org, hdegoede@redhat.com, david@lechnology.com, noralf@tronnes.org, sean@poorly.run, oleksandr_andrushchenko@epam.com, sam@ravnborg.org, laurent.pinchart@ideasonboard.com, emil.velikov@collabora.com
+Cc: xen-devel@lists.xenproject.org, Thomas Zimmermann <tzimmermann@suse.de>, dri-devel@lists.freedesktop.org, virtualization@lists.linux-foundation.org
 List-Id: virtualization@lists.linuxfoundation.org
 
-
---===============0708393496682375683==
-Content-Type: multipart/signed; micalg=pgp-sha256;
-	protocol="application/pgp-signature"; boundary="AA9g+nFNFPYNJKiL"
-Content-Disposition: inline
-
-
---AA9g+nFNFPYNJKiL
-Content-Type: text/plain; protected-headers=v1; charset=utf-8
-Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
-Subject: Re: bochs_hw_init fails to request framebuffer on EFI boot with
- plymouth visible
-
-On Wed, Jan 15, 2020 at 03:13:53PM +0100, Gerd Hoffmann wrote:
->   Hi,
->=20
-> > > And "grep -A1 0000:00:02.0 /proc/iomem" ?
-> >=20
-> >   c0000000-c0ffffff : 0000:00:02.0
-> >   c1000000-c103ffff : 0000:00:04.0
->=20
-> So no reservation left.  Whatever blocked the pci bar resource (efifb
-> probably) is gone now.
->=20
-> So the interesting question is why that reservation sticked long enough
-> to prevent bochs-drm from initializing.  In theory efifb de-init should
-> be completed when drm_fb_helper_remove_conflicting_pci_framebuffers()
-> returns.
-
-Maybe the fact that switching to text mode plymouth help, gives some
-hint?
-
-> Bisecting could help, or springkling printk's into efifb ...
-
-That's a pretty broad range of commits...
-I'll try adding some printks.
-
-> > [46921.562805] fbcon: bochs-drmdrmfb (fb0) is primary device
-> > [46921.562808] fbcon: Deferring console take-over
->=20
-> I think that is just some eye candy which delays fbcon init until
-> something is actually printed.
->=20
-> Try "echo hello world > /dev/tty0".
-> Maybe tapping enter (to make getty re-print the login prompt) works too.
-
-Oh, yes, indeed it works.
-
---=20
-Best Regards,
-Marek Marczykowski-G=C3=B3recki
-Invisible Things Lab
-A: Because it messes up the order in which people normally read text.
-Q: Why is top-posting such a bad thing?
-
---AA9g+nFNFPYNJKiL
-Content-Type: application/pgp-signature; name="signature.asc"
-
------BEGIN PGP SIGNATURE-----
-
-iQEzBAEBCAAdFiEEhrpukzGPukRmQqkK24/THMrX1ywFAl4fIV4ACgkQ24/THMrX
-1yyQWAgAhyAtsKVWKV+RdLZhnbOkPAPWlCdF+2Z4ecNX1BJE6oxIXZWwkMX6wmnF
-M3HxFkQdpkAuM5aoimSyBEWvjes1KWpuyCQeFv2GyqMZzTgZyKIL1zYFUsHUvtuE
-FknTQt4waa31Ty6Ob3XWKHFrPJTYrcDUHf1mLHFwKPiixC7Yd/xU9v25M9YY0kKH
-J5sbfgyLdXizDl1wAoGLrUtj7EngwZ3qbDcvIsQGf6fxLSsJ9CRM/UafKEG75Av0
-fnFyIA+EhygNcCyxHFaFbUNES6afZJt8vq1Uq9KL1ijeZOktrvEDsZ22z71IMchZ
-0A9B7k3yFXvvU8LEjBtUz8KdB7Vb+A==
-=8tHz
------END PGP SIGNATURE-----
-
---AA9g+nFNFPYNJKiL--
-
---===============0708393496682375683==
-Content-Type: text/plain; charset="us-ascii"
-MIME-Version: 1.0
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-
-_______________________________________________
-Virtualization mailing list
-Virtualization@lists.linux-foundation.org
-https://lists.linuxfoundation.org/mailman/listinfo/virtualization
---===============0708393496682375683==--
+KFJlc2VuZGluZyBiZWNhdXNlIEkgZGlkIG5vdCBjYyBkcmktZGV2ZWwgcHJvcGVybHkuKQoKSW5z
+dGVhZCBvZiBmYWtpbmcgVkJMQU5LIGV2ZW50cyBieSB0aGVtc2VsdmVzLCBkcml2ZXJzIHdpdGhv
+dXQgVkJMQU5LCnN1cHBvcnQgY2FuIGVuYWJsZSBkcm1fY3J0Y192Ymxhbmsubm9fdmJsYW5rIGFu
+ZCBsZXQgRFJNIGRvIHRoZSByZXN0LgpUaGUgcGF0Y2hzZXQgbWFrZXMgdGhpcyBvZmZpY2lhbCBh
+bmQgY29udmVydHMgb3ZlciBzZXZlcmFsIGRyaXZlcnMuCgpBc3QgYWxyZWFkeSB1c2VzIHRoZSBm
+dW5jdGlvbmFsaXR5IGFuZCBqdXN0IG5lZWRzIGEgY2xlYW51cC4gQ2lycnVzIGNhbgpiZSBjb252
+ZXJ0ZWQgZWFzaWx5IGJ5IHNldHRpbmcgdGhlIGZpZWxkIGluIHRoZSBjaGVjaygpIGNhbGxiYWNr
+IGFuZApyZW1vdmluZyB0aGUgZXhpc3RpbmcgVkJMQU5LIGNvZGUuIEZvciBtb3N0IG90aGVyIHNp
+bXBsZS1LTVMgZHJpdmVycwp3aXRob3V0IGVuYWJsZV92YmxhbmsoKSBhbmQgY2hlY2soKSwgc2lt
+cGxlLUtNUyBoZWxwZXJzIGNhbiBlbmFibGUgdGhlCmZha2VkIFZCTEFOSyBieSBkZWZhdWx0LiBU
+aGUgb25seSBleGNlcHRpb24gaXMgWGVuLCB3aGljaCBjb21lcyB3aXRoCml0cyBvd24gVkJMQU5L
+IGxvZ2ljIGFuZCBzaG91bGQgcmF0aGVyIHRvIGRpc2FibGUgbm9fdmJsYW5rLgoKdjI6CgkqIGRv
+Y3VtZW50IGZ1bmN0aW9uYWxpdHkgKERhbmllbCkKCSogY2xlYW51cCBhc3QgKERhbmllbCkKCSog
+bGV0IHNpbXBsZS1rbXMgaGFuZGxlIG5vX3ZibGFuayB3aGVyZSBwb3NzaWJsZQoKVGhvbWFzIFpp
+bW1lcm1hbm4gKDQpOgogIGRybTogRG9jdW1lbnQgc3RydWN0IGRybV9jcnRjX3N0YXRlLm5vX3Zi
+bGFuayBmb3IgZmFraW5nIFZCTEFOSyBldmVudHMKICBkcm0vYXN0OiBTZXQgc3RydWN0IGRybV9j
+cnRjX3N0YXRlLm5vX3ZibGFuayBpbiBhdG9taWNfY2hlY2soKQogIGRybS9jaXJydXM6IExldCBE
+Uk0gY29yZSBzZW5kIFZCTEFOSyBldmVudHMKICBkcm0vc2ltcGxlLWttczogTGV0IERSTSBjb3Jl
+IHNlbmQgVkJMQU5LIGV2ZW50cyBieSBkZWZhdWx0CgogZHJpdmVycy9ncHUvZHJtL2FzdC9hc3Rf
+bW9kZS5jICAgICAgICAgIHwgIDQgKystLQogZHJpdmVycy9ncHUvZHJtL2JvY2hzL2JvY2hzX2tt
+cy5jICAgICAgIHwgIDkgLS0tLS0tLS0tCiBkcml2ZXJzL2dwdS9kcm0vY2lycnVzL2NpcnJ1cy5j
+ICAgICAgICAgfCAxMCArKy0tLS0tLS0tCiBkcml2ZXJzL2dwdS9kcm0vZHJtX2F0b21pY19oZWxw
+ZXIuYyAgICAgfCAgNCArKystCiBkcml2ZXJzL2dwdS9kcm0vZHJtX21pcGlfZGJpLmMgICAgICAg
+ICAgfCAgOSAtLS0tLS0tLS0KIGRyaXZlcnMvZ3B1L2RybS9kcm1fc2ltcGxlX2ttc19oZWxwZXIu
+YyB8IDE5ICsrKysrKysrKysrKysrKy0tLS0KIGRyaXZlcnMvZ3B1L2RybS90aW55L2dtMTJ1MzIw
+LmMgICAgICAgICB8ICA5IC0tLS0tLS0tLQogZHJpdmVycy9ncHUvZHJtL3RpbnkvaWxpOTIyNS5j
+ICAgICAgICAgIHwgIDkgLS0tLS0tLS0tCiBkcml2ZXJzL2dwdS9kcm0vdGlueS9yZXBhcGVyLmMg
+ICAgICAgICAgfCAgOSAtLS0tLS0tLS0KIGRyaXZlcnMvZ3B1L2RybS90aW55L3N0NzU4Ni5jICAg
+ICAgICAgICB8ICA5IC0tLS0tLS0tLQogZHJpdmVycy9ncHUvZHJtL3VkbC91ZGxfbW9kZXNldC5j
+ICAgICAgIHwgMTEgLS0tLS0tLS0tLS0KIGRyaXZlcnMvZ3B1L2RybS94ZW4veGVuX2RybV9mcm9u
+dF9rbXMuYyB8IDEzICsrKysrKysrKysrKysKIGluY2x1ZGUvZHJtL2RybV9jcnRjLmggICAgICAg
+ICAgICAgICAgICB8ICA5ICsrKysrKystLQogaW5jbHVkZS9kcm0vZHJtX3NpbXBsZV9rbXNfaGVs
+cGVyLmggICAgIHwgIDcgKysrKystLQogMTQgZmlsZXMgY2hhbmdlZCwgNDcgaW5zZXJ0aW9ucygr
+KSwgODQgZGVsZXRpb25zKC0pCgotLQoyLjI0LjEKCgpfX19fX19fX19fX19fX19fX19fX19fX19f
+X19fX19fX19fX19fX19fX19fX19fXwpYZW4tZGV2ZWwgbWFpbGluZyBsaXN0Clhlbi1kZXZlbEBs
+aXN0cy54ZW5wcm9qZWN0Lm9yZwpodHRwczovL2xpc3RzLnhlbnByb2plY3Qub3JnL21haWxtYW4v
+bGlzdGluZm8veGVuLWRldmVs
