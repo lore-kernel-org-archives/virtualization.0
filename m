@@ -1,329 +1,93 @@
 From: Thomas Zimmermann <tzimmermann@suse.de>
-Subject: [PATCH v2 4/4] drm/simple-kms: Let DRM core send VBLANK events by
- default
-Date: Wed, 15 Jan 2020 13:52:26 +0100
-Message-ID: <20200115125226.13843-5-tzimmermann@suse.de>
+Subject: [PATCH v2 1/4] drm: Document struct
+ drm_crtc_state.no_vblank for faking VBLANK events
+Date: Wed, 15 Jan 2020 13:52:23 +0100
+Message-ID: <20200115125226.13843-2-tzimmermann@suse.de>
 References: <20200115125226.13843-1-tzimmermann@suse.de>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
-Content-Transfer-Encoding: 7bit
-Return-path: <virtualization-bounces@lists.linux-foundation.org>
+Content-Type: text/plain; charset="utf-8"
+Content-Transfer-Encoding: base64
+Return-path: <xen-devel-bounces@lists.xenproject.org>
 In-Reply-To: <20200115125226.13843-1-tzimmermann@suse.de>
-List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
- <mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
-List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
-List-Post: <mailto:virtualization@lists.linux-foundation.org>
-List-Help: <mailto:virtualization-request@lists.linux-foundation.org?subject=help>
-List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualization>,
- <mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
-Errors-To: virtualization-bounces@lists.linux-foundation.org
-Sender: "Virtualization" <virtualization-bounces@lists.linux-foundation.org>
+List-Unsubscribe: <https://lists.xenproject.org/mailman/options/xen-devel>,
+ <mailto:xen-devel-request@lists.xenproject.org?subject=unsubscribe>
+List-Post: <mailto:xen-devel@lists.xenproject.org>
+List-Help: <mailto:xen-devel-request@lists.xenproject.org?subject=help>
+List-Subscribe: <https://lists.xenproject.org/mailman/listinfo/xen-devel>,
+ <mailto:xen-devel-request@lists.xenproject.org?subject=subscribe>
+Errors-To: xen-devel-bounces@lists.xenproject.org
+Sender: "Xen-devel" <xen-devel-bounces@lists.xenproject.org>
 To: airlied@linux.ie, daniel@ffwll.ch, kraxel@redhat.com, maarten.lankhorst@linux.intel.com, mripard@kernel.org, hdegoede@redhat.com, david@lechnology.com, noralf@tronnes.org, sean@poorly.run, oleksandr_andrushchenko@epam.com, sam@ravnborg.org, laurent.pinchart@ideasonboard.com, emil.velikov@collabora.com
 Cc: xen-devel@lists.xenproject.org, Thomas Zimmermann <tzimmermann@suse.de>, dri-devel@lists.freedesktop.org, virtualization@lists.linux-foundation.org
 List-Id: virtualization@lists.linuxfoundation.org
 
-In drm_atomic_helper_fake_vblank() the DRM core sends out VBLANK events
-if struct drm_crtc_state.no_vblank is enabled in the check() callbacks.
-
-For drivers that have neither an enable_vblank() callback nor a check()
-callback, the simple-KMS helpers enable VBLANK generation by default. This
-simplifies bochs, udl, several tiny drivers, and drivers based upon MIPI
-DPI helpers. The driver for Xen explicitly disables no_vblank, as it has
-its own logic for sending these events.
-
-Signed-off-by: Thomas Zimmermann <tzimmermann@suse.de>
----
- drivers/gpu/drm/bochs/bochs_kms.c       |  9 ---------
- drivers/gpu/drm/drm_mipi_dbi.c          |  9 ---------
- drivers/gpu/drm/drm_simple_kms_helper.c | 19 +++++++++++++++----
- drivers/gpu/drm/tiny/gm12u320.c         |  9 ---------
- drivers/gpu/drm/tiny/ili9225.c          |  9 ---------
- drivers/gpu/drm/tiny/repaper.c          |  9 ---------
- drivers/gpu/drm/tiny/st7586.c           |  9 ---------
- drivers/gpu/drm/udl/udl_modeset.c       | 11 -----------
- drivers/gpu/drm/xen/xen_drm_front_kms.c | 13 +++++++++++++
- 9 files changed, 28 insertions(+), 69 deletions(-)
-
-diff --git a/drivers/gpu/drm/bochs/bochs_kms.c b/drivers/gpu/drm/bochs/bochs_kms.c
-index 3f0006c2470d..ff275faee88d 100644
---- a/drivers/gpu/drm/bochs/bochs_kms.c
-+++ b/drivers/gpu/drm/bochs/bochs_kms.c
-@@ -7,7 +7,6 @@
- #include <drm/drm_atomic_helper.h>
- #include <drm/drm_gem_framebuffer_helper.h>
- #include <drm/drm_probe_helper.h>
--#include <drm/drm_vblank.h>
- 
- #include "bochs.h"
- 
-@@ -57,16 +56,8 @@ static void bochs_pipe_update(struct drm_simple_display_pipe *pipe,
- 			      struct drm_plane_state *old_state)
- {
- 	struct bochs_device *bochs = pipe->crtc.dev->dev_private;
--	struct drm_crtc *crtc = &pipe->crtc;
- 
- 	bochs_plane_update(bochs, pipe->plane.state);
--
--	if (crtc->state->event) {
--		spin_lock_irq(&crtc->dev->event_lock);
--		drm_crtc_send_vblank_event(crtc, crtc->state->event);
--		crtc->state->event = NULL;
--		spin_unlock_irq(&crtc->dev->event_lock);
--	}
- }
- 
- static const struct drm_simple_display_pipe_funcs bochs_pipe_funcs = {
-diff --git a/drivers/gpu/drm/drm_mipi_dbi.c b/drivers/gpu/drm/drm_mipi_dbi.c
-index 16bff1be4b8a..13b753cb3f67 100644
---- a/drivers/gpu/drm/drm_mipi_dbi.c
-+++ b/drivers/gpu/drm/drm_mipi_dbi.c
-@@ -24,7 +24,6 @@
- #include <drm/drm_modes.h>
- #include <drm/drm_probe_helper.h>
- #include <drm/drm_rect.h>
--#include <drm/drm_vblank.h>
- #include <video/mipi_display.h>
- 
- #define MIPI_DBI_MAX_SPI_READ_SPEED 2000000 /* 2MHz */
-@@ -299,18 +298,10 @@ void mipi_dbi_pipe_update(struct drm_simple_display_pipe *pipe,
- 			  struct drm_plane_state *old_state)
- {
- 	struct drm_plane_state *state = pipe->plane.state;
--	struct drm_crtc *crtc = &pipe->crtc;
- 	struct drm_rect rect;
- 
- 	if (drm_atomic_helper_damage_merged(old_state, state, &rect))
- 		mipi_dbi_fb_dirty(state->fb, &rect);
--
--	if (crtc->state->event) {
--		spin_lock_irq(&crtc->dev->event_lock);
--		drm_crtc_send_vblank_event(crtc, crtc->state->event);
--		spin_unlock_irq(&crtc->dev->event_lock);
--		crtc->state->event = NULL;
--	}
- }
- EXPORT_SYMBOL(mipi_dbi_pipe_update);
- 
-diff --git a/drivers/gpu/drm/drm_simple_kms_helper.c b/drivers/gpu/drm/drm_simple_kms_helper.c
-index 15fb516ae2d8..4414c7a5b2ce 100644
---- a/drivers/gpu/drm/drm_simple_kms_helper.c
-+++ b/drivers/gpu/drm/drm_simple_kms_helper.c
-@@ -146,10 +146,21 @@ static int drm_simple_kms_plane_atomic_check(struct drm_plane *plane,
- 	if (!plane_state->visible)
- 		return 0;
- 
--	if (!pipe->funcs || !pipe->funcs->check)
--		return 0;
--
--	return pipe->funcs->check(pipe, plane_state, crtc_state);
-+	if (pipe->funcs) {
-+		if (pipe->funcs->check)
-+			return pipe->funcs->check(pipe, plane_state,
-+						  crtc_state);
-+		if (pipe->funcs->enable_vblank)
-+			return 0;
-+	}
-+
-+	/* Drivers without VBLANK support have to fake VBLANK events. As
-+	 * there's no check() callback to enable this, set the no_vblank
-+	 * field by default.
-+	 */
-+	crtc_state->no_vblank = true;
-+
-+	return 0;
- }
- 
- static void drm_simple_kms_plane_atomic_update(struct drm_plane *plane,
-diff --git a/drivers/gpu/drm/tiny/gm12u320.c b/drivers/gpu/drm/tiny/gm12u320.c
-index 94fb1f593564..a48173441ae0 100644
---- a/drivers/gpu/drm/tiny/gm12u320.c
-+++ b/drivers/gpu/drm/tiny/gm12u320.c
-@@ -22,7 +22,6 @@
- #include <drm/drm_modeset_helper_vtables.h>
- #include <drm/drm_probe_helper.h>
- #include <drm/drm_simple_kms_helper.h>
--#include <drm/drm_vblank.h>
- 
- static bool eco_mode;
- module_param(eco_mode, bool, 0644);
-@@ -610,18 +609,10 @@ static void gm12u320_pipe_update(struct drm_simple_display_pipe *pipe,
- 				 struct drm_plane_state *old_state)
- {
- 	struct drm_plane_state *state = pipe->plane.state;
--	struct drm_crtc *crtc = &pipe->crtc;
- 	struct drm_rect rect;
- 
- 	if (drm_atomic_helper_damage_merged(old_state, state, &rect))
- 		gm12u320_fb_mark_dirty(pipe->plane.state->fb, &rect);
--
--	if (crtc->state->event) {
--		spin_lock_irq(&crtc->dev->event_lock);
--		drm_crtc_send_vblank_event(crtc, crtc->state->event);
--		crtc->state->event = NULL;
--		spin_unlock_irq(&crtc->dev->event_lock);
--	}
- }
- 
- static const struct drm_simple_display_pipe_funcs gm12u320_pipe_funcs = {
-diff --git a/drivers/gpu/drm/tiny/ili9225.c b/drivers/gpu/drm/tiny/ili9225.c
-index c66acc566c2b..802fb8dde1b6 100644
---- a/drivers/gpu/drm/tiny/ili9225.c
-+++ b/drivers/gpu/drm/tiny/ili9225.c
-@@ -26,7 +26,6 @@
- #include <drm/drm_gem_framebuffer_helper.h>
- #include <drm/drm_mipi_dbi.h>
- #include <drm/drm_rect.h>
--#include <drm/drm_vblank.h>
- 
- #define ILI9225_DRIVER_READ_CODE	0x00
- #define ILI9225_DRIVER_OUTPUT_CONTROL	0x01
-@@ -165,18 +164,10 @@ static void ili9225_pipe_update(struct drm_simple_display_pipe *pipe,
- 				struct drm_plane_state *old_state)
- {
- 	struct drm_plane_state *state = pipe->plane.state;
--	struct drm_crtc *crtc = &pipe->crtc;
- 	struct drm_rect rect;
- 
- 	if (drm_atomic_helper_damage_merged(old_state, state, &rect))
- 		ili9225_fb_dirty(state->fb, &rect);
--
--	if (crtc->state->event) {
--		spin_lock_irq(&crtc->dev->event_lock);
--		drm_crtc_send_vblank_event(crtc, crtc->state->event);
--		spin_unlock_irq(&crtc->dev->event_lock);
--		crtc->state->event = NULL;
--	}
- }
- 
- static void ili9225_pipe_enable(struct drm_simple_display_pipe *pipe,
-diff --git a/drivers/gpu/drm/tiny/repaper.c b/drivers/gpu/drm/tiny/repaper.c
-index 76d179200775..183484595aea 100644
---- a/drivers/gpu/drm/tiny/repaper.c
-+++ b/drivers/gpu/drm/tiny/repaper.c
-@@ -33,7 +33,6 @@
- #include <drm/drm_gem_framebuffer_helper.h>
- #include <drm/drm_modes.h>
- #include <drm/drm_rect.h>
--#include <drm/drm_vblank.h>
- #include <drm/drm_probe_helper.h>
- #include <drm/drm_simple_kms_helper.h>
- 
-@@ -856,18 +855,10 @@ static void repaper_pipe_update(struct drm_simple_display_pipe *pipe,
- 				struct drm_plane_state *old_state)
- {
- 	struct drm_plane_state *state = pipe->plane.state;
--	struct drm_crtc *crtc = &pipe->crtc;
- 	struct drm_rect rect;
- 
- 	if (drm_atomic_helper_damage_merged(old_state, state, &rect))
- 		repaper_fb_dirty(state->fb);
--
--	if (crtc->state->event) {
--		spin_lock_irq(&crtc->dev->event_lock);
--		drm_crtc_send_vblank_event(crtc, crtc->state->event);
--		spin_unlock_irq(&crtc->dev->event_lock);
--		crtc->state->event = NULL;
--	}
- }
- 
- static const struct drm_simple_display_pipe_funcs repaper_pipe_funcs = {
-diff --git a/drivers/gpu/drm/tiny/st7586.c b/drivers/gpu/drm/tiny/st7586.c
-index 060cc756194f..9ef559dd3191 100644
---- a/drivers/gpu/drm/tiny/st7586.c
-+++ b/drivers/gpu/drm/tiny/st7586.c
-@@ -23,7 +23,6 @@
- #include <drm/drm_gem_framebuffer_helper.h>
- #include <drm/drm_mipi_dbi.h>
- #include <drm/drm_rect.h>
--#include <drm/drm_vblank.h>
- 
- /* controller-specific commands */
- #define ST7586_DISP_MODE_GRAY	0x38
-@@ -159,18 +158,10 @@ static void st7586_pipe_update(struct drm_simple_display_pipe *pipe,
- 			       struct drm_plane_state *old_state)
- {
- 	struct drm_plane_state *state = pipe->plane.state;
--	struct drm_crtc *crtc = &pipe->crtc;
- 	struct drm_rect rect;
- 
- 	if (drm_atomic_helper_damage_merged(old_state, state, &rect))
- 		st7586_fb_dirty(state->fb, &rect);
--
--	if (crtc->state->event) {
--		spin_lock_irq(&crtc->dev->event_lock);
--		drm_crtc_send_vblank_event(crtc, crtc->state->event);
--		spin_unlock_irq(&crtc->dev->event_lock);
--		crtc->state->event = NULL;
--	}
- }
- 
- static void st7586_pipe_enable(struct drm_simple_display_pipe *pipe,
-diff --git a/drivers/gpu/drm/udl/udl_modeset.c b/drivers/gpu/drm/udl/udl_modeset.c
-index 22af17959053..d59ebac70b15 100644
---- a/drivers/gpu/drm/udl/udl_modeset.c
-+++ b/drivers/gpu/drm/udl/udl_modeset.c
-@@ -375,8 +375,6 @@ udl_simple_display_pipe_enable(struct drm_simple_display_pipe *pipe,
- 	char *wrptr;
- 	int color_depth = UDL_COLOR_DEPTH_16BPP;
- 
--	crtc_state->no_vblank = true;
--
- 	buf = (char *)udl->mode_buf;
- 
- 	/* This first section has to do with setting the base address on the
-@@ -428,14 +426,6 @@ udl_simple_display_pipe_disable(struct drm_simple_display_pipe *pipe)
- 	udl_submit_urb(dev, urb, buf - (char *)urb->transfer_buffer);
- }
- 
--static int
--udl_simple_display_pipe_check(struct drm_simple_display_pipe *pipe,
--			      struct drm_plane_state *plane_state,
--			      struct drm_crtc_state *crtc_state)
--{
--	return 0;
--}
--
- static void
- udl_simple_display_pipe_update(struct drm_simple_display_pipe *pipe,
- 			       struct drm_plane_state *old_plane_state)
-@@ -457,7 +447,6 @@ struct drm_simple_display_pipe_funcs udl_simple_display_pipe_funcs = {
- 	.mode_valid = udl_simple_display_pipe_mode_valid,
- 	.enable = udl_simple_display_pipe_enable,
- 	.disable = udl_simple_display_pipe_disable,
--	.check = udl_simple_display_pipe_check,
- 	.update = udl_simple_display_pipe_update,
- 	.prepare_fb = drm_gem_fb_simple_display_pipe_prepare_fb,
- };
-diff --git a/drivers/gpu/drm/xen/xen_drm_front_kms.c b/drivers/gpu/drm/xen/xen_drm_front_kms.c
-index 4f34c5208180..8ec29d5d3353 100644
---- a/drivers/gpu/drm/xen/xen_drm_front_kms.c
-+++ b/drivers/gpu/drm/xen/xen_drm_front_kms.c
-@@ -220,6 +220,18 @@ static bool display_send_page_flip(struct drm_simple_display_pipe *pipe,
- 	return false;
- }
- 
-+static int display_check(struct drm_simple_display_pipe *pipe,
-+			 struct drm_plane_state *plane_state,
-+			 struct drm_crtc_state *crtc_state)
-+{
-+	/* Make sure the simple DRM helpers don't enable VBLANK
-+	 * generation. Xen has it's own logic to do so.
-+	 */
-+	crtc_state->no_vblank = false;
-+
-+	return 0;
-+}
-+
- static void display_update(struct drm_simple_display_pipe *pipe,
- 			   struct drm_plane_state *old_plane_state)
- {
-@@ -284,6 +296,7 @@ static const struct drm_simple_display_pipe_funcs display_funcs = {
- 	.enable = display_enable,
- 	.disable = display_disable,
- 	.prepare_fb = drm_gem_fb_simple_display_pipe_prepare_fb,
-+	.check = display_check,
- 	.update = display_update,
- };
- 
--- 
-2.24.1
+RHJpdmVycyBmb3IgQ1JUQyBoYXJkd2FyZSB3aXRob3V0IHN1cHBvcnQgZm9yIFZCTEFOSyBpbnRl
+cnJ1cHRzIGNhbiBzZXQKc3RydWN0IGRybV9jcnRjX3N0YXRlLm5vX3ZibGFuayBhbmQgbGV0IERS
+TSdzIGF0b21pYyBjb21taXQgaGVscGVycwpnZW5lcmF0ZSB0aGUgVkJMQU5LIGV2ZW50cyBhdXRv
+bWF0aWNhbGx5LiBEb2N1bWVudCB0aGlzIGluIG9yZGVyIHRvIG1ha2UKaXQgb2ZmaWNpYWwuCgpT
+aWduZWQtb2ZmLWJ5OiBUaG9tYXMgWmltbWVybWFubiA8dHppbW1lcm1hbm5Ac3VzZS5kZT4KLS0t
+CiBkcml2ZXJzL2dwdS9kcm0vZHJtX2F0b21pY19oZWxwZXIuYyB8IDQgKysrLQogaW5jbHVkZS9k
+cm0vZHJtX2NydGMuaCAgICAgICAgICAgICAgfCA5ICsrKysrKystLQogaW5jbHVkZS9kcm0vZHJt
+X3NpbXBsZV9rbXNfaGVscGVyLmggfCA3ICsrKysrLS0KIDMgZmlsZXMgY2hhbmdlZCwgMTUgaW5z
+ZXJ0aW9ucygrKSwgNSBkZWxldGlvbnMoLSkKCmRpZmYgLS1naXQgYS9kcml2ZXJzL2dwdS9kcm0v
+ZHJtX2F0b21pY19oZWxwZXIuYyBiL2RyaXZlcnMvZ3B1L2RybS9kcm1fYXRvbWljX2hlbHBlci5j
+CmluZGV4IDQ1MTFjMmUwN2JiOS4uY2UzMGEzNzk3MWU0IDEwMDY0NAotLS0gYS9kcml2ZXJzL2dw
+dS9kcm0vZHJtX2F0b21pY19oZWxwZXIuYworKysgYi9kcml2ZXJzL2dwdS9kcm0vZHJtX2F0b21p
+Y19oZWxwZXIuYwpAQCAtMjIxNSw3ICsyMjE1LDkgQEAgRVhQT1JUX1NZTUJPTChkcm1fYXRvbWlj
+X2hlbHBlcl93YWl0X2Zvcl9kZXBlbmRlbmNpZXMpOwogICogd2hlbiBhIGpvYiBpcyBxdWV1ZWQs
+IGFuZCBhbnkgY2hhbmdlIHRvIHRoZSBwaXBlbGluZSB0aGF0IGRvZXMgbm90IHRvdWNoIHRoZQog
+ICogY29ubmVjdG9yIGlzIGxlYWRpbmcgdG8gdGltZW91dHMgd2hlbiBjYWxsaW5nCiAgKiBkcm1f
+YXRvbWljX2hlbHBlcl93YWl0X2Zvcl92YmxhbmtzKCkgb3IKLSAqIGRybV9hdG9taWNfaGVscGVy
+X3dhaXRfZm9yX2ZsaXBfZG9uZSgpLgorICogZHJtX2F0b21pY19oZWxwZXJfd2FpdF9mb3JfZmxp
+cF9kb25lKCkuIEluIGFkZGl0aW9uIHRvIHdyaXRlYmFjaworICogY29ubmVjdG9ycywgdGhpcyBm
+dW5jdGlvbiBjYW4gYWxzbyBmYWtlIFZCTEFOSyBldmVudHMgZm9yIENSVENzIHdpdGhvdXQKKyAq
+IFZCTEFOSyBpbnRlcnJ1cHQuCiAgKgogICogVGhpcyBpcyBwYXJ0IG9mIHRoZSBhdG9taWMgaGVs
+cGVyIHN1cHBvcnQgZm9yIG5vbmJsb2NraW5nIGNvbW1pdHMsIHNlZQogICogZHJtX2F0b21pY19o
+ZWxwZXJfc2V0dXBfY29tbWl0KCkgZm9yIGFuIG92ZXJ2aWV3LgpkaWZmIC0tZ2l0IGEvaW5jbHVk
+ZS9kcm0vZHJtX2NydGMuaCBiL2luY2x1ZGUvZHJtL2RybV9jcnRjLmgKaW5kZXggNWU5YjE1YTBl
+OGM1Li4wMWNhZjUxNjA1OTYgMTAwNjQ0Ci0tLSBhL2luY2x1ZGUvZHJtL2RybV9jcnRjLmgKKysr
+IGIvaW5jbHVkZS9kcm0vZHJtX2NydGMuaApAQCAtMTc5LDcgKzE3OSw5IEBAIHN0cnVjdCBkcm1f
+Y3J0Y19zdGF0ZSB7CiAJICogSW4gdGhpcyBjYXNlIHRoZSBWQkxBTksgZXZlbnQgaXMgb25seSBn
+ZW5lcmF0ZWQgd2hlbiBhIGpvYiBpcyBxdWV1ZWQKIAkgKiB0byB0aGUgd3JpdGViYWNrIGNvbm5l
+Y3RvciwgYW5kIHdlIHdhbnQgdGhlIGNvcmUgdG8gZmFrZSBWQkxBTksKIAkgKiBldmVudHMgd2hl
+biB0aGlzIHBhcnQgb2YgdGhlIHBpcGVsaW5lIGhhc24ndCBjaGFuZ2VkIGJ1dCBvdGhlcnMgaGFk
+Ci0JICogb3Igd2hlbiB0aGUgQ1JUQyBhbmQgY29ubmVjdG9ycyBhcmUgYmVpbmcgZGlzYWJsZWQu
+CisJICogb3Igd2hlbiB0aGUgQ1JUQyBhbmQgY29ubmVjdG9ycyBhcmUgYmVpbmcgZGlzYWJsZWQu
+IEluIGFkZGl0aW9uIHRvCisJICogd3JpdGViYWNrIGNvbm5lY3RvcnMsIHRoaXMgZnVuY3Rpb24g
+Y2FuIGFsc28gZmFrZSBWQkxBTksgZXZlbnRzIGZvcgorCSAqIENSVENzIHdpdGhvdXQgVkJMQU5L
+IGludGVycnVwdC4KIAkgKgogCSAqIF9fZHJtX2F0b21pY19oZWxwZXJfY3J0Y19kdXBsaWNhdGVf
+c3RhdGUoKSB3aWxsIG5vdCByZXNldCB0aGUgdmFsdWUKIAkgKiBmcm9tIHRoZSBjdXJyZW50IHN0
+YXRlLCB0aGUgQ1JUQyBkcml2ZXIgaXMgdGhlbiByZXNwb25zaWJsZSBmb3IKQEAgLTMzNSw3ICsz
+MzcsMTAgQEAgc3RydWN0IGRybV9jcnRjX3N0YXRlIHsKIAkgKiAgLSBFdmVudHMgZm9yIGRpc2Fi
+bGVkIENSVENzIGFyZSBub3QgYWxsb3dlZCwgYW5kIGRyaXZlcnMgY2FuIGlnbm9yZQogCSAqICAg
+IHRoYXQgY2FzZS4KIAkgKgotCSAqIFRoaXMgY2FuIGJlIGhhbmRsZWQgYnkgdGhlIGRybV9jcnRj
+X3NlbmRfdmJsYW5rX2V2ZW50KCkgZnVuY3Rpb24sCisJICogRm9yIHZlcnkgc2ltcGxlIGhhcmR3
+YXJlIHdpdGhvdXQgVkJMQU5LIGludGVycnVwdCwgZW5hYmxpbmcKKwkgKiAmc3RydWN0IGRybV9j
+cnRjX3N0YXRlLm5vX3ZibGFuayBtYWtlcyBEUk0ncyBhdG9taWMgY29tbWl0IGhlbHBlcnMKKwkg
+KiBzZW5kIHRoZSBldmVudCBhdCBhbiBhcHByb3ByaWF0ZSB0aW1lLiBGb3IgbW9yZSBjb21wbGV4
+IGhhcmR3YXJlIHRoaXMKKwkgKiBjYW4gYmUgaGFuZGxlZCBieSB0aGUgZHJtX2NydGNfc2VuZF92
+YmxhbmtfZXZlbnQoKSBmdW5jdGlvbiwKIAkgKiB3aGljaCB0aGUgZHJpdmVyIHNob3VsZCBjYWxs
+IG9uIHRoZSBwcm92aWRlZCBldmVudCB1cG9uIGNvbXBsZXRpb24gb2YKIAkgKiB0aGUgYXRvbWlj
+IGNvbW1pdC4gTm90ZSB0aGF0IGlmIHRoZSBkcml2ZXIgc3VwcG9ydHMgdmJsYW5rIHNpZ25hbGxp
+bmcKIAkgKiBhbmQgdGltZXN0YW1waW5nIHRoZSB2YmxhbmsgY291bnRlcnMgYW5kIHRpbWVzdGFt
+cHMgbXVzdCBhZ3JlZSB3aXRoCmRpZmYgLS1naXQgYS9pbmNsdWRlL2RybS9kcm1fc2ltcGxlX2tt
+c19oZWxwZXIuaCBiL2luY2x1ZGUvZHJtL2RybV9zaW1wbGVfa21zX2hlbHBlci5oCmluZGV4IDE1
+YWZlZTljZjA0OS4uZTI1M2JhN2JlYTlkIDEwMDY0NAotLS0gYS9pbmNsdWRlL2RybS9kcm1fc2lt
+cGxlX2ttc19oZWxwZXIuaAorKysgYi9pbmNsdWRlL2RybS9kcm1fc2ltcGxlX2ttc19oZWxwZXIu
+aApAQCAtMTAwLDggKzEwMCwxMSBAQCBzdHJ1Y3QgZHJtX3NpbXBsZV9kaXNwbGF5X3BpcGVfZnVu
+Y3MgewogCSAqIFRoaXMgaXMgdGhlIGZ1bmN0aW9uIGRyaXZlcnMgc2hvdWxkIHN1Ym1pdCB0aGUK
+IAkgKiAmZHJtX3BlbmRpbmdfdmJsYW5rX2V2ZW50IGZyb20uIFVzaW5nIGVpdGhlcgogCSAqIGRy
+bV9jcnRjX2FybV92YmxhbmtfZXZlbnQoKSwgd2hlbiB0aGUgZHJpdmVyIHN1cHBvcnRzIHZibGFu
+awotCSAqIGludGVycnVwdCBoYW5kbGluZywgb3IgZHJtX2NydGNfc2VuZF92YmxhbmtfZXZlbnQo
+KSBkaXJlY3RseSBpbiBjYXNlCi0JICogdGhlIGhhcmR3YXJlIGxhY2tzIHZibGFuayBzdXBwb3J0
+IGVudGlyZWx5LgorCSAqIGludGVycnVwdCBoYW5kbGluZywgb3IgZHJtX2NydGNfc2VuZF92Ymxh
+bmtfZXZlbnQoKSBmb3IgbW9yZQorCSAqIGNvbXBsZXggY2FzZS4gSW4gY2FzZSB0aGUgaGFyZHdh
+cmUgbGFja3MgdmJsYW5rIHN1cHBvcnQgZW50aXJlbHksCisJICogZHJpdmVycyBjYW4gc2V0ICZz
+dHJ1Y3QgZHJtX2NydGNfc3RhdGUubm9fdmJsYW5rIGluCisJICogJnN0cnVjdCBkcm1fc2ltcGxl
+X2Rpc3BsYXlfcGlwZV9mdW5jcy5jaGVjayBhbmQgbGV0IERSTSdzCisJICogYXRvbWljIGhlbHBl
+ciBmYWtlIGEgdmJsYW5rIGV2ZW50LgogCSAqLwogCXZvaWQgKCp1cGRhdGUpKHN0cnVjdCBkcm1f
+c2ltcGxlX2Rpc3BsYXlfcGlwZSAqcGlwZSwKIAkJICAgICAgIHN0cnVjdCBkcm1fcGxhbmVfc3Rh
+dGUgKm9sZF9wbGFuZV9zdGF0ZSk7Ci0tIAoyLjI0LjEKCgpfX19fX19fX19fX19fX19fX19fX19f
+X19fX19fX19fX19fX19fX19fX19fX19fXwpYZW4tZGV2ZWwgbWFpbGluZyBsaXN0Clhlbi1kZXZl
+bEBsaXN0cy54ZW5wcm9qZWN0Lm9yZwpodHRwczovL2xpc3RzLnhlbnByb2plY3Qub3JnL21haWxt
+YW4vbGlzdGluZm8veGVuLWRldmVs
