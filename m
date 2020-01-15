@@ -1,65 +1,57 @@
-From: Hans de Goede <hdegoede@redhat.com>
-Subject: Re: [PATCH v2 0/4] Use no_vblank property for drivers
- without VBLANK
-Date: Wed, 15 Jan 2020 14:04:06 +0100
-Message-ID: <91623f34-cc25-5045-0214-db18ecf29c61@redhat.com>
-References: <20200115125226.13843-1-tzimmermann@suse.de>
+From: Gerd Hoffmann <kraxel@redhat.com>
+Subject: Re: bochs_hw_init fails to request framebuffer on EFI boot with
+ plymouth visible
+Date: Wed, 15 Jan 2020 15:13:53 +0100
+Message-ID: <20200115141353.3kse3uj2mg6ik6k5@sirius.home.kraxel.org>
+References: <20200110163211.GB29736@mail-itl>
+ <20200113071939.rtqb7yw45zi63fqy@sirius.home.kraxel.org>
+ <20200115003356.GL2507@mail-itl>
+ <20200115100821.qcdraolkoki6e5tz@sirius.home.kraxel.org>
+ <20200115134119.GP1314@mail-itl>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="utf-8"; Format="flowed"
-Content-Transfer-Encoding: base64
-Return-path: <xen-devel-bounces@lists.xenproject.org>
-In-Reply-To: <20200115125226.13843-1-tzimmermann@suse.de>
-Content-Language: en-US
-List-Unsubscribe: <https://lists.xenproject.org/mailman/options/xen-devel>,
- <mailto:xen-devel-request@lists.xenproject.org?subject=unsubscribe>
-List-Post: <mailto:xen-devel@lists.xenproject.org>
-List-Help: <mailto:xen-devel-request@lists.xenproject.org?subject=help>
-List-Subscribe: <https://lists.xenproject.org/mailman/listinfo/xen-devel>,
- <mailto:xen-devel-request@lists.xenproject.org?subject=subscribe>
-Errors-To: xen-devel-bounces@lists.xenproject.org
-Sender: "Xen-devel" <xen-devel-bounces@lists.xenproject.org>
-To: Thomas Zimmermann <tzimmermann@suse.de>, airlied@linux.ie, daniel@ffwll.ch, kraxel@redhat.com, maarten.lankhorst@linux.intel.com, mripard@kernel.org, david@lechnology.com, noralf@tronnes.org, sean@poorly.run, oleksandr_andrushchenko@epam.com, sam@ravnborg.org, laurent.pinchart@ideasonboard.com, emil.velikov@collabora.com
-Cc: xen-devel@lists.xenproject.org, dri-devel@lists.freedesktop.org, virtualization@lists.linux-foundation.org
+Content-Type: text/plain; charset="us-ascii"
+Content-Transfer-Encoding: 7bit
+Return-path: <virtualization-bounces@lists.linux-foundation.org>
+In-Reply-To: <20200115134119.GP1314@mail-itl>
+Content-Disposition: inline
+List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
+ <mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
+List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
+List-Post: <mailto:virtualization@lists.linux-foundation.org>
+List-Help: <mailto:virtualization-request@lists.linux-foundation.org?subject=help>
+List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualization>,
+ <mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
+Errors-To: virtualization-bounces@lists.linux-foundation.org
+Sender: "Virtualization" <virtualization-bounces@lists.linux-foundation.org>
+To: Marek =?utf-8?Q?Marczykowski-G=C3=B3recki?= <marmarek@invisiblethingslab.com>
+Cc: virtualization@lists.linux-foundation.org
 List-Id: virtualization@lists.linuxfoundation.org
 
-SGksCgpPbiAxNS0wMS0yMDIwIDEzOjUyLCBUaG9tYXMgWmltbWVybWFubiB3cm90ZToKPiAoUmVz
-ZW5kaW5nIGJlY2F1c2UgSSBkaWQgbm90IGNjIGRyaS1kZXZlbCBwcm9wZXJseS4pCj4gCj4gSW5z
-dGVhZCBvZiBmYWtpbmcgVkJMQU5LIGV2ZW50cyBieSB0aGVtc2VsdmVzLCBkcml2ZXJzIHdpdGhv
-dXQgVkJMQU5LCj4gc3VwcG9ydCBjYW4gZW5hYmxlIGRybV9jcnRjX3ZibGFuay5ub192Ymxhbmsg
-YW5kIGxldCBEUk0gZG8gdGhlIHJlc3QuCj4gVGhlIHBhdGNoc2V0IG1ha2VzIHRoaXMgb2ZmaWNp
-YWwgYW5kIGNvbnZlcnRzIG92ZXIgc2V2ZXJhbCBkcml2ZXJzLgo+IAo+IEFzdCBhbHJlYWR5IHVz
-ZXMgdGhlIGZ1bmN0aW9uYWxpdHkgYW5kIGp1c3QgbmVlZHMgYSBjbGVhbnVwLiBDaXJydXMgY2Fu
-Cj4gYmUgY29udmVydGVkIGVhc2lseSBieSBzZXR0aW5nIHRoZSBmaWVsZCBpbiB0aGUgY2hlY2so
-KSBjYWxsYmFjayBhbmQKPiByZW1vdmluZyB0aGUgZXhpc3RpbmcgVkJMQU5LIGNvZGUuIEZvciBt
-b3N0IG90aGVyIHNpbXBsZS1LTVMgZHJpdmVycwo+IHdpdGhvdXQgZW5hYmxlX3ZibGFuaygpIGFu
-ZCBjaGVjaygpLCBzaW1wbGUtS01TIGhlbHBlcnMgY2FuIGVuYWJsZSB0aGUKPiBmYWtlZCBWQkxB
-TksgYnkgZGVmYXVsdC4gVGhlIG9ubHkgZXhjZXB0aW9uIGlzIFhlbiwgd2hpY2ggY29tZXMgd2l0
-aAo+IGl0cyBvd24gVkJMQU5LIGxvZ2ljIGFuZCBzaG91bGQgcmF0aGVyIHRvIGRpc2FibGUgbm9f
-dmJsYW5rLgo+IAo+IHYyOgo+IAkqIGRvY3VtZW50IGZ1bmN0aW9uYWxpdHkgKERhbmllbCkKPiAJ
-KiBjbGVhbnVwIGFzdCAoRGFuaWVsKQo+IAkqIGxldCBzaW1wbGUta21zIGhhbmRsZSBub192Ymxh
-bmsgd2hlcmUgcG9zc2libGUKCkVudGlyZSBzZXJpZXMgbG9va3MgZ29vZCB0byBtZToKClJldmll
-d2VkLWJ5OiBIYW5zIGRlIEdvZWRlIDxoZGVnb2VkZUByZWRoYXQuY29tPgoKUmVnYXJkcywKCkhh
-bnMKCgoKCj4gVGhvbWFzIFppbW1lcm1hbm4gKDQpOgo+ICAgIGRybTogRG9jdW1lbnQgc3RydWN0
-IGRybV9jcnRjX3N0YXRlLm5vX3ZibGFuayBmb3IgZmFraW5nIFZCTEFOSyBldmVudHMKPiAgICBk
-cm0vYXN0OiBTZXQgc3RydWN0IGRybV9jcnRjX3N0YXRlLm5vX3ZibGFuayBpbiBhdG9taWNfY2hl
-Y2soKQo+ICAgIGRybS9jaXJydXM6IExldCBEUk0gY29yZSBzZW5kIFZCTEFOSyBldmVudHMKPiAg
-ICBkcm0vc2ltcGxlLWttczogTGV0IERSTSBjb3JlIHNlbmQgVkJMQU5LIGV2ZW50cyBieSBkZWZh
-dWx0Cj4gCj4gICBkcml2ZXJzL2dwdS9kcm0vYXN0L2FzdF9tb2RlLmMgICAgICAgICAgfCAgNCAr
-Ky0tCj4gICBkcml2ZXJzL2dwdS9kcm0vYm9jaHMvYm9jaHNfa21zLmMgICAgICAgfCAgOSAtLS0t
-LS0tLS0KPiAgIGRyaXZlcnMvZ3B1L2RybS9jaXJydXMvY2lycnVzLmMgICAgICAgICB8IDEwICsr
-LS0tLS0tLS0KPiAgIGRyaXZlcnMvZ3B1L2RybS9kcm1fYXRvbWljX2hlbHBlci5jICAgICB8ICA0
-ICsrKy0KPiAgIGRyaXZlcnMvZ3B1L2RybS9kcm1fbWlwaV9kYmkuYyAgICAgICAgICB8ICA5IC0t
-LS0tLS0tLQo+ICAgZHJpdmVycy9ncHUvZHJtL2RybV9zaW1wbGVfa21zX2hlbHBlci5jIHwgMTkg
-KysrKysrKysrKysrKysrLS0tLQo+ICAgZHJpdmVycy9ncHUvZHJtL3RpbnkvZ20xMnUzMjAuYyAg
-ICAgICAgIHwgIDkgLS0tLS0tLS0tCj4gICBkcml2ZXJzL2dwdS9kcm0vdGlueS9pbGk5MjI1LmMg
-ICAgICAgICAgfCAgOSAtLS0tLS0tLS0KPiAgIGRyaXZlcnMvZ3B1L2RybS90aW55L3JlcGFwZXIu
-YyAgICAgICAgICB8ICA5IC0tLS0tLS0tLQo+ICAgZHJpdmVycy9ncHUvZHJtL3Rpbnkvc3Q3NTg2
-LmMgICAgICAgICAgIHwgIDkgLS0tLS0tLS0tCj4gICBkcml2ZXJzL2dwdS9kcm0vdWRsL3VkbF9t
-b2Rlc2V0LmMgICAgICAgfCAxMSAtLS0tLS0tLS0tLQo+ICAgZHJpdmVycy9ncHUvZHJtL3hlbi94
-ZW5fZHJtX2Zyb250X2ttcy5jIHwgMTMgKysrKysrKysrKysrKwo+ICAgaW5jbHVkZS9kcm0vZHJt
-X2NydGMuaCAgICAgICAgICAgICAgICAgIHwgIDkgKysrKysrKy0tCj4gICBpbmNsdWRlL2RybS9k
-cm1fc2ltcGxlX2ttc19oZWxwZXIuaCAgICAgfCAgNyArKysrKy0tCj4gICAxNCBmaWxlcyBjaGFu
-Z2VkLCA0NyBpbnNlcnRpb25zKCspLCA4NCBkZWxldGlvbnMoLSkKPiAKPiAtLQo+IDIuMjQuMQo+
-IAoKCl9fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fClhlbi1k
-ZXZlbCBtYWlsaW5nIGxpc3QKWGVuLWRldmVsQGxpc3RzLnhlbnByb2plY3Qub3JnCmh0dHBzOi8v
-bGlzdHMueGVucHJvamVjdC5vcmcvbWFpbG1hbi9saXN0aW5mby94ZW4tZGV2ZWw=
+  Hi,
+
+> > And "grep -A1 0000:00:02.0 /proc/iomem" ?
+> 
+>   c0000000-c0ffffff : 0000:00:02.0
+>   c1000000-c103ffff : 0000:00:04.0
+
+So no reservation left.  Whatever blocked the pci bar resource (efifb
+probably) is gone now.
+
+So the interesting question is why that reservation sticked long enough
+to prevent bochs-drm from initializing.  In theory efifb de-init should
+be completed when drm_fb_helper_remove_conflicting_pci_framebuffers()
+returns.
+
+Bisecting could help, or springkling printk's into efifb ...
+
+> [46921.562805] fbcon: bochs-drmdrmfb (fb0) is primary device
+> [46921.562808] fbcon: Deferring console take-over
+
+I think that is just some eye candy which delays fbcon init until
+something is actually printed.
+
+Try "echo hello world > /dev/tty0".
+Maybe tapping enter (to make getty re-print the login prompt) works too.
+
+cheers,
+  Gerd
