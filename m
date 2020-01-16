@@ -1,12 +1,14 @@
-From: Sasha Levin <sashal@kernel.org>
-Subject: [PATCH AUTOSEL 4.4 001/174] drm/virtio: fix bounds check in
- virtio_gpu_cmd_get_capset()
-Date: Thu, 16 Jan 2020 12:39:58 -0500
-Message-ID: <20200116174251.24326-1-sashal@kernel.org>
+From: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Subject: [PATCH 5.4 101/203] crypto: virtio - implement missing support for
+ output IVs
+Date: Fri, 17 Jan 2020 00:16:58 +0100
+Message-ID: <20200116231754.427447217@linuxfoundation.org>
+References: <20200116231745.218684830@linuxfoundation.org>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
+In-Reply-To: <20200116231745.218684830@linuxfoundation.org>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
  <mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -16,56 +18,54 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
  <mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Errors-To: virtualization-bounces@lists.linux-foundation.org
 Sender: "Virtualization" <virtualization-bounces@lists.linux-foundation.org>
-To: linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc: Sasha Levin <sashal@kernel.org>, dri-devel@lists.freedesktop.org, Dan Carpenter <dan.carpenter@oracle.com>, virtualization@lists.linux-foundation.org
+To: linux-kernel@vger.kernel.org
+Cc: Herbert Xu <herbert@gondor.apana.org.au>, "Michael S. Tsirkin" <mst@redhat.com>, Greg Kroah-Hartman <gregkh@linuxfoundation.org>, stable@vger.kernel.org, virtualization@lists.linux-foundation.org, Ard Biesheuvel <ardb@kernel.org>
 List-Id: virtualization@lists.linuxfoundation.org
 
-From: Dan Carpenter <dan.carpenter@oracle.com>
+From: Ard Biesheuvel <ardb@kernel.org>
 
-[ Upstream commit 09c4b49457434fa74749ad6194ef28464d9f5df9 ]
+commit 500e6807ce93b1fdc7d5b827c5cc167cc35630db upstream.
 
-This doesn't affect runtime because in the current code "idx" is always
-valid.
+In order to allow for CBC to be chained, which is something that the
+CTS template relies upon, implementations of CBC need to pass the
+IV to be used for subsequent invocations via the IV buffer. This was
+not implemented yet for virtio-crypto so implement it now.
 
-First, we read from "vgdev->capsets[idx].max_size" before checking
-whether "idx" is within bounds.  And secondly the bounds check is off by
-one so we could end up reading one element beyond the end of the
-vgdev->capsets[] array.
+Fixes: dbaf0624ffa5 ("crypto: add virtio-crypto driver")
+Cc: "Michael S. Tsirkin" <mst@redhat.com>
+Cc: Jason Wang <jasowang@redhat.com>
+Cc: Gonglei <arei.gonglei@huawei.com>
+Cc: virtualization@lists.linux-foundation.org
+Signed-off-by: Ard Biesheuvel <ardb@kernel.org>
+Signed-off-by: Herbert Xu <herbert@gondor.apana.org.au>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
-Fixes: 62fb7a5e1096 ("virtio-gpu: add 3d/virgl support")
-Signed-off-by: Dan Carpenter <dan.carpenter@oracle.com>
-Link: http://patchwork.freedesktop.org/patch/msgid/20180704094250.m7sgvvzg3dhcvv3h@kili.mountain
-Signed-off-by: Gerd Hoffmann <kraxel@redhat.com>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/gpu/drm/virtio/virtgpu_vq.c | 5 +++--
- 1 file changed, 3 insertions(+), 2 deletions(-)
+ drivers/crypto/virtio/virtio_crypto_algs.c |    9 +++++++++
+ 1 file changed, 9 insertions(+)
 
-diff --git a/drivers/gpu/drm/virtio/virtgpu_vq.c b/drivers/gpu/drm/virtio/virtgpu_vq.c
-index a1b3ea1ccb65..772a5a3b0ce1 100644
---- a/drivers/gpu/drm/virtio/virtgpu_vq.c
-+++ b/drivers/gpu/drm/virtio/virtgpu_vq.c
-@@ -681,11 +681,11 @@ int virtio_gpu_cmd_get_capset(struct virtio_gpu_device *vgdev,
+--- a/drivers/crypto/virtio/virtio_crypto_algs.c
++++ b/drivers/crypto/virtio/virtio_crypto_algs.c
+@@ -435,6 +435,11 @@ __virtio_crypto_ablkcipher_do_req(struct
+ 		goto free;
+ 	}
+ 	memcpy(iv, req->info, ivsize);
++	if (!vc_sym_req->encrypt)
++		scatterwalk_map_and_copy(req->info, req->src,
++					 req->nbytes - AES_BLOCK_SIZE,
++					 AES_BLOCK_SIZE, 0);
++
+ 	sg_init_one(&iv_sg, iv, ivsize);
+ 	sgs[num_out++] = &iv_sg;
+ 	vc_sym_req->iv = iv;
+@@ -571,6 +576,10 @@ static void virtio_crypto_ablkcipher_fin
+ 	struct ablkcipher_request *req,
+ 	int err)
  {
- 	struct virtio_gpu_get_capset *cmd_p;
- 	struct virtio_gpu_vbuffer *vbuf;
--	int max_size = vgdev->capsets[idx].max_size;
-+	int max_size;
- 	struct virtio_gpu_drv_cap_cache *cache_ent;
- 	void *resp_buf;
- 
--	if (idx > vgdev->num_capsets)
-+	if (idx >= vgdev->num_capsets)
- 		return -EINVAL;
- 
- 	if (version > vgdev->capsets[idx].max_version)
-@@ -695,6 +695,7 @@ int virtio_gpu_cmd_get_capset(struct virtio_gpu_device *vgdev,
- 	if (!cache_ent)
- 		return -ENOMEM;
- 
-+	max_size = vgdev->capsets[idx].max_size;
- 	cache_ent->caps_cache = kmalloc(max_size, GFP_KERNEL);
- 	if (!cache_ent->caps_cache) {
- 		kfree(cache_ent);
--- 
-2.20.1
++	if (vc_sym_req->encrypt)
++		scatterwalk_map_and_copy(req->info, req->dst,
++					 req->nbytes - AES_BLOCK_SIZE,
++					 AES_BLOCK_SIZE, 0);
+ 	crypto_finalize_ablkcipher_request(vc_sym_req->base.dataq->engine,
+ 					   req, err);
+ 	kzfree(vc_sym_req->iv);
