@@ -1,14 +1,12 @@
 From: Sasha Levin <sashal@kernel.org>
-Subject: [PATCH AUTOSEL 4.9 002/251] drm/virtio: fix bounds check in
+Subject: [PATCH AUTOSEL 4.4 001/174] drm/virtio: fix bounds check in
  virtio_gpu_cmd_get_capset()
-Date: Thu, 16 Jan 2020 12:30:36 -0500
-Message-ID: <20200116173445.21385-2-sashal@kernel.org>
-References: <20200116173445.21385-1-sashal@kernel.org>
+Date: Thu, 16 Jan 2020 12:39:58 -0500
+Message-ID: <20200116174251.24326-1-sashal@kernel.org>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <20200116173445.21385-1-sashal@kernel.org>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
  <mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
