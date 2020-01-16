@@ -1,8 +1,8 @@
 From: <gregkh@linuxfoundation.org>
 Subject: Patch "crypto: virtio - implement missing support for output IVs" has
- been added to the 4.19-stable tree
-Date: Thu, 16 Jan 2020 14:03:55 +0100
-Message-ID: <1579179835228172@kroah.com>
+ been added to the 5.4-stable tree
+Date: Thu, 16 Jan 2020 14:04:17 +0100
+Message-ID: <157917985760138@kroah.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
@@ -25,12 +25,12 @@ This is a note to let you know that I've just added the patch titled
 
     crypto: virtio - implement missing support for output IVs
 
-to the 4.19-stable tree which can be found at:
+to the 5.4-stable tree which can be found at:
     http://www.kernel.org/git/?p=linux/kernel/git/stable/stable-queue.git;a=summary
 
 The filename of the patch is:
      crypto-virtio-implement-missing-support-for-output-ivs.patch
-and it can be found in the queue-4.19 subdirectory.
+and it can be found in the queue-5.4 subdirectory.
 
 If you, or anyone else, feels it should not be added to the stable tree,
 please let <stable@vger.kernel.org> know about it.
@@ -65,7 +65,7 @@ Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 --- a/drivers/crypto/virtio/virtio_crypto_algs.c
 +++ b/drivers/crypto/virtio/virtio_crypto_algs.c
-@@ -449,6 +449,11 @@ __virtio_crypto_ablkcipher_do_req(struct
+@@ -435,6 +435,11 @@ __virtio_crypto_ablkcipher_do_req(struct
  		goto free;
  	}
  	memcpy(iv, req->info, ivsize);
@@ -77,7 +77,7 @@ Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
  	sg_init_one(&iv_sg, iv, ivsize);
  	sgs[num_out++] = &iv_sg;
  	vc_sym_req->iv = iv;
-@@ -585,6 +590,10 @@ static void virtio_crypto_ablkcipher_fin
+@@ -571,6 +576,10 @@ static void virtio_crypto_ablkcipher_fin
  	struct ablkcipher_request *req,
  	int err)
  {
@@ -92,4 +92,4 @@ Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 Patches currently in stable-queue which might be from ardb@kernel.org are
 
-queue-4.19/crypto-virtio-implement-missing-support-for-output-ivs.patch
+queue-5.4/crypto-virtio-implement-missing-support-for-output-ivs.patch
