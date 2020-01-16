@@ -1,134 +1,221 @@
 From: Jason Gunthorpe <jgg@mellanox.com>
-Subject: Re: [PATCH 3/5] vDPA: introduce vDPA bus
-Date: Thu, 16 Jan 2020 15:22:12 +0000
-Message-ID: <20200116152209.GH20978@mellanox.com>
+Subject: Re: [PATCH 4/5] virtio: introduce a vDPA based transport
+Date: Thu, 16 Jan 2020 15:38:10 +0000
+Message-ID: <20200116153807.GI20978@mellanox.com>
 References: <20200116124231.20253-1-jasowang@redhat.com>
- <20200116124231.20253-4-jasowang@redhat.com>
+ <20200116124231.20253-5-jasowang@redhat.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: quoted-printable
 Return-path: <linux-kernel-owner@vger.kernel.org>
-In-Reply-To: <20200116124231.20253-4-jasowang@redhat.com>
+In-Reply-To: <20200116124231.20253-5-jasowang@redhat.com>
 Content-Language: en-US
-Content-ID: <20CB0C9B575F27429AFD01BABED3A9C5@eurprd05.prod.outlook.com>
+Content-ID: <B77D5189ED7F654685FA38AA5ABB7868@eurprd05.prod.outlook.com>
 Sender: linux-kernel-owner@vger.kernel.org
 To: Jason Wang <jasowang@redhat.com>
 Cc: "mst@redhat.com" <mst@redhat.com>, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>, "kvm@vger.kernel.org" <kvm@vger.kernel.org>, "virtualization@lists.linux-foundation.org" <virtualization@lists.linux-foundation.org>, "netdev@vger.kernel.org" <netdev@vger.kernel.org>, "tiwei.bie@intel.com" <tiwei.bie@intel.com>, "maxime.coquelin@redhat.com" <maxime.coquelin@redhat.com>, "cunming.liang@intel.com" <cunming.liang@intel.com>, "zhihong.wang@intel.com" <zhihong.wang@intel.com>, "rob.miller@broadcom.com" <rob.miller@broadcom.com>, "xiao.w.wang@intel.com" <xiao.w.wang@intel.com>, "haotian.wang@sifive.com" <haotian.wang@sifive.com>, "lingshan.zhu@intel.com" <lingshan.zhu@intel.com>, "eperezma@redhat.com" <eperezma@redhat.com>, "lulu@redhat.com" <lulu@redhat.co>
 List-Id: virtualization@lists.linuxfoundation.org
 
-On Thu, Jan 16, 2020 at 08:42:29PM +0800, Jason Wang wrote:
-> vDPA device is a device that uses a datapath which complies with the
-> virtio specifications with vendor specific control path. vDPA devices
-> can be both physically located on the hardware or emulated by
-> software. vDPA hardware devices are usually implemented through PCIE
-> with the following types:
->=20
-> - PF (Physical Function) - A single Physical Function
-> - VF (Virtual Function) - Device that supports single root I/O
->   virtualization (SR-IOV). Its Virtual Function (VF) represents a
->   virtualized instance of the device that can be assigned to different
->   partitions
-
-> - VDEV (Virtual Device) - With technologies such as Intel Scalable
->   IOV, a virtual device composed by host OS utilizing one or more
->   ADIs.
-> - SF (Sub function) - Vendor specific interface to slice the Physical
->   Function to multiple sub functions that can be assigned to different
->   partitions as virtual devices.
-
-I really hope we don't end up with two different ways to spell this
-same thing.
-
-> @@ -0,0 +1,2 @@
-> +# SPDX-License-Identifier: GPL-2.0
-> +obj-$(CONFIG_VDPA) +=3D vdpa.o
-> diff --git a/drivers/virtio/vdpa/vdpa.c b/drivers/virtio/vdpa/vdpa.c
+On Thu, Jan 16, 2020 at 08:42:30PM +0800, Jason Wang wrote:
+> diff --git a/drivers/virtio/virtio_vdpa.c b/drivers/virtio/virtio_vdpa.c
 > new file mode 100644
-> index 000000000000..2b0e4a9f105d
-> +++ b/drivers/virtio/vdpa/vdpa.c
-> @@ -0,0 +1,141 @@
+> index 000000000000..86936e5e7ec3
+> +++ b/drivers/virtio/virtio_vdpa.c
+> @@ -0,0 +1,400 @@
 > +// SPDX-License-Identifier: GPL-2.0-only
 > +/*
-> + * vDPA bus.
+> + * VIRTIO based driver for vDPA device
 > + *
-> + * Copyright (c) 2019, Red Hat. All rights reserved.
+> + * Copyright (c) 2020, Red Hat. All rights reserved.
 > + *     Author: Jason Wang <jasowang@redhat.com>
-
-2020 tests days
-
 > + *
 > + */
 > +
+> +#include <linux/init.h>
 > +#include <linux/module.h>
-> +#include <linux/idr.h>
+> +#include <linux/device.h>
+> +#include <linux/kernel.h>
+> +#include <linux/slab.h>
+> +#include <linux/uuid.h>
+> +#include <linux/virtio.h>
 > +#include <linux/vdpa.h>
+> +#include <linux/virtio_config.h>
+> +#include <linux/virtio_ring.h>
 > +
 > +#define MOD_VERSION  "0.1"
-
-I think module versions are discouraged these days
-
-> +#define MOD_DESC     "vDPA bus"
 > +#define MOD_AUTHOR   "Jason Wang <jasowang@redhat.com>"
+> +#define MOD_DESC     "vDPA bus driver for virtio devices"
 > +#define MOD_LICENSE  "GPL v2"
 > +
-> +static DEFINE_IDA(vdpa_index_ida);
+> +#define to_virtio_vdpa_device(dev) \
+> +	container_of(dev, struct virtio_vdpa_device, vdev)
+
+Should be a static function
+
+> +struct virtio_vdpa_device {
+> +	struct virtio_device vdev;
+> +	struct vdpa_device *vdpa;
+> +	u64 features;
 > +
-> +struct device *vdpa_get_parent(struct vdpa_device *vdpa)
+> +	/* The lock to protect virtqueue list */
+> +	spinlock_t lock;
+> +	/* List of virtio_vdpa_vq_info */
+> +	struct list_head virtqueues;
+> +};
+> +
+> +struct virtio_vdpa_vq_info {
+> +	/* the actual virtqueue */
+> +	struct virtqueue *vq;
+> +
+> +	/* the list node for the virtqueues list */
+> +	struct list_head node;
+> +};
+> +
+> +static struct vdpa_device *vd_get_vdpa(struct virtio_device *vdev)
 > +{
-> +	return vdpa->dev.parent;
+> +	struct virtio_vdpa_device *vd_dev =3D to_virtio_vdpa_device(vdev);
+> +	struct vdpa_device *vdpa =3D vd_dev->vdpa;
+> +
+> +	return vdpa;
+
+Bit of a long way to say
+
+  return to_virtio_vdpa_device(vdev)->vdpa
+
+?
+
+> +err_vq:
+> +	vring_del_virtqueue(vq);
+> +error_new_virtqueue:
+> +	ops->set_vq_ready(vdpa, index, 0);
+> +	WARN_ON(ops->get_vq_ready(vdpa, index));
+
+A warn_on during error unwind? Sketchy, deserves a comment I think
+
+> +static void virtio_vdpa_release_dev(struct device *_d)
+> +{
+> +	struct virtio_device *vdev =3D
+> +	       container_of(_d, struct virtio_device, dev);
+> +	struct virtio_vdpa_device *vd_dev =3D
+> +	       container_of(vdev, struct virtio_vdpa_device, vdev);
+> +	struct vdpa_device *vdpa =3D vd_dev->vdpa;
+> +
+> +	devm_kfree(&vdpa->dev, vd_dev);
 > +}
-> +EXPORT_SYMBOL(vdpa_get_parent);
+
+It is unusual for the release function to not be owned by the
+subsystem, through the class. I'm not sure there are enough module ref
+counts to ensure that this function is not unloaded?
+
+Usually to make this all work sanely the subsytem provides some
+allocation function
+
+ vdpa_dev =3D vdpa_alloc_dev(parent, ops, sizeof(struct virtio_vdpa_device)=
+)
+ struct virtio_vdpa_device *priv =3D vdpa_priv(vdpa_dev)
+
+Then the subsystem naturally owns all the memory.
+
+Otherwise it gets tricky to ensure that the module doesn't unload
+before all the krefs are put.
+
 > +
-> +void vdpa_set_parent(struct vdpa_device *vdpa, struct device *parent)
+> +static int virtio_vdpa_probe(struct device *dev)
 > +{
-> +	vdpa->dev.parent =3D parent;
+> +	struct vdpa_device *vdpa =3D dev_to_vdpa(dev);
+
+The probe function for a class should accept the classes type already,
+no casting.
+
+> +	const struct vdpa_config_ops *ops =3D vdpa->config;
+> +	struct virtio_vdpa_device *vd_dev;
+> +	int rc;
+> +
+> +	vd_dev =3D devm_kzalloc(dev, sizeof(*vd_dev), GFP_KERNEL);
+> +	if (!vd_dev)
+> +		return -ENOMEM;
+
+This is not right, the struct device lifetime is controled by a kref,
+not via devm. If you want to use a devm unwind then the unwind is
+put_device, not devm_kfree.
+
+In this simple situation I don't see a reason to use devm.
+
+> +	vd_dev->vdev.dev.parent =3D &vdpa->dev;
+> +	vd_dev->vdev.dev.release =3D virtio_vdpa_release_dev;
+> +	vd_dev->vdev.config =3D &virtio_vdpa_config_ops;
+> +	vd_dev->vdpa =3D vdpa;
+> +	INIT_LIST_HEAD(&vd_dev->virtqueues);
+> +	spin_lock_init(&vd_dev->lock);
+> +
+> +	vd_dev->vdev.id.device =3D ops->get_device_id(vdpa);
+> +	if (vd_dev->vdev.id.device =3D=3D 0)
+> +		return -ENODEV;
+> +
+> +	vd_dev->vdev.id.vendor =3D ops->get_vendor_id(vdpa);
+> +	rc =3D register_virtio_device(&vd_dev->vdev);
+> +	if (rc)
+> +		put_device(dev);
+
+And a ugly unwind like this is why you want to have device_initialize()
+exposed to the driver, so there is a clear pairing that calling
+device_initialize() must be followed by put_device. This should also
+use the goto unwind style
+
+> +	else
+> +		dev_set_drvdata(dev, vd_dev);
+> +
+> +	return rc;
 > +}
-> +EXPORT_SYMBOL(vdpa_set_parent);
 > +
-> +struct vdpa_device *dev_to_vdpa(struct device *_dev)
+> +static void virtio_vdpa_remove(struct device *dev)
 > +{
-> +	return container_of(_dev, struct vdpa_device, dev);
+
+Remove should also already accept the right type
+
+> +	struct virtio_vdpa_device *vd_dev =3D dev_get_drvdata(dev);
+> +
+> +	unregister_virtio_device(&vd_dev->vdev);
 > +}
-> +EXPORT_SYMBOL_GPL(dev_to_vdpa);
 > +
-> +struct device *vdpa_to_dev(struct vdpa_device *vdpa)
+> +static struct vdpa_driver virtio_vdpa_driver =3D {
+> +	.drv =3D {
+> +		.name	=3D "virtio_vdpa",
+> +	},
+> +	.probe	=3D virtio_vdpa_probe,
+> +	.remove =3D virtio_vdpa_remove,
+> +};
+
+Still a little unclear on binding, is this supposed to bind to all
+vdpa devices?
+
+Where is the various THIS_MODULE's I expect to see in a scheme like
+this?
+
+All function pointers must be protected by a held module reference
+count, ie the above probe/remove and all the pointers in ops.
+
+> +static int __init virtio_vdpa_init(void)
 > +{
-> +	return &vdpa->dev;
+> +	return register_vdpa_driver(&virtio_vdpa_driver);
 > +}
-> +EXPORT_SYMBOL_GPL(vdpa_to_dev);
-
-Why these trivial assessors? Seems unnecessary, or should at least be
-static inlines in a header
-
-> +int register_vdpa_device(struct vdpa_device *vdpa)
+> +
+> +static void __exit virtio_vdpa_exit(void)
 > +{
-
-Usually we want to see symbols consistently prefixed with vdpa_*, is
-there a reason why register/unregister are swapped?
-
-> +	int err;
+> +	unregister_vdpa_driver(&virtio_vdpa_driver);
+> +}
 > +
-> +	if (!vdpa_get_parent(vdpa))
-> +		return -EINVAL;
-> +
-> +	if (!vdpa->config)
-> +		return -EINVAL;
-> +
-> +	err =3D ida_simple_get(&vdpa_index_ida, 0, 0, GFP_KERNEL);
-> +	if (err < 0)
-> +		return -EFAULT;
-> +
-> +	vdpa->dev.bus =3D &vdpa_bus;
-> +	device_initialize(&vdpa->dev);
+> +module_init(virtio_vdpa_init)
+> +module_exit(virtio_vdpa_exit)
 
-IMHO device_initialize should not be called inside something called
-register, toooften we find out that the caller drivers need the device
-to be initialized earlier, ie to use the kref, or something.
+Best to provide the usual 'module_pci_driver' like scheme for this
+boiler plate.
 
-I find the best flow is to have some init function that does the
-device_initialize and sets the device_name that the driver can call
-early.
+> +MODULE_VERSION(MOD_VERSION);
+> +MODULE_LICENSE(MOD_LICENSE);
+> +MODULE_AUTHOR(MOD_AUTHOR);
+> +MODULE_DESCRIPTION(MOD_DESC);
 
-Shouldn't there be a device/driver matching process of some kind?
+Why the indirection with 2nd defines?
 
 Jason
