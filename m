@@ -1,230 +1,137 @@
 From: Zengruan Ye <yezengruan@huawei.com>
-Subject: [PATCH v3 5/8] KVM: arm64: Support pvlock preempted via shared
- structure
-Date: Thu, 16 Jan 2020 20:46:23 +0800
-Message-ID: <20200116124626.1155-6-yezengruan@huawei.com>
+Subject: [PATCH v3 7/8] KVM: arm64: Add interface to support vCPU preempted check
+Date: Thu, 16 Jan 2020 20:46:25 +0800
+Message-ID: <20200116124626.1155-8-yezengruan@huawei.com>
 References: <20200116124626.1155-1-yezengruan@huawei.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
-Content-Transfer-Encoding: 7bit
-Return-path: <kvmarm-bounces@lists.cs.columbia.edu>
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
+Return-path: <linux-kernel-owner@vger.kernel.org>
 In-Reply-To: <20200116124626.1155-1-yezengruan@huawei.com>
-List-Unsubscribe: <https://lists.cs.columbia.edu/mailman/options/kvmarm>,
- <mailto:kvmarm-request@lists.cs.columbia.edu?subject=unsubscribe>
-List-Archive: <https://lists.cs.columbia.edu/pipermail/kvmarm>
-List-Post: <mailto:kvmarm@lists.cs.columbia.edu>
-List-Help: <mailto:kvmarm-request@lists.cs.columbia.edu?subject=help>
-List-Subscribe: <https://lists.cs.columbia.edu/mailman/listinfo/kvmarm>,
- <mailto:kvmarm-request@lists.cs.columbia.edu?subject=subscribe>
-Errors-To: kvmarm-bounces@lists.cs.columbia.edu
-Sender: kvmarm-bounces@lists.cs.columbia.edu
+Sender: linux-kernel-owner@vger.kernel.org
 To: linux-kernel@vger.kernel.org, linux-arm-kernel@lists.infradead.org, kvmarm@lists.cs.columbia.edu, kvm@vger.kernel.org, linux-doc@vger.kernel.org, virtualization@lists.linux-foundation.org
-Cc: peterz@infradead.org, maz@kernel.org, daniel.lezcano@linaro.org, linux@armlinux.org.uk, steven.price@arm.com, longman@redhat.com, catalin.marinas@arm.com, will@kernel.org
+Cc: yezengruan@huawei.com, maz@kernel.org, james.morse@arm.com, linux@armlinux.org.uk, suzuki.poulose@arm.com, julien.thierry.kdev@gmail.com, catalin.marinas@arm.com, mark.rutland@arm.com, will@kernel.org, steven.price@arm.com, daniel.lezcano@linaro.org, wanghaibin.wang@huawei.com, peterz@infradead.org, longman@redhat.com, kbuild test robot <lkp@intel.com>
 List-Id: virtualization@lists.linuxfoundation.org
 
-Implement the service call for configuring a shared structure between a
-vCPU and the hypervisor in which the hypervisor can tell the vCPU that is
-running or not.
+This is to fix some lock holder preemption issues. Some other locks
+implementation do a spin loop before acquiring the lock itself.
+Currently kernel has an interface of bool vcpu_is_preempted(int cpu). It
+takes the CPU as parameter and return true if the CPU is preempted.
+Then kernel can break the spin loops upon the retval of vcpu_is_preempted.
 
+As kernel has used this interface, So lets support it.
+
+Reported-by: kbuild test robot <lkp@intel.com>
 Signed-off-by: Zengruan Ye <yezengruan@huawei.com>
 ---
- arch/arm/include/asm/kvm_host.h   | 18 +++++++++++++
- arch/arm64/include/asm/kvm_host.h | 18 +++++++++++++
- arch/arm64/kvm/Makefile           |  1 +
- virt/kvm/arm/arm.c                |  8 ++++++
- virt/kvm/arm/hypercalls.c         | 17 ++++++++++++
- virt/kvm/arm/pvlock.c             | 45 +++++++++++++++++++++++++++++++
- 6 files changed, 107 insertions(+)
- create mode 100644 virt/kvm/arm/pvlock.c
+ arch/arm64/include/asm/paravirt.h      | 12 ++++++++++++
+ arch/arm64/include/asm/spinlock.h      |  9 +++++++++
+ arch/arm64/kernel/Makefile             |  2 +-
+ arch/arm64/kernel/paravirt-spinlocks.c | 13 +++++++++++++
+ arch/arm64/kernel/paravirt.c           |  4 +++-
+ 5 files changed, 38 insertions(+), 2 deletions(-)
+ create mode 100644 arch/arm64/kernel/paravirt-spinlocks.c
 
-diff --git a/arch/arm/include/asm/kvm_host.h b/arch/arm/include/asm/kvm_host.h
-index 556cd818eccf..dfeaf9204875 100644
---- a/arch/arm/include/asm/kvm_host.h
-+++ b/arch/arm/include/asm/kvm_host.h
-@@ -356,6 +356,24 @@ static inline bool kvm_arm_is_pvtime_enabled(struct kvm_vcpu_arch *vcpu_arch)
- 	return false;
- }
- 
-+static inline void kvm_arm_pvlock_preempted_init(struct kvm_vcpu_arch *vcpu_arch)
-+{
-+}
-+
-+static inline bool kvm_arm_is_pvlock_preempted_ready(struct kvm_vcpu_arch *vcpu_arch)
-+{
-+	return false;
-+}
-+
-+static inline gpa_t kvm_init_pvlock(struct kvm_vcpu *vcpu)
-+{
-+	return GPA_INVALID;
-+}
-+
-+static inline void kvm_update_pvlock_preempted(struct kvm_vcpu *vcpu, u64 preempted)
-+{
-+}
-+
- void kvm_mmu_wp_memory_region(struct kvm *kvm, int slot);
- 
- struct kvm_vcpu *kvm_mpidr_to_vcpu(struct kvm *kvm, unsigned long mpidr);
-diff --git a/arch/arm64/include/asm/kvm_host.h b/arch/arm64/include/asm/kvm_host.h
-index c61260cf63c5..10f8c4bbf97e 100644
---- a/arch/arm64/include/asm/kvm_host.h
-+++ b/arch/arm64/include/asm/kvm_host.h
-@@ -354,6 +354,11 @@ struct kvm_vcpu_arch {
- 		u64 last_steal;
- 		gpa_t base;
- 	} steal;
-+
-+	/* Guest PV lock state */
-+	struct {
-+		gpa_t base;
-+	} pv;
+diff --git a/arch/arm64/include/asm/paravirt.h b/arch/arm64/include/asm/paravirt.h
+index cf3a0fd7c1a7..7b1c81b544bb 100644
+--- a/arch/arm64/include/asm/paravirt.h
++++ b/arch/arm64/include/asm/paravirt.h
+@@ -11,8 +11,13 @@ struct pv_time_ops {
+ 	unsigned long long (*steal_clock)(int cpu);
  };
  
- /* Pointer to the vcpu's SVE FFR for sve_{save,load}_state() */
-@@ -515,6 +520,19 @@ static inline bool kvm_arm_is_pvtime_enabled(struct kvm_vcpu_arch *vcpu_arch)
- 	return (vcpu_arch->steal.base != GPA_INVALID);
- }
++struct pv_lock_ops {
++	bool (*vcpu_is_preempted)(int cpu);
++};
++
+ struct paravirt_patch_template {
+ 	struct pv_time_ops time;
++	struct pv_lock_ops lock;
+ };
  
-+static inline void kvm_arm_pvlock_preempted_init(struct kvm_vcpu_arch *vcpu_arch)
+ extern struct paravirt_patch_template pv_ops;
+@@ -24,6 +29,13 @@ static inline u64 paravirt_steal_clock(int cpu)
+ 
+ int __init pv_time_init(void);
+ 
++__visible bool __native_vcpu_is_preempted(int cpu);
++
++static inline bool pv_vcpu_is_preempted(int cpu)
 +{
-+	vcpu_arch->pv.base = GPA_INVALID;
++	return pv_ops.lock.vcpu_is_preempted(cpu);
 +}
 +
-+static inline bool kvm_arm_is_pvlock_preempted_ready(struct kvm_vcpu_arch *vcpu_arch)
+ #else
+ 
+ #define pv_time_init() do {} while (0)
+diff --git a/arch/arm64/include/asm/spinlock.h b/arch/arm64/include/asm/spinlock.h
+index b093b287babf..b5d1982414c5 100644
+--- a/arch/arm64/include/asm/spinlock.h
++++ b/arch/arm64/include/asm/spinlock.h
+@@ -7,8 +7,17 @@
+ 
+ #include <asm/qrwlock.h>
+ #include <asm/qspinlock.h>
++#include <asm/paravirt.h>
+ 
+ /* See include/linux/spinlock.h */
+ #define smp_mb__after_spinlock()	smp_mb()
+ 
++#ifdef CONFIG_PARAVIRT
++#define vcpu_is_preempted vcpu_is_preempted
++static inline bool vcpu_is_preempted(long cpu)
 +{
-+	return (vcpu_arch->pv.base != GPA_INVALID);
++	return pv_vcpu_is_preempted(cpu);
 +}
++#endif // CONFIG_PARAVIRT
 +
-+gpa_t kvm_init_pvlock(struct kvm_vcpu *vcpu);
-+void kvm_update_pvlock_preempted(struct kvm_vcpu *vcpu, u64 preempted);
-+
- void kvm_set_sei_esr(struct kvm_vcpu *vcpu, u64 syndrome);
- 
- struct kvm_vcpu *kvm_mpidr_to_vcpu(struct kvm *kvm, unsigned long mpidr);
-diff --git a/arch/arm64/kvm/Makefile b/arch/arm64/kvm/Makefile
-index 5ffbdc39e780..e4591f56d5f1 100644
---- a/arch/arm64/kvm/Makefile
-+++ b/arch/arm64/kvm/Makefile
-@@ -15,6 +15,7 @@ kvm-$(CONFIG_KVM_ARM_HOST) += $(KVM)/arm/arm.o $(KVM)/arm/mmu.o $(KVM)/arm/mmio.
- kvm-$(CONFIG_KVM_ARM_HOST) += $(KVM)/arm/psci.o $(KVM)/arm/perf.o
- kvm-$(CONFIG_KVM_ARM_HOST) += $(KVM)/arm/hypercalls.o
- kvm-$(CONFIG_KVM_ARM_HOST) += $(KVM)/arm/pvtime.o
-+kvm-$(CONFIG_KVM_ARM_HOST) += $(KVM)/arm/pvlock.o
- 
- kvm-$(CONFIG_KVM_ARM_HOST) += inject_fault.o regmap.o va_layout.o
- kvm-$(CONFIG_KVM_ARM_HOST) += hyp.o hyp-init.o handle_exit.o
-diff --git a/virt/kvm/arm/arm.c b/virt/kvm/arm/arm.c
-index 8de4daf25097..36d57e77d3c4 100644
---- a/virt/kvm/arm/arm.c
-+++ b/virt/kvm/arm/arm.c
-@@ -383,6 +383,8 @@ int kvm_arch_vcpu_init(struct kvm_vcpu *vcpu)
- 
- 	kvm_arm_pvtime_vcpu_init(&vcpu->arch);
- 
-+	kvm_arm_pvlock_preempted_init(&vcpu->arch);
-+
- 	return kvm_vgic_vcpu_init(vcpu);
- }
- 
-@@ -421,6 +423,9 @@ void kvm_arch_vcpu_load(struct kvm_vcpu *vcpu, int cpu)
- 		vcpu_set_wfx_traps(vcpu);
- 
- 	vcpu_ptrauth_setup_lazy(vcpu);
-+
-+	if (kvm_arm_is_pvlock_preempted_ready(&vcpu->arch))
-+		kvm_update_pvlock_preempted(vcpu, 0);
- }
- 
- void kvm_arch_vcpu_put(struct kvm_vcpu *vcpu)
-@@ -434,6 +439,9 @@ void kvm_arch_vcpu_put(struct kvm_vcpu *vcpu)
- 	vcpu->cpu = -1;
- 
- 	kvm_arm_set_running_vcpu(NULL);
-+
-+	if (kvm_arm_is_pvlock_preempted_ready(&vcpu->arch))
-+		kvm_update_pvlock_preempted(vcpu, 1);
- }
- 
- static void vcpu_power_off(struct kvm_vcpu *vcpu)
-diff --git a/virt/kvm/arm/hypercalls.c b/virt/kvm/arm/hypercalls.c
-index bdbab9ef6d2d..7f90b413641c 100644
---- a/virt/kvm/arm/hypercalls.c
-+++ b/virt/kvm/arm/hypercalls.c
-@@ -72,6 +72,23 @@ int kvm_hvc_call_handler(struct kvm_vcpu *vcpu)
- 		break;
- 	case ARM_SMCCC_VENDOR_HYP_KVM_FEATURES_FUNC_ID:
- 		val[0] = BIT(ARM_SMCCC_KVM_FUNC_FEATURES);
-+		if (!vcpu_el1_is_32bit(vcpu))
-+			val[0] |= BIT(ARM_SMCCC_KVM_FUNC_PV_LOCK);
-+		break;
-+	case ARM_SMCCC_VENDOR_HYP_KVM_PV_LOCK_FUNC_ID:
-+		if (vcpu_el1_is_32bit(vcpu))
-+			break;
-+		option = smccc_get_arg1(vcpu);
-+		switch (option) {
-+		case KVM_PV_LOCK_FEATURES:
-+			val[0] = SMCCC_RET_SUCCESS;
-+			break;
-+		case KVM_PV_LOCK_PREEMPTED:
-+			gpa = kvm_init_pvlock(vcpu);
-+			if (gpa != GPA_INVALID)
-+				val[0] = gpa;
-+			break;
-+		}
- 		break;
- 	default:
- 		return kvm_psci_call(vcpu);
-diff --git a/virt/kvm/arm/pvlock.c b/virt/kvm/arm/pvlock.c
+ #endif /* __ASM_SPINLOCK_H */
+diff --git a/arch/arm64/kernel/Makefile b/arch/arm64/kernel/Makefile
+index fc6488660f64..b23cdae433a4 100644
+--- a/arch/arm64/kernel/Makefile
++++ b/arch/arm64/kernel/Makefile
+@@ -50,7 +50,7 @@ obj-$(CONFIG_ARMV8_DEPRECATED)		+= armv8_deprecated.o
+ obj-$(CONFIG_ACPI)			+= acpi.o
+ obj-$(CONFIG_ACPI_NUMA)			+= acpi_numa.o
+ obj-$(CONFIG_ARM64_ACPI_PARKING_PROTOCOL)	+= acpi_parking_protocol.o
+-obj-$(CONFIG_PARAVIRT)			+= paravirt.o
++obj-$(CONFIG_PARAVIRT)			+= paravirt.o paravirt-spinlocks.o
+ obj-$(CONFIG_RANDOMIZE_BASE)		+= kaslr.o
+ obj-$(CONFIG_HIBERNATION)		+= hibernate.o hibernate-asm.o
+ obj-$(CONFIG_KEXEC_CORE)		+= machine_kexec.o relocate_kernel.o	\
+diff --git a/arch/arm64/kernel/paravirt-spinlocks.c b/arch/arm64/kernel/paravirt-spinlocks.c
 new file mode 100644
-index 000000000000..0644b23be51e
+index 000000000000..718aa773d45c
 --- /dev/null
-+++ b/virt/kvm/arm/pvlock.c
-@@ -0,0 +1,45 @@
++++ b/arch/arm64/kernel/paravirt-spinlocks.c
+@@ -0,0 +1,13 @@
 +/* SPDX-License-Identifier: GPL-2.0-only */
 +/*
 + * Copyright(c) 2019 Huawei Technologies Co., Ltd
 + * Author: Zengruan Ye <yezengruan@huawei.com>
 + */
 +
-+#include <linux/arm-smccc.h>
-+#include <linux/kvm_host.h>
++#include <linux/spinlock.h>
++#include <asm/paravirt.h>
 +
-+#include <asm/pvlock-abi.h>
-+
-+#include <kvm/arm_hypercalls.h>
-+
-+gpa_t kvm_init_pvlock(struct kvm_vcpu *vcpu)
++__visible bool __native_vcpu_is_preempted(int cpu)
 +{
-+	struct pvlock_vcpu_state init_values = {};
-+	struct kvm *kvm = vcpu->kvm;
-+	u64 base = vcpu->arch.pv.base;
-+	int idx;
-+
-+	if (base == GPA_INVALID)
-+		return base;
-+
-+	idx = srcu_read_lock(&kvm->srcu);
-+	kvm_write_guest(kvm, base, &init_values, sizeof(init_values));
-+	srcu_read_unlock(&kvm->srcu, idx);
-+
-+	return base;
++	return false;
 +}
-+
-+void kvm_update_pvlock_preempted(struct kvm_vcpu *vcpu, u64 preempted)
-+{
-+	int idx;
-+	u64 offset;
-+	__le64 preempted_le;
-+	struct kvm *kvm = vcpu->kvm;
-+	u64 base = vcpu->arch.pv.base;
-+
-+	preempted_le = cpu_to_le64(preempted);
-+
-+	idx = srcu_read_lock(&kvm->srcu);
-+	offset = offsetof(struct pvlock_vcpu_state, preempted);
-+	kvm_put_guest(kvm, base + offset, preempted_le, u64);
-+	srcu_read_unlock(&kvm->srcu, idx);
-+}
+diff --git a/arch/arm64/kernel/paravirt.c b/arch/arm64/kernel/paravirt.c
+index 1ef702b0be2d..d8f1ba8c22ce 100644
+--- a/arch/arm64/kernel/paravirt.c
++++ b/arch/arm64/kernel/paravirt.c
+@@ -26,7 +26,9 @@
+ struct static_key paravirt_steal_enabled;
+ struct static_key paravirt_steal_rq_enabled;
+ 
+-struct paravirt_patch_template pv_ops;
++struct paravirt_patch_template pv_ops = {
++	.lock.vcpu_is_preempted		= __native_vcpu_is_preempted,
++};
+ EXPORT_SYMBOL_GPL(pv_ops);
+ 
+ struct pv_time_stolen_time_region {
 -- 
 2.19.1
