@@ -1,221 +1,162 @@
 From: Jason Gunthorpe <jgg@mellanox.com>
-Subject: Re: [PATCH 4/5] virtio: introduce a vDPA based transport
-Date: Thu, 16 Jan 2020 15:38:10 +0000
-Message-ID: <20200116153807.GI20978@mellanox.com>
+Subject: Re: [PATCH 5/5] vdpasim: vDPA device simulator
+Date: Thu, 16 Jan 2020 15:47:01 +0000
+Message-ID: <20200116154658.GJ20978@mellanox.com>
 References: <20200116124231.20253-1-jasowang@redhat.com>
- <20200116124231.20253-5-jasowang@redhat.com>
+ <20200116124231.20253-6-jasowang@redhat.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: quoted-printable
 Return-path: <linux-kernel-owner@vger.kernel.org>
-In-Reply-To: <20200116124231.20253-5-jasowang@redhat.com>
+In-Reply-To: <20200116124231.20253-6-jasowang@redhat.com>
 Content-Language: en-US
-Content-ID: <B77D5189ED7F654685FA38AA5ABB7868@eurprd05.prod.outlook.com>
+Content-ID: <2168E1773A68F84989C86DC2620C0247@eurprd05.prod.outlook.com>
 Sender: linux-kernel-owner@vger.kernel.org
 To: Jason Wang <jasowang@redhat.com>
 Cc: "mst@redhat.com" <mst@redhat.com>, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>, "kvm@vger.kernel.org" <kvm@vger.kernel.org>, "virtualization@lists.linux-foundation.org" <virtualization@lists.linux-foundation.org>, "netdev@vger.kernel.org" <netdev@vger.kernel.org>, "tiwei.bie@intel.com" <tiwei.bie@intel.com>, "maxime.coquelin@redhat.com" <maxime.coquelin@redhat.com>, "cunming.liang@intel.com" <cunming.liang@intel.com>, "zhihong.wang@intel.com" <zhihong.wang@intel.com>, "rob.miller@broadcom.com" <rob.miller@broadcom.com>, "xiao.w.wang@intel.com" <xiao.w.wang@intel.com>, "haotian.wang@sifive.com" <haotian.wang@sifive.com>, "lingshan.zhu@intel.com" <lingshan.zhu@intel.com>, "eperezma@redhat.com" <eperezma@redhat.com>, "lulu@redhat.com" <lulu@redhat.co>
 List-Id: virtualization@lists.linuxfoundation.org
 
-On Thu, Jan 16, 2020 at 08:42:30PM +0800, Jason Wang wrote:
-> diff --git a/drivers/virtio/virtio_vdpa.c b/drivers/virtio/virtio_vdpa.c
-> new file mode 100644
-> index 000000000000..86936e5e7ec3
-> +++ b/drivers/virtio/virtio_vdpa.c
-> @@ -0,0 +1,400 @@
-> +// SPDX-License-Identifier: GPL-2.0-only
-> +/*
-> + * VIRTIO based driver for vDPA device
-> + *
-> + * Copyright (c) 2020, Red Hat. All rights reserved.
-> + *     Author: Jason Wang <jasowang@redhat.com>
-> + *
-> + */
-> +
-> +#include <linux/init.h>
-> +#include <linux/module.h>
-> +#include <linux/device.h>
-> +#include <linux/kernel.h>
-> +#include <linux/slab.h>
-> +#include <linux/uuid.h>
-> +#include <linux/virtio.h>
-> +#include <linux/vdpa.h>
-> +#include <linux/virtio_config.h>
-> +#include <linux/virtio_ring.h>
-> +
-> +#define MOD_VERSION  "0.1"
-> +#define MOD_AUTHOR   "Jason Wang <jasowang@redhat.com>"
-> +#define MOD_DESC     "vDPA bus driver for virtio devices"
-> +#define MOD_LICENSE  "GPL v2"
-> +
-> +#define to_virtio_vdpa_device(dev) \
-> +	container_of(dev, struct virtio_vdpa_device, vdev)
+On Thu, Jan 16, 2020 at 08:42:31PM +0800, Jason Wang wrote:
+> This patch implements a software vDPA networking device. The datapath
+> is implemented through vringh and workqueue. The device has an on-chip
+> IOMMU which translates IOVA to PA. For kernel virtio drivers, vDPA
+> simulator driver provides dma_ops. For vhost driers, set_map() methods
+> of vdpa_config_ops is implemented to accept mappings from vhost.
+>=20
+> A sysfs based management interface is implemented, devices are
+> created and removed through:
+>=20
+> /sys/devices/virtual/vdpa_simulator/netdev/{create|remove}
 
-Should be a static function
+This is very gross, creating a class just to get a create/remove and
+then not using the class for anything else? Yuk.
 
-> +struct virtio_vdpa_device {
-> +	struct virtio_device vdev;
+> Netlink based lifecycle management could be implemented for vDPA
+> simulator as well.
+
+This is just begging for a netlink based approach.
+
+Certainly netlink driven removal should be an agreeable standard for
+all devices, I think.
+
+> +struct vdpasim_virtqueue {
+> +	struct vringh vring;
+> +	struct vringh_kiov iov;
+> +	unsigned short head;
+> +	bool ready;
+> +	u64 desc_addr;
+> +	u64 device_addr;
+> +	u64 driver_addr;
+> +	u32 num;
+> +	void *private;
+> +	irqreturn_t (*cb)(void *data);
+> +};
+> +
+> +#define VDPASIM_QUEUE_ALIGN PAGE_SIZE
+> +#define VDPASIM_QUEUE_MAX 256
+> +#define VDPASIM_DEVICE_ID 0x1
+> +#define VDPASIM_VENDOR_ID 0
+> +#define VDPASIM_VQ_NUM 0x2
+> +#define VDPASIM_CLASS_NAME "vdpa_simulator"
+> +#define VDPASIM_NAME "netdev"
+> +
+> +u64 vdpasim_features =3D (1ULL << VIRTIO_F_ANY_LAYOUT) |
+> +		       (1ULL << VIRTIO_F_VERSION_1)  |
+> +		       (1ULL << VIRTIO_F_IOMMU_PLATFORM);
+
+Is not using static here intentional?
+
+> +static void vdpasim_release_dev(struct device *_d)
+> +{
+> +	struct vdpa_device *vdpa =3D dev_to_vdpa(_d);
+> +	struct vdpasim *vdpasim =3D vdpa_to_sim(vdpa);
+> +
+> +	sysfs_remove_link(vdpasim_dev->devices_kobj, vdpasim->name);
+> +
+> +	mutex_lock(&vsim_list_lock);
+> +	list_del(&vdpasim->next);
+> +	mutex_unlock(&vsim_list_lock);
+> +
+> +	kfree(vdpasim->buffer);
+> +	kfree(vdpasim);
+> +}
+
+It is again a bit weird to see a realease function in a driver. This
+stuff is usually in the remove remove function.
+
+> +static int vdpasim_create(const guid_t *uuid)
+> +{
+> +	struct vdpasim *vdpasim, *tmp;
+> +	struct virtio_net_config *config;
 > +	struct vdpa_device *vdpa;
-> +	u64 features;
+> +	struct device *dev;
+> +	int ret =3D -ENOMEM;
 > +
-> +	/* The lock to protect virtqueue list */
-> +	spinlock_t lock;
-> +	/* List of virtio_vdpa_vq_info */
-> +	struct list_head virtqueues;
-> +};
+> +	mutex_lock(&vsim_list_lock);
+> +	list_for_each_entry(tmp, &vsim_devices_list, next) {
+> +		if (guid_equal(&tmp->uuid, uuid)) {
+> +			mutex_unlock(&vsim_list_lock);
+> +			return -EEXIST;
+> +		}
+> +	}
 > +
-> +struct virtio_vdpa_vq_info {
-> +	/* the actual virtqueue */
-> +	struct virtqueue *vq;
+> +	vdpasim =3D kzalloc(sizeof(*vdpasim), GFP_KERNEL);
+> +	if (!vdpasim)
+> +		goto err_vdpa_alloc;
 > +
-> +	/* the list node for the virtqueues list */
-> +	struct list_head node;
-> +};
+> +	vdpasim->buffer =3D kmalloc(PAGE_SIZE, GFP_KERNEL);
+> +	if (!vdpasim->buffer)
+> +		goto err_buffer_alloc;
 > +
-> +static struct vdpa_device *vd_get_vdpa(struct virtio_device *vdev)
-> +{
-> +	struct virtio_vdpa_device *vd_dev =3D to_virtio_vdpa_device(vdev);
-> +	struct vdpa_device *vdpa =3D vd_dev->vdpa;
+> +	vdpasim->iommu =3D vhost_iotlb_alloc(2048, 0);
+> +	if (!vdpasim->iommu)
+> +		goto err_iotlb;
 > +
-> +	return vdpa;
-
-Bit of a long way to say
-
-  return to_virtio_vdpa_device(vdev)->vdpa
-
-?
-
-> +err_vq:
-> +	vring_del_virtqueue(vq);
-> +error_new_virtqueue:
-> +	ops->set_vq_ready(vdpa, index, 0);
-> +	WARN_ON(ops->get_vq_ready(vdpa, index));
-
-A warn_on during error unwind? Sketchy, deserves a comment I think
-
-> +static void virtio_vdpa_release_dev(struct device *_d)
-> +{
-> +	struct virtio_device *vdev =3D
-> +	       container_of(_d, struct virtio_device, dev);
-> +	struct virtio_vdpa_device *vd_dev =3D
-> +	       container_of(vdev, struct virtio_vdpa_device, vdev);
-> +	struct vdpa_device *vdpa =3D vd_dev->vdpa;
+> +	config =3D &vdpasim->config;
+> +	config->mtu =3D 1500;
+> +	config->status =3D VIRTIO_NET_S_LINK_UP;
+> +	eth_random_addr(config->mac);
 > +
-> +	devm_kfree(&vdpa->dev, vd_dev);
-> +}
-
-It is unusual for the release function to not be owned by the
-subsystem, through the class. I'm not sure there are enough module ref
-counts to ensure that this function is not unloaded?
-
-Usually to make this all work sanely the subsytem provides some
-allocation function
-
- vdpa_dev =3D vdpa_alloc_dev(parent, ops, sizeof(struct virtio_vdpa_device)=
-)
- struct virtio_vdpa_device *priv =3D vdpa_priv(vdpa_dev)
-
-Then the subsystem naturally owns all the memory.
-
-Otherwise it gets tricky to ensure that the module doesn't unload
-before all the krefs are put.
-
+> +	INIT_WORK(&vdpasim->work, vdpasim_work);
+> +	spin_lock_init(&vdpasim->lock);
 > +
-> +static int virtio_vdpa_probe(struct device *dev)
-> +{
-> +	struct vdpa_device *vdpa =3D dev_to_vdpa(dev);
-
-The probe function for a class should accept the classes type already,
-no casting.
-
-> +	const struct vdpa_config_ops *ops =3D vdpa->config;
-> +	struct virtio_vdpa_device *vd_dev;
-> +	int rc;
+> +	guid_copy(&vdpasim->uuid, uuid);
 > +
-> +	vd_dev =3D devm_kzalloc(dev, sizeof(*vd_dev), GFP_KERNEL);
-> +	if (!vd_dev)
-> +		return -ENOMEM;
-
-This is not right, the struct device lifetime is controled by a kref,
-not via devm. If you want to use a devm unwind then the unwind is
-put_device, not devm_kfree.
-
-In this simple situation I don't see a reason to use devm.
-
-> +	vd_dev->vdev.dev.parent =3D &vdpa->dev;
-> +	vd_dev->vdev.dev.release =3D virtio_vdpa_release_dev;
-> +	vd_dev->vdev.config =3D &virtio_vdpa_config_ops;
-> +	vd_dev->vdpa =3D vdpa;
-> +	INIT_LIST_HEAD(&vd_dev->virtqueues);
-> +	spin_lock_init(&vd_dev->lock);
+> +	list_add(&vdpasim->next, &vsim_devices_list);
+> +	vdpa =3D &vdpasim->vdpa;
 > +
-> +	vd_dev->vdev.id.device =3D ops->get_device_id(vdpa);
-> +	if (vd_dev->vdev.id.device =3D=3D 0)
-> +		return -ENODEV;
+> +	mutex_unlock(&vsim_list_lock);
 > +
-> +	vd_dev->vdev.id.vendor =3D ops->get_vendor_id(vdpa);
-> +	rc =3D register_virtio_device(&vd_dev->vdev);
-> +	if (rc)
-> +		put_device(dev);
-
-And a ugly unwind like this is why you want to have device_initialize()
-exposed to the driver, so there is a clear pairing that calling
-device_initialize() must be followed by put_device. This should also
-use the goto unwind style
-
-> +	else
-> +		dev_set_drvdata(dev, vd_dev);
+> +	vdpa =3D &vdpasim->vdpa;
+> +	vdpa->config =3D &vdpasim_net_config_ops;
+> +	vdpa_set_parent(vdpa, &vdpasim_dev->dev);
+> +	vdpa->dev.release =3D vdpasim_release_dev;
 > +
-> +	return rc;
-> +}
+> +	vringh_set_iotlb(&vdpasim->vqs[0].vring, vdpasim->iommu);
+> +	vringh_set_iotlb(&vdpasim->vqs[1].vring, vdpasim->iommu);
 > +
-> +static void virtio_vdpa_remove(struct device *dev)
-> +{
-
-Remove should also already accept the right type
-
-> +	struct virtio_vdpa_device *vd_dev =3D dev_get_drvdata(dev);
+> +	dev =3D &vdpa->dev;
+> +	dev->coherent_dma_mask =3D DMA_BIT_MASK(64);
+> +	set_dma_ops(dev, &vdpasim_dma_ops);
 > +
-> +	unregister_virtio_device(&vd_dev->vdev);
-> +}
+> +	ret =3D register_vdpa_device(vdpa);
+> +	if (ret)
+> +		goto err_register;
 > +
-> +static struct vdpa_driver virtio_vdpa_driver =3D {
-> +	.drv =3D {
-> +		.name	=3D "virtio_vdpa",
-> +	},
-> +	.probe	=3D virtio_vdpa_probe,
-> +	.remove =3D virtio_vdpa_remove,
-> +};
+> +	sprintf(vdpasim->name, "%pU", uuid);
+>+
+> +	ret =3D sysfs_create_link(vdpasim_dev->devices_kobj, &vdpa->dev.kobj,
+> +				vdpasim->name);
+> +	if (ret)
+> +		goto err_link;
 
-Still a little unclear on binding, is this supposed to bind to all
-vdpa devices?
+The goto err_link does the wrong unwind, once register is completed
+the error unwind is unregister & put_device, not kfree. This is why I
+recommend to always initalize the device early, and always using
+put_device during error unwinds.
 
-Where is the various THIS_MODULE's I expect to see in a scheme like
-this?
-
-All function pointers must be protected by a held module reference
-count, ie the above probe/remove and all the pointers in ops.
-
-> +static int __init virtio_vdpa_init(void)
-> +{
-> +	return register_vdpa_driver(&virtio_vdpa_driver);
-> +}
-> +
-> +static void __exit virtio_vdpa_exit(void)
-> +{
-> +	unregister_vdpa_driver(&virtio_vdpa_driver);
-> +}
-> +
-> +module_init(virtio_vdpa_init)
-> +module_exit(virtio_vdpa_exit)
-
-Best to provide the usual 'module_pci_driver' like scheme for this
-boiler plate.
-
-> +MODULE_VERSION(MOD_VERSION);
-> +MODULE_LICENSE(MOD_LICENSE);
-> +MODULE_AUTHOR(MOD_AUTHOR);
-> +MODULE_DESCRIPTION(MOD_DESC);
-
-Why the indirection with 2nd defines?
+This whole guid thing seems unncessary when the device is immediately
+assigned a vdpa index from the ida. If you were not using syfs you'd
+just return that index from the creation netlink.
 
 Jason
