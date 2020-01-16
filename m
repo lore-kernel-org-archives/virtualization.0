@@ -1,182 +1,95 @@
-From: Zengruan Ye <yezengruan@huawei.com>
-Subject: [PATCH v3 6/8] KVM: arm64: Provide vCPU attributes for PV lock
-Date: Thu, 16 Jan 2020 20:46:24 +0800
-Message-ID: <20200116124626.1155-7-yezengruan@huawei.com>
-References: <20200116124626.1155-1-yezengruan@huawei.com>
+From: <gregkh@linuxfoundation.org>
+Subject: Patch "crypto: virtio - implement missing support for output IVs" has
+ been added to the 4.19-stable tree
+Date: Thu, 16 Jan 2020 14:03:55 +0100
+Message-ID: <1579179835228172@kroah.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
-Return-path: <linux-kernel-owner@vger.kernel.org>
-In-Reply-To: <20200116124626.1155-1-yezengruan@huawei.com>
-Sender: linux-kernel-owner@vger.kernel.org
-To: linux-kernel@vger.kernel.org, linux-arm-kernel@lists.infradead.org, kvmarm@lists.cs.columbia.edu, kvm@vger.kernel.org, linux-doc@vger.kernel.org, virtualization@lists.linux-foundation.org
-Cc: yezengruan@huawei.com, maz@kernel.org, james.morse@arm.com, linux@armlinux.org.uk, suzuki.poulose@arm.com, julien.thierry.kdev@gmail.com, catalin.marinas@arm.com, mark.rutland@arm.com, will@kernel.org, steven.price@arm.com, daniel.lezcano@linaro.org, wanghaibin.wang@huawei.com, peterz@infradead.org, longman@redhat.com
+Content-Type: text/plain; charset="us-ascii"
+Content-Transfer-Encoding: 7bit
+Return-path: <virtualization-bounces@lists.linux-foundation.org>
+List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
+ <mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
+List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
+List-Post: <mailto:virtualization@lists.linux-foundation.org>
+List-Help: <mailto:virtualization-request@lists.linux-foundation.org?subject=help>
+List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualization>,
+ <mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
+Errors-To: virtualization-bounces@lists.linux-foundation.org
+Sender: "Virtualization" <virtualization-bounces@lists.linux-foundation.org>
+To: ardb@kernel.org, arei.gonglei@huawei.com, gregkh@linuxfoundation.org, herbert@gondor.apana.org.au, jasowang@redhat.com, mst@redhat.com, virtualization@lists.linux-foundation.org
+Cc: stable-commits@vger.kernel.org
 List-Id: virtualization@lists.linuxfoundation.org
 
-Allow user space to inform the KVM host where in the physical memory
-map the paravirtualized lock structures should be located.
 
-User space can set an attribute on the vCPU providing the IPA base
-address of the PV lock structure for that vCPU. This must be
-repeated for every vCPU in the VM.
+This is a note to let you know that I've just added the patch titled
 
-The address is given in terms of the physical address visible to
-the guest and must be 64 byte aligned. The guest will discover the
-address via a hypercall.
+    crypto: virtio - implement missing support for output IVs
 
-Signed-off-by: Zengruan Ye <yezengruan@huawei.com>
+to the 4.19-stable tree which can be found at:
+    http://www.kernel.org/git/?p=linux/kernel/git/stable/stable-queue.git;a=summary
+
+The filename of the patch is:
+     crypto-virtio-implement-missing-support-for-output-ivs.patch
+and it can be found in the queue-4.19 subdirectory.
+
+If you, or anyone else, feels it should not be added to the stable tree,
+please let <stable@vger.kernel.org> know about it.
+
+
+From 500e6807ce93b1fdc7d5b827c5cc167cc35630db Mon Sep 17 00:00:00 2001
+From: Ard Biesheuvel <ardb@kernel.org>
+Date: Sat, 9 Nov 2019 18:09:26 +0100
+Subject: crypto: virtio - implement missing support for output IVs
+
+From: Ard Biesheuvel <ardb@kernel.org>
+
+commit 500e6807ce93b1fdc7d5b827c5cc167cc35630db upstream.
+
+In order to allow for CBC to be chained, which is something that the
+CTS template relies upon, implementations of CBC need to pass the
+IV to be used for subsequent invocations via the IV buffer. This was
+not implemented yet for virtio-crypto so implement it now.
+
+Fixes: dbaf0624ffa5 ("crypto: add virtio-crypto driver")
+Cc: "Michael S. Tsirkin" <mst@redhat.com>
+Cc: Jason Wang <jasowang@redhat.com>
+Cc: Gonglei <arei.gonglei@huawei.com>
+Cc: virtualization@lists.linux-foundation.org
+Signed-off-by: Ard Biesheuvel <ardb@kernel.org>
+Signed-off-by: Herbert Xu <herbert@gondor.apana.org.au>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+
 ---
- arch/arm64/include/asm/kvm_host.h |  9 +++++
- arch/arm64/include/uapi/asm/kvm.h |  2 ++
- arch/arm64/kvm/guest.c            |  9 +++++
- include/uapi/linux/kvm.h          |  2 ++
- virt/kvm/arm/pvlock.c             | 57 +++++++++++++++++++++++++++++++
- 5 files changed, 79 insertions(+)
+ drivers/crypto/virtio/virtio_crypto_algs.c |    9 +++++++++
+ 1 file changed, 9 insertions(+)
 
-diff --git a/arch/arm64/include/asm/kvm_host.h b/arch/arm64/include/asm/kvm_host.h
-index 10f8c4bbf97e..46409f31d652 100644
---- a/arch/arm64/include/asm/kvm_host.h
-+++ b/arch/arm64/include/asm/kvm_host.h
-@@ -520,6 +520,15 @@ static inline bool kvm_arm_is_pvtime_enabled(struct kvm_vcpu_arch *vcpu_arch)
- 	return (vcpu_arch->steal.base != GPA_INVALID);
- }
- 
-+int kvm_arm_pvlock_set_attr(struct kvm_vcpu *vcpu,
-+			    struct kvm_device_attr *attr);
+--- a/drivers/crypto/virtio/virtio_crypto_algs.c
++++ b/drivers/crypto/virtio/virtio_crypto_algs.c
+@@ -449,6 +449,11 @@ __virtio_crypto_ablkcipher_do_req(struct
+ 		goto free;
+ 	}
+ 	memcpy(iv, req->info, ivsize);
++	if (!vc_sym_req->encrypt)
++		scatterwalk_map_and_copy(req->info, req->src,
++					 req->nbytes - AES_BLOCK_SIZE,
++					 AES_BLOCK_SIZE, 0);
 +
-+int kvm_arm_pvlock_get_attr(struct kvm_vcpu *vcpu,
-+			    struct kvm_device_attr *attr);
-+
-+int kvm_arm_pvlock_has_attr(struct kvm_vcpu *vcpu,
-+			    struct kvm_device_attr *attr);
-+
- static inline void kvm_arm_pvlock_preempted_init(struct kvm_vcpu_arch *vcpu_arch)
+ 	sg_init_one(&iv_sg, iv, ivsize);
+ 	sgs[num_out++] = &iv_sg;
+ 	vc_sym_req->iv = iv;
+@@ -585,6 +590,10 @@ static void virtio_crypto_ablkcipher_fin
+ 	struct ablkcipher_request *req,
+ 	int err)
  {
- 	vcpu_arch->pv.base = GPA_INVALID;
-diff --git a/arch/arm64/include/uapi/asm/kvm.h b/arch/arm64/include/uapi/asm/kvm.h
-index 820e5751ada7..137d966b57c7 100644
---- a/arch/arm64/include/uapi/asm/kvm.h
-+++ b/arch/arm64/include/uapi/asm/kvm.h
-@@ -326,6 +326,8 @@ struct kvm_vcpu_events {
- #define   KVM_ARM_VCPU_TIMER_IRQ_PTIMER		1
- #define KVM_ARM_VCPU_PVTIME_CTRL	2
- #define   KVM_ARM_VCPU_PVTIME_IPA	0
-+#define KVM_ARM_VCPU_PVLOCK_CTRL	3
-+#define   KVM_ARM_VCPU_PVLOCK_IPA	0
- 
- /* KVM_IRQ_LINE irq field index values */
- #define KVM_ARM_IRQ_VCPU2_SHIFT		28
-diff --git a/arch/arm64/kvm/guest.c b/arch/arm64/kvm/guest.c
-index 2fff06114a8f..6a5c12f3b08b 100644
---- a/arch/arm64/kvm/guest.c
-+++ b/arch/arm64/kvm/guest.c
-@@ -875,6 +875,9 @@ int kvm_arm_vcpu_arch_set_attr(struct kvm_vcpu *vcpu,
- 	case KVM_ARM_VCPU_PVTIME_CTRL:
- 		ret = kvm_arm_pvtime_set_attr(vcpu, attr);
- 		break;
-+	case KVM_ARM_VCPU_PVLOCK_CTRL:
-+		ret = kvm_arm_pvlock_set_attr(vcpu, attr);
-+		break;
- 	default:
- 		ret = -ENXIO;
- 		break;
-@@ -898,6 +901,9 @@ int kvm_arm_vcpu_arch_get_attr(struct kvm_vcpu *vcpu,
- 	case KVM_ARM_VCPU_PVTIME_CTRL:
- 		ret = kvm_arm_pvtime_get_attr(vcpu, attr);
- 		break;
-+	case KVM_ARM_VCPU_PVLOCK_CTRL:
-+		ret = kvm_arm_pvlock_get_attr(vcpu, attr);
-+		break;
- 	default:
- 		ret = -ENXIO;
- 		break;
-@@ -921,6 +927,9 @@ int kvm_arm_vcpu_arch_has_attr(struct kvm_vcpu *vcpu,
- 	case KVM_ARM_VCPU_PVTIME_CTRL:
- 		ret = kvm_arm_pvtime_has_attr(vcpu, attr);
- 		break;
-+	case KVM_ARM_VCPU_PVLOCK_CTRL:
-+		ret = kvm_arm_pvlock_has_attr(vcpu, attr);
-+		break;
- 	default:
- 		ret = -ENXIO;
- 		break;
-diff --git a/include/uapi/linux/kvm.h b/include/uapi/linux/kvm.h
-index f0a16b4adbbd..bfc628c580d4 100644
---- a/include/uapi/linux/kvm.h
-+++ b/include/uapi/linux/kvm.h
-@@ -1238,6 +1238,8 @@ enum kvm_device_type {
- #define KVM_DEV_TYPE_XIVE		KVM_DEV_TYPE_XIVE
- 	KVM_DEV_TYPE_ARM_PV_TIME,
- #define KVM_DEV_TYPE_ARM_PV_TIME	KVM_DEV_TYPE_ARM_PV_TIME
-+	KVM_DEV_TYPE_ARM_PV_LOCK,
-+#define KVM_DEV_TYPE_ARM_PV_LOCK	KVM_DEV_TYPE_ARM_PV_LOCK
- 	KVM_DEV_TYPE_MAX,
- };
- 
-diff --git a/virt/kvm/arm/pvlock.c b/virt/kvm/arm/pvlock.c
-index 0644b23be51e..5285257b6a35 100644
---- a/virt/kvm/arm/pvlock.c
-+++ b/virt/kvm/arm/pvlock.c
-@@ -43,3 +43,60 @@ void kvm_update_pvlock_preempted(struct kvm_vcpu *vcpu, u64 preempted)
- 	kvm_put_guest(kvm, base + offset, preempted_le, u64);
- 	srcu_read_unlock(&kvm->srcu, idx);
- }
-+
-+int kvm_arm_pvlock_set_attr(struct kvm_vcpu *vcpu,
-+			    struct kvm_device_attr *attr)
-+{
-+	u64 __user *user = (u64 __user *)attr->addr;
-+	struct kvm *kvm = vcpu->kvm;
-+	u64 ipa;
-+	int ret = 0;
-+	int idx;
-+
-+	if (attr->attr != KVM_ARM_VCPU_PVLOCK_IPA)
-+		return -ENXIO;
-+
-+	if (get_user(ipa, user))
-+		return -EFAULT;
-+	if (!IS_ALIGNED(ipa, 64))
-+		return -EINVAL;
-+	if (vcpu->arch.pv.base != GPA_INVALID)
-+		return -EEXIST;
-+
-+	/* Check the address is in a valid memslot */
-+	idx = srcu_read_lock(&kvm->srcu);
-+	if (kvm_is_error_hva(gfn_to_hva(kvm, ipa >> PAGE_SHIFT)))
-+		ret = -EINVAL;
-+	srcu_read_unlock(&kvm->srcu, idx);
-+
-+	if (!ret)
-+		vcpu->arch.pv.base = ipa;
-+
-+	return ret;
-+}
-+
-+int kvm_arm_pvlock_get_attr(struct kvm_vcpu *vcpu,
-+			    struct kvm_device_attr *attr)
-+{
-+	u64 __user *user = (u64 __user *)attr->addr;
-+	u64 ipa;
-+
-+	if (attr->attr != KVM_ARM_VCPU_PVLOCK_IPA)
-+		return -ENXIO;
-+
-+	ipa = vcpu->arch.pv.base;
-+
-+	if (put_user(ipa, user))
-+		return -EFAULT;
-+	return 0;
-+}
-+
-+int kvm_arm_pvlock_has_attr(struct kvm_vcpu *vcpu,
-+			    struct kvm_device_attr *attr)
-+{
-+	switch (attr->attr) {
-+	case KVM_ARM_VCPU_PVLOCK_IPA:
-+		return 0;
-+	}
-+	return -ENXIO;
-+}
--- 
-2.19.1
++	if (vc_sym_req->encrypt)
++		scatterwalk_map_and_copy(req->info, req->dst,
++					 req->nbytes - AES_BLOCK_SIZE,
++					 AES_BLOCK_SIZE, 0);
+ 	crypto_finalize_ablkcipher_request(vc_sym_req->base.dataq->engine,
+ 					   req, err);
+ 	kzfree(vc_sym_req->iv);
+
+
+Patches currently in stable-queue which might be from ardb@kernel.org are
+
+queue-4.19/crypto-virtio-implement-missing-support-for-output-ivs.patch
