@@ -1,8 +1,8 @@
 From: Stefano Garzarella <sgarzare@redhat.com>
-Subject: [PATCH net-next 2/3] vsock/virtio_transport_common: handle netns of
- received packets
-Date: Thu, 16 Jan 2020 18:24:27 +0100
-Message-ID: <20200116172428.311437-3-sgarzare@redhat.com>
+Subject: [PATCH net-next 3/3] vhost/vsock: use netns of process that opens the
+ vhost-vsock device
+Date: Thu, 16 Jan 2020 18:24:28 +0100
+Message-ID: <20200116172428.311437-4-sgarzare@redhat.com>
 References: <20200116172428.311437-1-sgarzare@redhat.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
@@ -22,155 +22,132 @@ To: davem@davemloft.net, netdev@vger.kernel.org
 Cc: linux-hyperv@vger.kernel.org, kvm@vger.kernel.org, "Michael S. Tsirkin" <mst@redhat.com>, Dexuan Cui <decui@microsoft.com>, linux-kernel@vger.kernel.org, virtualization@lists.linux-foundation.org, Stefan Hajnoczi <stefanha@redhat.com>, Jorgen Hansen <jhansen@vmware.com>
 List-Id: virtualization@lists.linuxfoundation.org
 
-This patch allows transports that use virtio_transport_common
-to specify the network namespace where a received packet is to
-be delivered.
+This patch assigns the network namespace of the process that opened
+vhost-vsock device (e.g. VMM) to the packets coming from the guest,
+allowing only host sockets in the same network namespace to
+communicate with the guest.
 
-virtio_transport and vhost_transport, for now, use the default
-network namespace.
-
-vsock_loopback uses the same network namespace of the transmitter.
+This patch also allows having different VMs, running in different
+network namespace, with the same CID.
 
 Signed-off-by: Stefano Garzarella <sgarzare@redhat.com>
 ---
- drivers/vhost/vsock.c                   |  1 +
- include/linux/virtio_vsock.h            |  2 ++
- net/vmw_vsock/virtio_transport.c        |  2 ++
- net/vmw_vsock/virtio_transport_common.c | 13 ++++++++++---
- 4 files changed, 15 insertions(+), 3 deletions(-)
+RFC -> v1
+ * used 'vsock_net_eq()' insted of 'net_eq()'
+---
+ drivers/vhost/vsock.c | 30 +++++++++++++++++++++---------
+ 1 file changed, 21 insertions(+), 9 deletions(-)
 
 diff --git a/drivers/vhost/vsock.c b/drivers/vhost/vsock.c
-index c2d7d57e98cf..f1d39939d5e4 100644
+index f1d39939d5e4..8b0169105559 100644
 --- a/drivers/vhost/vsock.c
 +++ b/drivers/vhost/vsock.c
-@@ -474,6 +474,7 @@ static void vhost_vsock_handle_tx_kick(struct vhost_work *work)
+@@ -40,6 +40,7 @@ static DEFINE_READ_MOSTLY_HASHTABLE(vhost_vsock_hash, 8);
+ struct vhost_vsock {
+ 	struct vhost_dev dev;
+ 	struct vhost_virtqueue vqs[2];
++	struct net *net;
+ 
+ 	/* Link to global vhost_vsock_hash, writes use vhost_vsock_mutex */
+ 	struct hlist_node hash;
+@@ -61,7 +62,7 @@ static u32 vhost_transport_get_local_cid(void)
+ /* Callers that dereference the return value must hold vhost_vsock_mutex or the
+  * RCU read lock.
+  */
+-static struct vhost_vsock *vhost_vsock_get(u32 guest_cid)
++static struct vhost_vsock *vhost_vsock_get(u32 guest_cid, struct net *net)
+ {
+ 	struct vhost_vsock *vsock;
+ 
+@@ -72,7 +73,7 @@ static struct vhost_vsock *vhost_vsock_get(u32 guest_cid)
+ 		if (other_cid == 0)
+ 			continue;
+ 
+-		if (other_cid == guest_cid)
++		if (other_cid == guest_cid && vsock_net_eq(net, vsock->net))
+ 			return vsock;
+ 
+ 	}
+@@ -245,7 +246,7 @@ vhost_transport_send_pkt(struct virtio_vsock_pkt *pkt)
+ 	rcu_read_lock();
+ 
+ 	/* Find the vhost_vsock according to guest context id  */
+-	vsock = vhost_vsock_get(le64_to_cpu(pkt->hdr.dst_cid));
++	vsock = vhost_vsock_get(le64_to_cpu(pkt->hdr.dst_cid), pkt->net);
+ 	if (!vsock) {
+ 		rcu_read_unlock();
+ 		virtio_transport_free_pkt(pkt);
+@@ -277,7 +278,8 @@ vhost_transport_cancel_pkt(struct vsock_sock *vsk)
+ 	rcu_read_lock();
+ 
+ 	/* Find the vhost_vsock according to guest context id  */
+-	vsock = vhost_vsock_get(vsk->remote_addr.svm_cid);
++	vsock = vhost_vsock_get(vsk->remote_addr.svm_cid,
++				sock_net(sk_vsock(vsk)));
+ 	if (!vsock)
+ 		goto out;
+ 
+@@ -474,7 +476,7 @@ static void vhost_vsock_handle_tx_kick(struct vhost_work *work)
  			continue;
  		}
  
-+		pkt->net = vsock_default_net();
+-		pkt->net = vsock_default_net();
++		pkt->net = vsock->net;
  		len = pkt->len;
  
  		/* Deliver to monitoring devices all received packets */
-diff --git a/include/linux/virtio_vsock.h b/include/linux/virtio_vsock.h
-index 71c81e0dc8f2..d4fc93e6e03e 100644
---- a/include/linux/virtio_vsock.h
-+++ b/include/linux/virtio_vsock.h
-@@ -43,6 +43,7 @@ struct virtio_vsock_pkt {
- 	struct list_head list;
- 	/* socket refcnt not held, only use for cancellation */
- 	struct vsock_sock *vsk;
-+	struct net *net;
- 	void *buf;
- 	u32 buf_len;
- 	u32 len;
-@@ -54,6 +55,7 @@ struct virtio_vsock_pkt_info {
- 	u32 remote_cid, remote_port;
- 	struct vsock_sock *vsk;
- 	struct msghdr *msg;
-+	struct net *net;
- 	u32 pkt_len;
- 	u16 type;
- 	u16 op;
-diff --git a/net/vmw_vsock/virtio_transport.c b/net/vmw_vsock/virtio_transport.c
-index dfbaf6bd8b1c..fb03a1535c21 100644
---- a/net/vmw_vsock/virtio_transport.c
-+++ b/net/vmw_vsock/virtio_transport.c
-@@ -527,6 +527,8 @@ static void virtio_transport_rx_work(struct work_struct *work)
- 			}
- 
- 			pkt->len = len - sizeof(pkt->hdr);
-+			pkt->net = vsock_default_net();
+@@ -608,7 +610,14 @@ static int vhost_vsock_dev_open(struct inode *inode, struct file *file)
+ 	vqs = kmalloc_array(ARRAY_SIZE(vsock->vqs), sizeof(*vqs), GFP_KERNEL);
+ 	if (!vqs) {
+ 		ret = -ENOMEM;
+-		goto out;
++		goto out_vsock;
++	}
 +
- 			virtio_transport_deliver_tap_pkt(pkt);
- 			virtio_transport_recv_pkt(&virtio_transport, pkt);
- 		}
-diff --git a/net/vmw_vsock/virtio_transport_common.c b/net/vmw_vsock/virtio_transport_common.c
-index cecdfd91ed00..6402dea62e45 100644
---- a/net/vmw_vsock/virtio_transport_common.c
-+++ b/net/vmw_vsock/virtio_transport_common.c
-@@ -63,6 +63,7 @@ virtio_transport_alloc_pkt(struct virtio_vsock_pkt_info *info,
- 	pkt->hdr.len		= cpu_to_le32(len);
- 	pkt->reply		= info->reply;
- 	pkt->vsk		= info->vsk;
-+	pkt->net		= info->net;
++	/* Derive the network namespace from the pid opening the device */
++	vsock->net = get_net_ns_by_pid(current->pid);
++	if (IS_ERR(vsock->net)) {
++		ret = PTR_ERR(vsock->net);
++		goto out_vqs;
+ 	}
  
- 	if (info->msg && len > 0) {
- 		pkt->buf = kmalloc(len, GFP_KERNEL);
-@@ -273,6 +274,7 @@ static int virtio_transport_send_credit_update(struct vsock_sock *vsk,
- 		.op = VIRTIO_VSOCK_OP_CREDIT_UPDATE,
- 		.type = type,
- 		.vsk = vsk,
-+		.net = sock_net(sk_vsock(vsk)),
- 	};
+ 	vsock->guest_cid = 0; /* no CID assigned yet */
+@@ -630,7 +639,9 @@ static int vhost_vsock_dev_open(struct inode *inode, struct file *file)
+ 	vhost_work_init(&vsock->send_pkt_work, vhost_transport_send_pkt_work);
+ 	return 0;
  
- 	return virtio_transport_send_pkt_info(vsk, &info);
-@@ -622,6 +624,7 @@ int virtio_transport_connect(struct vsock_sock *vsk)
- 		.op = VIRTIO_VSOCK_OP_REQUEST,
- 		.type = VIRTIO_VSOCK_TYPE_STREAM,
- 		.vsk = vsk,
-+		.net = sock_net(sk_vsock(vsk)),
- 	};
- 
- 	return virtio_transport_send_pkt_info(vsk, &info);
-@@ -638,6 +641,7 @@ int virtio_transport_shutdown(struct vsock_sock *vsk, int mode)
- 			 (mode & SEND_SHUTDOWN ?
- 			  VIRTIO_VSOCK_SHUTDOWN_SEND : 0),
- 		.vsk = vsk,
-+		.net = sock_net(sk_vsock(vsk)),
- 	};
- 
- 	return virtio_transport_send_pkt_info(vsk, &info);
-@@ -665,6 +669,7 @@ virtio_transport_stream_enqueue(struct vsock_sock *vsk,
- 		.msg = msg,
- 		.pkt_len = len,
- 		.vsk = vsk,
-+		.net = sock_net(sk_vsock(vsk)),
- 	};
- 
- 	return virtio_transport_send_pkt_info(vsk, &info);
-@@ -687,6 +692,7 @@ static int virtio_transport_reset(struct vsock_sock *vsk,
- 		.type = VIRTIO_VSOCK_TYPE_STREAM,
- 		.reply = !!pkt,
- 		.vsk = vsk,
-+		.net = sock_net(sk_vsock(vsk)),
- 	};
- 
- 	/* Send RST only if the original pkt is not a RST pkt */
-@@ -707,6 +713,7 @@ static int virtio_transport_reset_no_sock(const struct virtio_transport *t,
- 		.op = VIRTIO_VSOCK_OP_RST,
- 		.type = le16_to_cpu(pkt->hdr.type),
- 		.reply = true,
-+		.net = pkt->net,
- 	};
- 
- 	/* Send RST only if the original pkt is not a RST pkt */
-@@ -991,6 +998,7 @@ virtio_transport_send_response(struct vsock_sock *vsk,
- 		.remote_port = le32_to_cpu(pkt->hdr.src_port),
- 		.reply = true,
- 		.vsk = vsk,
-+		.net = sock_net(sk_vsock(vsk)),
- 	};
- 
- 	return virtio_transport_send_pkt_info(vsk, &info);
-@@ -1088,7 +1096,6 @@ virtio_transport_recv_listen(struct sock *sk, struct virtio_vsock_pkt *pkt,
- void virtio_transport_recv_pkt(struct virtio_transport *t,
- 			       struct virtio_vsock_pkt *pkt)
- {
--	struct net *net = vsock_default_net();
- 	struct sockaddr_vm src, dst;
- 	struct vsock_sock *vsk;
- 	struct sock *sk;
-@@ -1116,9 +1123,9 @@ void virtio_transport_recv_pkt(struct virtio_transport *t,
- 	/* The socket must be in connected or bound table
- 	 * otherwise send reset back
+-out:
++out_vqs:
++	kfree(vqs);
++out_vsock:
+ 	vhost_vsock_free(vsock);
+ 	return ret;
+ }
+@@ -655,7 +666,7 @@ static void vhost_vsock_reset_orphans(struct sock *sk)
  	 */
--	sk = vsock_find_connected_socket(&src, &dst, net);
-+	sk = vsock_find_connected_socket(&src, &dst, pkt->net);
- 	if (!sk) {
--		sk = vsock_find_bound_socket(&dst, net);
-+		sk = vsock_find_bound_socket(&dst, pkt->net);
- 		if (!sk) {
- 			(void)virtio_transport_reset_no_sock(t, pkt);
- 			goto free_pkt;
+ 
+ 	/* If the peer is still valid, no need to reset connection */
+-	if (vhost_vsock_get(vsk->remote_addr.svm_cid))
++	if (vhost_vsock_get(vsk->remote_addr.svm_cid, sock_net(sk)))
+ 		return;
+ 
+ 	/* If the close timeout is pending, let it expire.  This avoids races
+@@ -703,6 +714,7 @@ static int vhost_vsock_dev_release(struct inode *inode, struct file *file)
+ 	spin_unlock_bh(&vsock->send_pkt_list_lock);
+ 
+ 	vhost_dev_cleanup(&vsock->dev);
++	put_net(vsock->net);
+ 	kfree(vsock->dev.vqs);
+ 	vhost_vsock_free(vsock);
+ 	return 0;
+@@ -729,7 +741,7 @@ static int vhost_vsock_set_cid(struct vhost_vsock *vsock, u64 guest_cid)
+ 
+ 	/* Refuse if CID is already in use */
+ 	mutex_lock(&vhost_vsock_mutex);
+-	other = vhost_vsock_get(guest_cid);
++	other = vhost_vsock_get(guest_cid, vsock->net);
+ 	if (other && other != vsock) {
+ 		mutex_unlock(&vhost_vsock_mutex);
+ 		return -EADDRINUSE;
 -- 
 2.24.1
