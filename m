@@ -1,224 +1,510 @@
-From: Thomas Zimmermann <tzimmermann@suse.de>
-Subject: Re: [PATCH v2 4/4] drm/simple-kms: Let DRM core send VBLANK events by
- default
-Date: Fri, 17 Jan 2020 08:17:10 +0100
-Message-ID: <fa8a22b5-9c19-7896-5b0d-06b038ed4862@suse.de>
-References: <20200115125226.13843-1-tzimmermann@suse.de>
- <20200115125226.13843-5-tzimmermann@suse.de>
- <20200116064107.GB8400@dvetter-linux.ger.corp.intel.com>
- <33fdd33f-ce8d-70d3-544e-fac727d2686b@suse.de>
- <CACvgo52gwC6U5HjnsQSUUDgE7Gp_EDb-QqCY8VDFjAX7cE0Lxg@mail.gmail.com>
- <20200116235951.GD8400@dvetter-linux.ger.corp.intel.com>
+From: "Michael S. Tsirkin" <mst@redhat.com>
+Subject: Re: [PATCH 3/5] vDPA: introduce vDPA bus
+Date: Fri, 17 Jan 2020 07:13:36 -0500
+Message-ID: <20200117070324-mutt-send-email-mst@kernel.org>
+References: <20200116124231.20253-1-jasowang@redhat.com>
+ <20200116124231.20253-4-jasowang@redhat.com>
 Mime-Version: 1.0
-Content-Type: multipart/mixed; boundary="===============3470916133552270718=="
-Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <20200116235951.GD8400@dvetter-linux.ger.corp.intel.com>
-List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
- <mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
-List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
-List-Post: <mailto:virtualization@lists.linux-foundation.org>
-List-Help: <mailto:virtualization-request@lists.linux-foundation.org?subject=help>
-List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualization>,
- <mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
-Errors-To: virtualization-bounces@lists.linux-foundation.org
-Sender: "Virtualization" <virtualization-bounces@lists.linux-foundation.org>
-To: Daniel Vetter <daniel@ffwll.ch>, Emil Velikov <emil.l.velikov@gmail.com>
-Cc: david@lechnology.com, oleksandr_andrushchenko@epam.com, Dave Airlie <airlied@linux.ie>, Sam Ravnborg <sam@ravnborg.org>, ML dri-devel <dri-devel@lists.freedesktop.org>, "open list:VIRTIO GPU DRIVER" <virtualization@lists.linux-foundation.org>, Hans de Goede <hdegoede@redhat.com>, Laurent Pinchart <laurent.pinchart@ideasonboard.com>, xen-devel@lists.xenproject.org, Emil Velikov <emil.velikov@collabora.com>, Sean Paul <sean@poorly.run>
+Content-Type: text/plain; charset=us-ascii
+Return-path: <kvm-owner@vger.kernel.org>
+Content-Disposition: inline
+In-Reply-To: <20200116124231.20253-4-jasowang@redhat.com>
+Sender: kvm-owner@vger.kernel.org
+To: Jason Wang <jasowang@redhat.com>
+Cc: linux-kernel@vger.kernel.org, kvm@vger.kernel.org, virtualization@lists.linux-foundation.org, netdev@vger.kernel.org, tiwei.bie@intel.com, jgg@mellanox.com, maxime.coquelin@redhat.com, cunming.liang@intel.com, zhihong.wang@intel.com, rob.miller@broadcom.com, xiao.w.wang@intel.com, haotian.wang@sifive.com, lingshan.zhu@intel.com, eperezma@redhat.com, lulu@redhat.com, parav@mellanox.com, kevin.tian@intel.com, stefanha@redhat.com, rdunlap@infradead.org, hch@infradead.org, aadam@redhat.com, jakub.kicinski@netronome.com, jiri@mellanox.com, shahafs@mellanox.com, hanand@xilinx.com, mhabets@solarflare.com
 List-Id: virtualization@lists.linuxfoundation.org
 
-This is an OpenPGP/MIME signed message (RFC 4880 and 3156)
---===============3470916133552270718==
-Content-Type: multipart/signed; micalg=pgp-sha256;
- protocol="application/pgp-signature";
- boundary="31xbyValn4E7bq95B5drBIEMmXCNmZCnm"
+On Thu, Jan 16, 2020 at 08:42:29PM +0800, Jason Wang wrote:
+> vDPA device is a device that uses a datapath which complies with the
+> virtio specifications with vendor specific control path. vDPA devices
+> can be both physically located on the hardware or emulated by
+> software. vDPA hardware devices are usually implemented through PCIE
+> with the following types:
+> 
+> - PF (Physical Function) - A single Physical Function
+> - VF (Virtual Function) - Device that supports single root I/O
+>   virtualization (SR-IOV). Its Virtual Function (VF) represents a
+>   virtualized instance of the device that can be assigned to different
+>   partitions
+> - VDEV (Virtual Device) - With technologies such as Intel Scalable
+>   IOV, a virtual device composed by host OS utilizing one or more
+>   ADIs.
+> - SF (Sub function) - Vendor specific interface to slice the Physical
+>   Function to multiple sub functions that can be assigned to different
+>   partitions as virtual devices.
+> 
+> >From a driver's perspective, depends on how and where the DMA
+> translation is done, vDPA devices are split into two types:
+> 
+> - Platform specific DMA translation - From the driver's perspective,
+>   the device can be used on a platform where device access to data in
+>   memory is limited and/or translated. An example is a PCIE vDPA whose
+>   DMA request was tagged via a bus (e.g PCIE) specific way. DMA
+>   translation and protection are done at PCIE bus IOMMU level.
+> - Device specific DMA translation - The device implements DMA
+>   isolation and protection through its own logic. An example is a vDPA
+>   device which uses on-chip IOMMU.
+> 
+> To hide the differences and complexity of the above types for a vDPA
+> device/IOMMU options and in order to present a generic virtio device
+> to the upper layer, a device agnostic framework is required.
+> 
+> This patch introduces a software vDPA bus which abstracts the
+> common attributes of vDPA device, vDPA bus driver and the
+> communication method (vdpa_config_ops) between the vDPA device
+> abstraction and the vDPA bus driver:
+> 
+> With the abstraction of vDPA bus and vDPA bus operations, the
+> difference and complexity of the under layer hardware is hidden from
+> upper layer. The vDPA bus drivers on top can use a unified
+> vdpa_config_ops to control different types of vDPA device.
+> 
+> Signed-off-by: Jason Wang <jasowang@redhat.com>
+> ---
+>  MAINTAINERS                  |   1 +
+>  drivers/virtio/Kconfig       |   2 +
+>  drivers/virtio/Makefile      |   1 +
+>  drivers/virtio/vdpa/Kconfig  |   9 ++
+>  drivers/virtio/vdpa/Makefile |   2 +
+>  drivers/virtio/vdpa/vdpa.c   | 141 ++++++++++++++++++++++++++
+>  include/linux/vdpa.h         | 191 +++++++++++++++++++++++++++++++++++
+>  7 files changed, 347 insertions(+)
+>  create mode 100644 drivers/virtio/vdpa/Kconfig
+>  create mode 100644 drivers/virtio/vdpa/Makefile
+>  create mode 100644 drivers/virtio/vdpa/vdpa.c
+>  create mode 100644 include/linux/vdpa.h
+> 
+> diff --git a/MAINTAINERS b/MAINTAINERS
+> index d4bda9c900fa..578d2a581e3b 100644
+> --- a/MAINTAINERS
+> +++ b/MAINTAINERS
+> @@ -17540,6 +17540,7 @@ F:	tools/virtio/
+>  F:	drivers/net/virtio_net.c
+>  F:	drivers/block/virtio_blk.c
+>  F:	include/linux/virtio*.h
+> +F:	include/linux/vdpa.h
+>  F:	include/uapi/linux/virtio_*.h
+>  F:	drivers/crypto/virtio/
+>  F:	mm/balloon_compaction.c
+> diff --git a/drivers/virtio/Kconfig b/drivers/virtio/Kconfig
+> index 078615cf2afc..9c4fdb64d9ac 100644
+> --- a/drivers/virtio/Kconfig
+> +++ b/drivers/virtio/Kconfig
+> @@ -96,3 +96,5 @@ config VIRTIO_MMIO_CMDLINE_DEVICES
+>  	 If unsure, say 'N'.
+>  
+>  endif # VIRTIO_MENU
+> +
+> +source "drivers/virtio/vdpa/Kconfig"
+> diff --git a/drivers/virtio/Makefile b/drivers/virtio/Makefile
+> index 3a2b5c5dcf46..fdf5eacd0d0a 100644
+> --- a/drivers/virtio/Makefile
+> +++ b/drivers/virtio/Makefile
+> @@ -6,3 +6,4 @@ virtio_pci-y := virtio_pci_modern.o virtio_pci_common.o
+>  virtio_pci-$(CONFIG_VIRTIO_PCI_LEGACY) += virtio_pci_legacy.o
+>  obj-$(CONFIG_VIRTIO_BALLOON) += virtio_balloon.o
+>  obj-$(CONFIG_VIRTIO_INPUT) += virtio_input.o
+> +obj-$(CONFIG_VDPA) += vdpa/
+> diff --git a/drivers/virtio/vdpa/Kconfig b/drivers/virtio/vdpa/Kconfig
+> new file mode 100644
+> index 000000000000..3032727b4d98
+> --- /dev/null
+> +++ b/drivers/virtio/vdpa/Kconfig
+> @@ -0,0 +1,9 @@
+> +# SPDX-License-Identifier: GPL-2.0-only
+> +config VDPA
+> +	tristate
+> +        default n
+> +        help
+> +          Enable this module to support vDPA device that uses a
+> +          datapath which complies with virtio specifications with
+> +          vendor specific control path.
+> +
+> diff --git a/drivers/virtio/vdpa/Makefile b/drivers/virtio/vdpa/Makefile
+> new file mode 100644
+> index 000000000000..ee6a35e8a4fb
+> --- /dev/null
+> +++ b/drivers/virtio/vdpa/Makefile
+> @@ -0,0 +1,2 @@
+> +# SPDX-License-Identifier: GPL-2.0
+> +obj-$(CONFIG_VDPA) += vdpa.o
+> diff --git a/drivers/virtio/vdpa/vdpa.c b/drivers/virtio/vdpa/vdpa.c
+> new file mode 100644
+> index 000000000000..2b0e4a9f105d
+> --- /dev/null
+> +++ b/drivers/virtio/vdpa/vdpa.c
+> @@ -0,0 +1,141 @@
+> +// SPDX-License-Identifier: GPL-2.0-only
+> +/*
+> + * vDPA bus.
+> + *
+> + * Copyright (c) 2019, Red Hat. All rights reserved.
+> + *     Author: Jason Wang <jasowang@redhat.com>
+> + *
+> + */
+> +
+> +#include <linux/module.h>
+> +#include <linux/idr.h>
+> +#include <linux/vdpa.h>
+> +
+> +#define MOD_VERSION  "0.1"
+> +#define MOD_DESC     "vDPA bus"
+> +#define MOD_AUTHOR   "Jason Wang <jasowang@redhat.com>"
+> +#define MOD_LICENSE  "GPL v2"
+> +
+> +static DEFINE_IDA(vdpa_index_ida);
+> +
+> +struct device *vdpa_get_parent(struct vdpa_device *vdpa)
+> +{
+> +	return vdpa->dev.parent;
+> +}
+> +EXPORT_SYMBOL(vdpa_get_parent);
+> +
+> +void vdpa_set_parent(struct vdpa_device *vdpa, struct device *parent)
+> +{
+> +	vdpa->dev.parent = parent;
+> +}
+> +EXPORT_SYMBOL(vdpa_set_parent);
+> +
+> +struct vdpa_device *dev_to_vdpa(struct device *_dev)
+> +{
+> +	return container_of(_dev, struct vdpa_device, dev);
+> +}
+> +EXPORT_SYMBOL_GPL(dev_to_vdpa);
+> +
+> +struct device *vdpa_to_dev(struct vdpa_device *vdpa)
+> +{
+> +	return &vdpa->dev;
+> +}
+> +EXPORT_SYMBOL_GPL(vdpa_to_dev);
+> +
+> +static int vdpa_dev_probe(struct device *d)
+> +{
+> +	struct vdpa_device *dev = dev_to_vdpa(d);
+> +	struct vdpa_driver *drv = drv_to_vdpa(dev->dev.driver);
+> +	int ret = 0;
+> +
+> +	if (drv && drv->probe)
+> +		ret = drv->probe(d);
+> +
+> +	return ret;
+> +}
+> +
+> +static int vdpa_dev_remove(struct device *d)
+> +{
+> +	struct vdpa_device *dev = dev_to_vdpa(d);
+> +	struct vdpa_driver *drv = drv_to_vdpa(dev->dev.driver);
+> +
+> +	if (drv && drv->remove)
+> +		drv->remove(d);
+> +
+> +	return 0;
+> +}
+> +
+> +static struct bus_type vdpa_bus = {
+> +	.name  = "vdpa",
+> +	.probe = vdpa_dev_probe,
+> +	.remove = vdpa_dev_remove,
+> +};
+> +
+> +int register_vdpa_device(struct vdpa_device *vdpa)
+> +{
+> +	int err;
+> +
+> +	if (!vdpa_get_parent(vdpa))
+> +		return -EINVAL;
+> +
+> +	if (!vdpa->config)
+> +		return -EINVAL;
+> +
+> +	err = ida_simple_get(&vdpa_index_ida, 0, 0, GFP_KERNEL);
+> +	if (err < 0)
+> +		return -EFAULT;
+> +
+> +	vdpa->dev.bus = &vdpa_bus;
+> +	device_initialize(&vdpa->dev);
+> +
+> +	vdpa->index = err;
+> +	dev_set_name(&vdpa->dev, "vdpa%u", vdpa->index);
+> +
+> +	err = device_add(&vdpa->dev);
+> +	if (err)
+> +		ida_simple_remove(&vdpa_index_ida, vdpa->index);
+> +
+> +	return err;
+> +}
+> +EXPORT_SYMBOL_GPL(register_vdpa_device);
+> +
+> +void unregister_vdpa_device(struct vdpa_device *vdpa)
+> +{
+> +	int index = vdpa->index;
+> +
+> +	device_unregister(&vdpa->dev);
+> +	ida_simple_remove(&vdpa_index_ida, index);
+> +}
+> +EXPORT_SYMBOL_GPL(unregister_vdpa_device);
+> +
+> +int register_vdpa_driver(struct vdpa_driver *driver)
+> +{
+> +	driver->drv.bus = &vdpa_bus;
+> +	return driver_register(&driver->drv);
+> +}
+> +EXPORT_SYMBOL_GPL(register_vdpa_driver);
+> +
+> +void unregister_vdpa_driver(struct vdpa_driver *driver)
+> +{
+> +	driver_unregister(&driver->drv);
+> +}
+> +EXPORT_SYMBOL_GPL(unregister_vdpa_driver);
+> +
+> +static int vdpa_init(void)
+> +{
+> +	if (bus_register(&vdpa_bus) != 0)
+> +		panic("virtio bus registration failed");
+> +	return 0;
+> +}
+> +
+> +static void __exit vdpa_exit(void)
+> +{
+> +	bus_unregister(&vdpa_bus);
+> +	ida_destroy(&vdpa_index_ida);
+> +}
+> +core_initcall(vdpa_init);
+> +module_exit(vdpa_exit);
+> +
+> +MODULE_VERSION(MOD_VERSION);
+> +MODULE_AUTHOR(MOD_AUTHOR);
+> +MODULE_LICENSE(MOD_LICENSE);
+> diff --git a/include/linux/vdpa.h b/include/linux/vdpa.h
+> new file mode 100644
+> index 000000000000..47760137ef66
+> --- /dev/null
+> +++ b/include/linux/vdpa.h
+> @@ -0,0 +1,191 @@
+> +/* SPDX-License-Identifier: GPL-2.0 */
+> +#ifndef _LINUX_VDPA_H
+> +#define _LINUX_VDPA_H
+> +
+> +#include <linux/device.h>
+> +#include <linux/interrupt.h>
+> +#include <linux/vhost_iotlb.h>
+> +
+> +/**
+> + * vDPA callback definition.
+> + * @callback: interrupt callback function
+> + * @private: the data passed to the callback function
+> + */
+> +struct vdpa_callback {
+> +	irqreturn_t (*callback)(void *data);
+> +	void *private;
+> +};
+> +
+> +/**
+> + * vDPA device - representation of a vDPA device
+> + * @dev: underlying device
+> + * @config: the configuration ops for this device.
+> + * @index: device index
+> + */
+> +struct vdpa_device {
+> +	struct device dev;
+> +	const struct vdpa_config_ops *config;
+> +	int index;
+> +};
+> +
+> +/**
+> + * vDPA_config_ops - operations for configuring a vDPA device.
+> + * Note: vDPA device drivers are required to implement all of the
+> + * operations unless it is optional mentioned in the following list.
+> + * @set_vq_address:		Set the address of virtqueue
+> + *				@vdev: vdpa device
+> + *				@idx: virtqueue index
+> + *				@desc_area: address of desc area
+> + *				@driver_area: address of driver area
+> + *				@device_area: address of device area
+> + *				Returns integer: success (0) or error (< 0)
+> + * @set_vq_num:			Set the size of virtqueue
+> + *				@vdev: vdpa device
+> + *				@idx: virtqueue index
+> + *				@num: the size of virtqueue
+> + * @kick_vq:			Kick the virtqueue
+> + *				@vdev: vdpa device
+> + *				@idx: virtqueue index
 
-This is an OpenPGP/MIME signed message (RFC 4880 and 3156)
---31xbyValn4E7bq95B5drBIEMmXCNmZCnm
-Content-Type: multipart/mixed; boundary="S5QhwU6gaKPyTq4N0LqU8xziaGJOq80j1";
- protected-headers="v1"
-From: Thomas Zimmermann <tzimmermann@suse.de>
-To: Daniel Vetter <daniel@ffwll.ch>, Emil Velikov <emil.l.velikov@gmail.com>
-Cc: Laurent Pinchart <laurent.pinchart@ideasonboard.com>,
- oleksandr_andrushchenko@epam.com, Dave Airlie <airlied@linux.ie>,
- Sean Paul <sean@poorly.run>, ML dri-devel <dri-devel@lists.freedesktop.org>,
- "open list:VIRTIO GPU DRIVER" <virtualization@lists.linux-foundation.org>,
- Hans de Goede <hdegoede@redhat.com>, Gerd Hoffmann <kraxel@redhat.com>,
- xen-devel@lists.xenproject.org, Emil Velikov <emil.velikov@collabora.com>,
- Sam Ravnborg <sam@ravnborg.org>, david@lechnology.com
-Message-ID: <fa8a22b5-9c19-7896-5b0d-06b038ed4862@suse.de>
-Subject: Re: [PATCH v2 4/4] drm/simple-kms: Let DRM core send VBLANK events by
- default
-References: <20200115125226.13843-1-tzimmermann@suse.de>
- <20200115125226.13843-5-tzimmermann@suse.de>
- <20200116064107.GB8400@dvetter-linux.ger.corp.intel.com>
- <33fdd33f-ce8d-70d3-544e-fac727d2686b@suse.de>
- <CACvgo52gwC6U5HjnsQSUUDgE7Gp_EDb-QqCY8VDFjAX7cE0Lxg@mail.gmail.com>
- <20200116235951.GD8400@dvetter-linux.ger.corp.intel.com>
-In-Reply-To: <20200116235951.GD8400@dvetter-linux.ger.corp.intel.com>
 
---S5QhwU6gaKPyTq4N0LqU8xziaGJOq80j1
-Content-Type: text/plain; charset=utf-8
-Content-Language: en-US
-Content-Transfer-Encoding: quoted-printable
-
-Hi
-
-Am 17.01.20 um 00:59 schrieb Daniel Vetter:
-> On Thu, Jan 16, 2020 at 05:22:34PM +0000, Emil Velikov wrote:
->> Hi all,
->>
->> On Thu, 16 Jan 2020 at 07:37, Thomas Zimmermann <tzimmermann@suse.de> =
-wrote:
->>
->>>> diff --git a/drivers/gpu/drm/drm_atomic_state_helper.c b/drivers/gpu=
-/drm/drm_atomic_state_helper.c
->>>> index 7cf3cf936547..23d2f51fc1d4 100644
->>>> --- a/drivers/gpu/drm/drm_atomic_state_helper.c
->>>> +++ b/drivers/gpu/drm/drm_atomic_state_helper.c
->>>> @@ -149,6 +149,11 @@ void __drm_atomic_helper_crtc_duplicate_state(s=
-truct drm_crtc *crtc,
->>>>       /* Self refresh should be canceled when a new update is availa=
-ble */
->>>>       state->active =3D drm_atomic_crtc_effectively_active(state);
->>>>       state->self_refresh_active =3D false;
->>>> +
->>>> +     if (drm_dev_has_vblank(crtc->dev))
->>>> +             state->no_vblank =3D true;
->>>> +     else
->>>> +             state->no_vblank =3D false;
->>>>  }
->>>>  EXPORT_SYMBOL(__drm_atomic_helper_crtc_duplicate_state);
->>>
->>> I think the if/else branches are in the wrong order.
->=20
-> Yeah fumbled that.
->=20
->>> But generally speaking, is it really that easy? The xen driver alread=
-y
->>> has to work around simple-kms's auto-enabling of no_vblank (see patch=
-
->>> 4). Maybe this settings interferes with other drivers as well. At lea=
-st
->>> the calls for sending fake vblanks should be removed from all affecte=
-d
->>> drivers.
->=20
-> Hm xen is really special, in that it has a flip complete event, but not=
- a
-> vblank. I think forcing drivers to overwrite stuff in that case makes
-> sense.
->=20
->> I'm not sure if setting no_vblank based on dev->num_crtcs is the corre=
-ct thing.
->> From the original commit and associated description for no_vblank:
->>
->> In some cases CRTCs are active but are not able to generating events, =
-at
->> least not at every frame at it's expected to.
->> This is typically the case when the CRTC is feeding a writeback connec=
-tor...
->=20
-> Yeah, but Thomas' series here wants to extend that. And I think if we r=
-oll
-> this out the common case will be "no hw vblank", and the writeback spec=
-ial
-
-Default values should usually be 0 for zalloc and static initializers.
-Should we rename no_vblank to has_vblank then?
-
-> case is going to be the exception to the exception. Yup, patch 1 that
-> updates the docs doesn't reflect that, which is why I'm bringing up mor=
-e
-> suggestions here around code & semantics of all these pieces to make th=
-em
-> do the most reasonable thing for most of the drivers.
->=20
->> Reflects the ability of a CRTC to send VBLANK events....
->>
->>
->> The proposed handling of no_vblank feels a little dirty, although
->> nothing better comes to mind.
->> Nevertheless code seems perfectly reasonable, so if it were me I'd mer=
-ge it.
->=20
-> The idea with setting it very early is that drivers can overwrite it ve=
-ry
-> easily. Feels slightly dirty, so I guess we could also set it somewhere=
- in
-> the atomic_helper_check function (similar to how we set the various
-> crtc->*_changed flags, but we're not entirely consistent on these eithe=
-r).
->=20
-> For the overall thing what feels irky to me is making this no_vblank
-> default logic (however we end up computing it in the end, whether like
-> this or what I suggested) specific to simple pipe helpers feels kinda
-> wrong. Simple pipe tends to have a higher ratio of drivers for hw witho=
-ut
-> vblank support, but by far not the only ones. Having that special case
-> feels confusing to me (and likely will trip up some people, vblank and
-> event handling is already a huge source of confusion in drm).
-
-Making it a default for simple KMS was only the start. I intended to
-cover all drivers at some point. I just didn't want to go through all
-drivers at once.
-
-I guess for the patchset's v3 I'll audit all drivers for the use of
-no_blank and drm_crtc_send_vblank_event(); and convert the possible
-candidates.
-
-Best regards
-Thomas
-
->=20
-> One idea behind drm_dev_has_vblank() is also that we could formalize a =
-bit
-> all that, at least for the usual case - xen and maybe others being some=
-
-> exceptions as usual (hence definitely not something the core code shoul=
-d
-> handle).
->=20
-> Cheers, Daniel
->=20
-
---=20
-Thomas Zimmermann
-Graphics Driver Developer
-SUSE Software Solutions Germany GmbH
-Maxfeldstr. 5, 90409 N=C3=BCrnberg, Germany
-(HRB 36809, AG N=C3=BCrnberg)
-Gesch=C3=A4ftsf=C3=BChrer: Felix Imend=C3=B6rffer
+This seems wrong: kicks are data path so drivers should not
+do it in a vendor specific way. How about an API
+returning the device/resource that can then be
+mapped as appropriate?
 
 
---S5QhwU6gaKPyTq4N0LqU8xziaGJOq80j1--
+> + * @set_vq_cb:			Set the interrupt callback function for
+> + *				a virtqueue
+> + *				@vdev: vdpa device
+> + *				@idx: virtqueue index
+> + *				@cb: virtio-vdev interrupt callback structure
 
---31xbyValn4E7bq95B5drBIEMmXCNmZCnm
-Content-Type: application/pgp-signature; name="signature.asc"
-Content-Description: OpenPGP digital signature
-Content-Disposition: attachment; filename="signature.asc"
 
------BEGIN PGP SIGNATURE-----
+Calls are data path too, I think we need some way to map MSI?
 
-iQEzBAEBCAAdFiEEchf7rIzpz2NEoWjlaA3BHVMLeiMFAl4hX3oACgkQaA3BHVML
-eiOx3wf+JL6tqWlEX9L40nwERe3Rlr1Xvm8ER1K8MDUck/KmXTB3g7JQAG5VJNK0
-GS6Ty7upA/SBZqxeI/cj96fVQ/Gq4WmZ+89EeTDXI5BNm56vJeL+VF+7BW1nSYGn
-MqaKotRUhYOTRShgDRlSzyhvZCTQG82HUQb50y/dPGJMb5a48qwxG4XVhc24zV6V
-Suw+MpBWQlYwOqKXGviNiJUfSvS7XhH4r66hDPcJLawuCG3LCp7m5r0JcZJW2qbL
-SBmdgjJ4NeLr7oteSPn2BOEW8+9Zas86xaV5Ekxn/oRR3Jw9W+1uWWYVQlycpWJz
-3t3ViGqnZGaSTTCI4P25n4iJGgkXIA==
-=RnyY
------END PGP SIGNATURE-----
+> + * @set_vq_ready:		Set ready status for a virtqueue
+> + *				@vdev: vdpa device
+> + *				@idx: virtqueue index
+> + *				@ready: ready (true) not ready(false)
+> + * @get_vq_ready:		Get ready status for a virtqueue
+> + *				@vdev: vdpa device
+> + *				@idx: virtqueue index
+> + *				Returns boolean: ready (true) or not (false)
+> + * @set_vq_state:		Set the state for a virtqueue
+> + *				@vdev: vdpa device
+> + *				@idx: virtqueue index
+> + *				@state: virtqueue state (last_avail_idx)
+> + *				Returns integer: success (0) or error (< 0)
+> + * @get_vq_state:		Get the state for a virtqueue
+> + *				@vdev: vdpa device
+> + *				@idx: virtqueue index
+> + *				Returns virtqueue state (last_avail_idx)
+> + * @get_vq_align:		Get the virtqueue align requirement
+> + *				for the device
+> + *				@vdev: vdpa device
+> + *				Returns virtqueue algin requirement
 
---31xbyValn4E7bq95B5drBIEMmXCNmZCnm--
 
---===============3470916133552270718==
-Content-Type: text/plain; charset="us-ascii"
-MIME-Version: 1.0
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
+Where does this come from? Spec dictates that for a data path,
+vendor specific values for this will break userspace ...
 
-_______________________________________________
-Virtualization mailing list
-Virtualization@lists.linux-foundation.org
-https://lists.linuxfoundation.org/mailman/listinfo/virtualization
---===============3470916133552270718==--
+> + * @get_features:		Get virtio features supported by the device
+> + *				@vdev: vdpa device
+> + *				Returns the virtio features support by the
+> + *				device
+> + * @set_features:		Set virtio features supported by the driver
+> + *				@vdev: vdpa device
+> + *				@features: feature support by the driver
+> + *				Returns integer: success (0) or error (< 0)
+> + * @set_config_cb:		Set the config interrupt callback
+> + *				@vdev: vdpa device
+> + *				@cb: virtio-vdev interrupt callback structure
+> + * @get_vq_num_max:		Get the max size of virtqueue
+> + *				@vdev: vdpa device
+> + *				Returns u16: max size of virtqueue
+
+
+I'm not sure this has to be uniform across VQs.
+
+> + * @get_device_id:		Get virtio device id
+> + *				@vdev: vdpa device
+> + *				Returns u32: virtio device id
+
+
+is this the virtio ID? PCI ID?
+
+> + * @get_vendor_id:		Get id for the vendor that provides this device
+> + *				@vdev: vdpa device
+> + *				Returns u32: virtio vendor id
+
+what's the idea behind this? userspace normally doesn't interact with
+this ... debugging?
+
+> + * @get_status:			Get the device status
+> + *				@vdev: vdpa device
+> + *				Returns u8: virtio device status
+> + * @set_status:			Set the device status
+> + *				@vdev: vdpa device
+> + *				@status: virtio device status
+> + * @get_config:			Read from device specific configuration space
+> + *				@vdev: vdpa device
+> + *				@offset: offset from the beginning of
+> + *				configuration space
+> + *				@buf: buffer used to read to
+> + *				@len: the length to read from
+> + *				configuration space
+> + * @set_config:			Write to device specific configuration space
+> + *				@vdev: vdpa device
+> + *				@offset: offset from the beginning of
+> + *				configuration space
+> + *				@buf: buffer used to write from
+> + *				@len: the length to write to
+> + *				configuration space
+> + * @get_generation:		Get device config generation (optional)
+> + *				@vdev: vdpa device
+> + *				Returns u32: device generation
+> + * @set_map:			Set device memory mapping, optional
+> + *				and only needed for device that using
+> + *				device specific DMA translation
+> + *				(on-chip IOMMU)
+> + *				@vdev: vdpa device
+> + *				@iotlb: vhost memory mapping to be
+> + *				used by the vDPA
+> + *				Returns integer: success (0) or error (< 0)
+
+OK so any change just swaps in a completely new mapping?
+Wouldn't this make minor changes such as memory hotplug
+quite expensive?
+
+> + */
+> +struct vdpa_config_ops {
+> +	/* Virtqueue ops */
+> +	int (*set_vq_address)(struct vdpa_device *vdev,
+> +			      u16 idx, u64 desc_area, u64 driver_area,
+> +			      u64 device_area);
+> +	void (*set_vq_num)(struct vdpa_device *vdev, u16 idx, u32 num);
+> +	void (*kick_vq)(struct vdpa_device *vdev, u16 idx);
+> +	void (*set_vq_cb)(struct vdpa_device *vdev, u16 idx,
+> +			  struct vdpa_callback *cb);
+> +	void (*set_vq_ready)(struct vdpa_device *vdev, u16 idx, bool ready);
+> +	bool (*get_vq_ready)(struct vdpa_device *vdev, u16 idx);
+> +	int (*set_vq_state)(struct vdpa_device *vdev, u16 idx, u64 state);
+> +	u64 (*get_vq_state)(struct vdpa_device *vdev, u16 idx);
+> +
+> +	/* Device ops */
+> +	u16 (*get_vq_align)(struct vdpa_device *vdev);
+> +	u64 (*get_features)(struct vdpa_device *vdev);
+> +	int (*set_features)(struct vdpa_device *vdev, u64 features);
+> +	void (*set_config_cb)(struct vdpa_device *vdev,
+> +			      struct vdpa_callback *cb);
+> +	u16 (*get_vq_num_max)(struct vdpa_device *vdev);
+> +	u32 (*get_device_id)(struct vdpa_device *vdev);
+> +	u32 (*get_vendor_id)(struct vdpa_device *vdev);
+> +	u8 (*get_status)(struct vdpa_device *vdev);
+> +	void (*set_status)(struct vdpa_device *vdev, u8 status);
+> +	void (*get_config)(struct vdpa_device *vdev, unsigned int offset,
+> +			   void *buf, unsigned int len);
+> +	void (*set_config)(struct vdpa_device *vdev, unsigned int offset,
+> +			   const void *buf, unsigned int len);
+> +	u32 (*get_generation)(struct vdpa_device *vdev);
+> +
+> +	/* Mem table */
+> +	int (*set_map)(struct vdpa_device *vdev, struct vhost_iotlb *iotlb);
+> +};
+> +
+> +int register_vdpa_device(struct vdpa_device *vdpa);
+> +void unregister_vdpa_device(struct vdpa_device *vdpa);
+> +
+> +struct device *vdpa_get_parent(struct vdpa_device *vdpa);
+> +void vdpa_set_parent(struct vdpa_device *vdpa, struct device *parent);
+> +
+> +struct vdpa_device *dev_to_vdpa(struct device *_dev);
+> +struct device *vdpa_to_dev(struct vdpa_device *vdpa);
+> +
+> +/**
+> + * vdpa_driver - operations for a vDPA driver
+> + * @driver: underlying device driver
+> + * @probe: the function to call when a device is found.  Returns 0 or -errno.
+> + * @remove: the function to call when a device is removed.
+> + */
+> +struct vdpa_driver {
+> +	struct device_driver drv;
+> +	int (*probe)(struct device *dev);
+> +	void (*remove)(struct device *dev);
+> +};
+> +
+> +int register_vdpa_driver(struct vdpa_driver *drv);
+> +void unregister_vdpa_driver(struct vdpa_driver *drv);
+> +
+> +static inline struct vdpa_driver *drv_to_vdpa(struct device_driver *drv)
+> +{
+> +	return container_of(drv, struct vdpa_driver, drv);
+> +}
+> +
+> +#endif /* _LINUX_VDPA_H */
+> -- 
+> 2.19.1
