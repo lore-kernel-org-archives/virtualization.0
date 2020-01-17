@@ -1,95 +1,176 @@
-From: Daniel Vetter <daniel@ffwll.ch>
-Subject: Re: [PATCH v2 4/4] drm/simple-kms: Let DRM core send
- VBLANK events by default
-Date: Fri, 17 Jan 2020 00:59:51 +0100
-Message-ID: <20200116235951.GD8400@dvetter-linux.ger.corp.intel.com>
-References: <20200115125226.13843-1-tzimmermann@suse.de>
- <20200115125226.13843-5-tzimmermann@suse.de>
- <20200116064107.GB8400@dvetter-linux.ger.corp.intel.com>
- <33fdd33f-ce8d-70d3-544e-fac727d2686b@suse.de>
- <CACvgo52gwC6U5HjnsQSUUDgE7Gp_EDb-QqCY8VDFjAX7cE0Lxg@mail.gmail.com>
+From: Jason Wang <jasowang@redhat.com>
+Subject: Re: [PATCH 3/5] vDPA: introduce vDPA bus
+Date: Fri, 17 Jan 2020 11:03:12 +0800
+Message-ID: <03cfbcc2-fef0-c9d8-0b08-798b2a293b8c@redhat.com>
+References: <20200116124231.20253-1-jasowang@redhat.com>
+ <20200116124231.20253-4-jasowang@redhat.com>
+ <20200116152209.GH20978@mellanox.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="utf-8"
-Content-Transfer-Encoding: base64
-Return-path: <xen-devel-bounces@lists.xenproject.org>
-Content-Disposition: inline
-In-Reply-To: <CACvgo52gwC6U5HjnsQSUUDgE7Gp_EDb-QqCY8VDFjAX7cE0Lxg@mail.gmail.com>
-List-Unsubscribe: <https://lists.xenproject.org/mailman/options/xen-devel>,
- <mailto:xen-devel-request@lists.xenproject.org?subject=unsubscribe>
-List-Post: <mailto:xen-devel@lists.xenproject.org>
-List-Help: <mailto:xen-devel-request@lists.xenproject.org?subject=help>
-List-Subscribe: <https://lists.xenproject.org/mailman/listinfo/xen-devel>,
- <mailto:xen-devel-request@lists.xenproject.org?subject=subscribe>
-Errors-To: xen-devel-bounces@lists.xenproject.org
-Sender: "Xen-devel" <xen-devel-bounces@lists.xenproject.org>
-To: Emil Velikov <emil.l.velikov@gmail.com>
-Cc: Laurent Pinchart <laurent.pinchart@ideasonboard.com>, Thomas Zimmermann <tzimmermann@suse.de>, oleksandr_andrushchenko@epam.com, Dave Airlie <airlied@linux.ie>, Sean Paul <sean@poorly.run>, ML dri-devel <dri-devel@lists.freedesktop.org>, "open list:VIRTIO GPU DRIVER" <virtualization@lists.linux-foundation.org>, Hans de Goede <hdegoede@redhat.com>, Gerd Hoffmann <kraxel@redhat.com>, Daniel Vetter <daniel@ffwll.ch>, xen-devel@lists.xenproject.org, Emil Velikov <emil.velikov@collabora.com>, Sam Ravnborg <sam@ravnborg.org>, david@lechnology.com
+Content-Type: text/plain; charset=UTF-8; format=flowed
+Content-Transfer-Encoding: quoted-printable
+Return-path: <linux-kernel-owner@vger.kernel.org>
+In-Reply-To: <20200116152209.GH20978@mellanox.com>
+Content-Language: en-US
+Sender: linux-kernel-owner@vger.kernel.org
+To: Jason Gunthorpe <jgg@mellanox.com>
+Cc: "mst@redhat.com" <mst@redhat.com>, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>, "kvm@vger.kernel.org" <kvm@vger.kernel.org>, "virtualization@lists.linux-foundation.org" <virtualization@lists.linux-foundation.org>, "netdev@vger.kernel.org" <netdev@vger.kernel.org>, "tiwei.bie@intel.com" <tiwei.bie@intel.com>, "maxime.coquelin@redhat.com" <maxime.coquelin@redhat.com>, "cunming.liang@intel.com" <cunming.liang@intel.com>, "zhihong.wang@intel.com" <zhihong.wang@intel.com>, "rob.miller@broadcom.com" <rob.miller@broadcom.com>, "xiao.w.wang@intel.com" <xiao.w.wang@intel.com>, "haotian.wang@sifive.com" <haotian.wang@sifive.com>, "lingshan.zhu@intel.com" <lingshan.zhu@intel.com>, "eperezma@redhat.com" <eperezma@redhat.com>, "lulu@redhat.com" <lulu@redhat.co>
 List-Id: virtualization@lists.linuxfoundation.org
 
-T24gVGh1LCBKYW4gMTYsIDIwMjAgYXQgMDU6MjI6MzRQTSArMDAwMCwgRW1pbCBWZWxpa292IHdy
-b3RlOgo+IEhpIGFsbCwKPiAKPiBPbiBUaHUsIDE2IEphbiAyMDIwIGF0IDA3OjM3LCBUaG9tYXMg
-WmltbWVybWFubiA8dHppbW1lcm1hbm5Ac3VzZS5kZT4gd3JvdGU6Cj4gCj4gPiA+IGRpZmYgLS1n
-aXQgYS9kcml2ZXJzL2dwdS9kcm0vZHJtX2F0b21pY19zdGF0ZV9oZWxwZXIuYyBiL2RyaXZlcnMv
-Z3B1L2RybS9kcm1fYXRvbWljX3N0YXRlX2hlbHBlci5jCj4gPiA+IGluZGV4IDdjZjNjZjkzNjU0
-Ny4uMjNkMmY1MWZjMWQ0IDEwMDY0NAo+ID4gPiAtLS0gYS9kcml2ZXJzL2dwdS9kcm0vZHJtX2F0
-b21pY19zdGF0ZV9oZWxwZXIuYwo+ID4gPiArKysgYi9kcml2ZXJzL2dwdS9kcm0vZHJtX2F0b21p
-Y19zdGF0ZV9oZWxwZXIuYwo+ID4gPiBAQCAtMTQ5LDYgKzE0OSwxMSBAQCB2b2lkIF9fZHJtX2F0
-b21pY19oZWxwZXJfY3J0Y19kdXBsaWNhdGVfc3RhdGUoc3RydWN0IGRybV9jcnRjICpjcnRjLAo+
-ID4gPiAgICAgICAvKiBTZWxmIHJlZnJlc2ggc2hvdWxkIGJlIGNhbmNlbGVkIHdoZW4gYSBuZXcg
-dXBkYXRlIGlzIGF2YWlsYWJsZSAqLwo+ID4gPiAgICAgICBzdGF0ZS0+YWN0aXZlID0gZHJtX2F0
-b21pY19jcnRjX2VmZmVjdGl2ZWx5X2FjdGl2ZShzdGF0ZSk7Cj4gPiA+ICAgICAgIHN0YXRlLT5z
-ZWxmX3JlZnJlc2hfYWN0aXZlID0gZmFsc2U7Cj4gPiA+ICsKPiA+ID4gKyAgICAgaWYgKGRybV9k
-ZXZfaGFzX3ZibGFuayhjcnRjLT5kZXYpKQo+ID4gPiArICAgICAgICAgICAgIHN0YXRlLT5ub192
-YmxhbmsgPSB0cnVlOwo+ID4gPiArICAgICBlbHNlCj4gPiA+ICsgICAgICAgICAgICAgc3RhdGUt
-Pm5vX3ZibGFuayA9IGZhbHNlOwo+ID4gPiAgfQo+ID4gPiAgRVhQT1JUX1NZTUJPTChfX2RybV9h
-dG9taWNfaGVscGVyX2NydGNfZHVwbGljYXRlX3N0YXRlKTsKPiA+Cj4gPiBJIHRoaW5rIHRoZSBp
-Zi9lbHNlIGJyYW5jaGVzIGFyZSBpbiB0aGUgd3Jvbmcgb3JkZXIuCgpZZWFoIGZ1bWJsZWQgdGhh
-dC4KCj4gPiBCdXQgZ2VuZXJhbGx5IHNwZWFraW5nLCBpcyBpdCByZWFsbHkgdGhhdCBlYXN5PyBU
-aGUgeGVuIGRyaXZlciBhbHJlYWR5Cj4gPiBoYXMgdG8gd29yayBhcm91bmQgc2ltcGxlLWttcydz
-IGF1dG8tZW5hYmxpbmcgb2Ygbm9fdmJsYW5rIChzZWUgcGF0Y2gKPiA+IDQpLiBNYXliZSB0aGlz
-IHNldHRpbmdzIGludGVyZmVyZXMgd2l0aCBvdGhlciBkcml2ZXJzIGFzIHdlbGwuIEF0IGxlYXN0
-Cj4gPiB0aGUgY2FsbHMgZm9yIHNlbmRpbmcgZmFrZSB2YmxhbmtzIHNob3VsZCBiZSByZW1vdmVk
-IGZyb20gYWxsIGFmZmVjdGVkCj4gPiBkcml2ZXJzLgoKSG0geGVuIGlzIHJlYWxseSBzcGVjaWFs
-LCBpbiB0aGF0IGl0IGhhcyBhIGZsaXAgY29tcGxldGUgZXZlbnQsIGJ1dCBub3QgYQp2Ymxhbmsu
-IEkgdGhpbmsgZm9yY2luZyBkcml2ZXJzIHRvIG92ZXJ3cml0ZSBzdHVmZiBpbiB0aGF0IGNhc2Ug
-bWFrZXMKc2Vuc2UuCgo+IEknbSBub3Qgc3VyZSBpZiBzZXR0aW5nIG5vX3ZibGFuayBiYXNlZCBv
-biBkZXYtPm51bV9jcnRjcyBpcyB0aGUgY29ycmVjdCB0aGluZy4KPiBGcm9tIHRoZSBvcmlnaW5h
-bCBjb21taXQgYW5kIGFzc29jaWF0ZWQgZGVzY3JpcHRpb24gZm9yIG5vX3ZibGFuazoKPiAKPiBJ
-biBzb21lIGNhc2VzIENSVENzIGFyZSBhY3RpdmUgYnV0IGFyZSBub3QgYWJsZSB0byBnZW5lcmF0
-aW5nIGV2ZW50cywgYXQKPiBsZWFzdCBub3QgYXQgZXZlcnkgZnJhbWUgYXQgaXQncyBleHBlY3Rl
-ZCB0by4KPiBUaGlzIGlzIHR5cGljYWxseSB0aGUgY2FzZSB3aGVuIHRoZSBDUlRDIGlzIGZlZWRp
-bmcgYSB3cml0ZWJhY2sgY29ubmVjdG9yLi4uCgpZZWFoLCBidXQgVGhvbWFzJyBzZXJpZXMgaGVy
-ZSB3YW50cyB0byBleHRlbmQgdGhhdC4gQW5kIEkgdGhpbmsgaWYgd2Ugcm9sbAp0aGlzIG91dCB0
-aGUgY29tbW9uIGNhc2Ugd2lsbCBiZSAibm8gaHcgdmJsYW5rIiwgYW5kIHRoZSB3cml0ZWJhY2sg
-c3BlY2lhbApjYXNlIGlzIGdvaW5nIHRvIGJlIHRoZSBleGNlcHRpb24gdG8gdGhlIGV4Y2VwdGlv
-bi4gWXVwLCBwYXRjaCAxIHRoYXQKdXBkYXRlcyB0aGUgZG9jcyBkb2Vzbid0IHJlZmxlY3QgdGhh
-dCwgd2hpY2ggaXMgd2h5IEknbSBicmluZ2luZyB1cCBtb3JlCnN1Z2dlc3Rpb25zIGhlcmUgYXJv
-dW5kIGNvZGUgJiBzZW1hbnRpY3Mgb2YgYWxsIHRoZXNlIHBpZWNlcyB0byBtYWtlIHRoZW0KZG8g
-dGhlIG1vc3QgcmVhc29uYWJsZSB0aGluZyBmb3IgbW9zdCBvZiB0aGUgZHJpdmVycy4KCj4gUmVm
-bGVjdHMgdGhlIGFiaWxpdHkgb2YgYSBDUlRDIHRvIHNlbmQgVkJMQU5LIGV2ZW50cy4uLi4KPiAK
-PiAKPiBUaGUgcHJvcG9zZWQgaGFuZGxpbmcgb2Ygbm9fdmJsYW5rIGZlZWxzIGEgbGl0dGxlIGRp
-cnR5LCBhbHRob3VnaAo+IG5vdGhpbmcgYmV0dGVyIGNvbWVzIHRvIG1pbmQuCj4gTmV2ZXJ0aGVs
-ZXNzIGNvZGUgc2VlbXMgcGVyZmVjdGx5IHJlYXNvbmFibGUsIHNvIGlmIGl0IHdlcmUgbWUgSSdk
-IG1lcmdlIGl0LgoKVGhlIGlkZWEgd2l0aCBzZXR0aW5nIGl0IHZlcnkgZWFybHkgaXMgdGhhdCBk
-cml2ZXJzIGNhbiBvdmVyd3JpdGUgaXQgdmVyeQplYXNpbHkuIEZlZWxzIHNsaWdodGx5IGRpcnR5
-LCBzbyBJIGd1ZXNzIHdlIGNvdWxkIGFsc28gc2V0IGl0IHNvbWV3aGVyZSBpbgp0aGUgYXRvbWlj
-X2hlbHBlcl9jaGVjayBmdW5jdGlvbiAoc2ltaWxhciB0byBob3cgd2Ugc2V0IHRoZSB2YXJpb3Vz
-CmNydGMtPipfY2hhbmdlZCBmbGFncywgYnV0IHdlJ3JlIG5vdCBlbnRpcmVseSBjb25zaXN0ZW50
-IG9uIHRoZXNlIGVpdGhlcikuCgpGb3IgdGhlIG92ZXJhbGwgdGhpbmcgd2hhdCBmZWVscyBpcmt5
-IHRvIG1lIGlzIG1ha2luZyB0aGlzIG5vX3ZibGFuawpkZWZhdWx0IGxvZ2ljIChob3dldmVyIHdl
-IGVuZCB1cCBjb21wdXRpbmcgaXQgaW4gdGhlIGVuZCwgd2hldGhlciBsaWtlCnRoaXMgb3Igd2hh
-dCBJIHN1Z2dlc3RlZCkgc3BlY2lmaWMgdG8gc2ltcGxlIHBpcGUgaGVscGVycyBmZWVscyBraW5k
-YQp3cm9uZy4gU2ltcGxlIHBpcGUgdGVuZHMgdG8gaGF2ZSBhIGhpZ2hlciByYXRpbyBvZiBkcml2
-ZXJzIGZvciBodyB3aXRob3V0CnZibGFuayBzdXBwb3J0LCBidXQgYnkgZmFyIG5vdCB0aGUgb25s
-eSBvbmVzLiBIYXZpbmcgdGhhdCBzcGVjaWFsIGNhc2UKZmVlbHMgY29uZnVzaW5nIHRvIG1lIChh
-bmQgbGlrZWx5IHdpbGwgdHJpcCB1cCBzb21lIHBlb3BsZSwgdmJsYW5rIGFuZApldmVudCBoYW5k
-bGluZyBpcyBhbHJlYWR5IGEgaHVnZSBzb3VyY2Ugb2YgY29uZnVzaW9uIGluIGRybSkuCgpPbmUg
-aWRlYSBiZWhpbmQgZHJtX2Rldl9oYXNfdmJsYW5rKCkgaXMgYWxzbyB0aGF0IHdlIGNvdWxkIGZv
-cm1hbGl6ZSBhIGJpdAphbGwgdGhhdCwgYXQgbGVhc3QgZm9yIHRoZSB1c3VhbCBjYXNlIC0geGVu
-IGFuZCBtYXliZSBvdGhlcnMgYmVpbmcgc29tZQpleGNlcHRpb25zIGFzIHVzdWFsIChoZW5jZSBk
-ZWZpbml0ZWx5IG5vdCBzb21ldGhpbmcgdGhlIGNvcmUgY29kZSBzaG91bGQKaGFuZGxlKS4KCkNo
-ZWVycywgRGFuaWVsCi0tIApEYW5pZWwgVmV0dGVyClNvZnR3YXJlIEVuZ2luZWVyLCBJbnRlbCBD
-b3Jwb3JhdGlvbgpodHRwOi8vYmxvZy5mZndsbC5jaAoKX19fX19fX19fX19fX19fX19fX19fX19f
-X19fX19fX19fX19fX19fX19fX19fX18KWGVuLWRldmVsIG1haWxpbmcgbGlzdApYZW4tZGV2ZWxA
-bGlzdHMueGVucHJvamVjdC5vcmcKaHR0cHM6Ly9saXN0cy54ZW5wcm9qZWN0Lm9yZy9tYWlsbWFu
-L2xpc3RpbmZvL3hlbi1kZXZlbA==
+
+On 2020/1/16 =E4=B8=8B=E5=8D=8811:22, Jason Gunthorpe wrote:
+> On Thu, Jan 16, 2020 at 08:42:29PM +0800, Jason Wang wrote:
+>> vDPA device is a device that uses a datapath which complies with the
+>> virtio specifications with vendor specific control path. vDPA devices
+>> can be both physically located on the hardware or emulated by
+>> software. vDPA hardware devices are usually implemented through PCIE
+>> with the following types:
+>>
+>> - PF (Physical Function) - A single Physical Function
+>> - VF (Virtual Function) - Device that supports single root I/O
+>>    virtualization (SR-IOV). Its Virtual Function (VF) represents a
+>>    virtualized instance of the device that can be assigned to differen=
+t
+>>    partitions
+>> - VDEV (Virtual Device) - With technologies such as Intel Scalable
+>>    IOV, a virtual device composed by host OS utilizing one or more
+>>    ADIs.
+>> - SF (Sub function) - Vendor specific interface to slice the Physical
+>>    Function to multiple sub functions that can be assigned to differen=
+t
+>>    partitions as virtual devices.
+> I really hope we don't end up with two different ways to spell this
+> same thing.
+
+
+I think you meant ADI vs SF. It looks to me that ADI is limited to the=20
+scope of scalable IOV but SF not.
+
+
+>
+>> @@ -0,0 +1,2 @@
+>> +# SPDX-License-Identifier: GPL-2.0
+>> +obj-$(CONFIG_VDPA) +=3D vdpa.o
+>> diff --git a/drivers/virtio/vdpa/vdpa.c b/drivers/virtio/vdpa/vdpa.c
+>> new file mode 100644
+>> index 000000000000..2b0e4a9f105d
+>> +++ b/drivers/virtio/vdpa/vdpa.c
+>> @@ -0,0 +1,141 @@
+>> +// SPDX-License-Identifier: GPL-2.0-only
+>> +/*
+>> + * vDPA bus.
+>> + *
+>> + * Copyright (c) 2019, Red Hat. All rights reserved.
+>> + *     Author: Jason Wang <jasowang@redhat.com>
+> 2020 tests days
+
+
+Will fix.
+
+
+>
+>> + *
+>> + */
+>> +
+>> +#include <linux/module.h>
+>> +#include <linux/idr.h>
+>> +#include <linux/vdpa.h>
+>> +
+>> +#define MOD_VERSION  "0.1"
+> I think module versions are discouraged these days
+
+
+Will remove.
+
+
+>
+>> +#define MOD_DESC     "vDPA bus"
+>> +#define MOD_AUTHOR   "Jason Wang <jasowang@redhat.com>"
+>> +#define MOD_LICENSE  "GPL v2"
+>> +
+>> +static DEFINE_IDA(vdpa_index_ida);
+>> +
+>> +struct device *vdpa_get_parent(struct vdpa_device *vdpa)
+>> +{
+>> +	return vdpa->dev.parent;
+>> +}
+>> +EXPORT_SYMBOL(vdpa_get_parent);
+>> +
+>> +void vdpa_set_parent(struct vdpa_device *vdpa, struct device *parent)
+>> +{
+>> +	vdpa->dev.parent =3D parent;
+>> +}
+>> +EXPORT_SYMBOL(vdpa_set_parent);
+>> +
+>> +struct vdpa_device *dev_to_vdpa(struct device *_dev)
+>> +{
+>> +	return container_of(_dev, struct vdpa_device, dev);
+>> +}
+>> +EXPORT_SYMBOL_GPL(dev_to_vdpa);
+>> +
+>> +struct device *vdpa_to_dev(struct vdpa_device *vdpa)
+>> +{
+>> +	return &vdpa->dev;
+>> +}
+>> +EXPORT_SYMBOL_GPL(vdpa_to_dev);
+> Why these trivial assessors? Seems unnecessary, or should at least be
+> static inlines in a header
+
+
+Will fix.
+
+
+>
+>> +int register_vdpa_device(struct vdpa_device *vdpa)
+>> +{
+> Usually we want to see symbols consistently prefixed with vdpa_*, is
+> there a reason why register/unregister are swapped?
+
+
+I follow the name from virtio. I will switch to vdpa_*.
+
+
+>
+>> +	int err;
+>> +
+>> +	if (!vdpa_get_parent(vdpa))
+>> +		return -EINVAL;
+>> +
+>> +	if (!vdpa->config)
+>> +		return -EINVAL;
+>> +
+>> +	err =3D ida_simple_get(&vdpa_index_ida, 0, 0, GFP_KERNEL);
+>> +	if (err < 0)
+>> +		return -EFAULT;
+>> +
+>> +	vdpa->dev.bus =3D &vdpa_bus;
+>> +	device_initialize(&vdpa->dev);
+> IMHO device_initialize should not be called inside something called
+> register, toooften we find out that the caller drivers need the device
+> to be initialized earlier, ie to use the kref, or something.
+>
+> I find the best flow is to have some init function that does the
+> device_initialize and sets the device_name that the driver can call
+> early.
+
+
+Ok, will do.
+
+
+>
+> Shouldn't there be a device/driver matching process of some kind?
+
+
+The question is what do we want do match here.
+
+1) "virtio" vs "vhost", I implemented matching method for this in mdev=20
+series, but it looks unnecessary for vDPA device driver to know about=20
+this. Anyway we can use sysfs driver bind/unbind to switch drivers
+2) virtio device id and vendor id. I'm not sure we need this consider=20
+the two drivers so far (virtio/vhost) are all bus drivers.
+
+Thanks
+
+
+>
+> Jason
+>
