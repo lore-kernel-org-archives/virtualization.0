@@ -1,14 +1,14 @@
 From: Randy Dunlap <rdunlap@infradead.org>
-Subject: Re: [PATCH 5/5] vdpasim: vDPA device simulator
-Date: Thu, 16 Jan 2020 20:12:13 -0800
-Message-ID: <55d84df0-803a-a81f-b49f-2d6fe8f78b96@infradead.org>
+Subject: Re: [PATCH 1/5] vhost: factor out IOTLB
+Date: Thu, 16 Jan 2020 20:14:33 -0800
+Message-ID: <4a577560-d42a-eed2-97a0-42d2f91495e2@infradead.org>
 References: <20200116124231.20253-1-jasowang@redhat.com>
- <20200116124231.20253-6-jasowang@redhat.com>
+ <20200116124231.20253-2-jasowang@redhat.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=utf-8
 Content-Transfer-Encoding: 7bit
 Return-path: <linux-kernel-owner@vger.kernel.org>
-In-Reply-To: <20200116124231.20253-6-jasowang@redhat.com>
+In-Reply-To: <20200116124231.20253-2-jasowang@redhat.com>
 Content-Language: en-US
 Sender: linux-kernel-owner@vger.kernel.org
 To: Jason Wang <jasowang@redhat.com>, mst@redhat.com, linux-kernel@vger.kernel.org, kvm@vger.kernel.org, virtualization@lists.linux-foundation.org, netdev@vger.kernel.org
@@ -16,36 +16,31 @@ Cc: tiwei.bie@intel.com, jgg@mellanox.com, maxime.coquelin@redhat.com, cunming.l
 List-Id: virtualization@lists.linuxfoundation.org
 
 On 1/16/20 4:42 AM, Jason Wang wrote:
-> diff --git a/drivers/virtio/vdpa/Kconfig b/drivers/virtio/vdpa/Kconfig
-> index 3032727b4d98..12ec25d48423 100644
-> --- a/drivers/virtio/vdpa/Kconfig
-> +++ b/drivers/virtio/vdpa/Kconfig
-> @@ -7,3 +7,20 @@ config VDPA
->            datapath which complies with virtio specifications with
->            vendor specific control path.
+> diff --git a/drivers/vhost/Kconfig b/drivers/vhost/Kconfig
+> index 3d03ccbd1adc..f21c45aa5e07 100644
+> --- a/drivers/vhost/Kconfig
+> +++ b/drivers/vhost/Kconfig
+> @@ -36,6 +36,7 @@ config VHOST_VSOCK
 >  
-> +menuconfig VDPA_MENU
-> +	bool "VDPA drivers"
-> +	default n
+>  config VHOST
+>  	tristate
+> +        depends on VHOST_IOTLB
+>  	---help---
+>  	  This option is selected by any driver which needs to access
+>  	  the core of vhost.
+> @@ -54,3 +55,9 @@ config VHOST_CROSS_ENDIAN_LEGACY
+>  	  adds some overhead, it is disabled by default.
+>  
+>  	  If unsure, say "N".
 > +
-> +if VDPA_MENU
-> +
-> +config VDPA_SIM
-> +	tristate "vDPA device simulator"
-> +        select VDPA
-> +        default n
+> +config VHOST_IOTLB
+> +	tristate
+> +        default m
 > +        help
-> +          vDPA networking device simulator which loop TX traffic back
+> +          Generic IOTLB implementation for vhost and vringh.
 
-	                                            loops
-
-> +          to RX. This device is used for testing, prototyping and
-> +          development of vDPA.
-> +
-> +endif # VDPA_MENU
-
-Most lines above use spaces for indentation, while they should use
-tab + 2 spaces.
+Use tab + 2 spaces for Kconfig indentation.
 
 -- 
 ~Randy
+Reported-by: Randy Dunlap <rdunlap@infradead.org>
