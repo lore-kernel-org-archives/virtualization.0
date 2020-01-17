@@ -1,65 +1,94 @@
 From: Jason Gunthorpe <jgg@mellanox.com>
-Subject: Re: [PATCH 3/5] vDPA: introduce vDPA bus
-Date: Fri, 17 Jan 2020 13:54:42 +0000
-Message-ID: <20200117135435.GU20978@mellanox.com>
+Subject: Re: [PATCH 4/5] virtio: introduce a vDPA based transport
+Date: Fri, 17 Jan 2020 14:00:18 +0000
+Message-ID: <20200117140013.GV20978@mellanox.com>
 References: <20200116124231.20253-1-jasowang@redhat.com>
- <20200116124231.20253-4-jasowang@redhat.com>
- <20200116152209.GH20978@mellanox.com>
- <03cfbcc2-fef0-c9d8-0b08-798b2a293b8c@redhat.com>
+ <20200116124231.20253-5-jasowang@redhat.com>
+ <20200116153807.GI20978@mellanox.com>
+ <8e8aa4b7-4948-5719-9618-e28daffba1a5@redhat.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="utf-8"
-Content-Transfer-Encoding: base64
+Content-Type: text/plain; charset="us-ascii"
+Content-Transfer-Encoding: quoted-printable
 Return-path: <linux-kernel-owner@vger.kernel.org>
-In-Reply-To: <03cfbcc2-fef0-c9d8-0b08-798b2a293b8c@redhat.com>
+In-Reply-To: <8e8aa4b7-4948-5719-9618-e28daffba1a5@redhat.com>
 Content-Language: en-US
-Content-ID: <6C36226D304AFC44B0802650322CDA8F@eurprd05.prod.outlook.com>
+Content-ID: <BCEE5E4AAADEB445898F0BB179338629@eurprd05.prod.outlook.com>
 Sender: linux-kernel-owner@vger.kernel.org
 To: Jason Wang <jasowang@redhat.com>
 Cc: "mst@redhat.com" <mst@redhat.com>, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>, "kvm@vger.kernel.org" <kvm@vger.kernel.org>, "virtualization@lists.linux-foundation.org" <virtualization@lists.linux-foundation.org>, "netdev@vger.kernel.org" <netdev@vger.kernel.org>, "tiwei.bie@intel.com" <tiwei.bie@intel.com>, "maxime.coquelin@redhat.com" <maxime.coquelin@redhat.com>, "cunming.liang@intel.com" <cunming.liang@intel.com>, "zhihong.wang@intel.com" <zhihong.wang@intel.com>, "rob.miller@broadcom.com" <rob.miller@broadcom.com>, "xiao.w.wang@intel.com" <xiao.w.wang@intel.com>, "haotian.wang@sifive.com" <haotian.wang@sifive.com>, "lingshan.zhu@intel.com" <lingshan.zhu@intel.com>, "eperezma@redhat.com" <eperezma@redhat.com>, "lulu@redhat.com" <lulu@redhat.co>
 List-Id: virtualization@lists.linuxfoundation.org
 
-T24gRnJpLCBKYW4gMTcsIDIwMjAgYXQgMTE6MDM6MTJBTSArMDgwMCwgSmFzb24gV2FuZyB3cm90
-ZToNCj4gDQo+IE9uIDIwMjAvMS8xNiDkuIvljYgxMToyMiwgSmFzb24gR3VudGhvcnBlIHdyb3Rl
-Og0KPiA+IE9uIFRodSwgSmFuIDE2LCAyMDIwIGF0IDA4OjQyOjI5UE0gKzA4MDAsIEphc29uIFdh
-bmcgd3JvdGU6DQo+ID4gPiB2RFBBIGRldmljZSBpcyBhIGRldmljZSB0aGF0IHVzZXMgYSBkYXRh
-cGF0aCB3aGljaCBjb21wbGllcyB3aXRoIHRoZQ0KPiA+ID4gdmlydGlvIHNwZWNpZmljYXRpb25z
-IHdpdGggdmVuZG9yIHNwZWNpZmljIGNvbnRyb2wgcGF0aC4gdkRQQSBkZXZpY2VzDQo+ID4gPiBj
-YW4gYmUgYm90aCBwaHlzaWNhbGx5IGxvY2F0ZWQgb24gdGhlIGhhcmR3YXJlIG9yIGVtdWxhdGVk
-IGJ5DQo+ID4gPiBzb2Z0d2FyZS4gdkRQQSBoYXJkd2FyZSBkZXZpY2VzIGFyZSB1c3VhbGx5IGlt
-cGxlbWVudGVkIHRocm91Z2ggUENJRQ0KPiA+ID4gd2l0aCB0aGUgZm9sbG93aW5nIHR5cGVzOg0K
-PiA+ID4gDQo+ID4gPiAtIFBGIChQaHlzaWNhbCBGdW5jdGlvbikgLSBBIHNpbmdsZSBQaHlzaWNh
-bCBGdW5jdGlvbg0KPiA+ID4gLSBWRiAoVmlydHVhbCBGdW5jdGlvbikgLSBEZXZpY2UgdGhhdCBz
-dXBwb3J0cyBzaW5nbGUgcm9vdCBJL08NCj4gPiA+ICAgIHZpcnR1YWxpemF0aW9uIChTUi1JT1Yp
-LiBJdHMgVmlydHVhbCBGdW5jdGlvbiAoVkYpIHJlcHJlc2VudHMgYQ0KPiA+ID4gICAgdmlydHVh
-bGl6ZWQgaW5zdGFuY2Ugb2YgdGhlIGRldmljZSB0aGF0IGNhbiBiZSBhc3NpZ25lZCB0byBkaWZm
-ZXJlbnQNCj4gPiA+ICAgIHBhcnRpdGlvbnMNCj4gPiA+IC0gVkRFViAoVmlydHVhbCBEZXZpY2Up
-IC0gV2l0aCB0ZWNobm9sb2dpZXMgc3VjaCBhcyBJbnRlbCBTY2FsYWJsZQ0KPiA+ID4gICAgSU9W
-LCBhIHZpcnR1YWwgZGV2aWNlIGNvbXBvc2VkIGJ5IGhvc3QgT1MgdXRpbGl6aW5nIG9uZSBvciBt
-b3JlDQo+ID4gPiAgICBBRElzLg0KPiA+ID4gLSBTRiAoU3ViIGZ1bmN0aW9uKSAtIFZlbmRvciBz
-cGVjaWZpYyBpbnRlcmZhY2UgdG8gc2xpY2UgdGhlIFBoeXNpY2FsDQo+ID4gPiAgICBGdW5jdGlv
-biB0byBtdWx0aXBsZSBzdWIgZnVuY3Rpb25zIHRoYXQgY2FuIGJlIGFzc2lnbmVkIHRvIGRpZmZl
-cmVudA0KPiA+ID4gICAgcGFydGl0aW9ucyBhcyB2aXJ0dWFsIGRldmljZXMuDQo+ID4gSSByZWFs
-bHkgaG9wZSB3ZSBkb24ndCBlbmQgdXAgd2l0aCB0d28gZGlmZmVyZW50IHdheXMgdG8gc3BlbGwg
-dGhpcw0KPiA+IHNhbWUgdGhpbmcuDQo+IA0KPiBJIHRoaW5rIHlvdSBtZWFudCBBREkgdnMgU0Yu
-IEl0IGxvb2tzIHRvIG1lIHRoYXQgQURJIGlzIGxpbWl0ZWQgdG8gdGhlIHNjb3BlDQo+IG9mIHNj
-YWxhYmxlIElPViBidXQgU0Ygbm90Lg0KDQpJIHRoaW5rIGlmIG9uZSBsb29rcyBjYXJlZnVsbHkg
-eW91J2QgZmluZCB0aGF0IFNGIGFuZCBBREkgYXJlIHVzaW5nDQp2ZXJ5IHNpbWlsYXIgdGVjaGlu
-aXF1ZXMuIEZvciBpbnN0YW5jZSB3ZSdkIGFsc28gbGlrZSB0byB1c2UgdGhlIGNvZGUNCnJlb3Jn
-IG9mIHRoZSBNU0lYIHZlY3RvciBzZXR1cCB3aXRoIFNGcyB0aGF0IEludGVsIGlzIGNhbGxpbmcg
-SU1TLg0KDQpSZWFsbHkgU0lPViBpcyBzaW1wbHkgYSBidW5kbGUgb2YgcHJlLWV4aXN0aW5nIHN0
-dWZmIHVuZGVyIGEgdGlkeQ0KbmFtZSwgd2hhdGV2ZXIgY29kZSBza2VsZXRvbiB3ZSBjb21lIHVw
-IHdpdGggZm9yIFNGcyBzaG91bGQgYmUgcmUtdXNlZA0KZm9yIEFESS4NCg0KPiA+IFNob3VsZG4n
-dCB0aGVyZSBiZSBhIGRldmljZS9kcml2ZXIgbWF0Y2hpbmcgcHJvY2VzcyBvZiBzb21lIGtpbmQ/
-DQo+IA0KPiANCj4gVGhlIHF1ZXN0aW9uIGlzIHdoYXQgZG8gd2Ugd2FudCBkbyBtYXRjaCBoZXJl
-Lg0KPiANCj4gMSkgInZpcnRpbyIgdnMgInZob3N0IiwgSSBpbXBsZW1lbnRlZCBtYXRjaGluZyBt
-ZXRob2QgZm9yIHRoaXMgaW4gbWRldg0KPiBzZXJpZXMsIGJ1dCBpdCBsb29rcyB1bm5lY2Vzc2Fy
-eSBmb3IgdkRQQSBkZXZpY2UgZHJpdmVyIHRvIGtub3cgYWJvdXQgdGhpcy4NCj4gQW55d2F5IHdl
-IGNhbiB1c2Ugc3lzZnMgZHJpdmVyIGJpbmQvdW5iaW5kIHRvIHN3aXRjaCBkcml2ZXJzDQo+IDIp
-IHZpcnRpbyBkZXZpY2UgaWQgYW5kIHZlbmRvciBpZC4gSSdtIG5vdCBzdXJlIHdlIG5lZWQgdGhp
-cyBjb25zaWRlciB0aGUNCj4gdHdvIGRyaXZlcnMgc28gZmFyICh2aXJ0aW8vdmhvc3QpIGFyZSBh
-bGwgYnVzIGRyaXZlcnMuDQoNCkFzIHdlIHNlZW0gdG8gYmUgY29udGVtcGxhdGluZyBzb21lIGR5
-bmFtaWMgY3JlYXRpb24gb2YgdmRwYSBkZXZpY2VzIEkNCnRoaW5rIHVwb24gY3JlYXRpb24gdGlt
-ZSBpdCBzaG91bGQgYmUgc3BlY2lmaWVkIHdoYXQgbW9kZSB0aGV5IHNob3VsZA0KcnVuIGl0IGFu
-ZCB0aGVuIGFsbCBkcml2ZXIgYmluZGluZyBhbmQgYXV0b2xvYWRpbmcgc2hvdWxkIGhhcHBlbg0K
-YXV0b21hdGljYWxseS4gVGVsbGluZyB0aGUgdXNlciB0byBiaW5kL3VuYmluZCBpcyBhIHZlcnkg
-cG9vcg0KZXhwZXJpZW5jZS4NCg0KSmFzb24NCg==
+On Fri, Jan 17, 2020 at 05:32:35PM +0800, Jason Wang wrote:
+> >=20
+> > > +	const struct vdpa_config_ops *ops =3D vdpa->config;
+> > > +	struct virtio_vdpa_device *vd_dev;
+> > > +	int rc;
+> > > +
+> > > +	vd_dev =3D devm_kzalloc(dev, sizeof(*vd_dev), GFP_KERNEL);
+> > > +	if (!vd_dev)
+> > > +		return -ENOMEM;
+> > This is not right, the struct device lifetime is controled by a kref,
+> > not via devm. If you want to use a devm unwind then the unwind is
+> > put_device, not devm_kfree.
+>=20
+> I'm not sure I get the point here. The lifetime is bound to underlying vD=
+PA
+> device and devres allow to be freed before the vpda device is released. B=
+ut
+> I agree using devres of underlying vdpa device looks wired.
+
+Once device_initialize is called the only way to free a struct device
+is via put_device, while here you have a devm trigger that will
+unconditionally do kfree on a struct device without respecting the
+reference count.
+
+reference counted memory must never be allocated with devm.
+
+> > > +	vd_dev->vdev.dev.release =3D virtio_vdpa_release_dev;
+> > > +	vd_dev->vdev.config =3D &virtio_vdpa_config_ops;
+> > > +	vd_dev->vdpa =3D vdpa;
+> > > +	INIT_LIST_HEAD(&vd_dev->virtqueues);
+> > > +	spin_lock_init(&vd_dev->lock);
+> > > +
+> > > +	vd_dev->vdev.id.device =3D ops->get_device_id(vdpa);
+> > > +	if (vd_dev->vdev.id.device =3D=3D 0)
+> > > +		return -ENODEV;
+> > > +
+> > > +	vd_dev->vdev.id.vendor =3D ops->get_vendor_id(vdpa);
+> > > +	rc =3D register_virtio_device(&vd_dev->vdev);
+> > > +	if (rc)
+> > > +		put_device(dev);
+> > And a ugly unwind like this is why you want to have device_initialize()
+> > exposed to the driver,
+>=20
+> In this context, which "driver" did you mean here? (Note, virtio-vdpa is =
+the
+> driver for vDPA bus here).
+
+'driver' is the thing using the 'core' library calls to implement a
+device, so here the 'vd_dev' is the driver and
+'register_virtio_device' is the core
+
+> >=20
+> > Where is the various THIS_MODULE's I expect to see in a scheme like
+> > this?
+> >=20
+> > All function pointers must be protected by a held module reference
+> > count, ie the above probe/remove and all the pointers in ops.
+>=20
+> Will double check, since I don't see this in other virtio transport drive=
+rs
+> (PCI or MMIO).
+
+pci_register_driver is a macro that provides a THIS_MODULE, and the
+pci core code sets driver.owner, then the rest of the stuff related to
+driver ops is supposed to work against that to protect the driver ops.
+
+For the device module refcounting you either need to ensure that
+'unregister' is a strong fence and guanentees that no device ops are
+called past unregister (noting that this is impossible for release),
+or you need to hold the module lock until release.
+
+It is common to see non-core subsystems get this stuff wrong.
+
+Jason
