@@ -1,57 +1,31 @@
-From: Shahaf Shuler <shahafs@mellanox.com>
-Subject: RE: [PATCH 3/5] vDPA: introduce vDPA bus
-Date: Sun, 19 Jan 2020 09:07:09 +0000
-Message-ID: <AM0PR0502MB379553984D0D55FDE25426F6C3330@AM0PR0502MB3795.eurprd05.prod.outlook.com>
+From: "Michael S. Tsirkin" <mst@redhat.com>
+Subject: Re: [PATCH 3/5] vDPA: introduce vDPA bus
+Date: Sun, 19 Jan 2020 04:59:20 -0500
+Message-ID: <20200119045849-mutt-send-email-mst@kernel.org>
 References: <20200116124231.20253-1-jasowang@redhat.com>
  <20200116124231.20253-4-jasowang@redhat.com>
  <20200117070324-mutt-send-email-mst@kernel.org>
  <239b042c-2d9e-0eec-a1ef-b03b7e2c5419@redhat.com>
  <CAJPjb1+fG9L3=iKbV4Vn13VwaeDZZdcfBPvarogF_Nzhk+FnKg@mail.gmail.com>
+ <AM0PR0502MB379553984D0D55FDE25426F6C3330@AM0PR0502MB3795.eurprd05.prod.outlook.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="utf-8"
-Content-Transfer-Encoding: base64
-Return-path: <linux-kernel-owner@vger.kernel.org>
-In-Reply-To: <CAJPjb1+fG9L3=iKbV4Vn13VwaeDZZdcfBPvarogF_Nzhk+FnKg@mail.gmail.com>
-Content-Language: en-US
-Sender: linux-kernel-owner@vger.kernel.org
-To: Rob Miller <rob.miller@broadcom.com>, Jason Wang <jasowang@redhat.com>
-Cc: "Michael S. Tsirkin" <mst@redhat.com>, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>, "kvm@vger.kernel.org" <kvm@vger.kernel.org>, "virtualization@lists.linux-foundation.org" <virtualization@lists.linux-foundation.org>, Netdev <netdev@vger.kernel.org>, "Bie, Tiwei" <tiwei.bie@intel.com>, Jason Gunthorpe <jgg@mellanox.com>, "maxime.coquelin@redhat.com" <maxime.coquelin@redhat.com>, "Liang, Cunming" <cunming.liang@intel.com>, "Wang, Zhihong" <zhihong.wang@intel.com>, "Wang, Xiao W" <xiao.w.wang@intel.com>, "haotian.wang@sifive.com" <haotian.wang@sifive.com>, "Zhu, Lingshan" <lingshan.zhu@intel.com>, "eperezma@redhat.com" <eperezma@redhat.com>, "lulu@redhat.com" <lulu@redhat.com>, Parav Pandit <parav@mellanox.com>, "Tian, Kevin" <kevin.>
+Content-Type: text/plain; charset=us-ascii
+Return-path: <netdev-owner@vger.kernel.org>
+Content-Disposition: inline
+In-Reply-To: <AM0PR0502MB379553984D0D55FDE25426F6C3330@AM0PR0502MB3795.eurprd05.prod.outlook.com>
+Sender: netdev-owner@vger.kernel.org
+To: Shahaf Shuler <shahafs@mellanox.com>
+Cc: Rob Miller <rob.miller@broadcom.com>, Jason Wang <jasowang@redhat.com>, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>, "kvm@vger.kernel.org" <kvm@vger.kernel.org>, "virtualization@lists.linux-foundation.org" <virtualization@lists.linux-foundation.org>, Netdev <netdev@vger.kernel.org>, "Bie, Tiwei" <tiwei.bie@intel.com>, Jason Gunthorpe <jgg@mellanox.com>, "maxime.coquelin@redhat.com" <maxime.coquelin@redhat.com>, "Liang, Cunming" <cunming.liang@intel.com>, "Wang, Zhihong" <zhihong.wang@intel.com>, "Wang, Xiao W" <xiao.w.wang@intel.com>, "haotian.wang@sifive.com" <haotian.wang@sifive.com>, "Zhu, Lingshan" <lingshan.zhu@intel.com>, "eperezma@redhat.com" <eperezma@redhat.com>, "lulu@redhat.com" <lulu@redhat.com>, Parav Pandit <parav@mel>
 List-Id: virtualization@lists.linuxfoundation.org
 
-RnJpZGF5LCBKYW51YXJ5IDE3LCAyMDIwIDQ6MTMgUE0sIFJvYiBNaWxsZXI6DQpTdWJqZWN0OiBS
-ZTogW1BBVENIIDMvNV0gdkRQQTogaW50cm9kdWNlIHZEUEEgYnVzDQo+Pk9uIDIwMjAvMS8xNyDk
-uIvljYg4OjEzLCBNaWNoYWVsIFMuIFRzaXJraW4gd3JvdGU6DQo+Pj4gT24gVGh1LCBKYW4gMTYs
-IDIwMjAgYXQgMDg6NDI6MjlQTSArMDgwMCwgSmFzb24gV2FuZyB3cm90ZToNCg0KWy4uLl0NCg0K
-Pj4+ICsgKiBAc2V0X21hcDrCoCDCoCDCoCDCoCDCoCDCoCDCoCDCoCDCoCDCoCDCoCDCoCBTZXQg
-ZGV2aWNlIG1lbW9yeSBtYXBwaW5nLCBvcHRpb25hbA0KPj4+ICsgKsKgIMKgIMKgIMKgIMKgIMKg
-IMKgIMKgIMKgIMKgIMKgIMKgIMKgIGFuZCBvbmx5IG5lZWRlZCBmb3IgZGV2aWNlIHRoYXQgdXNp
-bmcNCj4+PiArICrCoCDCoCDCoCDCoCDCoCDCoCDCoCDCoCDCoCDCoCDCoCDCoCDCoCBkZXZpY2Ug
-c3BlY2lmaWMgRE1BIHRyYW5zbGF0aW9uDQo+Pj4gKyAqwqAgwqAgwqAgwqAgwqAgwqAgwqAgwqAg
-wqAgwqAgwqAgwqAgwqAgKG9uLWNoaXAgSU9NTVUpDQo+Pj4gKyAqwqAgwqAgwqAgwqAgwqAgwqAg
-wqAgwqAgwqAgwqAgwqAgwqAgwqAgQHZkZXY6IHZkcGEgZGV2aWNlDQo+Pj4gKyAqwqAgwqAgwqAg
-wqAgwqAgwqAgwqAgwqAgwqAgwqAgwqAgwqAgwqAgQGlvdGxiOiB2aG9zdCBtZW1vcnkgbWFwcGlu
-ZyB0byBiZQ0KPj4+ICsgKsKgIMKgIMKgIMKgIMKgIMKgIMKgIMKgIMKgIMKgIMKgIMKgIMKgIHVz
-ZWQgYnkgdGhlIHZEUEENCj4+PiArICrCoCDCoCDCoCDCoCDCoCDCoCDCoCDCoCDCoCDCoCDCoCDC
-oCDCoCBSZXR1cm5zIGludGVnZXI6IHN1Y2Nlc3MgKDApIG9yIGVycm9yICg8IDApDQo+PiBPSyBz
-byBhbnkgY2hhbmdlIGp1c3Qgc3dhcHMgaW4gYSBjb21wbGV0ZWx5IG5ldyBtYXBwaW5nPw0KPj4g
-V291bGRuJ3QgdGhpcyBtYWtlIG1pbm9yIGNoYW5nZXMgc3VjaCBhcyBtZW1vcnkgaG90cGx1Zw0K
-Pj4gcXVpdGUgZXhwZW5zaXZlPw0KDQpXaGF0IGlzIHRoZSBjb25jZXJuPyBUcmF2ZXJzaW5nIHRo
-ZSByYiB0cmVlIG9yIGZ1bGx5IHJlcGxhY2UgdGhlIG9uLWNoaXAgSU9NTVUgdHJhbnNsYXRpb25z
-PyANCklmIHRoZSBsYXRlc3QsIHRoZW4gSSB0aGluayB3ZSBjYW4gdGFrZSBzdWNoIG9wdGltaXph
-dGlvbiBvbiB0aGUgZHJpdmVyIGxldmVsIChpLmUuIHRvIHVwZGF0ZSBvbmx5IHRoZSBkaWZmIGJl
-dHdlZW4gdGhlIHR3byBtYXBwaW5nKS4gDQpJZiB0aGUgZmlyc3Qgb25lLCB0aGVuIEkgdGhpbmsg
-bWVtb3J5IGhvdHBsdWcgaXMgYSBoZWF2eSBmbG93IHJlZ2FyZGxlc3MuIERvIHlvdSB0aGluayB0
-aGUgZXh0cmEgY3ljbGVzIGZvciB0aGUgdHJlZSB0cmF2ZXJzZSB3aWxsIGJlIHZpc2libGUgaW4g
-YW55IHdheT8gDQoNCj4NCj5NeSB1bmRlcnN0YW5kaW5nIGlzIHRoYXQgdGhlIGluY3JlbWVudGFs
-IHVwZGF0aW5nIG9mIHRoZSBvbiBjaGlwIElPTU1VIA0KPm1heSBkZWdyYWRlIHRoZcKgIHBlcmZv
-cm1hbmNlLiBTbyB2ZW5kb3IgdkRQQSBkcml2ZXJzIG1heSB3YW50IHRvIGtub3cgDQo+YWxsIHRo
-ZSBtYXBwaW5ncyBhdCBvbmNlLiANCg0KWWVzIGV4YWN0LiBGb3IgTWVsbGFub3ggY2FzZSBmb3Ig
-aW5zdGFuY2UgbWFueSBvcHRpbWl6YXRpb24gY2FuIGJlIHBlcmZvcm1lZCBvbiBhIGdpdmVuIG1l
-bW9yeSBsYXlvdXQuDQoNCj5UZWNobmljYWxseSwgd2UgY2FuIGtlZXAgdGhlIGluY3JlbWVudGFs
-IEFQSSANCj5oZXJlIGFuZCBsZXQgdGhlIHZlbmRvciB2RFBBIGRyaXZlcnMgdG8gcmVjb3JkIHRo
-ZSBmdWxsIG1hcHBpbmcgDQo+aW50ZXJuYWxseSB3aGljaCBtYXkgc2xpZ2h0bHkgaW5jcmVhc2Ug
-dGhlIGNvbXBsZXhpdHkgb2YgdmVuZG9yIGRyaXZlci4gDQoNCldoYXQgd2lsbCBiZSB0aGUgdHJp
-Z2dlciBmb3IgdGhlIGRyaXZlciB0byBrbm93IGl0IHJlY2VpdmVkIHRoZSBsYXN0IG1hcHBpbmcg
-b24gdGhpcyBzZXJpZXMgYW5kIGl0IGNhbiBub3cgcHVzaCBpdCB0byB0aGUgb24tY2hpcCBJT01N
-VT8NCg0KPldlIG5lZWQgbW9yZSBpbnB1dHMgZnJvbSB2ZW5kb3JzIGhlcmUuDQo+DQo+VGhhbmtz
-DQoNCg0K
+On Sun, Jan 19, 2020 at 09:07:09AM +0000, Shahaf Shuler wrote:
+> >Technically, we can keep the incremental API 
+> >here and let the vendor vDPA drivers to record the full mapping 
+> >internally which may slightly increase the complexity of vendor driver. 
+> 
+> What will be the trigger for the driver to know it received the last mapping on this series and it can now push it to the on-chip IOMMU?
+
+Some kind of invalidate API?
+
+-- 
+MST
