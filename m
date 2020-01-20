@@ -1,88 +1,81 @@
 From: Jason Wang <jasowang@redhat.com>
-Subject: Re: [PATCH 3/5] vDPA: introduce vDPA bus
-Date: Mon, 20 Jan 2020 15:50:01 +0800
-Message-ID: <ea4639ba-d991-c95c-8cb1-48588e5b42c0@redhat.com>
+Subject: Re: [PATCH 4/5] virtio: introduce a vDPA based transport
+Date: Mon, 20 Jan 2020 15:52:12 +0800
+Message-ID: <bff37791-9640-39e0-5e93-c905ebfb5d2b@redhat.com>
 References: <20200116124231.20253-1-jasowang@redhat.com>
- <20200116124231.20253-4-jasowang@redhat.com>
- <20200116152209.GH20978@mellanox.com>
- <03cfbcc2-fef0-c9d8-0b08-798b2a293b8c@redhat.com>
- <20200117135435.GU20978@mellanox.com>
+ <20200116124231.20253-5-jasowang@redhat.com>
+ <20200116153807.GI20978@mellanox.com>
+ <8e8aa4b7-4948-5719-9618-e28daffba1a5@redhat.com>
+ <20200117140013.GV20978@mellanox.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=utf-8; format=flowed
-Content-Transfer-Encoding: quoted-printable
-Return-path: <kvm-owner@vger.kernel.org>
-In-Reply-To: <20200117135435.GU20978@mellanox.com>
+Content-Type: text/plain; charset="utf-8"; Format="flowed"
+Content-Transfer-Encoding: base64
+Return-path: <virtualization-bounces@lists.linux-foundation.org>
+In-Reply-To: <20200117140013.GV20978@mellanox.com>
 Content-Language: en-US
-Sender: kvm-owner@vger.kernel.org
+List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
+ <mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
+List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
+List-Post: <mailto:virtualization@lists.linux-foundation.org>
+List-Help: <mailto:virtualization-request@lists.linux-foundation.org?subject=help>
+List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualization>,
+ <mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
+Errors-To: virtualization-bounces@lists.linux-foundation.org
+Sender: "Virtualization" <virtualization-bounces@lists.linux-foundation.org>
 To: Jason Gunthorpe <jgg@mellanox.com>
-Cc: "mst@redhat.com" <mst@redhat.com>, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>, "kvm@vger.kernel.org" <kvm@vger.kernel.org>, "virtualization@lists.linux-foundation.org" <virtualization@lists.linux-foundation.org>, "netdev@vger.kernel.org" <netdev@vger.kernel.org>, "tiwei.bie@intel.com" <tiwei.bie@intel.com>, "maxime.coquelin@redhat.com" <maxime.coquelin@redhat.com>, "cunming.liang@intel.com" <cunming.liang@intel.com>, "zhihong.wang@intel.com" <zhihong.wang@intel.com>, "rob.miller@broadcom.com" <rob.miller@broadcom.com>, "xiao.w.wang@intel.com" <xiao.w.wang@intel.com>, "haotian.wang@sifive.com" <haotian.wang@sifive.com>, "lingshan.zhu@intel.com" <lingshan.zhu@intel.com>, "eperezma@redhat.com" <eperezma@redhat.com>, "lulu@redhat.com" <lulu@redhat.co>
+Cc: "jakub.kicinski@netronome.com" <jakub.kicinski@netronome.com>, "kvm@vger.kernel.org" <kvm@vger.kernel.org>, "mst@redhat.com" <mst@redhat.com>, "mhabets@solarflare.com" <mhabets@solarflare.com>, "virtualization@lists.linux-foundation.org" <virtualization@lists.linux-foundation.org>, "rob.miller@broadcom.com" <rob.miller@broadcom.com>, "lulu@redhat.com" <lulu@redhat.com>, "hanand@xilinx.com" <hanand@xilinx.com>, "hch@infradead.org" <hch@infradead.org>, "eperezma@redhat.com" <eperezma@redhat.com>, "haotian.wang@sifive.com" <haotian.wang@sifive.com>, Shahaf Shuler <shahafs@mellanox.com>, Parav Pandit <parav@mellanox.com>, Jiri Pirko <jiri@mellanox.com>, "xiao.w.wang@intel.com" <xiao.w.wang@intel.com>, "stefanha@redhat.com" <stefanha@redhat.com>, "zhihong.wang@intel.com" <zhihong.wang@intel.com>, "rdunlap@infradead.org" <rdunlap@infradead.org>, linux-kernel@vger.kernel.or
 List-Id: virtualization@lists.linuxfoundation.org
 
-
-On 2020/1/17 =E4=B8=8B=E5=8D=889:54, Jason Gunthorpe wrote:
-> On Fri, Jan 17, 2020 at 11:03:12AM +0800, Jason Wang wrote:
->> On 2020/1/16 =E4=B8=8B=E5=8D=8811:22, Jason Gunthorpe wrote:
->>> On Thu, Jan 16, 2020 at 08:42:29PM +0800, Jason Wang wrote:
->>>> vDPA device is a device that uses a datapath which complies with the
->>>> virtio specifications with vendor specific control path. vDPA device=
-s
->>>> can be both physically located on the hardware or emulated by
->>>> software. vDPA hardware devices are usually implemented through PCIE
->>>> with the following types:
->>>>
->>>> - PF (Physical Function) - A single Physical Function
->>>> - VF (Virtual Function) - Device that supports single root I/O
->>>>     virtualization (SR-IOV). Its Virtual Function (VF) represents a
->>>>     virtualized instance of the device that can be assigned to diffe=
-rent
->>>>     partitions
->>>> - VDEV (Virtual Device) - With technologies such as Intel Scalable
->>>>     IOV, a virtual device composed by host OS utilizing one or more
->>>>     ADIs.
->>>> - SF (Sub function) - Vendor specific interface to slice the Physica=
-l
->>>>     Function to multiple sub functions that can be assigned to diffe=
-rent
->>>>     partitions as virtual devices.
->>> I really hope we don't end up with two different ways to spell this
->>> same thing.
->> I think you meant ADI vs SF. It looks to me that ADI is limited to the=
- scope
->> of scalable IOV but SF not.
-> I think if one looks carefully you'd find that SF and ADI are using
-> very similar techiniques. For instance we'd also like to use the code
-> reorg of the MSIX vector setup with SFs that Intel is calling IMS.
->
-> Really SIOV is simply a bundle of pre-existing stuff under a tidy
-> name, whatever code skeleton we come up with for SFs should be re-used
-> for ADI.
-
-
-Ok, but do you prefer to mention ADI only for the next version?
-
-
->
->>> Shouldn't there be a device/driver matching process of some kind?
->>
->> The question is what do we want do match here.
->>
->> 1) "virtio" vs "vhost", I implemented matching method for this in mdev
->> series, but it looks unnecessary for vDPA device driver to know about =
-this.
->> Anyway we can use sysfs driver bind/unbind to switch drivers
->> 2) virtio device id and vendor id. I'm not sure we need this consider =
-the
->> two drivers so far (virtio/vhost) are all bus drivers.
-> As we seem to be contemplating some dynamic creation of vdpa devices I
-> think upon creation time it should be specified what mode they should
-> run it and then all driver binding and autoloading should happen
-> automatically. Telling the user to bind/unbind is a very poor
-> experience.
->
-> Jason
-
-
-Ok, I will add the type (virtio vs vhost) and driver matching method back=
-.
-
-Thanks
+Ck9uIDIwMjAvMS8xNyDkuIvljYgxMDowMCwgSmFzb24gR3VudGhvcnBlIHdyb3RlOgo+IE9uIEZy
+aSwgSmFuIDE3LCAyMDIwIGF0IDA1OjMyOjM1UE0gKzA4MDAsIEphc29uIFdhbmcgd3JvdGU6Cj4+
+Pj4gKwljb25zdCBzdHJ1Y3QgdmRwYV9jb25maWdfb3BzICpvcHMgPSB2ZHBhLT5jb25maWc7Cj4+
+Pj4gKwlzdHJ1Y3QgdmlydGlvX3ZkcGFfZGV2aWNlICp2ZF9kZXY7Cj4+Pj4gKwlpbnQgcmM7Cj4+
+Pj4gKwo+Pj4+ICsJdmRfZGV2ID0gZGV2bV9remFsbG9jKGRldiwgc2l6ZW9mKCp2ZF9kZXYpLCBH
+RlBfS0VSTkVMKTsKPj4+PiArCWlmICghdmRfZGV2KQo+Pj4+ICsJCXJldHVybiAtRU5PTUVNOwo+
+Pj4gVGhpcyBpcyBub3QgcmlnaHQsIHRoZSBzdHJ1Y3QgZGV2aWNlIGxpZmV0aW1lIGlzIGNvbnRy
+b2xlZCBieSBhIGtyZWYsCj4+PiBub3QgdmlhIGRldm0uIElmIHlvdSB3YW50IHRvIHVzZSBhIGRl
+dm0gdW53aW5kIHRoZW4gdGhlIHVud2luZCBpcwo+Pj4gcHV0X2RldmljZSwgbm90IGRldm1fa2Zy
+ZWUuCj4+IEknbSBub3Qgc3VyZSBJIGdldCB0aGUgcG9pbnQgaGVyZS4gVGhlIGxpZmV0aW1lIGlz
+IGJvdW5kIHRvIHVuZGVybHlpbmcgdkRQQQo+PiBkZXZpY2UgYW5kIGRldnJlcyBhbGxvdyB0byBi
+ZSBmcmVlZCBiZWZvcmUgdGhlIHZwZGEgZGV2aWNlIGlzIHJlbGVhc2VkLiBCdXQKPj4gSSBhZ3Jl
+ZSB1c2luZyBkZXZyZXMgb2YgdW5kZXJseWluZyB2ZHBhIGRldmljZSBsb29rcyB3aXJlZC4KPiBP
+bmNlIGRldmljZV9pbml0aWFsaXplIGlzIGNhbGxlZCB0aGUgb25seSB3YXkgdG8gZnJlZSBhIHN0
+cnVjdCBkZXZpY2UKPiBpcyB2aWEgcHV0X2RldmljZSwgd2hpbGUgaGVyZSB5b3UgaGF2ZSBhIGRl
+dm0gdHJpZ2dlciB0aGF0IHdpbGwKPiB1bmNvbmRpdGlvbmFsbHkgZG8ga2ZyZWUgb24gYSBzdHJ1
+Y3QgZGV2aWNlIHdpdGhvdXQgcmVzcGVjdGluZyB0aGUKPiByZWZlcmVuY2UgY291bnQuCj4KPiBy
+ZWZlcmVuY2UgY291bnRlZCBtZW1vcnkgbXVzdCBuZXZlciBiZSBhbGxvY2F0ZWQgd2l0aCBkZXZt
+LgoKClJpZ2h0LCBmaXhlZC4KCgo+Cj4+Pj4gKwl2ZF9kZXYtPnZkZXYuZGV2LnJlbGVhc2UgPSB2
+aXJ0aW9fdmRwYV9yZWxlYXNlX2RldjsKPj4+PiArCXZkX2Rldi0+dmRldi5jb25maWcgPSAmdmly
+dGlvX3ZkcGFfY29uZmlnX29wczsKPj4+PiArCXZkX2Rldi0+dmRwYSA9IHZkcGE7Cj4+Pj4gKwlJ
+TklUX0xJU1RfSEVBRCgmdmRfZGV2LT52aXJ0cXVldWVzKTsKPj4+PiArCXNwaW5fbG9ja19pbml0
+KCZ2ZF9kZXYtPmxvY2spOwo+Pj4+ICsKPj4+PiArCXZkX2Rldi0+dmRldi5pZC5kZXZpY2UgPSBv
+cHMtPmdldF9kZXZpY2VfaWQodmRwYSk7Cj4+Pj4gKwlpZiAodmRfZGV2LT52ZGV2LmlkLmRldmlj
+ZSA9PSAwKQo+Pj4+ICsJCXJldHVybiAtRU5PREVWOwo+Pj4+ICsKPj4+PiArCXZkX2Rldi0+dmRl
+di5pZC52ZW5kb3IgPSBvcHMtPmdldF92ZW5kb3JfaWQodmRwYSk7Cj4+Pj4gKwlyYyA9IHJlZ2lz
+dGVyX3ZpcnRpb19kZXZpY2UoJnZkX2Rldi0+dmRldik7Cj4+Pj4gKwlpZiAocmMpCj4+Pj4gKwkJ
+cHV0X2RldmljZShkZXYpOwo+Pj4gQW5kIGEgdWdseSB1bndpbmQgbGlrZSB0aGlzIGlzIHdoeSB5
+b3Ugd2FudCB0byBoYXZlIGRldmljZV9pbml0aWFsaXplKCkKPj4+IGV4cG9zZWQgdG8gdGhlIGRy
+aXZlciwKPj4gSW4gdGhpcyBjb250ZXh0LCB3aGljaCAiZHJpdmVyIiBkaWQgeW91IG1lYW4gaGVy
+ZT8gKE5vdGUsIHZpcnRpby12ZHBhIGlzIHRoZQo+PiBkcml2ZXIgZm9yIHZEUEEgYnVzIGhlcmUp
+Lgo+ICdkcml2ZXInIGlzIHRoZSB0aGluZyB1c2luZyB0aGUgJ2NvcmUnIGxpYnJhcnkgY2FsbHMg
+dG8gaW1wbGVtZW50IGEKPiBkZXZpY2UsIHNvIGhlcmUgdGhlICd2ZF9kZXYnIGlzIHRoZSBkcml2
+ZXIgYW5kCj4gJ3JlZ2lzdGVyX3ZpcnRpb19kZXZpY2UnIGlzIHRoZSBjb3JlCgoKT2suCgoKPgo+
+Pj4gV2hlcmUgaXMgdGhlIHZhcmlvdXMgVEhJU19NT0RVTEUncyBJIGV4cGVjdCB0byBzZWUgaW4g
+YSBzY2hlbWUgbGlrZQo+Pj4gdGhpcz8KPj4+Cj4+PiBBbGwgZnVuY3Rpb24gcG9pbnRlcnMgbXVz
+dCBiZSBwcm90ZWN0ZWQgYnkgYSBoZWxkIG1vZHVsZSByZWZlcmVuY2UKPj4+IGNvdW50LCBpZSB0
+aGUgYWJvdmUgcHJvYmUvcmVtb3ZlIGFuZCBhbGwgdGhlIHBvaW50ZXJzIGluIG9wcy4KPj4gV2ls
+bCBkb3VibGUgY2hlY2ssIHNpbmNlIEkgZG9uJ3Qgc2VlIHRoaXMgaW4gb3RoZXIgdmlydGlvIHRy
+YW5zcG9ydCBkcml2ZXJzCj4+IChQQ0kgb3IgTU1JTykuCj4gcGNpX3JlZ2lzdGVyX2RyaXZlciBp
+cyBhIG1hY3JvIHRoYXQgcHJvdmlkZXMgYSBUSElTX01PRFVMRSwgYW5kIHRoZQo+IHBjaSBjb3Jl
+IGNvZGUgc2V0cyBkcml2ZXIub3duZXIsIHRoZW4gdGhlIHJlc3Qgb2YgdGhlIHN0dWZmIHJlbGF0
+ZWQgdG8KPiBkcml2ZXIgb3BzIGlzIHN1cHBvc2VkIHRvIHdvcmsgYWdhaW5zdCB0aGF0IHRvIHBy
+b3RlY3QgdGhlIGRyaXZlciBvcHMuCj4KPiBGb3IgdGhlIGRldmljZSBtb2R1bGUgcmVmY291bnRp
+bmcgeW91IGVpdGhlciBuZWVkIHRvIGVuc3VyZSB0aGF0Cj4gJ3VucmVnaXN0ZXInIGlzIGEgc3Ry
+b25nIGZlbmNlIGFuZCBndWFuZW50ZWVzIHRoYXQgbm8gZGV2aWNlIG9wcyBhcmUKPiBjYWxsZWQg
+cGFzdCB1bnJlZ2lzdGVyIChub3RpbmcgdGhhdCB0aGlzIGlzIGltcG9zc2libGUgZm9yIHJlbGVh
+c2UpLAo+IG9yIHlvdSBuZWVkIHRvIGhvbGQgdGhlIG1vZHVsZSBsb2NrIHVudGlsIHJlbGVhc2Uu
+Cj4KPiBJdCBpcyBjb21tb24gdG8gc2VlIG5vbi1jb3JlIHN1YnN5c3RlbXMgZ2V0IHRoaXMgc3R1
+ZmYgd3JvbmcuCj4KPiBKYXNvbgoKCk9rLiBJIHNlZS4KClRoYW5rcwoKX19fX19fX19fX19fX19f
+X19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX18KVmlydHVhbGl6YXRpb24gbWFpbGluZyBs
+aXN0ClZpcnR1YWxpemF0aW9uQGxpc3RzLmxpbnV4LWZvdW5kYXRpb24ub3JnCmh0dHBzOi8vbGlz
+dHMubGludXhmb3VuZGF0aW9uLm9yZy9tYWlsbWFuL2xpc3RpbmZvL3ZpcnR1YWxpemF0aW9u
