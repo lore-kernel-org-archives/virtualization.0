@@ -1,43 +1,38 @@
 From: "Michael S. Tsirkin" <mst@redhat.com>
 Subject: Re: [PATCH 3/5] vDPA: introduce vDPA bus
-Date: Mon, 20 Jan 2020 07:09:07 -0500
-Message-ID: <20200120070710-mutt-send-email-mst@kernel.org>
+Date: Mon, 20 Jan 2020 07:17:26 -0500
+Message-ID: <20200120071406-mutt-send-email-mst@kernel.org>
 References: <20200116124231.20253-1-jasowang@redhat.com>
  <20200116124231.20253-4-jasowang@redhat.com>
- <20200117070324-mutt-send-email-mst@kernel.org>
- <239b042c-2d9e-0eec-a1ef-b03b7e2c5419@redhat.com>
- <CAJPjb1+fG9L3=iKbV4Vn13VwaeDZZdcfBPvarogF_Nzhk+FnKg@mail.gmail.com>
- <AM0PR0502MB379553984D0D55FDE25426F6C3330@AM0PR0502MB3795.eurprd05.prod.outlook.com>
- <20200119045849-mutt-send-email-mst@kernel.org>
- <d4e7fc56-c9d8-f01f-1504-dd49d5658037@redhat.com>
+ <20200116152209.GH20978@mellanox.com>
+ <03cfbcc2-fef0-c9d8-0b08-798b2a293b8c@redhat.com>
+ <20200117135435.GU20978@mellanox.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=utf-8
-Content-Transfer-Encoding: 8bit
+Content-Type: text/plain; charset=us-ascii
 Return-path: <netdev-owner@vger.kernel.org>
 Content-Disposition: inline
-In-Reply-To: <d4e7fc56-c9d8-f01f-1504-dd49d5658037@redhat.com>
+In-Reply-To: <20200117135435.GU20978@mellanox.com>
 Sender: netdev-owner@vger.kernel.org
-To: Jason Wang <jasowang@redhat.com>
-Cc: Shahaf Shuler <shahafs@mellanox.com>, Rob Miller <rob.miller@broadcom.com>, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>, "kvm@vger.kernel.org" <kvm@vger.kernel.org>, "virtualization@lists.linux-foundation.org" <virtualization@lists.linux-foundation.org>, Netdev <netdev@vger.kernel.org>, "Bie, Tiwei" <tiwei.bie@intel.com>, Jason Gunthorpe <jgg@mellanox.com>, "maxime.coquelin@redhat.com" <maxime.coquelin@redhat.com>, "Liang, Cunming" <cunming.liang@intel.com>, "Wang, Zhihong" <zhihong.wang@intel.com>, "Wang, Xiao W" <xiao.w.wang@intel.com>, "haotian.wang@sifive.com" <haotian.wang@sifive.com>, "Zhu, Lingshan" <lingshan.zhu@intel.com>, "eperezma@redhat.com" <eperezma@redhat.com>, "lulu@redhat.com" <lulu@redhat.com>, Parav Pandit <parav>
+To: Jason Gunthorpe <jgg@mellanox.com>
+Cc: Jason Wang <jasowang@redhat.com>, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>, "kvm@vger.kernel.org" <kvm@vger.kernel.org>, "virtualization@lists.linux-foundation.org" <virtualization@lists.linux-foundation.org>, "netdev@vger.kernel.org" <netdev@vger.kernel.org>, "tiwei.bie@intel.com" <tiwei.bie@intel.com>, "maxime.coquelin@redhat.com" <maxime.coquelin@redhat.com>, "cunming.liang@intel.com" <cunming.liang@intel.com>, "zhihong.wang@intel.com" <zhihong.wang@intel.com>, "rob.miller@broadcom.com" <rob.miller@broadcom.com>, "xiao.w.wang@intel.com" <xiao.w.wang@intel.com>, "haotian.wang@sifive.com" <haotian.wang@sifive.com>, "lingshan.zhu@intel.com" <lingshan.zhu@intel.com>, "eperezma@redhat.com" <eperezma@redhat.com>, "lulu@redhat.com" <lulu@redhat.com>
 List-Id: virtualization@lists.linuxfoundation.org
 
-On Mon, Jan 20, 2020 at 04:44:34PM +0800, Jason Wang wrote:
+On Fri, Jan 17, 2020 at 01:54:42PM +0000, Jason Gunthorpe wrote:
+> > 1) "virtio" vs "vhost", I implemented matching method for this in mdev
+> > series, but it looks unnecessary for vDPA device driver to know about this.
+> > Anyway we can use sysfs driver bind/unbind to switch drivers
+> > 2) virtio device id and vendor id. I'm not sure we need this consider the
+> > two drivers so far (virtio/vhost) are all bus drivers.
 > 
-> On 2020/1/19 下午5:59, Michael S. Tsirkin wrote:
-> > On Sun, Jan 19, 2020 at 09:07:09AM +0000, Shahaf Shuler wrote:
-> > > > Technically, we can keep the incremental API
-> > > > here and let the vendor vDPA drivers to record the full mapping
-> > > > internally which may slightly increase the complexity of vendor driver.
-> > > What will be the trigger for the driver to know it received the last mapping on this series and it can now push it to the on-chip IOMMU?
-> > Some kind of invalidate API?
-> > 
-> 
-> The problem is how to deal with the case of vIOMMU. When vIOMMU is enabling
-> there's no concept of last mapping.
-> 
-> Thanks
+> As we seem to be contemplating some dynamic creation of vdpa devices I
+> think upon creation time it should be specified what mode they should
+> run it and then all driver binding and autoloading should happen
+> automatically. Telling the user to bind/unbind is a very poor
+> experience.
 
-Most IOMMUs have a translation cache so have an invalidate API too.
-
+Maybe but OTOH it's an existing interface. I think we can reasonably
+start with bind/unbind and then add ability to specify
+the mode later. bind/unbind come from core so they will be
+maintained anyway.
 -- 
 MST
