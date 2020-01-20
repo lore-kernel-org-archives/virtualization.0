@@ -1,60 +1,79 @@
 From: "Michael S. Tsirkin" <mst@redhat.com>
 Subject: Re: [PATCH 3/5] vDPA: introduce vDPA bus
-Date: Mon, 20 Jan 2020 16:56:06 -0500
-Message-ID: <20200120164916-mutt-send-email-mst@kernel.org>
-References: <20200116124231.20253-1-jasowang@redhat.com>
- <20200116124231.20253-4-jasowang@redhat.com>
- <20200116152209.GH20978@mellanox.com>
- <03cfbcc2-fef0-c9d8-0b08-798b2a293b8c@redhat.com>
- <20200117135435.GU20978@mellanox.com>
- <20200120071406-mutt-send-email-mst@kernel.org>
- <20200120175050.GC3891@mellanox.com>
+Date: Mon, 20 Jan 2020 16:59:40 -0500
+Message-ID: <20200120165640-mutt-send-email-mst@kernel.org>
+References: <20200116124231.20253-4-jasowang@redhat.com>
+ <20200117070324-mutt-send-email-mst@kernel.org>
+ <239b042c-2d9e-0eec-a1ef-b03b7e2c5419@redhat.com>
+ <CAJPjb1+fG9L3=iKbV4Vn13VwaeDZZdcfBPvarogF_Nzhk+FnKg@mail.gmail.com>
+ <AM0PR0502MB379553984D0D55FDE25426F6C3330@AM0PR0502MB3795.eurprd05.prod.outlook.com>
+ <d69918ca-8af4-44b2-9652-633530d4c113@redhat.com>
+ <20200120174933.GB3891@mellanox.com>
+ <AM0PR0502MB3795C92485338180FC8059CFC3320@AM0PR0502MB3795.eurprd05.prod.outlook.com>
+ <20200120162449-mutt-send-email-mst@kernel.org>
+ <AM0PR0502MB3795A7BE7F434964D6102517C3320@AM0PR0502MB3795.eurprd05.prod.outlook.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Return-path: <kvm-owner@vger.kernel.org>
+Return-path: <netdev-owner@vger.kernel.org>
 Content-Disposition: inline
-In-Reply-To: <20200120175050.GC3891@mellanox.com>
-Sender: kvm-owner@vger.kernel.org
-To: Jason Gunthorpe <jgg@mellanox.com>
-Cc: Jason Wang <jasowang@redhat.com>, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>, "kvm@vger.kernel.org" <kvm@vger.kernel.org>, "virtualization@lists.linux-foundation.org" <virtualization@lists.linux-foundation.org>, "netdev@vger.kernel.org" <netdev@vger.kernel.org>, "tiwei.bie@intel.com" <tiwei.bie@intel.com>, "maxime.coquelin@redhat.com" <maxime.coquelin@redhat.com>, "cunming.liang@intel.com" <cunming.liang@intel.com>, "zhihong.wang@intel.com" <zhihong.wang@intel.com>, "rob.miller@broadcom.com" <rob.miller@broadcom.com>, "xiao.w.wang@intel.com" <xiao.w.wang@intel.com>, "haotian.wang@sifive.com" <haotian.wang@sifive.com>, "lingshan.zhu@intel.com" <lingshan.zhu@intel.com>, "eperezma@redhat.com" <eperezma@redhat.com>, "lulu@redhat.com" <lulu@redhat.com>
+In-Reply-To: <AM0PR0502MB3795A7BE7F434964D6102517C3320@AM0PR0502MB3795.eurprd05.prod.outlook.com>
+Sender: netdev-owner@vger.kernel.org
+To: Shahaf Shuler <shahafs@mellanox.com>
+Cc: Jason Gunthorpe <jgg@mellanox.com>, Jason Wang <jasowang@redhat.com>, Rob Miller <rob.miller@broadcom.com>, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>, "kvm@vger.kernel.org" <kvm@vger.kernel.org>, "virtualization@lists.linux-foundation.org" <virtualization@lists.linux-foundation.org>, Netdev <netdev@vger.kernel.org>, "Bie, Tiwei" <tiwei.bie@intel.com>, "maxime.coquelin@redhat.com" <maxime.coquelin@redhat.com>, "Liang, Cunming" <cunming.liang@intel.com>, "Wang, Zhihong" <zhihong.wang@intel.com>, "Wang, Xiao W" <xiao.w.wang@intel.com>, "haotian.wang@sifive.com" <haotian.wang@sifive.com>, "Zhu, Lingshan" <lingshan.zhu@intel.com>, "eperezma@redhat.com" <eperezma@redhat.com>, "lulu@redhat.com" <lulu@redhat.com>, Parav Pandit <parav@mel>
 List-Id: virtualization@lists.linuxfoundation.org
 
-On Mon, Jan 20, 2020 at 05:50:55PM +0000, Jason Gunthorpe wrote:
-> On Mon, Jan 20, 2020 at 07:17:26AM -0500, Michael S. Tsirkin wrote:
-> > On Fri, Jan 17, 2020 at 01:54:42PM +0000, Jason Gunthorpe wrote:
-> > > > 1) "virtio" vs "vhost", I implemented matching method for this in mdev
-> > > > series, but it looks unnecessary for vDPA device driver to know about this.
-> > > > Anyway we can use sysfs driver bind/unbind to switch drivers
-> > > > 2) virtio device id and vendor id. I'm not sure we need this consider the
-> > > > two drivers so far (virtio/vhost) are all bus drivers.
-> > > 
-> > > As we seem to be contemplating some dynamic creation of vdpa devices I
-> > > think upon creation time it should be specified what mode they should
-> > > run it and then all driver binding and autoloading should happen
-> > > automatically. Telling the user to bind/unbind is a very poor
-> > > experience.
+On Mon, Jan 20, 2020 at 09:47:18PM +0000, Shahaf Shuler wrote:
+> Monday, January 20, 2020 11:25 PM, Michael S. Tsirkin:
+> > Subject: Re: [PATCH 3/5] vDPA: introduce vDPA bus
 > > 
-> > Maybe but OTOH it's an existing interface. I think we can reasonably
-> > start with bind/unbind and then add ability to specify
-> > the mode later. bind/unbind come from core so they will be
-> > maintained anyway.
+> > On Mon, Jan 20, 2020 at 08:51:43PM +0000, Shahaf Shuler wrote:
+> > > Monday, January 20, 2020 7:50 PM, Jason Gunthorpe:
+> > > > Subject: Re: [PATCH 3/5] vDPA: introduce vDPA bus
+> > > >
+> > > > On Mon, Jan 20, 2020 at 04:43:53PM +0800, Jason Wang wrote:
+> > > > > This is similar to the design of platform IOMMU part of
+> > > > > vhost-vdpa. We decide to send diffs to platform IOMMU there. If
+> > > > > it's ok to do that in driver, we can replace set_map with incremental API
+> > like map()/unmap().
+> > > > >
+> > > > > Then driver need to maintain rbtree itself.
+> > > >
+> > > > I think we really need to see two modes, one where there is a fixed
+> > > > translation without dynamic vIOMMU driven changes and one that
+> > > > supports vIOMMU.
+> > > >
+> > > > There are different optimization goals in the drivers for these two
+> > > > configurations.
+> > >
+> > > +1.
+> > > It will be best to have one API for static config (i.e. mapping can be
+> > > set only before virtio device gets active), and one API for dynamic
+> > > changes that can be set after the virtio device is active.
+> > 
+> > Frankly I don't see when we'd use the static one.
+> > Memory hotplug is enabled for most guests...
 > 
-> Existing where?
+> The fact memory hotplug is enabled doesn't necessarily means there is not cold-plugged memory on the hot plugged slots. 
+> So your claim is majority of guests are deployed w/o any cold-plugged memory? 
 
-Driver core.
-
-> For vfio? vfio is the only thing I am aware doing
-> that, and this is not vfio..
-> 
-> Jason
+Sorry for not being clear. I was merely saying that dynamic one
+can't be optional, and static one can. So how about we
+start just with the dynamic one, then add the static one
+as a later optimization?
 
 
-vfio is not doing anything. anyone can use a combination
-of unbind and driver_override to attach a driver to a device.
-
-It's not a great interface but it's there without any code,
-and it will stay there without maintainance overhead
-if we later add a nicer one.
-
--- 
-MST
+> > 
+> > > >
+> > > > > > If the first one, then I think memory hotplug is a heavy flow
+> > > > > > regardless. Do you think the extra cycles for the tree traverse
+> > > > > > will be visible in any way?
+> > > > >
+> > > > > I think if the driver can pause the DMA during the time for
+> > > > > setting up new mapping, it should be fine.
+> > > >
+> > > > This is very tricky for any driver if the mapping change hits the
+> > > > virtio rings. :(
+> > > >
+> > > > Even a IOMMU using driver is going to have problems with that..
+> > > >
+> > > > Jason
