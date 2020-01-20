@@ -1,63 +1,56 @@
-From: Gerd Hoffmann <kraxel@redhat.com>
-Subject: Re: bochs_hw_init fails to request framebuffer on EFI boot with
- plymouth visible
-Date: Mon, 20 Jan 2020 10:58:48 +0100
-Message-ID: <20200120095848.hg4ywvocf5bcdun5@sirius.home.kraxel.org>
-References: <20200113071939.rtqb7yw45zi63fqy@sirius.home.kraxel.org>
- <20200115003356.GL2507@mail-itl>
- <20200115100821.qcdraolkoki6e5tz@sirius.home.kraxel.org>
- <20200115134119.GP1314@mail-itl>
- <20200115141353.3kse3uj2mg6ik6k5@sirius.home.kraxel.org>
- <20200115142741.GM2507@mail-itl>
- <20200115161635.ekrnk5rmjqbxxu77@sirius.home.kraxel.org>
- <20200116025232.GN2507@mail-itl>
- <20200117125825.3in2t2m6nxbblsaf@sirius.home.kraxel.org>
- <20200117152211.GZ1314@mail-itl>
+From: Stefano Garzarella <sgarzare@redhat.com>
+Subject: Re: [PATCH net-next 1/3] vsock: add network namespace support
+Date: Mon, 20 Jan 2020 11:17:35 +0100
+Message-ID: <20200120101735.uyh4o64gb4njakw5@steredhat>
+References: <20200116172428.311437-1-sgarzare@redhat.com>
+ <20200116172428.311437-2-sgarzare@redhat.com>
+ <20200120.100610.546818167633238909.davem@davemloft.net>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="iso-8859-1"
-Content-Transfer-Encoding: quoted-printable
-Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <20200117152211.GZ1314@mail-itl>
+Content-Type: text/plain; charset=us-ascii
+Return-path: <linux-kernel-owner@vger.kernel.org>
 Content-Disposition: inline
-List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
- <mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
-List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
-List-Post: <mailto:virtualization@lists.linux-foundation.org>
-List-Help: <mailto:virtualization-request@lists.linux-foundation.org?subject=help>
-List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualization>,
- <mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
-Errors-To: virtualization-bounces@lists.linux-foundation.org
-Sender: "Virtualization" <virtualization-bounces@lists.linux-foundation.org>
-To: Marek =?utf-8?Q?Marczykowski-G=C3=B3recki?= <marmarek@invisiblethingslab.com>
-Cc: virtualization@lists.linux-foundation.org
+In-Reply-To: <20200120.100610.546818167633238909.davem@davemloft.net>
+Sender: linux-kernel-owner@vger.kernel.org
+To: David Miller <davem@davemloft.net>
+Cc: netdev@vger.kernel.org, linux-kernel@vger.kernel.org, jhansen@vmware.com, jasowang@redhat.com, kvm@vger.kernel.org, stefanha@redhat.com, virtualization@lists.linux-foundation.org, linux-hyperv@vger.kernel.org, mst@redhat.com, decui@microsoft.com
 List-Id: virtualization@lists.linuxfoundation.org
 
-On Fri, Jan 17, 2020 at 04:22:11PM +0100, Marek Marczykowski-G=F3recki wrot=
-e:
-> On Fri, Jan 17, 2020 at 01:58:25PM +0100, Gerd Hoffmann wrote:
-> > > Should switching to bochsdrmfb be deferred until efifb gets properly
-> > > destroyed? How?
-> > =
+On Mon, Jan 20, 2020 at 10:06:10AM +0100, David Miller wrote:
+> From: Stefano Garzarella <sgarzare@redhat.com>
+> Date: Thu, 16 Jan 2020 18:24:26 +0100
+> 
+> > This patch adds 'netns' module param to enable this new feature
+> > (disabled by default), because it changes vsock's behavior with
+> > network namespaces and could break existing applications.
+> 
+> Sorry, no.
+> 
+> I wonder if you can even design a legitimate, reasonable, use case
+> where these netns changes could break things.
 
-> > Should be in do_remove_conflicting_framebuffers, everyone might run into
-> > this.  So lets try wait for all (other) references went away:
-> =
+I forgot to mention the use case.
+I tried the RFC with Kata containers and we found that Kata shim-v1
+doesn't work (Kata shim-v2 works as is) because there are the following
+processes involved:
+- kata-runtime (runs in the init_netns) opens /dev/vhost-vsock and
+  passes it to qemu
+- kata-shim (runs in a container) wants to talk with the guest but the
+  vsock device is assigned to the init_netns and kata-shim runs in a
+  different netns, so the communication is not allowed
 
-> Yes, this solves the problem. I guess the proper solution would be to
-> replace it with some wait queue or such, right?
+But, as you said, this could be a wrong design, indeed they already
+found a fix, but I was not sure if others could have the same issue.
 
-Not sure a wait queue would actually be better.
+In this case, do you think it is acceptable to make this change in
+the vsock's behavior with netns and ask the user to change the design?
 
-> Is there any guarantee that the process holding /dev/fb0 (plymouthd in
-> this case) will eventually release it?
+> 
+> I am totally against adding a module parameter for this, it's
+> incredibly confusing for users and will create a test scenerio
+> that is strongly less likely to be covered.
+> 
 
-No.
+Got it, I'll remove the module parameter!
 
-So it'll probably makes sense to limit the time we are willing to wait
-here.
-
-Or maybe take a completely different path and make the reservation
-failure in bochs-drm a warning not an error.
-
-cheers,
-  Gerd
+Thanks,
+Stefano
