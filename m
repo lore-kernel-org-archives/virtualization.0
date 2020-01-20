@@ -1,70 +1,75 @@
-From: Stefano Garzarella <sgarzare@redhat.com>
+From: "Michael S. Tsirkin" <mst@redhat.com>
 Subject: Re: [PATCH net-next 1/3] vsock: add network namespace support
-Date: Mon, 20 Jan 2020 14:58:01 +0100
-Message-ID: <CAGxU2F6VH8Eb5UH_9KjN6MONbZEo1D7EHAiocVVus6jW55BJDg@mail.gmail.com>
+Date: Mon, 20 Jan 2020 11:04:00 -0500
+Message-ID: <20200120110319-mutt-send-email-mst@kernel.org>
 References: <20200116172428.311437-1-sgarzare@redhat.com>
  <20200116172428.311437-2-sgarzare@redhat.com>
  <20200120.100610.546818167633238909.davem@davemloft.net>
  <20200120101735.uyh4o64gb4njakw5@steredhat>
  <20200120060601-mutt-send-email-mst@kernel.org>
+ <CAGxU2F6VH8Eb5UH_9KjN6MONbZEo1D7EHAiocVVus6jW55BJDg@mail.gmail.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Return-path: <linux-kernel-owner@vger.kernel.org>
+Return-path: <kvm-owner@vger.kernel.org>
 Content-Disposition: inline
-In-Reply-To: <20200120060601-mutt-send-email-mst@kernel.org>
-Sender: linux-kernel-owner@vger.kernel.org
-To: "Michael S. Tsirkin" <mst@redhat.com>
+In-Reply-To: <CAGxU2F6VH8Eb5UH_9KjN6MONbZEo1D7EHAiocVVus6jW55BJDg@mail.gmail.com>
+Sender: kvm-owner@vger.kernel.org
+To: Stefano Garzarella <sgarzare@redhat.com>
 Cc: David Miller <davem@davemloft.net>, netdev@vger.kernel.org, linux-kernel@vger.kernel.org, Jorgen Hansen <jhansen@vmware.com>, Jason Wang <jasowang@redhat.com>, kvm <kvm@vger.kernel.org>, Stefan Hajnoczi <stefanha@redhat.com>, virtualization@lists.linux-foundation.org, linux-hyperv@vger.kernel.org, Dexuan Cui <decui@microsoft.com>
 List-Id: virtualization@lists.linuxfoundation.org
 
-On Mon, Jan 20, 2020 at 1:03 PM Michael S. Tsirkin <mst@redhat.com> wrote:
-> On Mon, Jan 20, 2020 at 11:17:35AM +0100, Stefano Garzarella wrote:
-> > On Mon, Jan 20, 2020 at 10:06:10AM +0100, David Miller wrote:
-> > > From: Stefano Garzarella <sgarzare@redhat.com>
-> > > Date: Thu, 16 Jan 2020 18:24:26 +0100
+On Mon, Jan 20, 2020 at 02:58:01PM +0100, Stefano Garzarella wrote:
+> On Mon, Jan 20, 2020 at 1:03 PM Michael S. Tsirkin <mst@redhat.com> wrote:
+> > On Mon, Jan 20, 2020 at 11:17:35AM +0100, Stefano Garzarella wrote:
+> > > On Mon, Jan 20, 2020 at 10:06:10AM +0100, David Miller wrote:
+> > > > From: Stefano Garzarella <sgarzare@redhat.com>
+> > > > Date: Thu, 16 Jan 2020 18:24:26 +0100
+> > > >
+> > > > > This patch adds 'netns' module param to enable this new feature
+> > > > > (disabled by default), because it changes vsock's behavior with
+> > > > > network namespaces and could break existing applications.
+> > > >
+> > > > Sorry, no.
+> > > >
+> > > > I wonder if you can even design a legitimate, reasonable, use case
+> > > > where these netns changes could break things.
 > > >
-> > > > This patch adds 'netns' module param to enable this new feature
-> > > > (disabled by default), because it changes vsock's behavior with
-> > > > network namespaces and could break existing applications.
+> > > I forgot to mention the use case.
+> > > I tried the RFC with Kata containers and we found that Kata shim-v1
+> > > doesn't work (Kata shim-v2 works as is) because there are the following
+> > > processes involved:
+> > > - kata-runtime (runs in the init_netns) opens /dev/vhost-vsock and
+> > >   passes it to qemu
+> > > - kata-shim (runs in a container) wants to talk with the guest but the
+> > >   vsock device is assigned to the init_netns and kata-shim runs in a
+> > >   different netns, so the communication is not allowed
+> > > But, as you said, this could be a wrong design, indeed they already
+> > > found a fix, but I was not sure if others could have the same issue.
 > > >
-> > > Sorry, no.
-> > >
-> > > I wonder if you can even design a legitimate, reasonable, use case
-> > > where these netns changes could break things.
+> > > In this case, do you think it is acceptable to make this change in
+> > > the vsock's behavior with netns and ask the user to change the design?
 > >
-> > I forgot to mention the use case.
-> > I tried the RFC with Kata containers and we found that Kata shim-v1
-> > doesn't work (Kata shim-v2 works as is) because there are the following
-> > processes involved:
-> > - kata-runtime (runs in the init_netns) opens /dev/vhost-vsock and
-> >   passes it to qemu
-> > - kata-shim (runs in a container) wants to talk with the guest but the
-> >   vsock device is assigned to the init_netns and kata-shim runs in a
-> >   different netns, so the communication is not allowed
-> > But, as you said, this could be a wrong design, indeed they already
-> > found a fix, but I was not sure if others could have the same issue.
+> > David's question is what would be a usecase that's broken
+> > (as opposed to fixed) by enabling this by default.
+> 
+> Yes, I got that. Thanks for clarifying.
+> I just reported a broken example that can be fixed with a different
+> design (due to the fact that before this series, vsock devices were
+> accessible to all netns).
+> 
 > >
-> > In this case, do you think it is acceptable to make this change in
-> > the vsock's behavior with netns and ask the user to change the design?
->
-> David's question is what would be a usecase that's broken
-> (as opposed to fixed) by enabling this by default.
+> > If it does exist, you need a way for userspace to opt-in,
+> > module parameter isn't that.
+> 
+> Okay, but I honestly can't find a case that can't be solved.
+> So I don't know whether to add an option (ioctl, sysfs ?) or wait for
+> a real case to come up.
+> 
+> I'll try to see better if there's any particular case where we need
+> to disable netns in vsock.
+> 
+> Thanks,
+> Stefano
 
-Yes, I got that. Thanks for clarifying.
-I just reported a broken example that can be fixed with a different
-design (due to the fact that before this series, vsock devices were
-accessible to all netns).
-
->
-> If it does exist, you need a way for userspace to opt-in,
-> module parameter isn't that.
-
-Okay, but I honestly can't find a case that can't be solved.
-So I don't know whether to add an option (ioctl, sysfs ?) or wait for
-a real case to come up.
-
-I'll try to see better if there's any particular case where we need
-to disable netns in vsock.
-
-Thanks,
-Stefano
+Me neither. so what did you have in mind when you wrote:
+"could break existing applications"?
