@@ -1,82 +1,57 @@
 From: Jason Wang <jasowang@redhat.com>
-Subject: Re: [PATCH 5/5] vdpasim: vDPA device simulator
-Date: Mon, 20 Jan 2020 16:01:10 +0800
-Message-ID: <cd5477b1-7e41-aeeb-c592-09b2ec81566a@redhat.com>
+Subject: Re: [PATCH 3/5] vDPA: introduce vDPA bus
+Date: Mon, 20 Jan 2020 16:19:10 +0800
+Message-ID: <a4573aa4-f0d6-bb7d-763a-96352fc2c86e@redhat.com>
 References: <20200116124231.20253-1-jasowang@redhat.com>
- <20200116124231.20253-6-jasowang@redhat.com>
- <20200116154658.GJ20978@mellanox.com>
- <aea2bff8-82c8-2c0f-19ee-e86db73e199f@redhat.com>
- <20200117141021.GW20978@mellanox.com>
+ <20200116124231.20253-4-jasowang@redhat.com>
+ <20200117070324-mutt-send-email-mst@kernel.org>
+ <239b042c-2d9e-0eec-a1ef-b03b7e2c5419@redhat.com>
+ <CAJPjb1+fG9L3=iKbV4Vn13VwaeDZZdcfBPvarogF_Nzhk+FnKg@mail.gmail.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=utf-8; format=flowed
 Content-Transfer-Encoding: quoted-printable
-Return-path: <linux-kernel-owner@vger.kernel.org>
-In-Reply-To: <20200117141021.GW20978@mellanox.com>
+Return-path: <kvm-owner@vger.kernel.org>
+In-Reply-To: <CAJPjb1+fG9L3=iKbV4Vn13VwaeDZZdcfBPvarogF_Nzhk+FnKg@mail.gmail.com>
 Content-Language: en-US
-Sender: linux-kernel-owner@vger.kernel.org
-To: Jason Gunthorpe <jgg@mellanox.com>
-Cc: "mst@redhat.com" <mst@redhat.com>, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>, "kvm@vger.kernel.org" <kvm@vger.kernel.org>, "virtualization@lists.linux-foundation.org" <virtualization@lists.linux-foundation.org>, "netdev@vger.kernel.org" <netdev@vger.kernel.org>, "tiwei.bie@intel.com" <tiwei.bie@intel.com>, "maxime.coquelin@redhat.com" <maxime.coquelin@redhat.com>, "cunming.liang@intel.com" <cunming.liang@intel.com>, "zhihong.wang@intel.com" <zhihong.wang@intel.com>, "rob.miller@broadcom.com" <rob.miller@broadcom.com>, "xiao.w.wang@intel.com" <xiao.w.wang@intel.com>, "haotian.wang@sifive.com" <haotian.wang@sifive.com>, "lingshan.zhu@intel.com" <lingshan.zhu@intel.com>, "eperezma@redhat.com" <eperezma@redhat.com>, "lulu@redhat.com" <lulu@redhat.co>
+Sender: kvm-owner@vger.kernel.org
+To: Rob Miller <rob.miller@broadcom.com>
+Cc: "Michael S. Tsirkin" <mst@redhat.com>, linux-kernel@vger.kernel.org, kvm@vger.kernel.org, virtualization@lists.linux-foundation.org, Netdev <netdev@vger.kernel.org>, "Bie, Tiwei" <tiwei.bie@intel.com>, Jason Gunthorpe <jgg@mellanox.com>, maxime.coquelin@redhat.com, "Liang, Cunming" <cunming.liang@intel.com>, "Wang, Zhihong" <zhihong.wang@intel.com>, "Wang, Xiao W" <xiao.w.wang@intel.com>, haotian.wang@sifive.com, "Zhu, Lingshan" <lingshan.zhu@intel.com>, eperezma@redhat.com, lulu@redhat.com, Parav Pandit <parav@mellanox.com>, "Tian, Kevin" <kevin.tian@intel.com>, stefanha@redhat.com, rdunlap@infradead.org, hch@infradead.org, Ariel Adam <aadam@redhat.com>, jakub.kicinski@netronome.com, Jiri Pirko <jiri@mellanox.com>, shahafs@mellanox.com, hanand@xilinx.com, mhabets@s
 List-Id: virtualization@lists.linuxfoundation.org
 
 
-On 2020/1/17 =E4=B8=8B=E5=8D=8810:10, Jason Gunthorpe wrote:
-> On Fri, Jan 17, 2020 at 05:32:39PM +0800, Jason Wang wrote:
->> On 2020/1/16 =E4=B8=8B=E5=8D=8811:47, Jason Gunthorpe wrote:
->>> On Thu, Jan 16, 2020 at 08:42:31PM +0800, Jason Wang wrote:
->>>> This patch implements a software vDPA networking device. The datapat=
-h
->>>> is implemented through vringh and workqueue. The device has an on-ch=
-ip
->>>> IOMMU which translates IOVA to PA. For kernel virtio drivers, vDPA
->>>> simulator driver provides dma_ops. For vhost driers, set_map() metho=
-ds
->>>> of vdpa_config_ops is implemented to accept mappings from vhost.
->>>>
->>>> A sysfs based management interface is implemented, devices are
->>>> created and removed through:
->>>>
->>>> /sys/devices/virtual/vdpa_simulator/netdev/{create|remove}
->>> This is very gross, creating a class just to get a create/remove and
->>> then not using the class for anything else? Yuk.
->>
->> It includes more information, e.g the devices and the link from vdpa_s=
-im
->> device and vdpa device.
-> I feel like regardless of how the device is created there should be a
-> consistent virtio centric management for post-creation tasks, such as
-> introspection and destruction
-
-
-Right, actually, this is something that could be done by sysfs as well.=20
-Having an intermediate steps as "activate" and introducing attributes=20
-for post-creation tasks.
-
-
+On 2020/1/17 =E4=B8=8B=E5=8D=8810:12, Rob Miller wrote:
 >
-> A virto struct device should already have back pointers to it's parent
-> device, which should be enough to discover the vdpa_sim, none of the
-> extra sysfs munging should be needed.
 >
->>>> Netlink based lifecycle management could be implemented for vDPA
->>>> simulator as well.
->>> This is just begging for a netlink based approach.
->>>
->>> Certainly netlink driven removal should be an agreeable standard for
->>> all devices, I think.
->>
->> Well, I think Parav had some proposals during the discussion of mdev
->> approach. But I'm not sure if he had any RFC codes for me to integrate=
- it
->> into vdpasim.
->>
->> Or do you want me to propose the netlink API? If yes, would you prefer=
- to a
->> new virtio dedicated one or be a subset of devlink?
-> Well, lets see what feed back Parav has
+>     >> + * @get_vendor_id:=C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 Get id for=
+ the vendor that
+>     provides this device
+>     >> + *=C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0=
+ =C2=A0 =C2=A0 =C2=A0 =C2=A0 @vdev: vdpa device
+>     >> + *=C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0=
+ =C2=A0 =C2=A0 =C2=A0 =C2=A0 Returns u32: virtio vendor id
+>     > what's the idea behind this? userspace normally doesn't interact
+>     with
+>     > this ... debugging?
 >
-> Jason
+>
+>     This allows some vendor specific driver on top of vDPA bus. If
+>     this is
+>     not interested, I can drop this.
+>
+> RJM>] wouldn't=C2=A0 usage of get_device_id & get_vendor_id, beyond=20
+> reporting, tend to possibly leading to vendor specific code in the=20
+> framework instead of leaving the framework=C2=A0agnostic and leave the=20
+> vendor specific stuff to the vendor's vDPA device driver?
 
 
-Ok.
+For virtio device id, I think it is needed for kernel/userspace to know=20
+which driver to load (e.g loading virtio-net for networking devic).
+
+For virtio vendor id, it was needed by kernel virtio driver, and virtio=20
+bus can match driver based on virtio vendor id. So it doesn't prevent=20
+3rd vendor specific driver for virtio device.
+
+Maybe we can report VIRTIO_DEV_ANY_ID as vendor id to forbid vendor=20
+specific stuffs.
 
 Thanks
