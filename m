@@ -1,89 +1,110 @@
 From: Jason Wang <jasowang@redhat.com>
 Subject: Re: [PATCH 3/5] vDPA: introduce vDPA bus
-Date: Tue, 21 Jan 2020 15:57:29 +0800
-Message-ID: <ef3ca685-2cbe-ce7c-c9c0-cbb5caa08db2@redhat.com>
-References: <20200116124231.20253-4-jasowang@redhat.com>
+Date: Tue, 21 Jan 2020 16:00:38 +0800
+Message-ID: <b9ad744e-c4cd-82f9-f56a-1ecc185e9cd7@redhat.com>
+References: <20200116124231.20253-1-jasowang@redhat.com>
+ <20200116124231.20253-4-jasowang@redhat.com>
  <20200117070324-mutt-send-email-mst@kernel.org>
  <239b042c-2d9e-0eec-a1ef-b03b7e2c5419@redhat.com>
  <CAJPjb1+fG9L3=iKbV4Vn13VwaeDZZdcfBPvarogF_Nzhk+FnKg@mail.gmail.com>
  <AM0PR0502MB379553984D0D55FDE25426F6C3330@AM0PR0502MB3795.eurprd05.prod.outlook.com>
  <d69918ca-8af4-44b2-9652-633530d4c113@redhat.com>
  <20200120174933.GB3891@mellanox.com>
- <AM0PR0502MB3795C92485338180FC8059CFC3320@AM0PR0502MB3795.eurprd05.prod.outlook.com>
- <20200120162449-mutt-send-email-mst@kernel.org>
- <AM0PR0502MB3795A7BE7F434964D6102517C3320@AM0PR0502MB3795.eurprd05.prod.outlook.com>
- <20200120165640-mutt-send-email-mst@kernel.org>
- <AM0PR0502MB3795940D8E0A269D4A32FF8FC30D0@AM0PR0502MB3795.eurprd05.prod.outlook.com>
+ <2a324cec-2863-58f4-c58a-2414ee32c930@redhat.com>
+ <20200121004047-mutt-send-email-mst@kernel.org>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=UTF-8; format=flowed
+Content-Type: text/plain; charset=utf-8; format=flowed
 Content-Transfer-Encoding: quoted-printable
 Return-path: <linux-kernel-owner@vger.kernel.org>
-In-Reply-To: <AM0PR0502MB3795940D8E0A269D4A32FF8FC30D0@AM0PR0502MB3795.eurprd05.prod.outlook.com>
+In-Reply-To: <20200121004047-mutt-send-email-mst@kernel.org>
 Content-Language: en-US
 Sender: linux-kernel-owner@vger.kernel.org
-To: Shahaf Shuler <shahafs@mellanox.com>, "Michael S. Tsirkin" <mst@redhat.com>
-Cc: Jason Gunthorpe <jgg@mellanox.com>, Rob Miller <rob.miller@broadcom.com>, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>, "kvm@vger.kernel.org" <kvm@vger.kernel.org>, "virtualization@lists.linux-foundation.org" <virtualization@lists.linux-foundation.org>, Netdev <netdev@vger.kernel.org>, "Bie, Tiwei" <tiwei.bie@intel.com>, "maxime.coquelin@redhat.com" <maxime.coquelin@redhat.com>, "Liang, Cunming" <cunming.liang@intel.com>, "Wang, Zhihong" <zhihong.wang@intel.com>, "Wang, Xiao W" <xiao.w.wang@intel.com>, "haotian.wang@sifive.com" <haotian.wang@sifive.com>, "Zhu, Lingshan" <lingshan.zhu@intel.com>, "eperezma@redhat.com" <eperezma@redhat.com>, "lulu@redhat.com" <lulu@redhat.com>, Parav Pandit <parav@mellanox.com>, "Tian, Kevin" <kevin.t>
+To: "Michael S. Tsirkin" <mst@redhat.com>
+Cc: Jason Gunthorpe <jgg@mellanox.com>, Shahaf Shuler <shahafs@mellanox.com>, Rob Miller <rob.miller@broadcom.com>, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>, "kvm@vger.kernel.org" <kvm@vger.kernel.org>, "virtualization@lists.linux-foundation.org" <virtualization@lists.linux-foundation.org>, Netdev <netdev@vger.kernel.org>, "Bie, Tiwei" <tiwei.bie@intel.com>, "maxime.coquelin@redhat.com" <maxime.coquelin@redhat.com>, "Liang, Cunming" <cunming.liang@intel.com>, "Wang, Zhihong" <zhihong.wang@intel.com>, "Wang, Xiao W" <xiao.w.wang@intel.com>, "haotian.wang@sifive.com" <haotian.wang@sifive.com>, "Zhu, Lingshan" <lingshan.zhu@intel.com>, "eperezma@redhat.com" <eperezma@redhat.com>, "lulu@redhat.com" <lulu@redhat.com>, Parav Pandit <parav>
 List-Id: virtualization@lists.linuxfoundation.org
 
 
-On 2020/1/21 =E4=B8=8B=E5=8D=882:01, Shahaf Shuler wrote:
-> Tuesday, January 21, 2020 12:00 AM, Michael S. Tsirkin:
->> Subject: Re: [PATCH 3/5] vDPA: introduce vDPA bus
->>
->> On Mon, Jan 20, 2020 at 09:47:18PM +0000, Shahaf Shuler wrote:
->>> Monday, January 20, 2020 11:25 PM, Michael S. Tsirkin:
->>>> Subject: Re: [PATCH 3/5] vDPA: introduce vDPA bus
+On 2020/1/21 =E4=B8=8B=E5=8D=881:47, Michael S. Tsirkin wrote:
+> On Tue, Jan 21, 2020 at 12:00:57PM +0800, Jason Wang wrote:
+>> On 2020/1/21 =E4=B8=8A=E5=8D=881:49, Jason Gunthorpe wrote:
+>>> On Mon, Jan 20, 2020 at 04:43:53PM +0800, Jason Wang wrote:
+>>>> This is similar to the design of platform IOMMU part of vhost-vdpa. =
+We
+>>>> decide to send diffs to platform IOMMU there. If it's ok to do that =
+in
+>>>> driver, we can replace set_map with incremental API like map()/unmap=
+().
 >>>>
->>>> On Mon, Jan 20, 2020 at 08:51:43PM +0000, Shahaf Shuler wrote:
->>>>> Monday, January 20, 2020 7:50 PM, Jason Gunthorpe:
->>>>>> Subject: Re: [PATCH 3/5] vDPA: introduce vDPA bus
->>>>>>
->>>>>> On Mon, Jan 20, 2020 at 04:43:53PM +0800, Jason Wang wrote:
->>>>>>> This is similar to the design of platform IOMMU part of
->>>>>>> vhost-vdpa. We decide to send diffs to platform IOMMU there.
->>>>>>> If it's ok to do that in driver, we can replace set_map with
->>>>>>> incremental API
->>>> like map()/unmap().
->>>>>>> Then driver need to maintain rbtree itself.
->>>>>> I think we really need to see two modes, one where there is a
->>>>>> fixed translation without dynamic vIOMMU driven changes and one
->>>>>> that supports vIOMMU.
->>>>>>
->>>>>> There are different optimization goals in the drivers for these
->>>>>> two configurations.
->>>>> +1.
->>>>> It will be best to have one API for static config (i.e. mapping
->>>>> can be set only before virtio device gets active), and one API for
->>>>> dynamic changes that can be set after the virtio device is active.
->>>> Frankly I don't see when we'd use the static one.
->>>> Memory hotplug is enabled for most guests...
->>> The fact memory hotplug is enabled doesn't necessarily means there is=
- not
->> cold-plugged memory on the hot plugged slots.
->>> So your claim is majority of guests are deployed w/o any cold-plugged
->> memory?
+>>>> Then driver need to maintain rbtree itself.
+>>> I think we really need to see two modes, one where there is a fixed
+>>> translation without dynamic vIOMMU driven changes and one that
+>>> supports vIOMMU.
 >>
->> Sorry for not being clear. I was merely saying that dynamic one can't =
-be
->> optional, and static one can. So how about we start just with the dyna=
-mic
->> one, then add the static one as a later optimization?
-> Since we have the use case (cold plugged memory to guest, e.g. when pop=
-ulated w/ hugepages) I think we should start w/ both. The static one can =
-be optional for drivers.
+>> I think in this case, you meant the method proposed by Shahaf that sen=
+ds
+>> diffs of "fixed translation" to device?
+>>
+>> It would be kind of tricky to deal with the following case for example=
+:
+>>
+>> old map [4G, 16G) new map [4G, 8G)
+>>
+>> If we do
+>>
+>> 1) flush [4G, 16G)
+>> 2) add [4G, 8G)
+>>
+>> There could be a window between 1) and 2).
+>>
+>> It requires the IOMMU that can do
+>>
+>> 1) remove [8G, 16G)
+>> 2) flush [8G, 16G)
+>> 3) change [4G, 8G)
+>>
+>> ....
+> Basically what I had in mind is something like qemu memory api
 >
-> Moreover am not yet clear about the suggested API for dynamic, can you =
-share the prototype you have in mind?
-> Also will it be :
-> 1. multiple add_map and then flag the driver to set
-> Or
-> 2. each add_map should be set by the driver as stand alone.
+> 0. begin
+> 1. remove [8G, 16G)
+> 2. add [4G, 8G)
+> 3. commit
 
 
-For dynamic one, it looks to me that introducing add_map()/del_map() bus=20
-operations is much more cleaner than reusing current set_map() one.
+This sounds more flexible e.g driver may choose to implement static=20
+mapping one through commit. But a question here, it looks to me this=20
+still requires the DMA to be synced with at least commit here. Otherwise=20
+device may get DMA fault? Or device is expected to be paused DMA during=20
+begin?
 
 Thanks
 
 
+>
+> Anyway, I'm fine with a one-shot API for now, we can
+> improve it later.
+>
+>>> There are different optimization goals in the drivers for these two
+>>> configurations.
+>>>
+>>>>> If the first one, then I think memory hotplug is a heavy flow
+>>>>> regardless. Do you think the extra cycles for the tree traverse
+>>>>> will be visible in any way?
+>>>> I think if the driver can pause the DMA during the time for setting =
+up new
+>>>> mapping, it should be fine.
+>>> This is very tricky for any driver if the mapping change hits the
+>>> virtio rings. :(
+>>>
+>>> Even a IOMMU using driver is going to have problems with that..
+>>>
+>>> Jason
+>>
+>> Or I wonder whether ATS/PRI can help here. E.g during I/O page fault,
+>> driver/device can wait for the new mapping to be set and then replay t=
+he
+>> DMA.
+>>
+>> Thanks
+>>
 >
