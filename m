@@ -1,110 +1,107 @@
-From: "Tian, Kevin" <kevin.tian@intel.com>
-Subject: RE: [PATCH 0/5] vDPA support
-Date: Tue, 21 Jan 2020 08:44:39 +0000
-Message-ID: <AADFC41AFE54684AB9EE6CBC0274A5D19D73EC6B@SHSMSX104.ccr.corp.intel.com>
-References: <20200116124231.20253-1-jasowang@redhat.com>
+From: Stefano Garzarella <sgarzare@redhat.com>
+Subject: Re: [PATCH net-next 1/3] vsock: add network namespace support
+Date: Tue, 21 Jan 2020 10:07:06 +0100
+Message-ID: <CAGxU2F4uW7FNe5xC0sb3Xxr_GABSXuu1Z9n5M=Ntq==T7MaaVw@mail.gmail.com>
+References: <20200116172428.311437-1-sgarzare@redhat.com>
+ <20200116172428.311437-2-sgarzare@redhat.com>
+ <20200120.100610.546818167633238909.davem@davemloft.net>
+ <20200120101735.uyh4o64gb4njakw5@steredhat>
+ <20200120060601-mutt-send-email-mst@kernel.org>
+ <CAGxU2F6VH8Eb5UH_9KjN6MONbZEo1D7EHAiocVVus6jW55BJDg@mail.gmail.com>
+ <20200120110319-mutt-send-email-mst@kernel.org>
+ <CAGxU2F5=DQJ56sH4BUqp_7rvaXSF9bFHp4QkpLApJQK0bmd4MA@mail.gmail.com>
+ <20200120170120-mutt-send-email-mst@kernel.org>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
-Content-Transfer-Encoding: 7bit
-Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <20200116124231.20253-1-jasowang@redhat.com>
-Content-Language: en-US
-List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
- <mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
-List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
-List-Post: <mailto:virtualization@lists.linux-foundation.org>
-List-Help: <mailto:virtualization-request@lists.linux-foundation.org?subject=help>
-List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualization>,
- <mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
-Errors-To: virtualization-bounces@lists.linux-foundation.org
-Sender: "Virtualization" <virtualization-bounces@lists.linux-foundation.org>
-To: Jason Wang <jasowang@redhat.com>, "mst@redhat.com" <mst@redhat.com>, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>, "kvm@vger.kernel.org" <kvm@vger.kernel.org>, "virtualization@lists.linux-foundation.org" <virtualization@lists.linux-foundation.org>, "netdev@vger.kernel.org" <netdev@vger.kernel.org>
-Cc: "shahafs@mellanox.com" <shahafs@mellanox.com>, "rdunlap@infradead.org" <rdunlap@infradead.org>, "jakub.kicinski@netronome.com" <jakub.kicinski@netronome.com>, "lulu@redhat.com" <lulu@redhat.com>, "Wang, Xiao W" <xiao.w.wang@intel.com>, "stefanha@redhat.com" <stefanha@redhat.com>, "haotian.wang@sifive.com" <haotian.wang@sifive.com>, "hch@infradead.org" <hch@infradead.org>, "eperezma@redhat.com" <eperezma@redhat.com>, "maxime.coquelin@redhat.com" <maxime.coquelin@redhat.com>, "jgg@mellanox.com" <jgg@mellanox.com>, "hanand@xilinx.com" <hanand@xilinx.com>, "parav@mellanox.com" <parav@mellanox.com>, "Wang,
- Zhihong" <zhihong.wang@intel.com>, "Zhu, Lingshan" <lingshan.zhu@intel.com>, "jiri@mellanox.com" <jiri@mellanox.com>, "mhabets@solarflare.com" <mhabets@solarflare.com>, "rob.miller@broadcom.com" <rob.miller@broadcom.com>
+Content-Type: text/plain; charset=us-ascii
+Return-path: <linux-kernel-owner@vger.kernel.org>
+Content-Disposition: inline
+In-Reply-To: <20200120170120-mutt-send-email-mst@kernel.org>
+Sender: linux-kernel-owner@vger.kernel.org
+To: "Michael S. Tsirkin" <mst@redhat.com>
+Cc: David Miller <davem@davemloft.net>, netdev@vger.kernel.org, linux-kernel@vger.kernel.org, Jorgen Hansen <jhansen@vmware.com>, Jason Wang <jasowang@redhat.com>, kvm <kvm@vger.kernel.org>, Stefan Hajnoczi <stefanha@redhat.com>, virtualization@lists.linux-foundation.org, linux-hyperv@vger.kernel.org, Dexuan Cui <decui@microsoft.com>
 List-Id: virtualization@lists.linuxfoundation.org
 
-> From: Jason Wang
-> Sent: Thursday, January 16, 2020 8:42 PM
-> 
-> Hi all:
-> 
-> Based on the comments and discussion for mdev based hardware virtio
-> offloading support[1]. A different approach to support vDPA device is
-> proposed in this series.
+On Mon, Jan 20, 2020 at 11:02 PM Michael S. Tsirkin <mst@redhat.com> wrote:
+> On Mon, Jan 20, 2020 at 05:53:39PM +0100, Stefano Garzarella wrote:
+> > On Mon, Jan 20, 2020 at 5:04 PM Michael S. Tsirkin <mst@redhat.com> wrote:
+> > > On Mon, Jan 20, 2020 at 02:58:01PM +0100, Stefano Garzarella wrote:
+> > > > On Mon, Jan 20, 2020 at 1:03 PM Michael S. Tsirkin <mst@redhat.com> wrote:
+> > > > > On Mon, Jan 20, 2020 at 11:17:35AM +0100, Stefano Garzarella wrote:
+> > > > > > On Mon, Jan 20, 2020 at 10:06:10AM +0100, David Miller wrote:
+> > > > > > > From: Stefano Garzarella <sgarzare@redhat.com>
+> > > > > > > Date: Thu, 16 Jan 2020 18:24:26 +0100
+> > > > > > >
+> > > > > > > > This patch adds 'netns' module param to enable this new feature
+> > > > > > > > (disabled by default), because it changes vsock's behavior with
+> > > > > > > > network namespaces and could break existing applications.
+> > > > > > >
+> > > > > > > Sorry, no.
+> > > > > > >
+> > > > > > > I wonder if you can even design a legitimate, reasonable, use case
+> > > > > > > where these netns changes could break things.
+> > > > > >
+> > > > > > I forgot to mention the use case.
+> > > > > > I tried the RFC with Kata containers and we found that Kata shim-v1
+> > > > > > doesn't work (Kata shim-v2 works as is) because there are the following
+> > > > > > processes involved:
+> > > > > > - kata-runtime (runs in the init_netns) opens /dev/vhost-vsock and
+> > > > > >   passes it to qemu
+> > > > > > - kata-shim (runs in a container) wants to talk with the guest but the
+> > > > > >   vsock device is assigned to the init_netns and kata-shim runs in a
+> > > > > >   different netns, so the communication is not allowed
+> > > > > > But, as you said, this could be a wrong design, indeed they already
+> > > > > > found a fix, but I was not sure if others could have the same issue.
+> > > > > >
+> > > > > > In this case, do you think it is acceptable to make this change in
+> > > > > > the vsock's behavior with netns and ask the user to change the design?
+> > > > >
+> > > > > David's question is what would be a usecase that's broken
+> > > > > (as opposed to fixed) by enabling this by default.
+> > > >
+> > > > Yes, I got that. Thanks for clarifying.
+> > > > I just reported a broken example that can be fixed with a different
+> > > > design (due to the fact that before this series, vsock devices were
+> > > > accessible to all netns).
+> > > >
+> > > > >
+> > > > > If it does exist, you need a way for userspace to opt-in,
+> > > > > module parameter isn't that.
+> > > >
+> > > > Okay, but I honestly can't find a case that can't be solved.
+> > > > So I don't know whether to add an option (ioctl, sysfs ?) or wait for
+> > > > a real case to come up.
+> > > >
+> > > > I'll try to see better if there's any particular case where we need
+> > > > to disable netns in vsock.
+> > > >
+> > > > Thanks,
+> > > > Stefano
+> > >
+> > > Me neither. so what did you have in mind when you wrote:
+> > > "could break existing applications"?
+> >
+> > I had in mind:
+> > 1. the Kata case. It is fixable (the fix is not merged on kata), but
+> >    older versions will not work with newer Linux.
+>
+> meaning they will keep not working, right?
 
-Can you point to the actual link which triggered the direction change?
-A quick glimpse in that thread doesn't reveal such information...
+Right, I mean without this series they work, with this series they work
+only if the netns support is disabled or with a patch proposed but not
+merged in kata.
 
-> 
-> Instead of leveraging VFIO/mdev which may not work for some
-> vendors. This series tries to introduce a dedicated vDPA bus and
-> leverage vhost for userspace drivers. This help for the devices that
-> are not fit for VFIO and may reduce the conflict when try to propose a
-> bus template for virtual devices in [1].
-> 
-> The vDPA support is split into following parts:
-> 
-> 1) vDPA core (bus, device and driver abstraction)
-> 2) virtio vDPA transport for kernel virtio driver to control vDPA
->    device
-> 3) vhost vDPA bus driver for userspace vhost driver to control vDPA
->    device
-> 4) vendor vDPA drivers
-> 5) management API
-> 
-> Both 1) and 2) are included in this series. Tiwei will work on part
-> 3). For 4), Ling Shan will work and post IFCVF driver. For 5) we leave
-> it to vendor to implement, but it's better to come into an agreement
-> for management to create/configure/destroy vDPA device.
-> 
-> The sample driver is kept but renamed to vdap_sim. An on-chip IOMMU
-> implementation is added to sample device to make it work for both
-> kernel virtio driver and userspace vhost driver. It implements a sysfs
-> based management API, but it can switch to any other (e.g devlink) if
-> necessary.
-> 
-> Please refer each patch for more information.
-> 
-> Comments are welcomed.
-> 
-> [1] https://lkml.org/lkml/2019/11/18/261
-> 
-> Jason Wang (5):
->   vhost: factor out IOTLB
->   vringh: IOTLB support
->   vDPA: introduce vDPA bus
->   virtio: introduce a vDPA based transport
->   vdpasim: vDPA device simulator
-> 
->  MAINTAINERS                    |   2 +
->  drivers/vhost/Kconfig          |   7 +
->  drivers/vhost/Kconfig.vringh   |   1 +
->  drivers/vhost/Makefile         |   2 +
->  drivers/vhost/net.c            |   2 +-
->  drivers/vhost/vhost.c          | 221 +++------
->  drivers/vhost/vhost.h          |  36 +-
->  drivers/vhost/vhost_iotlb.c    | 171 +++++++
->  drivers/vhost/vringh.c         | 434 +++++++++++++++++-
->  drivers/virtio/Kconfig         |  15 +
->  drivers/virtio/Makefile        |   2 +
->  drivers/virtio/vdpa/Kconfig    |  26 ++
->  drivers/virtio/vdpa/Makefile   |   3 +
->  drivers/virtio/vdpa/vdpa.c     | 141 ++++++
->  drivers/virtio/vdpa/vdpa_sim.c | 796
-> +++++++++++++++++++++++++++++++++
->  drivers/virtio/virtio_vdpa.c   | 400 +++++++++++++++++
->  include/linux/vdpa.h           | 191 ++++++++
->  include/linux/vhost_iotlb.h    |  45 ++
->  include/linux/vringh.h         |  36 ++
->  19 files changed, 2327 insertions(+), 204 deletions(-)
->  create mode 100644 drivers/vhost/vhost_iotlb.c
->  create mode 100644 drivers/virtio/vdpa/Kconfig
->  create mode 100644 drivers/virtio/vdpa/Makefile
->  create mode 100644 drivers/virtio/vdpa/vdpa.c
->  create mode 100644 drivers/virtio/vdpa/vdpa_sim.c
->  create mode 100644 drivers/virtio/virtio_vdpa.c
->  create mode 100644 include/linux/vdpa.h
->  create mode 100644 include/linux/vhost_iotlb.h
-> 
-> --
-> 2.19.1
+>
+> > 2. a single process running on init_netns that wants to communicate with
+> >    VMs handled by VMMs running in different netns, but this case can be
+> >    solved opening the /dev/vhost-vsock in the same netns of the process
+> >    that wants to communicate with the VMs (init_netns in this case), and
+> >    passig it to the VMM.
+>
+> again right now they just don't work, right?
+
+Right, as above.
+
+What do you recommend I do?
+
+Thanks,
+Stefano
