@@ -1,198 +1,87 @@
-From: Jason Wang <jasowang@redhat.com>
-Subject: Re: [PATCH 3/5] vDPA: introduce vDPA bus
-Date: Tue, 21 Jan 2020 17:41:21 +0800
-Message-ID: <f27d59b7-1c91-5870-55f5-e21311fcef99@redhat.com>
-References: <20200116124231.20253-1-jasowang@redhat.com>
- <20200116124231.20253-4-jasowang@redhat.com>
- <20200116152209.GH20978@mellanox.com>
- <03cfbcc2-fef0-c9d8-0b08-798b2a293b8c@redhat.com>
- <AADFC41AFE54684AB9EE6CBC0274A5D19D73EBA4@SHSMSX104.ccr.corp.intel.com>
+From: Shahaf Shuler <shahafs@mellanox.com>
+Subject: RE: [PATCH 3/5] vDPA: introduce vDPA bus
+Date: Tue, 21 Jan 2020 11:09:38 +0000
+Message-ID: <AM0PR0502MB37956A8D6690B190EEA713A5C30D0@AM0PR0502MB3795.eurprd05.prod.outlook.com>
+References: <20200116124231.20253-4-jasowang@redhat.com>
+ <20200117070324-mutt-send-email-mst@kernel.org>
+ <239b042c-2d9e-0eec-a1ef-b03b7e2c5419@redhat.com>
+ <CAJPjb1+fG9L3=iKbV4Vn13VwaeDZZdcfBPvarogF_Nzhk+FnKg@mail.gmail.com>
+ <AM0PR0502MB379553984D0D55FDE25426F6C3330@AM0PR0502MB3795.eurprd05.prod.outlook.com>
+ <d69918ca-8af4-44b2-9652-633530d4c113@redhat.com>
+ <20200120174933.GB3891@mellanox.com>
+ <2a324cec-2863-58f4-c58a-2414ee32c930@redhat.com>
+ <20200121004047-mutt-send-email-mst@kernel.org>
+ <b9ad744e-c4cd-82f9-f56a-1ecc185e9cd7@redhat.com>
+ <20200121031506-mutt-send-email-mst@kernel.org>
+ <028ed448-a948-79d9-f224-c325029b17ab@redhat.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=utf-8; format=flowed
-Content-Transfer-Encoding: quoted-printable
-Return-path: <netdev-owner@vger.kernel.org>
-In-Reply-To: <AADFC41AFE54684AB9EE6CBC0274A5D19D73EBA4@SHSMSX104.ccr.corp.intel.com>
+Content-Type: text/plain; charset="utf-8"
+Content-Transfer-Encoding: base64
+Return-path: <linux-kernel-owner@vger.kernel.org>
+In-Reply-To: <028ed448-a948-79d9-f224-c325029b17ab@redhat.com>
 Content-Language: en-US
-Sender: netdev-owner@vger.kernel.org
-To: "Tian, Kevin" <kevin.tian@intel.com>, Jason Gunthorpe <jgg@mellanox.com>
-Cc: "mst@redhat.com" <mst@redhat.com>, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>, "kvm@vger.kernel.org" <kvm@vger.kernel.org>, "virtualization@lists.linux-foundation.org" <virtualization@lists.linux-foundation.org>, "netdev@vger.kernel.org" <netdev@vger.kernel.org>, "Bie, Tiwei" <tiwei.bie@intel.com>, "maxime.coquelin@redhat.com" <maxime.coquelin@redhat.com>, "Liang, Cunming" <cunming.liang@intel.com>, "Wang, Zhihong" <zhihong.wang@intel.com>, "rob.miller@broadcom.com" <rob.miller@broadcom.com>, "Wang, Xiao W" <xiao.w.wang@intel.com>, "haotian.wang@sifive.com" <haotian.wang@sifive.com>, "Zhu, Lingshan" <lingshan.zhu@intel.com>, "eperezma@redhat.com" <eperezma@redhat.com>, "lulu@redhat.com" <lulu@redhat.com>, Parav Pandit <parav@mellanox.com>
+Sender: linux-kernel-owner@vger.kernel.org
+To: Jason Wang <jasowang@redhat.com>, "Michael S. Tsirkin" <mst@redhat.com>
+Cc: Jason Gunthorpe <jgg@mellanox.com>, Rob Miller <rob.miller@broadcom.com>, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>, "kvm@vger.kernel.org" <kvm@vger.kernel.org>, "virtualization@lists.linux-foundation.org" <virtualization@lists.linux-foundation.org>, Netdev <netdev@vger.kernel.org>, "Bie, Tiwei" <tiwei.bie@intel.com>, "maxime.coquelin@redhat.com" <maxime.coquelin@redhat.com>, "Liang, Cunming" <cunming.liang@intel.com>, "Wang, Zhihong" <zhihong.wang@intel.com>, "Wang, Xiao W" <xiao.w.wang@intel.com>, "haotian.wang@sifive.com" <haotian.wang@sifive.com>, "Zhu, Lingshan" <lingshan.zhu@intel.com>, "eperezma@redhat.com" <eperezma@redhat.com>, "lulu@redhat.com" <lulu@redhat.com>, Parav Pandit <parav@mellanox.com>, "Tian, Kevin" <kevin.t>
 List-Id: virtualization@lists.linuxfoundation.org
 
-
-On 2020/1/21 =E4=B8=8B=E5=8D=884:40, Tian, Kevin wrote:
->> From: Jason Wang <jasowang@redhat.com>
->> Sent: Friday, January 17, 2020 11:03 AM
->>
->>
->> On 2020/1/16 =E4=B8=8B=E5=8D=8811:22, Jason Gunthorpe wrote:
->>> On Thu, Jan 16, 2020 at 08:42:29PM +0800, Jason Wang wrote:
->>>> vDPA device is a device that uses a datapath which complies with the
->>>> virtio specifications with vendor specific control path. vDPA device=
-s
->>>> can be both physically located on the hardware or emulated by
->>>> software. vDPA hardware devices are usually implemented through PCIE
->>>> with the following types:
->>>>
->>>> - PF (Physical Function) - A single Physical Function
->>>> - VF (Virtual Function) - Device that supports single root I/O
->>>>     virtualization (SR-IOV). Its Virtual Function (VF) represents a
->>>>     virtualized instance of the device that can be assigned to diffe=
-rent
->>>>     partitions
->>>> - VDEV (Virtual Device) - With technologies such as Intel Scalable
->>>>     IOV, a virtual device composed by host OS utilizing one or more
->>>>     ADIs.
-> the concept of VDEV includes both software bits and ADIs. If you
-> only take about hardware types, using ADI is more accurate.
-
-
-Ok.
-
-
->
->>>> - SF (Sub function) - Vendor specific interface to slice the Physica=
-l
->>>>     Function to multiple sub functions that can be assigned to diffe=
-rent
->>>>     partitions as virtual devices.
->>> I really hope we don't end up with two different ways to spell this
->>> same thing.
->>
->> I think you meant ADI vs SF. It looks to me that ADI is limited to the
->> scope of scalable IOV but SF not.
-> ADI is just a term for minimally assignable resource in Scalable IOV.
-> 'assignable' implies several things, e.g. the resource can be independe=
-ntly
-> mapped to/accessed by user space or guest, DMAs between two
-> ADIs are isolated, operating one ADI doesn't affecting another ADI,
-> etc.  I'm not clear about  other vendor specific interfaces, but suppos=
-ing
-> they need match the similar requirements. Then do we really want to
-> differentiate ADI vs. SF? What about merging them with ADI as just
-> one example of finer-grained slicing?
-
-
-I think so. That what Jason G want as well.
-
-Thanks
-
-
->
->>
->>>> @@ -0,0 +1,2 @@
->>>> +# SPDX-License-Identifier: GPL-2.0
->>>> +obj-$(CONFIG_VDPA) +=3D vdpa.o
->>>> diff --git a/drivers/virtio/vdpa/vdpa.c b/drivers/virtio/vdpa/vdpa.c
->>>> new file mode 100644
->>>> index 000000000000..2b0e4a9f105d
->>>> +++ b/drivers/virtio/vdpa/vdpa.c
->>>> @@ -0,0 +1,141 @@
->>>> +// SPDX-License-Identifier: GPL-2.0-only
->>>> +/*
->>>> + * vDPA bus.
->>>> + *
->>>> + * Copyright (c) 2019, Red Hat. All rights reserved.
->>>> + *     Author: Jason Wang <jasowang@redhat.com>
->>> 2020 tests days
->>
->> Will fix.
->>
->>
->>>> + *
->>>> + */
->>>> +
->>>> +#include <linux/module.h>
->>>> +#include <linux/idr.h>
->>>> +#include <linux/vdpa.h>
->>>> +
->>>> +#define MOD_VERSION  "0.1"
->>> I think module versions are discouraged these days
->>
->> Will remove.
->>
->>
->>>> +#define MOD_DESC     "vDPA bus"
->>>> +#define MOD_AUTHOR   "Jason Wang <jasowang@redhat.com>"
->>>> +#define MOD_LICENSE  "GPL v2"
->>>> +
->>>> +static DEFINE_IDA(vdpa_index_ida);
->>>> +
->>>> +struct device *vdpa_get_parent(struct vdpa_device *vdpa)
->>>> +{
->>>> +	return vdpa->dev.parent;
->>>> +}
->>>> +EXPORT_SYMBOL(vdpa_get_parent);
->>>> +
->>>> +void vdpa_set_parent(struct vdpa_device *vdpa, struct device *paren=
-t)
->>>> +{
->>>> +	vdpa->dev.parent =3D parent;
->>>> +}
->>>> +EXPORT_SYMBOL(vdpa_set_parent);
->>>> +
->>>> +struct vdpa_device *dev_to_vdpa(struct device *_dev)
->>>> +{
->>>> +	return container_of(_dev, struct vdpa_device, dev);
->>>> +}
->>>> +EXPORT_SYMBOL_GPL(dev_to_vdpa);
->>>> +
->>>> +struct device *vdpa_to_dev(struct vdpa_device *vdpa)
->>>> +{
->>>> +	return &vdpa->dev;
->>>> +}
->>>> +EXPORT_SYMBOL_GPL(vdpa_to_dev);
->>> Why these trivial assessors? Seems unnecessary, or should at least be
->>> static inlines in a header
->>
->> Will fix.
->>
->>
->>>> +int register_vdpa_device(struct vdpa_device *vdpa)
->>>> +{
->>> Usually we want to see symbols consistently prefixed with vdpa_*, is
->>> there a reason why register/unregister are swapped?
->>
->> I follow the name from virtio. I will switch to vdpa_*.
->>
->>
->>>> +	int err;
->>>> +
->>>> +	if (!vdpa_get_parent(vdpa))
->>>> +		return -EINVAL;
->>>> +
->>>> +	if (!vdpa->config)
->>>> +		return -EINVAL;
->>>> +
->>>> +	err =3D ida_simple_get(&vdpa_index_ida, 0, 0, GFP_KERNEL);
->>>> +	if (err < 0)
->>>> +		return -EFAULT;
->>>> +
->>>> +	vdpa->dev.bus =3D &vdpa_bus;
->>>> +	device_initialize(&vdpa->dev);
->>> IMHO device_initialize should not be called inside something called
->>> register, toooften we find out that the caller drivers need the devic=
-e
->>> to be initialized earlier, ie to use the kref, or something.
->>>
->>> I find the best flow is to have some init function that does the
->>> device_initialize and sets the device_name that the driver can call
->>> early.
->>
->> Ok, will do.
->>
->>
->>> Shouldn't there be a device/driver matching process of some kind?
->>
->> The question is what do we want do match here.
->>
->> 1) "virtio" vs "vhost", I implemented matching method for this in mdev
->> series, but it looks unnecessary for vDPA device driver to know about
->> this. Anyway we can use sysfs driver bind/unbind to switch drivers
->> 2) virtio device id and vendor id. I'm not sure we need this consider
->> the two drivers so far (virtio/vhost) are all bus drivers.
->>
->> Thanks
->>
->>
->>> Jason
->>>
+VHVlc2RheSwgSmFudWFyeSAyMSwgMjAyMCAxMDozNSBBTSwgSmFzb24gV2FuZzoNCj4gU3ViamVj
+dDogUmU6IFtQQVRDSCAzLzVdIHZEUEE6IGludHJvZHVjZSB2RFBBIGJ1cw0KPiANCj4gDQo+IE9u
+IDIwMjAvMS8yMSDkuIvljYg0OjE1LCBNaWNoYWVsIFMuIFRzaXJraW4gd3JvdGU6DQo+ID4gT24g
+VHVlLCBKYW4gMjEsIDIwMjAgYXQgMDQ6MDA6MzhQTSArMDgwMCwgSmFzb24gV2FuZyB3cm90ZToN
+Cj4gPj4gT24gMjAyMC8xLzIxIOS4i+WNiDE6NDcsIE1pY2hhZWwgUy4gVHNpcmtpbiB3cm90ZToN
+Cj4gPj4+IE9uIFR1ZSwgSmFuIDIxLCAyMDIwIGF0IDEyOjAwOjU3UE0gKzA4MDAsIEphc29uIFdh
+bmcgd3JvdGU6DQo+ID4+Pj4gT24gMjAyMC8xLzIxIOS4iuWNiDE6NDksIEphc29uIEd1bnRob3Jw
+ZSB3cm90ZToNCj4gPj4+Pj4gT24gTW9uLCBKYW4gMjAsIDIwMjAgYXQgMDQ6NDM6NTNQTSArMDgw
+MCwgSmFzb24gV2FuZyB3cm90ZToNCj4gPj4+Pj4+IFRoaXMgaXMgc2ltaWxhciB0byB0aGUgZGVz
+aWduIG9mIHBsYXRmb3JtIElPTU1VIHBhcnQgb2YNCj4gPj4+Pj4+IHZob3N0LXZkcGEuIFdlIGRl
+Y2lkZSB0byBzZW5kIGRpZmZzIHRvIHBsYXRmb3JtIElPTU1VIHRoZXJlLiBJZg0KPiA+Pj4+Pj4g
+aXQncyBvayB0byBkbyB0aGF0IGluIGRyaXZlciwgd2UgY2FuIHJlcGxhY2Ugc2V0X21hcCB3aXRo
+IGluY3JlbWVudGFsDQo+IEFQSSBsaWtlIG1hcCgpL3VubWFwKCkuDQo+ID4+Pj4+Pg0KPiA+Pj4+
+Pj4gVGhlbiBkcml2ZXIgbmVlZCB0byBtYWludGFpbiByYnRyZWUgaXRzZWxmLg0KPiA+Pj4+PiBJ
+IHRoaW5rIHdlIHJlYWxseSBuZWVkIHRvIHNlZSB0d28gbW9kZXMsIG9uZSB3aGVyZSB0aGVyZSBp
+cyBhDQo+ID4+Pj4+IGZpeGVkIHRyYW5zbGF0aW9uIHdpdGhvdXQgZHluYW1pYyB2SU9NTVUgZHJp
+dmVuIGNoYW5nZXMgYW5kIG9uZQ0KPiA+Pj4+PiB0aGF0IHN1cHBvcnRzIHZJT01NVS4NCj4gPj4+
+PiBJIHRoaW5rIGluIHRoaXMgY2FzZSwgeW91IG1lYW50IHRoZSBtZXRob2QgcHJvcG9zZWQgYnkg
+U2hhaGFmIHRoYXQNCj4gPj4+PiBzZW5kcyBkaWZmcyBvZiAiZml4ZWQgdHJhbnNsYXRpb24iIHRv
+IGRldmljZT8NCj4gPj4+Pg0KPiA+Pj4+IEl0IHdvdWxkIGJlIGtpbmQgb2YgdHJpY2t5IHRvIGRl
+YWwgd2l0aCB0aGUgZm9sbG93aW5nIGNhc2UgZm9yIGV4YW1wbGU6DQo+ID4+Pj4NCj4gPj4+PiBv
+bGQgbWFwIFs0RywgMTZHKSBuZXcgbWFwIFs0RywgOEcpDQo+ID4+Pj4NCj4gPj4+PiBJZiB3ZSBk
+bw0KPiA+Pj4+DQo+ID4+Pj4gMSkgZmx1c2ggWzRHLCAxNkcpDQo+ID4+Pj4gMikgYWRkIFs0Rywg
+OEcpDQo+ID4+Pj4NCj4gPj4+PiBUaGVyZSBjb3VsZCBiZSBhIHdpbmRvdyBiZXR3ZWVuIDEpIGFu
+ZCAyKS4NCj4gPj4+Pg0KPiA+Pj4+IEl0IHJlcXVpcmVzIHRoZSBJT01NVSB0aGF0IGNhbiBkbw0K
+PiA+Pj4+DQo+ID4+Pj4gMSkgcmVtb3ZlIFs4RywgMTZHKQ0KPiA+Pj4+IDIpIGZsdXNoIFs4Rywg
+MTZHKQ0KPiA+Pj4+IDMpIGNoYW5nZSBbNEcsIDhHKQ0KPiA+Pj4+DQo+ID4+Pj4gLi4uLg0KPiA+
+Pj4gQmFzaWNhbGx5IHdoYXQgSSBoYWQgaW4gbWluZCBpcyBzb21ldGhpbmcgbGlrZSBxZW11IG1l
+bW9yeSBhcGkNCj4gPj4+DQo+ID4+PiAwLiBiZWdpbg0KPiA+Pj4gMS4gcmVtb3ZlIFs4RywgMTZH
+KQ0KPiA+Pj4gMi4gYWRkIFs0RywgOEcpDQo+ID4+PiAzLiBjb21taXQNCj4gPj4NCj4gPj4gVGhp
+cyBzb3VuZHMgbW9yZSBmbGV4aWJsZSBlLmcgZHJpdmVyIG1heSBjaG9vc2UgdG8gaW1wbGVtZW50
+IHN0YXRpYw0KPiA+PiBtYXBwaW5nIG9uZSB0aHJvdWdoIGNvbW1pdC4gQnV0IGEgcXVlc3Rpb24g
+aGVyZSwgaXQgbG9va3MgdG8gbWUgdGhpcw0KPiA+PiBzdGlsbCByZXF1aXJlcyB0aGUgRE1BIHRv
+IGJlIHN5bmNlZCB3aXRoIGF0IGxlYXN0IGNvbW1pdCBoZXJlLg0KPiA+PiBPdGhlcndpc2UgZGV2
+aWNlIG1heSBnZXQgRE1BIGZhdWx0PyBPciBkZXZpY2UgaXMgZXhwZWN0ZWQgdG8gYmUgcGF1c2Vk
+DQo+IERNQSBkdXJpbmcgYmVnaW4/DQo+ID4+DQo+ID4+IFRoYW5rcw0KPiA+IEZvciBleGFtcGxl
+LCBjb21taXQgbWlnaHQgc3dpdGNoIG9uZSBzZXQgb2YgdGFibGVzIGZvciBhbm90aGVyLA0KPiA+
+IHdpdGhvdXQgbmVlZCB0byBwYXVzZSBETUEuDQo+IA0KPiANCj4gWWVzLCBJIHRoaW5rIHRoYXQg
+d29ya3MgYnV0IG5lZWQgY29uZmlybWF0aW9uIGZyb20gU2hhaGFmIG9yIEphc29uLg0KDQpGcm9t
+IG15IHNpZGUsIGFzIEkgd3JvdGUsIEkgd291bGQgbGlrZSB0byBzZWUgdGhlIHN1Z2dlc3RlZCBm
+dW5jdGlvbiBwcm90b3R5cGUgYWxvbmcgdy8gdGhlIGRlZmluaXRpb24gb2YgdGhlIGV4cGVjdGF0
+aW9uIGZyb20gZHJpdmVyIHVwb24gY2FsbGluZyB0aG9zZS4gDQpJdCBpcyBub3QgMTAwJSBjbGVh
+ciB0byBtZSB3aGF0IHNob3VsZCBiZSB0aGUgb3V0Y29tZSBvZiByZW1vdmUvZmx1c2gvY2hhbmdl
+L2NvbW1pdA0KDQo+IA0KPiBUaGFua3MNCj4gDQo+IA0KPiANCj4gPg0KPiA+Pj4gQW55d2F5LCBJ
+J20gZmluZSB3aXRoIGEgb25lLXNob3QgQVBJIGZvciBub3csIHdlIGNhbiBpbXByb3ZlIGl0DQo+
+ID4+PiBsYXRlci4NCj4gPj4+DQo+ID4+Pj4+IFRoZXJlIGFyZSBkaWZmZXJlbnQgb3B0aW1pemF0
+aW9uIGdvYWxzIGluIHRoZSBkcml2ZXJzIGZvciB0aGVzZQ0KPiA+Pj4+PiB0d28gY29uZmlndXJh
+dGlvbnMuDQo+ID4+Pj4+DQo+ID4+Pj4+Pj4gSWYgdGhlIGZpcnN0IG9uZSwgdGhlbiBJIHRoaW5r
+IG1lbW9yeSBob3RwbHVnIGlzIGEgaGVhdnkgZmxvdw0KPiA+Pj4+Pj4+IHJlZ2FyZGxlc3MuIERv
+IHlvdSB0aGluayB0aGUgZXh0cmEgY3ljbGVzIGZvciB0aGUgdHJlZSB0cmF2ZXJzZQ0KPiA+Pj4+
+Pj4+IHdpbGwgYmUgdmlzaWJsZSBpbiBhbnkgd2F5Pw0KPiA+Pj4+Pj4gSSB0aGluayBpZiB0aGUg
+ZHJpdmVyIGNhbiBwYXVzZSB0aGUgRE1BIGR1cmluZyB0aGUgdGltZSBmb3INCj4gPj4+Pj4+IHNl
+dHRpbmcgdXAgbmV3IG1hcHBpbmcsIGl0IHNob3VsZCBiZSBmaW5lLg0KPiA+Pj4+PiBUaGlzIGlz
+IHZlcnkgdHJpY2t5IGZvciBhbnkgZHJpdmVyIGlmIHRoZSBtYXBwaW5nIGNoYW5nZSBoaXRzIHRo
+ZQ0KPiA+Pj4+PiB2aXJ0aW8gcmluZ3MuIDooDQo+ID4+Pj4+DQo+ID4+Pj4+IEV2ZW4gYSBJT01N
+VSB1c2luZyBkcml2ZXIgaXMgZ29pbmcgdG8gaGF2ZSBwcm9ibGVtcyB3aXRoIHRoYXQuLg0KPiA+
+Pj4+Pg0KPiA+Pj4+PiBKYXNvbg0KPiA+Pj4+IE9yIEkgd29uZGVyIHdoZXRoZXIgQVRTL1BSSSBj
+YW4gaGVscCBoZXJlLiBFLmcgZHVyaW5nIEkvTyBwYWdlDQo+ID4+Pj4gZmF1bHQsIGRyaXZlci9k
+ZXZpY2UgY2FuIHdhaXQgZm9yIHRoZSBuZXcgbWFwcGluZyB0byBiZSBzZXQgYW5kDQo+ID4+Pj4g
+dGhlbiByZXBsYXkgdGhlIERNQS4NCj4gPj4+Pg0KPiA+Pj4+IFRoYW5rcw0KPiA+Pj4+DQoNCg==
