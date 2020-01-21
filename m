@@ -1,59 +1,53 @@
-From: Jason Gunthorpe <jgg@mellanox.com>
+From: "Michael S. Tsirkin" <mst@redhat.com>
 Subject: Re: [PATCH 3/5] vDPA: introduce vDPA bus
-Date: Tue, 21 Jan 2020 14:16:40 +0000
-Message-ID: <20200121141634.GE12330@mellanox.com>
-References: <20200116124231.20253-1-jasowang@redhat.com>
- <20200116124231.20253-4-jasowang@redhat.com>
- <20200116152209.GH20978@mellanox.com>
- <03cfbcc2-fef0-c9d8-0b08-798b2a293b8c@redhat.com>
- <20200117135435.GU20978@mellanox.com>
- <20200120071406-mutt-send-email-mst@kernel.org>
- <20200120175050.GC3891@mellanox.com>
- <20200120164916-mutt-send-email-mst@kernel.org>
- <20200121141200.GC12330@mellanox.com>
- <20200121091456-mutt-send-email-mst@kernel.org>
+Date: Tue, 21 Jan 2020 09:17:45 -0500
+Message-ID: <20200121091636-mutt-send-email-mst@kernel.org>
+References: <239b042c-2d9e-0eec-a1ef-b03b7e2c5419@redhat.com>
+ <CAJPjb1+fG9L3=iKbV4Vn13VwaeDZZdcfBPvarogF_Nzhk+FnKg@mail.gmail.com>
+ <AM0PR0502MB379553984D0D55FDE25426F6C3330@AM0PR0502MB3795.eurprd05.prod.outlook.com>
+ <d69918ca-8af4-44b2-9652-633530d4c113@redhat.com>
+ <20200120174933.GB3891@mellanox.com>
+ <2a324cec-2863-58f4-c58a-2414ee32c930@redhat.com>
+ <20200121004047-mutt-send-email-mst@kernel.org>
+ <b9ad744e-c4cd-82f9-f56a-1ecc185e9cd7@redhat.com>
+ <20200121031506-mutt-send-email-mst@kernel.org>
+ <20200121140456.GA12330@mellanox.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
-Content-Transfer-Encoding: quoted-printable
-Return-path: <linux-kernel-owner@vger.kernel.org>
-In-Reply-To: <20200121091456-mutt-send-email-mst@kernel.org>
-Content-Language: en-US
-Content-ID: <D789572F2035E04481FCBAD167A48367@eurprd05.prod.outlook.com>
-Sender: linux-kernel-owner@vger.kernel.org
-To: "Michael S. Tsirkin" <mst@redhat.com>
-Cc: Jason Wang <jasowang@redhat.com>, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>, "kvm@vger.kernel.org" <kvm@vger.kernel.org>, "virtualization@lists.linux-foundation.org" <virtualization@lists.linux-foundation.org>, "netdev@vger.kernel.org" <netdev@vger.kernel.org>, "tiwei.bie@intel.com" <tiwei.bie@intel.com>, "maxime.coquelin@redhat.com" <maxime.coquelin@redhat.com>, "cunming.liang@intel.com" <cunming.liang@intel.com>, "zhihong.wang@intel.com" <zhihong.wang@intel.com>, "rob.miller@broadcom.com" <rob.miller@broadcom.com>, "xiao.w.wang@intel.com" <xiao.w.wang@intel.com>, "haotian.wang@sifive.com" <haotian.wang@sifive.com>, "lingshan.zhu@intel.com" <lingshan.zhu@intel.com>, "eperezma@redhat.com" <eperezma@redhat.com>, "lulu@redhat.com" <lulu@redhat.com>
+Content-Type: text/plain; charset=us-ascii
+Return-path: <netdev-owner@vger.kernel.org>
+Content-Disposition: inline
+In-Reply-To: <20200121140456.GA12330@mellanox.com>
+Sender: netdev-owner@vger.kernel.org
+To: Jason Gunthorpe <jgg@mellanox.com>
+Cc: Jason Wang <jasowang@redhat.com>, Shahaf Shuler <shahafs@mellanox.com>, Rob Miller <rob.miller@broadcom.com>, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>, "kvm@vger.kernel.org" <kvm@vger.kernel.org>, "virtualization@lists.linux-foundation.org" <virtualization@lists.linux-foundation.org>, Netdev <netdev@vger.kernel.org>, "Bie, Tiwei" <tiwei.bie@intel.com>, "maxime.coquelin@redhat.com" <maxime.coquelin@redhat.com>, "Liang, Cunming" <cunming.liang@intel.com>, "Wang, Zhihong" <zhihong.wang@intel.com>, "Wang, Xiao W" <xiao.w.wang@intel.com>, "haotian.wang@sifive.com" <haotian.wang@sifive.com>, "Zhu, Lingshan" <lingshan.zhu@intel.com>, "eperezma@redhat.com" <eperezma@redhat.com>, "lulu@redhat.com" <lulu@redhat.com>, Parav Pandit <parav@m>
 List-Id: virtualization@lists.linuxfoundation.org
 
-On Tue, Jan 21, 2020 at 09:15:14AM -0500, Michael S. Tsirkin wrote:
-> On Tue, Jan 21, 2020 at 02:12:05PM +0000, Jason Gunthorpe wrote:
-> > On Mon, Jan 20, 2020 at 04:56:06PM -0500, Michael S. Tsirkin wrote:
-> > > > For vfio? vfio is the only thing I am aware doing
-> > > > that, and this is not vfio..
-> > >=20
-> > > vfio is not doing anything. anyone can use a combination
-> > > of unbind and driver_override to attach a driver to a device.
-> > >=20
-> > > It's not a great interface but it's there without any code,
-> > > and it will stay there without maintainance overhead
-> > > if we later add a nicer one.
-> >=20
-> > Well, it is not a great interface, and it is only really used in
-> > normal cases by vfio.
-> >=20
-> > I don't think it is a good idea to design new subsystems with that
-> > idea in mind, particularly since detatching the vdpa driver would not
-> > trigger destruction of the underlying dynamic resource (ie the SF).
-> >=20
-> > We need a way to trigger that destruction..
-> >=20
-> > Jason=20
->=20
-> You wanted a netlink command for this, right?
+On Tue, Jan 21, 2020 at 02:05:04PM +0000, Jason Gunthorpe wrote:
+> On Tue, Jan 21, 2020 at 03:15:43AM -0500, Michael S. Tsirkin wrote:
+> > > This sounds more flexible e.g driver may choose to implement static mapping
+> > > one through commit. But a question here, it looks to me this still requires
+> > > the DMA to be synced with at least commit here. Otherwise device may get DMA
+> > > fault? Or device is expected to be paused DMA during begin?
+> > > 
+> > > Thanks
+> > 
+> > For example, commit might switch one set of tables for another,
+> > without need to pause DMA.
+> 
+> I'm not aware of any hardware that can do something like this
+> completely atomically..
 
-It is my suggestion.
+FWIW VTD can do this atomically.
 
-Based on experiance here we started out with sysfs and it was OK, but
-slow. When we added container support the entire sysfs thing
-completely exploded and we had to replace it with netlink.
+> Any mapping change API has to be based around add/remove regions
+> without any active DMA (ie active DMA is a guest error the guest can
+> be crashed if it does this)
+> 
+> Jason
 
-Jason
+Right, lots of cases are well served by only changing parts of
+mapping that aren't in active use. Memory hotplug is such a case.
+That's not the same as a completely static mapping.
+
+-- 
+MST
