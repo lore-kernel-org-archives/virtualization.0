@@ -1,72 +1,81 @@
-From: "Michael S. Tsirkin" <mst@redhat.com>
-Subject: Re: [PATCH 3/5] vDPA: introduce vDPA bus
-Date: Tue, 21 Jan 2020 00:47:15 -0500
-Message-ID: <20200121004047-mutt-send-email-mst@kernel.org>
-References: <20200116124231.20253-1-jasowang@redhat.com>
- <20200116124231.20253-4-jasowang@redhat.com>
+From: Shahaf Shuler <shahafs@mellanox.com>
+Subject: RE: [PATCH 3/5] vDPA: introduce vDPA bus
+Date: Tue, 21 Jan 2020 06:01:35 +0000
+Message-ID: <AM0PR0502MB3795940D8E0A269D4A32FF8FC30D0@AM0PR0502MB3795.eurprd05.prod.outlook.com>
+References: <20200116124231.20253-4-jasowang@redhat.com>
  <20200117070324-mutt-send-email-mst@kernel.org>
  <239b042c-2d9e-0eec-a1ef-b03b7e2c5419@redhat.com>
  <CAJPjb1+fG9L3=iKbV4Vn13VwaeDZZdcfBPvarogF_Nzhk+FnKg@mail.gmail.com>
  <AM0PR0502MB379553984D0D55FDE25426F6C3330@AM0PR0502MB3795.eurprd05.prod.outlook.com>
  <d69918ca-8af4-44b2-9652-633530d4c113@redhat.com>
  <20200120174933.GB3891@mellanox.com>
- <2a324cec-2863-58f4-c58a-2414ee32c930@redhat.com>
+ <AM0PR0502MB3795C92485338180FC8059CFC3320@AM0PR0502MB3795.eurprd05.prod.outlook.com>
+ <20200120162449-mutt-send-email-mst@kernel.org>
+ <AM0PR0502MB3795A7BE7F434964D6102517C3320@AM0PR0502MB3795.eurprd05.prod.outlook.com>
+ <20200120165640-mutt-send-email-mst@kernel.org>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="utf-8"
-Content-Transfer-Encoding: base64
-Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <2a324cec-2863-58f4-c58a-2414ee32c930@redhat.com>
-Content-Disposition: inline
-List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
- <mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
-List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
-List-Post: <mailto:virtualization@lists.linux-foundation.org>
-List-Help: <mailto:virtualization-request@lists.linux-foundation.org?subject=help>
-List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualization>,
- <mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
-Errors-To: virtualization-bounces@lists.linux-foundation.org
-Sender: "Virtualization" <virtualization-bounces@lists.linux-foundation.org>
-To: Jason Wang <jasowang@redhat.com>
-Cc: "jakub.kicinski@netronome.com" <jakub.kicinski@netronome.com>, "kvm@vger.kernel.org" <kvm@vger.kernel.org>, "mhabets@solarflare.com" <mhabets@solarflare.com>, "haotian.wang@sifive.com" <haotian.wang@sifive.com>, "virtualization@lists.linux-foundation.org" <virtualization@lists.linux-foundation.org>, Rob Miller <rob.miller@broadcom.com>, "lulu@redhat.com" <lulu@redhat.com>, "hanand@xilinx.com" <hanand@xilinx.com>, "hch@infradead.org" <hch@infradead.org>, "eperezma@redhat.com" <eperezma@redhat.com>, Jason Gunthorpe <jgg@mellanox.com>, Shahaf Shuler <shahafs@mellanox.com>, Parav Pandit <parav@mellanox.com>, Jiri Pirko <jiri@mellanox.com>, "Wang,
- Xiao W" <xiao.w.wang@intel.com>, "stefanha@redhat.com" <stefanha@redhat.com>, "Wang, Zhihong" <zhihong.wang@intel.com>, Netdev <netdev@vger.kernel.org>, "rdunlap@infradead.org" <rdunlap@infradead.org>, linux-kernel@vger.kernel.or
+Content-Type: text/plain; charset="us-ascii"
+Content-Transfer-Encoding: quoted-printable
+Return-path: <linux-kernel-owner@vger.kernel.org>
+In-Reply-To: <20200120165640-mutt-send-email-mst@kernel.org>
+Content-Language: en-US
+Sender: linux-kernel-owner@vger.kernel.org
+To: "Michael S. Tsirkin" <mst@redhat.com>
+Cc: Jason Gunthorpe <jgg@mellanox.com>, Jason Wang <jasowang@redhat.com>, Rob Miller <rob.miller@broadcom.com>, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>, "kvm@vger.kernel.org" <kvm@vger.kernel.org>, "virtualization@lists.linux-foundation.org" <virtualization@lists.linux-foundation.org>, Netdev <netdev@vger.kernel.org>, "Bie, Tiwei" <tiwei.bie@intel.com>, "maxime.coquelin@redhat.com" <maxime.coquelin@redhat.com>, "Liang, Cunming" <cunming.liang@intel.com>, "Wang, Zhihong" <zhihong.wang@intel.com>, "Wang, Xiao W" <xiao.w.wang@intel.com>, "haotian.wang@sifive.com" <haotian.wang@sifive.com>, "Zhu, Lingshan" <lingshan.zhu@intel.com>, "eperezma@redhat.com" <eperezma@redhat.com>, "lulu@redhat.com" <lulu@redhat.com>, Parav Pandit <parav@mel>
 List-Id: virtualization@lists.linuxfoundation.org
 
-T24gVHVlLCBKYW4gMjEsIDIwMjAgYXQgMTI6MDA6NTdQTSArMDgwMCwgSmFzb24gV2FuZyB3cm90
-ZToKPiAKPiBPbiAyMDIwLzEvMjEg5LiK5Y2IMTo0OSwgSmFzb24gR3VudGhvcnBlIHdyb3RlOgo+
-ID4gT24gTW9uLCBKYW4gMjAsIDIwMjAgYXQgMDQ6NDM6NTNQTSArMDgwMCwgSmFzb24gV2FuZyB3
-cm90ZToKPiA+ID4gVGhpcyBpcyBzaW1pbGFyIHRvIHRoZSBkZXNpZ24gb2YgcGxhdGZvcm0gSU9N
-TVUgcGFydCBvZiB2aG9zdC12ZHBhLiBXZQo+ID4gPiBkZWNpZGUgdG8gc2VuZCBkaWZmcyB0byBw
-bGF0Zm9ybSBJT01NVSB0aGVyZS4gSWYgaXQncyBvayB0byBkbyB0aGF0IGluCj4gPiA+IGRyaXZl
-ciwgd2UgY2FuIHJlcGxhY2Ugc2V0X21hcCB3aXRoIGluY3JlbWVudGFsIEFQSSBsaWtlIG1hcCgp
-L3VubWFwKCkuCj4gPiA+IAo+ID4gPiBUaGVuIGRyaXZlciBuZWVkIHRvIG1haW50YWluIHJidHJl
-ZSBpdHNlbGYuCj4gPiBJIHRoaW5rIHdlIHJlYWxseSBuZWVkIHRvIHNlZSB0d28gbW9kZXMsIG9u
-ZSB3aGVyZSB0aGVyZSBpcyBhIGZpeGVkCj4gPiB0cmFuc2xhdGlvbiB3aXRob3V0IGR5bmFtaWMg
-dklPTU1VIGRyaXZlbiBjaGFuZ2VzIGFuZCBvbmUgdGhhdAo+ID4gc3VwcG9ydHMgdklPTU1VLgo+
-IAo+IAo+IEkgdGhpbmsgaW4gdGhpcyBjYXNlLCB5b3UgbWVhbnQgdGhlIG1ldGhvZCBwcm9wb3Nl
-ZCBieSBTaGFoYWYgdGhhdCBzZW5kcwo+IGRpZmZzIG9mICJmaXhlZCB0cmFuc2xhdGlvbiIgdG8g
-ZGV2aWNlPwo+IAo+IEl0IHdvdWxkIGJlIGtpbmQgb2YgdHJpY2t5IHRvIGRlYWwgd2l0aCB0aGUg
-Zm9sbG93aW5nIGNhc2UgZm9yIGV4YW1wbGU6Cj4gCj4gb2xkIG1hcCBbNEcsIDE2RykgbmV3IG1h
-cCBbNEcsIDhHKQo+IAo+IElmIHdlIGRvCj4gCj4gMSkgZmx1c2ggWzRHLCAxNkcpCj4gMikgYWRk
-IFs0RywgOEcpCj4gCj4gVGhlcmUgY291bGQgYmUgYSB3aW5kb3cgYmV0d2VlbiAxKSBhbmQgMiku
-Cj4gCj4gSXQgcmVxdWlyZXMgdGhlIElPTU1VIHRoYXQgY2FuIGRvCj4gCj4gMSkgcmVtb3ZlIFs4
-RywgMTZHKQo+IDIpIGZsdXNoIFs4RywgMTZHKQo+IDMpIGNoYW5nZSBbNEcsIDhHKQo+IAo+IC4u
-Li4KCkJhc2ljYWxseSB3aGF0IEkgaGFkIGluIG1pbmQgaXMgc29tZXRoaW5nIGxpa2UgcWVtdSBt
-ZW1vcnkgYXBpCgowLiBiZWdpbgoxLiByZW1vdmUgWzhHLCAxNkcpCjIuIGFkZCBbNEcsIDhHKQoz
-LiBjb21taXQKCkFueXdheSwgSSdtIGZpbmUgd2l0aCBhIG9uZS1zaG90IEFQSSBmb3Igbm93LCB3
-ZSBjYW4KaW1wcm92ZSBpdCBsYXRlci4KCj4gPiAKPiA+IFRoZXJlIGFyZSBkaWZmZXJlbnQgb3B0
-aW1pemF0aW9uIGdvYWxzIGluIHRoZSBkcml2ZXJzIGZvciB0aGVzZSB0d28KPiA+IGNvbmZpZ3Vy
-YXRpb25zLgo+ID4gCj4gPiA+ID4gSWYgdGhlIGZpcnN0IG9uZSwgdGhlbiBJIHRoaW5rIG1lbW9y
-eSBob3RwbHVnIGlzIGEgaGVhdnkgZmxvdwo+ID4gPiA+IHJlZ2FyZGxlc3MuIERvIHlvdSB0aGlu
-ayB0aGUgZXh0cmEgY3ljbGVzIGZvciB0aGUgdHJlZSB0cmF2ZXJzZQo+ID4gPiA+IHdpbGwgYmUg
-dmlzaWJsZSBpbiBhbnkgd2F5Pwo+ID4gPiBJIHRoaW5rIGlmIHRoZSBkcml2ZXIgY2FuIHBhdXNl
-IHRoZSBETUEgZHVyaW5nIHRoZSB0aW1lIGZvciBzZXR0aW5nIHVwIG5ldwo+ID4gPiBtYXBwaW5n
-LCBpdCBzaG91bGQgYmUgZmluZS4KPiA+IFRoaXMgaXMgdmVyeSB0cmlja3kgZm9yIGFueSBkcml2
-ZXIgaWYgdGhlIG1hcHBpbmcgY2hhbmdlIGhpdHMgdGhlCj4gPiB2aXJ0aW8gcmluZ3MuIDooCj4g
-PiAKPiA+IEV2ZW4gYSBJT01NVSB1c2luZyBkcml2ZXIgaXMgZ29pbmcgdG8gaGF2ZSBwcm9ibGVt
-cyB3aXRoIHRoYXQuLgo+ID4gCj4gPiBKYXNvbgo+IAo+IAo+IE9yIEkgd29uZGVyIHdoZXRoZXIg
-QVRTL1BSSSBjYW4gaGVscCBoZXJlLiBFLmcgZHVyaW5nIEkvTyBwYWdlIGZhdWx0LAo+IGRyaXZl
-ci9kZXZpY2UgY2FuIHdhaXQgZm9yIHRoZSBuZXcgbWFwcGluZyB0byBiZSBzZXQgYW5kIHRoZW4g
-cmVwbGF5IHRoZQo+IERNQS4KPiAKPiBUaGFua3MKPiAKCgotLSAKTVNUCgpfX19fX19fX19fX19f
-X19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fXwpWaXJ0dWFsaXphdGlvbiBtYWlsaW5n
-IGxpc3QKVmlydHVhbGl6YXRpb25AbGlzdHMubGludXgtZm91bmRhdGlvbi5vcmcKaHR0cHM6Ly9s
-aXN0cy5saW51eGZvdW5kYXRpb24ub3JnL21haWxtYW4vbGlzdGluZm8vdmlydHVhbGl6YXRpb24=
+Tuesday, January 21, 2020 12:00 AM, Michael S. Tsirkin:
+> Subject: Re: [PATCH 3/5] vDPA: introduce vDPA bus
+>=20
+> On Mon, Jan 20, 2020 at 09:47:18PM +0000, Shahaf Shuler wrote:
+> > Monday, January 20, 2020 11:25 PM, Michael S. Tsirkin:
+> > > Subject: Re: [PATCH 3/5] vDPA: introduce vDPA bus
+> > >
+> > > On Mon, Jan 20, 2020 at 08:51:43PM +0000, Shahaf Shuler wrote:
+> > > > Monday, January 20, 2020 7:50 PM, Jason Gunthorpe:
+> > > > > Subject: Re: [PATCH 3/5] vDPA: introduce vDPA bus
+> > > > >
+> > > > > On Mon, Jan 20, 2020 at 04:43:53PM +0800, Jason Wang wrote:
+> > > > > > This is similar to the design of platform IOMMU part of
+> > > > > > vhost-vdpa. We decide to send diffs to platform IOMMU there.
+> > > > > > If it's ok to do that in driver, we can replace set_map with
+> > > > > > incremental API
+> > > like map()/unmap().
+> > > > > >
+> > > > > > Then driver need to maintain rbtree itself.
+> > > > >
+> > > > > I think we really need to see two modes, one where there is a
+> > > > > fixed translation without dynamic vIOMMU driven changes and one
+> > > > > that supports vIOMMU.
+> > > > >
+> > > > > There are different optimization goals in the drivers for these
+> > > > > two configurations.
+> > > >
+> > > > +1.
+> > > > It will be best to have one API for static config (i.e. mapping
+> > > > can be set only before virtio device gets active), and one API for
+> > > > dynamic changes that can be set after the virtio device is active.
+> > >
+> > > Frankly I don't see when we'd use the static one.
+> > > Memory hotplug is enabled for most guests...
+> >
+> > The fact memory hotplug is enabled doesn't necessarily means there is n=
+ot
+> cold-plugged memory on the hot plugged slots.
+> > So your claim is majority of guests are deployed w/o any cold-plugged
+> memory?
+>=20
+> Sorry for not being clear. I was merely saying that dynamic one can't be
+> optional, and static one can. So how about we start just with the dynamic
+> one, then add the static one as a later optimization?
+
+Since we have the use case (cold plugged memory to guest, e.g. when populat=
+ed w/ hugepages) I think we should start w/ both. The static one can be opt=
+ional for drivers.=20
+
+Moreover am not yet clear about the suggested API for dynamic, can you shar=
+e the prototype you have in mind?
+Also will it be :
+1. multiple add_map and then flag the driver to set
+Or
+2. each add_map should be set by the driver as stand alone.=20
