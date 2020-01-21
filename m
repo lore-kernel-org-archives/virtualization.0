@@ -1,112 +1,198 @@
 From: Jason Wang <jasowang@redhat.com>
-Subject: Re: [PATCH 0/5] vDPA support
-Date: Tue, 21 Jan 2020 17:39:15 +0800
-Message-ID: <0185b91a-f984-681e-b7c0-af8eca81d053@redhat.com>
+Subject: Re: [PATCH 3/5] vDPA: introduce vDPA bus
+Date: Tue, 21 Jan 2020 17:41:21 +0800
+Message-ID: <f27d59b7-1c91-5870-55f5-e21311fcef99@redhat.com>
 References: <20200116124231.20253-1-jasowang@redhat.com>
- <AADFC41AFE54684AB9EE6CBC0274A5D19D73EC6B@SHSMSX104.ccr.corp.intel.com>
+ <20200116124231.20253-4-jasowang@redhat.com>
+ <20200116152209.GH20978@mellanox.com>
+ <03cfbcc2-fef0-c9d8-0b08-798b2a293b8c@redhat.com>
+ <AADFC41AFE54684AB9EE6CBC0274A5D19D73EBA4@SHSMSX104.ccr.corp.intel.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=UTF-8; format=flowed
+Content-Type: text/plain; charset=utf-8; format=flowed
 Content-Transfer-Encoding: quoted-printable
-Return-path: <kvm-owner@vger.kernel.org>
-In-Reply-To: <AADFC41AFE54684AB9EE6CBC0274A5D19D73EC6B@SHSMSX104.ccr.corp.intel.com>
+Return-path: <netdev-owner@vger.kernel.org>
+In-Reply-To: <AADFC41AFE54684AB9EE6CBC0274A5D19D73EBA4@SHSMSX104.ccr.corp.intel.com>
 Content-Language: en-US
-Sender: kvm-owner@vger.kernel.org
-To: "Tian, Kevin" <kevin.tian@intel.com>, "mst@redhat.com" <mst@redhat.com>, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>, "kvm@vger.kernel.org" <kvm@vger.kernel.org>, "virtualization@lists.linux-foundation.org" <virtualization@lists.linux-foundation.org>, "netdev@vger.kernel.org" <netdev@vger.kernel.org>
-Cc: "Bie, Tiwei" <tiwei.bie@intel.com>, "jgg@mellanox.com" <jgg@mellanox.com>, "maxime.coquelin@redhat.com" <maxime.coquelin@redhat.com>, "Liang, Cunming" <cunming.liang@intel.com>, "Wang, Zhihong" <zhihong.wang@intel.com>, "rob.miller@broadcom.com" <rob.miller@broadcom.com>, "Wang, Xiao W" <xiao.w.wang@intel.com>, "haotian.wang@sifive.com" <haotian.wang@sifive.com>, "Zhu, Lingshan" <lingshan.zhu@intel.com>, "eperezma@redhat.com" <eperezma@redhat.com>, "lulu@redhat.com" <lulu@redhat.com>, "parav@mellanox.com" <parav@mellanox.com>, "stefanha@redhat.com" <stefanha@redhat.com>, "rdunlap@infradead.org" <rdunlap@infradead.org>, "hch@infradead.org" <hch@infradead.org>, "aadam@redhat.com" <aadam@redhat.com>, "jakub.kicinski@netronome.com" <jakub.kicinski@netronome.com>
+Sender: netdev-owner@vger.kernel.org
+To: "Tian, Kevin" <kevin.tian@intel.com>, Jason Gunthorpe <jgg@mellanox.com>
+Cc: "mst@redhat.com" <mst@redhat.com>, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>, "kvm@vger.kernel.org" <kvm@vger.kernel.org>, "virtualization@lists.linux-foundation.org" <virtualization@lists.linux-foundation.org>, "netdev@vger.kernel.org" <netdev@vger.kernel.org>, "Bie, Tiwei" <tiwei.bie@intel.com>, "maxime.coquelin@redhat.com" <maxime.coquelin@redhat.com>, "Liang, Cunming" <cunming.liang@intel.com>, "Wang, Zhihong" <zhihong.wang@intel.com>, "rob.miller@broadcom.com" <rob.miller@broadcom.com>, "Wang, Xiao W" <xiao.w.wang@intel.com>, "haotian.wang@sifive.com" <haotian.wang@sifive.com>, "Zhu, Lingshan" <lingshan.zhu@intel.com>, "eperezma@redhat.com" <eperezma@redhat.com>, "lulu@redhat.com" <lulu@redhat.com>, Parav Pandit <parav@mellanox.com>
 List-Id: virtualization@lists.linuxfoundation.org
 
 
-On 2020/1/21 =E4=B8=8B=E5=8D=884:44, Tian, Kevin wrote:
->> From: Jason Wang
->> Sent: Thursday, January 16, 2020 8:42 PM
+On 2020/1/21 =E4=B8=8B=E5=8D=884:40, Tian, Kevin wrote:
+>> From: Jason Wang <jasowang@redhat.com>
+>> Sent: Friday, January 17, 2020 11:03 AM
 >>
->> Hi all:
 >>
->> Based on the comments and discussion for mdev based hardware virtio
->> offloading support[1]. A different approach to support vDPA device is
->> proposed in this series.
-> Can you point to the actual link which triggered the direction change?
-> A quick glimpse in that thread doesn't reveal such information...
+>> On 2020/1/16 =E4=B8=8B=E5=8D=8811:22, Jason Gunthorpe wrote:
+>>> On Thu, Jan 16, 2020 at 08:42:29PM +0800, Jason Wang wrote:
+>>>> vDPA device is a device that uses a datapath which complies with the
+>>>> virtio specifications with vendor specific control path. vDPA device=
+s
+>>>> can be both physically located on the hardware or emulated by
+>>>> software. vDPA hardware devices are usually implemented through PCIE
+>>>> with the following types:
+>>>>
+>>>> - PF (Physical Function) - A single Physical Function
+>>>> - VF (Virtual Function) - Device that supports single root I/O
+>>>>     virtualization (SR-IOV). Its Virtual Function (VF) represents a
+>>>>     virtualized instance of the device that can be assigned to diffe=
+rent
+>>>>     partitions
+>>>> - VDEV (Virtual Device) - With technologies such as Intel Scalable
+>>>>     IOV, a virtual device composed by host OS utilizing one or more
+>>>>     ADIs.
+> the concept of VDEV includes both software bits and ADIs. If you
+> only take about hardware types, using ADI is more accurate.
 
 
-Right, please see this link, the actual discussion happens on the thread=20
-of virtual-bus for some reasons...
+Ok.
 
-https://patchwork.ozlabs.org/patch/1195895/
+
+>
+>>>> - SF (Sub function) - Vendor specific interface to slice the Physica=
+l
+>>>>     Function to multiple sub functions that can be assigned to diffe=
+rent
+>>>>     partitions as virtual devices.
+>>> I really hope we don't end up with two different ways to spell this
+>>> same thing.
+>>
+>> I think you meant ADI vs SF. It looks to me that ADI is limited to the
+>> scope of scalable IOV but SF not.
+> ADI is just a term for minimally assignable resource in Scalable IOV.
+> 'assignable' implies several things, e.g. the resource can be independe=
+ntly
+> mapped to/accessed by user space or guest, DMAs between two
+> ADIs are isolated, operating one ADI doesn't affecting another ADI,
+> etc.  I'm not clear about  other vendor specific interfaces, but suppos=
+ing
+> they need match the similar requirements. Then do we really want to
+> differentiate ADI vs. SF? What about merging them with ADI as just
+> one example of finer-grained slicing?
+
+
+I think so. That what Jason G want as well.
 
 Thanks
 
 
 >
->> Instead of leveraging VFIO/mdev which may not work for some
->> vendors. This series tries to introduce a dedicated vDPA bus and
->> leverage vhost for userspace drivers. This help for the devices that
->> are not fit for VFIO and may reduce the conflict when try to propose a
->> bus template for virtual devices in [1].
 >>
->> The vDPA support is split into following parts:
+>>>> @@ -0,0 +1,2 @@
+>>>> +# SPDX-License-Identifier: GPL-2.0
+>>>> +obj-$(CONFIG_VDPA) +=3D vdpa.o
+>>>> diff --git a/drivers/virtio/vdpa/vdpa.c b/drivers/virtio/vdpa/vdpa.c
+>>>> new file mode 100644
+>>>> index 000000000000..2b0e4a9f105d
+>>>> +++ b/drivers/virtio/vdpa/vdpa.c
+>>>> @@ -0,0 +1,141 @@
+>>>> +// SPDX-License-Identifier: GPL-2.0-only
+>>>> +/*
+>>>> + * vDPA bus.
+>>>> + *
+>>>> + * Copyright (c) 2019, Red Hat. All rights reserved.
+>>>> + *     Author: Jason Wang <jasowang@redhat.com>
+>>> 2020 tests days
 >>
->> 1) vDPA core (bus, device and driver abstraction)
->> 2) virtio vDPA transport for kernel virtio driver to control vDPA
->>     device
->> 3) vhost vDPA bus driver for userspace vhost driver to control vDPA
->>     device
->> 4) vendor vDPA drivers
->> 5) management API
+>> Will fix.
 >>
->> Both 1) and 2) are included in this series. Tiwei will work on part
->> 3). For 4), Ling Shan will work and post IFCVF driver. For 5) we leave
->> it to vendor to implement, but it's better to come into an agreement
->> for management to create/configure/destroy vDPA device.
 >>
->> The sample driver is kept but renamed to vdap_sim. An on-chip IOMMU
->> implementation is added to sample device to make it work for both
->> kernel virtio driver and userspace vhost driver. It implements a sysfs
->> based management API, but it can switch to any other (e.g devlink) if
->> necessary.
+>>>> + *
+>>>> + */
+>>>> +
+>>>> +#include <linux/module.h>
+>>>> +#include <linux/idr.h>
+>>>> +#include <linux/vdpa.h>
+>>>> +
+>>>> +#define MOD_VERSION  "0.1"
+>>> I think module versions are discouraged these days
 >>
->> Please refer each patch for more information.
+>> Will remove.
 >>
->> Comments are welcomed.
 >>
->> [1] https://lkml.org/lkml/2019/11/18/261
+>>>> +#define MOD_DESC     "vDPA bus"
+>>>> +#define MOD_AUTHOR   "Jason Wang <jasowang@redhat.com>"
+>>>> +#define MOD_LICENSE  "GPL v2"
+>>>> +
+>>>> +static DEFINE_IDA(vdpa_index_ida);
+>>>> +
+>>>> +struct device *vdpa_get_parent(struct vdpa_device *vdpa)
+>>>> +{
+>>>> +	return vdpa->dev.parent;
+>>>> +}
+>>>> +EXPORT_SYMBOL(vdpa_get_parent);
+>>>> +
+>>>> +void vdpa_set_parent(struct vdpa_device *vdpa, struct device *paren=
+t)
+>>>> +{
+>>>> +	vdpa->dev.parent =3D parent;
+>>>> +}
+>>>> +EXPORT_SYMBOL(vdpa_set_parent);
+>>>> +
+>>>> +struct vdpa_device *dev_to_vdpa(struct device *_dev)
+>>>> +{
+>>>> +	return container_of(_dev, struct vdpa_device, dev);
+>>>> +}
+>>>> +EXPORT_SYMBOL_GPL(dev_to_vdpa);
+>>>> +
+>>>> +struct device *vdpa_to_dev(struct vdpa_device *vdpa)
+>>>> +{
+>>>> +	return &vdpa->dev;
+>>>> +}
+>>>> +EXPORT_SYMBOL_GPL(vdpa_to_dev);
+>>> Why these trivial assessors? Seems unnecessary, or should at least be
+>>> static inlines in a header
 >>
->> Jason Wang (5):
->>    vhost: factor out IOTLB
->>    vringh: IOTLB support
->>    vDPA: introduce vDPA bus
->>    virtio: introduce a vDPA based transport
->>    vdpasim: vDPA device simulator
+>> Will fix.
 >>
->>   MAINTAINERS                    |   2 +
->>   drivers/vhost/Kconfig          |   7 +
->>   drivers/vhost/Kconfig.vringh   |   1 +
->>   drivers/vhost/Makefile         |   2 +
->>   drivers/vhost/net.c            |   2 +-
->>   drivers/vhost/vhost.c          | 221 +++------
->>   drivers/vhost/vhost.h          |  36 +-
->>   drivers/vhost/vhost_iotlb.c    | 171 +++++++
->>   drivers/vhost/vringh.c         | 434 +++++++++++++++++-
->>   drivers/virtio/Kconfig         |  15 +
->>   drivers/virtio/Makefile        |   2 +
->>   drivers/virtio/vdpa/Kconfig    |  26 ++
->>   drivers/virtio/vdpa/Makefile   |   3 +
->>   drivers/virtio/vdpa/vdpa.c     | 141 ++++++
->>   drivers/virtio/vdpa/vdpa_sim.c | 796
->> +++++++++++++++++++++++++++++++++
->>   drivers/virtio/virtio_vdpa.c   | 400 +++++++++++++++++
->>   include/linux/vdpa.h           | 191 ++++++++
->>   include/linux/vhost_iotlb.h    |  45 ++
->>   include/linux/vringh.h         |  36 ++
->>   19 files changed, 2327 insertions(+), 204 deletions(-)
->>   create mode 100644 drivers/vhost/vhost_iotlb.c
->>   create mode 100644 drivers/virtio/vdpa/Kconfig
->>   create mode 100644 drivers/virtio/vdpa/Makefile
->>   create mode 100644 drivers/virtio/vdpa/vdpa.c
->>   create mode 100644 drivers/virtio/vdpa/vdpa_sim.c
->>   create mode 100644 drivers/virtio/virtio_vdpa.c
->>   create mode 100644 include/linux/vdpa.h
->>   create mode 100644 include/linux/vhost_iotlb.h
 >>
->> --
->> 2.19.1
+>>>> +int register_vdpa_device(struct vdpa_device *vdpa)
+>>>> +{
+>>> Usually we want to see symbols consistently prefixed with vdpa_*, is
+>>> there a reason why register/unregister are swapped?
+>>
+>> I follow the name from virtio. I will switch to vdpa_*.
+>>
+>>
+>>>> +	int err;
+>>>> +
+>>>> +	if (!vdpa_get_parent(vdpa))
+>>>> +		return -EINVAL;
+>>>> +
+>>>> +	if (!vdpa->config)
+>>>> +		return -EINVAL;
+>>>> +
+>>>> +	err =3D ida_simple_get(&vdpa_index_ida, 0, 0, GFP_KERNEL);
+>>>> +	if (err < 0)
+>>>> +		return -EFAULT;
+>>>> +
+>>>> +	vdpa->dev.bus =3D &vdpa_bus;
+>>>> +	device_initialize(&vdpa->dev);
+>>> IMHO device_initialize should not be called inside something called
+>>> register, toooften we find out that the caller drivers need the devic=
+e
+>>> to be initialized earlier, ie to use the kref, or something.
+>>>
+>>> I find the best flow is to have some init function that does the
+>>> device_initialize and sets the device_name that the driver can call
+>>> early.
+>>
+>> Ok, will do.
+>>
+>>
+>>> Shouldn't there be a device/driver matching process of some kind?
+>>
+>> The question is what do we want do match here.
+>>
+>> 1) "virtio" vs "vhost", I implemented matching method for this in mdev
+>> series, but it looks unnecessary for vDPA device driver to know about
+>> this. Anyway we can use sysfs driver bind/unbind to switch drivers
+>> 2) virtio device id and vendor id. I'm not sure we need this consider
+>> the two drivers so far (virtio/vhost) are all bus drivers.
+>>
+>> Thanks
+>>
+>>
+>>> Jason
+>>>
