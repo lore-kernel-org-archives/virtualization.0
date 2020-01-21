@@ -1,87 +1,115 @@
-From: Shahaf Shuler <shahafs@mellanox.com>
-Subject: RE: [PATCH 3/5] vDPA: introduce vDPA bus
-Date: Tue, 21 Jan 2020 11:09:38 +0000
-Message-ID: <AM0PR0502MB37956A8D6690B190EEA713A5C30D0@AM0PR0502MB3795.eurprd05.prod.outlook.com>
-References: <20200116124231.20253-4-jasowang@redhat.com>
- <20200117070324-mutt-send-email-mst@kernel.org>
- <239b042c-2d9e-0eec-a1ef-b03b7e2c5419@redhat.com>
- <CAJPjb1+fG9L3=iKbV4Vn13VwaeDZZdcfBPvarogF_Nzhk+FnKg@mail.gmail.com>
- <AM0PR0502MB379553984D0D55FDE25426F6C3330@AM0PR0502MB3795.eurprd05.prod.outlook.com>
- <d69918ca-8af4-44b2-9652-633530d4c113@redhat.com>
- <20200120174933.GB3891@mellanox.com>
- <2a324cec-2863-58f4-c58a-2414ee32c930@redhat.com>
- <20200121004047-mutt-send-email-mst@kernel.org>
- <b9ad744e-c4cd-82f9-f56a-1ecc185e9cd7@redhat.com>
- <20200121031506-mutt-send-email-mst@kernel.org>
- <028ed448-a948-79d9-f224-c325029b17ab@redhat.com>
+From: "Michael S. Tsirkin" <mst@redhat.com>
+Subject: Re: [PATCH net-next 1/3] vsock: add network namespace support
+Date: Tue, 21 Jan 2020 06:14:48 -0500
+Message-ID: <20200121055403-mutt-send-email-mst@kernel.org>
+References: <20200116172428.311437-1-sgarzare@redhat.com>
+ <20200116172428.311437-2-sgarzare@redhat.com>
+ <20200120.100610.546818167633238909.davem@davemloft.net>
+ <20200120101735.uyh4o64gb4njakw5@steredhat>
+ <20200120060601-mutt-send-email-mst@kernel.org>
+ <CAGxU2F6VH8Eb5UH_9KjN6MONbZEo1D7EHAiocVVus6jW55BJDg@mail.gmail.com>
+ <20200120110319-mutt-send-email-mst@kernel.org>
+ <CAGxU2F5=DQJ56sH4BUqp_7rvaXSF9bFHp4QkpLApJQK0bmd4MA@mail.gmail.com>
+ <20200120170120-mutt-send-email-mst@kernel.org>
+ <CAGxU2F4uW7FNe5xC0sb3Xxr_GABSXuu1Z9n5M=Ntq==T7MaaVw@mail.gmail.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="utf-8"
-Content-Transfer-Encoding: base64
-Return-path: <linux-kernel-owner@vger.kernel.org>
-In-Reply-To: <028ed448-a948-79d9-f224-c325029b17ab@redhat.com>
-Content-Language: en-US
-Sender: linux-kernel-owner@vger.kernel.org
-To: Jason Wang <jasowang@redhat.com>, "Michael S. Tsirkin" <mst@redhat.com>
-Cc: Jason Gunthorpe <jgg@mellanox.com>, Rob Miller <rob.miller@broadcom.com>, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>, "kvm@vger.kernel.org" <kvm@vger.kernel.org>, "virtualization@lists.linux-foundation.org" <virtualization@lists.linux-foundation.org>, Netdev <netdev@vger.kernel.org>, "Bie, Tiwei" <tiwei.bie@intel.com>, "maxime.coquelin@redhat.com" <maxime.coquelin@redhat.com>, "Liang, Cunming" <cunming.liang@intel.com>, "Wang, Zhihong" <zhihong.wang@intel.com>, "Wang, Xiao W" <xiao.w.wang@intel.com>, "haotian.wang@sifive.com" <haotian.wang@sifive.com>, "Zhu, Lingshan" <lingshan.zhu@intel.com>, "eperezma@redhat.com" <eperezma@redhat.com>, "lulu@redhat.com" <lulu@redhat.com>, Parav Pandit <parav@mellanox.com>, "Tian, Kevin" <kevin.t>
+Content-Type: text/plain; charset=us-ascii
+Return-path: <netdev-owner@vger.kernel.org>
+Content-Disposition: inline
+In-Reply-To: <CAGxU2F4uW7FNe5xC0sb3Xxr_GABSXuu1Z9n5M=Ntq==T7MaaVw@mail.gmail.com>
+Sender: netdev-owner@vger.kernel.org
+To: Stefano Garzarella <sgarzare@redhat.com>
+Cc: David Miller <davem@davemloft.net>, netdev@vger.kernel.org, linux-kernel@vger.kernel.org, Jorgen Hansen <jhansen@vmware.com>, Jason Wang <jasowang@redhat.com>, kvm <kvm@vger.kernel.org>, Stefan Hajnoczi <stefanha@redhat.com>, virtualization@lists.linux-foundation.org, linux-hyperv@vger.kernel.org, Dexuan Cui <decui@microsoft.com>
 List-Id: virtualization@lists.linuxfoundation.org
 
-VHVlc2RheSwgSmFudWFyeSAyMSwgMjAyMCAxMDozNSBBTSwgSmFzb24gV2FuZzoNCj4gU3ViamVj
-dDogUmU6IFtQQVRDSCAzLzVdIHZEUEE6IGludHJvZHVjZSB2RFBBIGJ1cw0KPiANCj4gDQo+IE9u
-IDIwMjAvMS8yMSDkuIvljYg0OjE1LCBNaWNoYWVsIFMuIFRzaXJraW4gd3JvdGU6DQo+ID4gT24g
-VHVlLCBKYW4gMjEsIDIwMjAgYXQgMDQ6MDA6MzhQTSArMDgwMCwgSmFzb24gV2FuZyB3cm90ZToN
-Cj4gPj4gT24gMjAyMC8xLzIxIOS4i+WNiDE6NDcsIE1pY2hhZWwgUy4gVHNpcmtpbiB3cm90ZToN
-Cj4gPj4+IE9uIFR1ZSwgSmFuIDIxLCAyMDIwIGF0IDEyOjAwOjU3UE0gKzA4MDAsIEphc29uIFdh
-bmcgd3JvdGU6DQo+ID4+Pj4gT24gMjAyMC8xLzIxIOS4iuWNiDE6NDksIEphc29uIEd1bnRob3Jw
-ZSB3cm90ZToNCj4gPj4+Pj4gT24gTW9uLCBKYW4gMjAsIDIwMjAgYXQgMDQ6NDM6NTNQTSArMDgw
-MCwgSmFzb24gV2FuZyB3cm90ZToNCj4gPj4+Pj4+IFRoaXMgaXMgc2ltaWxhciB0byB0aGUgZGVz
-aWduIG9mIHBsYXRmb3JtIElPTU1VIHBhcnQgb2YNCj4gPj4+Pj4+IHZob3N0LXZkcGEuIFdlIGRl
-Y2lkZSB0byBzZW5kIGRpZmZzIHRvIHBsYXRmb3JtIElPTU1VIHRoZXJlLiBJZg0KPiA+Pj4+Pj4g
-aXQncyBvayB0byBkbyB0aGF0IGluIGRyaXZlciwgd2UgY2FuIHJlcGxhY2Ugc2V0X21hcCB3aXRo
-IGluY3JlbWVudGFsDQo+IEFQSSBsaWtlIG1hcCgpL3VubWFwKCkuDQo+ID4+Pj4+Pg0KPiA+Pj4+
-Pj4gVGhlbiBkcml2ZXIgbmVlZCB0byBtYWludGFpbiByYnRyZWUgaXRzZWxmLg0KPiA+Pj4+PiBJ
-IHRoaW5rIHdlIHJlYWxseSBuZWVkIHRvIHNlZSB0d28gbW9kZXMsIG9uZSB3aGVyZSB0aGVyZSBp
-cyBhDQo+ID4+Pj4+IGZpeGVkIHRyYW5zbGF0aW9uIHdpdGhvdXQgZHluYW1pYyB2SU9NTVUgZHJp
-dmVuIGNoYW5nZXMgYW5kIG9uZQ0KPiA+Pj4+PiB0aGF0IHN1cHBvcnRzIHZJT01NVS4NCj4gPj4+
-PiBJIHRoaW5rIGluIHRoaXMgY2FzZSwgeW91IG1lYW50IHRoZSBtZXRob2QgcHJvcG9zZWQgYnkg
-U2hhaGFmIHRoYXQNCj4gPj4+PiBzZW5kcyBkaWZmcyBvZiAiZml4ZWQgdHJhbnNsYXRpb24iIHRv
-IGRldmljZT8NCj4gPj4+Pg0KPiA+Pj4+IEl0IHdvdWxkIGJlIGtpbmQgb2YgdHJpY2t5IHRvIGRl
-YWwgd2l0aCB0aGUgZm9sbG93aW5nIGNhc2UgZm9yIGV4YW1wbGU6DQo+ID4+Pj4NCj4gPj4+PiBv
-bGQgbWFwIFs0RywgMTZHKSBuZXcgbWFwIFs0RywgOEcpDQo+ID4+Pj4NCj4gPj4+PiBJZiB3ZSBk
-bw0KPiA+Pj4+DQo+ID4+Pj4gMSkgZmx1c2ggWzRHLCAxNkcpDQo+ID4+Pj4gMikgYWRkIFs0Rywg
-OEcpDQo+ID4+Pj4NCj4gPj4+PiBUaGVyZSBjb3VsZCBiZSBhIHdpbmRvdyBiZXR3ZWVuIDEpIGFu
-ZCAyKS4NCj4gPj4+Pg0KPiA+Pj4+IEl0IHJlcXVpcmVzIHRoZSBJT01NVSB0aGF0IGNhbiBkbw0K
-PiA+Pj4+DQo+ID4+Pj4gMSkgcmVtb3ZlIFs4RywgMTZHKQ0KPiA+Pj4+IDIpIGZsdXNoIFs4Rywg
-MTZHKQ0KPiA+Pj4+IDMpIGNoYW5nZSBbNEcsIDhHKQ0KPiA+Pj4+DQo+ID4+Pj4gLi4uLg0KPiA+
-Pj4gQmFzaWNhbGx5IHdoYXQgSSBoYWQgaW4gbWluZCBpcyBzb21ldGhpbmcgbGlrZSBxZW11IG1l
-bW9yeSBhcGkNCj4gPj4+DQo+ID4+PiAwLiBiZWdpbg0KPiA+Pj4gMS4gcmVtb3ZlIFs4RywgMTZH
-KQ0KPiA+Pj4gMi4gYWRkIFs0RywgOEcpDQo+ID4+PiAzLiBjb21taXQNCj4gPj4NCj4gPj4gVGhp
-cyBzb3VuZHMgbW9yZSBmbGV4aWJsZSBlLmcgZHJpdmVyIG1heSBjaG9vc2UgdG8gaW1wbGVtZW50
-IHN0YXRpYw0KPiA+PiBtYXBwaW5nIG9uZSB0aHJvdWdoIGNvbW1pdC4gQnV0IGEgcXVlc3Rpb24g
-aGVyZSwgaXQgbG9va3MgdG8gbWUgdGhpcw0KPiA+PiBzdGlsbCByZXF1aXJlcyB0aGUgRE1BIHRv
-IGJlIHN5bmNlZCB3aXRoIGF0IGxlYXN0IGNvbW1pdCBoZXJlLg0KPiA+PiBPdGhlcndpc2UgZGV2
-aWNlIG1heSBnZXQgRE1BIGZhdWx0PyBPciBkZXZpY2UgaXMgZXhwZWN0ZWQgdG8gYmUgcGF1c2Vk
-DQo+IERNQSBkdXJpbmcgYmVnaW4/DQo+ID4+DQo+ID4+IFRoYW5rcw0KPiA+IEZvciBleGFtcGxl
-LCBjb21taXQgbWlnaHQgc3dpdGNoIG9uZSBzZXQgb2YgdGFibGVzIGZvciBhbm90aGVyLA0KPiA+
-IHdpdGhvdXQgbmVlZCB0byBwYXVzZSBETUEuDQo+IA0KPiANCj4gWWVzLCBJIHRoaW5rIHRoYXQg
-d29ya3MgYnV0IG5lZWQgY29uZmlybWF0aW9uIGZyb20gU2hhaGFmIG9yIEphc29uLg0KDQpGcm9t
-IG15IHNpZGUsIGFzIEkgd3JvdGUsIEkgd291bGQgbGlrZSB0byBzZWUgdGhlIHN1Z2dlc3RlZCBm
-dW5jdGlvbiBwcm90b3R5cGUgYWxvbmcgdy8gdGhlIGRlZmluaXRpb24gb2YgdGhlIGV4cGVjdGF0
-aW9uIGZyb20gZHJpdmVyIHVwb24gY2FsbGluZyB0aG9zZS4gDQpJdCBpcyBub3QgMTAwJSBjbGVh
-ciB0byBtZSB3aGF0IHNob3VsZCBiZSB0aGUgb3V0Y29tZSBvZiByZW1vdmUvZmx1c2gvY2hhbmdl
-L2NvbW1pdA0KDQo+IA0KPiBUaGFua3MNCj4gDQo+IA0KPiANCj4gPg0KPiA+Pj4gQW55d2F5LCBJ
-J20gZmluZSB3aXRoIGEgb25lLXNob3QgQVBJIGZvciBub3csIHdlIGNhbiBpbXByb3ZlIGl0DQo+
-ID4+PiBsYXRlci4NCj4gPj4+DQo+ID4+Pj4+IFRoZXJlIGFyZSBkaWZmZXJlbnQgb3B0aW1pemF0
-aW9uIGdvYWxzIGluIHRoZSBkcml2ZXJzIGZvciB0aGVzZQ0KPiA+Pj4+PiB0d28gY29uZmlndXJh
-dGlvbnMuDQo+ID4+Pj4+DQo+ID4+Pj4+Pj4gSWYgdGhlIGZpcnN0IG9uZSwgdGhlbiBJIHRoaW5r
-IG1lbW9yeSBob3RwbHVnIGlzIGEgaGVhdnkgZmxvdw0KPiA+Pj4+Pj4+IHJlZ2FyZGxlc3MuIERv
-IHlvdSB0aGluayB0aGUgZXh0cmEgY3ljbGVzIGZvciB0aGUgdHJlZSB0cmF2ZXJzZQ0KPiA+Pj4+
-Pj4+IHdpbGwgYmUgdmlzaWJsZSBpbiBhbnkgd2F5Pw0KPiA+Pj4+Pj4gSSB0aGluayBpZiB0aGUg
-ZHJpdmVyIGNhbiBwYXVzZSB0aGUgRE1BIGR1cmluZyB0aGUgdGltZSBmb3INCj4gPj4+Pj4+IHNl
-dHRpbmcgdXAgbmV3IG1hcHBpbmcsIGl0IHNob3VsZCBiZSBmaW5lLg0KPiA+Pj4+PiBUaGlzIGlz
-IHZlcnkgdHJpY2t5IGZvciBhbnkgZHJpdmVyIGlmIHRoZSBtYXBwaW5nIGNoYW5nZSBoaXRzIHRo
-ZQ0KPiA+Pj4+PiB2aXJ0aW8gcmluZ3MuIDooDQo+ID4+Pj4+DQo+ID4+Pj4+IEV2ZW4gYSBJT01N
-VSB1c2luZyBkcml2ZXIgaXMgZ29pbmcgdG8gaGF2ZSBwcm9ibGVtcyB3aXRoIHRoYXQuLg0KPiA+
-Pj4+Pg0KPiA+Pj4+PiBKYXNvbg0KPiA+Pj4+IE9yIEkgd29uZGVyIHdoZXRoZXIgQVRTL1BSSSBj
-YW4gaGVscCBoZXJlLiBFLmcgZHVyaW5nIEkvTyBwYWdlDQo+ID4+Pj4gZmF1bHQsIGRyaXZlci9k
-ZXZpY2UgY2FuIHdhaXQgZm9yIHRoZSBuZXcgbWFwcGluZyB0byBiZSBzZXQgYW5kDQo+ID4+Pj4g
-dGhlbiByZXBsYXkgdGhlIERNQS4NCj4gPj4+Pg0KPiA+Pj4+IFRoYW5rcw0KPiA+Pj4+DQoNCg==
+On Tue, Jan 21, 2020 at 10:07:06AM +0100, Stefano Garzarella wrote:
+> On Mon, Jan 20, 2020 at 11:02 PM Michael S. Tsirkin <mst@redhat.com> wrote:
+> > On Mon, Jan 20, 2020 at 05:53:39PM +0100, Stefano Garzarella wrote:
+> > > On Mon, Jan 20, 2020 at 5:04 PM Michael S. Tsirkin <mst@redhat.com> wrote:
+> > > > On Mon, Jan 20, 2020 at 02:58:01PM +0100, Stefano Garzarella wrote:
+> > > > > On Mon, Jan 20, 2020 at 1:03 PM Michael S. Tsirkin <mst@redhat.com> wrote:
+> > > > > > On Mon, Jan 20, 2020 at 11:17:35AM +0100, Stefano Garzarella wrote:
+> > > > > > > On Mon, Jan 20, 2020 at 10:06:10AM +0100, David Miller wrote:
+> > > > > > > > From: Stefano Garzarella <sgarzare@redhat.com>
+> > > > > > > > Date: Thu, 16 Jan 2020 18:24:26 +0100
+> > > > > > > >
+> > > > > > > > > This patch adds 'netns' module param to enable this new feature
+> > > > > > > > > (disabled by default), because it changes vsock's behavior with
+> > > > > > > > > network namespaces and could break existing applications.
+> > > > > > > >
+> > > > > > > > Sorry, no.
+> > > > > > > >
+> > > > > > > > I wonder if you can even design a legitimate, reasonable, use case
+> > > > > > > > where these netns changes could break things.
+> > > > > > >
+> > > > > > > I forgot to mention the use case.
+> > > > > > > I tried the RFC with Kata containers and we found that Kata shim-v1
+> > > > > > > doesn't work (Kata shim-v2 works as is) because there are the following
+> > > > > > > processes involved:
+> > > > > > > - kata-runtime (runs in the init_netns) opens /dev/vhost-vsock and
+> > > > > > >   passes it to qemu
+> > > > > > > - kata-shim (runs in a container) wants to talk with the guest but the
+> > > > > > >   vsock device is assigned to the init_netns and kata-shim runs in a
+> > > > > > >   different netns, so the communication is not allowed
+> > > > > > > But, as you said, this could be a wrong design, indeed they already
+> > > > > > > found a fix, but I was not sure if others could have the same issue.
+> > > > > > >
+> > > > > > > In this case, do you think it is acceptable to make this change in
+> > > > > > > the vsock's behavior with netns and ask the user to change the design?
+> > > > > >
+> > > > > > David's question is what would be a usecase that's broken
+> > > > > > (as opposed to fixed) by enabling this by default.
+> > > > >
+> > > > > Yes, I got that. Thanks for clarifying.
+> > > > > I just reported a broken example that can be fixed with a different
+> > > > > design (due to the fact that before this series, vsock devices were
+> > > > > accessible to all netns).
+> > > > >
+> > > > > >
+> > > > > > If it does exist, you need a way for userspace to opt-in,
+> > > > > > module parameter isn't that.
+> > > > >
+> > > > > Okay, but I honestly can't find a case that can't be solved.
+> > > > > So I don't know whether to add an option (ioctl, sysfs ?) or wait for
+> > > > > a real case to come up.
+> > > > >
+> > > > > I'll try to see better if there's any particular case where we need
+> > > > > to disable netns in vsock.
+> > > > >
+> > > > > Thanks,
+> > > > > Stefano
+> > > >
+> > > > Me neither. so what did you have in mind when you wrote:
+> > > > "could break existing applications"?
+> > >
+> > > I had in mind:
+> > > 1. the Kata case. It is fixable (the fix is not merged on kata), but
+> > >    older versions will not work with newer Linux.
+> >
+> > meaning they will keep not working, right?
+> 
+> Right, I mean without this series they work, with this series they work
+> only if the netns support is disabled or with a patch proposed but not
+> merged in kata.
+> 
+> >
+> > > 2. a single process running on init_netns that wants to communicate with
+> > >    VMs handled by VMMs running in different netns, but this case can be
+> > >    solved opening the /dev/vhost-vsock in the same netns of the process
+> > >    that wants to communicate with the VMs (init_netns in this case), and
+> > >    passig it to the VMM.
+> >
+> > again right now they just don't work, right?
+> 
+> Right, as above.
+> 
+> What do you recommend I do?
+> 
+> Thanks,
+> Stefano
+
+If this breaks userspace, then we need to maintain compatibility.
+For example, have two devices, /dev/vhost-vsock and /dev/vhost-vsock-netns?
+
+-- 
+MST
