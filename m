@@ -1,100 +1,122 @@
-From: Jason Wang <jasowang@redhat.com>
-Subject: Re: [PATCH 3/5] vDPA: introduce vDPA bus
-Date: Wed, 22 Jan 2020 14:36:10 +0800
-Message-ID: <d0f5e232-0649-4863-4b8d-13875d1a9e26@redhat.com>
-References: <20200116124231.20253-4-jasowang@redhat.com>
- <20200117070324-mutt-send-email-mst@kernel.org>
- <239b042c-2d9e-0eec-a1ef-b03b7e2c5419@redhat.com>
- <CAJPjb1+fG9L3=iKbV4Vn13VwaeDZZdcfBPvarogF_Nzhk+FnKg@mail.gmail.com>
- <AM0PR0502MB379553984D0D55FDE25426F6C3330@AM0PR0502MB3795.eurprd05.prod.outlook.com>
- <d69918ca-8af4-44b2-9652-633530d4c113@redhat.com>
- <20200120174933.GB3891@mellanox.com>
- <2a324cec-2863-58f4-c58a-2414ee32c930@redhat.com>
- <20200121004047-mutt-send-email-mst@kernel.org>
- <b9ad744e-c4cd-82f9-f56a-1ecc185e9cd7@redhat.com>
- <20200121031506-mutt-send-email-mst@kernel.org>
- <028ed448-a948-79d9-f224-c325029b17ab@redhat.com>
- <AM0PR0502MB37956A8D6690B190EEA713A5C30D0@AM0PR0502MB3795.eurprd05.prod.outlook.com>
+From: Daniel Vetter <daniel@ffwll.ch>
+Subject: Re: [PATCH v2 4/4] drm/simple-kms: Let DRM core send
+ VBLANK events by default
+Date: Wed, 22 Jan 2020 09:11:04 +0100
+Message-ID: <20200122081104.GN43062@phenom.ffwll.local>
+References: <20200115125226.13843-1-tzimmermann@suse.de>
+ <20200115125226.13843-5-tzimmermann@suse.de>
+ <20200116064107.GB8400@dvetter-linux.ger.corp.intel.com>
+ <33fdd33f-ce8d-70d3-544e-fac727d2686b@suse.de>
+ <CACvgo52gwC6U5HjnsQSUUDgE7Gp_EDb-QqCY8VDFjAX7cE0Lxg@mail.gmail.com>
+ <20200116235951.GD8400@dvetter-linux.ger.corp.intel.com>
+ <fa8a22b5-9c19-7896-5b0d-06b038ed4862@suse.de>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=utf-8; format=flowed
-Content-Transfer-Encoding: quoted-printable
-Return-path: <netdev-owner@vger.kernel.org>
-In-Reply-To: <AM0PR0502MB37956A8D6690B190EEA713A5C30D0@AM0PR0502MB3795.eurprd05.prod.outlook.com>
-Content-Language: en-US
-Sender: netdev-owner@vger.kernel.org
-To: Shahaf Shuler <shahafs@mellanox.com>, "Michael S. Tsirkin" <mst@redhat.com>
-Cc: Jason Gunthorpe <jgg@mellanox.com>, Rob Miller <rob.miller@broadcom.com>, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>, "kvm@vger.kernel.org" <kvm@vger.kernel.org>, "virtualization@lists.linux-foundation.org" <virtualization@lists.linux-foundation.org>, Netdev <netdev@vger.kernel.org>, "Bie, Tiwei" <tiwei.bie@intel.com>, "maxime.coquelin@redhat.com" <maxime.coquelin@redhat.com>, "Liang, Cunming" <cunming.liang@intel.com>, "Wang, Zhihong" <zhihong.wang@intel.com>, "Wang, Xiao W" <xiao.w.wang@intel.com>, "haotian.wang@sifive.com" <haotian.wang@sifive.com>, "Zhu, Lingshan" <lingshan.zhu@intel.com>, "eperezma@redhat.com" <eperezma@redhat.com>, "lulu@redhat.com" <lulu@redhat.com>, Parav Pandit <parav@mellanox.com>, "Tian, Kevin" <kevin.t>
+Content-Type: text/plain; charset="utf-8"
+Content-Transfer-Encoding: base64
+Return-path: <xen-devel-bounces@lists.xenproject.org>
+Content-Disposition: inline
+In-Reply-To: <fa8a22b5-9c19-7896-5b0d-06b038ed4862@suse.de>
+List-Unsubscribe: <https://lists.xenproject.org/mailman/options/xen-devel>,
+ <mailto:xen-devel-request@lists.xenproject.org?subject=unsubscribe>
+List-Post: <mailto:xen-devel@lists.xenproject.org>
+List-Help: <mailto:xen-devel-request@lists.xenproject.org?subject=help>
+List-Subscribe: <https://lists.xenproject.org/mailman/listinfo/xen-devel>,
+ <mailto:xen-devel-request@lists.xenproject.org?subject=subscribe>
+Errors-To: xen-devel-bounces@lists.xenproject.org
+Sender: "Xen-devel" <xen-devel-bounces@lists.xenproject.org>
+To: Thomas Zimmermann <tzimmermann@suse.de>
+Cc: david@lechnology.com, oleksandr_andrushchenko@epam.com, Dave Airlie <airlied@linux.ie>, Sam Ravnborg <sam@ravnborg.org>, Emil Velikov <emil.l.velikov@gmail.com>, ML dri-devel <dri-devel@lists.freedesktop.org>, "open list:VIRTIO GPU DRIVER" <virtualization@lists.linux-foundation.org>, Hans de Goede <hdegoede@redhat.com>, Laurent Pinchart <laurent.pinchart@ideasonboard.com>, Daniel Vetter <daniel@ffwll.ch>, xen-devel@lists.xenproject.org, Emil Velikov <emil.velikov@collabora.com>, Sean Paul <sean@poorly.run>, Gerd Hoffmann <kraxel@redhat.com>
 List-Id: virtualization@lists.linuxfoundation.org
 
-
-On 2020/1/21 =E4=B8=8B=E5=8D=887:09, Shahaf Shuler wrote:
-> Tuesday, January 21, 2020 10:35 AM, Jason Wang:
->> Subject: Re: [PATCH 3/5] vDPA: introduce vDPA bus
->>
->>
->> On 2020/1/21 =E4=B8=8B=E5=8D=884:15, Michael S. Tsirkin wrote:
->>> On Tue, Jan 21, 2020 at 04:00:38PM +0800, Jason Wang wrote:
->>>> On 2020/1/21 =E4=B8=8B=E5=8D=881:47, Michael S. Tsirkin wrote:
->>>>> On Tue, Jan 21, 2020 at 12:00:57PM +0800, Jason Wang wrote:
->>>>>> On 2020/1/21 =E4=B8=8A=E5=8D=881:49, Jason Gunthorpe wrote:
->>>>>>> On Mon, Jan 20, 2020 at 04:43:53PM +0800, Jason Wang wrote:
->>>>>>>> This is similar to the design of platform IOMMU part of
->>>>>>>> vhost-vdpa. We decide to send diffs to platform IOMMU there. If
->>>>>>>> it's ok to do that in driver, we can replace set_map with increm=
-ental
->> API like map()/unmap().
->>>>>>>> Then driver need to maintain rbtree itself.
->>>>>>> I think we really need to see two modes, one where there is a
->>>>>>> fixed translation without dynamic vIOMMU driven changes and one
->>>>>>> that supports vIOMMU.
->>>>>> I think in this case, you meant the method proposed by Shahaf that
->>>>>> sends diffs of "fixed translation" to device?
->>>>>>
->>>>>> It would be kind of tricky to deal with the following case for exa=
-mple:
->>>>>>
->>>>>> old map [4G, 16G) new map [4G, 8G)
->>>>>>
->>>>>> If we do
->>>>>>
->>>>>> 1) flush [4G, 16G)
->>>>>> 2) add [4G, 8G)
->>>>>>
->>>>>> There could be a window between 1) and 2).
->>>>>>
->>>>>> It requires the IOMMU that can do
->>>>>>
->>>>>> 1) remove [8G, 16G)
->>>>>> 2) flush [8G, 16G)
->>>>>> 3) change [4G, 8G)
->>>>>>
->>>>>> ....
->>>>> Basically what I had in mind is something like qemu memory api
->>>>>
->>>>> 0. begin
->>>>> 1. remove [8G, 16G)
->>>>> 2. add [4G, 8G)
->>>>> 3. commit
->>>> This sounds more flexible e.g driver may choose to implement static
->>>> mapping one through commit. But a question here, it looks to me this
->>>> still requires the DMA to be synced with at least commit here.
->>>> Otherwise device may get DMA fault? Or device is expected to be paus=
-ed
->> DMA during begin?
->>>> Thanks
->>> For example, commit might switch one set of tables for another,
->>> without need to pause DMA.
->> Yes, I think that works but need confirmation from Shahaf or Jason.
->  From my side, as I wrote, I would like to see the suggested function p=
-rototype along w/ the definition of the expectation from driver upon call=
-ing those.
-> It is not 100% clear to me what should be the outcome of remove/flush/c=
-hange/commit
-
-
-Right, I can do this in next version after the discussion is converged.
-
-Thanks
-
-
->
+T24gRnJpLCBKYW4gMTcsIDIwMjAgYXQgMDg6MTc6MTBBTSArMDEwMCwgVGhvbWFzIFppbW1lcm1h
+bm4gd3JvdGU6Cj4gSGkKPiAKPiBBbSAxNy4wMS4yMCB1bSAwMDo1OSBzY2hyaWViIERhbmllbCBW
+ZXR0ZXI6Cj4gPiBPbiBUaHUsIEphbiAxNiwgMjAyMCBhdCAwNToyMjozNFBNICswMDAwLCBFbWls
+IFZlbGlrb3Ygd3JvdGU6Cj4gPj4gSGkgYWxsLAo+ID4+Cj4gPj4gT24gVGh1LCAxNiBKYW4gMjAy
+MCBhdCAwNzozNywgVGhvbWFzIFppbW1lcm1hbm4gPHR6aW1tZXJtYW5uQHN1c2UuZGU+IHdyb3Rl
+Ogo+ID4+Cj4gPj4+PiBkaWZmIC0tZ2l0IGEvZHJpdmVycy9ncHUvZHJtL2RybV9hdG9taWNfc3Rh
+dGVfaGVscGVyLmMgYi9kcml2ZXJzL2dwdS9kcm0vZHJtX2F0b21pY19zdGF0ZV9oZWxwZXIuYwo+
+ID4+Pj4gaW5kZXggN2NmM2NmOTM2NTQ3Li4yM2QyZjUxZmMxZDQgMTAwNjQ0Cj4gPj4+PiAtLS0g
+YS9kcml2ZXJzL2dwdS9kcm0vZHJtX2F0b21pY19zdGF0ZV9oZWxwZXIuYwo+ID4+Pj4gKysrIGIv
+ZHJpdmVycy9ncHUvZHJtL2RybV9hdG9taWNfc3RhdGVfaGVscGVyLmMKPiA+Pj4+IEBAIC0xNDks
+NiArMTQ5LDExIEBAIHZvaWQgX19kcm1fYXRvbWljX2hlbHBlcl9jcnRjX2R1cGxpY2F0ZV9zdGF0
+ZShzdHJ1Y3QgZHJtX2NydGMgKmNydGMsCj4gPj4+PiAgICAgICAvKiBTZWxmIHJlZnJlc2ggc2hv
+dWxkIGJlIGNhbmNlbGVkIHdoZW4gYSBuZXcgdXBkYXRlIGlzIGF2YWlsYWJsZSAqLwo+ID4+Pj4g
+ICAgICAgc3RhdGUtPmFjdGl2ZSA9IGRybV9hdG9taWNfY3J0Y19lZmZlY3RpdmVseV9hY3RpdmUo
+c3RhdGUpOwo+ID4+Pj4gICAgICAgc3RhdGUtPnNlbGZfcmVmcmVzaF9hY3RpdmUgPSBmYWxzZTsK
+PiA+Pj4+ICsKPiA+Pj4+ICsgICAgIGlmIChkcm1fZGV2X2hhc192YmxhbmsoY3J0Yy0+ZGV2KSkK
+PiA+Pj4+ICsgICAgICAgICAgICAgc3RhdGUtPm5vX3ZibGFuayA9IHRydWU7Cj4gPj4+PiArICAg
+ICBlbHNlCj4gPj4+PiArICAgICAgICAgICAgIHN0YXRlLT5ub192YmxhbmsgPSBmYWxzZTsKPiA+
+Pj4+ICB9Cj4gPj4+PiAgRVhQT1JUX1NZTUJPTChfX2RybV9hdG9taWNfaGVscGVyX2NydGNfZHVw
+bGljYXRlX3N0YXRlKTsKPiA+Pj4KPiA+Pj4gSSB0aGluayB0aGUgaWYvZWxzZSBicmFuY2hlcyBh
+cmUgaW4gdGhlIHdyb25nIG9yZGVyLgo+ID4gCj4gPiBZZWFoIGZ1bWJsZWQgdGhhdC4KPiA+IAo+
+ID4+PiBCdXQgZ2VuZXJhbGx5IHNwZWFraW5nLCBpcyBpdCByZWFsbHkgdGhhdCBlYXN5PyBUaGUg
+eGVuIGRyaXZlciBhbHJlYWR5Cj4gPj4+IGhhcyB0byB3b3JrIGFyb3VuZCBzaW1wbGUta21zJ3Mg
+YXV0by1lbmFibGluZyBvZiBub192YmxhbmsgKHNlZSBwYXRjaAo+ID4+PiA0KS4gTWF5YmUgdGhp
+cyBzZXR0aW5ncyBpbnRlcmZlcmVzIHdpdGggb3RoZXIgZHJpdmVycyBhcyB3ZWxsLiBBdCBsZWFz
+dAo+ID4+PiB0aGUgY2FsbHMgZm9yIHNlbmRpbmcgZmFrZSB2YmxhbmtzIHNob3VsZCBiZSByZW1v
+dmVkIGZyb20gYWxsIGFmZmVjdGVkCj4gPj4+IGRyaXZlcnMuCj4gPiAKPiA+IEhtIHhlbiBpcyBy
+ZWFsbHkgc3BlY2lhbCwgaW4gdGhhdCBpdCBoYXMgYSBmbGlwIGNvbXBsZXRlIGV2ZW50LCBidXQg
+bm90IGEKPiA+IHZibGFuay4gSSB0aGluayBmb3JjaW5nIGRyaXZlcnMgdG8gb3ZlcndyaXRlIHN0
+dWZmIGluIHRoYXQgY2FzZSBtYWtlcwo+ID4gc2Vuc2UuCj4gPiAKPiA+PiBJJ20gbm90IHN1cmUg
+aWYgc2V0dGluZyBub192YmxhbmsgYmFzZWQgb24gZGV2LT5udW1fY3J0Y3MgaXMgdGhlIGNvcnJl
+Y3QgdGhpbmcuCj4gPj4gRnJvbSB0aGUgb3JpZ2luYWwgY29tbWl0IGFuZCBhc3NvY2lhdGVkIGRl
+c2NyaXB0aW9uIGZvciBub192Ymxhbms6Cj4gPj4KPiA+PiBJbiBzb21lIGNhc2VzIENSVENzIGFy
+ZSBhY3RpdmUgYnV0IGFyZSBub3QgYWJsZSB0byBnZW5lcmF0aW5nIGV2ZW50cywgYXQKPiA+PiBs
+ZWFzdCBub3QgYXQgZXZlcnkgZnJhbWUgYXQgaXQncyBleHBlY3RlZCB0by4KPiA+PiBUaGlzIGlz
+IHR5cGljYWxseSB0aGUgY2FzZSB3aGVuIHRoZSBDUlRDIGlzIGZlZWRpbmcgYSB3cml0ZWJhY2sg
+Y29ubmVjdG9yLi4uCj4gPiAKPiA+IFllYWgsIGJ1dCBUaG9tYXMnIHNlcmllcyBoZXJlIHdhbnRz
+IHRvIGV4dGVuZCB0aGF0LiBBbmQgSSB0aGluayBpZiB3ZSByb2xsCj4gPiB0aGlzIG91dCB0aGUg
+Y29tbW9uIGNhc2Ugd2lsbCBiZSAibm8gaHcgdmJsYW5rIiwgYW5kIHRoZSB3cml0ZWJhY2sgc3Bl
+Y2lhbAo+IAo+IERlZmF1bHQgdmFsdWVzIHNob3VsZCB1c3VhbGx5IGJlIDAgZm9yIHphbGxvYyBh
+bmQgc3RhdGljIGluaXRpYWxpemVycy4KPiBTaG91bGQgd2UgcmVuYW1lIG5vX3ZibGFuayB0byBo
+YXNfdmJsYW5rIHRoZW4/CgpIbSwgaW1vIGZlZWxzIGxpa2UgaHcgd2l0aG91dCB2YmxhbmsgaXMg
+c3RpbGwgdGhlIHVuY29tbW9uIGNhc2UuIEknZCBsZWF2ZQp0aGlzIGFzLWlzLCBidXQgYWxzbyBu
+byBvYmplY3Rpb25zIGlmIHlvdSBmZWVsIGxpa2UgcmVwYWludGluZyA6LSkKCj4gPiBjYXNlIGlz
+IGdvaW5nIHRvIGJlIHRoZSBleGNlcHRpb24gdG8gdGhlIGV4Y2VwdGlvbi4gWXVwLCBwYXRjaCAx
+IHRoYXQKPiA+IHVwZGF0ZXMgdGhlIGRvY3MgZG9lc24ndCByZWZsZWN0IHRoYXQsIHdoaWNoIGlz
+IHdoeSBJJ20gYnJpbmdpbmcgdXAgbW9yZQo+ID4gc3VnZ2VzdGlvbnMgaGVyZSBhcm91bmQgY29k
+ZSAmIHNlbWFudGljcyBvZiBhbGwgdGhlc2UgcGllY2VzIHRvIG1ha2UgdGhlbQo+ID4gZG8gdGhl
+IG1vc3QgcmVhc29uYWJsZSB0aGluZyBmb3IgbW9zdCBvZiB0aGUgZHJpdmVycy4KPiA+IAo+ID4+
+IFJlZmxlY3RzIHRoZSBhYmlsaXR5IG9mIGEgQ1JUQyB0byBzZW5kIFZCTEFOSyBldmVudHMuLi4u
+Cj4gPj4KPiA+Pgo+ID4+IFRoZSBwcm9wb3NlZCBoYW5kbGluZyBvZiBub192YmxhbmsgZmVlbHMg
+YSBsaXR0bGUgZGlydHksIGFsdGhvdWdoCj4gPj4gbm90aGluZyBiZXR0ZXIgY29tZXMgdG8gbWlu
+ZC4KPiA+PiBOZXZlcnRoZWxlc3MgY29kZSBzZWVtcyBwZXJmZWN0bHkgcmVhc29uYWJsZSwgc28g
+aWYgaXQgd2VyZSBtZSBJJ2QgbWVyZ2UgaXQuCj4gPiAKPiA+IFRoZSBpZGVhIHdpdGggc2V0dGlu
+ZyBpdCB2ZXJ5IGVhcmx5IGlzIHRoYXQgZHJpdmVycyBjYW4gb3ZlcndyaXRlIGl0IHZlcnkKPiA+
+IGVhc2lseS4gRmVlbHMgc2xpZ2h0bHkgZGlydHksIHNvIEkgZ3Vlc3Mgd2UgY291bGQgYWxzbyBz
+ZXQgaXQgc29tZXdoZXJlIGluCj4gPiB0aGUgYXRvbWljX2hlbHBlcl9jaGVjayBmdW5jdGlvbiAo
+c2ltaWxhciB0byBob3cgd2Ugc2V0IHRoZSB2YXJpb3VzCj4gPiBjcnRjLT4qX2NoYW5nZWQgZmxh
+Z3MsIGJ1dCB3ZSdyZSBub3QgZW50aXJlbHkgY29uc2lzdGVudCBvbiB0aGVzZSBlaXRoZXIpLgo+
+ID4gCj4gPiBGb3IgdGhlIG92ZXJhbGwgdGhpbmcgd2hhdCBmZWVscyBpcmt5IHRvIG1lIGlzIG1h
+a2luZyB0aGlzIG5vX3ZibGFuawo+ID4gZGVmYXVsdCBsb2dpYyAoaG93ZXZlciB3ZSBlbmQgdXAg
+Y29tcHV0aW5nIGl0IGluIHRoZSBlbmQsIHdoZXRoZXIgbGlrZQo+ID4gdGhpcyBvciB3aGF0IEkg
+c3VnZ2VzdGVkKSBzcGVjaWZpYyB0byBzaW1wbGUgcGlwZSBoZWxwZXJzIGZlZWxzIGtpbmRhCj4g
+PiB3cm9uZy4gU2ltcGxlIHBpcGUgdGVuZHMgdG8gaGF2ZSBhIGhpZ2hlciByYXRpbyBvZiBkcml2
+ZXJzIGZvciBodyB3aXRob3V0Cj4gPiB2Ymxhbmsgc3VwcG9ydCwgYnV0IGJ5IGZhciBub3QgdGhl
+IG9ubHkgb25lcy4gSGF2aW5nIHRoYXQgc3BlY2lhbCBjYXNlCj4gPiBmZWVscyBjb25mdXNpbmcg
+dG8gbWUgKGFuZCBsaWtlbHkgd2lsbCB0cmlwIHVwIHNvbWUgcGVvcGxlLCB2YmxhbmsgYW5kCj4g
+PiBldmVudCBoYW5kbGluZyBpcyBhbHJlYWR5IGEgaHVnZSBzb3VyY2Ugb2YgY29uZnVzaW9uIGlu
+IGRybSkuCj4gCj4gTWFraW5nIGl0IGEgZGVmYXVsdCBmb3Igc2ltcGxlIEtNUyB3YXMgb25seSB0
+aGUgc3RhcnQuIEkgaW50ZW5kZWQgdG8KPiBjb3ZlciBhbGwgZHJpdmVycyBhdCBzb21lIHBvaW50
+LiBJIGp1c3QgZGlkbid0IHdhbnQgdG8gZ28gdGhyb3VnaCBhbGwKPiBkcml2ZXJzIGF0IG9uY2Uu
+Cj4gCj4gSSBndWVzcyBmb3IgdGhlIHBhdGNoc2V0J3MgdjMgSSdsbCBhdWRpdCBhbGwgZHJpdmVy
+cyBmb3IgdGhlIHVzZSBvZgo+IG5vX2JsYW5rIGFuZCBkcm1fY3J0Y19zZW5kX3ZibGFua19ldmVu
+dCgpOyBhbmQgY29udmVydCB0aGUgcG9zc2libGUKPiBjYW5kaWRhdGVzLgoKWWVhaCBpdCdzIGEg
+cGFpbiwgdGhhbmtzIGZvciB2b2x1bnRlZXJpbmcuIEp1c3QgZmlndXJlZCB0aGUgaGFsZi1zdGVw
+IGhlcmUKaXMgdG9vIG11Y2ggaW4gdGhlIHVuY2FubmV5IHZhbGxleS4gSWYgd2UncmUgZ29pbmcg
+dG8gcG9saXNoIHRoaXMsIGxldCdzCmRvIGl0IHJpZ2h0IChhbmQgd2UgaGF2ZSBwbGVudHkgZW5v
+dWdoIGRyaXZlcnMgdG8gbWFrZSBzdXJlIHdoYXQgd2UgcGljawp3aWxsIGJlIGEgc29saWQgY2hv
+aWNlIEkgdGhpbmspLgotRGFuaWVsCgo+IAo+IEJlc3QgcmVnYXJkcwo+IFRob21hcwo+IAo+ID4g
+Cj4gPiBPbmUgaWRlYSBiZWhpbmQgZHJtX2Rldl9oYXNfdmJsYW5rKCkgaXMgYWxzbyB0aGF0IHdl
+IGNvdWxkIGZvcm1hbGl6ZSBhIGJpdAo+ID4gYWxsIHRoYXQsIGF0IGxlYXN0IGZvciB0aGUgdXN1
+YWwgY2FzZSAtIHhlbiBhbmQgbWF5YmUgb3RoZXJzIGJlaW5nIHNvbWUKPiA+IGV4Y2VwdGlvbnMg
+YXMgdXN1YWwgKGhlbmNlIGRlZmluaXRlbHkgbm90IHNvbWV0aGluZyB0aGUgY29yZSBjb2RlIHNo
+b3VsZAo+ID4gaGFuZGxlKS4KPiA+IAo+ID4gQ2hlZXJzLCBEYW5pZWwKPiA+IAo+IAo+IC0tIAo+
+IFRob21hcyBaaW1tZXJtYW5uCj4gR3JhcGhpY3MgRHJpdmVyIERldmVsb3Blcgo+IFNVU0UgU29m
+dHdhcmUgU29sdXRpb25zIEdlcm1hbnkgR21iSAo+IE1heGZlbGRzdHIuIDUsIDkwNDA5IE7DvHJu
+YmVyZywgR2VybWFueQo+IChIUkIgMzY4MDksIEFHIE7DvHJuYmVyZykKPiBHZXNjaMOkZnRzZsO8
+aHJlcjogRmVsaXggSW1lbmTDtnJmZmVyCj4gCgoKCgotLSAKRGFuaWVsIFZldHRlcgpTb2Z0d2Fy
+ZSBFbmdpbmVlciwgSW50ZWwgQ29ycG9yYXRpb24KaHR0cDovL2Jsb2cuZmZ3bGwuY2gKCl9fX19f
+X19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fClhlbi1kZXZlbCBtYWls
+aW5nIGxpc3QKWGVuLWRldmVsQGxpc3RzLnhlbnByb2plY3Qub3JnCmh0dHBzOi8vbGlzdHMueGVu
+cHJvamVjdC5vcmcvbWFpbG1hbi9saXN0aW5mby94ZW4tZGV2ZWw=
