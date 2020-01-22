@@ -1,282 +1,79 @@
-From: Thomas Zimmermann <tzimmermann@suse.de>
-Subject: Re: [PATCH v2 4/4] drm/simple-kms: Let DRM core send VBLANK events by
- default
-Date: Wed, 22 Jan 2020 09:20:07 +0100
-Message-ID: <32a4a3ba-0f3a-27c9-4d7f-c9f85de94cb4@suse.de>
-References: <20200115125226.13843-1-tzimmermann@suse.de>
- <20200115125226.13843-5-tzimmermann@suse.de>
- <20200116064107.GB8400@dvetter-linux.ger.corp.intel.com>
- <33fdd33f-ce8d-70d3-544e-fac727d2686b@suse.de>
- <CACvgo52gwC6U5HjnsQSUUDgE7Gp_EDb-QqCY8VDFjAX7cE0Lxg@mail.gmail.com>
- <20200116235951.GD8400@dvetter-linux.ger.corp.intel.com>
- <fa8a22b5-9c19-7896-5b0d-06b038ed4862@suse.de>
- <20200122081104.GN43062@phenom.ffwll.local>
+From: Daniel Vetter <daniel@ffwll.ch>
+Subject: Re: [PATCH v3 1/4] drm: Add drm_crtc_has_vblank()
+Date: Wed, 22 Jan 2020 09:31:39 +0100
+Message-ID: <20200122083139.GP43062@phenom.ffwll.local>
+References: <20200120122051.25178-1-tzimmermann@suse.de>
+ <20200120122051.25178-2-tzimmermann@suse.de>
 Mime-Version: 1.0
-Content-Type: multipart/mixed; boundary="===============7823249061182476468=="
-Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <20200122081104.GN43062@phenom.ffwll.local>
-List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
- <mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
-List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
-List-Post: <mailto:virtualization@lists.linux-foundation.org>
-List-Help: <mailto:virtualization-request@lists.linux-foundation.org?subject=help>
-List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualization>,
- <mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
-Errors-To: virtualization-bounces@lists.linux-foundation.org
-Sender: "Virtualization" <virtualization-bounces@lists.linux-foundation.org>
-To: Daniel Vetter <daniel@ffwll.ch>
-Cc: david@lechnology.com, oleksandr_andrushchenko@epam.com, Dave Airlie <airlied@linux.ie>, Sean Paul <sean@poorly.run>, Emil Velikov <emil.l.velikov@gmail.com>, ML dri-devel <dri-devel@lists.freedesktop.org>, "open list:VIRTIO GPU DRIVER" <virtualization@lists.linux-foundation.org>, Hans de Goede <hdegoede@redhat.com>, Laurent Pinchart <laurent.pinchart@ideasonboard.com>, xen-devel@lists.xenproject.org, Sam Ravnborg <sam@ravnborg.org>, Emil Velikov <emil.velikov@collabora.com>
+Content-Type: text/plain; charset="utf-8"
+Content-Transfer-Encoding: base64
+Return-path: <xen-devel-bounces@lists.xenproject.org>
+Content-Disposition: inline
+In-Reply-To: <20200120122051.25178-2-tzimmermann@suse.de>
+List-Unsubscribe: <https://lists.xenproject.org/mailman/options/xen-devel>,
+ <mailto:xen-devel-request@lists.xenproject.org?subject=unsubscribe>
+List-Post: <mailto:xen-devel@lists.xenproject.org>
+List-Help: <mailto:xen-devel-request@lists.xenproject.org?subject=help>
+List-Subscribe: <https://lists.xenproject.org/mailman/listinfo/xen-devel>,
+ <mailto:xen-devel-request@lists.xenproject.org?subject=subscribe>
+Errors-To: xen-devel-bounces@lists.xenproject.org
+Sender: "Xen-devel" <xen-devel-bounces@lists.xenproject.org>
+To: Thomas Zimmermann <tzimmermann@suse.de>
+Cc: david@lechnology.com, oleksandr_andrushchenko@epam.com, airlied@linux.ie, sam@ravnborg.org, dri-devel@lists.freedesktop.org, maarten.lankhorst@linux.intel.com, mripard@kernel.org, virtualization@lists.linux-foundation.org, hdegoede@redhat.com, noralf@tronnes.org, kraxel@redhat.com, daniel@ffwll.ch, xen-devel@lists.xenproject.org, emil.velikov@collabora.com, sean@poorly.run, laurent.pinchart@ideasonboard.com
 List-Id: virtualization@lists.linuxfoundation.org
 
-This is an OpenPGP/MIME signed message (RFC 4880 and 3156)
---===============7823249061182476468==
-Content-Type: multipart/signed; micalg=pgp-sha256;
- protocol="application/pgp-signature";
- boundary="MYMcMdmk1LNu428DM8AAIBCtQQ8SbK5F0"
-
-This is an OpenPGP/MIME signed message (RFC 4880 and 3156)
---MYMcMdmk1LNu428DM8AAIBCtQQ8SbK5F0
-Content-Type: multipart/mixed; boundary="w5oWgMpZQufKwX3PNsMei1A8FksoTy6gb";
- protected-headers="v1"
-From: Thomas Zimmermann <tzimmermann@suse.de>
-To: Daniel Vetter <daniel@ffwll.ch>
-Cc: david@lechnology.com, oleksandr_andrushchenko@epam.com,
- Dave Airlie <airlied@linux.ie>, Sam Ravnborg <sam@ravnborg.org>,
- Emil Velikov <emil.l.velikov@gmail.com>,
- ML dri-devel <dri-devel@lists.freedesktop.org>,
- "open list:VIRTIO GPU DRIVER" <virtualization@lists.linux-foundation.org>,
- Hans de Goede <hdegoede@redhat.com>,
- Laurent Pinchart <laurent.pinchart@ideasonboard.com>,
- xen-devel@lists.xenproject.org, Emil Velikov <emil.velikov@collabora.com>,
- Sean Paul <sean@poorly.run>, Gerd Hoffmann <kraxel@redhat.com>
-Message-ID: <32a4a3ba-0f3a-27c9-4d7f-c9f85de94cb4@suse.de>
-Subject: Re: [PATCH v2 4/4] drm/simple-kms: Let DRM core send VBLANK events by
- default
-References: <20200115125226.13843-1-tzimmermann@suse.de>
- <20200115125226.13843-5-tzimmermann@suse.de>
- <20200116064107.GB8400@dvetter-linux.ger.corp.intel.com>
- <33fdd33f-ce8d-70d3-544e-fac727d2686b@suse.de>
- <CACvgo52gwC6U5HjnsQSUUDgE7Gp_EDb-QqCY8VDFjAX7cE0Lxg@mail.gmail.com>
- <20200116235951.GD8400@dvetter-linux.ger.corp.intel.com>
- <fa8a22b5-9c19-7896-5b0d-06b038ed4862@suse.de>
- <20200122081104.GN43062@phenom.ffwll.local>
-In-Reply-To: <20200122081104.GN43062@phenom.ffwll.local>
-
---w5oWgMpZQufKwX3PNsMei1A8FksoTy6gb
-Content-Type: text/plain; charset=utf-8
-Content-Language: en-US
-Content-Transfer-Encoding: quoted-printable
-
-Hi
-
-Am 22.01.20 um 09:11 schrieb Daniel Vetter:
-> On Fri, Jan 17, 2020 at 08:17:10AM +0100, Thomas Zimmermann wrote:
->> Hi
->>
->> Am 17.01.20 um 00:59 schrieb Daniel Vetter:
->>> On Thu, Jan 16, 2020 at 05:22:34PM +0000, Emil Velikov wrote:
->>>> Hi all,
->>>>
->>>> On Thu, 16 Jan 2020 at 07:37, Thomas Zimmermann <tzimmermann@suse.de=
-> wrote:
->>>>
->>>>>> diff --git a/drivers/gpu/drm/drm_atomic_state_helper.c b/drivers/g=
-pu/drm/drm_atomic_state_helper.c
->>>>>> index 7cf3cf936547..23d2f51fc1d4 100644
->>>>>> --- a/drivers/gpu/drm/drm_atomic_state_helper.c
->>>>>> +++ b/drivers/gpu/drm/drm_atomic_state_helper.c
->>>>>> @@ -149,6 +149,11 @@ void __drm_atomic_helper_crtc_duplicate_state=
-(struct drm_crtc *crtc,
->>>>>>       /* Self refresh should be canceled when a new update is avai=
-lable */
->>>>>>       state->active =3D drm_atomic_crtc_effectively_active(state);=
-
->>>>>>       state->self_refresh_active =3D false;
->>>>>> +
->>>>>> +     if (drm_dev_has_vblank(crtc->dev))
->>>>>> +             state->no_vblank =3D true;
->>>>>> +     else
->>>>>> +             state->no_vblank =3D false;
->>>>>>  }
->>>>>>  EXPORT_SYMBOL(__drm_atomic_helper_crtc_duplicate_state);
->>>>>
->>>>> I think the if/else branches are in the wrong order.
->>>
->>> Yeah fumbled that.
->>>
->>>>> But generally speaking, is it really that easy? The xen driver alre=
-ady
->>>>> has to work around simple-kms's auto-enabling of no_vblank (see pat=
-ch
->>>>> 4). Maybe this settings interferes with other drivers as well. At l=
-east
->>>>> the calls for sending fake vblanks should be removed from all affec=
-ted
->>>>> drivers.
->>>
->>> Hm xen is really special, in that it has a flip complete event, but n=
-ot a
->>> vblank. I think forcing drivers to overwrite stuff in that case makes=
-
->>> sense.
->>>
->>>> I'm not sure if setting no_vblank based on dev->num_crtcs is the cor=
-rect thing.
->>>> From the original commit and associated description for no_vblank:
->>>>
->>>> In some cases CRTCs are active but are not able to generating events=
-, at
->>>> least not at every frame at it's expected to.
->>>> This is typically the case when the CRTC is feeding a writeback conn=
-ector...
->>>
->>> Yeah, but Thomas' series here wants to extend that. And I think if we=
- roll
->>> this out the common case will be "no hw vblank", and the writeback sp=
-ecial
->>
->> Default values should usually be 0 for zalloc and static initializers.=
-
->> Should we rename no_vblank to has_vblank then?
->=20
-> Hm, imo feels like hw without vblank is still the uncommon case. I'd le=
-ave
-> this as-is, but also no objections if you feel like repainting :-)
-
-Not a bit. ;)
-
->=20
->>> case is going to be the exception to the exception. Yup, patch 1 that=
-
->>> updates the docs doesn't reflect that, which is why I'm bringing up m=
-ore
->>> suggestions here around code & semantics of all these pieces to make =
-them
->>> do the most reasonable thing for most of the drivers.
->>>
->>>> Reflects the ability of a CRTC to send VBLANK events....
->>>>
->>>>
->>>> The proposed handling of no_vblank feels a little dirty, although
->>>> nothing better comes to mind.
->>>> Nevertheless code seems perfectly reasonable, so if it were me I'd m=
-erge it.
->>>
->>> The idea with setting it very early is that drivers can overwrite it =
-very
->>> easily. Feels slightly dirty, so I guess we could also set it somewhe=
-re in
->>> the atomic_helper_check function (similar to how we set the various
->>> crtc->*_changed flags, but we're not entirely consistent on these eit=
-her).
->>>
->>> For the overall thing what feels irky to me is making this no_vblank
->>> default logic (however we end up computing it in the end, whether lik=
-e
->>> this or what I suggested) specific to simple pipe helpers feels kinda=
-
->>> wrong. Simple pipe tends to have a higher ratio of drivers for hw wit=
-hout
->>> vblank support, but by far not the only ones. Having that special cas=
-e
->>> feels confusing to me (and likely will trip up some people, vblank an=
-d
->>> event handling is already a huge source of confusion in drm).
->>
->> Making it a default for simple KMS was only the start. I intended to
->> cover all drivers at some point. I just didn't want to go through all
->> drivers at once.
->>
->> I guess for the patchset's v3 I'll audit all drivers for the use of
->> no_blank and drm_crtc_send_vblank_event(); and convert the possible
->> candidates.
->=20
-> Yeah it's a pain, thanks for volunteering. Just figured the half-step h=
-ere
-> is too much in the uncanney valley. If we're going to polish this, let'=
-s
-> do it right (and we have plenty enough drivers to make sure what we pic=
-k
-> will be a solid choice I think).
-
-I went through the drivers and updated them. It's the ones covered here
-plus some more virtual HW. My search heuristic was to look for drivers
-that call drm_crtc_send_vblank_event() but do not call
-drm_vblank_init(). Please see v3 of this patchset. It should be pending
-on this ML.
-
-Best regards
-Thomas
-
-> -Daniel
->=20
->>
->> Best regards
->> Thomas
->>
->>>
->>> One idea behind drm_dev_has_vblank() is also that we could formalize =
-a bit
->>> all that, at least for the usual case - xen and maybe others being so=
-me
->>> exceptions as usual (hence definitely not something the core code sho=
-uld
->>> handle).
->>>
->>> Cheers, Daniel
->>>
->>
->> --=20
->> Thomas Zimmermann
->> Graphics Driver Developer
->> SUSE Software Solutions Germany GmbH
->> Maxfeldstr. 5, 90409 N=C3=BCrnberg, Germany
->> (HRB 36809, AG N=C3=BCrnberg)
->> Gesch=C3=A4ftsf=C3=BChrer: Felix Imend=C3=B6rffer
->>
->=20
->=20
->=20
->=20
-
---=20
-Thomas Zimmermann
-Graphics Driver Developer
-SUSE Software Solutions Germany GmbH
-Maxfeldstr. 5, 90409 N=C3=BCrnberg, Germany
-(HRB 36809, AG N=C3=BCrnberg)
-Gesch=C3=A4ftsf=C3=BChrer: Felix Imend=C3=B6rffer
-
-
---w5oWgMpZQufKwX3PNsMei1A8FksoTy6gb--
-
---MYMcMdmk1LNu428DM8AAIBCtQQ8SbK5F0
-Content-Type: application/pgp-signature; name="signature.asc"
-Content-Description: OpenPGP digital signature
-Content-Disposition: attachment; filename="signature.asc"
-
------BEGIN PGP SIGNATURE-----
-
-iQEzBAEBCAAdFiEEchf7rIzpz2NEoWjlaA3BHVMLeiMFAl4oBbcACgkQaA3BHVML
-eiPDsAf9HE9E9wGmSJwzZ4OrzsqzCY37EhFnHvEaF31nFA1ZJhtCFYl1tlttVcHW
-qlqudA5YvW2GcvcByvUIHnGuRcIPKtKAU3GEReVcDQVkDuqA70qtWK8a/VqX0Tep
-YNiYFh+DldYaV6hrOe9l8wfcHRIivnmINDQo6np4v7I0/aXMgdWUzvSbmJhtm0z4
-alrpsWrSnQTeqRIwhPlVdr5BfPaG+xU2tzCkrfGb+w1vWFQUVVID9pZadrotoyQW
-5HTQCFiWrNU/aOXoT0IdoJ9j+G629HnarlbSKC/4dALC2CFETQOt7KklkHck8VU1
-DrRirCUKBp+TQq2tdXVes/DVMWQPaA==
-=0fVB
------END PGP SIGNATURE-----
-
---MYMcMdmk1LNu428DM8AAIBCtQQ8SbK5F0--
-
---===============7823249061182476468==
-Content-Type: text/plain; charset="us-ascii"
-MIME-Version: 1.0
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-
-_______________________________________________
-Virtualization mailing list
-Virtualization@lists.linux-foundation.org
-https://lists.linuxfoundation.org/mailman/listinfo/virtualization
---===============7823249061182476468==--
+T24gTW9uLCBKYW4gMjAsIDIwMjAgYXQgMDE6MjA6NDhQTSArMDEwMCwgVGhvbWFzIFppbW1lcm1h
+bm4gd3JvdGU6Cj4gVGhlIG5ldyBpbnRlcmZhY2UgZHJtX2NydGNfaGFzX3ZibGFuaygpIHJldHVy
+biB0cnVlIGlmIHZibGFua2luZyBoYXMKPiBiZWVuIGluaXRpYWxpemVkIGZvciBhIGNlcnRhaW4g
+Q1JUQywgb3IgZmFsc2Ugb3RoZXJ3aXNlLiBUaGlzIGZ1bmN0aW9uCj4gd2lsbCBiZSB1c2VmdWwg
+Zm9yIGluaXRpYWxpemluZyBDUlRDIHN0YXRlLgo+IAo+IFNpZ25lZC1vZmYtYnk6IFRob21hcyBa
+aW1tZXJtYW5uIDx0emltbWVybWFubkBzdXNlLmRlPgo+IC0tLQo+ICBkcml2ZXJzL2dwdS9kcm0v
+ZHJtX3ZibGFuay5jIHwgMjEgKysrKysrKysrKysrKysrKysrKysrCj4gIGluY2x1ZGUvZHJtL2Ry
+bV92YmxhbmsuaCAgICAgfCAgMSArCj4gIDIgZmlsZXMgY2hhbmdlZCwgMjIgaW5zZXJ0aW9ucygr
+KQo+IAo+IGRpZmYgLS1naXQgYS9kcml2ZXJzL2dwdS9kcm0vZHJtX3ZibGFuay5jIGIvZHJpdmVy
+cy9ncHUvZHJtL2RybV92YmxhbmsuYwo+IGluZGV4IDE2NTliMTNiMTc4Yy4uYzIwMTAyODk5NDEx
+IDEwMDY0NAo+IC0tLSBhL2RyaXZlcnMvZ3B1L2RybS9kcm1fdmJsYW5rLmMKPiArKysgYi9kcml2
+ZXJzL2dwdS9kcm0vZHJtX3ZibGFuay5jCj4gQEAgLTUwMSw2ICs1MDEsMjcgQEAgaW50IGRybV92
+YmxhbmtfaW5pdChzdHJ1Y3QgZHJtX2RldmljZSAqZGV2LCB1bnNpZ25lZCBpbnQgbnVtX2NydGNz
+KQo+ICB9Cj4gIEVYUE9SVF9TWU1CT0woZHJtX3ZibGFua19pbml0KTsKPiAgCj4gKy8qKgo+ICsg
+KiBkcm1fY3J0Y19oYXNfdmJsYW5rIC0gdGVzdCBpZiB2YmxhbmtpbmcgaGFzIGJlZW4gaW5pdGlh
+bGl6ZWQgZm9yCj4gKyAqICAgICAgICAgICAgICAgICAgICAgICBhIENSVEMKPiArICogQGNydGM6
+IHRoZSBDUlRDCj4gKyAqCj4gKyAqIERyaXZlcnMgbWF5IGNhbGwgdGhpcyBmdW5jdGlvbiB0byB0
+ZXN0IGlmIHZibGFuayBzdXBwb3J0IGlzCj4gKyAqIGluaXRpYWxpemVkIGZvciBhIENSVEMuIEZv
+ciBtb3N0IGhhcmR3YXJlIHRoaXMgbWVhbnMgdGhhdCB2YmxhbmtpbmcKPiArICogY2FuIGFsc28g
+YmUgZW5hYmxlZCBvbiB0aGUgQ1JUQy4KPiArICoKPiArICogUmV0dXJuczoKPiArICogVHJ1ZSBp
+ZiB2YmxhbmtpbmcgaGFzIGJlZW4gaW5pdGlhbGl6ZWQgZm9yIHRoZSBnaXZlbiBDUlRDLCBmYWxz
+ZQo+ICsgKiBvdGhlcndpc2UuCj4gKyAqLwo+ICtib29sIGRybV9jcnRjX2hhc192YmxhbmsoY29u
+c3Qgc3RydWN0IGRybV9jcnRjICpjcnRjKQoKU28gbWFraW5nIHRoaXMgc3BlY2lmaWMgdG8gYSBD
+UlRDIHNvdW5kcyBsaWtlIGEgZ29vZCBpZGVhLiBCdXQgaXQncyBub3QKdGhlIHJlYWxpdHksIGRy
+bV92YmxhbmsuYyBhc3N1bWVzIHRoYXQgZWl0aGVyIGV2ZXJ5dGhpbmcgb3Igbm90aGluZwpzdXBw
+b3J0cyB2YmxhbmtzLgoKVGhlIHJlYXNvbiBmb3IgZGV2LT5udW1fY3J0Y3MgaXMgaGlzdG9yaWNh
+bCBiYWdnYWdlLCBpdCBwcmVkYXRlcyBrbXMgYnkgYQpmZXcgeWVhcnMuIEZvciBrbXMgZHJpdmVy
+cyB0aGUgb25seSB0d28gdmFsaWQgdmFsdWVzIGFyZSBlaXRoZXIgMCBvcgpkZXYtPm1vZGVfY29u
+ZmlnLm51bV9jcnRjcy4gWWVzIHRoYXQncyBhbiBlbnRpcmUgZGlmZmVyZW50IGNhbiBvZiB3b3Jt
+cwp0aGF0J3MgYmVlbiBpcmtpbmcgbWUgc2luY2UgZm9yZXZlciAoaWRlYWxseSBkcm1fdmJsYW5r
+X2luaXQgd291bGQgc29tZWhvdwpsb29zZSB0aGUgbnVtX2NydGNzIGFyZ3VtZW50IGZvciBrbXMg
+ZHJpdmVycywgYnV0IHNvbWUgZHJpdmVycyBjYWxsIHRoaXMKYmVmb3JlIHRoZXkndmUgZG9uZSBh
+bGwgdGhlIGRybV9jcnRjX2luaXQgY2FsbHMgc28gaXQncyBjb21wbGljYXRlZCkuCgpIZW5jZSBk
+cm1fZGV2X2hhc192YmxhbmsgYXMgSSBzdWdnZXN0ZWQuIFRoYXQgd291bGQgYWxzbyBhbGxvdyB5
+b3UgdG8KcmVwbGFjZSBhIGJ1bmNoIG9mIGlmIChkZXYtPm51bV9jcnRjcykgY2hlY2tzIGluIGRy
+bV92YmxhbmsuYywgd2hpY2gKc2hvdWxkIGhlbHAgcXVpdGUgYSBiaXQgaW4gY29kZSByZWFkYWJp
+bGl0eS4KCkNoZWVycywgRGFuaWVsCgo+ICt7Cj4gKwlzdHJ1Y3QgZHJtX2RldmljZSAqZGV2ID0g
+Y3J0Yy0+ZGV2Owo+ICsKPiArCXJldHVybiBjcnRjLT5pbmRleCA8IGRldi0+bnVtX2NydGNzOwo+
+ICt9Cj4gK0VYUE9SVF9TWU1CT0woZHJtX2NydGNfaGFzX3ZibGFuayk7Cj4gKwo+ICAvKioKPiAg
+ICogZHJtX2NydGNfdmJsYW5rX3dhaXRxdWV1ZSAtIGdldCB2Ymxhbmsgd2FpdHF1ZXVlIGZvciB0
+aGUgQ1JUQwo+ICAgKiBAY3J0Yzogd2hpY2ggQ1JUQydzIHZibGFuayB3YWl0cXVldWUgdG8gcmV0
+cmlldmUKPiBkaWZmIC0tZ2l0IGEvaW5jbHVkZS9kcm0vZHJtX3ZibGFuay5oIGIvaW5jbHVkZS9k
+cm0vZHJtX3ZibGFuay5oCj4gaW5kZXggYzE2YzQ0MDUyYjNkLi41MzFhNmJjMTJiN2UgMTAwNjQ0
+Cj4gLS0tIGEvaW5jbHVkZS9kcm0vZHJtX3ZibGFuay5oCj4gKysrIGIvaW5jbHVkZS9kcm0vZHJt
+X3ZibGFuay5oCj4gQEAgLTIwNiw2ICsyMDYsNyBAQCBzdHJ1Y3QgZHJtX3ZibGFua19jcnRjIHsK
+PiAgfTsKPiAgCj4gIGludCBkcm1fdmJsYW5rX2luaXQoc3RydWN0IGRybV9kZXZpY2UgKmRldiwg
+dW5zaWduZWQgaW50IG51bV9jcnRjcyk7Cj4gK2Jvb2wgZHJtX2NydGNfaGFzX3ZibGFuayhjb25z
+dCBzdHJ1Y3QgZHJtX2NydGMgKmNydGMpOwo+ICB1NjQgZHJtX2NydGNfdmJsYW5rX2NvdW50KHN0
+cnVjdCBkcm1fY3J0YyAqY3J0Yyk7Cj4gIHU2NCBkcm1fY3J0Y192YmxhbmtfY291bnRfYW5kX3Rp
+bWUoc3RydWN0IGRybV9jcnRjICpjcnRjLAo+ICAJCQkJICAga3RpbWVfdCAqdmJsYW5rdGltZSk7
+Cj4gLS0gCj4gMi4yNC4xCj4gCgotLSAKRGFuaWVsIFZldHRlcgpTb2Z0d2FyZSBFbmdpbmVlciwg
+SW50ZWwgQ29ycG9yYXRpb24KaHR0cDovL2Jsb2cuZmZ3bGwuY2gKCl9fX19fX19fX19fX19fX19f
+X19fX19fX19fX19fX19fX19fX19fX19fX19fX19fClhlbi1kZXZlbCBtYWlsaW5nIGxpc3QKWGVu
+LWRldmVsQGxpc3RzLnhlbnByb2plY3Qub3JnCmh0dHBzOi8vbGlzdHMueGVucHJvamVjdC5vcmcv
+bWFpbG1hbi9saXN0aW5mby94ZW4tZGV2ZWw=
