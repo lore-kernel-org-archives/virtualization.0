@@ -1,289 +1,70 @@
-From: Thomas Zimmermann <tzimmermann@suse.de>
-Subject: Re: [PATCH v3 1/4] drm: Add drm_crtc_has_vblank()
-Date: Wed, 22 Jan 2020 10:42:26 +0100
-Message-ID: <c33b4684-9d43-d3ab-bc88-a89a635f63d3@suse.de>
-References: <20200120122051.25178-1-tzimmermann@suse.de>
- <20200120122051.25178-2-tzimmermann@suse.de>
- <20200122083139.GP43062@phenom.ffwll.local>
- <3ad03b06-f9be-37c7-9cc7-044468cdf300@suse.de>
- <20200122090405.GR43062@phenom.ffwll.local>
+From: Christian Borntraeger <borntraeger@de.ibm.com>
+Subject: Re: vhost changes (batched) in linux-next after 12/13 trigger random
+ crashes in KVM guests after reboot
+Date: Wed, 22 Jan 2020 20:32:21 +0100
+Message-ID: <2a63b15f-8cf5-5868-550c-42e2cfd92c60@de.ibm.com>
+References: <c022e1d6-0d57-ae07-5e6b-8e40d3b01f4b@de.ibm.com>
+ <20191218100926-mutt-send-email-mst@kernel.org>
+ <2ffdbd95-e375-a627-55a1-6990b0a0e37a@de.ibm.com>
+ <20200106054041-mutt-send-email-mst@kernel.org>
+ <08ae8d28-3d8c-04e8-bdeb-0117d06c6dc7@de.ibm.com>
+ <20200107042401-mutt-send-email-mst@kernel.org>
+ <c6795e53-d12c-0709-c2e9-e35d9af1f693@de.ibm.com>
+ <20200107065434-mutt-send-email-mst@kernel.org>
+ <fe6e7e90-3004-eb7a-9ed8-b53a7667959f@de.ibm.com>
+ <20200120012724-mutt-send-email-mst@kernel.org>
 Mime-Version: 1.0
-Content-Type: multipart/mixed; boundary="===============5803262040779799163=="
-Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <20200122090405.GR43062@phenom.ffwll.local>
-List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
- <mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
-List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
-List-Post: <mailto:virtualization@lists.linux-foundation.org>
-List-Help: <mailto:virtualization-request@lists.linux-foundation.org?subject=help>
-List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualization>,
- <mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
-Errors-To: virtualization-bounces@lists.linux-foundation.org
-Sender: "Virtualization" <virtualization-bounces@lists.linux-foundation.org>
-To: Daniel Vetter <daniel@ffwll.ch>
-Cc: laurent.pinchart@ideasonboard.com, david@lechnology.com, oleksandr_andrushchenko@epam.com, airlied@linux.ie, sean@poorly.run, dri-devel@lists.freedesktop.org, virtualization@lists.linux-foundation.org, hdegoede@redhat.com, xen-devel@lists.xenproject.org, sam@ravnborg.org, emil.velikov@collabora.com
+Content-Type: text/plain; charset=utf-8
+Content-Transfer-Encoding: 7bit
+Return-path: <linux-kernel-owner@vger.kernel.org>
+In-Reply-To: <20200120012724-mutt-send-email-mst@kernel.org>
+Content-Language: en-US
+Sender: linux-kernel-owner@vger.kernel.org
+To: "Michael S. Tsirkin" <mst@redhat.com>
+Cc: "virtualization@lists.linux-foundation.org" <virtualization@lists.linux-foundation.org>, Stephen Rothwell <sfr@canb.auug.org.au>, Linux Next Mailing List <linux-next@vger.kernel.org>, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>, kvm list <kvm@vger.kernel.org>, Halil Pasic <pasic@linux.ibm.com>
 List-Id: virtualization@lists.linuxfoundation.org
 
-This is an OpenPGP/MIME signed message (RFC 4880 and 3156)
---===============5803262040779799163==
-Content-Type: multipart/signed; micalg=pgp-sha256;
- protocol="application/pgp-signature";
- boundary="Kr4FBQgHbqqwjCZYPZWobCco0q64F0NlR"
 
-This is an OpenPGP/MIME signed message (RFC 4880 and 3156)
---Kr4FBQgHbqqwjCZYPZWobCco0q64F0NlR
-Content-Type: multipart/mixed; boundary="CbcRnXutG6CAwBMbtZz7TPwfM6GQSRaNU";
- protected-headers="v1"
-From: Thomas Zimmermann <tzimmermann@suse.de>
-To: Daniel Vetter <daniel@ffwll.ch>
-Cc: david@lechnology.com, oleksandr_andrushchenko@epam.com, airlied@linux.ie,
- sam@ravnborg.org, dri-devel@lists.freedesktop.org,
- virtualization@lists.linux-foundation.org, hdegoede@redhat.com,
- kraxel@redhat.com, xen-devel@lists.xenproject.org,
- emil.velikov@collabora.com, sean@poorly.run,
- laurent.pinchart@ideasonboard.com
-Message-ID: <c33b4684-9d43-d3ab-bc88-a89a635f63d3@suse.de>
-Subject: Re: [PATCH v3 1/4] drm: Add drm_crtc_has_vblank()
-References: <20200120122051.25178-1-tzimmermann@suse.de>
- <20200120122051.25178-2-tzimmermann@suse.de>
- <20200122083139.GP43062@phenom.ffwll.local>
- <3ad03b06-f9be-37c7-9cc7-044468cdf300@suse.de>
- <20200122090405.GR43062@phenom.ffwll.local>
-In-Reply-To: <20200122090405.GR43062@phenom.ffwll.local>
 
---CbcRnXutG6CAwBMbtZz7TPwfM6GQSRaNU
-Content-Type: text/plain; charset=utf-8
-Content-Language: en-US
-Content-Transfer-Encoding: quoted-printable
-
-Hi
-
-Am 22.01.20 um 10:04 schrieb Daniel Vetter:
-> On Wed, Jan 22, 2020 at 09:53:42AM +0100, Thomas Zimmermann wrote:
->> Hi
->>
->> Am 22.01.20 um 09:31 schrieb Daniel Vetter:
->>> On Mon, Jan 20, 2020 at 01:20:48PM +0100, Thomas Zimmermann wrote:
->>>> The new interface drm_crtc_has_vblank() return true if vblanking has=
-
->>>> been initialized for a certain CRTC, or false otherwise. This functi=
-on
->>>> will be useful for initializing CRTC state.
->>>>
->>>> Signed-off-by: Thomas Zimmermann <tzimmermann@suse.de>
->>>> ---
->>>>  drivers/gpu/drm/drm_vblank.c | 21 +++++++++++++++++++++
->>>>  include/drm/drm_vblank.h     |  1 +
->>>>  2 files changed, 22 insertions(+)
->>>>
->>>> diff --git a/drivers/gpu/drm/drm_vblank.c b/drivers/gpu/drm/drm_vbla=
-nk.c
->>>> index 1659b13b178c..c20102899411 100644
->>>> --- a/drivers/gpu/drm/drm_vblank.c
->>>> +++ b/drivers/gpu/drm/drm_vblank.c
->>>> @@ -501,6 +501,27 @@ int drm_vblank_init(struct drm_device *dev, uns=
-igned int num_crtcs)
->>>>  }
->>>>  EXPORT_SYMBOL(drm_vblank_init);
->>>> =20
->>>> +/**
->>>> + * drm_crtc_has_vblank - test if vblanking has been initialized for=
-
->>>> + *                       a CRTC
->>>> + * @crtc: the CRTC
->>>> + *
->>>> + * Drivers may call this function to test if vblank support is
->>>> + * initialized for a CRTC. For most hardware this means that vblank=
-ing
->>>> + * can also be enabled on the CRTC.
->>>> + *
->>>> + * Returns:
->>>> + * True if vblanking has been initialized for the given CRTC, false=
-
->>>> + * otherwise.
->>>> + */
->>>> +bool drm_crtc_has_vblank(const struct drm_crtc *crtc)
->>>
->>> So making this specific to a CRTC sounds like a good idea. But it's n=
-ot
->>> the reality, drm_vblank.c assumes that either everything or nothing
->>> supports vblanks.
->>>
->>> The reason for dev->num_crtcs is historical baggage, it predates kms =
-by a
->>> few years. For kms drivers the only two valid values are either 0 or
->>> dev->mode_config.num_crtcs. Yes that's an entire different can of wor=
-ms
->>> that's been irking me since forever (ideally drm_vblank_init would so=
-mehow
->>> loose the num_crtcs argument for kms drivers, but some drivers call t=
-his
->>> before they've done all the drm_crtc_init calls so it's complicated).=
-
->>
->> Maybe as a first step, drm_vblank_init() could use
->> dev->mode_config.num_crtcs if the supplied number of CRTCs is zero.
+On 20.01.20 07:27, Michael S. Tsirkin wrote:
+> On Tue, Jan 07, 2020 at 01:16:50PM +0100, Christian Borntraeger wrote:
+>> On 07.01.20 12:55, Michael S. Tsirkin wrote:
 >>
 >>>
->>> Hence drm_dev_has_vblank as I suggested. That would also allow you to=
-
->>> replace a bunch of if (dev->num_crtcs) checks in drm_vblank.c, which
->>> should help quite a bit in code readability.
->>
->> OK, but I still don't understand why this interface is better overall.=
-
->> We don't loose anything by passing in the crtc instead of the device
->> structure. And if there's ever a per-crtc vblank initialization, we'd
->> have the interface in place already. The tests with "if
->> (dev->num_crtcs)" could probably be removed in most places in any case=
-=2E
->=20
-> You can't use it in drm_vblank.c code, because we only have the
-> drm_device, not the drm_crtc (in most places at least). Your other patc=
-h
-> series to deprecate the drm_device callbacks for vblanks is a huge step=
-
-> into the direction to fix that, but still more work needed: We'd
-> essentially need to copypaste drm_vblank.c into drm_crtc_vblank.c for k=
-ms
-> drivers, and in that copy switch from (dev, pipe) to crtc everywhere. P=
-lus
-> then move the drm_vblank structure into struct drm_crtc.
->=20
-> Wrt removing the check: In a pile of cases it changes the return value,=
-
-> which matters both for vblank usage in helper code and the ioctl itself=
-=2E
-> From a quick look most of the checks that don't matter are already wrap=
-ped
-> in a WARN.
->=20
->> We should also consider forking the vblank code for non-KMS drivers.
->> While working in this, I found the support for legacy drivers is getti=
-ng
->> in the way at times. With such a fork, legacy drivers could continue
->> using struct drm_vblank_crtc, while modern drivers could maybe store
->> vblank state directly in struct drm_crtc.
->=20
-> Hm if you want to do all that then the drm_crtc_has_vblank makes sense.=
-
-> But only after we've done the full split. So maybe make the public
-> function drm_crtc_has_vblank, which calls the internal-only
-> drm_has_vblank, and use that internally in drm_vblank.c?
->=20
-> btw I still think a sub-struct for vblank stuff in drm_crtc makes sense=
-,
-> and drm_vblank_crtc seems to mostly fit the bill.
->=20
-> That way we're at least not adding the the conversion pain of switching=
-
-> the vblank code over to drm_crtc fully.
->=20
-> Thoughts?
-
-That all sounds good. Using struct drm_vblank_crtc with legacy and
-modern vblank functions, might allow us to continue to share some of the
-implementation.
-
-Wrt the current interface, drm_dev_has_vblank() is only called in a
-single place, so switching to drm_crtc_has_vblank() later would not be ha=
-rd.
-
-Best regards
-Thomas
-
-> -Daniel
->=20
->> Anyway, all this is for another patch. Unless you change your mind, I'=
-ll
->> replace drm_crtc_has_vblank() with drm_dev_has_vblank() for the
->> patchset's next iteration.
->>
->> Best regards
->> Thomas
->>
->>>
->>> Cheers, Daniel
->>>
->>>> +{
->>>> +	struct drm_device *dev =3D crtc->dev;
->>>> +
->>>> +	return crtc->index < dev->num_crtcs;
->>>> +}
->>>> +EXPORT_SYMBOL(drm_crtc_has_vblank);
->>>> +
->>>>  /**
->>>>   * drm_crtc_vblank_waitqueue - get vblank waitqueue for the CRTC
->>>>   * @crtc: which CRTC's vblank waitqueue to retrieve
->>>> diff --git a/include/drm/drm_vblank.h b/include/drm/drm_vblank.h
->>>> index c16c44052b3d..531a6bc12b7e 100644
->>>> --- a/include/drm/drm_vblank.h
->>>> +++ b/include/drm/drm_vblank.h
->>>> @@ -206,6 +206,7 @@ struct drm_vblank_crtc {
->>>>  };
->>>> =20
->>>>  int drm_vblank_init(struct drm_device *dev, unsigned int num_crtcs)=
-;
->>>> +bool drm_crtc_has_vblank(const struct drm_crtc *crtc);
->>>>  u64 drm_crtc_vblank_count(struct drm_crtc *crtc);
->>>>  u64 drm_crtc_vblank_count_and_time(struct drm_crtc *crtc,
->>>>  				   ktime_t *vblanktime);
->>>> --=20
->>>> 2.24.1
->>>>
+>>> I pushed batched-v3 - same head but bisect should work now.
 >>>
 >>
->> --=20
->> Thomas Zimmermann
->> Graphics Driver Developer
->> SUSE Software Solutions Germany GmbH
->> Maxfeldstr. 5, 90409 N=C3=BCrnberg, Germany
->> (HRB 36809, AG N=C3=BCrnberg)
->> Gesch=C3=A4ftsf=C3=BChrer: Felix Imend=C3=B6rffer
+>> With 
+>> commit 38ced0208491103b50f1056f0d1c8f28e2e13d08 (HEAD)
+>> Author:     Michael S. Tsirkin <mst@redhat.com>
+>> AuthorDate: Wed Dec 11 12:19:26 2019 -0500
+>> Commit:     Michael S. Tsirkin <mst@redhat.com>
+>> CommitDate: Tue Jan 7 06:52:42 2020 -0500
 >>
->=20
->=20
->=20
->=20
+>>     vhost: use batched version by default
+>>
+>>
+>> I have exactly one successful ping and then the network inside the guest is broken (no packet
+>> anymore).
+> 
+> Does anything appear in host's dmesg when this happens?
 
---=20
-Thomas Zimmermann
-Graphics Driver Developer
-SUSE Software Solutions Germany GmbH
-Maxfeldstr. 5, 90409 N=C3=BCrnberg, Germany
-(HRB 36809, AG N=C3=BCrnberg)
-Gesch=C3=A4ftsf=C3=BChrer: Felix Imend=C3=B6rffer
+I think there was nothing, but I am not sure. I would need to redo the test if this is important to know.
 
-
---CbcRnXutG6CAwBMbtZz7TPwfM6GQSRaNU--
-
---Kr4FBQgHbqqwjCZYPZWobCco0q64F0NlR
-Content-Type: application/pgp-signature; name="signature.asc"
-Content-Description: OpenPGP digital signature
-Content-Disposition: attachment; filename="signature.asc"
-
------BEGIN PGP SIGNATURE-----
-
-iQEzBAEBCAAdFiEEchf7rIzpz2NEoWjlaA3BHVMLeiMFAl4oGQIACgkQaA3BHVML
-eiN5EQgArXdg09il/Ymt9AEbsv3GHpCMJ1VsFbmlHJy1OYjEMWi9+iVFWLjLIS9t
-ldUO+o9XTSKEhz/AjQMPAbF4yXHfNiQe0nnHbsU1NxdG/Ip6geQ4CfuP9xm37+kj
-0Vqd7olY6D/rXTSxcsCBd+ix07tuHOsHTHWMOJRS9/fvFYCZIBMkXVU/0c6Uo3MX
-3IbJSmJFwAohcE2I6/ZcmD4V35KROf/C/lgEzQcE7sU1zQfNLPqmFpMFjEten5xy
-zj6ZoUL2S9vD8Z11I4p7r1elgW/7VUveP0jTa6GjQEXg7I97UDlwdnwAAEX4GmKx
-adH1p7K3alJdRTafNZeokdY2j+fWFQ==
-=lYah
------END PGP SIGNATURE-----
-
---Kr4FBQgHbqqwjCZYPZWobCco0q64F0NlR--
-
---===============5803262040779799163==
-Content-Type: text/plain; charset="us-ascii"
-MIME-Version: 1.0
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-
-_______________________________________________
-Virtualization mailing list
-Virtualization@lists.linux-foundation.org
-https://lists.linuxfoundation.org/mailman/listinfo/virtualization
---===============5803262040779799163==--
+> 
+> 
+>> So you could consider this commit broken (but in a different way and also without any
+>> guest reboot necessary).
+>>
+>>
+>> bisect log:
+>> git bisect start
+>> # bad: [d2f6175f52062ee51ee69754a6925608213475d2] vhost: use vhost_desc instead of vhost_log
+>> git bisect bad d2f6175f52062ee51ee69754a6925608213475d2
+>> # good: [d1281e3a562ec6a08f944a876481dd043ba739b9] virtio-blk: remove VIRTIO_BLK_F_SCSI support
+>> git bisect good d1281e3a562ec6a08f944a876481dd043ba739b9
+>> # good: [fac7c0f46996e32d996f5c46121df24a6b95ec3b] vhost: option to fetch descriptors through an independent struct
+>> git bisect good fac7c0f46996e32d996f5c46121df24a6b95ec3b
+>> # bad: [539eb9d738f048cd7be61f404e8f9c7d9d2ff3cc] vhost: batching fetches
+>> git bisect bad 539eb9d738f048cd7be61f404e8f9c7d9d2ff3cc
+> 
