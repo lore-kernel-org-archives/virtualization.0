@@ -1,7 +1,7 @@
 From: Thomas Zimmermann <tzimmermann@suse.de>
-Subject: [PATCH v4 09/15] drm/qxl: Remove sending of vblank event
-Date: Thu, 23 Jan 2020 10:21:17 +0100
-Message-ID: <20200123092123.28368-10-tzimmermann@suse.de>
+Subject: [PATCH v4 10/15] drm/repaper: Remove sending of vblank event
+Date: Thu, 23 Jan 2020 10:21:18 +0100
+Message-ID: <20200123092123.28368-11-tzimmermann@suse.de>
 References: <20200123092123.28368-1-tzimmermann@suse.de>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
@@ -31,40 +31,39 @@ v4:
 Signed-off-by: Thomas Zimmermann <tzimmermann@suse.de>
 Acked-by: Gerd Hoffmann <kraxel@redhat.com>
 ---
- drivers/gpu/drm/qxl/qxl_display.c | 14 --------------
- 1 file changed, 14 deletions(-)
+ drivers/gpu/drm/tiny/repaper.c | 9 ---------
+ 1 file changed, 9 deletions(-)
 
-diff --git a/drivers/gpu/drm/qxl/qxl_display.c b/drivers/gpu/drm/qxl/qxl_display.c
-index 16d73b22f3f5..ab4f8dd00400 100644
---- a/drivers/gpu/drm/qxl/qxl_display.c
-+++ b/drivers/gpu/drm/qxl/qxl_display.c
-@@ -31,7 +31,6 @@
+diff --git a/drivers/gpu/drm/tiny/repaper.c b/drivers/gpu/drm/tiny/repaper.c
+index 76d179200775..183484595aea 100644
+--- a/drivers/gpu/drm/tiny/repaper.c
++++ b/drivers/gpu/drm/tiny/repaper.c
+@@ -33,7 +33,6 @@
  #include <drm/drm_gem_framebuffer_helper.h>
- #include <drm/drm_plane_helper.h>
- #include <drm/drm_probe_helper.h>
+ #include <drm/drm_modes.h>
+ #include <drm/drm_rect.h>
 -#include <drm/drm_vblank.h>
+ #include <drm/drm_probe_helper.h>
+ #include <drm/drm_simple_kms_helper.h>
  
- #include "qxl_drv.h"
- #include "qxl_object.h"
-@@ -372,19 +371,6 @@ static void qxl_crtc_update_monitors_config(struct drm_crtc *crtc,
- static void qxl_crtc_atomic_flush(struct drm_crtc *crtc,
- 				  struct drm_crtc_state *old_crtc_state)
+@@ -856,18 +855,10 @@ static void repaper_pipe_update(struct drm_simple_display_pipe *pipe,
+ 				struct drm_plane_state *old_state)
  {
--	struct drm_device *dev = crtc->dev;
--	struct drm_pending_vblank_event *event;
--	unsigned long flags;
+ 	struct drm_plane_state *state = pipe->plane.state;
+-	struct drm_crtc *crtc = &pipe->crtc;
+ 	struct drm_rect rect;
+ 
+ 	if (drm_atomic_helper_damage_merged(old_state, state, &rect))
+ 		repaper_fb_dirty(state->fb);
 -
--	if (crtc->state && crtc->state->event) {
--		event = crtc->state->event;
+-	if (crtc->state->event) {
+-		spin_lock_irq(&crtc->dev->event_lock);
+-		drm_crtc_send_vblank_event(crtc, crtc->state->event);
+-		spin_unlock_irq(&crtc->dev->event_lock);
 -		crtc->state->event = NULL;
--
--		spin_lock_irqsave(&dev->event_lock, flags);
--		drm_crtc_send_vblank_event(crtc, event);
--		spin_unlock_irqrestore(&dev->event_lock, flags);
 -	}
--
- 	qxl_crtc_update_monitors_config(crtc, "flush");
  }
  
+ static const struct drm_simple_display_pipe_funcs repaper_pipe_funcs = {
 -- 
 2.24.1
