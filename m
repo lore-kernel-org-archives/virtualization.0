@@ -1,13 +1,14 @@
 From: Thomas Zimmermann <tzimmermann@suse.de>
-Subject: Re: [PATCH v3 0/4] Use no_vblank property for drivers without VBLANK
-Date: Thu, 23 Jan 2020 09:40:07 +0100
-Message-ID: <1659c9ee-37ee-988a-6aaa-e115d1529fd6@suse.de>
-References: <20200120122051.25178-1-tzimmermann@suse.de>
- <20200121093604.ruclkfho5gmflasq@sirius.home.kraxel.org>
+Subject: [PATCH v4 03/15] drm/ast: Don't set struct drm_crtc_state.no_vblank
+ explictly
+Date: Thu, 23 Jan 2020 10:21:11 +0100
+Message-ID: <20200123092123.28368-4-tzimmermann@suse.de>
+References: <20200123092123.28368-1-tzimmermann@suse.de>
 Mime-Version: 1.0
-Content-Type: multipart/mixed; boundary="===============1998976094736861100=="
+Content-Type: text/plain; charset="us-ascii"
+Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <20200121093604.ruclkfho5gmflasq@sirius.home.kraxel.org>
+In-Reply-To: <20200123092123.28368-1-tzimmermann@suse.de>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
  <mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -17,117 +18,32 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
  <mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Errors-To: virtualization-bounces@lists.linux-foundation.org
 Sender: "Virtualization" <virtualization-bounces@lists.linux-foundation.org>
-To: Gerd Hoffmann <kraxel@redhat.com>
-Cc: david@lechnology.com, oleksandr_andrushchenko@epam.com, airlied@linux.ie, sean@poorly.run, dri-devel@lists.freedesktop.org, virtualization@lists.linux-foundation.org, hdegoede@redhat.com, laurent.pinchart@ideasonboard.com, xen-devel@lists.xenproject.org, sam@ravnborg.org, emil.velikov@collabora.com
+To: airlied@linux.ie, daniel@ffwll.ch, kraxel@redhat.com, maarten.lankhorst@linux.intel.com, mripard@kernel.org, hdegoede@redhat.com, david@lechnology.com, noralf@tronnes.org, sean@poorly.run, oleksandr_andrushchenko@epam.com, sam@ravnborg.org, laurent.pinchart@ideasonboard.com, emil.velikov@collabora.com
+Cc: xen-devel@lists.xenproject.org, Thomas Zimmermann <tzimmermann@suse.de>, dri-devel@lists.freedesktop.org, virtualization@lists.linux-foundation.org
 List-Id: virtualization@lists.linuxfoundation.org
 
-This is an OpenPGP/MIME signed message (RFC 4880 and 3156)
---===============1998976094736861100==
-Content-Type: multipart/signed; micalg=pgp-sha256;
- protocol="application/pgp-signature";
- boundary="pCIvLSsYBYOw52ijDqWub0Xa7Pbcuk34Z"
+As ast does not initialize vblanking, atomic helpers initialize the
+value of struct drm_crtc_state.no_vblank to be true. No need to set
+it from within the driver.
 
-This is an OpenPGP/MIME signed message (RFC 4880 and 3156)
---pCIvLSsYBYOw52ijDqWub0Xa7Pbcuk34Z
-Content-Type: multipart/mixed; boundary="6GUilDKLRS1Nl4WmXujzoC8tlZiZqY5my";
- protected-headers="v1"
-From: Thomas Zimmermann <tzimmermann@suse.de>
-To: Gerd Hoffmann <kraxel@redhat.com>
-Cc: david@lechnology.com, oleksandr_andrushchenko@epam.com, airlied@linux.ie,
- sam@ravnborg.org, dri-devel@lists.freedesktop.org,
- virtualization@lists.linux-foundation.org, hdegoede@redhat.com,
- laurent.pinchart@ideasonboard.com, xen-devel@lists.xenproject.org,
- sean@poorly.run, emil.velikov@collabora.com
-Message-ID: <1659c9ee-37ee-988a-6aaa-e115d1529fd6@suse.de>
-Subject: Re: [PATCH v3 0/4] Use no_vblank property for drivers without VBLANK
-References: <20200120122051.25178-1-tzimmermann@suse.de>
- <20200121093604.ruclkfho5gmflasq@sirius.home.kraxel.org>
-In-Reply-To: <20200121093604.ruclkfho5gmflasq@sirius.home.kraxel.org>
+Signed-off-by: Thomas Zimmermann <tzimmermann@suse.de>
+Acked-by: Gerd Hoffmann <kraxel@redhat.com>
+---
+ drivers/gpu/drm/ast/ast_mode.c | 2 --
+ 1 file changed, 2 deletions(-)
 
---6GUilDKLRS1Nl4WmXujzoC8tlZiZqY5my
-Content-Type: text/plain; charset=utf-8
-Content-Language: en-US
-Content-Transfer-Encoding: quoted-printable
-
-Hi
-
-Am 21.01.20 um 10:36 schrieb Gerd Hoffmann:
-> On Mon, Jan 20, 2020 at 01:20:47PM +0100, Thomas Zimmermann wrote:
->> Instead of faking VBLANK events by themselves, drivers without VBLANK
->> support can enable drm_crtc_vblank.no_vblank and let DRM do the rest.
->> The patchset makes this official and converts over drivers.
->>
->> The current implementation looks at the number of initialized CRTCs
->> wrt vblanking. If vblanking has been initialized for a CRTC, the drive=
-r
->> is responsible for sending out VBLANK events. Otherwise, DRM will send=
-
->> out the event. The behaviour selected by initializing no_vblank as par=
-t
->> of drm_atomic_helper_check_modeset().
->>
->> I went through all drivers, looking for those that call send out VBLAN=
-K
->> events but do not call drm_vblank_init(). These are converted to the n=
-ew
->> semantics. This affects tiny drivers; drivers for virtual hardware; an=
-d
->> a few others, which do not support interrupts. Xen comes with its
->> own VBLANK logic and disables no_vblank explictly.
->=20
-> Acked-by: Gerd Hoffmann <kraxel@redhat.com>
-
-Thanks a lot. v4 will mostly reorganize the patches so I'll keep your A-b=
-=2E
-
-Best regards
-Thomas
-
->=20
-> _______________________________________________
-> dri-devel mailing list
-> dri-devel@lists.freedesktop.org
-> https://lists.freedesktop.org/mailman/listinfo/dri-devel
->=20
-
---=20
-Thomas Zimmermann
-Graphics Driver Developer
-SUSE Software Solutions Germany GmbH
-Maxfeldstr. 5, 90409 N=C3=BCrnberg, Germany
-(HRB 36809, AG N=C3=BCrnberg)
-Gesch=C3=A4ftsf=C3=BChrer: Felix Imend=C3=B6rffer
-
-
---6GUilDKLRS1Nl4WmXujzoC8tlZiZqY5my--
-
---pCIvLSsYBYOw52ijDqWub0Xa7Pbcuk34Z
-Content-Type: application/pgp-signature; name="signature.asc"
-Content-Description: OpenPGP digital signature
-Content-Disposition: attachment; filename="signature.asc"
-
------BEGIN PGP SIGNATURE-----
-
-iQEzBAEBCAAdFiEEchf7rIzpz2NEoWjlaA3BHVMLeiMFAl4pW+oACgkQaA3BHVML
-eiNV0gf+IPPOumQscdtQTf7HiwBEYXRigNipidae4Be+fOxcgoEbdgq/mZcSPvx1
-Qiutl89HQ0S/9aeZLmXTvJQETVw49f4d14OwPKVk9r6bPipVDuKb1u8893tO+Cfv
-uDhBhXeIOVsQj6UQMsKHRXEP89f86srW8QdhPVhpKD0e/wTNDmQNJSr36UGrVHfu
-37Qnl1ti99WI25Hv1s3OdZNodLgWmWoEShvzLmXeQimVffHPt3KpNnazmVXJjJXK
-ODtGNmgXgg/XP9dV6UURzQSP5fhnHWbiE0KRoE6gSWwfMvQN88LNGRWoNX5sNrVq
-388slhf1P3s3iCCsYvnxqKplejINQQ==
-=QYNB
------END PGP SIGNATURE-----
-
---pCIvLSsYBYOw52ijDqWub0Xa7Pbcuk34Z--
-
---===============1998976094736861100==
-Content-Type: text/plain; charset="us-ascii"
-MIME-Version: 1.0
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-
-_______________________________________________
-Virtualization mailing list
-Virtualization@lists.linux-foundation.org
-https://lists.linuxfoundation.org/mailman/listinfo/virtualization
---===============1998976094736861100==--
+diff --git a/drivers/gpu/drm/ast/ast_mode.c b/drivers/gpu/drm/ast/ast_mode.c
+index 34608f0499eb..7810a84e7e9e 100644
+--- a/drivers/gpu/drm/ast/ast_mode.c
++++ b/drivers/gpu/drm/ast/ast_mode.c
+@@ -833,8 +833,6 @@ static void ast_crtc_helper_atomic_flush(struct drm_crtc *crtc,
+ 	struct ast_vbios_mode_info *vbios_mode_info;
+ 	struct drm_display_mode *adjusted_mode;
+ 
+-	crtc->state->no_vblank = true;
+-
+ 	ast_state = to_ast_crtc_state(crtc->state);
+ 
+ 	format = ast_state->format;
+-- 
+2.24.1
