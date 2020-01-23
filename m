@@ -1,7 +1,7 @@
 From: Thomas Zimmermann <tzimmermann@suse.de>
-Subject: [PATCH v4 04/15] drm/bochs: Remove sending of vblank event
-Date: Thu, 23 Jan 2020 10:21:12 +0100
-Message-ID: <20200123092123.28368-5-tzimmermann@suse.de>
+Subject: [PATCH v4 07/15] drm/ili9225: Remove sending of vblank event
+Date: Thu, 23 Jan 2020 10:21:15 +0100
+Message-ID: <20200123092123.28368-8-tzimmermann@suse.de>
 References: <20200123092123.28368-1-tzimmermann@suse.de>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
@@ -31,37 +31,39 @@ v4:
 Signed-off-by: Thomas Zimmermann <tzimmermann@suse.de>
 Acked-by: Gerd Hoffmann <kraxel@redhat.com>
 ---
- drivers/gpu/drm/bochs/bochs_kms.c | 9 ---------
+ drivers/gpu/drm/tiny/ili9225.c | 9 ---------
  1 file changed, 9 deletions(-)
 
-diff --git a/drivers/gpu/drm/bochs/bochs_kms.c b/drivers/gpu/drm/bochs/bochs_kms.c
-index 3f0006c2470d..ff275faee88d 100644
---- a/drivers/gpu/drm/bochs/bochs_kms.c
-+++ b/drivers/gpu/drm/bochs/bochs_kms.c
-@@ -7,7 +7,6 @@
- #include <drm/drm_atomic_helper.h>
+diff --git a/drivers/gpu/drm/tiny/ili9225.c b/drivers/gpu/drm/tiny/ili9225.c
+index c66acc566c2b..802fb8dde1b6 100644
+--- a/drivers/gpu/drm/tiny/ili9225.c
++++ b/drivers/gpu/drm/tiny/ili9225.c
+@@ -26,7 +26,6 @@
  #include <drm/drm_gem_framebuffer_helper.h>
- #include <drm/drm_probe_helper.h>
+ #include <drm/drm_mipi_dbi.h>
+ #include <drm/drm_rect.h>
 -#include <drm/drm_vblank.h>
  
- #include "bochs.h"
- 
-@@ -57,16 +56,8 @@ static void bochs_pipe_update(struct drm_simple_display_pipe *pipe,
- 			      struct drm_plane_state *old_state)
+ #define ILI9225_DRIVER_READ_CODE	0x00
+ #define ILI9225_DRIVER_OUTPUT_CONTROL	0x01
+@@ -165,18 +164,10 @@ static void ili9225_pipe_update(struct drm_simple_display_pipe *pipe,
+ 				struct drm_plane_state *old_state)
  {
- 	struct bochs_device *bochs = pipe->crtc.dev->dev_private;
+ 	struct drm_plane_state *state = pipe->plane.state;
 -	struct drm_crtc *crtc = &pipe->crtc;
+ 	struct drm_rect rect;
  
- 	bochs_plane_update(bochs, pipe->plane.state);
+ 	if (drm_atomic_helper_damage_merged(old_state, state, &rect))
+ 		ili9225_fb_dirty(state->fb, &rect);
 -
 -	if (crtc->state->event) {
 -		spin_lock_irq(&crtc->dev->event_lock);
 -		drm_crtc_send_vblank_event(crtc, crtc->state->event);
--		crtc->state->event = NULL;
 -		spin_unlock_irq(&crtc->dev->event_lock);
+-		crtc->state->event = NULL;
 -	}
  }
  
- static const struct drm_simple_display_pipe_funcs bochs_pipe_funcs = {
+ static void ili9225_pipe_enable(struct drm_simple_display_pipe *pipe,
 -- 
 2.24.1
