@@ -1,7 +1,7 @@
 From: Thomas Zimmermann <tzimmermann@suse.de>
-Subject: [PATCH v4 02/15] drm/arc: Remove sending of vblank event
-Date: Thu, 23 Jan 2020 10:21:10 +0100
-Message-ID: <20200123092123.28368-3-tzimmermann@suse.de>
+Subject: [PATCH v4 06/15] drm/gm12u320: Remove sending of vblank event
+Date: Thu, 23 Jan 2020 10:21:14 +0100
+Message-ID: <20200123092123.28368-7-tzimmermann@suse.de>
 References: <20200123092123.28368-1-tzimmermann@suse.de>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
@@ -31,45 +31,39 @@ v4:
 Signed-off-by: Thomas Zimmermann <tzimmermann@suse.de>
 Acked-by: Gerd Hoffmann <kraxel@redhat.com>
 ---
- drivers/gpu/drm/arc/arcpgu_crtc.c | 16 ----------------
- 1 file changed, 16 deletions(-)
+ drivers/gpu/drm/tiny/gm12u320.c | 9 ---------
+ 1 file changed, 9 deletions(-)
 
-diff --git a/drivers/gpu/drm/arc/arcpgu_crtc.c b/drivers/gpu/drm/arc/arcpgu_crtc.c
-index 8ae1e1f97a73..be7c29cec318 100644
---- a/drivers/gpu/drm/arc/arcpgu_crtc.c
-+++ b/drivers/gpu/drm/arc/arcpgu_crtc.c
-@@ -9,7 +9,6 @@
- #include <drm/drm_device.h>
- #include <drm/drm_fb_cma_helper.h>
- #include <drm/drm_gem_cma_helper.h>
--#include <drm/drm_vblank.h>
- #include <drm/drm_plane_helper.h>
+diff --git a/drivers/gpu/drm/tiny/gm12u320.c b/drivers/gpu/drm/tiny/gm12u320.c
+index 94fb1f593564..a48173441ae0 100644
+--- a/drivers/gpu/drm/tiny/gm12u320.c
++++ b/drivers/gpu/drm/tiny/gm12u320.c
+@@ -22,7 +22,6 @@
+ #include <drm/drm_modeset_helper_vtables.h>
  #include <drm/drm_probe_helper.h>
- #include <linux/clk.h>
-@@ -138,24 +137,9 @@ static void arc_pgu_crtc_atomic_disable(struct drm_crtc *crtc,
- 			      ~ARCPGU_CTRL_ENABLE_MASK);
- }
+ #include <drm/drm_simple_kms_helper.h>
+-#include <drm/drm_vblank.h>
  
--static void arc_pgu_crtc_atomic_begin(struct drm_crtc *crtc,
--				      struct drm_crtc_state *state)
--{
--	struct drm_pending_vblank_event *event = crtc->state->event;
+ static bool eco_mode;
+ module_param(eco_mode, bool, 0644);
+@@ -610,18 +609,10 @@ static void gm12u320_pipe_update(struct drm_simple_display_pipe *pipe,
+ 				 struct drm_plane_state *old_state)
+ {
+ 	struct drm_plane_state *state = pipe->plane.state;
+-	struct drm_crtc *crtc = &pipe->crtc;
+ 	struct drm_rect rect;
+ 
+ 	if (drm_atomic_helper_damage_merged(old_state, state, &rect))
+ 		gm12u320_fb_mark_dirty(pipe->plane.state->fb, &rect);
 -
--	if (event) {
--		crtc->state->event = NULL;
--
+-	if (crtc->state->event) {
 -		spin_lock_irq(&crtc->dev->event_lock);
--		drm_crtc_send_vblank_event(crtc, event);
+-		drm_crtc_send_vblank_event(crtc, crtc->state->event);
+-		crtc->state->event = NULL;
 -		spin_unlock_irq(&crtc->dev->event_lock);
 -	}
--}
--
- static const struct drm_crtc_helper_funcs arc_pgu_crtc_helper_funcs = {
- 	.mode_valid	= arc_pgu_crtc_mode_valid,
- 	.mode_set_nofb	= arc_pgu_crtc_mode_set_nofb,
--	.atomic_begin	= arc_pgu_crtc_atomic_begin,
- 	.atomic_enable	= arc_pgu_crtc_atomic_enable,
- 	.atomic_disable	= arc_pgu_crtc_atomic_disable,
- };
+ }
+ 
+ static const struct drm_simple_display_pipe_funcs gm12u320_pipe_funcs = {
 -- 
 2.24.1
