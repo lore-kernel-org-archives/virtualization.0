@@ -1,7 +1,8 @@
 From: Thomas Zimmermann <tzimmermann@suse.de>
-Subject: [PATCH v4 13/15] drm/vboxvideo: Remove sending of vblank event
-Date: Thu, 23 Jan 2020 10:21:21 +0100
-Message-ID: <20200123092123.28368-14-tzimmermann@suse.de>
+Subject: [PATCH v4 12/15] drm/udl: Don't set struct drm_crtc_state.no_vblank
+ explictly
+Date: Thu, 23 Jan 2020 10:21:20 +0100
+Message-ID: <20200123092123.28368-13-tzimmermann@suse.de>
 References: <20200123092123.28368-1-tzimmermann@suse.de>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
@@ -21,48 +22,51 @@ To: airlied@linux.ie, daniel@ffwll.ch, kraxel@redhat.com, maarten.lankhorst@linu
 Cc: xen-devel@lists.xenproject.org, Thomas Zimmermann <tzimmermann@suse.de>, dri-devel@lists.freedesktop.org, virtualization@lists.linux-foundation.org
 List-Id: virtualization@lists.linuxfoundation.org
 
-The atomic helpers automatically send out fake VBLANK events if no
-vblanking has been initialized. Remove the sending code from the
-driver.
-
-v4:
-	* separate commit from core vblank changes
+As udl does not initialize vblanking, atomic helpers initialize the
+value of struct drm_crtc_state.no_vblank to be true. No need to set
+it from within the driver.
 
 Signed-off-by: Thomas Zimmermann <tzimmermann@suse.de>
 Acked-by: Gerd Hoffmann <kraxel@redhat.com>
 ---
- drivers/gpu/drm/vboxvideo/vbox_mode.c | 12 ------------
- 1 file changed, 12 deletions(-)
+ drivers/gpu/drm/udl/udl_modeset.c | 11 -----------
+ 1 file changed, 11 deletions(-)
 
-diff --git a/drivers/gpu/drm/vboxvideo/vbox_mode.c b/drivers/gpu/drm/vboxvideo/vbox_mode.c
-index 19612132c8a3..8b7f005c4d20 100644
---- a/drivers/gpu/drm/vboxvideo/vbox_mode.c
-+++ b/drivers/gpu/drm/vboxvideo/vbox_mode.c
-@@ -18,7 +18,6 @@
- #include <drm/drm_gem_framebuffer_helper.h>
- #include <drm/drm_plane_helper.h>
- #include <drm/drm_probe_helper.h>
--#include <drm/drm_vblank.h>
+diff --git a/drivers/gpu/drm/udl/udl_modeset.c b/drivers/gpu/drm/udl/udl_modeset.c
+index 22af17959053..d59ebac70b15 100644
+--- a/drivers/gpu/drm/udl/udl_modeset.c
++++ b/drivers/gpu/drm/udl/udl_modeset.c
+@@ -375,8 +375,6 @@ udl_simple_display_pipe_enable(struct drm_simple_display_pipe *pipe,
+ 	char *wrptr;
+ 	int color_depth = UDL_COLOR_DEPTH_16BPP;
  
- #include "hgsmi_channels.h"
- #include "vbox_drv.h"
-@@ -226,17 +225,6 @@ static void vbox_crtc_atomic_disable(struct drm_crtc *crtc,
- static void vbox_crtc_atomic_flush(struct drm_crtc *crtc,
- 				   struct drm_crtc_state *old_crtc_state)
- {
--	struct drm_pending_vblank_event *event;
--	unsigned long flags;
+-	crtc_state->no_vblank = true;
 -
--	if (crtc->state && crtc->state->event) {
--		event = crtc->state->event;
--		crtc->state->event = NULL;
--
--		spin_lock_irqsave(&crtc->dev->event_lock, flags);
--		drm_crtc_send_vblank_event(crtc, event);
--		spin_unlock_irqrestore(&crtc->dev->event_lock, flags);
--	}
+ 	buf = (char *)udl->mode_buf;
+ 
+ 	/* This first section has to do with setting the base address on the
+@@ -428,14 +426,6 @@ udl_simple_display_pipe_disable(struct drm_simple_display_pipe *pipe)
+ 	udl_submit_urb(dev, urb, buf - (char *)urb->transfer_buffer);
  }
  
- static const struct drm_crtc_helper_funcs vbox_crtc_helper_funcs = {
+-static int
+-udl_simple_display_pipe_check(struct drm_simple_display_pipe *pipe,
+-			      struct drm_plane_state *plane_state,
+-			      struct drm_crtc_state *crtc_state)
+-{
+-	return 0;
+-}
+-
+ static void
+ udl_simple_display_pipe_update(struct drm_simple_display_pipe *pipe,
+ 			       struct drm_plane_state *old_plane_state)
+@@ -457,7 +447,6 @@ struct drm_simple_display_pipe_funcs udl_simple_display_pipe_funcs = {
+ 	.mode_valid = udl_simple_display_pipe_mode_valid,
+ 	.enable = udl_simple_display_pipe_enable,
+ 	.disable = udl_simple_display_pipe_disable,
+-	.check = udl_simple_display_pipe_check,
+ 	.update = udl_simple_display_pipe_update,
+ 	.prepare_fb = drm_gem_fb_simple_display_pipe_prepare_fb,
+ };
 -- 
 2.24.1
