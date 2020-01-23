@@ -1,7 +1,8 @@
 From: Thomas Zimmermann <tzimmermann@suse.de>
-Subject: [PATCH v4 14/15] drm/virtio: Remove sending of vblank event
-Date: Thu, 23 Jan 2020 10:21:22 +0100
-Message-ID: <20200123092123.28368-15-tzimmermann@suse.de>
+Subject: [PATCH v4 15/15] drm/xen: Explicitly disable automatic sending of
+ vblank event
+Date: Thu, 23 Jan 2020 10:21:23 +0100
+Message-ID: <20200123092123.28368-16-tzimmermann@suse.de>
 References: <20200123092123.28368-1-tzimmermann@suse.de>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
@@ -22,8 +23,9 @@ Cc: xen-devel@lists.xenproject.org, Thomas Zimmermann <tzimmermann@suse.de>, dri
 List-Id: virtualization@lists.linuxfoundation.org
 
 The atomic helpers automatically send out fake VBLANK events if no
-vblanking has been initialized. Remove the sending code from the
-driver.
+vblanking has been initialized. This would apply to xen, but xen has
+its own vblank logic. To avoid interfering with the atomic helpers,
+disable automatic vblank events explictly.
 
 v4:
 	* separate commit from core vblank changes
@@ -31,34 +33,39 @@ v4:
 Signed-off-by: Thomas Zimmermann <tzimmermann@suse.de>
 Acked-by: Gerd Hoffmann <kraxel@redhat.com>
 ---
- drivers/gpu/drm/virtio/virtgpu_display.c | 8 --------
- 1 file changed, 8 deletions(-)
+ drivers/gpu/drm/xen/xen_drm_front_kms.c | 13 +++++++++++++
+ 1 file changed, 13 insertions(+)
 
-diff --git a/drivers/gpu/drm/virtio/virtgpu_display.c b/drivers/gpu/drm/virtio/virtgpu_display.c
-index 0966208ec30d..ecf4ba7cc32b 100644
---- a/drivers/gpu/drm/virtio/virtgpu_display.c
-+++ b/drivers/gpu/drm/virtio/virtgpu_display.c
-@@ -30,7 +30,6 @@
- #include <drm/drm_fourcc.h>
- #include <drm/drm_gem_framebuffer_helper.h>
- #include <drm/drm_probe_helper.h>
--#include <drm/drm_vblank.h>
- 
- #include "virtgpu_drv.h"
- 
-@@ -121,13 +120,6 @@ static int virtio_gpu_crtc_atomic_check(struct drm_crtc *crtc,
- static void virtio_gpu_crtc_atomic_flush(struct drm_crtc *crtc,
- 					 struct drm_crtc_state *old_state)
- {
--	unsigned long flags;
--
--	spin_lock_irqsave(&crtc->dev->event_lock, flags);
--	if (crtc->state->event)
--		drm_crtc_send_vblank_event(crtc, crtc->state->event);
--	crtc->state->event = NULL;
--	spin_unlock_irqrestore(&crtc->dev->event_lock, flags);
+diff --git a/drivers/gpu/drm/xen/xen_drm_front_kms.c b/drivers/gpu/drm/xen/xen_drm_front_kms.c
+index 4f34c5208180..efde4561836f 100644
+--- a/drivers/gpu/drm/xen/xen_drm_front_kms.c
++++ b/drivers/gpu/drm/xen/xen_drm_front_kms.c
+@@ -220,6 +220,18 @@ static bool display_send_page_flip(struct drm_simple_display_pipe *pipe,
+ 	return false;
  }
  
- static const struct drm_crtc_helper_funcs virtio_gpu_crtc_helper_funcs = {
++static int display_check(struct drm_simple_display_pipe *pipe,
++			 struct drm_plane_state *plane_state,
++			 struct drm_crtc_state *crtc_state)
++{
++	/* Make sure that DRM helpers don't send VBLANK events
++	 * automatically. Xen has it's own logic to do so.
++	 */
++	crtc_state->no_vblank = false;
++
++	return 0;
++}
++
+ static void display_update(struct drm_simple_display_pipe *pipe,
+ 			   struct drm_plane_state *old_plane_state)
+ {
+@@ -284,6 +296,7 @@ static const struct drm_simple_display_pipe_funcs display_funcs = {
+ 	.enable = display_enable,
+ 	.disable = display_disable,
+ 	.prepare_fb = drm_gem_fb_simple_display_pipe_prepare_fb,
++	.check = display_check,
+ 	.update = display_update,
+ };
+ 
 -- 
 2.24.1
