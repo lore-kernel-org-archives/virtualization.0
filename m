@@ -1,11 +1,13 @@
 From: Thomas Zimmermann <tzimmermann@suse.de>
-Subject: [PATCH v4 00/15] Use no_vblank property for drivers without VBLANK
-Date: Thu, 23 Jan 2020 10:21:08 +0100
-Message-ID: <20200123092123.28368-1-tzimmermann@suse.de>
+Subject: [PATCH v4 02/15] drm/arc: Remove sending of vblank event
+Date: Thu, 23 Jan 2020 10:21:10 +0100
+Message-ID: <20200123092123.28368-3-tzimmermann@suse.de>
+References: <20200123092123.28368-1-tzimmermann@suse.de>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
+In-Reply-To: <20200123092123.28368-1-tzimmermann@suse.de>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
  <mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -19,73 +21,55 @@ To: airlied@linux.ie, daniel@ffwll.ch, kraxel@redhat.com, maarten.lankhorst@linu
 Cc: xen-devel@lists.xenproject.org, Thomas Zimmermann <tzimmermann@suse.de>, dri-devel@lists.freedesktop.org, virtualization@lists.linux-foundation.org
 List-Id: virtualization@lists.linuxfoundation.org
 
-Instead of faking VBLANK events by themselves, drivers without VBLANK
-support can enable drm_crtc_vblank.no_vblank and let DRM do the rest.
-The patchset makes this official and converts over drivers.
-
-The current implementation looks at state of a device wrt vblanking. If
-vblanking has been initialized for the device, the driver is responsible
-for sending out VBLANK events. Otherwise, DRM will send out the event.
-The behaviour is selected by initializing no_vblank as part of
-drm_atomic_helper_check_modeset().
-
-I went through all drivers, looking for those that call send out VBLANK
-events but do not call drm_vblank_init(). These are converted to the new
-semantics. This affects tiny drivers; drivers for virtual hardware; and
-a few others, which do not support interrupts. Xen comes with its
-own VBLANK logic and now disables no_vblank explictly.
+The atomic helpers automatically send out fake VBLANK events if no
+vblanking has been initialized. Remove the sending code from the
+driver.
 
 v4:
-	* replaced drm_crtc_has_vblank() with drm_dev_has_vblank() (Daniel)
-	* squashed patches 1 and 2
-	* moved driver updates into separate patches
-v3:
-	* reorder and squash patches
-	* set no_vblank in drm_atomic_helper_check_modeset() for *all*
-			  drivers (Daniel)
-	* convert all drivers to new semnatics as necessary
-v2:
-	* document functionality (Daniel)
-	* cleanup ast (Daniel)
-	* let simple-kms handle no_vblank where possible
+	* separate commit from core vblank changes
 
-Thomas Zimmermann (15):
-  drm: Initialize struct drm_crtc_state.no_vblank from device settings
-  drm/arc: Remove sending of vblank event
-  drm/ast: Don't set struct drm_crtc_state.no_vblank explictly
-  drm/bochs: Remove sending of vblank event
-  drm/cirrus: Remove sending of vblank event
-  drm/gm12u320: Remove sending of vblank event
-  drm/ili9225: Remove sending of vblank event
-  drm/mipi-dbi: Remove sending of vblank event
-  drm/qxl: Remove sending of vblank event
-  drm/repaper: Remove sending of vblank event
-  drm/st7586: Remove sending of vblank event
-  drm/udl: Don't set struct drm_crtc_state.no_vblank explictly
-  drm/vboxvideo: Remove sending of vblank event
-  drm/virtio: Remove sending of vblank event
-  drm/xen: Explicitly disable automatic sending of vblank event
+Signed-off-by: Thomas Zimmermann <tzimmermann@suse.de>
+Acked-by: Gerd Hoffmann <kraxel@redhat.com>
+---
+ drivers/gpu/drm/arc/arcpgu_crtc.c | 16 ----------------
+ 1 file changed, 16 deletions(-)
 
- drivers/gpu/drm/arc/arcpgu_crtc.c        | 16 --------------
- drivers/gpu/drm/ast/ast_mode.c           |  2 --
- drivers/gpu/drm/bochs/bochs_kms.c        |  9 --------
- drivers/gpu/drm/cirrus/cirrus.c          |  8 -------
- drivers/gpu/drm/drm_atomic_helper.c      | 10 ++++++++-
- drivers/gpu/drm/drm_mipi_dbi.c           |  9 --------
- drivers/gpu/drm/drm_vblank.c             | 28 ++++++++++++++++++++++++
- drivers/gpu/drm/qxl/qxl_display.c        | 14 ------------
- drivers/gpu/drm/tiny/gm12u320.c          |  9 --------
- drivers/gpu/drm/tiny/ili9225.c           |  9 --------
- drivers/gpu/drm/tiny/repaper.c           |  9 --------
- drivers/gpu/drm/tiny/st7586.c            |  9 --------
- drivers/gpu/drm/udl/udl_modeset.c        | 11 ----------
- drivers/gpu/drm/vboxvideo/vbox_mode.c    | 12 ----------
- drivers/gpu/drm/virtio/virtgpu_display.c |  8 -------
- drivers/gpu/drm/xen/xen_drm_front_kms.c  | 13 +++++++++++
- include/drm/drm_crtc.h                   | 27 +++++++++++++++++------
- include/drm/drm_simple_kms_helper.h      |  7 ++++--
- include/drm/drm_vblank.h                 |  1 +
- 19 files changed, 76 insertions(+), 135 deletions(-)
-
---
+diff --git a/drivers/gpu/drm/arc/arcpgu_crtc.c b/drivers/gpu/drm/arc/arcpgu_crtc.c
+index 8ae1e1f97a73..be7c29cec318 100644
+--- a/drivers/gpu/drm/arc/arcpgu_crtc.c
++++ b/drivers/gpu/drm/arc/arcpgu_crtc.c
+@@ -9,7 +9,6 @@
+ #include <drm/drm_device.h>
+ #include <drm/drm_fb_cma_helper.h>
+ #include <drm/drm_gem_cma_helper.h>
+-#include <drm/drm_vblank.h>
+ #include <drm/drm_plane_helper.h>
+ #include <drm/drm_probe_helper.h>
+ #include <linux/clk.h>
+@@ -138,24 +137,9 @@ static void arc_pgu_crtc_atomic_disable(struct drm_crtc *crtc,
+ 			      ~ARCPGU_CTRL_ENABLE_MASK);
+ }
+ 
+-static void arc_pgu_crtc_atomic_begin(struct drm_crtc *crtc,
+-				      struct drm_crtc_state *state)
+-{
+-	struct drm_pending_vblank_event *event = crtc->state->event;
+-
+-	if (event) {
+-		crtc->state->event = NULL;
+-
+-		spin_lock_irq(&crtc->dev->event_lock);
+-		drm_crtc_send_vblank_event(crtc, event);
+-		spin_unlock_irq(&crtc->dev->event_lock);
+-	}
+-}
+-
+ static const struct drm_crtc_helper_funcs arc_pgu_crtc_helper_funcs = {
+ 	.mode_valid	= arc_pgu_crtc_mode_valid,
+ 	.mode_set_nofb	= arc_pgu_crtc_mode_set_nofb,
+-	.atomic_begin	= arc_pgu_crtc_atomic_begin,
+ 	.atomic_enable	= arc_pgu_crtc_atomic_enable,
+ 	.atomic_disable	= arc_pgu_crtc_atomic_disable,
+ };
+-- 
 2.24.1
