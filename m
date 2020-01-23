@@ -1,70 +1,133 @@
-From: Christian Borntraeger <borntraeger@de.ibm.com>
-Subject: Re: vhost changes (batched) in linux-next after 12/13 trigger random
- crashes in KVM guests after reboot
-Date: Wed, 22 Jan 2020 20:32:21 +0100
-Message-ID: <2a63b15f-8cf5-5868-550c-42e2cfd92c60@de.ibm.com>
-References: <c022e1d6-0d57-ae07-5e6b-8e40d3b01f4b@de.ibm.com>
- <20191218100926-mutt-send-email-mst@kernel.org>
- <2ffdbd95-e375-a627-55a1-6990b0a0e37a@de.ibm.com>
- <20200106054041-mutt-send-email-mst@kernel.org>
- <08ae8d28-3d8c-04e8-bdeb-0117d06c6dc7@de.ibm.com>
- <20200107042401-mutt-send-email-mst@kernel.org>
- <c6795e53-d12c-0709-c2e9-e35d9af1f693@de.ibm.com>
- <20200107065434-mutt-send-email-mst@kernel.org>
- <fe6e7e90-3004-eb7a-9ed8-b53a7667959f@de.ibm.com>
- <20200120012724-mutt-send-email-mst@kernel.org>
+From: Thomas Zimmermann <tzimmermann@suse.de>
+Subject: Re: [PATCH v3 0/4] Use no_vblank property for drivers without VBLANK
+Date: Thu, 23 Jan 2020 09:40:07 +0100
+Message-ID: <1659c9ee-37ee-988a-6aaa-e115d1529fd6@suse.de>
+References: <20200120122051.25178-1-tzimmermann@suse.de>
+ <20200121093604.ruclkfho5gmflasq@sirius.home.kraxel.org>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=utf-8
-Content-Transfer-Encoding: 7bit
-Return-path: <linux-kernel-owner@vger.kernel.org>
-In-Reply-To: <20200120012724-mutt-send-email-mst@kernel.org>
-Content-Language: en-US
-Sender: linux-kernel-owner@vger.kernel.org
-To: "Michael S. Tsirkin" <mst@redhat.com>
-Cc: "virtualization@lists.linux-foundation.org" <virtualization@lists.linux-foundation.org>, Stephen Rothwell <sfr@canb.auug.org.au>, Linux Next Mailing List <linux-next@vger.kernel.org>, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>, kvm list <kvm@vger.kernel.org>, Halil Pasic <pasic@linux.ibm.com>
+Content-Type: multipart/mixed; boundary="===============1998976094736861100=="
+Return-path: <virtualization-bounces@lists.linux-foundation.org>
+In-Reply-To: <20200121093604.ruclkfho5gmflasq@sirius.home.kraxel.org>
+List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
+ <mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
+List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
+List-Post: <mailto:virtualization@lists.linux-foundation.org>
+List-Help: <mailto:virtualization-request@lists.linux-foundation.org?subject=help>
+List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualization>,
+ <mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
+Errors-To: virtualization-bounces@lists.linux-foundation.org
+Sender: "Virtualization" <virtualization-bounces@lists.linux-foundation.org>
+To: Gerd Hoffmann <kraxel@redhat.com>
+Cc: david@lechnology.com, oleksandr_andrushchenko@epam.com, airlied@linux.ie, sean@poorly.run, dri-devel@lists.freedesktop.org, virtualization@lists.linux-foundation.org, hdegoede@redhat.com, laurent.pinchart@ideasonboard.com, xen-devel@lists.xenproject.org, sam@ravnborg.org, emil.velikov@collabora.com
 List-Id: virtualization@lists.linuxfoundation.org
 
+This is an OpenPGP/MIME signed message (RFC 4880 and 3156)
+--===============1998976094736861100==
+Content-Type: multipart/signed; micalg=pgp-sha256;
+ protocol="application/pgp-signature";
+ boundary="pCIvLSsYBYOw52ijDqWub0Xa7Pbcuk34Z"
+
+This is an OpenPGP/MIME signed message (RFC 4880 and 3156)
+--pCIvLSsYBYOw52ijDqWub0Xa7Pbcuk34Z
+Content-Type: multipart/mixed; boundary="6GUilDKLRS1Nl4WmXujzoC8tlZiZqY5my";
+ protected-headers="v1"
+From: Thomas Zimmermann <tzimmermann@suse.de>
+To: Gerd Hoffmann <kraxel@redhat.com>
+Cc: david@lechnology.com, oleksandr_andrushchenko@epam.com, airlied@linux.ie,
+ sam@ravnborg.org, dri-devel@lists.freedesktop.org,
+ virtualization@lists.linux-foundation.org, hdegoede@redhat.com,
+ laurent.pinchart@ideasonboard.com, xen-devel@lists.xenproject.org,
+ sean@poorly.run, emil.velikov@collabora.com
+Message-ID: <1659c9ee-37ee-988a-6aaa-e115d1529fd6@suse.de>
+Subject: Re: [PATCH v3 0/4] Use no_vblank property for drivers without VBLANK
+References: <20200120122051.25178-1-tzimmermann@suse.de>
+ <20200121093604.ruclkfho5gmflasq@sirius.home.kraxel.org>
+In-Reply-To: <20200121093604.ruclkfho5gmflasq@sirius.home.kraxel.org>
+
+--6GUilDKLRS1Nl4WmXujzoC8tlZiZqY5my
+Content-Type: text/plain; charset=utf-8
+Content-Language: en-US
+Content-Transfer-Encoding: quoted-printable
+
+Hi
+
+Am 21.01.20 um 10:36 schrieb Gerd Hoffmann:
+> On Mon, Jan 20, 2020 at 01:20:47PM +0100, Thomas Zimmermann wrote:
+>> Instead of faking VBLANK events by themselves, drivers without VBLANK
+>> support can enable drm_crtc_vblank.no_vblank and let DRM do the rest.
+>> The patchset makes this official and converts over drivers.
+>>
+>> The current implementation looks at the number of initialized CRTCs
+>> wrt vblanking. If vblanking has been initialized for a CRTC, the drive=
+r
+>> is responsible for sending out VBLANK events. Otherwise, DRM will send=
+
+>> out the event. The behaviour selected by initializing no_vblank as par=
+t
+>> of drm_atomic_helper_check_modeset().
+>>
+>> I went through all drivers, looking for those that call send out VBLAN=
+K
+>> events but do not call drm_vblank_init(). These are converted to the n=
+ew
+>> semantics. This affects tiny drivers; drivers for virtual hardware; an=
+d
+>> a few others, which do not support interrupts. Xen comes with its
+>> own VBLANK logic and disables no_vblank explictly.
+>=20
+> Acked-by: Gerd Hoffmann <kraxel@redhat.com>
+
+Thanks a lot. v4 will mostly reorganize the patches so I'll keep your A-b=
+=2E
+
+Best regards
+Thomas
+
+>=20
+> _______________________________________________
+> dri-devel mailing list
+> dri-devel@lists.freedesktop.org
+> https://lists.freedesktop.org/mailman/listinfo/dri-devel
+>=20
+
+--=20
+Thomas Zimmermann
+Graphics Driver Developer
+SUSE Software Solutions Germany GmbH
+Maxfeldstr. 5, 90409 N=C3=BCrnberg, Germany
+(HRB 36809, AG N=C3=BCrnberg)
+Gesch=C3=A4ftsf=C3=BChrer: Felix Imend=C3=B6rffer
 
 
-On 20.01.20 07:27, Michael S. Tsirkin wrote:
-> On Tue, Jan 07, 2020 at 01:16:50PM +0100, Christian Borntraeger wrote:
->> On 07.01.20 12:55, Michael S. Tsirkin wrote:
->>
->>>
->>> I pushed batched-v3 - same head but bisect should work now.
->>>
->>
->> With 
->> commit 38ced0208491103b50f1056f0d1c8f28e2e13d08 (HEAD)
->> Author:     Michael S. Tsirkin <mst@redhat.com>
->> AuthorDate: Wed Dec 11 12:19:26 2019 -0500
->> Commit:     Michael S. Tsirkin <mst@redhat.com>
->> CommitDate: Tue Jan 7 06:52:42 2020 -0500
->>
->>     vhost: use batched version by default
->>
->>
->> I have exactly one successful ping and then the network inside the guest is broken (no packet
->> anymore).
-> 
-> Does anything appear in host's dmesg when this happens?
+--6GUilDKLRS1Nl4WmXujzoC8tlZiZqY5my--
 
-I think there was nothing, but I am not sure. I would need to redo the test if this is important to know.
+--pCIvLSsYBYOw52ijDqWub0Xa7Pbcuk34Z
+Content-Type: application/pgp-signature; name="signature.asc"
+Content-Description: OpenPGP digital signature
+Content-Disposition: attachment; filename="signature.asc"
 
-> 
-> 
->> So you could consider this commit broken (but in a different way and also without any
->> guest reboot necessary).
->>
->>
->> bisect log:
->> git bisect start
->> # bad: [d2f6175f52062ee51ee69754a6925608213475d2] vhost: use vhost_desc instead of vhost_log
->> git bisect bad d2f6175f52062ee51ee69754a6925608213475d2
->> # good: [d1281e3a562ec6a08f944a876481dd043ba739b9] virtio-blk: remove VIRTIO_BLK_F_SCSI support
->> git bisect good d1281e3a562ec6a08f944a876481dd043ba739b9
->> # good: [fac7c0f46996e32d996f5c46121df24a6b95ec3b] vhost: option to fetch descriptors through an independent struct
->> git bisect good fac7c0f46996e32d996f5c46121df24a6b95ec3b
->> # bad: [539eb9d738f048cd7be61f404e8f9c7d9d2ff3cc] vhost: batching fetches
->> git bisect bad 539eb9d738f048cd7be61f404e8f9c7d9d2ff3cc
-> 
+-----BEGIN PGP SIGNATURE-----
+
+iQEzBAEBCAAdFiEEchf7rIzpz2NEoWjlaA3BHVMLeiMFAl4pW+oACgkQaA3BHVML
+eiNV0gf+IPPOumQscdtQTf7HiwBEYXRigNipidae4Be+fOxcgoEbdgq/mZcSPvx1
+Qiutl89HQ0S/9aeZLmXTvJQETVw49f4d14OwPKVk9r6bPipVDuKb1u8893tO+Cfv
+uDhBhXeIOVsQj6UQMsKHRXEP89f86srW8QdhPVhpKD0e/wTNDmQNJSr36UGrVHfu
+37Qnl1ti99WI25Hv1s3OdZNodLgWmWoEShvzLmXeQimVffHPt3KpNnazmVXJjJXK
+ODtGNmgXgg/XP9dV6UURzQSP5fhnHWbiE0KRoE6gSWwfMvQN88LNGRWoNX5sNrVq
+388slhf1P3s3iCCsYvnxqKplejINQQ==
+=QYNB
+-----END PGP SIGNATURE-----
+
+--pCIvLSsYBYOw52ijDqWub0Xa7Pbcuk34Z--
+
+--===============1998976094736861100==
+Content-Type: text/plain; charset="us-ascii"
+MIME-Version: 1.0
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+
+_______________________________________________
+Virtualization mailing list
+Virtualization@lists.linux-foundation.org
+https://lists.linuxfoundation.org/mailman/listinfo/virtualization
+--===============1998976094736861100==--
