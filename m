@@ -1,16 +1,16 @@
 From: Daniel Vetter <daniel@ffwll.ch>
-Subject: Re: [PATCH v4 01/15] drm: Initialize struct drm_crtc_state.no_vblank
- from device settings
-Date: Mon, 27 Jan 2020 10:40:58 +0100
-Message-ID: <20200127094058.GZ43062@phenom.ffwll.local>
+Subject: Re: [PATCH v4 15/15] drm/xen: Explicitly disable automatic sending
+ of vblank event
+Date: Mon, 27 Jan 2020 10:47:41 +0100
+Message-ID: <20200127094741.GA43062@phenom.ffwll.local>
 References: <20200123092123.28368-1-tzimmermann@suse.de>
- <20200123092123.28368-2-tzimmermann@suse.de>
+ <20200123092123.28368-16-tzimmermann@suse.de>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
 Content-Disposition: inline
-In-Reply-To: <20200123092123.28368-2-tzimmermann@suse.de>
+In-Reply-To: <20200123092123.28368-16-tzimmermann@suse.de>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
  <mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -24,230 +24,72 @@ To: Thomas Zimmermann <tzimmermann@suse.de>
 Cc: david@lechnology.com, oleksandr_andrushchenko@epam.com, airlied@linux.ie, sam@ravnborg.org, dri-devel@lists.freedesktop.org, maarten.lankhorst@linux.intel.com, mripard@kernel.org, virtualization@lists.linux-foundation.org, hdegoede@redhat.com, noralf@tronnes.org, daniel@ffwll.ch, xen-devel@lists.xenproject.org, emil.velikov@collabora.com, sean@poorly.run, laurent.pinchart@ideasonboard.com
 List-Id: virtualization@lists.linuxfoundation.org
 
-On Thu, Jan 23, 2020 at 10:21:09AM +0100, Thomas Zimmermann wrote:
-> At the end of a commit, atomic helpers can generate a VBLANK event
-> automatically. Originally implemented for writeback connectors, the
-> functionality can be used by any driver and/or hardware without proper
-> VBLANK interrupt.
-> 
-> The patch updates the documentation to make this behaviour official:
-> settings struct drm_crtc_state.no_vblank to true enables automatic
-> VBLANK generation.
-> 
-> The new interface drm_dev_has_vblank() returns true if vblanking has
-> been initialized for a device, or false otherwise. This function will
-> be useful when initializing no_vblank in the CRTC state.
-> 
-> Atomic modesetting helper set the initial value of no_vblank in
-> drm_atomic_helper_check_modeset(). If vblanking has been initialized
-> for a device, no_blank is disabled. Otherwise it's enabled. Hence,
-> atomic helpers will automatically send out VBLANK events with any
-> driver that did not initialize vblanking.
+On Thu, Jan 23, 2020 at 10:21:23AM +0100, Thomas Zimmermann wrote:
+> The atomic helpers automatically send out fake VBLANK events if no
+> vblanking has been initialized. This would apply to xen, but xen has
+> its own vblank logic. To avoid interfering with the atomic helpers,
+> disable automatic vblank events explictly.
 > 
 > v4:
-> 	* replace drm_crtc_has_vblank() with drm_dev_has_vblank()
-> 	* add drm_dev_crtc_has_vblank() in this patch
-
-drm_dev_has_vblank I guess?
-
-> 	* move driver changes into separate patches
-> v3:
-> 	* squash all related changes patches into this patch
+> 	* separate commit from core vblank changes
 > 
 > Signed-off-by: Thomas Zimmermann <tzimmermann@suse.de>
 > Acked-by: Gerd Hoffmann <kraxel@redhat.com>
-> ---
->  drivers/gpu/drm/drm_atomic_helper.c | 10 +++++++++-
->  drivers/gpu/drm/drm_vblank.c        | 28 ++++++++++++++++++++++++++++
->  include/drm/drm_crtc.h              | 27 ++++++++++++++++++++-------
->  include/drm/drm_simple_kms_helper.h |  7 +++++--
->  include/drm/drm_vblank.h            |  1 +
->  5 files changed, 63 insertions(+), 10 deletions(-)
-> 
-> diff --git a/drivers/gpu/drm/drm_atomic_helper.c b/drivers/gpu/drm/drm_atomic_helper.c
-> index 4511c2e07bb9..d7b73cd89b79 100644
-> --- a/drivers/gpu/drm/drm_atomic_helper.c
-> +++ b/drivers/gpu/drm/drm_atomic_helper.c
-> @@ -583,6 +583,7 @@ mode_valid(struct drm_atomic_state *state)
->   * &drm_crtc_state.connectors_changed is set when a connector is added or
->   * removed from the CRTC.  &drm_crtc_state.active_changed is set when
->   * &drm_crtc_state.active changes, which is used for DPMS.
-> + * &drm_crtc_state.no_vblank is set from the result of drm_dev_has_vblank().
->   * See also: drm_atomic_crtc_needs_modeset()
->   *
->   * IMPORTANT:
-> @@ -649,6 +650,11 @@ drm_atomic_helper_check_modeset(struct drm_device *dev,
->  
->  			return -EINVAL;
->  		}
-> +
-> +		if (drm_dev_has_vblank(dev))
-> +			new_crtc_state->no_vblank = false;
-> +		else
-> +			new_crtc_state->no_vblank = true;
->  	}
->  
->  	ret = handle_conflicting_encoders(state, false);
-> @@ -2215,7 +2221,9 @@ EXPORT_SYMBOL(drm_atomic_helper_wait_for_dependencies);
->   * when a job is queued, and any change to the pipeline that does not touch the
->   * connector is leading to timeouts when calling
->   * drm_atomic_helper_wait_for_vblanks() or
-> - * drm_atomic_helper_wait_for_flip_done().
-> + * drm_atomic_helper_wait_for_flip_done(). In addition to writeback
-> + * connectors, this function can also fake VBLANK events for CRTCs without
-> + * VBLANK interrupt.
->   *
->   * This is part of the atomic helper support for nonblocking commits, see
->   * drm_atomic_helper_setup_commit() for an overview.
-> diff --git a/drivers/gpu/drm/drm_vblank.c b/drivers/gpu/drm/drm_vblank.c
-> index 1659b13b178c..433dec6230b1 100644
-> --- a/drivers/gpu/drm/drm_vblank.c
-> +++ b/drivers/gpu/drm/drm_vblank.c
-> @@ -69,6 +69,12 @@
->   * &drm_driver.max_vblank_count. In that case the vblank core only disables the
->   * vblanks after a timer has expired, which can be configured through the
->   * ``vblankoffdelay`` module parameter.
-> + *
-> + * Drivers for hardware without support for vertical-blanking interrupts
-> + * must not call drm_vblank_init(). For such drivers, atomic helpers will
-> + * automatically generate vblank events as part of the display update. This
-> + * functionality also can be controlled by the driver by enabling and disabling
-> + * struct drm_crtc_state.no_vblank.
->   */
->  
->  /* Retry timestamp calculation up to 3 times to satisfy
-> @@ -501,6 +507,28 @@ int drm_vblank_init(struct drm_device *dev, unsigned int num_crtcs)
->  }
->  EXPORT_SYMBOL(drm_vblank_init);
->  
-> +/**
-> + * drm_dev_has_vblank - test if vblanking has been initialized for
-> + *                      a device
-> + * @dev: the device
-> + *
-> + * Drivers may call this function to test if vblank support is
-> + * initialized for a device. For most hardware this means that vblanking
-> + * can also be enabled.
-> + *
-> + * Atomic helpers use this function to initialize
-> + * &drm_crtc_state.no_vblank. See also drm_atomic_helper_check_modeset().
-> + *
-> + * Returns:
-> + * True if vblanking has been initialized for the given device, false
-> + * otherwise.
-> + */
-> +bool drm_dev_has_vblank(const struct drm_device *dev)
-> +{
-> +	return dev->num_crtcs != 0;
-> +}
-> +EXPORT_SYMBOL(drm_dev_has_vblank);
-> +
->  /**
->   * drm_crtc_vblank_waitqueue - get vblank waitqueue for the CRTC
->   * @crtc: which CRTC's vblank waitqueue to retrieve
-> diff --git a/include/drm/drm_crtc.h b/include/drm/drm_crtc.h
-> index 5e9b15a0e8c5..5363e31c9abe 100644
-> --- a/include/drm/drm_crtc.h
-> +++ b/include/drm/drm_crtc.h
-> @@ -174,12 +174,22 @@ struct drm_crtc_state {
->  	 * @no_vblank:
->  	 *
->  	 * Reflects the ability of a CRTC to send VBLANK events. This state
-> -	 * usually depends on the pipeline configuration, and the main usuage
-> -	 * is CRTCs feeding a writeback connector operating in oneshot mode.
-> -	 * In this case the VBLANK event is only generated when a job is queued
-> -	 * to the writeback connector, and we want the core to fake VBLANK
-> -	 * events when this part of the pipeline hasn't changed but others had
-> -	 * or when the CRTC and connectors are being disabled.
-> +	 * usually depends on the pipeline configuration. If set to true, DRM
-> +	 * atomic helpers will sendout a fake VBLANK event during display
 
-s/sendout/ send out/
-
-> +	 * updates.
-
-maby add "... updates, after all hardware changes have been committed.
-This is implemented in drm_atomic_helper_fake_vblank()."
-
-That at least reflects the default behaviour.
-
-> +	 *
-> +	 * One usage is for drivers and/or hardware without support for VBLANK
-> +	 * interrupts. Such drivers typically do not initialize vblanking
-> +	 * (i.e., call drm_vblank_init() wit the number of CRTCs). For CRTCs
-
-s/wit/with/
-
-> +	 * without initialized vblanking, the field is initialized to true and
-
-"initialized to true" is a bit a stretch, since this is done in the
-helpers. Maybe instead "... this field is set to true in
-drm_atomic_helper_check_modeset() and ..."
-
-> +	 * a VBLANK event will be send out on each update of the display
-> +	 * pipeline.
-
-Maybe also reiterate that this is done through
-drm_atomic_helper_fake_vblank() again? Imo for stuff done by helpers it's
-important to highligh where that's done, since it's all opt-in (even if
-most drivers will opt-in automatically).
-
-> +	 *
-> +	 * Another usage is CRTCs feeding a writeback connector operating in
-> +	 * oneshot mode. In this case the VBLANK event is only generated when
-> +	 * a job is queued to the writeback connector, and we want the core
-> +	 * to fake VBLANK events when this part of the pipeline hasn't changed
-> +	 * but others had or when the CRTC and connectors are being disabled.
->  	 *
->  	 * __drm_atomic_helper_crtc_duplicate_state() will not reset the value
->  	 * from the current state, the CRTC driver is then responsible for
-> @@ -335,7 +345,10 @@ struct drm_crtc_state {
->  	 *  - Events for disabled CRTCs are not allowed, and drivers can ignore
->  	 *    that case.
->  	 *
-> -	 * This can be handled by the drm_crtc_send_vblank_event() function,
-> +	 * For very simple hardware without VBLANK interrupt, enabling
-> +	 * &struct drm_crtc_state.no_vblank makes DRM's atomic commit helpers
-> +	 * send the event at an appropriate time. For more complex hardware this
-> +	 * can be handled by the drm_crtc_send_vblank_event() function,
->  	 * which the driver should call on the provided event upon completion of
->  	 * the atomic commit. Note that if the driver supports vblank signalling
->  	 * and timestamping the vblank counters and timestamps must agree with
-> diff --git a/include/drm/drm_simple_kms_helper.h b/include/drm/drm_simple_kms_helper.h
-> index 15afee9cf049..e253ba7bea9d 100644
-> --- a/include/drm/drm_simple_kms_helper.h
-> +++ b/include/drm/drm_simple_kms_helper.h
-> @@ -100,8 +100,11 @@ struct drm_simple_display_pipe_funcs {
->  	 * This is the function drivers should submit the
->  	 * &drm_pending_vblank_event from. Using either
->  	 * drm_crtc_arm_vblank_event(), when the driver supports vblank
-> -	 * interrupt handling, or drm_crtc_send_vblank_event() directly in case
-> -	 * the hardware lacks vblank support entirely.
-> +	 * interrupt handling, or drm_crtc_send_vblank_event() for more
-> +	 * complex case. In case the hardware lacks vblank support entirely,
-> +	 * drivers can set &struct drm_crtc_state.no_vblank in
-> +	 * &struct drm_simple_display_pipe_funcs.check and let DRM's
-> +	 * atomic helper fake a vblank event.
->  	 */
->  	void (*update)(struct drm_simple_display_pipe *pipe,
->  		       struct drm_plane_state *old_plane_state);
-> diff --git a/include/drm/drm_vblank.h b/include/drm/drm_vblank.h
-> index c16c44052b3d..94275e93fd27 100644
-> --- a/include/drm/drm_vblank.h
-> +++ b/include/drm/drm_vblank.h
-> @@ -206,6 +206,7 @@ struct drm_vblank_crtc {
->  };
->  
->  int drm_vblank_init(struct drm_device *dev, unsigned int num_crtcs);
-> +bool drm_dev_has_vblank(const struct drm_device *dev);
->  u64 drm_crtc_vblank_count(struct drm_crtc *crtc);
->  u64 drm_crtc_vblank_count_and_time(struct drm_crtc *crtc,
->  				   ktime_t *vblanktime);
-
-With the doc nits addressed:
+On all the driver patches:
 
 Reviewed-by: Daniel Vetter <daniel.vetter@ffwll.ch>
 
+> ---
+>  drivers/gpu/drm/xen/xen_drm_front_kms.c | 13 +++++++++++++
+>  1 file changed, 13 insertions(+)
+> 
+> diff --git a/drivers/gpu/drm/xen/xen_drm_front_kms.c b/drivers/gpu/drm/xen/xen_drm_front_kms.c
+> index 4f34c5208180..efde4561836f 100644
+> --- a/drivers/gpu/drm/xen/xen_drm_front_kms.c
+> +++ b/drivers/gpu/drm/xen/xen_drm_front_kms.c
+> @@ -220,6 +220,18 @@ static bool display_send_page_flip(struct drm_simple_display_pipe *pipe,
+>  	return false;
+>  }
+>  
+> +static int display_check(struct drm_simple_display_pipe *pipe,
+> +			 struct drm_plane_state *plane_state,
+> +			 struct drm_crtc_state *crtc_state)
+> +{
+> +	/* Make sure that DRM helpers don't send VBLANK events
+> +	 * automatically. Xen has it's own logic to do so.
+> +	 */
+> +	crtc_state->no_vblank = false;
+
+So this here is strictly speaking dead code, because the fake_vblank
+helper makes sure to only send out the event if it hasn't been processed
+yet.
+
+Which is a bit awkward, since it does this silently, potentially hiding
+bugs. We already have a warning that complains if a crtc_state->event
+hasn't been processed at all. But with the auto-vblank stuff here we kinda
+defeat that a bit ... I think adding a WARN_ON in fake_vblank that fires
+if no_vblank is set, but the event is somehow gone, would be really
+useful. That would point at some serious driver snafu ...
+
+Care to throw that on top?
+-Daniel
+
+> +
+> +	return 0;
+> +}
+> +
+>  static void display_update(struct drm_simple_display_pipe *pipe,
+>  			   struct drm_plane_state *old_plane_state)
+>  {
+> @@ -284,6 +296,7 @@ static const struct drm_simple_display_pipe_funcs display_funcs = {
+>  	.enable = display_enable,
+>  	.disable = display_disable,
+>  	.prepare_fb = drm_gem_fb_simple_display_pipe_prepare_fb,
+> +	.check = display_check,
+>  	.update = display_update,
+>  };
+>  
 > -- 
 > 2.24.1
 > 
