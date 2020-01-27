@@ -1,12 +1,16 @@
-From: "Maria Lemos" <marialemos72@gmail.com>
-Subject: CISTI'2020 - Doctoral Symposium | Seville, Spain; Deadline: February
- 14
-Date: Sun, 26 Jan 2020 17:02:32 +0000
-Message-ID: <11392839266718@gmail-com>
-Reply-To: cistimail@gmail.com
+From: Daniel Vetter <daniel@ffwll.ch>
+Subject: Re: [PATCH v4 01/15] drm: Initialize struct drm_crtc_state.no_vblank
+ from device settings
+Date: Mon, 27 Jan 2020 10:40:58 +0100
+Message-ID: <20200127094058.GZ43062@phenom.ffwll.local>
+References: <20200123092123.28368-1-tzimmermann@suse.de>
+ <20200123092123.28368-2-tzimmermann@suse.de>
 Mime-Version: 1.0
-Content-Type: multipart/mixed; boundary="===============0521589544912762865=="
+Content-Type: text/plain; charset="us-ascii"
+Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
+Content-Disposition: inline
+In-Reply-To: <20200123092123.28368-2-tzimmermann@suse.de>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
  <mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -16,378 +20,239 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
  <mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Errors-To: virtualization-bounces@lists.linux-foundation.org
 Sender: "Virtualization" <virtualization-bounces@lists.linux-foundation.org>
-To: virtualization@lists.linux-foundation.org
+To: Thomas Zimmermann <tzimmermann@suse.de>
+Cc: david@lechnology.com, oleksandr_andrushchenko@epam.com, airlied@linux.ie, sam@ravnborg.org, dri-devel@lists.freedesktop.org, maarten.lankhorst@linux.intel.com, mripard@kernel.org, virtualization@lists.linux-foundation.org, hdegoede@redhat.com, noralf@tronnes.org, daniel@ffwll.ch, xen-devel@lists.xenproject.org, emil.velikov@collabora.com, sean@poorly.run, laurent.pinchart@ideasonboard.com
 List-Id: virtualization@lists.linuxfoundation.org
 
-This is a multi-part message in MIME format
-
---===============0521589544912762865==
-Content-Type: multipart/alternative; charset=utf-8; boundary="Te3o81tfGA3HQp0=_seHeXGywqVu30hmsq"
-
-This is a multi-part message in MIME format
-
---Te3o81tfGA3HQp0=_seHeXGywqVu30hmsq
-Content-Type: text/plain; charset="utf-8"
-Content-Transfer-Encoding: quoted-printable
-Content-Disposition: inline
-
-* Published in IEEE Xplore and indexed by ISI, Scopus, EI-Compendex, G=
-oogle Scholar, etc.
-
-** Conference with H5-Index =3D 16 (Google Scholar Ranking)
-
-
-----------------------------------------------------------------------=
------------------------------------------------------
-Doctoral Symposium of CISTI'2020 - 15th Iberian Conference on Informat=
-ion Systems and Technologies
-                                                   Seville, Spain, 24 =
-- 27 June 2020
-                                                               http://=
-www.cisti.eu/ <http://www.cisti.eu/>
-----------------------------------------------------------------------=
---------------------------------------------------------------
-
-=20
-
-The purpose of CISTI'2020=E2=80=99s Doctoral Symposium is to provide g=
-raduate students a setting where they can, informally, expose and disc=
-uss their work, collecting valuable expert opinions and sharing new id=
-eas, methods and applications. The Doctoral Symposium is an excellent =
-opportunity for PhD students to present and discuss their work in a Wo=
-rkshop format. Each presentation will be evaluated by a panel composed=
- by at least three Information Systems and Technologies experts.
-
-=20
-
-Contributions Submission
-
-The Doctoral Symposium is opened to PhD students whose research area i=
-ncludes the themes proposed for this Conference. Submissions must incl=
-ude an extended abstract (maximum 4 pages), following the Conference s=
-tyle guide <http://cisti.eu/2017/images/templates.zip>. All selected c=
-ontributions will be published with the Conference Proceedings in elec=
-tronic format with ISBN. These contributions will be available in the =
-IEEE Xplore <https://ieeexplore.ieee.org/xpl/conhome/8755443/proceedin=
-g> Digital Library and will be sent for indexing in ISI, Scopus, EI-Co=
-mpendex, INSPEC and Google Scholar.
-
-Submissions must include the field, the PhD institution and the number=
- of months devoted to the development of the work. Additionally, they =
-should include in a clear and succinct manner:
-
-    =E2=80=A2    The problem approached and its significance or releva=
-nce
-    =E2=80=A2    The research objectives and related investigation top=
-ics
-    =E2=80=A2    A brief display of what is already known
-    =E2=80=A2    A proposed solution methodology for the problem
-    =E2=80=A2    Expected results
-
-=20
-
-Important Dates
-
-Paper submission: February 14, 2020
-
-Notification of acceptance: March 22, 2020
-
-Submission of accepted papers: April 5, 2020
-
-Payment of registration, to ensure the inclusion of an accepted paper =
-in the conference proceedings: April 5, 2020
-
-=20
-
-Organizing Committee
-
-
-=C3=81lvaro Rocha, Universidade de Coimbra
-
-Francisco Garc=C3=ADa-Pe=C3=B1alvo, Universidad de Salamanca
-
-=20
-
-Scientific Committee
-
-Francisco Garc=C3=ADa-Pe=C3=B1alvo, Universidad de Salamanca (Chair)
-
-Ad=C3=A9rito Marcos, Universidade Aberta
-
-Adolfo Lozano Tello, Universidad de Extremadura
-
-=C3=81lvaro Rocha, Universidade de Coimbra
-
-Ana Am=C3=A9lia Carvalho, Universidade de Coimbra
-
-Ana Maria Ramalho Correia, NOVA IMS
-
-Antonio Fern=C3=A1ndez-Caballero, Universidad de Castilla-La Mancha
-
-Antonio Garcia-Loureiro, Universidad de Santiago de Compostela
-
-Arnaldo Martins, Universidade de Aveiro
-
-Br=C3=A1ulio Alturas, ISCTE - Insituto Universit=C3=A1rio de Lisboa
-
-Carlos Costa, ISEG, Universidade de Lisboa
-
-Carlos Ferr=C3=A1s Sexto, Universidad de Santiago de Compostela
-
-Carlos Juiz, Universitat de les Illes Balears
-
-David Fonseca, La Salle, Universitat Ramon Llull
-
-Ernest Redondo, Universidad Polit=C3=A9cnica de Catalunya
-
-Feliz Gouveia, Universidade Fernando Pessoa
-
-Fernando Moreira, Universidade Portucalense
-
-Fernando Ramos, Universidade de Aveiro
-
-Francisco Restivo, Universidade Cat=C3=B3lica Portuguesa
-
-Gon=C3=A7alo Paiva Dias, Universidade de Aveiro
-
-Gonzalo Cuevas Agustin, Universidad Polit=C3=A9cnica de Madrid
-
-Jes=C3=BAs Fraile Ardanuy, Universidad Polit=C3=A9cnica de Madrid
-
-Jo=C3=A3o Costa, Universidade de Coimbra
-
-Jos=C3=A9 Antonio Calvo-Manzano Villal=C3=B3n, Universidad Polit=C3=A9=
-cnica de Madrid
-
-Jos=C3=A9 Borbinha, IST, Universidade de Lisboa
-
-Jose M. Molina, Universidad Carlos III de Madrid
-
-Jose Machado, Universidade do Minho
-
-Jo=C3=A3o Manuel R.S. Tavares, FEUP, Universidade do Porto
-
-Jos=C3=A9 Martins, Universidade de Tr=C3=A1s-os-Montes e Alto Douro
-
-Luis Camarinha-Matos, Universidade Nova de Lisboa
-
-Lu=C3=ADs Paulo Reis, FEUP, Universidade do Porto
-
-Manuel P=C3=A9rez Cota, Universidad de Vigo
-
-Marco Painho, NOVA IMS
-
-M=C3=A1rio Piattini, Universidad de Castilla-La Mancha
-
-Martin Llamas Nistal, Universidad de Vigo
-
-Miguel Ram=C3=B3n Gonz=C3=A1lez Castro, Ence, Energ=C3=ADa y Celulosa
-
-Nelson Rocha, Universidade de Aveiro
-
-=C3=93scar Mealha, Universidade de Aveiro
-
-Paulo Pinto, FC, Universidade Nova de Lisboa
-
-Pedro S=C3=A1nchez-Palma, Universidad Polit=C3=A9cnica de Cartagena
-
-Pilar Mareca, Universidad Polit=C3=A9cnica de Madrid
-
-Ramiro Gon=C3=A7alves, Universidade de Tr=C3=A1s-os-Montes e Alto Dour=
-o
-
-Vitor Santos, NOVA IMS
-
-
-=20
-
-CISTI'2020 webpage:  http://www.cisti.eu/ <http://www.cisti.eu/>
-
-
-Kind regards,
-
-CISTI'2020 Team
-http://www.cisti.eu/ <http://www.cisti.eu/>
-
-
-
-=20
-
-=20
-
---Te3o81tfGA3HQp0=_seHeXGywqVu30hmsq
-Content-Type: text/html; charset="utf-8"
-Content-Transfer-Encoding: quoted-printable
-Content-Disposition: inline
-
-<html>
-  <head>
-    <title></title>
-    <meta content=3D"text/html; charset=3Dutf-8" http-equiv=3D"Content=
--Type" />
-  </head>
-  <body>
-    <p>* Published in IEEE Xplore and indexed by ISI, Scopus, EI-Compe=
-ndex, Google Scholar, etc.</p>
-    <p>** Conference with H5-Index =3D 16 (Google Scholar Ranking)</p>=
-
-    <p><br />---------------------------------------------------------=
-------------------------------------------------------------------<br =
-/>Doctoral Symposium of CISTI'2020&nbsp;- 15th Iberian Conference on I=
-nformation Systems and Technologies<br />&nbsp;&nbsp;&nbsp;&nbsp;&nbsp=
-;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nb=
-sp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&=
-nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp=
-;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; Seville,=
- Spain,&nbsp;24 -&nbsp;27&nbsp;June 2020<br />&nbsp;&nbsp;&nbsp;&nbsp;=
-&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbs=
-p;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&n=
-bsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;=
-&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbs=
-p;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&n=
-bsp;<a href=3D"http://www.cisti.eu/">http://www.cisti.eu/</a><br />---=
-----------------------------------------------------------------------=
------------------------------------------------------------</p>
-    <p>&nbsp;</p>
-    <p>The purpose of CISTI'2020&rsquo;s Doctoral Symposium is to prov=
-ide graduate students a setting where they can, informally, expose and=
- discuss their work, collecting valuable expert opinions and sharing n=
-ew ideas, methods and applications. The Doctoral Symposium is an excel=
-lent opportunity for PhD students to present and discuss their work in=
- a Workshop format. Each presentation will be evaluated by a panel com=
-posed by at least three Information Systems and Technologies experts.<=
-/p>
-    <p>&nbsp;</p>
-    <p><strong>Contributions Submission</strong></p>
-    <p>The Doctoral Symposium is opened to PhD students whose research=
- area includes the themes proposed for this Conference. Submissions mu=
-st include an extended abstract (maximum 4 pages), following the Confe=
-rence&nbsp;<strong><a href=3D"http://cisti.eu/2017/images/templates.zi=
-p" rel=3D"noopener noreferrer" target=3D"_blank">style guide</a></stro=
-ng>. All selected contributions will be published with the Conference =
-Proceedings in electronic format with ISBN. These contributions&nbsp;<=
-span class=3D"hps">will be available</span>&nbsp;<span class=3D"hps">i=
-n</span>&nbsp;<span class=3D"hps">the&nbsp;<strong><a href=3D"https://=
-ieeexplore.ieee.org/xpl/conhome/8755443/proceeding" rel=3D"noopener no=
-referrer" target=3D"_blank">IEEE Xplore</a></strong></span>&nbsp;D<spa=
-n class=3D"hps">igital Library and&nbsp;</span><span class=3D"hps">wil=
-l be sent</span>&nbsp;<span class=3D"hps">for indexing in</span>&nbsp;=
-ISI, Scopus, EI-Compendex,&nbsp;<span class=3D"hps">INSPEC</span>&nbsp=
-;and Google Scholar.</p>
-    <p>Submissions must include the field, the PhD institution and the=
- number of months devoted to the development of the work. Additionally=
-, they should include in a clear and succinct manner:</p>
-    <p>&nbsp;&nbsp;&nbsp; &bull;&nbsp;&nbsp;&nbsp; The problem approac=
-hed and its significance or relevance<br />&nbsp;&nbsp;&nbsp; &bull;&n=
-bsp;&nbsp;&nbsp; The research objectives and related investigation top=
-ics<br />&nbsp;&nbsp;&nbsp; &bull;&nbsp;&nbsp;&nbsp; A brief display o=
-f what is already known<br />&nbsp;&nbsp;&nbsp; &bull;&nbsp;&nbsp;&nbs=
-p; A proposed solution methodology for the problem<br />&nbsp;&nbsp;&n=
-bsp; &bull;&nbsp;&nbsp;&nbsp; Expected results</p>
-    <p>&nbsp;</p>
-    <p><strong>Important Dates</strong></p>
-    <div itemprop=3D"articleBody">
-      <p><span class=3D"hps">Paper</span>&nbsp;<span class=3D"hps">sub=
-mission:</span>&nbsp;<span class=3D"hps">February 14</span>, <span cla=
-ss=3D"hps">2020</span><br /><br /><span class=3D"hps">Notification of<=
-/span>&nbsp;<span class=3D"hps">acceptance</span>:&nbsp;March 22, <spa=
-n class=3D"hps">2020</span><br /><br /><span class=3D"hps">Submission =
-of</span>&nbsp;<span class=3D"hps">accepted</span>&nbsp;<span class=3D=
-"hps">papers</span>: April <span class=3D"hps">5</span>,&nbsp;<span cl=
-ass=3D"hps">2020</span><br /><br /><span class=3D"hps">Payment of</spa=
-n>&nbsp;<span class=3D"hps">registration</span>,&nbsp;<span class=3D"h=
-ps">to</span>&nbsp;<span class=3D"hps">ensure</span>&nbsp;<span class=3D=
-"hps">the</span>&nbsp;<span class=3D"hps">inclusion</span>&nbsp;<span =
-class=3D"hps">of an</span>&nbsp;<span class=3D"hps">accepted paper</sp=
-an>&nbsp;<span class=3D"hps">in the&nbsp;</span><span class=3D"hps">co=
-nference</span>&nbsp;<span class=3D"hps">proceedings</span>: April <sp=
-an class=3D"hps">5</span>,&nbsp;<span class=3D"hps">2020</span></p>
-    </div>
-    <p>&nbsp;</p>
-    <p><strong>Organizing Committee<br /></strong></p>
-    <p>&Aacute;lvaro Rocha, Universidade de Coimbra</p>
-    <p>Francisco Garc&iacute;a-Pe&ntilde;alvo, Universidad de Salamanc=
-a</p>
-    <p>&nbsp;</p>
-    <p><strong>Scientific Committee</strong></p>
-    <p>Francisco Garc&iacute;a-Pe&ntilde;alvo, Universidad de Salamanc=
-a (Chair)</p>
-    <p>Ad&eacute;rito Marcos, Universidade Aberta</p>
-    <p>Adolfo Lozano Tello, Universidad de Extremadura</p>
-    <p>&Aacute;lvaro Rocha, Universidade de Coimbra</p>
-    <p>Ana Am&eacute;lia Carvalho, Universidade de Coimbra</p>
-    <p>Ana Maria Ramalho Correia, NOVA IMS</p>
-    <p>Antonio Fern&aacute;ndez-Caballero, Universidad de Castilla-La =
-Mancha</p>
-    <p>Antonio Garcia-Loureiro, Universidad de Santiago de Compostela<=
-/p>
-    <p>Arnaldo Martins, Universidade de Aveiro</p>
-    <p>Br&aacute;ulio Alturas, ISCTE - Insituto Universit&aacute;rio d=
-e Lisboa</p>
-    <p>Carlos Costa, ISEG, Universidade de Lisboa</p>
-    <p>Carlos Ferr&aacute;s Sexto, Universidad de Santiago de Composte=
-la</p>
-    <p>Carlos Juiz, Universitat de les Illes Balears</p>
-    <p>David Fonseca, La Salle, Universitat Ramon Llull</p>
-    <p>Ernest Redondo, Universidad Polit&eacute;cnica de Catalunya</p>=
-
-    <p>Feliz Gouveia, Universidade Fernando Pessoa</p>
-    <p>Fernando Moreira, Universidade Portucalense</p>
-    <p>Fernando Ramos, Universidade de Aveiro</p>
-    <p>Francisco Restivo, Universidade Cat&oacute;lica Portuguesa</p>
-    <p>Gon&ccedil;alo Paiva Dias, Universidade de Aveiro</p>
-    <p>Gonzalo Cuevas Agustin, Universidad Polit&eacute;cnica de Madri=
-d</p>
-    <p>Jes&uacute;s Fraile Ardanuy, Universidad Polit&eacute;cnica de =
-Madrid</p>
-    <p>Jo&atilde;o Costa, Universidade de Coimbra</p>
-    <p>Jos&eacute; Antonio Calvo-Manzano Villal&oacute;n, Universidad =
-Polit&eacute;cnica de Madrid</p>
-    <p>Jos&eacute; Borbinha, IST, Universidade de Lisboa</p>
-    <p>Jose M. Molina, Universidad Carlos III de Madrid</p>
-    <p>Jose Machado, Universidade do Minho</p>
-    <p>Jo&atilde;o Manuel R.S. Tavares, FEUP, Universidade do Porto</p=
->
-    <p>Jos&eacute; Martins, Universidade de Tr&aacute;s-os-Montes e Al=
-to Douro</p>
-    <p>Luis Camarinha-Matos, Universidade Nova de Lisboa</p>
-    <p>Lu&iacute;s Paulo Reis, FEUP, Universidade do Porto</p>
-    <p>Manuel P&eacute;rez Cota, Universidad de Vigo</p>
-    <p>Marco Painho, NOVA IMS</p>
-    <p>M&aacute;rio Piattini, Universidad de Castilla-La Mancha</p>
-    <p>Martin Llamas Nistal, Universidad de Vigo</p>
-    <p>Miguel Ram&oacute;n Gonz&aacute;lez Castro, Ence, Energ&iacute;=
-a y Celulosa</p>
-    <p>Nelson Rocha, Universidade de Aveiro</p>
-    <p>&Oacute;scar Mealha, Universidade de Aveiro</p>
-    <p>Paulo Pinto, FC, Universidade Nova de Lisboa</p>
-    <p>Pedro S&aacute;nchez-Palma, Universidad Polit&eacute;cnica de C=
-artagena</p>
-    <p>Pilar Mareca, Universidad Polit&eacute;cnica de Madrid</p>
-    <p>Ramiro Gon&ccedil;alves, Universidade de Tr&aacute;s-os-Montes =
-e Alto Douro</p>
-    <p>Vitor Santos, NOVA IMS<br /></p>
-    <p><span style=3D"font-weight: bold">&nbsp;</span></p>
-    <p><span style=3D"font-weight: bold">CISTI'2020&nbsp;webpage</span=
->:&nbsp; <a href=3D"http://www.cisti.eu/">http://www.cisti.eu/</a><br =
-/><br /><br />Kind regards,<br /><br />CISTI'2020 Team<br /><a href=3D=
-"http://www.cisti.eu/">http://www.cisti.eu/</a><br /><br /></p>
-    <p>&nbsp;</p>
-    <p>&nbsp;</p>
-  </body>
-</html>
-
---Te3o81tfGA3HQp0=_seHeXGywqVu30hmsq--
-
-
---===============0521589544912762865==
-Content-Type: text/plain; charset="us-ascii"
-MIME-Version: 1.0
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-
-_______________________________________________
-Virtualization mailing list
-Virtualization@lists.linux-foundation.org
-https://lists.linuxfoundation.org/mailman/listinfo/virtualization
---===============0521589544912762865==--
+On Thu, Jan 23, 2020 at 10:21:09AM +0100, Thomas Zimmermann wrote:
+> At the end of a commit, atomic helpers can generate a VBLANK event
+> automatically. Originally implemented for writeback connectors, the
+> functionality can be used by any driver and/or hardware without proper
+> VBLANK interrupt.
+> 
+> The patch updates the documentation to make this behaviour official:
+> settings struct drm_crtc_state.no_vblank to true enables automatic
+> VBLANK generation.
+> 
+> The new interface drm_dev_has_vblank() returns true if vblanking has
+> been initialized for a device, or false otherwise. This function will
+> be useful when initializing no_vblank in the CRTC state.
+> 
+> Atomic modesetting helper set the initial value of no_vblank in
+> drm_atomic_helper_check_modeset(). If vblanking has been initialized
+> for a device, no_blank is disabled. Otherwise it's enabled. Hence,
+> atomic helpers will automatically send out VBLANK events with any
+> driver that did not initialize vblanking.
+> 
+> v4:
+> 	* replace drm_crtc_has_vblank() with drm_dev_has_vblank()
+> 	* add drm_dev_crtc_has_vblank() in this patch
+
+drm_dev_has_vblank I guess?
+
+> 	* move driver changes into separate patches
+> v3:
+> 	* squash all related changes patches into this patch
+> 
+> Signed-off-by: Thomas Zimmermann <tzimmermann@suse.de>
+> Acked-by: Gerd Hoffmann <kraxel@redhat.com>
+> ---
+>  drivers/gpu/drm/drm_atomic_helper.c | 10 +++++++++-
+>  drivers/gpu/drm/drm_vblank.c        | 28 ++++++++++++++++++++++++++++
+>  include/drm/drm_crtc.h              | 27 ++++++++++++++++++++-------
+>  include/drm/drm_simple_kms_helper.h |  7 +++++--
+>  include/drm/drm_vblank.h            |  1 +
+>  5 files changed, 63 insertions(+), 10 deletions(-)
+> 
+> diff --git a/drivers/gpu/drm/drm_atomic_helper.c b/drivers/gpu/drm/drm_atomic_helper.c
+> index 4511c2e07bb9..d7b73cd89b79 100644
+> --- a/drivers/gpu/drm/drm_atomic_helper.c
+> +++ b/drivers/gpu/drm/drm_atomic_helper.c
+> @@ -583,6 +583,7 @@ mode_valid(struct drm_atomic_state *state)
+>   * &drm_crtc_state.connectors_changed is set when a connector is added or
+>   * removed from the CRTC.  &drm_crtc_state.active_changed is set when
+>   * &drm_crtc_state.active changes, which is used for DPMS.
+> + * &drm_crtc_state.no_vblank is set from the result of drm_dev_has_vblank().
+>   * See also: drm_atomic_crtc_needs_modeset()
+>   *
+>   * IMPORTANT:
+> @@ -649,6 +650,11 @@ drm_atomic_helper_check_modeset(struct drm_device *dev,
+>  
+>  			return -EINVAL;
+>  		}
+> +
+> +		if (drm_dev_has_vblank(dev))
+> +			new_crtc_state->no_vblank = false;
+> +		else
+> +			new_crtc_state->no_vblank = true;
+>  	}
+>  
+>  	ret = handle_conflicting_encoders(state, false);
+> @@ -2215,7 +2221,9 @@ EXPORT_SYMBOL(drm_atomic_helper_wait_for_dependencies);
+>   * when a job is queued, and any change to the pipeline that does not touch the
+>   * connector is leading to timeouts when calling
+>   * drm_atomic_helper_wait_for_vblanks() or
+> - * drm_atomic_helper_wait_for_flip_done().
+> + * drm_atomic_helper_wait_for_flip_done(). In addition to writeback
+> + * connectors, this function can also fake VBLANK events for CRTCs without
+> + * VBLANK interrupt.
+>   *
+>   * This is part of the atomic helper support for nonblocking commits, see
+>   * drm_atomic_helper_setup_commit() for an overview.
+> diff --git a/drivers/gpu/drm/drm_vblank.c b/drivers/gpu/drm/drm_vblank.c
+> index 1659b13b178c..433dec6230b1 100644
+> --- a/drivers/gpu/drm/drm_vblank.c
+> +++ b/drivers/gpu/drm/drm_vblank.c
+> @@ -69,6 +69,12 @@
+>   * &drm_driver.max_vblank_count. In that case the vblank core only disables the
+>   * vblanks after a timer has expired, which can be configured through the
+>   * ``vblankoffdelay`` module parameter.
+> + *
+> + * Drivers for hardware without support for vertical-blanking interrupts
+> + * must not call drm_vblank_init(). For such drivers, atomic helpers will
+> + * automatically generate vblank events as part of the display update. This
+> + * functionality also can be controlled by the driver by enabling and disabling
+> + * struct drm_crtc_state.no_vblank.
+>   */
+>  
+>  /* Retry timestamp calculation up to 3 times to satisfy
+> @@ -501,6 +507,28 @@ int drm_vblank_init(struct drm_device *dev, unsigned int num_crtcs)
+>  }
+>  EXPORT_SYMBOL(drm_vblank_init);
+>  
+> +/**
+> + * drm_dev_has_vblank - test if vblanking has been initialized for
+> + *                      a device
+> + * @dev: the device
+> + *
+> + * Drivers may call this function to test if vblank support is
+> + * initialized for a device. For most hardware this means that vblanking
+> + * can also be enabled.
+> + *
+> + * Atomic helpers use this function to initialize
+> + * &drm_crtc_state.no_vblank. See also drm_atomic_helper_check_modeset().
+> + *
+> + * Returns:
+> + * True if vblanking has been initialized for the given device, false
+> + * otherwise.
+> + */
+> +bool drm_dev_has_vblank(const struct drm_device *dev)
+> +{
+> +	return dev->num_crtcs != 0;
+> +}
+> +EXPORT_SYMBOL(drm_dev_has_vblank);
+> +
+>  /**
+>   * drm_crtc_vblank_waitqueue - get vblank waitqueue for the CRTC
+>   * @crtc: which CRTC's vblank waitqueue to retrieve
+> diff --git a/include/drm/drm_crtc.h b/include/drm/drm_crtc.h
+> index 5e9b15a0e8c5..5363e31c9abe 100644
+> --- a/include/drm/drm_crtc.h
+> +++ b/include/drm/drm_crtc.h
+> @@ -174,12 +174,22 @@ struct drm_crtc_state {
+>  	 * @no_vblank:
+>  	 *
+>  	 * Reflects the ability of a CRTC to send VBLANK events. This state
+> -	 * usually depends on the pipeline configuration, and the main usuage
+> -	 * is CRTCs feeding a writeback connector operating in oneshot mode.
+> -	 * In this case the VBLANK event is only generated when a job is queued
+> -	 * to the writeback connector, and we want the core to fake VBLANK
+> -	 * events when this part of the pipeline hasn't changed but others had
+> -	 * or when the CRTC and connectors are being disabled.
+> +	 * usually depends on the pipeline configuration. If set to true, DRM
+> +	 * atomic helpers will sendout a fake VBLANK event during display
+
+s/sendout/ send out/
+
+> +	 * updates.
+
+maby add "... updates, after all hardware changes have been committed.
+This is implemented in drm_atomic_helper_fake_vblank()."
+
+That at least reflects the default behaviour.
+
+> +	 *
+> +	 * One usage is for drivers and/or hardware without support for VBLANK
+> +	 * interrupts. Such drivers typically do not initialize vblanking
+> +	 * (i.e., call drm_vblank_init() wit the number of CRTCs). For CRTCs
+
+s/wit/with/
+
+> +	 * without initialized vblanking, the field is initialized to true and
+
+"initialized to true" is a bit a stretch, since this is done in the
+helpers. Maybe instead "... this field is set to true in
+drm_atomic_helper_check_modeset() and ..."
+
+> +	 * a VBLANK event will be send out on each update of the display
+> +	 * pipeline.
+
+Maybe also reiterate that this is done through
+drm_atomic_helper_fake_vblank() again? Imo for stuff done by helpers it's
+important to highligh where that's done, since it's all opt-in (even if
+most drivers will opt-in automatically).
+
+> +	 *
+> +	 * Another usage is CRTCs feeding a writeback connector operating in
+> +	 * oneshot mode. In this case the VBLANK event is only generated when
+> +	 * a job is queued to the writeback connector, and we want the core
+> +	 * to fake VBLANK events when this part of the pipeline hasn't changed
+> +	 * but others had or when the CRTC and connectors are being disabled.
+>  	 *
+>  	 * __drm_atomic_helper_crtc_duplicate_state() will not reset the value
+>  	 * from the current state, the CRTC driver is then responsible for
+> @@ -335,7 +345,10 @@ struct drm_crtc_state {
+>  	 *  - Events for disabled CRTCs are not allowed, and drivers can ignore
+>  	 *    that case.
+>  	 *
+> -	 * This can be handled by the drm_crtc_send_vblank_event() function,
+> +	 * For very simple hardware without VBLANK interrupt, enabling
+> +	 * &struct drm_crtc_state.no_vblank makes DRM's atomic commit helpers
+> +	 * send the event at an appropriate time. For more complex hardware this
+> +	 * can be handled by the drm_crtc_send_vblank_event() function,
+>  	 * which the driver should call on the provided event upon completion of
+>  	 * the atomic commit. Note that if the driver supports vblank signalling
+>  	 * and timestamping the vblank counters and timestamps must agree with
+> diff --git a/include/drm/drm_simple_kms_helper.h b/include/drm/drm_simple_kms_helper.h
+> index 15afee9cf049..e253ba7bea9d 100644
+> --- a/include/drm/drm_simple_kms_helper.h
+> +++ b/include/drm/drm_simple_kms_helper.h
+> @@ -100,8 +100,11 @@ struct drm_simple_display_pipe_funcs {
+>  	 * This is the function drivers should submit the
+>  	 * &drm_pending_vblank_event from. Using either
+>  	 * drm_crtc_arm_vblank_event(), when the driver supports vblank
+> -	 * interrupt handling, or drm_crtc_send_vblank_event() directly in case
+> -	 * the hardware lacks vblank support entirely.
+> +	 * interrupt handling, or drm_crtc_send_vblank_event() for more
+> +	 * complex case. In case the hardware lacks vblank support entirely,
+> +	 * drivers can set &struct drm_crtc_state.no_vblank in
+> +	 * &struct drm_simple_display_pipe_funcs.check and let DRM's
+> +	 * atomic helper fake a vblank event.
+>  	 */
+>  	void (*update)(struct drm_simple_display_pipe *pipe,
+>  		       struct drm_plane_state *old_plane_state);
+> diff --git a/include/drm/drm_vblank.h b/include/drm/drm_vblank.h
+> index c16c44052b3d..94275e93fd27 100644
+> --- a/include/drm/drm_vblank.h
+> +++ b/include/drm/drm_vblank.h
+> @@ -206,6 +206,7 @@ struct drm_vblank_crtc {
+>  };
+>  
+>  int drm_vblank_init(struct drm_device *dev, unsigned int num_crtcs);
+> +bool drm_dev_has_vblank(const struct drm_device *dev);
+>  u64 drm_crtc_vblank_count(struct drm_crtc *crtc);
+>  u64 drm_crtc_vblank_count_and_time(struct drm_crtc *crtc,
+>  				   ktime_t *vblanktime);
+
+With the doc nits addressed:
+
+Reviewed-by: Daniel Vetter <daniel.vetter@ffwll.ch>
+
+> -- 
+> 2.24.1
+> 
+
+-- 
+Daniel Vetter
+Software Engineer, Intel Corporation
+http://blog.ffwll.ch
