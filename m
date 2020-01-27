@@ -1,100 +1,65 @@
-From: Daniel Vetter <daniel@ffwll.ch>
-Subject: Re: [PATCH v4 15/15] drm/xen: Explicitly disable automatic sending
- of vblank event
-Date: Mon, 27 Jan 2020 10:47:41 +0100
-Message-ID: <20200127094741.GA43062@phenom.ffwll.local>
+From: Oleksandr Andrushchenko <Oleksandr_Andrushchenko@epam.com>
+Subject: Re: [PATCH v4 15/15] drm/xen: Explicitly disable
+ automatic sending of vblank event
+Date: Mon, 27 Jan 2020 09:53:43 +0000
+Message-ID: <74d7bb19-642f-49da-8198-56ea0c0d1a4a@epam.com>
 References: <20200123092123.28368-1-tzimmermann@suse.de>
  <20200123092123.28368-16-tzimmermann@suse.de>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
-Content-Transfer-Encoding: 7bit
-Return-path: <virtualization-bounces@lists.linux-foundation.org>
-Content-Disposition: inline
+Content-Type: text/plain; charset="utf-8"
+Content-Transfer-Encoding: base64
+Return-path: <xen-devel-bounces@lists.xenproject.org>
 In-Reply-To: <20200123092123.28368-16-tzimmermann@suse.de>
-List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
- <mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
-List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
-List-Post: <mailto:virtualization@lists.linux-foundation.org>
-List-Help: <mailto:virtualization-request@lists.linux-foundation.org?subject=help>
-List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualization>,
- <mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
-Errors-To: virtualization-bounces@lists.linux-foundation.org
-Sender: "Virtualization" <virtualization-bounces@lists.linux-foundation.org>
-To: Thomas Zimmermann <tzimmermann@suse.de>
-Cc: david@lechnology.com, oleksandr_andrushchenko@epam.com, airlied@linux.ie, sam@ravnborg.org, dri-devel@lists.freedesktop.org, maarten.lankhorst@linux.intel.com, mripard@kernel.org, virtualization@lists.linux-foundation.org, hdegoede@redhat.com, noralf@tronnes.org, daniel@ffwll.ch, xen-devel@lists.xenproject.org, emil.velikov@collabora.com, sean@poorly.run, laurent.pinchart@ideasonboard.com
+Content-Language: en-US
+Content-ID: <84886D4E7E176148849DECB160B2BB3C@eurprd03.prod.outlook.com>
+List-Unsubscribe: <https://lists.xenproject.org/mailman/options/xen-devel>,
+ <mailto:xen-devel-request@lists.xenproject.org?subject=unsubscribe>
+List-Post: <mailto:xen-devel@lists.xenproject.org>
+List-Help: <mailto:xen-devel-request@lists.xenproject.org?subject=help>
+List-Subscribe: <https://lists.xenproject.org/mailman/listinfo/xen-devel>,
+ <mailto:xen-devel-request@lists.xenproject.org?subject=subscribe>
+Errors-To: xen-devel-bounces@lists.xenproject.org
+Sender: "Xen-devel" <xen-devel-bounces@lists.xenproject.org>
+To: Thomas Zimmermann <tzimmermann@suse.de>, "airlied@linux.ie" <airlied@linux.ie>, "daniel@ffwll.ch" <daniel@ffwll.ch>, "kraxel@redhat.com" <kraxel@redhat.com>, "maarten.lankhorst@linux.intel.com" <maarten.lankhorst@linux.intel.com>, "mripard@kernel.org" <mripard@kernel.org>, "hdegoede@redhat.com" <hdegoede@redhat.com>, "david@lechnology.com" <david@lechnology.com>, "noralf@tronnes.org" <noralf@tronnes.org>, "sean@poorly.run" <sean@poorly.run>, "sam@ravnborg.org" <sam@ravnborg.org>, "laurent.pinchart@ideasonboard.com" <laurent.pinchart@ideasonboard.com>, "emil.velikov@collabora.com" <emil.velikov@collabora.com>
+Cc: "xen-devel@lists.xenproject.org" <xen-devel@lists.xenproject.org>, "dri-devel@lists.freedesktop.org" <dri-devel@lists.freedesktop.org>, "virtualization@lists.linux-foundation.org" <virtualization@lists.linux-foundation.org>
 List-Id: virtualization@lists.linuxfoundation.org
 
-On Thu, Jan 23, 2020 at 10:21:23AM +0100, Thomas Zimmermann wrote:
-> The atomic helpers automatically send out fake VBLANK events if no
-> vblanking has been initialized. This would apply to xen, but xen has
-> its own vblank logic. To avoid interfering with the atomic helpers,
-> disable automatic vblank events explictly.
-> 
-> v4:
-> 	* separate commit from core vblank changes
-> 
-> Signed-off-by: Thomas Zimmermann <tzimmermann@suse.de>
-> Acked-by: Gerd Hoffmann <kraxel@redhat.com>
-
-On all the driver patches:
-
-Reviewed-by: Daniel Vetter <daniel.vetter@ffwll.ch>
-
-> ---
->  drivers/gpu/drm/xen/xen_drm_front_kms.c | 13 +++++++++++++
->  1 file changed, 13 insertions(+)
-> 
-> diff --git a/drivers/gpu/drm/xen/xen_drm_front_kms.c b/drivers/gpu/drm/xen/xen_drm_front_kms.c
-> index 4f34c5208180..efde4561836f 100644
-> --- a/drivers/gpu/drm/xen/xen_drm_front_kms.c
-> +++ b/drivers/gpu/drm/xen/xen_drm_front_kms.c
-> @@ -220,6 +220,18 @@ static bool display_send_page_flip(struct drm_simple_display_pipe *pipe,
->  	return false;
->  }
->  
-> +static int display_check(struct drm_simple_display_pipe *pipe,
-> +			 struct drm_plane_state *plane_state,
-> +			 struct drm_crtc_state *crtc_state)
-> +{
-> +	/* Make sure that DRM helpers don't send VBLANK events
-> +	 * automatically. Xen has it's own logic to do so.
-> +	 */
-> +	crtc_state->no_vblank = false;
-
-So this here is strictly speaking dead code, because the fake_vblank
-helper makes sure to only send out the event if it hasn't been processed
-yet.
-
-Which is a bit awkward, since it does this silently, potentially hiding
-bugs. We already have a warning that complains if a crtc_state->event
-hasn't been processed at all. But with the auto-vblank stuff here we kinda
-defeat that a bit ... I think adding a WARN_ON in fake_vblank that fires
-if no_vblank is set, but the event is somehow gone, would be really
-useful. That would point at some serious driver snafu ...
-
-Care to throw that on top?
--Daniel
-
-> +
-> +	return 0;
-> +}
-> +
->  static void display_update(struct drm_simple_display_pipe *pipe,
->  			   struct drm_plane_state *old_plane_state)
->  {
-> @@ -284,6 +296,7 @@ static const struct drm_simple_display_pipe_funcs display_funcs = {
->  	.enable = display_enable,
->  	.disable = display_disable,
->  	.prepare_fb = drm_gem_fb_simple_display_pipe_prepare_fb,
-> +	.check = display_check,
->  	.update = display_update,
->  };
->  
-> -- 
-> 2.24.1
-> 
-
--- 
-Daniel Vetter
-Software Engineer, Intel Corporation
-http://blog.ffwll.ch
+U29ycnkgZm9yIGp1bXBpbmcgaW4gbGF0ZQ0KDQpPbiAxLzIzLzIwIDExOjIxIEFNLCBUaG9tYXMg
+WmltbWVybWFubiB3cm90ZToNCj4gVGhlIGF0b21pYyBoZWxwZXJzIGF1dG9tYXRpY2FsbHkgc2Vu
+ZCBvdXQgZmFrZSBWQkxBTksgZXZlbnRzIGlmIG5vDQo+IHZibGFua2luZyBoYXMgYmVlbiBpbml0
+aWFsaXplZC4gVGhpcyB3b3VsZCBhcHBseSB0byB4ZW4sIGJ1dCB4ZW4gaGFzDQo+IGl0cyBvd24g
+dmJsYW5rIGxvZ2ljLiBUbyBhdm9pZCBpbnRlcmZlcmluZyB3aXRoIHRoZSBhdG9taWMgaGVscGVy
+cywNCj4gZGlzYWJsZSBhdXRvbWF0aWMgdmJsYW5rIGV2ZW50cyBleHBsaWN0bHkuDQo+DQo+IHY0
+Og0KPiAJKiBzZXBhcmF0ZSBjb21taXQgZnJvbSBjb3JlIHZibGFuayBjaGFuZ2VzDQo+DQo+IFNp
+Z25lZC1vZmYtYnk6IFRob21hcyBaaW1tZXJtYW5uIDx0emltbWVybWFubkBzdXNlLmRlPg0KPiBB
+Y2tlZC1ieTogR2VyZCBIb2ZmbWFubiA8a3JheGVsQHJlZGhhdC5jb20+DQpSZXZpZXdlZC1ieTog
+T2xla3NhbmRyIEFuZHJ1c2hjaGVua28gPG9sZWtzYW5kcl9hbmRydXNoY2hlbmtvQGVwYW0uY29t
+Pg0KDQo+IC0tLQ0KPiAgIGRyaXZlcnMvZ3B1L2RybS94ZW4veGVuX2RybV9mcm9udF9rbXMuYyB8
+IDEzICsrKysrKysrKysrKysNCj4gICAxIGZpbGUgY2hhbmdlZCwgMTMgaW5zZXJ0aW9ucygrKQ0K
+Pg0KPiBkaWZmIC0tZ2l0IGEvZHJpdmVycy9ncHUvZHJtL3hlbi94ZW5fZHJtX2Zyb250X2ttcy5j
+IGIvZHJpdmVycy9ncHUvZHJtL3hlbi94ZW5fZHJtX2Zyb250X2ttcy5jDQo+IGluZGV4IDRmMzRj
+NTIwODE4MC4uZWZkZTQ1NjE4MzZmIDEwMDY0NA0KPiAtLS0gYS9kcml2ZXJzL2dwdS9kcm0veGVu
+L3hlbl9kcm1fZnJvbnRfa21zLmMNCj4gKysrIGIvZHJpdmVycy9ncHUvZHJtL3hlbi94ZW5fZHJt
+X2Zyb250X2ttcy5jDQo+IEBAIC0yMjAsNiArMjIwLDE4IEBAIHN0YXRpYyBib29sIGRpc3BsYXlf
+c2VuZF9wYWdlX2ZsaXAoc3RydWN0IGRybV9zaW1wbGVfZGlzcGxheV9waXBlICpwaXBlLA0KPiAg
+IAlyZXR1cm4gZmFsc2U7DQo+ICAgfQ0KPiAgIA0KPiArc3RhdGljIGludCBkaXNwbGF5X2NoZWNr
+KHN0cnVjdCBkcm1fc2ltcGxlX2Rpc3BsYXlfcGlwZSAqcGlwZSwNCj4gKwkJCSBzdHJ1Y3QgZHJt
+X3BsYW5lX3N0YXRlICpwbGFuZV9zdGF0ZSwNCj4gKwkJCSBzdHJ1Y3QgZHJtX2NydGNfc3RhdGUg
+KmNydGNfc3RhdGUpDQo+ICt7DQo+ICsJLyogTWFrZSBzdXJlIHRoYXQgRFJNIGhlbHBlcnMgZG9u
+J3Qgc2VuZCBWQkxBTksgZXZlbnRzDQpDb3VsZCB5b3UgcGxlYXNlIHB1dCB0aGUgY29tbWVudCBv
+biBhIHNlcGFyYXRlIGxpbmU/DQo+ICsJICogYXV0b21hdGljYWxseS4gWGVuIGhhcyBpdCdzIG93
+biBsb2dpYyB0byBkbyBzby4NCj4gKwkgKi8NCj4gKwljcnRjX3N0YXRlLT5ub192YmxhbmsgPSBm
+YWxzZTsNCkFuZCBpdCBpcyBzdGlsbCBjb25mdXNpbmcsIGUuZy4gY29tbWVudCBzYXlzDQoiTWFr
+ZSBzdXJlIHRoYXQgRFJNIGhlbHBlcnMgZG9uJ3Qgc2VuZCBWQkxBTksiDQphbmQgd2Ugc2V0ICJu
+b192YmxhbmsiIGZsYWcgdG8gZmFsc2UuLi4NCj4gKw0KPiArCXJldHVybiAwOw0KPiArfQ0KPiAr
+DQo+ICAgc3RhdGljIHZvaWQgZGlzcGxheV91cGRhdGUoc3RydWN0IGRybV9zaW1wbGVfZGlzcGxh
+eV9waXBlICpwaXBlLA0KPiAgIAkJCSAgIHN0cnVjdCBkcm1fcGxhbmVfc3RhdGUgKm9sZF9wbGFu
+ZV9zdGF0ZSkNCj4gICB7DQo+IEBAIC0yODQsNiArMjk2LDcgQEAgc3RhdGljIGNvbnN0IHN0cnVj
+dCBkcm1fc2ltcGxlX2Rpc3BsYXlfcGlwZV9mdW5jcyBkaXNwbGF5X2Z1bmNzID0gew0KPiAgIAku
+ZW5hYmxlID0gZGlzcGxheV9lbmFibGUsDQo+ICAgCS5kaXNhYmxlID0gZGlzcGxheV9kaXNhYmxl
+LA0KPiAgIAkucHJlcGFyZV9mYiA9IGRybV9nZW1fZmJfc2ltcGxlX2Rpc3BsYXlfcGlwZV9wcmVw
+YXJlX2ZiLA0KPiArCS5jaGVjayA9IGRpc3BsYXlfY2hlY2ssDQo+ICAgCS51cGRhdGUgPSBkaXNw
+bGF5X3VwZGF0ZSwNCj4gICB9Ow0KPiAgIA0KX19fX19fX19fX19fX19fX19fX19fX19fX19fX19f
+X19fX19fX19fX19fX19fX18KWGVuLWRldmVsIG1haWxpbmcgbGlzdApYZW4tZGV2ZWxAbGlzdHMu
+eGVucHJvamVjdC5vcmcKaHR0cHM6Ly9saXN0cy54ZW5wcm9qZWN0Lm9yZy9tYWlsbWFuL2xpc3Rp
+bmZvL3hlbi1kZXZlbA==
