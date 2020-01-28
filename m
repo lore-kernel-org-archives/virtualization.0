@@ -1,188 +1,67 @@
-From: Thomas Zimmermann <tzimmermann@suse.de>
-Subject: Re: [PATCH v4 01/15] drm: Initialize struct drm_crtc_state.no_vblank
- from device settings
-Date: Mon, 27 Jan 2020 19:42:27 +0100
-Message-ID: <183782e6-164c-bae8-90e0-906edb059a1d@suse.de>
-References: <20200123092123.28368-1-tzimmermann@suse.de>
- <20200123092123.28368-2-tzimmermann@suse.de>
- <CACvgo53YvKjPNNshZoTjJehHyOX6e05kJ5gAXtjwxs+oLLv7vw@mail.gmail.com>
+From: Dan Carpenter <dan.carpenter@oracle.com>
+Subject: Re: [PATCH 5/5] vdpasim: vDPA device simulator
+Date: Tue, 28 Jan 2020 06:32:15 +0300
+Message-ID: <20200128033215.GO1870@kadam>
+References: <20200116124231.20253-6-jasowang@redhat.com>
 Mime-Version: 1.0
-Content-Type: multipart/mixed; boundary="===============8148662793110252667=="
-Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <CACvgo53YvKjPNNshZoTjJehHyOX6e05kJ5gAXtjwxs+oLLv7vw@mail.gmail.com>
-List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
- <mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
-List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
-List-Post: <mailto:virtualization@lists.linux-foundation.org>
-List-Help: <mailto:virtualization-request@lists.linux-foundation.org?subject=help>
-List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualization>,
- <mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
-Errors-To: virtualization-bounces@lists.linux-foundation.org
-Sender: "Virtualization" <virtualization-bounces@lists.linux-foundation.org>
-To: Emil Velikov <emil.l.velikov@gmail.com>
-Cc: david@lechnology.com, oleksandr_andrushchenko@epam.com, Dave Airlie <airlied@linux.ie>, Sam Ravnborg <sam@ravnborg.org>, ML dri-devel <dri-devel@lists.freedesktop.org>, Maarten Lankhorst <maarten.lankhorst@linux.intel.com>, Maxime Ripard <mripard@kernel.org>, "open list:VIRTIO GPU DRIVER" <virtualization@lists.linux-foundation.org>, Hans de Goede <hdegoede@redhat.com>, =?UTF-8?Q?Noralf_Tr=c3=b8nnes?= <noralf@tronnes.org>, Daniel Vetter <daniel@ffwll.ch>, xen-devel@lists.xenproject.org, Emil Velikov <emil.velikov@collabora.com>, Sean Paul <sean@poorly.run>, Laurent Pinchart <laurent.pinchart@ideasonboard.com>
+Content-Type: text/plain; charset="us-ascii"
+Content-Transfer-Encoding: 7bit
+Return-path: <kbuild-bounces@lists.01.org>
+Content-Disposition: inline
+In-Reply-To: <20200116124231.20253-6-jasowang@redhat.com>
+List-Archive: <https://lists.01.org/hyperkitty/list/kbuild@lists.01.org/>
+List-Help: <mailto:kbuild-request@lists.01.org?subject=help>
+List-Post: <mailto:kbuild@lists.01.org>
+List-Subscribe: <mailto:kbuild-join@lists.01.org>
+List-Unsubscribe: <mailto:kbuild-leave@lists.01.org>
+To: kbuild@lists.01.org
+Cc: kbuild-all@lists.01.org, mst@redhat.com, jasowang@redhat.com, linux-kernel@vger.kernel.org, kvm@vger.kernel.org, virtualization@lists.linux-foundation.org, netdev@vger.kernel.org, tiwei.bie@intel.com, jgg@mellanox.com, maxime.coquelin@redhat.com, cunming.liang@intel.com, zhihong.wang@intel.com, rob.miller@broadcom.com, xiao.w.wang@intel.com, haotian.wang@sifive.com, lingshan.zhu@intel.com, eperezma@redhat.com, lulu@redhat.com, parav@mellanox.com, kevin.tian@intel.com, stefanha@redhat.com, rdunlap@infradead.org, hch@infradead.org, aadam@redhat.com, jakub.kicinski@netronome.com, jiri@mellanox.com, shahafs@mellanox.com, hanand@xilinx.com, mhabets@solarflare.com
 List-Id: virtualization@lists.linuxfoundation.org
 
-This is an OpenPGP/MIME signed message (RFC 4880 and 3156)
---===============8148662793110252667==
-Content-Type: multipart/signed; micalg=pgp-sha256;
- protocol="application/pgp-signature";
- boundary="xOxj5EAc8eozWsu9aetd70iPvMav8MAEx"
+Hi Jason,
 
-This is an OpenPGP/MIME signed message (RFC 4880 and 3156)
---xOxj5EAc8eozWsu9aetd70iPvMav8MAEx
-Content-Type: multipart/mixed; boundary="plrgK2rFyOclW2N2pxB9OddQThC5DZIA4";
- protected-headers="v1"
-From: Thomas Zimmermann <tzimmermann@suse.de>
-To: Emil Velikov <emil.l.velikov@gmail.com>
-Cc: Dave Airlie <airlied@linux.ie>, Daniel Vetter <daniel@ffwll.ch>,
- Gerd Hoffmann <kraxel@redhat.com>,
- Maarten Lankhorst <maarten.lankhorst@linux.intel.com>,
- Maxime Ripard <mripard@kernel.org>, Hans de Goede <hdegoede@redhat.com>,
- david@lechnology.com, =?UTF-8?Q?Noralf_Tr=c3=b8nnes?= <noralf@tronnes.org>,
- Sean Paul <sean@poorly.run>, oleksandr_andrushchenko@epam.com,
- Sam Ravnborg <sam@ravnborg.org>,
- Laurent Pinchart <laurent.pinchart@ideasonboard.com>,
- Emil Velikov <emil.velikov@collabora.com>, xen-devel@lists.xenproject.org,
- ML dri-devel <dri-devel@lists.freedesktop.org>,
- "open list:VIRTIO GPU DRIVER" <virtualization@lists.linux-foundation.org>
-Message-ID: <183782e6-164c-bae8-90e0-906edb059a1d@suse.de>
-Subject: Re: [PATCH v4 01/15] drm: Initialize struct drm_crtc_state.no_vblank
- from device settings
-References: <20200123092123.28368-1-tzimmermann@suse.de>
- <20200123092123.28368-2-tzimmermann@suse.de>
- <CACvgo53YvKjPNNshZoTjJehHyOX6e05kJ5gAXtjwxs+oLLv7vw@mail.gmail.com>
-In-Reply-To: <CACvgo53YvKjPNNshZoTjJehHyOX6e05kJ5gAXtjwxs+oLLv7vw@mail.gmail.com>
+url:    https://github.com/0day-ci/linux/commits/Jason-Wang/vDPA-support/20200117-170243
+base:   https://git.kernel.org/pub/scm/linux/kernel/git/mst/vhost.git linux-next
 
---plrgK2rFyOclW2N2pxB9OddQThC5DZIA4
-Content-Type: text/plain; charset=utf-8
-Content-Language: en-US
-Content-Transfer-Encoding: quoted-printable
+If you fix the issue, kindly add following tag
+Reported-by: kbuild test robot <lkp@intel.com>
+Reported-by: Dan Carpenter <dan.carpenter@oracle.com>
 
-Hi Emil
+smatch warnings:
+drivers/virtio/vdpa/vdpa_sim.c:288 vdpasim_alloc_coherent() warn: returning freed memory 'addr'
 
-Am 27.01.20 um 19:12 schrieb Emil Velikov:
-> Hi Thomas,
->=20
-> On Thu, 23 Jan 2020 at 09:21, Thomas Zimmermann <tzimmermann@suse.de> w=
-rote:
->=20
->> @@ -174,12 +174,22 @@ struct drm_crtc_state {
->>          * @no_vblank:
->>          *
->>          * Reflects the ability of a CRTC to send VBLANK events. This =
-state
->> -        * usually depends on the pipeline configuration, and the main=
- usuage
->> -        * is CRTCs feeding a writeback connector operating in oneshot=
- mode.
->> -        * In this case the VBLANK event is only generated when a job =
-is queued
->> -        * to the writeback connector, and we want the core to fake VB=
-LANK
->> -        * events when this part of the pipeline hasn't changed but ot=
-hers had
->> -        * or when the CRTC and connectors are being disabled.
->> +        * usually depends on the pipeline configuration. If set to tr=
-ue, DRM
->> +        * atomic helpers will sendout a fake VBLANK event during disp=
-lay
->> +        * updates.
->> +        *
->> +        * One usage is for drivers and/or hardware without support fo=
-r VBLANK
->> +        * interrupts. Such drivers typically do not initialize vblank=
-ing
->> +        * (i.e., call drm_vblank_init() wit the number of CRTCs). For=
- CRTCs
->> +        * without initialized vblanking, the field is initialized to =
-true and
->> +        * a VBLANK event will be send out on each update of the displ=
-ay
->> +        * pipeline.
->> +        *
->> +        * Another usage is CRTCs feeding a writeback connector operat=
-ing in
->> +        * oneshot mode. In this case the VBLANK event is only generat=
-ed when
->> +        * a job is queued to the writeback connector, and we want the=
- core
->> +        * to fake VBLANK events when this part of the pipeline hasn't=
- changed
->> +        * but others had or when the CRTC and connectors are being di=
-sabled.
->>          *
->=20
-> Perhaps it's just me, yet the following ideas would make the topic
-> significantly easier and clearer.
->=20
->  - adding explicit "fake" when talking about drm/atomic _helpers_
-> generating/sending a VBLANK event.
-> For example, in 15/15 the commit message says "fake", while inline
-> comment omits it... Leading to the confusion pointed out.
+# https://github.com/0day-ci/linux/commit/55047769b3e974d68b2aab5ce0022459b172a23f
+git remote add linux-review https://github.com/0day-ci/linux
+git remote update linux-review
+git checkout 55047769b3e974d68b2aab5ce0022459b172a23f
+vim +/addr +288 drivers/virtio/vdpa/vdpa_sim.c
 
-No problem on being more precise here. I'll update the docs accordingly.
-
->=20
-> - s/no_vblank/fake_vblank/g or s/no_vblank/no_hw_vblank/g
-> Simple and concise. With slight inclination towards the former wording =
-:-)
-
-I'd prefer to not change the field's name. The current name 'no_vblank'
-indicates state and lets helpers decide what to do with it. The name
-'fake_vblank' indicates an instruction to the helpers, telling them what
-to do. It does neither seem to fit into drm_crtc_state, nor into the
-overall concept.
-
-Best regards
-Thomas
-
->=20
-> If you and Daniel agree with the rename, then the first sentence of
-> the description should probably be tweaked.
->=20
-> HTH
-> Emil
->=20
-
---=20
-Thomas Zimmermann
-Graphics Driver Developer
-SUSE Software Solutions Germany GmbH
-Maxfeldstr. 5, 90409 N=C3=BCrnberg, Germany
-(HRB 36809, AG N=C3=BCrnberg)
-Gesch=C3=A4ftsf=C3=BChrer: Felix Imend=C3=B6rffer
-
-
---plrgK2rFyOclW2N2pxB9OddQThC5DZIA4--
-
---xOxj5EAc8eozWsu9aetd70iPvMav8MAEx
-Content-Type: application/pgp-signature; name="signature.asc"
-Content-Description: OpenPGP digital signature
-Content-Disposition: attachment; filename="signature.asc"
-
------BEGIN PGP SIGNATURE-----
-
-iQEzBAEBCAAdFiEEchf7rIzpz2NEoWjlaA3BHVMLeiMFAl4vLxMACgkQaA3BHVML
-eiMniQgAoMHRhI6ErQBZBW15wxr+4WFi1xiReRxPUJNhDs1YsUJvsMwE0AXBHbkh
-j5lmVFmbd5rv/EMgDYibBpMVY/zAL1EYuuqxdEVS6YmhH63SUWNtIvcfnIakofEK
-2MvRXne7UCX1Nh0l1vxr3iYailXChIGSC4FLQb3SrgDUGKGZw+pBEIH+7w4hwXOY
-yVIPmaCLUXIcjBX1Wu6CA0IP2BinpAVa+6lpUJ7H2628CVTzwV5p7VyZhtEUawlJ
-KR4W0gb1z864Biqs0IA2Ukp7WKHY51L96JhqwWofJULi5xIsmFptyW/gVND3MBW8
-O0CfSFppbmZQhlT+vO3wof3qZmTbGg==
-=b1dk
------END PGP SIGNATURE-----
-
---xOxj5EAc8eozWsu9aetd70iPvMav8MAEx--
-
---===============8148662793110252667==
-Content-Type: text/plain; charset="us-ascii"
-MIME-Version: 1.0
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-
-_______________________________________________
-Virtualization mailing list
-Virtualization@lists.linux-foundation.org
-https://lists.linuxfoundation.org/mailman/listinfo/virtualization
---===============8148662793110252667==--
+55047769b3e974 Jason Wang 2020-01-16  263  static void *vdpasim_alloc_coherent(struct device *dev, size_t size,
+55047769b3e974 Jason Wang 2020-01-16  264  				    dma_addr_t *dma_addr, gfp_t flag,
+55047769b3e974 Jason Wang 2020-01-16  265  				    unsigned long attrs)
+55047769b3e974 Jason Wang 2020-01-16  266  {
+55047769b3e974 Jason Wang 2020-01-16  267  	struct vdpa_device *vdpa = dev_to_vdpa(dev);
+55047769b3e974 Jason Wang 2020-01-16  268  	struct vdpasim *vdpasim = vdpa_to_sim(vdpa);
+55047769b3e974 Jason Wang 2020-01-16  269  	struct vhost_iotlb *iommu = vdpasim->iommu;
+55047769b3e974 Jason Wang 2020-01-16  270  	void *addr = kmalloc(size, flag);
+55047769b3e974 Jason Wang 2020-01-16  271  	int ret;
+55047769b3e974 Jason Wang 2020-01-16  272  
+55047769b3e974 Jason Wang 2020-01-16  273  	if (!addr)
+55047769b3e974 Jason Wang 2020-01-16  274  		*dma_addr = DMA_MAPPING_ERROR;
+55047769b3e974 Jason Wang 2020-01-16  275  	else {
+55047769b3e974 Jason Wang 2020-01-16  276  		u64 pa = virt_to_phys(addr);
+55047769b3e974 Jason Wang 2020-01-16  277  
+55047769b3e974 Jason Wang 2020-01-16  278  		ret = vhost_iotlb_add_range(iommu, (u64)pa,
+55047769b3e974 Jason Wang 2020-01-16  279  					    (u64)pa + size - 1,
+55047769b3e974 Jason Wang 2020-01-16  280  					    pa, VHOST_MAP_RW);
+55047769b3e974 Jason Wang 2020-01-16  281  		if (ret) {
+55047769b3e974 Jason Wang 2020-01-16  282  			kfree(addr);
+                                                                ^^^^^^^^^^^
+55047769b3e974 Jason Wang 2020-01-16  283  			*dma_addr = DMA_MAPPING_ERROR;
+55047769b3e974 Jason Wang 2020-01-16  284  		} else
+55047769b3e974 Jason Wang 2020-01-16  285  			*dma_addr = (dma_addr_t)pa;
+55047769b3e974 Jason Wang 2020-01-16  286  	}
+55047769b3e974 Jason Wang 2020-01-16  287  
+55047769b3e974 Jason Wang 2020-01-16 @288  	return addr;
+                                                ^^^^^^^^^^^^
+55047769b3e974 Jason Wang 2020-01-16  289  }
