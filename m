@@ -1,73 +1,162 @@
-From: LABBE Corentin <clabbe@baylibre.com>
-Subject: Re: [CRASH] crypto: virtio: crash when modprobing tcrypt on 5.5-rc7
- / next-20200122
-Date: Tue, 28 Jan 2020 10:49:57 +0100
-Message-ID: <20200128094957.GC10493@Red>
-References: <20200123101000.GB24255@Red>
- <20200123065150-mutt-send-email-mst@kernel.org>
+From: Daniel Vetter <daniel@ffwll.ch>
+Subject: Re: [PATCH v4 01/15] drm: Initialize struct drm_crtc_state.no_vblank
+ from device settings
+Date: Tue, 28 Jan 2020 16:14:42 +0100
+Message-ID: <20200128151442.GH43062@phenom.ffwll.local>
+References: <20200123092123.28368-1-tzimmermann@suse.de>
+ <20200123092123.28368-2-tzimmermann@suse.de>
+ <CACvgo53YvKjPNNshZoTjJehHyOX6e05kJ5gAXtjwxs+oLLv7vw@mail.gmail.com>
+ <183782e6-164c-bae8-90e0-906edb059a1d@suse.de>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Return-path: <linux-kernel-owner@vger.kernel.org>
+Content-Type: text/plain; charset="iso-8859-1"
+Content-Transfer-Encoding: quoted-printable
+Return-path: <virtualization-bounces@lists.linux-foundation.org>
 Content-Disposition: inline
-In-Reply-To: <20200123065150-mutt-send-email-mst@kernel.org>
-Sender: linux-kernel-owner@vger.kernel.org
-To: "Michael S. Tsirkin" <mst@redhat.com>
-Cc: arei.gonglei@huawei.com, jasowang@redhat.com, herbert@gondor.apana.org.au, davem@davemloft.net, virtualization@lists.linux-foundation.org, linux-crypto@vger.kernel.org, linux-kernel@vger.kernel.org
+In-Reply-To: <183782e6-164c-bae8-90e0-906edb059a1d@suse.de>
+List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
+ <mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
+List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
+List-Post: <mailto:virtualization@lists.linux-foundation.org>
+List-Help: <mailto:virtualization-request@lists.linux-foundation.org?subject=help>
+List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualization>,
+ <mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
+Errors-To: virtualization-bounces@lists.linux-foundation.org
+Sender: "Virtualization" <virtualization-bounces@lists.linux-foundation.org>
+To: Thomas Zimmermann <tzimmermann@suse.de>
+Cc: david@lechnology.com, Sam Ravnborg <sam@ravnborg.org>, oleksandr_andrushchenko@epam.com, Dave Airlie <airlied@linux.ie>, Emil Velikov <emil.l.velikov@gmail.com>, ML dri-devel <dri-devel@lists.freedesktop.org>, Maarten Lankhorst <maarten.lankhorst@linux.intel.com>, Maxime Ripard <mripard@kernel.org>, "open list:VIRTIO GPU DRIVER" <virtualization@lists.linux-foundation.org>, Hans de Goede <hdegoede@redhat.com>, Noralf =?iso-8859-1?Q?Tr=F8nnes?= <noralf@tronnes.org>, Daniel Vetter <daniel@ffwll.ch>, xen-devel@lists.xenproject.org, Emil Velikov <emil.velikov@collabora.com>, Sean Paul <sean@poorly.run>, Laurent Pinchart <laurent.pinchart@ideasonboard.com>
 List-Id: virtualization@lists.linuxfoundation.org
 
-On Thu, Jan 23, 2020 at 06:52:29AM -0500, Michael S. Tsirkin wrote:
-> On Thu, Jan 23, 2020 at 11:10:00AM +0100, LABBE Corentin wrote:
-> > Hello
-> > 
-> > When modprobing tcrypt on qemu 4.1.0 I get a kernel panic on 5.5-rc7 and next-20200122
-> > qemu is started by:
-> > /usr/bin/qemu-system-x86_64 -cpu host -enable-kvm -nographic -net nic,model=e1000,macaddr=52:54:00:12:34:58 -net tap -m 512 -monitor none -object cryptodev-backend-builtin,id=cryptodev0 -device virtio-crypto-pci,id=crypto0,cryptodev=cryptodev0 -append 'console=ttyS0 root=/dev/ram0 ip=dhcp' -kernel /var/lib/lava/dispatcher/tmp/41332/deployimages-td18675m/kernel/bzImage -initrd /var/lib/lava/dispatcher/tmp/41332/deployimages-td18675m/ramdisk/rootfs.cpio.gz -drive format=qcow2,file=/var/lib/lava/dispatcher/tmp/41332/apply-overlay-guest-icy4k1ol/lava-guest.qcow2,media=disk,if=ide,id=lavatest
-> > 
-> > [  112.771925] general protection fault: 0000 [#1] SMP PTI
-> > [  112.772686] CPU: 0 PID: 126 Comm: virtio0-engine Not tainted 5.5.0-rc7+ #1
-> > [  112.773576] Hardware name: QEMU Standard PC (i440FX + PIIX, 1996), BIOS ?-20190711_202441-buildvm-armv7-10.arm.fedoraproject.org-2.fc31 04/01/2014
-> > [  112.775319] RIP: 0010:sg_next+0x0/0x20
-> > [  112.775821] Code: cc cc cc cc cc cc cc cc cc cc c7 47 10 00 00 00 00 89 57 0c 48 89 37 89 4f 08 c3 0f 1f 44 00 00 66 2e 0f 1f 84 00 00 00 00 00 <f6> 07 02 75 17 48 8b 57 20 48 8d 47 20 48 89 d1 48 83 e1 fc 83 e2
-> > [  112.778330] RSP: 0018:ffffa92440237d90 EFLAGS: 00010006
-> > [  112.779071] RAX: fefefefe00000000 RBX: 000000000000000a RCX: fefefefe00000000
-> > [  112.780081] RDX: 0000000000000001 RSI: ffff9b19da1a2180 RDI: fefefefe00000000
-> > [  112.781081] RBP: ffff9b19da1a2198 R08: ffff9b19dfb24ee8 R09: 0000000000000a20
-> > [  112.782079] R10: ffff9b19da125010 R11: 0000000000000000 R12: ffff9b19da1a21b8
-> > [  112.783079] R13: 0000000000000003 R14: ffff9b19da1a2180 R15: 0000000000000004
-> > [  112.784077] FS:  0000000000000000(0000) GS:ffff9b19de400000(0000) knlGS:0000000000000000
-> > [  112.785202] CS:  0010 DS: 0000 ES: 0000 CR0: 0000000080050033
-> > [  112.786030] CR2: 00007f18a157b050 CR3: 000000001040a004 CR4: 0000000000060ef0
-> > [  112.787034] Call Trace:
-> > [  112.787393]  virtqueue_add_sgs+0x4c/0x90
-> > [  112.787998]  virtio_crypto_skcipher_crypt_req+0x310/0x3e0
-> > [  112.788817]  crypto_pump_work+0x10c/0x240
-> > [  112.789420]  ? __kthread_init_worker+0x50/0x50
-> > [  112.790082]  kthread_worker_fn+0x89/0x180
-> > [  112.790690]  kthread+0x10e/0x130
-> > [  112.791182]  ? kthread_park+0x80/0x80
-> > [  112.791736]  ret_from_fork+0x35/0x40
-> > [  112.792282] Modules linked in: cts lzo salsa20_generic camellia_x86_64 camellia_generic fcrypt pcbc tgr192 anubis wp512 khazad tea michael_mic arc4 cast6_generic cast5_generic cast_common deflate sha512_ssse3 sha512_generic cfb ofb serpent_sse2_x86_64 serpent_generic lrw twofish_x86_64_3way twofish_x86_64 crypto_simd cryptd glue_helper twofish_generic twofish_common blowfish_x86_64 blowfish_generic blowfish_common md4 tcrypt(+)
-> > [  112.797652] ---[ end trace 4a8142d4a08c2518 ]---
-> > [  112.798320] RIP: 0010:sg_next+0x0/0x20
-> > [  112.798865] Code: cc cc cc cc cc cc cc cc cc cc c7 47 10 00 00 00 00 89 57 0c 48 89 37 89 4f 08 c3 0f 1f 44 00 00 66 2e 0f 1f 84 00 00 00 00 00 <f6> 07 02 75 17 48 8b 57 20 48 8d 47 20 48 89 d1 48 83 e1 fc 83 e2
-> > [  112.801452] RSP: 0018:ffffa92440237d90 EFLAGS: 00010006
-> > [  112.802189] RAX: fefefefe00000000 RBX: 000000000000000a RCX: fefefefe00000000
-> > [  112.803190] RDX: 0000000000000001 RSI: ffff9b19da1a2180 RDI: fefefefe00000000
-> > [  112.804192] RBP: ffff9b19da1a2198 R08: ffff9b19dfb24ee8 R09: 0000000000000a20
-> > [  112.805201] R10: ffff9b19da125010 R11: 0000000000000000 R12: ffff9b19da1a21b8
-> > [  112.806195] R13: 0000000000000003 R14: ffff9b19da1a2180 R15: 0000000000000004
-> > [  112.807222] FS:  0000000000000000(0000) GS:ffff9b19de400000(0000) knlGS:0000000000000000
-> > [  112.808352] CS:  0010 DS: 0000 ES: 0000 CR0: 0000000080050033
-> > [  112.809169] CR2: 00007f18a157b050 CR3: 000000001040a004 CR4: 0000000000060ef0
-> > 
-> > I have tested also 5.4.14 
-> > and I got random freeze with:
-> > qemu-system-x86_64: virtio: zero sized buffers are not allowed
-> > 
-> > Regards
-> 
-> did any of previous versions work for you?
-> Any chance of a bisect?
-> 
+On Mon, Jan 27, 2020 at 07:42:27PM +0100, Thomas Zimmermann wrote:
+> Hi Emil
+> =
 
-I will try latest version, and if I found a working version I will bisect.
+> Am 27.01.20 um 19:12 schrieb Emil Velikov:
+> > Hi Thomas,
+> > =
+
+> > On Thu, 23 Jan 2020 at 09:21, Thomas Zimmermann <tzimmermann@suse.de> w=
+rote:
+> > =
+
+> >> @@ -174,12 +174,22 @@ struct drm_crtc_state {
+> >>          * @no_vblank:
+> >>          *
+> >>          * Reflects the ability of a CRTC to send VBLANK events. This =
+state
+> >> -        * usually depends on the pipeline configuration, and the main=
+ usuage
+> >> -        * is CRTCs feeding a writeback connector operating in oneshot=
+ mode.
+> >> -        * In this case the VBLANK event is only generated when a job =
+is queued
+> >> -        * to the writeback connector, and we want the core to fake VB=
+LANK
+> >> -        * events when this part of the pipeline hasn't changed but ot=
+hers had
+> >> -        * or when the CRTC and connectors are being disabled.
+> >> +        * usually depends on the pipeline configuration. If set to tr=
+ue, DRM
+> >> +        * atomic helpers will sendout a fake VBLANK event during disp=
+lay
+> >> +        * updates.
+> >> +        *
+> >> +        * One usage is for drivers and/or hardware without support fo=
+r VBLANK
+> >> +        * interrupts. Such drivers typically do not initialize vblank=
+ing
+> >> +        * (i.e., call drm_vblank_init() wit the number of CRTCs). For=
+ CRTCs
+> >> +        * without initialized vblanking, the field is initialized to =
+true and
+> >> +        * a VBLANK event will be send out on each update of the displ=
+ay
+> >> +        * pipeline.
+> >> +        *
+> >> +        * Another usage is CRTCs feeding a writeback connector operat=
+ing in
+> >> +        * oneshot mode. In this case the VBLANK event is only generat=
+ed when
+> >> +        * a job is queued to the writeback connector, and we want the=
+ core
+> >> +        * to fake VBLANK events when this part of the pipeline hasn't=
+ changed
+> >> +        * but others had or when the CRTC and connectors are being di=
+sabled.
+> >>          *
+> > =
+
+> > Perhaps it's just me, yet the following ideas would make the topic
+> > significantly easier and clearer.
+> > =
+
+> >  - adding explicit "fake" when talking about drm/atomic _helpers_
+> > generating/sending a VBLANK event.
+> > For example, in 15/15 the commit message says "fake", while inline
+> > comment omits it... Leading to the confusion pointed out.
+> =
+
+> No problem on being more precise here. I'll update the docs accordingly.
+> =
+
+> > =
+
+> > - s/no_vblank/fake_vblank/g or s/no_vblank/no_hw_vblank/g
+> > Simple and concise. With slight inclination towards the former wording =
+:-)
+> =
+
+> I'd prefer to not change the field's name. The current name 'no_vblank'
+> indicates state and lets helpers decide what to do with it. The name
+> 'fake_vblank' indicates an instruction to the helpers, telling them what
+> to do. It does neither seem to fit into drm_crtc_state, nor into the
+> overall concept.
+
+Yeah e.g. xen has no hw vblank, but still has special processing of
+events, which are kinda triggered by the "hw" (it's an event from the
+compositor).
+
+Maybe the confusion is with the helper function that generates the
+fake_vblank, since it's not really a fake vblank at all, it's just "send
+out this atomic completion event now, I'm not going to do it as part of
+the vblank processing since no vblank". So maybe that function should be
+called _send_events_i_have_no_hw_vblank, which yeah is not a great name
+:-) But maybe you have an idea for that one?
+-Daniel
+
+> =
+
+> Best regards
+> Thomas
+> =
+
+> > =
+
+> > If you and Daniel agree with the rename, then the first sentence of
+> > the description should probably be tweaked.
+> > =
+
+> > HTH
+> > Emil
+> > =
+
+> =
+
+> -- =
+
+> Thomas Zimmermann
+> Graphics Driver Developer
+> SUSE Software Solutions Germany GmbH
+> Maxfeldstr. 5, 90409 N=FCrnberg, Germany
+> (HRB 36809, AG N=FCrnberg)
+> Gesch=E4ftsf=FChrer: Felix Imend=F6rffer
+> =
+
+
+
+
+
+-- =
+
+Daniel Vetter
+Software Engineer, Intel Corporation
+http://blog.ffwll.ch
