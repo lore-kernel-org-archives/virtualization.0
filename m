@@ -1,7 +1,7 @@
 From: Thomas Zimmermann <tzimmermann@suse.de>
-Subject: [PATCH v5 06/15] drm/gm12u320: Remove sending of vblank event
-Date: Wed, 29 Jan 2020 13:05:22 +0100
-Message-ID: <20200129120531.6891-7-tzimmermann@suse.de>
+Subject: [PATCH v5 09/15] drm/qxl: Remove sending of vblank event
+Date: Wed, 29 Jan 2020 13:05:25 +0100
+Message-ID: <20200129120531.6891-10-tzimmermann@suse.de>
 References: <20200129120531.6891-1-tzimmermann@suse.de>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
@@ -32,39 +32,40 @@ Signed-off-by: Thomas Zimmermann <tzimmermann@suse.de>
 Acked-by: Gerd Hoffmann <kraxel@redhat.com>
 Reviewed-by: Daniel Vetter <daniel.vetter@ffwll.ch>
 ---
- drivers/gpu/drm/tiny/gm12u320.c | 9 ---------
- 1 file changed, 9 deletions(-)
+ drivers/gpu/drm/qxl/qxl_display.c | 14 --------------
+ 1 file changed, 14 deletions(-)
 
-diff --git a/drivers/gpu/drm/tiny/gm12u320.c b/drivers/gpu/drm/tiny/gm12u320.c
-index 94fb1f593564..a48173441ae0 100644
---- a/drivers/gpu/drm/tiny/gm12u320.c
-+++ b/drivers/gpu/drm/tiny/gm12u320.c
-@@ -22,7 +22,6 @@
- #include <drm/drm_modeset_helper_vtables.h>
+diff --git a/drivers/gpu/drm/qxl/qxl_display.c b/drivers/gpu/drm/qxl/qxl_display.c
+index 16d73b22f3f5..ab4f8dd00400 100644
+--- a/drivers/gpu/drm/qxl/qxl_display.c
++++ b/drivers/gpu/drm/qxl/qxl_display.c
+@@ -31,7 +31,6 @@
+ #include <drm/drm_gem_framebuffer_helper.h>
+ #include <drm/drm_plane_helper.h>
  #include <drm/drm_probe_helper.h>
- #include <drm/drm_simple_kms_helper.h>
 -#include <drm/drm_vblank.h>
  
- static bool eco_mode;
- module_param(eco_mode, bool, 0644);
-@@ -610,18 +609,10 @@ static void gm12u320_pipe_update(struct drm_simple_display_pipe *pipe,
- 				 struct drm_plane_state *old_state)
+ #include "qxl_drv.h"
+ #include "qxl_object.h"
+@@ -372,19 +371,6 @@ static void qxl_crtc_update_monitors_config(struct drm_crtc *crtc,
+ static void qxl_crtc_atomic_flush(struct drm_crtc *crtc,
+ 				  struct drm_crtc_state *old_crtc_state)
  {
- 	struct drm_plane_state *state = pipe->plane.state;
--	struct drm_crtc *crtc = &pipe->crtc;
- 	struct drm_rect rect;
- 
- 	if (drm_atomic_helper_damage_merged(old_state, state, &rect))
- 		gm12u320_fb_mark_dirty(pipe->plane.state->fb, &rect);
+-	struct drm_device *dev = crtc->dev;
+-	struct drm_pending_vblank_event *event;
+-	unsigned long flags;
 -
--	if (crtc->state->event) {
--		spin_lock_irq(&crtc->dev->event_lock);
--		drm_crtc_send_vblank_event(crtc, crtc->state->event);
+-	if (crtc->state && crtc->state->event) {
+-		event = crtc->state->event;
 -		crtc->state->event = NULL;
--		spin_unlock_irq(&crtc->dev->event_lock);
+-
+-		spin_lock_irqsave(&dev->event_lock, flags);
+-		drm_crtc_send_vblank_event(crtc, event);
+-		spin_unlock_irqrestore(&dev->event_lock, flags);
 -	}
+-
+ 	qxl_crtc_update_monitors_config(crtc, "flush");
  }
  
- static const struct drm_simple_display_pipe_funcs gm12u320_pipe_funcs = {
 -- 
 2.25.0
