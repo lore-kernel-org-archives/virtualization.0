@@ -1,7 +1,7 @@
 From: Thomas Zimmermann <tzimmermann@suse.de>
-Subject: [PATCH v5 08/15] drm/mipi-dbi: Remove sending of vblank event
-Date: Wed, 29 Jan 2020 13:05:24 +0100
-Message-ID: <20200129120531.6891-9-tzimmermann@suse.de>
+Subject: [PATCH v5 11/15] drm/st7586: Remove sending of vblank event
+Date: Wed, 29 Jan 2020 13:05:27 +0100
+Message-ID: <20200129120531.6891-12-tzimmermann@suse.de>
 References: <20200129120531.6891-1-tzimmermann@suse.de>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
@@ -32,30 +32,30 @@ Signed-off-by: Thomas Zimmermann <tzimmermann@suse.de>
 Acked-by: Gerd Hoffmann <kraxel@redhat.com>
 Reviewed-by: Daniel Vetter <daniel.vetter@ffwll.ch>
 ---
- drivers/gpu/drm/drm_mipi_dbi.c | 9 ---------
+ drivers/gpu/drm/tiny/st7586.c | 9 ---------
  1 file changed, 9 deletions(-)
 
-diff --git a/drivers/gpu/drm/drm_mipi_dbi.c b/drivers/gpu/drm/drm_mipi_dbi.c
-index 27fe81a53c88..558baf989f5a 100644
---- a/drivers/gpu/drm/drm_mipi_dbi.c
-+++ b/drivers/gpu/drm/drm_mipi_dbi.c
-@@ -24,7 +24,6 @@
- #include <drm/drm_modes.h>
- #include <drm/drm_probe_helper.h>
+diff --git a/drivers/gpu/drm/tiny/st7586.c b/drivers/gpu/drm/tiny/st7586.c
+index 060cc756194f..9ef559dd3191 100644
+--- a/drivers/gpu/drm/tiny/st7586.c
++++ b/drivers/gpu/drm/tiny/st7586.c
+@@ -23,7 +23,6 @@
+ #include <drm/drm_gem_framebuffer_helper.h>
+ #include <drm/drm_mipi_dbi.h>
  #include <drm/drm_rect.h>
 -#include <drm/drm_vblank.h>
- #include <video/mipi_display.h>
  
- #define MIPI_DBI_MAX_SPI_READ_SPEED 2000000 /* 2MHz */
-@@ -312,18 +311,10 @@ void mipi_dbi_pipe_update(struct drm_simple_display_pipe *pipe,
- 			  struct drm_plane_state *old_state)
+ /* controller-specific commands */
+ #define ST7586_DISP_MODE_GRAY	0x38
+@@ -159,18 +158,10 @@ static void st7586_pipe_update(struct drm_simple_display_pipe *pipe,
+ 			       struct drm_plane_state *old_state)
  {
  	struct drm_plane_state *state = pipe->plane.state;
 -	struct drm_crtc *crtc = &pipe->crtc;
  	struct drm_rect rect;
  
  	if (drm_atomic_helper_damage_merged(old_state, state, &rect))
- 		mipi_dbi_fb_dirty(state->fb, &rect);
+ 		st7586_fb_dirty(state->fb, &rect);
 -
 -	if (crtc->state->event) {
 -		spin_lock_irq(&crtc->dev->event_lock);
@@ -64,7 +64,7 @@ index 27fe81a53c88..558baf989f5a 100644
 -		crtc->state->event = NULL;
 -	}
  }
- EXPORT_SYMBOL(mipi_dbi_pipe_update);
  
+ static void st7586_pipe_enable(struct drm_simple_display_pipe *pipe,
 -- 
 2.25.0
