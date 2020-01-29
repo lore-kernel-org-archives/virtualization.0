@@ -1,80 +1,68 @@
-From: Thomas Zimmermann <tzimmermann@suse.de>
-Subject: [PATCH v5 15/15] drm/xen: Explicitly disable automatic sending of
- vblank event
-Date: Wed, 29 Jan 2020 13:05:31 +0100
-Message-ID: <20200129120531.6891-16-tzimmermann@suse.de>
+From: Oleksandr Andrushchenko <Oleksandr_Andrushchenko@epam.com>
+Subject: Re: [PATCH v5 15/15] drm/xen: Explicitly disable
+ automatic sending of vblank event
+Date: Wed, 29 Jan 2020 13:00:37 +0000
+Message-ID: <e2bd0ad6-573b-17e0-c47e-6550947b1916@epam.com>
 References: <20200129120531.6891-1-tzimmermann@suse.de>
+ <20200129120531.6891-16-tzimmermann@suse.de>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
-Content-Transfer-Encoding: 7bit
-Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <20200129120531.6891-1-tzimmermann@suse.de>
-List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
- <mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
-List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
-List-Post: <mailto:virtualization@lists.linux-foundation.org>
-List-Help: <mailto:virtualization-request@lists.linux-foundation.org?subject=help>
-List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualization>,
- <mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
-Errors-To: virtualization-bounces@lists.linux-foundation.org
-Sender: "Virtualization" <virtualization-bounces@lists.linux-foundation.org>
-To: airlied@linux.ie, daniel@ffwll.ch, kraxel@redhat.com, maarten.lankhorst@linux.intel.com, mripard@kernel.org, hdegoede@redhat.com, david@lechnology.com, noralf@tronnes.org, sean@poorly.run, oleksandr_andrushchenko@epam.com, sam@ravnborg.org, laurent.pinchart@ideasonboard.com, emil.velikov@collabora.com
-Cc: Daniel Vetter <daniel.vetter@ffwll.ch>, xen-devel@lists.xenproject.org, Thomas Zimmermann <tzimmermann@suse.de>, dri-devel@lists.freedesktop.org, virtualization@lists.linux-foundation.org
+Content-Type: text/plain; charset="utf-8"
+Content-Transfer-Encoding: base64
+Return-path: <xen-devel-bounces@lists.xenproject.org>
+In-Reply-To: <20200129120531.6891-16-tzimmermann@suse.de>
+Content-Language: en-US
+Content-ID: <4519BC3C3687C54C8173137068C5FDB3@eurprd03.prod.outlook.com>
+List-Unsubscribe: <https://lists.xenproject.org/mailman/options/xen-devel>,
+ <mailto:xen-devel-request@lists.xenproject.org?subject=unsubscribe>
+List-Post: <mailto:xen-devel@lists.xenproject.org>
+List-Help: <mailto:xen-devel-request@lists.xenproject.org?subject=help>
+List-Subscribe: <https://lists.xenproject.org/mailman/listinfo/xen-devel>,
+ <mailto:xen-devel-request@lists.xenproject.org?subject=subscribe>
+Errors-To: xen-devel-bounces@lists.xenproject.org
+Sender: "Xen-devel" <xen-devel-bounces@lists.xenproject.org>
+To: Thomas Zimmermann <tzimmermann@suse.de>, "airlied@linux.ie" <airlied@linux.ie>, "daniel@ffwll.ch" <daniel@ffwll.ch>, "kraxel@redhat.com" <kraxel@redhat.com>, "maarten.lankhorst@linux.intel.com" <maarten.lankhorst@linux.intel.com>, "mripard@kernel.org" <mripard@kernel.org>, "hdegoede@redhat.com" <hdegoede@redhat.com>, "david@lechnology.com" <david@lechnology.com>, "noralf@tronnes.org" <noralf@tronnes.org>, "sean@poorly.run" <sean@poorly.run>, "sam@ravnborg.org" <sam@ravnborg.org>, "laurent.pinchart@ideasonboard.com" <laurent.pinchart@ideasonboard.com>, "emil.velikov@collabora.com" <emil.velikov@collabora.com>
+Cc: Daniel Vetter <daniel.vetter@ffwll.ch>, "xen-devel@lists.xenproject.org" <xen-devel@lists.xenproject.org>, "dri-devel@lists.freedesktop.org" <dri-devel@lists.freedesktop.org>, "virtualization@lists.linux-foundation.org" <virtualization@lists.linux-foundation.org>
 List-Id: virtualization@lists.linuxfoundation.org
 
-The atomic helpers automatically send out fake VBLANK events if no
-vblanking has been initialized. This would apply to xen, but xen has
-its own vblank logic. To avoid interfering with the atomic helpers,
-disable automatic vblank events explicitly.
-
-v5:
-	* update comment
-v4:
-	* separate commit from core vblank changes
-
-Signed-off-by: Thomas Zimmermann <tzimmermann@suse.de>
-Acked-by: Gerd Hoffmann <kraxel@redhat.com>
-Reviewed-by: Daniel Vetter <daniel.vetter@ffwll.ch>
----
- drivers/gpu/drm/xen/xen_drm_front_kms.c | 19 +++++++++++++++++++
- 1 file changed, 19 insertions(+)
-
-diff --git a/drivers/gpu/drm/xen/xen_drm_front_kms.c b/drivers/gpu/drm/xen/xen_drm_front_kms.c
-index 4f34c5208180..78096bbcd226 100644
---- a/drivers/gpu/drm/xen/xen_drm_front_kms.c
-+++ b/drivers/gpu/drm/xen/xen_drm_front_kms.c
-@@ -220,6 +220,24 @@ static bool display_send_page_flip(struct drm_simple_display_pipe *pipe,
- 	return false;
- }
- 
-+static int display_check(struct drm_simple_display_pipe *pipe,
-+			 struct drm_plane_state *plane_state,
-+			 struct drm_crtc_state *crtc_state)
-+{
-+	/*
-+	 * Xen doesn't initialize vblanking via drm_vblank_init(), so
-+	 * DRM helpers assume that it doesn't handle vblanking and start
-+	 * sending out fake VBLANK events automatically.
-+	 *
-+	 * As xen contains it's own logic for sending out VBLANK events
-+	 * in send_pending_event(), disable no_vblank (i.e., the xen
-+	 * driver has vblanking support).
-+	 */
-+	crtc_state->no_vblank = false;
-+
-+	return 0;
-+}
-+
- static void display_update(struct drm_simple_display_pipe *pipe,
- 			   struct drm_plane_state *old_plane_state)
- {
-@@ -284,6 +302,7 @@ static const struct drm_simple_display_pipe_funcs display_funcs = {
- 	.enable = display_enable,
- 	.disable = display_disable,
- 	.prepare_fb = drm_gem_fb_simple_display_pipe_prepare_fb,
-+	.check = display_check,
- 	.update = display_update,
- };
- 
--- 
-2.25.0
+T24gMS8yOS8yMCAyOjA1IFBNLCBUaG9tYXMgWmltbWVybWFubiB3cm90ZToNCj4gVGhlIGF0b21p
+YyBoZWxwZXJzIGF1dG9tYXRpY2FsbHkgc2VuZCBvdXQgZmFrZSBWQkxBTksgZXZlbnRzIGlmIG5v
+DQo+IHZibGFua2luZyBoYXMgYmVlbiBpbml0aWFsaXplZC4gVGhpcyB3b3VsZCBhcHBseSB0byB4
+ZW4sIGJ1dCB4ZW4gaGFzDQo+IGl0cyBvd24gdmJsYW5rIGxvZ2ljLiBUbyBhdm9pZCBpbnRlcmZl
+cmluZyB3aXRoIHRoZSBhdG9taWMgaGVscGVycywNCj4gZGlzYWJsZSBhdXRvbWF0aWMgdmJsYW5r
+IGV2ZW50cyBleHBsaWNpdGx5Lg0KPg0KPiB2NToNCj4gCSogdXBkYXRlIGNvbW1lbnQNCj4gdjQ6
+DQo+IAkqIHNlcGFyYXRlIGNvbW1pdCBmcm9tIGNvcmUgdmJsYW5rIGNoYW5nZXMNCj4NCj4gU2ln
+bmVkLW9mZi1ieTogVGhvbWFzIFppbW1lcm1hbm4gPHR6aW1tZXJtYW5uQHN1c2UuZGU+DQo+IEFj
+a2VkLWJ5OiBHZXJkIEhvZmZtYW5uIDxrcmF4ZWxAcmVkaGF0LmNvbT4NCj4gUmV2aWV3ZWQtYnk6
+IERhbmllbCBWZXR0ZXIgPGRhbmllbC52ZXR0ZXJAZmZ3bGwuY2g+DQpUaGFuayB5b3UgZm9yIHlv
+dXIgd29yaywNClJldmlld2VkLWJ5OiBPbGVrc2FuZHIgQW5kcnVzaGNoZW5rbyA8b2xla3NhbmRy
+X2FuZHJ1c2hjaGVua29AZXBhbS5jb20+DQo+IC0tLQ0KPiAgIGRyaXZlcnMvZ3B1L2RybS94ZW4v
+eGVuX2RybV9mcm9udF9rbXMuYyB8IDE5ICsrKysrKysrKysrKysrKysrKysNCj4gICAxIGZpbGUg
+Y2hhbmdlZCwgMTkgaW5zZXJ0aW9ucygrKQ0KPg0KPiBkaWZmIC0tZ2l0IGEvZHJpdmVycy9ncHUv
+ZHJtL3hlbi94ZW5fZHJtX2Zyb250X2ttcy5jIGIvZHJpdmVycy9ncHUvZHJtL3hlbi94ZW5fZHJt
+X2Zyb250X2ttcy5jDQo+IGluZGV4IDRmMzRjNTIwODE4MC4uNzgwOTZiYmNkMjI2IDEwMDY0NA0K
+PiAtLS0gYS9kcml2ZXJzL2dwdS9kcm0veGVuL3hlbl9kcm1fZnJvbnRfa21zLmMNCj4gKysrIGIv
+ZHJpdmVycy9ncHUvZHJtL3hlbi94ZW5fZHJtX2Zyb250X2ttcy5jDQo+IEBAIC0yMjAsNiArMjIw
+LDI0IEBAIHN0YXRpYyBib29sIGRpc3BsYXlfc2VuZF9wYWdlX2ZsaXAoc3RydWN0IGRybV9zaW1w
+bGVfZGlzcGxheV9waXBlICpwaXBlLA0KPiAgIAlyZXR1cm4gZmFsc2U7DQo+ICAgfQ0KPiAgIA0K
+PiArc3RhdGljIGludCBkaXNwbGF5X2NoZWNrKHN0cnVjdCBkcm1fc2ltcGxlX2Rpc3BsYXlfcGlw
+ZSAqcGlwZSwNCj4gKwkJCSBzdHJ1Y3QgZHJtX3BsYW5lX3N0YXRlICpwbGFuZV9zdGF0ZSwNCj4g
+KwkJCSBzdHJ1Y3QgZHJtX2NydGNfc3RhdGUgKmNydGNfc3RhdGUpDQo+ICt7DQo+ICsJLyoNCj4g
+KwkgKiBYZW4gZG9lc24ndCBpbml0aWFsaXplIHZibGFua2luZyB2aWEgZHJtX3ZibGFua19pbml0
+KCksIHNvDQo+ICsJICogRFJNIGhlbHBlcnMgYXNzdW1lIHRoYXQgaXQgZG9lc24ndCBoYW5kbGUg
+dmJsYW5raW5nIGFuZCBzdGFydA0KPiArCSAqIHNlbmRpbmcgb3V0IGZha2UgVkJMQU5LIGV2ZW50
+cyBhdXRvbWF0aWNhbGx5Lg0KPiArCSAqDQo+ICsJICogQXMgeGVuIGNvbnRhaW5zIGl0J3Mgb3du
+IGxvZ2ljIGZvciBzZW5kaW5nIG91dCBWQkxBTksgZXZlbnRzDQo+ICsJICogaW4gc2VuZF9wZW5k
+aW5nX2V2ZW50KCksIGRpc2FibGUgbm9fdmJsYW5rIChpLmUuLCB0aGUgeGVuDQo+ICsJICogZHJp
+dmVyIGhhcyB2Ymxhbmtpbmcgc3VwcG9ydCkuDQo+ICsJICovDQo+ICsJY3J0Y19zdGF0ZS0+bm9f
+dmJsYW5rID0gZmFsc2U7DQo+ICsNCj4gKwlyZXR1cm4gMDsNCj4gK30NCj4gKw0KPiAgIHN0YXRp
+YyB2b2lkIGRpc3BsYXlfdXBkYXRlKHN0cnVjdCBkcm1fc2ltcGxlX2Rpc3BsYXlfcGlwZSAqcGlw
+ZSwNCj4gICAJCQkgICBzdHJ1Y3QgZHJtX3BsYW5lX3N0YXRlICpvbGRfcGxhbmVfc3RhdGUpDQo+
+ICAgew0KPiBAQCAtMjg0LDYgKzMwMiw3IEBAIHN0YXRpYyBjb25zdCBzdHJ1Y3QgZHJtX3NpbXBs
+ZV9kaXNwbGF5X3BpcGVfZnVuY3MgZGlzcGxheV9mdW5jcyA9IHsNCj4gICAJLmVuYWJsZSA9IGRp
+c3BsYXlfZW5hYmxlLA0KPiAgIAkuZGlzYWJsZSA9IGRpc3BsYXlfZGlzYWJsZSwNCj4gICAJLnBy
+ZXBhcmVfZmIgPSBkcm1fZ2VtX2ZiX3NpbXBsZV9kaXNwbGF5X3BpcGVfcHJlcGFyZV9mYiwNCj4g
+KwkuY2hlY2sgPSBkaXNwbGF5X2NoZWNrLA0KPiAgIAkudXBkYXRlID0gZGlzcGxheV91cGRhdGUs
+DQo+ICAgfTsNCj4gICANCl9fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19f
+X19fX19fClhlbi1kZXZlbCBtYWlsaW5nIGxpc3QKWGVuLWRldmVsQGxpc3RzLnhlbnByb2plY3Qu
+b3JnCmh0dHBzOi8vbGlzdHMueGVucHJvamVjdC5vcmcvbWFpbG1hbi9saXN0aW5mby94ZW4tZGV2
+ZWw=
