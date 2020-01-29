@@ -1,7 +1,7 @@
 From: Thomas Zimmermann <tzimmermann@suse.de>
-Subject: [PATCH v5 13/15] drm/vboxvideo: Remove sending of vblank event
-Date: Wed, 29 Jan 2020 13:05:29 +0100
-Message-ID: <20200129120531.6891-14-tzimmermann@suse.de>
+Subject: [PATCH v5 05/15] drm/cirrus: Remove sending of vblank event
+Date: Wed, 29 Jan 2020 13:05:21 +0100
+Message-ID: <20200129120531.6891-6-tzimmermann@suse.de>
 References: <20200129120531.6891-1-tzimmermann@suse.de>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
@@ -32,38 +32,34 @@ Signed-off-by: Thomas Zimmermann <tzimmermann@suse.de>
 Acked-by: Gerd Hoffmann <kraxel@redhat.com>
 Reviewed-by: Daniel Vetter <daniel.vetter@ffwll.ch>
 ---
- drivers/gpu/drm/vboxvideo/vbox_mode.c | 12 ------------
- 1 file changed, 12 deletions(-)
+ drivers/gpu/drm/cirrus/cirrus.c | 8 --------
+ 1 file changed, 8 deletions(-)
 
-diff --git a/drivers/gpu/drm/vboxvideo/vbox_mode.c b/drivers/gpu/drm/vboxvideo/vbox_mode.c
-index 19612132c8a3..8b7f005c4d20 100644
---- a/drivers/gpu/drm/vboxvideo/vbox_mode.c
-+++ b/drivers/gpu/drm/vboxvideo/vbox_mode.c
-@@ -18,7 +18,6 @@
- #include <drm/drm_gem_framebuffer_helper.h>
- #include <drm/drm_plane_helper.h>
+diff --git a/drivers/gpu/drm/cirrus/cirrus.c b/drivers/gpu/drm/cirrus/cirrus.c
+index 248c9f765c45..a91fb0d7282c 100644
+--- a/drivers/gpu/drm/cirrus/cirrus.c
++++ b/drivers/gpu/drm/cirrus/cirrus.c
+@@ -38,7 +38,6 @@
+ #include <drm/drm_modeset_helper_vtables.h>
  #include <drm/drm_probe_helper.h>
+ #include <drm/drm_simple_kms_helper.h>
 -#include <drm/drm_vblank.h>
  
- #include "hgsmi_channels.h"
- #include "vbox_drv.h"
-@@ -226,17 +225,6 @@ static void vbox_crtc_atomic_disable(struct drm_crtc *crtc,
- static void vbox_crtc_atomic_flush(struct drm_crtc *crtc,
- 				   struct drm_crtc_state *old_crtc_state)
- {
--	struct drm_pending_vblank_event *event;
--	unsigned long flags;
+ #define DRIVER_NAME "cirrus"
+ #define DRIVER_DESC "qemu cirrus vga"
+@@ -434,13 +433,6 @@ static void cirrus_pipe_update(struct drm_simple_display_pipe *pipe,
+ 
+ 	if (drm_atomic_helper_damage_merged(old_state, state, &rect))
+ 		cirrus_fb_blit_rect(pipe->plane.state->fb, &rect);
 -
--	if (crtc->state && crtc->state->event) {
--		event = crtc->state->event;
+-	if (crtc->state->event) {
+-		spin_lock_irq(&crtc->dev->event_lock);
+-		drm_crtc_send_vblank_event(crtc, crtc->state->event);
 -		crtc->state->event = NULL;
--
--		spin_lock_irqsave(&crtc->dev->event_lock, flags);
--		drm_crtc_send_vblank_event(crtc, event);
--		spin_unlock_irqrestore(&crtc->dev->event_lock, flags);
+-		spin_unlock_irq(&crtc->dev->event_lock);
 -	}
  }
  
- static const struct drm_crtc_helper_funcs vbox_crtc_helper_funcs = {
+ static const struct drm_simple_display_pipe_funcs cirrus_pipe_funcs = {
 -- 
 2.25.0
