@@ -1,7 +1,7 @@
 From: Thomas Zimmermann <tzimmermann@suse.de>
-Subject: [PATCH v5 14/15] drm/virtio: Remove sending of vblank event
-Date: Wed, 29 Jan 2020 13:05:30 +0100
-Message-ID: <20200129120531.6891-15-tzimmermann@suse.de>
+Subject: [PATCH v5 10/15] drm/repaper: Remove sending of vblank event
+Date: Wed, 29 Jan 2020 13:05:26 +0100
+Message-ID: <20200129120531.6891-11-tzimmermann@suse.de>
 References: <20200129120531.6891-1-tzimmermann@suse.de>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
@@ -32,34 +32,39 @@ Signed-off-by: Thomas Zimmermann <tzimmermann@suse.de>
 Acked-by: Gerd Hoffmann <kraxel@redhat.com>
 Reviewed-by: Daniel Vetter <daniel.vetter@ffwll.ch>
 ---
- drivers/gpu/drm/virtio/virtgpu_display.c | 8 --------
- 1 file changed, 8 deletions(-)
+ drivers/gpu/drm/tiny/repaper.c | 9 ---------
+ 1 file changed, 9 deletions(-)
 
-diff --git a/drivers/gpu/drm/virtio/virtgpu_display.c b/drivers/gpu/drm/virtio/virtgpu_display.c
-index 0966208ec30d..ecf4ba7cc32b 100644
---- a/drivers/gpu/drm/virtio/virtgpu_display.c
-+++ b/drivers/gpu/drm/virtio/virtgpu_display.c
-@@ -30,7 +30,6 @@
- #include <drm/drm_fourcc.h>
+diff --git a/drivers/gpu/drm/tiny/repaper.c b/drivers/gpu/drm/tiny/repaper.c
+index 76d179200775..183484595aea 100644
+--- a/drivers/gpu/drm/tiny/repaper.c
++++ b/drivers/gpu/drm/tiny/repaper.c
+@@ -33,7 +33,6 @@
  #include <drm/drm_gem_framebuffer_helper.h>
- #include <drm/drm_probe_helper.h>
+ #include <drm/drm_modes.h>
+ #include <drm/drm_rect.h>
 -#include <drm/drm_vblank.h>
+ #include <drm/drm_probe_helper.h>
+ #include <drm/drm_simple_kms_helper.h>
  
- #include "virtgpu_drv.h"
- 
-@@ -121,13 +120,6 @@ static int virtio_gpu_crtc_atomic_check(struct drm_crtc *crtc,
- static void virtio_gpu_crtc_atomic_flush(struct drm_crtc *crtc,
- 					 struct drm_crtc_state *old_state)
+@@ -856,18 +855,10 @@ static void repaper_pipe_update(struct drm_simple_display_pipe *pipe,
+ 				struct drm_plane_state *old_state)
  {
--	unsigned long flags;
+ 	struct drm_plane_state *state = pipe->plane.state;
+-	struct drm_crtc *crtc = &pipe->crtc;
+ 	struct drm_rect rect;
+ 
+ 	if (drm_atomic_helper_damage_merged(old_state, state, &rect))
+ 		repaper_fb_dirty(state->fb);
 -
--	spin_lock_irqsave(&crtc->dev->event_lock, flags);
--	if (crtc->state->event)
+-	if (crtc->state->event) {
+-		spin_lock_irq(&crtc->dev->event_lock);
 -		drm_crtc_send_vblank_event(crtc, crtc->state->event);
--	crtc->state->event = NULL;
--	spin_unlock_irqrestore(&crtc->dev->event_lock, flags);
+-		spin_unlock_irq(&crtc->dev->event_lock);
+-		crtc->state->event = NULL;
+-	}
  }
  
- static const struct drm_crtc_helper_funcs virtio_gpu_crtc_helper_funcs = {
+ static const struct drm_simple_display_pipe_funcs repaper_pipe_funcs = {
 -- 
 2.25.0
