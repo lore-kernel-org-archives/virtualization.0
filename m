@@ -1,7 +1,7 @@
 From: Thomas Zimmermann <tzimmermann@suse.de>
-Subject: [PATCH v5 02/15] drm/arc: Remove sending of vblank event
-Date: Wed, 29 Jan 2020 13:05:18 +0100
-Message-ID: <20200129120531.6891-3-tzimmermann@suse.de>
+Subject: [PATCH v5 04/15] drm/bochs: Remove sending of vblank event
+Date: Wed, 29 Jan 2020 13:05:20 +0100
+Message-ID: <20200129120531.6891-5-tzimmermann@suse.de>
 References: <20200129120531.6891-1-tzimmermann@suse.de>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
@@ -32,45 +32,37 @@ Signed-off-by: Thomas Zimmermann <tzimmermann@suse.de>
 Acked-by: Gerd Hoffmann <kraxel@redhat.com>
 Reviewed-by: Daniel Vetter <daniel.vetter@ffwll.ch>
 ---
- drivers/gpu/drm/arc/arcpgu_crtc.c | 16 ----------------
- 1 file changed, 16 deletions(-)
+ drivers/gpu/drm/bochs/bochs_kms.c | 9 ---------
+ 1 file changed, 9 deletions(-)
 
-diff --git a/drivers/gpu/drm/arc/arcpgu_crtc.c b/drivers/gpu/drm/arc/arcpgu_crtc.c
-index 8ae1e1f97a73..be7c29cec318 100644
---- a/drivers/gpu/drm/arc/arcpgu_crtc.c
-+++ b/drivers/gpu/drm/arc/arcpgu_crtc.c
-@@ -9,7 +9,6 @@
- #include <drm/drm_device.h>
- #include <drm/drm_fb_cma_helper.h>
- #include <drm/drm_gem_cma_helper.h>
--#include <drm/drm_vblank.h>
- #include <drm/drm_plane_helper.h>
+diff --git a/drivers/gpu/drm/bochs/bochs_kms.c b/drivers/gpu/drm/bochs/bochs_kms.c
+index 3f0006c2470d..ff275faee88d 100644
+--- a/drivers/gpu/drm/bochs/bochs_kms.c
++++ b/drivers/gpu/drm/bochs/bochs_kms.c
+@@ -7,7 +7,6 @@
+ #include <drm/drm_atomic_helper.h>
+ #include <drm/drm_gem_framebuffer_helper.h>
  #include <drm/drm_probe_helper.h>
- #include <linux/clk.h>
-@@ -138,24 +137,9 @@ static void arc_pgu_crtc_atomic_disable(struct drm_crtc *crtc,
- 			      ~ARCPGU_CTRL_ENABLE_MASK);
- }
+-#include <drm/drm_vblank.h>
  
--static void arc_pgu_crtc_atomic_begin(struct drm_crtc *crtc,
--				      struct drm_crtc_state *state)
--{
--	struct drm_pending_vblank_event *event = crtc->state->event;
+ #include "bochs.h"
+ 
+@@ -57,16 +56,8 @@ static void bochs_pipe_update(struct drm_simple_display_pipe *pipe,
+ 			      struct drm_plane_state *old_state)
+ {
+ 	struct bochs_device *bochs = pipe->crtc.dev->dev_private;
+-	struct drm_crtc *crtc = &pipe->crtc;
+ 
+ 	bochs_plane_update(bochs, pipe->plane.state);
 -
--	if (event) {
--		crtc->state->event = NULL;
--
+-	if (crtc->state->event) {
 -		spin_lock_irq(&crtc->dev->event_lock);
--		drm_crtc_send_vblank_event(crtc, event);
+-		drm_crtc_send_vblank_event(crtc, crtc->state->event);
+-		crtc->state->event = NULL;
 -		spin_unlock_irq(&crtc->dev->event_lock);
 -	}
--}
--
- static const struct drm_crtc_helper_funcs arc_pgu_crtc_helper_funcs = {
- 	.mode_valid	= arc_pgu_crtc_mode_valid,
- 	.mode_set_nofb	= arc_pgu_crtc_mode_set_nofb,
--	.atomic_begin	= arc_pgu_crtc_atomic_begin,
- 	.atomic_enable	= arc_pgu_crtc_atomic_enable,
- 	.atomic_disable	= arc_pgu_crtc_atomic_disable,
- };
+ }
+ 
+ static const struct drm_simple_display_pipe_funcs bochs_pipe_funcs = {
 -- 
 2.25.0
