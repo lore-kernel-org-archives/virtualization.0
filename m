@@ -1,14 +1,13 @@
-From: David Hildenbrand <david@redhat.com>
-Subject: Re: Balloon pressuring page cache
-Date: Wed, 29 Jan 2020 11:31:28 +0100
-Message-ID: <91270a68-ff48-88b0-219c-69801f0c252f@redhat.com>
-References: <CAJuQAmpDUyve2S+oxp9tLUhuRcnddXnNztC5PmYOOCpY6c68xg@mail.gmail.com>
+From: Thomas Zimmermann <tzimmermann@suse.de>
+Subject: [PATCH v5 02/15] drm/arc: Remove sending of vblank event
+Date: Wed, 29 Jan 2020 13:05:18 +0100
+Message-ID: <20200129120531.6891-3-tzimmermann@suse.de>
+References: <20200129120531.6891-1-tzimmermann@suse.de>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="utf-8"
-Content-Transfer-Encoding: base64
+Content-Type: text/plain; charset="us-ascii"
+Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <CAJuQAmpDUyve2S+oxp9tLUhuRcnddXnNztC5PmYOOCpY6c68xg@mail.gmail.com>
-Content-Language: en-US
+In-Reply-To: <20200129120531.6891-1-tzimmermann@suse.de>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
  <mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -18,41 +17,60 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
  <mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Errors-To: virtualization-bounces@lists.linux-foundation.org
 Sender: "Virtualization" <virtualization-bounces@lists.linux-foundation.org>
-To: Tyler Sanderson <tysand@google.com>, virtualization@lists.linux-foundation.org, Wei Wang <wei.w.wang@intel.com>, David Rientjes <rientjes@google.com>
+To: airlied@linux.ie, daniel@ffwll.ch, kraxel@redhat.com, maarten.lankhorst@linux.intel.com, mripard@kernel.org, hdegoede@redhat.com, david@lechnology.com, noralf@tronnes.org, sean@poorly.run, oleksandr_andrushchenko@epam.com, sam@ravnborg.org, laurent.pinchart@ideasonboard.com, emil.velikov@collabora.com
+Cc: Daniel Vetter <daniel.vetter@ffwll.ch>, xen-devel@lists.xenproject.org, Thomas Zimmermann <tzimmermann@suse.de>, dri-devel@lists.freedesktop.org, virtualization@lists.linux-foundation.org
 List-Id: virtualization@lists.linuxfoundation.org
 
-T24gMjkuMDEuMjAgMDE6MjIsIFR5bGVyIFNhbmRlcnNvbiB2aWEgVmlydHVhbGl6YXRpb24gd3Jv
-dGU6Cj4gQSBwcmltYXJ5IGFkdmFudGFnZSBvZiB2aXJ0aW8gYmFsbG9vbiBvdmVyIG90aGVywqBt
-ZW1vcnkgcmVjbGFpbQo+IG1lY2hhbmlzbXMgaXMgdGhhdCBpdCBjYW7CoHByZXNzdXJlIHRoZSBn
-dWVzdCdzIHBhZ2UgY2FjaGUgaW50byBzaHJpbmtpbmcuCj4gCj4gSG93ZXZlciwgc2luY2UgdGhl
-IGJhbGxvb24gZHJpdmVyIGNoYW5nZWQgdG8gdXNpbmcgdGhlIHNocmlua2VyIEFQSQo+IDxodHRw
-czovL2dpdGh1Yi5jb20vdG9ydmFsZHMvbGludXgvY29tbWl0LzcxOTk0NjIwYmIyNWE4YjEwOTM4
-OGZlZmE5ZTk5YTI4ZTM1NTI1NWEjZGlmZi1mZDIwMmFjZjY5NGQ5ZWJhMTljOGM2NGRhM2U0ODBj
-OT7CoHRoaXMKPiB1c2UgY2FzZSBoYXMgYmVjb21lIGEgYml0IG1vcmUgdHJpY2t5LiBJJ20gd29u
-ZGVyaW5nIHdoYXQgdGhlIGludGVuZGVkCj4gZGV2aWNlIGltcGxlbWVudGF0aW9uIGlzLgo+IAo+
-IFdoZW4gaW5mbGF0aW5nIHRoZSBiYWxsb29uIGFnYWluc3QgcGFnZSBjYWNoZSAoaS5lLiBubyBm
-cmVlIG1lbW9yeQo+IHJlbWFpbnMpIHZtc2Nhbi5jIHdpbGwgYm90aCBzaHJpbmsgcGFnZSBjYWNo
-ZSwgYnV0IGFsc28gaW52b2tlIHRoZQo+IHNocmlua2VycyAtLSBpbmNsdWRpbmcgdGhlIGJhbGxv
-b24ncyBzaHJpbmtlci4gU28gdGhlIGJhbGxvb24gZHJpdmVyCj4gYWxsb2NhdGVzIG1lbW9yeSB3
-aGljaCByZXF1aXJlcyByZWNsYWltLCB2bXNjYW4gZ2V0cyB0aGlzIG1lbW9yeSBieQo+IHNocmlu
-a2luZyB0aGUgYmFsbG9vbiwgYW5kIHRoZW4gdGhlIGRyaXZlciBhZGRzIHRoZSBtZW1vcnkgYmFj
-ayB0byB0aGUKPiBiYWxsb29uLiBCYXNpY2FsbHkgYSBidXN5IG5vLW9wLgo+IAo+IElmIGZpbGUg
-SU8gaXMgb25nb2luZyBkdXJpbmcgdGhpcyBiYWxsb29uIGluZmxhdGlvbiB0aGVuIHRoZSBwYWdl
-IGNhY2hlCj4gY291bGQgYmUgZ3Jvd2luZyB3aGljaCBmdXJ0aGVyIHB1dHMgImJhY2sgcHJlc3N1
-cmUiIG9uIHRoZSBiYWxsb29uCj4gdHJ5aW5nIHRvIGluZmxhdGUuIEluIHRlc3RpbmcgSSd2ZSBz
-ZWVuIHBlcmlvZHMgb2YgPiA0NSBzZWNvbmRzIHdoZXJlCj4gYmFsbG9vbiBpbmZsYXRpb24gbWFr
-ZXMgbm8gbmV0IGZvcndhcmQgcHJvZ3Jlc3MuCj4gCj4gVGhpcyB3YXNuJ3QgYSBwcm9ibGVtIGJl
-Zm9yZSB0aGUgY2hhbmdlIHRvIHRoZSBzaHJpbmtlciBBUEkgc2luY2UgZm9yY2VkCj4gYmFsbG9v
-biBkZWZsYXRpb24gb25seSBvY2N1cnJlZCB2aWEgdGhlIE9PTSBub3RpZmllciBjYWxsYmFjayB3
-aGljaCB3YXMKPiBpbnZva2VkIG9ubHkgYWZ0ZXIgdGhlIHBhZ2UgY2FjaGUgaGFkIGRlcGxldGVk
-Lgo+IAo+IElzIHRoaXMgbmV3IGJ1c3kgYmVoYXZpb3Igd29ya2luZyBhcyBpbnRlbmRlZD8KClBs
-ZWFzZSBub3RlIHRoYXQgdGhlIHNocmlua2VyIHdpbGwgb25seSBiZSByZWdpc3RlcmVkIGluIGNh
-c2Ugd2UgaGF2ZQpWSVJUSU9fQkFMTE9PTl9GX0RFRkxBVEVfT05fT09NIC0gKHdoaWNoIGlzIEFG
-QUlLIHZlcnkgcmFyZSkgLSB0bwppbXBsZW1lbnQgYXV0b21hdGljIGJhbGxvb24gZGVmbGF0aW9u
-IHdoZW4gdGhlIGd1ZXN0IGlzIHVuZGVyIG1lbW9yeQpwcmVzc3VyZS4KCkFyZSB5b3UgYWN0dWFs
-bHkgZXhwZXJpZW5jaW5nIGlzc3VlcyB3aXRoIHRoYXQgb3IgZGlkIHlvdSBqdXN0IHN0dW1ibGUK
-b3ZlciB0aGUgY29kZT8KCi0tIApUaGFua3MsCgpEYXZpZCAvIGRoaWxkZW5iCgpfX19fX19fX19f
-X19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fXwpWaXJ0dWFsaXphdGlvbiBtYWls
-aW5nIGxpc3QKVmlydHVhbGl6YXRpb25AbGlzdHMubGludXgtZm91bmRhdGlvbi5vcmcKaHR0cHM6
-Ly9saXN0cy5saW51eGZvdW5kYXRpb24ub3JnL21haWxtYW4vbGlzdGluZm8vdmlydHVhbGl6YXRp
-b24=
+The atomic helpers automatically send out fake VBLANK events if no
+vblanking has been initialized. Remove the sending code from the
+driver.
+
+v4:
+	* separate commit from core vblank changes
+
+Signed-off-by: Thomas Zimmermann <tzimmermann@suse.de>
+Acked-by: Gerd Hoffmann <kraxel@redhat.com>
+Reviewed-by: Daniel Vetter <daniel.vetter@ffwll.ch>
+---
+ drivers/gpu/drm/arc/arcpgu_crtc.c | 16 ----------------
+ 1 file changed, 16 deletions(-)
+
+diff --git a/drivers/gpu/drm/arc/arcpgu_crtc.c b/drivers/gpu/drm/arc/arcpgu_crtc.c
+index 8ae1e1f97a73..be7c29cec318 100644
+--- a/drivers/gpu/drm/arc/arcpgu_crtc.c
++++ b/drivers/gpu/drm/arc/arcpgu_crtc.c
+@@ -9,7 +9,6 @@
+ #include <drm/drm_device.h>
+ #include <drm/drm_fb_cma_helper.h>
+ #include <drm/drm_gem_cma_helper.h>
+-#include <drm/drm_vblank.h>
+ #include <drm/drm_plane_helper.h>
+ #include <drm/drm_probe_helper.h>
+ #include <linux/clk.h>
+@@ -138,24 +137,9 @@ static void arc_pgu_crtc_atomic_disable(struct drm_crtc *crtc,
+ 			      ~ARCPGU_CTRL_ENABLE_MASK);
+ }
+ 
+-static void arc_pgu_crtc_atomic_begin(struct drm_crtc *crtc,
+-				      struct drm_crtc_state *state)
+-{
+-	struct drm_pending_vblank_event *event = crtc->state->event;
+-
+-	if (event) {
+-		crtc->state->event = NULL;
+-
+-		spin_lock_irq(&crtc->dev->event_lock);
+-		drm_crtc_send_vblank_event(crtc, event);
+-		spin_unlock_irq(&crtc->dev->event_lock);
+-	}
+-}
+-
+ static const struct drm_crtc_helper_funcs arc_pgu_crtc_helper_funcs = {
+ 	.mode_valid	= arc_pgu_crtc_mode_valid,
+ 	.mode_set_nofb	= arc_pgu_crtc_mode_set_nofb,
+-	.atomic_begin	= arc_pgu_crtc_atomic_begin,
+ 	.atomic_enable	= arc_pgu_crtc_atomic_enable,
+ 	.atomic_disable	= arc_pgu_crtc_atomic_disable,
+ };
+-- 
+2.25.0
