@@ -1,68 +1,176 @@
-From: Oleksandr Andrushchenko <Oleksandr_Andrushchenko@epam.com>
-Subject: Re: [PATCH v5 15/15] drm/xen: Explicitly disable
- automatic sending of vblank event
-Date: Wed, 29 Jan 2020 13:00:37 +0000
-Message-ID: <e2bd0ad6-573b-17e0-c47e-6550947b1916@epam.com>
-References: <20200129120531.6891-1-tzimmermann@suse.de>
- <20200129120531.6891-16-tzimmermann@suse.de>
+From: Tyler Sanderson via Virtualization
+ <virtualization@lists.linux-foundation.org>
+Subject: Re: Balloon pressuring page cache
+Date: Wed, 29 Jan 2020 11:11:17 -0800
+Message-ID: <CAJuQAmoaK0Swytu2Os_SQRfG5_LqiCPaDa9yatatm9MtfncNTQ@mail.gmail.com>
+References: <CAJuQAmpDUyve2S+oxp9tLUhuRcnddXnNztC5PmYOOCpY6c68xg@mail.gmail.com>
+ <91270a68-ff48-88b0-219c-69801f0c252f@redhat.com>
+Reply-To: Tyler Sanderson <tysand@google.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="utf-8"
-Content-Transfer-Encoding: base64
-Return-path: <xen-devel-bounces@lists.xenproject.org>
-In-Reply-To: <20200129120531.6891-16-tzimmermann@suse.de>
-Content-Language: en-US
-Content-ID: <4519BC3C3687C54C8173137068C5FDB3@eurprd03.prod.outlook.com>
-List-Unsubscribe: <https://lists.xenproject.org/mailman/options/xen-devel>,
- <mailto:xen-devel-request@lists.xenproject.org?subject=unsubscribe>
-List-Post: <mailto:xen-devel@lists.xenproject.org>
-List-Help: <mailto:xen-devel-request@lists.xenproject.org?subject=help>
-List-Subscribe: <https://lists.xenproject.org/mailman/listinfo/xen-devel>,
- <mailto:xen-devel-request@lists.xenproject.org?subject=subscribe>
-Errors-To: xen-devel-bounces@lists.xenproject.org
-Sender: "Xen-devel" <xen-devel-bounces@lists.xenproject.org>
-To: Thomas Zimmermann <tzimmermann@suse.de>, "airlied@linux.ie" <airlied@linux.ie>, "daniel@ffwll.ch" <daniel@ffwll.ch>, "kraxel@redhat.com" <kraxel@redhat.com>, "maarten.lankhorst@linux.intel.com" <maarten.lankhorst@linux.intel.com>, "mripard@kernel.org" <mripard@kernel.org>, "hdegoede@redhat.com" <hdegoede@redhat.com>, "david@lechnology.com" <david@lechnology.com>, "noralf@tronnes.org" <noralf@tronnes.org>, "sean@poorly.run" <sean@poorly.run>, "sam@ravnborg.org" <sam@ravnborg.org>, "laurent.pinchart@ideasonboard.com" <laurent.pinchart@ideasonboard.com>, "emil.velikov@collabora.com" <emil.velikov@collabora.com>
-Cc: Daniel Vetter <daniel.vetter@ffwll.ch>, "xen-devel@lists.xenproject.org" <xen-devel@lists.xenproject.org>, "dri-devel@lists.freedesktop.org" <dri-devel@lists.freedesktop.org>, "virtualization@lists.linux-foundation.org" <virtualization@lists.linux-foundation.org>
+Content-Type: multipart/mixed; boundary="===============5989323806528501526=="
+Return-path: <virtualization-bounces@lists.linux-foundation.org>
+In-Reply-To: <91270a68-ff48-88b0-219c-69801f0c252f@redhat.com>
+List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
+ <mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
+List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
+List-Post: <mailto:virtualization@lists.linux-foundation.org>
+List-Help: <mailto:virtualization-request@lists.linux-foundation.org?subject=help>
+List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualization>,
+ <mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
+Errors-To: virtualization-bounces@lists.linux-foundation.org
+Sender: "Virtualization" <virtualization-bounces@lists.linux-foundation.org>
+To: David Hildenbrand <david@redhat.com>
+Cc: David Rientjes <rientjes@google.com>, virtualization@lists.linux-foundation.org
 List-Id: virtualization@lists.linuxfoundation.org
 
-T24gMS8yOS8yMCAyOjA1IFBNLCBUaG9tYXMgWmltbWVybWFubiB3cm90ZToNCj4gVGhlIGF0b21p
-YyBoZWxwZXJzIGF1dG9tYXRpY2FsbHkgc2VuZCBvdXQgZmFrZSBWQkxBTksgZXZlbnRzIGlmIG5v
-DQo+IHZibGFua2luZyBoYXMgYmVlbiBpbml0aWFsaXplZC4gVGhpcyB3b3VsZCBhcHBseSB0byB4
-ZW4sIGJ1dCB4ZW4gaGFzDQo+IGl0cyBvd24gdmJsYW5rIGxvZ2ljLiBUbyBhdm9pZCBpbnRlcmZl
-cmluZyB3aXRoIHRoZSBhdG9taWMgaGVscGVycywNCj4gZGlzYWJsZSBhdXRvbWF0aWMgdmJsYW5r
-IGV2ZW50cyBleHBsaWNpdGx5Lg0KPg0KPiB2NToNCj4gCSogdXBkYXRlIGNvbW1lbnQNCj4gdjQ6
-DQo+IAkqIHNlcGFyYXRlIGNvbW1pdCBmcm9tIGNvcmUgdmJsYW5rIGNoYW5nZXMNCj4NCj4gU2ln
-bmVkLW9mZi1ieTogVGhvbWFzIFppbW1lcm1hbm4gPHR6aW1tZXJtYW5uQHN1c2UuZGU+DQo+IEFj
-a2VkLWJ5OiBHZXJkIEhvZmZtYW5uIDxrcmF4ZWxAcmVkaGF0LmNvbT4NCj4gUmV2aWV3ZWQtYnk6
-IERhbmllbCBWZXR0ZXIgPGRhbmllbC52ZXR0ZXJAZmZ3bGwuY2g+DQpUaGFuayB5b3UgZm9yIHlv
-dXIgd29yaywNClJldmlld2VkLWJ5OiBPbGVrc2FuZHIgQW5kcnVzaGNoZW5rbyA8b2xla3NhbmRy
-X2FuZHJ1c2hjaGVua29AZXBhbS5jb20+DQo+IC0tLQ0KPiAgIGRyaXZlcnMvZ3B1L2RybS94ZW4v
-eGVuX2RybV9mcm9udF9rbXMuYyB8IDE5ICsrKysrKysrKysrKysrKysrKysNCj4gICAxIGZpbGUg
-Y2hhbmdlZCwgMTkgaW5zZXJ0aW9ucygrKQ0KPg0KPiBkaWZmIC0tZ2l0IGEvZHJpdmVycy9ncHUv
-ZHJtL3hlbi94ZW5fZHJtX2Zyb250X2ttcy5jIGIvZHJpdmVycy9ncHUvZHJtL3hlbi94ZW5fZHJt
-X2Zyb250X2ttcy5jDQo+IGluZGV4IDRmMzRjNTIwODE4MC4uNzgwOTZiYmNkMjI2IDEwMDY0NA0K
-PiAtLS0gYS9kcml2ZXJzL2dwdS9kcm0veGVuL3hlbl9kcm1fZnJvbnRfa21zLmMNCj4gKysrIGIv
-ZHJpdmVycy9ncHUvZHJtL3hlbi94ZW5fZHJtX2Zyb250X2ttcy5jDQo+IEBAIC0yMjAsNiArMjIw
-LDI0IEBAIHN0YXRpYyBib29sIGRpc3BsYXlfc2VuZF9wYWdlX2ZsaXAoc3RydWN0IGRybV9zaW1w
-bGVfZGlzcGxheV9waXBlICpwaXBlLA0KPiAgIAlyZXR1cm4gZmFsc2U7DQo+ICAgfQ0KPiAgIA0K
-PiArc3RhdGljIGludCBkaXNwbGF5X2NoZWNrKHN0cnVjdCBkcm1fc2ltcGxlX2Rpc3BsYXlfcGlw
-ZSAqcGlwZSwNCj4gKwkJCSBzdHJ1Y3QgZHJtX3BsYW5lX3N0YXRlICpwbGFuZV9zdGF0ZSwNCj4g
-KwkJCSBzdHJ1Y3QgZHJtX2NydGNfc3RhdGUgKmNydGNfc3RhdGUpDQo+ICt7DQo+ICsJLyoNCj4g
-KwkgKiBYZW4gZG9lc24ndCBpbml0aWFsaXplIHZibGFua2luZyB2aWEgZHJtX3ZibGFua19pbml0
-KCksIHNvDQo+ICsJICogRFJNIGhlbHBlcnMgYXNzdW1lIHRoYXQgaXQgZG9lc24ndCBoYW5kbGUg
-dmJsYW5raW5nIGFuZCBzdGFydA0KPiArCSAqIHNlbmRpbmcgb3V0IGZha2UgVkJMQU5LIGV2ZW50
-cyBhdXRvbWF0aWNhbGx5Lg0KPiArCSAqDQo+ICsJICogQXMgeGVuIGNvbnRhaW5zIGl0J3Mgb3du
-IGxvZ2ljIGZvciBzZW5kaW5nIG91dCBWQkxBTksgZXZlbnRzDQo+ICsJICogaW4gc2VuZF9wZW5k
-aW5nX2V2ZW50KCksIGRpc2FibGUgbm9fdmJsYW5rIChpLmUuLCB0aGUgeGVuDQo+ICsJICogZHJp
-dmVyIGhhcyB2Ymxhbmtpbmcgc3VwcG9ydCkuDQo+ICsJICovDQo+ICsJY3J0Y19zdGF0ZS0+bm9f
-dmJsYW5rID0gZmFsc2U7DQo+ICsNCj4gKwlyZXR1cm4gMDsNCj4gK30NCj4gKw0KPiAgIHN0YXRp
-YyB2b2lkIGRpc3BsYXlfdXBkYXRlKHN0cnVjdCBkcm1fc2ltcGxlX2Rpc3BsYXlfcGlwZSAqcGlw
-ZSwNCj4gICAJCQkgICBzdHJ1Y3QgZHJtX3BsYW5lX3N0YXRlICpvbGRfcGxhbmVfc3RhdGUpDQo+
-ICAgew0KPiBAQCAtMjg0LDYgKzMwMiw3IEBAIHN0YXRpYyBjb25zdCBzdHJ1Y3QgZHJtX3NpbXBs
-ZV9kaXNwbGF5X3BpcGVfZnVuY3MgZGlzcGxheV9mdW5jcyA9IHsNCj4gICAJLmVuYWJsZSA9IGRp
-c3BsYXlfZW5hYmxlLA0KPiAgIAkuZGlzYWJsZSA9IGRpc3BsYXlfZGlzYWJsZSwNCj4gICAJLnBy
-ZXBhcmVfZmIgPSBkcm1fZ2VtX2ZiX3NpbXBsZV9kaXNwbGF5X3BpcGVfcHJlcGFyZV9mYiwNCj4g
-KwkuY2hlY2sgPSBkaXNwbGF5X2NoZWNrLA0KPiAgIAkudXBkYXRlID0gZGlzcGxheV91cGRhdGUs
-DQo+ICAgfTsNCj4gICANCl9fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19f
-X19fX19fClhlbi1kZXZlbCBtYWlsaW5nIGxpc3QKWGVuLWRldmVsQGxpc3RzLnhlbnByb2plY3Qu
-b3JnCmh0dHBzOi8vbGlzdHMueGVucHJvamVjdC5vcmcvbWFpbG1hbi9saXN0aW5mby94ZW4tZGV2
-ZWw=
+--===============5989323806528501526==
+Content-Type: multipart/alternative; boundary="0000000000008b7786059d4c1b63"
+
+--0000000000008b7786059d4c1b63
+Content-Type: text/plain; charset="UTF-8"
+
+On Wed, Jan 29, 2020 at 2:31 AM David Hildenbrand <david@redhat.com> wrote:
+
+> On 29.01.20 01:22, Tyler Sanderson via Virtualization wrote:
+> > A primary advantage of virtio balloon over other memory reclaim
+> > mechanisms is that it can pressure the guest's page cache into shrinking.
+> >
+> > However, since the balloon driver changed to using the shrinker API
+> > <
+> https://github.com/torvalds/linux/commit/71994620bb25a8b109388fefa9e99a28e355255a#diff-fd202acf694d9eba19c8c64da3e480c9
+> > this
+> > use case has become a bit more tricky. I'm wondering what the intended
+> > device implementation is.
+> >
+> > When inflating the balloon against page cache (i.e. no free memory
+> > remains) vmscan.c will both shrink page cache, but also invoke the
+> > shrinkers -- including the balloon's shrinker. So the balloon driver
+> > allocates memory which requires reclaim, vmscan gets this memory by
+> > shrinking the balloon, and then the driver adds the memory back to the
+> > balloon. Basically a busy no-op.
+> >
+> > If file IO is ongoing during this balloon inflation then the page cache
+> > could be growing which further puts "back pressure" on the balloon
+> > trying to inflate. In testing I've seen periods of > 45 seconds where
+> > balloon inflation makes no net forward progress.
+> >
+> > This wasn't a problem before the change to the shrinker API since forced
+> > balloon deflation only occurred via the OOM notifier callback which was
+> > invoked only after the page cache had depleted.
+> >
+> > Is this new busy behavior working as intended?
+>
+> Please note that the shrinker will only be registered in case we have
+> VIRTIO_BALLOON_F_DEFLATE_ON_OOM - (which is AFAIK very rare) - to
+> implement automatic balloon deflation when the guest is under memory
+> pressure.
+
+
+> Are you actually experiencing issues with that or did you just stumble
+> over the code?
+>
+
+We have a use case that is encountering this (and that registers
+DEFLATE_ON_OOM). We can work around this, but it does seem inefficient.
+I understand there were good reasons for moving away from the OOM notifier
+callback, but I'm wondering if the balloon driver could specify a "nice"
+level to the shrinker API that would cause it to be reclaimed from only as
+a last resort?
+
+
+>
+> --
+> Thanks,
+>
+> David / dhildenb
+>
+>
+
+--0000000000008b7786059d4c1b63
+Content-Type: text/html; charset="UTF-8"
+Content-Transfer-Encoding: quoted-printable
+
+<div dir=3D"ltr"><div dir=3D"ltr"><br></div><br><div class=3D"gmail_quote">=
+<div dir=3D"ltr" class=3D"gmail_attr">On Wed, Jan 29, 2020 at 2:31 AM David=
+ Hildenbrand &lt;<a href=3D"mailto:david@redhat.com">david@redhat.com</a>&g=
+t; wrote:<br></div><blockquote class=3D"gmail_quote" style=3D"margin:0px 0p=
+x 0px 0.8ex;border-left:1px solid rgb(204,204,204);padding-left:1ex">On 29.=
+01.20 01:22, Tyler Sanderson via Virtualization wrote:<br>
+&gt; A primary advantage of virtio balloon over other=C2=A0memory reclaim<b=
+r>
+&gt; mechanisms is that it can=C2=A0pressure the guest&#39;s page cache int=
+o shrinking.<br>
+&gt; <br>
+&gt; However, since the balloon driver changed to using the shrinker API<br=
+>
+&gt; &lt;<a href=3D"https://github.com/torvalds/linux/commit/71994620bb25a8=
+b109388fefa9e99a28e355255a#diff-fd202acf694d9eba19c8c64da3e480c9" rel=3D"no=
+referrer" target=3D"_blank">https://github.com/torvalds/linux/commit/719946=
+20bb25a8b109388fefa9e99a28e355255a#diff-fd202acf694d9eba19c8c64da3e480c9</a=
+>&gt;=C2=A0this<br>
+&gt; use case has become a bit more tricky. I&#39;m wondering what the inte=
+nded<br>
+&gt; device implementation is.<br>
+&gt; <br>
+&gt; When inflating the balloon against page cache (i.e. no free memory<br>
+&gt; remains) vmscan.c will both shrink page cache, but also invoke the<br>
+&gt; shrinkers -- including the balloon&#39;s shrinker. So the balloon driv=
+er<br>
+&gt; allocates memory which requires reclaim, vmscan gets this memory by<br=
+>
+&gt; shrinking the balloon, and then the driver adds the memory back to the=
+<br>
+&gt; balloon. Basically a busy no-op.<br>
+&gt; <br>
+&gt; If file IO is ongoing during this balloon inflation then the page cach=
+e<br>
+&gt; could be growing which further puts &quot;back pressure&quot; on the b=
+alloon<br>
+&gt; trying to inflate. In testing I&#39;ve seen periods of &gt; 45 seconds=
+ where<br>
+&gt; balloon inflation makes no net forward progress.<br>
+&gt; <br>
+&gt; This wasn&#39;t a problem before the change to the shrinker API since =
+forced<br>
+&gt; balloon deflation only occurred via the OOM notifier callback which wa=
+s<br>
+&gt; invoked only after the page cache had depleted.<br>
+&gt; <br>
+&gt; Is this new busy behavior working as intended?<br>
+<br>
+Please note that the shrinker will only be registered in case we have<br>
+VIRTIO_BALLOON_F_DEFLATE_ON_OOM - (which is AFAIK very rare) - to<br>
+implement automatic balloon deflation when the guest is under memory<br>
+pressure.</blockquote><blockquote class=3D"gmail_quote" style=3D"margin:0px=
+ 0px 0px 0.8ex;border-left:1px solid rgb(204,204,204);padding-left:1ex">
+<br>
+Are you actually experiencing issues with that or did you just stumble<br>
+over the code?<br></blockquote><div><br></div><div>We have a use case that =
+is encountering this (and that registers DEFLATE_ON_OOM). We can work aroun=
+d this, but it does seem inefficient.</div><div>I understand there were goo=
+d reasons for moving away from the OOM notifier callback, but I&#39;m wonde=
+ring if the balloon driver could specify a &quot;nice&quot; level to the sh=
+rinker API that would cause it to be reclaimed from only as a last resort?<=
+/div><div>=C2=A0</div><blockquote class=3D"gmail_quote" style=3D"margin:0px=
+ 0px 0px 0.8ex;border-left:1px solid rgb(204,204,204);padding-left:1ex">
+<br>
+-- <br>
+Thanks,<br>
+<br>
+David / dhildenb<br>
+<br>
+</blockquote></div></div>
+
+--0000000000008b7786059d4c1b63--
+
+--===============5989323806528501526==
+Content-Type: text/plain; charset="us-ascii"
+MIME-Version: 1.0
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+
+_______________________________________________
+Virtualization mailing list
+Virtualization@lists.linux-foundation.org
+https://lists.linuxfoundation.org/mailman/listinfo/virtualization
+--===============5989323806528501526==--
