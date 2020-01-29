@@ -1,7 +1,7 @@
 From: Thomas Zimmermann <tzimmermann@suse.de>
-Subject: [PATCH v5 07/15] drm/ili9225: Remove sending of vblank event
-Date: Wed, 29 Jan 2020 13:05:23 +0100
-Message-ID: <20200129120531.6891-8-tzimmermann@suse.de>
+Subject: [PATCH v5 06/15] drm/gm12u320: Remove sending of vblank event
+Date: Wed, 29 Jan 2020 13:05:22 +0100
+Message-ID: <20200129120531.6891-7-tzimmermann@suse.de>
 References: <20200129120531.6891-1-tzimmermann@suse.de>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
@@ -32,39 +32,39 @@ Signed-off-by: Thomas Zimmermann <tzimmermann@suse.de>
 Acked-by: Gerd Hoffmann <kraxel@redhat.com>
 Reviewed-by: Daniel Vetter <daniel.vetter@ffwll.ch>
 ---
- drivers/gpu/drm/tiny/ili9225.c | 9 ---------
+ drivers/gpu/drm/tiny/gm12u320.c | 9 ---------
  1 file changed, 9 deletions(-)
 
-diff --git a/drivers/gpu/drm/tiny/ili9225.c b/drivers/gpu/drm/tiny/ili9225.c
-index c66acc566c2b..802fb8dde1b6 100644
---- a/drivers/gpu/drm/tiny/ili9225.c
-+++ b/drivers/gpu/drm/tiny/ili9225.c
-@@ -26,7 +26,6 @@
- #include <drm/drm_gem_framebuffer_helper.h>
- #include <drm/drm_mipi_dbi.h>
- #include <drm/drm_rect.h>
+diff --git a/drivers/gpu/drm/tiny/gm12u320.c b/drivers/gpu/drm/tiny/gm12u320.c
+index 94fb1f593564..a48173441ae0 100644
+--- a/drivers/gpu/drm/tiny/gm12u320.c
++++ b/drivers/gpu/drm/tiny/gm12u320.c
+@@ -22,7 +22,6 @@
+ #include <drm/drm_modeset_helper_vtables.h>
+ #include <drm/drm_probe_helper.h>
+ #include <drm/drm_simple_kms_helper.h>
 -#include <drm/drm_vblank.h>
  
- #define ILI9225_DRIVER_READ_CODE	0x00
- #define ILI9225_DRIVER_OUTPUT_CONTROL	0x01
-@@ -165,18 +164,10 @@ static void ili9225_pipe_update(struct drm_simple_display_pipe *pipe,
- 				struct drm_plane_state *old_state)
+ static bool eco_mode;
+ module_param(eco_mode, bool, 0644);
+@@ -610,18 +609,10 @@ static void gm12u320_pipe_update(struct drm_simple_display_pipe *pipe,
+ 				 struct drm_plane_state *old_state)
  {
  	struct drm_plane_state *state = pipe->plane.state;
 -	struct drm_crtc *crtc = &pipe->crtc;
  	struct drm_rect rect;
  
  	if (drm_atomic_helper_damage_merged(old_state, state, &rect))
- 		ili9225_fb_dirty(state->fb, &rect);
+ 		gm12u320_fb_mark_dirty(pipe->plane.state->fb, &rect);
 -
 -	if (crtc->state->event) {
 -		spin_lock_irq(&crtc->dev->event_lock);
 -		drm_crtc_send_vblank_event(crtc, crtc->state->event);
--		spin_unlock_irq(&crtc->dev->event_lock);
 -		crtc->state->event = NULL;
+-		spin_unlock_irq(&crtc->dev->event_lock);
 -	}
  }
  
- static void ili9225_pipe_enable(struct drm_simple_display_pipe *pipe,
+ static const struct drm_simple_display_pipe_funcs gm12u320_pipe_funcs = {
 -- 
 2.25.0
