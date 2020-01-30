@@ -1,16 +1,17 @@
-From: David Hildenbrand <david@redhat.com>
+From: "Michael S. Tsirkin" <mst@redhat.com>
 Subject: Re: Balloon pressuring page cache
-Date: Thu, 30 Jan 2020 16:02:34 +0100
-Message-ID: <75d4594f-0864-5172-a0f8-f97affedb366@redhat.com>
+Date: Thu, 30 Jan 2020 10:20:17 -0500
+Message-ID: <20200130101710-mutt-send-email-mst@kernel.org>
 References: <CAJuQAmpDUyve2S+oxp9tLUhuRcnddXnNztC5PmYOOCpY6c68xg@mail.gmail.com>
  <91270a68-ff48-88b0-219c-69801f0c252f@redhat.com>
  <CAJuQAmoaK0Swytu2Os_SQRfG5_LqiCPaDa9yatatm9MtfncNTQ@mail.gmail.com>
+ <75d4594f-0864-5172-a0f8-f97affedb366@redhat.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="utf-8"
-Content-Transfer-Encoding: base64
+Content-Type: text/plain; charset="iso-8859-1"
+Content-Transfer-Encoding: quoted-printable
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <CAJuQAmoaK0Swytu2Os_SQRfG5_LqiCPaDa9yatatm9MtfncNTQ@mail.gmail.com>
-Content-Language: en-US
+In-Reply-To: <75d4594f-0864-5172-a0f8-f97affedb366@redhat.com>
+Content-Disposition: inline
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
  <mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -20,57 +21,105 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
  <mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Errors-To: virtualization-bounces@lists.linux-foundation.org
 Sender: "Virtualization" <virtualization-bounces@lists.linux-foundation.org>
-To: Tyler Sanderson <tysand@google.com>
-Cc: "Michael S. Tsirkin" <mst@redhat.com>, Michal Hocko <mhocko@kernel.org>, "linux-mm@kvack.org" <linux-mm@kvack.org>, David Rientjes <rientjes@google.com>, virtualization@lists.linux-foundation.org
+To: David Hildenbrand <david@redhat.com>
+Cc: Michal Hocko <mhocko@kernel.org>, Tyler Sanderson <tysand@google.com>, "linux-mm@kvack.org" <linux-mm@kvack.org>, David Rientjes <rientjes@google.com>, virtualization@lists.linux-foundation.org
 List-Id: virtualization@lists.linuxfoundation.org
 
-T24gMjkuMDEuMjAgMjA6MTEsIFR5bGVyIFNhbmRlcnNvbiB3cm90ZToKPiAKPiAKPiBPbiBXZWQs
-IEphbiAyOSwgMjAyMCBhdCAyOjMxIEFNIERhdmlkIEhpbGRlbmJyYW5kIDxkYXZpZEByZWRoYXQu
-Y29tCj4gPG1haWx0bzpkYXZpZEByZWRoYXQuY29tPj4gd3JvdGU6Cj4gCj4gICAgIE9uIDI5LjAx
-LjIwIDAxOjIyLCBUeWxlciBTYW5kZXJzb24gdmlhIFZpcnR1YWxpemF0aW9uIHdyb3RlOgo+ICAg
-ICA+IEEgcHJpbWFyeSBhZHZhbnRhZ2Ugb2YgdmlydGlvIGJhbGxvb24gb3ZlciBvdGhlcsKgbWVt
-b3J5IHJlY2xhaW0KPiAgICAgPiBtZWNoYW5pc21zIGlzIHRoYXQgaXQgY2FuwqBwcmVzc3VyZSB0
-aGUgZ3Vlc3QncyBwYWdlIGNhY2hlIGludG8KPiAgICAgc2hyaW5raW5nLgo+ICAgICA+Cj4gICAg
-ID4gSG93ZXZlciwgc2luY2UgdGhlIGJhbGxvb24gZHJpdmVyIGNoYW5nZWQgdG8gdXNpbmcgdGhl
-IHNocmlua2VyIEFQSQo+ICAgICA+Cj4gICAgIDxodHRwczovL2dpdGh1Yi5jb20vdG9ydmFsZHMv
-bGludXgvY29tbWl0LzcxOTk0NjIwYmIyNWE4YjEwOTM4OGZlZmE5ZTk5YTI4ZTM1NTI1NWEjZGlm
-Zi1mZDIwMmFjZjY5NGQ5ZWJhMTljOGM2NGRhM2U0ODBjOT7CoHRoaXMKPiAgICAgPiB1c2UgY2Fz
-ZSBoYXMgYmVjb21lIGEgYml0IG1vcmUgdHJpY2t5LiBJJ20gd29uZGVyaW5nIHdoYXQgdGhlIGlu
-dGVuZGVkCj4gICAgID4gZGV2aWNlIGltcGxlbWVudGF0aW9uIGlzLgo+ICAgICA+Cj4gICAgID4g
-V2hlbiBpbmZsYXRpbmcgdGhlIGJhbGxvb24gYWdhaW5zdCBwYWdlIGNhY2hlIChpLmUuIG5vIGZy
-ZWUgbWVtb3J5Cj4gICAgID4gcmVtYWlucykgdm1zY2FuLmMgd2lsbCBib3RoIHNocmluayBwYWdl
-IGNhY2hlLCBidXQgYWxzbyBpbnZva2UgdGhlCj4gICAgID4gc2hyaW5rZXJzIC0tIGluY2x1ZGlu
-ZyB0aGUgYmFsbG9vbidzIHNocmlua2VyLiBTbyB0aGUgYmFsbG9vbiBkcml2ZXIKPiAgICAgPiBh
-bGxvY2F0ZXMgbWVtb3J5IHdoaWNoIHJlcXVpcmVzIHJlY2xhaW0sIHZtc2NhbiBnZXRzIHRoaXMg
-bWVtb3J5IGJ5Cj4gICAgID4gc2hyaW5raW5nIHRoZSBiYWxsb29uLCBhbmQgdGhlbiB0aGUgZHJp
-dmVyIGFkZHMgdGhlIG1lbW9yeSBiYWNrIHRvIHRoZQo+ICAgICA+IGJhbGxvb24uIEJhc2ljYWxs
-eSBhIGJ1c3kgbm8tb3AuCj4gICAgID4KPiAgICAgPiBJZiBmaWxlIElPIGlzIG9uZ29pbmcgZHVy
-aW5nIHRoaXMgYmFsbG9vbiBpbmZsYXRpb24gdGhlbiB0aGUgcGFnZQo+ICAgICBjYWNoZQo+ICAg
-ICA+IGNvdWxkIGJlIGdyb3dpbmcgd2hpY2ggZnVydGhlciBwdXRzICJiYWNrIHByZXNzdXJlIiBv
-biB0aGUgYmFsbG9vbgo+ICAgICA+IHRyeWluZyB0byBpbmZsYXRlLiBJbiB0ZXN0aW5nIEkndmUg
-c2VlbiBwZXJpb2RzIG9mID4gNDUgc2Vjb25kcyB3aGVyZQo+ICAgICA+IGJhbGxvb24gaW5mbGF0
-aW9uIG1ha2VzIG5vIG5ldCBmb3J3YXJkIHByb2dyZXNzLgo+ICAgICA+Cj4gICAgID4gVGhpcyB3
-YXNuJ3QgYSBwcm9ibGVtIGJlZm9yZSB0aGUgY2hhbmdlIHRvIHRoZSBzaHJpbmtlciBBUEkgc2lu
-Y2UKPiAgICAgZm9yY2VkCj4gICAgID4gYmFsbG9vbiBkZWZsYXRpb24gb25seSBvY2N1cnJlZCB2
-aWEgdGhlIE9PTSBub3RpZmllciBjYWxsYmFjawo+ICAgICB3aGljaCB3YXMKPiAgICAgPiBpbnZv
-a2VkIG9ubHkgYWZ0ZXIgdGhlIHBhZ2UgY2FjaGUgaGFkIGRlcGxldGVkLgo+ICAgICA+Cj4gICAg
-ID4gSXMgdGhpcyBuZXcgYnVzeSBiZWhhdmlvciB3b3JraW5nIGFzIGludGVuZGVkPwo+IAo+ICAg
-ICBQbGVhc2Ugbm90ZSB0aGF0IHRoZSBzaHJpbmtlciB3aWxsIG9ubHkgYmUgcmVnaXN0ZXJlZCBp
-biBjYXNlIHdlIGhhdmUKPiAgICAgVklSVElPX0JBTExPT05fRl9ERUZMQVRFX09OX09PTSAtICh3
-aGljaCBpcyBBRkFJSyB2ZXJ5IHJhcmUpIC0gdG8KPiAgICAgaW1wbGVtZW50IGF1dG9tYXRpYyBi
-YWxsb29uIGRlZmxhdGlvbiB3aGVuIHRoZSBndWVzdCBpcyB1bmRlciBtZW1vcnkKPiAgICAgcHJl
-c3N1cmUuCj4gCj4gCj4gICAgIEFyZSB5b3UgYWN0dWFsbHkgZXhwZXJpZW5jaW5nIGlzc3VlcyB3
-aXRoIHRoYXQgb3IgZGlkIHlvdSBqdXN0IHN0dW1ibGUKPiAgICAgb3ZlciB0aGUgY29kZT8KPiAK
-PiAKPiBXZSBoYXZlIGEgdXNlIGNhc2UgdGhhdCBpcyBlbmNvdW50ZXJpbmcgdGhpcyAoYW5kIHRo
-YXQgcmVnaXN0ZXJzCj4gREVGTEFURV9PTl9PT00pLiBXZSBjYW4gd29yayBhcm91bmQgdGhpcywg
-YnV0IGl0IGRvZXMgc2VlbSBpbmVmZmljaWVudC4KPiBJIHVuZGVyc3RhbmQgdGhlcmUgd2VyZSBn
-b29kIHJlYXNvbnMgZm9yIG1vdmluZyBhd2F5IGZyb20gdGhlIE9PTQo+IG5vdGlmaWVyIGNhbGxi
-YWNrLCBidXQgSSdtIHdvbmRlcmluZyBpZiB0aGUgYmFsbG9vbiBkcml2ZXIgY291bGQgc3BlY2lm
-eQo+IGEgIm5pY2UiIGxldmVsIHRvIHRoZSBzaHJpbmtlciBBUEkgdGhhdCB3b3VsZCBjYXVzZSBp
-dCB0byBiZSByZWNsYWltZWQKPiBmcm9tIG9ubHkgYXMgYSBsYXN0IHJlc29ydD8KPiDCoAoKQ2Mt
-aW5nIGxpbnV4LW1tLCBNaWNoYWwgYW5kIE1pY2hhZWwuCgpKdXN0IHdvbmRlcmluZywgaG93IGRv
-ZXMgeW91ciB3b3JrYXJvdW5kIGxvb2sgbGlrZT8KCi0tIApUaGFua3MsCgpEYXZpZCAvIGRoaWxk
-ZW5iCgpfX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fXwpWaXJ0
-dWFsaXphdGlvbiBtYWlsaW5nIGxpc3QKVmlydHVhbGl6YXRpb25AbGlzdHMubGludXgtZm91bmRh
-dGlvbi5vcmcKaHR0cHM6Ly9saXN0cy5saW51eGZvdW5kYXRpb24ub3JnL21haWxtYW4vbGlzdGlu
-Zm8vdmlydHVhbGl6YXRpb24=
+On Thu, Jan 30, 2020 at 04:02:34PM +0100, David Hildenbrand wrote:
+> On 29.01.20 20:11, Tyler Sanderson wrote:
+> > =
+
+> > =
+
+> > On Wed, Jan 29, 2020 at 2:31 AM David Hildenbrand <david@redhat.com
+> > <mailto:david@redhat.com>> wrote:
+> > =
+
+> >     On 29.01.20 01:22, Tyler Sanderson via Virtualization wrote:
+> >     > A primary advantage of virtio balloon over other=C2=A0memory recl=
+aim
+> >     > mechanisms is that it can=C2=A0pressure the guest's page cache in=
+to
+> >     shrinking.
+> >     >
+> >     > However, since the balloon driver changed to using the shrinker A=
+PI
+> >     >
+> >     <https://github.com/torvalds/linux/commit/71994620bb25a8b109388fefa=
+9e99a28e355255a#diff-fd202acf694d9eba19c8c64da3e480c9>=C2=A0this
+> >     > use case has become a bit more tricky. I'm wondering what the int=
+ended
+> >     > device implementation is.
+> >     >
+> >     > When inflating the balloon against page cache (i.e. no free memory
+> >     > remains) vmscan.c will both shrink page cache, but also invoke the
+> >     > shrinkers -- including the balloon's shrinker. So the balloon dri=
+ver
+> >     > allocates memory which requires reclaim, vmscan gets this memory =
+by
+> >     > shrinking the balloon, and then the driver adds the memory back t=
+o the
+> >     > balloon. Basically a busy no-op.
+> >     >
+> >     > If file IO is ongoing during this balloon inflation then the page
+> >     cache
+> >     > could be growing which further puts "back pressure" on the balloon
+> >     > trying to inflate. In testing I've seen periods of > 45 seconds w=
+here
+> >     > balloon inflation makes no net forward progress.
+> >     >
+> >     > This wasn't a problem before the change to the shrinker API since
+> >     forced
+> >     > balloon deflation only occurred via the OOM notifier callback
+> >     which was
+> >     > invoked only after the page cache had depleted.
+> >     >
+> >     > Is this new busy behavior working as intended?
+> > =
+
+> >     Please note that the shrinker will only be registered in case we ha=
+ve
+> >     VIRTIO_BALLOON_F_DEFLATE_ON_OOM - (which is AFAIK very rare) - to
+> >     implement automatic balloon deflation when the guest is under memory
+> >     pressure.
+> > =
+
+> > =
+
+> >     Are you actually experiencing issues with that or did you just stum=
+ble
+> >     over the code?
+> > =
+
+> > =
+
+> > We have a use case that is encountering this (and that registers
+> > DEFLATE_ON_OOM). We can work around this, but it does seem inefficient.
+> > I understand there were good reasons for moving away from the OOM
+> > notifier callback, but I'm wondering if the balloon driver could specify
+> > a "nice" level to the shrinker API that would cause it to be reclaimed
+> > from only as a last resort?
+> > =C2=A0
+> =
+
+> Cc-ing linux-mm, Michal and Michael.
+
+
+Interesting.  VIRTIO_BALLOON_F_DEFLATE_ON_OOM is really
+underspecified in a bunch of ways.
+
+I'll wait to see what does Michal say from Linux POV.
+
+
+
+
+
+> Just wondering, how does your workaround look like?
+> =
+
+> -- =
+
+> Thanks,
+> =
+
+> David / dhildenb
