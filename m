@@ -1,17 +1,18 @@
-From: "Michael S. Tsirkin" <mst@redhat.com>
+From: David Hildenbrand <david@redhat.com>
 Subject: Re: Balloon pressuring page cache
-Date: Thu, 30 Jan 2020 10:20:17 -0500
-Message-ID: <20200130101710-mutt-send-email-mst@kernel.org>
+Date: Thu, 30 Jan 2020 16:23:05 +0100
+Message-ID: <8c980dc1-0a3e-dc00-c984-7a9ec9563422@redhat.com>
 References: <CAJuQAmpDUyve2S+oxp9tLUhuRcnddXnNztC5PmYOOCpY6c68xg@mail.gmail.com>
  <91270a68-ff48-88b0-219c-69801f0c252f@redhat.com>
  <CAJuQAmoaK0Swytu2Os_SQRfG5_LqiCPaDa9yatatm9MtfncNTQ@mail.gmail.com>
  <75d4594f-0864-5172-a0f8-f97affedb366@redhat.com>
+ <20200130101710-mutt-send-email-mst@kernel.org>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="iso-8859-1"
-Content-Transfer-Encoding: quoted-printable
+Content-Type: text/plain; charset="utf-8"
+Content-Transfer-Encoding: base64
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <75d4594f-0864-5172-a0f8-f97affedb366@redhat.com>
-Content-Disposition: inline
+In-Reply-To: <20200130101710-mutt-send-email-mst@kernel.org>
+Content-Language: en-US
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
  <mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -21,105 +22,66 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
  <mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Errors-To: virtualization-bounces@lists.linux-foundation.org
 Sender: "Virtualization" <virtualization-bounces@lists.linux-foundation.org>
-To: David Hildenbrand <david@redhat.com>
+To: "Michael S. Tsirkin" <mst@redhat.com>
 Cc: Michal Hocko <mhocko@kernel.org>, Tyler Sanderson <tysand@google.com>, "linux-mm@kvack.org" <linux-mm@kvack.org>, David Rientjes <rientjes@google.com>, virtualization@lists.linux-foundation.org
 List-Id: virtualization@lists.linuxfoundation.org
 
-On Thu, Jan 30, 2020 at 04:02:34PM +0100, David Hildenbrand wrote:
-> On 29.01.20 20:11, Tyler Sanderson wrote:
-> > =
-
-> > =
-
-> > On Wed, Jan 29, 2020 at 2:31 AM David Hildenbrand <david@redhat.com
-> > <mailto:david@redhat.com>> wrote:
-> > =
-
-> >     On 29.01.20 01:22, Tyler Sanderson via Virtualization wrote:
-> >     > A primary advantage of virtio balloon over other=C2=A0memory recl=
-aim
-> >     > mechanisms is that it can=C2=A0pressure the guest's page cache in=
-to
-> >     shrinking.
-> >     >
-> >     > However, since the balloon driver changed to using the shrinker A=
-PI
-> >     >
-> >     <https://github.com/torvalds/linux/commit/71994620bb25a8b109388fefa=
-9e99a28e355255a#diff-fd202acf694d9eba19c8c64da3e480c9>=C2=A0this
-> >     > use case has become a bit more tricky. I'm wondering what the int=
-ended
-> >     > device implementation is.
-> >     >
-> >     > When inflating the balloon against page cache (i.e. no free memory
-> >     > remains) vmscan.c will both shrink page cache, but also invoke the
-> >     > shrinkers -- including the balloon's shrinker. So the balloon dri=
-ver
-> >     > allocates memory which requires reclaim, vmscan gets this memory =
-by
-> >     > shrinking the balloon, and then the driver adds the memory back t=
-o the
-> >     > balloon. Basically a busy no-op.
-> >     >
-> >     > If file IO is ongoing during this balloon inflation then the page
-> >     cache
-> >     > could be growing which further puts "back pressure" on the balloon
-> >     > trying to inflate. In testing I've seen periods of > 45 seconds w=
-here
-> >     > balloon inflation makes no net forward progress.
-> >     >
-> >     > This wasn't a problem before the change to the shrinker API since
-> >     forced
-> >     > balloon deflation only occurred via the OOM notifier callback
-> >     which was
-> >     > invoked only after the page cache had depleted.
-> >     >
-> >     > Is this new busy behavior working as intended?
-> > =
-
-> >     Please note that the shrinker will only be registered in case we ha=
-ve
-> >     VIRTIO_BALLOON_F_DEFLATE_ON_OOM - (which is AFAIK very rare) - to
-> >     implement automatic balloon deflation when the guest is under memory
-> >     pressure.
-> > =
-
-> > =
-
-> >     Are you actually experiencing issues with that or did you just stum=
-ble
-> >     over the code?
-> > =
-
-> > =
-
-> > We have a use case that is encountering this (and that registers
-> > DEFLATE_ON_OOM). We can work around this, but it does seem inefficient.
-> > I understand there were good reasons for moving away from the OOM
-> > notifier callback, but I'm wondering if the balloon driver could specify
-> > a "nice" level to the shrinker API that would cause it to be reclaimed
-> > from only as a last resort?
-> > =C2=A0
-> =
-
-> Cc-ing linux-mm, Michal and Michael.
-
-
-Interesting.  VIRTIO_BALLOON_F_DEFLATE_ON_OOM is really
-underspecified in a bunch of ways.
-
-I'll wait to see what does Michal say from Linux POV.
-
-
-
-
-
-> Just wondering, how does your workaround look like?
-> =
-
-> -- =
-
-> Thanks,
-> =
-
-> David / dhildenb
+T24gMzAuMDEuMjAgMTY6MjAsIE1pY2hhZWwgUy4gVHNpcmtpbiB3cm90ZToKPiBPbiBUaHUsIEph
+biAzMCwgMjAyMCBhdCAwNDowMjozNFBNICswMTAwLCBEYXZpZCBIaWxkZW5icmFuZCB3cm90ZToK
+Pj4gT24gMjkuMDEuMjAgMjA6MTEsIFR5bGVyIFNhbmRlcnNvbiB3cm90ZToKPj4+Cj4+Pgo+Pj4g
+T24gV2VkLCBKYW4gMjksIDIwMjAgYXQgMjozMSBBTSBEYXZpZCBIaWxkZW5icmFuZCA8ZGF2aWRA
+cmVkaGF0LmNvbQo+Pj4gPG1haWx0bzpkYXZpZEByZWRoYXQuY29tPj4gd3JvdGU6Cj4+Pgo+Pj4g
+ICAgIE9uIDI5LjAxLjIwIDAxOjIyLCBUeWxlciBTYW5kZXJzb24gdmlhIFZpcnR1YWxpemF0aW9u
+IHdyb3RlOgo+Pj4gICAgID4gQSBwcmltYXJ5IGFkdmFudGFnZSBvZiB2aXJ0aW8gYmFsbG9vbiBv
+dmVyIG90aGVywqBtZW1vcnkgcmVjbGFpbQo+Pj4gICAgID4gbWVjaGFuaXNtcyBpcyB0aGF0IGl0
+IGNhbsKgcHJlc3N1cmUgdGhlIGd1ZXN0J3MgcGFnZSBjYWNoZSBpbnRvCj4+PiAgICAgc2hyaW5r
+aW5nLgo+Pj4gICAgID4KPj4+ICAgICA+IEhvd2V2ZXIsIHNpbmNlIHRoZSBiYWxsb29uIGRyaXZl
+ciBjaGFuZ2VkIHRvIHVzaW5nIHRoZSBzaHJpbmtlciBBUEkKPj4+ICAgICA+Cj4+PiAgICAgPGh0
+dHBzOi8vZ2l0aHViLmNvbS90b3J2YWxkcy9saW51eC9jb21taXQvNzE5OTQ2MjBiYjI1YThiMTA5
+Mzg4ZmVmYTllOTlhMjhlMzU1MjU1YSNkaWZmLWZkMjAyYWNmNjk0ZDllYmExOWM4YzY0ZGEzZTQ4
+MGM5PsKgdGhpcwo+Pj4gICAgID4gdXNlIGNhc2UgaGFzIGJlY29tZSBhIGJpdCBtb3JlIHRyaWNr
+eS4gSSdtIHdvbmRlcmluZyB3aGF0IHRoZSBpbnRlbmRlZAo+Pj4gICAgID4gZGV2aWNlIGltcGxl
+bWVudGF0aW9uIGlzLgo+Pj4gICAgID4KPj4+ICAgICA+IFdoZW4gaW5mbGF0aW5nIHRoZSBiYWxs
+b29uIGFnYWluc3QgcGFnZSBjYWNoZSAoaS5lLiBubyBmcmVlIG1lbW9yeQo+Pj4gICAgID4gcmVt
+YWlucykgdm1zY2FuLmMgd2lsbCBib3RoIHNocmluayBwYWdlIGNhY2hlLCBidXQgYWxzbyBpbnZv
+a2UgdGhlCj4+PiAgICAgPiBzaHJpbmtlcnMgLS0gaW5jbHVkaW5nIHRoZSBiYWxsb29uJ3Mgc2hy
+aW5rZXIuIFNvIHRoZSBiYWxsb29uIGRyaXZlcgo+Pj4gICAgID4gYWxsb2NhdGVzIG1lbW9yeSB3
+aGljaCByZXF1aXJlcyByZWNsYWltLCB2bXNjYW4gZ2V0cyB0aGlzIG1lbW9yeSBieQo+Pj4gICAg
+ID4gc2hyaW5raW5nIHRoZSBiYWxsb29uLCBhbmQgdGhlbiB0aGUgZHJpdmVyIGFkZHMgdGhlIG1l
+bW9yeSBiYWNrIHRvIHRoZQo+Pj4gICAgID4gYmFsbG9vbi4gQmFzaWNhbGx5IGEgYnVzeSBuby1v
+cC4KPj4+ICAgICA+Cj4+PiAgICAgPiBJZiBmaWxlIElPIGlzIG9uZ29pbmcgZHVyaW5nIHRoaXMg
+YmFsbG9vbiBpbmZsYXRpb24gdGhlbiB0aGUgcGFnZQo+Pj4gICAgIGNhY2hlCj4+PiAgICAgPiBj
+b3VsZCBiZSBncm93aW5nIHdoaWNoIGZ1cnRoZXIgcHV0cyAiYmFjayBwcmVzc3VyZSIgb24gdGhl
+IGJhbGxvb24KPj4+ICAgICA+IHRyeWluZyB0byBpbmZsYXRlLiBJbiB0ZXN0aW5nIEkndmUgc2Vl
+biBwZXJpb2RzIG9mID4gNDUgc2Vjb25kcyB3aGVyZQo+Pj4gICAgID4gYmFsbG9vbiBpbmZsYXRp
+b24gbWFrZXMgbm8gbmV0IGZvcndhcmQgcHJvZ3Jlc3MuCj4+PiAgICAgPgo+Pj4gICAgID4gVGhp
+cyB3YXNuJ3QgYSBwcm9ibGVtIGJlZm9yZSB0aGUgY2hhbmdlIHRvIHRoZSBzaHJpbmtlciBBUEkg
+c2luY2UKPj4+ICAgICBmb3JjZWQKPj4+ICAgICA+IGJhbGxvb24gZGVmbGF0aW9uIG9ubHkgb2Nj
+dXJyZWQgdmlhIHRoZSBPT00gbm90aWZpZXIgY2FsbGJhY2sKPj4+ICAgICB3aGljaCB3YXMKPj4+
+ICAgICA+IGludm9rZWQgb25seSBhZnRlciB0aGUgcGFnZSBjYWNoZSBoYWQgZGVwbGV0ZWQuCj4+
+PiAgICAgPgo+Pj4gICAgID4gSXMgdGhpcyBuZXcgYnVzeSBiZWhhdmlvciB3b3JraW5nIGFzIGlu
+dGVuZGVkPwo+Pj4KPj4+ICAgICBQbGVhc2Ugbm90ZSB0aGF0IHRoZSBzaHJpbmtlciB3aWxsIG9u
+bHkgYmUgcmVnaXN0ZXJlZCBpbiBjYXNlIHdlIGhhdmUKPj4+ICAgICBWSVJUSU9fQkFMTE9PTl9G
+X0RFRkxBVEVfT05fT09NIC0gKHdoaWNoIGlzIEFGQUlLIHZlcnkgcmFyZSkgLSB0bwo+Pj4gICAg
+IGltcGxlbWVudCBhdXRvbWF0aWMgYmFsbG9vbiBkZWZsYXRpb24gd2hlbiB0aGUgZ3Vlc3QgaXMg
+dW5kZXIgbWVtb3J5Cj4+PiAgICAgcHJlc3N1cmUuCj4+Pgo+Pj4KPj4+ICAgICBBcmUgeW91IGFj
+dHVhbGx5IGV4cGVyaWVuY2luZyBpc3N1ZXMgd2l0aCB0aGF0IG9yIGRpZCB5b3UganVzdCBzdHVt
+YmxlCj4+PiAgICAgb3ZlciB0aGUgY29kZT8KPj4+Cj4+Pgo+Pj4gV2UgaGF2ZSBhIHVzZSBjYXNl
+IHRoYXQgaXMgZW5jb3VudGVyaW5nIHRoaXMgKGFuZCB0aGF0IHJlZ2lzdGVycwo+Pj4gREVGTEFU
+RV9PTl9PT00pLiBXZSBjYW4gd29yayBhcm91bmQgdGhpcywgYnV0IGl0IGRvZXMgc2VlbSBpbmVm
+ZmljaWVudC4KPj4+IEkgdW5kZXJzdGFuZCB0aGVyZSB3ZXJlIGdvb2QgcmVhc29ucyBmb3IgbW92
+aW5nIGF3YXkgZnJvbSB0aGUgT09NCj4+PiBub3RpZmllciBjYWxsYmFjaywgYnV0IEknbSB3b25k
+ZXJpbmcgaWYgdGhlIGJhbGxvb24gZHJpdmVyIGNvdWxkIHNwZWNpZnkKPj4+IGEgIm5pY2UiIGxl
+dmVsIHRvIHRoZSBzaHJpbmtlciBBUEkgdGhhdCB3b3VsZCBjYXVzZSBpdCB0byBiZSByZWNsYWlt
+ZWQKPj4+IGZyb20gb25seSBhcyBhIGxhc3QgcmVzb3J0Pwo+Pj4gwqAKPj4KPj4gQ2MtaW5nIGxp
+bnV4LW1tLCBNaWNoYWwgYW5kIE1pY2hhZWwuCj4gCj4gCj4gSW50ZXJlc3RpbmcuICBWSVJUSU9f
+QkFMTE9PTl9GX0RFRkxBVEVfT05fT09NIGlzIHJlYWxseQo+IHVuZGVyc3BlY2lmaWVkIGluIGEg
+YnVuY2ggb2Ygd2F5cy4KPiAKPiBJJ2xsIHdhaXQgdG8gc2VlIHdoYXQgZG9lcyBNaWNoYWwgc2F5
+IGZyb20gTGludXggUE9WLgoKCkp1c3Qgd29uZGVyaW5nLCBkb2VzIGltcGx5aW5nIHRoYXQgd2Ug
+YXJlIHVzaW5nIHRoZSBzaHJpbmtlciB0aGF0IGEKCmVjaG8gMyA+IC9wcm9jL3N5cy92bS9kcm9w
+X2NhY2hlcwoKV2lsbCBkZWZsYXRlIHRoZSB3aG9sZSBiYWxsb29uPyBJZiB5ZXMsIHRoYW4gdGhh
+dCdzICpyZWFsbHkqIG5vdCBkZXNpcmVkLgoKLS0gClRoYW5rcywKCkRhdmlkIC8gZGhpbGRlbmIK
+Cl9fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fClZpcnR1YWxp
+emF0aW9uIG1haWxpbmcgbGlzdApWaXJ0dWFsaXphdGlvbkBsaXN0cy5saW51eC1mb3VuZGF0aW9u
+Lm9yZwpodHRwczovL2xpc3RzLmxpbnV4Zm91bmRhdGlvbi5vcmcvbWFpbG1hbi9saXN0aW5mby92
+aXJ0dWFsaXphdGlvbg==
