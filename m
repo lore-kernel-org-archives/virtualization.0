@@ -1,52 +1,62 @@
-From: Jason Wang <jasowang@redhat.com>
-Subject: Re: [PATCH 5/5] vdpasim: vDPA device simulator
-Date: Tue, 4 Feb 2020 16:28:27 +0800
-Message-ID: <cca7901b-51dd-4f4b-5c30-c42577ad5194@redhat.com>
-References: <20200116124231.20253-1-jasowang@redhat.com>
- <20200116124231.20253-6-jasowang@redhat.com>
- <1b86d188-0666-f6ab-e3b3-bec1cfbd0c76@linux.intel.com>
+From: David Hildenbrand <david@redhat.com>
+Subject: Re: Balloon pressuring page cache
+Date: Tue, 4 Feb 2020 09:29:24 +0100
+Message-ID: <74cc25a6-cefb-c580-8e59-5b76fb680bf4@redhat.com>
+References: <CAJuQAmpDUyve2S+oxp9tLUhuRcnddXnNztC5PmYOOCpY6c68xg@mail.gmail.com>
+ <91270a68-ff48-88b0-219c-69801f0c252f@redhat.com>
+ <CAJuQAmoaK0Swytu2Os_SQRfG5_LqiCPaDa9yatatm9MtfncNTQ@mail.gmail.com>
+ <75d4594f-0864-5172-a0f8-f97affedb366@redhat.com>
+ <286AC319A985734F985F78AFA26841F73E3F8A02@shsmsx102.ccr.corp.intel.com>
+ <CAJuQAmqcayaNuG19fKCuux=YVO3+VcN-qrXvobgKMykogeMkzA@mail.gmail.com>
+ <20200203080520-mutt-send-email-mst@kernel.org>
+ <5ac131de8e3b7fc1fafd05a61feb5f6889aeb917.camel@linux.intel.com>
+ <c836a8d1-c5cc-eb8b-84ed-027070b77bf8@redhat.com>
+ <20200203120225-mutt-send-email-mst@kernel.org>
+ <CAJuQAmqGA9mhzR5AQeMDtovJAh7y8khC3qUtLKx_e9RdL0wFJQ@mail.gmail.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=utf-8; format=flowed
-Content-Transfer-Encoding: quoted-printable
-Return-path: <linux-kernel-owner@vger.kernel.org>
-In-Reply-To: <1b86d188-0666-f6ab-e3b3-bec1cfbd0c76@linux.intel.com>
+Content-Type: text/plain; charset="utf-8"
+Content-Transfer-Encoding: base64
+Return-path: <virtualization-bounces@lists.linux-foundation.org>
+In-Reply-To: <CAJuQAmqGA9mhzR5AQeMDtovJAh7y8khC3qUtLKx_e9RdL0wFJQ@mail.gmail.com>
 Content-Language: en-US
-Sender: linux-kernel-owner@vger.kernel.org
-To: Zhu Lingshan <lingshan.zhu@linux.intel.com>, mst@redhat.com, linux-kernel@vger.kernel.org, kvm@vger.kernel.org, virtualization@lists.linux-foundation.org, netdev@vger.kernel.org
-Cc: tiwei.bie@intel.com, jgg@mellanox.com, maxime.coquelin@redhat.com, cunming.liang@intel.com, zhihong.wang@intel.com, rob.miller@broadcom.com, xiao.w.wang@intel.com, haotian.wang@sifive.com, lingshan.zhu@intel.com, eperezma@redhat.com, lulu@redhat.com, parav@mellanox.com, kevin.tian@intel.com, stefanha@redhat.com, rdunlap@infradead.org, hch@infradead.org, aadam@redhat.com, jakub.kicinski@netronome.com, jiri@mellanox.com, shahafs@mellanox.com, hanand@xilinx.com, mhabets@solarflare.com
+List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
+ <mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
+List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
+List-Post: <mailto:virtualization@lists.linux-foundation.org>
+List-Help: <mailto:virtualization-request@lists.linux-foundation.org?subject=help>
+List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualization>,
+ <mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
+Errors-To: virtualization-bounces@lists.linux-foundation.org
+Sender: "Virtualization" <virtualization-bounces@lists.linux-foundation.org>
+To: Tyler Sanderson <tysand@google.com>, "Michael S. Tsirkin" <mst@redhat.com>
+Cc: Michal Hocko <mhocko@kernel.org>, "linux-mm@kvack.org" <linux-mm@kvack.org>, David Rientjes <rientjes@google.com>, Alexander Duyck <alexander.h.duyck@linux.intel.com>, "virtualization@lists.linux-foundation.org" <virtualization@lists.linux-foundation.org>
 List-Id: virtualization@lists.linuxfoundation.org
 
-
-On 2020/2/4 =E4=B8=8B=E5=8D=884:21, Zhu Lingshan wrote:
->> +static const struct dma_map_ops vdpasim_dma_ops =3D {
->> +=C2=A0=C2=A0=C2=A0 .map_page =3D vdpasim_map_page,
->> +=C2=A0=C2=A0=C2=A0 .unmap_page =3D vdpasim_unmap_page,
->> +=C2=A0=C2=A0=C2=A0 .alloc =3D vdpasim_alloc_coherent,
->> +=C2=A0=C2=A0=C2=A0 .free =3D vdpasim_free_coherent,
->> +};
->> +
->
-> Hey Jason,
->
-> IMHO, it would be nice if dma_ops of the parent device could be=20
-> re-used. vdpa_device is expecting to represent a physical device=20
-> except this simulator, however, there are not enough information in=20
-> vdpa_device.dev to indicating which kind physical device it attached=20
-> to. Namely get_arch_dma_ops(struct bus type) can not work on=20
-> vdpa_device.dev. Then it seems device drivers need to implement a wrap=20
-> of dma_ops of parent devices. Can this work be done in the vdpa=20
-> framework since it looks like a common task? Can=20
-> "vd_dev->vdev.dev.parent =3D vdpa->dev->parent;" in virtio_vdpa_probe()=
-=20
-> do the work?
->
-> Thanks,
-> BR
-> Zhu Lingshan=20
-
-
-Good catch.
-
-I think we can.
-
-Thanks
+T24gMDMuMDIuMjAgMjE6MzIsIFR5bGVyIFNhbmRlcnNvbiB3cm90ZToKPiBUaGVyZSB3ZXJlIGFw
+cGFyZW50bHkgZ29vZCByZWFzb25zIGZvciBtb3ZpbmcgYXdheSBmcm9tIE9PTSBub3RpZmllcgo+
+IGNhbGxiYWNrOgo+IGh0dHBzOi8vbGttbC5vcmcvbGttbC8yMDE4LzcvMTIvMzE0Cj4gaHR0cHM6
+Ly9sa21sLm9yZy9sa21sLzIwMTgvOC8yLzMyMgo+IAo+IEluIHBhcnRpY3VsYXIgdGhlIE9PTSBu
+b3RpZmllciBpcyB3b3JzZSB0aGFuIHRoZSBzaHJpbmtlciBiZWNhdXNlOgoKVGhlIGlzc3VlIGlz
+IHRoYXQgREVGTEFURV9PTl9PT00gaXMgdW5kZXItc3BlY2lmaWVkLgoKPiAKPiAgMS4gSXQgaXMg
+bGFzdC1yZXNvcnQsIHdoaWNoIG1lYW5zIHRoZSBzeXN0ZW0gaGFzIGFscmVhZHkgZ29uZSB0aHJv
+dWdoCj4gICAgIGhlcm9pY3MgdG8gcHJldmVudCBPT00uIFRob3NlIGhlcm9pYyByZWNsYWltIGVm
+Zm9ydHMgYXJlIGV4cGVuc2l2ZQo+ICAgICBhbmQgaW1wYWN0IGFwcGxpY2F0aW9uIHBlcmZvcm1h
+bmNlLgoKVGhhdCdzICpleGFjdGx5KiB3aGF0ICJkZWZsYXRlIG9uIE9PTSIgc3VnZ2VzdHMuCgpB
+c3N1bWUgeW91IGFyZSB1c2luZyB2aXJ0aW8tYmFsbG9vbiBmb3Igc29tZSB3ZWlyZCB3YXkgb2Yg
+bWVtb3J5CmhvdHVucGx1ZyAod2hpY2ggaXMgd2hhdCBzb21lIHBlb3BsZSBkbykgYW5kIHlvdSB3
+YW50IHRvIG1pbmltaXplIHRoZQpmb290cHJpbnQgb2YgeW91ciBndWVzdC4gVGhlbiB5b3UgcmVh
+bGx5IG9ubHkgd2FudCB0byBnaXZlIHRoZSBndWVzdAptb3JlIG1lbW9yeSAob3IgcmF0aGVyLCBs
+ZXQgaXQgdGFrZSBiYWNrIG1lbW9yeSBhdXRvbWF0aWNhbGx5IGluIHRoaXMKY2FzZSkgaW4gY2Fz
+ZSBpdCByZWFsbHkgbmVlZHMgbW9yZSBtZW1vcnkuIEl0IHNob3VsZCB0cnkgdG8gcmVjbGFpbSBm
+aXJzdC4KClVuZGVyLXNwZWNpZmllZC4KCgo+ICAyLiBJdCBsYWNrcyB1bmRlcnN0YW5kaW5nIG9m
+IE5VTUEgb3Igb3RoZXIgT09NIGNvbnN0cmFpbnRzLgoKQmFsbG9vbmluZyBpbiBnZW5lcmFsIGxh
+Y2tzIHRoZSB1bmRlcnN0YW5kaW5nIG9mIE5VTUEuCgo+ICAzLiBJdCBoYXMgYSBoaWdoZXIgcG90
+ZW50aWFsIGZvciBidWdzIGR1ZSB0byB0aGUgc3VidGxldHnCoG9mIHRoZQo+ICAgICBjYWxsYmFj
+ayBjb250ZXh0LgoKV2hpbGUgdGhhdCBpcyBhIHZhbGlkIHBvaW50LCBpdCBkb2Vzbid0IGV4cGxh
+aW4gd2h5IGV4aXN0aW5nCmZ1bmN0aW9uYWxpdHkgaXMgY2hhbmdlZC4KClBlcnNvbmFsbHksIEkg
+dGhpbmsgREVGTEFURV9PTl9PT00gc2hvdWxkIG5ldmVyIGhhdmUgYmVlbiBpbnRyb2R1Y2VkIChh
+dApsZWFzdCBub3QgaW4gdGhpcyBmb3JtKS4KCgotLSAKVGhhbmtzLAoKRGF2aWQgLyBkaGlsZGVu
+YgoKX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX18KVmlydHVh
+bGl6YXRpb24gbWFpbGluZyBsaXN0ClZpcnR1YWxpemF0aW9uQGxpc3RzLmxpbnV4LWZvdW5kYXRp
+b24ub3JnCmh0dHBzOi8vbGlzdHMubGludXhmb3VuZGF0aW9uLm9yZy9tYWlsbWFuL2xpc3RpbmZv
+L3ZpcnR1YWxpemF0aW9u
