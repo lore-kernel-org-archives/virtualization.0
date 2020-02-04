@@ -1,70 +1,56 @@
-From: "Michael S. Tsirkin" <mst@redhat.com>
-Subject: Re: [CRASH] crypto: virtio: crash when modprobing tcrypt on 5.5-rc7
- / next-20200122
-Date: Tue, 4 Feb 2020 04:15:22 -0500
-Message-ID: <20200204041419-mutt-send-email-mst@kernel.org>
-References: <20200123101000.GB24255@Red>
+From: Jason Gunthorpe <jgg@mellanox.com>
+Subject: Re: [PATCH 5/5] vdpasim: vDPA device simulator
+Date: Tue, 4 Feb 2020 08:52:04 -0400
+Message-ID: <20200204125204.GS23346@mellanox.com>
+References: <20200116124231.20253-1-jasowang@redhat.com>
+ <20200116124231.20253-6-jasowang@redhat.com>
+ <1b86d188-0666-f6ab-e3b3-bec1cfbd0c76@linux.intel.com>
+ <cca7901b-51dd-4f4b-5c30-c42577ad5194@redhat.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Return-path: <linux-crypto-owner@vger.kernel.org>
+Content-Type: text/plain; charset=utf-8
+Content-Transfer-Encoding: 8bit
+Return-path: <linux-kernel-owner@vger.kernel.org>
 Content-Disposition: inline
-In-Reply-To: <20200123101000.GB24255@Red>
-Sender: linux-crypto-owner@vger.kernel.org
-To: LABBE Corentin <clabbe@baylibre.com>
-Cc: arei.gonglei@huawei.com, jasowang@redhat.com, herbert@gondor.apana.org.au, davem@davemloft.net, virtualization@lists.linux-foundation.org, linux-crypto@vger.kernel.org, linux-kernel@vger.kernel.org
+In-Reply-To: <cca7901b-51dd-4f4b-5c30-c42577ad5194@redhat.com>
+Sender: linux-kernel-owner@vger.kernel.org
+To: Jason Wang <jasowang@redhat.com>
+Cc: Zhu Lingshan <lingshan.zhu@linux.intel.com>, mst@redhat.com, linux-kernel@vger.kernel.org, kvm@vger.kernel.org, virtualization@lists.linux-foundation.org, netdev@vger.kernel.org, tiwei.bie@intel.com, maxime.coquelin@redhat.com, cunming.liang@intel.com, zhihong.wang@intel.com, rob.miller@broadcom.com, xiao.w.wang@intel.com, haotian.wang@sifive.com, lingshan.zhu@intel.com, eperezma@redhat.com, lulu@redhat.com, parav@mellanox.com, kevin.tian@intel.com, stefanha@redhat.com, rdunlap@infradead.org, hch@infradead.org, aadam@redhat.com, jakub.kicinski@netronome.com, jiri@mellanox.com, shahafs@mellanox.com, hanand@xilinx.com, mhabets@solarflare.com
 List-Id: virtualization@lists.linuxfoundation.org
 
-On Thu, Jan 23, 2020 at 11:10:00AM +0100, LABBE Corentin wrote:
-> Hello
+On Tue, Feb 04, 2020 at 04:28:27PM +0800, Jason Wang wrote:
 > 
-> When modprobing tcrypt on qemu 4.1.0 I get a kernel panic on 5.5-rc7 and next-20200122
-> qemu is started by:
-> /usr/bin/qemu-system-x86_64 -cpu host -enable-kvm -nographic -net nic,model=e1000,macaddr=52:54:00:12:34:58 -net tap -m 512 -monitor none -object cryptodev-backend-builtin,id=cryptodev0 -device virtio-crypto-pci,id=crypto0,cryptodev=cryptodev0 -append 'console=ttyS0 root=/dev/ram0 ip=dhcp' -kernel /var/lib/lava/dispatcher/tmp/41332/deployimages-td18675m/kernel/bzImage -initrd /var/lib/lava/dispatcher/tmp/41332/deployimages-td18675m/ramdisk/rootfs.cpio.gz -drive format=qcow2,file=/var/lib/lava/dispatcher/tmp/41332/apply-overlay-guest-icy4k1ol/lava-guest.qcow2,media=disk,if=ide,id=lavatest
+> On 2020/2/4 下午4:21, Zhu Lingshan wrote:
+> > > +static const struct dma_map_ops vdpasim_dma_ops = {
+> > > +    .map_page = vdpasim_map_page,
+> > > +    .unmap_page = vdpasim_unmap_page,
+> > > +    .alloc = vdpasim_alloc_coherent,
+> > > +    .free = vdpasim_free_coherent,
+> > > +};
+> > > +
+> > 
+> > Hey Jason,
+> > 
+> > IMHO, it would be nice if dma_ops of the parent device could be re-used.
+> > vdpa_device is expecting to represent a physical device except this
+> > simulator, however, there are not enough information in vdpa_device.dev
+> > to indicating which kind physical device it attached to. Namely
+> > get_arch_dma_ops(struct bus type) can not work on vdpa_device.dev. Then
+> > it seems device drivers need to implement a wrap of dma_ops of parent
+> > devices. Can this work be done in the vdpa framework since it looks like
+> > a common task? Can "vd_dev->vdev.dev.parent = vdpa->dev->parent;" in
+> > virtio_vdpa_probe() do the work?
+> > 
+> > Thanks,
+> > BR
+> > Zhu Lingshan
 > 
-> [  112.771925] general protection fault: 0000 [#1] SMP PTI
-> [  112.772686] CPU: 0 PID: 126 Comm: virtio0-engine Not tainted 5.5.0-rc7+ #1
-> [  112.773576] Hardware name: QEMU Standard PC (i440FX + PIIX, 1996), BIOS ?-20190711_202441-buildvm-armv7-10.arm.fedoraproject.org-2.fc31 04/01/2014
-> [  112.775319] RIP: 0010:sg_next+0x0/0x20
-> [  112.775821] Code: cc cc cc cc cc cc cc cc cc cc c7 47 10 00 00 00 00 89 57 0c 48 89 37 89 4f 08 c3 0f 1f 44 00 00 66 2e 0f 1f 84 00 00 00 00 00 <f6> 07 02 75 17 48 8b 57 20 48 8d 47 20 48 89 d1 48 83 e1 fc 83 e2
-> [  112.778330] RSP: 0018:ffffa92440237d90 EFLAGS: 00010006
-> [  112.779071] RAX: fefefefe00000000 RBX: 000000000000000a RCX: fefefefe00000000
-> [  112.780081] RDX: 0000000000000001 RSI: ffff9b19da1a2180 RDI: fefefefe00000000
-> [  112.781081] RBP: ffff9b19da1a2198 R08: ffff9b19dfb24ee8 R09: 0000000000000a20
-> [  112.782079] R10: ffff9b19da125010 R11: 0000000000000000 R12: ffff9b19da1a21b8
-> [  112.783079] R13: 0000000000000003 R14: ffff9b19da1a2180 R15: 0000000000000004
-> [  112.784077] FS:  0000000000000000(0000) GS:ffff9b19de400000(0000) knlGS:0000000000000000
-> [  112.785202] CS:  0010 DS: 0000 ES: 0000 CR0: 0000000080050033
-> [  112.786030] CR2: 00007f18a157b050 CR3: 000000001040a004 CR4: 0000000000060ef0
-> [  112.787034] Call Trace:
-> [  112.787393]  virtqueue_add_sgs+0x4c/0x90
-> [  112.787998]  virtio_crypto_skcipher_crypt_req+0x310/0x3e0
-> [  112.788817]  crypto_pump_work+0x10c/0x240
-> [  112.789420]  ? __kthread_init_worker+0x50/0x50
-> [  112.790082]  kthread_worker_fn+0x89/0x180
-> [  112.790690]  kthread+0x10e/0x130
-> [  112.791182]  ? kthread_park+0x80/0x80
-> [  112.791736]  ret_from_fork+0x35/0x40
-> [  112.792282] Modules linked in: cts lzo salsa20_generic camellia_x86_64 camellia_generic fcrypt pcbc tgr192 anubis wp512 khazad tea michael_mic arc4 cast6_generic cast5_generic cast_common deflate sha512_ssse3 sha512_generic cfb ofb serpent_sse2_x86_64 serpent_generic lrw twofish_x86_64_3way twofish_x86_64 crypto_simd cryptd glue_helper twofish_generic twofish_common blowfish_x86_64 blowfish_generic blowfish_common md4 tcrypt(+)
-> [  112.797652] ---[ end trace 4a8142d4a08c2518 ]---
-> [  112.798320] RIP: 0010:sg_next+0x0/0x20
-> [  112.798865] Code: cc cc cc cc cc cc cc cc cc cc c7 47 10 00 00 00 00 89 57 0c 48 89 37 89 4f 08 c3 0f 1f 44 00 00 66 2e 0f 1f 84 00 00 00 00 00 <f6> 07 02 75 17 48 8b 57 20 48 8d 47 20 48 89 d1 48 83 e1 fc 83 e2
-> [  112.801452] RSP: 0018:ffffa92440237d90 EFLAGS: 00010006
-> [  112.802189] RAX: fefefefe00000000 RBX: 000000000000000a RCX: fefefefe00000000
-> [  112.803190] RDX: 0000000000000001 RSI: ffff9b19da1a2180 RDI: fefefefe00000000
-> [  112.804192] RBP: ffff9b19da1a2198 R08: ffff9b19dfb24ee8 R09: 0000000000000a20
-> [  112.805201] R10: ffff9b19da125010 R11: 0000000000000000 R12: ffff9b19da1a21b8
-> [  112.806195] R13: 0000000000000003 R14: ffff9b19da1a2180 R15: 0000000000000004
-> [  112.807222] FS:  0000000000000000(0000) GS:ffff9b19de400000(0000) knlGS:0000000000000000
-> [  112.808352] CS:  0010 DS: 0000 ES: 0000 CR0: 0000000080050033
-> [  112.809169] CR2: 00007f18a157b050 CR3: 000000001040a004 CR4: 0000000000060ef0
 > 
-> I have tested also 5.4.14 
-> and I got random freeze with:
-> qemu-system-x86_64: virtio: zero sized buffers are not allowed
+> Good catch.
 > 
-> Regards
+> I think we can.
 
-Cc: Gonglei <arei.gonglei@huawei.com>
+IMHO you need to specify some 'dma_device', not try and play tricks
+with dma_ops, or assuming the parent is always the device used for
+dma.
 
--- 
-MST
+Jason
