@@ -1,26 +1,23 @@
-From: David Hildenbrand <david@redhat.com>
+From: "Michael S. Tsirkin" <mst@redhat.com>
 Subject: Re: Balloon pressuring page cache
-Date: Tue, 4 Feb 2020 20:17:18 +0100
-Message-ID: <b809340d-7e86-caf6-bf12-db7bb8265045@redhat.com>
-References: <CAJuQAmpDUyve2S+oxp9tLUhuRcnddXnNztC5PmYOOCpY6c68xg@mail.gmail.com>
- <91270a68-ff48-88b0-219c-69801f0c252f@redhat.com>
- <CAJuQAmoaK0Swytu2Os_SQRfG5_LqiCPaDa9yatatm9MtfncNTQ@mail.gmail.com>
- <75d4594f-0864-5172-a0f8-f97affedb366@redhat.com>
- <286AC319A985734F985F78AFA26841F73E3F8A02@shsmsx102.ccr.corp.intel.com>
- <CAJuQAmqcayaNuG19fKCuux=YVO3+VcN-qrXvobgKMykogeMkzA@mail.gmail.com>
+Date: Tue, 4 Feb 2020 15:33:19 -0500
+Message-ID: <20200204135817-mutt-send-email-mst@kernel.org>
+References: <CAJuQAmqcayaNuG19fKCuux=YVO3+VcN-qrXvobgKMykogeMkzA@mail.gmail.com>
  <20200203080520-mutt-send-email-mst@kernel.org>
  <5ac131de8e3b7fc1fafd05a61feb5f6889aeb917.camel@linux.intel.com>
  <c836a8d1-c5cc-eb8b-84ed-027070b77bf8@redhat.com>
- <20200203120225-mutt-send-email-mst@kernel.org>
- <CAJuQAmqGA9mhzR5AQeMDtovJAh7y8khC3qUtLKx_e9RdL0wFJQ@mail.gmail.com>
- <74cc25a6-cefb-c580-8e59-5b76fb680bf4@redhat.com>
- <CAJuQAmpiVqnNt-vSkQh5Gg63QZ49_nuz4+VW2Jfwn51gWVdtfA@mail.gmail.com>
+ <539B606A-A0CA-4AA4-B99A-759C874A1EF8@vmware.com>
+ <d69eafb4-ad0d-1617-9248-ea4fc776da58@redhat.com>
+ <20200204033657-mutt-send-email-mst@kernel.org>
+ <ce93331c-0099-dda7-e00f-126bf7826a40@redhat.com>
+ <20200204114336-mutt-send-email-mst@kernel.org>
+ <a94fe61e-e015-49f7-b6c1-3c5aff727996@redhat.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="utf-8"
-Content-Transfer-Encoding: base64
+Content-Type: text/plain; charset="us-ascii"
+Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <CAJuQAmpiVqnNt-vSkQh5Gg63QZ49_nuz4+VW2Jfwn51gWVdtfA@mail.gmail.com>
-Content-Language: en-US
+In-Reply-To: <a94fe61e-e015-49f7-b6c1-3c5aff727996@redhat.com>
+Content-Disposition: inline
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
  <mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -30,48 +27,76 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
  <mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Errors-To: virtualization-bounces@lists.linux-foundation.org
 Sender: "Virtualization" <virtualization-bounces@lists.linux-foundation.org>
-To: Tyler Sanderson <tysand@google.com>
-Cc: "Michael S. Tsirkin" <mst@redhat.com>, "virtualization@lists.linux-foundation.org" <virtualization@lists.linux-foundation.org>, "linux-mm@kvack.org" <linux-mm@kvack.org>, namit@vmware.com, David Rientjes <rientjes@google.com>, Alexander Duyck <alexander.h.duyck@linux.intel.com>, Michal Hocko <mhocko@kernel.org>
+To: David Hildenbrand <david@redhat.com>
+Cc: virtio-dev@lists.oasis-open.org, "virtualization@lists.linux-foundation.org" <virtualization@lists.linux-foundation.org>, Tyler Sanderson <tysand@google.com>, "linux-mm@kvack.org" <linux-mm@kvack.org>, Nadav Amit <namit@vmware.com>, David Rientjes <rientjes@google.com>, Alexander Duyck <alexander.h.duyck@linux.intel.com>, Michal Hocko <mhocko@kernel.org>
 List-Id: virtualization@lists.linuxfoundation.org
 
-T24gMDQuMDIuMjAgMTk6NTIsIFR5bGVyIFNhbmRlcnNvbiB3cm90ZToKPiAKPiAKPiBPbiBUdWUs
-IEZlYiA0LCAyMDIwIGF0IDEyOjI5IEFNIERhdmlkIEhpbGRlbmJyYW5kIDxkYXZpZEByZWRoYXQu
-Y29tCj4gPG1haWx0bzpkYXZpZEByZWRoYXQuY29tPj4gd3JvdGU6Cj4gCj4gICAgIE9uIDAzLjAy
-LjIwIDIxOjMyLCBUeWxlciBTYW5kZXJzb24gd3JvdGU6Cj4gICAgID4gVGhlcmUgd2VyZSBhcHBh
-cmVudGx5IGdvb2QgcmVhc29ucyBmb3IgbW92aW5nIGF3YXkgZnJvbSBPT00gbm90aWZpZXIKPiAg
-ICAgPiBjYWxsYmFjazoKPiAgICAgPiBodHRwczovL2xrbWwub3JnL2xrbWwvMjAxOC83LzEyLzMx
-NAo+ICAgICA+IGh0dHBzOi8vbGttbC5vcmcvbGttbC8yMDE4LzgvMi8zMjIKPiAgICAgPgo+ICAg
-ICA+IEluIHBhcnRpY3VsYXIgdGhlIE9PTSBub3RpZmllciBpcyB3b3JzZSB0aGFuIHRoZSBzaHJp
-bmtlciBiZWNhdXNlOgo+IAo+ICAgICBUaGUgaXNzdWUgaXMgdGhhdCBERUZMQVRFX09OX09PTSBp
-cyB1bmRlci1zcGVjaWZpZWQuCj4gCj4gICAgID4KPiAgICAgPsKgIDEuIEl0IGlzIGxhc3QtcmVz
-b3J0LCB3aGljaCBtZWFucyB0aGUgc3lzdGVtIGhhcyBhbHJlYWR5IGdvbmUgdGhyb3VnaAo+ICAg
-ICA+wqAgwqAgwqBoZXJvaWNzIHRvIHByZXZlbnQgT09NLiBUaG9zZSBoZXJvaWMgcmVjbGFpbSBl
-ZmZvcnRzIGFyZSBleHBlbnNpdmUKPiAgICAgPsKgIMKgIMKgYW5kIGltcGFjdCBhcHBsaWNhdGlv
-biBwZXJmb3JtYW5jZS4KPiAKPiAgICAgVGhhdCdzICpleGFjdGx5KiB3aGF0ICJkZWZsYXRlIG9u
-IE9PTSIgc3VnZ2VzdHMuCj4gCj4gCj4gSXQgc2VlbXMgdGhlcmUgYXJlIHNvbWUgdXNlIGNhc2Vz
-IHdoZXJlICJkZWZsYXRlIG9uIE9PTSIgaXMgZGVzaXJlZCBhbmQKPiBvdGhlcnMgd2hlcmUgImRl
-ZmxhdGUgb24gcHJlc3N1cmUiIGlzIGRlc2lyZWQuCj4gVGhpcyBzdWdnZXN0cyBhZGRpbmcgYSBu
-ZXcgZmVhdHVyZSBiaXQgIkRFRkxBVEVfT05fUFJFU1NVUkUiIHRoYXQKPiByZWdpc3RlcnMgdGhl
-IHNocmlua2VyLCBhbmQgcmV2ZXJ0aW5nIERFRkxBVEVfT05fT09NIHRvIHVzZSB0aGUgT09NCj4g
-bm90aWZpZXIgY2FsbGJhY2suCj4gCj4gVGhpcyBsZXRzIHVzZXJzIGNvbmZpZ3VyZSB0aGUgYmFs
-bG9vbiBmb3IgdGhlaXIgdXNlIGNhc2UuCgpZb3Ugd2FudCB0aGUgb2xkIGJlaGF2aW9yIGJhY2ss
-IHNvIHdoeSBzaG91bGQgd2UgaW50cm9kdWNlIGEgbmV3IG9uZT8gT3IKYW0gSSBtaXNzaW5nIHNv
-bWV0aGluZz8gKHlvdSBkaWQgd2FudCB1cyB0byByZXZlcnQgdG8gb2xkIGhhbmRsaW5nLCBubz8p
-CgpJIGNvbnNpZGVyIHZpcnRpby1iYWxsb29uIHRvIHRoaXMgdmVyeSBkYXkgYSBiaWcgaGFjay4g
-QW5kIEkgZG9uJ3Qgc2VlCml0IGdldHRpbmcgYmV0dGVyIHdpdGggbmV3IGNvbmZpZyBrbm9icy4g
-SGF2aW5nIHRoYXQgc2FpZCwgdGhlCnRlY2hub2xvZ2llcyB0aGF0IGFyZSBjYW5kaWRhdGVzIHRv
-IHJlcGxhY2UgaXQgKGZyZWUgcGFnZSByZXBvcnRpbmcsCnRhbWluZyB0aGUgZ3Vlc3QgcGFnZSBj
-YWNoZSwgZXRjLikgYXJlIHN0aWxsIG5vdCByZWFkeSAtIHNvIHdlJ2xsIGhhdmUKdG8gc3RpY2sg
-d2l0aCBpdCBmb3Igbm93IDooIC4KCj4gCj4gSSdtIGFjdHVhbGx5IG5vdCBzdXJlIGhvdyB5b3Ug
-d291bGQgc2FmZWx5IGRvIG1lbW9yeSBvdmVyY29tbWl0IHdpdGhvdXQKPiBERUZMQVRFX09OX09P
-TS4gU28gSSB0aGluayBpdCB1bmxvY2tzIGEgaHVnZSB1c2UgY2FzZS4KClVzaW5nIGJldHRlciBz
-dWl0ZWQgdGVjaG5vbG9naWVzIHRoYXQgYXJlIG5vdCByZWFkeSB5ZXQgKHdlbGwsIHNvbWUgZm9y
-bQpvZiBmcmVlIHBhZ2UgcmVwb3J0aW5nIGlzIGF2YWlsYWJsZSB1bmRlciBJQk0geiBhbHJlYWR5
-IGJ1dCBpbiBhCnByb3ByaWV0YXJ5IGZvcm0pIDspIEFueWhvdywgSSByZW1lbWJlciB0aGF0IERF
-RkxBVEVfT05fT09NIG9ubHkgbWFrZXMKaXQgbGVzcyBsaWtlbHkgdG8gY3Jhc2ggeW91ciBndWVz
-dCwgYnV0IG5vdCB0aGF0IHlvdSBhcmUgc2FmZSB0byBzcXVlZXplCnRoZSBsYXN0IGJpdCBvdXQg
-b2YgeW91ciBndWVzdCBWTS4KCi0tIApUaGFua3MsCgpEYXZpZCAvIGRoaWxkZW5iCgpfX19fX19f
-X19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fXwpWaXJ0dWFsaXphdGlvbiBt
-YWlsaW5nIGxpc3QKVmlydHVhbGl6YXRpb25AbGlzdHMubGludXgtZm91bmRhdGlvbi5vcmcKaHR0
-cHM6Ly9saXN0cy5saW51eGZvdW5kYXRpb24ub3JnL21haWxtYW4vbGlzdGluZm8vdmlydHVhbGl6
-YXRpb24=
+On Tue, Feb 04, 2020 at 05:56:22PM +0100, David Hildenbrand wrote:
+> [...]
+> 
+> >>
+> >> Issue 2: When called via the shrinker, (but also to fix Issue 1), it could be
+> >> that we do have VIRTIO_BALLOON_F_MUST_TELL_HOST. I assume this means
+> >> (-ENOCLUE) that we have to wait until the hypervisor notifies us via the STOP? Or
+> >> for which event do we have to wait? Because there is no way to *tell host* here
+> >> that we want to reuse a page. The hypervisor will *tell us* when we can reuse pages.
+> >> For the shrinker it is simple: Don't use the shrinker with
+> >> VIRTIO_BALLOON_F_MUST_TELL_HOST :) . But to fix Issue 1, we *would* have to wait
+> >> until we get a STOP signal. That is not really possible because it might
+> >> take an infinite amount of time.
+> >>
+> >> Michael, any clue on which event we have to wait with
+> >> VIRTIO_BALLOON_F_MUST_TELL_HOST? IMHO, I don't think
+> >> VIRTIO_BALLOON_F_MUST_TELL_HOST applies to VIRTIO_BALLOON_F_FREE_PAGE_HINT and
+> >> we'd better document that. It introduces complexity with no clear benefit.
+> > 
+> > I meant that we must wait for host to see the hint. Signalled via using
+> > the buffer.  But maybe that's too far in the meaning from
+> > VIRTIO_BALLOON_F_MUST_TELL_HOST and we need a separate new flag for
+> 
+> Yes, that's what I think.
+> 
+> > that. Then current code won't be broken (yay!) but we need to
+> > document another flag that's pretty similar.
+> 
+> I mean, do we need a flag at all as long as there is no user?
+> Introducing a flag and documenting it if nobody uses it does not sound
+> like a work I will enjoy :)
+
+It's not the user. It's the non-orthogonality that I find inelegant.
+
+Let me try to formulate the issue, forgive me for thinking aloud
+(and I Cc'd virtio-dev since we are talking spec things here):
+
+The annoying thing is that with Alex's VIRTIO_BALLOON_F_REPORTING
+host does depend on guest not touching memory before host uses it.
+So functionally VIRTIO_BALLOON_F_FREE_PAGE_HINT and
+VIRTIO_BALLOON_F_REPORTING really are supposed to do
+exectly the same thing, with the differences being
+- VIRTIO_BALLOON_F_FREE_PAGE_HINT comes upon host's request.
+  VIRTIO_BALLOON_F_REPORTING is initiated by guest.
+- VIRTIO_BALLOON_F_FREE_PAGE_HINT does not always wait for
+  host to use the hint before touching the page.
+  Well it almost always does, but there's an exception in the
+  shrinker which tries to stop reporting as quickly as possible
+  in the case of a slow host.
+  VIRTIO_BALLOON_F_REPORTING always does.
+  This means host can blow the page away when it sees the hint.
+
+Now the point is that with VIRTIO_BALLOON_F_REPORTING
+I think you really must wait for host to use the hint.
+But with VIRTIO_BALLOON_F_FREE_PAGE_HINT it depends
+on how host uses it. Something to think about,
+I'm not sure what is the best thing to do here.
+
+
+> We can simply document "VIRTIO_BALLOON_F_MUST_TELL_HOST does not apply
+> to FREE_PAGE_HINTING" and "with FREE_PAGE_HINTING, the guest can reuse
+> pages any time, without waiting for a response/ack from the hypervisor".
+> 
+> Thoughts?
+> 
+> -- 
+> Thanks,
+> 
+> David / dhildenb
