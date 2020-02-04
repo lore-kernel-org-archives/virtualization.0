@@ -1,8 +1,11 @@
-From: "Michael S. Tsirkin" <mst@redhat.com>
+From: David Hildenbrand <david@redhat.com>
 Subject: Re: Balloon pressuring page cache
-Date: Tue, 4 Feb 2020 13:56:21 -0500
-Message-ID: <20200204135533-mutt-send-email-mst@kernel.org>
-References: <75d4594f-0864-5172-a0f8-f97affedb366@redhat.com>
+Date: Tue, 4 Feb 2020 20:17:18 +0100
+Message-ID: <b809340d-7e86-caf6-bf12-db7bb8265045@redhat.com>
+References: <CAJuQAmpDUyve2S+oxp9tLUhuRcnddXnNztC5PmYOOCpY6c68xg@mail.gmail.com>
+ <91270a68-ff48-88b0-219c-69801f0c252f@redhat.com>
+ <CAJuQAmoaK0Swytu2Os_SQRfG5_LqiCPaDa9yatatm9MtfncNTQ@mail.gmail.com>
+ <75d4594f-0864-5172-a0f8-f97affedb366@redhat.com>
  <286AC319A985734F985F78AFA26841F73E3F8A02@shsmsx102.ccr.corp.intel.com>
  <CAJuQAmqcayaNuG19fKCuux=YVO3+VcN-qrXvobgKMykogeMkzA@mail.gmail.com>
  <20200203080520-mutt-send-email-mst@kernel.org>
@@ -13,11 +16,11 @@ References: <75d4594f-0864-5172-a0f8-f97affedb366@redhat.com>
  <74cc25a6-cefb-c580-8e59-5b76fb680bf4@redhat.com>
  <CAJuQAmpiVqnNt-vSkQh5Gg63QZ49_nuz4+VW2Jfwn51gWVdtfA@mail.gmail.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="iso-8859-1"
-Content-Transfer-Encoding: quoted-printable
+Content-Type: text/plain; charset="utf-8"
+Content-Transfer-Encoding: base64
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
 In-Reply-To: <CAJuQAmpiVqnNt-vSkQh5Gg63QZ49_nuz4+VW2Jfwn51gWVdtfA@mail.gmail.com>
-Content-Disposition: inline
+Content-Language: en-US
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
  <mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -28,107 +31,47 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 Errors-To: virtualization-bounces@lists.linux-foundation.org
 Sender: "Virtualization" <virtualization-bounces@lists.linux-foundation.org>
 To: Tyler Sanderson <tysand@google.com>
-Cc: "virtualization@lists.linux-foundation.org" <virtualization@lists.linux-foundation.org>, "linux-mm@kvack.org" <linux-mm@kvack.org>, namit@vmware.com, David Rientjes <rientjes@google.com>, Alexander Duyck <alexander.h.duyck@linux.intel.com>, Michal Hocko <mhocko@kernel.org>
+Cc: "Michael S. Tsirkin" <mst@redhat.com>, "virtualization@lists.linux-foundation.org" <virtualization@lists.linux-foundation.org>, "linux-mm@kvack.org" <linux-mm@kvack.org>, namit@vmware.com, David Rientjes <rientjes@google.com>, Alexander Duyck <alexander.h.duyck@linux.intel.com>, Michal Hocko <mhocko@kernel.org>
 List-Id: virtualization@lists.linuxfoundation.org
 
-On Tue, Feb 04, 2020 at 10:52:42AM -0800, Tyler Sanderson wrote:
-> =
-
-> =
-
-> On Tue, Feb 4, 2020 at 12:29 AM David Hildenbrand <david@redhat.com> wrot=
-e:
-> =
-
->     On 03.02.20 21:32, Tyler Sanderson wrote:
->     > There were apparently good reasons for moving away from OOM notifier
->     > callback:
->     > https://lkml.org/lkml/2018/7/12/314
->     > https://lkml.org/lkml/2018/8/2/322
->     >
->     > In particular the OOM notifier is worse than the shrinker because:
-> =
-
->     The issue is that DEFLATE_ON_OOM is under-specified.
-> =
-
->     >
->     >=C2=A0 1. It is last-resort, which means the system has already gone=
- through
->     >=C2=A0 =C2=A0 =C2=A0heroics to prevent OOM. Those heroic reclaim eff=
-orts are expensive
->     >=C2=A0 =C2=A0 =C2=A0and impact application performance.
-> =
-
->     That's *exactly* what "deflate on OOM" suggests.
-> =
-
-> =
-
-> It seems there are some use cases where "deflate on OOM" is desired and o=
-thers
-> where "deflate on pressure" is desired.
-> This suggests adding a new feature bit "DEFLATE_ON_PRESSURE" that registe=
-rs the
-> shrinker, and reverting DEFLATE_ON_OOM to use the OOM notifier callback.
-> =
-
-> This lets users configure the balloon for their use case.
-
-Right. Let's not repeat past mistakes and let's try to specify this
-new one properly though :)
-
-> =
-
-> =
-
->     Assume you are using virtio-balloon for some weird way of memory
->     hotunplug (which is what some people do) and you want to minimize the
->     footprint of your guest. Then you really only want to give the guest
->     more memory (or rather, let it take back memory automatically in this
->     case) in case it really needs more memory. It should try to reclaim f=
-irst.
-> =
-
->     Under-specified.
-> =
-
-> =
-
->     >=C2=A0 2. It lacks understanding of NUMA or other OOM constraints.
-> =
-
->     Ballooning in general lacks the understanding of NUMA.
-> =
-
->     >=C2=A0 3. It has a higher potential for bugs due to the subtlety=C2=
-=A0of the
->     >=C2=A0 =C2=A0 =C2=A0callback context.
-> =
-
->     While that is a valid point, it doesn't explain why existing
->     functionality is changed.
-> =
-
->     Personally, I think DEFLATE_ON_OOM should never have been introduced =
-(at
->     least not in this form).
-> =
-
-> I'm actually not sure how you would safely do memory overcommit without
-> DEFLATE_ON_OOM. So I think it unlocks a huge use case.
-> =C2=A0
-> =
-
-> =
-
-> =
-
->     --
->     Thanks,
-> =
-
->     David / dhildenb
-> =
-
-> =
+T24gMDQuMDIuMjAgMTk6NTIsIFR5bGVyIFNhbmRlcnNvbiB3cm90ZToKPiAKPiAKPiBPbiBUdWUs
+IEZlYiA0LCAyMDIwIGF0IDEyOjI5IEFNIERhdmlkIEhpbGRlbmJyYW5kIDxkYXZpZEByZWRoYXQu
+Y29tCj4gPG1haWx0bzpkYXZpZEByZWRoYXQuY29tPj4gd3JvdGU6Cj4gCj4gICAgIE9uIDAzLjAy
+LjIwIDIxOjMyLCBUeWxlciBTYW5kZXJzb24gd3JvdGU6Cj4gICAgID4gVGhlcmUgd2VyZSBhcHBh
+cmVudGx5IGdvb2QgcmVhc29ucyBmb3IgbW92aW5nIGF3YXkgZnJvbSBPT00gbm90aWZpZXIKPiAg
+ICAgPiBjYWxsYmFjazoKPiAgICAgPiBodHRwczovL2xrbWwub3JnL2xrbWwvMjAxOC83LzEyLzMx
+NAo+ICAgICA+IGh0dHBzOi8vbGttbC5vcmcvbGttbC8yMDE4LzgvMi8zMjIKPiAgICAgPgo+ICAg
+ICA+IEluIHBhcnRpY3VsYXIgdGhlIE9PTSBub3RpZmllciBpcyB3b3JzZSB0aGFuIHRoZSBzaHJp
+bmtlciBiZWNhdXNlOgo+IAo+ICAgICBUaGUgaXNzdWUgaXMgdGhhdCBERUZMQVRFX09OX09PTSBp
+cyB1bmRlci1zcGVjaWZpZWQuCj4gCj4gICAgID4KPiAgICAgPsKgIDEuIEl0IGlzIGxhc3QtcmVz
+b3J0LCB3aGljaCBtZWFucyB0aGUgc3lzdGVtIGhhcyBhbHJlYWR5IGdvbmUgdGhyb3VnaAo+ICAg
+ICA+wqAgwqAgwqBoZXJvaWNzIHRvIHByZXZlbnQgT09NLiBUaG9zZSBoZXJvaWMgcmVjbGFpbSBl
+ZmZvcnRzIGFyZSBleHBlbnNpdmUKPiAgICAgPsKgIMKgIMKgYW5kIGltcGFjdCBhcHBsaWNhdGlv
+biBwZXJmb3JtYW5jZS4KPiAKPiAgICAgVGhhdCdzICpleGFjdGx5KiB3aGF0ICJkZWZsYXRlIG9u
+IE9PTSIgc3VnZ2VzdHMuCj4gCj4gCj4gSXQgc2VlbXMgdGhlcmUgYXJlIHNvbWUgdXNlIGNhc2Vz
+IHdoZXJlICJkZWZsYXRlIG9uIE9PTSIgaXMgZGVzaXJlZCBhbmQKPiBvdGhlcnMgd2hlcmUgImRl
+ZmxhdGUgb24gcHJlc3N1cmUiIGlzIGRlc2lyZWQuCj4gVGhpcyBzdWdnZXN0cyBhZGRpbmcgYSBu
+ZXcgZmVhdHVyZSBiaXQgIkRFRkxBVEVfT05fUFJFU1NVUkUiIHRoYXQKPiByZWdpc3RlcnMgdGhl
+IHNocmlua2VyLCBhbmQgcmV2ZXJ0aW5nIERFRkxBVEVfT05fT09NIHRvIHVzZSB0aGUgT09NCj4g
+bm90aWZpZXIgY2FsbGJhY2suCj4gCj4gVGhpcyBsZXRzIHVzZXJzIGNvbmZpZ3VyZSB0aGUgYmFs
+bG9vbiBmb3IgdGhlaXIgdXNlIGNhc2UuCgpZb3Ugd2FudCB0aGUgb2xkIGJlaGF2aW9yIGJhY2ss
+IHNvIHdoeSBzaG91bGQgd2UgaW50cm9kdWNlIGEgbmV3IG9uZT8gT3IKYW0gSSBtaXNzaW5nIHNv
+bWV0aGluZz8gKHlvdSBkaWQgd2FudCB1cyB0byByZXZlcnQgdG8gb2xkIGhhbmRsaW5nLCBubz8p
+CgpJIGNvbnNpZGVyIHZpcnRpby1iYWxsb29uIHRvIHRoaXMgdmVyeSBkYXkgYSBiaWcgaGFjay4g
+QW5kIEkgZG9uJ3Qgc2VlCml0IGdldHRpbmcgYmV0dGVyIHdpdGggbmV3IGNvbmZpZyBrbm9icy4g
+SGF2aW5nIHRoYXQgc2FpZCwgdGhlCnRlY2hub2xvZ2llcyB0aGF0IGFyZSBjYW5kaWRhdGVzIHRv
+IHJlcGxhY2UgaXQgKGZyZWUgcGFnZSByZXBvcnRpbmcsCnRhbWluZyB0aGUgZ3Vlc3QgcGFnZSBj
+YWNoZSwgZXRjLikgYXJlIHN0aWxsIG5vdCByZWFkeSAtIHNvIHdlJ2xsIGhhdmUKdG8gc3RpY2sg
+d2l0aCBpdCBmb3Igbm93IDooIC4KCj4gCj4gSSdtIGFjdHVhbGx5IG5vdCBzdXJlIGhvdyB5b3Ug
+d291bGQgc2FmZWx5IGRvIG1lbW9yeSBvdmVyY29tbWl0IHdpdGhvdXQKPiBERUZMQVRFX09OX09P
+TS4gU28gSSB0aGluayBpdCB1bmxvY2tzIGEgaHVnZSB1c2UgY2FzZS4KClVzaW5nIGJldHRlciBz
+dWl0ZWQgdGVjaG5vbG9naWVzIHRoYXQgYXJlIG5vdCByZWFkeSB5ZXQgKHdlbGwsIHNvbWUgZm9y
+bQpvZiBmcmVlIHBhZ2UgcmVwb3J0aW5nIGlzIGF2YWlsYWJsZSB1bmRlciBJQk0geiBhbHJlYWR5
+IGJ1dCBpbiBhCnByb3ByaWV0YXJ5IGZvcm0pIDspIEFueWhvdywgSSByZW1lbWJlciB0aGF0IERF
+RkxBVEVfT05fT09NIG9ubHkgbWFrZXMKaXQgbGVzcyBsaWtlbHkgdG8gY3Jhc2ggeW91ciBndWVz
+dCwgYnV0IG5vdCB0aGF0IHlvdSBhcmUgc2FmZSB0byBzcXVlZXplCnRoZSBsYXN0IGJpdCBvdXQg
+b2YgeW91ciBndWVzdCBWTS4KCi0tIApUaGFua3MsCgpEYXZpZCAvIGRoaWxkZW5iCgpfX19fX19f
+X19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fXwpWaXJ0dWFsaXphdGlvbiBt
+YWlsaW5nIGxpc3QKVmlydHVhbGl6YXRpb25AbGlzdHMubGludXgtZm91bmRhdGlvbi5vcmcKaHR0
+cHM6Ly9saXN0cy5saW51eGZvdW5kYXRpb24ub3JnL21haWxtYW4vbGlzdGluZm8vdmlydHVhbGl6
+YXRpb24=
