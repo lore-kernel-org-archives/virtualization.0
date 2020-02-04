@@ -1,7 +1,7 @@
 From: David Hildenbrand <david@redhat.com>
 Subject: Re: Balloon pressuring page cache
-Date: Tue, 4 Feb 2020 09:29:24 +0100
-Message-ID: <74cc25a6-cefb-c580-8e59-5b76fb680bf4@redhat.com>
+Date: Tue, 4 Feb 2020 09:35:21 +0100
+Message-ID: <d69eafb4-ad0d-1617-9248-ea4fc776da58@redhat.com>
 References: <CAJuQAmpDUyve2S+oxp9tLUhuRcnddXnNztC5PmYOOCpY6c68xg@mail.gmail.com>
  <91270a68-ff48-88b0-219c-69801f0c252f@redhat.com>
  <CAJuQAmoaK0Swytu2Os_SQRfG5_LqiCPaDa9yatatm9MtfncNTQ@mail.gmail.com>
@@ -11,13 +11,12 @@ References: <CAJuQAmpDUyve2S+oxp9tLUhuRcnddXnNztC5PmYOOCpY6c68xg@mail.gmail.com>
  <20200203080520-mutt-send-email-mst@kernel.org>
  <5ac131de8e3b7fc1fafd05a61feb5f6889aeb917.camel@linux.intel.com>
  <c836a8d1-c5cc-eb8b-84ed-027070b77bf8@redhat.com>
- <20200203120225-mutt-send-email-mst@kernel.org>
- <CAJuQAmqGA9mhzR5AQeMDtovJAh7y8khC3qUtLKx_e9RdL0wFJQ@mail.gmail.com>
+ <539B606A-A0CA-4AA4-B99A-759C874A1EF8@vmware.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="utf-8"
-Content-Transfer-Encoding: base64
+Content-Type: text/plain; charset="us-ascii"
+Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <CAJuQAmqGA9mhzR5AQeMDtovJAh7y8khC3qUtLKx_e9RdL0wFJQ@mail.gmail.com>
+In-Reply-To: <539B606A-A0CA-4AA4-B99A-759C874A1EF8@vmware.com>
 Content-Language: en-US
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
  <mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
@@ -28,35 +27,42 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
  <mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Errors-To: virtualization-bounces@lists.linux-foundation.org
 Sender: "Virtualization" <virtualization-bounces@lists.linux-foundation.org>
-To: Tyler Sanderson <tysand@google.com>, "Michael S. Tsirkin" <mst@redhat.com>
-Cc: Michal Hocko <mhocko@kernel.org>, "linux-mm@kvack.org" <linux-mm@kvack.org>, David Rientjes <rientjes@google.com>, Alexander Duyck <alexander.h.duyck@linux.intel.com>, "virtualization@lists.linux-foundation.org" <virtualization@lists.linux-foundation.org>
+To: Nadav Amit <namit@vmware.com>
+Cc: "Michael S. Tsirkin" <mst@redhat.com>, "virtualization@lists.linux-foundation.org" <virtualization@lists.linux-foundation.org>, Tyler Sanderson <tysand@google.com>, "linux-mm@kvack.org" <linux-mm@kvack.org>, David Rientjes <rientjes@google.com>, Alexander Duyck <alexander.h.duyck@linux.intel.com>, Michal Hocko <mhocko@kernel.org>
 List-Id: virtualization@lists.linuxfoundation.org
 
-T24gMDMuMDIuMjAgMjE6MzIsIFR5bGVyIFNhbmRlcnNvbiB3cm90ZToKPiBUaGVyZSB3ZXJlIGFw
-cGFyZW50bHkgZ29vZCByZWFzb25zIGZvciBtb3ZpbmcgYXdheSBmcm9tIE9PTSBub3RpZmllcgo+
-IGNhbGxiYWNrOgo+IGh0dHBzOi8vbGttbC5vcmcvbGttbC8yMDE4LzcvMTIvMzE0Cj4gaHR0cHM6
-Ly9sa21sLm9yZy9sa21sLzIwMTgvOC8yLzMyMgo+IAo+IEluIHBhcnRpY3VsYXIgdGhlIE9PTSBu
-b3RpZmllciBpcyB3b3JzZSB0aGFuIHRoZSBzaHJpbmtlciBiZWNhdXNlOgoKVGhlIGlzc3VlIGlz
-IHRoYXQgREVGTEFURV9PTl9PT00gaXMgdW5kZXItc3BlY2lmaWVkLgoKPiAKPiAgMS4gSXQgaXMg
-bGFzdC1yZXNvcnQsIHdoaWNoIG1lYW5zIHRoZSBzeXN0ZW0gaGFzIGFscmVhZHkgZ29uZSB0aHJv
-dWdoCj4gICAgIGhlcm9pY3MgdG8gcHJldmVudCBPT00uIFRob3NlIGhlcm9pYyByZWNsYWltIGVm
-Zm9ydHMgYXJlIGV4cGVuc2l2ZQo+ICAgICBhbmQgaW1wYWN0IGFwcGxpY2F0aW9uIHBlcmZvcm1h
-bmNlLgoKVGhhdCdzICpleGFjdGx5KiB3aGF0ICJkZWZsYXRlIG9uIE9PTSIgc3VnZ2VzdHMuCgpB
-c3N1bWUgeW91IGFyZSB1c2luZyB2aXJ0aW8tYmFsbG9vbiBmb3Igc29tZSB3ZWlyZCB3YXkgb2Yg
-bWVtb3J5CmhvdHVucGx1ZyAod2hpY2ggaXMgd2hhdCBzb21lIHBlb3BsZSBkbykgYW5kIHlvdSB3
-YW50IHRvIG1pbmltaXplIHRoZQpmb290cHJpbnQgb2YgeW91ciBndWVzdC4gVGhlbiB5b3UgcmVh
-bGx5IG9ubHkgd2FudCB0byBnaXZlIHRoZSBndWVzdAptb3JlIG1lbW9yeSAob3IgcmF0aGVyLCBs
-ZXQgaXQgdGFrZSBiYWNrIG1lbW9yeSBhdXRvbWF0aWNhbGx5IGluIHRoaXMKY2FzZSkgaW4gY2Fz
-ZSBpdCByZWFsbHkgbmVlZHMgbW9yZSBtZW1vcnkuIEl0IHNob3VsZCB0cnkgdG8gcmVjbGFpbSBm
-aXJzdC4KClVuZGVyLXNwZWNpZmllZC4KCgo+ICAyLiBJdCBsYWNrcyB1bmRlcnN0YW5kaW5nIG9m
-IE5VTUEgb3Igb3RoZXIgT09NIGNvbnN0cmFpbnRzLgoKQmFsbG9vbmluZyBpbiBnZW5lcmFsIGxh
-Y2tzIHRoZSB1bmRlcnN0YW5kaW5nIG9mIE5VTUEuCgo+ICAzLiBJdCBoYXMgYSBoaWdoZXIgcG90
-ZW50aWFsIGZvciBidWdzIGR1ZSB0byB0aGUgc3VidGxldHnCoG9mIHRoZQo+ICAgICBjYWxsYmFj
-ayBjb250ZXh0LgoKV2hpbGUgdGhhdCBpcyBhIHZhbGlkIHBvaW50LCBpdCBkb2Vzbid0IGV4cGxh
-aW4gd2h5IGV4aXN0aW5nCmZ1bmN0aW9uYWxpdHkgaXMgY2hhbmdlZC4KClBlcnNvbmFsbHksIEkg
-dGhpbmsgREVGTEFURV9PTl9PT00gc2hvdWxkIG5ldmVyIGhhdmUgYmVlbiBpbnRyb2R1Y2VkIChh
-dApsZWFzdCBub3QgaW4gdGhpcyBmb3JtKS4KCgotLSAKVGhhbmtzLAoKRGF2aWQgLyBkaGlsZGVu
-YgoKX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX18KVmlydHVh
-bGl6YXRpb24gbWFpbGluZyBsaXN0ClZpcnR1YWxpemF0aW9uQGxpc3RzLmxpbnV4LWZvdW5kYXRp
-b24ub3JnCmh0dHBzOi8vbGlzdHMubGludXhmb3VuZGF0aW9uLm9yZy9tYWlsbWFuL2xpc3RpbmZv
-L3ZpcnR1YWxpemF0aW9u
+>>> I would say reverting probably makes sense. I'm not sure there is much
+>>> value to having a shrinker running deflation when you are actively trying
+>>> to increase the balloon. It would make more sense to wait until you are
+>>> actually about to start hitting oom.
+>>
+>> I think the shrinker makes sense for free page hinting feature
+>> (everything on free_page_list).
+>>
+>> So instead of only reverting, I think we should split it up and always
+>> register the shrinker for VIRTIO_BALLOON_F_FREE_PAGE_HINT and the OOM
+>> notifier (as before) for VIRTIO_BALLOON_F_MUST_TELL_HOST.
+
+s/VIRTIO_BALLOON_F_MUST_TELL_HOST/VIRTIO_BALLOON_F_DEFLATE_ON_OOM/
+
+:)
+
+>>
+>> (Of course, adapting what is being done in the shrinker and in the OOM
+>> notifier)
+> 
+> David,
+> 
+> Please keep me posted. I decided to adapt the same solution as the virtio
+> balloon for the VMware balloon. If the verdict is that this is damaging and
+> the OOM notifier should be used instead, I will submit patches to move to
+> OOM notifier as well.
+
+Will do. It all sounds sub-optimal to me at this point ... but I prefer
+the old variant where a simple "drop_slab()" won't deflate the balloon.
+That looks broken to me.
+
+-- 
+Thanks,
+
+David / dhildenb
