@@ -1,56 +1,108 @@
-From: Jason Gunthorpe <jgg@mellanox.com>
-Subject: Re: [PATCH 5/5] vdpasim: vDPA device simulator
-Date: Tue, 4 Feb 2020 08:52:04 -0400
-Message-ID: <20200204125204.GS23346@mellanox.com>
-References: <20200116124231.20253-1-jasowang@redhat.com>
- <20200116124231.20253-6-jasowang@redhat.com>
- <1b86d188-0666-f6ab-e3b3-bec1cfbd0c76@linux.intel.com>
- <cca7901b-51dd-4f4b-5c30-c42577ad5194@redhat.com>
+From: David Hildenbrand <david@redhat.com>
+Subject: Re: Balloon pressuring page cache
+Date: Tue, 4 Feb 2020 15:30:19 +0100
+Message-ID: <ce93331c-0099-dda7-e00f-126bf7826a40@redhat.com>
+References: <91270a68-ff48-88b0-219c-69801f0c252f@redhat.com>
+ <CAJuQAmoaK0Swytu2Os_SQRfG5_LqiCPaDa9yatatm9MtfncNTQ@mail.gmail.com>
+ <75d4594f-0864-5172-a0f8-f97affedb366@redhat.com>
+ <286AC319A985734F985F78AFA26841F73E3F8A02@shsmsx102.ccr.corp.intel.com>
+ <CAJuQAmqcayaNuG19fKCuux=YVO3+VcN-qrXvobgKMykogeMkzA@mail.gmail.com>
+ <20200203080520-mutt-send-email-mst@kernel.org>
+ <5ac131de8e3b7fc1fafd05a61feb5f6889aeb917.camel@linux.intel.com>
+ <c836a8d1-c5cc-eb8b-84ed-027070b77bf8@redhat.com>
+ <539B606A-A0CA-4AA4-B99A-759C874A1EF8@vmware.com>
+ <d69eafb4-ad0d-1617-9248-ea4fc776da58@redhat.com>
+ <20200204033657-mutt-send-email-mst@kernel.org>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=utf-8
-Content-Transfer-Encoding: 8bit
-Return-path: <linux-kernel-owner@vger.kernel.org>
-Content-Disposition: inline
-In-Reply-To: <cca7901b-51dd-4f4b-5c30-c42577ad5194@redhat.com>
-Sender: linux-kernel-owner@vger.kernel.org
-To: Jason Wang <jasowang@redhat.com>
-Cc: Zhu Lingshan <lingshan.zhu@linux.intel.com>, mst@redhat.com, linux-kernel@vger.kernel.org, kvm@vger.kernel.org, virtualization@lists.linux-foundation.org, netdev@vger.kernel.org, tiwei.bie@intel.com, maxime.coquelin@redhat.com, cunming.liang@intel.com, zhihong.wang@intel.com, rob.miller@broadcom.com, xiao.w.wang@intel.com, haotian.wang@sifive.com, lingshan.zhu@intel.com, eperezma@redhat.com, lulu@redhat.com, parav@mellanox.com, kevin.tian@intel.com, stefanha@redhat.com, rdunlap@infradead.org, hch@infradead.org, aadam@redhat.com, jakub.kicinski@netronome.com, jiri@mellanox.com, shahafs@mellanox.com, hanand@xilinx.com, mhabets@solarflare.com
+Content-Type: text/plain; charset="us-ascii"
+Content-Transfer-Encoding: 7bit
+Return-path: <virtualization-bounces@lists.linux-foundation.org>
+In-Reply-To: <20200204033657-mutt-send-email-mst@kernel.org>
+Content-Language: en-US
+List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
+ <mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
+List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
+List-Post: <mailto:virtualization@lists.linux-foundation.org>
+List-Help: <mailto:virtualization-request@lists.linux-foundation.org?subject=help>
+List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualization>,
+ <mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
+Errors-To: virtualization-bounces@lists.linux-foundation.org
+Sender: "Virtualization" <virtualization-bounces@lists.linux-foundation.org>
+To: "Michael S. Tsirkin" <mst@redhat.com>
+Cc: "virtualization@lists.linux-foundation.org" <virtualization@lists.linux-foundation.org>, Tyler Sanderson <tysand@google.com>, "linux-mm@kvack.org" <linux-mm@kvack.org>, Nadav Amit <namit@vmware.com>, David Rientjes <rientjes@google.com>, Alexander Duyck <alexander.h.duyck@linux.intel.com>, Michal Hocko <mhocko@kernel.org>
 List-Id: virtualization@lists.linuxfoundation.org
 
-On Tue, Feb 04, 2020 at 04:28:27PM +0800, Jason Wang wrote:
+On 04.02.20 09:40, Michael S. Tsirkin wrote:
+> On Tue, Feb 04, 2020 at 09:35:21AM +0100, David Hildenbrand wrote:
+>>>>> I would say reverting probably makes sense. I'm not sure there is much
+>>>>> value to having a shrinker running deflation when you are actively trying
+>>>>> to increase the balloon. It would make more sense to wait until you are
+>>>>> actually about to start hitting oom.
+>>>>
+>>>> I think the shrinker makes sense for free page hinting feature
+>>>> (everything on free_page_list).
+>>>>
+>>>> So instead of only reverting, I think we should split it up and always
+>>>> register the shrinker for VIRTIO_BALLOON_F_FREE_PAGE_HINT and the OOM
+>>>> notifier (as before) for VIRTIO_BALLOON_F_MUST_TELL_HOST.
+>>
+>> s/VIRTIO_BALLOON_F_MUST_TELL_HOST/VIRTIO_BALLOON_F_DEFLATE_ON_OOM/
+>>
+>> :)
 > 
-> On 2020/2/4 下午4:21, Zhu Lingshan wrote:
-> > > +static const struct dma_map_ops vdpasim_dma_ops = {
-> > > +    .map_page = vdpasim_map_page,
-> > > +    .unmap_page = vdpasim_unmap_page,
-> > > +    .alloc = vdpasim_alloc_coherent,
-> > > +    .free = vdpasim_free_coherent,
-> > > +};
-> > > +
-> > 
-> > Hey Jason,
-> > 
-> > IMHO, it would be nice if dma_ops of the parent device could be re-used.
-> > vdpa_device is expecting to represent a physical device except this
-> > simulator, however, there are not enough information in vdpa_device.dev
-> > to indicating which kind physical device it attached to. Namely
-> > get_arch_dma_ops(struct bus type) can not work on vdpa_device.dev. Then
-> > it seems device drivers need to implement a wrap of dma_ops of parent
-> > devices. Can this work be done in the vdpa framework since it looks like
-> > a common task? Can "vd_dev->vdev.dev.parent = vdpa->dev->parent;" in
-> > virtio_vdpa_probe() do the work?
-> > 
-> > Thanks,
-> > BR
-> > Zhu Lingshan
-> 
-> 
-> Good catch.
-> 
-> I think we can.
+> Well VIRTIO_BALLOON_F_MUST_TELL_HOST is also broken by shrinker
+> with VIRTIO_BALLOON_F_FREE_PAGE_HINT as that code adds buffers
+> but does not wait for them to be used even with VIRTIO_BALLOON_F_MUST_TELL_HOST.
+> We never noticed because QEMU does not advertize
+> VIRTIO_BALLOON_F_MUST_TELL_HOST.
 
-IMHO you need to specify some 'dma_device', not try and play tricks
-with dma_ops, or assuming the parent is always the device used for
-dma.
+So, I am trying to understand how the code is intended to work, but I
+am afraid I am missing something (or to rephrase: I think I found a BUG :) and
+there is lack of proper documentation about this feature).
 
-Jason
+a) We allocate pages and add them to the list as long as we are told to do so.
+   We send these pages to the host one by one.
+b) We free all pages once we get a STOP signal. Until then, we keep pages allocated.
+c) When called via the shrinker, we want to free pages from the list, even
+though the hypervisor did not notify us to do so.
+
+
+Issue 1: When we unload the balloon driver in the guest in an unlucky event,
+we won't free the pages. We are missing something like (if I am not wrong):
+
+diff --git a/drivers/virtio/virtio_balloon.c b/drivers/virtio/virtio_balloon.c
+index b1d2068fa2bd..e2b0925e1e83 100644
+--- a/drivers/virtio/virtio_balloon.c
++++ b/drivers/virtio/virtio_balloon.c
+@@ -929,6 +929,10 @@ static void remove_common(struct virtio_balloon *vb)
+                leak_balloon(vb, vb->num_pages);
+        update_balloon_size(vb);
+ 
++       /* There might be free pages that are being reported: release them. */
++       if (virtio_has_feature(vb->vdev, VIRTIO_BALLOON_F_FREE_PAGE_HINT))
++               return_free_pages_to_mm(vb, ULONG_MAX);
++
+        /* Now we reset the device so we can clean up the queues. */
+        vb->vdev->config->reset(vb->vdev);
+ 
+
+Issue 2: When called via the shrinker, (but also to fix Issue 1), it could be
+that we do have VIRTIO_BALLOON_F_MUST_TELL_HOST. I assume this means
+(-ENOCLUE) that we have to wait until the hypervisor notifies us via the STOP? Or
+for which event do we have to wait? Because there is no way to *tell host* here
+that we want to reuse a page. The hypervisor will *tell us* when we can reuse pages.
+
+For the shrinker it is simple: Don't use the shrinker with
+VIRTIO_BALLOON_F_MUST_TELL_HOST :) . But to fix Issue 1, we *would* have to wait
+until we get a STOP signal. That is not really possible because it might
+take an infinite amount of time.
+
+Michael, any clue on which event we have to wait with
+VIRTIO_BALLOON_F_MUST_TELL_HOST? IMHO, I don't think
+VIRTIO_BALLOON_F_MUST_TELL_HOST applies to VIRTIO_BALLOON_F_FREE_PAGE_HINT and
+we'd better document that. It introduces complexity with no clear benefit.
+
+-- 
+Thanks,
+
+David / dhildenb
