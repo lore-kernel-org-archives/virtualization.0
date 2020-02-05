@@ -1,125 +1,144 @@
-From: David Hildenbrand <david@redhat.com>
-Subject: Re: Balloon pressuring page cache
-Date: Wed, 5 Feb 2020 11:43:49 +0100
-Message-ID: <c967349f-c422-1505-ee13-8b0746b593c3@redhat.com>
-References: <CAJuQAmoaK0Swytu2Os_SQRfG5_LqiCPaDa9yatatm9MtfncNTQ@mail.gmail.com>
- <75d4594f-0864-5172-a0f8-f97affedb366@redhat.com>
- <286AC319A985734F985F78AFA26841F73E3F8A02@shsmsx102.ccr.corp.intel.com>
- <CAJuQAmqcayaNuG19fKCuux=YVO3+VcN-qrXvobgKMykogeMkzA@mail.gmail.com>
- <20200203080520-mutt-send-email-mst@kernel.org>
- <5ac131de8e3b7fc1fafd05a61feb5f6889aeb917.camel@linux.intel.com>
- <c836a8d1-c5cc-eb8b-84ed-027070b77bf8@redhat.com>
- <539B606A-A0CA-4AA4-B99A-759C874A1EF8@vmware.com>
- <08D323B9-0B4A-47B2-9955-511B8FBA056B@vmware.com>
- <dd5aa189-daed-7008-d02b-4e5bd61fe6e1@redhat.com>
- <20200205052548-mutt-send-email-mst@kernel.org>
-Mime-Version: 1.0
-Content-Type: text/plain; charset="utf-8"
-Content-Transfer-Encoding: base64
-Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <20200205052548-mutt-send-email-mst@kernel.org>
-Content-Language: en-US
-List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
- <mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
-List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
-List-Post: <mailto:virtualization@lists.linux-foundation.org>
-List-Help: <mailto:virtualization-request@lists.linux-foundation.org?subject=help>
-List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualization>,
- <mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
-Errors-To: virtualization-bounces@lists.linux-foundation.org
-Sender: "Virtualization" <virtualization-bounces@lists.linux-foundation.org>
-To: "Michael S. Tsirkin" <mst@redhat.com>
-Cc: "virtualization@lists.linux-foundation.org" <virtualization@lists.linux-foundation.org>, Tyler Sanderson <tysand@google.com>, "linux-mm@kvack.org" <linux-mm@kvack.org>, Nadav Amit <namit@vmware.com>, David Rientjes <rientjes@google.com>, Alexander Duyck <alexander.h.duyck@linux.intel.com>, Michal Hocko <mhocko@kernel.org>
+From: Gerd Hoffmann <kraxel@redhat.com>
+Subject: [PATCH 2/4] drm/virtio: resource teardown tweaks
+Date: Wed,  5 Feb 2020 11:59:53 +0100
+Message-ID: <20200205105955.28143-3-kraxel@redhat.com>
+References: <20200205105955.28143-1-kraxel@redhat.com>
+Return-path: <linux-kernel-owner@vger.kernel.org>
+In-Reply-To: <20200205105955.28143-1-kraxel@redhat.com>
+Sender: linux-kernel-owner@vger.kernel.org
+To: dri-devel@lists.freedesktop.org
+Cc: gurchetansingh@chromium.org, olvaffe@gmail.com, Gerd Hoffmann <kraxel@redhat.com>, David Airlie <airlied@linux.ie>, Daniel Vetter <daniel@ffwll.ch>, "open list:VIRTIO GPU DRIVER" <virtualization@lists.linux-foundation.org>, open list <linux-kernel@vger.kernel.org>
 List-Id: virtualization@lists.linuxfoundation.org
 
-T24gMDUuMDIuMjAgMTE6MjcsIE1pY2hhZWwgUy4gVHNpcmtpbiB3cm90ZToKPiBPbiBXZWQsIEZl
-YiAwNSwgMjAyMCBhdCAwOToxOTo1OEFNICswMTAwLCBEYXZpZCBIaWxkZW5icmFuZCB3cm90ZToK
-Pj4gT24gMDUuMDIuMjAgMDg6MzUsIE5hZGF2IEFtaXQgd3JvdGU6Cj4+Pj4gT24gRmViIDMsIDIw
-MjAsIGF0IDI6NTAgUE0sIE5hZGF2IEFtaXQgPG5hbWl0QHZtd2FyZS5jb20+IHdyb3RlOgo+Pj4+
-Cj4+Pj4+IE9uIEZlYiAzLCAyMDIwLCBhdCA4OjM0IEFNLCBEYXZpZCBIaWxkZW5icmFuZCA8ZGF2
-aWRAcmVkaGF0LmNvbT4gd3JvdGU6Cj4+Pj4+Cj4+Pj4+IE9uIDAzLjAyLjIwIDE3OjE4LCBBbGV4
-YW5kZXIgRHV5Y2sgd3JvdGU6Cj4+Pj4+PiBPbiBNb24sIDIwMjAtMDItMDMgYXQgMDg6MTEgLTA1
-MDAsIE1pY2hhZWwgUy4gVHNpcmtpbiB3cm90ZToKPj4+Pj4+PiBPbiBUaHUsIEphbiAzMCwgMjAy
-MCBhdCAxMTo1OTo0NkFNIC0wODAwLCBUeWxlciBTYW5kZXJzb24gd3JvdGU6Cj4+Pj4+Pj4+IE9u
-IFRodSwgSmFuIDMwLCAyMDIwIGF0IDc6MzEgQU0gV2FuZywgV2VpIFcgPHdlaS53LndhbmdAaW50
-ZWwuY29tPiB3cm90ZToKPj4+Pj4+Pj4KPj4+Pj4+Pj4gICBPbiBUaHVyc2RheSwgSmFudWFyeSAz
-MCwgMjAyMCAxMTowMyBQTSwgRGF2aWQgSGlsZGVuYnJhbmQgd3JvdGU6Cj4+Pj4+Pj4+PiBPbiAy
-OS4wMS4yMCAyMDoxMSwgVHlsZXIgU2FuZGVyc29uIHdyb3RlOgo+Pj4+Pj4+Pj4+IE9uIFdlZCwg
-SmFuIDI5LCAyMDIwIGF0IDI6MzEgQU0gRGF2aWQgSGlsZGVuYnJhbmQgPGRhdmlkQHJlZGhhdC5j
-b20KPj4+Pj4+Pj4+PiA8bWFpbHRvOmRhdmlkQHJlZGhhdC5jb20+PiB3cm90ZToKPj4+Pj4+Pj4+
-Pgo+Pj4+Pj4+Pj4+ICAgT24gMjkuMDEuMjAgMDE6MjIsIFR5bGVyIFNhbmRlcnNvbiB2aWEgVmly
-dHVhbGl6YXRpb24gd3JvdGU6Cj4+Pj4+Pj4+Pj4+IEEgcHJpbWFyeSBhZHZhbnRhZ2Ugb2Ygdmly
-dGlvIGJhbGxvb24gb3ZlciBvdGhlciBtZW1vcnkgcmVjbGFpbQo+Pj4+Pj4+Pj4+PiBtZWNoYW5p
-c21zIGlzIHRoYXQgaXQgY2FuIHByZXNzdXJlIHRoZSBndWVzdCdzIHBhZ2UgY2FjaGUgaW50bwo+
-Pj4+Pj4+Pj4+ICAgc2hyaW5raW5nLgo+Pj4+Pj4+Pj4+PiBIb3dldmVyLCBzaW5jZSB0aGUgYmFs
-bG9vbiBkcml2ZXIgY2hhbmdlZCB0byB1c2luZyB0aGUgc2hyaW5rZXIKPj4+Pj4+Pj4gICBBUEkK
-Pj4+Pj4+Pj4+IDxodHRwczovL2dpdGh1Yi5jb20vdG9ydmFsZHMvbGludXgvY29tbWl0LzcxOTk0
-NjIwYmIyNWE4YjEwOTM4OGZlZmE5Cj4+Pj4+Pj4+PiBlOTlhMjhlMzU1MjU1YSNkaWZmLWZkMjAy
-YWNmNjk0ZDllYmExOWM4YzY0ZGEzZTQ4MGM5PiB0aGlzCj4+Pj4+Pj4+Pj4+IHVzZSBjYXNlIGhh
-cyBiZWNvbWUgYSBiaXQgbW9yZSB0cmlja3kuIEknbSB3b25kZXJpbmcgd2hhdCB0aGUKPj4+Pj4+
-Pj4+IGludGVuZGVkCj4+Pj4+Pj4+Pj4+IGRldmljZSBpbXBsZW1lbnRhdGlvbiBpcy4KPj4+Pj4+
-Pj4+Pj4KPj4+Pj4+Pj4+Pj4gV2hlbiBpbmZsYXRpbmcgdGhlIGJhbGxvb24gYWdhaW5zdCBwYWdl
-IGNhY2hlIChpLmUuIG5vIGZyZWUKPj4+Pj4+Pj4gICBtZW1vcnkKPj4+Pj4+Pj4+Pj4gcmVtYWlu
-cykgdm1zY2FuLmMgd2lsbCBib3RoIHNocmluayBwYWdlIGNhY2hlLCBidXQgYWxzbyBpbnZva2UK
-Pj4+Pj4+Pj4gICB0aGUKPj4+Pj4+Pj4+Pj4gc2hyaW5rZXJzIC0tIGluY2x1ZGluZyB0aGUgYmFs
-bG9vbidzIHNocmlua2VyLiBTbyB0aGUgYmFsbG9vbgo+Pj4+Pj4+PiAgIGRyaXZlcgo+Pj4+Pj4+
-Pj4+PiBhbGxvY2F0ZXMgbWVtb3J5IHdoaWNoIHJlcXVpcmVzIHJlY2xhaW0sIHZtc2NhbiBnZXRz
-IHRoaXMgbWVtb3J5Cj4+Pj4+Pj4+PiBieQo+Pj4+Pj4+Pj4+PiBzaHJpbmtpbmcgdGhlIGJhbGxv
-b24sIGFuZCB0aGVuIHRoZSBkcml2ZXIgYWRkcyB0aGUgbWVtb3J5IGJhY2sKPj4+Pj4+Pj4gICB0
-bwo+Pj4+Pj4+Pj4gdGhlCj4+Pj4+Pj4+Pj4+IGJhbGxvb24uIEJhc2ljYWxseSBhIGJ1c3kgbm8t
-b3AuCj4+Pj4+Pj4+Cj4+Pj4+Pj4+ICAgUGVyIG15IHVuZGVyc3RhbmRpbmcsIHRoZSBiYWxsb29u
-IGFsbG9jYXRpb24gd29u4oCZdCBpbnZva2Ugc2hyaW5rZXIgYXMKPj4+Pj4+Pj4gICBfX0dGUF9E
-SVJFQ1RfUkVDTEFJTSBpc24ndCBzZXQsIG5vPwo+Pj4+Pj4+Pgo+Pj4+Pj4+PiBJIGNvdWxkIGJl
-IHdyb25nIGFib3V0IHRoZSBtZWNoYW5pc20sIGJ1dCB0aGUgZGV2aWNlIHNlZXMgbG90cyBvZiBh
-Y3Rpdml0eSBvbgo+Pj4+Pj4+PiB0aGUgZGVmbGF0ZSBxdWV1ZS4gVGhlIGJhbGxvb24gaXMgYmVp
-bmcgc2hydW5rLiBBbmQgdGhpcyBvbmx5IHN0YXJ0cyBvbmNlIGFsbAo+Pj4+Pj4+PiBmcmVlIG1l
-bW9yeSBpcyBkZXBsZXRlZCBhbmQgd2UncmUgaW5mbGF0aW5nIGludG8gcGFnZSBjYWNoZS4KPj4+
-Pj4+Pgo+Pj4+Pj4+IFNvIGdpdmVuIHRoaXMgbG9va3MgbGlrZSBhIHJlZ3Jlc3Npb24sIG1heWJl
-IHdlIHNob3VsZCByZXZlcnQgdGhlCj4+Pj4+Pj4gcGF0Y2ggaW4gcXVlc3Rpb24gNzE5OTQ2MjBi
-YjI1ICgidmlydGlvX2JhbGxvb246IHJlcGxhY2Ugb29tIG5vdGlmaWVyIHdpdGggc2hyaW5rZXIi
-KQo+Pj4+Pj4+IEJlc2lkZXMsIHdpdGggVklSVElPX0JBTExPT05fRl9GUkVFX1BBR0VfSElOVAo+
-Pj4+Pj4+IHNocmlua2VyIGFsc28gaWdub3JlcyBWSVJUSU9fQkFMTE9PTl9GX01VU1RfVEVMTF9I
-T1NUIHdoaWNoIGlzbid0IG5pY2UKPj4+Pj4+PiBhdCBhbGwuCj4+Pj4+Pj4KPj4+Pj4+PiBTbyBp
-dCBsb29rcyBsaWtlIGFsbCB0aGlzIHJld29yayBpbnRyb2R1Y2VkIG1vcmUgaXNzdWVzIHRoYW4g
-aXQKPj4+Pj4+PiBhZGRyZXNzZWQgLi4uCj4+Pj4+Pj4KPj4+Pj4+PiBJIGFsc28gQ0MgQWxleCBE
-dXljayBmb3IgYW4gb3BpbmlvbiBvbiB0aGlzLgo+Pj4+Pj4+IEFsZXgsIHdoYXQgZG8geW91IHVz
-ZSB0byBwdXQgcHJlc3N1cmUgb24gcGFnZSBjYWNoZT8KPj4+Pj4+Cj4+Pj4+PiBJIHdvdWxkIHNh
-eSByZXZlcnRpbmcgcHJvYmFibHkgbWFrZXMgc2Vuc2UuIEknbSBub3Qgc3VyZSB0aGVyZSBpcyBt
-dWNoCj4+Pj4+PiB2YWx1ZSB0byBoYXZpbmcgYSBzaHJpbmtlciBydW5uaW5nIGRlZmxhdGlvbiB3
-aGVuIHlvdSBhcmUgYWN0aXZlbHkgdHJ5aW5nCj4+Pj4+PiB0byBpbmNyZWFzZSB0aGUgYmFsbG9v
-bi4gSXQgd291bGQgbWFrZSBtb3JlIHNlbnNlIHRvIHdhaXQgdW50aWwgeW91IGFyZQo+Pj4+Pj4g
-YWN0dWFsbHkgYWJvdXQgdG8gc3RhcnQgaGl0dGluZyBvb20uCj4+Pj4+Cj4+Pj4+IEkgdGhpbmsg
-dGhlIHNocmlua2VyIG1ha2VzIHNlbnNlIGZvciBmcmVlIHBhZ2UgaGludGluZyBmZWF0dXJlCj4+
-Pj4+IChldmVyeXRoaW5nIG9uIGZyZWVfcGFnZV9saXN0KS4KPj4+Pj4KPj4+Pj4gU28gaW5zdGVh
-ZCBvZiBvbmx5IHJldmVydGluZywgSSB0aGluayB3ZSBzaG91bGQgc3BsaXQgaXQgdXAgYW5kIGFs
-d2F5cwo+Pj4+PiByZWdpc3RlciB0aGUgc2hyaW5rZXIgZm9yIFZJUlRJT19CQUxMT09OX0ZfRlJF
-RV9QQUdFX0hJTlQgYW5kIHRoZSBPT00KPj4+Pj4gbm90aWZpZXIgKGFzIGJlZm9yZSkgZm9yIFZJ
-UlRJT19CQUxMT09OX0ZfTVVTVF9URUxMX0hPU1QuCj4+Pj4+Cj4+Pj4+IChPZiBjb3Vyc2UsIGFk
-YXB0aW5nIHdoYXQgaXMgYmVpbmcgZG9uZSBpbiB0aGUgc2hyaW5rZXIgYW5kIGluIHRoZSBPT00K
-Pj4+Pj4gbm90aWZpZXIpCj4+Pj4KPj4+PiBEYXZpZCwKPj4+Pgo+Pj4+IFBsZWFzZSBrZWVwIG1l
-IHBvc3RlZC4gSSBkZWNpZGVkIHRvIGFkYXB0IHRoZSBzYW1lIHNvbHV0aW9uIGFzIHRoZSB2aXJ0
-aW8KPj4+PiBiYWxsb29uIGZvciB0aGUgVk13YXJlIGJhbGxvb24uIElmIHRoZSB2ZXJkaWN0IGlz
-IHRoYXQgdGhpcyBpcyBkYW1hZ2luZyBhbmQKPj4+PiB0aGUgT09NIG5vdGlmaWVyIHNob3VsZCBi
-ZSB1c2VkIGluc3RlYWQsIEkgd2lsbCBzdWJtaXQgcGF0Y2hlcyB0byBtb3ZlIHRvCj4+Pj4gT09N
-IG5vdGlmaWVyIGFzIHdlbGwuCj4+Pgo+Pj4gQWRkaW5nIHNvbWUgaW5mb3JtYXRpb24gZm9yIHRo
-ZSByZWNvcmQgKGlmIHNvbWVvbmUgZ29vZ2xlcyB0aGlzIHRocmVhZCk6Cj4+Pgo+Pj4gSW4gdGhl
-IFZNd2FyZSBiYWxsb29uIGRyaXZlciwgdGhlIHNocmlua2VyIGlzIGRpc2FibGVkIGJ5IGRlZmF1
-bHQgc2luY2Ugd2UKPj4+IGVuY291bnRlcmVkIGEgcGVyZm9ybWFuY2UgZGVncmFkYXRpb24gaW4g
-dGVzdGluZy4gSSB0cmllZCB0byBhdm9pZCByYXBpZAo+Pj4gaW5mbGF0aW9uL3Nocmlua2VyLWRl
-ZmxhdGlvbiBjeWNsZXMgYnkgYWRkaW5nIGEgdGltZW91dCwgYnV0IGFwcGFyZW50bHkgaXQKPj4+
-IGRpZCBub3QgaGVscCBpbiBhdm9pZGluZyB0aGUgcGVyZm9ybWFuY2UgcmVncmVzc2lvbi4KPj4K
-Pj4gVGhhbmtzIGZvciB0aGF0IGluZm8uIFRvIG1lIHRoYXQgc291bmRzIGxpa2UgdGhlIHNocmlu
-a2VyIGlzIHRoZSB3cm9uZwo+PiBhcHByb2FjaCB0byAiYXV0by1kZWZsYXRpb24iLiBJdCdzIG5v
-dCBqdXN0ICJzb21lIHNsYWIgY2FjaGUiLgo+IAo+IFNvIGFzIHlvdSBwb2ludGVkIG91dCB5b3Vy
-c2VsZiBkZWZsYXRlIG9uIG9vbSBpcyByZWFsbHkgdW5kZXItc3BlY2lmaWVkLgo+IAo+IEkgd291
-bGQgYmUgdmVyeSBoYXBweSBpZiB5b3UgY291bGQgdGFrZSBhIHN0dWIgYXQgZG9jdW1lbnRpbmcg
-d2hhdCdzCj4gZXhwZWN0ZWQgZnJvbSBndWVzdCBhbmQgaG93IGl0IGNvdWxkIGJlIHVzZWQuCj4g
-UGxlYXNlIGNvcHkgdGhlIHZpcnRpbyBUQyB3aGVuIHlvdSBkbyB0aGlzIGFzIHRoaXMgaXMgc3Bl
-YyBzdHVmZi4KClNvLCBJJ2xsIGZpcnN0IGdldCB0aGUgY29kZSBiYWNrIGludG8gdGhlIGRlc2ly
-ZWQgc3RhdGUsIHNvIGF0IGxlYXN0IHdlCmhhdmUgYW4gYWdyZWVtZW50IG9mIGhvdyBpdCBzaG91
-bGQgYmUsIGFuZCB0aGVuIGZvbGxvdyB1cCB3aXRoIGEgc3BlYwp1cGRhdGUuCgpNaWdodCB0YWtl
-IHNvbWUgdGltZSwgdGhvdWdoIChwbGVudHkgb2Ygc3R1ZmYgdG8gZG8pLgoKLS0gClRoYW5rcywK
-CkRhdmlkIC8gZGhpbGRlbmIKCl9fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19f
-X19fX19fX19fClZpcnR1YWxpemF0aW9uIG1haWxpbmcgbGlzdApWaXJ0dWFsaXphdGlvbkBsaXN0
-cy5saW51eC1mb3VuZGF0aW9uLm9yZwpodHRwczovL2xpc3RzLmxpbnV4Zm91bmRhdGlvbi5vcmcv
-bWFpbG1hbi9saXN0aW5mby92aXJ0dWFsaXphdGlvbg==
+Add new virtio_gpu_cleanup_object() helper function for object cleanup.
+Wire up callback function for resource unref, do cleanup from callback
+when we know the host stopped using the resource.
+
+Signed-off-by: Gerd Hoffmann <kraxel@redhat.com>
+---
+ drivers/gpu/drm/virtio/virtgpu_drv.h    |  3 ++-
+ drivers/gpu/drm/virtio/virtgpu_object.c | 19 ++++++++++----
+ drivers/gpu/drm/virtio/virtgpu_vq.c     | 35 ++++++++++++++++++++++---
+ 3 files changed, 48 insertions(+), 9 deletions(-)
+
+diff --git a/drivers/gpu/drm/virtio/virtgpu_drv.h b/drivers/gpu/drm/virtio/virtgpu_drv.h
+index 7e69c06e168e..372dd248cf02 100644
+--- a/drivers/gpu/drm/virtio/virtgpu_drv.h
++++ b/drivers/gpu/drm/virtio/virtgpu_drv.h
+@@ -262,7 +262,7 @@ void virtio_gpu_cmd_create_resource(struct virtio_gpu_device *vgdev,
+ 				    struct virtio_gpu_object_array *objs,
+ 				    struct virtio_gpu_fence *fence);
+ void virtio_gpu_cmd_unref_resource(struct virtio_gpu_device *vgdev,
+-				   uint32_t resource_id);
++				   struct virtio_gpu_object *bo);
+ void virtio_gpu_cmd_transfer_to_host_2d(struct virtio_gpu_device *vgdev,
+ 					uint64_t offset,
+ 					uint32_t width, uint32_t height,
+@@ -355,6 +355,7 @@ void virtio_gpu_fence_event_process(struct virtio_gpu_device *vdev,
+ 				    u64 last_seq);
+ 
+ /* virtio_gpu_object */
++void virtio_gpu_cleanup_object(struct virtio_gpu_object *bo);
+ struct drm_gem_object *virtio_gpu_create_object(struct drm_device *dev,
+ 						size_t size);
+ int virtio_gpu_object_create(struct virtio_gpu_device *vgdev,
+diff --git a/drivers/gpu/drm/virtio/virtgpu_object.c b/drivers/gpu/drm/virtio/virtgpu_object.c
+index 017a9e0fc3bb..28a161af7503 100644
+--- a/drivers/gpu/drm/virtio/virtgpu_object.c
++++ b/drivers/gpu/drm/virtio/virtgpu_object.c
+@@ -61,6 +61,14 @@ static void virtio_gpu_resource_id_put(struct virtio_gpu_device *vgdev, uint32_t
+ 	}
+ }
+ 
++void virtio_gpu_cleanup_object(struct virtio_gpu_object *bo)
++{
++	struct virtio_gpu_device *vgdev = bo->base.base.dev->dev_private;
++
++	virtio_gpu_resource_id_put(vgdev, bo->hw_res_handle);
++	drm_gem_shmem_free_object(&bo->base.base);
++}
++
+ static void virtio_gpu_free_object(struct drm_gem_object *obj)
+ {
+ 	struct virtio_gpu_object *bo = gem_to_virtio_gpu_obj(obj);
+@@ -68,11 +76,12 @@ static void virtio_gpu_free_object(struct drm_gem_object *obj)
+ 
+ 	if (bo->pages)
+ 		virtio_gpu_object_detach(vgdev, bo);
+-	if (bo->created)
+-		virtio_gpu_cmd_unref_resource(vgdev, bo->hw_res_handle);
+-	virtio_gpu_resource_id_put(vgdev, bo->hw_res_handle);
+-
+-	drm_gem_shmem_free_object(obj);
++	if (bo->created) {
++		virtio_gpu_cmd_unref_resource(vgdev, bo);
++		/* completion handler calls virtio_gpu_cleanup_object() */
++		return;
++	}
++	virtio_gpu_cleanup_object(bo);
+ }
+ 
+ static const struct drm_gem_object_funcs virtio_gpu_gem_funcs = {
+diff --git a/drivers/gpu/drm/virtio/virtgpu_vq.c b/drivers/gpu/drm/virtio/virtgpu_vq.c
+index 6d6d55dc384e..6e8097e4c214 100644
+--- a/drivers/gpu/drm/virtio/virtgpu_vq.c
++++ b/drivers/gpu/drm/virtio/virtgpu_vq.c
+@@ -152,6 +152,15 @@ static void *virtio_gpu_alloc_cmd(struct virtio_gpu_device *vgdev,
+ 					 sizeof(struct virtio_gpu_ctrl_hdr), NULL);
+ }
+ 
++static void *virtio_gpu_alloc_cmd_cb(struct virtio_gpu_device *vgdev,
++				     struct virtio_gpu_vbuffer **vbuffer_p,
++				     int size,
++				     virtio_gpu_resp_cb cb)
++{
++	return virtio_gpu_alloc_cmd_resp(vgdev, cb, vbuffer_p, size,
++					 sizeof(struct virtio_gpu_ctrl_hdr), NULL);
++}
++
+ static void free_vbuf(struct virtio_gpu_device *vgdev,
+ 		      struct virtio_gpu_vbuffer *vbuf)
+ {
+@@ -494,17 +503,37 @@ void virtio_gpu_cmd_create_resource(struct virtio_gpu_device *vgdev,
+ 	bo->created = true;
+ }
+ 
++static void virtio_gpu_cmd_unref_cb(struct virtio_gpu_device *vgdev,
++				    struct virtio_gpu_vbuffer *vbuf)
++{
++	struct virtio_gpu_object *bo;
++
++	bo = gem_to_virtio_gpu_obj(vbuf->objs->objs[0]);
++	kfree(vbuf->objs);
++	vbuf->objs = NULL;
++
++	virtio_gpu_cleanup_object(bo);
++}
++
+ void virtio_gpu_cmd_unref_resource(struct virtio_gpu_device *vgdev,
+-				   uint32_t resource_id)
++				   struct virtio_gpu_object *bo)
+ {
+ 	struct virtio_gpu_resource_unref *cmd_p;
+ 	struct virtio_gpu_vbuffer *vbuf;
+ 
+-	cmd_p = virtio_gpu_alloc_cmd(vgdev, &vbuf, sizeof(*cmd_p));
++	cmd_p = virtio_gpu_alloc_cmd_cb(vgdev, &vbuf, sizeof(*cmd_p),
++					virtio_gpu_cmd_unref_cb);
+ 	memset(cmd_p, 0, sizeof(*cmd_p));
+ 
+ 	cmd_p->hdr.type = cpu_to_le32(VIRTIO_GPU_CMD_RESOURCE_UNREF);
+-	cmd_p->resource_id = cpu_to_le32(resource_id);
++	cmd_p->resource_id = cpu_to_le32(bo->hw_res_handle);
++
++	/*
++	 * We are in the release callback and do NOT want refcount
++	 * bo, so do NOT use virtio_gpu_array_add_obj().
++	 */
++	vbuf->objs = virtio_gpu_array_alloc(1);
++	vbuf->objs->objs[0] = &bo->base.base;
+ 
+ 	virtio_gpu_queue_ctrl_buffer(vgdev, vbuf);
+ }
+-- 
+2.18.1
