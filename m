@@ -1,8 +1,12 @@
 From: "Wang, Wei W" <wei.w.wang@intel.com>
 Subject: RE: Balloon pressuring page cache
-Date: Wed, 5 Feb 2020 08:50:55 +0000
-Message-ID: <286AC319A985734F985F78AFA26841F73E41F2D9@shsmsx102.ccr.corp.intel.com>
-References: <CAJuQAmqcayaNuG19fKCuux=YVO3+VcN-qrXvobgKMykogeMkzA@mail.gmail.com>
+Date: Wed, 5 Feb 2020 08:54:38 +0000
+Message-ID: <286AC319A985734F985F78AFA26841F73E41F306@shsmsx102.ccr.corp.intel.com>
+References: <91270a68-ff48-88b0-219c-69801f0c252f@redhat.com>
+ <CAJuQAmoaK0Swytu2Os_SQRfG5_LqiCPaDa9yatatm9MtfncNTQ@mail.gmail.com>
+ <75d4594f-0864-5172-a0f8-f97affedb366@redhat.com>
+ <286AC319A985734F985F78AFA26841F73E3F8A02@shsmsx102.ccr.corp.intel.com>
+ <CAJuQAmqcayaNuG19fKCuux=YVO3+VcN-qrXvobgKMykogeMkzA@mail.gmail.com>
  <20200203080520-mutt-send-email-mst@kernel.org>
  <5ac131de8e3b7fc1fafd05a61feb5f6889aeb917.camel@linux.intel.com>
  <c836a8d1-c5cc-eb8b-84ed-027070b77bf8@redhat.com>
@@ -10,14 +14,13 @@ References: <CAJuQAmqcayaNuG19fKCuux=YVO3+VcN-qrXvobgKMykogeMkzA@mail.gmail.com>
  <d69eafb4-ad0d-1617-9248-ea4fc776da58@redhat.com>
  <20200204033657-mutt-send-email-mst@kernel.org>
  <ce93331c-0099-dda7-e00f-126bf7826a40@redhat.com>
- <20200204114336-mutt-send-email-mst@kernel.org>
- <286AC319A985734F985F78AFA26841F73E41F10F@shsmsx102.ccr.corp.intel.com>
- <20200205015911-mutt-send-email-mst@kernel.org>
+ <286AC319A985734F985F78AFA26841F73E41F0F0@shsmsx102.ccr.corp.intel.com>
+ <1eff30a0-a38a-cd45-2fc1-80cfd0bf5f04@redhat.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <20200205015911-mutt-send-email-mst@kernel.org>
+In-Reply-To: <1eff30a0-a38a-cd45-2fc1-80cfd0bf5f04@redhat.com>
 Content-Language: en-US
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
  <mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
@@ -28,32 +31,33 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
  <mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Errors-To: virtualization-bounces@lists.linux-foundation.org
 Sender: "Virtualization" <virtualization-bounces@lists.linux-foundation.org>
-To: "Michael S. Tsirkin" <mst@redhat.com>
+To: David Hildenbrand <david@redhat.com>, "Michael S. Tsirkin" <mst@redhat.com>
 Cc: "virtualization@lists.linux-foundation.org" <virtualization@lists.linux-foundation.org>, Tyler Sanderson <tysand@google.com>, "linux-mm@kvack.org" <linux-mm@kvack.org>, Nadav Amit <namit@vmware.com>, David Rientjes <rientjes@google.com>, Alexander Duyck <alexander.h.duyck@linux.intel.com>, Michal Hocko <mhocko@kernel.org>
 List-Id: virtualization@lists.linuxfoundation.org
 
-On Wednesday, February 5, 2020 3:05 PM, Michael S. Tsirkin wrote:
+On Wednesday, February 5, 2020 4:19 PM, David Hildenbrand wrote:
+> Yes, I agree with you. Yet, I am thinking about one
+> (unlikely?impossible?) scenario. Can you refresh my brain why that cannot
+> happen (IOW, why we don't have to wait for the host to process the
+> request)?
 > 
-> Well if we did the hint would be reliable, allowing host to immediately drop
-> any pages it gets in the hint. 
+> 1. Guest allocates a page and sends it to the host.
+> 2. Shrinker gets active and releases that page again.
+> 3. Some user in the guest allocates and modifies that page. After that, it is
+> done using that page for the next hour.
+> 4. The host processes the request and clears the bit in the dirty bitmap.
+> 5. The guest is being migrated by the host. The modified page is not being
+> migrated.
 
-"drop", you mean host to unmap the page from guest? I think that's not allowed for hints.
+Whenever the guest modifies a page during migration, it will be captured by the
+dirty logging and the hypervisor will send the dirtied the page in the following round.
 
-> Originally I wanted to speed up hinting by never
-> waiting for host, but that does not seem to be what was
-> implemented: the only place we don't wait is the shrinker
-
-Didn't get this one. For FREE_PAGE_HINT, the hints are always sent to host without
-an ack from host about whether it has read the hint or not. (please see get_free_page_and_send)
-
-> and it seems a
-> waste that we introduced complexity to host without getting any real
-> benefit out of it.
-> 
-> VIRTIO_BALLOON_F_MUST_TELL_HOST doesn't really apply to hinting right
-> now, 
-
-There is no need I think, as host isn't allowed to use or unmap the hint page.
+Just more thoughts to clarify the difference. I think it's all about the page ownership.
+For VIRTIO_BALLOON_F_FREE_PAGE_HINT, the guest always owns the page,
+so host should not use or unmap the page.
+For VIRTIO_BALLOON_F_REPORTING or the legacy balloon inflation,
+guest intends to transfer the ownership of the underlying physical page to the host,
+that's why host and guest needs a sync about - if the "ownership" transfer completes or not.
 
 Best,
 Wei
