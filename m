@@ -1,41 +1,45 @@
-From: "Michael S. Tsirkin" <mst@redhat.com>
-Subject: Re: [PATCH] vhost: introduce vDPA based backend
-Date: Wed, 5 Feb 2020 08:14:46 -0500
-Message-ID: <20200205081210-mutt-send-email-mst@kernel.org>
-References: <20200131033651.103534-1-tiwei.bie@intel.com>
- <7aab2892-bb19-a06a-a6d3-9c28bc4c3400@redhat.com>
- <20200205020247.GA368700@___>
- <AM0PR0502MB37952015716C1D5E07E390B6C3020@AM0PR0502MB3795.eurprd05.prod.outlook.com>
- <112858a4-1a01-f4d7-e41a-1afaaa1cad45@redhat.com>
- <20200205125648.GV23346@mellanox.com>
+From: David Hildenbrand <david@redhat.com>
+Subject: [PATCH v1 1/3] virtio-balloon: Fix memory leak when unloading while hinting is in progress
+Date: Wed,  5 Feb 2020 17:34:00 +0100
+Message-ID: <20200205163402.42627-2-david@redhat.com>
+References: <20200205163402.42627-1-david@redhat.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Return-path: <kvm-owner@vger.kernel.org>
-Content-Disposition: inline
-In-Reply-To: <20200205125648.GV23346@mellanox.com>
-Sender: kvm-owner@vger.kernel.org
-To: Jason Gunthorpe <jgg@mellanox.com>
-Cc: Jason Wang <jasowang@redhat.com>, Shahaf Shuler <shahafs@mellanox.com>, Tiwei Bie <tiwei.bie@intel.com>, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>, "kvm@vger.kernel.org" <kvm@vger.kernel.org>, "virtualization@lists.linux-foundation.org" <virtualization@lists.linux-foundation.org>, "netdev@vger.kernel.org" <netdev@vger.kernel.org>, "rob.miller@broadcom.com" <rob.miller@broadcom.com>, "haotian.wang@sifive.com" <haotian.wang@sifive.com>, "eperezma@redhat.com" <eperezma@redhat.com>, "lulu@redhat.com" <lulu@redhat.com>, Parav Pandit <parav@mellanox.com>, "rdunlap@infradead.org" <rdunlap@infradead.org>, "hch@infradead.org" <hch@infradead.org>, Jiri Pirko <jiri@mellanox.com>, "hanand@xilinx.com" <hanand@xilinx.com>, mhabets@solarflare.
+Content-Transfer-Encoding: quoted-printable
+Return-path: <linux-kernel-owner@vger.kernel.org>
+In-Reply-To: <20200205163402.42627-1-david@redhat.com>
+Sender: linux-kernel-owner@vger.kernel.org
+To: linux-kernel@vger.kernel.org
+Cc: linux-mm@kvack.org, virtualization@lists.linux-foundation.org, David Hildenbrand <david@redhat.com>, "Michael S. Tsirkin" <mst@redhat.com>, Jason Wang <jasowang@redhat.com>, Wei Wang <wei.w.wang@intel.com>, Liang Li <liang.z.li@intel.com>
 List-Id: virtualization@lists.linuxfoundation.org
 
-On Wed, Feb 05, 2020 at 08:56:48AM -0400, Jason Gunthorpe wrote:
-> On Wed, Feb 05, 2020 at 03:50:14PM +0800, Jason Wang wrote:
-> > > Would it be better for the map/umnap logic to happen inside each device ?
-> > > Devices that needs the IOMMU will call iommu APIs from inside the driver callback.
-> > 
-> > Technically, this can work. But if it can be done by vhost-vpda it will make
-> > the vDPA driver more compact and easier to be implemented.
-> 
-> Generally speaking, in the kernel, it is normal to not hoist code of
-> out drivers into subsystems until 2-3 drivers are duplicating that
-> code. It helps ensure the right design is used
-> 
-> Jason
+When unloading the driver while hinting is in progress, we will not
+release the free page blocks back to MM, resulting in a memory leak.
 
-That's up to the sybsystem maintainer really, as there's also some
-intuition involved in guessing a specific API is widely useful.
-In-kernel APIs are flexible, if we find something isn't needed we just
-drop it.
+Fixes: 86a559787e6f ("virtio-balloon: VIRTIO_BALLOON_F_FREE_PAGE_HINT")
+Cc: "Michael S. Tsirkin" <mst@redhat.com>
+Cc: Jason Wang <jasowang@redhat.com>
+Cc: Wei Wang <wei.w.wang@intel.com>
+Cc: Liang Li <liang.z.li@intel.com>
+Signed-off-by: David Hildenbrand <david@redhat.com>
+---
+ drivers/virtio/virtio_balloon.c | 4 ++++
+ 1 file changed, 4 insertions(+)
 
--- 
-MST
+diff --git a/drivers/virtio/virtio_balloon.c b/drivers/virtio/virtio_ball=
+oon.c
+index 8e400ece9273..abef2306c899 100644
+--- a/drivers/virtio/virtio_balloon.c
++++ b/drivers/virtio/virtio_balloon.c
+@@ -968,6 +968,10 @@ static void remove_common(struct virtio_balloon *vb)
+ 		leak_balloon(vb, vb->num_pages);
+ 	update_balloon_size(vb);
+=20
++	/* There might be free pages that are being reported: release them. */
++	if (virtio_has_feature(vb->vdev, VIRTIO_BALLOON_F_FREE_PAGE_HINT))
++		return_free_pages_to_mm(vb, ULONG_MAX);
++
+ 	/* Now we reset the device so we can clean up the queues. */
+ 	vb->vdev->config->reset(vb->vdev);
+=20
+--=20
+2.24.1
