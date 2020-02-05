@@ -1,41 +1,45 @@
-From: Tiwei Bie <tiwei.bie@intel.com>
+From: Jason Wang <jasowang@redhat.com>
 Subject: Re: [PATCH] vhost: introduce vDPA based backend
-Date: Wed, 5 Feb 2020 10:05:55 +0800
-Message-ID: <20200205020555.GA369236@___>
+Date: Wed, 5 Feb 2020 11:11:08 +0800
+Message-ID: <ad1707a0-7884-1329-52c6-8139230a930c@redhat.com>
 References: <20200131033651.103534-1-tiwei.bie@intel.com>
  <7aab2892-bb19-a06a-a6d3-9c28bc4c3400@redhat.com>
- <20200204005306-mutt-send-email-mst@kernel.org>
- <cf485e7f-46e3-20d3-8452-e3058b885d0a@redhat.com>
+ <20200205020247.GA368700@___>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=utf-8
-Content-Transfer-Encoding: 8bit
-Return-path: <linux-kernel-owner@vger.kernel.org>
-Content-Disposition: inline
-In-Reply-To: <cf485e7f-46e3-20d3-8452-e3058b885d0a@redhat.com>
-Sender: linux-kernel-owner@vger.kernel.org
-To: Jason Wang <jasowang@redhat.com>
-Cc: "Michael S. Tsirkin" <mst@redhat.com>, linux-kernel@vger.kernel.org, kvm@vger.kernel.org, virtualization@lists.linux-foundation.org, netdev@vger.kernel.org, shahafs@mellanox.com, jgg@mellanox.com, rob.miller@broadcom.com, haotian.wang@sifive.com, eperezma@redhat.com, lulu@redhat.com, parav@mellanox.com, rdunlap@infradead.org, hch@infradead.org, jiri@mellanox.com, hanand@xilinx.com, mhabets@solarflare.com, maxime.coquelin@redhat.com, lingshan.zhu@intel.com, dan.daly@intel.com, cunming.liang@intel.com, zhihong.wang@intel.com
+Content-Type: text/plain; charset=utf-8; format=flowed
+Content-Transfer-Encoding: quoted-printable
+Return-path: <netdev-owner@vger.kernel.org>
+In-Reply-To: <20200205020247.GA368700@___>
+Content-Language: en-US
+Sender: netdev-owner@vger.kernel.org
+To: Tiwei Bie <tiwei.bie@intel.com>
+Cc: mst@redhat.com, linux-kernel@vger.kernel.org, kvm@vger.kernel.org, virtualization@lists.linux-foundation.org, netdev@vger.kernel.org, shahafs@mellanox.com, jgg@mellanox.com, rob.miller@broadcom.com, haotian.wang@sifive.com, eperezma@redhat.com, lulu@redhat.com, parav@mellanox.com, rdunlap@infradead.org, hch@infradead.org, jiri@mellanox.com, hanand@xilinx.com, mhabets@solarflare.com, maxime.coquelin@redhat.com, lingshan.zhu@intel.com, dan.daly@intel.com, cunming.liang@intel.com, zhihong.wang@intel.com
 List-Id: virtualization@lists.linuxfoundation.org
 
-On Tue, Feb 04, 2020 at 02:46:16PM +0800, Jason Wang wrote:
-> On 2020/2/4 下午2:01, Michael S. Tsirkin wrote:
-> > On Tue, Feb 04, 2020 at 11:30:11AM +0800, Jason Wang wrote:
-> > > 5) generate diffs of memory table and using IOMMU API to setup the dma
-> > > mapping in this method
-> > Frankly I think that's a bunch of work. Why not a MAP/UNMAP interface?
-> > 
-> 
-> Sure, so that basically VHOST_IOTLB_UPDATE/INVALIDATE I think?
 
-Do you mean we let userspace to only use VHOST_IOTLB_UPDATE/INVALIDATE
-to do the DMA mapping in vhost-vdpa case? When vIOMMU isn't available,
-userspace will set msg->iova to GPA, otherwise userspace will set
-msg->iova to GIOVA, and vhost-vdpa module will get HPA from msg->uaddr?
+On 2020/2/5 =E4=B8=8A=E5=8D=8810:02, Tiwei Bie wrote:
+>> Before trying to do this it looks to me we need the following during t=
+he
+>> probe
+>>
+>> 1) if set_map() is not supported by the vDPA device probe the IOMMU th=
+at is
+>> supported by the vDPA device
+>> 2) allocate IOMMU domain
+>>
+>> And then:
+>>
+>> 3) pin pages through GUP and do proper accounting
+>> 4) store GPA->HPA mapping in the umem
+>> 5) generate diffs of memory table and using IOMMU API to setup the dma
+>> mapping in this method
+>>
+>> For 1), I'm not sure parent is sufficient for to doing this or need to
+>> introduce new API like iommu_device in mdev.
+> Agree. We may also need to introduce something like
+> the iommu_device.
+>
 
-Thanks,
-Tiwei
+Right, this is what I plan to do in next version.
 
-> 
-> Thanks
-> 
-> 
+Thanks
