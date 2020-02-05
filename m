@@ -1,7 +1,7 @@
-From: Jason Wang <jasowang@redhat.com>
+From: "Michael S. Tsirkin" <mst@redhat.com>
 Subject: Re: [PATCH] vhost: introduce vDPA based backend
-Date: Wed, 5 Feb 2020 13:50:28 +0800
-Message-ID: <eb53d1c2-92ae-febf-f502-2d3e107ee608@redhat.com>
+Date: Wed, 5 Feb 2020 01:30:32 -0500
+Message-ID: <20200205011935-mutt-send-email-mst@kernel.org>
 References: <20200131033651.103534-1-tiwei.bie@intel.com>
  <7aab2892-bb19-a06a-a6d3-9c28bc4c3400@redhat.com>
  <20200204005306-mutt-send-email-mst@kernel.org>
@@ -9,60 +9,86 @@ References: <20200131033651.103534-1-tiwei.bie@intel.com>
  <20200205020555.GA369236@___>
  <798e5644-ca28-ee46-c953-688af9bccd3b@redhat.com>
  <20200205003048-mutt-send-email-mst@kernel.org>
+ <eb53d1c2-92ae-febf-f502-2d3e107ee608@redhat.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="utf-8"; Format="flowed"
-Content-Transfer-Encoding: base64
-Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <20200205003048-mutt-send-email-mst@kernel.org>
-Content-Language: en-US
-List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
- <mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
-List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
-List-Post: <mailto:virtualization@lists.linux-foundation.org>
-List-Help: <mailto:virtualization-request@lists.linux-foundation.org?subject=help>
-List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualization>,
- <mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
-Errors-To: virtualization-bounces@lists.linux-foundation.org
-Sender: "Virtualization" <virtualization-bounces@lists.linux-foundation.org>
-To: "Michael S. Tsirkin" <mst@redhat.com>
-Cc: kvm@vger.kernel.org, mhabets@solarflare.com, virtualization@lists.linux-foundation.org, jgg@mellanox.com, rob.miller@broadcom.com, lulu@redhat.com, maxime.coquelin@redhat.com, hch@infradead.org, eperezma@redhat.com, haotian.wang@sifive.com, shahafs@mellanox.com, parav@mellanox.com, jiri@mellanox.com, zhihong.wang@intel.com, netdev@vger.kernel.org, rdunlap@infradead.org, linux-kernel@vger.kernel.org, hanand@xilinx.com, lingshan.zhu@intel.com
+Content-Type: text/plain; charset=utf-8
+Content-Transfer-Encoding: 8bit
+Return-path: <linux-kernel-owner@vger.kernel.org>
+Content-Disposition: inline
+In-Reply-To: <eb53d1c2-92ae-febf-f502-2d3e107ee608@redhat.com>
+Sender: linux-kernel-owner@vger.kernel.org
+To: Jason Wang <jasowang@redhat.com>
+Cc: Tiwei Bie <tiwei.bie@intel.com>, linux-kernel@vger.kernel.org, kvm@vger.kernel.org, virtualization@lists.linux-foundation.org, netdev@vger.kernel.org, shahafs@mellanox.com, jgg@mellanox.com, rob.miller@broadcom.com, haotian.wang@sifive.com, eperezma@redhat.com, lulu@redhat.com, parav@mellanox.com, rdunlap@infradead.org, hch@infradead.org, jiri@mellanox.com, hanand@xilinx.com, mhabets@solarflare.com, maxime.coquelin@redhat.com, lingshan.zhu@intel.com, dan.daly@intel.com, cunming.liang@intel.com, zhihong.wang@intel.com
 List-Id: virtualization@lists.linuxfoundation.org
 
-Ck9uIDIwMjAvMi81IOS4i+WNiDE6MzEsIE1pY2hhZWwgUy4gVHNpcmtpbiB3cm90ZToKPiBPbiBX
-ZWQsIEZlYiAwNSwgMjAyMCBhdCAxMToxMjoyMUFNICswODAwLCBKYXNvbiBXYW5nIHdyb3RlOgo+
-PiBPbiAyMDIwLzIvNSDkuIrljYgxMDowNSwgVGl3ZWkgQmllIHdyb3RlOgo+Pj4gT24gVHVlLCBG
-ZWIgMDQsIDIwMjAgYXQgMDI6NDY6MTZQTSArMDgwMCwgSmFzb24gV2FuZyB3cm90ZToKPj4+PiBP
-biAyMDIwLzIvNCDkuIvljYgyOjAxLCBNaWNoYWVsIFMuIFRzaXJraW4gd3JvdGU6Cj4+Pj4+IE9u
-IFR1ZSwgRmViIDA0LCAyMDIwIGF0IDExOjMwOjExQU0gKzA4MDAsIEphc29uIFdhbmcgd3JvdGU6
-Cj4+Pj4+PiA1KSBnZW5lcmF0ZSBkaWZmcyBvZiBtZW1vcnkgdGFibGUgYW5kIHVzaW5nIElPTU1V
-IEFQSSB0byBzZXR1cCB0aGUgZG1hCj4+Pj4+PiBtYXBwaW5nIGluIHRoaXMgbWV0aG9kCj4+Pj4+
-IEZyYW5rbHkgSSB0aGluayB0aGF0J3MgYSBidW5jaCBvZiB3b3JrLiBXaHkgbm90IGEgTUFQL1VO
-TUFQIGludGVyZmFjZT8KPj4+Pj4KPj4+PiBTdXJlLCBzbyB0aGF0IGJhc2ljYWxseSBWSE9TVF9J
-T1RMQl9VUERBVEUvSU5WQUxJREFURSBJIHRoaW5rPwo+Pj4gRG8geW91IG1lYW4gd2UgbGV0IHVz
-ZXJzcGFjZSB0byBvbmx5IHVzZSBWSE9TVF9JT1RMQl9VUERBVEUvSU5WQUxJREFURQo+Pj4gdG8g
-ZG8gdGhlIERNQSBtYXBwaW5nIGluIHZob3N0LXZkcGEgY2FzZT8gV2hlbiB2SU9NTVUgaXNuJ3Qg
-YXZhaWxhYmxlLAo+Pj4gdXNlcnNwYWNlIHdpbGwgc2V0IG1zZy0+aW92YSB0byBHUEEsIG90aGVy
-d2lzZSB1c2Vyc3BhY2Ugd2lsbCBzZXQKPj4+IG1zZy0+aW92YSB0byBHSU9WQSwgYW5kIHZob3N0
-LXZkcGEgbW9kdWxlIHdpbGwgZ2V0IEhQQSBmcm9tIG1zZy0+dWFkZHI/Cj4+Pgo+Pj4gVGhhbmtz
-LAo+Pj4gVGl3ZWkKPj4gSSB0aGluayBzby4gTWljaGFlbCwgZG8geW91IHRoaW5rIHRoaXMgbWFr
-ZXMgc2Vuc2U/Cj4+Cj4+IFRoYW5rcwo+IHRvIG1ha2Ugc3VyZSwgY291bGQgeW91IHBvc3QgdGhl
-IHN1Z2dlc3RlZCBhcmd1bWVudCBmb3JtYXQgZm9yCj4gdGhlc2UgaW9jdGxzPwo+CgpJdCdzIHRo
-ZSBleGlzdGVkIHVhcGk6CgovKiBubyBhbGlnbm1lbnQgcmVxdWlyZW1lbnQgKi8Kc3RydWN0IHZo
-b3N0X2lvdGxiX21zZyB7CiDCoMKgwqAgX191NjQgaW92YTsKIMKgwqDCoCBfX3U2NCBzaXplOwog
-wqDCoMKgIF9fdTY0IHVhZGRyOwojZGVmaW5lIFZIT1NUX0FDQ0VTU19ST8KgwqDCoMKgwqAgMHgx
-CiNkZWZpbmUgVkhPU1RfQUNDRVNTX1dPwqDCoMKgwqDCoCAweDIKI2RlZmluZSBWSE9TVF9BQ0NF
-U1NfUlfCoMKgwqDCoMKgIDB4MwogwqDCoMKgIF9fdTggcGVybTsKI2RlZmluZSBWSE9TVF9JT1RM
-Ql9NSVNTwqDCoMKgwqDCoMKgwqDCoMKgwqAgMQojZGVmaW5lIFZIT1NUX0lPVExCX1VQREFURcKg
-wqDCoMKgwqDCoMKgwqAgMgojZGVmaW5lIFZIT1NUX0lPVExCX0lOVkFMSURBVEXCoMKgwqDCoCAz
-CiNkZWZpbmUgVkhPU1RfSU9UTEJfQUNDRVNTX0ZBSUzCoMKgwqAgNAogwqDCoMKgIF9fdTggdHlw
-ZTsKfTsKCiNkZWZpbmUgVkhPU1RfSU9UTEJfTVNHIDB4MQojZGVmaW5lIFZIT1NUX0lPVExCX01T
-R19WMiAweDIKCnN0cnVjdCB2aG9zdF9tc2cgewogwqDCoMKgIGludCB0eXBlOwogwqDCoMKgIHVu
-aW9uIHsKIMKgwqDCoCDCoMKgwqAgc3RydWN0IHZob3N0X2lvdGxiX21zZyBpb3RsYjsKIMKgwqDC
-oCDCoMKgwqAgX191OCBwYWRkaW5nWzY0XTsKIMKgwqDCoCB9Owp9OwoKc3RydWN0IHZob3N0X21z
-Z192MiB7CiDCoMKgwqAgX191MzIgdHlwZTsKIMKgwqDCoCBfX3UzMiByZXNlcnZlZDsKIMKgwqDC
-oCB1bmlvbiB7CiDCoMKgwqAgwqDCoMKgIHN0cnVjdCB2aG9zdF9pb3RsYl9tc2cgaW90bGI7CiDC
-oMKgwqAgwqDCoMKgIF9fdTggcGFkZGluZ1s2NF07CiDCoMKgwqAgfTsKfTsKCl9fX19fX19fX19f
-X19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fClZpcnR1YWxpemF0aW9uIG1haWxp
-bmcgbGlzdApWaXJ0dWFsaXphdGlvbkBsaXN0cy5saW51eC1mb3VuZGF0aW9uLm9yZwpodHRwczov
-L2xpc3RzLmxpbnV4Zm91bmRhdGlvbi5vcmcvbWFpbG1hbi9saXN0aW5mby92aXJ0dWFsaXphdGlv
-bg==
+On Wed, Feb 05, 2020 at 01:50:28PM +0800, Jason Wang wrote:
+> 
+> On 2020/2/5 下午1:31, Michael S. Tsirkin wrote:
+> > On Wed, Feb 05, 2020 at 11:12:21AM +0800, Jason Wang wrote:
+> > > On 2020/2/5 上午10:05, Tiwei Bie wrote:
+> > > > On Tue, Feb 04, 2020 at 02:46:16PM +0800, Jason Wang wrote:
+> > > > > On 2020/2/4 下午2:01, Michael S. Tsirkin wrote:
+> > > > > > On Tue, Feb 04, 2020 at 11:30:11AM +0800, Jason Wang wrote:
+> > > > > > > 5) generate diffs of memory table and using IOMMU API to setup the dma
+> > > > > > > mapping in this method
+> > > > > > Frankly I think that's a bunch of work. Why not a MAP/UNMAP interface?
+> > > > > > 
+> > > > > Sure, so that basically VHOST_IOTLB_UPDATE/INVALIDATE I think?
+> > > > Do you mean we let userspace to only use VHOST_IOTLB_UPDATE/INVALIDATE
+> > > > to do the DMA mapping in vhost-vdpa case? When vIOMMU isn't available,
+> > > > userspace will set msg->iova to GPA, otherwise userspace will set
+> > > > msg->iova to GIOVA, and vhost-vdpa module will get HPA from msg->uaddr?
+> > > > 
+> > > > Thanks,
+> > > > Tiwei
+> > > I think so. Michael, do you think this makes sense?
+> > > 
+> > > Thanks
+> > to make sure, could you post the suggested argument format for
+> > these ioctls?
+> > 
+> 
+> It's the existed uapi:
+> 
+> /* no alignment requirement */
+> struct vhost_iotlb_msg {
+>     __u64 iova;
+>     __u64 size;
+>     __u64 uaddr;
+> #define VHOST_ACCESS_RO      0x1
+> #define VHOST_ACCESS_WO      0x2
+> #define VHOST_ACCESS_RW      0x3
+>     __u8 perm;
+> #define VHOST_IOTLB_MISS           1
+> #define VHOST_IOTLB_UPDATE         2
+> #define VHOST_IOTLB_INVALIDATE     3
+> #define VHOST_IOTLB_ACCESS_FAIL    4
+>     __u8 type;
+> };
+> 
+> #define VHOST_IOTLB_MSG 0x1
+> #define VHOST_IOTLB_MSG_V2 0x2
+> 
+> struct vhost_msg {
+>     int type;
+>     union {
+>         struct vhost_iotlb_msg iotlb;
+>         __u8 padding[64];
+>     };
+> };
+> 
+> struct vhost_msg_v2 {
+>     __u32 type;
+>     __u32 reserved;
+>     union {
+>         struct vhost_iotlb_msg iotlb;
+>         __u8 padding[64];
+>     };
+> };
+
+Oh ok.  So with a real device, I suspect we do not want to wait for each
+change to be processed by device completely, so we might want an asynchronous variant
+and then some kind of flush that tells device "you better apply these now".
+
+-- 
+MST
