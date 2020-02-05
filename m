@@ -1,7 +1,7 @@
-From: David Hildenbrand <david@redhat.com>
-Subject: Re: Balloon pressuring page cache
-Date: Wed, 5 Feb 2020 10:37:25 +0100
-Message-ID: <5b184893-014c-35a1-928b-37b8f4647116@redhat.com>
+From: "Wang, Wei W" <wei.w.wang@intel.com>
+Subject: RE: Balloon pressuring page cache
+Date: Wed, 5 Feb 2020 09:49:26 +0000
+Message-ID: <286AC319A985734F985F78AFA26841F73E41F562@shsmsx102.ccr.corp.intel.com>
 References: <91270a68-ff48-88b0-219c-69801f0c252f@redhat.com>
  <20200203080520-mutt-send-email-mst@kernel.org>
  <5ac131de8e3b7fc1fafd05a61feb5f6889aeb917.camel@linux.intel.com>
@@ -19,11 +19,12 @@ References: <91270a68-ff48-88b0-219c-69801f0c252f@redhat.com>
  <286AC319A985734F985F78AFA26841F73E41F3DE@shsmsx102.ccr.corp.intel.com>
  <bcb69e37-fd84-6397-0ff5-befd99a361dd@redhat.com>
  <286AC319A985734F985F78AFA26841F73E41F490@shsmsx102.ccr.corp.intel.com>
+ <5b184893-014c-35a1-928b-37b8f4647116@redhat.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <286AC319A985734F985F78AFA26841F73E41F490@shsmsx102.ccr.corp.intel.com>
+In-Reply-To: <5b184893-014c-35a1-928b-37b8f4647116@redhat.com>
 Content-Language: en-US
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
  <mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
@@ -34,32 +35,27 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
  <mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Errors-To: virtualization-bounces@lists.linux-foundation.org
 Sender: "Virtualization" <virtualization-bounces@lists.linux-foundation.org>
-To: "Wang, Wei W" <wei.w.wang@intel.com>, "Michael S. Tsirkin" <mst@redhat.com>
+To: David Hildenbrand <david@redhat.com>, "Michael S. Tsirkin" <mst@redhat.com>
 Cc: "virtualization@lists.linux-foundation.org" <virtualization@lists.linux-foundation.org>, Tyler Sanderson <tysand@google.com>, "linux-mm@kvack.org" <linux-mm@kvack.org>, Nadav Amit <namit@vmware.com>, David Rientjes <rientjes@google.com>, Alexander Duyck <alexander.h.duyck@linux.intel.com>, Michal Hocko <mhocko@kernel.org>
 List-Id: virtualization@lists.linuxfoundation.org
 
-On 05.02.20 10:35, Wang, Wei W wrote:
-> On Wednesday, February 5, 2020 5:23 PM, David Hildenbrand wrote:
->> So, if you run a TCG guest and use it with free page reporting, the race is
->> possible? So the correctness depends on two dirty bitmaps in the hypervisor
->> and how they interact. wow this is fragile.
->>
+On Wednesday, February 5, 2020 5:37 PM, David Hildenbrand wrote:
+> >
+> > Not sure how TCG tracks the dirty bits. But In whatever
+> > implementation, the hypervisor should have
 > 
-> Not sure how TCG tracks the dirty bits. But In whatever implementation, the hypervisor should have
+> There is only a single bitmap for that purpose. (well, the one where KVM
+> syncs to)
+> 
+> > already dealt with the race between he current round and the previous
+> round dirty recording.
+> > (the race isn't brought by this feature essentially)
+> 
+> It is guaranteed to work reliably without this feature as you only clear what
+> *has been migrated*, 
 
-There is only a single bitmap for that purpose. (well, the one where KVM
-syncs to)
+Not "clear what has been migrated" (that skips nothing..)
+Anyway, it's a hint used for optimization.
 
-> already dealt with the race between he current round and the previous round dirty recording.
-> (the race isn't brought by this feature essentially)
-
-It is guaranteed to work reliably without this feature as you only clear
-what *has been migrated*, not what your guest thinks should not been
-migrated at one point and decides differently at another point. The race
-is bought forwards by this feature.
-
-
--- 
-Thanks,
-
-David / dhildenb
+Best,
+Wei
