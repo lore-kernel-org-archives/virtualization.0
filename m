@@ -1,21 +1,23 @@
-From: Jason Wang <jasowang@redhat.com>
-Subject: Re: [PATCH] vhost: introduce vDPA based backend
-Date: Wed, 5 Feb 2020 14:49:31 +0800
-Message-ID: <2dd43fb5-6f02-2dcc-5c27-9f7419ef72fc@redhat.com>
-References: <20200131033651.103534-1-tiwei.bie@intel.com>
- <7aab2892-bb19-a06a-a6d3-9c28bc4c3400@redhat.com>
- <20200204005306-mutt-send-email-mst@kernel.org>
- <cf485e7f-46e3-20d3-8452-e3058b885d0a@redhat.com>
- <20200205020555.GA369236@___>
- <798e5644-ca28-ee46-c953-688af9bccd3b@redhat.com>
- <20200205003048-mutt-send-email-mst@kernel.org>
- <eb53d1c2-92ae-febf-f502-2d3e107ee608@redhat.com>
- <20200205011935-mutt-send-email-mst@kernel.org>
+From: "Wang, Wei W" <wei.w.wang@intel.com>
+Subject: RE: Balloon pressuring page cache
+Date: Wed, 5 Feb 2020 06:52:34 +0000
+Message-ID: <286AC319A985734F985F78AFA26841F73E41F10F@shsmsx102.ccr.corp.intel.com>
+References: <75d4594f-0864-5172-a0f8-f97affedb366@redhat.com>
+ <286AC319A985734F985F78AFA26841F73E3F8A02@shsmsx102.ccr.corp.intel.com>
+ <CAJuQAmqcayaNuG19fKCuux=YVO3+VcN-qrXvobgKMykogeMkzA@mail.gmail.com>
+ <20200203080520-mutt-send-email-mst@kernel.org>
+ <5ac131de8e3b7fc1fafd05a61feb5f6889aeb917.camel@linux.intel.com>
+ <c836a8d1-c5cc-eb8b-84ed-027070b77bf8@redhat.com>
+ <539B606A-A0CA-4AA4-B99A-759C874A1EF8@vmware.com>
+ <d69eafb4-ad0d-1617-9248-ea4fc776da58@redhat.com>
+ <20200204033657-mutt-send-email-mst@kernel.org>
+ <ce93331c-0099-dda7-e00f-126bf7826a40@redhat.com>
+ <20200204114336-mutt-send-email-mst@kernel.org>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="utf-8"; Format="flowed"
-Content-Transfer-Encoding: base64
+Content-Type: text/plain; charset="us-ascii"
+Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <20200205011935-mutt-send-email-mst@kernel.org>
+In-Reply-To: <20200204114336-mutt-send-email-mst@kernel.org>
 Content-Language: en-US
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
  <mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
@@ -26,76 +28,20 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
  <mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Errors-To: virtualization-bounces@lists.linux-foundation.org
 Sender: "Virtualization" <virtualization-bounces@lists.linux-foundation.org>
-To: "Michael S. Tsirkin" <mst@redhat.com>
-Cc: kvm@vger.kernel.org, mhabets@solarflare.com, virtualization@lists.linux-foundation.org, jgg@mellanox.com, rob.miller@broadcom.com, lulu@redhat.com, maxime.coquelin@redhat.com, hch@infradead.org, eperezma@redhat.com, haotian.wang@sifive.com, shahafs@mellanox.com, parav@mellanox.com, jiri@mellanox.com, zhihong.wang@intel.com, netdev@vger.kernel.org, rdunlap@infradead.org, linux-kernel@vger.kernel.org, hanand@xilinx.com, lingshan.zhu@intel.com
+To: "Michael S. Tsirkin" <mst@redhat.com>, David Hildenbrand <david@redhat.com>
+Cc: "virtualization@lists.linux-foundation.org" <virtualization@lists.linux-foundation.org>, Tyler Sanderson <tysand@google.com>, "linux-mm@kvack.org" <linux-mm@kvack.org>, Nadav Amit <namit@vmware.com>, David Rientjes <rientjes@google.com>, Alexander Duyck <alexander.h.duyck@linux.intel.com>, Michal Hocko <mhocko@kernel.org>
 List-Id: virtualization@lists.linuxfoundation.org
 
-Ck9uIDIwMjAvMi81IOS4i+WNiDI6MzAsIE1pY2hhZWwgUy4gVHNpcmtpbiB3cm90ZToKPiBPbiBX
-ZWQsIEZlYiAwNSwgMjAyMCBhdCAwMTo1MDoyOFBNICswODAwLCBKYXNvbiBXYW5nIHdyb3RlOgo+
-PiBPbiAyMDIwLzIvNSDkuIvljYgxOjMxLCBNaWNoYWVsIFMuIFRzaXJraW4gd3JvdGU6Cj4+PiBP
-biBXZWQsIEZlYiAwNSwgMjAyMCBhdCAxMToxMjoyMUFNICswODAwLCBKYXNvbiBXYW5nIHdyb3Rl
-Ogo+Pj4+IE9uIDIwMjAvMi81IOS4iuWNiDEwOjA1LCBUaXdlaSBCaWUgd3JvdGU6Cj4+Pj4+IE9u
-IFR1ZSwgRmViIDA0LCAyMDIwIGF0IDAyOjQ2OjE2UE0gKzA4MDAsIEphc29uIFdhbmcgd3JvdGU6
-Cj4+Pj4+PiBPbiAyMDIwLzIvNCDkuIvljYgyOjAxLCBNaWNoYWVsIFMuIFRzaXJraW4gd3JvdGU6
-Cj4+Pj4+Pj4gT24gVHVlLCBGZWIgMDQsIDIwMjAgYXQgMTE6MzA6MTFBTSArMDgwMCwgSmFzb24g
-V2FuZyB3cm90ZToKPj4+Pj4+Pj4gNSkgZ2VuZXJhdGUgZGlmZnMgb2YgbWVtb3J5IHRhYmxlIGFu
-ZCB1c2luZyBJT01NVSBBUEkgdG8gc2V0dXAgdGhlIGRtYQo+Pj4+Pj4+PiBtYXBwaW5nIGluIHRo
-aXMgbWV0aG9kCj4+Pj4+Pj4gRnJhbmtseSBJIHRoaW5rIHRoYXQncyBhIGJ1bmNoIG9mIHdvcmsu
-IFdoeSBub3QgYSBNQVAvVU5NQVAgaW50ZXJmYWNlPwo+Pj4+Pj4+Cj4+Pj4+PiBTdXJlLCBzbyB0
-aGF0IGJhc2ljYWxseSBWSE9TVF9JT1RMQl9VUERBVEUvSU5WQUxJREFURSBJIHRoaW5rPwo+Pj4+
-PiBEbyB5b3UgbWVhbiB3ZSBsZXQgdXNlcnNwYWNlIHRvIG9ubHkgdXNlIFZIT1NUX0lPVExCX1VQ
-REFURS9JTlZBTElEQVRFCj4+Pj4+IHRvIGRvIHRoZSBETUEgbWFwcGluZyBpbiB2aG9zdC12ZHBh
-IGNhc2U/IFdoZW4gdklPTU1VIGlzbid0IGF2YWlsYWJsZSwKPj4+Pj4gdXNlcnNwYWNlIHdpbGwg
-c2V0IG1zZy0+aW92YSB0byBHUEEsIG90aGVyd2lzZSB1c2Vyc3BhY2Ugd2lsbCBzZXQKPj4+Pj4g
-bXNnLT5pb3ZhIHRvIEdJT1ZBLCBhbmQgdmhvc3QtdmRwYSBtb2R1bGUgd2lsbCBnZXQgSFBBIGZy
-b20gbXNnLT51YWRkcj8KPj4+Pj4KPj4+Pj4gVGhhbmtzLAo+Pj4+PiBUaXdlaQo+Pj4+IEkgdGhp
-bmsgc28uIE1pY2hhZWwsIGRvIHlvdSB0aGluayB0aGlzIG1ha2VzIHNlbnNlPwo+Pj4+Cj4+Pj4g
-VGhhbmtzCj4+PiB0byBtYWtlIHN1cmUsIGNvdWxkIHlvdSBwb3N0IHRoZSBzdWdnZXN0ZWQgYXJn
-dW1lbnQgZm9ybWF0IGZvcgo+Pj4gdGhlc2UgaW9jdGxzPwo+Pj4KPj4gSXQncyB0aGUgZXhpc3Rl
-ZCB1YXBpOgo+Pgo+PiAvKiBubyBhbGlnbm1lbnQgcmVxdWlyZW1lbnQgKi8KPj4gc3RydWN0IHZo
-b3N0X2lvdGxiX21zZyB7Cj4+ICDCoMKgwqAgX191NjQgaW92YTsKPj4gIMKgwqDCoCBfX3U2NCBz
-aXplOwo+PiAgwqDCoMKgIF9fdTY0IHVhZGRyOwo+PiAjZGVmaW5lIFZIT1NUX0FDQ0VTU19ST8Kg
-wqDCoMKgwqAgMHgxCj4+ICNkZWZpbmUgVkhPU1RfQUNDRVNTX1dPwqDCoMKgwqDCoCAweDIKPj4g
-I2RlZmluZSBWSE9TVF9BQ0NFU1NfUlfCoMKgwqDCoMKgIDB4Mwo+PiAgwqDCoMKgIF9fdTggcGVy
-bTsKPj4gI2RlZmluZSBWSE9TVF9JT1RMQl9NSVNTwqDCoMKgwqDCoMKgwqDCoMKgwqAgMQo+PiAj
-ZGVmaW5lIFZIT1NUX0lPVExCX1VQREFURcKgwqDCoMKgwqDCoMKgwqAgMgo+PiAjZGVmaW5lIFZI
-T1NUX0lPVExCX0lOVkFMSURBVEXCoMKgwqDCoCAzCj4+ICNkZWZpbmUgVkhPU1RfSU9UTEJfQUND
-RVNTX0ZBSUzCoMKgwqAgNAo+PiAgwqDCoMKgIF9fdTggdHlwZTsKPj4gfTsKPj4KPj4gI2RlZmlu
-ZSBWSE9TVF9JT1RMQl9NU0cgMHgxCj4+ICNkZWZpbmUgVkhPU1RfSU9UTEJfTVNHX1YyIDB4Mgo+
-Pgo+PiBzdHJ1Y3Qgdmhvc3RfbXNnIHsKPj4gIMKgwqDCoCBpbnQgdHlwZTsKPj4gIMKgwqDCoCB1
-bmlvbiB7Cj4+ICDCoMKgwqAgwqDCoMKgIHN0cnVjdCB2aG9zdF9pb3RsYl9tc2cgaW90bGI7Cj4+
-ICDCoMKgwqAgwqDCoMKgIF9fdTggcGFkZGluZ1s2NF07Cj4+ICDCoMKgwqAgfTsKPj4gfTsKPj4K
-Pj4gc3RydWN0IHZob3N0X21zZ192MiB7Cj4+ICDCoMKgwqAgX191MzIgdHlwZTsKPj4gIMKgwqDC
-oCBfX3UzMiByZXNlcnZlZDsKPj4gIMKgwqDCoCB1bmlvbiB7Cj4+ICDCoMKgwqAgwqDCoMKgIHN0
-cnVjdCB2aG9zdF9pb3RsYl9tc2cgaW90bGI7Cj4+ICDCoMKgwqAgwqDCoMKgIF9fdTggcGFkZGlu
-Z1s2NF07Cj4+ICDCoMKgwqAgfTsKPj4gfTsKPiBPaCBvay4gIFNvIHdpdGggYSByZWFsIGRldmlj
-ZSwgSSBzdXNwZWN0IHdlIGRvIG5vdCB3YW50IHRvIHdhaXQgZm9yIGVhY2gKPiBjaGFuZ2UgdG8g
-YmUgcHJvY2Vzc2VkIGJ5IGRldmljZSBjb21wbGV0ZWx5LCBzbyB3ZSBtaWdodCB3YW50IGFuIGFz
-eW5jaHJvbm91cyB2YXJpYW50Cj4gYW5kIHRoZW4gc29tZSBraW5kIG9mIGZsdXNoIHRoYXQgdGVs
-bHMgZGV2aWNlICJ5b3UgYmV0dGVyIGFwcGx5IHRoZXNlIG5vdyIuCgoKTGV0IG1lIGV4cGxhaW46
-CgpUaGVyZSBhcmUgdHdvIHR5cGVzIG9mIGRldmljZXM6CgoxKSBkZXZpY2Ugd2l0aG91dCBvbi1j
-aGlwIElPTU1VLCBETUEgd2FzIGRvbmUgdmlhIElPTU1VIEFQSSB3aGljaCBvbmx5IApzdXBwb3J0
-IGluY3JlbWVudGFsIG1hcC91bm1hcAoyKSBkZXZpY2Ugd2l0aCBvbi1jaGlwIElPTU1VLCBETUEg
-Y291bGQgYmUgZG9uZSBieSBkZXZpY2UgZHJpdmVyIGl0c2VsZiwgCmFuZCB3ZSBjb3VsZCBjaG9v
-c2UgdG8gcGFzcyB0aGUgd2hvbGUgbWFwcGluZ3MgdG8gdGhlIGRyaXZlciBhdCBvbmUgdGltZSAK
-dGhyb3VnaCB2RFBBIGJ1cyBvcGVyYXRpb24gKHNldF9tYXApCgpGb3Igdmhvc3QtdnBkYSwgdGhl
-cmUncmUgdHdvIHR5cGVzIG9mIG1lbW9yeSBtYXBwaW5nOgoKYSkgbWVtb3J5IHRhYmxlLCBzZXR1
-cCBieSB1c2Vyc3BhY2UgdGhyb3VnaCBWSE9TVF9TRVRfTUVNX1RBQkxFLCB0aGUgCndob2xlIG1h
-cHBpbmcgaXMgdXBkYXRlZCBpbiB0aGlzIHdheQpiKSBJT1RMQiBBUEksIGluY3JlbWVudGFsbHkg
-ZG9uZSBieSB1c2Vyc3BhY2UgdGhyb3VnaCB2aG9zdCBtZXNzYWdlIAooSU9UTEJfVVBEQVRFL0lP
-VExCX0lOVkFMSURBVEUpCgpUaGUgY3VycmVudCBkZXNpZ24gaXM6CgotIFJldXNlIFZIT1NUX1NF
-VF9NRU1fVEFCTEUsIGFuZCBmb3IgdHlwZSAxKSwgd2UgY2FuIGNob29zZSB0byBzZW5kIApkaWZm
-cyB0aHJvdWdoIElPTU1VIEFQSSBvciBmbHVzaCBhbGwgdGhlIG1hcHBpbmdzIHRoZW4gbWFwIG5l
-dyBvbmVzLiBGb3IgCnR5cGUgMiksIGp1c3Qgc2VuZCB0aGUgd2hvbGUgbWFwcGluZyB0aHJvdWdo
-IHNldF9tYXAoKQotIFJldXNlIHZob3N0IElPVExCLCBzbyBmb3IgdHlwZSAxKSwgc2ltcGx5IGZv
-cndhcmQgdXBkYXRlL2ludmFsaWRhdGUgCnJlcXVlc3QgdmlhIElPTU1VIEFQSSwgZm9yIHR5cGUg
-MiksIHNlbmQgSU9UTEIgdG8gdkRQQSBkZXZpY2UgZHJpdmVyIHZpYSAKc2V0X21hcCgpLCBkZXZp
-Y2UgZHJpdmVyIG1heSBjaG9vc2UgdG8gc2VuZCBkaWZmcyBvciByZWJ1aWxkIGFsbCBtYXBwaW5n
-IAphdCB0aGVpciB3aWxsCgpUZWNobmljYWxseSB3ZSBjYW4gdXNlIHZob3N0IElPVExCIEFQSSAo
-bWFwL3VtYXApIGZvciBidWlsZGluZyAKVkhPU1RfU0VUX01FTV9UQUJMRSwgYnV0IHRvIGF2b2lk
-IGRldmljZSB0byBwcm9jZXNzIHRoZSBlYWNoIHJlcXVlc3QsIGl0IApsb29rcyB0byBtZSB3ZSBu
-ZWVkIG5ldyBVQVBJIHdoaWNoIHNlZW1zIHN1YiBvcHRpbWFsLgoKV2hhdCdzIHlvdSB0aG91Z2h0
-PwoKVGhhbmtzCgoKPgoKX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19f
-X19fX18KVmlydHVhbGl6YXRpb24gbWFpbGluZyBsaXN0ClZpcnR1YWxpemF0aW9uQGxpc3RzLmxp
-bnV4LWZvdW5kYXRpb24ub3JnCmh0dHBzOi8vbGlzdHMubGludXhmb3VuZGF0aW9uLm9yZy9tYWls
-bWFuL2xpc3RpbmZvL3ZpcnR1YWxpemF0aW9u
+On Wednesday, February 5, 2020 12:50 AM, Michael S. Tsirkin wrote:
+> > Michael, any clue on which event we have to wait with
+> > VIRTIO_BALLOON_F_MUST_TELL_HOST? IMHO, I don't think
+> > VIRTIO_BALLOON_F_MUST_TELL_HOST applies to
+> > VIRTIO_BALLOON_F_FREE_PAGE_HINT and we'd better document that. It
+> introduces complexity with no clear benefit.
+> 
+> I meant that we must wait for host to see the hint.
+
+Why?
+
+Best,
+Wei
