@@ -1,76 +1,47 @@
 From: David Hildenbrand <david@redhat.com>
-Subject: [PATCH v1 2/3] virtio_balloon: Fix memory leaks on errors in virtballoon_probe()
-Date: Wed,  5 Feb 2020 17:34:01 +0100
-Message-ID: <20200205163402.42627-3-david@redhat.com>
-References: <20200205163402.42627-1-david@redhat.com>
+Subject: [PATCH v1 0/3] virtio-balloon: Fixes + switch back to OOM handler
+Date: Wed,  5 Feb 2020 17:33:59 +0100
+Message-ID: <20200205163402.42627-1-david@redhat.com>
 Mime-Version: 1.0
-Content-Transfer-Encoding: quoted-printable
-Return-path: <linux-kernel-owner@vger.kernel.org>
-In-Reply-To: <20200205163402.42627-1-david@redhat.com>
-Sender: linux-kernel-owner@vger.kernel.org
+Content-Type: text/plain; charset="us-ascii"
+Content-Transfer-Encoding: 7bit
+Return-path: <virtualization-bounces@lists.linux-foundation.org>
+List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
+ <mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
+List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
+List-Post: <mailto:virtualization@lists.linux-foundation.org>
+List-Help: <mailto:virtualization-request@lists.linux-foundation.org?subject=help>
+List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualization>,
+ <mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
+Errors-To: virtualization-bounces@lists.linux-foundation.org
+Sender: "Virtualization" <virtualization-bounces@lists.linux-foundation.org>
 To: linux-kernel@vger.kernel.org
-Cc: linux-mm@kvack.org, virtualization@lists.linux-foundation.org, David Hildenbrand <david@redhat.com>, "Michael S. Tsirkin" <mst@redhat.com>, Jason Wang <jasowang@redhat.com>, Wei Wang <wei.w.wang@intel.com>, Liang Li <liang.z.li@intel.com>
+Cc: Liang Li <liang.z.li@intel.com>, virtualization@lists.linux-foundation.org, Tyler Sanderson <tysand@google.com>, linux-mm@kvack.org, "Michael S. Tsirkin" <mst@redhat.com>, David Rientjes <rientjes@google.com>, Nadav Amit <namit@vmware.com>, Alexander Duyck <alexander.h.duyck@linux.intel.com>, Michal Hocko <mhocko@kernel.org>
 List-Id: virtualization@lists.linuxfoundation.org
 
-We forget to put the inode and unmount the kernfs used for compaction.
+Two fixes for issues I stumbled over while working on patch #3.
 
-Fixes: 71994620bb25 ("virtio_balloon: replace oom notifier with shrinker"=
-)
-Cc: "Michael S. Tsirkin" <mst@redhat.com>
-Cc: Jason Wang <jasowang@redhat.com>
-Cc: Wei Wang <wei.w.wang@intel.com>
-Cc: Liang Li <liang.z.li@intel.com>
-Signed-off-by: David Hildenbrand <david@redhat.com>
----
- drivers/virtio/virtio_balloon.c | 13 +++++++++----
- 1 file changed, 9 insertions(+), 4 deletions(-)
+Switch back to the good ol' OOM handler for VIRTIO_BALLOON_F_DEFLATE_ON_OOM
+as the switch to the shrinker introduce some undesired side effects. Keep
+the shrinker in place to handle VIRTIO_BALLOON_F_FREE_PAGE_HINT.
+Lengthy discussion under [1].
 
-diff --git a/drivers/virtio/virtio_balloon.c b/drivers/virtio/virtio_ball=
-oon.c
-index abef2306c899..7e5d84caeb94 100644
---- a/drivers/virtio/virtio_balloon.c
-+++ b/drivers/virtio/virtio_balloon.c
-@@ -901,8 +901,7 @@ static int virtballoon_probe(struct virtio_device *vd=
-ev)
- 	vb->vb_dev_info.inode =3D alloc_anon_inode(balloon_mnt->mnt_sb);
- 	if (IS_ERR(vb->vb_dev_info.inode)) {
- 		err =3D PTR_ERR(vb->vb_dev_info.inode);
--		kern_unmount(balloon_mnt);
--		goto out_del_vqs;
-+		goto out_kern_unmount;
- 	}
- 	vb->vb_dev_info.inode->i_mapping->a_ops =3D &balloon_aops;
- #endif
-@@ -913,13 +912,13 @@ static int virtballoon_probe(struct virtio_device *=
-vdev)
- 		 */
- 		if (virtqueue_get_vring_size(vb->free_page_vq) < 2) {
- 			err =3D -ENOSPC;
--			goto out_del_vqs;
-+			goto out_iput;
- 		}
- 		vb->balloon_wq =3D alloc_workqueue("balloon-wq",
- 					WQ_FREEZABLE | WQ_CPU_INTENSIVE, 0);
- 		if (!vb->balloon_wq) {
- 			err =3D -ENOMEM;
--			goto out_del_vqs;
-+			goto out_iput;
- 		}
- 		INIT_WORK(&vb->report_free_page_work, report_free_page_func);
- 		vb->cmd_id_received_cache =3D VIRTIO_BALLOON_CMD_ID_STOP;
-@@ -953,6 +952,12 @@ static int virtballoon_probe(struct virtio_device *v=
-dev)
- out_del_balloon_wq:
- 	if (virtio_has_feature(vdev, VIRTIO_BALLOON_F_FREE_PAGE_HINT))
- 		destroy_workqueue(vb->balloon_wq);
-+out_iput:
-+#ifdef CONFIG_BALLOON_COMPACTION
-+	iput(vb->vb_dev_info.inode);
-+out_kern_unmount:
-+	kern_unmount(balloon_mnt);
-+#endif
- out_del_vqs:
- 	vdev->config->del_vqs(vdev);
- out_free_vb:
---=20
+I tested with QEMU and "deflate-on-oom=on". Works as expected. Did not
+test the shrinker for VIRTIO_BALLOON_F_FREE_PAGE_HINT, as it is
+hard to trigger (only when migrating a VM, and even then, it might not
+trigger).
+
+[1] https://www.spinics.net/lists/linux-virtualization/msg40863.html
+
+David Hildenbrand (3):
+  virtio-balloon: Fix memory leak when unloading while hinting is in
+    progress
+  virtio_balloon: Fix memory leaks on errors in virtballoon_probe()
+  virtio-balloon: Switch back to OOM handler for
+    VIRTIO_BALLOON_F_DEFLATE_ON_OOM
+
+ drivers/virtio/virtio_balloon.c | 124 +++++++++++++++-----------------
+ 1 file changed, 57 insertions(+), 67 deletions(-)
+
+-- 
 2.24.1
