@@ -1,62 +1,52 @@
-From: "Michael S. Tsirkin" <mst@redhat.com>
-Subject: Re: Balloon pressuring page cache
-Date: Wed, 5 Feb 2020 02:05:20 -0500
-Message-ID: <20200205015911-mutt-send-email-mst@kernel.org>
-References: <CAJuQAmqcayaNuG19fKCuux=YVO3+VcN-qrXvobgKMykogeMkzA@mail.gmail.com>
- <20200203080520-mutt-send-email-mst@kernel.org>
- <5ac131de8e3b7fc1fafd05a61feb5f6889aeb917.camel@linux.intel.com>
- <c836a8d1-c5cc-eb8b-84ed-027070b77bf8@redhat.com>
- <539B606A-A0CA-4AA4-B99A-759C874A1EF8@vmware.com>
- <d69eafb4-ad0d-1617-9248-ea4fc776da58@redhat.com>
- <20200204033657-mutt-send-email-mst@kernel.org>
- <ce93331c-0099-dda7-e00f-126bf7826a40@redhat.com>
- <20200204114336-mutt-send-email-mst@kernel.org>
- <286AC319A985734F985F78AFA26841F73E41F10F@shsmsx102.ccr.corp.intel.com>
+From: Shahaf Shuler <shahafs@mellanox.com>
+Subject: RE: [PATCH] vhost: introduce vDPA based backend
+Date: Wed, 5 Feb 2020 07:15:03 +0000
+Message-ID: <AM0PR0502MB37952015716C1D5E07E390B6C3020@AM0PR0502MB3795.eurprd05.prod.outlook.com>
+References: <20200131033651.103534-1-tiwei.bie@intel.com>
+ <7aab2892-bb19-a06a-a6d3-9c28bc4c3400@redhat.com>
+ <20200205020247.GA368700@___>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
-Content-Transfer-Encoding: 7bit
-Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <286AC319A985734F985F78AFA26841F73E41F10F@shsmsx102.ccr.corp.intel.com>
-Content-Disposition: inline
-List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
- <mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
-List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
-List-Post: <mailto:virtualization@lists.linux-foundation.org>
-List-Help: <mailto:virtualization-request@lists.linux-foundation.org?subject=help>
-List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualization>,
- <mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
-Errors-To: virtualization-bounces@lists.linux-foundation.org
-Sender: "Virtualization" <virtualization-bounces@lists.linux-foundation.org>
-To: "Wang, Wei W" <wei.w.wang@intel.com>
-Cc: "virtualization@lists.linux-foundation.org" <virtualization@lists.linux-foundation.org>, Tyler Sanderson <tysand@google.com>, "linux-mm@kvack.org" <linux-mm@kvack.org>, Nadav Amit <namit@vmware.com>, David Rientjes <rientjes@google.com>, Alexander Duyck <alexander.h.duyck@linux.intel.com>, Michal Hocko <mhocko@kernel.org>
+Content-Type: text/plain; charset="utf-8"
+Content-Transfer-Encoding: base64
+Return-path: <linux-kernel-owner@vger.kernel.org>
+In-Reply-To: <20200205020247.GA368700@___>
+Content-Language: en-US
+Sender: linux-kernel-owner@vger.kernel.org
+To: Tiwei Bie <tiwei.bie@intel.com>, Jason Wang <jasowang@redhat.com>
+Cc: "mst@redhat.com" <mst@redhat.com>, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>, "kvm@vger.kernel.org" <kvm@vger.kernel.org>, "virtualization@lists.linux-foundation.org" <virtualization@lists.linux-foundation.org>, "netdev@vger.kernel.org" <netdev@vger.kernel.org>, Jason Gunthorpe <jgg@mellanox.com>, "rob.miller@broadcom.com" <rob.miller@broadcom.com>, "haotian.wang@sifive.com" <haotian.wang@sifive.com>, "eperezma@redhat.com" <eperezma@redhat.com>, "lulu@redhat.com" <lulu@redhat.com>, Parav Pandit <parav@mellanox.com>, "rdunlap@infradead.org" <rdunlap@infradead.org>, "hch@infradead.org" <hch@infradead.org>, Jiri Pirko <jiri@mellanox.com>, "hanand@xilinx.com" <hanand@xilinx.com>, "mhabets@solarflare.com" <mhabets@solarflare.com>ma
 List-Id: virtualization@lists.linuxfoundation.org
 
-On Wed, Feb 05, 2020 at 06:52:34AM +0000, Wang, Wei W wrote:
-> On Wednesday, February 5, 2020 12:50 AM, Michael S. Tsirkin wrote:
-> > > Michael, any clue on which event we have to wait with
-> > > VIRTIO_BALLOON_F_MUST_TELL_HOST? IMHO, I don't think
-> > > VIRTIO_BALLOON_F_MUST_TELL_HOST applies to
-> > > VIRTIO_BALLOON_F_FREE_PAGE_HINT and we'd better document that. It
-> > introduces complexity with no clear benefit.
-> > 
-> > I meant that we must wait for host to see the hint.
-> 
-> Why?
-> 
-> Best,
-> Wei
-
-Well if we did the hint would be reliable, allowing host to immediately
-drop any pages it gets in the hint. Originally I wanted to speed up
-hinting by never waiting for host, but that does not seem to be what was
-implemented: the only place we don't wait is the shrinker and it seems a
-waste that we introduced complexity to host without getting any real
-benefit out of it.
-
-VIRTIO_BALLOON_F_MUST_TELL_HOST doesn't really apply to hinting
-right now, so we could have used it to mean "hints must wait for host
-to use buffers". I'm afraid it's already a wasted opportunity at
-this point, reusing it isn't worth the compatibility headaches.
-
--- 
-MST
+V2VkbmVzZGF5LCBGZWJydWFyeSA1LCAyMDIwIDQ6MDMgQU0sIFRpd2VpIEJpZToNCj4gU3ViamVj
+dDogUmU6IFtQQVRDSF0gdmhvc3Q6IGludHJvZHVjZSB2RFBBIGJhc2VkIGJhY2tlbmQNCj4gDQo+
+IE9uIFR1ZSwgRmViIDA0LCAyMDIwIGF0IDExOjMwOjExQU0gKzA4MDAsIEphc29uIFdhbmcgd3Jv
+dGU6DQo+ID4gT24gMjAyMC8xLzMxIOS4iuWNiDExOjM2LCBUaXdlaSBCaWUgd3JvdGU6DQo+ID4g
+PiBUaGlzIHBhdGNoIGludHJvZHVjZXMgYSB2RFBBIGJhc2VkIHZob3N0IGJhY2tlbmQuIFRoaXMg
+YmFja2VuZCBpcw0KPiA+ID4gYnVpbHQgb24gdG9wIG9mIHRoZSBzYW1lIGludGVyZmFjZSBkZWZp
+bmVkIGluIHZpcnRpby12RFBBIGFuZA0KPiA+ID4gcHJvdmlkZXMgYSBnZW5lcmljIHZob3N0IGlu
+dGVyZmFjZSBmb3IgdXNlcnNwYWNlIHRvIGFjY2VsZXJhdGUgdGhlDQo+ID4gPiB2aXJ0aW8gZGV2
+aWNlcyBpbiBndWVzdC4NCj4gPiA+DQo+ID4gPiBUaGlzIGJhY2tlbmQgaXMgaW1wbGVtZW50ZWQg
+YXMgYSB2RFBBIGRldmljZSBkcml2ZXIgb24gdG9wIG9mIHRoZQ0KPiA+ID4gc2FtZSBvcHMgdXNl
+ZCBpbiB2aXJ0aW8tdkRQQS4gSXQgd2lsbCBjcmVhdGUgY2hhciBkZXZpY2UgZW50cnkgbmFtZWQN
+Cj4gPiA+IHZob3N0LXZkcGEvJHZkcGFfZGV2aWNlX2luZGV4IGZvciB1c2Vyc3BhY2UgdG8gdXNl
+LiBVc2Vyc3BhY2UgY2FuDQo+ID4gPiB1c2Ugdmhvc3QgaW9jdGxzIG9uIHRvcCBvZiB0aGlzIGNo
+YXIgZGV2aWNlIHRvIHNldHVwIHRoZSBiYWNrZW5kLg0KPiA+ID4NCj4gPiA+IFNpZ25lZC1vZmYt
+Ynk6IFRpd2VpIEJpZSA8dGl3ZWkuYmllQGludGVsLmNvbT4NCg0KWy4uLl0NCg0KPiA+ID4gK3N0
+YXRpYyBsb25nIHZob3N0X3ZkcGFfZG9fZG1hX21hcHBpbmcoc3RydWN0IHZob3N0X3ZkcGEgKnYp
+IHsNCj4gPiA+ICsJLyogVE9ETzogZml4IHRoaXMgKi8NCj4gPg0KPiA+DQo+ID4gQmVmb3JlIHRy
+eWluZyB0byBkbyB0aGlzIGl0IGxvb2tzIHRvIG1lIHdlIG5lZWQgdGhlIGZvbGxvd2luZyBkdXJp
+bmcNCj4gPiB0aGUgcHJvYmUNCj4gPg0KPiA+IDEpIGlmIHNldF9tYXAoKSBpcyBub3Qgc3VwcG9y
+dGVkIGJ5IHRoZSB2RFBBIGRldmljZSBwcm9iZSB0aGUgSU9NTVUNCj4gPiB0aGF0IGlzIHN1cHBv
+cnRlZCBieSB0aGUgdkRQQSBkZXZpY2UNCj4gPiAyKSBhbGxvY2F0ZSBJT01NVSBkb21haW4NCj4g
+Pg0KPiA+IEFuZCB0aGVuOg0KPiA+DQo+ID4gMykgcGluIHBhZ2VzIHRocm91Z2ggR1VQIGFuZCBk
+byBwcm9wZXIgYWNjb3VudGluZw0KPiA+IDQpIHN0b3JlIEdQQS0+SFBBIG1hcHBpbmcgaW4gdGhl
+IHVtZW0NCj4gPiA1KSBnZW5lcmF0ZSBkaWZmcyBvZiBtZW1vcnkgdGFibGUgYW5kIHVzaW5nIElP
+TU1VIEFQSSB0byBzZXR1cCB0aGUgZG1hDQo+ID4gbWFwcGluZyBpbiB0aGlzIG1ldGhvZA0KPiA+
+DQo+ID4gRm9yIDEpLCBJJ20gbm90IHN1cmUgcGFyZW50IGlzIHN1ZmZpY2llbnQgZm9yIHRvIGRv
+aW5nIHRoaXMgb3IgbmVlZCB0bw0KPiA+IGludHJvZHVjZSBuZXcgQVBJIGxpa2UgaW9tbXVfZGV2
+aWNlIGluIG1kZXYuDQo+IA0KPiBBZ3JlZS4gV2UgbWF5IGFsc28gbmVlZCB0byBpbnRyb2R1Y2Ug
+c29tZXRoaW5nIGxpa2UgdGhlIGlvbW11X2RldmljZS4NCj4gDQoNCldvdWxkIGl0IGJlIGJldHRl
+ciBmb3IgdGhlIG1hcC91bW5hcCBsb2dpYyB0byBoYXBwZW4gaW5zaWRlIGVhY2ggZGV2aWNlID8g
+DQpEZXZpY2VzIHRoYXQgbmVlZHMgdGhlIElPTU1VIHdpbGwgY2FsbCBpb21tdSBBUElzIGZyb20g
+aW5zaWRlIHRoZSBkcml2ZXIgY2FsbGJhY2suIA0KRGV2aWNlcyB0aGF0IGhhcyBvdGhlciB3YXlz
+IHRvIGRvIHRoZSBETUEgbWFwcGluZyB3aWxsIGNhbGwgdGhlIHByb3ByaWV0YXJ5IEFQSXMuIA0K
+DQo=
