@@ -1,112 +1,92 @@
-From: "Michael S. Tsirkin" <mst@redhat.com>
-Subject: Re: [PATCH] vhost: introduce vDPA based backend
-Date: Wed, 5 Feb 2020 05:33:40 -0500
-Message-ID: <20200205053129-mutt-send-email-mst@kernel.org>
-References: <20200131033651.103534-1-tiwei.bie@intel.com>
- <7aab2892-bb19-a06a-a6d3-9c28bc4c3400@redhat.com>
- <20200205020247.GA368700@___>
- <AM0PR0502MB37952015716C1D5E07E390B6C3020@AM0PR0502MB3795.eurprd05.prod.outlook.com>
- <112858a4-1a01-f4d7-e41a-1afaaa1cad45@redhat.com>
- <AM0PR0502MB3795AD42233D69F350402A8AC3020@AM0PR0502MB3795.eurprd05.prod.outlook.com>
+From: David Hildenbrand <david@redhat.com>
+Subject: Re: Balloon pressuring page cache
+Date: Wed, 5 Feb 2020 11:42:04 +0100
+Message-ID: <193b0215-fda3-6867-e7dc-39c2d43f1007@redhat.com>
+References: <286AC319A985734F985F78AFA26841F73E41F306@shsmsx102.ccr.corp.intel.com>
+ <2b388a78-79cd-f99a-6f87-6446dcb4b819@redhat.com>
+ <286AC319A985734F985F78AFA26841F73E41F367@shsmsx102.ccr.corp.intel.com>
+ <605bef3e-373f-f39a-4849-930326564b5b@redhat.com>
+ <286AC319A985734F985F78AFA26841F73E41F3DE@shsmsx102.ccr.corp.intel.com>
+ <bcb69e37-fd84-6397-0ff5-befd99a361dd@redhat.com>
+ <286AC319A985734F985F78AFA26841F73E41F490@shsmsx102.ccr.corp.intel.com>
+ <5b184893-014c-35a1-928b-37b8f4647116@redhat.com>
+ <286AC319A985734F985F78AFA26841F73E41F562@shsmsx102.ccr.corp.intel.com>
+ <ef1dfd46-49c8-8aa9-2a5e-d2ebb2e093f5@redhat.com>
+ <20200205051404-mutt-send-email-mst@kernel.org>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=utf-8
-Content-Transfer-Encoding: 8bit
-Return-path: <netdev-owner@vger.kernel.org>
-Content-Disposition: inline
-In-Reply-To: <AM0PR0502MB3795AD42233D69F350402A8AC3020@AM0PR0502MB3795.eurprd05.prod.outlook.com>
-Sender: netdev-owner@vger.kernel.org
-To: Shahaf Shuler <shahafs@mellanox.com>
-Cc: Jason Wang <jasowang@redhat.com>, Tiwei Bie <tiwei.bie@intel.com>, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>, "kvm@vger.kernel.org" <kvm@vger.kernel.org>, "virtualization@lists.linux-foundation.org" <virtualization@lists.linux-foundation.org>, "netdev@vger.kernel.org" <netdev@vger.kernel.org>, Jason Gunthorpe <jgg@mellanox.com>, "rob.miller@broadcom.com" <rob.miller@broadcom.com>, "haotian.wang@sifive.com" <haotian.wang@sifive.com>, "eperezma@redhat.com" <eperezma@redhat.com>, "lulu@redhat.com" <lulu@redhat.com>, Parav Pandit <parav@mellanox.com>, "rdunlap@infradead.org" <rdunlap@infradead.org>, "hch@infradead.org" <hch@infradead.org>, Jiri Pirko <jiri@mellanox.com>, "hanand@xilinx.com" <hanand@xilinx.com>, "mhabets@solarflare.com" <mhab>
+Content-Type: text/plain; charset="us-ascii"
+Content-Transfer-Encoding: 7bit
+Return-path: <virtualization-bounces@lists.linux-foundation.org>
+In-Reply-To: <20200205051404-mutt-send-email-mst@kernel.org>
+Content-Language: en-US
+List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
+ <mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
+List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
+List-Post: <mailto:virtualization@lists.linux-foundation.org>
+List-Help: <mailto:virtualization-request@lists.linux-foundation.org?subject=help>
+List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualization>,
+ <mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
+Errors-To: virtualization-bounces@lists.linux-foundation.org
+Sender: "Virtualization" <virtualization-bounces@lists.linux-foundation.org>
+To: "Michael S. Tsirkin" <mst@redhat.com>
+Cc: "virtualization@lists.linux-foundation.org" <virtualization@lists.linux-foundation.org>, Tyler Sanderson <tysand@google.com>, "linux-mm@kvack.org" <linux-mm@kvack.org>, Nadav Amit <namit@vmware.com>, David Rientjes <rientjes@google.com>, Alexander Duyck <alexander.h.duyck@linux.intel.com>, Michal Hocko <mhocko@kernel.org>
 List-Id: virtualization@lists.linuxfoundation.org
 
-On Wed, Feb 05, 2020 at 09:30:14AM +0000, Shahaf Shuler wrote:
-> Wednesday, February 5, 2020 9:50 AM, Jason Wang:
-> > Subject: Re: [PATCH] vhost: introduce vDPA based backend
-> > On 2020/2/5 下午3:15, Shahaf Shuler wrote:
-> > > Wednesday, February 5, 2020 4:03 AM, Tiwei Bie:
-> > >> Subject: Re: [PATCH] vhost: introduce vDPA based backend
-> > >>
-> > >> On Tue, Feb 04, 2020 at 11:30:11AM +0800, Jason Wang wrote:
-> > >>> On 2020/1/31 上午11:36, Tiwei Bie wrote:
-> > >>>> This patch introduces a vDPA based vhost backend. This backend is
-> > >>>> built on top of the same interface defined in virtio-vDPA and
-> > >>>> provides a generic vhost interface for userspace to accelerate the
-> > >>>> virtio devices in guest.
-> > >>>>
-> > >>>> This backend is implemented as a vDPA device driver on top of the
-> > >>>> same ops used in virtio-vDPA. It will create char device entry
-> > >>>> named vhost-vdpa/$vdpa_device_index for userspace to use.
-> > Userspace
-> > >>>> can use vhost ioctls on top of this char device to setup the backend.
-> > >>>>
-> > >>>> Signed-off-by: Tiwei Bie <tiwei.bie@intel.com>
-> > > [...]
-> > >
-> > >>>> +static long vhost_vdpa_do_dma_mapping(struct vhost_vdpa *v) {
-> > >>>> +	/* TODO: fix this */
-> > >>>
-> > >>> Before trying to do this it looks to me we need the following during
-> > >>> the probe
-> > >>>
-> > >>> 1) if set_map() is not supported by the vDPA device probe the IOMMU
-> > >>> that is supported by the vDPA device
-> > >>> 2) allocate IOMMU domain
-> > >>>
-> > >>> And then:
-> > >>>
-> > >>> 3) pin pages through GUP and do proper accounting
-> > >>> 4) store GPA->HPA mapping in the umem
-> > >>> 5) generate diffs of memory table and using IOMMU API to setup the
-> > >>> dma mapping in this method
-> > >>>
-> > >>> For 1), I'm not sure parent is sufficient for to doing this or need
-> > >>> to introduce new API like iommu_device in mdev.
-> > >> Agree. We may also need to introduce something like the iommu_device.
-> > >>
-> > > Would it be better for the map/umnap logic to happen inside each device ?
-> > > Devices that needs the IOMMU will call iommu APIs from inside the driver
-> > callback.
-> > 
-> > 
-> > Technically, this can work. But if it can be done by vhost-vpda it will make the
-> > vDPA driver more compact and easier to be implemented.
+On 05.02.20 11:25, Michael S. Tsirkin wrote:
+> On Wed, Feb 05, 2020 at 10:58:14AM +0100, David Hildenbrand wrote:
+>> On 05.02.20 10:49, Wang, Wei W wrote:
+>>> On Wednesday, February 5, 2020 5:37 PM, David Hildenbrand wrote:
+>>>>>
+>>>>> Not sure how TCG tracks the dirty bits. But In whatever
+>>>>> implementation, the hypervisor should have
+>>>>
+>>>> There is only a single bitmap for that purpose. (well, the one where KVM
+>>>> syncs to)
+>>>>
+>>>>> already dealt with the race between he current round and the previous
+>>>> round dirty recording.
+>>>>> (the race isn't brought by this feature essentially)
+>>>>
+>>>> It is guaranteed to work reliably without this feature as you only clear what
+>>>> *has been migrated*, 
+>>>
+>>> Not "clear what has been migrated" (that skips nothing..)
+>>> Anyway, it's a hint used for optimization.
+>>
+>> Yes, an optimization that might easily lead to data corruption when the
+>> two bitmaps are either not in place or don't play along in that specific
+>> way (and I suspect this is the case under TCG).
 > 
-> Need to see the layering of such proposal but am not sure. 
-> Vhost-vdpa is generic framework, while the DMA mapping is vendor specific. 
-> Maybe vhost-vdpa can have some shared code needed to operate on iommu, so drivers can re-use it.  to me it seems simpler than exposing a new iommu device. 
-> 
-> > 
-> > 
-> > > Devices that has other ways to do the DMA mapping will call the
-> > proprietary APIs.
-> > 
-> > 
-> > To confirm, do you prefer:
-> > 
-> > 1) map/unmap
-> 
-> It is not only that. AFAIR there also flush and invalidate calls, right?
-> 
-> > 
-> > or
-> > 
-> > 2) pass all maps at one time?
-> 
-> To me this seems more straight forward. 
-> It is correct that under hotplug and large number of memory segments
-> the driver will need to understand the diff (or not and just reload
-> the new configuration).
-> However, my assumption here is that memory
-> hotplug is heavy flow anyway, and the driver extra cycles will not be
-> that visible
+> So I checked and TCG has two copies too.
+> Each block has bmap used for migration and also dirty_memory
+> where pages are marked dirty. See cpu_physical_memory_sync_dirty_bitmap.
+qemu_guest_free_page_hint() works on block->bmap.
+cpu_physical_memory_set_dirty_range() works on ram_list.dirty_memory[i].
 
-I think we can just allow both, after all vhost already has both interfaces ...
-We just need a flag that tells userspace whether it needs to
-update all maps aggressively or can wait for a fault.
+So you are right - sorry for the false alarm and thanks for verifying :)
 
-> > 
-> > Thanks
-> > 
-> > 
-> > >
+[...]
+
 > 
+> Again a flag that tells guest it should wait until used
+> could be a reasonable expension. If we stick to the shrinker
+> it's actually implementable easily. With an OOM notifier - I'm not so
+> sure ...
+
+See my other mail. I think we should keep handling just as is and not
+overcomplicate things (especially in our implementation as you noted)
+Instead, maybe abstract the reporting feature.
+
+> 
+> And a big part of the problem is that after all this time the page
+> hinting interfaces are still undocumented. Quite sad really :(
+
+Yes, that was the source of my confusion ... the double-bitmap thingy is
+non-obvious. And anybody who wants to implement that interface in a
+hypervisor has to be aware that the race I explained has to be avoided
+using e.g., two bitmaps and the sync.
+
+-- 
+Thanks,
+
+David / dhildenb
