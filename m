@@ -1,23 +1,23 @@
 From: David Hildenbrand <david@redhat.com>
 Subject: Re: Balloon pressuring page cache
-Date: Wed, 5 Feb 2020 11:42:04 +0100
-Message-ID: <193b0215-fda3-6867-e7dc-39c2d43f1007@redhat.com>
-References: <286AC319A985734F985F78AFA26841F73E41F306@shsmsx102.ccr.corp.intel.com>
- <2b388a78-79cd-f99a-6f87-6446dcb4b819@redhat.com>
- <286AC319A985734F985F78AFA26841F73E41F367@shsmsx102.ccr.corp.intel.com>
- <605bef3e-373f-f39a-4849-930326564b5b@redhat.com>
- <286AC319A985734F985F78AFA26841F73E41F3DE@shsmsx102.ccr.corp.intel.com>
- <bcb69e37-fd84-6397-0ff5-befd99a361dd@redhat.com>
- <286AC319A985734F985F78AFA26841F73E41F490@shsmsx102.ccr.corp.intel.com>
- <5b184893-014c-35a1-928b-37b8f4647116@redhat.com>
- <286AC319A985734F985F78AFA26841F73E41F562@shsmsx102.ccr.corp.intel.com>
- <ef1dfd46-49c8-8aa9-2a5e-d2ebb2e093f5@redhat.com>
- <20200205051404-mutt-send-email-mst@kernel.org>
+Date: Wed, 5 Feb 2020 11:43:49 +0100
+Message-ID: <c967349f-c422-1505-ee13-8b0746b593c3@redhat.com>
+References: <CAJuQAmoaK0Swytu2Os_SQRfG5_LqiCPaDa9yatatm9MtfncNTQ@mail.gmail.com>
+ <75d4594f-0864-5172-a0f8-f97affedb366@redhat.com>
+ <286AC319A985734F985F78AFA26841F73E3F8A02@shsmsx102.ccr.corp.intel.com>
+ <CAJuQAmqcayaNuG19fKCuux=YVO3+VcN-qrXvobgKMykogeMkzA@mail.gmail.com>
+ <20200203080520-mutt-send-email-mst@kernel.org>
+ <5ac131de8e3b7fc1fafd05a61feb5f6889aeb917.camel@linux.intel.com>
+ <c836a8d1-c5cc-eb8b-84ed-027070b77bf8@redhat.com>
+ <539B606A-A0CA-4AA4-B99A-759C874A1EF8@vmware.com>
+ <08D323B9-0B4A-47B2-9955-511B8FBA056B@vmware.com>
+ <dd5aa189-daed-7008-d02b-4e5bd61fe6e1@redhat.com>
+ <20200205052548-mutt-send-email-mst@kernel.org>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset="utf-8"
+Content-Transfer-Encoding: base64
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <20200205051404-mutt-send-email-mst@kernel.org>
+In-Reply-To: <20200205052548-mutt-send-email-mst@kernel.org>
 Content-Language: en-US
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
  <mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
@@ -32,61 +32,94 @@ To: "Michael S. Tsirkin" <mst@redhat.com>
 Cc: "virtualization@lists.linux-foundation.org" <virtualization@lists.linux-foundation.org>, Tyler Sanderson <tysand@google.com>, "linux-mm@kvack.org" <linux-mm@kvack.org>, Nadav Amit <namit@vmware.com>, David Rientjes <rientjes@google.com>, Alexander Duyck <alexander.h.duyck@linux.intel.com>, Michal Hocko <mhocko@kernel.org>
 List-Id: virtualization@lists.linuxfoundation.org
 
-On 05.02.20 11:25, Michael S. Tsirkin wrote:
-> On Wed, Feb 05, 2020 at 10:58:14AM +0100, David Hildenbrand wrote:
->> On 05.02.20 10:49, Wang, Wei W wrote:
->>> On Wednesday, February 5, 2020 5:37 PM, David Hildenbrand wrote:
->>>>>
->>>>> Not sure how TCG tracks the dirty bits. But In whatever
->>>>> implementation, the hypervisor should have
->>>>
->>>> There is only a single bitmap for that purpose. (well, the one where KVM
->>>> syncs to)
->>>>
->>>>> already dealt with the race between he current round and the previous
->>>> round dirty recording.
->>>>> (the race isn't brought by this feature essentially)
->>>>
->>>> It is guaranteed to work reliably without this feature as you only clear what
->>>> *has been migrated*, 
->>>
->>> Not "clear what has been migrated" (that skips nothing..)
->>> Anyway, it's a hint used for optimization.
->>
->> Yes, an optimization that might easily lead to data corruption when the
->> two bitmaps are either not in place or don't play along in that specific
->> way (and I suspect this is the case under TCG).
-> 
-> So I checked and TCG has two copies too.
-> Each block has bmap used for migration and also dirty_memory
-> where pages are marked dirty. See cpu_physical_memory_sync_dirty_bitmap.
-qemu_guest_free_page_hint() works on block->bmap.
-cpu_physical_memory_set_dirty_range() works on ram_list.dirty_memory[i].
-
-So you are right - sorry for the false alarm and thanks for verifying :)
-
-[...]
-
-> 
-> Again a flag that tells guest it should wait until used
-> could be a reasonable expension. If we stick to the shrinker
-> it's actually implementable easily. With an OOM notifier - I'm not so
-> sure ...
-
-See my other mail. I think we should keep handling just as is and not
-overcomplicate things (especially in our implementation as you noted)
-Instead, maybe abstract the reporting feature.
-
-> 
-> And a big part of the problem is that after all this time the page
-> hinting interfaces are still undocumented. Quite sad really :(
-
-Yes, that was the source of my confusion ... the double-bitmap thingy is
-non-obvious. And anybody who wants to implement that interface in a
-hypervisor has to be aware that the race I explained has to be avoided
-using e.g., two bitmaps and the sync.
-
--- 
-Thanks,
-
-David / dhildenb
+T24gMDUuMDIuMjAgMTE6MjcsIE1pY2hhZWwgUy4gVHNpcmtpbiB3cm90ZToKPiBPbiBXZWQsIEZl
+YiAwNSwgMjAyMCBhdCAwOToxOTo1OEFNICswMTAwLCBEYXZpZCBIaWxkZW5icmFuZCB3cm90ZToK
+Pj4gT24gMDUuMDIuMjAgMDg6MzUsIE5hZGF2IEFtaXQgd3JvdGU6Cj4+Pj4gT24gRmViIDMsIDIw
+MjAsIGF0IDI6NTAgUE0sIE5hZGF2IEFtaXQgPG5hbWl0QHZtd2FyZS5jb20+IHdyb3RlOgo+Pj4+
+Cj4+Pj4+IE9uIEZlYiAzLCAyMDIwLCBhdCA4OjM0IEFNLCBEYXZpZCBIaWxkZW5icmFuZCA8ZGF2
+aWRAcmVkaGF0LmNvbT4gd3JvdGU6Cj4+Pj4+Cj4+Pj4+IE9uIDAzLjAyLjIwIDE3OjE4LCBBbGV4
+YW5kZXIgRHV5Y2sgd3JvdGU6Cj4+Pj4+PiBPbiBNb24sIDIwMjAtMDItMDMgYXQgMDg6MTEgLTA1
+MDAsIE1pY2hhZWwgUy4gVHNpcmtpbiB3cm90ZToKPj4+Pj4+PiBPbiBUaHUsIEphbiAzMCwgMjAy
+MCBhdCAxMTo1OTo0NkFNIC0wODAwLCBUeWxlciBTYW5kZXJzb24gd3JvdGU6Cj4+Pj4+Pj4+IE9u
+IFRodSwgSmFuIDMwLCAyMDIwIGF0IDc6MzEgQU0gV2FuZywgV2VpIFcgPHdlaS53LndhbmdAaW50
+ZWwuY29tPiB3cm90ZToKPj4+Pj4+Pj4KPj4+Pj4+Pj4gICBPbiBUaHVyc2RheSwgSmFudWFyeSAz
+MCwgMjAyMCAxMTowMyBQTSwgRGF2aWQgSGlsZGVuYnJhbmQgd3JvdGU6Cj4+Pj4+Pj4+PiBPbiAy
+OS4wMS4yMCAyMDoxMSwgVHlsZXIgU2FuZGVyc29uIHdyb3RlOgo+Pj4+Pj4+Pj4+IE9uIFdlZCwg
+SmFuIDI5LCAyMDIwIGF0IDI6MzEgQU0gRGF2aWQgSGlsZGVuYnJhbmQgPGRhdmlkQHJlZGhhdC5j
+b20KPj4+Pj4+Pj4+PiA8bWFpbHRvOmRhdmlkQHJlZGhhdC5jb20+PiB3cm90ZToKPj4+Pj4+Pj4+
+Pgo+Pj4+Pj4+Pj4+ICAgT24gMjkuMDEuMjAgMDE6MjIsIFR5bGVyIFNhbmRlcnNvbiB2aWEgVmly
+dHVhbGl6YXRpb24gd3JvdGU6Cj4+Pj4+Pj4+Pj4+IEEgcHJpbWFyeSBhZHZhbnRhZ2Ugb2Ygdmly
+dGlvIGJhbGxvb24gb3ZlciBvdGhlciBtZW1vcnkgcmVjbGFpbQo+Pj4+Pj4+Pj4+PiBtZWNoYW5p
+c21zIGlzIHRoYXQgaXQgY2FuIHByZXNzdXJlIHRoZSBndWVzdCdzIHBhZ2UgY2FjaGUgaW50bwo+
+Pj4+Pj4+Pj4+ICAgc2hyaW5raW5nLgo+Pj4+Pj4+Pj4+PiBIb3dldmVyLCBzaW5jZSB0aGUgYmFs
+bG9vbiBkcml2ZXIgY2hhbmdlZCB0byB1c2luZyB0aGUgc2hyaW5rZXIKPj4+Pj4+Pj4gICBBUEkK
+Pj4+Pj4+Pj4+IDxodHRwczovL2dpdGh1Yi5jb20vdG9ydmFsZHMvbGludXgvY29tbWl0LzcxOTk0
+NjIwYmIyNWE4YjEwOTM4OGZlZmE5Cj4+Pj4+Pj4+PiBlOTlhMjhlMzU1MjU1YSNkaWZmLWZkMjAy
+YWNmNjk0ZDllYmExOWM4YzY0ZGEzZTQ4MGM5PiB0aGlzCj4+Pj4+Pj4+Pj4+IHVzZSBjYXNlIGhh
+cyBiZWNvbWUgYSBiaXQgbW9yZSB0cmlja3kuIEknbSB3b25kZXJpbmcgd2hhdCB0aGUKPj4+Pj4+
+Pj4+IGludGVuZGVkCj4+Pj4+Pj4+Pj4+IGRldmljZSBpbXBsZW1lbnRhdGlvbiBpcy4KPj4+Pj4+
+Pj4+Pj4KPj4+Pj4+Pj4+Pj4gV2hlbiBpbmZsYXRpbmcgdGhlIGJhbGxvb24gYWdhaW5zdCBwYWdl
+IGNhY2hlIChpLmUuIG5vIGZyZWUKPj4+Pj4+Pj4gICBtZW1vcnkKPj4+Pj4+Pj4+Pj4gcmVtYWlu
+cykgdm1zY2FuLmMgd2lsbCBib3RoIHNocmluayBwYWdlIGNhY2hlLCBidXQgYWxzbyBpbnZva2UK
+Pj4+Pj4+Pj4gICB0aGUKPj4+Pj4+Pj4+Pj4gc2hyaW5rZXJzIC0tIGluY2x1ZGluZyB0aGUgYmFs
+bG9vbidzIHNocmlua2VyLiBTbyB0aGUgYmFsbG9vbgo+Pj4+Pj4+PiAgIGRyaXZlcgo+Pj4+Pj4+
+Pj4+PiBhbGxvY2F0ZXMgbWVtb3J5IHdoaWNoIHJlcXVpcmVzIHJlY2xhaW0sIHZtc2NhbiBnZXRz
+IHRoaXMgbWVtb3J5Cj4+Pj4+Pj4+PiBieQo+Pj4+Pj4+Pj4+PiBzaHJpbmtpbmcgdGhlIGJhbGxv
+b24sIGFuZCB0aGVuIHRoZSBkcml2ZXIgYWRkcyB0aGUgbWVtb3J5IGJhY2sKPj4+Pj4+Pj4gICB0
+bwo+Pj4+Pj4+Pj4gdGhlCj4+Pj4+Pj4+Pj4+IGJhbGxvb24uIEJhc2ljYWxseSBhIGJ1c3kgbm8t
+b3AuCj4+Pj4+Pj4+Cj4+Pj4+Pj4+ICAgUGVyIG15IHVuZGVyc3RhbmRpbmcsIHRoZSBiYWxsb29u
+IGFsbG9jYXRpb24gd29u4oCZdCBpbnZva2Ugc2hyaW5rZXIgYXMKPj4+Pj4+Pj4gICBfX0dGUF9E
+SVJFQ1RfUkVDTEFJTSBpc24ndCBzZXQsIG5vPwo+Pj4+Pj4+Pgo+Pj4+Pj4+PiBJIGNvdWxkIGJl
+IHdyb25nIGFib3V0IHRoZSBtZWNoYW5pc20sIGJ1dCB0aGUgZGV2aWNlIHNlZXMgbG90cyBvZiBh
+Y3Rpdml0eSBvbgo+Pj4+Pj4+PiB0aGUgZGVmbGF0ZSBxdWV1ZS4gVGhlIGJhbGxvb24gaXMgYmVp
+bmcgc2hydW5rLiBBbmQgdGhpcyBvbmx5IHN0YXJ0cyBvbmNlIGFsbAo+Pj4+Pj4+PiBmcmVlIG1l
+bW9yeSBpcyBkZXBsZXRlZCBhbmQgd2UncmUgaW5mbGF0aW5nIGludG8gcGFnZSBjYWNoZS4KPj4+
+Pj4+Pgo+Pj4+Pj4+IFNvIGdpdmVuIHRoaXMgbG9va3MgbGlrZSBhIHJlZ3Jlc3Npb24sIG1heWJl
+IHdlIHNob3VsZCByZXZlcnQgdGhlCj4+Pj4+Pj4gcGF0Y2ggaW4gcXVlc3Rpb24gNzE5OTQ2MjBi
+YjI1ICgidmlydGlvX2JhbGxvb246IHJlcGxhY2Ugb29tIG5vdGlmaWVyIHdpdGggc2hyaW5rZXIi
+KQo+Pj4+Pj4+IEJlc2lkZXMsIHdpdGggVklSVElPX0JBTExPT05fRl9GUkVFX1BBR0VfSElOVAo+
+Pj4+Pj4+IHNocmlua2VyIGFsc28gaWdub3JlcyBWSVJUSU9fQkFMTE9PTl9GX01VU1RfVEVMTF9I
+T1NUIHdoaWNoIGlzbid0IG5pY2UKPj4+Pj4+PiBhdCBhbGwuCj4+Pj4+Pj4KPj4+Pj4+PiBTbyBp
+dCBsb29rcyBsaWtlIGFsbCB0aGlzIHJld29yayBpbnRyb2R1Y2VkIG1vcmUgaXNzdWVzIHRoYW4g
+aXQKPj4+Pj4+PiBhZGRyZXNzZWQgLi4uCj4+Pj4+Pj4KPj4+Pj4+PiBJIGFsc28gQ0MgQWxleCBE
+dXljayBmb3IgYW4gb3BpbmlvbiBvbiB0aGlzLgo+Pj4+Pj4+IEFsZXgsIHdoYXQgZG8geW91IHVz
+ZSB0byBwdXQgcHJlc3N1cmUgb24gcGFnZSBjYWNoZT8KPj4+Pj4+Cj4+Pj4+PiBJIHdvdWxkIHNh
+eSByZXZlcnRpbmcgcHJvYmFibHkgbWFrZXMgc2Vuc2UuIEknbSBub3Qgc3VyZSB0aGVyZSBpcyBt
+dWNoCj4+Pj4+PiB2YWx1ZSB0byBoYXZpbmcgYSBzaHJpbmtlciBydW5uaW5nIGRlZmxhdGlvbiB3
+aGVuIHlvdSBhcmUgYWN0aXZlbHkgdHJ5aW5nCj4+Pj4+PiB0byBpbmNyZWFzZSB0aGUgYmFsbG9v
+bi4gSXQgd291bGQgbWFrZSBtb3JlIHNlbnNlIHRvIHdhaXQgdW50aWwgeW91IGFyZQo+Pj4+Pj4g
+YWN0dWFsbHkgYWJvdXQgdG8gc3RhcnQgaGl0dGluZyBvb20uCj4+Pj4+Cj4+Pj4+IEkgdGhpbmsg
+dGhlIHNocmlua2VyIG1ha2VzIHNlbnNlIGZvciBmcmVlIHBhZ2UgaGludGluZyBmZWF0dXJlCj4+
+Pj4+IChldmVyeXRoaW5nIG9uIGZyZWVfcGFnZV9saXN0KS4KPj4+Pj4KPj4+Pj4gU28gaW5zdGVh
+ZCBvZiBvbmx5IHJldmVydGluZywgSSB0aGluayB3ZSBzaG91bGQgc3BsaXQgaXQgdXAgYW5kIGFs
+d2F5cwo+Pj4+PiByZWdpc3RlciB0aGUgc2hyaW5rZXIgZm9yIFZJUlRJT19CQUxMT09OX0ZfRlJF
+RV9QQUdFX0hJTlQgYW5kIHRoZSBPT00KPj4+Pj4gbm90aWZpZXIgKGFzIGJlZm9yZSkgZm9yIFZJ
+UlRJT19CQUxMT09OX0ZfTVVTVF9URUxMX0hPU1QuCj4+Pj4+Cj4+Pj4+IChPZiBjb3Vyc2UsIGFk
+YXB0aW5nIHdoYXQgaXMgYmVpbmcgZG9uZSBpbiB0aGUgc2hyaW5rZXIgYW5kIGluIHRoZSBPT00K
+Pj4+Pj4gbm90aWZpZXIpCj4+Pj4KPj4+PiBEYXZpZCwKPj4+Pgo+Pj4+IFBsZWFzZSBrZWVwIG1l
+IHBvc3RlZC4gSSBkZWNpZGVkIHRvIGFkYXB0IHRoZSBzYW1lIHNvbHV0aW9uIGFzIHRoZSB2aXJ0
+aW8KPj4+PiBiYWxsb29uIGZvciB0aGUgVk13YXJlIGJhbGxvb24uIElmIHRoZSB2ZXJkaWN0IGlz
+IHRoYXQgdGhpcyBpcyBkYW1hZ2luZyBhbmQKPj4+PiB0aGUgT09NIG5vdGlmaWVyIHNob3VsZCBi
+ZSB1c2VkIGluc3RlYWQsIEkgd2lsbCBzdWJtaXQgcGF0Y2hlcyB0byBtb3ZlIHRvCj4+Pj4gT09N
+IG5vdGlmaWVyIGFzIHdlbGwuCj4+Pgo+Pj4gQWRkaW5nIHNvbWUgaW5mb3JtYXRpb24gZm9yIHRo
+ZSByZWNvcmQgKGlmIHNvbWVvbmUgZ29vZ2xlcyB0aGlzIHRocmVhZCk6Cj4+Pgo+Pj4gSW4gdGhl
+IFZNd2FyZSBiYWxsb29uIGRyaXZlciwgdGhlIHNocmlua2VyIGlzIGRpc2FibGVkIGJ5IGRlZmF1
+bHQgc2luY2Ugd2UKPj4+IGVuY291bnRlcmVkIGEgcGVyZm9ybWFuY2UgZGVncmFkYXRpb24gaW4g
+dGVzdGluZy4gSSB0cmllZCB0byBhdm9pZCByYXBpZAo+Pj4gaW5mbGF0aW9uL3Nocmlua2VyLWRl
+ZmxhdGlvbiBjeWNsZXMgYnkgYWRkaW5nIGEgdGltZW91dCwgYnV0IGFwcGFyZW50bHkgaXQKPj4+
+IGRpZCBub3QgaGVscCBpbiBhdm9pZGluZyB0aGUgcGVyZm9ybWFuY2UgcmVncmVzc2lvbi4KPj4K
+Pj4gVGhhbmtzIGZvciB0aGF0IGluZm8uIFRvIG1lIHRoYXQgc291bmRzIGxpa2UgdGhlIHNocmlu
+a2VyIGlzIHRoZSB3cm9uZwo+PiBhcHByb2FjaCB0byAiYXV0by1kZWZsYXRpb24iLiBJdCdzIG5v
+dCBqdXN0ICJzb21lIHNsYWIgY2FjaGUiLgo+IAo+IFNvIGFzIHlvdSBwb2ludGVkIG91dCB5b3Vy
+c2VsZiBkZWZsYXRlIG9uIG9vbSBpcyByZWFsbHkgdW5kZXItc3BlY2lmaWVkLgo+IAo+IEkgd291
+bGQgYmUgdmVyeSBoYXBweSBpZiB5b3UgY291bGQgdGFrZSBhIHN0dWIgYXQgZG9jdW1lbnRpbmcg
+d2hhdCdzCj4gZXhwZWN0ZWQgZnJvbSBndWVzdCBhbmQgaG93IGl0IGNvdWxkIGJlIHVzZWQuCj4g
+UGxlYXNlIGNvcHkgdGhlIHZpcnRpbyBUQyB3aGVuIHlvdSBkbyB0aGlzIGFzIHRoaXMgaXMgc3Bl
+YyBzdHVmZi4KClNvLCBJJ2xsIGZpcnN0IGdldCB0aGUgY29kZSBiYWNrIGludG8gdGhlIGRlc2ly
+ZWQgc3RhdGUsIHNvIGF0IGxlYXN0IHdlCmhhdmUgYW4gYWdyZWVtZW50IG9mIGhvdyBpdCBzaG91
+bGQgYmUsIGFuZCB0aGVuIGZvbGxvdyB1cCB3aXRoIGEgc3BlYwp1cGRhdGUuCgpNaWdodCB0YWtl
+IHNvbWUgdGltZSwgdGhvdWdoIChwbGVudHkgb2Ygc3R1ZmYgdG8gZG8pLgoKLS0gClRoYW5rcywK
+CkRhdmlkIC8gZGhpbGRlbmIKCl9fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19f
+X19fX19fX19fClZpcnR1YWxpemF0aW9uIG1haWxpbmcgbGlzdApWaXJ0dWFsaXphdGlvbkBsaXN0
+cy5saW51eC1mb3VuZGF0aW9uLm9yZwpodHRwczovL2xpc3RzLmxpbnV4Zm91bmRhdGlvbi5vcmcv
+bWFpbG1hbi9saXN0aW5mby92aXJ0dWFsaXphdGlvbg==
