@@ -1,112 +1,126 @@
 From: David Hildenbrand <david@redhat.com>
 Subject: Re: Balloon pressuring page cache
-Date: Wed, 5 Feb 2020 09:19:58 +0100
-Message-ID: <dd5aa189-daed-7008-d02b-4e5bd61fe6e1@redhat.com>
-References: <CAJuQAmpDUyve2S+oxp9tLUhuRcnddXnNztC5PmYOOCpY6c68xg@mail.gmail.com>
- <91270a68-ff48-88b0-219c-69801f0c252f@redhat.com>
- <CAJuQAmoaK0Swytu2Os_SQRfG5_LqiCPaDa9yatatm9MtfncNTQ@mail.gmail.com>
- <75d4594f-0864-5172-a0f8-f97affedb366@redhat.com>
- <286AC319A985734F985F78AFA26841F73E3F8A02@shsmsx102.ccr.corp.intel.com>
- <CAJuQAmqcayaNuG19fKCuux=YVO3+VcN-qrXvobgKMykogeMkzA@mail.gmail.com>
+Date: Wed, 5 Feb 2020 09:31:47 +0100
+Message-ID: <6ed307d1-cad1-c6d7-d4dd-2a1f0bd9fcb8@redhat.com>
+References: <CAJuQAmqcayaNuG19fKCuux=YVO3+VcN-qrXvobgKMykogeMkzA@mail.gmail.com>
  <20200203080520-mutt-send-email-mst@kernel.org>
  <5ac131de8e3b7fc1fafd05a61feb5f6889aeb917.camel@linux.intel.com>
  <c836a8d1-c5cc-eb8b-84ed-027070b77bf8@redhat.com>
  <539B606A-A0CA-4AA4-B99A-759C874A1EF8@vmware.com>
- <08D323B9-0B4A-47B2-9955-511B8FBA056B@vmware.com>
+ <d69eafb4-ad0d-1617-9248-ea4fc776da58@redhat.com>
+ <20200204033657-mutt-send-email-mst@kernel.org>
+ <ce93331c-0099-dda7-e00f-126bf7826a40@redhat.com>
+ <20200204114336-mutt-send-email-mst@kernel.org>
+ <a94fe61e-e015-49f7-b6c1-3c5aff727996@redhat.com>
+ <20200204135817-mutt-send-email-mst@kernel.org>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="utf-8"
-Content-Transfer-Encoding: base64
-Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <08D323B9-0B4A-47B2-9955-511B8FBA056B@vmware.com>
+Content-Type: text/plain; charset=utf-8
+Content-Transfer-Encoding: quoted-printable
+Return-path: <virtio-dev-return-6698-gcvd-virtio-dev=m.gmane-mx.org@lists.oasis-open.org>
+Sender: <virtio-dev@lists.oasis-open.org>
+List-Post: <mailto:virtio-dev@lists.oasis-open.org>
+List-Help: <mailto:virtio-dev-help@lists.oasis-open.org>
+List-Unsubscribe: <mailto:virtio-dev-unsubscribe@lists.oasis-open.org>
+List-Subscribe: <mailto:virtio-dev-subscribe@lists.oasis-open.org>
+In-Reply-To: <20200204135817-mutt-send-email-mst@kernel.org>
 Content-Language: en-US
-List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
- <mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
-List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
-List-Post: <mailto:virtualization@lists.linux-foundation.org>
-List-Help: <mailto:virtualization-request@lists.linux-foundation.org?subject=help>
-List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualization>,
- <mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
-Errors-To: virtualization-bounces@lists.linux-foundation.org
-Sender: "Virtualization" <virtualization-bounces@lists.linux-foundation.org>
-To: Nadav Amit <namit@vmware.com>
-Cc: "Michael S. Tsirkin" <mst@redhat.com>, "virtualization@lists.linux-foundation.org" <virtualization@lists.linux-foundation.org>, Tyler Sanderson <tysand@google.com>, "linux-mm@kvack.org" <linux-mm@kvack.org>, David Rientjes <rientjes@google.com>, Alexander Duyck <alexander.h.duyck@linux.intel.com>, Michal Hocko <mhocko@kernel.org>
+To: "Michael S. Tsirkin" <mst@redhat.com>
+Cc: Nadav Amit <namit@vmware.com>, Alexander Duyck <alexander.h.duyck@linux.intel.com>, Tyler Sanderson <tysand@google.com>, "Wang, Wei W" <wei.w.wang@intel.com>, "virtualization@lists.linux-foundation.org" <virtualization@lists.linux-foundation.org>, David Rientjes <rientjes@google.com>, "linux-mm@kvack.org" <linux-mm@kvack.org>, Michal Hocko <mhocko@kernel.org>, virtio-dev@lists.oasis-open.org
 List-Id: virtualization@lists.linuxfoundation.org
 
-T24gMDUuMDIuMjAgMDg6MzUsIE5hZGF2IEFtaXQgd3JvdGU6Cj4+IE9uIEZlYiAzLCAyMDIwLCBh
-dCAyOjUwIFBNLCBOYWRhdiBBbWl0IDxuYW1pdEB2bXdhcmUuY29tPiB3cm90ZToKPj4KPj4+IE9u
-IEZlYiAzLCAyMDIwLCBhdCA4OjM0IEFNLCBEYXZpZCBIaWxkZW5icmFuZCA8ZGF2aWRAcmVkaGF0
-LmNvbT4gd3JvdGU6Cj4+Pgo+Pj4gT24gMDMuMDIuMjAgMTc6MTgsIEFsZXhhbmRlciBEdXljayB3
-cm90ZToKPj4+PiBPbiBNb24sIDIwMjAtMDItMDMgYXQgMDg6MTEgLTA1MDAsIE1pY2hhZWwgUy4g
-VHNpcmtpbiB3cm90ZToKPj4+Pj4gT24gVGh1LCBKYW4gMzAsIDIwMjAgYXQgMTE6NTk6NDZBTSAt
-MDgwMCwgVHlsZXIgU2FuZGVyc29uIHdyb3RlOgo+Pj4+Pj4gT24gVGh1LCBKYW4gMzAsIDIwMjAg
-YXQgNzozMSBBTSBXYW5nLCBXZWkgVyA8d2VpLncud2FuZ0BpbnRlbC5jb20+IHdyb3RlOgo+Pj4+
-Pj4KPj4+Pj4+ICAgT24gVGh1cnNkYXksIEphbnVhcnkgMzAsIDIwMjAgMTE6MDMgUE0sIERhdmlk
-IEhpbGRlbmJyYW5kIHdyb3RlOgo+Pj4+Pj4+IE9uIDI5LjAxLjIwIDIwOjExLCBUeWxlciBTYW5k
-ZXJzb24gd3JvdGU6Cj4+Pj4+Pj4+IE9uIFdlZCwgSmFuIDI5LCAyMDIwIGF0IDI6MzEgQU0gRGF2
-aWQgSGlsZGVuYnJhbmQgPGRhdmlkQHJlZGhhdC5jb20KPj4+Pj4+Pj4gPG1haWx0bzpkYXZpZEBy
-ZWRoYXQuY29tPj4gd3JvdGU6Cj4+Pj4+Pj4+Cj4+Pj4+Pj4+ICAgT24gMjkuMDEuMjAgMDE6MjIs
-IFR5bGVyIFNhbmRlcnNvbiB2aWEgVmlydHVhbGl6YXRpb24gd3JvdGU6Cj4+Pj4+Pj4+PiBBIHBy
-aW1hcnkgYWR2YW50YWdlIG9mIHZpcnRpbyBiYWxsb29uIG92ZXIgb3RoZXIgbWVtb3J5IHJlY2xh
-aW0KPj4+Pj4+Pj4+IG1lY2hhbmlzbXMgaXMgdGhhdCBpdCBjYW4gcHJlc3N1cmUgdGhlIGd1ZXN0
-J3MgcGFnZSBjYWNoZSBpbnRvCj4+Pj4+Pj4+ICAgc2hyaW5raW5nLgo+Pj4+Pj4+Pj4gSG93ZXZl
-ciwgc2luY2UgdGhlIGJhbGxvb24gZHJpdmVyIGNoYW5nZWQgdG8gdXNpbmcgdGhlIHNocmlua2Vy
-Cj4+Pj4+PiAgIEFQSQo+Pj4+Pj4+IDxodHRwczovL2dpdGh1Yi5jb20vdG9ydmFsZHMvbGludXgv
-Y29tbWl0LzcxOTk0NjIwYmIyNWE4YjEwOTM4OGZlZmE5Cj4+Pj4+Pj4gZTk5YTI4ZTM1NTI1NWEj
-ZGlmZi1mZDIwMmFjZjY5NGQ5ZWJhMTljOGM2NGRhM2U0ODBjOT4gdGhpcwo+Pj4+Pj4+Pj4gdXNl
-IGNhc2UgaGFzIGJlY29tZSBhIGJpdCBtb3JlIHRyaWNreS4gSSdtIHdvbmRlcmluZyB3aGF0IHRo
-ZQo+Pj4+Pj4+IGludGVuZGVkCj4+Pj4+Pj4+PiBkZXZpY2UgaW1wbGVtZW50YXRpb24gaXMuCj4+
-Pj4+Pj4+Pgo+Pj4+Pj4+Pj4gV2hlbiBpbmZsYXRpbmcgdGhlIGJhbGxvb24gYWdhaW5zdCBwYWdl
-IGNhY2hlIChpLmUuIG5vIGZyZWUKPj4+Pj4+ICAgbWVtb3J5Cj4+Pj4+Pj4+PiByZW1haW5zKSB2
-bXNjYW4uYyB3aWxsIGJvdGggc2hyaW5rIHBhZ2UgY2FjaGUsIGJ1dCBhbHNvIGludm9rZQo+Pj4+
-Pj4gICB0aGUKPj4+Pj4+Pj4+IHNocmlua2VycyAtLSBpbmNsdWRpbmcgdGhlIGJhbGxvb24ncyBz
-aHJpbmtlci4gU28gdGhlIGJhbGxvb24KPj4+Pj4+ICAgZHJpdmVyCj4+Pj4+Pj4+PiBhbGxvY2F0
-ZXMgbWVtb3J5IHdoaWNoIHJlcXVpcmVzIHJlY2xhaW0sIHZtc2NhbiBnZXRzIHRoaXMgbWVtb3J5
-Cj4+Pj4+Pj4gYnkKPj4+Pj4+Pj4+IHNocmlua2luZyB0aGUgYmFsbG9vbiwgYW5kIHRoZW4gdGhl
-IGRyaXZlciBhZGRzIHRoZSBtZW1vcnkgYmFjawo+Pj4+Pj4gICB0bwo+Pj4+Pj4+IHRoZQo+Pj4+
-Pj4+Pj4gYmFsbG9vbi4gQmFzaWNhbGx5IGEgYnVzeSBuby1vcC4KPj4+Pj4+Cj4+Pj4+PiAgIFBl
-ciBteSB1bmRlcnN0YW5kaW5nLCB0aGUgYmFsbG9vbiBhbGxvY2F0aW9uIHdvbuKAmXQgaW52b2tl
-IHNocmlua2VyIGFzCj4+Pj4+PiAgIF9fR0ZQX0RJUkVDVF9SRUNMQUlNIGlzbid0IHNldCwgbm8/
-Cj4+Pj4+Pgo+Pj4+Pj4gSSBjb3VsZCBiZSB3cm9uZyBhYm91dCB0aGUgbWVjaGFuaXNtLCBidXQg
-dGhlIGRldmljZSBzZWVzIGxvdHMgb2YgYWN0aXZpdHkgb24KPj4+Pj4+IHRoZSBkZWZsYXRlIHF1
-ZXVlLiBUaGUgYmFsbG9vbiBpcyBiZWluZyBzaHJ1bmsuIEFuZCB0aGlzIG9ubHkgc3RhcnRzIG9u
-Y2UgYWxsCj4+Pj4+PiBmcmVlIG1lbW9yeSBpcyBkZXBsZXRlZCBhbmQgd2UncmUgaW5mbGF0aW5n
-IGludG8gcGFnZSBjYWNoZS4KPj4+Pj4KPj4+Pj4gU28gZ2l2ZW4gdGhpcyBsb29rcyBsaWtlIGEg
-cmVncmVzc2lvbiwgbWF5YmUgd2Ugc2hvdWxkIHJldmVydCB0aGUKPj4+Pj4gcGF0Y2ggaW4gcXVl
-c3Rpb24gNzE5OTQ2MjBiYjI1ICgidmlydGlvX2JhbGxvb246IHJlcGxhY2Ugb29tIG5vdGlmaWVy
-IHdpdGggc2hyaW5rZXIiKQo+Pj4+PiBCZXNpZGVzLCB3aXRoIFZJUlRJT19CQUxMT09OX0ZfRlJF
-RV9QQUdFX0hJTlQKPj4+Pj4gc2hyaW5rZXIgYWxzbyBpZ25vcmVzIFZJUlRJT19CQUxMT09OX0Zf
-TVVTVF9URUxMX0hPU1Qgd2hpY2ggaXNuJ3QgbmljZQo+Pj4+PiBhdCBhbGwuCj4+Pj4+Cj4+Pj4+
-IFNvIGl0IGxvb2tzIGxpa2UgYWxsIHRoaXMgcmV3b3JrIGludHJvZHVjZWQgbW9yZSBpc3N1ZXMg
-dGhhbiBpdAo+Pj4+PiBhZGRyZXNzZWQgLi4uCj4+Pj4+Cj4+Pj4+IEkgYWxzbyBDQyBBbGV4IER1
-eWNrIGZvciBhbiBvcGluaW9uIG9uIHRoaXMuCj4+Pj4+IEFsZXgsIHdoYXQgZG8geW91IHVzZSB0
-byBwdXQgcHJlc3N1cmUgb24gcGFnZSBjYWNoZT8KPj4+Pgo+Pj4+IEkgd291bGQgc2F5IHJldmVy
-dGluZyBwcm9iYWJseSBtYWtlcyBzZW5zZS4gSSdtIG5vdCBzdXJlIHRoZXJlIGlzIG11Y2gKPj4+
-PiB2YWx1ZSB0byBoYXZpbmcgYSBzaHJpbmtlciBydW5uaW5nIGRlZmxhdGlvbiB3aGVuIHlvdSBh
-cmUgYWN0aXZlbHkgdHJ5aW5nCj4+Pj4gdG8gaW5jcmVhc2UgdGhlIGJhbGxvb24uIEl0IHdvdWxk
-IG1ha2UgbW9yZSBzZW5zZSB0byB3YWl0IHVudGlsIHlvdSBhcmUKPj4+PiBhY3R1YWxseSBhYm91
-dCB0byBzdGFydCBoaXR0aW5nIG9vbS4KPj4+Cj4+PiBJIHRoaW5rIHRoZSBzaHJpbmtlciBtYWtl
-cyBzZW5zZSBmb3IgZnJlZSBwYWdlIGhpbnRpbmcgZmVhdHVyZQo+Pj4gKGV2ZXJ5dGhpbmcgb24g
-ZnJlZV9wYWdlX2xpc3QpLgo+Pj4KPj4+IFNvIGluc3RlYWQgb2Ygb25seSByZXZlcnRpbmcsIEkg
-dGhpbmsgd2Ugc2hvdWxkIHNwbGl0IGl0IHVwIGFuZCBhbHdheXMKPj4+IHJlZ2lzdGVyIHRoZSBz
-aHJpbmtlciBmb3IgVklSVElPX0JBTExPT05fRl9GUkVFX1BBR0VfSElOVCBhbmQgdGhlIE9PTQo+
-Pj4gbm90aWZpZXIgKGFzIGJlZm9yZSkgZm9yIFZJUlRJT19CQUxMT09OX0ZfTVVTVF9URUxMX0hP
-U1QuCj4+Pgo+Pj4gKE9mIGNvdXJzZSwgYWRhcHRpbmcgd2hhdCBpcyBiZWluZyBkb25lIGluIHRo
-ZSBzaHJpbmtlciBhbmQgaW4gdGhlIE9PTQo+Pj4gbm90aWZpZXIpCj4+Cj4+IERhdmlkLAo+Pgo+
-PiBQbGVhc2Uga2VlcCBtZSBwb3N0ZWQuIEkgZGVjaWRlZCB0byBhZGFwdCB0aGUgc2FtZSBzb2x1
-dGlvbiBhcyB0aGUgdmlydGlvCj4+IGJhbGxvb24gZm9yIHRoZSBWTXdhcmUgYmFsbG9vbi4gSWYg
-dGhlIHZlcmRpY3QgaXMgdGhhdCB0aGlzIGlzIGRhbWFnaW5nIGFuZAo+PiB0aGUgT09NIG5vdGlm
-aWVyIHNob3VsZCBiZSB1c2VkIGluc3RlYWQsIEkgd2lsbCBzdWJtaXQgcGF0Y2hlcyB0byBtb3Zl
-IHRvCj4+IE9PTSBub3RpZmllciBhcyB3ZWxsLgo+IAo+IEFkZGluZyBzb21lIGluZm9ybWF0aW9u
-IGZvciB0aGUgcmVjb3JkIChpZiBzb21lb25lIGdvb2dsZXMgdGhpcyB0aHJlYWQpOgo+IAo+IElu
-IHRoZSBWTXdhcmUgYmFsbG9vbiBkcml2ZXIsIHRoZSBzaHJpbmtlciBpcyBkaXNhYmxlZCBieSBk
-ZWZhdWx0IHNpbmNlIHdlCj4gZW5jb3VudGVyZWQgYSBwZXJmb3JtYW5jZSBkZWdyYWRhdGlvbiBp
-biB0ZXN0aW5nLiBJIHRyaWVkIHRvIGF2b2lkIHJhcGlkCj4gaW5mbGF0aW9uL3Nocmlua2VyLWRl
-ZmxhdGlvbiBjeWNsZXMgYnkgYWRkaW5nIGEgdGltZW91dCwgYnV0IGFwcGFyZW50bHkgaXQKPiBk
-aWQgbm90IGhlbHAgaW4gYXZvaWRpbmcgdGhlIHBlcmZvcm1hbmNlIHJlZ3Jlc3Npb24uCgpUaGFu
-a3MgZm9yIHRoYXQgaW5mby4gVG8gbWUgdGhhdCBzb3VuZHMgbGlrZSB0aGUgc2hyaW5rZXIgaXMg
-dGhlIHdyb25nCmFwcHJvYWNoIHRvICJhdXRvLWRlZmxhdGlvbiIuIEl0J3Mgbm90IGp1c3QgInNv
-bWUgc2xhYiBjYWNoZSIuCgoKLS0gClRoYW5rcywKCkRhdmlkIC8gZGhpbGRlbmIKCl9fX19fX19f
-X19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fClZpcnR1YWxpemF0aW9uIG1h
-aWxpbmcgbGlzdApWaXJ0dWFsaXphdGlvbkBsaXN0cy5saW51eC1mb3VuZGF0aW9uLm9yZwpodHRw
-czovL2xpc3RzLmxpbnV4Zm91bmRhdGlvbi5vcmcvbWFpbG1hbi9saXN0aW5mby92aXJ0dWFsaXph
-dGlvbg==
+On 04.02.20 21:33, Michael S. Tsirkin wrote:
+> On Tue, Feb 04, 2020 at 05:56:22PM +0100, David Hildenbrand wrote:
+>> [...]
+>>
+>>>>
+>>>> Issue 2: When called via the shrinker, (but also to fix Issue 1), it c=
+ould be
+>>>> that we do have VIRTIO_BALLOON_F_MUST_TELL_HOST. I assume this means
+>>>> (-ENOCLUE) that we have to wait until the hypervisor notifies us via t=
+he STOP? Or
+>>>> for which event do we have to wait? Because there is no way to *tell h=
+ost* here
+>>>> that we want to reuse a page. The hypervisor will *tell us* when we ca=
+n reuse pages.
+>>>> For the shrinker it is simple: Don't use the shrinker with
+>>>> VIRTIO_BALLOON_F_MUST_TELL_HOST :) . But to fix Issue 1, we *would* ha=
+ve to wait
+>>>> until we get a STOP signal. That is not really possible because it mig=
+ht
+>>>> take an infinite amount of time.
+>>>>
+>>>> Michael, any clue on which event we have to wait with
+>>>> VIRTIO_BALLOON_F_MUST_TELL_HOST? IMHO, I don't think
+>>>> VIRTIO_BALLOON_F_MUST_TELL_HOST applies to VIRTIO_BALLOON_F_FREE_PAGE_=
+HINT and
+>>>> we'd better document that. It introduces complexity with no clear bene=
+fit.
+>>>
+>>> I meant that we must wait for host to see the hint. Signalled via using
+>>> the buffer.  But maybe that's too far in the meaning from
+>>> VIRTIO_BALLOON_F_MUST_TELL_HOST and we need a separate new flag for
+>>
+>> Yes, that's what I think.
+>>
+>>> that. Then current code won't be broken (yay!) but we need to
+>>> document another flag that's pretty similar.
+>>
+>> I mean, do we need a flag at all as long as there is no user?
+>> Introducing a flag and documenting it if nobody uses it does not sound
+>> like a work I will enjoy :)
+>=20
+> It's not the user. It's the non-orthogonality that I find inelegant.
+>=20
+> Let me try to formulate the issue, forgive me for thinking aloud
+> (and I Cc'd virtio-dev since we are talking spec things here):
+>=20
+> The annoying thing is that with Alex's VIRTIO_BALLOON_F_REPORTING
+> host does depend on guest not touching memory before host uses it.
+> So functionally VIRTIO_BALLOON_F_FREE_PAGE_HINT and
+> VIRTIO_BALLOON_F_REPORTING really are supposed to do
+> exectly the same thing, with the differences being
+> - VIRTIO_BALLOON_F_FREE_PAGE_HINT comes upon host's request.
+>   VIRTIO_BALLOON_F_REPORTING is initiated by guest.
+> - VIRTIO_BALLOON_F_FREE_PAGE_HINT does not always wait for
+>   host to use the hint before touching the page.
+>   Well it almost always does, but there's an exception in the
+>   shrinker which tries to stop reporting as quickly as possible
+>   in the case of a slow host.
+>   VIRTIO_BALLOON_F_REPORTING always does.
+>   This means host can blow the page away when it sees the hint.
+>=20
+> Now the point is that with VIRTIO_BALLOON_F_REPORTING
+> I think you really must wait for host to use the hint.
+> But with VIRTIO_BALLOON_F_FREE_PAGE_HINT it depends
+> on how host uses it. Something to think about,
+> I'm not sure what is the best thing to do here.
+
+
+I think VIRTIO_BALLOON_F_FREE_PAGE_HINT is really the special case and
+shall be left alone (not messed with VIRTIO_BALLOON_F_MUST_TELL_HOST).
+Initiated by the host, complicated protocol and semantics, guest can
+reuse pages any time it wants ("hint").
+
+VIRTIO_BALLOON_F_REPORTING is *basically* ordinary inflation on
+stereoids (be able to report a size for each page and multiple pages in
+one go) BUT, we can currently *never* have
+VIRTIO_BALLOON_F_MUST_TELL_HOST semantics - there is no deflation.
+
+We could rename VIRTIO_BALLOON_F_REPORTING to something like
+VIRTIO_BALLOON_F_SIZE and make it obey to
+VIRTIO_BALLOON_F_MUST_TELL_HOST (meaning, there would have to be a
+deflate queue as well!) - but it contradicts to the real needs.
+VIRTIO_BALLOON_F_REPORTING comnbined with
+VIRTIO_BALLOON_F_MUST_TELL_HOST would not be usable by Linux for free
+page reporting.
+
+Well, as QEMU never sets VIRTIO_BALLOON_F_MUST_TELL_HOST we would be
+fine. Alexander would have to add an inflate+deflate queue and make his
+feature depend on !VIRTIO_BALLOON_F_MUST_TELL_HOST.
+
+Is that the consistency you're looking for? Alexander, thoughts?
+
+--=20
+Thanks,
+
+David / dhildenb
