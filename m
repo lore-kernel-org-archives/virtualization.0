@@ -1,88 +1,112 @@
-From: Jason Wang <jasowang@redhat.com>
-Subject: Re: [PATCH] vhost: introduce vDPA based backend
-Date: Wed, 5 Feb 2020 15:50:14 +0800
-Message-ID: <112858a4-1a01-f4d7-e41a-1afaaa1cad45@redhat.com>
-References: <20200131033651.103534-1-tiwei.bie@intel.com>
- <7aab2892-bb19-a06a-a6d3-9c28bc4c3400@redhat.com>
- <20200205020247.GA368700@___>
- <AM0PR0502MB37952015716C1D5E07E390B6C3020@AM0PR0502MB3795.eurprd05.prod.outlook.com>
+From: Nadav Amit via Virtualization <virtualization@lists.linux-foundation.org>
+Subject: Re: Balloon pressuring page cache
+Date: Wed, 5 Feb 2020 07:35:24 +0000
+Message-ID: <08D323B9-0B4A-47B2-9955-511B8FBA056B@vmware.com>
+References: <CAJuQAmpDUyve2S+oxp9tLUhuRcnddXnNztC5PmYOOCpY6c68xg@mail.gmail.com>
+ <91270a68-ff48-88b0-219c-69801f0c252f@redhat.com>
+ <CAJuQAmoaK0Swytu2Os_SQRfG5_LqiCPaDa9yatatm9MtfncNTQ@mail.gmail.com>
+ <75d4594f-0864-5172-a0f8-f97affedb366@redhat.com>
+ <286AC319A985734F985F78AFA26841F73E3F8A02@shsmsx102.ccr.corp.intel.com>
+ <CAJuQAmqcayaNuG19fKCuux=YVO3+VcN-qrXvobgKMykogeMkzA@mail.gmail.com>
+ <20200203080520-mutt-send-email-mst@kernel.org>
+ <5ac131de8e3b7fc1fafd05a61feb5f6889aeb917.camel@linux.intel.com>
+ <c836a8d1-c5cc-eb8b-84ed-027070b77bf8@redhat.com>
+ <539B606A-A0CA-4AA4-B99A-759C874A1EF8@vmware.com>
+Reply-To: Nadav Amit <namit@vmware.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=utf-8; format=flowed
-Content-Transfer-Encoding: quoted-printable
-Return-path: <linux-kernel-owner@vger.kernel.org>
-In-Reply-To: <AM0PR0502MB37952015716C1D5E07E390B6C3020@AM0PR0502MB3795.eurprd05.prod.outlook.com>
+Content-Type: text/plain; charset="utf-8"
+Content-Transfer-Encoding: base64
+Return-path: <virtualization-bounces@lists.linux-foundation.org>
+In-Reply-To: <539B606A-A0CA-4AA4-B99A-759C874A1EF8@vmware.com>
 Content-Language: en-US
-Sender: linux-kernel-owner@vger.kernel.org
-To: Shahaf Shuler <shahafs@mellanox.com>, Tiwei Bie <tiwei.bie@intel.com>
-Cc: "mst@redhat.com" <mst@redhat.com>, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>, "kvm@vger.kernel.org" <kvm@vger.kernel.org>, "virtualization@lists.linux-foundation.org" <virtualization@lists.linux-foundation.org>, "netdev@vger.kernel.org" <netdev@vger.kernel.org>, Jason Gunthorpe <jgg@mellanox.com>, "rob.miller@broadcom.com" <rob.miller@broadcom.com>, "haotian.wang@sifive.com" <haotian.wang@sifive.com>, "eperezma@redhat.com" <eperezma@redhat.com>, "lulu@redhat.com" <lulu@redhat.com>, Parav Pandit <parav@mellanox.com>, "rdunlap@infradead.org" <rdunlap@infradead.org>, "hch@infradead.org" <hch@infradead.org>, Jiri Pirko <jiri@mellanox.com>, "hanand@xilinx.com" <hanand@xilinx.com>, "mhabets@solarflare.com" <mhabets@solarflare.com>ma
+Content-ID: <C60F3DEE54DE9644B2F008073CDF3EA6@namprd05.prod.outlook.com>
+List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
+ <mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
+List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
+List-Post: <mailto:virtualization@lists.linux-foundation.org>
+List-Help: <mailto:virtualization-request@lists.linux-foundation.org?subject=help>
+List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualization>,
+ <mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
+Errors-To: virtualization-bounces@lists.linux-foundation.org
+Sender: "Virtualization" <virtualization-bounces@lists.linux-foundation.org>
+To: David Hildenbrand <david@redhat.com>
+Cc: "Michael S. Tsirkin" <mst@redhat.com>, "virtualization@lists.linux-foundation.org" <virtualization@lists.linux-foundation.org>, Tyler Sanderson <tysand@google.com>, "linux-mm@kvack.org" <linux-mm@kvack.org>, David Rientjes <rientjes@google.com>, Alexander Duyck <alexander.h.duyck@linux.intel.com>, Michal Hocko <mhocko@kernel.org>
 List-Id: virtualization@lists.linuxfoundation.org
 
-
-On 2020/2/5 =E4=B8=8B=E5=8D=883:15, Shahaf Shuler wrote:
-> Wednesday, February 5, 2020 4:03 AM, Tiwei Bie:
->> Subject: Re: [PATCH] vhost: introduce vDPA based backend
->>
->> On Tue, Feb 04, 2020 at 11:30:11AM +0800, Jason Wang wrote:
->>> On 2020/1/31 =E4=B8=8A=E5=8D=8811:36, Tiwei Bie wrote:
->>>> This patch introduces a vDPA based vhost backend. This backend is
->>>> built on top of the same interface defined in virtio-vDPA and
->>>> provides a generic vhost interface for userspace to accelerate the
->>>> virtio devices in guest.
->>>>
->>>> This backend is implemented as a vDPA device driver on top of the
->>>> same ops used in virtio-vDPA. It will create char device entry named
->>>> vhost-vdpa/$vdpa_device_index for userspace to use. Userspace can
->>>> use vhost ioctls on top of this char device to setup the backend.
->>>>
->>>> Signed-off-by: Tiwei Bie <tiwei.bie@intel.com>
-> [...]
->
->>>> +static long vhost_vdpa_do_dma_mapping(struct vhost_vdpa *v) {
->>>> +	/* TODO: fix this */
->>>
->>> Before trying to do this it looks to me we need the following during
->>> the probe
->>>
->>> 1) if set_map() is not supported by the vDPA device probe the IOMMU
->>> that is supported by the vDPA device
->>> 2) allocate IOMMU domain
->>>
->>> And then:
->>>
->>> 3) pin pages through GUP and do proper accounting
->>> 4) store GPA->HPA mapping in the umem
->>> 5) generate diffs of memory table and using IOMMU API to setup the dm=
-a
->>> mapping in this method
->>>
->>> For 1), I'm not sure parent is sufficient for to doing this or need t=
-o
->>> introduce new API like iommu_device in mdev.
->> Agree. We may also need to introduce something like the iommu_device.
->>
-> Would it be better for the map/umnap logic to happen inside each device=
- ?
-> Devices that needs the IOMMU will call iommu APIs from inside the drive=
-r callback.
-
-
-Technically, this can work. But if it can be done by vhost-vpda it will=20
-make the vDPA driver more compact and easier to be implemented.
-
-
-> Devices that has other ways to do the DMA mapping will call the proprie=
-tary APIs.
-
-
-To confirm, do you prefer:
-
-1) map/unmap
-
-or
-
-2) pass all maps at one time?
-
-Thanks
-
-
->
+PiBPbiBGZWIgMywgMjAyMCwgYXQgMjo1MCBQTSwgTmFkYXYgQW1pdCA8bmFtaXRAdm13YXJlLmNv
+bT4gd3JvdGU6DQo+IA0KPj4gT24gRmViIDMsIDIwMjAsIGF0IDg6MzQgQU0sIERhdmlkIEhpbGRl
+bmJyYW5kIDxkYXZpZEByZWRoYXQuY29tPiB3cm90ZToNCj4+IA0KPj4gT24gMDMuMDIuMjAgMTc6
+MTgsIEFsZXhhbmRlciBEdXljayB3cm90ZToNCj4+PiBPbiBNb24sIDIwMjAtMDItMDMgYXQgMDg6
+MTEgLTA1MDAsIE1pY2hhZWwgUy4gVHNpcmtpbiB3cm90ZToNCj4+Pj4gT24gVGh1LCBKYW4gMzAs
+IDIwMjAgYXQgMTE6NTk6NDZBTSAtMDgwMCwgVHlsZXIgU2FuZGVyc29uIHdyb3RlOg0KPj4+Pj4g
+T24gVGh1LCBKYW4gMzAsIDIwMjAgYXQgNzozMSBBTSBXYW5nLCBXZWkgVyA8d2VpLncud2FuZ0Bp
+bnRlbC5jb20+IHdyb3RlOg0KPj4+Pj4gDQo+Pj4+PiAgIE9uIFRodXJzZGF5LCBKYW51YXJ5IDMw
+LCAyMDIwIDExOjAzIFBNLCBEYXZpZCBIaWxkZW5icmFuZCB3cm90ZToNCj4+Pj4+PiBPbiAyOS4w
+MS4yMCAyMDoxMSwgVHlsZXIgU2FuZGVyc29uIHdyb3RlOg0KPj4+Pj4+PiBPbiBXZWQsIEphbiAy
+OSwgMjAyMCBhdCAyOjMxIEFNIERhdmlkIEhpbGRlbmJyYW5kIDxkYXZpZEByZWRoYXQuY29tDQo+
+Pj4+Pj4+IDxtYWlsdG86ZGF2aWRAcmVkaGF0LmNvbT4+IHdyb3RlOg0KPj4+Pj4+PiANCj4+Pj4+
+Pj4gICBPbiAyOS4wMS4yMCAwMToyMiwgVHlsZXIgU2FuZGVyc29uIHZpYSBWaXJ0dWFsaXphdGlv
+biB3cm90ZToNCj4+Pj4+Pj4+IEEgcHJpbWFyeSBhZHZhbnRhZ2Ugb2YgdmlydGlvIGJhbGxvb24g
+b3ZlciBvdGhlciBtZW1vcnkgcmVjbGFpbQ0KPj4+Pj4+Pj4gbWVjaGFuaXNtcyBpcyB0aGF0IGl0
+IGNhbiBwcmVzc3VyZSB0aGUgZ3Vlc3QncyBwYWdlIGNhY2hlIGludG8NCj4+Pj4+Pj4gICBzaHJp
+bmtpbmcuDQo+Pj4+Pj4+PiBIb3dldmVyLCBzaW5jZSB0aGUgYmFsbG9vbiBkcml2ZXIgY2hhbmdl
+ZCB0byB1c2luZyB0aGUgc2hyaW5rZXINCj4+Pj4+ICAgQVBJDQo+Pj4+Pj4gPGh0dHBzOi8vZ2l0
+aHViLmNvbS90b3J2YWxkcy9saW51eC9jb21taXQvNzE5OTQ2MjBiYjI1YThiMTA5Mzg4ZmVmYTkN
+Cj4+Pj4+PiBlOTlhMjhlMzU1MjU1YSNkaWZmLWZkMjAyYWNmNjk0ZDllYmExOWM4YzY0ZGEzZTQ4
+MGM5PiB0aGlzDQo+Pj4+Pj4+PiB1c2UgY2FzZSBoYXMgYmVjb21lIGEgYml0IG1vcmUgdHJpY2t5
+LiBJJ20gd29uZGVyaW5nIHdoYXQgdGhlDQo+Pj4+Pj4gaW50ZW5kZWQNCj4+Pj4+Pj4+IGRldmlj
+ZSBpbXBsZW1lbnRhdGlvbiBpcy4NCj4+Pj4+Pj4+IA0KPj4+Pj4+Pj4gV2hlbiBpbmZsYXRpbmcg
+dGhlIGJhbGxvb24gYWdhaW5zdCBwYWdlIGNhY2hlIChpLmUuIG5vIGZyZWUNCj4+Pj4+ICAgbWVt
+b3J5DQo+Pj4+Pj4+PiByZW1haW5zKSB2bXNjYW4uYyB3aWxsIGJvdGggc2hyaW5rIHBhZ2UgY2Fj
+aGUsIGJ1dCBhbHNvIGludm9rZQ0KPj4+Pj4gICB0aGUNCj4+Pj4+Pj4+IHNocmlua2VycyAtLSBp
+bmNsdWRpbmcgdGhlIGJhbGxvb24ncyBzaHJpbmtlci4gU28gdGhlIGJhbGxvb24NCj4+Pj4+ICAg
+ZHJpdmVyDQo+Pj4+Pj4+PiBhbGxvY2F0ZXMgbWVtb3J5IHdoaWNoIHJlcXVpcmVzIHJlY2xhaW0s
+IHZtc2NhbiBnZXRzIHRoaXMgbWVtb3J5DQo+Pj4+Pj4gYnkNCj4+Pj4+Pj4+IHNocmlua2luZyB0
+aGUgYmFsbG9vbiwgYW5kIHRoZW4gdGhlIGRyaXZlciBhZGRzIHRoZSBtZW1vcnkgYmFjaw0KPj4+
+Pj4gICB0bw0KPj4+Pj4+IHRoZQ0KPj4+Pj4+Pj4gYmFsbG9vbi4gQmFzaWNhbGx5IGEgYnVzeSBu
+by1vcC4NCj4+Pj4+IA0KPj4+Pj4gICBQZXIgbXkgdW5kZXJzdGFuZGluZywgdGhlIGJhbGxvb24g
+YWxsb2NhdGlvbiB3b27igJl0IGludm9rZSBzaHJpbmtlciBhcw0KPj4+Pj4gICBfX0dGUF9ESVJF
+Q1RfUkVDTEFJTSBpc24ndCBzZXQsIG5vPw0KPj4+Pj4gDQo+Pj4+PiBJIGNvdWxkIGJlIHdyb25n
+IGFib3V0IHRoZSBtZWNoYW5pc20sIGJ1dCB0aGUgZGV2aWNlIHNlZXMgbG90cyBvZiBhY3Rpdml0
+eSBvbg0KPj4+Pj4gdGhlIGRlZmxhdGUgcXVldWUuIFRoZSBiYWxsb29uIGlzIGJlaW5nIHNocnVu
+ay4gQW5kIHRoaXMgb25seSBzdGFydHMgb25jZSBhbGwNCj4+Pj4+IGZyZWUgbWVtb3J5IGlzIGRl
+cGxldGVkIGFuZCB3ZSdyZSBpbmZsYXRpbmcgaW50byBwYWdlIGNhY2hlLg0KPj4+PiANCj4+Pj4g
+U28gZ2l2ZW4gdGhpcyBsb29rcyBsaWtlIGEgcmVncmVzc2lvbiwgbWF5YmUgd2Ugc2hvdWxkIHJl
+dmVydCB0aGUNCj4+Pj4gcGF0Y2ggaW4gcXVlc3Rpb24gNzE5OTQ2MjBiYjI1ICgidmlydGlvX2Jh
+bGxvb246IHJlcGxhY2Ugb29tIG5vdGlmaWVyIHdpdGggc2hyaW5rZXIiKQ0KPj4+PiBCZXNpZGVz
+LCB3aXRoIFZJUlRJT19CQUxMT09OX0ZfRlJFRV9QQUdFX0hJTlQNCj4+Pj4gc2hyaW5rZXIgYWxz
+byBpZ25vcmVzIFZJUlRJT19CQUxMT09OX0ZfTVVTVF9URUxMX0hPU1Qgd2hpY2ggaXNuJ3Qgbmlj
+ZQ0KPj4+PiBhdCBhbGwuDQo+Pj4+IA0KPj4+PiBTbyBpdCBsb29rcyBsaWtlIGFsbCB0aGlzIHJl
+d29yayBpbnRyb2R1Y2VkIG1vcmUgaXNzdWVzIHRoYW4gaXQNCj4+Pj4gYWRkcmVzc2VkIC4uLg0K
+Pj4+PiANCj4+Pj4gSSBhbHNvIENDIEFsZXggRHV5Y2sgZm9yIGFuIG9waW5pb24gb24gdGhpcy4N
+Cj4+Pj4gQWxleCwgd2hhdCBkbyB5b3UgdXNlIHRvIHB1dCBwcmVzc3VyZSBvbiBwYWdlIGNhY2hl
+Pw0KPj4+IA0KPj4+IEkgd291bGQgc2F5IHJldmVydGluZyBwcm9iYWJseSBtYWtlcyBzZW5zZS4g
+SSdtIG5vdCBzdXJlIHRoZXJlIGlzIG11Y2gNCj4+PiB2YWx1ZSB0byBoYXZpbmcgYSBzaHJpbmtl
+ciBydW5uaW5nIGRlZmxhdGlvbiB3aGVuIHlvdSBhcmUgYWN0aXZlbHkgdHJ5aW5nDQo+Pj4gdG8g
+aW5jcmVhc2UgdGhlIGJhbGxvb24uIEl0IHdvdWxkIG1ha2UgbW9yZSBzZW5zZSB0byB3YWl0IHVu
+dGlsIHlvdSBhcmUNCj4+PiBhY3R1YWxseSBhYm91dCB0byBzdGFydCBoaXR0aW5nIG9vbS4NCj4+
+IA0KPj4gSSB0aGluayB0aGUgc2hyaW5rZXIgbWFrZXMgc2Vuc2UgZm9yIGZyZWUgcGFnZSBoaW50
+aW5nIGZlYXR1cmUNCj4+IChldmVyeXRoaW5nIG9uIGZyZWVfcGFnZV9saXN0KS4NCj4+IA0KPj4g
+U28gaW5zdGVhZCBvZiBvbmx5IHJldmVydGluZywgSSB0aGluayB3ZSBzaG91bGQgc3BsaXQgaXQg
+dXAgYW5kIGFsd2F5cw0KPj4gcmVnaXN0ZXIgdGhlIHNocmlua2VyIGZvciBWSVJUSU9fQkFMTE9P
+Tl9GX0ZSRUVfUEFHRV9ISU5UIGFuZCB0aGUgT09NDQo+PiBub3RpZmllciAoYXMgYmVmb3JlKSBm
+b3IgVklSVElPX0JBTExPT05fRl9NVVNUX1RFTExfSE9TVC4NCj4+IA0KPj4gKE9mIGNvdXJzZSwg
+YWRhcHRpbmcgd2hhdCBpcyBiZWluZyBkb25lIGluIHRoZSBzaHJpbmtlciBhbmQgaW4gdGhlIE9P
+TQ0KPj4gbm90aWZpZXIpDQo+IA0KPiBEYXZpZCwNCj4gDQo+IFBsZWFzZSBrZWVwIG1lIHBvc3Rl
+ZC4gSSBkZWNpZGVkIHRvIGFkYXB0IHRoZSBzYW1lIHNvbHV0aW9uIGFzIHRoZSB2aXJ0aW8NCj4g
+YmFsbG9vbiBmb3IgdGhlIFZNd2FyZSBiYWxsb29uLiBJZiB0aGUgdmVyZGljdCBpcyB0aGF0IHRo
+aXMgaXMgZGFtYWdpbmcgYW5kDQo+IHRoZSBPT00gbm90aWZpZXIgc2hvdWxkIGJlIHVzZWQgaW5z
+dGVhZCwgSSB3aWxsIHN1Ym1pdCBwYXRjaGVzIHRvIG1vdmUgdG8NCj4gT09NIG5vdGlmaWVyIGFz
+IHdlbGwuDQoNCkFkZGluZyBzb21lIGluZm9ybWF0aW9uIGZvciB0aGUgcmVjb3JkIChpZiBzb21l
+b25lIGdvb2dsZXMgdGhpcyB0aHJlYWQpOg0KDQpJbiB0aGUgVk13YXJlIGJhbGxvb24gZHJpdmVy
+LCB0aGUgc2hyaW5rZXIgaXMgZGlzYWJsZWQgYnkgZGVmYXVsdCBzaW5jZSB3ZQ0KZW5jb3VudGVy
+ZWQgYSBwZXJmb3JtYW5jZSBkZWdyYWRhdGlvbiBpbiB0ZXN0aW5nLiBJIHRyaWVkIHRvIGF2b2lk
+IHJhcGlkDQppbmZsYXRpb24vc2hyaW5rZXItZGVmbGF0aW9uIGN5Y2xlcyBieSBhZGRpbmcgYSB0
+aW1lb3V0LCBidXQgYXBwYXJlbnRseSBpdA0KZGlkIG5vdCBoZWxwIGluIGF2b2lkaW5nIHRoZSBw
+ZXJmb3JtYW5jZSByZWdyZXNzaW9uLg0KDQpTbyB0aGVyZSBpcyBubyBzdWNoIGlzc3VlIGluIFZN
+d2FyZSBiYWxsb29uIGRyaXZlciwgdW5sZXNzIHNvbWVvbmUNCmludGVudGlvbmFsbHkgZW5hYmxl
+cyB0aGUgc2hyaW5rZXIgdGhyb3VnaCBhIG1vZHVsZSBwYXJhbWV0ZXIuDQoNCl9fX19fX19fX19f
+X19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fClZpcnR1YWxpemF0aW9uIG1haWxp
+bmcgbGlzdApWaXJ0dWFsaXphdGlvbkBsaXN0cy5saW51eC1mb3VuZGF0aW9uLm9yZwpodHRwczov
+L2xpc3RzLmxpbnV4Zm91bmRhdGlvbi5vcmcvbWFpbG1hbi9saXN0aW5mby92aXJ0dWFsaXphdGlv
+bg==
