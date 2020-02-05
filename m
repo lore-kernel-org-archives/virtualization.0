@@ -1,7 +1,7 @@
-From: David Hildenbrand <david@redhat.com>
-Subject: Re: Balloon pressuring page cache
-Date: Wed, 5 Feb 2020 09:56:39 +0100
-Message-ID: <2b388a78-79cd-f99a-6f87-6446dcb4b819@redhat.com>
+From: "Wang, Wei W" <wei.w.wang@intel.com>
+Subject: RE: Balloon pressuring page cache
+Date: Wed, 5 Feb 2020 09:00:04 +0000
+Message-ID: <286AC319A985734F985F78AFA26841F73E41F367@shsmsx102.ccr.corp.intel.com>
 References: <91270a68-ff48-88b0-219c-69801f0c252f@redhat.com>
  <CAJuQAmoaK0Swytu2Os_SQRfG5_LqiCPaDa9yatatm9MtfncNTQ@mail.gmail.com>
  <75d4594f-0864-5172-a0f8-f97affedb366@redhat.com>
@@ -17,11 +17,12 @@ References: <91270a68-ff48-88b0-219c-69801f0c252f@redhat.com>
  <286AC319A985734F985F78AFA26841F73E41F0F0@shsmsx102.ccr.corp.intel.com>
  <1eff30a0-a38a-cd45-2fc1-80cfd0bf5f04@redhat.com>
  <286AC319A985734F985F78AFA26841F73E41F306@shsmsx102.ccr.corp.intel.com>
+ <2b388a78-79cd-f99a-6f87-6446dcb4b819@redhat.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <286AC319A985734F985F78AFA26841F73E41F306@shsmsx102.ccr.corp.intel.com>
+In-Reply-To: <2b388a78-79cd-f99a-6f87-6446dcb4b819@redhat.com>
 Content-Language: en-US
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
  <mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
@@ -32,32 +33,33 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
  <mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Errors-To: virtualization-bounces@lists.linux-foundation.org
 Sender: "Virtualization" <virtualization-bounces@lists.linux-foundation.org>
-To: "Wang, Wei W" <wei.w.wang@intel.com>, "Michael S. Tsirkin" <mst@redhat.com>
+To: David Hildenbrand <david@redhat.com>, "Michael S. Tsirkin" <mst@redhat.com>
 Cc: "virtualization@lists.linux-foundation.org" <virtualization@lists.linux-foundation.org>, Tyler Sanderson <tysand@google.com>, "linux-mm@kvack.org" <linux-mm@kvack.org>, Nadav Amit <namit@vmware.com>, David Rientjes <rientjes@google.com>, Alexander Duyck <alexander.h.duyck@linux.intel.com>, Michal Hocko <mhocko@kernel.org>
 List-Id: virtualization@lists.linuxfoundation.org
 
-On 05.02.20 09:54, Wang, Wei W wrote:
-> On Wednesday, February 5, 2020 4:19 PM, David Hildenbrand wrote:
->> Yes, I agree with you. Yet, I am thinking about one
->> (unlikely?impossible?) scenario. Can you refresh my brain why that cannot
->> happen (IOW, why we don't have to wait for the host to process the
->> request)?
->>
->> 1. Guest allocates a page and sends it to the host.
->> 2. Shrinker gets active and releases that page again.
->> 3. Some user in the guest allocates and modifies that page. After that, it is
->> done using that page for the next hour.
->> 4. The host processes the request and clears the bit in the dirty bitmap.
->> 5. The guest is being migrated by the host. The modified page is not being
->> migrated.
+On Wednesday, February 5, 2020 4:57 PM, David Hildenbrand wrote:
+> >> Yes, I agree with you. Yet, I am thinking about one
+> >> (unlikely?impossible?) scenario. Can you refresh my brain why that
+> >> cannot happen (IOW, why we don't have to wait for the host to process
+> >> the request)?
+> >>
+> >> 1. Guest allocates a page and sends it to the host.
+> >> 2. Shrinker gets active and releases that page again.
+> >> 3. Some user in the guest allocates and modifies that page. After
+> >> that, it is done using that page for the next hour.
+> >> 4. The host processes the request and clears the bit in the dirty bitmap.
+> >> 5. The guest is being migrated by the host. The modified page is not
+> >> being migrated.
+> >
+> > Whenever the guest modifies a page during migration, it will be
+> > captured by the dirty logging and the hypervisor will send the dirtied the
+> page in the following round.
 > 
-> Whenever the guest modifies a page during migration, it will be captured by the
-> dirty logging and the hypervisor will send the dirtied the page in the following round.
+> Please explain why the steps I outlined don't apply esp. in the last round.
+> Your general statement does not explain why this race can't happen.
+> 
 
-Please explain why the steps I outlined don't apply esp. in the last
-round. Your general statement does not explain why this race can't happen.
+The guest is stopped in the last round, thus no page will be modified at that time.
 
--- 
-Thanks,
-
-David / dhildenb
+Best,
+Wei
