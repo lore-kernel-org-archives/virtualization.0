@@ -1,66 +1,91 @@
-From: David Hildenbrand <david@redhat.com>
-Subject: Re: Balloon pressuring page cache
-Date: Wed, 5 Feb 2020 10:22:34 +0100
-Message-ID: <bcb69e37-fd84-6397-0ff5-befd99a361dd@redhat.com>
-References: <91270a68-ff48-88b0-219c-69801f0c252f@redhat.com>
- <CAJuQAmqcayaNuG19fKCuux=YVO3+VcN-qrXvobgKMykogeMkzA@mail.gmail.com>
- <20200203080520-mutt-send-email-mst@kernel.org>
- <5ac131de8e3b7fc1fafd05a61feb5f6889aeb917.camel@linux.intel.com>
- <c836a8d1-c5cc-eb8b-84ed-027070b77bf8@redhat.com>
- <539B606A-A0CA-4AA4-B99A-759C874A1EF8@vmware.com>
- <d69eafb4-ad0d-1617-9248-ea4fc776da58@redhat.com>
- <20200204033657-mutt-send-email-mst@kernel.org>
- <ce93331c-0099-dda7-e00f-126bf7826a40@redhat.com>
- <286AC319A985734F985F78AFA26841F73E41F0F0@shsmsx102.ccr.corp.intel.com>
- <1eff30a0-a38a-cd45-2fc1-80cfd0bf5f04@redhat.com>
- <286AC319A985734F985F78AFA26841F73E41F306@shsmsx102.ccr.corp.intel.com>
- <2b388a78-79cd-f99a-6f87-6446dcb4b819@redhat.com>
- <286AC319A985734F985F78AFA26841F73E41F367@shsmsx102.ccr.corp.intel.com>
- <605bef3e-373f-f39a-4849-930326564b5b@redhat.com>
- <286AC319A985734F985F78AFA26841F73E41F3DE@shsmsx102.ccr.corp.intel.com>
+From: "Michael S. Tsirkin" <mst@redhat.com>
+Subject: Re: [PATCH] vhost: introduce vDPA based backend
+Date: Wed, 5 Feb 2020 04:23:59 -0500
+Message-ID: <20200205042259-mutt-send-email-mst@kernel.org>
+References: <20200131033651.103534-1-tiwei.bie@intel.com>
+ <7aab2892-bb19-a06a-a6d3-9c28bc4c3400@redhat.com>
+ <20200205020247.GA368700@___>
+ <AM0PR0502MB37952015716C1D5E07E390B6C3020@AM0PR0502MB3795.eurprd05.prod.outlook.com>
+ <112858a4-1a01-f4d7-e41a-1afaaa1cad45@redhat.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
-Content-Transfer-Encoding: 7bit
-Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <286AC319A985734F985F78AFA26841F73E41F3DE@shsmsx102.ccr.corp.intel.com>
-Content-Language: en-US
-List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
- <mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
-List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
-List-Post: <mailto:virtualization@lists.linux-foundation.org>
-List-Help: <mailto:virtualization-request@lists.linux-foundation.org?subject=help>
-List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualization>,
- <mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
-Errors-To: virtualization-bounces@lists.linux-foundation.org
-Sender: "Virtualization" <virtualization-bounces@lists.linux-foundation.org>
-To: "Wang, Wei W" <wei.w.wang@intel.com>, "Michael S. Tsirkin" <mst@redhat.com>
-Cc: "virtualization@lists.linux-foundation.org" <virtualization@lists.linux-foundation.org>, Tyler Sanderson <tysand@google.com>, "linux-mm@kvack.org" <linux-mm@kvack.org>, Nadav Amit <namit@vmware.com>, David Rientjes <rientjes@google.com>, Alexander Duyck <alexander.h.duyck@linux.intel.com>, Michal Hocko <mhocko@kernel.org>
+Content-Type: text/plain; charset=utf-8
+Content-Transfer-Encoding: 8bit
+Return-path: <linux-kernel-owner@vger.kernel.org>
+Content-Disposition: inline
+In-Reply-To: <112858a4-1a01-f4d7-e41a-1afaaa1cad45@redhat.com>
+Sender: linux-kernel-owner@vger.kernel.org
+To: Jason Wang <jasowang@redhat.com>
+Cc: Shahaf Shuler <shahafs@mellanox.com>, Tiwei Bie <tiwei.bie@intel.com>, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>, "kvm@vger.kernel.org" <kvm@vger.kernel.org>, "virtualization@lists.linux-foundation.org" <virtualization@lists.linux-foundation.org>, "netdev@vger.kernel.org" <netdev@vger.kernel.org>, Jason Gunthorpe <jgg@mellanox.com>, "rob.miller@broadcom.com" <rob.miller@broadcom.com>, "haotian.wang@sifive.com" <haotian.wang@sifive.com>, "eperezma@redhat.com" <eperezma@redhat.com>, "lulu@redhat.com" <lulu@redhat.com>, Parav Pandit <parav@mellanox.com>, "rdunlap@infradead.org" <rdunlap@infradead.org>, "hch@infradead.org" <hch@infradead.org>, Jiri Pirko <jiri@mellanox.com>, "hanand@xilinx.com" <hanand@xilinx.com>, mhabets@solarflar
 List-Id: virtualization@lists.linuxfoundation.org
 
->> 1. Guest allocates a page and sends it to the host.
->> 2. Shrinker gets active and releases that page again.
->> 3. Some user in the guest allocates and modifies that page. The dirty bit is
->> set in the hypervisor.
+On Wed, Feb 05, 2020 at 03:50:14PM +0800, Jason Wang wrote:
 > 
-> The bit will be set in KVM's bitmap, and will be synced to QEMU's bitmap when the next round starts.
+> On 2020/2/5 下午3:15, Shahaf Shuler wrote:
+> > Wednesday, February 5, 2020 4:03 AM, Tiwei Bie:
+> > > Subject: Re: [PATCH] vhost: introduce vDPA based backend
+> > > 
+> > > On Tue, Feb 04, 2020 at 11:30:11AM +0800, Jason Wang wrote:
+> > > > On 2020/1/31 上午11:36, Tiwei Bie wrote:
+> > > > > This patch introduces a vDPA based vhost backend. This backend is
+> > > > > built on top of the same interface defined in virtio-vDPA and
+> > > > > provides a generic vhost interface for userspace to accelerate the
+> > > > > virtio devices in guest.
+> > > > > 
+> > > > > This backend is implemented as a vDPA device driver on top of the
+> > > > > same ops used in virtio-vDPA. It will create char device entry named
+> > > > > vhost-vdpa/$vdpa_device_index for userspace to use. Userspace can
+> > > > > use vhost ioctls on top of this char device to setup the backend.
+> > > > > 
+> > > > > Signed-off-by: Tiwei Bie <tiwei.bie@intel.com>
+> > [...]
+> > 
+> > > > > +static long vhost_vdpa_do_dma_mapping(struct vhost_vdpa *v) {
+> > > > > +	/* TODO: fix this */
+> > > > 
+> > > > Before trying to do this it looks to me we need the following during
+> > > > the probe
+> > > > 
+> > > > 1) if set_map() is not supported by the vDPA device probe the IOMMU
+> > > > that is supported by the vDPA device
+> > > > 2) allocate IOMMU domain
+> > > > 
+> > > > And then:
+> > > > 
+> > > > 3) pin pages through GUP and do proper accounting
+> > > > 4) store GPA->HPA mapping in the umem
+> > > > 5) generate diffs of memory table and using IOMMU API to setup the dma
+> > > > mapping in this method
+> > > > 
+> > > > For 1), I'm not sure parent is sufficient for to doing this or need to
+> > > > introduce new API like iommu_device in mdev.
+> > > Agree. We may also need to introduce something like the iommu_device.
+> > > 
+> > Would it be better for the map/umnap logic to happen inside each device ?
+> > Devices that needs the IOMMU will call iommu APIs from inside the driver callback.
 > 
->> 4. The host processes the request and clears the bit in the dirty bitmap.
 > 
-> This clears the bit from the QEMU bitmap, and this page will not be sent in this round.
+> Technically, this can work. But if it can be done by vhost-vpda it will make
+> the vDPA driver more compact and easier to be implemented.
 > 
->> 5. The guest is stopped and the last set of dirty pages is migrated. The
->> modified page is not being migrated (because not marked dirty).
 > 
-> When QEMU start the last round, it first syncs the bitmap from KVM, which includes the one set in step 3.
-> Then the modified page gets sent.
+> > Devices that has other ways to do the DMA mapping will call the proprietary APIs.
+> 
+> 
+> To confirm, do you prefer:
+> 
+> 1) map/unmap
+> 
+> or
+> 
+> 2) pass all maps at one time?
+> 
+> Thanks
+> 
+> 
 
-So, if you run a TCG guest and use it with free page reporting, the race
-is possible? So the correctness depends on two dirty bitmaps in the
-hypervisor and how they interact. wow this is fragile.
-
-Thanks for the info :)
+I mean we really already have both right? ATM 1 is used with an iommu
+and 2 without. I guess we can also have drivers ask for either or both
+...
 
 -- 
-Thanks,
-
-David / dhildenb
+MST
