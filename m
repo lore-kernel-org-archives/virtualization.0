@@ -1,75 +1,52 @@
-From: Shahaf Shuler <shahafs@mellanox.com>
-Subject: RE: [PATCH] vhost: introduce vDPA based backend
-Date: Wed, 5 Feb 2020 09:30:14 +0000
-Message-ID: <AM0PR0502MB3795AD42233D69F350402A8AC3020@AM0PR0502MB3795.eurprd05.prod.outlook.com>
-References: <20200131033651.103534-1-tiwei.bie@intel.com>
- <7aab2892-bb19-a06a-a6d3-9c28bc4c3400@redhat.com>
- <20200205020247.GA368700@___>
- <AM0PR0502MB37952015716C1D5E07E390B6C3020@AM0PR0502MB3795.eurprd05.prod.outlook.com>
- <112858a4-1a01-f4d7-e41a-1afaaa1cad45@redhat.com>
+From: "Wang, Wei W" <wei.w.wang@intel.com>
+Subject: RE: Balloon pressuring page cache
+Date: Wed, 5 Feb 2020 09:35:06 +0000
+Message-ID: <286AC319A985734F985F78AFA26841F73E41F490@shsmsx102.ccr.corp.intel.com>
+References: <91270a68-ff48-88b0-219c-69801f0c252f@redhat.com>
+ <CAJuQAmqcayaNuG19fKCuux=YVO3+VcN-qrXvobgKMykogeMkzA@mail.gmail.com>
+ <20200203080520-mutt-send-email-mst@kernel.org>
+ <5ac131de8e3b7fc1fafd05a61feb5f6889aeb917.camel@linux.intel.com>
+ <c836a8d1-c5cc-eb8b-84ed-027070b77bf8@redhat.com>
+ <539B606A-A0CA-4AA4-B99A-759C874A1EF8@vmware.com>
+ <d69eafb4-ad0d-1617-9248-ea4fc776da58@redhat.com>
+ <20200204033657-mutt-send-email-mst@kernel.org>
+ <ce93331c-0099-dda7-e00f-126bf7826a40@redhat.com>
+ <286AC319A985734F985F78AFA26841F73E41F0F0@shsmsx102.ccr.corp.intel.com>
+ <1eff30a0-a38a-cd45-2fc1-80cfd0bf5f04@redhat.com>
+ <286AC319A985734F985F78AFA26841F73E41F306@shsmsx102.ccr.corp.intel.com>
+ <2b388a78-79cd-f99a-6f87-6446dcb4b819@redhat.com>
+ <286AC319A985734F985F78AFA26841F73E41F367@shsmsx102.ccr.corp.intel.com>
+ <605bef3e-373f-f39a-4849-930326564b5b@redhat.com>
+ <286AC319A985734F985F78AFA26841F73E41F3DE@shsmsx102.ccr.corp.intel.com>
+ <bcb69e37-fd84-6397-0ff5-befd99a361dd@redhat.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="utf-8"
-Content-Transfer-Encoding: base64
-Return-path: <linux-kernel-owner@vger.kernel.org>
-In-Reply-To: <112858a4-1a01-f4d7-e41a-1afaaa1cad45@redhat.com>
+Content-Type: text/plain; charset="us-ascii"
+Content-Transfer-Encoding: 7bit
+Return-path: <virtualization-bounces@lists.linux-foundation.org>
+In-Reply-To: <bcb69e37-fd84-6397-0ff5-befd99a361dd@redhat.com>
 Content-Language: en-US
-Sender: linux-kernel-owner@vger.kernel.org
-To: Jason Wang <jasowang@redhat.com>, Tiwei Bie <tiwei.bie@intel.com>
-Cc: "mst@redhat.com" <mst@redhat.com>, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>, "kvm@vger.kernel.org" <kvm@vger.kernel.org>, "virtualization@lists.linux-foundation.org" <virtualization@lists.linux-foundation.org>, "netdev@vger.kernel.org" <netdev@vger.kernel.org>, Jason Gunthorpe <jgg@mellanox.com>, "rob.miller@broadcom.com" <rob.miller@broadcom.com>, "haotian.wang@sifive.com" <haotian.wang@sifive.com>, "eperezma@redhat.com" <eperezma@redhat.com>, "lulu@redhat.com" <lulu@redhat.com>, Parav Pandit <parav@mellanox.com>, "rdunlap@infradead.org" <rdunlap@infradead.org>, "hch@infradead.org" <hch@infradead.org>, Jiri Pirko <jiri@mellanox.com>, "hanand@xilinx.com" <hanand@xilinx.com>, "mhabets@solarflare.com" <mhabets@solarflare.com>ma
+List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
+ <mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
+List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
+List-Post: <mailto:virtualization@lists.linux-foundation.org>
+List-Help: <mailto:virtualization-request@lists.linux-foundation.org?subject=help>
+List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualization>,
+ <mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
+Errors-To: virtualization-bounces@lists.linux-foundation.org
+Sender: "Virtualization" <virtualization-bounces@lists.linux-foundation.org>
+To: David Hildenbrand <david@redhat.com>, "Michael S. Tsirkin" <mst@redhat.com>
+Cc: "virtualization@lists.linux-foundation.org" <virtualization@lists.linux-foundation.org>, Tyler Sanderson <tysand@google.com>, "linux-mm@kvack.org" <linux-mm@kvack.org>, Nadav Amit <namit@vmware.com>, David Rientjes <rientjes@google.com>, Alexander Duyck <alexander.h.duyck@linux.intel.com>, Michal Hocko <mhocko@kernel.org>
 List-Id: virtualization@lists.linuxfoundation.org
 
-V2VkbmVzZGF5LCBGZWJydWFyeSA1LCAyMDIwIDk6NTAgQU0sIEphc29uIFdhbmc6DQo+IFN1Ympl
-Y3Q6IFJlOiBbUEFUQ0hdIHZob3N0OiBpbnRyb2R1Y2UgdkRQQSBiYXNlZCBiYWNrZW5kDQo+IE9u
-IDIwMjAvMi81IOS4i+WNiDM6MTUsIFNoYWhhZiBTaHVsZXIgd3JvdGU6DQo+ID4gV2VkbmVzZGF5
-LCBGZWJydWFyeSA1LCAyMDIwIDQ6MDMgQU0sIFRpd2VpIEJpZToNCj4gPj4gU3ViamVjdDogUmU6
-IFtQQVRDSF0gdmhvc3Q6IGludHJvZHVjZSB2RFBBIGJhc2VkIGJhY2tlbmQNCj4gPj4NCj4gPj4g
-T24gVHVlLCBGZWIgMDQsIDIwMjAgYXQgMTE6MzA6MTFBTSArMDgwMCwgSmFzb24gV2FuZyB3cm90
-ZToNCj4gPj4+IE9uIDIwMjAvMS8zMSDkuIrljYgxMTozNiwgVGl3ZWkgQmllIHdyb3RlOg0KPiA+
-Pj4+IFRoaXMgcGF0Y2ggaW50cm9kdWNlcyBhIHZEUEEgYmFzZWQgdmhvc3QgYmFja2VuZC4gVGhp
-cyBiYWNrZW5kIGlzDQo+ID4+Pj4gYnVpbHQgb24gdG9wIG9mIHRoZSBzYW1lIGludGVyZmFjZSBk
-ZWZpbmVkIGluIHZpcnRpby12RFBBIGFuZA0KPiA+Pj4+IHByb3ZpZGVzIGEgZ2VuZXJpYyB2aG9z
-dCBpbnRlcmZhY2UgZm9yIHVzZXJzcGFjZSB0byBhY2NlbGVyYXRlIHRoZQ0KPiA+Pj4+IHZpcnRp
-byBkZXZpY2VzIGluIGd1ZXN0Lg0KPiA+Pj4+DQo+ID4+Pj4gVGhpcyBiYWNrZW5kIGlzIGltcGxl
-bWVudGVkIGFzIGEgdkRQQSBkZXZpY2UgZHJpdmVyIG9uIHRvcCBvZiB0aGUNCj4gPj4+PiBzYW1l
-IG9wcyB1c2VkIGluIHZpcnRpby12RFBBLiBJdCB3aWxsIGNyZWF0ZSBjaGFyIGRldmljZSBlbnRy
-eQ0KPiA+Pj4+IG5hbWVkIHZob3N0LXZkcGEvJHZkcGFfZGV2aWNlX2luZGV4IGZvciB1c2Vyc3Bh
-Y2UgdG8gdXNlLg0KPiBVc2Vyc3BhY2UNCj4gPj4+PiBjYW4gdXNlIHZob3N0IGlvY3RscyBvbiB0
-b3Agb2YgdGhpcyBjaGFyIGRldmljZSB0byBzZXR1cCB0aGUgYmFja2VuZC4NCj4gPj4+Pg0KPiA+
-Pj4+IFNpZ25lZC1vZmYtYnk6IFRpd2VpIEJpZSA8dGl3ZWkuYmllQGludGVsLmNvbT4NCj4gPiBb
-Li4uXQ0KPiA+DQo+ID4+Pj4gK3N0YXRpYyBsb25nIHZob3N0X3ZkcGFfZG9fZG1hX21hcHBpbmco
-c3RydWN0IHZob3N0X3ZkcGEgKnYpIHsNCj4gPj4+PiArCS8qIFRPRE86IGZpeCB0aGlzICovDQo+
-ID4+Pg0KPiA+Pj4gQmVmb3JlIHRyeWluZyB0byBkbyB0aGlzIGl0IGxvb2tzIHRvIG1lIHdlIG5l
-ZWQgdGhlIGZvbGxvd2luZyBkdXJpbmcNCj4gPj4+IHRoZSBwcm9iZQ0KPiA+Pj4NCj4gPj4+IDEp
-IGlmIHNldF9tYXAoKSBpcyBub3Qgc3VwcG9ydGVkIGJ5IHRoZSB2RFBBIGRldmljZSBwcm9iZSB0
-aGUgSU9NTVUNCj4gPj4+IHRoYXQgaXMgc3VwcG9ydGVkIGJ5IHRoZSB2RFBBIGRldmljZQ0KPiA+
-Pj4gMikgYWxsb2NhdGUgSU9NTVUgZG9tYWluDQo+ID4+Pg0KPiA+Pj4gQW5kIHRoZW46DQo+ID4+
-Pg0KPiA+Pj4gMykgcGluIHBhZ2VzIHRocm91Z2ggR1VQIGFuZCBkbyBwcm9wZXIgYWNjb3VudGlu
-Zw0KPiA+Pj4gNCkgc3RvcmUgR1BBLT5IUEEgbWFwcGluZyBpbiB0aGUgdW1lbQ0KPiA+Pj4gNSkg
-Z2VuZXJhdGUgZGlmZnMgb2YgbWVtb3J5IHRhYmxlIGFuZCB1c2luZyBJT01NVSBBUEkgdG8gc2V0
-dXAgdGhlDQo+ID4+PiBkbWEgbWFwcGluZyBpbiB0aGlzIG1ldGhvZA0KPiA+Pj4NCj4gPj4+IEZv
-ciAxKSwgSSdtIG5vdCBzdXJlIHBhcmVudCBpcyBzdWZmaWNpZW50IGZvciB0byBkb2luZyB0aGlz
-IG9yIG5lZWQNCj4gPj4+IHRvIGludHJvZHVjZSBuZXcgQVBJIGxpa2UgaW9tbXVfZGV2aWNlIGlu
-IG1kZXYuDQo+ID4+IEFncmVlLiBXZSBtYXkgYWxzbyBuZWVkIHRvIGludHJvZHVjZSBzb21ldGhp
-bmcgbGlrZSB0aGUgaW9tbXVfZGV2aWNlLg0KPiA+Pg0KPiA+IFdvdWxkIGl0IGJlIGJldHRlciBm
-b3IgdGhlIG1hcC91bW5hcCBsb2dpYyB0byBoYXBwZW4gaW5zaWRlIGVhY2ggZGV2aWNlID8NCj4g
-PiBEZXZpY2VzIHRoYXQgbmVlZHMgdGhlIElPTU1VIHdpbGwgY2FsbCBpb21tdSBBUElzIGZyb20g
-aW5zaWRlIHRoZSBkcml2ZXINCj4gY2FsbGJhY2suDQo+IA0KPiANCj4gVGVjaG5pY2FsbHksIHRo
-aXMgY2FuIHdvcmsuIEJ1dCBpZiBpdCBjYW4gYmUgZG9uZSBieSB2aG9zdC12cGRhIGl0IHdpbGwg
-bWFrZSB0aGUNCj4gdkRQQSBkcml2ZXIgbW9yZSBjb21wYWN0IGFuZCBlYXNpZXIgdG8gYmUgaW1w
-bGVtZW50ZWQuDQoNCk5lZWQgdG8gc2VlIHRoZSBsYXllcmluZyBvZiBzdWNoIHByb3Bvc2FsIGJ1
-dCBhbSBub3Qgc3VyZS4gDQpWaG9zdC12ZHBhIGlzIGdlbmVyaWMgZnJhbWV3b3JrLCB3aGlsZSB0
-aGUgRE1BIG1hcHBpbmcgaXMgdmVuZG9yIHNwZWNpZmljLiANCk1heWJlIHZob3N0LXZkcGEgY2Fu
-IGhhdmUgc29tZSBzaGFyZWQgY29kZSBuZWVkZWQgdG8gb3BlcmF0ZSBvbiBpb21tdSwgc28gZHJp
-dmVycyBjYW4gcmUtdXNlIGl0LiAgdG8gbWUgaXQgc2VlbXMgc2ltcGxlciB0aGFuIGV4cG9zaW5n
-IGEgbmV3IGlvbW11IGRldmljZS4gDQoNCj4gDQo+IA0KPiA+IERldmljZXMgdGhhdCBoYXMgb3Ro
-ZXIgd2F5cyB0byBkbyB0aGUgRE1BIG1hcHBpbmcgd2lsbCBjYWxsIHRoZQ0KPiBwcm9wcmlldGFy
-eSBBUElzLg0KPiANCj4gDQo+IFRvIGNvbmZpcm0sIGRvIHlvdSBwcmVmZXI6DQo+IA0KPiAxKSBt
-YXAvdW5tYXANCg0KSXQgaXMgbm90IG9ubHkgdGhhdC4gQUZBSVIgdGhlcmUgYWxzbyBmbHVzaCBh
-bmQgaW52YWxpZGF0ZSBjYWxscywgcmlnaHQ/DQoNCj4gDQo+IG9yDQo+IA0KPiAyKSBwYXNzIGFs
-bCBtYXBzIGF0IG9uZSB0aW1lPw0KDQpUbyBtZSB0aGlzIHNlZW1zIG1vcmUgc3RyYWlnaHQgZm9y
-d2FyZC4gDQpJdCBpcyBjb3JyZWN0IHRoYXQgdW5kZXIgaG90cGx1ZyBhbmQgbGFyZ2UgbnVtYmVy
-IG9mIG1lbW9yeSBzZWdtZW50cyB0aGUgZHJpdmVyIHdpbGwgbmVlZCB0byB1bmRlcnN0YW5kIHRo
-ZSBkaWZmIChvciBub3QgYW5kIGp1c3QgcmVsb2FkIHRoZSBuZXcgY29uZmlndXJhdGlvbikuIEhv
-d2V2ZXIsIG15IGFzc3VtcHRpb24gaGVyZSBpcyB0aGF0IG1lbW9yeSBob3RwbHVnIGlzIGhlYXZ5
-IGZsb3cgYW55d2F5LCBhbmQgdGhlIGRyaXZlciBleHRyYSBjeWNsZXMgd2lsbCBub3QgYmUgdGhh
-dCB2aXNpYmxlDQoNCj4gDQo+IFRoYW5rcw0KPiANCj4gDQo+ID4NCg0K
+On Wednesday, February 5, 2020 5:23 PM, David Hildenbrand wrote:
+> So, if you run a TCG guest and use it with free page reporting, the race is
+> possible? So the correctness depends on two dirty bitmaps in the hypervisor
+> and how they interact. wow this is fragile.
+>
+
+Not sure how TCG tracks the dirty bits. But In whatever implementation, the hypervisor should have
+already dealt with the race between he current round and the previous round dirty recording.
+(the race isn't brought by this feature essentially)
+
+Best,
+Wei
