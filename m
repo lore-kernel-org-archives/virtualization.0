@@ -1,95 +1,43 @@
-From: David Hildenbrand <david@redhat.com>
-Subject: Re: [PATCH v1 3/3] virtio-balloon: Switch back to OOM handler for
- VIRTIO_BALLOON_F_DEFLATE_ON_OOM
-Date: Thu, 6 Feb 2020 10:21:45 +0100
-Message-ID: <aec61035-68d0-d4e2-25b3-c4f2886e204c@redhat.com>
-References: <20200205163402.42627-1-david@redhat.com>
- <20200205163402.42627-4-david@redhat.com>
- <20200206041126-mutt-send-email-mst@kernel.org>
+From: "Wang, Wei W" <wei.w.wang@intel.com>
+Subject: RE: [PATCH RFC] virtio_balloon: conservative balloon page shrinking
+Date: Thu, 6 Feb 2020 09:27:04 +0000
+Message-ID: <286AC319A985734F985F78AFA26841F73E4238A5@shsmsx102.ccr.corp.intel.com>
+References: <1580976107-16013-1-git-send-email-wei.w.wang@intel.com>
+ <20200206035749-mutt-send-email-mst@kernel.org>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=utf-8
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset="us-ascii"
+Content-Transfer-Encoding: 8BIT
 Return-path: <linux-kernel-owner@vger.kernel.org>
-In-Reply-To: <20200206041126-mutt-send-email-mst@kernel.org>
+In-Reply-To: <20200206035749-mutt-send-email-mst@kernel.org>
 Content-Language: en-US
 Sender: linux-kernel-owner@vger.kernel.org
 To: "Michael S. Tsirkin" <mst@redhat.com>
-Cc: linux-kernel@vger.kernel.org, linux-mm@kvack.org, virtualization@lists.linux-foundation.org, Tyler Sanderson <tysand@google.com>, Wei Wang <wei.w.wang@intel.com>, Alexander Duyck <alexander.h.duyck@linux.intel.com>, David Rientjes <rientjes@google.com>, Nadav Amit <namit@vmware.com>, Michal Hocko <mhocko@kernel.org>
+Cc: "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>, "virtualization@lists.linux-foundation.org" <virtualization@lists.linux-foundation.org>, "tysand@google.com" <tysand@google.com>, "david@redhat.com" <david@redhat.com>, "alexander.h.duyck@linux.intel.com" <alexander.h.duyck@linux.intel.com>, "rientjes@google.com" <rientjes@google.com>, "mhocko@kernel.org" <mhocko@kernel.org>, "namit@vmware.com" <namit@vmware.com>, "penguin-kernel@i-love.sakura.ne.jp" <penguin-kernel@i-love.sakura.ne.jp>
 List-Id: virtualization@lists.linuxfoundation.org
 
-On 06.02.20 10:12, Michael S. Tsirkin wrote:
-> On Wed, Feb 05, 2020 at 05:34:02PM +0100, David Hildenbrand wrote:
->> Commit 71994620bb25 ("virtio_balloon: replace oom notifier with shrinker")
->> changed the behavior when deflation happens automatically. Instead of
->> deflating when called by the OOM handler, the shrinker is used.
->>
->> However, the balloon is not simply some slab cache that should be
->> shrunk when under memory pressure. The shrinker does not have a concept of
->> priorities, so this behavior cannot be configured.
->>
->> There was a report that this results in undesired side effects when
->> inflating the balloon to shrink the page cache. [1]
->> 	"When inflating the balloon against page cache (i.e. no free memory
->> 	 remains) vmscan.c will both shrink page cache, but also invoke the
->> 	 shrinkers -- including the balloon's shrinker. So the balloon
->> 	 driver allocates memory which requires reclaim, vmscan gets this
->> 	 memory by shrinking the balloon, and then the driver adds the
->> 	 memory back to the balloon. Basically a busy no-op."
->>
->> The name "deflate on OOM" makes it pretty clear when deflation should
->> happen - after other approaches to reclaim memory failed, not while
->> reclaiming. This allows to minimize the footprint of a guest - memory
->> will only be taken out of the balloon when really needed.
->>
->> Especially, a drop_slab() will result in the whole balloon getting
->> deflated - undesired. While handling it via the OOM handler might not be
->> perfect, it keeps existing behavior. If we want a different behavior, then
->> we need a new feature bit and document it properly (although, there should
->> be a clear use case and the intended effects should be well described).
->>
->> Keep using the shrinker for VIRTIO_BALLOON_F_FREE_PAGE_HINT, because
->> this has no such side effects. Always register the shrinker with
->> VIRTIO_BALLOON_F_FREE_PAGE_HINT now. We are always allowed to reuse free
->> pages that are still to be processed by the guest. The hypervisor takes
->> care of identifying and resolving possible races between processing a
->> hinting request and the guest reusing a page.
->>
->> In contrast to pre commit 71994620bb25 ("virtio_balloon: replace oom
->> notifier with shrinker"), don't add a moodule parameter to configure the
->> number of pages to deflate on OOM. Can be re-added if really needed.
->> Also, pay attention that leak_balloon() returns the number of 4k pages -
->> convert it properly in virtio_balloon_oom_notify().
->>
->> Note1: using the OOM handler is frowned upon, but it really is what we
->>        need for this feature.
->>
->> Note2: without VIRTIO_BALLOON_F_MUST_TELL_HOST (iow, always with QEMU) we
->>        could actually skip sending deflation requests to our hypervisor,
->>        making the OOM path *very* simple. Besically freeing pages and
->>        updating the balloon. If the communication with the host ever
->>        becomes a problem on this call path.
->>
->> [1] https://www.spinics.net/lists/linux-virtualization/msg40863.html
->>
->> Reported-by: Tyler Sanderson <tysand@google.com>
->> Cc: Michael S. Tsirkin <mst@redhat.com>
->> Cc: Wei Wang <wei.w.wang@intel.com>
->> Cc: Alexander Duyck <alexander.h.duyck@linux.intel.com>
->> Cc: David Rientjes <rientjes@google.com>
->> Cc: Nadav Amit <namit@vmware.com>
->> Cc: Michal Hocko <mhocko@kernel.org>
->> Signed-off-by: David Hildenbrand <david@redhat.com>
+On Thursday, February 6, 2020 5:04 PM, Michael S. Tsirkin wrote:
+> virtio_balloon_shrinker_count(struct shrinker *shrinker,
+> >  					struct virtio_balloon, shrinker);
+> >  	unsigned long count;
+> >
+> > -	count = vb->num_pages / VIRTIO_BALLOON_PAGES_PER_PAGE;
+> > +	if (conservative_shrinker && global_node_page_state(NR_FILE_PAGES))
 > 
-> 
-> I guess we should add a Fixes tag to the patch it's reverting,
-> this way it's backported and hypervisors will be able to rely on OOM
-> behaviour.
+> I'd rather have an API for that in mm/. In particular, do we want other
+> shrinkers to run, not just pagecache? To pick an example I'm familiar
+> with, kvm mmu cache for nested virt?
 
-Makes sense,
+We could make it extendable:
 
-Fixes: 71994620bb25 ("virtio_balloon: replace oom notifier with shrinker")
+#define BALLOON_SHRINKER_AFTER_PAGE_CACHE	(1 << 0)
+#define BALLOON_SHRINKER_AFTER_KVM_MMU_CACHE	(1 << 1)
+...
 
--- 
-Thanks,
+uint64_t conservative_shrinker;
+if ((conservative_shrinker | BALLOON_SHRINKER_AFTER_PAGE_CACHE) && global_node_page_state(NR_FILE_PAGES))
+	return 0;
 
-David / dhildenb
+For now, we probably only need BALLOON_SHRINKER_AFTER_PAGE_CACHE.
+
+Best,
+Wei
