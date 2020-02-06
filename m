@@ -1,41 +1,29 @@
-From: David Hildenbrand <david@redhat.com>
-Subject: Re: [PATCH RFC] virtio_balloon: conservative balloon page shrinking
-Date: Thu, 6 Feb 2020 10:32:20 +0100
-Message-ID: <80f975c9-5f18-a613-6412-292dafd34dfe@redhat.com>
+From: "Wang, Wei W" <wei.w.wang@intel.com>
+Subject: RE: [PATCH RFC] virtio_balloon: conservative balloon page shrinking
+Date: Thu, 6 Feb 2020 09:43:10 +0000
+Message-ID: <286AC319A985734F985F78AFA26841F73E42395B@shsmsx102.ccr.corp.intel.com>
 References: <1580976107-16013-1-git-send-email-wei.w.wang@intel.com>
- <6ccbfeea-de66-20d7-0e08-a5834a3c3d3f@redhat.com>
- <286AC319A985734F985F78AFA26841F73E4238BA@shsmsx102.ccr.corp.intel.com>
+ <20200206035749-mutt-send-email-mst@kernel.org>
+ <286AC319A985734F985F78AFA26841F73E4238A5@shsmsx102.ccr.corp.intel.com>
+ <20200206042824-mutt-send-email-mst@kernel.org>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=windows-1252
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset="us-ascii"
+Content-Transfer-Encoding: 8BIT
 Return-path: <linux-kernel-owner@vger.kernel.org>
-In-Reply-To: <286AC319A985734F985F78AFA26841F73E4238BA@shsmsx102.ccr.corp.intel.com>
+In-Reply-To: <20200206042824-mutt-send-email-mst@kernel.org>
 Content-Language: en-US
 Sender: linux-kernel-owner@vger.kernel.org
-To: "Wang, Wei W" <wei.w.wang@intel.com>, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>, "virtualization@lists.linux-foundation.org" <virtualization@lists.linux-foundation.org>
-Cc: "tysand@google.com" <tysand@google.com>, "mst@redhat.com" <mst@redhat.com>, "alexander.h.duyck@linux.intel.com" <alexander.h.duyck@linux.intel.com>, "rientjes@google.com" <rientjes@google.com>, "mhocko@kernel.org" <mhocko@kernel.org>, "namit@vmware.com" <namit@vmware.com>, "penguin-kernel@I-love.SAKURA.ne.jp" <penguin-kernel@I-love.SAKURA.ne.jp>
+To: "Michael S. Tsirkin" <mst@redhat.com>
+Cc: "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>, "virtualization@lists.linux-foundation.org" <virtualization@lists.linux-foundation.org>, "tysand@google.com" <tysand@google.com>, "david@redhat.com" <david@redhat.com>, "alexander.h.duyck@linux.intel.com" <alexander.h.duyck@linux.intel.com>, "rientjes@google.com" <rientjes@google.com>, "mhocko@kernel.org" <mhocko@kernel.org>, "namit@vmware.com" <namit@vmware.com>, "penguin-kernel@i-love.sakura.ne.jp" <penguin-kernel@i-love.sakura.ne.jp>
 List-Id: virtualization@lists.linuxfoundation.org
 
-On 06.02.20 10:28, Wang, Wei W wrote:
-> On Thursday, February 6, 2020 5:10 PM, David Hildenbrand wrote:
->> so dropping caches (echo 3 > /proc/sys/vm/drop_caches) will no longer
->> deflate the balloon when conservative_shrinker=true?
->>
+On Thursday, February 6, 2020 5:31 PM, Michael S. Tsirkin wrote:
 > 
-> Should be. Need Tyler's help to test it.
-> 
+> How about just making this a last resort thing to be compatible with existing
+> hypervisors? if someone wants to change behaviour that really should use a
+> feature bit ...
 
-If the page cache is empty, a drop_slab() will deflate the whole balloon
-if I am not wrong.
+Yeah, sounds good to me to control via feature bits.
 
-Especially, a echo 3 > /proc/sys/vm/drop_caches
-
-will first drop the page cache and then drop_slab()
-
-While I like the general idea, it looks more like a hack to me, to try
-to teach the shrinker something it was not built for/does not support yet.
-
--- 
-Thanks,
-
-David / dhildenb
+Best,
+Wei
