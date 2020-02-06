@@ -1,49 +1,36 @@
-From: Gerd Hoffmann <kraxel@redhat.com>
-Subject: [PATCH] drm/virtio: fix ring free check
-Date: Thu,  6 Feb 2020 12:14:16 +0100
-Message-ID: <20200206111416.31269-1-kraxel@redhat.com>
+From: "Michael S. Tsirkin" <mst@redhat.com>
+Subject: Re: [PATCH RFC] virtio_balloon: conservative balloon page shrinking
+Date: Thu, 6 Feb 2020 06:26:35 -0500
+Message-ID: <20200206062558-mutt-send-email-mst@kernel.org>
+References: <1580976107-16013-1-git-send-email-wei.w.wang@intel.com>
+ <20200206035749-mutt-send-email-mst@kernel.org>
+ <286AC319A985734F985F78AFA26841F73E4238A5@shsmsx102.ccr.corp.intel.com>
+ <20200206042824-mutt-send-email-mst@kernel.org>
+ <286AC319A985734F985F78AFA26841F73E42395B@shsmsx102.ccr.corp.intel.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Return-path: <linux-kernel-owner@vger.kernel.org>
+Content-Disposition: inline
+In-Reply-To: <286AC319A985734F985F78AFA26841F73E42395B@shsmsx102.ccr.corp.intel.com>
 Sender: linux-kernel-owner@vger.kernel.org
-To: dri-devel@lists.freedesktop.org
-Cc: gurchetansingh@chromium.org, olvaffe@gmail.com, Gerd Hoffmann <kraxel@redhat.com>, David Airlie <airlied@linux.ie>, Daniel Vetter <daniel@ffwll.ch>, "open list:VIRTIO GPU DRIVER" <virtualization@lists.linux-foundation.org>, open list <linux-kernel@vger.kernel.org>
+To: "Wang, Wei W" <wei.w.wang@intel.com>
+Cc: "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>, "virtualization@lists.linux-foundation.org" <virtualization@lists.linux-foundation.org>, "tysand@google.com" <tysand@google.com>, "david@redhat.com" <david@redhat.com>, "alexander.h.duyck@linux.intel.com" <alexander.h.duyck@linux.intel.com>, "rientjes@google.com" <rientjes@google.com>, "mhocko@kernel.org" <mhocko@kernel.org>, "namit@vmware.com" <namit@vmware.com>, "penguin-kernel@i-love.sakura.ne.jp" <penguin-kernel@i-love.sakura.ne.jp>
 List-Id: virtualization@lists.linuxfoundation.org
 
-If the virtio device supports indirect ring descriptors we need only one
-ring entry for the whole command.  Take that into account when checking
-whenever the virtqueue has enough free entries for our command.
+On Thu, Feb 06, 2020 at 09:43:10AM +0000, Wang, Wei W wrote:
+> On Thursday, February 6, 2020 5:31 PM, Michael S. Tsirkin wrote:
+> > 
+> > How about just making this a last resort thing to be compatible with existing
+> > hypervisors? if someone wants to change behaviour that really should use a
+> > feature bit ...
+> 
+> Yeah, sounds good to me to control via feature bits.
+> 
+> Best,
+> Wei
 
-Signed-off-by: Gerd Hoffmann <kraxel@redhat.com>
----
- drivers/gpu/drm/virtio/virtgpu_vq.c | 9 ++++++---
- 1 file changed, 6 insertions(+), 3 deletions(-)
+To clarify, shrinker use could be a feature bit. OOM behaviour was
+there for years and has been used to dynamically size guests.
 
-diff --git a/drivers/gpu/drm/virtio/virtgpu_vq.c b/drivers/gpu/drm/virtio/virtgpu_vq.c
-index 41e475fbd67b..a2ec09dba530 100644
---- a/drivers/gpu/drm/virtio/virtgpu_vq.c
-+++ b/drivers/gpu/drm/virtio/virtgpu_vq.c
-@@ -328,7 +328,8 @@ static void virtio_gpu_queue_ctrl_sgs(struct virtio_gpu_device *vgdev,
- {
- 	struct virtqueue *vq = vgdev->ctrlq.vq;
- 	bool notify = false;
--	int ret;
-+	bool indirect;
-+	int vqcnt, ret;
- 
- again:
- 	spin_lock(&vgdev->ctrlq.qlock);
-@@ -341,9 +342,11 @@ static void virtio_gpu_queue_ctrl_sgs(struct virtio_gpu_device *vgdev,
- 		return;
- 	}
- 
--	if (vq->num_free < elemcnt) {
-+	indirect = virtio_has_feature(vgdev->vdev, VIRTIO_RING_F_INDIRECT_DESC);
-+	vqcnt = indirect ? 1 : elemcnt;
-+	if (vq->num_free < vqcnt) {
- 		spin_unlock(&vgdev->ctrlq.qlock);
--		wait_event(vgdev->ctrlq.ack_queue, vq->num_free >= elemcnt);
-+		wait_event(vgdev->ctrlq.ack_queue, vq->num_free >= vqcnt);
- 		goto again;
- 	}
- 
 -- 
-2.18.1
+MST
