@@ -1,26 +1,133 @@
 From: "Wang, Wei W" <wei.w.wang@intel.com>
-Subject: RE: [PATCH RFC] virtio_balloon: conservative balloon page shrinking
-Date: Thu, 6 Feb 2020 09:28:22 +0000
-Message-ID: <286AC319A985734F985F78AFA26841F73E4238BA@shsmsx102.ccr.corp.intel.com>
-References: <1580976107-16013-1-git-send-email-wei.w.wang@intel.com>
- <6ccbfeea-de66-20d7-0e08-a5834a3c3d3f@redhat.com>
+Subject: RE: Balloon pressuring page cache
+Date: Thu, 6 Feb 2020 09:30:15 +0000
+Message-ID: <286AC319A985734F985F78AFA26841F73E4238E4@shsmsx102.ccr.corp.intel.com>
+References: <91270a68-ff48-88b0-219c-69801f0c252f@redhat.com>
+ <CAJuQAmoaK0Swytu2Os_SQRfG5_LqiCPaDa9yatatm9MtfncNTQ@mail.gmail.com>
+ <75d4594f-0864-5172-a0f8-f97affedb366@redhat.com>
+ <286AC319A985734F985F78AFA26841F73E3F8A02@shsmsx102.ccr.corp.intel.com>
+ <CAJuQAmqcayaNuG19fKCuux=YVO3+VcN-qrXvobgKMykogeMkzA@mail.gmail.com>
+ <20200203080520-mutt-send-email-mst@kernel.org>
+ <5ac131de8e3b7fc1fafd05a61feb5f6889aeb917.camel@linux.intel.com>
+ <c836a8d1-c5cc-eb8b-84ed-027070b77bf8@redhat.com>
+ <539B606A-A0CA-4AA4-B99A-759C874A1EF8@vmware.com>
+ <d69eafb4-ad0d-1617-9248-ea4fc776da58@redhat.com>
+ <20200204033657-mutt-send-email-mst@kernel.org>
+ <ce93331c-0099-dda7-e00f-126bf7826a40@redhat.com>
+ <286AC319A985734F985F78AFA26841F73E41F0F0@shsmsx102.ccr.corp.intel.com>
+ <1eff30a0-a38a-cd45-2fc1-80cfd0bf5f04@redhat.com>
+ <286AC319A985734F985F78AFA26841F73E41F306@shsmsx102.ccr.corp.intel.com>
+ <2b388a78-79cd-f99a-6f87-6446dcb4b819@redhat.com>
+ <286AC319A985734F985F78AFA26841F73E41F367@shsmsx102.ccr.corp.intel.com>
+ <CAJuQAmrVLV_XDKLoGoRL7Ep8=xj0oio6VE9_3cRhE5s0eZY2sw@mail.gmail.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
-Content-Transfer-Encoding: 8BIT
-Return-path: <linux-kernel-owner@vger.kernel.org>
-In-Reply-To: <6ccbfeea-de66-20d7-0e08-a5834a3c3d3f@redhat.com>
+Content-Type: multipart/mixed; boundary="===============5998978535887224519=="
+Return-path: <virtualization-bounces@lists.linux-foundation.org>
+In-Reply-To: <CAJuQAmrVLV_XDKLoGoRL7Ep8=xj0oio6VE9_3cRhE5s0eZY2sw@mail.gmail.com>
 Content-Language: en-US
-Sender: linux-kernel-owner@vger.kernel.org
-To: David Hildenbrand <david@redhat.com>, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>, "virtualization@lists.linux-foundation.org" <virtualization@lists.linux-foundation.org>
-Cc: "tysand@google.com" <tysand@google.com>, "mst@redhat.com" <mst@redhat.com>, "alexander.h.duyck@linux.intel.com" <alexander.h.duyck@linux.intel.com>, "rientjes@google.com" <rientjes@google.com>, "mhocko@kernel.org" <mhocko@kernel.org>, "namit@vmware.com" <namit@vmware.com>, "penguin-kernel@I-love.SAKURA.ne.jp" <penguin-kernel@I-love.SAKURA.ne.jp>
+List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
+ <mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
+List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
+List-Post: <mailto:virtualization@lists.linux-foundation.org>
+List-Help: <mailto:virtualization-request@lists.linux-foundation.org?subject=help>
+List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualization>,
+ <mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
+Errors-To: virtualization-bounces@lists.linux-foundation.org
+Sender: "Virtualization" <virtualization-bounces@lists.linux-foundation.org>
+To: Tyler Sanderson <tysand@google.com>
+Cc: "Michael S. Tsirkin" <mst@redhat.com>, "virtualization@lists.linux-foundation.org" <virtualization@lists.linux-foundation.org>, "linux-mm@kvack.org" <linux-mm@kvack.org>, Nadav Amit <namit@vmware.com>, David Rientjes <rientjes@google.com>, Alexander Duyck <alexander.h.duyck@linux.intel.com>, Michal Hocko <mhocko@kernel.org>
 List-Id: virtualization@lists.linuxfoundation.org
 
-On Thursday, February 6, 2020 5:10 PM, David Hildenbrand wrote:
-> so dropping caches (echo 3 > /proc/sys/vm/drop_caches) will no longer
-> deflate the balloon when conservative_shrinker=true?
-> 
+--===============5998978535887224519==
+Content-Language: en-US
+Content-Type: multipart/alternative;
+	boundary="_000_286AC319A985734F985F78AFA26841F73E4238E4shsmsx102ccrcor_"
 
-Should be. Need Tyler's help to test it.
+--_000_286AC319A985734F985F78AFA26841F73E4238E4shsmsx102ccrcor_
+Content-Type: text/plain; charset="utf-8"
+Content-Transfer-Encoding: base64
 
-Best,
-Wei
+SXNuJ3QgdGhlIGhpbnQgb25seSB1c2VmdWwgZHVyaW5nIHRoZSBmaXJzdCByb3VuZD8NCkFmdGVy
+IHRoZSBmaXJzdCByb3VuZCBpZiBhIHBhZ2UgYmVjb21lcyBmcmVlIHRoZW4gd2UgbmVlZCB0byB1
+cGRhdGUgdGhlIGNvcHkgYXQgdGhlIG1pZ3JhdGlvbiBkZXN0aW5hdGlvbiwgc28gZnJlZWluZyBh
+IHBhZ2UgdGhhdCBwcmV2aW91c2x5IGhhZCBjb250ZW50cyBzaG91bGQgbWFyayBpdCBkaXJ0eS4N
+Cg0KDQpOb3BlLiBJIHRoaW5rIGFzIGxvbmcgYXMgaXQgaXMgYSBmcmVlIHBhZ2UgKG5vIG1hdHRl
+ciAxc3Qgb3IgMm5kIHJvdW5kKSwgd2UgZG9u4oCZdCBuZWVkIHRvIHNlbmQgaXQuDQoNCkJlc3Qs
+DQpXZWkNCg==
+
+--_000_286AC319A985734F985F78AFA26841F73E4238E4shsmsx102ccrcor_
+Content-Type: text/html; charset="utf-8"
+Content-Transfer-Encoding: base64
+
+PGh0bWwgeG1sbnM6dj0idXJuOnNjaGVtYXMtbWljcm9zb2Z0LWNvbTp2bWwiIHhtbG5zOm89InVy
+bjpzY2hlbWFzLW1pY3Jvc29mdC1jb206b2ZmaWNlOm9mZmljZSIgeG1sbnM6dz0idXJuOnNjaGVt
+YXMtbWljcm9zb2Z0LWNvbTpvZmZpY2U6d29yZCIgeG1sbnM6bT0iaHR0cDovL3NjaGVtYXMubWlj
+cm9zb2Z0LmNvbS9vZmZpY2UvMjAwNC8xMi9vbW1sIiB4bWxucz0iaHR0cDovL3d3dy53My5vcmcv
+VFIvUkVDLWh0bWw0MCI+DQo8aGVhZD4NCjxtZXRhIGh0dHAtZXF1aXY9IkNvbnRlbnQtVHlwZSIg
+Y29udGVudD0idGV4dC9odG1sOyBjaGFyc2V0PXV0Zi04Ij4NCjxtZXRhIG5hbWU9IkdlbmVyYXRv
+ciIgY29udGVudD0iTWljcm9zb2Z0IFdvcmQgMTUgKGZpbHRlcmVkIG1lZGl1bSkiPg0KPHN0eWxl
+PjwhLS0NCi8qIEZvbnQgRGVmaW5pdGlvbnMgKi8NCkBmb250LWZhY2UNCgl7Zm9udC1mYW1pbHk6
+U2ltU3VuOw0KCXBhbm9zZS0xOjIgMSA2IDAgMyAxIDEgMSAxIDE7fQ0KQGZvbnQtZmFjZQ0KCXtm
+b250LWZhbWlseToiQ2FtYnJpYSBNYXRoIjsNCglwYW5vc2UtMToyIDQgNSAzIDUgNCA2IDMgMiA0
+O30NCkBmb250LWZhY2UNCgl7Zm9udC1mYW1pbHk6Q2FsaWJyaTsNCglwYW5vc2UtMToyIDE1IDUg
+MiAyIDIgNCAzIDIgNDt9DQpAZm9udC1mYWNlDQoJe2ZvbnQtZmFtaWx5OiJcQFNpbVN1biI7DQoJ
+cGFub3NlLTE6MiAxIDYgMCAzIDEgMSAxIDEgMTt9DQovKiBTdHlsZSBEZWZpbml0aW9ucyAqLw0K
+cC5Nc29Ob3JtYWwsIGxpLk1zb05vcm1hbCwgZGl2Lk1zb05vcm1hbA0KCXttYXJnaW46MGNtOw0K
+CW1hcmdpbi1ib3R0b206LjAwMDFwdDsNCglmb250LXNpemU6MTIuMHB0Ow0KCWZvbnQtZmFtaWx5
+OlNpbVN1bjt9DQphOmxpbmssIHNwYW4uTXNvSHlwZXJsaW5rDQoJe21zby1zdHlsZS1wcmlvcml0
+eTo5OTsNCgljb2xvcjpibHVlOw0KCXRleHQtZGVjb3JhdGlvbjp1bmRlcmxpbmU7fQ0KYTp2aXNp
+dGVkLCBzcGFuLk1zb0h5cGVybGlua0ZvbGxvd2VkDQoJe21zby1zdHlsZS1wcmlvcml0eTo5OTsN
+Cgljb2xvcjpwdXJwbGU7DQoJdGV4dC1kZWNvcmF0aW9uOnVuZGVybGluZTt9DQpwLm1zb25vcm1h
+bDAsIGxpLm1zb25vcm1hbDAsIGRpdi5tc29ub3JtYWwwDQoJe21zby1zdHlsZS1uYW1lOm1zb25v
+cm1hbDsNCgltc28tbWFyZ2luLXRvcC1hbHQ6YXV0bzsNCgltYXJnaW4tcmlnaHQ6MGNtOw0KCW1z
+by1tYXJnaW4tYm90dG9tLWFsdDphdXRvOw0KCW1hcmdpbi1sZWZ0OjBjbTsNCglmb250LXNpemU6
+MTIuMHB0Ow0KCWZvbnQtZmFtaWx5OlNpbVN1bjt9DQpzcGFuLkVtYWlsU3R5bGUxOA0KCXttc28t
+c3R5bGUtdHlwZTpwZXJzb25hbC1yZXBseTsNCglmb250LWZhbWlseToiQ2FsaWJyaSIsc2Fucy1z
+ZXJpZjsNCgljb2xvcjp3aW5kb3d0ZXh0O30NCi5Nc29DaHBEZWZhdWx0DQoJe21zby1zdHlsZS10
+eXBlOmV4cG9ydC1vbmx5Ow0KCWZvbnQtc2l6ZToxMS4wcHQ7DQoJZm9udC1mYW1pbHk6IkNhbGli
+cmkiLHNhbnMtc2VyaWY7fQ0KQHBhZ2UgV29yZFNlY3Rpb24xDQoJe3NpemU6NjEyLjBwdCA3OTIu
+MHB0Ow0KCW1hcmdpbjo3Mi4wcHQgNzIuMHB0IDcyLjBwdCA3Mi4wcHQ7fQ0KZGl2LldvcmRTZWN0
+aW9uMQ0KCXtwYWdlOldvcmRTZWN0aW9uMTt9DQotLT48L3N0eWxlPjwhLS1baWYgZ3RlIG1zbyA5
+XT48eG1sPg0KPG86c2hhcGVkZWZhdWx0cyB2OmV4dD0iZWRpdCIgc3BpZG1heD0iMTAyNiIgLz4N
+CjwveG1sPjwhW2VuZGlmXS0tPjwhLS1baWYgZ3RlIG1zbyA5XT48eG1sPg0KPG86c2hhcGVsYXlv
+dXQgdjpleHQ9ImVkaXQiPg0KPG86aWRtYXAgdjpleHQ9ImVkaXQiIGRhdGE9IjEiIC8+DQo8L286
+c2hhcGVsYXlvdXQ+PC94bWw+PCFbZW5kaWZdLS0+DQo8L2hlYWQ+DQo8Ym9keSBsYW5nPSJaSC1D
+TiIgbGluaz0iYmx1ZSIgdmxpbms9InB1cnBsZSI+DQo8ZGl2IGNsYXNzPSJXb3JkU2VjdGlvbjEi
+Pg0KPHAgY2xhc3M9Ik1zb05vcm1hbCI+PHNwYW4gbGFuZz0iRU4tVVMiPklzbid0IHRoZSBoaW50
+IG9ubHkgdXNlZnVsIGR1cmluZyB0aGUgPGk+DQpmaXJzdDwvaT4gcm91bmQ/PG86cD48L286cD48
+L3NwYW4+PC9wPg0KPGRpdj4NCjxwIGNsYXNzPSJNc29Ob3JtYWwiPjxzcGFuIGxhbmc9IkVOLVVT
+Ij5BZnRlciB0aGUgZmlyc3Qgcm91bmQgaWYgYSBwYWdlIGJlY29tZXMgZnJlZSB0aGVuIHdlIG5l
+ZWQgdG8gdXBkYXRlIHRoZSBjb3B5IGF0IHRoZSBtaWdyYXRpb24gZGVzdGluYXRpb24sIHNvIGZy
+ZWVpbmcgYSBwYWdlIHRoYXQgcHJldmlvdXNseSBoYWQgY29udGVudHMgc2hvdWxkIG1hcmsgaXQg
+ZGlydHkuPG86cD48L286cD48L3NwYW4+PC9wPg0KPC9kaXY+DQo8ZGl2Pg0KPHAgY2xhc3M9Ik1z
+b05vcm1hbCI+PHNwYW4gbGFuZz0iRU4tVVMiIHN0eWxlPSJmb250LXNpemU6MTAuNXB0O2ZvbnQt
+ZmFtaWx5OiZxdW90O0NhbGlicmkmcXVvdDssc2Fucy1zZXJpZiI+PG86cD4mbmJzcDs8L286cD48
+L3NwYW4+PC9wPg0KPHAgY2xhc3M9Ik1zb05vcm1hbCI+PHNwYW4gbGFuZz0iRU4tVVMiIHN0eWxl
+PSJmb250LXNpemU6MTAuNXB0O2ZvbnQtZmFtaWx5OiZxdW90O0NhbGlicmkmcXVvdDssc2Fucy1z
+ZXJpZiI+PG86cD4mbmJzcDs8L286cD48L3NwYW4+PC9wPg0KPHAgY2xhc3M9Ik1zb05vcm1hbCI+
+PHNwYW4gbGFuZz0iRU4tVVMiIHN0eWxlPSJmb250LXNpemU6MTAuNXB0O2ZvbnQtZmFtaWx5OiZx
+dW90O0NhbGlicmkmcXVvdDssc2Fucy1zZXJpZiI+Tm9wZS4gSSB0aGluayBhcyBsb25nIGFzIGl0
+IGlzIGEgZnJlZSBwYWdlIChubyBtYXR0ZXIgMTxzdXA+c3Q8L3N1cD4gb3IgMjxzdXA+bmQ8L3N1
+cD4gcm91bmQpLCB3ZSBkb27igJl0IG5lZWQgdG8gc2VuZCBpdC48bzpwPjwvbzpwPjwvc3Bhbj48
+L3A+DQo8cCBjbGFzcz0iTXNvTm9ybWFsIj48c3BhbiBsYW5nPSJFTi1VUyIgc3R5bGU9ImZvbnQt
+c2l6ZToxMC41cHQ7Zm9udC1mYW1pbHk6JnF1b3Q7Q2FsaWJyaSZxdW90OyxzYW5zLXNlcmlmIj48
+bzpwPiZuYnNwOzwvbzpwPjwvc3Bhbj48L3A+DQo8cCBjbGFzcz0iTXNvTm9ybWFsIj48c3BhbiBs
+YW5nPSJFTi1VUyIgc3R5bGU9ImZvbnQtc2l6ZToxMC41cHQ7Zm9udC1mYW1pbHk6JnF1b3Q7Q2Fs
+aWJyaSZxdW90OyxzYW5zLXNlcmlmIj5CZXN0LDxvOnA+PC9vOnA+PC9zcGFuPjwvcD4NCjxwIGNs
+YXNzPSJNc29Ob3JtYWwiPjxzcGFuIGxhbmc9IkVOLVVTIiBzdHlsZT0iZm9udC1zaXplOjEwLjVw
+dDtmb250LWZhbWlseTomcXVvdDtDYWxpYnJpJnF1b3Q7LHNhbnMtc2VyaWYiPldlaTxvOnA+PC9v
+OnA+PC9zcGFuPjwvcD4NCjwvZGl2Pg0KPC9kaXY+DQo8L2JvZHk+DQo8L2h0bWw+DQo=
+
+--_000_286AC319A985734F985F78AFA26841F73E4238E4shsmsx102ccrcor_--
+
+--===============5998978535887224519==
+Content-Type: text/plain; charset="us-ascii"
+MIME-Version: 1.0
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+
+_______________________________________________
+Virtualization mailing list
+Virtualization@lists.linux-foundation.org
+https://lists.linuxfoundation.org/mailman/listinfo/virtualization
+--===============5998978535887224519==--
