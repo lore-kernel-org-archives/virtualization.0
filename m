@@ -1,8 +1,8 @@
 From: "Michael S. Tsirkin" <mst@redhat.com>
 Subject: Re: [PATCH v1 3/3] virtio-balloon: Switch back to OOM handler for
  VIRTIO_BALLOON_F_DEFLATE_ON_OOM
-Date: Thu, 6 Feb 2020 04:11:10 -0500
-Message-ID: <20200206040958-mutt-send-email-mst@kernel.org>
+Date: Thu, 6 Feb 2020 04:12:11 -0500
+Message-ID: <20200206041126-mutt-send-email-mst@kernel.org>
 References: <20200205163402.42627-1-david@redhat.com>
  <20200205163402.42627-4-david@redhat.com>
 Mime-Version: 1.0
@@ -77,13 +77,10 @@ On Wed, Feb 05, 2020 at 05:34:02PM +0100, David Hildenbrand wrote:
 > Cc: Michal Hocko <mhocko@kernel.org>
 > Signed-off-by: David Hildenbrand <david@redhat.com>
 
-So the revert looks ok, from that POV and with commit log changes
 
-Acked-by: Michael S. Tsirkin <mst@redhat.com>
-
-however, let's see what do others think, and whether Wei can come
-up with a fixup for the shrinker.
-
+I guess we should add a Fixes tag to the patch it's reverting,
+this way it's backported and hypervisors will be able to rely on OOM
+behaviour.
 
 > ---
 >  drivers/virtio/virtio_balloon.c | 107 +++++++++++++-------------------
