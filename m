@@ -1,51 +1,41 @@
-From: "Michael S. Tsirkin" <mst@redhat.com>
+From: David Hildenbrand <david@redhat.com>
 Subject: Re: [PATCH RFC] virtio_balloon: conservative balloon page shrinking
-Date: Thu, 6 Feb 2020 04:31:01 -0500
-Message-ID: <20200206042824-mutt-send-email-mst@kernel.org>
+Date: Thu, 6 Feb 2020 10:32:20 +0100
+Message-ID: <80f975c9-5f18-a613-6412-292dafd34dfe@redhat.com>
 References: <1580976107-16013-1-git-send-email-wei.w.wang@intel.com>
- <20200206035749-mutt-send-email-mst@kernel.org>
- <286AC319A985734F985F78AFA26841F73E4238A5@shsmsx102.ccr.corp.intel.com>
+ <6ccbfeea-de66-20d7-0e08-a5834a3c3d3f@redhat.com>
+ <286AC319A985734F985F78AFA26841F73E4238BA@shsmsx102.ccr.corp.intel.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain; charset=windows-1252
+Content-Transfer-Encoding: 7bit
 Return-path: <linux-kernel-owner@vger.kernel.org>
-Content-Disposition: inline
-In-Reply-To: <286AC319A985734F985F78AFA26841F73E4238A5@shsmsx102.ccr.corp.intel.com>
+In-Reply-To: <286AC319A985734F985F78AFA26841F73E4238BA@shsmsx102.ccr.corp.intel.com>
+Content-Language: en-US
 Sender: linux-kernel-owner@vger.kernel.org
-To: "Wang, Wei W" <wei.w.wang@intel.com>
-Cc: "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>, "virtualization@lists.linux-foundation.org" <virtualization@lists.linux-foundation.org>, "tysand@google.com" <tysand@google.com>, "david@redhat.com" <david@redhat.com>, "alexander.h.duyck@linux.intel.com" <alexander.h.duyck@linux.intel.com>, "rientjes@google.com" <rientjes@google.com>, "mhocko@kernel.org" <mhocko@kernel.org>, "namit@vmware.com" <namit@vmware.com>, "penguin-kernel@i-love.sakura.ne.jp" <penguin-kernel@i-love.sakura.ne.jp>
+To: "Wang, Wei W" <wei.w.wang@intel.com>, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>, "virtualization@lists.linux-foundation.org" <virtualization@lists.linux-foundation.org>
+Cc: "tysand@google.com" <tysand@google.com>, "mst@redhat.com" <mst@redhat.com>, "alexander.h.duyck@linux.intel.com" <alexander.h.duyck@linux.intel.com>, "rientjes@google.com" <rientjes@google.com>, "mhocko@kernel.org" <mhocko@kernel.org>, "namit@vmware.com" <namit@vmware.com>, "penguin-kernel@I-love.SAKURA.ne.jp" <penguin-kernel@I-love.SAKURA.ne.jp>
 List-Id: virtualization@lists.linuxfoundation.org
 
-On Thu, Feb 06, 2020 at 09:27:04AM +0000, Wang, Wei W wrote:
-> On Thursday, February 6, 2020 5:04 PM, Michael S. Tsirkin wrote:
-> > virtio_balloon_shrinker_count(struct shrinker *shrinker,
-> > >  					struct virtio_balloon, shrinker);
-> > >  	unsigned long count;
-> > >
-> > > -	count = vb->num_pages / VIRTIO_BALLOON_PAGES_PER_PAGE;
-> > > +	if (conservative_shrinker && global_node_page_state(NR_FILE_PAGES))
-> > 
-> > I'd rather have an API for that in mm/. In particular, do we want other
-> > shrinkers to run, not just pagecache? To pick an example I'm familiar
-> > with, kvm mmu cache for nested virt?
+On 06.02.20 10:28, Wang, Wei W wrote:
+> On Thursday, February 6, 2020 5:10 PM, David Hildenbrand wrote:
+>> so dropping caches (echo 3 > /proc/sys/vm/drop_caches) will no longer
+>> deflate the balloon when conservative_shrinker=true?
+>>
 > 
-> We could make it extendable:
+> Should be. Need Tyler's help to test it.
 > 
-> #define BALLOON_SHRINKER_AFTER_PAGE_CACHE	(1 << 0)
-> #define BALLOON_SHRINKER_AFTER_KVM_MMU_CACHE	(1 << 1)
-> ...
-> 
-> uint64_t conservative_shrinker;
-> if ((conservative_shrinker | BALLOON_SHRINKER_AFTER_PAGE_CACHE) && global_node_page_state(NR_FILE_PAGES))
-> 	return 0;
-> 
-> For now, we probably only need BALLOON_SHRINKER_AFTER_PAGE_CACHE.
-> 
-> Best,
-> Wei
 
-How about just making this a last resort thing to be compatible with
-existing hypervisors? if someone wants to change behaviour
-that really should use a feature bit ...
+If the page cache is empty, a drop_slab() will deflate the whole balloon
+if I am not wrong.
+
+Especially, a echo 3 > /proc/sys/vm/drop_caches
+
+will first drop the page cache and then drop_slab()
+
+While I like the general idea, it looks more like a hack to me, to try
+to teach the shrinker something it was not built for/does not support yet.
 
 -- 
-MST
+Thanks,
+
+David / dhildenb
