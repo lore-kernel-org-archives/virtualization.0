@@ -1,77 +1,63 @@
-From: "Michael S. Tsirkin" <mst@redhat.com>
-Subject: Re: [PATCH RFC] virtio_balloon: conservative balloon page shrinking
-Date: Thu, 6 Feb 2020 04:04:21 -0500
-Message-ID: <20200206035749-mutt-send-email-mst@kernel.org>
-References: <1580976107-16013-1-git-send-email-wei.w.wang@intel.com>
+From: David Hildenbrand <david@redhat.com>
+Subject: Re: [PATCH v1 3/3] virtio-balloon: Switch back to OOM handler for
+ VIRTIO_BALLOON_F_DEFLATE_ON_OOM
+Date: Thu, 6 Feb 2020 10:05:43 +0100
+Message-ID: <a5dc8a7c-7384-5efa-e251-1cd9a240e73a@redhat.com>
+References: <20200205163402.42627-1-david@redhat.com>
+ <20200205163402.42627-4-david@redhat.com>
+ <20200206013724-mutt-send-email-mst@kernel.org>
+ <51955928-5a4b-c922-ee34-6e94b6cdd385@redhat.com>
+ <20200206034916-mutt-send-email-mst@kernel.org>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain; charset=utf-8
+Content-Transfer-Encoding: 7bit
 Return-path: <linux-kernel-owner@vger.kernel.org>
-Content-Disposition: inline
-In-Reply-To: <1580976107-16013-1-git-send-email-wei.w.wang@intel.com>
+In-Reply-To: <20200206034916-mutt-send-email-mst@kernel.org>
+Content-Language: en-US
 Sender: linux-kernel-owner@vger.kernel.org
-To: Wei Wang <wei.w.wang@intel.com>
-Cc: linux-kernel@vger.kernel.org, virtualization@lists.linux-foundation.org, tysand@google.com, david@redhat.com, alexander.h.duyck@linux.intel.com, rientjes@google.com, mhocko@kernel.org, namit@vmware.com, penguin-kernel@i-love.sakura.ne.jp
+To: "Michael S. Tsirkin" <mst@redhat.com>
+Cc: linux-kernel@vger.kernel.org, linux-mm@kvack.org, virtualization@lists.linux-foundation.org, Tyler Sanderson <tysand@google.com>, Wei Wang <wei.w.wang@intel.com>, Alexander Duyck <alexander.h.duyck@linux.intel.com>, David Rientjes <rientjes@google.com>, Nadav Amit <namit@vmware.com>, Michal Hocko <mhocko@kernel.org>
 List-Id: virtualization@lists.linuxfoundation.org
 
-On Thu, Feb 06, 2020 at 04:01:47PM +0800, Wei Wang wrote:
-> There are cases that users want to shrink balloon pages after the
-> pagecache depleted. The conservative_shrinker lets the shrinker
-> shrink balloon pages when all the pagecache has been reclaimed.
+>> commit bf50e69f63d21091e525185c3ae761412be0ba72
+>> Author: Dave Hansen <dave@linux.vnet.ibm.com>
+>> Date:   Thu Apr 7 10:43:25 2011 -0700
+>>
+>>     virtio balloon: kill tell-host-first logic
+>>
+>>     The virtio balloon driver has a VIRTIO_BALLOON_F_MUST_TELL_HOST
+>>     feature bit.  Whenever the bit is set, the guest kernel must
+>>     always tell the host before we free pages back to the allocator.
+>>     Without this feature, we might free a page (and have another
+>>     user touch it) while the hypervisor is unprepared for it.
+>>
+>>     But, if the bit is _not_ set, we are under no obligation to
+>>     reverse the order; we're under no obligation to do _anything_.
+>>     As of now, qemu-kvm defines the bit, but doesn't set it.
 > 
-> Signed-off-by: Wei Wang <wei.w.wang@intel.com>
+> Well this is not what the spec says in the end.
 
-I'd rather avoid module parameters, but otherwise looks 
-like a reasonable idea.
-Tyler, what do you think?
+I didn't check the spec, maybe I should do that :)
 
-
-> ---
->  drivers/virtio/virtio_balloon.c | 14 +++++++++++++-
->  1 file changed, 13 insertions(+), 1 deletion(-)
+> To continue that commit message:
 > 
-> diff --git a/drivers/virtio/virtio_balloon.c b/drivers/virtio/virtio_balloon.c
-> index 93f995f6cf36..b4c5bb13a867 100644
-> --- a/drivers/virtio/virtio_balloon.c
-> +++ b/drivers/virtio/virtio_balloon.c
-> @@ -42,6 +42,10 @@
->  static struct vfsmount *balloon_mnt;
->  #endif
->  
-> +static bool conservative_shrinker = true;
-> +module_param(conservative_shrinker, bool, 0644);
-> +MODULE_PARM_DESC(conservative_shrinker, "conservatively shrink balloon pages");
-> +
->  enum virtio_balloon_vq {
->  	VIRTIO_BALLOON_VQ_INFLATE,
->  	VIRTIO_BALLOON_VQ_DEFLATE,
-> @@ -796,6 +800,10 @@ static unsigned long shrink_balloon_pages(struct virtio_balloon *vb,
->  {
->  	unsigned long pages_freed = 0;
->  
-> +	/* Balloon pages only gets shrunk when the pagecache depleted */
-> +	if (conservative_shrinker && global_node_page_state(NR_FILE_PAGES))
-> +		return 0;
-> +
->  	/*
->  	 * One invocation of leak_balloon can deflate at most
->  	 * VIRTIO_BALLOON_ARRAY_PFNS_MAX balloon pages, so we call it
-> @@ -837,7 +845,11 @@ static unsigned long virtio_balloon_shrinker_count(struct shrinker *shrinker,
->  					struct virtio_balloon, shrinker);
->  	unsigned long count;
->  
-> -	count = vb->num_pages / VIRTIO_BALLOON_PAGES_PER_PAGE;
-> +	if (conservative_shrinker && global_node_page_state(NR_FILE_PAGES))
+>     This patch makes the "tell host first" logic the only case.  This
+>     should make everybody happy, and reduce the amount of untested or
+>     untestable code in the kernel.
 
-I'd rather have an API for that in mm/. In particular, do we want other
-shrinkers to run, not just pagecache? To pick an example I'm familiar
-with, kvm mmu cache for nested virt?
+Yeah, but this comment explains that the current deflate is only in
+place, because it makes the code simpler (to support both cases). Of
+course, doing the deflate might result in performance improvements.
+(e.g., MADV_WILLNEED)
 
-> +		count = 0;
-> +	else
-> +		count = vb->num_pages / VIRTIO_BALLOON_PAGES_PER_PAGE;
-> +
->  	count += vb->num_free_page_blocks * VIRTIO_BALLOON_HINT_BLOCK_PAGES;
->  
->  	return count;
-> -- 
-> 2.17.1
+> 
+> you can try proposing the change to the virtio TC, see what do others
+> think.
+
+We can just drop the comment from this patch for now. The tell_host host
+not be an issue AFAIKS.
+
+-- 
+Thanks,
+
+David / dhildenb
