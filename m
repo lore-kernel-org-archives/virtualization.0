@@ -1,60 +1,33 @@
-From: Wei Wang <wei.w.wang@intel.com>
-Subject: [PATCH RFC] virtio_balloon: conservative balloon page shrinking
-Date: Thu,  6 Feb 2020 16:01:47 +0800
-Message-ID: <1580976107-16013-1-git-send-email-wei.w.wang@intel.com>
+From: Gerd Hoffmann <kraxel@redhat.com>
+Subject: Re: [PATCH 4/4] drm/virtio: move virtio_gpu_mem_entry initialization
+ to new function
+Date: Thu, 6 Feb 2020 09:55:40 +0100
+Message-ID: <20200206085540.pa6py4ieoi242gma@sirius.home.kraxel.org>
+References: <20200205105955.28143-1-kraxel@redhat.com>
+ <20200205105955.28143-5-kraxel@redhat.com>
+ <CAPaKu7RxijC_oS4GPukS9wEe9gn8DPQgaGZKwG6g8M8xwTnsig@mail.gmail.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Return-path: <linux-kernel-owner@vger.kernel.org>
+Content-Disposition: inline
+In-Reply-To: <CAPaKu7RxijC_oS4GPukS9wEe9gn8DPQgaGZKwG6g8M8xwTnsig@mail.gmail.com>
 Sender: linux-kernel-owner@vger.kernel.org
-To: linux-kernel@vger.kernel.org, virtualization@lists.linux-foundation.org
-Cc: tysand@google.com, mst@redhat.com, david@redhat.com, alexander.h.duyck@linux.intel.com, rientjes@google.com, mhocko@kernel.org, namit@vmware.com, penguin-kernel@I-love.SAKURA.ne.jp, wei.w.wang@intel.com
+To: Chia-I Wu <olvaffe@gmail.com>
+Cc: ML dri-devel <dri-devel@lists.freedesktop.org>, Gurchetan Singh <gurchetansingh@chromium.org>, David Airlie <airlied@linux.ie>, Daniel Vetter <daniel@ffwll.ch>, "open list:VIRTIO GPU DRIVER" <virtualization@lists.linux-foundation.org>, open list <linux-kernel@vger.kernel.org>
 List-Id: virtualization@lists.linuxfoundation.org
 
-There are cases that users want to shrink balloon pages after the
-pagecache depleted. The conservative_shrinker lets the shrinker
-shrink balloon pages when all the pagecache has been reclaimed.
+  Hi,
 
-Signed-off-by: Wei Wang <wei.w.wang@intel.com>
----
- drivers/virtio/virtio_balloon.c | 14 +++++++++++++-
- 1 file changed, 13 insertions(+), 1 deletion(-)
+> >         virtio_gpu_cmd_resource_attach_backing(vgdev, obj->hw_res_handle,
+> > -                                              ents, nents,
+> > +                                              obj->ents, obj->nents,
+> >                                                fence);
+> > +       obj->ents = NULL;
+> > +       obj->nents = 0;
+> Hm, if the entries are temporary, can we allocate and initialize them
+> in this function?
 
-diff --git a/drivers/virtio/virtio_balloon.c b/drivers/virtio/virtio_balloon.c
-index 93f995f6cf36..b4c5bb13a867 100644
---- a/drivers/virtio/virtio_balloon.c
-+++ b/drivers/virtio/virtio_balloon.c
-@@ -42,6 +42,10 @@
- static struct vfsmount *balloon_mnt;
- #endif
- 
-+static bool conservative_shrinker = true;
-+module_param(conservative_shrinker, bool, 0644);
-+MODULE_PARM_DESC(conservative_shrinker, "conservatively shrink balloon pages");
-+
- enum virtio_balloon_vq {
- 	VIRTIO_BALLOON_VQ_INFLATE,
- 	VIRTIO_BALLOON_VQ_DEFLATE,
-@@ -796,6 +800,10 @@ static unsigned long shrink_balloon_pages(struct virtio_balloon *vb,
- {
- 	unsigned long pages_freed = 0;
- 
-+	/* Balloon pages only gets shrunk when the pagecache depleted */
-+	if (conservative_shrinker && global_node_page_state(NR_FILE_PAGES))
-+		return 0;
-+
- 	/*
- 	 * One invocation of leak_balloon can deflate at most
- 	 * VIRTIO_BALLOON_ARRAY_PFNS_MAX balloon pages, so we call it
-@@ -837,7 +845,11 @@ static unsigned long virtio_balloon_shrinker_count(struct shrinker *shrinker,
- 					struct virtio_balloon, shrinker);
- 	unsigned long count;
- 
--	count = vb->num_pages / VIRTIO_BALLOON_PAGES_PER_PAGE;
-+	if (conservative_shrinker && global_node_page_state(NR_FILE_PAGES))
-+		count = 0;
-+	else
-+		count = vb->num_pages / VIRTIO_BALLOON_PAGES_PER_PAGE;
-+
- 	count += vb->num_free_page_blocks * VIRTIO_BALLOON_HINT_BLOCK_PAGES;
- 
- 	return count;
--- 
-2.17.1
+Well, the plan for CREATE_RESOURCE_BLOB is to use obj->ents too ...
+
+cheers,
+  Gerd
