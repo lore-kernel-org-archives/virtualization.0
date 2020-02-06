@@ -1,47 +1,51 @@
-From: David Hildenbrand <david@redhat.com>
-Subject: Re: [PATCH] virtio_balloon: prevent pfn array overflow
-Date: Thu, 6 Feb 2020 09:29:27 +0100
-Message-ID: <7ccd0cff-b132-aa90-7117-5058df29810f@redhat.com>
-References: <20200206074644.1177551-1-mst@redhat.com>
+From: "Michael S. Tsirkin" <mst@redhat.com>
+Subject: Re: [PATCH v1 1/3] virtio-balloon: Fix memory leak when unloading
+ while hinting is in progress
+Date: Thu, 6 Feb 2020 03:36:26 -0500
+Message-ID: <20200206033617-mutt-send-email-mst@kernel.org>
+References: <20200205163402.42627-1-david@redhat.com>
+ <20200205163402.42627-2-david@redhat.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=utf-8
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
 Return-path: <linux-kernel-owner@vger.kernel.org>
-In-Reply-To: <20200206074644.1177551-1-mst@redhat.com>
-Content-Language: en-US
+Content-Disposition: inline
+In-Reply-To: <20200205163402.42627-2-david@redhat.com>
 Sender: linux-kernel-owner@vger.kernel.org
-To: "Michael S. Tsirkin" <mst@redhat.com>, linux-kernel@vger.kernel.org
-Cc: Jason Wang <jasowang@redhat.com>, virtualization@lists.linux-foundation.org, linux-mm@kvack.org
+To: David Hildenbrand <david@redhat.com>
+Cc: linux-kernel@vger.kernel.org, linux-mm@kvack.org, virtualization@lists.linux-foundation.org, Jason Wang <jasowang@redhat.com>, Wei Wang <wei.w.wang@intel.com>, Liang Li <liang.z.li@intel.com>
 List-Id: virtualization@lists.linuxfoundation.org
 
-On 06.02.20 08:47, Michael S. Tsirkin wrote:
-> Make sure, at build time, that pfn array is big enough to hold a single
-> page.  It happens to be true since the PAGE_SHIFT value at the moment is
-> 20, which is 1M - exactly 256 4K balloon pages.
+On Wed, Feb 05, 2020 at 05:34:00PM +0100, David Hildenbrand wrote:
+> When unloading the driver while hinting is in progress, we will not
+> release the free page blocks back to MM, resulting in a memory leak.
 > 
-> Signed-off-by: Michael S. Tsirkin <mst@redhat.com>
+> Fixes: 86a559787e6f ("virtio-balloon: VIRTIO_BALLOON_F_FREE_PAGE_HINT")
+> Cc: "Michael S. Tsirkin" <mst@redhat.com>
+> Cc: Jason Wang <jasowang@redhat.com>
+> Cc: Wei Wang <wei.w.wang@intel.com>
+> Cc: Liang Li <liang.z.li@intel.com>
+> Signed-off-by: David Hildenbrand <david@redhat.com>
+
+Applied, thanks!
+
 > ---
->  drivers/virtio/virtio_balloon.c | 2 ++
->  1 file changed, 2 insertions(+)
+>  drivers/virtio/virtio_balloon.c | 4 ++++
+>  1 file changed, 4 insertions(+)
 > 
 > diff --git a/drivers/virtio/virtio_balloon.c b/drivers/virtio/virtio_balloon.c
-> index 8e400ece9273..2457c54b6185 100644
+> index 8e400ece9273..abef2306c899 100644
 > --- a/drivers/virtio/virtio_balloon.c
 > +++ b/drivers/virtio/virtio_balloon.c
-> @@ -158,6 +158,8 @@ static void set_page_pfns(struct virtio_balloon *vb,
->  {
->  	unsigned int i;
+> @@ -968,6 +968,10 @@ static void remove_common(struct virtio_balloon *vb)
+>  		leak_balloon(vb, vb->num_pages);
+>  	update_balloon_size(vb);
 >  
-> +	BUILD_BUG_ON(VIRTIO_BALLOON_PAGES_PER_PAGE > VIRTIO_BALLOON_ARRAY_PFNS_MAX);
+> +	/* There might be free pages that are being reported: release them. */
+> +	if (virtio_has_feature(vb->vdev, VIRTIO_BALLOON_F_FREE_PAGE_HINT))
+> +		return_free_pages_to_mm(vb, ULONG_MAX);
 > +
->  	/*
->  	 * Set balloon pfns pointing at this page.
->  	 * Note that the first pfn points at start of the page.
-> 
-
-Reviewed-by: David Hildenbrand <david@redhat.com>
-
--- 
-Thanks,
-
-David / dhildenb
+>  	/* Now we reset the device so we can clean up the queues. */
+>  	vb->vdev->config->reset(vb->vdev);
+>  
+> -- 
+> 2.24.1
