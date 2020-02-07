@@ -1,7 +1,7 @@
 From: =?UTF-8?q?Adalbert=20Laz=C4=83r?= <alazar@bitdefender.com>
-Subject: [RFC PATCH v7 28/78] KVM: x86: export kvm_inject_pending_exception()
-Date: Fri,  7 Feb 2020 20:15:46 +0200
-Message-ID: <20200207181636.1065-29-alazar@bitdefender.com>
+Subject: [RFC PATCH v7 26/78] KVM: x86: export kvm_arch_vcpu_set_guest_debug()
+Date: Fri,  7 Feb 2020 20:15:44 +0200
+Message-ID: <20200207181636.1065-27-alazar@bitdefender.com>
 References: <20200207181636.1065-1-alazar@bitdefender.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -15,113 +15,68 @@ List-Id: virtualization@lists.linuxfoundation.org
 
 From: Nicușor Cîțu <ncitu@bitdefender.com>
 
-This function is needed for the KVMI_VCPU_INJECT_EXCEPTION command.
+This function is needed for the KVMI_EVENT_BP event.
 
 Signed-off-by: Nicușor Cîțu <ncitu@bitdefender.com>
 Signed-off-by: Adalbert Lazăr <alazar@bitdefender.com>
 ---
- arch/x86/include/asm/kvm_host.h |  1 +
- arch/x86/kvm/x86.c              | 71 ++++++++++++++++++---------------
- 2 files changed, 39 insertions(+), 33 deletions(-)
+ arch/x86/kvm/x86.c       | 18 +++++++++++++-----
+ include/linux/kvm_host.h |  2 ++
+ 2 files changed, 15 insertions(+), 5 deletions(-)
 
-diff --git a/arch/x86/include/asm/kvm_host.h b/arch/x86/include/asm/kvm_host.h
-index d216ed1a7c7d..77de935979b2 100644
---- a/arch/x86/include/asm/kvm_host.h
-+++ b/arch/x86/include/asm/kvm_host.h
-@@ -1438,6 +1438,7 @@ unsigned long kvm_get_rflags(struct kvm_vcpu *vcpu);
- void kvm_set_rflags(struct kvm_vcpu *vcpu, unsigned long rflags);
- bool kvm_rdpmc(struct kvm_vcpu *vcpu);
- 
-+void kvm_inject_pending_exception(struct kvm_vcpu *vcpu);
- void kvm_queue_exception(struct kvm_vcpu *vcpu, unsigned nr);
- void kvm_queue_exception_e(struct kvm_vcpu *vcpu, unsigned nr, u32 error_code);
- void kvm_requeue_exception(struct kvm_vcpu *vcpu, unsigned nr);
 diff --git a/arch/x86/kvm/x86.c b/arch/x86/kvm/x86.c
-index 5e6327363207..64b4b6dde347 100644
+index fee24bb5fa52..c607148dcf63 100644
 --- a/arch/x86/kvm/x86.c
 +++ b/arch/x86/kvm/x86.c
-@@ -7523,6 +7523,43 @@ static void update_cr8_intercept(struct kvm_vcpu *vcpu)
- 	kvm_x86_ops->update_cr8_intercept(vcpu, tpr, max_irr);
+@@ -8927,14 +8927,12 @@ int kvm_arch_vcpu_ioctl_set_sregs(struct kvm_vcpu *vcpu,
+ 	return ret;
  }
  
-+void kvm_inject_pending_exception(struct kvm_vcpu *vcpu)
+-int kvm_arch_vcpu_ioctl_set_guest_debug(struct kvm_vcpu *vcpu,
+-					struct kvm_guest_debug *dbg)
++int kvm_arch_vcpu_set_guest_debug(struct kvm_vcpu *vcpu,
++				 struct kvm_guest_debug *dbg)
+ {
+ 	unsigned long rflags;
+ 	int i, r;
+ 
+-	vcpu_load(vcpu);
+-
+ 	if (dbg->control & (KVM_GUESTDBG_INJECT_DB | KVM_GUESTDBG_INJECT_BP)) {
+ 		r = -EBUSY;
+ 		if (vcpu->arch.exception.pending)
+@@ -8980,10 +8978,20 @@ int kvm_arch_vcpu_ioctl_set_guest_debug(struct kvm_vcpu *vcpu,
+ 	r = 0;
+ 
+ out:
+-	vcpu_put(vcpu);
+ 	return r;
+ }
+ 
++int kvm_arch_vcpu_ioctl_set_guest_debug(struct kvm_vcpu *vcpu,
++					struct kvm_guest_debug *dbg)
 +{
-+	if (vcpu->arch.exception.pending) {
-+		trace_kvm_inj_exception(vcpu->arch.exception.nr,
-+					vcpu->arch.exception.has_error_code,
-+					vcpu->arch.exception.error_code);
++	int ret;
 +
-+		WARN_ON_ONCE(vcpu->arch.exception.injected);
-+		vcpu->arch.exception.pending = false;
-+		vcpu->arch.exception.injected = true;
-+
-+		if (exception_type(vcpu->arch.exception.nr) == EXCPT_FAULT)
-+			__kvm_set_rflags(vcpu, kvm_get_rflags(vcpu) |
-+					     X86_EFLAGS_RF);
-+
-+		if (vcpu->arch.exception.nr == DB_VECTOR) {
-+			/*
-+			 * This code assumes that nSVM doesn't use
-+			 * check_nested_events(). If it does, the
-+			 * DR6/DR7 changes should happen before L1
-+			 * gets a #VMEXIT for an intercepted #DB in
-+			 * L2.  (Under VMX, on the other hand, the
-+			 * DR6/DR7 changes should not happen in the
-+			 * event of a VM-exit to L1 for an intercepted
-+			 * #DB in L2.)
-+			 */
-+			kvm_deliver_exception_payload(vcpu);
-+			if (vcpu->arch.dr7 & DR7_GD) {
-+				vcpu->arch.dr7 &= ~DR7_GD;
-+				kvm_update_dr7(vcpu);
-+			}
-+		}
-+
-+		kvm_x86_ops->queue_exception(vcpu);
-+	}
++	vcpu_load(vcpu);
++	ret = kvm_arch_vcpu_set_guest_debug(vcpu, dbg);
++	vcpu_put(vcpu);
++	return ret;
 +}
 +
- static int inject_pending_event(struct kvm_vcpu *vcpu, bool req_int_win)
- {
- 	int r;
-@@ -7565,39 +7602,7 @@ static int inject_pending_event(struct kvm_vcpu *vcpu, bool req_int_win)
- 	}
+ /*
+  * Translate a guest virtual address to a guest physical address.
+  */
+diff --git a/include/linux/kvm_host.h b/include/linux/kvm_host.h
+index c7ef69015050..625f567f6120 100644
+--- a/include/linux/kvm_host.h
++++ b/include/linux/kvm_host.h
+@@ -869,6 +869,8 @@ int kvm_arch_vcpu_ioctl_set_mpstate(struct kvm_vcpu *vcpu,
+ 				    struct kvm_mp_state *mp_state);
+ int kvm_arch_vcpu_ioctl_set_guest_debug(struct kvm_vcpu *vcpu,
+ 					struct kvm_guest_debug *dbg);
++int kvm_arch_vcpu_set_guest_debug(struct kvm_vcpu *vcpu,
++				 struct kvm_guest_debug *dbg);
+ int kvm_arch_vcpu_ioctl_run(struct kvm_vcpu *vcpu, struct kvm_run *kvm_run);
  
- 	/* try to inject new event if pending */
--	if (vcpu->arch.exception.pending) {
--		trace_kvm_inj_exception(vcpu->arch.exception.nr,
--					vcpu->arch.exception.has_error_code,
--					vcpu->arch.exception.error_code);
--
--		WARN_ON_ONCE(vcpu->arch.exception.injected);
--		vcpu->arch.exception.pending = false;
--		vcpu->arch.exception.injected = true;
--
--		if (exception_type(vcpu->arch.exception.nr) == EXCPT_FAULT)
--			__kvm_set_rflags(vcpu, kvm_get_rflags(vcpu) |
--					     X86_EFLAGS_RF);
--
--		if (vcpu->arch.exception.nr == DB_VECTOR) {
--			/*
--			 * This code assumes that nSVM doesn't use
--			 * check_nested_events(). If it does, the
--			 * DR6/DR7 changes should happen before L1
--			 * gets a #VMEXIT for an intercepted #DB in
--			 * L2.  (Under VMX, on the other hand, the
--			 * DR6/DR7 changes should not happen in the
--			 * event of a VM-exit to L1 for an intercepted
--			 * #DB in L2.)
--			 */
--			kvm_deliver_exception_payload(vcpu);
--			if (vcpu->arch.dr7 & DR7_GD) {
--				vcpu->arch.dr7 &= ~DR7_GD;
--				kvm_update_dr7(vcpu);
--			}
--		}
--
--		kvm_x86_ops->queue_exception(vcpu);
--	}
-+	kvm_inject_pending_exception(vcpu);
- 
- 	/* Don't consider new event if we re-injected an event */
- 	if (kvm_event_needs_reinjection(vcpu))
+ int kvm_arch_init(void *opaque);
