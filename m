@@ -1,7 +1,7 @@
 From: =?UTF-8?q?Adalbert=20Laz=C4=83r?= <alazar@bitdefender.com>
-Subject: [RFC PATCH v7 14/78] KVM: x86: add .desc_intercepted()
-Date: Fri,  7 Feb 2020 20:15:32 +0200
-Message-ID: <20200207181636.1065-15-alazar@bitdefender.com>
+Subject: [RFC PATCH v7 28/78] KVM: x86: export kvm_inject_pending_exception()
+Date: Fri,  7 Feb 2020 20:15:46 +0200
+Message-ID: <20200207181636.1065-29-alazar@bitdefender.com>
 References: <20200207181636.1065-1-alazar@bitdefender.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -15,99 +15,113 @@ List-Id: virtualization@lists.linuxfoundation.org
 
 From: Nicușor Cîțu <ncitu@bitdefender.com>
 
-This function will be used to test if the descriptor access events
-are already tracked by another user.
+This function is needed for the KVMI_VCPU_INJECT_EXCEPTION command.
 
 Signed-off-by: Nicușor Cîțu <ncitu@bitdefender.com>
 Signed-off-by: Adalbert Lazăr <alazar@bitdefender.com>
 ---
  arch/x86/include/asm/kvm_host.h |  1 +
- arch/x86/kvm/svm.c              | 22 ++++++++++++++++++++++
- arch/x86/kvm/vmx/vmx.c          |  8 ++++++++
- 3 files changed, 31 insertions(+)
+ arch/x86/kvm/x86.c              | 71 ++++++++++++++++++---------------
+ 2 files changed, 39 insertions(+), 33 deletions(-)
 
 diff --git a/arch/x86/include/asm/kvm_host.h b/arch/x86/include/asm/kvm_host.h
-index 3b86e745da05..4d43f5479c0c 100644
+index d216ed1a7c7d..77de935979b2 100644
 --- a/arch/x86/include/asm/kvm_host.h
 +++ b/arch/x86/include/asm/kvm_host.h
-@@ -1077,6 +1077,7 @@ struct kvm_x86_ops {
- 	void (*get_gdt)(struct kvm_vcpu *vcpu, struct desc_ptr *dt);
- 	void (*set_gdt)(struct kvm_vcpu *vcpu, struct desc_ptr *dt);
- 	void (*control_desc_intercept)(struct kvm_vcpu *vcpu, bool enable);
-+	bool (*desc_intercepted)(struct kvm_vcpu *vcpu);
- 	u64 (*get_dr6)(struct kvm_vcpu *vcpu);
- 	void (*set_dr6)(struct kvm_vcpu *vcpu, unsigned long value);
- 	void (*sync_dirty_debug_regs)(struct kvm_vcpu *vcpu);
-diff --git a/arch/x86/kvm/svm.c b/arch/x86/kvm/svm.c
-index 060d49b69b2e..bf1f2bca5357 100644
---- a/arch/x86/kvm/svm.c
-+++ b/arch/x86/kvm/svm.c
-@@ -632,6 +632,13 @@ static inline void clr_intercept(struct vcpu_svm *svm, int bit)
- 	recalc_intercepts(svm);
+@@ -1438,6 +1438,7 @@ unsigned long kvm_get_rflags(struct kvm_vcpu *vcpu);
+ void kvm_set_rflags(struct kvm_vcpu *vcpu, unsigned long rflags);
+ bool kvm_rdpmc(struct kvm_vcpu *vcpu);
+ 
++void kvm_inject_pending_exception(struct kvm_vcpu *vcpu);
+ void kvm_queue_exception(struct kvm_vcpu *vcpu, unsigned nr);
+ void kvm_queue_exception_e(struct kvm_vcpu *vcpu, unsigned nr, u32 error_code);
+ void kvm_requeue_exception(struct kvm_vcpu *vcpu, unsigned nr);
+diff --git a/arch/x86/kvm/x86.c b/arch/x86/kvm/x86.c
+index 5e6327363207..64b4b6dde347 100644
+--- a/arch/x86/kvm/x86.c
++++ b/arch/x86/kvm/x86.c
+@@ -7523,6 +7523,43 @@ static void update_cr8_intercept(struct kvm_vcpu *vcpu)
+ 	kvm_x86_ops->update_cr8_intercept(vcpu, tpr, max_irr);
  }
  
-+static inline bool get_intercept(struct vcpu_svm *svm, int bit)
++void kvm_inject_pending_exception(struct kvm_vcpu *vcpu)
 +{
-+	struct vmcb *vmcb = get_host_vmcb(svm);
++	if (vcpu->arch.exception.pending) {
++		trace_kvm_inj_exception(vcpu->arch.exception.nr,
++					vcpu->arch.exception.has_error_code,
++					vcpu->arch.exception.error_code);
 +
-+	return (vmcb->control.intercept & (1ULL << bit));
++		WARN_ON_ONCE(vcpu->arch.exception.injected);
++		vcpu->arch.exception.pending = false;
++		vcpu->arch.exception.injected = true;
++
++		if (exception_type(vcpu->arch.exception.nr) == EXCPT_FAULT)
++			__kvm_set_rflags(vcpu, kvm_get_rflags(vcpu) |
++					     X86_EFLAGS_RF);
++
++		if (vcpu->arch.exception.nr == DB_VECTOR) {
++			/*
++			 * This code assumes that nSVM doesn't use
++			 * check_nested_events(). If it does, the
++			 * DR6/DR7 changes should happen before L1
++			 * gets a #VMEXIT for an intercepted #DB in
++			 * L2.  (Under VMX, on the other hand, the
++			 * DR6/DR7 changes should not happen in the
++			 * event of a VM-exit to L1 for an intercepted
++			 * #DB in L2.)
++			 */
++			kvm_deliver_exception_payload(vcpu);
++			if (vcpu->arch.dr7 & DR7_GD) {
++				vcpu->arch.dr7 &= ~DR7_GD;
++				kvm_update_dr7(vcpu);
++			}
++		}
++
++		kvm_x86_ops->queue_exception(vcpu);
++	}
 +}
 +
- static inline bool vgif_enabled(struct vcpu_svm *svm)
+ static int inject_pending_event(struct kvm_vcpu *vcpu, bool req_int_win)
  {
- 	return !!(svm->vmcb->control.int_ctl & V_GIF_ENABLE_MASK);
-@@ -7301,6 +7308,20 @@ static void svm_control_desc_intercept(struct kvm_vcpu *vcpu, bool enable)
+ 	int r;
+@@ -7565,39 +7602,7 @@ static int inject_pending_event(struct kvm_vcpu *vcpu, bool req_int_win)
  	}
- }
  
-+static inline bool svm_desc_intercepted(struct kvm_vcpu *vcpu)
-+{
-+	struct vcpu_svm *svm = to_svm(vcpu);
-+
-+	return (get_intercept(svm, INTERCEPT_STORE_IDTR) ||
-+		get_intercept(svm, INTERCEPT_STORE_GDTR) ||
-+		get_intercept(svm, INTERCEPT_STORE_LDTR) ||
-+		get_intercept(svm, INTERCEPT_STORE_TR) ||
-+		get_intercept(svm, INTERCEPT_LOAD_IDTR) ||
-+		get_intercept(svm, INTERCEPT_LOAD_GDTR) ||
-+		get_intercept(svm, INTERCEPT_LOAD_LDTR) ||
-+		get_intercept(svm, INTERCEPT_LOAD_TR));
-+}
-+
- static struct kvm_x86_ops svm_x86_ops __ro_after_init = {
- 	.cpu_has_kvm_support = has_svm,
- 	.disabled_by_bios = is_disabled,
-@@ -7350,6 +7371,7 @@ static struct kvm_x86_ops svm_x86_ops __ro_after_init = {
- 	.get_gdt = svm_get_gdt,
- 	.set_gdt = svm_set_gdt,
- 	.control_desc_intercept = svm_control_desc_intercept,
-+	.desc_intercepted = svm_desc_intercepted,
- 	.get_dr6 = svm_get_dr6,
- 	.set_dr6 = svm_set_dr6,
- 	.set_dr7 = svm_set_dr7,
-diff --git a/arch/x86/kvm/vmx/vmx.c b/arch/x86/kvm/vmx/vmx.c
-index 646ce2650728..8709a26736d9 100644
---- a/arch/x86/kvm/vmx/vmx.c
-+++ b/arch/x86/kvm/vmx/vmx.c
-@@ -7793,6 +7793,13 @@ static bool vmx_cr3_write_intercepted(struct kvm_vcpu *vcpu)
- 	return !!(exec_controls_get(vmx) & CPU_BASED_CR3_LOAD_EXITING);
- }
+ 	/* try to inject new event if pending */
+-	if (vcpu->arch.exception.pending) {
+-		trace_kvm_inj_exception(vcpu->arch.exception.nr,
+-					vcpu->arch.exception.has_error_code,
+-					vcpu->arch.exception.error_code);
+-
+-		WARN_ON_ONCE(vcpu->arch.exception.injected);
+-		vcpu->arch.exception.pending = false;
+-		vcpu->arch.exception.injected = true;
+-
+-		if (exception_type(vcpu->arch.exception.nr) == EXCPT_FAULT)
+-			__kvm_set_rflags(vcpu, kvm_get_rflags(vcpu) |
+-					     X86_EFLAGS_RF);
+-
+-		if (vcpu->arch.exception.nr == DB_VECTOR) {
+-			/*
+-			 * This code assumes that nSVM doesn't use
+-			 * check_nested_events(). If it does, the
+-			 * DR6/DR7 changes should happen before L1
+-			 * gets a #VMEXIT for an intercepted #DB in
+-			 * L2.  (Under VMX, on the other hand, the
+-			 * DR6/DR7 changes should not happen in the
+-			 * event of a VM-exit to L1 for an intercepted
+-			 * #DB in L2.)
+-			 */
+-			kvm_deliver_exception_payload(vcpu);
+-			if (vcpu->arch.dr7 & DR7_GD) {
+-				vcpu->arch.dr7 &= ~DR7_GD;
+-				kvm_update_dr7(vcpu);
+-			}
+-		}
+-
+-		kvm_x86_ops->queue_exception(vcpu);
+-	}
++	kvm_inject_pending_exception(vcpu);
  
-+static bool vmx_desc_intercepted(struct kvm_vcpu *vcpu)
-+{
-+	struct vcpu_vmx *vmx = to_vmx(vcpu);
-+
-+	return !!(secondary_exec_controls_get(vmx) & SECONDARY_EXEC_DESC);
-+}
-+
- static struct kvm_x86_ops vmx_x86_ops __ro_after_init = {
- 	.cpu_has_kvm_support = cpu_has_kvm_support,
- 	.disabled_by_bios = vmx_disabled_by_bios,
-@@ -7839,6 +7846,7 @@ static struct kvm_x86_ops vmx_x86_ops __ro_after_init = {
- 	.get_gdt = vmx_get_gdt,
- 	.set_gdt = vmx_set_gdt,
- 	.control_desc_intercept = vmx_control_desc_intercept,
-+	.desc_intercepted = vmx_desc_intercepted,
- 	.get_dr6 = vmx_get_dr6,
- 	.set_dr6 = vmx_set_dr6,
- 	.set_dr7 = vmx_set_dr7,
+ 	/* Don't consider new event if we re-injected an event */
+ 	if (kvm_event_needs_reinjection(vcpu))
