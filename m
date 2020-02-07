@@ -1,7 +1,7 @@
 From: =?UTF-8?q?Adalbert=20Laz=C4=83r?= <alazar@bitdefender.com>
-Subject: [RFC PATCH v7 07/78] KVM: x86: add kvm_arch_vcpu_get_regs() and kvm_arch_vcpu_get_sregs()
-Date: Fri,  7 Feb 2020 20:15:25 +0200
-Message-ID: <20200207181636.1065-8-alazar@bitdefender.com>
+Subject: [RFC PATCH v7 02/78] export kill_pid_info()
+Date: Fri,  7 Feb 2020 20:15:20 +0200
+Message-ID: <20200207181636.1065-3-alazar@bitdefender.com>
 References: <20200207181636.1065-1-alazar@bitdefender.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -10,63 +10,32 @@ Return-path: <kvm-owner@vger.kernel.org>
 In-Reply-To: <20200207181636.1065-1-alazar@bitdefender.com>
 Sender: kvm-owner@vger.kernel.org
 To: kvm@vger.kernel.org
-Cc: virtualization@lists.linux-foundation.org, Paolo Bonzini <pbonzini@redhat.com>, Sean Christopherson <sean.j.christopherson@intel.com>, =?UTF-8?q?Mihai=20Don=C8=9Bu?= <mdontu@bitdefender.com>, =?UTF-8?q?Adalbert=20Laz=C4=83r?= <alazar@bitdefender.com>
+Cc: virtualization@lists.linux-foundation.org, Paolo Bonzini <pbonzini@redhat.com>, Sean Christopherson <sean.j.christopherson@intel.com>, Mathieu Tarral <mathieu.tarral@protonmail.com>, =?UTF-8?q?Adalbert=20Laz=C4=83r?= <alazar@bitdefender.com>
 List-Id: virtualization@lists.linuxfoundation.org
 
-From: Mihai Donțu <mdontu@bitdefender.com>
+From: Mathieu Tarral <mathieu.tarral@protonmail.com>
 
-These functions are needed for VM introspection (get registers commands
-and all events sending the vCPU registers to the introspection tool).
+This function is used by KVMI (KVM introspection sub-system) to
+ungracefully shutdown the guest when an introspection tool requests it.
 
-Signed-off-by: Mihai Donțu <mdontu@bitdefender.com>
+A security application will use it as a last resort in stopping the
+spread of a malware from a guest
+
+Signed-off-by: Mathieu Tarral <mathieu.tarral@protonmail.com>
 Signed-off-by: Adalbert Lazăr <alazar@bitdefender.com>
 ---
- arch/x86/kvm/x86.c       | 10 ++++++++++
- include/linux/kvm_host.h |  3 +++
- 2 files changed, 13 insertions(+)
+ kernel/signal.c | 1 +
+ 1 file changed, 1 insertion(+)
 
-diff --git a/arch/x86/kvm/x86.c b/arch/x86/kvm/x86.c
-index cf917139de6b..ff0c12a9322d 100644
---- a/arch/x86/kvm/x86.c
-+++ b/arch/x86/kvm/x86.c
-@@ -8615,6 +8615,11 @@ int kvm_arch_vcpu_ioctl_get_regs(struct kvm_vcpu *vcpu, struct kvm_regs *regs)
- 	return 0;
+diff --git a/kernel/signal.c b/kernel/signal.c
+index bcd46f547db3..461881343991 100644
+--- a/kernel/signal.c
++++ b/kernel/signal.c
+@@ -1451,6 +1451,7 @@ int kill_pid_info(int sig, struct kernel_siginfo *info, struct pid *pid)
+ 		 */
+ 	}
  }
++EXPORT_SYMBOL(kill_pid_info);
  
-+void kvm_arch_vcpu_get_regs(struct kvm_vcpu *vcpu, struct kvm_regs *regs)
-+{
-+	__get_regs(vcpu, regs);
-+}
-+
- static void __set_regs(struct kvm_vcpu *vcpu, struct kvm_regs *regs)
+ static int kill_proc_info(int sig, struct kernel_siginfo *info, pid_t pid)
  {
- 	vcpu->arch.emulate_regs_need_sync_from_vcpu = true;
-@@ -8710,6 +8715,11 @@ int kvm_arch_vcpu_ioctl_get_sregs(struct kvm_vcpu *vcpu,
- 	return 0;
- }
- 
-+void kvm_arch_vcpu_get_sregs(struct kvm_vcpu *vcpu, struct kvm_sregs *sregs)
-+{
-+	__get_sregs(vcpu, sregs);
-+}
-+
- int kvm_arch_vcpu_ioctl_get_mpstate(struct kvm_vcpu *vcpu,
- 				    struct kvm_mp_state *mp_state)
- {
-diff --git a/include/linux/kvm_host.h b/include/linux/kvm_host.h
-index e826e874b998..62f5bf82adc0 100644
---- a/include/linux/kvm_host.h
-+++ b/include/linux/kvm_host.h
-@@ -853,9 +853,12 @@ int kvm_arch_vcpu_ioctl_translate(struct kvm_vcpu *vcpu,
- 				    struct kvm_translation *tr);
- 
- int kvm_arch_vcpu_ioctl_get_regs(struct kvm_vcpu *vcpu, struct kvm_regs *regs);
-+void kvm_arch_vcpu_get_regs(struct kvm_vcpu *vcpu, struct kvm_regs *regs);
- int kvm_arch_vcpu_ioctl_set_regs(struct kvm_vcpu *vcpu, struct kvm_regs *regs);
- int kvm_arch_vcpu_ioctl_get_sregs(struct kvm_vcpu *vcpu,
- 				  struct kvm_sregs *sregs);
-+void kvm_arch_vcpu_get_sregs(struct kvm_vcpu *vcpu,
-+				  struct kvm_sregs *sregs);
- int kvm_arch_vcpu_ioctl_set_sregs(struct kvm_vcpu *vcpu,
- 				  struct kvm_sregs *sregs);
- int kvm_arch_vcpu_ioctl_get_mpstate(struct kvm_vcpu *vcpu,
