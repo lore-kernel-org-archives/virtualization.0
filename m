@@ -1,7 +1,7 @@
 From: =?UTF-8?q?Adalbert=20Laz=C4=83r?= <alazar@bitdefender.com>
-Subject: [RFC PATCH v7 23/78] KVM: x86: add .spt_fault()
-Date: Fri,  7 Feb 2020 20:15:41 +0200
-Message-ID: <20200207181636.1065-24-alazar@bitdefender.com>
+Subject: [RFC PATCH v7 21/78] KVM: x86: save the error code during EPT/NPF exits handling
+Date: Fri,  7 Feb 2020 20:15:39 +0200
+Message-ID: <20200207181636.1065-22-alazar@bitdefender.com>
 References: <20200207181636.1065-1-alazar@bitdefender.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -15,78 +15,52 @@ List-Id: virtualization@lists.linuxfoundation.org
 
 From: Mihai Donțu <mdontu@bitdefender.com>
 
-This function is needed for the KVMI_EVENT_PF event.
+This is needed for kvm_page_track_emulation_failure().
 
 Signed-off-by: Mihai Donțu <mdontu@bitdefender.com>
 Signed-off-by: Adalbert Lazăr <alazar@bitdefender.com>
 ---
- arch/x86/include/asm/kvm_host.h | 1 +
- arch/x86/kvm/svm.c              | 9 +++++++++
- arch/x86/kvm/vmx/vmx.c          | 8 ++++++++
- 3 files changed, 18 insertions(+)
+ arch/x86/include/asm/kvm_host.h | 3 +++
+ arch/x86/kvm/svm.c              | 2 ++
+ arch/x86/kvm/vmx/vmx.c          | 1 +
+ 3 files changed, 6 insertions(+)
 
 diff --git a/arch/x86/include/asm/kvm_host.h b/arch/x86/include/asm/kvm_host.h
-index 6094884d3015..0f25f69fc8be 100644
+index d8c61cc301fa..9f12d40198b5 100644
 --- a/arch/x86/include/asm/kvm_host.h
 +++ b/arch/x86/include/asm/kvm_host.h
-@@ -1255,6 +1255,7 @@ struct kvm_x86_ops {
- 	int (*enable_direct_tlbflush)(struct kvm_vcpu *vcpu);
+@@ -811,6 +811,9 @@ struct kvm_vcpu_arch {
  
- 	u64 (*fault_gla)(struct kvm_vcpu *vcpu);
-+	bool (*spt_fault)(struct kvm_vcpu *vcpu);
+ 	/* AMD MSRC001_0015 Hardware Configuration */
+ 	u64 msr_hwcr;
++
++	/* #PF translated error code from EPT/NPT exit reason */
++	u64 error_code;
  };
  
- struct kvm_arch_async_pf {
+ struct kvm_lpage_info {
 diff --git a/arch/x86/kvm/svm.c b/arch/x86/kvm/svm.c
-index ab9576444e6b..f908ef374617 100644
+index 21f02d92af78..c3b7f593299f 100644
 --- a/arch/x86/kvm/svm.c
 +++ b/arch/x86/kvm/svm.c
-@@ -7358,6 +7358,14 @@ static u64 svm_fault_gla(struct kvm_vcpu *vcpu)
- 	return svm->vcpu.arch.cr2 ? svm->vcpu.arch.cr2 : ~0ull;
- }
+@@ -2749,6 +2749,8 @@ static int npf_interception(struct vcpu_svm *svm)
+ 	u64 fault_address = __sme_clr(svm->vmcb->control.exit_info_2);
+ 	u64 error_code = svm->vmcb->control.exit_info_1;
  
-+static bool svm_spt_fault(struct kvm_vcpu *vcpu)
-+{
-+	struct vcpu_svm *svm = to_svm(vcpu);
-+	struct vmcb *vmcb = get_host_vmcb(svm);
++	svm->vcpu.arch.error_code = error_code;
 +
-+	return (vmcb->control.exit_code == SVM_EXIT_NPF);
-+}
-+
- static struct kvm_x86_ops svm_x86_ops __ro_after_init = {
- 	.cpu_has_kvm_support = has_svm,
- 	.disabled_by_bios = is_disabled,
-@@ -7504,6 +7512,7 @@ static struct kvm_x86_ops svm_x86_ops __ro_after_init = {
- 	.apic_init_signal_blocked = svm_apic_init_signal_blocked,
- 
- 	.fault_gla = svm_fault_gla,
-+	.spt_fault = svm_spt_fault,
- };
- 
- static int __init svm_init(void)
+ 	trace_kvm_page_fault(fault_address, error_code);
+ 	return kvm_mmu_page_fault(&svm->vcpu, fault_address, error_code,
+ 			static_cpu_has(X86_FEATURE_DECODEASSISTS) ?
 diff --git a/arch/x86/kvm/vmx/vmx.c b/arch/x86/kvm/vmx/vmx.c
-index f1df5725d06f..6f41a7b27a11 100644
+index 538044edddfc..7a96a911e5f2 100644
 --- a/arch/x86/kvm/vmx/vmx.c
 +++ b/arch/x86/kvm/vmx/vmx.c
-@@ -7823,6 +7823,13 @@ static u64 vmx_fault_gla(struct kvm_vcpu *vcpu)
- 	return ~0ull;
+@@ -5189,6 +5189,7 @@ static int handle_ept_violation(struct kvm_vcpu *vcpu)
+ 		      ? PFERR_GUEST_FINAL_MASK : PFERR_GUEST_PAGE_MASK;
+ 
+ 	vcpu->arch.exit_qualification = exit_qualification;
++	vcpu->arch.error_code = error_code;
+ 	return kvm_mmu_page_fault(vcpu, gpa, error_code, NULL, 0);
  }
  
-+static bool vmx_spt_fault(struct kvm_vcpu *vcpu)
-+{
-+	const struct vcpu_vmx *vmx = to_vmx(vcpu);
-+
-+	return (vmx->exit_reason == EXIT_REASON_EPT_VIOLATION);
-+}
-+
- static struct kvm_x86_ops vmx_x86_ops __ro_after_init = {
- 	.cpu_has_kvm_support = cpu_has_kvm_support,
- 	.disabled_by_bios = vmx_disabled_by_bios,
-@@ -7982,6 +7989,7 @@ static struct kvm_x86_ops vmx_x86_ops __ro_after_init = {
- 	.apic_init_signal_blocked = vmx_apic_init_signal_blocked,
- 
- 	.fault_gla = vmx_fault_gla,
-+	.spt_fault = vmx_spt_fault,
- };
- 
- static void vmx_cleanup_l1d_flush(void)
