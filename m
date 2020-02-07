@@ -1,7 +1,7 @@
 From: =?UTF-8?q?Adalbert=20Laz=C4=83r?= <alazar@bitdefender.com>
-Subject: [RFC PATCH v7 21/78] KVM: x86: save the error code during EPT/NPF exits handling
-Date: Fri,  7 Feb 2020 20:15:39 +0200
-Message-ID: <20200207181636.1065-22-alazar@bitdefender.com>
+Subject: [RFC PATCH v7 27/78] KVM: x86: extend kvm_mmu_gva_to_gpa_system() with the 'access' parameter
+Date: Fri,  7 Feb 2020 20:15:45 +0200
+Message-ID: <20200207181636.1065-28-alazar@bitdefender.com>
 References: <20200207181636.1065-1-alazar@bitdefender.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -15,52 +15,51 @@ List-Id: virtualization@lists.linuxfoundation.org
 
 From: Mihai Donțu <mdontu@bitdefender.com>
 
-This is needed for kvm_page_track_emulation_failure().
+This is needed for the introspection subsytem to emulate a guest page
+table walk on SPT violations due to A/D bit updates.
 
 Signed-off-by: Mihai Donțu <mdontu@bitdefender.com>
 Signed-off-by: Adalbert Lazăr <alazar@bitdefender.com>
 ---
- arch/x86/include/asm/kvm_host.h | 3 +++
- arch/x86/kvm/svm.c              | 2 ++
- arch/x86/kvm/vmx/vmx.c          | 1 +
- 3 files changed, 6 insertions(+)
+ arch/x86/include/asm/kvm_host.h | 2 +-
+ arch/x86/kvm/x86.c              | 6 +++---
+ 2 files changed, 4 insertions(+), 4 deletions(-)
 
 diff --git a/arch/x86/include/asm/kvm_host.h b/arch/x86/include/asm/kvm_host.h
-index d8c61cc301fa..9f12d40198b5 100644
+index 6927a6044e26..d216ed1a7c7d 100644
 --- a/arch/x86/include/asm/kvm_host.h
 +++ b/arch/x86/include/asm/kvm_host.h
-@@ -811,6 +811,9 @@ struct kvm_vcpu_arch {
+@@ -1487,7 +1487,7 @@ gpa_t kvm_mmu_gva_to_gpa_fetch(struct kvm_vcpu *vcpu, gva_t gva,
+ gpa_t kvm_mmu_gva_to_gpa_write(struct kvm_vcpu *vcpu, gva_t gva,
+ 			       struct x86_exception *exception);
+ gpa_t kvm_mmu_gva_to_gpa_system(struct kvm_vcpu *vcpu, gva_t gva,
+-				struct x86_exception *exception);
++				u32 access, struct x86_exception *exception);
  
- 	/* AMD MSRC001_0015 Hardware Configuration */
- 	u64 msr_hwcr;
-+
-+	/* #PF translated error code from EPT/NPT exit reason */
-+	u64 error_code;
- };
+ void kvm_vcpu_deactivate_apicv(struct kvm_vcpu *vcpu);
  
- struct kvm_lpage_info {
-diff --git a/arch/x86/kvm/svm.c b/arch/x86/kvm/svm.c
-index 21f02d92af78..c3b7f593299f 100644
---- a/arch/x86/kvm/svm.c
-+++ b/arch/x86/kvm/svm.c
-@@ -2749,6 +2749,8 @@ static int npf_interception(struct vcpu_svm *svm)
- 	u64 fault_address = __sme_clr(svm->vmcb->control.exit_info_2);
- 	u64 error_code = svm->vmcb->control.exit_info_1;
+diff --git a/arch/x86/kvm/x86.c b/arch/x86/kvm/x86.c
+index c607148dcf63..5e6327363207 100644
+--- a/arch/x86/kvm/x86.c
++++ b/arch/x86/kvm/x86.c
+@@ -5325,9 +5325,9 @@ gpa_t kvm_mmu_gva_to_gpa_write(struct kvm_vcpu *vcpu, gva_t gva,
  
-+	svm->vcpu.arch.error_code = error_code;
-+
- 	trace_kvm_page_fault(fault_address, error_code);
- 	return kvm_mmu_page_fault(&svm->vcpu, fault_address, error_code,
- 			static_cpu_has(X86_FEATURE_DECODEASSISTS) ?
-diff --git a/arch/x86/kvm/vmx/vmx.c b/arch/x86/kvm/vmx/vmx.c
-index 538044edddfc..7a96a911e5f2 100644
---- a/arch/x86/kvm/vmx/vmx.c
-+++ b/arch/x86/kvm/vmx/vmx.c
-@@ -5189,6 +5189,7 @@ static int handle_ept_violation(struct kvm_vcpu *vcpu)
- 		      ? PFERR_GUEST_FINAL_MASK : PFERR_GUEST_PAGE_MASK;
- 
- 	vcpu->arch.exit_qualification = exit_qualification;
-+	vcpu->arch.error_code = error_code;
- 	return kvm_mmu_page_fault(vcpu, gpa, error_code, NULL, 0);
+ /* uses this to access any guest's mapped memory without checking CPL */
+ gpa_t kvm_mmu_gva_to_gpa_system(struct kvm_vcpu *vcpu, gva_t gva,
+-				struct x86_exception *exception)
++				u32 access, struct x86_exception *exception)
+ {
+-	return vcpu->arch.walk_mmu->gva_to_gpa(vcpu, gva, 0, exception);
++	return vcpu->arch.walk_mmu->gva_to_gpa(vcpu, gva, access, exception);
  }
  
+ static int kvm_read_guest_virt_helper(gva_t addr, void *val, unsigned int bytes,
+@@ -9005,7 +9005,7 @@ int kvm_arch_vcpu_ioctl_translate(struct kvm_vcpu *vcpu,
+ 	vcpu_load(vcpu);
+ 
+ 	idx = srcu_read_lock(&vcpu->kvm->srcu);
+-	gpa = kvm_mmu_gva_to_gpa_system(vcpu, vaddr, NULL);
++	gpa = kvm_mmu_gva_to_gpa_system(vcpu, vaddr, 0, NULL);
+ 	srcu_read_unlock(&vcpu->kvm->srcu, idx);
+ 	tr->physical_address = gpa;
+ 	tr->valid = gpa != UNMAPPED_GVA;
