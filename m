@@ -1,7 +1,7 @@
 From: =?UTF-8?q?Adalbert=20Laz=C4=83r?= <alazar@bitdefender.com>
-Subject: [RFC PATCH v7 26/78] KVM: x86: export kvm_arch_vcpu_set_guest_debug()
-Date: Fri,  7 Feb 2020 20:15:44 +0200
-Message-ID: <20200207181636.1065-27-alazar@bitdefender.com>
+Subject: [RFC PATCH v7 30/78] KVM: x86: page track: provide all page tracking hooks with the guest virtual address
+Date: Fri,  7 Feb 2020 20:15:48 +0200
+Message-ID: <20200207181636.1065-31-alazar@bitdefender.com>
 References: <20200207181636.1065-1-alazar@bitdefender.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -10,73 +10,184 @@ Return-path: <kvm-owner@vger.kernel.org>
 In-Reply-To: <20200207181636.1065-1-alazar@bitdefender.com>
 Sender: kvm-owner@vger.kernel.org
 To: kvm@vger.kernel.org
-Cc: virtualization@lists.linux-foundation.org, Paolo Bonzini <pbonzini@redhat.com>, Sean Christopherson <sean.j.christopherson@intel.com>, =?UTF-8?q?Nicu=C8=99or=20C=C3=AE=C8=9Bu?= <ncitu@bitdefender.com>, =?UTF-8?q?Adalbert=20Laz=C4=83r?= <alazar@bitdefender.com>
+Cc: virtualization@lists.linux-foundation.org, Paolo Bonzini <pbonzini@redhat.com>, Sean Christopherson <sean.j.christopherson@intel.com>, =?UTF-8?q?Mihai=20Don=C8=9Bu?= <mdontu@bitdefender.com>, =?UTF-8?q?Adalbert=20Laz=C4=83r?= <alazar@bitdefender.com>
 List-Id: virtualization@lists.linuxfoundation.org
 
-From: Nicușor Cîțu <ncitu@bitdefender.com>
+From: Mihai Donțu <mdontu@bitdefender.com>
 
-This function is needed for the KVMI_EVENT_BP event.
+This is needed because the emulator calls the page tracking code
+irrespective of the current VM-exit reason or available information.
 
-Signed-off-by: Nicușor Cîțu <ncitu@bitdefender.com>
+Signed-off-by: Mihai Donțu <mdontu@bitdefender.com>
 Signed-off-by: Adalbert Lazăr <alazar@bitdefender.com>
 ---
- arch/x86/kvm/x86.c       | 18 +++++++++++++-----
- include/linux/kvm_host.h |  2 ++
- 2 files changed, 15 insertions(+), 5 deletions(-)
+ arch/x86/include/asm/kvm_host.h       |  2 +-
+ arch/x86/include/asm/kvm_page_track.h | 10 ++++++----
+ arch/x86/kvm/mmu/mmu.c                |  2 +-
+ arch/x86/kvm/mmu/page_track.c         |  6 +++---
+ arch/x86/kvm/x86.c                    | 16 ++++++++--------
+ drivers/gpu/drm/i915/gvt/kvmgt.c      |  2 +-
+ 6 files changed, 20 insertions(+), 18 deletions(-)
 
+diff --git a/arch/x86/include/asm/kvm_host.h b/arch/x86/include/asm/kvm_host.h
+index 77de935979b2..378a094ceb5b 100644
+--- a/arch/x86/include/asm/kvm_host.h
++++ b/arch/x86/include/asm/kvm_host.h
+@@ -1324,7 +1324,7 @@ void kvm_mmu_change_mmu_pages(struct kvm *kvm, unsigned long kvm_nr_mmu_pages);
+ int load_pdptrs(struct kvm_vcpu *vcpu, struct kvm_mmu *mmu, unsigned long cr3);
+ bool pdptrs_changed(struct kvm_vcpu *vcpu);
+ 
+-int emulator_write_phys(struct kvm_vcpu *vcpu, gpa_t gpa,
++int emulator_write_phys(struct kvm_vcpu *vcpu, gpa_t gpa, gva_t gva,
+ 			  const void *val, int bytes);
+ 
+ struct kvm_irq_mask_notifier {
+diff --git a/arch/x86/include/asm/kvm_page_track.h b/arch/x86/include/asm/kvm_page_track.h
+index 172f9749dbb2..e91f5a16e741 100644
+--- a/arch/x86/include/asm/kvm_page_track.h
++++ b/arch/x86/include/asm/kvm_page_track.h
+@@ -28,12 +28,14 @@ struct kvm_page_track_notifier_node {
+ 	 *
+ 	 * @vcpu: the vcpu where the write access happened.
+ 	 * @gpa: the physical address written by guest.
++	 * @gva: the virtual address written by guest.
+ 	 * @new: the data was written to the address.
+ 	 * @bytes: the written length.
+ 	 * @node: this node
+ 	 */
+-	void (*track_write)(struct kvm_vcpu *vcpu, gpa_t gpa, const u8 *new,
+-			    int bytes, struct kvm_page_track_notifier_node *node);
++	void (*track_write)(struct kvm_vcpu *vcpu, gpa_t gpa, gva_t gva,
++			    const u8 *new, int bytes,
++			    struct kvm_page_track_notifier_node *node);
+ 	/*
+ 	 * It is called when memory slot is being moved or removed
+ 	 * users can drop write-protection for the pages in that memory slot
+@@ -69,7 +71,7 @@ kvm_page_track_register_notifier(struct kvm *kvm,
+ void
+ kvm_page_track_unregister_notifier(struct kvm *kvm,
+ 				   struct kvm_page_track_notifier_node *n);
+-void kvm_page_track_write(struct kvm_vcpu *vcpu, gpa_t gpa, const u8 *new,
+-			  int bytes);
++void kvm_page_track_write(struct kvm_vcpu *vcpu, gpa_t gpa, gva_t gva,
++			  const u8 *new, int bytes);
+ void kvm_page_track_flush_slot(struct kvm *kvm, struct kvm_memory_slot *slot);
+ #endif
+diff --git a/arch/x86/kvm/mmu/mmu.c b/arch/x86/kvm/mmu/mmu.c
+index 6f92b40d798c..f2e016dfffe6 100644
+--- a/arch/x86/kvm/mmu/mmu.c
++++ b/arch/x86/kvm/mmu/mmu.c
+@@ -5412,7 +5412,7 @@ static u64 *get_written_sptes(struct kvm_mmu_page *sp, gpa_t gpa, int *nspte)
+ 	return spte;
+ }
+ 
+-static void kvm_mmu_pte_write(struct kvm_vcpu *vcpu, gpa_t gpa,
++static void kvm_mmu_pte_write(struct kvm_vcpu *vcpu, gpa_t gpa, gva_t gva,
+ 			      const u8 *new, int bytes,
+ 			      struct kvm_page_track_notifier_node *node)
+ {
+diff --git a/arch/x86/kvm/mmu/page_track.c b/arch/x86/kvm/mmu/page_track.c
+index 3521e2d176f2..dc891d6a2553 100644
+--- a/arch/x86/kvm/mmu/page_track.c
++++ b/arch/x86/kvm/mmu/page_track.c
+@@ -220,8 +220,8 @@ EXPORT_SYMBOL_GPL(kvm_page_track_unregister_notifier);
+  * The node should figure out if the written page is the one that node is
+  * interested in by itself.
+  */
+-void kvm_page_track_write(struct kvm_vcpu *vcpu, gpa_t gpa, const u8 *new,
+-			  int bytes)
++void kvm_page_track_write(struct kvm_vcpu *vcpu, gpa_t gpa, gva_t gva,
++			  const u8 *new, int bytes)
+ {
+ 	struct kvm_page_track_notifier_head *head;
+ 	struct kvm_page_track_notifier_node *n;
+@@ -235,7 +235,7 @@ void kvm_page_track_write(struct kvm_vcpu *vcpu, gpa_t gpa, const u8 *new,
+ 	idx = srcu_read_lock(&head->track_srcu);
+ 	hlist_for_each_entry_rcu(n, &head->track_notifier_list, node)
+ 		if (n->track_write)
+-			n->track_write(vcpu, gpa, new, bytes, n);
++			n->track_write(vcpu, gpa, gva, new, bytes, n);
+ 	srcu_read_unlock(&head->track_srcu, idx);
+ }
+ 
 diff --git a/arch/x86/kvm/x86.c b/arch/x86/kvm/x86.c
-index fee24bb5fa52..c607148dcf63 100644
+index 4565f3cce201..0dd43cf5d2b1 100644
 --- a/arch/x86/kvm/x86.c
 +++ b/arch/x86/kvm/x86.c
-@@ -8927,14 +8927,12 @@ int kvm_arch_vcpu_ioctl_set_sregs(struct kvm_vcpu *vcpu,
- 	return ret;
+@@ -5554,7 +5554,7 @@ static int vcpu_mmio_gva_to_gpa(struct kvm_vcpu *vcpu, unsigned long gva,
+ 	return vcpu_is_mmio_gpa(vcpu, gva, *gpa, write);
  }
  
--int kvm_arch_vcpu_ioctl_set_guest_debug(struct kvm_vcpu *vcpu,
--					struct kvm_guest_debug *dbg)
-+int kvm_arch_vcpu_set_guest_debug(struct kvm_vcpu *vcpu,
-+				 struct kvm_guest_debug *dbg)
+-int emulator_write_phys(struct kvm_vcpu *vcpu, gpa_t gpa,
++int emulator_write_phys(struct kvm_vcpu *vcpu, gpa_t gpa, gva_t gva,
+ 			const void *val, int bytes)
  {
- 	unsigned long rflags;
- 	int i, r;
- 
--	vcpu_load(vcpu);
--
- 	if (dbg->control & (KVM_GUESTDBG_INJECT_DB | KVM_GUESTDBG_INJECT_BP)) {
- 		r = -EBUSY;
- 		if (vcpu->arch.exception.pending)
-@@ -8980,10 +8978,20 @@ int kvm_arch_vcpu_ioctl_set_guest_debug(struct kvm_vcpu *vcpu,
- 	r = 0;
- 
- out:
--	vcpu_put(vcpu);
- 	return r;
+ 	int ret;
+@@ -5562,14 +5562,14 @@ int emulator_write_phys(struct kvm_vcpu *vcpu, gpa_t gpa,
+ 	ret = kvm_vcpu_write_guest(vcpu, gpa, val, bytes);
+ 	if (ret < 0)
+ 		return 0;
+-	kvm_page_track_write(vcpu, gpa, val, bytes);
++	kvm_page_track_write(vcpu, gpa, gva, val, bytes);
+ 	return 1;
  }
  
-+int kvm_arch_vcpu_ioctl_set_guest_debug(struct kvm_vcpu *vcpu,
-+					struct kvm_guest_debug *dbg)
-+{
-+	int ret;
-+
-+	vcpu_load(vcpu);
-+	ret = kvm_arch_vcpu_set_guest_debug(vcpu, dbg);
-+	vcpu_put(vcpu);
-+	return ret;
-+}
-+
- /*
-  * Translate a guest virtual address to a guest physical address.
-  */
-diff --git a/include/linux/kvm_host.h b/include/linux/kvm_host.h
-index c7ef69015050..625f567f6120 100644
---- a/include/linux/kvm_host.h
-+++ b/include/linux/kvm_host.h
-@@ -869,6 +869,8 @@ int kvm_arch_vcpu_ioctl_set_mpstate(struct kvm_vcpu *vcpu,
- 				    struct kvm_mp_state *mp_state);
- int kvm_arch_vcpu_ioctl_set_guest_debug(struct kvm_vcpu *vcpu,
- 					struct kvm_guest_debug *dbg);
-+int kvm_arch_vcpu_set_guest_debug(struct kvm_vcpu *vcpu,
-+				 struct kvm_guest_debug *dbg);
- int kvm_arch_vcpu_ioctl_run(struct kvm_vcpu *vcpu, struct kvm_run *kvm_run);
+ struct read_write_emulator_ops {
+ 	int (*read_write_prepare)(struct kvm_vcpu *vcpu, void *val,
+ 				  int bytes);
+-	int (*read_write_emulate)(struct kvm_vcpu *vcpu, gpa_t gpa,
++	int (*read_write_emulate)(struct kvm_vcpu *vcpu, gpa_t gpa, gva_t gva,
+ 				  void *val, int bytes);
+ 	int (*read_write_mmio)(struct kvm_vcpu *vcpu, gpa_t gpa,
+ 			       int bytes, void *val);
+@@ -5590,16 +5590,16 @@ static int read_prepare(struct kvm_vcpu *vcpu, void *val, int bytes)
+ 	return 0;
+ }
  
- int kvm_arch_init(void *opaque);
+-static int read_emulate(struct kvm_vcpu *vcpu, gpa_t gpa,
++static int read_emulate(struct kvm_vcpu *vcpu, gpa_t gpa, gva_t gva,
+ 			void *val, int bytes)
+ {
+ 	return !kvm_vcpu_read_guest(vcpu, gpa, val, bytes);
+ }
+ 
+-static int write_emulate(struct kvm_vcpu *vcpu, gpa_t gpa,
++static int write_emulate(struct kvm_vcpu *vcpu, gpa_t gpa, gva_t gva,
+ 			 void *val, int bytes)
+ {
+-	return emulator_write_phys(vcpu, gpa, val, bytes);
++	return emulator_write_phys(vcpu, gpa, gva, val, bytes);
+ }
+ 
+ static int write_mmio(struct kvm_vcpu *vcpu, gpa_t gpa, int bytes, void *val)
+@@ -5668,7 +5668,7 @@ static int emulator_read_write_onepage(unsigned long addr, void *val,
+ 			return X86EMUL_PROPAGATE_FAULT;
+ 	}
+ 
+-	if (!ret && ops->read_write_emulate(vcpu, gpa, val, bytes))
++	if (!ret && ops->read_write_emulate(vcpu, gpa, addr, val, bytes))
+ 		return X86EMUL_CONTINUE;
+ 
+ 	/*
+@@ -5827,7 +5827,7 @@ static int emulator_cmpxchg_emulated(struct x86_emulate_ctxt *ctxt,
+ 	if (!exchanged)
+ 		return X86EMUL_CMPXCHG_FAILED;
+ 
+-	kvm_page_track_write(vcpu, gpa, new, bytes);
++	kvm_page_track_write(vcpu, gpa, addr, new, bytes);
+ 
+ 	return X86EMUL_CONTINUE;
+ 
+diff --git a/drivers/gpu/drm/i915/gvt/kvmgt.c b/drivers/gpu/drm/i915/gvt/kvmgt.c
+index 04a5a0d90823..59e2f783c6e9 100644
+--- a/drivers/gpu/drm/i915/gvt/kvmgt.c
++++ b/drivers/gpu/drm/i915/gvt/kvmgt.c
+@@ -1682,7 +1682,7 @@ static int kvmgt_page_track_remove(unsigned long handle, u64 gfn)
+ 	return 0;
+ }
+ 
+-static void kvmgt_page_track_write(struct kvm_vcpu *vcpu, gpa_t gpa,
++static void kvmgt_page_track_write(struct kvm_vcpu *vcpu, gpa_t gpa, gva_t gva,
+ 		const u8 *val, int len,
+ 		struct kvm_page_track_notifier_node *node)
+ {
