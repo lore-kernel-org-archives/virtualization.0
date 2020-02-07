@@ -1,7 +1,7 @@
 From: =?UTF-8?q?Adalbert=20Laz=C4=83r?= <alazar@bitdefender.com>
-Subject: [RFC PATCH v7 12/78] KVM: x86: add .cr3_write_intercepted()
-Date: Fri,  7 Feb 2020 20:15:30 +0200
-Message-ID: <20200207181636.1065-13-alazar@bitdefender.com>
+Subject: [RFC PATCH v7 19/78] KVM: x86: add .control_msr_intercept()
+Date: Fri,  7 Feb 2020 20:15:37 +0200
+Message-ID: <20200207181636.1065-20-alazar@bitdefender.com>
 References: <20200207181636.1065-1-alazar@bitdefender.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -10,84 +10,89 @@ Return-path: <kvm-owner@vger.kernel.org>
 In-Reply-To: <20200207181636.1065-1-alazar@bitdefender.com>
 Sender: kvm-owner@vger.kernel.org
 To: kvm@vger.kernel.org
-Cc: virtualization@lists.linux-foundation.org, Paolo Bonzini <pbonzini@redhat.com>, Sean Christopherson <sean.j.christopherson@intel.com>, =?UTF-8?q?Nicu=C8=99or=20C=C3=AE=C8=9Bu?= <ncitu@bitdefender.com>, =?UTF-8?q?Adalbert=20Laz=C4=83r?= <alazar@bitdefender.com>
+Cc: virtualization@lists.linux-foundation.org, Paolo Bonzini <pbonzini@redhat.com>, Sean Christopherson <sean.j.christopherson@intel.com>, =?UTF-8?q?Mihai=20Don=C8=9Bu?= <mdontu@bitdefender.com>, =?UTF-8?q?Nicu=C8=99or=20C=C3=AE=C8=9Bu?= <ncitu@bitdefender.com>, =?UTF-8?q?Adalbert=20Laz=C4=83r?= <alazar@bitdefender.com>
 List-Id: virtualization@lists.linuxfoundation.org
 
-From: Nicușor Cîțu <ncitu@bitdefender.com>
+From: Mihai Donțu <mdontu@bitdefender.com>
 
-This function will be used to allow the introspection tool to disable the
-CR3-write interception when it is no longer interested in these events,
-but only if nothing depends on these VM-exits.
-
+This is needed for the KVMI_EVENT_MSR event.
+Signed-off-by: Mihai Donțu <mdontu@bitdefender.com>
+Co-developed-by: Nicușor Cîțu <ncitu@bitdefender.com>
 Signed-off-by: Nicușor Cîțu <ncitu@bitdefender.com>
 Signed-off-by: Adalbert Lazăr <alazar@bitdefender.com>
 ---
- arch/x86/include/asm/kvm_host.h | 1 +
- arch/x86/kvm/svm.c              | 8 ++++++++
- arch/x86/kvm/vmx/vmx.c          | 8 ++++++++
- 3 files changed, 17 insertions(+)
+ arch/x86/include/asm/kvm_host.h |  2 ++
+ arch/x86/kvm/svm.c              | 11 +++++++++++
+ arch/x86/kvm/vmx/vmx.c          | 10 ++++++++++
+ 3 files changed, 23 insertions(+)
 
 diff --git a/arch/x86/include/asm/kvm_host.h b/arch/x86/include/asm/kvm_host.h
-index 9032c996ebdb..d2fe08f44084 100644
+index 2136f273645a..d8c61cc301fa 100644
 --- a/arch/x86/include/asm/kvm_host.h
 +++ b/arch/x86/include/asm/kvm_host.h
-@@ -1070,6 +1070,7 @@ struct kvm_x86_ops {
- 	int (*set_cr4)(struct kvm_vcpu *vcpu, unsigned long cr4);
- 	void (*control_cr3_intercept)(struct kvm_vcpu *vcpu, int type,
- 				      bool enable);
-+	bool (*cr3_write_intercepted)(struct kvm_vcpu *vcpu);
- 	void (*set_efer)(struct kvm_vcpu *vcpu, u64 efer);
- 	void (*get_idt)(struct kvm_vcpu *vcpu, struct desc_ptr *dt);
- 	void (*set_idt)(struct kvm_vcpu *vcpu, struct desc_ptr *dt);
+@@ -1060,6 +1060,8 @@ struct kvm_x86_ops {
+ 	void (*update_bp_intercept)(struct kvm_vcpu *vcpu);
+ 	int (*get_msr)(struct kvm_vcpu *vcpu, struct msr_data *msr);
+ 	int (*set_msr)(struct kvm_vcpu *vcpu, struct msr_data *msr);
++	void (*control_msr_intercept)(struct kvm_vcpu *vcpu, unsigned int msr,
++				      int type, bool enable);
+ 	bool (*msr_write_intercepted)(struct kvm_vcpu *vcpu, u32 msr);
+ 	u64 (*get_segment_base)(struct kvm_vcpu *vcpu, int seg);
+ 	void (*get_segment)(struct kvm_vcpu *vcpu,
 diff --git a/arch/x86/kvm/svm.c b/arch/x86/kvm/svm.c
-index b6081afec926..554ad7c57a0f 100644
+index 174ced633b60..21f02d92af78 100644
 --- a/arch/x86/kvm/svm.c
 +++ b/arch/x86/kvm/svm.c
-@@ -7256,6 +7256,13 @@ static inline bool svm_bp_intercepted(struct kvm_vcpu *vcpu)
- 	return get_exception_intercept(svm, BP_VECTOR);
+@@ -7339,6 +7339,16 @@ static inline bool svm_desc_intercepted(struct kvm_vcpu *vcpu)
+ 		get_intercept(svm, INTERCEPT_LOAD_TR));
  }
  
-+static inline bool svm_cr3_write_intercepted(struct kvm_vcpu *vcpu)
++static void svm_control_msr_intercept(struct kvm_vcpu *vcpu, unsigned int msr,
++				      int type, bool enable)
 +{
-+	struct vcpu_svm *svm = to_svm(vcpu);
++	const struct vcpu_svm *svm = to_svm(vcpu);
++	u32 *msrpm = is_guest_mode(vcpu) ? svm->nested.msrpm :
++					   svm->msrpm;
 +
-+	return is_cr_intercept(svm, INTERCEPT_CR3_WRITE);
++	set_msr_interception(vcpu, msrpm, msr, type, !enable);
 +}
 +
- static void svm_control_cr3_intercept(struct kvm_vcpu *vcpu, int type,
- 				      bool enable)
- {
-@@ -7311,6 +7318,7 @@ static struct kvm_x86_ops svm_x86_ops __ro_after_init = {
- 	.set_cr3 = svm_set_cr3,
- 	.set_cr4 = svm_set_cr4,
- 	.control_cr3_intercept = svm_control_cr3_intercept,
-+	.cr3_write_intercepted = svm_cr3_write_intercepted,
- 	.set_efer = svm_set_efer,
- 	.get_idt = svm_get_idt,
- 	.set_idt = svm_set_idt,
+ static struct kvm_x86_ops svm_x86_ops __ro_after_init = {
+ 	.cpu_has_kvm_support = has_svm,
+ 	.disabled_by_bios = is_disabled,
+@@ -7370,6 +7380,7 @@ static struct kvm_x86_ops svm_x86_ops __ro_after_init = {
+ 	.get_msr_feature = svm_get_msr_feature,
+ 	.get_msr = svm_get_msr,
+ 	.set_msr = svm_set_msr,
++	.control_msr_intercept = svm_control_msr_intercept,
+ 	.msr_write_intercepted = msr_write_intercepted,
+ 	.get_segment_base = svm_get_segment_base,
+ 	.get_segment = svm_get_segment,
 diff --git a/arch/x86/kvm/vmx/vmx.c b/arch/x86/kvm/vmx/vmx.c
-index 4b6edb68e9e0..7cfd25800d89 100644
+index e6878097d736..7a61427af370 100644
 --- a/arch/x86/kvm/vmx/vmx.c
 +++ b/arch/x86/kvm/vmx/vmx.c
-@@ -7776,6 +7776,13 @@ static bool vmx_bp_intercepted(struct kvm_vcpu *vcpu)
- 	return (vmcs_read32(EXCEPTION_BITMAP) & (1u << BP_VECTOR));
+@@ -7806,6 +7806,15 @@ static bool vmx_desc_intercepted(struct kvm_vcpu *vcpu)
+ 	return !!(secondary_exec_controls_get(vmx) & SECONDARY_EXEC_DESC);
  }
  
-+static bool vmx_cr3_write_intercepted(struct kvm_vcpu *vcpu)
++static void vmx_control_msr_intercept(struct kvm_vcpu *vcpu, unsigned int msr,
++				      int type, bool enable)
 +{
 +	struct vcpu_vmx *vmx = to_vmx(vcpu);
++	unsigned long *msr_bitmap = vmx->vmcs01.msr_bitmap;
 +
-+	return !!(exec_controls_get(vmx) & CPU_BASED_CR3_LOAD_EXITING);
++	vmx_set_intercept_for_msr(vcpu, msr_bitmap, msr, type, enable);
 +}
 +
  static struct kvm_x86_ops vmx_x86_ops __ro_after_init = {
  	.cpu_has_kvm_support = cpu_has_kvm_support,
  	.disabled_by_bios = vmx_disabled_by_bios,
-@@ -7815,6 +7822,7 @@ static struct kvm_x86_ops vmx_x86_ops __ro_after_init = {
- 	.set_cr3 = vmx_set_cr3,
- 	.set_cr4 = vmx_set_cr4,
- 	.control_cr3_intercept = vmx_control_cr3_intercept,
-+	.cr3_write_intercepted = vmx_cr3_write_intercepted,
- 	.set_efer = vmx_set_efer,
- 	.get_idt = vmx_get_idt,
- 	.set_idt = vmx_set_idt,
+@@ -7834,6 +7843,7 @@ static struct kvm_x86_ops vmx_x86_ops __ro_after_init = {
+ 	.get_msr_feature = vmx_get_msr_feature,
+ 	.get_msr = vmx_get_msr,
+ 	.set_msr = vmx_set_msr,
++	.control_msr_intercept = vmx_control_msr_intercept,
+ 	.msr_write_intercepted = msr_write_intercepted,
+ 	.get_segment_base = vmx_get_segment_base,
+ 	.get_segment = vmx_get_segment,
