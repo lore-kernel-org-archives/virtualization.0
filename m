@@ -1,7 +1,7 @@
 From: =?UTF-8?q?Adalbert=20Laz=C4=83r?= <alazar@bitdefender.com>
-Subject: [RFC PATCH v7 55/78] KVM: introspection: add KVMI_VCPU_SET_REGISTERS
-Date: Fri,  7 Feb 2020 20:16:13 +0200
-Message-ID: <20200207181636.1065-56-alazar@bitdefender.com>
+Subject: [RFC PATCH v7 41/78] KVM: introspection: add KVMI_VM_CHECK_COMMAND and KVMI_VM_CHECK_EVENT
+Date: Fri,  7 Feb 2020 20:15:59 +0200
+Message-ID: <20200207181636.1065-42-alazar@bitdefender.com>
 References: <20200207181636.1065-1-alazar@bitdefender.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -10,301 +10,319 @@ Return-path: <kvm-owner@vger.kernel.org>
 In-Reply-To: <20200207181636.1065-1-alazar@bitdefender.com>
 Sender: kvm-owner@vger.kernel.org
 To: kvm@vger.kernel.org
-Cc: virtualization@lists.linux-foundation.org, Paolo Bonzini <pbonzini@redhat.com>, Sean Christopherson <sean.j.christopherson@intel.com>, =?UTF-8?q?Mihai=20Don=C8=9Bu?= <mdontu@bitdefender.com>, =?UTF-8?q?Mircea=20C=C3=AErjaliu?= <mcirjaliu@bitdefender.com>, =?UTF-8?q?Adalbert=20Laz=C4=83r?= <alazar@bitdefender.com>
+Cc: virtualization@lists.linux-foundation.org, Paolo Bonzini <pbonzini@redhat.com>, Sean Christopherson <sean.j.christopherson@intel.com>, =?UTF-8?q?Adalbert=20Laz=C4=83r?= <alazar@bitdefender.com>
 List-Id: virtualization@lists.linuxfoundation.org
 
-From: Mihai Donțu <mdontu@bitdefender.com>
+These commands can be used by the introspection tool to check what
+introspection commands and events are supported (by KVMi) and allowed
+(by userspace).
 
-This command is allowed only during a vCPU event (an event has been sent
-and the vCPU is waiting for the reply). The registers will be set only
-when the reply has been received.
+The introspection tool will get one of the following error codes:
+  * -KVM_ENOSYS (unsupported command/event)
+  * -KVM_PERM (disallowed command/event)
+  * -KVM_EINVAL (the padding space, used for future extensions,
+                 is not zero)
+  * 0 (the command/event is supported and allowed)
 
-Signed-off-by: Mihai Donțu <mdontu@bitdefender.com>
-Co-developed-by: Mircea Cîrjaliu <mcirjaliu@bitdefender.com>
-Signed-off-by: Mircea Cîrjaliu <mcirjaliu@bitdefender.com>
-Co-developed-by: Adalbert Lazăr <alazar@bitdefender.com>
+These commands can be seen as alternative methods to KVMI_GET_VERSION
+in checking if the introspection supports a specific command/event.
+
+As with the KVMI_GET_VERSION command, these two commands can never be
+disallowed by userspace.
+
 Signed-off-by: Adalbert Lazăr <alazar@bitdefender.com>
 ---
- Documentation/virt/kvm/kvmi.rst               | 29 +++++++
- include/linux/kvmi_host.h                     |  3 +
- include/uapi/linux/kvmi.h                     |  1 +
- .../testing/selftests/kvm/x86_64/kvmi_test.c  | 82 +++++++++++++++++++
- virt/kvm/introspection/kvmi.c                 | 24 ++++++
- virt/kvm/introspection/kvmi_int.h             |  4 +
- virt/kvm/introspection/kvmi_msg.c             | 15 ++++
- 7 files changed, 158 insertions(+)
+ Documentation/virt/kvm/kvmi.rst               | 62 +++++++++++++++++++
+ include/uapi/linux/kvmi.h                     | 16 ++++-
+ .../testing/selftests/kvm/x86_64/kvmi_test.c  | 55 ++++++++++++++++
+ virt/kvm/introspection/kvmi.c                 |  8 ++-
+ virt/kvm/introspection/kvmi_int.h             |  2 +
+ virt/kvm/introspection/kvmi_msg.c             | 46 +++++++++++++-
+ 6 files changed, 185 insertions(+), 4 deletions(-)
 
 diff --git a/Documentation/virt/kvm/kvmi.rst b/Documentation/virt/kvm/kvmi.rst
-index 5c366bcd3112..ff1fe5ec2e18 100644
+index 36f8cd4a836d..9205f51fa5a0 100644
 --- a/Documentation/virt/kvm/kvmi.rst
 +++ b/Documentation/virt/kvm/kvmi.rst
-@@ -589,6 +589,35 @@ registers, the special registers and the requested set of MSRs.
- * -KVM_EAGAIN - the selected vCPU can't be introspected yet
- * -KVM_ENOMEM - not enough memory to allocate the reply
+@@ -251,3 +251,65 @@ Returns the introspection API version.
  
-+12. KVMI_VCPU_SET_REGISTERS
-+---------------------------
+ This command is always allowed and successful (if the introspection is
+ built in kernel).
 +
-+:Architectures: x86
++2. KVMI_VM_CHECK_COMMAND
++------------------------
++
++:Architectures: all
 +:Versions: >= 1
 +:Parameters:
 +
 +::
 +
-+	struct kvmi_vcpu_hdr;
-+	struct kvm_regs;
++	struct kvmi_vm_check_command {
++		__u16 id;
++		__u16 padding1;
++		__u32 padding2;
++	};
 +
 +:Returns:
 +
 +::
 +
-+	struct kvmi_error_code
++	struct kvmi_error_code;
 +
-+Sets the general purpose registers for the given vCPU. The changes become
-+visible to other threads accessing the KVM vCPU structure after the event
-+currently being handled is replied to.
++Checks if the command specified by ``id`` is allowed.
++
++This command is always allowed.
 +
 +:Errors:
 +
-+* -KVM_EINVAL - the selected vCPU is invalid
++* -KVM_EPERM - the command specified by ``id`` is disallowed
 +* -KVM_EINVAL - padding is not zero
-+* -KVM_EAGAIN - the selected vCPU can't be introspected yet
-+* -KVM_EOPNOTSUPP - the command hasn't been received during an introspection event
++* -KVM_EINVAL - the command specified by ``id`` is not known
 +
- Events
- ======
- 
-diff --git a/include/linux/kvmi_host.h b/include/linux/kvmi_host.h
-index da621d83cd94..68c76db83973 100644
---- a/include/linux/kvmi_host.h
-+++ b/include/linux/kvmi_host.h
-@@ -38,6 +38,9 @@ struct kvm_vcpu_introspection {
- 	bool waiting_for_reply;
- 
- 	DECLARE_BITMAP(ev_mask, KVMI_NUM_EVENTS);
++3. KVMI_VM_CHECK_EVENT
++----------------------
 +
-+	struct kvm_regs delayed_regs;
-+	bool have_delayed_regs;
- };
- 
- struct kvm_introspection {
++:Architectures: all
++:Versions: >= 1
++:Parameters:
++
++::
++
++	struct kvmi_vm_check_event {
++		__u16 id;
++		__u16 padding1;
++		__u32 padding2;
++	};
++
++:Returns:
++
++::
++
++	struct kvmi_error_code;
++
++Checks if the event specified by ``id`` is allowed.
++
++This command is always allowed.
++
++:Errors:
++
++* -KVM_EPERM - the event specified by ``id`` is disallowed
++* -KVM_EINVAL - padding is not zero
++* -KVM_EINVAL - the event specified by ``id`` is not known
 diff --git a/include/uapi/linux/kvmi.h b/include/uapi/linux/kvmi.h
-index bdb5f977c240..4d5f6317db03 100644
+index ee817cb05cc6..ba550e9fae2e 100644
 --- a/include/uapi/linux/kvmi.h
 +++ b/include/uapi/linux/kvmi.h
-@@ -30,6 +30,7 @@ enum {
- 	KVMI_VCPU_PAUSE          = 10,
- 	KVMI_VCPU_CONTROL_EVENTS = 11,
- 	KVMI_VCPU_GET_REGISTERS  = 12,
-+	KVMI_VCPU_SET_REGISTERS  = 13,
+@@ -14,7 +14,9 @@ enum {
+ };
+ 
+ enum {
+-	KVMI_GET_VERSION = 2,
++	KVMI_GET_VERSION      = 2,
++	KVMI_VM_CHECK_COMMAND = 3,
++	KVMI_VM_CHECK_EVENT   = 4,
  
  	KVMI_NUM_MESSAGES
  };
+@@ -43,4 +45,16 @@ struct kvmi_get_version_reply {
+ 	__u32 padding;
+ };
+ 
++struct kvmi_vm_check_command {
++	__u16 id;
++	__u16 padding1;
++	__u32 padding2;
++};
++
++struct kvmi_vm_check_event {
++	__u16 id;
++	__u16 padding1;
++	__u32 padding2;
++};
++
+ #endif /* _UAPI__LINUX_KVMI_H */
 diff --git a/tools/testing/selftests/kvm/x86_64/kvmi_test.c b/tools/testing/selftests/kvm/x86_64/kvmi_test.c
-index 5d76d49bc277..6e4490340b36 100644
+index 733e82478f6e..e3e51fe3f85f 100644
 --- a/tools/testing/selftests/kvm/x86_64/kvmi_test.c
 +++ b/tools/testing/selftests/kvm/x86_64/kvmi_test.c
-@@ -828,6 +828,87 @@ static void test_cmd_vcpu_get_registers(struct kvm_vm *vm)
- 	DEBUG("get_registers rip 0x%llx\n", regs.rip);
+@@ -201,6 +201,59 @@ static void test_cmd_get_version(void)
+ 	DEBUG("KVMI version: %u\n", rpl.version);
  }
  
-+static int __cmd_set_registers(struct kvm_vm *vm,
-+			       struct kvm_regs *regs)
++static int cmd_check_command(__u16 id)
 +{
 +	struct {
 +		struct kvmi_msg_hdr hdr;
-+		struct kvmi_vcpu_hdr vcpu_hdr;
-+		struct kvm_regs regs;
++		struct kvmi_vm_check_command cmd;
 +	} req = {};
-+	__u16 vcpu_index = 0;
 +
-+	req.vcpu_hdr.vcpu = vcpu_index;
++	req.cmd.id = id;
 +
-+	memcpy(&req.regs, regs, sizeof(req.regs));
-+
-+	return do_command(KVMI_VCPU_SET_REGISTERS,
-+			  &req.hdr, sizeof(req), NULL, 0);
++	return do_command(KVMI_VM_CHECK_COMMAND, &req.hdr, sizeof(req), NULL,
++			     0);
 +}
 +
-+static int cmd_set_registers(struct kvm_vm *vm,
-+			     struct kvm_regs *regs)
++static void test_cmd_check_command(void)
 +{
-+	struct vcpu_worker_data data = {.vm = vm, .vcpu_id = VCPU_ID};
-+	pthread_t vcpu_thread;
++	__u16 valid_id = KVMI_GET_VERSION;
++	__u16 invalid_id = 0xffff;
 +	int r;
 +
-+	vcpu_thread = start_vcpu_worker(&data);
-+
-+	r = __cmd_set_registers(vm, regs);
-+
-+	stop_vcpu_worker(vcpu_thread, &data);
-+
-+	return r;
-+}
-+
-+static void __set_registers(struct kvm_vm *vm,
-+			    struct kvm_regs *regs)
-+{
-+	int r;
-+
-+	r = __cmd_set_registers(vm, regs);
++	r = cmd_check_command(valid_id);
 +	TEST_ASSERT(r == 0,
-+		"KVMI_VCPU_SET_REGISTERS failed, error %d(%s)\n",
++		"KVMI_VM_CHECK_COMMAND failed, error %d (%s)\n",
++		-r, kvm_strerror(-r));
++
++	r = cmd_check_command(invalid_id);
++	TEST_ASSERT(r == -KVM_EINVAL,
++		"KVMI_VM_CHECK_COMMAND didn't failed with -KVM_EINVAL, error %d (%s)\n",
 +		-r, kvm_strerror(-r));
 +}
 +
-+static void test_cmd_vcpu_set_registers(struct kvm_vm *vm)
++static int cmd_check_event(__u16 id)
 +{
-+	struct vcpu_worker_data data = {.vm = vm, .vcpu_id = VCPU_ID};
-+	__u16 event_id = KVMI_EVENT_PAUSE_VCPU;
-+	struct kvmi_msg_hdr hdr;
-+	pthread_t vcpu_thread;
-+	struct kvmi_event ev;
-+	struct vcpu_reply rpl = {};
-+	struct kvm_regs regs = {};
++	struct {
++		struct kvmi_msg_hdr hdr;
++		struct kvmi_vm_check_event cmd;
++	} req = {};
++
++	req.cmd.id = id;
++
++	return do_command(KVMI_VM_CHECK_EVENT, &req.hdr, sizeof(req), NULL, 0);
++}
++
++static void test_cmd_check_event(void)
++{
++	__u16 invalid_id = 0xffff;
 +	int r;
 +
-+	get_vcpu_registers(vm, &regs);
-+
-+	r = cmd_set_registers(vm, &regs);
-+	TEST_ASSERT(r == -KVM_EOPNOTSUPP,
-+		"KVMI_VCPU_SET_REGISTERS didn't failed with KVM_EOPNOTSUPP, error %d(%s)\n",
++	r = cmd_check_event(invalid_id);
++	TEST_ASSERT(r == -KVM_EINVAL,
++		"KVMI_VM_CHECK_EVENT didn't failed with -KVM_EINVAL, error %d (%s)\n",
 +		-r, kvm_strerror(-r));
-+
-+	enable_vcpu_event(vm, event_id);
-+
-+	pause_vcpu(vm);
-+
-+	vcpu_thread = start_vcpu_worker(&data);
-+
-+	receive_event(&hdr, &ev, sizeof(ev), event_id);
-+
-+	__set_registers(vm, &ev.arch.regs);
-+
-+	reply_to_event(&hdr, &ev, KVMI_EVENT_ACTION_CONTINUE,
-+			&rpl, sizeof(rpl));
-+
-+	stop_vcpu_worker(vcpu_thread, &data);
-+
-+	disable_vcpu_event(vm, event_id);
 +}
 +
  static void test_introspection(struct kvm_vm *vm)
  {
  	setup_socket();
-@@ -845,6 +926,7 @@ static void test_introspection(struct kvm_vm *vm)
- 	test_pause(vm);
- 	test_cmd_vcpu_control_events(vm);
- 	test_cmd_vcpu_get_registers(vm);
-+	test_cmd_vcpu_set_registers(vm);
+@@ -208,6 +261,8 @@ static void test_introspection(struct kvm_vm *vm)
+ 
+ 	test_cmd_invalid();
+ 	test_cmd_get_version();
++	test_cmd_check_command();
++	test_cmd_check_event();
  
  	unhook_introspection(vm);
  }
 diff --git a/virt/kvm/introspection/kvmi.c b/virt/kvm/introspection/kvmi.c
-index f4ff9968bd58..8ffbf46bc17d 100644
+index 8597b6ef0cfb..8f8e18696794 100644
 --- a/virt/kvm/introspection/kvmi.c
 +++ b/virt/kvm/introspection/kvmi.c
-@@ -804,3 +804,27 @@ int kvmi_cmd_vcpu_pause(struct kvm_vcpu *vcpu, bool wait)
+@@ -77,6 +77,8 @@ alloc_kvmi(struct kvm *kvm, const struct kvm_introspection_hook *hook)
+ 	memcpy(&kvmi->uuid, &hook->uuid, sizeof(kvmi->uuid));
  
- 	return 0;
- }
-+
-+int kvmi_cmd_vcpu_set_registers(struct kvm_vcpu *vcpu,
-+				const struct kvm_regs *regs)
-+{
-+	struct kvm_vcpu_introspection *vcpui = VCPUI(vcpu);
-+
-+	if (!vcpui->waiting_for_reply)
-+		return -KVM_EOPNOTSUPP;
-+
-+	memcpy(&vcpui->delayed_regs, regs, sizeof(vcpui->delayed_regs));
-+	vcpui->have_delayed_regs = true;
-+
-+	return 0;
-+}
-+
-+void kvmi_post_reply(struct kvm_vcpu *vcpu)
-+{
-+	struct kvm_vcpu_introspection *vcpui = VCPUI(vcpu);
-+
-+	if (vcpui->have_delayed_regs) {
-+		kvm_arch_vcpu_set_regs(vcpu, &vcpui->delayed_regs, false);
-+		vcpui->have_delayed_regs = false;
-+	}
-+}
+ 	set_bit(KVMI_GET_VERSION, kvmi->cmd_allow_mask);
++	set_bit(KVMI_VM_CHECK_COMMAND, kvmi->cmd_allow_mask);
++	set_bit(KVMI_VM_CHECK_EVENT, kvmi->cmd_allow_mask);
+ 
+ 	kvmi->kvm = kvm;
+ 
+@@ -304,10 +306,14 @@ int kvmi_ioctl_command(struct kvm *kvm, void __user *argp)
+ 	if (!allow) {
+ 		DECLARE_BITMAP(always_allowed, KVMI_NUM_COMMANDS);
+ 
+-		if (id == KVMI_GET_VERSION)
++		if (id == KVMI_GET_VERSION
++				|| id == KVMI_VM_CHECK_COMMAND
++				|| id == KVMI_VM_CHECK_EVENT)
+ 			return -EPERM;
+ 
+ 		set_bit(KVMI_GET_VERSION, always_allowed);
++		set_bit(KVMI_VM_CHECK_COMMAND, always_allowed);
++		set_bit(KVMI_VM_CHECK_EVENT, always_allowed);
+ 
+ 		bitmap_andnot(requested, requested, always_allowed,
+ 			      KVMI_NUM_COMMANDS);
 diff --git a/virt/kvm/introspection/kvmi_int.h b/virt/kvm/introspection/kvmi_int.h
-index 5c9ba4b1107e..a736f364f5be 100644
+index 947af4615fa5..feb83b8d0f12 100644
 --- a/virt/kvm/introspection/kvmi_int.h
 +++ b/virt/kvm/introspection/kvmi_int.h
-@@ -39,6 +39,7 @@
- 			| BIT(KVMI_VCPU_PAUSE) \
- 			| BIT(KVMI_VCPU_CONTROL_EVENTS) \
- 			| BIT(KVMI_VCPU_GET_REGISTERS) \
-+			| BIT(KVMI_VCPU_SET_REGISTERS) \
+@@ -22,6 +22,8 @@
+ 
+ #define KVMI_KNOWN_COMMANDS ( \
+ 			  BIT(KVMI_GET_VERSION) \
++			| BIT(KVMI_VM_CHECK_COMMAND) \
++			| BIT(KVMI_VM_CHECK_EVENT) \
  		)
  
  #define KVMI(kvm) ((struct kvm_introspection *)((kvm)->kvmi))
-@@ -66,6 +67,7 @@ int kvmi_add_job(struct kvm_vcpu *vcpu,
- 		 void (*fct)(struct kvm_vcpu *vcpu, void *ctx),
- 		 void *ctx, void (*free_fct)(void *ctx));
- void kvmi_run_jobs(struct kvm_vcpu *vcpu);
-+void kvmi_post_reply(struct kvm_vcpu *vcpu);
- int kvmi_cmd_vm_control_events(struct kvm_introspection *kvmi,
- 				unsigned int event_id, bool enable);
- int kvmi_cmd_vcpu_control_events(struct kvm_vcpu *vcpu,
-@@ -78,6 +80,8 @@ int kvmi_cmd_read_physical(struct kvm *kvm, u64 gpa, u64 size,
- int kvmi_cmd_write_physical(struct kvm *kvm, u64 gpa, u64 size,
- 			    const void *buf);
- int kvmi_cmd_vcpu_pause(struct kvm_vcpu *vcpu, bool wait);
-+int kvmi_cmd_vcpu_set_registers(struct kvm_vcpu *vcpu,
-+				const struct kvm_regs *regs);
- 
- /* arch */
- int kvmi_arch_cmd_vcpu_get_info(struct kvm_vcpu *vcpu,
 diff --git a/virt/kvm/introspection/kvmi_msg.c b/virt/kvm/introspection/kvmi_msg.c
-index 4a7c831183bb..11e0171076c7 100644
+index 81e42c65da16..b7da5cc7286f 100644
 --- a/virt/kvm/introspection/kvmi_msg.c
 +++ b/virt/kvm/introspection/kvmi_msg.c
-@@ -29,6 +29,7 @@ static const char *const msg_IDs[] = {
- 	[KVMI_VCPU_GET_INFO]       = "KVMI_VCPU_GET_INFO",
- 	[KVMI_VCPU_GET_REGISTERS]  = "KVMI_VCPU_GET_REGISTERS",
- 	[KVMI_VCPU_PAUSE]          = "KVMI_VCPU_PAUSE",
-+	[KVMI_VCPU_SET_REGISTERS]  = "KVMI_VCPU_SET_REGISTERS",
+@@ -9,7 +9,9 @@
+ #include "kvmi_int.h"
+ 
+ static const char *const msg_IDs[] = {
+-	[KVMI_GET_VERSION] = "KVMI_GET_VERSION",
++	[KVMI_GET_VERSION]      = "KVMI_GET_VERSION",
++	[KVMI_VM_CHECK_COMMAND] = "KVMI_VM_CHECK_COMMAND",
++	[KVMI_VM_CHECK_EVENT]   = "KVMI_VM_CHECK_EVENT",
  };
  
  static bool is_known_message(u16 id)
-@@ -451,6 +452,18 @@ static int handle_get_registers(const struct kvmi_vcpu_cmd_job *job,
- 	return err;
+@@ -128,12 +130,52 @@ static int handle_get_version(struct kvm_introspection *kvmi,
+ 	return kvmi_msg_vm_reply(kvmi, msg, 0, &rpl, sizeof(rpl));
  }
  
-+static int handle_set_registers(const struct kvmi_vcpu_cmd_job *job,
++static int handle_check_command(struct kvm_introspection *kvmi,
 +				const struct kvmi_msg_hdr *msg,
 +				const void *_req)
 +{
-+	const struct kvm_regs *regs = _req;
-+	int ec;
++	const struct kvmi_vm_check_command *req = _req;
++	int ec = 0;
 +
-+	ec = kvmi_cmd_vcpu_set_registers(job->vcpu, regs);
++	if (req->padding1 || req->padding2)
++		ec = -KVM_EINVAL;
++	else if (req->id >= KVMI_NUM_COMMANDS)
++		ec = -KVM_EINVAL;
++	else if (!is_command_allowed(kvmi, req->id))
++		ec = -KVM_EPERM;
 +
-+	return kvmi_msg_vcpu_reply(job, msg, ec, NULL, 0);
++	return kvmi_msg_vm_reply(kvmi, msg, ec, NULL, 0);
++}
++
++static bool is_event_allowed(struct kvm_introspection *kvmi, int id)
++{
++	return test_bit(id, kvmi->event_allow_mask);
++}
++
++static int handle_check_event(struct kvm_introspection *kvmi,
++			      const struct kvmi_msg_hdr *msg, const void *_req)
++{
++	const struct kvmi_vm_check_event *req = _req;
++	int ec = 0;
++
++	if (req->padding1 || req->padding2)
++		ec = -KVM_EINVAL;
++	else if (req->id >= KVMI_NUM_EVENTS)
++		ec = -KVM_EINVAL;
++	else if (!is_event_allowed(kvmi, req->id))
++		ec = -KVM_EPERM;
++
++	return kvmi_msg_vm_reply(kvmi, msg, ec, NULL, 0);
 +}
 +
  /*
-  * These commands are executed on the vCPU thread. The receiving thread
-  * passes the messages using a newly allocated 'struct kvmi_vcpu_cmd_job'
-@@ -463,6 +476,7 @@ static int(*const msg_vcpu[])(const struct kvmi_vcpu_cmd_job *,
- 	[KVMI_VCPU_CONTROL_EVENTS] = handle_vcpu_control_events,
- 	[KVMI_VCPU_GET_INFO]       = handle_get_vcpu_info,
- 	[KVMI_VCPU_GET_REGISTERS]  = handle_get_registers,
-+	[KVMI_VCPU_SET_REGISTERS]  = handle_set_registers,
+  * These commands are executed by the receiving thread/worker.
+  */
+ static int(*const msg_vm[])(struct kvm_introspection *,
+ 			    const struct kvmi_msg_hdr *, const void *) = {
+-	[KVMI_GET_VERSION] = handle_get_version,
++	[KVMI_GET_VERSION]      = handle_get_version,
++	[KVMI_VM_CHECK_COMMAND] = handle_check_command,
++	[KVMI_VM_CHECK_EVENT]   = handle_check_event,
  };
  
- static void kvmi_job_vcpu_cmd(struct kvm_vcpu *vcpu, void *ctx)
-@@ -818,6 +832,7 @@ static int kvmi_send_event(struct kvm_vcpu *vcpu, u32 ev_id,
- 	if (err)
- 		goto out;
- 
-+	kvmi_post_reply(vcpu);
- 	*action = vcpui->reply.action;
- 
- out:
+ static bool is_vm_message(u16 id)
