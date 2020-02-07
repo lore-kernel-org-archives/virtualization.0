@@ -1,7 +1,7 @@
 From: =?UTF-8?q?Adalbert=20Laz=C4=83r?= <alazar@bitdefender.com>
-Subject: [RFC PATCH v7 32/78] KVM: x86: page_track: add support for preread, prewrite and preexec
-Date: Fri,  7 Feb 2020 20:15:50 +0200
-Message-ID: <20200207181636.1065-33-alazar@bitdefender.com>
+Subject: [RFC PATCH v7 38/78] KVM: introspection: add permission access ioctls
+Date: Fri,  7 Feb 2020 20:15:56 +0200
+Message-ID: <20200207181636.1065-39-alazar@bitdefender.com>
 References: <20200207181636.1065-1-alazar@bitdefender.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -10,404 +10,335 @@ Return-path: <kvm-owner@vger.kernel.org>
 In-Reply-To: <20200207181636.1065-1-alazar@bitdefender.com>
 Sender: kvm-owner@vger.kernel.org
 To: kvm@vger.kernel.org
-Cc: virtualization@lists.linux-foundation.org, Paolo Bonzini <pbonzini@redhat.com>, Sean Christopherson <sean.j.christopherson@intel.com>, =?UTF-8?q?Mihai=20Don=C8=9Bu?= <mdontu@bitdefender.com>, =?UTF-8?q?Adalbert=20Laz=C4=83r?= <alazar@bitdefender.com>
+Cc: virtualization@lists.linux-foundation.org, Paolo Bonzini <pbonzini@redhat.com>, Sean Christopherson <sean.j.christopherson@intel.com>, =?UTF-8?q?Adalbert=20Laz=C4=83r?= <alazar@bitdefender.com>
 List-Id: virtualization@lists.linuxfoundation.org
 
-From: Mihai Donțu <mdontu@bitdefender.com>
+KVM_INTROSPECTION_COMMAND and KVM_INTROSPECTION_EVENTS ioctls should be
+used by userspace to allow access for specific (or all) introspection
+commands and events.
 
-These callbacks return a boolean value. If false, the emulation should
-stop and the instruction should be reexecuted in guest.
+By default, all the introspection events and almost all the introspection
+commands are disallowed. Some commands are always allowed, those querying
+the introspection capabilities.
 
-Signed-off-by: Mihai Donțu <mdontu@bitdefender.com>
 Signed-off-by: Adalbert Lazăr <alazar@bitdefender.com>
 ---
- arch/x86/include/asm/kvm_page_track.h |  48 ++++++++++-
- arch/x86/kvm/mmu.h                    |   4 +
- arch/x86/kvm/mmu/mmu.c                |  81 +++++++++++++++++
- arch/x86/kvm/mmu/page_track.c         | 120 ++++++++++++++++++++++++--
- 4 files changed, 243 insertions(+), 10 deletions(-)
+ Documentation/virt/kvm/api.txt                | 50 ++++++++++
+ include/linux/kvmi_host.h                     |  7 ++
+ include/uapi/linux/kvm.h                      |  8 ++
+ include/uapi/linux/kvmi.h                     |  8 ++
+ .../testing/selftests/kvm/x86_64/kvmi_test.c  | 28 ++++++
+ virt/kvm/introspection/kvmi.c                 | 92 +++++++++++++++++++
+ virt/kvm/introspection/kvmi_int.h             |  4 +
+ virt/kvm/kvm_main.c                           |  6 ++
+ 8 files changed, 203 insertions(+)
 
-diff --git a/arch/x86/include/asm/kvm_page_track.h b/arch/x86/include/asm/kvm_page_track.h
-index dc528c6f2eb0..646cbfa07676 100644
---- a/arch/x86/include/asm/kvm_page_track.h
-+++ b/arch/x86/include/asm/kvm_page_track.h
-@@ -3,7 +3,10 @@
- #define _ASM_X86_KVM_PAGE_TRACK_H
+diff --git a/Documentation/virt/kvm/api.txt b/Documentation/virt/kvm/api.txt
+index 540d9015d726..c1da0a67d7af 100644
+--- a/Documentation/virt/kvm/api.txt
++++ b/Documentation/virt/kvm/api.txt
+@@ -4210,6 +4210,56 @@ Returns: 0 on success, a negative value on error
+ This ioctl is used to free all introspection structures
+ related to this VM.
  
- enum kvm_page_track_mode {
-+	KVM_PAGE_TRACK_PREREAD,
-+	KVM_PAGE_TRACK_PREWRITE,
- 	KVM_PAGE_TRACK_WRITE,
-+	KVM_PAGE_TRACK_PREEXEC,
- 	KVM_PAGE_TRACK_MAX,
++4.124 KVM_INTROSPECTION_COMMAND
++
++Capability: KVM_CAP_INTROSPECTION
++Architectures: x86
++Type: vm ioctl
++Parameters: struct kvm_introspection_feature (in)
++Returns: 0 on success, a negative value on error
++Errors:
++  EINVAL: the command is unknown
++  EPERM:  the command can't be disallowed (e.g. KVMI_GET_VERSION)
++
++This ioctl is used to allow or disallow introspection commands
++for the current VM. By default, almost all commands are disallowed
++except for those used to query the API.
++
++struct kvm_introspection_feature {
++	__u32 allow;
++	__s32 id;
++};
++
++If allow is 1, the command specified by id is allowed. If allow is 0,
++the command is disallowed.
++
++Unless set to -1 (meaning all commands), id must be a command ID
++(e.g. KVMI_GET_VERSION)
++
++4.125 KVM_INTROSPECTION_EVENT
++
++Capability: KVM_CAP_INTROSPECTION
++Architectures: x86
++Type: vm ioctl
++Parameters: struct kvm_introspection_feature (in)
++Returns: 0 on success, a negative value on error
++Errors:
++  EINVAL: the event is unknown
++
++This ioctl is used to allow or disallow introspection events
++for the current VM. By default, all events are disallowed.
++
++struct kvm_introspection_feature {
++	__u32 allow;
++	__s32 id;
++};
++
++If allow is 1, the event specified by id is allowed. If allow is 0,
++the event is disallowed.
++
++Unless set to -1 (meaning all event), id must be a event ID
++(e.g. KVMI_EVENT_UNHOOK, KVMI_EVENT_CR, etc.)
++
+ 5. The kvm_run structure
+ ------------------------
+ 
+diff --git a/include/linux/kvmi_host.h b/include/linux/kvmi_host.h
+index c8b9c87ecff2..4e77a0227c08 100644
+--- a/include/linux/kvmi_host.h
++++ b/include/linux/kvmi_host.h
+@@ -8,6 +8,8 @@ struct kvm;
+ 
+ #include <asm/kvmi_host.h>
+ 
++#define KVMI_NUM_COMMANDS KVMI_NUM_MESSAGES
++
+ struct kvm_introspection {
+ 	struct kvm_arch_introspection arch;
+ 	struct kvm *kvm;
+@@ -16,6 +18,9 @@ struct kvm_introspection {
+ 
+ 	struct socket *sock;
+ 	struct task_struct *recv;
++
++	DECLARE_BITMAP(cmd_allow_mask, KVMI_NUM_COMMANDS);
++	DECLARE_BITMAP(event_allow_mask, KVMI_NUM_EVENTS);
  };
  
-@@ -22,6 +25,33 @@ struct kvm_page_track_notifier_head {
- struct kvm_page_track_notifier_node {
- 	struct hlist_node node;
+ #ifdef CONFIG_KVM_INTROSPECTION
+@@ -27,6 +32,8 @@ void kvmi_destroy_vm(struct kvm *kvm);
  
-+	/*
-+	 * It is called when guest is reading the read-tracked page
-+	 * and the read emulation is about to happen.
-+	 *
-+	 * @vcpu: the vcpu where the read access happened.
-+	 * @gpa: the physical address read by guest.
-+	 * @gva: the virtual address read by guest.
-+	 * @bytes: the read length.
-+	 * @node: this node.
-+	 */
-+	bool (*track_preread)(struct kvm_vcpu *vcpu, gpa_t gpa, gva_t gva,
-+			      int bytes,
-+			      struct kvm_page_track_notifier_node *node);
-+	/*
-+	 * It is called when guest is writing the write-tracked page
-+	 * and the write emulation didn't happened yet.
-+	 *
-+	 * @vcpu: the vcpu where the write access happened.
-+	 * @gpa: the physical address written by guest.
-+	 * @gva: the virtual address written by guest.
-+	 * @new: the data was written to the address.
-+	 * @bytes: the written length.
-+	 * @node: this node
-+	 */
-+	bool (*track_prewrite)(struct kvm_vcpu *vcpu, gpa_t gpa, gva_t gva,
-+			       const u8 *new, int bytes,
-+			       struct kvm_page_track_notifier_node *node);
- 	/*
- 	 * It is called when guest is writing the write-tracked page
- 	 * and write emulation is finished at that time.
-@@ -36,6 +66,17 @@ struct kvm_page_track_notifier_node {
- 	void (*track_write)(struct kvm_vcpu *vcpu, gpa_t gpa, gva_t gva,
- 			    const u8 *new, int bytes,
- 			    struct kvm_page_track_notifier_node *node);
-+	/*
-+	 * It is called when guest is fetching from a exec-tracked page
-+	 * and the fetch emulation is about to happen.
-+	 *
-+	 * @vcpu: the vcpu where the fetch access happened.
-+	 * @gpa: the physical address fetched by guest.
-+	 * @gva: the virtual address fetched by guest.
-+	 * @node: this node.
-+	 */
-+	bool (*track_preexec)(struct kvm_vcpu *vcpu, gpa_t gpa, gva_t gva,
-+			      struct kvm_page_track_notifier_node *node);
- 	/*
- 	 * It is called when memory slot is being created
- 	 *
-@@ -49,7 +90,7 @@ struct kvm_page_track_notifier_node {
- 				  struct kvm_page_track_notifier_node *node);
- 	/*
- 	 * It is called when memory slot is being moved or removed
--	 * users can drop write-protection for the pages in that memory slot
-+	 * users can drop active protection for the pages in that memory slot
- 	 *
- 	 * @kvm: the kvm where memory slot being moved or removed
- 	 * @slot: the memory slot being moved or removed
-@@ -82,7 +123,12 @@ kvm_page_track_register_notifier(struct kvm *kvm,
- void
- kvm_page_track_unregister_notifier(struct kvm *kvm,
- 				   struct kvm_page_track_notifier_node *n);
-+bool kvm_page_track_preread(struct kvm_vcpu *vcpu, gpa_t gpa, gva_t gva,
-+			    int bytes);
-+bool kvm_page_track_prewrite(struct kvm_vcpu *vcpu, gpa_t gpa, gva_t gva,
-+			     const u8 *new, int bytes);
- void kvm_page_track_write(struct kvm_vcpu *vcpu, gpa_t gpa, gva_t gva,
- 			  const u8 *new, int bytes);
-+bool kvm_page_track_preexec(struct kvm_vcpu *vcpu, gpa_t gpa, gva_t gva);
- void kvm_page_track_flush_slot(struct kvm *kvm, struct kvm_memory_slot *slot);
- #endif
-diff --git a/arch/x86/kvm/mmu.h b/arch/x86/kvm/mmu.h
-index d55674f44a18..b3a20fc98c69 100644
---- a/arch/x86/kvm/mmu.h
-+++ b/arch/x86/kvm/mmu.h
-@@ -209,6 +209,10 @@ void kvm_mmu_gfn_disallow_lpage(struct kvm_memory_slot *slot, gfn_t gfn);
- void kvm_mmu_gfn_allow_lpage(struct kvm_memory_slot *slot, gfn_t gfn);
- bool kvm_mmu_slot_gfn_write_protect(struct kvm *kvm,
- 				    struct kvm_memory_slot *slot, u64 gfn);
-+bool kvm_mmu_slot_gfn_read_protect(struct kvm *kvm,
-+				   struct kvm_memory_slot *slot, u64 gfn);
-+bool kvm_mmu_slot_gfn_exec_protect(struct kvm *kvm,
-+				   struct kvm_memory_slot *slot, u64 gfn);
- int kvm_arch_write_log_dirty(struct kvm_vcpu *vcpu);
+ int kvmi_ioctl_hook(struct kvm *kvm, void __user *argp);
+ int kvmi_ioctl_unhook(struct kvm *kvm);
++int kvmi_ioctl_command(struct kvm *kvm, void __user *argp);
++int kvmi_ioctl_event(struct kvm *kvm, void __user *argp);
  
- int kvm_mmu_post_init_vm(struct kvm *kvm);
-diff --git a/arch/x86/kvm/mmu/mmu.c b/arch/x86/kvm/mmu/mmu.c
-index f2e016dfffe6..124e7ca73b48 100644
---- a/arch/x86/kvm/mmu/mmu.c
-+++ b/arch/x86/kvm/mmu/mmu.c
-@@ -1648,6 +1648,31 @@ static bool spte_write_protect(u64 *sptep, bool pt_protect)
- 	return mmu_spte_update(sptep, spte);
+ #else
+ 
+diff --git a/include/uapi/linux/kvm.h b/include/uapi/linux/kvm.h
+index 09132d8dd3e5..e2de987b5d8f 100644
+--- a/include/uapi/linux/kvm.h
++++ b/include/uapi/linux/kvm.h
+@@ -1563,6 +1563,14 @@ struct kvm_introspection_hook {
+ #define KVM_INTROSPECTION_HOOK    _IOW(KVMIO, 0xc3, struct kvm_introspection_hook)
+ #define KVM_INTROSPECTION_UNHOOK  _IO(KVMIO, 0xc4)
+ 
++struct kvm_introspection_feature {
++	__u32 allow;
++	__s32 id;
++};
++
++#define KVM_INTROSPECTION_COMMAND _IOW(KVMIO, 0xc5, struct kvm_introspection_feature)
++#define KVM_INTROSPECTION_EVENT   _IOW(KVMIO, 0xc6, struct kvm_introspection_feature)
++
+ #define KVM_DEV_ASSIGN_ENABLE_IOMMU	(1 << 0)
+ #define KVM_DEV_ASSIGN_PCI_2_3		(1 << 1)
+ #define KVM_DEV_ASSIGN_MASK_INTX	(1 << 2)
+diff --git a/include/uapi/linux/kvmi.h b/include/uapi/linux/kvmi.h
+index 34dda91016db..d7b18ffef4fa 100644
+--- a/include/uapi/linux/kvmi.h
++++ b/include/uapi/linux/kvmi.h
+@@ -10,4 +10,12 @@ enum {
+ 	KVMI_VERSION = 0x00000001
+ };
+ 
++enum {
++	KVMI_NUM_MESSAGES
++};
++
++enum {
++	KVMI_NUM_EVENTS
++};
++
+ #endif /* _UAPI__LINUX_KVMI_H */
+diff --git a/tools/testing/selftests/kvm/x86_64/kvmi_test.c b/tools/testing/selftests/kvm/x86_64/kvmi_test.c
+index cd8744ec6939..ea411611e296 100644
+--- a/tools/testing/selftests/kvm/x86_64/kvmi_test.c
++++ b/tools/testing/selftests/kvm/x86_64/kvmi_test.c
+@@ -31,15 +31,43 @@ void setup_socket(void)
+ 		errno, strerror(errno));
  }
  
-+static bool spte_read_protect(u64 *sptep)
++static void toggle_event_permission(struct kvm_vm *vm, __s32 id, bool allow)
 +{
-+	u64 spte = *sptep;
-+	bool exec_only_supported = (shadow_present_mask == 0ull);
++	struct kvm_introspection_feature feat = {
++		.allow = allow ? 1 : 0,
++		.id = id
++	};
++	int r;
 +
-+	rmap_printk("rmap_read_protect: spte %p %llx\n", sptep, *sptep);
-+
-+	WARN_ON_ONCE(!exec_only_supported);
-+
-+	spte = spte & ~(PT_WRITABLE_MASK | PT_PRESENT_MASK);
-+
-+	return mmu_spte_update(sptep, spte);
++	r = ioctl(vm->fd, KVM_INTROSPECTION_EVENT, &feat);
++	TEST_ASSERT(r == 0,
++		"KVM_INTROSPECTION_EVENT failed, id %d, errno %d (%s)\n",
++		id, errno, strerror(errno));
 +}
 +
-+static bool spte_exec_protect(u64 *sptep)
++static void allow_event(struct kvm_vm *vm, __s32 event_id)
 +{
-+	u64 spte = *sptep;
-+
-+	rmap_printk("rmap_exec_protect: spte %p %llx\n", sptep, *sptep);
-+
-+	spte = spte & ~PT_USER_MASK;
-+
-+	return mmu_spte_update(sptep, spte);
++	toggle_event_permission(vm, event_id, true);
 +}
 +
- static bool __rmap_write_protect(struct kvm *kvm,
- 				 struct kvm_rmap_head *rmap_head,
- 				 bool pt_protect)
-@@ -1662,6 +1687,32 @@ static bool __rmap_write_protect(struct kvm *kvm,
- 	return flush;
- }
- 
-+static bool __rmap_read_protect(struct kvm *kvm,
-+				struct kvm_rmap_head *rmap_head)
-+{
-+	u64 *sptep;
-+	struct rmap_iterator iter;
-+	bool flush = false;
-+
-+	for_each_rmap_spte(rmap_head, &iter, sptep)
-+		flush |= spte_read_protect(sptep);
-+
-+	return flush;
-+}
-+
-+static bool __rmap_exec_protect(struct kvm *kvm,
-+				struct kvm_rmap_head *rmap_head)
-+{
-+	u64 *sptep;
-+	struct rmap_iterator iter;
-+	bool flush = false;
-+
-+	for_each_rmap_spte(rmap_head, &iter, sptep)
-+		flush |= spte_exec_protect(sptep);
-+
-+	return flush;
-+}
-+
- static bool spte_clear_dirty(u64 *sptep)
+ static void hook_introspection(struct kvm_vm *vm)
  {
- 	u64 spte = *sptep;
-@@ -1837,6 +1888,36 @@ bool kvm_mmu_slot_gfn_write_protect(struct kvm *kvm,
- 	return write_protected;
++	__s32 all_IDs = -1;
+ 	struct kvm_introspection_hook hook = {.fd = Kvm_socket};
++	struct kvm_introspection_feature feat = {.allow = 1, .id = all_IDs};
+ 	int r;
+ 
+ 	r = ioctl(vm->fd, KVM_INTROSPECTION_HOOK, &hook);
+ 	TEST_ASSERT(r == 0,
+ 		"KVM_INTROSPECTION_HOOK failed, errno %d (%s)\n",
+ 		errno, strerror(errno));
++
++	r = ioctl(vm->fd, KVM_INTROSPECTION_COMMAND, &feat);
++	TEST_ASSERT(r == 0,
++		"KVM_INTROSPECTION_COMMAND failed, errno %d (%s)\n",
++		errno, strerror(errno));
++
++	allow_event(vm, all_IDs);
  }
  
-+bool kvm_mmu_slot_gfn_read_protect(struct kvm *kvm,
-+				   struct kvm_memory_slot *slot, u64 gfn)
-+{
-+	struct kvm_rmap_head *rmap_head;
-+	int i;
-+	bool read_protected = false;
+ static void unhook_introspection(struct kvm_vm *vm)
+diff --git a/virt/kvm/introspection/kvmi.c b/virt/kvm/introspection/kvmi.c
+index 7a009480517a..791d2536415e 100644
+--- a/virt/kvm/introspection/kvmi.c
++++ b/virt/kvm/introspection/kvmi.c
+@@ -171,3 +171,95 @@ void kvmi_destroy_vm(struct kvm *kvm)
+ {
+ 	kvmi_unhook(kvm);
+ }
 +
-+	for (i = PT_PAGE_TABLE_LEVEL; i <= PT_MAX_HUGEPAGE_LEVEL; ++i) {
-+		rmap_head = __gfn_to_rmap(gfn, i, slot);
-+		read_protected |= __rmap_read_protect(kvm, rmap_head);
++static int kvmi_ioctl_get_feature(void __user *argp, bool *allow, int *id,
++				  unsigned long *bitmask)
++{
++	struct kvm_introspection_feature feat;
++	int all_bits = -1;
++
++	if (copy_from_user(&feat, argp, sizeof(feat)))
++		return -EFAULT;
++
++	if (feat.id < 0 && feat.id != all_bits)
++		return -EINVAL;
++
++	*allow = !!(feat.allow & 1);
++	*id = feat.id;
++	*bitmask = *id == all_bits ? -1 : BIT(feat.id);
++
++	return 0;
++}
++
++static int kvmi_ioctl_feature(struct kvm *kvm,
++			      bool allow, unsigned long *requested,
++			      size_t off_dest, unsigned int nbits)
++{
++	struct kvm_introspection *kvmi;
++	unsigned long *dest;
++	int err = 0;
++
++	mutex_lock(&kvm->kvmi_lock);
++
++	kvmi = KVMI(kvm);
++	if (!kvmi) {
++		err = -EFAULT;
++		goto out;
 +	}
 +
-+	return read_protected;
++	dest = (unsigned long *)((char *)kvmi + off_dest);
++
++	if (allow)
++		bitmap_or(dest, dest, requested, nbits);
++	else
++		bitmap_andnot(dest, dest, requested, nbits);
++
++out:
++	mutex_unlock(&kvm->kvmi_lock);
++
++	return err;
 +}
 +
-+bool kvm_mmu_slot_gfn_exec_protect(struct kvm *kvm,
-+				   struct kvm_memory_slot *slot, u64 gfn)
++int kvmi_ioctl_event(struct kvm *kvm, void __user *argp)
 +{
-+	struct kvm_rmap_head *rmap_head;
-+	int i;
-+	bool exec_protected = false;
++	DECLARE_BITMAP(requested, KVMI_NUM_EVENTS);
++	DECLARE_BITMAP(known, KVMI_NUM_EVENTS);
++	size_t off_bitmap;
++	bool allow;
++	int err;
++	int id;
 +
-+	for (i = PT_PAGE_TABLE_LEVEL; i <= PT_MAX_HUGEPAGE_LEVEL; ++i) {
-+		rmap_head = __gfn_to_rmap(gfn, i, slot);
-+		exec_protected |= __rmap_exec_protect(kvm, rmap_head);
-+	}
++	err = kvmi_ioctl_get_feature(argp, &allow, &id, requested);
++	if (err)
++		return err;
 +
-+	return exec_protected;
++	bitmap_from_u64(known, KVMI_KNOWN_EVENTS);
++	bitmap_and(requested, requested, known, KVMI_NUM_EVENTS);
++
++	off_bitmap = offsetof(struct kvm_introspection, event_allow_mask);
++
++	return kvmi_ioctl_feature(kvm, allow, requested, off_bitmap,
++				  KVMI_NUM_EVENTS);
 +}
 +
- static bool rmap_write_protect(struct kvm_vcpu *vcpu, u64 gfn)
- {
- 	struct kvm_memory_slot *slot;
-diff --git a/arch/x86/kvm/mmu/page_track.c b/arch/x86/kvm/mmu/page_track.c
-index f36e74430ad2..cc3eb2cc7e38 100644
---- a/arch/x86/kvm/mmu/page_track.c
-+++ b/arch/x86/kvm/mmu/page_track.c
-@@ -1,6 +1,6 @@
- // SPDX-License-Identifier: GPL-2.0-only
- /*
-- * Support KVM gust page tracking
-+ * Support KVM guest page tracking
-  *
-  * This feature allows us to track page access in guest. Currently, only
-  * write access is tracked.
-@@ -99,7 +99,7 @@ static void update_gfn_track(struct kvm_memory_slot *slot, gfn_t gfn,
-  * @kvm: the guest instance we are interested in.
-  * @slot: the @gfn belongs to.
-  * @gfn: the guest page.
-- * @mode: tracking mode, currently only write track is supported.
-+ * @mode: tracking mode.
-  */
- void kvm_slot_page_track_add_page(struct kvm *kvm,
- 				  struct kvm_memory_slot *slot, gfn_t gfn,
-@@ -117,9 +117,16 @@ void kvm_slot_page_track_add_page(struct kvm *kvm,
- 	 */
- 	kvm_mmu_gfn_disallow_lpage(slot, gfn);
- 
--	if (mode == KVM_PAGE_TRACK_WRITE)
-+	if (mode == KVM_PAGE_TRACK_PREWRITE || mode == KVM_PAGE_TRACK_WRITE) {
- 		if (kvm_mmu_slot_gfn_write_protect(kvm, slot, gfn))
- 			kvm_flush_remote_tlbs(kvm);
-+	} else if (mode == KVM_PAGE_TRACK_PREREAD) {
-+		if (kvm_mmu_slot_gfn_read_protect(kvm, slot, gfn))
-+			kvm_flush_remote_tlbs(kvm);
-+	} else if (mode == KVM_PAGE_TRACK_PREEXEC) {
-+		if (kvm_mmu_slot_gfn_exec_protect(kvm, slot, gfn))
-+			kvm_flush_remote_tlbs(kvm);
-+	}
- }
- EXPORT_SYMBOL_GPL(kvm_slot_page_track_add_page);
- 
-@@ -134,7 +141,7 @@ EXPORT_SYMBOL_GPL(kvm_slot_page_track_add_page);
-  * @kvm: the guest instance we are interested in.
-  * @slot: the @gfn belongs to.
-  * @gfn: the guest page.
-- * @mode: tracking mode, currently only write track is supported.
-+ * @mode: tracking mode.
-  */
- void kvm_slot_page_track_remove_page(struct kvm *kvm,
- 				     struct kvm_memory_slot *slot, gfn_t gfn,
-@@ -227,12 +234,78 @@ kvm_page_track_unregister_notifier(struct kvm *kvm,
- }
- EXPORT_SYMBOL_GPL(kvm_page_track_unregister_notifier);
- 
-+/*
-+ * Notify the node that a read access is about to happen. Returning false
-+ * doesn't stop the other nodes from being called, but it will stop
-+ * the emulation.
-+ *
-+ * The node should figure out if the read page is the one that the node
-+ * is interested in by itself.
-+ *
-+ * The nodes will always be in conflict if they track the same page:
-+ * - accepting a read won't guarantee that the next node will not override
-+ *   the data (filling new/bytes and setting data_ready)
-+ * - filling new/bytes with custom data won't guarantee that the next node
-+ *   will not override that
-+ */
-+bool kvm_page_track_preread(struct kvm_vcpu *vcpu, gpa_t gpa, gva_t gva,
-+			    int bytes)
++int kvmi_ioctl_command(struct kvm *kvm, void __user *argp)
 +{
-+	struct kvm_page_track_notifier_head *head;
-+	struct kvm_page_track_notifier_node *n;
-+	int idx;
-+	bool ret = true;
++	DECLARE_BITMAP(requested, KVMI_NUM_COMMANDS);
++	DECLARE_BITMAP(known, KVMI_NUM_COMMANDS);
++	size_t off_bitmap;
++	bool allow;
++	int err;
++	int id;
 +
-+	head = &vcpu->kvm->arch.track_notifier_head;
++	err = kvmi_ioctl_get_feature(argp, &allow, &id, requested);
++	if (err)
++		return err;
 +
-+	if (hlist_empty(&head->track_notifier_list))
-+		return ret;
++	bitmap_from_u64(known, KVMI_KNOWN_COMMANDS);
++	bitmap_and(requested, requested, known, KVMI_NUM_COMMANDS);
 +
-+	idx = srcu_read_lock(&head->track_srcu);
-+	hlist_for_each_entry_rcu(n, &head->track_notifier_list, node)
-+		if (n->track_preread)
-+			if (!n->track_preread(vcpu, gpa, gva, bytes, n))
-+				ret = false;
-+	srcu_read_unlock(&head->track_srcu, idx);
-+	return ret;
++	off_bitmap = offsetof(struct kvm_introspection, cmd_allow_mask);
++
++	return kvmi_ioctl_feature(kvm, allow, requested, off_bitmap,
++				  KVMI_NUM_COMMANDS);
 +}
-+
-+/*
-+ * Notify the node that a write access is about to happen. Returning false
-+ * doesn't stop the other nodes from being called, but it will stop
-+ * the emulation.
-+ *
-+ * The node should figure out if the written page is the one that the node
-+ * is interested in by itself.
-+ */
-+bool kvm_page_track_prewrite(struct kvm_vcpu *vcpu, gpa_t gpa, gva_t gva,
-+			     const u8 *new, int bytes)
-+{
-+	struct kvm_page_track_notifier_head *head;
-+	struct kvm_page_track_notifier_node *n;
-+	int idx;
-+	bool ret = true;
-+
-+	head = &vcpu->kvm->arch.track_notifier_head;
-+
-+	if (hlist_empty(&head->track_notifier_list))
-+		return ret;
-+
-+	idx = srcu_read_lock(&head->track_srcu);
-+	hlist_for_each_entry_rcu(n, &head->track_notifier_list, node)
-+		if (n->track_prewrite)
-+			if (!n->track_prewrite(vcpu, gpa, gva, new, bytes, n))
-+				ret = false;
-+	srcu_read_unlock(&head->track_srcu, idx);
-+	return ret;
-+}
-+
- /*
-  * Notify the node that write access is intercepted and write emulation is
-  * finished at this time.
-  *
-- * The node should figure out if the written page is the one that node is
-- * interested in by itself.
-+ * The node should figure out if the written page is the one that the node
-+ * is interested in by itself.
-  */
- void kvm_page_track_write(struct kvm_vcpu *vcpu, gpa_t gpa, gva_t gva,
- 			  const u8 *new, int bytes)
-@@ -253,12 +326,41 @@ void kvm_page_track_write(struct kvm_vcpu *vcpu, gpa_t gpa, gva_t gva,
- 	srcu_read_unlock(&head->track_srcu, idx);
- }
+diff --git a/virt/kvm/introspection/kvmi_int.h b/virt/kvm/introspection/kvmi_int.h
+index 01451d573788..c5cf40d03d68 100644
+--- a/virt/kvm/introspection/kvmi_int.h
++++ b/virt/kvm/introspection/kvmi_int.h
+@@ -16,6 +16,10 @@
+ #define kvmi_err(kvmi, fmt, ...) \
+ 	kvm_info("%pU ERROR: " fmt, &kvmi->uuid, ## __VA_ARGS__)
  
-+/*
-+ * Notify the node that an instruction is about to be executed.
-+ * Returning false doesn't stop the other nodes from being called,
-+ * but it will stop the emulation with X86EMUL_RETRY_INSTR.
-+ *
-+ * The node should figure out if the page is the one that the node
-+ * is interested in by itself.
-+ */
-+bool kvm_page_track_preexec(struct kvm_vcpu *vcpu, gpa_t gpa, gva_t gva)
-+{
-+	struct kvm_page_track_notifier_head *head;
-+	struct kvm_page_track_notifier_node *n;
-+	int idx;
-+	bool ret = true;
++#define KVMI_KNOWN_EVENTS 0
 +
-+	head = &vcpu->kvm->arch.track_notifier_head;
++#define KVMI_KNOWN_COMMANDS 0
 +
-+	if (hlist_empty(&head->track_notifier_list))
-+		return ret;
-+
-+	idx = srcu_read_lock(&head->track_srcu);
-+	hlist_for_each_entry_rcu(n, &head->track_notifier_list, node)
-+		if (n->track_preexec)
-+			if (!n->track_preexec(vcpu, gpa, gva, n))
-+				ret = false;
-+	srcu_read_unlock(&head->track_srcu, idx);
-+	return ret;
-+}
-+
- /*
-  * Notify the node that memory slot is being removed or moved so that it can
-- * drop write-protection for the pages in the memory slot.
-+ * drop active protection for the pages in the memory slot.
-  *
-- * The node should figure out it has any write-protected pages in this slot
-- * by itself.
-+ * The node should figure out if the page is the one that the node
-+ * is interested in by itself.
-  */
- void kvm_page_track_flush_slot(struct kvm *kvm, struct kvm_memory_slot *slot)
- {
+ #define KVMI(kvm) ((struct kvm_introspection *)((kvm)->kvmi))
+ 
+ /* kvmi_msg.c */
+diff --git a/virt/kvm/kvm_main.c b/virt/kvm/kvm_main.c
+index 77bab9ba918b..f5632a3a7fb3 100644
+--- a/virt/kvm/kvm_main.c
++++ b/virt/kvm/kvm_main.c
+@@ -3505,6 +3505,12 @@ static long kvm_vm_ioctl(struct file *filp,
+ 	case KVM_INTROSPECTION_UNHOOK:
+ 		r = kvmi_ioctl_unhook(kvm);
+ 		break;
++	case KVM_INTROSPECTION_COMMAND:
++		r = kvmi_ioctl_command(kvm, argp);
++		break;
++	case KVM_INTROSPECTION_EVENT:
++		r = kvmi_ioctl_event(kvm, argp);
++		break;
+ #endif /* CONFIG_KVM_INTROSPECTION */
+ 	default:
+ 		r = kvm_arch_vm_ioctl(filp, ioctl, arg);
