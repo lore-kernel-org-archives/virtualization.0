@@ -1,7 +1,7 @@
 From: Thomas Zimmermann <tzimmermann@suse.de>
-Subject: [PATCH 6/6] drm/simple-pipe: Use simple encoder
-Date: Fri,  7 Feb 2020 09:41:35 +0100
-Message-ID: <20200207084135.4524-7-tzimmermann@suse.de>
+Subject: [PATCH 5/6] drm/qxl: Use simple encoder
+Date: Fri,  7 Feb 2020 09:41:34 +0100
+Message-ID: <20200207084135.4524-6-tzimmermann@suse.de>
 References: <20200207084135.4524-1-tzimmermann@suse.de>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
@@ -21,39 +21,61 @@ To: airlied@linux.ie, daniel@ffwll.ch, maarten.lankhorst@linux.intel.com, mripar
 Cc: spice-devel@lists.freedesktop.org, Thomas Zimmermann <tzimmermann@suse.de>, dri-devel@lists.freedesktop.org, virtualization@lists.linux-foundation.org
 List-Id: virtualization@lists.linuxfoundation.org
 
-The simple-pipe helpers use an empty implementation for the encoder.
-Replace the code with the generic simple encoder.
+The qxl driver uses an empty implementation for its encoder. Replace
+the code with the generic simple encoder.
 
 Signed-off-by: Thomas Zimmermann <tzimmermann@suse.de>
 ---
- drivers/gpu/drm/drm_simple_kms_helper.c | 8 ++------
- 1 file changed, 2 insertions(+), 6 deletions(-)
+ drivers/gpu/drm/qxl/qxl_display.c | 17 ++---------------
+ 1 file changed, 2 insertions(+), 15 deletions(-)
 
-diff --git a/drivers/gpu/drm/drm_simple_kms_helper.c b/drivers/gpu/drm/drm_simple_kms_helper.c
-index 15fb516ae2d8..e16606b3ee20 100644
---- a/drivers/gpu/drm/drm_simple_kms_helper.c
-+++ b/drivers/gpu/drm/drm_simple_kms_helper.c
-@@ -28,10 +28,6 @@
-  * encoder drivers.
-  */
+diff --git a/drivers/gpu/drm/qxl/qxl_display.c b/drivers/gpu/drm/qxl/qxl_display.c
+index ab4f8dd00400..fc71f7d9436a 100644
+--- a/drivers/gpu/drm/qxl/qxl_display.c
++++ b/drivers/gpu/drm/qxl/qxl_display.c
+@@ -1007,9 +1007,6 @@ static struct drm_encoder *qxl_best_encoder(struct drm_connector *connector)
+ 	return &qxl_output->enc;
+ }
  
--static const struct drm_encoder_funcs drm_simple_kms_encoder_funcs = {
--	.destroy = drm_encoder_cleanup,
+-static const struct drm_encoder_helper_funcs qxl_enc_helper_funcs = {
 -};
 -
- static enum drm_mode_status
- drm_simple_kms_crtc_mode_valid(struct drm_crtc *crtc,
- 			       const struct drm_display_mode *mode)
-@@ -288,8 +284,8 @@ int drm_simple_display_pipe_init(struct drm_device *dev,
- 		return ret;
+ static const struct drm_connector_helper_funcs qxl_connector_helper_funcs = {
+ 	.get_modes = qxl_conn_get_modes,
+ 	.mode_valid = qxl_conn_mode_valid,
+@@ -1059,15 +1056,6 @@ static const struct drm_connector_funcs qxl_connector_funcs = {
+ 	.atomic_destroy_state = drm_atomic_helper_connector_destroy_state,
+ };
  
- 	encoder->possible_crtcs = drm_crtc_mask(crtc);
--	ret = drm_encoder_init(dev, encoder, &drm_simple_kms_encoder_funcs,
--			       DRM_MODE_ENCODER_NONE, NULL);
-+	ret = drm_simple_encoder_init(dev, encoder, DRM_MODE_ENCODER_NONE,
-+				      NULL);
- 	if (ret || !connector)
- 		return ret;
+-static void qxl_enc_destroy(struct drm_encoder *encoder)
+-{
+-	drm_encoder_cleanup(encoder);
+-}
+-
+-static const struct drm_encoder_funcs qxl_enc_funcs = {
+-	.destroy = qxl_enc_destroy,
+-};
+-
+ static int qxl_mode_create_hotplug_mode_update_property(struct qxl_device *qdev)
+ {
+ 	if (qdev->hotplug_mode_update_property)
+@@ -1098,15 +1086,14 @@ static int qdev_output_init(struct drm_device *dev, int num_output)
+ 	drm_connector_init(dev, &qxl_output->base,
+ 			   &qxl_connector_funcs, DRM_MODE_CONNECTOR_VIRTUAL);
  
+-	drm_encoder_init(dev, &qxl_output->enc, &qxl_enc_funcs,
+-			 DRM_MODE_ENCODER_VIRTUAL, NULL);
++	drm_simple_encoder_init(dev, qxl_output->enc, DRM_MODE_ENCODER_VIRTUAL,
++				NULL);
+ 
+ 	/* we get HPD via client monitors config */
+ 	connector->polled = DRM_CONNECTOR_POLL_HPD;
+ 	encoder->possible_crtcs = 1 << num_output;
+ 	drm_connector_attach_encoder(&qxl_output->base,
+ 					  &qxl_output->enc);
+-	drm_encoder_helper_add(encoder, &qxl_enc_helper_funcs);
+ 	drm_connector_helper_add(connector, &qxl_connector_helper_funcs);
+ 
+ 	drm_object_attach_property(&connector->base,
 -- 
 2.25.0
