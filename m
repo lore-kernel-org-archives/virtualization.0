@@ -1,7 +1,7 @@
 From: =?UTF-8?q?Adalbert=20Laz=C4=83r?= <alazar@bitdefender.com>
-Subject: [RFC PATCH v7 27/78] KVM: x86: extend kvm_mmu_gva_to_gpa_system() with the 'access' parameter
-Date: Fri,  7 Feb 2020 20:15:45 +0200
-Message-ID: <20200207181636.1065-28-alazar@bitdefender.com>
+Subject: [RFC PATCH v7 29/78] KVM: x86: export kvm_vcpu_ioctl_x86_get_xsave()
+Date: Fri,  7 Feb 2020 20:15:47 +0200
+Message-ID: <20200207181636.1065-30-alazar@bitdefender.com>
 References: <20200207181636.1065-1-alazar@bitdefender.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -10,56 +10,45 @@ Return-path: <kvm-owner@vger.kernel.org>
 In-Reply-To: <20200207181636.1065-1-alazar@bitdefender.com>
 Sender: kvm-owner@vger.kernel.org
 To: kvm@vger.kernel.org
-Cc: virtualization@lists.linux-foundation.org, Paolo Bonzini <pbonzini@redhat.com>, Sean Christopherson <sean.j.christopherson@intel.com>, =?UTF-8?q?Mihai=20Don=C8=9Bu?= <mdontu@bitdefender.com>, =?UTF-8?q?Adalbert=20Laz=C4=83r?= <alazar@bitdefender.com>
+Cc: virtualization@lists.linux-foundation.org, Paolo Bonzini <pbonzini@redhat.com>, Sean Christopherson <sean.j.christopherson@intel.com>, =?UTF-8?q?Nicu=C8=99or=20C=C3=AE=C8=9Bu?= <ncitu@bitdefender.com>, =?UTF-8?q?Adalbert=20Laz=C4=83r?= <alazar@bitdefender.com>
 List-Id: virtualization@lists.linuxfoundation.org
 
-From: Mihai Donțu <mdontu@bitdefender.com>
+From: Nicușor Cîțu <ncitu@bitdefender.com>
 
-This is needed for the introspection subsytem to emulate a guest page
-table walk on SPT violations due to A/D bit updates.
+This function is needed for the KVMI_VCPU_GET_XSAVE command.
 
-Signed-off-by: Mihai Donțu <mdontu@bitdefender.com>
+Signed-off-by: Nicușor Cîțu <ncitu@bitdefender.com>
 Signed-off-by: Adalbert Lazăr <alazar@bitdefender.com>
 ---
- arch/x86/include/asm/kvm_host.h | 2 +-
- arch/x86/kvm/x86.c              | 6 +++---
- 2 files changed, 4 insertions(+), 4 deletions(-)
+ arch/x86/kvm/x86.c       | 4 ++--
+ include/linux/kvm_host.h | 2 ++
+ 2 files changed, 4 insertions(+), 2 deletions(-)
 
-diff --git a/arch/x86/include/asm/kvm_host.h b/arch/x86/include/asm/kvm_host.h
-index 6927a6044e26..d216ed1a7c7d 100644
---- a/arch/x86/include/asm/kvm_host.h
-+++ b/arch/x86/include/asm/kvm_host.h
-@@ -1487,7 +1487,7 @@ gpa_t kvm_mmu_gva_to_gpa_fetch(struct kvm_vcpu *vcpu, gva_t gva,
- gpa_t kvm_mmu_gva_to_gpa_write(struct kvm_vcpu *vcpu, gva_t gva,
- 			       struct x86_exception *exception);
- gpa_t kvm_mmu_gva_to_gpa_system(struct kvm_vcpu *vcpu, gva_t gva,
--				struct x86_exception *exception);
-+				u32 access, struct x86_exception *exception);
- 
- void kvm_vcpu_deactivate_apicv(struct kvm_vcpu *vcpu);
- 
 diff --git a/arch/x86/kvm/x86.c b/arch/x86/kvm/x86.c
-index c607148dcf63..5e6327363207 100644
+index 64b4b6dde347..4565f3cce201 100644
 --- a/arch/x86/kvm/x86.c
 +++ b/arch/x86/kvm/x86.c
-@@ -5325,9 +5325,9 @@ gpa_t kvm_mmu_gva_to_gpa_write(struct kvm_vcpu *vcpu, gva_t gva,
- 
- /* uses this to access any guest's mapped memory without checking CPL */
- gpa_t kvm_mmu_gva_to_gpa_system(struct kvm_vcpu *vcpu, gva_t gva,
--				struct x86_exception *exception)
-+				u32 access, struct x86_exception *exception)
- {
--	return vcpu->arch.walk_mmu->gva_to_gpa(vcpu, gva, 0, exception);
-+	return vcpu->arch.walk_mmu->gva_to_gpa(vcpu, gva, access, exception);
+@@ -3981,8 +3981,8 @@ static void load_xsave(struct kvm_vcpu *vcpu, u8 *src)
+ 	}
  }
  
- static int kvm_read_guest_virt_helper(gva_t addr, void *val, unsigned int bytes,
-@@ -9005,7 +9005,7 @@ int kvm_arch_vcpu_ioctl_translate(struct kvm_vcpu *vcpu,
- 	vcpu_load(vcpu);
+-static void kvm_vcpu_ioctl_x86_get_xsave(struct kvm_vcpu *vcpu,
+-					 struct kvm_xsave *guest_xsave)
++void kvm_vcpu_ioctl_x86_get_xsave(struct kvm_vcpu *vcpu,
++				  struct kvm_xsave *guest_xsave)
+ {
+ 	if (boot_cpu_has(X86_FEATURE_XSAVE)) {
+ 		memset(guest_xsave, 0, sizeof(struct kvm_xsave));
+diff --git a/include/linux/kvm_host.h b/include/linux/kvm_host.h
+index 625f567f6120..d3bc4351344f 100644
+--- a/include/linux/kvm_host.h
++++ b/include/linux/kvm_host.h
+@@ -872,6 +872,8 @@ int kvm_arch_vcpu_ioctl_set_guest_debug(struct kvm_vcpu *vcpu,
+ int kvm_arch_vcpu_set_guest_debug(struct kvm_vcpu *vcpu,
+ 				 struct kvm_guest_debug *dbg);
+ int kvm_arch_vcpu_ioctl_run(struct kvm_vcpu *vcpu, struct kvm_run *kvm_run);
++void kvm_vcpu_ioctl_x86_get_xsave(struct kvm_vcpu *vcpu,
++				  struct kvm_xsave *guest_xsave);
  
- 	idx = srcu_read_lock(&vcpu->kvm->srcu);
--	gpa = kvm_mmu_gva_to_gpa_system(vcpu, vaddr, NULL);
-+	gpa = kvm_mmu_gva_to_gpa_system(vcpu, vaddr, 0, NULL);
- 	srcu_read_unlock(&vcpu->kvm->srcu, idx);
- 	tr->physical_address = gpa;
- 	tr->valid = gpa != UNMAPPED_GVA;
+ int kvm_arch_init(void *opaque);
+ void kvm_arch_exit(void);
