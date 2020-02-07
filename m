@@ -1,7 +1,7 @@
 From: =?UTF-8?q?Adalbert=20Laz=C4=83r?= <alazar@bitdefender.com>
-Subject: [RFC PATCH v7 36/78] KVM: introduce VM introspection
-Date: Fri,  7 Feb 2020 20:15:54 +0200
-Message-ID: <20200207181636.1065-37-alazar@bitdefender.com>
+Subject: [RFC PATCH v7 45/78] KVM: introspection: add KVMI_VM_READ_PHYSICAL/KVMI_VM_WRITE_PHYSICAL
+Date: Fri,  7 Feb 2020 20:16:03 +0200
+Message-ID: <20200207181636.1065-46-alazar@bitdefender.com>
 References: <20200207181636.1065-1-alazar@bitdefender.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -10,357 +10,577 @@ Return-path: <kvm-owner@vger.kernel.org>
 In-Reply-To: <20200207181636.1065-1-alazar@bitdefender.com>
 Sender: kvm-owner@vger.kernel.org
 To: kvm@vger.kernel.org
-Cc: virtualization@lists.linux-foundation.org, Paolo Bonzini <pbonzini@redhat.com>, Sean Christopherson <sean.j.christopherson@intel.com>, =?UTF-8?q?Mihai=20Don=C8=9Bu?= <mdontu@bitdefender.com>, Marian Rotariu <marian.c.rotariu@gmail.com>, =?UTF-8?q?Adalbert=20Laz=C4=83r?= <alazar@bitdefender.com>
+Cc: virtualization@lists.linux-foundation.org, Paolo Bonzini <pbonzini@redhat.com>, Sean Christopherson <sean.j.christopherson@intel.com>, =?UTF-8?q?Mihai=20Don=C8=9Bu?= <mdontu@bitdefender.com>, =?UTF-8?q?Adalbert=20Laz=C4=83r?= <alazar@bitdefender.com>
 List-Id: virtualization@lists.linuxfoundation.org
 
 From: Mihai Donțu <mdontu@bitdefender.com>
 
-The KVM introspection subsystem provides a facility for applications to
-control the execution of other VMs (pause, resume, shutdown), query the
-state of the vCPUs (GPRs, MSRs etc.), alter the page access bits in the
-shadow page tables and receive notifications when events of interest
-have taken place (shadow page table level faults, key MSR writes,
-hypercalls etc.). Some notifications can be responded to with an action
-(like preventing an MSR from being written), others are mere informative
-(like breakpoint events which can be used for execution tracing).
+These commands allows the introspection tool to read/write from/to the
+guest memory.
 
 Signed-off-by: Mihai Donțu <mdontu@bitdefender.com>
-Co-developed-by: Marian Rotariu <marian.c.rotariu@gmail.com>
-Signed-off-by: Marian Rotariu <marian.c.rotariu@gmail.com>
+Co-developed-by: Adalbert Lazăr <alazar@bitdefender.com>
 Signed-off-by: Adalbert Lazăr <alazar@bitdefender.com>
 ---
- Documentation/virt/kvm/kvmi.rst   | 140 ++++++++++++++++++++++++++++++
- arch/x86/kvm/Kconfig              |   9 ++
- arch/x86/kvm/Makefile             |   2 +
- include/linux/kvm_host.h          |   2 +
- include/linux/kvmi_host.h         |  23 +++++
- virt/kvm/introspection/kvmi.c     |  25 ++++++
- virt/kvm/introspection/kvmi_int.h |   7 ++
- virt/kvm/kvm_main.c               |  13 +++
- 8 files changed, 221 insertions(+)
- create mode 100644 Documentation/virt/kvm/kvmi.rst
- create mode 100644 include/linux/kvmi_host.h
- create mode 100644 virt/kvm/introspection/kvmi.c
- create mode 100644 virt/kvm/introspection/kvmi_int.h
+ Documentation/virt/kvm/kvmi.rst               |  62 +++++++
+ include/uapi/linux/kvmi.h                     |  13 ++
+ .../testing/selftests/kvm/x86_64/kvmi_test.c  | 167 ++++++++++++++++++
+ virt/kvm/introspection/kvmi.c                 | 135 ++++++++++++++
+ virt/kvm/introspection/kvmi_int.h             |   9 +
+ virt/kvm/introspection/kvmi_msg.c             |  46 +++++
+ 6 files changed, 432 insertions(+)
 
 diff --git a/Documentation/virt/kvm/kvmi.rst b/Documentation/virt/kvm/kvmi.rst
-new file mode 100644
-index 000000000000..af685e837b4b
---- /dev/null
+index 7039f4d2b782..60fa50585c36 100644
+--- a/Documentation/virt/kvm/kvmi.rst
 +++ b/Documentation/virt/kvm/kvmi.rst
-@@ -0,0 +1,140 @@
-+.. SPDX-License-Identifier: GPL-2.0
-+
-+=========================================================
-+KVMI - The kernel virtual machine introspection subsystem
-+=========================================================
-+
-+The KVM introspection subsystem provides a facility for applications running
-+on the host or in a separate VM, to control the execution of other VMs
-+(pause, resume, shutdown), query the state of the vCPUs (GPRs, MSRs etc.),
-+alter the page access bits in the shadow page tables (only for the hardware
-+backed ones, eg. Intel's EPT) and receive notifications when events of
-+interest have taken place (shadow page table level faults, key MSR writes,
-+hypercalls etc.). Some notifications can be responded to with an action
-+(like preventing an MSR from being written), others are mere informative
-+(like breakpoint events which can be used for execution tracing).
-+With few exceptions, all events are optional. An application using this
-+subsystem will explicitly register for them.
-+
-+The use case that gave way for the creation of this subsystem is to monitor
-+the guest OS and as such the ABI/API is highly influenced by how the guest
-+software (kernel, applications) sees the world. For example, some events
-+provide information specific for the host CPU architecture
-+(eg. MSR_IA32_SYSENTER_EIP) merely because its leveraged by guest software
-+to implement a critical feature (fast system calls).
-+
-+At the moment, the target audience for KVMI are security software authors
-+that wish to perform forensics on newly discovered threats (exploits) or
-+to implement another layer of security like preventing a large set of
-+kernel rootkits simply by "locking" the kernel image in the shadow page
-+tables (ie. enforce .text r-x, .rodata rw- etc.). It's the latter case that
-+made KVMI a separate subsystem, even though many of these features are
-+available in the device manager (eg. QEMU). The ability to build a security
-+application that does not interfere (in terms of performance) with the
-+guest software asks for a specialized interface that is designed for minimum
-+overhead.
-+
-+API/ABI
-+=======
-+
-+This chapter describes the VMI interface used to monitor and control local
-+guests from a user application.
-+
-+Overview
-+--------
-+
-+The interface is socket based, one connection for every VM. One end is in the
-+host kernel while the other is held by the user application (introspection
-+tool).
-+
-+The initial connection is established by an application running on the host
-+(eg. QEMU) that connects to the introspection tool and after a handshake the
-+socket is passed to the host kernel making all further communication take
-+place between it and the introspection tool. The initiating party (QEMU) can
-+close its end so that any potential exploits cannot take a hold of it.
-+
-+The socket protocol allows for commands and events to be multiplexed over
-+the same connection. As such, it is possible for the introspection tool to
-+receive an event while waiting for the result of a command. Also, it can
-+send a command while the host kernel is waiting for a reply to an event.
-+
-+The kernel side of the socket communication is blocking and will wait for
-+an answer from its peer indefinitely or until the guest is powered off
-+(killed), restarted or the peer goes away. Obviously, whether the guest
-+can really continue normal execution depends on whether the introspection
-+tool has made any modifications that require an active KVMI channel.
-+
-+Handshake
-+---------
-+
-+Although this falls out of the scope of the introspection subsystem, below
-+is a proposal of a handshake that can be used by implementors.
-+
-+Based on the system administration policies, the management tool
-+(eg. libvirt) starts device managers (eg. QEMU) with some extra arguments:
-+what introspection tool could monitor/control that specific guest (and
-+how to connect to) and what introspection commands/events are allowed.
-+
-+The device manager will connect to the introspection tool and wait for a
-+cryptographic hash of a cookie that should be known by both peers. If the
-+hash is correct (the destination has been "authenticated"), the device
-+manager will send another cryptographic hash and random salt. The peer
-+recomputes the hash of the cookie bytes including the salt and if they match,
-+the device manager has been "authenticated" too. This is a rather crude
-+system that makes it difficult for device manager exploits to trick the
-+introspection tool into believing its working OK.
-+
-+The cookie would normally be generated by a management tool (eg. libvirt)
-+and make it available to the device manager and to a properly authenticated
-+client. It is the job of a third party to retrieve the cookie from the
-+management application and pass it over a secure channel to the introspection
-+tool.
-+
-+Once the basic "authentication" has taken place, the introspection tool
-+can receive information on the guest (its UUID) and other flags (endianness
-+or features supported by the host kernel).
-+
-+In the end, the device manager will pass the file handle (plus the allowed
-+commands/events) to KVM, and forget about it. It will be notified by
-+KVM when the introspection tool closes the file handle (in case of
-+errors), and should reinitiate the handshake.
-+
-+Unhooking
-+---------
-+
-+During a VMI session it is possible for the guest to be patched and for
-+some of these patches to "talk" with the introspection tool. It thus
-+becomes necessary to remove them before the guest is suspended, moved
-+(migrated) or a snapshot with memory is created.
-+
-+The actions are normally performed by the device manager. In the case
-+of QEMU, it will use another ioctl to notify the introspection tool and
-+wait for a limited amount of time (a few seconds) for a confirmationthat
-+is OK to proceed.
-+
-+Live migrations
-+---------------
-+
-+Before the live migration takes place, the introspection tool has to be
-+notified and have a chance to unhook (see **Unhooking**).
-+
-+The QEMU instance on the receiving end, if configured for KVMI, will need to
-+establish a connection to the introspection tool after the migration has
-+completed.
-+
-+Obviously, this creates a window in which the guest is not
-+introspected. The user will need to be aware of this detail.
-+Future introspection technologies can choose not to disconnect and instead
-+transfer the necessary context to the introspection tool at the migration
-+destination via a separate channel.
-+
-+Memory access safety
-+--------------------
-+
-+The KVMI API gives access to the entire guest physical address space but
-+provides no information on which parts of it are system RAM and which are
-+device-specific memory (DMA, emulated MMIO, reserved by a passthrough
-+device etc.). It is up to the user to determine, using the guest operating
-+system data structures, the areas that are safe to access (code, stack, heap
-+etc.).
-+
-diff --git a/arch/x86/kvm/Kconfig b/arch/x86/kvm/Kconfig
-index 840e12583b85..78b3580b5601 100644
---- a/arch/x86/kvm/Kconfig
-+++ b/arch/x86/kvm/Kconfig
-@@ -96,6 +96,15 @@ config KVM_MMU_AUDIT
- 	 This option adds a R/W kVM module parameter 'mmu_audit', which allows
- 	 auditing of KVM MMU events at runtime.
+@@ -366,6 +366,68 @@ the following events::
+ * -KVM_EINVAL - padding is not zero
+ * -KVM_EPERM - the access is restricted by the host
  
-+config KVM_INTROSPECTION
-+	bool "KVM Introspection"
-+	depends on KVM && (KVM_INTEL || KVM_AMD)
-+	default n
-+	help
-+	  Provides the introspection interface, which allows the control
-+	  of any running VM. It must be explicitly enabled by setting
-+	  the module parameter 'kvm.introspection'.
++6. KVMI_VM_READ_PHYSICAL
++------------------------
 +
- # OK, it's a little counter-intuitive to do this, but it puts it neatly under
- # the virtualization menu.
- source "drivers/vhost/Kconfig"
-diff --git a/arch/x86/kvm/Makefile b/arch/x86/kvm/Makefile
-index b19ef421084d..53b3579c2900 100644
---- a/arch/x86/kvm/Makefile
-+++ b/arch/x86/kvm/Makefile
-@@ -3,10 +3,12 @@
- ccflags-y += -Iarch/x86/kvm
++:Architectures: all
++:Versions: >= 1
++:Parameters:
++
++::
++
++	struct kvmi_vm_read_physical {
++		__u64 gpa;
++		__u64 size;
++	};
++
++:Returns:
++
++::
++
++	struct kvmi_error_code;
++	__u8 data[0];
++
++Reads from the guest memory.
++
++Currently, the size must be non-zero and the read must be restricted to
++one page (offset + size <= PAGE_SIZE).
++
++:Errors:
++
++* -KVM_EINVAL - the specified gpa/size pair is invalid
++* -KVM_ENOENT - the guest page doesn't exists
++
++7. KVMI_VM_WRITE_PHYSICAL
++-------------------------
++
++:Architectures: all
++:Versions: >= 1
++:Parameters:
++
++::
++
++	struct kvmi_vm_write_physical {
++		__u64 gpa;
++		__u64 size;
++		__u8  data[0];
++	};
++
++:Returns:
++
++::
++
++	struct kvmi_error_code
++
++Writes into the guest memory.
++
++Currently, the size must be non-zero and the write must be restricted to
++one page (offset + size <= PAGE_SIZE).
++
++:Errors:
++
++* -KVM_EINVAL - the specified gpa/size pair is invalid
++* -KVM_ENOENT - the guest page doesn't exists
++
+ Events
+ ======
  
- KVM := ../../../virt/kvm
-+KVMI := $(KVM)/introspection
+diff --git a/include/uapi/linux/kvmi.h b/include/uapi/linux/kvmi.h
+index da9bf30ae513..3b8590c0fc98 100644
+--- a/include/uapi/linux/kvmi.h
++++ b/include/uapi/linux/kvmi.h
+@@ -22,6 +22,8 @@ enum {
+ 	KVMI_VM_CHECK_EVENT    = 4,
+ 	KVMI_VM_GET_INFO       = 5,
+ 	KVMI_VM_CONTROL_EVENTS = 6,
++	KVMI_VM_READ_PHYSICAL  = 7,
++	KVMI_VM_WRITE_PHYSICAL = 8,
  
- kvm-y			+= $(KVM)/kvm_main.o $(KVM)/coalesced_mmio.o \
- 				$(KVM)/eventfd.o $(KVM)/irqchip.o $(KVM)/vfio.o
- kvm-$(CONFIG_KVM_ASYNC_PF)	+= $(KVM)/async_pf.o
-+kvm-$(CONFIG_KVM_INTROSPECTION) += $(KVMI)/kvmi.o
+ 	KVMI_NUM_MESSAGES
+ };
+@@ -76,6 +78,17 @@ struct kvmi_vm_control_events {
+ 	__u32 padding2;
+ };
  
- kvm-y			+= x86.o emulate.o i8259.o irq.o lapic.o \
- 			   i8254.o ioapic.o irq_comm.o cpuid.o pmu.o mtrr.o \
-diff --git a/include/linux/kvm_host.h b/include/linux/kvm_host.h
-index d3bc4351344f..862dc45f971f 100644
---- a/include/linux/kvm_host.h
-+++ b/include/linux/kvm_host.h
-@@ -35,6 +35,8 @@
++struct kvmi_vm_read_physical {
++	__u64 gpa;
++	__u64 size;
++};
++
++struct kvmi_vm_write_physical {
++	__u64 gpa;
++	__u64 size;
++	__u8  data[0];
++};
++
+ struct kvmi_event {
+ 	__u16 size;
+ 	__u16 vcpu;
+diff --git a/tools/testing/selftests/kvm/x86_64/kvmi_test.c b/tools/testing/selftests/kvm/x86_64/kvmi_test.c
+index 23dba71e7dc6..b0573d7e2e5b 100644
+--- a/tools/testing/selftests/kvm/x86_64/kvmi_test.c
++++ b/tools/testing/selftests/kvm/x86_64/kvmi_test.c
+@@ -24,6 +24,13 @@ static int socket_pair[2];
+ #define Kvm_socket       socket_pair[0]
+ #define Userspace_socket socket_pair[1]
  
- #include <asm/kvm_host.h>
++static vm_vaddr_t test_gva;
++static void *test_hva;
++static vm_paddr_t test_gpa;
++
++static uint8_t test_write_pattern;
++static int page_size;
++
+ void setup_socket(void)
+ {
+ 	int r;
+@@ -356,6 +363,150 @@ static void test_cmd_vm_control_events(void)
+ 	disable_vm_event(id);
+ }
  
-+#include <linux/kvmi_host.h>
-+
- #ifndef KVM_MAX_VCPU_ID
- #define KVM_MAX_VCPU_ID KVM_MAX_VCPUS
- #endif
-diff --git a/include/linux/kvmi_host.h b/include/linux/kvmi_host.h
-new file mode 100644
-index 000000000000..8cd613fdd4f2
---- /dev/null
-+++ b/include/linux/kvmi_host.h
-@@ -0,0 +1,23 @@
-+/* SPDX-License-Identifier: GPL-2.0-only */
-+#ifndef __KVMI_HOST_H
-+#define __KVMI_HOST_H
-+
-+struct kvm;
-+
-+#ifdef CONFIG_KVM_INTROSPECTION
-+
-+int kvmi_init(void);
-+void kvmi_uninit(void);
-+void kvmi_create_vm(struct kvm *kvm);
-+void kvmi_destroy_vm(struct kvm *kvm);
-+
-+#else
-+
-+static inline int kvmi_init(void) { return 0; }
-+static inline void kvmi_uninit(void) { }
-+static inline void kvmi_create_vm(struct kvm *kvm) { }
-+static inline void kvmi_destroy_vm(struct kvm *kvm) { }
-+
-+#endif /* CONFIG_KVM_INTROSPECTION */
-+
-+#endif
-diff --git a/virt/kvm/introspection/kvmi.c b/virt/kvm/introspection/kvmi.c
-new file mode 100644
-index 000000000000..c74ddb8075cd
---- /dev/null
-+++ b/virt/kvm/introspection/kvmi.c
-@@ -0,0 +1,25 @@
-+// SPDX-License-Identifier: GPL-2.0
-+/*
-+ * KVM introspection
-+ *
-+ * Copyright (C) 2017-2020 Bitdefender S.R.L.
-+ *
-+ */
-+#include "kvmi_int.h"
-+
-+int kvmi_init(void)
++static int cmd_write_page(__u64 gpa, __u64 size, void *p)
 +{
++	struct kvmi_vm_write_physical *cmd;
++	struct kvmi_msg_hdr *req;
++	size_t req_size;
++	int r;
++
++	req_size = sizeof(*req) + sizeof(*cmd) + size;
++
++	req = calloc(1, req_size);
++	TEST_ASSERT(req, "Insufficient Memory\n");
++
++	cmd = (struct kvmi_vm_write_physical *)(req + 1);
++	cmd->gpa = gpa;
++	cmd->size = size;
++
++	memcpy(cmd + 1, p, size);
++
++	r = do_command(KVMI_VM_WRITE_PHYSICAL, req, req_size, NULL, 0);
++
++	free(req);
++
++	return r;
++}
++
++static void write_guest_page(__u64 gpa, void *p)
++{
++	int r;
++
++	r = cmd_write_page(gpa, page_size, p);
++	TEST_ASSERT(r == 0,
++		"KVMI_VM_WRITE_PHYSICAL failed, gpa 0x%lx, error %d (%s)\n",
++		gpa, -r, kvm_strerror(-r));
++}
++
++static void write_with_invalid_arguments(__u64 gpa, __u64 size, void *p)
++{
++	int r;
++
++	r = cmd_write_page(gpa, size, p);
++	TEST_ASSERT(r == -KVM_EINVAL,
++		"KVMI_VM_WRITE_PHYSICAL did not failed with EINVAL, gpa 0x%lx, error %d (%s)\n",
++		gpa, -r, kvm_strerror(-r));
++}
++
++static void write_invalid_guest_page(struct kvm_vm *vm, void *p)
++{
++	uint64_t gpa = vm->max_gfn << vm->page_shift;
++	int r;
++
++	r = cmd_write_page(gpa, 1, p);
++	TEST_ASSERT(r == -KVM_ENOENT,
++		"KVMI_VM_WRITE_PHYSICAL did not failed with ENOENT, gpa 0x%lx, error %d (%s)\n",
++		gpa, -r, kvm_strerror(-r));
++}
++
++static int cmd_read_page(__u64 gpa, __u64 size, void *p)
++{
++	struct {
++		struct kvmi_msg_hdr hdr;
++		struct kvmi_vm_read_physical cmd;
++	} req = { };
++
++	req.cmd.gpa = gpa;
++	req.cmd.size = size;
++
++	return do_command(KVMI_VM_READ_PHYSICAL, &req.hdr, sizeof(req), p,
++			     page_size);
++}
++
++static void read_guest_page(__u64 gpa, void *p)
++{
++	int r;
++
++	r = cmd_read_page(gpa, page_size, p);
++	TEST_ASSERT(r == 0,
++		"KVMI_VM_READ_PHYSICAL failed, gpa 0x%lx, error %d (%s)\n",
++		gpa, -r, kvm_strerror(-r));
++}
++
++static void read_with_invalid_arguments(__u64 gpa, __u64 size, void *p)
++{
++	int r;
++
++	r = cmd_read_page(gpa, size, p);
++	TEST_ASSERT(r == -KVM_EINVAL,
++		"KVMI_VM_READ_PHYSICAL did not failed with EINVAL, gpa 0x%lx, error %d (%s)\n",
++		gpa, -r, kvm_strerror(-r));
++}
++
++static void read_invalid_guest_page(struct kvm_vm *vm)
++{
++	uint64_t gpa = vm->max_gfn << vm->page_shift;
++	int r;
++
++	r = cmd_read_page(gpa, 1, NULL);
++	TEST_ASSERT(r == -KVM_ENOENT,
++		"KVMI_VM_READ_PHYSICAL did not failed with ENOENT, gpa 0x%lx, error %d (%s)\n",
++		gpa, -r, kvm_strerror(-r));
++}
++
++static void new_test_write_pattern(struct kvm_vm *vm)
++{
++	uint8_t n;
++
++	do {
++		n = random();
++	} while (!n || n == test_write_pattern);
++
++	test_write_pattern = n;
++	sync_global_to_guest(vm, test_write_pattern);
++}
++
++static void test_memory_access(struct kvm_vm *vm)
++{
++	void *pw, *pr;
++
++	new_test_write_pattern(vm);
++
++	pw = malloc(page_size);
++	TEST_ASSERT(pw, "Insufficient Memory\n");
++
++	memset(pw, test_write_pattern, page_size);
++
++	write_guest_page(test_gpa, pw);
++	TEST_ASSERT(memcmp(pw, test_hva, page_size) == 0,
++		"Write page test failed");
++
++	pr = malloc(page_size);
++	TEST_ASSERT(pr, "Insufficient Memory\n");
++
++	read_guest_page(test_gpa, pr);
++	TEST_ASSERT(memcmp(pw, pr, page_size) == 0,
++		"Read page test failed");
++
++	read_with_invalid_arguments(test_gpa, 0, pr);
++	write_with_invalid_arguments(test_gpa, 0, pw);
++	write_invalid_guest_page(vm, pw);
++
++	free(pw);
++	free(pr);
++
++	read_invalid_guest_page(vm);
++}
+ static void test_introspection(struct kvm_vm *vm)
+ {
+ 	setup_socket();
+@@ -368,10 +519,23 @@ static void test_introspection(struct kvm_vm *vm)
+ 	test_cmd_get_vm_info();
+ 	test_event_unhook(vm);
+ 	test_cmd_vm_control_events();
++	test_memory_access(vm);
+ 
+ 	unhook_introspection(vm);
+ }
+ 
++static void setup_test_pages(struct kvm_vm *vm)
++{
++	test_gva = vm_vaddr_alloc(vm, page_size, KVM_UTIL_MIN_VADDR, 0, 0);
++
++	sync_global_to_guest(vm, test_gva);
++
++	test_hva = addr_gva2hva(vm, test_gva);
++	memset(test_hva, 0, page_size);
++
++	test_gpa = addr_gva2gpa(vm, test_gva);
++}
++
+ int main(int argc, char *argv[])
+ {
+ 	struct kvm_vm *vm;
+@@ -385,6 +549,9 @@ int main(int argc, char *argv[])
+ 	vm = vm_create_default(VCPU_ID, 0, NULL);
+ 	vcpu_set_cpuid(vm, VCPU_ID, kvm_get_supported_cpuid());
+ 
++	page_size = getpagesize();
++	setup_test_pages(vm);
++
+ 	test_introspection(vm);
+ 
+ 	return 0;
+diff --git a/virt/kvm/introspection/kvmi.c b/virt/kvm/introspection/kvmi.c
+index 9d246152c5e8..9e4e8fb07859 100644
+--- a/virt/kvm/introspection/kvmi.c
++++ b/virt/kvm/introspection/kvmi.c
+@@ -5,6 +5,7 @@
+  * Copyright (C) 2017-2020 Bitdefender S.R.L.
+  *
+  */
++#include <linux/mmu_context.h>
+ #include "kvmi_int.h"
+ #include <linux/kthread.h>
+ 
+@@ -368,3 +369,137 @@ int kvmi_cmd_vm_control_events(struct kvm_introspection *kvmi,
+ 
+ 	return 0;
+ }
++
++unsigned long gfn_to_hva_safe(struct kvm *kvm, gfn_t gfn)
++{
++	unsigned long hva;
++	int srcu_idx;
++
++	srcu_idx = srcu_read_lock(&kvm->srcu);
++	hva = gfn_to_hva(kvm, gfn);
++	srcu_read_unlock(&kvm->srcu, srcu_idx);
++
++	return hva;
++}
++
++static long
++get_user_pages_remote_unlocked(struct mm_struct *mm, unsigned long start,
++				unsigned long nr_pages, unsigned int gup_flags,
++				struct page **pages)
++{
++	struct vm_area_struct **vmas = NULL;
++	struct task_struct *tsk = NULL;
++	int locked = 1;
++	long r;
++
++	down_read(&mm->mmap_sem);
++	r = get_user_pages_remote(tsk, mm, start, nr_pages, gup_flags,
++				  pages, vmas, &locked);
++	if (locked)
++		up_read(&mm->mmap_sem);
++
++	return r;
++}
++
++static void *get_page_ptr(struct kvm *kvm, gpa_t gpa, struct page **page,
++			  bool write)
++{
++	unsigned int flags = write ? FOLL_WRITE : 0;
++	unsigned long hva;
++
++	*page = NULL;
++
++	hva = gfn_to_hva_safe(kvm, gpa_to_gfn(gpa));
++
++	if (kvm_is_error_hva(hva))
++		return NULL;
++
++	if (get_user_pages_remote_unlocked(kvm->mm, hva, 1, flags, page) != 1)
++		return NULL;
++
++	return write ? kmap_atomic(*page) : kmap(*page);
++}
++
++static void put_page_ptr(void *ptr, struct page *page, bool write)
++{
++	if (ptr) {
++		if (write)
++			kunmap_atomic(ptr);
++		else
++			kunmap(ptr);
++	}
++	if (page)
++		put_page(page);
++}
++
++static int get_first_vcpu(struct kvm *kvm, struct kvm_vcpu **vcpu)
++{
++	struct kvm_vcpu *v;
++
++	if (!atomic_read(&kvm->online_vcpus))
++		return -KVM_EINVAL;
++
++	v = kvm_get_vcpu(kvm, 0);
++	if (!v)
++		return -KVM_EINVAL;
++
++	*vcpu = v;
++
 +	return 0;
 +}
 +
-+void kvmi_uninit(void)
++int kvmi_cmd_read_physical(struct kvm *kvm, u64 gpa, u64 size,
++			   int (*send)(struct kvm_introspection *,
++					const struct kvmi_msg_hdr *,
++					int err, const void *buf, size_t),
++			   const struct kvmi_msg_hdr *ctx)
 +{
-+}
++	void *ptr_page = NULL, *ptr = NULL;
++	struct page *page = NULL;
++	struct kvm_vcpu *vcpu;
++	size_t ptr_size = 0;
++	int err, ec;
 +
-+void kvmi_create_vm(struct kvm *kvm)
-+{
-+}
++	ec = get_first_vcpu(kvm, &vcpu);
 +
-+void kvmi_destroy_vm(struct kvm *kvm)
-+{
-+}
-diff --git a/virt/kvm/introspection/kvmi_int.h b/virt/kvm/introspection/kvmi_int.h
-new file mode 100644
-index 000000000000..34af926f9838
---- /dev/null
-+++ b/virt/kvm/introspection/kvmi_int.h
-@@ -0,0 +1,7 @@
-+/* SPDX-License-Identifier: GPL-2.0 */
-+#ifndef __KVMI_INT_H__
-+#define __KVMI_INT_H__
++	if (ec)
++		goto out;
 +
-+#include <linux/kvm_host.h>
-+
-+#endif
-diff --git a/virt/kvm/kvm_main.c b/virt/kvm/kvm_main.c
-index 20ffc86fd8d1..d33065665e22 100644
---- a/virt/kvm/kvm_main.c
-+++ b/virt/kvm/kvm_main.c
-@@ -90,6 +90,9 @@ unsigned int halt_poll_ns_shrink;
- module_param(halt_poll_ns_shrink, uint, 0644);
- EXPORT_SYMBOL_GPL(halt_poll_ns_shrink);
- 
-+static bool enable_introspection;
-+module_param_named(introspection, enable_introspection, bool, 0644);
-+
- /*
-  * Ordering of locks:
-  *
-@@ -739,6 +742,9 @@ static struct kvm *kvm_create_vm(unsigned long type)
- 	if (r)
- 		goto out_err;
- 
-+	if (enable_introspection)
-+		kvmi_create_vm(kvm);
-+
- 	mutex_lock(&kvm_lock);
- 	list_add(&kvm->vm_list, &vm_list);
- 	mutex_unlock(&kvm_lock);
-@@ -791,6 +797,7 @@ static void kvm_destroy_vm(struct kvm *kvm)
- 	int i;
- 	struct mm_struct *mm = kvm->mm;
- 
-+	kvmi_destroy_vm(kvm);
- 	kvm_uevent_notify_change(KVM_EVENT_DESTROY_VM, kvm);
- 	kvm_destroy_vm_debugfs(kvm);
- 	kvm_arch_sync_events(kvm);
-@@ -4439,6 +4446,11 @@ int kvm_init(void *opaque, unsigned vcpu_size, unsigned vcpu_align,
- 	r = kvm_vfio_ops_init();
- 	WARN_ON(r);
- 
-+	if (enable_introspection) {
-+		r = kvmi_init();
-+		WARN_ON(r);
++	ptr_page = get_page_ptr(kvm, gpa, &page, false);
++	if (!ptr_page) {
++		ec = -KVM_ENOENT;
++		goto out;
 +	}
 +
- 	return 0;
++	ptr = ptr_page + (gpa & ~PAGE_MASK);
++	ptr_size = size;
++
++out:
++	err = send(KVMI(kvm), ctx, ec, ptr, ptr_size);
++
++	put_page_ptr(ptr_page, page, false);
++	return err;
++}
++
++int kvmi_cmd_write_physical(struct kvm *kvm, u64 gpa, u64 size, const void *buf)
++{
++	struct kvm_vcpu *vcpu;
++	struct page *page;
++	void *ptr;
++	int err;
++
++	err = get_first_vcpu(kvm, &vcpu);
++
++	if (err)
++		return err;
++
++	ptr = get_page_ptr(kvm, gpa, &page, true);
++	if (!ptr)
++		return -KVM_ENOENT;
++
++	memcpy(ptr + (gpa & ~PAGE_MASK), buf, size);
++
++	put_page_ptr(ptr, page, true);
++
++	return 0;
++}
+diff --git a/virt/kvm/introspection/kvmi_int.h b/virt/kvm/introspection/kvmi_int.h
+index d1c143334626..3bc598b9b66c 100644
+--- a/virt/kvm/introspection/kvmi_int.h
++++ b/virt/kvm/introspection/kvmi_int.h
+@@ -31,6 +31,8 @@
+ 			| BIT(KVMI_VM_CHECK_EVENT) \
+ 			| BIT(KVMI_VM_CONTROL_EVENTS) \
+ 			| BIT(KVMI_VM_GET_INFO) \
++			| BIT(KVMI_VM_READ_PHYSICAL) \
++			| BIT(KVMI_VM_WRITE_PHYSICAL) \
+ 		)
  
- out_unreg:
-@@ -4463,6 +4475,7 @@ EXPORT_SYMBOL_GPL(kvm_init);
+ #define KVMI(kvm) ((struct kvm_introspection *)((kvm)->kvmi))
+@@ -54,5 +56,12 @@ void *kvmi_msg_alloc_check(size_t size);
+ void kvmi_msg_free(void *addr);
+ int kvmi_cmd_vm_control_events(struct kvm_introspection *kvmi,
+ 				unsigned int event_id, bool enable);
++int kvmi_cmd_read_physical(struct kvm *kvm, u64 gpa, u64 size,
++			   int (*send)(struct kvm_introspection *,
++					const struct kvmi_msg_hdr*,
++					int err, const void *buf, size_t),
++			   const struct kvmi_msg_hdr *ctx);
++int kvmi_cmd_write_physical(struct kvm *kvm, u64 gpa, u64 size,
++			    const void *buf);
  
- void kvm_exit(void)
- {
-+	kvmi_uninit();
- 	debugfs_remove_recursive(kvm_debugfs_dir);
- 	misc_deregister(&kvm_dev);
- 	kmem_cache_destroy(kvm_vcpu_cache);
+ #endif
+diff --git a/virt/kvm/introspection/kvmi_msg.c b/virt/kvm/introspection/kvmi_msg.c
+index 79b26853b5cb..032b6b5b8000 100644
+--- a/virt/kvm/introspection/kvmi_msg.c
++++ b/virt/kvm/introspection/kvmi_msg.c
+@@ -14,6 +14,8 @@ static const char *const msg_IDs[] = {
+ 	[KVMI_VM_CHECK_EVENT]    = "KVMI_VM_CHECK_EVENT",
+ 	[KVMI_VM_CONTROL_EVENTS] = "KVMI_VM_CONTROL_EVENTS",
+ 	[KVMI_VM_GET_INFO]       = "KVMI_VM_GET_INFO",
++	[KVMI_VM_READ_PHYSICAL]  = "KVMI_VM_READ_PHYSICAL",
++	[KVMI_VM_WRITE_PHYSICAL] = "KVMI_VM_WRITE_PHYSICAL",
+ };
+ 
+ static bool is_known_message(u16 id)
+@@ -207,6 +209,48 @@ static int handle_vm_control_events(struct kvm_introspection *kvmi,
+ 	return kvmi_msg_vm_reply(kvmi, msg, ec, NULL, 0);
+ }
+ 
++static bool invalid_page_access(u64 gpa, u64 size)
++{
++	u64 off = gpa & ~PAGE_MASK;
++
++	return (size == 0 || size > PAGE_SIZE || off + size > PAGE_SIZE);
++}
++
++static int handle_read_physical(struct kvm_introspection *kvmi,
++				const struct kvmi_msg_hdr *msg,
++				const void *_req)
++{
++	const struct kvmi_vm_read_physical *req = _req;
++
++	if (invalid_page_access(req->gpa, req->size)) {
++		int ec = -KVM_EINVAL;
++
++		return kvmi_msg_vm_reply(kvmi, msg, ec, NULL, 0);
++	}
++
++	return kvmi_cmd_read_physical(kvmi->kvm, req->gpa, req->size,
++				      kvmi_msg_vm_reply, msg);
++}
++
++static int handle_write_physical(struct kvm_introspection *kvmi,
++				 const struct kvmi_msg_hdr *msg,
++				 const void *_req)
++{
++	const struct kvmi_vm_write_physical *req = _req;
++	int ec;
++
++	if (msg->size < sizeof(*req) + req->size)
++		return -EINVAL;
++
++	if (invalid_page_access(req->gpa, req->size))
++		ec = -KVM_EINVAL;
++	else
++		ec = kvmi_cmd_write_physical(kvmi->kvm, req->gpa,
++					     req->size, req->data);
++
++	return kvmi_msg_vm_reply(kvmi, msg, ec, NULL, 0);
++}
++
+ /*
+  * These commands are executed by the receiving thread/worker.
+  */
+@@ -217,6 +261,8 @@ static int(*const msg_vm[])(struct kvm_introspection *,
+ 	[KVMI_VM_CHECK_EVENT]    = handle_check_event,
+ 	[KVMI_VM_CONTROL_EVENTS] = handle_vm_control_events,
+ 	[KVMI_VM_GET_INFO]       = handle_get_info,
++	[KVMI_VM_READ_PHYSICAL]  = handle_read_physical,
++	[KVMI_VM_WRITE_PHYSICAL] = handle_write_physical,
+ };
+ 
+ static bool is_vm_message(u16 id)
