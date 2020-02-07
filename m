@@ -1,35 +1,35 @@
 From: Gerd Hoffmann <kraxel@redhat.com>
-Subject: Re: [PATCH v2] drm/bochs: downgrade pci_request_region failure from
- error to warning
-Date: Fri, 7 Feb 2020 13:39:04 +0100
-Message-ID: <20200207123904.vvueifnbcfzlb7gx@sirius.home.kraxel.org>
-References: <20200207115744.4559-1-kraxel@redhat.com>
- <04783a3f-daae-47a3-d2a7-d42f192daf23@suse.de>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Subject: [PATCH] drm/bochs: deinit bugfix
+Date: Fri,  7 Feb 2020 13:43:48 +0100
+Message-ID: <20200207124348.21641-1-kraxel@redhat.com>
 Return-path: <linux-kernel-owner@vger.kernel.org>
-Content-Disposition: inline
-In-Reply-To: <04783a3f-daae-47a3-d2a7-d42f192daf23@suse.de>
 Sender: linux-kernel-owner@vger.kernel.org
-To: Thomas Zimmermann <tzimmermann@suse.de>
-Cc: dri-devel@lists.freedesktop.org, marmarek@invisiblethingslab.com, David Airlie <airlied@linux.ie>, open list <linux-kernel@vger.kernel.org>, "open list:DRM DRIVER FOR BOCHS VIRTUAL GPU" <virtualization@lists.linux-foundation.org>
+To: dri-devel@lists.freedesktop.org
+Cc: Gerd Hoffmann <kraxel@redhat.com>, David Airlie <airlied@linux.ie>, Daniel Vetter <daniel@ffwll.ch>, "open list:DRM DRIVER FOR
+        BOCHS VIRTUAL GPU" <virtualization@lists.linux-foundation.org>, open list <linux-kernel@vger.kernel.org>
 List-Id: virtualization@lists.linuxfoundation.org
 
-On Fri, Feb 07, 2020 at 01:06:00PM +0100, Thomas Zimmermann wrote:
-> Hi
-> 
-> Am 07.02.20 um 12:57 schrieb Gerd Hoffmann:
-> > Shutdown of firmware framebuffer has a bunch of problems.  Because
-> > of this the framebuffer region might still be reserved even after
-> > drm_fb_helper_remove_conflicting_pci_framebuffers() returned.
-> 
-> Out of curiosity: what's going wrong here?
+Check whenever mode_config was actually properly
+initialized before trying to clean it up.
 
-Very short version: userspace keeping /dev/fb0 open delays
-firmware framebuffer deinit.
+Signed-off-by: Gerd Hoffmann <kraxel@redhat.com>
+---
+ drivers/gpu/drm/bochs/bochs_kms.c | 3 +++
+ 1 file changed, 3 insertions(+)
 
-Long version by Daniel Vetter:
-https://www.spinics.net/lists/linux-fbdev/msg28178.html
-
-cheers,
-  Gerd
+diff --git a/drivers/gpu/drm/bochs/bochs_kms.c b/drivers/gpu/drm/bochs/bochs_kms.c
+index cc93ff74fbd8..3a755c911342 100644
+--- a/drivers/gpu/drm/bochs/bochs_kms.c
++++ b/drivers/gpu/drm/bochs/bochs_kms.c
+@@ -164,6 +164,9 @@ int bochs_kms_init(struct bochs_device *bochs)
+ 
+ void bochs_kms_fini(struct bochs_device *bochs)
+ {
++	if (!bochs->dev->mode_config.num_connector)
++		return;
++
+ 	drm_atomic_helper_shutdown(bochs->dev);
+ 	drm_mode_config_cleanup(bochs->dev);
+ }
+-- 
+2.18.1
