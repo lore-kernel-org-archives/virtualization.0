@@ -1,7 +1,7 @@
 From: =?UTF-8?q?Adalbert=20Laz=C4=83r?= <alazar@bitdefender.com>
-Subject: [RFC PATCH v7 66/78] KVM: introspection: add KVMI_VCPU_GET_MTRR_TYPE
-Date: Fri,  7 Feb 2020 20:16:24 +0200
-Message-ID: <20200207181636.1065-67-alazar@bitdefender.com>
+Subject: [RFC PATCH v7 77/78] KVM: introspection: emulate a guest page table walk on SPT violations due to A/D bit updates
+Date: Fri,  7 Feb 2020 20:16:35 +0200
+Message-ID: <20200207181636.1065-78-alazar@bitdefender.com>
 References: <20200207181636.1065-1-alazar@bitdefender.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -10,212 +10,166 @@ Return-path: <kvm-owner@vger.kernel.org>
 In-Reply-To: <20200207181636.1065-1-alazar@bitdefender.com>
 Sender: kvm-owner@vger.kernel.org
 To: kvm@vger.kernel.org
-Cc: virtualization@lists.linux-foundation.org, Paolo Bonzini <pbonzini@redhat.com>, Sean Christopherson <sean.j.christopherson@intel.com>, =?UTF-8?q?Mihai=20Don=C8=9Bu?= <mdontu@bitdefender.com>, =?UTF-8?q?Nicu=C8=99or=20C=C3=AE=C8=9Bu?= <ncitu@bitdefender.com>, =?UTF-8?q?Adalbert=20Laz=C4=83r?= <alazar@bitdefender.com>
+Cc: virtualization@lists.linux-foundation.org, Paolo Bonzini <pbonzini@redhat.com>, Sean Christopherson <sean.j.christopherson@intel.com>, =?UTF-8?q?Mihai=20Don=C8=9Bu?= <mdontu@bitdefender.com>, =?UTF-8?q?Adalbert=20Laz=C4=83r?= <alazar@bitdefender.com>
 List-Id: virtualization@lists.linuxfoundation.org
 
 From: Mihai Donțu <mdontu@bitdefender.com>
 
-This command returns the memory type for a guest physical address.
+On SPT page faults caused by guest page table walks, use the existing
+guest page table walk code to make the necessary adjustments to the A/D
+bits and return to guest. This effectively bypasses the x86 emulator
+who was making the wrong modifications leading one OS (Windows 8.1 x64)
+to triple-fault very early in the boot process with the introspection
+enabled.
+
+With introspection disabled, these faults are handled by simply removing
+the protection from the affected guest page and returning to guest.
 
 Signed-off-by: Mihai Donțu <mdontu@bitdefender.com>
-Co-developed-by: Nicușor Cîțu <ncitu@bitdefender.com>
-Signed-off-by: Nicușor Cîțu <ncitu@bitdefender.com>
 Signed-off-by: Adalbert Lazăr <alazar@bitdefender.com>
 ---
- Documentation/virt/kvm/kvmi.rst               | 32 +++++++++++++++++++
- arch/x86/include/uapi/asm/kvmi.h              |  9 ++++++
- arch/x86/kvm/kvmi.c                           |  7 ++++
- include/uapi/linux/kvmi.h                     |  3 +-
- .../testing/selftests/kvm/x86_64/kvmi_test.c  | 19 +++++++++++
- virt/kvm/introspection/kvmi_int.h             |  2 ++
- virt/kvm/introspection/kvmi_msg.c             | 17 ++++++++++
- 7 files changed, 88 insertions(+), 1 deletion(-)
+ arch/x86/include/asm/kvmi_host.h |  2 ++
+ arch/x86/kvm/kvmi.c              | 33 ++++++++++++++++++++++++++++++++
+ arch/x86/kvm/mmu/mmu.c           | 11 +++++++++--
+ include/linux/kvmi_host.h        |  3 +++
+ virt/kvm/introspection/kvmi.c    | 26 +++++++++++++++++++++++++
+ 5 files changed, 73 insertions(+), 2 deletions(-)
 
-diff --git a/Documentation/virt/kvm/kvmi.rst b/Documentation/virt/kvm/kvmi.rst
-index 5d2b828f2159..ae8e242c4721 100644
---- a/Documentation/virt/kvm/kvmi.rst
-+++ b/Documentation/virt/kvm/kvmi.rst
-@@ -787,6 +787,38 @@ the buffer size from the message size.
- * -KVM_EAGAIN - the selected vCPU can't be introspected yet
- * -KVM_ENOMEM - not enough memory to allocate the reply
+diff --git a/arch/x86/include/asm/kvmi_host.h b/arch/x86/include/asm/kvmi_host.h
+index 2e4eff501c0a..4c2188dc4a2b 100644
+--- a/arch/x86/include/asm/kvmi_host.h
++++ b/arch/x86/include/asm/kvmi_host.h
+@@ -61,6 +61,7 @@ bool kvmi_descriptor_event(struct kvm_vcpu *vcpu, u8 descriptor, u8 write);
+ bool kvmi_msr_event(struct kvm_vcpu *vcpu, struct msr_data *msr);
+ bool kvmi_monitor_msrw_intercept(struct kvm_vcpu *vcpu, u32 msr, bool enable);
+ bool kvmi_msrw_intercept_originator(struct kvm_vcpu *vcpu);
++bool kvmi_update_ad_flags(struct kvm_vcpu *vcpu);
  
-+18. KVMI_VCPU_GET_MTRR_TYPE
-+---------------------------
-+
-+:Architecture: x86
-+:Versions: >= 1
-+:Parameters:
-+
-+::
-+
-+	struct kvmi_vcpu_hdr;
-+	struct kvmi_vcpu_get_mtrr_type {
-+		__u64 gpa;
-+	};
-+
-+:Returns:
-+
-+::
-+
-+	struct kvmi_error_code;
-+	struct kvmi_vcpu_get_mtrr_type_reply {
-+		__u8 type;
-+		__u8 padding[7];
-+	};
-+
-+Returns the guest memory type for a specific physical address.
-+
-+:Errors:
-+
-+* -KVM_EINVAL - the selected vCPU is invalid
-+* -KVM_EINVAL - padding is not zero
-+* -KVM_EAGAIN - the selected vCPU can't be introspected yet
-+
- Events
- ======
+ #else /* CONFIG_KVM_INTROSPECTION */
  
-diff --git a/arch/x86/include/uapi/asm/kvmi.h b/arch/x86/include/uapi/asm/kvmi.h
-index 68ad3d737d7e..1dc3fc02d3ec 100644
---- a/arch/x86/include/uapi/asm/kvmi.h
-+++ b/arch/x86/include/uapi/asm/kvmi.h
-@@ -101,4 +101,13 @@ struct kvmi_vcpu_get_xsave_reply {
- 	__u32 region[0];
- };
+@@ -83,6 +84,7 @@ static inline bool kvmi_monitor_msrw_intercept(struct kvm_vcpu *vcpu, u32 msr,
+ 					       bool enable) { return false; }
+ static inline bool kvmi_msrw_intercept_originator(struct kvm_vcpu *vcpu)
+ 				{ return false; }
++bool kvmi_update_ad_flags(struct kvm_vcpu *vcpu) { return false; }
  
-+struct kvmi_vcpu_get_mtrr_type {
-+	__u64 gpa;
-+};
-+
-+struct kvmi_vcpu_get_mtrr_type_reply {
-+	__u8 type;
-+	__u8 padding[7];
-+};
-+
- #endif /* _UAPI_ASM_X86_KVMI_H */
+ #endif /* CONFIG_KVM_INTROSPECTION */
+ 
 diff --git a/arch/x86/kvm/kvmi.c b/arch/x86/kvm/kvmi.c
-index f8fd8ce140c5..d3cddd34326b 100644
+index 7b02bc82dbd7..229543ee90e6 100644
 --- a/arch/x86/kvm/kvmi.c
 +++ b/arch/x86/kvm/kvmi.c
-@@ -637,3 +637,10 @@ int kvmi_arch_cmd_vcpu_get_xsave(struct kvm_vcpu *vcpu,
- 
- 	return 0;
- }
-+
-+int kvmi_arch_cmd_vcpu_get_mtrr_type(struct kvm_vcpu *vcpu, u64 gpa, u8 *type)
-+{
-+	*type = kvm_mtrr_get_guest_memory_type(vcpu, gpa_to_gfn(gpa));
-+
-+	return 0;
-+}
-diff --git a/include/uapi/linux/kvmi.h b/include/uapi/linux/kvmi.h
-index bc63c04a543d..5e911ca7a636 100644
---- a/include/uapi/linux/kvmi.h
-+++ b/include/uapi/linux/kvmi.h
-@@ -37,7 +37,8 @@ enum {
- 
- 	KVMI_VM_GET_MAX_GFN = 17,
- 
--	KVMI_VCPU_GET_XSAVE = 18,
-+	KVMI_VCPU_GET_XSAVE     = 18,
-+	KVMI_VCPU_GET_MTRR_TYPE = 19,
- 
- 	KVMI_NUM_MESSAGES
- };
-diff --git a/tools/testing/selftests/kvm/x86_64/kvmi_test.c b/tools/testing/selftests/kvm/x86_64/kvmi_test.c
-index 638491f33138..600d65922bf4 100644
---- a/tools/testing/selftests/kvm/x86_64/kvmi_test.c
-+++ b/tools/testing/selftests/kvm/x86_64/kvmi_test.c
-@@ -1342,6 +1342,24 @@ static void test_cmd_vcpu_get_xsave(struct kvm_vm *vm)
- 			   &rpl, sizeof(rpl));
- }
- 
-+static void test_cmd_vcpu_get_mtrr_type(struct kvm_vm *vm)
-+{
-+	struct {
-+		struct kvmi_msg_hdr hdr;
-+		struct kvmi_vcpu_hdr vcpu_hdr;
-+		struct kvmi_vcpu_get_mtrr_type cmd;
-+	} req = {};
-+	struct kvmi_vcpu_get_mtrr_type_reply rpl;
-+
-+	req.cmd.gpa = test_gpa;
-+
-+	test_vcpu0_command(vm, KVMI_VCPU_GET_MTRR_TYPE,
-+			   &req.hdr, sizeof(req),
-+			   &rpl, sizeof(rpl));
-+
-+	DEBUG("mtrr_type: gpa 0x%lx type 0x%x\n", test_gpa, rpl.type);
-+}
-+
- static void test_introspection(struct kvm_vm *vm)
+@@ -1133,3 +1133,36 @@ gpa_t kvmi_arch_cmd_translate_gva(struct kvm_vcpu *vcpu, gva_t gva)
  {
- 	setup_socket();
-@@ -1368,6 +1386,7 @@ static void test_introspection(struct kvm_vm *vm)
- 	test_cmd_vm_get_max_gfn();
- 	test_event_xsetbv(vm);
- 	test_cmd_vcpu_get_xsave(vm);
-+	test_cmd_vcpu_get_mtrr_type(vm);
- 
- 	unhook_introspection(vm);
+ 	return kvm_mmu_gva_to_gpa_system(vcpu, gva, 0, NULL);
  }
-diff --git a/virt/kvm/introspection/kvmi_int.h b/virt/kvm/introspection/kvmi_int.h
-index 5e1231f09440..1e28355ea4d7 100644
---- a/virt/kvm/introspection/kvmi_int.h
-+++ b/virt/kvm/introspection/kvmi_int.h
-@@ -46,6 +46,7 @@
- 			| BIT(KVMI_VCPU_CONTROL_CR) \
- 			| BIT(KVMI_VCPU_CONTROL_EVENTS) \
- 			| BIT(KVMI_VCPU_GET_CPUID) \
-+			| BIT(KVMI_VCPU_GET_MTRR_TYPE) \
- 			| BIT(KVMI_VCPU_GET_REGISTERS) \
- 			| BIT(KVMI_VCPU_GET_XSAVE) \
- 			| BIT(KVMI_VCPU_INJECT_EXCEPTION) \
-@@ -139,5 +140,6 @@ void kvmi_arch_inject_pending_exception(struct kvm_vcpu *vcpu);
- int kvmi_arch_cmd_vcpu_get_xsave(struct kvm_vcpu *vcpu,
- 				 struct kvmi_vcpu_get_xsave_reply **dest,
- 				 size_t *dest_size);
-+int kvmi_arch_cmd_vcpu_get_mtrr_type(struct kvm_vcpu *vcpu, u64 gpa, u8 *type);
- 
- #endif
-diff --git a/virt/kvm/introspection/kvmi_msg.c b/virt/kvm/introspection/kvmi_msg.c
-index 1639f5eab68b..6f23bc7517aa 100644
---- a/virt/kvm/introspection/kvmi_msg.c
-+++ b/virt/kvm/introspection/kvmi_msg.c
-@@ -30,6 +30,7 @@ static const char *const msg_IDs[] = {
- 	[KVMI_VCPU_CONTROL_EVENTS]   = "KVMI_VCPU_CONTROL_EVENTS",
- 	[KVMI_VCPU_GET_CPUID]        = "KVMI_VCPU_GET_CPUID",
- 	[KVMI_VCPU_GET_INFO]         = "KVMI_VCPU_GET_INFO",
-+	[KVMI_VCPU_GET_MTRR_TYPE]    = "KVMI_VCPU_GET_MTRR_TYPE",
- 	[KVMI_VCPU_GET_REGISTERS]    = "KVMI_VCPU_GET_REGISTERS",
- 	[KVMI_VCPU_GET_XSAVE]        = "KVMI_VCPU_GET_XSAVE",
- 	[KVMI_VCPU_INJECT_EXCEPTION] = "KVMI_VCPU_INJECT_EXCEPTION",
-@@ -542,6 +543,21 @@ static int handle_vcpu_get_xsave(const struct kvmi_vcpu_cmd_job *job,
- 	return err;
- }
- 
-+static int handle_vcpu_get_mtrr_type(const struct kvmi_vcpu_cmd_job *job,
-+				     const struct kvmi_msg_hdr *msg,
-+				     const void *_req)
++
++bool kvmi_update_ad_flags(struct kvm_vcpu *vcpu)
 +{
-+	const struct kvmi_vcpu_get_mtrr_type *req = _req;
-+	struct kvmi_vcpu_get_mtrr_type_reply rpl;
-+	int ec;
++	struct kvm_introspection *kvmi;
++	bool ret = false;
++	gva_t gva;
++	gpa_t gpa;
 +
-+	memset(&rpl, 0, sizeof(rpl));
++	kvmi = kvmi_get(vcpu->kvm);
++	if (!kvmi)
++		return false;
 +
-+	ec = kvmi_arch_cmd_vcpu_get_mtrr_type(job->vcpu, req->gpa, &rpl.type);
++	gva = kvm_x86_ops->fault_gla(vcpu);
++	if (gva == ~0ull) {
++		kvmi_warn_once(kvmi, "%s: cannot perform translation\n",
++			       __func__);
++		goto out;
++	}
 +
-+	return kvmi_msg_vcpu_reply(job, msg, ec, &rpl, sizeof(rpl));
++	gpa = kvm_mmu_gva_to_gpa_system(vcpu, gva, PFERR_WRITE_MASK, NULL);
++	if (gpa == UNMAPPED_GVA) {
++		struct x86_exception exception = { };
++
++		gpa = kvm_mmu_gva_to_gpa_system(vcpu, gva, 0, &exception);
++	}
++
++	ret = (gpa != UNMAPPED_GVA);
++
++out:
++	kvmi_put(vcpu->kvm);
++
++	return ret;
++}
+diff --git a/arch/x86/kvm/mmu/mmu.c b/arch/x86/kvm/mmu/mmu.c
+index d28b7425c4f1..603776f9bd84 100644
+--- a/arch/x86/kvm/mmu/mmu.c
++++ b/arch/x86/kvm/mmu/mmu.c
+@@ -5675,8 +5675,15 @@ int kvm_mmu_page_fault(struct kvm_vcpu *vcpu, gva_t cr2, u64 error_code,
+ 	 */
+ 	if (vcpu->arch.mmu->direct_map &&
+ 	    (error_code & PFERR_NESTED_GUEST_PAGE) == PFERR_NESTED_GUEST_PAGE) {
+-		kvm_mmu_unprotect_page(vcpu->kvm, gpa_to_gfn(cr2));
+-		return 1;
++		gfn_t gfn = gpa_to_gfn(cr2);
++
++		if (kvmi_tracked_gfn(vcpu, gfn)) {
++			if (kvmi_update_ad_flags(vcpu))
++				return 1;
++		} else {
++			kvm_mmu_unprotect_page(vcpu->kvm, gfn);
++			return 1;
++		}
+ 	}
+ 
+ 	/*
+diff --git a/include/linux/kvmi_host.h b/include/linux/kvmi_host.h
+index 723a902f4b89..9a9cd7e1f75e 100644
+--- a/include/linux/kvmi_host.h
++++ b/include/linux/kvmi_host.h
+@@ -97,6 +97,7 @@ bool kvmi_enter_guest(struct kvm_vcpu *vcpu);
+ bool kvmi_vcpu_running_singlestep(struct kvm_vcpu *vcpu);
+ void kvmi_singlestep_done(struct kvm_vcpu *vcpu);
+ void kvmi_singlestep_failed(struct kvm_vcpu *vcpu);
++bool kvmi_tracked_gfn(struct kvm_vcpu *vcpu, gfn_t gfn);
+ 
+ #else
+ 
+@@ -117,6 +118,8 @@ static inline bool kvmi_vcpu_running_singlestep(struct kvm_vcpu *vcpu)
+ 			{ return false; }
+ static void kvmi_singlestep_done(struct kvm_vcpu *vcpu) { }
+ static void kvmi_singlestep_failed(struct kvm_vcpu *vcpu) { }
++static inline bool kvmi_tracked_gfn(struct kvm_vcpu *vcpu, gfn_t gfn)
++			{ return false; }
+ 
+ #endif /* CONFIG_KVM_INTROSPECTION */
+ 
+diff --git a/virt/kvm/introspection/kvmi.c b/virt/kvm/introspection/kvmi.c
+index 5bb3e1252242..8f3de6be6413 100644
+--- a/virt/kvm/introspection/kvmi.c
++++ b/virt/kvm/introspection/kvmi.c
+@@ -1380,3 +1380,29 @@ void kvmi_singlestep_failed(struct kvm_vcpu *vcpu)
+ 	kvmi_singlestep_event(vcpu, false);
+ }
+ EXPORT_SYMBOL(kvmi_singlestep_failed);
++
++static bool __kvmi_tracked_gfn(struct kvm_introspection *kvmi, gfn_t gfn)
++{
++	u8 ignored_access;
++
++	if (kvmi_get_gfn_access(kvmi, gfn, &ignored_access))
++		return false;
++
++	return true;
 +}
 +
- /*
-  * These commands are executed on the vCPU thread. The receiving thread
-  * passes the messages using a newly allocated 'struct kvmi_vcpu_cmd_job'
-@@ -555,6 +571,7 @@ static int(*const msg_vcpu[])(const struct kvmi_vcpu_cmd_job *,
- 	[KVMI_VCPU_CONTROL_EVENTS]   = handle_vcpu_control_events,
- 	[KVMI_VCPU_GET_CPUID]        = handle_get_cpuid,
- 	[KVMI_VCPU_GET_INFO]         = handle_get_vcpu_info,
-+	[KVMI_VCPU_GET_MTRR_TYPE]    = handle_vcpu_get_mtrr_type,
- 	[KVMI_VCPU_GET_REGISTERS]    = handle_get_registers,
- 	[KVMI_VCPU_GET_XSAVE]        = handle_vcpu_get_xsave,
- 	[KVMI_VCPU_INJECT_EXCEPTION] = handle_vcpu_inject_exception,
++bool kvmi_tracked_gfn(struct kvm_vcpu *vcpu, gfn_t gfn)
++{
++	struct kvm_introspection *kvmi;
++	bool ret;
++
++	kvmi = kvmi_get(vcpu->kvm);
++	if (!kvmi)
++		return false;
++
++	ret = __kvmi_tracked_gfn(kvmi, gfn);
++
++	kvmi_put(vcpu->kvm);
++
++	return ret;
++}
