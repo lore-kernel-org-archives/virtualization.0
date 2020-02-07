@@ -1,86 +1,64 @@
-From: Chia-I Wu <olvaffe@gmail.com>
-Subject: Re: [PATCH v2] drm/virtio: fix ring free check
-Date: Thu, 6 Feb 2020 23:07:27 -0800
-Message-ID: <CAPaKu7R25+P-wGdEy2PnPuukcRNSO1ai3hQKtOTSZEMOrwCL7g@mail.gmail.com>
-References: <20200207064653.14403-1-kraxel@redhat.com>
+From: "Michael S. Tsirkin" <mst@redhat.com>
+Subject: Re: [PATCH] tools/virtio: option to build an out of tree module
+Date: Fri, 7 Feb 2020 02:10:26 -0500
+Message-ID: <20200207015917-mutt-send-email-mst@kernel.org>
+References: <20200206080125.1178242-1-mst@redhat.com>
+ <d4581772-8314-e746-dbea-2603e0447cdd@redhat.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="UTF-8"
+Content-Type: text/plain; charset=utf-8
+Content-Transfer-Encoding: 8bit
 Return-path: <linux-kernel-owner@vger.kernel.org>
-In-Reply-To: <20200207064653.14403-1-kraxel@redhat.com>
+Content-Disposition: inline
+In-Reply-To: <d4581772-8314-e746-dbea-2603e0447cdd@redhat.com>
 Sender: linux-kernel-owner@vger.kernel.org
-To: Gerd Hoffmann <kraxel@redhat.com>
-Cc: ML dri-devel <dri-devel@lists.freedesktop.org>, Gurchetan Singh <gurchetansingh@chromium.org>, David Airlie <airlied@linux.ie>, Daniel Vetter <daniel@ffwll.ch>, "open list:VIRTIO GPU DRIVER" <virtualization@lists.linux-foundation.org>, open list <linux-kernel@vger.kernel.org>
+To: Jason Wang <jasowang@redhat.com>
+Cc: linux-kernel@vger.kernel.org, virtualization@lists.linux-foundation.org
 List-Id: virtualization@lists.linuxfoundation.org
 
-On Thu, Feb 6, 2020 at 10:47 PM Gerd Hoffmann <kraxel@redhat.com> wrote:
->
-> If the virtio device supports indirect ring descriptors we need only one
-> ring entry for the whole command.  Take that into account when checking
-> whenever the virtqueue has enough free entries for our command.
->
-> Signed-off-by: Gerd Hoffmann <kraxel@redhat.com>
-> ---
->  drivers/gpu/drm/virtio/virtgpu_drv.h     | 1 +
->  drivers/gpu/drm/virtio/virtgpu_debugfs.c | 1 +
->  drivers/gpu/drm/virtio/virtgpu_kms.c     | 3 +++
->  drivers/gpu/drm/virtio/virtgpu_vq.c      | 3 +++
->  4 files changed, 8 insertions(+)
->
-> diff --git a/drivers/gpu/drm/virtio/virtgpu_drv.h b/drivers/gpu/drm/virtio/virtgpu_drv.h
-> index 7e69c06e168e..d278c8c50f39 100644
-> --- a/drivers/gpu/drm/virtio/virtgpu_drv.h
-> +++ b/drivers/gpu/drm/virtio/virtgpu_drv.h
-> @@ -193,6 +193,7 @@ struct virtio_gpu_device {
->
->         bool has_virgl_3d;
->         bool has_edid;
-> +       bool has_indirect;
-has_indirect_desc?  Either way,
+On Fri, Feb 07, 2020 at 11:38:20AM +0800, Jason Wang wrote:
+> 
+> On 2020/2/6 下午4:01, Michael S. Tsirkin wrote:
+> > Handy for testing with distro kernels.
+> > Warn that the resulting module is completely unsupported,
+> > and isn't intended for production use.
+> > 
+> > Signed-off-by: Michael S. Tsirkin <mst@redhat.com>
+> > ---
+> >   tools/virtio/Makefile | 13 ++++++++++++-
+> >   1 file changed, 12 insertions(+), 1 deletion(-)
+> > 
+> > diff --git a/tools/virtio/Makefile b/tools/virtio/Makefile
+> > index 8e2a908115c2..94106cde49e3 100644
+> > --- a/tools/virtio/Makefile
+> > +++ b/tools/virtio/Makefile
+> > @@ -8,7 +8,18 @@ CFLAGS += -g -O2 -Werror -Wall -I. -I../include/ -I ../../usr/include/ -Wno-poin
+> >   vpath %.c ../../drivers/virtio ../../drivers/vhost
+> >   mod:
+> >   	${MAKE} -C `pwd`/../.. M=`pwd`/vhost_test V=${V}
+> > -.PHONY: all test mod clean
+> > +
+> > +#oot: build vhost as an out of tree module for a distro kernel
+> > +#no effort is taken to make it actually build or work, but tends to mostly work
+> > +#if the distro kernel is very close to upstream
+> > +#unsupported! this is a development tool only, don't use the
+> > +#resulting modules in production!
+> > +oot:
+> > +	echo "UNSUPPORTED! Don't use the resulting modules in production!"
+> > +	KCFLAGS="-I "`pwd`/../../drivers/vhost ${MAKE} -C /usr/src/kernels/$$(uname -r) M=`pwd`/vhost_test V=${V}
+> > +	KCFLAGS="-I "`pwd`/../../drivers/vhost ${MAKE} -C /usr/src/kernels/$$(uname -r) M=`pwd`/../../drivers/vhost V=${V} CONFIG_VHOST_VSOCK=n
+> 
+> 
+> Any reason for disabling vsock here?
+> 
+> Thanks
 
-Reviewed-by: Chia-I Wu <olvaffe@gmail.com>
->
->         struct work_struct config_changed_work;
->
-> diff --git a/drivers/gpu/drm/virtio/virtgpu_debugfs.c b/drivers/gpu/drm/virtio/virtgpu_debugfs.c
-> index 5156e6b279db..e27120d512b0 100644
-> --- a/drivers/gpu/drm/virtio/virtgpu_debugfs.c
-> +++ b/drivers/gpu/drm/virtio/virtgpu_debugfs.c
-> @@ -47,6 +47,7 @@ static int virtio_gpu_features(struct seq_file *m, void *data)
->
->         virtio_add_bool(m, "virgl", vgdev->has_virgl_3d);
->         virtio_add_bool(m, "edid", vgdev->has_edid);
-> +       virtio_add_bool(m, "indirect", vgdev->has_indirect);
->         virtio_add_int(m, "cap sets", vgdev->num_capsets);
->         virtio_add_int(m, "scanouts", vgdev->num_scanouts);
->         return 0;
-> diff --git a/drivers/gpu/drm/virtio/virtgpu_kms.c b/drivers/gpu/drm/virtio/virtgpu_kms.c
-> index 2f5773e43557..c1086df49816 100644
-> --- a/drivers/gpu/drm/virtio/virtgpu_kms.c
-> +++ b/drivers/gpu/drm/virtio/virtgpu_kms.c
-> @@ -159,6 +159,9 @@ int virtio_gpu_init(struct drm_device *dev)
->         if (virtio_has_feature(vgdev->vdev, VIRTIO_GPU_F_EDID)) {
->                 vgdev->has_edid = true;
->         }
-> +       if (virtio_has_feature(vgdev->vdev, VIRTIO_RING_F_INDIRECT_DESC)) {
-> +               vgdev->has_indirect = true;
-> +       }
->
->         DRM_INFO("features: %cvirgl %cedid\n",
->                  vgdev->has_virgl_3d ? '+' : '-',
-> diff --git a/drivers/gpu/drm/virtio/virtgpu_vq.c b/drivers/gpu/drm/virtio/virtgpu_vq.c
-> index 41e475fbd67b..cc02fc4bab2a 100644
-> --- a/drivers/gpu/drm/virtio/virtgpu_vq.c
-> +++ b/drivers/gpu/drm/virtio/virtgpu_vq.c
-> @@ -330,6 +330,9 @@ static void virtio_gpu_queue_ctrl_sgs(struct virtio_gpu_device *vgdev,
->         bool notify = false;
->         int ret;
->
-> +       if (vgdev->has_indirect)
-> +               elemcnt = 1;
-> +
->  again:
->         spin_lock(&vgdev->ctrlq.qlock);
->
-> --
-> 2.18.1
->
+It's just moving too fast with its internal API changes for a simplistic
+oot build like this to work. But I guess it need to make it a bit
+more generic. I'll try.
+
+> 
+> > +
+> > +.PHONY: all test mod clean vhost oot
+> >   clean:
+> >   	${RM} *.o vringh_test virtio_test vhost_test/*.o vhost_test/.*.cmd \
+> >                 vhost_test/Module.symvers vhost_test/modules.order *.d
