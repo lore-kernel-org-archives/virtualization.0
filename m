@@ -1,126 +1,169 @@
-From: Daniel Vetter <daniel@ffwll.ch>
-Subject: Re: [PATCH] drm/virtio: add drm_driver.release callback.
-Date: Fri, 7 Feb 2020 14:49:03 +0100
-Message-ID: <20200207134903.GD43062@phenom.ffwll.local>
-References: <20200207121420.26222-1-kraxel@redhat.com>
+From: Thomas Zimmermann <tzimmermann@suse.de>
+Subject: Re: [PATCH] drm/qxl: add drm_driver.release callback.
+Date: Fri, 7 Feb 2020 14:56:46 +0100
+Message-ID: <4a6aae3a-5148-8593-0efe-1786cb0bf41e@suse.de>
+References: <20200207121405.25895-1-kraxel@redhat.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: multipart/signed; micalg=pgp-sha256;
+ protocol="application/pgp-signature";
+ boundary="j5pSowMF1RznSZGlCiEpo0AL1G951df4M"
 Return-path: <linux-kernel-owner@vger.kernel.org>
-Content-Disposition: inline
-In-Reply-To: <20200207121420.26222-1-kraxel@redhat.com>
+In-Reply-To: <20200207121405.25895-1-kraxel@redhat.com>
 Sender: linux-kernel-owner@vger.kernel.org
-To: Gerd Hoffmann <kraxel@redhat.com>
-Cc: dri-devel@lists.freedesktop.org, gurchetansingh@chromium.org, olvaffe@gmail.com, David Airlie <airlied@linux.ie>, Daniel Vetter <daniel@ffwll.ch>, "open list:VIRTIO GPU DRIVER" <virtualization@lists.linux-foundation.org>, open list <linux-kernel@vger.kernel.org>
+To: Gerd Hoffmann <kraxel@redhat.com>, dri-devel@lists.freedesktop.org
+Cc: David Airlie <airlied@linux.ie>, open list <linux-kernel@vger.kernel.org>, "open list:DRM DRIVER FOR QXL VIRTUAL GPU" <virtualization@lists.linux-foundation.org>, "open list:DRM DRIVER FOR QXL VIRTUAL GPU" <spice-devel@lists.freedesktop.org>, Dave Airlie <airlied@redhat.com>
 List-Id: virtualization@lists.linuxfoundation.org
 
-On Fri, Feb 07, 2020 at 01:14:20PM +0100, Gerd Hoffmann wrote:
-> Split virtio_gpu_deinit(), move the drm shutdown and release to
-> virtio_gpu_release().  Also free vbufs in case we can't queue them.
-> 
+This is an OpenPGP/MIME signed message (RFC 4880 and 3156)
+--j5pSowMF1RznSZGlCiEpo0AL1G951df4M
+Content-Type: multipart/mixed; boundary="bNca9cXX2dHZkq7Z8zobbXzJw9YbrdHUn";
+ protected-headers="v1"
+From: Thomas Zimmermann <tzimmermann@suse.de>
+To: Gerd Hoffmann <kraxel@redhat.com>, dri-devel@lists.freedesktop.org
+Cc: David Airlie <airlied@linux.ie>, open list
+ <linux-kernel@vger.kernel.org>,
+ "open list:DRM DRIVER FOR QXL VIRTUAL GPU"
+ <virtualization@lists.linux-foundation.org>,
+ "open list:DRM DRIVER FOR QXL VIRTUAL GPU"
+ <spice-devel@lists.freedesktop.org>, Dave Airlie <airlied@redhat.com>
+Message-ID: <4a6aae3a-5148-8593-0efe-1786cb0bf41e@suse.de>
+Subject: Re: [PATCH] drm/qxl: add drm_driver.release callback.
+References: <20200207121405.25895-1-kraxel@redhat.com>
+In-Reply-To: <20200207121405.25895-1-kraxel@redhat.com>
+
+--bNca9cXX2dHZkq7Z8zobbXzJw9YbrdHUn
+Content-Type: text/plain; charset=utf-8
+Content-Language: en-US
+Content-Transfer-Encoding: quoted-printable
+
+Hi
+
+Am 07.02.20 um 13:14 schrieb Gerd Hoffmann:
+> Move final cleanups to qxl_drm_release() callback.
+> Add drm_atomic_helper_shutdown() call to qxl_pci_remove().
+>=20
+> Reorder calls in qxl_device_fini().  Cleaning up gem & ttm
+> might trigger qxl commands, so we should do that before
+> releaseing command rings.
+
+Should the second part be a separate patch?
+
+Best regards
+Thomas
+
+>=20
 > Signed-off-by: Gerd Hoffmann <kraxel@redhat.com>
 > ---
->  drivers/gpu/drm/virtio/virtgpu_drv.h | 1 +
->  drivers/gpu/drm/virtio/virtgpu_drv.c | 4 ++++
->  drivers/gpu/drm/virtio/virtgpu_kms.c | 5 +++++
->  drivers/gpu/drm/virtio/virtgpu_vq.c  | 9 ++++++++-
->  4 files changed, 18 insertions(+), 1 deletion(-)
-> 
-> diff --git a/drivers/gpu/drm/virtio/virtgpu_drv.h b/drivers/gpu/drm/virtio/virtgpu_drv.h
-> index d278c8c50f39..09a485b001e7 100644
-> --- a/drivers/gpu/drm/virtio/virtgpu_drv.h
-> +++ b/drivers/gpu/drm/virtio/virtgpu_drv.h
-> @@ -217,6 +217,7 @@ extern struct drm_ioctl_desc virtio_gpu_ioctls[DRM_VIRTIO_NUM_IOCTLS];
->  /* virtio_kms.c */
->  int virtio_gpu_init(struct drm_device *dev);
->  void virtio_gpu_deinit(struct drm_device *dev);
-> +void virtio_gpu_release(struct drm_device *dev);
->  int virtio_gpu_driver_open(struct drm_device *dev, struct drm_file *file);
->  void virtio_gpu_driver_postclose(struct drm_device *dev, struct drm_file *file);
->  
-> diff --git a/drivers/gpu/drm/virtio/virtgpu_drv.c b/drivers/gpu/drm/virtio/virtgpu_drv.c
-> index 8cf27af3ad53..664a741a3b0b 100644
-> --- a/drivers/gpu/drm/virtio/virtgpu_drv.c
-> +++ b/drivers/gpu/drm/virtio/virtgpu_drv.c
-> @@ -31,6 +31,7 @@
+>  drivers/gpu/drm/qxl/qxl_drv.c | 21 ++++++++++++++-------
+>  drivers/gpu/drm/qxl/qxl_kms.c |  8 ++++----
+>  2 files changed, 18 insertions(+), 11 deletions(-)
+>=20
+> diff --git a/drivers/gpu/drm/qxl/qxl_drv.c b/drivers/gpu/drm/qxl/qxl_dr=
+v.c
+> index 1d601f57a6ba..8044363ba0f2 100644
+> --- a/drivers/gpu/drm/qxl/qxl_drv.c
+> +++ b/drivers/gpu/drm/qxl/qxl_drv.c
+> @@ -34,6 +34,7 @@
 >  #include <linux/pci.h>
->  
+> =20
 >  #include <drm/drm.h>
 > +#include <drm/drm_atomic_helper.h>
 >  #include <drm/drm_drv.h>
 >  #include <drm/drm_file.h>
->  
-> @@ -136,6 +137,7 @@ static void virtio_gpu_remove(struct virtio_device *vdev)
->  	struct drm_device *dev = vdev->priv;
->  
->  	drm_dev_unregister(dev);
-> +	drm_atomic_helper_shutdown(dev);
->  	virtio_gpu_deinit(dev);
->  	drm_dev_put(dev);
+>  #include <drm/drm_modeset_helper.h>
+> @@ -132,21 +133,25 @@ qxl_pci_probe(struct pci_dev *pdev, const struct =
+pci_device_id *ent)
+>  	return ret;
 >  }
-> @@ -214,4 +216,6 @@ static struct drm_driver driver = {
->  	.major = DRIVER_MAJOR,
->  	.minor = DRIVER_MINOR,
->  	.patchlevel = DRIVER_PATCHLEVEL,
+> =20
+> +static void qxl_drm_release(struct drm_device *dev)
+> +{
+> +	struct qxl_device *qdev =3D dev->dev_private;
 > +
-> +	.release = virtio_gpu_release,
->  };
-> diff --git a/drivers/gpu/drm/virtio/virtgpu_kms.c b/drivers/gpu/drm/virtio/virtgpu_kms.c
-> index c1086df49816..b45d12e3db2a 100644
-> --- a/drivers/gpu/drm/virtio/virtgpu_kms.c
-> +++ b/drivers/gpu/drm/virtio/virtgpu_kms.c
-> @@ -240,6 +240,11 @@ void virtio_gpu_deinit(struct drm_device *dev)
->  	flush_work(&vgdev->config_changed_work);
->  	vgdev->vdev->config->reset(vgdev->vdev);
->  	vgdev->vdev->config->del_vqs(vgdev->vdev);
+> +	qxl_modeset_fini(qdev);
+> +	qxl_device_fini(qdev);
+> +	dev->dev_private =3D NULL;
+> +	kfree(qdev);
 > +}
 > +
-> +void virtio_gpu_release(struct drm_device *dev)
-> +{
-> +	struct virtio_gpu_device *vgdev = dev->dev_private;
->  
->  	virtio_gpu_modeset_fini(vgdev);
-
-This calls drm_atomic_helper_shutdown, probably want that in the remove
-hook?  Everything else looks like it's in the right spot. So with that
-call moved into the top of the deinit function above this is:
-
-Reviewed-by: Daniel Vetter <daniel.vetter@ffwll.ch>
-
-
->  	virtio_gpu_free_vbufs(vgdev);
-> diff --git a/drivers/gpu/drm/virtio/virtgpu_vq.c b/drivers/gpu/drm/virtio/virtgpu_vq.c
-> index cc02fc4bab2a..cc674b45f904 100644
-> --- a/drivers/gpu/drm/virtio/virtgpu_vq.c
-> +++ b/drivers/gpu/drm/virtio/virtgpu_vq.c
-> @@ -330,6 +330,11 @@ static void virtio_gpu_queue_ctrl_sgs(struct virtio_gpu_device *vgdev,
->  	bool notify = false;
->  	int ret;
->  
-> +	if (!vgdev->vqs_ready) {
-> +		free_vbuf(vgdev, vbuf);
-> +		return;
-> +	}
+>  static void
+>  qxl_pci_remove(struct pci_dev *pdev)
+>  {
+>  	struct drm_device *dev =3D pci_get_drvdata(pdev);
+> -	struct qxl_device *qdev =3D dev->dev_private;
+> =20
+>  	drm_dev_unregister(dev);
+> -
+> -	qxl_modeset_fini(qdev);
+> -	qxl_device_fini(qdev);
+> +	drm_atomic_helper_shutdown(dev);
+>  	if (is_vga(pdev))
+>  		vga_put(pdev, VGA_RSRC_LEGACY_IO);
+> -
+> -	dev->dev_private =3D NULL;
+> -	kfree(qdev);
+>  	drm_dev_put(dev);
+>  }
+> =20
+> @@ -279,6 +284,8 @@ static struct drm_driver qxl_driver =3D {
+>  	.major =3D 0,
+>  	.minor =3D 1,
+>  	.patchlevel =3D 0,
 > +
->  	if (vgdev->has_indirect)
->  		elemcnt = 1;
->  
-> @@ -462,8 +467,10 @@ static void virtio_gpu_queue_cursor(struct virtio_gpu_device *vgdev,
->  	int ret;
->  	int outcnt;
->  
-> -	if (!vgdev->vqs_ready)
-> +	if (!vgdev->vqs_ready) {
-> +		free_vbuf(vgdev, vbuf);
->  		return;
-> +	}
->  
->  	sg_init_one(&ccmd, vbuf->buf, vbuf->size);
->  	sgs[0] = &ccmd;
-> -- 
-> 2.18.1
-> 
+> +	.release =3D qxl_drm_release,
+>  };
+> =20
+>  static int __init qxl_init(void)
+> diff --git a/drivers/gpu/drm/qxl/qxl_kms.c b/drivers/gpu/drm/qxl/qxl_km=
+s.c
+> index bfc1631093e9..70b20ee4741a 100644
+> --- a/drivers/gpu/drm/qxl/qxl_kms.c
+> +++ b/drivers/gpu/drm/qxl/qxl_kms.c
+> @@ -299,12 +299,12 @@ void qxl_device_fini(struct qxl_device *qdev)
+>  {
+>  	qxl_bo_unref(&qdev->current_release_bo[0]);
+>  	qxl_bo_unref(&qdev->current_release_bo[1]);
+> -	flush_work(&qdev->gc_work);
+> -	qxl_ring_free(qdev->command_ring);
+> -	qxl_ring_free(qdev->cursor_ring);
+> -	qxl_ring_free(qdev->release_ring);
+>  	qxl_gem_fini(qdev);
+>  	qxl_bo_fini(qdev);
+> +	flush_work(&qdev->gc_work);
+> +	qxl_ring_free(qdev->command_ring);
+> +	qxl_ring_free(qdev->cursor_ring);
+> +	qxl_ring_free(qdev->release_ring);
+>  	io_mapping_free(qdev->surface_mapping);
+>  	io_mapping_free(qdev->vram_mapping);
+>  	iounmap(qdev->ram_header);
+>=20
 
--- 
-Daniel Vetter
-Software Engineer, Intel Corporation
-http://blog.ffwll.ch
+--=20
+Thomas Zimmermann
+Graphics Driver Developer
+SUSE Software Solutions Germany GmbH
+Maxfeldstr. 5, 90409 N=C3=BCrnberg, Germany
+(HRB 36809, AG N=C3=BCrnberg)
+Gesch=C3=A4ftsf=C3=BChrer: Felix Imend=C3=B6rffer
+
+
+--bNca9cXX2dHZkq7Z8zobbXzJw9YbrdHUn--
+
+--j5pSowMF1RznSZGlCiEpo0AL1G951df4M
+Content-Type: application/pgp-signature; name="signature.asc"
+Content-Description: OpenPGP digital signature
+Content-Disposition: attachment; filename="signature.asc"
+
+-----BEGIN PGP SIGNATURE-----
+
+iQEzBAEBCAAdFiEEchf7rIzpz2NEoWjlaA3BHVMLeiMFAl49bJ4ACgkQaA3BHVML
+eiOOmQf6AoWbKa22Ovy6vMK3tNMpamOd23WriCqWH1ef4o8NQhAhb+p8gPG86IO2
+IHSmslvxRb3EIfMMm9A36Ju2OqPO0l7taQos50EyrBMHiWhcfGRmJXPTC//I2Xht
+A7kPTBe3QFALi0bgTx2b4NweWijkR+8+YXBSI0FoXngsZ370PdLx74kYw8YMmrzS
+cr7cWAcqOWtaxB5Nz5z7kHDx91qXlbwmqOB2xmmVNMDoMDL2Y07QIFHX36Dzw+Ux
+MxdzyfGwZwPVvQojh25IBSlDCknWnaYwxw0HcHmB7STtmIJ3HnFhB/eSu7mdA2oh
+BuCiP4FUTOk76pdSddmEQ3dqtlvJBg==
+=wLW5
+-----END PGP SIGNATURE-----
+
+--j5pSowMF1RznSZGlCiEpo0AL1G951df4M--
