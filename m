@@ -1,7 +1,7 @@
 From: Thomas Zimmermann <tzimmermann@suse.de>
-Subject: [PATCH 2/6] drm: Add drm_simple_encoder_{init,create}()
-Date: Fri,  7 Feb 2020 09:41:31 +0100
-Message-ID: <20200207084135.4524-3-tzimmermann@suse.de>
+Subject: [PATCH 6/6] drm/simple-pipe: Use simple encoder
+Date: Fri,  7 Feb 2020 09:41:35 +0100
+Message-ID: <20200207084135.4524-7-tzimmermann@suse.de>
 References: <20200207084135.4524-1-tzimmermann@suse.de>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
@@ -21,165 +21,39 @@ To: airlied@linux.ie, daniel@ffwll.ch, maarten.lankhorst@linux.intel.com, mripar
 Cc: spice-devel@lists.freedesktop.org, Thomas Zimmermann <tzimmermann@suse.de>, dri-devel@lists.freedesktop.org, virtualization@lists.linux-foundation.org
 List-Id: virtualization@lists.linuxfoundation.org
 
-The simple-encoder helpers initialize an encoder with an empty
-implementation. This covers the requirements of most of the existing
-DRM drivers. A call to drm_simple_encoder_create() allocates and
-initializes an encoder instance, a call to drm_simple_encoder_init()
-initializes a pre-allocated instance.
+The simple-pipe helpers use an empty implementation for the encoder.
+Replace the code with the generic simple encoder.
 
 Signed-off-by: Thomas Zimmermann <tzimmermann@suse.de>
 ---
- drivers/gpu/drm/drm_encoder.c | 116 ++++++++++++++++++++++++++++++++++
- include/drm/drm_encoder.h     |  10 +++
- 2 files changed, 126 insertions(+)
+ drivers/gpu/drm/drm_simple_kms_helper.c | 8 ++------
+ 1 file changed, 2 insertions(+), 6 deletions(-)
 
-diff --git a/drivers/gpu/drm/drm_encoder.c b/drivers/gpu/drm/drm_encoder.c
-index ffe691a1bf34..1a65cab1f310 100644
---- a/drivers/gpu/drm/drm_encoder.c
-+++ b/drivers/gpu/drm/drm_encoder.c
-@@ -178,6 +178,122 @@ int drm_encoder_init(struct drm_device *dev,
- }
- EXPORT_SYMBOL(drm_encoder_init);
+diff --git a/drivers/gpu/drm/drm_simple_kms_helper.c b/drivers/gpu/drm/drm_simple_kms_helper.c
+index 15fb516ae2d8..e16606b3ee20 100644
+--- a/drivers/gpu/drm/drm_simple_kms_helper.c
++++ b/drivers/gpu/drm/drm_simple_kms_helper.c
+@@ -28,10 +28,6 @@
+  * encoder drivers.
+  */
  
-+static const struct drm_encoder_funcs drm_simple_encoder_funcs_cleanup = {
-+	.destroy = drm_encoder_cleanup,
-+};
-+
-+/**
-+ * drm_simple_encoder_init - Init a preallocated encoder
-+ * @dev: drm device
-+ * @funcs: callbacks for this encoder
-+ * @encoder_type: user visible type of the encoder
-+ * @name: printf style format string for the encoder name, or NULL
-+ *        for default name
-+ *
-+ * Initialises a preallocated encoder that has no further functionality. The
-+ * encoder will be released automatically.
-+ *
-+ * Returns:
-+ * Zero on success, error code on failure.
-+ */
-+int drm_simple_encoder_init(struct drm_device *dev,
-+			    struct drm_encoder *encoder,
-+			    int encoder_type, const char *name, ...)
-+{
-+	char *namestr = NULL;
-+	int ret;
-+
-+	if (name) {
-+		va_list ap;
-+
-+		va_start(ap, name);
-+		namestr = kvasprintf(GFP_KERNEL, name, ap);
-+		va_end(ap);
-+		if (!namestr)
-+			return -ENOMEM;
-+	}
-+
-+	ret = __drm_encoder_init(dev, encoder,
-+				 &drm_simple_encoder_funcs_cleanup,
-+				 encoder_type, namestr);
-+	if (ret)
-+		goto err_kfree;
-+
-+	return 0;
-+
-+err_kfree:
-+	if (name)
-+		kfree(namestr);
-+	return ret;
-+}
-+EXPORT_SYMBOL(drm_simple_encoder_init);
-+
-+static void drm_encoder_destroy(struct drm_encoder *encoder)
-+{
-+	struct drm_device *dev = encoder->dev;
-+
-+	drm_encoder_cleanup(encoder);
-+	devm_kfree(dev->dev, encoder);
-+}
-+
-+static const struct drm_encoder_funcs drm_simple_encoder_funcs_destroy = {
-+	.destroy = drm_encoder_destroy,
-+};
-+
-+/**
-+ * drm_simple_encoder_create - Allocate and initialize an encoder
-+ * @dev: drm device
-+ * @encoder_type: user visible type of the encoder
-+ * @name: printf style format string for the encoder name, or NULL for
-+ *        default name
-+ *
-+ * Allocates and initialises an encoder that has no further functionality. The
-+ * encoder will be released automatically.
-+ *
-+ * Returns:
-+ * The encoder on success, a pointer-encoder error code on failure.
-+ */
-+struct drm_encoder *drm_simple_encoder_create(struct drm_device *dev,
-+					      int encoder_type,
-+					      const char *name, ...)
-+{
-+	char *namestr = NULL;
-+	struct drm_encoder *encoder;
-+	int ret;
-+
-+	encoder = devm_kzalloc(dev->dev, sizeof(*encoder), GFP_KERNEL);
-+	if (!encoder)
-+		return ERR_PTR(-ENOMEM);
-+
-+	if (name) {
-+		va_list ap;
-+
-+		va_start(ap, name);
-+		namestr = kvasprintf(GFP_KERNEL, name, ap);
-+		va_end(ap);
-+		if (!namestr) {
-+			ret = -ENOMEM;
-+			goto err_devm_kfree;
-+		}
-+	}
-+
-+	ret = __drm_encoder_init(dev, encoder,
-+				 &drm_simple_encoder_funcs_destroy,
-+				 encoder_type, namestr);
-+	if (ret)
-+		goto err_kfree;
-+
-+	return encoder;
-+
-+err_kfree:
-+	if (name)
-+		kfree(namestr);
-+err_devm_kfree:
-+	devm_kfree(dev->dev, encoder);
-+	return ERR_PTR(ret);
-+}
-+EXPORT_SYMBOL(drm_simple_encoder_create);
-+
- /**
-  * drm_encoder_cleanup - cleans up an initialised encoder
-  * @encoder: encoder to cleanup
-diff --git a/include/drm/drm_encoder.h b/include/drm/drm_encoder.h
-index 5623994b6e9e..0214f6cf9de6 100644
---- a/include/drm/drm_encoder.h
-+++ b/include/drm/drm_encoder.h
-@@ -190,6 +190,16 @@ int drm_encoder_init(struct drm_device *dev,
- 		     const struct drm_encoder_funcs *funcs,
- 		     int encoder_type, const char *name, ...);
+-static const struct drm_encoder_funcs drm_simple_kms_encoder_funcs = {
+-	.destroy = drm_encoder_cleanup,
+-};
+-
+ static enum drm_mode_status
+ drm_simple_kms_crtc_mode_valid(struct drm_crtc *crtc,
+ 			       const struct drm_display_mode *mode)
+@@ -288,8 +284,8 @@ int drm_simple_display_pipe_init(struct drm_device *dev,
+ 		return ret;
  
-+__printf(4, 5)
-+int drm_simple_encoder_init(struct drm_device *dev,
-+			    struct drm_encoder *encoder,
-+			    int encoder_type, const char *name, ...);
-+
-+__printf(3, 4)
-+struct drm_encoder *drm_simple_encoder_create(struct drm_device *dev,
-+					      int encoder_type,
-+					      const char *name, ...);
-+
- /**
-  * drm_encoder_index - find the index of a registered encoder
-  * @encoder: encoder to find index for
+ 	encoder->possible_crtcs = drm_crtc_mask(crtc);
+-	ret = drm_encoder_init(dev, encoder, &drm_simple_kms_encoder_funcs,
+-			       DRM_MODE_ENCODER_NONE, NULL);
++	ret = drm_simple_encoder_init(dev, encoder, DRM_MODE_ENCODER_NONE,
++				      NULL);
+ 	if (ret || !connector)
+ 		return ret;
+ 
 -- 
 2.25.0
