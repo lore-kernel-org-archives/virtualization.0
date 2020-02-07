@@ -1,81 +1,95 @@
-From: Thomas Zimmermann <tzimmermann@suse.de>
-Subject: [PATCH 5/6] drm/qxl: Use simple encoder
-Date: Fri,  7 Feb 2020 09:41:34 +0100
-Message-ID: <20200207084135.4524-6-tzimmermann@suse.de>
-References: <20200207084135.4524-1-tzimmermann@suse.de>
+From: Cornelia Huck <cohuck@redhat.com>
+Subject: Re: vhost changes (batched) in linux-next after 12/13 trigger
+ random crashes in KVM guests after reboot
+Date: Fri, 7 Feb 2020 09:53:53 +0100
+Message-ID: <20200207095353.08bc91e4.cohuck@redhat.com>
+References: <20200107042401-mutt-send-email-mst@kernel.org>
+        <c6795e53-d12c-0709-c2e9-e35d9af1f693@de.ibm.com>
+        <20200107065434-mutt-send-email-mst@kernel.org>
+        <fe6e7e90-3004-eb7a-9ed8-b53a7667959f@de.ibm.com>
+        <20200120012724-mutt-send-email-mst@kernel.org>
+        <2a63b15f-8cf5-5868-550c-42e2cfd92c60@de.ibm.com>
+        <b6e32f58e5d85ac5cc3141e9155fb140ae5cd580.camel@redhat.com>
+        <1ade56b5-083f-bb6f-d3e0-3ddcf78f4d26@de.ibm.com>
+        <20200206171349-mutt-send-email-mst@kernel.org>
+        <5c860fa1-cef5-b389-4ebf-99a62afa0fe8@de.ibm.com>
+        <20200207025806-mutt-send-email-mst@kernel.org>
+        <97c93d38-ef07-e321-d133-18483d54c0c0@de.ibm.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
+Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
-Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <20200207084135.4524-1-tzimmermann@suse.de>
-List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
- <mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
-List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
-List-Post: <mailto:virtualization@lists.linux-foundation.org>
-List-Help: <mailto:virtualization-request@lists.linux-foundation.org?subject=help>
-List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualization>,
- <mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
-Errors-To: virtualization-bounces@lists.linux-foundation.org
-Sender: "Virtualization" <virtualization-bounces@lists.linux-foundation.org>
-To: airlied@linux.ie, daniel@ffwll.ch, maarten.lankhorst@linux.intel.com, mripard@kernel.org, kraxel@redhat.com, noralf@tronnes.org, sam@ravnborg.org, alexander.deucher@amd.com, emil.velikov@collabora.com
-Cc: spice-devel@lists.freedesktop.org, Thomas Zimmermann <tzimmermann@suse.de>, dri-devel@lists.freedesktop.org, virtualization@lists.linux-foundation.org
+Return-path: <kvm-owner@vger.kernel.org>
+In-Reply-To: <97c93d38-ef07-e321-d133-18483d54c0c0@de.ibm.com>
+Sender: kvm-owner@vger.kernel.org
+To: Christian Borntraeger <borntraeger@de.ibm.com>
+Cc: "Michael S. Tsirkin" <mst@redhat.com>, eperezma@redhat.com, "virtualization@lists.linux-foundation.org" <virtualization@lists.linux-foundation.org>, Stephen Rothwell <sfr@canb.auug.org.au>, Linux Next Mailing List <linux-next@vger.kernel.org>, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>, kvm list <kvm@vger.kernel.org>, Halil Pasic <pasic@linux.ibm.com>
 List-Id: virtualization@lists.linuxfoundation.org
 
-The qxl driver uses an empty implementation for its encoder. Replace
-the code with the generic simple encoder.
+On Fri, 7 Feb 2020 09:13:14 +0100
+Christian Borntraeger <borntraeger@de.ibm.com> wrote:
 
-Signed-off-by: Thomas Zimmermann <tzimmermann@suse.de>
----
- drivers/gpu/drm/qxl/qxl_display.c | 17 ++---------------
- 1 file changed, 2 insertions(+), 15 deletions(-)
+> On 07.02.20 08:58, Michael S. Tsirkin wrote:
+> > On Fri, Feb 07, 2020 at 08:47:14AM +0100, Christian Borntraeger wrote:  
+> >> Also adding Cornelia.
+> >>
+> >>
+> >> On 06.02.20 23:17, Michael S. Tsirkin wrote:  
+> >>> On Thu, Feb 06, 2020 at 04:12:21PM +0100, Christian Borntraeger wrote:  
+> >>>>
+> >>>>
+> >>>> On 06.02.20 15:22, eperezma@redhat.com wrote:  
+> >>>>> Hi Christian.
+> >>>>>
+> >>>>> Could you try this patch on top of ("38ced0208491 vhost: use batched version by default")?
+> >>>>>
+> >>>>> It will not solve your first random crash but it should help with the lost of network connectivity.
+> >>>>>
+> >>>>> Please let me know how does it goes.  
+> >>>>
+> >>>>
+> >>>> 38ced0208491 + this seem to be ok.
+> >>>>
+> >>>> Not sure if you can make out anything of this (and the previous git bisect log)  
+> >>>
+> >>> Yes it does - that this is just bad split-up of patches, and there's
+> >>> still a real bug that caused worse crashes :)
+> >>>
+> >>> So I just pushed batch-v4.
+> >>> I expect that will fail, and bisect to give us
+> >>>     vhost: batching fetches
+> >>> Can you try that please?
+> >>>  
+> >>
+> >> yes.
+> >>
+> >> eccb852f1fe6bede630e2e4f1a121a81e34354ab is the first bad commit
+> >> commit eccb852f1fe6bede630e2e4f1a121a81e34354ab
+> >> Author: Michael S. Tsirkin <mst@redhat.com>
+> >> Date:   Mon Oct 7 06:11:18 2019 -0400
+> >>
+> >>     vhost: batching fetches
+> >>     
+> >>     With this patch applied, new and old code perform identically.
+> >>     
+> >>     Lots of extra optimizations are now possible, e.g.
+> >>     we can fetch multiple heads with copy_from/to_user now.
+> >>     We can get rid of maintaining the log array.  Etc etc.
+> >>     
+> >>     Signed-off-by: Michael S. Tsirkin <mst@redhat.com>
+> >>
+> >>  drivers/vhost/test.c  |  2 +-
+> >>  drivers/vhost/vhost.c | 39 ++++++++++++++++++++++++++++++++++-----
+> >>  drivers/vhost/vhost.h |  4 +++-
+> >>  3 files changed, 38 insertions(+), 7 deletions(-)
+> >>  
+> > 
+> > 
+> > And the symptom is still the same - random crashes
+> > after a bit of traffic, right?  
+> 
+> random guest crashes after a reboot of the guests. As if vhost would still
+> write into now stale buffers.
+> 
 
-diff --git a/drivers/gpu/drm/qxl/qxl_display.c b/drivers/gpu/drm/qxl/qxl_display.c
-index ab4f8dd00400..fc71f7d9436a 100644
---- a/drivers/gpu/drm/qxl/qxl_display.c
-+++ b/drivers/gpu/drm/qxl/qxl_display.c
-@@ -1007,9 +1007,6 @@ static struct drm_encoder *qxl_best_encoder(struct drm_connector *connector)
- 	return &qxl_output->enc;
- }
- 
--static const struct drm_encoder_helper_funcs qxl_enc_helper_funcs = {
--};
--
- static const struct drm_connector_helper_funcs qxl_connector_helper_funcs = {
- 	.get_modes = qxl_conn_get_modes,
- 	.mode_valid = qxl_conn_mode_valid,
-@@ -1059,15 +1056,6 @@ static const struct drm_connector_funcs qxl_connector_funcs = {
- 	.atomic_destroy_state = drm_atomic_helper_connector_destroy_state,
- };
- 
--static void qxl_enc_destroy(struct drm_encoder *encoder)
--{
--	drm_encoder_cleanup(encoder);
--}
--
--static const struct drm_encoder_funcs qxl_enc_funcs = {
--	.destroy = qxl_enc_destroy,
--};
--
- static int qxl_mode_create_hotplug_mode_update_property(struct qxl_device *qdev)
- {
- 	if (qdev->hotplug_mode_update_property)
-@@ -1098,15 +1086,14 @@ static int qdev_output_init(struct drm_device *dev, int num_output)
- 	drm_connector_init(dev, &qxl_output->base,
- 			   &qxl_connector_funcs, DRM_MODE_CONNECTOR_VIRTUAL);
- 
--	drm_encoder_init(dev, &qxl_output->enc, &qxl_enc_funcs,
--			 DRM_MODE_ENCODER_VIRTUAL, NULL);
-+	drm_simple_encoder_init(dev, qxl_output->enc, DRM_MODE_ENCODER_VIRTUAL,
-+				NULL);
- 
- 	/* we get HPD via client monitors config */
- 	connector->polled = DRM_CONNECTOR_POLL_HPD;
- 	encoder->possible_crtcs = 1 << num_output;
- 	drm_connector_attach_encoder(&qxl_output->base,
- 					  &qxl_output->enc);
--	drm_encoder_helper_add(encoder, &qxl_enc_helper_funcs);
- 	drm_connector_helper_add(connector, &qxl_connector_helper_funcs);
- 
- 	drm_object_attach_property(&connector->base,
--- 
-2.25.0
+I'm late to the party; but where is that commit located? Or has it been
+dropped again already?
