@@ -1,7 +1,7 @@
 From: =?UTF-8?q?Adalbert=20Laz=C4=83r?= <alazar@bitdefender.com>
-Subject: [RFC PATCH v7 13/78] KVM: x86: add .control_desc_intercept()
-Date: Fri,  7 Feb 2020 20:15:31 +0200
-Message-ID: <20200207181636.1065-14-alazar@bitdefender.com>
+Subject: [RFC PATCH v7 11/78] KVM: x86: add .control_cr3_intercept() to struct kvm_x86_ops
+Date: Fri,  7 Feb 2020 20:15:29 +0200
+Message-ID: <20200207181636.1065-12-alazar@bitdefender.com>
 References: <20200207181636.1065-1-alazar@bitdefender.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -10,100 +10,129 @@ Return-path: <kvm-owner@vger.kernel.org>
 In-Reply-To: <20200207181636.1065-1-alazar@bitdefender.com>
 Sender: kvm-owner@vger.kernel.org
 To: kvm@vger.kernel.org
-Cc: virtualization@lists.linux-foundation.org, Paolo Bonzini <pbonzini@redhat.com>, Sean Christopherson <sean.j.christopherson@intel.com>, =?UTF-8?q?Adalbert=20Laz=C4=83r?= <alazar@bitdefender.com>
+Cc: virtualization@lists.linux-foundation.org, Paolo Bonzini <pbonzini@redhat.com>, Sean Christopherson <sean.j.christopherson@intel.com>, =?UTF-8?q?Adalbert=20Laz=C4=83r?= <alazar@bitdefender.com>, =?UTF-8?q?Nicu=C8=99or=20C=C3=AE=C8=9Bu?= <ncitu@bitdefender.com>
 List-Id: virtualization@lists.linuxfoundation.org
 
-This function is needed for the KVMI_EVENT_DESCRIPTOR event.
+This function is needed for the KVMI_VCPU_CONTROL_CR command.
 
+Co-developed-by: Nicușor Cîțu <ncitu@bitdefender.com>
+Signed-off-by: Nicușor Cîțu <ncitu@bitdefender.com>
 Signed-off-by: Adalbert Lazăr <alazar@bitdefender.com>
 ---
- arch/x86/include/asm/kvm_host.h |  1 +
- arch/x86/kvm/svm.c              | 26 ++++++++++++++++++++++++++
- arch/x86/kvm/vmx/vmx.c          | 11 +++++++++++
- 3 files changed, 38 insertions(+)
+ arch/x86/include/asm/kvm_host.h |  6 ++++++
+ arch/x86/kvm/svm.c              | 14 ++++++++++++++
+ arch/x86/kvm/vmx/vmx.c          | 26 ++++++++++++++++++++------
+ 3 files changed, 40 insertions(+), 6 deletions(-)
 
 diff --git a/arch/x86/include/asm/kvm_host.h b/arch/x86/include/asm/kvm_host.h
-index d2fe08f44084..3b86e745da05 100644
+index d279195dac97..9032c996ebdb 100644
 --- a/arch/x86/include/asm/kvm_host.h
 +++ b/arch/x86/include/asm/kvm_host.h
-@@ -1076,6 +1076,7 @@ struct kvm_x86_ops {
+@@ -134,6 +134,10 @@ static inline gfn_t gfn_to_index(gfn_t gfn, gfn_t base_gfn, int level)
+ #define KVM_NR_FIXED_MTRR_REGION 88
+ #define KVM_NR_VAR_MTRR 8
+ 
++#define CR_TYPE_R	1
++#define CR_TYPE_W	2
++#define CR_TYPE_RW	3
++
+ #define ASYNC_PF_PER_VCPU 64
+ 
+ enum kvm_reg {
+@@ -1064,6 +1068,8 @@ struct kvm_x86_ops {
+ 	void (*set_cr0)(struct kvm_vcpu *vcpu, unsigned long cr0);
+ 	void (*set_cr3)(struct kvm_vcpu *vcpu, unsigned long cr3);
+ 	int (*set_cr4)(struct kvm_vcpu *vcpu, unsigned long cr4);
++	void (*control_cr3_intercept)(struct kvm_vcpu *vcpu, int type,
++				      bool enable);
+ 	void (*set_efer)(struct kvm_vcpu *vcpu, u64 efer);
+ 	void (*get_idt)(struct kvm_vcpu *vcpu, struct desc_ptr *dt);
  	void (*set_idt)(struct kvm_vcpu *vcpu, struct desc_ptr *dt);
- 	void (*get_gdt)(struct kvm_vcpu *vcpu, struct desc_ptr *dt);
- 	void (*set_gdt)(struct kvm_vcpu *vcpu, struct desc_ptr *dt);
-+	void (*control_desc_intercept)(struct kvm_vcpu *vcpu, bool enable);
- 	u64 (*get_dr6)(struct kvm_vcpu *vcpu);
- 	void (*set_dr6)(struct kvm_vcpu *vcpu, unsigned long value);
- 	void (*sync_dirty_debug_regs)(struct kvm_vcpu *vcpu);
 diff --git a/arch/x86/kvm/svm.c b/arch/x86/kvm/svm.c
-index 554ad7c57a0f..060d49b69b2e 100644
+index df34ab0da4ff..b6081afec926 100644
 --- a/arch/x86/kvm/svm.c
 +++ b/arch/x86/kvm/svm.c
-@@ -7276,6 +7276,31 @@ static void svm_control_cr3_intercept(struct kvm_vcpu *vcpu, int type,
- 			 clr_cr_intercept(svm, INTERCEPT_CR3_WRITE);
+@@ -7256,6 +7256,19 @@ static inline bool svm_bp_intercepted(struct kvm_vcpu *vcpu)
+ 	return get_exception_intercept(svm, BP_VECTOR);
  }
  
-+static void svm_control_desc_intercept(struct kvm_vcpu *vcpu, bool enable)
++static void svm_control_cr3_intercept(struct kvm_vcpu *vcpu, int type,
++				      bool enable)
 +{
 +	struct vcpu_svm *svm = to_svm(vcpu);
 +
-+	if (enable) {
-+		set_intercept(svm, INTERCEPT_STORE_IDTR);
-+		set_intercept(svm, INTERCEPT_STORE_GDTR);
-+		set_intercept(svm, INTERCEPT_STORE_LDTR);
-+		set_intercept(svm, INTERCEPT_STORE_TR);
-+		set_intercept(svm, INTERCEPT_LOAD_IDTR);
-+		set_intercept(svm, INTERCEPT_LOAD_GDTR);
-+		set_intercept(svm, INTERCEPT_LOAD_LDTR);
-+		set_intercept(svm, INTERCEPT_LOAD_TR);
-+	} else {
-+		clr_intercept(svm, INTERCEPT_STORE_IDTR);
-+		clr_intercept(svm, INTERCEPT_STORE_GDTR);
-+		clr_intercept(svm, INTERCEPT_STORE_LDTR);
-+		clr_intercept(svm, INTERCEPT_STORE_TR);
-+		clr_intercept(svm, INTERCEPT_LOAD_IDTR);
-+		clr_intercept(svm, INTERCEPT_LOAD_GDTR);
-+		clr_intercept(svm, INTERCEPT_LOAD_LDTR);
-+		clr_intercept(svm, INTERCEPT_LOAD_TR);
-+	}
++	if (type & CR_TYPE_R)
++		enable ? set_cr_intercept(svm, INTERCEPT_CR3_READ) :
++			 clr_cr_intercept(svm, INTERCEPT_CR3_READ);
++	if (type & CR_TYPE_W)
++		enable ? set_cr_intercept(svm, INTERCEPT_CR3_WRITE) :
++			 clr_cr_intercept(svm, INTERCEPT_CR3_WRITE);
 +}
 +
  static struct kvm_x86_ops svm_x86_ops __ro_after_init = {
  	.cpu_has_kvm_support = has_svm,
  	.disabled_by_bios = is_disabled,
-@@ -7324,6 +7349,7 @@ static struct kvm_x86_ops svm_x86_ops __ro_after_init = {
+@@ -7297,6 +7310,7 @@ static struct kvm_x86_ops svm_x86_ops __ro_after_init = {
+ 	.set_cr0 = svm_set_cr0,
+ 	.set_cr3 = svm_set_cr3,
+ 	.set_cr4 = svm_set_cr4,
++	.control_cr3_intercept = svm_control_cr3_intercept,
+ 	.set_efer = svm_set_efer,
+ 	.get_idt = svm_get_idt,
  	.set_idt = svm_set_idt,
- 	.get_gdt = svm_get_gdt,
- 	.set_gdt = svm_set_gdt,
-+	.control_desc_intercept = svm_control_desc_intercept,
- 	.get_dr6 = svm_get_dr6,
- 	.set_dr6 = svm_set_dr6,
- 	.set_dr7 = svm_set_dr7,
 diff --git a/arch/x86/kvm/vmx/vmx.c b/arch/x86/kvm/vmx/vmx.c
-index 7cfd25800d89..646ce2650728 100644
+index 0d7ca70b310e..4b6edb68e9e0 100644
 --- a/arch/x86/kvm/vmx/vmx.c
 +++ b/arch/x86/kvm/vmx/vmx.c
-@@ -2998,6 +2998,16 @@ u64 construct_eptp(struct kvm_vcpu *vcpu, unsigned long root_hpa)
- 	return eptp;
+@@ -2900,24 +2900,37 @@ void ept_save_pdptrs(struct kvm_vcpu *vcpu)
+ 	kvm_register_mark_dirty(vcpu, VCPU_EXREG_PDPTR);
  }
  
-+static void vmx_control_desc_intercept(struct kvm_vcpu *vcpu, bool enable)
++static void vmx_control_cr3_intercept(struct kvm_vcpu *vcpu, int type,
++				      bool enable)
 +{
 +	struct vcpu_vmx *vmx = to_vmx(vcpu);
++	u32 cr3_exec_control = 0;
++
++	if (type & CR_TYPE_R)
++		cr3_exec_control |= CPU_BASED_CR3_STORE_EXITING;
++	if (type & CR_TYPE_W)
++		cr3_exec_control |= CPU_BASED_CR3_LOAD_EXITING;
 +
 +	if (enable)
-+		secondary_exec_controls_setbit(vmx, SECONDARY_EXEC_DESC);
++		exec_controls_setbit(vmx, cr3_exec_control);
 +	else
-+		secondary_exec_controls_clearbit(vmx, SECONDARY_EXEC_DESC);
++		exec_controls_clearbit(vmx, cr3_exec_control);
 +}
 +
- void vmx_set_cr3(struct kvm_vcpu *vcpu, unsigned long cr3)
+ static void ept_update_paging_mode_cr0(unsigned long *hw_cr0,
+ 					unsigned long cr0,
+ 					struct kvm_vcpu *vcpu)
  {
- 	struct kvm *kvm = vcpu->kvm;
-@@ -7828,6 +7838,7 @@ static struct kvm_x86_ops vmx_x86_ops __ro_after_init = {
+-	struct vcpu_vmx *vmx = to_vmx(vcpu);
+-
+ 	if (!kvm_register_is_available(vcpu, VCPU_EXREG_CR3))
+ 		vmx_cache_reg(vcpu, VCPU_EXREG_CR3);
+ 	if (!(cr0 & X86_CR0_PG)) {
+ 		/* From paging/starting to nonpaging */
+-		exec_controls_setbit(vmx, CPU_BASED_CR3_LOAD_EXITING |
+-					  CPU_BASED_CR3_STORE_EXITING);
++		vmx_control_cr3_intercept(vcpu, CR_TYPE_RW, true);
+ 		vcpu->arch.cr0 = cr0;
+ 		vmx_set_cr4(vcpu, kvm_read_cr4(vcpu));
+ 	} else if (!is_paging(vcpu)) {
+ 		/* From nonpaging to paging */
+-		exec_controls_clearbit(vmx, CPU_BASED_CR3_LOAD_EXITING |
+-					    CPU_BASED_CR3_STORE_EXITING);
++		vmx_control_cr3_intercept(vcpu, CR_TYPE_RW, false);
+ 		vcpu->arch.cr0 = cr0;
+ 		vmx_set_cr4(vcpu, kvm_read_cr4(vcpu));
+ 	}
+@@ -7801,6 +7814,7 @@ static struct kvm_x86_ops vmx_x86_ops __ro_after_init = {
+ 	.set_cr0 = vmx_set_cr0,
+ 	.set_cr3 = vmx_set_cr3,
+ 	.set_cr4 = vmx_set_cr4,
++	.control_cr3_intercept = vmx_control_cr3_intercept,
+ 	.set_efer = vmx_set_efer,
+ 	.get_idt = vmx_get_idt,
  	.set_idt = vmx_set_idt,
- 	.get_gdt = vmx_get_gdt,
- 	.set_gdt = vmx_set_gdt,
-+	.control_desc_intercept = vmx_control_desc_intercept,
- 	.get_dr6 = vmx_get_dr6,
- 	.set_dr6 = vmx_set_dr6,
- 	.set_dr7 = vmx_set_dr7,
