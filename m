@@ -1,143 +1,82 @@
-From: Gerd Hoffmann <kraxel@redhat.com>
-Subject: [PATCH v2 3/4] drm/virtio: move mapping teardown to virtio_gpu_cleanup_object()
-Date: Fri,  7 Feb 2020 08:46:37 +0100
-Message-ID: <20200207074638.26386-4-kraxel@redhat.com>
-References: <20200207074638.26386-1-kraxel@redhat.com>
+From: Christian Borntraeger <borntraeger@de.ibm.com>
+Subject: Re: vhost changes (batched) in linux-next after 12/13 trigger random
+ crashes in KVM guests after reboot
+Date: Fri, 7 Feb 2020 08:47:14 +0100
+Message-ID: <5c860fa1-cef5-b389-4ebf-99a62afa0fe8@de.ibm.com>
+References: <20200106054041-mutt-send-email-mst@kernel.org>
+ <08ae8d28-3d8c-04e8-bdeb-0117d06c6dc7@de.ibm.com>
+ <20200107042401-mutt-send-email-mst@kernel.org>
+ <c6795e53-d12c-0709-c2e9-e35d9af1f693@de.ibm.com>
+ <20200107065434-mutt-send-email-mst@kernel.org>
+ <fe6e7e90-3004-eb7a-9ed8-b53a7667959f@de.ibm.com>
+ <20200120012724-mutt-send-email-mst@kernel.org>
+ <2a63b15f-8cf5-5868-550c-42e2cfd92c60@de.ibm.com>
+ <b6e32f58e5d85ac5cc3141e9155fb140ae5cd580.camel@redhat.com>
+ <1ade56b5-083f-bb6f-d3e0-3ddcf78f4d26@de.ibm.com>
+ <20200206171349-mutt-send-email-mst@kernel.org>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=utf-8
+Content-Transfer-Encoding: 8bit
 Return-path: <linux-kernel-owner@vger.kernel.org>
-In-Reply-To: <20200207074638.26386-1-kraxel@redhat.com>
+In-Reply-To: <20200206171349-mutt-send-email-mst@kernel.org>
+Content-Language: en-US
 Sender: linux-kernel-owner@vger.kernel.org
-To: dri-devel@lists.freedesktop.org
-Cc: gurchetansingh@chromium.org, olvaffe@gmail.com, Gerd Hoffmann <kraxel@redhat.com>, David Airlie <airlied@linux.ie>, Daniel Vetter <daniel@ffwll.ch>, Sumit Semwal <sumit.semwal@linaro.org>, "open list:VIRTIO GPU DRIVER" <virtualization@lists.linux-foundation.org>, open list <linux-kernel@vger.kernel.org>, "open list:DMA BUFFER SHARING FRAMEWORK" <linux-media@vger.kernel.org>, "moderated list:DMA BUFFER SHARING
-        FRAMEWORK" <linaro-mm-sig@lists.linaro.org>
+To: "Michael S. Tsirkin" <mst@redhat.com>
+Cc: eperezma@redhat.com, "virtualization@lists.linux-foundation.org" <virtualization@lists.linux-foundation.org>, Stephen Rothwell <sfr@canb.auug.org.au>, Linux Next Mailing List <linux-next@vger.kernel.org>, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>, kvm list <kvm@vger.kernel.org>, Halil Pasic <pasic@linux.ibm.com>, Cornelia Huck <cohuck@redhat.com>
 List-Id: virtualization@lists.linuxfoundation.org
 
-Stop sending DETACH_BACKING commands, that will happening anyway when
-releasing resources via UNREF.  Handle guest-side cleanup in
-virtio_gpu_cleanup_object(), called when the host finished processing
-the UNREF command.
+Also adding Cornelia.
 
-Signed-off-by: Gerd Hoffmann <kraxel@redhat.com>
----
- drivers/gpu/drm/virtio/virtgpu_drv.h    |  2 --
- drivers/gpu/drm/virtio/virtgpu_object.c | 14 ++++++--
- drivers/gpu/drm/virtio/virtgpu_vq.c     | 46 -------------------------
- 3 files changed, 12 insertions(+), 50 deletions(-)
 
-diff --git a/drivers/gpu/drm/virtio/virtgpu_drv.h b/drivers/gpu/drm/virtio/virtgpu_drv.h
-index 1bc13f6b161b..d37ddd7644f6 100644
---- a/drivers/gpu/drm/virtio/virtgpu_drv.h
-+++ b/drivers/gpu/drm/virtio/virtgpu_drv.h
-@@ -281,8 +281,6 @@ void virtio_gpu_cmd_set_scanout(struct virtio_gpu_device *vgdev,
- int virtio_gpu_object_attach(struct virtio_gpu_device *vgdev,
- 			     struct virtio_gpu_object *obj,
- 			     struct virtio_gpu_fence *fence);
--void virtio_gpu_object_detach(struct virtio_gpu_device *vgdev,
--			      struct virtio_gpu_object *obj);
- int virtio_gpu_attach_status_page(struct virtio_gpu_device *vgdev);
- int virtio_gpu_detach_status_page(struct virtio_gpu_device *vgdev);
- void virtio_gpu_cursor_ping(struct virtio_gpu_device *vgdev,
-diff --git a/drivers/gpu/drm/virtio/virtgpu_object.c b/drivers/gpu/drm/virtio/virtgpu_object.c
-index 28a161af7503..bce2b3d843fe 100644
---- a/drivers/gpu/drm/virtio/virtgpu_object.c
-+++ b/drivers/gpu/drm/virtio/virtgpu_object.c
-@@ -23,6 +23,7 @@
-  * WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
-  */
- 
-+#include <linux/dma-mapping.h>
- #include <linux/moduleparam.h>
- 
- #include "virtgpu_drv.h"
-@@ -65,6 +66,17 @@ void virtio_gpu_cleanup_object(struct virtio_gpu_object *bo)
- {
- 	struct virtio_gpu_device *vgdev = bo->base.base.dev->dev_private;
- 
-+	if (bo->pages) {
-+		if (bo->mapped) {
-+			dma_unmap_sg(vgdev->vdev->dev.parent,
-+				     bo->pages->sgl, bo->mapped,
-+				     DMA_TO_DEVICE);
-+			bo->mapped = 0;
-+		}
-+		sg_free_table(bo->pages);
-+		bo->pages = NULL;
-+		drm_gem_shmem_unpin(&bo->base.base);
-+	}
- 	virtio_gpu_resource_id_put(vgdev, bo->hw_res_handle);
- 	drm_gem_shmem_free_object(&bo->base.base);
- }
-@@ -74,8 +86,6 @@ static void virtio_gpu_free_object(struct drm_gem_object *obj)
- 	struct virtio_gpu_object *bo = gem_to_virtio_gpu_obj(obj);
- 	struct virtio_gpu_device *vgdev = bo->base.base.dev->dev_private;
- 
--	if (bo->pages)
--		virtio_gpu_object_detach(vgdev, bo);
- 	if (bo->created) {
- 		virtio_gpu_cmd_unref_resource(vgdev, bo);
- 		/* completion handler calls virtio_gpu_cleanup_object() */
-diff --git a/drivers/gpu/drm/virtio/virtgpu_vq.c b/drivers/gpu/drm/virtio/virtgpu_vq.c
-index 4e22c3914f94..87c439156151 100644
---- a/drivers/gpu/drm/virtio/virtgpu_vq.c
-+++ b/drivers/gpu/drm/virtio/virtgpu_vq.c
-@@ -545,22 +545,6 @@ void virtio_gpu_cmd_unref_resource(struct virtio_gpu_device *vgdev,
- 	virtio_gpu_queue_ctrl_buffer(vgdev, vbuf);
- }
- 
--static void virtio_gpu_cmd_resource_inval_backing(struct virtio_gpu_device *vgdev,
--						  uint32_t resource_id,
--						  struct virtio_gpu_fence *fence)
--{
--	struct virtio_gpu_resource_detach_backing *cmd_p;
--	struct virtio_gpu_vbuffer *vbuf;
--
--	cmd_p = virtio_gpu_alloc_cmd(vgdev, &vbuf, sizeof(*cmd_p));
--	memset(cmd_p, 0, sizeof(*cmd_p));
--
--	cmd_p->hdr.type = cpu_to_le32(VIRTIO_GPU_CMD_RESOURCE_DETACH_BACKING);
--	cmd_p->resource_id = cpu_to_le32(resource_id);
--
--	virtio_gpu_queue_fenced_ctrl_buffer(vgdev, vbuf, fence);
--}
--
- void virtio_gpu_cmd_set_scanout(struct virtio_gpu_device *vgdev,
- 				uint32_t scanout_id, uint32_t resource_id,
- 				uint32_t width, uint32_t height,
-@@ -1155,36 +1139,6 @@ int virtio_gpu_object_attach(struct virtio_gpu_device *vgdev,
- 	return 0;
- }
- 
--void virtio_gpu_object_detach(struct virtio_gpu_device *vgdev,
--			      struct virtio_gpu_object *obj)
--{
--	bool use_dma_api = !virtio_has_iommu_quirk(vgdev->vdev);
--
--	if (WARN_ON_ONCE(!obj->pages))
--		return;
--
--	if (use_dma_api && obj->mapped) {
--		struct virtio_gpu_fence *fence = virtio_gpu_fence_alloc(vgdev);
--		/* detach backing and wait for the host process it ... */
--		virtio_gpu_cmd_resource_inval_backing(vgdev, obj->hw_res_handle, fence);
--		dma_fence_wait(&fence->f, true);
--		dma_fence_put(&fence->f);
--
--		/* ... then tear down iommu mappings */
--		dma_unmap_sg(vgdev->vdev->dev.parent,
--			     obj->pages->sgl, obj->mapped,
--			     DMA_TO_DEVICE);
--		obj->mapped = 0;
--	} else {
--		virtio_gpu_cmd_resource_inval_backing(vgdev, obj->hw_res_handle, NULL);
--	}
--
--	sg_free_table(obj->pages);
--	obj->pages = NULL;
--
--	drm_gem_shmem_unpin(&obj->base.base);
--}
--
- void virtio_gpu_cursor_ping(struct virtio_gpu_device *vgdev,
- 			    struct virtio_gpu_output *output)
- {
--- 
-2.18.1
+On 06.02.20 23:17, Michael S. Tsirkin wrote:
+> On Thu, Feb 06, 2020 at 04:12:21PM +0100, Christian Borntraeger wrote:
+>>
+>>
+>> On 06.02.20 15:22, eperezma@redhat.com wrote:
+>>> Hi Christian.
+>>>
+>>> Could you try this patch on top of ("38ced0208491 vhost: use batched version by default")?
+>>>
+>>> It will not solve your first random crash but it should help with the lost of network connectivity.
+>>>
+>>> Please let me know how does it goes.
+>>
+>>
+>> 38ced0208491 + this seem to be ok.
+>>
+>> Not sure if you can make out anything of this (and the previous git bisect log)
+> 
+> Yes it does - that this is just bad split-up of patches, and there's
+> still a real bug that caused worse crashes :)
+> 
+> So I just pushed batch-v4.
+> I expect that will fail, and bisect to give us
+>     vhost: batching fetches
+> Can you try that please?
+> 
+
+yes.
+
+eccb852f1fe6bede630e2e4f1a121a81e34354ab is the first bad commit
+commit eccb852f1fe6bede630e2e4f1a121a81e34354ab
+Author: Michael S. Tsirkin <mst@redhat.com>
+Date:   Mon Oct 7 06:11:18 2019 -0400
+
+    vhost: batching fetches
+    
+    With this patch applied, new and old code perform identically.
+    
+    Lots of extra optimizations are now possible, e.g.
+    we can fetch multiple heads with copy_from/to_user now.
+    We can get rid of maintaining the log array.  Etc etc.
+    
+    Signed-off-by: Michael S. Tsirkin <mst@redhat.com>
+
+ drivers/vhost/test.c  |  2 +-
+ drivers/vhost/vhost.c | 39 ++++++++++++++++++++++++++++++++++-----
+ drivers/vhost/vhost.h |  4 +++-
+ 3 files changed, 38 insertions(+), 7 deletions(-)
+
+
+> 
+			
