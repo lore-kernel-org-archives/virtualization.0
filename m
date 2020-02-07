@@ -1,7 +1,7 @@
 From: =?UTF-8?q?Adalbert=20Laz=C4=83r?= <alazar@bitdefender.com>
-Subject: [RFC PATCH v7 31/78] KVM: x86: page track: add track_create_slot() callback
-Date: Fri,  7 Feb 2020 20:15:49 +0200
-Message-ID: <20200207181636.1065-32-alazar@bitdefender.com>
+Subject: [RFC PATCH v7 14/78] KVM: x86: add .desc_intercepted()
+Date: Fri,  7 Feb 2020 20:15:32 +0200
+Message-ID: <20200207181636.1065-15-alazar@bitdefender.com>
 References: <20200207181636.1065-1-alazar@bitdefender.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -10,98 +10,104 @@ Return-path: <kvm-owner@vger.kernel.org>
 In-Reply-To: <20200207181636.1065-1-alazar@bitdefender.com>
 Sender: kvm-owner@vger.kernel.org
 To: kvm@vger.kernel.org
-Cc: virtualization@lists.linux-foundation.org, Paolo Bonzini <pbonzini@redhat.com>, Sean Christopherson <sean.j.christopherson@intel.com>, =?UTF-8?q?Mihai=20Don=C8=9Bu?= <mdontu@bitdefender.com>, =?UTF-8?q?Adalbert=20Laz=C4=83r?= <alazar@bitdefender.com>
+Cc: virtualization@lists.linux-foundation.org, Paolo Bonzini <pbonzini@redhat.com>, Sean Christopherson <sean.j.christopherson@intel.com>, =?UTF-8?q?Nicu=C8=99or=20C=C3=AE=C8=9Bu?= <ncitu@bitdefender.com>, =?UTF-8?q?Adalbert=20Laz=C4=83r?= <alazar@bitdefender.com>
 List-Id: virtualization@lists.linuxfoundation.org
 
-From: Mihai Donțu <mdontu@bitdefender.com>
+From: Nicușor Cîțu <ncitu@bitdefender.com>
 
-This is used to add page access notifications as soon as a slot appears.
+This function will be used to test if the descriptor access events
+are already tracked by another user.
 
-Signed-off-by: Mihai Donțu <mdontu@bitdefender.com>
+Signed-off-by: Nicușor Cîțu <ncitu@bitdefender.com>
 Signed-off-by: Adalbert Lazăr <alazar@bitdefender.com>
 ---
- arch/x86/include/asm/kvm_page_track.h | 13 ++++++++++++-
- arch/x86/kvm/mmu/page_track.c         | 16 +++++++++++++++-
- arch/x86/kvm/x86.c                    |  2 +-
- 3 files changed, 28 insertions(+), 3 deletions(-)
+ arch/x86/include/asm/kvm_host.h |  1 +
+ arch/x86/kvm/svm.c              | 22 ++++++++++++++++++++++
+ arch/x86/kvm/vmx/vmx.c          |  8 ++++++++
+ 3 files changed, 31 insertions(+)
 
-diff --git a/arch/x86/include/asm/kvm_page_track.h b/arch/x86/include/asm/kvm_page_track.h
-index e91f5a16e741..dc528c6f2eb0 100644
---- a/arch/x86/include/asm/kvm_page_track.h
-+++ b/arch/x86/include/asm/kvm_page_track.h
-@@ -36,6 +36,17 @@ struct kvm_page_track_notifier_node {
- 	void (*track_write)(struct kvm_vcpu *vcpu, gpa_t gpa, gva_t gva,
- 			    const u8 *new, int bytes,
- 			    struct kvm_page_track_notifier_node *node);
-+	/*
-+	 * It is called when memory slot is being created
-+	 *
-+	 * @kvm: the kvm where memory slot being moved or removed
-+	 * @slot: the memory slot being moved or removed
-+	 * @npages: the number of pages
-+	 * @node: this node
-+	 */
-+	void (*track_create_slot)(struct kvm *kvm, struct kvm_memory_slot *slot,
-+				  unsigned long npages,
-+				  struct kvm_page_track_notifier_node *node);
- 	/*
- 	 * It is called when memory slot is being moved or removed
- 	 * users can drop write-protection for the pages in that memory slot
-@@ -53,7 +64,7 @@ void kvm_page_track_cleanup(struct kvm *kvm);
- 
- void kvm_page_track_free_memslot(struct kvm_memory_slot *free,
- 				 struct kvm_memory_slot *dont);
--int kvm_page_track_create_memslot(struct kvm_memory_slot *slot,
-+int kvm_page_track_create_memslot(struct kvm *kvm, struct kvm_memory_slot *slot,
- 				  unsigned long npages);
- 
- void kvm_slot_page_track_add_page(struct kvm *kvm,
-diff --git a/arch/x86/kvm/mmu/page_track.c b/arch/x86/kvm/mmu/page_track.c
-index dc891d6a2553..f36e74430ad2 100644
---- a/arch/x86/kvm/mmu/page_track.c
-+++ b/arch/x86/kvm/mmu/page_track.c
-@@ -32,9 +32,12 @@ void kvm_page_track_free_memslot(struct kvm_memory_slot *free,
- 		}
+diff --git a/arch/x86/include/asm/kvm_host.h b/arch/x86/include/asm/kvm_host.h
+index 3b86e745da05..4d43f5479c0c 100644
+--- a/arch/x86/include/asm/kvm_host.h
++++ b/arch/x86/include/asm/kvm_host.h
+@@ -1077,6 +1077,7 @@ struct kvm_x86_ops {
+ 	void (*get_gdt)(struct kvm_vcpu *vcpu, struct desc_ptr *dt);
+ 	void (*set_gdt)(struct kvm_vcpu *vcpu, struct desc_ptr *dt);
+ 	void (*control_desc_intercept)(struct kvm_vcpu *vcpu, bool enable);
++	bool (*desc_intercepted)(struct kvm_vcpu *vcpu);
+ 	u64 (*get_dr6)(struct kvm_vcpu *vcpu);
+ 	void (*set_dr6)(struct kvm_vcpu *vcpu, unsigned long value);
+ 	void (*sync_dirty_debug_regs)(struct kvm_vcpu *vcpu);
+diff --git a/arch/x86/kvm/svm.c b/arch/x86/kvm/svm.c
+index 060d49b69b2e..bf1f2bca5357 100644
+--- a/arch/x86/kvm/svm.c
++++ b/arch/x86/kvm/svm.c
+@@ -632,6 +632,13 @@ static inline void clr_intercept(struct vcpu_svm *svm, int bit)
+ 	recalc_intercepts(svm);
  }
  
--int kvm_page_track_create_memslot(struct kvm_memory_slot *slot,
-+int kvm_page_track_create_memslot(struct kvm *kvm, struct kvm_memory_slot *slot,
- 				  unsigned long npages)
++static inline bool get_intercept(struct vcpu_svm *svm, int bit)
++{
++	struct vmcb *vmcb = get_host_vmcb(svm);
++
++	return (vmcb->control.intercept & (1ULL << bit));
++}
++
+ static inline bool vgif_enabled(struct vcpu_svm *svm)
  {
-+	struct kvm_page_track_notifier_head *head;
-+	struct kvm_page_track_notifier_node *n;
-+	int idx;
- 	int  i;
- 
- 	for (i = 0; i < KVM_PAGE_TRACK_MAX; i++) {
-@@ -45,6 +48,17 @@ int kvm_page_track_create_memslot(struct kvm_memory_slot *slot,
- 			goto track_free;
+ 	return !!(svm->vmcb->control.int_ctl & V_GIF_ENABLE_MASK);
+@@ -7301,6 +7308,20 @@ static void svm_control_desc_intercept(struct kvm_vcpu *vcpu, bool enable)
  	}
+ }
  
-+	head = &kvm->arch.track_notifier_head;
++static inline bool svm_desc_intercepted(struct kvm_vcpu *vcpu)
++{
++	struct vcpu_svm *svm = to_svm(vcpu);
 +
-+	if (hlist_empty(&head->track_notifier_list))
-+		return 0;
++	return (get_intercept(svm, INTERCEPT_STORE_IDTR) ||
++		get_intercept(svm, INTERCEPT_STORE_GDTR) ||
++		get_intercept(svm, INTERCEPT_STORE_LDTR) ||
++		get_intercept(svm, INTERCEPT_STORE_TR) ||
++		get_intercept(svm, INTERCEPT_LOAD_IDTR) ||
++		get_intercept(svm, INTERCEPT_LOAD_GDTR) ||
++		get_intercept(svm, INTERCEPT_LOAD_LDTR) ||
++		get_intercept(svm, INTERCEPT_LOAD_TR));
++}
 +
-+	idx = srcu_read_lock(&head->track_srcu);
-+	hlist_for_each_entry_rcu(n, &head->track_notifier_list, node)
-+		if (n->track_create_slot)
-+			n->track_create_slot(kvm, slot, npages, n);
-+	srcu_read_unlock(&head->track_srcu, idx);
+ static struct kvm_x86_ops svm_x86_ops __ro_after_init = {
+ 	.cpu_has_kvm_support = has_svm,
+ 	.disabled_by_bios = is_disabled,
+@@ -7350,6 +7371,7 @@ static struct kvm_x86_ops svm_x86_ops __ro_after_init = {
+ 	.get_gdt = svm_get_gdt,
+ 	.set_gdt = svm_set_gdt,
+ 	.control_desc_intercept = svm_control_desc_intercept,
++	.desc_intercepted = svm_desc_intercepted,
+ 	.get_dr6 = svm_get_dr6,
+ 	.set_dr6 = svm_set_dr6,
+ 	.set_dr7 = svm_set_dr7,
+diff --git a/arch/x86/kvm/vmx/vmx.c b/arch/x86/kvm/vmx/vmx.c
+index 646ce2650728..8709a26736d9 100644
+--- a/arch/x86/kvm/vmx/vmx.c
++++ b/arch/x86/kvm/vmx/vmx.c
+@@ -7793,6 +7793,13 @@ static bool vmx_cr3_write_intercepted(struct kvm_vcpu *vcpu)
+ 	return !!(exec_controls_get(vmx) & CPU_BASED_CR3_LOAD_EXITING);
+ }
+ 
++static bool vmx_desc_intercepted(struct kvm_vcpu *vcpu)
++{
++	struct vcpu_vmx *vmx = to_vmx(vcpu);
 +
- 	return 0;
- 
- track_free:
-diff --git a/arch/x86/kvm/x86.c b/arch/x86/kvm/x86.c
-index 0dd43cf5d2b1..c73da40791a7 100644
---- a/arch/x86/kvm/x86.c
-+++ b/arch/x86/kvm/x86.c
-@@ -9772,7 +9772,7 @@ int kvm_arch_create_memslot(struct kvm *kvm, struct kvm_memory_slot *slot,
- 		}
- 	}
- 
--	if (kvm_page_track_create_memslot(slot, npages))
-+	if (kvm_page_track_create_memslot(kvm, slot, npages))
- 		goto out_free;
- 
- 	return 0;
++	return !!(secondary_exec_controls_get(vmx) & SECONDARY_EXEC_DESC);
++}
++
+ static struct kvm_x86_ops vmx_x86_ops __ro_after_init = {
+ 	.cpu_has_kvm_support = cpu_has_kvm_support,
+ 	.disabled_by_bios = vmx_disabled_by_bios,
+@@ -7839,6 +7846,7 @@ static struct kvm_x86_ops vmx_x86_ops __ro_after_init = {
+ 	.get_gdt = vmx_get_gdt,
+ 	.set_gdt = vmx_set_gdt,
+ 	.control_desc_intercept = vmx_control_desc_intercept,
++	.desc_intercepted = vmx_desc_intercepted,
+ 	.get_dr6 = vmx_get_dr6,
+ 	.set_dr6 = vmx_set_dr6,
+ 	.set_dr7 = vmx_set_dr7,
