@@ -1,7 +1,7 @@
 From: =?UTF-8?q?Adalbert=20Laz=C4=83r?= <alazar@bitdefender.com>
-Subject: [RFC PATCH v7 41/78] KVM: introspection: add KVMI_VM_CHECK_COMMAND and KVMI_VM_CHECK_EVENT
-Date: Fri,  7 Feb 2020 20:15:59 +0200
-Message-ID: <20200207181636.1065-42-alazar@bitdefender.com>
+Subject: [RFC PATCH v7 44/78] KVM: introspection: add KVMI_VM_CONTROL_EVENTS
+Date: Fri,  7 Feb 2020 20:16:02 +0200
+Message-ID: <20200207181636.1065-45-alazar@bitdefender.com>
 References: <20200207181636.1065-1-alazar@bitdefender.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -13,75 +13,31 @@ To: kvm@vger.kernel.org
 Cc: virtualization@lists.linux-foundation.org, Paolo Bonzini <pbonzini@redhat.com>, Sean Christopherson <sean.j.christopherson@intel.com>, =?UTF-8?q?Adalbert=20Laz=C4=83r?= <alazar@bitdefender.com>
 List-Id: virtualization@lists.linuxfoundation.org
 
-These commands can be used by the introspection tool to check what
-introspection commands and events are supported (by KVMi) and allowed
-(by userspace).
-
-The introspection tool will get one of the following error codes:
-  * -KVM_ENOSYS (unsupported command/event)
-  * -KVM_PERM (disallowed command/event)
-  * -KVM_EINVAL (the padding space, used for future extensions,
-                 is not zero)
-  * 0 (the command/event is supported and allowed)
-
-These commands can be seen as alternative methods to KVMI_GET_VERSION
-in checking if the introspection supports a specific command/event.
-
-As with the KVMI_GET_VERSION command, these two commands can never be
-disallowed by userspace.
+With this command the introspection tool enables/disables VM events
+(ie. KVMI_EVENT_UNHOOK), because no event (neither VM event, nor vCPU
+event) will be sent to the introspection tool unless enabled/requested.
 
 Signed-off-by: Adalbert Lazăr <alazar@bitdefender.com>
 ---
- Documentation/virt/kvm/kvmi.rst               | 62 +++++++++++++++++++
- include/uapi/linux/kvmi.h                     | 16 ++++-
- .../testing/selftests/kvm/x86_64/kvmi_test.c  | 55 ++++++++++++++++
- virt/kvm/introspection/kvmi.c                 |  8 ++-
- virt/kvm/introspection/kvmi_int.h             |  2 +
- virt/kvm/introspection/kvmi_msg.c             | 46 +++++++++++++-
- 6 files changed, 185 insertions(+), 4 deletions(-)
+ Documentation/virt/kvm/kvmi.rst               | 44 +++++++++++++++--
+ include/linux/kvmi_host.h                     |  2 +
+ include/uapi/linux/kvmi.h                     | 18 +++++--
+ .../testing/selftests/kvm/x86_64/kvmi_test.c  | 48 +++++++++++++++++++
+ virt/kvm/introspection/kvmi.c                 | 14 ++++++
+ virt/kvm/introspection/kvmi_int.h             |  9 ++++
+ virt/kvm/introspection/kvmi_msg.c             | 43 +++++++++++++----
+ 7 files changed, 161 insertions(+), 17 deletions(-)
 
 diff --git a/Documentation/virt/kvm/kvmi.rst b/Documentation/virt/kvm/kvmi.rst
-index 36f8cd4a836d..9205f51fa5a0 100644
+index 949e940487ab..7039f4d2b782 100644
 --- a/Documentation/virt/kvm/kvmi.rst
 +++ b/Documentation/virt/kvm/kvmi.rst
-@@ -251,3 +251,65 @@ Returns the introspection API version.
+@@ -333,11 +333,45 @@ This command is always allowed.
  
- This command is always allowed and successful (if the introspection is
- built in kernel).
-+
-+2. KVMI_VM_CHECK_COMMAND
-+------------------------
-+
-+:Architectures: all
-+:Versions: >= 1
-+:Parameters:
-+
-+::
-+
-+	struct kvmi_vm_check_command {
-+		__u16 id;
-+		__u16 padding1;
-+		__u32 padding2;
-+	};
-+
-+:Returns:
-+
-+::
-+
-+	struct kvmi_error_code;
-+
-+Checks if the command specified by ``id`` is allowed.
-+
-+This command is always allowed.
-+
-+:Errors:
-+
-+* -KVM_EPERM - the command specified by ``id`` is disallowed
-+* -KVM_EINVAL - padding is not zero
-+* -KVM_EINVAL - the command specified by ``id`` is not known
-+
-+3. KVMI_VM_CHECK_EVENT
-+----------------------
+ Returns the number of online vCPUs.
+ 
++5. KVMI_VM_CONTROL_EVENTS
++-------------------------
 +
 +:Architectures: all
 +:Versions: >= 1
@@ -89,9 +45,10 @@ index 36f8cd4a836d..9205f51fa5a0 100644
 +
 +::
 +
-+	struct kvmi_vm_check_event {
-+		__u16 id;
-+		__u16 padding1;
++	struct kvmi_vm_control_events {
++		__u16 event_id;
++		__u8 enable;
++		__u8 padding1;
 +		__u32 padding2;
 +	};
 +
@@ -99,217 +56,271 @@ index 36f8cd4a836d..9205f51fa5a0 100644
 +
 +::
 +
-+	struct kvmi_error_code;
++	struct kvmi_error_code
 +
-+Checks if the event specified by ``id`` is allowed.
++Enables/disables VM introspection events. This command can be used with
++the following events::
 +
-+This command is always allowed.
++	KVMI_EVENT_UNHOOK
 +
 +:Errors:
 +
-+* -KVM_EPERM - the event specified by ``id`` is disallowed
++* -KVM_EINVAL - the event ID is invalid/unknown (use *KVMI_VM_CHECK_EVENT* first)
 +* -KVM_EINVAL - padding is not zero
-+* -KVM_EINVAL - the event specified by ``id`` is not known
++* -KVM_EPERM - the access is restricted by the host
++
+ Events
+ ======
+ 
+ All introspection events (VM or vCPU related) are sent
+-using the *KVMI_EVENT* message id.
++using the *KVMI_EVENT* message id. No event will be sent unless
++it is explicitly enabled.
+ 
+ The *KVMI_EVENT_UNHOOK* event doesn't have a reply and share the kvmi_event
+ structure, for consistency with the vCPU events.
+@@ -391,6 +425,8 @@ Specific data can follow these common structures.
+ 
+ :Returns: none
+ 
+-This event is sent when the device manager has to pause/stop/migrate the
+-guest (see **Unhooking**).  The introspection tool has a chance to unhook
+-and close the KVMI channel (signaling that the operation can proceed).
++This event is sent when the device manager has to pause/stop/migrate
++the guest (see **Unhooking**) and the introspection has been enabled
++for this event (see **KVMI_VM_CONTROL_EVENTS**). The introspection tool
++has a chance to unhook and close the KVMI channel (signaling that the
++operation can proceed).
+diff --git a/include/linux/kvmi_host.h b/include/linux/kvmi_host.h
+index 180e26335a8f..41b22af771fb 100644
+--- a/include/linux/kvmi_host.h
++++ b/include/linux/kvmi_host.h
+@@ -22,6 +22,8 @@ struct kvm_introspection {
+ 	DECLARE_BITMAP(cmd_allow_mask, KVMI_NUM_COMMANDS);
+ 	DECLARE_BITMAP(event_allow_mask, KVMI_NUM_EVENTS);
+ 
++	DECLARE_BITMAP(vm_event_enable_mask, KVMI_NUM_EVENTS);
++
+ 	atomic_t ev_seq;
+ };
+ 
 diff --git a/include/uapi/linux/kvmi.h b/include/uapi/linux/kvmi.h
-index ee817cb05cc6..ba550e9fae2e 100644
+index e74240aff5b7..da9bf30ae513 100644
 --- a/include/uapi/linux/kvmi.h
 +++ b/include/uapi/linux/kvmi.h
-@@ -14,7 +14,9 @@ enum {
+@@ -15,12 +15,13 @@ enum {
  };
  
  enum {
--	KVMI_GET_VERSION = 2,
-+	KVMI_GET_VERSION      = 2,
-+	KVMI_VM_CHECK_COMMAND = 3,
-+	KVMI_VM_CHECK_EVENT   = 4,
+-	KVMI_EVENT            = 1,
++	KVMI_EVENT             = 1,
+ 
+-	KVMI_GET_VERSION      = 2,
+-	KVMI_VM_CHECK_COMMAND = 3,
+-	KVMI_VM_CHECK_EVENT   = 4,
+-	KVMI_VM_GET_INFO      = 5,
++	KVMI_GET_VERSION       = 2,
++	KVMI_VM_CHECK_COMMAND  = 3,
++	KVMI_VM_CHECK_EVENT    = 4,
++	KVMI_VM_GET_INFO       = 5,
++	KVMI_VM_CONTROL_EVENTS = 6,
  
  	KVMI_NUM_MESSAGES
  };
-@@ -43,4 +45,16 @@ struct kvmi_get_version_reply {
- 	__u32 padding;
+@@ -68,6 +69,13 @@ struct kvmi_vm_get_info_reply {
+ 	__u32 padding[3];
  };
  
-+struct kvmi_vm_check_command {
-+	__u16 id;
-+	__u16 padding1;
++struct kvmi_vm_control_events {
++	__u16 event_id;
++	__u8 enable;
++	__u8 padding1;
 +	__u32 padding2;
 +};
 +
-+struct kvmi_vm_check_event {
-+	__u16 id;
-+	__u16 padding1;
-+	__u32 padding2;
-+};
-+
- #endif /* _UAPI__LINUX_KVMI_H */
+ struct kvmi_event {
+ 	__u16 size;
+ 	__u16 vcpu;
 diff --git a/tools/testing/selftests/kvm/x86_64/kvmi_test.c b/tools/testing/selftests/kvm/x86_64/kvmi_test.c
-index 733e82478f6e..e3e51fe3f85f 100644
+index f5d67fd0cde8..23dba71e7dc6 100644
 --- a/tools/testing/selftests/kvm/x86_64/kvmi_test.c
 +++ b/tools/testing/selftests/kvm/x86_64/kvmi_test.c
-@@ -201,6 +201,59 @@ static void test_cmd_get_version(void)
- 	DEBUG("KVMI version: %u\n", rpl.version);
+@@ -298,15 +298,62 @@ static void receive_event(struct kvmi_msg_hdr *hdr, struct kvmi_event *ev,
+ 		ev->event, event_id);
  }
  
-+static int cmd_check_command(__u16 id)
++static int cmd_vm_control_events(__u16 event_id, bool enable)
 +{
 +	struct {
 +		struct kvmi_msg_hdr hdr;
-+		struct kvmi_vm_check_command cmd;
++		struct kvmi_vm_control_events cmd;
 +	} req = {};
 +
-+	req.cmd.id = id;
++	req.cmd.event_id = event_id;
++	req.cmd.enable = enable ? 1 : 0;
 +
-+	return do_command(KVMI_VM_CHECK_COMMAND, &req.hdr, sizeof(req), NULL,
-+			     0);
++	return do_command(KVMI_VM_CONTROL_EVENTS, &req.hdr, sizeof(req),
++			     NULL, 0);
 +}
 +
-+static void test_cmd_check_command(void)
++static void enable_vm_event(__u16 event_id)
 +{
-+	__u16 valid_id = KVMI_GET_VERSION;
-+	__u16 invalid_id = 0xffff;
 +	int r;
 +
-+	r = cmd_check_command(valid_id);
++	r = cmd_vm_control_events(event_id, true);
 +	TEST_ASSERT(r == 0,
-+		"KVMI_VM_CHECK_COMMAND failed, error %d (%s)\n",
-+		-r, kvm_strerror(-r));
-+
-+	r = cmd_check_command(invalid_id);
-+	TEST_ASSERT(r == -KVM_EINVAL,
-+		"KVMI_VM_CHECK_COMMAND didn't failed with -KVM_EINVAL, error %d (%s)\n",
-+		-r, kvm_strerror(-r));
++		"KVMI_VM_CONTROL_EVENTS failed to enable VM event %d, error %d (%s)\n",
++		event_id, -r, kvm_strerror(-r));
 +}
 +
-+static int cmd_check_event(__u16 id)
++static void disable_vm_event(__u16 event_id)
 +{
-+	struct {
-+		struct kvmi_msg_hdr hdr;
-+		struct kvmi_vm_check_event cmd;
-+	} req = {};
-+
-+	req.cmd.id = id;
-+
-+	return do_command(KVMI_VM_CHECK_EVENT, &req.hdr, sizeof(req), NULL, 0);
-+}
-+
-+static void test_cmd_check_event(void)
-+{
-+	__u16 invalid_id = 0xffff;
 +	int r;
 +
-+	r = cmd_check_event(invalid_id);
-+	TEST_ASSERT(r == -KVM_EINVAL,
-+		"KVMI_VM_CHECK_EVENT didn't failed with -KVM_EINVAL, error %d (%s)\n",
-+		-r, kvm_strerror(-r));
++	r = cmd_vm_control_events(event_id, false);
++	TEST_ASSERT(r == 0,
++		"KVMI_VM_CONTROL_EVENTS failed to disable VM event %d, error %d (%s)\n",
++		event_id, -r, kvm_strerror(-r));
 +}
 +
- static void test_introspection(struct kvm_vm *vm)
+ static void test_event_unhook(struct kvm_vm *vm)
  {
- 	setup_socket();
-@@ -208,6 +261,8 @@ static void test_introspection(struct kvm_vm *vm)
+ 	__u16 id = KVMI_EVENT_UNHOOK;
+ 	struct kvmi_msg_hdr hdr;
+ 	struct kvmi_event ev;
  
- 	test_cmd_invalid();
- 	test_cmd_get_version();
-+	test_cmd_check_command();
-+	test_cmd_check_event();
++	enable_vm_event(id);
++
+ 	trigger_event_unhook_notification(vm);
+ 
+ 	receive_event(&hdr, &ev, sizeof(ev), id);
++
++	disable_vm_event(id);
++}
++
++static void test_cmd_vm_control_events(void)
++{
++	__u16 id = KVMI_EVENT_UNHOOK;
++
++	enable_vm_event(id);
++
++	disable_vm_event(id);
+ }
+ 
+ static void test_introspection(struct kvm_vm *vm)
+@@ -320,6 +367,7 @@ static void test_introspection(struct kvm_vm *vm)
+ 	test_cmd_check_event();
+ 	test_cmd_get_vm_info();
+ 	test_event_unhook(vm);
++	test_cmd_vm_control_events();
  
  	unhook_introspection(vm);
  }
 diff --git a/virt/kvm/introspection/kvmi.c b/virt/kvm/introspection/kvmi.c
-index 8597b6ef0cfb..8f8e18696794 100644
+index 74e3e1aa326b..9d246152c5e8 100644
 --- a/virt/kvm/introspection/kvmi.c
 +++ b/virt/kvm/introspection/kvmi.c
-@@ -77,6 +77,8 @@ alloc_kvmi(struct kvm *kvm, const struct kvm_introspection_hook *hook)
- 	memcpy(&kvmi->uuid, &hook->uuid, sizeof(kvmi->uuid));
+@@ -331,6 +331,9 @@ static bool kvmi_unhook_event(struct kvm_introspection *kvmi)
+ {
+ 	int err;
  
- 	set_bit(KVMI_GET_VERSION, kvmi->cmd_allow_mask);
-+	set_bit(KVMI_VM_CHECK_COMMAND, kvmi->cmd_allow_mask);
-+	set_bit(KVMI_VM_CHECK_EVENT, kvmi->cmd_allow_mask);
++	if (!is_vm_event_enabled(kvmi, KVMI_EVENT_UNHOOK))
++		return false;
++
+ 	err = kvmi_msg_send_unhook(kvmi);
  
- 	kvmi->kvm = kvm;
+ 	return !err;
+@@ -354,3 +357,14 @@ int kvmi_ioctl_preunhook(struct kvm *kvm)
  
-@@ -304,10 +306,14 @@ int kvmi_ioctl_command(struct kvm *kvm, void __user *argp)
- 	if (!allow) {
- 		DECLARE_BITMAP(always_allowed, KVMI_NUM_COMMANDS);
- 
--		if (id == KVMI_GET_VERSION)
-+		if (id == KVMI_GET_VERSION
-+				|| id == KVMI_VM_CHECK_COMMAND
-+				|| id == KVMI_VM_CHECK_EVENT)
- 			return -EPERM;
- 
- 		set_bit(KVMI_GET_VERSION, always_allowed);
-+		set_bit(KVMI_VM_CHECK_COMMAND, always_allowed);
-+		set_bit(KVMI_VM_CHECK_EVENT, always_allowed);
- 
- 		bitmap_andnot(requested, requested, always_allowed,
- 			      KVMI_NUM_COMMANDS);
+ 	return err;
+ }
++
++int kvmi_cmd_vm_control_events(struct kvm_introspection *kvmi,
++				unsigned int event_id, bool enable)
++{
++	if (enable)
++		set_bit(event_id, kvmi->vm_event_enable_mask);
++	else
++		clear_bit(event_id, kvmi->vm_event_enable_mask);
++
++	return 0;
++}
 diff --git a/virt/kvm/introspection/kvmi_int.h b/virt/kvm/introspection/kvmi_int.h
-index 947af4615fa5..feb83b8d0f12 100644
+index 3ea8e8250f7d..d1c143334626 100644
 --- a/virt/kvm/introspection/kvmi_int.h
 +++ b/virt/kvm/introspection/kvmi_int.h
-@@ -22,6 +22,8 @@
- 
- #define KVMI_KNOWN_COMMANDS ( \
+@@ -29,11 +29,18 @@
  			  BIT(KVMI_GET_VERSION) \
-+			| BIT(KVMI_VM_CHECK_COMMAND) \
-+			| BIT(KVMI_VM_CHECK_EVENT) \
+ 			| BIT(KVMI_VM_CHECK_COMMAND) \
+ 			| BIT(KVMI_VM_CHECK_EVENT) \
++			| BIT(KVMI_VM_CONTROL_EVENTS) \
+ 			| BIT(KVMI_VM_GET_INFO) \
  		)
  
  #define KVMI(kvm) ((struct kvm_introspection *)((kvm)->kvmi))
+ 
++static inline bool is_vm_event_enabled(struct kvm_introspection *kvmi,
++					int event)
++{
++	return test_bit(event, kvmi->vm_event_enable_mask);
++}
++
+ /* kvmi_msg.c */
+ bool kvmi_sock_get(struct kvm_introspection *kvmi, int fd);
+ void kvmi_sock_shutdown(struct kvm_introspection *kvmi);
+@@ -45,5 +52,7 @@ int kvmi_msg_send_unhook(struct kvm_introspection *kvmi);
+ void *kvmi_msg_alloc(void);
+ void *kvmi_msg_alloc_check(size_t size);
+ void kvmi_msg_free(void *addr);
++int kvmi_cmd_vm_control_events(struct kvm_introspection *kvmi,
++				unsigned int event_id, bool enable);
+ 
+ #endif
 diff --git a/virt/kvm/introspection/kvmi_msg.c b/virt/kvm/introspection/kvmi_msg.c
-index 81e42c65da16..b7da5cc7286f 100644
+index dbc2ba9a1399..79b26853b5cb 100644
 --- a/virt/kvm/introspection/kvmi_msg.c
 +++ b/virt/kvm/introspection/kvmi_msg.c
-@@ -9,7 +9,9 @@
+@@ -9,10 +9,11 @@
  #include "kvmi_int.h"
  
  static const char *const msg_IDs[] = {
--	[KVMI_GET_VERSION] = "KVMI_GET_VERSION",
-+	[KVMI_GET_VERSION]      = "KVMI_GET_VERSION",
-+	[KVMI_VM_CHECK_COMMAND] = "KVMI_VM_CHECK_COMMAND",
-+	[KVMI_VM_CHECK_EVENT]   = "KVMI_VM_CHECK_EVENT",
+-	[KVMI_GET_VERSION]      = "KVMI_GET_VERSION",
+-	[KVMI_VM_CHECK_COMMAND] = "KVMI_VM_CHECK_COMMAND",
+-	[KVMI_VM_CHECK_EVENT]   = "KVMI_VM_CHECK_EVENT",
+-	[KVMI_VM_GET_INFO]      = "KVMI_VM_GET_INFO",
++	[KVMI_GET_VERSION]       = "KVMI_GET_VERSION",
++	[KVMI_VM_CHECK_COMMAND]  = "KVMI_VM_CHECK_COMMAND",
++	[KVMI_VM_CHECK_EVENT]    = "KVMI_VM_CHECK_EVENT",
++	[KVMI_VM_CONTROL_EVENTS] = "KVMI_VM_CONTROL_EVENTS",
++	[KVMI_VM_GET_INFO]       = "KVMI_VM_GET_INFO",
  };
  
  static bool is_known_message(u16 id)
-@@ -128,12 +130,52 @@ static int handle_get_version(struct kvm_introspection *kvmi,
+@@ -181,15 +182,41 @@ static int handle_get_info(struct kvm_introspection *kvmi,
  	return kvmi_msg_vm_reply(kvmi, msg, 0, &rpl, sizeof(rpl));
  }
  
-+static int handle_check_command(struct kvm_introspection *kvmi,
-+				const struct kvmi_msg_hdr *msg,
-+				const void *_req)
++static int handle_vm_control_events(struct kvm_introspection *kvmi,
++				    const struct kvmi_msg_hdr *msg,
++				    const void *_req)
 +{
-+	const struct kvmi_vm_check_command *req = _req;
-+	int ec = 0;
++	const struct kvmi_vm_control_events *req = _req;
++	DECLARE_BITMAP(known_events, KVMI_NUM_EVENTS);
++	int ec;
++
++	bitmap_from_u64(known_events, KVMI_KNOWN_VM_EVENTS);
 +
 +	if (req->padding1 || req->padding2)
 +		ec = -KVM_EINVAL;
-+	else if (req->id >= KVMI_NUM_COMMANDS)
++	else if (req->event_id >= KVMI_NUM_EVENTS)
 +		ec = -KVM_EINVAL;
-+	else if (!is_command_allowed(kvmi, req->id))
++	else if (!test_bit(req->event_id, known_events))
++		ec = -KVM_EINVAL;
++	else if (!is_event_allowed(kvmi, req->event_id))
 +		ec = -KVM_EPERM;
-+
-+	return kvmi_msg_vm_reply(kvmi, msg, ec, NULL, 0);
-+}
-+
-+static bool is_event_allowed(struct kvm_introspection *kvmi, int id)
-+{
-+	return test_bit(id, kvmi->event_allow_mask);
-+}
-+
-+static int handle_check_event(struct kvm_introspection *kvmi,
-+			      const struct kvmi_msg_hdr *msg, const void *_req)
-+{
-+	const struct kvmi_vm_check_event *req = _req;
-+	int ec = 0;
-+
-+	if (req->padding1 || req->padding2)
-+		ec = -KVM_EINVAL;
-+	else if (req->id >= KVMI_NUM_EVENTS)
-+		ec = -KVM_EINVAL;
-+	else if (!is_event_allowed(kvmi, req->id))
-+		ec = -KVM_EPERM;
++	else
++		ec = kvmi_cmd_vm_control_events(kvmi, req->event_id,
++						req->enable);
 +
 +	return kvmi_msg_vm_reply(kvmi, msg, ec, NULL, 0);
 +}
@@ -319,10 +330,15 @@ index 81e42c65da16..b7da5cc7286f 100644
   */
  static int(*const msg_vm[])(struct kvm_introspection *,
  			    const struct kvmi_msg_hdr *, const void *) = {
--	[KVMI_GET_VERSION] = handle_get_version,
-+	[KVMI_GET_VERSION]      = handle_get_version,
-+	[KVMI_VM_CHECK_COMMAND] = handle_check_command,
-+	[KVMI_VM_CHECK_EVENT]   = handle_check_event,
+-	[KVMI_GET_VERSION]      = handle_get_version,
+-	[KVMI_VM_CHECK_COMMAND] = handle_check_command,
+-	[KVMI_VM_CHECK_EVENT]   = handle_check_event,
+-	[KVMI_VM_GET_INFO]      = handle_get_info,
++	[KVMI_GET_VERSION]       = handle_get_version,
++	[KVMI_VM_CHECK_COMMAND]  = handle_check_command,
++	[KVMI_VM_CHECK_EVENT]    = handle_check_event,
++	[KVMI_VM_CONTROL_EVENTS] = handle_vm_control_events,
++	[KVMI_VM_GET_INFO]       = handle_get_info,
  };
  
  static bool is_vm_message(u16 id)
