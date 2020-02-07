@@ -1,13 +1,11 @@
 From: Thomas Zimmermann <tzimmermann@suse.de>
-Subject: [PATCH 3/6] drm/ast: Use simple encoder
-Date: Fri,  7 Feb 2020 09:41:32 +0100
-Message-ID: <20200207084135.4524-4-tzimmermann@suse.de>
-References: <20200207084135.4524-1-tzimmermann@suse.de>
+Subject: [PATCH 0/6] drm: Provide a simple encoder
+Date: Fri,  7 Feb 2020 09:41:29 +0100
+Message-ID: <20200207084135.4524-1-tzimmermann@suse.de>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <20200207084135.4524-1-tzimmermann@suse.de>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
  <mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -21,81 +19,35 @@ To: airlied@linux.ie, daniel@ffwll.ch, maarten.lankhorst@linux.intel.com, mripar
 Cc: spice-devel@lists.freedesktop.org, Thomas Zimmermann <tzimmermann@suse.de>, dri-devel@lists.freedesktop.org, virtualization@lists.linux-foundation.org
 List-Id: virtualization@lists.linuxfoundation.org
 
-The ast driver uses an empty implementation for its encoder. Replace
-the code with the generic simple encoder.
+Many DRM drivers implement an encoder with an empty implementation. This
+patchset adds drm_simple_encoder_init() and drm_simple_encoder_create(),
+which can be used by drivers instead. Except for the destroy callback, the
+simple encoder's implementation is empty.
 
-Signed-off-by: Thomas Zimmermann <tzimmermann@suse.de>
----
- drivers/gpu/drm/ast/ast_drv.h  |  6 +-----
- drivers/gpu/drm/ast/ast_mode.c | 25 ++++++++-----------------
- 2 files changed, 9 insertions(+), 22 deletions(-)
+The patchset also converts 4 encoder instances to use the simple-encoder
+helpers. But there are at least 11 other drivers which can use the helper
+and I think I did not examine all drivers yet.
 
-diff --git a/drivers/gpu/drm/ast/ast_drv.h b/drivers/gpu/drm/ast/ast_drv.h
-index f5d8780776ae..656d591b154b 100644
---- a/drivers/gpu/drm/ast/ast_drv.h
-+++ b/drivers/gpu/drm/ast/ast_drv.h
-@@ -121,6 +121,7 @@ struct ast_private {
- 		unsigned int next_index;
- 	} cursor;
- 
-+	struct drm_encoder encoder;
- 	struct drm_plane primary_plane;
- 	struct drm_plane cursor_plane;
- 
-@@ -238,13 +239,8 @@ struct ast_crtc {
- 	u8 offset_x, offset_y;
- };
- 
--struct ast_encoder {
--	struct drm_encoder base;
--};
--
- #define to_ast_crtc(x) container_of(x, struct ast_crtc, base)
- #define to_ast_connector(x) container_of(x, struct ast_connector, base)
--#define to_ast_encoder(x) container_of(x, struct ast_encoder, base)
- 
- struct ast_vbios_stdtable {
- 	u8 misc;
-diff --git a/drivers/gpu/drm/ast/ast_mode.c b/drivers/gpu/drm/ast/ast_mode.c
-index 562ea6d9df13..60facaa152ac 100644
---- a/drivers/gpu/drm/ast/ast_mode.c
-+++ b/drivers/gpu/drm/ast/ast_mode.c
-@@ -968,28 +968,19 @@ static int ast_crtc_init(struct drm_device *dev)
-  * Encoder
-  */
- 
--static void ast_encoder_destroy(struct drm_encoder *encoder)
--{
--	drm_encoder_cleanup(encoder);
--	kfree(encoder);
--}
--
--static const struct drm_encoder_funcs ast_enc_funcs = {
--	.destroy = ast_encoder_destroy,
--};
--
- static int ast_encoder_init(struct drm_device *dev)
- {
--	struct ast_encoder *ast_encoder;
-+	struct ast_private *ast = dev->dev_private;
-+	struct drm_encoder *encoder = &ast->encoder;
-+	int ret;
- 
--	ast_encoder = kzalloc(sizeof(struct ast_encoder), GFP_KERNEL);
--	if (!ast_encoder)
--		return -ENOMEM;
-+	ret = drm_simple_encoder_init(dev, encoder, DRM_MODE_ENCODER_DAC,
-+				      NULL);
-+	if (ret)
-+		return ret;
- 
--	drm_encoder_init(dev, &ast_encoder->base, &ast_enc_funcs,
--			 DRM_MODE_ENCODER_DAC, NULL);
-+	encoder->possible_crtcs = 1;
- 
--	ast_encoder->base.possible_crtcs = 1;
- 	return 0;
- }
- 
--- 
+The patchset was smoke-tested on mgag200 by running the fbdev console
+and Gnome on X11.
+
+Thomas Zimmermann (6):
+  drm: Move initialization of encoder into an internal function
+  drm: Add drm_simple_encoder_{init,create}()
+  drm/ast: Use simple encoder
+  drm/mgag200: Use simple encoder
+  drm/qxl: Use simple encoder
+  drm/simple-pipe: Use simple encoder
+
+ drivers/gpu/drm/ast/ast_drv.h           |   6 +-
+ drivers/gpu/drm/ast/ast_mode.c          |  25 +---
+ drivers/gpu/drm/drm_encoder.c           | 190 +++++++++++++++++++++---
+ drivers/gpu/drm/drm_simple_kms_helper.c |   8 +-
+ drivers/gpu/drm/mgag200/mgag200_drv.h   |   7 -
+ drivers/gpu/drm/mgag200/mgag200_mode.c  |  60 +-------
+ drivers/gpu/drm/qxl/qxl_display.c       |  17 +--
+ include/drm/drm_encoder.h               |  10 ++
+ 8 files changed, 191 insertions(+), 132 deletions(-)
+
+--
 2.25.0
