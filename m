@@ -1,106 +1,46 @@
 From: Gerd Hoffmann <kraxel@redhat.com>
-Subject: [PATCH] drm/virtio: add drm_driver.release callback.
-Date: Fri,  7 Feb 2020 13:14:20 +0100
-Message-ID: <20200207121420.26222-1-kraxel@redhat.com>
-Return-path: <linux-kernel-owner@vger.kernel.org>
-Sender: linux-kernel-owner@vger.kernel.org
-To: dri-devel@lists.freedesktop.org
-Cc: gurchetansingh@chromium.org, olvaffe@gmail.com, Gerd Hoffmann <kraxel@redhat.com>, David Airlie <airlied@linux.ie>, Daniel Vetter <daniel@ffwll.ch>, "open list:VIRTIO GPU DRIVER" <virtualization@lists.linux-foundation.org>, open list <linux-kernel@vger.kernel.org>
+Subject: Re: [PATCH 2/6] drm: Add drm_simple_encoder_{init,create}()
+Date: Fri, 7 Feb 2020 13:31:43 +0100
+Message-ID: <20200207123143.y3m3moillue6udo6@sirius.home.kraxel.org>
+References: <20200207084135.4524-1-tzimmermann@suse.de>
+ <20200207084135.4524-3-tzimmermann@suse.de>
+ <20200207103333.rxebukm4hukavlq5@sirius.home.kraxel.org>
+ <cd78b79f-ff4e-9c8e-4d87-ce717a717559@suse.de>
+Mime-Version: 1.0
+Content-Type: text/plain; charset="us-ascii"
+Content-Transfer-Encoding: 7bit
+Return-path: <virtualization-bounces@lists.linux-foundation.org>
+In-Reply-To: <cd78b79f-ff4e-9c8e-4d87-ce717a717559@suse.de>
+Content-Disposition: inline
+List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
+ <mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
+List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
+List-Post: <mailto:virtualization@lists.linux-foundation.org>
+List-Help: <mailto:virtualization-request@lists.linux-foundation.org?subject=help>
+List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualization>,
+ <mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
+Errors-To: virtualization-bounces@lists.linux-foundation.org
+Sender: "Virtualization" <virtualization-bounces@lists.linux-foundation.org>
+To: Thomas Zimmermann <tzimmermann@suse.de>
+Cc: airlied@linux.ie, maarten.lankhorst@linux.intel.com, mripard@kernel.org, virtualization@lists.linux-foundation.org, noralf@tronnes.org, dri-devel@lists.freedesktop.org, daniel@ffwll.ch, alexander.deucher@amd.com, spice-devel@lists.freedesktop.org, sam@ravnborg.org, emil.velikov@collabora.com
 List-Id: virtualization@lists.linuxfoundation.org
 
-Split virtio_gpu_deinit(), move the drm shutdown and release to
-virtio_gpu_release().  Also free vbufs in case we can't queue them.
+> > How about using
+> > 
+> > #define drm_simple_encoder_init(dev, type, name, ...) \
+> >         drm_encoder_init(dev, drm_simple_encoder_funcs_cleanup, type, name, __VA_ARGS__)
+> > 
+> > instead ?
 
-Signed-off-by: Gerd Hoffmann <kraxel@redhat.com>
----
- drivers/gpu/drm/virtio/virtgpu_drv.h | 1 +
- drivers/gpu/drm/virtio/virtgpu_drv.c | 4 ++++
- drivers/gpu/drm/virtio/virtgpu_kms.c | 5 +++++
- drivers/gpu/drm/virtio/virtgpu_vq.c  | 9 ++++++++-
- 4 files changed, 18 insertions(+), 1 deletion(-)
+> I guess you want to save a few lines in the implementation of
+> drm_simple_encoder_init() (?) If so, I'd rather try to share more
+> internal code among the various init and create functions.
 
-diff --git a/drivers/gpu/drm/virtio/virtgpu_drv.h b/drivers/gpu/drm/virtio/virtgpu_drv.h
-index d278c8c50f39..09a485b001e7 100644
---- a/drivers/gpu/drm/virtio/virtgpu_drv.h
-+++ b/drivers/gpu/drm/virtio/virtgpu_drv.h
-@@ -217,6 +217,7 @@ extern struct drm_ioctl_desc virtio_gpu_ioctls[DRM_VIRTIO_NUM_IOCTLS];
- /* virtio_kms.c */
- int virtio_gpu_init(struct drm_device *dev);
- void virtio_gpu_deinit(struct drm_device *dev);
-+void virtio_gpu_release(struct drm_device *dev);
- int virtio_gpu_driver_open(struct drm_device *dev, struct drm_file *file);
- void virtio_gpu_driver_postclose(struct drm_device *dev, struct drm_file *file);
- 
-diff --git a/drivers/gpu/drm/virtio/virtgpu_drv.c b/drivers/gpu/drm/virtio/virtgpu_drv.c
-index 8cf27af3ad53..664a741a3b0b 100644
---- a/drivers/gpu/drm/virtio/virtgpu_drv.c
-+++ b/drivers/gpu/drm/virtio/virtgpu_drv.c
-@@ -31,6 +31,7 @@
- #include <linux/pci.h>
- 
- #include <drm/drm.h>
-+#include <drm/drm_atomic_helper.h>
- #include <drm/drm_drv.h>
- #include <drm/drm_file.h>
- 
-@@ -136,6 +137,7 @@ static void virtio_gpu_remove(struct virtio_device *vdev)
- 	struct drm_device *dev = vdev->priv;
- 
- 	drm_dev_unregister(dev);
-+	drm_atomic_helper_shutdown(dev);
- 	virtio_gpu_deinit(dev);
- 	drm_dev_put(dev);
- }
-@@ -214,4 +216,6 @@ static struct drm_driver driver = {
- 	.major = DRIVER_MAJOR,
- 	.minor = DRIVER_MINOR,
- 	.patchlevel = DRIVER_PATCHLEVEL,
-+
-+	.release = virtio_gpu_release,
- };
-diff --git a/drivers/gpu/drm/virtio/virtgpu_kms.c b/drivers/gpu/drm/virtio/virtgpu_kms.c
-index c1086df49816..b45d12e3db2a 100644
---- a/drivers/gpu/drm/virtio/virtgpu_kms.c
-+++ b/drivers/gpu/drm/virtio/virtgpu_kms.c
-@@ -240,6 +240,11 @@ void virtio_gpu_deinit(struct drm_device *dev)
- 	flush_work(&vgdev->config_changed_work);
- 	vgdev->vdev->config->reset(vgdev->vdev);
- 	vgdev->vdev->config->del_vqs(vgdev->vdev);
-+}
-+
-+void virtio_gpu_release(struct drm_device *dev)
-+{
-+	struct virtio_gpu_device *vgdev = dev->dev_private;
- 
- 	virtio_gpu_modeset_fini(vgdev);
- 	virtio_gpu_free_vbufs(vgdev);
-diff --git a/drivers/gpu/drm/virtio/virtgpu_vq.c b/drivers/gpu/drm/virtio/virtgpu_vq.c
-index cc02fc4bab2a..cc674b45f904 100644
---- a/drivers/gpu/drm/virtio/virtgpu_vq.c
-+++ b/drivers/gpu/drm/virtio/virtgpu_vq.c
-@@ -330,6 +330,11 @@ static void virtio_gpu_queue_ctrl_sgs(struct virtio_gpu_device *vgdev,
- 	bool notify = false;
- 	int ret;
- 
-+	if (!vgdev->vqs_ready) {
-+		free_vbuf(vgdev, vbuf);
-+		return;
-+	}
-+
- 	if (vgdev->has_indirect)
- 		elemcnt = 1;
- 
-@@ -462,8 +467,10 @@ static void virtio_gpu_queue_cursor(struct virtio_gpu_device *vgdev,
- 	int ret;
- 	int outcnt;
- 
--	if (!vgdev->vqs_ready)
-+	if (!vgdev->vqs_ready) {
-+		free_vbuf(vgdev, vbuf);
- 		return;
-+	}
- 
- 	sg_init_one(&ccmd, vbuf->buf, vbuf->size);
- 	sgs[0] = &ccmd;
--- 
-2.18.1
+Yes.  You have the namestr stuff duplicated in all functions, and with
+a #define that goes away.
+
+But maybe that can be simply be dropped?  The drivers with a simple
+encoder seem to not care much about the name and just pass NULL ...
+
+cheers,
+  Gerd
