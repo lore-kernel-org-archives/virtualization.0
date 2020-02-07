@@ -1,73 +1,67 @@
 From: "Michael S. Tsirkin" <mst@redhat.com>
-Subject: [PATCH v2] tools/virtio: option to build an out of tree module
-Date: Fri, 7 Feb 2020 02:35:02 -0500
-Message-ID: <20200207073327.1205669-1-mst@redhat.com>
+Subject: [PULL] vhost: cleanups and fixes
+Date: Fri, 7 Feb 2020 02:39:32 -0500
+Message-ID: <20200207023932-mutt-send-email-mst@kernel.org>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Return-path: <linux-kernel-owner@vger.kernel.org>
+Content-Type: text/plain; charset="us-ascii"
+Content-Transfer-Encoding: 7bit
+Return-path: <virtualization-bounces@lists.linux-foundation.org>
 Content-Disposition: inline
-Sender: linux-kernel-owner@vger.kernel.org
-To: linux-kernel@vger.kernel.org
-Cc: Jason Wang <jasowang@redhat.com>, virtualization@lists.linux-foundation.org
+List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
+ <mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
+List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
+List-Post: <mailto:virtualization@lists.linux-foundation.org>
+List-Help: <mailto:virtualization-request@lists.linux-foundation.org?subject=help>
+List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualization>,
+ <mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
+Errors-To: virtualization-bounces@lists.linux-foundation.org
+Sender: "Virtualization" <virtualization-bounces@lists.linux-foundation.org>
+To: Linus Torvalds <torvalds@linux-foundation.org>
+Cc: kvm@vger.kernel.org, tiny.windzz@gmail.com, netdev@vger.kernel.org, liang.z.li@intel.com, linux-kernel@vger.kernel.org, virtualization@lists.linux-foundation.org, mst@redhat.com, "Cc:stable"@vger.kernel.org, hch@lst.de
 List-Id: virtualization@lists.linuxfoundation.org
 
-Handy for testing with distro kernels.
-Warn that the resulting module is completely unsupported,
-and isn't intended for production use.
+The following changes since commit d5226fa6dbae0569ee43ecfc08bdcd6770fc4755:
 
-Usage:
-        make oot # builds vhost_test.ko, vhost.ko
-        make oot-clean # cleans out files created
+  Linux 5.5 (2020-01-26 16:23:03 -0800)
+
+are available in the Git repository at:
+
+  https://git.kernel.org/pub/scm/linux/kernel/git/mst/vhost.git tags/for_linus
+
+for you to fetch changes up to 1ad6f58ea9364b0a5d8ae06249653ac9304a8578:
+
+  virtio_balloon: Fix memory leaks on errors in virtballoon_probe() (2020-02-06 03:40:27 -0500)
+
+----------------------------------------------------------------
+virtio: fixes, cleanups
+
+Some bug fixes/cleanups.
+Deprecated scsi passthrough for blk removed.
 
 Signed-off-by: Michael S. Tsirkin <mst@redhat.com>
----
 
-changes from v1:
-	lots of refactoring
-	disable all modules except vhost by default (more of a chance
-						     it'll build)
-	oot-clean target
+----------------------------------------------------------------
+Christoph Hellwig (1):
+      virtio-blk: remove VIRTIO_BLK_F_SCSI support
 
- tools/virtio/Makefile | 27 ++++++++++++++++++++++++++-
- 1 file changed, 26 insertions(+), 1 deletion(-)
+Daniel Verkamp (2):
+      virtio-balloon: initialize all vq callbacks
+      virtio-pci: check name when counting MSI-X vectors
 
-diff --git a/tools/virtio/Makefile b/tools/virtio/Makefile
-index 8e2a908115c2..f33f32f1d208 100644
---- a/tools/virtio/Makefile
-+++ b/tools/virtio/Makefile
-@@ -8,7 +8,32 @@ CFLAGS += -g -O2 -Werror -Wall -I. -I../include/ -I ../../usr/include/ -Wno-poin
- vpath %.c ../../drivers/virtio ../../drivers/vhost
- mod:
- 	${MAKE} -C `pwd`/../.. M=`pwd`/vhost_test V=${V}
--.PHONY: all test mod clean
-+
-+#oot: build vhost as an out of tree module for a distro kernel
-+#no effort is taken to make it actually build or work, but tends to mostly work
-+#if the distro kernel is very close to upstream
-+#unsupported! this is a development tool only, don't use the
-+#resulting modules in production!
-+OOT_KSRC=/lib/modules/$$(uname -r)/build
-+OOT_VHOST=`pwd`/../../drivers/vhost
-+#Everyone depends on vhost
-+#Tweak the below to enable more modules
-+OOT_CONFIGS=\
-+	CONFIG_VHOST=m \
-+	CONFIG_VHOST_NET=n \
-+	CONFIG_VHOST_SCSI=n \
-+	CONFIG_VHOST_VSOCK=n
-+OOT_BUILD=KCFLAGS="-I "${OOT_VHOST} ${MAKE} -C ${OOT_KSRC} V=${V}
-+oot-build:
-+	echo "UNSUPPORTED! Don't use the resulting modules in production!"
-+	${OOT_BUILD} M=`pwd`/vhost_test
-+	${OOT_BUILD} M=${OOT_VHOST} ${OOT_CONFIGS}
-+
-+oot-clean: oot-build
-+oot: oot-build
-+oot-clean: OOT_BUILD+=clean
-+
-+.PHONY: all test mod clean vhost oot oot-clean oot-build
- clean:
- 	${RM} *.o vringh_test virtio_test vhost_test/*.o vhost_test/.*.cmd \
-               vhost_test/Module.symvers vhost_test/modules.order *.d
--- 
-MST
+David Hildenbrand (2):
+      virtio-balloon: Fix memory leak when unloading while hinting is in progress
+      virtio_balloon: Fix memory leaks on errors in virtballoon_probe()
+
+Michael S. Tsirkin (1):
+      virtio_balloon: prevent pfn array overflow
+
+Yangtao Li (1):
+      virtio-mmio: convert to devm_platform_ioremap_resource
+
+ arch/powerpc/configs/guest.config  |   1 -
+ drivers/block/Kconfig              |  10 ----
+ drivers/block/virtio_blk.c         | 115 +------------------------------------
+ drivers/virtio/virtio_balloon.c    |  21 +++++--
+ drivers/virtio/virtio_mmio.c       |  15 +----
+ drivers/virtio/virtio_pci_common.c |   2 +-
+ 6 files changed, 22 insertions(+), 142 deletions(-)
