@@ -1,7 +1,7 @@
 From: =?UTF-8?q?Adalbert=20Laz=C4=83r?= <alazar@bitdefender.com>
-Subject: [RFC PATCH v7 25/78] KVM: x86: add .control_singlestep()
-Date: Fri,  7 Feb 2020 20:15:43 +0200
-Message-ID: <20200207181636.1065-26-alazar@bitdefender.com>
+Subject: [RFC PATCH v7 15/78] KVM: x86: export .msr_write_intercepted()
+Date: Fri,  7 Feb 2020 20:15:33 +0200
+Message-ID: <20200207181636.1065-16-alazar@bitdefender.com>
 References: <20200207181636.1065-1-alazar@bitdefender.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -15,54 +15,49 @@ List-Id: virtualization@lists.linuxfoundation.org
 
 From: Nicușor Cîțu <ncitu@bitdefender.com>
 
-This function is needed for KVMI_VCPU_CONTROL_SINGLESTEP
-and KVMI_EVENT_SINGLESTEP.
+This function will be used to test if a MSR access is already tracked.
 
 Signed-off-by: Nicușor Cîțu <ncitu@bitdefender.com>
 Signed-off-by: Adalbert Lazăr <alazar@bitdefender.com>
 ---
- arch/x86/include/asm/kvm_host.h |  1 +
- arch/x86/kvm/vmx/vmx.c          | 11 +++++++++++
- 2 files changed, 12 insertions(+)
+ arch/x86/include/asm/kvm_host.h | 1 +
+ arch/x86/kvm/svm.c              | 1 +
+ arch/x86/kvm/vmx/vmx.c          | 1 +
+ 3 files changed, 3 insertions(+)
 
 diff --git a/arch/x86/include/asm/kvm_host.h b/arch/x86/include/asm/kvm_host.h
-index e05569a5da10..6927a6044e26 100644
+index 4d43f5479c0c..8cdb6cece618 100644
 --- a/arch/x86/include/asm/kvm_host.h
 +++ b/arch/x86/include/asm/kvm_host.h
-@@ -1257,6 +1257,7 @@ struct kvm_x86_ops {
- 	u64 (*fault_gla)(struct kvm_vcpu *vcpu);
- 	bool (*spt_fault)(struct kvm_vcpu *vcpu);
- 	bool (*gpt_translation_fault)(struct kvm_vcpu *vcpu);
-+	void (*control_singlestep)(struct kvm_vcpu *vcpu, bool enable);
- };
- 
- struct kvm_arch_async_pf {
+@@ -1056,6 +1056,7 @@ struct kvm_x86_ops {
+ 	void (*update_bp_intercept)(struct kvm_vcpu *vcpu);
+ 	int (*get_msr)(struct kvm_vcpu *vcpu, struct msr_data *msr);
+ 	int (*set_msr)(struct kvm_vcpu *vcpu, struct msr_data *msr);
++	bool (*msr_write_intercepted)(struct kvm_vcpu *vcpu, u32 msr);
+ 	u64 (*get_segment_base)(struct kvm_vcpu *vcpu, int seg);
+ 	void (*get_segment)(struct kvm_vcpu *vcpu,
+ 			    struct kvm_segment *var, int seg);
+diff --git a/arch/x86/kvm/svm.c b/arch/x86/kvm/svm.c
+index bf1f2bca5357..e3369562d6fe 100644
+--- a/arch/x86/kvm/svm.c
++++ b/arch/x86/kvm/svm.c
+@@ -7353,6 +7353,7 @@ static struct kvm_x86_ops svm_x86_ops __ro_after_init = {
+ 	.get_msr_feature = svm_get_msr_feature,
+ 	.get_msr = svm_get_msr,
+ 	.set_msr = svm_set_msr,
++	.msr_write_intercepted = msr_write_intercepted,
+ 	.get_segment_base = svm_get_segment_base,
+ 	.get_segment = svm_get_segment,
+ 	.set_segment = svm_set_segment,
 diff --git a/arch/x86/kvm/vmx/vmx.c b/arch/x86/kvm/vmx/vmx.c
-index 83f047fe6bc1..475f5eb6c4c2 100644
+index 8709a26736d9..36dfb95ea578 100644
 --- a/arch/x86/kvm/vmx/vmx.c
 +++ b/arch/x86/kvm/vmx/vmx.c
-@@ -7837,6 +7837,16 @@ static bool vmx_gpt_translation_fault(struct kvm_vcpu *vcpu)
- 	return true;
- }
- 
-+static void vmx_control_singlestep(struct kvm_vcpu *vcpu, bool enable)
-+{
-+	if (enable)
-+		exec_controls_setbit(to_vmx(vcpu),
-+			      CPU_BASED_MONITOR_TRAP_FLAG);
-+	else
-+		exec_controls_clearbit(to_vmx(vcpu),
-+				CPU_BASED_MONITOR_TRAP_FLAG);
-+}
-+
- static struct kvm_x86_ops vmx_x86_ops __ro_after_init = {
- 	.cpu_has_kvm_support = cpu_has_kvm_support,
- 	.disabled_by_bios = vmx_disabled_by_bios,
-@@ -7998,6 +8008,7 @@ static struct kvm_x86_ops vmx_x86_ops __ro_after_init = {
- 	.fault_gla = vmx_fault_gla,
- 	.spt_fault = vmx_spt_fault,
- 	.gpt_translation_fault = vmx_gpt_translation_fault,
-+	.control_singlestep = vmx_control_singlestep,
- };
- 
- static void vmx_cleanup_l1d_flush(void)
+@@ -7828,6 +7828,7 @@ static struct kvm_x86_ops vmx_x86_ops __ro_after_init = {
+ 	.get_msr_feature = vmx_get_msr_feature,
+ 	.get_msr = vmx_get_msr,
+ 	.set_msr = vmx_set_msr,
++	.msr_write_intercepted = msr_write_intercepted,
+ 	.get_segment_base = vmx_get_segment_base,
+ 	.get_segment = vmx_get_segment,
+ 	.set_segment = vmx_set_segment,
