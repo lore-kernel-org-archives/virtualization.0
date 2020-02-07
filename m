@@ -1,7 +1,7 @@
 From: =?UTF-8?q?Adalbert=20Laz=C4=83r?= <alazar@bitdefender.com>
-Subject: [RFC PATCH v7 49/78] KVM: introspection: handle vCPU commands
-Date: Fri,  7 Feb 2020 20:16:07 +0200
-Message-ID: <20200207181636.1065-50-alazar@bitdefender.com>
+Subject: [RFC PATCH v7 59/78] KVM: introspection: restore the state of #BP interception on unhook
+Date: Fri,  7 Feb 2020 20:16:17 +0200
+Message-ID: <20200207181636.1065-60-alazar@bitdefender.com>
 References: <20200207181636.1065-1-alazar@bitdefender.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -10,271 +10,307 @@ Return-path: <kvm-owner@vger.kernel.org>
 In-Reply-To: <20200207181636.1065-1-alazar@bitdefender.com>
 Sender: kvm-owner@vger.kernel.org
 To: kvm@vger.kernel.org
-Cc: virtualization@lists.linux-foundation.org, Paolo Bonzini <pbonzini@redhat.com>, Sean Christopherson <sean.j.christopherson@intel.com>, =?UTF-8?q?Mihai=20Don=C8=9Bu?= <mdontu@bitdefender.com>, =?UTF-8?q?Nicu=C8=99or=20C=C3=AE=C8=9Bu?= <ncitu@bitdefender.com>, =?UTF-8?q?Adalbert=20Laz=C4=83r?= <alazar@bitdefender.com>
+Cc: virtualization@lists.linux-foundation.org, Paolo Bonzini <pbonzini@redhat.com>, Sean Christopherson <sean.j.christopherson@intel.com>, =?UTF-8?q?Nicu=C8=99or=20C=C3=AE=C8=9Bu?= <ncitu@bitdefender.com>, =?UTF-8?q?Adalbert=20Laz=C4=83r?= <alazar@bitdefender.com>
 List-Id: virtualization@lists.linuxfoundation.org
 
-From: Mihai Donțu <mdontu@bitdefender.com>
+From: Nicușor Cîțu <ncitu@bitdefender.com>
 
-Based on the common structure (kvmi_vcpu_hdr) used for all vCPU commands,
-the receiving thread validates and dispatches the message to the proper
-vCPU (adding the handling function to its jobs list).
+This commit also ensures that only the userspace or the introspection
+tool can control the #BP interception exclusively at one time.
 
-Signed-off-by: Mihai Donțu <mdontu@bitdefender.com>
-Co-developed-by: Nicușor Cîțu <ncitu@bitdefender.com>
 Signed-off-by: Nicușor Cîțu <ncitu@bitdefender.com>
-Co-developed-by: Adalbert Lazăr <alazar@bitdefender.com>
 Signed-off-by: Adalbert Lazăr <alazar@bitdefender.com>
 ---
- Documentation/virt/kvm/kvmi.rst   |   8 ++
- include/uapi/linux/kvmi.h         |   6 ++
- virt/kvm/introspection/kvmi_int.h |   3 +
- virt/kvm/introspection/kvmi_msg.c | 151 +++++++++++++++++++++++++++++-
- 4 files changed, 166 insertions(+), 2 deletions(-)
+ arch/x86/include/asm/kvm_host.h   |  3 +
+ arch/x86/include/asm/kvmi_host.h  | 22 +++++++
+ arch/x86/kvm/kvmi.c               | 99 ++++++++++++++++++++++++++++++-
+ arch/x86/kvm/x86.c                |  5 ++
+ virt/kvm/introspection/kvmi.c     | 27 ++++++++-
+ virt/kvm/introspection/kvmi_int.h |  6 +-
+ 6 files changed, 157 insertions(+), 5 deletions(-)
 
-diff --git a/Documentation/virt/kvm/kvmi.rst b/Documentation/virt/kvm/kvmi.rst
-index 60fa50585c36..38f566b07bb5 100644
---- a/Documentation/virt/kvm/kvmi.rst
-+++ b/Documentation/virt/kvm/kvmi.rst
-@@ -232,6 +232,14 @@ The following C structures are meant to be used directly when communicating
- over the wire. The peer that detects any size mismatch should simply close
- the connection and report the error.
+diff --git a/arch/x86/include/asm/kvm_host.h b/arch/x86/include/asm/kvm_host.h
+index 9cf45ca73af5..fbd9ecc41177 100644
+--- a/arch/x86/include/asm/kvm_host.h
++++ b/arch/x86/include/asm/kvm_host.h
+@@ -815,6 +815,9 @@ struct kvm_vcpu_arch {
  
-+The commands related to vCPUs start with::
+ 	/* #PF translated error code from EPT/NPT exit reason */
+ 	u64 error_code;
 +
-+	struct kvmi_vcpu_hdr {
-+		__u16 vcpu;
-+		__u16 padding1;
-+		__u32 padding2;
-+	}
-+
- 1. KVMI_GET_VERSION
- -------------------
- 
-diff --git a/include/uapi/linux/kvmi.h b/include/uapi/linux/kvmi.h
-index 3b8590c0fc98..b2cbefdb8b29 100644
---- a/include/uapi/linux/kvmi.h
-+++ b/include/uapi/linux/kvmi.h
-@@ -89,6 +89,12 @@ struct kvmi_vm_write_physical {
- 	__u8  data[0];
++	/* Control the interception for KVM Introspection */
++	struct kvmi_interception *kvmi;
  };
  
-+struct kvmi_vcpu_hdr {
-+	__u16 vcpu;
-+	__u16 padding1;
-+	__u32 padding2;
-+};
-+
- struct kvmi_event {
- 	__u16 size;
- 	__u16 vcpu;
-diff --git a/virt/kvm/introspection/kvmi_int.h b/virt/kvm/introspection/kvmi_int.h
-index e0d8256162f9..e7ebb4d67dd6 100644
---- a/virt/kvm/introspection/kvmi_int.h
-+++ b/virt/kvm/introspection/kvmi_int.h
-@@ -55,6 +55,9 @@ int kvmi_msg_send_unhook(struct kvm_introspection *kvmi);
- void *kvmi_msg_alloc(void);
- void *kvmi_msg_alloc_check(size_t size);
- void kvmi_msg_free(void *addr);
-+int kvmi_add_job(struct kvm_vcpu *vcpu,
-+		 void (*fct)(struct kvm_vcpu *vcpu, void *ctx),
-+		 void *ctx, void (*free_fct)(void *ctx));
- int kvmi_cmd_vm_control_events(struct kvm_introspection *kvmi,
- 				unsigned int event_id, bool enable);
- int kvmi_cmd_read_physical(struct kvm *kvm, u64 gpa, u64 size,
-diff --git a/virt/kvm/introspection/kvmi_msg.c b/virt/kvm/introspection/kvmi_msg.c
-index 032b6b5b8000..94225153f7cc 100644
---- a/virt/kvm/introspection/kvmi_msg.c
-+++ b/virt/kvm/introspection/kvmi_msg.c
-@@ -8,6 +8,14 @@
- #include <linux/net.h>
- #include "kvmi_int.h"
+ struct kvm_lpage_info {
+diff --git a/arch/x86/include/asm/kvmi_host.h b/arch/x86/include/asm/kvmi_host.h
+index 360a57dd9019..c8b793915b84 100644
+--- a/arch/x86/include/asm/kvmi_host.h
++++ b/arch/x86/include/asm/kvmi_host.h
+@@ -2,10 +2,32 @@
+ #ifndef _ASM_X86_KVMI_HOST_H
+ #define _ASM_X86_KVMI_HOST_H
  
-+struct kvmi_vcpu_cmd_job {
-+	struct {
-+		struct kvmi_msg_hdr hdr;
-+		struct kvmi_vcpu_hdr cmd;
-+	} *msg;
-+	struct kvm_vcpu *vcpu;
++struct kvmi_monitor_interception {
++	bool kvmi_intercepted;
++	bool kvm_intercepted;
++	bool (*monitor_fct)(struct kvm_vcpu *vcpu, bool enable);
 +};
 +
- static const char *const msg_IDs[] = {
- 	[KVMI_GET_VERSION]       = "KVMI_GET_VERSION",
- 	[KVMI_VM_CHECK_COMMAND]  = "KVMI_VM_CHECK_COMMAND",
-@@ -123,6 +131,28 @@ static bool is_command_allowed(struct kvm_introspection *kvmi, int id)
- 	return test_bit(id, kvmi->cmd_allow_mask);
++struct kvmi_interception {
++	bool restore_interception;
++	struct kvmi_monitor_interception breakpoint;
++};
++
+ struct kvm_vcpu_arch_introspection {
+ };
+ 
+ struct kvm_arch_introspection {
+ };
+ 
++#ifdef CONFIG_KVM_INTROSPECTION
++
++bool kvmi_monitor_bp_intercept(struct kvm_vcpu *vcpu, u32 dbg);
++
++#else /* CONFIG_KVM_INTROSPECTION */
++
++static inline bool kvmi_monitor_bp_intercept(struct kvm_vcpu *vcpu, u32 dbg)
++	{ return false; }
++
++#endif /* CONFIG_KVM_INTROSPECTION */
++
+ #endif /* _ASM_X86_KVMI_HOST_H */
+diff --git a/arch/x86/kvm/kvmi.c b/arch/x86/kvm/kvmi.c
+index 2c8c062a4b11..54abaf416ff3 100644
+--- a/arch/x86/kvm/kvmi.c
++++ b/arch/x86/kvm/kvmi.c
+@@ -193,18 +193,71 @@ void kvmi_arch_hypercall_event(struct kvm_vcpu *vcpu)
+ 	}
  }
- 
-+static bool invalid_vcpu_hdr(const struct kvmi_vcpu_hdr *hdr)
-+{
-+	return hdr->padding1 || hdr->padding2;
-+}
-+
-+static int kvmi_get_vcpu(struct kvm_introspection *kvmi, unsigned int vcpu_idx,
-+			 struct kvm_vcpu **dest)
-+{
-+	struct kvm *kvm = kvmi->kvm;
-+	struct kvm_vcpu *vcpu;
-+
-+	if (vcpu_idx >= atomic_read(&kvm->online_vcpus))
-+		return -KVM_EINVAL;
-+
-+	vcpu = kvm_get_vcpu(kvm, vcpu_idx);
-+	if (!vcpu)
-+		return -KVM_EINVAL;
-+
-+	*dest = vcpu;
-+	return 0;
-+}
-+
- static int handle_get_version(struct kvm_introspection *kvmi,
- 			      const struct kvmi_msg_hdr *msg, const void *req)
- {
-@@ -265,16 +295,67 @@ static int(*const msg_vm[])(struct kvm_introspection *,
- 	[KVMI_VM_WRITE_PHYSICAL] = handle_write_physical,
- };
  
 +/*
-+ * These commands are executed on the vCPU thread. The receiving thread
-+ * passes the messages using a newly allocated 'struct kvmi_vcpu_cmd_job'
-+ * and signals the vCPU to handle the command (which includes
-+ * sending back the reply).
++ * Returns true if one side (kvm or kvmi) tries to enable/disable the breakpoint
++ * interception while the other side is still tracking it.
 + */
-+static int(*const msg_vcpu[])(const struct kvmi_vcpu_cmd_job *,
-+			      const struct kvmi_msg_hdr *, const void *) = {
-+};
-+
-+static void kvmi_job_vcpu_cmd(struct kvm_vcpu *vcpu, void *ctx)
++bool kvmi_monitor_bp_intercept(struct kvm_vcpu *vcpu, u32 dbg)
 +{
-+	struct kvmi_vcpu_cmd_job *job = ctx;
-+	size_t id = job->msg->hdr.id;
-+	int err;
++	u32 bp_mask = KVM_GUESTDBG_ENABLE | KVM_GUESTDBG_USE_SW_BP;
++	struct kvmi_interception *arch_vcpui = READ_ONCE(vcpu->arch.kvmi);
++	bool enable = false;
 +
-+	job->vcpu = vcpu;
++	if ((dbg & bp_mask) == bp_mask)
++		enable = true;
 +
-+	err = msg_vcpu[id](job, &job->msg->hdr, job->msg + 1);
++	return (arch_vcpui && arch_vcpui->breakpoint.monitor_fct(vcpu, enable));
++}
++EXPORT_SYMBOL(kvmi_monitor_bp_intercept);
 +
-+	if (err) {
-+		struct kvm_introspection *kvmi = KVMI(vcpu->kvm);
++static bool monitor_bp_fct_kvmi(struct kvm_vcpu *vcpu, bool enable)
++{
++	if (enable) {
++		if (kvm_x86_ops->bp_intercepted(vcpu))
++			return true;
++	} else if (!vcpu->arch.kvmi->breakpoint.kvmi_intercepted)
++		return true;
 +
-+		kvmi_err(kvmi,
-+			 "%s: cmd id: %zu (%s), err: %d\n", __func__,
-+			 id, id2str(id), err);
-+		kvmi_sock_shutdown(kvmi);
++	vcpu->arch.kvmi->breakpoint.kvmi_intercepted = enable;
++
++	return false;
++}
++
++static bool monitor_bp_fct_kvm(struct kvm_vcpu *vcpu, bool enable)
++{
++	if (enable) {
++		if (kvm_x86_ops->bp_intercepted(vcpu))
++			return true;
++	} else if (!vcpu->arch.kvmi->breakpoint.kvm_intercepted)
++		return true;
++
++	vcpu->arch.kvmi->breakpoint.kvm_intercepted = enable;
++
++	return false;
++}
++
+ static int kvmi_control_bp_intercept(struct kvm_vcpu *vcpu, bool enable)
+ {
+ 	struct kvm_guest_debug dbg = {};
+ 	int err = 0;
+ 
++	vcpu->arch.kvmi->breakpoint.monitor_fct = monitor_bp_fct_kvmi;
+ 	if (enable)
+ 		dbg.control = KVM_GUESTDBG_ENABLE | KVM_GUESTDBG_USE_SW_BP;
+ 	err = kvm_arch_vcpu_set_guest_debug(vcpu, &dbg);
++	vcpu->arch.kvmi->breakpoint.monitor_fct = monitor_bp_fct_kvm;
+ 
+ 	return err;
+ }
+ 
++static void kvmi_arch_disable_bp_intercept(struct kvm_vcpu *vcpu)
++{
++	kvmi_control_bp_intercept(vcpu, false);
++
++	vcpu->arch.kvmi->breakpoint.kvmi_intercepted = false;
++	vcpu->arch.kvmi->breakpoint.kvm_intercepted = false;
++}
++
+ int kvmi_arch_cmd_control_intercept(struct kvm_vcpu *vcpu,
+ 				    unsigned int event_id, bool enable)
+ {
+@@ -241,6 +294,50 @@ void kvmi_arch_breakpoint_event(struct kvm_vcpu *vcpu, u64 gva, u8 insn_len)
+ 	}
+ }
+ 
+-void kvmi_arch_restore_interception(struct kvm_vcpu *vcpu)
++bool kvmi_arch_restore_interception(struct kvm_vcpu *vcpu)
+ {
++	struct kvmi_interception *arch_vcpui = vcpu->arch.kvmi;
++
++	if (!arch_vcpui || !arch_vcpui->restore_interception)
++		return false;
++
++	kvmi_arch_disable_bp_intercept(vcpu);
++
++	return true;
++}
++
++bool kvmi_arch_vcpu_alloc(struct kvm_vcpu *vcpu)
++{
++	struct kvmi_interception *arch_vcpui;
++
++	arch_vcpui = kzalloc(sizeof(*arch_vcpui), GFP_KERNEL);
++	if (!arch_vcpui)
++		return false;
++
++	arch_vcpui->breakpoint.monitor_fct = monitor_bp_fct_kvm;
++
++	/* pair with kvmi_monitor_bp_intercept() */
++	smp_wmb();
++	WRITE_ONCE(vcpu->arch.kvmi, arch_vcpui);
++
++	return true;
++}
++
++void kvmi_arch_vcpu_free(struct kvm_vcpu *vcpu)
++{
++	kfree(vcpu->arch.kvmi);
++	WRITE_ONCE(vcpu->arch.kvmi, NULL);
++}
++
++bool kvmi_arch_vcpu_introspected(struct kvm_vcpu *vcpu)
++{
++	return !!READ_ONCE(vcpu->arch.kvmi);
++}
++
++void kvmi_arch_request_restore_interception(struct kvm_vcpu *vcpu)
++{
++	struct kvmi_interception *arch_vcpui = READ_ONCE(vcpu->arch.kvmi);
++
++	if (arch_vcpui)
++		arch_vcpui->restore_interception = true;
+ }
+diff --git a/arch/x86/kvm/x86.c b/arch/x86/kvm/x86.c
+index b4a7805ce9e4..a3afbbb7199f 100644
+--- a/arch/x86/kvm/x86.c
++++ b/arch/x86/kvm/x86.c
+@@ -8993,6 +8993,11 @@ int kvm_arch_vcpu_set_guest_debug(struct kvm_vcpu *vcpu,
+ 			kvm_queue_exception(vcpu, BP_VECTOR);
+ 	}
+ 
++	if (kvmi_monitor_bp_intercept(vcpu, dbg->control)) {
++		r = -EBUSY;
++		goto out;
 +	}
-+}
 +
-+static void kvmi_free_ctx(void *_ctx)
-+{
-+	const struct kvmi_vcpu_cmd_job *ctx = _ctx;
-+
-+	kvmi_msg_free(ctx->msg);
-+	kfree(ctx);
-+}
-+
-+static int kvmi_msg_queue_to_vcpu(struct kvm_vcpu *vcpu,
-+				  const struct kvmi_vcpu_cmd_job *cmd)
-+{
-+	return kvmi_add_job(vcpu, kvmi_job_vcpu_cmd, (void *)cmd,
-+			    kvmi_free_ctx);
-+}
-+
- static bool is_vm_message(u16 id)
- {
- 	return id < ARRAY_SIZE(msg_vm) && !!msg_vm[id];
+ 	/*
+ 	 * Read rflags as long as potentially injected trace flags are still
+ 	 * filtered out.
+diff --git a/virt/kvm/introspection/kvmi.c b/virt/kvm/introspection/kvmi.c
+index 19ea94dc0e1d..f369856f91b1 100644
+--- a/virt/kvm/introspection/kvmi.c
++++ b/virt/kvm/introspection/kvmi.c
+@@ -137,7 +137,7 @@ static bool alloc_vcpui(struct kvm_vcpu *vcpu)
+ 
+ 	vcpu->kvmi = vcpui;
+ 
+-	return true;
++	return kvmi_arch_vcpu_alloc(vcpu);
  }
  
-+static bool is_vcpu_message(u16 id)
-+{
-+	return id < ARRAY_SIZE(msg_vcpu) && !!msg_vcpu[id];
-+}
-+
- static bool is_unsupported_message(u16 id)
- {
- 	bool supported;
+ static int create_vcpui(struct kvm_vcpu *vcpu)
+@@ -166,6 +166,7 @@ static void free_vcpui(struct kvm_vcpu *vcpu)
+ 	kfree(vcpui);
+ 	vcpu->kvmi = NULL;
  
--	supported = is_known_message(id) && is_vm_message(id);
-+	supported = is_known_message(id) &&
-+			(is_vm_message(id) || is_vcpu_message(id));
- 
- 	return !supported;
- }
-@@ -344,12 +425,78 @@ static int kvmi_msg_dispatch_vm_cmd(struct kvm_introspection *kvmi,
- 	return msg_vm[msg->id](kvmi, msg, msg + 1);
++	kvmi_arch_request_restore_interception(vcpu);
+ 	kvmi_make_request(vcpu, false);
  }
  
-+static bool vcpu_can_handle_commands(struct kvm_vcpu *vcpu)
-+{
-+	return vcpu->arch.mp_state != KVM_MP_STATE_UNINITIALIZED;
-+}
-+
-+static int kvmi_get_vcpu_if_ready(struct kvm_introspection *kvmi,
-+				  unsigned int vcpu_idx,
-+				  struct kvm_vcpu **vcpu)
-+{
-+	int err;
-+
-+	err = kvmi_get_vcpu(kvmi, vcpu_idx, vcpu);
-+
-+	if (!err && !vcpu_can_handle_commands(*vcpu))
-+		err = -KVM_EAGAIN;
-+
-+	return err;
-+}
-+
-+static int kvmi_msg_dispatch_vcpu_job(struct kvm_introspection *kvmi,
-+				      struct kvmi_vcpu_cmd_job *job,
-+				      bool *queued)
-+{
-+	struct kvmi_vcpu_hdr *cmd = &job->msg->cmd;
-+	struct kvmi_msg_hdr *hdr = &job->msg->hdr;
-+	struct kvm_vcpu *vcpu = NULL;
-+	int err;
-+
-+	if (invalid_vcpu_hdr(cmd))
-+		return -KVM_EINVAL;
-+
-+	err = kvmi_get_vcpu_if_ready(kvmi, cmd->vcpu, &vcpu);
-+
-+	if (err)
-+		return kvmi_msg_vm_reply(kvmi, hdr, err, NULL, 0);
-+
-+	err = kvmi_msg_queue_to_vcpu(vcpu, job);
-+	if (!err)
-+		*queued = true;
-+	return err;
-+}
-+
-+static int kvmi_msg_dispatch_vcpu_cmd(struct kvm_introspection *kvmi,
-+				      struct kvmi_msg_hdr *msg,
-+				      bool *queued)
-+{
-+	struct kvmi_vcpu_cmd_job *job_cmd;
-+	int err;
-+
-+	job_cmd = kzalloc(sizeof(*job_cmd), GFP_KERNEL);
-+	if (!job_cmd)
-+		return -KVM_ENOMEM;
-+
-+	job_cmd->msg = (void *)msg;
-+
-+	err = kvmi_msg_dispatch_vcpu_job(kvmi, job_cmd, queued);
-+
-+	if (!*queued)
-+		kfree(job_cmd);
-+
-+	return err;
-+}
-+
- static int kvmi_msg_dispatch(struct kvm_introspection *kvmi,
- 			     struct kvmi_msg_hdr *msg, bool *queued)
+@@ -184,6 +185,7 @@ static void free_kvmi(struct kvm *kvm)
+ void kvmi_vcpu_uninit(struct kvm_vcpu *vcpu)
  {
- 	int err;
+ 	free_vcpui(vcpu);
++	kvmi_arch_vcpu_free(vcpu);
+ }
  
--	err = kvmi_msg_dispatch_vm_cmd(kvmi, msg);
-+	if (is_vcpu_message(msg->id))
-+		err = kvmi_msg_dispatch_vcpu_cmd(kvmi, msg, queued);
-+	else
-+		err = kvmi_msg_dispatch_vm_cmd(kvmi, msg);
+ static struct kvm_introspection *
+@@ -324,6 +326,21 @@ static int kvmi_recv_thread(void *arg)
+ 	return 0;
+ }
  
- 	if (err)
- 		kvmi_err(kvmi, "%s: msg id: %u (%s), err: %d\n", __func__,
++static bool ready_to_hook(struct kvm *kvm)
++{
++	struct kvm_vcpu *vcpu;
++	int i;
++
++	if (kvm->kvmi)
++		return false;
++
++	kvm_for_each_vcpu(i, vcpu, kvm)
++		if (kvmi_arch_vcpu_introspected(vcpu))
++			return false;
++
++	return true;
++}
++
+ int kvmi_hook(struct kvm *kvm, const struct kvm_introspection_hook *hook)
+ {
+ 	struct kvm_introspection *kvmi;
+@@ -331,7 +348,7 @@ int kvmi_hook(struct kvm *kvm, const struct kvm_introspection_hook *hook)
+ 
+ 	mutex_lock(&kvm->kvmi_lock);
+ 
+-	if (kvm->kvmi) {
++	if (!ready_to_hook(kvm)) {
+ 		err = -EEXIST;
+ 		goto out;
+ 	}
+@@ -793,7 +810,11 @@ void kvmi_handle_requests(struct kvm_vcpu *vcpu)
+ 	kvmi_put(vcpu->kvm);
+ 
+ out:
+-	kvmi_arch_restore_interception(vcpu);
++	if (kvmi_arch_restore_interception(vcpu)) {
++		mutex_lock(&vcpu->kvm->kvmi_lock);
++		kvmi_arch_vcpu_free(vcpu);
++		mutex_unlock(&vcpu->kvm->kvmi_lock);
++	}
+ }
+ 
+ int kvmi_cmd_vcpu_pause(struct kvm_vcpu *vcpu, bool wait)
+diff --git a/virt/kvm/introspection/kvmi_int.h b/virt/kvm/introspection/kvmi_int.h
+index 06f2c5b6857a..06792c0ba6e6 100644
+--- a/virt/kvm/introspection/kvmi_int.h
++++ b/virt/kvm/introspection/kvmi_int.h
+@@ -96,7 +96,11 @@ int kvmi_cmd_vcpu_set_registers(struct kvm_vcpu *vcpu,
+ 				const struct kvm_regs *regs);
+ 
+ /* arch */
+-void kvmi_arch_restore_interception(struct kvm_vcpu *vcpu);
++bool kvmi_arch_vcpu_alloc(struct kvm_vcpu *vcpu);
++void kvmi_arch_vcpu_free(struct kvm_vcpu *vcpu);
++bool kvmi_arch_vcpu_introspected(struct kvm_vcpu *vcpu);
++bool kvmi_arch_restore_interception(struct kvm_vcpu *vcpu);
++void kvmi_arch_request_restore_interception(struct kvm_vcpu *vcpu);
+ int kvmi_arch_cmd_vcpu_get_info(struct kvm_vcpu *vcpu,
+ 				struct kvmi_vcpu_get_info_reply *rpl);
+ void kvmi_arch_setup_event(struct kvm_vcpu *vcpu, struct kvmi_event *ev);
