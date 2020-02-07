@@ -1,27 +1,76 @@
 From: Gerd Hoffmann <kraxel@redhat.com>
-Subject: Re: [PATCH] drm/virtio: fix ring free check
-Date: Fri, 7 Feb 2020 07:46:30 +0100
-Message-ID: <20200207064630.6p35spqres676cpq@sirius.home.kraxel.org>
-References: <20200206111416.31269-1-kraxel@redhat.com>
- <CAPaKu7Tfp-thov9xCe-Gbq1zZe_uvDAno8SV_3tc=tU0gse=uA@mail.gmail.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Subject: [PATCH v2] drm/virtio: fix ring free check
+Date: Fri,  7 Feb 2020 07:46:53 +0100
+Message-ID: <20200207064653.14403-1-kraxel@redhat.com>
 Return-path: <linux-kernel-owner@vger.kernel.org>
-Content-Disposition: inline
-In-Reply-To: <CAPaKu7Tfp-thov9xCe-Gbq1zZe_uvDAno8SV_3tc=tU0gse=uA@mail.gmail.com>
 Sender: linux-kernel-owner@vger.kernel.org
-To: Chia-I Wu <olvaffe@gmail.com>
-Cc: ML dri-devel <dri-devel@lists.freedesktop.org>, Gurchetan Singh <gurchetansingh@chromium.org>, David Airlie <airlied@linux.ie>, Daniel Vetter <daniel@ffwll.ch>, "open list:VIRTIO GPU DRIVER" <virtualization@lists.linux-foundation.org>, open list <linux-kernel@vger.kernel.org>
+To: dri-devel@lists.freedesktop.org
+Cc: olvaffe@gmail.com, gurchetansingh@chromium.org, Gerd Hoffmann <kraxel@redhat.com>, David Airlie <airlied@linux.ie>, Daniel Vetter <daniel@ffwll.ch>, "open list:VIRTIO GPU DRIVER" <virtualization@lists.linux-foundation.org>, open list <linux-kernel@vger.kernel.org>
 List-Id: virtualization@lists.linuxfoundation.org
 
-  Hi,
+If the virtio device supports indirect ring descriptors we need only one
+ring entry for the whole command.  Take that into account when checking
+whenever the virtqueue has enough free entries for our command.
 
-> > +       indirect = virtio_has_feature(vgdev->vdev, VIRTIO_RING_F_INDIRECT_DESC);
-> > +       vqcnt = indirect ? 1 : elemcnt;
-> Is the feature dynamic and require the lock held?  If not, the result
-> can be cached and the fixup can happen before grabbing the lock
+Signed-off-by: Gerd Hoffmann <kraxel@redhat.com>
+---
+ drivers/gpu/drm/virtio/virtgpu_drv.h     | 1 +
+ drivers/gpu/drm/virtio/virtgpu_debugfs.c | 1 +
+ drivers/gpu/drm/virtio/virtgpu_kms.c     | 3 +++
+ drivers/gpu/drm/virtio/virtgpu_vq.c      | 3 +++
+ 4 files changed, 8 insertions(+)
 
-Not dynamic, so yes, caching makes sense.
-
-cheers,
-  Gerd
+diff --git a/drivers/gpu/drm/virtio/virtgpu_drv.h b/drivers/gpu/drm/virtio/virtgpu_drv.h
+index 7e69c06e168e..d278c8c50f39 100644
+--- a/drivers/gpu/drm/virtio/virtgpu_drv.h
++++ b/drivers/gpu/drm/virtio/virtgpu_drv.h
+@@ -193,6 +193,7 @@ struct virtio_gpu_device {
+ 
+ 	bool has_virgl_3d;
+ 	bool has_edid;
++	bool has_indirect;
+ 
+ 	struct work_struct config_changed_work;
+ 
+diff --git a/drivers/gpu/drm/virtio/virtgpu_debugfs.c b/drivers/gpu/drm/virtio/virtgpu_debugfs.c
+index 5156e6b279db..e27120d512b0 100644
+--- a/drivers/gpu/drm/virtio/virtgpu_debugfs.c
++++ b/drivers/gpu/drm/virtio/virtgpu_debugfs.c
+@@ -47,6 +47,7 @@ static int virtio_gpu_features(struct seq_file *m, void *data)
+ 
+ 	virtio_add_bool(m, "virgl", vgdev->has_virgl_3d);
+ 	virtio_add_bool(m, "edid", vgdev->has_edid);
++	virtio_add_bool(m, "indirect", vgdev->has_indirect);
+ 	virtio_add_int(m, "cap sets", vgdev->num_capsets);
+ 	virtio_add_int(m, "scanouts", vgdev->num_scanouts);
+ 	return 0;
+diff --git a/drivers/gpu/drm/virtio/virtgpu_kms.c b/drivers/gpu/drm/virtio/virtgpu_kms.c
+index 2f5773e43557..c1086df49816 100644
+--- a/drivers/gpu/drm/virtio/virtgpu_kms.c
++++ b/drivers/gpu/drm/virtio/virtgpu_kms.c
+@@ -159,6 +159,9 @@ int virtio_gpu_init(struct drm_device *dev)
+ 	if (virtio_has_feature(vgdev->vdev, VIRTIO_GPU_F_EDID)) {
+ 		vgdev->has_edid = true;
+ 	}
++	if (virtio_has_feature(vgdev->vdev, VIRTIO_RING_F_INDIRECT_DESC)) {
++		vgdev->has_indirect = true;
++	}
+ 
+ 	DRM_INFO("features: %cvirgl %cedid\n",
+ 		 vgdev->has_virgl_3d ? '+' : '-',
+diff --git a/drivers/gpu/drm/virtio/virtgpu_vq.c b/drivers/gpu/drm/virtio/virtgpu_vq.c
+index 41e475fbd67b..cc02fc4bab2a 100644
+--- a/drivers/gpu/drm/virtio/virtgpu_vq.c
++++ b/drivers/gpu/drm/virtio/virtgpu_vq.c
+@@ -330,6 +330,9 @@ static void virtio_gpu_queue_ctrl_sgs(struct virtio_gpu_device *vgdev,
+ 	bool notify = false;
+ 	int ret;
+ 
++	if (vgdev->has_indirect)
++		elemcnt = 1;
++
+ again:
+ 	spin_lock(&vgdev->ctrlq.qlock);
+ 
+-- 
+2.18.1
